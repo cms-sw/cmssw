@@ -4,7 +4,7 @@
 //  and Katya to make part of the xml file to be used to define the
 //  geometry of the HGCal detector
 //
-//  HGCalConvert 1 infile outfile1 outfile2, modeGlobal debug
+//  HGCalConvert 1 infile outfile1 outfile2 outfile3 modeGlobal debug
 //  infile   (const char*)   Input file from Philippe conatining layer #,
 //                           size, depth, x, y position, orientation, u, v
 //  outfile1 (const char*)   Output fle for the EE part
@@ -183,6 +183,7 @@ void ConvertSilicon::convert(
     std::string partial[8] = {"F", "b", "g", "gm", "a", "d", "dm", "c"};
     std::map<int, wafer> module1, module2, module3;
     unsigned int all(0), comments(0), others(0), bad(0), good(0);
+    bool global = (modeGlobal < 1);
     while (fInput.getline(buffer, 1024)) {
       ++all;
       if (buffer[0] == '#') {
@@ -204,7 +205,7 @@ void ConvertSilicon::convert(
           if (layer <= layMax1_) {
             int index = waferIndex(layer, waferU, waferV);
             module1[index] = waf;
-          } else if (layer <= layMax2_) {
+          } else if ((layer <= layMax2_) || global) {
             int index = waferIndex(layer - layMax1_, waferU, waferV);
             module2[index] = waf;
           } else {
@@ -220,11 +221,12 @@ void ConvertSilicon::convert(
               << module3.size() << " are good and " << bad << " are bad\n"
               << std::endl;
     //Now write separately for EE, HEsil and HEmix
-    writeSilicon(outfile1, module1, "EE", (modeGlobal < 1), (debug % 10 == 1));
+    writeSilicon(outfile1, module1, "EE", global, (debug % 10 == 1));
     // Next HEsil part
-    writeSilicon(outfile2, module2, "HEsi", (modeGlobal < 1), ((debug / 10) % 10 == 1));
+    writeSilicon(outfile2, module2, "HE", global, ((debug / 10) % 10 == 1));
     // Finally HEmix part
-    writeSilicon(outfile3, module3, "HEsc", (modeGlobal < 1), ((debug / 100) % 10 == 1));
+    if (!global)
+      writeSilicon(outfile3, module3, "HE", global, ((debug / 100) % 10 == 1));
   }
 }
 
@@ -236,16 +238,20 @@ void ConvertSilicon::writeSilicon(const char* outfile,
   char apost('"');
   unsigned int k1(0), k2(0), k3(0), k4(0);
   std::map<int, wafer>::const_iterator itr;
+  std::string blank("  ");
   std::ofstream fOut(outfile);
-  if (mode)
-    fOut << "    <Vector name=" << apost << "WaferIndex" << tag << apost << " type=" << apost << "numeric" << apost
+  if (mode) {
+    blank = "  ";
+    fOut << blank << "<Vector name=" << apost << "WaferIndex" << tag << apost << " type=" << apost << "numeric" << apost
          << " nEntries=" << apost << module.size() << apost << ">";
-  else
-    fOut << "    <Vector name=" << apost << "WaferIndex" << apost << " type=" << apost << "numeric" << apost
+  } else {
+    blank = "    ";
+    fOut << blank << "<Vector name=" << apost << "WaferIndex" << apost << " type=" << apost << "numeric" << apost
          << " nEntries=" << apost << module.size() << apost << ">";
+  }
   for (itr = module.begin(); itr != module.end(); ++itr) {
     if (k1 % 7 == 0)
-      fOut << "\n      " << std::setw(8) << itr->first << ",";
+      fOut << "\n  " << blank << std::setw(8) << itr->first << ",";
     else
       fOut << std::setw(8) << itr->first << ",";
     ++k1;
@@ -253,42 +259,42 @@ void ConvertSilicon::writeSilicon(const char* outfile,
       std::cout << "Wafer " << waferLayer(itr->first) << ":" << waferU(itr->first) << ":" << waferV(itr->first) << " T "
                 << (itr->second).thick << " P " << (itr->second).partial << " O " << (itr->second).orient << std::endl;
   }
-  fOut << "\n    </Vector>\n";
+  fOut << "\n" << blank << "</Vector>\n";
   if (mode)
-    fOut << "    <Vector name=" << apost << "WaferTypes" << tag << apost << " type=" << apost << "numeric" << apost
+    fOut << blank << "<Vector name=" << apost << "WaferTypes" << tag << apost << " type=" << apost << "numeric" << apost
          << " nEntries=" << apost << module.size() << apost << ">";
   else
-    fOut << "    <Vector name=" << apost << "WaferTypes" << apost << " type=" << apost << "numeric" << apost
+    fOut << blank << "<Vector name=" << apost << "WaferTypes" << apost << " type=" << apost << "numeric" << apost
          << " nEntries=" << apost << module.size() << apost << ">";
   for (itr = module.begin(); itr != module.end(); ++itr) {
     if (k2 % 20 == 0)
-      fOut << "\n      " << std::setw(2) << (itr->second).thick << ",";
+      fOut << "\n  " << blank << std::setw(2) << (itr->second).thick << ",";
     else
       fOut << std::setw(2) << (itr->second).thick << ",";
     ++k2;
   }
-  fOut << "\n    </Vector>\n";
+  fOut << "\n" << blank << "</Vector>\n";
   if (mode) {
-    fOut << "    <Vector name=" << apost << "WaferPartial" << tag << apost << " type=" << apost << "numeric" << apost
-         << " nEntries=" << apost << module.size() << apost << ">";
+    fOut << blank << "<Vector name=" << apost << "WaferPartial" << tag << apost << " type=" << apost << "numeric"
+         << apost << " nEntries=" << apost << module.size() << apost << ">";
     for (itr = module.begin(); itr != module.end(); ++itr) {
       if (k3 % 20 == 0)
-        fOut << "\n      " << std::setw(2) << (itr->second).partial << ",";
+        fOut << "\n  " << blank << std::setw(2) << (itr->second).partial << ",";
       else
         fOut << std::setw(2) << (itr->second).partial << ",";
       ++k3;
     }
-    fOut << "\n    </Vector>\n";
-    fOut << "    <Vector name=" << apost << "WaferOrient" << tag << apost << " type=" << apost << "numeric" << apost
-         << " nEntries=" << apost << module.size() << apost << ">";
+    fOut << "\n" << blank << "</Vector>\n";
+    fOut << blank << "<Vector name=" << apost << "WaferOrient" << tag << apost << " type=" << apost << "numeric"
+         << apost << " nEntries=" << apost << module.size() << apost << ">";
     for (itr = module.begin(); itr != module.end(); ++itr) {
       if (k4 % 20 == 0)
-        fOut << "\n      " << std::setw(2) << (itr->second).orient << ",";
+        fOut << "\n  " << blank << std::setw(2) << (itr->second).orient << ",";
       else
         fOut << std::setw(2) << (itr->second).orient << ",";
       ++k4;
     }
-    fOut << "\n    </Vector>\n";
+    fOut << "\n" << blank << "</Vector>\n";
   }
   fOut.close();
 }
@@ -375,57 +381,57 @@ void ConvertScintillator::convert(const char* infile, const char* outfile, int d
     char apost('"');
     unsigned int l1(0), l2(0);
     std::map<int, std::pair<double, double> >::const_iterator it1;
-    fOut << "    <Vector name=" << apost << "TileRMin" << apost << " type=" << apost << "numeric" << apost
+    fOut << "  <Vector name=" << apost << "TileRMin" << apost << " type=" << apost << "numeric" << apost
          << " nEntries=" << apost << ringR.size() << apost << ">";
     for (it1 = ringR.begin(); it1 != ringR.end(); ++it1) {
-      if (l1 % 7 == 0)
-        fOut << "\n      " << std::setw(8) << std::setprecision(6) << (it1->second).first << ",";
+      if (l1 % 6 == 0)
+        fOut << "\n    " << std::setw(8) << std::setprecision(6) << (it1->second).first << "*mm,";
       else
-        fOut << std::setw(8) << std::setprecision(6) << (it1->second).first << ",";
+        fOut << std::setw(8) << std::setprecision(6) << (it1->second).first << "*mm,";
       ++l1;
     }
-    fOut << "\n    </Vector>\n";
-    fOut << "    <Vector name=" << apost << "TileRMax" << apost << " type=" << apost << "numeric" << apost
+    fOut << "\n  </Vector>\n";
+    fOut << "  <Vector name=" << apost << "TileRMax" << apost << " type=" << apost << "numeric" << apost
          << " nEntries=" << apost << ringR.size() << apost << ">";
     for (it1 = ringR.begin(); it1 != ringR.end(); ++it1) {
-      if (l2 % 7 == 0)
-        fOut << "\n      " << std::setw(8) << std::setprecision(6) << (it1->second).second << ",";
+      if (l2 % 6 == 0)
+        fOut << "\n    " << std::setw(8) << std::setprecision(6) << (it1->second).second << "*mm,";
       else
-        fOut << std::setw(8) << std::setprecision(6) << (it1->second).second << ",";
+        fOut << std::setw(8) << std::setprecision(6) << (it1->second).second << "*mm,";
       ++l2;
     }
-    fOut << "\n    </Vector>\n";
+    fOut << "\n  </Vector>\n";
 
     unsigned int l3(0), l4(0);
     std::map<int, std::pair<int, int> >::const_iterator it2;
-    fOut << "    <Vector name=" << apost << "TileRingMin" << apost << " type=" << apost << "numeric" << apost
+    fOut << "  <Vector name=" << apost << "TileRingMin" << apost << " type=" << apost << "numeric" << apost
          << " nEntries=" << apost << layerRing.size() << apost << ">";
     for (it2 = layerRing.begin(); it2 != layerRing.end(); ++it2) {
       if (l3 % 14 == 0)
-        fOut << "\n      " << std::setw(4) << (it2->second).first << ",";
+        fOut << "\n    " << std::setw(4) << (it2->second).first << ",";
       else
         fOut << std::setw(4) << (it2->second).first << ",";
       ++l3;
     }
-    fOut << "\n    </Vector>\n";
-    fOut << "    <Vector name=" << apost << "TileRingMax" << apost << " type=" << apost << "numeric" << apost
+    fOut << "\n  </Vector>\n";
+    fOut << "  <Vector name=" << apost << "TileRingMax" << apost << " type=" << apost << "numeric" << apost
          << " nEntries=" << apost << layerRing.size() << apost << ">";
     for (it2 = layerRing.begin(); it2 != layerRing.end(); ++it2) {
       if (l4 % 14 == 0)
-        fOut << "\n      " << std::setw(4) << (it2->second).second << ",";
+        fOut << "\n    " << std::setw(4) << (it2->second).second << ",";
       else
         fOut << std::setw(4) << (it2->second).second << ",";
       ++l4;
     }
-    fOut << "\n    </Vector>\n";
+    fOut << "\n  </Vector>\n";
 
     unsigned int k1(0), k2(0), k3(0), k4(0), k5(0), k6(0), k7(0);
     std::map<int, tile>::const_iterator itr;
-    fOut << "    <Vector name=" << apost << "TileIndex" << apost << " type=" << apost << "numeric" << apost
+    fOut << "  <Vector name=" << apost << "TileIndex" << apost << " type=" << apost << "numeric" << apost
          << " nEntries=" << apost << module.size() << apost << ">";
     for (itr = module.begin(); itr != module.end(); ++itr) {
       if (k1 % 7 == 0)
-        fOut << "\n      " << std::setw(8) << itr->first << ",";
+        fOut << "\n    " << std::setw(8) << itr->first << ",";
       else
         fOut << std::setw(8) << itr->first << ",";
       ++k1;
@@ -434,67 +440,67 @@ void ConvertScintillator::convert(const char* infile, const char* outfile, int d
                   << " Area " << (itr->second).sipm << std::hex << " HEX " << (itr->second).hex1 << " "
                   << (itr->second).hex2 << " " << (itr->second).hex3 << " " << (itr->second).hex4 << std::dec << "\n";
     }
-    fOut << "\n    </Vector>\n";
-    fOut << "    <Vector name=" << apost << "TileType" << apost << " type=" << apost << "numeric" << apost
+    fOut << "\n  </Vector>\n";
+    fOut << "  <Vector name=" << apost << "TileType" << apost << " type=" << apost << "numeric" << apost
          << " nEntries=" << apost << module.size() << apost << ">";
     for (itr = module.begin(); itr != module.end(); ++itr) {
       if (k2 % 20 == 0)
-        fOut << "\n      " << std::setw(2) << (itr->second).type << ",";
+        fOut << "\n    " << std::setw(2) << (itr->second).type << ",";
       else
         fOut << std::setw(2) << (itr->second).type << ",";
       ++k2;
     }
-    fOut << "\n    </Vector>\n";
-    fOut << "    <Vector name=" << apost << "TileSiPM" << apost << " type=" << apost << "numeric" << apost
+    fOut << "\n  </Vector>\n";
+    fOut << "  <Vector name=" << apost << "TileSiPM" << apost << " type=" << apost << "numeric" << apost
          << " nEntries=" << apost << module.size() << apost << ">";
     for (itr = module.begin(); itr != module.end(); ++itr) {
       if (k3 % 20 == 0)
-        fOut << "\n      " << std::setw(2) << (itr->second).sipm << ",";
+        fOut << "\n    " << std::setw(2) << (itr->second).sipm << ",";
       else
         fOut << std::setw(2) << (itr->second).sipm << ",";
       ++k3;
     }
-    fOut << "\n    </Vector>\n";
-    fOut << "    <Vector name=" << apost << "TileHEX1" << apost << " type=" << apost << "numeric" << apost
+    fOut << "\n  </Vector>\n";
+    fOut << "  <Vector name=" << apost << "TileHEX1" << apost << " type=" << apost << "numeric" << apost
          << " nEntries=" << apost << module.size() << apost << ">" << std::hex;
     for (itr = module.begin(); itr != module.end(); ++itr) {
       if (k4 % 6 == 0)
-        fOut << "\n       0x" << (itr->second).hex1 << ",";
+        fOut << "\n     0x" << (itr->second).hex1 << ",";
       else
         fOut << " 0x" << (itr->second).hex1 << ",";
       ++k4;
     }
-    fOut << "\n    </Vector>\n" << std::dec;
-    fOut << "    <Vector name=" << apost << "TileHEX2" << apost << " type=" << apost << "numeric" << apost
+    fOut << "\n  </Vector>\n" << std::dec;
+    fOut << "  <Vector name=" << apost << "TileHEX2" << apost << " type=" << apost << "numeric" << apost
          << " nEntries=" << apost << module.size() << apost << ">" << std::hex;
     for (itr = module.begin(); itr != module.end(); ++itr) {
       if (k5 % 6 == 0)
-        fOut << "\n       0x" << (itr->second).hex2 << ",";
+        fOut << "\n     0x" << (itr->second).hex2 << ",";
       else
         fOut << " 0x" << (itr->second).hex2 << ",";
       ++k5;
     }
-    fOut << "\n    </Vector>\n" << std::dec;
-    fOut << "    <Vector name=" << apost << "TileHEX3" << apost << " type=" << apost << "numeric" << apost
+    fOut << "\n  </Vector>\n" << std::dec;
+    fOut << "  <Vector name=" << apost << "TileHEX3" << apost << " type=" << apost << "numeric" << apost
          << " nEntries=" << apost << module.size() << apost << ">" << std::hex;
     for (itr = module.begin(); itr != module.end(); ++itr) {
       if (k6 % 6 == 0)
-        fOut << "\n       0x" << (itr->second).hex3 << ",";
+        fOut << "\n     0x" << (itr->second).hex3 << ",";
       else
         fOut << " 0x" << (itr->second).hex3 << ",";
       ++k6;
     }
-    fOut << "\n    </Vector>\n" << std::dec;
-    fOut << "    <Vector name=" << apost << "TileHEX4" << apost << " type=" << apost << "numeric" << apost
+    fOut << "\n  </Vector>\n" << std::dec;
+    fOut << "  <Vector name=" << apost << "TileHEX4" << apost << " type=" << apost << "numeric" << apost
          << " nEntries=" << apost << module.size() << apost << ">" << std::hex;
     for (itr = module.begin(); itr != module.end(); ++itr) {
       if (k7 % 6 == 0)
-        fOut << std::setw(6) << "\n       0x" << (itr->second).hex4 << ",";
+        fOut << std::setw(6) << "\n     0x" << (itr->second).hex4 << ",";
       else
         fOut << " 0x" << (itr->second).hex4 << ",";
       ++k7;
     }
-    fOut << "\n    </Vector>\n" << std::dec;
+    fOut << "\n  </Vector>\n" << std::dec;
     fOut.close();
   }
 }

@@ -59,6 +59,8 @@ upgradeKeys[2026] = [
     '2026D57PU',
     '2026D58',
     '2026D58PU',
+    '2026D59',
+    '2026D59PU',
 ]
 
 # pre-generation of WF numbers
@@ -252,7 +254,7 @@ class UpgradeWorkflow_pixelTrackingOnly(UpgradeWorkflowTracking):
         if 'Reco' in step: stepDict[stepName][k] = merge([self.step3, stepDict[step][k]])
         elif 'HARVEST' in step: stepDict[stepName][k] = merge([{'-s': 'HARVESTING:@trackingOnlyValidation+@pixelTrackingOnlyDQM'}, stepDict[step][k]])
     def condition_(self, fragment, stepList, key, hasHarvest):
-        return '2017' in key or '2018' in key
+        return '2017' in key or '2018' in key or '2021' in key
 upgradeWFs['pixelTrackingOnly'] = UpgradeWorkflow_pixelTrackingOnly(
     steps = [
         'RecoFull',
@@ -415,6 +417,63 @@ upgradeWFs['PatatrackECALOnlyGPU'] = UpgradeWorkflowPatatrack_ECALOnlyGPU(
 
 upgradeWFs['PatatrackECALOnlyGPU'].step3 = {
     '-s': 'RAW2DIGI:RawToDigi_ecalOnly,RECO:reconstruction_ecalOnly,VALIDATION:@ecalOnlyValidation,DQM:@ecalOnly',
+    '--datatier': 'GEN-SIM-RECO,DQMIO',
+    '--eventcontent': 'RECOSIM,DQM',
+    '--procModifiers': 'gpu'
+}
+
+class UpgradeWorkflowPatatrack_HCALOnlyCPU(UpgradeWorkflowPatatrack):
+    def setup_(self, step, stepName, stepDict, k, properties):
+        if 'Reco' in step:
+            stepDict[stepName][k] = merge([self.step3, stepDict[step][k]])
+        elif 'HARVEST' in step:
+            stepDict[stepName][k] = merge([{'-s': 'HARVESTING:@hcalOnlyValidation+@hcalOnly+@hcal2Only'}, stepDict[step][k]])
+
+    def condition_(self, fragment, stepList, key, hasHarvest):
+        return '2018' in key or '2021' in key
+
+upgradeWFs['PatatrackHCALOnlyCPU'] = UpgradeWorkflowPatatrack_HCALOnlyCPU(
+    steps = [
+        'RecoFull',
+        'HARVESTFull',
+        'RecoFullGlobal',
+        'HARVESTFullGlobal',
+    ],
+    PU = [],
+    suffix = 'Patatrack_HCALOnlyCPU',
+    offset = 0.521,
+)
+
+upgradeWFs['PatatrackHCALOnlyCPU'].step3 = {
+    '-s': 'RAW2DIGI:RawToDigi_hcalOnly,RECO:reconstruction_hcalOnly,VALIDATION:@hcalOnlyValidation,DQM:@hcalOnly+@hcal2Only',
+    '--datatier': 'GEN-SIM-RECO,DQMIO',
+    '--eventcontent': 'RECOSIM,DQM',
+}
+
+class UpgradeWorkflowPatatrack_HCALOnlyGPU(UpgradeWorkflowPatatrack):
+    def setup_(self, step, stepName, stepDict, k, properties):
+        if 'Reco' in step:
+            stepDict[stepName][k] = merge([self.step3, stepDict[step][k]])
+        elif 'HARVEST' in step:
+            stepDict[stepName][k] = merge([{'-s': 'HARVESTING:@hcalOnlyValidation+@hcalOnly+@hcal2Only'}, stepDict[step][k]])
+
+    def condition_(self, fragment, stepList, key, hasHarvest):
+        return '2018' in key or '2021' in key
+
+upgradeWFs['PatatrackHCALOnlyGPU'] = UpgradeWorkflowPatatrack_HCALOnlyGPU(
+    steps = [
+        'RecoFull',
+        'HARVESTFull',
+        'RecoFullGlobal',
+        'HARVESTFullGlobal',
+    ],
+    PU = [],
+    suffix = 'Patatrack_HCALOnlyGPU',
+    offset = 0.522,
+)
+
+upgradeWFs['PatatrackHCALOnlyGPU'].step3 = {
+    '-s': 'RAW2DIGI:RawToDigi_hcalOnly,RECO:reconstruction_hcalOnly,VALIDATION:@hcalOnlyValidation,DQM:@hcalOnly+@hcal2Only',
     '--datatier': 'GEN-SIM-RECO,DQMIO',
     '--eventcontent': 'RECOSIM,DQM',
     '--procModifiers': 'gpu'
@@ -615,6 +674,11 @@ class UpgradeWorkflow_TestOldDigi(UpgradeWorkflow):
             # handle separate PU input
             stepNamePU = step + 'PU' + self.suffix
             stepDict[stepNamePU][k] = merge([{'--filein': 'das:/RelValTTbar_14TeV/CMSSW_11_0_0_pre13-PU25ns_110X_mcRun4_realistic_v2_2026D49PU200-v2/GEN-SIM-DIGI-RAW'},stepDict[stepName][k]])
+            ## Use re-emulate the full L1 trigger when running on 11_0 DIGI. Ie. Replace L1Reco with L1TrackTrigger,L1. 
+            stepDict[stepName][k] = merge([{'-s': stepDict[stepName][k]['-s'].replace("L1Reco","L1TrackTrigger,L1")}, stepDict[stepName][k]])
+            stepDict[stepNamePU][k] = merge([{'-s': stepDict[stepNamePU][k]['-s'].replace("L1Reco","L1TrackTrigger,L1")}, stepDict[stepNamePU][k]])
+            stepDict[stepName][k] = merge([{'--customise_unsch': "L1Trigger/Configuration/customisePhase2TTNoMC.customisePhase2TTNoMC"}, stepDict[stepName][k]])
+            stepDict[stepNamePU][k] = merge([{'--customise_unsch': "L1Trigger/Configuration/customisePhase2TTNoMC.customisePhase2TTNoMC"}, stepDict[stepNamePU][k]])
         elif 'GenSim' in step or 'Digi' in step:
             # remove step
             stepDict[stepName][k] = None
@@ -842,14 +906,21 @@ upgradeProperties[2026] = {
         'Geom' : 'Extended2026D57',
         'HLTmenu': '@fake2',
         'GT' : 'auto:phase2_realistic_T15',
-        'Era' : 'Phase2C9',
+        'Era' : 'Phase2C11',
         'ScenToRun' : ['GenSimHLBeamSpotFull','DigiFullTrigger','RecoFullGlobal', 'HARVESTFullGlobal'],
     },
     '2026D58' : {
         'Geom' : 'Extended2026D58',
         'HLTmenu': '@fake2',
         'GT' : 'auto:phase2_realistic_T15',
-        'Era' : 'Phase2C10',
+        'Era' : 'Phase2C12',
+        'ScenToRun' : ['GenSimHLBeamSpotFull','DigiFullTrigger','RecoFullGlobal', 'HARVESTFullGlobal'],
+    },
+    '2026D59' : {
+        'Geom' : 'Extended2026D59',
+        'HLTmenu': '@fake2',
+        'GT' : 'auto:phase2_realistic_T15',
+        'Era' : 'Phase2C11',
         'ScenToRun' : ['GenSimHLBeamSpotFull','DigiFullTrigger','RecoFullGlobal', 'HARVESTFullGlobal'],
     },
 }

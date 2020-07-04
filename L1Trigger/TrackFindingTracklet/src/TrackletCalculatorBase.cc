@@ -1075,7 +1075,7 @@ bool TrackletCalculatorBase::diskSeeding(const Stub* innerFPGAStub,
                                     true);
 
   if (settings_.debugTracklet()) {
-    edm::LogVerbatim("Tracklet") << "Found tracklet for seed = " << iSeed_ << " " << tracklet << " " << iSector_;
+    edm::LogVerbatim("Tracklet") << "Found tracklet for disk seed = " << iSeed_ << " " << tracklet << " " << iSector_;
   }
 
   tracklet->setTrackletIndex(trackletpars_->nTracklets());

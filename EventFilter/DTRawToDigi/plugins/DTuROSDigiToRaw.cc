@@ -14,8 +14,6 @@
 
 #include "EventFilter/DTRawToDigi/plugins/DTuROSDigiToRaw.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "CondFormats/DTObjects/interface/DTReadOutMapping.h"
-#include "CondFormats/DataRecord/interface/DTReadOutMappingRcd.h"
 
 #include "DataFormats/MuonDetId/interface/DTWireId.h"
 #include "EventFilter/DTRawToDigi/interface/DTROChainCoding.h"
@@ -36,6 +34,7 @@ DTuROSDigiToRaw::DTuROSDigiToRaw(const edm::ParameterSet& pset) : eventNum(0) {
   nfeds_ = feds_.size();
 
   Raw_token = consumes<DTDigiCollection>(DTDigiInputTag_);
+  mapping_token_ = esConsumes<DTReadOutMapping, DTReadOutMappingRcd>();
 }
 
 DTuROSDigiToRaw::~DTuROSDigiToRaw() {}
@@ -57,8 +56,7 @@ bool DTuROSDigiToRaw::fillRawData(edm::Event& e, const edm::EventSetup& c, FEDRa
   edm::Handle<DTDigiCollection> digis;
   e.getByToken(Raw_token, digis);
 
-  edm::ESHandle<DTReadOutMapping> mapping;
-  c.get<DTReadOutMappingRcd>().get(mapping);
+  edm::ESHandle<DTReadOutMapping> mapping = c.getHandle(mapping_token_);
 
   for (int w_i = 0; w_i < nfeds_; ++w_i) {
     process(feds_[w_i], digis, mapping, data);

@@ -217,10 +217,196 @@ namespace {
     TrackerTopology m_trackerTopo;
   };
 
+  /************************************************
+    Plot SiStripLorentz Angle averages by partition comparison
+  *************************************************/
+
+  template <int ntags, cond::payloadInspector::IOVMultiplicity nIOVs>
+  class SiStripLorentzAngleComparatorByRegionBase
+      : public cond::payloadInspector::PlotImage<SiStripLorentzAngle, nIOVs, ntags> {
+  public:
+    SiStripLorentzAngleComparatorByRegionBase()
+        : cond::payloadInspector::PlotImage<SiStripLorentzAngle, nIOVs, ntags>(
+              "SiStripLorentzAngle By Region Comparison"),
+          m_trackerTopo{StandaloneTrackerTopology::fromTrackerParametersXMLFile(
+              edm::FileInPath("Geometry/TrackerCommonData/data/trackerParameters.xml").fullPath())} {}
+
+    bool fill() override {
+      // trick to deal with the multi-ioved tag and two tag case at the same time
+      auto theIOVs = cond::payloadInspector::PlotBase::getTag<0>().iovs;
+      auto tagname1 = cond::payloadInspector::PlotBase::getTag<0>().name;
+      std::string tagname2 = "";
+      auto firstiov = theIOVs.front();
+      std::tuple<cond::Time_t, cond::Hash> lastiov;
+
+      // we don't support (yet) comparison with more than 2 tags
+      assert(this->m_plotAnnotations.ntags < 3);
+
+      if (this->m_plotAnnotations.ntags == 2) {
+        auto tag2iovs = cond::payloadInspector::PlotBase::getTag<1>().iovs;
+        tagname2 = cond::payloadInspector::PlotBase::getTag<1>().name;
+        lastiov = tag2iovs.front();
+      } else {
+        lastiov = theIOVs.back();
+      }
+
+      std::shared_ptr<SiStripLorentzAngle> f_payload = this->fetchPayload(std::get<1>(firstiov));
+      std::shared_ptr<SiStripLorentzAngle> l_payload = this->fetchPayload(std::get<1>(lastiov));
+
+      std::string lastIOVsince = std::to_string(std::get<0>(lastiov));
+      std::string firstIOVsince = std::to_string(std::get<0>(firstiov));
+
+      //=========================
+      TCanvas canvas("Partion summary", "partition summary", 1200, 1000);
+      canvas.cd();
+      canvas.SetBottomMargin(0.18);
+      canvas.SetLeftMargin(0.13);
+      canvas.SetRightMargin(0.03);
+      canvas.SetTopMargin(0.05);
+      canvas.Modified();
+
+      std::vector<int> boundaries;
+      std::shared_ptr<TH1F> h_first;
+      std::shared_ptr<TH1F> h_last;
+
+      fillTheHistogram(f_payload, h_first, boundaries, 0);
+      fillTheHistogram(l_payload, h_last, boundaries, 1);
+
+      canvas.cd();
+      h_first->Draw("HIST");
+      h_last->Draw("Psame");
+
+      canvas.Update();
+
+      TLine l[boundaries.size()];
+      unsigned int i = 0;
+      for (const auto &line : boundaries) {
+        l[i] = TLine(h_first->GetBinLowEdge(line), canvas.GetUymin(), h_first->GetBinLowEdge(line), canvas.GetUymax());
+        l[i].SetLineWidth(1);
+        l[i].SetLineStyle(9);
+        l[i].SetLineColor(2);
+        l[i].Draw("same");
+        i++;
+      }
+
+      auto ltx = TLatex();
+      ltx.SetTextFont(62);
+      ltx.SetTextSize(0.045);
+      ltx.SetTextAlign(11);
+
+      std::unique_ptr<TLegend> legend = std::make_unique<TLegend>(0.50, 0.25, 0.80, 0.35);
+      if (this->m_plotAnnotations.ntags == 2) {
+        legend->AddEntry(h_last.get(), ("#color[2]{" + tagname2 + "}").c_str(), "P");
+        legend->AddEntry(h_first.get(), ("#color[4]{" + tagname1 + "}").c_str(), "L");
+        legend->SetTextSize(0.024);
+        ltx.DrawLatexNDC(gPad->GetLeftMargin(),
+                         1 - gPad->GetTopMargin() + 0.01,
+                         ("IOV : #color[4]{" + std::to_string(std::get<0>(firstiov)) + "} vs #color[2]{" +
+                          std::to_string(std::get<0>(lastiov)) + "}")
+                             .c_str());
+      } else {
+        legend->AddEntry(h_last.get(), ("IOV: #color[2]{" + lastIOVsince + "}").c_str(), "P");
+        legend->AddEntry(h_first.get(), ("IOV: #color[4]{" + firstIOVsince + "}").c_str(), "L");
+        legend->SetTextSize(0.040);
+        ltx.DrawLatexNDC(gPad->GetLeftMargin(), 1 - gPad->GetTopMargin() + 0.01, ("Tag: " + tagname1).c_str());
+
+        legend->SetLineColor(kBlack);
+      }
+      legend->Draw("same");
+
+      std::string fileName(this->m_imageFileName);
+      canvas.SaveAs(fileName.c_str());
+
+      return true;
+    }
+
+  private:
+    TrackerTopology m_trackerTopo;
+
+    void fillTheHistogram(const std::shared_ptr<SiStripLorentzAngle> &payload,
+                          std::shared_ptr<TH1F> &hist,
+                          std::vector<int> &boundaries,
+                          unsigned int index = 0) {
+      SiStripDetSummary summaryLA{&m_trackerTopo};
+      auto LAMap_ = payload->getLorentzAngles();
+      for (const auto &element : LAMap_) {
+        summaryLA.add(element.first, element.second);
+      }
+
+      auto map = summaryLA.getCounts();
+      hist = std::make_shared<TH1F>(
+          (Form("byRegion_%i", index)), ";; average SiStrip Lorentz Angle #mu_{H} [1/T]", map.size(), 0., map.size());
+
+      hist->SetStats(false);
+      if (index == 0) {
+        hist->SetLineColor(kBlue);
+        hist->SetMarkerColor(kBlue);
+        hist->SetLineWidth(2);
+        hist->SetMarkerStyle(kFourSquaresX);
+      } else {
+        hist->SetMarkerStyle(kFourSquaresX);
+        hist->SetLineColor(kRed);
+        hist->SetMarkerColor(kRed);
+      }
+      unsigned int iBin = 0;
+
+      std::string detector;
+      std::string currentDetector;
+
+      for (const auto &element : map) {
+        iBin++;
+        int count = element.second.count;
+        double mean = (element.second.mean) / count;
+
+        if (currentDetector.empty())
+          currentDetector = "TIB";
+
+        switch ((element.first) / 1000) {
+          case 1:
+            detector = "TIB";
+            break;
+          case 2:
+            detector = "TOB";
+            break;
+          case 3:
+            detector = "TEC";
+            break;
+          case 4:
+            detector = "TID";
+            break;
+        }
+
+        hist->SetBinContent(iBin, mean);
+        hist->GetXaxis()->SetBinLabel(iBin, SiStripPI::regionType(element.first).second);
+        hist->GetXaxis()->LabelsOption("v");
+
+        if (detector != currentDetector) {
+          if (index == 0) {
+            boundaries.push_back(iBin);
+          }
+          currentDetector = detector;
+        }
+      }
+
+      hist->GetYaxis()->SetTitleSize(0.04);
+      hist->GetYaxis()->SetTitleOffset(1.55);
+      hist->GetYaxis()->CenterTitle(true);
+      hist->GetYaxis()->SetRangeUser(0., hist->GetMaximum() * 1.30);
+      hist->SetMarkerSize(2);
+    }
+  };
+
+  using SiStripLorentzAngleByRegionCompareSingleTag =
+      SiStripLorentzAngleComparatorByRegionBase<1, cond::payloadInspector::MULTI_IOV>;
+  using SiStripLorentzAngleByRegionCompareTwoTags =
+      SiStripLorentzAngleComparatorByRegionBase<2, cond::payloadInspector::SINGLE_IOV>;
+
 }  // namespace
 
 PAYLOAD_INSPECTOR_MODULE(SiStripLorentzAngle) {
   PAYLOAD_INSPECTOR_CLASS(SiStripLorentzAngleValue);
   PAYLOAD_INSPECTOR_CLASS(SiStripLorentzAngle_TrackerMap);
   PAYLOAD_INSPECTOR_CLASS(SiStripLorentzAngleByRegion);
+  PAYLOAD_INSPECTOR_CLASS(SiStripLorentzAngleByRegionCompareSingleTag);
+  PAYLOAD_INSPECTOR_CLASS(SiStripLorentzAngleByRegionCompareTwoTags);
 }

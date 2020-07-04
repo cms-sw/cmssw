@@ -11,6 +11,7 @@
 <use name="JetMETCorrections/Objects"/>
 <use name="JetMETCorrections/Algorithms"/>
 <use name="JetMETCorrections/JetCorrector"/>
+<use name="FWCore/Utilities"/>
 <use name="boost"/>
 <export>
   <lib name="1"/>

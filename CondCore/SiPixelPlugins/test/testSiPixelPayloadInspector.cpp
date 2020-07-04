@@ -145,5 +145,11 @@ int main(int argc, char** argv) {
   histo19.process(connectionString, PI::mk_input(tag, end, end));
   edm::LogPrint("testSiPixelPayloadInspector") << histo19.data() << std::endl;
 
+  inputs.clear();
+#if PY_MAJOR_VERSION >= 3
+  // TODO I don't know why this Py_INCREF is necessary...
+  Py_INCREF(inputs.ptr());
+#endif
+
   Py_Finalize();
 }

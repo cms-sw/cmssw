@@ -23,9 +23,6 @@ BeamConditions2016 = cms.PSet(
     #BeamYatIP = cms.untracked.double(-0.190), # if not given, will take the CMS average vertex position
     # in m, should be consistent with geometry xml definitions
     BeampipeApertureRadius = cms.double(0.04), # in meter
-    VtxMeanX  = Realistic25ns13TeV2016CollisionVtxSmearingParameters.X0,
-    VtxMeanY  = Realistic25ns13TeV2016CollisionVtxSmearingParameters.Y0,
-    VtxMeanZ  = Realistic25ns13TeV2016CollisionVtxSmearingParameters.Z0,
     BeamSigmaX = cms.double(20.),
     BeamSigmaY = cms.double(20.)
 )

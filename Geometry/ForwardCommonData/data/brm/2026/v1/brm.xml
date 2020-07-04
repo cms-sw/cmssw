@@ -165,7 +165,7 @@
         <PosPart copyNumber="2">
             <rParent name="cms:CMSE"/>
             <rChild name="brm:BSC2"/>
-            <rRotation name="rotations:000D"/>
+            <rRotation name="rotations:180D"/>
             <Translation x="0*fm" y="0*fm" z="-[zposBSC2]"/>
         </PosPart>
         <PosPart copyNumber="1">
@@ -204,10 +204,16 @@
         <!--We have just put the rear aluminium shields on the BSC2 scintillator tiles-->
         <!--Now we work on the BSC1(below)-->
         <PosPart copyNumber="1">
-            <rParent name="forwardshield:OQUA"/>
+            <rParent name="cms:CMSE"/>
             <rChild name="brm:BSC1"/>
             <rRotation name="brmrotations:B45R"/>
             <Translation x="0*fm" y="0*fm" z="[zposBSC1]"/>
+        </PosPart>
+        <PosPart copyNumber="2">
+            <rParent name="cms:CMSE"/>
+            <rChild name="brm:BSC1"/>
+            <rRotation name="brmrotations:B45L"/>
+            <Translation x="0*fm" y="0*fm" z="-[zposBSC1]"/>
         </PosPart>
         <!--We have just finished creating the large hollow area where we are gonna put the BSC1-->
         <PosPart copyNumber="1">

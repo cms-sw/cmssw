@@ -46,15 +46,16 @@ public:
 private:
   // ----------member data ---------------------------
   edm::ESGetToken<HGCalTopology, IdealGeometryRecord> topologyToken_;
+  std::string name_;
 };
 
 HGCalGeometryESProducer::HGCalGeometryESProducer(const edm::ParameterSet& iConfig) {
-  auto name = iConfig.getUntrackedParameter<std::string>("Name");
+  name_ = iConfig.getUntrackedParameter<std::string>("Name");
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("HGCalGeom") << "Constructing HGCalGeometry for " << name;
+  edm::LogVerbatim("HGCalGeom") << "Constructing HGCalGeometry for " << name_;
 #endif
-  auto cc = setWhatProduced(this, name);
-  topologyToken_ = cc.consumes<HGCalTopology>(edm::ESInputTag{"", name});
+  auto cc = setWhatProduced(this, name_);
+  topologyToken_ = cc.consumes<HGCalTopology>(edm::ESInputTag{"", name_});
 }
 
 HGCalGeometryESProducer::~HGCalGeometryESProducer() {}
@@ -66,9 +67,7 @@ HGCalGeometryESProducer::~HGCalGeometryESProducer() {}
 // ------------ method called to produce the data  ------------
 HGCalGeometryESProducer::ReturnType HGCalGeometryESProducer::produce(const IdealGeometryRecord& iRecord) {
   const auto& topo = iRecord.get(topologyToken_);
-#ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("HGCalGeom") << "Create HGCalGeometry (*topo)";
-#endif
+  edm::LogVerbatim("HGCalGeom") << "Create HGCalGeometry (*topo) for " << name_;
 
   HGCalGeometryLoader builder;
   return ReturnType(builder.build(topo));

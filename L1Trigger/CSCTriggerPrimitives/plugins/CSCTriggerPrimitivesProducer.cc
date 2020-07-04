@@ -19,10 +19,6 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include "Geometry/Records/interface/MuonGeometryRecord.h"
-#include "CondFormats/DataRecord/interface/CSCBadChambersRcd.h"
-#include "Geometry/GEMGeometry/interface/GEMGeometry.h"
-
 #include "DataFormats/CSCDigi/interface/CSCALCTDigiCollection.h"
 #include "DataFormats/CSCDigi/interface/CSCCLCTDigiCollection.h"
 #include "DataFormats/CSCDigi/interface/CSCCorrelatedLCTDigiCollection.h"
@@ -32,7 +28,6 @@
 
 // Configuration via EventSetup
 #include "CondFormats/CSCObjects/interface/CSCDBL1TPParameters.h"
-#include "CondFormats/DataRecord/interface/CSCDBL1TPParametersRcd.h"
 
 CSCTriggerPrimitivesProducer::CSCTriggerPrimitivesProducer(const edm::ParameterSet& conf) {
   config_ = conf;
@@ -61,6 +56,10 @@ CSCTriggerPrimitivesProducer::CSCTriggerPrimitivesProducer(const edm::ParameterS
   comp_token_ = consumes<CSCComparatorDigiCollection>(compDigiProducer_);
   gem_pad_token_ = consumes<GEMPadDigiCollection>(gemPadDigiProducer_);
   gem_pad_cluster_token_ = consumes<GEMPadDigiClusterCollection>(gemPadDigiClusterProducer_);
+  cscToken_ = esConsumes<CSCGeometry, MuonGeometryRecord>();
+  gemToken_ = esConsumes<GEMGeometry, MuonGeometryRecord>();
+  pBadChambersToken_ = esConsumes<CSCBadChambers, CSCBadChambersRcd>();
+  confToken_ = esConsumes<CSCDBL1TPParameters, CSCDBL1TPParametersRcd>();
 
   // register what this produces
   produces<CSCALCTDigiCollection>();
@@ -89,13 +88,11 @@ void CSCTriggerPrimitivesProducer::produce(edm::StreamID iID, edm::Event& ev, co
   // Remark: access builder using "streamCache(iID)"
 
   // get the csc geometry
-  edm::ESHandle<CSCGeometry> h;
-  setup.get<MuonGeometryRecord>().get(h);
+  edm::ESHandle<CSCGeometry> h = setup.getHandle(cscToken_);
   streamCache(iID)->setCSCGeometry(&*h);
 
   // get the gem geometry if it's there
-  edm::ESHandle<GEMGeometry> h_gem;
-  setup.get<MuonGeometryRecord>().get(h_gem);
+  edm::ESHandle<GEMGeometry> h_gem = setup.getHandle(gemToken_);
   if (h_gem.isValid()) {
     streamCache(iID)->setGEMGeometry(&*h_gem);
   } else {
@@ -104,15 +101,13 @@ void CSCTriggerPrimitivesProducer::produce(edm::StreamID iID, edm::Event& ev, co
   }
 
   // Find conditions data for bad chambers.
-  edm::ESHandle<CSCBadChambers> pBadChambers;
-  setup.get<CSCBadChambersRcd>().get(pBadChambers);
+  edm::ESHandle<CSCBadChambers> pBadChambers = setup.getHandle(pBadChambersToken_);
 
   // If !debugParameters then get config parameters using EventSetup mechanism.
   // This must be done in produce() for every event and not in beginJob()
   // (see mail from Jim Brooke sent to hn-cms-L1TrigEmulator on July 30, 2007).
   if (!debugParameters_) {
-    edm::ESHandle<CSCDBL1TPParameters> conf;
-    setup.get<CSCDBL1TPParametersRcd>().get(conf);
+    edm::ESHandle<CSCDBL1TPParameters> conf = setup.getHandle(confToken_);
     if (conf.product() == nullptr) {
       edm::LogError("CSCTriggerPrimitivesProducer|ConfigError")
           << "+++ Failed to find a CSCDBL1TPParametersRcd in EventSetup! +++\n"

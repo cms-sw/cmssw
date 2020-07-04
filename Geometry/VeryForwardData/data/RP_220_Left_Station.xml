@@ -2,7 +2,7 @@
 <DDDefinition xmlns="http://www.cern.ch/cms/DDL"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../DDLSchema/DDLSchema.xsd">
-    <ConstantsSection label="RP_220_Left_Station.xml">
+    <ConstantsSection label="RP_220_Left_Station.xml" eval="true">
         <Constant name="RP_220_Left_Station_Length" value="6588*mm"/>
         <!--Positions calculated from the wall closer to IP point-->
         <Constant name="RP_220_Left_Prim_Vert_z" value="608*mm"/>
@@ -102,27 +102,27 @@
             <Translation x="0*mm" y="0*mm" z="-(-[RP_220_Left_Station_Length]/2+[RP_220_Left_Sec_Hor_z])"/>
         </PosPart>
         
-        <PosPart>
+        <PosPart copyNumber="1">
             <rParent name="RP_220_Left_Station"/>
             <rChild name="RP_220_Left_Station_Tube_1"/>
             <Translation x="0*mm" y="0*mm" z="-(-[RP_220_Left_Station_Length]/2+([RP_220_Left_Prim_Vert_z]-[RP_Device:RP_Device_Length_z]/2)/2)"/>
         </PosPart>
-        <PosPart>
+        <PosPart copyNumber="1">
             <rParent name="RP_220_Left_Station"/>
             <rChild name="RP_220_Left_Station_Tube_2"/>
             <Translation x="0*mm" y="0*mm" z="-(-[RP_220_Left_Station_Length]/2+([RP_220_Left_Prim_Vert_z]+[RP_220_Left_Prim_Hor_z])/2)"/>
         </PosPart>
-        <PosPart>
+        <PosPart copyNumber="1">
             <rParent name="RP_220_Left_Station"/>
             <rChild name="RP_220_Left_Station_Tube_4"/>
             <Translation x="0*mm" y="0*mm" z="-(-[RP_220_Left_Station_Length]/2+([RP_220_Left_Sec_Hor_z]+[RP_220_Left_Sec_Vert_z])/2)"/>
         </PosPart>
-        <PosPart>
+        <PosPart copyNumber="1">
             <rParent name="RP_220_Left_Station"/>
             <rChild name="RP_220_Left_Station_Tube_5"/>
             <Translation x="0*mm" y="0*mm" z="-([RP_220_Left_Station_Length]/2-([RP_220_Left_Station_Length]-[RP_220_Left_Sec_Vert_z]-[RP_Device:RP_Device_Length_z]/2)/2)"/>
         </PosPart>
-        <PosPart>
+        <PosPart copyNumber="1">
             <rParent name="RP_220_Left_Station"/>
             <rChild name="RP_220_Left_Station_Vacuum_5"/>
         </PosPart>

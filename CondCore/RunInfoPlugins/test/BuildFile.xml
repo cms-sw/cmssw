@@ -1,7 +1,4 @@
 <use name="CondCore/Utilities"/>
 <use name="FWCore/PluginManager"/>
 <bin file="testRunInfoPayloadInspector.cpp" name="testRunInfoPayloadInspector">
- <ifrelease name="_PY3_">
-    <flags SETENV="PYTHONHOME=$(PYTHON_BASE)"/>
- </ifrelease>
 </bin>

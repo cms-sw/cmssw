@@ -177,10 +177,50 @@ def customiseFor2017DtUnpacking(process):
 
     return process
 
+def customiseFor30046(process, menuType="GRun"):
+    if not menuType.startswith("Fake"): ## not for Fake* HLT menus (adding this would cause an error because the SiStripGain dependency ESProducer is not there)
+        process.SiStripClusterizerConditionsESProducer = cms.ESProducer('SiStripClusterizerConditionsESProducer',
+            QualityLabel = cms.string(''),
+            Label = cms.string(''),
+            appendToDataLabel = cms.string('')
+        )
+    for producer in producers_by_type(process, "SiStripClusterizer", "SiStripClusterizerFromRaw"):
+        del producer.Clusterizer.QualityLabel
+        producer.Clusterizer.ConditionsLabel = cms.string('')
+
+    return process
+
+def customiseFor30280(process):
+    """Adapt the HLT to adapt the recent changed in Muon Geometry"""
+
+    if hasattr(process,'RPCGeometryESModule'):
+        process.RPCGeometryESModule = cms.ESProducer( "RPCGeometryESModule",
+            useDDD = cms.untracked.bool( False ),
+            useDD4hep = cms.untracked.bool( False )
+        )
+    if hasattr(process,'CSCGeometryESModule'):
+        process.CSCGeometryESModule = cms.ESProducer( "CSCGeometryESModule",
+            useRealWireGeometry = cms.bool( True ),
+            appendToDataLabel = cms.string( "" ),
+            alignmentsLabel = cms.string( "" ),
+            useGangedStripsInME1a = cms.bool( False ),
+            debugV = cms.untracked.bool( False ),
+            useOnlyWiresInME1a = cms.bool( False ),
+            useDDD = cms.bool( False ),
+            useDD4hep = cms.bool( False ),
+            useCentreTIOffsets = cms.bool( False ),
+            applyAlignment = cms.bool( True )
+        )
+
+    return process
+
 # CMSSW version specific customizations
 def customizeHLTforCMSSW(process, menuType="GRun"):
 
     # add call to action function in proper order: newest last!
     # process = customiseFor12718(process)
     process = customiseFor30060(process, menuType)
+    process = customiseFor30046(process, menuType=menuType)
+    process = customiseFor30280(process)
+
     return process

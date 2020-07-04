@@ -1,12 +1,12 @@
 #include "ZdcSimpleReconstructor.h"
 #include "DataFormats/Common/interface/EDCollection.h"
 #include "DataFormats/Common/interface/Handle.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "CalibFormats/HcalObjects/interface/HcalCoderDb.h"
 #include "CalibFormats/HcalObjects/interface/HcalCalibrations.h"
 #include "CalibFormats/HcalObjects/interface/HcalDbService.h"
 #include "CalibFormats/HcalObjects/interface/HcalDbRecord.h"
+#include "Geometry/CaloTopology/interface/HcalTopology.h"
 
 #include <iostream>
 
@@ -36,27 +36,31 @@ ZdcSimpleReconstructor::ZdcSimpleReconstructor(edm::ParameterSet const& conf)
   }
 
   hcalTimeSlew_delay_ = nullptr;
+
+  // ES tokens
+  htopoToken_ = esConsumes<HcalTopology, HcalRecNumberingRecord, edm::Transition::BeginRun>();
+  paramsToken_ = esConsumes<HcalLongRecoParams, HcalLongRecoParamsRcd, edm::Transition::BeginRun>();
+  conditionsToken_ = esConsumes<HcalDbService, HcalDbRecord>();
+  timeSlewToken_ = esConsumes<HcalTimeSlew, HcalTimeSlewRecord>(edm::ESInputTag("", "HBHE"));
 }
 
 ZdcSimpleReconstructor::~ZdcSimpleReconstructor() {}
+
 void ZdcSimpleReconstructor::beginRun(edm::Run const& r, edm::EventSetup const& es) {
-  edm::ESHandle<HcalLongRecoParams> p;
-  es.get<HcalLongRecoParamsRcd>().get(p);
-  myobject = new HcalLongRecoParams(*p.product());
+  const HcalTopology& htopo = es.getData(htopoToken_);
+  const HcalLongRecoParams& p = es.getData(paramsToken_);
+  longRecoParams_ = std::make_unique<HcalLongRecoParams>(p);
+  longRecoParams_->setTopo(&htopo);
 
-  edm::ESHandle<HcalTimeSlew> delay;
-  es.get<HcalTimeSlewRecord>().get("HBHE", delay);
-  hcalTimeSlew_delay_ = &*delay;
+  hcalTimeSlew_delay_ = &es.getData(timeSlewToken_);
 }
 
-void ZdcSimpleReconstructor::endRun(edm::Run const& r, edm::EventSetup const& es) {
-  delete myobject;
-  myobject = nullptr;
-}
+void ZdcSimpleReconstructor::endRun(edm::Run const& r, edm::EventSetup const& es) {}
+
 void ZdcSimpleReconstructor::produce(edm::Event& e, const edm::EventSetup& eventSetup) {
   // get conditions
-  edm::ESHandle<HcalDbService> conditions;
-  eventSetup.get<HcalDbRecord>().get(conditions);
+  const HcalDbService* conditions = &eventSetup.getData(conditionsToken_);
+
   // define vectors to pass noiseTS and signalTS
   std::vector<unsigned int> mySignalTS;
   std::vector<unsigned int> myNoiseTS;
@@ -87,7 +91,7 @@ void ZdcSimpleReconstructor::produce(edm::Event& e, const edm::EventSetup& event
           continue;
 
       // get db values for signalTSs and noiseTSs
-      const HcalLongRecoParam* myParams = myobject->getValues(detcell);
+      const HcalLongRecoParam* myParams = longRecoParams_->getValues(detcell);
       mySignalTS.clear();
       myNoiseTS.clear();
       mySignalTS = myParams->signalTS();

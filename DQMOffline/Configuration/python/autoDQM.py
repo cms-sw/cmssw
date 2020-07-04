@@ -101,6 +101,15 @@ autoDQM = { 'DQMMessageLogger': ['DQMMessageLoggerSeq',
                       'PostDQMOffline',
                       'DQMHarvestHcal2'],
 
+            'hcalOnly': ['DQMOfflineHcalOnly',
+                         'PostDQMOffline',
+                         'DQMHarvestHcal'],
+
+            'hcal2Only': ['DQMOfflineHcal2Only',
+                          'PostDQMOffline',
+                          'DQMHarvestHcal2'],
+
+
             'jetmet': ['DQMOfflineJetMET',
                        'PostDQMOffline',
                        'DQMHarvestJetMET+DQMCertJetMET'],

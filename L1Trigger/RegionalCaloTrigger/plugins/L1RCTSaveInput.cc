@@ -21,24 +21,6 @@ using std::ostream;
 #include "DataFormats/HcalDigi/interface/HcalDigiCollections.h"
 #include "DataFormats/L1CaloTrigger/interface/L1CaloCollections.h"
 
-#include "CondFormats/DataRecord/interface/L1CaloEcalScaleRcd.h"
-#include "CondFormats/DataRecord/interface/L1CaloHcalScaleRcd.h"
-#include "CondFormats/L1TObjects/interface/L1CaloEcalScale.h"
-#include "CondFormats/L1TObjects/interface/L1CaloHcalScale.h"
-
-// also include old-style scales -- same as L1RCTProducer?
-#include "CalibCalorimetry/EcalTPGTools/interface/EcalTPGScale.h"
-#include "CalibFormats/CaloTPG/interface/CaloTPGRecord.h"
-#include "CalibFormats/CaloTPG/interface/CaloTPGTranscoder.h"
-
-#include "CondFormats/DataRecord/interface/L1EmEtScaleRcd.h"
-#include "CondFormats/L1TObjects/interface/L1CaloEtScale.h"
-
-#include "CondFormats/DataRecord/interface/L1RCTChannelMaskRcd.h"
-#include "CondFormats/DataRecord/interface/L1RCTParametersRcd.h"
-#include "CondFormats/L1TObjects/interface/L1RCTChannelMask.h"
-#include "CondFormats/L1TObjects/interface/L1RCTParameters.h"
-
 #include "L1Trigger/RegionalCaloTrigger/interface/L1RCT.h"
 #include "L1Trigger/RegionalCaloTrigger/interface/L1RCTLookupTables.h"
 
@@ -50,7 +32,14 @@ L1RCTSaveInput::L1RCTSaveInput(const edm::ParameterSet &conf)
       useHcal(conf.getParameter<bool>("useHcal")),
       ecalDigisLabel(conf.getParameter<edm::InputTag>("ecalDigisLabel")),
       hcalDigisLabel(conf.getParameter<edm::InputTag>("hcalDigisLabel")),
-      useDebugTpgScales(conf.getParameter<bool>("useDebugTpgScales")) {
+      rctParametersToken_(esConsumes<L1RCTParameters, L1RCTParametersRcd>()),
+      channelMaskToken_(esConsumes<L1RCTChannelMask, L1RCTChannelMaskRcd>()),
+      emScaleToken_(esConsumes<L1CaloEtScale, L1EmEtScaleRcd>()),
+      transcoderToken_(esConsumes<CaloTPGTranscoder, CaloTPGRecord>()),
+      hcalScaleToken_(esConsumes<L1CaloHcalScale, L1CaloHcalScaleRcd>()),
+      ecalScaleToken_(esConsumes<L1CaloEcalScale, L1CaloEcalScaleRcd>()),
+      useDebugTpgScales(conf.getParameter<bool>("useDebugTpgScales")),
+      tokens_(consumesCollector()) {
   ofs.open(fileName.c_str(), std::ios::app);
   if (!ofs) {
     std::cerr << "Could not create " << fileName << std::endl;
@@ -66,14 +55,11 @@ L1RCTSaveInput::~L1RCTSaveInput() {
 }
 
 void L1RCTSaveInput::analyze(const edm::Event &event, const edm::EventSetup &eventSetup) {
-  edm::ESHandle<L1RCTParameters> rctParameters;
-  eventSetup.get<L1RCTParametersRcd>().get(rctParameters);
+  edm::ESHandle<L1RCTParameters> rctParameters = eventSetup.getHandle(rctParametersToken_);
   const L1RCTParameters *r = rctParameters.product();
-  edm::ESHandle<L1RCTChannelMask> channelMask;
-  eventSetup.get<L1RCTChannelMaskRcd>().get(channelMask);
+  edm::ESHandle<L1RCTChannelMask> channelMask = eventSetup.getHandle(channelMaskToken_);
   const L1RCTChannelMask *c = channelMask.product();
-  edm::ESHandle<L1CaloEtScale> emScale;
-  eventSetup.get<L1EmEtScaleRcd>().get(emScale);
+  edm::ESHandle<L1CaloEtScale> emScale = eventSetup.getHandle(emScaleToken_);
   const L1CaloEtScale *s = emScale.product();
 
   rctLookupTables->setRCTParameters(r);
@@ -82,12 +68,10 @@ void L1RCTSaveInput::analyze(const edm::Event &event, const edm::EventSetup &eve
 
   if (useDebugTpgScales) {
     // use old-style scales
-    edm::ESHandle<CaloTPGTranscoder> transcoder;
-    eventSetup.get<CaloTPGRecord>().get(transcoder);
+    edm::ESHandle<CaloTPGTranscoder> transcoder = eventSetup.getHandle(transcoderToken_);
     const CaloTPGTranscoder *h_tpg = transcoder.product();
 
-    EcalTPGScale *e_tpg = new EcalTPGScale();
-    e_tpg->setEventSetup(eventSetup);
+    EcalTPGScale e_tpg(tokens_, eventSetup);
 
     L1CaloEcalScale *ecalScale = new L1CaloEcalScale();
     L1CaloHcalScale *hcalScale = new L1CaloHcalScale();
@@ -99,11 +83,11 @@ void L1RCTSaveInput::analyze(const edm::Event &event, const edm::EventSetup &eve
       for (unsigned short irank = 0; irank < L1CaloEcalScale::nBinRank; ++irank) {
         std::cout << ieta << " " << irank;
         EcalSubdetector subdet = (ieta <= 17) ? EcalBarrel : EcalEndcap;
-        double etGeVPos = e_tpg->getTPGInGeV(irank,
-                                             EcalTrigTowerDetId(1,  // +ve eta
-                                                                subdet,
-                                                                ieta,
-                                                                1));  // dummy phi value
+        double etGeVPos = e_tpg.getTPGInGeV(irank,
+                                            EcalTrigTowerDetId(1,  // +ve eta
+                                                               subdet,
+                                                               ieta,
+                                                               1));  // dummy phi value
         ecalScale->setBin(irank, ieta, 1, etGeVPos);
         std::cout << etGeVPos << ", ";
       }
@@ -117,11 +101,11 @@ void L1RCTSaveInput::analyze(const edm::Event &event, const edm::EventSetup &eve
         EcalSubdetector subdet = (ieta <= 17) ? EcalBarrel : EcalEndcap;
 
         std::cout << ieta << " " << irank;
-        double etGeVNeg = e_tpg->getTPGInGeV(irank,
-                                             EcalTrigTowerDetId(-1,  // -ve eta
-                                                                subdet,
-                                                                ieta,
-                                                                2));  // dummy phi value
+        double etGeVNeg = e_tpg.getTPGInGeV(irank,
+                                            EcalTrigTowerDetId(-1,  // -ve eta
+                                                               subdet,
+                                                               ieta,
+                                                               2));  // dummy phi value
         ecalScale->setBin(irank, ieta, -1, etGeVNeg);
         std::cout << etGeVNeg << ", ";
       }
@@ -147,14 +131,10 @@ void L1RCTSaveInput::analyze(const edm::Event &event, const edm::EventSetup &eve
     rctLookupTables->setEcalScale(ecalScale);
     rctLookupTables->setHcalScale(hcalScale);
 
-    delete e_tpg;
-
   } else {
-    edm::ESHandle<L1CaloHcalScale> hcalScale;
-    eventSetup.get<L1CaloHcalScaleRcd>().get(hcalScale);
+    edm::ESHandle<L1CaloHcalScale> hcalScale = eventSetup.getHandle(hcalScaleToken_);
     const L1CaloHcalScale *h = hcalScale.product();
-    edm::ESHandle<L1CaloEcalScale> ecalScale;
-    eventSetup.get<L1CaloEcalScaleRcd>().get(ecalScale);
+    edm::ESHandle<L1CaloEcalScale> ecalScale = eventSetup.getHandle(ecalScaleToken_);
     const L1CaloEcalScale *e = ecalScale.product();
 
     rctLookupTables->setHcalScale(h);

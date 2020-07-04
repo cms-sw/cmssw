@@ -13,7 +13,8 @@ public:
   void select(unsigned nLinks,
               unsigned nWafers,
               const std::vector<l1t::HGCalTriggerCell>& trigCellVecInput,
-              std::vector<l1t::HGCalTriggerCell>& trigCellVecOutput);
+              std::vector<l1t::HGCalTriggerCell>& trigCellVecOutput,
+              std::vector<l1t::HGCalTriggerCell>& trigCellVecNotSelected);
 
   void eventSetup(const edm::EventSetup& es) { triggerTools_.eventSetup(es); }
 

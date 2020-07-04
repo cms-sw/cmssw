@@ -111,6 +111,25 @@ else
                                   math.sqrt(sum(x**2 for x in sum_xerru)),
                                   sum_axsec) 
 EOF
+
+        # fix another bug related to cross-section computing in multiththread mode, as identified in: https://bugs.launchpad.net/mg5amcnlo/+bug/1884085
+        patch process/madevent/bin/internal/madevent_interface.py << EOF
+=== modified file 'madgraph/interface/madevent_interface.py'
+--- madgraph/interface/madevent_interface.py	2020-06-08 15:08:17 +0000
++++ madgraph/interface/madevent_interface.py	2020-06-18 20:18:17 +0000
+@@ -6490,9 +6490,12 @@
+             os.chdir(self.me_dir)
+         else:
+             for line in open(pjoin(self.me_dir,'SubProcesses','subproc.mg')):
+-                os.mkdir(line.strip())
++                p = line.strip()
++                os.mkdir(p)
++                files.cp(pjoin(self.me_dir,'SubProcesses',p,'symfact.dat'),
++                         pjoin(p, 'symfact.dat'))
+             
+ 
+     def launch(self, nb_event, seed):
+EOF
     fi
     
     # fix another multi-thread related bug for MG 2.6.1 only

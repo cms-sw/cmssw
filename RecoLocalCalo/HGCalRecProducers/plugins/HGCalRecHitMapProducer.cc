@@ -1,5 +1,5 @@
 // user include files
-#include <map>
+#include <unordered_map>
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/global/EDProducer.h"
@@ -28,11 +28,13 @@ private:
 
 DEFINE_FWK_MODULE(HGCalRecHitMapProducer);
 
+using DetIdRecHitMap = std::unordered_map<DetId, const HGCRecHit*>;
+
 HGCalRecHitMapProducer::HGCalRecHitMapProducer(const edm::ParameterSet& ps)
     : hits_ee_token_(consumes<HGCRecHitCollection>(ps.getParameter<edm::InputTag>("EEInput"))),
       hits_fh_token_(consumes<HGCRecHitCollection>(ps.getParameter<edm::InputTag>("FHInput"))),
       hits_bh_token_(consumes<HGCRecHitCollection>(ps.getParameter<edm::InputTag>("BHInput"))) {
-  produces<std::map<DetId, const HGCRecHit*>>();
+  produces<DetIdRecHitMap>();
 }
 
 void HGCalRecHitMapProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
@@ -44,7 +46,7 @@ void HGCalRecHitMapProducer::fillDescriptions(edm::ConfigurationDescriptions& de
 }
 
 void HGCalRecHitMapProducer::produce(edm::StreamID, edm::Event& evt, const edm::EventSetup& es) const {
-  auto hitMap = std::make_unique<std::map<DetId, const HGCRecHit*>>();
+  auto hitMap = std::make_unique<DetIdRecHitMap>();
   const auto& ee_hits = evt.get(hits_ee_token_);
   const auto& fh_hits = evt.get(hits_fh_token_);
   const auto& bh_hits = evt.get(hits_bh_token_);

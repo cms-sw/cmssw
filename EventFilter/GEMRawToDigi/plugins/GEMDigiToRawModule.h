@@ -10,6 +10,7 @@
 #include "FWCore/Framework/interface/global/EDProducer.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Utilities/interface/InputTag.h"
+#include "FWCore/Utilities/interface/ESGetToken.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
@@ -40,6 +41,7 @@ public:
 private:
   int event_type_;
   edm::EDGetTokenT<GEMDigiCollection> digi_token;
+  edm::ESGetToken<GEMeMap, GEMeMapRcd> gemEMapToken_;
   bool useDBEMap_;
 };
 DEFINE_FWK_MODULE(GEMDigiToRawModule);

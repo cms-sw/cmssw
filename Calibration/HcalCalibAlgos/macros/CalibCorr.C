@@ -778,3 +778,8 @@ void CalibCorrTest(const char* infile, int flag) {
     c1->getCorr(0, id1);
   }
 }
+
+unsigned int stringTest(const std::string& str) {
+  std::cout << str << " has " << str.size() << " characters\n";
+  return str.size();
+}

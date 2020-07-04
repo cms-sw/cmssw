@@ -45,7 +45,6 @@ void TrackProducerAlgorithm<T>::runWithCandidate(const TrackingGeometry* theG,
   int ntc = 0;
   for (auto const& theTC : theTCCollection) {
     PTrajectoryStateOnDet const& state = theTC.trajectoryStateOnDet();
-    const TrackCandidate::range& recHitVec = theTC.recHits();
     const TrajectorySeed& seed = theTC.seed();
 
     //convert PTrajectoryStateOnDet to TrajectoryStateOnSurface
@@ -61,8 +60,8 @@ void TrackProducerAlgorithm<T>::runWithCandidate(const TrackingGeometry* theG,
 
     float ndof = 0;
     //  we assume are transient...
-    for (auto i = recHitVec.first; i != recHitVec.second; ++i) {
-      hits.push_back((*i).cloneSH());  // major waste, will be soon fitted and recloned...
+    for (auto const& recHit : theTC.recHits()) {
+      hits.push_back(recHit.cloneSH());  // major waste, will be soon fitted and recloned...
     }
 
     stopReason_ = theTC.stopReason();

@@ -1,7 +1,6 @@
 #include "HcalSimpleReconstructor.h"
 #include "DataFormats/Common/interface/EDCollection.h"
 #include "DataFormats/Common/interface/Handle.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
@@ -22,9 +21,7 @@ HcalSimpleReconstructor::HcalSimpleReconstructor(edm::ParameterSet const& conf)
       dropZSmarkedPassed_(conf.getParameter<bool>("dropZSmarkedPassed")),
       firstSample_(conf.getParameter<int>("firstSample")),
       samplesToAdd_(conf.getParameter<int>("samplesToAdd")),
-      tsFromDB_(conf.getParameter<bool>("tsFromDB")),
-      paramTS(nullptr),
-      theTopology(nullptr) {
+      tsFromDB_(conf.getParameter<bool>("tsFromDB")) {
   // register for data access
   tok_hf_ = consumes<HFDigiCollection>(inputLabel_);
   tok_ho_ = consumes<HODigiCollection>(inputLabel_);
@@ -40,42 +37,35 @@ HcalSimpleReconstructor::HcalSimpleReconstructor(edm::ParameterSet const& conf)
   } else {
     std::cout << "HcalSimpleReconstructor is not associated with a specific subdetector!" << std::endl;
   }
+
+  // ES tokens
+  if (tsFromDB_) {
+    htopoToken_ = esConsumes<HcalTopology, HcalRecNumberingRecord, edm::Transition::BeginRun>();
+    paramsToken_ = esConsumes<HcalRecoParams, HcalRecoParamsRcd, edm::Transition::BeginRun>();
+  }
+  conditionsToken_ = esConsumes<HcalDbService, HcalDbRecord>();
 }
 
-HcalSimpleReconstructor::~HcalSimpleReconstructor() {
-  delete paramTS;
-  delete theTopology;
-}
+HcalSimpleReconstructor::~HcalSimpleReconstructor() {}
 
 void HcalSimpleReconstructor::beginRun(edm::Run const& r, edm::EventSetup const& es) {
   if (tsFromDB_) {
-    edm::ESHandle<HcalRecoParams> p;
-    es.get<HcalRecoParamsRcd>().get(p);
-    paramTS = new HcalRecoParams(*p.product());
-
-    edm::ESHandle<HcalTopology> htopo;
-    es.get<HcalRecNumberingRecord>().get(htopo);
-    theTopology = new HcalTopology(*htopo);
-    paramTS->setTopo(theTopology);
+    const HcalTopology& htopo = es.getData(htopoToken_);
+    const HcalRecoParams& p = es.getData(paramsToken_);
+    paramTS_ = std::make_unique<HcalRecoParams>(p);
+    paramTS_->setTopo(&htopo);
   }
   reco_.beginRun(es);
 }
 
-void HcalSimpleReconstructor::endRun(edm::Run const& r, edm::EventSetup const& es) {
-  if (tsFromDB_ && paramTS) {
-    delete paramTS;
-    paramTS = nullptr;
-    reco_.endRun();
-  }
-}
+void HcalSimpleReconstructor::endRun(edm::Run const& r, edm::EventSetup const& es) { reco_.endRun(); }
 
 template <class DIGICOLL, class RECHITCOLL>
 void HcalSimpleReconstructor::process(edm::Event& e,
                                       const edm::EventSetup& eventSetup,
                                       const edm::EDGetTokenT<DIGICOLL>& tok) {
   // get conditions
-  edm::ESHandle<HcalDbService> conditions;
-  eventSetup.get<HcalDbRecord>().get(conditions);
+  const HcalDbService* conditions = &eventSetup.getData(conditionsToken_);
 
   edm::Handle<DIGICOLL> digi;
   e.getByToken(tok, digi);
@@ -102,7 +92,7 @@ void HcalSimpleReconstructor::process(edm::Event& e,
 
     //>>> firstSample & samplesToAdd
     if (tsFromDB_) {
-      const HcalRecoParam* param_ts = paramTS->getValues(detcell.rawId());
+      const HcalRecoParam* param_ts = paramTS_->getValues(detcell.rawId());
       first = param_ts->firstSample();
       toadd = param_ts->samplesToAdd();
     }

@@ -11,7 +11,7 @@ LayerClusterAssociatorByEnergyScoreImpl::LayerClusterAssociatorByEnergyScoreImpl
     edm::EDProductGetter const& productGetter,
     bool hardScatterOnly,
     std::shared_ptr<hgcal::RecHitTools> recHitTools,
-    const std::map<DetId, const HGCRecHit*>*& hitMap)
+    const std::unordered_map<DetId, const HGCRecHit*>*& hitMap)
     : hardScatterOnly_(hardScatterOnly), recHitTools_(recHitTools), hitMap_(hitMap), productGetter_(&productGetter) {
   layers_ = recHitTools_->lastLayerBH();
 }

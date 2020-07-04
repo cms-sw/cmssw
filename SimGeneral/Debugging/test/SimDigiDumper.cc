@@ -39,6 +39,8 @@ SimDigiDumper::SimDigiDumper(const edm::ParameterSet& iPSet) {
   MuCSCStripSrc_ = consumes<CSCStripDigiCollection>(iPSet.getParameter<edm::InputTag>("MuCSCStripSrc"));
   MuCSCWireSrc_ = consumes<CSCWireDigiCollection>(iPSet.getParameter<edm::InputTag>("MuCSCWireSrc"));
   MuRPCSrc_ = consumes<RPCDigiCollection>(iPSet.getParameter<edm::InputTag>("MuRPCSrc"));
+  BTLSrc_ = consumes<BTLDigiCollection>(iPSet.getParameter<edm::InputTag>("BTLSrc"));
+  ETLSrc_ = consumes<ETLDigiCollection>(iPSet.getParameter<edm::InputTag>("ETLSrc"));
 
   // TODO(proper responsible): update the cout, for sure not my
   // business.
@@ -144,6 +146,52 @@ void SimDigiDumper::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
       for (unsigned int digis = 0; digis < EcalDigiES->size(); ++digis) {
         ESDataFrame esdf = (*ESdigis)[digis];
         std::cout << esdf << std::endl;
+      }
+    }
+  }
+
+  // BTL
+  bool isBTL = true;
+  edm::Handle<BTLDigiCollection> BTLDigi;
+  const BTLDigiCollection* BTLdigis = 0;
+  iEvent.getByToken(BTLSrc_, BTLDigi);
+  if (!BTLDigi.isValid()) {
+    std::cout << "Unable to find BTLDigi in event!" << std::endl;
+  } else {
+    BTLdigis = BTLDigi.product();
+    if (BTLDigi->size() == 0)
+      isBTL = false;
+    std::cout << "Barrel Timing Layer, digi multiplicity = " << BTLDigi->size() << std::endl;
+
+    if (isBTL) {
+      // loop over digis
+      for (unsigned int digis = 0; digis < BTLDigi->size(); ++digis) {
+        BTLDataFrame btldf = (*BTLdigis)[digis];
+        std::cout << btldf.id().rawId() << std::endl;
+        btldf.print();
+      }
+    }
+  }
+
+  // ETL
+  bool isETL = true;
+  edm::Handle<ETLDigiCollection> ETLDigi;
+  const ETLDigiCollection* ETLdigis = 0;
+  iEvent.getByToken(ETLSrc_, ETLDigi);
+  if (!ETLDigi.isValid()) {
+    std::cout << "Unable to find ETLDigi in event!" << std::endl;
+  } else {
+    ETLdigis = ETLDigi.product();
+    if (ETLDigi->size() == 0)
+      isETL = false;
+    std::cout << "Endcap Timing Layer, digi multiplicity = " << ETLDigi->size() << std::endl;
+
+    if (isETL) {
+      // loop over digis
+      for (unsigned int digis = 0; digis < ETLDigi->size(); ++digis) {
+        ETLDataFrame etldf = (*ETLdigis)[digis];
+        std::cout << etldf.id().rawId() << std::endl;
+        etldf.print();
       }
     }
   }

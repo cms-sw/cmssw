@@ -11,6 +11,7 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Utilities/interface/ESGetToken.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 // Configuration via EventSetup
@@ -29,14 +30,17 @@ public:
 
 private:
   edm::ParameterSet pyConfig;
+  edm::ESGetToken<CSCDBL1TPParameters, CSCDBL1TPParametersRcd> confHToken;
 };
 
 using namespace std;
-L1CSCTPEmulatorConfigAnalyzer::L1CSCTPEmulatorConfigAnalyzer(const edm::ParameterSet& iConfig) { pyConfig = iConfig; }
+L1CSCTPEmulatorConfigAnalyzer::L1CSCTPEmulatorConfigAnalyzer(const edm::ParameterSet& iConfig) {
+  pyConfig = iConfig;
+  confHToken = esConsumes<CSCDBL1TPParameters, CSCDBL1TPParametersRcd>();
+}
 
 void L1CSCTPEmulatorConfigAnalyzer::analyze(const edm::Event& /*iEvent*/, const edm::EventSetup& iSetup) {
-  edm::ESHandle<CSCDBL1TPParameters> confH;
-  iSetup.get<CSCDBL1TPParametersRcd>().get(confH);
+  edm::ESHandle<CSCDBL1TPParameters> confH = iSetup.getHandle(confHToken);
   const CSCDBL1TPParameters* dbConfig = confH.product();
 
   // python params

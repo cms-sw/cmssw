@@ -8,7 +8,7 @@ muonCSCDigis = EventFilter.CSCRawToDigi.muonCSCDCCUnpacker_cfi.muonCSCDCCUnpacke
 muonCSCDigis.InputObjects = cms.InputTag("rawDataCollector")
 # Use CSC examiner to check for corrupt or semi-corrupt data & avoid unpacker crashes
 muonCSCDigis.UseExaminer = cms.bool(True)
-# This mask is needed by the examiner 
+# This mask is needed by the examiner
 muonCSCDigis.ExaminerMask = cms.uint32(0x1FEBF7F6)
 # Use Examiner to unpack good chambers and skip only bad ones
 muonCSCDigis.UseSelectiveUnpacking = cms.bool(True)
@@ -25,3 +25,7 @@ muonCSCDigis.PrintEventNumber = cms.untracked.bool(False)
 muonCSCDigis.VisualFEDInspect = cms.untracked.bool(False)
 muonCSCDigis.VisualFEDShort = cms.untracked.bool(False)
 muonCSCDigis.FormatedEventDump = cms.untracked.bool(False)
+
+## in Run-3 include GEMs
+from Configuration.Eras.Modifier_run3_GEM_cff import run3_GEM
+run3_GEM.toModify( muonCSCDigis, useGEMs = cms.bool(False) )

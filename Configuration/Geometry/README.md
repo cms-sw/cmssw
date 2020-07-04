@@ -20,6 +20,7 @@ Calorimeters:
 * C10: HGCal (as in C9) + HFNose with corrected wafer size + Phase2 HCAL and EB
 * C11: HGCal (v12 post TDR HGCal Geometry same as C9 + modified support structure + full list of masked wafers)
 * C12: HGCal (as in C11) + HFNose with corrected wafer size + Phase2 HCAL and EB
+* C13: HGCal (reading the constants of the flat file and made provision to be used downstream) + Phase2 HCAL and EB
 
 Muon system:
 * M2: Phase2 muon system for TDR w/ GE2/1, ME0, RE3/1, RE4/1 (incl. granularity in ME0, staggered GE2/1)
@@ -27,6 +28,7 @@ Muon system:
 * M4: same as M3 but no Overlaps inside the Muon System and MB4Shields completed
 * M5: same as M4 but with: the right value for YE3 size, no "hidden" overlaps inside the Muon System and iRPC updated.
 * M6: same as M5 but with adjustment of ME0 in view of updated boundaries
+* M7: same as M6 with further ajustment of ME0 for boundaries
 
 Fast Timing system:
 * I5: Fast Timing detector (LYSO barrel, silicon endcap), full description with passive materials, LYSO bars along z flat
@@ -41,10 +43,12 @@ The script also handles the common and forward elements of the geometry:
 * O3: O2 + changes due to modified CALO region due to changes in the Endcap part
 * O4: same as O3 but no Overlaps inside the Muon System 
 * O5: same as O4 but with changes needed for new support structure 
+* O6: same as O5 with changes needed for new defintion of boundaries
 * F2: modifications needed to accommodate detailed cavern, ZDC description is removed.
 * F3: same as F2 but changes due to HFNose
 * F4: same as F2 but with modifications needed to forward shield
 * F5: same as F4 but changes due to HFNose
+* F6: same as F4 with modifications needed for BRM and forward shield
 
 Several detector combinations have been generated:
 * D35 = T6+C4+M2+I5+O2+F2 
@@ -64,5 +68,6 @@ Several detector combinations have been generated:
 * D56 = T20+C9+M4+I10+O4+F2
 * D57 = T17+C11+M6+I11+O5+F4
 * D58 = T17+C12+M6+I11+O5+F5
+* D59 = T17+C13+M7+I11+O6+F6
 
 D35 is the MTD TDR baseline, D41 is the L1T TDR baseline, and D49 is the HLT TDR baseline.

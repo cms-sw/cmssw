@@ -15,11 +15,9 @@
 template <>
 void TTStubBuilder<Ref_Phase2TrackerDigi_>::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   //Retrieve tracker topology from geometry
-  edm::ESHandle<TrackerTopology> tTopoHandle;
-  iSetup.get<TrackerTopologyRcd>().get(tTopoHandle);
+  edm::ESHandle<TrackerTopology> tTopoHandle = iSetup.getHandle(tTopoToken);
   const TrackerTopology* const tTopo = tTopoHandle.product();
-  edm::ESHandle<TrackerGeometry> tGeomHandle;
-  iSetup.get<TrackerDigiGeometryRecord>().get(tGeomHandle);
+  edm::ESHandle<TrackerGeometry> tGeomHandle = iSetup.getHandle(tGeomToken);
   const TrackerGeometry* const theTrackerGeom = tGeomHandle.product();
 
   /// Prepare output

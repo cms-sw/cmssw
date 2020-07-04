@@ -1,11 +1,7 @@
 <use name="FWCore/Framework"/>
-<use name="FWCore/Utilities"/>
-<use name="FWCore/PluginManager"/>
 <use name="FWCore/ParameterSet"/>
-<use name="FWCore/ServiceRegistry"/>
 <use name="boost"/>
 <use name="oracle"/>
-<use name="DataFormats/Common"/>
 <use name="xerces-c"/>
 <use name="zlib"/>
 <use name="DataFormats/HcalDetId"/>
@@ -13,7 +9,6 @@
 <use name="CalibCalorimetry/HcalAlgos"/>
 <use name="CalibCalorimetry/HcalTPGAlgos"/>
 <use name="Geometry/CaloTopology"/>
-<use name="CondTools/Hcal"/>
 <use name="OnlineDB/Oracle"/>
 <use name="SimCalorimetry/HcalTrigPrimAlgos"/>
 <use name="root"/>

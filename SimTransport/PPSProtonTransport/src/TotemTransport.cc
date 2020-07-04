@@ -15,19 +15,16 @@ TotemTransport::TotemTransport(const edm::ParameterSet& iConfig)
   MODE = TransportMode::TOTEM;
   beam1Filename_ = iConfig.getParameter<std::string>("Beam1Filename");
   beam2Filename_ = iConfig.getParameter<std::string>("Beam2Filename");
-  fCrossingAngle_45 = iConfig.getParameter<double>("halfCrossingAngleSector45");
-  fCrossingAngle_56 = iConfig.getParameter<double>("halfCrossingAngleSector56");
+  fCrossingAngleX_45 = iConfig.getParameter<double>("halfCrossingAngleSector45");
+  fCrossingAngleX_56 = iConfig.getParameter<double>("halfCrossingAngleSector56");
   beamEnergy_ = iConfig.getParameter<double>("BeamEnergy");
-  fVtxMeanX = iConfig.getParameter<double>("VtxMeanX");
-  fVtxMeanY = iConfig.getParameter<double>("VtxMeanY");
-  fVtxMeanZ = iConfig.getParameter<double>("VtxMeanZ");
   m_sigmaSTX = iConfig.getParameter<double>("BeamDivergenceX");
   m_sigmaSTY = iConfig.getParameter<double>("BeamDivergenceY");
   m_sigmaSX = iConfig.getParameter<double>("BeamSigmaX");
   m_sigmaSY = iConfig.getParameter<double>("BeamSigmaY");
   m_sig_E = iConfig.getParameter<double>("BeamEnergyDispersion");
-  fBeamXatIP = iConfig.getUntrackedParameter<double>("BeamXatIP", fVtxMeanX);
-  fBeamYatIP = iConfig.getUntrackedParameter<double>("BeamYatIP", fVtxMeanY);
+  fBeamXatIP = iConfig.getUntrackedParameter<double>("BeamXatIP", 0.);
+  fBeamYatIP = iConfig.getUntrackedParameter<double>("BeamYatIP", 0.);
 
   if (fPPSRegionStart_56 > 0)
     fPPSRegionStart_56 *= -1;  // make sure sector 56 has negative position, as TOTEM convention
@@ -96,18 +93,15 @@ bool TotemTransport::transportProton(const HepMC::GenParticle* in_trk) {
   //
   // ATTENTION: HepMC uses mm, vertex config of CMS uses cm and SimTransport uses mm
   //
-  double in_position[3] = {(in_pos->position().x() - fVtxMeanX * cm) / meter + fBeamXatIP * mm / meter,
-                           (in_pos->position().y() - fVtxMeanY * cm) / meter + fBeamYatIP * mm / meter,
-                           (in_pos->position().z() - fVtxMeanZ * cm) / meter};  // move to z=0 if configured below
+  double in_position[3] = {in_pos->position().x(), in_pos->position().y(), in_pos->position().z()};  //in LHC ref. frame
 
-  // (bApplyZShift) -- The TOTEM parameterization requires the shift to z=0
-  double fCrossingAngle = (in_mom.z() > 0) ? fCrossingAngle_45 : -fCrossingAngle_56;
-  in_position[0] = in_position[0] +
-                   (tan((long double)fCrossingAngle * urad) - ((long double)in_mom.x()) / ((long double)in_mom.z())) *
-                       in_position[2];
-  in_position[1] = in_position[1] - ((long double)in_mom.y()) / ((long double)in_mom.z()) * in_position[2];
+  double fCrossingAngleX = (in_mom.z() > 0) ? fCrossingAngleX_45 : fCrossingAngleX_56;
+
+  // Move the position to z=0. Do it in the CMS ref frame. Totem parameterization does the rotation internatlly
+  in_position[0] =
+      in_position[0] - in_position[2] * (in_mom.x() / in_mom.z() - fCrossingAngleX * urad);  // in CMS ref. frame
+  in_position[1] = in_position[1] - in_position[2] * (in_mom.y() / (in_mom.z()));
   in_position[2] = 0.;
-  //
   double in_momentum[3] = {in_mom.x(), in_mom.y(), in_mom.z()};
   double out_position[3];
   double out_momentum[3];

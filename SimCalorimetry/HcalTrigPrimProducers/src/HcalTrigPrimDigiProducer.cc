@@ -9,16 +9,8 @@
 #include "DataFormats/HcalDigi/interface/HcalTriggerPrimitiveDigi.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "CalibFormats/HcalObjects/interface/HcalTPGRecord.h"
-#include "CalibFormats/HcalObjects/interface/HcalTPGCoder.h"
 #include "CalibFormats/CaloTPG/interface/HcalTPGCompressor.h"
-#include "CalibFormats/CaloTPG/interface/CaloTPGRecord.h"
-#include "CalibFormats/CaloTPG/interface/CaloTPGTranscoder.h"
-#include "CalibFormats/HcalObjects/interface/HcalDbService.h"
-#include "CalibFormats/HcalObjects/interface/HcalDbRecord.h"
 #include "CondFormats/HcalObjects/interface/HcalElectronicsMap.h"
-#include "CondFormats/HcalObjects/interface/HcalLutMetadata.h"
-#include "Geometry/Records/interface/CaloGeometryRecord.h"
 
 #include <algorithm>
 
@@ -62,6 +54,10 @@ HcalTrigPrimDigiProducer::HcalTrigPrimDigiProducer(const edm::ParameterSet& ps)
         LongShortCut_.getParameter<double>("Long_vrs_Short_Slope");  //slope of the line that cuts are based on
     LongShortOffset_ = LongShortCut_.getParameter<double>("Long_Short_Offset");  //offset of line
   }
+  tok_tpgCoder_ = esConsumes<HcalTPGCoder, HcalTPGRecord>();
+  tok_tpgTranscoder_ = esConsumes<CaloTPGTranscoder, CaloTPGRecord>();
+  tok_lutMetadata_ = esConsumes<HcalLutMetadata, HcalLutMetadataRcd>();
+  tok_trigTowerGeom_ = esConsumes<HcalTrigTowerGeometry, CaloGeometryRecord>();
   // register for data access
   if (runFrontEndFormatError_) {
     tok_raw_ = consumes<FEDRawDataCollection>(inputTagFEDRaw_);
@@ -76,7 +72,7 @@ HcalTrigPrimDigiProducer::HcalTrigPrimDigiProducer(const edm::ParameterSet& ps)
     tok_hbhe_up_ = consumes<QIE11DigiCollection>(inputUpgradeLabel_[0]);
     tok_hf_up_ = consumes<QIE10DigiCollection>(inputUpgradeLabel_[1]);
   }
-
+  tok_dbService_ = esConsumes<HcalDbService, HcalDbRecord>();
   produces<HcalTrigPrimDigiCollection>();
   theAlgo_.setPeakFinderAlgorithm(ps.getParameter<int>("PeakFinderAlgorithm"));
 
@@ -88,18 +84,14 @@ HcalTrigPrimDigiProducer::HcalTrigPrimDigiProducer(const edm::ParameterSet& ps)
 
 void HcalTrigPrimDigiProducer::produce(edm::Event& iEvent, const edm::EventSetup& eventSetup) {
   // Step A: get the conditions, for the decoding
-  edm::ESHandle<HcalTPGCoder> inputCoder;
-  eventSetup.get<HcalTPGRecord>().get(inputCoder);
+  edm::ESHandle<HcalTPGCoder> inputCoder = eventSetup.getHandle(tok_tpgCoder_);
 
-  edm::ESHandle<CaloTPGTranscoder> outTranscoder;
-  eventSetup.get<CaloTPGRecord>().get(outTranscoder);
+  edm::ESHandle<CaloTPGTranscoder> outTranscoder = eventSetup.getHandle(tok_tpgTranscoder_);
 
-  edm::ESHandle<HcalLutMetadata> lutMetadata;
-  eventSetup.get<HcalLutMetadataRcd>().get(lutMetadata);
+  edm::ESHandle<HcalLutMetadata> lutMetadata = eventSetup.getHandle(tok_lutMetadata_);
   float rctlsb = lutMetadata->getRctLsb();
 
-  edm::ESHandle<HcalTrigTowerGeometry> pG;
-  eventSetup.get<CaloGeometryRecord>().get(pG);
+  edm::ESHandle<HcalTrigTowerGeometry> pG = eventSetup.getHandle(tok_trigTowerGeom_);
 
   // Step B: Create empty output
   std::unique_ptr<HcalTrigPrimDigiCollection> result(new HcalTrigPrimDigiCollection());
@@ -168,8 +160,7 @@ void HcalTrigPrimDigiProducer::produce(edm::Event& iEvent, const edm::EventSetup
     }
   }
 
-  edm::ESHandle<HcalDbService> pSetup;
-  eventSetup.get<HcalDbRecord>().get(pSetup);
+  edm::ESHandle<HcalDbService> pSetup = eventSetup.getHandle(tok_dbService_);
 
   HcalFeatureBit* hfembit = nullptr;
 

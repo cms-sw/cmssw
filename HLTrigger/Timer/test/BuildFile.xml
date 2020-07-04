@@ -5,3 +5,16 @@
   <use name="FWCore/Framework"/>
   <use name="root"/>
 </bin>
+
+<bin name="processor_model_t" file="processor_model_t.cc">
+  <use name="HLTrigger/Timer"/>
+</bin>
+
+<bin name="memory_usage_glibc_t" file="memory_usage_t.cc">
+  <use name="HLTrigger/Timer"/>
+</bin>
+
+<bin name="memory_usage_je_t" file="memory_usage_t.cc">
+  <use name="jemalloc"/>
+  <use name="HLTrigger/Timer"/>
+</bin>

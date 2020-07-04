@@ -13,7 +13,6 @@
 
 #include <memory>
 #include <cctype>
-#include "boost/bind.hpp"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDFilter.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -87,7 +86,9 @@ bool ProbeTreeProducer::filter(edm::Event& iEvent, const edm::EventSetup& iSetup
   }
   // sort only if a function was provided
   if (!sortDescendingBy_.empty())
-    sort(selectedProbes.begin(), selectedProbes.end(), boost::bind(&Pair::second, _1) > boost::bind(&Pair::second, _2));
+    sort(selectedProbes.begin(), selectedProbes.end(), [&](auto& arg1, auto& arg2) {
+      return arg1.second > arg2.second;
+    });
   // fill the first maxProbes_ into the tree
   for (size_t i = 0; i < (maxProbes_ < 0 ? selectedProbes.size() : std::min((size_t)maxProbes_, selectedProbes.size()));
        ++i) {

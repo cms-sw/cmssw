@@ -4,6 +4,7 @@
 #include "RecoTauTag/RecoTau/interface/RecoTauQualityCuts.h"
 #include "RecoTauTag/RecoTau/interface/RecoTauVertexAssociator.h"
 #include "RecoTauTag/RecoTau/interface/ConeTools.h"
+#include "RecoTauTag/RecoTau/interface/RecoTauQualityCuts.h"
 #include "CommonTools/Utils/interface/StringCutObjectSelector.h"
 #include "CommonTools/Utils/interface/StringObjectFunction.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
@@ -602,52 +603,9 @@ void PFRecoTauDiscriminationByIsolation::fillDescriptions(edm::ConfigurationDesc
   desc.add<bool>("storeRawOccupancy", false);
   desc.add<double>("maximumSumPtCut", 6.0);
 
-  {
-    edm::ParameterSetDescription pset_signalQualityCuts;
-    pset_signalQualityCuts.add<double>("maxDeltaZ", 0.4);
-    pset_signalQualityCuts.add<double>("minTrackPt", 0.5);
-    pset_signalQualityCuts.add<double>("minTrackVertexWeight", -1.0);
-    pset_signalQualityCuts.add<double>("maxTrackChi2", 100.0);
-    pset_signalQualityCuts.add<unsigned int>("minTrackPixelHits", 0);
-    pset_signalQualityCuts.add<double>("minGammaEt", 1.0);
-    pset_signalQualityCuts.add<unsigned int>("minTrackHits", 3);
-    pset_signalQualityCuts.add<double>("minNeutralHadronEt", 30.0);
-    pset_signalQualityCuts.add<double>("maxTransverseImpactParameter", 0.1);
-    pset_signalQualityCuts.addOptional<bool>("useTracksInsteadOfPFHadrons");
-
-    edm::ParameterSetDescription pset_vxAssocQualityCuts;
-    pset_vxAssocQualityCuts.add<double>("minTrackPt", 0.5);
-    pset_vxAssocQualityCuts.add<double>("minTrackVertexWeight", -1.0);
-    pset_vxAssocQualityCuts.add<double>("maxTrackChi2", 100.0);
-    pset_vxAssocQualityCuts.add<unsigned int>("minTrackPixelHits", 0);
-    pset_vxAssocQualityCuts.add<double>("minGammaEt", 1.0);
-    pset_vxAssocQualityCuts.add<unsigned int>("minTrackHits", 3);
-    pset_vxAssocQualityCuts.add<double>("maxTransverseImpactParameter", 0.1);
-    pset_vxAssocQualityCuts.addOptional<bool>("useTracksInsteadOfPFHadrons");
-
-    edm::ParameterSetDescription pset_isolationQualityCuts;
-    pset_isolationQualityCuts.add<double>("maxDeltaZ", 0.2);
-    pset_isolationQualityCuts.add<double>("minTrackPt", 1.0);
-    pset_isolationQualityCuts.add<double>("minTrackVertexWeight", -1.0);
-    pset_isolationQualityCuts.add<double>("maxTrackChi2", 100.0);
-    pset_isolationQualityCuts.add<unsigned int>("minTrackPixelHits", 0);
-    pset_isolationQualityCuts.add<double>("minGammaEt", 1.5);
-    pset_isolationQualityCuts.add<unsigned int>("minTrackHits", 8);
-    pset_isolationQualityCuts.add<double>("maxTransverseImpactParameter", 0.03);
-    pset_isolationQualityCuts.addOptional<bool>("useTracksInsteadOfPFHadrons");
-
-    edm::ParameterSetDescription pset_qualityCuts;
-    pset_qualityCuts.add<edm::ParameterSetDescription>("signalQualityCuts", pset_signalQualityCuts);
-    pset_qualityCuts.add<edm::ParameterSetDescription>("vxAssocQualityCuts", pset_vxAssocQualityCuts);
-    pset_qualityCuts.add<edm::ParameterSetDescription>("isolationQualityCuts", pset_isolationQualityCuts);
-    pset_qualityCuts.add<std::string>("leadingTrkOrPFCandOption", "leadPFCand");
-    pset_qualityCuts.add<std::string>("pvFindingAlgo", "closestInDeltaZ");
-    pset_qualityCuts.add<edm::InputTag>("primaryVertexSrc", edm::InputTag("offlinePrimaryVertices"));
-    pset_qualityCuts.add<bool>("vertexTrackFiltering", false);
-    pset_qualityCuts.add<bool>("recoverLeadingTrk", false);
-
-    desc.add<edm::ParameterSetDescription>("qualityCuts", pset_qualityCuts);
-  }
+  edm::ParameterSetDescription desc_qualityCuts;
+  reco::tau::RecoTauQualityCuts::fillDescriptions(desc_qualityCuts);
+  desc.add<edm::ParameterSetDescription>("qualityCuts", desc_qualityCuts);
 
   desc.add<double>("minTauPtForNoIso", -99.0);
   desc.add<double>("maxAbsPhotonSumPt_outsideSignalCone", 1000000000.0);

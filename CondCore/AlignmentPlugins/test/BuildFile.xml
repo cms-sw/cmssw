@@ -3,7 +3,4 @@
 <use name="Alignment/CommonAlignment"/>
 <use name="CalibTracker/StandaloneTrackerTopology"/>
 <bin file="testTrackerAlignmentPayloadInspector.cpp" name="testTrackerAlignmentPayloadInspector">
- <ifrelease name="_PY3_">
-    <flags SETENV="PYTHONHOME=$(PYTHON_BASE)"/>
- </ifrelease>
 </bin>

@@ -39,6 +39,10 @@ FTLRecHit MTDRecHitAlgo::makeRecHit(const FTLUncalibratedRecHit& uRecHit, uint32
   float energy = 0.;
   float time = 0.;
 
+  /// position and positionError in unit cm
+  float position = -1.f;
+  float positionError = -1.f;
+
   switch (flagsWord) {
     // BTL bar geometry with only the right SiPM information available
     case 0x2: {
@@ -51,6 +55,9 @@ FTLRecHit MTDRecHitAlgo::makeRecHit(const FTLUncalibratedRecHit& uRecHit, uint32
     case 0x3: {
       energy = 0.5 * (uRecHit.amplitude().first + uRecHit.amplitude().second);
       time = 0.5 * (uRecHit.time().first + uRecHit.time().second);
+
+      position = uRecHit.position();
+      positionError = uRecHit.positionError();
 
       break;
     }
@@ -69,7 +76,7 @@ FTLRecHit MTDRecHitAlgo::makeRecHit(const FTLUncalibratedRecHit& uRecHit, uint32
   // --- Time calibration: for the time being just removes a time offset in BTL
   time += time_calib_->getTimeCalib(uRecHit.id());
 
-  FTLRecHit rh(uRecHit.id(), uRecHit.row(), uRecHit.column(), energy, time, timeError);
+  FTLRecHit rh(uRecHit.id(), uRecHit.row(), uRecHit.column(), energy, time, timeError, position, positionError);
 
   // Now fill flags
   // all rechits from the digitizer are "good" at present

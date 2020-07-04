@@ -1,7 +1,4 @@
 <use name="CondCore/Utilities"/>
 <use name="FWCore/PluginManager"/>
 <bin file="testAlCaRecoTriggerBitsPayloadInspector.cpp" name="testAlCaRecoTriggerBitsPayloadInspector">
- <ifrelease name="_PY3_">
-    <flags SETENV="PYTHONHOME=$(PYTHON_BASE)"/>
- </ifrelease>
 </bin>

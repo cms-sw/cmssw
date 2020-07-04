@@ -25,7 +25,7 @@
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/stream/EDProducer.h"
-#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Utilities/interface/ESGetToken.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Utilities/interface/Exception.h"
@@ -295,6 +295,13 @@ private:
   std::unique_ptr<HBHEPulseShapeFlagSetter> hbhePulseShapeFlagSetterQIE8_;
   std::unique_ptr<HBHEPulseShapeFlagSetter> hbhePulseShapeFlagSetterQIE11_;
 
+  // ES tokens
+  edm::ESGetToken<HcalTopology, HcalRecNumberingRecord> htopoToken_;
+  edm::ESGetToken<HcalDbService, HcalDbRecord> conditionsToken_;
+  edm::ESGetToken<HcalChannelPropertiesVec, HcalChannelPropertiesRecord> propertiesToken_;
+  edm::ESGetToken<HBHENegativeEFilter, HBHENegativeEFilterRcd> negToken_;
+  edm::ESGetToken<HcalFrontEndMap, HcalFrontEndMapRcd> feMapToken_;
+
   // For the function below, arguments "infoColl" and/or "rechits"
   // are allowed to be null.
   template <class DataFrame, class Collection>
@@ -381,6 +388,15 @@ HBHEPhase1Reconstructor::HBHEPhase1Reconstructor(const edm::ParameterSet& conf)
 
   if (makeRecHits_)
     produces<HBHERecHitCollection>();
+
+  // ES tokens
+  htopoToken_ = esConsumes<HcalTopology, HcalRecNumberingRecord>();
+  conditionsToken_ = esConsumes<HcalDbService, HcalDbRecord>();
+  propertiesToken_ = esConsumes<HcalChannelPropertiesVec, HcalChannelPropertiesRecord>();
+  if (setNegativeFlagsQIE8_ || setNegativeFlagsQIE11_)
+    negToken_ = esConsumes<HBHENegativeEFilter, HBHENegativeEFilterRcd>();
+  if (setNoiseFlagsQIE8_ || setNoiseFlagsQIE11_)
+    feMapToken_ = esConsumes<HcalFrontEndMap, HcalFrontEndMapRcd, edm::Transition::BeginRun>();
 }
 
 HBHEPhase1Reconstructor::~HBHEPhase1Reconstructor() {
@@ -602,21 +618,15 @@ void HBHEPhase1Reconstructor::produce(edm::Event& e, const edm::EventSetup& even
   using namespace edm;
 
   // Get the Hcal topology
-  ESHandle<HcalTopology> htopo;
-  eventSetup.get<HcalRecNumberingRecord>().get(htopo);
+  const HcalTopology* htopo = &eventSetup.getData(htopoToken_);
 
   // Fetch the calibrations
-  ESHandle<HcalDbService> conditions;
-  eventSetup.get<HcalDbRecord>().get(conditions);
-
-  ESHandle<HcalChannelPropertiesVec> prop;
-  eventSetup.get<HcalChannelPropertiesRecord>().get(prop);
+  const HcalDbService* conditions = &eventSetup.getData(conditionsToken_);
+  const HcalChannelPropertiesVec* prop = &eventSetup.getData(propertiesToken_);
 
   // Configure the negative energy filter
-  ESHandle<HBHENegativeEFilter> negEHandle;
   if (setNegativeFlagsQIE8_ || setNegativeFlagsQIE11_) {
-    eventSetup.get<HBHENegativeEFilterRcd>().get(negEHandle);
-    negEFilter_ = negEHandle.product();
+    negEFilter_ = &eventSetup.getData(negToken_);
   }
 
   // Find the input data
@@ -689,15 +699,15 @@ void HBHEPhase1Reconstructor::beginRun(edm::Run const& r, edm::EventSetup const&
   }
 
   if (setNoiseFlagsQIE8_ || setNoiseFlagsQIE11_) {
-    edm::ESHandle<HcalFrontEndMap> hfemap;
-    es.get<HcalFrontEndMapRcd>().get(hfemap);
-    if (hfemap.isValid()) {
+    if (auto handle = es.getHandle(feMapToken_)) {
+      const HcalFrontEndMap& hfemap = *handle;
       if (setNoiseFlagsQIE8_)
-        hbheFlagSetterQIE8_->SetFrontEndMap(hfemap.product());
+        hbheFlagSetterQIE8_->SetFrontEndMap(&hfemap);
       if (setNoiseFlagsQIE11_)
-        hbheFlagSetterQIE11_->SetFrontEndMap(hfemap.product());
-    } else
+        hbheFlagSetterQIE11_->SetFrontEndMap(&hfemap);
+    } else {
       edm::LogWarning("EventSetup") << "HBHEPhase1Reconstructor failed to get HcalFrontEndMap!" << std::endl;
+    }
   }
 
   reco_->beginRun(r, es);

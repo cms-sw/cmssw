@@ -97,8 +97,7 @@ getattr(process,"pfNoElectron"+postfix).enable = True
 getattr(process,"pfNoTau"+postfix).enable = False
 getattr(process,"pfNoJet"+postfix).enable = True
 
-# verbose flags for the PF2PAT modules
-getattr(process,"pfNoMuon"+postfix).verbose = False
+# verbose flags for the PF2PAT modules, if any:
 
 # Add the PV selector and KT6 producer to the sequence
 getattr(process,"patPF2PATSequence"+postfix).replace(

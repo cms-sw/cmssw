@@ -25,4 +25,4 @@ ancientMuonSeed = cms.EDProducer("MuonSeedGenerator",
 
 # phase2 ME0
 from Configuration.Eras.Modifier_phase2_muon_cff import phase2_muon
-phase2_muon.toModify(ancientMuonSeed, EnableME0Measurement = cms.bool(True))
+phase2_muon.toModify(ancientMuonSeed, EnableME0Measurement = True)

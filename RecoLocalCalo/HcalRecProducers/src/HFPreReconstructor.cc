@@ -24,7 +24,7 @@
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/stream/EDProducer.h"
-#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Utilities/interface/ESGetToken.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
@@ -81,6 +81,10 @@ private:
 
   // Fill out sortedQIE10Infos_ from qie10Infos_ and return the PMT count
   unsigned sortDataByPmt();
+
+  // ES tokens
+  edm::ESGetToken<HcalTopology, HcalRecNumberingRecord> htopoToken_;
+  edm::ESGetToken<HcalChannelPropertiesVec, HcalChannelPropertiesRecord> propertiesToken_;
 };
 
 //
@@ -98,6 +102,10 @@ HFPreReconstructor::HFPreReconstructor(const edm::ParameterSet& conf)
 
   // Register the product
   produces<HFPreRecHitCollection>();
+
+  // ES tokens
+  htopoToken_ = esConsumes<HcalTopology, HcalRecNumberingRecord>();
+  propertiesToken_ = esConsumes<HcalChannelPropertiesVec, HcalChannelPropertiesRecord>();
 }
 
 HFPreReconstructor::~HFPreReconstructor() {
@@ -143,13 +151,8 @@ void HFPreReconstructor::fillInfos(const edm::Event& e, const edm::EventSetup& e
   qie10Infos_.clear();
 
   // Get the calibrations
-  ESHandle<HcalTopology> htopoHandle;
-  eventSetup.get<HcalRecNumberingRecord>().get(htopoHandle);
-  const HcalTopology& htopo(*htopoHandle);
-
-  ESHandle<HcalChannelPropertiesVec> propHandle;
-  eventSetup.get<HcalChannelPropertiesRecord>().get(propHandle);
-  const HcalChannelPropertiesVec& prop(*propHandle);
+  const HcalTopology& htopo = eventSetup.getData(htopoToken_);
+  const HcalChannelPropertiesVec& prop = eventSetup.getData(propertiesToken_);
 
   // Get the input collection
   Handle<QIE10DigiCollection> digi;

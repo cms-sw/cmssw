@@ -16,14 +16,16 @@ process.prod = cms.EDAnalyzer("SimDigiDumper",
     MuCSCStripSrc = cms.InputTag("simMuonCSCDigis","MuonCSCStripDigi"),
     MuDTSrc = cms.InputTag("simMuonDTDigis"),
     HCalDigi = cms.InputTag("simHcalDigis"),
-    ZdcDigi = cms.InputTag("simHcalUnsuppressedDigis"),                        
+    ZdcDigi = cms.InputTag("simHcalUnsuppressedDigis"),
     MuCSCWireSrc = cms.InputTag("simMuonCSCDigis","MuonCSCWireDigi"),
     ECalEESrc = cms.InputTag("simEcalDigis","eeDigis"),
     SiStripSrc = cms.InputTag("simSiStripDigis","ZeroSuppressed"),
     SiPxlSrc = cms.InputTag("simSiPixelDigis"),
     ECalEBSrc = cms.InputTag("simEcalDigis","ebDigis"),
     ECalESSrc = cms.InputTag("simEcalPreshowerDigis"),
-    MuRPCSrc = cms.InputTag("simMuonRPCDigis")
+    MuRPCSrc = cms.InputTag("simMuonRPCDigis"),
+    BTLSrc = cms.InputTag("mix","FTLBarrel"),
+    ETLSrc = cms.InputTag("mix","FTLEndcap"),
 )
 
 process.p1 = cms.Path(process.prod)
