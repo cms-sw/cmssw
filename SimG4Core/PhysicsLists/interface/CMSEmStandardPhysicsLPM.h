@@ -1,7 +1,6 @@
 #ifndef SimG4Core_PhysicsLists_CMSEmStandardPhysicsLPM_h
 #define SimG4Core_PhysicsLists_CMSEmStandardPhysicsLPM_h
 
-#include "HepPDT/ParticleDataTable.hh"
 #include "G4VPhysicsConstructor.hh"
 #include "globals.hh"
 
