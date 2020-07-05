@@ -163,4 +163,4 @@ _phase2_siml1emulator.add( L1TkMuons )
 
 from Configuration.Eras.Modifier_phase2_trigger_cff import phase2_trigger
 from Configuration.Eras.Modifier_phase2_trackerV14_cff import phase2_trackerV14
-(phase2_trigger & phase2_trackerV14).toReplaceWith( SimL1EmulatorTask , _phase2_siml1emulator)
+#(phase2_trigger & phase2_trackerV14).toReplaceWith( SimL1EmulatorTask , _phase2_siml1emulator)

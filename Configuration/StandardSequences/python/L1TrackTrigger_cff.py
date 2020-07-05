@@ -13,6 +13,6 @@ _tttracks_l1tracktrigger = cms.Sequence(_tttracks_l1tracktrigger + L1PromptExten
 
 from Configuration.Eras.Modifier_phase2_trackerV14_cff import phase2_trackerV14
 from Configuration.Eras.Modifier_phase2_trigger_cff import phase2_trigger
-(phase2_trigger & phase2_trackerV14).toReplaceWith( L1TrackTrigger, _tttracks_l1tracktrigger )
+#(phase2_trigger & phase2_trackerV14).toReplaceWith( L1TrackTrigger, _tttracks_l1tracktrigger )
 
 TTStubAlgorithm_official_Phase2TrackerDigi_.zMatchingPS = True
