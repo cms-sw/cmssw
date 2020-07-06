@@ -13,15 +13,9 @@
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "CalibFormats/HcalObjects/interface/HcalCoderDb.h"
 #include "CalibFormats/HcalObjects/interface/HcalCalibrations.h"
-#include "CalibFormats/HcalObjects/interface/HcalDbService.h"
-#include "CalibFormats/HcalObjects/interface/HcalDbRecord.h"
-#include "RecoLocalCalo/HcalRecAlgos/interface/HcalSeverityLevelComputer.h"
-#include "RecoLocalCalo/HcalRecAlgos/interface/HcalSeverityLevelComputerRcd.h"
 #include "DataFormats/METReco/interface/HcalCaloFlagLabels.h"
 #include "DataFormats/HcalRecHit/interface/HBHERecHitAuxSetter.h"
 #include "DataFormats/HcalRecHit/interface/CaloRecHitAuxSetter.h"
-#include "Geometry/CaloGeometry/interface/CaloGeometry.h"
-#include "Geometry/Records/interface/CaloGeometryRecord.h"
 #include "Geometry/Records/interface/HcalRecNumberingRecord.h"
 
 using namespace reco;
@@ -415,6 +409,11 @@ HcalNoiseInfoProducer::HcalNoiseInfoProducer(const edm::ParameterSet& iConfig) :
   hbherechit_token_ = consumes<HBHERecHitCollection>(edm::InputTag(recHitCollName_));
   calotower_token_ = consumes<CaloTowerCollection>(edm::InputTag(caloTowerCollName_));
   track_token_ = consumes<reco::TrackCollection>(edm::InputTag(trackCollName_));
+  hcaltopo_token_ = esConsumes<HcalTopology, HcalRecNumberingRecord>();
+  service_token_ = esConsumes<HcalDbService, HcalDbRecord>();
+  quality_token_ = esConsumes<HcalChannelQuality, HcalChannelQualityRcd>(edm::ESInputTag("", "withTopo"));
+  severitycomputer_token_ = esConsumes<HcalSeverityLevelComputer, HcalSeverityLevelComputerRcd>();
+  calogeometry_token_ = esConsumes<CaloGeometry, CaloGeometryRecord>();
 
   // we produce a vector of HcalNoiseRBXs
   produces<HcalNoiseRBXCollection>();
@@ -683,8 +682,7 @@ void HcalNoiseInfoProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
   HcalNoiseSummary& summary = *result2;
 
   // Get topology class to use later
-  edm::ESHandle<HcalTopology> topo;
-  iSetup.get<HcalRecNumberingRecord>().get(topo);
+  edm::ESHandle<HcalTopology> topo = iSetup.getHandle(hcaltopo_token_);
   theHcalTopology_ = topo.product();
 
   // fill them with the various components
@@ -877,13 +875,10 @@ void HcalNoiseInfoProducer::filldigis(edm::Event& iEvent,
   double chargecalibgt15TS45 = 0;
 
   // get the conditions and channel quality
-  edm::ESHandle<HcalDbService> conditions;
-  iSetup.get<HcalDbRecord>().get(conditions);
-  edm::ESHandle<HcalChannelQuality> qualhandle;
-  iSetup.get<HcalChannelQualityRcd>().get("withTopo", qualhandle);
+  edm::ESHandle<HcalDbService> conditions = iSetup.getHandle(service_token_);
+  edm::ESHandle<HcalChannelQuality> qualhandle = iSetup.getHandle(quality_token_);
   const HcalChannelQuality* myqual = qualhandle.product();
-  edm::ESHandle<HcalSeverityLevelComputer> mycomputer;
-  iSetup.get<HcalSeverityLevelComputerRcd>().get(mycomputer);
+  edm::ESHandle<HcalSeverityLevelComputer> mycomputer = iSetup.getHandle(severitycomputer_token_);
   const HcalSeverityLevelComputer* mySeverity = mycomputer.product();
 
   // get the digis
@@ -1119,18 +1114,15 @@ void HcalNoiseInfoProducer::fillrechits(edm::Event& iEvent,
                                         HcalNoiseRBXArray& array,
                                         HcalNoiseSummary& summary) const {
   // get the HCAL channel status map
-  edm::ESHandle<HcalChannelQuality> hcalChStatus;
-  iSetup.get<HcalChannelQualityRcd>().get("withTopo", hcalChStatus);
+  edm::ESHandle<HcalChannelQuality> hcalChStatus = iSetup.getHandle(quality_token_);
   const HcalChannelQuality* dbHcalChStatus = hcalChStatus.product();
 
   // get the severity level computer
-  edm::ESHandle<HcalSeverityLevelComputer> hcalSevLvlComputerHndl;
-  iSetup.get<HcalSeverityLevelComputerRcd>().get(hcalSevLvlComputerHndl);
+  edm::ESHandle<HcalSeverityLevelComputer> hcalSevLvlComputerHndl = iSetup.getHandle(severitycomputer_token_);
   const HcalSeverityLevelComputer* hcalSevLvlComputer = hcalSevLvlComputerHndl.product();
 
   // get the calo geometry
-  edm::ESHandle<CaloGeometry> pG;
-  iSetup.get<CaloGeometryRecord>().get(pG);
+  edm::ESHandle<CaloGeometry> pG = iSetup.getHandle(calogeometry_token_);
   const CaloGeometry* geo = pG.product();
 
   // get the rechits
