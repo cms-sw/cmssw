@@ -216,6 +216,9 @@ def HGCal_setEndOfLifeNoise(process,byDose=True,byDoseAlgo=0,byDoseFactor=1):
     return process
 
 def HGCal_setEndOfLifeNoise_4000(process):
+    process.HGCAL_ileakParam_toUse    = cms.PSet(
+    ileakParam = cms.vdouble(ileakParam_800V)
+    )
     return HGCal_setEndOfLifeNoise(process,byDoseFactor=1.333)
 
 def HGCal_ignoreFluence(process):

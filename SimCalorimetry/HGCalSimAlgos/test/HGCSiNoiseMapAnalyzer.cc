@@ -71,7 +71,7 @@ HGCSiNoiseMapAnalyzer::HGCSiNoiseMapAnalyzer(const edm::ParameterSet &iConfig) {
   //configure the dose map
   std::string doseMapURL(iConfig.getParameter<std::string>("doseMap"));
   unsigned int doseMapAlgo(iConfig.getParameter<unsigned int>("doseMapAlgo"));
-  double scaleByDoseFactor = myCfg_.getParameter<edm::ParameterSet>("noise_fC").getParameter<double>("scaleByDoseFactor");
+  double scaleByDoseFactor = iConfig.getParameter<edm::ParameterSet>("noise_fC").getParameter<double>("scaleByDoseFactor");
   std::vector<double> ileakParam(
       iConfig.getParameter<edm::ParameterSet>("ileakParam").template getParameter<std::vector<double>>("ileakParam"));
   std::vector<double> cceParamFine(
