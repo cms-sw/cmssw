@@ -1,25 +1,6 @@
 from __future__ import print_function
 import FWCore.ParameterSet.Config as cms
 
-import FWCore.ParameterSet.VarParsing as VarParsing
-options = VarParsing.VarParsing()
-options.register('runNumber',
-                 1, #default value, int limit -3
-                 VarParsing.VarParsing.multiplicity.singleton,
-                 VarParsing.VarParsing.varType.int,
-                 "Run number")
-options.register('transDelay',
-                 0, #default value, int limit -3
-                 VarParsing.VarParsing.multiplicity.singleton,
-                 VarParsing.VarParsing.varType.int,
-                 "delay in seconds for the commit of the db transaction")
-options.register('unitTest',
-                 False, #default value
-                 VarParsing.VarParsing.multiplicity.singleton,
-                 VarParsing.VarParsing.varType.bool,
-                 "load or not the unitTest inputsource module")
-options.parseArguments()
-
 # Define here the BeamSpotOnline record name,
 # it will be used both in BeamMonitor setup and in payload creation/upload
 BSOnlineRecordName = 'BeamSpotOnlineLegacyObjectsRcd'
@@ -41,18 +22,23 @@ process.MessageLogger = cms.Service("MessageLogger",
 
 # switch
 live = True # FIXME
-unitTest = options.unitTest
-if unitTest:
+unitTest = False
+
+if 'unitTest=True' in sys.argv:
     live=False
+    unitTest=True
 
 #---------------
 # Input sources
 if unitTest:
     process.load("DQM.Integration.config.unittestinputsource_cfi")
+    from DQM.Integration.config.unittestinputsource_cfi import options
 elif live:
     process.load("DQM.Integration.config.inputsource_cfi")
+    from DQM.Integration.config.inputsource_cfi import options
 else:
     process.load("DQM.Integration.config.fileinputsource_cfi")
+    from DQM.Integration.config.fileinputsource_cfi import options
 
 #--------------------------
 # HLT Filter

@@ -1,25 +1,6 @@
 from __future__ import print_function
 import FWCore.ParameterSet.Config as cms
 
-import FWCore.ParameterSet.VarParsing as VarParsing
-options = VarParsing.VarParsing()
-options.register('runNumber',
-                 1, #default value, int limit -3
-                 VarParsing.VarParsing.multiplicity.singleton,
-                 VarParsing.VarParsing.varType.int,
-                 "Run number")
-options.register('transDelay',
-                 0, #default value, int limit -3
-                 VarParsing.VarParsing.multiplicity.singleton,
-                 VarParsing.VarParsing.varType.int,
-                 "delay in seconds for the commit of the db transaction")
-options.register('unitTest',
-                 False, #default value
-                 VarParsing.VarParsing.multiplicity.singleton,
-                 VarParsing.VarParsing.varType.bool,
-                 "load or not the unitTest inputsource module")
-options.parseArguments()
-
 # Define once the BeamSpotOnline record name,
 # will be used both in BeamMonitor setup and in payload creation/upload
 BSOnlineRecordName = 'BeamSpotOnlineHLTObjectsRcd'
@@ -44,21 +25,26 @@ process = cms.Process("BeamMonitor", Run2_2018_pp_on_AA)
 #    destinations = cms.untracked.vstring('cerr'),
 #)
 
-unitTest = options.unitTest
+unitTest=False
+if 'unitTest=True' in sys.argv:
+  unitTest=True
 
 # Common part for PP and H.I Running
 #-----------------------------
 if unitTest:
   process.load("DQM.Integration.config.unittestinputsource_cfi")
+  from DQM.Integration.config.unittestinputsource_cfi import options
 else:
   # for live online DQM in P5
   process.load("DQM.Integration.config.inputsource_cfi")
+  from DQM.Integration.config.inputsource_cfi import options
 
   # new stream label
   process.source.streamLabel = cms.untracked.string('streamDQMOnlineBeamspot')
 
 # for testing in lxplus
 #process.load("DQM.Integration.config.fileinputsource_cfi")
+#from DQM.Integration.config.fileinputsource_cfi import options
 
 #--------------------------
 # HLT Filter
