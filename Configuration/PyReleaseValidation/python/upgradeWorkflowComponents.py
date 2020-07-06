@@ -59,6 +59,8 @@ upgradeKeys[2026] = [
     '2026D57PU',
     '2026D58',
     '2026D58PU',
+    '2026D59',
+    '2026D59PU',
 ]
 
 # pre-generation of WF numbers
@@ -672,6 +674,11 @@ class UpgradeWorkflow_TestOldDigi(UpgradeWorkflow):
             # handle separate PU input
             stepNamePU = step + 'PU' + self.suffix
             stepDict[stepNamePU][k] = merge([{'--filein': 'das:/RelValTTbar_14TeV/CMSSW_11_0_0_pre13-PU25ns_110X_mcRun4_realistic_v2_2026D49PU200-v2/GEN-SIM-DIGI-RAW'},stepDict[stepName][k]])
+            ## Use re-emulate the full L1 trigger when running on 11_0 DIGI. Ie. Replace L1Reco with L1TrackTrigger,L1. 
+            stepDict[stepName][k] = merge([{'-s': stepDict[stepName][k]['-s'].replace("L1Reco","L1TrackTrigger,L1")}, stepDict[stepName][k]])
+            stepDict[stepNamePU][k] = merge([{'-s': stepDict[stepNamePU][k]['-s'].replace("L1Reco","L1TrackTrigger,L1")}, stepDict[stepNamePU][k]])
+            stepDict[stepName][k] = merge([{'--customise': "L1Trigger/Configuration/customisePhase2TTNoMC.customisePhase2TTNoMC"}, stepDict[stepName][k]])
+            stepDict[stepNamePU][k] = merge([{'--customise': "L1Trigger/Configuration/customisePhase2TTNoMC.customisePhase2TTNoMC"}, stepDict[stepNamePU][k]])
         elif 'GenSim' in step or 'Digi' in step:
             # remove step
             stepDict[stepName][k] = None
@@ -907,6 +914,13 @@ upgradeProperties[2026] = {
         'HLTmenu': '@fake2',
         'GT' : 'auto:phase2_realistic_T15',
         'Era' : 'Phase2C12',
+        'ScenToRun' : ['GenSimHLBeamSpotFull','DigiFullTrigger','RecoFullGlobal', 'HARVESTFullGlobal'],
+    },
+    '2026D59' : {
+        'Geom' : 'Extended2026D59',
+        'HLTmenu': '@fake2',
+        'GT' : 'auto:phase2_realistic_T15',
+        'Era' : 'Phase2C11',
         'ScenToRun' : ['GenSimHLBeamSpotFull','DigiFullTrigger','RecoFullGlobal', 'HARVESTFullGlobal'],
     },
 }

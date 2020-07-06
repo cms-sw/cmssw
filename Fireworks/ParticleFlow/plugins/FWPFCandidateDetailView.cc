@@ -21,9 +21,6 @@
 #include "TGLabel.h"
 #include "TGLCameraOverlay.h"
 
-// boost includes
-#include "boost/bind.hpp"
-
 #include "Fireworks/ParticleFlow/plugins/FWPFCandidateDetailView.h"
 #include "Fireworks/Core/interface/fw3dlego_xbins.h"
 
@@ -45,6 +42,8 @@
 #include "DataFormats/ParticleFlowReco/interface/PFCluster.h"
 #include "DataFormats/ParticleFlowReco/interface/PFRecTrack.h"
 #include "DataFormats/ParticleFlowReco/interface/PFRecHitFraction.h"
+
+#include <functional>
 
 FWPFCandidateDetailView::FWPFCandidateDetailView()
     : m_range(1),
@@ -158,7 +157,8 @@ void FWPFCandidateDetailView::build(const FWModelId& id, const reco::PFCandidate
     m_sliderListener = new FWIntValueListener();
     TQObject::Connect(
         m_slider, "PositionChanged(Int_t)", "FWIntValueListenerBase", m_sliderListener, "setValue(Int_t)");
-    m_sliderListener->valueChanged_.connect(boost::bind(&FWPFCandidateDetailView::rangeChanged, this, _1));
+    m_sliderListener->valueChanged_.connect(
+        std::bind(&FWPFCandidateDetailView::rangeChanged, this, std::placeholders::_1));
     {
       CSGAction* action = new CSGAction(this, "Scale Et");
       TGCheckButton* b = new TGCheckButton(m_guiFrame, action->getName().c_str());

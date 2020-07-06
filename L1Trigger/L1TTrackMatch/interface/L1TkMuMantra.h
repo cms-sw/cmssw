@@ -44,6 +44,7 @@ namespace L1TkMuMantraDF {
 #include "L1Trigger/L1TTrackMatch/interface/MuMatchWindow.h"
 #include <cmath>
 
+#include "TFile.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DataFormats/Math/interface/angle_units.h"
 
