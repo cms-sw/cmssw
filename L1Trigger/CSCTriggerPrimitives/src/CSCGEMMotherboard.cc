@@ -175,7 +175,6 @@ CSCCorrelatedLCTDigi CSCGEMMotherboard::constructLCTsGEM(const CSCALCTDigi& alct
     thisLCT.setType(CSCCorrelatedLCTDigi::ALCT2GEM);
     valid = true;
   } else if (clct.isValid() and gem2.isValid() and not alct.isValid()) {
-
     assert(gem2.roll() >= GEMDetId::minRollId);
     assert(gem2.roll() <= maxRolls());
 
@@ -185,7 +184,7 @@ CSCCorrelatedLCTDigi CSCGEMMotherboard::constructLCTsGEM(const CSCALCTDigi& alct
     bx = gem2.bx(1) + CSCConstants::LCT_CENTRAL_BX;
     keyStrip = clct.getKeyStrip();
     // choose the corresponding wire-group in the middle of the partition
-    keyWG = mymap2.at(gem2.roll() -1 );
+    keyWG = mymap2.at(gem2.roll() - 1);
     bend = clct.getBend();
     thisLCT.setCLCT(clct);
     thisLCT.setGEM1(gem2.first());
@@ -275,13 +274,9 @@ void CSCGEMMotherboard::setupGeometry() {
   generator_->setGEMGeometry(gem_g);
 }
 
-int CSCGEMMotherboard::maxPads() const {
-  return gem_g->superChamber(gemId)->chamber(1)->etaPartition(1)->npads();
-}
+int CSCGEMMotherboard::maxPads() const { return gem_g->superChamber(gemId)->chamber(1)->etaPartition(1)->npads(); }
 
-int CSCGEMMotherboard::maxRolls() const {
-  return gem_g->superChamber(gemId)->chamber(1)->nEtaPartitions();
-}
+int CSCGEMMotherboard::maxRolls() const { return gem_g->superChamber(gemId)->chamber(1)->nEtaPartitions(); }
 
 void CSCGEMMotherboard::printGEMTriggerPads(int bx_start, int bx_stop, enum CSCPart part) {
   LogTrace("CSCGEMMotherboard") << "------------------------------------------------------------------------"
