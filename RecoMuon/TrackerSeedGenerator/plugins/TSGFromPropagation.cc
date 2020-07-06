@@ -32,40 +32,44 @@ TSGFromPropagation::TSGFromPropagation(const edm::ParameterSet& iConfig, edm::Co
 TSGFromPropagation::TSGFromPropagation(const edm::ParameterSet& iConfig,
                                        edm::ConsumesCollector& iC,
                                        const MuonServiceProxy* service)
-    : theTracker(nullptr),
-      theMeasTracker(nullptr),
-      theNavigation(nullptr),
+    : theCategory("Muon|RecoMuon|TSGFromPropagation"),
+      theMeasTrackerName(iConfig.getParameter<std::string>("MeasurementTrackerName")),
       theService(service),
-      theUpdator(nullptr),
-      theEstimator(nullptr),
-      theTSTransformer(nullptr),
-      theSigmaZ(0),
-      theConfig(iConfig) {
-  theCategory = "Muon|RecoMuon|TSGFromPropagation";
-  theMeasTrackerName = iConfig.getParameter<std::string>("MeasurementTrackerName");
-  theMeasurementTrackerEventTag = iConfig.getParameter<edm::InputTag>("MeasurementTrackerEvent");
-  theBeamSpotInputTag = theConfig.getParameter<edm::InputTag>("beamSpot");
-  theBeamSpotToken = iC.consumes<reco::BeamSpot>(theBeamSpotInputTag);
-  theMeasurementTrackerEventToken = iC.consumes<MeasurementTrackerEvent>(theMeasurementTrackerEventTag);
-}
+      theMaxChi2(iConfig.getParameter<double>("MaxChi2")),
+      theFixedErrorRescaling(iConfig.getParameter<double>("ErrorRescaling")),
+      theUseVertexStateFlag(iConfig.getParameter<bool>("UseVertexState")),
+      theUpdateStateFlag(iConfig.getParameter<bool>("UpdateState")),
+      theResetMethod([](const edm::ParameterSet& iConfig) {
+        auto resetMethod = iConfig.getParameter<std::string>("ResetMethod");
+        if (resetMethod != "discrete" && resetMethod != "fixed" && resetMethod != "matrix") {
+          edm::LogError("TSGFromPropagation") << "Wrong error rescaling method: " << resetMethod << "\n"
+                                              << "Possible choices are: discrete, fixed, matrix.\n"
+                                              << "Use discrete method" << std::endl;
+          resetMethod = "discrete";
+        }
+        if ("fixed" == resetMethod) {
+          return ResetMethod::fixed;
+        }
+        if ("matrix" == resetMethod) {
+          return ResetMethod::matrix;
+        }
+        return ResetMethod::discrete;
+      }(iConfig)),
+      theSelectStateFlag(iConfig.getParameter<bool>("SelectState")),
+      thePropagatorName(iConfig.getParameter<std::string>("Propagator")),
+      theSigmaZ(iConfig.getParameter<double>("SigmaZ")),
+      theErrorMatrixPset(iConfig.getParameter<edm::ParameterSet>("errorMatrixPset")),
+      theBeamSpotToken(iC.consumes<reco::BeamSpot>(iConfig.getParameter<edm::InputTag>("beamSpot"))),
+      theMeasurementTrackerEventToken(
+          iC.consumes<MeasurementTrackerEvent>(iConfig.getParameter<edm::InputTag>("MeasurementTrackerEvent"))) {}
 
-TSGFromPropagation::~TSGFromPropagation() {
-  LogTrace(theCategory) << " TSGFromPropagation dtor called ";
-  if (theNavigation)
-    delete theNavigation;
-  if (theUpdator)
-    delete theUpdator;
-  if (theEstimator)
-    delete theEstimator;
-  if (theErrorMatrixAdjuster)
-    delete theErrorMatrixAdjuster;
-}
+TSGFromPropagation::~TSGFromPropagation() { LogTrace(theCategory) << " TSGFromPropagation dtor called "; }
 
 void TSGFromPropagation::trackerSeeds(const TrackCand& staMuon,
                                       const TrackingRegion& region,
                                       const TrackerTopology* tTopo,
                                       std::vector<TrajectorySeed>& result) {
-  if (theResetMethod == "discrete")
+  if (theResetMethod == ResetMethod::discrete)
     getRescalingFactor(staMuon);
 
   TrajectoryStateOnSurface staState = outerTkState(staMuon);
@@ -149,54 +153,24 @@ void TSGFromPropagation::trackerSeeds(const TrackCand& staMuon,
 }
 
 void TSGFromPropagation::init(const MuonServiceProxy* service) {
-  theMaxChi2 = theConfig.getParameter<double>("MaxChi2");
-
-  theFixedErrorRescaling = theConfig.getParameter<double>("ErrorRescaling");
-
   theFlexErrorRescaling = 1.0;
 
-  theResetMethod = theConfig.getParameter<std::string>("ResetMethod");
-
-  if (theResetMethod != "discrete" && theResetMethod != "fixed" && theResetMethod != "matrix") {
-    edm::LogError("TSGFromPropagation") << "Wrong error rescaling method: " << theResetMethod << "\n"
-                                        << "Possible choices are: discrete, fixed, matrix.\n"
-                                        << "Use discrete method" << std::endl;
-    theResetMethod = "discrete";
-  }
-
-  theEstimator = new Chi2MeasurementEstimator(theMaxChi2);
+  theEstimator = std::make_unique<Chi2MeasurementEstimator>(theMaxChi2);
 
   theCacheId_MT = 0;
 
   theCacheId_TG = 0;
 
-  thePropagatorName = theConfig.getParameter<std::string>("Propagator");
-
   theService = service;
 
-  theUseVertexStateFlag = theConfig.getParameter<bool>("UseVertexState");
+  theUpdator = std::make_unique<KFUpdator>();
 
-  theUpdateStateFlag = theConfig.getParameter<bool>("UpdateState");
-
-  theSelectStateFlag = theConfig.getParameter<bool>("SelectState");
-
-  theUpdator = new KFUpdator();
-
-  theSigmaZ = theConfig.getParameter<double>("SigmaZ");
-
-  //theBeamSpotInputTag = theConfig.getParameter<edm::InputTag>("beamSpot");
-
-  edm::ParameterSet errorMatrixPset = theConfig.getParameter<edm::ParameterSet>("errorMatrixPset");
-  if (theResetMethod == "matrix" && !errorMatrixPset.empty()) {
-    theAdjustAtIp = errorMatrixPset.getParameter<bool>("atIP");
-    theErrorMatrixAdjuster = new MuonErrorMatrix(errorMatrixPset);
-  } else {
-    theAdjustAtIp = false;
-    theErrorMatrixAdjuster = nullptr;
+  if (theResetMethod == ResetMethod::matrix && !theErrorMatrixPset.empty()) {
+    theErrorMatrixAdjuster = std::make_unique<MuonErrorMatrix>(theErrorMatrixPset);
   }
 
   theService->eventSetup().get<TrackerRecoGeometryRecord>().get(theTracker);
-  theNavigation = new DirectTrackerNavigation(theTracker);
+  theNavigation = std::make_unique<DirectTrackerNavigation>(theTracker);
 }
 
 void TSGFromPropagation::setEvent(const edm::Event& iEvent) {
@@ -226,9 +200,7 @@ void TSGFromPropagation::setEvent(const edm::Event& iEvent) {
   }
 
   if (trackerGeomChanged && (theTracker.product() != nullptr)) {
-    if (theNavigation)
-      delete theNavigation;
-    theNavigation = new DirectTrackerNavigation(theTracker);
+    theNavigation = std::make_unique<DirectTrackerNavigation>(theTracker);
   }
 }
 
@@ -355,13 +327,13 @@ void TSGFromPropagation::getRescalingFactor(const TrackCand& staMuon) {
 
 void TSGFromPropagation::adjust(FreeTrajectoryState& state) const {
   //rescale the error
-  if (theResetMethod == "discreate") {
+  if (theResetMethod == ResetMethod::discrete) {
     state.rescaleError(theFlexErrorRescaling);
     return;
   }
 
   //rescale the error
-  if (theResetMethod == "fixed" || !theErrorMatrixAdjuster) {
+  if (theResetMethod == ResetMethod::fixed || !theErrorMatrixAdjuster) {
     state.rescaleError(theFixedErrorRescaling);
     return;
   }
@@ -375,12 +347,12 @@ void TSGFromPropagation::adjust(FreeTrajectoryState& state) const {
 
 void TSGFromPropagation::adjust(TrajectoryStateOnSurface& state) const {
   //rescale the error
-  if (theResetMethod == "discreate") {
+  if (theResetMethod == ResetMethod::discrete) {
     state.rescaleError(theFlexErrorRescaling);
     return;
   }
 
-  if (theResetMethod == "fixed" || !theErrorMatrixAdjuster) {
+  if (theResetMethod == ResetMethod::fixed || !theErrorMatrixAdjuster) {
     state.rescaleError(theFixedErrorRescaling);
     return;
   }
