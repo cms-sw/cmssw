@@ -29,6 +29,12 @@ unitTest=False
 if 'unitTest=True' in sys.argv:
   unitTest=True
 
+# Switch to veto the upload of the BeamSpot conditions to the DB
+# when False it performs the upload
+noDB = True
+if 'noDB=False' in sys.argv:
+  noDB=False
+
 # Common part for PP and H.I Running
 #-----------------------------
 if unitTest:
@@ -170,8 +176,8 @@ if (process.runType.getRunType() == process.runType.pp_run or
         ))
     )
 
-    # If not live: produce a (local) SQLITE FILE
-    if unitTest:
+    # If not live or noDB: produce a (local) SQLITE file
+    if unitTest or noDB:
       process.OnlineDBOutputService.connect = cms.string('sqlite_file:BeamSpotOnlineHLT.db')
       process.OnlineDBOutputService.preLoadConnectionString = cms.untracked.string('sqlite_file:BeamSpotOnlineHLT.db')
 
