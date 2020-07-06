@@ -33,6 +33,12 @@ options.register('skipFirstLumis',
                  VarParsing.VarParsing.varType.bool,
                  "Skip (and ignore the minEventsPerLumi parameter) for the files which have been available at the begining of the processing. ")
 
+options.register('transDelay',
+                 0, #default value, int limit -3
+                 VarParsing.VarParsing.multiplicity.singleton,
+                 VarParsing.VarParsing.varType.int,
+                 "delay in seconds for the commit of the db transaction")
+
 # Parameters for runType
 
 options.register ('runkey',
