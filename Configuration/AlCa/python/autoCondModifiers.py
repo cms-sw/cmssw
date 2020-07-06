@@ -15,7 +15,4 @@ def autoCond0T(autoCond):
             GlobalTags0T[key+"_0T"] = (autoCond[key], ConditionsFor0T)
 
     autoCond.update(GlobalTags0T)
-
     return autoCond
-
-
