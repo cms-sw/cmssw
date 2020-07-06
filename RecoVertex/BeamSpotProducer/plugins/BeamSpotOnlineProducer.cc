@@ -18,6 +18,7 @@ BeamSpotOnlineProducer::BeamSpotOnlineProducer(const ParameterSet& iconf)
       theSetSigmaZ(iconf.getParameter<double>("setSigmaZ")),
       scalerToken_(consumes<BeamSpotOnlineCollection>(iconf.getParameter<InputTag>("src"))),
       l1GtEvmReadoutRecordToken_(consumes<L1GlobalTriggerEvmReadoutRecord>(iconf.getParameter<InputTag>("gtEvmLabel"))),
+      beamToken_(esConsumes<BeamSpotObjects, BeamSpotObjectsRcd>()),
       theBeamShoutMode(iconf.getUntrackedParameter<unsigned int>("beamMode", 11)) {
   theMaxR2 = iconf.getParameter<double>("maxRadius");
   theMaxR2 *= theMaxR2;
@@ -106,8 +107,7 @@ void BeamSpotOnlineProducer::produce(Event& iEvent, const EventSetup& iSetup) {
   }
 
   if (fallBackToDB) {
-    edm::ESHandle<BeamSpotObjects> beamhandle;
-    iSetup.get<BeamSpotObjectsRcd>().get(beamhandle);
+    edm::ESHandle<BeamSpotObjects> beamhandle = iSetup.getHandle(beamToken_);
     const BeamSpotObjects* spotDB = beamhandle.product();
 
     // translate from BeamSpotObjects to reco::BeamSpot
