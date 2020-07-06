@@ -658,10 +658,10 @@ bool DAClusterizerInZ_vect::purge(vertex_t& y, track_t& tks, double& rho0, const
   unsigned int k0 = nv;
 
   std::vector<double> inverse_zsums(nt), arg_cache(nt), eik_cache(nt), pmax_cache(nt);
-  double* pinverse_zsums;
-  double* parg_cache;
-  double* peik_cache;
-  double* ppmax_cache;
+  double* __restrict__ pinverse_zsums;
+  double* __restrict__ parg_cache;
+  double* __restrict__ peik_cache;
+  double* __restrict__ ppmax_cache;
   pinverse_zsums = inverse_zsums.data();
   parg_cache = arg_cache.data();
   peik_cache = eik_cache.data();
