@@ -144,20 +144,26 @@ CSCCorrelatedLCTDigi CSCGEMMotherboard::constructLCTsGEM(const CSCALCTDigi& alct
         p = CSCPart::ME1A;
     }
 
+    assert(gem2.pad(1) >= 0);
+    assert(gem2.pad(2) >= 0);
+    assert(gem2.pad(1) < maxPads());
+    assert(gem2.pad(2) < maxPads());
+
     const auto& mymap1 = getLUT()->get_gem_pad_to_csc_hs(theParity, p);
     // GEM pad number is counting from 1
     // keyStrip from mymap:  for ME1b 0-127 and for ME1a 0-95
     // keyStrip for CLCT: for ME1b 0-127 and for ME1a 128-223
-    keyStrip = mymap1[gem2.pad(2) - 1];
-    if (p == CSCPart::ME1A and keyStrip <= CSCConstants::MAX_HALF_STRIP_ME1B)
+    keyStrip = mymap1.at(gem2.pad(2));
+    if (p == CSCPart::ME1A and keyStrip <= CSCConstants::MAX_HALF_STRIP_ME1B) {
       keyStrip += CSCConstants::MAX_HALF_STRIP_ME1B + 1;
+    }
     keyWG = alct.getKeyWG();
 
     if ((not doesWiregroupCrossStrip(keyWG, keyStrip)) and p == CSCPart::ME1B and keyWG <= 15) {
       //try ME1A as strip and WG do not cross
       p = CSCPart::ME1A;
       const auto& mymap2 = getLUT()->get_gem_pad_to_csc_hs(theParity, p);
-      keyStrip = mymap2[gem2.pad(2) - 1] + CSCConstants::MAX_HALF_STRIP_ME1B + 1;
+      keyStrip = mymap2.at(gem2.pad(2)) + CSCConstants::MAX_HALF_STRIP_ME1B + 1;
     }
 
     pattern = promoteALCTGEMpattern_ ? 10 : 0;
@@ -169,13 +175,17 @@ CSCCorrelatedLCTDigi CSCGEMMotherboard::constructLCTsGEM(const CSCALCTDigi& alct
     thisLCT.setType(CSCCorrelatedLCTDigi::ALCT2GEM);
     valid = true;
   } else if (clct.isValid() and gem2.isValid() and not alct.isValid()) {
+
+    assert(gem2.roll() >= GEMDetId::minRollId);
+    assert(gem2.roll() <= maxRolls());
+
     const auto& mymap2 = getLUT()->get_gem_roll_to_csc_wg(theParity);
     pattern = encodePattern(clct.getPattern());
     quality = promoteCLCTGEMquality_ ? 15 : 11;
     bx = gem2.bx(1) + CSCConstants::LCT_CENTRAL_BX;
     keyStrip = clct.getKeyStrip();
     // choose the corresponding wire-group in the middle of the partition
-    keyWG = mymap2[gem2.roll() - 1];
+    keyWG = mymap2.at(gem2.roll() -1 );
     bend = clct.getBend();
     thisLCT.setCLCT(clct);
     thisLCT.setGEM1(gem2.first());
@@ -221,7 +231,7 @@ bool CSCGEMMotherboard::isPadInOverlap(int roll) const {
     // overlap region are WGs 10-15
     if ((i < 10) or (i > 15))
       continue;
-    if ((mymap[i].first <= roll) and (roll <= mymap[i].second))
+    if ((mymap.at(i).first <= roll) and (roll <= mymap.at(i).second))
       return true;
   }
   return false;
@@ -240,8 +250,8 @@ int CSCGEMMotherboard::getRoll(const GEMPadDigiId& p) const { return GEMDetId(p.
 int CSCGEMMotherboard::getRoll(const GEMCoPadDigiId& p) const { return p.second.roll(); }
 
 std::pair<int, int> CSCGEMMotherboard::getRolls(const CSCALCTDigi& alct) const {
-  return std::make_pair((getLUT()->get_csc_wg_to_gem_roll(theParity))[alct.getKeyWG()].first,
-                        (getLUT()->get_csc_wg_to_gem_roll(theParity))[alct.getKeyWG()].second);
+  const auto& mymap(getLUT()->get_csc_wg_to_gem_roll(theParity));
+  return std::make_pair(mymap.at(alct.getKeyWG()).first, mymap.at(alct.getKeyWG()).second);
 }
 
 float CSCGEMMotherboard::getPad(const GEMPadDigi& p) const { return p.pad(); }
@@ -257,12 +267,20 @@ float CSCGEMMotherboard::getPad(const CSCCLCTDigi& clct, enum CSCPart part) cons
   //ME1A part, convert halfstrip from 128-223 to 0-95
   if (part == CSCPart::ME1A and keyStrip > CSCConstants::MAX_HALF_STRIP_ME1B)
     keyStrip = keyStrip - CSCConstants::MAX_HALF_STRIP_ME1B - 1;
-  return 0.5 * (mymap[keyStrip].first + mymap[keyStrip].second);
+  return 0.5 * (mymap.at(keyStrip).first + mymap.at(keyStrip).second);
 }
 
 void CSCGEMMotherboard::setupGeometry() {
   CSCUpgradeMotherboard::setupGeometry();
   generator_->setGEMGeometry(gem_g);
+}
+
+int CSCGEMMotherboard::maxPads() const {
+  return gem_g->superChamber(gemId)->chamber(1)->etaPartition(1)->npads();
+}
+
+int CSCGEMMotherboard::maxRolls() const {
+  return gem_g->superChamber(gemId)->chamber(1)->nEtaPartitions();
 }
 
 void CSCGEMMotherboard::printGEMTriggerPads(int bx_start, int bx_stop, enum CSCPart part) {
