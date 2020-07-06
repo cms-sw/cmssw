@@ -58,6 +58,12 @@ options.register('transDelay',
                  VarParsing.VarParsing.varType.int,
                  "delay in seconds for the commit of the db transaction")
 
+options.register('noDB',
+                 True, # default value
+                 VarParsing.VarParsing.multiplicity.singleton,
+                 VarParsing.VarParsing.varType.bool,
+                 "Don't upload the BeamSpot conditions to the DB")
+
 options.parseArguments()
 
 try:

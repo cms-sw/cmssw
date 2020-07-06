@@ -74,6 +74,12 @@ options.register('unitTest',
                  VarParsing.VarParsing.varType.bool,
                  "Required to avoid the error.")
 
+options.register('noDB',
+                 True, # default value
+                 VarParsing.VarParsing.multiplicity.singleton,
+                 VarParsing.VarParsing.varType.bool,
+                 "Don't upload the BeamSpot conditions to the DB")
+
 options.parseArguments()
 
 print("Querying DAS for files...")

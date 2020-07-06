@@ -28,6 +28,12 @@ if 'unitTest=True' in sys.argv:
     live=False
     unitTest=True
 
+# Switch to veto the upload of the BeamSpot conditions to the DB
+# when False it performs the upload
+noDB = True
+if 'noDB=False' in sys.argv:
+    noDB=False
+
 #---------------
 # Input sources
 if unitTest:
@@ -366,8 +372,8 @@ process.OnlineDBOutputService = cms.Service("OnlineDBOutputService",
     ))
 )
 
-# If not live: produce a (local) SQLITE FILE
-if not live:
+# If not live or noDB: produce a (local) SQLITE file
+if not live or noDB:
     process.OnlineDBOutputService.connect = cms.string('sqlite_file:BeamSpotOnlineLegacy.db')
     process.OnlineDBOutputService.preLoadConnectionString = cms.untracked.string('sqlite_file:BeamSpotOnlineLegacy.db')
 
