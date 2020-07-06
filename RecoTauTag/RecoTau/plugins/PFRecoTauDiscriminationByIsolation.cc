@@ -1,7 +1,6 @@
 #include <functional>
 #include <memory>
 
-
 #include "CommonTools/Utils/interface/StringCutObjectSelector.h"
 #include "CommonTools/Utils/interface/StringObjectFunction.h"
 #include "DataFormats/Candidate/interface/LeafCandidate.h"

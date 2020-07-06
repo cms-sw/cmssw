@@ -371,7 +371,7 @@ void DMRtrends(vector<int> IOVlist,
       exit(EXIT_FAILURE);
     }
   }
-  for (const auto Variable : Variables) {
+  for (const auto &Variable : Variables) {
     compileDMRTrends(IOVlist, Variable, labels, Year, myValidation, geometries, showlumi, FORCE);
     cout << "Begin plotting" << endl;
     PlotDMRTrends(IOVlist,
@@ -502,7 +502,7 @@ void compileDMRTrends(vector<int> IOVlist,
     f->Close();
   }
   TString outname = myValidation + "DMRtrends";
-  for (const auto label : labels) {
+  for (const auto &label : labels) {
     outname += "_";
     outname += label;
   }
@@ -808,7 +808,7 @@ void PlotDMRTrends(vector<int> IOVlist,
     lumiIOVpairs = lumiperIOV(IOVlist, Year);
 
   TString filename = myValidation + "DMRtrends";
-  for (const auto label : labels) {
+  for (const auto &label : labels) {
     filename += "_";
     filename += label;
   }
@@ -1018,7 +1018,7 @@ void PlotDMRTrends(vector<int> IOVlist,
         TString printfile = outputdir;
         if (!(outputdir.EndsWith("/")))
           outputdir += "/";
-        for (const auto label : labels) {
+        for (const auto &label : labels) {
           printfile += label;
           printfile += "_";
         }
