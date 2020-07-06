@@ -177,12 +177,15 @@ void HGCHEbackSignalScalerAnalyzer::analyze(const edm::Event& iEvent, const edm:
     HGCScintillatorDetId scId(myId->rawId());
 
     int layer = scId.layer();
-    radiiVec radius = scal.computeRadius(scId);
+
+    GlobalPoint global = gHGCal_->getPosition(scId);
+    double radius = std::sqrt(std::pow(global.x(), 2) + std::pow(global.y(), 2));
+
     double dose = scal.getDoseValue(DetId::HGCalHSc, layer, radius);
     double fluence = scal.getFluenceValue(DetId::HGCalHSc, layer, radius);
 
     auto dosePair = scal.scaleByDose(scId, radius);
-    float scaleFactorBySipmArea = scal.scaleBySipmArea(scId, radius[0]);
+    float scaleFactorBySipmArea = scal.scaleBySipmArea(scId, radius);
     float scaleFactorByTileArea = scal.scaleByTileArea(scId, radius);
     float scaleFactorByDose = dosePair.first;
     float noiseByFluence = dosePair.second;
@@ -198,7 +201,6 @@ void HGCHEbackSignalScalerAnalyzer::analyze(const edm::Event& iEvent, const edm:
     std::pair<double, double> cellSize = hgcCons_->cellSizeTrap(scId.type(), scId.iradiusAbs());
     float inradius = cellSize.first;
 
-    GlobalPoint global = gHGCal_->getPosition(scId);
     float zpos = std::abs(global.z());
 
     int bin = doseMap->GetYaxis()->FindBin(inradius);
@@ -240,9 +242,9 @@ void HGCHEbackSignalScalerAnalyzer::analyze(const edm::Event& iEvent, const edm:
 
     //fill per layer plots
     //float rpos = sqrt(global.x()*global.x() + global.y()*global.y());
-    int rocbin = probNoiseAboveHalfMip_layerMap[ilayer]->FindBin(radius[0] * 10);
+    int rocbin = probNoiseAboveHalfMip_layerMap[ilayer]->FindBin(radius * 10);
     double scaleValue = prob / nWedges_ / hgcrocNcellsMap_[ilayer][rocbin - 1];
-    probNoiseAboveHalfMip_layerMap[ilayer]->Fill(radius[0] * 10, scaleValue);
+    probNoiseAboveHalfMip_layerMap[ilayer]->Fill(radius * 10, scaleValue);
   }
 
   //print boundaries for S/N < 5 --> define where sipms get more area

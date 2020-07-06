@@ -48,8 +48,6 @@
 #include "G4hPairProduction.hh"
 #include "G4UAtomicDeexcitation.hh"
 
-#include "G4NuclearStopping.hh"
-
 #include "G4Gamma.hh"
 #include "G4Electron.hh"
 #include "G4Positron.hh"
@@ -89,6 +87,7 @@
 #include "G4BuilderType.hh"
 #include "G4RegionStore.hh"
 #include "G4Region.hh"
+#include "G4GammaGeneralProcess.hh"
 
 #include "G4SystemOfUnits.hh"
 
@@ -164,6 +163,7 @@ void CMSEmStandardPhysicsXS::ConstructProcess() {
   // except e+e- below 100 MeV for which the Urban model is used
 
   G4PhysicsListHelper* ph = G4PhysicsListHelper::GetPhysicsListHelper();
+  G4LossTableManager* man = G4LossTableManager::Instance();
 
   // muon & hadron bremsstrahlung and pair production
   G4MuBremsstrahlung* mub = nullptr;
@@ -190,9 +190,6 @@ void CMSEmStandardPhysicsXS::ConstructProcess() {
   // high energy limit for e+- scattering models and bremsstrahlung
   G4double highEnergyLimit = 100 * MeV;
 
-  // nuclear stopping
-  G4NuclearStopping* pnuc = nullptr;
-
   G4Region* aRegion = G4RegionStore::GetInstance()->GetRegion("HcalRegion", false);
   G4Region* bRegion = G4RegionStore::GetInstance()->GetRegion("HGCalRegion", false);
   if (verbose > 1) {
@@ -207,11 +204,23 @@ void CMSEmStandardPhysicsXS::ConstructProcess() {
     if (particleName == "gamma") {
       G4PhotoElectricEffect* photo = new G4PhotoElectricEffect();
       photo->SetEmModel(new G4LivermorePhotoElectricModel());
-      ph->RegisterProcess(photo, particle);
+
       G4ComptonScattering* compt = new G4ComptonScattering();
       compt->SetEmModel(new G4KleinNishinaModel());
-      ph->RegisterProcess(compt, particle);
-      ph->RegisterProcess(new G4GammaConversion(), particle);
+
+      if (G4EmParameters::Instance()->GeneralProcessActive()) {
+        G4GammaGeneralProcess* sp = new G4GammaGeneralProcess();
+        sp->AddEmProcess(photo);
+        sp->AddEmProcess(compt);
+        sp->AddEmProcess(new G4GammaConversion());
+        man->SetGammaGeneralProcess(sp);
+        ph->RegisterProcess(sp, particle);
+
+      } else {
+        ph->RegisterProcess(photo, particle);
+        ph->RegisterProcess(compt, particle);
+        ph->RegisterProcess(new G4GammaConversion(), particle);
+      }
 
     } else if (particleName == "e-") {
       G4eIonisation* eioni = new G4eIonisation();
@@ -325,24 +334,15 @@ void CMSEmStandardPhysicsXS::ConstructProcess() {
       ph->RegisterProcess(muss, particle);
 
     } else if (particleName == "alpha" || particleName == "He3") {
-      if (!pnuc) {
-        pnuc = new G4NuclearStopping();
-      }
-
       ph->RegisterProcess(new G4hMultipleScattering(), particle);
       ph->RegisterProcess(new G4ionIonisation(), particle);
-      ph->RegisterProcess(pnuc, particle);
 
     } else if (particleName == "GenericIon") {
       if (nullptr == hmsc) {
         hmsc = new G4hMultipleScattering("ionmsc");
       }
-      if (!pnuc) {
-        pnuc = new G4NuclearStopping();
-      }
       ph->RegisterProcess(hmsc, particle);
       ph->RegisterProcess(new G4ionIonisation(), particle);
-      ph->RegisterProcess(pnuc, particle);
 
     } else if (particleName == "pi+" || particleName == "pi-") {
       if (nullptr == pib) {
@@ -377,10 +377,6 @@ void CMSEmStandardPhysicsXS::ConstructProcess() {
         pb = new G4hBremsstrahlung();
         pp = new G4hPairProduction();
       }
-      if (!pnuc) {
-        pnuc = new G4NuclearStopping();
-      }
-
       G4hMultipleScattering* pmsc = new G4hMultipleScattering();
       pmsc->SetEmModel(new G4WentzelVIModel());
       G4hIonisation* hIoni = new G4hIonisation();
@@ -399,9 +395,6 @@ void CMSEmStandardPhysicsXS::ConstructProcess() {
       ph->RegisterProcess(hmsc, particle);
       ph->RegisterProcess(new G4hIonisation(), particle);
     }
-  }
-  if (pnuc) {
-    pnuc->SetMaxKinEnergy(MeV);
   }
   // Deexcitation
   //

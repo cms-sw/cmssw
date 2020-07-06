@@ -1371,13 +1371,13 @@ void CalibPlotCombine::Loop() {
         } else {
           hist1_->Fill(wt);
           wmaxb = std::max(wmaxb, wt);
-          wminb = std::max(wminb, wt);
+          wminb = std::min(wminb, wt);
         }
         prof_->Fill(t_ieta, wt);
       }
     }
   }
-  std::cout << "Minimum and maximum correction factors " << wmine << ":" << wmaxb << " (Barrel) " << wmine << ":"
+  std::cout << "Minimum and maximum correction factors " << wminb << ":" << wmaxb << " (Barrel) " << wmine << ":"
             << wmaxe << " (Endcap)" << std::endl;
 }
 

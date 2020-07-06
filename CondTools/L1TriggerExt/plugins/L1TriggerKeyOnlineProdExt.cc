@@ -6,13 +6,18 @@
 
 #include "FWCore/Framework/interface/EventSetup.h"
 
-L1TriggerKeyOnlineProdExt::L1TriggerKeyOnlineProdExt(const edm::ParameterSet& iConfig)
-    : m_subsystemLabels(iConfig.getParameter<std::vector<std::string> >("subsystemLabels")) {
+L1TriggerKeyOnlineProdExt::L1TriggerKeyOnlineProdExt(const edm::ParameterSet& iConfig) {
   //the following line is needed to tell the framework what
   // data is being produced
-  setWhatProduced(this);
+  auto cc = setWhatProduced(this);
 
-  //now do what ever other initialization is needed
+  for (auto const& label : iConfig.getParameter<std::vector<std::string> >("subsystemLabels")) {
+    m_subsystemTokens.emplace_back(cc.consumesFrom<L1TriggerKeyExt, L1TriggerKeyExtRcd>(edm::ESInputTag{"", label}));
+
+    //now do what ever other initialization is needed
+  }
+
+  cc.setConsumes(L1TriggerKeyExt_token, edm::ESInputTag{"", "SubsystemKeysOnly"});
 }
 
 L1TriggerKeyOnlineProdExt::~L1TriggerKeyOnlineProdExt() {
@@ -27,27 +32,18 @@ L1TriggerKeyOnlineProdExt::~L1TriggerKeyOnlineProdExt() {
 // ------------ method called to produce the data  ------------
 L1TriggerKeyOnlineProdExt::ReturnType L1TriggerKeyOnlineProdExt::produce(const L1TriggerKeyExtRcd& iRecord) {
   // Start with "SubsystemKeysOnly"
-  edm::ESHandle<L1TriggerKeyExt> subsystemKeys;
+  L1TriggerKeyExt subsystemKeys;
   try {
-    iRecord.get("SubsystemKeysOnly", subsystemKeys);
+    subsystemKeys = iRecord.get(L1TriggerKeyExt_token);
   } catch (l1t::DataAlreadyPresentException& ex) {
     throw ex;
   }
 
-  auto pL1TriggerKey = std::make_unique<L1TriggerKeyExt>(*subsystemKeys);
+  auto pL1TriggerKey = std::make_unique<L1TriggerKeyExt>(subsystemKeys);
 
   // Collate object keys
-  std::vector<std::string>::const_iterator itr = m_subsystemLabels.begin();
-  std::vector<std::string>::const_iterator end = m_subsystemLabels.end();
-  for (; itr != end; ++itr) {
-    edm::ESHandle<L1TriggerKeyExt> objectKeys;
-    try {
-      iRecord.get(*itr, objectKeys);
-    } catch (l1t::DataAlreadyPresentException& ex) {
-      throw ex;
-    }
-
-    pL1TriggerKey->add(objectKeys->recordToKeyMap());
+  for (auto const& token : m_subsystemTokens) {
+    pL1TriggerKey->add(iRecord.get(token).recordToKeyMap());
   }
 
   return pL1TriggerKey;

@@ -67,7 +67,8 @@ void PurgeDuplicate::addInput(MemoryBase* memory, std::string input) {
                                   "trackin8",
                                   "trackin9",
                                   "trackin10",
-                                  "trackin11"};
+                                  "trackin11",
+                                  "trackin12"};
   if (inputs.find(input) != inputs.end()) {
     auto* tmp = dynamic_cast<TrackFitMemory*>(memory);
     assert(tmp != nullptr);

@@ -93,6 +93,7 @@ if (L1TRKALGO == 'HYBRID'):
     NHELIXPAR = 4
     L1TRK_NAME  = "TTTracksFromTrackletEmulation"
     L1TRK_LABEL = "Level1TTTracks"
+    L1TRUTH_NAME = "TTTrackAssociatorFromPixelDigis"
 
 # HYBRID: extended tracking
 elif (L1TRKALGO == 'HYBRID_DISPLACED'):
@@ -101,6 +102,7 @@ elif (L1TRKALGO == 'HYBRID_DISPLACED'):
     NHELIXPAR = 5
     L1TRK_NAME  = "TTTracksFromExtendedTrackletEmulation"
     L1TRK_LABEL = "Level1TTTracks"
+    L1TRUTH_NAME = "TTTrackAssociatorFromPixelDigisExtended"
     
 # LEGACY ALGORITHM (EXPERTS ONLY): TRACKLET  
 elif (L1TRKALGO == 'TRACKLET'):
@@ -111,6 +113,7 @@ elif (L1TRKALGO == 'TRACKLET'):
     NHELIXPAR = 4
     L1TRK_NAME  = "TTTracksFromTrackletEmulation"
     L1TRK_LABEL = "Level1TTTracks"
+    L1TRUTH_NAME = "TTTrackAssociatorFromPixelDigis"
 
 # LEGACY ALGORITHM (EXPERTS ONLY): TMTT  
 elif (L1TRKALGO == 'TMTT'):
@@ -119,6 +122,8 @@ elif (L1TRKALGO == 'TMTT'):
     L1TRK_PROC  =  process.TMTrackProducer
     L1TRK_NAME  = "TMTrackProducer"
     L1TRK_LABEL = "TML1TracksKF4ParamsComb"
+    L1TRUTH_NAME = "TTTrackAssociatorFromPixelDigis"
+    NHELIXPAR = 4
     L1TRK_PROC.EnableMCtruth = cms.bool(False) # Reduce CPU use by disabling internal histos.
     L1TRK_PROC.EnableHistos  = cms.bool(False)
     process.load("RecoVertex.BeamSpotProducer.BeamSpot_cfi")
@@ -126,7 +131,6 @@ elif (L1TRKALGO == 'TMTT'):
     process.TTTrackAssociatorFromPixelDigis.TTTracks = cms.VInputTag( cms.InputTag(L1TRK_NAME, L1TRK_LABEL) )
     process.TTTracksEmulation = cms.Path(process.offlineBeamSpot*L1TRK_PROC)
     process.TTTracksEmulationWithTruth = cms.Path(process.offlineBeamSpot*L1TRK_PROC*process.TrackTriggerAssociatorTracks)
-    NHELIXPAR = 4
 
 else:
     print "ERROR: Unknown L1TRKALGO option"
@@ -154,15 +158,15 @@ process.L1TrackNtuple = cms.EDAnalyzer('L1TrackNtupleMaker',
                                        TP_minPt = cms.double(2.0),       # only save TPs with pt > X GeV
                                        TP_maxEta = cms.double(2.5),      # only save TPs with |eta| < X
                                        TP_maxZ0 = cms.double(30.0),      # only save TPs with |z0| < X cm
-                                       L1TrackInputTag = cms.InputTag(L1TRK_NAME, L1TRK_LABEL), # TTTrack input
-                                       MCTruthTrackInputTag = cms.InputTag("TTTrackAssociatorFromPixelDigis", L1TRK_LABEL),  ## MCTruth input 
+                                       L1TrackInputTag = cms.InputTag(L1TRK_NAME, L1TRK_LABEL),         # TTTrack input
+                                       MCTruthTrackInputTag = cms.InputTag(L1TRUTH_NAME, L1TRK_LABEL),  # MCTruth input 
                                        # other input collections
                                        L1StubInputTag = cms.InputTag("TTStubsFromPhase2TrackerDigis","StubAccepted"),
                                        MCTruthClusterInputTag = cms.InputTag("TTClusterAssociatorFromPixelDigis", "ClusterAccepted"),
                                        MCTruthStubInputTag = cms.InputTag("TTStubAssociatorFromPixelDigis", "StubAccepted"),
                                        TrackingParticleInputTag = cms.InputTag("mix", "MergedTrackTruth"),
                                        TrackingVertexInputTag = cms.InputTag("mix", "MergedTrackTruth"),
-                                       ## tracking in jets stuff (--> requires AK4 genjet collection present!)
+                                       # tracking in jets (--> requires AK4 genjet collection present!)
                                        TrackingInJets = cms.bool(False),
                                        GenJetInputTag = cms.InputTag("ak4GenJets", ""),
                                        )

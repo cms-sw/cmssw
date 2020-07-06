@@ -1,3 +1,6 @@
+#ifndef PhysicsTools_TagAndProbe_ColinsSuperVariables
+#define PhysicsTools_TagAndProbe_ColinsSuperVariables
+
 #define CM_ENERGY 7000.0
 #include "TLorentzVector.h"
 #include "TVector3.h"
@@ -62,3 +65,5 @@ void calCSVariables(TLorentzVector mu, TLorentzVector mubar, double *res, bool s
   res[1] = sin2theta;
   res[2] = tanphi;
 }
+
+#endif
