@@ -144,6 +144,8 @@ CSCCorrelatedLCTDigi CSCGEMMotherboard::constructLCTsGEM(const CSCALCTDigi& alct
         p = CSCPart::ME1A;
     }
 
+    // min pad number is always 0
+    // max pad number is 191 or 383, depending on the station
     assert(gem2.pad(1) >= 0);
     assert(gem2.pad(2) >= 0);
     assert(gem2.pad(1) < maxPads());
@@ -175,6 +177,8 @@ CSCCorrelatedLCTDigi CSCGEMMotherboard::constructLCTsGEM(const CSCALCTDigi& alct
     thisLCT.setType(CSCCorrelatedLCTDigi::ALCT2GEM);
     valid = true;
   } else if (clct.isValid() and gem2.isValid() and not alct.isValid()) {
+    // min roll number is always 1
+    // max roll number is 8 or 16, depending on the station
     assert(gem2.roll() >= GEMDetId::minRollId);
     assert(gem2.roll() <= maxRolls());
 
