@@ -25,7 +25,7 @@ ________________________________________________________________**/
 #include "FWCore/Framework/interface/IOVSyncValue.h"
 
 BeamSpotFromDB::BeamSpotFromDB(const edm::ParameterSet& iConfig)
-    :m_beamToken(esConsumes<BeamSpotObjects, BeamSpotObjectsRcd>()) {}
+    : m_beamToken(esConsumes<BeamSpotObjects, BeamSpotObjectsRcd>()) {}
 
 BeamSpotFromDB::~BeamSpotFromDB() {}
 
