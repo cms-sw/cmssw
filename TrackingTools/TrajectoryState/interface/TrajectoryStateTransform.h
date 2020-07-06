@@ -24,8 +24,8 @@ namespace trajectoryStateTransform {
   /// does not require access to tracking geometry
   FreeTrajectoryState initialFreeState(const reco::Track& tk, const MagneticField* field, bool withErr = true);
   FreeTrajectoryState initialFreeStateL1TTrack(const TTTrack<Ref_Phase2TrackerDigi_>& tk,
-					       const MagneticField* field,
-					       bool withErr = false);
+                                               const MagneticField* field,
+                                               bool withErr = false);
 
   FreeTrajectoryState innerFreeState(const reco::Track& tk, const MagneticField* field, bool withErr = true);
   FreeTrajectoryState outerFreeState(const reco::Track& tk, const MagneticField* field, bool withErr = true);
