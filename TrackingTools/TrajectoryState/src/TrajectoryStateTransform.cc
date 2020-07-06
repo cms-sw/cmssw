@@ -68,8 +68,8 @@ namespace trajectoryStateTransform {
   }
 
   FreeTrajectoryState initialFreeStateL1TTrack(const TTTrack<Ref_Phase2TrackerDigi_>& tk,
-					       const MagneticField* field,
-					       bool withErr) {
+                                               const MagneticField* field,
+                                               bool withErr) {
     Basic3DVector<float> pos(tk.POCA());
     GlobalPoint gpos(pos);
     GlobalVector gmom = tk.momentum();
