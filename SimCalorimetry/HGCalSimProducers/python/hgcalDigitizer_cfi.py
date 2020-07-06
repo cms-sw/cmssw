@@ -46,6 +46,7 @@ HGCAL_cceParams_toUse = cms.PSet(
 HGCAL_noise_fC = cms.PSet(
     scaleByDose = cms.bool(False),
     scaleByDoseAlgo = cms.uint32(0),
+    scaleByDoseFactor = cms.double(1),
     doseMap = cms.string(""),
     values = cms.vdouble( [x*fC_per_ele for x in nonAgedNoises] ), #100,200,300 um
     )
@@ -53,6 +54,7 @@ HGCAL_noise_fC = cms.PSet(
 HGCAL_noise_heback = cms.PSet(
     scaleByDose = cms.bool(False),
     scaleByDoseAlgo = cms.uint32(0),
+    scaleByDoseFactor = cms.double(1),
     doseMap = cms.string(""), #empty dose map at begin-of-life
     noise_MIP = cms.double(1./100.)
     )
@@ -206,12 +208,15 @@ for _m in [hgceeDigitizer, hgchefrontDigitizer, hgchebackDigitizer, hfnoseDigiti
 #function to set noise to aged HGCal
 endOfLifeCCEs = [0.5, 0.5, 0.7]
 endOfLifeNoises = [2400.0,2250.0,1750.0]
-def HGCal_setEndOfLifeNoise(process,byDose=True,byDoseAlgo=0):
+def HGCal_setEndOfLifeNoise(process,byDose=True,byDoseAlgo=0,byDoseFactor=1):
     """includes all effects from radiation and gain choice"""
     # byDoseAlgo is used as a collection of bits to toggle: FLUENCE, CCE, NOISE, PULSEPERGAIN, CACHEDOP (from lsb to Msb)
-    process=HGCal_setRealisticNoiseSi(process,byDose=byDose,byDoseAlgo=byDoseAlgo)
-    process=HGCal_setRealisticNoiseSci(process,byDose=byDose,byDoseAlgo=byDoseAlgo)
+    process=HGCal_setRealisticNoiseSi(process,byDose=byDose,byDoseAlgo=byDoseAlgo,byDoseFactor=byDoseFactor)
+    process=HGCal_setRealisticNoiseSci(process,byDose=byDose,byDoseAlgo=byDoseAlgo,byDoseFactor=byDoseFactor)
     return process
+
+def HGCal_setEndOfLifeNoise_4000(process):
+    return HGCal_setEndOfLifeNoise(process,byDoseFactor=1.333)
 
 def HGCal_ignoreFluence(process):
     """include all effects except fluence impact on leakage current and CCE"""
@@ -256,10 +261,11 @@ def HGCal_useCaching(process):
 
 doseMap = cms.string("SimCalorimetry/HGCalSimProducers/data/doseParams_3000fb_fluka-3.7.20.txt")
 
-def HGCal_setRealisticNoiseSi(process,byDose=True,byDoseAlgo=0,byDoseMap=doseMap):
+def HGCal_setRealisticNoiseSi(process,byDose=True,byDoseAlgo=0,byDoseMap=doseMap,byDoseFactor=1):
     process.HGCAL_noise_fC = cms.PSet(
         scaleByDose = cms.bool(byDose),
         scaleByDoseAlgo = cms.uint32(byDoseAlgo),
+        scaleByDoseFactor = cms.double(byDoseFactor),
         doseMap = byDoseMap,
         values = cms.vdouble( [x*fC_per_ele for x in endOfLifeNoises] ), #100,200,300 um
         )
@@ -271,10 +277,11 @@ def HGCal_setRealisticNoiseSi(process,byDose=True,byDoseAlgo=0,byDoseMap=doseMap
         )
     return process
 
-def HGCal_setRealisticNoiseSci(process,byDose=True,byDoseAlgo=0,byDoseMap=doseMap):
+def HGCal_setRealisticNoiseSci(process,byDose=True,byDoseAlgo=0,byDoseMap=doseMap,byDoseFactor=1):
     process.HGCAL_noise_heback = cms.PSet(
         scaleByDose = cms.bool(byDose),
         scaleByDoseAlgo = cms.uint32(byDoseAlgo),
+        scaleByDoseFactor = cms.double(byDoseFactor),
         doseMap = byDoseMap,
         noise_MIP = cms.double(1./5.) #uses noise map
         )
@@ -284,12 +291,14 @@ def HGCal_disableNoise(process):
     process.HGCAL_noise_fC = cms.PSet(
         scaleByDose = cms.bool(False),
         scaleByDoseAlgo = cms.uint32(0),
+        scaleByDoseFactor = cms.double(1),
         doseMap = cms.string(""),
         values = cms.vdouble(0,0,0), #100,200,300 um
     )
     process.HGCAL_noise_heback = cms.PSet(
         scaleByDose = cms.bool(False),
         scaleByDoseAlgo = cms.uint32(0),
+        scaleByDoseFactor = cms.double(1),
         doseMap = cms.string(""),
         noise_MIP = cms.double(0.) #zero noise
         )

@@ -36,8 +36,10 @@ HGCDigitizerBase<DFr>::HGCDigitizerBase(const edm::ParameterSet& ps)
     scaleByDose_ = myCfg_.getParameter<edm::ParameterSet>("noise_fC").template getParameter<bool>("scaleByDose");
     int scaleByDoseAlgo =
         myCfg_.getParameter<edm::ParameterSet>("noise_fC").template getParameter<uint32_t>("scaleByDoseAlgo");
+    scaleByDoseFactor_ = myCfg_.getParameter<edm::ParameterSet>("noise_fC").getParameter<double>("scaleByDoseFactor");
     doseMapFile_ = myCfg_.getParameter<edm::ParameterSet>("noise_fC").template getParameter<std::string>("doseMap");
     scal_.setDoseMap(doseMapFile_, scaleByDoseAlgo);
+    scal_.setFluenceScaleFactor(scaleByDoseFactor_);
   } else {
     noise_fC_.resize(1, 1.f);
   }
@@ -197,9 +199,7 @@ void HGCDigitizerBase<DFr>::updateOutput(std::unique_ptr<HGCDigitizerBase::DColl
   DFr dataFrame(rawDataFrame.id());
   dataFrame.resize(5);
 
-  // if neither:
-  //      in time amplitude is above threshold
-  //      bx-1  amplitude above threshold
+  // if in time amplitude is above threshold
   // , then don't push back the dataframe
   if ( (! rawDataFrame[itIdx].threshold() ) ) {
     return;
@@ -210,23 +210,6 @@ void HGCDigitizerBase<DFr>::updateOutput(std::unique_ptr<HGCDigitizerBase::DColl
   }
 
   coll->push_back(dataFrame);
-
-// how it was
-//
-//  DFr dataFrame(rawDataFrame.id());
-//  dataFrame.resize(5);
-//  bool putInEvent(false);
-//  for (int it = 0; it < 5; it++) {
-//    dataFrame.setSample(it, rawDataFrame[itIdx - 2 + it]);
-//    if (it == 2)
-//      putInEvent = rawDataFrame[itIdx - 2 + it].threshold();
-//  }
-//
-//  if (putInEvent) {
-//    coll->push_back(dataFrame);
-//  }
-//
-
 
 }
 
