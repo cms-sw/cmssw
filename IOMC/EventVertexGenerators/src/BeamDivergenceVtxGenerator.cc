@@ -13,6 +13,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Utilities/interface/RandomNumberGenerator.h"
+#include "FWCore/Utilities/interface/ESGetToken.h"
 
 #include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 
@@ -36,6 +37,7 @@ public:
 
 private:
   edm::EDGetTokenT<edm::HepMCProduct> sourceToken_;
+  edm::ESGetToken<CTPPSBeamParameters, CTPPSBeamParametersRcd> beamParametersToken_;
   std::vector<edm::EDGetTokenT<reco::GenParticleCollection>> genParticleTokens_;
 
   bool simulateVertex_;
@@ -57,7 +59,8 @@ private:
 //----------------------------------------------------------------------------------------------------
 
 BeamDivergenceVtxGenerator::BeamDivergenceVtxGenerator(const edm::ParameterSet &iConfig)
-    : simulateVertex_(iConfig.getParameter<bool>("simulateVertex")),
+    : beamParametersToken_(esConsumes<CTPPSBeamParameters, CTPPSBeamParametersRcd>()),
+      simulateVertex_(iConfig.getParameter<bool>("simulateVertex")),
       simulateBeamDivergence_(iConfig.getParameter<bool>("simulateBeamDivergence")) {
   const edm::InputTag tagSrcHepMC = iConfig.getParameter<edm::InputTag>("src");
   if (!tagSrcHepMC.label().empty())
@@ -102,8 +105,7 @@ void BeamDivergenceVtxGenerator::produce(edm::Event &iEvent, const edm::EventSet
   CLHEP::HepRandomEngine *rnd = &(rng->getEngine(iEvent.streamID()));
 
   // get conditions
-  edm::ESHandle<CTPPSBeamParameters> hBeamParameters;
-  iSetup.get<CTPPSBeamParametersRcd>().get(hBeamParameters);
+  edm::ESHandle<CTPPSBeamParameters> hBeamParameters = iSetup.getHandle(beamParametersToken_);
 
   // get HepMC input (if given)
   HepMC::GenEvent *genEvt;

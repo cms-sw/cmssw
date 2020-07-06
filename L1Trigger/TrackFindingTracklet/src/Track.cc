@@ -48,5 +48,7 @@ double Track::phi0(Settings const& settings) const {
     phimin -= 2 * M_PI;
   double phioffset = phimin;
 
-  return ipars_.phi0() * settings.kphi0pars() + phioffset;
+  double phi0 = ipars_.phi0() * settings.kphi0pars() + phioffset;
+  phi0 = reco::reduceRange(phi0);
+  return phi0;
 }

@@ -26,6 +26,8 @@
 #include "DataFormats/CSCDigi/interface/CSCWireDigiCollection.h"
 // muon RPC info
 #include "DataFormats/RPCDigi/interface/RPCDigiCollection.h"
+// BTL/ETL info
+#include "DataFormats/FTLDigi/interface/FTLDigiCollections.h"
 
 #include <vector>
 
@@ -42,6 +44,9 @@ private:
   edm::EDGetTokenT<EBDigiCollection> ECalEBSrc_;
   edm::EDGetTokenT<EEDigiCollection> ECalEESrc_;
   edm::EDGetTokenT<ESDigiCollection> ECalESSrc_;
+
+  edm::EDGetTokenT<BTLDigiCollection> BTLSrc_;
+  edm::EDGetTokenT<ETLDigiCollection> ETLSrc_;
 
   edm::EDGetTokenT<HBHEDigiCollection> HCalDigi_;
   edm::EDGetTokenT<HODigiCollection> HCalHODigi_;

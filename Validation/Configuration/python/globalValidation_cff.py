@@ -173,12 +173,24 @@ globalValidationECALOnly = cms.Sequence(
 # HCAL local reconstruction
 globalPrevalidationHCAL = cms.Sequence()
 
+globalPrevalidationHCALOnly = cms.Sequence(
+      baseCommonPreValidation
+    + globalPrevalidationHCAL
+)
+
+hcalRecHitsOnlyValidationSequence = hcalRecHitsValidationSequence.copyAndExclude([NoiseRatesValidation])
+
 globalValidationHCAL = cms.Sequence(
       hcalSimHitsValidationSequence
     + hcaldigisValidationSequence
     + hcalSimHitStudy
-    + hcalRecHitsValidationSequence
-    + calotowersValidationSequence
+)
+
+globalValidationHCALOnly = cms.Sequence(
+      hcalSimHitsValidationSequence
+    + hcaldigisValidationSequence
+    + hcalSimHitStudy
+    + hcalRecHitsOnlyValidationSequence
 )
 
 globalValidationHGCal = cms.Sequence(hgcalValidation)

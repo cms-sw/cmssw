@@ -42,6 +42,8 @@ namespace trklet {
     std::string const& processingModulesFile() const { return processingModulesFile_; }
     std::string const& memoryModulesFile() const { return memoryModulesFile_; }
     std::string const& wiresFile() const { return wiresFile_; }
+    std::string const& tableTEDFile() const { return tableTEDFile_; }
+    std::string const& tableTREFile() const { return tableTREFile_; }
 
     void setDTCLinkFile(std::string DTCLinkFileName) { DTCLinkFile_ = DTCLinkFileName; }
     void setModuleCablingFile(std::string moduleCablingFileName) { moduleCablingFile_ = moduleCablingFileName; }
@@ -54,6 +56,8 @@ namespace trklet {
     }
     void setMemoryModulesFile(std::string memoryModulesFileName) { memoryModulesFile_ = memoryModulesFileName; }
     void setWiresFile(std::string wiresFileName) { wiresFile_ = wiresFileName; }
+    void setTableTEDFile(std::string tableTEDFileName) { tableTEDFile_ = tableTEDFileName; }
+    void setTableTREFile(std::string tableTREFileName) { tableTREFile_ = tableTREFileName; }
 
     unsigned int nzbitsstub(unsigned int layerdisk) const { return nzbitsstub_[layerdisk]; }
     unsigned int nphibitsstub(unsigned int layerdisk) const { return nphibitsstub_[layerdisk]; }
@@ -64,6 +68,8 @@ namespace trklet {
     unsigned int nbitsphiprojderL456() const { return nbitsphiprojderL456_; }
     unsigned int nbitszprojderL123() const { return nbitszprojderL123_; }
     unsigned int nbitszprojderL456() const { return nbitszprojderL456_; }
+
+    unsigned int nbendbitsmedisk() const { return nbendbitsmedisk_; }
 
     bool useSeed(unsigned int iSeed) const { return useseeding_.find(iSeed) != useseeding_.end(); }
     unsigned int nbitsvmte(unsigned int inner, unsigned int iSeed) const { return nbitsvmte_[inner][iSeed]; }
@@ -172,8 +178,13 @@ namespace trklet {
     unsigned int MEBinsBits() const { return MEBinsBits_; }
     unsigned int MEBins() const { return 1u << MEBinsBits_; }
     unsigned int MEBinsDisks() const { return MEBinsDisks_; }
+    unsigned int maxStubsPerBin() const { return maxStubsPerBin_; }
 
-    std::string geomext() const { return extended_ ? "hourglassExtended" : "hourglass"; }
+    std::string geomext() const {
+      if (combined_)
+        return "hourglassCombined";
+      return extended_ ? "hourglassExtended" : "hourglass";
+    }
 
     bool exactderivatives() const { return exactderivatives_; }
     bool exactderivativesforfloating() const { return exactderivativesforfloating_; }
@@ -184,6 +195,7 @@ namespace trklet {
     std::string removalType() const { return removalType_; }
     std::string mergeComparison() const { return mergeComparison_; }
     bool doKF() const { return doKF_; }
+    bool doMultipleMatches() const { return doMultipleMatches_; }
     bool fakefit() const { return fakefit_; }
 
     // configurable
@@ -192,6 +204,8 @@ namespace trklet {
 
     bool extended() const { return extended_; }
     void setExtended(bool extended) { extended_ = extended; }
+    bool combined() const { return combined_; }
+    void setCombined(bool combined) { combined_ = combined; }
 
     double bfield() const { return bfield_; }
     void setBfield(double bfield) { bfield_ = bfield; }
@@ -332,6 +346,8 @@ namespace trklet {
     std::string processingModulesFile_;
     std::string memoryModulesFile_;
     std::string wiresFile_;
+    std::string tableTEDFile_;
+    std::string tableTREFile_;
 
     double rcrit_{55.0};  // critical radius for the hourglass configuration
 
@@ -354,6 +370,8 @@ namespace trklet {
     unsigned int nbitsphiprojderL456_{10};
     unsigned int nbitszprojderL123_{10};
     unsigned int nbitszprojderL456_{9};
+
+    unsigned int nbendbitsmedisk_{4};  // Always 4 bits even for PS disk hits, for HLS compatibility
 
     std::set<unsigned int> useseeding_{0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11};
 
@@ -466,7 +484,7 @@ namespace trklet {
          {{5, 4, 5, 5, 4, 4, 4, 4, 4, 4, 4, 4}},    //outer
          {{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4, 4}}}};  //outermost (triplets only)
 
-    std::array<std::array<unsigned int, N_SEED>, 3> lutwidthtab_{{{{10, 11, 11, 11, 11, 11, 11, 11, 0, 0, 11, 0}},
+    std::array<std::array<unsigned int, N_SEED>, 3> lutwidthtab_{{{{10, 10, 10, 10, 10, 10, 10, 10, 0, 0, 11, 0}},
                                                                   {{6, 6, 6, 6, 10, 10, 10, 10, 0, 0, 6, 0}},
                                                                   {{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4, 6}}}};
 
@@ -553,8 +571,11 @@ namespace trklet {
          {{3.6, 3.8, 0.0, 0.0, 3.6, 0.0, 3.5, 3.8, 0.0, 0.0, 3.0, 3.0}},    //disk 4
          {{0.0, 0.0, 0.0, 0.0, 3.6, 3.4, 3.7, 0.0, 0.0, 0.0, 0.0, 3.0}}}};  //disk 5
 
+    //Offset to the maximum number of steps in each processing step. Set to 0 for standard
+    //trunction. Set to large value, e.g. 10000 to remove truncation
     unsigned int maxstepoffset_{10000};
 
+    //Default number of processing steps for one event
     std::unordered_map<std::string, unsigned int> maxstep_{{"Link", 108},
                                                            {"MC", 108},
                                                            {"ME", 108},
@@ -566,6 +587,7 @@ namespace trklet {
                                                            {"TRE", 108},
                                                            {"VMR", 108}};
 
+    // If set to true this will generate debub printout in text files
     std::unordered_map<std::string, bool> writeMonitorData_{{"IL", false},
                                                             {"TE", false},
                                                             {"CT", false},
@@ -643,6 +665,7 @@ namespace trklet {
 
     unsigned int MEBinsBits_{3};
     unsigned int MEBinsDisks_{8};  //on each side
+    unsigned int maxStubsPerBin_{16};
 
     // Options for chisq fit
     bool exactderivatives_{false};
@@ -671,11 +694,18 @@ namespace trklet {
     std::string mergeComparison_{""};
 #endif
 
+    // When false, match calculator does not save multiple matches, even when doKF=true.
+    // This is a temporary fix for compatibilty with HLS. We will need to implement multiple match
+    // printing in emulator eventually, possibly after CMSSW-integration inspired rewrites
+    // Use false when generating HLS files, use true when doing full hybrid tracking
+    bool doMultipleMatches_{true};
+
     // if true, run a dummy fit, producing TTracks directly from output of tracklet pattern reco stage
     bool fakefit_{false};
 
     unsigned int nHelixPar_{4};  // 4 or 5 param helix fit
     bool extended_{false};       // turn on displaced tracking
+    bool combined_{false};       // use combined TP (TE+TC) and MP (PR+ME+MC) configuration
 
     std::string skimfile_{""};  //if not empty events will be written out in ascii format to this file
 

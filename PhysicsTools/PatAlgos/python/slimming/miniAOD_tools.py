@@ -120,6 +120,10 @@ def miniAOD_customizeCommon(process):
     from Configuration.Eras.Modifier_phase2_muon_cff import phase2_muon
     phase2_muon.toModify(process.selectedPatMuons, cut = "pt > 5 || isPFMuon || (pt > 3 && (isGlobalMuon || isStandAloneMuon || numberOfMatches > 0 || muonID('RPCMuLoose') || muonID('ME0MuonArbitrated') || muonID('GEMMuonArbitrated')) )")
     
+    from Configuration.Eras.Modifier_pp_on_AA_2018_cff import pp_on_AA_2018
+    from Configuration.Eras.Modifier_pp_on_PbPb_run3_cff import pp_on_PbPb_run3
+    (pp_on_AA_2018 | pp_on_PbPb_run3).toModify(process.selectedPatMuons, cut = "pt > 5 || isPFMuon || (pt > 1.2 && (isGlobalMuon || isStandAloneMuon) )")
+
     process.selectedPatElectrons.cut = cms.string("")
     process.selectedPatTaus.cut = cms.string("pt > 18. && tauID('decayModeFindingNewDMs')> 0.5")
     process.selectedPatPhotons.cut = cms.string("")
@@ -299,6 +303,12 @@ def miniAOD_customizeCommon(process):
                                      keysForValueMaps = cms.InputTag('reducedEgamma','reducedGedGsfElectrons'),
                                      src = cms.InputTag("gedGsfElectronsFrom94XTo106X"))
 
+    from Configuration.Eras.Modifier_pp_on_AA_2018_cff import pp_on_AA_2018
+    pp_on_AA_2018.toModify(task, func=lambda t: t.add(process.gedGsfElectronsFrom94XTo106XTask))
+    pp_on_AA_2018.toModify(process.electronMVAValueMapProducer,
+                                     keysForValueMaps = cms.InputTag('reducedEgamma','reducedGedGsfElectrons'),
+                                     src = "gedGsfElectronsFrom94XTo106X")
+
     for idmod in electron_ids:
         setupAllVIDIdsInModule(process,idmod,setupVIDElectronSelection,None,False,task)
 
@@ -360,7 +370,6 @@ def miniAOD_customizeCommon(process):
     task.add(process.deepTauIDTask)
 
     #-- Adding customization for 80X 2016 legacy reMiniAOD and 2018 heavy ions
-    from Configuration.Eras.Modifier_pp_on_AA_2018_cff import pp_on_AA_2018
     _makePatTausTaskWithTauReReco = process.makePatTausTask.copy()
     _makePatTausTaskWithTauReReco.add(process.PFTauTask)
     (run2_miniAOD_80XLegacy | pp_on_AA_2018).toReplaceWith(
@@ -425,7 +434,7 @@ def miniAOD_customizeCommon(process):
     process.load('RecoMET.METProducers.pfMetPuppi_cfi')
     _rerun_puppimet_task = task.copy()
     _rerun_puppimet_task.add(process.puppiNoLep, process.pfMetPuppi)
-    _run2_miniAOD_ANY.toReplaceWith(task, _rerun_puppimet_task)
+    (_run2_miniAOD_ANY | pA_2016 | pp_on_AA_2018).toReplaceWith(task, _rerun_puppimet_task)
     
     runMetCorAndUncForMiniAODProduction(process, metType="Puppi",
                                         jetCollUnskimmed="slimmedJetsPuppi",
