@@ -18,3 +18,7 @@ ctppsDirectProtonSimulation.empiricalAperture56_xi0_int = 0.062
 ctppsDirectProtonSimulation.empiricalAperture56_xi0_slp = 5.956E-04
 ctppsDirectProtonSimulation.empiricalAperture56_a_int = -31.9
 ctppsDirectProtonSimulation.empiricalAperture56_a_slp = 1.323
+
+# timing resolution
+ctppsDirectProtonSimulation.timeResolutionDiamonds45 = "2 * (0.0025*(x-3) + 0.080)"
+ctppsDirectProtonSimulation.timeResolutionDiamonds56 = "2 * (0.0050*(x-3) + 0.060)"
