@@ -42,9 +42,7 @@ struct HGCalHEAlgo {
     materials = args.value<std::vector<std::string>>("MaterialNames");
     volumeNames = args.value<std::vector<std::string>>("VolumeNames");
     thickness = args.value<std::vector<double>>("Thickness");
-    for (unsigned int i = 0; i < materials.size(); ++i) {
-      copyNumber.emplace_back(1);
-    }
+    copyNumber.resize(materials.size(), 1);
 #ifdef EDM_ML_DEBUG
     edm::LogVerbatim("HGCalGeom") << "DDHGCalHEAlgo: " << materials.size() << " types of volumes";
     for (unsigned int i = 0; i < volumeNames.size(); ++i)
@@ -96,9 +94,7 @@ struct HGCalHEAlgo {
     namesTop = args.value<std::vector<std::string>>("TopVolumeNames");
     layerThickTop = args.value<std::vector<double>>("TopLayerThickness");
     layerTypeTop = args.value<std::vector<int>>("TopLayerType");
-    for (unsigned int i = 0; i < materialsTop.size(); ++i) {
-      copyNumberTop.emplace_back(1);
-    }
+    copyNumberTop.resize(materialsTop.size(), 1);
 #ifdef EDM_ML_DEBUG
     edm::LogVerbatim("HGCalGeom") << "DDHGCalHEAlgo: " << materialsTop.size() << " types of volumes in the top part";
     for (unsigned int i = 0; i < materialsTop.size(); ++i)
@@ -113,9 +109,7 @@ struct HGCalHEAlgo {
     layerTypeBot = args.value<std::vector<int>>("BottomLayerType");
     layerSenseBot = args.value<std::vector<int>>("BottomLayerSense");
     layerThickBot = args.value<std::vector<double>>("BottomLayerThickness");
-    for (unsigned int i = 0; i < materialsBot.size(); ++i) {
-      copyNumberBot.emplace_back(1);
-    }
+    copyNumberBot.resize(materialsBot.size(), 1);
 #ifdef EDM_ML_DEBUG
     edm::LogVerbatim("HGCalGeom") << "DDHGCalHEAlgo: " << materialsBot.size() << " types of volumes in the bottom part";
     for (unsigned int i = 0; i < materialsBot.size(); ++i)
@@ -173,7 +167,6 @@ struct HGCalHEAlgo {
 
     double zi(zMinBlock);
     int laymin(0);
-    const double tol(0.01);
     for (unsigned int i = 0; i < layerNumbers.size(); i++) {
       double zo = zi + layerThick[i];
       double routF = HGCalGeomTools::radius(zi, zFrontT, rMaxFront, slopeT);
@@ -202,7 +195,7 @@ struct HGCalHEAlgo {
           std::vector<double> pgonZ, pgonRin, pgonRout;
           if (layerSense[ly] == 0 || absorbMode == 0) {
             double rmax =
-                (std::min(routF, HGCalGeomTools::radius(zz + hthick, zFrontT, rMaxFront, slopeT)) * cosAlpha) - tol;
+                (std::min(routF, HGCalGeomTools::radius(zz + hthick, zFrontT, rMaxFront, slopeT)) * cosAlpha) - tol1;
             pgonZ.emplace_back(-hthick);
             pgonZ.emplace_back(hthick);
             pgonRin.emplace_back(rinB);
@@ -224,7 +217,7 @@ struct HGCalHEAlgo {
                                    pgonRout);
             for (unsigned int isec = 0; isec < pgonZ.size(); ++isec) {
               pgonZ[isec] -= zz;
-              pgonRout[isec] = pgonRout[isec] * cosAlpha - tol;
+              pgonRout[isec] = pgonRout[isec] * cosAlpha - tol1;
             }
           }
 
@@ -265,14 +258,14 @@ struct HGCalHEAlgo {
       }  // End of loop over layers in a block
       zi = zo;
       laymin = laymax;
-      if (std::abs(thickTot - layerThick[i]) < 0.00001) {
-      } else if (thickTot > layerThick[i]) {
-        edm::LogError("HGCalGeom") << "Thickness of the partition " << layerThick[i] << " is smaller than " << thickTot
-                                   << ": thickness of all its "
-                                   << "components **** ERROR ****";
-      } else if (thickTot < layerThick[i]) {
-        edm::LogWarning("HGCalGeom") << "Thickness of the partition " << layerThick[i] << " does not match with "
-                                     << thickTot << " of the components";
+      if (std::abs(thickTot - layerThick[i]) >= tol2) {
+        if (thickTot > layerThick[i]) {
+          edm::LogError("HGCalGeom") << "Thickness of the partition " << layerThick[i] << " is smaller than "
+                                     << thickTot << ": thickness of all its components **** ERROR ****";
+        } else {
+          edm::LogWarning("HGCalGeom") << "Thickness of the partition " << layerThick[i] << " does not match with "
+                                       << thickTot << " of the components";
+        }
       }
     }  // End of loop over blocks
 
@@ -365,14 +358,14 @@ struct HGCalHEAlgo {
       ++copyNumberTop[ii];
       zpos += hthickl;
     }
-    if (std::abs(thickTot - thick) < 0.00001) {
-    } else if (thickTot > thick) {
-      edm::LogError("HGCalGeom") << "Thickness of the partition " << thick << " is smaller than " << thickTot
-                                 << ": thickness of all its components in "
-                                 << "the top part **** ERROR ****";
-    } else if (thickTot < thick) {
-      edm::LogWarning("HGCalGeom") << "Thickness of the partition " << thick << " does not match with " << thickTot
-                                   << " of the components in top part";
+    if (std::abs(thickTot - thick) >= tol2) {
+      if (thickTot > thick) {
+        edm::LogError("HGCalGeom") << "Thickness of the partition " << thick << " is smaller than " << thickTot
+                                   << ": thickness of all its components in the top part **** ERROR ****";
+      } else {
+        edm::LogWarning("HGCalGeom") << "Thickness of the partition " << thick << " does not match with " << thickTot
+                                     << " of the components in top part";
+      }
     }
 
     // Make the bottom part next
@@ -438,14 +431,14 @@ struct HGCalHEAlgo {
       zpos += hthickl;
       ++copyNumberBot[ii];
     }
-    if (std::abs(thickTot - thick) < 0.00001) {
-    } else if (thickTot > thick) {
-      edm::LogError("HGCalGeom") << "Thickness of the partition " << thick << " is smaller than " << thickTot
-                                 << ": thickness of all its components in "
-                                 << "the top part **** ERROR ****";
-    } else if (thickTot < thick) {
-      edm::LogWarning("HGCalGeom") << "Thickness of the partition " << thick << " does not match with " << thickTot
-                                   << " of the components in top part";
+    if (std::abs(thickTot - thick) >= tol2) {
+      if (thickTot > thick) {
+        edm::LogError("HGCalGeom") << "Thickness of the partition " << thick << " is smaller than " << thickTot
+                                   << ": thickness of all its components in the top part **** ERROR ****";
+      } else {
+        edm::LogWarning("HGCalGeom") << "Thickness of the partition " << thick << " does not match with " << thickTot
+                                     << " of the components in top part";
+      }
     }
   }
 
@@ -463,7 +456,7 @@ struct HGCalHEAlgo {
     double R = 2.0 * r / sqrt3;
     double dy = 0.75 * R;
     int N = (int)(0.5 * rout / r) + 2;
-    std::pair<double, double> xyoff = geomTools.shiftXY(layercenter, (waferSize + waferSepar));
+    const auto& xyoff = geomTools.shiftXY(layercenter, (waferSize + waferSepar));
 #ifdef EDM_ML_DEBUG
     int ium(0), ivm(0), iumAll(0), ivmAll(0), kount(0), ntot(0), nin(0);
     std::vector<int> ntype(6, 0);
@@ -479,7 +472,7 @@ struct HGCalHEAlgo {
         int nc = -2 * u + v;
         double xpos = xyoff.first + nc * r;
         double ypos = xyoff.second + nr * dy;
-        std::pair<int, int> corner = HGCalGeomTools::waferCorner(xpos, ypos, r, R, rin, rout, false);
+        const auto& corner = HGCalGeomTools::waferCorner(xpos, ypos, r, R, rin, rout, false);
 #ifdef EDM_ML_DEBUG
         ++ntot;
 #endif
@@ -578,6 +571,9 @@ struct HGCalHEAlgo {
   std::vector<double> rMaxFront;    // Corresponding rMax's
   std::unordered_set<int> copies;   // List of copy #'s
   double alpha, cosAlpha;
+
+  static constexpr double tol1 = 0.01;
+  static constexpr double tol2 = 0.00001;
 };
 
 static long algorithm(dd4hep::Detector& /* description */,
