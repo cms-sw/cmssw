@@ -37,8 +37,8 @@ process.maxEvents = cms.untracked.PSet(
 
 process.beamspotonlinewriter = cms.EDAnalyzer("BeamSpotOnlineLegacyRcdWriter",
                         InputFileName = cms.untracked.string('../data/BeamFitResults_Run306171.txt'),  # choose your input file
-                        #IOVStartRun = cms.untracked.uint32(307042), # Customize your Run
-                        #IOVStartLumi = cms.untracked.uint32(105),   # Customize your Lumi
+                        #IOVStartRun = cms.untracked.uint32(306171), # Customize your Run
+                        #IOVStartLumi = cms.untracked.uint32(497),   # Customize your Lumi
                    )
 
 process.p = cms.Path(process.beamspotonlinewriter)

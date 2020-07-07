@@ -16,7 +16,6 @@
 //
 //
 
-
 // system include files
 #include <memory>
 #include <sstream>
@@ -47,18 +46,17 @@
 // class declaration
 //
 
-class BeamSpotOnlineLegacyRcdReader : public edm::one::EDAnalyzer<edm::one::SharedResources>  {
-   public:
-      explicit BeamSpotOnlineLegacyRcdReader(const edm::ParameterSet&);
-      ~BeamSpotOnlineLegacyRcdReader();
+class BeamSpotOnlineLegacyRcdReader : public edm::one::EDAnalyzer<edm::one::SharedResources> {
+public:
+  explicit BeamSpotOnlineLegacyRcdReader(const edm::ParameterSet&);
+  ~BeamSpotOnlineLegacyRcdReader() override;
 
-      static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
-
-   private:
-      virtual void beginJob() override;
-      virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
-      virtual void endJob() override;
+private:
+  void beginJob() override;
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void endJob() override;
 
   struct theBSOfromDB {
     int ls;
@@ -70,12 +68,12 @@ class BeamSpotOnlineLegacyRcdReader : public edm::one::EDAnalyzer<edm::one::Shar
     float Beamdxdz_;
     float BeamWidthX_;
     float BeamWidthY_;
-    int   lastAnalyzedLumi_;
-    int   lastAnalyzedRun_;
-    int   lastAnalyzedFill_;
+    int lastAnalyzedLumi_;
+    int lastAnalyzedRun_;
+    int lastAnalyzedFill_;
     void init();
   } theBSOfromDB_;
-  
+
   edm::Service<TFileService> tFileService;
   TTree* bstree_;
 
@@ -100,40 +98,36 @@ BeamSpotOnlineLegacyRcdReader::BeamSpotOnlineLegacyRcdReader(const edm::Paramete
   }
 }
 
-BeamSpotOnlineLegacyRcdReader::~BeamSpotOnlineLegacyRcdReader()
-{
-   // do anything here that needs to be done at desctruction time
-   // (e.g. close files, deallocate resources etc.)
+BeamSpotOnlineLegacyRcdReader::~BeamSpotOnlineLegacyRcdReader() {
+  // do anything here that needs to be done at desctruction time
+  // (e.g. close files, deallocate resources etc.)
 }
-
 
 //
 // member functions
 //
 
 void BeamSpotOnlineLegacyRcdReader::theBSOfromDB::init() {
-  float dummy_float = 9999.0;
-  int dummy_int = 9999;
+  float dummy_float = -999.0;
+  int dummy_int = -999;
 
   run = dummy_int;
-  ls  = dummy_int;
+  ls = dummy_int;
   BSx0_ = dummy_float;
   BSy0_ = dummy_float;
   BSz0_ = dummy_float;
   Beamsigmaz_ = dummy_float;
-  Beamdxdz_   = dummy_float;
+  Beamdxdz_ = dummy_float;
   BeamWidthX_ = dummy_float;
   BeamWidthY_ = dummy_float;
   lastAnalyzedLumi_ = dummy_int;
-  lastAnalyzedRun_  = dummy_int;
+  lastAnalyzedRun_ = dummy_int;
   lastAnalyzedFill_ = dummy_int;
 }
 
 // ------------ method called for each event  ------------
-void
-BeamSpotOnlineLegacyRcdReader::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
-{
-   using namespace edm;
+void BeamSpotOnlineLegacyRcdReader::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
+  using namespace edm;
   std::ostringstream output;
 
   // initialize the ntuple
@@ -149,16 +143,16 @@ BeamSpotOnlineLegacyRcdReader::analyze(const edm::Event& iEvent, const edm::Even
     const BeamSpotOnlineObjects* mybeamspot = beamhandle.product();
 
     theBSOfromDB_.run = iEvent.id().run();
-    theBSOfromDB_.ls  = iEvent.id().luminosityBlock();
+    theBSOfromDB_.ls = iEvent.id().luminosityBlock();
     theBSOfromDB_.BSx0_ = mybeamspot->GetX();
     theBSOfromDB_.BSy0_ = mybeamspot->GetY();
     theBSOfromDB_.BSz0_ = mybeamspot->GetZ();
     theBSOfromDB_.Beamsigmaz_ = mybeamspot->GetSigmaZ();
-    theBSOfromDB_.Beamdxdz_   = mybeamspot->Getdxdz();
+    theBSOfromDB_.Beamdxdz_ = mybeamspot->Getdxdz();
     theBSOfromDB_.BeamWidthX_ = mybeamspot->GetBeamWidthX();
     theBSOfromDB_.BeamWidthY_ = mybeamspot->GetBeamWidthY();
     theBSOfromDB_.lastAnalyzedLumi_ = mybeamspot->GetLastAnalyzedLumi();
-    theBSOfromDB_.lastAnalyzedRun_  = mybeamspot->GetLastAnalyzedRun();
+    theBSOfromDB_.lastAnalyzedRun_ = mybeamspot->GetLastAnalyzedRun();
     theBSOfromDB_.lastAnalyzedFill_ = mybeamspot->GetLastAnalyzedFill();
 
     bstree_->Fill();
@@ -173,37 +167,30 @@ BeamSpotOnlineLegacyRcdReader::analyze(const edm::Event& iEvent, const edm::Even
     edm::LogInfo("") << output.str();
 }
 
-
 // ------------ method called once each job just before starting event loop  ------------
-void
-BeamSpotOnlineLegacyRcdReader::beginJob()
-{
+void BeamSpotOnlineLegacyRcdReader::beginJob() {
   bstree_ = tFileService->make<TTree>("BSONtuple", "BeamSpotOnline analyzer ntuple");
 
   //Tree Branches
   bstree_->Branch("run", &theBSOfromDB_.run, "run/I");
-  bstree_->Branch("ls" , &theBSOfromDB_.ls , "ls/I");
+  bstree_->Branch("ls", &theBSOfromDB_.ls, "ls/I");
   bstree_->Branch("BSx0", &theBSOfromDB_.BSx0_, "BSx0/F");
   bstree_->Branch("BSy0", &theBSOfromDB_.BSy0_, "BSy0/F");
   bstree_->Branch("BSz0", &theBSOfromDB_.BSz0_, "BSz0/F");
   bstree_->Branch("Beamsigmaz", &theBSOfromDB_.Beamsigmaz_, "Beamsigmaz/F");
-  bstree_->Branch("Beamdxdz"  , &theBSOfromDB_.Beamdxdz_  , "Beamdxdz/F");
+  bstree_->Branch("Beamdxdz", &theBSOfromDB_.Beamdxdz_, "Beamdxdz/F");
   bstree_->Branch("BeamWidthX", &theBSOfromDB_.BeamWidthX_, "BeamWidthX/F");
   bstree_->Branch("BeamWidthY", &theBSOfromDB_.BeamWidthY_, "BeamWidthY/F");
   bstree_->Branch("LastAnalyzedLumi", &theBSOfromDB_.lastAnalyzedLumi_, "LastAnalyzedLumi/I");
-  bstree_->Branch("LastAnalyzedRun" , &theBSOfromDB_.lastAnalyzedRun_ , "LastAnalyzedRun/I");
+  bstree_->Branch("LastAnalyzedRun", &theBSOfromDB_.lastAnalyzedRun_, "LastAnalyzedRun/I");
   bstree_->Branch("LastAnalyzedFill", &theBSOfromDB_.lastAnalyzedFill_, "LastAnalyzedFill/I");
 }
 
 // ------------ method called once each job just after ending the event loop  ------------
-void
-BeamSpotOnlineLegacyRcdReader::endJob()
-{
-}
+void BeamSpotOnlineLegacyRcdReader::endJob() {}
 
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
-void
-BeamSpotOnlineLegacyRcdReader::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+void BeamSpotOnlineLegacyRcdReader::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   //The following says we do not know what parameters are allowed so do no validation
   // Please change this to state exactly what you do use, even if it is no parameters
   edm::ParameterSetDescription desc;

@@ -13,8 +13,8 @@ process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(10000000) ) 
 ####################################################################
 
 process.source = cms.Source("EmptySource",
-                            firstRun = cms.untracked.uint32(307042),                  # Run in ../data/BeamFitResults_Run306171.txt
-                            firstLuminosityBlock = cms.untracked.uint32(105),         # Lumi in ../data/BeamFitResults_Run306171.txt
+                            firstRun = cms.untracked.uint32(306171),                  # Run in ../data/BeamFitResults_Run306171.txt
+                            firstLuminosityBlock = cms.untracked.uint32(497),         # Lumi in ../data/BeamFitResults_Run306171.txt
                             numberEventsInLuminosityBlock = cms.untracked.uint32(1),  # probe one event per LS
                             numberEventsInRun = cms.untracked.uint32(5000),           # a number of events > the number of LS possible in a real run (5000 s ~ 32 h)
                             )
