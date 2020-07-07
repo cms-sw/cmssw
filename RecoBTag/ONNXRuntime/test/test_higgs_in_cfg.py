@@ -4,8 +4,8 @@ from PhysicsTools.PatAlgos.tools.helpers import getPatAlgosToolsTask
 
 from FWCore.ParameterSet.VarParsing import VarParsing
 options = VarParsing('analysis')
-options.inputFiles = '/store/mc/RunIIFall17MiniAOD/ZprimeToWWToWlepWhad_narrow_M-3000_TuneCP5_13TeV-madgraph/MINIAODSIM/94X_mc2017_realistic_v10-v1/20000/3E25D208-8205-E811-8858-3417EBE64426.root'
-options.maxEvents = -1
+options.inputFiles = '/store/mc/RunIIFall17MiniAODv2/TTToHadronic_TuneCP5_13TeV-powheg-pythia8/MINIAODSIM/PU2017_12Apr2018_94X_mc2017_realistic_v14-v1/90000/DCFE3F5F-AE42-E811-B6DB-008CFAF72A64.root'
+options.maxEvents = 100
 options.parseArguments()
 
 process = cms.Process("PATtest")
@@ -48,7 +48,7 @@ process.outpath = cms.EndPath(process.out, patAlgosToolsTask)
 
 ## and add them to the event content
 from PhysicsTools.PatAlgos.tools.jetTools import updateJetCollection
-from RecoBTag.ONNXRuntime.pfDeepBoostedJet_cff import _pfDeepBoostedJetTagsAll as pfDeepBoostedJetTagsAll
+from RecoBTag.ONNXRuntime.pfHiggsInteractionNet_cff import _pfHiggsInteractionNetTagsProbs as pfHiggsInteractionNetTagsProbs
 
 updateJetCollection(
    process,
@@ -57,7 +57,7 @@ updateJetCollection(
    svSource = cms.InputTag('slimmedSecondaryVertices'),
    rParam = 0.8,
    jetCorrections = ('AK8PFPuppi', cms.vstring(['L2Relative', 'L3Absolute']), 'None'),
-   btagDiscriminators = pfDeepBoostedJetTagsAll
+   btagDiscriminators = pfHiggsInteractionNetTagsProbs
    )
 
 from Configuration.EventContent.EventContent_cff import MINIAODSIMEventContent
@@ -68,7 +68,7 @@ process.out.outputCommands.append('keep *_selectedPatJets*_*_*')
 process.out.outputCommands.append('keep *_selectedUpdatedPatJets*_*_*')
 process.out.outputCommands.append('keep *_updatedPatJets*_*_*')
 
-process.out.fileName = 'test_deep_boosted_jet_MINIAODSIM.root'
+process.out.fileName = 'test_higgs_in_MINIAODSIM.root'
 
 #                                         ##
 #   process.options.wantSummary = False   ##  (to suppress the long output at the end of the job)
