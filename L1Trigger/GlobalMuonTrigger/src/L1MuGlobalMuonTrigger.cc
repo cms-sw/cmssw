@@ -49,19 +49,6 @@
 
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
-#include "CondFormats/L1TObjects/interface/L1MuGMTScales.h"
-#include "CondFormats/DataRecord/interface/L1MuGMTScalesRcd.h"
-#include "CondFormats/L1TObjects/interface/L1MuTriggerScales.h"
-#include "CondFormats/DataRecord/interface/L1MuTriggerScalesRcd.h"
-#include "CondFormats/L1TObjects/interface/L1MuTriggerPtScale.h"
-#include "CondFormats/DataRecord/interface/L1MuTriggerPtScaleRcd.h"
-#include "CondFormats/L1TObjects/interface/L1MuGMTParameters.h"
-#include "CondFormats/DataRecord/interface/L1MuGMTParametersRcd.h"
-#include "CondFormats/L1TObjects/interface/L1MuGMTChannelMask.h"
-#include "CondFormats/DataRecord/interface/L1MuGMTChannelMaskRcd.h"
-
-#include "CondFormats/L1TObjects/interface/L1CaloGeometry.h"
-#include "CondFormats/DataRecord/interface/L1CaloGeometryRecord.h"
 
 //----------------
 // Constructors --
@@ -135,6 +122,13 @@ L1MuGlobalMuonTrigger::L1MuGlobalMuonTrigger(const edm::ParameterSet& ps) {
   if (!m_db)
     m_db = new L1MuGMTDebugBlock(m_config->getBxMin(), m_config->getBxMax());
   usesResource("L1MuGlobalMuonTrigger");
+  ///EventSetup Tokens
+  m_gmtScalesToken = esConsumes<L1MuGMTScales, L1MuGMTScalesRcd>();
+  m_trigScalesToken = esConsumes<L1MuTriggerScales, L1MuTriggerScalesRcd>();
+  m_trigPtScaleToken = esConsumes<L1MuTriggerPtScale, L1MuTriggerPtScaleRcd>();
+  m_gmtParamsToken = esConsumes<L1MuGMTParameters, L1MuGMTParametersRcd>();
+  m_gmtChanMaskToken = esConsumes<L1MuGMTChannelMask, L1MuGMTChannelMaskRcd>();
+  m_caloGeomToken = esConsumes<L1CaloGeometry, L1CaloGeometryRecord>();
 }
 
 //--------------
@@ -181,37 +175,32 @@ void L1MuGlobalMuonTrigger::produce(edm::Event& e, const edm::EventSetup& es) {
 
   unsigned long long L1MuGMTScalesCacheID = es.get<L1MuGMTScalesRcd>().cacheIdentifier();
   if (L1MuGMTScalesCacheID != m_L1MuGMTScalesCacheID) {
-    edm::ESHandle<L1MuGMTScales> gmtscales_h;
-    es.get<L1MuGMTScalesRcd>().get(gmtscales_h);
+    edm::ESHandle<L1MuGMTScales> gmtscales_h = es.getHandle(m_gmtScalesToken);
     m_config->setGMTScales(gmtscales_h.product());
   }
 
   unsigned long long L1MuTriggerScalesCacheID = es.get<L1MuTriggerScalesRcd>().cacheIdentifier();
   if (L1MuTriggerScalesCacheID != m_L1MuTriggerScalesCacheID) {
-    edm::ESHandle<L1MuTriggerScales> trigscales_h;
-    es.get<L1MuTriggerScalesRcd>().get(trigscales_h);
+    edm::ESHandle<L1MuTriggerScales> trigscales_h = es.getHandle(m_trigScalesToken);
     m_config->setTriggerScales(trigscales_h.product());
   }
 
   unsigned long long L1MuTriggerPtScaleCacheID = es.get<L1MuTriggerPtScaleRcd>().cacheIdentifier();
   if (L1MuTriggerPtScaleCacheID != m_L1MuTriggerPtScaleCacheID) {
-    edm::ESHandle<L1MuTriggerPtScale> trigptscale_h;
-    es.get<L1MuTriggerPtScaleRcd>().get(trigptscale_h);
+    edm::ESHandle<L1MuTriggerPtScale> trigptscale_h = es.getHandle(m_trigPtScaleToken);
     m_config->setTriggerPtScale(trigptscale_h.product());
   }
 
   unsigned long long L1MuGMTParametersCacheID = es.get<L1MuGMTParametersRcd>().cacheIdentifier();
   if (L1MuGMTParametersCacheID != m_L1MuGMTParametersCacheID) {
-    edm::ESHandle<L1MuGMTParameters> gmtparams_h;
-    es.get<L1MuGMTParametersRcd>().get(gmtparams_h);
+    edm::ESHandle<L1MuGMTParameters> gmtparams_h = es.getHandle(m_gmtParamsToken);
     m_config->setGMTParams(gmtparams_h.product());
     m_config->setDefaults();
   }
 
   unsigned long long L1MuGMTChannelMaskCacheID = es.get<L1MuGMTChannelMaskRcd>().cacheIdentifier();
   if (L1MuGMTChannelMaskCacheID != m_L1MuGMTChannelMaskCacheID) {
-    edm::ESHandle<L1MuGMTChannelMask> gmtchanmask_h;
-    es.get<L1MuGMTChannelMaskRcd>().get(gmtchanmask_h);
+    edm::ESHandle<L1MuGMTChannelMask> gmtchanmask_h = es.getHandle(m_gmtChanMaskToken);
     m_config->setGMTChanMask(gmtchanmask_h.product());
     if (L1MuGMTConfig::Debug(1)) {
       std::string onoff;
@@ -234,8 +223,7 @@ void L1MuGlobalMuonTrigger::produce(edm::Event& e, const edm::EventSetup& es) {
 
   unsigned long long L1CaloGeometryCacheID = es.get<L1CaloGeometryRecord>().cacheIdentifier();
   if (L1CaloGeometryCacheID != m_L1CaloGeometryCacheID) {
-    edm::ESHandle<L1CaloGeometry> caloGeom_h;
-    es.get<L1CaloGeometryRecord>().get(caloGeom_h);
+    edm::ESHandle<L1CaloGeometry> caloGeom_h = es.getHandle(m_caloGeomToken);
     m_config->setCaloGeom(caloGeom_h.product());
   }
 
