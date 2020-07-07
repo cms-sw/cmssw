@@ -1,4 +1,5 @@
 #include "L1Trigger/Phase2L1ParticleFlow/interface/TauNNId.h"
+#include "FWCore/ParameterSet/interface/FileInPath.h"
 #include <cmath>
 
 TauNNId::TauNNId() { NNvectorVar_.clear(); }
@@ -7,8 +8,8 @@ TauNNId::~TauNNId() {
   delete graphDef_;
 }
 void TauNNId::initialize(const std::string &iInput, const std::string &iWeightFile, int iNParticles) {
-  std::string cmssw_base_src = getenv("CMSSW_BASE");
-  graphDef_ = tensorflow::loadGraphDef(cmssw_base_src + "/src/" + iWeightFile);
+  edm::FileInPath fp(iWeightFile);
+  graphDef_ = tensorflow::loadGraphDef(fp.fullPath());
   session_ = tensorflow::createSession(graphDef_);
   fNParticles_ = iNParticles;
   fPt_ = std::make_unique<float>(fNParticles_);
@@ -47,7 +48,7 @@ float TauNNId::EvaluateNN() {
   return disc;
 }  //end EvaluateNN
 
-float TauNNId::compute(l1t::PFCandidate &iSeed, l1t::PFCandidateCollection &iParts) {
+float TauNNId::compute(const l1t::PFCandidate &iSeed, l1t::PFCandidateCollection &iParts) {
   for (int i0 = 0; i0 < fNParticles_; i0++) {
     fPt_.get()[i0] = 0;
     fEta_.get()[i0] = 0;

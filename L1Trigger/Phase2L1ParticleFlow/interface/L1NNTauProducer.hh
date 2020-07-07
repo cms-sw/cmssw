@@ -22,10 +22,10 @@ public:
 
 private:
   std::unique_ptr<TauNNId> fTauNNId_;
-  void addTau(l1t::PFCandidate &iCand,
+  void addTau(const l1t::PFCandidate &iCand,
               const l1t::PFCandidateCollection &iParts,
               std::unique_ptr<PFTauCollection> &outputTaus);
-  float deltaR(l1t::PFCandidate &iPart1, l1t::PFCandidate &iPart2);
+  float deltaR(const l1t::PFCandidate &iPart1, const l1t::PFCandidate &iPart2);
   void produce(edm::Event &iEvent, const edm::EventSetup &iSetup) override;
 
   double fSeedPt_;
