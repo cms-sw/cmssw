@@ -1,5 +1,6 @@
 #include "Validation/Geometry/interface/MaterialBudgetHcalHistos.h"
 
+#include "DataFormats/Math/interface/GeantUnits.h"
 #include "DetectorDescription/Core/interface/DDFilter.h"
 #include "DetectorDescription/Core/interface/DDLogicalPart.h"
 #include "DetectorDescription/Core/interface/DDSplit.h"
@@ -9,10 +10,9 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
 
-#include "CLHEP/Units/GlobalPhysicalConstants.h"
-#include "CLHEP/Units/GlobalSystemOfUnits.h"
-
 #include <string>
+
+using namespace geant_units::operators;
 
 MaterialBudgetHcalHistos::MaterialBudgetHcalHistos(const edm::ParameterSet& p) {
   binEta_ = p.getUntrackedParameter<int>("NBinEta", 260);
@@ -22,13 +22,12 @@ MaterialBudgetHcalHistos::MaterialBudgetHcalHistos(const edm::ParameterSet& p) {
   etaHigh_ = p.getUntrackedParameter<double>("EtaHigh", 5.2);
   fillHistos_ = p.getUntrackedParameter<bool>("FillHisto", true);
   printSum_ = p.getUntrackedParameter<bool>("PrintSummary", false);
-  verbose_ = p.getUntrackedParameter<bool>("Verbosity", false);
   etaMinP_ = p.getUntrackedParameter<double>("EtaMinP", 5.2);
   etaMaxP_ = p.getUntrackedParameter<double>("EtaMaxP", 0.0);
   edm::LogVerbatim("MaterialBudget") << "MaterialBudgetHcalHistos: FillHisto : " << fillHistos_ << " PrintSummary "
                                      << printSum_ << " == Eta plot: NX " << binEta_ << " Range " << -maxEta_ << ":"
-                                     << maxEta_ << " Phi plot: NX " << binPhi_ << " Range " << -CLHEP::pi << ":"
-                                     << CLHEP::pi << " (Eta limit " << etaLow_ << ":" << etaHigh_ << ")"
+                                     << maxEta_ << " Phi plot: NX " << binPhi_ << " Range " << -1._pi << ":" << 1._pi
+                                     << " (Eta limit " << etaLow_ << ":" << etaHigh_ << ")"
                                      << " Debug for eta range " << etaMinP_ << ":" << etaMaxP_;
   if (fillHistos_)
     book();
@@ -41,11 +40,11 @@ void MaterialBudgetHcalHistos::fillBeginJob(const DDCompactView& cpv) {
     DDSpecificsMatchesValueFilter filter1{DDValue(attribute, value, 0)};
     DDFilteredView fv1(cpv, filter1);
     sensitives_ = getNames(fv1);
-    edm::LogVerbatim("MaterialBudget") << "MaterialBudgetHcalHistos: Names to be tested for " << attribute << " = "
-                                       << value << " has " << sensitives_.size() << " elements";
+    edm::LogVerbatim("MaterialBudgetFull") << "MaterialBudgetHcalHistos: Names to be tested for " << attribute << " = "
+                                           << value << " has " << sensitives_.size() << " elements";
     for (unsigned int i = 0; i < sensitives_.size(); i++)
-      edm::LogVerbatim("MaterialBudget") << "MaterialBudgetHcalHistos: sensitives[" << i << "] = " << sensitives_[i];
-
+      edm::LogVerbatim("MaterialBudgetFull")
+          << "MaterialBudgetHcalHistos: sensitives[" << i << "] = " << sensitives_[i];
     attribute = "Volume";
     value = "HF";
     DDSpecificsMatchesValueFilter filter2{DDValue(attribute, value, 0)};
@@ -54,13 +53,13 @@ void MaterialBudgetHcalHistos::fillBeginJob(const DDCompactView& cpv) {
     fv2.firstChild();
     DDsvalues_type sv(fv2.mergedSpecifics());
     std::vector<double> temp = getDDDArray("Levels", sv);
-    edm::LogVerbatim("MaterialBudget") << "MaterialBudgetHcalHistos: Names to be tested for " << attribute << " = "
-                                       << value << " has " << hfNames_.size() << " elements";
+    edm::LogVerbatim("MaterialBudgetFull") << "MaterialBudgetHcalHistos: Names to be tested for " << attribute << " = "
+                                           << value << " has " << hfNames_.size() << " elements";
     for (unsigned int i = 0; i < hfNames_.size(); i++) {
       int level = static_cast<int>(temp[i]);
       hfLevels_.push_back(level);
-      edm::LogVerbatim("MaterialBudget") << "MaterialBudgetHcalHistos:  HF[" << i << "] = " << hfNames_[i]
-                                         << " at level " << hfLevels_[i];
+      edm::LogVerbatim("MaterialBudgetFull")
+          << "MaterialBudgetHcalHistos:  HF[" << i << "] = " << hfNames_[i] << " at level " << hfLevels_[i];
     }
 
     std::string ecalRO[2] = {"EcalHitsEB", "EcalHitsEE"};
@@ -70,13 +69,14 @@ void MaterialBudgetHcalHistos::fillBeginJob(const DDCompactView& cpv) {
       DDSpecificsMatchesValueFilter filter3{DDValue(attribute, value, 0)};
       DDFilteredView fv3(cpv, filter3);
       std::vector<std::string> senstmp = getNames(fv3);
-      edm::LogVerbatim("MaterialBudget") << "MaterialBudgetHcalHistos: Names to be tested for " << attribute << " = "
-                                         << value << " has " << senstmp.size() << " elements";
+      edm::LogVerbatim("MaterialBudgetFull") << "MaterialBudgetHcalHistos: Names to be tested for " << attribute
+                                             << " = " << value << " has " << senstmp.size() << " elements";
       for (unsigned int i = 0; i < senstmp.size(); i++)
         sensitiveEC_.push_back(senstmp[i]);
     }
     for (unsigned int i = 0; i < sensitiveEC_.size(); i++)
-      edm::LogVerbatim("MaterialBudget") << "MaterialBudgetHcalHistos:sensitiveEC[" << i << "] = " << sensitiveEC_[i];
+      edm::LogVerbatim("MaterialBudgetFull")
+          << "MaterialBudgetHcalHistos:sensitiveEC[" << i << "] = " << sensitiveEC_[i];
   }
 }
 
@@ -102,9 +102,11 @@ void MaterialBudgetHcalHistos::fillStartTrack(const G4Track* aTrack) {
     intLength_.clear();
   }
 
-  edm::LogVerbatim("MaterialBudget") << "MaterialBudgetHcalHistos: Track " << aTrack->GetTrackID() << " Code " << theID
-                                     << " Energy " << theEnergy / CLHEP::GeV << " GeV; Eta " << eta_ << " Phi "
-                                     << phi_ / CLHEP::deg << " PT " << dir.perp() / CLHEP::GeV << " GeV *****";
+  if ((std::abs(eta_) >= etaMinP_) && (std::abs(eta_) <= etaMaxP_))
+    edm::LogVerbatim("MaterialBudget") << "MaterialBudgetHcalHistos: Track " << aTrack->GetTrackID() << " Code "
+                                       << theID << " Energy " << convertUnitsTo(1._GeV, theEnergy) << " GeV; Eta "
+                                       << eta_ << " Phi " << convertRadToDeg(phi_) << " PT "
+                                       << convertUnitsTo(1._GeV, dir.perp()) << " GeV *****";
 }
 
 void MaterialBudgetHcalHistos::fillPerStep(const G4Step* aStep) {
@@ -112,7 +114,7 @@ void MaterialBudgetHcalHistos::fillPerStep(const G4Step* aStep) {
   double step = aStep->GetStepLength();
   double radl = material->GetRadlen();
   double intl = material->GetNuclearInterLength();
-  double density = material->GetDensity() / (g / cm3);
+  double density = convertUnitsTo(1._g_per_cm3, material->GetDensity());
 
   int idOld = id_;
   const G4VTouchable* touch = aStep->GetPreStepPoint()->GetTouchable();
@@ -135,19 +137,21 @@ void MaterialBudgetHcalHistos::fillPerStep(const G4Step* aStep) {
       radLength_.push_back(step / radl);
       intLength_.push_back(step / intl);
     }
-    edm::LogVerbatim("MaterialBudget") << "Volume " << name << " id " << id_ << ":" << idOld << " Step " << step
-                                       << " Material " << matName << " Old Length " << stepLen_ << " X0 " << step / radl
-                                       << ":" << radLen_ << " Lambda " << step / intl << ":" << intLen_;
+    if ((std::abs(eta_) >= etaMinP_) && (std::abs(eta_) <= etaMaxP_))
+      edm::LogVerbatim("MaterialBudget") << "Volume " << name << " id " << id_ << ":" << idOld << " Step " << step
+                                         << " Material " << matName << " Old Length " << stepLen_ << " X0 "
+                                         << step / radl << ":" << radLen_ << " Lambda " << step / intl << ":"
+                                         << intLen_;
   } else {
-    edm::LogVerbatim("MaterialBudget") << "MaterialBudgetHcalHistos: Step at " << name << " id " << id_ << ":" << idOld
-                                       << " Length " << step << " in " << matName << " of density " << density
-                                       << " g/cc; Radiation Length " << radl << " mm; Interaction Length " << intl
-                                       << " mm\n"
-                                       << "                          Position "
-                                       << aStep->GetPreStepPoint()->GetPosition() << " Cylindrical R "
-                                       << aStep->GetPreStepPoint()->GetPosition().perp() << " Length (so far) "
-                                       << stepLen_ << " L/X0 " << step / radl << "/" << radLen_ << " L/Lambda "
-                                       << step / intl << "/" << intLen_;
+    if ((std::abs(eta_) >= etaMinP_) && (std::abs(eta_) <= etaMaxP_))
+      edm::LogVerbatim("MaterialBudget") << "MaterialBudgetHcalHistos: Step at " << name << " id " << id_ << ":"
+                                         << idOld << " Length " << step << " in " << matName << " of density "
+                                         << density << " g/cc; Radiation Length " << radl << " mm; Interaction Length "
+                                         << intl << " mm\n                          Position "
+                                         << aStep->GetPreStepPoint()->GetPosition() << " Cylindrical R "
+                                         << aStep->GetPreStepPoint()->GetPosition().perp() << " Length (so far) "
+                                         << stepLen_ << " L/X0 " << step / radl << "/" << radLen_ << " L/Lambda "
+                                         << step / intl << "/" << intLen_;
   }
 
   int det = 0, lay = 0;
@@ -186,9 +190,8 @@ void MaterialBudgetHcalHistos::fillPerStep(const G4Step* aStep) {
               ++nlayHB_;
           }
         }
-        if (verbose_ || ((abseta >= etaMinP_) && (abseta <= etaMaxP_)))
-          edm::LogVerbatim("MaterialBudget") << "MaterialBudgetHcalHistos: Det " << det << " Layer " << lay << " Eta "
-                                             << eta_ << " Phi " << phi_ / CLHEP::deg;
+        edm::LogVerbatim("MaterialBudgetFull") << "MaterialBudgetHcalHistos: Det " << det << " Layer " << lay << " Eta "
+                                               << eta_ << " Phi " << convertRadToDeg(phi_);
       } else if (layer_ == 1) {
         det = -1;
         lay = 2;
@@ -202,7 +205,7 @@ void MaterialBudgetHcalHistos::fillPerStep(const G4Step* aStep) {
     }
 
     if (id_ > idOld) {
-      if (verbose_ || ((abseta >= etaMinP_) && (abseta <= etaMaxP_)))
+      if ((abseta >= etaMinP_) && (abseta <= etaMaxP_))
         edm::LogVerbatim("MaterialBudget")
             << "MaterialBudgetHcalHistos: Step at " << name << " calls filHisto with " << (id_ - 1);
       fillHisto(id_ - 1);
@@ -215,7 +218,7 @@ void MaterialBudgetHcalHistos::fillPerStep(const G4Step* aStep) {
   if (fillHistos_) {
     if (id_ == 21) {
       if (!isItHF(aStep->GetPostStepPoint()->GetTouchable())) {
-        if (verbose_ || ((abseta >= etaMinP_) && (abseta <= etaMaxP_)))
+        if ((abseta >= etaMinP_) && (abseta <= etaMaxP_))
           edm::LogVerbatim("MaterialBudget")
               << "MaterialBudgetHcalHistos: After HF in " << name << ":"
               << aStep->GetPostStepPoint()->GetTouchable()->GetVolume(0)->GetName() << " calls fillHisto with " << id_;
@@ -228,8 +231,9 @@ void MaterialBudgetHcalHistos::fillPerStep(const G4Step* aStep) {
 }
 
 void MaterialBudgetHcalHistos::fillEndTrack() {
-  edm::LogVerbatim("MaterialBudget") << "Number of layers hit in HB:" << nlayHB_ << " HE:" << nlayHE_
-                                     << " HO:" << nlayHO_ << " HF:" << nlayHF_;
+  if ((std::abs(eta_) >= etaMinP_) && (std::abs(eta_) <= etaMaxP_))
+    edm::LogVerbatim("MaterialBudget") << "Number of layers hit in HB:" << nlayHB_ << " HE:" << nlayHE_
+                                       << " HO:" << nlayHO_ << " HF:" << nlayHF_;
   if (fillHistos_) {
     fillHisto(maxSet_ - 1);
     fillLayer();
@@ -250,10 +254,10 @@ void MaterialBudgetHcalHistos::book() {
     throw cms::Exception("BadConfig") << "TFileService unavailable: "
                                       << "please add it to config file";
 
-  double maxPhi = CLHEP::pi;
-  edm::LogVerbatim("MaterialBudget") << "MaterialBudgetHcalHistos: Booking user histos === with " << binEta_
-                                     << " bins in eta from " << -maxEta_ << " to " << maxEta_ << " and " << binPhi_
-                                     << " bins in phi from " << -maxPhi << " to " << maxPhi;
+  double maxPhi = 1._pi;
+  edm::LogVerbatim("MaterialBudgetFull") << "MaterialBudgetHcalHistos: Booking user histos === with " << binEta_
+                                         << " bins in eta from " << -maxEta_ << " to " << maxEta_ << " and " << binPhi_
+                                         << " bins in phi from " << -maxPhi << " to " << maxPhi;
 
   std::string iter;
   // total X0
@@ -334,7 +338,7 @@ void MaterialBudgetHcalHistos::book() {
 }
 
 void MaterialBudgetHcalHistos::fillHisto(int ii) {
-  if (verbose_ || ((std::abs(eta_) >= etaMinP_) && (std::abs(eta_) <= etaMaxP_)))
+  if ((std::abs(eta_) >= etaMinP_) && (std::abs(eta_) <= etaMaxP_))
     edm::LogVerbatim("MaterialBudget") << "MaterialBudgetHcalHistos:FillHisto called with index " << ii
                                        << " integrated  step " << stepLen_ << " X0 " << radLen_ << " Lamda " << intLen_;
 
@@ -421,12 +425,10 @@ std::vector<std::string> MaterialBudgetHcalHistos::getNames(DDFilteredView& fv) 
 }
 
 std::vector<double> MaterialBudgetHcalHistos::getDDDArray(const std::string& str, const DDsvalues_type& sv) {
-  if (verbose_)
-    edm::LogVerbatim("MaterialBudget") << "MaterialBudgetHcalHistos:getDDDArray called for " << str;
+  edm::LogVerbatim("MaterialBudgetFull") << "MaterialBudgetHcalHistos:getDDDArray called for " << str;
   DDValue value(str);
   if (DDfetch(&sv, value)) {
-    if (verbose_)
-      edm::LogVerbatim("MaterialBudget") << value;
+    edm::LogVerbatim("MaterialBudgetFull") << value;
     const std::vector<double>& fvec = value.doubles();
     int nval = fvec.size();
     if (nval < 1) {
