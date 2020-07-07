@@ -60,6 +60,12 @@ options.register('eventsPerLumi',
                  VarParsing.VarParsing.varType.int,
                  "This number of last events in each lumisection will be processed.")
 
+options.register('transDelay',
+                 0, #default value, int limit -3
+                 VarParsing.VarParsing.multiplicity.singleton,
+                 VarParsing.VarParsing.varType.int,
+                 "delay in seconds for the commit of the db transaction")
+
 # This is used only by the online clients themselves. 
 # We need to register it here because otherwise an error occurs saying that there is an unidentified option.
 options.register('unitTest',
@@ -67,6 +73,12 @@ options.register('unitTest',
                  VarParsing.VarParsing.multiplicity.singleton,
                  VarParsing.VarParsing.varType.bool,
                  "Required to avoid the error.")
+
+options.register('noDB',
+                 True, # default value
+                 VarParsing.VarParsing.multiplicity.singleton,
+                 VarParsing.VarParsing.varType.bool,
+                 "Don't upload the BeamSpot conditions to the DB")
 
 options.parseArguments()
 
