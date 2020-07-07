@@ -16,6 +16,8 @@
 
 #include "DataFormats/TrackingRecHit/interface/TrackingRecHitFwd.h"
 #include "DataFormats/TrajectoryState/interface/LocalTrajectoryParameters.h"
+#include "DataFormats/Common/interface/RefItemGet.h"
+#include <numeric>
 
 namespace reco {
 
@@ -44,13 +46,64 @@ namespace reco {
     unsigned int recHitsSize() const { return m_nHits; }
 
     /// accessor to RecHits
-    auto recHits() const { return TrackingRecHitRange(recHitsBegin(), recHitsEnd()); }
+    auto recHits() const {
+      trackingRecHit_iterator const& begin = recHitsBegin();
+      trackingRecHit_iterator end = begin == trackingRecHit_iterator() ? trackingRecHit_iterator() : begin + m_nHits;
+      return TrackingRecHitRange(begin, end);
+    }
 
     /// first iterator over RecHits
-    trackingRecHit_iterator recHitsBegin() const { return recHitsProduct().data().begin() + firstRecHit(); }
+    trackingRecHit_iterator recHitsBegin() const {
+      //Another thread might change the RefCore at the same time.
+      // By using a copy we will be safe.
+      edm::RefCore hitCollection(m_hitCollection);
+      TrackingRecHitCollection const* hits = static_cast<TrackingRecHitCollection const*>(hitCollection.productPtr());
+      //if original collection is available, return iterator to it directly
+      if (hits != nullptr) {
+        return hits->data().begin() + m_firstHit;
+      }
+      hits =
+          edm::tryToGetProductWithCoreFromRef<TrackingRecHitCollection>(hitCollection, hitCollection.productGetter());
+      if (hits != nullptr) {
+        return hits->data().begin() + m_firstHit;
+      }
+
+      //check for thinned collection
+      std::vector<edm::WrapperBase const*> prods(m_nHits, nullptr);
+      std::vector<unsigned int> keys(m_nHits);
+      //fill with sequential integers
+      std::iota(keys.begin(), keys.end(), m_firstHit);
+      //get thinned hit collections/indices
+      hitCollection.productGetter()->getThinnedProducts(hitCollection.id(), prods, keys);
+      //check if all hits are available from a single collection and in sequential order
+      bool valid = true;
+      if (!m_nHits) {
+        valid = false;
+      } else if (prods.front() == nullptr) {
+        valid = false;
+      } else if (!std::equal(prods.begin() + 1, prods.end(), prods.begin())) {
+        valid = false;
+      } else if (!std::is_sorted(keys.begin(), keys.end())) {
+        valid = false;
+      } else if (std::adjacent_find(keys.begin(), keys.end()) != keys.end()) {
+        valid = false;
+      } else if ((keys.back() - keys.front()) != m_nHits) {
+        valid = false;
+      }
+
+      if (valid) {
+        hits = static_cast<edm::Wrapper<TrackingRecHitCollection> const*>(prods.front())->product();
+        return hits->data().begin() + keys.front();
+      }
+
+      return trackingRecHit_iterator();
+    }
 
     /// last iterator over RecHits
-    trackingRecHit_iterator recHitsEnd() const { return recHitsBegin() + recHitsSize(); }
+    trackingRecHit_iterator recHitsEnd() const {
+      trackingRecHit_iterator const& begin = recHitsBegin();
+      return begin == trackingRecHit_iterator() ? trackingRecHit_iterator() : begin + m_nHits;
+    }
 
     /// get a ref to i-th recHit
     TrackingRecHitRef recHitRef(unsigned int i) const {
@@ -68,10 +121,6 @@ namespace reco {
 
     /// get i-th recHit
     TrackingRecHitRef recHit(unsigned int i) const { return recHitRef(i); }
-
-    TrackingRecHitCollection const& recHitsProduct() const {
-      return *edm::getProduct<TrackingRecHitCollection>(m_hitCollection);
-    }
 
     TrajParams const& trajParams() const { return m_trajParams; }
     Chi2sFive const& chi2sX5() const { return m_chi2sX5; }
