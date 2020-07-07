@@ -23,6 +23,14 @@ namespace edmtest {
     edm::LogWarning("cat_A") << "Test of spacing:"
                              << "The following should read a b c dd:"
                              << "a" << std::setfill('+') << "b" << std::hex << "c" << std::setw(2) << "dd";
+
+    edm::LogWarning("cat_A").format("Test of format hex: {0} in hex is {0:x}", i);
+    edm::LogWarning("cat_A")
+        .format("Test of format fill and width:")
+        .format("The following should read ++abcdefg $$$12: {:+>9} {:$>5}", "abcdefg", 12);
+    edm::LogWarning("cat_A").format("Test of format precision:Pi with precision 12 is {:.12g}", d);
+    edm::LogWarning("cat_A").format(
+        "Test of format spacing: The following should read a b cc: {} {:+>} {:>2}", "a", "b", "cc");
   }  // MessageLoggerClient::analyze()
 
 }  // namespace edmtest
