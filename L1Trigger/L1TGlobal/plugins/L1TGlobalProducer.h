@@ -15,12 +15,19 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
+#include "FWCore/Utilities/interface/ESGetToken.h"
 
 #include "L1Trigger/L1TGlobal/interface/GlobalBoard.h"
 
 #include "CondFormats/L1TObjects/interface/L1TGlobalParameters.h"
 #include "L1Trigger/L1TGlobal/interface/GlobalParamsHelper.h"
 #include "L1Trigger/L1TGlobal/interface/PrescalesVetosHelper.h"
+#include "CondFormats/L1TObjects/interface/L1TUtmTriggerMenu.h"
+#include "CondFormats/DataRecord/interface/L1TUtmTriggerMenuRcd.h"
+#include "CondFormats/L1TObjects/interface/L1TGlobalParameters.h"
+#include "CondFormats/DataRecord/interface/L1TGlobalParametersRcd.h"
+#include "CondFormats/L1TObjects/interface/L1TGlobalPrescalesVetos.h"
+#include "CondFormats/DataRecord/interface/L1TGlobalPrescalesVetosRcd.h"
 
 class L1TGlobalParameters;
 class L1GtParameters;
@@ -173,6 +180,10 @@ private:
   bool m_getPrescaleColumnFromData;
   edm::InputTag m_algoblkInputTag;
   edm::EDGetToken m_algoblkInputToken;
+
+  edm::ESGetToken<L1TGlobalParameters, L1TGlobalParametersRcd> m_l1GtStableParToken;
+  edm::ESGetToken<L1TUtmTriggerMenu, L1TUtmTriggerMenuRcd> m_l1GtMenuToken;
+  edm::ESGetToken<L1TGlobalPrescalesVetos, L1TGlobalPrescalesVetosRcd> m_l1GtPrescaleVetosToken;
 };
 
 #endif /*L1TGlobalProducer_h*/
