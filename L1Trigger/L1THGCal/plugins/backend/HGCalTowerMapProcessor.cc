@@ -6,7 +6,6 @@
 
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
 #include "L1Trigger/L1THGCal/interface/HGCalTriggerGeometryBase.h"
-#include "L1Trigger/L1THGCal/interface/HGCalTriggerBackendAlgorithmBase.h"
 #include "L1Trigger/L1THGCal/interface/backend/HGCalTowerMap2DImpl.h"
 
 class HGCalTowerMapProcessor : public HGCalTowerMapProcessorBase {
