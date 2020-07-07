@@ -197,16 +197,18 @@ process.source = cms.Source("EmptyIOVSource",
                             )
 process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(1))
 process.PoolDBOutputService = cms.Service("PoolDBOutputService",
-                                          DBParameters = cms.PSet(messageLevel = cms.untracked.int32(0),
-    															  authenticationPath = cms.untracked.string('.')
-    															  ),
-                                          timetype = cms.untracked.string('runnumber'),
-                                          connect = cms.string(sqlitefilename),
-                                          toPut = cms.VPSet(cms.PSet(record = cms.string('SiPixelTemplateDBObjectRcd'),
-    																 tag = cms.string(template_base)
-																	 )
-                                          				    )
-                                          )
+                                DBParameters = cms.PSet(
+                                    messageLevel = cms.untracked.int32(0),
+                                    authenticationPath = cms.untracked.string('.')
+                                ),
+                                timetype = cms.untracked.string('runnumber'),
+                                connect = cms.string(sqlitefilename),
+                                toPut = cms.VPSet(cms.PSet(
+                                        record = cms.string('SiPixelTemplateDBObjectRcd'),
+                                        tag = cms.string(template_base)
+                                    )
+                                )
+                            )
 process.uploader = cms.EDAnalyzer("SiPixelTemplateDBObjectUploader",
                                   siPixelTemplateCalibrations = cms.vstring(template_filenames),
                                   theTemplateBaseString = cms.string(template_base),
