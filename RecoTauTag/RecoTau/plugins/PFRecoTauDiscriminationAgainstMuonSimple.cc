@@ -116,8 +116,7 @@ namespace {
         //if ( !(caloEnergyFraction > 0.) ) caloEnergyFraction = 99; //MB: hack against cases when caloEnergyFraction is not stored; it makes performance of the H/P cut rather poor
         if (verbosity_) {
           edm::LogPrint("PFTauAgainstMuonSimple")
-              << "decayMode = " << pfTau->decayMode()
-              << ", caloEnergy(ECAL+HCAL)Fraction = " << caloEnergyFraction
+              << "decayMode = " << pfTau->decayMode() << ", caloEnergy(ECAL+HCAL)Fraction = " << caloEnergyFraction
               << ", leadPFChargedHadronP = " << pCand->p() << ", leadPFChargedHadron pdgId = " << pCand->pdgId();
         }
         if (pfTau->decayMode() == 0 && caloEnergyFraction < hop_)
