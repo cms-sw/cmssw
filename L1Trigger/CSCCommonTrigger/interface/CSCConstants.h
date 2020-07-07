@@ -48,6 +48,7 @@ public:
   // Both ALCT and CLCTs have patterns. CLCTs have a better granularity than ALCTs, thus more patterns
   enum Pattern_Info {
     NUM_ALCT_PATTERNS = 3,
+    ALCT_PATTERN_WIDTH = 5,
     NUM_CLCT_PATTERNS = 11,
     CLCT_PATTERN_WIDTH = 11,
     // Max number of wires participating in a pattern
