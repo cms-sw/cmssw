@@ -26,8 +26,14 @@
 #include "FWCore/Framework/interface/Event.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Utilities/interface/ESGetToken.h"
 
 #include "DataFormats/L1GlobalCaloTrigger/interface/L1GctCollections.h"
+#include "CondFormats/L1TObjects/interface/L1GctJetFinderParams.h"
+#include "CondFormats/DataRecord/interface/L1GctJetFinderParamsRcd.h"
+#include "CondFormats/L1TObjects/interface/L1CaloEtScale.h"
+#include "CondFormats/DataRecord/interface/L1HtMissScaleRcd.h"
+#include "CondFormats/DataRecord/interface/L1HfRingEtScaleRcd.h"
 #include "TH1.h"
 #include "TH2.h"
 //
@@ -86,5 +92,8 @@ private:
   TH1F* theHfRing0CountNegativeEta;
   TH1F* theHfRing1CountPositiveEta;
   TH1F* theHfRing1CountNegativeEta;
+  edm::ESGetToken<L1GctJetFinderParams, L1GctJetFinderParamsRcd> m_jfParsToken;
+  edm::ESGetToken<L1CaloEtScale, L1HtMissScaleRcd> m_htMissScaleToken;
+  edm::ESGetToken<L1CaloEtScale, L1HfRingEtScaleRcd> m_hfRingEtScaleToken;
 };
 #endif

@@ -30,6 +30,14 @@
 
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GlobalCaloTrigger.h"
 
+// Trigger configuration includes
+#include "CondFormats/L1TObjects/interface/L1CaloEtScale.h"
+#include "CondFormats/L1TObjects/interface/L1GctJetFinderParams.h"
+#include "CondFormats/DataRecord/interface/L1JetEtScaleRcd.h"
+#include "CondFormats/DataRecord/interface/L1HtMissScaleRcd.h"
+#include "CondFormats/DataRecord/interface/L1HfRingEtScaleRcd.h"
+#include "CondFormats/DataRecord/interface/L1GctJetFinderParamsRcd.h"
+
 //
 // class declaration
 //
@@ -62,5 +70,11 @@ private:
 
   // pointers to the jet Et LUTs
   lutPtrVector m_jetEtCalibLuts;
+
+  //EventSetup Tokens
+  edm::ESGetToken<L1GctJetFinderParams, L1GctJetFinderParamsRcd> m_jfParsToken;
+  edm::ESGetToken<L1CaloEtScale, L1JetEtScaleRcd> m_etScaleToken;
+  edm::ESGetToken<L1CaloEtScale, L1HtMissScaleRcd> m_htMissScaleToken;
+  edm::ESGetToken<L1CaloEtScale, L1HfRingEtScaleRcd> m_hfRingEtScaleToken;
 };
 #endif
