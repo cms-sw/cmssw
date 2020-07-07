@@ -10,8 +10,7 @@
 
 #include "EventFilter/Utilities/interface/MicroStateService.h"
 
-#include "boost/thread/thread.hpp"
-
+#include <mutex>
 #include <string>
 #include <vector>
 
@@ -48,7 +47,7 @@ namespace evf {
     const std::string input;
     const std::string fwkovh;
     const std::string *microstate2_;
-    boost::mutex lock_;
+    std::mutex lock_;
   };
 
 }  // namespace evf
