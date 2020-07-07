@@ -39,6 +39,7 @@ Implementation:
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
+#include "FWCore/Utilities/interface/ESGetToken.h"
 
 #include "Geometry/RPCGeometry/interface/RPCRoll.h"
 #include "Geometry/RPCGeometry/interface/RPCGeometry.h"
@@ -132,6 +133,10 @@ private:
   std::map<int, TTUResults*> convertToMap(const std::vector<std::unique_ptr<TTUResults>>&) const;
 
   bool searchCoincidence(int, int, std::map<int, TTUResults*> const& ttuResultsByQuandrant) const;
+
+  edm::ESGetToken<RPCGeometry, MuonGeometryRecord> m_rpcGeometryToken;
+  edm::ESGetToken<RBCBoardSpecs, RBCBoardSpecsRcd> m_pRBCSpecsToken;
+  edm::ESGetToken<TTUBoardSpecs, TTUBoardSpecsRcd> m_pTTUSpecsToken;
 };
 
 #endif  // RPCTECHNICALTRIGGER_H
