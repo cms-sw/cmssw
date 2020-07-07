@@ -189,10 +189,6 @@ CSCCorrelatedLCTDigi CSCGEMMotherboard::constructLCTsGEM(const CSCALCTDigi& alct
                                    << " detid " << cscId_ << " with wiregroup " << keyWG << "keyStrip " << keyStrip
                                    << " \n";
 
-  // in Run-3 we plan to use the synchronization error bit
-  // to denote the presence of exotic signatures in the chamber
-  unsigned int syncErr = useHighMultiplicityBits_ ? highMultiplicityBits_ : 0;
-
   // fill the rest of the properties
   thisLCT.setTrknmb(trknmb);
   thisLCT.setValid(valid);
@@ -204,8 +200,13 @@ CSCCorrelatedLCTDigi CSCGEMMotherboard::constructLCTsGEM(const CSCALCTDigi& alct
   thisLCT.setBX(bx);
   thisLCT.setMPCLink(0);
   thisLCT.setBX0(0);
-  thisLCT.setSyncErr(syncErr);
+  // Not used in Run-2. Will not be assigned in Run-3
+  thisLCT.setSyncErr(0);
   thisLCT.setCSCID(theTrigChamber);
+  thisLCT.setRun3(true);
+  // in Run-3 we plan to denote the presence of exotic signatures in the chamber
+  if (useHighMultiplicityBits_)
+    thisLCT.setHMT(highMultiplicityBits_);
 
   // future work: add a section that produces LCTs according
   // to the new LCT dataformat (not yet defined)
