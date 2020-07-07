@@ -68,6 +68,7 @@ void PPSGeometryBuilder::analyze(const edm::Event& iEvent, const edm::EventSetup
     iSetup.get<IdealGeometryRecord>().get(compactViewTag_.c_str(), cpv);
   }
 
+
   // Create DDFilteredView and apply the filter
   DDPassAllFilter filter;
   DDFilteredView fv((*cpv), filter);
@@ -136,6 +137,25 @@ void PPSGeometryBuilder::buildPDetGeomDesc(DDFilteredView* fv, PDetGeomDesc* gd)
     // Geographical ID
     item.geographicalID_ = getGeographicalID(fv);
 
+    std::cout << " " << std::endl;
+    std::cout << " " << std::endl;
+    std::cout << " " << std::endl;
+    std::cout << "!!!!!!!!!!!!!!!!    item.name_ = " << item.name_ << std::endl;
+    std::cout << "item.copy_ = " << item.copy_ << std::endl;
+    std::cout << "item.geographicalID_ = " << item.geographicalID_ << std::endl;
+    std::cout << "item.z_ = " << item.z_ << std::endl;
+    std::cout << "sensor_name = " << sensor_name << std::endl;
+    std::cout << "item.sensorType_ = " << item.sensorType_ << std::endl;
+    std::cout << "item.dx_ = " << item.dx_ << std::endl;
+    std::cout << "item.dy_ = " << item.dy_ << std::endl;
+    std::cout << "item.dz_ = " << item.dz_ << std::endl;
+    std::cout << "rot = " << rot << std::endl;
+    std::cout << "item.params_ = ";
+    for (const auto& val : item.params_) {
+      std::cout << val << " ";
+    }
+    std::cout << " " << std::endl;
+
     // =======================================================================
 
     // add component
@@ -154,6 +174,13 @@ void PPSGeometryBuilder::buildPDetGeomDesc(DDFilteredView* fv, PDetGeomDesc* gd)
 uint32_t PPSGeometryBuilder::getGeographicalID(DDFilteredView* view) {
   uint32_t geoID = 0;
   const std::string name = view->logicalPart().name().name();
+  std::cout << "PPSGeometryBuilder::getGeographicalID name = " << name << std::endl;
+  std::cout << "view->copyno() = " << view->copyno() << std::endl;
+  std::cout << "view->copyNumbers() = ";
+  for (const auto& num : view->copyNumbers()) {
+    std::cout << num << " ";
+  }
+  std::cout << " " << std::endl;
 
   // strip sensors
   if (name == DDD_TOTEM_RP_SENSOR_NAME) {
