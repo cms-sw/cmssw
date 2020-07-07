@@ -23,7 +23,7 @@ using namespace jpt;
 //
 JetPlusTrackCorrector::JetPlusTrackCorrector(const edm::ParameterSet& pset, edm::ConsumesCollector&& iC)
     : verbose_(pset.getParameter<bool>("Verbose")),
-      usereco_(pset.getParameter<bool>("UseReco")),
+      usePAT_(pset.getParameter<bool>("UsePAT")),
       vectorial_(pset.getParameter<bool>("VectorialCorrection")),
       vecResponse_(pset.getParameter<bool>("UseResponseInVecCorr")),
       useInConeTracks_(pset.getParameter<bool>("UseInConeTracks")),
@@ -104,7 +104,7 @@ JetPlusTrackCorrector::JetPlusTrackCorrector(const edm::ParameterSet& pset, edm:
   input_reco_muons_token_ = iC.consumes<RecoMuons>(muons_);
   input_reco_elecs_token_ = iC.consumes<RecoElectrons>(electrons_);
   input_reco_elec_ids_token_ = iC.consumes<RecoElectronIds>(electronIds_);
-  if (!usereco_) {
+  if (usePAT_) {
     input_pat_muons_token_ = iC.consumes<pat::MuonCollection>(patmuons_);
     input_pat_elecs_token_ = iC.consumes<pat::ElectronCollection>(patelectrons_);
   }
@@ -128,11 +128,8 @@ double JetPlusTrackCorrector::correction(const reco::Jet& fJet,
                                          MatchedTracks& elecs) {
   double scale = 1.;
   corrected = fJet.p4();
-  bool validMatches = matchTracks(fJetcalo, event, setup, tracksinvert, tracksincalo, pions, muons, elecs);
-  if (!validMatches) {
-    return 1.;
-  }
-  if (usereco_) {
+  matchTracks(fJetcalo, event, setup, tracksinvert, tracksincalo, pions, muons, elecs);
+  if (!usePAT_) {
     if (usePions_) {
       corrected += pionCorrection(fJet.p4(), pions);
     }
@@ -252,9 +249,9 @@ double JetPlusTrackCorrector::correction(const reco::Particle::LorentzVector& je
 
 // -----------------------------------------------------------------------------
 //
-bool JetPlusTrackCorrector::matchTracks(const reco::Jet& fJet,
+void JetPlusTrackCorrector::matchTracks(const reco::Jet& fJet,
                                         const edm::Event& event,
-                                        const edm::EventSetup& setup,  //@@ required by method in derived class
+                                        const edm::EventSetup& setup,
                                         const reco::TrackRefVector& tracksinvert,
                                         const reco::TrackRefVector& tracksincalo,
                                         jpt::MatchedTracks& pions,
@@ -265,12 +262,12 @@ bool JetPlusTrackCorrector::matchTracks(const reco::Jet& fJet,
   jet_tracks.caloFace_ = tracksincalo;
   matchTracks(jet_tracks, event, pions, muons, elecs);
 
-  return true;
+  return;
 }
 
 bool JetPlusTrackCorrector::matchTracks(const reco::Jet& fJet,
                                         const edm::Event& event,
-                                        const edm::EventSetup& setup,  //@@ required by method in derived class
+                                        const edm::EventSetup& setup,
                                         jpt::MatchedTracks& pions,
                                         jpt::MatchedTracks& muons,
                                         jpt::MatchedTracks& elecs) {
@@ -422,7 +419,7 @@ void JetPlusTrackCorrector::matchTracks(const JetTracks& jet_tracks,
   bool found_reco_muons = true;
   bool found_pat_muons = true;
   if (useMuons_) {
-    if (usereco_) {
+    if (!usePAT_) {
       getMuons(event, reco_muons);
     } else {
       getMuons(event, pat_muons);
@@ -437,7 +434,7 @@ void JetPlusTrackCorrector::matchTracks(const JetTracks& jet_tracks,
   bool found_reco_elecs = true;
   bool found_pat_elecs = true;
   if (useElecs_) {
-    if (usereco_) {
+    if (!usePAT_) {
       getElectrons(event, reco_elecs, reco_elec_ids);
     } else {
       getElectrons(event, pat_elecs);
@@ -597,34 +594,13 @@ bool JetPlusTrackCorrector::getElectrons(const edm::Event& event,
                                          edm::Handle<RecoElectrons>& reco_elecs,
                                          edm::Handle<RecoElectronIds>& reco_elec_ids) const {
   event.getByToken(input_reco_elecs_token_, reco_elecs);
-  if (!reco_elecs.isValid() || reco_elecs.failedToGet()) {
-    edm::LogError("JetPlusTrackCorrector") << "[JetPlusTrackCorrector::" << __func__ << "]"
-                                           << " Invalid handle to reco::GsfElectron collection"
-                                           << " with InputTag (label:instance:process) \"" << electrons_.label() << ":"
-                                           << electrons_.instance() << ":" << electrons_.process() << "\"";
-    return false;
-  }
   event.getByToken(input_reco_elec_ids_token_, reco_elec_ids);
-  if (!reco_elec_ids.isValid() || reco_elec_ids.failedToGet()) {
-    edm::LogError("JetPlusTrackCorrector") << "[JetPlusTrackCorrector::" << __func__ << "]"
-                                           << " Invalid handle to reco::GsfElectron collection"
-                                           << " with InputTag (label:instance:process) \"" << electronIds_.label()
-                                           << ":" << electronIds_.instance() << ":" << electronIds_.process() << "\"";
-    return false;
-  }
   return true;
 }
 
 bool JetPlusTrackCorrector::getElectrons(const edm::Event& event,
-                                         edm::Handle<pat::ElectronCollection>& reco_elecs) const {
-  event.getByToken(input_pat_elecs_token_, reco_elecs);
-  if (!reco_elecs.isValid() || reco_elecs.failedToGet()) {
-    edm::LogError("JetPlusTrackCorrector") << "[JetPlusTrackCorrector::" << __func__ << "]"
-                                           << " Invalid handle to reco::GsfElectron collection"
-                                           << " with InputTag (label:instance:process) \"" << electrons_.label() << ":"
-                                           << electrons_.instance() << ":" << electrons_.process() << "\"";
-    return false;
-  }
+                                         edm::Handle<pat::ElectronCollection>& pat_elecs) const {
+  event.getByToken(input_pat_elecs_token_, pat_elecs);
   return true;
 }
 
@@ -1136,9 +1112,9 @@ bool JetPlusTrackCorrector::matchMuons(TrackRefs::const_iterator& itrk,
   for (auto const& muon : *muons) {
     if (muon.innerTrack().isNull() == 1)
       continue;
-    if (fabs((**itrk).pt() - (*(muon.innerTrack())).pt()) < muonPtmatch_ &&
-        fabs((**itrk).eta() - (*(muon.innerTrack())).eta()) < muonEtamatch_ &&
-        fabs((**itrk).phi() - (*(muon.innerTrack())).phi()) < muonPhimatch_) {
+    if (std::abs((**itrk).pt() - muon.innerTrack()->pt()) < muonPtmatch_ &&
+        std::abs((**itrk).eta() - muon.innerTrack()->eta()) < muonEtamatch_ &&
+        std::abs(reco::deltaPhi((**itrk).phi(), muon.innerTrack()->phi())) < muonPhimatch_) {
       return true;
     }
   }
@@ -1155,7 +1131,6 @@ bool JetPlusTrackCorrector::matchElectrons(TrackRefs::const_iterator& itrk,
     return false;
   }
 
-  double dR = 999.;
   double deltaRMIN = 999.;
 
   uint32_t electron_index = 0;
@@ -1168,13 +1143,12 @@ bool JetPlusTrackCorrector::matchElectrons(TrackRefs::const_iterator& itrk,
     }  //@@ Check for null value
 
     // DR matching b/w electron and track
-    dR = deltaR(ielec, **itrk);
-    //    dR = deltaR(ielec->eta(), ielec->phi(), (*itrk)->momentum().eta(), (*itrk)->momentum().phi());
-    if (dR < deltaRMIN) {
-      deltaRMIN = dR;
+    auto dR2 = deltaR2(ielec, **itrk);
+    if (dR2 < deltaRMIN) {
+      deltaRMIN = dR2;
     }
   }
-  return deltaRMIN < electronDRmatch_;
+  return deltaRMIN < electronDRmatch_ * electronDRmatch_;
 }
 
 bool JetPlusTrackCorrector::matchElectrons(TrackRefs::const_iterator& itrk,
@@ -1183,18 +1157,14 @@ bool JetPlusTrackCorrector::matchElectrons(TrackRefs::const_iterator& itrk,
     return false;
   }
 
-  double dR = 999.;
   double deltaRMIN = 999.;
-  //  pat::ElectronCollection::const_iterator ielec = elecs->begin();
-  //  pat::ElectronCollection::const_iterator jelec = elecs->end();
-  //  for (; ielec != jelec; ++ielec) {
   for (auto const& ielec : *elecs) {
-    dR = deltaR(ielec, **itrk);
-    if (dR < deltaRMIN) {
-      deltaRMIN = dR;
+    auto dR2 = deltaR2(ielec, **itrk);
+    if (dR2 < deltaRMIN) {
+      deltaRMIN = dR2;
     }
   }
-  return deltaRMIN < electronDRmatch_;
+  return deltaRMIN < electronDRmatch_ * electronDRmatch_;
 }
 
 // -----------------------------------------------------------------------------

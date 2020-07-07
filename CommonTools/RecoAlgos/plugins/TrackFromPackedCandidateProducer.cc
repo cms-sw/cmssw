@@ -12,17 +12,19 @@
 #include <memory>
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/isFinite.h"
-#include "FWCore/Framework/interface/stream/EDProducer.h"
+#include "FWCore/Framework/interface/global/EDProducer.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "DataFormats/PatCandidates/interface/PackedCandidate.h"
 #include "DataFormats/PatCandidates/interface/PackedCandidate.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 
-class TrackFromPackedCandidateProducer : public edm::stream::EDProducer<> {
+class TrackFromPackedCandidateProducer : public edm::global::EDProducer<> {
 public:
   /// Constructor
   explicit TrackFromPackedCandidateProducer(const edm::ParameterSet& iConfig);
@@ -31,28 +33,27 @@ public:
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
   /// Implementation of produce method
-  void produce(edm::Event&, const edm::EventSetup&) override;
+  void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
 
 private:
   const edm::EDGetTokenT<std::vector<pat::PackedCandidate> > tokenPFCandidates_;
-  const edm::EDGetTokenT<std::vector<pat::PackedCandidate> > tokenPFCandidatesLostTracks_;
 };
 
 TrackFromPackedCandidateProducer::TrackFromPackedCandidateProducer(const edm::ParameterSet& iConfig)
-    : tokenPFCandidates_(consumes<pat::PackedCandidateCollection>(iConfig.getParameter<edm::InputTag>("PFCandidates"))),
-      tokenPFCandidatesLostTracks_(
-          consumes<pat::PackedCandidateCollection>(iConfig.getParameter<edm::InputTag>("PFCandidatesLostTracks"))) {
+    : tokenPFCandidates_(
+          consumes<pat::PackedCandidateCollection>(iConfig.getParameter<edm::InputTag>("PFCandidates"))) {
   produces<reco::TrackCollection>();
 }
 
 void TrackFromPackedCandidateProducer::fillDescriptions(edm::ConfigurationDescriptions& iDescriptions) {
   edm::ParameterSetDescription desc;
   desc.add<edm::InputTag>("PFCandidates");
-  desc.add<edm::InputTag>("PFCandidatesLostTracks");
-  iDescriptions.addDefault(desc);
+  iDescriptions.addWithDefaultLabel(desc);
 }
 
-void TrackFromPackedCandidateProducer::produce(edm::Event& theEvent, const edm::EventSetup& setup) {
+void TrackFromPackedCandidateProducer::produce(edm::StreamID theStreamID,
+                                               edm::Event& theEvent,
+                                               const edm::EventSetup& setup) const {
   //
   // create empty output collections
   //
@@ -69,7 +70,6 @@ void TrackFromPackedCandidateProducer::produce(edm::Event& theEvent, const edm::
       outputTColl->push_back(mytrack);
     }
   }
-
   //put everything in the event
   theEvent.put(std::move(outputTColl));
 }

@@ -53,11 +53,12 @@ private:
   edm::InputTag src;
   edm::InputTag srcTrackJets;
   edm::InputTag srcPVs_;
-  std::string alias;
+  std::string alias_;
   bool vectorial_;
-  bool useZSP;
-  double ptCUT;
-  double dRcone;
+  bool useZSP_;
+  bool usePAT_;
+  double ptCUT_;
+  double dRcone_;
 
   edm::EDGetTokenT<edm::View<reco::CaloJet> > input_jets_token_;
   edm::EDGetTokenT<edm::View<reco::CaloJet> > input_addjets_token_;

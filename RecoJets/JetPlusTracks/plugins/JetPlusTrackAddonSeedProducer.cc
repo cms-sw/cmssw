@@ -3,7 +3,7 @@
 // Package:    JetPlusTracks
 // Class:      JetPlusTrackAddonSeedProducer
 //
-/**\class JetPlusTrackAddonSeedProducer JetPlusTrackAddonSeedProducer.cc JetPlusTrackAddonSeedProducer.cc
+/**\class JetPlusTrackAddonSeedProducer JetPlusTrackAddonSeedProducer.cc
 
  Description: [one line class summary]
 
@@ -54,11 +54,11 @@ public:
 private:
   const double dRcone_;
   const bool usePAT_;
-  edm::EDGetTokenT<edm::View<reco::CaloJet> > input_jets_token_;
-  edm::EDGetTokenT<edm::View<reco::TrackJet> > input_trackjets_token_;
-  edm::EDGetTokenT<reco::VertexCollection> input_vertex_token_;
-  edm::EDGetTokenT<std::vector<pat::PackedCandidate> > tokenPFCandidates_;
-  edm::EDGetTokenT<CaloTowerCollection> input_ctw_token_;
+  const edm::EDGetTokenT<edm::View<reco::CaloJet> > input_jets_token_;
+  const edm::EDGetTokenT<edm::View<reco::TrackJet> > input_trackjets_token_;
+  const edm::EDGetTokenT<reco::VertexCollection> input_vertex_token_;
+  const edm::EDGetTokenT<std::vector<pat::PackedCandidate> > tokenPFCandidates_;
+  const edm::EDGetTokenT<CaloTowerCollection> input_ctw_token_;
 };
 
 JetPlusTrackAddonSeedProducer::JetPlusTrackAddonSeedProducer(const edm::ParameterSet& iConfig)
@@ -75,14 +75,14 @@ JetPlusTrackAddonSeedProducer::JetPlusTrackAddonSeedProducer(const edm::Paramete
 
 void JetPlusTrackAddonSeedProducer::fillDescriptions(edm::ConfigurationDescriptions& iDescriptions) {
   edm::ParameterSetDescription desc;
-  desc.add<double>("dRcone");
-  desc.add<bool>("UsePAT");
-  desc.add<edm::InputTag>("srcCaloJets");
-  desc.add<edm::InputTag>("srcTrackJets");
-  desc.add<edm::InputTag>("srcPVs");
-  desc.add<edm::InputTag>("PFCandidates");
-  desc.add<edm::InputTag>("towerMaker");
-  iDescriptions.addDefault(desc);
+  desc.add<double>("dRcone", 0.4);
+  desc.add<bool>("UsePAT", false);
+  desc.add<edm::InputTag>("srcCaloJets", edm::InputTag("ak4CaloJets"));
+  desc.add<edm::InputTag>("srcTrackJets", edm::InputTag("ak4TrackJets"));
+  desc.add<edm::InputTag>("srcPVs", edm::InputTag("primaryVertex"));
+  desc.add<edm::InputTag>("PFCandidates", edm::InputTag("PFCandidates"));
+  desc.add<edm::InputTag>("towerMaker", edm::InputTag("towerMaker"));
+  iDescriptions.addWithDefaultLabel(desc);
 }
 
 // ------------ method called to produce the data  ------------
@@ -91,7 +91,6 @@ void JetPlusTrackAddonSeedProducer::produce(edm::Event& iEvent, const edm::Event
   // get stuff from Event
   auto const& jets = iEvent.get(input_jets_token_);
   auto const& jetsTrackJets = iEvent.get(input_trackjets_token_);
-
   auto pCaloOut = std::make_unique<reco::CaloJetCollection>();
 
   for (auto const& jet : jetsTrackJets) {
@@ -139,20 +138,19 @@ void JetPlusTrackAddonSeedProducer::produce(edm::Event& iEvent, const edm::Event
         ncand++;
       }  // pfcandidates
     } else {
-      edm::Handle<CaloTowerCollection> ct;
       auto const& cts = iEvent.get(input_ctw_token_);
       for (auto const& ct : cts) {
         double dr2 = deltaR2(jet, ct);
         if (dr2 > dRcone_ * dRcone_)
           continue;
-        caloen = caloen + (ct).energy();
-        hadinho += (ct).energyInHO();
-        hadinhb += (ct).energyInHB();
-        hadinhe += (ct).energyInHE();
-        hadinhf += 0.5 * (ct).energyInHF();
-        emineb += (ct).energy() - (ct).energyInHB();
-        eminee += (ct).energy() - (ct).energyInHE();
-        eminhf += 0.5 * (ct).energyInHF();
+        caloen = caloen + ct.energy();
+        hadinho += ct.energyInHO();
+        hadinhb += ct.energyInHB();
+        hadinhe += ct.energyInHE();
+        hadinhf += 0.5 * ct.energyInHF();
+        emineb += ct.energy() - ct.energyInHB() - ct.energyInHO();
+        eminee += ct.energy() - ct.energyInHE();
+        eminhf += 0.5 * ct.energyInHF();
         ncand++;
       }
     }
@@ -180,7 +178,6 @@ void JetPlusTrackAddonSeedProducer::produce(edm::Event& iEvent, const edm::Event
     pCaloOut->push_back(mycalo);
 
   }  // trackjets
-
   iEvent.put(std::move(pCaloOut));
 }
 

@@ -20,9 +20,7 @@
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/PatCandidates/interface/Electron.h"
-#include "DataFormats/PatCandidates/interface/Jet.h"
 #include "DataFormats/PatCandidates/interface/PackedCandidate.h"
-#include "DataFormats/PatCandidates/interface/VIDCutFlowResult.h"
 #include "DataFormats/PatCandidates/interface/Muon.h"
 
 #include "boost/range/iterator_range.hpp"
@@ -262,7 +260,7 @@ public:
                    jpt::MatchedTracks& muons,
                    jpt::MatchedTracks& elecs);
 
-  bool matchTracks(const reco::Jet&,
+  void matchTracks(const reco::Jet&,
                    const edm::Event&,
                    const edm::EventSetup&,
                    const reco::TrackRefVector& tracksinvert,
@@ -398,7 +396,7 @@ protected:
 protected:
   // Some general configuration
   bool verbose_;
-  bool usereco_;
+  bool usePAT_;
   bool vectorial_;
   bool vecResponse_;
   bool useInConeTracks_;

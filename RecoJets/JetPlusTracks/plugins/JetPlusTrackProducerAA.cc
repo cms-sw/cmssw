@@ -113,8 +113,6 @@ JetPlusTrackProducerAA::~JetPlusTrackProducerAA() {
 void JetPlusTrackProducerAA::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   using namespace edm;
 
-  //  std::cout<<" RecoJets::JetPlusTrackProducerAA::produce "<<std::endl;
-
   // get stuff from Event
   edm::Handle<edm::View<reco::CaloJet> > jets_h;
   iEvent.getByToken(input_jets_token_, jets_h);
@@ -128,12 +126,8 @@ void JetPlusTrackProducerAA::produce(edm::Event& iEvent, const edm::EventSetup& 
     fTracks.push_back(reco::TrackRef(tracks_h, i));
   }
 
-  //=>
   edm::Handle<std::vector<reco::TrackExtrapolation> > extrapolations_h;
   iEvent.getByToken(input_extrapolations_token_, extrapolations_h);
-
-  //  std::cout<<"JetPlusTrackProducerAA::produce, extrapolations_h="<<extrapolations_h->size()<<std::endl;
-  //=>
 
   auto pOut = std::make_unique<reco::JPTJetCollection>();
 
@@ -149,8 +143,6 @@ void JetPlusTrackProducerAA::produce(edm::Event& iEvent, const edm::EventSetup& 
     double factorZSP = 1.;
     if (useZSP)
       factorZSP = mZSPalgo->correction(corrected, iEvent, iSetup);
-
-    //   std::cout << " UseZSP = "<<useZSP<<std::endl;
 
     corrected.scaleEnergy(factorZSP);
 
@@ -179,10 +171,6 @@ void JetPlusTrackProducerAA::produce(edm::Event& iEvent, const edm::EventSetup& 
     reco::JPTJet::Specific specific;
 
     if (ok) {
-      //    std::cout<<" Size of Pion in-in "<<pions.inVertexInCalo_.size()<<" in-out "<<pions.inVertexOutOfCalo_.size()
-      //             <<" out-in "<<pions.outOfVertexInCalo_.size()<<" Oldjet "<<oldjet->et()<<" factorZSP "<<factorZSP
-      //             <<"  "<<corrected.et()<<" scaleJPT "<<scaleJPT<<" after JPT "<<p4.pt()<<std::endl;
-
       specific.pionsInVertexInCalo = pions.inVertexInCalo_;
       specific.pionsInVertexOutCalo = pions.inVertexOutOfCalo_;
       specific.pionsOutVertexInCalo = pions.outOfVertexInCalo_;
@@ -282,8 +270,6 @@ void JetPlusTrackProducerAA::produce(edm::Event& iEvent, const edm::EventSetup& 
     if (mJPTalgo->getSumPtForBeta() > 0.)
       Zch = Zch / mJPTalgo->getSumPtForBeta();
 
-    //    std::cout<<" Zch "<< Zch<<" "<<mJPTalgo->getSumPtForBeta()<<std::endl;
-
     if (ntracks > 0) {
       Pout = sqrt(fabs(Pout2)) / ntracks;
     }
@@ -374,18 +360,9 @@ reco::TrackRefVector JetPlusTrackProducerAA::calculateBGtracksJet(
   for (unsigned t = 0; t < fTracks.size(); ++t) {
     int track_bg = 0;
 
-    // if(!(*fTracks[t]).quality(trackQuality_))
-    // {
-    // cout<<"BG, BAD trackQuality, ptBgV="<<fTracks[t]->pt()<<" etaBgV = "<<fTracks[t]->eta()<<" phiBgV = "<<fTracks[t]->phi()<<endl;
-    // continue;
-    // }
-
     const reco::Track* track = &*(fTracks[t]);
     double trackEta = track->eta();
     double trackPhi = track->phi();
-
-    //  std::cout<<"++++++++++++++++>  track="<<t<<" trackEta="<<trackEta<<" trackPhi="<<trackPhi
-    //           <<" coneSize="<<mConeSize<<std::endl;
 
     //loop on jets
     for (unsigned j = 0; j < fJets.size(); ++j) {
@@ -393,25 +370,16 @@ reco::TrackRefVector JetPlusTrackProducerAA::calculateBGtracksJet(
       double jetEta = jet->eta();
       double jetPhi = jet->phi();
 
-      //  std::cout<<"-jet="<<j<<" jetEt ="<<jet->pt()
-      //  <<" jetE="<<jet->energy()<<" jetEta="<<jetEta<<" jetPhi="<<jetPhi<<std::endl;
-
       if (fabs(jetEta - trackEta) < mConeSize) {
         double dphiTrackJet = deltaPhi(trackPhi, jetPhi);
         if (dphiTrackJet < mConeSize) {
           track_bg = 1;
-          //    std::cout<<"===>>>> Track inside jet at vertex, track_bg="<< track_bg <<" track="<<t<<" jet="<<j
-          //            <<" trackEta="<<trackEta<<" trackPhi="<<trackPhi
-          //            <<" jetEta="<<jetEta<<" jetPhi="<<jetPhi<<std::endl;
         }
       }
     }  //jets
 
     if (track_bg == 0) {
       trBgOutOfVertex.push_back(fTracks[t]);
-
-      //       std::cout<<"------Track outside jet at vertex, track_bg="<< track_bg<<" track="<<t
-      //               <<" trackEta="<<trackEta<<" trackPhi="<<trackPhi <<std::endl;
     }
 
   }  //tracks
@@ -423,27 +391,14 @@ reco::TrackRefVector JetPlusTrackProducerAA::calculateBGtracksJet(
                                                              ixtrp = xtrpBegin;
        ixtrp != xtrpEnd;
        ++ixtrp) {
-    //    std::cout<<"JetPlusTrackProducerAA::calculateBGtracksJet: initial track pt= "<<ixtrp->track()->pt()
-    //             <<" eta= "<<ixtrp->track()->eta()<<" phi="<<ixtrp->track()->phi()
-    //             <<" Valid? "<<ixtrp->isValid().at(0)<<std::endl;
-
-    //if( ixtrp->isValid().at(0) == 0 ) continue;
-    //in DF change in 4.2, all entries are valid.
     nValid++;
 
     reco::TrackRefVector::iterator it = find(trBgOutOfVertex.begin(), trBgOutOfVertex.end(), (*ixtrp).track());
 
     if (it != trBgOutOfVertex.end()) {
       trBgOutOfCalo.push_back(*it);
-
-      //          std::cout<<"+++trBgOutOfCalo, pt= "<<ixtrp->track()->pt()<<" eta= "<<ixtrp->track()->eta()<<" phi="<<ixtrp->track()->phi()
-      //                   <<" Valid? "<<ixtrp->isValid().at(0)<<std::endl;
     }
   }
-
-  //     std::cout<<"calculateBGtracksJet, trBgOutOfCalo="<<trBgOutOfCalo.size()
-  //              <<" trBgOutOfVertex="<<trBgOutOfVertex.size()<<" nValid="<<nValid<<endl;
-  //=====>
 
   return trBgOutOfVertex;
 }

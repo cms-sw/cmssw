@@ -6,7 +6,7 @@ JPTZSPCorrectorAntiKt4 = cms.PSet(
 
     # General Configuration
     Verbose = cms.bool(True),
-    UseReco = cms.bool(True),
+    UsePAT = cms.bool(False),
 
     # Vectorial corrections
     VectorialCorrection  = cms.bool(True),
