@@ -537,32 +537,30 @@ void PATTauProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) 
         } else {
           // TauReco@MiniAOD: individual ECAL and HCAL energies recovered from fractions,
           // and position at ECAL entrance computed on-the-fly
-	  const pat::PackedCandidate* ipatcand = dynamic_cast<const pat::PackedCandidate*>(it.get());
+          const pat::PackedCandidate* ipatcand = dynamic_cast<const pat::PackedCandidate*>(it.get());
           if (ipatcand != nullptr) {
-	    ecalEnergy += ipatcand->caloFraction() * ipatcand->energy()
-	      * (1. - ipatcand->hcalFraction());
-	    hcalEnergy += ipatcand->caloFraction() * ipatcand->energy()
-	      * ipatcand->hcalFraction();
-	    double posAtECal_phi = ipatcand->phi();
-	    double posAtECal_eta = ipatcand->eta();
-	    bool success = false;
-	    reco::Candidate::Point posAtECalEntrance = posAtECalEntranceComputer_(ipatcand, success);
-	    if (success) {
-	      posAtECal_phi = posAtECalEntrance.phi();
-	      posAtECal_eta = posAtECalEntrance.eta();
-	    }
-	    sumPhiTimesEnergy += posAtECal_phi * ipatcand->energy();
-	    sumEtaTimesEnergy += posAtECal_eta * ipatcand->energy();
-	    sumEnergy += ipatcand->energy();
-	    const reco::Track* track = ipatcand->bestTrack();
-	    if (track != nullptr) {
-	      if (track->pt() > leadChargedCandPt) {
-		leadChargedCandEtaAtEcalEntrance = posAtECal_eta;
-		leadChargedCandPt = track->pt();
-	      }
-	    }
-	  }
-	}
+            ecalEnergy += ipatcand->caloFraction() * ipatcand->energy() * (1. - ipatcand->hcalFraction());
+            hcalEnergy += ipatcand->caloFraction() * ipatcand->energy() * ipatcand->hcalFraction();
+            double posAtECal_phi = ipatcand->phi();
+            double posAtECal_eta = ipatcand->eta();
+            bool success = false;
+            reco::Candidate::Point posAtECalEntrance = posAtECalEntranceComputer_(ipatcand, success);
+            if (success) {
+              posAtECal_phi = posAtECalEntrance.phi();
+              posAtECal_eta = posAtECalEntrance.eta();
+            }
+            sumPhiTimesEnergy += posAtECal_phi * ipatcand->energy();
+            sumEtaTimesEnergy += posAtECal_eta * ipatcand->energy();
+            sumEnergy += ipatcand->energy();
+            const reco::Track* track = ipatcand->bestTrack();
+            if (track != nullptr) {
+              if (track->pt() > leadChargedCandPt) {
+                leadChargedCandEtaAtEcalEntrance = posAtECal_eta;
+                leadChargedCandPt = track->pt();
+              }
+            }
+          }
+        }
       }
       aTauPFEssential.ecalEnergy_ = ecalEnergy;
       aTauPFEssential.hcalEnergy_ = hcalEnergy;
@@ -590,52 +588,50 @@ void PATTauProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) 
           reco::TrackRef trackRef = pfCandPtr->trackRef();
           if (trackRef.isNonnull()) {
             leadingTrackNormChi2 = trackRef->normalizedChi2();
-	  }
-	  for (const auto& isoPFCand : pfTauRef->isolationPFCands()) {
-	    myHCALenergy += isoPFCand->hcalEnergy();
-	    myECALenergy += isoPFCand->ecalEnergy();
-	  }
-	  for (const auto& signalPFCand : pfTauRef->signalPFCands()) {
-	    myHCALenergy += signalPFCand->hcalEnergy();
-	    myECALenergy += signalPFCand->ecalEnergy();
-	  }
-	  if (myHCALenergy + myECALenergy != 0.) {
-	    emFraction = myECALenergy / (myHCALenergy + myECALenergy);
-	  }
+          }
+          for (const auto& isoPFCand : pfTauRef->isolationPFCands()) {
+            myHCALenergy += isoPFCand->hcalEnergy();
+            myECALenergy += isoPFCand->ecalEnergy();
+          }
+          for (const auto& signalPFCand : pfTauRef->signalPFCands()) {
+            myHCALenergy += signalPFCand->hcalEnergy();
+            myECALenergy += signalPFCand->ecalEnergy();
+          }
+          if (myHCALenergy + myECALenergy != 0.) {
+            emFraction = myECALenergy / (myHCALenergy + myECALenergy);
+          }
         } else {
           const pat::PackedCandidate* packedCandPtr = dynamic_cast<const pat::PackedCandidate*>(leadingPFCharged.get());
           if (packedCandPtr != nullptr) {
-	    // TauReco@MiniAOD: individual ECAL and HCAL energies recovered from fractions,
-	    // and position at ECAL entrance computed on-the-fly
-	    ecalEnergyLeadChargedHadrCand = packedCandPtr->caloFraction() * packedCandPtr->energy()
-              * (1. - packedCandPtr->hcalFraction());
-            hcalEnergyLeadChargedHadrCand = packedCandPtr->caloFraction() * packedCandPtr->energy()
-              * packedCandPtr->hcalFraction();
+            // TauReco@MiniAOD: individual ECAL and HCAL energies recovered from fractions,
+            // and position at ECAL entrance computed on-the-fly
+            ecalEnergyLeadChargedHadrCand =
+                packedCandPtr->caloFraction() * packedCandPtr->energy() * (1. - packedCandPtr->hcalFraction());
+            hcalEnergyLeadChargedHadrCand =
+                packedCandPtr->caloFraction() * packedCandPtr->energy() * packedCandPtr->hcalFraction();
             const reco::Track* track = packedCandPtr->bestTrack();
             if (track != nullptr) {
               leadingTrackNormChi2 = track->normalizedChi2();
             }
-	    for (const auto& isoCand : pfTauRef->isolationCands()) {
-	      //can safely use static_cast as it is ensured that this PFTau is
-	      //built with packedCands as its leadingCanidate
-	      const pat::PackedCandidate* isoPackedCand = static_cast<const pat::PackedCandidate*>(isoCand.get());
-	      myHCALenergy += isoPackedCand->caloFraction() * isoPackedCand->energy()
-		* isoPackedCand->hcalFraction();
-	      myECALenergy += isoPackedCand->caloFraction() * isoPackedCand->energy()
-		* (1. - isoPackedCand->hcalFraction());
-	    }
-	    for (const auto& signalCand : pfTauRef->signalCands()) {
-	      //can safely use static_cast as it is ensured that this PFTau is
-	      //built with packedCands as its leadingCanidate
-	      const pat::PackedCandidate* sigPackedCand = static_cast<const pat::PackedCandidate*>(signalCand.get());
-	      myHCALenergy += sigPackedCand->caloFraction() * sigPackedCand->energy()
-		* sigPackedCand->hcalFraction();
-	      myECALenergy += sigPackedCand->caloFraction() * sigPackedCand->energy()
-		* (1. - sigPackedCand->hcalFraction());
-	    }
-	    if (myHCALenergy + myECALenergy != 0.) {
-	      emFraction = myECALenergy / (myHCALenergy + myECALenergy);
-	    }
+            for (const auto& isoCand : pfTauRef->isolationCands()) {
+              //can safely use static_cast as it is ensured that this PFTau is
+              //built with packedCands as its leadingCanidate
+              const pat::PackedCandidate* isoPackedCand = static_cast<const pat::PackedCandidate*>(isoCand.get());
+              myHCALenergy += isoPackedCand->caloFraction() * isoPackedCand->energy() * isoPackedCand->hcalFraction();
+              myECALenergy +=
+                  isoPackedCand->caloFraction() * isoPackedCand->energy() * (1. - isoPackedCand->hcalFraction());
+            }
+            for (const auto& signalCand : pfTauRef->signalCands()) {
+              //can safely use static_cast as it is ensured that this PFTau is
+              //built with packedCands as its leadingCanidate
+              const pat::PackedCandidate* sigPackedCand = static_cast<const pat::PackedCandidate*>(signalCand.get());
+              myHCALenergy += sigPackedCand->caloFraction() * sigPackedCand->energy() * sigPackedCand->hcalFraction();
+              myECALenergy +=
+                  sigPackedCand->caloFraction() * sigPackedCand->energy() * (1. - sigPackedCand->hcalFraction());
+            }
+            if (myHCALenergy + myECALenergy != 0.) {
+              emFraction = myECALenergy / (myHCALenergy + myECALenergy);
+            }
           }
         }
       }
