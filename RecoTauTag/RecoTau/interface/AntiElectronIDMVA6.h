@@ -93,13 +93,9 @@ public:
 
   void beginEvent(const edm::Event&, const edm::EventSetup&);
 
-  double MVAValue(const TauVars& tauVars,
-		  const TauGammaVecs& tauGammaVecs,
-		  const ElecVars& elecVars);
+  double MVAValue(const TauVars& tauVars, const TauGammaVecs& tauGammaVecs, const ElecVars& elecVars);
 
-  double MVAValue(const TauVars& tauVars,
-		  const TauGammaMoms& tauGammaMoms,
-		  const ElecVars& elecVars);
+  double MVAValue(const TauVars& tauVars, const TauGammaMoms& tauGammaMoms, const ElecVars& elecVars);
 
   // this function can be called for all categories
   double MVAValue(const TauType& theTau, const ElectronType& theEle);
@@ -112,7 +108,7 @@ public:
   TauVars getTauVars(const TauType& theTau);
   TauGammaVecs getTauGammaVecs(const TauType& theTau);
   ElecVars getElecVars(const ElectronType& theEle);
-  
+
   // track extrapolation to ECAL entrance (used to re-calculate variables that might not be available on miniAOD)
   bool atECalEntrance(const reco::Candidate* part, math::XYZPoint& pos);
 

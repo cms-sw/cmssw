@@ -137,8 +137,8 @@ void AntiElectronIDMVA6<TauType, ElectronType>::beginEvent(const edm::Event& evt
 
 template <class TauType, class ElectronType>
 double AntiElectronIDMVA6<TauType, ElectronType>::MVAValue(const TauVars& tauVars,
-							   const TauGammaVecs& tauGammaVecs,
-							   const ElecVars& elecVars) {
+                                                           const TauGammaVecs& tauGammaVecs,
+                                                           const ElecVars& elecVars) {
   TauGammaMoms tauGammaMoms;
   double sumPt = 0.;
   double dEta2 = 0.;
@@ -156,7 +156,7 @@ double AntiElectronIDMVA6<TauType, ElectronType>::MVAValue(const TauVars& tauVar
     dEta2 += (pt_i * eta_i * eta_i);
     dPhi2 += (pt_i * phi_i * phi_i);
   }
-  
+
   tauGammaMoms.gammaEnFracIn = -99.;
   if (tauVars.pt > 0.) {
     tauGammaMoms.gammaEnFracIn = sumPt / tauVars.pt;
@@ -201,8 +201,8 @@ double AntiElectronIDMVA6<TauType, ElectronType>::MVAValue(const TauVars& tauVar
 
 template <class TauType, class ElectronType>
 double AntiElectronIDMVA6<TauType, ElectronType>::MVAValue(const TauVars& tauVars,
-							   const TauGammaMoms& tauGammaMoms,
-							   const ElecVars& elecVars) {
+                                                           const TauGammaMoms& tauGammaMoms,
+                                                           const ElecVars& elecVars) {
   if (!isInitialized_) {
     throw cms::Exception("ClassNotInitialized") << " AntiElectronMVA6 not properly initialized !!\n";
   }
@@ -212,15 +212,18 @@ double AntiElectronIDMVA6<TauType, ElectronType>::MVAValue(const TauVars& tauVar
   const float ECALBarrelEndcapEtaBorder = 1.479;
   float elecDeltaPinPoutOverPin = (elecVars.pIn > 0.0) ? (std::abs(elecVars.pIn - elecVars.pOut) / elecVars.pIn) : 1.0;
   float elecEecalOverPout = (elecVars.pOut > 0.0) ? (elecVars.eEcal / elecVars.pOut) : 20.0;
-  float elecNumHitsDiffOverSum = ((elecVars.gsfNumHits + elecVars.kfNumHits) > 0.0)
-                                     ? ((elecVars.gsfNumHits - elecVars.kfNumHits) / (elecVars.gsfNumHits + elecVars.kfNumHits))
-                                     : 1.0;
+  float elecNumHitsDiffOverSum =
+      ((elecVars.gsfNumHits + elecVars.kfNumHits) > 0.0)
+          ? ((elecVars.gsfNumHits - elecVars.kfNumHits) / (elecVars.gsfNumHits + elecVars.kfNumHits))
+          : 1.0;
 
-  if (deltaR(tauVars.etaAtEcalEntrance, tauVars.phi, elecVars.eta, elecVars.phi) > 0.3 && tauGammaMoms.signalPFGammaCandsIn == 0 && tauVars.hasGsf < 0.5) {
+  if (deltaR(tauVars.etaAtEcalEntrance, tauVars.phi, elecVars.eta, elecVars.phi) > 0.3 &&
+      tauGammaMoms.signalPFGammaCandsIn == 0 && tauVars.hasGsf < 0.5) {
     if (std::abs(tauVars.etaAtEcalEntrance) < ECALBarrelEndcapEtaBorder) {
       Var_NoEleMatch_woGwoGSF_Barrel_[0] = tauVars.etaAtEcalEntrance;
       Var_NoEleMatch_woGwoGSF_Barrel_[1] = tauVars.leadChargedPFCandEtaAtEcalEntrance;
-      Var_NoEleMatch_woGwoGSF_Barrel_[2] = std::min(float(2.), tauVars.leadChargedPFCandPt / std::max(float(1.), tauVars.pt));
+      Var_NoEleMatch_woGwoGSF_Barrel_[2] =
+          std::min(float(2.), tauVars.leadChargedPFCandPt / std::max(float(1.), tauVars.pt));
       Var_NoEleMatch_woGwoGSF_Barrel_[3] = std::log(std::max(float(1.), tauVars.pt));
       Var_NoEleMatch_woGwoGSF_Barrel_[4] = tauVars.emFraction;
       Var_NoEleMatch_woGwoGSF_Barrel_[5] = tauVars.leadPFChargedHadrHoP;
@@ -232,7 +235,8 @@ double AntiElectronIDMVA6<TauType, ElectronType>::MVAValue(const TauVars& tauVar
     } else {
       Var_NoEleMatch_woGwoGSF_Endcap_[0] = tauVars.etaAtEcalEntrance;
       Var_NoEleMatch_woGwoGSF_Endcap_[1] = tauVars.leadChargedPFCandEtaAtEcalEntrance;
-      Var_NoEleMatch_woGwoGSF_Endcap_[2] = std::min(float(2.), tauVars.leadChargedPFCandPt / std::max(float(1.), tauVars.pt));
+      Var_NoEleMatch_woGwoGSF_Endcap_[2] =
+          std::min(float(2.), tauVars.leadChargedPFCandPt / std::max(float(1.), tauVars.pt));
       Var_NoEleMatch_woGwoGSF_Endcap_[3] = std::log(std::max(float(1.), tauVars.pt));
       Var_NoEleMatch_woGwoGSF_Endcap_[4] = tauVars.emFraction;
       Var_NoEleMatch_woGwoGSF_Endcap_[5] = tauVars.leadPFChargedHadrHoP;
@@ -242,11 +246,12 @@ double AntiElectronIDMVA6<TauType, ElectronType>::MVAValue(const TauVars& tauVar
       mvaValue = mva_NoEleMatch_woGwoGSF_EC_->GetClassifier(Var_NoEleMatch_woGwoGSF_Endcap_);
     }
   } else if (deltaR(tauVars.etaAtEcalEntrance, tauVars.phi, elecVars.eta, elecVars.phi) > 0.3 &&
-	    tauGammaMoms.signalPFGammaCandsIn > 0 && tauVars.hasGsf < 0.5) {
+             tauGammaMoms.signalPFGammaCandsIn > 0 && tauVars.hasGsf < 0.5) {
     if (std::abs(tauVars.etaAtEcalEntrance) < ECALBarrelEndcapEtaBorder) {
       Var_NoEleMatch_wGwoGSF_Barrel_[0] = tauVars.etaAtEcalEntrance;
       Var_NoEleMatch_wGwoGSF_Barrel_[1] = tauVars.leadChargedPFCandEtaAtEcalEntrance;
-      Var_NoEleMatch_wGwoGSF_Barrel_[2] = std::min(float(2.), tauVars.leadChargedPFCandPt / std::max(float(1.), tauVars.pt));
+      Var_NoEleMatch_wGwoGSF_Barrel_[2] =
+          std::min(float(2.), tauVars.leadChargedPFCandPt / std::max(float(1.), tauVars.pt));
       Var_NoEleMatch_wGwoGSF_Barrel_[3] = std::log(std::max(float(1.), tauVars.pt));
       Var_NoEleMatch_wGwoGSF_Barrel_[4] = tauVars.emFraction;
       Var_NoEleMatch_wGwoGSF_Barrel_[5] = tauGammaMoms.signalPFGammaCandsIn;
@@ -266,7 +271,8 @@ double AntiElectronIDMVA6<TauType, ElectronType>::MVAValue(const TauVars& tauVar
     } else {
       Var_NoEleMatch_wGwoGSF_Endcap_[0] = tauVars.etaAtEcalEntrance;
       Var_NoEleMatch_wGwoGSF_Endcap_[1] = tauVars.leadChargedPFCandEtaAtEcalEntrance;
-      Var_NoEleMatch_wGwoGSF_Endcap_[2] = std::min(float(2.), tauVars.leadChargedPFCandPt / std::max(float(1.), tauVars.pt));
+      Var_NoEleMatch_wGwoGSF_Endcap_[2] =
+          std::min(float(2.), tauVars.leadChargedPFCandPt / std::max(float(1.), tauVars.pt));
       Var_NoEleMatch_wGwoGSF_Endcap_[3] = std::log(std::max(float(1.), tauVars.pt));
       Var_NoEleMatch_wGwoGSF_Endcap_[4] = tauVars.emFraction;
       Var_NoEleMatch_wGwoGSF_Endcap_[5] = tauGammaMoms.signalPFGammaCandsIn;
@@ -414,7 +420,7 @@ double AntiElectronIDMVA6<TauType, ElectronType>::MVAValue(const TauType& theTau
 
 {
   // === tau variables ===
-  TauVars tauVars = AntiElectronIDMVA6<TauType, ElectronType>::getTauVars(theTau);  
+  TauVars tauVars = AntiElectronIDMVA6<TauType, ElectronType>::getTauVars(theTau);
   TauGammaVecs tauGammaVecs = AntiElectronIDMVA6<TauType, ElectronType>::getTauGammaVecs(theTau);
 
   // === electron variables ===
@@ -431,20 +437,19 @@ double AntiElectronIDMVA6<TauType, ElectronType>::MVAValue(const TauType& theTau
 
   // === electron variables ===
   ElecVars elecVars;
-  elecVars.eta = 9.9; //Dummy value used in MVA training
+  elecVars.eta = 9.9;  // Dummy value used in MVA training
 
   return MVAValue(tauVars, tauGammaVecs, elecVars);
 }
 
 template <class TauType, class ElectronType>
-TauVars AntiElectronIDMVA6<TauType, ElectronType>::getTauVars(const TauType& theTau){
+TauVars AntiElectronIDMVA6<TauType, ElectronType>::getTauVars(const TauType& theTau) {
   TauVars tauVars;
-  if (std::is_same<TauType, reco::PFTau>::value ||
-      std::is_same<TauType, pat::Tau>::value)
+  if (std::is_same<TauType, reco::PFTau>::value || std::is_same<TauType, pat::Tau>::value)
     tauVars = getTauVarsTypeSpecific(theTau);
   else
     throw cms::Exception("AntiElectronIDMVA6")
-      << "Unsupported TauType used. You must use either reco::PFTau or pat::Tau.";
+        << "Unsupported TauType used. You must use either reco::PFTau or pat::Tau.";
 
   tauVars.pt = theTau.pt();
 
@@ -470,13 +475,13 @@ TauVars AntiElectronIDMVA6<TauType, ElectronType>::getTauVars(const TauType& the
   tauVars.hasGsf = 0;
   if (theTau.leadChargedHadrCand().isNonnull()) {
     const pat::PackedCandidate* packedLeadChCand =
-      dynamic_cast<const pat::PackedCandidate*>(theTau.leadChargedHadrCand().get());
+        dynamic_cast<const pat::PackedCandidate*>(theTau.leadChargedHadrCand().get());
     if (packedLeadChCand != nullptr) {
       if (std::abs(packedLeadChCand->pdgId()) == 11)
         tauVars.hasGsf = 1;
     } else {
       const reco::PFCandidate* pfLeadChCand =
-        dynamic_cast<const reco::PFCandidate*>(theTau.leadChargedHadrCand().get());
+          dynamic_cast<const reco::PFCandidate*>(theTau.leadChargedHadrCand().get());
       if (pfLeadChCand != nullptr && pfLeadChCand->gsfTrackRef().isNonnull())
         tauVars.hasGsf = 1;
     }
@@ -488,7 +493,7 @@ TauVars AntiElectronIDMVA6<TauType, ElectronType>::getTauVars(const TauType& the
 }
 
 template <class TauType, class ElectronType>
-TauGammaVecs AntiElectronIDMVA6<TauType, ElectronType>::getTauGammaVecs(const TauType& theTau){
+TauGammaVecs AntiElectronIDMVA6<TauType, ElectronType>::getTauGammaVecs(const TauType& theTau) {
   TauGammaVecs tauGammaVecs;
 
   float signalrad = std::clamp(3.0 / std::max(1.0, theTau.pt()), 0.05, 0.10);
@@ -511,8 +516,7 @@ TauGammaVecs AntiElectronIDMVA6<TauType, ElectronType>::getTauGammaVecs(const Ta
 }
 
 template <class TauType, class ElectronType>
-ElecVars AntiElectronIDMVA6<TauType, ElectronType>::getElecVars(const ElectronType& theEle){
-
+ElecVars AntiElectronIDMVA6<TauType, ElectronType>::getElecVars(const ElectronType& theEle) {
   ElecVars elecVars;
 
   elecVars.eta = theEle.eta();
@@ -681,8 +685,7 @@ TauVars AntiElectronIDMVA6<TauType, ElectronType>::getTauVarsTypeSpecific(const 
     for (const auto& candidate : theTau.signalCands()) {
       float phiAtECalEntrance = candidate->phi();
       bool success = false;
-      reco::Candidate::Point posAtECal =
-	positionAtECalEntrance_(candidate.get(), success);
+      reco::Candidate::Point posAtECal = positionAtECalEntrance_(candidate.get(), success);
       if (success) {
         phiAtECalEntrance = posAtECal.phi();
       }
@@ -706,7 +709,7 @@ TauVars AntiElectronIDMVA6<TauType, ElectronType>::getTauVarsTypeSpecific(const 
 
 // reco::PFTau
 template <class TauType, class ElectronType>
-TauVars AntiElectronIDMVA6<TauType, ElectronType>::getTauVarsTypeSpecific(const reco::PFTau& theTau) {  
+TauVars AntiElectronIDMVA6<TauType, ElectronType>::getTauVarsTypeSpecific(const reco::PFTau& theTau) {
   TauVars tauVars;
   tauVars.etaAtEcalEntrance = -99.;
   tauVars.leadChargedPFCandEtaAtEcalEntrance = -99.;
@@ -715,9 +718,9 @@ TauVars AntiElectronIDMVA6<TauType, ElectronType>::getTauVarsTypeSpecific(const 
   float sumPhiTimesEnergy = 0.;
   float sumEnergy = 0.;
   tauVars.phi = theTau.phi();
-  // Check type of candidates building tau to avoid dynamic casts further 
-  bool isFromPFCands = (theTau.leadCand().isNonnull() &&
-			dynamic_cast<const reco::PFCandidate*>(theTau.leadCand().get()) != nullptr);
+  // Check type of candidates building tau to avoid dynamic casts further
+  bool isFromPFCands =
+      (theTau.leadCand().isNonnull() && dynamic_cast<const reco::PFCandidate*>(theTau.leadCand().get()) != nullptr);
   for (const auto& candidate : theTau.signalCands()) {
     float etaAtECalEntrance = candidate->eta();
     float phiAtECalEntrance = candidate->phi();
@@ -726,32 +729,27 @@ TauVars AntiElectronIDMVA6<TauType, ElectronType>::getTauVarsTypeSpecific(const 
       const reco::PFCandidate* pfCandidate = static_cast<const reco::PFCandidate*>(candidate.get());
       etaAtECalEntrance = pfCandidate->positionAtECALEntrance().eta();
       if (!usePhiAtEcalEntranceExtrapolation_) {
-	phiAtECalEntrance = pfCandidate->positionAtECALEntrance().phi();
+        phiAtECalEntrance = pfCandidate->positionAtECALEntrance().phi();
       } else {
-	bool success = false;
-	reco::Candidate::Point posAtECal =
-	  positionAtECalEntrance_(candidate.get(), success);
-	if (success) {
-	  phiAtECalEntrance = posAtECal.phi();
-	}
+        bool success = false;
+        reco::Candidate::Point posAtECal = positionAtECalEntrance_(candidate.get(), success);
+        if (success) {
+          phiAtECalEntrance = posAtECal.phi();
+        }
       }
       if (pfCandidate->trackRef().isNonnull())
-	track = pfCandidate->trackRef().get();
-      else if (pfCandidate->muonRef().isNonnull() &&
-	       pfCandidate->muonRef()->innerTrack().isNonnull())
-	track = pfCandidate->muonRef()->innerTrack().get();
-      else if (pfCandidate->muonRef().isNonnull() &&
-	       pfCandidate->muonRef()->globalTrack().isNonnull())
-	track = pfCandidate->muonRef()->globalTrack().get();
-      else if (pfCandidate->muonRef().isNonnull() &&
-	       pfCandidate->muonRef()->outerTrack().isNonnull())
-	track = pfCandidate->muonRef()->outerTrack().get();
+        track = pfCandidate->trackRef().get();
+      else if (pfCandidate->muonRef().isNonnull() && pfCandidate->muonRef()->innerTrack().isNonnull())
+        track = pfCandidate->muonRef()->innerTrack().get();
+      else if (pfCandidate->muonRef().isNonnull() && pfCandidate->muonRef()->globalTrack().isNonnull())
+        track = pfCandidate->muonRef()->globalTrack().get();
+      else if (pfCandidate->muonRef().isNonnull() && pfCandidate->muonRef()->outerTrack().isNonnull())
+        track = pfCandidate->muonRef()->outerTrack().get();
       else if (pfCandidate->gsfTrackRef().isNonnull())
-	track = pfCandidate->gsfTrackRef().get();
+        track = pfCandidate->gsfTrackRef().get();
     } else {
       bool success = false;
-      reco::Candidate::Point posAtECal =
-	positionAtECalEntrance_(candidate.get(), success);
+      reco::Candidate::Point posAtECal = positionAtECalEntrance_(candidate.get(), success);
       if (success) {
         etaAtECalEntrance = posAtECal.eta();
         phiAtECalEntrance = posAtECal.phi();
@@ -779,21 +777,17 @@ TauVars AntiElectronIDMVA6<TauType, ElectronType>::getTauVarsTypeSpecific(const 
   if (theTau.leadChargedHadrCand()->p() > 0.) {
     if (isFromPFCands) {
       const reco::PFCandidate* pfLeadCandiate =
-	static_cast<const reco::PFCandidate*>(theTau.leadChargedHadrCand().get());
-      tauVars.leadPFChargedHadrHoP = pfLeadCandiate->hcalEnergy() /
-	pfLeadCandiate->p();
-      tauVars.leadPFChargedHadrEoP = pfLeadCandiate->ecalEnergy() /
-	pfLeadCandiate->p();
+          static_cast<const reco::PFCandidate*>(theTau.leadChargedHadrCand().get());
+      tauVars.leadPFChargedHadrHoP = pfLeadCandiate->hcalEnergy() / pfLeadCandiate->p();
+      tauVars.leadPFChargedHadrEoP = pfLeadCandiate->ecalEnergy() / pfLeadCandiate->p();
     } else {
       const pat::PackedCandidate* patLeadCandiate =
-	dynamic_cast<const pat::PackedCandidate*>(theTau.leadChargedHadrCand().get());
+          dynamic_cast<const pat::PackedCandidate*>(theTau.leadChargedHadrCand().get());
       if (patLeadCandiate != nullptr) {
-	tauVars.leadPFChargedHadrHoP = patLeadCandiate->caloFraction() *
-	  patLeadCandiate->energy() * patLeadCandiate->hcalFraction() /
-	  patLeadCandiate->p();
-	tauVars.leadPFChargedHadrHoP = patLeadCandiate->caloFraction() *
-	  patLeadCandiate->energy() * (1. - patLeadCandiate->hcalFraction()) /
-	  patLeadCandiate->p();
+        tauVars.leadPFChargedHadrHoP = patLeadCandiate->caloFraction() * patLeadCandiate->energy() *
+                                       patLeadCandiate->hcalFraction() / patLeadCandiate->p();
+        tauVars.leadPFChargedHadrHoP = patLeadCandiate->caloFraction() * patLeadCandiate->energy() *
+                                       (1. - patLeadCandiate->hcalFraction()) / patLeadCandiate->p();
       }
     }
   }
@@ -804,4 +798,3 @@ TauVars AntiElectronIDMVA6<TauType, ElectronType>::getTauVarsTypeSpecific(const 
 // compile desired types and make available to linker
 template class AntiElectronIDMVA6<reco::PFTau, reco::GsfElectron>;
 template class AntiElectronIDMVA6<pat::Tau, pat::Electron>;
-

@@ -12,19 +12,26 @@
 #include "DataFormats/Math/interface/deltaR.h"
 
 template <class TauType, class TauDiscriminator, class ElectronType>
-class TauDiscriminationAgainstElectronMVA6 : public TauDiscriminationProducerBase<TauType, reco::TauDiscriminatorContainer, reco::SingleTauDiscriminatorContainer, TauDiscriminator> {
+class TauDiscriminationAgainstElectronMVA6 : public TauDiscriminationProducerBase<TauType,
+                                                                                  reco::TauDiscriminatorContainer,
+                                                                                  reco::SingleTauDiscriminatorContainer,
+                                                                                  TauDiscriminator> {
 public:
   typedef std::vector<TauType> TauCollection;
   typedef edm::Ref<TauCollection> TauRef;
   typedef std::vector<ElectronType> ElectronCollection;
 
   explicit TauDiscriminationAgainstElectronMVA6(const edm::ParameterSet& cfg)
-    : TauDiscriminationProducerBase<TauType, reco::TauDiscriminatorContainer, reco::SingleTauDiscriminatorContainer, TauDiscriminator>::TauDiscriminationProducerBase(cfg),
-      moduleLabel_(cfg.getParameter<std::string>("@module_label")),
-      mva_(std::make_unique<AntiElectronIDMVA6<TauType, ElectronType> >(cfg)),
-      Electron_token(edm::EDConsumerBase::consumes<ElectronCollection>(cfg.getParameter<edm::InputTag>("srcElectrons"))), //MB: full specification with prefix mandatory
-      vetoEcalCracks_(cfg.getParameter<bool>("vetoEcalCracks")),
-      verbosity_(cfg.getParameter<int>("verbosity")) {}
+      : TauDiscriminationProducerBase<TauType,
+                                      reco::TauDiscriminatorContainer,
+                                      reco::SingleTauDiscriminatorContainer,
+                                      TauDiscriminator>::TauDiscriminationProducerBase(cfg),
+        moduleLabel_(cfg.getParameter<std::string>("@module_label")),
+        mva_(std::make_unique<AntiElectronIDMVA6<TauType, ElectronType> >(cfg)),
+        Electron_token(edm::EDConsumerBase::consumes<ElectronCollection>(
+            cfg.getParameter<edm::InputTag>("srcElectrons"))),  //MB: full specification with prefix mandatory
+        vetoEcalCracks_(cfg.getParameter<bool>("vetoEcalCracks")),
+        verbosity_(cfg.getParameter<int>("verbosity")) {}
 
   void beginEvent(const edm::Event& evt, const edm::EventSetup& es) override {
     mva_->beginEvent(evt, es);
@@ -42,10 +49,10 @@ public:
 private:
   bool isInEcalCrack(double) const;
 
-  // Overloaded method with explicit type specification to avoid partial 
-  //implementation of full class 
-  std::pair<float,float> getTauEtaAtECalEntrance(const reco::PFTauRef& theTauRef) const;
-  std::pair<float,float> getTauEtaAtECalEntrance(const pat::TauRef& theTauRef) const;
+  // Overloaded method with explicit type specification to avoid partial
+  //implementation of full class
+  std::pair<float, float> getTauEtaAtECalEntrance(const reco::PFTauRef& theTauRef) const;
+  std::pair<float, float> getTauEtaAtECalEntrance(const pat::TauRef& theTauRef) const;
 
   std::string moduleLabel_;
   std::unique_ptr<AntiElectronIDMVA6<TauType, ElectronType> > mva_;
@@ -62,9 +69,9 @@ private:
 };
 
 template <class TauType, class TauDiscriminator, class ElectronType>
-reco::SingleTauDiscriminatorContainer 
-TauDiscriminationAgainstElectronMVA6<TauType, TauDiscriminator, ElectronType>::discriminate(const TauRef& theTauRef) const {
-
+reco::SingleTauDiscriminatorContainer
+TauDiscriminationAgainstElectronMVA6<TauType, TauDiscriminator, ElectronType>::discriminate(
+    const TauRef& theTauRef) const {
   reco::SingleTauDiscriminatorContainer result;
   result.rawValues = {1., -1.};
   double category = -1.;
@@ -74,13 +81,12 @@ TauDiscriminationAgainstElectronMVA6<TauType, TauDiscriminator, ElectronType>::d
 
   const float ECalBarrelEndcapEtaBorder = 1.479;
 
-  std::pair<float,float> tauEtaAtECalEntrance; 
-  if (std::is_same<TauType, reco::PFTau>::value ||
-      std::is_same<TauType, pat::Tau>::value)
+  std::pair<float, float> tauEtaAtECalEntrance;
+  if (std::is_same<TauType, reco::PFTau>::value || std::is_same<TauType, pat::Tau>::value)
     tauEtaAtECalEntrance = getTauEtaAtECalEntrance(theTauRef);
   else
     throw cms::Exception("TauDiscriminationAgainstElectronMVA6")
-      << "Unsupported TauType used. You must use either reco::PFTau or pat::Tau.";
+        << "Unsupported TauType used. You must use either reco::PFTau or pat::Tau.";
 
   if ((*theTauRef).leadChargedHadrCand().isNonnull()) {
     int numSignalGammaCandsInSigCone = 0;
@@ -96,14 +102,12 @@ TauDiscriminationAgainstElectronMVA6<TauType, TauDiscriminator, ElectronType>::d
     bool hasGsfTrack = false;
     const reco::CandidatePtr& leadChCand = theTauRef->leadChargedHadrCand();
     if (leadChCand.isNonnull()) {
-      const pat::PackedCandidate* packedLeadChCand =
-	dynamic_cast<const pat::PackedCandidate*>(leadChCand.get());
+      const pat::PackedCandidate* packedLeadChCand = dynamic_cast<const pat::PackedCandidate*>(leadChCand.get());
       if (packedLeadChCand != nullptr) {
-	hasGsfTrack = (std::abs(packedLeadChCand->pdgId()) == 11);
+        hasGsfTrack = (std::abs(packedLeadChCand->pdgId()) == 11);
       } else {
-	const reco::PFCandidate* pfLeadChCand =
-	  dynamic_cast<const reco::PFCandidate*>(leadChCand.get());
-	hasGsfTrack = (pfLeadChCand != nullptr && pfLeadChCand->gsfTrackRef().isNonnull());
+        const reco::PFCandidate* pfLeadChCand = dynamic_cast<const reco::PFCandidate*>(leadChCand.get());
+        hasGsfTrack = (pfLeadChCand != nullptr && pfLeadChCand->gsfTrackRef().isNonnull());
       }
     }
 
@@ -120,10 +124,10 @@ TauDiscriminationAgainstElectronMVA6<TauType, TauDiscriminator, ElectronType>::d
           // veto taus that go to ECal crack
           if (vetoEcalCracks_ &&
               (isInEcalCrack(tauEtaAtECalEntrance.first) || isInEcalCrack(tauEtaAtECalEntrance.second))) {
-	    // add category index
-	    result.rawValues.at(1) = category;
-	    // return MVA output value
-	    result.rawValues.at(0) = -99.;
+            // add category index
+            result.rawValues.at(1) = category;
+            // return MVA output value
+            result.rawValues.at(0) = -99.;
             return result;
           }
           // veto taus that go to ECal crack
@@ -182,17 +186,15 @@ TauDiscriminationAgainstElectronMVA6<TauType, TauDiscriminator, ElectronType>::d
 
   if (verbosity_) {
     edm::LogPrint(this->getTauTypeString() + "AgainstEleMVA6")
-      << "<" + this->getTauTypeString() + "AgainstElectronMVA6::discriminate>:";
+        << "<" + this->getTauTypeString() + "AgainstElectronMVA6::discriminate>:";
     edm::LogPrint(this->getTauTypeString() + "AgainstEleMVA6")
-      << " tau: Pt = " << theTauRef->pt() << ", eta = " << theTauRef->eta()
-      << ", phi = " << theTauRef->phi();
+        << " tau: Pt = " << theTauRef->pt() << ", eta = " << theTauRef->eta() << ", phi = " << theTauRef->phi();
     edm::LogPrint(this->getTauTypeString() + "AgainstEleMVA6")
-      << " deltaREleTau = " << deltaRDummy
-      << ", isGsfElectronMatched = " << isGsfElectronMatched;
+        << " deltaREleTau = " << deltaRDummy << ", isGsfElectronMatched = " << isGsfElectronMatched;
     edm::LogPrint(this->getTauTypeString() + "AgainstEleMVA6")
-      << " #Prongs = " << theTauRef->signalChargedHadrCands().size();
+        << " #Prongs = " << theTauRef->signalChargedHadrCands().size();
     edm::LogPrint(this->getTauTypeString() + "AgainstEleMVA6")
-      << " MVA = " << result.rawValues.at(0) << ", category = " << category;
+        << " MVA = " << result.rawValues.at(0) << ", category = " << category;
   }
 
   // add category index
@@ -202,15 +204,15 @@ TauDiscriminationAgainstElectronMVA6<TauType, TauDiscriminator, ElectronType>::d
 }
 
 template <class TauType, class TauDiscriminator, class ElectronType>
-bool TauDiscriminationAgainstElectronMVA6<TauType, TauDiscriminator, ElectronType>::isInEcalCrack(
-double eta) const {
+bool TauDiscriminationAgainstElectronMVA6<TauType, TauDiscriminator, ElectronType>::isInEcalCrack(double eta) const {
   double absEta = std::abs(eta);
   return (absEta > 1.460 && absEta < 1.558);
 }
 
 template <class TauType, class TauDiscriminator, class ElectronType>
-std::pair<float,float> TauDiscriminationAgainstElectronMVA6<TauType, TauDiscriminator, ElectronType>::getTauEtaAtECalEntrance(const reco::PFTauRef& theTauRef) const {
-
+std::pair<float, float>
+TauDiscriminationAgainstElectronMVA6<TauType, TauDiscriminator, ElectronType>::getTauEtaAtECalEntrance(
+    const reco::PFTauRef& theTauRef) const {
   float tauEtaAtECalEntrance = -99;
   float leadChargedCandEtaAtECalEntrance = -99;
   float sumEtaTimesEnergy = 0;
@@ -220,36 +222,31 @@ std::pair<float,float> TauDiscriminationAgainstElectronMVA6<TauType, TauDiscrimi
   for (const auto& candidate : theTauRef->signalCands()) {
     float etaAtECalEntrance = candidate->eta();
     const reco::Track* track = nullptr;
-    const reco::PFCandidate* pfCandidate =
-      dynamic_cast<const reco::PFCandidate*>(candidate.get());    
+    const reco::PFCandidate* pfCandidate = dynamic_cast<const reco::PFCandidate*>(candidate.get());
     if (pfCandidate != nullptr) {
-      etaAtECalEntrance = pfCandidate->positionAtECALEntrance().eta();      
+      etaAtECalEntrance = pfCandidate->positionAtECALEntrance().eta();
       if (pfCandidate->trackRef().isNonnull())
-	track = pfCandidate->trackRef().get();
-      else if (pfCandidate->muonRef().isNonnull() &&
-	       pfCandidate->muonRef()->innerTrack().isNonnull())
-	track = pfCandidate->muonRef()->innerTrack().get();
-      else if (pfCandidate->muonRef().isNonnull() &&
-	       pfCandidate->muonRef()->globalTrack().isNonnull())
-	track = pfCandidate->muonRef()->globalTrack().get();
-      else if (pfCandidate->muonRef().isNonnull() &&
-	       pfCandidate->muonRef()->outerTrack().isNonnull())
-	track = pfCandidate->muonRef()->outerTrack().get();
+        track = pfCandidate->trackRef().get();
+      else if (pfCandidate->muonRef().isNonnull() && pfCandidate->muonRef()->innerTrack().isNonnull())
+        track = pfCandidate->muonRef()->innerTrack().get();
+      else if (pfCandidate->muonRef().isNonnull() && pfCandidate->muonRef()->globalTrack().isNonnull())
+        track = pfCandidate->muonRef()->globalTrack().get();
+      else if (pfCandidate->muonRef().isNonnull() && pfCandidate->muonRef()->outerTrack().isNonnull())
+        track = pfCandidate->muonRef()->outerTrack().get();
       else if (pfCandidate->gsfTrackRef().isNonnull())
-	track = pfCandidate->gsfTrackRef().get();
+        track = pfCandidate->gsfTrackRef().get();
     } else {
       bool success = false;
-      reco::Candidate::Point posAtECal = 
-	positionAtECalEntrance_(candidate.get(), success);
+      reco::Candidate::Point posAtECal = positionAtECalEntrance_(candidate.get(), success);
       if (success) {
-	etaAtECalEntrance = posAtECal.eta();
+        etaAtECalEntrance = posAtECal.eta();
       }
       track = candidate->bestTrack();
     }
     if (track != nullptr) {
       if (track->pt() > leadChargedCandPt) {
-	leadChargedCandEtaAtECalEntrance = etaAtECalEntrance;
-	leadChargedCandPt = track->pt();
+        leadChargedCandEtaAtECalEntrance = etaAtECalEntrance;
+        leadChargedCandPt = track->pt();
       }
     }
     sumEtaTimesEnergy += etaAtECalEntrance * candidate->energy();
@@ -258,19 +255,19 @@ std::pair<float,float> TauDiscriminationAgainstElectronMVA6<TauType, TauDiscrimi
   if (sumEnergy > 0.) {
     tauEtaAtECalEntrance = sumEtaTimesEnergy / sumEnergy;
   }
-  return std::pair<float,float>(tauEtaAtECalEntrance,
-				leadChargedCandEtaAtECalEntrance);
+  return std::pair<float, float>(tauEtaAtECalEntrance, leadChargedCandEtaAtECalEntrance);
 }
 
 template <class TauType, class TauDiscriminator, class ElectronType>
-std::pair<float,float> TauDiscriminationAgainstElectronMVA6<TauType, TauDiscriminator, ElectronType>::getTauEtaAtECalEntrance(const pat::TauRef& theTauRef) const {
-  return std::pair<float,float>(theTauRef->etaAtEcalEntrance(),
-				theTauRef->etaAtEcalEntranceLeadChargedCand());
+std::pair<float, float>
+TauDiscriminationAgainstElectronMVA6<TauType, TauDiscriminator, ElectronType>::getTauEtaAtECalEntrance(
+    const pat::TauRef& theTauRef) const {
+  return std::pair<float, float>(theTauRef->etaAtEcalEntrance(), theTauRef->etaAtEcalEntranceLeadChargedCand());
 }
 
 template <class TauType, class TauDiscriminator, class ElectronType>
 void TauDiscriminationAgainstElectronMVA6<TauType, TauDiscriminator, ElectronType>::fillDescriptions(
-edm::ConfigurationDescriptions& descriptions) {
+    edm::ConfigurationDescriptions& descriptions) {
   // {pfReco,pat}TauDiscriminationAgainstElectronMVA6
   edm::ParameterSetDescription desc;
 
@@ -299,8 +296,11 @@ edm::ConfigurationDescriptions& descriptions) {
   desc.add<bool>("vetoEcalCracks", true);
   desc.add<bool>("usePhiAtEcalEntranceExtrapolation", false);
   desc.add<int>("verbosity", 0);
-  
-  TauDiscriminationProducerBase<TauType, reco::TauDiscriminatorContainer, reco::SingleTauDiscriminatorContainer, TauDiscriminator>::fillProducerDescriptions(desc); // inherited from the base-class
+
+  TauDiscriminationProducerBase<TauType,
+                                reco::TauDiscriminatorContainer,
+                                reco::SingleTauDiscriminatorContainer,
+                                TauDiscriminator>::fillProducerDescriptions(desc);  // inherited from the base-class
 
   descriptions.addWithDefaultLabel(desc);
 }
