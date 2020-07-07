@@ -8,6 +8,7 @@ HGCalStringToEnumParser<HGCalGeometryMode::GeometryMode>::HGCalStringToEnumParse
   enumMap["HGCalGeometryMode::Hexagon8"] = HGCalGeometryMode::Hexagon8;
   enumMap["HGCalGeometryMode::Hexagon8Full"] = HGCalGeometryMode::Hexagon8Full;
   enumMap["HGCalGeometryMode::Trapezoid"] = HGCalGeometryMode::Trapezoid;
+  enumMap["HGCalGeometryMode::HexagonFullPart"] = HGCalGeometryMode::HexagonFullPart;
 }
 
 template <>
