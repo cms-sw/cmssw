@@ -22,7 +22,15 @@ public:
 };
 
 namespace HGCalGeometryMode {
-  enum GeometryMode { Square = 0, Hexagon = 1, HexagonFull = 2, Hexagon8 = 3, Hexagon8Full = 4, Trapezoid = 5 };
+  enum GeometryMode {
+    Square = 0,
+    Hexagon = 1,
+    HexagonFull = 2,
+    Hexagon8 = 3,
+    Hexagon8Full = 4,
+    Trapezoid = 5,
+    HexagonFullPart = 6
+  };
   enum WaferMode { Polyhedra = 0, ExtrudedPolygon = 1 };
 }  // namespace HGCalGeometryMode
 
