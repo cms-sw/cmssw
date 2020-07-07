@@ -117,8 +117,7 @@ void PATTracksToPackedCandidates::produce(edm::StreamID, edm::Event& iEvent, con
     bestvtx = vtx.position();
     vtx_cov = vtx.covariance();
   } else {
-    auto offlineBS = iEvent.getHandle(srcOfflineBeamSpot_);
-    reco::BeamSpot bs = *offlineBS;
+    const auto& bs = iEvent.get(srcOfflineBeamSpot_);
     bestvzError = bs.z0Error();
     bestvtx = bs.position();
     vtx_cov = bs.covariance3D();
