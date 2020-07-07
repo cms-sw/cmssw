@@ -34,6 +34,7 @@ from Configuration.PyReleaseValidation.relval_upgrade import workflows as _upgra
 #        (Patatrack pixel-only: TTbar - on CPU, on GPU, both, auto)
 #        (Patatrack ECAL-only: TTbar - on CPU, on GPU, both, auto)
 #        (Patatrack HCAL-only: TTbar - on CPU, on GPU, both, auto)
+#        (TTbar 0T, TTbar PU 0T)
 #   2023 (TTbar, TTbar PU, TTbar PU premix)
 #   2024 (TTbar, TTbar PU, TTbar PU premix)
 numWFIB = [10001.0,10002.0,10003.0,10004.0,10005.0,10006.0,10007.0,10008.0,10009.0,10059.0,10071.0,
@@ -55,7 +56,8 @@ numWFIB = [10001.0,10002.0,10003.0,10004.0,10005.0,10006.0,10007.0,10008.0,10009
            11650.501,11650.502, # 11650.503,11650.504,
            11634.501,11634.502, # 11634.503,11634.504,
            11634.511,11634.512, # 11634.513,11634.514,
-           11634.521,11634.522, # 11634.523,11634.524,
+           11634.521,11634.522, # 11634.523,11634.524
+           11634.24,11834.24,
            12434.0,12634.0,12634.99,
            12834.0,13034.0,13034.99]
 for numWF in numWFIB:
