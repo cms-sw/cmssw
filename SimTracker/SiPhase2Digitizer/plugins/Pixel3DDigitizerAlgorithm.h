@@ -27,34 +27,30 @@ public:
 
   // initialization that cannot be done in the constructor
   void init(const edm::EventSetup& es) override;
+  bool select_hit(const PSimHit& hit, double tCorr, double& sigScale) const override;
+  std::vector<DigitizerUtility::SignalPoint> drift(const PSimHit& hit,
+						   const Phase2TrackerGeomDetUnit* pixdet,
+						   const GlobalVector& bfield,
+						   const std::vector<DigitizerUtility::EnergyDepositUnit>& ionization_points) const override;
+  // overload drift
+  std::vector<DigitizerUtility::SignalPoint> drift(const PSimHit& hit,
+                                                   const Phase2TrackerGeomDetUnit* pixdet,
+                                                   const GlobalVector& bfield,
+                                                   const std::vector<DigitizerUtility::EnergyDepositUnit>& ionization_points,
+                                                   bool diffusion_activated) const;
 
-  // run the algorithm to digitize a single det
-  void accumulateSimHits(const std::vector<PSimHit>::const_iterator inputBegin,
-                         const std::vector<PSimHit>::const_iterator inputEnd,
-                         const size_t inputBeginGlobalIndex,
-                         const unsigned int tofBin,
-                         const Phase2TrackerGeomDetUnit* pixdet,
-                         const GlobalVector& bfield) override;
-
-  // overload the mother (drift3d maybe)
-  std::vector<DigitizerUtility::SignalPoint> drift(
-      const PSimHit& hit,
-      const Phase2TrackerGeomDetUnit* pixdet,
-      const GlobalVector& bfield,
-      const std::vector<DigitizerUtility::EnergyDepositUnit>& ionization_points,
-      bool diffusion_activated);
   // New diffusion function: check implementation
   std::vector<DigitizerUtility::EnergyDepositUnit> diffusion(const LocalPoint& pos,
                                                              const float& ncarriers,
                                                              const std::function<LocalVector(float, float)>& u_drift,
                                                              const std::pair<float, float> pitches,
-                                                             const float& thickness);
+                                                             const float& thickness) const;
   // Specific for 3D-pixel
   void induce_signal(const PSimHit& hit,
                      const size_t hitIndex,
-                     const unsigned int tofBin,
+                     const uint32_t tofBin,
                      const Phase2TrackerGeomDetUnit* pixdet,
-                     const std::vector<DigitizerUtility::SignalPoint>& collection_points);
+                     const std::vector<DigitizerUtility::SignalPoint>& collection_points) override;
 
 private:
   // Raidus of Column np and ohmic
