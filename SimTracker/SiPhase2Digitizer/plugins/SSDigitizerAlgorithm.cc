@@ -17,14 +17,14 @@ using namespace edm;
 namespace {
   double nFactorial(int n);
   double aScalingConstant(int N, int i);
-}
+}  // namespace
 namespace {
   double nFactorial(int n) { return std::tgamma(n + 1); }
   double aScalingConstant(int N, int i) {
     return std::pow(-1, (double)i) * nFactorial(N) * nFactorial(N + 2) /
-      (nFactorial(N - i) * nFactorial(N + 2 - i) * nFactorial(i));
+           (nFactorial(N - i) * nFactorial(N + 2 - i) * nFactorial(i));
   }
-}
+}  // namespace
 void SSDigitizerAlgorithm::init(const edm::EventSetup& es) { es.get<TrackerDigiGeometryRecord>().get(geom_); }
 SSDigitizerAlgorithm::SSDigitizerAlgorithm(const edm::ParameterSet& conf)
     : Phase2TrackerDigitizerAlgorithm(conf.getParameter<ParameterSet>("AlgorithmCommon"),

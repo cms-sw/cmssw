@@ -75,7 +75,9 @@ public:
                         std::map<int, DigitizerUtility::DigiSimInfo>& digi_map,
                         const TrackerTopology* tTopo);
   virtual bool select_hit(const PSimHit& hit, double tCorr, double& sigScale) const { return true; }
-  virtual bool isAboveThreshold(const DigitizerUtility::SimHitInfo* hitInfo, float charge, float thr) const { return true; }
+  virtual bool isAboveThreshold(const DigitizerUtility::SimHitInfo* hitInfo, float charge, float thr) const {
+    return true;
+  }
 
   // For premixing
   void loadAccumulator(uint32_t detId, const std::map<int, float>& accumulator);
@@ -182,20 +184,18 @@ protected:
   //-- additional member functions
   // Private methods
   virtual std::vector<DigitizerUtility::EnergyDepositUnit> primary_ionization(const PSimHit& hit) const;
-  virtual std::vector<DigitizerUtility::SignalPoint> drift(const PSimHit& hit,
-							   const Phase2TrackerGeomDetUnit* pixdet,
-							   const GlobalVector& bfield,
-							   const std::vector<DigitizerUtility::EnergyDepositUnit>& ionization_points) const;
+  virtual std::vector<DigitizerUtility::SignalPoint> drift(
+      const PSimHit& hit,
+      const Phase2TrackerGeomDetUnit* pixdet,
+      const GlobalVector& bfield,
+      const std::vector<DigitizerUtility::EnergyDepositUnit>& ionization_points) const;
   virtual void induce_signal(const PSimHit& hit,
-			     const size_t hitIndex,
-			     const uint32_t tofBin,
-			     const Phase2TrackerGeomDetUnit* pixdet,
-			     const std::vector<DigitizerUtility::SignalPoint>& collection_points);
-  virtual std::vector<float> fluctuateEloss(int particleId,
-					    float momentum,
-					    float eloss,
-					    float length,
-					    int NumberOfSegments) const;
+                             const size_t hitIndex,
+                             const uint32_t tofBin,
+                             const Phase2TrackerGeomDetUnit* pixdet,
+                             const std::vector<DigitizerUtility::SignalPoint>& collection_points);
+  virtual std::vector<float> fluctuateEloss(
+      int particleId, float momentum, float eloss, float length, int NumberOfSegments) const;
   virtual void add_noise(const Phase2TrackerGeomDetUnit* pixdet);
   virtual void add_cross_talk(const Phase2TrackerGeomDetUnit* pixdet);
   virtual void add_noisy_cells(const Phase2TrackerGeomDetUnit* pixdet, float thePixelThreshold);

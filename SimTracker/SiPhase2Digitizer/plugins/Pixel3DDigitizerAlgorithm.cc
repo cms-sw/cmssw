@@ -215,8 +215,7 @@ std::vector<DigitizerUtility::SignalPoint> Pixel3DDigitizerAlgorithm::drift(
     const PSimHit& hit,
     const Phase2TrackerGeomDetUnit* pixdet,
     const GlobalVector& bfield,
-    const std::vector<DigitizerUtility::EnergyDepositUnit>& ionization_points) const
-{
+    const std::vector<DigitizerUtility::EnergyDepositUnit>& ionization_points) const {
   return drift(hit, pixdet, bfield, ionization_points, true);
 }
 std::vector<DigitizerUtility::SignalPoint> Pixel3DDigitizerAlgorithm::drift(

@@ -60,6 +60,7 @@ namespace DigitizerUtility {
     void set(const float amplitude) {  // Used to reset the amplitude
       _amp = amplitude;
     }
+
   private:
     float _amp;
     std::vector<std::pair<float, std::unique_ptr<SimHitInfo> > > _simInfoList;
