@@ -17,6 +17,10 @@ ________________________________________________________________**/
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Utilities/interface/ESGetToken.h"
+
+#include "CondFormats/DataRecord/interface/BeamSpotObjectsRcd.h"
+#include "CondFormats/BeamSpotObjects/interface/BeamSpotObjects.h"
 #include "DataFormats/Scalers/interface/BeamSpotOnline.h"
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerEvmReadoutRecord.h"
 
@@ -38,6 +42,7 @@ private:
   double theMaxR2;
   const edm::EDGetTokenT<BeamSpotOnlineCollection> scalerToken_;
   const edm::EDGetTokenT<L1GlobalTriggerEvmReadoutRecord> l1GtEvmReadoutRecordToken_;
+  const edm::ESGetToken<BeamSpotObjects, BeamSpotObjectsRcd> beamToken_;
 
   const unsigned int theBeamShoutMode;
 };
