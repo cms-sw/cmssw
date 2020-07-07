@@ -10,9 +10,9 @@ XMLIdealGeometryESSource = cms.ESSource("XMLIdealGeometryESSource",
         'Geometry/CMSCommonData/data/cmsCalo.xml',
         'Geometry/HGCalCommonData/data/dd4hep/escon.xml',
         'Geometry/HGCalCommonData/data/dd4hep/esalgo.xml',
-        'Geometry/HGCalCommonData/data/fastTiming.xml',
-        'Geometry/HGCalCommonData/data/fastTimingEndcap.xml',
-        'Geometry/HGCalCommonData/data/v6/fastTimingElement.xml',
+        'Geometry/HGCalCommonData/data/v6/noTaper.xml',
+        'Geometry/HGCalCommonData/data/v6/noTaperEndcap.xml',
+        'Geometry/HGCalCommonData/data/v6/noTaperElement.xml',
     ),
     rootNodeName = cms.string('cms:OCMS')
 )

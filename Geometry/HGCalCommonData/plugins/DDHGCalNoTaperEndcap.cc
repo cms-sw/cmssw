@@ -70,8 +70,10 @@ void DDHGCalNoTaperEndcap::initialize(const DDNumericArguments& nArgs,
   m_incrCopyNo = int(nArgs["incrCopyNo"]);
   m_childName = sArgs["ChildName"];
   m_idNameSpace = DDCurrentNamespace::ns();
+#ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HGCalGeom") << "DDHGCalNoTaperEndcap: NameSpace " << m_idNameSpace << "\tParent "
                                 << parent().name();
+#endif
 }
 
 void DDHGCalNoTaperEndcap::execute(DDCompactView& cpv) {
@@ -135,8 +137,9 @@ int DDHGCalNoTaperEndcap::createQuarter(DDCompactView& cpv, int xQuadrant, int y
         }
 
         DDTranslation tran(offsetX, offsetY, offsetZ);
+#ifdef EDM_ML_DEBUG
         edm::LogVerbatim("HGCalGeom") << "Module " << copyNo << ": location = " << tran << " Rotation " << rotation;
-
+#endif
         DDName parentName = parent().name();
         cpv.position(DDName(m_childName), parentName, copyNo, tran, rotation);
 

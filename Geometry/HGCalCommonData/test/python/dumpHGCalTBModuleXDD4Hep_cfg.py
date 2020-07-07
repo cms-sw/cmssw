@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-process = cms.Process("DDHGCalTBModuleTest")
+process = cms.Process("DDHGCalTBModuleXTest")
 
 process.load('FWCore.MessageService.MessageLogger_cfi')
 process.source = cms.Source("EmptySource")
@@ -13,13 +13,13 @@ if hasattr(process,'MessageLogger'):
     process.MessageLogger.categories.append('HGCalGeom')
 
 process.DDDetectorESProducer = cms.ESSource("DDDetectorESProducer",
-                                            confGeomXMLFiles = cms.FileInPath('Geometry/HGCalCommonData/data/dd4hep/cms-test-ddhgcalTBModule-algorithm.xml'),
-                                            appendToDataLabel = cms.string('DDHGCalTBModule')
+                                            confGeomXMLFiles = cms.FileInPath('Geometry/HGCalCommonData/data/dd4hep/cms-test-ddhgcalTBModuleX-algorithm.xml'),
+                                            appendToDataLabel = cms.string('DDHGCalTBModuleX')
                                             )
 
 process.testDump = cms.EDAnalyzer("DDTestDumpFile",
-                                  outputFileName = cms.untracked.string('tbModuleDD4Hep.root'),
-                                  DDDetector = cms.ESInputTag('','DDHGCalTBModule')
+                                  outputFileName = cms.untracked.string('hgcalTBModuleXDD4Hep.root'),
+                                  DDDetector = cms.ESInputTag('','DDHGCalTBModuleX')
                                   )
 
 process.p = cms.Path(process.testDump)

@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("DUMP")
-process.load("Geometry.HGCalCommonData.testHGCalTBModuleXXML_cfi")
+process.load("Geometry.HGCalCommonData.testHGCalNoTaperEndcapXML_cfi")
 process.load('FWCore.MessageService.MessageLogger_cfi')
 
 if 'MessageLogger' in process.__dict__:
@@ -21,6 +21,6 @@ process.add_(cms.ESProducer("TGeoMgrFromDdd",
 ))
 
 process.dump = cms.EDAnalyzer("DumpSimGeometry",
-                              outputFileName = cms.untracked.string('tbModuleXDDD.root'))
+                              outputFileName = cms.untracked.string('noTaperEndcapDDD.root'))
 
 process.p = cms.Path(process.dump)
