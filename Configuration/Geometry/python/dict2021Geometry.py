@@ -1,4 +1,4 @@
-maxsections = 5
+maxSections = 5
 
 commonDict = {
     "abbrev" : "O",
@@ -30,7 +30,7 @@ commonDict = {
         5 : [
             'Geometry/CMSCommonData/data/FieldParameters.xml',
         ],
-        "era" : "run2_common, run3_common, phase2_common",
+        "era" : "run3_common, stage2L1Trigger_2021",
     }
 }
 
@@ -239,7 +239,6 @@ trackerDict = {
             'from Geometry.TrackerGeometryBuilder.idealForDigiTrackerGeometry_cff import *',
             'trackerGeometry.applyAlignment = cms.bool(False)',
         ],
-        "era" : "phase2_tracker, trackingPhase2PU140",
     }
 }
 
@@ -299,7 +298,7 @@ caloDict = {
             'from Geometry.HcalCommonData.hcalDDDRecConstants_cfi import *',
             'from Geometry.HcalEventSetup.hcalTopologyIdeal_cfi import *',
         ],
-        "era" : "run2_HE_2017, run2_HF_2017, run2_HCAL_2017, run3_HB, phase2_hcal, hcalHardcodeConditions, hcalSkipPacker",
+        "era" : "run3_HB",
     }
 }
 
@@ -348,7 +347,7 @@ muonDict = {
             'from Geometry.CSCGeometryBuilder.idealForDigiCscGeometry_cff import *',
             'from Geometry.DTGeometryBuilder.idealForDigiDtGeometry_cff import *',
         ],
-        "era" : "phase2_muon, run3_GEM",
+        "era" : "run3_GEM",
     },
 }
 
@@ -492,12 +491,11 @@ ppsDict = {
         "reco" :[
 
         ],
-        "era" : "run3_common, phase2_timing, phase2_timing_layer",
     },
 }
 
 allDicts = [ commonDict, trackerDict, caloDict, muonDict, forwardDict, ppsDict ]
 
 detectorVersionDict = {
-    ("O1","T1","C1","M1","F1", "P1") : "2021",
+    ("O1","T1","C1","M1","F1","P1") : "2021",
  }

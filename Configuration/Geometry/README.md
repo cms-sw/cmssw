@@ -1,3 +1,5 @@
+The Run 3 geometry is automatically created using the script [generate2021Geometry.py](./scripts/generate2021Geometry.py).
+
 The Phase2 geometries are automatically created using the script [generate2026Geometry.py](./scripts/generate2026Geometry.py).
 
 Different versions of various subdetectors can be combined. The available versions are:
