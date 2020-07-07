@@ -29,8 +29,11 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/Utilities/interface/typedefs.h"
+#include "FWCore/Utilities/interface/ESGetToken.h"
 
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutRecord.h"
+#include "CondFormats/L1TObjects/interface/L1GtBoardMaps.h"
+#include "CondFormats/DataRecord/interface/L1GtBoardMapsRcd.h"
 
 // forward declarations
 class FEDRawDataCollection;
@@ -90,6 +93,9 @@ private:
   const edm::EDGetTokenT<L1MuGMTReadoutCollection> m_muGmtInputToken;
   const edm::InputTag m_daqGtInputTag;
   const edm::InputTag m_muGmtInputTag;
+
+  /// EventSetup Token for L1GtBoardMaps
+  const edm::ESGetToken<L1GtBoardMaps, L1GtBoardMapsRcd> m_l1GtBMToken;
 
   /// mask for active boards
   cms_uint16_t m_activeBoardsMaskGt;
