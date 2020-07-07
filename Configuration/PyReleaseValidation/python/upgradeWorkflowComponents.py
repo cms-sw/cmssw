@@ -670,18 +670,37 @@ class UpgradeWorkflow_TestOldDigi(UpgradeWorkflow):
     def setup_(self, step, stepName, stepDict, k, properties):
         if 'Reco' in step:
             # use existing DIGI-RAW file from old release
-            stepDict[stepName][k] = merge([{'--filein': 'das:/RelValTTbar_14TeV/CMSSW_11_0_0_pre13-110X_mcRun4_realistic_v2_2026D49noPU-v1/GEN-SIM-DIGI-RAW'}, stepDict[step][k]])
+            # re-emulate the full L1 trigger when running on 11_0 DIGI, i.e. replace L1Reco with L1TrackTrigger,L1
+            mods = {
+                '--filein': 'das:/RelValTTbar_14TeV/CMSSW_11_0_0_pre13-110X_mcRun4_realistic_v2_2026D49noPU-v1/GEN-SIM-DIGI-RAW',
+                '--customise': "L1Trigger/Configuration/customisePhase2TTNoMC.customisePhase2TTNoMC",
+            }
+            # for prodlike case
+            if self.prodlike:
+                mods['-s'] = 'RAW2DIGI,L1TrackTrigger,L1,RECO,RECOSIM'
+                mods['--datatier'] = 'AODSIM'
+                mods['--eventcontent'] = 'AODSIM'
+            else:
+                mods['-s'] = stepDict[step][k]['-s'].replace("L1Reco","L1TrackTrigger,L1")
+            stepDict[stepName][k] = merge([mods, stepDict[step][k]])
             # handle separate PU input
             stepNamePU = step + 'PU' + self.suffix
-            stepDict[stepNamePU][k] = merge([{'--filein': 'das:/RelValTTbar_14TeV/CMSSW_11_0_0_pre13-PU25ns_110X_mcRun4_realistic_v2_2026D49PU200-v2/GEN-SIM-DIGI-RAW'},stepDict[stepName][k]])
-            ## Use re-emulate the full L1 trigger when running on 11_0 DIGI. Ie. Replace L1Reco with L1TrackTrigger,L1. 
-            stepDict[stepName][k] = merge([{'-s': stepDict[stepName][k]['-s'].replace("L1Reco","L1TrackTrigger,L1")}, stepDict[stepName][k]])
-            stepDict[stepNamePU][k] = merge([{'-s': stepDict[stepNamePU][k]['-s'].replace("L1Reco","L1TrackTrigger,L1")}, stepDict[stepNamePU][k]])
-            stepDict[stepName][k] = merge([{'--customise': "L1Trigger/Configuration/customisePhase2TTNoMC.customisePhase2TTNoMC"}, stepDict[stepName][k]])
-            stepDict[stepNamePU][k] = merge([{'--customise': "L1Trigger/Configuration/customisePhase2TTNoMC.customisePhase2TTNoMC"}, stepDict[stepNamePU][k]])
+            mods['--filein'] = 'das:/RelValTTbar_14TeV/CMSSW_11_0_0_pre13-PU25ns_110X_mcRun4_realistic_v2_2026D49PU200-v2/GEN-SIM-DIGI-RAW'
+            stepDict[stepNamePU][k] = merge([mods,stepDict[stepName][k]])
         elif 'GenSim' in step or 'Digi' in step:
             # remove step
             stepDict[stepName][k] = None
+
+        # other prodlike adjustments
+        if self.prodlike:
+            if 'MiniAOD' in step and self.prodlike:
+                # the separate miniAOD step is used here
+                stepDict[stepName][k] = deepcopy(stepDict[step][k])
+            elif 'ALCA' in step or 'HARVEST' in step:
+                # remove step
+                stepDict[stepName][k] = None
+            elif 'Nano' in step:
+                stepDict[stepName][k] = merge([{'--filein':'file:step4.root'}, stepDict[step][k]])
     def condition(self, fragment, stepList, key, hasHarvest):
         # limited to HLT TDR production geometry
         return fragment=="TTbar_14TeV" and '2026D49' in key
@@ -701,6 +720,26 @@ upgradeWFs['TestOldDigi'] = UpgradeWorkflow_TestOldDigi(
     suffix = '_TestOldDigi',
     offset = 0.1001,
 )
+upgradeWFs['TestOldDigi'].prodlike = False
+upgradeWFs['TestOldDigiProdLike'] = UpgradeWorkflow_TestOldDigi(
+    steps = [
+        'GenSimHLBeamSpotFull',
+        'GenSimHLBeamSpotFull14',
+        'DigiFullTrigger',
+        'RecoFullGlobal',
+        'HARVESTFullGlobal',
+        'MiniAODFullGlobal',
+    ],
+    PU = [
+        'DigiFullTrigger',
+        'RecoFullGlobal',
+        'HARVESTFullGlobal',
+        'MiniAODFullGlobal',
+    ],
+    suffix = '_TestOldDigiProdLike',
+    offset = 0.1002,
+)
+upgradeWFs['TestOldDigiProdLike'].prodlike = True
 
 class UpgradeWorkflow_DD4hep(UpgradeWorkflow):
     def setup_(self, step, stepName, stepDict, k, properties):
