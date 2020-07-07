@@ -23,7 +23,6 @@ using namespace std;
 using namespace AllInOneConfig;
 
 namespace pt = boost::property_tree;
-namespace fs = boost::filesystem;
 
 std::string getVecTokenized(pt::ptree& tree, const std::string& name, const std::string& token){
     std::string s;
