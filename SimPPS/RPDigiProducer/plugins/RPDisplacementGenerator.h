@@ -2,8 +2,8 @@
 #define SimPPS_RPDigiProducer_RP_DISPLACEMENT_GENERATOR_H
 
 #include "SimPPS/RPDigiProducer/interface/RPSimTypes.h"
-#include "DetectorDescription/Core/interface/DDRotationMatrix.h"
-#include "DetectorDescription/Core/interface/DDTranslation.h"
+#include "DetectorDescription/DDCMS/interface/DDRotationMatrix.h"
+#include "DetectorDescription/DDCMS/interface/DDTranslation.h"
 #include "DataFormats/CTPPSDetId/interface/TotemRPDetId.h"
 #include <Math/Rotation3D.h>
 #include <map>
