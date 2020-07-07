@@ -108,12 +108,10 @@ CSCAnodeLCTProcessor::CSCAnodeLCTProcessor() : CSCBaseboard() {
 
 void CSCAnodeLCTProcessor::loadPatternMask() {
   // Load appropriate pattern mask.
-  for (int i_patt = 0; i_patt < CSCConstants::NUM_ALCT_PATTERNS; i_patt++) {
-    for (int i_wire = 0; i_wire < CSCConstants::MAX_WIRES_IN_PATTERN; i_wire++) {
-      pattern_mask[i_patt][i_wire] = CSCPatternBank::alct_pattern_mask_open[i_patt][i_wire];
-      if (narrow_mask_r1 && (theRing == 1 || theRing == 4))
-        pattern_mask[i_patt][i_wire] = CSCPatternBank::alct_pattern_mask_r1[i_patt][i_wire];
-    }
+  if (narrow_mask_r1 && (theRing == 1 || theRing == 4)) {
+    alct_pattern_ = CSCPatternBank::alct_pattern_r1_;
+  } else {
+    alct_pattern_ = CSCPatternBank::alct_pattern_legacy_;
   }
 }
 
@@ -529,7 +527,7 @@ bool CSCAnodeLCTProcessor::preTrigger(const int key_wire, const int start_bx) {
 
   unsigned int layers_hit;
   bool hit_layer[CSCConstants::NUM_LAYERS];
-  int this_layer, this_wire;
+  int this_wire;
   // If nplanes_hit_accel_pretrig is 0, the firmware uses the value
   // of nplanes_hit_pretrig instead.
   const unsigned int nplanes_hit_pretrig_acc =
@@ -544,38 +542,42 @@ bool CSCAnodeLCTProcessor::preTrigger(const int key_wire, const int start_bx) {
   unsigned int stop_bx = fifo_tbins - drift_delay;
   for (unsigned int bx_time = start_bx; bx_time < stop_bx; bx_time++) {
     for (int i_pattern = 0; i_pattern < CSCConstants::NUM_ALCT_PATTERNS; i_pattern++) {
+      // initialize the hit layers
       for (int i_layer = 0; i_layer < CSCConstants::NUM_LAYERS; i_layer++)
         hit_layer[i_layer] = false;
       layers_hit = 0;
 
-      for (int i_wire = 0; i_wire < CSCConstants::MAX_WIRES_IN_PATTERN; i_wire++) {
-        if (pattern_mask[i_pattern][i_wire] != 0) {
-          this_layer = CSCPatternBank::alct_pattern_envelope[i_wire];
-          this_wire = CSCPatternBank::alct_keywire_offset[MESelection][i_wire] + key_wire;
-          if ((this_wire >= 0) && (this_wire < numWireGroups)) {
-            // Perform bit operation to see if pulse is 1 at a certain bx_time.
-            if (((pulse[this_layer][this_wire] >> bx_time) & 1) == 1) {
-              // Store number of layers hit.
-              if (hit_layer[this_layer] == false) {
-                hit_layer[this_layer] = true;
-                layers_hit++;
-              }
-
-              // See if number of layers hit is greater than or equal to
-              // pretrig_thresh.
-              if (layers_hit >= pretrig_thresh[i_pattern]) {
-                first_bx[key_wire] = bx_time;
-                if (infoV > 1) {
-                  LogTrace("CSCAnodeLCTProcessor") << "Pretrigger was satisfied for wire: " << key_wire
-                                                   << " pattern: " << i_pattern << " bx_time: " << bx_time;
+      // now run over all layers and wires
+      for (int i_layer = 0; i_layer < CSCConstants::NUM_LAYERS; i_layer++) {
+        for (int i_wire = 0; i_wire < CSCConstants::ALCT_PATTERN_WIDTH; i_wire++) {
+          // check if the hit is valid
+          if (alct_pattern_[i_pattern][i_layer][i_wire]) {
+            this_wire = CSCPatternBank::alct_keywire_offset_[MESelection][i_wire] + key_wire;
+            if ((this_wire >= 0) && (this_wire < numWireGroups)) {
+              // Perform bit operation to see if pulse is 1 at a certain bx_time.
+              if (((pulse[i_layer][this_wire] >> bx_time) & 1) == 1) {
+                // Store number of layers hit.
+                if (!hit_layer[i_layer]) {
+                  hit_layer[i_layer] = true;
+                  layers_hit++;
                 }
-                // make a new pre-trigger
-                nPreTriggers++;
-                // make a new pre-trigger digi
-                // useful for calculating DAQ rates
-                thePreTriggerDigis.emplace_back(
-                    CSCALCTPreTriggerDigi(1, layers_hit - 3, 0, 0, this_wire, bx_time, nPreTriggers));
-                return true;
+
+                // See if number of layers hit is greater than or equal to
+                // pretrig_thresh.
+                if (layers_hit >= pretrig_thresh[i_pattern]) {
+                  first_bx[key_wire] = bx_time;
+                  if (infoV > 1) {
+                    LogTrace("CSCAnodeLCTProcessor") << "Pretrigger was satisfied for wire: " << key_wire
+                                                     << " pattern: " << i_pattern << " bx_time: " << bx_time;
+                  }
+                  // make a new pre-trigger
+                  nPreTriggers++;
+                  // make a new pre-trigger digi
+                  // useful for calculating DAQ rates
+                  thePreTriggerDigis.emplace_back(
+                      CSCALCTPreTriggerDigi(1, layers_hit - 3, 0, 0, this_wire, bx_time, nPreTriggers));
+                  return true;
+                }
               }
             }
           }
@@ -591,7 +593,7 @@ bool CSCAnodeLCTProcessor::patternDetection(const int key_wire) {
   bool trigger = false;
   bool hit_layer[CSCConstants::NUM_LAYERS];
   unsigned int temp_quality;
-  int this_layer, this_wire, delta_wire;
+  int this_wire, delta_wire;
   // If nplanes_hit_accel_pattern is 0, the firmware uses the value
   // of nplanes_hit_pattern instead.
   const unsigned int nplanes_hit_pattern_acc =
@@ -602,6 +604,8 @@ bool CSCAnodeLCTProcessor::patternDetection(const int key_wire) {
 
   for (int i_pattern = 0; i_pattern < CSCConstants::NUM_ALCT_PATTERNS; i_pattern++) {
     temp_quality = 0;
+
+    // initialize the hit layers
     for (int i_layer = 0; i_layer < CSCConstants::NUM_LAYERS; i_layer++)
       hit_layer[i_layer] = false;
 
@@ -609,44 +613,46 @@ bool CSCAnodeLCTProcessor::patternDetection(const int key_wire) {
     std::multiset<int> mset_for_median;
     mset_for_median.clear();
 
-    for (int i_wire = 0; i_wire < CSCConstants::MAX_WIRES_IN_PATTERN; i_wire++) {
-      if (pattern_mask[i_pattern][i_wire] != 0) {
-        this_layer = CSCPatternBank::alct_pattern_envelope[i_wire];
-        delta_wire = CSCPatternBank::alct_keywire_offset[MESelection][i_wire];
-        this_wire = delta_wire + key_wire;
-        if ((this_wire >= 0) && (this_wire < numWireGroups)) {
-          // Wait a drift_delay time later and look for layers hit in
-          // the pattern.
-          if (((pulse[this_layer][this_wire] >> (first_bx[key_wire] + drift_delay)) & 1) == 1) {
-            // If layer has never had a hit before, then increment number
-            // of layer hits.
-            if (hit_layer[this_layer] == false) {
-              temp_quality++;
-              // keep track of which layers already had hits.
-              hit_layer[this_layer] = true;
-              if (infoV > 1)
-                LogTrace("CSCAnodeLCTProcessor")
-                    << "bx_time: " << first_bx[key_wire] << " pattern: " << i_pattern << " keywire: " << key_wire
-                    << " layer: " << this_layer << " quality: " << temp_quality;
-            }
-
-            // for averaged time use only the closest WGs around the key WG
-            if (abs(delta_wire) < 2) {
-              // find at what bx did pulse on this wire&layer start
-              // use hit_pesrist constraint on how far back we can go
-              int first_bx_layer = first_bx[key_wire] + drift_delay;
-              for (unsigned int dbx = 0; dbx < hit_persist; dbx++) {
-                if (((pulse[this_layer][this_wire] >> (first_bx_layer - 1)) & 1) == 1)
-                  first_bx_layer--;
-                else
-                  break;
+    for (int i_layer = 0; i_layer < CSCConstants::NUM_LAYERS; i_layer++) {
+      for (int i_wire = 0; i_wire < CSCConstants::ALCT_PATTERN_WIDTH; i_wire++) {
+        // check if the hit is valid
+        if (alct_pattern_[i_pattern][i_layer][i_wire]) {
+          delta_wire = CSCPatternBank::alct_keywire_offset_[MESelection][i_wire];
+          this_wire = delta_wire + key_wire;
+          if ((this_wire >= 0) && (this_wire < numWireGroups)) {
+            // Wait a drift_delay time later and look for layers hit in
+            // the pattern.
+            if (((pulse[i_layer][this_wire] >> (first_bx[key_wire] + drift_delay)) & 1) == 1) {
+              // If layer has never had a hit before, then increment number
+              // of layer hits.
+              if (!hit_layer[i_layer]) {
+                temp_quality++;
+                // keep track of which layers already had hits.
+                hit_layer[i_layer] = true;
+                if (infoV > 1)
+                  LogTrace("CSCAnodeLCTProcessor")
+                      << "bx_time: " << first_bx[key_wire] << " pattern: " << i_pattern << " keywire: " << key_wire
+                      << " layer: " << i_layer << " quality: " << temp_quality;
               }
-              times_sum += (double)first_bx_layer;
-              num_pattern_hits += 1.;
-              mset_for_median.insert(first_bx_layer);
-              if (infoV > 2)
-                LogTrace("CSCAnodeLCTProcessor") << " 1st bx in layer: " << first_bx_layer << " sum bx: " << times_sum
-                                                 << " #pat. hits: " << num_pattern_hits;
+
+              // for averaged time use only the closest WGs around the key WG
+              if (abs(delta_wire) < 2) {
+                // find at what bx did pulse on this wire&layer start
+                // use hit_pesrist constraint on how far back we can go
+                int first_bx_layer = first_bx[key_wire] + drift_delay;
+                for (unsigned int dbx = 0; dbx < hit_persist; dbx++) {
+                  if (((pulse[i_layer][this_wire] >> (first_bx_layer - 1)) & 1) == 1)
+                    first_bx_layer--;
+                  else
+                    break;
+                }
+                times_sum += (double)first_bx_layer;
+                num_pattern_hits += 1.;
+                mset_for_median.insert(first_bx_layer);
+                if (infoV > 2)
+                  LogTrace("CSCAnodeLCTProcessor") << " 1st bx in layer: " << first_bx_layer << " sum bx: " << times_sum
+                                                   << " #pat. hits: " << num_pattern_hits;
+              }
             }
           }
         }
@@ -1323,17 +1329,18 @@ void CSCAnodeLCTProcessor::showPatterns(const int key_wire) {
       strstrm_header << ((32 - i) % 10);
     }
     LogTrace("CSCAnodeLCTProcessor") << strstrm_header.str();
-    for (int i_wire = 0; i_wire < CSCConstants::MAX_WIRES_IN_PATTERN; i_wire++) {
-      if (pattern_mask[i_pattern][i_wire] != 0) {
-        std::ostringstream strstrm_pulse;
-        int this_layer = CSCPatternBank::alct_pattern_envelope[i_wire];
-        int this_wire = CSCPatternBank::alct_keywire_offset[MESelection][i_wire] + key_wire;
-        if (this_wire >= 0 && this_wire < numWireGroups) {
-          for (int i = 1; i <= 32; i++) {
-            strstrm_pulse << ((pulse[this_layer][this_wire] >> (32 - i)) & 1);
+    for (int i_layer = 0; i_layer < CSCConstants::NUM_LAYERS; i_layer++) {
+      for (int i_wire = 0; i_wire < CSCConstants::ALCT_PATTERN_WIDTH; i_wire++) {
+        // check if the hit is valid
+        if (alct_pattern_[i_pattern][i_layer][i_wire]) {
+          std::ostringstream strstrm_pulse;
+          int this_wire = CSCPatternBank::alct_keywire_offset_[MESelection][i_wire] + key_wire;
+          if (this_wire >= 0 && this_wire < numWireGroups) {
+            for (int i = 1; i <= 32; i++) {
+              strstrm_pulse << ((pulse[i_layer][this_wire] >> (32 - i)) & 1);
+            }
+            LogTrace("CSCAnodeLCTProcessor") << strstrm_pulse.str() << " on layer " << i_layer << " wire " << this_wire;
           }
-          LogTrace("CSCAnodeLCTProcessor")
-              << strstrm_pulse.str() << " on layer " << this_layer << " wire " << this_wire;
         }
       }
     }
