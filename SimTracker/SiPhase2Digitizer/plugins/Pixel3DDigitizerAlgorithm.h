@@ -28,16 +28,18 @@ public:
   // initialization that cannot be done in the constructor
   void init(const edm::EventSetup& es) override;
   bool select_hit(const PSimHit& hit, double tCorr, double& sigScale) const override;
-  std::vector<DigitizerUtility::SignalPoint> drift(const PSimHit& hit,
-						   const Phase2TrackerGeomDetUnit* pixdet,
-						   const GlobalVector& bfield,
-						   const std::vector<DigitizerUtility::EnergyDepositUnit>& ionization_points) const override;
+  std::vector<DigitizerUtility::SignalPoint> drift(
+      const PSimHit& hit,
+      const Phase2TrackerGeomDetUnit* pixdet,
+      const GlobalVector& bfield,
+      const std::vector<DigitizerUtility::EnergyDepositUnit>& ionization_points) const override;
   // overload drift
-  std::vector<DigitizerUtility::SignalPoint> drift(const PSimHit& hit,
-                                                   const Phase2TrackerGeomDetUnit* pixdet,
-                                                   const GlobalVector& bfield,
-                                                   const std::vector<DigitizerUtility::EnergyDepositUnit>& ionization_points,
-                                                   bool diffusion_activated) const;
+  std::vector<DigitizerUtility::SignalPoint> drift(
+      const PSimHit& hit,
+      const Phase2TrackerGeomDetUnit* pixdet,
+      const GlobalVector& bfield,
+      const std::vector<DigitizerUtility::EnergyDepositUnit>& ionization_points,
+      bool diffusion_activated) const;
 
   // New diffusion function: check implementation
   std::vector<DigitizerUtility::EnergyDepositUnit> diffusion(const LocalPoint& pos,

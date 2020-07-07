@@ -227,7 +227,9 @@ std::size_t PixelDigitizerAlgorithm::TimewalkModel::find_closest_index(const std
 //
 // -- Compare Signal with Threshold
 //
-bool PixelDigitizerAlgorithm::isAboveThreshold(const DigitizerUtility::SimHitInfo* hitInfo, float charge, float thr) const {
+bool PixelDigitizerAlgorithm::isAboveThreshold(const DigitizerUtility::SimHitInfo* hitInfo,
+                                               float charge,
+                                               float thr) const {
   if (charge < thr)
     return false;
   if (apply_timewalk_ && hitInfo) {
