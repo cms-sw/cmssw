@@ -66,7 +66,7 @@ void L1NNTauProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 }
 
 // create taus based on grid structure
-void L1NNTauProducer::addTau(l1t::PFCandidate& iCand,
+void L1NNTauProducer::addTau(const l1t::PFCandidate& iCand,
                              const l1t::PFCandidateCollection& iParts,
                              std::unique_ptr<l1t::PFTauCollection>& outputTaus) {
   l1t::PFCandidateCollection pfTauCands;
@@ -98,7 +98,7 @@ void L1NNTauProducer::addTau(l1t::PFCandidate& iCand,
   l1t::PFTau l1PFTau(tempP4, NN, 0, lId);
   outputTaus->push_back(l1PFTau);
 }
-float L1NNTauProducer::deltaR(l1t::PFCandidate& iPart1, l1t::PFCandidate& iPart2) {
+float L1NNTauProducer::deltaR(const l1t::PFCandidate& iPart1, const l1t::PFCandidate& iPart2) {
   float delta_r = 20;
   float pDPhi = fabs(iPart1.phi() - iPart2.phi());
   if (pDPhi > 2. * M_PI - pDPhi)

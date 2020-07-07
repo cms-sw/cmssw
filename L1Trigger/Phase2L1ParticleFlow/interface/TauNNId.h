@@ -13,7 +13,7 @@ public:
   void initialize(const std::string &iName, const std::string &iWeightFile, int iNParticles);
   void SetNNVectorVar();
   float EvaluateNN();
-  float compute(l1t::PFCandidate &iSeed, l1t::PFCandidateCollection &iParts);
+  float compute(const l1t::PFCandidate &iSeed, l1t::PFCandidateCollection &iParts);
 
   std::string fInput_;
   int fNParticles_;
