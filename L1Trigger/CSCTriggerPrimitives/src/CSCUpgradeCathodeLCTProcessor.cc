@@ -329,13 +329,18 @@ std::vector<CSCCLCTDigi> CSCUpgradeCathodeLCTProcessor::findLCTs(
             thisLCT.setFullBX(fbx);
 
             // get the comparator hits for this pattern
-            auto compHits = hits_in_patterns[best_hs][keystrip_data[ilct][CLCT_PATTERN]];
-
-            // purge the comparator digi collection from the obsolete "65535" entries...
-            cleanComparatorContainer(compHits);
+            const auto& compHits = hits_in_patterns[best_hs][keystrip_data[ilct][CLCT_PATTERN]];
 
             // set the hit collection
             thisLCT.setHits(compHits);
+
+            // do the CCLUT procedures
+            if (use_comparator_codes_) {
+              runCCLUT(thisLCT);
+            }
+
+            // purge the comparator digi collection from the obsolete "65535" entries...
+            cleanComparatorContainer(thisLCT);
 
             // put the CLCT into the collection
             lctList.push_back(thisLCT);
