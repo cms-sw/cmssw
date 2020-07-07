@@ -172,7 +172,7 @@ protected:
   bool ispretrig[CSCConstants::NUM_HALF_STRIPS_7CFEBS];
 
   // actual LUT used
-  CSCPatternBank::CLCTPatterns clct_pattern_ = {};
+  CSCPatternBank::LCTPatterns clct_pattern_ = {};
 
   // we use these next ones to address the various bits inside the array that's
   // used to make the cathode LCTs.
