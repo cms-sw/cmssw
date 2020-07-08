@@ -1,0 +1,390 @@
+%MSG-i EventSetupDependency:  AfterModConstruction 28-Jul-2020 20:49:11 CEST  pre-events
+The EventSetup record BeamSpotTransientObjectsRcd depends on at least one Record 
+ (BeamSpotObjectsRcd, BeamSpotOnlineHLTObjectsRcd) which is not present in the job.
+ This may lead to an exception begin thrown during event processing.
+ If no exception occurs during the job than it is usually safe to ignore this message.
+%MSG
+%MSG-i CondDBESSource:  AfterSource 28-Jul-2020 20:49:11 CEST BeforeEvents
+Getting data for record "BeamSpotOnlineLegacyObjectsRcd" to be consumed by run: 336365 lumi: 0 event: 0, timestamp: 1; from CondDBESSource::setIntervalFor
+%MSG
+%MSG-i CondDBESSource:  AfterSource 28-Jul-2020 20:49:11 CEST BeforeEvents
+Preparing refresh for record "BeamSpotOnlineLegacyObjectsRcd" for run: 336365 lumi: 0 event: 0, timestamp: 1; from CondDBESSource::setIntervalFor
+%MSG
+%MSG-i CondDBESSource:  AfterSource 28-Jul-2020 20:49:11 CEST BeforeEvents
+Processing record "BeamSpotOnlineLegacyObjectsRcd" and label "" for run: 336365 lumi: 0 event: 0, timestamp: 1; from CondDBESSource::setIntervalFor
+%MSG
+%MSG-i CondDBESSource:  AfterSource 28-Jul-2020 20:49:11 CEST BeforeEvents
+Checking if the session must be closed and re-opened for getting correct conditions; from CondDBESSource::setIntervalFor
+%MSG
+%MSG-i CondDBESSource:  AfterSource 28-Jul-2020 20:49:11 CEST BeforeEvents
+Re-opening the session with connection string oracle://cms_orcon_prod/CMS_CONDITIONS and new transaction Id 1444676674519040; from CondDBESSource::setIntervalFor
+%MSG
+%MSG-i CondDBESSource:  AfterSource 28-Jul-2020 20:49:11 CEST BeforeEvents
+Reconnecting to "oracle://cms_orcon_prod/CMS_CONDITIONS" for getting new payload for record "BeamSpotOnlineLegacyObjectsRcd" and label "" from IOV tag "BeamSpotOnlineTestLegacy" to be consumed by run: 336365 lumi: 0 event: 0, timestamp: 1; from CondDBESSource::setIntervalFor
+%MSG
+%MSG-i CondDBESSource:  AfterSource 28-Jul-2020 20:49:11 CEST BeforeEvents
+Validity coming from IOV sequence for record "BeamSpotOnlineLegacyObjectsRcd" and label "": (1444388911710225, 1444676674519052) for time (type: lumiid) 1444676674519040; from CondDBESSource::setIntervalFor
+%MSG
+%MSG-i CondDBESSource:  AfterSource 28-Jul-2020 20:49:11 CEST BeforeEvents
+Setting validity for record "BeamSpotOnlineLegacyObjectsRcd" and corresponding label(s): starting at run: 336298 lumi: 17 event: 0, timestamp: 0, ending at run: 336365 lumi: 0 event: 18446744073709551615, timestamp: 0, for run: 336365 lumi: 0 event: 0, timestamp: 1; from CondDBESSource::setIntervalFor
+%MSG
+%MSG-i CondDBESSource:  PostStreamBeginRun 28-Jul-2020 20:49:11 CEST  PostStreamBeginRun
+Getting data for record "BeamSpotOnlineLegacyObjectsRcd" to be consumed by run: 336365 lumi: 13 event: 0, timestamp: 1; from CondDBESSource::setIntervalFor
+%MSG
+%MSG-i CondDBESSource:  PostStreamBeginRun 28-Jul-2020 20:49:11 CEST  PostStreamBeginRun
+Preparing refresh for record "BeamSpotOnlineLegacyObjectsRcd" since there has been a transition from run/lumi 1444676674519040 to run/lumi 1444676674519053; from CondDBESSource::setIntervalFor
+%MSG
+%MSG-i CondDBESSource:  PostStreamBeginRun 28-Jul-2020 20:49:11 CEST  PostStreamBeginRun
+Processing record "BeamSpotOnlineLegacyObjectsRcd" and label "" for run: 336365 lumi: 13 event: 0, timestamp: 1; from CondDBESSource::setIntervalFor
+%MSG
+%MSG-i CondDBESSource:  PostStreamBeginRun 28-Jul-2020 20:49:11 CEST  PostStreamBeginRun
+Checking if the session must be closed and re-opened for getting correct conditions; from CondDBESSource::setIntervalFor
+%MSG
+%MSG-i CondDBESSource:  PostStreamBeginRun 28-Jul-2020 20:49:11 CEST  PostStreamBeginRun
+Re-opening the session with connection string oracle://cms_orcon_prod/CMS_CONDITIONS and new transaction Id 1444676674519053; from CondDBESSource::setIntervalFor
+%MSG
+%MSG-i CondDBESSource:  PostStreamBeginRun 28-Jul-2020 20:49:11 CEST  PostStreamBeginRun
+Reconnecting to "oracle://cms_orcon_prod/CMS_CONDITIONS" for getting new payload for record "BeamSpotOnlineLegacyObjectsRcd" and label "" from IOV tag "BeamSpotOnlineTestLegacy" to be consumed by run: 336365 lumi: 13 event: 0, timestamp: 1; from CondDBESSource::setIntervalFor
+%MSG
+%MSG-i CondDBESSource:  PostStreamBeginRun 28-Jul-2020 20:49:11 CEST  PostStreamBeginRun
+Validity coming from IOV sequence for record "BeamSpotOnlineLegacyObjectsRcd" and label "": (1444676674519053, 1444676674519055) for time (type: lumiid) 1444676674519053; from CondDBESSource::setIntervalFor
+%MSG
+%MSG-i CondDBESSource:  PostStreamBeginRun 28-Jul-2020 20:49:11 CEST  PostStreamBeginRun
+Setting validity for record "BeamSpotOnlineLegacyObjectsRcd" and corresponding label(s): starting at run: 336365 lumi: 13 event: 0, timestamp: 0, ending at run: 336365 lumi: 13 event: 18446744073709551615, timestamp: 0, for run: 336365 lumi: 13 event: 0, timestamp: 1; from CondDBESSource::setIntervalFor
+%MSG
+Begin processing the 1st record. Run 336365, Event 1, LumiSection 13 on stream 0 at 28-Jul-2020 20:49:11.430 CEST
+%MSG-i Run numver: :  OnlineBeamSpotFromDB:beamspot 28-Jul-2020 20:49:11 CEST  Run: 336365 Event: 1
+336365
+%MSG
+%MSG-i beamspot from HLT :  OnlineBeamSpotFromDB:beamspot  28-Jul-2020 20:49:11 CEST Run: 336365 Event: 1
+-----------------------------------------------------
+              Beam Spot Data
+
+ Beam type    = 2
+       X0     = 0.0852629 +/- 0 [cm]
+       Y0     = 0.236885 +/- 0 [cm]
+       Z0     = 0.143556 +/- 0 [cm]
+ Sigma Z0     = 3.72627 +/- 0 [cm]
+ dxdz         = 0 +/- 0 [radians]
+ dydz         = 0 +/- 0 [radians]
+ Beam Width X = 0.00166767 +/- 0 [cm]
+ Beam Width Y = 0.000420829 +/- 0 [cm]
+ Emittance X  = 0 [cm]
+ Emittance Y  = 0 [cm]
+ Beta star    = 0 [cm]
+-----------------------------------------------------
+
+
+%MSG
+%MSG-i CondDBESSource:  PostModuleEvent 28-Jul-2020 20:49:11 CEST  PostProcessEvent
+Getting data for record "BeamSpotOnlineLegacyObjectsRcd" to be consumed by run: 336365 lumi: 14 event: 0, timestamp: 10000001; from CondDBESSource::setIntervalFor
+%MSG
+%MSG-i CondDBESSource:  PostModuleEvent 28-Jul-2020 20:49:11 CEST  PostProcessEvent
+Preparing refresh for record "BeamSpotOnlineLegacyObjectsRcd" since there has been a transition from run/lumi 1444676674519053 to run/lumi 1444676674519054; from CondDBESSource::setIntervalFor
+%MSG
+%MSG-i CondDBESSource:  PostModuleEvent 28-Jul-2020 20:49:11 CEST  PostProcessEvent
+Processing record "BeamSpotOnlineLegacyObjectsRcd" and label "" for run: 336365 lumi: 14 event: 0, timestamp: 10000001; from CondDBESSource::setIntervalFor
+%MSG
+%MSG-i CondDBESSource:  PostModuleEvent 28-Jul-2020 20:49:11 CEST  PostProcessEvent
+Checking if the session must be closed and re-opened for getting correct conditions; from CondDBESSource::setIntervalFor
+%MSG
+%MSG-i CondDBESSource:  PostModuleEvent 28-Jul-2020 20:49:11 CEST  PostProcessEvent
+Re-opening the session with connection string oracle://cms_orcon_prod/CMS_CONDITIONS and new transaction Id 1444676674519054; from CondDBESSource::setIntervalFor
+%MSG
+%MSG-i CondDBESSource:  PostModuleEvent 28-Jul-2020 20:49:11 CEST  PostProcessEvent
+Reconnecting to "oracle://cms_orcon_prod/CMS_CONDITIONS" for getting new payload for record "BeamSpotOnlineLegacyObjectsRcd" and label "" from IOV tag "BeamSpotOnlineTestLegacy" to be consumed by run: 336365 lumi: 14 event: 0, timestamp: 10000001; from CondDBESSource::setIntervalFor
+%MSG
+%MSG-i CondDBESSource:  PostModuleEvent 28-Jul-2020 20:49:11 CEST  PostProcessEvent
+Validity coming from IOV sequence for record "BeamSpotOnlineLegacyObjectsRcd" and label "": (1444676674519053, 1444676674519055) for time (type: lumiid) 1444676674519054; from CondDBESSource::setIntervalFor
+%MSG
+%MSG-i CondDBESSource:  PostModuleEvent 28-Jul-2020 20:49:11 CEST  PostProcessEvent
+Setting validity for record "BeamSpotOnlineLegacyObjectsRcd" and corresponding label(s): starting at run: 336365 lumi: 13 event: 0, timestamp: 0, ending at run: 336365 lumi: 14 event: 18446744073709551615, timestamp: 0, for run: 336365 lumi: 14 event: 0, timestamp: 10000001; from CondDBESSource::setIntervalFor
+%MSG
+Begin processing the 2nd record. Run 336365, Event 2, LumiSection 14 on stream 0 at 28-Jul-2020 20:49:11.453 CEST
+%MSG-i Run numver: :  OnlineBeamSpotFromDB:beamspot 28-Jul-2020 20:49:11 CEST  Run: 336365 Event: 2
+336365
+%MSG
+%MSG-i beamspot from HLT :  OnlineBeamSpotFromDB:beamspot  28-Jul-2020 20:49:11 CEST Run: 336365 Event: 2
+-----------------------------------------------------
+              Beam Spot Data
+
+ Beam type    = 2
+       X0     = 0.0852629 +/- 0 [cm]
+       Y0     = 0.236885 +/- 0 [cm]
+       Z0     = 0.143556 +/- 0 [cm]
+ Sigma Z0     = 3.72627 +/- 0 [cm]
+ dxdz         = 0 +/- 0 [radians]
+ dydz         = 0 +/- 0 [radians]
+ Beam Width X = 0.00166767 +/- 0 [cm]
+ Beam Width Y = 0.000420829 +/- 0 [cm]
+ Emittance X  = 0 [cm]
+ Emittance Y  = 0 [cm]
+ Beta star    = 0 [cm]
+-----------------------------------------------------
+
+
+%MSG
+%MSG-i CondDBESSource:  PostGlobalEndLumi 28-Jul-2020 20:49:11 CEST  PostGlobalEndLumi
+Getting data for record "BeamSpotOnlineLegacyObjectsRcd" to be consumed by run: 336365 lumi: 4294967295 event: 18446744073709551615, timestamp: 10000001; from CondDBESSource::setIntervalFor
+%MSG
+%MSG-i CondDBESSource:  PostGlobalEndLumi 28-Jul-2020 20:49:11 CEST  PostGlobalEndLumi
+Preparing refresh for record "BeamSpotOnlineLegacyObjectsRcd" since there has been a transition from run/lumi 1444676674519054 to run/lumi 1444680969486335; from CondDBESSource::setIntervalFor
+%MSG
+%MSG-i CondDBESSource:  PostGlobalEndLumi 28-Jul-2020 20:49:11 CEST  PostGlobalEndLumi
+Processing record "BeamSpotOnlineLegacyObjectsRcd" and label "" for run: 336365 lumi: 4294967295 event: 18446744073709551615, timestamp: 10000001; from CondDBESSource::setIntervalFor
+%MSG
+%MSG-i CondDBESSource:  PostGlobalEndLumi 28-Jul-2020 20:49:11 CEST  PostGlobalEndLumi
+Checking if the session must be closed and re-opened for getting correct conditions; from CondDBESSource::setIntervalFor
+%MSG
+%MSG-i CondDBESSource:  PostGlobalEndLumi 28-Jul-2020 20:49:11 CEST  PostGlobalEndLumi
+Re-opening the session with connection string oracle://cms_orcon_prod/CMS_CONDITIONS and new transaction Id 1444680969486335; from CondDBESSource::setIntervalFor
+%MSG
+%MSG-i CondDBESSource:  PostGlobalEndLumi 28-Jul-2020 20:49:11 CEST  PostGlobalEndLumi
+Reconnecting to "oracle://cms_orcon_prod/CMS_CONDITIONS" for getting new payload for record "BeamSpotOnlineLegacyObjectsRcd" and label "" from IOV tag "BeamSpotOnlineTestLegacy" to be consumed by run: 336365 lumi: 4294967295 event: 18446744073709551615, timestamp: 10000001; from CondDBESSource::setIntervalFor
+%MSG
+%MSG-i CondDBESSource:  PostGlobalEndLumi 28-Jul-2020 20:49:11 CEST  PostGlobalEndLumi
+Validity coming from IOV sequence for record "BeamSpotOnlineLegacyObjectsRcd" and label "": (1444680969486335, 1444680969486335) for time (type: lumiid) 1444680969486335; from CondDBESSource::setIntervalFor
+%MSG
+%MSG-i CondDBESSource:  PostGlobalEndLumi 28-Jul-2020 20:49:11 CEST  PostGlobalEndLumi
+Setting validity for record "BeamSpotOnlineLegacyObjectsRcd" and corresponding label(s): starting at run: 336365 lumi: 4294967295 event: 0, timestamp: 0, ending at run: 336365 lumi: 4294967295 event: 18446744073709551615, timestamp: 0, for run: 336365 lumi: 4294967295 event: 18446744073709551615, timestamp: 10000001; from CondDBESSource::setIntervalFor
+%MSG
+%MSG-i CondDBESSource:  AfterSource 28-Jul-2020 20:49:11 CEST PostGlobalEndRun
+Getting data for record "BeamSpotOnlineLegacyObjectsRcd" to be consumed by run: 336366 lumi: 0 event: 0, timestamp: 15000001; from CondDBESSource::setIntervalFor
+%MSG
+%MSG-i CondDBESSource:  AfterSource 28-Jul-2020 20:49:11 CEST PostGlobalEndRun
+Preparing refresh for record "BeamSpotOnlineLegacyObjectsRcd" since there has been a transition from run/lumi 1444680969486335 to run/lumi 1444680969486336; from CondDBESSource::setIntervalFor
+%MSG
+%MSG-i CondDBESSource:  AfterSource 28-Jul-2020 20:49:11 CEST PostGlobalEndRun
+Processing record "BeamSpotOnlineLegacyObjectsRcd" and label "" for run: 336366 lumi: 0 event: 0, timestamp: 15000001; from CondDBESSource::setIntervalFor
+%MSG
+%MSG-i CondDBESSource:  AfterSource 28-Jul-2020 20:49:11 CEST PostGlobalEndRun
+Checking if the session must be closed and re-opened for getting correct conditions; from CondDBESSource::setIntervalFor
+%MSG
+%MSG-i CondDBESSource:  AfterSource 28-Jul-2020 20:49:11 CEST PostGlobalEndRun
+Re-opening the session with connection string oracle://cms_orcon_prod/CMS_CONDITIONS and new transaction Id 1444680969486336; from CondDBESSource::setIntervalFor
+%MSG
+%MSG-i CondDBESSource:  AfterSource 28-Jul-2020 20:49:11 CEST PostGlobalEndRun
+Reconnecting to "oracle://cms_orcon_prod/CMS_CONDITIONS" for getting new payload for record "BeamSpotOnlineLegacyObjectsRcd" and label "" from IOV tag "BeamSpotOnlineTestLegacy" to be consumed by run: 336366 lumi: 0 event: 0, timestamp: 15000001; from CondDBESSource::setIntervalFor
+%MSG
+%MSG-i CondDBESSource:  AfterSource 28-Jul-2020 20:49:11 CEST PostGlobalEndRun
+Validity coming from IOV sequence for record "BeamSpotOnlineLegacyObjectsRcd" and label "": (1444680969486336, 1444680969486336) for time (type: lumiid) 1444680969486336; from CondDBESSource::setIntervalFor
+%MSG
+%MSG-i CondDBESSource:  AfterSource 28-Jul-2020 20:49:11 CEST PostGlobalEndRun
+Setting validity for record "BeamSpotOnlineLegacyObjectsRcd" and corresponding label(s): starting at run: 336366 lumi: 0 event: 0, timestamp: 0, ending at run: 336366 lumi: 0 event: 18446744073709551615, timestamp: 0, for run: 336366 lumi: 0 event: 0, timestamp: 15000001; from CondDBESSource::setIntervalFor
+%MSG
+%MSG-i CondDBESSource:  PostStreamBeginRun 28-Jul-2020 20:49:11 CEST  PostStreamBeginRun
+Getting data for record "BeamSpotOnlineLegacyObjectsRcd" to be consumed by run: 336366 lumi: 13 event: 0, timestamp: 15000001; from CondDBESSource::setIntervalFor
+%MSG
+%MSG-i CondDBESSource:  PostStreamBeginRun 28-Jul-2020 20:49:11 CEST  PostStreamBeginRun
+Preparing refresh for record "BeamSpotOnlineLegacyObjectsRcd" since there has been a transition from run/lumi 1444680969486336 to run/lumi 1444680969486349; from CondDBESSource::setIntervalFor
+%MSG
+%MSG-i CondDBESSource:  PostStreamBeginRun 28-Jul-2020 20:49:11 CEST  PostStreamBeginRun
+Processing record "BeamSpotOnlineLegacyObjectsRcd" and label "" for run: 336366 lumi: 13 event: 0, timestamp: 15000001; from CondDBESSource::setIntervalFor
+%MSG
+%MSG-i CondDBESSource:  PostStreamBeginRun 28-Jul-2020 20:49:11 CEST  PostStreamBeginRun
+Checking if the session must be closed and re-opened for getting correct conditions; from CondDBESSource::setIntervalFor
+%MSG
+%MSG-i CondDBESSource:  PostStreamBeginRun 28-Jul-2020 20:49:11 CEST  PostStreamBeginRun
+Re-opening the session with connection string oracle://cms_orcon_prod/CMS_CONDITIONS and new transaction Id 1444680969486349; from CondDBESSource::setIntervalFor
+%MSG
+%MSG-i CondDBESSource:  PostStreamBeginRun 28-Jul-2020 20:49:11 CEST  PostStreamBeginRun
+Reconnecting to "oracle://cms_orcon_prod/CMS_CONDITIONS" for getting new payload for record "BeamSpotOnlineLegacyObjectsRcd" and label "" from IOV tag "BeamSpotOnlineTestLegacy" to be consumed by run: 336366 lumi: 13 event: 0, timestamp: 15000001; from CondDBESSource::setIntervalFor
+%MSG
+%MSG-i CondDBESSource:  PostStreamBeginRun 28-Jul-2020 20:49:11 CEST  PostStreamBeginRun
+Validity coming from IOV sequence for record "BeamSpotOnlineLegacyObjectsRcd" and label "": (1444680969486349, 1444680969486349) for time (type: lumiid) 1444680969486349; from CondDBESSource::setIntervalFor
+%MSG
+%MSG-i CondDBESSource:  PostStreamBeginRun 28-Jul-2020 20:49:11 CEST  PostStreamBeginRun
+Setting validity for record "BeamSpotOnlineLegacyObjectsRcd" and corresponding label(s): starting at run: 336366 lumi: 13 event: 0, timestamp: 0, ending at run: 336366 lumi: 13 event: 18446744073709551615, timestamp: 0, for run: 336366 lumi: 13 event: 0, timestamp: 15000001; from CondDBESSource::setIntervalFor
+%MSG
+Begin processing the 3rd record. Run 336366, Event 1, LumiSection 13 on stream 0 at 28-Jul-2020 20:49:11.562 CEST
+%MSG-i Run numver: :  OnlineBeamSpotFromDB:beamspot 28-Jul-2020 20:49:11 CEST  Run: 336366 Event: 1
+336366
+%MSG
+%MSG-i beamspot from HLT :  OnlineBeamSpotFromDB:beamspot  28-Jul-2020 20:49:11 CEST Run: 336366 Event: 1
+-----------------------------------------------------
+              Beam Spot Data
+
+ Beam type    = 2
+       X0     = 0.0472225 +/- 0 [cm]
+       Y0     = 0.336584 +/- 0 [cm]
+       Z0     = -0.0343632 +/- 0 [cm]
+ Sigma Z0     = 3.32489 +/- 0 [cm]
+ dxdz         = 0 +/- 0 [radians]
+ dydz         = 0 +/- 0 [radians]
+ Beam Width X = -0.000377034 +/- 0 [cm]
+ Beam Width Y = 0.00135822 +/- 0 [cm]
+ Emittance X  = 0 [cm]
+ Emittance Y  = 0 [cm]
+ Beta star    = 0 [cm]
+-----------------------------------------------------
+
+
+%MSG
+%MSG-i CondDBESSource:  PostModuleEvent 28-Jul-2020 20:49:11 CEST  PostProcessEvent
+Getting data for record "BeamSpotOnlineLegacyObjectsRcd" to be consumed by run: 336366 lumi: 14 event: 0, timestamp: 20000001; from CondDBESSource::setIntervalFor
+%MSG
+%MSG-i CondDBESSource:  PostModuleEvent 28-Jul-2020 20:49:11 CEST  PostProcessEvent
+Preparing refresh for record "BeamSpotOnlineLegacyObjectsRcd" since there has been a transition from run/lumi 1444680969486349 to run/lumi 1444680969486350; from CondDBESSource::setIntervalFor
+%MSG
+%MSG-i CondDBESSource:  PostModuleEvent 28-Jul-2020 20:49:11 CEST  PostProcessEvent
+Processing record "BeamSpotOnlineLegacyObjectsRcd" and label "" for run: 336366 lumi: 14 event: 0, timestamp: 20000001; from CondDBESSource::setIntervalFor
+%MSG
+%MSG-i CondDBESSource:  PostModuleEvent 28-Jul-2020 20:49:11 CEST  PostProcessEvent
+Checking if the session must be closed and re-opened for getting correct conditions; from CondDBESSource::setIntervalFor
+%MSG
+%MSG-i CondDBESSource:  PostModuleEvent 28-Jul-2020 20:49:11 CEST  PostProcessEvent
+Re-opening the session with connection string oracle://cms_orcon_prod/CMS_CONDITIONS and new transaction Id 1444680969486350; from CondDBESSource::setIntervalFor
+%MSG
+%MSG-i CondDBESSource:  PostModuleEvent 28-Jul-2020 20:49:11 CEST  PostProcessEvent
+Reconnecting to "oracle://cms_orcon_prod/CMS_CONDITIONS" for getting new payload for record "BeamSpotOnlineLegacyObjectsRcd" and label "" from IOV tag "BeamSpotOnlineTestLegacy" to be consumed by run: 336366 lumi: 14 event: 0, timestamp: 20000001; from CondDBESSource::setIntervalFor
+%MSG
+%MSG-i CondDBESSource:  PostModuleEvent 28-Jul-2020 20:49:11 CEST  PostProcessEvent
+Validity coming from IOV sequence for record "BeamSpotOnlineLegacyObjectsRcd" and label "": (1444680969486350, 1444680969486350) for time (type: lumiid) 1444680969486350; from CondDBESSource::setIntervalFor
+%MSG
+%MSG-i CondDBESSource:  PostModuleEvent 28-Jul-2020 20:49:11 CEST  PostProcessEvent
+Setting validity for record "BeamSpotOnlineLegacyObjectsRcd" and corresponding label(s): starting at run: 336366 lumi: 14 event: 0, timestamp: 0, ending at run: 336366 lumi: 14 event: 18446744073709551615, timestamp: 0, for run: 336366 lumi: 14 event: 0, timestamp: 20000001; from CondDBESSource::setIntervalFor
+%MSG
+Begin processing the 4th record. Run 336366, Event 2, LumiSection 14 on stream 0 at 28-Jul-2020 20:49:11.586 CEST
+%MSG-i Run numver: :  OnlineBeamSpotFromDB:beamspot 28-Jul-2020 20:49:11 CEST  Run: 336366 Event: 2
+336366
+%MSG
+%MSG-i beamspot from HLT :  OnlineBeamSpotFromDB:beamspot  28-Jul-2020 20:49:11 CEST Run: 336366 Event: 2
+-----------------------------------------------------
+              Beam Spot Data
+
+ Beam type    = 2
+       X0     = 0.0472225 +/- 0 [cm]
+       Y0     = 0.336584 +/- 0 [cm]
+       Z0     = -0.0343632 +/- 0 [cm]
+ Sigma Z0     = 3.32489 +/- 0 [cm]
+ dxdz         = 0 +/- 0 [radians]
+ dydz         = 0 +/- 0 [radians]
+ Beam Width X = -0.000377034 +/- 0 [cm]
+ Beam Width Y = 0.00135822 +/- 0 [cm]
+ Emittance X  = 0 [cm]
+ Emittance Y  = 0 [cm]
+ Beta star    = 0 [cm]
+-----------------------------------------------------
+
+
+%MSG
+%MSG-i CondDBESSource:  PostGlobalEndLumi 28-Jul-2020 20:49:11 CEST  PostGlobalEndLumi
+Getting data for record "BeamSpotOnlineLegacyObjectsRcd" to be consumed by run: 336366 lumi: 4294967295 event: 18446744073709551615, timestamp: 20000001; from CondDBESSource::setIntervalFor
+%MSG
+%MSG-i CondDBESSource:  PostGlobalEndLumi 28-Jul-2020 20:49:11 CEST  PostGlobalEndLumi
+Preparing refresh for record "BeamSpotOnlineLegacyObjectsRcd" since there has been a transition from run/lumi 1444680969486350 to run/lumi 1444685264453631; from CondDBESSource::setIntervalFor
+%MSG
+%MSG-i CondDBESSource:  PostGlobalEndLumi 28-Jul-2020 20:49:11 CEST  PostGlobalEndLumi
+Processing record "BeamSpotOnlineLegacyObjectsRcd" and label "" for run: 336366 lumi: 4294967295 event: 18446744073709551615, timestamp: 20000001; from CondDBESSource::setIntervalFor
+%MSG
+%MSG-i CondDBESSource:  PostGlobalEndLumi 28-Jul-2020 20:49:11 CEST  PostGlobalEndLumi
+Checking if the session must be closed and re-opened for getting correct conditions; from CondDBESSource::setIntervalFor
+%MSG
+%MSG-i CondDBESSource:  PostGlobalEndLumi 28-Jul-2020 20:49:11 CEST  PostGlobalEndLumi
+Re-opening the session with connection string oracle://cms_orcon_prod/CMS_CONDITIONS and new transaction Id 1444685264453631; from CondDBESSource::setIntervalFor
+%MSG
+%MSG-i CondDBESSource:  PostGlobalEndLumi 28-Jul-2020 20:49:11 CEST  PostGlobalEndLumi
+Reconnecting to "oracle://cms_orcon_prod/CMS_CONDITIONS" for getting new payload for record "BeamSpotOnlineLegacyObjectsRcd" and label "" from IOV tag "BeamSpotOnlineTestLegacy" to be consumed by run: 336366 lumi: 4294967295 event: 18446744073709551615, timestamp: 20000001; from CondDBESSource::setIntervalFor
+%MSG
+%MSG-i CondDBESSource:  PostGlobalEndLumi 28-Jul-2020 20:49:11 CEST  PostGlobalEndLumi
+Validity coming from IOV sequence for record "BeamSpotOnlineLegacyObjectsRcd" and label "": (1444685264453631, 1444685264453631) for time (type: lumiid) 1444685264453631; from CondDBESSource::setIntervalFor
+%MSG
+%MSG-i CondDBESSource:  PostGlobalEndLumi 28-Jul-2020 20:49:11 CEST  PostGlobalEndLumi
+Setting validity for record "BeamSpotOnlineLegacyObjectsRcd" and corresponding label(s): starting at run: 336366 lumi: 4294967295 event: 0, timestamp: 0, ending at run: 336366 lumi: 4294967295 event: 18446744073709551615, timestamp: 0, for run: 336366 lumi: 4294967295 event: 18446744073709551615, timestamp: 20000001; from CondDBESSource::setIntervalFor
+%MSG
+%MSG-i CondDBESSource:  AfterSource 28-Jul-2020 20:49:11 CEST PostGlobalEndRun
+Getting data for record "BeamSpotOnlineLegacyObjectsRcd" to be consumed by run: 336367 lumi: 0 event: 0, timestamp: 25000001; from CondDBESSource::setIntervalFor
+%MSG
+%MSG-i CondDBESSource:  AfterSource 28-Jul-2020 20:49:11 CEST PostGlobalEndRun
+Preparing refresh for record "BeamSpotOnlineLegacyObjectsRcd" since there has been a transition from run/lumi 1444685264453631 to run/lumi 1444685264453632; from CondDBESSource::setIntervalFor
+%MSG
+%MSG-i CondDBESSource:  AfterSource 28-Jul-2020 20:49:11 CEST PostGlobalEndRun
+Processing record "BeamSpotOnlineLegacyObjectsRcd" and label "" for run: 336367 lumi: 0 event: 0, timestamp: 25000001; from CondDBESSource::setIntervalFor
+%MSG
+%MSG-i CondDBESSource:  AfterSource 28-Jul-2020 20:49:11 CEST PostGlobalEndRun
+Checking if the session must be closed and re-opened for getting correct conditions; from CondDBESSource::setIntervalFor
+%MSG
+%MSG-i CondDBESSource:  AfterSource 28-Jul-2020 20:49:11 CEST PostGlobalEndRun
+Re-opening the session with connection string oracle://cms_orcon_prod/CMS_CONDITIONS and new transaction Id 1444685264453632; from CondDBESSource::setIntervalFor
+%MSG
+%MSG-i CondDBESSource:  AfterSource 28-Jul-2020 20:49:11 CEST PostGlobalEndRun
+Reconnecting to "oracle://cms_orcon_prod/CMS_CONDITIONS" for getting new payload for record "BeamSpotOnlineLegacyObjectsRcd" and label "" from IOV tag "BeamSpotOnlineTestLegacy" to be consumed by run: 336367 lumi: 0 event: 0, timestamp: 25000001; from CondDBESSource::setIntervalFor
+%MSG
+%MSG-i CondDBESSource:  AfterSource 28-Jul-2020 20:49:11 CEST PostGlobalEndRun
+Validity coming from IOV sequence for record "BeamSpotOnlineLegacyObjectsRcd" and label "": (1444685264453632, 1444685264453632) for time (type: lumiid) 1444685264453632; from CondDBESSource::setIntervalFor
+%MSG
+%MSG-i CondDBESSource:  AfterSource 28-Jul-2020 20:49:11 CEST PostGlobalEndRun
+Setting validity for record "BeamSpotOnlineLegacyObjectsRcd" and corresponding label(s): starting at run: 336367 lumi: 0 event: 0, timestamp: 0, ending at run: 336367 lumi: 0 event: 18446744073709551615, timestamp: 0, for run: 336367 lumi: 0 event: 0, timestamp: 25000001; from CondDBESSource::setIntervalFor
+%MSG
+%MSG-i CondDBESSource:  PostStreamBeginRun 28-Jul-2020 20:49:11 CEST  PostStreamBeginRun
+Getting data for record "BeamSpotOnlineLegacyObjectsRcd" to be consumed by run: 336367 lumi: 13 event: 0, timestamp: 25000001; from CondDBESSource::setIntervalFor
+%MSG
+%MSG-i CondDBESSource:  PostStreamBeginRun 28-Jul-2020 20:49:11 CEST  PostStreamBeginRun
+Preparing refresh for record "BeamSpotOnlineLegacyObjectsRcd" since there has been a transition from run/lumi 1444685264453632 to run/lumi 1444685264453645; from CondDBESSource::setIntervalFor
+%MSG
+%MSG-i CondDBESSource:  PostStreamBeginRun 28-Jul-2020 20:49:11 CEST  PostStreamBeginRun
+Processing record "BeamSpotOnlineLegacyObjectsRcd" and label "" for run: 336367 lumi: 13 event: 0, timestamp: 25000001; from CondDBESSource::setIntervalFor
+%MSG
+%MSG-i CondDBESSource:  PostStreamBeginRun 28-Jul-2020 20:49:11 CEST  PostStreamBeginRun
+Checking if the session must be closed and re-opened for getting correct conditions; from CondDBESSource::setIntervalFor
+%MSG
+%MSG-i CondDBESSource:  PostStreamBeginRun 28-Jul-2020 20:49:11 CEST  PostStreamBeginRun
+Re-opening the session with connection string oracle://cms_orcon_prod/CMS_CONDITIONS and new transaction Id 1444685264453645; from CondDBESSource::setIntervalFor
+%MSG
+%MSG-i CondDBESSource:  PostStreamBeginRun 28-Jul-2020 20:49:11 CEST  PostStreamBeginRun
+Reconnecting to "oracle://cms_orcon_prod/CMS_CONDITIONS" for getting new payload for record "BeamSpotOnlineLegacyObjectsRcd" and label "" from IOV tag "BeamSpotOnlineTestLegacy" to be consumed by run: 336367 lumi: 13 event: 0, timestamp: 25000001; from CondDBESSource::setIntervalFor
+%MSG
+%MSG-i CondDBESSource:  PostStreamBeginRun 28-Jul-2020 20:49:11 CEST  PostStreamBeginRun
+Validity coming from IOV sequence for record "BeamSpotOnlineLegacyObjectsRcd" and label "": (1444685264453645, 1444685264453645) for time (type: lumiid) 1444685264453645; from CondDBESSource::setIntervalFor
+%MSG
+%MSG-i CondDBESSource:  PostStreamBeginRun 28-Jul-2020 20:49:11 CEST  PostStreamBeginRun
+Setting validity for record "BeamSpotOnlineLegacyObjectsRcd" and corresponding label(s): starting at run: 336367 lumi: 13 event: 0, timestamp: 0, ending at run: 336367 lumi: 13 event: 18446744073709551615, timestamp: 0, for run: 336367 lumi: 13 event: 0, timestamp: 25000001; from CondDBESSource::setIntervalFor
+%MSG
+Begin processing the 5th record. Run 336367, Event 1, LumiSection 13 on stream 0 at 28-Jul-2020 20:49:11.649 CEST
+%MSG-i Run numver: :  OnlineBeamSpotFromDB:beamspot 28-Jul-2020 20:49:11 CEST  Run: 336367 Event: 1
+336367
+%MSG
+%MSG-i beamspot from HLT :  OnlineBeamSpotFromDB:beamspot  28-Jul-2020 20:49:11 CEST Run: 336367 Event: 1
+-----------------------------------------------------
+              Beam Spot Data
+
+ Beam type    = 2
+       X0     = 0.0472225 +/- 0 [cm]
+       Y0     = 0.336584 +/- 0 [cm]
+       Z0     = -0.0343632 +/- 0 [cm]
+ Sigma Z0     = 3.32489 +/- 0 [cm]
+ dxdz         = 0 +/- 0 [radians]
+ dydz         = 0 +/- 0 [radians]
+ Beam Width X = -0.000377034 +/- 0 [cm]
+ Beam Width Y = 0.00135822 +/- 0 [cm]
+ Emittance X  = 0 [cm]
+ Emittance Y  = 0 [cm]
+ Beta star    = 0 [cm]
+-----------------------------------------------------
+
+
+%MSG
+%MSG-i CondDBESSource:  PostGlobalEndLumi 28-Jul-2020 20:49:11 CEST  PostGlobalEndLumi
+Getting data for record "BeamSpotOnlineLegacyObjectsRcd" to be consumed by run: 336367 lumi: 4294967295 event: 18446744073709551615, timestamp: 25000001; from CondDBESSource::setIntervalFor
+%MSG
+%MSG-i CondDBESSource:  PostGlobalEndLumi 28-Jul-2020 20:49:11 CEST  PostGlobalEndLumi
+Preparing refresh for record "BeamSpotOnlineLegacyObjectsRcd" since there has been a transition from run/lumi 1444685264453645 to run/lumi 1444689559420927; from CondDBESSource::setIntervalFor
+%MSG
+%MSG-i CondDBESSource:  PostGlobalEndLumi 28-Jul-2020 20:49:11 CEST  PostGlobalEndLumi
+Processing record "BeamSpotOnlineLegacyObjectsRcd" and label "" for run: 336367 lumi: 4294967295 event: 18446744073709551615, timestamp: 25000001; from CondDBESSource::setIntervalFor
+%MSG
+%MSG-i CondDBESSource:  PostGlobalEndLumi 28-Jul-2020 20:49:11 CEST  PostGlobalEndLumi
+Checking if the session must be closed and re-opened for getting correct conditions; from CondDBESSource::setIntervalFor
+%MSG
+%MSG-i CondDBESSource:  PostGlobalEndLumi 28-Jul-2020 20:49:11 CEST  PostGlobalEndLumi
+Re-opening the session with connection string oracle://cms_orcon_prod/CMS_CONDITIONS and new transaction Id 1444689559420927; from CondDBESSource::setIntervalFor
+%MSG
+%MSG-i CondDBESSource:  PostGlobalEndLumi 28-Jul-2020 20:49:11 CEST  PostGlobalEndLumi
+Reconnecting to "oracle://cms_orcon_prod/CMS_CONDITIONS" for getting new payload for record "BeamSpotOnlineLegacyObjectsRcd" and label "" from IOV tag "BeamSpotOnlineTestLegacy" to be consumed by run: 336367 lumi: 4294967295 event: 18446744073709551615, timestamp: 25000001; from CondDBESSource::setIntervalFor
+%MSG
+%MSG-i CondDBESSource:  PostGlobalEndLumi 28-Jul-2020 20:49:11 CEST  PostGlobalEndLumi
+Validity coming from IOV sequence for record "BeamSpotOnlineLegacyObjectsRcd" and label "": (1444689559420927, 1444689559420927) for time (type: lumiid) 1444689559420927; from CondDBESSource::setIntervalFor
+%MSG
+%MSG-i CondDBESSource:  PostGlobalEndLumi 28-Jul-2020 20:49:11 CEST  PostGlobalEndLumi
+Setting validity for record "BeamSpotOnlineLegacyObjectsRcd" and corresponding label(s): starting at run: 336367 lumi: 4294967295 event: 0, timestamp: 0, ending at run: 336367 lumi: 4294967295 event: 18446744073709551615, timestamp: 0, for run: 336367 lumi: 4294967295 event: 18446744073709551615, timestamp: 25000001; from CondDBESSource::setIntervalFor
+%MSG
