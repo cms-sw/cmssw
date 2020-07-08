@@ -163,13 +163,13 @@ namespace pat {
        Raw=0, Type1=1, Type01=2, TypeXY=3, Type1XY=4, Type01XY=5,
        Type1Smear=6, Type01Smear=7, Type1SmearXY=8, 
        Type01SmearXY=9, RawCalo=10, RawChs=11, RawTrk=12, 
-	   RawDeepResponseTune=13, RawDeepResolutionTune=14, METCorrectionLevelSize=15
+       RawDeepResponseTune=13, RawDeepResolutionTune=14, METCorrectionLevelSize=15
       };
       enum METCorrectionType {
        None=0, T1=1, T0=2, TXY=3, TXYForRaw=4,
        TXYForT01=5, TXYForT1Smear=6, TXYForT01Smear=7,
        Smear=8, Calo=9, Chs=10, Trk=11, 
-	   DeepResponseTune=12, DeepResolutionTune=13, METCorrectionTypeSize=14
+       DeepResponseTune=12, DeepResolutionTune=13, METCorrectionTypeSize=14
       };
 
       struct Vector2 { 
