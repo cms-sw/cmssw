@@ -43,10 +43,10 @@ namespace {
   constexpr double m_electron = 0.511;
   constexpr double m_muon = 105.658;
   constexpr double m_proton = 938.272;
-  double calcQ(float x);
+  float calcQ(float x);
 }  // namespace
 namespace { 
-  double calcQ(float x) {
+  float calcQ(float x) {
     constexpr float p1 = 12.5f;
     constexpr float p2 =  0.2733f;
     constexpr float p3 =  0.147f;
