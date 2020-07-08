@@ -10,13 +10,12 @@
 #include <FWCore/Utilities/interface/InputTag.h>
 #include <FWCore/MessageLogger/interface/MessageLogger.h>
 
-#include <Geometry/Records/interface/MuonGeometryRecord.h>
-
 #include <DataFormats/CSCRecHit/interface/CSCSegmentCollection.h>
 #include <DataFormats/CSCRecHit/interface/CSCSegment.h>
 
 CSCSegmentProducer::CSCSegmentProducer(const edm::ParameterSet& pas) : iev(0) {
   m_token = consumes<CSCRecHit2DCollection>(pas.getParameter<edm::InputTag>("inputObjects"));
+  m_cscGeometryToken = esConsumes<CSCGeometry, MuonGeometryRecord>();
   segmentBuilder_ = new CSCSegmentBuilder(pas);  // pass on the PS
 
   // register what this produces
@@ -33,8 +32,7 @@ void CSCSegmentProducer::produce(edm::Event& ev, const edm::EventSetup& setup) {
 
   // find the geometry (& conditions?) for this event & cache it in the builder
 
-  edm::ESHandle<CSCGeometry> h;
-  setup.get<MuonGeometryRecord>().get(h);
+  edm::ESHandle<CSCGeometry> h = setup.getHandle(m_cscGeometryToken);
   const CSCGeometry* pgeom = &*h;
   segmentBuilder_->setGeometry(pgeom);
 
