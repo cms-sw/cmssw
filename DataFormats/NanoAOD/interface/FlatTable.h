@@ -3,7 +3,7 @@
 
 #include "DataFormats/Math/interface/libminifloat.h"
 #include "FWCore/Utilities/interface/Exception.h"
-#include "FWCore/Utilities/interface/Range.h"
+#include "FWCore/Utilities/interface/Span.h"
 
 #include <cstdint>
 #include <vector>
@@ -17,8 +17,8 @@ namespace nanoaod {
     struct MaybeMantissaReduce {
       MaybeMantissaReduce(int mantissaBits) {}
       inline T one(const T &val) const { return val; }
-      template <typename Range>
-      inline void bulk(Range &&data) const {}
+      template <typename Span>
+      inline void bulk(Span &&data) const {}
     };
     template <>
     struct MaybeMantissaReduce<float> {
@@ -27,8 +27,8 @@ namespace nanoaod {
       inline float one(const float &val) const {
         return (bits_ > 0 ? MiniFloatConverter::reduceMantissaToNbitsRounding(val, bits_) : val);
       }
-      template <typename Range>
-      inline void bulk(Range &&data) const {
+      template <typename Span>
+      inline void bulk(Span &&data) const {
         if (bits_ > 0)
           MiniFloatConverter::reduceMantissaToNbitsRounding(bits_, data.begin(), data.end(), data.begin());
       }
@@ -69,14 +69,14 @@ namespace nanoaod {
     template <typename T>
     auto columnData(unsigned int column) const {
       auto begin = beginData<T>(column);
-      return edm::Range(begin, begin + size_);
+      return edm::Span(begin, begin + size_);
     }
 
     /// get a column by index (non-const)
     template <typename T>
     auto columnData(unsigned int column) {
       auto begin = beginData<T>(column);
-      return edm::Range(begin, begin + size_);
+      return edm::Span(begin, begin + size_);
     }
 
     /// get a column value for singleton (const)
