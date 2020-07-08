@@ -98,7 +98,6 @@ namespace {
   inline void local_exp_list(double const* __restrict__ arg_inp,
                              double* __restrict__ arg_out,
                              const unsigned arg_arr_size) {
-#pragma GCC ivdep
     for (unsigned i = 0; i != arg_arr_size; ++i)
       arg_out[i] = vdt::fast_exp(arg_inp[i]);
   }
@@ -107,7 +106,6 @@ namespace {
                                    double* __restrict__ arg_out,
                                    const unsigned int kmin,
                                    const unsigned int kmax) {
-#pragma GCC ivdep
     for (auto i = kmin; i != kmax; ++i)
       arg_out[i] = vdt::fast_exp(arg_inp[i]);
   }
@@ -233,7 +231,6 @@ void DAClusterizerInZ_vect::set_vtx_range(double beta, track_t& gtracks, vertex_
     return;
   }
 
-#pragma GCC ivdep
   for (auto itrack = 0U; itrack < nt; ++itrack) {
     double zrange = max(sel_zrange_ / sqrt(beta * gtracks.dz2[itrack]), zrange_min_);
 
@@ -666,18 +663,15 @@ bool DAClusterizerInZ_vect::purge(vertex_t& y, track_t& tks, double& rho0, const
   parg_cache = arg_cache.data();
   peik_cache = eik_cache.data();
   ppmax_cache = pmax_cache.data();
-#pragma GCC ivdep
   for (unsigned i = 0; i < nt; ++i) {
     inverse_zsums[i] = tks.Z_sum_ptr[i] > eps ? 1. / tks.Z_sum_ptr[i] : 0.0;
   }
   const auto rhoconst = rho0 * local_exp(-beta * dzCutOff_ * dzCutOff_);
-#pragma GCC ivdep
   for (unsigned int k = 0; k < nv; k++) {
     ppmax_cache[k] = y.pk_ptr[k] / (y.pk_ptr[k] + rhoconst);
   }
 
   for (unsigned int k = 0; k < nv; k++) {
-#pragma GCC ivdep
     for (unsigned int i = 0; i < nt; ++i) {
       const auto track_z = tks.z_ptr[i];
       const auto botrack_dz2 = -beta * tks.dz2_ptr[i];
@@ -689,7 +683,6 @@ bool DAClusterizerInZ_vect::purge(vertex_t& y, track_t& tks, double& rho0, const
     int nUnique = 0;
     double sump = 0;
     double pmax = ppmax_cache[k];
-#pragma GCC ivdep
     for (unsigned int i = 0; i < nt; ++i) {
       const auto p = y.pk_ptr[k] * peik_cache[i] * pinverse_zsums[i];
       sump += p;
