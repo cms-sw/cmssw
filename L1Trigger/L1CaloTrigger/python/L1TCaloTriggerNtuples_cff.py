@@ -26,11 +26,11 @@ from L1Trigger.L1CaloTrigger.ntuple_cfi import *
 
 
 l1CaloTriggerNtuplizer.Ntuples.append(ntuple_egammaEE)
-# l1CaloTriggerNtuplizer.Ntuples.append(ntuple_egammaEB)
-# l1CaloTriggerNtuplizer.Ntuples.append(ntuple_TTTracks)
-# l1CaloTriggerNtuplizer.Ntuples.append(ntuple_tkEleElMathHGC)
-# l1CaloTriggerNtuplizer.Ntuples.append(ntuple_tkEleBARREL)
-# l1CaloTriggerNtuplizer.Ntuples.append(ntuple_tkEleElBARREL)
+l1CaloTriggerNtuplizer.Ntuples.append(ntuple_egammaEB)
+l1CaloTriggerNtuplizer.Ntuples.append(ntuple_TTTracks)
+l1CaloTriggerNtuplizer.Ntuples.append(ntuple_tkEleEllEE)
+l1CaloTriggerNtuplizer.Ntuples.append(ntuple_tkEleEllEB)
+
 #
 
 l1CaloTriggerNtuples = cms.Sequence(l1CaloTriggerNtuplizer)
