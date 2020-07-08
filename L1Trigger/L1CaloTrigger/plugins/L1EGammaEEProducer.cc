@@ -163,7 +163,7 @@ void L1EGammaEEProducer::produce(edm::Event &iEvent, const edm::EventSetup &iSet
     }
   }
 
-  iEvent.put(std::move(l1EgammaBxCollection),"L1EGammaCollectionBXVWithCuts");
+  iEvent.put(std::move(l1EgammaBxCollection), "L1EGammaCollectionBXVWithCuts");
 }
 
 DEFINE_FWK_MODULE(L1EGammaEEProducer);
