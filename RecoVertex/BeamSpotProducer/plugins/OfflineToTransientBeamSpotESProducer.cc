@@ -11,50 +11,37 @@
 
 using namespace edm;
 
-OfflineToTransientBeamSpotESProducer::OfflineToTransientBeamSpotESProducer(const edm::ParameterSet& p){
+OfflineToTransientBeamSpotESProducer::OfflineToTransientBeamSpotESProducer(const edm::ParameterSet& p) {
+  auto cc = setWhatProduced(this);
 
-auto cc = setWhatProduced(this);
-
-transientBS_ = new BeamSpotObjects;
-//theOfflineBS_ = new BeamSpotObjects;
-bsOfflineToken_ = cc.consumesFrom<BeamSpotObjects, BeamSpotObjectsRcd>();
+  transientBS_ = new BeamSpotObjects;
+  //theOfflineBS_ = new BeamSpotObjects;
+  bsOfflineToken_ = cc.consumesFrom<BeamSpotObjects, BeamSpotObjectsRcd>();
 }
-
 
 OfflineToTransientBeamSpotESProducer::~OfflineToTransientBeamSpotESProducer() {
   delete transientBS_;
   //delete theOfflineBS_;
 }
 
-
-std::shared_ptr<const BeamSpotObjects> OfflineToTransientBeamSpotESProducer::produce(const BeamSpotTransientObjectsRcd& iRecord) {
-  
-  if(!(iRecord.tryToGetRecord<BeamSpotObjectsRcd>()) ){
+std::shared_ptr<const BeamSpotObjects> OfflineToTransientBeamSpotESProducer::produce(
+    const BeamSpotTransientObjectsRcd& iRecord) {
+  if (!(iRecord.tryToGetRecord<BeamSpotObjectsRcd>())) {
     //Missing offline record????
-    
-    
+
     return std::shared_ptr<const BeamSpotObjects>(&(*transientBS_), edm::do_nothing_deleter());
   }
-   
-  auto host = holder_.makeOrGet([]() {
-        return new HostType;
-  });
-  
 
+  auto host = holder_.makeOrGet([]() { return new HostType; });
 
- if(iRecord.tryToGetRecord<BeamSpotObjectsRcd>()){
-    host->ifRecordChanges<BeamSpotObjectsRcd>(iRecord, 
-                                           [this, h=host.get()](auto const& rec) {
-      transientBS_ = &rec.get(bsOfflineToken_);
+  if (iRecord.tryToGetRecord<BeamSpotObjectsRcd>()) {
+    host->ifRecordChanges<BeamSpotObjectsRcd>(
+        iRecord, [this, h = host.get()](auto const& rec) { transientBS_ = &rec.get(bsOfflineToken_); });
+  }
 
-    });
- }
- 
-  std::cout<<"Transient "<<*transientBS_<<std::endl;
-  
+  std::cout << "Transient " << *transientBS_ << std::endl;
+
   return std::shared_ptr<const BeamSpotObjects>(&(*transientBS_), edm::do_nothing_deleter());
-  
-
- };
+};
 
 DEFINE_FWK_EVENTSETUP_MODULE(OfflineToTransientBeamSpotESProducer);
