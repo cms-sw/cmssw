@@ -45,10 +45,14 @@ namespace {
   constexpr double m_proton = 938.272;
   double calcQ(float x);
 }  // namespace
-namespace {
+namespace { 
   double calcQ(float x) {
-    auto xx = std::min(0.5f * x * x, 12.5f);
-    return 0.5 * (1.0 - std::copysign(std::sqrt(1.f - unsafe_expf<4>(-xx * (1.f + 0.2733f / (1.f + 0.147f * xx)))), x));
+    constexpr float p1 = 12.5f;
+    constexpr float p2 =  0.2733f;
+    constexpr float p3 =  0.147f;
+
+    auto xx = std::min(0.5f * x * x, p1);
+    return 0.5f * (1.f - std::copysign(std::sqrt(1.f - unsafe_expf<4>(-xx * (1.f + p2 / (1.f + p3 * xx)))), x));
   }
 }  // namespace
 Phase2TrackerDigitizerAlgorithm::Phase2TrackerDigitizerAlgorithm(const edm::ParameterSet& conf_common,
@@ -204,10 +208,10 @@ void Phase2TrackerDigitizerAlgorithm::accumulateSimHits(std::vector<PSimHit>::co
     double signalScale = 1.0;
     // fill collection_points for this SimHit, indpendent of topology
     if (select_hit(hit, (pixdet->surface().toGlobal(hit.localPosition()).mag() * c_inv), signalScale)) {
-      const auto ionization_points = primary_ionization(hit);  // fills ionization_points
+      const auto& ionization_points = primary_ionization(hit);  // fills ionization_points
 
       // transforms ionization_points -> collection_points
-      const auto collection_points = drift(hit, pixdet, bfield, ionization_points);
+      const auto& collection_points = drift(hit, pixdet, bfield, ionization_points);
 
       // compute induced signal on readout elements and add to _signal
       // hit needed only for SimHit<-->Digi link
@@ -247,7 +251,7 @@ std::vector<DigitizerUtility::EnergyDepositUnit> Phase2TrackerDigitizerAlgorithm
     elossVector = fluctuateEloss(hit.particleType(), hit.pabs(), eLoss, length, NumberOfSegments);
   } else {
     float averageEloss = eLoss / NumberOfSegments;
-    std::fill(std::begin(elossVector), std::end(elossVector), averageEloss);
+    elossVector.resize(NumberOfSegments, averageEloss);
   }
 
   std::vector<DigitizerUtility::EnergyDepositUnit> ionization_points;
@@ -294,8 +298,6 @@ std::vector<float> Phase2TrackerDigitizerAlgorithm::fluctuateEloss(
   std::vector<float> elossVector;
   elossVector.reserve(NumberOfSegs);
   for (int i = 0; i < NumberOfSegs; ++i) {
-    // material,*,   momentum,energy,*, *,  mass
-    // myglandz_(14.,segmentLength,2.,2.,dedx,de,0.14);
     // The G4 routine needs momentum in MeV, mass in Mev, delta-cut in MeV,
     // track segment length in mm, segment eloss in MeV
     // Returns fluctuated eloss in MeV
@@ -319,7 +321,7 @@ std::vector<float> Phase2TrackerDigitizerAlgorithm::fluctuateEloss(
         });  // use a simple lambda expression
   } else {   // if fluctuations gives 0 eloss
     float averageEloss = eloss / NumberOfSegs;
-    std::fill(std::begin(elossVector), std::end(elossVector), averageEloss);
+    elossVector.resize(NumberOfSegs, averageEloss);
   }
   return elossVector;
 }
