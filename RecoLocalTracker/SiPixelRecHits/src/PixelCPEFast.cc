@@ -112,6 +112,8 @@ void PixelCPEFast::fillParamsForGpu() {
   m_commonParamsGPU.thePitchX = m_DetParams[0].thePitchX;
   m_commonParamsGPU.thePitchY = m_DetParams[0].thePitchY;
 
+  // std::cout << "pitch & thickness " <<  m_commonParamsGPU.thePitchX << ' ' << m_commonParamsGPU.thePitchY << "  " << m_commonParamsGPU.theThicknessB << ' ' << m_commonParamsGPU.theThicknessE << std::endl;
+
   // zero average geometry
   memset(&m_averageGeometry, 0, sizeof(pixelCPEforGPU::AverageGeometry));
 
@@ -210,6 +212,7 @@ void PixelCPEFast::fillParamsForGpu() {
 #endif
 
     errorFromTemplates(p, cp, 20000.f);
+    g.pixmx = std::max(0, cp.pixmx);
     g.sx[0] = cp.sigmax;
     g.sx[1] = cp.sx1;
     g.sx[2] = cp.sx2;
@@ -407,6 +410,9 @@ LocalPoint PixelCPEFast::localPosition(DetParam const& theDetParam, ClusterParam
   auto xPos = cp.xpos[0];
   auto yPos = cp.ypos[0];
 
+  //  std::cout<<" in PixelCPEFast:localPosition - pos = "<<xPos<<" "<<yPos
+  //           << " size "<< cp.maxRow[0]-cp.minRow[0] << ' ' << cp.maxCol[0]-cp.minCol[0] << std::endl; //dk
+
   //--- Now put the two together
   LocalPoint pos_in_local(xPos, yPos);
   return pos_in_local;
@@ -575,6 +581,8 @@ LocalError PixelCPEFast::localError(DetParam const& theDetParam, ClusterParam& t
     }
 
   }  // end
+
+  //   std::cout<<" errors  "<<xerr<<" "<<yerr<<std::endl;  //dk
 
   auto xerr_sq = xerr * xerr;
   auto yerr_sq = yerr * yerr;
