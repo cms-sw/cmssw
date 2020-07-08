@@ -32,6 +32,7 @@ using namespace dqm;
 DQMFileSaverPB::DQMFileSaverPB(const edm::ParameterSet& ps) : DQMFileSaverBase(ps) {
   fakeFilterUnitMode_ = ps.getUntrackedParameter<bool>("fakeFilterUnitMode", false);
   streamLabel_ = ps.getUntrackedParameter<std::string>("streamLabel", "streamDQMHistograms");
+  tag_ = ps.getUntrackedParameter<std::string>("tag", "UNKNOWN");
 
   transferDestination_ = "";
   mergeType_ = "";
@@ -68,7 +69,14 @@ void DQMFileSaverPB::saveLumi(const FileParameters& fp) const {
   // create the files names
   if (fakeFilterUnitMode_) {
     std::string runDir = str(boost::format("%s/run%06d") % fp.path_ % fp.run_);
-    std::string baseName = str(boost::format("%s/run%06d_ls%04d_%s") % runDir % fp.run_ % fp.lumi_ % streamLabel_);
+    std::string baseName = "";
+    // If tag is configured, append it to the name of the resulting file.
+    // This differentiates files saved by different clients.
+    // If tag is not configured, we don't add it at all to keep the old behaviour unchanged.
+    if (tag_ == "UNKNOWN")
+      baseName = str(boost::format("%s/run%06d_ls%04d_%s") % runDir % fp.run_ % fp.lumi_ % streamLabel_);
+    else
+      baseName = str(boost::format("%s/run%06d_ls%04d_%s_%s") % runDir % fp.run_ % fp.lumi_ % tag_ % streamLabel_);
 
     boost::filesystem::create_directories(runDir);
 

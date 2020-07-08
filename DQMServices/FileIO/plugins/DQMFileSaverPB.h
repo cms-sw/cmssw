@@ -34,6 +34,7 @@ namespace dqm {
 
     bool fakeFilterUnitMode_;
     std::string streamLabel_;
+    std::string tag_;
     mutable std::string transferDestination_;
     mutable std::string mergeType_;
 
