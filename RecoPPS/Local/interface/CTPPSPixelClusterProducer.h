@@ -19,6 +19,7 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
+#include "FWCore/Utilities/interface/ESGetToken.h"
 
 #include "DataFormats/CTPPSDigi/interface/CTPPSPixelDigi.h"
 #include "DataFormats/CTPPSReco/interface/CTPPSPixelCluster.h"
@@ -51,6 +52,7 @@ private:
 
   edm::InputTag src_;
   edm::EDGetTokenT<edm::DetSetVector<CTPPSPixelDigi>> tokenCTPPSPixelDigi_;
+  edm::ESGetToken<CTPPSPixelAnalysisMask, CTPPSPixelAnalysisMaskRcd> tokenCTPPSPixelAnalysisMask_;
 
   RPixDetClusterizer clusterizer_;
 
