@@ -56,7 +56,6 @@ RegionMapper::RegionMapper(const edm::ParameterSet &iConfig) : useRelativeRegion
       throw cms::Exception(
           "Configuration",
           "Unsupported value for trackRegionMode: " + trackRegionMode + " (allowed are 'atVertex', 'atCalo', 'any')");
-    std::cout << "L1 RegionMapper: made " << regions_.size() << " regions" << std::endl;
   } else {
     // start off with a dummy region
     unsigned int ncalomax = 0, nemcalomax = 0, ntrackmax = 0, nmuonmax = 0, npfmax = 0, npuppimax = 0;
