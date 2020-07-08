@@ -255,7 +255,7 @@ int CSCGEMMotherboard::getRoll(const GEMCoPadDigiId& p) const { return p.second.
 
 std::pair<int, int> CSCGEMMotherboard::getRolls(const CSCALCTDigi& alct) const {
   const auto& mymap(getLUT()->get_csc_wg_to_gem_roll(theParity));
-  return std::make_pair(mymap.at(alct.getKeyWG()).first, mymap.at(alct.getKeyWG()).second);
+  return mymap.at(alct.getKeyWG());
 }
 
 float CSCGEMMotherboard::getPad(const GEMPadDigi& p) const { return p.pad(); }
