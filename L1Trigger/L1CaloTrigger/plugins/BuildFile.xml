@@ -15,9 +15,6 @@
 <use   name="DataFormats/HcalRecHit"/>
 <use   name="DataFormats/EcalDigi"/>
 <use   name="DataFormats/HcalDigi"/>
-<use   name="DataFormats/Phase2L1CaloTrig"/>
-<use   name="SimCalorimetry/EcalEBTrigPrimProducers"/>
-<use   name="RecoLocalCalo/Configuration"/>
 <use   name="FastSimulation/CaloGeometryTools"/>
 <use   name="CalibFormats/CaloTPG"/>
 <use   name="L1Trigger/L1CaloTrigger"/>
