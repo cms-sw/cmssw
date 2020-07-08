@@ -112,6 +112,7 @@ class ApeMeasurement:
     curIteration = 0
     firstIteration = 0
     maxIterations = 15
+    maxEvents = None
     status = STATE_NONE
     dataset = None
     alignment = None
@@ -120,20 +121,29 @@ class ApeMeasurement:
     startTime = ""
     finishTime = ""
     
-    def __init__(self, name, dataset, alignment, config, additionalOptions={}):
-        self.name = name
-        self.alignment = alignment
-        self.dataset = dataset
-        self.curIteration = 0
+    def __init__(self, name, config, settings):
+        self.name = name        
         self.status = STATE_ITERATION_START
         self.runningJobs = []
         self.failedJobs = []
         self.startTime = subprocess.check_output(["date"]).strip()
         
-        self.maxEvents = self.dataset.maxEvents
+        # load conditions from dictionary, overwrite defaults if defined
+        for key, value in settings.items():
+            if not key.startswith("condition "):
+                setattr(self, key, value)
         
-        for key, value in additionalOptions.items():
-            setattr(self, key, value)
+        # Replace names with actual Dataset and Alignment objects
+        # In principle, one could preload all these once so they are not
+        # redefined for each measurement, but right now this does not 
+        # seem necessary
+        self.dataset = Dataset(config, settings["dataset"])
+        self.alignment = Alignment(config, settings["alignment"])
+        
+        # If not defined here, replace by setting from Dataset
+        if not "maxEvents" in settings:
+            self.maxEvents = self.dataset.maxEvents
+            
         self.firstIteration=int(self.firstIteration)
         self.maxIterations=int(self.maxIterations)
         self.curIteration = self.firstIteration
@@ -141,8 +151,10 @@ class ApeMeasurement:
         if self.alignment.isDesign:
             self.maxIterations = 0
         
+        self.conditions, dummy, self.validConditions = loadConditions(settings) 
         
-        if not self.alignment.validConditions or not self.dataset.validConditions or not self.existingFiles:
+        # see if sanity checks passed
+        if not self.alignment.validConditions or not self.dataset.validConditions or not self.dataset.existingFiles or not self.validConditions:
             self.status = STATE_INVALID_CONDITIONS
             self.print_status()
             self.finishTime = subprocess.check_output(["date"]).strip()
@@ -167,9 +179,11 @@ class ApeMeasurement:
     def submit_jobs(self):
         toSubmit = []
         
-        allConditions = self.alignment.conditions+self.dataset.conditions
+        allConditions = self.alignment.conditions+self.dataset.conditions+self.conditions
         allConditions = list({v['record']:v for v in allConditions}.values()) # should we clean for duplicate records? the record last defined (from dataset) 
                                                                               # will be kept in case of overlap, which is the same as if there was no overlap removal
+        
+        ensurePathExists("{}/test/autoSubmitter/workingArea".format(base))
         
         # If conditions are made, create file to load them from
         rawFileName = "None"
@@ -415,19 +429,16 @@ class ApeMeasurement:
             if self.status == STATE_ITERATION_START:
                 # start bjobs
                 print("APE Measurement {} just started iteration {}".format(self.name, self.curIteration))
-                while True: 
-                    try:
-                        self.submit_jobs()
-                        save("measurements", measurements)
-                        break
-                    except KeyboardInterrupt:
-                        exit()
-                    except:
-                        # this is needed in case the scheduler goes down
-                        print("Error submitting, waiting for 1 minute")
-                        time.sleep(60)
+
+
+                try:
+                    self.submit_jobs()
+                    save("measurements", measurements)
+                except:
+                    # this is needed in case the scheduler goes down
+                    print("Error submitting jobs for APE measurement {}".format(self.name))
+                    return
                     
-                    continue # no reason to immediately check jobs
             if self.status == STATE_BJOBS_WAITING:
                 # check if bjobs are finished
                 self.check_jobs()
@@ -520,6 +531,7 @@ def main():
         print("No CMSSW environment was set, exiting")
         sys.exit()
     
+    
     killTargets = []
     purgeTargets = []
     for toConvert in args.kill:
@@ -569,31 +581,22 @@ def main():
         config = ConfigParser.RawConfigParser()
         config.optionxform = str 
         config.read(args.configs)
-    
-        for name, opts in config.items("measurements"):
+        
+        # read measurement names
+        meas = [str(x.split("ape:")[1]) for x in list(config.keys()) if x.startswith("ape:")]
+
+        for name in meas:
             if name in [x.name for x in measurements]:
                 print("Error: APE Measurement with name {} already exists, skipping".format(name))
                 continue
+            settings = dict(config.items("ape:{}".format(name)))
             
-            settings = opts.split(" ")
-            if len(settings) < 2:
-                print("Error: number of arguments for APE Measurement {} is insufficient".format(name))
-                sys.exit()
-
-            dataset = Dataset(config, settings[0].strip())
-            alignment = Alignment(config, settings[1].strip())
-            additionalOptions = {}
+            measurement = ApeMeasurement(name, config, settings)
             
-            for i in range(2, len(settings)):
-                setting = settings[i].strip()
-                key, value = setting.split("=")
-                additionalOptions[key] = value
-                
-            measurement = ApeMeasurement(name, dataset, alignment, config, additionalOptions)
-            
-            measurements.append(measurement)
-            
-            print("APE Measurement {} was started".format(measurement.name))
+            if measurement.status >= STATE_ITERATION_START and measurement.status <= STATE_FINISHED:
+                measurements.append(measurement)
+                print("APE Measurement {} was started".format(measurement.name))
+        
         
     
     while True:
