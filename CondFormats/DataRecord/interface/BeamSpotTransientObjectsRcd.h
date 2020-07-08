@@ -28,4 +28,5 @@ class BeamSpotTransientObjectsRcd
     : public edm::eventsetup::DependentRecordImplementation<
           BeamSpotTransientObjectsRcd,
           edm::mpl::Vector<BeamSpotOnlineHLTObjectsRcd, BeamSpotOnlineLegacyObjectsRcd, BeamSpotObjectsRcd> > {};
+
 #endif
