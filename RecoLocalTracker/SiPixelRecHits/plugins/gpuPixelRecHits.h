@@ -134,6 +134,7 @@ namespace gpuPixelRecHits {
 
       __syncthreads();
 
+      auto pixmx = cpeParams->detParams(me).pixmx;
       for (int i = first; i < numElements; i += blockDim.x) {
         auto id = digis.moduleInd(i);
         if (id == InvId)
@@ -148,7 +149,7 @@ namespace gpuPixelRecHits {
         assert(cl < MaxHitsInIter);
         auto x = digis.xx(i);
         auto y = digis.yy(i);
-        auto ch = digis.adc(i);
+        auto ch = std::min(digis.adc(i), pixmx);
         atomicAdd(&clusParams.charge[cl], ch);
         if (clusParams.minRow[cl] == x)
           atomicAdd(&clusParams.Q_f_X[cl], ch);
