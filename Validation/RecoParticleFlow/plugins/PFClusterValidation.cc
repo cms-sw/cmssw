@@ -23,35 +23,38 @@ PFClusterValidation::~PFClusterValidation() {}
 void PFClusterValidation::bookHistograms(DQMStore::IBooker& ibooker,
                                          edm::Run const& irun,
                                          edm::EventSetup const& isetup) {
-  static const auto size = 100;
+  constexpr auto size = 100;
   char histo[size];
-  ibooker.setCurrentFolder("ParticleFlow/PFClusterV");
-  double etaBinsOffset[83] = {
+
+  constexpr double etaBinsOffset[] = {
       -5.191, -4.889, -4.716, -4.538, -4.363, -4.191, -4.013, -3.839, -3.664, -3.489, -3.314, -3.139, -2.964, -2.853,
       -2.65,  -2.5,   -2.322, -2.172, -2.043, -1.93,  -1.83,  -1.74,  -1.653, -1.566, -1.479, -1.392, -1.305, -1.218,
       -1.131, -1.044, -0.957, -0.879, -0.783, -0.696, -0.609, -0.522, -0.435, -0.348, -0.261, -0.174, -0.087, 0,
       0.087,  0.174,  0.261,  0.348,  0.435,  0.522,  0.609,  0.696,  0.783,  0.879,  0.957,  1.044,  1.131,  1.218,
       1.305,  1.392,  1.479,  1.566,  1.653,  1.74,   1.83,   1.93,   2.043,  2.172,  2.322,  2.5,    2.65,   2.853,
       2.964,  3.139,  3.314,  3.489,  3.664,  3.839,  4.013,  4.191,  4.363,  4.538,  4.716,  4.889,  5.191};
+  constexpr int etaBins = std::size(etaBinsOffset) - 1;
+
+  ibooker.setCurrentFolder("ParticleFlow/PFClusterV");
 
   // These are the single pion scan histos
 
   strncpy(histo, "emean_vs_eta_E", size);
-  emean_vs_eta_E_ = ibooker.bookProfile(histo, histo, 82, etaBinsOffset, -100., 2000., " ");
+  emean_vs_eta_E_ = ibooker.bookProfile(histo, histo, etaBins, etaBinsOffset, -100., 2000., " ");
   strncpy(histo, "emean_vs_eta_H", size);
-  emean_vs_eta_H_ = ibooker.bookProfile(histo, histo, 82, etaBinsOffset, -100., 2000., " ");
+  emean_vs_eta_H_ = ibooker.bookProfile(histo, histo, etaBins, etaBinsOffset, -100., 2000., " ");
   strncpy(histo, "emean_vs_eta_EH", size);
-  emean_vs_eta_EH_ = ibooker.bookProfile(histo, histo, 82, etaBinsOffset, -100., 2000., " ");
+  emean_vs_eta_EH_ = ibooker.bookProfile(histo, histo, etaBins, etaBinsOffset, -100., 2000., " ");
 
   strncpy(histo, "emean_vs_eta_HF", size);
-  emean_vs_eta_HF_ = ibooker.bookProfile(histo, histo, 82, etaBinsOffset, -100., 2000., " ");
+  emean_vs_eta_HF_ = ibooker.bookProfile(histo, histo, etaBins, etaBinsOffset, -100., 2000., " ");
   strncpy(histo, "emean_vs_eta_HO", size);
-  emean_vs_eta_HO_ = ibooker.bookProfile(histo, histo, 82, etaBinsOffset, -100., 2000., " ");
+  emean_vs_eta_HO_ = ibooker.bookProfile(histo, histo, etaBins, etaBinsOffset, -100., 2000., " ");
 
   strncpy(histo, "emean_vs_eta_EHF", size);
-  emean_vs_eta_EHF_ = ibooker.bookProfile(histo, histo, 82, etaBinsOffset, -100., 2000., " ");
+  emean_vs_eta_EHF_ = ibooker.bookProfile(histo, histo, etaBins, etaBinsOffset, -100., 2000., " ");
   strncpy(histo, "emean_vs_eta_EHFO", size);
-  emean_vs_eta_EHFO_ = ibooker.bookProfile(histo, histo, 82, etaBinsOffset, -100., 2000., " ");
+  emean_vs_eta_EHFO_ = ibooker.bookProfile(histo, histo, etaBins, etaBinsOffset, -100., 2000., " ");
 
   // 1D histos
 
@@ -162,10 +165,10 @@ void PFClusterValidation::analyze(edm::Event const& event, edm::EventSetup const
   event.getByToken(pfClusterHFTok_, pfClusterHF);
 
   // sum the energy in a dR cone for each subsystem
-  double Econe = sumEnergy(pfClusterECAL, eta_MC, phi_MC);
-  double Hcone = sumEnergy(pfClusterHCAL, eta_MC, phi_MC);
-  double HOcone = sumEnergy(pfClusterHO, eta_MC, phi_MC);
-  double HFcone = sumEnergy(pfClusterHF, eta_MC, phi_MC);
+  const double Econe = sumEnergy(pfClusterECAL, eta_MC, phi_MC);
+  const double Hcone = sumEnergy(pfClusterHCAL, eta_MC, phi_MC);
+  const double HOcone = sumEnergy(pfClusterHO, eta_MC, phi_MC);
+  const double HFcone = sumEnergy(pfClusterHF, eta_MC, phi_MC);
 
   if (energy_MC > 0.) {
     if (std::abs(eta_MC) < 0.5) {
