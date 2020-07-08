@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 from RecoBTag.FeatureTools.pfDeepBoostedJetTagInfos_cfi import pfDeepBoostedJetTagInfos as _pfDeepBoostedJetTagInfos
-from RecoBTag.ONNXRuntime.pfDeepBoostedJetTags_cfi import pfDeepBoostedJetTags as _pfDeepBoostedJetTags
+from RecoBTag.ONNXRuntime.boostedJetONNXJetTagsProducer_cfi import boostedJetONNXJetTagsProducer
 from RecoBTag.ONNXRuntime.Parameters.HiggsInteractionNet.V00.pfHiggsInteractionNetPreprocessParams_cfi import pfHiggsInteractionNetPreprocessParams
 
 # modify default parameters for tag infos
@@ -14,7 +14,7 @@ pfHiggsInteractionNetTagInfos = _pfDeepBoostedJetTagInfos.clone(
 )
 
 # nominal Higgs IN
-pfHiggsInteractionNetTags = _pfDeepBoostedJetTags.clone(
+pfHiggsInteractionNetTags = boostedJetONNXJetTagsProducer.clone(
     src = 'pfHiggsInteractionNetTagInfos',
     preprocessParams = pfHiggsInteractionNetPreprocessParams,
     model_path = 'RecoBTag/Combined/data/HiggsInteractionNet/V00/IN.onnx',

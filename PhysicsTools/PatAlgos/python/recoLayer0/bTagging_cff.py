@@ -244,7 +244,7 @@ for disc in _pfMassDecorrelatedDeepBoostedJetTagsMetaDiscrs:
 
 # -----------------------------------
 # setup ParticleNet
-from RecoBTag.MXNet.pfParticleNet_cff import _pfParticleNetJetTagsProbs, _pfParticleNetJetTagsMetaDiscrs, \
+from RecoBTag.ONNXRuntime.pfParticleNet_cff import _pfParticleNetJetTagsProbs, _pfParticleNetJetTagsMetaDiscrs, \
     _pfMassDecorrelatedParticleNetJetTagsProbs, _pfMassDecorrelatedParticleNetJetTagsMetaDiscrs
 # update supportedBtagDiscr
 for disc in _pfParticleNetJetTagsProbs + _pfMassDecorrelatedParticleNetJetTagsProbs:
