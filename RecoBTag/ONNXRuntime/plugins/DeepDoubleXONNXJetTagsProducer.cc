@@ -180,7 +180,7 @@ void DeepDoubleXONNXJetTagsProducer::produce(edm::Event& iEvent, const edm::Even
 
       std::sort(input_names_.begin(), input_names_.end());  // input_names order on input is not preserved
       // run prediction
-      outputs = globalCache()->run(input_names_, data_, output_names_, batch_size)[0];
+      outputs = globalCache()->run(input_names_, data_, {}, output_names_, batch_size)[0];
 
       if (debug_) {
         // Dump inputs to file
