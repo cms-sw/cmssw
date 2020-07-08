@@ -12,8 +12,6 @@
 #include <FWCore/Utilities/interface/Exception.h>
 #include <FWCore/MessageLogger/interface/MessageLogger.h>
 
-#include <Geometry/Records/interface/MuonGeometryRecord.h>
-
 #include <DataFormats/CSCRecHit/interface/CSCRecHit2DCollection.h>
 
 CSCRecHitDProducer::CSCRecHitDProducer(const edm::ParameterSet& ps)
@@ -26,9 +24,10 @@ CSCRecHitDProducer::CSCRecHitDProducer(const edm::ParameterSet& ps)
 {
   s_token = consumes<CSCStripDigiCollection>(ps.getParameter<edm::InputTag>("stripDigiTag"));
   w_token = consumes<CSCWireDigiCollection>(ps.getParameter<edm::InputTag>("wireDigiTag"));
+  cscGeom_token = esConsumes<CSCGeometry, MuonGeometryRecord>();
 
-  recHitBuilder_ = new CSCRecHitDBuilder(ps);   // pass on the parameter sets
-  recoConditions_ = new CSCRecoConditions(ps);  // access to conditions data
+  recHitBuilder_ = new CSCRecHitDBuilder(ps);                        // pass on the parameter sets
+  recoConditions_ = new CSCRecoConditions(ps, consumesCollector());  // access to conditions data
 
   recHitBuilder_->setConditions(recoConditions_);  // pass down to who needs access
 
@@ -46,8 +45,7 @@ void CSCRecHitDProducer::produce(edm::Event& ev, const edm::EventSetup& setup) {
   //  LogTrace("CSCRecHitDProducer|CSCRecHit")<< "[CSCRecHitDProducer] starting event " << ev.id().event() << " of run " << ev.id().run();
   LogTrace("CSCRecHit") << "[CSCRecHitDProducer] starting event " << ev.id().event() << " of run " << ev.id().run();
   // find the geometry for this event & cache it in the builder
-  edm::ESHandle<CSCGeometry> h;
-  setup.get<MuonGeometryRecord>().get(h);
+  edm::ESHandle<CSCGeometry> h = setup.getHandle(cscGeom_token);
   const CSCGeometry* pgeom = &*h;
   recHitBuilder_->setGeometry(pgeom);
 
