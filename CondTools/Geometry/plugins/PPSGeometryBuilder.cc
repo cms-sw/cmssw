@@ -63,24 +63,49 @@ PPSGeometryBuilder::PPSGeometryBuilder(const edm::ParameterSet& iConfig)
 //----------------------------------------------------------------------------------------------------
 
 void PPSGeometryBuilder::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
-  //edm::ESHandle<cms::DDCompactView> cpv;
+  
+  //edm::ESTransientHandle<cms::DDCompactView> cpv;
+  edm::ESHandle<cms::DDCompactView> cpv;
 
-  edm::ESTransientHandle<cms::DDCompactView> cpv;
-  //evts.get<IdealGeometryRecord>().get(myCompactView);
 
-  // Get DDCompactView from IdealGeometryRecord
+  //iSetup.get<IdealGeometryRecord>().get(cpv);
+  //Get DDCompactView from IdealGeometryRecord
   if (watcherIdealGeometry_.check(iSetup)) {
+    std::cout << "Got IdealGeometryRecord" << std::endl;
     iSetup.get<IdealGeometryRecord>().get(compactViewTag_.c_str(), cpv);
+  }
+
+  
+  const cms::DDDetector* mySystem = cpv->detector();
+  if (mySystem) {
+    std::cout << "mySystem->detectors().size() = " << mySystem->detectors().size() << std::endl;
+    for (const auto& sub : mySystem->detectors()) {
+      std::cout << "sub name = " << sub.first << std::endl;
+    }
+    
   }
 
 
   // Create DDFilteredView and apply the filter
   //DDPassAllFilter filter;
   //cms::DDFilteredView fv((*cpv), filter);
-  const cms::DDDetector* mySystem = cpv->detector();
+
   const dd4hep::Volume& worldVolume = mySystem->worldVolume();
   cms::DDFilteredView fv(mySystem, worldVolume);
+  //cms::DDFilter filter;
+  //cms::DDFilteredView fv(*cpv, filter);
 
+
+
+  //auto const& det = iRecord.get(detectorToken_);
+  //cms::DDCompactView cpvf(*mySystem);
+  // create DDFilteredView and apply the filter
+  //cms::DDFilter filter;
+  //cms::DDFilteredView fv(cpvf, filter);
+
+  if (fv.next(0) == false) {
+    edm::LogError("PPSGeometryBuilder") << "Filtered view is empty. Cannot build.";
+  }
 
 
   // Persistent geometry data
@@ -106,8 +131,8 @@ void PPSGeometryBuilder::analyze(const edm::Event& iEvent, const edm::EventSetup
 
 void PPSGeometryBuilder::buildPDetGeomDesc(cms::DDFilteredView* fv, PDetGeomDesc* gd) {
   // try to dive into next level
-  if (!fv->firstChild())
-    return;
+  //if (!fv->firstChild())
+  //return;
 
   // loop over siblings in the level
   do {
@@ -133,7 +158,7 @@ void PPSGeometryBuilder::buildPDetGeomDesc(cms::DDFilteredView* fv, PDetGeomDesc
     item.azx_ = zx;
     item.azy_ = zy;
     item.azz_ = zz;
-    item.name_ = (fv->volume()).name();
+    item.name_ = (fv->volume()).name();  // fv->name() ?
     //item.params_ = ((fv->volume()).solid()).parameters(); TO DOOOOOOOOOOOOOOOOOOOOOOOOO
     item.copy_ = fv->copyNum();
     //item.z_ = fv->geoHistory().back().absTranslation().z();
@@ -175,7 +200,7 @@ void PPSGeometryBuilder::buildPDetGeomDesc(cms::DDFilteredView* fv, PDetGeomDesc
 
     // recursion
     buildPDetGeomDesc(fv, gd);
-  } while (fv->nextSibling());
+  } while (fv->nextSibling()); //while (fv->next(0)); 
 
   // go a level up
   fv->parent();
