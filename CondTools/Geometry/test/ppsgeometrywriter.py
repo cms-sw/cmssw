@@ -28,12 +28,23 @@ process.MessageLogger = cms.Service("MessageLogger",
 )
 
 # geometry
-from Geometry.VeryForwardGeometry.geometryIdealPPSFromDD_2017_cfi import allFiles
+#from Geometry.VeryForwardGeometry.geometryIdealPPSFromDD_2017_cfi import allFiles
 
-process.XMLIdealGeometryESSource_CTPPS = cms.ESSource("XMLIdealGeometryESSource",
-    geomXMLFiles = allFiles,
-    rootNodeName = cms.string('cms:CMSE')
+#process.XMLIdealGeometryESSource_CTPPS = cms.ESSource("XMLIdealGeometryESSource",
+#    geomXMLFiles = allFiles,
+#    rootNodeName = cms.string('cms:CMSE')
+#)
+
+# dd4hep-based geometry
+process.DDDetectorESProducer = cms.ESSource("DDDetectorESProducer",
+                                            confGeomXMLFiles = cms.FileInPath('Geometry/VeryForwardGeometry/test/geometryIdealPPSFromDD_2017_ddhep.xml'),
+                                            appendToDataLabel = cms.string('XMLIdealGeometryESSource_CTPPS')
 )
+
+process.DDCompactViewESProducer = cms.ESProducer("DDCompactViewESProducer",
+                                                 appendToDataLabel = cms.string('XMLIdealGeometryESSource_CTPPS')
+)
+
 
 # no events to process
 process.source = cms.Source("EmptySource",

@@ -21,8 +21,10 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "CondCore/DBOutputService/interface/PoolDBOutputService.h"
 
-#include "DetectorDescription/Core/interface/DDCompactView.h"
-#include "DetectorDescription/Core/interface/DDFilteredView.h"
+#include "DetectorDescription/DDCMS/interface/DDCompactView.h"
+#include "DetectorDescription/DDCMS/interface/DDFilteredView.h"
+#include "DetectorDescription/DDCMS/interface/DDTranslation.h"
+#include "DetectorDescription/DDCMS/interface/DDRotationMatrix.h"
 
 #include "DataFormats/CTPPSDetId/interface/TotemRPDetId.h"
 #include "DataFormats/CTPPSDetId/interface/TotemTimingDetId.h"
@@ -45,8 +47,8 @@ public:
   void analyze(const edm::Event&, const edm::EventSetup&) override;
 
 private:
-  void buildPDetGeomDesc(DDFilteredView*, PDetGeomDesc*);
-  uint32_t getGeographicalID(DDFilteredView*);
+  void buildPDetGeomDesc(cms::DDFilteredView*, PDetGeomDesc*);
+  uint32_t getGeographicalID(cms::DDFilteredView*);
 
   std::string compactViewTag_;
   edm::ESWatcher<IdealGeometryRecord> watcherIdealGeometry_;
@@ -61,7 +63,10 @@ PPSGeometryBuilder::PPSGeometryBuilder(const edm::ParameterSet& iConfig)
 //----------------------------------------------------------------------------------------------------
 
 void PPSGeometryBuilder::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
-  edm::ESHandle<DDCompactView> cpv;
+  //edm::ESHandle<cms::DDCompactView> cpv;
+
+  edm::ESTransientHandle<cms::DDCompactView> cpv;
+  //evts.get<IdealGeometryRecord>().get(myCompactView);
 
   // Get DDCompactView from IdealGeometryRecord
   if (watcherIdealGeometry_.check(iSetup)) {
@@ -70,8 +75,13 @@ void PPSGeometryBuilder::analyze(const edm::Event& iEvent, const edm::EventSetup
 
 
   // Create DDFilteredView and apply the filter
-  DDPassAllFilter filter;
-  DDFilteredView fv((*cpv), filter);
+  //DDPassAllFilter filter;
+  //cms::DDFilteredView fv((*cpv), filter);
+  const cms::DDDetector* mySystem = cpv->detector();
+  const dd4hep::Volume& worldVolume = mySystem->worldVolume();
+  cms::DDFilteredView fv(mySystem, worldVolume);
+
+
 
   // Persistent geometry data
   PDetGeomDesc* pdet = new PDetGeomDesc;
@@ -94,7 +104,7 @@ void PPSGeometryBuilder::analyze(const edm::Event& iEvent, const edm::EventSetup
 
 //----------------------------------------------------------------------------------------------------//----------------------------------------------------------------------------------------------------
 
-void PPSGeometryBuilder::buildPDetGeomDesc(DDFilteredView* fv, PDetGeomDesc* gd) {
+void PPSGeometryBuilder::buildPDetGeomDesc(cms::DDFilteredView* fv, PDetGeomDesc* gd) {
   // try to dive into next level
   if (!fv->firstChild())
     return;
@@ -123,13 +133,15 @@ void PPSGeometryBuilder::buildPDetGeomDesc(DDFilteredView* fv, PDetGeomDesc* gd)
     item.azx_ = zx;
     item.azy_ = zy;
     item.azz_ = zz;
-    item.name_ = ((fv->logicalPart()).ddname()).name();
-    item.params_ = ((fv->logicalPart()).solid()).parameters();
-    item.copy_ = fv->copyno();
-    item.z_ = fv->geoHistory().back().absTranslation().z();
+    item.name_ = (fv->volume()).name();
+    //item.params_ = ((fv->volume()).solid()).parameters(); TO DOOOOOOOOOOOOOOOOOOOOOOOOO
+    item.copy_ = fv->copyNum();
+    //item.z_ = fv->geoHistory().back().absTranslation().z();
+    item.z_ = fv->translation().z();
     // Sensor Type
     item.sensorType_ = "";
-    std::string sensor_name = fv->geoHistory().back().logicalPart().name().fullname();
+    //std::string sensor_name = fv->geoHistory().back().logicalPart().name().fullname();
+    std::string sensor_name = (fv->volume()).name();
     std::size_t found = sensor_name.find(DDD_CTPPS_PIXELS_SENSOR_NAME);
     if (found != std::string::npos && sensor_name.substr(found - 4, 3) == DDD_CTPPS_PIXELS_SENSOR_TYPE_2x2) {
       item.sensorType_ = DDD_CTPPS_PIXELS_SENSOR_TYPE_2x2;
@@ -171,11 +183,11 @@ void PPSGeometryBuilder::buildPDetGeomDesc(DDFilteredView* fv, PDetGeomDesc* gd)
 
 //----------------------------------------------------------------------------------------------------//----------------------------------------------------------------------------------------------------
 
-uint32_t PPSGeometryBuilder::getGeographicalID(DDFilteredView* view) {
+uint32_t PPSGeometryBuilder::getGeographicalID(cms::DDFilteredView* view) {
   uint32_t geoID = 0;
-  const std::string name = view->logicalPart().name().name();
+  const std::string name = view->volume().name();
   std::cout << "PPSGeometryBuilder::getGeographicalID name = " << name << std::endl;
-  std::cout << "view->copyno() = " << view->copyno() << std::endl;
+  std::cout << "view->copyNum() = " << view->copyNum() << std::endl;
   std::cout << "view->copyNumbers() = ";
   for (const auto& num : view->copyNumbers()) {
     std::cout << num << " ";
@@ -201,7 +213,7 @@ uint32_t PPSGeometryBuilder::getGeographicalID(DDFilteredView* view) {
 
   // strip and pixels RPs
   else if (name == DDD_TOTEM_RP_RP_NAME || name == DDD_CTPPS_PIXELS_RP_NAME) {
-    unsigned int decRPId = view->copyno();
+    unsigned int decRPId = view->copyNum();
 
     // check if it is a pixel RP
     if (decRPId >= 10000) {
@@ -232,7 +244,7 @@ uint32_t PPSGeometryBuilder::getGeographicalID(DDFilteredView* view) {
   }
 
   else if (name == DDD_TOTEM_TIMING_RP_NAME) {
-    const unsigned int arm = view->copyno() / 100, station = (view->copyno() % 100) / 10, rp = view->copyno() % 10;
+    const unsigned int arm = view->copyNum() / 100, station = (view->copyNum() % 100) / 10, rp = view->copyNum() % 10;
     geoID = TotemTimingDetId(arm, station, rp);
   }
 
