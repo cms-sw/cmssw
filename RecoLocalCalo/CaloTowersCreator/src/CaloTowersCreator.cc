@@ -1,6 +1,5 @@
 #include "RecoLocalCalo/CaloTowersCreator/src/CaloTowersCreator.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
-#include "Geometry/Records/interface/CaloGeometryRecord.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "Geometry/CaloTopology/interface/HcalTopology.h"
 #include "Geometry/CaloTopology/interface/CaloTowerTopology.h"
@@ -95,6 +94,14 @@ CaloTowersCreator::CaloTowersCreator(const edm::ParameterSet& conf)
   tok_hbhe_ = consumes<HBHERecHitCollection>(conf.getParameter<edm::InputTag>("hbheInput"));
   tok_ho_ = consumes<HORecHitCollection>(conf.getParameter<edm::InputTag>("hoInput"));
   tok_hf_ = consumes<HFRecHitCollection>(conf.getParameter<edm::InputTag>("hfInput"));
+  tok_geom_ = esConsumes<CaloGeometry, CaloGeometryRecord>();
+  tok_topo_ = esConsumes<HcalTopology, HcalRecNumberingRecord>();
+  tok_cttopo_ = esConsumes<CaloTowerTopology, HcalRecNumberingRecord>();
+  tok_ctmap_ = esConsumes<CaloTowerConstituentsMap, CaloGeometryRecord>();
+  tok_ecalChStatus_ = esConsumes<EcalChannelStatus, EcalChannelStatusRcd>();
+  tok_hcalChStatus_ = esConsumes<HcalChannelQuality, HcalChannelQualityRcd>(edm::ESInputTag("", "WithTopo"));
+  tok_hcalSevComputer_ = esConsumes<HcalSeverityLevelComputer, HcalSeverityLevelComputerRcd>();
+  tok_ecalSevAlgo_ = esConsumes<EcalSeverityLevelAlgo, EcalSeverityLevelAlgoRcd>();
 
   const unsigned nLabels = ecalLabels_.size();
   for (unsigned i = 0; i != nLabels; i++)
@@ -132,33 +139,25 @@ CaloTowersCreator::CaloTowersCreator(const edm::ParameterSet& conf)
 
 void CaloTowersCreator::produce(edm::Event& e, const edm::EventSetup& c) {
   // get the necessary event setup objects...
-  edm::ESHandle<CaloGeometry> pG;
-  edm::ESHandle<HcalTopology> htopo;
-  edm::ESHandle<CaloTowerTopology> cttopo;
-  edm::ESHandle<CaloTowerConstituentsMap> ctmap;
-  c.get<CaloGeometryRecord>().get(pG);
-  c.get<HcalRecNumberingRecord>().get(htopo);
-  c.get<HcalRecNumberingRecord>().get(cttopo);
-  c.get<CaloGeometryRecord>().get(ctmap);
+  edm::ESHandle<CaloGeometry> pG = c.getHandle(tok_geom_);
+  edm::ESHandle<HcalTopology> htopo = c.getHandle(tok_topo_);
+  edm::ESHandle<CaloTowerTopology> cttopo = c.getHandle(tok_cttopo_);
+  edm::ESHandle<CaloTowerConstituentsMap> ctmap = c.getHandle(tok_ctmap_);
 
   // ECAL channel status map ****************************************
-  edm::ESHandle<EcalChannelStatus> ecalChStatus;
-  c.get<EcalChannelStatusRcd>().get(ecalChStatus);
+  edm::ESHandle<EcalChannelStatus> ecalChStatus = c.getHandle(tok_ecalChStatus_);
   const EcalChannelStatus* dbEcalChStatus = ecalChStatus.product();
 
   // HCAL channel status map ****************************************
-  edm::ESHandle<HcalChannelQuality> hcalChStatus;
-  c.get<HcalChannelQualityRcd>().get("withTopo", hcalChStatus);
+  edm::ESHandle<HcalChannelQuality> hcalChStatus = c.getHandle(tok_hcalChStatus_);
 
   const HcalChannelQuality* dbHcalChStatus = hcalChStatus.product();
 
   // Assignment of severity levels **********************************
-  edm::ESHandle<HcalSeverityLevelComputer> hcalSevLvlComputerHndl;
-  c.get<HcalSeverityLevelComputerRcd>().get(hcalSevLvlComputerHndl);
+  edm::ESHandle<HcalSeverityLevelComputer> hcalSevLvlComputerHndl = c.getHandle(tok_hcalSevComputer_);
   const HcalSeverityLevelComputer* hcalSevLvlComputer = hcalSevLvlComputerHndl.product();
 
-  edm::ESHandle<EcalSeverityLevelAlgo> ecalSevLvlAlgoHndl;
-  c.get<EcalSeverityLevelAlgoRcd>().get(ecalSevLvlAlgoHndl);
+  edm::ESHandle<EcalSeverityLevelAlgo> ecalSevLvlAlgoHndl = c.getHandle(tok_ecalSevAlgo_);
   const EcalSeverityLevelAlgo* ecalSevLvlAlgo = ecalSevLvlAlgoHndl.product();
 
   algo_.setEBEScale(EBEScale);
