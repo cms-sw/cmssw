@@ -1,6 +1,5 @@
 #include "Validation/MuonCSCDigis/interface/CSCStubMatcher.h"
 #include "L1Trigger/CSCCommonTrigger/interface/CSCConstants.h"
-
 #include <algorithm>
 
 using namespace std;
@@ -87,12 +86,9 @@ void CSCStubMatcher::matchCLCTsToSimTrack(const CSCCLCTDigiCollection& clcts) {
     }
 
     int ring = ch_id.ring();
-    if (ring == 4)
-      ring = 1;  //use ME1b id to get CLCTs
-    CSCDetId ch_id2(ch_id.endcap(), ch_id.station(), ring, ch_id.chamber(), 0);
 
     // do not consider CSCs with too few hits
-    if (cscDigiMatcher_->nLayersWithStripInChamber(ch_id2) < minNHitsChamberCLCT_)
+    if (cscDigiMatcher_->nLayersWithStripInChamber(ch_id) < minNHitsChamberCLCT_)
       continue;
 
     // get the comparator digis in this chamber
@@ -104,7 +100,7 @@ void CSCStubMatcher::matchCLCTsToSimTrack(const CSCCLCTDigiCollection& clcts) {
 
     // print out the digis
     if (verboseCLCT_) {
-      cout << "clct: digi_strips " << ch_id2 << endl;
+      cout << "clct: comparators " << ch_id << endl;
       int layer = 0;
       for (const auto& p : comps) {
         layer++;
@@ -114,6 +110,12 @@ void CSCStubMatcher::matchCLCTsToSimTrack(const CSCCLCTDigiCollection& clcts) {
         cout << endl;
       }
     }
+
+    //use ME1b id to get CLCTs
+    const bool isME1a(ch_id.station() == 1 and ch_id.ring() == 4);
+    if (isME1a)
+      ring = 1;
+    CSCDetId ch_id2(ch_id.endcap(), ch_id.station(), ring, ch_id.chamber(), 0);
 
     const auto& clcts_in_det = clcts.get(ch_id2);
 
@@ -137,15 +139,27 @@ void CSCStubMatcher::matchCLCTsToSimTrack(const CSCCLCTDigiCollection& clcts) {
       for (const auto& p : comps) {
         layer++;
         for (const auto& q : p) {
+          if (verboseCLCT_)
+            cout << "L" << layer << " " << q << " " << q.getHalfStrip() << " " << std::endl;
           for (const auto& clctComp : (*c).getHits()[layer - 1]) {
-            if (q.getHalfStrip() == clctComp) {
+            if (clctComp == 65535) continue;
+            if (verboseCLCT_) {
+              std::cout << "\t" << clctComp << " " << endl;
+            }
+            if (q.getHalfStrip() == clctComp or (isME1a and q.getHalfStrip() + 128 == clctComp)) {
               nMatches++;
+              if (verboseCLCT_) {
+                cout << "\t\tnMatches " << nMatches << std::endl;
+              }
             }
           }
         }
+        if (verboseCLCT_) {
+          cout << endl;
+        }
       }
 
-      // require at least 3 good half-strip matches
+      // require at least 3 good matches
       if (nMatches < 3)
         continue;
 
@@ -257,19 +271,26 @@ void CSCStubMatcher::matchLCTsToSimTrack(const CSCCorrelatedLCTDigiCollection& l
     for (const auto& lct : lcts_tmp) {
       iLct++;
 
-      bool lct_matched(false);
       bool lct_clct_match(false);
       bool lct_alct_match(false);
       bool lct_gem1_match(false);
       bool lct_gem2_match(false);
 
-      if (verboseLCT_)
-        cout << "in LCT, getCLCT " << lct.getCLCT() << " getALCT " << lct.getALCT() << endl;
-
+      if (verboseLCT_) {
+        cout << ch_id << " " << ch_id2 << endl;
+        cout << lct << endl;
+        cout << "getCLCT " << lct.getCLCT()
+             << "\ngetALCT " << lct.getALCT()
+             << "\ngetGEM1 " << lct.getGEM1()
+             << "\ngetGEM2 " << lct.getGEM2()
+             << endl;
+      }
       // Check if matched to an CLCT
       for (const auto& p : clctsInChamber(id)) {
         if (p == lct.getCLCT()) {
           lct_clct_match = true;
+          if (verboseLCT_)
+            cout << "\t...lct_clct_match" << endl;
           break;
         }
       }
@@ -278,6 +299,8 @@ void CSCStubMatcher::matchLCTsToSimTrack(const CSCCorrelatedLCTDigiCollection& l
       for (const auto& p : alctsInChamber(id)) {
         if (p == lct.getALCT()) {
           lct_alct_match = true;
+          if (verboseLCT_)
+            cout << "\t...lct_alct_match" << endl;
           break;
         }
       }
@@ -289,26 +312,35 @@ void CSCStubMatcher::matchLCTsToSimTrack(const CSCCorrelatedLCTDigiCollection& l
         for (const auto& p : gemDigiMatcher_->padsInChamber(gemDetIdL1.rawId())) {
           if (p == lct.getGEM1()) {
             lct_gem1_match = true;
+            if (verboseLCT_)
+              cout << "\t...lct_gem1_match" << endl;
             break;
-          }
+            }
         }
 
         // Check if matched to an GEM pad L2
-        const GEMDetId gemDetIdL2(ch_id.zendcap(), 1, ch_id.station(), 2, ch_id.chamber(), 0);
-        for (const auto& p : gemDigiMatcher_->padsInChamber(gemDetIdL2.rawId())) {
+          const GEMDetId gemDetIdL2(ch_id.zendcap(), 1, ch_id.station(), 2, ch_id.chamber(), 0);
+          for (const auto& p : gemDigiMatcher_->padsInChamber(gemDetIdL2.rawId())) {
           if (p == lct.getGEM2()) {
             lct_gem2_match = true;
+            if (verboseLCT_)
+              cout << "\t...lct_gem2_match" << endl;
             break;
           }
         }
       }
 
-      lct_matched = ((lct_clct_match and lct_alct_match) or (lct_alct_match and lct_gem1_match and lct_gem2_match) or
-                     (lct_clct_match and lct_gem1_match and lct_gem2_match));
+      const bool alct_clct = lct_clct_match and lct_alct_match;
+      const bool alct_gem = lct_alct_match and lct_gem1_match and lct_gem2_match;
+      const bool clct_gem = lct_clct_match and lct_gem1_match and lct_gem2_match;
+
+      bool lct_tight_matched = alct_clct or alct_gem or clct_gem;
+      bool lct_loose_matched = lct_clct_match or lct_alct_match;
+      bool lct_matched = lct_loose_matched or lct_tight_matched;
 
       if (lct_matched) {
         if (verboseLCT_)
-          cout << "this LCT matched to simtrack in chamber " << ch_id << endl;
+          cout << "...was matched" << endl;
         if (std::find(chamber_to_lcts_[id].begin(), chamber_to_lcts_[id].end(), lct) == chamber_to_lcts_[id].end()) {
           chamber_to_lcts_[id].emplace_back(lct);
         }
@@ -331,7 +363,6 @@ void CSCStubMatcher::matchMPLCTsToSimTrack(const CSCCorrelatedLCTDigiCollection&
       if (!lct->isValid())
         continue;
 
-      // std::cout << "MPC Stub ALL " << *lct << std::endl;
       chamber_to_mplcts_all_[id].emplace_back(*lct);
 
       // check if this stub corresponds with a previously matched stub

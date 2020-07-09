@@ -95,7 +95,7 @@ void GEMSimHitMatcher::matchSimHitsToSimTrack() {
     set<int> pads;
     for (const auto& h : hits) {
       const LocalPoint& lp = h.entryPoint();
-      pads.insert(1 + static_cast<int>(roll->padTopology().channel(lp)));
+      pads.insert(static_cast<int>(roll->padTopology().channel(lp)));
     }
     detids_to_pads_[d] = pads;
   }
@@ -115,10 +115,10 @@ void GEMSimHitMatcher::matchSimHitsToSimTrack() {
 
     for (const auto& h : hits1) {
       const LocalPoint& lp = h.entryPoint();
-      pads1.insert(1 + static_cast<int>(roll1->padTopology().channel(lp)));
+      pads1.insert(static_cast<int>(roll1->padTopology().channel(lp)));
       if (verbose_)
         edm::LogInfo("GEMSimHitMatcher") << "GEMHits detid1 " << id1 << " pad1 "
-                                         << 1 + static_cast<int>(roll1->padTopology().channel(lp)) << std::endl;
+                                         << static_cast<int>(roll1->padTopology().channel(lp)) << std::endl;
     }
 
     // find pads with hits in layer2
@@ -133,10 +133,10 @@ void GEMSimHitMatcher::matchSimHitsToSimTrack() {
       const auto& roll2 = dynamic_cast<const GEMGeometry*>(geometry_)->etaPartition(id2);
       for (const auto& h : hits2) {
         const LocalPoint& lp = h.entryPoint();
-        pads2.insert(1 + static_cast<int>(roll2->padTopology().channel(lp)));
+        pads2.insert(static_cast<int>(roll2->padTopology().channel(lp)));
         if (verbose_)
           edm::LogInfo("GEMSimHitMatcher") << "GEMHits detid2 " << id2 << " pad2 "
-                                           << 1 + static_cast<int>(roll2->padTopology().channel(lp)) << std::endl;
+                                           << static_cast<int>(roll2->padTopology().channel(lp)) << std::endl;
       }
     }
 
@@ -296,7 +296,7 @@ std::set<int> GEMSimHitMatcher::hitStripsInDetId(unsigned int detid, int margin_
     int central_strip =
         static_cast<int>(dynamic_cast<const GEMGeometry*>(geometry_)->etaPartition(id)->topology().channel(lp));
     int smin = central_strip - margin_n_strips;
-    smin = (smin > 0) ? smin : 1;
+    smin = (smin > 0) ? smin : 0;
     int smax = central_strip + margin_n_strips;
     smax = (smax <= max_nstrips) ? smax : max_nstrips;
     for (int ss = smin; ss <= smax; ++ss)

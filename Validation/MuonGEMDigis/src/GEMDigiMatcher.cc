@@ -99,6 +99,7 @@ void GEMDigiMatcher::matchDigisToSimTrack(const GEMDigiCollection& digis) {
       detid_to_digis_[id].push_back(*d);
       chamber_to_digis_[p_id.chamberId().rawId()].push_back(*d);
       superchamber_to_digis_[p_id.superChamberId().rawId()].push_back(*d);
+      break;
     }
   }
 }
@@ -107,35 +108,26 @@ void GEMDigiMatcher::matchPadsToSimTrack(const GEMPadDigiCollection& pads) {
   const auto& det_ids = muonSimHitMatcher_->detIds();
   for (const auto& id : det_ids) {
     GEMDetId p_id(id);
-    GEMDetId superch_id(p_id.region(), p_id.ring(), p_id.station(), 0, p_id.chamber(), 0);
 
-    const auto& hit_pads = muonSimHitMatcher_->hitPadsInDetId(id);
     const auto& pads_in_det = pads.get(p_id);
-
-    if (verbosePad_) {
-      cout << "checkpads " << hit_pads.size() << " " << std::distance(pads_in_det.first, pads_in_det.second)
-           << " hit_pads: ";
-      copy(hit_pads.begin(), hit_pads.end(), ostream_iterator<int>(cout, " "));
-      cout << endl;
-    }
 
     for (auto pad = pads_in_det.first; pad != pads_in_det.second; ++pad) {
       if (verbosePad_)
-        cout << "chp " << *pad << endl;
+        cout << "GEMPad " << p_id << " " << *pad << endl;
       // check that the pad BX is within the range
       if (pad->bx() < minBXPad_ || pad->bx() > maxBXPad_)
         continue;
-      if (verbosePad_)
-        cout << "chp1" << endl;
       // check that it matches a pad that was hit by SimHits from our track
-      if (hit_pads.find(pad->pad()) == hit_pads.end())
-        continue;
-      if (verbosePad_)
-        cout << "chp2" << endl;
-
-      detid_to_pads_[id].push_back(*pad);
-      chamber_to_pads_[p_id.chamberId().rawId()].push_back(*pad);
-      superchamber_to_pads_[superch_id()].push_back(*pad);
+      for (auto digi : detid_to_digis_[id]) {
+        if (digi.strip() / 2 == pad->pad()) {
+          detid_to_pads_[id].push_back(*pad);
+          chamber_to_pads_[p_id.chamberId().rawId()].push_back(*pad);
+          superchamber_to_pads_[p_id.superChamberId().rawId()].push_back(*pad);
+          if (verbosePad_)
+            cout << "...was matched!" << endl;
+          break;
+        }
+      }
     }
   }
 }
@@ -146,70 +138,79 @@ void GEMDigiMatcher::matchClustersToSimTrack(const GEMPadDigiClusterCollection& 
     GEMDetId p_id(id);
     GEMDetId superch_id(p_id.region(), p_id.ring(), p_id.station(), 1, p_id.chamber(), 0);
 
-    auto hit_pads = muonSimHitMatcher_->hitPadsInDetId(id);
     auto clusters_in_det = clusters.get(p_id);
 
     for (auto cluster = clusters_in_det.first; cluster != clusters_in_det.second; ++cluster) {
+
+      bool isMatched;
+
+      if (verbosePad_)
+        cout << "GEMCluster " << p_id << " " << *cluster << endl;
+
       // check that the cluster BX is within the range
       if (cluster->bx() < minBXCluster_ || cluster->bx() > maxBXCluster_)
         continue;
 
       // check that at least one pad was hit by the track
       for (const auto& p : cluster->pads()) {
-        if (hit_pads.find(p) == hit_pads.end()) {
-          detid_to_clusters_[id].push_back(*cluster);
-          chamber_to_clusters_[p_id.chamberId().rawId()].push_back(*cluster);
-          superchamber_to_clusters_[superch_id()].push_back(*cluster);
-          break;
+        for (auto pad : detid_to_pads_[id]) {
+          if (pad.pad() == p) {
+            isMatched = true;
+            break;
+          }
         }
+      }
+      if (isMatched) {
+        detid_to_clusters_[id].push_back(*cluster);
+        chamber_to_clusters_[p_id.chamberId().rawId()].push_back(*cluster);
+        superchamber_to_clusters_[superch_id()].push_back(*cluster);
+        if (verboseCluster_)
+          cout << "...was matched!" << endl;
+        break;
       }
     }
   }
 }
 
 void GEMDigiMatcher::matchCoPadsToSimTrack(const GEMCoPadDigiCollection& co_pads) {
-  const auto& det_ids = muonSimHitMatcher_->detIdsCoincidences();
-  for (const auto& id : det_ids) {
-    GEMDetId p_id(id);
-    GEMDetId superch_id(p_id.region(), p_id.ring(), p_id.station(), 0, p_id.chamber(), 0);
 
-    const auto& hit_co_pads = muonSimHitMatcher_->hitCoPadsInDetId(id);
-    const auto& co_pads_in_det = co_pads.get(superch_id);
+  // loop on the GEM detids
+  for (auto detUnitIt = co_pads.begin(); detUnitIt != co_pads.end(); ++detUnitIt) {
 
-    if (verboseCoPad_) {
-      cout << "matching CoPads in detid " << superch_id << std::endl;
-      cout << "checkcopads from gemhits" << hit_co_pads.size() << " from copad collection "
-           << std::distance(co_pads_in_det.first, co_pads_in_det.second) << " hit_pads: ";
-      copy(hit_co_pads.begin(), hit_co_pads.end(), ostream_iterator<int>(cout, " "));
-      cout << endl;
-    }
+    const GEMDetId& id = (*detUnitIt).first;
+    const auto& co_pads_in_det = (*detUnitIt).second;
 
-    for (auto pad = co_pads_in_det.first; pad != co_pads_in_det.second; ++pad) {
-      // to match simtrack to GEMCoPad, check the pads within the copad!
-      bool matchL1 = false;
-      GEMDetId gemL1_id(p_id.region(), p_id.ring(), p_id.station(), 1, p_id.chamber(), 0);
+    for (auto copad = co_pads_in_det.first; copad != co_pads_in_det.second; ++copad) {
+
+      // check that the cluster BX is within the range
+      if (copad->bx(1) < minBXCoPad_ || copad->bx(1) > maxBXCoPad_)
+        continue;
+
+      bool isMatchedL1 = false;
+      bool isMatchedL2 = false;
+      GEMDetId gemL1_id(id.region(), 1, id.station(), 1, id.chamber(), copad->roll());
+      GEMDetId gemL2_id(id.region(), 1, id.station(), 2, id.chamber(), 0);
+
       if (verboseCoPad_)
-        cout << "CoPad: chp " << *pad << endl;
-      for (const auto& p : padsInChamber(gemL1_id.rawId())) {
-        if (p == pad->first()) {
-          matchL1 = true;
-          break;
+        cout << "GEMCoPadDigi: " << id << " " << *copad << endl;
+
+      // first pad is tightly matched
+      for (const auto& p: padsInDetId(gemL1_id.rawId())) {
+        if (p == copad->first()) {
+          isMatchedL1 = true;
         }
       }
 
-      bool matchL2 = false;
-      GEMDetId gemL2_id(p_id.region(), p_id.ring(), p_id.station(), 2, p_id.chamber(), 0);
-      for (const auto& p : padsInChamber(gemL2_id.rawId())) {
-        if (p == pad->second()) {
-          matchL2 = true;
-          break;
+      // second pad can only be loosely matched
+      for (const auto& p: padsInChamber(gemL2_id.rawId())) {
+        if (p == copad->second()) {
+          isMatchedL2 = true;
         }
       }
-
-      if (matchL1 and matchL2) {
+      if (isMatchedL1 and isMatchedL2) {
+        superchamber_to_copads_[id].push_back(*copad);
         if (verboseCoPad_)
-          cout << "CoPad: was matched! " << endl;
-        superchamber_to_copads_[superch_id()].push_back(*pad);
+          cout << "...was matched! " << endl;
       }
     }
   }
@@ -337,6 +338,21 @@ int GEMDigiMatcher::nLayersWithPadsInSuperChamber(unsigned int detid) const {
     const auto& pads = padsInChamber(ch_id.rawId());
     // at least one digi in this layer!
     if (!pads.empty()) {
+      layers.insert(iLayer);
+    }
+  }
+  return layers.size();
+}
+
+int GEMDigiMatcher::nLayersWithClustersInSuperChamber(unsigned int detid) const {
+  set<int> layers;
+  GEMDetId sch_id(detid);
+  for (int iLayer = 1; iLayer <= 2; iLayer++) {
+    GEMDetId ch_id(sch_id.region(), sch_id.ring(), sch_id.station(), iLayer, sch_id.chamber(), 0);
+    // get the pads in this chamber
+    const auto& clusters = clustersInChamber(ch_id.rawId());
+    // at least one digi in this layer!
+    if (!clusters.empty()) {
       layers.insert(iLayer);
     }
   }
