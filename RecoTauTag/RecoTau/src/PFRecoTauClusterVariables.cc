@@ -188,6 +188,7 @@ namespace reco {
                               const std::string& nameOutside,
                               const std::string& nameFootprint) {
       int tauDecayMode = tau.decayMode();
+      const float mTau = 1.77682;
 
       if (((mvaOpt == kOldDMwoLT || mvaOpt == kOldDMwLT || mvaOpt == kDBoldDMwLT || mvaOpt == kPWoldDMwLT ||
             mvaOpt == kDBoldDMwLTwGJ) &&
@@ -221,7 +222,6 @@ namespace reco {
         // Difference between measured and maximally allowed Gottfried-Jackson angle
         float gjAngleDiff = -999;
         if (tauDecayMode == 10) {
-          double mTau = 1.77682;
           double mAOne = tau.p4().M();
           double pAOneMag = tau.p();
           double argumentThetaGJmax = (std::pow(mTau, 2) - std::pow(mAOne, 2)) / (2 * mTau * pAOneMag);
@@ -249,7 +249,7 @@ namespace reco {
           float sigCands_pt = 0.;
           float sigCands_dr, sigCands_deta, sigCands_dphi;
           sigCands_dr = sigCands_deta = sigCands_dphi = 0.;
-          for (auto& j : tau.signalGammaCands()) {
+          for (const auto& j : tau.signalGammaCands()) {
             const float dr = reco::deltaR(tau, *j);
             const float deta = std::abs(tau.eta() - j->eta());
             const float dphi = std::abs(reco::deltaPhi(tau.phi(), j->phi()));
@@ -269,7 +269,7 @@ namespace reco {
           float isoCands_pt = 0.;
           float isoCands_dr, isoCands_deta, isoCands_dphi;
           isoCands_dr = isoCands_deta = isoCands_dphi = 0.;
-          for (auto& j : tau.isolationGammaCands()) {
+          for (const auto& j : tau.isolationGammaCands()) {
             const float dr = reco::deltaR(tau, *j);
             const float deta = std::abs(tau.eta() - j->eta());
             const float dphi = std::abs(reco::deltaPhi(tau.phi(), j->phi()));
@@ -310,7 +310,6 @@ namespace reco {
           float thetaGJmax, thetaGJ;
           thetaGJmax = thetaGJ = 0.;
           if (decayDistMag > 0.) {
-            const float mTau = 1.77686;
             const float mAOne = tau.p4().M();
             const float pAOneMag = tau.p();
             thetaGJmax = (mTau * mTau - mAOne * mAOne) / (2. * mTau * pAOneMag);

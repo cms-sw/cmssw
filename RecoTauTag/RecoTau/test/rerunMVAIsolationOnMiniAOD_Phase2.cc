@@ -1,4 +1,4 @@
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "DataFormats/JetReco/interface/GenJet.h"
@@ -10,7 +10,7 @@
 #include "TH2D.h"
 #include "TGraphAsymmErrors.h"
 
-class rerunMVAIsolationOnMiniAOD_Phase2 : public edm::EDAnalyzer {
+class rerunMVAIsolationOnMiniAOD_Phase2 : public edm::one::EDAnalyzer<edm::one::SharedResources> {
 public:
   explicit rerunMVAIsolationOnMiniAOD_Phase2(const edm::ParameterSet &);
 
@@ -132,7 +132,7 @@ void rerunMVAIsolationOnMiniAOD_Phase2::analyze(const edm::Event &iEvent, const 
       }
     }
 
-    const double byIsolationMVAPhase2raw = i->tauID("ByIsolationMVADBnewDMwLTPhase2raw");
+    const double byIsolationMVAPhase2raw = i->tauID("byIsolationMVADBnewDMwLTPhase2raw");
     double wp[7];
     wp[0] = i->tauID("byVVLooseIsolationMVADBnewDMwLTPhase2");
     wp[1] = i->tauID("byVLooseIsolationMVADBnewDMwLTPhase2");
