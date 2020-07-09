@@ -21,6 +21,7 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "CondCore/DBOutputService/interface/PoolDBOutputService.h"
 
+#include "DataFormats/Math/interface/CMSUnits.h"
 #include "DetectorDescription/DDCMS/interface/DDCompactView.h"
 #include "DetectorDescription/DDCMS/interface/DDFilteredView.h"
 #include "DetectorDescription/DDCMS/interface/DDTranslation.h"
@@ -38,6 +39,9 @@
 #include "CondFormats/GeometryObjects/interface/PDetGeomDesc.h"
 
 #include <regex>
+
+
+using namespace cms_units::operators;
 
 //----------------------------------------------------------------------------------------------------
 
@@ -143,9 +147,9 @@ void PPSGeometryBuilder::buildPDetGeomDesc(cms::DDFilteredView* fv, PDetGeomDesc
     // Fill Item
     // =======================================================================
 
-    item.dx_ = fv->translation().X();
-    item.dy_ = fv->translation().Y();
-    item.dz_ = fv->translation().Z();
+    item.dx_ = fv->translation().X() / 1._mm; // Convert cm (DD4hep) to mm (legacy)
+    item.dy_ = fv->translation().Y() / 1._mm; // Convert cm (DD4hep) to mm (legacy)
+    item.dz_ = fv->translation().Z() / 1._mm; // Convert cm (DD4hep) to mm (legacy)
     const DDRotationMatrix& rot = fv->rotation();
     double xx, xy, xz, yx, yy, yz, zx, zy, zz;
     rot.GetComponents(xx, xy, xz, yx, yy, yz, zx, zy, zz);
@@ -158,19 +162,19 @@ void PPSGeometryBuilder::buildPDetGeomDesc(cms::DDFilteredView* fv, PDetGeomDesc
     item.azx_ = zx;
     item.azy_ = zy;
     item.azz_ = zz;
-    item.name_ = (fv->volume()).name();  // fv->name() ?
+    item.name_ = fv->name();
     //item.params_ = ((fv->volume()).solid()).parameters(); TO DOOOOOOOOOOOOOOOOOOOOOOOOO
     item.copy_ = fv->copyNum();
     //item.z_ = fv->geoHistory().back().absTranslation().z();
-    item.z_ = fv->translation().z();
+    item.z_ = fv->translation().z() / 1._mm; // Convert cm (DD4hep) to mm (legacy)
     // Sensor Type
     item.sensorType_ = "";
     //std::string sensor_name = fv->geoHistory().back().logicalPart().name().fullname();
-    std::string sensor_name = (fv->volume()).name();
-    std::size_t found = sensor_name.find(DDD_CTPPS_PIXELS_SENSOR_NAME);
-    if (found != std::string::npos && sensor_name.substr(found - 4, 3) == DDD_CTPPS_PIXELS_SENSOR_TYPE_2x2) {
+    const std::string sensor_name {fv->name()};
+    /* std::size_t found = sensor_name.find(DDD_CTPPS_PIXELS_SENSOR_NAME);
+    if (found != std::string_view::npos && sensor_name.substr(found - 4, 3) == DDD_CTPPS_PIXELS_SENSOR_TYPE_2x2) {
       item.sensorType_ = DDD_CTPPS_PIXELS_SENSOR_TYPE_2x2;
-    }
+    }*/
     // Geographical ID
     item.geographicalID_ = getGeographicalID(fv);
 
@@ -199,18 +203,18 @@ void PPSGeometryBuilder::buildPDetGeomDesc(cms::DDFilteredView* fv, PDetGeomDesc
     gd->container_.push_back(item);
 
     // recursion
-    buildPDetGeomDesc(fv, gd);
-  } while (fv->nextSibling()); //while (fv->next(0)); 
+    //buildPDetGeomDesc(fv, gd);
+  } while (fv->next(0)); //while (fv->nextSibling()); 
 
   // go a level up
-  fv->parent();
+  //fv->parent();
 }
 
 //----------------------------------------------------------------------------------------------------//----------------------------------------------------------------------------------------------------
 
 uint32_t PPSGeometryBuilder::getGeographicalID(cms::DDFilteredView* view) {
   uint32_t geoID = 0;
-  const std::string name = view->volume().name();
+  const std::string name {view->name()};
   std::cout << "PPSGeometryBuilder::getGeographicalID name = " << name << std::endl;
   std::cout << "view->copyNum() = " << view->copyNum() << std::endl;
   std::cout << "view->copyNumbers() = ";
