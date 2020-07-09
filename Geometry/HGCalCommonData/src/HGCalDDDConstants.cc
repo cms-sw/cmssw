@@ -1350,7 +1350,7 @@ std::pair<int, int> HGCalDDDConstants::waferTypeRotation(
   if (debug)
     edm::LogVerbatim("HGCalGeom") << "waferTypeRotation: Layer " << layer << " Wafer " << waferU << ":" << waferV
                                   << " Index " << std::hex << wl << std::dec << ":" << endOfList << " Type " << type
-				  << " Rotation " << rotn;
+                                  << " Rotation " << rotn;
 #endif
   return std::make_pair(type, rotn);
 }
