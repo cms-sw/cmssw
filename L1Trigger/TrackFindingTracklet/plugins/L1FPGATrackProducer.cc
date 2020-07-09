@@ -9,7 +9,7 @@
 #include "FWCore/PluginManager/interface/ModuleDef.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 //
-#include "FWCore/Framework/interface/stream/EDProducer.h"
+#include "FWCore/Framework/interface/one/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -129,7 +129,7 @@ public:
   }
 };
 
-class L1FPGATrackProducer : public edm::stream::EDProducer<> {
+class L1FPGATrackProducer : public edm::one::EDProducer<edm::one::WatchRuns> {
 public:
   /// Constructor/destructor
   explicit L1FPGATrackProducer(const edm::ParameterSet& iConfig);
@@ -193,6 +193,7 @@ private:
   /// ///////////////// ///
   /// MANDATORY METHODS ///
   void beginRun(const edm::Run& run, const edm::EventSetup& iSetup) override;
+  void endRun(edm::Run const&, edm::EventSetup const&) override;
   void produce(edm::Event& iEvent, const edm::EventSetup& iSetup) override;
 };
 
@@ -289,6 +290,10 @@ L1FPGATrackProducer::~L1FPGATrackProducer() {
     asciiEventOut_.close();
   }
 }
+
+///////END RUN
+//
+void L1FPGATrackProducer::endRun(const edm::Run& run, const edm::EventSetup& iSetup) {}
 
 ////////////
 // BEGIN JOB
