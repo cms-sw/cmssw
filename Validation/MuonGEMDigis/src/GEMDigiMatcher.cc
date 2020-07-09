@@ -85,7 +85,6 @@ void GEMDigiMatcher::matchDigisToSimTrack(const GEMDigiCollection& digis) {
     const auto& digis_in_det = digis.get(GEMDetId(id));
 
     for (auto d = digis_in_det.first; d != digis_in_det.second; ++d) {
-
       if (verboseDigi_)
         cout << "GEMDigi " << p_id << " " << *d << endl;
 
@@ -115,7 +114,6 @@ void GEMDigiMatcher::matchPadsToSimTrack(const GEMPadDigiCollection& pads) {
     const auto& pads_in_det = pads.get(p_id);
 
     for (auto pad = pads_in_det.first; pad != pads_in_det.second; ++pad) {
-
       bool isMatched;
 
       if (verbosePad_)
@@ -187,7 +185,6 @@ void GEMDigiMatcher::matchCoPadsToSimTrack(const GEMCoPadDigiCollection& co_pads
     const auto& co_pads_in_det = (*detUnitIt).second;
 
     for (auto copad = co_pads_in_det.first; copad != co_pads_in_det.second; ++copad) {
-
       if (verboseCoPad_)
         cout << "GEMCoPadDigi: " << id << " " << *copad << endl;
 
