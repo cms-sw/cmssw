@@ -12,6 +12,7 @@
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Utilities/interface/ESGetToken.h"
 
 #include "DataFormats/FEDRawData/interface/FEDRawData.h"
 #include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
@@ -51,6 +52,8 @@ private:
   std::vector<unsigned int> fedIds;
 
   edm::EDGetTokenT<FEDRawDataCollection> fedDataToken;
+  edm::ESGetToken<TotemDAQMapping, TotemReadoutRcd> totemMappingToken;
+  edm::ESGetToken<TotemAnalysisMask, TotemReadoutRcd> analysisMaskToken;
 
   pps::RawDataUnpacker rawDataUnpacker;
   RawToDigiConverter rawToDigiConverter;
@@ -119,6 +122,9 @@ TotemVFATRawToDigi::TotemVFATRawToDigi(const edm::ParameterSet &conf)
 
   // conversion status
   produces<DetSetVector<TotemVFATStatus>>(subSystemName);
+
+  totemMappingToken = esConsumes<TotemDAQMapping, TotemReadoutRcd>(ESInputTag("", subSystemName));
+  analysisMaskToken = esConsumes<TotemAnalysisMask, TotemReadoutRcd>(ESInputTag("", subSystemName));
 }
 
 TotemVFATRawToDigi::~TotemVFATRawToDigi() {}
