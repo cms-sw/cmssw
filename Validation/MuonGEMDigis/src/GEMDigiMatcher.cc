@@ -85,21 +85,24 @@ void GEMDigiMatcher::matchDigisToSimTrack(const GEMDigiCollection& digis) {
     const auto& digis_in_det = digis.get(GEMDetId(id));
 
     for (auto d = digis_in_det.first; d != digis_in_det.second; ++d) {
+
       if (verboseDigi_)
         cout << "GEMDigi " << p_id << " " << *d << endl;
+
       // check that the digi is within BX range
       if (d->bx() < minBXDigi_ || d->bx() > maxBXDigi_)
         continue;
+
       // check that it matches a strip that was hit by SimHits from our track
       if (hit_strips.find(d->strip()) == hit_strips.end())
         continue;
+
       if (verboseDigi_)
         cout << "...was matched!" << endl;
 
       detid_to_digis_[id].push_back(*d);
       chamber_to_digis_[p_id.chamberId().rawId()].push_back(*d);
       superchamber_to_digis_[p_id.superChamberId().rawId()].push_back(*d);
-      break;
     }
   }
 }
@@ -112,21 +115,29 @@ void GEMDigiMatcher::matchPadsToSimTrack(const GEMPadDigiCollection& pads) {
     const auto& pads_in_det = pads.get(p_id);
 
     for (auto pad = pads_in_det.first; pad != pads_in_det.second; ++pad) {
+
+      bool isMatched;
+
       if (verbosePad_)
         cout << "GEMPad " << p_id << " " << *pad << endl;
+
       // check that the pad BX is within the range
       if (pad->bx() < minBXPad_ || pad->bx() > maxBXPad_)
         continue;
+
       // check that it matches a pad that was hit by SimHits from our track
       for (auto digi : detid_to_digis_[id]) {
         if (digi.strip() / 2 == pad->pad()) {
-          detid_to_pads_[id].push_back(*pad);
-          chamber_to_pads_[p_id.chamberId().rawId()].push_back(*pad);
-          superchamber_to_pads_[p_id.superChamberId().rawId()].push_back(*pad);
-          if (verbosePad_)
-            cout << "...was matched!" << endl;
+          isMatched = true;
           break;
         }
+      }
+      if (isMatched) {
+        detid_to_pads_[p_id.rawId()].push_back(*pad);
+        chamber_to_pads_[p_id.chamberId().rawId()].push_back(*pad);
+        superchamber_to_pads_[p_id.superChamberId().rawId()].push_back(*pad);
+        if (verbosePad_)
+          cout << "...was matched!" << endl;
       }
     }
   }
@@ -136,7 +147,6 @@ void GEMDigiMatcher::matchClustersToSimTrack(const GEMPadDigiClusterCollection& 
   const auto& det_ids = muonSimHitMatcher_->detIds();
   for (auto id : det_ids) {
     GEMDetId p_id(id);
-    GEMDetId superch_id(p_id.region(), p_id.ring(), p_id.station(), 1, p_id.chamber(), 0);
 
     auto clusters_in_det = clusters.get(p_id);
 
@@ -162,10 +172,9 @@ void GEMDigiMatcher::matchClustersToSimTrack(const GEMPadDigiClusterCollection& 
       if (isMatched) {
         detid_to_clusters_[id].push_back(*cluster);
         chamber_to_clusters_[p_id.chamberId().rawId()].push_back(*cluster);
-        superchamber_to_clusters_[superch_id()].push_back(*cluster);
+        superchamber_to_clusters_[p_id.superChamberId().rawId()].push_back(*cluster);
         if (verboseCluster_)
           cout << "...was matched!" << endl;
-        break;
       }
     }
   }
@@ -178,6 +187,10 @@ void GEMDigiMatcher::matchCoPadsToSimTrack(const GEMCoPadDigiCollection& co_pads
     const auto& co_pads_in_det = (*detUnitIt).second;
 
     for (auto copad = co_pads_in_det.first; copad != co_pads_in_det.second; ++copad) {
+
+      if (verboseCoPad_)
+        cout << "GEMCoPadDigi: " << id << " " << *copad << endl;
+
       // check that the cluster BX is within the range
       if (copad->bx(1) < minBXCoPad_ || copad->bx(1) > maxBXCoPad_)
         continue;
@@ -186,9 +199,6 @@ void GEMDigiMatcher::matchCoPadsToSimTrack(const GEMCoPadDigiCollection& co_pads
       bool isMatchedL2 = false;
       GEMDetId gemL1_id(id.region(), 1, id.station(), 1, id.chamber(), copad->roll());
       GEMDetId gemL2_id(id.region(), 1, id.station(), 2, id.chamber(), 0);
-
-      if (verboseCoPad_)
-        cout << "GEMCoPadDigi: " << id << " " << *copad << endl;
 
       // first pad is tightly matched
       for (const auto& p : padsInDetId(gemL1_id.rawId())) {
@@ -204,7 +214,7 @@ void GEMDigiMatcher::matchCoPadsToSimTrack(const GEMCoPadDigiCollection& co_pads
         }
       }
       if (isMatchedL1 and isMatchedL2) {
-        superchamber_to_copads_[id].push_back(*copad);
+        superchamber_to_copads_[id.rawId()].push_back(*copad);
         if (verboseCoPad_)
           cout << "...was matched! " << endl;
       }
