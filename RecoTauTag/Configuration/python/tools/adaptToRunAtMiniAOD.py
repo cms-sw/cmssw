@@ -183,6 +183,31 @@ def adaptTauToMiniAODReReco(process, reclusterJets=True):
                          idLabel = cms.string('againstMuonTightSimple')
                  ))
 
+	# Run TauIDs (anti-e && deepTau) on top of selectedPatTaus
+        _updatedTauName = 'selectedTausNewIDs'
+        _noUpdatedTauName = 'selectedTausNoNewIDs'
+        import RecoTauTag.RecoTau.tools.runTauIdMVA as tauIdConfig
+        tauIdEmbedder = tauIdConfig.TauIDEmbedder(
+                process, debug = False,
+                updatedTauName = _updatedTauName,
+                toKeep = ['againstEle2018','deepTau2017v2p1']
+        )
+        tauIdEmbedder.runTauID()
+        setattr(process, _noUpdatedTauName, process.selectedPatTaus.clone())
+        process.miniAODTausTask.add(getattr(process,_noUpdatedTauName))
+        delattr(process, 'selectedPatTaus')
+        process.deepTau2017v2p1.taus = _noUpdatedTauName
+        process.patTauDiscriminationByElectronRejectionMVA62018Raw.PATTauProducer = _noUpdatedTauName
+        process.patTauDiscriminationByElectronRejectionMVA62018.PATTauProducer = _noUpdatedTauName
+        process.selectedPatTaus = getattr(process, _updatedTauName).clone(
+                src = _noUpdatedTauName
+        )
+        process.newTauIDsTask = cms.Task(
+                process.rerunMvaIsolationTask,
+                process.selectedPatTaus
+        )
+        process.miniAODTausTask.add(process.newTauIDsTask)
+
 	#print '[adaptTauToMiniAODReReco]: Done!'
 
 #####
