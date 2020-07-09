@@ -14,6 +14,8 @@
 #include <TFile.h>
 #include <array>
 
+using namespace antiElecIDMVA6_blocks;
+
 template <class TauType, class ElectronType>
 AntiElectronIDMVA6<TauType, ElectronType>::AntiElectronIDMVA6(const edm::ParameterSet& cfg)
     : isInitialized_(false),
