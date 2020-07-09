@@ -28,6 +28,8 @@ V00-03-25
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Common/interface/TriggerNames.h"
 #include "DataFormats/HLTReco/interface/TriggerEvent.h"
+#include "CondFormats/BeamSpotObjects/interface/BeamSpotOnlineObjects.h"
+#include "CondCore/DBOutputService/interface/OnlineDBOutputService.h"
 #include <numeric>
 #include <cmath>
 #include <memory>
@@ -116,6 +118,7 @@ BeamMonitor::BeamMonitor(const ParameterSet& ps)
       firstAverageFit_(0),
       countGapLumi_(0) {
   monitorName_ = ps.getUntrackedParameter<string>("monitorName", "YourSubsystemName");
+  recordName_ = ps.getUntrackedParameter<string>("recordName");
   bsSrc_ = consumes<reco::BeamSpot>(ps.getUntrackedParameter<InputTag>("beamSpot"));
   tracksLabel_ = consumes<reco::TrackCollection>(
       ps.getParameter<ParameterSet>("BeamFitter").getUntrackedParameter<InputTag>("TrackCollection"));
@@ -1323,6 +1326,43 @@ void BeamMonitor::FitAndFill(const LuminosityBlock& lumiSeg, int& lastlumi, int&
       //     if (std::fabs(refBS.z0()-bs.z0())/bs.z0Error() < deltaSigCut_) { // disabled temporarily
       summaryContent_[2] += 1.;
       //     }
+
+      // Create the BeamSpotOnlineObjects object
+      BeamSpotOnlineObjects* BSOnline = new BeamSpotOnlineObjects();
+      BSOnline->SetLastAnalyzedLumi(fitLS.second);
+      BSOnline->SetLastAnalyzedRun(theBeamFitter->getRunNumber());
+      BSOnline->SetLastAnalyzedFill(0);  // To be updated with correct LHC Fill number
+      BSOnline->SetPosition(bs.x0(), bs.y0(), bs.z0());
+      BSOnline->SetSigmaZ(bs.sigmaZ());
+      BSOnline->SetBeamWidthX(bs.BeamWidthX());
+      BSOnline->SetBeamWidthY(bs.BeamWidthY());
+      BSOnline->SetBeamWidthXError(bs.BeamWidthXError());
+      BSOnline->SetBeamWidthYError(bs.BeamWidthYError());
+      BSOnline->Setdxdz(bs.dxdz());
+      BSOnline->Setdydz(bs.dydz());
+      BSOnline->SetType(bs.type());
+      BSOnline->SetEmittanceX(bs.emittanceX());
+      BSOnline->SetEmittanceY(bs.emittanceY());
+      BSOnline->SetBetaStar(bs.betaStar());
+      for (int i = 0; i < 7; ++i) {
+        for (int j = 0; j < 7; ++j) {
+          BSOnline->SetCovariance(i, j, bs.covariance(i, j));
+        }
+      }
+      BSOnline->SetNumTracks(theBeamFitter->getNTracks());
+      BSOnline->SetNumPVs(theBeamFitter->getNPVs());
+
+      edm::LogInfo("BeamMonitor") << "FitAndFill::[PayloadCreation] BeamSpotOnline object created: \n" << std::endl;
+      edm::LogInfo("BeamMonitor") << *BSOnline << std::endl;
+
+      // Create the payload for BeamSpotOnlineObjects object
+      edm::Service<cond::service::OnlineDBOutputService> onlineDbService;
+      if (onlineDbService.isAvailable()) {
+        edm::LogInfo("BeamMonitor") << "FitAndFill::[PayloadCreation] onlineDbService available \n" << std::endl;
+        BSOnline->SetCreationTime(onlineDbService->currentTime());
+        onlineDbService->writeForNextLumisection(BSOnline, recordName_);
+      }
+      edm::LogInfo("BeamMonitor") << "FitAndFill::[PayloadCreation] BeamSpotOnline payload created \n" << std::endl;
 
     }       //if (theBeamFitter->runPVandTrkFitter())
     else {  // beam fit fails
