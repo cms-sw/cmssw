@@ -143,12 +143,10 @@ void TotemVFATRawToDigi::produce(edm::Event &event, const edm::EventSetup &es) {
 template <typename DigiType>
 void TotemVFATRawToDigi::run(edm::Event &event, const edm::EventSetup &es) {
   // get DAQ mapping
-  ESHandle<TotemDAQMapping> mapping;
-  es.get<TotemReadoutRcd>().get(subSystemName, mapping);
+  ESHandle<TotemDAQMapping> mapping = es.getHandle(totemMappingToken);
 
   // get analysis mask to mask channels
-  ESHandle<TotemAnalysisMask> analysisMask;
-  es.get<TotemReadoutRcd>().get(subSystemName, analysisMask);
+  ESHandle<TotemAnalysisMask> analysisMask = es.getHandle(analysisMaskToken);
 
   // raw data handle
   edm::Handle<FEDRawDataCollection> rawData;
