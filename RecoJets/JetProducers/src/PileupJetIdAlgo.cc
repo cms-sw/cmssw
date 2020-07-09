@@ -84,8 +84,8 @@ PileupJetIdAlgo::AlgoGBRForestsAndConstants::AlgoGBRForestsAndConstants(edm::Par
           mvacut_[i0][2][i2] = pt2030[i2];
         for (int i2 = 0; i2 < 4; i2++)
           mvacut_[i0][3][i2] = pt3040[i2];
-	for (int i2 = 0; i2 < 4; i2++)
-	  mvacut_[i0][4][i2] = pt4050[i2];
+        for (int i2 = 0; i2 < 4; i2++)
+          mvacut_[i0][4][i2] = pt4050[i2];
       }
       if (cutBased_ && i1 == 0) {
         for (int i2 = 0; i2 < 4; i2++)
@@ -96,8 +96,8 @@ PileupJetIdAlgo::AlgoGBRForestsAndConstants::AlgoGBRForestsAndConstants(edm::Par
           betaStarCut_[i0][2][i2] = pt2030[i2];
         for (int i2 = 0; i2 < 4; i2++)
           betaStarCut_[i0][3][i2] = pt3040[i2];
-	for (int i2 = 0; i2 < 4; i2++)
-	  betaStarCut_[i0][4][i2] = pt4050[i2];
+        for (int i2 = 0; i2 < 4; i2++)
+          betaStarCut_[i0][4][i2] = pt4050[i2];
       }
       if (cutBased_ && i1 == 1) {
         for (int i2 = 0; i2 < 4; i2++)
@@ -108,8 +108,8 @@ PileupJetIdAlgo::AlgoGBRForestsAndConstants::AlgoGBRForestsAndConstants(edm::Par
           rmsCut_[i0][2][i2] = pt2030[i2];
         for (int i2 = 0; i2 < 4; i2++)
           rmsCut_[i0][3][i2] = pt3040[i2];
-	for (int i2 = 0; i2 < 4; i2++)
-	  rmsCut_[i0][4][i2] = pt4050[i2];
+        for (int i2 = 0; i2 < 4; i2++)
+          rmsCut_[i0][4][i2] = pt4050[i2];
       }
     }
   }
