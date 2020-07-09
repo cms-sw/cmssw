@@ -57,16 +57,6 @@ void CSCDigiMatcher::match(const SimTrack& t, const SimVertex& v) {
 }
 
 void CSCDigiMatcher::matchComparatorsToSimTrack(const CSCComparatorDigiCollection& comparators) {
-  for (auto detUnitIt = comparators.begin(); detUnitIt != comparators.end(); ++detUnitIt) {
-    const CSCDetId& id = (*detUnitIt).first;
-    const auto& range = (*detUnitIt).second;
-    for (auto digiIt = range.first; digiIt != range.second; ++digiIt) {
-      if (id.station() == 1 and (id.ring() == 1 or id.ring() == 4))
-        if (verboseComparator_)
-          cout << "CSCid " << id << " Comparator digi (comparator, comparator, Tbin ) " << (*digiIt) << endl;
-    }
-  }
-
   const auto& det_ids = muonSimHitMatcher_->detIds(0);
   for (const auto& id : det_ids) {
     CSCDetId layer_id(id);
