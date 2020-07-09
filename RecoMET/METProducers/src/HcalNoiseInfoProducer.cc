@@ -16,7 +16,6 @@
 #include "DataFormats/METReco/interface/HcalCaloFlagLabels.h"
 #include "DataFormats/HcalRecHit/interface/HBHERecHitAuxSetter.h"
 #include "DataFormats/HcalRecHit/interface/CaloRecHitAuxSetter.h"
-#include "Geometry/Records/interface/HcalRecNumberingRecord.h"
 
 using namespace reco;
 
