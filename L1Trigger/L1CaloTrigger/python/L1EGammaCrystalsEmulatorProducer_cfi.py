@@ -28,3 +28,8 @@ L1EGammaClusterEmuProducer = cms.EDProducer("L1EGCrystalClusterEmulatorProducer"
    ),
 )
 
+from Configuration.ProcessModifiers.premix_stage2_cff import premix_stage2
+premix_stage2.toModify(L1EGammaClusterEmuProducer,
+    ecalTPEB = cms.InputTag("DMEcalEBTriggerPrimitiveDigis","","HLT"),
+    hcalTP = cms.InputTag("DMHcalTriggerPrimitiveDigis","","HLT"),
+)
