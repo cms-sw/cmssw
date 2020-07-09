@@ -2,7 +2,6 @@ import FWCore.ParameterSet.Config as cms
 
 MicroEventContent = cms.PSet(
     outputCommands = cms.untracked.vstring(
-        'drop *',
         'keep *_slimmedPhotons_*_*',
         'keep *_slimmedOOTPhotons_*_*',
         'keep *_slimmedElectrons_*_*',
