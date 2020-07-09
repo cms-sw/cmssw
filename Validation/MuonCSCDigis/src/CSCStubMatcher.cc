@@ -142,7 +142,8 @@ void CSCStubMatcher::matchCLCTsToSimTrack(const CSCCLCTDigiCollection& clcts) {
           if (verboseCLCT_)
             cout << "L" << layer << " " << q << " " << q.getHalfStrip() << " " << std::endl;
           for (const auto& clctComp : (*c).getHits()[layer - 1]) {
-            if (clctComp == 65535) continue;
+            if (clctComp == 65535)
+              continue;
             if (verboseCLCT_) {
               std::cout << "\t" << clctComp << " " << endl;
             }
@@ -279,11 +280,8 @@ void CSCStubMatcher::matchLCTsToSimTrack(const CSCCorrelatedLCTDigiCollection& l
       if (verboseLCT_) {
         cout << ch_id << " " << ch_id2 << endl;
         cout << lct << endl;
-        cout << "getCLCT " << lct.getCLCT()
-             << "\ngetALCT " << lct.getALCT()
-             << "\ngetGEM1 " << lct.getGEM1()
-             << "\ngetGEM2 " << lct.getGEM2()
-             << endl;
+        cout << "getCLCT " << lct.getCLCT() << "\ngetALCT " << lct.getALCT() << "\ngetGEM1 " << lct.getGEM1()
+             << "\ngetGEM2 " << lct.getGEM2() << endl;
       }
       // Check if matched to an CLCT
       for (const auto& p : clctsInChamber(id)) {
@@ -315,12 +313,12 @@ void CSCStubMatcher::matchLCTsToSimTrack(const CSCCorrelatedLCTDigiCollection& l
             if (verboseLCT_)
               cout << "\t...lct_gem1_match" << endl;
             break;
-            }
+          }
         }
 
         // Check if matched to an GEM pad L2
-          const GEMDetId gemDetIdL2(ch_id.zendcap(), 1, ch_id.station(), 2, ch_id.chamber(), 0);
-          for (const auto& p : gemDigiMatcher_->padsInChamber(gemDetIdL2.rawId())) {
+        const GEMDetId gemDetIdL2(ch_id.zendcap(), 1, ch_id.station(), 2, ch_id.chamber(), 0);
+        for (const auto& p : gemDigiMatcher_->padsInChamber(gemDetIdL2.rawId())) {
           if (p == lct.getGEM2()) {
             lct_gem2_match = true;
             if (verboseLCT_)

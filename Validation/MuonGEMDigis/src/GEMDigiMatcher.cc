@@ -141,7 +141,6 @@ void GEMDigiMatcher::matchClustersToSimTrack(const GEMPadDigiClusterCollection& 
     auto clusters_in_det = clusters.get(p_id);
 
     for (auto cluster = clusters_in_det.first; cluster != clusters_in_det.second; ++cluster) {
-
       bool isMatched;
 
       if (verbosePad_)
@@ -173,15 +172,12 @@ void GEMDigiMatcher::matchClustersToSimTrack(const GEMPadDigiClusterCollection& 
 }
 
 void GEMDigiMatcher::matchCoPadsToSimTrack(const GEMCoPadDigiCollection& co_pads) {
-
   // loop on the GEM detids
   for (auto detUnitIt = co_pads.begin(); detUnitIt != co_pads.end(); ++detUnitIt) {
-
     const GEMDetId& id = (*detUnitIt).first;
     const auto& co_pads_in_det = (*detUnitIt).second;
 
     for (auto copad = co_pads_in_det.first; copad != co_pads_in_det.second; ++copad) {
-
       // check that the cluster BX is within the range
       if (copad->bx(1) < minBXCoPad_ || copad->bx(1) > maxBXCoPad_)
         continue;
@@ -195,14 +191,14 @@ void GEMDigiMatcher::matchCoPadsToSimTrack(const GEMCoPadDigiCollection& co_pads
         cout << "GEMCoPadDigi: " << id << " " << *copad << endl;
 
       // first pad is tightly matched
-      for (const auto& p: padsInDetId(gemL1_id.rawId())) {
+      for (const auto& p : padsInDetId(gemL1_id.rawId())) {
         if (p == copad->first()) {
           isMatchedL1 = true;
         }
       }
 
       // second pad can only be loosely matched
-      for (const auto& p: padsInChamber(gemL2_id.rawId())) {
+      for (const auto& p : padsInChamber(gemL2_id.rawId())) {
         if (p == copad->second()) {
           isMatchedL2 = true;
         }
