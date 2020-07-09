@@ -194,10 +194,10 @@ IPProducer<Container, Base, Helper>::IPProducer(const edm::ParameterSet& iConfig
   m_calibrationCacheId2D = 0;
 
   token_primaryVertex = consumes<reco::VertexCollection>(m_config.getParameter<edm::InputTag>("primaryVertex"));
-  token_trackBuilder = esConsumes<TransientTrackBuilder, TransientTrackRecord>(edm::ESInputTag("","TransientTrackBuilder"));
+  token_trackBuilder =
+      esConsumes<TransientTrackBuilder, TransientTrackRecord>(edm::ESInputTag("", "TransientTrackBuilder"));
   token_calib2D = esConsumes<TrackProbabilityCalibration, BTagTrackProbability2DRcd>();
   token_calib3D = esConsumes<TrackProbabilityCalibration, BTagTrackProbability3DRcd>();
-
 
   m_computeProbabilities = m_config.getParameter<bool>("computeProbabilities");
   m_computeGhostTrack = m_config.getParameter<bool>("computeGhostTrack");
