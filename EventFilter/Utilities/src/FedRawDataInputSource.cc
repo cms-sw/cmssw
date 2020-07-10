@@ -977,7 +977,7 @@ void FedRawDataInputSource::readSupervisor() {
       if (useFileBroker_ || rawHeaderSize)
         rawFile = nextFile;
       else {
-        boost::filesystem::path rawFilePath(nextFile);
+        std::filesystem::path rawFilePath(nextFile);
         rawFile = rawFilePath.replace_extension(".raw").string();
       }
 
@@ -1386,20 +1386,20 @@ InputFile::~InputFile() {
     close(rawFd_);
 
   if (deleteFile_ && !fileName_.empty()) {
-    const boost::filesystem::path filePath(fileName_);
+    const std::filesystem::path filePath(fileName_);
     try {
       //sometimes this fails but file gets deleted
       LogDebug("FedRawDataInputSource:InputFile") << "Deleting input file -:" << fileName_;
-      boost::filesystem::remove(filePath);
+      std::filesystem::remove(filePath);
       return;
-    } catch (const boost::filesystem::filesystem_error& ex) {
+    } catch (const std::filesystem::filesystem_error& ex) {
       edm::LogError("FedRawDataInputSource:InputFile")
           << " - deleteFile BOOST FILESYSTEM ERROR CAUGHT -: " << ex.what() << ". Trying again.";
     } catch (std::exception& ex) {
       edm::LogError("FedRawDataInputSource:InputFile")
           << " - deleteFile std::exception CAUGHT -: " << ex.what() << ". Trying again.";
     }
-    boost::filesystem::remove(filePath);
+    std::filesystem::remove(filePath);
   }
 }
 
@@ -1507,7 +1507,7 @@ long FedRawDataInputSource::initFileList() {
 
   if (!fileNames_.empty()) {
     //get run number from first file in the vector
-    boost::filesystem::path fileName = fileNames_[0];
+    std::filesystem::path fileName = fileNames_[0];
     std::string fileStem = fileName.stem().string();
     auto end = fileStem.find("_");
     if (fileStem.find("run") == 0) {
@@ -1536,7 +1536,7 @@ evf::EvFDaqDirector::FileStatus FedRawDataInputSource::getFile(unsigned int& ls,
       nextFile = nextFile.substr(7);
     else if (nextFile.find("file:") == 0)
       nextFile = nextFile.substr(5);
-    boost::filesystem::path fileName = nextFile;
+    std::filesystem::path fileName = nextFile;
     std::string fileStem = fileName.stem().string();
     if (fileStem.find("ls"))
       fileStem = fileStem.substr(fileStem.find("ls") + 2);
