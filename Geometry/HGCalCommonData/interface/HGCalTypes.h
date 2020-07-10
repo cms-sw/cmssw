@@ -64,13 +64,12 @@ public:
 
   enum TileSiPMType { SiPMUnknown = 0, SiPMSmall = 2, SiPMLarge = 4 };
 
-  static int32_t packTypeUV (int type, int u, int v);
-  static int32_t getUnpackedType (int id);
-  static int32_t getUnpackedU (int id);
-  static int32_t getUnpackedV (int id);
+  static int32_t packTypeUV(int type, int u, int v);
+  static int32_t getUnpackedType(int id);
+  static int32_t getUnpackedU(int id);
+  static int32_t getUnpackedV(int id);
 
 private:
-
   static constexpr int32_t facu_ = 1;
   static constexpr int32_t facv_ = 100;
   static constexpr int32_t factype_ = 1000000;

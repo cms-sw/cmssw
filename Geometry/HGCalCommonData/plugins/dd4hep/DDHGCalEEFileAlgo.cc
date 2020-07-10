@@ -293,7 +293,7 @@ struct HGCalEEFileAlgo {
     for (int u = -N; u <= N; ++u) {
       for (int v = -N; v <= N; ++v) {
 #ifdef EDM_ML_DEBUG
-	int iu = std::abs(u);
+        int iu = std::abs(u);
         int iv = std::abs(v);
 #endif
         int nr = 2 * v;
@@ -311,7 +311,7 @@ struct HGCalEEFileAlgo {
 #endif
         int type = HGCalWaferType::getType(HGCalWaferIndex::waferIndex(layer, u, v, false), waferIndex, waferTypes);
         if (corner.first > 0 && type >= 0) {
-          int copy = HGCalTypes::packTypeUV (type, u, v);
+          int copy = HGCalTypes::packTypeUV(type, u, v);
 #ifdef EDM_ML_DEBUG
           if (iu > ium)
             ium = iu;
