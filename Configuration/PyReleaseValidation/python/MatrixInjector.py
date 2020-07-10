@@ -279,24 +279,12 @@ class MatrixInjector(object):
             wmsplit['HYBRIDZSHI2015']=1
             wmsplit['RECOHID15']=1
             wmsplit['RECOHID18']=1
-            wmsplit['DigiFullTriggerPU_2026D49PU'] = 1
-            wmsplit['RecoFullGlobalPU_2026D49PU']=1
-            wmsplit['DigiFullTriggerPU_2026D50PU'] = 1
-            wmsplit['RecoFullGlobalPU_2026D50PU']=1
-            wmsplit['DigiFullTriggerPU_2026D51PU'] = 1
-            wmsplit['RecoFullGlobalPU_2026D51PU']=1
-            wmsplit['DigiFullTriggerPU_2026D52PU'] = 1	
-            wmsplit['RecoFullGlobalPU_2026D52PU']=1           
-            wmsplit['DigiFullTriggerPU_2026D57PU'] = 1	
-            wmsplit['RecoFullGlobalPU_2026D57PU']=1           
-            wmsplit['DigiFullTriggerPU_2026D58PU'] = 1	
-            wmsplit['RecoFullGlobalPU_2026D58PU']=1           
-            wmsplit['DigiFullTriggerPU_2026D59PU'] = 1	
-            wmsplit['RecoFullGlobalPU_2026D59PU']=1           
-            wmsplit['DigiFullTriggerPU_2026D60PU'] = 1	
-            wmsplit['RecoFullGlobalPU_2026D60PU']=1           
-            wmsplit['DigiFullTriggerPU_2026D61PU'] = 1	
-            wmsplit['RecoFullGlobalPU_2026D61PU']=1           
+            # automate for phase 2
+            from .upgradeWorkflowComponents import upgradeKeys
+            for key in upgradeKeys[2026]:
+                if not "PU" in key: continue
+                wmsplit['DigiFullTriggerPU_'+key] = 1
+                wmsplit['RecoFullGlobalPU_'+key] = 1
                          
             #import pprint
             #pprint.pprint(wmsplit)            
