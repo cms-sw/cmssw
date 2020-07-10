@@ -82,7 +82,7 @@ void TTStubBuilder<Ref_Phase2TrackerDigi_>::updateStubs(
       outputFiller.push_back(tempTTStub);
 
     }  /// End of loop over stubs of this module
-  }  /// End of loop over stub DetSetVector
+  }    /// End of loop over stub DetSetVector
 }
 
 /// Implement the producer
@@ -301,8 +301,8 @@ void TTStubBuilder<Ref_Phase2TrackerDigi_>::produce(edm::Event& iEvent, const ed
 
           } else {
             /// TO FIX: The maxStub stubs with lowest |bend| are retained. This algo considers all stubs
-	    /// since the last multiple of 8 events, (i.e. in 1-8 events), whereas true CIC chip considers
-	    /// all stubs in current block of 8 events (i.e. always in 8 events). So may be optimistic.
+            /// since the last multiple of 8 events, (i.e. in 1-8 events), whereas true CIC chip considers
+            /// all stubs in current block of 8 events (i.e. always in 8 events). So may be optimistic.
 
             /// Sort stubs by |bend|.
             bendMap.clear();

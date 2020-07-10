@@ -98,8 +98,8 @@ private:
   // (Unlike TkLayout, CMSSW starts ring count at 1 for the innermost physically present ring in each disk)
   // sviret comment (221217): this info should be made available in conddb at some point
   // (not in TrackerTopology, as modules may switch between 10G & 5G transmission schems during running?)
-  unsigned int high_rate_max_ring[5]; //Outermost ring with 10Gb/s link vs disk.
-  unsigned int high_rate_max_layer; // Outermost barrel layer with 10Gb/s link.
+  unsigned int high_rate_max_ring[5];  //Outermost ring with 10Gb/s link vs disk.
+  unsigned int high_rate_max_layer;    // Outermost barrel layer with 10Gb/s link.
 
   /// Temporary storage for stubs over several events for truncation use.
   int ievt;
