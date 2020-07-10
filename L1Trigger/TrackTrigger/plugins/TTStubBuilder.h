@@ -9,7 +9,8 @@
 * \author Andrew W. Rose
 * \author Nicola Pozzobon
 * \author Ivan Reid
-* \date 2013, Jul 18
+* \author Ian Tomalin
+* \date 2013 - 2020
 *
 */
 
@@ -48,10 +49,13 @@ public:
   /// Destructor;
   ~TTStubBuilder() override;
 
+  // TTStub bendOffset has this added to it, if stub truncated by FE, to indicate reason.
+  enum FEreject { CBCFailOffset = 500, CICFailOffset = 1000 };
+
 private:
   /// Data members
-  edm::ESHandle<TTStubAlgorithm<T> > theStubFindingAlgoHandle;
-  edm::EDGetTokenT<edmNew::DetSetVector<TTCluster<T> > > clustersToken;
+  edm::ESHandle<TTStubAlgorithm<T>> theStubFindingAlgoHandle;
+  edm::EDGetTokenT<edmNew::DetSetVector<TTCluster<T>>> clustersToken;
   bool ForbidMultipleStubs;
 
   /// Mandatory methods
@@ -65,35 +69,43 @@ private:
                                 const std::pair<unsigned int, double>& right);
   static bool SortStubsBend(const TTStub<T>& left, const TTStub<T>& right);
 
-  // FE stub extraction limits (only for experts, not used by default)
+  /// Fill output cluster & stub collections.
+  template <typename TT>
+  void fill(edmNew::DetSetVector<TT>& outputEP, const DetId& detId, const std::vector<TT>& inputVec) const {
+    /// Create the FastFiller
+    typename edmNew::DetSetVector<TT>::FastFiller outputFiller(outputEP, detId);
+    outputFiller.resize(inputVec.size());
+    std::copy(inputVec.begin(), inputVec.end(), outputFiller.begin());
+  }
 
-  bool applyFE;  // Turn ON (true) or OFF (false) the dynamic FE inefficiency accounting
-                 // OFF is by default, ON is for experts only
+  /// Update output stubs with Refs to cluster collection that is associated to stubs.
+  void updateStubs(const edm::OrphanHandle<edmNew::DetSetVector<TTCluster<Ref_Phase2TrackerDigi_>>>& clusterHandle,
+                   const edmNew::DetSetVector<TTStub<Ref_Phase2TrackerDigi_>>& inputEDstubs,
+                   edmNew::DetSetVector<TTStub<Ref_Phase2TrackerDigi_>>& outputEDstubs) const;
 
+  /// FE truncation
+
+  bool applyFE;  // Turn ON (true) or OFF (false) the dynamic FE stub truncation.
+
+  // Tuncation cut-offs
   unsigned int maxStubs_2S;         // CBC chip limit (in stubs/chip/BX)
   unsigned int maxStubs_PS;         // MPA chip limit (in stubs/chip/2BX)
   unsigned int maxStubs_2S_CIC_5;   // 2S 5G chip limit (in stubs/CIC/8BX)
   unsigned int maxStubs_PS_CIC_5;   // PS 5G chip limit (in stubs/CIC/8BX)
   unsigned int maxStubs_PS_CIC_10;  // PS 10G chip limit (in stubs/CIC/8BX)
 
-  unsigned int tedd1_maxring;  // PS 10G outermost ring in TEDD1 (default is 3)
-  unsigned int tedd2_maxring;  // PS 10G outermost ring in TEDD2 (default is 0)
+  // Which modules read by 10Gb/s links instead of 5Gb/s
+  // (Unlike TkLayout, CMSSW starts ring count at 1 for the innermost physically present ring in each disk)
+  // sviret comment (221217): this info should be made available in conddb at some point
+  // (not in TrackerTopology, as modules may switch between 10G & 5G transmission schems during running?)
+  unsigned int high_rate_max_ring[5]; //Outermost ring with 10Gb/s link vs disk.
+  unsigned int high_rate_max_layer; // Outermost barrel layer with 10Gb/s link.
 
+  /// Temporary storage for stubs over several events for truncation use.
   int ievt;
-
-  /// Temporary storage for stubs before max check
-
-  std::unordered_map<int, std::vector<TTStub<Ref_Phase2TrackerDigi_> > > moduleStubs_CIC;
+  std::unordered_map<int, std::vector<TTStub<Ref_Phase2TrackerDigi_>>> moduleStubs_CIC;
   std::unordered_map<int, int> moduleStubs_MPA;
   std::unordered_map<int, int> moduleStubs_CBC;
-
-  // Which disk rings are in 10G transmission scheme module
-  //
-  // sviret comment (221217): this info should be made available in conddb at some point
-  // not in TrackerTopology as some modules may switch between 10G and 5G transmission
-  // schemes during running period
-
-  unsigned int high_rate_max_ring[5];
 
 };  /// Close class
 
@@ -107,7 +119,7 @@ private:
 /// Constructors
 template <typename T>
 TTStubBuilder<T>::TTStubBuilder(const edm::ParameterSet& iConfig) {
-  clustersToken = consumes<edmNew::DetSetVector<TTCluster<T> > >(iConfig.getParameter<edm::InputTag>("TTClusters"));
+  clustersToken = consumes<edmNew::DetSetVector<TTCluster<T>>>(iConfig.getParameter<edm::InputTag>("TTClusters"));
   ForbidMultipleStubs = iConfig.getParameter<bool>("OnlyOnePerInputCluster");
   applyFE = iConfig.getParameter<bool>("FEineffs");
   maxStubs_2S = iConfig.getParameter<uint32_t>("CBClimit");
@@ -115,17 +127,20 @@ TTStubBuilder<T>::TTStubBuilder(const edm::ParameterSet& iConfig) {
   maxStubs_2S_CIC_5 = iConfig.getParameter<uint32_t>("SS5GCIClimit");
   maxStubs_PS_CIC_5 = iConfig.getParameter<uint32_t>("PS5GCIClimit");
   maxStubs_PS_CIC_10 = iConfig.getParameter<uint32_t>("PS10GCIClimit");
-  tedd1_maxring = iConfig.getParameter<uint32_t>("TEDD1Max10GRing");
-  tedd2_maxring = iConfig.getParameter<uint32_t>("TEDD2Max10GRing");
-  produces<edmNew::DetSetVector<TTCluster<T> > >("ClusterAccepted");
-  produces<edmNew::DetSetVector<TTStub<T> > >("StubAccepted");
-  produces<edmNew::DetSetVector<TTStub<T> > >("StubRejected");
+  unsigned int tedd1_max10Gring = iConfig.getParameter<uint32_t>("TEDD1Max10GRing");
+  unsigned int tedd2_max10Gring = iConfig.getParameter<uint32_t>("TEDD2Max10GRing");
+  high_rate_max_layer = iConfig.getParameter<uint32_t>("BarrelMax10GLay");
+  // Stubs passing & failing FE chip cuts, plus associated clusters.
+  produces<edmNew::DetSetVector<TTCluster<T>>>("ClusterAccepted");
+  produces<edmNew::DetSetVector<TTCluster<T>>>("ClusterRejected");
+  produces<edmNew::DetSetVector<TTStub<T>>>("StubAccepted");
+  produces<edmNew::DetSetVector<TTStub<T>>>("StubRejected");
 
-  high_rate_max_ring[0] = tedd1_maxring;
-  high_rate_max_ring[1] = tedd1_maxring;
-  high_rate_max_ring[2] = tedd2_maxring;
-  high_rate_max_ring[3] = tedd2_maxring;
-  high_rate_max_ring[4] = tedd2_maxring;
+  high_rate_max_ring[0] = tedd1_max10Gring;
+  high_rate_max_ring[1] = tedd1_max10Gring;
+  high_rate_max_ring[2] = tedd2_max10Gring;
+  high_rate_max_ring[3] = tedd2_max10Gring;
+  high_rate_max_ring[4] = tedd2_max10Gring;
 }
 
 /// Destructor
