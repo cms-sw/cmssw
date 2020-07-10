@@ -22,6 +22,7 @@
 #include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Utilities/interface/StreamID.h"
 #include "FWCore/Utilities/interface/EDGetToken.h"
+#include "RecoHI/HiEvtPlaneAlgos/interface/HiEvtPlaneList.h"
 
 #include "TF1.h"
 #include "TH1.h"
@@ -38,7 +39,7 @@
 namespace {
   double lineFunction(double* x, double* par) { return par[0]; }
   double flowFunction(double* x, double* par) {
-    return par[0] * (1. + 2. * (par[1] * TMath::Cos(2. * (x[0] - par[2])) + par[3] * TMath::Cos(3. * (x[0] - par[4]))));
+    return par[0] * (1. + 2. * (par[1] * std::cos(2. * (x[0] - par[2])) + par[3] * std::cos(3. * (x[0] - par[4]))));
   }
 };  // namespace
 
@@ -54,45 +55,45 @@ private:
   const bool doFreePlaneFit_;
   const bool doJettyExclusion_;
   const int evtPlaneLevel_;
-  edm::EDGetTokenT<reco::JetView> jetTag_;
+  const edm::EDGetTokenT<reco::JetView> jetToken_;
   const edm::EDGetTokenT<reco::PFCandidateCollection> pfCandsToken_;
   const edm::EDGetTokenT<reco::EvtPlaneCollection> evtPlaneToken_;
-  static constexpr int kMaxEvtPlane = 1000;
-  std::array<float, kMaxEvtPlane> hiEvtPlane_;
-  std::unique_ptr<TF1> lineFit_p;
-  std::unique_ptr<TF1> flowFit_p;
-  int nPhiBins;
+  std::unique_ptr<TF1> lineFit_p_;
+  std::unique_ptr<TF1> flowFit_p_;
 };
 HiFJRhoFlowModulationProducer::HiFJRhoFlowModulationProducer(const edm::ParameterSet& iConfig)
     : doEvtPlane_(iConfig.getParameter<bool>("doEvtPlane")),
       doFreePlaneFit_(iConfig.getParameter<bool>("doFreePlaneFit")),
       doJettyExclusion_(iConfig.getParameter<bool>("doJettyExclusion")),
       evtPlaneLevel_(iConfig.getParameter<int>("evtPlaneLevel")),
+      jetToken_(doJettyExclusion_ ? consumes<reco::JetView>(iConfig.getParameter<edm::InputTag>("jetTag"))
+                                  : edm::EDGetTokenT<reco::JetView>()),
       pfCandsToken_(consumes<reco::PFCandidateCollection>(iConfig.getParameter<edm::InputTag>("pfCandSource"))),
       evtPlaneToken_(consumes<reco::EvtPlaneCollection>(iConfig.getParameter<edm::InputTag>("EvtPlane"))) {
-  if (doJettyExclusion_)
-    jetTag_ = consumes<reco::JetView>(iConfig.getParameter<edm::InputTag>("jetTag"));
   produces<std::vector<double>>("rhoFlowFitParams");
   TMinuitMinimizer::UseStaticMinuit(false);
-  lineFit_p = std::unique_ptr<TF1>(new TF1("lineFit", lineFunction, -TMath::Pi(), TMath::Pi()));
-  flowFit_p = std::unique_ptr<TF1>(new TF1("flowFit", flowFunction, -TMath::Pi(), TMath::Pi()));
+  lineFit_p_ = std::unique_ptr<TF1>(new TF1("lineFit", lineFunction, -TMath::Pi(), TMath::Pi()));
+  flowFit_p_ = std::unique_ptr<TF1>(new TF1("flowFit", flowFunction, -TMath::Pi(), TMath::Pi()));
 }
 
 // ------------ method called to produce the data  ------------
 void HiFJRhoFlowModulationProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
+  int nPhiBins = 10;
   auto const& pfCands = iEvent.get(pfCandsToken_);
+  static constexpr int kMaxEvtPlane = 29;
+  std::array<float, kMaxEvtPlane> hiEvtPlane;
 
   if (doEvtPlane_) {
     auto const& evtPlanes = iEvent.get(evtPlaneToken_);
-    assert(evtPlanes.size() < kMaxEvtPlane);
-    std::transform(evtPlanes.begin(), evtPlanes.end(), hiEvtPlane_.begin(), [this](auto const& ePlane) -> float {
+    assert(evtPlanes.size() == hi::NumEPNames);
+    std::transform(evtPlanes.begin(), evtPlanes.end(), hiEvtPlane.begin(), [this](auto const& ePlane) -> float {
       return ePlane.angle(evtPlaneLevel_);
     });
   }
 
   edm::Handle<reco::JetView> jets;
   if (doJettyExclusion_)
-    iEvent.getByToken(jetTag_, jets);
+    iEvent.getByToken(jetToken_, jets);
 
   int nFill = 0;
 
@@ -114,26 +115,12 @@ void HiFJRhoFlowModulationProducer::produce(edm::Event& iEvent, const edm::Event
   double eventPlane3Cos = 0;
   double eventPlane3Sin = 0;
 
-  std::vector<bool> pfcuts;
+  std::vector<bool> pfcuts(pfCands.size(), false);
+  int iCand = -1;
   for (auto const& pfCandidate : pfCands) {
-    if (pfCandidate.particleId() != 1) {
-      pfcuts.push_back(false);
-      continue;
-    }
-    if (pfCandidate.eta() < -1.0) {
-      pfcuts.push_back(false);
-      continue;
-    }
-    if (pfCandidate.eta() > 1.0) {
-      pfcuts.push_back(false);
-      continue;
-    }
-    if (pfCandidate.pt() < .3) {
-      pfcuts.push_back(false);
-      continue;
-    }
-    if (pfCandidate.pt() > 3.) {
-      pfcuts.push_back(false);
+    iCand++;
+    if (pfCandidate.particleId() != 1 || std::abs(pfCandidate.eta()) > 1.0 || pfCandidate.pt() < .3 ||
+        pfCandidate.pt() > 3.) {
       continue;
     }
 
@@ -146,13 +133,12 @@ void HiFJRhoFlowModulationProducer::produce(edm::Event& iEvent, const edm::Event
         }
       }
       if (!isGood) {
-        pfcuts.push_back(false);
         continue;
       }
     }
 
     nFill++;
-    pfcuts.push_back(true);
+    pfcuts[iCand] = true;
 
     if (!doEvtPlane_) {
       eventPlane2Cos += std::cos(2 * pfCandidate.phi());
@@ -167,8 +153,8 @@ void HiFJRhoFlowModulationProducer::produce(edm::Event& iEvent, const edm::Event
     eventPlane2 = std::atan2(eventPlane2Sin, eventPlane2Cos) / 2.;
     eventPlane3 = std::atan2(eventPlane3Sin, eventPlane3Cos) / 3.;
   } else {
-    eventPlane2 = hiEvtPlane_[8];
-    eventPlane3 = hiEvtPlane_[15];
+    eventPlane2 = hiEvtPlane[hi::HF2];
+    eventPlane3 = hiEvtPlane[hi::HF3];
   }
   int pfcuts_count = 0;
   if (nFill >= 100 && eventPlane2 > -99) {
@@ -176,39 +162,40 @@ void HiFJRhoFlowModulationProducer::produce(edm::Event& iEvent, const edm::Event
 
     std::string name = "phiTestIEta4_" + std::to_string(iEvent.id().event()) + "_h";
     std::string nameFlat = "phiTestIEta4_Flat_" + std::to_string(iEvent.id().event()) + "_h";
-    TH1F* phi_h = new TH1F(name.data(), "", nPhiBins, -TMath::Pi(), TMath::Pi());
+    std::unique_ptr<TH1F> phi_h = std::make_unique<TH1F>(name.data(), "", nPhiBins, -TMath::Pi(), TMath::Pi());
+    phi_h->SetDirectory(nullptr);
     for (auto const& pfCandidate : pfCands) {
       if (pfcuts.at(pfcuts_count))
         phi_h->Fill(pfCandidate.phi());
       pfcuts_count++;
     }
-    flowFit_p->SetParameter(0, 10);
-    flowFit_p->SetParameter(1, 0);
-    flowFit_p->SetParameter(2, eventPlane2);
-    flowFit_p->SetParameter(3, 0);
-    flowFit_p->SetParameter(4, eventPlane3);
+    flowFit_p_->SetParameter(0, 10);
+    flowFit_p_->SetParameter(1, 0);
+    flowFit_p_->SetParameter(2, eventPlane2);
+    flowFit_p_->SetParameter(3, 0);
+    flowFit_p_->SetParameter(4, eventPlane3);
     if (!doFreePlaneFit_) {
-      flowFit_p->FixParameter(2, eventPlane2);
-      flowFit_p->FixParameter(4, eventPlane3);
+      flowFit_p_->FixParameter(2, eventPlane2);
+      flowFit_p_->FixParameter(4, eventPlane3);
     }
 
-    lineFit_p->SetParameter(0, 10);
+    lineFit_p_->SetParameter(0, 10);
 
-    phi_h->Fit(flowFit_p.get(), "Q SERIAL", "", -TMath::Pi(), TMath::Pi());
-    phi_h->Fit(lineFit_p.get(), "Q SERIAL", "", -TMath::Pi(), TMath::Pi());
-    rhoFlowFitParamsOut->at(0) = flowFit_p->GetParameter(0);
-    rhoFlowFitParamsOut->at(1) = flowFit_p->GetParameter(1);
-    rhoFlowFitParamsOut->at(2) = flowFit_p->GetParameter(2);
-    rhoFlowFitParamsOut->at(3) = flowFit_p->GetParameter(3);
-    rhoFlowFitParamsOut->at(4) = flowFit_p->GetParameter(4);
+    phi_h->Fit(flowFit_p_.get(), "Q SERIAL", "", -TMath::Pi(), TMath::Pi());
+    phi_h->Fit(lineFit_p_.get(), "Q SERIAL", "", -TMath::Pi(), TMath::Pi());
+    rhoFlowFitParamsOut->at(0) = flowFit_p_->GetParameter(0);
+    rhoFlowFitParamsOut->at(1) = flowFit_p_->GetParameter(1);
+    rhoFlowFitParamsOut->at(2) = flowFit_p_->GetParameter(2);
+    rhoFlowFitParamsOut->at(3) = flowFit_p_->GetParameter(3);
+    rhoFlowFitParamsOut->at(4) = flowFit_p_->GetParameter(4);
 
-    rhoFlowFitParamsOut->at(5) = flowFit_p->GetChisquare();
-    rhoFlowFitParamsOut->at(6) = flowFit_p->GetNDF();
+    rhoFlowFitParamsOut->at(5) = flowFit_p_->GetChisquare();
+    rhoFlowFitParamsOut->at(6) = flowFit_p_->GetNDF();
 
-    rhoFlowFitParamsOut->at(7) = lineFit_p->GetChisquare();
-    rhoFlowFitParamsOut->at(8) = lineFit_p->GetNDF();
+    rhoFlowFitParamsOut->at(7) = lineFit_p_->GetChisquare();
+    rhoFlowFitParamsOut->at(8) = lineFit_p_->GetNDF();
 
-    delete phi_h;
+    phi_h.reset();
     pfcuts.clear();
   }
 
