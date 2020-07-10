@@ -44,6 +44,13 @@ namespace edm {
       return *this;
     }
 
+    template <typename... Args>
+    MessageSender& printf(std::string_view fmt, Args const&... args) {
+      if (valid())
+        errorobj_p->printf(fmt, args...);
+      return *this;
+    }
+
     bool valid() const noexcept { return errorobj_p != nullptr; }
 
   private:

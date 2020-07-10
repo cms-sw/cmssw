@@ -36,6 +36,14 @@ namespace edmtest {
     edm::LogWarning("cat_A").format("Test of format precision: Pi with precision 12 is {:.12g}", d);
     edm::LogWarning("cat_A").format(
         "Test of format spacing: The following should read a b cc: {} {:+>} {:>2}", "a", "b", "cc");
+
+    edm::LogWarning("cat_A").printf("Test of printf hex: %d in hex is %x", i, i);
+    edm::LogWarning("cat_A")
+        .printf("Test of printf fill and width: ")
+        .printf("The following should read   abcdefg 00012: %9s %05d", "abcdefg", 12);
+    edm::LogWarning("cat_A").printf("Test of printf precision: Pi with precision 12 is %.12g", d);
+    edm::LogWarning("cat_A").printf(
+        "Test of printf spacing: The following should read a b cc: %-2s%s%3s", "a", "b", "cc");
   }
 
 }  // namespace edmtest

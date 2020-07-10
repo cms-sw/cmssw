@@ -15,6 +15,7 @@
 #include <sstream>
 
 #include "fmt/ostream.h"
+#include "fmt/printf.h"
 
 namespace edm {
 
@@ -59,6 +60,14 @@ namespace edm {
   template <typename... Args>
   inline ErrorObj& ErrorObj::format(std::string_view fmt, Args const&... args) {
     auto str = fmt::format(fmt, args...);
+    if (!str.empty())
+      emitToken(str);
+    return *this;
+  }
+
+  template <typename... Args>
+  inline ErrorObj& ErrorObj::printf(std::string_view fmt, Args const&... args) {
+    auto str = fmt::sprintf(fmt, args...);
     if (!str.empty())
       emitToken(str);
     return *this;
