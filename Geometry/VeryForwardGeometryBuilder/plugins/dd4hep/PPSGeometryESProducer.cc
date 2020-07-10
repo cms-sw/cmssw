@@ -67,6 +67,7 @@ public:
   ~PPSGeometryESProducer() override {}
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+  static void buildDetGeomDesc(cms::DDFilteredView* fv, DetGeomDesc* gd);
 
 private:
   std::unique_ptr<DetGeomDesc> produceIdealGD(const IdealGeometryRecord&);
@@ -95,7 +96,6 @@ private:
                                          const char* name);
 
   static void applyAlignments(const DetGeomDesc&, const CTPPSRPAlignmentCorrectionsData*, DetGeomDesc*&);
-  static void buildDetGeomDesc(cms::DDFilteredView* fv, DetGeomDesc* gd);
 
   const unsigned int verbosity_;
   const edm::ESGetToken<cms::DDDetector, IdealGeometryRecord> detectorToken_;
@@ -195,13 +195,18 @@ void PPSGeometryESProducer::buildDetGeomDesc(cms::DDFilteredView* fv, DetGeomDes
     DetGeomDesc* newGD = new DetGeomDesc(fv);
     
     // Temporary fix for dimensions from DD4Hep standard 'cm' to DD standard 'mm'
-    double cm2mm = 10.;
-    Translation gtrans = newGD->translation();
-    newGD->setTranslation(gtrans.x()*cm2mm, gtrans.y()*cm2mm, gtrans.z()*cm2mm);
-    float zpar = newGD->parentZPosition();
-    newGD->setParentZPosition(zpar*cm2mm);
+    //double cm2mm = 10.;
+    // Translation gtrans = newGD->translation();
+    //newGD->setTranslation(gtrans.x()*cm2mm, gtrans.y()*cm2mm, gtrans.z()*cm2mm);
+    //float zpar = newGD->parentZPosition();
+    //newGD->setParentZPosition(zpar*cm2mm);
     // End of fix
 
+
+
+
+
+    /*
     std::string name(fv->name());
 
     // strip sensors
@@ -313,7 +318,7 @@ void PPSGeometryESProducer::buildDetGeomDesc(cms::DDFilteredView* fv, DetGeomDes
       const unsigned int rp = 6;
 
       newGD->setGeographicalID(CTPPSDiamondDetId(arm, station, rp));
-    }
+    }*/
 
     // add component
     gd->addComponent(newGD);

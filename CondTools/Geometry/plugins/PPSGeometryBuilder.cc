@@ -26,6 +26,7 @@
 #include "DetectorDescription/DDCMS/interface/DDFilteredView.h"
 #include "DetectorDescription/DDCMS/interface/DDTranslation.h"
 #include "DetectorDescription/DDCMS/interface/DDRotationMatrix.h"
+#include "Geometry/VeryForwardGeometryBuilder/plugins/dd4hep/PPSGeometryESProducer.cc"
 
 #include "DataFormats/CTPPSDetId/interface/TotemRPDetId.h"
 #include "DataFormats/CTPPSDetId/interface/TotemTimingDetId.h"
@@ -42,6 +43,7 @@
 
 
 using namespace cms_units::operators;
+class PPSGeometryESProducer;
 
 //----------------------------------------------------------------------------------------------------
 
@@ -51,8 +53,9 @@ public:
   void analyze(const edm::Event&, const edm::EventSetup&) override;
 
 private:
-  void buildPDetGeomDesc(cms::DDFilteredView*, PDetGeomDesc*);
-  uint32_t getGeographicalID(cms::DDFilteredView*);
+void buildPDetFromDetGeomDesc(DetGeomDesc* geoInfo, PDetGeomDesc* gd);
+void buildPDetGeomDesc(cms::DDFilteredView*, PDetGeomDesc*);
+uint32_t getGeographicalID(cms::DDFilteredView*);
 
   std::string compactViewTag_;
   edm::ESWatcher<IdealGeometryRecord> watcherIdealGeometry_;
@@ -112,10 +115,19 @@ void PPSGeometryBuilder::analyze(const edm::Event& iEvent, const edm::EventSetup
   }
 
 
+
+  // conversion to DetGeomDesc structure
+  auto root = std::make_unique<DetGeomDesc>(&fv);
+  PPSGeometryESProducer::buildDetGeomDesc(&fv, root.get());
+
+
   // Persistent geometry data
   PDetGeomDesc* pdet = new PDetGeomDesc;
   // Build geometry
-  buildPDetGeomDesc(&fv, pdet);
+  buildPDetFromDetGeomDesc(root.get(), pdet);
+
+
+
 
   // Save geometry in the database
   if (pdet->container_.empty()) {
@@ -127,9 +139,52 @@ void PPSGeometryBuilder::analyze(const edm::Event& iEvent, const edm::EventSetup
       throw cms::Exception("PoolDBService required.");
     }
   }
-
   return;
 }
+
+
+void PPSGeometryBuilder::buildPDetFromDetGeomDesc(DetGeomDesc* geoInfo, PDetGeomDesc* gd) {
+
+  PDetGeomDesc::Item item(geoInfo);
+  std::cout << " " << std::endl;
+  std::cout << " " << std::endl;
+  std::cout << " " << std::endl;
+  std::cout << "!!!!!!!!!!!!!!!!    item.name_ = " << item.name_ << std::endl;
+  std::cout << "item.copy_ = " << item.copy_ << std::endl;
+  std::cout << "item.geographicalID_ = " << item.geographicalID_ << std::endl;
+  std::cout << "item.z_ = " << item.z_ << std::endl;
+  //std::cout << "sensor_name = " << sensor_name << std::endl;
+  //std::cout << "item.sensorType_ = " << item.sensorType_ << std::endl;
+  std::cout << "item.dx_ = " << item.dx_ << std::endl;
+  std::cout << "item.dy_ = " << item.dy_ << std::endl;
+  std::cout << "item.dz_ = " << item.dz_ << std::endl;
+
+  
+  DDRotationMatrix rot;
+  rot.SetComponents(item.axx_, item.axy_, item.axz_, 
+		    item.ayx_, item.ayy_, item.ayz_, 
+		    item.azx_, item.azy_, item.azz_);
+  std::cout << "rot = " << rot << std::endl;
+
+
+  std::cout << "item.params_ = ";
+  for (const auto& val : item.params_) {
+    std::cout << val << " ";
+  }
+  std::cout << " " << std::endl;
+
+
+
+  gd->container_.push_back(item);
+  for (auto& child : geoInfo->components()) {
+    buildPDetFromDetGeomDesc(child, gd);
+  }
+
+
+}
+
+
+
 
 //----------------------------------------------------------------------------------------------------//----------------------------------------------------------------------------------------------------
 

@@ -103,6 +103,8 @@ private:
   void deepDeleteComponents();  /// traverses the treee and deletes all nodes.
   void clearComponents() { m_container.resize(0); }
 
+  DetId computeDetID(cms::DDFilteredView* fv);
+
   Container m_container;
   Translation m_trans;
   RotationMatrix m_rot;
