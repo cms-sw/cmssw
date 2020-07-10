@@ -53,7 +53,7 @@ public:
   void analyze(const edm::Event&, const edm::EventSetup&) override;
 
 private:
-void buildPDetFromDetGeomDesc(const DetGeomDesc* geoInfo, PDetGeomDesc* gd);
+void buildPDetFromDetGeomDesc(const DetGeomDesc* geoInfo, PDetGeomDesc* gd, int& counter);
 void buildPDetGeomDesc(cms::DDFilteredView*, PDetGeomDesc*);
 uint32_t getGeographicalID(cms::DDFilteredView*);
 
@@ -125,14 +125,15 @@ void PPSGeometryBuilder::analyze(const edm::Event& iEvent, const edm::EventSetup
 
 
   // conversion to DetGeomDesc structure
-  auto root = std::make_unique<DetGeomDesc>(&fv);
-  PPSGeometryESProducer::buildDetGeomDesc(&fv, root.get());
+  auto sentinel = std::make_unique<DetGeomDesc>(&fv);
+  PPSGeometryESProducer::buildDetGeomDesc(&fv, sentinel.get());
 
 
   // Persistent geometry data
   PDetGeomDesc* pdet = new PDetGeomDesc;
+  int counter = 0;
   // Build geometry
-  buildPDetFromDetGeomDesc(root.get(), pdet);
+  buildPDetFromDetGeomDesc(sentinel.get(), pdet, counter);
 
 
 
@@ -151,18 +152,21 @@ void PPSGeometryBuilder::analyze(const edm::Event& iEvent, const edm::EventSetup
 }
 
 
-void PPSGeometryBuilder::buildPDetFromDetGeomDesc(const DetGeomDesc* geoInfo, PDetGeomDesc* gd) {
+void PPSGeometryBuilder::buildPDetFromDetGeomDesc(const DetGeomDesc* geoInfo, PDetGeomDesc* gd, int& counter) {
 
   PDetGeomDesc::Item item(geoInfo);
-  std::cout << " " << std::endl;
+  counter++;
+
+  if (counter >= 4) {  // sentinel + OCMS + CMSE
+    //std::cout << "counter = " << counter << std::endl;
+    std::cout << " " << std::endl;
   std::cout << " " << std::endl;
   std::cout << " " << std::endl;
   std::cout << "!!!!!!!!!!!!!!!!    item.name_ = " << item.name_ << std::endl;
   std::cout << "item.copy_ = " << item.copy_ << std::endl;
   std::cout << "item.geographicalID_ = " << item.geographicalID_ << std::endl;
   std::cout << "item.z_ = " << item.z_ << std::endl;
-  //std::cout << "sensor_name = " << sensor_name << std::endl;
-  //std::cout << "item.sensorType_ = " << item.sensorType_ << std::endl;
+  std::cout << "item.sensorType_ = " << item.sensorType_ << std::endl;
   std::cout << "item.dx_ = " << item.dx_ << std::endl;
   std::cout << "item.dy_ = " << item.dy_ << std::endl;
   std::cout << "item.dz_ = " << item.dz_ << std::endl;
@@ -183,12 +187,16 @@ void PPSGeometryBuilder::buildPDetFromDetGeomDesc(const DetGeomDesc* geoInfo, PD
 
 
 
-  gd->container_.push_back(item);
-  for (auto& child : geoInfo->components()) {
-    buildPDetFromDetGeomDesc(child, gd);
+    gd->container_.emplace_back(item); 
   }
 
 
+
+
+
+  for (auto& child : geoInfo->components()) {
+    buildPDetFromDetGeomDesc(child, gd, counter);
+  }
 }
 
 

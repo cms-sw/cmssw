@@ -85,6 +85,12 @@ DetGeomDesc::DetGeomDesc(cms::DDFilteredView* fv)
     //m_z = fv->geoHistory().back().absTranslation().z();
     m_z(fv->translation().z() / 1._mm),  // Convert cm (DD4hep) to mm (legacy)
     m_sensorType("") {
+
+  std::cout << "view->copyNumbers() = ";
+  for (const auto& num : fv->copyNumbers()) {
+    std::cout << num << " ";
+  }
+
  
   //const std::string sensor_name {fv->name()};
   //const std::string sensor_name = fv->fullname();
