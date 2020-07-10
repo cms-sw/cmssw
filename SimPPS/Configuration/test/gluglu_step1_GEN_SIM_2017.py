@@ -27,7 +27,7 @@ process.load('Configuration.Geometry.GeometryExtended2017_CTPPS_cff')   # This l
 
 process.RandomNumberGeneratorService.generator.initialSeed = cms.untracked.uint32(random.randint(0,900000000))
 
-nEvent_ = 100
+nEvent_ = 1000
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(nEvent_)
 )
@@ -41,6 +41,7 @@ from Configuration.AlCa.GlobalTag import GlobalTag
 process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase1_2017_realistic', '')
 
 # beam optics
+"""
 process.CondDB.connect = 'frontier://FrontierProd/CMS_CONDITIONS'
 process.PoolDBESSource = cms.ESSource("PoolDBESSource",
     process.CondDB
@@ -61,6 +62,7 @@ process.PoolDBESSource = cms.ESSource("PoolDBESSource",
                 #)
             #)
 )
+"""
 
 
 process.generator = cms.EDFilter("ExhumeGeneratorFilter",
