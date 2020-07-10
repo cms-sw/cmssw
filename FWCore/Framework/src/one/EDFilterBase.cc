@@ -16,6 +16,7 @@
 #include "FWCore/Framework/interface/one/EDFilterBase.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/LuminosityBlock.h"
+#include "FWCore/Framework/interface/ProcessBlock.h"
 #include "FWCore/Framework/interface/Run.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/src/edmodule_mightGet_config.h"
@@ -82,6 +83,33 @@ namespace edm {
     }
     void EDFilterBase::preallocLumis(unsigned int){};
 
+    void EDFilterBase::doBeginProcessBlock(ProcessBlockPrincipal const& pbp, ModuleCallingContext const* mcc) {
+      ProcessBlock processBlock(pbp, moduleDescription_, mcc, false);
+      processBlock.setConsumer(this);
+      ProcessBlock const& constProcessBlock = processBlock;
+      this->doBeginProcessBlock_(constProcessBlock);
+      processBlock.setProducer(this);
+      this->doBeginProcessBlockProduce_(processBlock);
+      commit_(processBlock);
+    }
+
+    void EDFilterBase::doAccessInputProcessBlock(ProcessBlockPrincipal const& pbp, ModuleCallingContext const* mcc) {
+      ProcessBlock processBlock(pbp, moduleDescription_, mcc, false);
+      processBlock.setConsumer(this);
+      ProcessBlock const& constProcessBlock = processBlock;
+      this->doAccessInputProcessBlock_(constProcessBlock);
+    }
+
+    void EDFilterBase::doEndProcessBlock(ProcessBlockPrincipal const& pbp, ModuleCallingContext const* mcc) {
+      ProcessBlock processBlock(pbp, moduleDescription_, mcc, true);
+      processBlock.setConsumer(this);
+      ProcessBlock const& constProcessBlock = processBlock;
+      this->doEndProcessBlock_(constProcessBlock);
+      processBlock.setProducer(this);
+      this->doEndProcessBlockProduce_(processBlock);
+      commit_(processBlock);
+    }
+
     void EDFilterBase::doBeginRun(RunPrincipal const& rp, EventSetupImpl const& ci, ModuleCallingContext const* mcc) {
       Run r(rp, moduleDescription_, mcc, false);
       r.setConsumer(this);
@@ -146,11 +174,16 @@ namespace edm {
       //respondToCloseInputFile(fb);
     }
 
+    void EDFilterBase::doBeginProcessBlock_(ProcessBlock const&) {}
+    void EDFilterBase::doAccessInputProcessBlock_(ProcessBlock const&) {}
+    void EDFilterBase::doEndProcessBlock_(ProcessBlock const&) {}
     void EDFilterBase::doBeginRun_(Run const& rp, EventSetup const& c) {}
     void EDFilterBase::doEndRun_(Run const& rp, EventSetup const& c) {}
     void EDFilterBase::doBeginLuminosityBlock_(LuminosityBlock const& lbp, EventSetup const& c) {}
     void EDFilterBase::doEndLuminosityBlock_(LuminosityBlock const& lbp, EventSetup const& c) {}
 
+    void EDFilterBase::doBeginProcessBlockProduce_(ProcessBlock&) {}
+    void EDFilterBase::doEndProcessBlockProduce_(ProcessBlock&) {}
     void EDFilterBase::doBeginRunProduce_(Run& rp, EventSetup const& c) {}
     void EDFilterBase::doEndRunProduce_(Run& rp, EventSetup const& c) {}
     void EDFilterBase::doBeginLuminosityBlockProduce_(LuminosityBlock& lbp, EventSetup const& c) {}

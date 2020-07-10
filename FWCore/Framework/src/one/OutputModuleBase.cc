@@ -170,6 +170,11 @@ namespace edm {
                                   InputTag(desc.moduleLabel(), desc.productInstanceName(), desc.processName()));
           break;
         }
+        case InProcess: {
+          token = consumes<InProcess>(TypeToGet{desc.unwrappedTypeID(), PRODUCT_TYPE},
+                                      InputTag(desc.moduleLabel(), desc.productInstanceName(), desc.processName()));
+          break;
+        }
         default:
           assert(false);
           break;

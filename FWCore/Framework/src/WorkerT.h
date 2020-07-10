@@ -43,6 +43,8 @@ namespace edm {
 
     Types moduleType() const override;
 
+    bool wantsProcessBlocks() const final;
+    bool wantsInputProcessBlocks() const final;
     bool wantsGlobalRuns() const final;
     bool wantsGlobalLuminosityBlocks() const final;
     bool wantsStreamRuns() const final;
@@ -91,6 +93,9 @@ namespace edm {
                        WaitingTaskWithArenaHolder& holder) final;
 
     bool implDoPrePrefetchSelection(StreamID id, EventPrincipal const& ep, ModuleCallingContext const* mcc) override;
+    bool implDoBeginProcessBlock(ProcessBlockPrincipal const&, ModuleCallingContext const*) override;
+    bool implDoAccessInputProcessBlock(ProcessBlockPrincipal const&, ModuleCallingContext const*) override;
+    bool implDoEndProcessBlock(ProcessBlockPrincipal const&, ModuleCallingContext const*) override;
     bool implDoBegin(RunPrincipal const& rp, EventSetupImpl const& c, ModuleCallingContext const* mcc) override;
     bool implDoStreamBegin(StreamID id,
                            RunPrincipal const& rp,
