@@ -560,7 +560,7 @@ void DDHGCalHEFileAlgo::positionSensitive(
 #endif
       int type = HGCalWaferType::getType(HGCalWaferIndex::waferIndex(layer, u, v, false), waferIndex_, waferTypes_);
       if (corner.first > 0 && type >= 0) {
-	int copy = HGCalTypes::packTypeUV (type, u, v);
+        int copy = HGCalTypes::packTypeUV(type, u, v);
 #ifdef EDM_ML_DEBUG
         if (iu > ium)
           ium = iu;
