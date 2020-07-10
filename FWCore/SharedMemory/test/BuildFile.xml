@@ -1,0 +1,17 @@
+<bin file="test_catch2_*.cc" name="testFWCoreSharedMemoryCatch2">
+  <use name="catch2"/>
+  <use   name="FWCore/SharedMemory"/>
+<use   name="DataFormats/TestObjects"/>
+</bin>
+<bin file="test_channels.cc" name="testFWCoreSharedMemoryChannels">
+  <use name="FWCore/SharedMemory"/>
+  <use name="FWCore/Utilities"/>
+</bin>
+
+<bin file="test_monitorthread.cc" name="testFWCoreSharedMemoryMonitorThread">
+  <use name="FWCore/SharedMemory"/>
+  <use name="FWCore/Utilities"/>
+</bin>
+<test name="testFWCoreSharedMemoryMonitorThreadSignals" command="test_monitor_thread_signals.sh">
+  <flags   PRE_TEST="testFWCoreSharedMemoryMonitorThread"/>
+</test>
