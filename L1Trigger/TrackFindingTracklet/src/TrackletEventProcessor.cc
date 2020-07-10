@@ -17,8 +17,10 @@ using namespace std;
 TrackletEventProcessor::TrackletEventProcessor() = default;
 
 TrackletEventProcessor::~TrackletEventProcessor() {
-  if (settings_->bookHistos()) {
-    histbase_->close();
+  if (settings_ && settings_->bookHistos()) {
+    if (histbase_) {
+      histbase_->close();
+    }
   }
 }
 

@@ -25,6 +25,11 @@ namespace trklet {
 
     ~TrackletEventProcessor();
 
+    TrackletEventProcessor(const TrackletEventProcessor&) = delete;
+    TrackletEventProcessor(const TrackletEventProcessor&&) = delete;
+    TrackletEventProcessor& operator=(const TrackletEventProcessor&) = delete;
+    TrackletEventProcessor& operator=(const TrackletEventProcessor&&) = delete;
+
     void init(const Settings* theSettings);
 
     void event(SLHCEvent& ev);
@@ -40,7 +45,7 @@ namespace trklet {
 
     std::vector<std::unique_ptr<Sector> > sectors_;
 
-    HistBase* histbase_{};
+    HistBase* histbase_{nullptr};
 
     int eventnum_ = {0};
 
