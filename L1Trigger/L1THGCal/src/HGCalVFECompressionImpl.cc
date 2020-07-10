@@ -1,15 +1,19 @@
 #include "L1Trigger/L1THGCal/interface/HGCalVFECompressionImpl.h"
 
+#include "FWCore/Utilities/interface/Exception.h"
+
 HGCalVFECompressionImpl::HGCalVFECompressionImpl(const edm::ParameterSet& conf)
     : exponentBits_(conf.getParameter<uint32_t>("exponentBits")),
       mantissaBits_(conf.getParameter<uint32_t>("mantissaBits")),
+      truncationBits_(conf.getParameter<uint32_t>("truncationBits")),
       rounding_(conf.getParameter<bool>("rounding")) {
   if (((1 << exponentBits_) + mantissaBits_ - 1) >= 32) {
     throw cms::Exception("CodespaceCannotFit") << "The code space cannot fit into the unsigned 32-bit space.\n";
   }
   saturationCode_ = (1 << (exponentBits_ + mantissaBits_)) - 1;
-  saturationValue_ =
-      (exponentBits_ == 0) ? saturationCode_ : ((1 << (mantissaBits_ + 1)) - 1) << ((1 << exponentBits_) - 2);
+  saturationValue_ = (exponentBits_ == 0)
+                         ? saturationCode_
+                         : ((1 << (mantissaBits_ + truncationBits_ + 1)) - 1) << ((1 << exponentBits_) - 2);
 }
 
 void HGCalVFECompressionImpl::compressSingle(const uint32_t value,
@@ -24,18 +28,19 @@ void HGCalVFECompressionImpl::compressSingle(const uint32_t value,
 
   // count bit length
   uint32_t bitlen;
-  uint32_t valcopy = value;
+  uint32_t shifted_value = value >> truncationBits_;
+  uint32_t valcopy = shifted_value;
   for (bitlen = 0; valcopy != 0; valcopy >>= 1, bitlen++) {
   }
   if (bitlen <= mantissaBits_) {
-    compressedCode = value;
-    compressedValue = value;
+    compressedCode = shifted_value;
+    compressedValue = shifted_value << truncationBits_;
     return;
   }
 
   // build exponent and mantissa
   const uint32_t exponent = bitlen - mantissaBits_;
-  const uint32_t mantissa = (value >> (exponent - 1)) & ~(1 << mantissaBits_);
+  const uint32_t mantissa = (shifted_value >> (exponent - 1)) & ~(1 << mantissaBits_);
 
   // assemble floating-point
   const uint32_t floatval = (exponent << mantissaBits_) | mantissa;
@@ -45,7 +50,7 @@ void HGCalVFECompressionImpl::compressSingle(const uint32_t value,
     compressedCode = floatval;
     compressedValue = ((1 << mantissaBits_) | mantissa) << (exponent - 1);
   } else {
-    const bool roundup = ((value >> (exponent - 2)) & 1) == 1;
+    const bool roundup = ((shifted_value >> (exponent - 2)) & 1) == 1;
     if (!roundup) {
       compressedCode = floatval;
       compressedValue = ((1 << mantissaBits_) | mantissa) << (exponent - 1);
@@ -60,6 +65,7 @@ void HGCalVFECompressionImpl::compressSingle(const uint32_t value,
       compressedValue = ((1 << mantissaBits_) | rmantissa) << (rexponent - 1);
     }
   }
+  compressedValue <<= truncationBits_;
 }
 
 void HGCalVFECompressionImpl::compress(const std::unordered_map<uint32_t, uint32_t>& payload,
