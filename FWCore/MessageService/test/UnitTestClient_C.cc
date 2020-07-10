@@ -1,10 +1,11 @@
+#include <cmath>
+#include <iomanip>
+
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/global/EDAnalyzer.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/Framework/interface/global/EDAnalyzer.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/StreamID.h"
-
-#include <iomanip>
 
 namespace edmtest {
 
@@ -21,7 +22,7 @@ namespace edmtest {
     edm::LogWarning("cat_A") << "Test of std::setw(n) and std::setfill('c'):"
                              << "The following should read ++abcdefg $$$12:" << std::setfill('+') << std::setw(9)
                              << "abcdefg" << std::setw(5) << std::setfill('$') << 12;
-    double d = 3.14159265357989;
+    double d = M_PI;
     edm::LogWarning("cat_A") << "Test of std::setprecision(p):"
                              << "Pi with precision 12 is" << std::setprecision(12) << d;
     edm::LogWarning("cat_A") << "Test of spacing:"
