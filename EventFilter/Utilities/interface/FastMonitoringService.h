@@ -10,7 +10,9 @@
 #include "DataFormats/Provenance/interface/ParameterSetID.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include "boost/filesystem.hpp"
+#include <filesystem>
+
+#include <boost/thread.hpp>
 
 #include "EventFilter/Utilities/interface/MicroStateService.h"
 #include "EventFilter/Utilities/interface/FastMonitoringThread.h"
@@ -281,7 +283,7 @@ namespace evf {
     std::vector<ContainableAtomic<unsigned int>> eventCountForPathInit_;
     std::vector<bool> pathNamesReady_;
 
-    boost::filesystem::path workingDirectory_, runDirectory_;
+    std::filesystem::path workingDirectory_, runDirectory_;
 
     bool threadIDAvailable_ = false;
 
