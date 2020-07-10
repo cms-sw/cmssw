@@ -16,7 +16,7 @@ public:
 
   struct Item {
     Item() {}
-    Item(DetGeomDesc* const geoInfo) {
+    Item(const DetGeomDesc* const geoInfo) {
       dx_ = geoInfo->translation().X();
       dy_ = geoInfo->translation().Y();
       dz_ = geoInfo->translation().Z();

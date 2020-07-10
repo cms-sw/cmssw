@@ -71,7 +71,6 @@ public:
 
 private:
   std::unique_ptr<DetGeomDesc> produceIdealGD(const IdealGeometryRecord&);
-  
   std::vector<int> fillCopyNos(TGeoIterator& it);
 
   template <typename ALIGNMENT_REC>

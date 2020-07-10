@@ -53,7 +53,7 @@ public:
   void analyze(const edm::Event&, const edm::EventSetup&) override;
 
 private:
-void buildPDetFromDetGeomDesc(DetGeomDesc* geoInfo, PDetGeomDesc* gd);
+void buildPDetFromDetGeomDesc(const DetGeomDesc* geoInfo, PDetGeomDesc* gd);
 void buildPDetGeomDesc(cms::DDFilteredView*, PDetGeomDesc*);
 uint32_t getGeographicalID(cms::DDFilteredView*);
 
@@ -65,12 +65,19 @@ uint32_t getGeographicalID(cms::DDFilteredView*);
 //----------------------------------------------------------------------------------------------------
 
 PPSGeometryBuilder::PPSGeometryBuilder(const edm::ParameterSet& iConfig)
-    : compactViewTag_(iConfig.getUntrackedParameter<std::string>("compactViewTag", "XMLIdealGeometryESSource_CTPPS")) {}
+    : compactViewTag_(iConfig.getUntrackedParameter<std::string>("compactViewTag", "XMLIdealGeometryESSource_CTPPS")) {
+}
 
 //----------------------------------------------------------------------------------------------------
 
 void PPSGeometryBuilder::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
   
+//edm::ESHandle<DetGeomDesc> theGeometricDet;
+//iSetup.get<IdealGeometryRecord>().get( theGeometricDet );
+
+  
+
+
   //edm::ESTransientHandle<cms::DDCompactView> cpv;
   edm::ESHandle<cms::DDCompactView> cpv;
 
@@ -116,6 +123,7 @@ void PPSGeometryBuilder::analyze(const edm::Event& iEvent, const edm::EventSetup
 
 
 
+
   // conversion to DetGeomDesc structure
   auto root = std::make_unique<DetGeomDesc>(&fv);
   PPSGeometryESProducer::buildDetGeomDesc(&fv, root.get());
@@ -143,7 +151,7 @@ void PPSGeometryBuilder::analyze(const edm::Event& iEvent, const edm::EventSetup
 }
 
 
-void PPSGeometryBuilder::buildPDetFromDetGeomDesc(DetGeomDesc* geoInfo, PDetGeomDesc* gd) {
+void PPSGeometryBuilder::buildPDetFromDetGeomDesc(const DetGeomDesc* geoInfo, PDetGeomDesc* gd) {
 
   PDetGeomDesc::Item item(geoInfo);
   std::cout << " " << std::endl;
