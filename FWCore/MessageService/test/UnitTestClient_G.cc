@@ -1,22 +1,22 @@
-#include "FWCore/MessageService/test/UnitTestClient_G.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
-
+#include <cmath>
+#include <iomanip>
 #include <iostream>
 #include <string>
-#include <iomanip>
+
+#include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/MessageService/test/UnitTestClient_G.h"
 
 namespace edmtest {
 
-  void UnitTestClient_G::analyze(edm::Event const& /*unused*/
-                                 ,
+  void UnitTestClient_G::analyze(edm::Event const&,     /*unused*/
                                  edm::EventSetup const& /*unused*/
   ) {
     if (!edm::isMessageProcessingSetUp()) {
       std::cerr << "??? It appears that Message Processing is not Set Up???\n\n";
     }
 
-    double d = 3.14159265357989;
+    double d = M_PI;
     edm::LogWarning("cat_A") << "Test of std::setprecision(p):"
                              << " Pi with precision 12 is " << std::setprecision(12) << d;
 
