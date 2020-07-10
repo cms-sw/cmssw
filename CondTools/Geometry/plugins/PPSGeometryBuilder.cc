@@ -164,6 +164,7 @@ void PPSGeometryBuilder::buildPDetGeomDesc(cms::DDFilteredView* fv, PDetGeomDesc
     item.azz_ = zz;
     item.name_ = fv->name();
     //item.params_ = ((fv->volume()).solid()).parameters(); TO DOOOOOOOOOOOOOOOOOOOOOOOOO
+    //item.params_ = fv->parameters();
     item.copy_ = fv->copyNum();
     //item.z_ = fv->geoHistory().back().absTranslation().z();
     item.z_ = fv->translation().z() / 1._mm; // Convert cm (DD4hep) to mm (legacy)
@@ -171,6 +172,7 @@ void PPSGeometryBuilder::buildPDetGeomDesc(cms::DDFilteredView* fv, PDetGeomDesc
     item.sensorType_ = "";
     //std::string sensor_name = fv->geoHistory().back().logicalPart().name().fullname();
     const std::string sensor_name {fv->name()};
+    //const std::string sensor_name = fv->fullname();
     /* std::size_t found = sensor_name.find(DDD_CTPPS_PIXELS_SENSOR_NAME);
     if (found != std::string_view::npos && sensor_name.substr(found - 4, 3) == DDD_CTPPS_PIXELS_SENSOR_TYPE_2x2) {
       item.sensorType_ = DDD_CTPPS_PIXELS_SENSOR_TYPE_2x2;
@@ -227,16 +229,16 @@ uint32_t PPSGeometryBuilder::getGeographicalID(cms::DDFilteredView* view) {
   if (name == DDD_TOTEM_RP_SENSOR_NAME) {
     const std::vector<int>& copy_num = view->copyNumbers();
     // check size of copy numubers array
-    if (copy_num.size() < 3)
+    if (copy_num.size() < 4)
       throw cms::Exception("DDDTotemRPContruction")
-          << "size of copyNumbers for strip sensor is " << copy_num.size() << ". It must be >= 3.";
+          << "size of copyNumbers for strip sensor is " << copy_num.size() << ". It must be >= 4.";
 
     // extract information
-    const unsigned int decRPId = copy_num[copy_num.size() - 3];
+    const unsigned int decRPId = copy_num[2];
     const unsigned int arm = decRPId / 100;
     const unsigned int station = (decRPId % 100) / 10;
     const unsigned int rp = decRPId % 10;
-    const unsigned int detector = copy_num[copy_num.size() - 1];
+    const unsigned int detector = copy_num[0];
     geoID = TotemRPDetId(arm, station, rp, detector);
   }
 
@@ -262,13 +264,13 @@ uint32_t PPSGeometryBuilder::getGeographicalID(cms::DDFilteredView* view) {
   else if (std::regex_match(name, std::regex(DDD_TOTEM_TIMING_SENSOR_TMPL))) {
     const std::vector<int>& copy_num = view->copyNumbers();
     // check size of copy numbers array
-    if (copy_num.size() < 4)
+    if (copy_num.size() < 5)
       throw cms::Exception("DDDTotemRPContruction")
-          << "size of copyNumbers for TOTEM timing sensor is " << copy_num.size() << ". It must be >= 4.";
+          << "size of copyNumbers for TOTEM timing sensor is " << copy_num.size() << ". It must be >= 5.";
 
-    const unsigned int decRPId = copy_num[copy_num.size() - 4];
+    const unsigned int decRPId = copy_num[3];
     const unsigned int arm = decRPId / 100, station = (decRPId % 100) / 10, rp = decRPId % 10;
-    const unsigned int plane = copy_num[copy_num.size() - 2], channel = copy_num[copy_num.size() - 1];
+    const unsigned int plane = copy_num[1], channel = copy_num[0];
     geoID = TotemTimingDetId(arm, station, rp, plane, channel);
   }
 
@@ -281,16 +283,16 @@ uint32_t PPSGeometryBuilder::getGeographicalID(cms::DDFilteredView* view) {
   else if (name == DDD_CTPPS_PIXELS_SENSOR_NAME) {
     const std::vector<int>& copy_num = view->copyNumbers();
     // check size of copy numubers array
-    if (copy_num.size() < 4)
+    if (copy_num.size() < 5)
       throw cms::Exception("DDDTotemRPContruction")
-          << "size of copyNumbers for pixel sensor is " << copy_num.size() << ". It must be >= 4.";
+          << "size of copyNumbers for pixel sensor is " << copy_num.size() << ". It must be >= 5.";
 
     // extract information
-    const unsigned int decRPId = copy_num[copy_num.size() - 4] % 10000;
+    const unsigned int decRPId = copy_num[3] % 10000;
     const unsigned int arm = decRPId / 100;
     const unsigned int station = (decRPId % 100) / 10;
     const unsigned int rp = decRPId % 10;
-    const unsigned int detector = copy_num[copy_num.size() - 2] - 1;
+    const unsigned int detector = copy_num[1] - 1;
     geoID = CTPPSPixelDetId(arm, station, rp, detector);
   }
 
@@ -298,8 +300,8 @@ uint32_t PPSGeometryBuilder::getGeographicalID(cms::DDFilteredView* view) {
   else if (name == DDD_CTPPS_DIAMONDS_SEGMENT_NAME || name == DDD_CTPPS_UFSD_SEGMENT_NAME) {
     const std::vector<int>& copy_num = view->copyNumbers();
 
-    const unsigned int id = copy_num[copy_num.size() - 1];
-    const unsigned int arm = copy_num[1] - 1;
+    const unsigned int id = copy_num[0];
+    const unsigned int arm = copy_num[copy_num.size()-3] - 1;
     const unsigned int station = 1;
     const unsigned int rp = 6;
     const unsigned int plane = (id / 100);
@@ -313,11 +315,11 @@ uint32_t PPSGeometryBuilder::getGeographicalID(cms::DDFilteredView* view) {
     const std::vector<int>& copy_num = view->copyNumbers();
 
     // check size of copy numubers array
-    if (copy_num.size() < 2)
+    if (copy_num.size() < 3)
       throw cms::Exception("DDDTotemRPContruction")
-          << "size of copyNumbers for diamond RP is " << copy_num.size() << ". It must be >= 2.";
+          << "size of copyNumbers for diamond RP is " << copy_num.size() << ". It must be >= 3.";
 
-    const unsigned int arm = copy_num[1] - 1;
+    const unsigned int arm = copy_num[copy_num.size()-3] - 1;
     const unsigned int station = 1;
     const unsigned int rp = 6;
 
