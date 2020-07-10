@@ -16,8 +16,8 @@ namespace pat {
 
   public:
     explicit PackedCandidateTrackChi2Producer(const edm::ParameterSet& iConfig)
-        : candidateToken_(consumes<edm::View<pat::PackedCandidate>>(iConfig.getParameter<edm::InputTag>("candidates"))),
-          trackToken_(consumes<edm::View<reco::Track>>(iConfig.getParameter<edm::InputTag>("trackCollection"))),
+        : candidateToken_(consumes<pat::PackedCandidateCollection>(iConfig.getParameter<edm::InputTag>("candidates"))),
+          trackToken_(consumes<reco::TrackCollection>(iConfig.getParameter<edm::InputTag>("trackCollection"))),
           doLostTracks_(iConfig.getParameter<bool>("doLostTracks")) {
       if (doLostTracks_) {
         track2LostTrackToken_ = consumes<edm::Association<pat::PackedCandidateCollection>>(
@@ -35,17 +35,17 @@ namespace pat {
     static void fillDescriptions(edm::ConfigurationDescriptions&);
 
   private:
-    const edm::EDGetTokenT<edm::View<pat::PackedCandidate>> candidateToken_;
+    const edm::EDGetTokenT<pat::PackedCandidateCollection> candidateToken_;
     edm::EDGetTokenT<edm::Association<reco::PFCandidateCollection>> candidate2PFToken_;
     edm::EDGetTokenT<edm::Association<pat::PackedCandidateCollection>> track2LostTrackToken_;
-    const edm::EDGetTokenT<edm::View<reco::Track>> trackToken_;
+    const edm::EDGetTokenT<reco::TrackCollection> trackToken_;
     const bool doLostTracks_;
   };
 
 }  // namespace pat
 
 void pat::PackedCandidateTrackChi2Producer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
-  edm::Handle<edm::View<pat::PackedCandidate>> candidates;
+  edm::Handle<pat::PackedCandidateCollection> candidates;
   iEvent.getByToken(candidateToken_, candidates);
 
   const edm::Association<reco::PFCandidateCollection>* candidate2PF = nullptr;
@@ -54,7 +54,7 @@ void pat::PackedCandidateTrackChi2Producer::produce(edm::Event& iEvent, const ed
   }
 
   const edm::Association<pat::PackedCandidateCollection>* tracks2LT = nullptr;
-  edm::Handle<edm::View<reco::Track>> trks;
+  edm::Handle<reco::TrackCollection> trks;
   if (doLostTracks_) {
     tracks2LT = &iEvent.get(track2LostTrackToken_);
     iEvent.getByToken(trackToken_, trks);
@@ -67,9 +67,9 @@ void pat::PackedCandidateTrackChi2Producer::produce(edm::Event& iEvent, const ed
   if (doLostTracks_) {  //for Lost tracks we don't have references to PFCands, so we must loop over tracks and check keys...
     for (size_t i = 0; i < trks->size(); i++) {
       float nChi2 = 0;
-      const auto& trk = trks->refAt(i);
+      //const auto& trk = trks->refAt(i);
+      const auto& trk = reco::TrackRef(trks,i);
       const auto& lostTrack = (*tracks2LT)[trk];
-      //if (lostTrack.isNonnull() && (cand.id() == lostTrack.id()) && (cand.key() == lostTrack.key())) {
       if (lostTrack.isNonnull()) {
         nChi2 = trk->normalizedChi2();
         trkChi2Map.at(lostTrack.key()) = MiniFloatConverter::reduceMantissaToNbitsRounding<12>(nChi2);
@@ -77,7 +77,7 @@ void pat::PackedCandidateTrackChi2Producer::produce(edm::Event& iEvent, const ed
     }
   } else {  //for the regular PackedPFCands we have direct references...
     for (size_t i = 0; i < nCand; i++) {
-      const auto& cand = candidates->refAt(i);
+      const auto& cand = pat::PackedCandidateRef(candidates,i);
       float nChi2 = 0;
 
       // ignore neutral candidates or without track
