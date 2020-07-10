@@ -7,6 +7,7 @@
 #include "DataFormats/PatCandidates/interface/Muon.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/PatCandidates/interface/PackedCandidate.h"
+#include "DataFormats/Math/interface/libminifloat.h"
 
 namespace pat {
 
@@ -28,18 +29,17 @@ namespace pat {
 
       produces<FloatMap>();
     }
-    ~PackedCandidateTrackChi2Producer() override{};
 
     void produce(edm::Event&, const edm::EventSetup&) override;
 
     static void fillDescriptions(edm::ConfigurationDescriptions&);
 
   private:
-    edm::EDGetTokenT<edm::View<pat::PackedCandidate>> candidateToken_;
+    const edm::EDGetTokenT<edm::View<pat::PackedCandidate>> candidateToken_;
     edm::EDGetTokenT<edm::Association<reco::PFCandidateCollection>> candidate2PFToken_;
     edm::EDGetTokenT<edm::Association<pat::PackedCandidateCollection>> track2LostTrackToken_;
-    edm::EDGetTokenT<edm::View<reco::Track>> trackToken_;
-    bool doLostTracks_;
+    const edm::EDGetTokenT<edm::View<reco::Track>> trackToken_;
+    const bool doLostTracks_;
   };
 
 }  // namespace pat
@@ -48,48 +48,51 @@ void pat::PackedCandidateTrackChi2Producer::produce(edm::Event& iEvent, const ed
   edm::Handle<edm::View<pat::PackedCandidate>> candidates;
   iEvent.getByToken(candidateToken_, candidates);
 
-  edm::Handle<edm::Association<reco::PFCandidateCollection>> candidate2PF;
+  const edm::Association<reco::PFCandidateCollection>* candidate2PF = nullptr;
   if (!doLostTracks_) {
-    iEvent.getByToken(candidate2PFToken_, candidate2PF);
+    candidate2PF = &iEvent.get(candidate2PFToken_);
   }
 
-  edm::Handle<edm::Association<pat::PackedCandidateCollection>> tracks2LT;
+  const edm::Association<pat::PackedCandidateCollection>* tracks2LT = nullptr;
   edm::Handle<edm::View<reco::Track>> trks;
   if (doLostTracks_) {
-    iEvent.getByToken(track2LostTrackToken_, tracks2LT);
+    tracks2LT = &iEvent.get(track2LostTrackToken_);
     iEvent.getByToken(trackToken_, trks);
   }
 
-  const auto& nCand = candidates->size();
+  const auto nCand = candidates->size();
   std::vector<float> trkChi2Map(nCand, 0);
 
-  for (size_t i = 0; i < nCand; i++) {
-    const auto& cand = candidates->refAt(i);
-    float nChi2 = 0;
 
-    // ignore neutral candidates or without track
-    if (cand->charge() == 0 || !cand->hasTrackDetails())
-      continue;
-
-    if (doLostTracks_) {  //for Lost tracks we don't have references to PFCands, so we must loop over tracks and check keys...
-      for (size_t j = 0; j < trks->size(); j++) {
-        const auto& trk = trks->refAt(j);
-        const auto& lostTrack = (*tracks2LT)[trk];
-        if (lostTrack.isNonnull() && (cand.id() == lostTrack.id()) && (cand.key() == lostTrack.key())) {
-          nChi2 = trk->normalizedChi2();
-          break;
-        }
+  if (doLostTracks_) {  //for Lost tracks we don't have references to PFCands, so we must loop over tracks and check keys...
+    for (size_t i = 0; i < trks->size(); i++) {
+      float nChi2 = 0;
+      const auto& trk = trks->refAt(i);
+      const auto& lostTrack = (*tracks2LT)[trk];
+      //if (lostTrack.isNonnull() && (cand.id() == lostTrack.id()) && (cand.key() == lostTrack.key())) {
+      if (lostTrack.isNonnull()) {
+        nChi2 = trk->normalizedChi2();
+        trkChi2Map.at(lostTrack.key()) = MiniFloatConverter::reduceMantissaToNbitsRounding<12>(nChi2);
       }
-    } else {  //for the regular PackedPFCands we have direct references...
+    }
+  } else {  //for the regular PackedPFCands we have direct references...
+    for (size_t i = 0; i < nCand; i++) {
+      const auto& cand = candidates->refAt(i);
+      float nChi2 = 0;
+
+      // ignore neutral candidates or without track
+      if (cand->charge() == 0 || !cand->hasTrackDetails())
+        continue;
+
       const auto& candTrack = (*candidate2PF)[cand]->trackRef();
       nChi2 = candTrack->normalizedChi2();
-    }
 
-    trkChi2Map.at(i) = nChi2;
+      trkChi2Map.at(i) = MiniFloatConverter::reduceMantissaToNbitsRounding<12>(nChi2);
+    }
   }
 
   // fill the value maps
-  std::unique_ptr<FloatMap> valueMap(new FloatMap());
+  std::unique_ptr<FloatMap> valueMap = std::make_unique<FloatMap>();
   FloatMap::Filler filler(*valueMap);
   filler.insert(candidates, trkChi2Map.begin(), trkChi2Map.end());
   filler.fill();
