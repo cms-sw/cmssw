@@ -323,8 +323,6 @@ void CTPPSDirectProtonSimulation::processProton(
   double z_sign;
   double beamMomentum = 0.;
   double xangle = 0.;
-  //double empiricalAperture_xi0_int, empiricalAperture_xi0_slp;
-  //double empiricalAperture_a_int, empiricalAperture_a_slp;
   const std::unique_ptr<TF2>* empiricalAperture;
   if (mom_lhc.z() < 0)  // sector 45
   {
@@ -332,10 +330,6 @@ void CTPPSDirectProtonSimulation::processProton(
     z_sign = -1;
     beamMomentum = beamParameters.getBeamMom45();
     xangle = beamParameters.getHalfXangleX45();
-    //empiricalAperture_xi0_int = empiricalAperture45_xi0_int_;
-    //empiricalAperture_xi0_slp = empiricalAperture45_xi0_slp_;
-    //empiricalAperture_a_int = empiricalAperture45_a_int_;
-    //empiricalAperture_a_slp = empiricalAperture45_a_slp_;
     empiricalAperture=&empiricalAperture45;
   } else {  // sector 56
     arm = 1;
@@ -343,10 +337,6 @@ void CTPPSDirectProtonSimulation::processProton(
     beamMomentum = beamParameters.getBeamMom56();
     xangle = beamParameters.getHalfXangleX56();
     empiricalAperture=&empiricalAperture56;
-    //empiricalAperture_xi0_int = empiricalAperture56_xi0_int_;
-    //empiricalAperture_xi0_slp = empiricalAperture56_xi0_slp_;
-    //empiricalAperture_a_int = empiricalAperture56_a_int_;
-    //empiricalAperture_a_slp = empiricalAperture56_a_slp_;
   }
 
   // calculate effective RP arrival time
