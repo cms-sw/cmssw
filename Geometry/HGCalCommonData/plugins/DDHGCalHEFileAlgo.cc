@@ -17,6 +17,7 @@
 #include "FWCore/PluginManager/interface/PluginFactory.h"
 #include "Geometry/HGCalCommonData/interface/HGCalGeomTools.h"
 #include "Geometry/HGCalCommonData/interface/HGCalParameters.h"
+#include "Geometry/HGCalCommonData/interface/HGCalTypes.h"
 #include "Geometry/HGCalCommonData/interface/HGCalWaferIndex.h"
 #include "Geometry/HGCalCommonData/interface/HGCalWaferType.h"
 
@@ -544,9 +545,11 @@ void DDHGCalHEFileAlgo::positionSensitive(
                                 << ":" << xyoff.second << " WaferSize " << (waferSize_ + waferSepar_);
 #endif
   for (int u = -N; u <= N; ++u) {
-    int iu = std::abs(u);
     for (int v = -N; v <= N; ++v) {
+#ifdef EDM_ML_DEBUG
+      int iu = std::abs(u);
       int iv = std::abs(v);
+#endif
       int nr = 2 * v;
       int nc = -2 * u + v;
       double xpos = xyoff.first + nc * r;
@@ -557,11 +560,7 @@ void DDHGCalHEFileAlgo::positionSensitive(
 #endif
       int type = HGCalWaferType::getType(HGCalWaferIndex::waferIndex(layer, u, v, false), waferIndex_, waferTypes_);
       if (corner.first > 0 && type >= 0) {
-        int copy = type * 1000000 + iv * 100 + iu;
-        if (u < 0)
-          copy += 10000;
-        if (v < 0)
-          copy += 100000;
+	int copy = HGCalTypes::packTypeUV (type, u, v);
 #ifdef EDM_ML_DEBUG
         if (iu > ium)
           ium = iu;

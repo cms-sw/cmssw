@@ -11,6 +11,7 @@
 
 #include "Geometry/HGCalCommonData/interface/HGCalParameters.h"
 #include "Geometry/HGCalCommonData/interface/HGCalGeomTools.h"
+#include "Geometry/HGCalCommonData/interface/HGCalTypes.h"
 #include "Geometry/HGCalCommonData/interface/HGCalWaferIndex.h"
 #include "Geometry/HGCalCommonData/interface/HGCalWaferType.h"
 #include "DD4hep/DetFactoryHelper.h"
@@ -18,7 +19,7 @@
 #include "DetectorDescription/DDCMS/interface/DDPlugins.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#define EDM_ML_DEBUG
+//#define EDM_ML_DEBUG
 using namespace cms_units::operators;
 
 struct HGCalHEAlgo {
@@ -230,7 +231,7 @@ struct HGCalHEAlgo {
             }
           }
 
-          dd4hep::Solid solid = dd4hep::Polyhedra(sectors, -alpha, 2. * cms_units::piRadians, pgonZ, pgonRin, pgonRout);
+          dd4hep::Solid solid = dd4hep::Polyhedra(sectors, -alpha, 2._pi, pgonZ, pgonRin, pgonRout);
           ns.addSolidNS(ns.prepend(name), solid);
           glog = dd4hep::Volume(solid.name(), solid, matter);
           ns.addVolumeNS(glog);
@@ -243,7 +244,7 @@ struct HGCalHEAlgo {
                 << "[" << k << "] z " << pgonZ[k] << " R " << pgonRin[k] << ":" << pgonRout[k];
 #endif
         } else {
-          dd4hep::Solid solid = dd4hep::Tube(rinB, routF, hthick, 0.0, 2. * cms_units::piRadians);
+          dd4hep::Solid solid = dd4hep::Tube(rinB, routF, hthick, 0.0, 2._pi);
           ns.addSolidNS(ns.prepend(name), solid);
           glog = dd4hep::Volume(solid.name(), solid, matter);
           ns.addVolumeNS(glog);
@@ -315,7 +316,7 @@ struct HGCalHEAlgo {
     // Make the top part first
     std::string name = nameM + "Top";
 
-    dd4hep::Solid solid = dd4hep::Tube(rmid, rout, hthick, 0.0, 2. * cms_units::piRadians);
+    dd4hep::Solid solid = dd4hep::Tube(rmid, rout, hthick, 0.0, 2._pi);
     ns.addSolidNS(ns.prepend(name), solid);
     glog1 = dd4hep::Volume(solid.name(), solid, matter);
     ns.addVolumeNS(glog1);
@@ -342,7 +343,7 @@ struct HGCalHEAlgo {
 #endif
 
       dd4hep::Material matter1 = ns.material(materialsTop[ii]);
-      solid = dd4hep::Tube(rmid, rout, hthickl, 0.0, 2. * cms_units::piRadians);
+      solid = dd4hep::Tube(rmid, rout, hthickl, 0.0, 2._pi);
       ns.addSolidNS(ns.prepend(name), solid);
       dd4hep::Volume glog2 = dd4hep::Volume(solid.name(), solid, matter1);
       ns.addVolumeNS(glog2);
@@ -380,7 +381,7 @@ struct HGCalHEAlgo {
     // Make the bottom part next
     name = nameM + "Bottom";
 
-    solid = dd4hep::Tube(rin, rmid, hthick, 0.0, 2. * cms_units::piRadians);
+    solid = dd4hep::Tube(rin, rmid, hthick, 0.0, 2._pi);
     ns.addSolidNS(ns.prepend(name), solid);
     glog1 = dd4hep::Volume(solid.name(), solid, matter);
     ns.addVolumeNS(glog1);
@@ -409,7 +410,7 @@ struct HGCalHEAlgo {
 #endif
 
       dd4hep::Material matter1 = ns.material(materialsBot[ii]);
-      solid = dd4hep::Tube(rin, rmid, hthickl, 0.0, 2. * cms_units::piRadians);
+      solid = dd4hep::Tube(rin, rmid, hthickl, 0.0, 2._pi);
       ns.addSolidNS(ns.prepend(name), solid);
       dd4hep::Volume glog2 = dd4hep::Volume(solid.name(), solid, matter1);
       ns.addVolumeNS(glog2);
@@ -475,9 +476,11 @@ struct HGCalHEAlgo {
                                   << " WaferSize " << (waferSize + waferSepar);
 #endif
     for (int u = -N; u <= N; ++u) {
-      int iu = std::abs(u);
       for (int v = -N; v <= N; ++v) {
+#ifdef EDM_ML_DEBUG
+	int iu = std::abs(u);
         int iv = std::abs(v);
+#endif
         int nr = 2 * v;
         int nc = -2 * u + v;
         double xpos = xyoff.first + nc * r;
@@ -488,11 +491,7 @@ struct HGCalHEAlgo {
 #endif
         int type = HGCalWaferType::getType(HGCalWaferIndex::waferIndex(layer, u, v, false), waferIndex, waferTypes);
         if (corner.first > 0 && type >= 0) {
-          int copy = type * 1000000 + iv * 100 + iu;
-          if (u < 0)
-            copy += 10000;
-          if (v < 0)
-            copy += 100000;
+          int copy = HGCalTypes::packTypeUV (type, u, v);
 #ifdef EDM_ML_DEBUG
           if (iu > ium)
             ium = iu;
