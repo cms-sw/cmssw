@@ -13,20 +13,20 @@ namespace edmtest {
                                  edm::EventSetup const& /*unused*/
   ) {
     int i = 145;
-    edm::LogWarning("cat_A") << "Test of std::hex:" << i << std::hex << "in hex is" << i;
-    edm::LogWarning("cat_A") << "Test of std::setw(n) and std::setfill('c'):"
-                             << "The following should read ++abcdefg $$$12:" << std::setfill('+') << std::setw(9)
+    edm::LogWarning("cat_A") << "Test of std::hex: " << i << std::hex << " in hex is " << i;
+    edm::LogWarning("cat_A") << "Test of std::setw(n) and std::setfill('c'): "
+                             << "The following should read ++abcdefg $$$12: " << std::setfill('+') << std::setw(9)
                              << "abcdefg" << std::setw(5) << std::setfill('$') << 12;
     double d = M_PI;
     edm::LogWarning("cat_A") << "Test of std::setprecision(p): "
                              << "Pi with precision 12 is " << std::setprecision(12) << d;
-    edm::LogWarning("cat_A") << "Test of spacing:"
-                             << "The following should read a b c dd:"
+    edm::LogWarning("cat_A") << "Test of spacing: "
+                             << "The following should read a b c dd: "
                              << "a" << std::setfill('+') << "b" << std::hex << "c" << std::setw(2) << "dd";
 
     edm::LogWarning("cat_A").format("Test of format hex: {0} in hex is {0:x}", i);
     edm::LogWarning("cat_A")
-        .format("Test of format fill and width:")
+        .format("Test of format fill and width: ")
         .format("The following should read ++abcdefg $$$12: {:+>9} {:$>5}", "abcdefg", 12);
     edm::LogWarning("cat_A").format("Test of format precision: Pi with precision 12 is {:.12g}", d);
     edm::LogWarning("cat_A").format(
