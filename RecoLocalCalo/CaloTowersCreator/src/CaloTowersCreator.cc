@@ -99,7 +99,7 @@ CaloTowersCreator::CaloTowersCreator(const edm::ParameterSet& conf)
   tok_cttopo_ = esConsumes<CaloTowerTopology, HcalRecNumberingRecord>();
   tok_ctmap_ = esConsumes<CaloTowerConstituentsMap, CaloGeometryRecord>();
   tok_ecalChStatus_ = esConsumes<EcalChannelStatus, EcalChannelStatusRcd>();
-  tok_hcalChStatus_ = esConsumes<HcalChannelQuality, HcalChannelQualityRcd>(edm::ESInputTag("", "WithTopo"));
+  tok_hcalChStatus_ = esConsumes<HcalChannelQuality, HcalChannelQualityRcd>(edm::ESInputTag("", "withTopo"));
   tok_hcalSevComputer_ = esConsumes<HcalSeverityLevelComputer, HcalSeverityLevelComputerRcd>();
   tok_ecalSevAlgo_ = esConsumes<EcalSeverityLevelAlgo, EcalSeverityLevelAlgoRcd>();
 
