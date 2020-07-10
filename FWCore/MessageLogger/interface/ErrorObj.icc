@@ -14,6 +14,8 @@
 
 #include <sstream>
 
+#include "fmt/ostream.h"
+
 namespace edm {
 
   // ----------------------------------------------------------------------
@@ -51,6 +53,14 @@ namespace edm {
 
   inline ErrorObj& ErrorObj::operator<<(std::ios_base& (*f)(std::ios_base&)) {
     f(myOs);
+    return *this;
+  }
+
+  template <typename... Args>
+  inline ErrorObj& ErrorObj::format(std::string_view fmt, Args const&... args) {
+    auto str = fmt::format(fmt, args...);
+    if (!str.empty())
+      emitToken(str);
     return *this;
   }
 
