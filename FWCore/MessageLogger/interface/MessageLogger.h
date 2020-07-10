@@ -172,6 +172,13 @@ namespace edm {
       return *this;
     }
 
+    template <typename... Args>
+    LogWarning& printf(std::string_view fmt, Args const&... args) {
+      if (ap.valid())
+        ap.printf(fmt, args...);
+      return *this;
+    }
+
     template <typename F>
     LogWarning& log(F&& iF) {
       if (ap.valid()) {
@@ -218,6 +225,13 @@ namespace edm {
       return *this;
     }
 
+    template <typename... Args>
+    LogError& printf(std::string_view fmt, Args const&... args) {
+      if (ap.valid())
+        ap.printf(fmt, args...);
+      return *this;
+    }
+
     template <typename F>
     LogError& log(F&& iF) {
       if (ap.valid()) {
@@ -256,6 +270,13 @@ namespace edm {
     LogSystem& format(std::string_view fmt, Args const&... args) {
       if (ap.valid())
         ap.format(fmt, args...);
+      return *this;
+    }
+
+    template <typename... Args>
+    LogSystem& printf(std::string_view fmt, Args const&... args) {
+      if (ap.valid())
+        ap.printf(fmt, args...);
       return *this;
     }
 
@@ -303,6 +324,13 @@ namespace edm {
     LogInfo& format(std::string_view fmt, Args const&... args) {
       if (ap.valid())
         ap.format(fmt, args...);
+      return *this;
+    }
+
+    template <typename... Args>
+    LogInfo& printf(std::string_view fmt, Args const&... args) {
+      if (ap.valid())
+        ap.printf(fmt, args...);
       return *this;
     }
 
@@ -358,6 +386,13 @@ namespace edm {
       return *this;
     }
 
+    template <typename... Args>
+    LogVerbatim& printf(std::string_view fmt, Args&... args) {
+      if (ap.valid())
+        ap.printf(fmt, args...);
+      return *this;
+    }
+
     template <typename F>
     LogVerbatim& log(F&& iF) {
       if (ap.valid()) {
@@ -410,6 +445,13 @@ namespace edm {
       return *this;
     }
 
+    template <typename... Args>
+    LogPrint& printf(std::string_view fmt, Args const&... args) {
+      if (ap.valid())
+        ap.printf(fmt, args...);
+      return *this;
+    }
+
     template <typename F>
     LogPrint& log(F&& iF) {
       if (ap.valid()) {
@@ -455,6 +497,13 @@ namespace edm {
     LogProblem& format(std::string_view fmt, Args const&... args) {
       if (ap.valid())
         ap.format(fmt, args...);
+      return *this;
+    }
+
+    template <typename... Args>
+    LogProblem& printf(std::string_view fmt, Args const&... args) {
+      if (ap.valid())
+        ap.printf(fmt, args...);
       return *this;
     }
 
@@ -506,6 +555,13 @@ namespace edm {
       return *this;
     }
 
+    template <typename... Args>
+    LogImportant& printf(std::string_view fmt, Args const&... args) {
+      if (ap.valid())
+        ap.printf(fmt, args...);
+      return *this;
+    }
+
     template <typename F>
     LogImportant& log(F&& iF) {
       if (ap.valid()) {
@@ -548,6 +604,13 @@ namespace edm {
     LogAbsolute& format(std::string_view fmt, Args const&... args) {
       if (ap.valid())
         ap.format(fmt, args...);
+      return *this;
+    }
+
+    template <typename... Args>
+    LogAbsolute& printf(std::string_view fmt, Args const&... args) {
+      if (ap.valid())
+        ap.printf(fmt, args...);
       return *this;
     }
 
@@ -601,6 +664,13 @@ namespace edm {
       return *this;
     }
 
+    template <typename... Args>
+    LogDebug_& printf(std::string_view fmt, Args const&... args) {
+      if (ap.valid())
+        ap.printf(fmt, args...);
+      return *this;
+    }
+
     template <typename F>
     LogDebug_& log(F&& iF) {
       if (ap.valid()) {
@@ -643,6 +713,13 @@ namespace edm {
     LogTrace_& format(std::string_view fmt, Args const&... args) {
       if (ap.valid())
         ap.format(fmt, args...);
+      return *this;
+    }
+
+    template <typename... Args>
+    LogTrace_& printf(std::string_view fmt, Args const&... args) {
+      if (ap.valid())
+        ap.printf(fmt, args...);
       return *this;
     }
 
@@ -694,6 +771,13 @@ namespace edm {
         return *this;
       }
 
+      template <typename... Args>
+      LogWarningThatSuppressesLikeLogInfo& printf(std::string_view fmt, Args const&... args) {
+        if (ap.valid())
+          ap.printf(fmt, args...);
+        return *this;
+      }
+
       template <typename F>
       LogWarningThatSuppressesLikeLogInfo& log(F&& iF) {
         if (ap.valid()) {
@@ -724,6 +808,11 @@ namespace edm {
 
     template <typename... Args>
     Suppress_LogDebug_& format(std::string_view fmt, Args const&... args) {
+      return *this;
+    }
+
+    template <typename... Args>
+    Suppress_LogDebug_& printf(std::string_view fmt, Args const&... args) {
       return *this;
     }
 
