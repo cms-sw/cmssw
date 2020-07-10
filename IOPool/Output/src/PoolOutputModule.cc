@@ -246,6 +246,10 @@ namespace edm {
   void PoolOutputModule::respondToOpenInputFile(FileBlock const& fb) {
     if (!initializedFromInput_) {
       for (int i = InEvent; i < NumBranchTypes; ++i) {
+        if (i == InProcess) {
+          // ProcessBlock output not implemented yet
+          continue;
+        }
         BranchType branchType = static_cast<BranchType>(i);
         TTree* theInputTree =
             (branchType == InEvent ? fb.tree() : (branchType == InLumi ? fb.lumiTree() : fb.runTree()));

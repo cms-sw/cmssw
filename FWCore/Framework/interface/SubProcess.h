@@ -32,10 +32,13 @@ namespace edm {
   class EventSetupImpl;
   class HistoryAppender;
   class IOVSyncValue;
+  class LumiTransitionInfo;
   class MergeableRunProductMetadata;
   class ParameterSet;
+  class ProcessBlockTransitionInfo;
   class ProductRegistry;
   class PreallocationConfiguration;
+  class RunTransitionInfo;
   class ThinnedAssociationsHelper;
   class SubProcessParentageHelper;
   class WaitingTaskHolder;
@@ -79,26 +82,23 @@ namespace edm {
                       EventPrincipal const& principal,
                       std::vector<std::shared_ptr<const EventSetupImpl>> const*);
 
-    void doBeginRunAsync(WaitingTaskHolder iHolder,
-                         RunPrincipal const& principal,
-                         IOVSyncValue const& ts,
-                         std::vector<std::shared_ptr<const EventSetupImpl>> const*);
+    template <typename Traits>
+    void doBeginProcessBlockAsync(WaitingTaskHolder iHolder, ProcessBlockTransitionInfo const& iTransitionInfo);
+
+    void doEndProcessBlockAsync(WaitingTaskHolder iHolder,
+                                ProcessBlockTransitionInfo const& iTransitionInfo,
+                                bool cleaningUpAfterException);
+
+    void doBeginRunAsync(WaitingTaskHolder iHolder, RunTransitionInfo const& iTransitionInfo);
 
     void doEndRunAsync(WaitingTaskHolder iHolder,
-                       RunPrincipal const& principal,
-                       IOVSyncValue const& ts,
-                       std::vector<std::shared_ptr<const EventSetupImpl>> const*,
+                       RunTransitionInfo const& iTransitionInfo,
                        bool cleaningUpAfterException);
 
-    void doBeginLuminosityBlockAsync(WaitingTaskHolder iHolder,
-                                     LuminosityBlockPrincipal const& principal,
-                                     IOVSyncValue const& ts,
-                                     std::vector<std::shared_ptr<const EventSetupImpl>> const*);
+    void doBeginLuminosityBlockAsync(WaitingTaskHolder iHolder, LumiTransitionInfo const& iTransitionInfo);
 
     void doEndLuminosityBlockAsync(WaitingTaskHolder iHolder,
-                                   LuminosityBlockPrincipal const& principal,
-                                   IOVSyncValue const& ts,
-                                   std::vector<std::shared_ptr<const EventSetupImpl>> const*,
+                                   LumiTransitionInfo const& iTransitionInfo,
                                    bool cleaningUpAfterException);
 
     void doBeginStream(unsigned int);
@@ -129,18 +129,21 @@ namespace edm {
                                          std::vector<std::shared_ptr<const EventSetupImpl>> const*,
                                          bool cleaningUpAfterException);
 
-    // Write the luminosity block
     void writeLumiAsync(WaitingTaskHolder, LuminosityBlockPrincipal&);
 
     void deleteLumiFromCache(LuminosityBlockPrincipal&);
 
-    // Write the run
+    using ProcessBlockType = PrincipalCache::ProcessBlockType;
+    void writeProcessBlockAsync(edm::WaitingTaskHolder task, ProcessBlockType);
+
     void writeRunAsync(WaitingTaskHolder,
                        ProcessHistoryID const& parentPhID,
                        int runNumber,
                        MergeableRunProductMetadata const*);
 
     void deleteRunFromCache(ProcessHistoryID const& parentPhID, int runNumber);
+
+    void clearProcessBlockPrincipal(ProcessBlockType);
 
     // Call closeFile() on all OutputModules.
     void closeOutputFiles() {
