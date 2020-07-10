@@ -45,11 +45,11 @@ namespace {
   constexpr double m_proton = 938.272;
   float calcQ(float x);
 }  // namespace
-namespace { 
+namespace {
   float calcQ(float x) {
     constexpr float p1 = 12.5f;
-    constexpr float p2 =  0.2733f;
-    constexpr float p3 =  0.147f;
+    constexpr float p2 = 0.2733f;
+    constexpr float p3 = 0.147f;
 
     auto xx = std::min(0.5f * x * x, p1);
     return 0.5f * (1.f - std::copysign(std::sqrt(1.f - unsafe_expf<4>(-xx * (1.f + p2 / (1.f + p3 * xx)))), x));
