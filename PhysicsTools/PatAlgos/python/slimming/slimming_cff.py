@@ -65,7 +65,7 @@ pp_on_AA_2018.toReplaceWith(slimmingTask, slimmingTask.copyAndExclude([slimmedOO
 from Configuration.Eras.Modifier_pp_on_PbPb_run3_cff import pp_on_PbPb_run3
 from PhysicsTools.PatAlgos.packedCandidateMuonID_cfi import packedCandidateMuonID
 from PhysicsTools.PatAlgos.packedPFCandidateTrackChi2_cfi import packedPFCandidateTrackChi2
-lostTrackChi2 = packedPFCandidateTrackChi2.clone(candidates = cms.InputTag("lostTracks"), doLostTracks = cms.bool(True))
+lostTrackChi2 = packedPFCandidateTrackChi2.clone(candidates = "lostTracks", doLostTracks = True)
 (pp_on_AA_2018 | pp_on_PbPb_run3).toReplaceWith(slimmingTask, cms.Task(slimmingTask.copy(), packedCandidateMuonID, packedPFCandidateTrackChi2, lostTrackChi2))
 
 
