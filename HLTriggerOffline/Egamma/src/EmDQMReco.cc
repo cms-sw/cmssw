@@ -39,6 +39,8 @@
 #include "TH1F.h"
 #include <Math/VectorUtil.h>
 #include <iostream>
+#include <memory>
+
 #include <string>
 using namespace ROOT::Math::VectorUtil;
 
@@ -258,27 +260,27 @@ void EmDQMReco::bookHistograms(DQMStore::IBooker &iBooker, edm::Run const &iRun,
 
   // reco
   // (note that reset(..) must be used to set the value of the scoped_ptr...)
-  histReco.reset(new FourVectorMonitorElements(this,
-                                               iBooker,
-                                               "reco_%s",  // pattern for histogram name
-                                               "%s of " + pdgIdString + "s"));
+  histReco = std::make_unique<FourVectorMonitorElements>(this,
+                                                         iBooker,
+                                                         "reco_%s",  // pattern for histogram name
+                                                         "%s of " + pdgIdString + "s");
 
   //--------------------
 
   // monpath
-  histRecoMonpath.reset(new FourVectorMonitorElements(this,
-                                                      iBooker,
-                                                      "reco_%s_monpath",  // pattern for histogram name
-                                                      "%s of " + pdgIdString + "s monpath"));
+  histRecoMonpath = std::make_unique<FourVectorMonitorElements>(this,
+                                                                iBooker,
+                                                                "reco_%s_monpath",  // pattern for histogram name
+                                                                "%s of " + pdgIdString + "s monpath");
 
   //--------------------
 
   // TODO: WHAT ARE THESE HISTOGRAMS FOR ? THEY SEEM NEVER REFERENCED ANYWHERE
   // IN THIS FILE... final X monpath
-  histMonpath.reset(new FourVectorMonitorElements(this,
-                                                  iBooker,
-                                                  "final_%s_monpath",  // pattern for histogram name
-                                                  "Final %s Monpath"));
+  histMonpath = std::make_unique<FourVectorMonitorElements>(this,
+                                                            iBooker,
+                                                            "final_%s_monpath",  // pattern for histogram name
+                                                            "Final %s Monpath");
 
   //--------------------
 
