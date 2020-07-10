@@ -90,7 +90,7 @@ from IOMC.EventVertexGenerators.beamDivergenceVtxGenerator_cfi import *
 
 # direct simulation
 from Validation.CTPPS.ctppsDirectProtonSimulation_cfi import *
-ctppsDirectProtonSimulation.verbosity = 0
+ctppsDirectProtonSimulation.verbosity = 10
 ctppsDirectProtonSimulation.hepMCTag = cms.InputTag('beamDivergenceVtxGenerator')
 ctppsDirectProtonSimulation.roundToPitch = True
 ctppsDirectProtonSimulation.pitchStrips = 66E-3 * 12 / 19 # effective value to reproduce real RP resolution

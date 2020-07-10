@@ -13,7 +13,7 @@ process.MessageLogger = cms.Service("MessageLogger",
   statistics = cms.untracked.vstring(),
   destinations = cms.untracked.vstring('cout'),
   cout = cms.untracked.PSet(
-    threshold = cms.untracked.string('WARNING')
+    threshold = cms.untracked.string('INFO')
   )
 )
 
