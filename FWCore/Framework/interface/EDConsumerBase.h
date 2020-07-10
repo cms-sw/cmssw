@@ -23,6 +23,7 @@
 #include <string>
 #include <vector>
 #include <array>
+#include <cassert>
 
 // user include files
 #include "DataFormats/Provenance/interface/BranchType.h"
@@ -108,18 +109,23 @@ namespace edm {
     std::vector<ConsumesInfo> consumesInfo() const;
 
     ESProxyIndex const* esGetTokenIndices(edm::Transition iTrans) const {
-      auto const& v = esItemsToGetFromTransition_[static_cast<unsigned int>(iTrans)];
-      if (v.empty()) {
-        return nullptr;
+      if (iTrans < edm::Transition::NumberOfEventSetupTransitions) {
+        auto const& v = esItemsToGetFromTransition_[static_cast<unsigned int>(iTrans)];
+        if (v.empty()) {
+          return nullptr;
+        }
+        return &(esItemsToGetFromTransition_[static_cast<unsigned int>(iTrans)].front());
       }
-      return &(esItemsToGetFromTransition_[static_cast<unsigned int>(iTrans)].front());
+      return nullptr;
     }
 
     std::vector<ESProxyIndex> const& esGetTokenIndicesVector(edm::Transition iTrans) const {
+      assert(iTrans < edm::Transition::NumberOfEventSetupTransitions);
       return esItemsToGetFromTransition_[static_cast<unsigned int>(iTrans)];
     }
 
     std::vector<ESRecordIndex> const& esGetTokenRecordIndicesVector(edm::Transition iTrans) const {
+      assert(iTrans < edm::Transition::NumberOfEventSetupTransitions);
       return esRecordsToGetFromTransition_[static_cast<unsigned int>(iTrans)];
     }
 
@@ -202,6 +208,7 @@ namespace edm {
     void throwBranchMismatch(BranchType, EDGetToken) const;
     void throwBadToken(edm::TypeID const& iType, EDGetToken iToken) const;
     void throwConsumesCallAfterFrozen(TypeToGet const&, InputTag const&) const;
+    void throwESConsumesInProcessBlock() const;
 
     edm::InputTag const& checkIfEmpty(edm::InputTag const& tag);
     // ---------- member data --------------------------------
@@ -253,9 +260,9 @@ namespace edm {
     // inserts in the middle of the data structure.
     enum { kESLookupInfo, kESProxyIndex };
     edm::SoATuple<ESTokenLookupInfo, ESProxyIndex> m_esTokenInfo;
-    std::array<std::vector<ESProxyIndex>, static_cast<unsigned int>(edm::Transition::NumberOfTransitions)>
+    std::array<std::vector<ESProxyIndex>, static_cast<unsigned int>(edm::Transition::NumberOfEventSetupTransitions)>
         esItemsToGetFromTransition_;
-    std::array<std::vector<ESRecordIndex>, static_cast<unsigned int>(edm::Transition::NumberOfTransitions)>
+    std::array<std::vector<ESRecordIndex>, static_cast<unsigned int>(edm::Transition::NumberOfEventSetupTransitions)>
         esRecordsToGetFromTransition_;
     bool frozen_;
     bool containsCurrentProcessAlias_;

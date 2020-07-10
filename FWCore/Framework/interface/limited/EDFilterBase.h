@@ -65,6 +65,8 @@ namespace edm {
       // Warning: the returned moduleDescription will be invalid during construction
       ModuleDescription const& moduleDescription() const { return moduleDescription_; }
 
+      virtual bool wantsProcessBlocks() const = 0;
+      virtual bool wantsInputProcessBlocks() const = 0;
       virtual bool wantsGlobalRuns() const = 0;
       virtual bool wantsGlobalLuminosityBlocks() const = 0;
       virtual bool wantsStreamRuns() const = 0;
@@ -98,6 +100,9 @@ namespace edm {
                                       EventSetupImpl const& c,
                                       ModuleCallingContext const*);
 
+      void doBeginProcessBlock(ProcessBlockPrincipal const&, ModuleCallingContext const*);
+      void doAccessInputProcessBlock(ProcessBlockPrincipal const&, ModuleCallingContext const*);
+      void doEndProcessBlock(ProcessBlockPrincipal const&, ModuleCallingContext const*);
       void doBeginRun(RunPrincipal const& rp, EventSetupImpl const& c, ModuleCallingContext const*);
       void doEndRun(RunPrincipal const& rp, EventSetupImpl const& c, ModuleCallingContext const*);
       void doBeginLuminosityBlock(LuminosityBlockPrincipal const& lbp,
@@ -134,6 +139,9 @@ namespace edm {
       virtual void doStreamEndLuminosityBlock_(StreamID id, LuminosityBlock const& lbp, EventSetup const& c);
       virtual void doStreamEndLuminosityBlockSummary_(StreamID id, LuminosityBlock const& lbp, EventSetup const& c);
 
+      virtual void doBeginProcessBlock_(ProcessBlock const&);
+      virtual void doAccessInputProcessBlock_(ProcessBlock const&);
+      virtual void doEndProcessBlock_(ProcessBlock const&);
       virtual void doBeginRun_(Run const& rp, EventSetup const& c);
       virtual void doBeginRunSummary_(Run const& rp, EventSetup const& c);
       virtual void doEndRunSummary_(Run const& rp, EventSetup const& c);
@@ -143,6 +151,8 @@ namespace edm {
       virtual void doEndLuminosityBlockSummary_(LuminosityBlock const& lb, EventSetup const& c);
       virtual void doEndLuminosityBlock_(LuminosityBlock const& lb, EventSetup const& c);
 
+      virtual void doBeginProcessBlockProduce_(ProcessBlock&);
+      virtual void doEndProcessBlockProduce_(ProcessBlock&);
       virtual void doBeginRunProduce_(Run& rp, EventSetup const& c);
       virtual void doEndRunProduce_(Run& rp, EventSetup const& c);
       virtual void doBeginLuminosityBlockProduce_(LuminosityBlock& lbp, EventSetup const& c);

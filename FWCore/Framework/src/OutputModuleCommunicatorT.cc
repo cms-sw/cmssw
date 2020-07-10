@@ -59,6 +59,45 @@ namespace edm {
   }
 
   template <typename T>
+  void OutputModuleCommunicatorT<T>::writeProcessBlockAsync(WaitingTaskHolder iTask,
+                                                            ProcessBlockPrincipal const& processBlockPrincipal,
+                                                            ProcessContext const* processContext,
+                                                            ActivityRegistry* activityRegistry) {
+    auto token = ServiceRegistry::instance().presentToken();
+    GlobalContext globalContext(GlobalContext::Transition::kWriteProcessBlock,
+                                LuminosityBlockID(),
+                                RunIndex::invalidRunIndex(),
+                                LuminosityBlockIndex::invalidLuminosityBlockIndex(),
+                                Timestamp::invalidTimestamp(),
+                                processContext);
+    auto t = [&mod = module(),
+              &processBlockPrincipal,
+              globalContext,
+              token,
+              desc = &description(),
+              activityRegistry,
+              iTask]() mutable {
+      std::exception_ptr ex;
+      // Caught exception is propagated via WaitingTaskHolder
+      CMS_SA_ALLOW try {
+        ServiceRegistry::Operate op(token);
+        ParentContext parentContext(&globalContext);
+        ModuleCallingContext mcc(desc);
+        ModuleContextSentry moduleContextSentry(&mcc, parentContext);
+        activityRegistry->preModuleWriteProcessBlockSignal_(globalContext, mcc);
+        auto sentry(make_sentry(activityRegistry, [&globalContext, &mcc](ActivityRegistry* ar) {
+          ar->postModuleWriteProcessBlockSignal_(globalContext, mcc);
+        }));
+        mod.doWriteProcessBlock(processBlockPrincipal, &mcc);
+      } catch (...) {
+        ex = std::current_exception();
+      }
+      iTask.doneWaiting(ex);
+    };
+    async(module(), std::move(t));
+  }
+
+  template <typename T>
   void OutputModuleCommunicatorT<T>::writeRunAsync(WaitingTaskHolder iTask,
                                                    edm::RunPrincipal const& rp,
                                                    ProcessContext const* processContext,
@@ -71,7 +110,7 @@ namespace edm {
                                 LuminosityBlockIndex::invalidLuminosityBlockIndex(),
                                 rp.endTime(),
                                 processContext);
-    auto t = [& mod = module(),
+    auto t = [&mod = module(),
               &rp,
               globalContext,
               token,
@@ -111,7 +150,7 @@ namespace edm {
                                 lbp.index(),
                                 lbp.beginTime(),
                                 processContext);
-    auto t = [& mod = module(), &lbp, activityRegistry, token, globalContext, desc = &description(), iTask]() mutable {
+    auto t = [&mod = module(), &lbp, activityRegistry, token, globalContext, desc = &description(), iTask]() mutable {
       std::exception_ptr ex;
       // Caught exception is propagated via WaitingTaskHolder
       CMS_SA_ALLOW try {

@@ -1,8 +1,8 @@
 
 /*----------------------------------------------------------------------
 
-Toy edm::stream::EDAnalyzer modules of 
-edm::*Cache templates 
+Toy edm::stream::EDAnalyzer modules of
+edm::*Cache templates
 for testing purposes only.
 
 ----------------------------------------------------------------------*/
@@ -19,6 +19,7 @@ for testing purposes only.
 #include "FWCore/Utilities/interface/GlobalIdentifier.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/Framework/interface/ProcessBlock.h"
 #include "FWCore/Framework/interface/TriggerNamesService.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
@@ -37,9 +38,16 @@ namespace edmtest {
         mutable std::atomic<unsigned int> run;
         mutable std::atomic<unsigned int> lumi;
       };
+      struct TestGlobalCacheAn {
+        CMS_THREAD_SAFE mutable edm::EDGetTokenT<unsigned int> getTokenBegin_;
+        CMS_THREAD_SAFE mutable edm::EDGetTokenT<unsigned int> getTokenEnd_;
+        unsigned int trans_{0};
+        CMS_THREAD_SAFE mutable std::atomic<unsigned int> m_count{0};
+      };
     }  // namespace cache
 
     using Cache = cache::Cache;
+    using TestGlobalCacheAn = cache::TestGlobalCacheAn;
 
     class GlobalIntAnalyzer : public edm::stream::EDAnalyzer<edm::GlobalCache<Cache>> {
     public:
@@ -444,6 +452,101 @@ namespace edmtest {
       }
     };
 
+    class ProcessBlockIntAnalyzer
+        : public edm::stream::EDAnalyzer<edm::WatchProcessBlock, edm::GlobalCache<TestGlobalCacheAn>> {
+    public:
+      explicit ProcessBlockIntAnalyzer(edm::ParameterSet const& pset, TestGlobalCacheAn const* testGlobalCache) {
+        {
+          auto tag = pset.getParameter<edm::InputTag>("consumesBeginProcessBlock");
+          if (not tag.label().empty()) {
+            testGlobalCache->getTokenBegin_ = consumes<unsigned int, edm::InProcess>(tag);
+          }
+        }
+        {
+          auto tag = pset.getParameter<edm::InputTag>("consumesEndProcessBlock");
+          if (not tag.label().empty()) {
+            testGlobalCache->getTokenEnd_ = consumes<unsigned int, edm::InProcess>(tag);
+          }
+        }
+      }
+
+      static std::unique_ptr<TestGlobalCacheAn> initializeGlobalCache(edm::ParameterSet const& pset) {
+        auto testGlobalCache = std::make_unique<TestGlobalCacheAn>();
+        testGlobalCache->trans_ = pset.getParameter<int>("transitions");
+        return testGlobalCache;
+      }
+
+      static void beginProcessBlock(edm::ProcessBlock const& processBlock, TestGlobalCacheAn* testGlobalCache) {
+        if (testGlobalCache->m_count != 0) {
+          throw cms::Exception("transitions") << "ProcessBlockIntAnalyzer::begin transitions "
+                                              << testGlobalCache->m_count << " but it was supposed to be " << 0;
+        }
+        ++testGlobalCache->m_count;
+
+        const unsigned int valueToGet = 51;
+        if (not testGlobalCache->getTokenBegin_.isUninitialized()) {
+          if (processBlock.get(testGlobalCache->getTokenBegin_) != valueToGet) {
+            throw cms::Exception("BadValue")
+                << "expected " << valueToGet << " but got " << processBlock.get(testGlobalCache->getTokenBegin_);
+          }
+        }
+      }
+
+      static std::shared_ptr<Cache> accessInputProcessBlock(edm::ProcessBlock const&, TestGlobalCacheAn*) {
+        return std::make_shared<Cache>();
+      }
+
+      void analyze(edm::Event const&, edm::EventSetup const&) override {
+        TestGlobalCacheAn const* testGlobalCache = globalCache();
+        if (testGlobalCache->m_count < 1u) {
+          throw cms::Exception("out of sequence") << "produce before beginProcessBlock " << testGlobalCache->m_count;
+        }
+        ++testGlobalCache->m_count;
+      }
+
+      static void endProcessBlock(edm::ProcessBlock const& processBlock, TestGlobalCacheAn* testGlobalCache) {
+        ++testGlobalCache->m_count;
+        if (testGlobalCache->m_count != testGlobalCache->trans_) {
+          throw cms::Exception("transitions") << "ProcessBlockIntAnalyzer::end transitions " << testGlobalCache->m_count
+                                              << " but it was supposed to be " << testGlobalCache->trans_;
+        }
+        {
+          const unsigned int valueToGet = 51;
+          if (not testGlobalCache->getTokenBegin_.isUninitialized()) {
+            if (processBlock.get(testGlobalCache->getTokenBegin_) != valueToGet) {
+              throw cms::Exception("BadValue")
+                  << "expected " << valueToGet << " but got " << processBlock.get(testGlobalCache->getTokenBegin_);
+            }
+          }
+        }
+        {
+          const unsigned int valueToGet = 61;
+          if (not testGlobalCache->getTokenEnd_.isUninitialized()) {
+            if (processBlock.get(testGlobalCache->getTokenEnd_) != valueToGet) {
+              throw cms::Exception("BadValue")
+                  << "expected " << valueToGet << " but got " << processBlock.get(testGlobalCache->getTokenEnd_);
+            }
+          }
+        }
+      }
+
+      static void globalEndJob(TestGlobalCacheAn* testGlobalCache) {
+        if (testGlobalCache->m_count != testGlobalCache->trans_) {
+          throw cms::Exception("transitions")
+              << "TestBeginProcessBlockAnalyzer transitions " << testGlobalCache->m_count
+              << " but it was supposed to be " << testGlobalCache->trans_;
+        }
+      }
+
+      ~ProcessBlockIntAnalyzer() {
+        TestGlobalCacheAn const* testGlobalCache = globalCache();
+        if (testGlobalCache->m_count != testGlobalCache->trans_) {
+          throw cms::Exception("transitions") << "ProcessBlockIntAnalyzer transitions " << testGlobalCache->m_count
+                                              << " but it was supposed to be " << testGlobalCache->trans_;
+        }
+      }
+    };
+
   }  // namespace stream
 }  // namespace edmtest
 std::atomic<unsigned int> edmtest::stream::GlobalIntAnalyzer::m_count{0};
@@ -484,3 +587,4 @@ DEFINE_FWK_MODULE(edmtest::stream::RunIntAnalyzer);
 DEFINE_FWK_MODULE(edmtest::stream::LumiIntAnalyzer);
 DEFINE_FWK_MODULE(edmtest::stream::RunSummaryIntAnalyzer);
 DEFINE_FWK_MODULE(edmtest::stream::LumiSummaryIntAnalyzer);
+DEFINE_FWK_MODULE(edmtest::stream::ProcessBlockIntAnalyzer);

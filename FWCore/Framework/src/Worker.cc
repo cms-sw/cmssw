@@ -156,10 +156,7 @@ namespace edm {
     }
   }
 
-  bool Worker::shouldRethrowException(std::exception_ptr iPtr,
-                                      ParentContext const& parentContext,
-                                      bool isEvent,
-                                      TransitionIDValueBase const& iID) const {
+  bool Worker::shouldRethrowException(std::exception_ptr iPtr, ParentContext const& parentContext, bool isEvent) const {
     // NOTE: the warning printed as a result of ignoring or failing
     // a module will only be printed during the full true processing
     // pass of this module
@@ -280,6 +277,9 @@ namespace edm {
   }
 
   void Worker::esPrefetchAsync(WaitingTask* iTask, EventSetupImpl const& iImpl, Transition iTrans) {
+    if (iTrans >= edm::Transition::NumberOfEventSetupTransitions) {
+      return;
+    }
     auto const& recs = esRecordsToGetFrom(iTrans);
     auto const& items = esItemsToGetFrom(iTrans);
 
@@ -460,8 +460,7 @@ namespace edm {
       convertException::wrap([&]() { this->implDoAcquire(ep, es, &moduleCallingContext_, holder); });
     } catch (cms::Exception& ex) {
       exceptionContext(ex, &moduleCallingContext_);
-      TransitionIDValue<EventPrincipal> idValue(ep);
-      if (shouldRethrowException(std::current_exception(), parentContext, true, idValue)) {
+      if (shouldRethrowException(std::current_exception(), parentContext, true)) {
         timesRun_.fetch_add(1, std::memory_order_relaxed);
         throw;
       }
@@ -477,8 +476,7 @@ namespace edm {
     std::exception_ptr exceptionPtr;
     if (iEPtr) {
       assert(*iEPtr);
-      TransitionIDValue<EventPrincipal> idValue(ep);
-      if (shouldRethrowException(*iEPtr, parentContext, true, idValue)) {
+      if (shouldRethrowException(*iEPtr, parentContext, true)) {
         exceptionPtr = *iEPtr;
       }
       moduleCallingContext_.setContext(ModuleCallingContext::State::kInvalid, ParentContext(), nullptr);
