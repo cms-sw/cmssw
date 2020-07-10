@@ -100,8 +100,8 @@ private:
 
   bool useEmpiricalApertures_;
   //aperture parameters
-  std::unique_ptr<TF2> empiricalAperture45;
-  std::unique_ptr<TF2> empiricalAperture56;
+  std::unique_ptr<TF2> empiricalAperture45_;
+  std::unique_ptr<TF2> empiricalAperture56_;
 
   bool produceHitsRelativeToBeam_;
   bool roundToPitch_;
@@ -135,8 +135,8 @@ CTPPSDirectProtonSimulation::CTPPSDirectProtonSimulation(const edm::ParameterSet
       produceRecHits_(iConfig.getParameter<bool>("produceRecHits")),
 
       useEmpiricalApertures_(iConfig.getParameter<bool>("useEmpiricalApertures")),
-      empiricalAperture45(new TF2("empiricalAperture45",iConfig.getParameter<std::string>("empiricalAperture45").c_str())),
-      empiricalAperture56(new TF2("empiricalAperture56",iConfig.getParameter<std::string>("empiricalAperture56").c_str())),
+      empiricalAperture45_(new TF2("empiricalAperture45",iConfig.getParameter<std::string>("empiricalAperture45").c_str())),
+      empiricalAperture56_(new TF2("empiricalAperture56",iConfig.getParameter<std::string>("empiricalAperture56").c_str())),
 
       produceHitsRelativeToBeam_(iConfig.getParameter<bool>("produceHitsRelativeToBeam")),
       roundToPitch_(iConfig.getParameter<bool>("roundToPitch")),
@@ -330,13 +330,13 @@ void CTPPSDirectProtonSimulation::processProton(
     z_sign = -1;
     beamMomentum = beamParameters.getBeamMom45();
     xangle = beamParameters.getHalfXangleX45();
-    empiricalAperture=&empiricalAperture45;
+    empiricalAperture=&empiricalAperture45_;
   } else {  // sector 56
     arm = 1;
     z_sign = +1;
     beamMomentum = beamParameters.getBeamMom56();
     xangle = beamParameters.getHalfXangleX56();
-    empiricalAperture=&empiricalAperture56;
+    empiricalAperture=&empiricalAperture56_;
   }
 
   // calculate effective RP arrival time
@@ -363,9 +363,11 @@ void CTPPSDirectProtonSimulation::processProton(
   // check empirical aperture
   if (useEmpiricalApertures_) {
     const auto &xangle = lhcInfo.crossingAngle();
-    const double xi_th = (*empiricalAperture)->Eval(xi,xangle);
+    (*empiricalAperture)->SetParameter("xi",xi);
+    (*empiricalAperture)->SetParameter("xangle",xangle);
+    const double th_x_th = (*empiricalAperture)->EvalPar(nullptr);
 
-    if (xi_th > th_x_phys) {
+    if (th_x_th > th_x_phys) {
       if (verbosity_) {
         ssLog << "stop because of empirical appertures";
         edm::LogInfo("CTPPSDirectProtonSimulation") << ssLog.str();

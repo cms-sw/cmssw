@@ -42,8 +42,8 @@ ctppsRPAlignmentCorrectionsDataESSourceXML.RealFiles = [alignmentFile]
 
 # aperture cuts
 ctppsDirectProtonSimulation.useEmpiricalApertures = True
-ctppsDirectProtonSimulation.empiricalAperture45="(x-(0.079 + y * 4.211E-04))/(42.8 + y * 0.669)"
-ctppsDirectProtonSimulation.empiricalAperture56="(x-(0.074 + y * 6.604E-04))/(-22.7 + y * 1.600)"
+ctppsDirectProtonSimulation.empiricalAperture45="([xi]-(0.079 + [xangle] * 4.211E-04))/(42.8 + [xangle] * 0.669)"
+ctppsDirectProtonSimulation.empiricalAperture56="([xi]-(0.074 + [xangle] * 6.604E-04))/(-22.7 + [xangle] * 1.600)"
 
 # local reconstruction
 ctppsLocalTrackLiteProducer.includeStrips = False
