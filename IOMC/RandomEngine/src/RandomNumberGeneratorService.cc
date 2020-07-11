@@ -491,6 +491,19 @@ namespace edm {
     }
 
     void
+    RandomNumberGeneratorService::setLumiCache(LuminosityBlockIndex iLumi, std::vector<RandomEngineState> const& iStates) {
+      lumiCache_[iLumi] = iStates;
+      // Copy from cache to engine the state for a particular luminosityBlockIndex
+      restoreFromCache(lumiCache_[iLumi], lumiEngines_[iLumi]);
+    }
+    void
+    RandomNumberGeneratorService::setEventCache(StreamID iStream, std::vector<RandomEngineState> const& iStates) {
+      eventCache_[iStream] = iStates;
+      // copy from event cache to engines
+      restoreFromCache(eventCache_[iStream], streamEngines_[iStream]);
+    }
+
+    void
     RandomNumberGeneratorService::preModuleBeginStream(StreamContext const& sc, ModuleCallingContext const& mcc) {
       preModuleStreamCheck(sc, mcc);
     }

@@ -193,6 +193,9 @@ namespace edm {
     virtual void preBeginLumi(LuminosityBlock const& lumi) = 0;
     virtual void postEventRead(Event const& event) = 0;
 
+    virtual void setLumiCache(LuminosityBlockIndex, std::vector<RandomEngineState> const& iStates) = 0;
+    virtual void setEventCache(StreamID, std::vector<RandomEngineState> const& iStates) = 0;
+
     virtual std::vector<RandomEngineState> const& getEventCache(StreamID const&) const = 0;
     virtual std::vector<RandomEngineState> const& getLumiCache(LuminosityBlockIndex const&) const = 0;
 
