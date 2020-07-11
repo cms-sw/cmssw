@@ -322,5 +322,29 @@
     <use   name="FWCore/SharedMemory"/>
     <use   name="boost"/>
   </library>
+  <library   file="RandomIntProducer.cc" name="RandomIntProducer">
+    <flags   EDM_PLUGIN="1"/>
+    <use   name="FWCore/ParameterSet"/>
+    <use   name="FWCore/Framework"/>
+    <use   name="FWCore/Utilities"/>
+    <use   name="DataFormats/TestObjects"/>
+    <use   name="clhep"/>
+  </library>
+  <library   file="TestInterProcessRandomProd.cc" name="TestInterProcessRandomProd">
+    <flags   EDM_PLUGIN="1"/>
+    <use   name="FWCore/Framework"/>
+    <use   name="FWCore/ParameterSet"/>
+    <use   name="FWCore/Sources"/>
+    <use   name="FWCore/SharedMemory"/>
+    <use   name="boost"/>
+    <use   name="clhep"/>
+  </library>
+  <bin   file="RandomIntProducer_t.cpp">
+    <use   name="FWCore/Framework"/>
+    <use   name="FWCore/ParameterSet"/>
+    <use   name="FWCore/TestProcessor"/>
+    <use   name="DataFormats/Provenance"/>
+    <use   name="catch2"/>
+  </bin>
   <test name="TestFWCoreIntegrationInterProcess" command="cmsRun ${LOCALTOP}/src/FWCore/Integration/test/test_TestInterProcessProd_cfg.py"/>
 </environment>
