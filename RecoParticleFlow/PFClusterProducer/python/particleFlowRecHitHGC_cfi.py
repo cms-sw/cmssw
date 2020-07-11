@@ -18,7 +18,7 @@ particleFlowRecHitHGC = cms.EDProducer("PFRecHitProducer",
     ),
     producers = cms.VPSet(
            cms.PSet(
-             name = cms.string("PFHGCEERecHitCreator"),
+             name = cms.string("PFHGCalEERecHitCreator"),
              src  = cms.InputTag("HGCalRecHit:HGCEERecHits"),
              geometryInstance = cms.string("HGCalEESensitive"),
              qualityTests = cms.VPSet(
@@ -31,7 +31,7 @@ particleFlowRecHitHGC = cms.EDProducer("PFRecHitProducer",
                 )              
            ),
            cms.PSet(
-             name = cms.string("PFHGCHEFRecHitCreator"),
+             name = cms.string("PFHGCalHSiRecHitCreator"),
              src  = cms.InputTag("HGCalRecHit:HGCHEFRecHits"),
              geometryInstance = cms.string("HGCalHESiliconSensitive"),
              qualityTests = cms.VPSet(
@@ -44,7 +44,7 @@ particleFlowRecHitHGC = cms.EDProducer("PFRecHitProducer",
                 )
            ),
            cms.PSet(
-             name = cms.string("PFHGCHEBRecHitCreator"),
+             name = cms.string("PFHGCalHScRecHitCreator"),
              src  = cms.InputTag("HGCalRecHit:HGCHEBRecHits"),
              geometryInstance = cms.string(""),
              qualityTests = cms.VPSet(
@@ -57,13 +57,4 @@ particleFlowRecHitHGC = cms.EDProducer("PFRecHitProducer",
                 )
            )
     )          
-)
-
-from Configuration.Eras.Modifier_phase2_hgcalV9_cff import phase2_hgcalV9
-phase2_hgcalV9.toModify(particleFlowRecHitHGC,
-    producers = {
-        0 : dict(name = "PFHGCalEERecHitCreator"),
-        1 : dict(name = "PFHGCalHSiRecHitCreator"),
-        2 : dict(name = "PFHGCalHScRecHitCreator"),
-    }
 )

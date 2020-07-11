@@ -194,14 +194,14 @@ HGCHitValidation::HGCHitValidation(const edm::ParameterSet &cfg)
 }
 
 void HGCHitValidation::fillDescriptions(edm::ConfigurationDescriptions &descriptions) {
-  std::vector<std::string> names = {"HGCalEESensitive", "HGCalHESiliconSensitive", "Hcal"};
+  std::vector<std::string> names = {"HGCalEESensitive", "HGCalHESiliconSensitive", "HGCalHEScintillatorSensitive"};
   std::vector<int> etas;
   edm::ParameterSetDescription desc;
   desc.addUntracked<bool>("makeTree", true);
   desc.addUntracked<std::vector<std::string>>("geometrySource", names);
   desc.add<edm::InputTag>("eeSimHitSource", edm::InputTag("g4SimHits", "HGCHitsEE"));
   desc.add<edm::InputTag>("fhSimHitSource", edm::InputTag("g4SimHits", "HGCHitsHEfront"));
-  desc.add<edm::InputTag>("bhSimHitSource", edm::InputTag("g4SimHits", "HcalHits"));
+  desc.add<edm::InputTag>("bhSimHitSource", edm::InputTag("g4SimHits", "HGCHitsHEback"));
   desc.add<edm::InputTag>("eeRecHitSource", edm::InputTag("HGCalRecHit", "HGCEERecHits"));
   desc.add<edm::InputTag>("fhRecHitSource", edm::InputTag("HGCalRecHit", "HGCHEFRecHits"));
   desc.add<edm::InputTag>("bhRecHitSource", edm::InputTag("HGCalRecHit", "HGCHEBRecHits"));

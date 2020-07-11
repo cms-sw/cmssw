@@ -77,7 +77,7 @@ HGCGeometryCheck::HGCGeometryCheck(const edm::ParameterSet &cfg) : hcons_(0) {
 }
 
 void HGCGeometryCheck::fillDescriptions(edm::ConfigurationDescriptions &descriptions) {
-  std::vector<std::string> names = {"HGCalEESensitive", "HGCalHESiliconSensitive", "Hcal"};
+  std::vector<std::string> names = {"HGCalEESensitive", "HGCalHESiliconSensitive", "HGCalHEScintillatorSensitive"};
   edm::ParameterSetDescription desc;
   desc.addUntracked<std::vector<std::string> >("geometrySource", names);
   desc.add<edm::InputTag>("g4Source", edm::InputTag("g4SimHits", "HGCalInfoLayer"));
