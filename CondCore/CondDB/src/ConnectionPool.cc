@@ -15,8 +15,6 @@
 #include "CoralKernel/Context.h"
 #include "CoralKernel/IProperty.h"
 #include "CoralKernel/IPropertyManager.h"
-// externals
-#include <boost/filesystem/operations.hpp>
 
 namespace cond {
 

@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("DUMP")
-process.load("Geometry.HGCalCommonData.testFastTimeEndcapXML_cfi")
+process.load("Geometry.HGCalCommonData.testHGCalV13XML_cfi")
 process.load('FWCore.MessageService.MessageLogger_cfi')
 
 if 'MessageLogger' in process.__dict__:
@@ -20,7 +20,8 @@ process.add_(cms.ESProducer("TGeoMgrFromDdd",
         level   = cms.untracked.int32(14)
 ))
 
+
 process.dump = cms.EDAnalyzer("DumpSimGeometry",
-                              outputFileName = cms.untracked.string('FastTimeEndcapDDD.root'))
+                              outputFileName = cms.untracked.string('HGCalDDD.root'))
 
 process.p = cms.Path(process.dump)
