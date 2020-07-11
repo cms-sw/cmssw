@@ -1,6 +1,5 @@
 import FWCore.ParameterSet.Config as cms
 
-from Configuration.Eras.Modifier_phase2_hgcalV9_cff import phase2_hgcalV9
 from Configuration.Eras.Modifier_phase2_hgcalV10_cff import phase2_hgcalV10
 from Configuration.Eras.Modifier_phase2_hgcalV11_cff import phase2_hgcalV11
 
@@ -207,15 +206,6 @@ egamma_identification_histomax = cms.PSet(
         CategoriesPtMax=cms.vdouble([cat.pt_max for cat in categories]),
         Weights=cms.vstring(bdt_weights_histomax['v8_352']),
         WorkingPoints=cms.vdouble([wps[eff] for wps,eff in zip(working_points_histomax['v8_352'],tight_wp)]),
-        )
-
-# Era Modification for HGCal v9: use correct training and WPs
-phase2_hgcalV9.toModify(egamma_identification_histomax,
-        Inputs=cms.vstring(input_features_histomax['v9_394']),
-        Weights=cms.vstring(bdt_weights_histomax['v9_394']),
-        WorkingPoints=cms.vdouble(
-                [wps[eff] for wps,eff in zip(working_points_histomax['v9_394'],tight_wp)]
-                )
         )
 
 phase2_hgcalV10.toModify(egamma_identification_histomax,

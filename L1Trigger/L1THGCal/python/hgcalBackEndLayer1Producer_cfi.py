@@ -6,7 +6,7 @@ import RecoLocalCalo.HGCalRecProducers.HGCalUncalibRecHit_cfi as recoparam
 import RecoLocalCalo.HGCalRecProducers.HGCalRecHit_cfi as recocalibparam
 from . import hgcalLayersCalibrationCoefficients_cfi as layercalibparam
 
-from Configuration.Eras.Modifier_phase2_hgcalV9_cff import phase2_hgcalV9
+from Configuration.Eras.Modifier_phase2_hgcalV10_cff import phase2_hgcalV10
 
 c2d_calib_pset = cms.PSet(calibSF_cluster=cms.double(1.),
                           layerWeights=layercalibparam.TrgLayer_weights,
@@ -17,11 +17,11 @@ c2d_thresholds_pset = cms.PSet(seeding_threshold_silicon=cms.double(5.),
                                clustering_threshold_silicon=cms.double(2.),
                                clustering_threshold_scintillator=cms.double(2.))
 
-# V9 samples have a different defintiion of the dEdx calibrations. To account for it
-# we reascale the thresholds for the clustering
+# V9 samples have a different definition of the dEdx calibrations. To account for it
+# we rescale the thresholds for the clustering
 # (see https://indico.cern.ch/event/806845/contributions/3359859/attachments/1815187/2966402/19-03-20_EGPerf_HGCBE.pdf
 # for more details)
-phase2_hgcalV9.toModify(c2d_thresholds_pset,
+phase2_hgcalV10.toModify(c2d_thresholds_pset,
                         seeding_threshold_silicon=3.75,
                         seeding_threshold_scintillator=3.75,
                         clustering_threshold_silicon=1.5,
@@ -30,7 +30,7 @@ phase2_hgcalV9.toModify(c2d_thresholds_pset,
 
 # we still don't have layer calibrations for V9 geometry. Switching this off we
 # use the dEdx calibrated energy of the TCs
-phase2_hgcalV9.toModify(c2d_calib_pset,
+phase2_hgcalV10.toModify(c2d_calib_pset,
                         applyLayerCalibration=False
                         )
 

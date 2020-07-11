@@ -8,12 +8,6 @@ hgcalDigiStudyHEF = hgcalDigiStudyEE.clone(
     layers       = cms.untracked.int32(24))
 
 hgcalDigiStudyHEB = hgcalDigiStudyEE.clone(
-    detectorName = cms.string("HCal"),
+    detectorName = cms.string("HGCalHEScintillatorSensitive"),
     digiSource   = cms.InputTag("hgcalDigis","HEback"),
     layers       = cms.untracked.int32(24))
-
-from Configuration.Eras.Modifier_phase2_hgcalV9_cff import phase2_hgcalV9
-
-phase2_hgcalV9.toModify(hgcalDigiStudyHEB,
-                        detectorName = cms.string("HGCalHEScintillatorSensitive")
-                        )
