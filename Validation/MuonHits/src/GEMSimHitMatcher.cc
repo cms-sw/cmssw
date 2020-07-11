@@ -31,6 +31,10 @@ void GEMSimHitMatcher::match(const SimTrack& track, const SimVertex& vertex) {
   // instantiates the track ids and simhits
   MuonSimHitMatcher::match(track, vertex);
 
+  // hard cut on non-GEM muons
+  if (std::abs(track.momentum().eta()) < 1.55)
+    return;
+
   if (hasGeometry_) {
     matchSimHitsToSimTrack();
 
@@ -69,15 +73,27 @@ void GEMSimHitMatcher::matchSimHitsToSimTrack() {
     for (const auto& h : simHits_) {
       if (h.trackId() != track_id)
         continue;
-      int pdgid = h.particleType();
-      if (simMuOnly_ && std::abs(pdgid) != 13)
-        continue;
-      // discard electron hits in the GEM chambers
-      if (discardEleHits_ && pdgid == 11)
-        continue;
 
       const GEMDetId& p_id(h.detUnitId());
-      detid_to_hits_[h.detUnitId()].push_back(h);
+
+      if (verbose_)
+        std::cout << "Candidate GEM simhit " << p_id << " " << h << " " << h.particleType() << " " << h.processType()
+                  << std::endl;
+
+      int pdgid = h.particleType();
+
+      // consider only the muon hits
+      if (simMuOnly_ && std::abs(pdgid) != 13)
+        continue;
+
+      // discard electron hits in the GEM chambers
+      if (discardEleHits_ && std::abs(pdgid) == 11)
+        continue;
+
+      if (verbose_)
+        std::cout << "...was matched" << std::endl;
+
+      detid_to_hits_[p_id.rawId()].push_back(h);
       hits_.push_back(h);
       chamber_to_hits_[p_id.chamberId().rawId()].push_back(h);
       superchamber_to_hits_[p_id.superChamberId().rawId()].push_back(h);
