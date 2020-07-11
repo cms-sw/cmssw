@@ -34,6 +34,7 @@ public:
       azy_ = zy;
       azz_ = zz;
       name_ = geoInfo->name();
+      params_ = geoInfo->params();
       copy_ = geoInfo->copyno();
       z_ = geoInfo->parentZPosition();
       sensorType_ = geoInfo->sensorType();

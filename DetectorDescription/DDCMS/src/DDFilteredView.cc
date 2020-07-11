@@ -447,18 +447,28 @@ bool DDFilteredView::accept(std::string_view name) {
 
 const std::vector<double> DDFilteredView::parameters() const {
   assert(node_);
+  std::cout << "DDFilteredView::parameters, after assert " << std::endl;
   Volume currVol = node_->GetVolume();
   // Boolean shapes are a special case
   if (currVol->GetShape()->IsA() == TGeoCompositeShape::Class()) {
+    std::cout << "boolean shape " << std::endl;
     const TGeoCompositeShape* shape = static_cast<const TGeoCompositeShape*>(currVol->GetShape());
     const TGeoBoolNode* boolean = shape->GetBoolNode();
-    while (boolean->GetLeftShape()->IsA() != TGeoBBox::Class()) {
+    std::cout << "reached boolean " << std::endl;
+    while (boolean && boolean->GetLeftShape() && boolean->GetLeftShape()->IsA() != TGeoBBox::Class()) {
+      std::cout << "before" << std::endl;
       boolean = static_cast<const TGeoCompositeShape*>(boolean->GetLeftShape())->GetBoolNode();
+      std::cout << "after" << std::endl;
+      std::cout << "TGeoCompositeShape::Class = " << (boolean->GetLeftShape()->IsA() == TGeoCompositeShape::Class()) << std::endl;
     }
+    std::cout << "reached end while " << std::endl;
     const TGeoBBox* box = static_cast<const TGeoBBox*>(boolean->GetLeftShape());
+    std::cout << "reached end box " << std::endl;
     return {box->GetDX(), box->GetDY(), box->GetDZ()};
-  } else
+  } else {
+    std::cout << "currVol.solid().dimensions() " << std::endl;
     return currVol.solid().dimensions();
+  }
 }
 
 const cms::DDSolidShape DDFilteredView::shape() const {

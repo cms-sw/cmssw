@@ -17,6 +17,8 @@
 
 #include "DataFormats/Math/interface/CMSUnits.h"
 #include "DetectorDescription/DDCMS/interface/DDFilteredView.h"
+#include "DetectorDescription/DDCMS/interface/DDShapes.h"
+#include "DetectorDescription/DDCMS/interface/DDSolidShapes.h"
 #include "TGeoMatrix.h"
 
 #include "DataFormats/CTPPSDetId/interface/TotemRPDetId.h"
@@ -37,13 +39,13 @@ using namespace cms_units::operators;
 //----------------------------------------------------------------------------------------------------
 
 DetGeomDesc::DetGeomDesc(DDFilteredView* fv)
-    : m_trans(fv->translation()),
-      m_rot(fv->rotation()),
-      m_name(((fv->logicalPart()).ddname()).name()),
-      m_params(((fv->logicalPart()).solid()).parameters()),
-      m_copy(fv->copyno()),
-      m_z(fv->geoHistory().back().absTranslation().z()),
-      m_sensorType("") {
+  : m_trans(fv->translation()),
+    m_rot(fv->rotation()),
+    m_name(((fv->logicalPart()).ddname()).name()),
+    m_params(((fv->logicalPart()).solid()).parameters()),
+    m_copy(fv->copyno()),
+    m_z(fv->geoHistory().back().absTranslation().z()),
+    m_sensorType("") {
   std::string sensor_name = fv->geoHistory().back().logicalPart().name().fullname();
   std::size_t found = sensor_name.find(DDD_CTPPS_PIXELS_SENSOR_NAME);
   if (found != std::string::npos && sensor_name.substr(found - 4, 3) == DDD_CTPPS_PIXELS_SENSOR_TYPE_2x2) {
@@ -79,6 +81,7 @@ DetGeomDesc::DetGeomDesc(cms::DDFilteredView* fv)
     m_name(fv->name()),
     //m_params = ((fv->volume()).solid()).parameters(); TO DOOOOOOOOOOOOOOOOOOOOOOOOO
     //m_params(fv->parameters()),
+    
 
     m_geographicalID(computeDetID(fv)),
     m_copy(fv->copyNum()),
@@ -86,10 +89,31 @@ DetGeomDesc::DetGeomDesc(cms::DDFilteredView* fv)
     m_z(fv->translation().z() / 1._mm),  // Convert cm (DD4hep) to mm (legacy)
     m_sensorType("") {
 
+
+  const cms::DDSolidShape& myShape = cms::dd::getCurrentShape(*fv);
+  //std::cout << "myShape = " << myShape << std::endl;
+
+  if (myShape == cms::DDSolidShape::ddbox) {
+    const cms::dd::DDBox& myBox = cms::dd::DDBox(*fv);
+    m_params = { myBox.halfX() / 1._mm, myBox.halfY() / 1._mm, myBox.halfZ() / 1._mm }; 
+  }
+
+  else if (myShape == cms::DDSolidShape::ddtubs) {
+    const cms::dd::DDTubs& myTub = cms::dd::DDTubs(*fv);
+    m_params = { myTub.zhalf() / 1._mm, myTub.rIn() / 1._mm, myTub.rOut() / 1._mm, myTub.startPhi(), myTub.deltaPhi() }; 
+  }
+
+
+
+
+
+  /*
+  std::cout << "DetGeomDesc::DetGeomDesc m_name = " << m_name << std::endl;
   std::cout << "view->copyNumbers() = ";
   for (const auto& num : fv->copyNumbers()) {
     std::cout << num << " ";
   }
+  std::cout << " " << std::endl;*/
 
  
   //const std::string sensor_name {fv->name()};
