@@ -2,8 +2,10 @@ import FWCore.ParameterSet.Config as cms
 
 muonGEMDigiPSet = cms.PSet(
     gemSimLink = cms.PSet(
-         verbose = cms.int32(0),
-         inputTag = cms.InputTag("simMuonGEMDigis","GEM"),
+        verbose = cms.int32(0),
+        inputTag = cms.InputTag("simMuonGEMDigis","GEM"),
+        simMuOnly = cms.bool(True),
+        discardEleHits = cms.bool(True),
     ),
     gemStripDigi = cms.PSet(
         verbose = cms.int32(0),

@@ -138,6 +138,9 @@ private:
   template <class T>
   std::set<unsigned int> selectDetIds(const T&, int) const;
 
+  bool simMuOnly_;
+  bool discardEleHits_;
+
   int minBXDigi_, maxBXDigi_;
   int minBXPad_, maxBXPad_;
   int minBXCluster_, maxBXCluster_;
