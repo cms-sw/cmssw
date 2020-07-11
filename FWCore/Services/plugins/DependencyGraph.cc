@@ -6,7 +6,7 @@
  *
  * Use GraphViz dot to generate an SVG representation of the dependencies:
  *
- *   dot -v -Tsvg dependency.gv -o dependency.svg
+ *   dot -v -Tsvg dependency.dot -o dependency.svg
  *
  */
 
@@ -159,7 +159,7 @@ const char *DependencyGraph::edmModuleType(edm::ModuleDescription const &module)
 
 void DependencyGraph::fillDescriptions(edm::ConfigurationDescriptions &descriptions) {
   edm::ParameterSetDescription desc;
-  desc.addUntracked<std::string>("fileName", "dependency.gv");
+  desc.addUntracked<std::string>("fileName", "dependency.dot");
   desc.addUntracked<std::vector<std::string>>("highlightModules", {});
   desc.addUntracked<bool>("showPathDependencies", true);
   descriptions.add("DependencyGraph", desc);
