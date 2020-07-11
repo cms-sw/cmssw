@@ -24,9 +24,9 @@
 //
 #include "RelationalAccess/AuthenticationCredentials.h"
 //
-#include <sstream>
+#include <filesystem>
 #include <fstream>
-#include <boost/filesystem.hpp>
+#include <sstream>
 
 static const std::string serviceName = "CondAuthenticationService";
 
@@ -691,11 +691,11 @@ std::string cond::CredentialStore::setUpForService(const std::string& serviceNam
   if (authPath.empty()) {
     throwException("The authentication Path has not been provided.", "cond::CredentialStore::setUpForService");
   }
-  boost::filesystem::path fullPath(authPath);
-  if (!boost::filesystem::exists(authPath) || !boost::filesystem::is_directory(authPath)) {
+  std::filesystem::path fullPath(authPath);
+  if (!std::filesystem::exists(authPath) || !std::filesystem::is_directory(authPath)) {
     throwException("Authentication Path is invalid.", "cond::CredentialStore::setUpForService");
   }
-  boost::filesystem::path file(auth::DecodingKey::FILE_PATH);
+  std::filesystem::path file(auth::DecodingKey::FILE_PATH);
   fullPath /= file;
 
   m_key.init(fullPath.string(), auth::COND_KEY);
