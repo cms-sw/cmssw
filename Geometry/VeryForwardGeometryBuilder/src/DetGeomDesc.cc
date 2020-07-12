@@ -90,17 +90,68 @@ DetGeomDesc::DetGeomDesc(cms::DDFilteredView* fv)
     m_sensorType("") {
 
 
-  const cms::DDSolidShape& myShape = cms::dd::getCurrentShape(*fv);
-  //std::cout << "myShape = " << myShape << std::endl;
+  const cms::DDSolidShape& mySolidShape = cms::dd::getCurrentShape(*fv);
+  std::cout << "fv->getMyName() = " << fv->getMyName() << std::endl;
 
-  if (myShape == cms::DDSolidShape::ddbox) {
-    const cms::dd::DDBox& myBox = cms::dd::DDBox(*fv);
-    m_params = { myBox.halfX() / 1._mm, myBox.halfY() / 1._mm, myBox.halfZ() / 1._mm }; 
+  if (mySolidShape == cms::DDSolidShape::ddbox) {
+    const cms::dd::DDBox& myShape = cms::dd::DDBox(*fv);
+    m_params = { myShape.halfX() / 1._mm,
+		 myShape.halfY() / 1._mm,
+		 myShape.halfZ() / 1._mm
+    }; 
   }
 
-  else if (myShape == cms::DDSolidShape::ddtubs) {
-    const cms::dd::DDTubs& myTub = cms::dd::DDTubs(*fv);
-    m_params = { myTub.zhalf() / 1._mm, myTub.rIn() / 1._mm, myTub.rOut() / 1._mm, myTub.startPhi(), myTub.deltaPhi() }; 
+  else if (mySolidShape == cms::DDSolidShape::ddcons) {
+    const cms::dd::DDCons& myShape = cms::dd::DDCons(*fv);
+    m_params = { myShape.zhalf() / 1._mm,
+		 myShape.rInMinusZ() / 1._mm,
+		 myShape.rOutMinusZ() / 1._mm,
+		 myShape.rInPlusZ() / 1._mm,
+		 myShape.rOutPlusZ() / 1._mm,
+		 myShape.phiFrom(),
+		 myShape.deltaPhi()
+    }; 
+  }
+  else if (mySolidShape == cms::DDSolidShape::ddtrap) {
+    const cms::dd::DDTrap& myShape = cms::dd::DDTrap(*fv);
+    m_params = { myShape.halfZ() / 1._mm,
+		 myShape.theta(),
+		 myShape.phi(),
+		 myShape.y1() / 1._mm,
+		 myShape.x1() / 1._mm,
+		 myShape.x2() / 1._mm,
+		 myShape.alpha1(),
+		 myShape.y2() / 1._mm,
+		 myShape.x3() / 1._mm,
+		 myShape.x4() / 1._mm,		 
+		 myShape.alpha2()
+    }; 
+  }
+  else if (mySolidShape == cms::DDSolidShape::ddtubs) {
+    const cms::dd::DDTubs& myShape = cms::dd::DDTubs(*fv);
+    m_params = { myShape.zhalf() / 1._mm,
+		 myShape.rIn() / 1._mm,
+		 myShape.rOut() / 1._mm,
+		 myShape.startPhi(),
+		 myShape.deltaPhi()
+    };
+  }
+  else if (mySolidShape == cms::DDSolidShape::ddtrunctubs) {
+    const cms::dd::DDTruncTubs& myShape = cms::dd::DDTruncTubs(*fv);
+    m_params = { myShape.zHalf() / 1._mm,
+		 myShape.rIn() / 1._mm,
+		 myShape.rOut() / 1._mm,
+		 myShape.startPhi(),
+		 myShape.deltaPhi(),
+		 myShape.cutAtStart() / 1._mm,
+		 myShape.cutAtDelta() / 1._mm,
+		 static_cast<double>(myShape.cutInside())
+    }; 
+  }
+  else if (mySolidShape == cms::DDSolidShape::dd_not_init) {
+    std::cout << "DetGeomDesc::DetGeomDesc(cms::DDFilteredView* fv): ERROR: shape not supported for " 
+	      << m_name << ", Id = " << m_geographicalID
+	      << std::endl;
   }
 
 
@@ -108,12 +159,12 @@ DetGeomDesc::DetGeomDesc(cms::DDFilteredView* fv)
 
 
   /*
-  std::cout << "DetGeomDesc::DetGeomDesc m_name = " << m_name << std::endl;
-  std::cout << "view->copyNumbers() = ";
-  for (const auto& num : fv->copyNumbers()) {
+    std::cout << "DetGeomDesc::DetGeomDesc m_name = " << m_name << std::endl;
+    std::cout << "view->copyNumbers() = ";
+    for (const auto& num : fv->copyNumbers()) {
     std::cout << num << " ";
-  }
-  std::cout << " " << std::endl;*/
+    }
+    std::cout << " " << std::endl;*/
 
  
   //const std::string sensor_name {fv->name()};
