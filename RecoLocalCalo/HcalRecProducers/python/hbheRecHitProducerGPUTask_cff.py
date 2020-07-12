@@ -22,6 +22,7 @@ from RecoLocalCalo.HcalRecProducers.hcalTimeCorrsGPUESProducer_cfi import hcalTi
 from RecoLocalCalo.HcalRecProducers.hcalQIETypesGPUESProducer_cfi import hcalQIETypesGPUESProducer
 from RecoLocalCalo.HcalRecProducers.hcalSiPMParametersGPUESProducer_cfi import hcalSiPMParametersGPUESProducer
 from RecoLocalCalo.HcalRecProducers.hcalSiPMCharacteristicsGPUESProducer_cfi import hcalSiPMCharacteristicsGPUESProducer
+from RecoLocalCalo.HcalRecProducers.hcalMahiPulseOffsetsGPUESProducer_cfi import hcalMahiPulseOffsetsGPUESProducer
 
 # convert the HBHE digis into SoA format, and copy them from CPU to GPU
 from EventFilter.HcalRawToDigi.hcalDigisProducerGPU_cfi import hcalDigisProducerGPU as _hcalDigisProducerGPU
@@ -56,6 +57,7 @@ hbheRecHitProducerGPUTask = cms.Task(
     hcalQIETypesGPUESProducer,
     hcalSiPMParametersGPUESProducer,
     hcalSiPMCharacteristicsGPUESProducer,
+    hcalMahiPulseOffsetsGPUESProducer,
     hcalDigisGPU,
     hbheRecHitProducerGPU
 )
