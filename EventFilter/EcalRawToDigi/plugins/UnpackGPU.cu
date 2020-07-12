@@ -300,34 +300,34 @@ namespace ecal {
                     uint32_t const nbytesTotal) {
       // transfer
       cudaCheck(cudaMemcpyAsync(
-          inputGPU.data, inputCPU.data.data(), nbytesTotal * sizeof(unsigned char), cudaMemcpyHostToDevice, cudaStream));
-      cudaCheck(cudaMemcpyAsync(inputGPU.offsets,
-                                inputCPU.offsets.data(),
+          inputGPU.data.get(), inputCPU.data.get(), nbytesTotal * sizeof(unsigned char), cudaMemcpyHostToDevice, cudaStream));
+      cudaCheck(cudaMemcpyAsync(inputGPU.offsets.get(),
+                                inputCPU.offsets.get(),
                                 nfedsWithData * sizeof(uint32_t),
                                 cudaMemcpyHostToDevice,
                                 cudaStream));
-      cudaCheck(cudaMemsetAsync(scratchGPU.pChannelsCounter,
+      cudaCheck(cudaMemsetAsync(scratchGPU.pChannelsCounter.get(),
                                 0,
                                 sizeof(uint32_t) * 2,  // EB + EE
                                 cudaStream));
       cudaCheck(cudaMemcpyAsync(
-          inputGPU.feds, inputCPU.feds.data(), nfedsWithData * sizeof(int), cudaMemcpyHostToDevice, cudaStream));
+          inputGPU.feds.get(), inputCPU.feds.get(), nfedsWithData * sizeof(int), cudaMemcpyHostToDevice, cudaStream));
 
-      kernel_unpack_test<32><<<nfedsWithData, 32, 0, cudaStream>>>(inputGPU.data,
-                                                                   inputGPU.offsets,
-                                                                   inputGPU.feds,
-                                                                   outputGPU.samplesEB,
-                                                                   outputGPU.samplesEE,
-                                                                   outputGPU.idsEB,
-                                                                   outputGPU.idsEE,
-                                                                   scratchGPU.pChannelsCounter,
+      kernel_unpack_test<32><<<nfedsWithData, 32, 0, cudaStream>>>(inputGPU.data.get(),
+                                                                   inputGPU.offsets.get(),
+                                                                   inputGPU.feds.get(),
+                                                                   outputGPU.digisEB.data.get(),
+                                                                   outputGPU.digisEE.data.get(),
+                                                                   outputGPU.digisEB.ids.get(),
+                                                                   outputGPU.digisEE.ids.get(),
+                                                                   scratchGPU.pChannelsCounter.get(),
                                                                    conditions.eMappingProduct.eid2did,
                                                                    nbytesTotal);
       cudaCheck(cudaGetLastError());
 
       // transfer the counters for how many eb and ee channels we got
-      cudaCheck(cudaMemcpyAsync(outputCPU.nchannels.data(),
-                                scratchGPU.pChannelsCounter,
+      cudaCheck(cudaMemcpyAsync(outputCPU.nchannels.get(),
+                                scratchGPU.pChannelsCounter.get(),
                                 sizeof(uint32_t) * 2,
                                 cudaMemcpyDeviceToHost,
                                 cudaStream));

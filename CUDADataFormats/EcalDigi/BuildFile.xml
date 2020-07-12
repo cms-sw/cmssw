@@ -1,4 +1,5 @@
 <use name="CUDADataFormats/Common"/>
+<use name="CUDADataFormats/CaloCommon"/>
 <use name="DataFormats/Common"/>
 <use name="HeterogeneousCore/CUDAUtilities"/>
 

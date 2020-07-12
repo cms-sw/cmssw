@@ -1,7 +1,7 @@
 #include <cuda.h>
 
-#include "CUDADataFormats/EcalRecHitSoA/interface/EcalRecHit_soa.h"
-#include "CUDADataFormats/EcalRecHitSoA/interface/EcalUncalibratedRecHit_soa.h"
+#include "CUDADataFormats/EcalRecHitSoA/interface/EcalRecHit.h"
+#include "CUDADataFormats/EcalRecHitSoA/interface/EcalUncalibratedRecHit.h"
 
 #include "EcalRecHitBuilderKernels.h"
 #include "KernelHelpers.h"
@@ -118,12 +118,18 @@ namespace ecal {
         uint32_t const* flags_eb,
         uint32_t const* flags_ee,
         // output
-        uint32_t* did,
-        ::ecal::reco::StorageScalarType* energy,  // in energy [GeV]
-        ::ecal::reco::StorageScalarType* time,
-        ::ecal::reco::StorageScalarType* chi2,
-        uint32_t* flagBits,
-        uint32_t* extra,
+        uint32_t* didEB,
+        uint32_t* didEE,
+        ::ecal::reco::StorageScalarType* energyEB,  // in energy [GeV]
+        ::ecal::reco::StorageScalarType* energyEE,  // in energy [GeV]
+        ::ecal::reco::StorageScalarType* timeEB,
+        ::ecal::reco::StorageScalarType* timeEE,
+        ::ecal::reco::StorageScalarType* chi2EB,
+        ::ecal::reco::StorageScalarType* chi2EE,
+        uint32_t* flagBitsEB,
+        uint32_t* flagBitsEE,
+        uint32_t* extraEB,
+        uint32_t* extraEE,
         // other
         int const nchannels,
         uint32_t const nChannelsBarrel,
@@ -143,6 +149,15 @@ namespace ecal {
 
         uint32_t const* didCh = isEndcap ? did_ee : did_eb;
 
+        // arrange to access the right ptrs
+#define ARRANGE(var) auto *var = isEndcap ? var##EE : var##EB
+        ARRANGE(did);
+        ARRANGE(energy);
+        ARRANGE(chi2);
+        ARRANGE(flagBits);
+        ARRANGE(extra);
+#undef ARRANGE
+
         // only two values, EB or EE
         // AM : FIXME : why not using "isBarrel" ?    isBarrel ? adc2gev[0] : adc2gev[1]
         float adc2gev_to_use = isEndcap ? adc2gev[1]   // ee
@@ -159,7 +174,7 @@ namespace ecal {
         uint32_t const* flags_in = isEndcap ? flags_ee : flags_eb;
 
         // simple copy
-        did[ch] = didCh[inputCh];
+        did[inputCh] = didCh[inputCh];
 
         auto const did_to_use = DetId{didCh[inputCh]};
 
@@ -280,17 +295,17 @@ namespace ecal {
         // Default energy? Not to be updated if "ChannelStatusToBeExcluded"
         // Exploited later by the module "EcalRecHitConvertGPU2CPUFormat"
         //
-        energy[ch] = -1;  //---- AM: default, un-physical, ok
+        energy[inputCh] = -1;  //---- AM: default, un-physical, ok
 
         // truncate the chi2
         if (chi2_in[inputCh] > 64)
-          chi2[ch] = 64;
+          chi2[inputCh] = 64;
         else
-          chi2[ch] = chi2_in[inputCh];
+          chi2[inputCh] = chi2_in[inputCh];
 
         // default values for the flags
-        flagBits[ch] = 0;
-        extra[ch] = 0;
+        flagBits[inputCh] = 0;
+        extra[inputCh] = 0;
 
         static const int chStatusMask = 0x1f;
         // ChannelStatusToBeExcluded is a "int" then I put "dbstatus" to be the same
@@ -345,7 +360,7 @@ namespace ecal {
           flagbit_counter += 1;
         }
 
-        flagBits[ch] = temporary_flagBits;
+        flagBits[inputCh] = temporary_flagBits;
 
         if ((flagmask & temporary_flagBits) && killDeadChannels) {
           // skip this channel
@@ -357,7 +372,7 @@ namespace ecal {
         //
 
         //         energy[ch] = amplitude[inputCh] * adc2gev_to_use * intercalib_to_use ;
-        energy[ch] = amplitude[inputCh] * adc2gev_to_use * intercalib_to_use * lasercalib;
+        energy[inputCh] = amplitude[inputCh] * adc2gev_to_use * intercalib_to_use * lasercalib;
 
         // Time is not saved so far, FIXME
         //         time[ch] = time_in[inputCh];
@@ -372,7 +387,7 @@ namespace ecal {
         uint32_t width;
         uint32_t value;
 
-        float chi2_temp = chi2[ch];
+        float chi2_temp = chi2[inputCh];
         if (chi2_temp > 64)
           chi2_temp = 64;
         // use 7 bits
@@ -440,7 +455,7 @@ namespace ecal {
         //
         // now finally set "extra[ch]"
         //
-        extra[ch] = value;
+        extra[inputCh] = value;
 
         //
         // additional flags setting
@@ -452,14 +467,14 @@ namespace ecal {
         bool good = true;
 
         if (flags_in[inputCh] & (0x1 << (UncalibRecHitFlags::kLeadingEdgeRecovered))) {
-          flagBits[ch] |= (0x1 << (RecHitFlags::RecHitFlags_kLeadingEdgeRecovered));
+          flagBits[inputCh] |= (0x1 << (RecHitFlags::RecHitFlags_kLeadingEdgeRecovered));
           good = false;
         }
 
         if (flags_in[inputCh] & (0x1 << (UncalibRecHitFlags::kSaturated))) {
           // leading edge recovery failed - still keep the information
           // about the saturation and do not flag as dead
-          flagBits[ch] |= (0x1 << (RecHitFlags::RecHitFlags_kSaturated));
+          flagBits[inputCh] |= (0x1 << (RecHitFlags::RecHitFlags_kSaturated));
           good = false;
         }
 
@@ -476,34 +491,34 @@ namespace ecal {
         //
 
         if (flags_in[inputCh] & (0x1 << (UncalibRecHitFlags::kSaturated))) {
-          flagBits[ch] |= (0x1 << (RecHitFlags::RecHitFlags_kSaturated));
+          flagBits[inputCh] |= (0x1 << (RecHitFlags::RecHitFlags_kSaturated));
           good = false;
         }
 
         if (flags_in[inputCh] & (0x1 << (UncalibRecHitFlags::kOutOfTime))) {
-          flagBits[ch] |= (0x1 << (RecHitFlags::RecHitFlags_kOutOfTime));
+          flagBits[inputCh] |= (0x1 << (RecHitFlags::RecHitFlags_kOutOfTime));
           good = false;
         }
         if (flags_in[inputCh] & (0x1 << (UncalibRecHitFlags::kPoorReco))) {
-          flagBits[ch] |= (0x1 << (RecHitFlags::RecHitFlags_kPoorReco));
+          flagBits[inputCh] |= (0x1 << (RecHitFlags::RecHitFlags_kPoorReco));
           good = false;
         }
         if (flags_in[inputCh] & (0x1 << (UncalibRecHitFlags::kHasSwitchToGain6))) {
-          flagBits[ch] |= (0x1 << (RecHitFlags::RecHitFlags_kHasSwitchToGain6));
+          flagBits[inputCh] |= (0x1 << (RecHitFlags::RecHitFlags_kHasSwitchToGain6));
         }
         if (flags_in[inputCh] & (0x1 << (UncalibRecHitFlags::kHasSwitchToGain1))) {
-          flagBits[ch] |= (0x1 << (RecHitFlags::RecHitFlags_kHasSwitchToGain1));
+          flagBits[inputCh] |= (0x1 << (RecHitFlags::RecHitFlags_kHasSwitchToGain1));
         }
 
         if (good) {
-          flagBits[ch] |= (0x1 << (RecHitFlags::RecHitFlags_kGood));
+          flagBits[inputCh] |= (0x1 << (RecHitFlags::RecHitFlags_kGood));
         }
 
         if (isBarrel && (lasercalib < EBLaserMIN || lasercalib > EBLaserMAX)) {
-          flagBits[ch] |= (0x1 << (RecHitFlags::RecHitFlags_kPoorCalib));
+          flagBits[inputCh] |= (0x1 << (RecHitFlags::RecHitFlags_kPoorCalib));
         }
         if (!isBarrel && (lasercalib < EELaserMIN || lasercalib > EELaserMAX)) {
-          flagBits[ch] |= (0x1 << (RecHitFlags::RecHitFlags_kPoorCalib));
+          flagBits[inputCh] |= (0x1 << (RecHitFlags::RecHitFlags_kPoorCalib));
         }
 
         // recover, killing, and other stuff
@@ -549,7 +564,7 @@ namespace ecal {
               }
               // kill all the other cases
               else {
-                energy[ch] = 0.;  // Need to set also the flags ...
+                energy[inputCh] = 0.;  // Need to set also the flags ...
               }
             }
           }
@@ -568,7 +583,7 @@ namespace ecal {
               }
               // kill all the other cases
               else {
-                energy[ch] = 0.;  // Need to set also the flags ...
+                energy[inputCh] = 0.;  // Need to set also the flags ...
               }
             }
           }
@@ -645,23 +660,29 @@ namespace ecal {
           // time, used for time dependent corrections
           event_time,
           // input
-          eventInputGPU.ebUncalibRecHits.did,
-          eventInputGPU.eeUncalibRecHits.did,
-          eventInputGPU.ebUncalibRecHits.amplitude,
-          eventInputGPU.eeUncalibRecHits.amplitude,
-          eventInputGPU.ebUncalibRecHits.jitter,
-          eventInputGPU.eeUncalibRecHits.jitter,
-          eventInputGPU.ebUncalibRecHits.chi2,
-          eventInputGPU.eeUncalibRecHits.chi2,
-          eventInputGPU.ebUncalibRecHits.flags,
-          eventInputGPU.eeUncalibRecHits.flags,
+          eventInputGPU.ebUncalibRecHits.did.get(),
+          eventInputGPU.eeUncalibRecHits.did.get(),
+          eventInputGPU.ebUncalibRecHits.amplitude.get(),
+          eventInputGPU.eeUncalibRecHits.amplitude.get(),
+          eventInputGPU.ebUncalibRecHits.jitter.get(),
+          eventInputGPU.eeUncalibRecHits.jitter.get(),
+          eventInputGPU.ebUncalibRecHits.chi2.get(),
+          eventInputGPU.eeUncalibRecHits.chi2.get(),
+          eventInputGPU.ebUncalibRecHits.flags.get(),
+          eventInputGPU.eeUncalibRecHits.flags.get(),
           // output
-          eventOutputGPU.did,
-          eventOutputGPU.energy,
-          eventOutputGPU.time,
-          eventOutputGPU.chi2,
-          eventOutputGPU.flagBits,
-          eventOutputGPU.extra,
+          eventOutputGPU.recHitsEB.did.get(),
+          eventOutputGPU.recHitsEE.did.get(),
+          eventOutputGPU.recHitsEB.energy.get(),
+          eventOutputGPU.recHitsEE.energy.get(),
+          eventOutputGPU.recHitsEB.time.get(),
+          eventOutputGPU.recHitsEE.time.get(),
+          eventOutputGPU.recHitsEB.chi2.get(),
+          eventOutputGPU.recHitsEE.chi2.get(),
+          eventOutputGPU.recHitsEB.flagBits.get(),
+          eventOutputGPU.recHitsEE.flagBits.get(),
+          eventOutputGPU.recHitsEB.extra.get(),
+          eventOutputGPU.recHitsEE.extra.get(),
           // other
           nchannels,
           nChannelsBarrel,

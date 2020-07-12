@@ -1,6 +1,6 @@
 #include <iostream>
 
-#include "CUDADataFormats/EcalRecHitSoA/interface/EcalRecHit_soa.h"
+#include "CUDADataFormats/EcalRecHitSoA/interface/EcalRecHit.h"
 #include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHit.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
@@ -19,12 +19,12 @@ public:
   static void fillDescriptions(edm::ConfigurationDescriptions&);
 
 private:
-  using GPURecHitType = ecal::RecHit<ecal::Tag::soa>;
+  using InputProduct = ecal::RecHit<calo::common::VecStoragePolicy<calo::common::CUDAHostAllocatorAlias>>;
   void produce(edm::Event&, edm::EventSetup const&) override;
 
 private:
-  const edm::EDGetTokenT<ecal::SoARecHitCollection> recHitsGPUEB_;
-  const edm::EDGetTokenT<ecal::SoARecHitCollection> recHitsGPUEE_;
+  const edm::EDGetTokenT<InputProduct> recHitsGPUEB_;
+  const edm::EDGetTokenT<InputProduct> recHitsGPUEE_;
 
   const std::string recHitsLabelCPUEB_, recHitsLabelCPUEE_;
 };
@@ -42,8 +42,8 @@ void EcalRecHitConvertGPU2CPUFormat::fillDescriptions(edm::ConfigurationDescript
 }
 
 EcalRecHitConvertGPU2CPUFormat::EcalRecHitConvertGPU2CPUFormat(const edm::ParameterSet& ps)
-    : recHitsGPUEB_{consumes<ecal::SoARecHitCollection>(ps.getParameter<edm::InputTag>("recHitsLabelGPUEB"))},
-      recHitsGPUEE_{consumes<ecal::SoARecHitCollection>(ps.getParameter<edm::InputTag>("recHitsLabelGPUEE"))},
+    : recHitsGPUEB_{consumes<InputProduct>(ps.getParameter<edm::InputTag>("recHitsLabelGPUEB"))},
+      recHitsGPUEE_{consumes<InputProduct>(ps.getParameter<edm::InputTag>("recHitsLabelGPUEE"))},
       recHitsLabelCPUEB_{ps.getParameter<std::string>("recHitsLabelCPUEB")},
       recHitsLabelCPUEE_{ps.getParameter<std::string>("recHitsLabelCPUEE")} {
   produces<EBRecHitCollection>(recHitsLabelCPUEB_);

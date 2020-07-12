@@ -5,8 +5,8 @@
 // Builder of ECAL RecHits on GPU
 //
 
-#include "CUDADataFormats/EcalRecHitSoA/interface/EcalRecHit_soa.h"
-#include "CUDADataFormats/EcalRecHitSoA/interface/EcalUncalibratedRecHit_soa.h"
+#include "CUDADataFormats/EcalRecHitSoA/interface/EcalRecHit.h"
+#include "CUDADataFormats/EcalRecHitSoA/interface/EcalUncalibratedRecHit.h"
 #include "DataFormats/Provenance/interface/Timestamp.h"
 
 #include "Common.h"
