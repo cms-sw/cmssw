@@ -121,12 +121,12 @@ void PPSGeometryBuilder::analyze(const edm::Event& iEvent, const edm::EventSetup
     edm::LogError("PPSGeometryBuilder") << "Filtered view is empty. Cannot build.";
   }
 
-
+  const cms::DDSpecParRegistry& allSpecParSections = cpv->specpars();
 
 
   // conversion to DetGeomDesc structure
-  auto sentinel = std::make_unique<DetGeomDesc>(&fv);
-  PPSGeometryESProducer::buildDetGeomDesc(&fv, sentinel.get());
+  auto sentinel = std::make_unique<DetGeomDesc>(&fv, allSpecParSections);
+  PPSGeometryESProducer::buildDetGeomDesc(&fv, allSpecParSections, sentinel.get());
 
 
   // Persistent geometry data

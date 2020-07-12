@@ -57,7 +57,7 @@ DetGeomDesc::DetGeomDesc(DDFilteredView* fv)
 
 // Constructor from DD4Hep DDFilteredView
 
-DetGeomDesc::DetGeomDesc(cms::DDFilteredView* fv)
+DetGeomDesc::DetGeomDesc(cms::DDFilteredView* fv, const cms::DDSpecParRegistry& allSpecParSections)
   /*: m_trans(fv->translation()),
     m_rot(fv->rotation()),
     m_name(fv->name()),
@@ -86,12 +86,39 @@ DetGeomDesc::DetGeomDesc(cms::DDFilteredView* fv)
     m_geographicalID(computeDetID(fv)),
     m_copy(fv->copyNum()),
     //m_z = fv->geoHistory().back().absTranslation().z();
-    m_z(fv->translation().z() / 1._mm),  // Convert cm (DD4hep) to mm (legacy)
-    m_sensorType("") {
+    m_z(fv->translation().z() / 1._mm)  // Convert cm (DD4hep) to mm (legacy)
+
+
+    //m_sensorType("") 
+    //m_sensorType(fv->path()) 
+{
+
+
+  const std::string parameterName = "2x2RPixWafer";
+  cms::DDSpecParRefs filteredSpecParSections;
+  allSpecParSections.filter(filteredSpecParSections, parameterName);
+  for (const auto& mySpecParSection : filteredSpecParSections) {
+    if (mySpecParSection->hasPath(fv->path())) {
+      //return mySpecParSection->value<std::vector<T>>(parameterName);
+      m_sensorType = DDD_CTPPS_PIXELS_SENSOR_TYPE_2x2;
+    }
+  }
+
+
+
+
+
+
+
+
+
+
+
+
 
 
   const cms::DDSolidShape& mySolidShape = cms::dd::getCurrentShape(*fv);
-  std::cout << "fv->getMyName() = " << fv->getMyName() << std::endl;
+  std::cout << "m_name = " << m_name << std::endl;
 
   if (mySolidShape == cms::DDSolidShape::ddbox) {
     const cms::dd::DDBox& myShape = cms::dd::DDBox(*fv);

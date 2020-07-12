@@ -48,7 +48,7 @@ public:
   DetGeomDesc(DDFilteredView* fv);
 
   ///Constructor from DD4Hep DDFilteredView
-  DetGeomDesc(cms::DDFilteredView* fv);
+  DetGeomDesc(cms::DDFilteredView* fv, const cms::DDSpecParRegistry& allSpecParSections);
 
   ///Constructor from persistent class
   DetGeomDesc(PDetGeomDesc* pd);

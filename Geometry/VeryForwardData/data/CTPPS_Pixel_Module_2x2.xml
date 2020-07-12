@@ -371,11 +371,16 @@ FOR THE TPG I TAKE AN OBJECT AS ENVELOP1+ENVELOP2 BUT 500uM THICK. FOR THE TWO F
 
  </PosPart>
 
-
-
-
 </PosPartSection>
 
+
+<SpecParSection label="CTPPS_Pixel_Module_2x2.xml">
+    <SpecPar name="2x2RPixWaferSpec"> 
+      <PartSelector path="world_volume/OCMS_1/CMSE_1/RP_220_Left_Station_1/RP_220_Left_Station_Vacuum_5_1/RP_box_primary_vacuum_10023/RP_box_secondary_vacuum_0/Envelop_2/RPixWafer_1"/>
+      <PartSelector path="world_volume/OCMS_1/CMSE_1/RP_220_Right_Station_1/RP_220_Right_Station_Vacuum_5_1/RP_box_primary_vacuum_10123/RP_box_secondary_vacuum_0/Envelop_2/RPixWafer_1"/>
+      <Parameter name="2x2RPixWafer" value="true" />
+    </SpecPar>
+ </SpecParSection>
 
 
 </DDDefinition>

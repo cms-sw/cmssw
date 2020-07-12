@@ -67,7 +67,7 @@ public:
   ~PPSGeometryESProducer() override {}
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
-  static void buildDetGeomDesc(cms::DDFilteredView* fv, DetGeomDesc* gd);
+  static void buildDetGeomDesc(cms::DDFilteredView* fv, const cms::DDSpecParRegistry& allSpecParSections, DetGeomDesc* gd);
 
 private:
   std::unique_ptr<DetGeomDesc> produceIdealGD(const IdealGeometryRecord&);
@@ -187,11 +187,11 @@ void PPSGeometryESProducer::applyAlignments(const DetGeomDesc& idealGD,
 
 //----------------------------------------------------------------------------------------------------
 
-void PPSGeometryESProducer::buildDetGeomDesc(cms::DDFilteredView* fv, DetGeomDesc* gd) {
+void PPSGeometryESProducer::buildDetGeomDesc(cms::DDFilteredView* fv, const cms::DDSpecParRegistry& allSpecParSections, DetGeomDesc* gd) {
   // loop over nodes
   do {
     // create new DetGeomDesc node and add it to the parent's (gd) list
-    DetGeomDesc* newGD = new DetGeomDesc(fv);
+    DetGeomDesc* newGD = new DetGeomDesc(fv, allSpecParSections);
     
     // Temporary fix for dimensions from DD4Hep standard 'cm' to DD standard 'mm'
     //double cm2mm = 10.;
@@ -338,15 +338,18 @@ std::unique_ptr<DetGeomDesc> PPSGeometryESProducer::produceIdealGD(const IdealGe
   // create DDFilteredView and apply the filter
   cms::DDFilter filter;
   cms::DDFilteredView fv(cpv, filter);
-
-
   if (fv.next(0) == false) {
     edm::LogError("PPSGeometryESProducer") << "Filtered view is empty. Cannot build.";
   }
 
+
+  const cms::DDSpecParRegistry& allSpecParSections = cpv.specpars();
+
+
+
   // conversion to DetGeomDesc structure
-  auto root = std::make_unique<DetGeomDesc>(&fv);
-  buildDetGeomDesc(&fv, root.get());
+  auto root = std::make_unique<DetGeomDesc>(&fv, allSpecParSections);
+  buildDetGeomDesc(&fv, allSpecParSections, root.get());
   
   edm::LogInfo("PPSGeometryESProducer") << "DetGeomDesc size is: " << (root->components()).size();
 
