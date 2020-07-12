@@ -82,6 +82,10 @@ process.load("RecoLocalCalo.EcalRecProducers.ecalTimeCalibConstantsGPUESProducer
 #process.ecalMultiFitUncalibRecHitgpu.algoPSet.threads = cms.vint32(256, 1, 1)
 
 
+process.load("RecoLocalCalo.EcalRecProducers.ecalMultifitParametersGPUESProducer_cfi")
+
+
+
 ##
 ## force HLT configuration for ecalMultiFitUncalibRecHit
 ##
