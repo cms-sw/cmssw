@@ -71,11 +71,11 @@ int main(int argc, char* argv[]) {
 
   // branches to use
   using Collectionf01 =
-      hcal::DigiCollection<hcal::Flavor01, hcal::common::VecStoragePolicy<hcal::CUDAHostAllocatorAlias>>;
+      hcal::DigiCollection<hcal::Flavor01, calo::common::VecStoragePolicy<calo::common::CUDAHostAllocatorAlias>>;
   using Collectionf5 =
-      hcal::DigiCollection<hcal::Flavor5, hcal::common::VecStoragePolicy<hcal::CUDAHostAllocatorAlias>>;
+      hcal::DigiCollection<hcal::Flavor5, calo::common::VecStoragePolicy<calo::common::CUDAHostAllocatorAlias>>;
   using Collectionf3 =
-      hcal::DigiCollection<hcal::Flavor3, hcal::common::VecStoragePolicy<hcal::CUDAHostAllocatorAlias>>;
+      hcal::DigiCollection<hcal::Flavor3, calo::common::VecStoragePolicy<calo::common::CUDAHostAllocatorAlias>>;
   edm::Wrapper<Collectionf01>* wgpuf01he = nullptr;
   edm::Wrapper<Collectionf5>* wgpuf5hb = nullptr;
   edm::Wrapper<Collectionf3>* wgpuf3hb = nullptr;

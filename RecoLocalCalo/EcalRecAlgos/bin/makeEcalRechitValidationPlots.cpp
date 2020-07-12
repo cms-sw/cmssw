@@ -16,7 +16,7 @@
 #include "DataFormats/Common/interface/Wrapper.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHit.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
-#include "CUDADataFormats/EcalRecHitSoA/interface/EcalRecHit_soa.h"
+#include "CUDADataFormats/EcalRecHitSoA/interface/EcalRecHit.h"
 
 int main(int argc, char *argv[]) {
   if (argc < 3) {
@@ -24,8 +24,8 @@ int main(int argc, char *argv[]) {
     exit(0);
   }
   // Set the GPU and CPU pointers for both EB and EE
-  edm::Wrapper<ecal::RecHit<ecal::Tag::soa>> *wgpuEB = nullptr;
-  edm::Wrapper<ecal::RecHit<ecal::Tag::soa>> *wgpuEE = nullptr;
+  edm::Wrapper<ecal::RecHit<calo::common::VecStoragePolicy<calo::common::CUDAHostAllocatorAlias>>> *wgpuEB = nullptr;
+  edm::Wrapper<ecal::RecHit<calo::common::VecStoragePolicy<calo::common::CUDAHostAllocatorAlias>>> *wgpuEE = nullptr;
   edm::Wrapper<EBRecHitCollection> *wcpuEB = nullptr;
   edm::Wrapper<EERecHitCollection> *wcpuEE = nullptr;
 

@@ -16,7 +16,7 @@
 
 #include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
 
-#include "CUDADataFormats/EcalRecHitSoA/interface/EcalUncalibratedRecHit_soa.h"
+#include "CUDADataFormats/EcalRecHitSoA/interface/EcalUncalibratedRecHit.h"
 
 class EcalCPUUncalibRecHitProducer : public edm::stream::EDProducer<edm::ExternalWork> {
 public:
@@ -29,10 +29,12 @@ private:
   void produce(edm::Event&, edm::EventSetup const&) override;
 
 private:
-  edm::EDGetTokenT<cms::cuda::Product<ecal::UncalibratedRecHit<ecal::Tag::ptr>>> recHitsInEBToken_, recHitsInEEToken_;
-  edm::EDPutTokenT<ecal::UncalibratedRecHit<ecal::Tag::soa>> recHitsOutEBToken_, recHitsOutEEToken_;
+  using InputProduct = cms::cuda::Product<ecal::UncalibratedRecHit<calo::common::DevStoragePolicy>>;
+  edm::EDGetTokenT<InputProduct> recHitsInEBToken_, recHitsInEEToken_;
+  using OutputProduct = ecal::UncalibratedRecHit<calo::common::VecStoragePolicy<calo::common::CUDAHostAllocatorAlias>>;
+  edm::EDPutTokenT<OutputProduct> recHitsOutEBToken_, recHitsOutEEToken_;
 
-  ecal::UncalibratedRecHit<ecal::Tag::soa> recHitsEB_, recHitsEE_;
+  OutputProduct recHitsEB_, recHitsEE_;
   bool containsTimingInformation_;
 };
 
@@ -50,14 +52,14 @@ void EcalCPUUncalibRecHitProducer::fillDescriptions(edm::ConfigurationDescriptio
 }
 
 EcalCPUUncalibRecHitProducer::EcalCPUUncalibRecHitProducer(const edm::ParameterSet& ps)
-    : recHitsInEBToken_{consumes<cms::cuda::Product<ecal::UncalibratedRecHit<ecal::Tag::ptr>>>(
+    : recHitsInEBToken_{consumes<InputProduct>(
           ps.getParameter<edm::InputTag>("recHitsInLabelEB"))},
-      recHitsInEEToken_{consumes<cms::cuda::Product<ecal::UncalibratedRecHit<ecal::Tag::ptr>>>(
+      recHitsInEEToken_{consumes<InputProduct>(
           ps.getParameter<edm::InputTag>("recHitsInLabelEE"))},
       recHitsOutEBToken_{
-          produces<ecal::UncalibratedRecHit<ecal::Tag::soa>>(ps.getParameter<std::string>("recHitsOutLabelEB"))},
+          produces<OutputProduct>(ps.getParameter<std::string>("recHitsOutLabelEB"))},
       recHitsOutEEToken_{
-          produces<ecal::UncalibratedRecHit<ecal::Tag::soa>>(ps.getParameter<std::string>("recHitsOutLabelEE"))},
+          produces<OutputProduct>(ps.getParameter<std::string>("recHitsOutLabelEE"))},
       containsTimingInformation_{ps.getParameter<bool>("containsTimingInformation")} {}
 
 EcalCPUUncalibRecHitProducer::~EcalCPUUncalibRecHitProducer() {}
@@ -79,41 +81,43 @@ void EcalCPUUncalibRecHitProducer::acquire(edm::Event const& event,
   auto lambdaToTransfer = [&ctx](auto& dest, auto* src) {
     using vector_type = typename std::remove_reference<decltype(dest)>::type;
     using type = typename vector_type::value_type;
+    using src_type = typename std::remove_pointer<decltype(src)>::type;
+    static_assert(std::is_same<src_type, type>::value && "dst and src data types do not match");
     cudaCheck(cudaMemcpyAsync(dest.data(), src, dest.size() * sizeof(type), cudaMemcpyDeviceToHost, ctx.stream()));
   };
 
   // enqeue transfers
-  lambdaToTransfer(recHitsEB_.did, ebRecHits.did);
-  lambdaToTransfer(recHitsEE_.did, eeRecHits.did);
+  lambdaToTransfer(recHitsEB_.did, ebRecHits.did.get());
+  lambdaToTransfer(recHitsEE_.did, eeRecHits.did.get());
 
-  lambdaToTransfer(recHitsEB_.amplitudesAll, ebRecHits.amplitudesAll);
-  lambdaToTransfer(recHitsEE_.amplitudesAll, eeRecHits.amplitudesAll);
+  lambdaToTransfer(recHitsEB_.amplitudesAll, ebRecHits.amplitudesAll.get());
+  lambdaToTransfer(recHitsEE_.amplitudesAll, eeRecHits.amplitudesAll.get());
 
-  lambdaToTransfer(recHitsEB_.amplitude, ebRecHits.amplitude);
-  lambdaToTransfer(recHitsEE_.amplitude, eeRecHits.amplitude);
+  lambdaToTransfer(recHitsEB_.amplitude, ebRecHits.amplitude.get());
+  lambdaToTransfer(recHitsEE_.amplitude, eeRecHits.amplitude.get());
 
-  lambdaToTransfer(recHitsEB_.chi2, ebRecHits.chi2);
-  lambdaToTransfer(recHitsEE_.chi2, eeRecHits.chi2);
+  lambdaToTransfer(recHitsEB_.chi2, ebRecHits.chi2.get());
+  lambdaToTransfer(recHitsEE_.chi2, eeRecHits.chi2.get());
 
-  lambdaToTransfer(recHitsEB_.pedestal, ebRecHits.pedestal);
-  lambdaToTransfer(recHitsEE_.pedestal, eeRecHits.pedestal);
+  lambdaToTransfer(recHitsEB_.pedestal, ebRecHits.pedestal.get());
+  lambdaToTransfer(recHitsEE_.pedestal, eeRecHits.pedestal.get());
 
-  lambdaToTransfer(recHitsEB_.flags, ebRecHits.flags);
-  lambdaToTransfer(recHitsEE_.flags, eeRecHits.flags);
+  lambdaToTransfer(recHitsEB_.flags, ebRecHits.flags.get());
+  lambdaToTransfer(recHitsEE_.flags, eeRecHits.flags.get());
 
   if (containsTimingInformation_) {
-    lambdaToTransfer(recHitsEB_.jitter, ebRecHits.jitter);
-    lambdaToTransfer(recHitsEE_.jitter, eeRecHits.jitter);
+    lambdaToTransfer(recHitsEB_.jitter, ebRecHits.jitter.get());
+    lambdaToTransfer(recHitsEE_.jitter, eeRecHits.jitter.get());
 
-    lambdaToTransfer(recHitsEB_.jitterError, ebRecHits.jitterError);
-    lambdaToTransfer(recHitsEE_.jitterError, eeRecHits.jitterError);
+    lambdaToTransfer(recHitsEB_.jitterError, ebRecHits.jitterError.get());
+    lambdaToTransfer(recHitsEE_.jitterError, eeRecHits.jitterError.get());
   }
 }
 
 void EcalCPUUncalibRecHitProducer::produce(edm::Event& event, edm::EventSetup const& setup) {
   // tmp vectors
-  auto recHitsOutEB = std::make_unique<ecal::UncalibratedRecHit<ecal::Tag::soa>>(std::move(recHitsEB_));
-  auto recHitsOutEE = std::make_unique<ecal::UncalibratedRecHit<ecal::Tag::soa>>(std::move(recHitsEE_));
+  auto recHitsOutEB = std::make_unique<OutputProduct>(std::move(recHitsEB_));
+  auto recHitsOutEE = std::make_unique<OutputProduct>(std::move(recHitsEE_));
 
   // put into event
   event.put(recHitsOutEBToken_, std::move(recHitsOutEB));

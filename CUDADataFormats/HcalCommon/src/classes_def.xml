@@ -1,6 +1,0 @@
-<lcgdict>
-    <enum name="hcal::common::tags::Ptr"/>
-    <enum name="hcal::common::tags::Vec"/>
-    <class name="hcal::common::AddSize<hcal::common::tags::Ptr>"/>
-    <class name="hcal::common::AddSize<hcal::common::tags::Vec>"/>
-</lcgdict>

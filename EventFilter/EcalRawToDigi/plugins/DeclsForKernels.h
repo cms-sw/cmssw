@@ -7,6 +7,10 @@
 #include "EventFilter/EcalRawToDigi/interface/ElectronicsMappingGPU.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/HostAllocator.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/cudaCheck.h"
+#include "HeterogeneousCore/CUDAUtilities/interface/device_unique_ptr.h"
+#include "HeterogeneousCore/CUDAUtilities/interface/host_unique_ptr.h"
+
+#include "CUDADataFormats/EcalDigi/interface/DigisCollection.h"
 
 namespace ecal {
   namespace raw {
@@ -16,16 +20,9 @@ namespace ecal {
     constexpr uint32_t nbytes_per_fed_max = 10 * 1024;
 
     struct InputDataCPU {
-      std::vector<unsigned char, cms::cuda::HostAllocator<unsigned char>> data;
-      std::vector<uint32_t, cms::cuda::HostAllocator<uint32_t>> offsets;
-      std::vector<int, cms::cuda::HostAllocator<int>> feds;
-
-      void allocate() {
-        // 2KB per FED resize
-        data.resize(nfeds_max * sizeof(unsigned char) * nbytes_per_fed_max);
-        offsets.resize(nfeds_max, 0);
-        feds.resize(nfeds_max, 0);
-      }
+      cms::cuda::host::unique_ptr<unsigned char[]> data;
+      cms::cuda::host::unique_ptr<uint32_t[]> offsets;
+      cms::cuda::host::unique_ptr<int[]> feds;
     };
 
     struct ConfigurationParameters {
@@ -34,68 +31,36 @@ namespace ecal {
 
     struct OutputDataCPU {
       // [0] - eb, [1] - ee
-      std::vector<uint32_t, cms::cuda::HostAllocator<uint32_t>> nchannels;
-
-      void allocate() { nchannels.resize(2); }
+      cms::cuda::host::unique_ptr<uint32_t[]> nchannels;
     };
 
     struct OutputDataGPU {
-      uint16_t *samplesEB = nullptr, *samplesEE = nullptr;
-      uint32_t *idsEB = nullptr, *idsEE = nullptr;
+        DigisCollection<::calo::common::DevStoragePolicy> digisEB, digisEE;
 
       // FIXME: we should separate max channels parameter for eb and ee
       // FIXME: replace hardcoded values
-      void allocate(ConfigurationParameters const &config) {
-        cudaCheck(cudaMalloc((void **)&samplesEB, config.maxChannels * sizeof(uint16_t) * 10));
-        cudaCheck(cudaMalloc((void **)&samplesEE, config.maxChannels * sizeof(uint16_t) * 10));
-        cudaCheck(cudaMalloc((void **)&idsEB, config.maxChannels * sizeof(uint32_t)));
-        cudaCheck(cudaMalloc((void **)&idsEE, config.maxChannels * sizeof(uint32_t)));
-      }
-
-      void deallocate(ConfigurationParameters const &config) {
-        if (samplesEB) {
-          cudaCheck(cudaFree(samplesEB));
-          cudaCheck(cudaFree(samplesEE));
-          cudaCheck(cudaFree(idsEB));
-          cudaCheck(cudaFree(idsEE));
-        }
+      void allocate(ConfigurationParameters const &config, cudaStream_t cudaStream) {
+        digisEB.data = cms::cuda::make_device_unique<uint16_t[]>(
+          config.maxChannels, cudaStream);
+        digisEE.data = cms::cuda::make_device_unique<uint16_t[]>(
+          config.maxChannels, cudaStream);
+        
+        digisEB.ids = cms::cuda::make_device_unique<uint32_t[]>(
+          config.maxChannels, cudaStream);
+        digisEE.ids = cms::cuda::make_device_unique<uint32_t[]>( config.maxChannels, cudaStream);
       }
     };
 
     struct ScratchDataGPU {
       // [0] = EB
       // [1] = EE
-      uint32_t *pChannelsCounter = nullptr;
-
-      void allocate(ConfigurationParameters const &config) {
-        cudaCheck(cudaMalloc((void **)&pChannelsCounter, sizeof(uint32_t) * 2));
-      }
-
-      void deallocate(ConfigurationParameters const &config) {
-        if (pChannelsCounter) {
-          cudaCheck(cudaFree(pChannelsCounter));
-        }
-      }
+      cms::cuda::device::unique_ptr<uint32_t[]> pChannelsCounter;
     };
 
     struct InputDataGPU {
-      unsigned char *data = nullptr;
-      uint32_t *offsets = nullptr;
-      int *feds = nullptr;
-
-      void allocate() {
-        cudaCheck(cudaMalloc((void **)&data, sizeof(unsigned char) * nbytes_per_fed_max * nfeds_max));
-        cudaCheck(cudaMalloc((void **)&offsets, sizeof(uint32_t) * nfeds_max));
-        cudaCheck(cudaMalloc((void **)&feds, sizeof(int) * nfeds_max));
-      }
-
-      void deallocate() {
-        if (data) {
-          cudaCheck(cudaFree(data));
-          cudaCheck(cudaFree(offsets));
-          cudaCheck(cudaFree(feds));
-        }
-      }
+      cms::cuda::device::unique_ptr<unsigned char[]> data;
+      cms::cuda::device::unique_ptr<uint32_t[]> offsets;
+      cms::cuda::device::unique_ptr<int[]> feds;
     };
 
     struct ConditionsProducts {

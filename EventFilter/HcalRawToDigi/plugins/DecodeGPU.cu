@@ -568,38 +568,38 @@ namespace hcal {
                     uint32_t const nbytesTotal) {
       // transfer
       cudaCheck(cudaMemcpyAsync(
-          inputGPU.data, inputCPU.data.data(), nbytesTotal * sizeof(unsigned char), cudaMemcpyHostToDevice, cudaStream));
-      cudaCheck(cudaMemcpyAsync(inputGPU.offsets,
-                                inputCPU.offsets.data(),
+          inputGPU.data.get(), inputCPU.data.get(), nbytesTotal * sizeof(unsigned char), cudaMemcpyHostToDevice, cudaStream));
+      cudaCheck(cudaMemcpyAsync(inputGPU.offsets.get(),
+                                inputCPU.offsets.get(),
                                 nfedsWithData * sizeof(uint32_t),
                                 cudaMemcpyHostToDevice,
                                 cudaStream));
-      cudaCheck(cudaMemsetAsync(scratchGPU.pChannelsCounters, 0, sizeof(uint32_t) * numOutputCollections, cudaStream));
+      cudaCheck(cudaMemsetAsync(scratchGPU.pChannelsCounters.get(), 0, sizeof(uint32_t) * numOutputCollections, cudaStream));
       cudaCheck(cudaMemcpyAsync(
-          inputGPU.feds, inputCPU.feds.data(), nfedsWithData * sizeof(int), cudaMemcpyHostToDevice, cudaStream));
+          inputGPU.feds.get(), inputCPU.feds.get(), nfedsWithData * sizeof(int), cudaMemcpyHostToDevice, cudaStream));
 
       // 12 is the max number of modules per crate
-      kernel_rawdecode_test<32><<<nfedsWithData, 12 * 32, 0, cudaStream>>>(inputGPU.data,
-                                                                           inputGPU.offsets,
-                                                                           inputGPU.feds,
+      kernel_rawdecode_test<32><<<nfedsWithData, 12 * 32, 0, cudaStream>>>(inputGPU.data.get(),
+                                                                           inputGPU.offsets.get(),
+                                                                           inputGPU.feds.get(),
                                                                            conditions.eMappingProduct.eid2did,
                                                                            conditions.eMappingProduct.eid2tid,
-                                                                           outputGPU.digisF01HE.data,
-                                                                           outputGPU.digisF01HE.ids,
-                                                                           outputGPU.digisF5HB.data,
-                                                                           outputGPU.digisF5HB.ids,
-                                                                           outputGPU.digisF5HB.npresamples,
-                                                                           outputGPU.digisF3HB.data,
-                                                                           outputGPU.digisF3HB.ids,
-                                                                           scratchGPU.pChannelsCounters,
+                                                                           outputGPU.digisF01HE.data.get(),
+                                                                           outputGPU.digisF01HE.ids.get(),
+                                                                           outputGPU.digisF5HB.data.get(),
+                                                                           outputGPU.digisF5HB.ids.get(),
+                                                                           outputGPU.digisF5HB.npresamples.get(),
+                                                                           outputGPU.digisF3HB.data.get(),
+                                                                           outputGPU.digisF3HB.ids.get(),
+                                                                           scratchGPU.pChannelsCounters.get(),
                                                                            config.nsamplesF01HE,
                                                                            config.nsamplesF5HB,
                                                                            config.nsamplesF3HB,
                                                                            nbytesTotal);
       cudaCheck(cudaGetLastError());
 
-      cudaCheck(cudaMemcpyAsync(outputCPU.nchannels.data(),
-                                scratchGPU.pChannelsCounters,
+      cudaCheck(cudaMemcpyAsync(outputCPU.nchannels.get(),
+                                scratchGPU.pChannelsCounters.get(),
                                 sizeof(uint32_t) * numOutputCollections,
                                 cudaMemcpyDeviceToHost,
                                 cudaStream));

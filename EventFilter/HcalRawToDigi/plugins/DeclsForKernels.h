@@ -6,6 +6,8 @@
 #include "CUDADataFormats/HcalDigi/interface/DigiCollection.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/HostAllocator.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/cudaCheck.h"
+#include "HeterogeneousCore/CUDAUtilities/interface/device_unique_ptr.h"
+#include "HeterogeneousCore/CUDAUtilities/interface/host_unique_ptr.h"
 
 #include "ElectronicsMappingGPU.h"
 
@@ -33,108 +35,75 @@ namespace hcal {
     };
 
     struct InputDataCPU {
-      std::vector<unsigned char, cms::cuda::HostAllocator<unsigned char>> data;
-      std::vector<uint32_t, cms::cuda::HostAllocator<uint32_t>> offsets;
-      std::vector<int, cms::cuda::HostAllocator<int>> feds;
-
-      void allocate() {
-        data.resize(utca_nfeds_max * sizeof(unsigned char) * nbytes_per_fed_max);
-        offsets.resize(utca_nfeds_max, 0);
-        feds.resize(utca_nfeds_max, 0);
-      }
+      cms::cuda::host::unique_ptr<unsigned char[]> data;
+      cms::cuda::host::unique_ptr<uint32_t[]> offsets;
+      cms::cuda::host::unique_ptr<int[]> feds;
     };
 
     struct OutputDataCPU {
-      std::vector<uint32_t, cms::cuda::HostAllocator<uint32_t>> nchannels;
-
-      void allocate() { nchannels.resize(numOutputCollections); }
+      cms::cuda::host::unique_ptr<uint32_t[]> nchannels;
     };
 
     struct ScratchDataGPU {
       // depends on tHE number of output collections
       // that is a statically known predefined number!!!
-      uint32_t *pChannelsCounters = nullptr;
-
-      void allocate(ConfigurationParameters const &) {
-        cudaCheck(cudaMalloc((void **)&pChannelsCounters, sizeof(uint32_t) * numOutputCollections));
-      }
-
-      void deallocate(ConfigurationParameters const &) {
-        if (pChannelsCounters) {
-          cudaCheck(cudaFree(pChannelsCounters));
-        }
-      }
+      cms::cuda::device::unique_ptr<uint32_t[]> pChannelsCounters;
     };
 
     struct OutputDataGPU {
-      DigiCollection<Flavor01, common::ViewStoragePolicy> digisF01HE;
-      DigiCollection<Flavor5, common::ViewStoragePolicy> digisF5HB;
-      DigiCollection<Flavor3, common::ViewStoragePolicy> digisF3HB;
+      DigiCollection<Flavor01, ::calo::common::DevStoragePolicy> digisF01HE;
+      DigiCollection<Flavor5, ::calo::common::DevStoragePolicy> digisF5HB;
+      DigiCollection<Flavor3, ::calo::common::DevStoragePolicy> digisF3HB;
 
-      // qie 11 HE
-      /*
-    uint16_t *digisF01HE = nullptr;
-    uint32_t *idsF01HE = nullptr;
+      void allocate(ConfigurationParameters const &config, cudaStream_t cudaStream) {
+        digisF01HE.data = cms::cuda::make_device_unique<uint16_t[]>(
+          config.maxChannelsF01HE*compute_stride<Flavor01>(config.nsamplesF01HE),
+          cudaStream
+        );
+        //cudaCheck(
+        //    cudaMalloc((void **)&digisF01HE.data,
+        //               config.maxChannelsF01HE * sizeof(uint16_t) * compute_stride<Flavor01>(config.nsamplesF01HE)));
+        digisF01HE.ids = cms::cuda::make_device_unique<uint32_t[]>(
+          config.maxChannelsF01HE,
+          cudaStream
+        );
+        //cudaCheck(cudaMalloc((void **)&digisF01HE.ids, sizeof(uint32_t) * config.maxChannelsF01HE));
 
-    // qie 8 HB
-    uint16_t *digisF5HB = nullptr;
-    uint32_t *idsF5HB = nullptr;
-    uint8_t *npresamplesF5HB = nullptr
-    */
+        digisF5HB.data = cms::cuda::make_device_unique<uint16_t[]>(
+          config.maxChannelsF5HB * compute_stride<Flavor5>(config.nsamplesF5HB),
+          cudaStream
+        );
+        //cudaCheck(cudaMalloc((void **)&digisF5HB.data,
+        //                     config.maxChannelsF5HB * sizeof(uint16_t) * compute_stride<Flavor5>(config.nsamplesF5HB)));
+        digisF5HB.ids = cms::cuda::make_device_unique<uint32_t[]>(
+          config.maxChannelsF5HB,
+          cudaStream
+        );
+        //cudaCheck(cudaMalloc((void **)&digisF5HB.ids, sizeof(uint32_t) * config.maxChannelsF5HB));
+        digisF5HB.npresamples = cms::cuda::make_device_unique<uint8_t[]>(
+          config.maxChannelsF5HB,
+          cudaStream
+        );
+        //cudaCheck(cudaMalloc((void **)&digisF5HB.npresamples, sizeof(uint8_t) * config.maxChannelsF5HB));
 
-      void allocate(ConfigurationParameters const &config) {
-        cudaCheck(
-            cudaMalloc((void **)&digisF01HE.data,
-                       config.maxChannelsF01HE * sizeof(uint16_t) * compute_stride<Flavor01>(config.nsamplesF01HE)));
-        cudaCheck(cudaMalloc((void **)&digisF01HE.ids, sizeof(uint32_t) * config.maxChannelsF01HE));
-
-        cudaCheck(cudaMalloc((void **)&digisF5HB.data,
-                             config.maxChannelsF5HB * sizeof(uint16_t) * compute_stride<Flavor5>(config.nsamplesF5HB)));
-        cudaCheck(cudaMalloc((void **)&digisF5HB.ids, sizeof(uint32_t) * config.maxChannelsF5HB));
-        cudaCheck(cudaMalloc((void **)&digisF5HB.npresamples, sizeof(uint8_t) * config.maxChannelsF5HB));
-
-        cudaCheck(cudaMalloc((void **)&digisF3HB.data,
-                             config.maxChannelsF3HB * sizeof(uint16_t) * compute_stride<Flavor3>(config.nsamplesF3HB)));
-        cudaCheck(cudaMalloc((void **)&digisF3HB.ids, config.maxChannelsF3HB * sizeof(uint32_t)));
-      }
-
-      void deallocate(ConfigurationParameters const &config) {
-        if (digisF01HE.data) {
-          cudaCheck(cudaFree(digisF01HE.data));
-          cudaCheck(cudaFree(digisF01HE.ids));
-        }
-
-        if (digisF5HB.data) {
-          cudaCheck(cudaFree(digisF5HB.data));
-          cudaCheck(cudaFree(digisF5HB.ids));
-          cudaCheck(cudaFree(digisF5HB.npresamples));
-        }
-
-        if (digisF3HB.data) {
-          cudaCheck(cudaFree(digisF3HB.data));
-          cudaCheck(cudaFree(digisF3HB.ids));
-        }
+        digisF3HB.data = cms::cuda::make_device_unique<uint16_t[]>(
+          config.maxChannelsF3HB * compute_stride<Flavor3>(config.nsamplesF3HB),
+          cudaStream
+        );
+        //cudaCheck(cudaMalloc((void **)&digisF3HB.data,
+        //                     config.maxChannelsF3HB * sizeof(uint16_t) * compute_stride<Flavor3>(config.nsamplesF3HB)));
+        digisF3HB.ids = cms::cuda::make_device_unique<uint32_t[]>(
+          config.maxChannelsF3HB,
+          cudaStream
+        );
+        //cudaCheck(cudaMalloc((void **)&digisF3HB.ids, config.maxChannelsF3HB * sizeof(uint32_t)));
       }
     };
 
     struct InputDataGPU {
-      unsigned char *data = nullptr;
-      uint32_t *offsets = nullptr;
-      int *feds = nullptr;
-
-      void allocate() {
-        cudaCheck(cudaMalloc((void **)&data, sizeof(unsigned char) * nbytes_per_fed_max * utca_nfeds_max));
-        cudaCheck(cudaMalloc((void **)&offsets, sizeof(uint32_t) * utca_nfeds_max));
-        cudaCheck(cudaMalloc((void **)&feds, sizeof(int) * utca_nfeds_max));
-      }
-
-      void deallocate() {
-        if (data) {
-          cudaCheck(cudaFree(data));
-          cudaCheck(cudaFree(offsets));
-          cudaCheck(cudaFree(feds));
-        }
-      }
+      cms::cuda::device::unique_ptr<unsigned char[]> data;
+      cms::cuda::device::unique_ptr<uint32_t[]> offsets;
+      cms::cuda::device::unique_ptr<int[]> feds;
     };
 
     struct ConditionsProducts {

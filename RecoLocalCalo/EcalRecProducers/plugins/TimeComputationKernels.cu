@@ -987,7 +987,8 @@ namespace ecal {
     //#define DEBUG_TIME_CORRECTION
     __global__ void kernel_time_correction_and_finalize(
         //        SampleVector::Scalar const* g_amplitude,
-        ::ecal::reco::StorageScalarType const* g_amplitude,
+        ::ecal::reco::StorageScalarType const* g_amplitudeEB,
+        ::ecal::reco::StorageScalarType const* g_amplitudeEE,
         uint16_t const* digis_eb,
         uint32_t const* dids_eb,
         uint16_t const* digis_ee,
@@ -1000,9 +1001,12 @@ namespace ecal {
         SampleVector::Scalar const* g_timeError,
         float const* g_rms_x12,
         float const* timeCalibConstant,
-        float* g_jitter,
-        float* g_jitterError,
-        uint32_t* flags,
+        float* g_jitterEB,
+        float* g_jitterEE,
+        float* g_jitterErrorEB,
+        float* g_jitterErrorEE,
+        uint32_t* flagsEB,
+        uint32_t* flagsEE,
         const int amplitudeBinsSizeEB,
         const int amplitudeBinsSizeEE,
         ConfigurationParameters::type const timeConstantTermEB,
@@ -1039,6 +1043,14 @@ namespace ecal {
       if (gtx >= nchannels)
         return;
 
+      // need to ref the right ptrs
+      #define ARRANGE(var) auto *var = gtx >= offsetForInputs ? var##EE : var##EB
+      ARRANGE(g_amplitude);
+      ARRANGE(g_jitter);
+      ARRANGE(g_jitterError);
+      ARRANGE(flags);
+#undef ARRANGE
+
       const auto did = DetId{dids[inputGtx]};
       const auto isBarrel = did.subdetId() == EcalBarrel;
       const auto hashedId = isBarrel ? ecal::reconstruction::hashedIndexEB(did.rawId())
@@ -1056,10 +1068,10 @@ namespace ecal {
       const auto outOfTimeThreshG61m = isBarrel ? outOfTimeThreshG61mEB : outOfTimeThreshG61mEE;
 
       // load some
-      const auto amplitude = g_amplitude[gtx];
+      const auto amplitude = g_amplitude[inputGtx];
       const auto rms_x12 = g_rms_x12[hashedId];
       const auto timeCalibConst = timeCalibConstant[hashedId];
-
+ 
       int myBin = -1;
       for (int bin = 0; bin < amplitudeBinsSize; bin++) {
         if (amplitude > amplitudeBins[bin])
@@ -1099,8 +1111,8 @@ namespace ecal {
 #endif
 
       // store back to  global
-      g_jitter[gtx] = jitter;
-      g_jitterError[gtx] = jitterError;
+      g_jitter[inputGtx] = jitter;
+      g_jitterError[inputGtx] = jitterError;
 
       // set the flag
       // TODO: replace with something more efficient (if required),
@@ -1123,7 +1135,7 @@ namespace ecal {
         const auto nterm = timeNconst * rms_x12 / amplitude;
         const auto sigmat = std::sqrt(nterm * nterm + timeConstantTerm * timeConstantTerm);
         if (correctedTime > sigmat * threshP || correctedTime < -sigmat * threshM)
-          flags[gtx] |= 0x1 << EcalUncalibratedRecHit::kOutOfTime;
+          flags[inputGtx] |= 0x1 << EcalUncalibratedRecHit::kOutOfTime;
       }
     }
 
