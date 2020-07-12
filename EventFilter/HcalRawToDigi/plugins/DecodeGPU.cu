@@ -567,14 +567,18 @@ namespace hcal {
                     uint32_t const nfedsWithData,
                     uint32_t const nbytesTotal) {
       // transfer
-      cudaCheck(cudaMemcpyAsync(
-          inputGPU.data.get(), inputCPU.data.get(), nbytesTotal * sizeof(unsigned char), cudaMemcpyHostToDevice, cudaStream));
+      cudaCheck(cudaMemcpyAsync(inputGPU.data.get(),
+                                inputCPU.data.get(),
+                                nbytesTotal * sizeof(unsigned char),
+                                cudaMemcpyHostToDevice,
+                                cudaStream));
       cudaCheck(cudaMemcpyAsync(inputGPU.offsets.get(),
                                 inputCPU.offsets.get(),
                                 nfedsWithData * sizeof(uint32_t),
                                 cudaMemcpyHostToDevice,
                                 cudaStream));
-      cudaCheck(cudaMemsetAsync(scratchGPU.pChannelsCounters.get(), 0, sizeof(uint32_t) * numOutputCollections, cudaStream));
+      cudaCheck(
+          cudaMemsetAsync(scratchGPU.pChannelsCounters.get(), 0, sizeof(uint32_t) * numOutputCollections, cudaStream));
       cudaCheck(cudaMemcpyAsync(
           inputGPU.feds.get(), inputCPU.feds.get(), nfedsWithData * sizeof(int), cudaMemcpyHostToDevice, cudaStream));
 

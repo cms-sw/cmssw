@@ -4,11 +4,10 @@
 #include "HeterogeneousCore/CUDAUtilities/interface/cudaCheck.h"
 
 // FIXME: add proper getters to conditions
-HcalMahiPulseOffsetsGPU::HcalMahiPulseOffsetsGPU(edm::ParameterSet const& ps) 
-{
-    auto const& values = ps.getParameter<std::vector<int>>("pulseOffsets");
-    values_.resize(values.size());
-    std::copy(values.begin(), values.end(), values_.begin());
+HcalMahiPulseOffsetsGPU::HcalMahiPulseOffsetsGPU(edm::ParameterSet const& ps) {
+  auto const& values = ps.getParameter<std::vector<int>>("pulseOffsets");
+  values_.resize(values.size());
+  std::copy(values.begin(), values.end(), values_.begin());
 }
 
 HcalMahiPulseOffsetsGPU::Product::~Product() {
@@ -17,8 +16,8 @@ HcalMahiPulseOffsetsGPU::Product::~Product() {
 }
 
 HcalMahiPulseOffsetsGPU::Product const& HcalMahiPulseOffsetsGPU::getProduct(cudaStream_t cudaStream) const {
-  auto const& product =
-      product_.dataForCurrentDeviceAsync(cudaStream, [this](HcalMahiPulseOffsetsGPU::Product& product, cudaStream_t cudaStream) {
+  auto const& product = product_.dataForCurrentDeviceAsync(
+      cudaStream, [this](HcalMahiPulseOffsetsGPU::Product& product, cudaStream_t cudaStream) {
         // malloc
         cudaCheck(cudaMalloc((void**)&product.values, this->values_.size() * sizeof(int)));
 

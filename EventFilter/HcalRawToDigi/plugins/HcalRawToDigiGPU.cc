@@ -83,8 +83,7 @@ HcalRawToDigiGPU::HcalRawToDigiGPU(const edm::ParameterSet& ps)
   config_.nsamplesF3HB = ps.getParameter<uint32_t>("nsamplesF3HB");
 }
 
-HcalRawToDigiGPU::~HcalRawToDigiGPU() {
-}
+HcalRawToDigiGPU::~HcalRawToDigiGPU() {}
 
 void HcalRawToDigiGPU::acquire(edm::Event const& event,
                                edm::EventSetup const& setup,
@@ -106,44 +105,23 @@ void HcalRawToDigiGPU::acquire(edm::Event const& event,
 
   // scratch
   hcal::raw::ScratchDataGPU scratchGPU = {
-    cms::cuda::make_device_unique<uint32_t[]>(
-      hcal::raw::numOutputCollections,
-      ctx.stream())
-  };
+      cms::cuda::make_device_unique<uint32_t[]>(hcal::raw::numOutputCollections, ctx.stream())};
 
   // input cpu data
-  hcal::raw::InputDataCPU inputCPU = {
-    cms::cuda::make_host_unique<unsigned char[]>(
-      hcal::raw::utca_nfeds_max * hcal::raw::nbytes_per_fed_max,
-      ctx.stream()),
-    cms::cuda::make_host_unique<uint32_t[]>(
-      hcal::raw::utca_nfeds_max,
-      ctx.stream()),
-    cms::cuda::make_host_unique<int[]>(
-      hcal::raw::utca_nfeds_max,
-      ctx.stream())
-  };
+  hcal::raw::InputDataCPU inputCPU = {cms::cuda::make_host_unique<unsigned char[]>(
+                                          hcal::raw::utca_nfeds_max * hcal::raw::nbytes_per_fed_max, ctx.stream()),
+                                      cms::cuda::make_host_unique<uint32_t[]>(hcal::raw::utca_nfeds_max, ctx.stream()),
+                                      cms::cuda::make_host_unique<int[]>(hcal::raw::utca_nfeds_max, ctx.stream())};
 
   // input data gpu
   hcal::raw::InputDataGPU inputGPU = {
-    cms::cuda::make_device_unique<unsigned char[]>(
-      hcal::raw::utca_nfeds_max * hcal::raw::nbytes_per_fed_max,
-      ctx.stream()),
-    cms::cuda::make_device_unique<uint32_t[]>(
-      hcal::raw::utca_nfeds_max,
-      ctx.stream()),
-    cms::cuda::make_device_unique<int[]>(
-      hcal::raw::utca_nfeds_max,
-      ctx.stream())
-  };
+      cms::cuda::make_device_unique<unsigned char[]>(hcal::raw::utca_nfeds_max * hcal::raw::nbytes_per_fed_max,
+                                                     ctx.stream()),
+      cms::cuda::make_device_unique<uint32_t[]>(hcal::raw::utca_nfeds_max, ctx.stream()),
+      cms::cuda::make_device_unique<int[]>(hcal::raw::utca_nfeds_max, ctx.stream())};
 
   // output cpu
-  outputCPU_ = {
-    cms::cuda::make_host_unique<uint32_t[]>(
-      hcal::raw::numOutputCollections,
-      ctx.stream()
-    )
-  };
+  outputCPU_ = {cms::cuda::make_host_unique<uint32_t[]>(hcal::raw::numOutputCollections, ctx.stream())};
 
   // output gpu
   outputGPU_.allocate(config_, ctx.stream());
@@ -214,7 +192,7 @@ void HcalRawToDigiGPU::produce(edm::Event& event, edm::EventSetup const& setup) 
   ctx.emplace(event, digisF01HEToken_, std::move(outputGPU_.digisF01HE));
   ctx.emplace(event, digisF5HBToken_, std::move(outputGPU_.digisF5HB));
   ctx.emplace(event, digisF3HBToken_, std::move(outputGPU_.digisF3HB));
-  
+
   // reset ptrs that are carried as members
   outputCPU_.nchannels.reset();
 }

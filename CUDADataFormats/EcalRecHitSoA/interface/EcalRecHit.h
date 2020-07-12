@@ -23,8 +23,10 @@ namespace ecal {
     typename StoragePolicy::template StorageSelector<reco::StorageScalarType>::type time;
     // should we remove the following, since already included in "extra" ?
     typename StoragePolicy::template StorageSelector<reco::StorageScalarType>::type chi2;
-    typename StoragePolicy::template StorageSelector<uint32_t>::type extra;     // packed uint32_t for timeError, chi2, energyError
-    typename StoragePolicy::template StorageSelector<uint32_t>::type flagBits;  // store rechit condition (see Flags enum) in a bit-wise way
+    typename StoragePolicy::template StorageSelector<uint32_t>::type
+        extra;  // packed uint32_t for timeError, chi2, energyError
+    typename StoragePolicy::template StorageSelector<uint32_t>::type
+        flagBits;  // store rechit condition (see Flags enum) in a bit-wise way
 
     typename StoragePolicy::template StorageSelector<uint32_t>::type did;
 

@@ -85,22 +85,16 @@ namespace hcal {
       RecHitCollection<::calo::common::DevStoragePolicy> recHits;
 
       void allocate(ConfigParameters const& config, cudaStream_t cudaStream) {
-        recHits.energy = cms::cuda::make_device_unique<float[]>(
-          config.maxChannels, cudaStream);
-        recHits.chi2 = cms::cuda::make_device_unique<float[]>(
-          config.maxChannels, cudaStream);
-        recHits.energyM0 = cms::cuda::make_device_unique<float[]>(
-          config.maxChannels, cudaStream);
-        recHits.timeM0 = cms::cuda::make_device_unique<float[]>(
-          config.maxChannels, cudaStream);
-        recHits.did = cms::cuda::make_device_unique<uint32_t[]>(
-          config.maxChannels, cudaStream);
+        recHits.energy = cms::cuda::make_device_unique<float[]>(config.maxChannels, cudaStream);
+        recHits.chi2 = cms::cuda::make_device_unique<float[]>(config.maxChannels, cudaStream);
+        recHits.energyM0 = cms::cuda::make_device_unique<float[]>(config.maxChannels, cudaStream);
+        recHits.timeM0 = cms::cuda::make_device_unique<float[]>(config.maxChannels, cudaStream);
+        recHits.did = cms::cuda::make_device_unique<uint32_t[]>(config.maxChannels, cudaStream);
       }
     };
 
     struct ScratchDataGPU {
-      cms::cuda::device::unique_ptr<float[]> amplitudes, noiseTerms,
-          pulseMatrices, pulseMatricesM, pulseMatricesP;
+      cms::cuda::device::unique_ptr<float[]> amplitudes, noiseTerms, pulseMatrices, pulseMatricesM, pulseMatricesP;
       cms::cuda::device::unique_ptr<int8_t[]> soiSamples;
     };
 

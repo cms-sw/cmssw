@@ -1043,8 +1043,8 @@ namespace ecal {
       if (gtx >= nchannels)
         return;
 
-      // need to ref the right ptrs
-      #define ARRANGE(var) auto *var = gtx >= offsetForInputs ? var##EE : var##EB
+// need to ref the right ptrs
+#define ARRANGE(var) auto* var = gtx >= offsetForInputs ? var##EE : var##EB
       ARRANGE(g_amplitude);
       ARRANGE(g_jitter);
       ARRANGE(g_jitterError);
@@ -1071,7 +1071,7 @@ namespace ecal {
       const auto amplitude = g_amplitude[inputGtx];
       const auto rms_x12 = g_rms_x12[hashedId];
       const auto timeCalibConst = timeCalibConstant[hashedId];
- 
+
       int myBin = -1;
       for (int bin = 0; bin < amplitudeBinsSize; bin++) {
         if (amplitude > amplitudeBins[bin])

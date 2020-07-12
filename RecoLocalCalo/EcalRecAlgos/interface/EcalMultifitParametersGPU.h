@@ -12,28 +12,28 @@
 
 class EcalMultifitParametersGPU {
 public:
-    struct Product {
-        ~Product();
-        double *amplitudeFitParametersEB, *amplitudeFitParametersEE,
-               *timeFitParametersEB, *timeFitParametersEE;
-    };
+  struct Product {
+    ~Product();
+    double *amplitudeFitParametersEB, *amplitudeFitParametersEE, *timeFitParametersEB, *timeFitParametersEE;
+  };
 
 #ifndef __CUDACC__
-    EcalMultifitParametersGPU(edm::ParameterSet const&);
+  EcalMultifitParametersGPU(edm::ParameterSet const&);
 
-    ~EcalMultifitParametersGPU() = default;
+  ~EcalMultifitParametersGPU() = default;
 
-    Product const& getProduct(cudaStream_t) const;
+  Product const& getProduct(cudaStream_t) const;
 
-    std::array<std::reference_wrapper<std::vector<double, cms::cuda::HostAllocator<double>> const>, 4> getValues() const {
-        return {{amplitudeFitParametersEB_, amplitudeFitParametersEE_, timeFitParametersEB_, timeFitParametersEE_}};
-    }
+  std::array<std::reference_wrapper<std::vector<double, cms::cuda::HostAllocator<double>> const>, 4> getValues() const {
+    return {{amplitudeFitParametersEB_, amplitudeFitParametersEE_, timeFitParametersEB_, timeFitParametersEE_}};
+  }
 
 private:
-    std::vector<double, cms::cuda::HostAllocator<double>> amplitudeFitParametersEB_, amplitudeFitParametersEE_, timeFitParametersEB_, timeFitParametersEE_;
+  std::vector<double, cms::cuda::HostAllocator<double>> amplitudeFitParametersEB_, amplitudeFitParametersEE_,
+      timeFitParametersEB_, timeFitParametersEE_;
 
-    cms::cuda::ESProduct<Product> product_;
+  cms::cuda::ESProduct<Product> product_;
 #endif
 };
 
-#endif // RecoLocalCalo_EcalRecAlgos_interfaceEcalMultifitParametersGPU_h
+#endif  // RecoLocalCalo_EcalRecAlgos_interfaceEcalMultifitParametersGPU_h

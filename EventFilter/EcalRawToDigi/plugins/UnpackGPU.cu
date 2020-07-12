@@ -299,8 +299,11 @@ namespace ecal {
                     uint32_t const nfedsWithData,
                     uint32_t const nbytesTotal) {
       // transfer
-      cudaCheck(cudaMemcpyAsync(
-          inputGPU.data.get(), inputCPU.data.get(), nbytesTotal * sizeof(unsigned char), cudaMemcpyHostToDevice, cudaStream));
+      cudaCheck(cudaMemcpyAsync(inputGPU.data.get(),
+                                inputCPU.data.get(),
+                                nbytesTotal * sizeof(unsigned char),
+                                cudaMemcpyHostToDevice,
+                                cudaStream));
       cudaCheck(cudaMemcpyAsync(inputGPU.offsets.get(),
                                 inputCPU.offsets.get(),
                                 nfedsWithData * sizeof(uint32_t),

@@ -5,7 +5,7 @@
 
 namespace ecal {
 
-  template<typename StoragePolicy>
+  template <typename StoragePolicy>
   struct DigisCollection : public ::calo::common::AddSize<typename StoragePolicy::TagType> {
     DigisCollection() = default;
     DigisCollection(DigisCollection const &) = default;

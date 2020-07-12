@@ -242,23 +242,20 @@ void HBHERecHitProducerGPU::acquire(edm::Event const& event,
 
   // scratch mem on device
   hcal::mahi::ScratchDataGPU scratchGPU = {
-    cms::cuda::make_device_unique<float[]>(
-      configParameters_.maxChannels * configParameters_.maxTimeSamples,
-      ctx.stream()
-    ),
-    cms::cuda::make_device_unique<float[]>(
-      configParameters_.maxChannels * configParameters_.maxTimeSamples, ctx.stream()),
-    cms::cuda::make_device_unique<float[]>(
-      configParameters_.maxChannels*configParameters_.maxTimeSamples*configParameters_.maxTimeSamples, 
-      ctx.stream()),
-    cms::cuda::make_device_unique<float[]>(
-      configParameters_.maxChannels*configParameters_.maxTimeSamples*configParameters_.maxTimeSamples, 
-      ctx.stream()),
-    cms::cuda::make_device_unique<float[]>(
-      configParameters_.maxChannels*configParameters_.maxTimeSamples*configParameters_.maxTimeSamples, 
-      ctx.stream()),
-    cms::cuda::make_device_unique<int8_t[]>(
-      configParameters_.maxChannels, ctx.stream()),
+      cms::cuda::make_device_unique<float[]>(configParameters_.maxChannels * configParameters_.maxTimeSamples,
+                                             ctx.stream()),
+      cms::cuda::make_device_unique<float[]>(configParameters_.maxChannels * configParameters_.maxTimeSamples,
+                                             ctx.stream()),
+      cms::cuda::make_device_unique<float[]>(
+          configParameters_.maxChannels * configParameters_.maxTimeSamples * configParameters_.maxTimeSamples,
+          ctx.stream()),
+      cms::cuda::make_device_unique<float[]>(
+          configParameters_.maxChannels * configParameters_.maxTimeSamples * configParameters_.maxTimeSamples,
+          ctx.stream()),
+      cms::cuda::make_device_unique<float[]>(
+          configParameters_.maxChannels * configParameters_.maxTimeSamples * configParameters_.maxTimeSamples,
+          ctx.stream()),
+      cms::cuda::make_device_unique<int8_t[]>(configParameters_.maxChannels, ctx.stream()),
   };
 
   // output dev mem
