@@ -108,14 +108,10 @@ void EcalUncalibRecHitProducerGPU::fillDescriptions(edm::ConfigurationDescriptio
 }
 
 EcalUncalibRecHitProducerGPU::EcalUncalibRecHitProducerGPU(const edm::ParameterSet& ps)
-    : digisTokenEB_{consumes<InputProduct>(
-          ps.getParameter<edm::InputTag>("digisLabelEB"))},
-      digisTokenEE_{
-          consumes<InputProduct>(ps.getParameter<edm::InputTag>("digisLabelEE"))},
-      recHitsTokenEB_{produces<OutputProduct>(
-          ps.getParameter<std::string>("recHitsLabelEB"))},
-      recHitsTokenEE_{produces<OutputProduct>(
-          ps.getParameter<std::string>("recHitsLabelEE"))} {
+    : digisTokenEB_{consumes<InputProduct>(ps.getParameter<edm::InputTag>("digisLabelEB"))},
+      digisTokenEE_{consumes<InputProduct>(ps.getParameter<edm::InputTag>("digisLabelEE"))},
+      recHitsTokenEB_{produces<OutputProduct>(ps.getParameter<std::string>("recHitsLabelEB"))},
+      recHitsTokenEE_{produces<OutputProduct>(ps.getParameter<std::string>("recHitsLabelEE"))} {
   std::pair<double, double> EBtimeFitLimits, EEtimeFitLimits;
   EBtimeFitLimits.first = ps.getParameter<double>("EBtimeFitLimits_Lower");
   EBtimeFitLimits.second = ps.getParameter<double>("EBtimeFitLimits_Upper");
@@ -249,10 +245,10 @@ void EcalUncalibRecHitProducerGPU::acquire(edm::Event const& event,
                                                 *timeOffsetConstantHandle_,
                                                 timeCalibConstantsHandle_->getOffset(),
                                                 multifitParametersProduct};
-  
+
   // dev mem
   eventOutputDataGPU_.allocate(configParameters_, ctx.stream());
-  
+
   // scratch mem
   ecal::multifit::EventDataForScratchGPU eventDataForScratchGPU;
   eventDataForScratchGPU.allocate(configParameters_, ctx.stream());

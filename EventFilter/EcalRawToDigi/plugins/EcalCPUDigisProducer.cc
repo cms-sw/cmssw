@@ -81,10 +81,8 @@ void EcalCPUDigisProducer::fillDescriptions(edm::ConfigurationDescriptions& conf
 
 EcalCPUDigisProducer::EcalCPUDigisProducer(const edm::ParameterSet& ps)
     :  // input digi collections in GPU-friendly format
-      digisInEBToken_{
-          consumes<InputProduct>(ps.getParameter<edm::InputTag>("digisInLabelEB"))},
-      digisInEEToken_{
-          consumes<InputProduct>(ps.getParameter<edm::InputTag>("digisInLabelEE"))},
+      digisInEBToken_{consumes<InputProduct>(ps.getParameter<edm::InputTag>("digisInLabelEB"))},
+      digisInEEToken_{consumes<InputProduct>(ps.getParameter<edm::InputTag>("digisInLabelEE"))},
       // output digi collections in legacy format
       digisOutEBToken_{produces<EBDigiCollection>(ps.getParameter<std::string>("digisOutLabelEB"))},
       digisOutEEToken_{produces<EEDigiCollection>(ps.getParameter<std::string>("digisOutLabelEE"))},

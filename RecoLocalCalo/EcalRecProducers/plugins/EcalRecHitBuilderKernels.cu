@@ -150,7 +150,7 @@ namespace ecal {
         uint32_t const* didCh = isEndcap ? did_ee : did_eb;
 
         // arrange to access the right ptrs
-#define ARRANGE(var) auto *var = isEndcap ? var##EE : var##EB
+#define ARRANGE(var) auto* var = isEndcap ? var##EE : var##EB
         ARRANGE(did);
         ARRANGE(energy);
         ARRANGE(chi2);

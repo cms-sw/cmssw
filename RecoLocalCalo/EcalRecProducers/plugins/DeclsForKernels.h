@@ -99,7 +99,8 @@ namespace ecal {
 
       void allocate(ConfigurationParameters const& configParameters, cudaStream_t cudaStream) {
         auto const size = configParameters.maxNumberHits;
-        recHitsEB.amplitudesAll = cms::cuda::make_device_unique<reco::ComputationScalarType[]>(size * EcalDataFrame::MAXSAMPLES, cudaStream);
+        recHitsEB.amplitudesAll =
+            cms::cuda::make_device_unique<reco::ComputationScalarType[]>(size * EcalDataFrame::MAXSAMPLES, cudaStream);
         recHitsEB.amplitude = cms::cuda::make_device_unique<reco::StorageScalarType[]>(size, cudaStream);
         recHitsEB.chi2 = cms::cuda::make_device_unique<reco::StorageScalarType[]>(size, cudaStream);
         recHitsEB.pedestal = cms::cuda::make_device_unique<reco::StorageScalarType[]>(size, cudaStream);
@@ -111,8 +112,9 @@ namespace ecal {
 
         recHitsEB.did = cms::cuda::make_device_unique<uint32_t[]>(size, cudaStream);
         recHitsEB.flags = cms::cuda::make_device_unique<uint32_t[]>(size, cudaStream);
-        
-        recHitsEE.amplitudesAll = cms::cuda::make_device_unique<reco::ComputationScalarType[]>(size * EcalDataFrame::MAXSAMPLES, cudaStream);
+
+        recHitsEE.amplitudesAll =
+            cms::cuda::make_device_unique<reco::ComputationScalarType[]>(size * EcalDataFrame::MAXSAMPLES, cudaStream);
         recHitsEE.amplitude = cms::cuda::make_device_unique<reco::StorageScalarType[]>(size, cudaStream);
         recHitsEE.chi2 = cms::cuda::make_device_unique<reco::StorageScalarType[]>(size, cudaStream);
         recHitsEE.pedestal = cms::cuda::make_device_unique<reco::StorageScalarType[]>(size, cudaStream);
@@ -126,8 +128,8 @@ namespace ecal {
         recHitsEE.flags = cms::cuda::make_device_unique<uint32_t[]>(size, cudaStream);
       }
     };
-    
-    template<typename EigenM>
+
+    template <typename EigenM>
     constexpr auto getLength() -> uint32_t {
       return EigenM::RowsAtCompileTime * EigenM::ColsAtCompileTime;
     }
@@ -170,16 +172,16 @@ namespace ecal {
         auto const size = configParameters.maxNumberHits;
 
 #define MYMALLOC(var, size) var = cms::cuda::make_device_unique<decltype(var)::element_type[]>(size, cudaStream)
-        MYMALLOC(samples, size*svlength);
+        MYMALLOC(samples, size * svlength);
         //cudaCheck(cudaMalloc((void**)&samples, size * sizeof(SampleVector)));
-        MYMALLOC(gainsNoise, size*sgvlength);
+        MYMALLOC(gainsNoise, size * sgvlength);
         //cudaCheck(cudaMalloc((void**)&gainsNoise, size * sizeof(SampleGainVector)));
 
         MYMALLOC(noisecov, size * smlength);
         //cudaCheck(cudaMalloc((void**)&noisecov, size * sizeof(SampleMatrix)));
         MYMALLOC(pulse_matrix, size * pmlength);
         //cudaCheck(cudaMalloc((void**)&pulse_matrix, size * sizeof(PulseMatrixType)));
-        MYMALLOC(activeBXs, size*bxvlength);
+        MYMALLOC(activeBXs, size * bxvlength);
         //cudaCheck(cudaMalloc((void**)&activeBXs, size * sizeof(BXVectorType)));
         MYMALLOC(acState, size);
         //cudaCheck(cudaMalloc((void**)&acState, size * sizeof(char)));
@@ -192,11 +194,11 @@ namespace ecal {
         //cudaCheck(cudaMalloc((void**)&isSaturated, size * sizeof(bool)));
 
         if (configParameters.shouldRunTimingComputation) {
-          MYMALLOC(sample_values, size*svlength);
+          MYMALLOC(sample_values, size * svlength);
           //cudaCheck(cudaMalloc((void**)&sample_values, size * sizeof(SampleVector)));
-          MYMALLOC(sample_value_errors, size*svlength);
+          MYMALLOC(sample_value_errors, size * svlength);
           //cudaCheck(cudaMalloc((void**)&sample_value_errors, size * sizeof(SampleVector)));
-          MYMALLOC(useless_sample_values, size*EcalDataFrame::MAXSAMPLES);
+          MYMALLOC(useless_sample_values, size * EcalDataFrame::MAXSAMPLES);
           //cudaCheck(cudaMalloc((void**)&useless_sample_values, size * sizeof(bool) * EcalDataFrame::MAXSAMPLES));
           MYMALLOC(chi2sNullHypot, size);
           //cudaCheck(cudaMalloc((void**)&chi2sNullHypot, size * sizeof(SampleVector::Scalar)));

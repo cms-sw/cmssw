@@ -52,14 +52,10 @@ void EcalCPUUncalibRecHitProducer::fillDescriptions(edm::ConfigurationDescriptio
 }
 
 EcalCPUUncalibRecHitProducer::EcalCPUUncalibRecHitProducer(const edm::ParameterSet& ps)
-    : recHitsInEBToken_{consumes<InputProduct>(
-          ps.getParameter<edm::InputTag>("recHitsInLabelEB"))},
-      recHitsInEEToken_{consumes<InputProduct>(
-          ps.getParameter<edm::InputTag>("recHitsInLabelEE"))},
-      recHitsOutEBToken_{
-          produces<OutputProduct>(ps.getParameter<std::string>("recHitsOutLabelEB"))},
-      recHitsOutEEToken_{
-          produces<OutputProduct>(ps.getParameter<std::string>("recHitsOutLabelEE"))},
+    : recHitsInEBToken_{consumes<InputProduct>(ps.getParameter<edm::InputTag>("recHitsInLabelEB"))},
+      recHitsInEEToken_{consumes<InputProduct>(ps.getParameter<edm::InputTag>("recHitsInLabelEE"))},
+      recHitsOutEBToken_{produces<OutputProduct>(ps.getParameter<std::string>("recHitsOutLabelEB"))},
+      recHitsOutEEToken_{produces<OutputProduct>(ps.getParameter<std::string>("recHitsOutLabelEE"))},
       containsTimingInformation_{ps.getParameter<bool>("containsTimingInformation")} {}
 
 EcalCPUUncalibRecHitProducer::~EcalCPUUncalibRecHitProducer() {}
