@@ -57,45 +57,27 @@ namespace hcal {
 
       void allocate(ConfigurationParameters const &config, cudaStream_t cudaStream) {
         digisF01HE.data = cms::cuda::make_device_unique<uint16_t[]>(
-          config.maxChannelsF01HE*compute_stride<Flavor01>(config.nsamplesF01HE),
-          cudaStream
-        );
+            config.maxChannelsF01HE * compute_stride<Flavor01>(config.nsamplesF01HE), cudaStream);
         //cudaCheck(
         //    cudaMalloc((void **)&digisF01HE.data,
         //               config.maxChannelsF01HE * sizeof(uint16_t) * compute_stride<Flavor01>(config.nsamplesF01HE)));
-        digisF01HE.ids = cms::cuda::make_device_unique<uint32_t[]>(
-          config.maxChannelsF01HE,
-          cudaStream
-        );
+        digisF01HE.ids = cms::cuda::make_device_unique<uint32_t[]>(config.maxChannelsF01HE, cudaStream);
         //cudaCheck(cudaMalloc((void **)&digisF01HE.ids, sizeof(uint32_t) * config.maxChannelsF01HE));
 
         digisF5HB.data = cms::cuda::make_device_unique<uint16_t[]>(
-          config.maxChannelsF5HB * compute_stride<Flavor5>(config.nsamplesF5HB),
-          cudaStream
-        );
+            config.maxChannelsF5HB * compute_stride<Flavor5>(config.nsamplesF5HB), cudaStream);
         //cudaCheck(cudaMalloc((void **)&digisF5HB.data,
         //                     config.maxChannelsF5HB * sizeof(uint16_t) * compute_stride<Flavor5>(config.nsamplesF5HB)));
-        digisF5HB.ids = cms::cuda::make_device_unique<uint32_t[]>(
-          config.maxChannelsF5HB,
-          cudaStream
-        );
+        digisF5HB.ids = cms::cuda::make_device_unique<uint32_t[]>(config.maxChannelsF5HB, cudaStream);
         //cudaCheck(cudaMalloc((void **)&digisF5HB.ids, sizeof(uint32_t) * config.maxChannelsF5HB));
-        digisF5HB.npresamples = cms::cuda::make_device_unique<uint8_t[]>(
-          config.maxChannelsF5HB,
-          cudaStream
-        );
+        digisF5HB.npresamples = cms::cuda::make_device_unique<uint8_t[]>(config.maxChannelsF5HB, cudaStream);
         //cudaCheck(cudaMalloc((void **)&digisF5HB.npresamples, sizeof(uint8_t) * config.maxChannelsF5HB));
 
         digisF3HB.data = cms::cuda::make_device_unique<uint16_t[]>(
-          config.maxChannelsF3HB * compute_stride<Flavor3>(config.nsamplesF3HB),
-          cudaStream
-        );
+            config.maxChannelsF3HB * compute_stride<Flavor3>(config.nsamplesF3HB), cudaStream);
         //cudaCheck(cudaMalloc((void **)&digisF3HB.data,
         //                     config.maxChannelsF3HB * sizeof(uint16_t) * compute_stride<Flavor3>(config.nsamplesF3HB)));
-        digisF3HB.ids = cms::cuda::make_device_unique<uint32_t[]>(
-          config.maxChannelsF3HB,
-          cudaStream
-        );
+        digisF3HB.ids = cms::cuda::make_device_unique<uint32_t[]>(config.maxChannelsF3HB, cudaStream);
         //cudaCheck(cudaMalloc((void **)&digisF3HB.ids, config.maxChannelsF3HB * sizeof(uint32_t)));
       }
     };

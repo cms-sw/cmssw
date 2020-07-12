@@ -22,9 +22,7 @@ public:
   // will trigger deallocation of Product thru ~Product
   ~HcalMahiPulseOffsetsGPU() = default;
 
-  std::vector<int, cms::cuda::HostAllocator<int>> const& getValues() const {
-      return values_;
-  }
+  std::vector<int, cms::cuda::HostAllocator<int>> const& getValues() const { return values_; }
 
   // get device pointers
   Product const& getProduct(cudaStream_t) const;

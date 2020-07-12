@@ -125,40 +125,19 @@ void HcalDigisProducerGPU::acquire(edm::Event const& event,
 
   // flavor 0/1 get devie blobs
   df01_.data = cms::cuda::make_device_unique<uint16_t[]>(
-    config_.maxChannelsF01HE * hcal::compute_stride<hcal::Flavor01>(
-      config_.nsamplesF01HE),
-    ctx.stream()
-  );
-  df01_.ids = cms::cuda::make_device_unique<uint32_t[]>(
-    config_.maxChannelsF01HE,
-    ctx.stream()
-  );
+      config_.maxChannelsF01HE * hcal::compute_stride<hcal::Flavor01>(config_.nsamplesF01HE), ctx.stream());
+  df01_.ids = cms::cuda::make_device_unique<uint32_t[]>(config_.maxChannelsF01HE, ctx.stream());
 
   // flavor3 get device blobs
-  df3_.data  = cms::cuda::make_device_unique<uint16_t[]>(
-    config_.maxChannelsF3HB * hcal::compute_stride<hcal::Flavor3>(
-      config_.nsamplesF3HB),
-    ctx.stream()
-  );
-  df3_.ids = cms::cuda::make_device_unique<uint32_t[]>(
-    config_.maxChannelsF3HB,
-    ctx.stream()
-  );
+  df3_.data = cms::cuda::make_device_unique<uint16_t[]>(
+      config_.maxChannelsF3HB * hcal::compute_stride<hcal::Flavor3>(config_.nsamplesF3HB), ctx.stream());
+  df3_.ids = cms::cuda::make_device_unique<uint32_t[]>(config_.maxChannelsF3HB, ctx.stream());
 
   // flavor5 get device blobs
   df5_.data = cms::cuda::make_device_unique<uint16_t[]>(
-    config_.maxChannelsF5HB * hcal::compute_stride<hcal::Flavor5>(
-      config_.nsamplesF5HB),
-    ctx.stream()
-  );
-  df5_.ids = cms::cuda::make_device_unique<uint32_t[]>(
-    config_.maxChannelsF5HB,
-    ctx.stream()
-  );
-  df5_.npresamples = cms::cuda::make_device_unique<uint8_t[]>(
-    config_.maxChannelsF5HB,
-    ctx.stream()
-  );
+      config_.maxChannelsF5HB * hcal::compute_stride<hcal::Flavor5>(config_.nsamplesF5HB), ctx.stream());
+  df5_.ids = cms::cuda::make_device_unique<uint32_t[]>(config_.maxChannelsF5HB, ctx.stream());
+  df5_.npresamples = cms::cuda::make_device_unique<uint8_t[]>(config_.maxChannelsF5HB, ctx.stream());
 
   for (auto const& hbhe : *hbheDigis) {
     auto const id = hbhe.id().rawId();
