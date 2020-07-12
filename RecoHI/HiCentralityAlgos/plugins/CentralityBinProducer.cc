@@ -75,6 +75,7 @@ private:
   edm::Handle<reco::Centrality> chandle_;
   edm::EDGetTokenT<reco::Centrality> tag_;
   edm::ESHandle<CentralityTable> inputDB_;
+  edm::ESGetToken<CentralityTable, HeavyIonRcd> inputDBToken_;
 
   std::string centralityVariable_;
   std::string centralityLabel_;
@@ -143,6 +144,8 @@ CentralityBinProducer::CentralityBinProducer(const edm::ParameterSet& iConfig) :
     centralityMC_ = iConfig.getParameter<std::string>("nonDefaultGlauberModel");
   }
   centralityLabel_ = centralityVariable_ + centralityMC_;
+  inputDBToken_ =
+      esConsumes<CentralityTable, HeavyIonRcd, edm::Transition::BeginRun>(edm::ESInputTag("", centralityLabel_));
 
   produces<int>(centralityVariable_);
 }
@@ -236,7 +239,7 @@ void CentralityBinProducer::beginRun(edm::Run const& iRun, const edm::EventSetup
   }
   prevRun_ = iRun.run();
 
-  iSetup.get<HeavyIonRcd>().get(centralityLabel_, inputDB_);
+  inputDB_ = iSetup.getHandle(inputDBToken_);
 }
 
 //define this as a plug-in

@@ -18,6 +18,7 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
+#include "FWCore/Utilities/interface/ESGetToken.h"
 
 #include "DataFormats/Candidate/interface/Candidate.h"
 
@@ -91,6 +92,9 @@ namespace reco {
     edm::EDGetTokenT<TrackCollection> srcPixelTracks_;
     edm::EDGetTokenT<VertexCollection> srcVertex_;
     edm::EDGetTokenT<Centrality> reuseTag_;
+    edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> trackerGeom_;
+    edm::ESGetToken<CaloGeometry, CaloGeometryRecord> caloGeom_;
+    edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> trackerTopo_;
 
     bool useQuality_;
     reco::TrackBase::TrackQuality trackQuality_;
@@ -136,6 +140,7 @@ namespace reco {
     if (produceEcalhits_) {
       srcEBhits_ = consumes<EcalRecHitCollection>(iConfig.getParameter<edm::InputTag>("srcEBhits"));
       srcEEhits_ = consumes<EcalRecHitCollection>(iConfig.getParameter<edm::InputTag>("srcEEhits"));
+      caloGeom_ = esConsumes<CaloGeometry, CaloGeometryRecord>();
     }
     if (produceZDChits_) {
       srcZDChits_ = consumes<ZDCRecHitCollection>(iConfig.getParameter<edm::InputTag>("srcZDChits"));
@@ -145,6 +150,8 @@ namespace reco {
       srcPixelhits_ = consumes<SiPixelRecHitCollection>(iConfig.getParameter<edm::InputTag>("srcPixelhits"));
       doPixelCut_ = iConfig.getParameter<bool>("doPixelCut");
       srcVertex_ = consumes<VertexCollection>(iConfig.getParameter<edm::InputTag>("srcVertex"));
+      trackerGeom_ = esConsumes<TrackerGeometry, TrackerDigiGeometryRecord>();
+      trackerTopo_ = esConsumes<TrackerTopology, TrackerTopologyRcd>();
     }
     if (produceTracks_) {
       srcTracks_ = consumes<TrackCollection>(iConfig.getParameter<edm::InputTag>("srcTracks"));
@@ -174,12 +181,13 @@ namespace reco {
 
   // ------------ method called to produce the data  ------------
   void CentralityProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
-    if (producePixelhits_)
-      iSetup.get<TrackerDigiGeometryRecord>().get(tGeo);
+    if (producePixelhits_) {
+      tGeo = iSetup.getHandle(trackerGeom_);
+      topo_ = iSetup.getHandle(trackerTopo_);
+    }
+
     if (produceEcalhits_)
-      iSetup.get<CaloGeometryRecord>().get(cGeo);
-    if (producePixelhits_)
-      iSetup.get<TrackerTopologyRcd>().get(topo_);
+      cGeo = iSetup.getHandle(caloGeom_);
 
     auto creco = std::make_unique<Centrality>();
     Handle<Centrality> inputCentrality;

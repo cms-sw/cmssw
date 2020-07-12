@@ -31,6 +31,7 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Utilities/interface/ESGetToken.h"
 #include "DataFormats/Math/interface/Point3D.h"
 
 // Castor Object include
@@ -66,6 +67,7 @@ private:
   typedef std::vector<reco::CastorTower> CastorTowerCollection;
   typedef edm::RefVector<CastorRecHitCollection> CastorRecHitRefVector;
   edm::EDGetTokenT<CastorRecHitCollection> tok_input_;
+  edm::ESGetToken<CastorChannelQuality, CastorChannelQualityRcd> tok_channelQuality_;
   double towercut_;
   double mintime_;
   double maxtime_;
@@ -88,6 +90,7 @@ CastorTowerProducer::CastorTowerProducer(const edm::ParameterSet& iConfig)
       mintime_(iConfig.getParameter<double>("mintime")),
       maxtime_(iConfig.getParameter<double>("maxtime")) {
   tok_input_ = consumes<CastorRecHitCollection>(iConfig.getParameter<std::string>("inputprocess"));
+  tok_channelQuality_ = esConsumes<CastorChannelQuality, CastorChannelQualityRcd>();
   //register your products
   produces<CastorTowerCollection>();
   //now do what ever other initialization is needed
@@ -146,8 +149,7 @@ void CastorTowerProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSe
   }
 
   // retrieve the channel quality lists from database
-  edm::ESHandle<CastorChannelQuality> p;
-  iSetup.get<CastorChannelQualityRcd>().get(p);
+  edm::ESHandle<CastorChannelQuality> p = iSetup.getHandle(tok_channelQuality_);
   std::vector<DetId> channels = p->getAllChannels();
 
   // loop over rechits to build castortowerarray[4][16] and castorusedrechits[16]
