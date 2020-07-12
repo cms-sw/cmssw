@@ -52,6 +52,7 @@ from RecoLocalCalo.EcalRecProducers.ecalLaserAPDPNRatiosGPUESProducer_cfi import
 from RecoLocalCalo.EcalRecProducers.ecalLaserAPDPNRatiosRefGPUESProducer_cfi import ecalLaserAPDPNRatiosRefGPUESProducer
 from RecoLocalCalo.EcalRecProducers.ecalLaserAlphasGPUESProducer_cfi import ecalLaserAlphasGPUESProducer
 from RecoLocalCalo.EcalRecProducers.ecalLinearCorrectionsGPUESProducer_cfi import ecalLinearCorrectionsGPUESProducer
+from RecoLocalCalo.EcalRecProducers.ecalRecHitParametersGPUESProducer_cfi import ecalRecHitParametersGPUESProducer
 
 # ECAL rechits running on GPU
 from RecoLocalCalo.EcalRecProducers.ecalRecHitGPU_cfi import ecalRecHitGPU as _ecalRecHitGPU
@@ -85,6 +86,7 @@ gpu.toReplaceWith(ecalRecHitNoTPTask, cms.Task(
   ecalLaserAPDPNRatiosRefGPUESProducer,
   ecalLaserAlphasGPUESProducer,
   ecalLinearCorrectionsGPUESProducer,
+  ecalRecHitParametersGPUESProducer,
   # ECAL rechits running on GPU
   ecalRecHitGPU,
   # copy the rechits from GPU to CPU
