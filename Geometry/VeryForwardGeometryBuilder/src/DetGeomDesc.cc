@@ -113,7 +113,6 @@ DetGeomDesc::DetGeomDesc(cms::DDFilteredView* fv, const cms::DDSpecParRegistry& 
 
 
 
-
   const cms::DDSolidShape& mySolidShape = cms::dd::getCurrentShape(*fv);
   std::cout << "m_name = " << m_name << std::endl;
 
@@ -173,9 +172,43 @@ DetGeomDesc::DetGeomDesc(cms::DDFilteredView* fv, const cms::DDSpecParRegistry& 
     }; 
   }
   else if (mySolidShape == cms::DDSolidShape::dd_not_init) {
-    std::cout << "DetGeomDesc::DetGeomDesc(cms::DDFilteredView* fv): ERROR: shape not supported for " 
-	      << m_name << ", Id = " << m_geographicalID
-	      << std::endl;
+    auto myShape = fv->solid();
+    const std::vector<double>& params = myShape.dimensions();
+    if (fv->isA<dd4hep::Trd1>()) {
+      m_params = { params[3] / 1._mm, // z
+		   0.,
+		   0.,
+		   params[2] / 1._mm, // y
+		   params[0] / 1._mm, // x1
+		   params[0] / 1._mm, // x1
+		   0.,
+		   params[2] / 1._mm, // y
+		   params[1] / 1._mm, // x2
+		   params[1] / 1._mm, // x2
+		   0.  
+      };
+    }
+    else if (fv->isA<dd4hep::Polycone>()) {
+      m_params = { params[0],
+		   params[1]
+      };
+      int counter = 0;
+      for (const auto& para : params) {	
+	if (counter <= 1 || counter >= 5) {
+	  m_params.emplace_back( para * (counter >= 2 ? (1. / 1._mm) : 1.));
+	}
+	++counter;
+      }
+    }
+    else {
+      //if (fv->solid()->GetShape()->IsA() != TGeoCompositeShape::Class()) {
+      //if (!fv->isA<dd4hep::BooleanSolid>()) {
+      //if (fv->getShapePtr<TGeoCompositeShape::Class()>()
+      std::cout << "DetGeomDesc::DetGeomDesc(cms::DDFilteredView* fv): ERROR: shape not supported for " 
+		<< m_name << ", Id = " << m_geographicalID
+		<< std::endl;
+      //}
+    }
   }
 
 
