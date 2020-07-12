@@ -307,6 +307,7 @@ def customise_gpu_ecal(process):
     process.load("RecoLocalCalo.EcalRecProducers.ecalSamplesCorrelationGPUESProducer_cfi")
     process.load("RecoLocalCalo.EcalRecProducers.ecalTimeBiasCorrectionsGPUESProducer_cfi")
     process.load("RecoLocalCalo.EcalRecProducers.ecalTimeCalibConstantsGPUESProducer_cfi")
+    process.load("RecoLocalCalo.EcalRecProducers.ecalMultifitParametersGPUESProducer_cfi")
 
     process.load("RecoLocalCalo.EcalRecProducers.ecalRechitADCToGeVConstantGPUESProducer_cfi")
     process.load("RecoLocalCalo.EcalRecProducers.ecalRechitChannelStatusGPUESProducer_cfi")
@@ -315,6 +316,7 @@ def customise_gpu_ecal(process):
     process.load("RecoLocalCalo.EcalRecProducers.ecalLaserAPDPNRatiosRefGPUESProducer_cfi")
     process.load("RecoLocalCalo.EcalRecProducers.ecalLaserAlphasGPUESProducer_cfi")
     process.load("RecoLocalCalo.EcalRecProducers.ecalLinearCorrectionsGPUESProducer_cfi")
+    process.load("RecoLocalCalo.EcalRecProducers.ecalRecHitParametersGPUESProducer_cfi")
 
 
     # Modules and EDAliases
@@ -505,6 +507,7 @@ def customise_gpu_hcal(process):
     process.load("RecoLocalCalo.HcalRecProducers.hcalQIETypesGPUESProducer_cfi")
     process.load("RecoLocalCalo.HcalRecProducers.hcalSiPMParametersGPUESProducer_cfi")
     process.load("RecoLocalCalo.HcalRecProducers.hcalSiPMCharacteristicsGPUESProducer_cfi")
+    process.load("RecoLocalCalo.HcalRecProducers.hcalMahiPulseOffsetsGPUESProducer_cfi")
 
 
     # Modules and EDAliases
