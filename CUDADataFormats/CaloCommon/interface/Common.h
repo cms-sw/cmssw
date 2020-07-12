@@ -26,9 +26,9 @@ namespace calo {
       uint32_t size;
     };
 
-    template<>
+    template <>
     struct AddSize<tags::DevPtr> {
-        uint32_t size;
+      uint32_t size;
     };
 
     struct ViewStoragePolicy {
@@ -43,9 +43,9 @@ namespace calo {
     struct DevStoragePolicy {
       using TagType = tags::DevPtr;
 
-      template<typename T>
+      template <typename T>
       struct StorageSelector {
-          using type = cms::cuda::device::unique_ptr<T[]>;
+        using type = cms::cuda::device::unique_ptr<T[]>;
       };
     };
 
@@ -58,7 +58,7 @@ namespace calo {
         using type = std::vector<T, Allocator<T>>;
       };
     };
-  
+
     template <typename T>
     using CUDAHostAllocatorAlias = cms::cuda::HostAllocator<T>;
 
