@@ -67,7 +67,8 @@ public:
   ~PPSGeometryESProducer() override {}
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
-  static void buildDetGeomDesc(cms::DDFilteredView* fv, const cms::DDSpecParRegistry& allSpecParSections, DetGeomDesc* gd);
+  //static void buildDetGeomDesc(cms::DDFilteredView* fv, const cms::DDSpecParRegistry& allSpecParSections, DetGeomDesc* gd);
+  static std::unique_ptr<DetGeomDesc> buildDetGeomDescFromCompactView(const cms::DDCompactView& myCompactView);
 
 private:
   std::unique_ptr<DetGeomDesc> produceIdealGD(const IdealGeometryRecord&);
@@ -186,7 +187,7 @@ void PPSGeometryESProducer::applyAlignments(const DetGeomDesc& idealGD,
 }
 
 //----------------------------------------------------------------------------------------------------
-
+/*
 void PPSGeometryESProducer::buildDetGeomDesc(cms::DDFilteredView* fv, const cms::DDSpecParRegistry& allSpecParSections, DetGeomDesc* gd) {
   // loop over nodes
   do {
@@ -317,14 +318,14 @@ void PPSGeometryESProducer::buildDetGeomDesc(cms::DDFilteredView* fv, const cms:
       const unsigned int rp = 6;
 
       newGD->setGeographicalID(CTPPSDiamondDetId(arm, station, rp));
-    }*/
+    }
 
     // add component
     gd->addComponent(newGD);
 
   } while (fv->next(0));
   
-}
+}*/
 
 //----------------------------------------------------------------------------------------------------
 
@@ -333,29 +334,52 @@ std::unique_ptr<DetGeomDesc> PPSGeometryESProducer::produceIdealGD(const IdealGe
   auto const& det = iRecord.get(detectorToken_);
   
   // get the DDCompactView
-  cms::DDCompactView cpv(det);
+  cms::DDCompactView myCompactView(det);
+
+  return buildDetGeomDescFromCompactView(myCompactView);
+}
+
+
+
+
+std::unique_ptr<DetGeomDesc> PPSGeometryESProducer::buildDetGeomDescFromCompactView(const cms::DDCompactView& myCompactView) {
 
   // create DDFilteredView and apply the filter
-  cms::DDFilter filter;
-  cms::DDFilteredView fv(cpv, filter);
+  //cms::DDFilter filter;
+  //cms::DDFilteredView fv(myCompactView, filter);
+  const cms::DDDetector* mySystem = myCompactView.detector();
+  const dd4hep::Volume& worldVolume = mySystem->worldVolume();
+  cms::DDFilteredView fv(mySystem, worldVolume);
   if (fv.next(0) == false) {
-    edm::LogError("PPSGeometryESProducer") << "Filtered view is empty. Cannot build.";
+    edm::LogError("PPSGeometryBuilder") << "Filtered view is empty. Cannot build.";
   }
 
 
-  const cms::DDSpecParRegistry& allSpecParSections = cpv.specpars();
-
-
-
+  const cms::DDSpecParRegistry& allSpecParSections = myCompactView.specpars();
   // conversion to DetGeomDesc structure
-  auto root = std::make_unique<DetGeomDesc>(&fv, allSpecParSections);
-  buildDetGeomDesc(&fv, allSpecParSections, root.get());
+  auto sentinel = std::make_unique<DetGeomDesc>(&fv, allSpecParSections);
+  //auto sentinel = std::make_unique<DetGeomDesc>(cpv);
+
+
+  //buildDetGeomDesc(&fv, allSpecParSections, sentinel.get());
+  DetGeomDesc* gd = sentinel.get();
+  do {
+    // create new DetGeomDesc node and add it to the parent's (gd) list
+    DetGeomDesc* newGD = new DetGeomDesc(&fv, allSpecParSections);
+    gd->addComponent(newGD);
+
+  } while (fv.next(0));
   
-  edm::LogInfo("PPSGeometryESProducer") << "DetGeomDesc size is: " << (root->components()).size();
+  edm::LogInfo("PPSGeometryESProducer") << "DetGeomDesc size is: " << (sentinel->components()).size();
 
   // construct the tree of DetGeomDesc
-  return root;
+  return sentinel;
 }
+
+
+
+
+
 
 //----------------------------------------------------------------------------------------------------
 

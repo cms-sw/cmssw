@@ -89,7 +89,7 @@ void PPSGeometryBuilder::analyze(const edm::Event& iEvent, const edm::EventSetup
     iSetup.get<IdealGeometryRecord>().get(compactViewTag_.c_str(), cpv);
   }
 
-  
+  /*
   const cms::DDDetector* mySystem = cpv->detector();
   if (mySystem) {
     std::cout << "mySystem->detectors().size() = " << mySystem->detectors().size() << std::endl;
@@ -126,8 +126,8 @@ void PPSGeometryBuilder::analyze(const edm::Event& iEvent, const edm::EventSetup
 
   // conversion to DetGeomDesc structure
   auto sentinel = std::make_unique<DetGeomDesc>(&fv, allSpecParSections);
-  PPSGeometryESProducer::buildDetGeomDesc(&fv, allSpecParSections, sentinel.get());
-
+  PPSGeometryESProducer::buildDetGeomDesc(&fv, allSpecParSections, sentinel.get());*/
+  auto sentinel = PPSGeometryESProducer::buildDetGeomDescFromCompactView(*cpv);
 
   // Persistent geometry data
   PDetGeomDesc* pdet = new PDetGeomDesc;

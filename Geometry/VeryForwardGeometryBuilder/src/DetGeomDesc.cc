@@ -87,9 +87,6 @@ DetGeomDesc::DetGeomDesc(cms::DDFilteredView* fv, const cms::DDSpecParRegistry& 
     m_copy(fv->copyNum()),
     //m_z = fv->geoHistory().back().absTranslation().z();
     m_z(fv->translation().z() / 1._mm)  // Convert cm (DD4hep) to mm (legacy)
-
-
-    //m_sensorType("") 
     //m_sensorType(fv->path()) 
 {
 
