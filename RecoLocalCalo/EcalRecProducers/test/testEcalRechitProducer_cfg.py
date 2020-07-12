@@ -74,6 +74,17 @@ process.load("RecoLocalCalo.EcalRecProducers.ecalTimeCalibConstantsGPUESProducer
 
 #process.ecalMultiFitUncalibRecHitgpu.algoPSet.threads = cms.vint32(256, 1, 1)
 
+#from RecoLocalCalo.EcalRecProducers.ecalMultifitParametersGPUESProducer_cfi import ecalMultifitParametersGPUESProducer
+process.load("RecoLocalCalo.EcalRecProducers.ecalMultifitParametersGPUESProducer_cfi")
+
+#
+#
+#   No "EcalRecHitParametersGPURecord" record found in the EventSetup.n
+#    #--->
+#
+process.load("RecoLocalCalo.EcalRecProducers.ecalRecHitParametersGPUESProducer_cfi")
+#ecalRecHitParametersGPUESProducer_cfi.py
+
 
 ##
 ## force HLT configuration for ecalMultiFitUncalibRecHit
