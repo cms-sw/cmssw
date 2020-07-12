@@ -73,7 +73,7 @@ namespace ecal {
 
       // need to ref the right ptr
       // macro is for clarity and safety
-#define ARRANGE(var) auto *var = ch >= offsetForInputs ? var##EE : var##EB
+#define ARRANGE(var) auto* var = ch >= offsetForInputs ? var##EE : var##EB
       ARRANGE(amplitudesForMinimization);
       ARRANGE(energies);
       ARRANGE(chi2);
@@ -276,8 +276,8 @@ namespace ecal {
             // if saturation is in the max sample and not in the first 5
             if (!saturated_before_max && shr_hasSwitchToGain0[threadMax])
               energies[inputCh] = 49140;  // 4095 * 12
-                                     //---- AM FIXME : no pedestal subtraction???
-                                     //It should be "(4095. - pedestal) * gainratio"
+                                          //---- AM FIXME : no pedestal subtraction???
+                                          //It should be "(4095. - pedestal) * gainratio"
 
             // set state flag to terminate further processing of this channel
             acState[ch] = static_cast<char>(MinimizationState::Precomputed);

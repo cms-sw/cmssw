@@ -149,13 +149,13 @@ namespace ecal {
 
       // FIXME: remove eitehr idx or ch -> they are teh same thing
       int idx = threadIdx.x + blockDim.x * blockIdx.x;
-      
-      // ref the right ptr
-      #define ARRANGE(var) auto *var = idx >= offsetForInputs ? var##EE : var##EB
+
+// ref the right ptr
+#define ARRANGE(var) auto* var = idx >= offsetForInputs ? var##EE : var##EB
       ARRANGE(amplitudes);
       ARRANGE(chi2s);
       ARRANGE(energies);
-      #undef ARRANGE
+#undef ARRANGE
 
       auto const ch = idx;
       if (idx < nchannels) {
