@@ -12,6 +12,7 @@
 #include "HeterogeneousCore/CUDACore/interface/ScopedContext.h"
 #include "HeterogeneousCore/CUDAServices/interface/CUDAService.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/cudaCheck.h"
+#include "HeterogeneousCore/CUDAUtilities/interface/device_unique_ptr.h"
 
 #include "DeclsForKernels.h"
 #include "DecodeGPU.h"
@@ -29,11 +30,11 @@ private:
 
 private:
   edm::EDGetTokenT<FEDRawDataCollection> rawDataToken_;
-  using ProductTypef01 = cms::cuda::Product<hcal::DigiCollection<hcal::Flavor01, hcal::common::ViewStoragePolicy>>;
+  using ProductTypef01 = cms::cuda::Product<hcal::DigiCollection<hcal::Flavor01, calo::common::DevStoragePolicy>>;
   edm::EDPutTokenT<ProductTypef01> digisF01HEToken_;
-  using ProductTypef5 = cms::cuda::Product<hcal::DigiCollection<hcal::Flavor5, hcal::common::ViewStoragePolicy>>;
+  using ProductTypef5 = cms::cuda::Product<hcal::DigiCollection<hcal::Flavor5, calo::common::DevStoragePolicy>>;
   edm::EDPutTokenT<ProductTypef5> digisF5HBToken_;
-  using ProductTypef3 = cms::cuda::Product<hcal::DigiCollection<hcal::Flavor3, hcal::common::ViewStoragePolicy>>;
+  using ProductTypef3 = cms::cuda::Product<hcal::DigiCollection<hcal::Flavor3, calo::common::DevStoragePolicy>>;
   edm::EDPutTokenT<ProductTypef3> digisF3HBToken_;
 
   cms::cuda::ContextState cudaState_;
@@ -41,11 +42,7 @@ private:
   std::vector<int> fedsToUnpack_;
 
   hcal::raw::ConfigurationParameters config_;
-  // FIXME move this to use raii
-  hcal::raw::InputDataCPU inputCPU_;
-  hcal::raw::InputDataGPU inputGPU_;
   hcal::raw::OutputDataGPU outputGPU_;
-  hcal::raw::ScratchDataGPU scratchGPU_;
   hcal::raw::OutputDataCPU outputCPU_;
 };
 
@@ -84,27 +81,9 @@ HcalRawToDigiGPU::HcalRawToDigiGPU(const edm::ParameterSet& ps)
   config_.nsamplesF01HE = ps.getParameter<uint32_t>("nsamplesF01HE");
   config_.nsamplesF5HB = ps.getParameter<uint32_t>("nsamplesF5HB");
   config_.nsamplesF3HB = ps.getParameter<uint32_t>("nsamplesF3HB");
-
-  // reserve memory and call CUDA API functions only if CUDA is available
-  edm::Service<CUDAService> cs;
-  if (cs and cs->enabled()) {
-    inputCPU_.allocate();
-    outputCPU_.allocate();
-
-    inputGPU_.allocate();
-    outputGPU_.allocate(config_);
-    scratchGPU_.allocate(config_);
-  }
 }
 
 HcalRawToDigiGPU::~HcalRawToDigiGPU() {
-  // call CUDA API functions only if CUDA is available
-  edm::Service<CUDAService> cs;
-  if (cs and cs->enabled()) {
-    inputGPU_.deallocate();
-    outputGPU_.deallocate(config_);
-    scratchGPU_.deallocate(config_);
-  }
 }
 
 void HcalRawToDigiGPU::acquire(edm::Event const& event,
@@ -124,6 +103,50 @@ void HcalRawToDigiGPU::acquire(edm::Event const& event,
   // event data
   edm::Handle<FEDRawDataCollection> rawDataHandle;
   event.getByToken(rawDataToken_, rawDataHandle);
+
+  // scratch
+  hcal::raw::ScratchDataGPU scratchGPU = {
+    cms::cuda::make_device_unique<uint32_t[]>(
+      hcal::raw::numOutputCollections,
+      ctx.stream())
+  };
+
+  // input cpu data
+  hcal::raw::InputDataCPU inputCPU = {
+    cms::cuda::make_host_unique<unsigned char[]>(
+      hcal::raw::utca_nfeds_max * hcal::raw::nbytes_per_fed_max,
+      ctx.stream()),
+    cms::cuda::make_host_unique<uint32_t[]>(
+      hcal::raw::utca_nfeds_max,
+      ctx.stream()),
+    cms::cuda::make_host_unique<int[]>(
+      hcal::raw::utca_nfeds_max,
+      ctx.stream())
+  };
+
+  // input data gpu
+  hcal::raw::InputDataGPU inputGPU = {
+    cms::cuda::make_device_unique<unsigned char[]>(
+      hcal::raw::utca_nfeds_max * hcal::raw::nbytes_per_fed_max,
+      ctx.stream()),
+    cms::cuda::make_device_unique<uint32_t[]>(
+      hcal::raw::utca_nfeds_max,
+      ctx.stream()),
+    cms::cuda::make_device_unique<int[]>(
+      hcal::raw::utca_nfeds_max,
+      ctx.stream())
+  };
+
+  // output cpu
+  outputCPU_ = {
+    cms::cuda::make_host_unique<uint32_t[]>(
+      hcal::raw::numOutputCollections,
+      ctx.stream()
+    )
+  };
+
+  // output gpu
+  outputGPU_.allocate(config_, ctx.stream());
 
   // iterate over feds
   // TODO: another idea
@@ -146,20 +169,20 @@ void HcalRawToDigiGPU::acquire(edm::Event const& event,
 #endif
 
     // copy raw data into plain buffer
-    std::memcpy(inputCPU_.data.data() + currentCummOffset, data.data(), nbytes);
+    std::memcpy(inputCPU.data.get() + currentCummOffset, data.data(), nbytes);
     // set the offset in bytes from the start
-    inputCPU_.offsets[counter] = currentCummOffset;
-    inputCPU_.feds[counter] = fed;
+    inputCPU.offsets[counter] = currentCummOffset;
+    inputCPU.feds[counter] = fed;
 
     // this is the current offset into the vector
     currentCummOffset += nbytes;
     ++counter;
   }
 
-  hcal::raw::entryPoint(inputCPU_,
-                        inputGPU_,
+  hcal::raw::entryPoint(inputCPU,
+                        inputGPU,
                         outputGPU_,
-                        scratchGPU_,
+                        scratchGPU,
                         outputCPU_,
                         conditions,
                         config_,
@@ -188,18 +211,12 @@ void HcalRawToDigiGPU::produce(edm::Event& event, edm::EventSetup const& setup) 
   outputGPU_.digisF5HB.stride = hcal::compute_stride<hcal::Flavor5>(config_.nsamplesF5HB);
   outputGPU_.digisF3HB.stride = hcal::compute_stride<hcal::Flavor3>(config_.nsamplesF3HB);
 
-  /*
-    hcal::DigiCollection<hcal::Flavor01> digisF01HE{outputGPU_.idsF01HE,
-        outputGPU_.digisF01HE, nchannelsF01HE, 
-        hcal::compute_stride<hcal::Flavor01>(config_.nsamplesF01HE)};
-    hcal::DigiCollection<hcal::Flavor5> digisF5HB{outputGPU_.idsF5HB,
-        outputGPU_.digisF5HB, outputGPU_.npresamplesF5HB, nchannelsF5HB, 
-        hcal::compute_stride<hcal::Flavor5>(config_.nsamplesF5HB)};
-        */
-
   ctx.emplace(event, digisF01HEToken_, std::move(outputGPU_.digisF01HE));
   ctx.emplace(event, digisF5HBToken_, std::move(outputGPU_.digisF5HB));
   ctx.emplace(event, digisF3HBToken_, std::move(outputGPU_.digisF3HB));
+  
+  // reset ptrs that are carried as members
+  outputCPU_.nchannels.reset();
 }
 
 DEFINE_FWK_MODULE(HcalRawToDigiGPU);

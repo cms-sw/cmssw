@@ -23,9 +23,9 @@ private:
   void produce(edm::Event&, edm::EventSetup const&) override;
 
 private:
-  using IProductType = cms::cuda::Product<hcal::RecHitCollection<hcal::common::ViewStoragePolicy>>;
+  using IProductType = cms::cuda::Product<hcal::RecHitCollection<calo::common::DevStoragePolicy>>;
   edm::EDGetTokenT<IProductType> recHitsM0TokenIn_;
-  using OProductType = hcal::RecHitCollection<hcal::common::VecStoragePolicy<hcal::CUDAHostAllocatorAlias>>;
+  using OProductType = hcal::RecHitCollection<calo::common::VecStoragePolicy<calo::common::CUDAHostAllocatorAlias>>;
   edm::EDPutTokenT<OProductType> recHitsM0TokenOut_;
   edm::EDPutTokenT<HBHERecHitCollection> recHitsLegacyTokenOut_;
 
@@ -67,15 +67,17 @@ void HcalCPURecHitsProducer::acquire(edm::Event const& event,
 
   auto lambdaToTransfer = [&ctx](auto& dest, auto* src) {
     using vector_type = typename std::remove_reference<decltype(dest)>::type;
+    using src_data_type = typename std::remove_pointer<decltype(src)>::type;
     using type = typename vector_type::value_type;
+    static_assert(std::is_same<src_data_type, type>::value && "Dest and Src data types do not match");
     cudaCheck(cudaMemcpyAsync(dest.data(), src, dest.size() * sizeof(type), cudaMemcpyDeviceToHost, ctx.stream()));
   };
 
-  lambdaToTransfer(tmpRecHits_.energy, recHits.energy);
-  lambdaToTransfer(tmpRecHits_.chi2, recHits.chi2);
-  lambdaToTransfer(tmpRecHits_.energyM0, recHits.energyM0);
-  lambdaToTransfer(tmpRecHits_.timeM0, recHits.timeM0);
-  lambdaToTransfer(tmpRecHits_.did, recHits.did);
+  lambdaToTransfer(tmpRecHits_.energy, recHits.energy.get());
+  lambdaToTransfer(tmpRecHits_.chi2, recHits.chi2.get());
+  lambdaToTransfer(tmpRecHits_.energyM0, recHits.energyM0.get());
+  lambdaToTransfer(tmpRecHits_.timeM0, recHits.timeM0.get());
+  lambdaToTransfer(tmpRecHits_.did, recHits.did.get());
 }
 
 void HcalCPURecHitsProducer::produce(edm::Event& event, edm::EventSetup const& setup) {

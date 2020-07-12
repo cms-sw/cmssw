@@ -1675,26 +1675,26 @@ namespace hcal {
       int nbytesShared =
           ((2 * f01nsamples + 2) * sizeof(float) + sizeof(uint64_t)) * configParameters.kprep1dChannelsPerBlock;
       kernel_prep1d_sameNumberOfSamples<<<blocks, threadsPerBlock, nbytesShared, cudaStream>>>(
-          scratch.amplitudes,
-          scratch.noiseTerms,
-          outputGPU.recHits.energy,
-          outputGPU.recHits.chi2,
-          inputGPU.f01HEDigis.data,
-          inputGPU.f5HBDigis.data,
-          inputGPU.f3HBDigis.data,
-          inputGPU.f01HEDigis.ids,
-          inputGPU.f5HBDigis.ids,
-          inputGPU.f3HBDigis.ids,
+          scratch.amplitudes.get(),
+          scratch.noiseTerms.get(),
+          outputGPU.recHits.energy.get(),
+          outputGPU.recHits.chi2.get(),
+          inputGPU.f01HEDigis.data.get(),
+          inputGPU.f5HBDigis.data.get(),
+          inputGPU.f3HBDigis.data.get(),
+          inputGPU.f01HEDigis.ids.get(),
+          inputGPU.f5HBDigis.ids.get(),
+          inputGPU.f3HBDigis.ids.get(),
           inputGPU.f01HEDigis.stride,
           inputGPU.f5HBDigis.stride,
           inputGPU.f3HBDigis.stride,
           inputGPU.f01HEDigis.size,
           inputGPU.f5HBDigis.size,
-          inputGPU.f5HBDigis.npresamples,
-          scratch.soiSamples,
-          outputGPU.recHits.energyM0,
-          outputGPU.recHits.timeM0,
-          outputGPU.recHits.did,
+          inputGPU.f5HBDigis.npresamples.get(),
+          scratch.soiSamples.get(),
+          outputGPU.recHits.energyM0.get(),
+          outputGPU.recHits.timeM0.get(),
+          outputGPU.recHits.did.get(),
           totalChannels,
           conditions.recoParams.param1,
           conditions.recoParams.param2,
@@ -1734,8 +1734,8 @@ namespace hcal {
 
       // 1024 is the max threads per block for gtx1080
       // FIXME: take this from cuda service or something like that
-      uint32_t const channelsPerBlock = 1024 / (f01nsamples * configParameters.pulseOffsets.size());
-      dim3 threadsPerBlock2{f01nsamples, static_cast<uint32_t>(configParameters.pulseOffsets.size()), channelsPerBlock};
+      uint32_t const channelsPerBlock = 1024 / (f01nsamples * conditions.pulseOffsetsHost.size());
+      dim3 threadsPerBlock2{f01nsamples, static_cast<uint32_t>(conditions.pulseOffsetsHost.size()), channelsPerBlock};
       int blocks2 =
           threadsPerBlock2.z > totalChannels ? 1 : (totalChannels + threadsPerBlock2.z - 1) / threadsPerBlock2.z;
 
@@ -1746,18 +1746,18 @@ namespace hcal {
 #endif
 
       kernel_prep_pulseMatrices_sameNumberOfSamples<<<blocks2, threadsPerBlock2, 0, cudaStream>>>(
-          scratch.pulseMatrices,
-          scratch.pulseMatricesM,
-          scratch.pulseMatricesP,
-          configParameters.pulseOffsetsDevice,
-          scratch.amplitudes,
-          inputGPU.f01HEDigis.ids,
-          inputGPU.f5HBDigis.ids,
-          inputGPU.f3HBDigis.ids,
+          scratch.pulseMatrices.get(),
+          scratch.pulseMatricesM.get(),
+          scratch.pulseMatricesP.get(),
+          conditions.pulseOffsets.values,
+          scratch.amplitudes.get(),
+          inputGPU.f01HEDigis.ids.get(),
+          inputGPU.f5HBDigis.ids.get(),
+          inputGPU.f3HBDigis.ids.get(),
           inputGPU.f01HEDigis.size,
           inputGPU.f5HBDigis.size,
           totalChannels,
-          scratch.soiSamples,
+          scratch.soiSamples.get(),
           conditions.recoParams.ids,
           conditions.recoParams.acc25nsVec,
           conditions.recoParams.diff25nsItvlVec,
@@ -1786,27 +1786,27 @@ namespace hcal {
           configParameters.tmaxTimeSlew);
       cudaCheck(cudaGetLastError());
 
-      if (f01nsamples == 8 && configParameters.pulseOffsets.size() == 8u) {
+      if (f01nsamples == 8 && conditions.pulseOffsetsHost.size() == 8u) {
         // FIXME: provide constants from configuration
         uint32_t threadsPerBlock = configParameters.kernelMinimizeThreads[0];
         uint32_t blocks = threadsPerBlock > totalChannels ? 1 : (totalChannels + threadsPerBlock - 1) / threadsPerBlock;
         auto const nbytesShared = 2 * threadsPerBlock * MapSymM<float, 8>::total * sizeof(float);
         kernel_minimize<8, 8><<<blocks, threadsPerBlock, nbytesShared, cudaStream>>>(
-            outputGPU.recHits.energy,
-            outputGPU.recHits.chi2,
-            scratch.amplitudes,
-            scratch.pulseMatrices,
-            scratch.pulseMatricesM,
-            scratch.pulseMatricesP,
-            configParameters.pulseOffsetsDevice,
-            scratch.noiseTerms,
-            scratch.soiSamples,
+            outputGPU.recHits.energy.get(),
+            outputGPU.recHits.chi2.get(),
+            scratch.amplitudes.get(),
+            scratch.pulseMatrices.get(),
+            scratch.pulseMatricesM.get(),
+            scratch.pulseMatricesP.get(),
+            conditions.pulseOffsets.values,
+            scratch.noiseTerms.get(),
+            scratch.soiSamples.get(),
             conditions.pedestalWidths.values,
             conditions.effectivePedestalWidths.values,
             configParameters.useEffectivePedestals,
-            inputGPU.f01HEDigis.ids,
-            inputGPU.f5HBDigis.ids,
-            inputGPU.f3HBDigis.ids,
+            inputGPU.f01HEDigis.ids.get(),
+            inputGPU.f5HBDigis.ids.get(),
+            inputGPU.f3HBDigis.ids.get(),
             conditions.gains.values,
             conditions.respCorrs.values,
             inputGPU.f01HEDigis.size,
@@ -1827,7 +1827,7 @@ namespace hcal {
       } else {
         throw cms::Exception("Invalid MahiGPU configuration")
             << "Currently support only 8 pulses and 8 time samples and provided: " << f01nsamples << " samples and "
-            << configParameters.pulseOffsets.size() << " pulses" << std::endl;
+            << conditions.pulseOffsetsHost.size() << " pulses" << std::endl;
       }
     }
 

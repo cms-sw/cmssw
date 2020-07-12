@@ -3,13 +3,13 @@
 
 #include <vector>
 
-#include "CUDADataFormats/HcalCommon/interface/Common.h"
+#include "CUDADataFormats/CaloCommon/interface/Common.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/HostAllocator.h"
 
 namespace hcal {
 
   template <typename StoragePolicy>
-  struct RecHitCollection : public common::AddSize<typename StoragePolicy::TagType> {
+  struct RecHitCollection : public ::calo::common::AddSize<typename StoragePolicy::TagType> {
     RecHitCollection() = default;
     RecHitCollection(const RecHitCollection&) = default;
     RecHitCollection& operator=(const RecHitCollection&) = default;
@@ -24,7 +24,7 @@ namespace hcal {
     typename StoragePolicy::template StorageSelector<uint32_t>::type did;
 
     template <typename U = typename StoragePolicy::TagType>
-    typename std::enable_if<std::is_same<U, common::tags::Vec>::value, void>::type resize(size_t size) {
+    typename std::enable_if<std::is_same<U, ::calo::common::tags::Vec>::value, void>::type resize(size_t size) {
       energy.resize(size);
       chi2.resize(size);
       energyM0.resize(size);

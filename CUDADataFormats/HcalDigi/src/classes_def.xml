@@ -1,40 +1,52 @@
 <lcgdict>
-    <class name="hcal::DigiCollectionBase<hcal::common::VecStoragePolicy<std::allocator>>" />
-    <class name="hcal::DigiCollectionBase<hcal::common::VecStoragePolicy<hcal::CUDAHostAllocatorAlias>>" />
+    <class name="hcal::DigiCollectionBase<calo::common::VecStoragePolicy<std::allocator>>" />
+    <class name="hcal::DigiCollectionBase<calo::common::VecStoragePolicy<calo::common::CUDAHostAllocatorAlias>>" />
 
-    <class name="hcal::DigiCollection<hcal::Flavor01, hcal::common::VecStoragePolicy<std::allocator>>" />
-    <class name="hcal::DigiCollection<hcal::Flavor2, hcal::common::VecStoragePolicy<std::allocator>>" />
-    <class name="hcal::DigiCollection<hcal::Flavor3, hcal::common::VecStoragePolicy<std::allocator>>" />
-    <class name="hcal::DigiCollection<hcal::Flavor4, hcal::common::VecStoragePolicy<std::allocator>>" />
-    <class name="hcal::DigiCollection<hcal::Flavor5, hcal::common::VecStoragePolicy<std::allocator>>" />
+    <class name="hcal::DigiCollection<hcal::Flavor01, calo::common::VecStoragePolicy<std::allocator>>" />
+    <class name="hcal::DigiCollection<hcal::Flavor2, calo::common::VecStoragePolicy<std::allocator>>" />
+    <class name="hcal::DigiCollection<hcal::Flavor3, calo::common::VecStoragePolicy<std::allocator>>" />
+    <class name="hcal::DigiCollection<hcal::Flavor4, calo::common::VecStoragePolicy<std::allocator>>" />
+    <class name="hcal::DigiCollection<hcal::Flavor5, calo::common::VecStoragePolicy<std::allocator>>" />
             
-    <class name="hcal::DigiCollection<hcal::Flavor01, hcal::common::VecStoragePolicy<hcal::CUDAHostAllocatorAlias>>" />
-    <class name="hcal::DigiCollection<hcal::Flavor2, hcal::common::VecStoragePolicy<hcal::CUDAHostAllocatorAlias>>" />
-    <class name="hcal::DigiCollection<hcal::Flavor3, hcal::common::VecStoragePolicy<hcal::CUDAHostAllocatorAlias>>" />
-    <class name="hcal::DigiCollection<hcal::Flavor4, hcal::common::VecStoragePolicy<hcal::CUDAHostAllocatorAlias>>" />
-    <class name="hcal::DigiCollection<hcal::Flavor5, hcal::common::VecStoragePolicy<hcal::CUDAHostAllocatorAlias>>" />
+    <class name="hcal::DigiCollection<hcal::Flavor01, calo::common::VecStoragePolicy<calo::common::CUDAHostAllocatorAlias>>" />
+    <class name="hcal::DigiCollection<hcal::Flavor2, calo::common::VecStoragePolicy<calo::common::CUDAHostAllocatorAlias>>" />
+    <class name="hcal::DigiCollection<hcal::Flavor3, calo::common::VecStoragePolicy<calo::common::CUDAHostAllocatorAlias>>" />
+    <class name="hcal::DigiCollection<hcal::Flavor4, calo::common::VecStoragePolicy<calo::common::CUDAHostAllocatorAlias>>" />
+    <class name="hcal::DigiCollection<hcal::Flavor5, calo::common::VecStoragePolicy<calo::common::CUDAHostAllocatorAlias>>" />
 
-    <class name="cms::cuda::Product<hcal::DigiCollection<hcal::Flavor01, hcal::common::ViewStoragePolicy>>" persistent="false" />
-    <class name="cms::cuda::Product<hcal::DigiCollection<hcal::Flavor2, hcal::common::ViewStoragePolicy>>" persistent="false" />
-    <class name="cms::cuda::Product<hcal::DigiCollection<hcal::Flavor3, hcal::common::ViewStoragePolicy>>" persistent="false" />
-    <class name="cms::cuda::Product<hcal::DigiCollection<hcal::Flavor4, hcal::common::ViewStoragePolicy>>" persistent="false" />
-    <class name="cms::cuda::Product<hcal::DigiCollection<hcal::Flavor5, hcal::common::ViewStoragePolicy>>" persistent="false" />
+    <class name="cms::cuda::Product<hcal::DigiCollection<hcal::Flavor01, calo::common::ViewStoragePolicy>>" persistent="false" />
+    <class name="cms::cuda::Product<hcal::DigiCollection<hcal::Flavor2, calo::common::ViewStoragePolicy>>" persistent="false" />
+    <class name="cms::cuda::Product<hcal::DigiCollection<hcal::Flavor3, calo::common::ViewStoragePolicy>>" persistent="false" />
+    <class name="cms::cuda::Product<hcal::DigiCollection<hcal::Flavor4, calo::common::ViewStoragePolicy>>" persistent="false" />
+    <class name="cms::cuda::Product<hcal::DigiCollection<hcal::Flavor5, calo::common::ViewStoragePolicy>>" persistent="false" />
             
-    <class name="edm::Wrapper<cms::cuda::Product<hcal::DigiCollection<hcal::Flavor01, hcal::common::ViewStoragePolicy>>>" persistent="false" />
-    <class name="edm::Wrapper<cms::cuda::Product<hcal::DigiCollection<hcal::Flavor2, hcal::common::ViewStoragePolicy>>>" persistent="false" />
-    <class name="edm::Wrapper<cms::cuda::Product<hcal::DigiCollection<hcal::Flavor3, hcal::common::ViewStoragePolicy>>>" persistent="false" />
-    <class name="edm::Wrapper<cms::cuda::Product<hcal::DigiCollection<hcal::Flavor4, hcal::common::ViewStoragePolicy>>>" persistent="false" />
-    <class name="edm::Wrapper<cms::cuda::Product<hcal::DigiCollection<hcal::Flavor5, hcal::common::ViewStoragePolicy>>>" persistent="false" />
-
-    <class name="edm::Wrapper<hcal::DigiCollection<hcal::Flavor01, hcal::common::VecStoragePolicy<std::allocator>>>" />
-    <class name="edm::Wrapper<hcal::DigiCollection<hcal::Flavor2, hcal::common::VecStoragePolicy<std::allocator>>>" />
-    <class name="edm::Wrapper<hcal::DigiCollection<hcal::Flavor3, hcal::common::VecStoragePolicy<std::allocator>>>" />
-    <class name="edm::Wrapper<hcal::DigiCollection<hcal::Flavor4, hcal::common::VecStoragePolicy<std::allocator>>>" />
-    <class name="edm::Wrapper<hcal::DigiCollection<hcal::Flavor5, hcal::common::VecStoragePolicy<std::allocator>>>" />
+    <class name="cms::cuda::Product<hcal::DigiCollection<hcal::Flavor01, calo::common::DevStoragePolicy>>" persistent="false" />
+    <class name="cms::cuda::Product<hcal::DigiCollection<hcal::Flavor2, calo::common::DevStoragePolicy>>" persistent="false" />
+    <class name="cms::cuda::Product<hcal::DigiCollection<hcal::Flavor3, calo::common::DevStoragePolicy>>" persistent="false" />
+    <class name="cms::cuda::Product<hcal::DigiCollection<hcal::Flavor4, calo::common::DevStoragePolicy>>" persistent="false" />
+    <class name="cms::cuda::Product<hcal::DigiCollection<hcal::Flavor5, calo::common::DevStoragePolicy>>" persistent="false" />
+            
+    <class name="edm::Wrapper<cms::cuda::Product<hcal::DigiCollection<hcal::Flavor01, calo::common::ViewStoragePolicy>>>" persistent="false" />
+    <class name="edm::Wrapper<cms::cuda::Product<hcal::DigiCollection<hcal::Flavor2, calo::common::ViewStoragePolicy>>>" persistent="false" />
+    <class name="edm::Wrapper<cms::cuda::Product<hcal::DigiCollection<hcal::Flavor3, calo::common::ViewStoragePolicy>>>" persistent="false" />
+    <class name="edm::Wrapper<cms::cuda::Product<hcal::DigiCollection<hcal::Flavor4, calo::common::ViewStoragePolicy>>>" persistent="false" />
+    <class name="edm::Wrapper<cms::cuda::Product<hcal::DigiCollection<hcal::Flavor5, calo::common::ViewStoragePolicy>>>" persistent="false" />
                 
-    <class name="edm::Wrapper<hcal::DigiCollection<hcal::Flavor01, hcal::common::VecStoragePolicy<hcal::CUDAHostAllocatorAlias>>>" />
-    <class name="edm::Wrapper<hcal::DigiCollection<hcal::Flavor2, hcal::common::VecStoragePolicy<hcal::CUDAHostAllocatorAlias>>>" />
-    <class name="edm::Wrapper<hcal::DigiCollection<hcal::Flavor3, hcal::common::VecStoragePolicy<hcal::CUDAHostAllocatorAlias>>>" />
-    <class name="edm::Wrapper<hcal::DigiCollection<hcal::Flavor4, hcal::common::VecStoragePolicy<hcal::CUDAHostAllocatorAlias>>>" />
-    <class name="edm::Wrapper<hcal::DigiCollection<hcal::Flavor5, hcal::common::VecStoragePolicy<hcal::CUDAHostAllocatorAlias>>>" />
+    <class name="edm::Wrapper<cms::cuda::Product<hcal::DigiCollection<hcal::Flavor01, calo::common::DevStoragePolicy>>>" persistent="false" />
+    <class name="edm::Wrapper<cms::cuda::Product<hcal::DigiCollection<hcal::Flavor2, calo::common::DevStoragePolicy>>>" persistent="false" />
+    <class name="edm::Wrapper<cms::cuda::Product<hcal::DigiCollection<hcal::Flavor3, calo::common::DevStoragePolicy>>>" persistent="false" />
+    <class name="edm::Wrapper<cms::cuda::Product<hcal::DigiCollection<hcal::Flavor4, calo::common::DevStoragePolicy>>>" persistent="false" />
+    <class name="edm::Wrapper<cms::cuda::Product<hcal::DigiCollection<hcal::Flavor5, calo::common::DevStoragePolicy>>>" persistent="false" />
+
+    <class name="edm::Wrapper<hcal::DigiCollection<hcal::Flavor01, calo::common::VecStoragePolicy<std::allocator>>>" />
+    <class name="edm::Wrapper<hcal::DigiCollection<hcal::Flavor2, calo::common::VecStoragePolicy<std::allocator>>>" />
+    <class name="edm::Wrapper<hcal::DigiCollection<hcal::Flavor3, calo::common::VecStoragePolicy<std::allocator>>>" />
+    <class name="edm::Wrapper<hcal::DigiCollection<hcal::Flavor4, calo::common::VecStoragePolicy<std::allocator>>>" />
+    <class name="edm::Wrapper<hcal::DigiCollection<hcal::Flavor5, calo::common::VecStoragePolicy<std::allocator>>>" />
+                
+    <class name="edm::Wrapper<hcal::DigiCollection<hcal::Flavor01, calo::common::VecStoragePolicy<calo::common::CUDAHostAllocatorAlias>>>" />
+    <class name="edm::Wrapper<hcal::DigiCollection<hcal::Flavor2, calo::common::VecStoragePolicy<calo::common::CUDAHostAllocatorAlias>>>" />
+    <class name="edm::Wrapper<hcal::DigiCollection<hcal::Flavor3, calo::common::VecStoragePolicy<calo::common::CUDAHostAllocatorAlias>>>" />
+    <class name="edm::Wrapper<hcal::DigiCollection<hcal::Flavor4, calo::common::VecStoragePolicy<calo::common::CUDAHostAllocatorAlias>>>" />
+    <class name="edm::Wrapper<hcal::DigiCollection<hcal::Flavor5, calo::common::VecStoragePolicy<calo::common::CUDAHostAllocatorAlias>>>" />
 </lcgdict>

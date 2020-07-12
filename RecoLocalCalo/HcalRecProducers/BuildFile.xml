@@ -1,7 +1,7 @@
 <use name="boost"/>
 <use name="cuda"/>
 <use name="CUDADataFormats/Common" />
-<use name="CUDADataFormats/HcalCommon"/>
+<use name="CUDADataFormats/CaloCommon"/>
 <use name="CUDADataFormats/HcalDigi"/>
 <use name="CUDADataFormats/HcalRecHitSoA"/>
 <use name="CalibCalorimetry/HcalAlgos"/>

@@ -29,14 +29,14 @@ private:
 
   // type aliases
   using HostCollectionf01 =
-      hcal::DigiCollection<hcal::Flavor01, hcal::common::VecStoragePolicy<hcal::CUDAHostAllocatorAlias>>;
-  using DeviceCollectionf01 = hcal::DigiCollection<hcal::Flavor01, hcal::common::ViewStoragePolicy>;
+      hcal::DigiCollection<hcal::Flavor01, calo::common::VecStoragePolicy<calo::common::CUDAHostAllocatorAlias>>;
+  using DeviceCollectionf01 = hcal::DigiCollection<hcal::Flavor01, calo::common::DevStoragePolicy>;
   using HostCollectionf5 =
-      hcal::DigiCollection<hcal::Flavor5, hcal::common::VecStoragePolicy<hcal::CUDAHostAllocatorAlias>>;
-  using DeviceCollectionf5 = hcal::DigiCollection<hcal::Flavor5, hcal::common::ViewStoragePolicy>;
+      hcal::DigiCollection<hcal::Flavor5, calo::common::VecStoragePolicy<calo::common::CUDAHostAllocatorAlias>>;
+  using DeviceCollectionf5 = hcal::DigiCollection<hcal::Flavor5, calo::common::DevStoragePolicy>;
   using HostCollectionf3 =
-      hcal::DigiCollection<hcal::Flavor3, hcal::common::VecStoragePolicy<hcal::CUDAHostAllocatorAlias>>;
-  using DeviceCollectionf3 = hcal::DigiCollection<hcal::Flavor3, hcal::common::ViewStoragePolicy>;
+      hcal::DigiCollection<hcal::Flavor3, calo::common::VecStoragePolicy<calo::common::CUDAHostAllocatorAlias>>;
+  using DeviceCollectionf3 = hcal::DigiCollection<hcal::Flavor3, calo::common::DevStoragePolicy>;
 
   // output product tokens
   using ProductTypef01 = cms::cuda::Product<DeviceCollectionf01>;
@@ -48,16 +48,6 @@ private:
 
   cms::cuda::ContextState cudaState_;
 
-  /*
-    hcal::raw::ConfigurationParameters config_;
-    // FIXME move this to use raii
-    hcal::raw::InputDataCPU inputCPU_;
-    hcal::raw::InputDataGPU inputGPU_;
-    hcal::raw::OutputDataGPU outputGPU_;
-    hcal::raw::ScratchDataGPU scratchGPU_;
-    hcal::raw::OutputDataCPU outputCPU_;
-    */
-
   struct ConfigParameters {
     uint32_t maxChannelsF01HE, maxChannelsF5HB, maxChannelsF3HB, nsamplesF01HE, nsamplesF5HB, nsamplesF3HB;
   };
@@ -68,8 +58,7 @@ private:
   HostCollectionf5 hf5_;
   HostCollectionf3 hf3_;
 
-  // device products
-  // NOTE: this module owns memory of the product on the device
+  // device products: product owns memory (i.e. not the module)
   DeviceCollectionf01 df01_;
   DeviceCollectionf5 df5_;
   DeviceCollectionf3 df3_;
@@ -107,27 +96,6 @@ HcalDigisProducerGPU::HcalDigisProducerGPU(const edm::ParameterSet& ps)
   config_.nsamplesF5HB = ps.getParameter<uint32_t>("nsamplesF5HB");
   config_.nsamplesF3HB = ps.getParameter<uint32_t>("nsamplesF3HB");
 
-  // call CUDA API functions only if CUDA is available
-  edm::Service<CUDAService> cs;
-  if (cs and cs->enabled()) {
-    // allocate on the device
-    cudaCheck(cudaMalloc(
-        (void**)&df01_.data,
-        config_.maxChannelsF01HE * sizeof(uint16_t) * hcal::compute_stride<hcal::Flavor01>(config_.nsamplesF01HE)));
-    cudaCheck(cudaMalloc((void**)&df01_.ids, config_.maxChannelsF01HE * sizeof(uint32_t)));
-
-    cudaCheck(cudaMalloc(
-        (void**)&df5_.data,
-        config_.maxChannelsF5HB * sizeof(uint16_t) * hcal::compute_stride<hcal::Flavor5>(config_.nsamplesF5HB)));
-    cudaCheck(cudaMalloc((void**)&df5_.ids, config_.maxChannelsF5HB * sizeof(uint32_t)));
-    cudaCheck(cudaMalloc((void**)&df5_.npresamples, sizeof(uint8_t) * config_.maxChannelsF5HB));
-
-    cudaCheck(cudaMalloc(
-        (void**)&df3_.data,
-        config_.maxChannelsF3HB * sizeof(uint16_t) * hcal::compute_stride<hcal::Flavor3>(config_.nsamplesF3HB)));
-    cudaCheck(cudaMalloc((void**)&df3_.ids, config_.maxChannelsF3HB * sizeof(uint32_t)));
-  }
-
   // preallocate on the host
   hf01_.stride = hcal::compute_stride<hcal::Flavor01>(config_.nsamplesF01HE);
   hf5_.stride = hcal::compute_stride<hcal::Flavor5>(config_.nsamplesF5HB);
@@ -137,22 +105,7 @@ HcalDigisProducerGPU::HcalDigisProducerGPU(const edm::ParameterSet& ps)
   hf3_.reserve(config_.maxChannelsF3HB);
 }
 
-HcalDigisProducerGPU::~HcalDigisProducerGPU() {
-  // call CUDA API functions only if CUDA is available
-  edm::Service<CUDAService> cs;
-  if (cs and cs->enabled()) {
-    // deallocate on the device
-    cudaCheck(cudaFree(df01_.data));
-    cudaCheck(cudaFree(df01_.ids));
-
-    cudaCheck(cudaFree(df5_.data));
-    cudaCheck(cudaFree(df5_.ids));
-    cudaCheck(cudaFree(df5_.npresamples));
-
-    cudaCheck(cudaFree(df3_.data));
-    cudaCheck(cudaFree(df3_.ids));
-  }
-}
+HcalDigisProducerGPU::~HcalDigisProducerGPU() {}
 
 void HcalDigisProducerGPU::acquire(edm::Event const& event,
                                    edm::EventSetup const& setup,
@@ -169,6 +122,43 @@ void HcalDigisProducerGPU::acquire(edm::Event const& event,
   edm::Handle<QIE11DigiCollection> qie11Digis;
   event.getByToken(hbheDigiToken_, hbheDigis);
   event.getByToken(qie11DigiToken_, qie11Digis);
+
+  // flavor 0/1 get devie blobs
+  df01_.data = cms::cuda::make_device_unique<uint16_t[]>(
+    config_.maxChannelsF01HE * hcal::compute_stride<hcal::Flavor01>(
+      config_.nsamplesF01HE),
+    ctx.stream()
+  );
+  df01_.ids = cms::cuda::make_device_unique<uint32_t[]>(
+    config_.maxChannelsF01HE,
+    ctx.stream()
+  );
+
+  // flavor3 get device blobs
+  df3_.data  = cms::cuda::make_device_unique<uint16_t[]>(
+    config_.maxChannelsF3HB * hcal::compute_stride<hcal::Flavor3>(
+      config_.nsamplesF3HB),
+    ctx.stream()
+  );
+  df3_.ids = cms::cuda::make_device_unique<uint32_t[]>(
+    config_.maxChannelsF3HB,
+    ctx.stream()
+  );
+
+  // flavor5 get device blobs
+  df5_.data = cms::cuda::make_device_unique<uint16_t[]>(
+    config_.maxChannelsF5HB * hcal::compute_stride<hcal::Flavor5>(
+      config_.nsamplesF5HB),
+    ctx.stream()
+  );
+  df5_.ids = cms::cuda::make_device_unique<uint32_t[]>(
+    config_.maxChannelsF5HB,
+    ctx.stream()
+  );
+  df5_.npresamples = cms::cuda::make_device_unique<uint8_t[]>(
+    config_.maxChannelsF5HB,
+    ctx.stream()
+  );
 
   for (auto const& hbhe : *hbheDigis) {
     auto const id = hbhe.id().rawId();
@@ -218,18 +208,20 @@ void HcalDigisProducerGPU::acquire(edm::Event const& event,
   auto lambdaToTransfer = [&ctx](auto* dest, auto const& src) {
     using vector_type = typename std::remove_reference<decltype(src)>::type;
     using type = typename vector_type::value_type;
+    using dest_data_type = typename std::remove_pointer<decltype(dest)>::type;
+    static_assert(std::is_same<dest_data_type, type>::value && "Dest and Src data typesdo not match");
     cudaCheck(cudaMemcpyAsync(dest, src.data(), src.size() * sizeof(type), cudaMemcpyHostToDevice, ctx.stream()));
   };
 
-  lambdaToTransfer(df01_.data, hf01_.data);
-  lambdaToTransfer(df01_.ids, hf01_.ids);
+  lambdaToTransfer(df01_.data.get(), hf01_.data);
+  lambdaToTransfer(df01_.ids.get(), hf01_.ids);
 
-  lambdaToTransfer(df5_.data, hf5_.data);
-  lambdaToTransfer(df5_.ids, hf5_.ids);
-  lambdaToTransfer(df5_.npresamples, hf5_.npresamples);
+  lambdaToTransfer(df5_.data.get(), hf5_.data);
+  lambdaToTransfer(df5_.ids.get(), hf5_.ids);
+  lambdaToTransfer(df5_.npresamples.get(), hf5_.npresamples);
 
-  lambdaToTransfer(df3_.data, hf3_.data);
-  lambdaToTransfer(df3_.ids, hf3_.ids);
+  lambdaToTransfer(df3_.data.get(), hf3_.data);
+  lambdaToTransfer(df3_.ids.get(), hf3_.ids);
 }
 
 void HcalDigisProducerGPU::produce(edm::Event& event, edm::EventSetup const& setup) {
@@ -242,39 +234,9 @@ void HcalDigisProducerGPU::produce(edm::Event& event, edm::EventSetup const& set
   df3_.stride = hcal::compute_stride<hcal::Flavor3>(config_.nsamplesF3HB);
   df3_.size = hf3_.ids.size();
 
-  ctx.emplace(event, digisF01HEToken_, df01_);
-  ctx.emplace(event, digisF5HBToken_, df5_);
-  ctx.emplace(event, digisF3HBToken_, df3_);
-
-  /*
-
-#ifdef HCAL_RAWDECODE_CPUDEBUG
-    printf("f01he channels = %u f5hb channesl = %u\n",
-        outputCPU_.nchannels[hcal::raw::OutputF01HE], 
-        outputCPU_.nchannels[hcal::raw::OutputF5HB]);
-#endif
-
-    // FIXME: use sizes of views directly for cuda mem cpy?
-    auto const nchannelsF01HE = outputCPU_.nchannels[hcal::raw::OutputF01HE];
-    auto const nchannelsF5HB = outputCPU_.nchannels[hcal::raw::OutputF5HB];
-    outputGPU_.digisF01HE.size = nchannelsF01HE;
-    outputGPU_.digisF5HB.size = nchannelsF5HB;
-    outputGPU_.digisF01HE.stride = 
-        hcal::compute_stride<hcal::Flavor01>(config_.nsamplesF01HE);
-    outputGPU_.digisF5HB.stride = 
-        hcal::compute_stride<hcal::Flavor5>(config_.nsamplesF5HB);
-
-    hcal::DigiCollection<hcal::Flavor01> digisF01HE{outputGPU_.idsF01HE,
-        outputGPU_.digisF01HE, nchannelsF01HE, 
-        hcal::compute_stride<hcal::Flavor01>(config_.nsamplesF01HE)};
-    hcal::DigiCollection<hcal::Flavor5> digisF5HB{outputGPU_.idsF5HB,
-        outputGPU_.digisF5HB, outputGPU_.npresamplesF5HB, nchannelsF5HB, 
-        hcal::compute_stride<hcal::Flavor5>(config_.nsamplesF5HB)};
-
-    ctx.emplace(event, digisF01HEToken_, std::move(outputGPU_.digisF01HE));
-    ctx.emplace(event, digisF5HBToken_, std::move(outputGPU_.digisF5HB));
-
-    */
+  ctx.emplace(event, digisF01HEToken_, std::move(df01_));
+  ctx.emplace(event, digisF5HBToken_, std::move(df5_));
+  ctx.emplace(event, digisF3HBToken_, std::move(df3_));
 }
 
 DEFINE_FWK_MODULE(HcalDigisProducerGPU);
