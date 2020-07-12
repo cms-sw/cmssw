@@ -10,12 +10,14 @@ ALCARECORandomHLT = HLTrigger.HLTfilters.hltHighLevel_cfi.hltHighLevel.clone(
 )
 
 from EventFilter.SiPixelRawToDigi.SiPixelRawToDigi_cfi import siPixelDigis
-siPixelDigisForLumiR = siPixelDigis.clone()
-siPixelDigisForLumiR.InputLabel = cms.InputTag("hltFEDSelectorLumiPixels")
+siPixelDigisForLumiR = siPixelDigis.cpu.clone(
+    InputLabel = "hltFEDSelectorLumiPixels"
+)
 
 from RecoLocalTracker.SiPixelClusterizer.SiPixelClusterizerPreSplitting_cfi import siPixelClustersPreSplitting
-siPixelClustersForLumiR = siPixelClustersPreSplitting.clone()
-siPixelClustersForLumiR.src = cms.InputTag("siPixelDigisForLumiR")
+siPixelClustersForLumiR = siPixelClustersPreSplitting.cpu.clone(
+    src = "siPixelDigisForLumiR"
+)
 
 from Calibration.LumiAlCaRecoProducers.alcaPCCProducer_cfi import alcaPCCProducer
 alcaPCCProducerRandom = alcaPCCProducer.clone()

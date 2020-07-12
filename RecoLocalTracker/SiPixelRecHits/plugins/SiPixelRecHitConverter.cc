@@ -82,6 +82,11 @@
 
 #include "RecoLocalTracker/Records/interface/TkPixelCPERecord.h"
 
+// Make heterogeneous framework happy
+#include "CUDADataFormats/SiPixelCluster/interface/gpuClusteringConstants.h"
+#include "CUDADataFormats/Common/interface/HostProduct.h"
+using HMSstorage = HostProduct<unsigned int[]>;
+
 using namespace std;
 
 namespace cms {
@@ -104,12 +109,8 @@ namespace cms {
     void produce(edm::Event& e, const edm::EventSetup& c) override;
 
     //--- Execute the position estimator algorithm(s).
-    //--- New interface with DetSetVector
-    void run(const edmNew::DetSetVector<SiPixelCluster>& input,
-             SiPixelRecHitCollectionNew& output,
-             TrackerGeometry const& geom);
-
-    void run(edm::Handle<edmNew::DetSetVector<SiPixelCluster>> inputhandle,
+    void run(edm::Event& e,
+             edm::Handle<edmNew::DetSetVector<SiPixelCluster>> inputhandle,
              SiPixelRecHitCollectionNew& output,
              TrackerGeometry const& geom);
 
@@ -120,6 +121,7 @@ namespace cms {
     edm::InputTag const src_;
     edm::EDGetTokenT<edmNew::DetSetVector<SiPixelCluster>> const tPixelCluster_;
     edm::EDPutTokenT<SiPixelRecHitCollection> const tPut_;
+    edm::EDPutTokenT<HMSstorage> const tHost_;
     edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> const tTrackerGeom_;
     edm::ESGetToken<PixelClusterParameterEstimator, TkPixelCPERecord> const tCPE_;
     bool m_newCont;  // save also in emdNew::DetSetVector
@@ -132,6 +134,7 @@ namespace cms {
       : src_(conf.getParameter<edm::InputTag>("src")),
         tPixelCluster_(consumes<edmNew::DetSetVector<SiPixelCluster>>(src_)),
         tPut_(produces<SiPixelRecHitCollection>()),
+        tHost_(produces<HMSstorage>()),
         tTrackerGeom_(esConsumes<TrackerGeometry, TrackerDigiGeometryRecord>()),
         tCPE_(esConsumes<PixelClusterParameterEstimator, TkPixelCPERecord>(
             edm::ESInputTag("", conf.getParameter<std::string>("CPE")))) {}
@@ -159,7 +162,7 @@ namespace cms {
     // Step C: Iterate over DetIds and invoke the strip CPE algorithm
     // on each DetUnit
 
-    run(input, output, geom);
+    run(e, input, output, geom);
 
     output.shrink_to_fit();
     e.emplace(tPut_, std::move(output));
@@ -170,7 +173,8 @@ namespace cms {
   //!  and make a RecHit to store the result.
   //!  New interface reading DetSetVector by V.Chiochia (May 30th, 2006)
   //---------------------------------------------------------------------------
-  void SiPixelRecHitConverter::run(edm::Handle<edmNew::DetSetVector<SiPixelCluster>> inputhandle,
+  void SiPixelRecHitConverter::run(edm::Event& iEvent,
+                                   edm::Handle<edmNew::DetSetVector<SiPixelCluster>> inputhandle,
                                    SiPixelRecHitCollectionNew& output,
                                    TrackerGeometry const& geom) {
     if (!cpe_) {
@@ -185,9 +189,34 @@ namespace cms {
 
     const edmNew::DetSetVector<SiPixelCluster>& input = *inputhandle;
 
-    edmNew::DetSetVector<SiPixelCluster>::const_iterator DSViter = input.begin();
+    // fill cluster arrays
+    auto hmsp = std::make_unique<uint32_t[]>(gpuClustering::MaxNumModules + 1);
+    auto hitsModuleStart = hmsp.get();
+    std::array<uint32_t, gpuClustering::MaxNumModules + 1> clusInModule{};
+    for (auto DSViter = input.begin(); DSViter != input.end(); DSViter++) {
+      unsigned int detid = DSViter->detId();
+      DetId detIdObject(detid);
+      const GeomDetUnit* genericDet = geom.idToDetUnit(detIdObject);
+      auto gind = genericDet->index();
+      // FIXME to be changed to support Phase2
+      if (gind >= int(gpuClustering::MaxNumModules))
+        continue;
+      auto const nclus = DSViter->size();
+      assert(nclus > 0);
+      clusInModule[gind] = nclus;
+      numberOfClusters += nclus;
+    }
+    hitsModuleStart[0] = 0;
+    assert(clusInModule.size() > gpuClustering::MaxNumModules);
+    for (int i = 1, n = clusInModule.size(); i < n; ++i)
+      hitsModuleStart[i] = hitsModuleStart[i - 1] + clusInModule[i - 1];
+    assert(numberOfClusters == int(hitsModuleStart[gpuClustering::MaxNumModules]));
 
-    for (; DSViter != input.end(); DSViter++) {
+    // yes a unique ptr of a unique ptr so edm is happy and the pointer stay still...
+    iEvent.emplace(tHost_, std::move(hmsp));  // hmsp is gone, hitsModuleStart still alive and kicking...
+
+    numberOfClusters = 0;
+    for (auto DSViter = input.begin(); DSViter != input.end(); DSViter++) {
       numberOfDetUnits++;
       unsigned int detid = DSViter->detId();
       DetId detIdObject(detid);

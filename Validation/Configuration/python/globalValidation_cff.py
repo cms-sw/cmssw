@@ -193,6 +193,13 @@ globalValidationHCALOnly = cms.Sequence(
     + hcalRecHitsOnlyValidationSequence
 )
 
+globalValidationHCALOnly = cms.Sequence(
+      hcalSimHitsValidationSequence
+    + hcaldigisValidationSequence
+    + hcalSimHitStudy
+    + hcalRecHitsOnlyValidationSequence
+)
+
 globalValidationHGCal = cms.Sequence(hgcalValidation)
 globalPrevalidationHGCal = cms.Sequence(hgcalAssociators)
 
