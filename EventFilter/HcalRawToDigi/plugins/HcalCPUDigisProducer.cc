@@ -23,21 +23,21 @@ private:
   void produce(edm::Event&, edm::EventSetup const&) override;
 
 private:
-  using IProductTypef01 = cms::cuda::Product<hcal::DigiCollection<hcal::Flavor01, hcal::common::ViewStoragePolicy>>;
+  using IProductTypef01 = cms::cuda::Product<hcal::DigiCollection<hcal::Flavor01, calo::common::DevStoragePolicy>>;
   edm::EDGetTokenT<IProductTypef01> digisF01HETokenIn_;
-  using IProductTypef5 = cms::cuda::Product<hcal::DigiCollection<hcal::Flavor5, hcal::common::ViewStoragePolicy>>;
+  using IProductTypef5 = cms::cuda::Product<hcal::DigiCollection<hcal::Flavor5, calo::common::DevStoragePolicy>>;
   edm::EDGetTokenT<IProductTypef5> digisF5HBTokenIn_;
-  using IProductTypef3 = cms::cuda::Product<hcal::DigiCollection<hcal::Flavor3, hcal::common::ViewStoragePolicy>>;
+  using IProductTypef3 = cms::cuda::Product<hcal::DigiCollection<hcal::Flavor3, calo::common::DevStoragePolicy>>;
   edm::EDGetTokenT<IProductTypef3> digisF3HBTokenIn_;
 
   using OProductTypef01 =
-      hcal::DigiCollection<hcal::Flavor01, hcal::common::VecStoragePolicy<hcal::CUDAHostAllocatorAlias>>;
+      hcal::DigiCollection<hcal::Flavor01, calo::common::VecStoragePolicy<calo::common::CUDAHostAllocatorAlias>>;
   edm::EDPutTokenT<OProductTypef01> digisF01HETokenOut_;
   using OProductTypef5 =
-      hcal::DigiCollection<hcal::Flavor5, hcal::common::VecStoragePolicy<hcal::CUDAHostAllocatorAlias>>;
+      hcal::DigiCollection<hcal::Flavor5, calo::common::VecStoragePolicy<calo::common::CUDAHostAllocatorAlias>>;
   edm::EDPutTokenT<OProductTypef5> digisF5HBTokenOut_;
   using OProductTypef3 =
-      hcal::DigiCollection<hcal::Flavor3, hcal::common::VecStoragePolicy<hcal::CUDAHostAllocatorAlias>>;
+      hcal::DigiCollection<hcal::Flavor3, calo::common::VecStoragePolicy<calo::common::CUDAHostAllocatorAlias>>;
   edm::EDPutTokenT<OProductTypef3> digisF3HBTokenOut_;
 
   // needed to pass data from acquire to produce
@@ -89,92 +89,29 @@ void HcalCPUDigisProducer::acquire(edm::Event const& event,
   digisf5HB_.resize(f5HBDigis.size);
   digisf3HB_.resize(f3HBDigis.size);
 
-  /*
-    idsf01he.resize(f01HEDigis.ndigis);
-    dataf01he.resize(f01HEDigis.ndigis * f01HEDigis.stride);
-    idsf5hb.resize(f5HBDigis.ndigis);
-    npresamplesf5hb.resize(f5HBDigis.ndigis);
-    dataf5hb.resize(f5HBDigis.ndigis * f5HBDigis.stride);
-    stridef01he = f01HEDigis.stride;
-    stridef5hb = f5HBDigis.stride;
-    */
-
   auto lambdaToTransfer = [&ctx](auto& dest, auto* src) {
     using vector_type = typename std::remove_reference<decltype(dest)>::type;
     using type = typename vector_type::value_type;
+    using src_data_type = typename std::remove_pointer<decltype(src)>::type;
+    static_assert(std::is_same<src_data_type, type>::value && "Dest and Src data types do not match");
     cudaCheck(cudaMemcpyAsync(dest.data(), src, dest.size() * sizeof(type), cudaMemcpyDeviceToHost, ctx.stream()));
   };
 
-  lambdaToTransfer(digisf01HE_.data, f01HEDigis.data);
-  lambdaToTransfer(digisf01HE_.ids, f01HEDigis.ids);
+  lambdaToTransfer(digisf01HE_.data, f01HEDigis.data.get());
+  lambdaToTransfer(digisf01HE_.ids, f01HEDigis.ids.get());
 
-  lambdaToTransfer(digisf5HB_.data, f5HBDigis.data);
-  lambdaToTransfer(digisf5HB_.ids, f5HBDigis.ids);
-  lambdaToTransfer(digisf5HB_.npresamples, f5HBDigis.npresamples);
+  lambdaToTransfer(digisf5HB_.data, f5HBDigis.data.get());
+  lambdaToTransfer(digisf5HB_.ids, f5HBDigis.ids.get());
+  lambdaToTransfer(digisf5HB_.npresamples, f5HBDigis.npresamples.get());
 
-  lambdaToTransfer(digisf3HB_.data, f3HBDigis.data);
-  lambdaToTransfer(digisf3HB_.ids, f3HBDigis.ids);
-
-  /*
-    // enqeue transfers
-    cudaCheck( cudaMemcpyAsync(digisf01.data.data(),
-                               f01HEDigis.data,
-                               dataf01HE.data.size() * sizeof(uint16_t),
-                               cudaMemcpyDeviceToHost,
-                               ctx.stream().id()) );
-    cudaCheck( cudaMemcpyAsync(dataf5hb.data(),
-                               f5HBDigis.data,
-                               dataf5hb.size() * sizeof(uint16_t),
-                               cudaMemcpyDeviceToHost,
-                               ctx.stream().id()) );
-    cudaCheck( cudaMemcpyAsync(idsf01he.data(),
-                               f01HEDigis.ids,
-                               idsf01he.size() * sizeof(uint32_t),
-                               cudaMemcpyDeviceToHost,
-                               ctx.stream().id()) );
-    cudaCheck( cudaMemcpyAsync(idsf5hb.data(),
-                               f5HBDigis.ids,
-                               idsf5hb.size() * sizeof(uint32_t),
-                               cudaMemcpyDeviceToHost,
-                               ctx.stream().id()) );
-    cudaCheck( cudaMemcpyAsync(npresamplesf5hb.data(),
-                               f5HBDigis.npresamples,
-                               npresamplesf5hb.size() * sizeof(uint8_t),
-                               cudaMemcpyDeviceToHost,
-                               ctx.stream.id()) );
-                               */
+  lambdaToTransfer(digisf3HB_.data, f3HBDigis.data.get());
+  lambdaToTransfer(digisf3HB_.ids, f3HBDigis.ids.get());
 }
 
 void HcalCPUDigisProducer::produce(edm::Event& event, edm::EventSetup const& setup) {
   event.emplace(digisF01HETokenOut_, std::move(digisf01HE_));
   event.emplace(digisF5HBTokenOut_, std::move(digisf5HB_));
   event.emplace(digisF3HBTokenOut_, std::move(digisf3HB_));
-
-  // output collections
-  /*
-    auto f01he = std::make_unique<edm::DataFrameContainer>(
-        stridef01he, HcalEndcap, idsf01he.size());
-    auto f5hb = std::make_unique<edm::DataFrameContainer>(
-        stridef5hb, HcalBarrel, idsf5hb.size());
-    
-    // cast constness away
-    // use pointers to buffers instead of move operator= semantics (or swap)
-    // cause we have different allocators in there...
-    auto *dataf01hetmp = const_cast<uint16_t*>(f01he->data().data());
-    auto *dataf5hbtmp = const_cast<uint16_t*>(f5hb->data().data());
-
-    auto *idsf01hetmp = const_cast<uint32_t*>(f01he->ids().data());
-    auto idsf5hbtmp = const_cast<uint32_t*>(f5hb->ids().data());
-
-    // copy data
-    std::memcpy(dataf01hetmp, dataf01he.data(), dataf01he.size() * sizeof(uint16_t));
-    std::memcpy(dataf5hbtmp, dataf5hb.data(), dataf5hb.size() * sizeof(uint16_t));
-    std::memcpy(idsf01hetmp, idsf01he.data(), idsf01he.size() * sizeof(uint32_t));
-    std::memcpy(idsf5hbtmp, idsf5hb.data(), idsf5hb.size() * sizeof(uint32_t));
-
-    event.put(digisF01HETokenOut_, std::move(f01he));
-    event.put(digisF5HBTokenOut_, std::move(f5hb));
-    */
 }
 
 DEFINE_FWK_MODULE(HcalCPUDigisProducer);

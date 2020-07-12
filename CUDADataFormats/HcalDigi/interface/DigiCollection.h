@@ -1,7 +1,7 @@
 #ifndef CUDADataFormats_HcalDigi_interface_DigiCollection_h
 #define CUDADataFormats_HcalDigi_interface_DigiCollection_h
 
-#include "CUDADataFormats/HcalCommon/interface/Common.h"
+#include "CUDADataFormats/CaloCommon/interface/Common.h"
 
 namespace hcal {
 
@@ -108,7 +108,7 @@ namespace hcal {
 
   //
   template <typename StoragePolicy>
-  struct DigiCollectionBase : public common::AddSize<typename StoragePolicy::TagType> {
+  struct DigiCollectionBase : public ::calo::common::AddSize<typename StoragePolicy::TagType> {
     DigiCollectionBase() = default;
     DigiCollectionBase(DigiCollectionBase const&) = default;
     DigiCollectionBase& operator=(DigiCollectionBase const&) = default;
@@ -117,19 +117,19 @@ namespace hcal {
     DigiCollectionBase& operator=(DigiCollectionBase&&) = default;
 
     template <typename T = typename StoragePolicy::TagType>
-    typename std::enable_if<std::is_same<T, common::tags::Vec>::value, void>::type resize(std::size_t size) {
+    typename std::enable_if<std::is_same<T, ::calo::common::tags::Vec>::value, void>::type resize(std::size_t size) {
       ids.resize(size);
       data.resize(size * stride);
     }
 
     template <typename T = typename StoragePolicy::TagType>
-    typename std::enable_if<std::is_same<T, common::tags::Vec>::value, void>::type reserve(std::size_t size) {
+    typename std::enable_if<std::is_same<T, ::calo::common::tags::Vec>::value, void>::type reserve(std::size_t size) {
       ids.reserve(size);
       data.reserve(size * stride);
     }
 
     template <typename T = typename StoragePolicy::TagType>
-    typename std::enable_if<std::is_same<T, common::tags::Vec>::value, void>::type clear() {
+    typename std::enable_if<std::is_same<T, ::calo::common::tags::Vec>::value, void>::type clear() {
       ids.clear();
       data.clear();
     }
@@ -161,19 +161,19 @@ namespace hcal {
     DigiCollection& operator=(DigiCollection&&) = default;
 
     template <typename T = typename StoragePolicy::TagType>
-    typename std::enable_if<std::is_same<T, common::tags::Vec>::value, void>::type resize(std::size_t size) {
+    typename std::enable_if<std::is_same<T, ::calo::common::tags::Vec>::value, void>::type resize(std::size_t size) {
       DigiCollectionBase<StoragePolicy>::resize(size);
       npresamples.resize(size);
     }
 
     template <typename T = typename StoragePolicy::TagType>
-    typename std::enable_if<std::is_same<T, common::tags::Vec>::value, void>::type reserve(std::size_t size) {
+    typename std::enable_if<std::is_same<T, ::calo::common::tags::Vec>::value, void>::type reserve(std::size_t size) {
       DigiCollectionBase<StoragePolicy>::reserve(size);
       npresamples.reserve(size);
     }
 
     template <typename T = typename StoragePolicy::TagType>
-    typename std::enable_if<std::is_same<T, common::tags::Vec>::value, void>::type clear() {
+    typename std::enable_if<std::is_same<T, ::calo::common::tags::Vec>::value, void>::type clear() {
       DigiCollectionBase<StoragePolicy>::clear();
       npresamples.clear();
     }

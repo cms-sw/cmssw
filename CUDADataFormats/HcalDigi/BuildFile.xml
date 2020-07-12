@@ -1,5 +1,5 @@
 <use name="DataFormats/Common"/>
-<use name="CUDADataFormats/HcalCommon"/>
+<use name="CUDADataFormats/CaloCommon"/>
 <use name="HeterogeneousCore/CUDAUtilities"/>
 <use name="cuda"/>
 
