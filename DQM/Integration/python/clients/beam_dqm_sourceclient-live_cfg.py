@@ -1,6 +1,10 @@
 from __future__ import print_function
 import FWCore.ParameterSet.Config as cms
 
+# Define here the BeamSpotOnline record name,
+# it will be used both in BeamMonitor setup and in payload creation/upload
+BSOnlineRecordName = 'BeamSpotOnlineLegacyObjectsRcd'
+
 #from Configuration.Eras.Era_Run2_2018_cff import Run2_2018
 #process = cms.Process("BeamMonitor", Run2_2018) FIXME
 import sys
@@ -24,14 +28,23 @@ if 'unitTest=True' in sys.argv:
     live=False
     unitTest=True
 
+# Switch to veto the upload of the BeamSpot conditions to the DB
+# when False it performs the upload
+noDB = True
+if 'noDB=False' in sys.argv:
+    noDB=False
+
 #---------------
 # Input sources
 if unitTest:
     process.load("DQM.Integration.config.unittestinputsource_cfi")
+    from DQM.Integration.config.unittestinputsource_cfi import options
 elif live:
     process.load("DQM.Integration.config.inputsource_cfi")
+    from DQM.Integration.config.inputsource_cfi import options
 else:
     process.load("DQM.Integration.config.fileinputsource_cfi")
+    from DQM.Integration.config.fileinputsource_cfi import options
 
 #--------------------------
 # HLT Filter
@@ -281,6 +294,7 @@ process.siStripDigis.ProductLabel        = rawDataInputTag
 process.load("RecoVertex.BeamSpotProducer.BeamSpot_cfi")
 
 process.dqmBeamMonitor.OnlineMode = True
+process.dqmBeamMonitor.recordName = BSOnlineRecordName
 
 process.dqmBeamMonitor.resetEveryNLumi   = 5 # was 10 for HI
 process.dqmBeamMonitor.resetPVEveryNLumi = 5 # was 10 for HI
@@ -332,6 +346,36 @@ if (process.runType.getRunType() == process.runType.hi_run):
     )
 
 process.dqmBeamMonitor.hltResults = cms.InputTag("TriggerResults","","HLT")
+
+#---------
+# Upload BeamSpotOnlineObject (LegacyRcd) to CondDB
+process.OnlineDBOutputService = cms.Service("OnlineDBOutputService",
+
+    DBParameters = cms.PSet(
+                            messageLevel = cms.untracked.int32(0),
+                            authenticationPath = cms.untracked.string('')
+                           ),
+
+    # Upload to CondDB
+    connect = cms.string('oracle://cms_orcoff_prep/CMS_CONDITIONS'),
+    preLoadConnectionString = cms.untracked.string('frontier://FrontierPrep/CMS_CONDITIONS'),
+
+    runNumber = cms.untracked.uint64(options.runNumber),
+    lastLumiFile = cms.untracked.string(''),
+    writeTransactionDelay = cms.untracked.uint32(options.transDelay),
+    autoCommit = cms.untracked.bool(True),
+    toPut = cms.VPSet(cms.PSet(
+        record = cms.string(BSOnlineRecordName),
+        tag = cms.string('BSOnlineLegacy_tag'),
+        timetype = cms.untracked.string('Lumi'),
+        onlyAppendUpdatePolicy = cms.untracked.bool(True)
+    ))
+)
+
+# If not live or noDB: produce a (local) SQLITE file
+if not live or noDB:
+    process.OnlineDBOutputService.connect = cms.string('sqlite_file:BeamSpotOnlineLegacy.db')
+    process.OnlineDBOutputService.preLoadConnectionString = cms.untracked.string('sqlite_file:BeamSpotOnlineLegacy.db')
 
 #---------
 # Final path

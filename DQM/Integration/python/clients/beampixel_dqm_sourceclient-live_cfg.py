@@ -5,19 +5,18 @@ import sys
 from Configuration.Eras.Era_Run2_2018_cff import Run2_2018
 process = cms.Process("BeamPixel", Run2_2018)
 
-unitTest=False
+unitTest = False
 if 'unitTest=True' in sys.argv:
-    unitTest=True
+    unitTest = True
+
 
 #----------------------------
 # Common for PP and HI running
 #----------------------------
-
-if unitTest:
+if unitTest == True:
     process.load("DQM.Integration.config.unittestinputsource_cfi")
 else:
     process.load("DQM.Integration.config.inputsource_cfi")
-
 # Use this to run locally (for testing purposes)
 #process.load("DQM.Integration.config.fileinputsource_cfi")
 
