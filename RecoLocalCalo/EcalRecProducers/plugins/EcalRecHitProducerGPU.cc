@@ -24,9 +24,9 @@
 #include "RecoLocalCalo/EcalRecAlgos/interface/EcalLaserAPDPNRatiosRefGPU.h"
 #include "RecoLocalCalo/EcalRecAlgos/interface/EcalLaserAlphasGPU.h"
 #include "RecoLocalCalo/EcalRecAlgos/interface/EcalLinearCorrectionsGPU.h"
+#include "RecoLocalCalo/EcalRecAlgos/interface/EcalRecHitParametersGPU.h"
 #include "RecoLocalCalo/EcalRecAlgos/interface/EcalRechitADCToGeVConstantGPU.h"
 #include "RecoLocalCalo/EcalRecAlgos/interface/EcalRechitChannelStatusGPU.h"
-#include "RecoLocalCalo/EcalRecAlgos/interface/EcalRecHitParametersGPU.h"
 
 #include "EcalRecHitBuilderKernels.h"
 #include "EcalRecHitParametersGPURecord.h"
@@ -73,15 +73,7 @@ private:
   edm::ESHandle<EcalLinearCorrectionsGPU> LinearCorrectionsHandle_;
   edm::ESHandle<EcalRecHitParametersGPU> recHitParametersHandle_;
 
-  // configuration
-  std::vector<int> v_chstatus_;
-
-  //
-  // https://github.com/cms-sw/cmssw/blob/266e21cfc9eb409b093e4cf064f4c0a24c6ac293/RecoLocalCalo/EcalRecProducers/plugins/EcalRecHitWorkerSimple.h
-  //
-
-  // Associate reco flagbit ( outer vector) to many db status flags (inner vector)
-  //   std::vector<std::vector<uint32_t> > v_DB_reco_flags_;
+  // Associate reco flagbit (outer vector) to many db status flags (inner vector)
   std::vector<int>
       expanded_v_DB_reco_flags_;  // Transform a map in a vector      // FIXME AM: int or uint32 to be checked
   std::vector<uint32_t> expanded_Sizes_v_DB_reco_flags_;    // Saving the size for each piece
@@ -113,20 +105,12 @@ void EcalRecHitProducerGPU::fillDescriptions(edm::ConfigurationDescriptions& con
 
 EcalRecHitProducerGPU::EcalRecHitProducerGPU(const edm::ParameterSet& ps) {
   //---- input
-  uncalibRecHitsInEBToken_ = consumes<InputProduct>(
-      ps.getParameter<edm::InputTag>("uncalibrecHitsInLabelEB"));
-  uncalibRecHitsInEEToken_ = consumes<InputProduct>(
-      ps.getParameter<edm::InputTag>("uncalibrecHitsInLabelEE"));
+  uncalibRecHitsInEBToken_ = consumes<InputProduct>(ps.getParameter<edm::InputTag>("uncalibrecHitsInLabelEB"));
+  uncalibRecHitsInEEToken_ = consumes<InputProduct>(ps.getParameter<edm::InputTag>("uncalibrecHitsInLabelEE"));
 
   //---- output
-  recHitsTokenEB_ =
-      produces<OutputProduct>(ps.getParameter<std::string>("recHitsLabelEB"));
-  recHitsTokenEE_ =
-      produces<OutputProduct>(ps.getParameter<std::string>("recHitsLabelEE"));
-
-  //---- db statuses to be exluded from reconstruction
-  v_chstatus_ = StringToEnumValue<EcalChannelStatusCode::Code>(
-      ps.getParameter<std::vector<std::string>>("ChannelStatusToBeExcluded"));
+  recHitsTokenEB_ = produces<OutputProduct>(ps.getParameter<std::string>("recHitsLabelEB"));
+  recHitsTokenEE_ = produces<OutputProduct>(ps.getParameter<std::string>("recHitsLabelEE"));
 
   bool killDeadChannels = ps.getParameter<bool>("killDeadChannels");
   configParameters_.killDeadChannels = killDeadChannels;
@@ -240,20 +224,13 @@ void EcalRecHitProducerGPU::acquire(edm::Event const& event,
 
   edm::TimeValue_t event_time = event.time().value();
 
-  ecal::rechit::create_ecal_rehit(inputDataGPU,
-                                  eventOutputDataGPU_,
-                                  //     eventDataForScratchGPU_,
-                                  conditions,
-                                  configParameters_,
-                                  nchannelsEB,
-                                  event_time,
-                                  ctx.stream());
+  ecal::rechit::create_ecal_rehit(
+      inputDataGPU, eventOutputDataGPU_, conditions, configParameters_, nchannelsEB, event_time, ctx.stream());
 
   cudaCheck(cudaGetLastError());
 }
 
 void EcalRecHitProducerGPU::produce(edm::Event& event, edm::EventSetup const& setup) {
-  //DurationMeasurer<std::chrono::milliseconds> timer{std::string{"produce duration"}};
   cms::cuda::ScopedContextProduce ctx{cudaState_};
 
   eventOutputDataGPU_.recHitsEB.size = neb_;
