@@ -31,8 +31,9 @@ private:
 
 private:
   // input digi collections in GPU-friendly format
-  edm::EDGetTokenT<cms::cuda::Product<ecal::DigisCollection>> digisInEBToken_;
-  edm::EDGetTokenT<cms::cuda::Product<ecal::DigisCollection>> digisInEEToken_;
+  using InputProduct = cms::cuda::Product<ecal::DigisCollection<calo::common::DevStoragePolicy>>;
+  edm::EDGetTokenT<InputProduct> digisInEBToken_;
+  edm::EDGetTokenT<InputProduct> digisInEEToken_;
 
   // output digi collections in legacy format
   edm::EDPutTokenT<EBDigiCollection> digisOutEBToken_;
@@ -81,9 +82,9 @@ void EcalCPUDigisProducer::fillDescriptions(edm::ConfigurationDescriptions& conf
 EcalCPUDigisProducer::EcalCPUDigisProducer(const edm::ParameterSet& ps)
     :  // input digi collections in GPU-friendly format
       digisInEBToken_{
-          consumes<cms::cuda::Product<ecal::DigisCollection>>(ps.getParameter<edm::InputTag>("digisInLabelEB"))},
+          consumes<InputProduct>(ps.getParameter<edm::InputTag>("digisInLabelEB"))},
       digisInEEToken_{
-          consumes<cms::cuda::Product<ecal::DigisCollection>>(ps.getParameter<edm::InputTag>("digisInLabelEE"))},
+          consumes<InputProduct>(ps.getParameter<edm::InputTag>("digisInLabelEE"))},
       // output digi collections in legacy format
       digisOutEBToken_{produces<EBDigiCollection>(ps.getParameter<std::string>("digisOutLabelEB"))},
       digisOutEEToken_{produces<EEDigiCollection>(ps.getParameter<std::string>("digisOutLabelEE"))},
@@ -134,22 +135,22 @@ void EcalCPUDigisProducer::acquire(edm::Event const& event,
   auto const& ebdigis = ctx.get(ebdigisProduct);
   auto const& eedigis = ctx.get(eedigisProduct);
 
-  // resize out tmp buffers
+  // resize tmp buffers
   // FIXME remove hardcoded values
-  idsebtmp.resize(ebdigis.ndigis);
-  dataebtmp.resize(ebdigis.ndigis * 10);
-  idseetmp.resize(eedigis.ndigis);
-  dataeetmp.resize(eedigis.ndigis * 10);
+  idsebtmp.resize(ebdigis.size);
+  dataebtmp.resize(ebdigis.size * 10);
+  idseetmp.resize(eedigis.size);
+  dataeetmp.resize(eedigis.size * 10);
 
   // enqeue transfers
   cudaCheck(cudaMemcpyAsync(
-      dataebtmp.data(), ebdigis.data, dataebtmp.size() * sizeof(uint16_t), cudaMemcpyDeviceToHost, ctx.stream()));
+      dataebtmp.data(), ebdigis.data.get(), dataebtmp.size() * sizeof(uint16_t), cudaMemcpyDeviceToHost, ctx.stream()));
   cudaCheck(cudaMemcpyAsync(
-      dataeetmp.data(), eedigis.data, dataeetmp.size() * sizeof(uint16_t), cudaMemcpyDeviceToHost, ctx.stream()));
+      dataeetmp.data(), eedigis.data.get(), dataeetmp.size() * sizeof(uint16_t), cudaMemcpyDeviceToHost, ctx.stream()));
   cudaCheck(cudaMemcpyAsync(
-      idsebtmp.data(), ebdigis.ids, idsebtmp.size() * sizeof(uint32_t), cudaMemcpyDeviceToHost, ctx.stream()));
+      idsebtmp.data(), ebdigis.ids.get(), idsebtmp.size() * sizeof(uint32_t), cudaMemcpyDeviceToHost, ctx.stream()));
   cudaCheck(cudaMemcpyAsync(
-      idseetmp.data(), eedigis.ids, idseetmp.size() * sizeof(uint32_t), cudaMemcpyDeviceToHost, ctx.stream()));
+      idseetmp.data(), eedigis.ids.get(), idseetmp.size() * sizeof(uint32_t), cudaMemcpyDeviceToHost, ctx.stream()));
 }
 
 void EcalCPUDigisProducer::produce(edm::Event& event, edm::EventSetup const& setup) {

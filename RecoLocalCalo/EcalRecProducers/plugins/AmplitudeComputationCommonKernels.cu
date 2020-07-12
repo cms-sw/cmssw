@@ -27,7 +27,8 @@ namespace ecal {
                                                   uint16_t const* digis_in_ee,
                                                   uint32_t const* dids_ee,
                                                   SampleVector* amplitudes,
-                                                  SampleVector* amplitudesForMinimization,
+                                                  SampleVector* amplitudesForMinimizationEB,
+                                                  SampleVector* amplitudesForMinimizationEE,
                                                   SampleGainVector* gainsNoise,
                                                   float const* mean_x1,
                                                   float const* mean_x12,
@@ -38,11 +39,16 @@ namespace ecal {
                                                   bool* hasSwitchToGain6,
                                                   bool* hasSwitchToGain1,
                                                   bool* isSaturated,
-                                                  ::ecal::reco::StorageScalarType* energies,
-                                                  ::ecal::reco::StorageScalarType* chi2,
-                                                  ::ecal::reco::StorageScalarType* g_pedestal,
-                                                  uint32_t* dids_out,
-                                                  uint32_t* flags,
+                                                  ::ecal::reco::StorageScalarType* energiesEB,
+                                                  ::ecal::reco::StorageScalarType* energiesEE,
+                                                  ::ecal::reco::StorageScalarType* chi2EB,
+                                                  ::ecal::reco::StorageScalarType* chi2EE,
+                                                  ::ecal::reco::StorageScalarType* g_pedestalEB,
+                                                  ::ecal::reco::StorageScalarType* g_pedestalEE,
+                                                  uint32_t* dids_outEB,
+                                                  uint32_t* dids_outEE,
+                                                  uint32_t* flagsEB,
+                                                  uint32_t* flagsEE,
                                                   char* acState,
                                                   BXVectorType* bxs,
                                                   uint32_t const offsetForHashes,
@@ -64,6 +70,17 @@ namespace ecal {
       auto const* digis_in = ch >= offsetForInputs ? digis_in_ee : digis_in_eb;
       auto const* dids = ch >= offsetForInputs ? dids_ee : dids_eb;
       int const sample = threadIdx.x % nsamples;
+
+      // need to ref the right ptr
+      // macro is for clarity and safety
+#define ARRANGE(var) auto *var = ch >= offsetForInputs ? var##EE : var##EB
+      ARRANGE(amplitudesForMinimization);
+      ARRANGE(energies);
+      ARRANGE(chi2);
+      ARRANGE(g_pedestal);
+      ARRANGE(dids_out);
+      ARRANGE(flags);
+#undef ARRANGE
 
       if (ch < nchannels) {
         // array of 10 x channels per block
@@ -215,7 +232,7 @@ namespace ecal {
         //
         // initialization
         //
-        amplitudesForMinimization[ch](sample) = 0;
+        amplitudesForMinimization[inputCh](sample) = 0;
         bxs[ch](sample) = sample - 5;
 
         // select the thread for the max sample
@@ -225,11 +242,11 @@ namespace ecal {
           // initialization
           //
           acState[ch] = static_cast<char>(MinimizationState::NotFinished);
-          energies[ch] = 0;
-          chi2[ch] = 0;
-          g_pedestal[ch] = 0;
+          energies[inputCh] = 0;
+          chi2[inputCh] = 0;
+          g_pedestal[inputCh] = 0;
           uint32_t flag = 0;
-          dids_out[ch] = did.rawId();
+          dids_out[inputCh] = did.rawId();
 
           // start of this channel in shared mem
           int const chStart = threadIdx.x - sample_max;
@@ -247,8 +264,8 @@ namespace ecal {
           // likely false
           if (check_hasSwitchToGain0) {
             // assign for the case some sample having gainId == 0
-            //energies[ch] = amplitudes[ch][sample_max];
-            energies[ch] = amplitude;
+            //energies[inputCh] = amplitudes[ch][sample_max];
+            energies[inputCh] = amplitude;
 
             // check if samples before sample_max have true
             bool saturated_before_max = false;
@@ -258,14 +275,14 @@ namespace ecal {
 
             // if saturation is in the max sample and not in the first 5
             if (!saturated_before_max && shr_hasSwitchToGain0[threadMax])
-              energies[ch] = 49140;  // 4095 * 12
+              energies[inputCh] = 49140;  // 4095 * 12
                                      //---- AM FIXME : no pedestal subtraction???
                                      //It should be "(4095. - pedestal) * gainratio"
 
             // set state flag to terminate further processing of this channel
             acState[ch] = static_cast<char>(MinimizationState::Precomputed);
             flag |= 0x1 << EcalUncalibratedRecHit::kSaturated;
-            flags[ch] = flag;
+            flags[inputCh] = flag;
             return;
           }
 
@@ -279,12 +296,12 @@ namespace ecal {
               shr_hasSwitchToGain6[chStart] || shr_hasSwitchToGain1[chStart] || shr_isSaturated[chStart + 3];
 
           // pedestal is final unconditionally
-          g_pedestal[ch] = pedestal;
+          g_pedestal[inputCh] = pedestal;
           if (hasGainSwitch && gainSwitchUseMaxSample) {
             // thread for sample=0 will access the right guys
-            energies[ch] = max_amplitude / shape_value;
+            energies[inputCh] = max_amplitude / shape_value;
             acState[ch] = static_cast<char>(MinimizationState::Precomputed);
-            flags[ch] = flag;
+            flags[inputCh] = flag;
             return;
           }
 
@@ -293,12 +310,12 @@ namespace ecal {
           // general case here is that noisecov is a Zero matrix
           if (rmsForChecking == 0) {
             acState[ch] = static_cast<char>(MinimizationState::Precomputed);
-            flags[ch] = flag;
+            flags[inputCh] = flag;
             return;
           }
 
           // for the case when no shortcuts were taken
-          flags[ch] = flag;
+          flags[inputCh] = flag;
         }
       }
     }
@@ -484,22 +501,6 @@ namespace ecal {
       if (sample == 5)
         energies[ch] = values[threadIdx.x];
     }
-
-///
-/// Build an Ecal RecHit.
-/// TODO: Use SoA data structures on the host directly
-/// the reason for removing this from minimize kernel is to isolate the minimize +
-/// again, building an aos rec hit involves strides... -> bad memory access pattern
-///
-#ifdef RUN_BUILD_AOS_RECHIT
-    __global__ void kernel_build_rechit(
-        float const* energies, float const* chi2s, uint32_t* dids, EcalUncalibratedRecHit* rechits, int nchannels) {
-      int idx = threadIdx.x + blockDim.x * blockIdx.x;
-      if (idx < nchannels) {
-        rechits[idx] = EcalUncalibratedRecHit{dids[idx], energies[idx], 0, 0, chi2s[idx], 0};
-      }
-    }
-#endif
 
   }  // namespace multifit
 }  // namespace ecal
