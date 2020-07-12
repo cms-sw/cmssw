@@ -41,6 +41,8 @@
 #include "G4TransportationManager.hh"
 #include "G4ParticleTable.hh"
 #include "G4CascadeInterface.hh"
+#include "G4EmParameters.hh"
+#include "G4HadronicParameters.hh"
 
 #include "G4GDMLParser.hh"
 #include "G4SystemOfUnits.hh"
@@ -142,6 +144,8 @@ void RunManagerMT::initG4(const DDCompactView* pDD,
   if (phys == nullptr) {
     throw edm::Exception(edm::errors::Configuration, "Physics list construction failed!");
   }
+  G4EmParameters::Instance()->SetVerbose(verb);
+  G4EmParameters::Instance()->SetWorkerVerbose(verb - 1);
 
   // exotic particle physics
   double monopoleMass = m_pPhysics.getUntrackedParameter<double>("MonopoleMass", 0);

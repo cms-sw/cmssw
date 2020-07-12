@@ -24,13 +24,14 @@ QGSPCMS_FTFP_BERT_EMN::QGSPCMS_FTFP_BERT_EMN(const edm::ParameterSet& p) : Physi
   double minQGSP = p.getParameter<double>("EminQGSP") * CLHEP::GeV;
   double maxFTFP = p.getParameter<double>("EmaxFTFP") * CLHEP::GeV;
   double maxBERTpi = p.getParameter<double>("EmaxBERTpi") * CLHEP::GeV;
-  edm::LogInfo("PhysicsList") << "You are using the simulation engine: "
-                              << "QGSP_FTFP_BERT_EMN \n Flags for EM Physics " << emPhys << ", for Hadronic Physics "
-                              << hadPhys << " and tracking cut " << tracking << "   t(ns)= " << timeLimit / CLHEP::ns
-                              << "\n  transition energy Bertini/FTFP from " << minFTFP / CLHEP::GeV << " to "
-                              << maxBERTpi / CLHEP::GeV << ":" << maxBERT / CLHEP::GeV << " GeV"
-                              << "\n  transition energy FTFP/QGSP from " << minQGSP / CLHEP::GeV << " to "
-                              << maxFTFP / CLHEP::GeV << " GeV";
+  edm::LogVerbatim("PhysicsList") << "You are using the simulation engine: "
+                                  << "QGSP_FTFP_BERT_EMN \n Flags for EM Physics " << emPhys
+                                  << ", for Hadronic Physics " << hadPhys << " and tracking cut " << tracking
+                                  << "   t(ns)= " << timeLimit / CLHEP::ns << "\n  transition energy Bertini/FTFP from "
+                                  << minFTFP / CLHEP::GeV << " to " << maxBERTpi / CLHEP::GeV << ":"
+                                  << maxBERT / CLHEP::GeV << " GeV"
+                                  << "\n  transition energy FTFP/QGSP from " << minQGSP / CLHEP::GeV << " to "
+                                  << maxFTFP / CLHEP::GeV << " GeV";
 
   if (emPhys) {
     // EM Physics

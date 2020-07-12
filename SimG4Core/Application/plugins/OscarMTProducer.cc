@@ -165,8 +165,8 @@ void OscarMTProducer::endRun(const edm::Run&, const edm::EventSetup&) {
 
 void OscarMTProducer::produce(edm::Event& e, const edm::EventSetup& es) {
   StaticRandomEngineSetUnset random(e.streamID());
-  LogDebug("SimG4CoreApplication") << "Produce event " << e.id() << " stream " << e.streamID()
-                                   << " rand= " << G4UniformRand();
+  edm::LogVerbatim("SimG4CoreApplication")
+      << "Produce event " << e.id() << " stream " << e.streamID() << " rand= " << G4UniformRand();
 
   auto& sTk = m_runManagerWorker->sensTkDetectors();
   auto& sCalo = m_runManagerWorker->sensCaloDetectors();
@@ -195,6 +195,8 @@ void OscarMTProducer::produce(edm::Event& e, const edm::EventSetup& es) {
     for (auto& name : v) {
       std::unique_ptr<edm::PSimHitContainer> product(new edm::PSimHitContainer);
       tracker->fillHits(*product, name);
+      if (product != nullptr && !product->empty())
+        edm::LogVerbatim("SimG4CoreApplication") << "Produced " << product->size() << " traker hits <" << name << ">";
       e.put(std::move(product), name);
     }
   }
@@ -204,6 +206,8 @@ void OscarMTProducer::produce(edm::Event& e, const edm::EventSetup& es) {
     for (auto& name : v) {
       std::unique_ptr<edm::PCaloHitContainer> product(new edm::PCaloHitContainer);
       calo->fillHits(*product, name);
+      if (product != nullptr && !product->empty())
+        edm::LogVerbatim("SimG4CoreApplication") << "Produced " << product->size() << " calo hits <" << name << ">";
       e.put(std::move(product), name);
     }
   }
@@ -212,8 +216,8 @@ void OscarMTProducer::produce(edm::Event& e, const edm::EventSetup& es) {
   for (auto& prod : producers) {
     prod.get()->produce(e, es);
   }
-  LogDebug("SimG4CoreApplication") << "Event is produced " << e.id() << " stream " << e.streamID()
-                                   << " rand= " << G4UniformRand();
+  edm::LogVerbatim("SimG4CoreApplication")
+      << "Event is produced " << e.id() << " stream " << e.streamID() << " rand= " << G4UniformRand();
 }
 
 StaticRandomEngineSetUnset::StaticRandomEngineSetUnset(edm::StreamID const& streamID) {
