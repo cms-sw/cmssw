@@ -94,7 +94,7 @@ PrimaryVertexValidation::PrimaryVertexValidation(const edm::ParameterSet& iConfi
 
   std::vector<unsigned int> defaultRuns;
   defaultRuns.push_back(0);
-  runControlNumbers_ = iConfig.getUntrackedParameter<std::vector<unsigned int> >("runControlNumber", defaultRuns);
+  runControlNumbers_ = iConfig.getUntrackedParameter<std::vector<unsigned int>>("runControlNumber", defaultRuns);
 
   edm::InputTag TrackCollectionTag_ = iConfig.getParameter<edm::InputTag>("TrackCollectionTag");
   theTrackCollectionToken = consumes<reco::TrackCollection>(TrackCollectionTag_);
@@ -102,7 +102,7 @@ PrimaryVertexValidation::PrimaryVertexValidation(const edm::ParameterSet& iConfi
   edm::InputTag VertexCollectionTag_ = iConfig.getParameter<edm::InputTag>("VertexCollectionTag");
   theVertexCollectionToken = consumes<reco::VertexCollection>(VertexCollectionTag_);
 
-  edm::InputTag BeamspotTag_ = edm::InputTag("offlineBeamSpot");
+  edm::InputTag BeamspotTag_ = iConfig.getParameter<edm::InputTag>("BeamSpotTag");
   theBeamspotToken = consumes<reco::BeamSpot>(BeamspotTag_);
 
   // select and configure the track filter
@@ -350,7 +350,7 @@ void PrimaryVertexValidation::analyze(const edm::Event& iEvent, const edm::Event
   //=======================================================
 
   //edm::Handle<VertexCollection> vertices;
-  edm::Handle<std::vector<Vertex> > vertices;
+  edm::Handle<std::vector<Vertex>> vertices;
 
   try {
     iEvent.getByToken(theVertexCollectionToken, vertices);
@@ -565,7 +565,7 @@ void PrimaryVertexValidation::analyze(const edm::Event& iEvent, const edm::Event
   // clusterize tracks in Z
   //======================================================
 
-  vector<vector<TransientTrack> > clusters = theTrackClusterizer_->clusterize(seltks);
+  vector<vector<TransientTrack>> clusters = theTrackClusterizer_->clusterize(seltks);
 
   if (debug_) {
     edm::LogInfo("PrimaryVertexValidation")
@@ -685,7 +685,7 @@ void PrimaryVertexValidation::analyze(const edm::Event& iEvent, const edm::Event
           edm::LogInfo("PrimaryVertexValidation") << "Transient Track Collection size: " << theFinalTracks.size();
         try {
           //AdaptiveVertexFitter* theFitter = new AdaptiveVertexFitter;
-          auto theFitter = std::unique_ptr<VertexFitter<5> >(new AdaptiveVertexFitter());
+          auto theFitter = std::unique_ptr<VertexFitter<5>>(new AdaptiveVertexFitter());
           TransientVertex theFittedVertex;
 
           if (forceBeamSpotContraint_) {
@@ -3594,6 +3594,95 @@ void PrimaryVertexValidation::fillTrackHistos(std::map<std::string, TH1*>& h,
   }
   PVValHelper::fill(h, "nbarrelhits_" + ttype, float(nbarrel));
   //-------------------------------------------------------------------
+}
+
+void PrimaryVertexValidation::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+  desc.setComment("Validates alignment payloads by evaluating unbiased track paramter resisuals to vertices");
+
+  // PV Validation specific
+
+  desc.add<bool>("storeNtuple", false);
+  desc.add<bool>("isLightNtuple", true);
+  desc.add<bool>("useTracksFromRecoVtx", false);
+  desc.addUntracked<double>("vertexZMax", 99);
+  desc.addUntracked<double>("intLumi", 0.);
+  desc.add<bool>("askFirstLayerHit", false);
+  desc.addUntracked<bool>("doBPix", true);
+  desc.addUntracked<bool>("doFPix", true);
+  desc.addUntracked<double>("probePt", 0.);
+  desc.addUntracked<double>("probeP", 0.);
+  desc.addUntracked<double>("probeEta", 2.4);
+  desc.addUntracked<double>("probeNHits", 0.);
+  desc.addUntracked<int>("numberOfBins", 24);
+  desc.addUntracked<double>("minPt", 1.);
+  desc.addUntracked<double>("maxPt", 20.);
+  desc.add<bool>("Debug", false);
+  desc.addUntracked<bool>("runControl", false);
+  desc.addUntracked<bool>("forceBeamSpot", false);
+
+  std::vector<unsigned int> defaultRuns;
+  defaultRuns.push_back(0);
+  desc.addUntracked<std::vector<unsigned int>>("runControlNumber", defaultRuns);
+
+  // event sources
+
+  desc.add<edm::InputTag>("TrackCollectionTag", edm::InputTag("ALCARECOTkAlMinBias"));
+  desc.add<edm::InputTag>("VertexCollectionTag", edm::InputTag("offlinePrimaryVertices"));
+  desc.add<edm::InputTag>("BeamSpotTag", edm::InputTag("offlineBeamSpot"));
+
+  // track filtering
+
+  edm::ParameterSetDescription psd0;
+  psd0.add<double>("maxNormalizedChi2", 5.0);
+  psd0.add<double>("minPt", 0.0);
+  psd0.add<std::string>("algorithm", "filter");
+  psd0.add<double>("maxEta", 5.0);
+  psd0.add<double>("maxD0Significance", 5.0);
+  psd0.add<double>("maxD0Error", 100.0);
+  psd0.add<double>("maxDzError", 100.0);
+  psd0.add<std::string>("trackQuality", "any");
+  psd0.add<int>("minPixelLayersWithHits", 2);
+  psd0.add<int>("minSiliconLayersWithHits", 5);
+  psd0.add<int>("numTracksThreshold", 0);  // HI only
+  desc.add<edm::ParameterSetDescription>("TkFilterParameters", psd0);
+
+  // PV Clusterization
+  {
+    edm::ParameterSetDescription psd0;
+    {
+      edm::ParameterSetDescription psd1;
+      psd1.addUntracked<bool>("verbose", false);
+      psd1.addUntracked<double>("zdumpcenter", 0.);
+      psd1.addUntracked<double>("zdumpwidth", 20.);
+      psd1.addUntracked<bool>("use_vdt", false);  // obsolete, appears in HLT configs
+      psd1.add<double>("d0CutOff", 3.0);
+      psd1.add<double>("Tmin", 2.0);
+      psd1.add<double>("delta_lowT", 0.001);
+      psd1.add<double>("zmerge", 0.01);
+      psd1.add<double>("dzCutOff", 3.0);
+      psd1.add<double>("Tpurge", 2.0);
+      psd1.add<int>("convergence_mode", 0);
+      psd1.add<double>("delta_highT", 0.01);
+      psd1.add<double>("Tstop", 0.5);
+      psd1.add<double>("coolingFactor", 0.6);
+      psd1.add<double>("vertexSize", 0.006);
+      psd1.add<double>("uniquetrkweight", 0.8);
+      psd1.add<double>("zrange", 4.0);
+      psd1.add<double>("tmerge", 0.01);           // 4D only
+      psd1.add<double>("dtCutOff", 4.);           // 4D only
+      psd1.add<double>("t0Max", 1.0);             // 4D only
+      psd1.add<double>("vertexSizeTime", 0.008);  // 4D only
+      psd0.add<edm::ParameterSetDescription>("TkDAClusParameters", psd1);
+      edm::ParameterSetDescription psd2;
+      psd2.add<double>("zSeparation", 1.0);
+      psd0.add<edm::ParameterSetDescription>("TkGapClusParameters", psd2);
+    }
+    psd0.add<std::string>("algorithm", "DA_vect");
+    desc.add<edm::ParameterSetDescription>("TkClusParameters", psd0);
+  }
+
+  descriptions.add("primaryVertexValidation", desc);
 }
 
 //define this as a plug-in
