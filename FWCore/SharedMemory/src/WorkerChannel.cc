@@ -44,16 +44,16 @@ WorkerChannel::WorkerChannel(std::string const& iName, const std::string& iUniqu
       stop_{managed_shm_.find<bool>(channel_names::kStop).first},
       transitionType_{managed_shm_.find<edm::Transition>(channel_names::kTransitionType).first},
       transitionID_{managed_shm_.find<unsigned long long>(channel_names::kTransitionID).first},
-      toWorkerBufferIndex_{managed_shm_.find<char>(channel_names::kToWorkerBufferIndex).first},
-      fromWorkerBufferIndex_{managed_shm_.find<char>(channel_names::kFromWorkerBufferIndex).first},
+      toWorkerBufferInfo_{managed_shm_.find<BufferInfo>(channel_names::kToWorkerBufferInfo).first},
+      fromWorkerBufferInfo_{managed_shm_.find<BufferInfo>(channel_names::kFromWorkerBufferInfo).first},
       cndToController_{open_or_create, unique_name(channel_names::kConditionToMain, iUniqueID).c_str()},
       keepEvent_{managed_shm_.find<bool>(channel_names::kKeepEvent).first},
       lock_{mutex_} {
   assert(stop_);
   assert(transitionType_);
   assert(transitionID_);
-  assert(toWorkerBufferIndex_);
-  assert(fromWorkerBufferIndex_);
+  assert(toWorkerBufferInfo_);
+  assert(fromWorkerBufferInfo_);
 }
 
 //

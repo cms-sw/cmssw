@@ -1,0 +1,9 @@
+<bin   name="cmsExternalGenerator" file="externalGenerator.cc">
+  <use   name="boost"/>
+  <use   name="boost_program_options"/>
+  <use   name="FWCore/TestProcessor"/>
+  <use   name="FWCore/SharedMemory"/>
+  <use   name="FWCore/Services"/>
+  <use   name="FWCore/Utilities"/>
+  <use   name="SimDataFormats/GeneratorProducts"/>
+</bin>

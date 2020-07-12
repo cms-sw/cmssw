@@ -35,8 +35,8 @@ ControllerChannel::ControllerChannel(std::string const& iName, int id)
     : id_{id},
       smName_{uniqueName(iName)},
       managed_sm_{open_or_create, smName_.c_str(), 1024},
-      toWorkerBufferIndex_{bufferIndex(channel_names::kToWorkerBufferIndex, managed_sm_)},
-      fromWorkerBufferIndex_{bufferIndex(channel_names::kFromWorkerBufferIndex, managed_sm_)},
+      toWorkerBufferInfo_{bufferInfo(channel_names::kToWorkerBufferInfo, managed_sm_)},
+      fromWorkerBufferInfo_{bufferInfo(channel_names::kFromWorkerBufferInfo, managed_sm_)},
       mutex_{open_or_create, uniqueName(channel_names::kMutex).c_str()},
       cndFromMain_{open_or_create, uniqueName(channel_names::kConditionFromMain).c_str()},
       cndToMain_{open_or_create, uniqueName(channel_names::kConditionToMain).c_str()} {
@@ -61,8 +61,8 @@ ControllerChannel::~ControllerChannel() {
   managed_sm_.destroy<bool>(channel_names::kStop);
   managed_sm_.destroy<unsigned int>(channel_names::kTransitionType);
   managed_sm_.destroy<unsigned long long>(channel_names::kTransitionID);
-  managed_sm_.destroy<char>(channel_names::kToWorkerBufferIndex);
-  managed_sm_.destroy<char>(channel_names::kFromWorkerBufferIndex);
+  managed_sm_.destroy<BufferInfo>(channel_names::kToWorkerBufferInfo);
+  managed_sm_.destroy<BufferInfo>(channel_names::kFromWorkerBufferInfo);
 
   named_mutex::remove(uniqueName(channel_names::kMutex).c_str());
   named_condition::remove(uniqueName(channel_names::kConditionFromMain).c_str());
@@ -103,8 +103,8 @@ bool ControllerChannel::wait(scoped_lock<named_mutex>& lock, edm::Transition iTr
 //
 // static member functions
 //
-char* ControllerChannel::bufferIndex(const char* iWhich, managed_shared_memory& mem) {
-  mem.destroy<char>(iWhich);
-  char* v = mem.construct<char>(iWhich)();
+BufferInfo* ControllerChannel::bufferInfo(const char* iWhich, managed_shared_memory& mem) {
+  mem.destroy<BufferInfo>(iWhich);
+  BufferInfo* v = mem.construct<BufferInfo>(iWhich)();
   return v;
 }

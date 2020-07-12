@@ -12,15 +12,13 @@ namespace {
   struct ReadWriteTestBuffer {
     std::pair<char*, std::size_t> buffer() { return std::pair(&buffer_.front(), size()); }
 
-    bool mustGetBufferAgain() { return resized_; }
+    int bufferIdentifier() { return bufferIdentifier_; }
 
     void copyToBuffer(char* iStart, std::size_t iLength) {
       buffer_.clear();
       if (iLength > buffer_.capacity()) {
         buffer_.reserve(iLength);
-        resized_ = true;
-      } else {
-        resized_ = false;
+        ++bufferIdentifier_;
       }
       std::copy(iStart, iStart + iLength, std::back_insert_iterator(buffer_));
     }
@@ -28,7 +26,7 @@ namespace {
     std::size_t size() const { return buffer_.size(); }
 
     std::vector<char> buffer_;
-    bool resized_ = true;
+    int bufferIdentifier_ = 1;
   };
 
   bool compare(std::vector<edmtest::Thing> const& iLHS, std::vector<edmtest::Thing> const& iRHS) {
@@ -56,7 +54,7 @@ TEST_CASE("test De/ROOTSerializer", "[ROOTSerializer]") {
     t.a = 42;
 
     serializer.serialize(t);
-    REQUIRE(buffer.mustGetBufferAgain() == true);
+    REQUIRE(buffer.bufferIdentifier() == 2);
 
     auto newT = deserializer.deserialize();
 
@@ -64,7 +62,7 @@ TEST_CASE("test De/ROOTSerializer", "[ROOTSerializer]") {
     SECTION("Reuse buffer") {
       t.a = 12;
       serializer.serialize(t);
-      REQUIRE(buffer.mustGetBufferAgain() == false);
+      REQUIRE(buffer.bufferIdentifier() == 2);
 
       auto newT = deserializer.deserialize();
 
@@ -87,7 +85,7 @@ TEST_CASE("test De/ROOTSerializer", "[ROOTSerializer]") {
     }
 
     serializer.serialize(t);
-    REQUIRE(buffer.mustGetBufferAgain() == true);
+    REQUIRE(buffer.bufferIdentifier() == 2);
 
     auto newT = deserializer.deserialize();
 
@@ -97,7 +95,7 @@ TEST_CASE("test De/ROOTSerializer", "[ROOTSerializer]") {
         v.a += 1;
       }
       serializer.serialize(t);
-      REQUIRE(buffer.mustGetBufferAgain() == false);
+      REQUIRE(buffer.bufferIdentifier() == 2);
 
       auto newT = deserializer.deserialize();
 
@@ -107,7 +105,7 @@ TEST_CASE("test De/ROOTSerializer", "[ROOTSerializer]") {
     SECTION("Grow") {
       t.emplace_back();
       serializer.serialize(t);
-      REQUIRE(buffer.mustGetBufferAgain() == true);
+      REQUIRE(buffer.bufferIdentifier() == 3);
 
       auto newT = deserializer.deserialize();
 
@@ -119,7 +117,7 @@ TEST_CASE("test De/ROOTSerializer", "[ROOTSerializer]") {
       t.pop_back();
 
       serializer.serialize(t);
-      REQUIRE(buffer.mustGetBufferAgain() == false);
+      REQUIRE(buffer.bufferIdentifier() == 2);
 
       auto newT = deserializer.deserialize();
 
