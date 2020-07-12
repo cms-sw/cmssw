@@ -13,8 +13,9 @@ def _hitSetProducerToFactoryPSet(producer):
         "PixelTripletLargeTipEDProducer": "PixelTripletLargeTipGenerator",
         "MultiHitFromChi2EDProducer": "MultiHitGeneratorFromChi2",
         "CAHitTripletEDProducer": "CAHitTripletGenerator",
-        "CAHitQuadrupletEDProducer": "CAHitQuadrupletGenerator",   
-        }
+        "CAHitQuadrupletEDProducer": "CAHitQuadrupletGenerator",
+        "CAHitNtupletHeterogeneousEDProducer": "CAHitQuadrupletGenerator",
+    }
     ret = cms.PSet()
     _copy(producer, ret)
     ret.ComponentName = cms.string(_map[producer._TypedParameterizable__type]);
