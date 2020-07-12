@@ -14,6 +14,7 @@ from RecoLocalCalo.EcalRecProducers.ecalPulseCovariancesGPUESProducer_cfi import
 from RecoLocalCalo.EcalRecProducers.ecalSamplesCorrelationGPUESProducer_cfi import ecalSamplesCorrelationGPUESProducer
 from RecoLocalCalo.EcalRecProducers.ecalTimeBiasCorrectionsGPUESProducer_cfi import ecalTimeBiasCorrectionsGPUESProducer
 from RecoLocalCalo.EcalRecProducers.ecalTimeCalibConstantsGPUESProducer_cfi import ecalTimeCalibConstantsGPUESProducer
+from RecoLocalCalo.EcalRecProducers.ecalMultifitParametersGPUESProducer_cfi import ecalMultifitParametersGPUESProducer
 
 # ECAL multifit running on GPU
 from RecoLocalCalo.EcalRecProducers.ecalUncalibRecHitProducerGPU_cfi import ecalUncalibRecHitProducerGPU as _ecalUncalibRecHitProducerGPU
@@ -46,6 +47,7 @@ gpu.toReplaceWith(ecalMultiFitUncalibRecHitTask, cms.Task(
   ecalSamplesCorrelationGPUESProducer,
   ecalTimeBiasCorrectionsGPUESProducer,
   ecalTimeCalibConstantsGPUESProducer,
+  ecalMultifitParametersGPUESProducer,
   # ECAL multifit running on GP
   ecalMultiFitUncalibRecHitGPU,
   # copy the uncalibrated rechits from GPU to CPU
