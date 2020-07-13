@@ -1497,7 +1497,8 @@ void DAClusterizerInZT_vect::dump(const double beta, const vertex_t& y, const tr
         if ((tks.pi_ptr[i] > 0) && (tks.Z_sum_ptr[i] > 0)) {
           double p =
               y.pk_ptr[ivertex] *
-              local_exp(-beta *
+              local_exp(
+                  -beta *
                   Eik(tks.z_ptr[i], y.z_ptr[ivertex], tks.dz2_ptr[i], tks.t_ptr[i], y.t_ptr[ivertex], tks.dt2_ptr[i])) /
               tks.Z_sum_ptr[i];
 
