@@ -57,8 +57,8 @@ struct HGCalHEAlgo {
 #ifdef EDM_ML_DEBUG
     edm::LogVerbatim("HGCalGeom") << "There are " << layerNumbers_.size() << " blocks";
     for (unsigned int i = 0; i < layerNumbers_.size(); ++i)
-      edm::LogVerbatim("HGCalGeom") << "Block [" << i << "] of thickness " << layerThick_[i] << " Rmid " << rMixLayer_[i]
-                                    << " with " << layerNumbers_[i] << " layers";
+      edm::LogVerbatim("HGCalGeom") << "Block [" << i << "] of thickness " << layerThick_[i] << " Rmid "
+                                    << rMixLayer_[i] << " with " << layerNumbers_[i] << " layers";
 #endif
     layerType_ = args.value<std::vector<int>>("LayerType");
     layerSense_ = args.value<std::vector<int>>("LayerSense");
@@ -102,7 +102,8 @@ struct HGCalHEAlgo {
                                   << " types of volumes in the top part";
     for (unsigned int i = 0; i < materialsTop_.size(); ++i)
       edm::LogVerbatim("HGCalGeom") << "Volume [" << i << "] " << namesTop_[i] << " of thickness " << layerThickTop_[i]
-                                    << " filled with " << materialsTop_[i] << " first copy number " << copyNumberTop_[i];
+                                    << " filled with " << materialsTop_[i] << " first copy number "
+                                    << copyNumberTop_[i];
     edm::LogVerbatim("HGCalGeom") << "There are " << layerTypeTop_.size() << " layers in the top part";
     for (unsigned int i = 0; i < layerTypeTop_.size(); ++i)
       edm::LogVerbatim("HGCalGeom") << "Layer [" << i << "] with material type " << layerTypeTop_[i];
@@ -118,7 +119,8 @@ struct HGCalHEAlgo {
                                   << " types of volumes in the bottom part";
     for (unsigned int i = 0; i < materialsBot_.size(); ++i)
       edm::LogVerbatim("HGCalGeom") << "Volume [" << i << "] " << namesBot_[i] << " of thickness " << layerThickBot_[i]
-                                    << " filled with " << materialsBot_[i] << " first copy number " << copyNumberBot_[i];
+                                    << " filled with " << materialsBot_[i] << " first copy number "
+                                    << copyNumberBot_[i];
     edm::LogVerbatim("HGCalGeom") << "There are " << layerTypeBot_.size() << " layers in the bottom part";
     for (unsigned int i = 0; i < layerTypeBot_.size(); ++i)
       edm::LogVerbatim("HGCalGeom") << "Layer [" << i << "] with material type " << layerTypeBot_[i]
@@ -139,9 +141,10 @@ struct HGCalHEAlgo {
 #ifdef EDM_ML_DEBUG
     edm::LogVerbatim("HGCalGeom") << "DDHGCalHEFileAlgo: zStart " << zMinBlock_
                                   << " radius for wafer type separation uses " << rad100to200_.size()
-                                  << " parameters; zmin " << zMinRadPar_ << " cutoff " << choiceType_ << ":" << nCutRadPar_
-                                  << ":" << fracAreaMin_ << " wafer width " << waferSize_ << " separations " << waferSepar_
-                                  << " sectors " << sectors_ << ":" << convertRadToDeg(alpha_) << ":" << cosAlpha_;
+                                  << " parameters; zmin " << zMinRadPar_ << " cutoff " << choiceType_ << ":"
+                                  << nCutRadPar_ << ":" << fracAreaMin_ << " wafer width " << waferSize_
+                                  << " separations " << waferSepar_ << " sectors " << sectors_ << ":"
+                                  << convertRadToDeg(alpha_) << ":" << cosAlpha_;
     for (unsigned int k = 0; k < rad100to200_.size(); ++k)
       edm::LogVerbatim("HGCalGeom") << "[" << k << "] 100-200 " << rad100to200_[k] << " 200-300 " << rad200to300_[k];
 #endif
@@ -205,7 +208,8 @@ struct HGCalHEAlgo {
           std::vector<double> pgonZ, pgonRin, pgonRout;
           if (layerSense_[ly] == 0 || absorbMode_ == 0) {
             double rmax =
-                (std::min(routF, HGCalGeomTools::radius(zz + hthick, zFrontT_, rMaxFront_, slopeT_)) * cosAlpha_) - tol1;
+                (std::min(routF, HGCalGeomTools::radius(zz + hthick, zFrontT_, rMaxFront_, slopeT_)) * cosAlpha_) -
+                tol1;
             pgonZ.emplace_back(-hthick);
             pgonZ.emplace_back(hthick);
             pgonRin.emplace_back(rinB);
