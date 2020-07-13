@@ -199,92 +199,58 @@ process.TrackRefitter.TTRHBuilder = "WithAngleAndTemplate"
 ####################################################################
 process.TFileService = cms.Service("TFileService",
                                    fileName=cms.string("OUTFILETEMPLATE")
-                                  )                                    
+                                   )
 
 ####################################################################
-# Deterministic annealing clustering
+# Imports of parameters
 ####################################################################
-if isDA:
-     print(">>>>>>>>>> testPVValidation_cfg.py: msg%-i: Running DA Algorithm!")
-     process.PVValidation = cms.EDAnalyzer("PrimaryVertexValidation",
-                                           TrackCollectionTag = cms.InputTag("TrackRefitter"),
-                                           VertexCollectionTag = cms.InputTag("VERTEXTYPETEMPLATE"),  
-                                           Debug = cms.bool(False),
-                                           storeNtuple = cms.bool(False),
-                                           useTracksFromRecoVtx = cms.bool(False),
-                                           isLightNtuple = cms.bool(True),
-                                           askFirstLayerHit = cms.bool(False),
-                                           forceBeamSpot = cms.untracked.bool(False),
-                                           probePt = cms.untracked.double(PTCUTTEMPLATE),
-                                           runControl = cms.untracked.bool(RUNCONTROLTEMPLATE),
-                                           runControlNumber = cms.untracked.vuint32(int(runboundary)),
-                                           
-                                           TkFilterParameters = cms.PSet(algorithm=cms.string('filter'),                           
-                                                                         maxNormalizedChi2 = cms.double(5.0),                        # chi2ndof < 5                  
-                                                                         minPixelLayersWithHits = cms.int32(2),                      # PX hits > 2                       
-                                                                         minSiliconLayersWithHits = cms.int32(5),                    # TK hits > 5  
-                                                                         maxD0Significance = cms.double(5.0),                        # fake cut (requiring 1 PXB hit)     
-                                                                         maxD0Error = cms.double(100.0),                        # fake cut (requiring 1 PXB hit)     
-                                                                         maxDzError = cms.double(100.0),                        # fake cut (requiring 1 PXB hit)     
-                                                                         minPt = cms.double(0.0),                                    # better for softish events                        
-                                                                         maxEta = cms.double(5.0),                                   # as per recommendation in PR #18330
-                                                                         trackQuality = cms.string("any")
-                                                                         ),
+from RecoVertex.PrimaryVertexProducer.OfflinePrimaryVertices_cfi import offlinePrimaryVertices
+## modify the parameters which differ
+FilteringParams = offlinePrimaryVertices.TkFilterParameters.clone(
+     maxNormalizedChi2 = 5.0,  # chi2ndof < 5
+     maxD0Significance = 5.0,  # fake cut (requiring 1 PXB hit)
+     maxD0Error = 100.0,       # fake cut (requiring 1 PXB hit)
+     maxDzError = 100.0,       # fake cut (requiring 1 PXB hit)
+     maxEta = 5.0,             # as per recommendation in PR #18330
+)
 
-                                           ## MM 04.05.2017 (use settings as in: https://github.com/cms-sw/cmssw/pull/18330)
-                                           TkClusParameters=cms.PSet(algorithm=cms.string('DA_vect'),
-                                                                     TkDAClusParameters = cms.PSet(coolingFactor = cms.double(0.6),  # moderate annealing speed
-                                                                                                   zrange = cms.double(4.),          # consider only clusters within 4 sigma*sqrt(T) of a track
-                                                                                                   delta_highT = cms.double(1.e-2),  # convergence requirement at high T
-                                                                                                   delta_lowT = cms.double(1.e-3),   # convergence requirement at low T
-                                                                                                   convergence_mode = cms.int32(0),  # 0 = two steps, 1 = dynamic with sqrt(T)
-                                                                                                   Tmin = cms.double(2.0),           # end of vertex splitting
-                                                                                                   Tpurge = cms.double(2.0),         # cleaning 
-                                                                                                   Tstop = cms.double(0.5),          # end of annealing
-                                                                                                   vertexSize = cms.double(0.006),   # added in quadrature to track-z resolutions
-                                                                                                   d0CutOff = cms.double(3.),        # downweight high IP tracks
-                                                                                                   dzCutOff = cms.double(3.),        # outlier rejection after freeze-out (T<Tmin)   
-                                                                                                   zmerge = cms.double(1e-2),        # merge intermediat clusters separated by less than zmerge
-                                                                                                   uniquetrkweight = cms.double(0.8) # require at least two tracks with this weight at T=Tpurge
-                                                                                                   )
-                                                                     )
-                                           )
+## MM 04.05.2017 (use settings as in: https://github.com/cms-sw/cmssw/pull/18330)
+from RecoVertex.PrimaryVertexProducer.TkClusParameters_cff import DA_vectParameters
+DAClusterizationParams = DA_vectParameters.clone()
+
+GapClusterizationParams = cms.PSet(algorithm   = cms.string('gap'),
+                                   TkGapClusParameters = cms.PSet(zSeparation = cms.double(0.2))  # 0.2 cm max separation betw. clusters
+                                   )
 
 ####################################################################
-# GAP clustering
+# Deterministic annealing clustering or Gap clustering
 ####################################################################
-else:
-     print(">>>>>>>>>> testPVValidation_cfg.py: msg%-i: Running GAP Algorithm!")
-     process.PVValidation = cms.EDAnalyzer("PrimaryVertexValidation",
-                                           TrackCollectionTag = cms.InputTag("TrackRefitter"),
-                                           VertexCollectionTag = cms.InputTag("VERTEXTYPETEMPLATE"), 
-                                           Debug = cms.bool(False),
-                                           isLightNtuple = cms.bool(True),
-                                           storeNtuple = cms.bool(False),
-                                           useTracksFromRecoVtx = cms.bool(False),
-                                           askFirstLayerHit = cms.bool(False),
-                                           forceBeamSpot = cms.untracked.bool(False),
-                                           probePt = cms.untracked.double(PTCUTTEMPLATE),
-                                           runControl = cms.untracked.bool(RUNCONTROLTEMPLATE),
-                                           runControlNumber = cms.untracked.vuint32(int(runboundary)),
-                                           
-                                           TkFilterParameters = cms.PSet(algorithm=cms.string('filter'),                             
-                                                                         maxNormalizedChi2 = cms.double(5.0),                        # chi2ndof < 20                  
-                                                                         minPixelLayersWithHits=cms.int32(2),                        # PX hits > 2                   
-                                                                         minSiliconLayersWithHits = cms.int32(5),                    # TK hits > 5                   
-                                                                         maxD0Significance = cms.double(5.0),                        # fake cut (requiring 1 PXB hit)
-                                                                         maxD0Error = cms.double(100.0),                        # fake cut (requiring 1 PXB hit)     
-                                                                         maxDzError = cms.double(100.0),                        # fake cut (requiring 1 PXB hit)     
-                                                                         minPt = cms.double(0.0),                                    # better for softish events     
-                                                                         maxEta = cms.double(5.0),                                   # as per recommendation in PR #18330
-                                                                         trackQuality = cms.string("any")
-                                                                         ),
-                                        
-                                           TkClusParameters = cms.PSet(algorithm   = cms.string('gap'),
-                                                                       TkGapClusParameters = cms.PSet(zSeparation = cms.double(0.2)  # 0.2 cm max separation betw. clusters
-                                                                                                      ) 
-                                                                       )
-                                           )
+def switchClusterizerParameters(da):
+     if da:
+          print(">>>>>>>>>> testPVValidation_cfg.py: msg%-i: Running DA Algorithm!")
+          return DAClusterizationParams
+     else:
+          print(">>>>>>>>>> testPVValidation_cfg.py: msg%-i: Running GAP Algorithm!")
+          return GapClusterizationParams
+
+####################################################################
+# Configure the PVValidation Analyzer module
+####################################################################
+process.PVValidation = cms.EDAnalyzer("PrimaryVertexValidation",
+                                      TrackCollectionTag = cms.InputTag("TrackRefitter"),
+                                      VertexCollectionTag = cms.InputTag("VERTEXTYPETEMPLATE"),
+                                      Debug = cms.bool(False),
+                                      storeNtuple = cms.bool(False),
+                                      useTracksFromRecoVtx = cms.bool(False),
+                                      isLightNtuple = cms.bool(True),
+                                      askFirstLayerHit = cms.bool(False),
+                                      forceBeamSpot = cms.untracked.bool(False),
+                                      probePt = cms.untracked.double(PTCUTTEMPLATE),
+                                      runControl = cms.untracked.bool(RUNCONTROLTEMPLATE),
+                                      runControlNumber = cms.untracked.vuint32(int(runboundary)),
+                                      TkFilterParameters = FilteringParams,
+                                      TkClusParameters = switchClusterizerParameters(isDA)
+                                      )
 
 ####################################################################
 # Path
