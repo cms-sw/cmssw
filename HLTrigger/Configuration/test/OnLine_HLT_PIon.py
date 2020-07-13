@@ -1,13 +1,13 @@
 # hltGetConfiguration --full --data /dev/CMSSW_11_2_0/PIon --type PIon --unprescale --process HLTPIon --globaltag auto:run3_hlt_PIon --input file:RelVal_Raw_PIon_DATA.root
 
-# /dev/CMSSW_11_2_0/PIon/V2 (CMSSW_11_2_0_pre2)
+# /dev/CMSSW_11_2_0/PIon/V3 (CMSSW_11_2_0_pre2)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLTPIon" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_11_2_0/PIon/V2')
+  tableName = cms.string('/dev/CMSSW_11_2_0/PIon/V3')
 )
 
 process.transferSystem = cms.PSet( 
@@ -3910,6 +3910,11 @@ process.RPCGeometryESModule = cms.ESProducer( "RPCGeometryESModule",
   appendToDataLabel = cms.string( "" ),
   useDD4hep = cms.untracked.bool( False )
 )
+process.SiStripClusterizerConditionsESProducer = cms.ESProducer( "SiStripClusterizerConditionsESProducer",
+  appendToDataLabel = cms.string( "" ),
+  QualityLabel = cms.string( "" ),
+  Label = cms.string( "" )
+)
 process.SiStripGainESProducer = cms.ESProducer( "SiStripGainESProducer",
   printDebug = cms.untracked.bool( False ),
   appendToDataLabel = cms.string( "" ),
@@ -5142,11 +5147,6 @@ process.hltESPRungeKuttaTrackerPropagator = cms.ESProducer( "PropagatorWithMater
   ptMin = cms.double( -1.0 ),
   MaxDPhi = cms.double( 1.6 ),
   useRungeKutta = cms.bool( True )
-)
-process.hltESPSiStripClusterizerConditionsESProducer = cms.ESProducer( "SiStripClusterizerConditionsESProducer",
-  appendToDataLabel = cms.string( "" ),
-  QualityLabel = cms.string( "" ),
-  Label = cms.string( "" )
 )
 process.hltESPSmartPropagator = cms.ESProducer( "SmartPropagatorESProducer",
   Epsilon = cms.double( 5.0 ),
