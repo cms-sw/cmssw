@@ -8,13 +8,13 @@ tower = cms.PSet( ProcessorName  = cms.string('HGCalTowerProcessor'),
 hgcalTowerProducer = cms.EDProducer(
     "HGCalTowerProducer",
     InputTowerMaps = cms.InputTag('hgcalTowerMapProducer:HGCalTowerMapProcessor'), 
-    InputTriggerCells = cms.InputTag('hgcalBackEndLayer2Producer:HGCalBackendLayer2Processor3DClustering'), 
+    InputTriggerCells = cms.InputTag('hgcalBackEndLayer1Producer:HGCalBackendLayer1Processor2DClustering'),
     ProcessorParameters = tower.clone(),
     )
 
 
 hgcalTowerProducerHFNose = hgcalTowerProducer.clone(
     InputTowerMaps = cms.InputTag('hgcalTowerMapProducerHFNose:HGCalTowerMapProcessor'),
-    InputTriggerCells = cms.InputTag('hgcalBackEndLayer2ProducerHFNose:HGCalBackendLayer2Processor3DClustering'), 
+    InputTriggerCells = cms.InputTag('hgcalBackEndLayer1ProducerHFNose:HGCalBackendLayer1Processor2DClustering'),
 )
 
