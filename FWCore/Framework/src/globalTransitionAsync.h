@@ -101,8 +101,7 @@ namespace edm {
                           });
 
     WaitingTaskHolder h(subs);
-    iSchedule.processOneGlobalAsync<Traits>(
-        std::move(h), transitionInfo.principal(), transitionInfo.eventSetupImpl(), token);
+    iSchedule.processOneGlobalAsync<Traits>(std::move(h), transitionInfo, token);
   }
 
   template <typename Traits>
@@ -135,8 +134,7 @@ namespace edm {
                           });
 
     WaitingTaskHolder h(subs);
-    iSchedule.processOneGlobalAsync<Traits>(
-        std::move(h), transitionInfo.principal(), transitionInfo.eventSetupImpl(), token, cleaningUpAfterException);
+    iSchedule.processOneGlobalAsync<Traits>(std::move(h), transitionInfo, token, cleaningUpAfterException);
   }
 
 };  // namespace edm
