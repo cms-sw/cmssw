@@ -23,11 +23,10 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "DetectorDescription/DDCMS/interface/DDCompactView.h"
-//#include "DetectorDescription/DDCMS/interface/DDFilteredView.h"
-//#include "DetectorDescription/DDCMS/interface/DDDetector.h"
-//#include "DetectorDescription/DDCMS/interface/DDXMLTags.h"
-
 #include "CondFormats/PPSObjects/interface/CTPPSRPAlignmentCorrectionsData.h"
+#include "Geometry/VeryForwardGeometryBuilder/interface/DetGeomDesc.h"
+#include "Geometry/VeryForwardGeometryBuilder/interface/CTPPSGeometry.h"
+#include "Geometry/VeryForwardGeometryBuilder/interface/CTPPSDDDNames.h"
 
 #include "DataFormats/CTPPSDetId/interface/TotemRPDetId.h"
 #include "DataFormats/CTPPSDetId/interface/TotemTimingDetId.h"
@@ -39,10 +38,6 @@
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 #include "Geometry/Records/interface/VeryForwardMisalignedGeometryRecord.h"
 #include "Geometry/Records/interface/VeryForwardRealGeometryRecord.h"
-
-#include "Geometry/VeryForwardGeometryBuilder/interface/DetGeomDesc.h"
-#include "Geometry/VeryForwardGeometryBuilder/interface/CTPPSGeometry.h"
-#include "Geometry/VeryForwardGeometryBuilder/interface/CTPPSDDDNames.h"
 
 #include "TGeoNode.h"
 #include "TGeoManager.h"

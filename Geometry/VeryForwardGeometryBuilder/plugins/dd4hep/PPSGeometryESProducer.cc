@@ -140,148 +140,6 @@ void PPSGeometryESProducer::applyAlignments(const DetGeomDesc& idealGD,
   }
 }
 
-//----------------------------------------------------------------------------------------------------
-/*
-void PPSGeometryESProducer::buildDetGeomDesc(cms::DDFilteredView* fv, const cms::DDSpecParRegistry& allSpecParSections, DetGeomDesc* gd) {
-  // loop over nodes
-  do {
-    // create new DetGeomDesc node and add it to the parent's (gd) list
-    DetGeomDesc* newGD = new DetGeomDesc(fv, allSpecParSections);
-    
-    // Temporary fix for dimensions from DD4Hep standard 'cm' to DD standard 'mm'
-    //double cm2mm = 10.;
-    // Translation gtrans = newGD->translation();
-    //newGD->setTranslation(gtrans.x()*cm2mm, gtrans.y()*cm2mm, gtrans.z()*cm2mm);
-    //float zpar = newGD->parentZPosition();
-    //newGD->setParentZPosition(zpar*cm2mm);
-    // End of fix
-
-
-
-
-
-    /*
-    std::string name(fv->name());
-
-    // strip sensors
-    if (name == DDD_TOTEM_RP_SENSOR_NAME) {
-      const std::vector<int>& copy_num = fv->copyNos();
-      // check size of copy numbers array
-      if (copy_num.size() < 4)
-        throw cms::Exception("DDDTotemRPContruction")
-            << "size of copyNumbers for strip sensor is " << copy_num.size() << ". It must be >= 4.";
-
-      // extract information
-      const unsigned int decRPId = copy_num[2];
-      const unsigned int arm = decRPId / 100;
-      const unsigned int station = (decRPId % 100) / 10;
-      const unsigned int rp = decRPId % 10;
-      const unsigned int detector = copy_num[0];
-      newGD->setGeographicalID(TotemRPDetId(arm, station, rp, detector));
-    }
-
-    // strip and pixels RPs
-    else if (name == DDD_TOTEM_RP_RP_NAME || name == DDD_CTPPS_PIXELS_RP_NAME) {
-      unsigned int decRPId = fv->copyNum();
-
-      // check if it is a pixel RP
-      if (decRPId >= 10000) {
-        decRPId = decRPId % 10000;
-        const unsigned int armIdx = (decRPId / 100) % 10;
-        const unsigned int stIdx = (decRPId / 10) % 10;
-        const unsigned int rpIdx = decRPId % 10;
-        newGD->setGeographicalID(CTPPSPixelDetId(armIdx, stIdx, rpIdx));
-      } else {
-        const unsigned int armIdx = (decRPId / 100) % 10;
-        const unsigned int stIdx = (decRPId / 10) % 10;
-        const unsigned int rpIdx = decRPId % 10;
-        newGD->setGeographicalID(TotemRPDetId(armIdx, stIdx, rpIdx));
-      }
-    }
-
-    else if (std::regex_match(name, std::regex(DDD_TOTEM_TIMING_SENSOR_TMPL))) {
-      const std::vector<int>& copy_num = fv->copyNos();
-      // check size of copy numbers array
-      if (copy_num.size() < 5)
-        throw cms::Exception("DDDTotemRPContruction")
-            << "size of copyNumbers for TOTEM timing sensor is " << copy_num.size() << ". It must be >= 5.";
-
-      const unsigned int decRPId = copy_num[3];
-      const unsigned int arm = decRPId / 100, station = (decRPId % 100) / 10, rp = decRPId % 10;
-      const unsigned int plane = copy_num[1], channel = copy_num[0];
-      newGD->setGeographicalID(TotemTimingDetId(arm, station, rp, plane, channel));
-    }
-
-    else if (name == DDD_TOTEM_TIMING_RP_NAME) {
-      const unsigned int arm = fv->copyNum() / 100, station = (fv->copyNum() % 100) / 10, rp = fv->copyNum() % 10;
-      newGD->setGeographicalID(TotemTimingDetId(arm, station, rp));
-    }
-
-    // pixel sensors
-    else if (name == DDD_CTPPS_PIXELS_SENSOR_NAME) {
-      const std::vector<int>& copy_num = fv->copyNos();
-      // check size of copy numbers array
-      if (copy_num.size() < 5)
-        throw cms::Exception("DDDTotemRPContruction")
-            << "size of copyNumbers for pixel sensor is " << copy_num.size() << ". It must be >= 5.";
-
-      // extract information
-      const unsigned int decRPId = copy_num[3] % 10000;
-      const unsigned int arm = decRPId / 100;
-      const unsigned int station = (decRPId % 100) / 10;
-      const unsigned int rp = decRPId % 10;
-      const unsigned int detector = copy_num[1] - 1;
-      newGD->setGeographicalID(CTPPSPixelDetId(arm, station, rp, detector));
-    }
-
-    // diamond/UFSD sensors
-    else if (name == DDD_CTPPS_DIAMONDS_SEGMENT_NAME || name == DDD_CTPPS_UFSD_SEGMENT_NAME) {
-      const std::vector<int>& copy_num = fv->copyNos();
-
-      const unsigned int id = copy_num[0];
-      const unsigned int arm = copy_num[copy_num.size()-3] - 1;
-      const unsigned int station = 1;
-      const unsigned int rp = 6;
-      const unsigned int plane = (id / 100);
-      const unsigned int channel = id % 100;
-
-      newGD->setGeographicalID(CTPPSDiamondDetId(arm, station, rp, plane, channel));
-    }
-
-    // diamond/UFSD RPs
-    else if (name == DDD_CTPPS_DIAMONDS_RP_NAME) {
-      // ** This block is for debugging **
-      edm::LogInfo("PPSGeometryESProducer 'DDD_CTPPS_DIAMONDS_RP_NAME' ") << " name  =>  " << name;
-      edm::LogInfo("PPSGeometryESProducer 'DDD_CTPPS_DIAMONDS_RP_NAME' ") 
-      << " fv->geoHistory().front()->GetVolume()->GetName()  =>  " 
-      << fv->geoHistory().front()->GetVolume()->GetName();
-      Translation transFV = fv->translation();
-      Translation transGD = newGD->translation();
-      edm::LogInfo("PPSGeometryESProducer 'DDD_CTPPS_DIAMONDS_RP_NAME' ") 
-      << " transFV_z = " << transFV.z() << " ; transGD_z = " << transGD.z();
-      // ** End of debugging block **
-      const std::vector<int>& copy_num = fv->copyNos();
-
-      // check size of copy numbers array
-      if (copy_num.size() < 3)
-        throw cms::Exception("DDDTotemRPContruction")
-            << "size of copyNumbers for diamond RP is " << copy_num.size() << ". It must be >= 3.";
-
-      const unsigned int arm = copy_num[(copy_num.size()-3)] - 1;
-      const unsigned int station = 1;
-      const unsigned int rp = 6;
-
-      newGD->setGeographicalID(CTPPSDiamondDetId(arm, station, rp));
-    }
-
-    // add component
-    gd->addComponent(newGD);
-
-  } while (fv->next(0));
-  
-}*/
-
-//----------------------------------------------------------------------------------------------------
 
 std::unique_ptr<DetGeomDesc> PPSGeometryESProducer::produceIdealGD(const IdealGeometryRecord& iRecord) {
   // get the DDDetector from EventSetup
@@ -294,45 +152,31 @@ std::unique_ptr<DetGeomDesc> PPSGeometryESProducer::produceIdealGD(const IdealGe
 }
 
 
-
-
 std::unique_ptr<DetGeomDesc> PPSGeometryESProducer::buildDetGeomDescFromCompactView(const cms::DDCompactView& myCompactView) {
 
-  // create DDFilteredView and apply the filter
-  //cms::DDFilter filter;
-  //cms::DDFilteredView fv(myCompactView, filter);
+  // create DDFilteredView (no filter!!)
   const cms::DDDetector* mySystem = myCompactView.detector();
   const dd4hep::Volume& worldVolume = mySystem->worldVolume();
   cms::DDFilteredView fv(mySystem, worldVolume);
   if (fv.next(0) == false) {
-    edm::LogError("PPSGeometryBuilder") << "Filtered view is empty. Cannot build.";
+    edm::LogError("PPSGeometryESProducer") << "Filtered view is empty. Cannot build.";
   }
-
 
   const cms::DDSpecParRegistry& allSpecParSections = myCompactView.specpars();
   // conversion to DetGeomDesc structure
   auto sentinel = std::make_unique<DetGeomDesc>(fv, allSpecParSections);
-  //auto sentinel = std::make_unique<DetGeomDesc>(cpv);
 
-
-  //buildDetGeomDesc(&fv, allSpecParSections, sentinel.get());
-  DetGeomDesc* gd = sentinel.get();
+  // construct the tree of DetGeomDesc
   do {
-    // create new DetGeomDesc node and add it to the parent's (gd) list
+    // create DetGeomDesc node and add it to the sentinel's list
     DetGeomDesc* newGD = new DetGeomDesc(fv, allSpecParSections);
-    gd->addComponent(newGD);
-
+    sentinel->addComponent(newGD);
   } while (fv.next(0));
   
   edm::LogInfo("PPSGeometryESProducer") << "DetGeomDesc size is: " << (sentinel->components()).size();
 
-  // construct the tree of DetGeomDesc
   return sentinel;
 }
-
-
-
-
 
 
 //----------------------------------------------------------------------------------------------------
