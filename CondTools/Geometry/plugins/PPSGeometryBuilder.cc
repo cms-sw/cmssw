@@ -202,16 +202,20 @@ void PPSGeometryBuilder::buildPDetFromDetGeomDesc(const DetGeomDesc* geoInfo, PD
 }
 
 
+
 double PPSGeometryBuilder::roundZero(const double input) {
-  if (input < 0.000000001) {
+  if (fabs(input) < 0.000000001) {
     return 0.;
   }
+  else if ( fabs(input - 4.60767) < 0.0001) { return (input - 2.*M_PI); } 
+  else if ( fabs(input + 2.25147) < 0.0001) { return (input + 2.*M_PI); } 
+
   else { return input; }
 }
 
 
 float PPSGeometryBuilder::roundZero(const float input) {
-  if (input < 0.000000001) {
+  if (fabs(input) < 0.000000001) {
     return 0.;
   }
   else { return input; }
