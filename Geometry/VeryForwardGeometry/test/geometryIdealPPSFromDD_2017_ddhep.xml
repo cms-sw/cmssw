@@ -111,7 +111,6 @@
     <Include ref="Geometry/VeryForwardData/data/CTPPS_Diamond_2017/CTPPS_Diamond_Detector_Assembly.xml"/>
     
     # UFSD files
-    # UFSDetectors
     <Include ref="Geometry/VeryForwardData/data/CTPPS_UFSD_Segments/CTPPS_UFSD_Pattern1.xml"/>
     <Include ref="Geometry/VeryForwardData/data/CTPPS_UFSD_Segments/CTPPS_UFSD_Pattern2_SegmentA.xml"/>
     <Include ref="Geometry/VeryForwardData/data/CTPPS_UFSD_Segments/CTPPS_UFSD_Pattern2_SegmentB.xml"/>
