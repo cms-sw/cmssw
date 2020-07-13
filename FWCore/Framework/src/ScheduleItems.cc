@@ -48,6 +48,11 @@ namespace edm {
 
     // Mark dropped branches as dropped in the product registry.
     std::set<BranchID> keptBranches;
+    SelectedProducts const& keptVectorP = om.keptProducts()[InProcess];
+    for (auto const& item : keptVectorP) {
+      BranchDescription const& desc = *item.first;
+      keptBranches.insert(desc.branchID());
+    }
     SelectedProducts const& keptVectorR = om.keptProducts()[InRun];
     for (auto const& item : keptVectorR) {
       BranchDescription const& desc = *item.first;

@@ -33,10 +33,6 @@ public:
   MonitorElement *trackParts_Phi = nullptr;
   MonitorElement *trackParts_Pt = nullptr;
 
-  // Plots for correctly matched tracks
-  MonitorElement *Track_MatchedChi2 = nullptr;     // Chi2 for only tracks correctly matched to truth level
-  MonitorElement *Track_MatchedChi2Red = nullptr;  // Chi2/dof for only tracks correctly matched to truth level
-
   // pT and eta for efficiency plots
   MonitorElement *tp_pt = nullptr;             // denominator
   MonitorElement *tp_pt_zoom = nullptr;        // denominator
@@ -109,17 +105,13 @@ private:
       ttStubMCTruthToken_;  // MC truth association map for stubs
   edm::EDGetTokenT<TTTrackAssociationMap<Ref_Phase2TrackerDigi_>>
       ttTrackMCTruthToken_;  // MC truth association map for tracks
-  int L1Tk_nPar;
   int L1Tk_minNStub;
-  double L1Tk_maxChi2;
   double L1Tk_maxChi2dof;
   int TP_minNStub;
   int TP_minNLayersStub;
   double TP_minPt;
-  double TP_maxPt;
   double TP_maxEta;
   double TP_maxVtxZ;
-  int TP_select_eventid;
   std::string topFolderName_;
 };
 #endif

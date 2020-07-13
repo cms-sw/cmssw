@@ -94,7 +94,7 @@ namespace edm {
     // the arguments or a set of matching indexes using the Matches
     // class. A returned index can have a value that indicates that it
     // is invalid or ambiguous and the client should check for these
-    // values before using the index (see ProductIndexHolder.h).
+    // values before using the index (see ProductResolverIndex.h).
 
     // If no matches are found or the ProductResolverIndexHelper
     // has not been frozen yet, then an invalid index or a Matches

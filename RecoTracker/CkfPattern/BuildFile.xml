@@ -19,5 +19,4 @@
 <use name="TrackingTools/TrajectoryCleaning"/>
 <use name="TrackingTools/TrajectoryFiltering"/>
 <use name="TrackingTools/TrackFitters"/>
-<use name="boost"/>
 <use name="root"/>

@@ -1183,6 +1183,45 @@ namespace edm {
     }
   }
 
+  void Schedule::writeProcessBlockAsync(WaitingTaskHolder task,
+                                        ProcessBlockPrincipal const& pbp,
+                                        ProcessContext const* processContext,
+                                        ActivityRegistry* activityRegistry) {
+    auto token = ServiceRegistry::instance().presentToken();
+    GlobalContext globalContext(GlobalContext::Transition::kWriteProcessBlock,
+                                LuminosityBlockID(),
+                                RunIndex::invalidRunIndex(),
+                                LuminosityBlockIndex::invalidLuminosityBlockIndex(),
+                                Timestamp::invalidTimestamp(),
+                                processContext);
+
+    auto t =
+        make_waiting_task(tbb::task::allocate_root(),
+                          [task, activityRegistry, globalContext, token](std::exception_ptr const* iExcept) mutable {
+                            // Propagating the exception would be nontrivial, and signal actions are not supposed to throw exceptions
+                            CMS_SA_ALLOW try {
+                              //services can depend on other services
+                              ServiceRegistry::Operate op(token);
+
+                              activityRegistry->postWriteProcessBlockSignal_(globalContext);
+                            } catch (...) {
+                            }
+                            std::exception_ptr ptr;
+                            if (iExcept) {
+                              ptr = *iExcept;
+                            }
+                            task.doneWaiting(ptr);
+                          });
+    // Propagating the exception would be nontrivial, and signal actions are not supposed to throw exceptions
+    CMS_SA_ALLOW try { activityRegistry->preWriteProcessBlockSignal_(globalContext); } catch (...) {
+    }
+    WaitingTaskHolder tHolder(t);
+
+    for (auto& c : all_output_communicators_) {
+      c->writeProcessBlockAsync(tHolder, pbp, processContext, activityRegistry);
+    }
+  }
+
   void Schedule::writeLumiAsync(WaitingTaskHolder task,
                                 LuminosityBlockPrincipal const& lbp,
                                 ProcessContext const* processContext,
@@ -1288,18 +1327,22 @@ namespace edm {
 
     {
       //Need to updateLookup in order to make getByToken work
+      auto const processBlockLookup = iRegistry.productLookup(InProcess);
       auto const runLookup = iRegistry.productLookup(InRun);
       auto const lumiLookup = iRegistry.productLookup(InLumi);
       auto const eventLookup = iRegistry.productLookup(InEvent);
+      found->updateLookup(InProcess, *runLookup);
       found->updateLookup(InRun, *runLookup);
       found->updateLookup(InLumi, *lumiLookup);
       found->updateLookup(InEvent, *eventLookup);
       found->updateLookup(iIndices);
 
       auto const& processName = newMod->moduleDescription().processName();
+      auto const& processBlockModuleToIndicies = processBlockLookup->indiciesForModulesInProcess(processName);
       auto const& runModuleToIndicies = runLookup->indiciesForModulesInProcess(processName);
       auto const& lumiModuleToIndicies = lumiLookup->indiciesForModulesInProcess(processName);
       auto const& eventModuleToIndicies = eventLookup->indiciesForModulesInProcess(processName);
+      found->resolvePutIndicies(InProcess, processBlockModuleToIndicies);
       found->resolvePutIndicies(InRun, runModuleToIndicies);
       found->resolvePutIndicies(InLumi, lumiModuleToIndicies);
       found->resolvePutIndicies(InEvent, eventModuleToIndicies);

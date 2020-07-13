@@ -41,7 +41,7 @@ private:
   static const int maxSet_ = 25, maxSet2_ = 9;
   std::vector<std::string> sensitives_, hfNames_, sensitiveEC_;
   std::vector<int> hfLevels_;
-  bool fillHistos_, printSum_, verbose_;
+  bool fillHistos_, printSum_;
   int binEta_, binPhi_;
   double maxEta_, etaLow_, etaHigh_;
   double etaMinP_, etaMaxP_;

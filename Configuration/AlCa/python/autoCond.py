@@ -91,9 +91,13 @@ aliases = {
 from Configuration.HLT.autoCondHLT import autoCondHLT
 autoCond = autoCondHLT(autoCond)
 
-# dedicate GlobalTags for phase-2 (specializing conditions for each geometry)
+# dedicated GlobalTags for phase-2 (specializing conditions for each geometry)
 from Configuration.AlCa.autoCondPhase2 import autoCondPhase2
 autoCond = autoCondPhase2(autoCond)
+
+# special cases modifier for autoCond GTs
+from Configuration.AlCa.autoCondModifiers import autoCond0T
+autoCond = autoCond0T(autoCond)
 
 ### OLD KEYS ### kept for backward compatibility
     # GlobalTag for MC production with perfectly aligned and calibrated detector

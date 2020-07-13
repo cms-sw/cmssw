@@ -228,7 +228,7 @@ void RawEventFileWriterForBU::finishFileWrite(int ls) {
     rename(fileName_.c_str(), (destinationDir_ + fileName_.substr(fileName_.rfind("/"))).c_str());
     //create equivalent JSON file
     //TODO:fix this to use DaqDirector convention and better extension replace
-    boost::filesystem::path source(fileName_);
+    std::filesystem::path source(fileName_);
     std::string path = source.replace_extension(".jsn").string();
 
     fileMon_->snap(ls);

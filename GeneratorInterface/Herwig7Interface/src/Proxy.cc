@@ -1,12 +1,11 @@
 #include <map>
-
-#include <boost/thread.hpp>
+#include <mutex>
 
 #include "GeneratorInterface/Herwig7Interface/interface/Proxy.h"
 
 using namespace ThePEG;
 
-static boost::mutex mutex;
+static std::mutex mutex;
 
 typedef std::map<ProxyBase::ProxyID, std::weak_ptr<ProxyBase> > ProxyMap;
 
@@ -27,7 +26,7 @@ static ProxyMap *getProxyMapInstance() {
 ProxyBase::ProxyBase(ProxyID id) : id(id) {}
 
 ProxyBase::~ProxyBase() {
-  boost::mutex::scoped_lock scoped_lock(mutex);
+  std::scoped_lock scoped_lock(mutex);
 
   ProxyMap *map = getProxyMapInstance();
   if (map)
@@ -37,7 +36,7 @@ ProxyBase::~ProxyBase() {
 std::shared_ptr<ProxyBase> ProxyBase::create(ctor_t ctor) {
   static ProxyBase::ProxyID nextProxyID = 0;
 
-  boost::mutex::scoped_lock scoped_lock(mutex);
+  std::scoped_lock scoped_lock(mutex);
 
   std::shared_ptr<ProxyBase> proxy(ctor(++nextProxyID));
 
@@ -49,7 +48,7 @@ std::shared_ptr<ProxyBase> ProxyBase::create(ctor_t ctor) {
 }
 
 std::shared_ptr<ProxyBase> ProxyBase::find(ProxyID id) {
-  boost::mutex::scoped_lock scoped_lock(mutex);
+  std::scoped_lock scoped_lock(mutex);
 
   ProxyMap *map = getProxyMapInstance();
   if (!map)

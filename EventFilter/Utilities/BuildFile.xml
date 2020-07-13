@@ -6,6 +6,7 @@
 <use name="DataFormats/TCDS"/>
 <use name="IOPool/Streamer"/>
 <use name="curl"/>
+<use name="stdcxx-fs"/>
 <export>
   <lib name="1"/>
 </export>

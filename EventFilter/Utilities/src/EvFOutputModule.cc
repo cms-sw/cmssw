@@ -18,7 +18,7 @@
 #include "IOPool/Streamer/interface/EventMsgBuilder.h"
 
 #include <sys/stat.h>
-#include <boost/filesystem.hpp>
+#include <filesystem>
 #include <boost/algorithm/string.hpp>
 
 namespace evf {
@@ -84,7 +84,7 @@ namespace evf {
       std::string content;
       jsoncollector::JSONSerializer::serialize(&outJsonDef_, content);
       jsoncollector::FileIO::writeStringToFile(outTmpJsonDefName, content);
-      boost::filesystem::rename(outTmpJsonDefName, outJsonDefName);
+      std::filesystem::rename(outTmpJsonDefName, outJsonDefName);
     }
     edm::Service<evf::EvFDaqDirector>()->unlockInitLock();
 
@@ -206,7 +206,7 @@ namespace evf {
                                               << " expected:" << preamble_adler32 << " obtained:" << adler32c;
     } else {
       LogDebug("EvFOutputModule") << "Ini file checksum -: " << streamLabel_ << " " << adler32c;
-      boost::filesystem::rename(openIniFileName, edm::Service<evf::EvFDaqDirector>()->getInitFilePath(streamLabel_));
+      std::filesystem::rename(openIniFileName, edm::Service<evf::EvFDaqDirector>()->getInitFilePath(streamLabel_));
     }
   }
 
@@ -252,12 +252,11 @@ namespace evf {
 
     if (jsonWriter_->processed_.value() != 0) {
       struct stat istat;
-      boost::filesystem::path openDatFilePath = lumiWriter->getFilePath();
+      std::filesystem::path openDatFilePath = lumiWriter->getFilePath();
       stat(openDatFilePath.string().c_str(), &istat);
       jsonWriter_->filesize_ = istat.st_size;
-      boost::filesystem::rename(
-          openDatFilePath.string().c_str(),
-          edm::Service<evf::EvFDaqDirector>()->getDatFilePath(iLB.luminosityBlock(), streamLabel_));
+      std::filesystem::rename(openDatFilePath.string().c_str(),
+                              edm::Service<evf::EvFDaqDirector>()->getDatFilePath(iLB.luminosityBlock(), streamLabel_));
       jsonWriter_->filelist_ = openDatFilePath.filename().string();
     } else {
       //remove empty file when no event processing has occurred

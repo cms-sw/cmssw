@@ -78,6 +78,8 @@ namespace edm {
       // ---------- member functions ---------------------------
       const ModuleDescription& moduleDescription() const { return moduleDescription_; }
 
+      virtual bool wantsProcessBlocks() const = 0;
+      virtual bool wantsInputProcessBlocks() const = 0;
       virtual bool wantsGlobalRuns() const = 0;
       virtual bool wantsGlobalLuminosityBlocks() const = 0;
       bool wantsStreamRuns() const { return true; }
@@ -155,6 +157,9 @@ namespace edm {
                                                    edm::LuminosityBlock const&,
                                                    edm::EventSetup const&) = 0;
 
+      virtual void doBeginProcessBlock(ProcessBlockPrincipal const&, ModuleCallingContext const*) = 0;
+      virtual void doAccessInputProcessBlock(ProcessBlockPrincipal const&, ModuleCallingContext const*) = 0;
+      virtual void doEndProcessBlock(ProcessBlockPrincipal const&, ModuleCallingContext const*) = 0;
       virtual void doBeginRun(RunPrincipal const& rp, EventSetupImpl const& c, ModuleCallingContext const*) = 0;
       virtual void doEndRun(RunPrincipal const& rp, EventSetupImpl const& c, ModuleCallingContext const*) = 0;
       virtual void doBeginLuminosityBlock(LuminosityBlockPrincipal const& lbp,

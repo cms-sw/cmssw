@@ -237,14 +237,14 @@ namespace evf {
     if (edm::Service<evf::EvFDaqDirector>().operator->() == nullptr) {
       throw cms::Exception("FastMonitoringService") << "EvFDaqDirector is not present";
     }
-    boost::filesystem::path runDirectory{edm::Service<evf::EvFDaqDirector>()->baseRunDir()};
+    std::filesystem::path runDirectory{edm::Service<evf::EvFDaqDirector>()->baseRunDir()};
     workingDirectory_ = runDirectory_ = runDirectory;
     workingDirectory_ /= "mon";
 
-    if (!boost::filesystem::is_directory(workingDirectory_)) {
+    if (!std::filesystem::is_directory(workingDirectory_)) {
       LogDebug("FastMonitoringService") << "<MON> DIR NOT FOUND! Trying to create -: " << workingDirectory_.string();
-      boost::filesystem::create_directories(workingDirectory_);
-      if (!boost::filesystem::is_directory(workingDirectory_))
+      std::filesystem::create_directories(workingDirectory_);
+      if (!std::filesystem::is_directory(workingDirectory_))
         edm::LogWarning("FastMonitoringService") << "Unable to create <MON> DIR -: " << workingDirectory_.string()
                                                  << ". No monitoring data will be written.";
     }
@@ -252,7 +252,7 @@ namespace evf {
     std::ostringstream fastFileName;
 
     fastFileName << fastName_ << "_pid" << std::setfill('0') << std::setw(5) << getpid() << ".fast";
-    boost::filesystem::path fast = workingDirectory_;
+    std::filesystem::path fast = workingDirectory_;
     fast /= fastFileName.str();
     fastPath_ = fast.string();
     if (filePerFwkStream_)
@@ -260,7 +260,7 @@ namespace evf {
         std::ostringstream fastFileNameTid;
         fastFileNameTid << fastName_ << "_pid" << std::setfill('0') << std::setw(5) << getpid() << "_tid" << i
                         << ".fast";
-        boost::filesystem::path fastTid = workingDirectory_;
+        std::filesystem::path fastTid = workingDirectory_;
         fastTid /= fastFileNameTid.str();
         fastPathList_.push_back(fastTid.string());
       }
@@ -515,14 +515,14 @@ namespace evf {
       std::stringstream slowFileNameStem;
       slowFileNameStem << slowName_ << "_ls" << std::setfill('0') << std::setw(4) << lumi << "_pid" << std::setfill('0')
                        << std::setw(5) << getpid();
-      boost::filesystem::path slow = workingDirectory_;
+      std::filesystem::path slow = workingDirectory_;
       slow /= slowFileNameStem.str();
       fmt_.jsonMonitor_->outputFullJSONs(slow.string(), ".jsn", lumi);
     } else {
       std::stringstream slowFileName;
       slowFileName << slowName_ << "_ls" << std::setfill('0') << std::setw(4) << lumi << "_pid" << std::setfill('0')
                    << std::setw(5) << getpid() << ".jsn";
-      boost::filesystem::path slow = workingDirectory_;
+      std::filesystem::path slow = workingDirectory_;
       slow /= slowFileName.str();
       fmt_.jsonMonitor_->outputFullJSON(slow.string(),
                                         lumi);  //full global and stream merge and JSON write for this lumi

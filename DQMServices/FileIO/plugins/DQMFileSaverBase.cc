@@ -105,7 +105,7 @@ const std::string DQMFileSaverBase::filename(const FileParameters &fp, bool useL
   }
   buf[255] = 0;
 
-  namespace fs = boost::filesystem;
+  namespace fs = std::filesystem;
   fs::path path(fp.path_);
   fs::path file(buf);
 

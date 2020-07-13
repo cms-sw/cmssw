@@ -7,6 +7,7 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Utilities/interface/ESGetToken.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "CondFormats/L1TObjects/interface/CaloParams.h"
@@ -44,7 +45,7 @@ namespace l1t {
     std::string m_conditionsLabel;
 
     Stage1TauIsolationLUT* isoTauLut;
-
+    edm::ESGetToken<CaloParams, L1TCaloParamsRcd> m_paramsToken;
     bool m_writeIsoTauLut;
     // output file names
     std::string m_isoTauLutName;
@@ -59,6 +60,7 @@ namespace l1t {
     m_writeIsoTauLut = iConfig.getUntrackedParameter<bool>("writeIsoTauLut", false);
     m_isoTauLutName = iConfig.getUntrackedParameter<std::string>("isoTauLutName", "isoTauLut.txt");
     m_conditionsLabel = iConfig.getParameter<std::string>("conditionsLabel");
+    m_paramsToken = esConsumes<CaloParams, L1TCaloParamsRcd>(edm::ESInputTag("", m_conditionsLabel));
 
     m_params = new CaloParamsHelper;
     isoTauLut = new Stage1TauIsolationLUT(m_params);
@@ -68,8 +70,7 @@ namespace l1t {
 
   // ------------ method called for each event  ------------
   void L1TCaloStage1LutWriter::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
-    edm::ESHandle<CaloParams> paramsHandle;
-    iSetup.get<L1TCaloParamsRcd>().get(m_conditionsLabel, paramsHandle);
+    edm::ESHandle<CaloParams> paramsHandle = iSetup.getHandle(m_paramsToken);
     m_params = new (m_params) CaloParamsHelper(*paramsHandle.product());
     if (!m_params) {
       std::cout << "Could not retrieve params from Event Setup" << std::endl;

@@ -1,13 +1,13 @@
 # hltGetConfiguration --cff --data /dev/CMSSW_11_1_0/PIon --type PIon
 
-# /dev/CMSSW_11_1_0/PIon/V10 (CMSSW_11_1_0_pre8_HLT1)
+# /dev/CMSSW_11_1_0/PIon/V11 (CMSSW_11_1_0)
 
 import FWCore.ParameterSet.Config as cms
 
 fragment = cms.ProcessFragment( "HLT" )
 
 fragment.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_11_1_0/PIon/V10')
+  tableName = cms.string('/dev/CMSSW_11_1_0/PIon/V11')
 )
 
 fragment.transferSystem = cms.PSet( 

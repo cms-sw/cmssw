@@ -21,6 +21,7 @@
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/Exception.h"
+#include "FWCore/Utilities/interface/ESGetToken.h"
 
 #include "FWCore/ParameterSet/interface/Registry.h"
 #include "FWCore/Common/interface/Provenance.h"
@@ -167,6 +168,7 @@ private:
   edm::EDGetTokenT<edm::View<reco::Jet> > token_fatJets;
   edm::EDGetTokenT<edm::View<reco::Jet> > token_groomedFatJets;
   edm::EDGetTokenT<edm::ValueMap<float> > token_weights;
+  edm::ESGetToken<TransientTrackBuilder, TransientTrackRecord> token_trackBuilder;
 
   ClusterSequencePtr fjClusterSeq;
   JetDefPtr fjJetDefinition;
@@ -291,6 +293,8 @@ TemplatedSecondaryVertexProducer<IPTI, VTX>::TemplatedSecondaryVertexProducer(co
       throw cms::Exception("InvalidJetAlgorithm") << "Jet clustering algorithm is invalid: " << jetAlgorithm
                                                   << ", use CambridgeAachen | Kt | AntiKt" << std::endl;
   }
+  token_trackBuilder =
+      esConsumes<TransientTrackBuilder, TransientTrackRecord>(edm::ESInputTag("", "TransientTrackBuilder"));
   if (useFatJets) {
     token_fatJets = consumes<edm::View<reco::Jet> >(params.getParameter<edm::InputTag>("fatJets"));
   }
@@ -315,8 +319,7 @@ void TemplatedSecondaryVertexProducer<IPTI, VTX>::produce(edm::Event &event, con
   //How about good old pointers?
   typedef std::map<const Track *, TransientTrack> TransientTrackMap;
 
-  edm::ESHandle<TransientTrackBuilder> trackBuilder;
-  es.get<TransientTrackRecord>().get("TransientTrackBuilder", trackBuilder);
+  edm::ESHandle<TransientTrackBuilder> trackBuilder = es.getHandle(token_trackBuilder);
 
   edm::Handle<std::vector<IPTI> > trackIPTagInfos;
   event.getByToken(token_trackIPTagInfo, trackIPTagInfos);

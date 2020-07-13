@@ -80,22 +80,22 @@ GlobalHaloDataProducer::GlobalHaloDataProducer(const edm::ParameterSet& iConfig)
   cschalo_token_ = consumes<CSCHaloData>(IT_CSCHaloData);
   ecalhalo_token_ = consumes<EcalHaloData>(IT_EcalHaloData);
   hcalhalo_token_ = consumes<HcalHaloData>(IT_HcalHaloData);
+  cscgeometry_token_ = esConsumes<CSCGeometry, MuonGeometryRecord>();
+  globaltrackinggeometry_token_ = esConsumes<GlobalTrackingGeometry, GlobalTrackingGeometryRecord>();
+  calogeometry_token_ = esConsumes<CaloGeometry, CaloGeometryRecord>();
 
   produces<GlobalHaloData>();
 }
 
 void GlobalHaloDataProducer::produce(Event& iEvent, const EventSetup& iSetup) {
   //Get CSC Geometry
-  edm::ESHandle<CSCGeometry> TheCSCGeometry;
-  iSetup.get<MuonGeometryRecord>().get(TheCSCGeometry);
+  edm::ESHandle<CSCGeometry> TheCSCGeometry = iSetup.getHandle(cscgeometry_token_);
 
   //Get Global Tracking Geometry
-  edm::ESHandle<GlobalTrackingGeometry> TheGlobalTrackingGeometry;
-  iSetup.get<GlobalTrackingGeometryRecord>().get(TheGlobalTrackingGeometry);
+  edm::ESHandle<GlobalTrackingGeometry> TheGlobalTrackingGeometry = iSetup.getHandle(globaltrackinggeometry_token_);
 
   //Get CaloGeometry
-  edm::ESHandle<CaloGeometry> TheCaloGeometry;
-  iSetup.get<CaloGeometryRecord>().get(TheCaloGeometry);
+  edm::ESHandle<CaloGeometry> TheCaloGeometry = iSetup.getHandle(calogeometry_token_);
 
   //Get CaloTowers
   edm::Handle<edm::View<Candidate> > TheCaloTowers;

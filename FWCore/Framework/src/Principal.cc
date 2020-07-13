@@ -390,15 +390,19 @@ namespace edm {
     applyToResolvers([&iConfigure](ProductResolverBase* iResolver) { iResolver->setupUnscheduled(iConfigure); });
   }
 
-  // Set the principal for the Event, Lumi, or Run.
-  void Principal::fillPrincipal(ProcessHistoryID const& hist,
-                                ProcessHistory const* processHistory,
-                                DelayedReader* reader) {
+  void Principal::fillPrincipal(DelayedReader* reader) {
     //increment identifier here since clearPrincipal isn't called for Run/Lumi
     cacheIdentifier_ = nextIdentifier();
     if (reader) {
       reader_ = reader;
     }
+  }
+
+  // Set the principal for the Event, Lumi, or Run.
+  void Principal::fillPrincipal(ProcessHistoryID const& hist,
+                                ProcessHistory const* processHistory,
+                                DelayedReader* reader) {
+    fillPrincipal(reader);
 
     if (historyAppender_ && productRegistry().anyProductProduced()) {
       if ((not processHistoryPtr_) || (processHistoryIDBeforeConfig_ != hist)) {
@@ -468,6 +472,20 @@ namespace edm {
         ++k;
       }
       orderProcessHistoryID_ = processHistoryID_;
+    }
+  }
+
+  // Set the principal for the ProcessBlock
+  void Principal::fillPrincipal(std::string const& processNameOfBlock, DelayedReader* reader) {
+    fillPrincipal(reader);
+
+    std::vector<std::string> const& lookupProcessNames = productLookup_->lookupProcessNames();
+    lookupProcessOrder_.assign(lookupProcessNames.size(), 0);
+    if (!lookupProcessOrder_.empty()) {
+      auto iter = std::find(lookupProcessNames.begin(), lookupProcessNames.end(), processNameOfBlock);
+      if (iter != lookupProcessNames.end()) {
+        lookupProcessOrder_[0] = iter - lookupProcessNames.begin();
+      }
     }
   }
 
@@ -543,6 +561,10 @@ namespace edm {
                                     EDConsumerBase const* consumer,
                                     SharedResourcesAcquirer* sra,
                                     ModuleCallingContext const* mcc) const {
+    // Not implemented for ProcessBlocks, it might work though, not tested
+    // The other getByLabel function is used for ProcessBlocks by TestProcessor
+    assert(branchType_ != InProcess);
+
     ProductData const* result = findProductByLabel(kindOfType, typeID, inputTag, consumer, sra, mcc);
     if (result == nullptr) {
       return BasicHandle(makeHandleExceptionFactory([=]() -> std::shared_ptr<cms::Exception> {
@@ -616,6 +638,9 @@ namespace edm {
                                 EDConsumerBase const* consumer,
                                 SharedResourcesAcquirer* sra,
                                 ModuleCallingContext const* mcc) const {
+    // Not implemented for ProcessBlocks
+    assert(branchType_ != InProcess);
+
     assert(results.empty());
 
     if (UNLIKELY(consumer and (not consumer->registeredToConsumeMany(typeID, branchType())))) {
@@ -789,6 +814,9 @@ namespace edm {
   ProductData const* Principal::findProductByTag(TypeID const& typeID,
                                                  InputTag const& tag,
                                                  ModuleCallingContext const* mcc) const {
+    // Not implemented for ProcessBlocks
+    assert(branchType_ != InProcess);
+
     ProductData const* productData = findProductByLabel(PRODUCT_TYPE, typeID, tag, nullptr, nullptr, mcc);
     return productData;
   }
