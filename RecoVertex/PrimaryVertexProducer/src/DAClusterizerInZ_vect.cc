@@ -12,6 +12,8 @@
 
 #include <Math/SMatrix.h>
 
+#include "omp.h"
+
 using namespace std;
 
 //#define DEBUG
@@ -106,7 +108,8 @@ namespace {
                                    double* __restrict__ arg_out,
                                    const unsigned int kmin,
                                    const unsigned int kmax) {
-    for (auto i = kmin; i != kmax; ++i)
+#pragma omp simd
+    for (auto i = kmin; i < kmax; ++i)
       arg_out[i] = vdt::fast_exp(arg_inp[i]);
   }
 
@@ -683,6 +686,7 @@ bool DAClusterizerInZ_vect::purge(vertex_t& y, track_t& tks, double& rho0, const
     int nUnique = 0;
     double sump = 0;
     double pmax = ppmax_cache[k];
+#pragma omp simd reduction(+ : sump) reduction(+ : nUnique)
     for (unsigned int i = 0; i < nt; ++i) {
       const auto p = y.pk_ptr[k] * peik_cache[i] * pinverse_zsums[i];
       sump += p;
