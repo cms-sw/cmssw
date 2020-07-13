@@ -21,6 +21,9 @@ namespace {
 
   std::vector<std::string> g_run_constructed;
   std::vector<std::string> g_run_destructed;
+
+  std::vector<std::string> g_process_constructed;
+  std::vector<std::string> g_process_destructed;
 }  // namespace
 
 namespace edmtest {
@@ -29,6 +32,9 @@ namespace edmtest {
   public:
     explicit TestModuleDeleteProducer(edm::ParameterSet const& p)
         : moduleLabel_{p.getParameter<std::string>("@module_label")} {
+      for (const auto& tag : p.getUntrackedParameter<std::vector<edm::InputTag>>("srcBeginProcess")) {
+        consumes<IntProduct, edm::InProcess>(tag);
+      }
       for (const auto& tag : p.getUntrackedParameter<std::vector<edm::InputTag>>("srcBeginRun")) {
         consumes<IntProduct, edm::InRun>(tag);
       }
@@ -44,6 +50,7 @@ namespace edmtest {
     ~TestModuleDeleteProducer() override { g_destructed.push_back(moduleLabel_); }
     static void fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
       edm::ParameterSetDescription desc;
+      desc.addUntracked<std::vector<edm::InputTag>>("srcBeginProcess", std::vector<edm::InputTag>{});
       desc.addUntracked<std::vector<edm::InputTag>>("srcBeginRun", std::vector<edm::InputTag>{});
       desc.addUntracked<std::vector<edm::InputTag>>("srcBeginLumi", std::vector<edm::InputTag>{});
       desc.addUntracked<std::vector<edm::InputTag>>("srcEvent", std::vector<edm::InputTag>{});
@@ -61,6 +68,9 @@ namespace edmtest {
   public:
     explicit TestModuleDeleteInLumiProducer(edm::ParameterSet const& p)
         : moduleLabel_{p.getParameter<std::string>("@module_label")} {
+      for (const auto& tag : p.getUntrackedParameter<std::vector<edm::InputTag>>("srcBeginProcess")) {
+        consumes<IntProduct, edm::InProcess>(tag);
+      }
       for (const auto& tag : p.getUntrackedParameter<std::vector<edm::InputTag>>("srcBeginRun")) {
         consumes<IntProduct, edm::InRun>(tag);
       }
@@ -76,6 +86,7 @@ namespace edmtest {
     ~TestModuleDeleteInLumiProducer() override { g_lumi_destructed.push_back(moduleLabel_); }
     static void fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
       edm::ParameterSetDescription desc;
+      desc.addUntracked<std::vector<edm::InputTag>>("srcBeginProcess", std::vector<edm::InputTag>{});
       desc.addUntracked<std::vector<edm::InputTag>>("srcBeginRun", std::vector<edm::InputTag>{});
       desc.addUntracked<std::vector<edm::InputTag>>("srcBeginLumi", std::vector<edm::InputTag>{});
       desc.addUntracked<std::vector<edm::InputTag>>("srcEvent", std::vector<edm::InputTag>{});
@@ -96,6 +107,9 @@ namespace edmtest {
   public:
     explicit TestModuleDeleteInRunProducer(edm::ParameterSet const& p)
         : moduleLabel_{p.getParameter<std::string>("@module_label")} {
+      for (const auto& tag : p.getUntrackedParameter<std::vector<edm::InputTag>>("srcBeginProcess")) {
+        consumes<IntProduct, edm::InProcess>(tag);
+      }
       for (const auto& tag : p.getUntrackedParameter<std::vector<edm::InputTag>>("srcBeginRun")) {
         consumes<IntProduct, edm::InRun>(tag);
       }
@@ -111,12 +125,48 @@ namespace edmtest {
     ~TestModuleDeleteInRunProducer() override { g_run_destructed.push_back(moduleLabel_); }
     static void fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
       edm::ParameterSetDescription desc;
+      desc.addUntracked<std::vector<edm::InputTag>>("srcBeginProcess", std::vector<edm::InputTag>{});
       desc.addUntracked<std::vector<edm::InputTag>>("srcBeginRun", std::vector<edm::InputTag>{});
       desc.addUntracked<std::vector<edm::InputTag>>("srcBeginLumi", std::vector<edm::InputTag>{});
       desc.addUntracked<std::vector<edm::InputTag>>("srcEvent", std::vector<edm::InputTag>{});
       descriptions.addDefault(desc);
     }
     void globalBeginRunProduce(edm::Run&, edm::EventSetup const&) const override {
+      throw edm::Exception(edm::errors::NotFound) << "Intentional 'NotFound' exception for testing purposes\n";
+    }
+    void produce(edm::StreamID, edm::Event& e, edm::EventSetup const& c) const override {
+      throw edm::Exception(edm::errors::NotFound) << "Intentional 'NotFound' exception for testing purposes\n";
+    }
+
+  private:
+    std::string moduleLabel_;
+  };
+
+  class TestModuleDeleteInProcessProducer : public edm::global::EDProducer<edm::BeginProcessBlockProducer> {
+  public:
+    explicit TestModuleDeleteInProcessProducer(edm::ParameterSet const& p)
+        : moduleLabel_{p.getParameter<std::string>("@module_label")} {
+      for (const auto& tag : p.getUntrackedParameter<std::vector<edm::InputTag>>("srcBeginRun")) {
+        consumes<IntProduct, edm::InRun>(tag);
+      }
+      for (const auto& tag : p.getUntrackedParameter<std::vector<edm::InputTag>>("srcBeginLumi")) {
+        consumes<IntProduct, edm::InLumi>(tag);
+      }
+      for (const auto& tag : p.getUntrackedParameter<std::vector<edm::InputTag>>("srcEvent")) {
+        consumes<IntProduct, edm::InRun>(tag);
+      }
+      produces<IntProduct, edm::Transition::BeginProcessBlock>();
+      g_process_constructed.push_back(moduleLabel_);
+    }
+    ~TestModuleDeleteInProcessProducer() override { g_process_destructed.push_back(moduleLabel_); }
+    static void fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+      edm::ParameterSetDescription desc;
+      desc.addUntracked<std::vector<edm::InputTag>>("srcBeginRun", std::vector<edm::InputTag>{});
+      desc.addUntracked<std::vector<edm::InputTag>>("srcBeginLumi", std::vector<edm::InputTag>{});
+      desc.addUntracked<std::vector<edm::InputTag>>("srcEvent", std::vector<edm::InputTag>{});
+      descriptions.addDefault(desc);
+    }
+    void beginProcessBlockProduce(edm::ProcessBlock&) const override {
       throw edm::Exception(edm::errors::NotFound) << "Intentional 'NotFound' exception for testing purposes\n";
     }
     void produce(edm::StreamID, edm::Event& e, edm::EventSetup const& c) const override {
@@ -185,6 +235,18 @@ namespace edmtest {
         formatException(g_run_constructed, g_run_destructed, ex);
         throw ex;
       }
+
+      if (g_process_constructed.size() == 0) {
+        throw cms::Exception("LogicError")
+            << "No TestModuleDeleteInProcessProducer modules constructed in this job, the test is meaningless";
+      }
+      if (g_process_constructed.size() != g_process_destructed.size()) {
+        cms::Exception ex("Assert");
+        ex << "Number of TestModuleDeleteInProcessProducer constructors " << g_process_constructed.size()
+           << " differs from the number of destructors " << g_process_destructed.size() << ".";
+        formatException(g_process_constructed, g_process_destructed, ex);
+        throw ex;
+      }
     }
 
     void analyze(edm::StreamID, edm::Event const& e, edm::EventSetup const& c) const override {}
@@ -194,4 +256,5 @@ namespace edmtest {
 DEFINE_FWK_MODULE(edmtest::TestModuleDeleteProducer);
 DEFINE_FWK_MODULE(edmtest::TestModuleDeleteInLumiProducer);
 DEFINE_FWK_MODULE(edmtest::TestModuleDeleteInRunProducer);
+DEFINE_FWK_MODULE(edmtest::TestModuleDeleteInProcessProducer);
 DEFINE_FWK_MODULE(edmtest::TestModuleDeleteAnalyzer);

@@ -25,6 +25,7 @@ process.producerAEventConsumedInBA = intEventProducer.clone(ivalue = 10)
 process.producerEventNotConsumed = cms.EDProducer("edmtest::TestModuleDeleteProducer")
 process.producerBeginLumiNotConsumed = cms.EDProducer("edmtest::TestModuleDeleteInLumiProducer")
 process.producerBeginRunNotConsumed = cms.EDProducer("edmtest::TestModuleDeleteInRunProducer")
+process.producerBeginProcessNotConsumed = cms.EDProducer("edmtest::TestModuleDeleteInProcessProducer")
 
 # These producers do not get the event transitions for the events
 # where the same-name producers in the SubProcesses produce a product.
@@ -51,6 +52,7 @@ process.t = cms.Task(
     process.producerEventNotConsumed,
     process.producerBeginLumiNotConsumed,
     process.producerBeginRunNotConsumed,
+    process.producerBeginProcessNotConsumed,
     #
     process.producerEventMaybeConsumedInB,
     process.producerEventMaybeConsumedInBA,

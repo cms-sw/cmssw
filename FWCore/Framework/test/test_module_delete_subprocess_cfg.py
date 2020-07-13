@@ -21,9 +21,9 @@ process.source = cms.Source("EmptySource")
 #    \- DA
 
 # Cases to test
-# - event/lumi/run product consumed in a B or C, module kept
-# - event/lumi/run product consumed in BA, module kept
-# - event/lumi/run product not consumed anywhere, module deleted
+# - event/lumi/run/process product consumed in B or C, module kept
+# - event/lumi/run/process product consumed in BA, module kept
+# - event/lumi/run/process product not consumed anywhere, module deleted
 # - event(/lumi/run) product produced in A and any SubProcess, consumed with empty process name, module kept
 # - event(/lumi/run) product produced in A and any SubProcess, consumed with SubProcess name, A module deleted
 # - event(/lumi/run) product produced in A and any SubProcess, consumed with A name or skipProcess, SubProcess module deleted
@@ -49,29 +49,34 @@ uint64GenericConsumer = cms.EDAnalyzer("edmtest::GenericUInt64Analyzer",
 
 def nonEventConsumer(transition, sourcePattern, expected):
     transCap = transition[0].upper() + transition[1:]
-    runOrLumiBlock = transCap
-    if "Lumi" in runOrLumiBlock:
-        runOrLumiBlock = runOrLumiBlock+"nosityBlock"
+    blockName = transCap
+    if "Lumi" in blockName:
+        blockName = blockName+"nosityBlock"
     ret = intNonEventProducer.clone()
-    setattr(ret, "consumes%s"%runOrLumiBlock, cms.InputTag(sourcePattern%transCap, transition))
-    setattr(ret, "expect%s"%runOrLumiBlock, cms.untracked.int32(expected))
+    setattr(ret, "consumes%s"%blockName, cms.InputTag(sourcePattern%transCap, transition))
+    setattr(ret, "expect%s"%blockName, cms.untracked.int32(expected))
     return ret
 
 process.producerAEventConsumedInB = intEventProducer.clone(ivalue = 1)
 process.producerABeginLumiConsumedInB = intNonEventProducer.clone(ivalue = 2)
 process.producerAEndRunConsumedInB = intNonEventProducer.clone(ivalue = 5)
+process.producerABeginProcessBlockConsumedInB = intNonEventProducer.clone(ivalue = 6)
 process.producerAEndLumiConsumedInC = intNonEventProducer.clone(ivalue = 3)
 process.producerABeginRunConsumedInC = intNonEventProducer.clone(ivalue = 4)
+process.producerAEndProcessBlockConsumedInC = intNonEventProducer.clone(ivalue = 7)
 
 process.producerAEventConsumedInBA = intEventProducer.clone(ivalue = 10)
 process.producerABeginLumiConsumedInBA = intNonEventProducer.clone(ivalue = 20)
 process.producerAEndLumiConsumedInBA = intNonEventProducer.clone(ivalue = 30)
 process.producerABeginRunConsumedInBA = intNonEventProducer.clone(ivalue = 40)
 process.producerAEndRunConsumedInBA = intNonEventProducer.clone(ivalue = 50)
+process.producerABeginProcessBlockConsumedInBA = intNonEventProducer.clone(ivalue = 60)
+process.producerAEndProcessBlockConsumedInBA = intNonEventProducer.clone(ivalue = 70)
 
 process.producerEventNotConsumed = cms.EDProducer("edmtest::TestModuleDeleteProducer")
 process.producerBeginLumiNotConsumed = cms.EDProducer("edmtest::TestModuleDeleteInLumiProducer")
 process.producerBeginRunNotConsumed = cms.EDProducer("edmtest::TestModuleDeleteInRunProducer")
+process.producerBeginProcessBlockNotConsumed = cms.EDProducer("edmtest::TestModuleDeleteInProcessProducer")
 
 # These producers do not get the event transitions for the events
 # where the same-name producers in the SubProcesses produce a product.
@@ -107,18 +112,23 @@ process.t = cms.Task(
     process.producerAEventConsumedInB,
     process.producerABeginLumiConsumedInB,
     process.producerAEndRunConsumedInB,
+    process.producerABeginProcessBlockConsumedInB,
     process.producerAEndLumiConsumedInC,
     process.producerABeginRunConsumedInC,
+    process.producerAEndProcessBlockConsumedInC,
     #
     process.producerAEventConsumedInBA,
     process.producerABeginLumiConsumedInBA,
     process.producerAEndLumiConsumedInBA,
     process.producerABeginRunConsumedInBA,
     process.producerAEndRunConsumedInBA,
+    process.producerABeginProcessBlockConsumedInBA,
+    process.producerAEndProcessBlockConsumedInBA,
     #
     process.producerEventNotConsumed,
     process.producerBeginLumiNotConsumed,
     process.producerBeginRunNotConsumed,
+    process.producerBeginProcessBlockNotConsumed,
     #
     process.producerEventMaybeConsumedInB,
     process.producerEventMaybeConsumedInBA,
@@ -140,6 +150,7 @@ process.t = cms.Task(
     process.producerANotConsumedChainRun,
 )
 
+
 process.p = cms.Path(
     process.intAnalyzerDelete
     ,
@@ -157,6 +168,7 @@ process.addSubProcess( cms.SubProcess(
 subprocessB.consumerEventFromA = intEventConsumer.clone(moduleLabel = "producerAEventConsumedInB", valueMustMatch = 1)
 subprocessB.consumerBeginLumiFromA = nonEventConsumer("beginLumi", "producerA%sConsumedInB", 2)
 subprocessB.consumerEndRunFromA = nonEventConsumer("endRun", "producerA%sConsumedInB", 5)
+subprocessB.consumerBeginProcessBlockFromA = nonEventConsumer("beginProcessBlock", "producerA%sConsumedInB", 6)
 
 subprocessB.consumerAEventNotConsumed = intGenericConsumer.clone(
     srcEvent = [
@@ -177,6 +189,7 @@ subprocessB.consumerAEventNotConsumed2 = uint64GenericConsumer.clone(
 subprocessB.producerEventNotConsumed = cms.EDProducer("edmtest::TestModuleDeleteProducer")
 subprocessB.producerBeginLumiNotConsumed = cms.EDProducer("edmtest::TestModuleDeleteInLumiProducer")
 subprocessB.producerBeginRunNotConsumed = cms.EDProducer("edmtest::TestModuleDeleteInRunProducer")
+subprocessB.producerBeginProcessBlockNotConsumed = cms.EDProducer("edmtest::TestModuleDeleteInProcessProducer")
 
 subprocessB.producerEventMaybeConsumedInB = intEventProducerMustRun.clone()
 subprocessB.producerEventMaybeConsumedInBA = intEventProducerMustRun.clone(mustRunEvent=False)
@@ -217,6 +230,7 @@ subprocessB.t = cms.Task(
     subprocessB.producerEventNotConsumed,
     subprocessB.producerBeginLumiNotConsumed,
     subprocessB.producerBeginRunNotConsumed,
+    subprocessB.producerBeginProcessBlockNotConsumed,
     #
     subprocessB.producerEventMaybeConsumedInB,
     subprocessB.producerEventMaybeConsumedInBA,
@@ -244,6 +258,7 @@ subprocessB.p = cms.Path(
     subprocessB.consumerEventFromA+
     subprocessB.consumerBeginLumiFromA+
     subprocessB.consumerEndRunFromA+
+    subprocessB.consumerBeginProcessBlockFromA+
     #
     subprocessB.consumerAEventNotConsumed+
     subprocessB.consumerAEventNotConsumed2+
@@ -273,6 +288,8 @@ subprocessBA.consumerBeginLumiFromA = nonEventConsumer("beginLumi", "producerA%s
 subprocessBA.consumerEndLumiFromA = nonEventConsumer("endLumi", "producerA%sConsumedInBA", 30)
 subprocessBA.consumerBeginRunFromA = nonEventConsumer("beginRun", "producerA%sConsumedInBA", 40)
 subprocessBA.consumerEndRunFromA = nonEventConsumer("endRun", "producerA%sConsumedInBA", 50)
+subprocessBA.consumerBeginProcessBlockFromA = nonEventConsumer("beginProcessBlock", "producerA%sConsumedInBA", 60)
+subprocessBA.consumerEndProcessBlockFromA = nonEventConsumer("endProcessBlock", "producerA%sConsumedInBA", 70)
 
 subprocessBA.consumerABEventNotConsumed = intGenericConsumer.clone(
     srcEvent = [
@@ -347,6 +364,8 @@ subprocessBA.p = cms.Path(
     subprocessBA.consumerEndLumiFromA+
     subprocessBA.consumerBeginRunFromA+
     subprocessBA.consumerEndRunFromA+
+    subprocessBA.consumerBeginProcessBlockFromA+
+    subprocessBA.consumerEndProcessBlockFromA+
     #
     subprocessBA.consumerABEventNotConsumed+
     subprocessBA.consumerABEventNotConsumed2+
@@ -370,6 +389,7 @@ process.addSubProcess( cms.SubProcess(
 
 subprocessC.consumerEndLumiFromA = nonEventConsumer("endLumi", "producerA%sConsumedInC", 3)
 subprocessC.consumerBeginRunFromA = nonEventConsumer("beginRun", "producerA%sConsumedInC", 4)
+subprocessC.consumerEndProcessBlockFromA = nonEventConsumer("endProcessBlock", "producerA%sConsumedInC", 7)
 
 subprocessC.consumerAEventNotConsumed = intGenericConsumer.clone(
     srcEvent = [
@@ -427,6 +447,7 @@ subprocessC.t = cms.Task(
 subprocessC.p = cms.Path(
     subprocessC.consumerEndLumiFromA+
     subprocessC.consumerBeginRunFromA+
+    subprocessC.consumerEndProcessBlockFromA+
     #
     subprocessC.consumerAEventNotConsumed+
     subprocessC.consumerAEventNotConsumed2+
