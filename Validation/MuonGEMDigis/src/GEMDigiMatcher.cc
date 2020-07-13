@@ -90,8 +90,6 @@ void GEMDigiMatcher::matchDigisSLToSimTrack(const edm::DetSetVector<GEMDigiSimLi
     for (auto sl = itsimlink->data.begin(); sl != itsimlink->data.end(); ++sl) {
       GEMDetId p_id(sl->getDetUnitId());
 
-      bool isMatched;
-
       // ignore simlinks in non-matched chambers
       const auto& detids(muonSimHitMatcher_->detIds());
       if (detids.find(p_id.rawId()) == detids.end())
