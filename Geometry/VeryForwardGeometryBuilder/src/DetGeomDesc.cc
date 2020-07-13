@@ -59,28 +59,6 @@ DetGeomDesc::DetGeomDesc(const cms::DDFilteredView& fv, const cms::DDSpecParRegi
 {}
 
 //----------------------------------------------------------------------------------------------------
-
-DetGeomDesc::DetGeomDesc(PDetGeomDesc* pd) {
-  for (auto i : pd->container_) {
-    
-    DetGeomDesc* gd = new DetGeomDesc();
-    
-    gd->setTranslation(i.dx_,i.dy_,i.dz_);
-    gd->setRotation(i.axx_,i.axy_,i.axz_,
-                    i.ayx_,i.ayy_,i.ayz_,
-                    i.azx_,i.azy_,i.azz_);
-    gd->setName(i.name_);
-    gd->setParams(i.params_);
-    gd->setGeographicalID(i.geographicalID_);
-    gd->setCopyno(i.copy_);
-    gd->setParentZPosition(i.z_);
-    gd->setSensorType(i.sensorType_);
-    
-    this->addComponent(gd);
-  }
-}
-
-//----------------------------------------------------------------------------------------------------
 DetGeomDesc::DetGeomDesc(const DetGeomDesc& ref) { (*this) = ref; }
 
 //----------------------------------------------------------------------------------------------------
