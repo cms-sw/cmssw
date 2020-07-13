@@ -180,11 +180,16 @@ namespace {
     WrapperBase const* hold_;
     virtual WrapperBase const* getIt(ProductID const&) const override { return hold_; }
 
-    virtual WrapperBase const* getThinnedProduct(ProductID const&, unsigned int&) const override { return nullptr; }
+    virtual WrapperBase const* getThinnedProduct(ProductID const&,
+                                                 unsigned int&,
+                                                 edm::ProductID const&) const override {
+      return nullptr;
+    }
 
     virtual void getThinnedProducts(ProductID const& pid,
                                     std::vector<WrapperBase const*>& wrappers,
-                                    std::vector<unsigned int>& keys) const override {}
+                                    std::vector<unsigned int>& keys,
+                                    edm::ProductID const& targetpid) const override {}
 
     virtual unsigned int transitionIndex_() const override { return 0U; }
     TestGetter() : hold_(nullptr) {}

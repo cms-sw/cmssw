@@ -42,13 +42,16 @@ namespace testPtr {
   struct TestGetter : public edm::EDProductGetter {
     edm::WrapperBase const* hold_;
     virtual edm::WrapperBase const* getIt(edm::ProductID const&) const override { return hold_; }
-    virtual edm::WrapperBase const* getThinnedProduct(edm::ProductID const&, unsigned int&) const override {
+    virtual edm::WrapperBase const* getThinnedProduct(edm::ProductID const&,
+                                                      unsigned int&,
+                                                      edm::ProductID const&) const override {
       return nullptr;
     }
 
     virtual void getThinnedProducts(edm::ProductID const& pid,
                                     std::vector<edm::WrapperBase const*>& wrappers,
-                                    std::vector<unsigned int>& keys) const override {}
+                                    std::vector<unsigned int>& keys,
+                                    edm::ProductID const& targetpid) const override {}
 
     virtual unsigned int transitionIndex_() const override { return 0U; }
 

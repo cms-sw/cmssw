@@ -480,16 +480,17 @@ namespace edm {
     return eventPrincipal_ ? eventPrincipal_->getIt(id) : nullptr;
   }
 
-  WrapperBase const* StreamerInputSource::EventPrincipalHolder::getThinnedProduct(edm::ProductID const& id,
-                                                                                  unsigned int& index) const {
-    return eventPrincipal_ ? eventPrincipal_->getThinnedProduct(id, index) : nullptr;
+  WrapperBase const* StreamerInputSource::EventPrincipalHolder::getThinnedProduct(
+      edm::ProductID const& id, unsigned int& index, edm::ProductID const& targetid) const {
+    return eventPrincipal_ ? eventPrincipal_->getThinnedProduct(id, index, targetid) : nullptr;
   }
 
   void StreamerInputSource::EventPrincipalHolder::getThinnedProducts(ProductID const& pid,
                                                                      std::vector<WrapperBase const*>& wrappers,
-                                                                     std::vector<unsigned int>& keys) const {
+                                                                     std::vector<unsigned int>& keys,
+                                                                     ProductID const& targetpid) const {
     if (eventPrincipal_)
-      eventPrincipal_->getThinnedProducts(pid, wrappers, keys);
+      eventPrincipal_->getThinnedProducts(pid, wrappers, keys, targetpid);
   }
 
   unsigned int StreamerInputSource::EventPrincipalHolder::transitionIndex_() const {

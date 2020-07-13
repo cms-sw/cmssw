@@ -300,7 +300,9 @@ namespace edm {
 
   WrapperBase const* EventPrincipal::getIt(ProductID const& pid) const { return getByProductID(pid).wrapper(); }
 
-  WrapperBase const* EventPrincipal::getThinnedProduct(ProductID const& pid, unsigned int& key) const {
+  WrapperBase const* EventPrincipal::getThinnedProduct(ProductID const& pid,
+                                                       unsigned int& key,
+                                                       ProductID const& targetpid) const {
     BranchID parent = pidToBid(pid);
 
     // Loop over thinned containers which were made by selecting elements from the parent container
@@ -323,12 +325,15 @@ namespace edm {
         continue;
       }
       // Get the thinned container and return a pointer if we can find it
+      // If a target ProcessID is provided, check that they match
       ProductID const& thinnedCollectionPID = thinnedAssociation->thinnedCollectionID();
-      BasicHandle bhThinned = getByProductID(thinnedCollectionPID);
+      BasicHandle bhThinned = (targetpid.isValid() && thinnedCollectionPID != targetpid)
+                                  ? BasicHandle(nullptr, nullptr)
+                                  : getByProductID(thinnedCollectionPID);
       if (!bhThinned.isValid()) {
         // Thinned container is not found, try looking recursively in thinned containers
         // which were made by selecting elements from this thinned container.
-        WrapperBase const* wrapperBase = getThinnedProduct(thinnedCollectionPID, thinnedIndex);
+        WrapperBase const* wrapperBase = getThinnedProduct(thinnedCollectionPID, thinnedIndex, targetpid);
         if (wrapperBase != nullptr) {
           key = thinnedIndex;
           return wrapperBase;
@@ -344,7 +349,8 @@ namespace edm {
 
   void EventPrincipal::getThinnedProducts(ProductID const& pid,
                                           std::vector<WrapperBase const*>& foundContainers,
-                                          std::vector<unsigned int>& keys) const {
+                                          std::vector<unsigned int>& keys,
+                                          ProductID const& targetpid) const {
     BranchID parent = pidToBid(pid);
 
     // Loop over thinned containers which were made by selecting elements from the parent container
@@ -383,12 +389,15 @@ namespace edm {
       }
       // Get the thinned container and set the pointers and indexes into
       // it (if we can find it)
+      // If a target ProcessID is provided, check that they match
       ProductID thinnedCollectionPID = thinnedAssociation->thinnedCollectionID();
-      BasicHandle bhThinned = getByProductID(thinnedCollectionPID);
+      BasicHandle bhThinned = (targetpid.isValid() && thinnedCollectionPID != targetpid)
+                                  ? BasicHandle(nullptr, nullptr)
+                                  : getByProductID(thinnedCollectionPID);
       if (!bhThinned.isValid()) {
         // Thinned container is not found, try looking recursively in thinned containers
         // which were made by selecting elements from this thinned container.
-        getThinnedProducts(thinnedCollectionPID, foundContainers, thinnedIndexes);
+        getThinnedProducts(thinnedCollectionPID, foundContainers, thinnedIndexes, targetpid);
         for (unsigned k = 0; k < nKeys; ++k) {
           if (foundContainers[k] == nullptr)
             continue;
@@ -423,6 +432,10 @@ namespace edm {
       throw Exception(errors::LogicError)
           << "EventPrincipal::getThinnedAssociation, ThinnedAssociation ProductResolver cannot be found\n"
           << "This should never happen. Contact a Framework developer";
+    }
+    //handle case where thinnedAssociation hasn't been produced yet (then it is not needed by construction)
+    if (phb->unscheduledWasNotRun()) {
+      return nullptr;
     }
     ProductData const* productData = (phb->resolveProduct(*this, false, nullptr, nullptr)).data();
     if (productData == nullptr) {

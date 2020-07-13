@@ -55,7 +55,9 @@ public:
   // in a thinned container and key is modified to be the index into
   // that thinned container. If the desired element is not found, then
   // nullptr is returned.
-  edm::WrapperBase const* getThinnedProduct(edm::ProductID const&, unsigned int& key) const override;
+  edm::WrapperBase const* getThinnedProduct(edm::ProductID const&,
+                                            unsigned int& key,
+                                            edm::ProductID const& = edm::ProductID()) const override;
 
   // getThinnedProducts assumes getIt was already called and failed to find
   // the product. The input keys are the indexes into the container identified
@@ -70,7 +72,8 @@ public:
   // to the same thinned container.
   void getThinnedProducts(edm::ProductID const&,
                           std::vector<edm::WrapperBase const*>& foundContainers,
-                          std::vector<unsigned int>& keys) const override;
+                          std::vector<unsigned int>& keys,
+                          edm::ProductID const& targetpid = edm::ProductID()) const override;
 
 private:
   // ---------- static member functions --------------------

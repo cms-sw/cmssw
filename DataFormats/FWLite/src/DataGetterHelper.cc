@@ -401,7 +401,8 @@ namespace fwlite {
 
   edm::WrapperBase const* DataGetterHelper::getThinnedProduct(edm::ProductID const& pid,
                                                               unsigned int& key,
-                                                              Long_t eventEntry) const {
+                                                              Long_t eventEntry,
+                                                              edm::ProductID const& targetpid) const {
     edm::BranchID parent = branchMap_->productToBranchID(pid);
     if (!parent.isValid())
       return nullptr;
@@ -428,14 +429,17 @@ namespace fwlite {
         continue;
       }
       // Get the thinned container and return a pointer if we can find it
+      // If a target ProcessID is provided, check that they match
       edm::ProductID const& thinnedCollectionPID = thinnedAssociation->thinnedCollectionID();
-      edm::WrapperBase const* thinnedCollection = getByProductID(thinnedCollectionPID, eventEntry);
+      edm::WrapperBase const* thinnedCollection = (targetpid.isValid() && thinnedCollectionPID != targetpid)
+                                                      ? nullptr
+                                                      : getByProductID(thinnedCollectionPID, eventEntry);
 
       if (thinnedCollection == nullptr) {
         // Thinned container is not found, try looking recursively in thinned containers
         // which were made by selecting elements from this thinned container.
         edm::WrapperBase const* thinnedFromRecursiveCall =
-            getThinnedProduct(thinnedCollectionPID, thinnedIndex, eventEntry);
+            getThinnedProduct(thinnedCollectionPID, thinnedIndex, eventEntry, targetpid);
         if (thinnedFromRecursiveCall != nullptr) {
           key = thinnedIndex;
           return thinnedFromRecursiveCall;
@@ -452,7 +456,8 @@ namespace fwlite {
   void DataGetterHelper::getThinnedProducts(edm::ProductID const& pid,
                                             std::vector<edm::WrapperBase const*>& foundContainers,
                                             std::vector<unsigned int>& keys,
-                                            Long_t eventEntry) const {
+                                            Long_t eventEntry,
+                                            edm::ProductID const& targetpid) const {
     edm::BranchID parent = branchMap_->productToBranchID(pid);
     if (!parent.isValid())
       return;
@@ -495,13 +500,16 @@ namespace fwlite {
       }
       // Get the thinned container and set the pointers and indexes into
       // it (if we can find it)
+      // If a target ProcessID is provided, check that they match
       edm::ProductID thinnedCollectionPID = thinnedAssociation->thinnedCollectionID();
-      edm::WrapperBase const* thinnedCollection = getByProductID(thinnedCollectionPID, eventEntry);
+      edm::WrapperBase const* thinnedCollection = (targetpid.isValid() && thinnedCollectionPID != targetpid)
+                                                      ? nullptr
+                                                      : getByProductID(thinnedCollectionPID, eventEntry);
 
       if (thinnedCollection == nullptr) {
         // Thinned container is not found, try looking recursively in thinned containers
         // which were made by selecting elements from this thinned container.
-        getThinnedProducts(thinnedCollectionPID, foundContainers, thinnedIndexes, eventEntry);
+        getThinnedProducts(thinnedCollectionPID, foundContainers, thinnedIndexes, eventEntry, targetpid);
         for (unsigned k = 0; k < nKeys; ++k) {
           if (foundContainers[k] == nullptr)
             continue;

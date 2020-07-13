@@ -109,11 +109,14 @@ namespace fwlite {
     // ---------- member functions ---------------------------
 
     edm::WrapperBase const* getByProductID(edm::ProductID const&) const override;
-    edm::WrapperBase const* getThinnedProduct(edm::ProductID const& pid, unsigned int& key) const;
+    edm::WrapperBase const* getThinnedProduct(edm::ProductID const& pid,
+                                              unsigned int& key,
+                                              edm::ProductID const& targetpid = edm::ProductID()) const;
 
     void getThinnedProducts(edm::ProductID const& pid,
                             std::vector<edm::WrapperBase const*>& foundContainers,
-                            std::vector<unsigned int>& keys) const;
+                            std::vector<unsigned int>& keys,
+                            edm::ProductID const& targetpid = edm::ProductID()) const;
 
     fwlite::LuminosityBlock const& getLuminosityBlock();
     fwlite::Run const& getRun();

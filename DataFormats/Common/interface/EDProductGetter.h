@@ -21,12 +21,13 @@
 // system include files
 #include <string>
 #include <vector>
+#include "DataFormats/Provenance/interface/ProductID.h"
 
 // forward declarations
 
 namespace edm {
 
-  class ProductID;
+  //   class ProductID;
   class WrapperBase;
 
   class EDProductGetter {
@@ -47,8 +48,12 @@ namespace edm {
     // If the return value is not null, then the desired element was found
     // in a thinned container and key is modified to be the index into
     // that thinned container. If the desired element is not found, then
-    // nullptr is returned.
-    virtual WrapperBase const* getThinnedProduct(ProductID const&, unsigned int& key) const = 0;
+    // nullptr is returned.  If called with an explicit target product id
+    // then the returned product and key correspond to this particular
+    // thinned collection.
+    virtual WrapperBase const* getThinnedProduct(ProductID const&,
+                                                 unsigned int& key,
+                                                 ProductID const& = ProductID()) const = 0;
 
     // getThinnedProducts assumes getIt was already called and failed to find
     // the product. The input keys are the indexes into the container identified
@@ -60,10 +65,13 @@ namespace edm {
     // found, the corresponding WrapperBase pointer is set and the key
     // is modified to be the key into the container where the element
     // was found. The WrapperBase pointers might or might not all point
-    // to the same thinned container.
+    // to the same thinned container.  If called with an explicit target product id
+    // then the returned products and keys correspond to this particular
+    // thinned collection.
     virtual void getThinnedProducts(ProductID const& pid,
                                     std::vector<WrapperBase const*>& foundContainers,
-                                    std::vector<unsigned int>& keys) const = 0;
+                                    std::vector<unsigned int>& keys,
+                                    ProductID const& = ProductID()) const = 0;
 
     unsigned int transitionIndex() const { return transitionIndex_(); }
 

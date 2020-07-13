@@ -132,10 +132,13 @@ namespace edm {
                    std::optional<ProductProvenance> productProvenance) const;
 
     WrapperBase const* getIt(ProductID const& pid) const override;
-    WrapperBase const* getThinnedProduct(ProductID const& pid, unsigned int& key) const override;
+    WrapperBase const* getThinnedProduct(ProductID const& pid,
+                                         unsigned int& key,
+                                         ProductID const& targetpid = ProductID()) const override;
     void getThinnedProducts(ProductID const& pid,
                             std::vector<WrapperBase const*>& foundContainers,
-                            std::vector<unsigned int>& keys) const override;
+                            std::vector<unsigned int>& keys,
+                            ProductID const& targetpid = ProductID()) const override;
 
     ProductID branchIDToProductID(BranchID const& bid) const;
 
