@@ -361,14 +361,12 @@ FOR THE TPG I TAKE AN OBJECT AS ENVELOP1+ENVELOP2 BUT 500uM THICK. FOR THE TWO F
   <rParent name="CTPPS_Pixel_Module_2x2:Envelop"/>
   <rChild name="CTPPS_Pixel_Module_2x2:RPixWafer"/>
   <Translation x="0"  y="[EnvelopL]/2.-[TPGL]-[TPGappL]-[TPGvsROCoffset]-[ROCvsWaferoffset]+[WaferL]/2."  z="-[EnvelopT]/2.+[HybridT]+[GlueT]+[TPGT]+[GlueT]+[ROChipT]+[BumpBondT]+[WaferT]/2." />
-
  </PosPart>
 
 <PosPart copyNumber="1">
   <rParent name="CTPPS_Pixel_Module_2x2:RPixWafer"/>
   <rChild name="CTPPS_Pixel_Module_2x2:RPixnoWafer"/>
   <Translation x="0"  y="[WaferL]/2.-[noWaferL]/2."  z="0" />
-
  </PosPart>
 
 </PosPartSection>
@@ -391,7 +389,6 @@ FOR THE TPG I TAKE AN OBJECT AS ENVELOP1+ENVELOP2 BUT 500uM THICK. FOR THE TWO F
     <PartSelector path="world_volume/OCMS_1/CMSE_1/RP_147_Left_Station_1/RP_147_Left_Station_Vacuum_5_1/RP_147_Left_Station_Vacuum_3_Far_1/RP_box_primary_vacuum_10003/RP_box_secondary_vacuum_0/Envelop_6/RPixWafer_1"/>
     <Parameter name="2x2RPixWafer" value="true" />
   </SpecPar>
- </SpecParSection>
-
+</SpecParSection>
 
 </DDDefinition>
