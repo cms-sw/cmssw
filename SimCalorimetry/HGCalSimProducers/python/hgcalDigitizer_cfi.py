@@ -33,12 +33,12 @@ cceParamFine_ttu800  = [1.5e+15, 3.35246e-17,  0.251679]      #120
 cceParamThin_ttu800  = [1.5e+15, -1.62096e-16, 0.293828]      #200
 cceParamThick_ttu800 = [6e+14,   -5.95259e-16, 0.183929]      #300
 #  line+log tdr 600V EPI
-cceParamFine_epi600  = [3.5e+15, -9.73872e-19, 0.263812]      #100
+cceParamFine_epi600  = [3.5e+15, -9.73872e-19, 0.263812]      #120
 cceParamThin_epi600  = [1.5e+15, -3.09878e-16, 0.211207]      #200
 cceParamThick_epi600 = [6e+14,   -7.96539e-16, 0.251751]      #300
 
 HGCAL_cceParams_toUse = cms.PSet(
-    cceParamFine  = cms.vdouble(cceParamFine_tdr600),
+    cceParamFine  = cms.vdouble(cceParamFine_epi600),
     cceParamThin  = cms.vdouble(cceParamThin_tdr600),
     cceParamThick = cms.vdouble(cceParamThick_tdr600)
     )
