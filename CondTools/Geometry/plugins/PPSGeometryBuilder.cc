@@ -21,30 +21,14 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "CondCore/DBOutputService/interface/PoolDBOutputService.h"
 
-//#include "DataFormats/Math/interface/CMSUnits.h"
-#include "DetectorDescription/DDCMS/interface/DDCompactView.h"
-//#include "DetectorDescription/DDCMS/interface/DDFilteredView.h"
-//#include "DetectorDescription/DDCMS/interface/DDTranslation.h"
-//#include "DetectorDescription/DDCMS/interface/DDRotationMatrix.h"
-#include "Geometry/VeryForwardGeometryBuilder/plugins/dd4hep/PPSGeometryESProducer.cc"
-
-#include "DataFormats/CTPPSDetId/interface/TotemRPDetId.h"
-#include "DataFormats/CTPPSDetId/interface/TotemTimingDetId.h"
-#include "DataFormats/CTPPSDetId/interface/CTPPSPixelDetId.h"
-#include "DataFormats/CTPPSDetId/interface/CTPPSDiamondDetId.h"
-#include "Geometry/VeryForwardGeometryBuilder/interface/CTPPSDDDNames.h"
-
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 #include "Geometry/Records/interface/VeryForwardIdealGeometryRecord.h"
-
+#include "DetectorDescription/DDCMS/interface/DDCompactView.h"
 #include "CondFormats/GeometryObjects/interface/PDetGeomDesc.h"
-
-#include <regex>
-
+#include "Geometry/VeryForwardGeometryBuilder/plugins/dd4hep/PPSGeometryESProducer.cc"
 
 class PPSGeometryESProducer;
 
-//----------------------------------------------------------------------------------------------------
 
 class PPSGeometryBuilder : public edm::one::EDAnalyzer<> {
 public:
@@ -59,16 +43,13 @@ private:
   edm::Service<cond::service::PoolDBOutputService> dbservice_;
 };
 
-//----------------------------------------------------------------------------------------------------
 
 PPSGeometryBuilder::PPSGeometryBuilder(const edm::ParameterSet& iConfig)
     : compactViewTag_(iConfig.getUntrackedParameter<std::string>("compactViewTag", "XMLIdealGeometryESSource_CTPPS")) {
 }
 
-//----------------------------------------------------------------------------------------------------
 
 void PPSGeometryBuilder::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
- 
   edm::ESHandle<cms::DDCompactView> cpv;
 
   if (watcherIdealGeometry_.check(iSetup)) {
@@ -98,7 +79,6 @@ void PPSGeometryBuilder::analyze(const edm::Event& iEvent, const edm::EventSetup
 
 
 void PPSGeometryBuilder::buildPDetFromDetGeomDesc(const DetGeomDesc* geoInfo, PDetGeomDesc* gd, int& counter) {
-
   PDetGeomDesc::Item item(geoInfo);
   counter++;
 
