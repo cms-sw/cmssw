@@ -176,7 +176,7 @@ void PPSGeometryBuilder::buildPDetFromDetGeomDesc(const DetGeomDesc* geoInfo, PD
   rot.SetComponents(item.axx_, item.axy_, item.axz_, 
 		    item.ayx_, item.ayy_, item.ayz_, 
 		    item.azx_, item.azy_, item.azz_);
-  std::cout << "rot = " << rot << std::endl;
+  //std::cout << "rot = " << rot << std::endl;
 
 
   std::cout << "item.params_ = ";
