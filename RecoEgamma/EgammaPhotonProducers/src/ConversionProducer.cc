@@ -39,8 +39,6 @@ Implementation:
 #include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
 #include "DataFormats/GsfTrackReco/interface/GsfTrackFwd.h"
 
-#include "TrackingTools/TransientTrack/interface/TransientTrackBuilder.h"
-#include "TrackingTools/Records/interface/TransientTrackRecord.h"
 #include "TrackingTools/TransientTrack/interface/TransientTrack.h"
 
 #include "TrackingTools/PatternTools/interface/ClosestApproachInRPhi.h"
@@ -98,6 +96,11 @@ ConversionProducer::ConversionProducer(const edm::ParameterSet& iConfig)
   usePvtx_ = iConfig.getParameter<bool>("UsePvtx");  //if use primary vertices
 
   vertexProducer_ = consumes<reco::VertexCollection>(iConfig.getParameter<edm::InputTag>("primaryVertexProducer"));
+
+  transientTrackBuilder_ =
+      esConsumes<TransientTrackBuilder, TransientTrackRecord>(edm::ESInputTag("", "TransientTrackBuilder"));
+  trackerGeometry_ = esConsumes<TrackerGeometry, TrackerDigiGeometryRecord>();
+  magneticField_ = esConsumes<MagneticField, IdealMagneticFieldRecord>();
 
   //Track-cluster matching eta and phi cuts
   dEtaTkBC_ = iConfig.getParameter<double>("dEtaTrackBC");  //TODO research on cut endcap/barrel
@@ -190,8 +193,7 @@ void ConversionProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSet
       vertexCollection = *(vertexHandle.product());
   }
 
-  edm::ESHandle<TransientTrackBuilder> hTransientTrackBuilder;
-  iSetup.get<TransientTrackRecord>().get("TransientTrackBuilder", hTransientTrackBuilder);
+  edm::ESHandle<TransientTrackBuilder> hTransientTrackBuilder = iSetup.getHandle(transientTrackBuilder_);
   thettbuilder_ = hTransientTrackBuilder.product();
 
   reco::Vertex the_pvtx;
@@ -278,10 +280,8 @@ void ConversionProducer::buildCollection(edm::Event& iEvent,
                                          const std::multimap<double, reco::CaloClusterPtr>& basicClusterPtrs,
                                          const reco::Vertex& the_pvtx,
                                          reco::ConversionCollection& outputConvPhotonCollection) {
-  edm::ESHandle<TrackerGeometry> trackerGeomHandle;
-  edm::ESHandle<MagneticField> magFieldHandle;
-  iSetup.get<TrackerDigiGeometryRecord>().get(trackerGeomHandle);
-  iSetup.get<IdealMagneticFieldRecord>().get(magFieldHandle);
+  edm::ESHandle<TrackerGeometry> trackerGeomHandle = iSetup.getHandle(trackerGeometry_);
+  edm::ESHandle<MagneticField> magFieldHandle = iSetup.getHandle(magneticField_);
 
   const TrackerGeometry* trackerGeom = trackerGeomHandle.product();
   const MagneticField* magField = magFieldHandle.product();
