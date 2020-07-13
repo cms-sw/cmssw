@@ -10,7 +10,9 @@ namespace l1t {
     public:
       explicit Counters(uint64_t dataword);
 
-      // rpc_counter not yet implemented in FW - AWB 31.01.16
+      // TODO: rpc_counter not yet implemented in FW - AWB 31.01.16
+      // TODO: gem_counter not yet implemented in FW - JS 01.07.20
+      // Autogenerate this class?
       Counters()
           : me1a_1(-99),
             me1a_2(-99),
