@@ -16,6 +16,7 @@ from PhysicsTools.PatAlgos.slimming.slimmedElectrons_cfi import *
 from PhysicsTools.PatAlgos.slimming.slimmedLowPtElectrons_cfi import *
 from PhysicsTools.PatAlgos.slimming.lowPtGsfLinks_cfi import *
 from PhysicsTools.PatAlgos.slimming.slimmedMuons_cfi     import *
+from PhysicsTools.PatAlgos.slimming.slimmedTrackExtras_cff import *
 from PhysicsTools.PatAlgos.slimming.slimmedPhotons_cfi   import *
 from PhysicsTools.PatAlgos.slimming.slimmedOOTPhotons_cff import *
 from PhysicsTools.PatAlgos.slimming.slimmedTaus_cfi      import *
@@ -46,6 +47,7 @@ slimmingTask = cms.Task(
     slimmedLowPtElectrons,
     lowPtGsfLinks,
     slimmedMuons,
+    slimmedTrackExtrasTask,
     slimmedPhotons,
     slimmedOOTPhotons,
     slimmedTaus,
@@ -59,8 +61,17 @@ slimmingTask = cms.Task(
     oniaPhotonCandidates
 )
 
+from Configuration.Eras.Modifier_run2_miniAOD_80XLegacy_cff import run2_miniAOD_80XLegacy
+run2_miniAOD_80XLegacy.toReplaceWith(slimmingTask, slimmingTask.copyAndExclude([slimmedTrackExtrasTask]))
+
+from Configuration.Eras.Modifier_run2_miniAOD_94XFall17_cff import run2_miniAOD_94XFall17
+run2_miniAOD_94XFall17.toReplaceWith(slimmingTask, slimmingTask.copyAndExclude([slimmedTrackExtrasTask]))
+
+from Configuration.ProcessModifiers.run2_miniAOD_UL_cff import run2_miniAOD_UL
+run2_miniAOD_UL.toReplaceWith(slimmingTask, slimmingTask.copyAndExclude([slimmedTrackExtrasTask]))
+
 from Configuration.Eras.Modifier_pp_on_AA_2018_cff import pp_on_AA_2018
-pp_on_AA_2018.toReplaceWith(slimmingTask, slimmingTask.copyAndExclude([slimmedOOTPhotons]))
+pp_on_AA_2018.toReplaceWith(slimmingTask, slimmingTask.copyAndExclude([slimmedOOTPhotons,slimmedTrackExtrasTask]))
 from Configuration.Eras.Modifier_pp_on_PbPb_run3_cff import pp_on_PbPb_run3
 from PhysicsTools.PatAlgos.slimming.hiPixelTracks_cfi import hiPixelTracks
 (pp_on_AA_2018 | pp_on_PbPb_run3).toReplaceWith(slimmingTask, cms.Task(slimmingTask.copy(), hiPixelTracks))
