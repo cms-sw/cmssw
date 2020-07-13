@@ -61,7 +61,7 @@ DetGeomDesc::DetGeomDesc(DDFilteredView* fv)
 
 // Constructor from DD4Hep DDFilteredView
 
-DetGeomDesc::DetGeomDesc(cms::DDFilteredView* fv, const cms::DDSpecParRegistry& allSpecParSections)
+DetGeomDesc::DetGeomDesc(const cms::DDFilteredView& fv, const cms::DDSpecParRegistry& allSpecParSections)
   /*: m_trans(fv->translation()),
     m_rot(fv->rotation()),
     m_name(fv->name()),
@@ -80,18 +80,18 @@ DetGeomDesc::DetGeomDesc(cms::DDFilteredView* fv, const cms::DDSpecParRegistry& 
 
 
 
-  : m_trans(fv->translation() / 1._mm),  // Convert cm (DD4hep) to mm (legacy)
-    m_rot(fv->rotation()),
-    m_name(fv->name()),
-    //m_params = ((fv->volume()).solid()).parameters(); TO DOOOOOOOOOOOOOOOOOOOOOOOOO
-    //m_params(fv->parameters()),
+  : m_trans(fv.translation() / 1._mm),  // Convert cm (DD4hep) to mm (legacy)
+    m_rot(fv.rotation()),
+    m_name(fv.name()),
+    //m_params = ((fv.volume()).solid()).parameters(); TO DOOOOOOOOOOOOOOOOOOOOOOOOO
+    //m_params(fv.parameters()),
     
 
     m_geographicalID(computeDetID(fv)),
-    m_copy(fv->copyNum()),
-    //m_z = fv->geoHistory().back().absTranslation().z();
-    m_z(fv->translation().z() / 1._mm)  // Convert cm (DD4hep) to mm (legacy)
-    //m_sensorType(fv->path()) 
+    m_copy(fv.copyNum()),
+    //m_z = fv.geoHistory().back().absTranslation().z();
+    m_z(fv.translation().z() / 1._mm)  // Convert cm (DD4hep) to mm (legacy)
+    //m_sensorType(fv.path()) 
 {
 
 
@@ -99,7 +99,7 @@ DetGeomDesc::DetGeomDesc(cms::DDFilteredView* fv, const cms::DDSpecParRegistry& 
   cms::DDSpecParRefs filteredSpecParSections;
   allSpecParSections.filter(filteredSpecParSections, parameterName);
   for (const auto& mySpecParSection : filteredSpecParSections) {
-    if (mySpecParSection->hasPath(fv->path())) {
+    if (mySpecParSection->hasPath(fv.path())) {
       //return mySpecParSection->value<std::vector<T>>(parameterName);
       m_sensorType = DDD_CTPPS_PIXELS_SENSOR_TYPE_2x2;
     }
@@ -109,13 +109,13 @@ DetGeomDesc::DetGeomDesc(cms::DDFilteredView* fv, const cms::DDSpecParRegistry& 
 
 
 
-  const cms::DDSolidShape& mySolidShape = cms::dd::getCurrentShape(*fv);
+  const cms::DDSolidShape& mySolidShape = cms::dd::getCurrentShape(fv);
   std::cout << "m_name = " << m_name << std::endl;
   std::cout << "id = " << m_geographicalID << std::endl;
-  std::cout << " path = " << fv->path() << std::endl;
+  std::cout << " path = " << fv.path() << std::endl;
 
   if (mySolidShape == cms::DDSolidShape::ddbox) {
-    const cms::dd::DDBox& myShape = cms::dd::DDBox(*fv);
+    const cms::dd::DDBox& myShape = cms::dd::DDBox(fv);
     m_params = { myShape.halfX() / 1._mm,
 		 myShape.halfY() / 1._mm,
 		 myShape.halfZ() / 1._mm
@@ -123,7 +123,7 @@ DetGeomDesc::DetGeomDesc(cms::DDFilteredView* fv, const cms::DDSpecParRegistry& 
   }
 
   else if (mySolidShape == cms::DDSolidShape::ddcons) {
-    const cms::dd::DDCons& myShape = cms::dd::DDCons(*fv);
+    const cms::dd::DDCons& myShape = cms::dd::DDCons(fv);
     m_params = { myShape.zhalf() / 1._mm,
 		 myShape.rInMinusZ() / 1._mm,
 		 myShape.rOutMinusZ() / 1._mm,
@@ -134,7 +134,7 @@ DetGeomDesc::DetGeomDesc(cms::DDFilteredView* fv, const cms::DDSpecParRegistry& 
     }; 
   }
   else if (mySolidShape == cms::DDSolidShape::ddtrap) {
-    const cms::dd::DDTrap& myShape = cms::dd::DDTrap(*fv);
+    const cms::dd::DDTrap& myShape = cms::dd::DDTrap(fv);
     m_params = { myShape.halfZ() / 1._mm,
 		 myShape.theta(),
 		 myShape.phi(),
@@ -149,7 +149,7 @@ DetGeomDesc::DetGeomDesc(cms::DDFilteredView* fv, const cms::DDSpecParRegistry& 
     }; 
   }
   else if (mySolidShape == cms::DDSolidShape::ddtubs) {
-    const cms::dd::DDTubs& myShape = cms::dd::DDTubs(*fv);
+    const cms::dd::DDTubs& myShape = cms::dd::DDTubs(fv);
     m_params = { myShape.zhalf() / 1._mm,
 		 myShape.rIn() / 1._mm,
 		 myShape.rOut() / 1._mm,
@@ -158,7 +158,7 @@ DetGeomDesc::DetGeomDesc(cms::DDFilteredView* fv, const cms::DDSpecParRegistry& 
     };
   }
   else if (mySolidShape == cms::DDSolidShape::ddtrunctubs) {
-    const cms::dd::DDTruncTubs& myShape = cms::dd::DDTruncTubs(*fv);
+    const cms::dd::DDTruncTubs& myShape = cms::dd::DDTruncTubs(fv);
     m_params = { myShape.zHalf() / 1._mm,
 		 myShape.rIn() / 1._mm,
 		 myShape.rOut() / 1._mm,
@@ -170,9 +170,9 @@ DetGeomDesc::DetGeomDesc(cms::DDFilteredView* fv, const cms::DDSpecParRegistry& 
     }; 
   }
   else if (mySolidShape == cms::DDSolidShape::dd_not_init) {
-    auto myShape = fv->solid();
+    auto myShape = fv.solid();
     const std::vector<double>& params = myShape.dimensions();
-    if (fv->isA<dd4hep::Trd1>()) {
+    if (fv.isA<dd4hep::Trd1>()) {
       m_params = { params[3] / 1._mm, // z
 		   0.,
 		   0.,
@@ -186,7 +186,7 @@ DetGeomDesc::DetGeomDesc(cms::DDFilteredView* fv, const cms::DDSpecParRegistry& 
 		   0.  
       };
     }
-    else if (fv->isA<dd4hep::Polycone>()) {
+    else if (fv.isA<dd4hep::Polycone>()) {
       int counter = 0;
       for (const auto& para : params) {	
 	if (counter != 2) {
@@ -196,9 +196,9 @@ DetGeomDesc::DetGeomDesc(cms::DDFilteredView* fv, const cms::DDSpecParRegistry& 
       }
     }
     else {
-      //if (fv->solid()->GetShape()->IsA() != TGeoCompositeShape::Class()) {
-      //if (!fv->isA<dd4hep::BooleanSolid>()) {
-      //if (fv->getShapePtr<TGeoCompositeShape::Class()>()
+      //if (fv.solid()->GetShape()->IsA() != TGeoCompositeShape::Class()) {
+      //if (!fv.isA<dd4hep::BooleanSolid>()) {
+      //if (fv.getShapePtr<TGeoCompositeShape::Class()>()
       std::cout << "DetGeomDesc::DetGeomDesc(cms::DDFilteredView* fv): ERROR: shape not supported for " 
 		<< m_name << ", Id = " << m_geographicalID
 		<< std::endl;
@@ -213,15 +213,15 @@ DetGeomDesc::DetGeomDesc(cms::DDFilteredView* fv, const cms::DDSpecParRegistry& 
   /*
     std::cout << "DetGeomDesc::DetGeomDesc m_name = " << m_name << std::endl;
     std::cout << "view->copyNumbers() = ";
-    for (const auto& num : fv->copyNumbers()) {
+    for (const auto& num : fv.copyNumbers()) {
     std::cout << num << " ";
     }
     std::cout << " " << std::endl;*/
 
  
-  //const std::string sensor_name {fv->name()};
-  //const std::string sensor_name = fv->fullname();
-  //std::string sensor_name = fv->geoHistory().back().logicalPart().name().fullname();
+  //const std::string sensor_name {fv.name()};
+  //const std::string sensor_name = fv.fullname();
+  //std::string sensor_name = fv.geoHistory().back().logicalPart().name().fullname();
   /* std::size_t found = sensor_name.find(DDD_CTPPS_PIXELS_SENSOR_NAME);
      if (found != std::string_view::npos && sensor_name.substr(found - 4, 3) == DDD_CTPPS_PIXELS_SENSOR_TYPE_2x2) {
      m_sensorType = DDD_CTPPS_PIXELS_SENSOR_TYPE_2x2;
@@ -302,15 +302,15 @@ void DetGeomDesc::applyAlignment(const CTPPSRPAlignmentCorrectionData& t) {
 }
 
 
-DetId DetGeomDesc::computeDetID(cms::DDFilteredView* fv) {
+DetId DetGeomDesc::computeDetID(const cms::DDFilteredView& fv) const {
   DetId geoID;
 
 
-  std::string name(fv->name());
+  std::string name(fv.name());
 
   // strip sensors
   if (name == DDD_TOTEM_RP_SENSOR_NAME) {
-    const std::vector<int>& copy_num = fv->copyNos();
+    const std::vector<int>& copy_num = fv.copyNos();
     // check size of copy numbers array
     if (copy_num.size() < 4)
       throw cms::Exception("DDDTotemRPContruction")
@@ -327,7 +327,7 @@ DetId DetGeomDesc::computeDetID(cms::DDFilteredView* fv) {
 
   // strip and pixels RPs
   else if (name == DDD_TOTEM_RP_RP_NAME || name == DDD_CTPPS_PIXELS_RP_NAME) {
-    unsigned int decRPId = fv->copyNum();
+    unsigned int decRPId = fv.copyNum();
 
     // check if it is a pixel RP
     if (decRPId >= 10000) {
@@ -345,7 +345,7 @@ DetId DetGeomDesc::computeDetID(cms::DDFilteredView* fv) {
   }
 
   else if (std::regex_match(name, std::regex(DDD_TOTEM_TIMING_SENSOR_TMPL))) {
-    const std::vector<int>& copy_num = fv->copyNos();
+    const std::vector<int>& copy_num = fv.copyNos();
     // check size of copy numbers array
     if (copy_num.size() < 5)
       throw cms::Exception("DDDTotemRPContruction")
@@ -358,13 +358,13 @@ DetId DetGeomDesc::computeDetID(cms::DDFilteredView* fv) {
   }
 
   else if (name == DDD_TOTEM_TIMING_RP_NAME) {
-    const unsigned int arm = fv->copyNum() / 100, station = (fv->copyNum() % 100) / 10, rp = fv->copyNum() % 10;
+    const unsigned int arm = fv.copyNum() / 100, station = (fv.copyNum() % 100) / 10, rp = fv.copyNum() % 10;
     geoID = TotemTimingDetId(arm, station, rp);
   }
 
   // pixel sensors
   else if (name == DDD_CTPPS_PIXELS_SENSOR_NAME) {
-    const std::vector<int>& copy_num = fv->copyNos();
+    const std::vector<int>& copy_num = fv.copyNos();
     // check size of copy numbers array
     if (copy_num.size() < 5)
       throw cms::Exception("DDDTotemRPContruction")
@@ -381,7 +381,7 @@ DetId DetGeomDesc::computeDetID(cms::DDFilteredView* fv) {
 
   // diamond/UFSD sensors
   else if (name == DDD_CTPPS_DIAMONDS_SEGMENT_NAME || name == DDD_CTPPS_UFSD_SEGMENT_NAME) {
-    const std::vector<int>& copy_num = fv->copyNos();
+    const std::vector<int>& copy_num = fv.copyNos();
 
     const unsigned int id = copy_num[0];
     const unsigned int arm = copy_num[copy_num.size()-3] - 1;
@@ -395,7 +395,7 @@ DetId DetGeomDesc::computeDetID(cms::DDFilteredView* fv) {
 
   // diamond/UFSD RPs
   else if (name == DDD_CTPPS_DIAMONDS_RP_NAME) {
-    const std::vector<int>& copy_num = fv->copyNos();
+    const std::vector<int>& copy_num = fv.copyNos();
 
     // check size of copy numbers array
     if (copy_num.size() < 3)
