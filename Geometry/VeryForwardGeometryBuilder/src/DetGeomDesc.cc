@@ -115,6 +115,8 @@ DetGeomDesc::DetGeomDesc(cms::DDFilteredView* fv, const cms::DDSpecParRegistry& 
 
   const cms::DDSolidShape& mySolidShape = cms::dd::getCurrentShape(*fv);
   std::cout << "m_name = " << m_name << std::endl;
+  std::cout << "id = " << m_geographicalID << std::endl;
+  std::cout << " path = " << fv->path() << std::endl;
 
   if (mySolidShape == cms::DDSolidShape::ddbox) {
     const cms::dd::DDBox& myShape = cms::dd::DDBox(*fv);

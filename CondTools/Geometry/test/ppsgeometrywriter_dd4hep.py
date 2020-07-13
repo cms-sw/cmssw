@@ -43,8 +43,8 @@ process.MessageLogger.cout = cms.untracked.PSet(
 
 # dd4hep-based geometry
 process.DDDetectorESProducer = cms.ESSource("DDDetectorESProducer",
-                                            #confGeomXMLFiles = cms.FileInPath('Geometry/VeryForwardGeometry/test/geometryIdealPPSFromDD_2017_ddhep.xml'),
-                                            confGeomXMLFiles = cms.FileInPath('Geometry/VeryForwardGeometry/data/dd4hep/cms-pps-reco-geometry-2018.xml'),
+                                            confGeomXMLFiles = cms.FileInPath('Geometry/VeryForwardGeometry/test/geometryIdealPPSFromDD_2018_ddhep.xml'),
+                                            #confGeomXMLFiles = cms.FileInPath('Geometry/VeryForwardGeometry/data/dd4hep/cms-pps-reco-geometry-2018.xml'),
                                             appendToDataLabel = cms.string('XMLIdealGeometryESSource_CTPPS')
 )
 
