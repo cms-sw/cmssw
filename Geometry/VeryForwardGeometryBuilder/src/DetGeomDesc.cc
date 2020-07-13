@@ -109,19 +109,6 @@ DetGeomDesc::DetGeomDesc(cms::DDFilteredView* fv, const cms::DDSpecParRegistry& 
 
 
 
-  math::XYZVectorD S_m(1., 2., 3.);
-  const RotationMatrix id;
-  Translation shift_ = id * S_m;
-  std::cout << " dd4hep shift = " << shift_  << std::endl;
-
-  Local3DPoint p(1., 2., 3.);
-  Translation v(p.x(), p.y(), p.z());
-  std::cout << " dd4hep v = " << shift_  << std::endl;
-
-
-
-
-
   const cms::DDSolidShape& mySolidShape = cms::dd::getCurrentShape(*fv);
   std::cout << "m_name = " << m_name << std::endl;
   std::cout << "id = " << m_geographicalID << std::endl;
