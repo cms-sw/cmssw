@@ -11,6 +11,8 @@
 *
 ****************************************************************************/
 
+#include "Geometry/VeryForwardGeometryBuilder/plugins/dd4hep/PPSGeometryESProducer.h"
+
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -61,54 +63,6 @@
 using RotationMatrix = ROOT::Math::Rotation3D;
 using Translation = ROOT::Math::DisplacementVector3D<ROOT::Math::Cartesian3D<double>>;
   
-class PPSGeometryESProducer : public edm::ESProducer {
-public:
-  PPSGeometryESProducer(const edm::ParameterSet&);
-  ~PPSGeometryESProducer() override {}
-
-  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
-  //static void buildDetGeomDesc(cms::DDFilteredView* fv, const cms::DDSpecParRegistry& allSpecParSections, DetGeomDesc* gd);
-  static std::unique_ptr<DetGeomDesc> buildDetGeomDescFromCompactView(const cms::DDCompactView& myCompactView);
-
-private:
-  std::unique_ptr<DetGeomDesc> produceIdealGD(const IdealGeometryRecord&);
-  std::vector<int> fillCopyNos(TGeoIterator& it);
-
-  template <typename ALIGNMENT_REC>
-  struct GDTokens {
-    explicit GDTokens(edm::ESConsumesCollector&& iCC)
-        : idealGDToken_{iCC.consumesFrom<DetGeomDesc, IdealGeometryRecord>(edm::ESInputTag())},
-          alignmentToken_{iCC.consumesFrom<CTPPSRPAlignmentCorrectionsData, ALIGNMENT_REC>(edm::ESInputTag())} {}
-    const edm::ESGetToken<DetGeomDesc, IdealGeometryRecord> idealGDToken_;
-    const edm::ESGetToken<CTPPSRPAlignmentCorrectionsData, ALIGNMENT_REC> alignmentToken_;
-  };
-
-  std::unique_ptr<DetGeomDesc> produceRealGD(const VeryForwardRealGeometryRecord&);
-  std::unique_ptr<CTPPSGeometry> produceRealTG(const VeryForwardRealGeometryRecord&);
-
-  std::unique_ptr<DetGeomDesc> produceMisalignedGD(const VeryForwardMisalignedGeometryRecord&);
-  std::unique_ptr<CTPPSGeometry> produceMisalignedTG(const VeryForwardMisalignedGeometryRecord&);
-
-  template <typename REC>
-  std::unique_ptr<DetGeomDesc> produceGD(IdealGeometryRecord const&,
-                                         const std::optional<REC>&,
-                                         GDTokens<REC> const&,
-                                         const char* name);
-
-  static void applyAlignments(const DetGeomDesc&, const CTPPSRPAlignmentCorrectionsData*, DetGeomDesc*&);
-
-  const unsigned int verbosity_;
-  const edm::ESGetToken<cms::DDDetector, IdealGeometryRecord> detectorToken_;
-
-  const GDTokens<RPRealAlignmentRecord> gdRealTokens_;
-  const GDTokens<RPMisalignedAlignmentRecord> gdMisTokens_;
-
-  const edm::ESGetToken<DetGeomDesc, VeryForwardRealGeometryRecord> dgdRealToken_;
-  const edm::ESGetToken<DetGeomDesc, VeryForwardMisalignedGeometryRecord> dgdMisToken_;
-};
-
-//----------------------------------------------------------------------------------------------------
-//----------------------------------------------------------------------------------------------------
 
 PPSGeometryESProducer::PPSGeometryESProducer(const edm::ParameterSet& iConfig)
     : verbosity_(iConfig.getUntrackedParameter<unsigned int>("verbosity")),
