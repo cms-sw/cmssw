@@ -33,10 +33,7 @@
   <use name="tbb"/>
   <use name="boost"/>
   <use name="boost_program_options"/>
-  <!-- jemalloc is mostly tested on x86_64 in upstream -->
-  <architecture name=".*_amd64_.*">
-    <use name="jemalloc"/>
-  </architecture>
+  <use name="jemalloc"/>
   <use name="FWCore/Framework"/>
   <use name="FWCore/MessageLogger"/>
   <use name="FWCore/PluginManager"/>
