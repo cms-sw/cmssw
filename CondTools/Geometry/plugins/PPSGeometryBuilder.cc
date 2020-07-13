@@ -53,9 +53,11 @@ public:
   void analyze(const edm::Event&, const edm::EventSetup&) override;
 
 private:
-void buildPDetFromDetGeomDesc(const DetGeomDesc* geoInfo, PDetGeomDesc* gd, int& counter);
-void buildPDetGeomDesc(cms::DDFilteredView*, PDetGeomDesc*);
-uint32_t getGeographicalID(cms::DDFilteredView*);
+  double roundZero(const double input);
+  float roundZero(const float input);
+  void buildPDetFromDetGeomDesc(const DetGeomDesc* geoInfo, PDetGeomDesc* gd, int& counter);
+  void buildPDetGeomDesc(cms::DDFilteredView*, PDetGeomDesc*);
+  uint32_t getGeographicalID(cms::DDFilteredView*);
 
   std::string compactViewTag_;
   edm::ESWatcher<IdealGeometryRecord> watcherIdealGeometry_;
@@ -165,11 +167,11 @@ void PPSGeometryBuilder::buildPDetFromDetGeomDesc(const DetGeomDesc* geoInfo, PD
   std::cout << "!!!!!!!!!!!!!!!!    item.name_ = " << item.name_ << std::endl;
   std::cout << "item.copy_ = " << item.copy_ << std::endl;
   std::cout << "item.geographicalID_ = " << item.geographicalID_ << std::endl;
-  std::cout << "item.z_ = " << item.z_ << std::endl;
+  std::cout << "item.z_ = " << roundZero(item.z_) << std::endl;
   std::cout << "item.sensorType_ = " << item.sensorType_ << std::endl;
-  std::cout << "item.dx_ = " << item.dx_ << std::endl;
-  std::cout << "item.dy_ = " << item.dy_ << std::endl;
-  std::cout << "item.dz_ = " << item.dz_ << std::endl;
+  std::cout << "item.dx_ = " << roundZero(item.dx_) << std::endl;
+  std::cout << "item.dy_ = " << roundZero(item.dy_) << std::endl;
+  std::cout << "item.dz_ = " << roundZero(item.dz_) << std::endl;
 
   
   DDRotationMatrix rot;
@@ -181,7 +183,7 @@ void PPSGeometryBuilder::buildPDetFromDetGeomDesc(const DetGeomDesc* geoInfo, PD
 
   std::cout << "item.params_ = ";
   for (const auto& val : item.params_) {
-    std::cout << val << " ";
+    std::cout << roundZero(val) << " ";
   }
   std::cout << " " << std::endl;
 
@@ -197,6 +199,22 @@ void PPSGeometryBuilder::buildPDetFromDetGeomDesc(const DetGeomDesc* geoInfo, PD
   for (auto& child : geoInfo->components()) {
     buildPDetFromDetGeomDesc(child, gd, counter);
   }
+}
+
+
+double PPSGeometryBuilder::roundZero(const double input) {
+  if (input < 0.000000001) {
+    return 0.;
+  }
+  else { return input; }
+}
+
+
+float PPSGeometryBuilder::roundZero(const float input) {
+  if (input < 0.000000001) {
+    return 0.;
+  }
+  else { return input; }
 }
 
 

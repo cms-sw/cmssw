@@ -596,11 +596,11 @@
 		<Constant name="Frame4_h_3P" value="0.75*cm"/>
 		<Constant name="Frame4_h_4P" value="0.75*cm"/>
 		<Constant name="Frame4_h_5P" value="0.75*cm"/>
-		<Constant name="Frame5L_Max_Base_1P" value="[Frame5L_Min_Base_1P]+([Frame5L_h_1P]/cos(30*deg)/2.)*mm"/>
-		<Constant name="Frame5L_Max_Base_2P" value="[Frame5L_Min_Base_2P]+([Frame5L_h_2P]/cos(30*deg)/2.)*mm"/>
-		<Constant name="Frame5L_Max_Base_3P" value="[Frame5L_Min_Base_3P]+([Frame5L_h_3P]/cos(30*deg)/2.)*mm"/>
-		<Constant name="Frame5L_Max_Base_4P" value="[Frame5L_Min_Base_4P]+([Frame5L_h_4P]/cos(30*deg)/2.)*mm"/>
-		<Constant name="Frame5L_Max_Base_5P" value="[Frame5L_Min_Base_5P]+([Frame5L_h_5P]/cos(30*deg)/2.)*mm"/>
+		<Constant name="Frame5L_Max_Base_1P" value="[Frame5L_Min_Base_1P]+[Frame5L_h_1P]/cos(30*deg)/2."/>
+		<Constant name="Frame5L_Max_Base_2P" value="[Frame5L_Min_Base_2P]+[Frame5L_h_2P]/cos(30*deg)/2."/>
+		<Constant name="Frame5L_Max_Base_3P" value="[Frame5L_Min_Base_3P]+[Frame5L_h_3P]/cos(30*deg)/2."/>
+		<Constant name="Frame5L_Max_Base_4P" value="[Frame5L_Min_Base_4P]+[Frame5L_h_4P]/cos(30*deg)/2."/>
+		<Constant name="Frame5L_Max_Base_5P" value="[Frame5L_Min_Base_5P]+[Frame5L_h_5P]/cos(30*deg)/2."/>
 		<Constant name="Frame5L_Min_Base_1P" value="50.5*mm"/>
 		<Constant name="Frame5L_Min_Base_2P" value="53.3*mm"/>
 		<Constant name="Frame5L_Min_Base_3P" value="56.8*mm"/>
@@ -611,11 +611,11 @@
 		<Constant name="Frame5L_h_3P" value="23*mm"/>
 		<Constant name="Frame5L_h_4P" value="23*mm"/>
 		<Constant name="Frame5L_h_5P" value="23*mm"/>
-		<Constant name="Frame5R_Max_Base_1P" value="[Frame5R_Min_Base_1P]+([Frame5R_h_1P]/cos(30*deg)/2.)*mm"/>
-		<Constant name="Frame5R_Max_Base_2P" value="[Frame5R_Min_Base_2P]+([Frame5R_h_2P]/cos(30*deg)/2.)*mm"/>
-		<Constant name="Frame5R_Max_Base_3P" value="[Frame5R_Min_Base_3P]+([Frame5R_h_3P]/cos(30*deg)/2.)*mm"/>
-		<Constant name="Frame5R_Max_Base_4P" value="[Frame5R_Min_Base_4P]+([Frame5R_h_4P]/cos(30*deg)/2.)*mm"/>
-		<Constant name="Frame5R_Max_Base_5P" value="[Frame5R_Min_Base_5P]+([Frame5R_h_5P]/cos(30*deg)/2.)*mm"/>
+		<Constant name="Frame5R_Max_Base_1P" value="[Frame5R_Min_Base_1P]+[Frame5R_h_1P]/cos(30*deg)/2."/>
+		<Constant name="Frame5R_Max_Base_2P" value="[Frame5R_Min_Base_2P]+[Frame5R_h_2P]/cos(30*deg)/2."/>
+		<Constant name="Frame5R_Max_Base_3P" value="[Frame5R_Min_Base_3P]+[Frame5R_h_3P]/cos(30*deg)/2."/>
+		<Constant name="Frame5R_Max_Base_4P" value="[Frame5R_Min_Base_4P]+[Frame5R_h_4P]/cos(30*deg)/2."/>
+		<Constant name="Frame5R_Max_Base_5P" value="[Frame5R_Min_Base_5P]+[Frame5R_h_5P]/cos(30*deg)/2."/>
 		<Constant name="Frame5R_Min_Base_1P" value="40.1*mm"/>
 		<Constant name="Frame5R_Min_Base_2P" value="(182.9*mm)-[Frame4_Max_Base_2P]"/>
 		<Constant name="Frame5R_Min_Base_3P" value="(189.7*mm)-[Frame4_Max_Base_3P]"/>
