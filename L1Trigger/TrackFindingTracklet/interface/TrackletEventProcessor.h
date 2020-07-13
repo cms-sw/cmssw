@@ -25,7 +25,7 @@ namespace trklet {
 
     ~TrackletEventProcessor();
 
-    void init(const Settings* theSettings);
+    void init(Settings const& theSettings);
 
     void event(SLHCEvent& ev);
 
