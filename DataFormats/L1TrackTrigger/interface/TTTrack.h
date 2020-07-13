@@ -212,7 +212,7 @@ TTTrack<T>::TTTrack(double aRinv,
   double thePT = std::abs(MagConstant / aRinv * aBfield / 100.0);  // Rinv is in cm-1
   theMomentum_ = GlobalVector(GlobalVector::Cylindrical(thePT, aphi0, thePT * aTanlambda));
   theRInv_ = aRinv;
-  thePOCA_ = GlobalPoint(ad0 * sin(aphi0), - ad0 * cos(aphi0), az0);
+  thePOCA_ = GlobalPoint(ad0 * sin(aphi0), -ad0 * cos(aphi0), az0);
   theD0_ = ad0;
   theZ0_ = az0;
   thePhi_ = aphi0;
