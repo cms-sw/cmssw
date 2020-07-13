@@ -53,11 +53,14 @@ ctppsBeamParametersESSource = cms.ESSource("CTPPSBeamParametersESSource",
   vtxOffsetY56 = cms.double(0.),
   vtxOffsetZ45 = cms.double(0.),
   vtxOffsetZ56 = cms.double(0.),
+  vtxOffsetT45 = cms.double(0.),
+  vtxOffsetT56 = cms.double(0.),
 
   #  vertex sigma  (cm)
   vtxStddevX = cms.double(10E-4),
   vtxStddevY = cms.double(10E-4),
-  vtxStddevZ = cms.double(5)
+  vtxStddevZ = cms.double(5),
+  vtxStddevT = cms.double(6)
 )
 
 # particle-data table
@@ -65,9 +68,10 @@ from SimGeneral.HepPDTESSource.pythiapdt_cfi import *
 
 # random seeds
 RandomNumberGeneratorService = cms.Service("RandomNumberGeneratorService",
-  sourceSeed = cms.PSet(initialSeed =cms.untracked.uint32(98765)),
+  sourceSeed = cms.PSet(initialSeed = cms.untracked.uint32(98765)),
   generator = cms.PSet(initialSeed = cms.untracked.uint32(98766)),
-  beamDivergenceVtxGenerator = cms.PSet(initialSeed =cms.untracked.uint32(3849))
+  beamDivergenceVtxGenerator = cms.PSet(initialSeed = cms.untracked.uint32(3849)),
+  ctppsDirectProtonSimulation = cms.PSet(initialSeed = cms.untracked.uint32(4981))
 )
 
 # default source
@@ -99,10 +103,13 @@ ctppsDirectProtonSimulation.produceRecHits = True
 # local reconstruction
 from RecoPPS.Local.totemRPLocalReconstruction_cff import *
 from RecoPPS.Local.ctppsPixelLocalReconstruction_cff import *
+from RecoPPS.Local.ctppsDiamondLocalReconstruction_cff import *
 from RecoPPS.Local.ctppsLocalTrackLiteProducer_cff import *
 
 totemRPUVPatternFinder.tagRecHit = cms.InputTag('ctppsDirectProtonSimulation')
 ctppsPixelLocalTracks.label = "ctppsDirectProtonSimulation"
+ctppsDiamondLocalTracks.recHitsTag = cms.InputTag('ctppsDirectProtonSimulation')
+
 ctppsLocalTrackLiteProducer.includeDiamonds = False
 
 # proton reconstruction

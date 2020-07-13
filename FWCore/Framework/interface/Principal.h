@@ -80,7 +80,9 @@ namespace edm {
 
     void adjustIndexesAfterProductRegistryAddition();
 
+    void fillPrincipal(DelayedReader* reader);
     void fillPrincipal(ProcessHistoryID const& hist, ProcessHistory const* phr, DelayedReader* reader);
+    void fillPrincipal(std::string const& processNameOfBlock, DelayedReader* reader);
 
     void clearPrincipal();
 

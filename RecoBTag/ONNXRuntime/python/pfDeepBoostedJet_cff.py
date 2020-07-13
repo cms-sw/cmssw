@@ -11,14 +11,12 @@ from RecoBTag.ONNXRuntime.pfMassDecorrelatedDeepBoostedDiscriminatorsJetTags_cfi
 pfDeepBoostedJetTags = _pfDeepBoostedJetTags.clone(
     preprocessParams = pfDeepBoostedJetPreprocessParams,
     model_path = 'RecoBTag/Combined/data/DeepBoostedJet/V02/full/resnet.onnx',
-    debugMode  = False, # debug
 )
 
 # mass-decorrelated DeepAK8
 pfMassDecorrelatedDeepBoostedJetTags = _pfDeepBoostedJetTags.clone(
     preprocessParams = pfMassDecorrelatedDeepBoostedJetPreprocessParams,
     model_path = 'RecoBTag/Combined/data/DeepBoostedJet/V02/decorrelated/resnet.onnx',
-    debugMode = False, # debug
 )
 
 from CommonTools.PileupAlgos.Puppi_cff import puppi

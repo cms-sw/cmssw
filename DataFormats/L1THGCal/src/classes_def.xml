@@ -30,7 +30,8 @@
 
   <class name="l1t::HGCalClusterT<l1t::HGCalTriggerCell>" />
   <class name="l1t::HGCalClusterT<l1t::HGCalTriggerSums>" />
-  <class name="l1t::HGCalCluster" ClassVersion="17">
+  <class name="l1t::HGCalCluster" ClassVersion="18">
+   <version ClassVersion="18" checksum="3346067797"/>
    <version ClassVersion="17" checksum="2841504063"/>
    <version ClassVersion="16" checksum="1572558185"/>
   <version ClassVersion="15" checksum="2522149132"/>
@@ -46,7 +47,8 @@
 
   <class name="l1t::HGCalClusterT<l1t::HGCalCluster>" />
 
-  <class name="l1t::HGCalMulticluster" ClassVersion="18">
+  <class name="l1t::HGCalMulticluster" ClassVersion="19">
+   <version ClassVersion="19" checksum="2270821353"/>
    <version ClassVersion="18" checksum="3914904215"/>
    <version ClassVersion="17" checksum="460658789"/>
   <version ClassVersion="16" checksum="1276395758"/>

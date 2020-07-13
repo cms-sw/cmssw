@@ -1,18 +1,4 @@
 #include "L1Trigger/RPCTrigger/interface/RPCTrigger.h"
-
-// Configuration via eventsetup:
-#include "CondFormats/DataRecord/interface/L1RPCConfigRcd.h"
-#include "CondFormats/L1TObjects/interface/L1RPCConfig.h"
-
-#include "CondFormats/DataRecord/interface/L1RPCConeBuilderRcd.h"
-#include "CondFormats/RPCObjects/interface/L1RPCConeBuilder.h"
-
-#include "CondFormats/DataRecord/interface/L1RPCHwConfigRcd.h"
-#include "CondFormats/RPCObjects/interface/L1RPCHwConfig.h"
-
-#include "CondFormats/DataRecord/interface/L1RPCBxOrConfigRcd.h"
-#include "CondFormats/L1TObjects/interface/L1RPCBxOrConfig.h"
-
 //#define ML_DEBUG
 
 #include "L1Trigger/RPCTrigger/interface/MuonsGrabber.h"
@@ -31,7 +17,13 @@ RPCTrigger::RPCTrigger(const edm::ParameterSet& iConfig)
       m_fwdCandPutToken{produces<std::vector<L1MuRegionalCand> >("RPCf")},
 
       m_brlLinksPutToken{produces<std::vector<RPCDigiL1Link> >("RPCb")},
-      m_fwdLinksPutToken{produces<std::vector<RPCDigiL1Link> >("RPCf")} {
+      m_fwdLinksPutToken{produces<std::vector<RPCDigiL1Link> >("RPCf")},
+      m_configToken(esConsumes<L1RPCConfig, L1RPCConfigRcd>()),
+      m_coneBuilderToken(esConsumes<L1RPCConeBuilder, L1RPCConeBuilderRcd>()),
+      m_coneDefinitionToken(esConsumes<L1RPCConeDefinition, L1RPCConeDefinitionRcd>()),
+      m_hwConfigToken(esConsumes<L1RPCHwConfig, L1RPCHwConfigRcd>()),
+      m_BxOrConfigToken(esConsumes<L1RPCBxOrConfig, L1RPCBxOrConfigRcd>()),
+      m_hsbConfigToken(esConsumes<L1RPCHsbConfig, L1RPCHsbConfigRcd>()) {
   //MuonsGrabber is a singleton
   usesResource("MuonsGrabber");
 }
@@ -46,8 +38,7 @@ void RPCTrigger::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
     //std::cout << " New pats: " << iSetup.get<L1RPCConfigRcd>().cacheIdentifier() << std::endl ;
     m_cacheID = iSetup.get<L1RPCConfigRcd>().cacheIdentifier();
 
-    edm::ESHandle<L1RPCConfig> conf;
-    iSetup.get<L1RPCConfigRcd>().get(conf);
+    edm::ESHandle<L1RPCConfig> conf = iSetup.getHandle(m_configToken);
     const L1RPCConfig* rpcconf = conf.product();
 
     m_pacManager.init(rpcconf);
@@ -84,20 +75,15 @@ void RPCTrigger::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   std::vector<RPCDigiL1Link> brlLinks;
   std::vector<RPCDigiL1Link> fwdLinks;
 
-  edm::ESHandle<L1RPCConeBuilder> coneBuilder;
-  iSetup.get<L1RPCConeBuilderRcd>().get(coneBuilder);
+  edm::ESHandle<L1RPCConeBuilder> coneBuilder = iSetup.getHandle(m_coneBuilderToken);
 
-  edm::ESHandle<L1RPCConeDefinition> l1RPCConeDefinition;
-  iSetup.get<L1RPCConeDefinitionRcd>().get(l1RPCConeDefinition);
+  edm::ESHandle<L1RPCConeDefinition> l1RPCConeDefinition = iSetup.getHandle(m_coneDefinitionToken);
 
-  edm::ESHandle<L1RPCHwConfig> hwConfig;
-  iSetup.get<L1RPCHwConfigRcd>().get(hwConfig);
+  edm::ESHandle<L1RPCHwConfig> hwConfig = iSetup.getHandle(m_hwConfigToken);
 
-  edm::ESHandle<L1RPCBxOrConfig> bxOrConfig;
-  iSetup.get<L1RPCBxOrConfigRcd>().get(bxOrConfig);
+  edm::ESHandle<L1RPCBxOrConfig> bxOrConfig = iSetup.getHandle(m_BxOrConfigToken);
 
-  edm::ESHandle<L1RPCHsbConfig> hsbConfig;
-  iSetup.get<L1RPCHsbConfigRcd>().get(hsbConfig);
+  edm::ESHandle<L1RPCHsbConfig> hsbConfig = iSetup.getHandle(m_hsbConfigToken);
 
   for (int iBx = -1; iBx < 2; ++iBx) {
     L1RpcLogConesVec ActiveCones =

@@ -26,6 +26,7 @@
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/LuminosityBlock.h"
 #include "FWCore/Utilities/interface/StreamID.h"
+#include "FWCore/Utilities/interface/ProcessBlockIndex.h"
 #include "FWCore/Utilities/interface/RunIndex.h"
 #include "FWCore/Utilities/interface/LuminosityBlockIndex.h"
 #include "FWCore/Utilities/interface/propagate_const.h"
@@ -85,6 +86,30 @@ namespace edm {
 
         //When threaded we will have a container for N items whre N is # of streams
         std::vector<C*> caches_;
+      };
+
+      template <typename T, typename C>
+      class InputProcessBlockCacheHolder : public virtual T {
+      public:
+        InputProcessBlockCacheHolder(edm::ParameterSet const& iPSet) : T(iPSet) {}
+        InputProcessBlockCacheHolder(InputProcessBlockCacheHolder const&) = delete;
+        InputProcessBlockCacheHolder& operator=(InputProcessBlockCacheHolder const&) = delete;
+        ~InputProcessBlockCacheHolder() noexcept(false) override {}
+
+      protected:
+        // Not implemented yet
+        // const C* inputProcessBlockCache(ProcessBlockIndex index) const { return caches_.at(index).get(); }
+
+      private:
+        // Not yet fully implemented, will never get called
+        void doAccessInputProcessBlock_(ProcessBlock const& pb) final {
+          caches_.push_back(accessInputProcessBlock(pb));
+        }
+
+        // Not yet fully implemented, will never get called
+        virtual std::shared_ptr<C> accessInputProcessBlock(ProcessBlock const&) const = 0;
+
+        std::vector<std::shared_ptr<C>> caches_;
       };
 
       template <typename T, typename C>
@@ -216,6 +241,50 @@ namespace edm {
         //When threaded we will have a container for N items where N is # of simultaneous Lumis
         std::unique_ptr<std::shared_ptr<C>[]> caches_;
         std::mutex mutex_;
+      };
+
+      template <typename T>
+      class WatchProcessBlock : public virtual T {
+      public:
+        WatchProcessBlock(edm::ParameterSet const& iPSet) : T(iPSet) {}
+        WatchProcessBlock(WatchProcessBlock const&) = delete;
+        WatchProcessBlock& operator=(WatchProcessBlock const&) = delete;
+        ~WatchProcessBlock() noexcept(false) override{};
+
+      private:
+        void doBeginProcessBlock_(ProcessBlock const&) final;
+        void doEndProcessBlock_(ProcessBlock const&) final;
+
+        virtual void beginProcessBlock(ProcessBlock const&) const {}
+        virtual void endProcessBlock(ProcessBlock const&) const {}
+      };
+
+      template <typename T>
+      class BeginProcessBlockProducer : public virtual T {
+      public:
+        BeginProcessBlockProducer(edm::ParameterSet const& iPSet) : T(iPSet) {}
+        BeginProcessBlockProducer(BeginProcessBlockProducer const&) = delete;
+        BeginProcessBlockProducer& operator=(BeginProcessBlockProducer const&) = delete;
+        ~BeginProcessBlockProducer() noexcept(false) override{};
+
+      private:
+        void doBeginProcessBlockProduce_(ProcessBlock&) final;
+
+        virtual void beginProcessBlockProduce(edm::ProcessBlock&) const = 0;
+      };
+
+      template <typename T>
+      class EndProcessBlockProducer : public virtual T {
+      public:
+        EndProcessBlockProducer(edm::ParameterSet const& iPSet) : T(iPSet) {}
+        EndProcessBlockProducer(EndProcessBlockProducer const&) = delete;
+        EndProcessBlockProducer& operator=(EndProcessBlockProducer const&) = delete;
+        ~EndProcessBlockProducer() noexcept(false) override{};
+
+      private:
+        void doEndProcessBlockProduce_(ProcessBlock&) final;
+
+        virtual void endProcessBlockProduce(edm::ProcessBlock&) const = 0;
       };
 
       template <typename T>

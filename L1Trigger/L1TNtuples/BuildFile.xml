@@ -42,6 +42,21 @@
 <use name="PhysicsTools/Utilities"/>
 <use name="HLTrigger/HLTcore"/>
 <use name="MuonAnalysis/MuonAssociators"/>
+<use name="CondFormats/AlignmentRecord"/>
+<use name="CondFormats/L1TObjects"/>
+<use name="DataFormats/CSCDigi"/>
+<use name="DataFormats/CaloRecHit"/>
+<use name="DataFormats/Common"/>
+<use name="DataFormats/EgammaCandidates"/>
+<use name="DataFormats/GeometrySurface"/>
+<use name="DataFormats/L1CaloTrigger"/>
+<use name="DataFormats/PatCandidates"/>
+<use name="DataFormats/TauReco"/>
+<use name="FWCore/Common"/>
+<use name="FWCore/MessageLogger"/>
+<use name="FWCore/Utilities"/>
+<use name="JetMETCorrections/JetCorrector"/>
+<use name="SimDataFormats/PileupSummaryInfo"/>
 <export>
   <lib name="1"/>
 </export>

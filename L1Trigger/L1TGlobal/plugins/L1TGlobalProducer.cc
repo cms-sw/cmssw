@@ -21,14 +21,7 @@
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "DataFormats/Common/interface/RefProd.h"
 
-#include "CondFormats/L1TObjects/interface/L1TUtmTriggerMenu.h"
-#include "CondFormats/DataRecord/interface/L1TUtmTriggerMenuRcd.h"
-#include "CondFormats/L1TObjects/interface/L1TGlobalParameters.h"
-
-#include "CondFormats/DataRecord/interface/L1TGlobalParametersRcd.h"
 #include "L1Trigger/L1TGlobal/interface/GlobalParamsHelper.h"
-#include "CondFormats/L1TObjects/interface/L1TGlobalPrescalesVetos.h"
-#include "CondFormats/DataRecord/interface/L1TGlobalPrescalesVetosRcd.h"
 
 #include "DataFormats/L1TGlobal/interface/GlobalAlgBlk.h"
 #include "DataFormats/L1TGlobal/interface/GlobalExtBlk.h"
@@ -114,6 +107,11 @@ L1TGlobalProducer::L1TGlobalProducer(const edm::ParameterSet& parSet)
   m_sumInputToken = consumes<BXVector<EtSum>>(m_sumInputTag);
   m_muInputToken = consumes<BXVector<Muon>>(m_muInputTag);
   m_extInputToken = consumes<BXVector<GlobalExtBlk>>(m_extInputTag);
+  m_l1GtStableParToken = esConsumes<L1TGlobalParameters, L1TGlobalParametersRcd>();
+  m_l1GtMenuToken = esConsumes<L1TUtmTriggerMenu, L1TUtmTriggerMenuRcd>();
+  if (!(m_algorithmTriggersUnprescaled && m_algorithmTriggersUnmasked)) {
+    m_l1GtPrescaleVetosToken = esConsumes<L1TGlobalPrescalesVetos, L1TGlobalPrescalesVetosRcd>();
+  }
   if (m_getPrescaleColumnFromData)
     m_algoblkInputToken = consumes<BXVector<GlobalAlgBlk>>(m_algoblkInputTag);
 
@@ -239,8 +237,7 @@ void L1TGlobalProducer::produce(edm::Event& iEvent, const edm::EventSetup& evSet
   unsigned long long l1GtParCacheID = evSetup.get<L1TGlobalParametersRcd>().cacheIdentifier();
 
   if (m_l1GtParCacheID != l1GtParCacheID) {
-    edm::ESHandle<L1TGlobalParameters> l1GtStablePar;
-    evSetup.get<L1TGlobalParametersRcd>().get(l1GtStablePar);
+    edm::ESHandle<L1TGlobalParameters> l1GtStablePar = evSetup.getHandle(m_l1GtStableParToken);
     m_l1GtStablePar = l1GtStablePar.product();
     const GlobalParamsHelper* data = GlobalParamsHelper::readFromEventSetup(m_l1GtStablePar);
 
@@ -291,8 +288,7 @@ void L1TGlobalProducer::produce(edm::Event& iEvent, const edm::EventSetup& evSet
   if (m_l1GtMenuCacheID != l1GtMenuCacheID) {
     const GlobalParamsHelper* data = GlobalParamsHelper::readFromEventSetup(m_l1GtStablePar);
 
-    edm::ESHandle<L1TUtmTriggerMenu> l1GtMenu;
-    evSetup.get<L1TUtmTriggerMenuRcd>().get(l1GtMenu);
+    edm::ESHandle<L1TUtmTriggerMenu> l1GtMenu = evSetup.getHandle(m_l1GtMenuToken);
     const L1TUtmTriggerMenu* utml1GtMenu = l1GtMenu.product();
 
     // Instantiate Parser
@@ -369,8 +365,7 @@ void L1TGlobalProducer::produce(edm::Event& iEvent, const edm::EventSetup& evSet
     unsigned long long l1GtPfAlgoCacheID = evSetup.get<L1TGlobalPrescalesVetosRcd>().cacheIdentifier();
 
     if (m_l1GtPfAlgoCacheID != l1GtPfAlgoCacheID) {
-      edm::ESHandle<L1TGlobalPrescalesVetos> l1GtPrescalesVetoes;
-      evSetup.get<L1TGlobalPrescalesVetosRcd>().get(l1GtPrescalesVetoes);
+      edm::ESHandle<L1TGlobalPrescalesVetos> l1GtPrescalesVetoes = evSetup.getHandle(m_l1GtPrescaleVetosToken);
       const L1TGlobalPrescalesVetos* es = l1GtPrescalesVetoes.product();
       m_l1GtPrescalesVetoes = PrescalesVetosHelper::readFromEventSetup(es);
 

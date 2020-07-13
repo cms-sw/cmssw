@@ -13,6 +13,7 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Utilities/interface/ESGetToken.h"
 
 #include "DataFormats/Common/interface/DetSetVector.h"
 #include "DataFormats/Common/interface/DetSet.h"
@@ -45,6 +46,7 @@ public:
 private:
   edm::InputTag tagRecHit;
   edm::EDGetTokenT<edm::DetSetVector<TotemRPRecHit>> detSetVectorTotemRPRecHitToken;
+  edm::ESGetToken<CTPPSGeometry, VeryForwardRealGeometryRecord> ctppsGeometryToken;
 
   unsigned int verbosity;
 
@@ -116,6 +118,7 @@ TotemRPUVPatternFinder::TotemRPUVPatternFinder(const edm::ParameterSet &conf)
   }
 
   detSetVectorTotemRPRecHitToken = consumes<edm::DetSetVector<TotemRPRecHit>>(tagRecHit);
+  ctppsGeometryToken = esConsumes<CTPPSGeometry, VeryForwardRealGeometryRecord>();
 
   produces<DetSetVector<TotemRPUVPattern>>();
 }
@@ -164,7 +167,7 @@ void TotemRPUVPatternFinder::produce(edm::Event &event, const edm::EventSetup &e
         << ">> TotemRPUVPatternFinder::produce " << event.id().run() << ":" << event.id().event();
 
   // geometry
-  ESHandle<CTPPSGeometry> geometry;
+  ESHandle<CTPPSGeometry> geometry = es.getHandle(ctppsGeometryToken);
   es.get<VeryForwardRealGeometryRecord>().get(geometry);
   if (geometryWatcher.check(es))
     lrcgn->resetGeometry(geometry.product());

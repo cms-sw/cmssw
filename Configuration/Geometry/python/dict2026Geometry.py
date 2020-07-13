@@ -1,4 +1,4 @@
-maxsections = 5
+maxSections = 5
 
 commonDict = {
     "abbrev" : "O",
@@ -29,7 +29,7 @@ commonDict = {
         5 : [
             'Geometry/CMSCommonData/data/FieldParameters.xml',
         ],
-        "era" : "run2_common, run3_common, phase2_common",
+        "era" : "phase2_common, phase2_trigger",
     },
     "O3" : {
         1 : [
@@ -56,7 +56,7 @@ commonDict = {
         5 : [
             'Geometry/CMSCommonData/data/FieldParameters.xml',
         ],
-        "era" : "run2_common, run3_common, phase2_common",
+        "era" : "phase2_common, phase2_trigger",
     },
     "O4" : {
         1 : [
@@ -83,8 +83,8 @@ commonDict = {
         5 : [
             'Geometry/CMSCommonData/data/FieldParameters.xml',
         ],
-        "era" : "run2_common, run3_common, phase2_common",
-    },       
+        "era" : "phase2_common, phase2_trigger",
+    },
     "O5" : {
         1 : [
             'Geometry/CMSCommonData/data/materials/2021/v1/materials.xml',
@@ -110,8 +110,8 @@ commonDict = {
         5 : [
             'Geometry/CMSCommonData/data/FieldParameters.xml',
         ],
-        "era" : "run2_common, run3_common, phase2_common",
-        },
+        "era" : "phase2_common, phase2_trigger",
+    },
     "O6" : {
         1 : [
             'Geometry/CMSCommonData/data/materials/2021/v1/materials.xml',
@@ -137,8 +137,8 @@ commonDict = {
         5 : [
             'Geometry/CMSCommonData/data/FieldParameters.xml',
         ],
-        "era" : "run2_common, run3_common, phase2_common",
-        },       
+        "era" : "phase2_common, phase2_trigger",
+    },
 }
 
 trackerDict = {
@@ -502,7 +502,7 @@ caloDict = {
             'from Geometry.EcalMapping.EcalMapping_cfi import *',
             'from Geometry.EcalMapping.EcalMappingRecord_cfi import *',
         ],
-        "era" : "run2_HE_2017, run2_HF_2017, run2_HCAL_2017, run3_HB, phase2_hcal, phase2_hgcal, phase2_hgcalV9, hcalHardcodeConditions, hcalSkipPacker",
+        "era" : "phase2_ecal, phase2_hcal, phase2_hgcal, phase2_hgcalV9, hcalHardcodeConditions",
     },
     "C6" : {
         1 : [
@@ -588,7 +588,7 @@ caloDict = {
             'from Geometry.EcalMapping.EcalMapping_cfi import *',
             'from Geometry.EcalMapping.EcalMappingRecord_cfi import *',
         ],
-        "era" : "run2_HE_2017, run2_HF_2017, run2_HCAL_2017, run3_HB, phase2_hcal, phase2_hgcal, phase2_hgcalV9, hcalHardcodeConditions, hcalSkipPacker, phase2_hfnose",
+        "era" : "phase2_ecal, phase2_hcal, phase2_hgcal, phase2_hgcalV9, hcalHardcodeConditions, phase2_hfnose",
     },
     "C8" : {
         1 : [
@@ -661,7 +661,7 @@ caloDict = {
             'from Geometry.EcalMapping.EcalMapping_cfi import *',
             'from Geometry.EcalMapping.EcalMappingRecord_cfi import *',
         ],
-        "era" : "run2_HE_2017, run2_HF_2017, run2_HCAL_2017, run3_HB, phase2_hcal, phase2_hgcal, phase2_hgcalV9, phase2_hgcalV10, hcalHardcodeConditions, hcalSkipPacker",
+        "era" : "phase2_ecal, phase2_hcal, phase2_hgcal, phase2_hgcalV9, hcalHardcodeConditions, phase2_hgcalV10",
     },
     "C9" : {
         1 : [
@@ -734,7 +734,7 @@ caloDict = {
             'from Geometry.EcalMapping.EcalMapping_cfi import *',
             'from Geometry.EcalMapping.EcalMappingRecord_cfi import *',
         ],
-        "era" : "run2_HE_2017, run2_HF_2017, run2_HCAL_2017, run3_HB, phase2_hcal, phase2_hgcal, phase2_hgcalV9, phase2_hgcalV10, phase2_hgcalV11, hcalHardcodeConditions, hcalSkipPacker",
+        "era" : "phase2_ecal, phase2_hcal, phase2_hgcal, phase2_hgcalV9, hcalHardcodeConditions, phase2_hgcalV10, phase2_hgcalV11",
     },
     "C10" : {
         1 : [
@@ -819,7 +819,7 @@ caloDict = {
             'from Geometry.EcalMapping.EcalMapping_cfi import *',
             'from Geometry.EcalMapping.EcalMappingRecord_cfi import *',
         ],
-        "era" : "run2_HE_2017, run2_HF_2017, run2_HCAL_2017, run3_HB, phase2_hcal, phase2_hgcal, phase2_hgcalV9, phase2_hgcalV10, phase2_hgcalV11, phase2_hfnose, hcalHardcodeConditions, hcalSkipPacker",
+        "era" : "phase2_ecal, phase2_hcal, phase2_hgcal, phase2_hgcalV9, hcalHardcodeConditions, phase2_hgcalV10, phase2_hgcalV11, phase2_hfnose",
     },
     "C11" : {
         1 : [
@@ -892,7 +892,7 @@ caloDict = {
             'from Geometry.EcalMapping.EcalMapping_cfi import *',
             'from Geometry.EcalMapping.EcalMappingRecord_cfi import *',
         ],
-        "era" : "run2_HE_2017, run2_HF_2017, run2_HCAL_2017, run3_HB, phase2_hcal, phase2_hgcal, phase2_hgcalV9, phase2_hgcalV10, phase2_hgcalV11, phase2_hgcalV12, hcalHardcodeConditions, hcalSkipPacker",
+        "era" : "phase2_ecal, phase2_hcal, phase2_hgcal, phase2_hgcalV9, hcalHardcodeConditions, phase2_hgcalV10, phase2_hgcalV11, phase2_hgcalV12",
     },
     "C12" : {
         1 : [
@@ -977,7 +977,7 @@ caloDict = {
             'from Geometry.EcalMapping.EcalMapping_cfi import *',
             'from Geometry.EcalMapping.EcalMappingRecord_cfi import *',
         ],
-        "era" : "run2_HE_2017, run2_HF_2017, run2_HCAL_2017, run3_HB, phase2_hcal, phase2_hgcal, phase2_hgcalV9, phase2_hgcalV10, phase2_hgcalV11, phase2_hgcalV12, phase2_hfnose, hcalHardcodeConditions, hcalSkipPacker",
+        "era" : "phase2_ecal, phase2_hcal, phase2_hgcal, phase2_hgcalV9, hcalHardcodeConditions, phase2_hgcalV10, phase2_hgcalV11, phase2_hgcalV12, phase2_hfnose",
     },
     "C13" : {
         1 : [
@@ -1051,7 +1051,7 @@ caloDict = {
             'from Geometry.EcalMapping.EcalMapping_cfi import *',
             'from Geometry.EcalMapping.EcalMappingRecord_cfi import *',
         ],
-        "era" : "run2_HE_2017, run2_HF_2017, run2_HCAL_2017, run3_HB, phase2_hcal, phase2_hgcal, phase2_hgcalV9, phase2_hgcalV10, phase2_hgcalV11, phase2_hgcalV12, hcalHardcodeConditions, hcalSkipPacker",
+        "era" : "phase2_ecal, phase2_hcal, phase2_hgcal, phase2_hgcalV9, hcalHardcodeConditions, phase2_hgcalV10, phase2_hgcalV11, phase2_hgcalV12, phase2_hfnose",
     },
 
 }
@@ -1103,7 +1103,7 @@ muonDict = {
             'from Geometry.CSCGeometryBuilder.idealForDigiCscGeometry_cff import *',
             'from Geometry.DTGeometryBuilder.idealForDigiDtGeometry_cff import *',
         ],
-        "era" : "phase2_muon, run3_GEM",
+        "era" : "phase2_muon, phase2_GEM",
     },
     "M3" : {
         1 : [
@@ -1148,7 +1148,7 @@ muonDict = {
             'from Geometry.CSCGeometryBuilder.idealForDigiCscGeometry_cff import *',
             'from Geometry.DTGeometryBuilder.idealForDigiDtGeometry_cff import *',
         ],
-        "era" : "phase2_muon, run3_GEM",
+        "era" : "phase2_muon, phase2_GEM",
     },
     "M4" : {
         1 : [
@@ -1160,7 +1160,6 @@ muonDict = {
             'Geometry/MuonCommonData/data/mb4Shield/2021/v1/mb4Shield.xml',
             'Geometry/MuonCommonData/data/muonYoke/2021/v2/muonYoke.xml',
             'Geometry/MuonCommonData/data/csc/2021/v1/csc.xml',
-            'Geometry/MuonCommonData/data/mfshield/2017/v1/mfshield.xml',
             'Geometry/MuonCommonData/data/mf/2026/v2/mf.xml',
             'Geometry/MuonCommonData/data/rpcf/2026/v2/rpcf.xml',
             'Geometry/MuonCommonData/data/gemf/TDR_BaseLine/gemf.xml',
@@ -1195,7 +1194,7 @@ muonDict = {
             'from Geometry.CSCGeometryBuilder.idealForDigiCscGeometry_cff import *',
             'from Geometry.DTGeometryBuilder.idealForDigiDtGeometry_cff import *',
         ],
-        "era" : "phase2_muon, run3_GEM",
+        "era" : "phase2_muon, phase2_GEM",
     },
     "M5" : {
         1 : [
@@ -1207,7 +1206,6 @@ muonDict = {
             'Geometry/MuonCommonData/data/mb4Shield/2021/v1/mb4Shield.xml',
             'Geometry/MuonCommonData/data/muonYoke/2021/v3/muonYoke.xml',
             'Geometry/MuonCommonData/data/csc/2021/v2/csc.xml',
-            'Geometry/MuonCommonData/data/mfshield/2017/v2/mfshield.xml',
             'Geometry/MuonCommonData/data/mf/2026/v3/mf.xml',
             'Geometry/MuonCommonData/data/rpcf/2026/v3/rpcf.xml',
             'Geometry/MuonCommonData/data/gemf/TDR_BaseLine/gemf.xml',
@@ -1288,7 +1286,7 @@ muonDict = {
             'from Geometry.CSCGeometryBuilder.idealForDigiCscGeometry_cff import *',
             'from Geometry.DTGeometryBuilder.idealForDigiDtGeometry_cff import *',
         ],
-        "era" : "phase2_muon, run3_GEM",
+        "era" : "phase2_muon, phase2_GEM",
     },
     "M7" : {
         1 : [
@@ -1334,9 +1332,8 @@ muonDict = {
             'from Geometry.CSCGeometryBuilder.idealForDigiCscGeometry_cff import *',
             'from Geometry.DTGeometryBuilder.idealForDigiDtGeometry_cff import *',
         ],
-        "era" : "phase2_muon, run3_GEM",
+        "era" : "phase2_muon, phase2_GEM",
     },
-
 }
 
 forwardDict = {
@@ -1472,7 +1469,6 @@ forwardDict = {
             'from Geometry.ForwardGeometry.ForwardGeometry_cfi import *',
         ]
     },
-
 }
 
 timingDict = {

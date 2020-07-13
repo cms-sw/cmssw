@@ -12,6 +12,7 @@
 <use name="Geometry/CommonTopologies"/>
 <use name="Geometry/Records"/>
 <use name="Geometry/TrackerGeometryBuilder"/>
+<use name="stdcxx-fs"/>
 <library name="DQMPLumDQMPlugins" file="*.cc">
   <flags EDM_PLUGIN="1"/>
 </library>

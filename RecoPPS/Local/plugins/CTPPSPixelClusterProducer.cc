@@ -7,6 +7,7 @@ CTPPSPixelClusterProducer::CTPPSPixelClusterProducer(const edm::ParameterSet &co
   verbosity_ = conf.getUntrackedParameter<int>("RPixVerbosity");
 
   tokenCTPPSPixelDigi_ = consumes<edm::DetSetVector<CTPPSPixelDigi> >(edm::InputTag(src_));
+  tokenCTPPSPixelAnalysisMask_ = esConsumes<CTPPSPixelAnalysisMask, CTPPSPixelAnalysisMaskRcd>();
 
   produces<edm::DetSetVector<CTPPSPixelCluster> >();
 }
@@ -35,7 +36,7 @@ void CTPPSPixelClusterProducer::produce(edm::Event &iEvent, const edm::EventSetu
   edm::ESHandle<CTPPSPixelAnalysisMask> aMask;
 
   if (!rpd->empty())
-    iSetup.get<CTPPSPixelAnalysisMaskRcd>().get(aMask);
+    aMask = iSetup.getHandle(tokenCTPPSPixelAnalysisMask_);
 
   edm::DetSetVector<CTPPSPixelCluster> output;
 

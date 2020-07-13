@@ -105,7 +105,7 @@ float HBHEDarkening::degradation(float intlumi, int ieta, int lay) const {
   //accumulate degradation over years
   float response = 1.0;
   std::string yearForLumi = getYearForLumi(intlumi);
-  assert(yearForLumi.size());
+  assert(!yearForLumi.empty());
 
   for (const auto& year : years_) {
     response *= degradationYear(year, intlumi, ieta, lay);
