@@ -302,7 +302,7 @@ void L1FPGATrackProducer::beginRun(const edm::Run& run, const edm::EventSetup& i
   settings.setBfield(mMagneticFieldStrength);
 
   // initialize the tracklet event processing (this sets all the processing & memory modules, wiring, etc)
-  eventProcessor.init(&settings);
+  eventProcessor.init(settings);
 }
 
 //////////
