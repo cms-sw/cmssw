@@ -38,6 +38,18 @@ TrackExtra::TrackExtra(const Point &outerPosition,
   }
 }
 
+void TrackExtra::clearOuter() {
+  outerPosition_ = Point();
+  std::fill(outerCovariance_, outerCovariance_ + covarianceSize, 0.);
+  outerOk_ = false;
+}
+
+void TrackExtra::clearInner() {
+  innerPosition_ = Point();
+  std::fill(innerCovariance_, innerCovariance_ + covarianceSize, 0.);
+  innerOk_ = false;
+}
+
 TrackExtra::CovarianceMatrix TrackExtra::outerStateCovariance() const {
   CovarianceMatrix v;
   fillCovariance(v, outerCovariance_);

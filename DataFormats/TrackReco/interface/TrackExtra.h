@@ -75,12 +75,16 @@ namespace reco {
     const Vector &outerMomentum() const { return outerMomentum_; }
     /// returns true if the outermost hit is valid
     bool outerOk() const { return outerOk_; }
+    //clear outer state and covariance
+    void clearOuter();
     /// innermost hit position
     const Point &innerPosition() const { return innerPosition_; }
     /// momentum vector at innermost hit position
     const Vector &innerMomentum() const { return innerMomentum_; }
     /// returns true if the innermost hit is valid
     bool innerOk() const { return innerOk_; }
+    //clear inner state and covariance
+    void clearInner();
     /// x coordinate of momentum vector at the outermost hit position
     double outerPx() const { return outerMomentum_.X(); }
     /// y coordinate of momentum vector at the outermost hit position
