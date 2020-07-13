@@ -63,12 +63,11 @@ void pat::PackedCandidateTrackChi2Producer::produce(edm::Event& iEvent, const ed
   const auto nCand = candidates->size();
   std::vector<float> trkChi2Map(nCand, 0);
 
-
   if (doLostTracks_) {  //for Lost tracks we don't have references to PFCands, so we must loop over tracks and check keys...
     for (size_t i = 0; i < trks->size(); i++) {
       float nChi2 = 0;
       //const auto& trk = trks->refAt(i);
-      const auto& trk = reco::TrackRef(trks,i);
+      const auto& trk = reco::TrackRef(trks, i);
       const auto& lostTrack = (*tracks2LT)[trk];
       if (lostTrack.isNonnull()) {
         nChi2 = trk->normalizedChi2();
@@ -77,7 +76,7 @@ void pat::PackedCandidateTrackChi2Producer::produce(edm::Event& iEvent, const ed
     }
   } else {  //for the regular PackedPFCands we have direct references...
     for (size_t i = 0; i < nCand; i++) {
-      const auto& cand = pat::PackedCandidateRef(candidates,i);
+      const auto& cand = pat::PackedCandidateRef(candidates, i);
       float nChi2 = 0;
 
       // ignore neutral candidates or without track
