@@ -1,13 +1,13 @@
 # hltGetConfiguration --cff --data /dev/CMSSW_11_2_0/HIon --type HIon
 
-# /dev/CMSSW_11_2_0/HIon/V2 (CMSSW_11_2_0_pre2)
+# /dev/CMSSW_11_2_0/HIon/V3 (CMSSW_11_2_0_pre2)
 
 import FWCore.ParameterSet.Config as cms
 
 fragment = cms.ProcessFragment( "HLT" )
 
 fragment.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_11_2_0/HIon/V2')
+  tableName = cms.string('/dev/CMSSW_11_2_0/HIon/V3')
 )
 
 fragment.transferSystem = cms.PSet( 
@@ -4342,6 +4342,11 @@ fragment.PropagatorWithMaterialForMixedStep = cms.ESProducer( "PropagatorWithMat
   MaxDPhi = cms.double( 1.6 ),
   useRungeKutta = cms.bool( False )
 )
+fragment.SiStripClusterizerConditionsESProducer = cms.ESProducer( "SiStripClusterizerConditionsESProducer",
+  appendToDataLabel = cms.string( "" ),
+  QualityLabel = cms.string( "" ),
+  Label = cms.string( "" )
+)
 fragment.SiStripRegionConnectivity = cms.ESProducer( "SiStripRegionConnectivity",
   EtaDivisions = cms.untracked.uint32( 20 ),
   PhiDivisions = cms.untracked.uint32( 20 ),
@@ -5505,11 +5510,6 @@ fragment.hltESPRungeKuttaTrackerPropagator = cms.ESProducer( "PropagatorWithMate
   ptMin = cms.double( -1.0 ),
   MaxDPhi = cms.double( 1.6 ),
   useRungeKutta = cms.bool( True )
-)
-fragment.hltESPSiStripClusterizerConditionsESProducer = cms.ESProducer( "SiStripClusterizerConditionsESProducer",
-  appendToDataLabel = cms.string( "" ),
-  QualityLabel = cms.string( "" ),
-  Label = cms.string( "" )
 )
 fragment.hltESPSmartPropagator = cms.ESProducer( "SmartPropagatorESProducer",
   Epsilon = cms.double( 5.0 ),
