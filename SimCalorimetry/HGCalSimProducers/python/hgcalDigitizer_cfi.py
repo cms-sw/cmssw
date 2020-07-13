@@ -221,8 +221,8 @@ def HGCal_setEndOfLifeNoise(process,byDose=True,byDoseAlgo=0,byDoseFactor=1):
 def HGCal_setEndOfLifeNoise_4000(process):
     HGCAL_cceParams_toUse = cms.PSet(
         cceParamFine  = cms.vdouble(cceParamFine_epi800),
-        cceParamThin  = cms.vdouble(cceParamThin_ttu800),
-        cceParamThick = cms.vdouble(cceParamThick_ttu800)
+        cceParamThin  = cms.vdouble(cceParamThin_tdr800),
+        cceParamThick = cms.vdouble(cceParamThick_tdr800)
     )
     process.HGCAL_ileakParam_toUse    = cms.PSet(
         ileakParam = cms.vdouble(ileakParam_800V)
