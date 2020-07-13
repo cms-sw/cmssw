@@ -1295,11 +1295,10 @@ namespace edm {
 
   void Schedule::processOneEventAsync(WaitingTaskHolder iTask,
                                       unsigned int iStreamID,
-                                      EventPrincipal& ep,
-                                      EventSetupImpl const& es,
+                                      EventTransitionInfo& info,
                                       ServiceToken const& token) {
     assert(iStreamID < streamSchedules_.size());
-    streamSchedules_[iStreamID]->processOneEventAsync(std::move(iTask), ep, es, token, pathStatusInserters_);
+    streamSchedules_[iStreamID]->processOneEventAsync(std::move(iTask), info, token, pathStatusInserters_);
   }
 
   bool Schedule::changeModule(std::string const& iLabel,

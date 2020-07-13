@@ -59,7 +59,6 @@
 
 #include "DataFormats/Provenance/interface/ModuleDescription.h"
 #include "FWCore/Framework/interface/ExceptionActions.h"
-#include "FWCore/Framework/interface/EventPrincipal.h"
 #include "FWCore/Framework/interface/ExceptionHelpers.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/OccurrenceTraits.h"
@@ -101,7 +100,7 @@ namespace edm {
 
   class ActivityRegistry;
   class BranchIDListHelper;
-  class EventSetupImpl;
+  class EventTransitionInfo;
   class ExceptionCollector;
   class MergeableRunProductMetadata;
   class OutputModuleCommunicator;
@@ -142,22 +141,19 @@ namespace edm {
 
     void processOneEventAsync(WaitingTaskHolder iTask,
                               unsigned int iStreamID,
-                              EventPrincipal& principal,
-                              EventSetupImpl const& eventSetup,
+                              EventTransitionInfo&,
                               ServiceToken const& token);
 
     template <typename T>
     void processOneGlobalAsync(WaitingTaskHolder iTask,
-                               typename T::MyPrincipal& principal,
-                               EventSetupImpl const& eventSetup,
+                               typename T::TransitionInfoType& transitionInfo,
                                ServiceToken const& token,
                                bool cleaningUpAfterException = false);
 
     template <typename T>
     void processOneStreamAsync(WaitingTaskHolder iTask,
                                unsigned int iStreamID,
-                               typename T::MyPrincipal& principal,
-                               EventSetupImpl const& eventSetup,
+                               typename T::TransitionInfoType& transitionInfo,
                                ServiceToken const& token,
                                bool cleaningUpAfterException = false);
 
@@ -322,22 +318,20 @@ namespace edm {
   template <typename T>
   void Schedule::processOneStreamAsync(WaitingTaskHolder iTaskHolder,
                                        unsigned int iStreamID,
-                                       typename T::MyPrincipal& ep,
-                                       EventSetupImpl const& es,
+                                       typename T::TransitionInfoType& transitionInfo,
                                        ServiceToken const& token,
                                        bool cleaningUpAfterException) {
     assert(iStreamID < streamSchedules_.size());
     streamSchedules_[iStreamID]->processOneStreamAsync<T>(
-        std::move(iTaskHolder), ep, es, token, cleaningUpAfterException);
+        std::move(iTaskHolder), transitionInfo, token, cleaningUpAfterException);
   }
 
   template <typename T>
   void Schedule::processOneGlobalAsync(WaitingTaskHolder iTaskHolder,
-                                       typename T::MyPrincipal& ep,
-                                       EventSetupImpl const& es,
+                                       typename T::TransitionInfoType& transitionInfo,
                                        ServiceToken const& token,
                                        bool cleaningUpAfterException) {
-    globalSchedule_->processOneGlobalAsync<T>(iTaskHolder, ep, es, token, cleaningUpAfterException);
+    globalSchedule_->processOneGlobalAsync<T>(iTaskHolder, transitionInfo, token, cleaningUpAfterException);
   }
 
 }  // namespace edm

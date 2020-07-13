@@ -4,7 +4,11 @@
 
 #include "FWCore/Framework/src/Worker.h"
 #include "FWCore/Framework/src/EarlyDeleteHelper.h"
+#include "FWCore/Framework/interface/EventPrincipal.h"
 #include "FWCore/Framework/interface/EventSetupImpl.h"
+#include "FWCore/Framework/interface/LuminosityBlockPrincipal.h"
+#include "FWCore/Framework/interface/ProcessBlockPrincipal.h"
+#include "FWCore/Framework/interface/RunPrincipal.h"
 #include "FWCore/ServiceRegistry/interface/StreamContext.h"
 #include "FWCore/Concurrency/interface/WaitingTask.h"
 #include "FWCore/Concurrency/interface/WaitingTaskHolder.h"
@@ -196,43 +200,6 @@ namespace edm {
     return true;
   }
 
-  void Worker::prefetchAsync(WaitingTask* iTask,
-                             ServiceToken const& token,
-                             ParentContext const& parentContext,
-                             Principal const& iPrincipal,
-                             EventSetupImpl const& iEventSetup,
-                             edm::Transition iTransition) {
-    // Prefetch products the module declares it consumes (not including the products it maybe consumes)
-    std::vector<ProductResolverIndexAndSkipBit> const& items = itemsToGetFrom(iPrincipal.branchType());
-
-    moduleCallingContext_.setContext(ModuleCallingContext::State::kPrefetching, parentContext, nullptr);
-
-    if (iPrincipal.branchType() == InEvent) {
-      actReg_->preModuleEventPrefetchingSignal_.emit(*moduleCallingContext_.getStreamContext(), moduleCallingContext_);
-    }
-
-    //Need to be sure the ref count isn't set to 0 immediately
-    iTask->increment_ref_count();
-
-    esPrefetchAsync(iTask, iEventSetup, iTransition, token);
-    for (auto const& item : items) {
-      ProductResolverIndex productResolverIndex = item.productResolverIndex();
-      bool skipCurrentProcess = item.skipCurrentProcess();
-      if (productResolverIndex != ProductResolverIndexAmbiguous) {
-        iPrincipal.prefetchAsync(iTask, productResolverIndex, skipCurrentProcess, token, &moduleCallingContext_);
-      }
-    }
-
-    if (iPrincipal.branchType() == InEvent) {
-      preActionBeforeRunEventAsync(iTask, moduleCallingContext_, iPrincipal);
-    }
-
-    if (0 == iTask->decrement_ref_count()) {
-      //if everything finishes before we leave this routine, we need to launch the task
-      tbb::task::spawn(*iTask);
-    }
-  }
-
   void Worker::prePrefetchSelectionAsync(WaitingTask* successTask,
                                          ServiceToken const& token,
                                          StreamID id,
@@ -276,10 +243,21 @@ namespace edm {
     choiceHolder.doneWaiting(std::exception_ptr{});
   }
 
+  void Worker::prepareToPrefetch(WaitingTask* iTask, ParentContext const& parentContext, Principal const& iPrincipal) {
+    moduleCallingContext_.setContext(ModuleCallingContext::State::kPrefetching, parentContext, nullptr);
+
+    if (iPrincipal.branchType() == InEvent) {
+      actReg_->preModuleEventPrefetchingSignal_.emit(*moduleCallingContext_.getStreamContext(), moduleCallingContext_);
+    }
+
+    //Need to be sure the ref count isn't set to 0 immediately
+    iTask->increment_ref_count();
+  }
+
   void Worker::esPrefetchAsync(WaitingTask* iTask,
                                EventSetupImpl const& iImpl,
                                Transition iTrans,
-                               edm::ServiceToken const& iToken) {
+                               ServiceToken const& iToken) {
     if (iTrans >= edm::Transition::NumberOfEventSetupTransitions) {
       return;
     }
@@ -348,6 +326,27 @@ namespace edm {
           }
         }
       });
+    }
+  }
+
+  void Worker::edPrefetchAsync(WaitingTask* iTask, ServiceToken const& token, Principal const& iPrincipal) const {
+    // Prefetch products the module declares it consumes
+    std::vector<ProductResolverIndexAndSkipBit> const& items = itemsToGetFrom(iPrincipal.branchType());
+
+    for (auto const& item : items) {
+      ProductResolverIndex productResolverIndex = item.productResolverIndex();
+      bool skipCurrentProcess = item.skipCurrentProcess();
+      if (productResolverIndex != ProductResolverIndexAmbiguous) {
+        iPrincipal.prefetchAsync(iTask, productResolverIndex, skipCurrentProcess, token, &moduleCallingContext_);
+      }
+    }
+    if (iPrincipal.branchType() == InEvent) {
+      preActionBeforeRunEventAsync(iTask, moduleCallingContext_, iPrincipal);
+    }
+
+    if (0 == iTask->decrement_ref_count()) {
+      //if everything finishes before we leave this routine, we need to launch the task
+      tbb::task::spawn(*iTask);
     }
   }
 
@@ -454,13 +453,13 @@ namespace edm {
     }
   }
 
-  void Worker::runAcquire(EventPrincipal const& ep,
-                          EventSetupImpl const& es,
+  void Worker::runAcquire(EventTransitionInfo const& info,
                           ParentContext const& parentContext,
                           WaitingTaskWithArenaHolder& holder) {
     ModuleContextSentry moduleContextSentry(&moduleCallingContext_, parentContext);
     try {
-      convertException::wrap([&]() { this->implDoAcquire(ep, es, &moduleCallingContext_, holder); });
+      convertException::wrap(
+          [&]() { this->implDoAcquire(info.principal(), info.eventSetupImpl(), &moduleCallingContext_, holder); });
     } catch (cms::Exception& ex) {
       exceptionContext(ex, &moduleCallingContext_);
       if (shouldRethrowException(std::current_exception(), parentContext, true)) {
@@ -471,8 +470,7 @@ namespace edm {
   }
 
   void Worker::runAcquireAfterAsyncPrefetch(std::exception_ptr const* iEPtr,
-                                            EventPrincipal const& ep,
-                                            EventSetupImpl const& es,
+                                            EventTransitionInfo const& eventTransitionInfo,
                                             ParentContext const& parentContext,
                                             WaitingTaskWithArenaHolder holder) {
     ranAcquireWithoutException_ = false;
@@ -486,7 +484,7 @@ namespace edm {
     } else {
       // Caught exception is propagated via WaitingTaskWithArenaHolder
       CMS_SA_ALLOW try {
-        runAcquire(ep, es, parentContext, holder);
+        runAcquire(eventTransitionInfo, parentContext, holder);
         ranAcquireWithoutException_ = true;
       } catch (...) {
         exceptionPtr = std::current_exception();

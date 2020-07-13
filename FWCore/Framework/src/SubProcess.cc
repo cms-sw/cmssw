@@ -41,7 +41,6 @@
 
 #include <cassert>
 #include <string>
-#include <vector>
 
 namespace edm {
 
@@ -405,12 +404,8 @@ namespace edm {
                               }
                             }));
     }
-
-    schedule_->processOneEventAsync(std::move(afterProcessTask),
-                                    ep.streamID().value(),
-                                    ep,
-                                    *((*iEventSetupImpls)[esp_->subProcessIndex()]),
-                                    serviceToken_);
+    EventTransitionInfo info(ep, *((*iEventSetupImpls)[esp_->subProcessIndex()]));
+    schedule_->processOneEventAsync(std::move(afterProcessTask), ep.streamID().value(), info, serviceToken_);
   }
 
   template <>
@@ -639,87 +634,50 @@ namespace edm {
     for_all(subProcesses_, [iID](auto& subProcess) { subProcess.doEndStream(iID); });
   }
 
-  void SubProcess::doStreamBeginRunAsync(WaitingTaskHolder iHolder,
-                                         unsigned int id,
-                                         RunPrincipal const& principal,
-                                         IOVSyncValue const& ts,
-                                         std::vector<std::shared_ptr<const EventSetupImpl>> const* iEventSetupImpls) {
+  void SubProcess::doStreamBeginRunAsync(WaitingTaskHolder iHolder, unsigned int id, RunTransitionInfo const&) {
     using Traits = OccurrenceTraits<RunPrincipal, BranchActionStreamBegin>;
 
     RunPrincipal& rp = *principalCache_.runPrincipalPtr();
 
-    beginStreamTransitionAsync<Traits>(std::move(iHolder),
-                                       *schedule_,
-                                       id,
-                                       rp,
-                                       ts,
-                                       esp_->eventSetupImpl(),
-                                       iEventSetupImpls,
-                                       serviceToken_,
-                                       subProcesses_);
+    RunTransitionInfo transitionInfo(rp, esp_->eventSetupImpl());
+    beginStreamTransitionAsync<Traits>(
+        std::move(iHolder), *schedule_, id, transitionInfo, serviceToken_, subProcesses_);
   }
 
   void SubProcess::doStreamEndRunAsync(WaitingTaskHolder iHolder,
                                        unsigned int id,
-                                       RunPrincipal const& principal,
-                                       IOVSyncValue const& ts,
-                                       std::vector<std::shared_ptr<const EventSetupImpl>> const* iEventSetupImpls,
+                                       RunTransitionInfo const&,
                                        bool cleaningUpAfterException) {
     RunPrincipal& rp = *principalCache_.runPrincipalPtr();
     using Traits = OccurrenceTraits<RunPrincipal, BranchActionStreamEnd>;
 
-    endStreamTransitionAsync<Traits>(std::move(iHolder),
-                                     *schedule_,
-                                     id,
-                                     rp,
-                                     ts,
-                                     esp_->eventSetupImpl(),
-                                     iEventSetupImpls,
-                                     serviceToken_,
-                                     subProcesses_,
-                                     cleaningUpAfterException);
+    RunTransitionInfo transitionInfo(rp, esp_->eventSetupImpl());
+    endStreamTransitionAsync<Traits>(
+        std::move(iHolder), *schedule_, id, transitionInfo, serviceToken_, subProcesses_, cleaningUpAfterException);
   }
 
-  void SubProcess::doStreamBeginLuminosityBlockAsync(
-      WaitingTaskHolder iHolder,
-      unsigned int id,
-      LuminosityBlockPrincipal const& principal,
-      IOVSyncValue const& ts,
-      std::vector<std::shared_ptr<const EventSetupImpl>> const* iEventSetupImpls) {
+  void SubProcess::doStreamBeginLuminosityBlockAsync(WaitingTaskHolder iHolder,
+                                                     unsigned int id,
+                                                     LumiTransitionInfo const& iTransitionInfo) {
     using Traits = OccurrenceTraits<LuminosityBlockPrincipal, BranchActionStreamBegin>;
 
-    LuminosityBlockPrincipal& lbp = *inUseLumiPrincipals_[principal.index()];
-
-    beginStreamTransitionAsync<Traits>(std::move(iHolder),
-                                       *schedule_,
-                                       id,
-                                       lbp,
-                                       ts,
-                                       *((*iEventSetupImpls)[esp_->subProcessIndex()]),
-                                       iEventSetupImpls,
-                                       serviceToken_,
-                                       subProcesses_);
+    LuminosityBlockPrincipal& lbp = *inUseLumiPrincipals_[iTransitionInfo.principal().index()];
+    std::vector<std::shared_ptr<const EventSetupImpl>> const* eventSetupImpls = iTransitionInfo.eventSetupImpls();
+    LumiTransitionInfo transitionInfo(lbp, *((*eventSetupImpls)[esp_->subProcessIndex()]), eventSetupImpls);
+    beginStreamTransitionAsync<Traits>(
+        std::move(iHolder), *schedule_, id, transitionInfo, serviceToken_, subProcesses_);
   }
 
-  void SubProcess::doStreamEndLuminosityBlockAsync(
-      WaitingTaskHolder iHolder,
-      unsigned int id,
-      LuminosityBlockPrincipal const& principal,
-      IOVSyncValue const& ts,
-      std::vector<std::shared_ptr<const EventSetupImpl>> const* iEventSetupImpls,
-      bool cleaningUpAfterException) {
-    LuminosityBlockPrincipal& lbp = *inUseLumiPrincipals_[principal.index()];
+  void SubProcess::doStreamEndLuminosityBlockAsync(WaitingTaskHolder iHolder,
+                                                   unsigned int id,
+                                                   LumiTransitionInfo const& iTransitionInfo,
+                                                   bool cleaningUpAfterException) {
+    LuminosityBlockPrincipal& lbp = *inUseLumiPrincipals_[iTransitionInfo.principal().index()];
     using Traits = OccurrenceTraits<LuminosityBlockPrincipal, BranchActionStreamEnd>;
-    endStreamTransitionAsync<Traits>(std::move(iHolder),
-                                     *schedule_,
-                                     id,
-                                     lbp,
-                                     ts,
-                                     *((*iEventSetupImpls)[esp_->subProcessIndex()]),
-                                     iEventSetupImpls,
-                                     serviceToken_,
-                                     subProcesses_,
-                                     cleaningUpAfterException);
+    std::vector<std::shared_ptr<const EventSetupImpl>> const* eventSetupImpls = iTransitionInfo.eventSetupImpls();
+    LumiTransitionInfo transitionInfo(lbp, *((*eventSetupImpls)[esp_->subProcessIndex()]), eventSetupImpls);
+    endStreamTransitionAsync<Traits>(
+        std::move(iHolder), *schedule_, id, transitionInfo, serviceToken_, subProcesses_, cleaningUpAfterException);
   }
 
   void SubProcess::propagateProducts(BranchType type, Principal const& parentPrincipal, Principal& principal) const {

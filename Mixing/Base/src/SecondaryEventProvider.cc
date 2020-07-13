@@ -1,6 +1,7 @@
 #include "Mixing/Base/src/SecondaryEventProvider.h"
 #include "FWCore/Framework/interface/ExceptionActions.h"
 #include "FWCore/Framework/src/PreallocationConfiguration.h"
+#include "FWCore/Framework/src/TransitionInfoTypes.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/StreamID.h"
 #include "DataFormats/Provenance/interface/ProductRegistry.h"
@@ -35,46 +36,50 @@ namespace edm {
                                         const EventSetupImpl& setup,
                                         ModuleCallingContext const* mcc,
                                         StreamContext& sContext) {
+    RunTransitionInfo info(run, setup);
     workerManager_.processOneOccurrence<OccurrenceTraits<RunPrincipal, BranchActionGlobalBegin> >(
-        run, setup, StreamID::invalidStreamID(), nullptr, mcc);
+        info, StreamID::invalidStreamID(), nullptr, mcc);
     workerManager_.processOneOccurrence<OccurrenceTraits<RunPrincipal, BranchActionStreamBegin> >(
-        run, setup, sContext.streamID(), &sContext, mcc);
+        info, sContext.streamID(), &sContext, mcc);
   }
 
   void SecondaryEventProvider::beginLuminosityBlock(LuminosityBlockPrincipal& lumi,
                                                     const EventSetupImpl& setup,
                                                     ModuleCallingContext const* mcc,
                                                     StreamContext& sContext) {
+    LumiTransitionInfo info(lumi, setup);
     workerManager_.processOneOccurrence<OccurrenceTraits<LuminosityBlockPrincipal, BranchActionGlobalBegin> >(
-        lumi, setup, StreamID::invalidStreamID(), nullptr, mcc);
+        info, StreamID::invalidStreamID(), nullptr, mcc);
     workerManager_.processOneOccurrence<OccurrenceTraits<LuminosityBlockPrincipal, BranchActionStreamBegin> >(
-        lumi, setup, sContext.streamID(), &sContext, mcc);
+        info, sContext.streamID(), &sContext, mcc);
   }
 
   void SecondaryEventProvider::endRun(RunPrincipal& run,
                                       const EventSetupImpl& setup,
                                       ModuleCallingContext const* mcc,
                                       StreamContext& sContext) {
+    RunTransitionInfo info(run, setup);
     workerManager_.processOneOccurrence<OccurrenceTraits<RunPrincipal, BranchActionStreamEnd> >(
-        run, setup, sContext.streamID(), &sContext, mcc);
+        info, sContext.streamID(), &sContext, mcc);
     workerManager_.processOneOccurrence<OccurrenceTraits<RunPrincipal, BranchActionGlobalEnd> >(
-        run, setup, StreamID::invalidStreamID(), nullptr, mcc);
+        info, StreamID::invalidStreamID(), nullptr, mcc);
   }
 
   void SecondaryEventProvider::endLuminosityBlock(LuminosityBlockPrincipal& lumi,
                                                   const EventSetupImpl& setup,
                                                   ModuleCallingContext const* mcc,
                                                   StreamContext& sContext) {
+    LumiTransitionInfo info(lumi, setup);
     workerManager_.processOneOccurrence<OccurrenceTraits<LuminosityBlockPrincipal, BranchActionStreamEnd> >(
-        lumi, setup, sContext.streamID(), &sContext, mcc);
+        info, sContext.streamID(), &sContext, mcc);
     workerManager_.processOneOccurrence<OccurrenceTraits<LuminosityBlockPrincipal, BranchActionGlobalEnd> >(
-        lumi, setup, StreamID::invalidStreamID(), nullptr, mcc);
+        info, StreamID::invalidStreamID(), nullptr, mcc);
   }
 
   void SecondaryEventProvider::setupPileUpEvent(EventPrincipal& ep,
                                                 const EventSetupImpl& setup,
                                                 StreamContext& sContext) {
-    workerManager_.setupOnDemandSystem(ep, setup);
+    workerManager_.setupOnDemandSystem(ep, &setup);
   }
   void SecondaryEventProvider::beginStream(edm::StreamID iID, StreamContext& sContext) {
     workerManager_.beginStream(iID, sContext);

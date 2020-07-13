@@ -5,10 +5,8 @@
 //
 /**
 
- Description: The types here are used by
- the functions beginGlobalTransitionAsync and
- endGlobalTransitionAsync. They hold some of the data
- passed as input arguments to those functions.
+ Description: The types here are used to pass information
+ down to the Worker class from the EventProcessor.
 
 */
 //
@@ -19,16 +17,31 @@
 #include <vector>
 
 namespace edm {
+  class EventPrincipal;
   class EventSetupImpl;
   class LuminosityBlockPrincipal;
   class ProcessBlockPrincipal;
   class RunPrincipal;
 
+  class EventTransitionInfo {
+  public:
+    EventTransitionInfo(EventPrincipal& iPrincipal, EventSetupImpl const& iEventSetupImpl)
+        : eventPrincipal_(iPrincipal), eventSetupImpl_(iEventSetupImpl) {}
+
+    EventPrincipal& principal() { return eventPrincipal_; }
+    EventPrincipal const& principal() const { return eventPrincipal_; }
+    EventSetupImpl const& eventSetupImpl() const { return eventSetupImpl_; }
+
+  private:
+    EventPrincipal& eventPrincipal_;
+    EventSetupImpl const& eventSetupImpl_;
+  };
+
   class LumiTransitionInfo {
   public:
     LumiTransitionInfo(LuminosityBlockPrincipal& iPrincipal,
                        EventSetupImpl const& iEventSetupImpl,
-                       std::vector<std::shared_ptr<const EventSetupImpl>> const* iEventSetupImpls)
+                       std::vector<std::shared_ptr<const EventSetupImpl>> const* iEventSetupImpls = nullptr)
         : luminosityBlockPrincipal_(iPrincipal), eventSetupImpl_(iEventSetupImpl), eventSetupImpls_(iEventSetupImpls) {}
 
     LuminosityBlockPrincipal& principal() { return luminosityBlockPrincipal_; }
@@ -62,7 +75,6 @@ namespace edm {
 
     ProcessBlockPrincipal& principal() { return processBlockPrincipal_; }
     ProcessBlockPrincipal const& principal() const { return processBlockPrincipal_; }
-    EventSetupImpl const& eventSetupImpl() const;
 
   private:
     ProcessBlockPrincipal& processBlockPrincipal_;
