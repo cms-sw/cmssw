@@ -68,6 +68,7 @@
 #include "FWCore/Framework/interface/WorkerManager.h"
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Framework/src/Path.h"
+#include "FWCore/Framework/src/TransitionInfoTypes.h"
 #include "FWCore/Framework/src/Worker.h"
 #include "FWCore/Framework/src/WorkerRegistry.h"
 #include "FWCore/Framework/src/EarlyDeleteHelper.h"
@@ -99,7 +100,6 @@ namespace edm {
 
   class ActivityRegistry;
   class BranchIDListHelper;
-  class EventSetupImpl;
   class ExceptionCollector;
   class ExceptionToActionTable;
   class OutputModuleCommunicator;
@@ -183,15 +183,13 @@ namespace edm {
 
     void processOneEventAsync(
         WaitingTaskHolder iTask,
-        EventPrincipal& ep,
-        EventSetupImpl const& es,
+        EventTransitionInfo&,
         ServiceToken const& token,
         std::vector<edm::propagate_const<std::shared_ptr<PathStatusInserter>>>& pathStatusInserters);
 
     template <typename T>
     void processOneStreamAsync(WaitingTaskHolder iTask,
-                               typename T::MyPrincipal& principal,
-                               EventSetupImpl const& eventSetup,
+                               typename T::TransitionInfoType& transitionInfo,
                                ServiceToken const& token,
                                bool cleaningUpAfterException = false);
 
@@ -286,10 +284,8 @@ namespace edm {
 
     void resetAll();
 
-    void finishedPaths(std::atomic<std::exception_ptr*>&,
-                       WaitingTaskHolder,
-                       EventPrincipal& ep,
-                       EventSetupImpl const& es);
+    void finishedPaths(std::atomic<std::exception_ptr*>&, WaitingTaskHolder, EventTransitionInfo&);
+
     std::exception_ptr finishProcessOneEvent(std::exception_ptr);
 
     void reportSkipped(EventPrincipal const& ep) const;
@@ -380,13 +376,13 @@ namespace edm {
 
   template <typename T>
   void StreamSchedule::processOneStreamAsync(WaitingTaskHolder iHolder,
-                                             typename T::MyPrincipal& ep,
-                                             EventSetupImpl const& es,
+                                             typename T::TransitionInfoType& transitionInfo,
                                              ServiceToken const& token,
                                              bool cleaningUpAfterException) {
-    T::setStreamContext(streamContext_, ep);
+    auto const& principal = transitionInfo.principal();
+    T::setStreamContext(streamContext_, principal);
 
-    auto id = ep.id();
+    auto id = principal.id();
     auto doneTask = make_waiting_task(
         tbb::task::allocate_root(),
         [this, iHolder, id, cleaningUpAfterException, token](std::exception_ptr const* iPtr) mutable {
@@ -422,30 +418,31 @@ namespace edm {
           iHolder.doneWaiting(excpt);
         });
 
-    auto task = make_functor_task(tbb::task::allocate_root(),
-                                  [this, doneTask, h = WaitingTaskHolder(doneTask), &ep, &es, token]() mutable {
-                                    ServiceRegistry::Operate op(token);
-                                    // Caught exception is propagated via WaitingTaskHolder
-                                    CMS_SA_ALLOW try {
-                                      T::preScheduleSignal(actReg_.get(), &streamContext_);
+    auto task =
+        make_functor_task(tbb::task::allocate_root(),
+                          [this, doneTask, h = WaitingTaskHolder(doneTask), info = transitionInfo, token]() mutable {
+                            ServiceRegistry::Operate op(token);
+                            // Caught exception is propagated via WaitingTaskHolder
+                            CMS_SA_ALLOW try {
+                              T::preScheduleSignal(actReg_.get(), &streamContext_);
 
-                                      workerManager_.resetAll();
-                                    } catch (...) {
-                                      h.doneWaiting(std::current_exception());
-                                      return;
-                                    }
+                              workerManager_.resetAll();
+                            } catch (...) {
+                              h.doneWaiting(std::current_exception());
+                              return;
+                            }
 
-                                    for (auto& p : end_paths_) {
-                                      p.runAllModulesAsync<T>(doneTask, ep, es, token, streamID_, &streamContext_);
-                                    }
+                            for (auto& p : end_paths_) {
+                              p.runAllModulesAsync<T>(doneTask, info, token, streamID_, &streamContext_);
+                            }
 
-                                    for (auto& p : trig_paths_) {
-                                      p.runAllModulesAsync<T>(doneTask, ep, es, token, streamID_, &streamContext_);
-                                    }
+                            for (auto& p : trig_paths_) {
+                              p.runAllModulesAsync<T>(doneTask, info, token, streamID_, &streamContext_);
+                            }
 
-                                    workerManager_.processOneOccurrenceAsync<T>(
-                                        doneTask, ep, es, token, streamID_, &streamContext_, &streamContext_);
-                                  });
+                            workerManager_.processOneOccurrenceAsync<T>(
+                                doneTask, info, token, streamID_, &streamContext_, &streamContext_);
+                          });
 
     if (streamID_.value() == 0) {
       //Enqueueing will start another thread if there is only

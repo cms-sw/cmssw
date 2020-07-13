@@ -4,11 +4,13 @@
 #include "Worker.h"
 #include "UnscheduledAuxiliary.h"
 #include "UnscheduledConfigurator.h"
+#include "FWCore/Framework/interface/EventPrincipal.h"
 #include "FWCore/Framework/interface/MergeableRunProductMetadata.h"
 #include "FWCore/Framework/interface/Principal.h"
 #include "FWCore/Framework/interface/ProductDeletedException.h"
 #include "FWCore/Framework/interface/SharedResourcesAcquirer.h"
 #include "FWCore/Framework/interface/DelayedReader.h"
+#include "FWCore/Framework/src/TransitionInfoTypes.h"
 #include "DataFormats/Provenance/interface/ProductProvenanceRetriever.h"
 #include "DataFormats/Provenance/interface/BranchKey.h"
 #include "DataFormats/Provenance/interface/ParentageRegistry.h"
@@ -398,8 +400,9 @@ namespace edm {
               aux_->postModuleDelayedGetSignal_.emit(*(iContext->getStreamContext()), *iContext);
             }));
 
+            const EventTransitionInfo info(const_cast<EventPrincipal&>(event), *(aux_->eventSetup()));
             worker_->doWork<OccurrenceTraits<EventPrincipal, BranchActionStreamBegin> >(
-                event, *(aux_->eventSetup()), event.streamID(), parentContext, mcc->getStreamContext());
+                info, event.streamID(), parentContext, mcc->getStreamContext());
           };
 
           if (sra) {
@@ -455,8 +458,9 @@ namespace edm {
       auto const& event = static_cast<EventPrincipal const&>(principal);
       ParentContext parentContext(mcc);
 
+      const EventTransitionInfo info(const_cast<EventPrincipal&>(event), *(aux_->eventSetup()));
       worker_->doWorkAsync<OccurrenceTraits<EventPrincipal, BranchActionStreamBegin> >(
-          t, event, *(aux_->eventSetup()), token, event.streamID(), parentContext, mcc->getStreamContext());
+          t, info, token, event.streamID(), parentContext, mcc->getStreamContext());
     }
   }
 

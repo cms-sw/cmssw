@@ -126,7 +126,7 @@ namespace edm {
     }
   }
 
-  void WorkerManager::setupOnDemandSystem(Principal& ep, EventSetupImpl const& es) {
+  void WorkerManager::setupOnDemandSystem(Principal& ep, EventSetupImpl const* es) {
     this->resetAll();
     unscheduled_.setEventSetup(es);
     if (&ep != lastSetupEventPrincipal_) {

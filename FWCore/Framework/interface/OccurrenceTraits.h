@@ -30,6 +30,7 @@ OccurrenceTraits:
 namespace edm {
 
   class ProcessContext;
+  class WorkerManager;
 
   template <typename T, BranchActionType B>
   class OccurrenceTraits;
@@ -38,6 +39,7 @@ namespace edm {
   class OccurrenceTraits<EventPrincipal, BranchActionStreamBegin> {
   public:
     using MyPrincipal = EventPrincipal;
+    using TransitionInfoType = EventTransitionInfo;
     using Context = StreamContext;
     static BranchType constexpr branchType_ = InEvent;
     static bool constexpr begin_ = true;
@@ -105,12 +107,14 @@ namespace edm {
       a->postModuleGlobalBeginRunSignal_(*globalContext, *moduleCallingContext);
     }
     static const char* transitionName() { return "global begin Run"; }
+    static void setupOnDemandSystem(WorkerManager& workerManager, RunTransitionInfo& transitionInfo);
   };
 
   template <>
   class OccurrenceTraits<RunPrincipal, BranchActionStreamBegin> {
   public:
     using MyPrincipal = RunPrincipal;
+    using TransitionInfoType = RunTransitionInfo;
     using Context = StreamContext;
     static BranchType constexpr branchType_ = InRun;
     static bool constexpr begin_ = true;
@@ -150,6 +154,7 @@ namespace edm {
   class OccurrenceTraits<RunPrincipal, BranchActionStreamEnd> {
   public:
     using MyPrincipal = RunPrincipal;
+    using TransitionInfoType = RunTransitionInfo;
     using Context = StreamContext;
     static BranchType constexpr branchType_ = InRun;
     static bool constexpr begin_ = false;
@@ -224,6 +229,7 @@ namespace edm {
       a->postModuleGlobalEndRunSignal_(*globalContext, *moduleCallingContext);
     }
     static const char* transitionName() { return "global end Run"; }
+    static void setupOnDemandSystem(WorkerManager& workerManager, RunTransitionInfo& transitionInfo);
   };
 
   template <>
@@ -265,12 +271,14 @@ namespace edm {
       a->postModuleGlobalBeginLumiSignal_(*globalContext, *moduleCallingContext);
     }
     static const char* transitionName() { return "global begin LuminosityBlock"; }
+    static void setupOnDemandSystem(WorkerManager& workerManager, LumiTransitionInfo& transitionInfo);
   };
 
   template <>
   class OccurrenceTraits<LuminosityBlockPrincipal, BranchActionStreamBegin> {
   public:
     using MyPrincipal = LuminosityBlockPrincipal;
+    using TransitionInfoType = LumiTransitionInfo;
     using Context = StreamContext;
     static BranchType constexpr branchType_ = InLumi;
     static bool constexpr begin_ = true;
@@ -310,6 +318,7 @@ namespace edm {
   class OccurrenceTraits<LuminosityBlockPrincipal, BranchActionStreamEnd> {
   public:
     using MyPrincipal = LuminosityBlockPrincipal;
+    using TransitionInfoType = LumiTransitionInfo;
     using Context = StreamContext;
     static BranchType constexpr branchType_ = InLumi;
     static bool constexpr begin_ = false;
@@ -386,6 +395,7 @@ namespace edm {
       a->postModuleGlobalEndLumiSignal_(*globalContext, *moduleCallingContext);
     }
     static const char* transitionName() { return "end global LuminosityBlock"; }
+    static void setupOnDemandSystem(WorkerManager& workerManager, LumiTransitionInfo& transitionInfo);
   };
 
   template <>
@@ -423,6 +433,7 @@ namespace edm {
       a->postModuleBeginProcessBlockSignal_(*globalContext, *moduleCallingContext);
     }
     static const char* transitionName() { return "begin ProcessBlock"; }
+    static void setupOnDemandSystem(WorkerManager& workerManager, ProcessBlockTransitionInfo& transitionInfo);
   };
 
   template <>
@@ -460,6 +471,7 @@ namespace edm {
       a->postModuleAccessInputProcessBlockSignal_(*globalContext, *moduleCallingContext);
     }
     static const char* transitionName() { return "access input ProcessBlock"; }
+    static void setupOnDemandSystem(WorkerManager& workerManager, ProcessBlockTransitionInfo& transitionInfo);
   };
 
   template <>
@@ -497,6 +509,7 @@ namespace edm {
       a->postModuleEndProcessBlockSignal_(*globalContext, *moduleCallingContext);
     }
     static const char* transitionName() { return "end ProcessBlock"; }
+    static void setupOnDemandSystem(WorkerManager& workerManager, ProcessBlockTransitionInfo& transitionInfo);
   };
 
 }  // namespace edm

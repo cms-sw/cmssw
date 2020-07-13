@@ -29,12 +29,14 @@ namespace edm {
   class ActivityRegistry;
   class BranchDescription;
   class BranchIDListHelper;
+  class EventPrincipal;
   class EventSetupImpl;
   class HistoryAppender;
-  class IOVSyncValue;
+  class LuminosityBlockPrincipal;
   class LumiTransitionInfo;
   class MergeableRunProductMetadata;
   class ParameterSet;
+  class Principal;
   class ProcessBlockTransitionInfo;
   class ProductRegistry;
   class PreallocationConfiguration;
@@ -103,30 +105,18 @@ namespace edm {
 
     void doBeginStream(unsigned int);
     void doEndStream(unsigned int);
-    void doStreamBeginRunAsync(WaitingTaskHolder iHolder,
-                               unsigned int iID,
-                               RunPrincipal const& principal,
-                               IOVSyncValue const& ts,
-                               std::vector<std::shared_ptr<const EventSetupImpl>> const*);
+    void doStreamBeginRunAsync(WaitingTaskHolder iHolder, unsigned int iID, RunTransitionInfo const&);
 
     void doStreamEndRunAsync(WaitingTaskHolder iHolder,
                              unsigned int iID,
-                             RunPrincipal const& principal,
-                             IOVSyncValue const& ts,
-                             std::vector<std::shared_ptr<const EventSetupImpl>> const*,
+                             RunTransitionInfo const&,
                              bool cleaningUpAfterException);
 
-    void doStreamBeginLuminosityBlockAsync(WaitingTaskHolder iHolder,
-                                           unsigned int iID,
-                                           LuminosityBlockPrincipal const& principal,
-                                           IOVSyncValue const& ts,
-                                           std::vector<std::shared_ptr<const EventSetupImpl>> const*);
+    void doStreamBeginLuminosityBlockAsync(WaitingTaskHolder iHolder, unsigned int iID, LumiTransitionInfo const&);
 
     void doStreamEndLuminosityBlockAsync(WaitingTaskHolder iHolder,
                                          unsigned int iID,
-                                         LuminosityBlockPrincipal const& principal,
-                                         IOVSyncValue const& ts,
-                                         std::vector<std::shared_ptr<const EventSetupImpl>> const*,
+                                         LumiTransitionInfo const&,
                                          bool cleaningUpAfterException);
 
     void writeLumiAsync(WaitingTaskHolder, LuminosityBlockPrincipal&);
@@ -259,10 +249,6 @@ namespace edm {
     void processAsync(WaitingTaskHolder iHolder,
                       EventPrincipal const& e,
                       std::vector<std::shared_ptr<const EventSetupImpl>> const*);
-    void beginRun(RunPrincipal const& r, IOVSyncValue const& ts);
-    void endRun(RunPrincipal const& r, IOVSyncValue const& ts, bool cleaningUpAfterException);
-    void beginLuminosityBlock(LuminosityBlockPrincipal const& lb, IOVSyncValue const& ts);
-    void endLuminosityBlock(LuminosityBlockPrincipal const& lb, IOVSyncValue const& ts, bool cleaningUpAfterException);
 
     void propagateProducts(BranchType type, Principal const& parentPrincipal, Principal& principal) const;
     void fixBranchIDListsForEDAliases(
