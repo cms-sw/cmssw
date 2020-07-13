@@ -33,7 +33,7 @@ CSCDigiProducer::CSCDigiProducer(const edm::ParameterSet &ps) : theDigitizer(ps)
   if (stripConditions == "Configurable") {
     theStripConditions = new CSCConfigurableStripConditions(stripPSet);
   } else if (stripConditions == "Database") {
-    theStripConditions = new CSCDbStripConditions(stripPSet);
+    theStripConditions = new CSCDbStripConditions(stripPSet, consumesCollector());
   } else {
     throw cms::Exception("CSCDigiProducer") << "Bad option for strip conditions: " << stripConditions;
   }
