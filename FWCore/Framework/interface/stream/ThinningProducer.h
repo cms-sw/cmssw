@@ -84,6 +84,7 @@ namespace edm {
       if (selector_->choose(iIndex, *iter)) {
         thinnedCollection.push_back(*iter);
         thinnedAssociation.push_back(iIndex);
+        selector_->modify(thinnedCollection.back());
       }
     }
     OrphanHandle<Collection> orphanHandle = event.emplace(outputToken_, std::move(thinnedCollection));

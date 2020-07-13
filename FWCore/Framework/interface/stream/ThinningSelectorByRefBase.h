@@ -13,6 +13,7 @@ namespace edm {
     void preChoose(Handle<Collection> inputCollection, Event const& event, EventSetup const& es);
     bool choose(unsigned int iIndex, T const& iItem);
     virtual void preChooseRefs(Handle<Collection> inputCollection, Event const& event, EventSetup const& es) = 0;
+    virtual void modify(T& iItem) {}
 
   protected:
     void addRef(Ref<Collection> const& ref);

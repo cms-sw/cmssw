@@ -36,6 +36,8 @@ namespace edmtest {
 
     bool choose(unsigned int iIndex, edmtest::Thing const& iItem);
 
+    void modify(edmtest::Thing& iItem);
+
   private:
     edm::EDGetTokenT<TrackOfThingsCollection> trackToken_;
     std::set<unsigned int> keysToSave_;
@@ -89,6 +91,11 @@ namespace edmtest {
     if (keysToSave_.find(iIndex) == keysToSave_.end())
       return false;
     return true;
+  }
+
+  void ThinningThingSelector::modify(edmtest::Thing& iItem) {
+    //e.g. zero data member to save storage space
+    iItem.a = 0;
   }
 }  // namespace edmtest
 
