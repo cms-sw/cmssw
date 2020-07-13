@@ -190,7 +190,6 @@ void HGCDigitizerBase<DFr>::runSimple(std::unique_ptr<HGCDigitizerBase::DColl>& 
 
 template <class DFr>
 void HGCDigitizerBase<DFr>::updateOutput(std::unique_ptr<HGCDigitizerBase::DColl>& coll, const DFr& rawDataFrame) {
-
   // 9th is the sample of hte intime amplitudes
   int itIdx(9);
   if (rawDataFrame.size() <= itIdx + 2)
@@ -201,16 +200,15 @@ void HGCDigitizerBase<DFr>::updateOutput(std::unique_ptr<HGCDigitizerBase::DColl
 
   // if in time amplitude is above threshold
   // , then don't push back the dataframe
-  if ( (! rawDataFrame[itIdx].threshold() ) ) {
+  if ((!rawDataFrame[itIdx].threshold())) {
     return;
-    }
+  }
 
   for (int it = 0; it < 5; it++) {
     dataFrame.setSample(it, rawDataFrame[itIdx - 2 + it]);
   }
 
   coll->push_back(dataFrame);
-
 }
 
 // cause the compiler to generate the appropriate code
