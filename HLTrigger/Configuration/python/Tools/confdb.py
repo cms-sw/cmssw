@@ -794,7 +794,6 @@ if 'GlobalTag' in %%(dict)s:
       self.options['esmodules'].append( "-L1GtTriggerMaskAlgoTrigTrivialProducer" )
       self.options['esmodules'].append( "-L1GtTriggerMaskTechTrigTrivialProducer" )
       self.options['esmodules'].append( "-hltESPEcalTrigTowerConstituentsMapBuilder" )
-      self.options['esmodules'].append( "-hltESPHcalChannelPropertiesEP" )
       self.options['esmodules'].append( "-hltESPGlobalTrackingGeometryESProducer" )
       self.options['esmodules'].append( "-hltESPMuonDetLayerGeometryESProducer" )
       self.options['esmodules'].append( "-hltESPTrackerRecoGeometryESProducer" )
