@@ -1,6 +1,17 @@
 import FWCore.ParameterSet.Config as cms
 import math
 
+def custom_towers_unclustered_tc(process):
+    process.hgcalTowerProducer.InputTriggerCells = cms.InputTag('hgcalBackEndLayer2Producer:HGCalBackendLayer2Processor3DClustering')
+    process.hgcalTowerProducerHFNose.InputTriggerCells = cms.InputTag('hgcalBackEndLayer2ProducerHFNose:HGCalBackendLayer2Processor3DClustering')
+    return process
+
+
+def custom_towers_all_tc(process):
+    process.hgcalTowerProducer.InputTriggerCells = cms.InputTag('hgcalBackEndLayer1Producer:HGCalBackendLayer1Processor2DClustering')
+    process.hgcalTowerProducerHFNose.InputTriggerCells = cms.InputTag('hgcalBackEndLayer1ProducerHFNose:HGCalBackendLayer1Processor2DClustering')
+    return process
+
 
 def custom_towers_etaphi(process,
         minEta=1.479,
