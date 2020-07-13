@@ -9,7 +9,6 @@
  ****************************************************************************/
 
 #include "FWCore/Framework/interface/ESHandle.h"
-#include "FWCore/Framework/interface/ESTransientHandle.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -40,37 +39,38 @@ private:
 
   std::string compactViewTag_;
   edm::ESWatcher<IdealGeometryRecord> watcherIdealGeometry_;
-  edm::Service<cond::service::PoolDBOutputService> dbservice_;
+  edm::Service<cond::service::PoolDBOutputService> dbService_;
 };
 
 
 PPSGeometryBuilder::PPSGeometryBuilder(const edm::ParameterSet& iConfig)
-    : compactViewTag_(iConfig.getUntrackedParameter<std::string>("compactViewTag", "XMLIdealGeometryESSource_CTPPS")) {
+  : compactViewTag_(iConfig.getUntrackedParameter<std::string>("compactViewTag", "XMLIdealGeometryESSource_CTPPS")
+		    ) {
 }
 
 
 void PPSGeometryBuilder::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
-  edm::ESHandle<cms::DDCompactView> cpv;
+  edm::ESHandle<cms::DDCompactView> myCompactView;
 
   if (watcherIdealGeometry_.check(iSetup)) {
-    std::cout << "Got IdealGeometryRecord" << std::endl;
-    iSetup.get<IdealGeometryRecord>().get(compactViewTag_.c_str(), cpv);
+    edm::LogInfo("PPSGeometryBuilder") << "Got IdealGeometryRecord ";
+    iSetup.get<IdealGeometryRecord>().get(compactViewTag_.c_str(), myCompactView);
   }
 
-  auto sentinel = PPSGeometryESProducer::buildDetGeomDescFromCompactView(*cpv);
+  // Build geometry
+  auto sentinel = PPSGeometryESProducer::buildDetGeomDescFromCompactView(*myCompactView);
 
   // Persistent geometry data
   PDetGeomDesc* pdet = new PDetGeomDesc;
   int counter = 0;
-  // Build geometry
   buildPDetFromDetGeomDesc(sentinel.get(), pdet, counter);
-
+ 
   // Save geometry in the database
   if (pdet->container_.empty()) {
     throw cms::Exception("PPSGeometryBuilder") << "PDetGeomDesc is empty, no geometry to save in the database.";
   } else {
-    if (dbservice_.isAvailable()) {
-      dbservice_->writeOne(pdet, dbservice_->beginOfTime(), "VeryForwardIdealGeometryRecord");
+    if (dbService_.isAvailable()) {
+      dbService_->writeOne(pdet, dbService_->beginOfTime(), "VeryForwardIdealGeometryRecord");
     } else {
       throw cms::Exception("PoolDBService required.");
     }
