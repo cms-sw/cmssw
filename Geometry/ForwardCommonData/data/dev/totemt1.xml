@@ -20,11 +20,11 @@
 		<Constant name="Up_Min_Base_Signal_Side_3G" value="(343.6+486.9)*mm-2*(13*mm / tan(30*deg))"/>
 		<Constant name="Up_Min_Base_Signal_Side_4G" value="(377.6+526)*mm-2*(13*mm / tan(30*deg))"/>
 		<Constant name="Up_Min_Base_Signal_Side_5G" value="(419.1+571.8)*mm-2*(13*mm / tan(30*deg))"/>
-		<Constant name="Low_Min_Base_Signal_Side_1G" value="235*mm+2*([TR_h_Signal_Side_1G]*mm*tan(30*deg))"/>
-		<Constant name="Low_Min_Base_Signal_Side_2G" value="246.5*mm+2*([TR_h_Signal_Side_2G]*mm*tan(30*deg))"/>
-		<Constant name="Low_Min_Base_Signal_Side_3G" value="256.9*mm+2*([TR_h_Signal_Side_3G]*mm*tan(30*deg))"/>
-		<Constant name="Low_Min_Base_Signal_Side_4G" value="269.6*mm+2*([TR_h_Signal_Side_4G]*mm*tan(30*deg))"/>
-		<Constant name="Low_Min_Base_Signal_Side_5G" value="262.1*mm+2*([TR_h_Signal_Side_5G]*mm*tan(30*deg))"/>
+		<Constant name="Low_Min_Base_Signal_Side_1G" value="235*mm+2*([TR_h_Signal_Side_1G]*tan(30*deg))"/>
+		<Constant name="Low_Min_Base_Signal_Side_2G" value="246.5*mm+2*([TR_h_Signal_Side_2G]*tan(30*deg))"/>
+		<Constant name="Low_Min_Base_Signal_Side_3G" value="256.9*mm+2*([TR_h_Signal_Side_3G]*tan(30*deg))"/>
+		<Constant name="Low_Min_Base_Signal_Side_4G" value="269.6*mm+2*([TR_h_Signal_Side_4G]*tan(30*deg))"/>
+		<Constant name="Low_Min_Base_Signal_Side_5G" value="262.1*mm+2*([TR_h_Signal_Side_5G]*tan(30*deg))"/>
 		<Constant name="Max_Base_Signal_Side_1G" value="338.9*mm + 465.1*mm"/>
 		<Constant name="Max_Base_Signal_Side_2G" value="370.1*mm + 501.2*mm"/>
 		<Constant name="Max_Base_Signal_Side_3G" value="398.1*mm + 533.6*mm"/>
@@ -5581,7 +5581,7 @@
 			<rParent name="totemt1:CSC_for_TotemT1_Plane_1_5"/>
 			<rChild name="totemt1:CornaL_CSC_for_TotemT1_Plane_1_5_0"/>
 			<rRotation name="totemRotations:RTOT27"/>
-			<Translation x="-(([Diagonale_2P]*mm-[Corna_dy_2P]/2.-[TR_h_Signal_Side_2P]/sin(60*deg))*sin(30*deg) +[Low_Min_Base_Signal_Side_2P]/2.-([Corna_dx_2P]/2.)*cos(30*deg)) " y="[Init_AA_from_Beam_2P]-[Frame4_h_2P]+([Diagonale_2P]-[Corna_dy_2P]/2.-[TR_h_Signal_Side_2P]/sin(60*deg))*cos(30*deg)+([Corna_dx_2P]/2.)*sin(30*deg)" z="[Pos_0_0_0_2P]"/>
+			<Translation x="-(([Diagonale_2P]-[Corna_dy_2P]/2.-[TR_h_Signal_Side_2P]/sin(60*deg))*sin(30*deg) +[Low_Min_Base_Signal_Side_2P]/2.-([Corna_dx_2P]/2.)*cos(30*deg)) " y="[Init_AA_from_Beam_2P]-[Frame4_h_2P]+([Diagonale_2P]-[Corna_dy_2P]/2.-[TR_h_Signal_Side_2P]/sin(60*deg))*cos(30*deg)+([Corna_dx_2P]/2.)*sin(30*deg)" z="[Pos_0_0_0_2P]"/>
 		</PosPart>
 		<PosPart copyNumber="1">
 			<rParent name="totemt1:CSC_for_TotemT1_Plane_1_5"/>
@@ -6049,7 +6049,7 @@
 			<rParent name="totemt1:CSC_for_TotemT1_Plane_2_5"/>
 			<rChild name="totemt1:CornaL_CSC_for_TotemT1_Plane_2_5_0"/>
 			<rRotation name="totemRotations:RTOT27"/>
-			<Translation x="-(([Diagonale_3P]*mm-[Corna_dy_3P]/2.-[TR_h_Signal_Side_3P]/sin(60*deg))*sin(30*deg) +[Low_Min_Base_Signal_Side_3P]/2.-([Corna_dx_3P]/2.)*cos(30*deg)) " y="[Init_AA_from_Beam_3P]-[Frame4_h_3P]+([Diagonale_3P]-[Corna_dy_3P]/2.-[TR_h_Signal_Side_3P]/sin(60*deg))*cos(30*deg)+([Corna_dx_3P]/2.)*sin(30*deg)" z="[Pos_0_0_0_3P]"/>
+			<Translation x="-(([Diagonale_3P]-[Corna_dy_3P]/2.-[TR_h_Signal_Side_3P]/sin(60*deg))*sin(30*deg) +[Low_Min_Base_Signal_Side_3P]/2.-([Corna_dx_3P]/2.)*cos(30*deg)) " y="[Init_AA_from_Beam_3P]-[Frame4_h_3P]+([Diagonale_3P]-[Corna_dy_3P]/2.-[TR_h_Signal_Side_3P]/sin(60*deg))*cos(30*deg)+([Corna_dx_3P]/2.)*sin(30*deg)" z="[Pos_0_0_0_3P]"/>
 		</PosPart>
 		<PosPart copyNumber="1">
 			<rParent name="totemt1:CSC_for_TotemT1_Plane_2_5"/>
@@ -6517,7 +6517,7 @@
 			<rParent name="totemt1:CSC_for_TotemT1_Plane_3_5"/>
 			<rChild name="totemt1:CornaL_CSC_for_TotemT1_Plane_3_5_0"/>
 			<rRotation name="totemRotations:RTOT27"/>
-			<Translation x="-(([Diagonale_4P]*mm-[Corna_dy_4P]/2.-[TR_h_Signal_Side_4P]/sin(60*deg))*sin(30*deg) +[Low_Min_Base_Signal_Side_4P]/2.-([Corna_dx_4P]/2.)*cos(30*deg)) " y="[Init_AA_from_Beam_4P]-[Frame4_h_4P]+([Diagonale_4P]-[Corna_dy_4P]/2.-[TR_h_Signal_Side_4P]/sin(60*deg))*cos(30*deg)+([Corna_dx_4P]/2.)*sin(30*deg)" z="[Pos_0_0_0_4P]"/>
+			<Translation x="-(([Diagonale_4P]-[Corna_dy_4P]/2.-[TR_h_Signal_Side_4P]/sin(60*deg))*sin(30*deg) +[Low_Min_Base_Signal_Side_4P]/2.-([Corna_dx_4P]/2.)*cos(30*deg)) " y="[Init_AA_from_Beam_4P]-[Frame4_h_4P]+([Diagonale_4P]-[Corna_dy_4P]/2.-[TR_h_Signal_Side_4P]/sin(60*deg))*cos(30*deg)+([Corna_dx_4P]/2.)*sin(30*deg)" z="[Pos_0_0_0_4P]"/>
 		</PosPart>
 		<PosPart copyNumber="1">
 			<rParent name="totemt1:CSC_for_TotemT1_Plane_3_5"/>
@@ -6985,7 +6985,7 @@
 			<rParent name="totemt1:CSC_for_TotemT1_Plane_4_5"/>
 			<rChild name="totemt1:CornaL_CSC_for_TotemT1_Plane_4_5_0"/>
 			<rRotation name="totemRotations:RTOT27"/>
-			<Translation x="-(([Diagonale_5P]*mm-[Corna_dy_5P]/2.-[TR_h_Signal_Side_5P]/sin(60*deg))*sin(30*deg) +[Low_Min_Base_Signal_Side_5P]/2.-([Corna_dx_5P]/2.)*cos(30*deg)) " y="[Init_AA_from_Beam_5P]-[Frame4_h_5P]+([Diagonale_5P]-[Corna_dy_5P]/2.-[TR_h_Signal_Side_5P]/sin(60*deg))*cos(30*deg)+([Corna_dx_5P]/2.)*sin(30*deg)" z="[Pos_0_0_0_5P]"/>
+			<Translation x="-(([Diagonale_5P]-[Corna_dy_5P]/2.-[TR_h_Signal_Side_5P]/sin(60*deg))*sin(30*deg) +[Low_Min_Base_Signal_Side_5P]/2.-([Corna_dx_5P]/2.)*cos(30*deg)) " y="[Init_AA_from_Beam_5P]-[Frame4_h_5P]+([Diagonale_5P]-[Corna_dy_5P]/2.-[TR_h_Signal_Side_5P]/sin(60*deg))*cos(30*deg)+([Corna_dx_5P]/2.)*sin(30*deg)" z="[Pos_0_0_0_5P]"/>
 		</PosPart>
 		<PosPart copyNumber="1">
 			<rParent name="totemt1:CSC_for_TotemT1_Plane_4_5"/>

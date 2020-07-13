@@ -191,9 +191,9 @@ DetGeomDesc::DetGeomDesc(cms::DDFilteredView* fv, const cms::DDSpecParRegistry& 
     else if (fv->isA<dd4hep::Polycone>()) {
       int counter = 0;
       for (const auto& para : params) {	
-	//if (counter != 4) {
-	m_params.emplace_back( para * (counter >= 2 ? (1. / 1._mm) : 1.));
-	//}
+	if (counter != 2) {
+	  m_params.emplace_back( para * (counter >= 2 ? (1. / 1._mm) : 1.));
+	}
 	++counter;
       }
     }
