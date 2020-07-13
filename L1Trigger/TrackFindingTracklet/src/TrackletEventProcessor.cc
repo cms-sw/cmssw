@@ -14,10 +14,10 @@
 using namespace trklet;
 using namespace std;
 
-TrackletEventProcessor::TrackletEventProcessor() = default;
+TrackletEventProcessor::TrackletEventProcessor() : settings_(nullptr) {}
 
 TrackletEventProcessor::~TrackletEventProcessor() {
-  if (settings_->bookHistos()) {
+  if (settings_ && settings_->bookHistos()) {
     histbase_->close();
   }
 }
