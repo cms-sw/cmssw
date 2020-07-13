@@ -32,6 +32,10 @@
 //#include "DataFormats/CTPPSAlignment/interface/RPAlignmentCorrectionData.h"
 #include "CondFormats/PPSObjects/interface/CTPPSRPAlignmentCorrectionData.h"
 
+#include "DataFormats/GeometrySurface/interface/RectangularPlaneBounds.h"
+#include "DetectorDescription/Core/interface/DDRotationMatrix.h"
+#include "DetectorDescription/Core/interface/DDTranslation.h"
+
 using namespace std;
 
 using namespace cms_units::operators;
@@ -105,9 +109,14 @@ DetGeomDesc::DetGeomDesc(cms::DDFilteredView* fv, const cms::DDSpecParRegistry& 
 
 
 
+  math::XYZVectorD S_m(1., 2., 3.);
+  const RotationMatrix id;
+  Translation shift_ = id * S_m;
+  std::cout << " dd4hep shift = " << shift_  << std::endl;
 
-
-
+  Local3DPoint p(1., 2., 3.);
+  Translation v(p.x(), p.y(), p.z());
+  std::cout << " dd4hep v = " << shift_  << std::endl;
 
 
 
