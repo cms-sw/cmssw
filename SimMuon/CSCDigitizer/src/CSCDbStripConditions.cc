@@ -7,9 +7,9 @@
 #include "FWCore/Utilities/interface/Exception.h"
 #include "SimMuon/CSCDigitizer/src/CSCDbStripConditions.h"
 
-CSCDbStripConditions::CSCDbStripConditions(const edm::ParameterSet &pset)
+CSCDbStripConditions::CSCDbStripConditions(const edm::ParameterSet &pset, edm::ConsumesCollector cc)
     : CSCStripConditions(),
-      theConditions(pset),
+      theConditions(pset, cc),
       theCapacitiveCrosstalk(pset.getParameter<double>("capacativeCrosstalk")),
       theResistiveCrosstalkScaling(pset.getParameter<double>("resistiveCrosstalkScaling")),
       theGainsConstant(pset.getParameter<double>("gainsConstant")),
