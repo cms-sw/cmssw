@@ -219,7 +219,7 @@ def HGCal_setEndOfLifeNoise(process,byDose=True,byDoseAlgo=0,byDoseFactor=1):
     return process
 
 def HGCal_setEndOfLifeNoise_4000(process):
-    HGCAL_cceParams_toUse = cms.PSet(
+    process.HGCAL_cceParams_toUse = cms.PSet(
         cceParamFine  = cms.vdouble(cceParamFine_epi800),
         cceParamThin  = cms.vdouble(cceParamThin_tdr800),
         cceParamThick = cms.vdouble(cceParamThick_tdr800)
@@ -229,6 +229,16 @@ def HGCal_setEndOfLifeNoise_4000(process):
     )
     return HGCal_setEndOfLifeNoise(process,byDoseFactor=1.333)
 
+def HGCal_setEndOfLifeNoise_1500(process):
+    process.HGCAL_cceParams_toUse = cms.PSet(
+        cceParamFine  = cms.vdouble(cceParamFine_epi600),
+        cceParamThin  = cms.vdouble(cceParamThin_tdr600),
+        cceParamThick = cms.vdouble(cceParamThick_tdr600)
+    )
+    process.HGCAL_ileakParam_toUse    = cms.PSet(
+        ileakParam = cms.vdouble(ileakParam_600V)
+    )
+    return HGCal_setEndOfLifeNoise(process,byDoseFactor=0.5)
 
 def HGCal_ignoreFluence(process):
     """include all effects except fluence impact on leakage current and CCE"""
