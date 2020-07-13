@@ -74,7 +74,7 @@ int main(const int argc, const char **argv) {
   // ---------------------------------------------------------
 
   TrackletEventProcessor eventProcessor;
-  eventProcessor.init(&settings);
+  eventProcessor.init(settings);
 
   if (argc < 3)
     edm::LogVerbatim("Tracklet") << "Need to specify the input ascii file and the number of events to run on!";
