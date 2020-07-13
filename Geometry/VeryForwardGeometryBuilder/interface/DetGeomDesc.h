@@ -103,7 +103,9 @@ private:
   void deepDeleteComponents();  /// traverses the treee and deletes all nodes.
   void clearComponents() { m_container.resize(0); }
 
+  std::vector<double> computeParameters(const cms::DDFilteredView& fv) const;
   DetId computeDetID(const cms::DDFilteredView& fv) const;
+  std::string computeSensorType(const std::string& nodePath, const cms::DDSpecParRegistry& allSpecParSections);
 
   Container m_container;
   Translation m_trans;

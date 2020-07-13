@@ -11,10 +11,11 @@
 
 #include "Geometry/VeryForwardGeometryBuilder/interface/DetGeomDesc.h"
 #include "Geometry/VeryForwardGeometryBuilder/interface/CTPPSDDDNames.h"
+#include "CondFormats/GeometryObjects/interface/PDetGeomDesc.h"
+#include "CondFormats/PPSObjects/interface/CTPPSRPAlignmentCorrectionData.h"
 
 #include "DetectorDescription/Core/interface/DDFilteredView.h"
 #include "DetectorDescription/Core/interface/DDSolid.h"
-
 #include "DataFormats/Math/interface/CMSUnits.h"
 #include "DetectorDescription/DDCMS/interface/DDFilteredView.h"
 #include "DetectorDescription/DDCMS/interface/DDShapes.h"
@@ -25,22 +26,10 @@
 #include "DataFormats/CTPPSDetId/interface/TotemTimingDetId.h"
 #include "DataFormats/CTPPSDetId/interface/CTPPSPixelDetId.h"
 #include "DataFormats/CTPPSDetId/interface/CTPPSDiamondDetId.h"
-#include "Geometry/VeryForwardGeometryBuilder/interface/CTPPSDDDNames.h"
 
-#include "CondFormats/GeometryObjects/interface/PDetGeomDesc.h"
-
-//#include "DataFormats/CTPPSAlignment/interface/RPAlignmentCorrectionData.h"
-#include "CondFormats/PPSObjects/interface/CTPPSRPAlignmentCorrectionData.h"
-
-#include "DataFormats/GeometrySurface/interface/RectangularPlaneBounds.h"
-#include "DetectorDescription/Core/interface/DDRotationMatrix.h"
-#include "DetectorDescription/Core/interface/DDTranslation.h"
 
 using namespace std;
-
 using namespace cms_units::operators;
-
-//----------------------------------------------------------------------------------------------------
 
 DetGeomDesc::DetGeomDesc(DDFilteredView* fv)
   : m_trans(fv->translation()),
@@ -57,177 +46,17 @@ DetGeomDesc::DetGeomDesc(DDFilteredView* fv)
   }
 }
 
-//----------------------------------------------------------------------------------------------------
-
-// Constructor from DD4Hep DDFilteredView
-
+// Constructor from DD4Hep DDFilteredView, also using the SpecPars to access 2x2 wafers info.
 DetGeomDesc::DetGeomDesc(const cms::DDFilteredView& fv, const cms::DDSpecParRegistry& allSpecParSections)
-  /*: m_trans(fv->translation()),
-    m_rot(fv->rotation()),
-    m_name(fv->name()),
-    //      m_params(((fv->logicalPart()).solid()).parameters()),
-    m_copy(fv->copyNum()),
-    m_z((fv->geoHistory().front()->GetMatrix()->GetTranslation())[2]),
-    m_sensorType("") {
-    //  std::string sensor_name = fv->geoHistory().back().logicalPart().name().fullname();
-    /*
-    std::string sensor_name = fv->history().back().logicalPart().name().fullname();
-    std::size_t found = sensor_name.find(DDD_CTPPS_PIXELS_SENSOR_NAME);
-    if (found != std::string::npos && sensor_name.substr(found - 4, 3) == DDD_CTPPS_PIXELS_SENSOR_TYPE_2x2) {
-    m_sensorType = DDD_CTPPS_PIXELS_SENSOR_TYPE_2x2;
-    }
-  */
-
-
-
   : m_trans(fv.translation() / 1._mm),  // Convert cm (DD4hep) to mm (legacy)
     m_rot(fv.rotation()),
     m_name(fv.name()),
-    //m_params = ((fv.volume()).solid()).parameters(); TO DOOOOOOOOOOOOOOOOOOOOOOOOO
-    //m_params(fv.parameters()),
-    
-
+    m_params(computeParameters(fv)),
     m_geographicalID(computeDetID(fv)),
     m_copy(fv.copyNum()),
-    //m_z = fv.geoHistory().back().absTranslation().z();
-    m_z(fv.translation().z() / 1._mm)  // Convert cm (DD4hep) to mm (legacy)
-    //m_sensorType(fv.path()) 
-{
-
-
-  const std::string parameterName = "2x2RPixWafer";
-  cms::DDSpecParRefs filteredSpecParSections;
-  allSpecParSections.filter(filteredSpecParSections, parameterName);
-  for (const auto& mySpecParSection : filteredSpecParSections) {
-    if (mySpecParSection->hasPath(fv.path())) {
-      //return mySpecParSection->value<std::vector<T>>(parameterName);
-      m_sensorType = DDD_CTPPS_PIXELS_SENSOR_TYPE_2x2;
-    }
-  }
-
-
-
-
-
-  const cms::DDSolidShape& mySolidShape = cms::dd::getCurrentShape(fv);
-  std::cout << "m_name = " << m_name << std::endl;
-  std::cout << "id = " << m_geographicalID << std::endl;
-  std::cout << " path = " << fv.path() << std::endl;
-
-  if (mySolidShape == cms::DDSolidShape::ddbox) {
-    const cms::dd::DDBox& myShape = cms::dd::DDBox(fv);
-    m_params = { myShape.halfX() / 1._mm,
-		 myShape.halfY() / 1._mm,
-		 myShape.halfZ() / 1._mm
-    }; 
-  }
-
-  else if (mySolidShape == cms::DDSolidShape::ddcons) {
-    const cms::dd::DDCons& myShape = cms::dd::DDCons(fv);
-    m_params = { myShape.zhalf() / 1._mm,
-		 myShape.rInMinusZ() / 1._mm,
-		 myShape.rOutMinusZ() / 1._mm,
-		 myShape.rInPlusZ() / 1._mm,
-		 myShape.rOutPlusZ() / 1._mm,
-		 myShape.phiFrom(),
-		 myShape.deltaPhi()
-    }; 
-  }
-  else if (mySolidShape == cms::DDSolidShape::ddtrap) {
-    const cms::dd::DDTrap& myShape = cms::dd::DDTrap(fv);
-    m_params = { myShape.halfZ() / 1._mm,
-		 myShape.theta(),
-		 myShape.phi(),
-		 myShape.y1() / 1._mm,
-		 myShape.x1() / 1._mm,
-		 myShape.x2() / 1._mm,
-		 myShape.alpha1(),
-		 myShape.y2() / 1._mm,
-		 myShape.x3() / 1._mm,
-		 myShape.x4() / 1._mm,		 
-		 myShape.alpha2()
-    }; 
-  }
-  else if (mySolidShape == cms::DDSolidShape::ddtubs) {
-    const cms::dd::DDTubs& myShape = cms::dd::DDTubs(fv);
-    m_params = { myShape.zhalf() / 1._mm,
-		 myShape.rIn() / 1._mm,
-		 myShape.rOut() / 1._mm,
-		 myShape.startPhi(),
-		 myShape.deltaPhi()
-    };
-  }
-  else if (mySolidShape == cms::DDSolidShape::ddtrunctubs) {
-    const cms::dd::DDTruncTubs& myShape = cms::dd::DDTruncTubs(fv);
-    m_params = { myShape.zHalf() / 1._mm,
-		 myShape.rIn() / 1._mm,
-		 myShape.rOut() / 1._mm,
-		 myShape.startPhi(),
-		 myShape.deltaPhi(),
-		 myShape.cutAtStart() / 1._mm,
-		 myShape.cutAtDelta() / 1._mm,
-		 static_cast<double>(myShape.cutInside())
-    }; 
-  }
-  else if (mySolidShape == cms::DDSolidShape::dd_not_init) {
-    auto myShape = fv.solid();
-    const std::vector<double>& params = myShape.dimensions();
-    if (fv.isA<dd4hep::Trd1>()) {
-      m_params = { params[3] / 1._mm, // z
-		   0.,
-		   0.,
-		   params[2] / 1._mm, // y
-		   params[0] / 1._mm, // x1
-		   params[0] / 1._mm, // x1
-		   0.,
-		   params[2] / 1._mm, // y
-		   params[1] / 1._mm, // x2
-		   params[1] / 1._mm, // x2
-		   0.  
-      };
-    }
-    else if (fv.isA<dd4hep::Polycone>()) {
-      int counter = 0;
-      for (const auto& para : params) {	
-	if (counter != 2) {
-	  m_params.emplace_back( para * (counter >= 2 ? (1. / 1._mm) : 1.));
-	}
-	++counter;
-      }
-    }
-    else {
-      //if (fv.solid()->GetShape()->IsA() != TGeoCompositeShape::Class()) {
-      //if (!fv.isA<dd4hep::BooleanSolid>()) {
-      //if (fv.getShapePtr<TGeoCompositeShape::Class()>()
-      std::cout << "DetGeomDesc::DetGeomDesc(cms::DDFilteredView* fv): ERROR: shape not supported for " 
-		<< m_name << ", Id = " << m_geographicalID
-		<< std::endl;
-      //}
-    }
-  }
-
-
-
-
-
-  /*
-    std::cout << "DetGeomDesc::DetGeomDesc m_name = " << m_name << std::endl;
-    std::cout << "view->copyNumbers() = ";
-    for (const auto& num : fv.copyNumbers()) {
-    std::cout << num << " ";
-    }
-    std::cout << " " << std::endl;*/
-
- 
-  //const std::string sensor_name {fv.name()};
-  //const std::string sensor_name = fv.fullname();
-  //std::string sensor_name = fv.geoHistory().back().logicalPart().name().fullname();
-  /* std::size_t found = sensor_name.find(DDD_CTPPS_PIXELS_SENSOR_NAME);
-     if (found != std::string_view::npos && sensor_name.substr(found - 4, 3) == DDD_CTPPS_PIXELS_SENSOR_TYPE_2x2) {
-     m_sensorType = DDD_CTPPS_PIXELS_SENSOR_TYPE_2x2;
-     }*/
-
-}
+    m_z(fv.translation().z() / 1._mm),  // Convert cm (DD4hep) to mm (legacy)
+    m_sensorType(computeSensorType(fv.path(), allSpecParSections))
+{}
 
 //----------------------------------------------------------------------------------------------------
 
@@ -300,6 +129,121 @@ void DetGeomDesc::applyAlignment(const CTPPSRPAlignmentCorrectionData& t) {
   m_rot = t.getRotationMatrix() * m_rot;
   m_trans = t.getTranslation() + m_trans;
 }
+
+
+std::vector<double> DetGeomDesc::computeParameters(const cms::DDFilteredView& fv) const {
+  const cms::DDSolidShape& mySolidShape = cms::dd::getCurrentShape(fv);
+
+  if (mySolidShape == cms::DDSolidShape::ddbox) {
+    const cms::dd::DDBox& myShape = cms::dd::DDBox(fv);
+    m_params = { myShape.halfX() / 1._mm,
+		 myShape.halfY() / 1._mm,
+		 myShape.halfZ() / 1._mm
+    }; 
+  }
+  else if (mySolidShape == cms::DDSolidShape::ddcons) {
+    const cms::dd::DDCons& myShape = cms::dd::DDCons(fv);
+    m_params = { myShape.zhalf() / 1._mm,
+		 myShape.rInMinusZ() / 1._mm,
+		 myShape.rOutMinusZ() / 1._mm,
+		 myShape.rInPlusZ() / 1._mm,
+		 myShape.rOutPlusZ() / 1._mm,
+		 myShape.phiFrom(),
+		 myShape.deltaPhi()
+    }; 
+  }
+  else if (mySolidShape == cms::DDSolidShape::ddtrap) {
+    const cms::dd::DDTrap& myShape = cms::dd::DDTrap(fv);
+    m_params = { myShape.halfZ() / 1._mm,
+		 myShape.theta(),
+		 myShape.phi(),
+		 myShape.y1() / 1._mm,
+		 myShape.x1() / 1._mm,
+		 myShape.x2() / 1._mm,
+		 myShape.alpha1(),
+		 myShape.y2() / 1._mm,
+		 myShape.x3() / 1._mm,
+		 myShape.x4() / 1._mm,		 
+		 myShape.alpha2()
+    }; 
+  }
+  else if (mySolidShape == cms::DDSolidShape::ddtubs) {
+    const cms::dd::DDTubs& myShape = cms::dd::DDTubs(fv);
+    m_params = { myShape.zhalf() / 1._mm,
+		 myShape.rIn() / 1._mm,
+		 myShape.rOut() / 1._mm,
+		 myShape.startPhi(),
+		 myShape.deltaPhi()
+    };
+  }
+  else if (mySolidShape == cms::DDSolidShape::ddtrunctubs) {
+    const cms::dd::DDTruncTubs& myShape = cms::dd::DDTruncTubs(fv);
+    m_params = { myShape.zHalf() / 1._mm,
+		 myShape.rIn() / 1._mm,
+		 myShape.rOut() / 1._mm,
+		 myShape.startPhi(),
+		 myShape.deltaPhi(),
+		 myShape.cutAtStart() / 1._mm,
+		 myShape.cutAtDelta() / 1._mm,
+		 static_cast<double>(myShape.cutInside())
+    }; 
+  }
+  else if (mySolidShape == cms::DDSolidShape::dd_not_init) {
+    auto myShape = fv.solid();
+    const std::vector<double>& params = myShape.dimensions();
+    if (fv.isA<dd4hep::Trd1>()) {
+      m_params = { params[3] / 1._mm, // z
+		   0.,
+		   0.,
+		   params[2] / 1._mm, // y
+		   params[0] / 1._mm, // x1
+		   params[0] / 1._mm, // x1
+		   0.,
+		   params[2] / 1._mm, // y
+		   params[1] / 1._mm, // x2
+		   params[1] / 1._mm, // x2
+		   0.  
+      };
+    }
+    else if (fv.isA<dd4hep::Polycone>()) {
+      int counter = 0;
+      for (const auto& para : params) {	
+	if (counter != 2) {
+	  const double factor = (counter >= 2 ? (1. / 1._mm) : 1.);
+	  para *= factor;
+	  m_params.emplace_back(para);
+	}
+	++counter;
+      }
+    }
+    /*
+    else {
+      if (!fv.isA<dd4hep::BooleanSolid>()) {
+      std::cout << "DetGeomDesc::DetGeomDesc(cms::DDFilteredView* fv): ERROR: shape not supported for " 
+		<< m_name << ", Id = " << m_geographicalID
+		<< std::endl;
+      }
+      }*/
+  }
+
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 DetId DetGeomDesc::computeDetID(const cms::DDFilteredView& fv) const {
@@ -410,4 +354,22 @@ DetId DetGeomDesc::computeDetID(const cms::DDFilteredView& fv) const {
   }
 
   return geoID;
+}
+
+
+/*
+ * If nodePath has a 2x2RPixWafer parameter defined in an XML SPecPar section, sensorType is 2x2.
+ */
+std::string DetGeomDesc::computeSensorType(const std::string& nodePath, const cms::DDSpecParRegistry& allSpecParSections) {
+
+  const std::string parameterName = DDD_CTPPS_2x2_RPIXWAFER_PARAMETER_NAME;
+
+  cms::DDSpecParRefs filteredSpecParSections;
+  allSpecParSections.filter(filteredSpecParSections, parameterName);
+  for (const auto& mySpecParSection : filteredSpecParSections) {
+    if (mySpecParSection->hasPath(fv.path())) {
+      m_sensorType = DDD_CTPPS_PIXELS_SENSOR_TYPE_2x2;
+    }
+  }
+
 }
