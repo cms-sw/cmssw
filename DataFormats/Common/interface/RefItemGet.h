@@ -115,6 +115,54 @@ namespace edm {
   inline bool isThinnedAvailable(RefCore const& product, KEY const& iKey) {
     return refitem::IsThinnedAvailableImpl<C, KEY>::isThinnedAvailable_(product, iKey);
   }
+
+  template <typename C>
+  inline Ref<C> thinnedRefFrom(Ref<C> const& parent, ProductID const& targetpid, EDProductGetter const& prodGetter) {
+    if (parent.id() == targetpid) {
+      return parent;
+    }
+    unsigned int key = parent.key();
+    WrapperBase const* thinnedprod = prodGetter.getThinnedProduct(parent.id(), key, targetpid);
+    if (thinnedprod == nullptr) {
+      return Ref<C>(targetpid);
+    }
+    typename edm::Ref<C>::finder_type finder;
+    Wrapper<C> const* wrapper = static_cast<Wrapper<C> const*>(thinnedprod);
+    typename edm::Ref<C>::value_type const* item = finder(*wrapper->product(), key);
+    return Ref<C>(targetpid, item, key);
+  }
+
+  template <typename C,
+            typename T = typename refhelper::ValueTrait<C>::value,
+            typename F = typename refhelper::FindTrait<C, T>::value>
+  inline RefVector<C, T, F> thinnedRefVectorFrom(RefVector<C, T, F> const& parent,
+                                                 ProductID const& targetpid,
+                                                 EDProductGetter const& prodGetter) {
+    if (parent.id() == targetpid) {
+      return parent;
+    }
+    unsigned int key = parent.key();
+    std::vector<WrapperBase const*> thinnedprods(parent.size(), nullptr);
+    std::vector<unsigned int> keys(parent.size());
+    for (unsigned int i = 0; i < parent.size(); ++i) {
+      keys[i] = parent[i].key();
+    }
+    prodGetter.getThinnedProducts(parent.id(), thinnedprods, keys, targetpid);
+    RefVector<C, T, F> thinnedrefs(targetpid);
+    typename edm::Ref<C>::finder_type finder;
+    for (unsigned int i = 0; i < parent.size(); ++i) {
+      Wrapper<C> const* wrapper = static_cast<Wrapper<C> const*>(thinnedprods[i]);
+      if (wrapper == nullptr) {
+        continue;
+      }
+      unsigned int key = keys[i];
+      typename edm::Ref<C>::value_type const* item = finder(*wrapper->product(), key);
+      Ref<C> ref(targetpid, item, key);
+      thinnedrefs.push_back(ref);
+    }
+    return thinnedrefs;
+  }
+
 }  // namespace edm
 
 #endif
