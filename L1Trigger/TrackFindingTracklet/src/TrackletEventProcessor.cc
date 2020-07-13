@@ -14,16 +14,16 @@
 using namespace trklet;
 using namespace std;
 
-TrackletEventProcessor::TrackletEventProcessor() = default;
+TrackletEventProcessor::TrackletEventProcessor() : settings_(nullptr) {}
 
 TrackletEventProcessor::~TrackletEventProcessor() {
-  if (settings_->bookHistos()) {
+  if (settings_ && settings_->bookHistos()) {
     histbase_->close();
   }
 }
 
-void TrackletEventProcessor::init(const Settings* theSettings) {
-  settings_ = theSettings;
+void TrackletEventProcessor::init(Settings const& theSettings) {
+  settings_ = &theSettings;
 
   globals_ = make_unique<Globals>(*settings_);
 
