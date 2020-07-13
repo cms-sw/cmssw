@@ -71,6 +71,7 @@ HGCSiNoiseMapAnalyzer::HGCSiNoiseMapAnalyzer(const edm::ParameterSet &iConfig) {
   //configure the dose map
   std::string doseMapURL(iConfig.getParameter<std::string>("doseMap"));
   unsigned int doseMapAlgo(iConfig.getParameter<unsigned int>("doseMapAlgo"));
+  double scaleByDoseFactor = iConfig.getParameter<edm::ParameterSet>("noise_fC").getParameter<double>("scaleByDoseFactor");
   std::vector<double> ileakParam(
       iConfig.getParameter<edm::ParameterSet>("ileakParam").template getParameter<std::vector<double>>("ileakParam"));
   std::vector<double> cceParamFine(
@@ -82,11 +83,15 @@ HGCSiNoiseMapAnalyzer::HGCSiNoiseMapAnalyzer(const edm::ParameterSet &iConfig) {
 
   noiseMaps_[DetId::HGCalEE] = std::unique_ptr<HGCalSiNoiseMap>(new HGCalSiNoiseMap);
   noiseMaps_[DetId::HGCalEE]->setDoseMap(doseMapURL, doseMapAlgo);
+  noiseMaps_[DetId::HGCalEE]->setDoseMap(doseMapURL, doseMapAlgo);
+  noiseMaps_[DetId::HGCalEE]->setFluenceScaleFactor(scaleByDoseFactor);
+
   noiseMaps_[DetId::HGCalEE]->setIleakParam(ileakParam);
   noiseMaps_[DetId::HGCalEE]->setCceParam(cceParamFine, cceParamThin, cceParamThick);
 
   noiseMaps_[DetId::HGCalHSi] = std::unique_ptr<HGCalSiNoiseMap>(new HGCalSiNoiseMap);
   noiseMaps_[DetId::HGCalHSi]->setDoseMap(doseMapURL, doseMapAlgo);
+  noiseMaps_[DetId::HGCalHSi]->setFluenceScaleFactor(scaleByDoseFactor);
   noiseMaps_[DetId::HGCalHSi]->setIleakParam(ileakParam);
   noiseMaps_[DetId::HGCalHSi]->setCceParam(cceParamFine, cceParamThin, cceParamThick);
 
