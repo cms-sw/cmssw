@@ -80,21 +80,22 @@ CSCTriggerPrimitivesProducer::CSCTriggerPrimitivesProducer(const edm::ParameterS
   produces<CSCCorrelatedLCTDigiCollection>("MPCSORTED");
   if (runME11ILT_ or runME21ILT_)
     produces<GEMCoPadDigiCollection>();
+
+  // temporarily switch to a "one" module with a CSCTriggerPrimitivesBuilder data member
+  builder_ = std::make_unique<CSCTriggerPrimitivesBuilder>(config_);
 }
 
 CSCTriggerPrimitivesProducer::~CSCTriggerPrimitivesProducer() {}
 
-void CSCTriggerPrimitivesProducer::produce(edm::StreamID iID, edm::Event& ev, const edm::EventSetup& setup) const {
-  // Remark: access builder using "streamCache(iID)"
-
+void CSCTriggerPrimitivesProducer::produce(edm::Event& ev, const edm::EventSetup& setup) {
   // get the csc geometry
   edm::ESHandle<CSCGeometry> h = setup.getHandle(cscToken_);
-  streamCache(iID)->setCSCGeometry(&*h);
+  builder_->setCSCGeometry(&*h);
 
   // get the gem geometry if it's there
   edm::ESHandle<GEMGeometry> h_gem = setup.getHandle(gemToken_);
   if (h_gem.isValid()) {
-    streamCache(iID)->setGEMGeometry(&*h_gem);
+    builder_->setGEMGeometry(&*h_gem);
   } else {
     edm::LogInfo("CSCTriggerPrimitivesProducer|NoGEMGeometry")
         << "+++ Info: GEM geometry is unavailable. Running CSC-only trigger algorithm. +++\n";
@@ -114,7 +115,7 @@ void CSCTriggerPrimitivesProducer::produce(edm::StreamID iID, edm::Event& ev, co
           << "+++ Cannot continue emulation without these parameters +++\n";
       return;
     }
-    streamCache(iID)->setConfigParameters(conf.product());
+    builder_->setConfigParameters(conf.product());
   }
 
   // Get the collections of comparator & wire digis from event.
@@ -167,21 +168,21 @@ void CSCTriggerPrimitivesProducer::produce(edm::StreamID iID, edm::Event& ev, co
   // Fill output collections if valid input collections are available.
   if (wireDigis.isValid() && compDigis.isValid()) {
     const CSCBadChambers* temp = checkBadChambers_ ? pBadChambers.product() : new CSCBadChambers;
-    streamCache(iID)->build(temp,
-                            wireDigis.product(),
-                            compDigis.product(),
-                            gemPads,
-                            gemPadClusters,
-                            *oc_alct,
-                            *oc_alct_all,
-                            *oc_clct,
-                            *oc_clct_all,
-                            *oc_alctpretrigger,
-                            *oc_clctpretrigger,
-                            *oc_pretrig,
-                            *oc_lct,
-                            *oc_sorted_lct,
-                            *oc_gemcopad);
+    builder_->build(temp,
+                    wireDigis.product(),
+                    compDigis.product(),
+                    gemPads,
+                    gemPadClusters,
+                    *oc_alct,
+                    *oc_alct_all,
+                    *oc_clct,
+                    *oc_clct_all,
+                    *oc_alctpretrigger,
+                    *oc_clctpretrigger,
+                    *oc_pretrig,
+                    *oc_lct,
+                    *oc_sorted_lct,
+                    *oc_gemcopad);
     if (!checkBadChambers_)
       delete temp;
   }
