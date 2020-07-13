@@ -107,7 +107,7 @@ namespace {
   inline void local_exp_list(double const* __restrict__ arg_inp,
                              double* __restrict__ arg_out,
                              const unsigned arg_arr_size) {
-    for (unsigned i = 0; i != arg_arr_size; ++i)
+    for (unsigned i = 0; i < arg_arr_size; ++i)
       arg_out[i] = vdt::fast_exp(arg_inp[i]);
   }
 
@@ -116,7 +116,7 @@ namespace {
                                    const unsigned int kmin,
                                    const unsigned int kmax) {
 #pragma omp simd
-    for (auto i = kmin; i < kmax; ++i)
+    for (unsigned i = kmin; i < kmax; ++i)
       arg_out[i] = vdt::fast_exp(arg_inp[i]);
   }
 
@@ -791,11 +791,11 @@ bool DAClusterizerInZT_vect::purge(vertex_t& y, track_t& tks, double& rho0, cons
 
     nUnique = 0;
     sump = 0;
-    double pcut = ppcut_cache[k];
+#pragma omp simd reduction(+ : sump) reduction(+ : nUnique)
     for (unsigned int i = 0; i < nt; ++i) {
       const auto p = y.pk_ptr[k] * peik_cache[i] * pinverse_zsums[i];
       sump += p;
-      nUnique += ((p > pcut) & (tks.pi_ptr[i] > 0)) ? 1 : 0;
+      nUnique += ((p > ppcut_cache[k]) & (tks.pi_ptr[i] > 0)) ? 1 : 0;
     }
 
     if ((nUnique < 2) && (sump < sumpmin)) {
@@ -1303,9 +1303,9 @@ vector<TransientVertex> DAClusterizerInZT_vect::vertices(const vector<reco::Tran
       y.z_ptr[k] = 0;
     }
 
-  const auto zsuminit = rho0 * local_exp(-beta * dzCutOff_ * dzCutOff_);
+  const auto z_sum_init = rho0 * local_exp(-beta * dzCutOff_ * dzCutOff_);
   for (unsigned int i = 0; i < nt; i++)  // initialize
-    tks.Z_sum_ptr[i] = zsuminit;
+    tks.Z_sum_ptr[i] = z_sum_init;
 
   // improve vectorization (does not require reduction ....)
   for (unsigned int k = 0; k < nv; k++) {
@@ -1497,7 +1497,7 @@ void DAClusterizerInZT_vect::dump(const double beta, const vertex_t& y, const tr
         if ((tks.pi_ptr[i] > 0) && (tks.Z_sum_ptr[i] > 0)) {
           double p =
               y.pk_ptr[ivertex] *
-              exp(-beta *
+              local_exp(-beta *
                   Eik(tks.z_ptr[i], y.z_ptr[ivertex], tks.dz2_ptr[i], tks.t_ptr[i], y.t_ptr[ivertex], tks.dt2_ptr[i])) /
               tks.Z_sum_ptr[i];
 
