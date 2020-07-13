@@ -7,7 +7,7 @@
 
 class CSCDbStripConditions : public CSCStripConditions {
 public:
-  explicit CSCDbStripConditions(const edm::ParameterSet &pset);
+  explicit CSCDbStripConditions(const edm::ParameterSet &pset, edm::ConsumesCollector cc);
   ~CSCDbStripConditions() override;
 
   /// fetch the maps from the database
