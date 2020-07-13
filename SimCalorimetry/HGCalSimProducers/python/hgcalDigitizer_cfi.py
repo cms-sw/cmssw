@@ -32,10 +32,13 @@ cceParamThick_ttu600 = [6e+14,   -8.01557e-16, 0.157375]      #300
 cceParamFine_ttu800  = [1.5e+15, 3.35246e-17,  0.251679]      #120
 cceParamThin_ttu800  = [1.5e+15, -1.62096e-16, 0.293828]      #200
 cceParamThick_ttu800 = [6e+14,   -5.95259e-16, 0.183929]      #300
+# scaling the ddfz curve to match Timo's 800V measuremetn at 3.5E15
+cceParamFine_epi800 = [3.5e+15, -1.4285714e-17, 0.263812]     #120
 #  line+log tdr 600V EPI
-cceParamFine_epi600  = [3.5e+15, -9.73872e-19, 0.263812]      #120
+cceParamFine_epi600  = [3.5e+15, -3.428571e-17, 0.263812]     #120 - scaling the ddfz curve to match Timo's 600V measurement at 3.5E15 
 cceParamThin_epi600  = [1.5e+15, -3.09878e-16, 0.211207]      #200
 cceParamThick_epi600 = [6e+14,   -7.96539e-16, 0.251751]      #300
+
 
 HGCAL_cceParams_toUse = cms.PSet(
     cceParamFine  = cms.vdouble(cceParamFine_epi600),
@@ -216,10 +219,16 @@ def HGCal_setEndOfLifeNoise(process,byDose=True,byDoseAlgo=0,byDoseFactor=1):
     return process
 
 def HGCal_setEndOfLifeNoise_4000(process):
+    HGCAL_cceParams_toUse = cms.PSet(
+        cceParamFine  = cms.vdouble(cceParamFine_epi800),
+        cceParamThin  = cms.vdouble(cceParamThin_ttu800),
+        cceParamThick = cms.vdouble(cceParamThick_ttu800)
+    )
     process.HGCAL_ileakParam_toUse    = cms.PSet(
-    ileakParam = cms.vdouble(ileakParam_800V)
+        ileakParam = cms.vdouble(ileakParam_800V)
     )
     return HGCal_setEndOfLifeNoise(process,byDoseFactor=1.333)
+
 
 def HGCal_ignoreFluence(process):
     """include all effects except fluence impact on leakage current and CCE"""
