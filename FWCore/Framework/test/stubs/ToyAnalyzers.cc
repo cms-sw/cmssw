@@ -109,7 +109,10 @@ namespace edmtest {
   class GenericAnalyzerT : public edm::global::EDAnalyzer<> {
   public:
     GenericAnalyzerT(edm::ParameterSet const& iPSet)
-        : tokensBeginRun_(
+        : tokensBeginProcess_(edm::vector_transform(
+              iPSet.getUntrackedParameter<std::vector<edm::InputTag>>("srcBeginProcess"),
+              [this](edm::InputTag const& tag) { return this->consumes<T, edm::InProcess>(tag); })),
+          tokensBeginRun_(
               edm::vector_transform(iPSet.getUntrackedParameter<std::vector<edm::InputTag>>("srcBeginRun"),
                                     [this](edm::InputTag const& tag) { return this->consumes<T, edm::InRun>(tag); })),
           tokensBeginLumi_(
@@ -123,6 +126,9 @@ namespace edmtest {
           tokensEndRun_(
               edm::vector_transform(iPSet.getUntrackedParameter<std::vector<edm::InputTag>>("srcEndRun"),
                                     [this](edm::InputTag const& tag) { return this->consumes<T, edm::InRun>(tag); })),
+          tokensEndProcess_(edm::vector_transform(
+              iPSet.getUntrackedParameter<std::vector<edm::InputTag>>("srcEndProcess"),
+              [this](edm::InputTag const& tag) { return this->consumes<T, edm::InProcess>(tag); })),
           shouldExist_(iPSet.getUntrackedParameter<bool>("inputShouldExist")),
           shouldBeMissing_(iPSet.getUntrackedParameter<bool>("inputShouldBeMissing")) {
       if (shouldExist_ and shouldBeMissing_) {
@@ -150,22 +156,26 @@ namespace edmtest {
 
     static void fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
       edm::ParameterSetDescription desc;
+      desc.addUntracked<std::vector<edm::InputTag>>("srcBeginProcess", std::vector<edm::InputTag>{});
       desc.addUntracked<std::vector<edm::InputTag>>("srcBeginRun", std::vector<edm::InputTag>{});
       desc.addUntracked<std::vector<edm::InputTag>>("srcBeginLumi", std::vector<edm::InputTag>{});
       desc.addUntracked<std::vector<edm::InputTag>>("srcEvent", std::vector<edm::InputTag>{});
       desc.addUntracked<std::vector<edm::InputTag>>("srcEndLumi", std::vector<edm::InputTag>{});
       desc.addUntracked<std::vector<edm::InputTag>>("srcEndRun", std::vector<edm::InputTag>{});
+      desc.addUntracked<std::vector<edm::InputTag>>("srcEndProcess", std::vector<edm::InputTag>{});
       desc.addUntracked<bool>("inputShouldExist", false);
       desc.addUntracked<bool>("inputShouldBeMissing", false);
       descriptions.addDefault(desc);
     }
 
   private:
+    const std::vector<edm::EDGetTokenT<T>> tokensBeginProcess_;
     const std::vector<edm::EDGetTokenT<T>> tokensBeginRun_;
     const std::vector<edm::EDGetTokenT<T>> tokensBeginLumi_;
     const std::vector<edm::EDGetTokenT<T>> tokensEvent_;
     const std::vector<edm::EDGetTokenT<T>> tokensEndLumi_;
     const std::vector<edm::EDGetTokenT<T>> tokensEndRun_;
+    const std::vector<edm::EDGetTokenT<T>> tokensEndProcess_;
     const bool shouldExist_;
     const bool shouldBeMissing_;
   };

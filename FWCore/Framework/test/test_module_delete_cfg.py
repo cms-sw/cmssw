@@ -52,6 +52,7 @@ process.consumerEndRun = nonEventConsumer("endRun", "producer%sConsumed", 5)
 process.producerEventNotConsumed = cms.EDProducer("edmtest::TestModuleDeleteProducer")
 process.producerBeginLumiNotConsumed = cms.EDProducer("edmtest::TestModuleDeleteInLumiProducer")
 process.producerBeginRunNotConsumed = cms.EDProducer("edmtest::TestModuleDeleteInRunProducer")
+process.producerBeginProcessNotConsumed = cms.EDProducer("edmtest::TestModuleDeleteInProcessProducer")
 
 process.producerEventNotConsumedChain1 = cms.EDProducer("edmtest::TestModuleDeleteProducer")
 process.producerEventNotConsumedChain2 = cms.EDProducer("edmtest::TestModuleDeleteProducer",
@@ -69,11 +70,17 @@ process.producerEventNotConsumedChain5 = cms.EDProducer("edmtest::TestModuleDele
 process.producerEventNotConsumedChain6 = cms.EDProducer("edmtest::TestModuleDeleteInRunProducer",
     srcBeginLumi = cms.untracked.VInputTag("producerEventNotConsumedChain5")
 )
-process.producerEventNotConsumedChain7 = cms.EDProducer("edmtest::TestModuleDeleteInLumiProducer",
+process.producerEventNotConsumedChain7 = cms.EDProducer("edmtest::TestModuleDeleteInProcessProducer",
     srcBeginRun = cms.untracked.VInputTag("producerEventNotConsumedChain6")
 )
-process.producerEventNotConsumedChain8 = cms.EDProducer("edmtest::TestModuleDeleteProducer",
+process.producerEventNotConsumedChain8 = cms.EDProducer("edmtest::TestModuleDeleteInRunProducer",
     srcBeginLumi = cms.untracked.VInputTag("producerEventNotConsumedChain7")
+)
+process.producerEventNotConsumedChain9 = cms.EDProducer("edmtest::TestModuleDeleteInLumiProducer",
+    srcBeginRun = cms.untracked.VInputTag("producerEventNotConsumedChain8")
+)
+process.producerEventNotConsumedChain10 = cms.EDProducer("edmtest::TestModuleDeleteProducer",
+    srcBeginLumi = cms.untracked.VInputTag("producerEventNotConsumedChain9")
 )
 
 process.producerEventPartiallyConsumedChain1 = intEventProducerMustRun.clone()
@@ -123,6 +130,10 @@ process.producerEventSwitchProducer = SwitchProducerTest(
 
 process.consumerNotExist = cms.EDAnalyzer("edmtest::GenericIntsAnalyzer",
     inputShouldBeMissing = cms.untracked.bool(True),
+    srcBeginProcess = cms.untracked.VInputTag(
+        "producerBeginProcessNotConsumed:doesNotExist",
+        cms.InputTag("producerBeginProcessNotConsumed", "", cms.InputTag.skipCurrentProcess())
+    ),
     srcBeginRun = cms.untracked.VInputTag(
         "producerBeginRunNotConsumed:doesNotExist",
         cms.InputTag("producerBeginRunNotConsumed", "", cms.InputTag.skipCurrentProcess())
@@ -149,6 +160,7 @@ process.t = cms.Task(
     process.producerEventNotConsumed,
     process.producerBeginLumiNotConsumed,
     process.producerBeginRunNotConsumed,
+    process.producerBeginProcessNotConsumed,
     #
     process.producerEventNotConsumedChain1,
     process.producerEventNotConsumedChain2,
@@ -158,6 +170,8 @@ process.t = cms.Task(
     process.producerEventNotConsumedChain6,
     process.producerEventNotConsumedChain7,
     process.producerEventNotConsumedChain8,
+    process.producerEventNotConsumedChain9,
+    process.producerEventNotConsumedChain10,
     #
     process.producerEventPartiallyConsumedChain1,
     process.producerEventPartiallyConsumedChain3,
