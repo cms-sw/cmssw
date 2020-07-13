@@ -132,18 +132,20 @@ void DetGeomDesc::applyAlignment(const CTPPSRPAlignmentCorrectionData& t) {
 
 
 std::vector<double> DetGeomDesc::computeParameters(const cms::DDFilteredView& fv) const {
+  std::vector<double> parameters;
+
   const cms::DDSolidShape& mySolidShape = cms::dd::getCurrentShape(fv);
 
   if (mySolidShape == cms::DDSolidShape::ddbox) {
     const cms::dd::DDBox& myShape = cms::dd::DDBox(fv);
-    m_params = { myShape.halfX() / 1._mm,
+    parameters = { myShape.halfX() / 1._mm,
 		 myShape.halfY() / 1._mm,
 		 myShape.halfZ() / 1._mm
     }; 
   }
   else if (mySolidShape == cms::DDSolidShape::ddcons) {
     const cms::dd::DDCons& myShape = cms::dd::DDCons(fv);
-    m_params = { myShape.zhalf() / 1._mm,
+    parameters = { myShape.zhalf() / 1._mm,
 		 myShape.rInMinusZ() / 1._mm,
 		 myShape.rOutMinusZ() / 1._mm,
 		 myShape.rInPlusZ() / 1._mm,
@@ -154,7 +156,7 @@ std::vector<double> DetGeomDesc::computeParameters(const cms::DDFilteredView& fv
   }
   else if (mySolidShape == cms::DDSolidShape::ddtrap) {
     const cms::dd::DDTrap& myShape = cms::dd::DDTrap(fv);
-    m_params = { myShape.halfZ() / 1._mm,
+    parameters = { myShape.halfZ() / 1._mm,
 		 myShape.theta(),
 		 myShape.phi(),
 		 myShape.y1() / 1._mm,
@@ -169,7 +171,7 @@ std::vector<double> DetGeomDesc::computeParameters(const cms::DDFilteredView& fv
   }
   else if (mySolidShape == cms::DDSolidShape::ddtubs) {
     const cms::dd::DDTubs& myShape = cms::dd::DDTubs(fv);
-    m_params = { myShape.zhalf() / 1._mm,
+    parameters = { myShape.zhalf() / 1._mm,
 		 myShape.rIn() / 1._mm,
 		 myShape.rOut() / 1._mm,
 		 myShape.startPhi(),
@@ -178,7 +180,7 @@ std::vector<double> DetGeomDesc::computeParameters(const cms::DDFilteredView& fv
   }
   else if (mySolidShape == cms::DDSolidShape::ddtrunctubs) {
     const cms::dd::DDTruncTubs& myShape = cms::dd::DDTruncTubs(fv);
-    m_params = { myShape.zHalf() / 1._mm,
+    parameters = { myShape.zHalf() / 1._mm,
 		 myShape.rIn() / 1._mm,
 		 myShape.rOut() / 1._mm,
 		 myShape.startPhi(),
@@ -192,7 +194,7 @@ std::vector<double> DetGeomDesc::computeParameters(const cms::DDFilteredView& fv
     auto myShape = fv.solid();
     const std::vector<double>& params = myShape.dimensions();
     if (fv.isA<dd4hep::Trd1>()) {
-      m_params = { params[3] / 1._mm, // z
+      parameters = { params[3] / 1._mm, // z
 		   0.,
 		   0.,
 		   params[2] / 1._mm, // y
@@ -210,8 +212,7 @@ std::vector<double> DetGeomDesc::computeParameters(const cms::DDFilteredView& fv
       for (const auto& para : params) {	
 	if (counter != 2) {
 	  const double factor = (counter >= 2 ? (1. / 1._mm) : 1.);
-	  para *= factor;
-	  m_params.emplace_back(para);
+	  parameters.emplace_back(para * factor);
 	}
 	++counter;
       }
@@ -225,30 +226,12 @@ std::vector<double> DetGeomDesc::computeParameters(const cms::DDFilteredView& fv
       }
       }*/
   }
-
+  return parameters;
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 DetId DetGeomDesc::computeDetID(const cms::DDFilteredView& fv) const {
   DetId geoID;
-
 
   std::string name(fv.name());
 
@@ -361,15 +344,17 @@ DetId DetGeomDesc::computeDetID(const cms::DDFilteredView& fv) const {
  * If nodePath has a 2x2RPixWafer parameter defined in an XML SPecPar section, sensorType is 2x2.
  */
 std::string DetGeomDesc::computeSensorType(const std::string& nodePath, const cms::DDSpecParRegistry& allSpecParSections) {
+  std::string sensorType;
 
   const std::string parameterName = DDD_CTPPS_2x2_RPIXWAFER_PARAMETER_NAME;
 
   cms::DDSpecParRefs filteredSpecParSections;
   allSpecParSections.filter(filteredSpecParSections, parameterName);
   for (const auto& mySpecParSection : filteredSpecParSections) {
-    if (mySpecParSection->hasPath(fv.path())) {
-      m_sensorType = DDD_CTPPS_PIXELS_SENSOR_TYPE_2x2;
+    if (mySpecParSection->hasPath(nodePath)) {
+      sensorType = DDD_CTPPS_PIXELS_SENSOR_TYPE_2x2;
     }
   }
 
+  return sensorType;
 }
