@@ -9,6 +9,7 @@
 #include <iomanip>
 #include "FWCore/Utilities/interface/isFinite.h"
 #include "vdt/vdtMath.h"
+#include "omp.h"
 
 using namespace std;
 
@@ -114,7 +115,8 @@ namespace {
                                    double* __restrict__ arg_out,
                                    const unsigned int kmin,
                                    const unsigned int kmax) {
-    for (auto i = kmin; i != kmax; ++i)
+#pragma omp simd
+    for (auto i = kmin; i < kmax; ++i)
       arg_out[i] = vdt::fast_exp(arg_inp[i]);
   }
 
@@ -417,7 +419,7 @@ double DAClusterizerInZT_vect::update(double beta, track_t& gtracks, vertex_t& g
     auto tmp_trk_z = tks_vec.z_ptr[track_num];
     auto tmp_trk_t = tks_vec.t_ptr[track_num];
     // auto-vectorized
-#pragma GCC ivdep
+#pragma omp simd
     for (unsigned int k = kmin; k < kmax; ++k) {
       // parens are important for numerical stability
       y_vec.se_ptr[k] += tmp_trk_pi * (y_vec.ei_ptr[k] * o_trk_Z_sum);
