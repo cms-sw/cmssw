@@ -95,12 +95,12 @@
       <rChild name="RP_Horizontal_Device:RP_Device_Hor_Corp_3"/>
       <Translation x="0*mm" y="0*mm" z="-[RP_220_Right_Station_Length]/2+[RP_220_Right_Sec_Hor_z]"/>
     </PosPart>
-    <PosPart>
+    <PosPart copyNumber="1">
       <rParent name="RP_220_Right_Station"/>
       <rChild name="RP_220_Right_Station_Tube_1"/>
       <Translation x="0*mm" y="0*mm" z="-[RP_220_Right_Station_Length]/2+([RP_220_Right_Prim_Vert_z]-[RP_Device:RP_Device_Length_z]/2)/2"/>
     </PosPart>
-    <PosPart>
+    <PosPart copyNumber="1">
       <rParent name="RP_220_Right_Station"/>
       <rChild name="RP_220_Right_Station_Tube_2"/>
       <Translation x="0*mm" y="0*mm" z="-[RP_220_Right_Station_Length]/2+([RP_220_Right_Prim_Vert_z]+[RP_220_Right_Prim_Hor_z])/2"/>
@@ -110,12 +110,12 @@
       <rChild name="RP_220_Right_Station_Tube_4"/>
       <Translation x="0*mm" y="0*mm" z="-[RP_220_Right_Station_Length]/2+([RP_220_Right_Sec_Hor_z]+[RP_220_Right_Sec_Vert_z])/2"/>
     </PosPart>
-    <PosPart>
+    <PosPart copyNumber="1">
       <rParent name="RP_220_Right_Station"/>
       <rChild name="RP_220_Right_Station_Tube_5"/>
       <Translation x="0*mm" y="0*mm" z="[RP_220_Right_Station_Length]/2-([RP_220_Right_Station_Length]-[RP_220_Right_Sec_Vert_z]-[RP_Device:RP_Device_Length_z]/2)/2"/>
     </PosPart>
-    <PosPart>
+    <PosPart copyNumber="1">
       <rParent name="RP_220_Right_Station"/>
       <rChild name="RP_220_Right_Station_Vacuum_5"/>
     </PosPart>
