@@ -3,7 +3,6 @@ globalTag = {
   'Fake' : 'auto:run1_mc_Fake',
   'Fake1': 'auto:run2_mc_Fake1',
   'Fake2': 'auto:run2_mc_Fake2',
-  '2018' : 'auto:run2_mc_2018',
   'FULL' : 'auto:run3_mc_FULL',
   'GRun' : 'auto:run3_mc_GRun',       # used as default
   'HIon' : 'auto:run3_mc_HIon',
