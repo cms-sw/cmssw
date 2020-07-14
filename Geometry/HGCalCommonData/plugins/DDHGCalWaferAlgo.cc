@@ -98,8 +98,8 @@ void DDHGCalWaferAlgo::execute(DDCompactView& cpv) {
       rotation = DDRotation(DDName(rotstr, rotns_));
       if (!rotation) {
 #ifdef EDM_ML_DEBUG
-        edm::LogVerbatim("HGCalGeom") << "DDHGCalWaferAlgo: Creating new rotation " << DDName(rotstr, rotns_) << "\t90, "
-                                      << angles_[k] << ", 90, " << (angles_[k] + 90) << ", 0, 0";
+        edm::LogVerbatim("HGCalGeom") << "DDHGCalWaferAlgo: Creating new rotation " << DDName(rotstr, rotns_)
+                                      << "\t90, " << angles_[k] << ", 90, " << (angles_[k] + 90) << ", 0, 0";
 #endif
         rotation = DDrot(DDName(rotstr, rotns_), 90._deg, phi, 90._deg, (90._deg + phi), 0, 0);
       }
