@@ -40,7 +40,7 @@ protected:
   void positionSensitive(DDLogicalPart& glog, DDCompactView& cpv);
 
 private:
-  static constexpr int tol_ = 0.00001;
+  static constexpr double tol_ = 0.00001;
 
   std::string tile_;                    // Scintillator tile
   std::vector<std::string> materials_;  // Materials
