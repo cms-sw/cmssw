@@ -64,7 +64,7 @@ void RPCCosmicSeedrecHitFinder::setInput(MuonRecHitContainer (&recHits)[RPCLayer
 
 void RPCCosmicSeedrecHitFinder::setEdge(const RPCGeometry& rpcGeometry) {
   // Find all chamber in RB1in and collect their surface
-  const std::vector<DetId> AllRPCId = rpcGeometry.detIds();
+  const std::vector<DetId>& AllRPCId = rpcGeometry.detIds();
   for (std::vector<DetId>::const_iterator it = AllRPCId.begin(); it != AllRPCId.end(); it++) {
     RPCDetId RPCId(it->rawId());
     int Region = RPCId.region();
