@@ -233,11 +233,11 @@ void DDHGCalModule::constructLayers(const DDLogicalPart& module, DDCompactView& 
     laymin = laymax;
     if (fabs(thickTot - layerThick_[i]) > tol_) {
       if (thickTot > layerThick_[i]) {
-	edm::LogError("HGCalGeom") << "Thickness of the partition " << layerThick_[i] << " is smaller than thickness "
-				   << thickTot << " of all its components **** ERROR ****\n";
+        edm::LogError("HGCalGeom") << "Thickness of the partition " << layerThick_[i] << " is smaller than thickness "
+                                   << thickTot << " of all its components **** ERROR ****\n";
       } else {
-	edm::LogWarning("HGCalGeom") << "Thickness of the partition " << layerThick_[i] << " does not match with "
-				     << thickTot << " of the components\n";
+        edm::LogWarning("HGCalGeom") << "Thickness of the partition " << layerThick_[i] << " does not match with "
+                                     << thickTot << " of the components\n";
       }
     }
   }  // End of loop over blocks
@@ -300,7 +300,7 @@ void DDHGCalModule::positionSensitive(DDLogicalPart& glog, double rin, double ro
             DDRotation rotation;
             ++nin;
             DDName name = (rpos < rMaxFine_) ? DDName(DDSplit(wafer_[0]).first, DDSplit(wafer_[0]).second)
-	                                     : DDName(DDSplit(wafer_[1]).first, DDSplit(wafer_[1]).second);
+                                             : DDName(DDSplit(wafer_[1]).first, DDSplit(wafer_[1]).second);
             cpv.position(name, glog.ddname(), copy, tran, rotation);
             if (rpos < rMaxFine_)
               ++nfine;
