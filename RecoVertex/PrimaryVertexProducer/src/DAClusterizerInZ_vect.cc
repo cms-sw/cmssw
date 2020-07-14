@@ -96,7 +96,7 @@ namespace {
   inline double local_exp(double const& inp) { return vdt::fast_exp(inp); }
 
   inline void local_exp_list(double const* __restrict__ arg_inp, double* __restrict__ arg_out, const int arg_arr_size) {
-    for (int i = 0; i < arg_arr_size; ++i)
+    for (auto i = 0; i != arg_arr_size; ++i)
       arg_out[i] = vdt::fast_exp(arg_inp[i]);
   }
 
@@ -104,7 +104,7 @@ namespace {
                                    double* __restrict__ arg_out,
                                    const int kmin,
                                    const int kmax) {
-    for (int i = kmin; i < kmax; ++i)
+    for (auto i = kmin; i != kmax; ++i)
       arg_out[i] = vdt::fast_exp(arg_inp[i]);
   }
 
