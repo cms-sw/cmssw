@@ -9,17 +9,12 @@
   <use name="DataFormats/TrackReco"/>
   <use name="TrackingTools/TransientTrack"/>
   <use name="RecoVertex/VertexPrimitives"/>
-  <use name="PhysicsTools/IsolationUtils"/>
-  <use name="PhysicsTools/MVAComputer"/>
   <use name="FWCore/Framework"/>
   <use name="FWCore/ParameterSet"/>
   <use name="FWCore/MessageLogger"/>
   <use name="FWCore/Utilities"/>
   <use name="DataFormats/TauReco"/>
-  <use name="DataFormats/WrappedStdDictionaries"/>
   <use name="CommonTools/UtilAlgos"/>
-  <use name="CommonTools/CandAlgos"/>
-  <use name="PhysicsTools/HepMCCandAlgos"/>
   <use name="RecoTauTag/RecoTau"/>
   <use name="DataFormats/JetReco"/>
   <use name="DataFormats/ParticleFlowReco"/>
@@ -27,14 +22,11 @@
   <use name="DataFormats/VertexReco"/>
   <use name="CondFormats/EgammaObjects"/>
   <use name="CondFormats/DataRecord"/>
-  <use name="CondFormats/EcalObjects"/>
   <use name="Geometry/CaloGeometry"/>
-  <use name="Geometry/CaloTopology"/>
   <use name="Geometry/HcalTowerAlgo"/>
   <use name="Geometry/Records"/>
   <use name="MagneticField/Engine"/>
   <use name="MagneticField/Records"/>
   <use name="CommonTools/BaseParticlePropagator"/>
-  <use name="PhysicsTools/TensorFlow"/>
   <use name="root"/>
 </library>

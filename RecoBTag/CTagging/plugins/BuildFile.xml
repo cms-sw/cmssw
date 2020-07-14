@@ -1,5 +1,4 @@
 <library file="*.cc" name="RecoBTagCTaggingPlugins">
-  <use name="DataFormats/BTauReco"/>
   <use name="RecoBTag/CTagging"/>
   <use name="RecoBTau/JetTagComputer"/>
   <use name="FWCore/Framework"/>

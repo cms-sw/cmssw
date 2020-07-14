@@ -14,7 +14,6 @@
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include "RecoVertex/BeamSpotProducer/interface/BeamSpotOnlineProducer.h"
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
 #include "CondFormats/BeamSpotObjects/interface/BeamSpotObjects.h"
 

@@ -5,6 +5,5 @@
   <use name="Geometry/Records"/>
   <use name="RecoMuon/TransientTrackingRecHit"/>
   <use name="TrackingTools/Records"/>
-  <use name="TrackingTools/TransientTrackingRecHit"/>
   <flags EDM_PLUGIN="1"/>
 </library>

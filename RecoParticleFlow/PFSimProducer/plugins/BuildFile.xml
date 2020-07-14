@@ -1,6 +1,5 @@
 <library name="RecoParticleFlowPFProducerSimPlugins" file="SimPFProducer.cc,TauHadronDecayFilter.cc,PFSimParticleProducer.cc,EcalBarrelClusterFastTimer.cc,,SealModuleSim.cc">
   <use name="DataFormats/EcalDetId"/>
-  <use name="Geometry/HGCalGeometry"/>
   <use name="TrackingTools/MaterialEffects"/>
   <use name="DataFormats/EcalRecHit"/>
   <use name="DataFormats/GeometrySurface"/>
@@ -20,7 +19,6 @@
   <use name="MagneticField/Records"/>
   <use name="RecoParticleFlow/PFClusterTools"/>
   <use name="RecoParticleFlow/PFProducer"/>
-  <use name="RecoTracker/TrackProducer"/>
   <use name="SimDataFormats/CaloHit"/>
   <use name="SimGeneral/HepPDTRecord"/>
   <use name="SimTracker/TrackAssociation"/>
