@@ -236,8 +236,26 @@ void DQMFileSaverPB::savePB(DQMStore* store, std::string const& filename, int ru
     histo.set_size(buffer.Length());
     histo.set_streamed_histo((void const*)buffer.Buffer(), buffer.Length());
 
-    // Save quality reports if this is not in reference section.
-    // XXX not supported by protobuf files.
+    // Save quality reports
+    for (QReport* qr : me->getQReports()) {
+      std::string result;
+      // TODO: 64 is likely too short; memory corruption in the old code?
+      char buf[64];
+      std::snprintf(buf, sizeof(buf), "qr=st:%d:%.*g:", qr->getStatus(), DBL_DIG + 2, qr->getQTresult());
+      result = '<' + me->getName() + '.' + qr->getQRName() + '>';
+      result += buf;
+      result += qr->getAlgorithm() + ':' + qr->getMessage();
+      result += "</" + me->getName() + '.' + qr->getQRName() + '>';
+      TObjString str(result.c_str());
+
+      dqmstorepb::ROOTFilePB::Histo& qr_histo = *dqmstore_message.add_histo();
+      TBufferFile qr_buffer(TBufferFile::kWrite);
+      qr_buffer.WriteObject(&str);
+      qr_histo.set_full_pathname(me->getFullname() + '.' + qr->getQRName());
+      qr_histo.set_flags(static_cast<uint32_t>(MonitorElement::Kind::STRING));
+      qr_histo.set_size(qr_buffer.Length());
+      qr_histo.set_streamed_histo((void const*)qr_buffer.Buffer(), qr_buffer.Length());
+    }
 
     // Save efficiency tag, if any.
     // XXX not supported by protobuf files.
