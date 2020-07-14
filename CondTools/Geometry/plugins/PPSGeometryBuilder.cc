@@ -35,7 +35,7 @@ public:
   void analyze(const edm::Event&, const edm::EventSetup&) override;
 
 private:
-  void buildPDetFromDetGeomDesc(const DetGeomDesc* geoInfo, PDetGeomDesc* gd, int& counter);
+  void buildSerializableDataFromGeoInfo(PDetGeomDesc* serializableData, const DetGeomDesc* geoInfo, int& counter);
 
   std::string compactViewTag_;
   edm::ESWatcher<IdealGeometryRecord> watcherIdealGeometry_;
@@ -49,6 +49,9 @@ PPSGeometryBuilder::PPSGeometryBuilder(const edm::ParameterSet& iConfig)
 }
 
 
+/*
+ * Save PPS geo to DB.
+ */
 void PPSGeometryBuilder::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
   edm::ESHandle<cms::DDCompactView> myCompactView;
 
@@ -56,38 +59,43 @@ void PPSGeometryBuilder::analyze(const edm::Event& iEvent, const edm::EventSetup
     edm::LogInfo("PPSGeometryBuilder") << "Got IdealGeometryRecord ";
     iSetup.get<IdealGeometryRecord>().get(compactViewTag_.c_str(), myCompactView);
   }
-
   // Build geometry
-  auto sentinel = PPSGeometryESProducer::buildDetGeomDescFromCompactView(*myCompactView);
+  auto geoInfoSentinel = PPSGeometryESProducer::buildDetGeomDescFromCompactView(*myCompactView);
 
-  // Persistent geometry data
-  PDetGeomDesc* pdet = new PDetGeomDesc;
+  // Build persistent geometry data from geometry
+  PDetGeomDesc* serializableData = new PDetGeomDesc;
   int counter = 0;
-  buildPDetFromDetGeomDesc(sentinel.get(), pdet, counter);
+  buildSerializableDataFromGeoInfo(serializableData, geoInfoSentinel.get(), counter);
  
   // Save geometry in the database
-  if (pdet->container_.empty()) {
+  if (serializableData->container_.empty()) {
     throw cms::Exception("PPSGeometryBuilder") << "PDetGeomDesc is empty, no geometry to save in the database.";
   } else {
     if (dbService_.isAvailable()) {
-      dbService_->writeOne(pdet, dbService_->beginOfTime(), "VeryForwardIdealGeometryRecord");
+      dbService_->writeOne(serializableData, dbService_->beginOfTime(), "VeryForwardIdealGeometryRecord");
+      edm::LogInfo("PPSGeometryBuilder") << "Successfully wrote DB, with " 
+					 << serializableData->container_.size() << " PDetGeomDesc items.";
     } else {
-      throw cms::Exception("PoolDBService required.");
+      throw cms::Exception("PPSGeometryBuilder") << "PoolDBService required.";
     }
   }
 }
 
 
-void PPSGeometryBuilder::buildPDetFromDetGeomDesc(const DetGeomDesc* geoInfo, PDetGeomDesc* gd, int& counter) {
-  PDetGeomDesc::Item item(geoInfo);
+/*
+ * Build persistent data items to be stored in DB (PDetGeomDesc) from geo info (DetGeomDesc).
+ * Recursive, depth-first search.
+ */
+void PPSGeometryBuilder::buildSerializableDataFromGeoInfo(PDetGeomDesc* serializableData, const DetGeomDesc* geoInfo, int& counter) {
+  PDetGeomDesc::Item serializableItem(geoInfo);
   counter++;
 
-  if (counter >= 4) {  // sentinel + OCMS + CMSE
-    gd->container_.emplace_back(item); 
+  if (counter >= 4) {  // Skip sentinel + OCMS + CMSE
+    serializableData->container_.emplace_back(serializableItem); 
   }
 
   for (auto& child : geoInfo->components()) {
-    buildPDetFromDetGeomDesc(child, gd, counter);
+    buildSerializableDataFromGeoInfo(serializableData, child, counter);
   }
 }
 

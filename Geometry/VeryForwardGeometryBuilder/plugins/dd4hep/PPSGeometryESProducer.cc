@@ -163,19 +163,19 @@ std::unique_ptr<DetGeomDesc> PPSGeometryESProducer::buildDetGeomDescFromCompactV
   }
 
   const cms::DDSpecParRegistry& allSpecParSections = myCompactView.specpars();
-  // conversion to DetGeomDesc structure
-  auto sentinel = std::make_unique<DetGeomDesc>(fv, allSpecParSections);
+  // Geo info: sentinel node.
+  auto geoInfoSentinel = std::make_unique<DetGeomDesc>(fv, allSpecParSections);
 
-  // construct the tree of DetGeomDesc
+  // Construct the tree of children geo info (DetGeomDesc).
   do {
-    // create DetGeomDesc node and add it to the sentinel's list
+    // Create node, and add it to the geoInfoSentinel's list.
     DetGeomDesc* newGD = new DetGeomDesc(fv, allSpecParSections);
-    sentinel->addComponent(newGD);
+    geoInfoSentinel->addComponent(newGD);
   } while (fv.next(0));
   
-  edm::LogInfo("PPSGeometryESProducer") << "DetGeomDesc size is: " << (sentinel->components()).size();
+  edm::LogInfo("PPSGeometryESProducer") << "Successfully built geometry, it has " << (geoInfoSentinel->components()).size() << " DetGeomDesc nodes.";
 
-  return sentinel;
+  return geoInfoSentinel;
 }
 
 

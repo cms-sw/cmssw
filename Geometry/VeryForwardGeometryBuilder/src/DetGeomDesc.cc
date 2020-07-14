@@ -211,7 +211,7 @@ std::vector<double> DetGeomDesc::computeParameters(const cms::DDFilteredView& fv
 DetId DetGeomDesc::computeDetID(const cms::DDFilteredView& fv) const {
   DetId geoID;
 
-  std::string name(fv.name());
+  const std::string name{fv.name()};
 
   // strip sensors
   if (name == DDD_TOTEM_RP_SENSOR_NAME) {
@@ -324,7 +324,7 @@ DetId DetGeomDesc::computeDetID(const cms::DDFilteredView& fv) const {
 std::string DetGeomDesc::computeSensorType(const std::string& nodePath, const cms::DDSpecParRegistry& allSpecParSections) {
   std::string sensorType;
 
-  const std::string parameterName = DDD_CTPPS_2x2_RPIXWAFER_PARAMETER_NAME;
+  const std::string& parameterName = DDD_CTPPS_2x2_RPIXWAFER_PARAMETER_NAME;
 
   cms::DDSpecParRefs filteredSpecParSections;
   allSpecParSections.filter(filteredSpecParSections, parameterName);
