@@ -4,7 +4,7 @@ import sys, imp, re, itertools
 from HLTrigger.Configuration.Tools.frozendict import frozendict
 import FWCore.ParameterSet.Config as cms
 
-debug = False
+debug = True
 
 whitelist_types = [
   'HLTPrescaler',
@@ -170,6 +170,10 @@ def findDuplicates(process):
       dump = open('step%d.sed' % index, 'w')
       for target, (group, regexp) in groups.iteritems():
         dump.write('s#\\<\\(%s\\)\\>#%s#g\n' % ('\\|'.join(group), target))
+      dump.close()
+      dump = open('step%d.txt' % index, 'w')
+      for target, (group, regexp) in groups.iteritems():
+        dump.write('#%s\n%s\n\n' % ( target, '\n'.join(group)))
       dump.close()
     print "found %3d duplicates in %3d groups" % (dups, len(groups))
     oldups = dups
