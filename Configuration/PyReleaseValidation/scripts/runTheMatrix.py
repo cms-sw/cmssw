@@ -85,11 +85,9 @@ if __name__ == '__main__':
                      10824.0, #2018 ttbar
                      11634.0, #2021 ttbar
                      12434.0, #2023 ttbar
-                     20034.0, #2026D35 ttbar (MTD TDR baseline)
-                     20434.0, #2026D41 ttbar (L1T TDR baseline)
-                     21234.0, #2026D44 (exercise HF nose)
                      23234.0, #2026D49 ttbar (HLT TDR baseline w/ HGCal v11)
                      23234.1001, #as 23234.0 but reading 11_0_X digi inputs
+                     28234.0, #2026D60 (exercise HF nose)
                      25202.0, #2016 ttbar UP15 PU
                      250202.181, #2018 ttbar stage1 + stage2 premix
                      ],
