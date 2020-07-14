@@ -267,6 +267,7 @@ if (process.runType.getRunType() == process.runType.cosmic_run or process.runTyp
 
     process.p = cms.Path(process.scalersRawToDigi*
                          process.tcdsDigis*
+                         process.onlineMetaDataDigis*
                          process.APVPhases*
                          process.consecutiveHEs*
                          process.hltTriggerTypeFilter*
@@ -371,6 +372,7 @@ if (process.runType.getRunType() == process.runType.pp_run or process.runType.ge
     process.p = cms.Path(
         process.scalersRawToDigi*
         process.tcdsDigis*
+        process.onlineMetaDataDigis*
         process.APVPhases*
         process.consecutiveHEs*
         process.hltTriggerTypeFilter*
@@ -466,6 +468,7 @@ if (process.runType.getRunType() == process.runType.hpu_run):
 
     process.p = cms.Path(process.scalersRawToDigi*
                          process.tcdsDigis*
+                         process.onlineMetaDataDigis*
                          process.APVPhases*
                          process.consecutiveHEs*
                          process.hltTriggerTypeFilter*
@@ -621,6 +624,7 @@ if (process.runType.getRunType() == process.runType.hi_run):
     process.p = cms.Path(
         process.scalersRawToDigi*
         process.tcdsDigis*
+        process.onlineMetaDataDigis*
         process.APVPhases*
         process.consecutiveHEs*
         process.hltTriggerTypeFilter*
