@@ -13,3 +13,4 @@
 <export>
   <lib name="1"/>
 </export>
+<flags cxxflags="-fopenmp-simd"/>
