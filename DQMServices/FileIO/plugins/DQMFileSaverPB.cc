@@ -73,12 +73,14 @@ void DQMFileSaverPB::saveLumi(const FileParameters& fp) const {
     // If tag is configured, append it to the name of the resulting file.
     // This differentiates files saved by different clients.
     // If tag is not configured, we don't add it at all to keep the old behaviour unchanged.
-    if (tag_ == "UNKNOWN")
+    if (tag_ == "UNKNOWN") {
       baseName = fmt::sprintf("%s/run%06d_ls%04d_%s", runDir, fp.run_, fp.lumi_, streamLabel_);
-    else
-      baseName = fmt::sprintf("%s/run%06d_ls%04d_%s_%s", runDir, fp.run_, fp.lumi_, tag_, streamLabel_);
-
-    std::filesystem::create_directories(runDir);
+      std::filesystem::create_directories(runDir);
+    }
+    else {
+      baseName = fmt::sprintf("%s/%s/run%06d_ls%04d_%s_%s", runDir, tag_, fp.run_, fp.lumi_, tag_, streamLabel_);
+      std::filesystem::create_directories(runDir + "/" + tag_);
+    }
 
     jsonFilePathName = baseName + ".jsn";
     openJsonFilePathName = jsonFilePathName + ".open";
