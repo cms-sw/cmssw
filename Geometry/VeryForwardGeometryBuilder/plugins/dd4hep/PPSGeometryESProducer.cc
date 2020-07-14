@@ -13,43 +13,19 @@
 
 #include "Geometry/VeryForwardGeometryBuilder/plugins/dd4hep/PPSGeometryESProducer.h"
 
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/Framework/interface/ESHandle.h"
-#include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/ModuleFactory.h"
-#include "FWCore/Framework/interface/ESProducer.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-
-#include "DetectorDescription/DDCMS/interface/DDCompactView.h"
-#include "DetectorDescription/DDCMS/interface/DDFilteredView.h"
-#include "DetectorDescription/DDCMS/interface/DDDetector.h"
-#include "DetectorDescription/DDCMS/interface/DDXMLTags.h"
-//#include "Fireworks/Core/interface/FWGeoTopNode.h"
-
-#include "CondFormats/PPSObjects/interface/CTPPSRPAlignmentCorrectionsData.h"
-
 #include "DataFormats/CTPPSDetId/interface/TotemRPDetId.h"
 #include "DataFormats/CTPPSDetId/interface/TotemTimingDetId.h"
 #include "DataFormats/CTPPSDetId/interface/CTPPSPixelDetId.h"
 #include "DataFormats/CTPPSDetId/interface/CTPPSDiamondDetId.h"
 
-#include "CondFormats/AlignmentRecord/interface/RPRealAlignmentRecord.h"
-//#include "CondFormats/AlignmentRecord/interface/CTPPSRPAlignmentCorrectionsDataRcd.h"
+#include "DetectorDescription/DDCMS/interface/DDCompactView.h"
+#include "DetectorDescription/DDCMS/interface/DDFilteredView.h"
+#include "DetectorDescription/DDCMS/interface/DDDetector.h"
 
-#include "CondFormats/AlignmentRecord/interface/RPMisalignedAlignmentRecord.h"
-
-#include "Geometry/Records/interface/IdealGeometryRecord.h"
-#include "Geometry/Records/interface/VeryForwardMisalignedGeometryRecord.h"
-#include "Geometry/Records/interface/VeryForwardRealGeometryRecord.h"
-
-#include "Geometry/VeryForwardGeometryBuilder/interface/DetGeomDesc.h"
-#include "Geometry/VeryForwardGeometryBuilder/interface/CTPPSGeometry.h"
 #include "Geometry/VeryForwardGeometryBuilder/interface/CTPPSDDDNames.h"
 
-#include "TGeoNode.h"
-#include "TGeoManager.h"
-
 #include <regex>
+
 
 /**
  * \brief Builds ideal, real and misaligned geometries.
