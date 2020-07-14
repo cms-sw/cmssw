@@ -25,7 +25,7 @@ namespace saverDetails {
 // - This includes ALCAHARVEST. TODO: check if the data written there is needed for the PCL.
 // This module is not used in online. This module is (hopefully?) not used at HLT.
 // Online and HLT use modules in DQMServices/FileIO.
-class DQMFileSaver : public edm::one::EDAnalyzer<edm::one::WatchRuns> {
+class DQMFileSaver : public edm::one::EDAnalyzer<edm::one::WatchRuns, edm::WatchProcessBlock> {
 public:
   typedef dqm::legacy::DQMStore DQMStore;
   typedef dqm::legacy::MonitorElement MonitorElement;
@@ -35,7 +35,7 @@ protected:
   void beginRun(edm::Run const &, edm::EventSetup const &) override{};
   void analyze(const edm::Event &e, const edm::EventSetup &) override;
   void endRun(const edm::Run &, const edm::EventSetup &) override;
-  void endJob() override;
+  void endProcessBlock(const edm::ProcessBlock &) override;
 
 private:
   void saveForOffline(const std::string &workflow, int run, int lumi);
@@ -147,10 +147,8 @@ DQMFileSaver::DQMFileSaver(const edm::ParameterSet &ps)
       dbe_(&*edm::Service<DQMStore>()),
       nrun_(0),
       irun_(0) {
-  // Note: this is insufficient, we also need to enforce running *after* all
-  // DQMEDAnalyzers (a.k.a. EDProducers) in endJob.
-  // This is not supported in edm currently.
   consumesMany<DQMToken, edm::InRun>();
+  consumesMany<DQMToken, edm::InProcess>();
   workflow_ = ps.getUntrackedParameter<std::string>("workflow", workflow_);
   if (workflow_.empty() || workflow_[0] != '/' || *workflow_.rbegin() == '/' ||
       std::count(workflow_.begin(), workflow_.end(), '/') != 3 ||
@@ -208,7 +206,7 @@ void DQMFileSaver::endRun(const edm::Run &iRun, const edm::EventSetup &) {
   }
 }
 
-void DQMFileSaver::endJob() {
+void DQMFileSaver::endProcessBlock(const edm::ProcessBlock &) {
   if (saveAtJobEnd_) {
     if (forceRunNumber_ > 0)
       saveForOffline(workflow_, forceRunNumber_, 0);
