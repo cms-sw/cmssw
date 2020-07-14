@@ -19,7 +19,7 @@
 
 #include <openssl/md5.h>
 #include <boost/property_tree/json_parser.hpp>
-#include <boost/filesystem.hpp>
+#include <filesystem>
 #include <boost/format.hpp>
 
 #include <google/protobuf/io/coded_stream.h>
@@ -70,7 +70,7 @@ void DQMFileSaverPB::saveLumi(const FileParameters& fp) const {
     std::string runDir = str(boost::format("%s/run%06d") % fp.path_ % fp.run_);
     std::string baseName = str(boost::format("%s/run%06d_ls%04d_%s") % runDir % fp.run_ % fp.lumi_ % streamLabel_);
 
-    boost::filesystem::create_directories(runDir);
+    std::filesystem::create_directories(runDir);
 
     jsonFilePathName = baseName + ".jsn";
     openJsonFilePathName = jsonFilePathName + ".open";
@@ -113,7 +113,7 @@ boost::property_tree::ptree DQMFileSaverPB::fillJson(int run,
                                                      const std::string& mergeTypeStr,
                                                      evf::FastMonitoringService* fms) {
   namespace bpt = boost::property_tree;
-  namespace bfs = boost::filesystem;
+  namespace bfs = std::filesystem;
 
   bpt::ptree pt;
 
