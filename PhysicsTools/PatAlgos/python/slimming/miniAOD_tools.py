@@ -178,7 +178,6 @@ def miniAOD_customizeCommon(process):
 
     process.load('PhysicsTools.PatAlgos.slimming.slimmedMETs_cfi')
     task.add(process.slimmedMETs)
-    process.slimmedMETs.addDeepMETs = True
 
     addToProcessAndTask('slimmedMETsNoHF', process.slimmedMETs.clone(), process, task)
     process.slimmedMETsNoHF.src = cms.InputTag("patMETsNoHF")
@@ -506,8 +505,8 @@ def miniAOD_customizeCommon(process):
 
     process.load('RecoMET.METPUSubtraction.deepMETProducer_cfi')
 
-    addToProcessAndTask('deepMETsResolutionTune', process.deepMETProducer.clone(), process, task)
-    addToProcessAndTask('deepMETsResponseTune', process.deepMETProducer.clone(), process, task)
+    process.deepMETsResolutionTune = process.deepMETProducer.clone()
+    process.deepMETsResponseTune = process.deepMETProducer.clone()
     process.deepMETsResponseTune.graph_path = 'RecoMET/METPUSubtraction/data/deepmet/deepmet_resp_v1_2018.pb'
 
     from Configuration.Eras.Modifier_run2_jme_2016_cff import run2_jme_2016
@@ -515,6 +514,10 @@ def miniAOD_customizeCommon(process):
         process.deepMETsResponseTune,
         graph_path="RecoMET/METPUSubtraction/data/deepmet/deepmet_resp_v1_2016.pb"
     )
+
+    run2_miniAOD_devel.toModify(task, func=lambda t: t.add(process.deepMETsResolutionTune, process.deepMETsResponseTune))
+    run2_miniAOD_devel.toModify(process.slimmedMETs, addDeepMETs = True)
+
     # add DetIdAssociatorRecords to EventSetup (for isolatedTracks)
     process.load("TrackingTools.TrackAssociator.DetIdAssociatorESProducer_cff")
 
