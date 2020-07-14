@@ -7,7 +7,6 @@
 #include <DataFormats/TrackingRecHit/interface/TrackingRecHit.h>
 #include <DataFormats/RPCRecHit/interface/RPCRecHit.h>
 #include <FWCore/Framework/interface/ESHandle.h>
-#include <Geometry/RPCGeometry/interface/RPCGeometry.h>
 #include <Geometry/Records/interface/MuonGeometryRecord.h>
 
 using namespace std;
@@ -63,20 +62,16 @@ void RPCCosmicSeedrecHitFinder::setInput(MuonRecHitContainer (&recHits)[RPCLayer
   isInputset = true;
 }
 
-void RPCCosmicSeedrecHitFinder::setEdge(const edm::EventSetup& iSetup) {
-  // Get RPCGeometry
-  edm::ESHandle<RPCGeometry> rpcGeometry;
-  iSetup.get<MuonGeometryRecord>().get(rpcGeometry);
-
+void RPCCosmicSeedrecHitFinder::setEdge(const RPCGeometry& rpcGeometry) {
   // Find all chamber in RB1in and collect their surface
-  const std::vector<DetId> AllRPCId = rpcGeometry->detIds();
+  const std::vector<DetId> AllRPCId = rpcGeometry.detIds();
   for (std::vector<DetId>::const_iterator it = AllRPCId.begin(); it != AllRPCId.end(); it++) {
     RPCDetId RPCId(it->rawId());
     int Region = RPCId.region();
     int Station = RPCId.station();
     int Layer = RPCId.layer();
     if (Region == 0 && Station == 1 && Layer == 1) {
-      const BoundPlane RPCChamberSurface = rpcGeometry->chamber(RPCId)->surface();
+      const BoundPlane RPCChamberSurface = rpcGeometry.chamber(RPCId)->surface();
       innerBounds.push_back(RPCChamberSurface);
     }
   }
