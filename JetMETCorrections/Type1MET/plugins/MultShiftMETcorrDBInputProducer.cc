@@ -2,9 +2,7 @@
 
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/Framework/interface/ESHandle.h"
-#include "CondFormats/JetMETObjects/interface/MEtXYcorrectParameters.h"
 #include "CondFormats/JetMETObjects/interface/Utilities.h"
-#include "JetMETCorrections/Objects/interface/MEtXYcorrectRecord.h"
 
 #include "DataFormats/METReco/interface/CorrMETData.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
@@ -43,6 +41,8 @@ MultShiftMETcorrDBInputProducer::MultShiftMETcorrDBInputProducer(const edm::Para
 
   pflow_ = consumes<edm::View<reco::Candidate>>(cfg.getParameter<edm::InputTag>("srcPFlow"));
   vertices_ = consumes<edm::View<reco::Vertex>>(cfg.getParameter<edm::InputTag>("vertexCollection"));
+  mMEtXYcorParaColl_ =
+      esConsumes<MEtXYcorrectParametersCollection, MEtXYcorrectRecord>(edm::ESInputTag("", mPayloadName));
 
   edm::InputTag srcWeights = cfg.getParameter<edm::InputTag>("srcWeights");
   if (!srcWeights.label().empty())
@@ -58,8 +58,7 @@ MultShiftMETcorrDBInputProducer::~MultShiftMETcorrDBInputProducer() {}
 
 void MultShiftMETcorrDBInputProducer::produce(edm::Event& evt, const edm::EventSetup& es) {
   // Get para.s from DB
-  edm::ESHandle<MEtXYcorrectParametersCollection> MEtXYcorParaColl;
-  es.get<MEtXYcorrectRecord>().get(mPayloadName, MEtXYcorParaColl);
+  edm::ESHandle<MEtXYcorrectParametersCollection> MEtXYcorParaColl = es.getHandle(mMEtXYcorParaColl_);
 
   // get the sections from Collection (pair of section and METCorr.Par class)
   std::vector<MEtXYcorrectParametersCollection::key_type> keys;
