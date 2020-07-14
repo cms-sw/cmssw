@@ -5,7 +5,7 @@
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
-#include "boost/filesystem.hpp"
+#include <filesystem>
 
 #include <map>
 #include <unordered_set>
