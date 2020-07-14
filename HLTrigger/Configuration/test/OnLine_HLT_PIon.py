@@ -1,13 +1,13 @@
-# hltGetConfiguration --full --data /dev/CMSSW_11_1_0/PIon --type PIon --unprescale --process HLTPIon --globaltag auto:run3_hlt_PIon --input file:RelVal_Raw_PIon_DATA.root
+# hltGetConfiguration --full --data /dev/CMSSW_11_2_0/PIon --type PIon --unprescale --process HLTPIon --globaltag auto:run3_hlt_PIon --input file:RelVal_Raw_PIon_DATA.root
 
-# /dev/CMSSW_11_1_0/PIon/V11 (CMSSW_11_1_0)
+# /dev/CMSSW_11_2_0/PIon/V3 (CMSSW_11_2_0_pre2)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLTPIon" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_11_1_0/PIon/V11')
+  tableName = cms.string('/dev/CMSSW_11_2_0/PIon/V3')
 )
 
 process.transferSystem = cms.PSet( 
@@ -3712,13 +3712,14 @@ process.CSCChannelMapperESProducer = cms.ESProducer( "CSCChannelMapperESProducer
   AlgoName = cms.string( "CSCChannelMapperPostls1" )
 )
 process.CSCGeometryESModule = cms.ESProducer( "CSCGeometryESModule",
-  useRealWireGeometry = cms.bool( True ),
   appendToDataLabel = cms.string( "" ),
-  alignmentsLabel = cms.string( "" ),
-  useGangedStripsInME1a = cms.bool( False ),
-  debugV = cms.untracked.bool( False ),
-  useOnlyWiresInME1a = cms.bool( False ),
   useDDD = cms.bool( False ),
+  debugV = cms.untracked.bool( False ),
+  useGangedStripsInME1a = cms.bool( False ),
+  alignmentsLabel = cms.string( "" ),
+  useDD4hep = cms.bool( False ),
+  useOnlyWiresInME1a = cms.bool( False ),
+  useRealWireGeometry = cms.bool( True ),
   useCentreTIOffsets = cms.bool( False ),
   applyAlignment = cms.bool( True )
 )
@@ -3774,7 +3775,10 @@ process.EcalElectronicsMappingBuilder = cms.ESProducer( "EcalElectronicsMappingB
 process.EcalEndcapGeometryFromDBEP = cms.ESProducer( "EcalEndcapGeometryFromDBEP",
   applyAlignment = cms.bool( True )
 )
-process.EcalLaserCorrectionService = cms.ESProducer( "EcalLaserCorrectionService" )
+process.EcalLaserCorrectionService = cms.ESProducer( "EcalLaserCorrectionService",
+  appendToDataLabel = cms.string( "" ),
+  maxExtrapolationTimeInSec = cms.uint32( 0 )
+)
 process.EcalPreshowerGeometryFromDBEP = cms.ESProducer( "EcalPreshowerGeometryFromDBEP",
   applyAlignment = cms.bool( True )
 )
@@ -3903,7 +3907,13 @@ process.PropagatorWithMaterialForMixedStep = cms.ESProducer( "PropagatorWithMate
 )
 process.RPCGeometryESModule = cms.ESProducer( "RPCGeometryESModule",
   useDDD = cms.untracked.bool( False ),
-  compatibiltyWith11 = cms.untracked.bool( True )
+  appendToDataLabel = cms.string( "" ),
+  useDD4hep = cms.untracked.bool( False )
+)
+process.SiStripClusterizerConditionsESProducer = cms.ESProducer( "SiStripClusterizerConditionsESProducer",
+  appendToDataLabel = cms.string( "" ),
+  QualityLabel = cms.string( "" ),
+  Label = cms.string( "" )
 )
 process.SiStripGainESProducer = cms.ESProducer( "SiStripGainESProducer",
   printDebug = cms.untracked.bool( False ),
@@ -4065,6 +4075,7 @@ process.ecalSeverityLevel = cms.ESProducer( "EcalSeverityLevelESProducer",
     kTime = cms.vstring( 'kOutOfTime' )
   )
 )
+process.hcalChannelPropertiesESProd = cms.ESProducer( "HcalChannelPropertiesEP" )
 process.hcalDDDRecConstants = cms.ESProducer( "HcalDDDRecConstantsESModule",
   appendToDataLabel = cms.string( "" )
 )
