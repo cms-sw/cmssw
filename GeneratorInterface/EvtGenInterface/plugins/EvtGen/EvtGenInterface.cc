@@ -47,9 +47,6 @@
 #include <cstdlib>
 #include <cstdio>
 
-#include "boost/filesystem.hpp"
-#include "boost/filesystem/path.hpp"
-
 using namespace gen;
 using namespace edm;
 
@@ -366,10 +363,7 @@ void EvtGenInterface::init() {
 
   if (fPSet->exists("user_decay_embedded")) {
     std::vector<std::string> user_decay_lines = fPSet->getParameter<std::vector<std::string> >("user_decay_embedded");
-    auto tmp_dir = boost::filesystem::temp_directory_path();
-    tmp_dir += "/%%%%-%%%%-%%%%-%%%%";
-    auto tmp_path = boost::filesystem::unique_path(tmp_dir);
-    std::string user_decay_tmp = std::string(tmp_path.c_str());
+    std::string user_decay_tmp = std::tmpnam(nullptr);
     FILE* tmpf = std::fopen(user_decay_tmp.c_str(), "w");
     if (!tmpf) {
       edm::LogError("EvtGenInterface::~EvtGenInterface")
