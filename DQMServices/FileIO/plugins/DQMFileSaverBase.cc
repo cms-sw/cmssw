@@ -8,6 +8,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/MessageLogger/interface/JobReport.h"
 #include "FWCore/Utilities/interface/TimeOfDay.h"
+#include "DataFormats/Histograms/interface/DQMToken.h"
 
 #include "DQMFileSaverBase.h"
 
@@ -19,6 +20,7 @@
 #include <string>
 #include <fstream>
 #include <utility>
+#include <filesystem>
 #include <TString.h>
 #include <TSystem.h>
 
@@ -37,6 +39,10 @@ DQMFileSaverBase::DQMFileSaverBase(const edm::ParameterSet &ps) {
 
   std::unique_lock<std::mutex> lck(initial_fp_lock_);
   initial_fp_ = fp;
+
+  // This makes sure a file saver runs in a very end
+  consumesMany<DQMToken, edm::InLumi>();
+  consumesMany<DQMToken, edm::InRun>();
 }
 
 DQMFileSaverBase::~DQMFileSaverBase() = default;
