@@ -238,7 +238,6 @@ void RPCSeedGenerator::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
 
   // Start from filling layers to filling seeds
   LayerFinder.fill();
-  Overlapper.setEventSetup(iSetup);
   Overlapper.run();
 
   // Save seeds to event
@@ -273,8 +272,12 @@ void RPCSeedGenerator::beginJob() {
   LayerFinder.setOutput(&recHitFinder, &CosmicrecHitFinder);
 }
 void RPCSeedGenerator::beginRun(const edm::Run&, const edm::EventSetup& iSetup) {
-  CosmicrecHitFinder.setEdge(iSetup);
-  Overlapper.setEventSetup(iSetup);
+  // Get RPCGeometry
+  edm::ESHandle<RPCGeometry> rpcGeometry;
+  iSetup.get<MuonGeometryRecord>().get(rpcGeometry);
+
+  CosmicrecHitFinder.setEdge(*rpcGeometry);
+  Overlapper.setGeometry(*rpcGeometry);
   Overlapper.setIO(&goodweightedSeeds, &candidateweightedSeeds);
 }
 
