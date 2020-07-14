@@ -29,6 +29,10 @@ namespace btagbtvdeep {
       c_pf_features.quality =(1 << reco::TrackBase::loose);
     }
 
+    c_pf_features.dxy = catch_infs(c_pf->dxy());
+    c_pf_features.dz = catch_infs(c_pf->dz());
+    c_pf_features.dxysig = c_pf->bestTrack() ? catch_infs(c_pf->dxy() / c_pf->dxyError()) : 0;
+    c_pf_features.dzsig = c_pf->bestTrack() ? catch_infs(c_pf->dz() / c_pf->dzError()) : 0;
   }
 
   void recoCandidateToFeatures(const reco::PFCandidate * c_pf,
@@ -49,6 +53,15 @@ namespace btagbtvdeep {
     c_pf_features.chi2 = catch_infs_and_bound(std::floor(pseudo_track.normalizedChi2()),300,-1,300);
     c_pf_features.quality = quality_from_pfcand(*c_pf);
 
+    // To be implemented if FatJet tag becomes RECO compatible
+    // const auto *trk =
+    // float dz =
+    // float dxy =
+
+    // c_pf_features.dxy =
+    // c_pf_features.dz =
+    // c_pf_features.dxysig =
+    // c_pf_features.dzsig =
   }
 
 }
