@@ -1,6 +1,5 @@
 <use   name="FWCore/Framework"/>
 <use   name="FWCore/ParameterSet"/>
-<use   name="CommonTools/Utils"/>
 <use   name="SimDataFormats/GeneratorProducts"/>
 <use   name="SimGeneral/HepPDTRecord"/>
 <use   name="Utilities/PPS"/>
