@@ -68,7 +68,7 @@ METCorrectionAlgorithm::~METCorrectionAlgorithm() {
   }
 }
 
-CorrMETData METCorrectionAlgorithm::compMETCorrection(edm::Event& evt, const edm::EventSetup& es) {
+CorrMETData METCorrectionAlgorithm::compMETCorrection(edm::Event& evt) {
   CorrMETData metCorr;
   metCorr.mex = 0.;
   metCorr.mey = 0.;

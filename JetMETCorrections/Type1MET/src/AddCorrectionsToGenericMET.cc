@@ -12,9 +12,7 @@ reco::Candidate::LorentzVector AddCorrectionsToGenericMET::constructP4From(const
   return reco::Candidate::LorentzVector(px, py, 0., pt);
 }
 
-CorrMETData AddCorrectionsToGenericMET::getCorrection(const reco::MET& srcMET,
-                                                      edm::Event& evt,
-                                                      const edm::EventSetup& es) {
+CorrMETData AddCorrectionsToGenericMET::getCorrection(const reco::MET& srcMET, edm::Event& evt) {
   CorrMETData sumCor;
   edm::Handle<CorrMETData> corr;
   for (std::vector<edm::EDGetTokenT<CorrMETData> >::const_iterator corrToken = corrTokens_.begin();
@@ -27,20 +25,16 @@ CorrMETData AddCorrectionsToGenericMET::getCorrection(const reco::MET& srcMET,
   return sumCor;
 }
 
-reco::MET AddCorrectionsToGenericMET::getCorrectedMET(const reco::MET& srcMET,
-                                                      edm::Event& evt,
-                                                      const edm::EventSetup& es) {
-  CorrMETData corr = getCorrection(srcMET, evt, es);
+reco::MET AddCorrectionsToGenericMET::getCorrectedMET(const reco::MET& srcMET, edm::Event& evt) {
+  CorrMETData corr = getCorrection(srcMET, evt);
   reco::MET outMET(srcMET.sumEt() + corr.sumet, constructP4From(srcMET, corr), srcMET.vertex(), srcMET.isWeighted());
 
   return outMET;
 }
 
 //specific flavors ================================
-reco::PFMET AddCorrectionsToGenericMET::getCorrectedPFMET(const reco::PFMET& srcMET,
-                                                          edm::Event& evt,
-                                                          const edm::EventSetup& es) {
-  CorrMETData corr = getCorrection(srcMET, evt, es);
+reco::PFMET AddCorrectionsToGenericMET::getCorrectedPFMET(const reco::PFMET& srcMET, edm::Event& evt) {
+  CorrMETData corr = getCorrection(srcMET, evt);
   reco::PFMET outMET(srcMET.getSpecific(),
                      srcMET.sumEt() + corr.sumet,
                      constructP4From(srcMET, corr),
@@ -50,10 +44,8 @@ reco::PFMET AddCorrectionsToGenericMET::getCorrectedPFMET(const reco::PFMET& src
   return outMET;
 }
 
-reco::CaloMET AddCorrectionsToGenericMET::getCorrectedCaloMET(const reco::CaloMET& srcMET,
-                                                              edm::Event& evt,
-                                                              const edm::EventSetup& es) {
-  CorrMETData corr = getCorrection(srcMET, evt, es);
+reco::CaloMET AddCorrectionsToGenericMET::getCorrectedCaloMET(const reco::CaloMET& srcMET, edm::Event& evt) {
+  CorrMETData corr = getCorrection(srcMET, evt);
   reco::CaloMET outMET(
       srcMET.getSpecific(), srcMET.sumEt() + corr.sumet, constructP4From(srcMET, corr), srcMET.vertex());
 
