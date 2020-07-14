@@ -45,12 +45,11 @@
 
   
 class PPSGeometryESProducer : public edm::ESProducer {
-public:
+ public:
   PPSGeometryESProducer(const edm::ParameterSet&);
   ~PPSGeometryESProducer() override {}
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
-  static std::unique_ptr<DetGeomDesc> buildDetGeomDescFromCompactView(const cms::DDCompactView& myCompactView);
 
 private:
   std::unique_ptr<DetGeomDesc> produceIdealGD(const IdealGeometryRecord&);

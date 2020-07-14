@@ -24,9 +24,7 @@
 #include "Geometry/Records/interface/VeryForwardIdealGeometryRecord.h"
 #include "DetectorDescription/DDCMS/interface/DDCompactView.h"
 #include "CondFormats/GeometryObjects/interface/PDetGeomDesc.h"
-#include "Geometry/VeryForwardGeometryBuilder/plugins/dd4hep/PPSGeometryESProducer.cc"
-
-class PPSGeometryESProducer;
+#include "Geometry/VeryForwardGeometryBuilder/interface/DetGeomDescBuilder.h"
 
 
 class PPSGeometryBuilder : public edm::one::EDAnalyzer<> {
@@ -60,7 +58,7 @@ void PPSGeometryBuilder::analyze(const edm::Event& iEvent, const edm::EventSetup
     iSetup.get<IdealGeometryRecord>().get(compactViewTag_.c_str(), myCompactView);
   }
   // Build geometry
-  auto geoInfoSentinel = PPSGeometryESProducer::buildDetGeomDescFromCompactView(*myCompactView);
+  auto geoInfoSentinel = DetGeomDescBuilder::buildDetGeomDescFromCompactView(*myCompactView);
 
   // Build persistent geometry data from geometry
   PDetGeomDesc* serializableData = new PDetGeomDesc;

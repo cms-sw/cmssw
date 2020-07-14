@@ -19,9 +19,7 @@
 #include "DataFormats/CTPPSDetId/interface/CTPPSDiamondDetId.h"
 
 #include "DetectorDescription/DDCMS/interface/DDCompactView.h"
-#include "DetectorDescription/DDCMS/interface/DDFilteredView.h"
-#include "DetectorDescription/DDCMS/interface/DDDetector.h"
-
+#include "Geometry/VeryForwardGeometryBuilder/interface/DetGeomDescBuilder.h"
 #include "Geometry/VeryForwardGeometryBuilder/interface/CTPPSDDDNames.h"
 
 #include <regex>
@@ -118,44 +116,16 @@ void PPSGeometryESProducer::applyAlignments(const DetGeomDesc& idealGD,
 
 
 std::unique_ptr<DetGeomDesc> PPSGeometryESProducer::produceIdealGD(const IdealGeometryRecord& iRecord) {
-  // get the DDDetector from EventSetup
+  // Get the DDDetector from EventSetup
   auto const& det = iRecord.get(detectorToken_);
   
-  // get the DDCompactView
+  // Get the DDCompactView
   cms::DDCompactView myCompactView(det);
 
-  return buildDetGeomDescFromCompactView(myCompactView);
+  // Build geo from compact view.
+  return DetGeomDescBuilder::buildDetGeomDescFromCompactView(myCompactView);
 }
 
-
-std::unique_ptr<DetGeomDesc> PPSGeometryESProducer::buildDetGeomDescFromCompactView(const cms::DDCompactView& myCompactView) {
-
-  // create DDFilteredView (no filter!!)
-  const cms::DDDetector* mySystem = myCompactView.detector();
-  const dd4hep::Volume& worldVolume = mySystem->worldVolume();
-  cms::DDFilteredView fv(mySystem, worldVolume);
-  if (fv.next(0) == false) {
-    edm::LogError("PPSGeometryESProducer") << "Filtered view is empty. Cannot build.";
-  }
-
-  const cms::DDSpecParRegistry& allSpecParSections = myCompactView.specpars();
-  // Geo info: sentinel node.
-  auto geoInfoSentinel = std::make_unique<DetGeomDesc>(fv, allSpecParSections);
-
-  // Construct the tree of children geo info (DetGeomDesc).
-  do {
-    // Create node, and add it to the geoInfoSentinel's list.
-    DetGeomDesc* newGD = new DetGeomDesc(fv, allSpecParSections);
-    geoInfoSentinel->addComponent(newGD);
-  } while (fv.next(0));
-  
-  edm::LogInfo("PPSGeometryESProducer") << "Successfully built geometry, it has " << (geoInfoSentinel->components()).size() << " DetGeomDesc nodes.";
-
-  return geoInfoSentinel;
-}
-
-
-//----------------------------------------------------------------------------------------------------
 
 template <typename REC>
 std::unique_ptr<DetGeomDesc> PPSGeometryESProducer::produceGD(IdealGeometryRecord const& iIdealRec,
