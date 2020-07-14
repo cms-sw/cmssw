@@ -1,0 +1,8 @@
+<use name="root"/>
+<use name="FWCore/Framework"/>
+<use name="FWCore/ParameterSet"/>
+<use name="HLTrigger/HLTcore"/>
+<use name="HeterogeneousCore/MPICore"/>
+<library file="*.cc" name="HeterogeneousCoreMPICoreTestPlugins">
+  <flags EDM_PLUGIN="1"/>
+</library>
