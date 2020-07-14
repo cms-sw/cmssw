@@ -12,8 +12,6 @@
 
 #include <Math/SMatrix.h>
 
-#include "omp.h"
-
 using namespace std;
 
 //#define DEBUG
@@ -97,18 +95,15 @@ DAClusterizerInZ_vect::DAClusterizerInZ_vect(const edm::ParameterSet& conf) {
 namespace {
   inline double local_exp(double const& inp) { return vdt::fast_exp(inp); }
 
-  void local_exp_list(double const* __restrict__ arg_inp,
-                             double* __restrict__ arg_out,
-                             const int arg_arr_size) {
+  inline void local_exp_list(double const* __restrict__ arg_inp, double* __restrict__ arg_out, const int arg_arr_size) {
     for (int i = 0; i < arg_arr_size; ++i)
       arg_out[i] = vdt::fast_exp(arg_inp[i]);
   }
 
-  void local_exp_list_range(double const* __restrict__ arg_inp,
+  inline void local_exp_list_range(double const* __restrict__ arg_inp,
                                    double* __restrict__ arg_out,
                                    const int kmin,
                                    const int kmax) {
-#pragma omp simd
     for (int i = kmin; i < kmax; ++i)
       arg_out[i] = vdt::fast_exp(arg_inp[i]);
   }
@@ -686,7 +681,6 @@ bool DAClusterizerInZ_vect::purge(vertex_t& y, track_t& tks, double& rho0, const
 
     int nUnique = 0;
     double sump = 0;
-#pragma omp simd reduction(+ : sump) reduction(+ : nUnique)
     for (unsigned int i = 0; i < nt; ++i) {
       const auto p = y.pk_ptr[k] * peik_cache[i] * pinverse_zsums[i];
       sump += p;
