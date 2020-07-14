@@ -75,8 +75,6 @@ from RecoVertex.PrimaryVertexProducer.OfflinePrimaryVertices_cfi import offlineP
 FilteringParams = offlinePrimaryVertices.TkFilterParameters.clone(
      maxNormalizedChi2 = 5.0,  # chi2ndof < 5
      maxD0Significance = 5.0,  # fake cut (requiring 1 PXB hit)
-     maxD0Error = 100.0,       # fake cut (requiring 1 PXB hit)
-     maxDzError = 100.0,       # fake cut (requiring 1 PXB hit)
      maxEta = 5.0,             # as per recommendation in PR #18330
 )
 

@@ -3639,8 +3639,8 @@ void PrimaryVertexValidation::fillDescriptions(edm::ConfigurationDescriptions& d
   psd0.add<std::string>("algorithm", "filter");
   psd0.add<double>("maxEta", 5.0);
   psd0.add<double>("maxD0Significance", 5.0);
-  psd0.add<double>("maxD0Error", 100.0);
-  psd0.add<double>("maxDzError", 100.0);
+  psd0.add<double>("maxD0Error", 1.0);
+  psd0.add<double>("maxDzError", 1.0);
   psd0.add<std::string>("trackQuality", "any");
   psd0.add<int>("minPixelLayersWithHits", 2);
   psd0.add<int>("minSiliconLayersWithHits", 5);
