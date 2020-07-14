@@ -19,7 +19,6 @@
   <use name="MagneticField/Engine"/>
   <use name="MagneticField/Records"/>
   <use name="PhysicsTools/IsolationAlgos"/>
-  <use name="PhysicsTools/Utilities"/>
   <use name="RecoMuon/MuonIsolation"/>
   <use name="TrackingTools/Records"/>
   <use name="TrackingTools/TrackAssociator"/>
