@@ -10,4 +10,5 @@
   <use name="SimDataFormats/GeneratorProducts"/>
   <use name="SimGeneral/HepPDTRecord"/>
   <flags EDM_PLUGIN="1"/>
+  <flags CXXFLAGS="-DUSEHYBRID"/>
 </library>

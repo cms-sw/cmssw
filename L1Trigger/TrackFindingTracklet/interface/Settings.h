@@ -28,7 +28,9 @@ namespace trklet {
     Settings() {
       //Comment out to run tracklet-only algorithm
 #ifdef CMSSW_GIT_HASH
-#define USEHYBRID
+#ifndef USEHYBRID
+#error USEHYBRID is not defined
+#endif
 #endif
     }
 
