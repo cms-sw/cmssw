@@ -1,6 +1,6 @@
 /* \class ElectronCollectionMerger
- * 
- * Producer of merged Electron collection 
+ *
+ * Producer of merged Electron collection
  *
  * \author: Michal Bluj, NCBJ, Poland
  *
@@ -11,9 +11,8 @@
 #include "DataFormats/EgammaCandidates/interface/GsfElectronFwd.h"
 #include "DataFormats/PatCandidates/interface/Electron.h"
 
-typedef Merger<reco::GsfElectronCollection> GsfElectronCollMerger;
-DEFINE_FWK_MODULE(GsfElectronCollMerger);
+typedef Merger<reco::GsfElectronCollection> GsfElectronCollectionMerger;
+DEFINE_FWK_MODULE(GsfElectronCollectionMerger);
 
-typedef Merger<pat::ElectronCollection> PATElectronCollMerger;
-DEFINE_FWK_MODULE(PATElectronCollMerger);
-
+typedef Merger<pat::ElectronCollection> PATElectronCollectionMerger;
+DEFINE_FWK_MODULE(PATElectronCollectionMerger);
