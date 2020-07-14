@@ -9,7 +9,6 @@
 #include <iomanip>
 #include "FWCore/Utilities/interface/isFinite.h"
 #include "vdt/vdtMath.h"
-#include "omp.h"
 
 using namespace std;
 
@@ -104,18 +103,15 @@ DAClusterizerInZT_vect::DAClusterizerInZT_vect(const edm::ParameterSet& conf) {
 namespace {
   inline double local_exp(double const& inp) { return vdt::fast_exp(inp); }
 
-  void local_exp_list(double const* __restrict__ arg_inp,
-                             double* __restrict__ arg_out,
-                             const int arg_arr_size) {
+  inline void local_exp_list(double const* __restrict__ arg_inp, double* __restrict__ arg_out, const int arg_arr_size) {
     for (int i = 0; i < arg_arr_size; ++i)
       arg_out[i] = vdt::fast_exp(arg_inp[i]);
   }
 
-  void local_exp_list_range(double const* __restrict__ arg_inp,
+  inline void local_exp_list_range(double const* __restrict__ arg_inp,
                                    double* __restrict__ arg_out,
                                    const int kmin,
                                    const int kmax) {
-#pragma omp simd
     for (int i = kmin; i < kmax; ++i)
       arg_out[i] = vdt::fast_exp(arg_inp[i]);
   }
@@ -419,7 +415,6 @@ double DAClusterizerInZT_vect::update(double beta, track_t& gtracks, vertex_t& g
     auto tmp_trk_z = tks_vec.z_ptr[track_num];
     auto tmp_trk_t = tks_vec.t_ptr[track_num];
     // auto-vectorized
-#pragma omp simd
     for (unsigned int k = kmin; k < kmax; ++k) {
       // parens are important for numerical stability
       y_vec.se_ptr[k] += tmp_trk_pi * (y_vec.ei_ptr[k] * o_trk_Z_sum);
@@ -791,7 +786,6 @@ bool DAClusterizerInZT_vect::purge(vertex_t& y, track_t& tks, double& rho0, cons
 
     nUnique = 0;
     sump = 0;
-#pragma omp simd reduction(+ : sump) reduction(+ : nUnique)
     for (unsigned int i = 0; i < nt; ++i) {
       const auto p = y.pk_ptr[k] * peik_cache[i] * pinverse_zsums[i];
       sump += p;
