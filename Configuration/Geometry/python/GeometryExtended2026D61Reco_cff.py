@@ -3,7 +3,7 @@ import FWCore.ParameterSet.Config as cms
 # This config was generated automatically using generate2026Geometry.py
 # If you notice a mistake, please update the generating script, not just this config
 
-from Configuration.Geometry.GeometryExtended2026D43_cff import *
+from Configuration.Geometry.GeometryExtended2026D61_cff import *
 
 # tracker
 from Geometry.CommonTopologies.globalTrackingGeometry_cfi import *
