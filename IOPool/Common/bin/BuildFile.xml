@@ -33,4 +33,5 @@
   <use name="FWCore/Services"/>
   <use name="FWCore/Catalog"/>
   <use name="FWCore/ParameterSet"/>
+  <use name="stdcxx-fs"/>
 </bin>
