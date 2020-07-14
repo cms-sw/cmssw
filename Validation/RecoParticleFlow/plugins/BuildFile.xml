@@ -1,5 +1,4 @@
 <library name="ValidationRecoParticleFlow_plugins" file="*.cc">
-  <use name="FWCore/FWLite"/>
   <use name="FWCore/Framework"/>
   <use name="root"/>
   <use name="rootcore"/>
