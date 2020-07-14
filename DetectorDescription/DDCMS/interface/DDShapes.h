@@ -217,77 +217,89 @@ namespace cms {
     };
 
 
-    class DDPolyhedra{
+    template <class ShapeType>
+    std::vector<double> vecImpl(const ShapeType *shape, const double *begin) {
+      const auto length = shape->access()->GetNz();
+      return {begin, (begin + length)};
+    }
+
+    template <class ShapeType>
+    std::vector<double> zVecImpl(const ShapeType *shape) {
+      const auto begin = shape->access()->GetZ();
+      return (vecImpl(shape, begin));
+    }
+
+    template <class ShapeType>
+    std::vector<double> rMinVecImpl(const ShapeType *shape) {
+      const auto begin = shape->access()->GetRmin();
+      return (vecImpl(shape, begin));
+    }
+
+    template <class ShapeType>
+    std::vector<double> rMaxVecImpl(const ShapeType *shape) {
+      const auto begin = shape->access()->GetRmax();
+      return (vecImpl(shape, begin));
+    }
+
+    class DDPolyhedra : public dd4hep::Solid_type<TGeoPgon> {
     public:
-      DDPolyhedra(const cms::DDFilteredView &fview);
+      DDPolyhedra(const dd4hep::Solid &solid) : dd4hep::Solid_type<TGeoPgon>(solid) {}
+
       DDPolyhedra(void) = delete;
 
-      int sides(void) const { return (sides_); }
-      double startPhi(void) const { return (startPhi_); }
-      double deltaPhi(void) const { return (deltaPhi_); }
-      std::vector<double> zVec(void) const { return (zVec_); }
-      std::vector<double> rVec(void) const { return (rVec_); }
-      std::vector<double> rMinVec(void) const { return (rMinVec_); }
-      std::vector<double> rMaxVec(void) const { return (rMaxVec_); }
+      template <typename Q> DDPolyhedra(const Q* ptr) : dd4hep::Solid_type<dd4hep::Handle<TGeoHalfSpace>::Object>(ptr) {}
+      template <typename Q> DDPolyhedra(const dd4hep::Handle<Q>& handle) : dd4hep::Solid_type<dd4hep::Handle<TGeoHalfSpace>::Object>(handle) {}
 
-      const bool valid;
 
-    private:
-      int sides_;
-      double startPhi_;
-      double deltaPhi_;
-      std::vector<double> zVec_;
-      std::vector<double> rVec_;
-      std::vector<double> rMinVec_;
-      std::vector<double> rMaxVec_;
+      int sides(void) const { return (access()->GetNedges()); }
+
+      double startPhi(void) const { return (access()->GetPhi1()); }
+      double deltaPhi(void) const { return (access()->GetDphi());  }
+
+      std::vector<double> zVec(void) const { return (zVecImpl(this)); }
+      std::vector<double> rMinVec(void) const { return (rMinVecImpl(this)); }
+      std::vector<double> rMaxVec(void) const { return (rMaxVecImpl(this)); }
+
+      std::vector<double> rVec(void) const { return (rMaxVec()); }
+      // Use of rVec() assumes that the rMin vector is all 0.
     };
 
 
-    class DDPolycone {
+    class DDPolycone : public dd4hep::Solid_type<TGeoPcon> {
     public:
-      DDPolycone(const cms::DDFilteredView &fview);
+      DDPolycone(const dd4hep::Solid &solid) : dd4hep::Solid_type<TGeoPcon>(solid) {}
+
       DDPolycone(void) = delete;
 
-      double startPhi(void) const { return (startPhi_); }
-      double deltaPhi(void) const { return (deltaPhi_); }
-      std::vector<double> zVec(void) const { return (zVec_); }
-      std::vector<double> rMinVec(void) const { return (rMinVec_); }
-      std::vector<double> rMaxVec(void) const { return (rMaxVec_); }
-
-      const bool valid;
-
-    private:
-      double startPhi_;
-      double deltaPhi_;
-      std::vector<double> zVec_;
-      std::vector<double> rMinVec_;
-      std::vector<double> rMaxVec_;
-     };
+      template <typename Q> DDPolycone(const Q* ptr) : dd4hep::Solid_type<dd4hep::Handle<TGeoHalfSpace>::Object>(ptr) {}
+      template <typename Q> DDPolycone(const dd4hep::Handle<Q>& handle) : dd4hep::Solid_type<dd4hep::Handle<TGeoHalfSpace>::Object>(handle) {}
 
 
-    class DDExtrudedPolygon {
+      double startPhi(void) const { return (access()->GetPhi1()); }
+      double deltaPhi(void) const { return (access()->GetDphi());  }
+
+      std::vector<double> zVec(void) const { return (zVecImpl(this)); }
+      std::vector<double> rMinVec(void) const { return (rMinVecImpl(this)); }
+      std::vector<double> rMaxVec(void) const { return (rMaxVecImpl(this)); }
+    };
+
+
+    class DDExtrudedPolygon : public dd4hep::Solid_type<TGeoXtru> {
     public:
-      DDExtrudedPolygon(const cms::DDFilteredView &fview);
+      DDExtrudedPolygon(const dd4hep::Solid &solid) : dd4hep::Solid_type<TGeoXtru>(solid) {}
+
       DDExtrudedPolygon(void) = delete;
 
-      std::vector<double> xVec(void) const { return (xVec_); }
-      std::vector<double> yVec(void) const { return (yVec_); }
-      std::vector<double> zVec(void) const { return (zVec_); }
-      std::vector<double> zxVec(void) const { return (zxVec_); }
-      std::vector<double> zyVec(void) const { return (zyVec_); }
-      std::vector<double> zscaleVec(void) const { return (zscaleVec); }
+      template <typename Q> DDExtrudedPolygon(const Q* ptr) : dd4hep::Solid_type<dd4hep::Handle<TGeoHalfSpace>::Object>(ptr) {}
+      template <typename Q> DDExtrudedPolygon(const dd4hep::Handle<Q>& handle) : dd4hep::Solid_type<dd4hep::Handle<TGeoHalfSpace>::Object>(handle) {}
 
-      const bool valid;
-
-   private:
-     std::vector<double> xVec_;
-     std::vector<double> yVec_;
-     std::vector<double> zVec_;
-     std::vector<double> zxVec_;
-     std::vector<double> zyVec_;
-     std::vector<double> zscaleVec_;
+      std::vector<double> xVec(void) const;
+      std::vector<double> yVec(void) const;
+      std::vector<double> zVec(void) const { return (zVecImpl(this)); }
+      std::vector<double> zxVec(void) const;
+      std::vector<double> zyVec(void) const;
+      std::vector<double> zscaleVec(void) const;
    };
-
   }  // namespace dd
 }  // namespace cms
 

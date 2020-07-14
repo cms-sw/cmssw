@@ -168,6 +168,7 @@ DDTruncTubs::DDTruncTubs(const DDFilteredView &fv) : valid{fv.isATruncTube()} {
 
 
 // ** DDPolycone
+/*
 DDPolycone::DDPolycone(const cms::DDFilteredView &fview) : valid{fv.isAPolycone()} {
   if (valid) {
     auto polycone = fv.solid();
@@ -186,11 +187,55 @@ DDPolycone::DDPolycone(const cms::DDFilteredView &fview) : valid{fv.isAPolycone(
       rMaxVec_.emplace_back(params[index + 2]);
     }
 }
+*/
 
 // *** end of DDPolycone
 
+// ** DDPolycone
+
+/*
+std::vector<double> DDPolycone:zVec(void) const {
+  const auto begin = access()->GetZ();
+  const auto length = access()->GetNz();
+  return ({begin, begin + length});
+}
+
+std::vector<double> DDPolycone:rMinVec(void) const {
+  const auto begin = access()->GetRmin();
+  const auto length = access()->GetNz();
+  return ({begin, begin + length});
+}
+
+std::vector<double> DDPolycone:rMaxVec(void) const {
+  const auto begin = access()->GetRmax();
+  const auto length = access()->GetNz();
+  return ({begin, begin + length});
+}
+
 
 // ** DDPolyhedra
+
+std::vector<double> DDPolyhedra:zVec(void) const {
+  const auto begin = access()->GetZ();
+  const auto length = access()->GetNz();
+  return ({begin, begin + length});
+}
+
+std::vector<double> DDPolyhedra:rMinVec(void) const {
+  const auto begin = access()->GetRmin();
+  const auto length = access()->GetNz();
+  return ({begin, begin + length});
+}
+
+std::vector<double> DDPolyhedra:rMaxVec(void) const {
+  const auto begin = access()->GetRmax();
+  const auto length = access()->GetNz();
+  return ({begin, begin + length});
+}
+
+*/
+
+/* Old version
 DDPolyhedra::DDPolyhedra(const cms::DDFilteredView &fview) : valid{fv.isAPolyhedra()} {
   if (valid) {
     auto polyhedra = fv.solid();
@@ -210,5 +255,55 @@ DDPolyhedra::DDPolyhedra(const cms::DDFilteredView &fview) : valid{fv.isAPolyhed
       rMaxVec_.emplace_back(params[index + 2]);
     }
 }
+*/
 
 // *** end of DDPolyhedra
+
+
+static std::vector<double> getVec(std::function<Double_t (Int_t)> getValFunc, int numItems) {
+  std::vector<double> shapeSet(numItems);
+  for (int index = 0; index < numItems; ++index) {
+    shapeSet.emplace_back(getValFunc(index));
+  }
+  return (shapeSet);
+}
+
+std::vector<double> DDExtrudedPolygon::xVec(void) const {
+  auto numPolygons = access()->GetNvert();
+  std::function<Double_t (Int_t)> getXFunc = [=](Int_t index) {
+    return(this->access()->GetX(index));
+  };
+  return (getVec(getXFunc, numPolygons));
+}
+
+std::vector<double> DDExtrudedPolygon::yVec(void) const {
+  auto numPolygons = access()->GetNvert();
+  std::function<Double_t (Int_t)> getYFunc = [=](Int_t index) {
+    return(this->access()->GetY(index));
+  };
+  return (getVec(getYFunc, numPolygons));
+}
+
+std::vector<double> DDExtrudedPolygon::zxVec(void) const {
+  auto numSections = access()->GetNz();
+  std::function<Double_t (Int_t)> getXFunc = [=](Int_t index) {
+    return(this->access()->GetXOffset(index));
+  };
+  return (getVec(getXFunc, numSections));
+}
+
+std::vector<double> DDExtrudedPolygon::zyVec(void) const {
+  auto numSections = access()->GetNz();
+  std::function<Double_t (Int_t)> getYFunc = [=](Int_t index) {
+    return(this->access()->GetYOffset(index));
+  };
+  return (getVec(getYFunc, numSections));
+}
+
+std::vector<double> DDExtrudedPolygon::zscaleVec(void) const {
+  auto numSections = access()->GetNz();
+  std::function<Double_t (Int_t)> getScFunc = [=](Int_t index) {
+    return(this->access()->GetScale(index));
+  };
+  return (getVec(getScFunc, numSections));
+}
