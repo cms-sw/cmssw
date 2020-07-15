@@ -16,7 +16,7 @@ using namespace sistrip;
 // -----------------------------------------------------------------------------
 //
 testSiStripConfigDb::testSiStripConfigDb(const edm::ParameterSet& pset)
-    : db_(0),
+    : db_(nullptr),
       download_(pset.getUntrackedParameter<bool>("Download", false)),
       upload_(pset.getUntrackedParameter<bool>("Upload", false)),
       conns_(pset.getUntrackedParameter<bool>("FedConnections", false)),
