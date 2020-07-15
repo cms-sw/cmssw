@@ -12,17 +12,19 @@
 
 #include "L1Trigger/TrackTrigger/plugins/TTStubBuilder.h"
 
+/// Update output stubs with Refs to cluster collection that is associated to stubs.
+
 template <>
 void TTStubBuilder<Ref_Phase2TrackerDigi_>::updateStubs(
     const edm::OrphanHandle<edmNew::DetSetVector<TTCluster<Ref_Phase2TrackerDigi_>>>& clusterHandle,
     const edmNew::DetSetVector<TTStub<Ref_Phase2TrackerDigi_>>& inputEDstubs,
     edmNew::DetSetVector<TTStub<Ref_Phase2TrackerDigi_>>& outputEDstubs) const {
-  /// Now, correctly reset the output
-  typename edmNew::DetSetVector<TTStub<Ref_Phase2TrackerDigi_>>::const_iterator stubDetIter;
 
-  for (stubDetIter = inputEDstubs.begin(); stubDetIter != inputEDstubs.end(); ++stubDetIter) {
+  /// Loop over tracker modules
+  for (const auto& module : inputEDstubs) {
+
     /// Get the DetId and prepare the FastFiller
-    DetId thisStackedDetId = stubDetIter->id();
+    DetId thisStackedDetId = module.id();
     typename edmNew::DetSetVector<TTStub<Ref_Phase2TrackerDigi_>>::FastFiller outputFiller(outputEDstubs,
                                                                                            thisStackedDetId);
 
@@ -39,18 +41,17 @@ void TTStubBuilder<Ref_Phase2TrackerDigi_>::updateStubs(
     edmNew::DetSet<TTStub<Ref_Phase2TrackerDigi_>> theseStubs = inputEDstubs[thisStackedDetId];
 
     /// Prepare the new DetSet to replace the current one
-    /// Loop over the stubs
-    typename edmNew::DetSet<TTCluster<Ref_Phase2TrackerDigi_>>::iterator clusterIter;
-    typename edmNew::DetSet<TTStub<Ref_Phase2TrackerDigi_>>::iterator stubIter;
-    for (stubIter = theseStubs.begin(); stubIter != theseStubs.end(); ++stubIter) {
+    /// Loop over the stubs in this module
+    typename edmNew::DetSet<TTCluster<Ref_Phase2TrackerDigi_>>::const_iterator clusterIter;
+    for (const auto& stub : theseStubs) {
       /// Create a temporary stub
-      TTStub<Ref_Phase2TrackerDigi_> tempTTStub(stubIter->getDetId());
+      TTStub<Ref_Phase2TrackerDigi_> tempTTStub(stub.getDetId());
 
       /// Compare the clusters stored in the stub with the ones of this module
       const edm::Ref<edmNew::DetSetVector<TTCluster<Ref_Phase2TrackerDigi_>>, TTCluster<Ref_Phase2TrackerDigi_>>&
-          lowerClusterToBeReplaced = stubIter->clusterRef(0);
+          lowerClusterToBeReplaced = stub.clusterRef(0);
       const edm::Ref<edmNew::DetSetVector<TTCluster<Ref_Phase2TrackerDigi_>>, TTCluster<Ref_Phase2TrackerDigi_>>&
-          upperClusterToBeReplaced = stubIter->clusterRef(1);
+          upperClusterToBeReplaced = stub.clusterRef(1);
 
       bool lowerOK = false;
       bool upperOK = false;
@@ -73,11 +74,11 @@ void TTStubBuilder<Ref_Phase2TrackerDigi_>::updateStubs(
       if (!lowerOK || !upperOK)
         continue;
 
-      tempTTStub.setRawBend(2. * stubIter->rawBend());  /// getter is in FULL-strip units, setter is in HALF-strip units
-      tempTTStub.setBendOffset(
-          2. * stubIter->bendOffset());  /// getter is in FULL-strip units, setter is in HALF-strip units
-      tempTTStub.setBendBE(stubIter->bendBE());
-      tempTTStub.setModuleTypePS(stubIter->moduleTypePS());
+      /// getters for RawBend & BendOffset are in FULL-strip units, setters are in HALF-strip units
+      tempTTStub.setRawBend(2. * stub.rawBend());
+      tempTTStub.setBendOffset(2. * stub.bendOffset());
+      tempTTStub.setBendBE(stub.bendBE());
+      tempTTStub.setModuleTypePS(stub.moduleTypePS());
 
       outputFiller.push_back(tempTTStub);
 
@@ -86,6 +87,7 @@ void TTStubBuilder<Ref_Phase2TrackerDigi_>::updateStubs(
 }
 
 /// Implement the producer
+
 template <>
 void TTStubBuilder<Ref_Phase2TrackerDigi_>::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   //Retrieve tracker topology from geometry
