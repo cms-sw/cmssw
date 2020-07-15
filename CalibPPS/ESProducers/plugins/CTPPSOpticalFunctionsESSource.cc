@@ -27,6 +27,8 @@ class CTPPSOpticalFunctionsESSource: public edm::ESProducer, public edm::EventSe
   private:
     void setIntervalFor(const edm::eventsetup::EventSetupRecordKey&, const edm::IOVSyncValue&, edm::ValidityInterval&) override;
 
+    std::string m_label;
+
     struct FileInfo
     {
       double m_xangle;
@@ -56,6 +58,7 @@ class CTPPSOpticalFunctionsESSource: public edm::ESProducer, public edm::EventSe
 //----------------------------------------------------------------------------------------------------
 
 CTPPSOpticalFunctionsESSource::CTPPSOpticalFunctionsESSource(const edm::ParameterSet& conf) :
+  m_label(conf.getParameter<std::string>("label")),
   m_currentEntryValid(false),
   m_currentEntry(0)
 {
@@ -84,7 +87,7 @@ CTPPSOpticalFunctionsESSource::CTPPSOpticalFunctionsESSource(const edm::Paramete
     m_entries.push_back({validityRange, fileInfo, rpInfo});
   }
 
-  setWhatProduced(this);
+  setWhatProduced(this, m_label);
   findingRecord<CTPPSOpticsRcd>();
 }
 
@@ -155,6 +158,8 @@ void
 CTPPSOpticalFunctionsESSource::fillDescriptions(edm::ConfigurationDescriptions& descriptions)
 {
   edm::ParameterSetDescription desc;
+
+  desc.add<std::string>("label", "")->setComment("label of the optics record");
 
   edm::ParameterSetDescription config_desc;
 

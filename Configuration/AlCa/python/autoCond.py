@@ -14,23 +14,23 @@ autoCond = {
     # GlobalTag for MC production (L1 Trigger Stage1) with starup-like alignment and calibrations for Run2, L1 trigger in Stage1 mode
     'run2_mc_l1stage1'  :   '106X_mcRun2_asymptotic_l1stage1_v4',
     # GlobalTag for MC production with perfectly aligned and calibrated detector for Run2
-    'run2_design'       :   '106X_mcRun2_design_v6',
+    'run2_design'       :   '106X_mcRun2_design_v7',
     #GlobalTag for MC production with optimistic alignment and calibrations for 2016, prior to VFP change
-    'run2_mc_pre_vfp'           :   '106X_mcRun2_asymptotic_preVFP_v1',
+    'run2_mc_pre_vfp'   :   '106X_mcRun2_asymptotic_preVFP_v8',
     #GlobalTag for MC production with optimistic alignment and calibrations for 2016, after VFP change
-    'run2_mc'           :   '106X_mcRun2_asymptotic_v8',
+    'run2_mc'           :   '106X_mcRun2_asymptotic_v13',
     # GlobalTag for MC production (cosmics) with starup-like alignment and calibrations for Run2, Strip tracker in peak mode
-    'run2_mc_cosmics'   :   '106X_mcRun2cosmics_startup_deco_v5',
+    'run2_mc_cosmics'   :   '106X_mcRun2cosmics_startup_deco_v7',
     # GlobalTag for MC production (Heavy Ions collisions) with optimistic alignment and calibrations for Run2
     'run2_mc_hi'        :   '106X_mcRun2_HeavyIon_v4',
     # GlobalTag for MC production (p-Pb collisions) with realistic alignment and calibrations for Run2
     'run2_mc_pa'        :   '106X_mcRun2_pA_v5',
     # GlobalTag for Run1 data reprocessing
-    'run1_data'         :   '106X_dataRun2_v25',
+    'run1_data'         :   '106X_dataRun2_v28',
     # GlobalTag for Run2 data reprocessing
-    'run2_data'         :   '106X_dataRun2_v25',
+    'run2_data'         :   '106X_dataRun2_v28',
     # GlobalTag for Run2 data relvals: allows customization to run with fixed L1 menu
-    'run2_data_relval'  :   '106X_dataRun2_relval_v23',
+    'run2_data_relval'  :   '106X_dataRun2_relval_v26',
     # GlobalTag for Run2 data 2018B relvals only: HEM-15-16 fail
     'run2_data_promptlike_HEfail' : '106X_dataRun2_PromptLike_HEfail_v13',
     # GlobalTag for Run2 data 2016H relvals only: Prompt Conditions + fixed L1 menu (to be removed)

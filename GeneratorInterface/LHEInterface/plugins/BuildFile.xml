@@ -7,6 +7,7 @@
 <use name="boost"/>
 <library name="GeneratorInterfaceLHEProducer" file="LHEFilter.cc LHE2HepMCConverter.cc ExternalLHEProducer.cc ExternalLHEAsciiDumper.cc">
         <use name="FWCore/Framework"/>
+        <use name="FWCore/Concurrency"/>
         <use name="SimDataFormats/GeneratorProducts"/>
         <flags EDM_PLUGIN="1"/>
 </library>

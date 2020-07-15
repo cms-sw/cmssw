@@ -29,8 +29,10 @@ puppi = cms.EDProducer("PuppiProducer",#cms.PSet(#"PuppiProducer",
                        puppiForLeptons = cms.bool(False),
                        UseFromPVLooseTight = cms.bool(False),
                        UseDeltaZCut   = cms.bool(True),
+                       EtaMinUseDeltaZ = cms.double(0.),
                        DeltaZCut      = cms.double(0.3),
 		       PtMaxCharged   = cms.double(0.),
+		       EtaMaxCharged   = cms.double(99999.),
 		       PtMaxNeutrals  = cms.double(200.),
 		       PtMaxNeutralsStartSlope = cms.double(0.),
                        candName       = cms.InputTag('particleFlow'),
@@ -112,4 +114,12 @@ phase2_common.toModify(
              puppiAlgos = puppiForward
        )
     )
+)
+
+from Configuration.Eras.Modifier_run2_miniAOD_devel_cff import run2_miniAOD_devel
+run2_miniAOD_devel.toModify(
+    puppi,
+    EtaMinUseDeltaZ = 2.4,
+    PtMaxCharged = 20.,
+    PtMaxNeutralsStartSlope = 20.
 )

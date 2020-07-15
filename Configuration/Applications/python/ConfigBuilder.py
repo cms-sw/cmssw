@@ -106,14 +106,14 @@ def filesFromList(fileName,s=None):
         if line.count(".root")>=2:
             #two files solution...
             entries=line.replace("\n","").split()
-            if not entries[0] in prim:
-                prim.append(entries[0])
-            if not entries[1] in sec:
-                sec.append(entries[1])
+            prim.append(entries[0])
+            sec.append(entries[1])
         elif (line.find(".root")!=-1):
             entry=line.replace("\n","")
-            if not entry in prim:
-                prim.append(entry)
+            prim.append(entry)
+    # remove any duplicates
+    prim = sorted(list(set(prim)))
+    sec = sorted(list(set(sec)))
     if s:
         if not hasattr(s,"fileNames"):
             s.fileNames=cms.untracked.vstring(prim)
@@ -156,14 +156,14 @@ def filesFromDASQuery(query,option="",s=None):
         if line.count(".root")>=2:
             #two files solution...
             entries=line.replace("\n","").split()
-            if not entries[0] in prim:
-                prim.append(entries[0])
-            if not entries[1] in sec:
-                sec.append(entries[1])
+            prim.append(entries[0])
+            sec.append(entries[1])
         elif (line.find(".root")!=-1):
             entry=line.replace("\n","")
-            if not entry in prim:
-                prim.append(entry)
+            prim.append(entry)
+    # remove any duplicates
+    prim = sorted(list(set(prim)))
+    sec = sorted(list(set(sec)))
     if s:
         if not hasattr(s,"fileNames"):
             s.fileNames=cms.untracked.vstring(prim)
@@ -451,13 +451,13 @@ class ConfigBuilder(object):
                 self.process.source.processingMode = cms.untracked.string("RunsAndLumis")
 
         ##drop LHEXMLStringProduct on input to save memory if appropriate
-        if 'GEN' in self.stepMap.keys():
+        if 'GEN' in self.stepMap.keys() and not self._options.filetype == "LHE":
             if self._options.inputCommands:
                 self._options.inputCommands+=',drop LHEXMLStringProduct_*_*_*,'
             else:
                 self._options.inputCommands='keep *, drop LHEXMLStringProduct_*_*_*,'
 
-        if self.process.source and self._options.inputCommands:
+        if self.process.source and self._options.inputCommands and not self._options.filetype == "LHE":
             if not hasattr(self.process.source,'inputCommands'): self.process.source.inputCommands=cms.untracked.vstring()
             for command in self._options.inputCommands.split(','):
                 # remove whitespace around the keep/drop statements
@@ -786,7 +786,6 @@ class ConfigBuilder(object):
                         if count!=0:
                             iec.remove(item)
                         count+=1
-
 
             ## allow comma separated input eventcontent
             if not hasattr(self.process.source,'inputCommands'): self.process.source.inputCommands=cms.untracked.vstring()
@@ -1425,7 +1424,7 @@ class ConfigBuilder(object):
         if sequence == 'pdigi_valid' or sequence == 'pdigi_hi':
             self.executeAndRemember("process.mix.digitizers = cms.PSet(process.theDigitizersValid)")
 
-        if sequence != 'pdigi_nogen' and sequence != 'pdigi_valid_nogen' and sequence != 'pdigi_hi_nogen' and not self.process.source.type_()=='EmptySource':
+        if sequence != 'pdigi_nogen' and sequence != 'pdigi_valid_nogen' and sequence != 'pdigi_hi_nogen' and not self.process.source.type_()=='EmptySource' and not self._options.filetype == "LHE":
             if self._options.inputEventContent=='':
                 self._options.inputEventContent='REGEN'
             else:

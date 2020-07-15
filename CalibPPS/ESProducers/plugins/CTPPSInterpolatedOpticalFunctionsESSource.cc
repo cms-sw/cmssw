@@ -29,6 +29,7 @@ class CTPPSInterpolatedOpticalFunctionsESSource : public edm::ESProducer
 
   private:
     std::string lhcInfoLabel_;
+    std::string opticsLabel_;
 
     float currentCrossingAngle_;
     bool currentDataValid_;
@@ -40,10 +41,11 @@ class CTPPSInterpolatedOpticalFunctionsESSource : public edm::ESProducer
 
 CTPPSInterpolatedOpticalFunctionsESSource::CTPPSInterpolatedOpticalFunctionsESSource(const edm::ParameterSet& iConfig) :
   lhcInfoLabel_(iConfig.getParameter<std::string>("lhcInfoLabel")),
+  opticsLabel_(iConfig.getParameter<std::string>("opticsLabel")),
   currentCrossingAngle_(-1.),
   currentDataValid_(false)
 {
-  setWhatProduced(this, &CTPPSInterpolatedOpticalFunctionsESSource::produce);
+  setWhatProduced(this, opticsLabel_);
 }
 
 //----------------------------------------------------------------------------------------------------
@@ -55,6 +57,9 @@ void CTPPSInterpolatedOpticalFunctionsESSource::fillDescriptions(edm::Configurat
   desc.add<std::string>("lhcInfoLabel", "")
     ->setComment("label of the LHCInfo record");
 
+  desc.add<std::string>("opticsLabel", "")
+    ->setComment("label of the optics record");
+
   descriptions.add("ctppsInterpolatedOpticalFunctionsESSource", desc);
 }
 
@@ -64,7 +69,7 @@ std::shared_ptr<LHCInterpolatedOpticalFunctionsSetCollection> CTPPSInterpolatedO
 {
   // get the input data
   edm::ESHandle<LHCOpticalFunctionsSetCollection> hOFColl;
-  iRecord.getRecord<CTPPSOpticsRcd>().get(hOFColl);
+  iRecord.getRecord<CTPPSOpticsRcd>().get(opticsLabel_, hOFColl);
 
   edm::ESHandle<LHCInfo> hLHCInfo;
   iRecord.getRecord<LHCInfoRcd>().get(lhcInfoLabel_, hLHCInfo);

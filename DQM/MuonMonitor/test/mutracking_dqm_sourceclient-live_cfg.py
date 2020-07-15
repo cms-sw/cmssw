@@ -8,7 +8,8 @@ process = cms.Process("MUTRKDQM", Run2_2018_pp_on_AA)
 
 # Input source
 process.source = cms.Source("PoolSource",
-    fileNames = cms.untracked.vstring('file:/eos/cms/store/express/Commissioning2019/ExpressCosmics/FEVT/Express-v1/000/331/571/00000/35501AC0-29E7-EA4C-AC1C-194D9B2F12D9.root'),
+    fileNames = cms.untracked.vstring('root://cmsxrootd.fnal.gov///store/data/Commissioning2018/Cosmics/RAW/v1/000/308/409/00000/8806755C-FC04-E811-9EAC-02163E0137B4.root'),
+#file:/eos/cms/store/express/Commissioning2019/ExpressCosmics/FEVT/Express-v1/000/331/571/00000/35501AC0-29E7-EA4C-AC1C-194D9B2F12D9.root'),
     secondaryFileNames = cms.untracked.vstring()
 )
 
@@ -93,7 +94,6 @@ process.load("L1Trigger.Configuration.L1TRawToDigi_cff")
 #-------------------------------------------------                              
 # Condition for P5 cluster                          
 
-
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 from Configuration.AlCa.GlobalTag import GlobalTag as gtCustomise
 process.GlobalTag = gtCustomise(process.GlobalTag, 'auto:run2_data', '')
@@ -126,7 +126,7 @@ process.output = cms.EndPath(process.RECOoutput)
 
 
 
-#------------------------------------                                                                                                           
+#------------------------------------                                                                                                      
 # Cosmic muons reconstruction modules
 #------------------------------------
 
@@ -136,15 +136,30 @@ process.muRawToDigi = cms.Sequence(process.L1TRawToDigi +
                                    process.muonCSCDigis +
                                    process.muonDTDigis +
                                    process.muonRPCDigis +
-                                   process.muonRPCNewDigis +
                                    process.muonGEMDigis)
                                    
 
-#2 STA RECO
+#2 LOCAL RECO
+from RecoLocalMuon.Configuration.RecoLocalMuonCosmics_cff import *
+from RecoLocalMuon.RPCRecHit.rpcRecHits_cfi import *
 
-## From  cmssw/RecoMuon/Configuration/python/RecoMuonCosmics_cff.py 
+process.dtlocalreco = cms.Sequence(dt1DRecHits*dt4DSegments)
+process.csclocalreco = cms.Sequence(csc2DRecHits*cscSegments)
+process.muLocalRecoCosmics = cms.Sequence(process.dtlocalreco+process.csclocalreco+process.rpcRecHits)
 
-process.muSTAreco = cms.Sequence(process.STAmuontrackingforcosmics)
+
+#3 STA RECO 
+
+from RecoMuon.MuonSeedGenerator.CosmicMuonSeedProducer_cfi import *
+from RecoMuon.CosmicMuonProducer.cosmicMuons_cff import *
+
+##Reco Beam Spot from DB 
+from RecoVertex.BeamSpotProducer.BeamSpotFakeParameters_cfi import *
+process.beamspot = cms.EDAnalyzer("BeamSpotFromDB")
+process.offlineBeamSpot = cms.EDProducer("BeamSpotProducer")
+process.beampath = cms.Sequence(process.beamspot+process.offlineBeamSpot)
+
+process.muSTAreco = cms.Sequence(process.CosmicMuonSeed*cosmicMuons)
 
 
 #--------------------------
@@ -176,7 +191,7 @@ process.muonDQM = cms.Sequence(process.muonCosmicAnalyzer)
 # Scheduling
 #--------------------------
 
-process.allReco = cms.Sequence(process.muRawToDigi*process.muSTAreco)
+process.allReco = cms.Sequence(process.muRawToDigi*process.muLocalRecoCosmics*process.beampath*process.muSTAreco)
 
 process.allDQM = cms.Sequence(process.muonDQM*process.dqmEnv*process.dqmSaver)
 

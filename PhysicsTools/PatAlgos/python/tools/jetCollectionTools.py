@@ -2,8 +2,8 @@ import FWCore.ParameterSet.Config as cms
 
 from FWCore.GuiBrowsers.ConfigToolBase import *
 
-from Configuration.Eras.Modifier_run2_miniAOD_80XLegacy_cff import run2_miniAOD_80XLegacy
-from Configuration.Eras.Modifier_run2_nanoAOD_94X2016_cff import run2_nanoAOD_94X2016
+from Configuration.Eras.Modifier_run2_jme_2016_cff import run2_jme_2016
+from Configuration.Eras.Modifier_run2_jme_2017_cff import run2_jme_2017
 
 from RecoJets.JetProducers.PFJetParameters_cfi import PFJetParameters
 from RecoJets.JetProducers.GenJetParameters_cfi import GenJetParameters
@@ -205,7 +205,7 @@ class RecoJetAdder(object):
   """
   Tool to schedule modules for building a recojet collection with input MiniAODs
   """
-  def __init__(self):    
+  def __init__(self,runOnMC=True):    
     self.prerequisites = []
     self.main = []
     self.bTagDiscriminators = ["None"] # No b-tagging by default
@@ -216,6 +216,7 @@ class RecoJetAdder(object):
     self.muLabel = "slimmedMuons"
     self.elLabel = "slimmedElectrons"
     self.gpLabel = "prunedGenParticles"
+    self.runOnMC = runOnMC
 
   def getSequence(self, proc):
     tasks = self.prerequisites + self.main
@@ -407,6 +408,11 @@ class RecoJetAdder(object):
 
       getJetMCFlavour = not recoJetInfo.doCalo and recoJetInfo.jetPUMethod != "cs"
 
+      if not self.runOnMC: #Remove modules for Gen-level object matching
+        delattr(proc, 'patJetGenJetMatch{}'.format(tagName))
+        delattr(proc, 'patJetPartonMatch{}'.format(tagName))
+        getJetMCFlavour = False 
+
       setattr(getattr(proc, "patJets{}".format(tagName)),           "getJetMCFlavour", cms.bool(getJetMCFlavour))
       setattr(getattr(proc, "patJetCorrFactors{}".format(tagName)), "payload",         cms.string(recoJetInfo.jetCorrPayload))
       selJet = "selectedPatJets{}".format(tagName)
@@ -423,27 +429,64 @@ class RecoJetAdder(object):
       setattr(proc, jercVar, proc.jercVars.clone(srcJet = selJet))
       currentTasks.append(jercVar)
       #
-      # 
+      # JetID Loose
       #
       looseJetId = "looseJetId{}".format(tagName)
       if looseJetId in self.main:
         raise ValueError("Step '%s' already implemented" % looseJetId)
-      setattr(proc, looseJetId, proc.looseJetId.clone(src = selJet))
+      setattr(proc, looseJetId, proc.looseJetId.clone(
+          src = selJet,
+          filterParams=proc.looseJetId.filterParams.clone(
+            version ="WINTER16"
+          ),
+        )
+      )
+      currentTasks.append(looseJetId)
       #
-      # 
-      #
+      # JetID Tight
+      #      
       tightJetId = "tightJetId{}".format(tagName)
       if tightJetId in self.main:
         raise ValueError("Step '%s' already implemented" % tightJetId)
-      setattr(proc, tightJetId, proc.tightJetId.clone(src = selJet))
+      setattr(proc, tightJetId, proc.tightJetId.clone(
+          src = selJet,
+          filterParams=proc.tightJetId.filterParams.clone(
+            version = "SUMMER18{}".format("PUPPI" if recoJetInfo.jetPUMethod == "puppi" else "")
+          ),
+        )
+      )
+      tightJetIdObj = getattr(proc, tightJetId)
+      run2_jme_2016.toModify(
+        tightJetIdObj.filterParams, 
+          version = "WINTER16"
+      )
+      run2_jme_2017.toModify(
+        tightJetIdObj.filterParams, 
+          version = 'WINTER17{}'.format("PUPPI" if recoJetInfo.jetPUMethod == "puppi" else "")
+      )
       currentTasks.append(tightJetId)
       #
-      # 
+      # JetID TightLepVeto 
       #
       tightJetIdLepVeto = "tightJetIdLepVeto{}".format(tagName)
       if tightJetIdLepVeto in self.main:
         raise ValueError("Step '%s' already implemented" % tightJetIdLepVeto)
-      setattr(proc, tightJetIdLepVeto, proc.tightJetIdLepVeto.clone(src = selJet))
+      setattr(proc, tightJetIdLepVeto, proc.tightJetIdLepVeto.clone(
+          src = selJet,
+          filterParams=proc.tightJetIdLepVeto.filterParams.clone(
+            version = "SUMMER18{}".format("PUPPI" if recoJetInfo.jetPUMethod == "puppi" else "")
+          ),
+        )
+      )
+      tightJetIdLepVetoObj = getattr(proc, tightJetIdLepVeto)
+      run2_jme_2016.toModify(
+        tightJetIdLepVetoObj.filterParams, 
+        version = "WINTER16"
+      )
+      run2_jme_2017.toModify(
+        tightJetIdLepVetoObj.filterParams, 
+          version = 'WINTER17{}'.format("PUPPI" if recoJetInfo.jetPUMethod == "puppi" else ""),
+      )
       currentTasks.append(tightJetIdLepVeto)
       #
       # 
@@ -464,16 +507,14 @@ class RecoJetAdder(object):
           ),
         )
       )
-      for modifier in run2_miniAOD_80XLegacy, run2_nanoAOD_94X2016:
-        selectedPatJetsWithUserDataObj = getattr(proc, selectedPatJetsWithUserData)
-        modifier.toModify(selectedPatJetsWithUserDataObj.userInts,
-          looseId        = looseJetId,
-          tightIdLepVeto = None,
-        )
+      selectedPatJetsWithUserDataObj = getattr(proc, selectedPatJetsWithUserData)
+      run2_jme_2016.toModify(selectedPatJetsWithUserDataObj.userInts,
+        looseId  = cms.InputTag(looseJetId),
+      )
       currentTasks.append(selectedPatJetsWithUserData)
     else:
       selectedPatJetsWithUserData = "selectedPatJets{}".format(tagName)
-    
+  
     #
     # Not sure why we can't re-use patJetCorrFactors* created by addJetCollection() 
     # (even cloning doesn't work) Let's just create our own
@@ -502,8 +543,8 @@ class RecoJetAdder(object):
         jetCorrFactorsSource = [jetCorrFactors],
       )
     )
-
     currentTasks.append(updatedJets)
+
     self.main.extend(currentTasks)
 
     return recoJetInfo

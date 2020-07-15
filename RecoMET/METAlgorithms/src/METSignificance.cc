@@ -39,25 +39,23 @@ metsig::METSignificance::METSignificance(const edm::ParameterSet& iConfig) {
   jetEtas_ = cfgParams.getParameter<std::vector<double> >("jeta");
   jetParams_ = cfgParams.getParameter<std::vector<double> >("jpar");
   pjetParams_ = cfgParams.getParameter<std::vector<double> >("pjpar");
+  useDeltaRforFootprint_ = cfgParams.getParameter<bool>("useDeltaRforFootprint");
   
 }
 
-metsig::METSignificance::~METSignificance() {
-}
+metsig::METSignificance::~METSignificance() {}
 
-
-reco::METCovMatrix
-metsig::METSignificance::getCovariance(const edm::View<reco::Jet>& jets,
-				       const std::vector< edm::Handle<reco::CandidateView> >& leptons,
-				       const edm::Handle<edm::View<reco::Candidate> >& pfCandidatesH,
-				       double rho,
-				       JME::JetResolution& resPtObj,
-				       JME::JetResolution& resPhiObj,
-				       JME::JetResolutionScaleFactor& resSFObj,
-				       bool isRealData) {
-
+reco::METCovMatrix metsig::METSignificance::getCovariance(const edm::View<reco::Jet>& jets,
+                                                          const std::vector<edm::Handle<reco::CandidateView> >& leptons,
+                                                          const edm::Handle<edm::View<reco::Candidate> >& pfCandidatesH,
+                                                          double rho,
+                                                          JME::JetResolution& resPtObj,
+                                                          JME::JetResolution& resPhiObj,
+                                                          JME::JetResolutionScaleFactor& resSFObj,
+                                                          bool isRealData,
+                                                          double& sumPtUnclustered) {
   //pfcandidates
-  const edm::View<reco::Candidate>* pfCandidates=pfCandidatesH.product();
+  const edm::View<reco::Candidate>& pfCandidates = *pfCandidatesH;
 
    // metsig covariance
    double cov_xx = 0;
@@ -67,59 +65,63 @@ metsig::METSignificance::getCovariance(const edm::View<reco::Jet>& jets,
    // for lepton and jet subtraction
    std::unordered_set<reco::CandidatePtr,ptr_hash> footprint;
 
-   // subtract leptons out of sumPt
+   // subtract leptons out of sumPtUnclustered
    for ( const auto& lep_i : leptons ) {
-     for( const auto& lep : *lep_i ) {
-       if( lep.pt() > 10 ){
-	 for( unsigned int n=0; n < lep.numberOfSourceCandidatePtrs(); n++ ){
-	   if( lep.sourceCandidatePtr(n).isNonnull() and lep.sourceCandidatePtr(n).isAvailable() ){
-	     footprint.insert(lep.sourceCandidatePtr(n));
-	   } 
-	 }
-       }
+    for (const auto& lep : lep_i->ptrs()) {
+      if (lep->pt() > 10) {
+        for (unsigned int n = 0; n < lep->numberOfSourceCandidatePtrs(); n++)
+          footprint.insert(lep->sourceCandidatePtr(n));
      }
-   }
-   // subtract jets out of sumPt
-   for(const auto& jet : jets) {
+    }
+  }
 
-     // disambiguate jets and leptons
-     if(!cleanJet(jet, leptons) ) continue;
-     for( unsigned int n=0; n < jet.numberOfSourceCandidatePtrs(); n++){
-       if( jet.sourceCandidatePtr(n).isNonnull() and jet.sourceCandidatePtr(n).isAvailable() ){
-
-	 footprint.insert(jet.sourceCandidatePtr(n));
-       }
+  std::vector<bool> cleanedJets(jets.size(), false);
+  std::transform(jets.begin(), jets.end(), cleanedJets.begin(), [this, &leptons](auto const& jet) -> bool {
+    return cleanJet(jet, leptons);
+  });
+  // subtract jets out of sumPtUnclustered
+  auto iCleaned = cleanedJets.begin();
+  for (const auto& jet : jets) {
+    // disambiguate jets and leptons
+    if (!(*iCleaned++))
+      continue;
+    for (unsigned int n = 0; n < jet.numberOfSourceCandidatePtrs(); n++) {
+      footprint.insert(jet.sourceCandidatePtr(n));
      }
 
    }
 
-   // calculate sumPt
-   double sumPt = 0;
-   for(size_t i = 0; i< pfCandidates->size();  ++i) {
+   // calculate sumPtUnclustered
+   for(size_t i = 0; i< pfCandidates.size();  ++i) {
      
      // check if candidate exists in a lepton or jet
      bool cleancand = true;
-     if(footprint.find( pfCandidates->ptrAt(i) )==footprint.end()) {
+     if(footprint.find( pfCandidates.ptrAt(i) )==footprint.end()) {
 
        //dP4 recovery
        for( const auto& it : footprint) {
-	 if( (it->p4()-(*pfCandidates)[i].p4()).Et2()<0.000025 ){
+	 // Special treatment for PUPPI with dR, since jet candidates (puppi) and MET candidates (puppiForMet)
+	 // can't be matched through the sourceCandidatePtrs and may have different energy, but same direction.
+	 if((it.isNonnull()) && (it.isAvailable()) &&
+            (((!useDeltaRforFootprint_) && ((it->p4()-pfCandidates[i].p4()).Et2()<0.000025)) ||
+	     (( useDeltaRforFootprint_) && (reco::deltaR2(*it, pfCandidates[i])<0.00000025)))){
 	   cleancand = false;
 	   break;
 	 }
        }
-       // if not, add to sumPt
+       // if not, add to sumPtUnclustered
        if( cleancand ){
-	 sumPt += (*pfCandidates)[i].pt();
+	 sumPtUnclustered += pfCandidates[i].pt();
        }
      }
    }
-   
-   // add jets to metsig covariance matrix and subtract them from sumPt
+
+   // add jets to metsig covariance matrix and subtract them from sumPtUnclustered
+   iCleaned = cleanedJets.begin();
    for(const auto& jet : jets) {
      
      // disambiguate jets and leptons
-     if(!cleanJet(jet, leptons) ) continue;
+     if(!(*iCleaned++) ) continue;
 
       double jpt  = jet.pt();
       double jeta = jet.eta();
@@ -157,19 +159,19 @@ metsig::METSignificance::getCovariance(const edm::View<reco::Jet>& jets,
 
       } else {
 
-         // add the (corrected) jet to the sumPt
-         sumPt += jpt;
+         // add the (corrected) jet to the sumPtUnclustered
+         sumPtUnclustered += jpt;
 
       }
 
    }
 
    //protection against unphysical events
-   if(sumPt<0) sumPt=0;
+   if(sumPtUnclustered<0) sumPtUnclustered=0;
  
    // add pseudo-jet to metsig covariance matrix
-   cov_xx += pjetParams_[0]*pjetParams_[0] + pjetParams_[1]*pjetParams_[1]*sumPt;
-   cov_yy += pjetParams_[0]*pjetParams_[0] + pjetParams_[1]*pjetParams_[1]*sumPt;
+   cov_xx += pjetParams_[0]*pjetParams_[0] + pjetParams_[1]*pjetParams_[1]*sumPtUnclustered;
+   cov_yy += pjetParams_[0]*pjetParams_[0] + pjetParams_[1]*pjetParams_[1]*sumPtUnclustered;
 
    reco::METCovMatrix cov;
    cov(0,0) = cov_xx;

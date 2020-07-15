@@ -65,6 +65,8 @@ namespace edm {
       /// Use this engine in the global begin luminosity block method
       CLHEP::HepRandomEngine& getEngine(LuminosityBlockIndex const& luminosityBlockIndex) override;
 
+      std::unique_ptr<CLHEP::HepRandomEngine> cloneEngine(LuminosityBlockIndex const&) override;
+
       // This returns the seed from the configuration. In the unusual case where an
       // an engine type takes multiple seeds to initialize a sequence, this function
       // only returns the first. As a general rule, this function should not be used,

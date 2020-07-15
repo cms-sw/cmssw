@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
-from Configuration.Eras.Modifier_run2_miniAOD_80XLegacy_cff import run2_miniAOD_80XLegacy
-from Configuration.Eras.Modifier_run2_nanoAOD_94X2016_cff import run2_nanoAOD_94X2016
+from Configuration.Eras.Modifier_run2_jme_2016_cff import run2_jme_2016
+from Configuration.Eras.Modifier_run2_jme_2017_cff import run2_jme_2017
 
 from PhysicsTools.NanoAOD.common_cff import Var, P4Vars
 from PhysicsTools.NanoAOD.jets_cff import jetTable
@@ -178,11 +178,6 @@ JETVARS = cms.PSet(P4Vars,
   jercCHF   = jetTable.variables.jercCHF,
 )
 
-for modifier in run2_miniAOD_80XLegacy, run2_nanoAOD_94X2016:
-  modifier.toModify(JETVARS,
-    jetId = Var("userInt('tightId')*2+userInt('looseId')", int, doc = "Jet ID flags bit1 is loose, bit2 is tight")
-  )
-
 #============================================
 #
 # TableGenJetAdder
@@ -309,6 +304,11 @@ class TableRecoJetAdder(object):
           area      = jetTable.variables.area,
           rawFactor = jetTable.variables.rawFactor,
         )
+    elif "puppi" in recoJetInfo.jet:
+      tableContents = JETVARS.clone(
+        puppiMultiplicity = Var("userFloat('patPuppiJetSpecificProducer:puppiMultiplicity')",float,doc="Sum of PUPPI weights of particles in the jet", precision= 6),
+        neutralPuppiMultiplicity = Var("userFloat('patPuppiJetSpecificProducer:neutralPuppiMultiplicity')",float,doc="Sum of PUPPI weights of neutral particles in the jet", precision= 6)
+      )
     else:
       tableContents = JETVARS.clone()
     
@@ -325,18 +325,68 @@ class TableRecoJetAdder(object):
     )
     currentTasks.append(table)
 
-    tightJetIdLepVeto = "tightJetIdLepVeto{}".format(recoJetInfo.jetTagName)
-    if not recoJetInfo.skipUserData:
-      altTasks = copy.deepcopy(currentTasks)
-      for idx, task in enumerate(altTasks):
-        if task == tightJetIdLepVeto:
-          altTasks[idx] = looseJetId
-      for modifier in run2_miniAOD_80XLegacy, run2_nanoAOD_94X2016:
-        modifier.toReplaceWith(currentTasks, altTasks)
     self.main.extend(currentTasks)
 
+def AddPileUpJetIDVars(proc):
 
-def PrepJMECustomNanoAOD(process):
+  print("custom_jme_cff::AddPileUpJetIDVars: Recalculate pile-up jet ID variables and save them")
+
+  #
+  # Recalculate PUJet ID variables
+  #
+  from RecoJets.JetProducers.PileupJetID_cfi import pileupJetIdCalculator
+  proc.pileupJetIdCalculatorAK4PFCHS = pileupJetIdCalculator.clone(
+    jets = "updatedJets",
+    vertexes  = "offlineSlimmedPrimaryVertices",
+    inputIsCorrected = True,
+    applyJec  = False 
+  )
+  proc.jetSequence.insert(proc.jetSequence.index(proc.updatedJets)+1, proc.pileupJetIdCalculatorAK4PFCHS)
+
+  #
+  # Get the variables
+  #
+  proc.puJetVarAK4PFCHS = cms.EDProducer("PileupJetIDVarProducer",
+    srcJet = cms.InputTag("updatedJets"),    
+    srcPileupJetId = cms.InputTag("pileupJetIdCalculatorAK4PFCHS")
+  )
+  proc.jetSequence.insert(proc.jetSequence.index(proc.jercVars)+1, proc.puJetVarAK4PFCHS)
+
+  #
+  # Save variables as userFloats and userInts in each jet
+  # 
+  proc.updatedJetsWithUserData.userFloats.dR2Mean  = cms.InputTag("puJetVarAK4PFCHS:dR2Mean")
+  proc.updatedJetsWithUserData.userFloats.majW     = cms.InputTag("puJetVarAK4PFCHS:majW")
+  proc.updatedJetsWithUserData.userFloats.minW     = cms.InputTag("puJetVarAK4PFCHS:minW")
+  proc.updatedJetsWithUserData.userFloats.frac01   = cms.InputTag("puJetVarAK4PFCHS:frac01")
+  proc.updatedJetsWithUserData.userFloats.frac02   = cms.InputTag("puJetVarAK4PFCHS:frac02")
+  proc.updatedJetsWithUserData.userFloats.frac03   = cms.InputTag("puJetVarAK4PFCHS:frac03")
+  proc.updatedJetsWithUserData.userFloats.frac04   = cms.InputTag("puJetVarAK4PFCHS:frac04")
+  proc.updatedJetsWithUserData.userFloats.ptD      = cms.InputTag("puJetVarAK4PFCHS:ptD")
+  proc.updatedJetsWithUserData.userFloats.beta     = cms.InputTag("puJetVarAK4PFCHS:beta")
+  proc.updatedJetsWithUserData.userFloats.pull     = cms.InputTag("puJetVarAK4PFCHS:pull")
+  proc.updatedJetsWithUserData.userFloats.jetR     = cms.InputTag("puJetVarAK4PFCHS:jetR")
+  proc.updatedJetsWithUserData.userFloats.jetRchg  = cms.InputTag("puJetVarAK4PFCHS:jetRchg")
+  proc.updatedJetsWithUserData.userInts.nCharged   = cms.InputTag("puJetVarAK4PFCHS:nCharged")
+
+  #
+  # Specfiy variables in the jetTable to save in NanoAOD
+  #
+  proc.jetTable.variables.dR2Mean  = Var("userFloat('dR2Mean')", float, doc="pT^2-weighted average square distance of jet constituents from the jet axis", precision= 6)  
+  proc.jetTable.variables.majW     = Var("userFloat('majW')",    float, doc="major axis of jet ellipsoid in eta-phi plane", precision= 6)  
+  proc.jetTable.variables.minW     = Var("userFloat('minW')",    float, doc="minor axis of jet ellipsoid in eta-phi plane", precision= 6)  
+  proc.jetTable.variables.frac01   = Var("userFloat('frac01')",  float, doc="frac of constituents' pT contained within dR<0.1", precision= 6)  
+  proc.jetTable.variables.frac02   = Var("userFloat('frac02')",  float, doc="frac of constituents' pT contained within 0.1<dR<0.2", precision= 6) 
+  proc.jetTable.variables.frac03   = Var("userFloat('frac03')",  float, doc="frac of constituents' pT contained within 0.2<dR<0.3", precision= 6) 
+  proc.jetTable.variables.frac04   = Var("userFloat('frac04')",  float, doc="frac of constituents' pT contained within 0.3<dR<0.4", precision= 6) 
+  proc.jetTable.variables.ptD      = Var("userFloat('ptD')",     float, doc="pT-weighted average pT of constituents", precision= 6) 
+  proc.jetTable.variables.beta     = Var("userFloat('beta')",    float, doc="fraction of pT of charged constituents associated to PV", precision= 6) 
+  proc.jetTable.variables.pull     = Var("userFloat('pull')",    float, doc="magnitude of pull vector", precision= 6) 
+  proc.jetTable.variables.jetR     = Var("userFloat('jetR')",    float, doc="fraction of jet pT carried by the leading constituent", precision= 6) 
+  proc.jetTable.variables.jetRchg  = Var("userFloat('jetRchg')", float, doc="fraction of jet pT carried by the leading charged constituent", precision= 6) 
+  proc.jetTable.variables.nCharged = Var("userInt('nCharged')",  int, doc="number of charged constituents")
+
+def PrepJMECustomNanoAOD(process,runOnMC):
   #
   # Additional variables to AK4GenJets 
   #
@@ -381,14 +431,18 @@ def PrepJMECustomNanoAOD(process):
   process.fatJetTable.variables.jercCHPUF = JETVARS.jercCHPUF
   process.fatJetTable.variables.jercCHF   = JETVARS.jercCHF
   #
-  # Remove any pT cuts.
-  #
+  # 
+  # 
   process.finalJets.cut             = "" # 15 -> 10
   process.finalJetsAK8.cut          = "" # 170 -> 170
   process.genJetTable.cut           = "" # 10 -> 8
   process.genJetFlavourTable.cut    = "" # 10 -> 8
   process.genJetAK8Table.cut        = "" # 100 -> 80
   process.genJetAK8FlavourTable.cut = "" # 100 -> 80
+  #
+  # Add variables for pileup jet ID studies.
+  #
+  AddPileUpJetIDVars(process)
 
   ######################################################################################################################
 
@@ -403,20 +457,29 @@ def PrepJMECustomNanoAOD(process):
     genJetInfo = genJA.addGenJetCollection(process, **cfg)
     tableGenJA.addTable(process, genJetInfo)
 
-  process.nanoSequenceMC += genJA.getSequence(process)
-  process.nanoSequenceMC += tableGenJA.getSequence(process)
-
   #
   # Add RecoJets to NanoAOD
   #
-  recoJA = RecoJetAdder()
+  recoJA = RecoJetAdder(runOnMC=runOnMC)
   tableRecoJA = TableRecoJetAdder()
 
   for jetConfig in config_recojets:
     cfg = { k : v for k, v in jetConfig.items() if k != "enabled" }
     recoJetInfo = recoJA.addRecoJetCollection(process, **cfg)
     tableRecoJA.addTable(process, recoJetInfo)
+    
+  if runOnMC:
+    process.nanoSequenceMC += genJA.getSequence(process)
+    process.nanoSequenceMC += recoJA.getSequence(process)
+    process.nanoSequenceMC += tableGenJA.getSequence(process)
+    process.nanoSequenceMC += tableRecoJA.getSequence(process)
+  else:
+    process.nanoSequence  += recoJA.getSequence(process)
+    process.nanoSequence  += tableRecoJA.getSequence(process)
 
-  process.nanoSequenceMC += recoJA.getSequence(process)
-  process.nanoSequenceMC += tableRecoJA.getSequence(process)
+def PrepJMECustomNanoAOD_MC(process):
+  PrepJMECustomNanoAOD(process,runOnMC=True)
 
+def PrepJMECustomNanoAOD_Data(process):
+  PrepJMECustomNanoAOD(process,runOnMC=False)
+  

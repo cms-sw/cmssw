@@ -6,7 +6,8 @@ from RecoCTPPS.TotemRPLocal.ctppsDiamondRecHits_cfi import ctppsDiamondRecHits
 # local track fitting
 from RecoCTPPS.TotemRPLocal.ctppsDiamondLocalTracks_cfi import ctppsDiamondLocalTracks
 
-ctppsDiamondLocalReconstruction = cms.Sequence(
-    ctppsDiamondRecHits *
+ctppsDiamondLocalReconstructionTask = cms.Task(
+    ctppsDiamondRecHits,
     ctppsDiamondLocalTracks
 )
+ctppsDiamondLocalReconstruction = cms.Sequence(ctppsDiamondLocalReconstructionTask)

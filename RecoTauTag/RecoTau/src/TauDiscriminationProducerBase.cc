@@ -18,8 +18,8 @@ TauDiscriminationProducerBase<TauType, TauDiscriminator>::TauDiscriminationProdu
   : moduleLabel_(iConfig.getParameter<std::string>("@module_label"))
 {
    // tau collection to discriminate
-   TauProducer_        = iConfig.getParameter<edm::InputTag>(getProducerString<TauType>());
-   Tau_token= consumes<TauCollection>(TauProducer_);
+   TauProducer_ = iConfig.getParameter<edm::InputTag>(getTauTypeString() + "Producer");
+   Tau_token = consumes<TauCollection>(TauProducer_);
 
    // prediscriminant operator
    // require the tau to pass the following prediscriminants
@@ -159,7 +159,7 @@ void TauDiscriminationProducerBase<TauType, TauDiscriminator>::produce(edm::Even
 template<class TauType, class TauDiscriminator>
 void TauDiscriminationProducerBase<TauType, TauDiscriminator>::fillProducerDescriptions(edm::ParameterSetDescription& desc) {
   // helper function, it fills the description of the Producers parameter
-  desc.add<edm::InputTag>(getProducerString<TauType>(),edm::InputTag("fixme"));
+  desc.add<edm::InputTag>(getTauTypeString() + "Producer", edm::InputTag("fixme"));
   {
     edm::ParameterSetDescription pset_prediscriminants;
     pset_prediscriminants.add<std::string>("BooleanOperator","AND");
@@ -178,10 +178,17 @@ void TauDiscriminationProducerBase<TauType, TauDiscriminator>::fillProducerDescr
   }
 }
 
-// template specialiazation to get the correct (Calo/PF)TauProducer names
-template<> std::string getProducerString<PFTau>()   { return "PFTauProducer"; }
-template<> std::string getProducerString<CaloTau>() { return "CaloTauProducer"; }
-template<> std::string getProducerString<pat::Tau>() { return "PATTauProducer"; }
+template <class TauType, class TauDiscriminator>
+std::string TauDiscriminationProducerBase<TauType, TauDiscriminator>::getTauTypeString() {
+  if(std::is_same<TauType, reco::PFTau>::value)
+    return "PFTau";
+  if(std::is_same<TauType, reco::CaloTau>::value)
+    return "CaloTau";
+  if(std::is_same<TauType, pat::Tau>::value)
+    return "PATTau";
+  throw cms::Exception("TauDiscriminationProducerBase")
+    << "Unsupported TauType used. You must use either PFTau, PATTau or CaloTau.";
+}
 
 // compile our desired types and make available to linker
 template class TauDiscriminationProducerBase<PFTau, PFTauDiscriminator>;

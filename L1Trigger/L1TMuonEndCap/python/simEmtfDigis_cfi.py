@@ -131,10 +131,15 @@ simEmtfDigisData = simEmtfDigisMC.clone(
 simEmtfDigis = simEmtfDigisMC.clone()
 
 
-## Era: Run2_2016
-#from Configuration.Eras.Modifier_stage2L1Trigger_cff import stage2L1Trigger
-#stage2L1Trigger.toModify(simEmtfDigis, RPCEnable = cms.bool(False), Era = cms.string('Run2_2016'))
+## Load "Era" modules to adjust RPCEnable and Era (which controls the choice of PtAssignmentEngine)
+## If neither 'Run2_2016' nor 'Run2_2017' are invoked, default 2018 settings are used
+## Era configuration files are located in Configuration/Eras/python
 
-## Era: Run2_2017
-#from Configuration.Eras.Modifier_stage2L1Trigger_2017_cff import stage2L1Trigger_2017
-#stage2L1Trigger_2017.toModify(simEmtfDigis, RPCEnable = cms.bool(True), Era = cms.string('Run2_2017'))
+## Era: Run2_2016
+from Configuration.Eras.Modifier_stage2L1Trigger_EMTF2016_cff import stage2L1Trigger_EMTF2016
+stage2L1Trigger_EMTF2016.toModify(simEmtfDigis, RPCEnable = cms.bool(False), Era = cms.string('Run2_2016'))
+
+# ## Era: Run2_2017
+# ## Run2_2017 fix disabled for UL2016 processing with CMSSW_10_6_X
+# from Configuration.Eras.Modifier_stage2L1Trigger_2017_cff import stage2L1Trigger_2017
+# stage2L1Trigger_2017.toModify(simEmtfDigis, RPCEnable = cms.bool(True), Era = cms.string('Run2_2017'))

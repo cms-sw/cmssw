@@ -96,16 +96,35 @@ process.muRawToDigi = cms.Sequence(process.L1TRawToDigi +
                                    process.muonCSCDigis +
                                    process.muonDTDigis +
                                    process.muonRPCDigis +
-                                   process.muonRPCNewDigis +
                                    process.muonGEMDigis)
                                    
 
 
-#2 STA RECO
+#2 LOCAL RECO
+from RecoLocalMuon.Configuration.RecoLocalMuonCosmics_cff import *
+from RecoLocalMuon.RPCRecHit.rpcRecHits_cfi import *
 
-## From  cmssw/RecoMuon/Configuration/python/RecoMuonCosmics_cff.py 
+process.dtlocalreco = cms.Sequence(dt1DRecHits*dt4DSegments)
+process.csclocalreco = cms.Sequence(csc2DRecHits*cscSegments)
+process.muLocalRecoCosmics = cms.Sequence(process.dtlocalreco+process.csclocalreco+process.rpcRecHits)
 
-process.muSTAreco = cms.Sequence(process.STAmuontrackingforcosmics)
+
+#3 STA RECO 
+
+from RecoMuon.MuonSeedGenerator.CosmicMuonSeedProducer_cfi import *
+from RecoMuon.CosmicMuonProducer.cosmicMuons_cff import *
+
+##Reco Beam Spot from DB 
+from RecoVertex.BeamSpotProducer.BeamSpotFakeParameters_cfi import *
+process.beamspot = cms.EDAnalyzer("BeamSpotFromDB")
+process.offlineBeamSpot = cms.EDProducer("BeamSpotProducer")
+process.beampath = cms.Sequence(process.beamspot+process.offlineBeamSpot)
+
+
+process.muSTAreco = cms.Sequence(process.CosmicMuonSeed*process.cosmicMuons)
+
+
+
 
 
 #--------------------------                                                                                                         # Service                                                                                                                           #--------------------------                                                                                                                      
@@ -141,8 +160,7 @@ process.muonDQM = cms.Sequence(process.muonCosmicAnalyzer)
 # Scheduling
 #--------------------------
 
-process.allReco = cms.Sequence(process.muRawToDigi*process.muSTAreco)
-
+process.allReco = cms.Sequence(process.muRawToDigi*process.muLocalRecoCosmics*process.beampath*process.muSTAreco)
 
 process.allPaths = cms.Path(process.hltHighLevel * 
                             process.hltTriggerTypeFilter * 

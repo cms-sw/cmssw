@@ -20,6 +20,9 @@
   <class name="edm::Wrapper<edm::DetSetVector<TotemRPRecHit> >"/>
   <class name="std::vector<TotemRPRecHit>"/>
   <class name="std::vector<const TotemRPRecHit*>"/>
+  <class name="std::map<int, edm::DetSetVector<TotemRPRecHit>>"/>
+  <class name="std::pair<const int, edm::DetSetVector<TotemRPRecHit>>"/>
+  <class name="edm::Wrapper<std::map<int, edm::DetSetVector<TotemRPRecHit>>>"/>
 
   <class name="TotemRPUVPattern" ClassVersion="2">
     <version ClassVersion="2" checksum="3530058029"/>
@@ -56,6 +59,8 @@
   <class name="edm::DetSetVector<CTPPSTimingRecHit>"/>
   <class name="edm::Wrapper<edm::DetSetVector<CTPPSTimingRecHit> >"/>
   <class name="edm::Wrapper<std::vector<CTPPSTimingRecHit> >"/>
+  <class name="std::map<int, edm::DetSetVector<CTPPSTimingRecHit>>"/>
+  <class name="edm::Wrapper<std::map<int, edm::DetSetVector<CTPPSTimingRecHit>>>"/>
 
   <class name="TotemTimingRecHit" ClassVersion="3">
     <version ClassVersion="3" checksum="156399384"/>
@@ -83,6 +88,9 @@
   <class name="edm::DetSetVector<CTPPSDiamondRecHit>"/>
   <class name="edm::Wrapper<edm::DetSetVector<CTPPSDiamondRecHit> >"/>
   <class name="edm::Wrapper<std::vector<CTPPSDiamondRecHit> >"/>
+  <class name="std::pair<const int, edm::DetSetVector<CTPPSDiamondRecHit>>"/>
+  <class name="std::map<int, edm::DetSetVector<CTPPSDiamondRecHit>>"/>
+  <class name="edm::Wrapper<std::map<int, edm::DetSetVector<CTPPSDiamondRecHit>>>"/>
 
   <class name="CTPPSTimingLocalTrack" ClassVersion="3">
     <version ClassVersion="3" checksum="3964976910"/>
@@ -141,6 +149,9 @@
   <class name="std::vector<edm::DetSet<CTPPSPixelRecHit> >"/>
   <class name="edm::DetSetVector<CTPPSPixelRecHit>"/>
   <class name="edm::Wrapper<edm::DetSetVector<CTPPSPixelRecHit> >"/>
+  <class name="std::map<int, edm::DetSetVector<CTPPSPixelRecHit>>"/>
+  <class name="std::pair<const int, edm::DetSetVector<CTPPSPixelRecHit>>"/>
+  <class name="edm::Wrapper<std::map<int, edm::DetSetVector<CTPPSPixelRecHit>>>"/>
 
   <class name="CTPPSPixelLocalTrack" ClassVersion="4">
     <version ClassVersion="3" checksum="4150373475"/>    

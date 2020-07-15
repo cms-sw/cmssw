@@ -11,11 +11,12 @@ from RecoCTPPS.ProtonReconstruction.ctppsProtons_cff import *
 
 from Geometry.VeryForwardGeometry.geometryRPFromDB_cfi import *
 
-recoCTPPS = cms.Sequence(
-    totemRPLocalReconstruction *
-    ctppsDiamondLocalReconstruction *
-    totemTimingLocalReconstruction *
-    ctppsPixelLocalReconstruction *
-    ctppsLocalTrackLiteProducer *
+recoCTPPSTask = cms.Task(
+    totemRPLocalReconstructionTask ,
+    ctppsDiamondLocalReconstructionTask ,
+    totemTimingLocalReconstructionTask ,
+    ctppsPixelLocalReconstructionTask ,
+    ctppsLocalTrackLiteProducer ,
     ctppsProtons
 )
+recoCTPPS = cms.Sequence(recoCTPPSTask)

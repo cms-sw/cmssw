@@ -17,27 +17,27 @@
 
 #include <memory>
 
-
 class PFClusterProducer : public edm::stream::EDProducer<> {
   typedef RecHitTopologicalCleanerBase RHCB;
   typedef InitialClusteringStepBase ICSB;
   typedef PFClusterBuilderBase PFCBB;
   typedef PFCPositionCalculatorBase PosCalc;
- public:    
+
+public:
   PFClusterProducer(const edm::ParameterSet&);
   ~PFClusterProducer() override = default;
-  
-  void beginLuminosityBlock(const edm::LuminosityBlock&, 
-				    const edm::EventSetup&) override;
+
+  void beginLuminosityBlock(const edm::LuminosityBlock&, const edm::EventSetup&) override;
   void produce(edm::Event&, const edm::EventSetup&) override;
-  
- private:
+
+private:
   // inputs
   edm::EDGetTokenT<reco::PFRecHitCollection> _rechitsLabel;
   // options
   const bool _prodInitClusters;
   // the actual algorithm
   std::vector<std::unique_ptr<RecHitTopologicalCleanerBase> > _cleaners;
+  std::vector<std::unique_ptr<RecHitTopologicalCleanerBase> > _seedcleaners;
   std::unique_ptr<SeedFinderBase> _seedFinder;
   std::unique_ptr<InitialClusteringStepBase> _initialClustering;
   std::unique_ptr<PFClusterBuilderBase> _pfClusterBuilder;

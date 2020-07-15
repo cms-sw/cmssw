@@ -55,6 +55,7 @@ particleFlowClusterHGCal = cms.EDProducer(
     "PFClusterProducer",
     recHitsSource = cms.InputTag("particleFlowRecHitHGC"),
     recHitCleaners = cms.VPSet(),
+    seedCleaners   = cms.VPSet(),
     seedFinder = _passThruSeeds_HGCal,
     initialClusteringStep = _simClusterMapper_HGCal,
     pfClusterBuilder = cms.PSet(),

@@ -98,10 +98,12 @@ void PATMETProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
 
     //add the MET significance
     if(calculateMETSignificance_) {
-      const reco::METCovMatrix& sigcov = getMETCovMatrix(iEvent, iSetup);
+      double sumPtUnclustered=0;
+      const reco::METCovMatrix& sigcov = getMETCovMatrix(iEvent, iSetup, sumPtUnclustered);
       amet.setSignificanceMatrix(sigcov);
       double metSig=metSigAlgo_->getSignificance(sigcov, amet);
       amet.setMETSignificance(metSig);
+      amet.setMETSumPtUnclustered(sumPtUnclustered);
     }
 
     if (efficiencyLoader_.enabled()) {
@@ -163,8 +165,8 @@ void PATMETProducer::fillDescriptions(edm::ConfigurationDescriptions & descripti
 
 }
 
-const reco::METCovMatrix 
-PATMETProducer::getMETCovMatrix(const edm::Event& event, const edm::EventSetup& iSetup) const {
+const reco::METCovMatrix
+PATMETProducer::getMETCovMatrix(const edm::Event& event, const edm::EventSetup& iSetup, double &sumPtUnclustered) const {
   std::vector< edm::Handle<reco::CandidateView> > leptons;
   for ( std::vector<edm::EDGetTokenT<edm::View<reco::Candidate> > >::const_iterator srcLeptons_i = lepTokens_.begin();
 	srcLeptons_i != lepTokens_.end(); ++srcLeptons_i ) {
@@ -189,7 +191,7 @@ PATMETProducer::getMETCovMatrix(const edm::Event& event, const edm::EventSetup& 
 
   //Compute the covariance matrix and fill it
   reco::METCovMatrix cov = metSigAlgo_->getCovariance( *inputJets, leptons, inputCands,
-						       *rho, resPtObj, resPhiObj, resSFObj, event.isRealData());
+						       *rho, resPtObj, resPhiObj, resSFObj, event.isRealData(), sumPtUnclustered);
 
   return cov;
 }
