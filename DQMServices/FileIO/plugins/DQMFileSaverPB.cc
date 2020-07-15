@@ -78,7 +78,7 @@ void DQMFileSaverPB::saveLumi(const FileParameters& fp) const {
       boost::filesystem::create_directories(runDir);
     }
     else {
-      baseName = str(boost::format("%s/%s/run%06d_ls%04d_%s_%s") % runDir % tag_ % fp.run_ % fp.lumi_ % tag_ % streamLabel_);
+      baseName = str(boost::format("%s/%s/run%06d_%s_%s") % runDir % tag_ % fp.run_ % tag_ % streamLabel_);
       boost::filesystem::create_directories(runDir + "/" + tag_);
     }
 
