@@ -22,13 +22,13 @@ class TauPhotonTester : public edm::EDAnalyzer {
 public:
   //
   explicit TauPhotonTester(const edm::ParameterSet&);
-  virtual ~TauPhotonTester() {}  // no need to delete ROOT stuff
-                                 // as it'll be deleted upon closing TFile
+  ~TauPhotonTester() override {}  // no need to delete ROOT stuff
+                                  // as it'll be deleted upon closing TFile
 
-  virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
-  virtual void beginJob() override;
-  virtual void beginRun(const edm::Run&, const edm::EventSetup&) override;
-  virtual void endJob() override;
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void beginJob() override;
+  void beginRun(const edm::Run&, const edm::EventSetup&) override;
+  void endJob() override;
 
 private:
   int fTauPhotonCounter;

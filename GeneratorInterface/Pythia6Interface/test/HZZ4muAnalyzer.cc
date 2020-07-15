@@ -19,11 +19,11 @@ class HZZ4muAnalyzer : public edm::EDAnalyzer {
 public:
   //
   explicit HZZ4muAnalyzer(const edm::ParameterSet&);
-  virtual ~HZZ4muAnalyzer() {}  // no need to delete ROOT stuff
-                                // as it'll be deleted upon closing TFile
+  ~HZZ4muAnalyzer() override {}  // no need to delete ROOT stuff
+                                 // as it'll be deleted upon closing TFile
 
-  virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
-  virtual void beginJob() override;
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void beginJob() override;
 
 private:
   TH1D* fHist2muMass;
@@ -34,7 +34,8 @@ private:
 using namespace edm;
 using namespace std;
 
-HZZ4muAnalyzer::HZZ4muAnalyzer(const ParameterSet& pset) : fHist2muMass(0), fHist4muMass(0), fHistZZMass(0) {
+HZZ4muAnalyzer::HZZ4muAnalyzer(const ParameterSet& pset)
+    : fHist2muMass(nullptr), fHist4muMass(nullptr), fHistZZMass(nullptr) {
   // actually, pset is NOT in use - we keep it here just for illustratory putposes
 }
 
@@ -81,7 +82,7 @@ void HZZ4muAnalyzer::analyze(const Event& e, const EventSetup&) {
   // because this example explicitely assumes
   // that there one and only Higgs in the record
   //
-  HepMC::GenVertex* HiggsDecVtx = 0;
+  HepMC::GenVertex* HiggsDecVtx = nullptr;
 
   // find the 1st vertex with outgoing Higgs
   // and get Higgs decay vertex from there;
@@ -94,18 +95,18 @@ void HZZ4muAnalyzer::analyze(const Event& e, const EventSetup&) {
          pout != (*vit)->particles_out_const_end();
          pout++) {
       if ((*pout)->pdg_id() == 25) {
-        if ((*pout)->end_vertex() != 0) {
+        if ((*pout)->end_vertex() != nullptr) {
           HiggsDecVtx = (*pout)->end_vertex();
           break;
         }
       }
     }
-    if (HiggsDecVtx != 0) {
+    if (HiggsDecVtx != nullptr) {
       break;  // break the initial loop over vertices
     }
   }
 
-  if (HiggsDecVtx == 0) {
+  if (HiggsDecVtx == nullptr) {
     cout << " There is NO Higgs in this event ! " << endl;
     return;
   }

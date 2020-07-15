@@ -38,10 +38,10 @@
 class H4muAnalyzer : public edm::EDAnalyzer {
 public:
   explicit H4muAnalyzer(const edm::ParameterSet&);
-  ~H4muAnalyzer();
+  ~H4muAnalyzer() override;
 
 private:
-  virtual void analyze(const edm::Event&, const edm::EventSetup&);
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
 
   // ----------member data ---------------------------
 

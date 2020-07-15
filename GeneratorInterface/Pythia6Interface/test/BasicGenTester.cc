@@ -24,14 +24,14 @@ class BasicGenTester : public edm::EDAnalyzer {
 public:
   //
   explicit BasicGenTester(const edm::ParameterSet&);
-  virtual ~BasicGenTester() {}  // no need to delete ROOT stuff
-                                // as it'll be deleted upon closing TFile
+  ~BasicGenTester() override {}  // no need to delete ROOT stuff
+                                 // as it'll be deleted upon closing TFile
 
-  virtual void analyze(const edm::Event&, const edm::EventSetup&);
-  virtual void beginJob();
-  virtual void beginRun(const edm::Run&, const edm::EventSetup&);
-  virtual void endRun(const edm::Run&, const edm::EventSetup&);
-  virtual void endJob();
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void beginJob() override;
+  void beginRun(const edm::Run&, const edm::EventSetup&) override;
+  void endRun(const edm::Run&, const edm::EventSetup&) override;
+  void endJob() override;
 
 private:
   TH1D* fNChgPartFinalState;
@@ -51,11 +51,11 @@ using namespace edm;
 using namespace std;
 
 BasicGenTester::BasicGenTester(const ParameterSet& pset)
-    : fNChgPartFinalState(0),
-      fNNeuPartFinalState(0),
-      fNPartFinalState(0),
-      fPtChgPartFinalState(0),
-      fPtNeuPartFinalState(0) {
+    : fNChgPartFinalState(nullptr),
+      fNNeuPartFinalState(nullptr),
+      fNPartFinalState(nullptr),
+      fPtChgPartFinalState(nullptr),
+      fPtNeuPartFinalState(nullptr) {
   fNPart = pset.getUntrackedParameter<int>("NPartForHisto", 500);
   fPtMin = pset.getUntrackedParameter<double>("PtMinForHisto", 0.);
   fPtMax = pset.getUntrackedParameter<double>("PtMaxForHisto", 25.);

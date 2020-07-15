@@ -15,17 +15,17 @@ public:
   bool initAfterBeams() override {
     bool test = true;
     for (Pythia8::UserHooks *hook : hooks_) {
-//      hook->initPtr(infoPtr,
-//                    settingsPtr,
-//                    particleDataPtr,
-//                    rndmPtr,
-//                    beamAPtr,
-//                    beamBPtr,
-//                    beamPomAPtr,
-//                    beamPomBPtr,
-//                    coupSMPtr,
-//                    partonSystemsPtr,
-//                    sigmaTotPtr);
+      //      hook->initPtr(infoPtr,
+      //                    settingsPtr,
+      //                    particleDataPtr,
+      //                    rndmPtr,
+      //                    beamAPtr,
+      //                    beamBPtr,
+      //                    beamPomAPtr,
+      //                    beamPomBPtr,
+      //                    coupSMPtr,
+      //                    partonSystemsPtr,
+      //                    sigmaTotPtr);
       test &= hook->initAfterBeams();
     }
 

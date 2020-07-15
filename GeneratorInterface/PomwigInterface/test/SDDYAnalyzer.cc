@@ -10,15 +10,15 @@ public:
   SDDYAnalyzer(const edm::ParameterSet& pset);
 
   /// Destructor
-  virtual ~SDDYAnalyzer();
+  ~SDDYAnalyzer() override;
 
   // Operations
 
-  void analyze(const edm::Event& event, const edm::EventSetup& eventSetup);
+  void analyze(const edm::Event& event, const edm::EventSetup& eventSetup) override;
 
   //virtual void beginJob(const edm::EventSetup& eventSetup) ;
-  virtual void beginJob();
-  virtual void endJob();
+  void beginJob() override;
+  void endJob() override;
 
 private:
   // Input from cfg file

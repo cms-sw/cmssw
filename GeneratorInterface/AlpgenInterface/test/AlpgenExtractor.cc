@@ -20,12 +20,12 @@
 class AlpgenExtractor : public edm::EDAnalyzer {
 public:
   explicit AlpgenExtractor(const edm::ParameterSet&);
-  ~AlpgenExtractor();
+  ~AlpgenExtractor() override;
 
 private:
-  virtual void beginRun(const edm::Run&, const edm::EventSetup&);
-  virtual void analyze(const edm::Event&, const edm::EventSetup&);
-  virtual void endJob();
+  void beginRun(const edm::Run&, const edm::EventSetup&) override;
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void endJob() override;
   void writeHeader(const std::vector<LHERunInfoProduct::Header>::const_iterator, const std::string);
   // ----------member data ---------------------------
   std::string unwParFile_;
