@@ -18,6 +18,8 @@ MicroEventContent = cms.PSet(
         'keep TrackingRecHitsOwned_slimmedTevMuonHitsFirstHit_*_*',
         'keep TrackingRecHitsOwned_slimmedTevMuonsHitsPicky_*_*',
         'keep TrackingRecHitsOwned_slimmedTevMuonHitsDyt_*_*',
+        'keep SiPixelClusteredmNewDetSetVector_slimmedSiPixelClusters_*_*',
+        'keep SiStripClusteredmNewDetSetVector_slimmedSiStripClusters_*_*',
         'keep *_slimmedTaus_*_*',
         'keep *_slimmedTausBoosted_*_*',
         'keep *_slimmedCaloJets_*_*',

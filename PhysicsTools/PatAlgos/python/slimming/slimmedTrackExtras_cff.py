@@ -1,5 +1,7 @@
 from RecoMuon.MuonIdentification.muonTrackExtraThinningProducer_cfi import muonTrackExtraThinningProducer
 from RecoTracker.TrackProducer.trackingRecHitThinningProducer_cfi import trackingRecHitThinningProducer
+from RecoTracker.TrackProducer.siPixelClusterThinningProducer_cfi import siPixelClusterThinningProducer
+from RecoTracker.TrackProducer.siStripClusterThinningProducer_cfi import siStripClusterThinningProducer
 
 import FWCore.ParameterSet.Config as cms
 
@@ -38,6 +40,20 @@ slimmedTevMuonsHitsPicky = trackingRecHitThinningProducer.clone(inputTag = cms.I
 slimmedTevMuonHitsDyt = trackingRecHitThinningProducer.clone(inputTag = cms.InputTag("thinnedTevMuonHitsDyt"),
                                                                trackExtraTag = cms.InputTag("slimmedTevMuonExtrasDyt"))
 
+slimmedSiPixelClusters = siPixelClusterThinningProducer.clone(inputTag = cms.InputTag("thinnedSiPixelClusters"),
+                                                              trackingRecHitsTags=cms.VInputTag("slimmedGeneralTrackHits",
+                                                                                    "slimmedGlobalMuonHits",
+                                                                                    "slimmedTevMuonHitsFirstHit",
+                                                                                    "slimmedTevMuonsHitsPicky",
+                                                                                    "slimmedTevMuonHitsDyt"))
+                                                              
+slimmedSiStripClusters = siStripClusterThinningProducer.clone(inputTag = cms.InputTag("thinnedSiStripClusters"),
+                                                              trackingRecHitsTags=cms.VInputTag("slimmedGeneralTrackHits",
+                                                                                    "slimmedGlobalMuonHits",
+                                                                                    "slimmedTevMuonHitsFirstHit",
+                                                                                    "slimmedTevMuonsHitsPicky",
+                                                                                    "slimmedTevMuonHitsDyt"))
+
 slimmedTrackExtrasTask = cms.Task(slimmedGeneralTrackExtras,
                                   slimmedStandAloneMuonExtras,
                                   slimmedGlobalMuonExtras,
@@ -50,4 +66,6 @@ slimmedTrackExtrasTask = cms.Task(slimmedGeneralTrackExtras,
                                   slimmedTevMuonHitsFirstHit,
                                   slimmedTevMuonsHitsPicky,
                                   slimmedTevMuonHitsDyt,
+                                  slimmedSiPixelClusters,
+                                  slimmedSiStripClusters,
                                   )
