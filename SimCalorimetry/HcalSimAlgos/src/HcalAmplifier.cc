@@ -45,7 +45,9 @@ void HcalAmplifier::amplify(CaloSamples& frame, CLHEP::HepRandomEngine* engine) 
   pe2fC(frame);
 
   const HcalSimParameters& params = static_cast<const HcalSimParameters&>(theParameterMap->simParameters(frame.id()));
-  if (params.delayQIE() > 0)
+  if (((frame.id().subdetId() == HcalGenericDetId::HcalGenBarrel) ||
+       (frame.id().subdetId() == HcalGenericDetId::HcalGenEndcap)) &&
+      params.delayQIE() > 0)
     applyQIEdelay(frame, params.delayQIE());
 
   // don't bother for blank signals
