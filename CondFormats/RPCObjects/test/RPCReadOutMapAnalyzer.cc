@@ -20,8 +20,8 @@ using namespace edm;
 class RPCReadOutMapAnalyzer : public edm::EDAnalyzer {
 public:
   explicit RPCReadOutMapAnalyzer(const edm::ParameterSet&);
-  ~RPCReadOutMapAnalyzer();
-  virtual void analyze(const edm::Event&, const edm::EventSetup&);
+  ~RPCReadOutMapAnalyzer() override;
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
 
 private:
   bool m_flag;

@@ -22,14 +22,14 @@ Toy EDAnalyzer for testing purposes only.
 
 namespace edmtest {
 
-  DTDeadUpdate::DTDeadUpdate(edm::ParameterSet const& p) : dSum(0) {}
+  DTDeadUpdate::DTDeadUpdate(edm::ParameterSet const& p) : dSum(nullptr) {}
 
-  DTDeadUpdate::DTDeadUpdate(int i) : dSum(0) {}
+  DTDeadUpdate::DTDeadUpdate(int i) : dSum(nullptr) {}
 
   DTDeadUpdate::~DTDeadUpdate() {}
 
   void DTDeadUpdate::analyze(const edm::Event& e, const edm::EventSetup& context) {
-    if (dSum == 0)
+    if (dSum == nullptr)
       dSum = new DTDeadFlag("deadList");
     using namespace edm::eventsetup;
     // Context is not used.

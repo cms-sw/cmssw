@@ -1,8 +1,8 @@
-#include <assert.h>
-#include <iostream>
-#include <string>
 #include <TF1.h>
 #include <TH1F.h>
+#include <cassert>
+#include <iostream>
+#include <string>
 
 #include "CondFormats/BTauObjects/src/headers.h"
 

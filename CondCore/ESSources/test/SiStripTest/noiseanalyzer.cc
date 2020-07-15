@@ -18,8 +18,8 @@ namespace edmtest {
   public:
     explicit NoisesAnalyzer(edm::ParameterSet const& p) { std::cout << "NoisesAnalyzer" << std::endl; }
     explicit NoisesAnalyzer(int i) { std::cout << "NoisesAnalyzer " << i << std::endl; }
-    virtual ~NoisesAnalyzer() { std::cout << "~NoisesAnalyzer " << std::endl; }
-    virtual void analyze(const edm::Event& e, const edm::EventSetup& c);
+    ~NoisesAnalyzer() override { std::cout << "~NoisesAnalyzer " << std::endl; }
+    void analyze(const edm::Event& e, const edm::EventSetup& c) override;
 
   private:
   };

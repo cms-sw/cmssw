@@ -64,8 +64,8 @@ class EcalObjectAnalyzer : public edm::EDAnalyzer {
 public:
   explicit EcalObjectAnalyzer(edm::ParameterSet const& p) {}
   explicit EcalObjectAnalyzer(int i) {}
-  virtual ~EcalObjectAnalyzer() {}
-  virtual void analyze(const edm::Event& e, const edm::EventSetup& c);
+  ~EcalObjectAnalyzer() override {}
+  void analyze(const edm::Event& e, const edm::EventSetup& c) override;
 
 private:
 };

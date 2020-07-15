@@ -16,16 +16,16 @@
 #include "CondFormats/PhysicsToolsObjects/interface/Histogram3D.h"
 #include "CondFormats/DataRecord/interface/SiStripDeDxProton_3D_Rcd.h"
 
+#include <cstdio>
 #include <iostream>
-#include <stdio.h>
 #include <sys/time.h>
 
 class SiStripDeDx3DReader : public edm::EDAnalyzer {
 public:
   explicit SiStripDeDx3DReader(const edm::ParameterSet&);
-  ~SiStripDeDx3DReader();
+  ~SiStripDeDx3DReader() override;
 
-  void analyze(const edm::Event&, const edm::EventSetup&);
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
 
 private:
   //  uint32_t printdebug_;

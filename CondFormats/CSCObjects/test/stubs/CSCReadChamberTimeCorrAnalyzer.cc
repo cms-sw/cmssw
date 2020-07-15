@@ -30,8 +30,8 @@ namespace edmtest {
   public:
     explicit CSCReadChamberTimeCorrAnalyzer(edm::ParameterSet const& p) {}
     explicit CSCReadChamberTimeCorrAnalyzer(int i) {}
-    virtual ~CSCReadChamberTimeCorrAnalyzer() {}
-    virtual void analyze(const edm::Event& e, const edm::EventSetup& c);
+    ~CSCReadChamberTimeCorrAnalyzer() override {}
+    void analyze(const edm::Event& e, const edm::EventSetup& c) override;
 
   private:
   };

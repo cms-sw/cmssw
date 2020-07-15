@@ -3,8 +3,8 @@
 
 #include "CondFormats/PhysicsToolsObjects/test/SiStripDeDxMipReader.h"
 
+#include <cstdio>
 #include <iostream>
-#include <stdio.h>
 #include <sys/time.h>
 
 using namespace cms;

@@ -1,6 +1,6 @@
 //#include <memory>
 
-#include <string.h>
+#include <cstring>
 
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 
@@ -23,8 +23,8 @@ using namespace std;
 class SiPixelTestSummary : public edm::EDAnalyzer {
 public:
   explicit SiPixelTestSummary(const edm::ParameterSet&) {}
-  ~SiPixelTestSummary();
-  virtual void analyze(const edm::Event&, const edm::EventSetup&);
+  ~SiPixelTestSummary() override;
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
 
 private:
 };
@@ -47,7 +47,7 @@ void SiPixelTestSummary::analyze(const edm::Event& iEvent, const edm::EventSetup
   cout << " *** I have " << pDD->detTypes().size() << " types" << std::endl;
 
   for (TrackerGeometry::DetContainer::const_iterator it = pDD->dets().begin(); it != pDD->dets().end(); it++) {
-    if (dynamic_cast<PixelGeomDetUnit const*>((*it)) != 0) {
+    if (dynamic_cast<PixelGeomDetUnit const*>((*it)) != nullptr) {
       DetId detId = (*it)->geographicalId();
       a.add(detId);
     }

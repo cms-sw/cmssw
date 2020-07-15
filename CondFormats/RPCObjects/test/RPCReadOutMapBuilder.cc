@@ -26,10 +26,10 @@ using namespace edm;
 class RPCReadOutMapBuilder : public edm::EDAnalyzer {
 public:
   explicit RPCReadOutMapBuilder(const edm::ParameterSet&);
-  ~RPCReadOutMapBuilder();
-  virtual void beginJob();
-  virtual void endJob();
-  virtual void analyze(const edm::Event&, const edm::EventSetup&) {}
+  ~RPCReadOutMapBuilder() override;
+  void beginJob() override;
+  void endJob() override;
+  void analyze(const edm::Event&, const edm::EventSetup&) override {}
 
 private:
   RPCReadOutMapping* cabling;

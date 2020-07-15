@@ -28,10 +28,10 @@ namespace edmtest {
   public:
     explicit PedestalsAnalyzer(edm::ParameterSet const& p) { std::cout << "PedestalsAnalyzer" << std::endl; }
     explicit PedestalsAnalyzer(int i) { std::cout << "PedestalsAnalyzer " << i << std::endl; }
-    virtual ~PedestalsAnalyzer() { std::cout << "~PedestalsAnalyzer " << std::endl; }
-    virtual void beginJob();
-    virtual void beginRun(const edm::Run&, const edm::EventSetup& context);
-    virtual void analyze(const edm::Event& e, const edm::EventSetup& c);
+    ~PedestalsAnalyzer() override { std::cout << "~PedestalsAnalyzer " << std::endl; }
+    void beginJob() override;
+    void beginRun(const edm::Run&, const edm::EventSetup& context) override;
+    void analyze(const edm::Event& e, const edm::EventSetup& c) override;
 
   private:
   };

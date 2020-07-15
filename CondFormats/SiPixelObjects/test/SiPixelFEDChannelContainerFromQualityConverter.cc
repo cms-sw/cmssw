@@ -41,16 +41,16 @@
 class SiPixelFEDChannelContainerFromQualityConverter : public edm::one::EDAnalyzer<> {
 public:
   explicit SiPixelFEDChannelContainerFromQualityConverter(const edm::ParameterSet&);
-  ~SiPixelFEDChannelContainerFromQualityConverter();
+  ~SiPixelFEDChannelContainerFromQualityConverter() override;
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
   SiPixelFEDChannelContainer::SiPixelFEDChannelCollection createFromSiPixelQuality(
       const SiPixelQuality& theQuality, const SiPixelFedCablingMap& theFedCabling);
 
 private:
-  virtual void beginJob() override;
-  virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
-  virtual void endJob() override;
+  void beginJob() override;
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void endJob() override;
 
   // ----------member data ---------------------------
   const std::string m_record;
@@ -135,7 +135,7 @@ SiPixelFEDChannelContainerFromQualityConverter::createFromSiPixelQuality(const S
     std::vector<sipixelobjects::CablingPathToDetUnit> path = theFedCabling.pathToDetUnit(mod.DetID);
     auto cabling_ = theFedCabling.cablingTree();
     unsigned int nrocs_inLink(0);
-    if (path.size() != 0) {
+    if (!path.empty()) {
       const sipixelobjects::PixelFEDCabling* aFed = cabling_->fed(path.at(0).fed);
       const sipixelobjects::PixelFEDLink* link = aFed->link(path.at(0).link);
       nrocs_inLink = link->numberOfROCs();

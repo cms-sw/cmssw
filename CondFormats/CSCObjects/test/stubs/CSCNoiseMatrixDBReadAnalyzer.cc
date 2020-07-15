@@ -19,8 +19,8 @@ namespace edmtest {
   public:
     explicit CSCNoiseMatrixDBReadAnalyzer(edm::ParameterSet const& p) {}
     explicit CSCNoiseMatrixDBReadAnalyzer(int i) {}
-    virtual ~CSCNoiseMatrixDBReadAnalyzer() {}
-    virtual void analyze(const edm::Event& e, const edm::EventSetup& c);
+    ~CSCNoiseMatrixDBReadAnalyzer() override {}
+    void analyze(const edm::Event& e, const edm::EventSetup& c) override;
 
   private:
   };
