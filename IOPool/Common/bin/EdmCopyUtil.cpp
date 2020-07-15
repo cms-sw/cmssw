@@ -1,12 +1,12 @@
 
 #include <iostream>
+#include <fstream>
 #include <string>
 #include <vector>
 #include <exception>
+#include <filesystem>
 
 #include <boost/program_options.hpp>
-#include <boost/filesystem/operations.hpp>
-#include <boost/filesystem/fstream.hpp>
 
 #include "TFile.h"
 #include "TError.h"
@@ -35,10 +35,10 @@ static int copy_files(const boost::program_options::variables_map& vm) {
     return 1;
   }
 
-  boost::filesystem::path destdir(in.back());
+  std::filesystem::path destdir(in.back());
   in.pop_back();
 
-  if (!boost::filesystem::is_directory(destdir)) {
+  if (!std::filesystem::is_directory(destdir)) {
     std::cerr << "Last argument must be destination directory; " << destdir << " is not a directory!" << std::endl;
     return 1;
   }
@@ -48,10 +48,10 @@ static int copy_files(const boost::program_options::variables_map& vm) {
   std::vector<std::string> const& filesIn = catalog.fileNames(0);
 
   for (unsigned int j = 0; j < in.size(); ++j) {
-    boost::filesystem::path pathOut = destdir;
-    pathOut /= boost::filesystem::path(in[j]).filename();
+    std::filesystem::path pathOut = destdir;
+    pathOut /= std::filesystem::path(in[j]).filename();
 
-    boost::filesystem::ofstream ofs;
+    std::ofstream ofs;
     ofs.exceptions(std::ofstream::failbit | std::ofstream::badbit);
     ofs.open(pathOut);
 
