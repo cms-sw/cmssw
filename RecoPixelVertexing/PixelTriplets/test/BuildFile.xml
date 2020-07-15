@@ -27,3 +27,8 @@
 
 <bin file="CircleEq_t.cpp">
 </bin>
+
+<bin file="CAsizes_t.cpp">
+  <use name="cuda"/>
+  <use name="eigen"/>
+</bin>

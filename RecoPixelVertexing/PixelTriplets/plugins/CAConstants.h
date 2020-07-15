@@ -27,7 +27,7 @@ namespace CAConstants {
   constexpr uint32_t maxNumberOfQuadruplets() { return maxNumberOfTuples(); }
 #ifndef ONLY_PHICUT
 #ifndef GPU_SMALL_EVENTS
-  constexpr uint32_t maxNumberOfDoublets() { return 448 * 1024; }
+  constexpr uint32_t maxNumberOfDoublets() { return 512 * 1024; }
   constexpr uint32_t maxCellsPerHit() { return 128; }
 #else
   constexpr uint32_t maxNumberOfDoublets() { return 128 * 1024; }
@@ -37,7 +37,7 @@ namespace CAConstants {
   constexpr uint32_t maxNumberOfDoublets() { return 2 * 1024 * 1024; }
   constexpr uint32_t maxCellsPerHit() { return 8 * 128; }
 #endif
-  constexpr uint32_t maxNumOfActiveDoublets() { return maxNumberOfDoublets() / 4; }
+  constexpr uint32_t maxNumOfActiveDoublets() { return maxNumberOfDoublets() / 8; }
 
   constexpr uint32_t maxNumberOfLayerPairs() { return 20; }
   constexpr uint32_t maxNumberOfLayers() { return 10; }
@@ -49,7 +49,7 @@ namespace CAConstants {
 
 #ifndef ONLY_PHICUT
   using CellNeighbors = cms::cuda::VecArray<uint32_t, 36>;
-  using CellTracks = cms::cuda::VecArray<tindex_type, 42>;
+  using CellTracks = cms::cuda::VecArray<tindex_type, 48>;
 #else
   using CellNeighbors = cms::cuda::VecArray<uint32_t, 64>;
   using CellTracks = cms::cuda::VecArray<tindex_type, 64>;
