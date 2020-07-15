@@ -20,8 +20,8 @@ public:
   void testDeletion();
   void testSimultaneousUse();
 
-  void setUp() {}
-  void tearDown() {}
+  void setUp() override {}
+  void tearDown() override {}
 };
 
 namespace {
@@ -45,33 +45,33 @@ void reusableobjectholder_test::testConstruction() {
   {
     edm::ReusableObjectHolder<int> intHolder;
     auto p = intHolder.tryToGet();
-    CPPUNIT_ASSERT(p.get() == 0);
+    CPPUNIT_ASSERT(p.get() == nullptr);
 
     intHolder.add(std::make_unique<int>(1));
     p = intHolder.tryToGet();
-    CPPUNIT_ASSERT(p.get() != 0);
+    CPPUNIT_ASSERT(p.get() != nullptr);
     CPPUNIT_ASSERT(*p == 1);
 
     auto p2 = intHolder.tryToGet();
-    CPPUNIT_ASSERT(p2.get() == 0);
+    CPPUNIT_ASSERT(p2.get() == nullptr);
   }
   {
     edm::ReusableObjectHolder<int> intHolder;
     auto p = intHolder.makeOrGet([]() -> int* { return new int(1); });
-    CPPUNIT_ASSERT(p.get() != 0);
+    CPPUNIT_ASSERT(p.get() != nullptr);
     CPPUNIT_ASSERT(*p == 1);
 
     auto p2 = intHolder.tryToGet();
-    CPPUNIT_ASSERT(p2.get() == 0);
+    CPPUNIT_ASSERT(p2.get() == nullptr);
   }
   {
     edm::ReusableObjectHolder<int> intHolder;
     auto p = intHolder.makeOrGetAndClear([]() -> int* { return new int(1); }, [](int* iV) { *iV = 0; });
-    CPPUNIT_ASSERT(p.get() != 0);
+    CPPUNIT_ASSERT(p.get() != nullptr);
     CPPUNIT_ASSERT(*p == 0);
 
     auto p2 = intHolder.tryToGet();
-    CPPUNIT_ASSERT(p2.get() == 0);
+    CPPUNIT_ASSERT(p2.get() == nullptr);
   }
   {
     edm::ReusableObjectHolder<int, CustomDeleter> intHolder;
@@ -91,21 +91,21 @@ void reusableobjectholder_test::testDeletion() {
     intHolder.add(std::make_unique<int>(1));
     {
       auto p = intHolder.tryToGet();
-      CPPUNIT_ASSERT(p.get() != 0);
+      CPPUNIT_ASSERT(p.get() != nullptr);
       CPPUNIT_ASSERT(*p == 1);
 
       auto p2 = intHolder.tryToGet();
-      CPPUNIT_ASSERT(p2.get() == 0);
+      CPPUNIT_ASSERT(p2.get() == nullptr);
 
       *p = 2;
     }
     {
       auto p = intHolder.tryToGet();
-      CPPUNIT_ASSERT(p.get() != 0);
+      CPPUNIT_ASSERT(p.get() != nullptr);
       CPPUNIT_ASSERT(*p == 2);
 
       auto p2 = intHolder.tryToGet();
-      CPPUNIT_ASSERT(p2.get() == 0);
+      CPPUNIT_ASSERT(p2.get() == nullptr);
     }
   }
 
@@ -113,43 +113,43 @@ void reusableobjectholder_test::testDeletion() {
     edm::ReusableObjectHolder<int> intHolder;
     {
       auto p = intHolder.makeOrGet([]() -> int* { return new int(1); });
-      CPPUNIT_ASSERT(p.get() != 0);
+      CPPUNIT_ASSERT(p.get() != nullptr);
       CPPUNIT_ASSERT(*p == 1);
       *p = 2;
 
       auto p2 = intHolder.tryToGet();
-      CPPUNIT_ASSERT(p2.get() == 0);
+      CPPUNIT_ASSERT(p2.get() == nullptr);
     }
     {
       auto p = intHolder.makeOrGet([]() -> int* { return new int(1); });
-      CPPUNIT_ASSERT(p.get() != 0);
+      CPPUNIT_ASSERT(p.get() != nullptr);
       CPPUNIT_ASSERT(*p == 2);
 
       auto p2 = intHolder.tryToGet();
-      CPPUNIT_ASSERT(p2.get() == 0);
+      CPPUNIT_ASSERT(p2.get() == nullptr);
 
       auto p3 = intHolder.makeOrGet([]() -> int* { return new int(1); });
-      CPPUNIT_ASSERT(p3.get() != 0);
+      CPPUNIT_ASSERT(p3.get() != nullptr);
       CPPUNIT_ASSERT(*p3 == 1);
     }
   }
 
   {
     edm::ReusableObjectHolder<int> intHolder;
-    int* address = 0;
+    int* address = nullptr;
     {
       auto p = intHolder.makeOrGetAndClear([]() -> int* { return new int(1); }, [](int* iV) { *iV = 0; });
-      CPPUNIT_ASSERT(p.get() != 0);
+      CPPUNIT_ASSERT(p.get() != nullptr);
       CPPUNIT_ASSERT(*p == 0);
       address = p.get();
       *p = 2;
 
       auto p2 = intHolder.tryToGet();
-      CPPUNIT_ASSERT(p2.get() == 0);
+      CPPUNIT_ASSERT(p2.get() == nullptr);
     }
     {
       auto p = intHolder.makeOrGetAndClear([]() -> int* { return new int(1); }, [](int* iV) { *iV = 0; });
-      CPPUNIT_ASSERT(p.get() != 0);
+      CPPUNIT_ASSERT(p.get() != nullptr);
       CPPUNIT_ASSERT(*p == 0);
       CPPUNIT_ASSERT(address == p.get());
     }

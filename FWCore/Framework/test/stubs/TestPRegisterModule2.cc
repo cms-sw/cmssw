@@ -30,7 +30,7 @@ void TestPRegisterModule2::produce(Event& e, EventSetup const&) {
 
   std::vector<edm::StableProvenance const*>::const_iterator pd = plist.begin();
 
-  CPPUNIT_ASSERT(0 != plist.size());
+  CPPUNIT_ASSERT(!plist.empty());
   CPPUNIT_ASSERT(2 == plist.size());
   CPPUNIT_ASSERT(pd != plist.end());
   if (pd == plist.end())

@@ -29,12 +29,12 @@ class testStandalone : public CppUnit::TestFixture {
   CPPUNIT_TEST_SUITE_END();
 
 public:
-  void setUp() {
+  void setUp() override {
     m_handler = std::make_unique<edm::AssertHandler>();
     m_scheduler = std::make_unique<tbb::task_scheduler_init>(1);
   }
 
-  void tearDown() {
+  void tearDown() override {
     m_handler = nullptr;  // propagate_const<T> has no reset() function
   }
 

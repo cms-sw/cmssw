@@ -12,7 +12,7 @@ int main(int, char ** /*argv*/) try {
   assert(s);
 
   IOSize totalVecs = 6;
-  char *buf[4096] = {NULL};
+  char *buf[4096] = {nullptr};
   int sizes[] = {20, 100, 50, 1024, 2222};
   int offset[] = {1000, 2, 19, 100, 500};
 

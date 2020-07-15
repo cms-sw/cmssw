@@ -52,9 +52,9 @@ class TestDetSet : public CppUnit::TestFixture {
 
 public:
   TestDetSet();
-  ~TestDetSet() {}
-  void setUp() {}
-  void tearDown() {}
+  ~TestDetSet() override {}
+  void setUp() override {}
+  void tearDown() override {}
 
   void default_ctor();
   void inserting();
@@ -84,7 +84,7 @@ void TestDetSet::default_ctor() {
   DSTV detsets(2);
   CPPUNIT_ASSERT(!detsets.onDemand());
   CPPUNIT_ASSERT(detsets.subdetId() == 2);
-  CPPUNIT_ASSERT(detsets.size() == 0);
+  CPPUNIT_ASSERT(detsets.empty());
   CPPUNIT_ASSERT(detsets.empty());
   CPPUNIT_ASSERT(detsets.dataSize() == 0);
   detsets.resize(3, 10);
@@ -107,7 +107,7 @@ void TestDetSet::default_ctor() {
   DSTV detsets2(3);
   detsets.swap(detsets2);
   CPPUNIT_ASSERT(detsets.subdetId() == 3);
-  CPPUNIT_ASSERT(detsets.size() == 0);
+  CPPUNIT_ASSERT(detsets.empty());
   CPPUNIT_ASSERT(detsets.dataSize() == 0);
   CPPUNIT_ASSERT(detsets2.subdetId() == 2);
   CPPUNIT_ASSERT(detsets2.size() == 3);
@@ -118,17 +118,17 @@ void TestDetSet::default_ctor() {
   DSTV detsets3(4);
   detsets = std::move(detsets3);
   CPPUNIT_ASSERT(detsets.subdetId() == 4);
-  CPPUNIT_ASSERT(detsets.size() == 0);
+  CPPUNIT_ASSERT(detsets.empty());
   CPPUNIT_ASSERT(detsets.dataSize() == 0);
   DSTV detsets5(std::move(detsets));
   CPPUNIT_ASSERT(detsets5.subdetId() == 4);
-  CPPUNIT_ASSERT(detsets5.size() == 0);
+  CPPUNIT_ASSERT(detsets5.empty());
   CPPUNIT_ASSERT(detsets5.dataSize() == 0);
 
   // test copy
-  DSTV detsets4(detsets5);
+  const DSTV &detsets4(detsets5);
   CPPUNIT_ASSERT(detsets4.subdetId() == 4);
-  CPPUNIT_ASSERT(detsets4.size() == 0);
+  CPPUNIT_ASSERT(detsets4.empty());
   CPPUNIT_ASSERT(detsets4.dataSize() == 0);
 }
 
@@ -165,7 +165,7 @@ void TestDetSet::inserting() {
   // test error conditions
   try {
     detsets.insert(22, 6);
-    CPPUNIT_ASSERT("insert did not throw" == 0);
+    CPPUNIT_ASSERT("insert did not throw" == nullptr);
   } catch (edm::Exception const &err) {
     CPPUNIT_ASSERT(err.categoryCode() == edm::errors::InvalidReference);
   }
@@ -225,7 +225,7 @@ void TestDetSet::filling() {
   CPPUNIT_ASSERT(detsets.exists(30));
 
   {
-    DSTV detsets2(detsets);
+    const DSTV &detsets2(detsets);
     CPPUNIT_ASSERT(detsets2.size() == 5);
     CPPUNIT_ASSERT(detsets2.exists(30));
   }
@@ -267,7 +267,7 @@ void TestDetSet::filling() {
   // test error conditions
   try {
     FF ff1(detsets, 22);
-    CPPUNIT_ASSERT(" fast filler did not throw" == 0);
+    CPPUNIT_ASSERT(" fast filler did not throw" == nullptr);
   } catch (edm::Exception const &err) {
     CPPUNIT_ASSERT(err.categoryCode() == edm::errors::InvalidReference);
   }
@@ -275,7 +275,7 @@ void TestDetSet::filling() {
   try {
     FF ff1(detsets, 44);
     FF ff2(detsets, 45);
-    CPPUNIT_ASSERT(" fast filler did not throw" == 0);
+    CPPUNIT_ASSERT(" fast filler did not throw" == nullptr);
   } catch (edm::Exception const &err) {
     CPPUNIT_ASSERT(err.categoryCode() == edm::errors::LogicError);
   }
@@ -340,7 +340,7 @@ void TestDetSet::fillingTS() {
   // test error conditions
   try {
     TSFF ff1(detsets, 22);
-    CPPUNIT_ASSERT(" fast filler did not throw" == 0);
+    CPPUNIT_ASSERT(" fast filler did not throw" == nullptr);
   } catch (edm::Exception const &err) {
     CPPUNIT_ASSERT(err.categoryCode() == edm::errors::InvalidReference);
   }
@@ -348,7 +348,7 @@ void TestDetSet::fillingTS() {
   try {
     TSFF ff1(detsets, 44);
     TSFF ff2(detsets, 45);
-    CPPUNIT_ASSERT(" fast filler did not throw" == 0);
+    CPPUNIT_ASSERT(" fast filler did not throw" == nullptr);
   } catch (edm::Exception const &err) {
     CPPUNIT_ASSERT(err.categoryCode() == edm::errors::LogicError);
   }
@@ -360,7 +360,7 @@ namespace {
 
     void operator()(DST const &df) {
       if (df.id() > 1000) {
-        CPPUNIT_ASSERT(df.size() == 0);
+        CPPUNIT_ASSERT(df.empty());
         return;
       }
       CPPUNIT_ASSERT(df.id() == 20 + n);
@@ -399,7 +399,7 @@ namespace {
           ntot += n;
         }
       } catch (edmNew::CapacityExaustedException const &) {
-        CPPUNIT_ASSERT("cannot be here" == 0);
+        CPPUNIT_ASSERT("cannot be here" == nullptr);
       }
     }
 
@@ -459,7 +459,7 @@ void TestDetSet::iterator() {
       CPPUNIT_ASSERT(df.size() == 2);
     }
   } catch (edm::Exception const &) {
-    CPPUNIT_ASSERT("DetSetVector threw when not expected" == 0);
+    CPPUNIT_ASSERT("DetSetVector threw when not expected" == nullptr);
   }
 
   try {
@@ -468,11 +468,11 @@ void TestDetSet::iterator() {
     CPPUNIT_ASSERT(p == detsets.end());
     //    CPPUNIT_ASSERT(p==detsets.end(true));
   } catch (edm::Exception const &) {
-    CPPUNIT_ASSERT("find thrown edm exception when not expected" == 0);
+    CPPUNIT_ASSERT("find thrown edm exception when not expected" == nullptr);
   }
   try {
     detsets[44];
-    CPPUNIT_ASSERT("[] did not throw" == 0);
+    CPPUNIT_ASSERT("[] did not throw" == nullptr);
   } catch (edm::Exception const &err) {
     CPPUNIT_ASSERT(err.categoryCode() == edm::errors::InvalidReference);
   }
@@ -566,13 +566,13 @@ void TestDetSet::onDemand() {
     {
       DST df = detsets[1020];
       CPPUNIT_ASSERT(df.id() == 1020);
-      CPPUNIT_ASSERT(df.size() == 0);
+      CPPUNIT_ASSERT(df.empty());
       CPPUNIT_ASSERT(g.ntot == 1 + 5);
       assert(g.aborted);
     }
 
   } catch (edm::Exception const &) {
-    CPPUNIT_ASSERT("DetSetVector threw when not expected" == 0);
+    CPPUNIT_ASSERT("DetSetVector threw when not expected" == nullptr);
   }
   // no onDemand!
   int i = 0;
@@ -601,11 +601,11 @@ void TestDetSet::onDemand() {
     DSTV::const_iterator p = detsets.find(22);
     CPPUNIT_ASSERT(p == detsets.end());
   } catch (edm::Exception const &) {
-    CPPUNIT_ASSERT("find thrown edm exception when not expected" == 0);
+    CPPUNIT_ASSERT("find thrown edm exception when not expected" == nullptr);
   }
   try {
     detsets[22];
-    CPPUNIT_ASSERT("[] did not throw" == 0);
+    CPPUNIT_ASSERT("[] did not throw" == nullptr);
   } catch (edm::Exception const &err) {
     CPPUNIT_ASSERT(err.categoryCode() == edm::errors::InvalidReference);
   }
@@ -620,7 +620,7 @@ void TestDetSet::onDemand() {
   DSTV detsets5(std::move(detsets3));
   CPPUNIT_ASSERT(detsets5.onDemand());
 
-  DSTV detsets4(detsets5);
+  const DSTV &detsets4(detsets5);
   CPPUNIT_ASSERT(detsets4.onDemand());
 }
 
@@ -665,6 +665,6 @@ void TestDetSet::toRangeMap() {
     }
   } catch (edm::Exception const &err) {
     std::cout << err.what() << std::endl;
-    CPPUNIT_ASSERT(err.what() == 0);
+    CPPUNIT_ASSERT(err.what() == nullptr);
   }
 }

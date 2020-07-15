@@ -88,8 +88,8 @@ class testRefInROOT : public CppUnit::TestFixture {
 
 public:
   testRefInROOT() {}
-  ~testRefInROOT() {}
-  void setUp() {
+  ~testRefInROOT() override {}
+  void setUp() override {
     if (!sWasRun_) {
       gSystem->Load("libFWCoreFWLite.so");
       FWLiteEnabler::enable();
@@ -104,7 +104,7 @@ public:
       sWasRun_ = true;
     }
   }
-  void tearDown() {}
+  void tearDown() override {}
 
   void testOneGoodFile();
   void testTwoGoodFiles();
@@ -130,7 +130,7 @@ static void checkMatch(const edmtest::OtherThingCollection* pOthers, const edmte
   CPPUNIT_ASSERT(pOthers->size() == pThings->size());
 
   //This test requires at least one entry
-  CPPUNIT_ASSERT(pOthers->size() > 0);
+  CPPUNIT_ASSERT(!pOthers->empty());
   const edm::View<edmtest::Thing>& view = *(pOthers->front().refToBaseProd);
   CPPUNIT_ASSERT(view.size() == pOthers->size());
 
@@ -169,7 +169,7 @@ static void checkMatch(const edmtest::OtherThingCollection* pOthers, const edmte
 }
 
 static void testTree(TTree* events) {
-  CPPUNIT_ASSERT(events != 0);
+  CPPUNIT_ASSERT(events != nullptr);
 
   /*
    edmtest::OtherThingCollection* pOthers = nullptr;

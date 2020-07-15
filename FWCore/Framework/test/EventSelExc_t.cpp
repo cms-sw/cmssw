@@ -68,25 +68,25 @@ struct PathSpecifiers {
                  std::string const& s8 = "",
                  std::string const& s9 = "")
       : path() {
-    if (s0 != "")
+    if (!s0.empty())
       path.push_back(s0);
-    if (s1 != "")
+    if (!s1.empty())
       path.push_back(s1);
-    if (s2 != "")
+    if (!s2.empty())
       path.push_back(s2);
-    if (s3 != "")
+    if (!s3.empty())
       path.push_back(s3);
-    if (s4 != "")
+    if (!s4.empty())
       path.push_back(s4);
-    if (s5 != "")
+    if (!s5.empty())
       path.push_back(s5);
-    if (s6 != "")
+    if (!s6.empty())
       path.push_back(s6);
-    if (s7 != "")
+    if (!s7.empty())
       path.push_back(s7);
-    if (s8 != "")
+    if (!s8.empty())
       path.push_back(s8);
-    if (s9 != "")
+    if (!s9.empty())
       path.push_back(s9);
   }
 };

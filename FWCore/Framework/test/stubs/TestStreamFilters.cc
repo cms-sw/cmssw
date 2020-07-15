@@ -86,7 +86,7 @@ namespace edmtest {
         }
       }
 
-      ~GlobalIntFilter() {
+      ~GlobalIntFilter() override {
         if (m_count != trans_) {
           throw cms::Exception("transitions") << m_count << " but it was supposed to be " << trans_;
         }
@@ -139,7 +139,7 @@ namespace edmtest {
         }
       }
 
-      ~RunIntFilter() {
+      ~RunIntFilter() override {
         if (m_count != trans_) {
           throw cms::Exception("transitions") << m_count << " but it was supposed to be " << trans_;
         }
@@ -208,7 +208,7 @@ namespace edmtest {
         }
       }
 
-      ~LumiIntFilter() {
+      ~LumiIntFilter() override {
         if (m_count != trans_) {
           throw cms::Exception("transitions") << m_count << " but it was supposed to be " << trans_;
         }
@@ -306,7 +306,7 @@ namespace edmtest {
         br = false;
       }
 
-      ~RunSummaryIntFilter() {
+      ~RunSummaryIntFilter() override {
         if (m_count != trans_) {
           throw cms::Exception("transitions") << m_count << " but it was supposed to be " << trans_;
         }
@@ -430,7 +430,7 @@ namespace edmtest {
         bl = false;
       }
 
-      ~LumiSummaryIntFilter() {
+      ~LumiSummaryIntFilter() override {
         if (m_count != trans_) {
           throw cms::Exception("transitions") << m_count << " but it was supposed to be " << trans_;
         }
@@ -524,7 +524,7 @@ namespace edmtest {
         }
       }
 
-      ~ProcessBlockIntFilter() {
+      ~ProcessBlockIntFilter() override {
         TestGlobalCacheFil const* testGlobalCache = globalCache();
         if (testGlobalCache->m_count != testGlobalCache->trans_) {
           throw cms::Exception("transitions") << "ProcessBlockIntFilter transitions " << testGlobalCache->m_count
@@ -587,7 +587,7 @@ namespace edmtest {
         }
       }
 
-      ~TestBeginProcessBlockFilter() {
+      ~TestBeginProcessBlockFilter() override {
         TestGlobalCacheFil const* testGlobalCache = globalCache();
         if (testGlobalCache->m_count != testGlobalCache->trans_) {
           throw cms::Exception("transitions") << "TestBeginProcessBlockFilter transitions " << testGlobalCache->m_count
@@ -645,7 +645,7 @@ namespace edmtest {
         }
       }
 
-      ~TestEndProcessBlockFilter() {
+      ~TestEndProcessBlockFilter() override {
         TestGlobalCacheFil const* testGlobalCache = globalCache();
         if (testGlobalCache->m_count != testGlobalCache->trans_) {
           throw cms::Exception("transitions") << "~TestEndProcessBlockFilter transitions " << testGlobalCache->m_count
@@ -701,7 +701,7 @@ namespace edmtest {
         ger = true;
       }
 
-      ~TestBeginRunFilter() {
+      ~TestBeginRunFilter() override {
         if (m_count != trans_) {
           throw cms::Exception("transitions") << m_count << " but it was supposed to be " << trans_;
         }
@@ -756,7 +756,7 @@ namespace edmtest {
         ger = true;
       }
 
-      ~TestEndRunFilter() {
+      ~TestEndRunFilter() override {
         if (m_count != trans_) {
           throw cms::Exception("transitions") << m_count << " but it was supposed to be " << trans_;
         }
@@ -821,7 +821,7 @@ namespace edmtest {
         gbl = false;
       }
 
-      ~TestBeginLumiBlockFilter() {
+      ~TestBeginLumiBlockFilter() override {
         if (m_count != trans_) {
           throw cms::Exception("transitions") << m_count << " but it was supposed to be " << trans_;
         }
@@ -882,7 +882,7 @@ namespace edmtest {
         ++m_count;
       }
 
-      ~TestEndLumiBlockFilter() {
+      ~TestEndLumiBlockFilter() override {
         if (m_count != trans_) {
           throw cms::Exception("transitions") << m_count << " but it was supposed to be " << trans_;
         }

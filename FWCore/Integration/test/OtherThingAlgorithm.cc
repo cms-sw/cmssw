@@ -12,7 +12,7 @@ namespace edmtest {
     const size_t numToMake = 20;
     result.reserve(numToMake);
     ThingCollection const* parent = parentHandle.product();
-    ThingCollection const* null = 0;
+    ThingCollection const* null = nullptr;
 
     for (size_t i = 0; i < numToMake; ++i) {
       OtherThing element;

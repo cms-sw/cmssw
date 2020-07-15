@@ -28,8 +28,8 @@ class testDataKey : public CppUnit::TestFixture {
   CPPUNIT_TEST_SUITE_END();
 
 public:
-  void setUp() {}
-  void tearDown() {}
+  void setUp() override {}
+  void tearDown() override {}
 
   void nametagConstructionTest();
   void nametagComparisonTest();
@@ -134,7 +134,7 @@ void testDataKey::CopyTest() {
   tester = fredDummyKey;
   CPPUNIT_ASSERT(tester == fredDummyKey);
 
-  DataKey tester2(fredDummyKey);
+  const DataKey& tester2(fredDummyKey);
   CPPUNIT_ASSERT(tester2 == fredDummyKey);
 }
 
@@ -144,7 +144,7 @@ void testDataKey::nocopyConstructionTest() {
 
   CPPUNIT_ASSERT(fredDummyKey == noCopyFredDummyKey);
 
-  const DataKey copyFredDummyKey(noCopyFredDummyKey);
+  const DataKey& copyFredDummyKey(noCopyFredDummyKey);
   CPPUNIT_ASSERT(copyFredDummyKey == noCopyFredDummyKey);
 
   DataKey copy2FredDummyKey;

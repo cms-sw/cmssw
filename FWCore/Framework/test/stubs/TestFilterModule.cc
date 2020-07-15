@@ -31,9 +31,9 @@ namespace edmtest {
   class TestResultAnalyzer : public edm::one::EDAnalyzer<> {
   public:
     explicit TestResultAnalyzer(edm::ParameterSet const&);
-    virtual ~TestResultAnalyzer();
+    ~TestResultAnalyzer() override;
 
-    virtual void analyze(edm::Event const& e, edm::EventSetup const& c) override;
+    void analyze(edm::Event const& e, edm::EventSetup const& c) override;
     void endJob() override;
 
   private:
@@ -47,7 +47,7 @@ namespace edmtest {
   public:
     explicit TestContextAnalyzer(edm::ParameterSet const&);
 
-    virtual void analyze(edm::StreamID, edm::Event const& e, edm::EventSetup const& c) const override;
+    void analyze(edm::StreamID, edm::Event const& e, edm::EventSetup const& c) const override;
     std::string expected_pathname_;     // if empty, we don't know
     std::string expected_modulelabel_;  // if empty, we don't know
   };
@@ -57,9 +57,9 @@ namespace edmtest {
   class TestFilterModule : public edm::one::EDFilter<> {
   public:
     explicit TestFilterModule(edm::ParameterSet const&);
-    virtual ~TestFilterModule();
+    ~TestFilterModule() override;
 
-    virtual bool filter(edm::Event& e, edm::EventSetup const& c) override;
+    bool filter(edm::Event& e, edm::EventSetup const& c) override;
     void endJob() override;
 
   private:
@@ -73,15 +73,15 @@ namespace edmtest {
   class SewerModule : public edm::one::OutputModule<> {
   public:
     explicit SewerModule(edm::ParameterSet const&);
-    virtual ~SewerModule();
+    ~SewerModule() override;
 
     static void fillDescriptions(ConfigurationDescriptions& descriptions);
 
   private:
-    virtual void write(edm::EventForOutput const& e) override;
-    virtual void writeLuminosityBlock(edm::LuminosityBlockForOutput const&) override {}
-    virtual void writeRun(edm::RunForOutput const&) override {}
-    virtual void endJob() override;
+    void write(edm::EventForOutput const& e) override;
+    void writeLuminosityBlock(edm::LuminosityBlockForOutput const&) override {}
+    void writeRun(edm::RunForOutput const&) override {}
+    void endJob() override;
 
     std::string name_;
     int num_pass_;
@@ -105,7 +105,7 @@ namespace edmtest {
     Trig prod;
     e.getManyByType(prod);
 
-    if (prod.size() == 0)
+    if (prod.empty())
       return;
     if (prod.size() > 1) {
       std::cerr << "More than one trigger result in the event, using first one" << std::endl;

@@ -2,10 +2,10 @@
 #include "FWCore/SharedMemory/interface/WorkerChannel.h"
 #include "FWCore/Utilities/interface/Exception.h"
 
+#include <cassert>
+#include <cstdio>
 #include <memory>
 #include <string>
-#include <stdio.h>
-#include <cassert>
 namespace {
   int controller(int argc, char** argv) {
     using namespace edm::shared_memory;

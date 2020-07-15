@@ -47,8 +47,8 @@ namespace edm::eventsetup {
   //
   // const member functions
   //
-  ESProxyIndex ESRecordsToProxyIndices::indexInRecord(EventSetupRecordKey const& iRK, DataKey const& iDK) const
-      noexcept {
+  ESProxyIndex ESRecordsToProxyIndices::indexInRecord(EventSetupRecordKey const& iRK,
+                                                      DataKey const& iDK) const noexcept {
     auto it = std::lower_bound(recordKeys_.begin(), recordKeys_.end(), iRK);
     if (it == recordKeys_.end() or *it != iRK) {
       return missingProxyIndex();

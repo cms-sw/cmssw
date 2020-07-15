@@ -6,7 +6,7 @@
 #include "DataFormats/TestObjects/interface/ToyProducts.h"
 #include "DataFormats/TestObjects/interface/ThingCollection.h"
 
-#include <stdio.h>
+#include <cstdio>
 #include <iostream>
 
 #include "FWCore/SharedMemory/interface/ReadBuffer.h"
@@ -35,7 +35,7 @@ namespace testinter {
         std::cout << id_ << " starting external process" << std::endl;
         pipe_ = popen(("cmsTestInterProcess "s + channel_.sharedMemoryName() + " " + channel_.uniqueID()).c_str(), "w");
 
-        if (NULL == pipe_) {
+        if (nullptr == pipe_) {
           abort();
         }
 

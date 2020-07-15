@@ -42,9 +42,9 @@ namespace edmtest {
   class WhatsItAnalyzer : public edm::EDAnalyzer {
   public:
     explicit WhatsItAnalyzer(const edm::ParameterSet&);
-    ~WhatsItAnalyzer();
+    ~WhatsItAnalyzer() override;
 
-    virtual void analyze(const edm::Event&, const edm::EventSetup&);
+    void analyze(const edm::Event&, const edm::EventSetup&) override;
 
   private:
     void getAndTest(GadgetRcd const& record, edm::ESHandle<WhatsIt>& handle, int expectedValue, const char* label);

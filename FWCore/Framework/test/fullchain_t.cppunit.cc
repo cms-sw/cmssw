@@ -54,8 +54,8 @@ class testfullChain : public CppUnit::TestFixture {
   CPPUNIT_TEST_SUITE_END();
 
 public:
-  void setUp() { m_scheduler = std::make_unique<tbb::task_scheduler_init>(1); }
-  void tearDown() {}
+  void setUp() override { m_scheduler = std::make_unique<tbb::task_scheduler_init>(1); }
+  void tearDown() override {}
 
   void getfromDataproxyproviderTest();
 
@@ -84,9 +84,9 @@ void testfullChain::getfromDataproxyproviderTest() {
     EventSetup eventSetup(provider.eventSetupImpl(), 0, nullptr, false);
     ESHandle<DummyData> pDummy;
     eventSetup.get<DummyRecord>().get(pDummy);
-    CPPUNIT_ASSERT(0 != pDummy.product());
+    CPPUNIT_ASSERT(nullptr != pDummy.product());
 
     eventSetup.getData(pDummy);
-    CPPUNIT_ASSERT(0 != pDummy.product());
+    CPPUNIT_ASSERT(nullptr != pDummy.product());
   }
 }

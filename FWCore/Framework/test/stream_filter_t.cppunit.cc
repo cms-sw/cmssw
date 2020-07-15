@@ -49,8 +49,8 @@ class testStreamFilter : public CppUnit::TestFixture {
 public:
   testStreamFilter();
 
-  void setUp() {}
-  void tearDown() {}
+  void setUp() override {}
+  void tearDown() override {}
 
   void basicTest();
   void globalTest();

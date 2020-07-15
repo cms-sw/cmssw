@@ -19,7 +19,7 @@ int main(int argc, char **argv) try {
 
   int datasetN = ::atoi(argv[1]);
   std::string outputURL = argv[2];
-  std::unique_ptr<Storage> outputFile = 0;
+  std::unique_ptr<Storage> outputFile = nullptr;
   IOSize totSize = 0;
   std::vector<std::unique_ptr<Storage>> indexFiles;
   std::vector<IOOffset> indexSizes;

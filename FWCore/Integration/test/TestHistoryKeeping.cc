@@ -12,12 +12,12 @@ namespace edmtest {
   class TestHistoryKeeping : public edm::EDAnalyzer {
   public:
     explicit TestHistoryKeeping(edm::ParameterSet const& pset);
-    virtual ~TestHistoryKeeping();
+    ~TestHistoryKeeping() override;
 
-    virtual void analyze(edm::Event const& e, edm::EventSetup const&);
+    void analyze(edm::Event const& e, edm::EventSetup const&) override;
 
-    virtual void beginRun(edm::Run const& r, edm::EventSetup const&);
-    virtual void endRun(edm::Run const& r, edm::EventSetup const&);
+    void beginRun(edm::Run const& r, edm::EventSetup const&) override;
+    void endRun(edm::Run const& r, edm::EventSetup const&) override;
 
   private:
     std::vector<std::string> expectedProcesses_;

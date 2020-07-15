@@ -31,8 +31,8 @@ public:
   void testPushAndWait();
   void testPushAndWaitOne();
   void stressTest();
-  void setUp() {}
-  void tearDown() {}
+  void setUp() override {}
+  void tearDown() override {}
 };
 
 CPPUNIT_TEST_SUITE_REGISTRATION(SerialTaskQueueChain_test);

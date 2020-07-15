@@ -24,7 +24,7 @@ class TestMod : public EDProducer {
 public:
   explicit TestMod(ParameterSet const& p);
 
-  void produce(Event& e, EventSetup const&);
+  void produce(Event& e, EventSetup const&) override;
 };
 
 TestMod::TestMod(ParameterSet const&) { produces<int>(); }
@@ -38,8 +38,8 @@ class testmaker2 : public CppUnit::TestFixture {
   CPPUNIT_TEST_SUITE_END();
 
 public:
-  void setUp() {}
-  void tearDown() {}
+  void setUp() override {}
+  void tearDown() override {}
   void maker2Test();
 };
 

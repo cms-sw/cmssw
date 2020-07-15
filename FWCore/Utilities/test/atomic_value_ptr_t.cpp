@@ -40,7 +40,7 @@ int main() {
   {
     edm::atomic_value_ptr<simple> a(new simple(10));
     assert(simple::count == 1);
-    edm::atomic_value_ptr<simple> b(a);
+    const edm::atomic_value_ptr<simple>& b(a);
     assert(simple::count == 2);
 
     assert(*a == *b);

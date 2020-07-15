@@ -52,8 +52,8 @@ class testOneOutputModule : public CppUnit::TestFixture {
 public:
   testOneOutputModule();
 
-  void setUp() {}
-  void tearDown() {}
+  void setUp() override {}
+  void tearDown() override {}
 
   void basicTest();
   void runTest();

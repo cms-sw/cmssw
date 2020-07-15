@@ -30,8 +30,8 @@ namespace edmtest {
   class HistoryAnalyzer : public edm::EDAnalyzer {
   public:
     explicit HistoryAnalyzer(edm::ParameterSet const& params);
-    void analyze(edm::Event const& event, edm::EventSetup const&);
-    void endJob();
+    void analyze(edm::Event const& event, edm::EventSetup const&) override;
+    void endJob() override;
 
   private:
     typedef std::vector<std::string> vstring;
@@ -68,7 +68,7 @@ namespace edmtest {
     assert(esv.size() == static_cast<size_t>(expectedSize_));
 
     for (unsigned i = 0; i < esv.size(); ++i) {
-      edm::ParameterSet selectEventsInfo = getParameterSet(esv[i]);
+      const edm::ParameterSet& selectEventsInfo = getParameterSet(esv[i]);
       if (eventCount_ == 0) {
         std::cout << selectEventsInfo << std::endl;
       }
@@ -85,7 +85,7 @@ namespace edmtest {
         // test the function getProcessParameterSetContainingModule this is a
         // convenient spot to test because this module is run in both a
         // a single process and in a subprocess.
-        edm::ParameterSet proc_pset2 = edm::getProcessParameterSetContainingModule(moduleDescription());
+        const edm::ParameterSet& proc_pset2 = edm::getProcessParameterSetContainingModule(moduleDescription());
         assert(proc_pset2.id() == proc_pset.id());
         vstring paths1 = proc_pset.getParameter<vstring>("@paths");
         vstring paths2 = proc_pset2.getParameter<vstring>("@paths");
@@ -142,7 +142,7 @@ namespace edmtest {
           // This is probably overkill, but also check it can be retrieved by ID from the registry
           edm::ParameterSetID id = pset.id();
           edm::ParameterSet const* result = reg->getMapped(id);
-          assert(result != 0);
+          assert(result != nullptr);
         }
       }
 

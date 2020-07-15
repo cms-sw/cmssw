@@ -30,12 +30,12 @@ namespace edmtest {
   public:
     DeleteEarlyProducer(edm::ParameterSet const& pset) { produces<DeleteEarly>(); }
 
-    virtual void beginJob() {
+    void beginJob() override {
       // Needed because DeleteEarly objects may be allocated and deleted in initialization
       edmtest::DeleteEarly::resetDeleteCount();
     }
 
-    virtual void produce(edm::Event& e, edm::EventSetup const&) { e.put(std::make_unique<DeleteEarly>()); }
+    void produce(edm::Event& e, edm::EventSetup const&) override { e.put(std::make_unique<DeleteEarly>()); }
   };
 
   class DeleteEarlyReader : public edm::global::EDAnalyzer<> {
@@ -65,7 +65,7 @@ namespace edmtest {
     DeleteEarlyCheckDeleteAnalyzer(edm::ParameterSet const& pset)
         : m_expectedValues(pset.getUntrackedParameter<std::vector<unsigned int>>("expectedValues")), m_index(0) {}
 
-    virtual void analyze(edm::Event const&, edm::EventSetup const&) {
+    void analyze(edm::Event const&, edm::EventSetup const&) override {
       if (DeleteEarly::nDeletes() != m_expectedValues.at(m_index)) {
         throw cms::Exception("DeleteEarlyError")
             << "On index " << m_index << " we expected " << m_expectedValues[m_index] << " deletes but we see "

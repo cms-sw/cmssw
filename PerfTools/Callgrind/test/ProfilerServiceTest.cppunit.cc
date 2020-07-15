@@ -48,8 +48,8 @@ namespace test {
 
   public:
     TestProfilerService();
-    void setUp();
-    void tearDown();
+    void setUp() override;
+    void tearDown() override;
     void check_constr();
     void check_config();
     void check_Instrumentation();

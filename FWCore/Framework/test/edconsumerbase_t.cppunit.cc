@@ -41,8 +41,8 @@ public:
   CPPUNIT_TEST_SUITE_END();
 
 public:
-  void setUp();
-  void tearDown() {}
+  void setUp() override;
+  void tearDown() override {}
 
   void testRegularType();
   void testViewType();
@@ -102,7 +102,7 @@ namespace {
     IntsConsumesCollectorConsumer(std::vector<edm::InputTag> const& iTags) {
       m_tokens.reserve(iTags.size());
       edm::ConsumesCollector collector{consumesCollector()};
-      edm::ConsumesCollector collectorCopy(collector);
+      const edm::ConsumesCollector& collectorCopy(collector);
       edm::ConsumesCollector collectorCopy1(collector);
       edm::ConsumesCollector collectorCopy2(collector);
       collectorCopy1 = collectorCopy;
@@ -147,9 +147,9 @@ void TestEDConsumerBase::testRegularType() {
 
   edm::TypeID typeID_vint(typeid(std::vector<int>));
   const auto vint_c = helper.index(edm::PRODUCT_TYPE, typeID_vint, "labelC", "instanceC", "processC");
-  const auto vint_c_no_proc = helper.index(edm::PRODUCT_TYPE, typeID_vint, "labelC", "instanceC", 0);
+  const auto vint_c_no_proc = helper.index(edm::PRODUCT_TYPE, typeID_vint, "labelC", "instanceC", nullptr);
   const auto vint_blank = helper.index(edm::PRODUCT_TYPE, typeID_vint, "label", "instance", "process");
-  const auto vint_blank_no_proc = helper.index(edm::PRODUCT_TYPE, typeID_vint, "label", "instance", 0);
+  const auto vint_blank_no_proc = helper.index(edm::PRODUCT_TYPE, typeID_vint, "label", "instance", nullptr);
   {
     std::vector<edm::InputTag> vTags = {{"label", "instance", "process"}, {"labelC", "instanceC", "processC"}};
     IntsConsumer intConsumer{vTags};
@@ -174,7 +174,7 @@ void TestEDConsumerBase::testRegularType() {
 
     std::vector<edm::ProductResolverIndexAndSkipBit> indicesMay;
     intConsumer.itemsMayGet(edm::InEvent, indicesMay);
-    CPPUNIT_ASSERT(0 == indicesMay.size());
+    CPPUNIT_ASSERT(indicesMay.empty());
   }
   {
     std::vector<edm::InputTag> vTags = {{"label", "instance", "process"}, {"labelC", "instanceC", "processC"}};
@@ -200,7 +200,7 @@ void TestEDConsumerBase::testRegularType() {
 
     std::vector<edm::ProductResolverIndexAndSkipBit> indicesMay;
     intConsumer.itemsMayGet(edm::InEvent, indicesMay);
-    CPPUNIT_ASSERT(0 == indicesMay.size());
+    CPPUNIT_ASSERT(indicesMay.empty());
   }
   {
     std::vector<edm::InputTag> vTagsRev = {{"labelC", "instanceC", "processC"}, {"label", "instance", "process"}};
@@ -228,7 +228,7 @@ void TestEDConsumerBase::testRegularType() {
 
     std::vector<edm::ProductResolverIndexAndSkipBit> indicesMay;
     intConsumerRev.itemsMayGet(edm::InEvent, indicesMay);
-    CPPUNIT_ASSERT(0 == indicesMay.size());
+    CPPUNIT_ASSERT(indicesMay.empty());
   }
   {
     std::vector<edm::InputTag> vTagsRev = {{"labelC", "instanceC", "processC"}, {"label", "instance", "process"}};
@@ -254,7 +254,7 @@ void TestEDConsumerBase::testRegularType() {
 
     std::vector<edm::ProductResolverIndexAndSkipBit> indicesMay;
     intConsumerRev.itemsMayGet(edm::InEvent, indicesMay);
-    CPPUNIT_ASSERT(0 == indicesMay.size());
+    CPPUNIT_ASSERT(indicesMay.empty());
   }
   {
     //test default process
@@ -283,7 +283,7 @@ void TestEDConsumerBase::testRegularType() {
 
     std::vector<edm::ProductResolverIndexAndSkipBit> indicesMay;
     intConsumer.itemsMayGet(edm::InEvent, indicesMay);
-    CPPUNIT_ASSERT(0 == indicesMay.size());
+    CPPUNIT_ASSERT(indicesMay.empty());
   }
   {
     //Ask for something that doesn't exist
@@ -298,7 +298,7 @@ void TestEDConsumerBase::testRegularType() {
     std::vector<edm::ProductResolverIndexAndSkipBit> indices;
     intConsumer.itemsToGet(edm::InEvent, indices);
     //nothing to get since not here
-    CPPUNIT_ASSERT(0 == indices.size());
+    CPPUNIT_ASSERT(indices.empty());
   }
 
   {
@@ -314,7 +314,7 @@ void TestEDConsumerBase::testRegularType() {
     std::vector<edm::ProductResolverIndexAndSkipBit> indices;
     intConsumer.itemsToGet(edm::InEvent, indices);
     //nothing to get since not here
-    CPPUNIT_ASSERT(0 == indices.size());
+    CPPUNIT_ASSERT(indices.empty());
   }
 }
 
@@ -378,7 +378,7 @@ void TestEDConsumerBase::testViewType() {
 
       std::vector<edm::ProductResolverIndexAndSkipBit> indicesMay;
       consumer.itemsMayGet(edm::InEvent, indicesMay);
-      CPPUNIT_ASSERT(0 == indicesMay.size());
+      CPPUNIT_ASSERT(indicesMay.empty());
     }
   }
 
@@ -408,7 +408,7 @@ void TestEDConsumerBase::testViewType() {
 
       std::vector<edm::ProductResolverIndexAndSkipBit> indicesMay;
       consumer.itemsMayGet(edm::InEvent, indicesMay);
-      CPPUNIT_ASSERT(0 == indicesMay.size());
+      CPPUNIT_ASSERT(indicesMay.empty());
     }
   }
 
@@ -426,7 +426,7 @@ void TestEDConsumerBase::testViewType() {
       std::vector<edm::ProductResolverIndexAndSkipBit> indices;
       consumer.itemsToGet(edm::InEvent, indices);
 
-      CPPUNIT_ASSERT(0 == indices.size());
+      CPPUNIT_ASSERT(indices.empty());
     }
   }
 }
@@ -510,9 +510,9 @@ void TestEDConsumerBase::testMay() {
   helper.setFrozen();
   edm::TypeID typeID_vint(typeid(std::vector<int>));
   const auto vint_c = helper.index(edm::PRODUCT_TYPE, typeID_vint, "labelC", "instanceC", "processC");
-  const auto vint_c_no_proc = helper.index(edm::PRODUCT_TYPE, typeID_vint, "labelC", "instanceC", 0);
+  const auto vint_c_no_proc = helper.index(edm::PRODUCT_TYPE, typeID_vint, "labelC", "instanceC", nullptr);
   const auto vint_blank = helper.index(edm::PRODUCT_TYPE, typeID_vint, "label", "instance", "process");
-  const auto vint_blank_no_proc = helper.index(edm::PRODUCT_TYPE, typeID_vint, "label", "instance", 0);
+  const auto vint_blank_no_proc = helper.index(edm::PRODUCT_TYPE, typeID_vint, "label", "instance", nullptr);
   {
     std::vector<edm::InputTag> vTags = {{"label", "instance", "process"}, {"labelC", "instanceC", "processC"}};
     std::vector<edm::InputTag> vMayTags;
@@ -521,7 +521,7 @@ void TestEDConsumerBase::testMay() {
 
     CPPUNIT_ASSERT(consumer.m_tokens[0].index() == 0);
     CPPUNIT_ASSERT(consumer.m_tokens[1].index() == 1);
-    CPPUNIT_ASSERT(consumer.m_mayTokens.size() == 0);
+    CPPUNIT_ASSERT(consumer.m_mayTokens.empty());
 
     CPPUNIT_ASSERT(edm::ProductResolverIndexAndSkipBit(vint_c, false) ==
                    consumer.indexFrom(consumer.m_tokens[1], edm::InEvent, typeID_vint));
@@ -539,7 +539,7 @@ void TestEDConsumerBase::testMay() {
 
     std::vector<edm::ProductResolverIndexAndSkipBit> indicesMay;
     consumer.itemsMayGet(edm::InEvent, indicesMay);
-    CPPUNIT_ASSERT(0 == indicesMay.size());
+    CPPUNIT_ASSERT(indicesMay.empty());
   }
 
   {
@@ -551,7 +551,7 @@ void TestEDConsumerBase::testMay() {
     CPPUNIT_ASSERT(consumer.m_mayTokens.size() == 2);
     CPPUNIT_ASSERT(consumer.m_mayTokens[0].index() == 0);
     CPPUNIT_ASSERT(consumer.m_mayTokens[1].index() == 1);
-    CPPUNIT_ASSERT(consumer.m_tokens.size() == 0);
+    CPPUNIT_ASSERT(consumer.m_tokens.empty());
 
     CPPUNIT_ASSERT(vint_c ==
                    consumer.indexFrom(consumer.m_mayTokens[1], edm::InEvent, typeID_vint).productResolverIndex());
@@ -560,7 +560,7 @@ void TestEDConsumerBase::testMay() {
 
     std::vector<edm::ProductResolverIndexAndSkipBit> indices;
     consumer.itemsToGet(edm::InEvent, indices);
-    CPPUNIT_ASSERT(0 == indices.size());
+    CPPUNIT_ASSERT(indices.empty());
 
     std::vector<edm::ProductResolverIndexAndSkipBit> indicesMay;
     consumer.itemsMayGet(edm::InEvent, indicesMay);
@@ -610,7 +610,7 @@ void TestEDConsumerBase::testMay() {
     CPPUNIT_ASSERT(consumer.m_mayTokens.size() == 2);
     CPPUNIT_ASSERT(consumer.m_mayTokens[0].index() == 0);
     CPPUNIT_ASSERT(consumer.m_mayTokens[1].index() == 1);
-    CPPUNIT_ASSERT(consumer.m_tokens.size() == 0);
+    CPPUNIT_ASSERT(consumer.m_tokens.empty());
 
     CPPUNIT_ASSERT(edm::ProductResolverIndexAndSkipBit(vint_c_no_proc, true) ==
                    consumer.indexFrom(consumer.m_mayTokens[1], edm::InEvent, typeID_vint));

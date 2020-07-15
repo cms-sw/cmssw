@@ -24,11 +24,11 @@ namespace edmtest {
   public:
     explicit ThinningTestAnalyzer(edm::ParameterSet const& pset);
 
-    virtual ~ThinningTestAnalyzer() {}
+    ~ThinningTestAnalyzer() override {}
 
     static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
-    virtual void analyze(edm::Event const& e, edm::EventSetup const& c) override;
+    void analyze(edm::Event const& e, edm::EventSetup const& c) override;
 
   private:
     void incrementExpectedValue(std::vector<int>::const_iterator& iter) const;

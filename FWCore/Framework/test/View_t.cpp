@@ -16,9 +16,9 @@ class testView : public CppUnit::TestFixture {
 
 public:
   testView() {}
-  ~testView() {}
-  void setUp() {}
-  void tearDown() {}
+  ~testView() override {}
+  void setUp() override {}
+  void tearDown() override {}
 
   void basic();
   void createFromArray();
@@ -42,9 +42,9 @@ CPPUNIT_TEST_SUITE_REGISTRATION(testView);
 
 void testView::basic() {
   View v1;
-  CPPUNIT_ASSERT(v1.size() == 0);
   CPPUNIT_ASSERT(v1.empty());
-  View v2(v1);
+  CPPUNIT_ASSERT(v1.empty());
+  const View& v2(v1);
   CPPUNIT_ASSERT(v1 == v2);
   View v3;
   v3 = v1;

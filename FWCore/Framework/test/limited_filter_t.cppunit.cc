@@ -60,8 +60,8 @@ class testLimitedFilter : public CppUnit::TestFixture {
 public:
   testLimitedFilter();
 
-  void setUp() {}
-  void tearDown() {}
+  void setUp() override {}
+  void tearDown() override {}
 
   void basicTest();
   void streamTest();
@@ -137,18 +137,14 @@ private:
       return std::unique_ptr<int>{};
     }
 
-    virtual void streamBeginRun(edm::StreamID, edm::Run const&, edm::EventSetup const&) const override { ++m_count; }
-    virtual void streamBeginLuminosityBlock(edm::StreamID,
-                                            edm::LuminosityBlock const&,
-                                            edm::EventSetup const&) const override {
+    void streamBeginRun(edm::StreamID, edm::Run const&, edm::EventSetup const&) const override { ++m_count; }
+    void streamBeginLuminosityBlock(edm::StreamID, edm::LuminosityBlock const&, edm::EventSetup const&) const override {
       ++m_count;
     }
-    virtual void streamEndLuminosityBlock(edm::StreamID,
-                                          edm::LuminosityBlock const&,
-                                          edm::EventSetup const&) const override {
+    void streamEndLuminosityBlock(edm::StreamID, edm::LuminosityBlock const&, edm::EventSetup const&) const override {
       ++m_count;
     }
-    virtual void streamEndRun(edm::StreamID, edm::Run const&, edm::EventSetup const&) const override { ++m_count; }
+    void streamEndRun(edm::StreamID, edm::Run const&, edm::EventSetup const&) const override { ++m_count; }
     void endStream(edm::StreamID) const override { ++m_count; }
   };
 

@@ -28,12 +28,11 @@ namespace edmtest {
   public:
     ThingAnalyzer(edm::ParameterSet const&);
 
-    void analyze(edm::StreamID, edm::Event const&, edm::EventSetup const&) const override final;
-    std::shared_ptr<Empty> globalBeginRun(edm::Run const&, edm::EventSetup const&) const override final;
-    void globalEndRun(edm::Run const&, edm::EventSetup const&) const override final;
-    std::shared_ptr<Empty> globalBeginLuminosityBlock(edm::LuminosityBlock const&,
-                                                      edm::EventSetup const&) const override final;
-    void globalEndLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) const override final;
+    void analyze(edm::StreamID, edm::Event const&, edm::EventSetup const&) const final;
+    std::shared_ptr<Empty> globalBeginRun(edm::Run const&, edm::EventSetup const&) const final;
+    void globalEndRun(edm::Run const&, edm::EventSetup const&) const final;
+    std::shared_ptr<Empty> globalBeginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) const final;
+    void globalEndLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) const final;
 
     static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 

@@ -110,29 +110,25 @@ class TestRandomNumberServiceGlobal
                                      edm::LuminosityBlockCache<TestRandomNumberServiceLumiCache>> {
 public:
   explicit TestRandomNumberServiceGlobal(edm::ParameterSet const&);
-  ~TestRandomNumberServiceGlobal();
+  ~TestRandomNumberServiceGlobal() override;
 
-  virtual void analyze(edm::StreamID, edm::Event const&, edm::EventSetup const&) const override;
-  virtual void beginJob() override;
-  virtual void endJob() override;
+  void analyze(edm::StreamID, edm::Event const&, edm::EventSetup const&) const override;
+  void beginJob() override;
+  void endJob() override;
 
-  virtual std::shared_ptr<TestRandomNumberServiceLumiCache> globalBeginLuminosityBlock(
-      edm::LuminosityBlock const&, edm::EventSetup const&) const override;
+  std::shared_ptr<TestRandomNumberServiceLumiCache> globalBeginLuminosityBlock(edm::LuminosityBlock const&,
+                                                                               edm::EventSetup const&) const override;
 
-  virtual void globalEndLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) const override {}
+  void globalEndLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) const override {}
 
-  virtual std::unique_ptr<TestRandomNumberServiceStreamCache> beginStream(edm::StreamID) const override;
-  virtual void endStream(edm::StreamID) const override;
+  std::unique_ptr<TestRandomNumberServiceStreamCache> beginStream(edm::StreamID) const override;
+  void endStream(edm::StreamID) const override;
 
-  virtual void streamBeginRun(edm::StreamID, edm::Run const&, edm::EventSetup const&) const override;
-  virtual void streamEndRun(edm::StreamID, edm::Run const&, edm::EventSetup const&) const override;
+  void streamBeginRun(edm::StreamID, edm::Run const&, edm::EventSetup const&) const override;
+  void streamEndRun(edm::StreamID, edm::Run const&, edm::EventSetup const&) const override;
 
-  virtual void streamBeginLuminosityBlock(edm::StreamID,
-                                          edm::LuminosityBlock const&,
-                                          edm::EventSetup const&) const override;
-  virtual void streamEndLuminosityBlock(edm::StreamID,
-                                        edm::LuminosityBlock const&,
-                                        edm::EventSetup const&) const override;
+  void streamBeginLuminosityBlock(edm::StreamID, edm::LuminosityBlock const&, edm::EventSetup const&) const override;
+  void streamEndLuminosityBlock(edm::StreamID, edm::LuminosityBlock const&, edm::EventSetup const&) const override;
 
 private:
   std::string engineName_;

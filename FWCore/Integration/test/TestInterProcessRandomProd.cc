@@ -10,7 +10,7 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Utilities/interface/RandomNumberGenerator.h"
 
-#include <stdio.h>
+#include <cstdio>
 #include <iostream>
 
 #include "FWCore/SharedMemory/interface/ReadBuffer.h"
@@ -47,7 +47,7 @@ namespace testinter {
         pipe_ = popen(("cmsTestInterProcessRandom "s + channel_.sharedMemoryName() + " " + channel_.uniqueID()).c_str(),
                       "w");
 
-        if (NULL == pipe_) {
+        if (nullptr == pipe_) {
           abort();
         }
 

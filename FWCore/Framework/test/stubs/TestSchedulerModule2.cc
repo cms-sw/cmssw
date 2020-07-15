@@ -21,7 +21,7 @@ namespace edm {
   public:
     explicit TestSchedulerModule2(ParameterSet const& p) : pset_(p) { produces<edmtest::StringProduct>(); }
 
-    void produce(Event& e, EventSetup const&);
+    void produce(Event& e, EventSetup const&) override;
 
   private:
     ParameterSet pset_;

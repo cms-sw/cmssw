@@ -48,8 +48,8 @@ class testGenericHandle : public CppUnit::TestFixture {
   CPPUNIT_TEST_SUITE_END();
 
 public:
-  void setUp() {}
-  void tearDown() {}
+  void setUp() override {}
+  void tearDown() override {}
   void failgetbyLabelTest();
   void failWrongType();
   void getbyLabelTest();
@@ -177,7 +177,7 @@ void testGenericHandle::getbyLabelTest() {
   edm::BranchDescription const& branchFromRegistry = it->second;
   std::vector<edm::BranchID> const ids;
   edm::ProductProvenance prov(branchFromRegistry.branchID(), ids);
-  edm::BranchDescription const desc(branchFromRegistry);
+  edm::BranchDescription const& desc(branchFromRegistry);
   ep.put(desc, std::move(pprod), prov);
 
   edm::GenericHandle h("edmtest::DummyProduct");

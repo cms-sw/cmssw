@@ -35,16 +35,16 @@ using namespace edm::eventsetup::test;
 class DummyLooper : public edm::ESProducerLooper {
 public:
   DummyLooper(const edm::ParameterSet&);
-  ~DummyLooper();
+  ~DummyLooper() override;
 
   typedef std::shared_ptr<DummyData> ReturnType;
   typedef std::shared_ptr<DummyData const> ConstReturnType;
 
   ReturnType produce(const DummyRecord&);
 
-  void startingNewLoop(unsigned int) {}
-  Status duringLoop(const edm::Event&, const edm::EventSetup&) { return issueStop_ ? kStop : kContinue; }
-  Status endOfLoop(const edm::EventSetup&, unsigned int) {
+  void startingNewLoop(unsigned int) override {}
+  Status duringLoop(const edm::Event&, const edm::EventSetup&) override { return issueStop_ ? kStop : kContinue; }
+  Status endOfLoop(const edm::EventSetup&, unsigned int) override {
     (data_->value_)++;
     ++counter_;
     return counter_ == 2 ? kStop : kContinue;

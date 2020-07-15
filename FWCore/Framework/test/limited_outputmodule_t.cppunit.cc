@@ -45,8 +45,8 @@ class testLimitedOutputModule : public CppUnit::TestFixture {
 public:
   testLimitedOutputModule();
 
-  void setUp() {}
-  void tearDown() {}
+  void setUp() override {}
+  void tearDown() override {}
 
   void basicTest();
   void fileTest();

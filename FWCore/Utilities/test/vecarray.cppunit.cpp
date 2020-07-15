@@ -8,8 +8,8 @@ class testVecArray : public CppUnit::TestFixture {
   CPPUNIT_TEST_SUITE_END();
 
 public:
-  void setUp() {}
-  void tearDown() {}
+  void setUp() override {}
+  void tearDown() override {}
 
   void test();
   template <typename T>
@@ -24,7 +24,7 @@ CPPUNIT_TEST_SUITE_REGISTRATION(testVecArray);
 void testVecArray::test() {
   edm::VecArray<int, 4> array;
   CPPUNIT_ASSERT(array.empty());
-  CPPUNIT_ASSERT(array.size() == 0);
+  CPPUNIT_ASSERT(array.empty());
   CPPUNIT_ASSERT(array.capacity() == 4);
   CPPUNIT_ASSERT((edm::VecArray<int, 4>::capacity() == 4));
 
@@ -93,7 +93,7 @@ void testVecArray::test() {
   CPPUNIT_ASSERT(!array.empty());
   array.clear();
   CPPUNIT_ASSERT(array.empty());
-  CPPUNIT_ASSERT(array.size() == 0);
+  CPPUNIT_ASSERT(array.empty());
   CPPUNIT_ASSERT(array2.size() == 4);
 
   array.resize(2);

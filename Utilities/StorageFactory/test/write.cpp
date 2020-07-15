@@ -16,7 +16,7 @@ int main(int argc, char* argv[]) try {
   IOSize bytes;
   unsigned char buf[4096];
   File input("/etc/profile");
-  auto s = StorageFactory::get()->open(path.c_str(), IOFlags::OpenWrite | IOFlags::OpenCreate | IOFlags::OpenTruncate);
+  auto s = StorageFactory::get()->open(path, IOFlags::OpenWrite | IOFlags::OpenCreate | IOFlags::OpenTruncate);
 
   while ((bytes = input.read(buf, sizeof(buf))))
     s->write(buf, bytes);

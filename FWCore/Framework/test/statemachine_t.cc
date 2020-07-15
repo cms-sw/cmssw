@@ -42,7 +42,7 @@ int main(int argc, char* argv[]) try {
   // Use the trivial default in the next line if no input file
   // has been specified
   std::string mockData = "s 1";
-  if (inputFile != "") {
+  if (!inputFile.empty()) {
     std::ifstream input;
     input.open(inputFile.c_str());
     if (input.fail()) {

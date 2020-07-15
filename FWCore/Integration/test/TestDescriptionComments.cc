@@ -16,7 +16,7 @@ namespace edmtest {
 
     static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
-    void analyze(edm::StreamID, edm::Event const&, edm::EventSetup const&) const override final {}
+    void analyze(edm::StreamID, edm::Event const&, edm::EventSetup const&) const final {}
   };
 
   void TestDescriptionComments::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {

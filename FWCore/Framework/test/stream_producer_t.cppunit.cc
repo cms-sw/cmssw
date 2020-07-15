@@ -49,8 +49,8 @@ class testStreamProducer : public CppUnit::TestFixture {
 public:
   testStreamProducer();
 
-  void setUp() {}
-  void tearDown() {}
+  void setUp() override {}
+  void tearDown() override {}
 
   void basicTest();
   void globalTest();

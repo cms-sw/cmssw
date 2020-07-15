@@ -154,7 +154,7 @@ namespace edmtest {
         }
       }
 
-      ~StreamIntFilter() {
+      ~StreamIntFilter() override {
         if (m_count != trans_) {
           throw cms::Exception("transitions")
               << "StreamIntFilter transitions " << m_count << " but it was supposed to be " << trans_;
@@ -216,7 +216,7 @@ namespace edmtest {
         --(rCache->run);
       }
 
-      ~RunIntFilter() {
+      ~RunIntFilter() override {
         if (m_count != trans_) {
           throw cms::Exception("transitions")
               << "RunIntFilter transitions " << m_count << " but it was supposed to be " << trans_;
@@ -293,7 +293,7 @@ namespace edmtest {
         }
       }
 
-      ~LumiIntFilter() {
+      ~LumiIntFilter() override {
         if (m_count != trans_) {
           throw cms::Exception("transitions")
               << "LumiIntFilter transitions " << m_count << " but it was supposed to be " << trans_;
@@ -357,7 +357,7 @@ namespace edmtest {
         --(gCache->run);
       }
 
-      ~RunSummaryIntFilter() {
+      ~RunSummaryIntFilter() override {
         if (m_count != trans_) {
           throw cms::Exception("transitions")
               << "RunSummaryIntFilter transitions " << m_count << " but it was supposed to be " << trans_;
@@ -425,7 +425,7 @@ namespace edmtest {
         }
       }
 
-      ~LumiSummaryIntFilter() {
+      ~LumiSummaryIntFilter() override {
         if (m_count != trans_) {
           throw cms::Exception("transitions")
               << "LumiSummaryIntFilter transitions " << m_count << " but it was supposed to be " << trans_;
@@ -503,7 +503,7 @@ namespace edmtest {
         }
       }
 
-      ~ProcessBlockIntFilter() {
+      ~ProcessBlockIntFilter() override {
         if (m_count != trans_) {
           throw cms::Exception("transitions")
               << "ProcessBlockIntFilter transitions " << m_count << " but it was supposed to be " << trans_;
@@ -556,7 +556,7 @@ namespace edmtest {
         return true;
       }
 
-      ~TestBeginProcessBlockFilter() {
+      ~TestBeginProcessBlockFilter() override {
         if (m_count != trans_) {
           throw cms::Exception("transitions")
               << "TestBeginProcessBlockFilter transitions " << m_count << " but it was supposed to be " << trans_;
@@ -605,7 +605,7 @@ namespace edmtest {
         }
       }
 
-      ~TestEndProcessBlockFilter() {
+      ~TestEndProcessBlockFilter() override {
         if (m_count != trans_) {
           throw cms::Exception("transitions")
               << "~TestEndProcessBlockFilter transitions " << m_count << " but it was supposed to be " << trans_;
@@ -652,7 +652,7 @@ namespace edmtest {
 
       void globalEndRun(edm::Run const& iRun, edm::EventSetup const&) const override {}
 
-      ~TestBeginRunFilter() {
+      ~TestBeginRunFilter() override {
         if (m_count != trans_) {
           throw cms::Exception("transitions")
               << "TestBeginRunFilter transitions " << m_count << " but it was supposed to be " << trans_;
@@ -692,7 +692,7 @@ namespace edmtest {
 
       void globalEndRun(edm::Run const& iRun, edm::EventSetup const&) const override {}
 
-      ~TestEndRunFilter() {
+      ~TestEndRunFilter() override {
         if (m_count != trans_) {
           throw cms::Exception("transitions")
               << "TestEndRunFilter transitions " << m_count << " but it was supposed to be " << trans_;
@@ -735,7 +735,7 @@ namespace edmtest {
 
       void globalEndLuminosityBlock(edm::LuminosityBlock const& iLB, edm::EventSetup const&) const override {}
 
-      ~TestBeginLumiBlockFilter() {
+      ~TestBeginLumiBlockFilter() override {
         if (m_count != trans_) {
           throw cms::Exception("transitions")
               << "TestBeginLumiBlockFilter transitions " << m_count << " but it was supposed to be " << trans_;
@@ -777,7 +777,7 @@ namespace edmtest {
 
       void globalEndLuminosityBlock(edm::LuminosityBlock const& iLB, edm::EventSetup const&) const override {}
 
-      ~TestEndLumiBlockFilter() {
+      ~TestEndLumiBlockFilter() override {
         if (m_count != trans_) {
           throw cms::Exception("transitions")
               << "TestEndLumiBlockFilter transitions " << m_count << " but it was supposed to be " << trans_;

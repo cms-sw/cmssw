@@ -29,7 +29,7 @@ namespace edmtest {
   class MissingDictionaryTestProducer : public edm::one::EDProducer<> {
   public:
     explicit MissingDictionaryTestProducer(edm::ParameterSet const&);
-    virtual ~MissingDictionaryTestProducer();
+    ~MissingDictionaryTestProducer() override;
 
     void produce(edm::Event&, edm::EventSetup const&) override;
 

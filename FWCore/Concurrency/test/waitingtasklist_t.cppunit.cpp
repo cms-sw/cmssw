@@ -34,8 +34,8 @@ public:
   void addThenDoneFailed();
   void doneThenAddFailed();
   void stressTest();
-  void setUp() {}
-  void tearDown() {}
+  void setUp() override {}
+  void tearDown() override {}
 };
 
 namespace {
@@ -43,7 +43,7 @@ namespace {
   public:
     TestCalledTask(std::atomic<bool>& iCalled, std::exception_ptr& iPtr) : m_called(iCalled), m_ptr(iPtr) {}
 
-    tbb::task* execute() {
+    tbb::task* execute() override {
       if (exceptionPtr()) {
         m_ptr = *exceptionPtr();
       }
@@ -59,7 +59,7 @@ namespace {
   class TestValueSetTask : public edm::WaitingTask {
   public:
     TestValueSetTask(std::atomic<bool>& iValue) : m_value(iValue) {}
-    tbb::task* execute() {
+    tbb::task* execute() override {
       CPPUNIT_ASSERT(m_value);
       return nullptr;
     }

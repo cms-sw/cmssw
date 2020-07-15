@@ -21,7 +21,7 @@ class TestSchedulerModule1 : public EDProducer {
 public:
   explicit TestSchedulerModule1(ParameterSet const& p) : pset_(p) { produces<edmtest::StringProduct>(); }
 
-  void produce(Event& e, EventSetup const&);
+  void produce(Event& e, EventSetup const&) override;
 
 private:
   ParameterSet pset_;

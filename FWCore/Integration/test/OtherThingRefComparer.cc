@@ -17,7 +17,7 @@ namespace edmtest {
   public:
     explicit OtherThingRefComparer(edm::ParameterSet const& pset);
 
-    virtual void analyze(edm::Event const& e, edm::EventSetup const& c) override;
+    void analyze(edm::Event const& e, edm::EventSetup const& c) override;
 
     static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 

@@ -31,13 +31,13 @@ class TestPluginFactory : public CppUnit::TestFixture {
 public:
   void test();
   void testTry();
-  void setUp() {
+  void setUp() override {
     if (!alreadySetup_) {
       alreadySetup_ = true;
       edmplugin::PluginManager::configure(edmplugin::standard::config());
     }
   }
-  void tearDown() {}
+  void tearDown() override {}
   static bool alreadySetup_;
 };
 
@@ -61,13 +61,13 @@ void TestPluginFactory::test() {
   using namespace edmplugin;
 
   std::unique_ptr<edmplugintest::DummyBase> p(FactoryType::get()->create("Dummy"));
-  CPPUNIT_ASSERT(0 != p.get());
+  CPPUNIT_ASSERT(nullptr != p.get());
 }
 
 void TestPluginFactory::testTry() {
   using namespace edmplugin;
-  CPPUNIT_ASSERT(0 == FactoryType::get()->tryToCreate("ThisDoesNotExist"));
+  CPPUNIT_ASSERT(nullptr == FactoryType::get()->tryToCreate("ThisDoesNotExist"));
 
   std::unique_ptr<edmplugintest::DummyBase> p(FactoryType::get()->tryToCreate("Dummy"));
-  CPPUNIT_ASSERT(0 != p.get());
+  CPPUNIT_ASSERT(nullptr != p.get());
 }

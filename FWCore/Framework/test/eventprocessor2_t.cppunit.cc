@@ -33,11 +33,11 @@ class testeventprocessor2 : public CppUnit::TestFixture {
   CPPUNIT_TEST_SUITE_END();
 
 public:
-  void setUp() {
+  void setUp() override {
     //std::cout << "setting up testeventprocessor2" << std::endl;
     doInit();
   }
-  void tearDown() {}
+  void tearDown() override {}
   void eventprocessor2Test();
 };
 
@@ -71,12 +71,12 @@ void testeventprocessor2::eventprocessor2Test() {
     work();
   } catch (cms::Exception& e) {
     std::cerr << "CMS exception caught: " << e.explainSelf() << std::endl;
-    CPPUNIT_ASSERT("cms Exception caught in testeventprocessor2::eventprocessor2Test" == 0);
+    CPPUNIT_ASSERT("cms Exception caught in testeventprocessor2::eventprocessor2Test" == nullptr);
   } catch (std::runtime_error& e) {
     std::cerr << "Standard library exception caught: " << e.what() << std::endl;
-    CPPUNIT_ASSERT("std Exception caught in testeventprocessor2::eventprocessor2Test" == 0);
+    CPPUNIT_ASSERT("std Exception caught in testeventprocessor2::eventprocessor2Test" == nullptr);
   } catch (...) {
     std::cerr << "Unknown exception caught" << std::endl;
-    CPPUNIT_ASSERT("unkown Exception caught in testeventprocessor2::eventprocessor2Test" == 0);
+    CPPUNIT_ASSERT("unkown Exception caught in testeventprocessor2::eventprocessor2Test" == nullptr);
   }
 }

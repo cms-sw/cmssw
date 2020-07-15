@@ -45,8 +45,8 @@ class testGlobalOutputModule : public CppUnit::TestFixture {
 public:
   testGlobalOutputModule();
 
-  void setUp() {}
-  void tearDown() {}
+  void setUp() override {}
+  void tearDown() override {}
 
   void basicTest();
   void fileTest();

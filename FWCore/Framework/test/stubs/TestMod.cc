@@ -12,7 +12,7 @@ class TestMod : public EDProducer {
 public:
   explicit TestMod(ParameterSet const& p);
 
-  void produce(Event& e, EventSetup const&);
+  void produce(Event& e, EventSetup const&) override;
 };
 
 TestMod::TestMod(ParameterSet const& p) {

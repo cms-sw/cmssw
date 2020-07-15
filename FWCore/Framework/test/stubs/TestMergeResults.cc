@@ -44,16 +44,16 @@ namespace edmtest {
   class TestMergeResults : public edm::EDAnalyzer {
   public:
     explicit TestMergeResults(edm::ParameterSet const&);
-    virtual ~TestMergeResults();
+    ~TestMergeResults() override;
 
-    virtual void analyze(edm::Event const& e, edm::EventSetup const& c);
-    virtual void beginRun(edm::Run const&, edm::EventSetup const&);
-    virtual void endRun(edm::Run const&, edm::EventSetup const&);
-    virtual void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&);
-    virtual void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&);
-    virtual void respondToOpenInputFile(edm::FileBlock const& fb);
-    virtual void respondToCloseInputFile(edm::FileBlock const& fb);
-    void endJob();
+    void analyze(edm::Event const& e, edm::EventSetup const& c) override;
+    void beginRun(edm::Run const&, edm::EventSetup const&) override;
+    void endRun(edm::Run const&, edm::EventSetup const&) override;
+    void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
+    void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
+    void respondToOpenInputFile(edm::FileBlock const& fb) override;
+    void respondToCloseInputFile(edm::FileBlock const& fb) override;
+    void endJob() override;
 
   private:
     void checkExpectedLumiProducts(unsigned int index,
@@ -183,7 +183,7 @@ namespace edmtest {
     assert(w_thingWithIsEqual.hasIsProductEqual());
     assert(!w_thingWithIsEqual.hasSwap());
 
-    if (expectedDroppedEvent_.size() > 0) {
+    if (!expectedDroppedEvent_.empty()) {
       consumes<edmtest::ThingWithIsEqual>(edm::InputTag{"makeThingToBeDropped", "event", "PROD"});
       consumes<edmtest::ThingWithMerge>(edm::InputTag{"makeThingToBeDropped", "event", "PROD"});
 
@@ -299,7 +299,7 @@ namespace edmtest {
     if (verbose_)
       edm::LogInfo("TestMergeResults") << "analyze";
 
-    if (expectedDroppedEvent_.size() > 0) {
+    if (!expectedDroppedEvent_.empty()) {
       edm::InputTag tag("makeThingToBeDropped", "event", "PROD");
       e.getByLabel(tag, h_thingWithIsEqual);
       assert(h_thingWithIsEqual->a == expectedDroppedEvent_[0]);
