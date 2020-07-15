@@ -98,6 +98,7 @@ public:
     edm::ParameterSetDescription descNestedNoiseMIP;
     descNestedNoiseMIP.add<bool>("scaleByDose", false);
     descNestedNoiseMIP.add<unsigned int>("scaleByDoseAlgo", 0);
+    descNestedNoiseMIP.add<double>("scaleByDoseFactor", 1.);
     descNestedNoiseMIP.add<std::string>("doseMap", "");
     descNestedNoiseMIP.add<double>("noise_MIP", 1. / 100.);
     iDesc.add<edm::ParameterSetDescription>("noiseMip", descNestedNoiseMIP);
