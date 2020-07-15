@@ -134,7 +134,7 @@ void DQMProtobufReader::beginLuminosityBlock(edm::LuminosityBlock& lb) {
   lb.put(std::move(json_product), "sourceJsonPath");
 
   if (flagLoadFiles_) {
-    if (!std::filesystem::exists(path)) {
+    if (!boost::filesystem::exists(path)) {
       fiterator_.logFileAction("Data file is missing ", path);
       fiterator_.logLumiState(currentLumi_, "error: data file missing");
       return;
