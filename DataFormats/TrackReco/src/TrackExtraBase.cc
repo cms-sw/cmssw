@@ -36,7 +36,7 @@ trackingRecHit_iterator TrackExtraBase::recHitsBegin() const {
         valid = false;
       } else if (std::adjacent_find(keys.begin(), keys.end()) != keys.end()) {
         valid = false;
-      } else if ((keys.back() - keys.front()) != m_nHits) {
+      } else if ((1 + keys.back() - keys.front()) != m_nHits) {
         valid = false;
       }
 
