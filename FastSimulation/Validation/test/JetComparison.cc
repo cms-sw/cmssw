@@ -13,7 +13,7 @@ JetComparison::JetComparison(edm::ParameterSet const& conf) {
   //  output file
   outputFile_ = conf.getUntrackedParameter<string>("outputFile", "myfile.root");
 
-  if (outputFile_.size() != 0) {
+  if (!outputFile_.empty()) {
     LogInfo("OutputInfo") << " jet histograms will be saved to '" << outputFile_.c_str() << "'";
   } else {
     LogInfo("OutputInfo") << " jet histograms will NOT be saved";

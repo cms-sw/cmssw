@@ -55,9 +55,9 @@ typedef math::XYZVector XYZPoint;
 class testCaloGeometryTools : public edm::stream::EDAnalyzer<> {
 public:
   explicit testCaloGeometryTools(const edm::ParameterSet&);
-  ~testCaloGeometryTools();
+  ~testCaloGeometryTools() override;
 
-  virtual void analyze(const edm::Event&, const edm::EventSetup&);
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
 
 private:
   // ----------member data ---------------------------

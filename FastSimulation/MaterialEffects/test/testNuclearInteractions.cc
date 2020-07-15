@@ -25,10 +25,10 @@
 class testNuclearInteractions : public DQMEDAnalyzer {
 public:
   explicit testNuclearInteractions(const edm::ParameterSet&);
-  ~testNuclearInteractions();
+  ~testNuclearInteractions() override;
 
-  virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
-  virtual void dqmBeginRun(edm::Run const&, const edm::EventSetup&) override;
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void dqmBeginRun(edm::Run const&, const edm::EventSetup&) override;
   void bookHistograms(DQMStore::IBooker&, edm::Run const&, edm::EventSetup const&) override;
 
 private:
@@ -91,20 +91,20 @@ private:
 };
 
 testNuclearInteractions::testNuclearInteractions(const edm::ParameterSet& p)
-    : mySimEvent(2, static_cast<FSimEvent*>(0)),
-      h0(2, static_cast<MonitorElement*>(0)),
-      h1(2, static_cast<MonitorElement*>(0)),
-      h2(2, static_cast<MonitorElement*>(0)),
-      h3(2, static_cast<MonitorElement*>(0)),
-      h4(2, static_cast<MonitorElement*>(0)),
-      h5(2, static_cast<MonitorElement*>(0)),
-      h6(2, static_cast<MonitorElement*>(0)),
-      h7(2, static_cast<MonitorElement*>(0)),
-      h8(2, static_cast<MonitorElement*>(0)),
-      h9(2, static_cast<MonitorElement*>(0)),
-      h10(2, static_cast<MonitorElement*>(0)),
-      htmp(2, static_cast<MonitorElement*>(0)),
-      totalCharge(2, static_cast<MonitorElement*>(0)),
+    : mySimEvent(2, static_cast<FSimEvent*>(nullptr)),
+      h0(2, static_cast<MonitorElement*>(nullptr)),
+      h1(2, static_cast<MonitorElement*>(nullptr)),
+      h2(2, static_cast<MonitorElement*>(nullptr)),
+      h3(2, static_cast<MonitorElement*>(nullptr)),
+      h4(2, static_cast<MonitorElement*>(nullptr)),
+      h5(2, static_cast<MonitorElement*>(nullptr)),
+      h6(2, static_cast<MonitorElement*>(nullptr)),
+      h7(2, static_cast<MonitorElement*>(nullptr)),
+      h8(2, static_cast<MonitorElement*>(nullptr)),
+      h9(2, static_cast<MonitorElement*>(nullptr)),
+      h10(2, static_cast<MonitorElement*>(nullptr)),
+      htmp(2, static_cast<MonitorElement*>(nullptr)),
+      totalCharge(2, static_cast<MonitorElement*>(nullptr)),
       tmpRadius(2, static_cast<double>(0.)),
       tmpLength(2, static_cast<double>(0.)),
       stoppedPions(2, static_cast<unsigned>(0)),
@@ -803,7 +803,7 @@ void testNuclearInteractions::analyze(const edm::Event& iEvent, const edm::Event
     //      if (abs(myDaugh.type()) == 11 || abs(myDaugh.type()) == 13 ) return;
     //    }
 
-    XYZTLorentzVector totMoth = thePion.momentum();
+    const XYZTLorentzVector& totMoth = thePion.momentum();
     XYZTLorentzVector totDaugh(0., 0., 0., 0.);
     // double qMoth = thePion.charge();
     // double qDaugh = 0;
