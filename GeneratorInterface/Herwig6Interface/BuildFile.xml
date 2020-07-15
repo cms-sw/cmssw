@@ -3,7 +3,7 @@
 <use name="GeneratorInterface/Core"/>
 <use name="tauola"/>
 <use name="boost"/>
-<use name="clhep"/> 
+<use name="clhep"/>
 <use name="herwig"/>
 <use name="fastjet"/>
 <use name="jimmy"/>

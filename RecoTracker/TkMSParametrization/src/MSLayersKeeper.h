@@ -2,11 +2,11 @@
 #define MSLayersKeeper_H
 
 class DetLayer;
+#include "FWCore/Utilities/interface/Visibility.h"
 
 #include "RecoTracker/TkMSParametrization/interface/MSLayer.h"
 #include "MSLayersAtAngle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Utilities/interface/GCC11Compatibility.h"
 
 class dso_hidden MSLayersKeeper {
 public:

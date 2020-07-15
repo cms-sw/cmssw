@@ -12,3 +12,4 @@
 #include "CondFormats/GeometryObjects/interface/CaloSimulationParameters.h"
 #include "CondFormats/GeometryObjects/interface/EcalSimulationParameters.h"
 #include "CondFormats/GeometryObjects/interface/PHGCalParameters.h"
+#include "CondFormats/GeometryObjects/interface/PDetGeomDesc.h"

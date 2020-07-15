@@ -143,7 +143,6 @@ bool EDAnalyzerAdaptorBase::doEvent(EventPrincipal const& ep,
   mod->analyze(e, c);
   return true;
 }
-void EDAnalyzerAdaptorBase::doBeginJob() {}
 
 void EDAnalyzerAdaptorBase::doBeginStream(StreamID id) { m_streamModules[id]->beginStream(id); }
 void EDAnalyzerAdaptorBase::doEndStream(StreamID id) { m_streamModules[id]->endStream(); }

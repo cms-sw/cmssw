@@ -23,16 +23,16 @@
 // ------------------------------------------------------------------------------------------
 PuppiProducer::PuppiProducer(const edm::ParameterSet& iConfig) {
   fPuppiDiagnostics = iConfig.getParameter<bool>("puppiDiagnostics");
-  fPuppiForLeptons = iConfig.getParameter<bool>("puppiForLeptons");
+  fPuppiNoLep = iConfig.getParameter<bool>("puppiNoLep");
   fUseFromPVLooseTight = iConfig.getParameter<bool>("UseFromPVLooseTight");
   fUseDZ = iConfig.getParameter<bool>("UseDeltaZCut");
   fDZCut = iConfig.getParameter<double>("DeltaZCut");
+  fEtaMinUseDZ = iConfig.getParameter<double>("EtaMinUseDeltaZ");
   fPtMaxCharged = iConfig.getParameter<double>("PtMaxCharged");
   fEtaMaxCharged = iConfig.getParameter<double>("EtaMaxCharged");
   fPtMaxPhotons = iConfig.getParameter<double>("PtMaxPhotons");
   fEtaMaxPhotons = iConfig.getParameter<double>("EtaMaxPhotons");
   fUseExistingWeights = iConfig.getParameter<bool>("useExistingWeights");
-  fUseWeightsNoLep = iConfig.getParameter<bool>("useWeightsNoLep");
   fClonePackedCands = iConfig.getParameter<bool>("clonePackedCands");
   fVtxNdofCut = iConfig.getParameter<int>("vtxNdofCut");
   fVtxZCut = iConfig.getParameter<double>("vtxZCut");
@@ -41,21 +41,22 @@ PuppiProducer::PuppiProducer(const edm::ParameterSet& iConfig) {
   tokenPFCandidates_ = consumes<CandidateView>(iConfig.getParameter<edm::InputTag>("candName"));
   tokenVertices_ = consumes<VertexCollection>(iConfig.getParameter<edm::InputTag>("vertexName"));
 
-  produces<edm::ValueMap<float>>();
-  produces<edm::ValueMap<LorentzVector>>();
-  produces<edm::ValueMap<reco::CandidatePtr>>();
+  ptokenPupOut_ = produces<edm::ValueMap<float>>();
+  ptokenP4PupOut_ = produces<edm::ValueMap<LorentzVector>>();
+  ptokenValues_ = produces<edm::ValueMap<reco::CandidatePtr>>();
 
   if (fUseExistingWeights || fClonePackedCands)
-    produces<pat::PackedCandidateCollection>();
-  else
-    produces<reco::PFCandidateCollection>();
+    ptokenPackedPuppiCandidates_ = produces<pat::PackedCandidateCollection>();
+  else {
+    ptokenPuppiCandidates_ = produces<reco::PFCandidateCollection>();
+  }
 
   if (fPuppiDiagnostics) {
-    produces<double>("PuppiNAlgos");
-    produces<std::vector<double>>("PuppiRawAlphas");
-    produces<std::vector<double>>("PuppiAlphas");
-    produces<std::vector<double>>("PuppiAlphasMed");
-    produces<std::vector<double>>("PuppiAlphasRms");
+    ptokenNalgos_ = produces<double>("PuppiNAlgos");
+    ptokenRawAlphas_ = produces<std::vector<double>>("PuppiRawAlphas");
+    ptokenAlphas_ = produces<std::vector<double>>("PuppiAlphas");
+    ptokenAlphasMed_ = produces<std::vector<double>>("PuppiAlphasMed");
+    ptokenAlphasRms_ = produces<std::vector<double>>("PuppiAlphasRms");
   }
 }
 // ------------------------------------------------------------------------------------------
@@ -98,6 +99,7 @@ void PuppiProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
       double pD0 = -9999;
       int pVtxId = -9999;
       bool lFirst = true;
+      bool isLepton = ((std::abs(pReco.pdgId) == 11) || (std::abs(pReco.pdgId) == 13));
       const pat::PackedCandidate* lPack = dynamic_cast<const pat::PackedCandidate*>(&aPF);
       if (lPack == nullptr) {
         const reco::PFCandidate* pPF = dynamic_cast<const reco::PFCandidate*>(&aPF);
@@ -151,7 +153,9 @@ void PuppiProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
         if (std::abs(pReco.charge) == 0) {
           pReco.id = 0;
         } else {
-          if (tmpFromPV == 0) {
+          if (fPuppiNoLep && isLepton)
+            pReco.id = 3;
+          else if (tmpFromPV == 0) {
             pReco.id = 2;
           }  // 0 is associated to PU vertex
           else if (tmpFromPV == 3) {
@@ -162,7 +166,7 @@ void PuppiProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
               pReco.id = 1;
             else if (std::abs(pReco.eta) > fEtaMaxCharged)
               pReco.id = 1;
-            else if (fUseDZ)
+            else if ((fUseDZ) && (std::abs(pReco.eta) >= fEtaMinUseDZ))
               pReco.id = (std::abs(pDZ) < fDZCut) ? 1 : 2;
             else if (fUseFromPVLooseTight && tmpFromPV == 1)
               pReco.id = 2;
@@ -181,7 +185,9 @@ void PuppiProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
           pReco.id = 0;
         }
         if (std::abs(pReco.charge) > 0) {
-          if (lPack->fromPV() == 0) {
+          if (fPuppiNoLep && isLepton)
+            pReco.id = 3;
+          else if (lPack->fromPV() == 0) {
             pReco.id = 2;
           }  // 0 is associated to PU vertex
           else if (lPack->fromPV() == (pat::PackedCandidate::PVUsedInFit)) {
@@ -193,7 +199,7 @@ void PuppiProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
               pReco.id = 1;
             else if (std::abs(pReco.eta) > fEtaMaxCharged)
               pReco.id = 1;
-            else if (fUseDZ)
+            else if ((fUseDZ) && (std::abs(pReco.eta) >= fEtaMinUseDZ))
               pReco.id = (std::abs(pDZ) < fDZCut) ? 1 : 2;
             else if (fUseFromPVLooseTight && lPack->fromPV() == (pat::PackedCandidate::PVLoose))
               pReco.id = 2;
@@ -222,7 +228,7 @@ void PuppiProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
         throw edm::Exception(edm::errors::LogicError,
                              "PuppiProducer: cannot get weights since inputs are not PackedCandidates");
       } else {
-        if (fUseWeightsNoLep) {
+        if (fPuppiNoLep) {
           curpupweight = lPack->puppiWeightNoLep();
         } else {
           curpupweight = lPack->puppiWeight();
@@ -238,8 +244,8 @@ void PuppiProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   }
 
   //Fill it into the event
-  std::unique_ptr<edm::ValueMap<float>> lPupOut(new edm::ValueMap<float>());
-  edm::ValueMap<float>::Filler lPupFiller(*lPupOut);
+  edm::ValueMap<float> lPupOut;
+  edm::ValueMap<float>::Filler lPupFiller(lPupOut);
   lPupFiller.insert(hPFProduct, lWeights.begin(), lWeights.end());
   lPupFiller.fill();
 
@@ -252,9 +258,10 @@ void PuppiProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   // Since the size of the ValueMap must be equal to the input collection, we need
   // to search the "puppi" particles to find a match for each input. If none is found,
   // the input is set to have a four-vector of 0,0,0,0
-  fPuppiCandidates.reset(new PFOutputCollection);
-  fPackedPuppiCandidates.reset(new PackedOutputCollection);
-  std::unique_ptr<edm::ValueMap<LorentzVector>> p4PupOut(new edm::ValueMap<LorentzVector>());
+  PFOutputCollection fPuppiCandidates;
+  PackedOutputCollection fPackedPuppiCandidates;
+
+  edm::ValueMap<LorentzVector> p4PupOut;
   LorentzVectorCollection puppiP4s;
   std::vector<reco::CandidatePtr> values(hPFProduct->size());
 
@@ -263,6 +270,7 @@ void PuppiProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
     ++iCand;
     std::unique_ptr<pat::PackedCandidate> pCand;
     std::unique_ptr<reco::PFCandidate> pfCand;
+
     if (fUseExistingWeights || fClonePackedCands) {
       const pat::PackedCandidate* cand = dynamic_cast<const pat::PackedCandidate*>(&aCand);
       if (!cand)
@@ -274,8 +282,9 @@ void PuppiProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
       pfCand.reset(new reco::PFCandidate(cand ? *cand : reco::PFCandidate(aCand.charge(), aCand.p4(), id)));
     }
 
+    // Here, we are using new weights computed and putting them in the packed candidates.
     if (fClonePackedCands && (!fUseExistingWeights)) {
-      if (fPuppiForLeptons)
+      if (fPuppiNoLep)
         pCand->setPuppiWeight(pCand->puppiWeight(), lWeights[iCand]);
       else
         pCand->setPuppiWeight(lWeights[iCand], pCand->puppiWeightNoLep());
@@ -286,58 +295,62 @@ void PuppiProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
                           lWeights[iCand] * aCand.pz(),
                           lWeights[iCand] * aCand.energy());
 
+    // Here, we are using existing weights, or we're using packed candidates.
+    // That is, whether or not we recomputed the weights, we store the
+    // source candidate appropriately, and set the p4 of the packed candidate.
     if (fUseExistingWeights || fClonePackedCands) {
       pCand->setP4(puppiP4s.back());
       pCand->setSourceCandidatePtr(aCand.sourceCandidatePtr(0));
-      fPackedPuppiCandidates->push_back(*pCand);
+      fPackedPuppiCandidates.push_back(*pCand);
     } else {
       pfCand->setP4(puppiP4s.back());
       pfCand->setSourceCandidatePtr(aCand.sourceCandidatePtr(0));
-      fPuppiCandidates->push_back(*pfCand);
+      fPuppiCandidates.push_back(*pfCand);
     }
   }
 
   //Compute the modified p4s
-  edm::ValueMap<LorentzVector>::Filler p4PupFiller(*p4PupOut);
+  edm::ValueMap<LorentzVector>::Filler p4PupFiller(p4PupOut);
   p4PupFiller.insert(hPFProduct, puppiP4s.begin(), puppiP4s.end());
   p4PupFiller.fill();
 
-  iEvent.put(std::move(lPupOut));
-  iEvent.put(std::move(p4PupOut));
+  iEvent.emplace(ptokenPupOut_, lPupOut);
+  iEvent.emplace(ptokenP4PupOut_, p4PupOut);
   if (fUseExistingWeights || fClonePackedCands) {
-    edm::OrphanHandle<pat::PackedCandidateCollection> oh = iEvent.put(std::move(fPackedPuppiCandidates));
+    edm::OrphanHandle<pat::PackedCandidateCollection> oh =
+        iEvent.emplace(ptokenPackedPuppiCandidates_, fPackedPuppiCandidates);
     for (unsigned int ic = 0, nc = oh->size(); ic < nc; ++ic) {
       reco::CandidatePtr pkref(oh, ic);
       values[ic] = pkref;
     }
   } else {
-    edm::OrphanHandle<reco::PFCandidateCollection> oh = iEvent.put(std::move(fPuppiCandidates));
+    edm::OrphanHandle<reco::PFCandidateCollection> oh = iEvent.emplace(ptokenPuppiCandidates_, fPuppiCandidates);
     for (unsigned int ic = 0, nc = oh->size(); ic < nc; ++ic) {
       reco::CandidatePtr pkref(oh, ic);
       values[ic] = pkref;
     }
   }
-  std::unique_ptr<edm::ValueMap<reco::CandidatePtr>> pfMap_p(new edm::ValueMap<reco::CandidatePtr>());
-  edm::ValueMap<reco::CandidatePtr>::Filler filler(*pfMap_p);
+  edm::ValueMap<reco::CandidatePtr> pfMap_p;
+  edm::ValueMap<reco::CandidatePtr>::Filler filler(pfMap_p);
   filler.insert(hPFProduct, values.begin(), values.end());
   filler.fill();
-  iEvent.put(std::move(pfMap_p));
+  iEvent.emplace(ptokenValues_, pfMap_p);
 
   //////////////////////////////////////////////
   if (fPuppiDiagnostics && !fUseExistingWeights) {
     // all the different alphas per particle
     // THE alpha per particle
-    std::unique_ptr<std::vector<double>> theAlphas(new std::vector<double>(fPuppiContainer->puppiAlphas()));
-    std::unique_ptr<std::vector<double>> theAlphasMed(new std::vector<double>(fPuppiContainer->puppiAlphasMed()));
-    std::unique_ptr<std::vector<double>> theAlphasRms(new std::vector<double>(fPuppiContainer->puppiAlphasRMS()));
-    std::unique_ptr<std::vector<double>> alphas(new std::vector<double>(fPuppiContainer->puppiRawAlphas()));
-    std::unique_ptr<double> nalgos(new double(fPuppiContainer->puppiNAlgos()));
+    std::vector<double> theAlphas(fPuppiContainer->puppiAlphas());
+    std::vector<double> theAlphasMed(fPuppiContainer->puppiAlphasMed());
+    std::vector<double> theAlphasRms(fPuppiContainer->puppiAlphasRMS());
+    std::vector<double> alphas(fPuppiContainer->puppiRawAlphas());
+    double nalgos(fPuppiContainer->puppiNAlgos());
 
-    iEvent.put(std::move(alphas), "PuppiRawAlphas");
-    iEvent.put(std::move(nalgos), "PuppiNAlgos");
-    iEvent.put(std::move(theAlphas), "PuppiAlphas");
-    iEvent.put(std::move(theAlphasMed), "PuppiAlphasMed");
-    iEvent.put(std::move(theAlphasRms), "PuppiAlphasRms");
+    iEvent.emplace(ptokenRawAlphas_, alphas);
+    iEvent.emplace(ptokenNalgos_, nalgos);
+    iEvent.emplace(ptokenAlphas_, theAlphas);
+    iEvent.emplace(ptokenAlphasMed_, theAlphasMed);
+    iEvent.emplace(ptokenAlphasRms_, theAlphasRms);
   }
 }
 
@@ -349,10 +362,11 @@ void PuppiProducer::endJob() {}
 void PuppiProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
   desc.add<bool>("puppiDiagnostics", false);
-  desc.add<bool>("puppiForLeptons", false);
+  desc.add<bool>("puppiNoLep", false);
   desc.add<bool>("UseFromPVLooseTight", false);
   desc.add<bool>("UseDeltaZCut", true);
   desc.add<double>("DeltaZCut", 0.3);
+  desc.add<double>("EtaMinUseDeltaZ", 0.);
   desc.add<double>("PtMaxCharged", -1.);
   desc.add<double>("EtaMaxCharged", 99999.);
   desc.add<double>("PtMaxPhotons", -1.);
@@ -360,7 +374,6 @@ void PuppiProducer::fillDescriptions(edm::ConfigurationDescriptions& description
   desc.add<double>("PtMaxNeutrals", 200.);
   desc.add<double>("PtMaxNeutralsStartSlope", 0.);
   desc.add<bool>("useExistingWeights", false);
-  desc.add<bool>("useWeightsNoLep", false);
   desc.add<bool>("clonePackedCands", false);
   desc.add<int>("vtxNdofCut", 4);
   desc.add<double>("vtxZCut", 24);

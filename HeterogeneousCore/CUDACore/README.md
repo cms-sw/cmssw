@@ -592,8 +592,8 @@ in the `acquire()` and `produce()` functions. The same
 `cudaStream_t` object that is used for transfers and kernels
 should be passed to the allocator.
 
-The allocator is based on `cub::CachingDeviceAllocator`. The memory is
-guaranteed to be reserved
+The allocator is based on [`cub::CachingDeviceAllocator`](https://nvlabs.github.io/cub/structcub_1_1_caching_device_allocator.html).
+The memory is guaranteed to be reserved
 * for the host: up to the destructor of the `unique_ptr`
 * for the device: until all work queued in the `cudaStream` up to the point when the `unique_ptr` destructor is called has finished
 

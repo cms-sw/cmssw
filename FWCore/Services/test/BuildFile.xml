@@ -1,19 +1,23 @@
-<library   file="StuckAnalyzer.cc" name="StuckAnalyzer">
-  <flags   EDM_PLUGIN="1"/>
-  <use   name="FWCore/PluginManager"/>
-  <use   name="FWCore/Framework"/>
+<library file="StuckAnalyzer.cc" name="StuckAnalyzer">
+  <flags EDM_PLUGIN="1"/>
+  <use name="FWCore/PluginManager"/>
+  <use name="FWCore/Framework"/>
 </library>
-<library   file="SiteLocalConfigServiceTester.cc" name="SiteLocalConfigUnitTestClient">
-  <flags   EDM_PLUGIN="1"/>
-  <use   name="FWCore/Services"/>
-  <use   name="FWCore/PluginManager"/>
-  <use   name="FWCore/Framework"/>
+
+<library file="SiteLocalConfigServiceTester.cc" name="SiteLocalConfigUnitTestClient">
+  <flags EDM_PLUGIN="1"/>
+  <use name="FWCore/Services"/>
+  <use name="FWCore/PluginManager"/>
+  <use name="FWCore/Framework"/>
 </library>
-<bin   file="TestFWCoreServicesDriver.cpp">
-  <flags   TEST_RUNNER_ARGS=" /bin/bash FWCore/Services/test test_mallocopts.sh test_sitelocalconfig.sh test_resource.sh test_zombiekiller.sh"/>
-  <use   name="FWCore/Utilities"/>
+
+<bin file="TestFWCoreServicesDriver.cpp">
+  <flags TEST_RUNNER_ARGS=" /bin/bash FWCore/Services/test test_mallocopts.sh test_sitelocalconfig.sh test_resource.sh test_zombiekiller.sh"/>
+  <use name="FWCore/Utilities"/>
 </bin>
-<bin    file="test_catch2_*.cc" name="testFWCoreServicesCatch2">
+
+<bin file="test_catch2_*.cc" name="testFWCoreServicesCatch2">
   <use name="catch2"/>
+  <use name="clhep"/>
   <use name="FWCore/Services"/>
 </bin>

@@ -2,6 +2,7 @@
 #define SimDataFormats_GeneratorProducts_GenLumiInfoProduct_h
 
 #include <vector>
+#include <cmath>
 
 /** \class GenLumiInfoProduct
  *
@@ -63,9 +64,12 @@ public:
     double sum2() const { return sum2_; }
 
     void add(const FinalStat &other) {
-      n_ += other.n();
-      sum_ += other.sum();
-      sum2_ += other.sum2();
+      //Hadronizers treat 0, -1., -1. to mean the value is not present
+      if (other.n() != 0 and other.sum_ != -1. and other.sum2() != -1.) {
+        n_ += other.n();
+        sum_ += other.sum();
+        sum2_ += other.sum2();
+      }
     }
 
     bool operator==(const FinalStat &other) const {
@@ -86,21 +90,22 @@ public:
 
     // accessors
     int process() const { return process_; }
-    XSec lheXSec() const { return lheXSec_; }
+    XSec const &lheXSec() const { return lheXSec_; }
 
     unsigned int nPassPos() const { return nPassPos_; }
     unsigned int nPassNeg() const { return nPassNeg_; }
     unsigned int nTotalPos() const { return nTotalPos_; }
     unsigned int nTotalNeg() const { return nTotalNeg_; }
 
-    FinalStat tried() const { return tried_; }
-    FinalStat selected() const { return selected_; }
-    FinalStat killed() const { return killed_; }
-    FinalStat accepted() const { return accepted_; }
-    FinalStat acceptedBr() const { return acceptedBr_; }
+    FinalStat const &tried() const { return tried_; }
+    FinalStat const &selected() const { return selected_; }
+    FinalStat const &killed() const { return killed_; }
+    FinalStat const &accepted() const { return accepted_; }
+    FinalStat const &acceptedBr() const { return acceptedBr_; }
 
     // setters
     void addOthers(const ProcessInfo &other) {
+      mergeXSec(other.lheXSec(), other.selected().sum());
       nPassPos_ += other.nPassPos();
       nPassNeg_ += other.nPassNeg();
       nTotalPos_ += other.nTotalPos();
@@ -124,6 +129,21 @@ public:
     void setAcceptedBr(unsigned int n, double sum, double sum2) { acceptedBr_ = FinalStat(n, sum, sum2); }
 
   private:
+    void mergeXSec(XSec const &iXSec, double iWeight) {
+      if (iWeight <= 0.) {
+        return;
+      }
+      if (lheXSec_.value() <= 0.) {
+        lheXSec_ = iXSec;
+      } else {
+        bool useWeights = (lheXSec_.error() <= 0. || iXSec.error() <= 0.);
+        double wgt1 = useWeights ? selected().sum() : 1. / (lheXSec_.error() * lheXSec_.error());
+        double wgt2 = useWeights ? iWeight : 1. / (iXSec.error() * iXSec.error());
+        double xsec = (wgt1 * lheXSec_.value() + wgt2 * iXSec.value()) / (wgt1 + wgt2);
+        double err = useWeights ? 0. : 1.0 / std::sqrt(wgt1 + wgt2);
+        lheXSec_ = XSec(xsec, err);
+      }
+    }
     int process_;
     XSec lheXSec_;
     unsigned int nPassPos_;

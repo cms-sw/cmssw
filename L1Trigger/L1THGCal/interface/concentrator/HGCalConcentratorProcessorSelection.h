@@ -13,7 +13,7 @@
 
 class HGCalConcentratorProcessorSelection : public HGCalConcentratorProcessorBase {
 private:
-  enum SelectionType { thresholdSelect, bestChoiceSelect, superTriggerCellSelect, mixedBestChoiceSuperTriggerCell };
+  enum SelectionType { thresholdSelect, bestChoiceSelect, superTriggerCellSelect, noSelection };
 
 public:
   HGCalConcentratorProcessorSelection(const edm::ParameterSet& conf);
@@ -23,10 +23,12 @@ public:
            const edm::EventSetup& es) override;
 
 private:
-  SelectionType selectionType_;
   bool fixedDataSizePerHGCROC_;
-  bool coarsenTriggerCells_;
+  std::vector<unsigned> coarsenTriggerCells_;
   static constexpr int kHighDensityThickness_ = 0;
+  static constexpr int kNSubDetectors_ = 3;
+
+  std::vector<SelectionType> selectionType_;
 
   std::unique_ptr<HGCalConcentratorThresholdImpl> thresholdImpl_;
   std::unique_ptr<HGCalConcentratorBestChoiceImpl> bestChoiceImpl_;

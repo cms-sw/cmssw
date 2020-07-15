@@ -22,7 +22,6 @@
 class photonIsolationHIProducer : public edm::stream::EDProducer<> {
 public:
   explicit photonIsolationHIProducer(const edm::ParameterSet& ps);
-  ~photonIsolationHIProducer() override;
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
@@ -56,8 +55,6 @@ photonIsolationHIProducer::photonIsolationHIProducer(const edm::ParameterSet& co
   produces<reco::HIPhotonIsolationMap>();
 }
 
-photonIsolationHIProducer::~photonIsolationHIProducer() {}
-
 void photonIsolationHIProducer::produce(edm::Event& evt, const edm::EventSetup& es) {
   edm::Handle<reco::PhotonCollection> photons;
   evt.getByToken(photonProducer_, photons);
@@ -84,7 +81,7 @@ void photonIsolationHIProducer::produce(edm::Event& evt, const edm::EventSetup& 
 
   EcalClusterIsoCalculator CxC(evt, es, barrelClusters, endcapClusters);
   HcalRechitIsoCalculator RxC(evt, es, hbhe, hf, ho);
-  TrackIsoCalculator TxC(evt, es, trackCollection, trackQuality_);
+  TrackIsoCalculator TxC(*trackCollection, trackQuality_);
   EcalClusterLazyTools lazyTool(evt, es, barrelEcalHits_, endcapEcalHits_);
 
   for (reco::PhotonCollection::const_iterator phoItr = photons->begin(); phoItr != photons->end(); ++phoItr) {

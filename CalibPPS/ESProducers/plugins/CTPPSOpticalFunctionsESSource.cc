@@ -7,7 +7,7 @@
 #include "FWCore/Framework/interface/ESProducer.h"
 #include "FWCore/Framework/interface/EventSetupRecordIntervalFinder.h"
 
-#include "CondFormats/CTPPSReadoutObjects/interface/LHCOpticalFunctionsSetCollection.h"
+#include "CondFormats/PPSObjects/interface/LHCOpticalFunctionsSetCollection.h"
 #include "CondFormats/DataRecord/interface/CTPPSOpticsRcd.h"
 
 //----------------------------------------------------------------------------------------------------

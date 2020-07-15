@@ -7,8 +7,7 @@
 #include "RecoVertex/VertexPrimitives/interface/LinearizedTrackState.h"
 #include "Math/SMatrix.h"
 #include "DataFormats/CLHEP/interface/Migration.h"
-
-#include "FWCore/Utilities/interface/GCC11Compatibility.h"
+#include "FWCore/Utilities/interface/Likely.h"
 
 /** Calculates and stores the ImpactPointMeasurement of the
  *  impact point (point of closest approach in 3D) to the

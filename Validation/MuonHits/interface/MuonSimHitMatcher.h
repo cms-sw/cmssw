@@ -72,6 +72,8 @@ protected:
                                                    const edm::SimTrackContainer& simTracks,
                                                    const edm::SimVertexContainer& simVertices);
 
+  void clear();
+
   bool verboseSimTrack_;
   bool simMuOnly_;
   bool discardEleHits_;

@@ -1,4 +1,10 @@
-<use   name="SUSYBSMAnalysis/HSCP"/>
-<library   file="*.cc" name="SUSYBSMAnalysisHSCPPlugins">
-  <flags   EDM_PLUGIN="1"/>
+<use name="DataFormats/L1GlobalTrigger"/>
+<use name="DataFormats/EgammaCandidates"/>
+<use name="CommonTools/UtilAlgos"/>
+<use name="Geometry/TrackerGeometryBuilder"/>
+<use name="RecoTracker/DeDx"/>
+<use name="SimGeneral/HepPDTRecord"/>
+<use name="SUSYBSMAnalysis/HSCP"/>
+<library file="*.cc" name="SUSYBSMAnalysisHSCPPlugins">
+  <flags EDM_PLUGIN="1"/>
 </library>

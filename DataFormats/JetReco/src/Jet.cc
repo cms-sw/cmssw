@@ -160,14 +160,14 @@ namespace {
 }  // namespace
 
 Jet::Jet(const LorentzVector &fP4, const Point &fVertex, const Constituents &fConstituents)
-    : CompositePtrCandidate(0, fP4, fVertex), mJetArea(0), mPileupEnergy(0), mPassNumber(0) {
+    : CompositePtrCandidate(0, fP4, fVertex), mJetArea(0), mPileupEnergy(0), mPassNumber(0), mIsWeighted(false) {
   for (unsigned i = 0; i < fConstituents.size(); i++) {
     addDaughter(fConstituents[i]);
   }
 }
 
 Jet::Jet(const LorentzVector &fP4, const Point &fVertex)
-    : CompositePtrCandidate(0, fP4, fVertex), mJetArea(0), mPileupEnergy(0), mPassNumber(0) {}
+    : CompositePtrCandidate(0, fP4, fVertex), mJetArea(0), mPileupEnergy(0), mPassNumber(0), mIsWeighted(false) {}
 
 /// eta-phi statistics
 Jet::EtaPhiMoments Jet::etaPhiStatistics() const {

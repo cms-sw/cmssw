@@ -10,7 +10,6 @@
 #include "CondFormats/SiPixelObjects/interface/LocalPixel.h"
 #include "CondFormats/SiPixelObjects/interface/GlobalPixel.h"
 
-#include "FWCore/Utilities/interface/GCC11Compatibility.h"
 #include <cstdint>
 
 class SiPixelFrameConverter {

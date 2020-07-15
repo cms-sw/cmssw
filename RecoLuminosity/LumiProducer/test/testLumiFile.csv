@@ -1,0 +1,4 @@
+# This is a dummy file for TestLumiProducerFromBrilcalc.
+#run:fill,ls,time,beamstatus,E(GeV),delivered(hz/ub),recorded(hz/ub),avgpu,source
+1:1,1:1,04/17/18 10:54:40,STABLE BEAMS,6500,16.507442576,16.080153561,58.7,HFOC
+1:1,2:2,04/17/18 10:55:03,STABLE BEAMS,6500,16.483134426,1.668723696,58.6,HFOC

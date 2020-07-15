@@ -31,7 +31,6 @@
 
 #include "MagneticField/VolumeGeometry/interface/MagVolume6Faces.h"
 #include "MagneticField/VolumeGeometry/interface/MagExceptions.h"
-#include "MagneticField/Layers/interface/MagVerbosity.h"
 
 #include "DataFormats/GeometryVector/interface/Pi.h"
 #include "DataFormats/Math/interface/GeantUnits.h"
@@ -187,7 +186,7 @@ void MagGeoBuilderFromDDD::build(const DDCompactView& cpva) {
     //       }
     //     }
 
-    volumeHandle* v = new volumeHandle(fv, expand);
+    volumeHandle* v = new volumeHandle(fv, expand, debug);
 
     if (theGridFiles != nullptr) {
       int key = (v->volumeno) * 100 + v->copyno;
@@ -461,9 +460,9 @@ void MagGeoBuilderFromDDD::buildMagVolumes(const handles& volumes, map<string, M
     if (interpolators.find((*vol)->magFile) != interpolators.end()) {
       mp = interpolators[(*vol)->magFile];
     } else {
-      edm::LogError("MagGeoBuilderFromDDDbuildMagVolumes")
-          << "No interpolator found for file " << (*vol)->magFile << " vol: " << (*vol)->volumeno << "\n"
-          << interpolators.size() << endl;
+      edm::LogError("MagGeoBuilder") << "No interpolator found for file " << (*vol)->magFile
+                                     << " vol: " << (*vol)->volumeno << "\n"
+                                     << interpolators.size() << endl;
     }
 
     // Search for [volume,sector] in the list of scaling factors; sector = 0 handled as wildcard
@@ -479,9 +478,8 @@ void MagGeoBuilderFromDDD::buildMagVolumes(const handles& volumes, map<string, M
     if (isf != theScalingFactors.end()) {
       sf = (*isf).second;
 
-      edm::LogInfo("MagneticField|VolumeBasedMagneticFieldESProducer")
-          << "Applying scaling factor " << sf << " to " << (*vol)->volumeno << "[" << (*vol)->copyno << "] (key:" << key
-          << ")" << endl;
+      edm::LogInfo("MagGeoBuilder") << "Applying scaling factor " << sf << " to " << (*vol)->volumeno << "["
+                                    << (*vol)->copyno << "] (key:" << key << ")" << endl;
     }
 
     const GloballyPositioned<float>* gpos = (*vol)->placement();

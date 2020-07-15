@@ -148,7 +148,7 @@ namespace edm {
         RunSummaryCacheHolder() = default;
         RunSummaryCacheHolder(RunSummaryCacheHolder<T, C> const&) = delete;
         RunSummaryCacheHolder<T, C>& operator=(RunSummaryCacheHolder<T, C> const&) = delete;
-        ~RunSummaryCacheHolder() noexcept(false){};
+        ~RunSummaryCacheHolder() noexcept(false) override{};
 
       private:
         friend class EndRunSummaryProducer<T, C>;
@@ -251,7 +251,7 @@ namespace edm {
         EndRunSummaryProducer() = default;
         EndRunSummaryProducer(EndRunSummaryProducer const&) = delete;
         EndRunSummaryProducer& operator=(EndRunSummaryProducer const&) = delete;
-        ~EndRunSummaryProducer() noexcept(false){};
+        ~EndRunSummaryProducer() noexcept(false) override{};
 
       private:
         void doEndRunProduce_(Run& rp, EventSetup const& c) final {
@@ -293,7 +293,7 @@ namespace edm {
         EndLuminosityBlockSummaryProducer() = default;
         EndLuminosityBlockSummaryProducer(EndLuminosityBlockSummaryProducer const&) = delete;
         EndLuminosityBlockSummaryProducer& operator=(EndLuminosityBlockSummaryProducer const&) = delete;
-        ~EndLuminosityBlockSummaryProducer() noexcept(false){};
+        ~EndLuminosityBlockSummaryProducer() noexcept(false) override{};
 
       private:
         void doEndLuminosityBlockProduce_(LuminosityBlock& lb, EventSetup const& c) final {

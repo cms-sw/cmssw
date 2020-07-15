@@ -18,8 +18,6 @@
 
 #include "CLHEP/Units/GlobalSystemOfUnits.h"
 
-#include "MagneticField/Layers/interface/MagVerbosity.h"
-
 #include <string>
 #include <iterator>
 #include <iomanip>
@@ -60,7 +58,8 @@ MagGeoBuilderFromDDD::volumeHandle::volumeHandle(const DDExpandedView &fv, bool 
   } else if (solid.shape() == DDSolidShape::ddtubs) {
     buildTubs();
   } else if (solid.shape() == DDSolidShape::ddpseudotrap) {
-    buildPseudoTrap();
+    DDPseudoTrap ptrap(solid);
+    buildPseudoTrap(ptrap.x1(), ptrap.x2(), ptrap.y1(), ptrap.y2(), ptrap.halfZ(), ptrap.radius(), ptrap.atMinusZ());
   } else if (solid.shape() == DDSolidShape::ddtrunctubs) {
     buildTruncTubs();
   } else {

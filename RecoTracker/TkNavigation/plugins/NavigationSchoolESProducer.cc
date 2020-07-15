@@ -7,6 +7,7 @@
 #include "FWCore/Framework/interface/ESProducer.h"
 
 #include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Utilities/interface/Visibility.h"
 
 #include "NavigationSchoolFactory.h"
 #include "RecoTracker/Record/interface/NavigationSchoolRecord.h"

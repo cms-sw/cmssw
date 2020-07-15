@@ -1,13 +1,14 @@
-<use   name="DataFormats/Provenance"/>
-<use   name="FWCore/Framework"/>
-<use   name="FWCore/ParameterSet"/>
-<use   name="FWCore/ServiceRegistry"/>
-<use   name="FWCore/Utilities"/>
-<use   name="IOMC/RandomEngine"/>
-<use   name="clhep"/>
-<library   file="TestRandomNumberServiceGlobal.cc" name="IOMCRandomEngineTestRandomNumberServiceGlobal">
-  <flags   EDM_PLUGIN="1"/>
+<use name="DataFormats/Provenance"/>
+<use name="FWCore/Framework"/>
+<use name="FWCore/ParameterSet"/>
+<use name="FWCore/ServiceRegistry"/>
+<use name="FWCore/Utilities"/>
+<use name="IOMC/RandomEngine"/>
+<use name="clhep"/>
+<library file="TestRandomNumberServiceGlobal.cc" name="IOMCRandomEngineTestRandomNumberServiceGlobal">
+  <flags EDM_PLUGIN="1"/>
 </library>
-<bin   file="TestIOMCRandomEngineService.cpp">
-  <flags   TEST_RUNNER_ARGS=" /bin/bash IOMC/RandomEngine/test testRandomService.sh"/>
+
+<bin file="TestIOMCRandomEngineService.cpp">
+  <flags TEST_RUNNER_ARGS=" /bin/bash IOMC/RandomEngine/test testRandomService.sh"/>
 </bin>

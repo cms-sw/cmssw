@@ -1,15 +1,36 @@
 /** \class TriggerSummaryAnalyzerRAW
  *
- * See header file for documentation
+ *  This class is an EDAnalyzer analyzing the HLT summary object for RAW
  *
  *
  *  \author Martin Grunewald
  *
  */
 
-#include "HLTrigger/HLTcore/interface/TriggerSummaryAnalyzerRAW.h"
-#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+
+#include "DataFormats/HLTReco/interface/TriggerEventWithRefs.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/global/EDAnalyzer.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+
+//
+// class declaration
+//
+class TriggerSummaryAnalyzerRAW : public edm::global::EDAnalyzer<> {
+public:
+  explicit TriggerSummaryAnalyzerRAW(const edm::ParameterSet&);
+
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+  void analyze(edm::StreamID, const edm::Event&, const edm::EventSetup&) const override;
+
+private:
+  /// InputTag of TriggerEventWithRefs to analyze
+  const edm::InputTag inputTag_;
+  const edm::EDGetTokenT<trigger::TriggerEventWithRefs> inputToken_;
+};
 
 //
 // constructors and destructor
@@ -17,8 +38,6 @@
 TriggerSummaryAnalyzerRAW::TriggerSummaryAnalyzerRAW(const edm::ParameterSet& ps)
     : inputTag_(ps.getParameter<edm::InputTag>("inputTag")),
       inputToken_(consumes<trigger::TriggerEventWithRefs>(inputTag_)) {}
-
-TriggerSummaryAnalyzerRAW::~TriggerSummaryAnalyzerRAW() = default;
 
 //
 // member functions
@@ -31,7 +50,7 @@ void TriggerSummaryAnalyzerRAW::fillDescriptions(edm::ConfigurationDescriptions&
 }
 
 // ------------ method called to produce the data  ------------
-void TriggerSummaryAnalyzerRAW::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
+void TriggerSummaryAnalyzerRAW::analyze(edm::StreamID, const edm::Event& iEvent, const edm::EventSetup& iSetup) const {
   using namespace std;
   using namespace edm;
   using namespace reco;
@@ -169,3 +188,5 @@ void TriggerSummaryAnalyzerRAW::analyze(const edm::Event& iEvent, const edm::Eve
 
   return;
 }
+
+DEFINE_FWK_MODULE(TriggerSummaryAnalyzerRAW);

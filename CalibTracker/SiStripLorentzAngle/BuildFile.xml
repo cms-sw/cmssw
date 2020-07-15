@@ -1,10 +1,8 @@
-<use   name="DataFormats/SiStripDetId"/>
-<use   name="root"/>
-<use   name="DataFormats/SiStripCluster"/>
-<use   name="DataFormats/TrackerCommon" />
-<use   name="CalibTracker/StandaloneTrackerTopology"/>
-<use   name="DQMServices/Core"/>
-
+<use name="CommonTools/ConditionDBWriter"/>
+<use name="DataFormats/SiStripDetId"/>
+<use name="root"/>
+<use name="DataFormats/TrackerCommon"/>
+<use name="DQMServices/Core"/>
 <export>
-  <lib   name="1"/>
+  <lib name="1"/>
 </export>

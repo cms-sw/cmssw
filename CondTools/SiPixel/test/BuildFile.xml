@@ -1,12 +1,14 @@
-<use   name="boost"/>
-<use   name="root"/>
-<use   name="CommonTools/UtilAlgos"/>
-<use   name="Geometry/Records"/>
-<use   name="Geometry/TrackerGeometryBuilder"/>
-<use   name="CondCore/DBOutputService"/>
-<use   name="CondTools/SiPixel"/>
-<use   name="CalibTracker/SiPixelESProducers"/>
-<use   name="RecoLocalTracker/SiPixelRecHits"/>
-<library   file="*.cc" name="testCondToolsSiPixel">
-  <flags   EDM_PLUGIN="1"/>
+<use name="boost"/>
+<use name="root"/>
+<use name="CommonTools/UtilAlgos"/>
+<use name="Geometry/Records"/>
+<use name="Geometry/TrackerGeometryBuilder"/>
+<use name="CondCore/DBOutputService"/>
+<use name="CondTools/SiPixel"/>
+<use name="CalibTracker/Records"/>
+<use name="CalibTracker/SiPixelESProducers"/>
+<use name="MagneticField/Records"/>
+<use name="RecoLocalTracker/SiPixelRecHits"/>
+<library file="*.cc" name="testCondToolsSiPixel">
+  <flags EDM_PLUGIN="1"/>
 </library>

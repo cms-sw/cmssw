@@ -37,10 +37,9 @@ namespace {
     if (s1.nHits() != s2.nHits())
       return false;
 
-    unsigned int nHits;
-    TrajectorySeed::range r1 = s1.recHits(), r2 = s2.recHits();
-    TrajectorySeed::const_iterator i1, i2;
-    for (i1 = r1.first, i2 = r2.first, nHits = 0; i1 != r1.second; ++i1, ++i2, ++nHits) {
+    const TrajectorySeed::RecHitRange r1 = s1.recHits();
+    const TrajectorySeed::RecHitRange r2 = s2.recHits();
+    for (auto i1 = r1.begin(), i2 = r2.begin(); i1 != r1.end(); ++i1, ++i2) {
       if (!i1->isValid() || !i2->isValid())
         return false;
       if (i1->geographicalId() != i2->geographicalId())
@@ -148,36 +147,20 @@ ElectronSeedGenerator::ElectronSeedGenerator(const edm::ParameterSet &pset, cons
       // new B/F configurables
       deltaPhi2B_(pset.getParameter<double>("DeltaPhi2B")),
       deltaPhi2F_(pset.getParameter<double>("DeltaPhi2F")),
-      phiMin2B_(pset.getParameter<double>("PhiMin2B")),
-      phiMin2F_(pset.getParameter<double>("PhiMin2F")),
+      phiMin2B_(-pset.getParameter<double>("PhiMax2B")),
+      phiMin2F_(-pset.getParameter<double>("PhiMax2F")),
       phiMax2B_(pset.getParameter<double>("PhiMax2B")),
       phiMax2F_(pset.getParameter<double>("PhiMax2F")),
-      electronMatcher_(pset.getParameter<double>("ePhiMin1"),
-                       pset.getParameter<double>("ePhiMax1"),
-                       phiMin2B_,
-                       phiMax2B_,
-                       phiMin2F_,
-                       phiMax2F_,
-                       pset.getParameter<double>("z2MinB"),
-                       pset.getParameter<double>("z2MaxB"),
-                       pset.getParameter<double>("r2MinF"),
-                       pset.getParameter<double>("r2MaxF"),
-                       pset.getParameter<double>("rMinI"),
-                       pset.getParameter<double>("rMaxI"),
-                       useRecoVertex_),
-      positronMatcher_(pset.getParameter<double>("pPhiMin1"),
-                       pset.getParameter<double>("pPhiMax1"),
-                       phiMin2B_,
-                       phiMax2B_,
-                       phiMin2F_,
-                       phiMax2F_,
-                       pset.getParameter<double>("z2MinB"),
-                       pset.getParameter<double>("z2MaxB"),
-                       pset.getParameter<double>("r2MinF"),
-                       pset.getParameter<double>("r2MaxF"),
-                       pset.getParameter<double>("rMinI"),
-                       pset.getParameter<double>("rMaxI"),
-                       useRecoVertex_) {}
+      matcher_(pset.getParameter<double>("ePhiMin1"),
+               pset.getParameter<double>("ePhiMax1"),
+               phiMin2B_,
+               phiMax2B_,
+               phiMin2F_,
+               phiMax2F_,
+               pset.getParameter<double>("z2MaxB"),
+               pset.getParameter<double>("r2MaxF"),
+               pset.getParameter<double>("rMaxI"),
+               useRecoVertex_) {}
 
 void ElectronSeedGenerator::setupES(const edm::EventSetup &setup) {
   // get records if necessary (called once per event)
@@ -197,8 +180,7 @@ void ElectronSeedGenerator::setupES(const edm::EventSetup &setup) {
   }
 
   if (tochange) {
-    electronMatcher_.setES(magField_.product(), trackerGeometry_.product());
-    positronMatcher_.setES(magField_.product(), trackerGeometry_.product());
+    matcher_.setES(magField_.product(), trackerGeometry_.product());
   }
 }
 
@@ -248,20 +230,8 @@ void ElectronSeedGenerator::seedsFromThisCluster(edm::Ref<reco::SuperClusterColl
       deltaPhi1 = dPhi1Coef1_ + dPhi1Coef2_ / clusterEnergyT;
     }
 
-    float ephimin1 = -deltaPhi1 * sizeWindowENeg_;
-    float ephimax1 = deltaPhi1 * (1. - sizeWindowENeg_);
-    float pphimin1 = -deltaPhi1 * (1. - sizeWindowENeg_);
-    float pphimax1 = deltaPhi1 * sizeWindowENeg_;
-
-    float phimin2B = -deltaPhi2B_ / 2.;
-    float phimax2B = deltaPhi2B_ / 2.;
-    float phimin2F = -deltaPhi2F_ / 2.;
-    float phimax2F = deltaPhi2F_ / 2.;
-
-    electronMatcher_.set1stLayer(ephimin1, ephimax1);
-    positronMatcher_.set1stLayer(pphimin1, pphimax1);
-    electronMatcher_.set2ndLayer(phimin2B, phimax2B, phimin2F, phimax2F);
-    positronMatcher_.set2ndLayer(phimin2B, phimax2B, phimin2F, phimax2F);
+    matcher_.set1stLayer(-deltaPhi1 * sizeWindowENeg_, deltaPhi1 * (1. - sizeWindowENeg_));
+    matcher_.set2ndLayer(-deltaPhi2B_ / 2., deltaPhi2B_ / 2., -deltaPhi2F_ / 2., deltaPhi2F_ / 2.);
   }
 
   if (!useRecoVertex_)  // here use the beam spot position
@@ -275,14 +245,13 @@ void ElectronSeedGenerator::seedsFromThisCluster(edm::Ref<reco::SuperClusterColl
     GlobalPoint vertexPos;
     ele_convert(beamSpot.position(), vertexPos);
 
-    electronMatcher_.set1stLayerZRange(myZmin1, myZmax1);
-    positronMatcher_.set1stLayerZRange(myZmin1, myZmax1);
+    matcher_.set1stLayerZRange(myZmin1, myZmax1);
 
     // try electron
-    auto elePixelSeeds = electronMatcher_(*initialSeedCollectionVector_, clusterPos, vertexPos, clusterEnergy, -1.);
+    auto elePixelSeeds = matcher_(*initialSeedCollectionVector_, clusterPos, vertexPos, clusterEnergy, -1.);
     seedsFromTrajectorySeeds(elePixelSeeds, caloCluster, out, false);
     // try positron
-    auto posPixelSeeds = positronMatcher_(*initialSeedCollectionVector_, clusterPos, vertexPos, clusterEnergy, 1.);
+    auto posPixelSeeds = matcher_(*initialSeedCollectionVector_, clusterPos, vertexPos, clusterEnergy, 1.);
     seedsFromTrajectorySeeds(posPixelSeeds, caloCluster, out, true);
 
   } else if (vertices)  // here we use the reco vertices
@@ -301,14 +270,13 @@ void ElectronSeedGenerator::seedsFromThisCluster(edm::Ref<reco::SuperClusterColl
         myZmax1 = vertex.position().z() + deltaZ1WithVertex_;
       }
 
-      electronMatcher_.set1stLayerZRange(myZmin1, myZmax1);
-      positronMatcher_.set1stLayerZRange(myZmin1, myZmax1);
+      matcher_.set1stLayerZRange(myZmin1, myZmax1);
 
       // try electron
-      auto elePixelSeeds = electronMatcher_(*initialSeedCollectionVector_, clusterPos, vertexPos, clusterEnergy, -1.);
+      auto elePixelSeeds = matcher_(*initialSeedCollectionVector_, clusterPos, vertexPos, clusterEnergy, -1.);
       seedsFromTrajectorySeeds(elePixelSeeds, caloCluster, out, false);
       // try positron
-      auto posPixelSeeds = positronMatcher_(*initialSeedCollectionVector_, clusterPos, vertexPos, clusterEnergy, 1.);
+      auto posPixelSeeds = matcher_(*initialSeedCollectionVector_, clusterPos, vertexPos, clusterEnergy, 1.);
       seedsFromTrajectorySeeds(posPixelSeeds, caloCluster, out, true);
     }
   }

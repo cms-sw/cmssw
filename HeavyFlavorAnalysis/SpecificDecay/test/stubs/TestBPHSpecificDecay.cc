@@ -57,17 +57,17 @@ TestBPHSpecificDecay::TestBPHSpecificDecay(const edm::ParameterSet& ps) {
   if (usePM)
     consume<pat::MuonCollection>(patMuonToken, patMuonLabel);
   if (useCC)
-    consume<vector<pat::CompositeCandidate> >(ccCandsToken, ccCandsLabel);
+    consume<vector<pat::CompositeCandidate>>(ccCandsToken, ccCandsLabel);
   if (usePF)
-    consume<vector<reco::PFCandidate> >(pfCandsToken, pfCandsLabel);
+    consume<vector<reco::PFCandidate>>(pfCandsToken, pfCandsLabel);
   if (usePC)
-    consume<vector<BPHTrackReference::candidate> >(pcCandsToken, pcCandsLabel);
+    consume<vector<BPHTrackReference::candidate>>(pcCandsToken, pcCandsLabel);
   if (useGP)
-    consume<vector<pat::GenericParticle> >(gpCandsToken, gpCandsLabel);
+    consume<vector<pat::GenericParticle>>(gpCandsToken, gpCandsLabel);
 
   SET_LABEL(outDump, ps);
   SET_LABEL(outHist, ps);
-  if (outDump == "")
+  if (outDump.empty())
     fPtr = &cout;
   else
     fPtr = new ofstream(outDump.c_str());
@@ -126,7 +126,7 @@ void TestBPHSpecificDecay::analyze(const edm::Event& ev, const edm::EventSetup& 
   int nrc = 0;
 
   // get reco::PFCandidate collection (in full AOD )
-  edm::Handle<vector<reco::PFCandidate> > pfCands;
+  edm::Handle<vector<reco::PFCandidate>> pfCands;
   if (usePF) {
     pfCandsToken.get(ev, pfCands);
     nrc = pfCands->size();
@@ -136,14 +136,14 @@ void TestBPHSpecificDecay::analyze(const edm::Event& ev, const edm::EventSetup& 
   // pat::PackedCandidate is not defined in CMSSW_5XY, so a
   // typedef (BPHTrackReference::candidate) is used, actually referring
   // to pat::PackedCandidate only for CMSSW versions where it's defined
-  edm::Handle<vector<BPHTrackReference::candidate> > pcCands;
+  edm::Handle<vector<BPHTrackReference::candidate>> pcCands;
   if (usePC) {
     pcCandsToken.get(ev, pcCands);
     nrc = pcCands->size();
   }
 
   // get pat::GenericParticle collection (in skimmed data)
-  edm::Handle<vector<pat::GenericParticle> > gpCands;
+  edm::Handle<vector<pat::GenericParticle>> gpCands;
   if (useGP) {
     gpCandsToken.get(ev, gpCands);
     nrc = gpCands->size();
@@ -160,7 +160,7 @@ void TestBPHSpecificDecay::analyze(const edm::Event& ev, const edm::EventSetup& 
   vector<const reco::Candidate*> muDaugs;
   set<const pat::Muon*> muonSet;
   if (useCC) {
-    edm::Handle<vector<pat::CompositeCandidate> > ccCands;
+    edm::Handle<vector<pat::CompositeCandidate>> ccCands;
     ccCandsToken.get(ev, ccCands);
     int n = ccCands->size();
     muDaugs.clear();
@@ -178,7 +178,7 @@ void TestBPHSpecificDecay::analyze(const edm::Event& ev, const edm::EventSetup& 
         const pat::Muon* mp = dynamic_cast<const pat::Muon*>(dp);
         iter = muonSet.begin();
         iend = muonSet.end();
-        bool add = (mp != 0) && (muonSet.find(mp) == iend);
+        bool add = (mp != nullptr) && (muonSet.find(mp) == iend);
         while (add && (iter != iend)) {
           if (BPHRecoBuilder::sameTrack(mp, *iter++, 1.0e-5))
             add = false;
@@ -196,7 +196,7 @@ void TestBPHSpecificDecay::analyze(const edm::Event& ev, const edm::EventSetup& 
   // reconstruct resonances
 
   outF << "build and dump full onia" << endl;
-  BPHOniaToMuMuBuilder* onia = 0;
+  BPHOniaToMuMuBuilder* onia = nullptr;
   if (usePM)
     onia = new BPHOniaToMuMuBuilder(
         es, BPHRecoBuilder::createCollection(patMuon, "cfmig"), BPHRecoBuilder::createCollection(patMuon, "cfmig"));
@@ -217,18 +217,18 @@ void TestBPHSpecificDecay::analyze(const edm::Event& ev, const edm::EventSetup& 
   BPHMuonEtaSelect etaSel1(1.6);
   BPHMuonEtaSelect etaSel2(1.4);
   BPHMuonEtaSelect etaSel3(1.2);
-  BPHMultiSelect<BPHRecoSelect> select1(BPHSelectOperation::and_mode);
+  BPHMultiSelect<BPHSlimSelect<BPHRecoSelect>> select1(BPHSelectOperation::and_mode);
   select1.include(ptSel1);
   select1.include(etaSel1);
   select1.include(etaSel2, false);
-  BPHMultiSelect<BPHRecoSelect> select2(BPHSelectOperation::and_mode);
+  BPHMultiSelect<BPHSlimSelect<BPHRecoSelect>> select2(BPHSelectOperation::and_mode);
   select2.include(ptSel2);
   select2.include(etaSel2);
   select2.include(etaSel3, false);
-  BPHMultiSelect<BPHRecoSelect> select3(BPHSelectOperation::and_mode);
+  BPHMultiSelect<BPHSlimSelect<BPHRecoSelect>> select3(BPHSelectOperation::and_mode);
   select3.include(ptSel3);
   select3.include(etaSel3);
-  BPHMultiSelect<BPHRecoSelect> muoSel(BPHSelectOperation::or_mode);
+  BPHMultiSelect<BPHSlimSelect<BPHRecoSelect>> muoSel(BPHSelectOperation::or_mode);
   muoSel.include(select1);
   muoSel.include(select2);
   muoSel.include(select3);
@@ -299,7 +299,7 @@ void TestBPHSpecificDecay::analyze(const edm::Event& ev, const edm::EventSetup& 
   // build and dump Bu
 
   outF << "build and dump Bu" << endl;
-  BPHBuToJPsiKBuilder* bu = 0;
+  BPHBuToJPsiKBuilder* bu = nullptr;
   if (usePF)
     bu = new BPHBuToJPsiKBuilder(es,
                                  lJPsi,  //lFull,//lPsi1,
@@ -329,7 +329,7 @@ void TestBPHSpecificDecay::analyze(const edm::Event& ev, const edm::EventSetup& 
     const reco::Candidate* mPos = bu->originalReco(bu->getDaug("JPsi/MuPos"));
     const reco::Candidate* mNeg = bu->originalReco(bu->getDaug("JPsi/MuNeg"));
     const reco::Candidate* kaon = bu->originalReco(bu->getDaug("Kaon"));
-    BPHRecoCandidatePtr njp(new BPHPlusMinusCandidate(&es));
+    BPHRecoCandidatePtr njp = BPHPlusMinusCandidateWrap::create(&es);
     njp->add("MuPos", mPos, BPHParticleMasses::muonMass, BPHParticleMasses::muonMSigma);
     njp->add("MuNeg", mNeg, BPHParticleMasses::muonMass, BPHParticleMasses::muonMSigma);
     BPHRecoCandidate nbu(&es);
@@ -341,7 +341,7 @@ void TestBPHSpecificDecay::analyze(const edm::Event& ev, const edm::EventSetup& 
 
   // build and dump Kx0
 
-  BPHKx0ToKPiBuilder* kx0 = 0;
+  BPHKx0ToKPiBuilder* kx0 = nullptr;
   if (usePF)
     kx0 = new BPHKx0ToKPiBuilder(
         es, BPHRecoBuilder::createCollection(pfCands), BPHRecoBuilder::createCollection(pfCands));
@@ -377,7 +377,7 @@ void TestBPHSpecificDecay::analyze(const edm::Event& ev, const edm::EventSetup& 
 
   // build and dump Phi
 
-  BPHPhiToKKBuilder* phi = 0;
+  BPHPhiToKKBuilder* phi = nullptr;
   if (usePF)
     phi =
         new BPHPhiToKKBuilder(es, BPHRecoBuilder::createCollection(pfCands), BPHRecoBuilder::createCollection(pfCands));
@@ -439,7 +439,7 @@ void TestBPHSpecificDecay::dumpRecoCand(const string& name, const BPHRecoCandida
   static string dType = "";
   string* type;
   const BPHPlusMinusCandidate* pmCand = dynamic_cast<const BPHPlusMinusCandidate*>(cand);
-  if (pmCand != 0) {
+  if (pmCand != nullptr) {
     if (pmCand->isCowboy())
       type = &cType;
     else
@@ -464,7 +464,7 @@ void TestBPHSpecificDecay::dumpRecoCand(const string& name, const BPHRecoCandida
   int ndof = lround(vx.ndof());
   double prob = TMath::Prob(chi2, ndof);
   string tdca = "";
-  if (pmCand != 0) {
+  if (pmCand != nullptr) {
     stringstream sstr;
     sstr << " - " << pmCand->cAppInRPhi().distance();
     tdca = sstr.str();
@@ -481,7 +481,7 @@ void TestBPHSpecificDecay::dumpRecoCand(const string& name, const BPHRecoCandida
     GlobalPoint gp(vp.X(), vp.Y(), vp.Z());
     GlobalVector dm(0.0, 0.0, 0.0);
     const reco::TransientTrack* tt = cand->getTransientTrack(dp);
-    if (tt != 0) {
+    if (tt != nullptr) {
       TrajectoryStateClosestToPoint tscp = tt->trajectoryStateClosestToPoint(gp);
       dm = tscp.momentum();
       //      TrajectoryStateOnSurface tsos = tt->stateOnSurface( gp );

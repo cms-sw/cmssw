@@ -109,7 +109,9 @@ namespace evf {
         EvFOutputModuleType(ps),
         ps_(ps),
         streamLabel_(ps.getParameter<std::string>("@module_label")),
-        trToken_(consumes<edm::TriggerResults>(edm::InputTag("TriggerResults"))) {
+        trToken_(consumes<edm::TriggerResults>(edm::InputTag("TriggerResults"))),
+        psetToken_(consumes<edm::SendJobHeader::ParameterSetMap, edm::InRun>(
+            ps.getUntrackedParameter<edm::InputTag>("psetMap"))) {
     //replace hltOutoputA with stream if the HLT menu uses this convention
     std::string testPrefix = "hltOutput";
     if (streamLabel_.find(testPrefix) == 0)
@@ -138,6 +140,8 @@ namespace evf {
     edm::ParameterSetDescription desc;
     edm::StreamerOutputModuleCommon::fillDescription(desc);
     EvFOutputModuleType::fillDescription(desc);
+    desc.addUntracked<edm::InputTag>("psetMap", {"hltPSetMap"})
+        ->setComment("Optionally allow the map of ParameterSets to be calculated externally.");
     descriptions.addDefault(desc);
   }
 
@@ -153,13 +157,16 @@ namespace evf {
     uint32 preamble_adler32 = 1;
     edm::BranchIDLists const* bidlPtr = branchIDLists();
 
+    auto psetMapHandle = run.getHandle(psetToken_);
+
     std::unique_ptr<InitMsgBuilder> init_message =
         jsonWriter_->streamerCommon_.serializeRegistry(*jsonWriter_->streamerCommon_.getSerializerBuffer(),
                                                        *bidlPtr,
                                                        *thinnedAssociationsHelper(),
                                                        OutputModule::processName(),
                                                        description().moduleLabel(),
-                                                       moduleDescription().mainParameterSetID());
+                                                       moduleDescription().mainParameterSetID(),
+                                                       psetMapHandle.isValid() ? psetMapHandle.product() : nullptr);
 
     //Let us turn it into a View
     InitMsgView view(init_message->startAddress());

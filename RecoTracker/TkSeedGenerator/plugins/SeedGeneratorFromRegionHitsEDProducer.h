@@ -1,5 +1,6 @@
 #ifndef RecoTracker_TkSeedGenerator_SeedGeneratorFromRegionHitsEDProducer_H
 #define RecoTracker_TkSeedGenerator_SeedGeneratorFromRegionHitsEDProducer_H
+#include "FWCore/Utilities/interface/Visibility.h"
 
 #include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"

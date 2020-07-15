@@ -1,8 +1,8 @@
-<bin   name="testFWCoreTestProcessor" file="testprocessor_t.cppunit.cc">
-  <use   name="boost"/>
-  <use   name="cppunit"/>
-  <use   name="FWCore/ParameterSet"/>
-  <use   name="FWCore/Utilities"/>
-  <use   name="FWCore/TestProcessor"/>
-  <use   name="FWCore/Integration"/>
+<bin name="testFWCoreTestProcessor" file="testprocessor_t.cppunit.cc">
+  <use name="boost"/>
+  <use name="cppunit"/>
+  <use name="FWCore/ParameterSet"/>
+  <use name="FWCore/Utilities"/>
+  <use name="FWCore/TestProcessor"/>
+  <use name="FWCore/Integration"/>
 </bin>

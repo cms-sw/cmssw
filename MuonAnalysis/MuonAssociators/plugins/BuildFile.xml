@@ -1,12 +1,10 @@
-<use   name="CommonTools/Utils"/>
-<use   name="DataFormats/PatCandidates"/>
-<use   name="FWCore/MessageLogger"/>
-<use   name="SimMuon/MCTruth"/>
-<use   name="SimTracker/Records"/>
-<use   name="SimTracker/TrackAssociation"/>
-<use   name="SimDataFormats/Associations"/>
-<use   name="MuonAnalysis/MuonAssociators"/>
+<use name="CommonTools/Utils"/>
+<use name="DataFormats/PatCandidates"/>
+<use name="FWCore/MessageLogger"/>
+<use name="SimTracker/Records"/>
+<use name="SimDataFormats/Associations"/>
+<use name="MuonAnalysis/MuonAssociators"/>
 <export>
 </export>
-<library   name="MuonAnalysisMuonAssociators_plugins" file="*.cc">
+<library name="MuonAnalysisMuonAssociators_plugins" file="*.cc">
 </library>

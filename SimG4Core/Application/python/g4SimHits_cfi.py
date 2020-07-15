@@ -150,6 +150,9 @@ g4SimHits = cms.EDProducer("OscarMTProducer",
         FlagBERT    = cms.untracked.bool(False),
         EminFTFP    = cms.double(3.), # in GeV
         EmaxBERT    = cms.double(6.), # in GeV
+        EminQGSP    = cms.double(12.), # in GeV
+        EmaxFTFP    = cms.double(25.), # in GeV
+        EmaxBERTpi  = cms.double(12.), # in GeV
         LowEnergyGflashEcal = cms.bool(False),
         LowEnergyGflashEcalEmax = cms.double(100),
         GflashEcal    = cms.bool(False),
@@ -321,7 +324,7 @@ g4SimHits = cms.EDProducer("OscarMTProducer",
         UseBirkLaw                = cms.bool(True),
         BirkC3                    = cms.double(1.75),
         BirkC2                    = cms.double(0.142),
-        BirkC1                    = cms.double(0.0052),
+        BirkC1                    = cms.double(0.0060),
         UseShowerLibrary          = cms.bool(True),
         UseParametrize            = cms.bool(False),
         UsePMTHits                = cms.bool(False),
@@ -436,13 +439,6 @@ g4SimHits = cms.EDProducer("OscarMTProducer",
     BHMSD = cms.PSet(
          Verbosity = cms.untracked.int32(0)
     ),
-    FastTimerSD = cms.PSet(
-        Verbosity = cms.untracked.int32(0),
-        TimeSliceUnit    = cms.double(0.001), #stepping = 1 ps (for timing)
-        IgnoreTrackID    = cms.bool(False),
-        EminHit          = cms.double(0.0),
-        CheckID          = cms.untracked.bool(True),
-    ),
     MtdSD = cms.PSet(
         Verbosity = cms.untracked.int32(0),
         TimeSliceUnit    = cms.double(0.01), #stepping = 10 ps (for timing)
@@ -496,6 +492,14 @@ g4SimHits = cms.EDProducer("OscarMTProducer",
     ),
     TotemSD = cms.PSet(
         Verbosity = cms.untracked.int32(0)
+    ),
+    TotemT2ScintSD = cms.PSet(
+        UseBirkLaw    = cms.bool(True),
+        BirkC3        = cms.double(1.75),
+        BirkC2        = cms.double(0.142),
+        BirkC1        = cms.double(0.006),
+        TimeSliceUnit = cms.double(1),
+        IgnoreTrackID = cms.bool(False),
     ),
     PPSDiamondSD = cms.PSet(
         Verbosity = cms.int32(0)

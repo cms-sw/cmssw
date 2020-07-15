@@ -6,6 +6,7 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/Utilities/interface/Visibility.h"
 
 #include "SeedForPhotonConversion1Leg.h"
 #include "RecoTracker/TkSeedGenerator/interface/FastHelix.h"

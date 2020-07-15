@@ -14,7 +14,6 @@
 #include <string>
 #include <vector>
 #include "DataFormats/DetId/interface/DetId.h"
-#include "DetectorDescription/Core/interface/DDsvalues.h"
 #include "Geometry/HGCalCommonData/interface/HGCalGeometryMode.h"
 #include "Geometry/HGCalCommonData/interface/HGCalParameters.h"
 
@@ -160,6 +159,7 @@ public:
   }
   int waferType(DetId const& id) const;
   int waferType(int layer, int waferU, int waferV) const;
+  std::pair<int, int> waferTypeRotation(int layer, int waferU, int waferV) const;
   int waferUVMax() const { return hgpar_->waferUVMax_; }
   bool waferVirtual(int layer, int waferU, int waferV) const;
   double waferZ(int layer, bool reco) const;

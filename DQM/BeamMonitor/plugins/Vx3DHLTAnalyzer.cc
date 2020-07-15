@@ -73,7 +73,7 @@ Vx3DHLTAnalyzer::Vx3DHLTAnalyzer(const ParameterSet& iConfig) {
   // ##############################
 }
 
-Vx3DHLTAnalyzer::~Vx3DHLTAnalyzer() { reset("scratch"); }
+Vx3DHLTAnalyzer::~Vx3DHLTAnalyzer() {}
 
 void Vx3DHLTAnalyzer::analyze(const Event& iEvent, const EventSetup& iSetup) {
   Handle<VertexCollection> Vx3DCollection;

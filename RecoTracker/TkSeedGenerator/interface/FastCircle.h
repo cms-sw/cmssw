@@ -2,7 +2,7 @@
 #define TR_FastCircle_H_
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 #include "DataFormats/Math/interface/AlgebraicROOTObjects.h"
-#include "FWCore/Utilities/interface/GCC11Compatibility.h"
+#include "FWCore/Utilities/interface/Visibility.h"
 
 /**
    Calculate circle parameters (x0, y0, rho) for a circle:

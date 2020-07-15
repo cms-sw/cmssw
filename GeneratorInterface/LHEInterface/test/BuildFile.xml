@@ -1,15 +1,17 @@
-<library   file="DummyLHEAnalyzer.cc">
-  <use   name="PhysicsTools/HepMCCandAlgos"/>
-  <use   name="SimDataFormats/GeneratorProducts"/>
-  <use   name="FWCore/Framework"/>
-  <flags   EDM_PLUGIN="1"/>
+<library file="DummyLHEAnalyzer.cc">
+  <use name="PhysicsTools/HepMCCandAlgos"/>
+  <use name="SimDataFormats/GeneratorProducts"/>
+  <use name="FWCore/Framework"/>
+  <flags EDM_PLUGIN="1"/>
 </library>
-<bin   name="TestGeneratorInterfaceLHEInterfaceFileReading" file="TestDriver.cpp">
-  <flags   TEST_RUNNER_ARGS=" /bin/bash GeneratorInterface/LHEInterface/test testMerging.sh"/>
-  <use   name="FWCore/Utilities"/>
+
+<bin name="TestGeneratorInterfaceLHEInterfaceFileReading" file="TestDriver.cpp">
+  <flags TEST_RUNNER_ARGS=" /bin/bash GeneratorInterface/LHEInterface/test testMerging.sh"/>
+  <use name="FWCore/Utilities"/>
 </bin>
+
 <bin file="test_catch2_*.cc" name="testGeneratorInterfaceLHEInterface_TP">
   <use name="FWCore/TestProcessor"/>
-  <use   name="SimDataFormats/GeneratorProducts"/>
+  <use name="SimDataFormats/GeneratorProducts"/>
   <use name="catch2"/>
 </bin>

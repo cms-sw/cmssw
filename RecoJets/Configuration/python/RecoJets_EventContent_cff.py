@@ -6,9 +6,10 @@ RecoJetsAOD = cms.PSet(
                                            'keep *_ak4CaloJets_rho_*',
                                            'keep *_ak4CaloJets_sigma_*',
                                            'keep *_ak4PFJetsCHS_*_*',
-                                           'keep *_ak8PFJetsCHS_*_*',
-                                           'keep *_ak8PFJetsCHSSoftDrop_*_*',
-                                           'keep *_cmsTopTagPFJetsCHS_*_*',
+                                           'keep floatedmValueMap_puppi_*_*',
+                                           'keep *_ak4PFJetsPuppi_*_*',
+                                           'keep *_ak8PFJetsPuppi_*_*',
+                                           'keep *_ak8PFJetsPuppiSoftDrop_*_*',
                                            'keep recoPFJets_ak4PFJets_*_*',
                                            'keep *_ak4PFJets_rho_*',
                                            'keep *_ak4PFJets_sigma_*',
@@ -36,7 +37,7 @@ RecoJetsAOD = cms.PSet(
                                            'keep *_fixedGridRhoFastjetCentralCalo_*_*',
                                            'keep *_fixedGridRhoFastjetCentralChargedPileUp_*_*',
                                            'keep *_fixedGridRhoFastjetCentralNeutral_*_*',
-                                           'keep *_ak8PFJetsCHSSoftDropMass_*_*'                                 
+                                           'keep *_ak8PFJetsPuppiSoftDropMass_*_*'
                                            )
 )
 RecoGenJetsAOD = cms.PSet(

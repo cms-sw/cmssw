@@ -1,7 +1,7 @@
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "Validation/MuonCSCDigis/src/CSCStripDigiValidation.h"
+#include "Validation/MuonCSCDigis/interface/CSCStripDigiValidation.h"
 
 CSCStripDigiValidation::CSCStripDigiValidation(const edm::InputTag &inputTag, edm::ConsumesCollector &&iC)
     : CSCBaseValidation(inputTag),

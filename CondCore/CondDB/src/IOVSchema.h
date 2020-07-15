@@ -33,7 +33,6 @@ namespace cond {
                     std::string& objectType,
                     cond::SynchronizationType& synchronizationType,
                     cond::Time_t& endOfValidity,
-                    std::string& description,
                     cond::Time_t& lastValidatedTime) override;
         bool getMetadata(const std::string& name,
                          std::string& description,
@@ -50,9 +49,11 @@ namespace cond {
         void update(const std::string& name,
                     cond::SynchronizationType synchronizationType,
                     cond::Time_t& endOfValidity,
-                    const std::string& description,
                     cond::Time_t lastValidatedTime,
                     const boost::posix_time::ptime& updateTime) override;
+        void updateMetadata(const std::string& name,
+                            const std::string& description,
+                            const boost::posix_time::ptime& updateTime) override;
         void updateValidity(const std::string& name,
                             cond::Time_t lastValidatedTime,
                             const boost::posix_time::ptime& updateTime) override;
@@ -170,6 +171,8 @@ namespace cond {
         void insertMany(
             const std::string& tag,
             const std::vector<std::tuple<cond::Time_t, cond::Hash, boost::posix_time::ptime> >& iovs) override;
+        void eraseOne(const std::string& tag, cond::Time_t since, cond::Hash payloadId) override;
+        void eraseMany(const std::string& tag, const std::vector<std::tuple<cond::Time_t, cond::Hash> >& iovs) override;
         void erase(const std::string& tag) override;
 
       private:

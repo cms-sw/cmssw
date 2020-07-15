@@ -1,6 +1,6 @@
-<use   name="DataFormats/GeometrySurface"/>
-<use   name="DetectorDescription/Core"/>
-<use   name="DetectorDescription/DDCMS"/>
+<use name="DataFormats/GeometrySurface"/>
+<use name="DetectorDescription/Core"/>
+<use name="DetectorDescription/DDCMS"/>
 <export>
-  <lib   name="1"/>
+  <lib name="1"/>
 </export>

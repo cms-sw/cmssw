@@ -2,7 +2,6 @@
 #define DATAFORMATS_PIXELCHANMNELIDENTIFIER_H
 
 #include <utility>
-#include "FWCore/Utilities/interface/GCC11Compatibility.h"
 
 namespace pixelchanelidentifierimpl {
   /**

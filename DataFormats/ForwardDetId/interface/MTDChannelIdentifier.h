@@ -2,7 +2,6 @@
 #define DATAFORMATS_MTDCHANNELIDENTIFIER_H
 
 #include <utility>
-#include "FWCore/Utilities/interface/GCC11Compatibility.h"
 
 class MTDChannelIdentifier {
 public:

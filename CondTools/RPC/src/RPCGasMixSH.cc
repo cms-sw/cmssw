@@ -24,7 +24,7 @@ popcon::RpcDataGasMix::~RpcDataGasMix() {}
 void popcon::RpcDataGasMix::getNewObjects() {
   std::cout << "------- " << m_name << " - > getNewObjects\n"
             << "got offlineInfo" << tagInfo().name << ", size " << tagInfo().size << ", last object valid since "
-            << tagInfo().lastInterval.first << " token " << tagInfo().lastPayloadToken << std::endl;
+            << tagInfo().lastInterval.since << " token " << tagInfo().lastInterval.payloadId << std::endl;
 
   std::cout << " ------ last entry info regarding the payload (if existing): " << logDBEntry().usertext
             << "last record with the correct tag has been written in the db: " << logDBEntry().destinationDB

@@ -1,13 +1,14 @@
 <architecture name="slc6_amd64">
   <flags LDFLAGS="-Wl,-dynamic-linker,$(GLIBC_BASE)/lib64/ld.so"/>
 </architecture>
-<bin   name="edmPluginDump" file="dump.cc">
-  <use   name="boost"/>
-  <use   name="boost_program_options"/>
-  <use   name="FWCore/PluginManager"/>
+<bin name="edmPluginDump" file="dump.cc">
+  <use name="boost"/>
+  <use name="boost_program_options"/>
+  <use name="FWCore/PluginManager"/>
 </bin>
-<bin   name="edmPluginRefresh" file="refresh.cc">
-  <use   name="boost"/>
-  <use   name="boost_program_options"/>
-  <use   name="FWCore/PluginManager"/>
+
+<bin name="edmPluginRefresh" file="refresh.cc">
+  <use name="boost"/>
+  <use name="boost_program_options"/>
+  <use name="FWCore/PluginManager"/>
 </bin>

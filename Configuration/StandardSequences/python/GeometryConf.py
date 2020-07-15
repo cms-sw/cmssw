@@ -40,6 +40,10 @@ GeometryConf={
     'Extended2026D49' : 'Extended2026D49,Extended2026D49Reco',
     'Extended2026D50' : 'Extended2026D50,Extended2026D50Reco',
     'Extended2026D51' : 'Extended2026D51,Extended2026D51Reco',
-    'Extended2026D52' : 'Extended2026D52,Extended2026D52Reco',
     'Extended2026D53' : 'Extended2026D53,Extended2026D53Reco',
+    'Extended2026D54' : 'Extended2026D54,Extended2026D54Reco',
+    'Extended2026D55' : 'Extended2026D55,Extended2026D55Reco',
+    'Extended2026D56' : 'Extended2026D56,Extended2026D56Reco',
+    'Extended2026D57' : 'Extended2026D57,Extended2026D57Reco',
+    'Extended2026D58' : 'Extended2026D58,Extended2026D58Reco',
     }

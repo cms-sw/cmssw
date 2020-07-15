@@ -41,7 +41,7 @@ process.maxEvents = cms.untracked.PSet(
 )
 
 # geometry definition and reco modules
-process.load("RecoCTPPS.Configuration.recoCTPPS_cff")
+process.load("RecoPPS.Configuration.recoCTPPS_cff")
 
 # CTPPS DQM modules
 process.load("DQM.CTPPS.ctppsDQM_cff")

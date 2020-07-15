@@ -1,8 +1,8 @@
-<library   file="*.cc" name="GeometryHcalTowerAlgoPlugins">
-  <use   name="FWCore/Framework"/>
-  <use   name="FWCore/ParameterSet"/>
-  <use   name="Geometry/Records"/>
-  <use   name="Geometry/HcalTowerAlgo"/>
-  <use   name="CondFormats/GeometryObjects"/>
-  <flags   EDM_PLUGIN="1"/>
+<library file="*.cc" name="GeometryHcalTowerAlgoPlugins">
+  <use name="FWCore/Framework"/>
+  <use name="FWCore/ParameterSet"/>
+  <use name="Geometry/Records"/>
+  <use name="Geometry/HcalTowerAlgo"/>
+  <use name="CondFormats/GeometryObjects"/>
+  <flags EDM_PLUGIN="1"/>
 </library>

@@ -11,9 +11,10 @@
 #include "DataFormats/HGCalReco/interface/TICLSeedingRegion.h"
 #include "HGCDoublet.h"
 
-class HGCGraph {
+template <typename TILES>
+class HGCGraphT {
 public:
-  void makeAndConnectDoublets(const TICLLayerTiles &h,
+  void makeAndConnectDoublets(const TILES &h,
                               const std::vector<TICLSeedingRegion> &regions,
                               int nEtaBins,
                               int nPhiBins,
@@ -24,6 +25,7 @@ public:
                               int deltaIPhi,
                               float minCosThetai,
                               float maxCosPointing,
+                              float etaLimitIncreaseWindow,
                               int missing_layers,
                               int maxNumberOfLayers,
                               float maxDeltaTime);
@@ -42,8 +44,10 @@ public:
   void clear() {
     allDoublets_.clear();
     theRootDoublets_.clear();
-    theNtuplets_.clear();
     isOuterClusterOfDoublets_.clear();
+    allDoublets_.shrink_to_fit();
+    theRootDoublets_.shrink_to_fit();
+    isOuterClusterOfDoublets_.shrink_to_fit();
   }
   void setVerbosity(int level) { verbosity_ = level; }
   enum VerbosityLevel { None = 0, Basic, Advanced, Expert, Guru };
@@ -51,7 +55,6 @@ public:
 private:
   std::vector<HGCDoublet> allDoublets_;
   std::vector<unsigned int> theRootDoublets_;
-  std::vector<std::vector<HGCDoublet *>> theNtuplets_;
   std::vector<std::vector<int>> isOuterClusterOfDoublets_;
   int verbosity_;
 };

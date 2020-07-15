@@ -16,6 +16,7 @@
 #include <TQObject.h>
 #include <KeySymbols.h>
 #include <TGMenu.h>
+#include <TVirtualX.h>
 
 // user include files
 #include "Fireworks/Core/interface/CSGAction.h"

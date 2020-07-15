@@ -57,7 +57,7 @@ void MTDTopologyAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetu
   iSetup.get<MTDTopologyRcd>().get(mtdTopo);
   edm::LogInfo("MTDTopologyAnalyzer") << "MTD topology mode = " << mtdTopo->getMTDTopologyMode();
 
-  // Build DetIds based on DDD description, then extract information from topology and compare
+  // Build DetIds based on DD description, then extract information from topology and compare
 
   std::string label;
 
@@ -121,10 +121,12 @@ void MTDTopologyAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetu
       bool isSens = false;
 
       if (fv.geoHistory()[num - 1].logicalPart().specifics().size() > 0) {
-        for (auto elem : *(fv.geoHistory()[num - 1].logicalPart().specifics()[0])) {
-          if (elem.second.name() == "SensitiveDetector") {
-            isSens = true;
-            break;
+        for (auto vec : fv.geoHistory()[num - 1].logicalPart().specifics()) {
+          for (auto elem : *vec) {
+            if (elem.second.name() == "SensitiveDetector") {
+              isSens = true;
+              break;
+            }
           }
         }
       }
@@ -169,7 +171,7 @@ void MTDTopologyAnalyzer::theBaseNumber(const DDGeoHistory& gh) {
 }
 
 std::string MTDTopologyAnalyzer::noNSgeoHistory(const DDGeoHistory& gh) {
-  std::string output;
+  std::string output(" - ");
   for (uint i = 0; i < gh.size(); i++) {
     output += gh[i].logicalPart().name().name();
     output += "[";
@@ -178,7 +180,7 @@ std::string MTDTopologyAnalyzer::noNSgeoHistory(const DDGeoHistory& gh) {
   }
 
 #ifdef EDM_ML_DEBUG
-  edm::LogInfo("TestMTDNumbering") << output;
+  edm::LogInfo("MTDTopologyAnalyzer") << output;
 #endif
 
   return output;

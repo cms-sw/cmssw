@@ -1,11 +1,12 @@
-<use   name="rootgraphics"/>
-<use   name="Alignment/MuonAlignment"/>
-<use   name="Alignment/CommonAlignmentAlgorithm"/>
-<use   name="CondFormats/Alignment"/>
-<use   name="CondFormats/AlignmentRecord"/>
-<use   name="FWCore/Framework"/>
-<use   name="FWCore/MessageLogger"/>
-<library   file="*.cpp" name="AlignmentMuonAlignment_test">
-  <flags   EDM_PLUGIN="1"/>
+<use name="rootgraphics"/>
+<use name="Alignment/MuonAlignment"/>
+<use name="Alignment/CommonAlignmentAlgorithm"/>
+<use name="CondFormats/Alignment"/>
+<use name="CondFormats/AlignmentRecord"/>
+<use name="FWCore/Framework"/>
+<use name="FWCore/MessageLogger"/>
+<library file="*.cpp" name="AlignmentMuonAlignment_test">
+  <flags EDM_PLUGIN="1"/>
 </library>
-<test name="test_MuonGeometryDBConverter" command="test_MuonGeometryDBConverter.sh" />
+
+<test name="test_MuonGeometryDBConverter" command="test_MuonGeometryDBConverter.sh"/>

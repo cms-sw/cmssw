@@ -198,6 +198,7 @@ void CmsShowMainBase::setup(FWNavigatorBase *navigator,
                             FWJobMetadataManager *metadataManager) {
   m_navigatorPtr = navigator;
   m_contextPtr = context;
+  m_contextPtr->setGeom(&m_geom);
   m_metadataManagerPtr = metadataManager;
 
   m_colorManager->initialize();
@@ -389,7 +390,6 @@ void CmsShowMainBase::loadGeometry() {  // prepare geometry service
   try {
     guiManager()->updateStatus("Loading geometry...");
     m_geom.loadMap(m_geometryFilename.c_str());
-    m_contextPtr->setGeom(&m_geom);
   } catch (const std::runtime_error &iException) {
     fwLog(fwlog::kError) << "CmsShowMain::loadGeometry() caught exception: \n"
                          << m_geometryFilename << " " << iException.what() << std::endl;

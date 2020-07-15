@@ -48,12 +48,17 @@ HGCalRecHitWorkerSimple::HGCalRecHitWorkerSimple(const edm::ParameterSet& ps) : 
   rechitMaker_->setNoseLayerWeights(weightsNose_);
 
   // residual correction for cell thickness
+  // first for silicon
   const auto& rcorr = ps.getParameter<std::vector<double> >("thicknessCorrection");
   rcorr_.clear();
   rcorr_.push_back(1.f);
   for (auto corr : rcorr) {
     rcorr_.push_back(1.0 / corr);
   }
+  // here for scintillator
+  rcorrscint_ = ps.getParameter<double>("sciThicknessCorrection");
+  //This is for the index position in CE_H silicon thickness cases
+  deltasi_index_regemfac_ = ps.getParameter<int>("deltasi_index_regemfac");
   const auto& rcorrnose = ps.getParameter<std::vector<double> >("thicknessNoseCorrection");
   rcorrNose_.clear();
   rcorrNose_.push_back(1.f);
@@ -170,8 +175,8 @@ bool HGCalRecHitWorkerSimple::run(const edm::Event& evt,
     case hgcfh:
       rechitMaker_->setADCToGeVConstant(float(hgchefUncalib2GeV_));
       cce_correction = hgcHEF_cce_[thickness - 1];
-      sigmaNoiseGeV = 1e-3 * weights_[layer] * rcorr_[thickness] * hgcHEF_noise_fC_[thickness - 1] /
-                      hgcHEF_fCPerMIP_[thickness - 1];
+      sigmaNoiseGeV = 1e-3 * weights_[layer] * rcorr_[thickness + deltasi_index_regemfac_] *
+                      hgcHEF_noise_fC_[thickness - 1] / hgcHEF_fCPerMIP_[thickness - 1];
       break;
     case hgcbh:
       rechitMaker_->setADCToGeVConstant(float(hgchebUncalib2GeV_));
@@ -193,8 +198,12 @@ bool HGCalRecHitWorkerSimple::run(const edm::Event& evt,
   double new_E = myrechit.energy();
   if (detid.det() == DetId::Forward && detid.subdetId() == ForwardSubdetector::HFNose) {
     new_E *= (thickness == -1 ? 1.0 : rcorrNose_[thickness]) / cce_correction;
-  } else {
-    new_E *= (thickness == -1 ? 1.0 : rcorr_[thickness]) / cce_correction;
+  }  //regional factors for silicon in CE_H
+  else if (idtype == hgcfh) {
+    new_E *= rcorr_[thickness + deltasi_index_regemfac_] / cce_correction;
+  }  //regional factors for scintillator and silicon in CE_E
+  else {
+    new_E *= (thickness == -1 ? rcorrscint_ : rcorr_[thickness]) / cce_correction;
   }
 
   myrechit.setEnergy(new_E);

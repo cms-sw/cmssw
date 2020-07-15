@@ -1,12 +1,12 @@
-<use   name="DataFormats/HcalDetId"/>
-<use   name="DataFormats/HcalDigi"/>
-<use   name="DataFormats/FEDRawData"/>
-<use   name="FWCore/MessageLogger"/>
-<use   name="CondFormats/HcalObjects"/>
-<use   name="FWCore/Utilities"/>
-<use   name="CalibFormats/HcalObjects"/>
-<use   name="CalibFormats/CaloObjects"/>
-<use   name="boost"/>
+<use name="DataFormats/HcalDetId"/>
+<use name="DataFormats/HcalDigi"/>
+<use name="DataFormats/FEDRawData"/>
+<use name="FWCore/MessageLogger"/>
+<use name="CondFormats/HcalObjects"/>
+<use name="FWCore/Utilities"/>
+<use name="CalibFormats/HcalObjects"/>
+<use name="CalibFormats/CaloObjects"/>
+<use name="boost"/>
 <export>
-  <lib   name="1"/>
+  <lib name="1"/>
 </export>

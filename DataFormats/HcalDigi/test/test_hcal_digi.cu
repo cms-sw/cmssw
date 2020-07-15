@@ -1,15 +1,17 @@
-#include <cuda_runtime.h>
-#include <cuda.h>
-
+#include <cassert>
 #include <iostream>
-#include <assert.h>
+
+#include <cuda.h>
+#include <cuda_runtime.h>
+
+#include "DataFormats/Common/interface/DataFrame.h"
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
 #include "DataFormats/HcalDigi/interface/HBHEDataFrame.h"
+#include "DataFormats/HcalDigi/interface/HcalDigiCollections.h"
 #include "DataFormats/HcalDigi/interface/QIE10DataFrame.h"
 #include "DataFormats/HcalDigi/interface/QIE11DataFrame.h"
-#include "DataFormats/HcalDigi/interface/HcalDigiCollections.h"
-#include "DataFormats/Common/interface/DataFrame.h"
+#include "HeterogeneousCore/CUDAUtilities/interface/requireDevices.h"
 
 __global__ void kernel_test_hcal_qiesample(HcalQIESample *sample, uint16_t value) {
   printf("kernel: testing hcal qie sampel\n");
@@ -69,7 +71,6 @@ void test_hcal_qie1011_digis() {
   constexpr int samples = 10;
   constexpr int detid = 2;
   HcalDataFrameContainer<TDF> coll{samples, detid};
-  TDF *d_dfs;
   uint16_t *d_data;
   uint32_t *d_out;
   uint32_t h_out[size], h_test_out[size];
@@ -162,22 +163,18 @@ void test_hcal_qie8_hbhedf() {
 }
 
 int main(int argc, char **argv) {
-  int nDevices;
-  cudaGetDeviceCount(&nDevices);
-  std::cout << "nDevices = " << nDevices << std::endl;
+  cms::cudatest::requireDevices();
 
-  if (nDevices > 0) {
-    // qie8
-    test_hcal_qiesample();
-    test_hcal_qie8_hbhedf();
-    test_hcal_qie8_digis<HBHEDataFrame>();
-    test_hcal_qie8_digis<HFDataFrame>();
-    test_hcal_qie8_digis<HODataFrame>();
+  // qie8
+  test_hcal_qiesample();
+  test_hcal_qie8_hbhedf();
+  test_hcal_qie8_digis<HBHEDataFrame>();
+  test_hcal_qie8_digis<HFDataFrame>();
+  test_hcal_qie8_digis<HODataFrame>();
 
-    // qie1011
-    test_hcal_qie1011_digis<QIE10DataFrame>();
-    test_hcal_qie1011_digis<QIE11DataFrame>();
-  }
+  // qie1011
+  test_hcal_qie1011_digis<QIE10DataFrame>();
+  test_hcal_qie1011_digis<QIE11DataFrame>();
 
   return 0;
 }

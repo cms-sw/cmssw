@@ -23,6 +23,7 @@ DQMNone = cms.Sequence()
 DQMMessageLoggerSeq = cms.Sequence( DQMMessageLogger )
 
 dqmProvInfo.runType = "pp_run"
+dqmProvInfo.dcsRecord = cms.untracked.InputTag("onlineMetaDataDigis")
 DQMOfflineDCS = cms.Sequence( dqmProvInfo )
 
 # L1 trigger sequences
@@ -33,8 +34,13 @@ DQMOfflineL1TEgamma = cms.Sequence( l1TriggerEgDqmOffline )
 DQMOfflineL1TMuon = cms.Sequence( l1TriggerMuonDqmOffline )
 
 #DPGs
-DQMOfflineEcal = cms.Sequence( ecal_dqm_source_offline *
-				es_dqm_source_offline )
+DQMOfflineEcalOnly = cms.Sequence(
+    ecalOnly_dqm_source_offline +
+    es_dqm_source_offline )
+
+DQMOfflineEcal = cms.Sequence(
+    ecal_dqm_source_offline +
+    es_dqm_source_offline )
 
 DQMOfflineHcal = cms.Sequence( hcalOfflineSourceSequence )
 

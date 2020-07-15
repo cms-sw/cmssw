@@ -1,8 +1,7 @@
-<use   name="CondFormats/Calibration"/>
-<use   name="CondFormats/DataRecord"/>
-<use   name="CondCore/PopCon"/>
-<use   name="CondFormats/CSCObjects"/>
-<use   name="OnlineDB/Oracle"/>
-<library   name="OnlineDBCSCCondDB_TestPlugins" file="../src/CSCMap1.cc,../src/CSCCableRead.cc,stubs/*.cc">
-  <flags   EDM_PLUGIN="1"/>
+<use name="CondCore/PopCon"/>
+<use name="CondFormats/CSCObjects"/>
+<use name="OnlineDB/Oracle"/>
+<lib name="occi"/>
+<library name="OnlineDBCSCCondDB_TestPlugins" file="../src/CSCMap1.cc,../src/CSCCableRead.cc,stubs/*.cc">
+  <flags EDM_PLUGIN="1"/>
 </library>

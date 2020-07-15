@@ -5,7 +5,6 @@
 #include "DataFormats/Common/interface/RefHolderBase.h"
 #include "DataFormats/Provenance/interface/ProductID.h"
 #include "FWCore/Utilities/interface/OffsetToBase.h"
-#include "FWCore/Utilities/interface/GCC11Compatibility.h"
 #include <memory>
 #include <typeinfo>
 

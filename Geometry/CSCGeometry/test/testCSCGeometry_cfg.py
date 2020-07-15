@@ -6,6 +6,7 @@ process = cms.Process("CSCGeometryAnalyzer")
 
 # Endcap Muon geometry
 # ====================
+process.load("Geometry.MuonNumbering.muonGeometryConstants_cff")
 process.load("Geometry.MuonNumbering.muonNumberingInitialization_cfi")
 process.load("Geometry.MuonCommonData.muonEndcapIdealGeometryXML_cfi")
 

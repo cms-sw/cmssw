@@ -1,35 +1,39 @@
-<use   name="clhep"/>
-<use   name="DataFormats/BTauReco"/>
-<library   file="printJetFlavourInfo.cc">
-  <flags   EDM_PLUGIN="1"/>
-  <use   name="FWCore/Framework"/>
-  <use   name="SimDataFormats/JetMatching"/>
-  <use   name="SimGeneral/HepPDTRecord"/>
-  <use   name="DataFormats/JetReco"/>
+<use name="clhep"/>
+<library file="printJetFlavourInfo.cc">
+  <flags EDM_PLUGIN="1"/>
+  <use name="FWCore/Framework"/>
+  <use name="SimDataFormats/JetMatching"/>
+  <use name="SimGeneral/HepPDTRecord"/>
+  <use name="DataFormats/JetReco"/>
 </library>
-<library   file="printJetFlavour.cc">
-  <flags   EDM_PLUGIN="1"/>
-  <use   name="FWCore/Framework"/>
-  <use   name="SimDataFormats/JetMatching"/>
-  <use   name="SimGeneral/HepPDTRecord"/>
-  <use   name="DataFormats/JetReco"/>
+
+<library file="printJetFlavour.cc">
+  <flags EDM_PLUGIN="1"/>
+  <use name="FWCore/Framework"/>
+  <use name="SimDataFormats/JetMatching"/>
+  <use name="SimGeneral/HepPDTRecord"/>
+  <use name="DataFormats/JetReco"/>
 </library>
-<library   file="printGenJetRatio.cc">
-  <flags   EDM_PLUGIN="1"/>
-  <use   name="FWCore/Framework"/>
-  <use   name="SimDataFormats/JetMatching"/>
-  <use   name="SimGeneral/HepPDTRecord"/>
-  <use   name="DataFormats/JetReco"/>
+
+<library file="printGenJetRatio.cc">
+  <flags EDM_PLUGIN="1"/>
+  <use name="FWCore/Framework"/>
+  <use name="SimDataFormats/JetMatching"/>
+  <use name="SimGeneral/HepPDTRecord"/>
+  <use name="DataFormats/JetReco"/>
 </library>
-<library   file="printPartonJet.cc">
-  <flags   EDM_PLUGIN="1"/>
-  <use   name="FWCore/Framework"/>
+
+<library file="printPartonJet.cc">
+  <flags EDM_PLUGIN="1"/>
+  <use name="DataFormats/Candidate"/>
+  <use name="FWCore/Framework"/>
 </library>
-<library   file="printTrackJet.cc">
-  <flags   EDM_PLUGIN="1"/>
-  <use   name="FWCore/Framework"/>
-  <use   name="SimGeneral/HepPDTRecord"/>
-  <use   name="PhysicsTools/JetMCUtils"/>
-  <use   name="rootmath"/>
-  <use   name="root"/>
+
+<library file="printTrackJet.cc">
+  <flags EDM_PLUGIN="1"/>
+  <use name="FWCore/Framework"/>
+  <use name="SimGeneral/HepPDTRecord"/>
+  <use name="PhysicsTools/JetMCUtils"/>
+  <use name="rootmath"/>
+  <use name="root"/>
 </library>

@@ -7,6 +7,7 @@
 #include "FWCore/Utilities/interface/isFinite.h"
 #include "DataFormats/TrackerRecHit2D/interface/BaseTrackerRecHit.h"
 #include "DataFormats/TrackerRecHit2D/interface/TkCloner.h"
+#include "FWCore/Utilities/interface/Likely.h"
 
 const DetLayerGeometry KFTrajectoryFitter::dummyGeometry;
 

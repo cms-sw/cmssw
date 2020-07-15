@@ -201,8 +201,8 @@ mkfit::TrackVec MkFitInputConverter::convertSeeds(const edm::View<TrajectorySeed
   ret.reserve(seeds.size());
   int index = 0;
   for (const auto& seed : seeds) {
-    const auto hitRange = seed.recHits();
-    const auto lastRecHit = ttrhBuilder.build(&*(hitRange.second - 1));
+    auto const& hitRange = seed.recHits();
+    const auto lastRecHit = ttrhBuilder.build(&*(hitRange.end() - 1));
     const auto tsos = trajectoryStateTransform::transientState(seed.startingState(), lastRecHit->surface(), &mf);
     const auto& stateGlobal = tsos.globalParameters();
     const auto& gpos = stateGlobal.position();
@@ -224,11 +224,11 @@ mkfit::TrackVec MkFitInputConverter::convertSeeds(const edm::View<TrajectorySeed
     ret.emplace_back(state, 0, index, 0, nullptr);
 
     // Add hits
-    for (auto iHit = hitRange.first; iHit != hitRange.second; ++iHit) {
-      if (not trackerHitRTTI::isFromDet(*iHit)) {
+    for (auto const& recHit : hitRange) {
+      if (not trackerHitRTTI::isFromDet(recHit)) {
         throw cms::Exception("Assert") << "Encountered a seed with a hit which is not trackerHitRTTI::isFromDet()";
       }
-      const auto& clusterRef = static_cast<const BaseTrackerRecHit&>(*iHit).firstClusterRef();
+      const auto& clusterRef = static_cast<const BaseTrackerRecHit&>(recHit).firstClusterRef();
       const auto& mkFitHit = hitIndexMap.mkFitHit(clusterRef.id(), clusterRef.index());
       ret.back().addHitIdx(mkFitHit.index(), mkFitHit.layer(), 0);  // per-hit chi2 is not known
     }

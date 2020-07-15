@@ -33,7 +33,7 @@ void Timestamp::analyze(const edm::Event& evt, const edm::EventSetup& evtSetup) 
   std::cout << myped.m_pedestals[1].m_mean << std::endl;
   std::cout << "currentTime " << mydbservice->currentTime() << std::endl;
   if (mydbservice->currentTime() % 5 == 0) {
-    mydbservice->writeOne(&myped, mydbservice->currentTime(), m_record, false);
+    mydbservice->writeOne(&myped, mydbservice->currentTime(), m_record);
   }
 }
 void Timestamp::endJob() {}

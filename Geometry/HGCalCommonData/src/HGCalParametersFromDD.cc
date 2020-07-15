@@ -1,4 +1,5 @@
 #include "Geometry/HGCalCommonData/interface/HGCalParametersFromDD.h"
+
 #include "DataFormats/Math/interface/GeantUnits.h"
 #include "DetectorDescription/Core/interface/DDFilteredView.h"
 #include "DetectorDescription/Core/interface/DDutils.h"
@@ -237,18 +238,16 @@ bool HGCalParametersFromDD::build(const cms::DDCompactView* cpv,
   edm::LogVerbatim("HGCalGeom") << "HGCalParametersFromDD (DD4Hep)::build called with "
                                 << "names " << name << ":" << namew << ":" << namec << ":" << namet;
 #endif
-  cms::DDFilteredView fv(cpv->detector(), cpv->detector()->worldVolume());
   cms::DDVectorsMap vmap = cpv->detector()->vectors();
+  const cms::DDFilter filter("Volume", name);
+  cms::DDFilteredView fv((*cpv), filter);
   std::vector<std::string> tempS;
   std::vector<double> tempD;
-  tempS = fv.get<std::vector<std::string> >(name, "GeometryMode");
-  std::string sv = (!tempS.empty()) ? tempS[0] : "HGCalGeometryMode::Hexagon8Full";
-  std::string attribute = "Volume";
-  cms::DDSpecParRefs refs;
-  const cms::DDSpecParRegistry& mypar = cpv->specpars();
-  mypar.filter(refs, attribute, name);
-  fv.mergedSpecifics(refs);
   bool ok = fv.firstChild();
+  tempS = fv.get<std::vector<std::string> >(name2, "GeometryMode");
+  if (tempS.empty())
+    tempS = fv.get<std::vector<std::string> >(name, "GeometryMode");
+  std::string sv = (!tempS.empty()) ? tempS[0] : "HGCalGeometryMode::Hexagon8Full";
   HGCalGeometryMode::WaferMode mode(HGCalGeometryMode::Polyhedra);
 
   if (ok) {
@@ -264,7 +263,7 @@ bool HGCalParametersFromDD::build(const cms::DDCompactView* cpv,
     php.firstMixedLayer_ = -1;  // defined for post TDR geometry
     std::unique_ptr<HGCalGeomParameters> geom = std::make_unique<HGCalGeomParameters>();
     if ((php.mode_ == HGCalGeometryMode::Hexagon) || (php.mode_ == HGCalGeometryMode::HexagonFull)) {
-      tempS = fv.get<std::vector<std::string> >(name, "WaferMode");
+      tempS = fv.get<std::vector<std::string> >(namet, "WaferMode");
       std::string sv2 = (!tempS.empty()) ? tempS[0] : "HGCalGeometryMode::Polyhedra";
       mode = getGeometryWaferMode(sv2);
 #ifdef EDM_ML_DEBUG
@@ -290,7 +289,7 @@ bool HGCalParametersFromDD::build(const cms::DDCompactView* cpv,
                                     << php.firstMixedLayer_ << " Det Type " << php.detectorType_;
 #endif
 
-      tempS = fv.get<std::vector<std::string> >(name, "WaferMode");
+      tempS = fv.get<std::vector<std::string> >(namet, "WaferMode");
       std::string sv2 = (!tempS.empty()) ? tempS[0] : "HGCalGeometryMode::ExtrudedPolygon";
       mode = getGeometryWaferMode(sv2);
       tempD = fv.get<std::vector<double> >(namet, "NumberOfCellsFine");
@@ -396,8 +395,8 @@ bool HGCalParametersFromDD::build(const cms::DDCompactView* cpv,
           << "Unknown Geometry type " << php.mode_ << " for HGCal " << name << ":" << namew << ":" << namec;
     }
   } else {
-    edm::LogError("HGCalGeom") << " Attribute " << attribute << ":" << name << " not found but needed.";
-    throw cms::Exception("DDException") << "Attribute " << attribute << ":" << name << " not found but needed.";
+    edm::LogError("HGCalGeom") << " Attribute Volume:" << name << " not found but needed.";
+    throw cms::Exception("DDException") << "Attribute Volume:" << name << " not found but needed.";
   }
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HGCalGeom") << "Return from HGCalParametersFromDD::build"
@@ -459,7 +458,7 @@ void HGCalParametersFromDD::getCellPosition(HGCalParameters& php, int type) {
     }
   } else {
     edm::LogVerbatim("HGCalGeom") << "CellPosition for  type " << type << " for " << php.cellFineX_.size() << " cells";
-    for (unsigned int k = 0; k < php.cellCoarseX_.size(); ++k) {
+    for (unsigned int k = 0; k < php.cellFineX_.size(); ++k) {
       int id = indtypes[k];
       edm::LogVerbatim("HGCalGeom") << "[" << k << "] ID " << id << ":" << php.cellFineIndex_[k] << " X "
                                     << php.cellFineX_[k] << " Y " << php.cellFineY_[k];

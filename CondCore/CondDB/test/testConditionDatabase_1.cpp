@@ -1,5 +1,8 @@
 #include "FWCore/PluginManager/interface/PluginManager.h"
 #include "FWCore/PluginManager/interface/standard.h"
+#include "FWCore/PluginManager/interface/SharedLibrary.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ServiceRegistry/interface/ServiceRegistry.h"
 //
 #include "CondCore/CondDB/interface/ConnectionPool.h"
 //
@@ -18,23 +21,21 @@ void readTag(const std::string& tag, Session& session, const boost::posix_time::
     proxy = session.readIov(tag, snapshotTime);
   std::cout << "> iov loaded size=" << proxy.loadedSize() << std::endl;
   std::cout << "> iov sequence size=" << proxy.sequenceSize() << std::endl;
-  IOVProxy::Iterator iovIt = proxy.find(107);
-  if (iovIt == proxy.end()) {
-    std::cout << ">[0] not found!" << std::endl;
-  } else {
-    cond::Iov_t val = *iovIt;
-    std::cout << "#[0] iov since=" << val.since << " till=" << val.till << " pid=" << val.payloadId << std::endl;
-    std::shared_ptr<std::string> pay0 = session.fetchPayload<std::string>(val.payloadId);
+  try {
+    auto iov = proxy.getInterval(107);
+    std::cout << "#[0] iov since=" << iov.since << " till=" << iov.till << " pid=" << iov.payloadId << std::endl;
+    std::shared_ptr<std::string> pay0 = session.fetchPayload<std::string>(iov.payloadId);
     std::cout << "#[0] payload=" << *pay0 << std::endl;
+  } catch (const Exception& e) {
+    std::cout << ">[0] not found!" << std::endl;
   }
-  iovIt = proxy.find(235);
-  if (iovIt == proxy.end()) {
-    std::cout << ">[1] not found!" << std::endl;
-  } else {
-    cond::Iov_t val = *iovIt;
-    std::cout << "#[1] iov since=" << val.since << " till=" << val.till << " pid=" << val.payloadId << std::endl;
-    std::shared_ptr<std::string> pay0 = session.fetchPayload<std::string>(val.payloadId);
+  try {
+    auto iov = proxy.getInterval(235);
+    std::cout << "#[1] iov since=" << iov.since << " till=" << iov.till << " pid=" << iov.payloadId << std::endl;
+    std::shared_ptr<std::string> pay0 = session.fetchPayload<std::string>(iov.payloadId);
     std::cout << "#[1] payload=" << *pay0 << std::endl;
+  } catch (const Exception& e) {
+    std::cout << ">[1] not found!" << std::endl;
   }
 }
 
@@ -132,7 +133,7 @@ int main(int argc, char** argv) {
   int ret = 0;
   edmplugin::PluginManager::Config config;
   edmplugin::PluginManager::configure(edmplugin::standard::config());
-  std::string connectionString0("sqlite_file:ConditionDatabase_1.db");
+  std::string connectionString0("sqlite_file:cms_conditions_1.db");
   ret = run(connectionString0);
   return ret;
 }

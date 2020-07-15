@@ -17,6 +17,7 @@
 //         Created:  August 13, 2019
 
 #include "Validation/RecoTau/interface/TauValidationMiniAOD.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 using namespace edm;
 using namespace std;
@@ -129,14 +130,14 @@ void TauValidationMiniAOD::analyze(const edm::Event& iEvent, const edm::EventSet
   edm::Handle<pat::TauCollection> taus;
   bool isTau = iEvent.getByToken(tauCollection_, taus);
   if (!isTau) {
-    std::cerr << " Tau collection not found while running TauValidationMiniAOD.cc " << std::endl;
+    edm::LogWarning("TauValidationMiniAOD") << " Tau collection not found while running TauValidationMiniAOD.cc ";
     return;
   }
   typedef edm::View<reco::Candidate> refCandidateCollection;
   Handle<refCandidateCollection> ReferenceCollection;
   bool isRef = iEvent.getByToken(refCollectionInputTagToken_, ReferenceCollection);
   if (!isRef) {
-    std::cerr << " Reference collection not found while running TauValidationMiniAOD.cc " << std::endl;
+    edm::LogWarning("TauValidationMiniAOD") << " Reference collection not found while running TauValidationMiniAOD.cc ";
     return;
   }
   for (refCandidateCollection::const_iterator RefJet = ReferenceCollection->begin();

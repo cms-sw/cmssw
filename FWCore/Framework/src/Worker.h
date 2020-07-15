@@ -438,15 +438,17 @@ namespace edm {
         // to hold the exception_ptr
         std::exception_ptr temp_excptr;
         auto excptr = exceptionPtr();
-        if (T::isEvent_ && !m_worker->hasAcquire()) {
-          // Caught exception is passed to Worker::runModuleAfterAsyncPrefetch(), which propagates it via WaitingTaskList
-          CMS_SA_ALLOW try {
-            //pre was called in prefetchAsync
-            m_worker->emitPostModuleEventPrefetchingSignal();
-          } catch (...) {
-            temp_excptr = std::current_exception();
-            if (not excptr) {
-              excptr = &temp_excptr;
+        if constexpr (T::isEvent_) {
+          if (!m_worker->hasAcquire()) {
+            // Caught exception is passed to Worker::runModuleAfterAsyncPrefetch(), which propagates it via WaitingTaskList
+            CMS_SA_ALLOW try {
+              //pre was called in prefetchAsync
+              m_worker->emitPostModuleEventPrefetchingSignal();
+            } catch (...) {
+              temp_excptr = std::current_exception();
+              if (not excptr) {
+                excptr = &temp_excptr;
+              }
             }
           }
         }
@@ -837,13 +839,16 @@ namespace edm {
       return;
     }
 
+    //Need to check workStarted_ before adding to waitingTasks_
+    bool expected = false;
+    bool workStarted = workStarted_.compare_exchange_strong(expected, true);
+
     waitingTasks_.add(task);
-    if (T::isEvent_) {
+    if constexpr (T::isEvent_) {
       timesVisited_.fetch_add(1, std::memory_order_relaxed);
     }
 
-    bool expected = false;
-    if (workStarted_.compare_exchange_strong(expected, true)) {
+    if (workStarted) {
       moduleCallingContext_.setContext(ModuleCallingContext::State::kPrefetching, parentContext, nullptr);
 
       //if have TriggerResults based selection we want to reject the event before doing prefetching
@@ -884,11 +889,13 @@ namespace edm {
       } else {
         WaitingTask* moduleTask =
             new (tbb::task::allocate_root()) RunModuleTask<T>(this, ep, es, token, streamID, parentContext, context);
-        if (T::isEvent_ && hasAcquire()) {
-          WaitingTaskWithArenaHolder runTaskHolder(
-              new (tbb::task::allocate_root()) HandleExternalWorkExceptionTask(this, moduleTask, parentContext));
-          moduleTask = new (tbb::task::allocate_root())
-              AcquireTask<T>(this, ep, es, token, parentContext, std::move(runTaskHolder));
+        if constexpr (T::isEvent_) {
+          if (hasAcquire()) {
+            WaitingTaskWithArenaHolder runTaskHolder(
+                new (tbb::task::allocate_root()) HandleExternalWorkExceptionTask(this, moduleTask, parentContext));
+            moduleTask = new (tbb::task::allocate_root())
+                AcquireTask<T>(this, ep, es, token, parentContext, std::move(runTaskHolder));
+          }
         }
         prefetchAsync(moduleTask, token, parentContext, ep);
       }
@@ -934,9 +941,13 @@ namespace edm {
     if (not workerhelper::CallImpl<T>::wantsTransition(this)) {
       return;
     }
-    waitingTasks_.add(task);
+
+    //Need to check workStarted_ before adding to waitingTasks_
     bool expected = false;
-    if (workStarted_.compare_exchange_strong(expected, true)) {
+    auto workStarted = workStarted_.compare_exchange_strong(expected, true);
+
+    waitingTasks_.add(task);
+    if (workStarted) {
       auto toDo = [this, &principal, &es, streamID, parentContext, context, serviceToken]() {
         std::exception_ptr exceptionPtr;
         // Caught exception is propagated via WaitingTaskList
@@ -965,7 +976,7 @@ namespace edm {
                       StreamID streamID,
                       ParentContext const& parentContext,
                       typename T::Context const* context) {
-    if (T::isEvent_) {
+    if constexpr (T::isEvent_) {
       timesVisited_.fetch_add(1, std::memory_order_relaxed);
     }
     bool rc = false;
@@ -1013,7 +1024,7 @@ namespace edm {
     };
     std::unique_ptr<ModuleCallingContext, decltype(resetContext)> prefetchSentry(&moduleCallingContext_, resetContext);
 
-    if (T::isEvent_) {
+    if constexpr (T::isEvent_) {
       //if have TriggerResults based selection we want to reject the event before doing prefetching
       if (workerhelper::CallImpl<T>::needToRunSelection(this)) {
         auto waitTask = edm::make_empty_waiting_task();
@@ -1092,7 +1103,7 @@ namespace edm {
     //  ++timesVisited_;
     //}
     ModuleContextSentry moduleContextSentry(&moduleCallingContext_, parentContext);
-    if (T::isEvent_) {
+    if constexpr (T::isEvent_) {
       timesRun_.fetch_add(1, std::memory_order_relaxed);
     }
 

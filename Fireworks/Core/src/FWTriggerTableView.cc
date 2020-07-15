@@ -14,6 +14,7 @@
 #include "TGComboBox.h"
 #include "TGLabel.h"
 #include "TGTextEntry.h"
+#include "TVirtualX.h"
 //#include "TGHorizontalFrame.h"
 
 // user include files

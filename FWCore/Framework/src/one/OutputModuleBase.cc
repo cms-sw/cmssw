@@ -347,8 +347,9 @@ namespace edm {
       descriptions.addDefault(desc);
     }
 
-    void OutputModuleBase::fillDescription(ParameterSetDescription& desc) {
-      ProductSelectorRules::fillDescription(desc, "outputCommands");
+    void OutputModuleBase::fillDescription(ParameterSetDescription& desc,
+                                           std::vector<std::string> const& defaultOutputCommands) {
+      ProductSelectorRules::fillDescription(desc, "outputCommands", defaultOutputCommands);
       EventSelector::fillDescription(desc);
     }
 

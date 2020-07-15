@@ -1,3 +1,5 @@
+#include <memory>
+
 #include "PhysicsTools/Heppy/interface/ReclusterJets.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "fastjet/tools/Pruner.hh"
@@ -39,7 +41,7 @@ namespace heppy {
     //  cout << "Clustering with " << jet_def.description() << endl;
     ///
     // define jet clustering sequence
-    fjClusterSeq_ = ClusterSequencePtr(new fastjet::ClusterSequence(fjInputs_, jet_def));
+    fjClusterSeq_ = std::make_shared<fastjet::ClusterSequence>(fjInputs_, jet_def);
   }
 
   std::vector<math::XYZTLorentzVector> ReclusterJets::makeP4s(const std::vector<fastjet::PseudoJet> &jets) {

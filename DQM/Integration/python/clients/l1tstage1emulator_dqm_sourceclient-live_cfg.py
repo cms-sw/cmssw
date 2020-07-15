@@ -31,7 +31,6 @@ process.dqmSaver.tag = 'L1TEMUStage1'
 
 #
 # no references needed
-# replace DQMStore.referenceFileName = "L1TEMU_reference.root"
 
 #
 # Condition for P5 cluster

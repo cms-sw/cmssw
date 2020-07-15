@@ -34,7 +34,7 @@
         <Constant name="ROChipSpaceW" value="8.100*mm"/>
         <!-- Distance (along width) between centers of adjacent chips -->
     </ConstantsSection>
-    <ConstantsSection label="Calculated">
+    <ConstantsSection label="Calculated" eval="true">
         <!-- Thicknesses of superlayers -->
         <Constant name="BumpROChipEpoxyT" value="[BumpT]+[ROChipT]+[EpoxyT]"/>
         <Constant name="PassiveT" value="[BumpROChipEpoxyT]+[FlexCircuitT]+[AdhFilmT]+[BackingT]+[ChoThermT]"/>
@@ -50,7 +50,7 @@
         <Constant name="ChoThermZ" value="(-[PassiveT]+[ChoThermT])/2."/>
     </ConstantsSection>
     <!-- Readout chip with epoxy and bump bond -->
-    <ConstantsSection label="BumpROChipCalculated">
+    <ConstantsSection label="BumpROChipCalculated" eval="true">
         <Constant name="BumpZ" value="([BumpROChipEpoxyT]-[BumpT])/2."/>
         <Constant name="EpoxyZ" value="(-[BumpROChipEpoxyT]+[EpoxyT])/2."/>
     </ConstantsSection>

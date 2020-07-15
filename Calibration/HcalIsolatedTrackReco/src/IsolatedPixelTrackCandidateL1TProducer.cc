@@ -14,16 +14,11 @@
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/Utilities/interface/transform.h"
-//
 
 // Math
 #include "Math/GenVector/VectorUtil.h"
 #include "Math/GenVector/PxPyPzE4D.h"
 #include "DataFormats/Math/interface/deltaR.h"
-
-#include "Geometry/Records/interface/IdealGeometryRecord.h"
-#include "DetectorDescription/Core/interface/DDLogicalPart.h"
-#include "DetectorDescription/Core/interface/DDSolid.h"
 
 //magF
 #include "MagneticField/Engine/interface/MagneticField.h"
@@ -100,7 +95,7 @@ void IsolatedPixelTrackCandidateL1TProducer::beginRun(const edm::Run& run, const
   const VolumeBasedMagneticField* vbfCPtr = dynamic_cast<const VolumeBasedMagneticField*>(&(*vbfField));
   GlobalVector BField = vbfCPtr->inTesla(GlobalPoint(0, 0, 0));
   bfVal_ = BField.mag();
-  edm::LogVerbatim("IsoTrack") << "rEB " << rEB_ << " zEE " << zEE_ << " B " << bfVal_ << std::endl;
+  LogTrace("IsoTrack") << "rEB " << rEB_ << " zEE " << zEE_ << " B " << bfVal_ << std::endl;
 }
 
 void IsolatedPixelTrackCandidateL1TProducer::produce(edm::Event& theEvent, const edm::EventSetup& theEventSetup) {
@@ -152,8 +147,8 @@ void IsolatedPixelTrackCandidateL1TProducer::produce(edm::Event& theEvent, const
       etaTriggered = p->eta();
     }
   }
-  edm::LogVerbatim("IsoTrack") << "Sizes " << l1tauobjref.size() << ":" << l1jetobjref.size() << " Trig " << ptTriggered
-                               << ":" << etaTriggered << ":" << phiTriggered << std::endl;
+  LogTrace("IsoTrack") << "Sizes " << l1tauobjref.size() << ":" << l1jetobjref.size() << " Trig " << ptTriggered << ":"
+                       << etaTriggered << ":" << phiTriggered << std::endl;
 
   double drMaxL1Track_ = tauAssocCone_;
   int ntr = 0;
@@ -179,12 +174,12 @@ void IsolatedPixelTrackCandidateL1TProducer::produce(edm::Event& theEvent, const
     } else {
       vtxMatch = true;
     }
-    edm::LogVerbatim("IsoTrack") << "minZD " << minDZ << " Found " << found << ":" << vtxMatch << std::endl;
+    LogTrace("IsoTrack") << "minZD " << minDZ << " Found " << found << ":" << vtxMatch << std::endl;
 
     //select tracks not matched to triggered L1 jet
     double R = reco::deltaR(etaTriggered, phiTriggered, pixelTrackRefs[iS]->eta(), pixelTrackRefs[iS]->phi());
-    edm::LogVerbatim("IsoTrack") << "Distance to L1 " << R << ":" << tauUnbiasCone_ << " Result "
-                                 << (R < tauUnbiasCone_) << std::endl;
+    LogTrace("IsoTrack") << "Distance to L1 " << R << ":" << tauUnbiasCone_ << " Result " << (R < tauUnbiasCone_)
+                         << std::endl;
     if (R < tauUnbiasCone_)
       continue;
 
@@ -200,7 +195,7 @@ void IsolatedPixelTrackCandidateL1TProducer::produce(edm::Event& theEvent, const
       selj = tj;
       tmatch = true;
     }  //loop over L1 tau
-    edm::LogVerbatim("IsoTrack") << "tMatch " << tmatch << std::endl;
+    LogTrace("IsoTrack") << "tMatch " << tmatch << std::endl;
 
     //propagate seed track to ECAL surface:
     std::pair<double, double> seedCooAtEC;
@@ -220,7 +215,7 @@ void IsolatedPixelTrackCandidateL1TProducer::produce(edm::Event& theEvent, const
                                     0);
     seedAtEC seed(iS, (tmatch || vtxMatch), seedCooAtEC.first, seedCooAtEC.second);
     VecSeedsatEC.push_back(seed);
-    edm::LogVerbatim("IsoTrack") << "Seed " << seedCooAtEC.first << seedCooAtEC.second << std::endl;
+    LogTrace("IsoTrack") << "Seed " << seedCooAtEC.first << seedCooAtEC.second << std::endl;
   }
   for (unsigned int i = 0; i < VecSeedsatEC.size(); i++) {
     unsigned int iSeed = VecSeedsatEC[i].index;
@@ -278,7 +273,7 @@ void IsolatedPixelTrackCandidateL1TProducer::produce(edm::Event& theEvent, const
       ntr++;
     }
   }
-  edm::LogVerbatim("IsoTrack") << "Number of Isolated Track " << ntr << "\n";
+  LogTrace("IsoTrack") << "Number of Isolated Track " << ntr << "\n";
   // put the product in the event
   theEvent.put(std::move(trackCollection));
 }

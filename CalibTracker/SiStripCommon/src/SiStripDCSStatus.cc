@@ -31,6 +31,7 @@ SiStripDCSStatus::SiStripDCSStatus(edm::ConsumesCollector& iC)
       rawdataAbsent(true),
       initialised(false) {
   dcsStatusToken_ = iC.consumes<DcsStatusCollection>(edm::InputTag("scalersRawToDigi"));
+  dcsRecordToken_ = iC.consumes<DCSRecord>(edm::InputTag("onlineMetaDataDigis"));
   rawDataToken_ = iC.consumes<FEDRawDataCollection>(edm::InputTag("rawDataCollector"));
   tTopoToken_ = iC.esConsumes<TrackerTopology, TrackerTopologyRcd>();
   fedCablingToken_ = iC.esConsumes<SiStripFedCabling, SiStripFedCablingRcd>();
@@ -44,22 +45,34 @@ bool SiStripDCSStatus::getStatus(edm::Event const& e, edm::EventSetup const& eSe
     initialise(e, eSetup);
 
   edm::Handle<DcsStatusCollection> dcsStatus;
-  //  e.getByLabel("scalersRawToDigi", dcsStatus);
   e.getByToken(dcsStatusToken_, dcsStatus);
-  if (trackerAbsent || !dcsStatus.isValid())
-    return retVal;
-  if ((*dcsStatus).empty())
-    return retVal;
 
-  bool statusTIBTID = true;
-  bool statusTOB = true;
-  bool statusTECF = true;
-  bool statusTECB = true;
+  edm::Handle<DCSRecord> dcsRecord;
+  e.getByToken(dcsRecordToken_, dcsRecord);
 
-  bool dcsTIBTID = ((*dcsStatus)[0].ready(DcsStatus::TIBTID));
-  bool dcsTOB = ((*dcsStatus)[0].ready(DcsStatus::TOB));
-  bool dcsTECF = ((*dcsStatus)[0].ready(DcsStatus::TECp));
-  bool dcsTECB = ((*dcsStatus)[0].ready(DcsStatus::TECm));
+  bool statusTIBTID(true), statusTOB(true), statusTECF(true), statusTECB(true);
+  bool dcsTIBTID(true), dcsTOB(true), dcsTECF(true), dcsTECB(true);
+
+  if (trackerAbsent || (!dcsStatus.isValid() && !dcsRecord.isValid())) {
+    return retVal;
+  }
+
+  if ((*dcsStatus).empty()) {
+    if (e.eventAuxiliary().isRealData()) {
+      dcsTIBTID = (*dcsRecord).highVoltageReady(DCSRecord::Partition::TIBTID);
+      dcsTOB = (*dcsRecord).highVoltageReady(DCSRecord::Partition::TOB);
+      dcsTECF = (*dcsRecord).highVoltageReady(DCSRecord::Partition::TECp);
+      dcsTECB = (*dcsRecord).highVoltageReady(DCSRecord::Partition::TECm);
+    } else {
+      return retVal;
+    }
+  } else {
+    dcsTIBTID = ((*dcsStatus)[0].ready(DcsStatus::TIBTID));
+    dcsTOB = ((*dcsStatus)[0].ready(DcsStatus::TOB));
+    dcsTECF = ((*dcsStatus)[0].ready(DcsStatus::TECp));
+    dcsTECB = ((*dcsStatus)[0].ready(DcsStatus::TECm));
+  }
+
   if (rawdataAbsent) {
     statusTIBTID = dcsTIBTID;
     statusTOB = dcsTOB;

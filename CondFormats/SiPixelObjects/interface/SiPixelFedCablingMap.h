@@ -10,7 +10,6 @@
 #include <map>
 #include <memory>
 
-#include "FWCore/Utilities/interface/GCC11Compatibility.h"
 #if !defined(__CINT__) && !defined(__MAKECINT__) && !defined(__REFLEX__)
 #define NO_DICT
 #endif

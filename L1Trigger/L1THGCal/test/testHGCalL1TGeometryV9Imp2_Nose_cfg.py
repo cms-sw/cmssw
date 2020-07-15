@@ -68,8 +68,8 @@ process.FEVTDEBUGoutput = cms.OutputModule("PoolOutputModule",
     eventAutoFlushCompressedSize = cms.untracked.int32(5242880),
     outputCommands = cms.untracked.vstring(
         'keep *_genParticles_*_*',
-        'keep *_hgcalBackEndLayer1Producer_*_*',
-        'keep *_hgcalBackEndLayer2Producer_*_*',
+        'keep *_*hgcalBackEndLayer1Producer*_*_*',
+        'keep *_*hgcalBackEndLayer2Producer*_*_*',
         'keep *_hgcalTowerProducer_*_*',
     ),
     fileName = cms.untracked.string('file:/tmp/dalfonso/test.root')

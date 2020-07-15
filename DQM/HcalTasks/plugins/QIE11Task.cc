@@ -159,9 +159,9 @@ QIE11Task::QIE11Task(edm::ParameterSet const& ps) : DQTask(ps) {
   _ehashmap.initialize(_emap, electronicsmap::fD2EHashMap, _filter_C34);
 }
 
-/* virtual */ void QIE11Task::dqmEndLuminosityBlock(edm::LuminosityBlock const& lb, edm::EventSetup const& es) {
+/* virtual */ void QIE11Task::globalEndLuminosityBlock(edm::LuminosityBlock const& lb, edm::EventSetup const& es) {
   //	finish
-  DQTask::dqmEndLuminosityBlock(lb, es);
+  DQTask::globalEndLuminosityBlock(lb, es);
 }
 
 /* virtual */ void QIE11Task::_process(edm::Event const& e, edm::EventSetup const&) {

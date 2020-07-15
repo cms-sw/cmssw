@@ -16,6 +16,7 @@ namespace cms {
     DDParsingContext(dd4hep::Detector* det) : description(det) {}
 
     ~DDParsingContext() {
+      assemblies.clear();
       rotations.clear();
       shapes.clear();
       volumes.clear();
@@ -34,6 +35,7 @@ namespace cms {
     }
 
     std::atomic<dd4hep::Detector*> description;
+    tbb::concurrent_unordered_map<std::string, dd4hep::Assembly> assemblies;
     tbb::concurrent_unordered_map<std::string, dd4hep::Rotation3D> rotations;
     tbb::concurrent_unordered_map<std::string, dd4hep::Solid> shapes;
     tbb::concurrent_unordered_map<std::string, dd4hep::Volume> volumes;
@@ -68,6 +70,7 @@ namespace cms {
     };
 
     std::map<std::string, std::vector<CompositeMaterial>> unresolvedMaterials;
+    std::map<std::string, std::vector<std::string>> unresolvedVectors;
 
     bool geo_inited = false;
 

@@ -1,11 +1,12 @@
-<use   name="CondFormats/Serialization"/>
-<use   name="CondFormats/Common"/>
-<use   name="FWCore/Framework"/>
-<use   name="boost"/>
-<use   name="openssl"/>
-<use   name="CoralCommon"/>
-<use   name="CoralKernel"/>
-<use   name="RelationalAccess"/>
+<use name="CondFormats/Serialization"/>
+<use name="CondFormats/Common"/>
+<use name="FWCore/Framework"/>
+<use name="boost"/>
+<use name="openssl"/>
+<use name="CoralCommon"/>
+<use name="CoralKernel"/>
+<use name="CoralBase"/>
+<use name="RelationalAccess"/>
 <export>
-  <lib   name="1"/>
+  <lib name="1"/>
 </export>

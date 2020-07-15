@@ -13,7 +13,6 @@
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/MuonReco/interface/Muon.h"
 
-#include "RecoMuon/MuonIsolation/interface/Range.h"
 #include "DataFormats/RecoCandidate/interface/IsoDepositDirection.h"
 #include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
 
@@ -25,7 +24,6 @@
 
 using namespace edm;
 using namespace reco;
-using namespace muonisolation;
 
 /// constructor with config
 CandIsoDepositProducer::CandIsoDepositProducer(const ParameterSet &par)

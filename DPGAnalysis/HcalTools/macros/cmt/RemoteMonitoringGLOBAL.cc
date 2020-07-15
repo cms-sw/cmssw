@@ -23,6 +23,9 @@
 #include <THStack.h>
 #include <TPaveText.h>
 
+// https://cms-conddb.cern.ch/eosweb/hcal/HcalRemoteMonitoring/CMT
+// https://cms-cpt-software.web.cern.ch/cms-cpt-software/General/Validation/SVSuite/HcalRemoteMonitoring/CMT
+
 using namespace std;
 //inline void HERE(const char *msg) { std::cout << msg << std::endl; }    kfitq
 int copyContents(TH1F **hDest, TString hname, TString htitle, const TH1F *hSrc, int lastBin);
@@ -3474,7 +3477,7 @@ int main(int argc, char *argv[]) {
   cout << ">>>>>>>>>>>>>>>>>>>>>>>>                             " << endl;
   cout << ">>>>>>>>>>>>>>>>>>>>>>>>                             " << endl;
 
-  //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////// RBX study:
+  //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////// RBX study:  HistCapID
   //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////// RBX study:
   //////////////////////////////////////////////////////////////////////////////////////////////////////// RBX study:
   //////////////////////////////////////////////////////////////////////////////////// RBX study:
@@ -3484,8 +3487,8 @@ int main(int argc, char *argv[]) {
   //  int njeta = 22; int njphi = 18; int lsmax=2600;
   int njeta = 22;
   int njphi = 18;
-  int lsmax = 2600;
-  cout << ">>>>>>>>>>>>>>>>>>>>>>>>     int njeta = 22; int njphi = 18; int lsmax=2600;                        "
+  int lsmax = 1800;
+  cout << ">>>>>>>>>>>>>>>>>>>>>>>>     int njeta = 22; int njphi = 18; int lsmax=1800;                        "
        << endl;
 
   double alexall[njeta][njphi][lsmax];
@@ -3507,7 +3510,7 @@ int main(int argc, char *argv[]) {
   int nx = maxbinsRBX;  // # LS
   cout << ">>>>>>>>>>>>>>>>>>>>>>>>   maxbinsRBX = MaxLum;                          " << endl;
   if (MaxLum > lsmax)
-    cout << "***********************************   ERROR ERROR ERROR ERROR:   MaxLum > 2600 " << endl;
+    cout << "***********************************   ERROR ERROR ERROR ERROR:   MaxLum > 1800 " << endl;
   cout << ">>>>>>>>>>>>>>>>>>>>>>>>                             " << endl;
 
   for (int i = 0; i < nx; i++) {
@@ -7974,22 +7977,14 @@ HF: j = 0,1,2, 3            18,19,20,21
     htmlFile << "<table width=\"400\">" << std::endl;
     htmlFile << "<tr>" << std::endl;
     if (test == 0) {
-      htmlFile << "  <td><a "
-                  "href=\"https://cms-cpt-software.web.cern.ch/cms-cpt-software/General/Validation/SVSuite/"
-                  "HcalRemoteMonitoring/CMT/GLOBAL_"
-               << runnumber << "/HB_CapID.html\">HB</a></td>" << std::endl;
-      htmlFile << "  <td><a "
-                  "href=\"https://cms-cpt-software.web.cern.ch/cms-cpt-software/General/Validation/SVSuite/"
-                  "HcalRemoteMonitoring/CMT/GLOBAL_"
-               << runnumber << "/HE_CapID.html\">HE</a></td>" << std::endl;
-      htmlFile << "  <td><a "
-                  "href=\"https://cms-cpt-software.web.cern.ch/cms-cpt-software/General/Validation/SVSuite/"
-                  "HcalRemoteMonitoring/CMT/GLOBAL_"
-               << runnumber << "/HO_CapID.html\">HO</a></td>" << std::endl;
-      htmlFile << "  <td><a "
-                  "href=\"https://cms-cpt-software.web.cern.ch/cms-cpt-software/General/Validation/SVSuite/"
-                  "HcalRemoteMonitoring/CMT/GLOBAL_"
-               << runnumber << "/HF_CapID.html\">HF</a></td>" << std::endl;
+      htmlFile << "  <td><a href=\"https://cms-conddb.cern.ch/eosweb/hcal/HcalRemoteMonitoring/CMT/GLOBAL_" << runnumber
+               << "/HB_CapID.html\">HB</a></td>" << std::endl;
+      htmlFile << "  <td><a href=\"https://cms-conddb.cern.ch/eosweb/hcal/HcalRemoteMonitoring/CMT/GLOBAL_" << runnumber
+               << "/HE_CapID.html\">HE</a></td>" << std::endl;
+      htmlFile << "  <td><a href=\"https://cms-conddb.cern.ch/eosweb/hcal/HcalRemoteMonitoring/CMT/GLOBAL_" << runnumber
+               << "/HO_CapID.html\">HO</a></td>" << std::endl;
+      htmlFile << "  <td><a href=\"https://cms-conddb.cern.ch/eosweb/hcal/HcalRemoteMonitoring/CMT/GLOBAL_" << runnumber
+               << "/HF_CapID.html\">HF</a></td>" << std::endl;
     }
     if (test == 1) {
       // AZ 11.03.2019
@@ -8000,94 +7995,54 @@ HF: j = 0,1,2, 3            18,19,20,21
       htmlFile << "  <td><a href=\"HF_ADCampl.html\">HF</a></td>"<< std::endl;
 */
 
-      htmlFile << "  <td><a "
-                  "href=\"https://cms-cpt-software.web.cern.ch/cms-cpt-software/General/Validation/SVSuite/"
-                  "HcalRemoteMonitoring/CMT/GLOBAL_"
-               << runnumber << "/HB_ADCampl.html\">HB</a></td>" << std::endl;
-      htmlFile << "  <td><a "
-                  "href=\"https://cms-cpt-software.web.cern.ch/cms-cpt-software/General/Validation/SVSuite/"
-                  "HcalRemoteMonitoring/CMT/GLOBAL_"
-               << runnumber << "/HE_ADCampl.html\">HE</a></td>" << std::endl;
-      htmlFile << "  <td><a "
-                  "href=\"https://cms-cpt-software.web.cern.ch/cms-cpt-software/General/Validation/SVSuite/"
-                  "HcalRemoteMonitoring/CMT/GLOBAL_"
-               << runnumber << "/HO_ADCampl.html\">HO</a></td>" << std::endl;
-      htmlFile << "  <td><a "
-                  "href=\"https://cms-cpt-software.web.cern.ch/cms-cpt-software/General/Validation/SVSuite/"
-                  "HcalRemoteMonitoring/CMT/GLOBAL_"
-               << runnumber << "/HF_ADCampl.html\">HF</a></td>" << std::endl;
+      htmlFile << "  <td><a href=\"https://cms-conddb.cern.ch/eosweb/hcal/HcalRemoteMonitoring/CMT/GLOBAL_" << runnumber
+               << "/HB_ADCampl.html\">HB</a></td>" << std::endl;
+      htmlFile << "  <td><a href=\"https://cms-conddb.cern.ch/eosweb/hcal/HcalRemoteMonitoring/CMT/GLOBAL_" << runnumber
+               << "/HE_ADCampl.html\">HE</a></td>" << std::endl;
+      htmlFile << "  <td><a href=\"https://cms-conddb.cern.ch/eosweb/hcal/HcalRemoteMonitoring/CMT/GLOBAL_" << runnumber
+               << "/HO_ADCampl.html\">HO</a></td>" << std::endl;
+      htmlFile << "  <td><a href=\"https://cms-conddb.cern.ch/eosweb/hcal/HcalRemoteMonitoring/CMT/GLOBAL_" << runnumber
+               << "/HF_ADCampl.html\">HF</a></td>" << std::endl;
     }
     if (test == 2) {
-      htmlFile << "  <td><a "
-                  "href=\"https://cms-cpt-software.web.cern.ch/cms-cpt-software/General/Validation/SVSuite/"
-                  "HcalRemoteMonitoring/CMT/GLOBAL_"
-               << runnumber << "/HB_Width.html\">HB</a></td>" << std::endl;
-      htmlFile << "  <td><a "
-                  "href=\"https://cms-cpt-software.web.cern.ch/cms-cpt-software/General/Validation/SVSuite/"
-                  "HcalRemoteMonitoring/CMT/GLOBAL_"
-               << runnumber << "/HE_Width.html\">HE</a></td>" << std::endl;
-      htmlFile << "  <td><a "
-                  "href=\"https://cms-cpt-software.web.cern.ch/cms-cpt-software/General/Validation/SVSuite/"
-                  "HcalRemoteMonitoring/CMT/GLOBAL_"
-               << runnumber << "/HO_Width.html\">HO</a></td>" << std::endl;
-      htmlFile << "  <td><a "
-                  "href=\"https://cms-cpt-software.web.cern.ch/cms-cpt-software/General/Validation/SVSuite/"
-                  "HcalRemoteMonitoring/CMT/GLOBAL_"
-               << runnumber << "/HF_Width.html\">HF</a></td>" << std::endl;
+      htmlFile << "  <td><a href=\"https://cms-conddb.cern.ch/eosweb/hcal/HcalRemoteMonitoring/CMT/GLOBAL_" << runnumber
+               << "/HB_Width.html\">HB</a></td>" << std::endl;
+      htmlFile << "  <td><a href=\"https://cms-conddb.cern.ch/eosweb/hcal/HcalRemoteMonitoring/CMT/GLOBAL_" << runnumber
+               << "/HE_Width.html\">HE</a></td>" << std::endl;
+      htmlFile << "  <td><a href=\"https://cms-conddb.cern.ch/eosweb/hcal/HcalRemoteMonitoring/CMT/GLOBAL_" << runnumber
+               << "/HO_Width.html\">HO</a></td>" << std::endl;
+      htmlFile << "  <td><a href=\"https://cms-conddb.cern.ch/eosweb/hcal/HcalRemoteMonitoring/CMT/GLOBAL_" << runnumber
+               << "/HF_Width.html\">HF</a></td>" << std::endl;
     }
     if (test == 3) {
-      htmlFile << "  <td><a "
-                  "href=\"https://cms-cpt-software.web.cern.ch/cms-cpt-software/General/Validation/SVSuite/"
-                  "HcalRemoteMonitoring/CMT/GLOBAL_"
-               << runnumber << "/HB_Ratio.html\">HB</a></td>" << std::endl;
-      htmlFile << "  <td><a "
-                  "href=\"https://cms-cpt-software.web.cern.ch/cms-cpt-software/General/Validation/SVSuite/"
-                  "HcalRemoteMonitoring/CMT/GLOBAL_"
-               << runnumber << "/HE_Ratio.html\">HE</a></td>" << std::endl;
-      htmlFile << "  <td><a "
-                  "href=\"https://cms-cpt-software.web.cern.ch/cms-cpt-software/General/Validation/SVSuite/"
-                  "HcalRemoteMonitoring/CMT/GLOBAL_"
-               << runnumber << "/HO_Ratio.html\">HO</a></td>" << std::endl;
-      htmlFile << "  <td><a "
-                  "href=\"https://cms-cpt-software.web.cern.ch/cms-cpt-software/General/Validation/SVSuite/"
-                  "HcalRemoteMonitoring/CMT/GLOBAL_"
-               << runnumber << "/HF_Ratio.html\">HF</a></td>" << std::endl;
+      htmlFile << "  <td><a href=\"https://cms-conddb.cern.ch/eosweb/hcal/HcalRemoteMonitoring/CMT/GLOBAL_" << runnumber
+               << "/HB_Ratio.html\">HB</a></td>" << std::endl;
+      htmlFile << "  <td><a href=\"https://cms-conddb.cern.ch/eosweb/hcal/HcalRemoteMonitoring/CMT/GLOBAL_" << runnumber
+               << "/HE_Ratio.html\">HE</a></td>" << std::endl;
+      htmlFile << "  <td><a href=\"https://cms-conddb.cern.ch/eosweb/hcal/HcalRemoteMonitoring/CMT/GLOBAL_" << runnumber
+               << "/HO_Ratio.html\">HO</a></td>" << std::endl;
+      htmlFile << "  <td><a href=\"https://cms-conddb.cern.ch/eosweb/hcal/HcalRemoteMonitoring/CMT/GLOBAL_" << runnumber
+               << "/HF_Ratio.html\">HF</a></td>" << std::endl;
     }
     if (test == 4) {
-      htmlFile << "  <td><a "
-                  "href=\"https://cms-cpt-software.web.cern.ch/cms-cpt-software/General/Validation/SVSuite/"
-                  "HcalRemoteMonitoring/CMT/GLOBAL_"
-               << runnumber << "/HB_Tmean.html\">HB</a></td>" << std::endl;
-      htmlFile << "  <td><a "
-                  "href=\"https://cms-cpt-software.web.cern.ch/cms-cpt-software/General/Validation/SVSuite/"
-                  "HcalRemoteMonitoring/CMT/GLOBAL_"
-               << runnumber << "/HE_Tmean.html\">HE</a></td>" << std::endl;
-      htmlFile << "  <td><a "
-                  "href=\"https://cms-cpt-software.web.cern.ch/cms-cpt-software/General/Validation/SVSuite/"
-                  "HcalRemoteMonitoring/CMT/GLOBAL_"
-               << runnumber << "/HO_Tmean.html\">HO</a></td>" << std::endl;
-      htmlFile << "  <td><a "
-                  "href=\"https://cms-cpt-software.web.cern.ch/cms-cpt-software/General/Validation/SVSuite/"
-                  "HcalRemoteMonitoring/CMT/GLOBAL_"
-               << runnumber << "/HF_Tmean.html\">HF</a></td>" << std::endl;
+      htmlFile << "  <td><a href=\"https://cms-conddb.cern.ch/eosweb/hcal/HcalRemoteMonitoring/CMT/GLOBAL_" << runnumber
+               << "/HB_Tmean.html\">HB</a></td>" << std::endl;
+      htmlFile << "  <td><a href=\"https://cms-conddb.cern.ch/eosweb/hcal/HcalRemoteMonitoring/CMT/GLOBAL_" << runnumber
+               << "/HE_Tmean.html\">HE</a></td>" << std::endl;
+      htmlFile << "  <td><a href=\"https://cms-conddb.cern.ch/eosweb/hcal/HcalRemoteMonitoring/CMT/GLOBAL_" << runnumber
+               << "/HO_Tmean.html\">HO</a></td>" << std::endl;
+      htmlFile << "  <td><a href=\"https://cms-conddb.cern.ch/eosweb/hcal/HcalRemoteMonitoring/CMT/GLOBAL_" << runnumber
+               << "/HF_Tmean.html\">HF</a></td>" << std::endl;
     }
     if (test == 5) {
-      htmlFile << "  <td><a "
-                  "href=\"https://cms-cpt-software.web.cern.ch/cms-cpt-software/General/Validation/SVSuite/"
-                  "HcalRemoteMonitoring/CMT/GLOBAL_"
-               << runnumber << "/HB_Tmax.html\">HB</a></td>" << std::endl;
-      htmlFile << "  <td><a "
-                  "href=\"https://cms-cpt-software.web.cern.ch/cms-cpt-software/General/Validation/SVSuite/"
-                  "HcalRemoteMonitoring/CMT/GLOBAL_"
-               << runnumber << "/HE_Tmax.html\">HE</a></td>" << std::endl;
-      htmlFile << "  <td><a "
-                  "href=\"https://cms-cpt-software.web.cern.ch/cms-cpt-software/General/Validation/SVSuite/"
-                  "HcalRemoteMonitoring/CMT/GLOBAL_"
-               << runnumber << "/HO_Tmax.html\">HO</a></td>" << std::endl;
-      htmlFile << "  <td><a "
-                  "href=\"https://cms-cpt-software.web.cern.ch/cms-cpt-software/General/Validation/SVSuite/"
-                  "HcalRemoteMonitoring/CMT/GLOBAL_"
-               << runnumber << "/HF_Tmax.html\">HF</a></td>" << std::endl;
+      htmlFile << "  <td><a href=\"https://cms-conddb.cern.ch/eosweb/hcal/HcalRemoteMonitoring/CMT/GLOBAL_" << runnumber
+               << "/HB_Tmax.html\">HB</a></td>" << std::endl;
+      htmlFile << "  <td><a href=\"https://cms-conddb.cern.ch/eosweb/hcal/HcalRemoteMonitoring/CMT/GLOBAL_" << runnumber
+               << "/HE_Tmax.html\">HE</a></td>" << std::endl;
+      htmlFile << "  <td><a href=\"https://cms-conddb.cern.ch/eosweb/hcal/HcalRemoteMonitoring/CMT/GLOBAL_" << runnumber
+               << "/HO_Tmax.html\">HO</a></td>" << std::endl;
+      htmlFile << "  <td><a href=\"https://cms-conddb.cern.ch/eosweb/hcal/HcalRemoteMonitoring/CMT/GLOBAL_" << runnumber
+               << "/HF_Tmax.html\">HF</a></td>" << std::endl;
     }
 
     htmlFile << "</tr>" << std::endl;
@@ -8332,10 +8287,9 @@ HF: j = 0,1,2, 3            18,19,20,21
   htmlFile << "<h3> where SA = SUM(A_i) ,and means that Amplitude is summed over all sub-detector channels, </h3>"
            << std::endl;
   htmlFile << "<h3> where A_i = SUM(A_depth) denotes channel amplitude summed over depths;  </h3>" << std::endl;
-  //  htmlFile << "  <td><a href=\"https://cms-cpt-software.web.cern.ch/cms-cpt-software/General/Validation/SVSuite/HcalRemoteMonitoring/CMT/GLOBAL_"<<runnumber<<"/HELP.html\"> Description of criteria for bad channel selection</a></td>"<< std::endl;
-  htmlFile << "  <td><a "
-              "href=\"https://cms-cpt-software.web.cern.ch/cms-cpt-software/General/Validation/SVSuite/"
-              "HcalRemoteMonitoring/CMT/SAwriteup.html\"> see more details for SummedAmplitudes</a></td>"
+  //  htmlFile << "  <td><a href=\"https://cms-conddb.cern.ch/eosweb/hcal/HcalRemoteMonitoring/CMT/GLOBAL_"<<runnumber<<"/HELP.html\"> Description of criteria for bad channel selection</a></td>"<< std::endl;
+  htmlFile << "  <td><a href=\"https://cms-conddb.cern.ch/eosweb/hcal/HcalRemoteMonitoring/CMT/SAwriteup.html\"> see "
+              "more details for SummedAmplitudes</a></td>"
            << std::endl;
   htmlFile << "<h2> Apply cuts on A_i to take into account channels with or/and without a'la Signal: </h2>"
            << std::endl;
@@ -8631,10 +8585,8 @@ HF: j = 0,1,2, 3            18,19,20,21
 
   htmlFile << "<h1> Certification Monitoring Tool, GLOBAL RUN = " << runnumber << ". </h1>" << std::endl;
   htmlFile << "<br>" << std::endl;
-  htmlFile << "  <td><a "
-              "href=\"https://cms-cpt-software.web.cern.ch/cms-cpt-software/General/Validation/SVSuite/"
-              "HcalRemoteMonitoring/CMT/GLOBAL_"
-           << runnumber << "/CMTresults.html\">  CMT-analysis RESULTS (for this run) </a></td>" << std::endl;
+  htmlFile << "  <td><a href=\"https://cms-conddb.cern.ch/eosweb/hcal/HcalRemoteMonitoring/CMT/GLOBAL_" << runnumber
+           << "/CMTresults.html\">  CMT-analysis RESULTS (for this run) </a></td>" << std::endl;
   htmlFile << "<br>" << std::endl;
   htmlFile << "<br>" << std::endl;
 
@@ -8644,45 +8596,30 @@ HF: j = 0,1,2, 3            18,19,20,21
   htmlFile << "<br>" << std::endl;
 
   htmlFile << "<h2> 2. HCAL status for different criteria </h2>" << std::endl;
-  //  htmlFile << "  <td><a href=\"https://cms-cpt-software.web.cern.ch/cms-cpt-software/General/Validation/SVSuite/HcalRemoteMonitoring/CMT/GLOBAL_"<<runnumber<<"/HELP.html\"> Description of criteria for bad channel selection</a></td>"<< std::endl;
-  htmlFile << "  <td><a "
-              "href=\"https://cms-cpt-software.web.cern.ch/cms-cpt-software/General/Validation/SVSuite/"
-              "HcalRemoteMonitoring/CMT/HELP.html\"> Description of criteria for bad channel selection</a></td>"
+  //  htmlFile << "  <td><a href=\"https://cms-conddb.cern.ch/eosweb/hcal/HcalRemoteMonitoring/CMT/GLOBAL_"<<runnumber<<"/HELP.html\"> Description of criteria for bad channel selection</a></td>"<< std::endl;
+  htmlFile << "  <td><a href=\"https://cms-conddb.cern.ch/eosweb/hcal/HcalRemoteMonitoring/CMT/HELP.html\"> "
+              "Description of criteria for bad channel selection</a></td>"
            << std::endl;
   htmlFile << "<br>" << std::endl;
   htmlFile << "<table width=\"600\">" << std::endl;
   htmlFile << "<tr>" << std::endl;
-  htmlFile << "  <td><a "
-              "href=\"https://cms-cpt-software.web.cern.ch/cms-cpt-software/General/Validation/SVSuite/"
-              "HcalRemoteMonitoring/CMT/GLOBAL_"
-           << runnumber << "/CapID_GL.html\">Cap ID errors</a></td>" << std::endl;
+  htmlFile << "  <td><a href=\"https://cms-conddb.cern.ch/eosweb/hcal/HcalRemoteMonitoring/CMT/GLOBAL_" << runnumber
+           << "/CapID_GL.html\">Cap ID errors</a></td>" << std::endl;
   // AZ 11.03.2019
-  htmlFile << "  <td><a "
-              "href=\"https://cms-cpt-software.web.cern.ch/cms-cpt-software/General/Validation/SVSuite/"
-              "HcalRemoteMonitoring/CMT/GLOBAL_"
-           << runnumber << "/ADCampl_GL.html\">Amplitude</a></td>" << std::endl;
+  htmlFile << "  <td><a href=\"https://cms-conddb.cern.ch/eosweb/hcal/HcalRemoteMonitoring/CMT/GLOBAL_" << runnumber
+           << "/ADCampl_GL.html\">Amplitude</a></td>" << std::endl;
   //    htmlFile << "  <td><a  href=\"ADCampl_GL.html\">Amplitude</a></td>"<< std::endl;
-  htmlFile << "  <td><a "
-              "href=\"https://cms-cpt-software.web.cern.ch/cms-cpt-software/General/Validation/SVSuite/"
-              "HcalRemoteMonitoring/CMT/GLOBAL_"
-           << runnumber << "/Width_GL.html\">Width</a></td>" << std::endl;
-  htmlFile << "  <td><a "
-              "href=\"https://cms-cpt-software.web.cern.ch/cms-cpt-software/General/Validation/SVSuite/"
-              "HcalRemoteMonitoring/CMT/GLOBAL_"
-           << runnumber << "/Ratio_GL.html\">Ratio</a></td>" << std::endl;
-  htmlFile << "  <td><a "
-              "href=\"https://cms-cpt-software.web.cern.ch/cms-cpt-software/General/Validation/SVSuite/"
-              "HcalRemoteMonitoring/CMT/GLOBAL_"
-           << runnumber << "/Tmean_GL.html\">TS mean</a></td>" << std::endl;
-  htmlFile << "  <td><a "
-              "href=\"https://cms-cpt-software.web.cern.ch/cms-cpt-software/General/Validation/SVSuite/"
-              "HcalRemoteMonitoring/CMT/GLOBAL_"
-           << runnumber << "/Tmax_GL.html\">TS max</a></td>" << std::endl;
+  htmlFile << "  <td><a href=\"https://cms-conddb.cern.ch/eosweb/hcal/HcalRemoteMonitoring/CMT/GLOBAL_" << runnumber
+           << "/Width_GL.html\">Width</a></td>" << std::endl;
+  htmlFile << "  <td><a href=\"https://cms-conddb.cern.ch/eosweb/hcal/HcalRemoteMonitoring/CMT/GLOBAL_" << runnumber
+           << "/Ratio_GL.html\">Ratio</a></td>" << std::endl;
+  htmlFile << "  <td><a href=\"https://cms-conddb.cern.ch/eosweb/hcal/HcalRemoteMonitoring/CMT/GLOBAL_" << runnumber
+           << "/Tmean_GL.html\">TS mean</a></td>" << std::endl;
+  htmlFile << "  <td><a href=\"https://cms-conddb.cern.ch/eosweb/hcal/HcalRemoteMonitoring/CMT/GLOBAL_" << runnumber
+           << "/Tmax_GL.html\">TS max</a></td>" << std::endl;
 
-  htmlFile << "  <td><a "
-              "href=\"https://cms-cpt-software.web.cern.ch/cms-cpt-software/General/Validation/SVSuite/"
-              "HcalRemoteMonitoring/CMT/GLOBAL_"
-           << runnumber << "/SummedAmplitudes_GL.html\">SummedAmplitudes</a></td>" << std::endl;
+  htmlFile << "  <td><a href=\"https://cms-conddb.cern.ch/eosweb/hcal/HcalRemoteMonitoring/CMT/GLOBAL_" << runnumber
+           << "/SummedAmplitudes_GL.html\">SummedAmplitudes</a></td>" << std::endl;
 
   htmlFile << "</tr>" << std::endl;
   htmlFile << "</table>" << std::endl;

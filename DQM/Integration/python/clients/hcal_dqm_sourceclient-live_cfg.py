@@ -22,6 +22,11 @@ useOfflineGT = False
 useFileInput = False
 useMap       = False
 
+unitTest = False
+if 'unitTest=True' in sys.argv:
+	unitTest=True
+	useFileInput=False
+
 #-------------------------------------
 #	Central DQM Stuff imports
 #-------------------------------------
@@ -33,7 +38,9 @@ if useOfflineGT:
 	#process.GlobalTag.globaltag = '100X_dataRun2_HLT_Candidate_2018_01_31_16_04_35'
 else:
 	process.load('DQM.Integration.config.FrontierCondition_GT_cfi')
-if useFileInput:
+if unitTest:
+	process.load("DQM.Integration.config.unittestinputsource_cfi")
+elif useFileInput:
 	process.load("DQM.Integration.config.fileinputsource_cfi")
 else:
 	process.load('DQM.Integration.config.inputsource_cfi')
@@ -44,11 +51,9 @@ process.load('DQM.Integration.config.environment_cfi')
 #-------------------------------------
 process.dqmEnv.subSystemFolder = subsystem
 process.dqmSaver.tag = subsystem
-referenceFileName = '/dqmdata/dqm/reference/hcal_reference.root'
-process.DQMStore.referenceFileName = referenceFileName
 process = customise(process)
 process.DQMStore.verbose = 0
-if not useFileInput:
+if not useFileInput and not unitTest:
 	process.source.minEventsPerLumi = 100
 
 #-------------------------------------

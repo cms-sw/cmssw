@@ -277,7 +277,7 @@ void Node::filterEventsToDaughters() {
   // node depending on whether it is < or > the split point
   // for the given split variable.
 
-  int sv = splitVariable;
+  unsigned int sv = splitVariable;
   double sp = splitValue;
 
   Node* left = leftDaughter;
@@ -289,6 +289,9 @@ void Node::filterEventsToDaughters() {
   for (unsigned int i = 0; i < events.size(); i++) {
     for (unsigned int j = 0; j < events[i].size(); j++) {
       Event* e = events[i][j];
+      // Prevent out-of-bounds access
+      if (sv >= e->data.size())
+        continue;
       if (e->data[sv] < sp)
         l[i].push_back(e);
       if (e->data[sv] > sp)
@@ -314,14 +317,15 @@ Node* Node::filterEventToDaughter(Event* e) {
   // node depending on whether it is < or > the split point
   // for the given split variable.
 
-  int sv = splitVariable;
+  unsigned int sv = splitVariable;
   double sp = splitValue;
 
   Node* left = leftDaughter;
   Node* right = rightDaughter;
   Node* nextNode = nullptr;
 
-  if (left == nullptr || right == nullptr)
+  // Prevent out-of-bounds access
+  if (left == nullptr || right == nullptr || sv >= e->data.size())
     return nullptr;
 
   if (e->data[sv] < sp)

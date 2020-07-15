@@ -66,12 +66,15 @@ _endcap_MTDDigitizer = cms.PSet(
         meVPerMIP         = cms.double(0.085), # from HGCal
         ),
     ElectronicsSimulation = cms.PSet(
-        bxTime             = cms.double(25),
-        etaResolution      = cms.string("0.03+0.0025*x"), # This is just a dummy dependence on eta.
+        bxTime               = cms.double(25),
+        IntegratedLuminosity = cms.double(1000.),      # [1/fb]
+        FluenceVsRadius      = cms.string("1.937*TMath::Power(x,-1.706)"),
+        LGADGainVsFluence    = cms.string("TMath::Min(15.,30.-x)"),
+        TimeResolution2      = cms.string("0.0225/x"), # [ns^2]
         # n bits for the ADC 
-        adcNbits           = cms.uint32(8),
+        adcNbits             = cms.uint32(8),
         # n bits for the TDC
-        tdcNbits           = cms.uint32(11),
+        tdcNbits             = cms.uint32(11),
         # ADC saturation
         adcSaturation_MIP  = cms.double(25),
         # for different thickness

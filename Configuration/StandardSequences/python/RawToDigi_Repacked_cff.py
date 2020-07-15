@@ -10,7 +10,6 @@ gtDigis.DaqGtInputTag = 'rawDataRepacker'
 gtEvmDigis.EvmGtInputTag = 'rawDataRepacker'
 siPixelDigis.InputLabel = 'rawDataRepacker'
 siStripDigis.ProductLabel = 'rawDataRepacker'
-#False by default ecalDigis.DoRegional = False
 ecalDigis.InputLabel = 'rawDataRepacker'
 ecalPreshowerDigis.sourceTag = 'rawDataRepacker'
 hcalDigis.InputLabel = 'rawDataRepacker'

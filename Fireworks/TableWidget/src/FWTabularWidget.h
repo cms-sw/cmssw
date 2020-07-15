@@ -21,6 +21,7 @@
 // system include files
 #include <vector>
 #include "TGFrame.h"
+#include "TVirtualX.h"
 
 // user include files
 

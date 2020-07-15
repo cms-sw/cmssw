@@ -1,7 +1,8 @@
 <environment>
-  <use   name="DataFormats/GeometryCommonDetAlgo"/>
-  <use   name="DataFormats/GeometrySurface"/>
-  <use   name="DataFormats/GeometryVector"/>
-  <bin   file="PerpendicularBoundPlaneBuilderTest.cpp">
-  </bin>
+  <use name="DataFormats/GeometryCommonDetAlgo"/>
+  <use name="DataFormats/GeometrySurface"/>
+  <use name="DataFormats/GeometryVector"/>
+  <bin file="PerpendicularBoundPlaneBuilderTest.cpp">
+</bin>
+
 </environment>

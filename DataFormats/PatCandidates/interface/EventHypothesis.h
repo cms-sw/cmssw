@@ -176,7 +176,7 @@ namespace pat {
   const T *EventHypothesis::getAs(const std::string &role, int index) const {
     CandRefType ref = get(role, index);
     const T *ret = dynamic_cast<const T *>(ref.get());
-    if ((ret == 0) && (ref.get() != nullptr))
+    if ((ret == nullptr) && (ref.get() != nullptr))
       throw cms::Exception("Type Checking") << createExceptionMessage<T>(ref);
     return ret;
   }

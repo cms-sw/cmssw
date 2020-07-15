@@ -13,7 +13,7 @@
     <Parameter name="CellSize"      value="[hgcalwafer:CellWF]"/>
     <Parameter name="CellSize"      value="[hgcalwafer:CellWC]"/>
   </SpecPar>
-  <SpecPar name="HGCalHESiliconReco">
+  <SpecPar name="HGCalHESiliconSensitive">
     <PartSelector path="//HGCalHESiliconSensitive.*"/>
     <Parameter name="Volume" value="HGCalHESiliconSensitive" eval="false"/>
     <Parameter name="Slope"  value="0.0"/>

@@ -7,5 +7,4 @@
 <use name="SimDataFormats/Track"/>
 <use name="SimDataFormats/TrackingHit"/>
 <use name="SimDataFormats/Vertex"/>
-
 <flags EDM_PLUGIN="1"/>

@@ -9,6 +9,7 @@
 #include "TrackingTools/TrackFitters/interface/TrajectoryStateCombiner.h"
 
 #ifdef EDM_ML_DEBUG
+#include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 #include "DataFormats/MuonDetId/interface/CSCDetId.h"

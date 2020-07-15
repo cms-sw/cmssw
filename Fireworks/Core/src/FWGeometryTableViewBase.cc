@@ -37,6 +37,7 @@
 #include "TGLViewer.h"
 #include "TGLCamera.h"
 #include "TEveSelection.h"
+#include "TVirtualX.h"
 #ifdef PERFTOOL_BROWSER
 #include <google/profiler.h>
 #endif

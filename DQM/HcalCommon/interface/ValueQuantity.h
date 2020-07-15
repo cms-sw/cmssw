@@ -3,7 +3,7 @@
 
 #include "DQM/HcalCommon/interface/Flag.h"
 #include "DQM/HcalCommon/interface/Quantity.h"
-#include "boost/unordered_map.hpp"
+#include <unordered_map>
 
 namespace hcaldqm {
   namespace quantity {
@@ -505,7 +505,7 @@ namespace hcaldqm {
       std::string name() override { return "Event Type"; }
 
     protected:
-      typedef boost::unordered_map<uint32_t, int> TypeMap;
+      typedef std::unordered_map<uint32_t, int> TypeMap;
       TypeMap _types;
 
     public:

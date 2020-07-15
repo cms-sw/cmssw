@@ -18,5 +18,5 @@
 <use name="boost_python"/>
 <use name="FWCore/PythonParameterSet"/>
 <export>
-<lib name="1"/>
+  <lib name="1"/>
 </export>

@@ -1,24 +1,16 @@
-<use   name="Geometry/CaloGeometry"/>
-<use   name="RecoLocalCalo/HGCalRecProducers"/>
-<use   name="RecoLocalCalo/HGCalRecAlgos"/>
-<use   name="FWCore/Framework"/>
-<use   name="FWCore/ParameterSet"/>
-<use   name="FWCore/PluginManager"/>
-<use   name="DataFormats/Candidate"/>
-<use   name="DataFormats/CaloRecHit"/>
-<use   name="DataFormats/ParticleFlowCandidate"/>
-<use   name="DataFormats/HGCDigi"/>
-<use   name="DataFormats/HGCRecHit"/>
-<use   name="DataFormats/HGCalReco"/>
-<use   name="CondFormats/DataRecord"/>
-<use   name="FWCore/MessageLogger"/>
-<use   name="FWCore/MessageService"/>
-<use   name="Geometry/HGCalGeometry"/>
-<use   name="DataFormats/TrackReco"/>
-<use   name="TrackingTools/Records"/>
-<use   name="Geometry/Records"/>
-<use   name="PhysicsTools/TensorFlow"/>
-<use   name="RecoHGCal/TICL"/>
-<library   file="*.cc" name="RecoHGCalTICLPlugins">
-  <flags   EDM_PLUGIN="1"/>
+<use name="RecoLocalCalo/HGCalRecProducers"/>
+<use name="RecoLocalCalo/HGCalRecAlgos"/>
+<use name="FWCore/Framework"/>
+<use name="FWCore/ParameterSet"/>
+<use name="FWCore/PluginManager"/>
+<use name="DataFormats/CaloRecHit"/>
+<use name="DataFormats/ParticleFlowCandidate"/>
+<use name="DataFormats/HGCalReco"/>
+<use name="FWCore/MessageLogger"/>
+<use name="DataFormats/TrackReco"/>
+<use name="TrackingTools/Records"/>
+<use name="PhysicsTools/TensorFlow"/>
+<use name="RecoHGCal/TICL"/>
+<library file="*.cc" name="RecoHGCalTICLPlugins">
+  <flags EDM_PLUGIN="1"/>
 </library>

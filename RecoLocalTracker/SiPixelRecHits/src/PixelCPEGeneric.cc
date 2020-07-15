@@ -54,20 +54,17 @@ PixelCPEGeneric::PixelCPEGeneric(edm::ParameterSet const& conf,
   inflate_errors = conf.getParameter<bool>("inflate_errors");
   inflate_all_errors_no_trk_angle = conf.getParameter<bool>("inflate_all_errors_no_trk_angle");
 
+  NoTemplateErrorsWhenNoTrkAngles_ = conf.getParameter<bool>("NoTemplateErrorsWhenNoTrkAngles");
   UseErrorsFromTemplates_ = conf.getParameter<bool>("UseErrorsFromTemplates");
   TruncatePixelCharge_ = conf.getParameter<bool>("TruncatePixelCharge");
   IrradiationBiasCorrection_ = conf.getParameter<bool>("IrradiationBiasCorrection");
   DoCosmics_ = conf.getParameter<bool>("DoCosmics");
-  //LoadTemplatesFromDB_       = conf.getParameter<bool>("LoadTemplatesFromDB");
 
-  // no clear what upgrade means, is it phase1, phase2? Probably delete.
-  isUpgrade_ = false;
-  if (conf.getParameter<bool>("Upgrade"))
-    isUpgrade_ = true;
+  // Upgrade means phase 2
+  isUpgrade_ = conf.getParameter<bool>("Upgrade");
 
-  // Select the position error source
-  // For upgrde and cosmics force the use simple errors
-  if (isUpgrade_ || (DoCosmics_))
+  // For cosmics force the use of simple errors
+  if ((DoCosmics_))
     UseErrorsFromTemplates_ = false;
 
   if (!UseErrorsFromTemplates_ && (TruncatePixelCharge_ || IrradiationBiasCorrection_ || LoadTemplatesFromDB_)) {
@@ -494,11 +491,13 @@ LocalError PixelCPEGeneric::localError(DetParam const& theDetParam, ClusterParam
            << endl;
   }
 
+  bool useTempErrors =
+      UseErrorsFromTemplates_ && (!NoTemplateErrorsWhenNoTrkAngles_ || theClusterParam.with_track_angle);
+
   if
-    LIKELY(UseErrorsFromTemplates_) {
+    LIKELY(useTempErrors) {
       //
       // Use template errors
-      //cout << "Track angles are known. We can use either errors from templates or the error parameterization from DB." << endl;
 
       if (!edgex) {  // Only use this for non-edge clusters
         if (sizex == 1) {
@@ -639,6 +638,7 @@ void PixelCPEGeneric::fillPSetDescription(edm::ParameterSetDescription& desc) {
   desc.add<double>("EdgeClusterErrorY", 85.0);
   desc.add<bool>("inflate_errors", false);
   desc.add<bool>("inflate_all_errors_no_trk_angle", false);
+  desc.add<bool>("NoTemplateErrorsWhenNoTrkAngles", false);
   desc.add<bool>("UseErrorsFromTemplates", true);
   desc.add<bool>("TruncatePixelCharge", true);
   desc.add<bool>("IrradiationBiasCorrection", false);

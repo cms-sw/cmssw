@@ -7,9 +7,9 @@
 
 #include <vector>
 #include <cmath>
+#include "FWCore/Utilities/interface/Visibility.h"
 
 #include "RecoTracker/TkMSParametrization/interface/MSLayer.h"
-#include "FWCore/Utilities/interface/GCC11Compatibility.h"
 
 class PixelRecoLineRZ;
 

@@ -1,13 +1,10 @@
-<use   name="FWCore/Framework"/>
-<use   name="FWCore/ParameterSet"/>
-<use   name="FWCore/MessageLogger"/>
-<use   name="CondFormats/DataRecord"/>
-<use   name="CondFormats/SiPixelObjects"/>
-<use   name="DataFormats/Common"/>
-<use   name="DataFormats/SiPixelDigi"/>
-<use   name="CalibTracker/Records"/>
-<use   name="MagneticField/VolumeBasedEngine"/>
-<use   name="boost"/>
+<use name="FWCore/Framework"/>
+<use name="FWCore/ParameterSet"/>
+<use name="FWCore/MessageLogger"/>
+<use name="CondFormats/DataRecord"/>
+<use name="CondFormats/SiPixelObjects"/>
+<use name="DataFormats/Common"/>
+<use name="DataFormats/SiPixelDigi"/>
 <export>
-  <lib   name="1"/>
+  <lib name="1"/>
 </export>

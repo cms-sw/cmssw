@@ -1,7 +1,9 @@
-<flags   EDM_PLUGIN="1"/>
-<use   name="SimG4Core/Notification"/>
-<use   name="SimG4Core/Watcher"/>
-<use   name="SimG4Core/Geometry"/>
-<use   name="FWCore/ParameterSet"/>
-<use   name="geant4core"/>
-<use   name="boost"/>
+<flags EDM_PLUGIN="1"/>
+<use name="DetectorDescription/Core"/>
+<use name="DetectorDescription/DDCMS"/>
+<use name="SimG4Core/Notification"/>
+<use name="SimG4Core/Watcher"/>
+<use name="FWCore/ParameterSet"/>
+<use name="Geometry/Records"/>
+<use name="geant4core"/>
+<use name="boost"/>

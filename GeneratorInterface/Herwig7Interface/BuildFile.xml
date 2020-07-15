@@ -5,5 +5,5 @@
 <use name="thepeg"/>
 <use name="herwigpp"/>
 <export>
-	<lib name="GeneratorInterfaceHerwig7Interface"/>
+  <lib name="GeneratorInterfaceHerwig7Interface"/>
 </export>

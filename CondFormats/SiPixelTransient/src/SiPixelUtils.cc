@@ -68,9 +68,6 @@ namespace SiPixelUtils {
     if ((size >= size_cut) || ((W_eff / pitch < eff_charge_cut_low) | (W_eff / pitch > eff_charge_cut_high))) {
       W_eff = pitch * 0.5f * sum_of_edge;  // ave. length of edge pixels (first+last) (cm)
                                            //  usedEdgeAlgo = true;
-#ifdef EDM_ML_DEBUG
-      nRecHitsUsedEdge_++;
-#endif
     }
 
     //--- Finally, compute the position in this projection

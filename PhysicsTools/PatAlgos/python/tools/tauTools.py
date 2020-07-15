@@ -19,11 +19,15 @@ def _buildIDSourcePSet(tauType, idSources, postfix =""):
     """ Build a PSet defining the tau ID sources to embed into the pat::Tau """
     output = cms.PSet()
     for label, discriminator in idSources:
-        if ":" in discriminator:
-          discr = discriminator.split(":")
-          setattr(output, label, cms.InputTag(tauType + discr[0] + postfix + ":" + discr[1]))
-        else:  
-          setattr(output, label, cms.InputTag(tauType + discriminator + postfix))
+        wp = -99
+        if ";" in discriminator: #read from PFTauDiscriminatorContainer
+            discriminator, wp_str = discriminator.split(";")
+            wp = int(wp_str)
+        id = cms.PSet()
+        id.inputTag = cms.InputTag(discriminator.replace(":", postfix + ":"))
+        id.provenanceConfigLabel=cms.string("")
+        id.idLabel=cms.string("")
+        setattr(output, label, id)
     return output
 
 def _switchToPFTau(process,
@@ -150,6 +154,7 @@ hpsTauIDSources = [
     ("againstElectronMediumMVA6", "DiscriminationByMVA6MediumElectronRejection"),
     ("againstElectronTightMVA6", "DiscriminationByMVA6TightElectronRejection"),
     ("againstElectronVTightMVA6", "DiscriminationByMVA6VTightElectronRejection"),
+    ("againstElectronDeadECAL", "DiscriminationByDeadECALElectronRejection"),
 ]
 
 # switch to PFTau collection produced for fixed dR = 0.07 signal cone size

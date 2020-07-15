@@ -47,6 +47,9 @@ namespace magneticfield {
     void buildTubs();
     // Build the surfaces for a ddcons shape
     void buildCons();
+    // Build the surfaces for a ddpseudotrap. This is not a supported
+    // shape in DD4hep; it is handled here to cope with legacy geometries.
+    void buildPseudoTrap(double x1, double x2, double y1, double y2, double halfZ, double radius, bool atMinusZ);
     // Build the surfaces for a ddtrunctubs shape
     void buildTruncTubs();
 

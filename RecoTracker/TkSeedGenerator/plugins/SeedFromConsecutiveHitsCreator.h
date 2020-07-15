@@ -1,5 +1,6 @@
 #ifndef RecoTracker_TkSeedGenerator_SeedFromConsecutiveHitsCreator_H
 #define RecoTracker_TkSeedGenerator_SeedFromConsecutiveHitsCreator_H
+#include "FWCore/Utilities/interface/Visibility.h"
 
 #include "RecoTracker/TkSeedGenerator/interface/SeedCreator.h"
 #include "RecoTracker/TkSeedingLayers/interface/SeedingHitSet.h"

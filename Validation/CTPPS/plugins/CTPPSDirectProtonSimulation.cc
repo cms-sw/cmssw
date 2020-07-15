@@ -25,9 +25,9 @@
 #include "DataFormats/CTPPSReco/interface/CTPPSLocalTrackLite.h"
 
 #include "CondFormats/DataRecord/interface/CTPPSInterpolatedOpticsRcd.h"
-#include "CondFormats/CTPPSReadoutObjects/interface/LHCInterpolatedOpticalFunctionsSetCollection.h"
+#include "CondFormats/PPSObjects/interface/LHCInterpolatedOpticalFunctionsSetCollection.h"
 
-#include "CondFormats/CTPPSReadoutObjects/interface/CTPPSBeamParameters.h"
+#include "CondFormats/PPSObjects/interface/CTPPSBeamParameters.h"
 #include "CondFormats/DataRecord/interface/CTPPSBeamParametersRcd.h"
 
 #include "CondFormats/RunInfo/interface/LHCInfo.h"
@@ -192,7 +192,7 @@ void CTPPSDirectProtonSimulation::produce(edm::Event &iEvent, const edm::EventSe
   std::unique_ptr<std::vector<CTPPSLocalTrackLite>> pTracks(new std::vector<CTPPSLocalTrackLite>());
 
   // loop over event vertices
-  auto evt = new HepMC::GenEvent(*hepmc_prod->GetEvent());
+  auto evt = hepmc_prod->GetEvent();
   for (auto it_vtx = evt->vertices_begin(); it_vtx != evt->vertices_end(); ++it_vtx) {
     auto vtx = *(it_vtx);
 

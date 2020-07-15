@@ -1,5 +1,8 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "RecoJets/JetProducers/plugins/CATopJetProducer.h"
+
+#include <memory>
+
 #include "RecoJets/JetProducers/plugins/FastjetJetProducer.h"
 
 using namespace edm;
@@ -64,7 +67,7 @@ void CATopJetProducer::produce(edm::Event& e, const edm::EventSetup& c) { Fastje
 
 void CATopJetProducer::runAlgorithm(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   if (!doAreaFastjet_ && !doRhoFastjet_) {
-    fjClusterSeq_ = ClusterSequencePtr(new fastjet::ClusterSequence(fjInputs_, *fjJetDefinition_));
+    fjClusterSeq_ = std::make_shared<fastjet::ClusterSequence>(fjInputs_, *fjJetDefinition_);
   } else if (voronoiRfact_ <= 0) {
     fjClusterSeq_ =
         ClusterSequencePtr(new fastjet::ClusterSequenceArea(fjInputs_, *fjJetDefinition_, *fjAreaDefinition_));

@@ -159,7 +159,7 @@ void CaloParticleValidation::dqmAnalyze(edm::Event const& iEvent,
   iEvent.getByToken(simPFCandidates_, simPFCandidatesHandle);
   reco::PFCandidateCollection const& simPFCandidates = *simPFCandidatesHandle;
 
-  for (auto const caloParticle : caloParticles) {
+  for (auto const& caloParticle : caloParticles) {
     if (caloParticle.g4Tracks()[0].eventId().event() != 0 or
         caloParticle.g4Tracks()[0].eventId().bunchCrossing() != 0) {
       LogDebug("CaloParticleValidation") << "Excluding CaloParticles from event: "
@@ -182,7 +182,7 @@ void CaloParticleValidation::dqmAnalyze(edm::Event const& iEvent,
       float energy = 0.;
       for (auto const sc : caloParticle.simClusters()) {
         simHits += sc->hits_and_fractions().size();
-        for (auto const h_and_f : sc->hits_and_fractions()) {
+        for (auto const& h_and_f : sc->hits_and_fractions()) {
           if (hitmap.count(h_and_f.first))
             energy += hitmap[h_and_f.first]->energy() * h_and_f.second;
         }
@@ -194,7 +194,7 @@ void CaloParticleValidation::dqmAnalyze(edm::Event const& iEvent,
   }
 
   // simPFSuperClusters
-  for (auto const sc : simPFClusters) {
+  for (auto const& sc : simPFClusters) {
     histos.at(0).simPFSuperClusterSize_->Fill((float)sc.clustersSize());
     histos.at(0).simPFSuperClusterEnergy_->Fill(sc.rawEnergy());
   }
@@ -203,7 +203,7 @@ void CaloParticleValidation::dqmAnalyze(edm::Event const& iEvent,
   int offset = 100000;
   double ptx_tot = 0.;
   double pty_tot = 0.;
-  for (auto const pfc : simPFCandidates) {
+  for (auto const& pfc : simPFCandidates) {
     size_t type = offset + pfc.particleId();
     ptx_tot += pfc.px();
     pty_tot += pfc.py();

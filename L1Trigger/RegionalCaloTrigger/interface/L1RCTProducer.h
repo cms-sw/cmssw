@@ -1,7 +1,7 @@
 #ifndef L1RCTProducer_h
 #define L1RCTProducer_h
 
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -37,14 +37,15 @@
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <string>
+#include <memory>
 
 class L1RCT;
 class L1RCTLookupTables;
 
-class L1RCTProducer : public edm::EDProducer {
+class L1RCTProducer : public edm::stream::EDProducer<> {
 public:
   explicit L1RCTProducer(const edm::ParameterSet &ps);
-  ~L1RCTProducer() override;
+
   void beginRun(edm::Run const &r, const edm::EventSetup &c) final;
   void beginLuminosityBlock(edm::LuminosityBlock const &lumiSeg, const edm::EventSetup &context) final;
   void produce(edm::Event &e, const edm::EventSetup &c) final;
@@ -60,8 +61,8 @@ public:
   void printUpdatedFedMaskVerbose();
 
 private:
-  L1RCTLookupTables *rctLookupTables;
-  L1RCT *rct;
+  std::unique_ptr<L1RCTLookupTables> rctLookupTables;
+  std::unique_ptr<L1RCT> rct;
   bool useEcal;
   bool useHcal;
   std::vector<edm::InputTag> ecalDigis;
@@ -73,7 +74,7 @@ private:
   std::string conditionsLabel;
 
   // Create a channel mask object to be updated at every Run....
-  L1RCTChannelMask *fedUpdatedMask;
+  std::unique_ptr<L1RCTChannelMask> fedUpdatedMask;
 
   enum crateSection { c_min, ebOddFed = c_min, ebEvenFed, eeFed, hbheFed, hfFed, hfFedUp, c_max = hfFedUp };
 

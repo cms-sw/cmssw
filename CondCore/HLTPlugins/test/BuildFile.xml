@@ -1,7 +1,7 @@
-<use   name="CondCore/CondDB"/>
-<use   name="CondCore/Utilities"/>
-<use   name="CondFormats/Common"/>
-<use   name="FWCore/PluginManager"/>
-<use   name="FWCore/Utilities"/>
-<bin   file="testAlCaRecoTriggerBitsPayloadInspector.cpp" name="testAlCaRecoTriggerBitsPayloadInspector">
+<use name="CondCore/Utilities"/>
+<use name="FWCore/PluginManager"/>
+<bin file="testAlCaRecoTriggerBitsPayloadInspector.cpp" name="testAlCaRecoTriggerBitsPayloadInspector">
+ <ifrelease name="_PY3_">
+    <flags SETENV="PYTHONHOME=$(PYTHON_BASE)"/>
+ </ifrelease>
 </bin>

@@ -72,11 +72,11 @@ vector<const DetLayer*> StartingLayerFinder::startingLayers(const TrajectorySeed
   if (aSeed.nHits() != 2)
     return vector<const DetLayer*>();
 
-  TrackingRecHitCollection::const_iterator firstHit = aSeed.recHits().first;
+  auto firstHit = aSeed.recHits().begin();
   const TrackingRecHit* recHit1 = &(*firstHit);
   const DetLayer* hit1Layer = theMeasurementTracker->geometricSearchTracker()->detLayer(recHit1->geographicalId());
 
-  TrackingRecHitCollection::const_iterator secondHit = aSeed.recHits().second;
+  auto secondHit = aSeed.recHits().end();
   const TrackingRecHit* recHit2 = &(*secondHit);
   const DetLayer* hit2Layer = theMeasurementTracker->geometricSearchTracker()->detLayer(recHit2->geographicalId());
 

@@ -1,6 +1,7 @@
 <environment>
-  <bin   file="runtestTqafTopHitFit.cpp">
-    <flags   TEST_RUNNER_ARGS=" /bin/bash TopQuarkAnalysis/TopHitFit/test runtests.sh"/>
-    <use   name="FWCore/Utilities"/>
+  <bin file="runtestTqafTopHitFit.cpp">
+    <flags TEST_RUNNER_ARGS=" /bin/bash TopQuarkAnalysis/TopHitFit/test runtests.sh"/>
+    <use name="FWCore/Utilities"/>
   </bin>
+
 </environment>

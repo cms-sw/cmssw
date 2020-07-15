@@ -89,7 +89,7 @@ void Type1PFMET::run(const METCollection& uncorMET,
   std::vector<CorrMETData> corrections = u->mEtCorr();
   corrections.push_back(delta);
   //----------------- Push onto MET Collection
-  MET result = MET(u->sumEt() + delta.sumet, corrections, correctedMET4vector, u->vertex());
+  MET result = MET(u->sumEt() + delta.sumet, corrections, correctedMET4vector, u->vertex(), u->isWeighted());
   corMET->push_back(result);
 
   return;

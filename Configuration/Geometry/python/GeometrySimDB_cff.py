@@ -12,3 +12,4 @@ from Geometry.HcalCommonData.hcalSimulationParameters_cfi   import *
 from Geometry.HcalCommonData.hcalDDDSimConstants_cfi        import *
 from Geometry.HcalCommonData.hcalDDDSimulationConstants_cfi import *
 from Geometry.HcalCommonData.caloSimulationParameters_cff   import *
+from Geometry.MuonNumbering.muonGeometryConstants_cff import *

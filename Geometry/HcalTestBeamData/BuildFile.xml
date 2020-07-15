@@ -1,0 +1,6 @@
+<use name="DetectorDescription/Core"/>
+<use name="DetectorDescription/DDCMS"/>
+<use name="dd4hep"/>
+<export>
+  <lib name="1"/>
+</export>

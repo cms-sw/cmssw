@@ -4,7 +4,7 @@
 
 namespace edm {
   namespace handleimpl {
-    static std::shared_ptr<HandleExceptionFactory> s_invalidRefFactory =
+    static std::shared_ptr<HandleExceptionFactory const> const s_invalidRefFactory =
         makeHandleExceptionFactory([]() -> std::shared_ptr<cms::Exception> {
           std::shared_ptr<cms::Exception> whyFailed =
               std::make_shared<edm::Exception>(errors::InvalidReference, "NullPointer");
@@ -12,7 +12,7 @@ namespace edm {
           return whyFailed;
         });
 
-    std::shared_ptr<HandleExceptionFactory> makeInvalidReferenceException() { return s_invalidRefFactory; }
+    std::shared_ptr<HandleExceptionFactory const> makeInvalidReferenceException() { return s_invalidRefFactory; }
 
     void throwConvertTypeError(std::type_info const& expected, std::type_info const& actual) {
       throw Exception(errors::LogicError, "TypeMismatch")

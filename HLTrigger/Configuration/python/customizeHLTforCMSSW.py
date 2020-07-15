@@ -76,6 +76,12 @@ def synchronizeHCALHLTofflineRun3on2018data(process):
         producer.setNoiseFlagsQIE8 = cms.bool( True )
         producer.setPulseShapeFlagsQIE8 = cms.bool( True )
 
+    #----------------------------------------------------------
+    # Use 1+8p fit (PR29617) and apply HB- correction (PR26177)
+    for producer in producers_by_type(process, "HBHEPhase1Reconstructor"):
+        producer.algorithm.applyLegacyHBMCorrection = cms.bool( True )
+        producer.algorithm.chiSqSwitch = cms.double(15.0)
+
     return process
 
 def synchronizeHCALHLTofflineRun2(process):

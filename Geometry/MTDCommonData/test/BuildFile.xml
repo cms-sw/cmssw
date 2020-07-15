@@ -1,26 +1,26 @@
-<use   name="FWCore/Framework"/>
-<use   name="Geometry/Records"/>
-<use   name="MagneticField/Records"/>
-<use   name="Geometry/MTDCommonData"/>
-
-<library   file="TestMTDNumbering.cc">
-  <use   name="DetectorDescription/Core"/>
-  <use   name="DetectorDescription/Parser"/>
-  <flags   EDM_PLUGIN="1"/>
+<library name="TestMTDIdealGeometry" file="TestMTDIdealGeometry.cc">
+  <use name="DataFormats/ForwardDetId"/>
+  <use name="DetectorDescription/Core"/>
+  <use name="FWCore/Framework"/>
+  <use name="FWCore/ParameterSet"/>
+  <use name="FWCore/Utilities"/>
+  <use name="Geometry/MTDCommonData"/>
+  <use name="Geometry/Records"/>
+  <use name="rootcling"/>
+  <flags EDM_PLUGIN="1"/>
 </library>
 
-<library   file="TestMTDPosition.cc">
-  <use   name="DetectorDescription/Core"/>
-  <use   name="DetectorDescription/Parser"/>
-  <flags   EDM_PLUGIN="1"/>
+<library name="DD4hep_TestMTDIdealGeometry" file="DD4hep_TestMTDIdealGeometry.cc">
+  <use name="DataFormats/ForwardDetId"/>
+  <use name="DataFormats/Math"/>
+  <use name="DetectorDescription/DDCMS"/>
+  <use name="FWCore/Framework"/>
+  <use name="FWCore/ParameterSet"/>
+  <use name="FWCore/Utilities"/>
+  <use name="Geometry/MTDCommonData"/>
+  <use name="Geometry/Records"/>
+  <use name="rootcling"/>
+  <flags EDM_PLUGIN="1"/>
 </library>
 
-<library   file="DD4hep_TestMTDNumbering.cc">
-  <use   name="DetectorDescription/DDCMS"/>
-  <flags   EDM_PLUGIN="1"/>
-</library>
-
-<library   file="DD4hep_TestMTDPosition.cc">
-  <use   name="DetectorDescription/DDCMS"/>
-  <flags   EDM_PLUGIN="1"/>
-</library>
+<test name="GeometryMTDCommonDataTestDriver" command="runTest.sh"/>

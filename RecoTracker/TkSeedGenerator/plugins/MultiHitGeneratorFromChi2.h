@@ -6,6 +6,7 @@
     For each pair the search for compatible hit(s) is done among
     provided Layers
  */
+#include "FWCore/Utilities/interface/Visibility.h"
 
 #include "RecoTracker/TkSeedGenerator/interface/MultiHitGenerator.h"
 #include "CombinedMultiHitGenerator.h"

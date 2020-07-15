@@ -11,9 +11,8 @@ ________________________________________________________________**/
 #include <string>
 // CMS
 #include "DataFormats/SiPixelCluster/interface/SiPixelCluster.h"
-#include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHitCollection.h"
 #include "DataFormats/Luminosity/interface/PixelClusterCounts.h"
-
+#include "DataFormats/DetId/interface/DetId.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
@@ -26,7 +25,8 @@ ________________________________________________________________**/
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/LuminosityBlock.h"
-
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "TMath.h"
 //The class
 class AlcaPCCProducer : public edm::one::EDProducer<edm::EndLuminosityBlockProducer, edm::one::WatchLuminosityBlocks> {
@@ -52,10 +52,8 @@ private:
 
 //--------------------------------------------------------------------------------------------------
 AlcaPCCProducer::AlcaPCCProducer(const edm::ParameterSet& iConfig) {
-  fPixelClusterLabel = iConfig.getParameter<edm::ParameterSet>("AlcaPCCProducerParameters")
-                           .getParameter<edm::InputTag>("pixelClusterLabel");
-  trigstring_ = iConfig.getParameter<edm::ParameterSet>("AlcaPCCProducerParameters")
-                    .getUntrackedParameter<std::string>("trigstring", "alcaPCC");
+  fPixelClusterLabel = iConfig.getParameter<edm::InputTag>("pixelClusterLabel");
+  trigstring_ = iConfig.getUntrackedParameter<std::string>("trigstring", "alcaPCC");
 
   countLumi_ = 0;
 

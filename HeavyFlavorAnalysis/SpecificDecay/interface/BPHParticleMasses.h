@@ -32,6 +32,9 @@ public:
   static const double tauMass;
   static const double pionMass;
   static const double kaonMass;
+  static const double protonMass;
+  static const double k0sMass;
+  static const double lambda0Mass;
   static const double kx0Mass;
   static const double phiMass;
   static const double jPsiMass;
@@ -44,6 +47,9 @@ public:
   static const double tauMSigma;
   static const double pionMSigma;
   static const double kaonMSigma;
+  static const double protonMSigma;
+  static const double k0sMSigma;
+  static const double lambda0MSigma;
   static const double kx0MWidth;
   static const double phiMWidth;
   static const double jPsiMWidth;
@@ -51,8 +57,6 @@ public:
   static const double ups1MWidth;
   static const double ups2MWidth;
   static const double ups3MWidth;
-
-private:
 };
 
 #endif

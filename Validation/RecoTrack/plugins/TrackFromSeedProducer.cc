@@ -132,7 +132,7 @@ void TrackFromSeedProducer::produce(edm::StreamID, edm::Event& iEvent, const edm
   for (size_t iSeed = 0; iSeed < seeds.size(); ++iSeed) {
     auto const& seed = seeds[iSeed];
     // try to create a track
-    TransientTrackingRecHit::RecHitPointer lastRecHit = tTRHBuilder->build(&*(seed.recHits().second - 1));
+    TransientTrackingRecHit::RecHitPointer lastRecHit = tTRHBuilder->build(&*(seed.recHits().end() - 1));
     TrajectoryStateOnSurface state =
         trajectoryStateTransform::transientState(seed.startingState(), lastRecHit->surface(), theMF.product());
     TrajectoryStateClosestToBeamLine tsAtClosestApproachSeed =
@@ -157,11 +157,11 @@ void TrackFromSeedProducer::produce(edm::StreamID, edm::Event& iEvent, const edm
       nfailed++;
     }
 
-    tracks->back().appendHits(seed.recHits().first, seed.recHits().second, ttopo);
+    tracks->back().appendHits(seed.recHits().begin(), seed.recHits().end(), ttopo);
     // store the hits
     size_t firsthitindex = rechits->size();
-    for (auto hitit = seed.recHits().first; hitit != seed.recHits().second; ++hitit) {
-      rechits->push_back(*hitit);
+    for (auto const& recHit : seed.recHits()) {
+      rechits->push_back(recHit);
     }
 
     // create a trackextra, just to store the hit range

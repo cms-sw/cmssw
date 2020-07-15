@@ -58,11 +58,11 @@
     <Include ref="Geometry/HcalCommonData/data/average/hcalforwardmaterial.xml"/>
     <Include ref="Geometry/HGCalCommonData/data/hgcalMaterial/v1/hgcalMaterial.xml"/>
     <Include ref="Geometry/HGCalCommonData/data/hgcal/v10/hgcal.xml"/>
+    <Include ref="Geometry/HGCalCommonData/data/hgcalcell/v9/hgcalcell.xml"/>
+    <Include ref="Geometry/HGCalCommonData/data/hgcalwafer/v9/hgcalwafer.xml"/>
     <Include ref="Geometry/HGCalCommonData/data/hgcalEE/v10/hgcalEE.xml"/>
     <Include ref="Geometry/HGCalCommonData/data/hgcalHEsil/v10/hgcalHEsil.xml"/>
     <Include ref="Geometry/HGCalCommonData/data/hgcalHEmix/v10/hgcalHEmix.xml"/>
-    <Include ref="Geometry/HGCalCommonData/data/hgcalwafer/v9/hgcalwafer.xml"/>
-    <Include ref="Geometry/HGCalCommonData/data/hgcalcell/v9/hgcalcell.xml"/>
     <Include ref="Geometry/HGCalCommonData/data/hgcalCons/v10/hgcalCons.xml"/>
     <Include ref="Geometry/MuonCommonData/data/mbCommon/2017/v2/mbCommon.xml"/>
     <Include ref="Geometry/MuonCommonData/data/mb1/2015/v1/mb1.xml"/>
@@ -106,8 +106,8 @@
     <Include ref="Geometry/CSCGeometryBuilder/data/cscSpecsFilter.xml"/>
     <Include ref="Geometry/CSCGeometryBuilder/data/cscSpecs.xml"/>
     <Include ref="Geometry/RPCGeometryBuilder/data/2026/v1/RPCSpecs.xml"/>
-    <Include ref="Geometry/GEMGeometryBuilder/data/v7/GEMSpecsFilter.xml"/>
-    <Include ref="Geometry/GEMGeometryBuilder/data/v7/GEMSpecs.xml"/>
+    <Include ref="Geometry/GEMGeometryBuilder/data/v10/GEMSpecsFilter.xml"/>
+    <Include ref="Geometry/GEMGeometryBuilder/data/v10/GEMSpecs.xml"/>
     <Include ref="Geometry/ForwardCommonData/data/brmsens.xml"/>
     <Include ref="Geometry/ForwardSimData/data/zdcsens.xml"/>
     <Include ref="Geometry/MTDSimData/data/CrystalBarPhiFlat/mtdsens.xml"/>

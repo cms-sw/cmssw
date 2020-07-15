@@ -22,7 +22,7 @@ Monitoring source for general quantities related to tracks.
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "DQMServices/Core/interface/DQMStore.h"
-#include <DQMServices/Core/interface/DQMOneEDAnalyzer.h>
+#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 
 #include "DataFormats/Candidate/interface/CandidateFwd.h"
 
@@ -40,6 +40,7 @@ Monitoring source for general quantities related to tracks.
 #include "DataFormats/SiPixelCluster/interface/SiPixelCluster.h"
 
 #include "DataFormats/Scalers/interface/LumiScalers.h"
+#include "DataFormats/OnlineMetaData/interface/OnlineLuminosityRecord.h"
 
 #include "DataFormats/Common/interface/OwnVector.h"
 #include "RecoTracker/TkTrackingRegions/interface/TrackingRegion.h"
@@ -59,7 +60,7 @@ class GetLumi;
 class TProfile;
 class GenericTriggerEventFlag;
 
-class TrackingMonitor : public DQMOneLumiEDAnalyzer<> {
+class TrackingMonitor : public DQMEDAnalyzer {
 public:
   using MVACollection = std::vector<float>;
   using QualityMaskCollection = std::vector<unsigned char>;
@@ -71,11 +72,9 @@ public:
       std::vector<double>&, std::vector<double>&, std::vector<int>&, double, double, int, double, double, int);
   virtual void setNclus(const edm::Event&, std::vector<int>&);
 
-  void dqmBeginLuminosityBlock(const edm::LuminosityBlock& lumi, const edm::EventSetup& eSetup) override;
   void analyze(const edm::Event&, const edm::EventSetup&) override;
   void bookHistograms(DQMStore::IBooker&, edm::Run const&, edm::EventSetup const&) override;
   //        virtual void dqmBeginRun(const edm::Run&, const edm::EventSetup&);
-  void dqmEndRun(const edm::Run&, const edm::EventSetup&) override;
 
 private:
   void doProfileX(TH2* th2, MonitorElement* me);
@@ -106,6 +105,7 @@ private:
   edm::EDGetTokenT<reco::CandidateView> regionCandidateToken_;
 
   edm::EDGetTokenT<LumiScalersCollection> lumiscalersToken_;
+  edm::EDGetTokenT<OnlineLuminosityRecord> metaDataToken_;
 
   edm::InputTag stripClusterInputTag_;
   edm::InputTag pixelClusterInputTag_;
@@ -121,7 +121,7 @@ private:
   std::string Quality_;
   std::string AlgoName_;
 
-  TrackAnalyzer* theTrackAnalyzer;
+  tadqm::TrackAnalyzer* theTrackAnalyzer;
   TrackBuildingAnalyzer* theTrackBuildingAnalyzer;
   std::vector<VertexMonitor*> theVertexMonitor;
   GetLumi* theLumiDetails_;
@@ -228,6 +228,7 @@ private:
   StringCutObjectSelector<reco::Track, true> numSelection_;
   StringCutObjectSelector<reco::Track, true> denSelection_;
   int pvNDOF_;
+  const bool forceSCAL_;
 };
 
 #endif  //define TrackingMonitor_H

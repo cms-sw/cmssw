@@ -115,7 +115,7 @@ static long algorithm(dd4hep::Detector& /* description */,
   edm::LogVerbatim("HGCalGeom") << "\nDDHGCalWafer8::Counter : " << counter << "\n===============================\n";
 #endif
 
-  return 1;
+  return cms::s_executed;
 }
 
 // first argument is the type from the xml file

@@ -4,20 +4,18 @@
 using namespace edm;
 using namespace std;
 
-HLTTauRefCombiner::HLTTauRefCombiner(const edm::ParameterSet &iConfig) {
+HLTTauRefCombiner::HLTTauRefCombiner(const edm::ParameterSet &iConfig)
+    : matchDeltaR_{iConfig.getParameter<double>("MatchDeltaR")},
+      outName_{iConfig.getParameter<string>("OutputCollection")} {
   std::vector<edm::InputTag> inputCollVector_ = iConfig.getParameter<std::vector<InputTag>>("InputCollections");
   for (unsigned int ii = 0; ii < inputCollVector_.size(); ++ii) {
     inputColl_.push_back(consumes<LorentzVectorCollection>(inputCollVector_[ii]));
   }
-  matchDeltaR_ = iConfig.getParameter<double>("MatchDeltaR");
-  outName_ = iConfig.getParameter<string>("OutputCollection");
 
   produces<LorentzVectorCollection>(outName_);
 }
 
-HLTTauRefCombiner::~HLTTauRefCombiner() {}
-
-void HLTTauRefCombiner::produce(edm::Event &iEvent, const edm::EventSetup &iES) {
+void HLTTauRefCombiner::produce(edm::StreamID, edm::Event &iEvent, const edm::EventSetup &iES) const {
   unique_ptr<LorentzVectorCollection> out_product(new LorentzVectorCollection);
 
   // Create The Handles..
@@ -60,7 +58,7 @@ void HLTTauRefCombiner::produce(edm::Event &iEvent, const edm::EventSetup &iES) 
   }
 }
 
-bool HLTTauRefCombiner::match(const LorentzVector &lv, const LorentzVectorCollection &lvcol) {
+bool HLTTauRefCombiner::match(const LorentzVector &lv, const LorentzVectorCollection &lvcol) const {
   bool matched = false;
 
   if (!lvcol.empty())

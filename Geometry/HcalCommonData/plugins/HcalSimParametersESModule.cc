@@ -61,7 +61,7 @@ HcalSimParametersESModule::ReturnType HcalSimParametersESModule::produce(const H
     edm::LogVerbatim("HCalGeom") << "HcalSimParametersESModule::Try to access cms::DDCompactView";
 #endif
     edm::ESTransientHandle<cms::DDCompactView> cpv = iRecord.getTransientHandle(cpvTokenDD4Hep_);
-    builder.build(&(*cpv), *ptp);
+    builder.build(*cpv, *ptp);
   } else {
     edm::ESTransientHandle<DDCompactView> cpv = iRecord.getTransientHandle(cpvTokenDDD_);
     builder.build(&(*cpv), *ptp);

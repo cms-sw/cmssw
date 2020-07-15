@@ -1,15 +1,13 @@
 <ifrelease name="_UBSAN_">
-  <flags   REM_CXXFLAGS="-fno-omit-frame-pointer -fsanitize=undefined"/>
+  <flags REM_CXXFLAGS="-fno-omit-frame-pointer -fsanitize=undefined"/>
 </ifrelease>
-<use   name="CondFormats/Common"/>
-<use   name="DataFormats/DetId"/>
-<use   name="DataFormats/HcalDetId"/>
-<use   name="Geometry/CaloTopology"/>
-<use   name="FWCore/Utilities"/>
-<use   name="FWCore/MessageLogger"/>
-<use   name="CondFormats/Serialization"/>
-<use   name="boost_serialization"/>
-
+<use name="DataFormats/DetId"/>
+<use name="DataFormats/HcalDetId"/>
+<use name="Geometry/CaloTopology"/>
+<use name="FWCore/Utilities"/>
+<use name="FWCore/MessageLogger"/>
+<use name="CondFormats/Serialization"/>
+<use name="boost_serialization"/>
 <export>
-  <lib   name="1"/>
+  <lib name="1"/>
 </export>

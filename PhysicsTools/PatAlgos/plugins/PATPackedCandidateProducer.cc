@@ -87,9 +87,6 @@ namespace pat {
     const edm::EDGetTokenT<reco::TrackCollection> TKOrigs_;
     const edm::EDGetTokenT<edm::ValueMap<float>> PuppiWeight_;
     const edm::EDGetTokenT<edm::ValueMap<float>> PuppiWeightNoLep_;
-    const edm::EDGetTokenT<edm::ValueMap<reco::CandidatePtr>> PuppiCandsMap_;
-    const edm::EDGetTokenT<std::vector<reco::PFCandidate>> PuppiCands_;
-    const edm::EDGetTokenT<std::vector<reco::PFCandidate>> PuppiCandsNoLep_;
     std::vector<edm::EDGetTokenT<edm::View<reco::Candidate>>> SVWhiteLists_;
     const bool storeChargedHadronIsolation_;
     const edm::EDGetTokenT<edm::ValueMap<bool>> ChargedHadronIsolation_;
@@ -129,14 +126,6 @@ pat::PATPackedCandidateProducer::PATPackedCandidateProducer(const edm::Parameter
                              : edm::EDGetTokenT<edm::ValueMap<float>>()),
       PuppiWeightNoLep_(usePuppi_ ? consumes<edm::ValueMap<float>>(iConfig.getParameter<edm::InputTag>("PuppiNoLepSrc"))
                                   : edm::EDGetTokenT<edm::ValueMap<float>>()),
-      PuppiCandsMap_(usePuppi_
-                         ? consumes<edm::ValueMap<reco::CandidatePtr>>(iConfig.getParameter<edm::InputTag>("PuppiSrc"))
-                         : edm::EDGetTokenT<edm::ValueMap<reco::CandidatePtr>>()),
-      PuppiCands_(usePuppi_ ? consumes<std::vector<reco::PFCandidate>>(iConfig.getParameter<edm::InputTag>("PuppiSrc"))
-                            : edm::EDGetTokenT<std::vector<reco::PFCandidate>>()),
-      PuppiCandsNoLep_(
-          usePuppi_ ? consumes<std::vector<reco::PFCandidate>>(iConfig.getParameter<edm::InputTag>("PuppiNoLepSrc"))
-                    : edm::EDGetTokenT<std::vector<reco::PFCandidate>>()),
       storeChargedHadronIsolation_(!iConfig.getParameter<edm::InputTag>("chargedHadronIsolation").encode().empty()),
       ChargedHadronIsolation_(
           consumes<edm::ValueMap<bool>>(iConfig.getParameter<edm::InputTag>("chargedHadronIsolation"))),
@@ -174,22 +163,11 @@ void pat::PATPackedCandidateProducer::produce(edm::StreamID, edm::Event &iEvent,
   iEvent.getByToken(Cands_, cands);
 
   edm::Handle<edm::ValueMap<float>> puppiWeight;
-  edm::Handle<edm::ValueMap<reco::CandidatePtr>> puppiCandsMap;
-  edm::Handle<std::vector<reco::PFCandidate>> puppiCands;
   edm::Handle<edm::ValueMap<float>> puppiWeightNoLep;
-  edm::Handle<std::vector<reco::PFCandidate>> puppiCandsNoLep;
-  std::vector<reco::CandidatePtr> puppiCandsNoLepPtrs;
   if (usePuppi_) {
     iEvent.getByToken(PuppiWeight_, puppiWeight);
-    iEvent.getByToken(PuppiCandsMap_, puppiCandsMap);
-    iEvent.getByToken(PuppiCands_, puppiCands);
     iEvent.getByToken(PuppiWeightNoLep_, puppiWeightNoLep);
-    iEvent.getByToken(PuppiCandsNoLep_, puppiCandsNoLep);
-    for (auto pup : *puppiCandsNoLep) {
-      puppiCandsNoLepPtrs.push_back(pup.sourceCandidatePtr(0));
-    }
   }
-  std::vector<int> mappingPuppi(usePuppi_ ? puppiCands->size() : 0);
 
   edm::Handle<reco::VertexCollection> PVOrigs;
   iEvent.getByToken(PVOrigs_, PVOrigs);
@@ -412,33 +390,10 @@ void pat::PATPackedCandidateProducer::produce(edm::StreamID, edm::Event &iEvent,
 
     if (usePuppi_) {
       reco::PFCandidateRef pkref(cands, ic);
-      // outPtrP->back().setPuppiWeight( (*puppiWeight)[pkref]);
 
       float puppiWeightVal = (*puppiWeight)[pkref];
-      float puppiWeightNoLepVal = 0.0;
-      // Check the "no lepton" puppi weights.
-      // If present, then it is not a lepton, use stored weight
-      // If absent, it is a lepton, so set the weight to 1.0
-      if (puppiWeightNoLep.isValid()) {
-        // Look for the pointer inside the "no lepton" candidate collection.
-        auto pkrefPtr = pkref->sourceCandidatePtr(0);
-
-        bool foundNoLep = false;
-        for (size_t ipcnl = 0; ipcnl < puppiCandsNoLepPtrs.size(); ipcnl++) {
-          if (puppiCandsNoLepPtrs[ipcnl] == pkrefPtr) {
-            foundNoLep = true;
-            puppiWeightNoLepVal =
-                puppiCandsNoLep->at(ipcnl).pt() / cand.pt();  // a hack for now, should use the value map
-            break;
-          }
-        }
-        if (!foundNoLep || puppiWeightNoLepVal > 1) {
-          puppiWeightNoLepVal = 1.0;
-        }
-      }
+      float puppiWeightNoLepVal = (*puppiWeightNoLep)[pkref];
       outPtrP->back().setPuppiWeight(puppiWeightVal, puppiWeightNoLepVal);
-
-      mappingPuppi[((*puppiCandsMap)[pkref]).key()] = ic;
     }
 
     if (storeTiming_) {
@@ -477,10 +432,6 @@ void pat::PATPackedCandidateProducer::produce(edm::StreamID, edm::Event &iEvent,
       mappingTk[i] = reverseOrder[mappingTk[i]];
   }
 
-  for (size_t i = 0, ntk = mappingPuppi.size(); i < ntk; i++) {
-    mappingPuppi[i] = reverseOrder[mappingPuppi[i]];
-  }
-
   edm::OrphanHandle<pat::PackedCandidateCollection> oh = iEvent.put(std::move(outPtrPSorted));
 
   // now build the two maps
@@ -492,8 +443,6 @@ void pat::PATPackedCandidateProducer::produce(edm::StreamID, edm::Event &iEvent,
   pc2pfFiller.insert(oh, order.begin(), order.end());
   // include also the mapping track -> packed PFCand
   pf2pcFiller.insert(TKOrigs, mappingTk.begin(), mappingTk.end());
-  if (usePuppi_)
-    pf2pcFiller.insert(puppiCands, mappingPuppi.begin(), mappingPuppi.end());
 
   pf2pcFiller.fill();
   pc2pfFiller.fill();

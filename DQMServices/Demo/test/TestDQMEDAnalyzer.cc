@@ -141,7 +141,7 @@ private:
     mymes_.fillall(iEvent.luminosityBlock(), iEvent.run(), myvalue_);
   }
 
-  BookerFiller<DQMStore::IBooker, MonitorElement> mymes_;
+  BookerFiller<DQMStore::IBooker, MonitorElement, /* DOLUMI */ true> mymes_;
   double myvalue_;
 };
 DEFINE_FWK_MODULE(TestDQMOneEDAnalyzer);

@@ -5,6 +5,7 @@
  *  \author M. Strang SUNY-Buffalo
  */
 
+#include "CondFormats/EcalObjects/interface/EcalMGPAGainRatio.h"
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 #include "Geometry/Records/interface/TrackerTopologyRcd.h"
 #include "Validation/GlobalDigis/interface/GlobalDigisProducer.h"

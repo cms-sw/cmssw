@@ -105,8 +105,8 @@ namespace cond {
     void loadTag(std::string const& tag, boost::posix_time::ptime const& snapshotTime);
     void reload();
 
-    ValidityInterval setIntervalFor(Time_t target);
-    TimeType timeType() const { return m_iovProxy.timeType(); }
+    ValidityInterval setIntervalFor(Time_t target, Time_t defaultIovSize);
+    TimeType timeType() const { return m_iovProxy.tagInfo().timeType; }
 
   private:
     std::string m_label;

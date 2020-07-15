@@ -11,7 +11,6 @@ Wrapper: A template wrapper around EDProducts to hold the product ID.
 #include "DataFormats/Common/interface/WrapperDetail.h"
 #include "DataFormats/Common/interface/CMS_CLASS_VERSION.h"
 #include "DataFormats/Provenance/interface/ProductID.h"
-#include "FWCore/Utilities/interface/GCC11Compatibility.h"
 #include "FWCore/Utilities/interface/Visibility.h"
 
 #include <algorithm>

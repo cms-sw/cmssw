@@ -1,11 +1,11 @@
-<use   name="FWCore/Framework"/>
-<use   name="RecoTracker/Record"/>
-<use   name="RecoMuon/Records"/>
-<use   name="RecoMuon/DetLayers"/>
-<use   name="RecoMTD/Records"/>
-<use   name="RecoMTD/DetLayers"/>
-<use   name="RecoTracker/TkDetLayers"/>
-<use   name="boost"/>
+<use name="FWCore/Framework"/>
+<use name="RecoTracker/Record"/>
+<use name="RecoMuon/Records"/>
+<use name="RecoMuon/DetLayers"/>
+<use name="RecoMTD/Records"/>
+<use name="RecoMTD/DetLayers"/>
+<use name="RecoTracker/TkDetLayers"/>
+<use name="boost"/>
 <export>
-  <lib   name="1"/>
+  <lib name="1"/>
 </export>

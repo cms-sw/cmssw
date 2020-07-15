@@ -1,14 +1,14 @@
-<use   name="DataFormats/HcalDetId"/>
-<use   name="DataFormats/ForwardDetId"/>
-<use   name="DataFormats/GeometryVector"/>
-<use   name="Geometry/HcalTowerAlgo"/>
-<use   name="Geometry/HGCalGeometry"/>
-<use   name="Geometry/Records"/>
-<use   name="MagneticField/Engine"/>
-<use   name="MagneticField/Records"/>
-<use   name="TrackingTools/GeomPropagators"/>
-<use   name="TrackingTools/TrackAssociator"/>
-<use   name="CoralBase"/>
-
-<flags   EDM_PLUGIN="1"/>
-<library   file="*.cc" name="testGeometryHCCalGeometry"> </library>
+<use name="DataFormats/HcalDetId"/>
+<use name="DataFormats/ForwardDetId"/>
+<use name="DataFormats/GeometryVector"/>
+<use name="Geometry/HcalTowerAlgo"/>
+<use name="Geometry/HGCalGeometry"/>
+<use name="Geometry/Records"/>
+<use name="MagneticField/Engine"/>
+<use name="MagneticField/Records"/>
+<use name="TrackingTools/GeomPropagators"/>
+<use name="TrackingTools/TrackAssociator"/>
+<use name="CoralBase"/>
+<flags EDM_PLUGIN="1"/>
+<library file="*.cc" name="testGeometryHCCalGeometry">
+</library>

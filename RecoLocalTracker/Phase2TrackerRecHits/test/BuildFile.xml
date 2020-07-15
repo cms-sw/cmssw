@@ -1,26 +1,19 @@
-<use   name="root"/>
-<use   name="classlib"/>
-<use   name="clhep"/>
-<use   name="SimDataFormats/TrackingHit"/>
-<use   name="SimDataFormats/TrackerDigiSimLink"/>
-<use   name="SimDataFormats/CrossingFrame"/>
-<use   name="DataFormats/SiPixelDigi"/>
-<use   name="DataFormats/SiPixelDetId"/>
-<use   name="DataFormats/DetId"/>
-<use   name="Geometry/Records"/>
-<use   name="Geometry/CommonDetUnit"/>
-<use   name="Geometry/TrackerGeometryBuilder"/>
-<use   name="FWCore/Framework"/>
-<use   name="FWCore/ParameterSet"/>
-<use   name="CommonTools/UtilAlgos"/>
-<use   name="DQMServices/Core"/>
-<use   name="DataFormats/Common"/>
-<use   name="FWCore/PluginManager"/>
-<use   name="DataFormats/TrackerRecHit2D"/>
-<use   name="DataFormats/Phase2TrackerCluster"/>
-<use   name="DataFormats/ParticleFlowCandidate"/>
-<use   name="DataFormats/ParticleFlowReco"/>
-<library   file="RecHitsValidation.cc" name="Phase2TrackerRecHitsValidation">
-  <flags   EDM_PLUGIN="1"/>
+<use name="root"/>
+<use name="clhep"/>
+<use name="SimDataFormats/TrackingHit"/>
+<use name="SimDataFormats/TrackerDigiSimLink"/>
+<use name="DataFormats/SiPixelDetId"/>
+<use name="DataFormats/DetId"/>
+<use name="Geometry/Records"/>
+<use name="Geometry/CommonDetUnit"/>
+<use name="Geometry/TrackerGeometryBuilder"/>
+<use name="FWCore/Framework"/>
+<use name="FWCore/ParameterSet"/>
+<use name="CommonTools/UtilAlgos"/>
+<use name="DataFormats/Common"/>
+<use name="DataFormats/TrackerRecHit2D"/>
+<use name="DataFormats/Phase2TrackerCluster"/>
+<library file="RecHitsValidation.cc" name="Phase2TrackerRecHitsValidation">
+  <flags EDM_PLUGIN="1"/>
   <flags CXXFLAGS="-g3"/>
 </library>

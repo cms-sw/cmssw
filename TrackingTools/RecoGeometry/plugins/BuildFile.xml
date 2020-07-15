@@ -1,6 +1,4 @@
-<use   name="TrackingTools/RecoGeometry"/>
-<use   name="RecoTracker/TkDetLayers"/>
-<use   name="RecoMuon/DetLayers"/>
-<library   file="*.cc" name="TrackingToolsRecoGeometryPlugins">
-  <flags   EDM_PLUGIN="1"/>
+<use name="TrackingTools/RecoGeometry"/>
+<library file="*.cc" name="TrackingToolsRecoGeometryPlugins">
+  <flags EDM_PLUGIN="1"/>
 </library>

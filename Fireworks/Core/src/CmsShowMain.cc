@@ -28,6 +28,7 @@
 #include "TEveManager.h"
 #include "TFile.h"
 #include "TGClient.h"
+#include "TVirtualX.h"
 #include <KeySymbols.h>
 
 #include "Fireworks/Core/src/CmsShowMain.h"
@@ -133,7 +134,8 @@ CmsShowMain::CmsShowMain(int argc, char* argv[])
       m_liveTimer(new SignalTimer()),
       m_liveTimeout(600000),
       m_lastXEventSerial(0),
-      m_noVersionCheck(false) {
+      m_noVersionCheck(false),
+      m_globalTagCheck(true) {
   try {
     TGLWidget* w = TGLWidget::Create(gClient->GetDefaultRoot(), kTRUE, kTRUE, nullptr, 10, 10);
     delete w;
@@ -295,11 +297,9 @@ CmsShowMain::CmsShowMain(int argc, char* argv[])
 
   // geometry
   if (vm.count(kGeomFileOpt)) {
+    m_globalTagCheck = false;
     setGeometryFilename(vm[kGeomFileOpt].as<std::string>());
     fwLog(fwlog::kInfo) << "Geometry file " << geometryFilename() << "\n";
-  } else {
-    //  fwLog(fwlog::kInfo) << "No geom file name.  Choosing default.\n";
-    setGeometryFilename("cmsGeom10.root");
   }
 
   if (vm.count(kSimGeomFileOpt)) {
@@ -355,9 +355,10 @@ CmsShowMain::CmsShowMain(int argc, char* argv[])
     f = boost::bind(&CmsShowMain::setupSocket, this, vm[kPortCommandOpt].as<unsigned int>());
     startupTasks()->addTask(f);
   }
-
-  f = boost::bind(&CmsShowMainBase::loadGeometry, this);
-  startupTasks()->addTask(f);
+  if (!geometryFilename().empty()) {
+    f = boost::bind(&CmsShowMainBase::loadGeometry, this);
+    startupTasks()->addTask(f);
+  }
   f = boost::bind(&CmsShowMainBase::setupViewManagers, this);
   startupTasks()->addTask(f);
 
@@ -493,6 +494,10 @@ void CmsShowMain::fileChangedSlot(const TFile* file) {
 
   if (context()->getField()->getSource() == FWMagField::kNone) {
     context()->getField()->resetFieldEstimate();
+  }
+  if (geometryFilename().empty()) {
+    std::string gt = m_navigator->getCurrentGlobalTag();
+    fireworks::Context::getInstance()->getGeom()->applyGlobalTag(gt);
   }
   m_metadataManager->update(new FWLiteJobMetadataUpdateRequest(getCurrentEvent(), m_openFile));
 }

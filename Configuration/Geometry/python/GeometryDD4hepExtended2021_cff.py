@@ -5,7 +5,7 @@ import FWCore.ParameterSet.Config as cms
 #
 # Ideal geometry, needed for simulation
 DDDetectorESProducer = cms.ESSource("DDDetectorESProducer",
-                                    confGeomXMLFiles = cms.FileInPath('DetectorDescription/DDCMS/data/cms-geometry-2021.xml'),
+                                    confGeomXMLFiles = cms.FileInPath('Geometry/CMSCommonData/data/dd4hep/cmsExtendedGeometry2021.xml'),
                                     appendToDataLabel = cms.string('')
 )
 
@@ -19,3 +19,8 @@ DDVectorRegistryESProducer = cms.ESProducer("DDVectorRegistryESProducer",
 DDCompactViewESProducer = cms.ESProducer("DDCompactViewESProducer",
                                          appendToDataLabel = cms.string('')
 )
+
+from Geometry.TrackerNumberingBuilder.trackerNumberingGeometry_cff import *
+from Geometry.EcalCommonData.ecalSimulationParameters_cff import *
+from Geometry.HcalCommonData.hcalDDDSimConstants_cff import *
+from Geometry.MuonNumbering.muonGeometryConstants_cff import *

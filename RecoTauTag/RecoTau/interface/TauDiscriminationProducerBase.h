@@ -43,11 +43,15 @@
 
 #include "DataFormats/TauReco/interface/PFTau.h"
 #include "DataFormats/TauReco/interface/PFTauDiscriminator.h"
+#include "DataFormats/TauReco/interface/TauDiscriminatorContainer.h"
 
 #include "DataFormats/PatCandidates/interface/Tau.h"
 #include "DataFormats/PatCandidates/interface/PATTauDiscriminator.h"
 
-template <class TauType, class TauDiscriminator>
+template <class TauType,
+          class TauDiscriminator,
+          class TauDiscriminatorDataType = double,
+          class ConsumeType = TauDiscriminator>
 class TauDiscriminationProducerBase : public edm::stream::EDProducer<> {
 public:
   // setup framework types for this tautype
@@ -70,24 +74,28 @@ public:
   virtual void beginEvent(const edm::Event&, const edm::EventSetup&) {}
 
   // abstract functions implemented in derived classes.
-  virtual double discriminate(const TauRef& tau) const = 0;
+  virtual TauDiscriminatorDataType discriminate(const TauRef& tau) const = 0;
 
   // called at the end of event processing - override if necessary.
   virtual void endEvent(edm::Event&) {}
 
   struct TauDiscInfo {
     edm::InputTag label;
-    edm::Handle<TauDiscriminator> handle;
-    edm::EDGetTokenT<TauDiscriminator> disc_token;
-    // = consumes<TauDiscriminator>(label);
+    edm::Handle<ConsumeType> handle;
+    edm::EDGetTokenT<ConsumeType> disc_token;
+    // = consumes<ConsumeType>(label);
     double cut;
     void fill(const edm::Event& evt) {
-      //	disc_token = consumes<TauDiscriminator>(label);
+      //	disc_token = consumes<ConsumeType>(label);
       evt.getByToken(disc_token, handle);
     };
   };
 
   static void fillProducerDescriptions(edm::ParameterSetDescription& desc);
+
+  /// helper method to retrieve tau type name, e.g. to build correct cfi getter
+  //string (i.e. PFTau/PATTauProducer)
+  static std::string getTauTypeString();
 
 protected:
   //value given to taus that fail prediscriminants
@@ -108,16 +116,17 @@ private:
 };
 
 // define our implementations
+typedef TauDiscriminationProducerBase<reco::PFTau,
+                                      reco::TauDiscriminatorContainer,
+                                      reco::SingleTauDiscriminatorContainer,
+                                      reco::PFTauDiscriminator>
+    PFTauDiscriminationContainerProducerBase;
 typedef TauDiscriminationProducerBase<reco::PFTau, reco::PFTauDiscriminator> PFTauDiscriminationProducerBase;
+typedef TauDiscriminationProducerBase<pat::Tau,
+                                      reco::TauDiscriminatorContainer,
+                                      reco::SingleTauDiscriminatorContainer,
+                                      pat::PATTauDiscriminator>
+    PATTauDiscriminationContainerProducerBase;
 typedef TauDiscriminationProducerBase<pat::Tau, pat::PATTauDiscriminator> PATTauDiscriminationProducerBase;
 
-/// helper function retrieve the correct cfi getter string (ie PFTauProducer)
-//for this tau type
-template <class TauType>
-std::string getProducerString() {
-  // this generic one shoudl never be called.
-  // these are specialized in TauDiscriminationProducerBase.cc
-  throw cms::Exception("TauDiscriminationProducerBase")
-      << "Unsupported TauType used. You must use either PFTau or PATTau.";
-}
 #endif

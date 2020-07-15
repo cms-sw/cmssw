@@ -1,6 +1,7 @@
 <bin file="testSerializationLuminosity.cpp">
-    <use   name="CondFormats/Luminosity"/>
+  <use name="CondFormats/Luminosity"/>
 </bin>
+
 <bin file="testSerializationLumiCorrections.cpp">
-    <use   name="CondFormats/Luminosity"/>
+  <use name="CondFormats/Luminosity"/>
 </bin>

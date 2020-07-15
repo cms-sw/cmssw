@@ -1,25 +1,24 @@
-<use   name="cppunit"/>
-<use   name="boost"/>
-<use    name="CondFormats/Common"/>
-<bin   file="exTime.cpp" name="exCondTime">
-</bin>
-<bin   file="hash64_t.cpp">
-</bin>
-<bin   file="SmallWORMDict_t.cpp">
+<use name="cppunit"/>
+<use name="boost"/>
+<use name="CondFormats/Common"/>
+<bin file="exTime.cpp" name="exCondTime">
 </bin>
 
-<use   name="FWCore/Framework"/>
-<use   name="FWCore/MessageLogger"/>
-<use   name="FWCore/ParameterSet"/>
-<use   name="CondCore/DBOutputService"/>
-<use   name="CondFormats/DataRecord"/>
+<bin file="hash64_t.cpp">
+</bin>
 
-<use   name="root"/>
+<bin file="SmallWORMDict_t.cpp">
+</bin>
 
-<library   name="CondFormatsCommonTest" file="ProduceDropBoxMetadata.cc">
-  <flags   EDM_PLUGIN="1"/>
+<use name="FWCore/Framework"/>
+<use name="FWCore/ParameterSet"/>
+<use name="CondCore/DBOutputService"/>
+<use name="CondFormats/DataRecord"/>
+<use name="root"/>
+<library name="CondFormatsCommonTest" file="ProduceDropBoxMetadata.cc">
+  <flags EDM_PLUGIN="1"/>
 </library>
 
 <bin file="testSerializationCommon.cpp">
-    <use   name="CondFormats/External"/>
+  <use name="CondFormats/External"/>
 </bin>

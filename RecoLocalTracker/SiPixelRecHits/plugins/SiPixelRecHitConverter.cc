@@ -9,8 +9,59 @@
  * ------------------------------------------------------
  */
 
-// Our own stuff
-#include "RecoLocalTracker/SiPixelRecHits/interface/SiPixelRecHitConverter.h"
+//---------------------------------------------------------------------------
+//! \class SiPixelRecHitConverter
+//!
+//! \brief EDProducer to covert SiPixelClusters into SiPixelRecHits
+//!
+//! SiPixelRecHitConverter is an EDProducer subclass (i.e., a module)
+//! which orchestrates the conversion of SiPixelClusters into SiPixelRecHits.
+//! Consequently, the input is a edm::DetSetVector<SiPixelCluster> and the output is
+//! SiPixelRecHitCollection.
+//!
+//! SiPixelRecHitConverter invokes one of descendents from
+//! ClusterParameterEstimator (templated on SiPixelCluster), e.g.
+//! CPEFromDetPosition (which is the only available option
+//! right now).  SiPixelRecHitConverter loads the SiPixelClusterCollection,
+//! and then iterates over DetIds, invoking the chosen CPE's methods
+//! localPosition() and localError() to perform the correction (some of which
+//! may be rather involved).  A RecHit is made on the spot, and appended
+//! to the output collection.
+//!
+//! The calibrations are not loaded at the moment,
+//! although that is being planned for the near future.
+//!
+//! \author Porting from ORCA by Petar Maksimovic (JHU). Implementation of the
+//!         DetSetVector by V.Chiochia (Zurich University).
+//!
+//! \version v2, May 30, 2006
+//! change to use Lorentz angle from DB Lotte Wilke, Jan. 31st, 2008
+//!
+//---------------------------------------------------------------------------
+
+//--- Base class for CPEs:
+
+#include "RecoLocalTracker/SiPixelRecHits/interface/PixelCPEBase.h"
+
+//--- Geometry + DataFormats
+#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
+#include "DataFormats/SiPixelCluster/interface/SiPixelCluster.h"
+#include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHitCollection.h"
+#include "DataFormats/Common/interface/DetSetVector.h"
+
+//--- Framework
+#include "FWCore/Framework/interface/stream/EDProducer.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+
+#include "DataFormats/Common/interface/Handle.h"
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Utilities/interface/InputTag.h"
+#include "FWCore/Utilities/interface/EDPutToken.h"
+#include "FWCore/Utilities/interface/ESGetToken.h"
+
 // Geometry
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "Geometry/CommonDetUnit/interface/PixelGeomDetUnit.h"
@@ -34,16 +85,56 @@
 using namespace std;
 
 namespace cms {
+
+  class SiPixelRecHitConverter : public edm::stream::EDProducer<> {
+  public:
+    //--- Constructor, virtual destructor (just in case)
+    explicit SiPixelRecHitConverter(const edm::ParameterSet& conf);
+    ~SiPixelRecHitConverter() override;
+
+    //--- Factory method to make CPE's depending on the ParameterSet
+    //--- Not sure if we need to make more than one CPE to run concurrently
+    //--- on different parts of the detector (e.g., one for the barrel and the
+    //--- one for the forward).  The way the CPE's are written now, it's
+    //--- likely we can use one (and they will switch internally), or
+    //--- make two of the same but configure them differently.  We need a more
+    //--- realistic use case...
+
+    //--- The top-level event method.
+    void produce(edm::Event& e, const edm::EventSetup& c) override;
+
+    //--- Execute the position estimator algorithm(s).
+    //--- New interface with DetSetVector
+    void run(const edmNew::DetSetVector<SiPixelCluster>& input,
+             SiPixelRecHitCollectionNew& output,
+             TrackerGeometry const& geom);
+
+    void run(edm::Handle<edmNew::DetSetVector<SiPixelCluster>> inputhandle,
+             SiPixelRecHitCollectionNew& output,
+             TrackerGeometry const& geom);
+
+  private:
+    // TO DO: maybe allow a map of pointers?
+    /// const PixelClusterParameterEstimator * cpe_;  // what we got (for now, one ptr to base class)
+    PixelCPEBase const* cpe_ = nullptr;  // What we got (for now, one ptr to base class)
+    edm::InputTag const src_;
+    edm::EDGetTokenT<edmNew::DetSetVector<SiPixelCluster>> const tPixelCluster_;
+    edm::EDPutTokenT<SiPixelRecHitCollection> const tPut_;
+    edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> const tTrackerGeom_;
+    edm::ESGetToken<PixelClusterParameterEstimator, TkPixelCPERecord> const tCPE_;
+    bool m_newCont;  // save also in emdNew::DetSetVector
+  };
+
   //---------------------------------------------------------------------------
   //!  Constructor: set the ParameterSet and defer all thinking to setupCPE().
   //---------------------------------------------------------------------------
   SiPixelRecHitConverter::SiPixelRecHitConverter(edm::ParameterSet const& conf)
-      : conf_(conf),
-        src_(conf.getParameter<edm::InputTag>("src")),
-        tPixelCluster(consumes<edmNew::DetSetVector<SiPixelCluster> >(src_)) {
-    //--- Declare to the EDM what kind of collections we will be making.
-    produces<SiPixelRecHitCollection>();
-  }
+      : src_(conf.getParameter<edm::InputTag>("src")),
+        tPixelCluster_(consumes<edmNew::DetSetVector<SiPixelCluster>>(src_)),
+        tPut_(produces<SiPixelRecHitCollection>()),
+        tTrackerGeom_(esConsumes<TrackerGeometry, TrackerDigiGeometryRecord>()),
+        tCPE_(esConsumes<PixelClusterParameterEstimator, TkPixelCPERecord>(
+            edm::ESInputTag("", conf.getParameter<std::string>("CPE")))) {}
 
   // Destructor
   SiPixelRecHitConverter::~SiPixelRecHitConverter() {}
@@ -53,29 +144,25 @@ namespace cms {
   //---------------------------------------------------------------------------
   void SiPixelRecHitConverter::produce(edm::Event& e, const edm::EventSetup& es) {
     // Step A.1: get input data
-    edm::Handle<edmNew::DetSetVector<SiPixelCluster> > input;
-    e.getByToken(tPixelCluster, input);
+    edm::Handle<edmNew::DetSetVector<SiPixelCluster>> input;
+    e.getByToken(tPixelCluster_, input);
 
     // Step A.2: get event setup
-    edm::ESHandle<TrackerGeometry> geom;
-    es.get<TrackerDigiGeometryRecord>().get(geom);
+    auto const& geom = es.getData(tTrackerGeom_);
 
     // Step B: create empty output collection
-    auto output = std::make_unique<SiPixelRecHitCollectionNew>();
+    SiPixelRecHitCollectionNew output;
 
     // Step B*: create CPE
-    edm::ESHandle<PixelClusterParameterEstimator> hCPE;
-    std::string cpeName_ = conf_.getParameter<std::string>("CPE");
-    es.get<TkPixelCPERecord>().get(cpeName_, hCPE);
-    cpe_ = dynamic_cast<const PixelCPEBase*>(&(*hCPE));
+    cpe_ = dynamic_cast<const PixelCPEBase*>(&es.getData(tCPE_));
 
     // Step C: Iterate over DetIds and invoke the strip CPE algorithm
     // on each DetUnit
 
-    run(input, *output, geom);
+    run(input, output, geom);
 
-    output->shrink_to_fit();
-    e.put(std::move(output));
+    output.shrink_to_fit();
+    e.emplace(tPut_, std::move(output));
   }
 
   //---------------------------------------------------------------------------
@@ -83,9 +170,9 @@ namespace cms {
   //!  and make a RecHit to store the result.
   //!  New interface reading DetSetVector by V.Chiochia (May 30th, 2006)
   //---------------------------------------------------------------------------
-  void SiPixelRecHitConverter::run(edm::Handle<edmNew::DetSetVector<SiPixelCluster> > inputhandle,
+  void SiPixelRecHitConverter::run(edm::Handle<edmNew::DetSetVector<SiPixelCluster>> inputhandle,
                                    SiPixelRecHitCollectionNew& output,
-                                   edm::ESHandle<TrackerGeometry>& geom) {
+                                   TrackerGeometry const& geom) {
     if (!cpe_) {
       edm::LogError("SiPixelRecHitConverter") << " at least one CPE is not ready -- can't run!";
       // TO DO: throw an exception here?  The user may want to know...
@@ -104,7 +191,7 @@ namespace cms {
       numberOfDetUnits++;
       unsigned int detid = DSViter->detId();
       DetId detIdObject(detid);
-      const GeomDetUnit* genericDet = geom->idToDetUnit(detIdObject);
+      const GeomDetUnit* genericDet = geom.idToDetUnit(detIdObject);
       const PixelGeomDetUnit* pixDet = dynamic_cast<const PixelGeomDetUnit*>(genericDet);
       assert(pixDet);
       SiPixelRecHitCollectionNew::FastFiller recHitsOnDetUnit(output, detid);
@@ -147,3 +234,7 @@ namespace cms {
     //  << std::endl;
   }
 }  // end of namespace cms
+
+using cms::SiPixelRecHitConverter;
+
+DEFINE_FWK_MODULE(SiPixelRecHitConverter);

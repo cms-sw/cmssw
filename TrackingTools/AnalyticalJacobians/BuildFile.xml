@@ -1,8 +1,8 @@
 <export>
-  <lib   name="1"/>
+  <lib name="1"/>
 </export>
-<use   name="TrackingTools/TrajectoryParametrization"/>
-<use   name="DataFormats/GeometrySurface"/>
-<use   name="DataFormats/Math"/>
-<use   name="vdt_headers"/>
-<use   name="rootmath"/>
+<use name="TrackingTools/TrajectoryParametrization"/>
+<use name="DataFormats/GeometrySurface"/>
+<use name="DataFormats/Math"/>
+<use name="vdt_headers"/>
+<use name="rootmath"/>

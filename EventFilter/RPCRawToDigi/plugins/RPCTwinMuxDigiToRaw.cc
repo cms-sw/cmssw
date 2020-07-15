@@ -95,7 +95,7 @@ void RPCTwinMuxDigiToRaw::produce(edm::Event& event, edm::EventSetup const& setu
 
   std::map<int, FEDRawData> fed_data;
   // Loop over the FEDs
-  for (std::pair<int, std::vector<RPCAMCLink> > const& fed_amcs : fed_amcs_) {
+  for (std::pair<const int, std::vector<RPCAMCLink> > const& fed_amcs : fed_amcs_) {
     FEDRawData& data = data_collection->FEDData(fed_amcs.first);
     unsigned int size(0);
 

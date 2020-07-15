@@ -1,17 +1,16 @@
-<use   name="DataFormats/BeamSpot"/>
-<use   name="DataFormats/Common"/>
-<use   name="DataFormats/GeometrySurface"/>
-<use   name="DataFormats/GeometryVector"/>
-<use   name="DataFormats/TrackReco"/>
-<use   name="DataFormats/TrackerRecHit2D"/>
-<use   name="FWCore/MessageLogger"/>
-<use   name="FWCore/Utilities"/>
-<use   name="Geometry/CommonDetUnit"/>
-<use   name="TrackingTools/AnalyticalJacobians"/>
-<use   name="TrackingTools/GeomPropagators"/>
-<use   name="TrackingTools/TrajectoryParametrization"/>
-<use   name="TrackingTools/TrajectoryState"/>
-
+<use name="DataFormats/BeamSpot"/>
+<use name="DataFormats/Common"/>
+<use name="DataFormats/GeometrySurface"/>
+<use name="DataFormats/GeometryVector"/>
+<use name="DataFormats/TrackReco"/>
+<use name="DataFormats/TrackerRecHit2D"/>
+<use name="FWCore/MessageLogger"/>
+<use name="FWCore/Utilities"/>
+<use name="Geometry/CommonDetUnit"/>
+<use name="TrackingTools/AnalyticalJacobians"/>
+<use name="TrackingTools/GeomPropagators"/>
+<use name="TrackingTools/TrajectoryParametrization"/>
+<use name="TrackingTools/TrajectoryState"/>
 <export>
-  <lib   name="1"/>
+  <lib name="1"/>
 </export>

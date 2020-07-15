@@ -197,6 +197,7 @@ namespace reco {
     ///
     /// ====================== STANDARD SELECTORS ===========================
     ///
+    // When adding new selectors, also update DataFormats/MuonReco/interface/MuonSelectors.h string to enum map
     enum Selector {
       CutBasedIdLoose = 1UL << 0,
       CutBasedIdMedium = 1UL << 1,

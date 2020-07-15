@@ -267,7 +267,7 @@ vector<Trajectory> TrackTransformer::transform(const reco::TransientTrack& track
     return vector<Trajectory>();
   }
 
-  TrajectorySeed seed(PTrajectoryStateOnDet(), TrajectorySeed::recHitContainer(), propagationDirection);
+  TrajectorySeed seed({}, {}, propagationDirection);
 
   if (recHitsForReFit.front()->geographicalId() != DetId(innerId)) {
     LogTrace(metname) << "Propagation occured" << endl;

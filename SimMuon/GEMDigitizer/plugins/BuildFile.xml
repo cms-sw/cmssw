@@ -1,2 +1,6 @@
-<use   name="SimMuon/GEMDigitizer"/>
-<flags   EDM_PLUGIN="1"/>
+<use name="CondFormats/DataRecord"/>
+<use name="CondFormats/RecoMuonObjects"/>
+<use name="SimGeneral/PreMixingModule"/>
+<use name="SimMuon/GEMDigitizer"/>
+<use name="Geometry/Records"/>
+<flags EDM_PLUGIN="1"/>

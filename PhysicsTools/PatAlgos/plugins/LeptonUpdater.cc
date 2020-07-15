@@ -162,7 +162,7 @@ void pat::LeptonUpdater<T>::produce(edm::StreamID, edm::Event &iEvent, edm::Even
     if (computeMiniIso_) {
       const auto &params = miniIsoParams(lep);
       pat::PFIsolation miniiso = pat::getMiniPFIsolation(pc.product(),
-                                                         lep.p4(),
+                                                         lep.polarP4(),
                                                          params[0],
                                                          params[1],
                                                          params[2],

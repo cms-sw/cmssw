@@ -124,7 +124,7 @@ namespace edm {
   RootEmbeddedFileSequence::RootFileSharedPtr RootEmbeddedFileSequence::makeRootFile(
       std::shared_ptr<InputFile> filePtr) {
     size_t currentIndexIntoFile = sequenceNumberOfFile();
-    return std::make_shared<RootFile>(fileName(),
+    return std::make_shared<RootFile>(fileNames()[0],
                                       ProcessConfiguration(),
                                       logicalFileName(),
                                       filePtr,
@@ -255,7 +255,7 @@ namespace edm {
       eventsRemainingInFile_ = rootFile()->eventTree().entries();
       if (eventsRemainingInFile_ == 0) {
         throw Exception(errors::NotFound) << "RootEmbeddedFileSequence::readOneRandom(): Secondary Input file "
-                                          << fileName() << " contains no events.\n";
+                                          << fileNames()[0] << " contains no events.\n";
       }
       rootFile()->setAtEventEntry(CLHEP::RandFlat::shootInt(engine, eventsRemainingInFile_) - 1);
     }

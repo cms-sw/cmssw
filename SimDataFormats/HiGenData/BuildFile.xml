@@ -1,5 +1,4 @@
-
-<use   name="DataFormats/HepMCCandidate"/>
+<use name="DataFormats/HepMCCandidate"/>
 <export>
-  <lib   name="1"/>
+  <lib name="1"/>
 </export>

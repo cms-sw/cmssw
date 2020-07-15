@@ -5,9 +5,11 @@
 <use name="GeneratorInterface/Core"/>
 <use name="CommonTools/UtilAlgos"/>
 
-#<library file="analyserhepmc/LeptonAnalyserHepMC.cc" name="AnalyserHepMC">
-#  <flags EDM_PLUGIN="1"/>
-#</library>
+<!--
+<library file="analyserhepmc/LeptonAnalyserHepMC.cc" name="AnalyserHepMC">
+  <flags EDM_PLUGIN="1"/>
+</library>
+-->
 
 <library file="ZJetsAnalyzer.cc,analyserhepmc/LeptonAnalyserHepMC.cc,analyserhepmc/JetInputHepMC.cc" name="ZJetsTestAnalyzer">
   <flags EDM_PLUGIN="1"/>
@@ -17,3 +19,7 @@
   <use name="FWCore/TestProcessor"/>
   <use name="catch2"/>
 </bin>
+
+<test name="TestGeneratorInterfacePythia8InterfaceCompareIdentical" command="cmsRun ${LOCALTOP}/src/GeneratorInterface/Pythia8Interface/test/compare_identical_generators_cfg.py"/>
+<test name="TestGeneratorInterfacePythia8InterfaceCompareExternal" command="cmsRun ${LOCALTOP}/src/GeneratorInterface/Pythia8Interface/test/compare_external_generators_cfg.py"/>
+<test name="TestGeneratorInterfacePythia8InterfaceCompareExternalStreams" command="cmsRun ${LOCALTOP}/src/GeneratorInterface/Pythia8Interface/test/compare_external_generators_streams_cfg.py"/>

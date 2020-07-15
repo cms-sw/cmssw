@@ -82,3 +82,5 @@ void NuclearSeedsEDProducer::produce(edm::Event& iEvent, const edm::EventSetup& 
 void NuclearSeedsEDProducer::beginRun(edm::Run const& run, const edm::EventSetup& es) {
   theNuclearInteractionFinder = std::make_unique<NuclearInteractionFinder>(es, conf_);
 }
+
+DEFINE_FWK_MODULE(NuclearSeedsEDProducer);

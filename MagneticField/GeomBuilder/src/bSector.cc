@@ -9,7 +9,6 @@
 #include "DataFormats/GeometrySurface/interface/Surface.h"
 #include "Utilities/BinningTools/interface/ClusterizingHistogram.h"
 #include "MagneticField/Layers/interface/MagBSector.h"
-#include "MagneticField/Layers/interface/MagVerbosity.h"
 #include "Utilities/General/interface/precomputed_value_sort.h"
 
 #include <algorithm>

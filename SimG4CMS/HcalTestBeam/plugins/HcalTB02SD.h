@@ -17,14 +17,14 @@
 //
 
 // system include files
+#include <cstdint>
 #include <map>
+#include <string>
 
 // user include files
 #include "SimG4CMS/Calo/interface/CaloSD.h"
+#include "Geometry/HcalTestBeamData/interface/HcalTB02Parameters.h"
 #include "HcalTB02NumberingScheme.h"
-
-#include "G4String.hh"
-#include <cstdint>
 
 class HcalTB02SD : public CaloSD {
 public:
@@ -41,16 +41,13 @@ protected:
   double getEnergyDeposit(const G4Step*) override;
 
 private:
-  void initMap(const std::string&, const edm::EventSetup&);
-  double curve_LY(const G4String&, const G4StepPoint*);
-  double crystalLength(const G4String&);
+  double curve_LY(const std::string&, const G4StepPoint*);
+  double crystalLength(const std::string&);
 
-private:
-  HcalTB02NumberingScheme* numberingScheme;
-  bool useWeight;
-  bool useBirk;
-  double birk1, birk2, birk3;
-  std::map<G4String, double> lengthMap;
+  std::unique_ptr<HcalTB02NumberingScheme> numberingScheme_;
+  bool useWeight_, useBirk_;
+  double birk1_, birk2_, birk3_;
+  const HcalTB02Parameters* hcalTB02Parameters_;
 };
 
 #endif

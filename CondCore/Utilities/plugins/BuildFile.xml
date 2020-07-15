@@ -1,17 +1,25 @@
-<library   file="EmptyIOVSource.cc" name="CondEmptyIOVSource">
-  <use   name="CondCore/CondDB"/>
-  <use   name="FWCore/Sources"/>
+<library file="EmptyIOVSource.cc" name="CondEmptyIOVSource">
+  <use name="CondCore/CondDB"/>
+  <use name="FWCore/Sources"/>
 </library>
-<library   file="BasicP_PayloadInspector.cc" name="BasicPayload_PayloadInspector">
-  <use   name="CondCore/Utilities"/>
-  <use   name="CondCore/CondDB"/>
-  <use   name="CondFormats/Common"/>
-  <use   name="boost_python"/>
-  <use   name="rootgraphics"/>
+
+<library file="FileBasedEmptySource.cc" name="CondFileBasedEmptySource">
+  <use name="CondCore/CondDB"/>
+  <use name="FWCore/Sources"/>
 </library>
-<library   file="Module_PayloadInspector.cc" name="Module_PayloadInspector">
-  <use   name="CondCore/Utilities"/>
+
+<library file="BasicP_PayloadInspector.cc" name="BasicPayload_PayloadInspector">
+  <use name="CondCore/Utilities"/>
+  <use name="CondCore/CondDB"/>
+  <use name="CondFormats/Common"/>
+  <use name="boost_python"/>
+  <use name="rootgraphics"/>
 </library>
-<library   file="Module_2XML.cc" name="Utilities_payload2xml">
-  <use   name="CondCore/Utilities"/>
+
+<library file="Module_PayloadInspector.cc" name="Module_PayloadInspector">
+  <use name="CondCore/Utilities"/>
+</library>
+
+<library file="Module_2XML.cc" name="Utilities_payload2xml">
+  <use name="CondCore/Utilities"/>
 </library>

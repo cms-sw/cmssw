@@ -12,7 +12,7 @@ fi
 cmsRun $LOCAL_TEST_DIR/run_analyzers_cfg.py outfile=alltypes.root numberEventsInRun=100 numberEventsInLuminosityBlock=20 nEvents=100
 # actually we'd expect 99, but the MEs by legacy modules are booked with JOB scope and cannot be saved to DQMIO.
 [ 66 = $(dqmiolistmes.py alltypes.root -r 1 | wc -l) ]
-[ 55 = $(dqmiolistmes.py alltypes.root -r 1 -l 1 | wc -l) ]
+[ 66 = $(dqmiolistmes.py alltypes.root -r 1 -l 1 | wc -l) ]
 # this is deeply related to what the analyzers actually do.
 # again, the legacy modules output is not saved.
 # most run histos (4 modules * 9 types) fill on every event and should have 100 entries.
@@ -20,13 +20,13 @@ cmsRun $LOCAL_TEST_DIR/run_analyzers_cfg.py outfile=alltypes.root numberEventsIn
 # testonefilllumi also should have 5 entries in the histograms (9 more)
 # the "fillrun" module should have one entry in the histograms (9 total) and 0 in the scalars (2 total)
 [ "0: 1, 0.0: 1, 1: 9, 100: 36, 5: 14, 5.0: 5" = "$($LOCAL_TEST_DIR/dqmiodumpentries.py alltypes.root -r 1 --summary)" ]
-# per lumi we see 20 in most histograms (3*9), and the current lumi number in the scalars (5 modules * 2).
+# per lumi we see 20 in most histograms (4*9), and the current lumi number in the scalars (6 modules * 2).
 # the two fillumi modules should have one entry in each of the lumi histograms, (2*9 total)
-[ "1: 23, 1.0: 5, 20: 27" = "$($LOCAL_TEST_DIR/dqmiodumpentries.py alltypes.root -r 1 -l 1 --summary)" ]
-[ "1: 18, 2: 5, 2.0: 5, 20: 27" = "$($LOCAL_TEST_DIR/dqmiodumpentries.py alltypes.root -r 1 -l 2 --summary)" ]
-[ "1: 18, 20: 27, 3: 5, 3.0: 5" = "$($LOCAL_TEST_DIR/dqmiodumpentries.py alltypes.root -r 1 -l 3 --summary)" ]
-[ "1: 18, 20: 27, 4: 5, 4.0: 5" = "$($LOCAL_TEST_DIR/dqmiodumpentries.py alltypes.root -r 1 -l 4 --summary)" ]
-[ "1: 18, 20: 27, 5: 5, 5.0: 5" = "$($LOCAL_TEST_DIR/dqmiodumpentries.py alltypes.root -r 1 -l 5 --summary)" ]
+[ "1: 24, 1.0: 6, 20: 36" = "$($LOCAL_TEST_DIR/dqmiodumpentries.py alltypes.root -r 1 -l 1 --summary)" ]
+[ "1: 18, 2: 6, 2.0: 6, 20: 36" = "$($LOCAL_TEST_DIR/dqmiodumpentries.py alltypes.root -r 1 -l 2 --summary)" ]
+[ "1: 18, 20: 36, 3: 6, 3.0: 6" = "$($LOCAL_TEST_DIR/dqmiodumpentries.py alltypes.root -r 1 -l 3 --summary)" ]
+[ "1: 18, 20: 36, 4: 6, 4.0: 6" = "$($LOCAL_TEST_DIR/dqmiodumpentries.py alltypes.root -r 1 -l 4 --summary)" ]
+[ "1: 18, 20: 36, 5: 6, 5.0: 6" = "$($LOCAL_TEST_DIR/dqmiodumpentries.py alltypes.root -r 1 -l 5 --summary)" ]
 # just make sure we are not off by one
 [ "" = "$($LOCAL_TEST_DIR/dqmiodumpentries.py alltypes.root -r 1 -l 6 --summary)" ]
 
@@ -43,11 +43,11 @@ cmsRun $LOCAL_TEST_DIR/run_analyzers_cfg.py outfile=nolegacy-cl.root numberEvent
 for f in nolegacy.root nolegacy-mt.root nolegacy-cl.root
 do
   [ "0: 1, 0.0: 1, 1: 9, 1000: 27, 5: 3, 5.0: 3" = "$($LOCAL_TEST_DIR/dqmiodumpentries.py $f -r 1 --summary)" ]
-  [ "1: 1, 1.0: 1, 200: 9" = "$($LOCAL_TEST_DIR/dqmiodumpentries.py $f -r 1 -l 1 --summary)" ]
-  [ "2: 1, 2.0: 1, 200: 9" = "$($LOCAL_TEST_DIR/dqmiodumpentries.py $f -r 1 -l 2 --summary)" ]
-  [ "200: 9, 3: 1, 3.0: 1" = "$($LOCAL_TEST_DIR/dqmiodumpentries.py $f -r 1 -l 3 --summary)" ]
-  [ "200: 9, 4: 1, 4.0: 1" = "$($LOCAL_TEST_DIR/dqmiodumpentries.py $f -r 1 -l 4 --summary)" ]
-  [ "200: 9, 5: 1, 5.0: 1" = "$($LOCAL_TEST_DIR/dqmiodumpentries.py $f -r 1 -l 5 --summary)" ]
+  [ "1: 2, 1.0: 2, 200: 18" = "$($LOCAL_TEST_DIR/dqmiodumpentries.py $f -r 1 -l 1 --summary)" ]
+  [ "2: 2, 2.0: 2, 200: 18" = "$($LOCAL_TEST_DIR/dqmiodumpentries.py $f -r 1 -l 2 --summary)" ]
+  [ "200: 18, 3: 2, 3.0: 2" = "$($LOCAL_TEST_DIR/dqmiodumpentries.py $f -r 1 -l 3 --summary)" ]
+  [ "200: 18, 4: 2, 4.0: 2" = "$($LOCAL_TEST_DIR/dqmiodumpentries.py $f -r 1 -l 4 --summary)" ]
+  [ "200: 18, 5: 2, 5.0: 2" = "$($LOCAL_TEST_DIR/dqmiodumpentries.py $f -r 1 -l 5 --summary)" ]
   [ "" = "$($LOCAL_TEST_DIR/dqmiodumpentries.py $f -r 1 -l 6 --summary)" ]
 done
 
@@ -89,9 +89,9 @@ cmp <($LOCAL_TEST_DIR/dqmiodumpentries.py multirun.root -r 1 -l 2) <($LOCAL_TEST
 
 # 7. Try writing a TDirectory file.
 cmsRun $LOCAL_TEST_DIR/run_harvesters_cfg.py inputFiles=alltypes.root nomodules=True legacyoutput=True reScope=JOB
-# this number is rather messy: we have 55 per-lumi objecs (harvested), 66 per-run objects (no legacy output), one folder for each set of 11, 
+# this number is rather messy: we have 66 per-lumi objecs (harvested), 66 per-run objects (no legacy output), one folder for each set of 11, 
 # plus some higher-level folders and the ProvInfo hierarchy create by the FileSaver.
-[ 149 = $(rootlist DQM_V0001_R000000001__Harvesting__DQMTests__DQMIO.root | wc -l) ]
+[ 161 = $(rootlist DQM_V0001_R000000001__Harvesting__DQMTests__DQMIO.root | wc -l) ]
 
 cmsRun $LOCAL_TEST_DIR/run_analyzers_cfg.py numberEventsInRun=100 numberEventsInLuminosityBlock=20 nEvents=100 legacyoutput=True
 # we expect only the (per-job) legacy histograms here: 3*11 objects in 3 folders, plus 9 more for ProvInfo and higher-level folders.
@@ -102,14 +102,14 @@ cmsRun $LOCAL_TEST_DIR/run_analyzers_cfg.py numberEventsInRun=300 numberEventsIn
 
 cmsRun $LOCAL_TEST_DIR/run_harvesters_cfg.py inputFiles=./run000001 outfile=pbdata.root nomodules=True protobufinput=True
 [ 99 = $(dqmiolistmes.py pbdata.root -r 1 | wc -l) ]
-[ 55 = $(dqmiolistmes.py pbdata.root -r 1 -l 1 | wc -l) ]
+[ 66 = $(dqmiolistmes.py pbdata.root -r 1 -l 1 | wc -l) ]
 
 # this will potentially mess up statistics (we should only fastHadd *within* a lumisection, not *across*), but should technically work.
 fastHadd add -o streamDQMHistograms.pb run000001/run000001_ls*_streamDQMHistograms.pb
 # the output format is different from the harvesting above, this is a not-DQM-formatted TDirectory file.
 fastHadd convert -o streamDQMHistograms.root streamDQMHistograms.pb
-# here we expect all (incl. legacy) MEs (99+55), plus folders (14 + 4 higher-level)
-[ 172 = $(rootlist streamDQMHistograms.root | wc -l) ]
+# here we expect all (incl. legacy) MEs (99+66), plus folders (14 + 4 higher-level)
+[ 184 = $(rootlist streamDQMHistograms.root | wc -l) ]
 
 
 # 9. Try writing online files. This is really TDirectory files, but written via a different module.
@@ -131,14 +131,14 @@ cmsRun $LOCAL_TEST_DIR/run_harvesters_cfg.py inputFiles=part1.root inputFiles=pa
 cmsRun $LOCAL_TEST_DIR/run_analyzers_cfg.py outfile=metoedm.root numberEventsInRun=100 numberEventsInLuminosityBlock=20 nEvents=100 metoedmoutput=True
 cmsRun $LOCAL_TEST_DIR/run_harvesters_cfg.py outfile=edmtome.root inputFiles=metoedm.root nomodules=True metoedminput=True
 [ 66 = $(dqmiolistmes.py edmtome.root -r 1 | wc -l) ]
-[ 55 = $(dqmiolistmes.py edmtome.root -r 1 -l 1 | wc -l) ]
+[ 66 = $(dqmiolistmes.py edmtome.root -r 1 -l 1 | wc -l) ]
 # again, no legacy module (run) output here due to JOB scope for legacy modules
 [ "0: 1, 0.0: 1, 1: 9, 100: 36, 5: 14, 5.0: 5" = "$($LOCAL_TEST_DIR/dqmiodumpentries.py edmtome.root -r 1 --summary)" ]
-[ "1: 23, 1.0: 5, 20: 27" = "$($LOCAL_TEST_DIR/dqmiodumpentries.py edmtome.root -r 1 -l 1 --summary)" ]
-[ "1: 18, 2: 5, 2.0: 5, 20: 27" = "$($LOCAL_TEST_DIR/dqmiodumpentries.py edmtome.root -r 1 -l 2 --summary)" ]
-[ "1: 18, 20: 27, 3: 5, 3.0: 5" = "$($LOCAL_TEST_DIR/dqmiodumpentries.py edmtome.root -r 1 -l 3 --summary)" ]
-[ "1: 18, 20: 27, 4: 5, 4.0: 5" = "$($LOCAL_TEST_DIR/dqmiodumpentries.py edmtome.root -r 1 -l 4 --summary)" ]
-[ "1: 18, 20: 27, 5: 5, 5.0: 5" = "$($LOCAL_TEST_DIR/dqmiodumpentries.py edmtome.root -r 1 -l 5 --summary)" ]
+[ "1: 24, 1.0: 6, 20: 36" = "$($LOCAL_TEST_DIR/dqmiodumpentries.py edmtome.root -r 1 -l 1 --summary)" ]
+[ "1: 18, 2: 6, 2.0: 6, 20: 36" = "$($LOCAL_TEST_DIR/dqmiodumpentries.py edmtome.root -r 1 -l 2 --summary)" ]
+[ "1: 18, 20: 36, 3: 6, 3.0: 6" = "$($LOCAL_TEST_DIR/dqmiodumpentries.py edmtome.root -r 1 -l 3 --summary)" ]
+[ "1: 18, 20: 36, 4: 6, 4.0: 6" = "$($LOCAL_TEST_DIR/dqmiodumpentries.py edmtome.root -r 1 -l 4 --summary)" ]
+[ "1: 18, 20: 36, 5: 6, 5.0: 6" = "$($LOCAL_TEST_DIR/dqmiodumpentries.py edmtome.root -r 1 -l 5 --summary)" ]
 [ "" = "$($LOCAL_TEST_DIR/dqmiodumpentries.py edmtome.root -r 1 -l 6 --summary)" ]
 
 cmsRun $LOCAL_TEST_DIR/run_analyzers_cfg.py outfile=part1_metoedm.root metoedmoutput=True numberEventsInRun=300 numberEventsInLuminosityBlock=100 nEvents=50               # 1st half of 1st lumi
@@ -155,4 +155,11 @@ cmsRun $LOCAL_TEST_DIR/run_analyzers_cfg.py outfile=empty.root nEvents=0
 cmsRun $LOCAL_TEST_DIR/run_analyzers_cfg.py outfile=empty.root howmany=0
 cmsRun $LOCAL_TEST_DIR/run_analyzers_cfg.py outfile=empty.root howmany=0 legacyoutput=True
 cmsRun $LOCAL_TEST_DIR/run_analyzers_cfg.py outfile=empty.root howmany=0 protobufoutput=True
+# nLumisections might be a bit buggy (off by one) in EDM, but is fine here.
+cmsRun $LOCAL_TEST_DIR/run_analyzers_cfg.py outfile=noevents.root processingMode='RunsAndLumis' nLumisections=20
+[ 66 = $(dqmiolistmes.py noevents.root -r 1 | wc -l) ]
+[ 66 = $(dqmiolistmes.py noevents.root -r 1 -l 1 | wc -l) ]
+[ 66 = $(dqmiolistmes.py noevents.root -r 2 | wc -l) ]
+[ 66 = $(dqmiolistmes.py noevents.root -r 2 -l 2 | wc -l) ]
+
 

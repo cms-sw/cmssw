@@ -3,6 +3,7 @@
 #include "TrackingTools/DetLayers/interface/BarrelDetLayer.h"
 #include "TrackingTools/DetLayers/interface/ForwardDetLayer.h"
 #include "MSLayersKeeper.h"
+#include "FWCore/Utilities/interface/Likely.h"
 
 #include <iostream>
 

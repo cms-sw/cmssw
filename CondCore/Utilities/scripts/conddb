@@ -657,10 +657,10 @@ def _since_filter(time_type):
     each 32-bit wide. The filter returns a string with both numbers, split.
     '''
 
-    if time_type == conddb.TimeType.Time:
+    if time_type == conddb.TimeType.Time.value:
         return lambda since: '%s (%s)' % (_convertTimeType(since), since)
 
-    if time_type == conddb.TimeType.Lumi:
+    if time_type == conddb.TimeType.Lumi.value:
         return lambda since: '%s : %5s (%s)' % (_high(since), _low(since), since)
 
     return lambda since: since
@@ -973,9 +973,9 @@ def list_(args):
                 scalar()
 
             sinceLabel = 'Since: Run '
-            if time_type == conddb.TimeType.Time:
+            if time_type == conddb.TimeType.Time.value:
                 sinceLabel = 'Since: UTC          (timestamp)'
-            if time_type == conddb.TimeType.Lumi:
+            if time_type == conddb.TimeType.Lumi.value:
                 sinceLabel = '  Run  : Lumi  (rawSince)'
 
             output_table(args,

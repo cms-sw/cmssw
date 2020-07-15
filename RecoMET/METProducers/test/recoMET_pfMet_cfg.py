@@ -7,7 +7,7 @@ process = cms.Process("TEST")
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
 
 ##____________________________________________________________________________||
-process.load("RecoMET/METProducers.PFMET_cfi")
+process.load("RecoMET/METProducers.pfMet_cfi")
 process.load("RecoMET/METProducers.METSignificanceParams_cfi")
 process.load("RecoMET/METProducers.METSignificanceObjects_cfi")
 

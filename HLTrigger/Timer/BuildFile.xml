@@ -8,5 +8,5 @@
 <use name="sigcpp"/>
 <use name="boost_chrono"/>
 <export>
-  <lib   name="1"/>
+  <lib name="1"/>
 </export>

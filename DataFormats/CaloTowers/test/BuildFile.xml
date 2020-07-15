@@ -1,6 +1,6 @@
-<use   name="DataFormats/CaloTowers"/>
-<use   name="FWCore/Framework"/>
-<use   name="FWCore/ParameterSet"/>
-<library   file="CaloTowersDump.cc" name="CaloTowersDump">
-  <flags   EDM_PLUGIN="1"/>
+<use name="DataFormats/CaloTowers"/>
+<use name="FWCore/Framework"/>
+<use name="FWCore/ParameterSet"/>
+<library file="CaloTowersDump.cc" name="CaloTowersDump">
+  <flags EDM_PLUGIN="1"/>
 </library>

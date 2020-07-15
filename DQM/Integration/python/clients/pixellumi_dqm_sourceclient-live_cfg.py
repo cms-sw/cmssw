@@ -1,7 +1,12 @@
 from __future__ import print_function
 import FWCore.ParameterSet.Config as cms
+import sys
 
 process = cms.Process("PixelLumiDQM")
+
+unitTest=False
+if 'unitTest=True' in sys.argv:
+    unitTest=True
 
 process.MessageLogger = cms.Service("MessageLogger",
     debugModules = cms.untracked.vstring('siPixelDigis', 
@@ -13,8 +18,12 @@ process.MessageLogger = cms.Service("MessageLogger",
 #----------------------------
 # Event Source
 #-----------------------------
-# for live online DQM in P5
-process.load("DQM.Integration.config.inputsource_cfi")
+
+if unitTest:
+    process.load("DQM.Integration.config.unittestinputsource_cfi")
+else:
+    # for live online DQM in P5
+    process.load("DQM.Integration.config.inputsource_cfi")
 
 # for testing in lxplus
 #process.load("DQM.Integration.config.fileinputsource_cfi")
@@ -32,12 +41,11 @@ process.load("DQM.Integration.config.environment_cfi")
 process.dqmEnv.subSystemFolder = "PixelLumi"
 process.dqmSaver.tag = "PixelLumi"
 
-process.source.SelectEvents = cms.untracked.vstring("HLT_ZeroBias*","HLT_L1AlwaysTrue*", "HLT_PAZeroBias*", "HLT_PAL1AlwaysTrue*")
-#process.DQMStore.referenceFileName = '/dqmdata/dqm/reference/pixel_reference_pp.root'
+if not unitTest:
+    process.source.SelectEvents = cms.untracked.vstring("HLT_ZeroBias*","HLT_L1AlwaysTrue*", "HLT_PAZeroBias*", "HLT_PAL1AlwaysTrue*")
 #if (process.runType.getRunType() == process.runType.hi_run):
-#    process.DQMStore.referenceFileName = '/dqmdata/dqm/reference/pixel_reference_hi.root'
 
-if (process.runType.getRunType() == process.runType.cosmic_run):
+if (process.runType.getRunType() == process.runType.cosmic_run and not unitTest):
     process.source.SelectEvents = cms.untracked.vstring('HLT*SingleMu*')
 
 #----------------------------
@@ -86,7 +94,8 @@ if (process.runType.getRunType() == process.runType.hi_run):
     process.load('Configuration.StandardSequences.RawToDigi_Repacked_cff')
     process.siPixelDigis.InputLabel   = cms.InputTag("rawDataRepacker")
 
-    process.source.SelectEvents = cms.untracked.vstring('HLT_HIL1MinimumBiasHF2AND*')
+    if not unitTest:
+        process.source.SelectEvents = cms.untracked.vstring('HLT_HIL1MinimumBiasHF2AND*')
 
 
 #    process.DQMEventStreamHttpReader.SelectEvents = cms.untracked.PSet(

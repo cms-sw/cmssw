@@ -12,5 +12,5 @@
 <use name="hepmc"/>
 <use name="clhep"/>
 <export>
-  <lib   name="1"/>
+  <lib name="1"/>
 </export>

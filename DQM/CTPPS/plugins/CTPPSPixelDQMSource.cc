@@ -19,7 +19,7 @@
 
 #include "DataFormats/Common/interface/DetSetVector.h"
 
-#include "CondFormats/CTPPSReadoutObjects/interface/CTPPSPixelIndices.h"
+#include "CondFormats/PPSObjects/interface/CTPPSPixelIndices.h"
 #include "DataFormats/CTPPSDetId/interface/CTPPSDetId.h"
 #include "DataFormats/CTPPSDigi/interface/CTPPSPixelDigi.h"
 #include "DataFormats/CTPPSReco/interface/CTPPSPixelCluster.h"

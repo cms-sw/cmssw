@@ -357,15 +357,23 @@ namespace dqm::implementation {
     return nullptr;
   }
 
-  void DQMStore::enterLumi(edm::RunNumber_t run, edm::LuminosityBlockNumber_t lumi, uint64_t moduleID) {
-    // Make sure global MEs for the run/lumi exist (depending on scope), and
-    // point the local MEs for this module to these global MEs.
+  void DQMStore::initLumi(edm::RunNumber_t run, edm::LuminosityBlockNumber_t lumi) {
+    // Call initLumi for all modules, as a global operation.
+    auto lock = std::scoped_lock(this->booking_mutex_);
+    for (auto& kv : this->localMEs_) {
+      initLumi(run, lumi, kv.first);
+    }
+  }
+
+  void DQMStore::initLumi(edm::RunNumber_t run, edm::LuminosityBlockNumber_t lumi, uint64_t moduleID) {
+    // Make sure global MEs for the run/lumi exist (depending on scope)
 
     auto lock = std::scoped_lock(this->booking_mutex_);
 
     // these are the MEs we need to update.
     auto& localset = this->localMEs_[moduleID];
     // this is where they need to point to.
+    // This could be a per-run or per-lumi set (depending on lumi == 0)
     auto& targetset = this->globalMEs_[edm::LuminosityBlockID(run, lumi)];
     // this is where we can get MEs to reuse.
     auto& prototypes = this->globalMEs_[edm::LuminosityBlockID()];
@@ -386,7 +394,7 @@ namespace dqm::implementation {
       auto target = targetset.find(me);  // lookup by path, thanks to MEComparison
       if (target != targetset.end()) {
         // we already have a ME, just use it!
-        debugTrackME("enterLumi (existing)", nullptr, *target);
+        debugTrackME("initLumi (existing)", nullptr, *target);
       } else {
         // look for a prototype to reuse.
         auto proto = prototypes.find(me);
@@ -410,7 +418,7 @@ namespace dqm::implementation {
           auto result = targetset.insert(oldme);
           assert(result.second);  // was new insertion
           target = result.first;  // iterator to new ME
-          debugTrackME("enterLumi (reused)", nullptr, *target);
+          debugTrackME("initLumi (reused)", nullptr, *target);
         } else {
           // no prototype available. That means we have concurrent Lumis/Runs,
           // and need to make a clone now.
@@ -431,9 +439,48 @@ namespace dqm::implementation {
           auto result = targetset.insert(newme);
           assert(result.second);  // was new insertion
           target = result.first;  // iterator to new ME
-          debugTrackME("enterLumi (allocated)", nullptr, *target);
+          debugTrackME("initLumi (allocated)", nullptr, *target);
         }
       }
+    }
+  }
+
+  void DQMStore::enterLumi(edm::RunNumber_t run, edm::LuminosityBlockNumber_t lumi, uint64_t moduleID) {
+    // point the local MEs for this module to these global MEs.
+
+    // This needs to happen before we can use the global MEs for this run/lumi here.
+    // We could do it lazyly here, or eagerly globally in global begin lumi.
+    //initLumi(run, lumi, moduleID);
+
+    auto lock = std::scoped_lock(this->booking_mutex_);
+
+    // these are the MEs we need to update.
+    auto& localset = this->localMEs_[moduleID];
+    // this is where they need to point to.
+    auto& targetset = this->globalMEs_[edm::LuminosityBlockID(run, lumi)];
+
+    // only for a sanity check
+    auto checkScope = [run, lumi](MonitorElementData::Scope scope) {
+      if (scope == MonitorElementData::Scope::JOB) {
+        return (run == 0 && lumi == 0);
+      } else if (scope == MonitorElementData::Scope::RUN) {
+        return (run != 0 && lumi == 0);
+      } else if (scope == MonitorElementData::Scope::LUMI) {
+        return (lumi != 0);
+      }
+      assert(!"Impossible Scope.");
+      return false;
+    };
+
+    for (MonitorElement* me : localset) {
+      auto target = targetset.find(me);  // lookup by path, thanks to MEComparison
+      if (target == targetset.end()) {
+        auto anyme = this->findME(me);
+        debugTrackME("enterLumi (nothingtodo)", me, nullptr);
+        assert(anyme && checkScope(anyme->getScope()) == false);
+        continue;
+      }
+      assert(target != targetset.end());  // initLumi should have taken care of this.
       // now we have the proper global ME in the right place, point the local there.
       // This is only safe if the name is exactly the same -- else it might corrupt
       // the tree structure of the set!
@@ -675,15 +722,19 @@ namespace dqm::implementation {
     // Set lumi and run for legacy booking.
     // This is no more than a guess with concurrent runs/lumis, but should be
     // correct for purely sequential legacy stuff.
-    // These transitions should only affect non-DQM*EDAnalyzer based code.
     // Also reset Scope, such that legacy modules can expect it to be JOB.
+    // initLumi and leaveLumi are needed for all module types: these handle
+    // creating and deleting global MEs as needed, which has to happen even if
+    // a module does not see lumi transitions.
     ar.watchPreGlobalBeginRun([this](edm::GlobalContext const& gc) {
       this->setRunLumi(gc.luminosityBlockID());
+      this->initLumi(gc.luminosityBlockID().run(), /* lumi */ 0);
       this->enterLumi(gc.luminosityBlockID().run(), /* lumi */ 0, /* moduleID */ 0);
       this->setScope(MonitorElementData::Scope::JOB);
     });
     ar.watchPreGlobalBeginLumi([this](edm::GlobalContext const& gc) {
       this->setRunLumi(gc.luminosityBlockID());
+      this->initLumi(gc.luminosityBlockID().run(), gc.luminosityBlockID().luminosityBlock());
       this->enterLumi(gc.luminosityBlockID().run(), gc.luminosityBlockID().luminosityBlock(), /* moduleID */ 0);
     });
     ar.watchPostGlobalEndRun([this](edm::GlobalContext const& gc) {

@@ -32,7 +32,7 @@ namespace pat {
     template <typename T>
     const T *DynCastCandPtr<T>::get(const reco::Candidate *ptr) {
       doPtr(ptr);
-      if ((ptr != nullptr) && (cachePtr_ == 0))
+      if ((ptr != nullptr) && (cachePtr_ == nullptr))
         throw cms::Exception("Type Checking")
             << "You can't convert a " << typeid(*ptr).name() << " to a " << typeid(T).name() << "\n"
             << "note: you can use c++filt command to convert the above in human readable types.\n";

@@ -1,22 +1,27 @@
-#include "RecoTracker/TrackProducer/plugins/GsfTrackProducer.h"
-// system include files
-#include <memory>
-// user include files
-#include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "TrackingTools/GeomPropagators/interface/Propagator.h"
-#include "TrackingTools/PatternTools/interface/Trajectory.h"
-
-#include "TrackingTools/GsfTracking/interface/TrajGsfTrackAssociation.h"
-
-#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
-#include "DataFormats/GsfTrackReco/interface/GsfTrackFwd.h"
-#include "DataFormats/GsfTrackReco/interface/GsfTrackExtra.h"
 #include "DataFormats/GsfTrackReco/interface/GsfComponent5D.h"
-
+#include "DataFormats/GsfTrackReco/interface/GsfTrackExtra.h"
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "Geometry/Records/interface/TrackerTopologyRcd.h"
+#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
+#include "RecoTracker/TrackProducer/interface/GsfTrackProducerBase.h"
+#include "RecoTracker/TrackProducer/interface/TrackProducerAlgorithm.h"
+#include "TrackingTools/GeomPropagators/interface/Propagator.h"
+#include "TrackingTools/GsfTracking/interface/TrajGsfTrackAssociation.h"
+#include "TrackingTools/PatternTools/interface/Trajectory.h"
+#include "TrackingTools/TransientTrack/interface/TransientTrack.h"
+
+class GsfTrackProducer : public GsfTrackProducerBase, public edm::stream::EDProducer<> {
+public:
+  explicit GsfTrackProducer(const edm::ParameterSet& iConfig);
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+
+  void produce(edm::Event&, const edm::EventSetup&) override;
+
+private:
+  TrackProducerAlgorithm<reco::GsfTrack> theAlgo;
+};
 
 GsfTrackProducer::GsfTrackProducer(const edm::ParameterSet& iConfig)
     : GsfTrackProducerBase(iConfig.getParameter<bool>("TrajectoryInEvent"),
@@ -128,3 +133,6 @@ void GsfTrackProducer::fillDescriptions(edm::ConfigurationDescriptions& descript
 
   descriptions.add("gsfTrackProducer", desc);
 }
+
+#include "FWCore/Framework/interface/MakerMacros.h"
+DEFINE_FWK_MODULE(GsfTrackProducer);

@@ -46,7 +46,7 @@ namespace edm {
         StreamCacheHolder(edm::ParameterSet const& iPSet) : T(iPSet) {}
         StreamCacheHolder(StreamCacheHolder<T, C> const&) = delete;
         StreamCacheHolder<T, C>& operator=(StreamCacheHolder<T, C> const&) = delete;
-        ~StreamCacheHolder() {
+        ~StreamCacheHolder() override {
           for (auto c : caches_) {
             delete c;
           }
@@ -93,7 +93,7 @@ namespace edm {
         RunCacheHolder(edm::ParameterSet const& iPSet) : T(iPSet) {}
         RunCacheHolder(RunCacheHolder<T, C> const&) = delete;
         RunCacheHolder<T, C>& operator=(RunCacheHolder<T, C> const&) = delete;
-        ~RunCacheHolder() noexcept(false){};
+        ~RunCacheHolder() noexcept(false) override{};
 
       protected:
         C const* runCache(edm::RunIndex iID) const { return cache_.get(); }
@@ -117,7 +117,7 @@ namespace edm {
         LuminosityBlockCacheHolder(edm::ParameterSet const& iPSet) : T(iPSet) {}
         LuminosityBlockCacheHolder(LuminosityBlockCacheHolder<T, C> const&) = delete;
         LuminosityBlockCacheHolder<T, C>& operator=(LuminosityBlockCacheHolder<T, C> const&) = delete;
-        ~LuminosityBlockCacheHolder() noexcept(false){};
+        ~LuminosityBlockCacheHolder() noexcept(false) override{};
 
       protected:
         C const* luminosityBlockCache(edm::LuminosityBlockIndex iID) const { return caches_[iID].get(); }
@@ -149,7 +149,7 @@ namespace edm {
         RunSummaryCacheHolder(edm::ParameterSet const& iPSet) : T(iPSet) {}
         RunSummaryCacheHolder(RunSummaryCacheHolder<T, C> const&) = delete;
         RunSummaryCacheHolder<T, C>& operator=(RunSummaryCacheHolder<T, C> const&) = delete;
-        ~RunSummaryCacheHolder() noexcept(false){};
+        ~RunSummaryCacheHolder() noexcept(false) override{};
 
       private:
         friend class EndRunSummaryProducer<T, C>;
@@ -182,7 +182,7 @@ namespace edm {
         LuminosityBlockSummaryCacheHolder(edm::ParameterSet const& iPSet) : T(iPSet) {}
         LuminosityBlockSummaryCacheHolder(LuminosityBlockSummaryCacheHolder<T, C> const&) = delete;
         LuminosityBlockSummaryCacheHolder<T, C>& operator=(LuminosityBlockSummaryCacheHolder<T, C> const&) = delete;
-        ~LuminosityBlockSummaryCacheHolder() noexcept(false){};
+        ~LuminosityBlockSummaryCacheHolder() noexcept(false) override{};
 
       private:
         void preallocLumisSummary(unsigned int iNLumis) final { caches_.reset(new std::shared_ptr<C>[iNLumis]); }
@@ -252,7 +252,7 @@ namespace edm {
         EndRunSummaryProducer(edm::ParameterSet const& iPSet) : T(iPSet), RunSummaryCacheHolder<T, C>(iPSet) {}
         EndRunSummaryProducer(EndRunSummaryProducer const&) = delete;
         EndRunSummaryProducer& operator=(EndRunSummaryProducer const&) = delete;
-        ~EndRunSummaryProducer() noexcept(false){};
+        ~EndRunSummaryProducer() noexcept(false) override{};
 
       private:
         void doEndRunProduce_(Run& rp, EventSetup const& c) final {
@@ -295,7 +295,7 @@ namespace edm {
             : T(iPSet), LuminosityBlockSummaryCacheHolder<T, S>(iPSet) {}
         EndLuminosityBlockSummaryProducer(EndLuminosityBlockSummaryProducer const&) = delete;
         EndLuminosityBlockSummaryProducer& operator=(EndLuminosityBlockSummaryProducer const&) = delete;
-        ~EndLuminosityBlockSummaryProducer() noexcept(false){};
+        ~EndLuminosityBlockSummaryProducer() noexcept(false) override{};
 
       private:
         void doEndLuminosityBlockProduce_(LuminosityBlock& lb, EventSetup const& c) final {

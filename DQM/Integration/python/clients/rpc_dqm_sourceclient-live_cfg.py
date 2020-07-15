@@ -1,16 +1,25 @@
 from __future__ import print_function
 
+import sys
 import FWCore.ParameterSet.Config as cms
 
 ## Use RECO Muons flag
 useMuons = False
 isOfflineDQM = False
 
+unitTest = False
+if 'unitTest=True' in sys.argv:
+    unitTest=True
+
 process = cms.Process("RPCDQM")
 
 ############## Event Source #####################
-# for live online DQM in P5
-process.load("DQM.Integration.config.inputsource_cfi")
+
+if unitTest:
+    process.load("DQM.Integration.config.unittestinputsource_cfi")
+else:
+    # for live online DQM in P5
+    process.load("DQM.Integration.config.inputsource_cfi")
 
 # for testing in lxplus
 #process.load("DQM.Integration.config.fileinputsource_cfi")
@@ -44,7 +53,6 @@ process.load("DQM.Integration.config.environment_cfi")
 process.dqmEnv.subSystemFolder = 'RPC'
 process.dqmSaver.tag = 'RPC'
 
-process.DQMStore.referenceFileName = '/dqmdata/dqm/reference/rpc_reference.root'
 
 ############### Scaler Producer #################
 process.load("EventFilter.ScalersRawToDigi.ScalersRawToDigi_cfi")

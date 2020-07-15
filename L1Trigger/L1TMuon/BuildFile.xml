@@ -1,34 +1,25 @@
 <export>
-  <lib name="1"/>  
-  <use name="DataFormats/L1TMuon"/>   
-  <use name="root"/> 
+  <lib name="1"/>
+  <use name="DataFormats/L1TMuon"/>
+  <use name="root"/>
   <use name="xerces-c"/>
 </export>
-
-
 <use name="DataFormats/L1TMuon"/>
 <use name="DataFormats/ParticleFlowCandidate"/>
 <use name="DataFormats/ParticleFlowReco"/>
-
+<use name="DataFormats/RPCRecHit"/>
 <use name="FWCore/PluginManager"/>
-
 <use name="L1Trigger/L1TCommon"/>
 <use name="L1Trigger/CSCCommonTrigger"/>
 <use name="L1Trigger/CSCTrackFinder"/>
 <use name="L1Trigger/DTTrackFinder"/>
 <use name="L1Trigger/DTUtilities"/>
 <use name="L1Trigger/RPCTrigger"/>
-
 <use name="Geometry/Records"/>
 <use name="Geometry/CSCGeometry"/>
 <use name="Geometry/DTGeometry"/>
 <use name="Geometry/RPCGeometry"/>
 <use name="Geometry/GEMGeometry"/>
-
 <use name="PhysicsTools/UtilAlgos"/>
-
 <use name="MagneticField/Engine"/>
 <use name="MagneticField/Records"/>
-
-<use name="DataFormats/L1TrackTrigger"/>
-<use name="Geometry/TrackerGeometryBuilder"/>

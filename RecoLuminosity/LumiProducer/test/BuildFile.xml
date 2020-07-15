@@ -1,24 +1,22 @@
 <use name="FWCore/Framework"/>
 <use name="DataFormats/Luminosity"/>
-
 <library file="analysis/plugins/*.cc" name="PCCNTupler">
-    <use   name="FWCore/PluginManager"/>
-    <use   name="FWCore/ParameterSet"/>
-    <use   name="DataFormats/VertexReco"/>
-    <use   name="DataFormats/DetId"/>
-    <use   name="Geometry/TrackerGeometryBuilder"/>
-    <use   name="DataFormats/SiPixelDetId"/>
-    <use   name="DataFormats/TrackerRecHit2D"/>
-    <use   name="DataFormats/TrackingRecHit"/>
-    <use   name="HLTrigger/HLTcore"/>
-    <use   name="CondFormats/RunInfo"/>
-    <use   name="clhep"/>
-    <use   name="boost"/>
-    <use   name="root"/>
-    <use   name="rootrflx"/>
-    <flags EDM_PLUGIN="1"/>
+  <use name="FWCore/PluginManager"/>
+  <use name="FWCore/ParameterSet"/>
+  <use name="DataFormats/VertexReco"/>
+  <use name="DataFormats/DetId"/>
+  <use name="Geometry/TrackerGeometryBuilder"/>
+  <use name="DataFormats/SiPixelDetId"/>
+  <use name="DataFormats/TrackerRecHit2D"/>
+  <use name="DataFormats/TrackingRecHit"/>
+  <use name="HLTrigger/HLTcore"/>
+  <use name="CondFormats/RunInfo"/>
+  <use name="clhep"/>
+  <use name="boost"/>
+  <use name="root"/>
+  <use name="rootrflx"/>
+  <flags EDM_PLUGIN="1"/>
 </library>
-
 
 <bin file="TestIntegration.cpp" name="TestLumiProd">
   <flags NO_TESTRUN="1"/>
@@ -59,7 +57,7 @@
 <bin file="validation/populateDummy2LumiDB.cpp" name="populateDummy2LumiDB">
   <flags NO_TESTRUN="1"/>
   <use name="FWCore/PluginManager"/>
-  <use name="RecoLuminosity/LumiProducer"/>	
+  <use name="RecoLuminosity/LumiProducer"/>
 </bin>
 
 <bin file="cmmdLoadLumiDB.cpp" name="cmmdLoadLumiDB">
@@ -67,7 +65,7 @@
   <use name="boost"/>
   <use name="boost_program_options"/>
   <use name="FWCore/PluginManager"/>
-  <use name="RecoLuminosity/LumiProducer"/>	
+  <use name="RecoLuminosity/LumiProducer"/>
 </bin>
 
 <bin file="testBoostXML.cpp" name="testBoostXML">
@@ -82,10 +80,12 @@
 <library file="TestExpressLumiProducer.cc" name="TestExpressLumiProducer">
   <flags EDM_PLUGIN="1"/>
 </library>
+
 <library file="TestLumiCorrectionSource.cc" name="TestLumiCorrectionSource">
   <use name="RecoLuminosity/LumiProducer"/>
   <flags EDM_PLUGIN="1"/>
 </library>
+
 <library file="TestDIPLumiProducer.cc" name="TestDIPLumiProducer">
   <use name="RecoLuminosity/LumiProducer"/>
   <flags EDM_PLUGIN="1"/>
@@ -100,8 +100,11 @@
 </library>
 
 <library file="genLumiRaw.cc" name="genLumiRaw">
-  <use name="rootcore"/>	
+  <use name="rootcore"/>
   <use name="RecoLuminosity/LumiProducer"/>
   <flags EDM_PLUGIN="1"/>
 </library>
 
+<library file="TestLumiProducerFromBrilcalc.cc" name="TestLumiProducerFromBrilcalc">
+  <flags EDM_PLUGIN="1"/>
+</library>

@@ -3,14 +3,13 @@
 <use name="Fireworks/FWInterface"/>
 <use name="CondFormats/DataRecord"/>
 <use name="CondFormats/RunInfo"/>
- <use name="SimDataFormats/Track"/>
- <use name="SimDataFormats/TrackingHit"/>
- <use name="SimDataFormats/CaloHit"/>
- <use name="SimDataFormats/Vertex"/>
- <use name="SimDataFormats/TrackingAnalysis"/>
- <use name="SimGeneral/TrackingAnalysis"/>
+<use name="SimDataFormats/Track"/>
+<use name="SimDataFormats/TrackingHit"/>
+<use name="SimDataFormats/CaloHit"/>
+<use name="SimDataFormats/Vertex"/>
+<use name="SimDataFormats/TrackingAnalysis"/>
+<use name="SimGeneral/TrackingAnalysis"/>
 <use name="rootcore"/>
 <use name="rootgeom"/>
 <use name="rooteve"/>
-
 <library name="FireworksFWInterfacePlugin" file="*.cc"/>

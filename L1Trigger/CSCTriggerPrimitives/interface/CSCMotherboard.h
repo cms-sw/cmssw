@@ -114,6 +114,10 @@ protected:
       if false: do ALCT-to-CLCT matching */
   bool clct_to_alct;
 
+  // encode special bits for high-multiplicity triggers
+  unsigned int highMultiplicityBits_;
+  bool useHighMultiplicityBits_;
+
   /** Default values of configuration parameters. */
   static const unsigned int def_mpc_block_me1a;
   static const unsigned int def_alct_trig_enable, def_clct_trig_enable;
@@ -160,5 +164,8 @@ protected:
 
   /** Dump TMB/MPC configuration parameters. */
   void dumpConfigParams() const;
+
+  /* encode high multiplicity bits for Run-3 exotic triggers */
+  void encodeHighMultiplicityBits(unsigned alctBits);
 };
 #endif

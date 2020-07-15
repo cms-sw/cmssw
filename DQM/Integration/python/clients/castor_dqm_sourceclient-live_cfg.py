@@ -1,12 +1,22 @@
 from __future__ import print_function
 import FWCore.ParameterSet.Config as cms
+import sys
 
 process = cms.Process("CASTORDQM")
+
+unitTest=False
+if 'unitTest=True' in sys.argv:
+    unitTest=True
+
 #=================================
 # Event Source
 #================================+
-# for live online DQM in P5
-process.load("DQM.Integration.config.inputsource_cfi")
+
+if unitTest:
+    process.load("DQM.Integration.config.unittestinputsource_cfi")
+else:
+    # for live online DQM in P5
+    process.load("DQM.Integration.config.inputsource_cfi")
 
 # for testing in lxplus
 #process.load("DQM.Integration.config.fileinputsource_cfi")
@@ -14,7 +24,6 @@ process.load("DQM.Integration.config.inputsource_cfi")
 #================================
 # DQM Environment
 #================================
-#process.DQMStore.referenceFileName = 'castor_reference.root'
 
 process.load("Configuration.StandardSequences.GeometryRecoDB_cff")
 

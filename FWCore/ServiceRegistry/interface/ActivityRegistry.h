@@ -52,6 +52,7 @@ to this file that go beyond the obvious cut and paste type of edits.
 
 // system include files
 #include <functional>
+#include <string>
 
 // user include files
 #include "FWCore/ServiceRegistry/interface/TerminationOrigin.h"

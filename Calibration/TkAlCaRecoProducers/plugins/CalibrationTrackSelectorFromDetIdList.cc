@@ -31,6 +31,7 @@ Tracker DetIds
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
+#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 #include "TrackingTools/Records/interface/TransientRecHitRecord.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateTransform.h"
@@ -103,7 +104,7 @@ void CalibrationTrackSelectorFromDetIdList::produce(edm::Event &iEvent, const ed
 
       for (const auto &detidsel : detidsels_) {
         if (detidsel.isSelected(detid)) {
-          LogDebug("CalibrationTrackSelectorFromDetIdList") << "Selected by selection " << detid;
+          LogDebug("CalibrationTrackSelectorFromDetIdList") << "Selected by selection " << detid.rawId();
           saveTrack = true;
           break;
         }

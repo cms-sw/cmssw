@@ -92,6 +92,16 @@ public:
           etMax_(et),
           gain_(gainSeed) {}
 
+    CorrectionCategory(unsigned int runMin,
+                       unsigned int runMax,
+                       float etaMin,
+                       float etaMax,
+                       float r9Min,
+                       float r9Max,
+                       float etMin,
+                       float etMax,
+                       unsigned int gainSeed);
+
     bool operator<(const CorrectionCategory& b) const;
     bool inCategory(
         const unsigned int runnr, const float et, const float eta, const float r9, const unsigned int gainSeed) const;
@@ -149,6 +159,21 @@ private:
                 double errDeltaP,
                 double errSystDeltaP,
                 double errDeltaPGain);
+
+  void addScale(int runMin,
+                int runMax,
+                double etaMin,
+                double etaMax,
+                double r9Min,
+                double r9Max,
+                double etMin,
+                double etMax,
+                unsigned int gain,
+                double energyScale,
+                double energyScaleErrStat,
+                double energyScaleErrSyst,
+                double energyScaleErrGain);
+
   void addSmearing(const std::string& category,
                    int runMin,
                    int runMax,

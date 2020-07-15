@@ -1,0 +1,9 @@
+<environment>
+  <test name="TestHeterogeneousCoreSonicCore" command="cmsRun ${LOCALTOP}/src/HeterogeneousCore/SonicCore/test/sonicTest_cfg.py"/>
+  <library file="SonicDummyProducer.cc">
+    <flags EDM_PLUGIN="1"/>
+    <use name="HeterogeneousCore/SonicCore"/>
+    <use name="DataFormats/TestObjects"/>
+  </library>
+
+</environment>

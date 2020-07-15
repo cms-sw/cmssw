@@ -6,6 +6,7 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
+#include "FWCore/Utilities/interface/Visibility.h"
 #include <string>
 #include <cstdint>
 

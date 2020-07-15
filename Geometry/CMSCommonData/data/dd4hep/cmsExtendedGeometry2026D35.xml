@@ -59,11 +59,11 @@
     <Include ref="Geometry/HcalCommonData/data/average/hcalforwardmaterial.xml"/>
     <Include ref="Geometry/HGCalCommonData/data/hgcalMaterial/v1/hgcalMaterial.xml"/>
     <Include ref="Geometry/HGCalCommonData/data/hgcal/v9/hgcal.xml"/>
+    <Include ref="Geometry/HGCalCommonData/data/hgcalcell/v9/hgcalcell.xml"/>
+    <Include ref="Geometry/HGCalCommonData/data/hgcalwafer/v9/hgcalwafer.xml"/>
     <Include ref="Geometry/HGCalCommonData/data/hgcalEE/v9/hgcalEE.xml"/>
     <Include ref="Geometry/HGCalCommonData/data/hgcalHEsil/v9/hgcalHEsil.xml"/>
     <Include ref="Geometry/HGCalCommonData/data/hgcalHEmix/v9/hgcalHEmix.xml"/>
-    <Include ref="Geometry/HGCalCommonData/data/hgcalwafer/v9/hgcalwafer.xml"/>
-    <Include ref="Geometry/HGCalCommonData/data/hgcalcell/v9/hgcalcell.xml"/>
     <Include ref="Geometry/HGCalCommonData/data/hgcalCons/v9/hgcalCons.xml"/>
     <Include ref="Geometry/MuonCommonData/data/mbCommon/2017/v2/mbCommon.xml"/>
     <Include ref="Geometry/MuonCommonData/data/mb1/2015/v1/mb1.xml"/>

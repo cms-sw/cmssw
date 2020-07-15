@@ -3,14 +3,13 @@
 <use name="FWCore/ParameterSet"/>
 <use name="dd4hep"/>
 <use name="DetectorDescription/DDCMS"/>
-
-<library name="DetectorDescriptionTestPlugins" file="test/*.cc" >
+<library name="DetectorDescriptionTestPlugins" file="test/*.cc">
   <use name="Geometry/Records"/>
   <lib name="Geom"/>
   <flags EDM_PLUGIN="1"/>
 </library>
 
-<library name="DetectorDescriptionPlugins" file="*.cc" >
+<library name="DetectorDescriptionPlugins" file="*.cc">
   <use name="CondFormats/Common"/>
   <use name="Geometry/Records"/>
   <use name="MagneticField/Records"/>
@@ -18,7 +17,7 @@
   <flags EDM_PLUGIN="1"/>
 </library>
 
-<library name="DetectorDescriptionDD4HepPlugins" file="dd4hep/*.cc" >
+<library name="DetectorDescriptionDD4HepPlugins" file="dd4hep/*.cc">
   <use name="rootgeom"/>
   <flags DD4HEP_PLUGIN="1"/>
 </library>

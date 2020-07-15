@@ -14,7 +14,7 @@ namespace edm {
 
   namespace handleimpl {
     void throwConvertTypeError(std::type_info const& expected, std::type_info const& actual);
-    std::shared_ptr<edm::HandleExceptionFactory> makeInvalidReferenceException();
+    std::shared_ptr<edm::HandleExceptionFactory const> makeInvalidReferenceException();
   }  // namespace handleimpl
 
   // Convert from handle-to-void to handle-to-T

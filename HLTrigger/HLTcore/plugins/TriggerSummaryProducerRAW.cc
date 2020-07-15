@@ -12,7 +12,6 @@
 
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/Common/interface/OrphanHandle.h"
-#include "DataFormats/HLTReco/interface/TriggerEventWithRefs.h"
 #include "DataFormats/Provenance/interface/Provenance.h"
 #include "FWCore/Framework/interface/ProcessMatch.h"
 #include "FWCore/Framework/interface/TriggerNamesService.h"
@@ -27,7 +26,7 @@
 // constructors and destructor
 //
 TriggerSummaryProducerRAW::TriggerSummaryProducerRAW(const edm::ParameterSet& ps)
-    : pn_(ps.getParameter<std::string>("processName")) {
+    : pn_(ps.getParameter<std::string>("processName")), putToken_{produces<trigger::TriggerEventWithRefs>()} {
   if (pn_ == "@") {
     edm::Service<edm::service::TriggerNamesService> tns;
     if (tns.isAvailable()) {
@@ -39,7 +38,6 @@ TriggerSummaryProducerRAW::TriggerSummaryProducerRAW(const edm::ParameterSet& ps
   }
 
   LogDebug("TriggerSummaryProducerRaw") << "Using process name: '" << pn_ << "'";
-  produces<trigger::TriggerEventWithRefs>();
 
   // Tell the getter what type of products to get and
   // also the process to get them from
@@ -60,7 +58,7 @@ void TriggerSummaryProducerRAW::fillDescriptions(edm::ConfigurationDescriptions&
 }
 
 // ------------ method called to produce the data  ------------
-void TriggerSummaryProducerRAW::produce(edm::Event& iEvent, const edm::EventSetup&) {
+void TriggerSummaryProducerRAW::produce(edm::StreamID, edm::Event& iEvent, const edm::EventSetup&) const {
   using namespace std;
   using namespace edm;
   using namespace reco;
@@ -73,7 +71,7 @@ void TriggerSummaryProducerRAW::produce(edm::Event& iEvent, const edm::EventSetu
   LogDebug("TriggerSummaryProducerRaw") << "Number of filter objects found: " << nfob;
 
   // construct single RAW product
-  unique_ptr<TriggerEventWithRefs> product(new TriggerEventWithRefs(pn_, nfob));
+  TriggerEventWithRefs product(pn_, nfob);
   for (unsigned int ifob = 0; ifob != nfob; ++ifob) {
     const string& label(fobs[ifob].provenance()->moduleLabel());
     const string& instance(fobs[ifob].provenance()->productInstanceName());
@@ -112,11 +110,11 @@ void TriggerSummaryProducerRAW::produce(edm::Event& iEvent, const edm::EventSetu
         << "TriggerSummaryProducerRaw::addFilterObjects(   )"
         << "\n fobs[ifob]->l1tetsumIds().size() = " << fobs[ifob]->l1tetsumIds().size()
         << "\n fobs[ifob]->l1tetsumRefs().size() = " << fobs[ifob]->l1tetsumRefs().size() << endl;
-    product->addFilterObject(tag, *fobs[ifob]);
+    product.addFilterObject(tag, *fobs[ifob]);
   }
 
   // place product in Event
-  OrphanHandle<TriggerEventWithRefs> ref = iEvent.put(std::move(product));
+  OrphanHandle<TriggerEventWithRefs> ref = iEvent.emplace(putToken_, std::move(product));
   LogTrace("TriggerSummaryProducerRaw") << "Number of filter objects packed: " << ref->size();
 
   return;

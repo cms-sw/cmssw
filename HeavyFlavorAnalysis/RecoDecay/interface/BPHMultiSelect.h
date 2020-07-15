@@ -42,8 +42,6 @@ public:
   enum mode { or_mode, and_mode };
 };
 
-//BPHMultiSelectBase has the implementation needed for accept
-// but does not itself override accept
 template <class T>
 class BPHMultiSelectBase : public T {
 public:
@@ -62,6 +60,10 @@ public:
     }
   }
 
+  // deleted copy constructor and assignment operator
+  BPHMultiSelectBase(const BPHMultiSelectBase<T>& x) = delete;
+  BPHMultiSelectBase& operator=(const BPHMultiSelectBase<T>& x) = delete;
+
   /** Destructor
    */
   ~BPHMultiSelectBase() override {}
@@ -77,8 +79,11 @@ public:
     return;
   }
 
+  /// component count
+  unsigned int count() { return selectList.size(); }
+
 protected:
-  template <class Obj>
+  using Obj = typename T::AcceptArg;
   bool select(const Obj& cand) const {
     int i;
     int n = selectList.size();
@@ -89,7 +94,6 @@ protected:
     }
     return finalValue;
   }
-  template <class Obj>
   bool select(const Obj& cand, const BPHRecoBuilder* build) const {
     int i;
     int n = selectList.size();
@@ -102,10 +106,6 @@ protected:
   }
 
 private:
-  // private copy and assigment constructors
-  BPHMultiSelectBase<T>(const BPHMultiSelectBase<T>& x) = delete;
-  BPHMultiSelectBase<T>& operator=(const BPHMultiSelectBase<T>& x) = delete;
-
   struct SelectElement {
     T* selector;
     bool mode;
@@ -117,56 +117,71 @@ private:
 };
 
 template <class T>
-class BPHMultiSelect : public BPHMultiSelectBase<T> {
+class BPHSlimSelect : public BPHMultiSelectBase<T> {
 public:
   using Base = BPHMultiSelectBase<T>;
 
   /** Constructor
    */
-  BPHMultiSelect(BPHSelectOperation::mode op) : Base(op) {}
+  BPHSlimSelect(BPHSelectOperation::mode op) : Base(op) {}
+
+  // deleted copy constructor and assignment operator
+  BPHSlimSelect(const BPHSlimSelect<T>& x) = delete;
+  BPHSlimSelect& operator=(const BPHSlimSelect<T>& x) = delete;
 
   /** Destructor
    */
-  ~BPHMultiSelect() override {}
+  ~BPHSlimSelect() override {}
 
+  /** Operations
+   */
   /// accept function
-  bool accept(const typename T::AcceptArg& cand) const override;
-
-private:
-  // private copy and assigment constructors
-  BPHMultiSelect(const BPHMultiSelect<T>& x) = delete;
-  BPHMultiSelect& operator=(const BPHMultiSelect<T>& x) = delete;
+  bool accept(const typename T::AcceptArg& cand) const override { return Base::select(cand); }
 };
 
-template <>
-class BPHMultiSelect<BPHRecoSelect> : public BPHMultiSelectBase<BPHRecoSelect> {
+template <class T>
+class BPHFullSelect : public BPHSlimSelect<T> {
 public:
-  using Base = BPHMultiSelectBase<BPHRecoSelect>;
+  using Base = BPHSlimSelect<T>;
 
   /** Constructor
    */
-  BPHMultiSelect(BPHSelectOperation::mode op) : Base(op) {}
+  BPHFullSelect(BPHSelectOperation::mode op) : Base(op) {}
+
+  // deleted copy constructor and assignment operator
+  BPHFullSelect(const BPHFullSelect<T>& x);
+  BPHFullSelect& operator=(const BPHFullSelect<T>& x);
+
+  /** Destructor
+   */
+  ~BPHFullSelect() override {}
+
+  /** Operations
+   */
+  /// accept function
+  bool accept(const typename T::AcceptArg& cand, const BPHRecoBuilder* build) const override {
+    return Base::select(cand, build);
+  }
+};
+
+template <class T = BPHFullSelect<BPHRecoSelect>>
+class BPHMultiSelect : public T {
+public:
+  /** Constructor
+   */
+  BPHMultiSelect(BPHSelectOperation::mode op) : T(op) {}
+
+  // deleted copy constructor and assignment operator
+  BPHMultiSelect(const BPHMultiSelect<T>& x) = delete;
+  BPHMultiSelect& operator=(const BPHMultiSelect<T>& x) = delete;
 
   /** Destructor
    */
   ~BPHMultiSelect() override {}
 
-  /// accept function
-  bool accept(const typename BPHRecoSelect::AcceptArg& cand) const override;
-  bool accept(const reco::Candidate& cand,                  //NOLINT
-              const BPHRecoBuilder* build) const override;  //NOLINT
-
-private:
-  // private copy and assigment constructors
-  BPHMultiSelect(const BPHMultiSelect<BPHRecoSelect>& x) = delete;
-  BPHMultiSelect& operator=(const BPHMultiSelect<BPHRecoSelect>& x) = delete;
+  /** Operations
+   */
+  /// no override or new function, everything taken from base
 };
-
-template <>
-bool BPHMultiSelect<BPHMomentumSelect>::accept(const BPHDecayMomentum& cand) const;
-template <>
-bool BPHMultiSelect<BPHVertexSelect>::accept(const BPHDecayVertex& cand) const;
-template <>
-bool BPHMultiSelect<BPHFitSelect>::accept(const BPHKinematicFit& cand) const;
 
 #endif

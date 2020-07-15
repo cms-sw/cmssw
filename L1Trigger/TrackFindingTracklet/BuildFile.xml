@@ -1,0 +1,44 @@
+<use name="boost"/>
+<use name="clhep"/>
+<use name="root"/>
+<use name="rootrflx"/>
+<use name="xerces-c"/>
+<use name="CondFormats/DataRecord"/>
+<use name="CondFormats/L1TObjects"/>
+<use name="DataFormats/Common"/>
+<use name="DataFormats/DetId"/>
+<use name="DataFormats/GeometryVector"/>
+<use name="DataFormats/GeometrySurface"/>
+<use name="DataFormats/HepMCCandidate"/>
+<use name="DataFormats/L1TrackTrigger"/>
+<use name="DataFormats/L1Trigger"/>
+<use name="DataFormats/SiPixelDigi"/>
+<use name="DataFormats/TrackReco"/>
+<use name="DataFormats/VertexReco"/>
+<use name="FWCore/Framework"/>
+<use name="FWCore/MessageLogger"/>
+<use name="FWCore/ParameterSet"/>
+<use name="FWCore/PluginManager"/>
+<use name="FWCore/Utilities"/>
+<use name="Geometry/CommonDetUnit"/>
+<use name="Geometry/CommonTopologies"/>
+<use name="Geometry/DTGeometry"/>
+<use name="Geometry/Records"/>
+<use name="Geometry/TrackerGeometryBuilder"/>
+<use name="L1Trigger/TrackFindingTMTT"/>
+<use name="PhysicsTools/CandUtils"/>
+<use name="RecoTracker/TrackProducer"/>
+<use name="SimDataFormats/GeneratorProducts"/>
+<use name="SimDataFormats/TrackingHit"/>
+<use name="SimDataFormats/Vertex"/>
+<use name="TrackingTools/GeomPropagators"/>
+<use name="TrackingTools/PatternTools"/>
+<use name="TrackingTools/Records"/>
+<use name="TrackingTools/TrackAssociator"/>
+<use name="TrackingTools/TrajectoryParametrization"/>
+<use name="TrackingTools/TrajectoryState"/>
+<use name="TrackingTools/TransientTrack"/>
+
+<export>
+  <lib   name="1"/>
+</export>

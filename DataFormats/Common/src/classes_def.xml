@@ -187,5 +187,8 @@
 
  <class name="edm::RefProd<std::vector<int> >"/>
  <class name="edm::RefToBaseProd<int>"/>
-
+ <class name="edm::RandomNumberGeneratorState" ClassVersion="3">
+  <version ClassVersion="3" checksum="2237762164"/>
+ </class>
+ <class name="edm::Wrapper<std::map<edm::ParameterSetID,edm::ParameterSetBlob>>"/>
 </lcgdict>

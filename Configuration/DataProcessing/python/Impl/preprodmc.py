@@ -58,8 +58,5 @@ class preprodmc(Scenario):
         process.source.fileNames = cms.untracked(cms.vstring())
         process.maxEvents.input = -1
         process.dqmSaver.workflow = datasetName
-        if 'referenceFile' in args and args.get('referenceFile', ''):
-            process.DQMStore.referenceFileName = \
-                                cms.untracked.string(args['referenceFile'])
         
         return process

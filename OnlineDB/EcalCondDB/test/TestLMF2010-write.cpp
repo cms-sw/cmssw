@@ -190,7 +190,7 @@ public:
       tpDat.setData(logic_id, gain[g], rand(), rand(), rand());
       vector<float> random_data;
       for (int k = 0; k < 8; k++) {
-        random_data.push_back((float)rand() / RAND_MAX);
+        random_data.push_back((float)rand() / static_cast<float>(RAND_MAX));
       }
       lcDat.setData(logic_id, random_data);
     }

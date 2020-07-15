@@ -50,6 +50,9 @@ set BASE1RD  = auto:run1_data
 set BASE2MC  = auto:run2_mc
 set BASE2HLT = auto:run2_hlt
 set BASE2RD  = auto:run2_data
+set BASE3MC  = auto:run3_mc
+set BASE3HLT = auto:run3_hlt
+set BASE3RD  = auto:run3_data
 
 set NNPPMC = 100
 set NNPPRD = 100
@@ -61,8 +64,9 @@ set EraRun25ns     = " --era=Run2_25ns "
 set EraRun2pp2016  = " --era=Run2_2016 "
 set EraRun2pp2017  = " --era=Run2_2017 "
 set EraRun2pp2018  = " --era=Run2_2018 "
-set EraRun2HImc    = " --era=Run2_2018_pp_on_AA "
-set EraRun2HIrd    = " --era=Run2_2018_pp_on_AA "
+set EraRun2HI      = " --era=Run2_2018_pp_on_AA "
+set EraRun3pp      = " --era=Run3 "
+set EraRun3HI      = " --era=Run3_pp_on_PbPb "
  
 set XL1T    = "" # syntax: tag,record[,connect,label]
 set XL1TPP1 = "" # "L1GtTriggerMenu_L1Menu_Collisions2012_v1_mc,L1GtTriggerMenuRcd,frontier://FrontierProd/CMS_CONDITIONS"
@@ -92,21 +96,27 @@ foreach gtag ( MC DATA )
   if ( $gtag == DATA ) then
     set BASE1  = $BASE1HLT
     set BASE2  = $BASE2HLT
+    set BASE3  = $BASE3HLT
+    set RECO1  = $BASE1RD
+    set RECO2  = $BASE2RD
+    set RECO3  = $BASE3RD
     set NNPP   = $NNPPRD
     set NNHI   = $NNHIRD
     set DATAMC = --data
     set PNAME  = HLT1
     set RNAME  = RECO1
-    set EraRun2HI = $EraRun2HIrd
   else  if ( $gtag == MC ) then
     set BASE1  = $BASE1MC
     set BASE2  = $BASE2MC
+    set BASE3  = $BASE3MC
+    set RECO1  = $BASE1MC
+    set RECO2  = $BASE2MC
+    set RECO3  = $BASE3MC
     set NNPP   = $NNPPMC
     set NNHI   = $NNHIMC
     set DATAMC = --mc
     set PNAME  = HLT
     set RNAME  = RECO
-    set EraRun2HI = $EraRun2HImc
   else
     # unsupported
     continue
@@ -137,13 +147,13 @@ foreach gtag ( MC DATA )
     if ( $table == FULL ) then
       set XL1T = $XL1TPP3
       set XHLT = HLT:FULL
-      set GTAG = ${BASE2}_FULL
-      set RTAG = ${BASE2RD}_FULL
+      set GTAG = ${BASE3}_FULL
+      set RTAG = ${RECO3}_FULL
       set NN   = $NNPP
       set SCEN = pp
       set InputGenSim = $InputGenSimGRun3
       set InputLHCRaw = $InputLHCRawGRun3
-      set Era  = $EraRun2pp2018
+      set Era  = $EraRun3pp
       set Custom = " "
       set L1REPACK = L1REPACK:Full
       set DIGI = DIGI:pdigi
@@ -151,7 +161,7 @@ foreach gtag ( MC DATA )
       set XL1T = $XL1TPP3
       set XHLT = HLT:Fake
       set GTAG = ${BASE1}_Fake
-      set RTAG = ${BASE1RD}_Fake
+      set RTAG = ${RECO1}_Fake
       set NN   = $NNPP
       set SCEN = pp
       set InputGenSim = $InputGenSimGRun0
@@ -164,7 +174,7 @@ foreach gtag ( MC DATA )
       set XL1T = $XL1TPP3
       set XHLT = HLT:Fake1
       set GTAG = ${BASE2}_Fake1
-      set RTAG = ${BASE2RD}_Fake1
+      set RTAG = ${RECO2}_Fake1
       set NN   = $NNPP
       set SCEN = pp
       set InputGenSim = $InputGenSimGRun1
@@ -177,7 +187,7 @@ foreach gtag ( MC DATA )
       set XL1T = $XL1TPP3
       set XHLT = HLT:Fake2
       set GTAG = ${BASE2}_Fake2
-      set RTAG = ${BASE2RD}_Fake2
+      set RTAG = ${RECO2}_Fake2
       set NN   = $NNPP
       set SCEN = pp
       set InputGenSim = $InputGenSimGRun2
@@ -190,7 +200,7 @@ foreach gtag ( MC DATA )
       set XL1T = $XL1TPP3
       set XHLT = HLT:2018
       set GTAG = ${BASE2}_2018
-      set RTAG = ${BASE2RD}_2018
+      set RTAG = ${RECO2}_2018
       set NN   = $NNPP
       set SCEN = pp
       set InputGenSim = $InputGenSimGRun3
@@ -202,52 +212,52 @@ foreach gtag ( MC DATA )
     else if ( $table == GRun ) then
       set XL1T = $XL1TPP3
       set XHLT = HLT:GRun
-      set GTAG = ${BASE2}_GRun
-      set RTAG = ${BASE2RD}_GRun
+      set GTAG = ${BASE3}_GRun
+      set RTAG = ${RECO3}_GRun
       set NN   = $NNPP
       set SCEN = pp
       set InputGenSim = $InputGenSimGRun3
       set InputLHCRaw = $InputLHCRawGRun3
-      set Era  = $EraRun2pp2018
+      set Era  = $EraRun3pp
       set Custom = " "
       set L1REPACK = L1REPACK:Full
       set DIGI = DIGI:pdigi
     else if ( $table == HIon ) then
       set XL1T = $XL1THI
       set XHLT = HLT:HIon
-      set GTAG = ${BASE2}_HIon
-      set RTAG = ${BASE2RD}_HIon
+      set GTAG = ${BASE3}_HIon
+      set RTAG = ${RECO3}_HIon
       set NN   = $NNHI
       set SCEN = pp
       set InputGenSim = $InputGenSimHIon3
       set InputLHCRaw = $InputLHCRawHIon3
-      set Era  = $EraRun2HI
+      set Era  = $EraRun3HI
       set Custom = " "
       set L1REPACK = L1REPACK:Full
       set DIGI = DIGI:pdigi_hi
     else if ( $table == PIon ) then
       set XL1T = $XL1TPI
       set XHLT = HLT:PIon
-      set GTAG = ${BASE2}_PIon
-      set RTAG = ${BASE2RD}_PIon
+      set GTAG = ${BASE3}_PIon
+      set RTAG = ${RECO3}_PIon
       set NN   = $NNPP
       set SCEN = pp
       set InputGenSim = $InputGenSimPIon3
       set InputLHCRaw = $InputLHCRawPIon3
-      set Era  = $EraRun2pp2018
+      set Era  = $EraRun3pp
       set Custom = " "
       set L1REPACK = L1REPACK:Full
       set DIGI = DIGI:pdigi
     else if ( $table == PRef ) then
       set XL1T = $XL1TPP3
       set XHLT = HLT:PRef
-      set GTAG = ${BASE2}_PRef
-      set RTAG = ${BASE2RD}_PRef
+      set GTAG = ${BASE3}_PRef
+      set RTAG = ${RECO3}_PRef
       set NN   = $NNPP
       set SCEN = pp
       set InputGenSim = $InputGenSimPRef3
       set InputLHCRaw = $InputLHCRawPRef3
-      set Era  = $EraRun2pp2018
+      set Era  = $EraRun3pp
       set Custom = " "
       set L1REPACK = L1REPACK:Full
       set DIGI = DIGI:pdigi
@@ -267,6 +277,12 @@ foreach gtag ( MC DATA )
     else
     cmsDriver.py RelVal                 --step=$L1REPACK                                   --conditions=$GTAG --filein=$InputLHCRaw                        --custom_conditions=$XL1T --fileout=RelVal_L1RePack_$name.root      --number=$NN $DATAMC --no_exec --datatier 'GEN-SIM-DIGI-RAW'               --eventcontent=RAW                     --customise=HLTrigger/Configuration/CustomConfigs.L1T     $Era --customise=$Custom  --scenario=$SCEN --python_filename=RelVal_L1RePack_$name.py --customise=L1Trigger/Configuration/L1Trigger_custom.customiseResetPrescalesAndMasks
     endif
+
+    cat >>RelVal_L1RePack_$name.py<<EOF
+if hasattr(process,'simMuonGEMPadTask'):
+   setattr(process,'simMuonGEMPadTask',cms.Task())
+EOF
+
 
     else
 
@@ -319,11 +335,9 @@ EOF
     endif
     echo
     echo "Creating RECO+EI+PAT+DQM $name"
-    cmsDriver.py RelVal                 --step=$STEPS                                      --conditions=$RTAG --filein=file:RelVal_HLT_$name.root          --custom_conditions=$XL1T  --fileout=RelVal_RECO_$name.root         --number=$NN $DATAMC --no_exec --datatier 'RECO,MINIAOD,DQMIO'             --eventcontent=RECO,MINIAOD,DQM        --customise=HLTrigger/Configuration/CustomConfigs.Base    $Era --customise=$Custom  --scenario=$SCEN --python_filename=RelVal_RECO_$name.py          --processName=$RNAME  --runUnscheduled
+    cmsDriver.py RelVal                 --step=$STEPS                                      --conditions=$RTAG --filein=file:RelVal_HLT_$name.root          --custom_conditions=$XL1T  --fileout=RelVal_RECO_$name.root         --number=$NN $DATAMC --no_exec --datatier 'RECO,MINIAOD,DQMIO'             --eventcontent=RECO,MINIAOD,DQM        --customise=HLTrigger/Configuration/CustomConfigs.Base    $Era --customise=$Custom  --scenario=$SCEN --python_filename=RelVal_RECO_$name.py          --processName=$RNAME
 
     else
-
-    set RTAG = $GTAG
 
     if ( $table == HIon ) then
       set STEPS = "RAW2DIGI,L1Reco,RECO,EI,PAT,VALIDATION,DQM"
@@ -339,7 +353,7 @@ EOF
 
     echo
     echo "Creating RECO+EI+PAT+VALIDATION+DQM $name"
-    cmsDriver.py RelVal                 --step=$STEPS                                      --conditions=$RTAG --filein=file:RelVal_DigiL1RawHLT_$name.root --custom_conditions=$XL1T  --fileout=RelVal_RECO_$name.root         --number=$NN $DATAMC --no_exec --datatier 'GEN-SIM-RECO,MINIAODSIM,DQMIO'  --eventcontent=RECOSIM,MINIAODSIM,DQM  --customise=HLTrigger/Configuration/CustomConfigs.Base    $Era --customise=$Custom  --scenario=$SCEN --python_filename=RelVal_RECO_$name.py          --processName=$RNAME  --runUnscheduled
+    cmsDriver.py RelVal                 --step=$STEPS                                      --conditions=$RTAG --filein=file:RelVal_DigiL1RawHLT_$name.root --custom_conditions=$XL1T  --fileout=RelVal_RECO_$name.root         --number=$NN $DATAMC --no_exec --datatier 'GEN-SIM-RECO,MINIAODSIM,DQMIO'  --eventcontent=RECOSIM,MINIAODSIM,DQM  --customise=HLTrigger/Configuration/CustomConfigs.Base    $Era --customise=$Custom  --scenario=$SCEN --python_filename=RelVal_RECO_$name.py          --processName=$RNAME
 
 
     endif

@@ -5,10 +5,8 @@
 <use name="TrackingTools/GeomPropagators"/>
 <use name="TrackingTools/PatternTools"/>
 <use name="TrackingTools/TrajectoryState"/>
-<use name="TrackingTools/Records"/>
 <use name="RecoVertex/VertexTools"/>
 <use name="clhep"/>
 <export>
   <lib name="1"/>
 </export>
-

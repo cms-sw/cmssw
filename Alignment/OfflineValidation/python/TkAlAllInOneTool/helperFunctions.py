@@ -6,6 +6,7 @@ import re
 import ROOT
 import sys
 from .TkAlExceptions import AllInOneError
+import CondCore.Utilities.conddblib as conddblib
 import six
 
 ####################--- Helpers ---############################
@@ -197,49 +198,17 @@ def cppboolstring(string, name):
     """
     return pythonboolstring(string, name).lower()
 
-conddbcode = None
-def conddb(*args):
-    """
-    Wrapper for conddb, so that you can run
-    conddb("--db", "myfile.db", "listTags"),
-    like from the command line, without explicitly
-    dealing with all the functions in CondCore/Utilities.
-    getcommandoutput2(conddb ...) doesn't work, it imports
-    the wrong sqlalchemy in CondCore/Utilities/python/conddblib.py
-    """
-    global conddbcode
-    from tempfile import mkdtemp, NamedTemporaryFile
+def getTagsMap(db):
+    con = conddblib.connect(url = conddblib.make_url(db))
+    session = con.session()
+    TAG = session.get_dbtype(conddblib.Tag)
+    dictionary = {}
+    for i in range(0,len(session.query(TAG.object_type).order_by(TAG.name).all())):
+        q1 = session.query(TAG.object_type).order_by(TAG.name).all()[i][0]
+        q2 = session.query(TAG.name).order_by(TAG.name).all()[i][0]
+        dictionary[q1]=q2
 
-    if conddbcode is None:
-        conddbfile = getCommandOutput2("which conddb").strip()
-        tmpdir = mkdtemp()
-        getCommandOutput2("2to3 -f print -o " + tmpdir + " -n -w " + conddbfile)
-
-        with open(os.path.join(tmpdir, "conddb")) as f:
-            conddb = f.read()
-
-        conddbcode = conddb.replace("sys.exit", "sysexit")
-
-    def sysexit(number):
-        if number != 0:
-            raise AllInOneError("conddb exited with status {}".format(number))
-    namespace = {"sysexit": sysexit, "conddboutput": ""}
-
-    bkpargv = sys.argv
-    sys.argv[1:] = args
-    bkpstdout = sys.stdout
-    try:
-        with NamedTemporaryFile(bufsize=0) as sys.stdout:
-            exec(conddbcode, namespace)
-            namespace["main"]()
-            with open(sys.stdout.name) as f:
-                result = f.read()
-    finally:
-        sys.argv[:] = bkpargv
-        sys.stdout = bkpstdout
-
-    return result
-
+    return dictionary
 
 def clean_name(s):
     """Transforms a string into a valid variable or method name.

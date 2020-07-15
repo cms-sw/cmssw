@@ -62,8 +62,6 @@ public:
   using TrackIndxMap = std::unordered_map<reco::TrackRef::key_type, size_t>;
   explicit LowPtGsfElectronSeedProducer(const edm::ParameterSet&, const lowptgsfeleseed::HeavyObjectCache*);
 
-  ~LowPtGsfElectronSeedProducer() override;
-
   static std::unique_ptr<lowptgsfeleseed::HeavyObjectCache> initializeGlobalCache(const edm::ParameterSet& conf) {
     return std::make_unique<lowptgsfeleseed::HeavyObjectCache>(lowptgsfeleseed::HeavyObjectCache(conf));
   }
@@ -199,10 +197,6 @@ LowPtGsfElectronSeedProducer::LowPtGsfElectronSeedProducer(const edm::ParameterS
   produces<reco::PreIdCollection>("HCAL");
   produces<edm::ValueMap<reco::PreIdRef> >();  // indexed by edm::Ref<ElectronSeed>.index()
 }
-
-//////////////////////////////////////////////////////////////////////////////////////////
-//
-LowPtGsfElectronSeedProducer::~LowPtGsfElectronSeedProducer() {}
 
 //////////////////////////////////////////////////////////////////////////////////////////
 //

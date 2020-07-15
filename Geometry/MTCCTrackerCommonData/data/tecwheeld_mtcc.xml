@@ -12,7 +12,7 @@
 		<Tubs name="TECWheelDiskD" rMin="[tecpetal3:PetalContRmin]" rMax="[tecwheel:WheelRmax]" dz="[tecwheel:DiskT]/2" startPhi="0*deg" deltaPhi="360.*deg"/>
 		<Tubs name="TECWheelNomexD" rMin="[tecpetal3:PetalContRmin]" rMax="[tecwheel:WheelRmax]" dz="[tecwheel:NomexT]/2" startPhi="0*deg" deltaPhi="360.*deg"/>
 		<Tubs name="TECFixSupportD" rMin="[tecpetal3:PetalContRmin]" rMax="[FixSuppRmax]" dz="[tecwheel:FixSuppT]/2" startPhi="-[FixSuppW]/2" deltaPhi="[FixSuppW]"/>
-		<Tubs name="TECOptConnectorD" rMin="[tecwheel:OptConnRmin]" rMax="[tecwheel:OptConnRmax]" dz="[tecwheel:OptConnT3]/2" startPhi="-[tecwheel:OptConnW]/2" deltaPhi="[tecwheel:OptConnW]"/>
+		<Tubs name="TECOptConnectorD" rMin="[tecwheel:OptConnRmin]" rMax="[tecwheel:OptConnRmax]" dz="[tecwheel:OptConnT3]/2" startPhi="-[tecwheel:OptConnWEpsilonShrink]/2" deltaPhi="[tecwheel:OptConnWEpsilonShrink]"/>
 		<Box name="TECRadialCableD" dx="[tecwheel:CableW]/2" dy="[CableL]/2" dz="[tecwheel:CableT]/2"/>
 	</SolidSection>
 	<LogicalPartSection label="tecwheeld_mtcc.xml">

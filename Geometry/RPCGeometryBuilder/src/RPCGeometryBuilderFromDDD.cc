@@ -18,7 +18,7 @@
 #include <DetectorDescription/Core/interface/DDSolid.h>
 
 #include "Geometry/MuonNumbering/interface/DD4hep_MuonNumbering.h"
-#include "Geometry/MuonNumbering/interface/MuonDDDNumbering.h"
+#include "Geometry/MuonNumbering/interface/MuonGeometryNumbering.h"
 #include "Geometry/MuonNumbering/interface/MuonBaseNumber.h"
 #include "Geometry/MuonNumbering/interface/RPCNumberingScheme.h"
 #include "Geometry/CommonTopologies/interface/TrapezoidalStripTopology.h"
@@ -43,7 +43,7 @@ RPCGeometryBuilderFromDDD::RPCGeometryBuilderFromDDD(bool comp11) : theComp11Fla
 RPCGeometryBuilderFromDDD::~RPCGeometryBuilderFromDDD() {}
 
 // for DDD
-RPCGeometry* RPCGeometryBuilderFromDDD::build(const DDCompactView* cview, const MuonDDDConstants& muonConstants) {
+RPCGeometry* RPCGeometryBuilderFromDDD::build(const DDCompactView* cview, const MuonGeometryConstants& muonConstants) {
   const std::string attribute = "ReadOutName";
   const std::string value = "MuonRPCHits";
   DDSpecificsMatchesValueFilter filter{DDValue(attribute, value, 0.0)};
@@ -63,7 +63,8 @@ RPCGeometry* RPCGeometryBuilderFromDDD::build(const cms::DDCompactView* cview,
   return this->buildGeometry(fview, muonConstants);
 }
 // for DDD
-RPCGeometry* RPCGeometryBuilderFromDDD::buildGeometry(DDFilteredView& fview, const MuonDDDConstants& muonConstants) {
+RPCGeometry* RPCGeometryBuilderFromDDD::buildGeometry(DDFilteredView& fview,
+                                                      const MuonGeometryConstants& muonConstants) {
   LogDebug("RPCGeometryBuilderFromDDD") << "Building the geometry service";
   RPCGeometry* geometry = new RPCGeometry();
   LogDebug("RPCGeometryBuilderFromDDD") << "About to run through the RPC structure\n"
@@ -72,7 +73,7 @@ RPCGeometry* RPCGeometryBuilderFromDDD::buildGeometry(DDFilteredView& fview, con
   LogDebug("RPCGeometryBuilderFromDDD") << "doSubDets = " << doSubDets;
   while (doSubDets) {
     LogDebug("RPCGeometryBuilderFromDDD") << "start the loop";
-    MuonDDDNumbering mdddnum(muonConstants);
+    MuonGeometryNumbering mdddnum(muonConstants);
     LogDebug("RPCGeometryBuilderFromDDD") << "Getting the Muon base Number";
     MuonBaseNumber mbn = mdddnum.geoHistoryToBaseNumber(fview.geoHistory());
     LogDebug("RPCGeometryBuilderFromDDD") << "Start the Rpc Numbering Schema";

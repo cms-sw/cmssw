@@ -5,6 +5,9 @@
 <use   name="SimGeneral/HepPDTRecord"/>
 <use   name="Utilities/PPS"/>
 <use   name="SimTransport/TotemRPProtonTransportParametrization"/>
+<use   name="CondFormats/PPSObjects"/>
+<use   name="CondFormats/RunInfo"/>
+<use   name="CondFormats/DataRecord"/>
 <use   name="hector"/>
 <use   name="hepmc"/>
 <use   name="clhep"/>

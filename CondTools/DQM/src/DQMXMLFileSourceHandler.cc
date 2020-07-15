@@ -25,8 +25,8 @@ namespace popcon {
       if (this->tagInfo().size > 0) {
         //check what is already inside of the database
         ss << "\ngot offlineInfo " << this->tagInfo().name << ",\n size " << this->tagInfo().size << ",\n"
-           << this->tagInfo().token << ",\n last object valid since " << this->tagInfo().lastInterval.first
-           << ",\n token " << this->tagInfo().lastPayloadToken << ",\n UserText " << this->userTextLog()
+           << "last object valid since " << this->tagInfo().lastInterval.since << ",\n token "
+           << this->tagInfo().lastInterval.payloadId << ",\n UserText " << this->userTextLog()
            << ";\n last entry info regarding the payload (if existing):"
            << ",\n logId" << this->logDBEntry().logId
            << ",\n last record with the correct tag (if existing) has been written in the db "
@@ -44,10 +44,10 @@ namespace popcon {
       edm::LogInfo("DQMXMLFileSourceHandler") << ss.str();
     }
     edm::LogInfo("DQMXMLFileSourceHandler") << "runnumber/first since = " << m_since << std::endl;
-    if (m_since <= this->tagInfo().lastInterval.first) {
+    if (m_since <= this->tagInfo().lastInterval.since) {
       edm::LogInfo("DQMXMLFileSourceHandler")
           << "[DQMXMLFileSourceHandler::getNewObjects] \nthe current starting iov " << m_since
-          << "\nis not compatible with the last iov (" << this->tagInfo().lastInterval.first << ") open for the object "
+          << "\nis not compatible with the last iov (" << this->tagInfo().lastInterval.since << ") open for the object "
           << this->logDBEntry().payloadClass << " \nin the db " << this->logDBEntry().destinationDB
           << " \n NO TRANSFER NEEDED" << std::endl;
       return;

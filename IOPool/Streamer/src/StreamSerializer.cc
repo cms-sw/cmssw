@@ -42,10 +42,18 @@ namespace edm {
    * Serializes the product registry (that was specified to the constructor)
    * into the specified InitMessage.
    */
-
   int StreamSerializer::serializeRegistry(SerializeDataBuffer &data_buffer,
                                           const BranchIDLists &branchIDLists,
                                           ThinnedAssociationsHelper const &thinnedAssociationsHelper) {
+    SendJobHeader::ParameterSetMap psetMap;
+    pset::Registry::instance()->fillMap(psetMap);
+    return serializeRegistry(data_buffer, branchIDLists, thinnedAssociationsHelper, psetMap);
+  }
+
+  int StreamSerializer::serializeRegistry(SerializeDataBuffer &data_buffer,
+                                          const BranchIDLists &branchIDLists,
+                                          ThinnedAssociationsHelper const &thinnedAssociationsHelper,
+                                          SendJobHeader::ParameterSetMap const &psetMap) {
     FDEBUG(6) << "StreamSerializer::serializeRegistry" << std::endl;
     SendJobHeader sd;
 
@@ -58,9 +66,6 @@ namespace edm {
     Service<ConstProductRegistry> reg;
     sd.setBranchIDLists(branchIDLists);
     sd.setThinnedAssociationsHelper(thinnedAssociationsHelper);
-    SendJobHeader::ParameterSetMap psetMap;
-
-    pset::Registry::instance()->fillMap(psetMap);
     sd.setParameterSetMap(psetMap);
 
     data_buffer.rootbuf_.Reset();

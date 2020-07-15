@@ -1,9 +1,8 @@
-<use   name="Geometry/CaloGeometry"/>
-<use   name="Geometry/CaloTopology"/>
-<use   name="DataFormats/HcalDetId"/>
-<use   name="DataFormats/EcalDetId"/>
-<use   name="FWCore/Framework"/>
-<use   name="Geometry/Records"/>
-<flags   EDM_PLUGIN="1"/>
-<library   file="stubs/CaloNavigationAnalyzer.cc" name="testCaloNavigationAnalyzer">
+<use name="DataFormats/EcalDetId"/>
+<use name="FWCore/Framework"/>
+<use name="Geometry/CaloEventSetup"/>
+<use name="Geometry/CaloTopology"/>
+<use name="RecoCaloTools/Navigation"/>
+<flags EDM_PLUGIN="1"/>
+<library file="stubs/CaloNavigationAnalyzer.cc" name="testCaloNavigationAnalyzer">
 </library>

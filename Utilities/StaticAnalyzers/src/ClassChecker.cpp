@@ -313,7 +313,7 @@ namespace clangcms {
     std::string tolog = "data class '" + pname + "' const function '" + mname + "' Warning: " + os.str() + ".";
     writeLog(tolog);
     BugType *BT = new BugType(Checker, "const_cast used in const function ", "Data Class Const Correctness");
-    std::unique_ptr<BugReport> R = llvm::make_unique<BugReport>(*BT, tolog, CELoc);
+    std::unique_ptr<BasicBugReport> R = std::make_unique<BasicBugReport>(*BT, llvm::StringRef(tolog), CELoc);
     BR.emitReport(std::move(R));
     return;
   }
@@ -359,7 +359,7 @@ namespace clangcms {
         writeLog(tolog);
         BugType *BT = new BugType(
             Checker, "ClassChecker : non-const static local variable accessed", "Data Class Const Correctness");
-        std::unique_ptr<BugReport> R = llvm::make_unique<BugReport>(*BT, os.str(), CELoc);
+        std::unique_ptr<BasicBugReport> R = std::make_unique<BasicBugReport>(*BT, llvm::StringRef(os.str()), CELoc);
         BR.emitReport(std::move(R));
         return;
       }
@@ -379,7 +379,7 @@ namespace clangcms {
         std::string tolog = "data class '" + pname + "' const function '" + mname + "' Warning: " + os.str();
         writeLog(tolog);
         BugType *BT = new BugType(Checker, "Non-const static member variable accessed", "Data Class Const Correctness");
-        std::unique_ptr<BugReport> R = llvm::make_unique<BugReport>(*BT, os.str(), CELoc);
+        std::unique_ptr<BasicBugReport> R = std::make_unique<BasicBugReport>(*BT, llvm::StringRef(os.str()), CELoc);
         BR.emitReport(std::move(R));
         return;
       }
@@ -399,7 +399,7 @@ namespace clangcms {
         std::string tolog = "data class '" + pname + "' const function '" + mname + "' Warning: " + os.str();
         writeLog(tolog);
         BugType *BT = new BugType(Checker, "Non-const global static variable accessed", "Data Class Const Correctness");
-        std::unique_ptr<BugReport> R = llvm::make_unique<BugReport>(*BT, os.str(), CELoc);
+        std::unique_ptr<BasicBugReport> R = std::make_unique<BasicBugReport>(*BT, llvm::StringRef(os.str()), CELoc);
         BR.emitReport(std::move(R));
         return;
       }
@@ -539,7 +539,7 @@ namespace clangcms {
     writeLog(tolog);
     BugType *BT = new BugType(
         Checker, "Non-const member function could modify member data object", "Data Class Const Correctness");
-    std::unique_ptr<BugReport> R = llvm::make_unique<BugReport>(*BT, os.str(), CELoc);
+    std::unique_ptr<BasicBugReport> R = std::make_unique<BasicBugReport>(*BT, llvm::StringRef(os.str()), CELoc);
     BR.emitReport(std::move(R));
   }
 
@@ -564,7 +564,7 @@ namespace clangcms {
     writeLog(tolog);
     BugType *BT =
         new BugType(Checker, "Const cast away from member data in const function", "Data Class Const Correctness");
-    std::unique_ptr<BugReport> R = llvm::make_unique<BugReport>(*BT, os.str(), CELoc);
+    std::unique_ptr<BasicBugReport> R = std::make_unique<BasicBugReport>(*BT, llvm::StringRef(os.str()), CELoc);
     BR.emitReport(std::move(R));
   }
 
@@ -632,7 +632,7 @@ namespace clangcms {
         BugType *BT = new BugType(Checker,
                                   "Const function returns pointer or reference to non-const member data object",
                                   "Data Class Const Correctness");
-        std::unique_ptr<BugReport> R = llvm::make_unique<BugReport>(*BT, os.str(), CELoc);
+        std::unique_ptr<BasicBugReport> R = std::make_unique<BasicBugReport>(*BT, llvm::StringRef(os.str()), CELoc);
         BR.emitReport(std::move(R));
       }
     }
@@ -644,7 +644,7 @@ namespace clangcms {
           new BugType(Checker,
                       "Const function returns member data object of type const std::vector<*> or const std::vector<*>&",
                       "Data Class Const Correctness");
-      std::unique_ptr<BugReport> R = llvm::make_unique<BugReport>(*BT, os.str(), CELoc);
+      std::unique_ptr<BasicBugReport> R = std::make_unique<BasicBugReport>(*BT, llvm::StringRef(os.str()), CELoc);
       BR.emitReport(std::move(R));
     }
   }

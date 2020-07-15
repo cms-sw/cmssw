@@ -1,7 +1,12 @@
 import FWCore.ParameterSet.Config as cms
+import sys
 
 # Process initialization
 process = cms.Process('FED')
+
+unitTest = False
+if 'unitTest=True' in sys.argv:
+    unitTest=True
 
 # Logging:
 process.MessageLogger = cms.Service(
@@ -18,7 +23,10 @@ process.load('DQM.Integration.config.environment_cfi')
 # Global tag:
 process.load('DQM.Integration.config.FrontierCondition_GT_cfi')
 # Input:
-process.load('DQM.Integration.config.inputsource_cfi')
+if unitTest:
+    process.load("DQM.Integration.config.unittestinputsource_cfi")
+else:
+    process.load('DQM.Integration.config.inputsource_cfi')
 # Output:
 process.dqmEnv.subSystemFolder = 'FED'
 process.dqmSaver.tag = 'FED'
@@ -62,11 +70,10 @@ process.ecalFEDMonitor.folderName = cms.untracked.string(folder_name)
 process.load('EventFilter.HcalRawToDigi.HcalRawToDigi_cfi')
 # DT sequence:
 process.load('DQM.DTMonitorModule.dtDataIntegrityTask_EvF_cff')
-process.DTDataIntegrityTask.processingMode = 'SM'
+process.dtDataIntegrityTask.processingMode = 'SM'
 path = 'DT/%s/' % folder_name
-process.DTDataIntegrityTask.fedIntegrityFolder = path
-process.DTDataIntegrityTask.checkUros = True
-process.DTDataIntegrityTask.dtFEDlabel     = 'dtunpacker'
+process.dtDataIntegrityTask.fedIntegrityFolder = path
+process.dtDataIntegrityTask.dtFEDlabel     = 'dtunpacker'
 # RPC sequence:
 process.load('EventFilter.RPCRawToDigi.rpcUnpacker_cfi')
 process.load('DQM.RPCMonitorClient.RPCFEDIntegrity_cfi')
@@ -124,7 +131,7 @@ process.FEDModulesPath = cms.Path(
 			                      + process.hcalDigis
                                   + process.cscDQMEvF
  			                      + process.dtunpacker
-                                  + process.DTDataIntegrityTask
+                                  + process.dtDataIntegrityTask
 			                      + process.rpcunpacker
                                   + process.rpcFEDIntegrity
 

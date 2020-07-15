@@ -13,5 +13,8 @@ trackingPhase2PU140.toModify(TTRHBuilderAngleAndTemplate, Phase2StripCPE = cms.s
 
 # uncomment these two lines to turn on Cluster Repair CPE
 from Configuration.Eras.Modifier_phase1Pixel_cff import phase1Pixel
-phase1Pixel.toModify(TTRHBuilderAngleAndTemplate, PixelCPE = cms.string('PixelCPEClusterRepair'))
+phase1Pixel.toModify(TTRHBuilderAngleAndTemplate, PixelCPE = 'PixelCPEClusterRepair')
 
+# Turn off template reco for phase 2 (when not supported)
+from Configuration.ProcessModifiers.phase2_PixelCPEGeneric_cff import phase2_PixelCPEGeneric
+phase2_PixelCPEGeneric.toModify(TTRHBuilderAngleAndTemplate, PixelCPE = 'PixelCPEGeneric')

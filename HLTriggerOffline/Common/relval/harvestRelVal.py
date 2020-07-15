@@ -192,7 +192,6 @@ def create_harvest(ds) :
 
     dqmref = find_dqmref(ds);
     if not dqmref == 'NONE' : 
-        out.write("process.DQMStore.referenceFileName = '" + dqmref + "'\n")
         out.write("process.dqmSaver.referenceHandling = 'all'\n")
 
     out.close()

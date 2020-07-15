@@ -20,14 +20,14 @@ namespace clangcms {
   bool CmsException::reportConstCast(const clang::ento::BugReport& R, clang::ento::CheckerContext& C) const {
     clang::ento::BugReporter& BR = C.getBugReporter();
     const clang::SourceManager& SM = BR.getSourceManager();
-    clang::ento::PathDiagnosticLocation const& path = R.getLocation(SM);
+    clang::ento::PathDiagnosticLocation const& path = R.getLocation();
     return reportGeneral(path, BR);
   }
 
   bool CmsException::reportConstCastAway(const clang::ento::BugReport& R, clang::ento::CheckerContext& C) const {
     clang::ento::BugReporter& BR = C.getBugReporter();
     const clang::SourceManager& SM = BR.getSourceManager();
-    clang::ento::PathDiagnosticLocation const& path = R.getLocation(SM);
+    clang::ento::PathDiagnosticLocation const& path = R.getLocation();
     return reportGeneral(path, BR);
   }
 

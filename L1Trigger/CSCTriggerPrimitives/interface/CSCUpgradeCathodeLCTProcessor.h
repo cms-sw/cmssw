@@ -55,9 +55,7 @@ private:
       const std::vector<int> halfstrip[CSCConstants::NUM_LAYERS][CSCConstants::NUM_HALF_STRIPS_7CFEBS]) override;
 
   /* SLHC version,  Check all half-strip pattern envelopes simultaneously, on every clock cycle, for a matching pattern */
-  bool preTrigger(const unsigned int pulse[CSCConstants::NUM_LAYERS][CSCConstants::NUM_HALF_STRIPS_7CFEBS],
-                  const int start_bx,
-                  int& first_bx) override;
+  bool preTrigger(const PulseArray pulse, const int start_bx, int& first_bx) override;
 };
 
 #endif

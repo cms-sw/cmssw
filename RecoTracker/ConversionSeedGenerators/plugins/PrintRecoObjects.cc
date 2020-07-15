@@ -22,8 +22,10 @@ void PrintRecoObjects::print(std::stringstream& ss, const TrajectorySeed& tjS) {
      << " charge " << tjS.startingState().parameters().charge() << "\n\t error ";
   for (size_t ie = 0; ie < 15; ++ie)
     ss << "\t " << tjS.startingState().error(ie);
-  for (TrajectorySeed::const_iterator iter = tjS.recHits().first; iter != tjS.recHits().second; ++iter)
-    ss << "\n\t TrackingRecHit on detid " << iter->geographicalId().rawId() << " \t localPos " << iter->localPosition();
+  for (auto const& recHit : tjS.recHits()) {
+    ss << "\n\t TrackingRecHit on detid " << recHit.geographicalId().rawId() << " \t localPos "
+       << recHit.localPosition();
+  }
 }
 
 void PrintRecoObjects::print(std::stringstream& ss, const uint32_t& detid, const TrackerTopology* tTopo) const {

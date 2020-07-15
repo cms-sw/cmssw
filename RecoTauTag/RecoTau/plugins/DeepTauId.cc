@@ -834,19 +834,9 @@ public:
     desc.add<int>("debug_level", 0);
     desc.add<bool>("disable_dxy_pca", false);
 
-    edm::ParameterSetDescription descWP;
-    descWP.add<std::string>("VVVLoose", "0");
-    descWP.add<std::string>("VVLoose", "0");
-    descWP.add<std::string>("VLoose", "0");
-    descWP.add<std::string>("Loose", "0");
-    descWP.add<std::string>("Medium", "0");
-    descWP.add<std::string>("Tight", "0");
-    descWP.add<std::string>("VTight", "0");
-    descWP.add<std::string>("VVTight", "0");
-    descWP.add<std::string>("VVVTight", "0");
-    desc.add<edm::ParameterSetDescription>("VSeWP", descWP);
-    desc.add<edm::ParameterSetDescription>("VSmuWP", descWP);
-    desc.add<edm::ParameterSetDescription>("VSjetWP", descWP);
+    desc.add<std::vector<std::string>>("VSeWP");
+    desc.add<std::vector<std::string>>("VSmuWP");
+    desc.add<std::vector<std::string>>("VSjetWP");
     descriptions.add("DeepTau", desc);
   }
 

@@ -115,11 +115,6 @@ public:
     bool operator<(const APVLevelErrors& aErr) const;
   };
 
-  struct LumiErrors {
-    std::vector<unsigned int> nTotal;
-    std::vector<unsigned int> nErrors;
-  };
-
   struct EventProperties {
     long long deltaBX;
   };
@@ -185,7 +180,9 @@ public:
                           MonitorElement* aFedIdVsApvId,
                           unsigned int& aNBadChannels,
                           unsigned int& aNBadActiveChannels,
-                          unsigned int& aNBadChannels_perFEDID);
+                          unsigned int& aNBadChannels_perFEDID,
+                          std::vector<unsigned int>& nTotal,
+                          std::vector<unsigned int>& nErrors);
 
   void fillEventProperties(long long dbx);
 
@@ -221,8 +218,6 @@ public:
 
   std::vector<std::pair<unsigned int, bool> >& getBadChannels();
 
-  const LumiErrors& getLumiErrors();
-
   void addBadFE(const FELevelErrors& aFE);
 
   void addBadChannel(const ChannelLevelErrors& aChannel);
@@ -244,7 +239,10 @@ public:
 
 protected:
 private:
-  void incrementLumiErrors(const bool hasError, const unsigned int aSubDet);
+  void incrementLumiErrors(const bool hasError,
+                           const unsigned int aSubDet,
+                           std::vector<unsigned int>& nTotal,
+                           std::vector<unsigned int>& nErrors);
 
   void processDet(const uint32_t aPrevId,
                   const uint16_t aPrevTot,
@@ -271,8 +269,6 @@ private:
   std::vector<std::pair<unsigned int, bool> > chErrors_;
 
   bool failUnpackerFEDCheck_;
-
-  LumiErrors lumiErr_;
 
   EventProperties eventProp_;
 

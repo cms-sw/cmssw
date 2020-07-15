@@ -1,6 +1,6 @@
-<library   file="*.cc" name="RecoTrackerDeDxPlugins">
-  <use   name="DataFormats/RecoCandidate"/>
-  <use   name="HLTrigger/HLTcore"/>
-  <use   name="RecoTracker/DeDx"/>
-  <flags   EDM_PLUGIN="1"/>
+<library file="*.cc" name="RecoTrackerDeDxPlugins">
+  <use name="DataFormats/RecoCandidate"/>
+  <use name="HLTrigger/HLTcore"/>
+  <use name="RecoTracker/DeDx"/>
+  <flags EDM_PLUGIN="1"/>
 </library>

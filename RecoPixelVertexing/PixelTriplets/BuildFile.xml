@@ -1,20 +1,16 @@
-<use   name="root"/>
-<use   name="FWCore/Framework"/>
-<use   name="FWCore/ParameterSet"/>
-<use   name="FWCore/PluginManager"/>
-<use   name="Geometry/Records"/>
-<use   name="Geometry/TrackerGeometryBuilder"/>
-<use   name="Geometry/CommonDetUnit"/>
-<use   name="Geometry/CommonTopologies"/>
-<use   name="RecoTracker/TkHitPairs"/>
-<use   name="MagneticField/Records"/>
-<use   name="MagneticField/Engine"/>
-<use   name="RecoTracker/TkSeedingLayers"/>
-<use   name="TrackingTools/TransientTrackingRecHit"/>
-<use   name="RecoTracker/TkSeedGenerator"/>
-<use   name="vdt_headers"/>
+<use name="root"/>
+<use name="FWCore/Framework"/>
+<use name="FWCore/ParameterSet"/>
+<use name="FWCore/PluginManager"/>
+<use name="Geometry/Records"/>
+<use name="Geometry/TrackerGeometryBuilder"/>
+<use name="RecoTracker/TkHitPairs"/>
+<use name="RecoTracker/TkSeedingLayers"/>
+<use name="TrackingTools/TransientTrackingRecHit"/>
+<use name="RecoTracker/TkSeedGenerator"/>
+<use name="vdt_headers"/>
 <export>
-  <lib   name="1"/>
+  <lib name="1"/>
 </export>
-<use   name="ofast-flag"/>
-<flags   CXXFLAGS="-fno-math-errno"/>
+<use name="ofast-flag"/>
+<flags CXXFLAGS="-fno-math-errno"/>

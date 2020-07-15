@@ -20,7 +20,6 @@
 #include "Compression.h"
 
 // user include files
-#include "FWCore/Framework/interface/OutputModule.h"
 #include "FWCore/Framework/interface/one/OutputModule.h"
 #include "FWCore/Framework/interface/RunForOutput.h"
 #include "FWCore/Framework/interface/LuminosityBlockForOutput.h"
@@ -378,7 +377,7 @@ void NanoAODOutputModule::fillDescriptions(edm::ConfigurationDescriptions& descr
                                          "keep String_*_genModel_*",
                                          "keep nanoaodMergeableCounterTable_*Table_*_*",
                                          "keep nanoaodUniqueString_nanoMetadata_*_*"};
-  edm::OutputModule::fillDescription(desc, keep);
+  edm::one::OutputModule<>::fillDescription(desc, keep);
 
   //Used by Workflow management for their own meta data
   edm::ParameterSetDescription dataSet;

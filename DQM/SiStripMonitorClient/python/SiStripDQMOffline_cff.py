@@ -2,7 +2,6 @@ import FWCore.ParameterSet.Config as cms
 
 # DQM services
 DQMStore = cms.Service("DQMStore",
-    referenceFileName = cms.untracked.string(''),
     verbose = cms.untracked.int32(0)
 )
 

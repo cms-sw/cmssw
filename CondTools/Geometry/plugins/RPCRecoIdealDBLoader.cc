@@ -12,7 +12,7 @@
 #include "Geometry/Records/interface/MuonGeometryRecord.h"
 #include "DetectorDescription/Core/interface/DDCompactView.h"
 #include "Geometry/Records/interface/MuonNumberingRecord.h"
-#include "Geometry/MuonNumbering/interface/MuonDDDConstants.h"
+#include "Geometry/MuonNumbering/interface/MuonGeometryConstants.h"
 #include "Geometry/RPCGeometryBuilder/src/RPCGeometryParsFromDD.h"
 
 class RPCRecoIdealDBLoader : public edm::one::EDAnalyzer<edm::one::WatchRuns> {
@@ -33,9 +33,9 @@ void RPCRecoIdealDBLoader::beginRun(const edm::Run&, edm::EventSetup const& es) 
   }
 
   edm::ESTransientHandle<DDCompactView> pDD;
-  edm::ESHandle<MuonDDDConstants> pMNDC;
+  edm::ESHandle<MuonGeometryConstants> pMNDC;
   es.get<IdealGeometryRecord>().get(pDD);
-  es.get<MuonNumberingRecord>().get(pMNDC);
+  es.get<IdealGeometryRecord>().get(pMNDC);
 
   const DDCompactView& cpv = *pDD;
   RPCGeometryParsFromDD rpcpd;

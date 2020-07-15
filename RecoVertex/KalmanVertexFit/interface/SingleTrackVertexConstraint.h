@@ -8,7 +8,8 @@
 #include "RecoVertex/VertexTools/interface/LinearizedTrackStateFactory.h"
 #include "RecoVertex/VertexTools/interface/VertexTrackFactory.h"
 #include "TrackingTools/TransientTrack/interface/TransientTrackFromFTSFactory.h"
-#include "boost/tuple/tuple.hpp"
+
+#include <tuple>
 /**
  * Class to re-estimate the parameters of the track at the vertex,
  *  with the vertex constraint or a BeamSpot, using the Kalman filter algorithms.
@@ -19,7 +20,7 @@
 class SingleTrackVertexConstraint {
 public:
   typedef std::pair<reco::TransientTrack, float> TrackFloatPair;
-  typedef boost::tuple<bool, reco::TransientTrack, float> BTFtuple;
+  typedef std::tuple<bool, reco::TransientTrack, float> BTFtuple;
 
   SingleTrackVertexConstraint(bool doTrackerBoundCheck = true) : doTrackerBoundCheck_(doTrackerBoundCheck) {}
 

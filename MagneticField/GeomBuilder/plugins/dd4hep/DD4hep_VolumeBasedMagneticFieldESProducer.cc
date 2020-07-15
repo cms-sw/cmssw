@@ -55,9 +55,7 @@ DD4hep_VolumeBasedMagneticFieldESProducer::DD4hep_VolumeBasedMagneticFieldESProd
       useParametrizedTrackerField_{iConfig.getParameter<bool>("useParametrizedTrackerField")},
       conf_{iConfig, debug_},
       version_{iConfig.getParameter<std::string>("version")} {
-  // LogVerbatim used because LogTrace messages don't seem to appear even when fully enabled.
-  edm::LogVerbatim("DD4hep_VolumeBasedMagneticFieldESProducer")
-      << "info:Constructing a DD4hep_VolumeBasedMagneticFieldESProducer";
+  LogTrace("MagGeoBuilder") << "info:Constructing a DD4hep_VolumeBasedMagneticFieldESProducer";
 
   auto cc = setWhatProduced(this, iConfig.getUntrackedParameter<std::string>("label", ""));
   cc.setConsumes(cpvToken_, edm::ESInputTag{"", "magfield"});
@@ -70,8 +68,7 @@ DD4hep_VolumeBasedMagneticFieldESProducer::DD4hep_VolumeBasedMagneticFieldESProd
 std::unique_ptr<MagneticField> DD4hep_VolumeBasedMagneticFieldESProducer::produce(
     const IdealMagneticFieldRecord& iRecord) {
   if (debug_) {
-    edm::LogVerbatim("DD4hep_VolumeBasedMagneticFieldESProducer")
-        << "DD4hep_VolumeBasedMagneticFieldESProducer::produce() " << version_;
+    LogTrace("MagGeoBuilder") << "DD4hep_VolumeBasedMagneticFieldESProducer::produce() " << version_;
   }
 
   MagGeoBuilder builder(conf_.version, conf_.geometryVersion, debug_);
@@ -90,12 +87,12 @@ std::unique_ptr<MagneticField> DD4hep_VolumeBasedMagneticFieldESProducer::produc
   const cms::DDCompactView* cpvPtr = cpv.product();
   const cms::DDDetector* det = cpvPtr->detector();
   builder.build(det);
-  edm::LogVerbatim("DD4hep_VolumeBasedMagneticFieldESProducer") << "produce() finished build";
+  LogTrace("MagGeoBuilder") << "produce() finished build";
 
   // Get slave field (from ES)
   const MagneticField* paramField = nullptr;
   if (useParametrizedTrackerField_) {
-    edm::LogVerbatim("DD4hep_VolumeBasedMagneticFieldESProducer") << "Getting MF for parametrized field";
+    LogTrace("MagGeoBuilder") << "Getting MF for parametrized field";
     paramField = &iRecord.get(paramFieldToken_);
   }
   return std::make_unique<VolumeBasedMagneticField>(conf_.geometryVersion,

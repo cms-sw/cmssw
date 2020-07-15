@@ -316,62 +316,25 @@ void PFECALSuperClusterAlgo::buildSuperCluster(CalibClusterPtr& seed, CalibClust
   // need the vector of raw pointers for a PF width class
   std::vector<const reco::PFCluster*> bare_ptrs;
   // calculate necessary parameters and build the SC
-  double posX(0), posY(0), posZ(0), corrSCEnergy(0), corrPS1Energy(0), corrPS2Energy(0), ePS1(0), ePS2(0),
-      energyweight(0), energyweighttot(0);
-  std::vector<double> ps1_energies, ps2_energies;
-  int condP1(1), condP2(1);
+  double posX(0), posY(0), posZ(0), corrSCEnergy(0), corrPS1Energy(0), corrPS2Energy(0), energyweight(0),
+      energyweighttot(0);
   for (auto& clus : clustered) {
-    ePS1 = ePS2 = 0;
+    double ePS1 = 0.0;
+    double ePS2 = 0.0;
     energyweight = clus->energy_nocalib();
     bare_ptrs.push_back(clus->the_ptr().get());
     // update EE calibrated super cluster energies
     if (isEE) {
-      ePS1 = ePS2 = 0;
-      condP1 = condP2 = 1;
-      ps1_energies.clear();
-      ps2_energies.clear();
       auto ee_key_val = std::make_pair(clus->the_ptr().key(), edm::Ptr<reco::PFCluster>());
       const auto clustops = std::equal_range(EEtoPS_->begin(), EEtoPS_->end(), ee_key_val, sortByKey);
+      std::vector<reco::PFCluster const*> psClusterPointers;
       for (auto i_ps = clustops.first; i_ps != clustops.second; ++i_ps) {
-        edm::Ptr<reco::PFCluster> psclus(i_ps->second);
-
-        auto const& recH_Frac = psclus->recHitFractions();
-
-        switch (psclus->layer()) {
-          case PFLayer::PS1:
-            ps1_energies.push_back(psclus->energy());
-            for (auto const& recH : recH_Frac) {
-              ESDetId strip1 = recH.recHitRef()->detId();
-              if (strip1 != ESDetId(0)) {
-                ESChannelStatusMap::const_iterator status_p1 = channelStatus_->getMap().find(strip1);
-                // getStatusCode() == 1 => dead channel
-                //apply correction if all recHits in dead region
-                if (status_p1->getStatusCode() == 0)
-                  condP1 = 0;  //active
-              }
-            }
-            break;
-          case PFLayer::PS2:
-            ps2_energies.push_back(psclus->energy());
-            for (auto const& recH : recH_Frac) {
-              ESDetId strip2 = recH.recHitRef()->detId();
-              if (strip2 != ESDetId(0)) {
-                ESChannelStatusMap::const_iterator status_p2 = channelStatus_->getMap().find(strip2);
-                if (status_p2->getStatusCode() == 0)
-                  condP2 = 0;
-              }
-            }
-            break;
-          default:
-            break;
-        }
+        psClusterPointers.push_back(i_ps->second.get());
       }
-      if (condP1 == 1)
-        ePS1 = -1.;
-      if (condP2 == 1)
-        ePS2 = -1.;
-      _pfEnergyCalibration->energyEm(
-          *(clus->the_ptr()), ps1_energies, ps2_energies, ePS1, ePS2, applyCrackCorrections_);
+      auto calibratedEnergies = _pfEnergyCalibration->calibrateEndcapClusterEnergies(
+          *(clus->the_ptr()), psClusterPointers, *channelStatus_, applyCrackCorrections_);
+      ePS1 = calibratedEnergies.ps1Energy;
+      ePS2 = calibratedEnergies.ps2Energy;
     }
 
     if (ePS1 == -1.)

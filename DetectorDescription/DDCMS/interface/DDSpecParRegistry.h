@@ -30,8 +30,7 @@ namespace cms {
   using DDSpecParRefs = std::vector<const DDSpecPar*>;
 
   struct DDSpecParRegistry {
-    void filter(DDSpecParRefs&, std::string_view, std::string_view) const;
-    void filter(DDSpecParRefs&, std::string_view) const;
+    void filter(DDSpecParRefs&, const std::string&, const std::string& = "") const;
     std::vector<std::string_view> names() const;
     std::vector<std::string_view> names(const std::string& path) const;
     bool hasSpecPar(std::string_view) const;

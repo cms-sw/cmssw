@@ -77,11 +77,11 @@ L1GctEmulator::L1GctEmulator(const edm::ParameterSet& ps)
   bool hwTest = ps.getParameter<bool>("hardwareTest");
   if (hwTest) {
     unsigned mask = ps.getUntrackedParameter<unsigned>("jetLeafMask", 0);
-    m_gct = new L1GlobalCaloTrigger(jfType, mask);
+    m_gct = std::make_unique<L1GlobalCaloTrigger>(jfType, mask);
     edm::LogWarning("L1GctEmulatorSetup") << "Emulator has been configured in hardware test mode with mask " << mask
                                           << "\nThis mode should NOT be used for Physics studies!";
   } else {
-    m_gct = new L1GlobalCaloTrigger(jfType);
+    m_gct = std::make_unique<L1GlobalCaloTrigger>(jfType);
   }
   m_gct->setBxRange(firstBx, lastBx);
 
@@ -106,18 +106,9 @@ L1GctEmulator::L1GctEmulator(const edm::ParameterSet& ps)
   if (m_verbose) {
     m_gct->print();
   }
-  consumes<L1CaloEmCollection>(m_inputLabel);
-  consumes<L1CaloRegionCollection>(m_inputLabel);
+  m_emToken = consumes<L1CaloEmCollection>(inputTag);
+  m_regionToken = consumes<L1CaloRegionCollection>(inputTag);
 }
-
-L1GctEmulator::~L1GctEmulator() {
-  if (m_gct != nullptr)
-    delete m_gct;
-}
-
-void L1GctEmulator::beginJob() {}
-
-void L1GctEmulator::endJob() {}
 
 int L1GctEmulator::configureGct(const edm::EventSetup& c) {
   int success = 0;
@@ -213,8 +204,8 @@ void L1GctEmulator::produce(edm::Event& e, const edm::EventSetup& c) {
     // get the RCT data
     edm::Handle<L1CaloEmCollection> em;
     edm::Handle<L1CaloRegionCollection> rgn;
-    bool gotEm = e.getByLabel(m_inputLabel, em);
-    bool gotRgn = e.getByLabel(m_inputLabel, rgn);
+    bool gotEm = e.getByToken(m_emToken, em);
+    bool gotRgn = e.getByToken(m_regionToken, rgn);
 
     // check the data
     if (!gotEm && m_verbose) {

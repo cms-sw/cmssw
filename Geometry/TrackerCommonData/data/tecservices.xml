@@ -2,6 +2,7 @@
 <DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../DetectorDescription/Schema/DDLSchema.xsd">
   <ConstantsSection label="tecservices.xml" eval="true">
     <Constant name="zero" value="0.0*fm"/>
+    <Constant name="angularEpsilon" value="1E-10*deg"/>
     <Constant name="Rin" value="[tec:WheelR]"/>
     <Constant name="Rout" value="[tec:OuterSkinRin]"/>
     <Constant name="Dz" value="[tec:TECDz]"/>
@@ -20,6 +21,7 @@
     <Constant name="ChannelEndInsertZ" value="0.5*[ChannelEndInsertHeight]-0.5*[ChannelHeight]"/>
     <!--[tec:Wheel0Z]-[tec:ZPos]-0.5*[tecwheel:DiskT]+0.5*[ChannelHeight]-77.5*mm"/-->
     <Constant name="AxialGroundingWidth" value="20*mm/([Rin]+0.5*2.5*mm)"/>
+    <Constant name="AxialGroundingWidthEpsilonShrink" value="[AxialGroundingWidth]-[angularEpsilon]"/>
     <Constant name="AxialGroundingRin" value="[Rin]"/>
     <Constant name="AxialGroundingRout" value="[Rin]+2.5*mm"/>
     <Constant name="AxialGroundingHeight" value="1538*mm"/>
@@ -85,7 +87,7 @@
   <SolidSection label="tecservices.xml">
     <Tubs name="TECServices" rMin="[Rin]" rMax="[Rout]" dz="[Dz]" startPhi="0*deg" deltaPhi="360*deg"/>
     <Tubs name="TECServChannel" rMin="[ChannelRin]" rMax="[ChannelRout]" dz="0.5*[ChannelHeight]" startPhi="-0.5*[ChannelWidth]" deltaPhi="[ChannelWidth]"/>
-    <Tubs name="TECAxGrounding" rMin="[AxialGroundingRin]" rMax="[AxialGroundingRout]" dz="0.5*[ChannelHeight]" startPhi="-0.5*[AxialGroundingWidth]" deltaPhi="[AxialGroundingWidth]"/>
+    <Tubs name="TECAxGrounding" rMin="[AxialGroundingRin]" rMax="[AxialGroundingRout]" dz="0.5*[ChannelHeight]" startPhi="-0.5*[AxialGroundingWidthEpsilonShrink]" deltaPhi="[AxialGroundingWidthEpsilonShrink]"/>
     <Tubs name="TECChannelEndInsert" rMin="[ChannelEndInsertRin]" rMax="[ChannelEndInsertRout]" dz="0.5*[ChannelEndInsertHeight]" startPhi="-0.5*[ChannelEndInsertWidth]" deltaPhi="[ChannelEndInsertWidth]"/>
     <Tubs name="TECGasPipe" rMin="[GasPipeRin]" rMax="[GasPipeRout]" dz="0.5*[GasPipeHeight]" startPhi="0*deg" deltaPhi="360*deg"/>
     <Tubs name="TECCoolPipeS" rMin="[CoolPipeRin]" rMax="[CoolPipeRout]" dz="0.5*[CoolPipeHeightS]" startPhi="0*deg" deltaPhi="360*deg"/>

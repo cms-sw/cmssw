@@ -125,7 +125,6 @@ else:
     process.GlobalTag = GlobalTag(process.GlobalTag, options.globalTag, '')
     
 process.DQMStore = cms.Service("DQMStore",
-                               referenceFileName = cms.untracked.string(''),
                                verbose = cms.untracked.int32(1)
                                )
 

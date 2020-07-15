@@ -140,7 +140,7 @@ namespace edm {
       void doPreallocate(PreallocationConfiguration const&);
       virtual void preallocLumis(unsigned int) {}
       virtual void setupStreamModules() = 0;
-      void doBeginJob();
+      virtual void doBeginJob() = 0;
       virtual void doEndJob() = 0;
 
       void doBeginStream(StreamID id);

@@ -1,5 +1,6 @@
 #ifndef RKLocalFieldProvider_H
 #define RKLocalFieldProvider_H
+#include "FWCore/Utilities/interface/Visibility.h"
 
 #include "FWCore/Utilities/interface/Visibility.h"
 #include "DataFormats/GeometrySurface/interface/GloballyPositioned.h"

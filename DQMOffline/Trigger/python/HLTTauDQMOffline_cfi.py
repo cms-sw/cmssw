@@ -1,4 +1,5 @@
 import FWCore.ParameterSet.Config as cms
+from Configuration.ProcessModifiers.tau_readOldDiscriminatorFormat_cff import tau_readOldDiscriminatorFormat
 
 hltTauDQMofflineProcess = "HLT"
 
@@ -7,10 +8,17 @@ TauRefProducer = cms.EDProducer("HLTTauRefProducer",
 
                     PFTaus = cms.untracked.PSet(
                             PFTauDiscriminators = cms.untracked.VInputTag(
-                                    cms.InputTag("hpsPFTauDiscriminationByDecayModeFinding"),
-                                    cms.InputTag("hpsPFTauDiscriminationByLooseCombinedIsolationDBSumPtCorr3Hits"),
-                                    cms.InputTag("hpsPFTauDiscriminationByLooseMuonRejection3"),
-                                    cms.InputTag("hpsPFTauDiscriminationByMVA6TightElectronRejection")
+                                    cms.InputTag("hpsPFTauDiscriminationByDecayModeFinding")
+                            ),
+                            PFTauDiscriminatorContainers = cms.untracked.VInputTag(
+                                    cms.InputTag("hpsPFTauBasicDiscriminators"),
+                                    cms.InputTag("hpsPFTauDiscriminationByMuonRejection3"),
+                                    cms.InputTag("hpsPFTauDiscriminationByMVA6ElectronRejection")
+                            ),
+                            PFTauDiscriminatorContainerWPs =  cms.untracked.vstring(
+                                    "ByLooseCombinedIsolationDBSumPtCorr3Hits",
+                                    "ByLooseMuonRejection3",
+                                    "_Tight"
                             ),
                             doPFTaus = cms.untracked.bool(True),
                             ptMin = cms.untracked.double(15.0),
@@ -70,6 +78,18 @@ TauRefProducer = cms.EDProducer("HLTTauRefProducer",
                     PhiMin = cms.untracked.double(-3.15),
                     PhiMax = cms.untracked.double(3.15)
                   )
+
+tau_readOldDiscriminatorFormat.toModify(TauRefProducer.PFTaus,
+              PFTauDiscriminators = cms.untracked.VInputTag(
+                                    cms.InputTag("hpsPFTauDiscriminationByDecayModeFinding"),
+                                    cms.InputTag("hpsPFTauDiscriminationByLooseCombinedIsolationDBSumPtCorr3Hits"),
+                                    cms.InputTag("hpsPFTauDiscriminationByLooseMuonRejection3"),
+                                    cms.InputTag("hpsPFTauDiscriminationByMVA6TightElectronRejection"),
+                                    cms.InputTag("hpsPFTauDiscriminationByDecayModeFinding")
+                            ),
+              PFTauDiscriminatorContainers = cms.untracked.VInputTag(),
+              PFTauDiscriminatorContainerWPs = cms.untracked.vstring()
+)
 
 #----------------------------------MONITORS--------------------------------------------------------------------------
 

@@ -280,12 +280,10 @@ void SeedClusterRemover::produce(Event &iEvent, const EventSetup &iSetup) {
   iEvent.getByToken(trajectories_, seeds);
 
   for (auto const &seed : (*seeds)) {
-    auto hits = seed.recHits();
-    auto hit = hits.first;
-    for (; hit != hits.second; ++hit) {
-      if (!hit->isValid())
+    for (auto const &hit : seed.recHits()) {
+      if (!hit.isValid())
         continue;
-      process(&(*hit), 0., tgh.product());
+      process(&hit, 0., tgh.product());
     }
   }
 

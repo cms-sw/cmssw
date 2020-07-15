@@ -26,8 +26,10 @@ namespace pf2pat {
         : verticesToken_(iC.consumes<reco::VertexCollection>(cfg.getParameter<edm::InputTag>("vertices"))),
           d0Cut_(cfg.getParameter<double>("d0Cut")),
           dzCut_(cfg.getParameter<double>("dzCut")),
+          dtCut_(cfg.getParameter<double>("dtCut")),
           d0SigCut_(cfg.getParameter<double>("d0SigCut")),
-          dzSigCut_(cfg.getParameter<double>("dzSigCut")) {}
+          dzSigCut_(cfg.getParameter<double>("dzSigCut")),
+          dtSigCut_(cfg.getParameter<double>("dtSigCut")) {}
 
     void select(const HandleToCollection &hc, const edm::Event &e, const edm::EventSetup &s) {
       selected_.clear();
@@ -37,6 +39,8 @@ namespace pf2pat {
       if (vertices->empty())
         return;
       const reco::Vertex &vtx = (*vertices)[0];
+      double vt = vtx.t();
+      double vte = vtx.tError();
 
       unsigned key = 0;
       for (collection::const_iterator pfc = hc->begin(); pfc != hc->end(); ++pfc, ++key) {
@@ -61,6 +65,14 @@ namespace pf2pat {
           if (dzSigCut_ > 0 && dze > 0 && dz / dze > dzSigCut_)
             passing = false;
         }
+        double pfct = pfc->time();
+        double pfcte = pfc->timeError();
+        double dt = fabs(pfct - vt);
+        double dte = std::sqrt(pfcte * pfcte + vte * vte);
+        if (dtCut_ > 0 && pfcte > 0 && vte > 0 && dt > dtCut_)
+          passing = false;
+        if (dtSigCut_ > 0 && pfcte > 0 && vte > 0 && dt / dte > dtSigCut_)
+          passing = false;
 
         if (passing) {
           selected_.push_back(reco::PFCandidate(*pfc));
@@ -79,8 +91,10 @@ namespace pf2pat {
     edm::EDGetTokenT<reco::VertexCollection> verticesToken_;
     double d0Cut_;
     double dzCut_;
+    double dtCut_;
     double d0SigCut_;
     double dzSigCut_;
+    double dtSigCut_;
   };
 }  // namespace pf2pat
 

@@ -1,9 +1,9 @@
-<use   name="DataFormats/TrackerRecHit2D"/>
-<use   name="DataFormats/GeometrySurface"/>
-<use   name="TrackingTools/KalmanUpdators"/>
-<use   name="TrackingTools/TrajectoryState"/>
-<use   name="TrackingTools/TransientTrackingRecHit"/>
-<use   name="MagneticField/Engine"/>
-<use   name="clhep"/>
-<bin   file="KFUpdator_t.cpp">
+<use name="DataFormats/TrackerRecHit2D"/>
+<use name="DataFormats/GeometrySurface"/>
+<use name="TrackingTools/KalmanUpdators"/>
+<use name="TrackingTools/TrajectoryState"/>
+<use name="TrackingTools/TransientTrackingRecHit"/>
+<use name="MagneticField/Engine"/>
+<use name="clhep"/>
+<bin file="KFUpdator_t.cpp">
 </bin>

@@ -18,6 +18,8 @@
 #include "DetectorDescription/Core/interface/DDTypes.h"
 #include "DetectorDescription/Core/interface/DDAlgorithm.h"
 
+//#define EDM_ML_DEBUG
+
 class DDGEMAngular : public DDAlgorithm {
 public:
   //Constructor and Destructor
@@ -48,8 +50,6 @@ private:
 };
 
 using namespace geant_units::operators;
-
-//#define EDM_ML_DEBUG
 
 DDGEMAngular::DDGEMAngular() {
 #ifdef EDM_ML_DEBUG

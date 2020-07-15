@@ -16,7 +16,7 @@
 #include "DetectorDescription/Core/interface/DDSolid.h"
 
 //#include "DataFormats/CTPPSAlignment/interface/RPAlignmentCorrectionData.h"
-#include "CondFormats/CTPPSReadoutObjects/interface/CTPPSRPAlignmentCorrectionData.h"
+#include "CondFormats/PPSObjects/interface/CTPPSRPAlignmentCorrectionData.h"
 
 using namespace std;
 

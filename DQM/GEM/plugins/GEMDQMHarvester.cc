@@ -28,7 +28,10 @@ public:
   static void fillDescriptions(edm::ConfigurationDescriptions &descriptions);
 
 protected:
-  void endRun(edm::Run const &, edm::EventSetup const &) override;
+  void dqmEndLuminosityBlock(DQMStore::IBooker &,
+                             DQMStore::IGetter &,
+                             edm::LuminosityBlock const &,
+                             edm::EventSetup const &) override;
   void dqmEndJob(DQMStore::IBooker &, DQMStore::IGetter &) override{};  // Cannot use; it is called after dqmSaver
 
   void refineSummaryHistogram(edm::Service<DQMStore> &);
@@ -36,10 +39,12 @@ protected:
 
   void fillUnderOverflowBunchCrossing(edm::Service<DQMStore> &, std::string);
 
+  Float_t m_fReportSummary;
   std::string strOutFile_;
 };
 
 GEMDQMHarvester::GEMDQMHarvester(const edm::ParameterSet &cfg) {
+  m_fReportSummary = -1.0;
   strOutFile_ = cfg.getParameter<std::string>("fromFile");
 }
 
@@ -49,7 +54,10 @@ void GEMDQMHarvester::fillDescriptions(edm::ConfigurationDescriptions &descripti
   descriptions.add("GEMDQMHarvester", desc);
 }
 
-void GEMDQMHarvester::endRun(edm::Run const &, edm::EventSetup const &) {
+void GEMDQMHarvester::dqmEndLuminosityBlock(DQMStore::IBooker &,
+                                            DQMStore::IGetter &,
+                                            edm::LuminosityBlock const &,
+                                            edm::EventSetup const &) {
   edm::Service<DQMStore> store;
   refineSummaryHistogram(store);
 
@@ -71,10 +79,14 @@ void GEMDQMHarvester::refineSummaryHistogram(edm::Service<DQMStore> &store) {
   store->setCurrentFolder(strDirCurr);
 
   MonitorElement *h3Curr = store->get(strDirCurr + "/" + strNameSrc);
-  TH2F *h2New = nullptr;
+  if (h3Curr) {
+    TH2F *h2New = nullptr;
 
-  refineSummaryHistogramCore(h3Curr->getTH3F(), strNewName, h2New);
-  store->book2D(strNewName, h2New);
+    refineSummaryHistogramCore(h3Curr->getTH3F(), strNewName, h2New);
+    store->book2D(strNewName, h2New);
+  }
+
+  store->bookFloat("reportSummary")->Fill(m_fReportSummary);
 }
 
 void GEMDQMHarvester::refineSummaryHistogramCore(TH3F *h3Src,
@@ -88,12 +100,16 @@ void GEMDQMHarvester::refineSummaryHistogramCore(TH3F *h3Src,
 
   Float_t arrfBinX[128], arrfBinY[32];
 
+  Float_t fNumPass, fNumError, fNumTotal;
+
   for (i = 0; i <= nNBinX; i++)
     arrfBinX[i] = h3Src->GetXaxis()->GetBinLowEdge(i + 1);
   for (i = 0; i <= nNBinY; i++)
     arrfBinY[i] = h3Src->GetYaxis()->GetBinLowEdge(i + 1);
 
   h2New = new TH2F(strNewName.c_str(), h3Src->GetTitle(), nNBinX, arrfBinX, nNBinY, arrfBinY);
+
+  fNumTotal = fNumPass = fNumError = 0.0;
 
   for (i = 0; i < nNBinX; i++) {
     h2New->GetXaxis()->SetBinLabel(i + 1, h3Src->GetXaxis()->GetBinLabel(i + 1));
@@ -102,11 +118,18 @@ void GEMDQMHarvester::refineSummaryHistogramCore(TH3F *h3Src,
 
       if (h3Src->GetBinContent(i + 1, j + 1, 2) != 0) {
         h2New->SetBinContent(i + 1, j + 1, 2);
+        fNumError += 1.0;
       } else if (h3Src->GetBinContent(i + 1, j + 1, 1) != 0) {
         h2New->SetBinContent(i + 1, j + 1, 1);
+        fNumPass += 1.0;
       }
+
+      fNumTotal += 1.0;
     }
   }
+
+  if (fNumPass > 0.0 || fNumError > 0.0)
+    m_fReportSummary = fNumPass / fNumTotal;
 }
 
 void GEMDQMHarvester::fillUnderOverflowBunchCrossing(edm::Service<DQMStore> &store, std::string strNameSrc) {

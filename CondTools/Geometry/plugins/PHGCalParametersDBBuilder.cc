@@ -2,22 +2,25 @@
 #include "FWCore/Framework/interface/ESTransientHandle.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "CondCore/DBOutputService/interface/PoolDBOutputService.h"
 #include "CondFormats/GeometryObjects/interface/PHGCalParameters.h"
 #include "DetectorDescription/Core/interface/DDCompactView.h"
+#include "DetectorDescription/DDCMS/interface/DDCompactView.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 #include "Geometry/HGCalCommonData/interface/HGCalParameters.h"
 #include "Geometry/HGCalCommonData/interface/HGCalParametersFromDD.h"
 
+//#define EDM_ML_DEBUG
+
 class PHGCalParametersDBBuilder : public edm::one::EDAnalyzer<edm::one::WatchRuns> {
 public:
-  PHGCalParametersDBBuilder(const edm::ParameterSet& iConfig) {
-    m_name = iConfig.getUntrackedParameter<std::string>("Name");
-    m_namew = iConfig.getUntrackedParameter<std::string>("NameW");
-    m_namec = iConfig.getUntrackedParameter<std::string>("NameC");
-    m_namet = iConfig.getUntrackedParameter<std::string>("NameT");
-  }
+  PHGCalParametersDBBuilder(const edm::ParameterSet&);
+
+  static void fillDescriptions(edm::ConfigurationDescriptions&);
 
   void beginRun(edm::Run const& iEvent, edm::EventSetup const&) override;
   void analyze(edm::Event const& iEvent, edm::EventSetup const&) override {}
@@ -26,11 +29,33 @@ public:
 private:
   void swapParameters(HGCalParameters*, PHGCalParameters*);
 
-  std::string m_name;
-  std::string m_namew;
-  std::string m_namec;
-  std::string m_namet;
+  std::string name_, name2_, namew_, namec_, namet_;
+  bool fromDD4Hep_;
 };
+
+PHGCalParametersDBBuilder::PHGCalParametersDBBuilder(const edm::ParameterSet& iC) {
+  name_ = iC.getParameter<std::string>("name");
+  name2_ = iC.getParameter<std::string>("name2");
+  namew_ = iC.getParameter<std::string>("nameW");
+  namec_ = iC.getParameter<std::string>("nameC");
+  namet_ = iC.getParameter<std::string>("nameT");
+  fromDD4Hep_ = iC.getParameter<bool>("fromDD4Hep");
+#ifdef EDM_ML_DEBUG
+  edm::LogVerbatim("HGCalGeom") << "HGCalParametersESModule for " << name_ << ":" << name2_ << ":" << namew_ << ":"
+                                << namec_ << ":" << namet_ << " and fromDD4Hep flag " << fromDD4Hep_;
+#endif
+}
+
+void PHGCalParametersDBBuilder::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+  desc.add<std::string>("name", "HGCalEESensitive");
+  desc.add<std::string>("name2", "HGCalEE");
+  desc.add<std::string>("nameW", "HGCalEEWafer");
+  desc.add<std::string>("nameC", "HGCalEECell");
+  desc.add<std::string>("nameT", "HGCal");
+  desc.add<bool>("fromDD4Hep", false);
+  descriptions.add("HGCalEEParametersWriter", desc);
+}
 
 void PHGCalParametersDBBuilder::beginRun(const edm::Run&, edm::EventSetup const& es) {
   PHGCalParameters* phgp = new PHGCalParameters;
@@ -39,14 +64,25 @@ void PHGCalParametersDBBuilder::beginRun(const edm::Run&, edm::EventSetup const&
     edm::LogError("PHGCalParametersDBBuilder") << "PoolDBOutputService unavailable";
     return;
   }
-  edm::ESTransientHandle<DDCompactView> cpv;
-  es.get<IdealGeometryRecord>().get(cpv);
 
-  HGCalParameters* ptp = new HGCalParameters(m_name);
+  HGCalParameters* ptp = new HGCalParameters(name_);
   HGCalParametersFromDD builder;
-  builder.build(&(*cpv), *ptp, m_name, m_namew, m_namec, m_namet);
+  if (fromDD4Hep_) {
+#ifdef EDM_ML_DEBUG
+    edm::LogVerbatim("HGCalGeom") << "PHGCalParametersDBBuilder::Try to access cm::DDCompactView";
+#endif
+    edm::ESTransientHandle<cms::DDCompactView> cpv;
+    es.get<IdealGeometryRecord>().get(cpv);
+    builder.build(cpv.product(), *ptp, name_, namew_, namec_, namet_, name2_);
+  } else {
+#ifdef EDM_ML_DEBUG
+    edm::LogVerbatim("HGCalGeom") << "PHGCalParametersDBBuilder::Try to access DDCompactView";
+#endif
+    edm::ESTransientHandle<DDCompactView> cpv;
+    es.get<IdealGeometryRecord>().get(cpv);
+    builder.build(cpv.product(), *ptp, name_, namew_, namec_, namet_);
+  }
   swapParameters(ptp, phgp);
-
   delete ptp;
 
   if (mydbservice->isNewTagRequest("PHGCalParametersRcd")) {

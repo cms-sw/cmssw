@@ -8,13 +8,16 @@
     <use name="L1Trigger/L1TMuonEndCap"/>
     <use name="cppunit"/>
   </bin>
+
+  <bin name="TestDebugTools" file="unittests/TestDebugTools.cpp">
+    <use name="L1Trigger/L1TMuonEndCap"/>
+    <use name="cppunit"/>
+  </bin>
+
 </environment>
-
-
 <environment>
   <export>
-  </export>
-
+</export>
   <library file="tools/*.cc" name="L1TriggerL1TMuonEndCap_tools">
     <use name="L1Trigger/L1TMuonEndCap"/>
     <use name="Geometry/DTGeometry"/>
@@ -23,4 +26,5 @@
     <use name="root"/>
     <flags EDM_PLUGIN="1"/>
   </library>
+
 </environment>

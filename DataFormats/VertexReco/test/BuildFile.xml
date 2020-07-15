@@ -1,11 +1,6 @@
-<use   name="FWCore/Utilities"/>
-<use   name="FWCore/Framework"/>
-<use   name="DataFormats/TrackReco"/>
-<use   name="clhep"/>
-<use   name="FWCore/PluginManager"/>
-<use   name="FWCore/ParameterSet"/>
-<use   name="DataFormats/VertexReco"/>
-<use   name="root"/>
-<bin   name="testDataFormatsVertexReco" file="testVertex.cc,testRunner.cpp">
-  <use   name="cppunit"/>
+<use name="clhep"/>
+<use name="DataFormats/VertexReco"/>
+<use name="root"/>
+<bin name="testDataFormatsVertexReco" file="testVertex.cc,testRunner.cpp">
+  <use name="cppunit"/>
 </bin>

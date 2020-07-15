@@ -72,10 +72,10 @@ public:
   void run(const std::vector<int> wire[CSCConstants::NUM_LAYERS][CSCConstants::MAX_NUM_WIRES]);
 
   /** Returns vector of ALCTs in the read-out time window, if any. */
-  std::vector<CSCALCTDigi> readoutALCTs() const;
+  std::vector<CSCALCTDigi> readoutALCTs(int nMaxALCTs = CSCConstants::MAX_ALCTS_READOUT) const;
 
   /** Returns vector of all found ALCTs, if any. */
-  std::vector<CSCALCTDigi> getALCTs() const;
+  std::vector<CSCALCTDigi> getALCTs(int nMaxALCTs = CSCConstants::MAX_ALCTS_READOUT) const;
 
   /** read out pre-ALCTs */
   std::vector<CSCALCTPreTriggerDigi> preTriggerDigis() const { return thePreTriggerDigis; }
@@ -83,6 +83,9 @@ public:
   /** Return best/second best ALCTs */
   CSCALCTDigi getBestALCT(int bx) const;
   CSCALCTDigi getSecondALCT(int bx) const;
+
+  /* encode special bits for high multiplicity triggers */
+  unsigned getHighMultiplictyBits() const { return highMultiplicityBits_; }
 
 protected:
   /** Best LCTs in this chamber, as found by the processor.
@@ -94,6 +97,9 @@ protected:
 
   /** Second best LCTs in this chamber, as found by the processor. */
   CSCALCTDigi secondALCT[CSCConstants::MAX_ALCT_TBINS];
+
+  /** LCTs in this chamber, as found by the processor. */
+  CSCALCTDigi ALCTContainer_[CSCConstants::MAX_ALCT_TBINS][CSCConstants::MAX_ALCTS_PER_PROCESSOR];
 
   /** Access routines to wire digis. */
   bool getDigis(const CSCWireDigiCollection* wiredc);
@@ -111,6 +117,10 @@ protected:
   std::vector<CSCALCTDigi> lct_list;
 
   std::vector<CSCALCTPreTriggerDigi> thePreTriggerDigis;
+
+  /* data members for high multiplicity triggers */
+  void encodeHighMultiplicityBits();
+  unsigned int highMultiplicityBits_;
 
   /** Configuration parameters. */
   unsigned int fifo_tbins, fifo_pretrig, drift_delay;

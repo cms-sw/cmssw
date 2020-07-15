@@ -1,23 +1,24 @@
-<library   file="*.cc" name="DQMSiStripCommissioningSourcesPlugins">
-  <use   name="DQM/SiStripCommissioningSources"/>
-  <use   name="DataFormats/SiStripCommon"/>
-  <flags   EDM_PLUGIN="1"/>
+<library file="*.cc" name="DQMSiStripCommissioningSourcesPlugins">
+  <use name="DQM/SiStripCommissioningSources"/>
+  <use name="DataFormats/SiStripCommon"/>
+  <flags EDM_PLUGIN="1"/>
 </library>
-<library   file="tracking/*.cc" name="DQMSiStripCommissioningSourcesTracking">
-  <use   name="FWCore/Framework"/>
-  <use   name="FWCore/ParameterSet"/>
-  <use   name="clhep"/>
-  <use   name="root"/>
-  <use   name="boost"/>
-  <use   name="CondFormats/SiStripObjects"/>
-  <use   name="DataFormats/Common"/>
-  <use   name="DataFormats/FEDRawData"/>
-  <use   name="TrackingTools/TrackFitters"/>
-  <use   name="TrackingTools/TransientTrack"/>
-  <use   name="Geometry/TrackerGeometryBuilder"/>
-  <use   name="DataFormats/SiStripCluster"/>
-  <use   name="TrackingTools/MaterialEffects"/>
-  <use   name="TrackingTools/KalmanUpdators"/>
-  <use   name="DQMServices/Core"/>
-  <flags   EDM_PLUGIN="1"/>
+
+<library file="tracking/*.cc" name="DQMSiStripCommissioningSourcesTracking">
+  <use name="FWCore/Framework"/>
+  <use name="FWCore/ParameterSet"/>
+  <use name="clhep"/>
+  <use name="root"/>
+  <use name="boost"/>
+  <use name="CondFormats/SiStripObjects"/>
+  <use name="DataFormats/Common"/>
+  <use name="DataFormats/FEDRawData"/>
+  <use name="TrackingTools/TrackFitters"/>
+  <use name="TrackingTools/TransientTrack"/>
+  <use name="Geometry/TrackerGeometryBuilder"/>
+  <use name="DataFormats/SiStripCluster"/>
+  <use name="TrackingTools/MaterialEffects"/>
+  <use name="TrackingTools/KalmanUpdators"/>
+  <use name="DQMServices/Core"/>
+  <flags EDM_PLUGIN="1"/>
 </library>

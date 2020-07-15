@@ -1,6 +1,5 @@
-<use   name="FWCore/Framework"/>
-<use   name="FWCore/PluginManager"/>
-<use   name="CondCore/ESSources"/>
-<use   name="CondFormats/SiPixelObjects"/>
-<use   name="CondFormats/DataRecord"/>
-<flags   EDM_PLUGIN="1"/>
+<use name="CalibTracker/StandaloneTrackerTopology"/>
+<use name="CondCore/ESSources"/>
+<use name="CondFormats/SiPixelObjects"/>
+<use name="CondFormats/DataRecord"/>
+<flags EDM_PLUGIN="1"/>

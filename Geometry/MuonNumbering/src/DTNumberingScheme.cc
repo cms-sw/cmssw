@@ -1,19 +1,14 @@
 #include "Geometry/MuonNumbering/interface/DTNumberingScheme.h"
 #include "DataFormats/MuonDetId/interface/DTWireId.h"
 #include "Geometry/MuonNumbering/interface/MuonBaseNumber.h"
-#include "Geometry/MuonNumbering/interface/MuonDDDConstants.h"
+#include "Geometry/MuonNumbering/interface/MuonGeometryConstants.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 //#define LOCAL_DEBUG
 
-DTNumberingScheme::DTNumberingScheme(const MuonDDDConstants& muonConstants) { initMe(muonConstants); }
+DTNumberingScheme::DTNumberingScheme(const MuonGeometryConstants& muonConstants) { initMe(muonConstants); }
 
-DTNumberingScheme::DTNumberingScheme(const DDCompactView& cpv) {
-  MuonDDDConstants muonConstants(cpv);
-  initMe(muonConstants);
-}
-
-void DTNumberingScheme::initMe(const MuonDDDConstants& muonConstants) {
+void DTNumberingScheme::initMe(const MuonGeometryConstants& muonConstants) {
   int theLevelPart = muonConstants.getValue("level");
   theRegionLevel = muonConstants.getValue("mb_region") / theLevelPart;
   theWheelLevel = muonConstants.getValue("mb_wheel") / theLevelPart;

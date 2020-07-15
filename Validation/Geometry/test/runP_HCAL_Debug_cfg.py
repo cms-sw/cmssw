@@ -1,40 +1,25 @@
 import FWCore.ParameterSet.Config as cms
 
-process = cms.Process("PROD")
+from Configuration.Eras.Era_Run3_cff import Run3
+process = cms.Process('PROD',Run3)
 
 process.load("SimGeneral.HepPDTESSource.pythiapdt_cfi")
-
-#Geometry
-#
-process.load("Geometry.CMSCommonData.cmsIdealGeometryXML_cfi")
-process.load("Geometry.TrackerNumberingBuilder.trackerNumberingGeometry_cfi")
-
-#Magnetic Field
-#
+process.load("Configuration.Geometry.GeometryExtended2021_cff")
 process.load("Configuration.StandardSequences.MagneticField_38T_cff")
-
-# Detector simulation (Geant4-based)
-#
 process.load("SimG4Core.Application.g4SimHits_cfi")
+process.load("GeneratorInterface.Core.generatorSmeared_cfi")
+from Configuration.StandardSequences.VtxSmeared import VtxSmeared
+process.load(VtxSmeared['NoSmear'])
 
 process.load("IOMC.RandomEngine.IOMC_cff")
+process.RandomNumberGeneratorService.VtxSmeared.engineName = cms.untracked.string('HepJamesRandom')
 process.RandomNumberGeneratorService.generator.initialSeed = 456789
 process.RandomNumberGeneratorService.g4SimHits.initialSeed = 9876
+process.RandomNumberGeneratorService.VtxSmeared.initialSeed = 123456789
 
-process.MessageLogger = cms.Service("MessageLogger",
-    debugModules = cms.untracked.vstring('*'),
-    cout = cms.untracked.PSet(
-        threshold = cms.untracked.string('DEBUG'),
-        default = cms.untracked.PSet(
-            limit = cms.untracked.int32(0)
-        ),
-        MaterialBudget = cms.untracked.PSet(
-            limit = cms.untracked.int32(-1)
-        )
-    ),
-    categories = cms.untracked.vstring('MaterialBudget'),
-    destinations = cms.untracked.vstring('cout')
-)
+process.load('FWCore.MessageService.MessageLogger_cfi')
+if hasattr(process,'MessageLogger'):
+    process.MessageLogger.categories.append('MaterialBudget')
 
 process.source = cms.Source("EmptySource",
     firstRun        = cms.untracked.uint32(1),
@@ -44,8 +29,8 @@ process.source = cms.Source("EmptySource",
 process.generator = cms.EDProducer("FlatRandomEGunProducer",
     PGunParameters = cms.PSet(
         PartID = cms.vint32(14),
-        MinEta = cms.double(2.0),
-        MaxEta = cms.double(2.0),
+        MinEta = cms.double(2.8),
+        MaxEta = cms.double(3.0),
         MinPhi = cms.double(-3.14159265359),
         MaxPhi = cms.double(3.14159265359),
         MinE   = cms.double(10.0),
@@ -63,26 +48,30 @@ process.TFileService = cms.Service("TFileService",
     fileName = cms.string('matbdg_HCAL1.root')
 )
 
-process.p1 = cms.Path(process.generator*process.g4SimHits)
 process.g4SimHits.UseMagneticField = False
 process.g4SimHits.Physics.type = 'SimG4Core/Physics/DummyPhysics'
+process.g4SimHits.StackingAction.TrackNeutrino = True
 process.g4SimHits.Physics.DummyEMPhysics = True
 process.g4SimHits.Physics.CutsPerRegion = False
 process.g4SimHits.Generator.ApplyEtaCuts = False
 process.g4SimHits.Watchers = cms.VPSet(cms.PSet(
     MaterialBudgetHcal = cms.PSet(
         FillHisto    = cms.untracked.bool(False),
-        PrintSummary = cms.untracked.bool(False),
+        PrintSummary = cms.untracked.bool(True),
         DoHCAL       = cms.untracked.bool(True),
+        Verbosity    = cms.untracked.bool(True),
         NBinPhi      = cms.untracked.int32(180),
         NBinEta      = cms.untracked.int32(260),
         MaxEta       = cms.untracked.double(5.2),
         EtaLow       = cms.untracked.double(-3.0),
         EtaHigh      = cms.untracked.double(3.0),
+        EtaLowP      = cms.untracked.double(2.8),
+        EtaHighP     = cms.untracked.double(3.0),
         RMax         = cms.untracked.double(5.0),
         ZMax         = cms.untracked.double(14.0)
     ),
     type = cms.string('MaterialBudgetHcal')
 ))
 
-
+# Schedule definition
+process.p1 = cms.Path(process.generator*process.VtxSmeared*process.generatorSmeared*process.g4SimHits)

@@ -6,8 +6,6 @@
 
 #include "DataFormats/GeometrySurface/interface/BoundSpan.h"
 
-#include "FWCore/Utilities/interface/GCC11Compatibility.h"
-
 /** \class Bounds 
  *
  *  Abstract base class for Bounds.

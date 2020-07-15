@@ -12,7 +12,6 @@
 
 #include "FastSimulation/Utilities/interface/FamosDebug.h"
 
-#include "DetectorDescription/Core/interface/DDsvalues.h"
 #include "DataFormats/Math/interface/Vector3D.h"
 
 #include "SimG4CMS/Calo/interface/HFShowerLibrary.h"
@@ -31,7 +30,6 @@
 #include <memory>
 #include <map>
 
-class DDCompactView;
 class FSimEvent;
 class FSimTrack;
 class HFShowerLibrary;

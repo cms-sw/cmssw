@@ -665,7 +665,7 @@ void popcon::EcalDCSHandler::getNewObjects() {
   // we copy the last valid record to a temporary object
   EcalDCSTowerStatus* dcs_temp = new EcalDCSTowerStatus();
   if (tagInfo().size) {
-    max_since = tagInfo().lastInterval.first;
+    max_since = tagInfo().lastInterval.since;
     Ref dcs_db = lastPayload();
     std::cout << "retrieved last payload " << std::endl;
 

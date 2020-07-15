@@ -186,7 +186,7 @@ RunManagerMTWorker::~RunManagerMTWorker() {
 }
 
 void RunManagerMTWorker::resetTLS() {
-  delete m_tls;
+  //delete m_tls;
   m_tls = nullptr;
 
   if (active_tlsdata != 0 and not tls_shutdown_timeout) {

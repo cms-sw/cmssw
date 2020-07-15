@@ -1,22 +1,21 @@
 #include "L1Trigger/L1TMuon/interface/GeometryTranslator.h"
-#include "L1Trigger/L1TMuon/interface/MuonTriggerPrimitive.h"
 
-// event setup stuff / geometries
 #include "FWCore/Framework/interface/EventSetup.h"
+
 #include "Geometry/Records/interface/MuonGeometryRecord.h"
-
-#include "Geometry/CSCGeometry/interface/CSCGeometry.h"
-#include "L1Trigger/CSCCommonTrigger/interface/CSCConstants.h"
-#include "L1Trigger/CSCCommonTrigger/interface/CSCPatternLUT.h"
-
 #include "Geometry/DTGeometry/interface/DTGeometry.h"
-#include "L1Trigger/DTUtilities/interface/DTTrigGeom.h"
+#include "Geometry/CSCGeometry/interface/CSCGeometry.h"
 #include "Geometry/RPCGeometry/interface/RPCGeometry.h"
 #include "Geometry/GEMGeometry/interface/GEMGeometry.h"
 #include "Geometry/GEMGeometry/interface/ME0Geometry.h"
-
 #include "MagneticField/Engine/interface/MagneticField.h"
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
+
+#include "L1Trigger/DTUtilities/interface/DTTrigGeom.h"
+#include "L1Trigger/CSCCommonTrigger/interface/CSCConstants.h"
+#include "L1Trigger/CSCCommonTrigger/interface/CSCPatternLUT.h"
+
+#include "L1Trigger/L1TMuon/interface/MuonTriggerPrimitive.h"
 
 #include <cmath>  // for pi
 
@@ -40,6 +39,9 @@ double GeometryTranslator::calculateGlobalEta(const TriggerPrimitive& tp) const 
     case TriggerPrimitive::kGEM:
       return calcGEMSpecificEta(tp);
       break;
+    case TriggerPrimitive::kME0:
+      return calcME0SpecificEta(tp);
+      break;
     default:
       return std::nan("Invalid TP type!");
       break;
@@ -59,6 +61,9 @@ double GeometryTranslator::calculateGlobalPhi(const TriggerPrimitive& tp) const 
       break;
     case TriggerPrimitive::kGEM:
       return calcGEMSpecificPhi(tp);
+      break;
+    case TriggerPrimitive::kME0:
+      return calcME0SpecificPhi(tp);
       break;
     default:
       return std::nan("Invalid TP type!");
@@ -80,6 +85,9 @@ double GeometryTranslator::calculateBendAngle(const TriggerPrimitive& tp) const 
     case TriggerPrimitive::kGEM:
       return calcGEMSpecificBend(tp);
       break;
+    case TriggerPrimitive::kME0:
+      return calcME0SpecificBend(tp);
+      break;
     default:
       return std::nan("Invalid TP type!");
       break;
@@ -100,6 +108,9 @@ GlobalPoint GeometryTranslator::getGlobalPoint(const TriggerPrimitive& tp) const
     case TriggerPrimitive::kGEM:
       return getGEMSpecificPoint(tp);
       break;
+    case TriggerPrimitive::kME0:
+      return getME0SpecificPoint(tp);
+      break;
     default:
       GlobalPoint ret(
           GlobalPoint::Polar(std::nan("Invalid TP type!"), std::nan("Invalid TP type!"), std::nan("Invalid TP type!")));
@@ -112,11 +123,11 @@ void GeometryTranslator::checkAndUpdateGeometry(const edm::EventSetup& es) {
   const MuonGeometryRecord& geom = es.get<MuonGeometryRecord>();
   unsigned long long geomid = geom.cacheIdentifier();
   if (_geom_cache_id != geomid) {
-    geom.get(_geome0);
-    geom.get(_geogem);
-    geom.get(_georpc);
-    geom.get(_geocsc);
     geom.get(_geodt);
+    geom.get(_geocsc);
+    geom.get(_georpc);
+    geom.get(_geogem);
+    geom.get(_geome0);
     _geom_cache_id = geomid;
   }
 
@@ -128,35 +139,49 @@ void GeometryTranslator::checkAndUpdateGeometry(const edm::EventSetup& es) {
   }
 }
 
+// _____________________________________________________________________________
+// ME0
+GlobalPoint GeometryTranslator::getME0SpecificPoint(const TriggerPrimitive& tp) const {
+  const ME0DetId id(tp.detId<ME0DetId>());
+  const ME0Chamber* chamber = _geome0->chamber(id);
+  const ME0Layer* keylayer = chamber->layer(3);  // ME0 key layer is layer 3
+  int partition = tp.getME0Data().partition;     // 'partition' is in half-roll unit
+  int iroll = (partition >> 1) + 1;
+  const ME0EtaPartition* roll = keylayer->etaPartition(iroll);
+  assert(roll != nullptr);  // failed to get ME0 roll
+  // See L1Trigger/ME0Trigger/src/ME0TriggerPseudoBuilder.cc
+  int phiposition = tp.getME0Data().phiposition;  // 'phiposition' is in half-strip unit
+  int istrip = (phiposition >> 1);
+  int phiposition2 = (phiposition & 0x1);
+  float centreOfStrip = istrip + 0.25 + phiposition2 * 0.5;
+  const LocalPoint& lp = roll->centreOfStrip(centreOfStrip);
+  const GlobalPoint& gp = roll->surface().toGlobal(lp);
+  return gp;
+}
+
+double GeometryTranslator::calcME0SpecificEta(const TriggerPrimitive& tp) const {
+  return getME0SpecificPoint(tp).eta();
+}
+
+double GeometryTranslator::calcME0SpecificPhi(const TriggerPrimitive& tp) const {
+  return getME0SpecificPoint(tp).phi();
+}
+
+double GeometryTranslator::calcME0SpecificBend(const TriggerPrimitive& tp) const {
+  return tp.getME0Data().deltaphi * (tp.getME0Data().bend == 0 ? 1 : -1);
+}
+
+// _____________________________________________________________________________
+// GEM
 GlobalPoint GeometryTranslator::getGEMSpecificPoint(const TriggerPrimitive& tp) const {
-  LocalPoint lp;
-  GlobalPoint gp;
-
-  if (!tp.getGEMData().isME0) {  // use GEM geometry
-    const GEMDetId id(tp.detId<GEMDetId>());
-    const GEMEtaPartition* roll = _geogem->etaPartition(id);
-    assert(roll);
-    //const uint16_t pad = tp.getGEMData().pad;
-    // Use half-strip precision, - 0.5 at the end to get the center of the strip
-    const float pad = (0.5 * static_cast<float>(tp.getGEMData().pad_low + tp.getGEMData().pad_hi)) - 0.5;
-    lp = roll->centreOfPad(pad);
-    gp = roll->surface().toGlobal(lp);
-
-  } else {  // use ME0 geometry
-    const ME0DetId id(tp.detId<ME0DetId>());
-    const ME0EtaPartition* roll = _geome0->etaPartition(id);
-    assert(roll);
-    //const uint16_t pad = tp.getGEMData().pad;
-    // Use half-strip precision, - 0.5 at the end to get the center of the strip
-    const float pad = (0.5 * static_cast<float>(tp.getGEMData().pad_low + tp.getGEMData().pad_hi)) - 0.5;
-    //lp = roll->centreOfPad(pad);  // does not work
-    const float strip = 2.0 * pad;
-    lp = roll->centreOfStrip(strip);
-    gp = roll->surface().toGlobal(lp);
-  }
-
-  //roll.release();
-
+  const GEMDetId id(tp.detId<GEMDetId>());
+  const GEMEtaPartition* roll = _geogem->etaPartition(id);
+  assert(roll != nullptr);  // failed to get GEM roll
+  //const uint16_t pad = tp.getGEMData().pad;
+  // Use half-pad precision, + 0.5 at the end to get the center of the pad (pad starts from 0)
+  const float pad = (0.5 * static_cast<float>(tp.getGEMData().pad_low + tp.getGEMData().pad_hi)) + 0.5f;
+  const LocalPoint& lp = roll->centreOfPad(pad);
+  const GlobalPoint& gp = roll->surface().toGlobal(lp);
   return gp;
 }
 
@@ -168,20 +193,19 @@ double GeometryTranslator::calcGEMSpecificPhi(const TriggerPrimitive& tp) const 
   return getGEMSpecificPoint(tp).phi();
 }
 
-double GeometryTranslator::calcGEMSpecificBend(const TriggerPrimitive& tp) const { return tp.getGEMData().bend; }
+double GeometryTranslator::calcGEMSpecificBend(const TriggerPrimitive& tp) const { return 0.0; }
 
+// _____________________________________________________________________________
+// RPC
 GlobalPoint GeometryTranslator::getRPCSpecificPoint(const TriggerPrimitive& tp) const {
   const RPCDetId id(tp.detId<RPCDetId>());
   const RPCRoll* roll = _georpc->roll(id);
-  assert(roll);
+  assert(roll != nullptr);  // failed to get RPC roll
   //const int strip = static_cast<int>(tp.getRPCData().strip);
-  // Use half-strip precision, - 0.5 at the end to get the center of the strip
-  const float strip = (0.5 * static_cast<float>(tp.getRPCData().strip_low + tp.getRPCData().strip_hi)) - 0.5;
-  const LocalPoint lp = roll->centreOfStrip(strip);
-  const GlobalPoint gp = roll->surface().toGlobal(lp);
-
-  //roll.release();
-
+  // Use half-strip precision, - 0.5 at the end to get the center of the strip (strip starts from 1)
+  const float strip = (0.5 * static_cast<float>(tp.getRPCData().strip_low + tp.getRPCData().strip_hi)) - 0.5f;
+  const LocalPoint& lp = roll->centreOfStrip(strip);
+  const GlobalPoint& gp = roll->surface().toGlobal(lp);
   return gp;
 }
 
@@ -197,6 +221,9 @@ double GeometryTranslator::calcRPCSpecificPhi(const TriggerPrimitive& tp) const 
 // hits are point-like objects
 double GeometryTranslator::calcRPCSpecificBend(const TriggerPrimitive& tp) const { return 0.0; }
 
+// _____________________________________________________________________________
+// CSC
+//
 // alot of this is transcription and consolidation of the CSC
 // global phi calculation code
 // this works directly with the geometry
@@ -206,6 +233,7 @@ GlobalPoint GeometryTranslator::getCSCSpecificPoint(const TriggerPrimitive& tp) 
   // we should change this to weak_ptrs at some point
   // requires introducing std::shared_ptrs to geometry
   std::unique_ptr<const CSCChamber> chamb(_geocsc->chamber(id));
+  assert(chamb != nullptr);  // failed to get CSC chamber
   std::unique_ptr<const CSCLayerGeometry> layer_geom(chamb->layer(CSCConstants::KEY_ALCT_LAYER)->geometry());
   std::unique_ptr<const CSCLayer> layer(chamb->layer(CSCConstants::KEY_ALCT_LAYER));
 
@@ -221,13 +249,13 @@ GlobalPoint GeometryTranslator::getCSCSpecificPoint(const TriggerPrimitive& tp) 
     case 1:
       offset = CSCPatternLUT::get2007Position(pattern);
   }
-  const unsigned halfstrip_offs = unsigned(0.5 + halfstrip + offset);
+  const unsigned halfstrip_offs = static_cast<unsigned>(0.5 + halfstrip + offset);
   const unsigned strip = halfstrip_offs / 2 + 1;  // geom starts from 1
 
   // the rough location of the hit at the ALCT key layer
   // we will refine this using the half strip information
-  const LocalPoint coarse_lp = layer_geom->stripWireGroupIntersection(strip, keyWG);
-  const GlobalPoint coarse_gp = layer->surface().toGlobal(coarse_lp);
+  const LocalPoint& coarse_lp = layer_geom->stripWireGroupIntersection(strip, keyWG);
+  const GlobalPoint& coarse_gp = layer->surface().toGlobal(coarse_lp);
 
   // the strip width/4.0 gives the offset of the half-strip
   // center with respect to the strip center
@@ -265,6 +293,15 @@ double GeometryTranslator::calcCSCSpecificPhi(const TriggerPrimitive& tp) const 
 
 double GeometryTranslator::calcCSCSpecificBend(const TriggerPrimitive& tp) const { return tp.getCSCData().bend; }
 
+bool GeometryTranslator::isCSCCounterClockwise(const std::unique_ptr<const CSCLayer>& layer) const {
+  const int nStrips = layer->geometry()->numberOfStrips();
+  const double phi1 = layer->centerOfStrip(1).phi();
+  const double phiN = layer->centerOfStrip(nStrips).phi();
+  return ((std::abs(phi1 - phiN) < M_PI && phi1 >= phiN) || (std::abs(phi1 - phiN) >= M_PI && phi1 < phiN));
+}
+
+// _____________________________________________________________________________
+// DT
 GlobalPoint GeometryTranslator::calcDTSpecificPoint(const TriggerPrimitive& tp) const {
   const DTChamberId baseid(tp.detId<DTChamberId>());
   // do not use this pointer for anything other than creating a trig geom
@@ -288,11 +325,11 @@ GlobalPoint GeometryTranslator::calcDTSpecificPoint(const TriggerPrimitive& tp) 
     // of the chamber
     thetaBTI = DTBtiId(baseid, 3, 1);
   }
-  const GlobalPoint theta_gp = trig_geom->CMSPosition(thetaBTI);
+  const GlobalPoint& theta_gp = trig_geom->CMSPosition(thetaBTI);
 
   // local phi in sector -> global phi
-  double phi = ((double)tp.getDTData().radialAngle) / 4096.0;
-  phi += tp.getDTData().sector * M_PI / 6.0;  // add sector offset
+  double phi = static_cast<double>(tp.getDTData().radialAngle) / 4096.0;  // 12 bits for 1 radian
+  phi += tp.getDTData().sector * M_PI / 6.0;                              // add sector offset, sector is [0,11]
 
   return GlobalPoint(GlobalPoint::Polar(theta_gp.theta(), phi, theta_gp.mag()));
 }
@@ -306,11 +343,4 @@ double GeometryTranslator::calcDTSpecificBend(const TriggerPrimitive& tp) const 
   int bend = tp.getDTData().bendingAngle;
   double bendf = bend / 512.0;
   return bendf;
-}
-
-bool GeometryTranslator::isCSCCounterClockwise(const std::unique_ptr<const CSCLayer>& layer) const {
-  const int nStrips = layer->geometry()->numberOfStrips();
-  const double phi1 = layer->centerOfStrip(1).phi();
-  const double phiN = layer->centerOfStrip(nStrips).phi();
-  return ((std::abs(phi1 - phiN) < M_PI && phi1 >= phiN) || (std::abs(phi1 - phiN) >= M_PI && phi1 < phiN));
 }
