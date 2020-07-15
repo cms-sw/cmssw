@@ -195,14 +195,13 @@ std::vector<double> DetGeomDesc::computeParameters(const cms::DDFilteredView& fv
 	++counter;
       }
     }
-    /*
     else {
-      if (!fv.isA<dd4hep::BooleanSolid>()) {
-      std::cout << "DetGeomDesc::DetGeomDesc(cms::DDFilteredView* fv): ERROR: shape not supported for " 
-		<< m_name << ", Id = " << m_geographicalID
-		<< std::endl;
+      if (!fv.isABoolean()) {
+	edm::LogError("DetGeomDesc::DetGeomDesc")
+	  << m_name << ", Id = " << m_geographicalID
+	  << ". Shape is neither a supported one, nor a boolean.";
       }
-      }*/
+    }
   }
   return parameters;
 }
