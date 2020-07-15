@@ -38,12 +38,12 @@
 class L1GmtTriggerSource : public edm::EDAnalyzer {
 public:
   explicit L1GmtTriggerSource(const edm::ParameterSet&);
-  ~L1GmtTriggerSource();
+  ~L1GmtTriggerSource() override;
 
 private:
-  virtual void beginJob();
-  virtual void analyze(const edm::Event&, const edm::EventSetup&);
-  virtual void endJob();
+  void beginJob() override;
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void endJob() override;
 
   // ----------member data ---------------------------
   edm::InputTag m_GMTInputTag;

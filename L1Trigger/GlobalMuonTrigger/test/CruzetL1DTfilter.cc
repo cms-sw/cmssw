@@ -20,7 +20,7 @@
 class CruzetL1DTfilter : public edm::EDFilter {
 public:
   explicit CruzetL1DTfilter(const edm::ParameterSet&);
-  virtual bool filter(edm::Event&, const edm::EventSetup&);
+  bool filter(edm::Event&, const edm::EventSetup&) override;
 
 private:
   // mode:

@@ -31,7 +31,7 @@
 
 #include "L1Trigger/CSCTrackFinder/test/analysis/CSCMakePTLUT.h"
 
-CSCMakePTLUT::CSCMakePTLUT(edm::ParameterSet const& conf) : myTF(0) {
+CSCMakePTLUT::CSCMakePTLUT(edm::ParameterSet const& conf) : myTF(nullptr) {
   //writeLocalPhi = conf.getUntrackedParameter<bool>("WriteLocalPhi",true);
   station = conf.getUntrackedParameter<int>("Station", -1);
   sector = conf.getUntrackedParameter<int>("Sector", -1);
@@ -46,7 +46,7 @@ CSCMakePTLUT::CSCMakePTLUT(edm::ParameterSet const& conf) : myTF(0) {
 CSCMakePTLUT::~CSCMakePTLUT() {
   if (myTF) {
     delete myTF;
-    myTF = NULL;
+    myTF = nullptr;
   }
 }
 

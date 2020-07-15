@@ -34,8 +34,8 @@ L1GctTestAnalyzer::L1GctTestAnalyzer(const edm::ParameterSet& iConfig)
       doRctEM_(iConfig.getUntrackedParameter<bool>("doRctEm", true)),
       doInternEM_(iConfig.getUntrackedParameter<bool>("doInternEm", true)),
       doEM_(iConfig.getUntrackedParameter<bool>("doEm", true)),
-      doJets_(iConfig.getUntrackedParameter<bool>("doJets", 0)),
-      doEnergySums_(iConfig.getUntrackedParameter<bool>("doEnergySums", 0)),
+      doJets_(iConfig.getUntrackedParameter<bool>("doJets", false)),
+      doEnergySums_(iConfig.getUntrackedParameter<bool>("doEnergySums", false)),
       rctEmMinRank_(iConfig.getUntrackedParameter<unsigned>("rctEmMinRank", 0)) {
   //now do what ever initialization is needed
 

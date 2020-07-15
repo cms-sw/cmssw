@@ -1,9 +1,9 @@
 #include <iostream>
 #include <iomanip>
 
-#include <stdio.h>
-#include <string.h>
-#include <stdint.h>
+#include <cstdint>
+#include <cstdio>
+#include <cstring>
 
 using namespace std;
 
@@ -18,12 +18,12 @@ int main(int argc, char** argv) {
   while (cin.getline(line, 256)) {
     char* saveptr;
     char* iToken = strtok_r(line, ":", &saveptr);
-    if (iToken == 0)
+    if (iToken == nullptr)
       continue;
     if (sscanf(iToken, "%d", &index) == 1) {
       if (index < 694) {
         char* fToken = strtok_r(nullptr, "\n", &saveptr);
-        if (fToken == 0)
+        if (fToken == nullptr)
           continue;
         if (sscanf(fToken, "%lX", &fedRawDataArray[index]) != 1) {
           cerr << "oops! format error :(" << endl;

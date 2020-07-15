@@ -52,22 +52,22 @@ L1GctTest::L1GctTest(const edm::ParameterSet& iConfig)
       m_allGood(true) {
   //now do what ever initialization is needed
   // check the files are specified if required
-  if (theElectronTestIsEnabled && theInputDataFileName == "") {
+  if (theElectronTestIsEnabled && theInputDataFileName.empty()) {
     throw cms::Exception("L1GctTestInitialisationError")
         << "no input filename provided for electron tests.\n"
         << "Specify non-blank parameter inputFile in cmsRun configuration\n";
   }
-  if (theFirmwareTestIsEnabled && theInputDataFileName == "") {
+  if (theFirmwareTestIsEnabled && theInputDataFileName.empty()) {
     throw cms::Exception("L1GctTestInitialisationError")
         << "no input filename provided for firmware tests.\n"
         << "Specify non-blank parameter inputFile in cmsRun configuration\n";
   }
-  if (theSingleEventTestIsEnabled && theInputDataFileName == "") {
+  if (theSingleEventTestIsEnabled && theInputDataFileName.empty()) {
     throw cms::Exception("L1GctTestInitialisationError")
         << "no input filename provided for single event tests.\n"
         << "Specify non-blank parameter inputFile in cmsRun configuration\n";
   }
-  if (theFirmwareTestIsEnabled && theReferenceDataFileName == "") {
+  if (theFirmwareTestIsEnabled && theReferenceDataFileName.empty()) {
     throw cms::Exception("L1GctTestInitialisationError")
         << "no reference filename provided for firmware tests.\n"
         << "Specify non-blank parameter referenceFile in cmsRun configuration\n";

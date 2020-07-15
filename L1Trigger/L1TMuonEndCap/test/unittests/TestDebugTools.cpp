@@ -10,9 +10,9 @@ class TestDebugTools : public CppUnit::TestFixture {
 
 public:
   TestDebugTools() {}
-  ~TestDebugTools() {}
-  void setUp() {}
-  void tearDown() {}
+  ~TestDebugTools() override {}
+  void setUp() override {}
+  void tearDown() override {}
 
   void test_assert();
 };

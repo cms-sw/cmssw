@@ -13,9 +13,9 @@ class TestPhiMemoryImage : public CppUnit::TestFixture {
 
 public:
   TestPhiMemoryImage() {}
-  ~TestPhiMemoryImage() {}
-  void setUp() {}
-  void tearDown() {}
+  ~TestPhiMemoryImage() override {}
+  void setUp() override {}
+  void tearDown() override {}
 
   void test_bitset();
   void test_rotation();

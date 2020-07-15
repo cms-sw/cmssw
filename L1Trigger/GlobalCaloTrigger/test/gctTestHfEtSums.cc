@@ -7,9 +7,9 @@
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctGlobalHfSumAlgos.h"
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GlobalCaloTrigger.h"
 
-#include <math.h>
-#include <iostream>
 #include <cassert>
+#include <cmath>
+#include <iostream>
 
 using namespace std;
 
@@ -36,7 +36,7 @@ gctTestHfEtSums::~gctTestHfEtSums() {}
 
 void gctTestHfEtSums::configure(const L1CaloEtScale* scale) { m_etScale = scale; }
 
-bool gctTestHfEtSums::setupOk() const { return (m_etScale != 0); }
+bool gctTestHfEtSums::setupOk() const { return (m_etScale != nullptr); }
 //=================================================================================================================
 //
 /// Reset stored sums

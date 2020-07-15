@@ -36,12 +36,12 @@
 class DumpL1RPCHsbConfig : public edm::EDAnalyzer {
 public:
   explicit DumpL1RPCHsbConfig(const edm::ParameterSet&);
-  ~DumpL1RPCHsbConfig();
+  ~DumpL1RPCHsbConfig() override;
 
 private:
-  virtual void beginJob();
-  virtual void analyze(const edm::Event&, const edm::EventSetup&);
-  virtual void endJob();
+  void beginJob() override;
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void endJob() override;
 
   // ----------member data ---------------------------
 };
