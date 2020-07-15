@@ -4,7 +4,7 @@
   <close_geometry/>
 
   <IncludeSection>
-    <Include ref="Geometry/CMSCommonData/data/materials.xml"/>
+    <Include ref="Geometry/CMSCommonData/data/materials/2021/v1/materials.xml"/>
     <Include ref="Geometry/CMSCommonData/data/rotations.xml"/>
     <Include ref="Geometry/CMSCommonData/data/extend/cmsextent.xml"/>
     <Include ref="Geometry/CMSCommonData/data/cms/2026/v4/cms.xml"/>
@@ -44,13 +44,15 @@
     <Include ref="Geometry/HGCalCommonData/data/hgcalHEmix/v12/hgcalHEmix.xml"/>
     <Include ref="Geometry/HGCalCommonData/data/hgcalCons/v12/hgcalCons.xml"/>
     <Include ref="Geometry/ForwardCommonData/data/forwardshield/2017/v1/forwardshield.xml"/>
+    <Include ref="Geometry/ForwardCommonData/data/brmrotations.xml"/>
+    <Include ref="Geometry/ForwardCommonData/data/PostLS2/brm.xml"/>
     <Include ref="Geometry/MuonCommonData/data/mbCommon/2021/v1/mbCommon.xml"/>
     <Include ref="Geometry/MuonCommonData/data/mb1/2015/v2/mb1.xml"/>
     <Include ref="Geometry/MuonCommonData/data/mb2/2015/v2/mb2.xml"/>
     <Include ref="Geometry/MuonCommonData/data/mb3/2015/v2/mb3.xml"/>
     <Include ref="Geometry/MuonCommonData/data/mb4/2015/v2/mb4.xml"/>
     <Include ref="Geometry/MuonCommonData/data/mb4Shield/2021/v1/mb4Shield.xml"/>
-    <Include ref="Geometry/MuonCommonData/data/muonYoke/2021/v3/muonYoke.xml"/>
+    <Include ref="Geometry/MuonCommonData/data/muonYoke/2026/v1/muonYoke.xml"/>
     <Include ref="Geometry/MuonCommonData/data/csc/2021/v2/csc.xml"/>
     <Include ref="Geometry/MuonCommonData/data/mf/2026/v5/mf.xml"/>
     <Include ref="Geometry/MuonCommonData/data/rpcf/2026/v3/rpcf.xml"/>
