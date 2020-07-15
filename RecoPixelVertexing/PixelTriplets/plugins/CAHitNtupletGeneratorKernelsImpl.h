@@ -79,6 +79,10 @@ __global__ void kernel_checkOverflows(HitContainer const *foundNtuplets,
       printf("Tuples overflow\n");
     if (*nCells >= maxNumberOfDoublets)
       printf("Cells overflow\n");
+    if (cellNeighbors && cellNeighbors->full())
+      printf("cellNeighbors overflow\n");
+    if (cellTracks && cellTracks->full())
+      printf("cellTracks overflow\n");
   }
 
   for (int idx = first, nt = (*nCells); idx < nt; idx += gridDim.x * blockDim.x) {
