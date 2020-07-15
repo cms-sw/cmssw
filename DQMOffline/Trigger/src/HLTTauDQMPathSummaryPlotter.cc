@@ -16,8 +16,7 @@ void HLTTauDQMPathSummaryPlotter::bookHistograms(HistoWrapper& iWrapper, DQMStor
   //Create the histograms
   iBooker.setCurrentFolder(triggerTag() + "/helpers");
 
-  all_events =
-      iWrapper.book1D(iBooker, "RefEvents", "All events", pathObjects_.size(), 0, pathObjects_.size(), kVital);
+  all_events = iWrapper.book1D(iBooker, "RefEvents", "All events", pathObjects_.size(), 0, pathObjects_.size(), kVital);
   accepted_events = iWrapper.book1D(iBooker,
                                     "PathTriggerBits",
                                     "Accepted Events per Path;;entries",
