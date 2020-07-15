@@ -213,7 +213,7 @@ pixelLessStepChi2Est = RecoTracker.MeasurementDet.Chi2ChargeMeasurementEstimator
     ComponentName    = 'pixelLessStepChi2Est',
     nSigma           = 3.0,
     MaxChi2          = 16.0,
-    clusterChargeCut = dict(refToPSet_ = 'SiStripClusterChargeCutTight')
+    clusterChargeCut = cms.PSet(refToPSet_ = cms.string('SiStripClusterChargeCutTight'))
 )
 trackingLowPU.toModify(pixelLessStepChi2Est,
     clusterChargeCut = dict(refToPSet_ = 'SiStripClusterChargeCutTiny')
@@ -223,7 +223,7 @@ trackingLowPU.toModify(pixelLessStepChi2Est,
 import RecoTracker.CkfPattern.GroupedCkfTrajectoryBuilder_cfi
 pixelLessStepTrajectoryBuilder = RecoTracker.CkfPattern.GroupedCkfTrajectoryBuilder_cfi.GroupedCkfTrajectoryBuilder.clone(
     MeasurementTrackerName = '',
-    trajectoryFilter       = dict(refToPSet_ = 'pixelLessStepTrajectoryFilter'),
+    trajectoryFilter       = cms.PSet(refToPSet_ = cms.string('pixelLessStepTrajectoryFilter')),
     minNrOfHitsForRebuild  = 4,
     maxCand                = 2,
     alwaysUseInvalidHits   = False,
@@ -240,7 +240,7 @@ pixelLessStepTrackCandidates = RecoTracker.CkfPattern.CkfTrackCandidates_cfi.ckf
     ### these two parameters are relevant only for the CachingSeedCleanerBySharedInput
     numHitsForSeedCleaner = cms.int32(50),
     #onlyPixelHitsForSeedCleaner = cms.bool(True),
-    TrajectoryBuilderPSet = dict(refToPSet_ = 'pixelLessStepTrajectoryBuilder'),
+    TrajectoryBuilderPSet = cms.PSet(refToPSet_ = cms.string('pixelLessStepTrajectoryBuilder')),
     TrajectoryCleaner     = 'pixelLessStepTrajectoryCleanerBySharedHits'
 )
 import FastSimulation.Tracking.TrackCandidateProducer_cfi

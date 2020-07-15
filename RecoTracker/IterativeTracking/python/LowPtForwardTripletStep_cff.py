@@ -60,7 +60,7 @@ lowPtForwardTripletStepChi2Est = TrackingTools.KalmanUpdators.Chi2MeasurementEst
 import RecoTracker.CkfPattern.GroupedCkfTrajectoryBuilder_cfi
 lowPtForwardTripletStepTrajectoryBuilder = RecoTracker.CkfPattern.GroupedCkfTrajectoryBuilder_cfi.GroupedCkfTrajectoryBuilder.clone(
     MeasurementTrackerName = '',
-    trajectoryFilter       = dict(refToPSet_ = 'lowPtForwardTripletStepTrajectoryFilter'),
+    trajectoryFilter       = cms.PSet(refToPSet_ = cms.string('lowPtForwardTripletStepTrajectoryFilter')),
     clustersToSkip         = cms.InputTag('lowPtForwardTripletStepClusters'),
     maxCand                = 3,
     estimator              = 'lowPtForwardTripletStepChi2Est'
@@ -70,7 +70,7 @@ lowPtForwardTripletStepTrajectoryBuilder = RecoTracker.CkfPattern.GroupedCkfTraj
 import RecoTracker.CkfPattern.CkfTrackCandidates_cfi
 lowPtForwardTripletStepTrackCandidates = RecoTracker.CkfPattern.CkfTrackCandidates_cfi.ckfTrackCandidates.clone(
     src                       = 'lowPtForwardTripletStepSeeds',
-    TrajectoryBuilderPSet     = dict(refToPSet_ = 'lowPtForwardTripletStepTrajectoryBuilder'),
+    TrajectoryBuilderPSet     = cms.PSet(refToPSet_ = cms.string('lowPtForwardTripletStepTrajectoryBuilder')),
     doSeedingRegionRebuilding = True,
     useHitsSplitting          = True
 )

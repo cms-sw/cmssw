@@ -142,7 +142,7 @@ _initialStepTrajectoryFilterBase = TrackingTools.TrajectoryFiltering.TrajectoryF
 )
 initialStepTrajectoryFilterBase = _initialStepTrajectoryFilterBase.clone(
     maxCCCLostHits = 0,
-    minGoodStripCharge = dict(refToPSet_ = 'SiStripClusterChargeCutLoose')
+    minGoodStripCharge = cms.PSet(refToPSet_ = cms.string('SiStripClusterChargeCutLoose'))
 )
 from Configuration.Eras.Modifier_tracker_apv_vfp30_2016_cff import tracker_apv_vfp30_2016
 _tracker_apv_vfp30_2016.toModify(initialStepTrajectoryFilterBase, maxCCCLostHits = 2)
@@ -182,7 +182,7 @@ initialStepChi2Est = RecoTracker.MeasurementDet.Chi2ChargeMeasurementEstimator_c
     ComponentName = 'initialStepChi2Est',
     nSigma        = 3.0,
     MaxChi2       = 30.0,
-    clusterChargeCut = dict(refToPSet_ = 'SiStripClusterChargeCutLoose'),
+    clusterChargeCut = cms.PSet(refToPSet_ = cms.string('SiStripClusterChargeCutLoose')),
     pTChargeCutThreshold = 15.
 )
 _tracker_apv_vfp30_2016.toModify(initialStepChi2Est,
@@ -195,7 +195,7 @@ trackingPhase2PU140.toModify(initialStepChi2Est,
 
 import RecoTracker.CkfPattern.GroupedCkfTrajectoryBuilder_cfi
 initialStepTrajectoryBuilder = RecoTracker.CkfPattern.GroupedCkfTrajectoryBuilder_cfi.GroupedCkfTrajectoryBuilder.clone(
-    trajectoryFilter = dict(refToPSet_ = 'initialStepTrajectoryFilter'),
+    trajectoryFilter = cms.PSet(refToPSet_ = cms.string('initialStepTrajectoryFilter')),
     alwaysUseInvalidHits = True,
     maxCand = 3,
     estimator = 'initialStepChi2Est',
@@ -218,7 +218,7 @@ initialStepTrackCandidates = RecoTracker.CkfPattern.CkfTrackCandidates_cfi.ckfTr
     ### these two parameters are relevant only for the CachingSeedCleanerBySharedInput
     numHitsForSeedCleaner = cms.int32(50),
     onlyPixelHitsForSeedCleaner = cms.bool(True),
-    TrajectoryBuilderPSet = dict(refToPSet_ = 'initialStepTrajectoryBuilder'),
+    TrajectoryBuilderPSet = cms.PSet(refToPSet_ = cms.string('initialStepTrajectoryBuilder')),
     doSeedingRegionRebuilding = True,
     useHitsSplitting = True
 )

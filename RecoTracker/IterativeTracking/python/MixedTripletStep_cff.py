@@ -258,7 +258,7 @@ mixedTripletStepChi2Est = RecoTracker.MeasurementDet.Chi2ChargeMeasurementEstima
     ComponentName    = 'mixedTripletStepChi2Est',
     nSigma           = 3.0,
     MaxChi2          = 16.0,
-    clusterChargeCut = dict(refToPSet_ = 'SiStripClusterChargeCutTight')
+    clusterChargeCut = cms.PSet(refToPSet_ = cms.string('SiStripClusterChargeCutTight'))
 )
 trackingLowPU.toModify(mixedTripletStepChi2Est,
     clusterChargeCut = dict(refToPSet_ = 'SiStripClusterChargeCutTiny')
@@ -268,7 +268,7 @@ trackingLowPU.toModify(mixedTripletStepChi2Est,
 import RecoTracker.CkfPattern.GroupedCkfTrajectoryBuilder_cfi
 mixedTripletStepTrajectoryBuilder = RecoTracker.CkfPattern.GroupedCkfTrajectoryBuilder_cfi.GroupedCkfTrajectoryBuilder.clone(
     MeasurementTrackerName = '',
-    trajectoryFilter       = dict(refToPSet_ = 'mixedTripletStepTrajectoryFilter'),
+    trajectoryFilter       = cms.PSet(refToPSet_ = cms.string('mixedTripletStepTrajectoryFilter')),
     propagatorAlong        = 'mixedTripletStepPropagator',
     propagatorOpposite     = 'mixedTripletStepPropagatorOpposite',
     maxCand                = 2,
@@ -286,7 +286,7 @@ mixedTripletStepTrackCandidates = RecoTracker.CkfPattern.CkfTrackCandidates_cfi.
     numHitsForSeedCleaner     = cms.int32(50),
     #onlyPixelHitsForSeedCleaner = cms.bool(True),
 
-    TrajectoryBuilderPSet     = dict(refToPSet_ = 'mixedTripletStepTrajectoryBuilder'),
+    TrajectoryBuilderPSet     = cms.PSet(refToPSet_ = cms.string('mixedTripletStepTrajectoryBuilder')),
     doSeedingRegionRebuilding = True,
     useHitsSplitting          = True,
     TrajectoryCleaner         = 'mixedTripletStepTrajectoryCleanerBySharedHits'

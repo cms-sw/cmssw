@@ -180,7 +180,7 @@ highPtTripletStepChi2Est = RecoTracker.MeasurementDet.Chi2ChargeMeasurementEstim
 )
 trackingPhase2PU140.toModify(highPtTripletStepChi2Est,
     clusterChargeCut = dict(refToPSet_ = 'SiStripClusterChargeCutNone'),
-    MaxChi2 = cms.double(20.0)
+    MaxChi2 = 20.0
 )
 
 

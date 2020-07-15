@@ -58,7 +58,7 @@ lowPtBarrelTripletStepChi2Est = TrackingTools.KalmanUpdators.Chi2MeasurementEsti
 import RecoTracker.CkfPattern.GroupedCkfTrajectoryBuilder_cfi
 lowPtBarrelTripletStepTrajectoryBuilder = RecoTracker.CkfPattern.GroupedCkfTrajectoryBuilder_cfi.GroupedCkfTrajectoryBuilder.clone(
     MeasurementTrackerName = '',
-    trajectoryFilter = dict(refToPSet_ = 'lowPtBarrelTripletStepTrajectoryFilter'),
+    trajectoryFilter = cms.PSet(refToPSet_ = cms.string('lowPtBarrelTripletStepTrajectoryFilter')),
     clustersToSkip = cms.InputTag('lowPtBarrelTripletStepClusters'),
     maxCand        = 3,
     #lostHitPenalty = cms.double(10.0), 
@@ -77,13 +77,13 @@ lowPtBarrelTripletStepTrackCandidates = RecoTracker.CkfPattern.CkfTrackCandidate
     ### these two parameters are relevant only for the CachingSeedCleanerBySharedInput
     numHitsForSeedCleaner = cms.int32(50),
     onlyPixelHitsForSeedCleaner = cms.bool(True),
-    TrajectoryBuilderPSet = dict(refToPSet_ = 'lowPtBarrelTripletStepTrajectoryBuilder'),
+    TrajectoryBuilderPSet = cms.PSet(refToPSet_ = cms.string('lowPtBarrelTripletStepTrajectoryBuilder')),
     doSeedingRegionRebuilding = True,
     useHitsSplitting          = True,
-    TransientInitialStateEstimatorParameters = dict(
-        propagatorAlongTISE      = 'PropagatorWithMaterialForLoopers',
-        propagatorOppositeTISE   = 'PropagatorWithMaterialForLoopersOpposite',
-        numberMeasurementsForFit = 4
+    TransientInitialStateEstimatorParameters = cms.PSet(
+        propagatorAlongTISE      = cms.string('PropagatorWithMaterialForLoopers'),
+        propagatorOppositeTISE   = cms.string('PropagatorWithMaterialForLoopersOpposite'),
+        numberMeasurementsForFit = cms.int32(4)
     )
 )
 

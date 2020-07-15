@@ -5,7 +5,7 @@ from RecoLocalTracker.SiStripClusterizer.SiStripClusterChargeCut_cfi import *
 
 from RecoTracker.MeasurementDet.Chi2ChargeMeasurementEstimatorDefault_cfi import Chi2ChargeMeasurementEstimatorDefault
 Chi2ChargeMeasurementEstimator = Chi2ChargeMeasurementEstimatorDefault.clone(
-    clusterChargeCut = dict(refToPSet_ = cms.string('SiStripClusterChargeCutTight'))
+    clusterChargeCut = cms.PSet(refToPSet_ = cms.string('SiStripClusterChargeCutTight'))
 )
 _tracker_apv_vfp30_2016.toModify(Chi2ChargeMeasurementEstimator, MinPtForHitRecoveryInGluedDet=0.9)
 

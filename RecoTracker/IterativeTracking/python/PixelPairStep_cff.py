@@ -255,7 +255,7 @@ pixelPairStepChi2Est = RecoTracker.MeasurementDet.Chi2ChargeMeasurementEstimator
     ComponentName    = 'pixelPairStepChi2Est',
     nSigma           = 3.0,
     MaxChi2          = 9.0,
-    clusterChargeCut = dict(refToPSet_ = 'SiStripClusterChargeCutLoose'),
+    clusterChargeCut = cms.PSet(refToPSet_ = cms.string('SiStripClusterChargeCutLoose')),
     pTChargeCutThreshold = 15.
 )
 _tracker_apv_vfp30_2016.toModify(pixelPairStepChi2Est,
@@ -270,7 +270,7 @@ highBetaStar_2018.toModify(pixelPairStepChi2Est,MaxChi2 = 30)
 import RecoTracker.CkfPattern.GroupedCkfTrajectoryBuilder_cfi
 pixelPairStepTrajectoryBuilder = RecoTracker.CkfPattern.GroupedCkfTrajectoryBuilder_cfi.GroupedCkfTrajectoryBuilder.clone(
     MeasurementTrackerName = '',
-    trajectoryFilter       = dict(refToPSet_ = 'pixelPairStepTrajectoryFilter'),
+    trajectoryFilter       = cms.PSet(refToPSet_ = cms.string('pixelPairStepTrajectoryFilter')),
     maxCand                = 3,
     estimator              = 'pixelPairStepChi2Est',
     maxDPhiForLooperReconstruction = cms.double(2.0),
@@ -292,7 +292,7 @@ import RecoTracker.CkfPattern.CkfTrackCandidates_cfi
 pixelPairStepTrackCandidates = RecoTracker.CkfPattern.CkfTrackCandidates_cfi.ckfTrackCandidates.clone(
     src = 'pixelPairStepSeeds',
     clustersToSkip        = cms.InputTag('pixelPairStepClusters'),
-    TrajectoryBuilderPSet = dict(refToPSet_ = 'pixelPairStepTrajectoryBuilder'),
+    TrajectoryBuilderPSet = cms.PSet(refToPSet_ = cms.string('pixelPairStepTrajectoryBuilder')),
     ### these two parameters are relevant only for the CachingSeedCleanerBySharedInput
     numHitsForSeedCleaner = cms.int32(50),
     onlyPixelHitsForSeedCleaner = cms.bool(True),

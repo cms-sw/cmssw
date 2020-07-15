@@ -102,9 +102,6 @@ for e in [pp_on_XeXe_2017, pp_on_AA_2018]:
 
 import TrackingTools.KalmanUpdators.Chi2MeasurementEstimator_cfi
 jetCoreRegionalStepChi2Est = TrackingTools.KalmanUpdators.Chi2MeasurementEstimator_cfi.Chi2MeasurementEstimator.clone(
-    #ComponentName = cms.string('jetCoreRegionalStepChi2Est'),
-    #nSigma = cms.double(3.0),
-    #MaxChi2 = cms.double(30.0)
     ComponentName = 'jetCoreRegionalStepChi2Est',
     nSigma        = 3.0,
     MaxChi2       = 30.0
@@ -116,7 +113,7 @@ import RecoTracker.CkfPattern.GroupedCkfTrajectoryBuilder_cfi
 CkfBaseTrajectoryFilter_block = RecoTracker.CkfPattern.GroupedCkfTrajectoryBuilder_cfi.CkfBaseTrajectoryFilter_block
 jetCoreRegionalStepTrajectoryBuilder = RecoTracker.CkfPattern.GroupedCkfTrajectoryBuilder_cfi.GroupedCkfTrajectoryBuilder.clone(
     MeasurementTrackerName = '',
-    trajectoryFilter = dict(refToPSet_ = 'jetCoreRegionalStepTrajectoryFilter'),
+    trajectoryFilter = cms.PSet(refToPSet_ = cms.string('jetCoreRegionalStepTrajectoryFilter')),
     #clustersToSkip = cms.InputTag('jetCoreRegionalStepClusters'),
     maxCand = 50,
     estimator = 'jetCoreRegionalStepChi2Est',
@@ -129,7 +126,7 @@ import RecoTracker.CkfPattern.CkfTrackCandidates_cfi
 jetCoreRegionalStepTrackCandidates = RecoTracker.CkfPattern.CkfTrackCandidates_cfi.ckfTrackCandidates.clone(
     src                    = 'jetCoreRegionalStepSeeds',
     maxSeedsBeforeCleaning = 10000,
-    TrajectoryBuilderPSet  = dict( refToPSet_ = 'jetCoreRegionalStepTrajectoryBuilder'),
+    TrajectoryBuilderPSet  = cms.PSet( refToPSet_ = cms.string('jetCoreRegionalStepTrajectoryBuilder')),
     NavigationSchool       = 'SimpleNavigationSchool',
     ### these two parameters are relevant only for the CachingSeedCleanerBySharedInput
     #numHitsForSeedCleaner = cms.int32(50),
