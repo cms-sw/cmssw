@@ -18,7 +18,7 @@
 #include <boost/regex.hpp>
 #include <boost/format.hpp>
 #include <boost/range.hpp>
-#include <filesystem>
+#include <boost/filesystem.hpp>
 #include <boost/algorithm/string/predicate.hpp>
 
 namespace dqm {
@@ -176,8 +176,8 @@ namespace dqm {
   std::shared_ptr<dqm::rdm::Empty> RamdiskMonitor::globalBeginLuminosityBlock(edm::LuminosityBlock const &,
                                                                               edm::EventSetup const &eSetup) const {
     // search filesystem to find available lumi section files
-    using std::filesystem::directory_entry;
-    using std::filesystem::directory_iterator;
+    using boost::filesystem::directory_entry;
+    using boost::filesystem::directory_iterator;
 
     directory_iterator dend;
     for (directory_iterator di(runPath_); di != dend; ++di) {

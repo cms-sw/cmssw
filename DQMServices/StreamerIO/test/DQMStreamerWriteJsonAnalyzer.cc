@@ -3,7 +3,7 @@
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 
 #include <boost/algorithm/string.hpp>
-#include <filesystem>
+#include <boost/filesystem.hpp>
 #include <boost/format.hpp>
 #include <boost/property_tree/json_parser.hpp>
 #include <boost/property_tree/ptree.hpp>
@@ -21,7 +21,7 @@ namespace dqmservices {
     void writeJson() const;
     void writeEndJob() const;
 
-    std::filesystem::path writePath_;
+    boost::filesystem::path writePath_;
     unsigned int const eventsPerLumi_;
     unsigned int const runNumber_;
     std::string const streamName_;
@@ -37,10 +37,10 @@ namespace dqmservices {
         dataFileForEachLumi_(iPSet.getUntrackedParameter<std::vector<std::string>>("dataFileForEachLumi")),
         nEventsSeenSinceWrite_{0},
         fileIndex_{0} {
-    std::filesystem::path path = iPSet.getUntrackedParameter<std::string>("pathToWriteJson");
+    boost::filesystem::path path = iPSet.getUntrackedParameter<std::string>("pathToWriteJson");
     writePath_ /= str(boost::format("run%06d") % runNumber_);
 
-    std::filesystem::create_directories(writePath_);
+    boost::filesystem::create_directories(writePath_);
   }
 
   void DQMStreamerWriteJsonAnalyzer::fillDescriptions(edm::ConfigurationDescriptions& iDesc) {
