@@ -22,13 +22,15 @@ int run(const std::string& connectionString) {
     connPool.configure();
     Session session = connPool.createSession(connectionString);
     session.transaction().start();
-    cond::RunInfo_t r = session.getLastRun(); 
-    std::cout <<"Last run: "<<r.run<<" start:"<<r.start<<std::endl;
-    if( r.isOnGoing() ) std::cout <<"Run is ongoing"<<std::endl;
-    else std::cout <<"Run was ending on "<<r.end<<std::endl;
-    session.transaction().commit();    
-  } catch ( cond::Exception& e ){
-    std::cout <<"ERROR: "<<e.what()<<std::endl;
+    cond::RunInfo_t r = session.getLastRun();
+    std::cout << "Last run: " << r.run << " start:" << r.start << std::endl;
+    if (r.isOnGoing())
+      std::cout << "Run is ongoing" << std::endl;
+    else
+      std::cout << "Run was ending on " << r.end << std::endl;
+    session.transaction().commit();
+  } catch (cond::Exception& e) {
+    std::cout << "ERROR: " << e.what() << std::endl;
     return 1;
   }
   //std::cout << "## RunInfo test successfully completed." << std::endl;
