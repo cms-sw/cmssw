@@ -16,8 +16,8 @@ class RecoGeometryRecord
     : public edm::eventsetup::DependentRecordImplementation<
           RecoGeometryRecord,
           boost::mp11::mp_list<TrackerRecoGeometryRecord, MuonRecoGeometryRecord, MTDRecoGeometryRecord
-                             //,NavigationSchoolRecord,
-                             //IdealMagneticFieldRecord
-                             > > {};
+                               //,NavigationSchoolRecord,
+                               //IdealMagneticFieldRecord
+                               > > {};
 
 #endif

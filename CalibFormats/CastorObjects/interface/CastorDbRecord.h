@@ -29,11 +29,11 @@
 class CastorDbRecord
     : public edm::eventsetup::DependentRecordImplementation<CastorDbRecord,
                                                             boost::mp11::mp_list<CastorPedestalsRcd,
-                                                                               CastorPedestalWidthsRcd,
-                                                                               CastorGainsRcd,
-                                                                               CastorGainWidthsRcd,
-                                                                               CastorQIEDataRcd,
-                                                                               CastorChannelQualityRcd,
-                                                                               CastorElectronicsMapRcd> > {};
+                                                                                 CastorPedestalWidthsRcd,
+                                                                                 CastorGainsRcd,
+                                                                                 CastorGainWidthsRcd,
+                                                                                 CastorQIEDataRcd,
+                                                                                 CastorChannelQualityRcd,
+                                                                                 CastorElectronicsMapRcd> > {};
 
 #endif /* CASTORDBPRODUCER_CASTORDBRECORD_H */

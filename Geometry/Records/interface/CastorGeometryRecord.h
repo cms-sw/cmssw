@@ -23,10 +23,10 @@
 class CastorGeometryRecord
     : public edm::eventsetup::DependentRecordImplementation<CastorGeometryRecord,
                                                             boost::mp11::mp_list<IdealGeometryRecord,
-                                                                               CastorAlignmentRcd,
-                                                                               CastorAlignmentErrorRcd,
-                                                                               CastorAlignmentErrorExtendedRcd,
-                                                                               GlobalPositionRcd,
-                                                                               PCastorRcd> > {};
+                                                                                 CastorAlignmentRcd,
+                                                                                 CastorAlignmentErrorRcd,
+                                                                                 CastorAlignmentErrorExtendedRcd,
+                                                                                 GlobalPositionRcd,
+                                                                                 PCastorRcd> > {};
 
 #endif /* RECORDS_CastorGEOMETRYRECORD_H */

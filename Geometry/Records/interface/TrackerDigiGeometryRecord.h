@@ -15,11 +15,11 @@
 class TrackerDigiGeometryRecord
     : public edm::eventsetup::DependentRecordImplementation<TrackerDigiGeometryRecord,
                                                             boost::mp11::mp_list<IdealGeometryRecord,
-                                                                               TrackerAlignmentRcd,
-                                                                               TrackerAlignmentErrorExtendedRcd,
-                                                                               TrackerSurfaceDeformationRcd,
-                                                                               GlobalPositionRcd,
-                                                                               TrackerTopologyRcd,
-                                                                               PTrackerParametersRcd> > {};
+                                                                                 TrackerAlignmentRcd,
+                                                                                 TrackerAlignmentErrorExtendedRcd,
+                                                                                 TrackerSurfaceDeformationRcd,
+                                                                                 GlobalPositionRcd,
+                                                                                 TrackerTopologyRcd,
+                                                                                 PTrackerParametersRcd> > {};
 
 #endif /* RECORDS_TRACKERDIGIGEOMETRYRECORD_H */

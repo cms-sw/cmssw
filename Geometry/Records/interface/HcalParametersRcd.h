@@ -6,7 +6,7 @@
 #include <boost/mp11/list.hpp>
 
 class HcalParametersRcd
-    : public edm::eventsetup::DependentRecordImplementation<HcalParametersRcd, boost::mp11::mp_list<IdealGeometryRecord> > {
-};
+    : public edm::eventsetup::DependentRecordImplementation<HcalParametersRcd,
+                                                            boost::mp11::mp_list<IdealGeometryRecord> > {};
 
 #endif  // Geometry_Records_HcalParameters_H

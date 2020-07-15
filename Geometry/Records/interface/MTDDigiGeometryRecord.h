@@ -15,11 +15,11 @@
 class MTDDigiGeometryRecord
     : public edm::eventsetup::DependentRecordImplementation<MTDDigiGeometryRecord,
                                                             boost::mp11::mp_list<IdealGeometryRecord,
-                                                                               MTDAlignmentRcd,
-                                                                               MTDAlignmentErrorExtendedRcd,
-                                                                               MTDSurfaceDeformationRcd,
-                                                                               GlobalPositionRcd,
-                                                                               MTDTopologyRcd,
-                                                                               PMTDParametersRcd> > {};
+                                                                                 MTDAlignmentRcd,
+                                                                                 MTDAlignmentErrorExtendedRcd,
+                                                                                 MTDSurfaceDeformationRcd,
+                                                                                 GlobalPositionRcd,
+                                                                                 MTDTopologyRcd,
+                                                                                 PMTDParametersRcd> > {};
 
 #endif /* RECORDS_MTDDIGIGEOMETRYRECORD_H */

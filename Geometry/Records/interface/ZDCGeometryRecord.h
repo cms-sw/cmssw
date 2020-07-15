@@ -23,10 +23,10 @@
 class ZDCGeometryRecord
     : public edm::eventsetup::DependentRecordImplementation<ZDCGeometryRecord,
                                                             boost::mp11::mp_list<IdealGeometryRecord,
-                                                                               ZDCAlignmentRcd,
-                                                                               ZDCAlignmentErrorRcd,
-                                                                               ZDCAlignmentErrorExtendedRcd,
-                                                                               GlobalPositionRcd,
-                                                                               PZdcRcd> > {};
+                                                                                 ZDCAlignmentRcd,
+                                                                                 ZDCAlignmentErrorRcd,
+                                                                                 ZDCAlignmentErrorExtendedRcd,
+                                                                                 GlobalPositionRcd,
+                                                                                 PZdcRcd> > {};
 
 #endif /* RECORDS_ZDCGEOMETRYRECORD_H */

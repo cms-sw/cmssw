@@ -12,6 +12,7 @@
 #include <boost/mp11/list.hpp>
 
 class CTPPSBeamParametersRcd
-    : public edm::eventsetup::DependentRecordImplementation<CTPPSBeamParametersRcd, boost::mp11::mp_list<LHCInfoRcd>> {};
+    : public edm::eventsetup::DependentRecordImplementation<CTPPSBeamParametersRcd, boost::mp11::mp_list<LHCInfoRcd>> {
+};
 
 #endif

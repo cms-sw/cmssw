@@ -23,10 +23,10 @@
 class EcalPreshowerGeometryRecord
     : public edm::eventsetup::DependentRecordImplementation<EcalPreshowerGeometryRecord,
                                                             boost::mp11::mp_list<IdealGeometryRecord,
-                                                                               ESAlignmentRcd,
-                                                                               ESAlignmentErrorRcd,
-                                                                               ESAlignmentErrorExtendedRcd,
-                                                                               GlobalPositionRcd,
-                                                                               PEcalPreshowerRcd> > {};
+                                                                                 ESAlignmentRcd,
+                                                                                 ESAlignmentErrorRcd,
+                                                                                 ESAlignmentErrorExtendedRcd,
+                                                                                 GlobalPositionRcd,
+                                                                                 PEcalPreshowerRcd> > {};
 
 #endif /* RECORDS_ECALPRESHOWERGEOMETRYRECORD_H */

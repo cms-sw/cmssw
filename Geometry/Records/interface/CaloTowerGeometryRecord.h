@@ -24,11 +24,11 @@
 class CaloTowerGeometryRecord
     : public edm::eventsetup::DependentRecordImplementation<CaloTowerGeometryRecord,
                                                             boost::mp11::mp_list<IdealGeometryRecord,
-                                                                               HcalRecNumberingRecord,
-                                                                               CaloTowerAlignmentRcd,
-                                                                               CaloTowerAlignmentErrorRcd,
-                                                                               CaloTowerAlignmentErrorExtendedRcd,
-                                                                               GlobalPositionRcd,
-                                                                               PCaloTowerRcd> > {};
+                                                                                 HcalRecNumberingRecord,
+                                                                                 CaloTowerAlignmentRcd,
+                                                                                 CaloTowerAlignmentErrorRcd,
+                                                                                 CaloTowerAlignmentErrorExtendedRcd,
+                                                                                 GlobalPositionRcd,
+                                                                                 PCaloTowerRcd> > {};
 
 #endif /* RECORDS_CALOTOWERGEOMETRYRECORD_H */

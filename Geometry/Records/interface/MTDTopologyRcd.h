@@ -8,8 +8,8 @@
 #include <boost/mp11/list.hpp>
 
 class MTDTopologyRcd
-    : public edm::eventsetup::DependentRecordImplementation<MTDTopologyRcd,
-                                                            boost::mp11::mp_list<IdealGeometryRecord, PMTDParametersRcd> > {
+    : public edm::eventsetup::
+          DependentRecordImplementation<MTDTopologyRcd, boost::mp11::mp_list<IdealGeometryRecord, PMTDParametersRcd> > {
 };
 
 #endif

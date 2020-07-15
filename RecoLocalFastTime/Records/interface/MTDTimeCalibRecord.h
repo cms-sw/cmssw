@@ -8,9 +8,8 @@
 
 #include <boost/mp11/list.hpp>
 
-class MTDTimeCalibRecord
-    : public edm::eventsetup::DependentRecordImplementation<MTDTimeCalibRecord,
-                                                            boost::mp11::mp_list<MTDDigiGeometryRecord, MTDTopologyRcd> > {
-};
+class MTDTimeCalibRecord : public edm::eventsetup::DependentRecordImplementation<
+                               MTDTimeCalibRecord,
+                               boost::mp11::mp_list<MTDDigiGeometryRecord, MTDTopologyRcd> > {};
 
 #endif

@@ -18,11 +18,11 @@
 class TkPixelCPERecord
     : public edm::eventsetup::DependentRecordImplementation<TkPixelCPERecord,
                                                             boost::mp11::mp_list<TrackerDigiGeometryRecord,
-                                                                               IdealMagneticFieldRecord,
-                                                                               SiPixelLorentzAngleRcd,
-                                                                               SiPixelGenErrorDBObjectRcd,
-                                                                               SiPixelTemplateDBObjectESProducerRcd,
-                                                                               SiPixel2DTemplateDBObjectESProducerRcd,
-                                                                               TrackerTopologyRcd> > {};
+                                                                                 IdealMagneticFieldRecord,
+                                                                                 SiPixelLorentzAngleRcd,
+                                                                                 SiPixelGenErrorDBObjectRcd,
+                                                                                 SiPixelTemplateDBObjectESProducerRcd,
+                                                                                 SiPixel2DTemplateDBObjectESProducerRcd,
+                                                                                 TrackerTopologyRcd> > {};
 
 #endif

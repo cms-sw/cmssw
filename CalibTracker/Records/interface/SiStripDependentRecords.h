@@ -18,7 +18,8 @@ class SiStripFecCablingRcd
 
 class SiStripDetCablingRcd : public edm::eventsetup::DependentRecordImplementation<
                                  SiStripDetCablingRcd,
-                                 boost::mp11::mp_list<SiStripFedCablingRcd, TrackerTopologyRcd, IdealGeometryRecord> > {};
+                                 boost::mp11::mp_list<SiStripFedCablingRcd, TrackerTopologyRcd, IdealGeometryRecord> > {
+};
 
 class SiStripRegionCablingRcd
     : public edm::eventsetup::DependentRecordImplementation<
@@ -43,7 +44,8 @@ class SiStripLorentzAngleDepRcd : public edm::eventsetup::DependentRecordImpleme
 
 class SiStripBackPlaneCorrectionDepRcd : public edm::eventsetup::DependentRecordImplementation<
                                              SiStripBackPlaneCorrectionDepRcd,
-                                             boost::mp11::mp_list<SiStripLatencyRcd, SiStripBackPlaneCorrectionRcd> > {};
+                                             boost::mp11::mp_list<SiStripLatencyRcd, SiStripBackPlaneCorrectionRcd> > {
+};
 
 class SiStripHashedDetIdRcd
     : public edm::eventsetup::DependentRecordImplementation<SiStripHashedDetIdRcd,
@@ -56,13 +58,13 @@ class SiStripBadModuleFedErrRcd
 class SiStripQualityRcd
     : public edm::eventsetup::DependentRecordImplementation<SiStripQualityRcd,
                                                             boost::mp11::mp_list<SiStripBadModuleRcd,
-                                                                               SiStripBadFiberRcd,
-                                                                               SiStripBadChannelRcd,
-                                                                               SiStripBadStripRcd,
-                                                                               SiStripDetCablingRcd,
-                                                                               SiStripDCSStatusRcd,
-                                                                               SiStripDetVOffRcd,
-                                                                               RunInfoRcd,
-                                                                               SiStripBadModuleFedErrRcd> > {};
+                                                                                 SiStripBadFiberRcd,
+                                                                                 SiStripBadChannelRcd,
+                                                                                 SiStripBadStripRcd,
+                                                                                 SiStripDetCablingRcd,
+                                                                                 SiStripDCSStatusRcd,
+                                                                                 SiStripDetVOffRcd,
+                                                                                 RunInfoRcd,
+                                                                                 SiStripBadModuleFedErrRcd> > {};
 
 #endif

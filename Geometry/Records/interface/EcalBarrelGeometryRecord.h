@@ -23,10 +23,10 @@
 class EcalBarrelGeometryRecord
     : public edm::eventsetup::DependentRecordImplementation<EcalBarrelGeometryRecord,
                                                             boost::mp11::mp_list<IdealGeometryRecord,
-                                                                               EBAlignmentRcd,
-                                                                               EBAlignmentErrorRcd,
-                                                                               EBAlignmentErrorExtendedRcd,
-                                                                               GlobalPositionRcd,
-                                                                               PEcalBarrelRcd> > {};
+                                                                                 EBAlignmentRcd,
+                                                                                 EBAlignmentErrorRcd,
+                                                                                 EBAlignmentErrorExtendedRcd,
+                                                                                 GlobalPositionRcd,
+                                                                                 PEcalBarrelRcd> > {};
 
 #endif /* RECORDS_ECALBARRELGEOMETRYRECORD_H */

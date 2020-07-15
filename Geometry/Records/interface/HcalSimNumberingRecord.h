@@ -22,9 +22,8 @@
 #include "Geometry/Records/interface/HcalParametersRcd.h"
 #include "FWCore/Framework/interface/DependentRecordImplementation.h"
 
-class HcalSimNumberingRecord
-    : public edm::eventsetup::DependentRecordImplementation<HcalSimNumberingRecord,
-                                                            boost::mp11::mp_list<IdealGeometryRecord, HcalParametersRcd> > {
-};
+class HcalSimNumberingRecord : public edm::eventsetup::DependentRecordImplementation<
+                                   HcalSimNumberingRecord,
+                                   boost::mp11::mp_list<IdealGeometryRecord, HcalParametersRcd> > {};
 
 #endif

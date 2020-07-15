@@ -30,10 +30,10 @@
 class MuonNumberingRecord
     : public edm::eventsetup::DependentRecordImplementation<MuonNumberingRecord,
                                                             boost::mp11::mp_list<IdealGeometryRecord,
-                                                                               CSCRecoDigiParametersRcd,
-                                                                               CSCRecoGeometryRcd,
-                                                                               DTRecoGeometryRcd,
-                                                                               DDSpecParRegistryRcd,
-                                                                               GeometryFileRcd> > {};
+                                                                                 CSCRecoDigiParametersRcd,
+                                                                                 CSCRecoGeometryRcd,
+                                                                                 DTRecoGeometryRcd,
+                                                                                 DDSpecParRegistryRcd,
+                                                                                 GeometryFileRcd> > {};
 
 #endif

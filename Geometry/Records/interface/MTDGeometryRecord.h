@@ -13,6 +13,7 @@
 class MTDGeometryRecord
     : public edm::eventsetup::DependentRecordImplementation<
           MTDGeometryRecord,
-          boost::mp11::mp_list<IdealGeometryRecord, BTLGeometryRcd, ETLGeometryRcd, GlobalPositionRcd, PFastTimeRcd> > {};
+          boost::mp11::mp_list<IdealGeometryRecord, BTLGeometryRcd, ETLGeometryRcd, GlobalPositionRcd, PFastTimeRcd> > {
+};
 
 #endif /* RECORDS_MTDGEOMETRYRECORD_H */

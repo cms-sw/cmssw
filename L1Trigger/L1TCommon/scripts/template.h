@@ -1,4 +1,4 @@
-// XXXRcd                                                                                            
+// XXXRcd
 // Description: Record for XXX
 //
 // automatically generate by make_records.pl

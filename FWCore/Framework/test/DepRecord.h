@@ -27,6 +27,7 @@
 #include "FWCore/Framework/interface/DependentRecordImplementation.h"
 #include "FWCore/Framework/test/DummyRecord.h"
 
-class DepRecord : public edm::eventsetup::DependentRecordImplementation<DepRecord, boost::mp11::mp_list<DummyRecord> > {};
+class DepRecord : public edm::eventsetup::DependentRecordImplementation<DepRecord, boost::mp11::mp_list<DummyRecord> > {
+};
 
 #endif

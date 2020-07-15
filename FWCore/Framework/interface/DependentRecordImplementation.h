@@ -50,7 +50,7 @@ namespace edm {
       const DepRecordT getRecord() const {
         //Make sure that DepRecordT is a type in ListT
         static_assert(
-            boost::mp11::mp_contains<ListT,DepRecordT>::value,
+            boost::mp11::mp_contains<ListT, DepRecordT>::value,
             "Trying to get a Record from another Record where the second Record is not dependent on the first Record.");
         try {
           EventSetup const eventSetupT{
@@ -68,7 +68,7 @@ namespace edm {
       std::optional<DepRecordT> tryToGetRecord() const {
         //Make sure that DepRecordT is a type in ListT
         static_assert(
-            boost::mp11::mp_contains<ListT,DepRecordT>::value,
+            boost::mp11::mp_contains<ListT, DepRecordT>::value,
             "Trying to get a Record from another Record where the second Record is not dependent on the first Record.");
         EventSetup const eventSetupT{
             this->eventSetup(), this->transitionID(), this->getTokenIndices(), this->requireTokens()};
@@ -80,7 +80,7 @@ namespace edm {
       template <typename ProductT, typename DepRecordT>
       ESHandle<ProductT> getHandle(ESGetToken<ProductT, DepRecordT> const& iToken) const {
         //Make sure that DepRecordT is a type in ListT
-        static_assert(boost::mp11::mp_contains<ListT,DepRecordT>::value,
+        static_assert(boost::mp11::mp_contains<ListT, DepRecordT>::value,
                       "Trying to get a product with an ESGetToken specifying a Record from another Record where the "
                       "second Record is not dependent on the first Record.");
         return getRecord<DepRecordT>().getHandle(iToken);
@@ -91,7 +91,7 @@ namespace edm {
       template <typename ProductT, typename DepRecordT>
       ESTransientHandle<ProductT> getTransientHandle(ESGetToken<ProductT, DepRecordT> const& iToken) const {
         //Make sure that DepRecordT is a type in ListT
-        static_assert(boost::mp11::mp_contains<ListT,DepRecordT>::value,
+        static_assert(boost::mp11::mp_contains<ListT, DepRecordT>::value,
                       "Trying to get a product with an ESGetToken specifying a Record from another Record where the "
                       "second Record is not dependent on the first Record.");
         return getRecord<DepRecordT>().getTransientHandle(iToken);
@@ -102,7 +102,7 @@ namespace edm {
       template <typename ProductT, typename DepRecordT>
       ProductT const& get(ESGetToken<ProductT, DepRecordT> const& iToken) const {
         //Make sure that DepRecordT is a type in ListT
-        static_assert(boost::mp11::mp_contains<ListT,DepRecordT>::value,
+        static_assert(boost::mp11::mp_contains<ListT, DepRecordT>::value,
                       "Trying to get a product with an ESGetToken specifying a Record from another Record where the "
                       "second Record is not dependent on the first Record.");
         return getRecord<DepRecordT>().get(iToken);

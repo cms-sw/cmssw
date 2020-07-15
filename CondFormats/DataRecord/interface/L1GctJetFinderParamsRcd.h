@@ -30,6 +30,7 @@
 //class L1GctJetFinderParamsRcd : public edm::eventsetup::EventSetupRecordImplementation<L1GctJetFinderParamsRcd> {};
 class L1GctJetFinderParamsRcd : public edm::eventsetup::DependentRecordImplementation<
                                     L1GctJetFinderParamsRcd,
-                                    boost::mp11::mp_list<L1TriggerKeyListRcd, L1TriggerKeyRcd, L1CaloGeometryRecord> > {};
+                                    boost::mp11::mp_list<L1TriggerKeyListRcd, L1TriggerKeyRcd, L1CaloGeometryRecord> > {
+};
 
 #endif

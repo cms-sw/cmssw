@@ -28,9 +28,9 @@
 class DTT0Rcd;
 class DTTPGParametersRcd;
 
-class DTConfigManagerRcd : public edm::eventsetup::DependentRecordImplementation<
-                               DTConfigManagerRcd,
-                               boost::mp11::mp_list<DTCCBConfigRcd, DTKeyedConfigListRcd, DTT0Rcd, DTTPGParametersRcd> > {
-};
+class DTConfigManagerRcd
+    : public edm::eventsetup::DependentRecordImplementation<
+          DTConfigManagerRcd,
+          boost::mp11::mp_list<DTCCBConfigRcd, DTKeyedConfigListRcd, DTT0Rcd, DTTPGParametersRcd> > {};
 
 #endif

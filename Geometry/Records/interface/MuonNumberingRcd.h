@@ -6,6 +6,6 @@
 #include <boost/mp11/list.hpp>
 
 class MuonNumberingRcd
-    : public edm::eventsetup::DependentRecordImplementation<MuonNumberingRcd, boost::mp11::mp_list<DDSpecParRegistryRcd>> {
-};
+    : public edm::eventsetup::DependentRecordImplementation<MuonNumberingRcd,
+                                                            boost::mp11::mp_list<DDSpecParRegistryRcd>> {};
 #endif

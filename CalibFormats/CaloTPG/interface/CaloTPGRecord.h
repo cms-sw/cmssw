@@ -24,8 +24,8 @@
 #include "CondFormats/DataRecord/interface/HcalLutMetadataRcd.h"
 
 class CaloTPGRecord
-    : public edm::eventsetup::DependentRecordImplementation<CaloTPGRecord,
-                                                            boost::mp11::mp_list<HcalLutMetadataRcd, CaloGeometryRecord> > {
+    : public edm::eventsetup::
+          DependentRecordImplementation<CaloTPGRecord, boost::mp11::mp_list<HcalLutMetadataRcd, CaloGeometryRecord> > {
 };
 
 #endif

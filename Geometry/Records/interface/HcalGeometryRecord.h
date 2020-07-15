@@ -23,13 +23,13 @@
 class HcalGeometryRecord
     : public edm::eventsetup::DependentRecordImplementation<HcalGeometryRecord,
                                                             boost::mp11::mp_list<IdealGeometryRecord,
-                                                                               HcalParametersRcd,
-                                                                               HcalSimNumberingRecord,
-                                                                               HcalRecNumberingRecord,
-                                                                               HcalAlignmentRcd,
-                                                                               HcalAlignmentErrorRcd,
-                                                                               HcalAlignmentErrorExtendedRcd,
-                                                                               GlobalPositionRcd,
-                                                                               PHcalRcd> > {};
+                                                                                 HcalParametersRcd,
+                                                                                 HcalSimNumberingRecord,
+                                                                                 HcalRecNumberingRecord,
+                                                                                 HcalAlignmentRcd,
+                                                                                 HcalAlignmentErrorRcd,
+                                                                                 HcalAlignmentErrorExtendedRcd,
+                                                                                 GlobalPositionRcd,
+                                                                                 PHcalRcd> > {};
 
 #endif /* RECORDS_HCALGEOMETRYRECORD_H */

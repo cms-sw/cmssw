@@ -19,8 +19,8 @@
 class EcalLaserDbRecord
     : public edm::eventsetup::DependentRecordImplementation<EcalLaserDbRecord,
                                                             boost::mp11::mp_list<EcalLaserAlphasRcd,
-                                                                               EcalLaserAPDPNRatiosRefRcd,
-                                                                               EcalLaserAPDPNRatiosRcd,
-                                                                               EcalLinearCorrectionsRcd> > {};
+                                                                                 EcalLaserAPDPNRatiosRefRcd,
+                                                                                 EcalLaserAPDPNRatiosRcd,
+                                                                                 EcalLinearCorrectionsRcd> > {};
 
 #endif /* ECALLASERCORRECTION_ECALLASERDBRECORD_H */

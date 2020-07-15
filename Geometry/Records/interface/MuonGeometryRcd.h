@@ -14,10 +14,10 @@
 class MuonGeometryRcd
     : public edm::eventsetup::DependentRecordImplementation<MuonGeometryRcd,
                                                             boost::mp11::mp_list<MuonNumberingRcd,
-                                                                               DDSpecParRegistryRcd,
-                                                                               GlobalPositionRcd,
-                                                                               DTAlignmentRcd,
-                                                                               DTAlignmentErrorRcd,
-                                                                               DTAlignmentErrorExtendedRcd,
-                                                                               DTRecoGeometryRcd>> {};
+                                                                                 DDSpecParRegistryRcd,
+                                                                                 GlobalPositionRcd,
+                                                                                 DTAlignmentRcd,
+                                                                                 DTAlignmentErrorRcd,
+                                                                                 DTAlignmentErrorExtendedRcd,
+                                                                                 DTRecoGeometryRcd>> {};
 #endif

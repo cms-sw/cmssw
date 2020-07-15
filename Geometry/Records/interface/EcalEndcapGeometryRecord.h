@@ -23,10 +23,10 @@
 class EcalEndcapGeometryRecord
     : public edm::eventsetup::DependentRecordImplementation<EcalEndcapGeometryRecord,
                                                             boost::mp11::mp_list<IdealGeometryRecord,
-                                                                               EEAlignmentRcd,
-                                                                               EEAlignmentErrorRcd,
-                                                                               EEAlignmentErrorExtendedRcd,
-                                                                               GlobalPositionRcd,
-                                                                               PEcalEndcapRcd> > {};
+                                                                                 EEAlignmentRcd,
+                                                                                 EEAlignmentErrorRcd,
+                                                                                 EEAlignmentErrorExtendedRcd,
+                                                                                 GlobalPositionRcd,
+                                                                                 PEcalEndcapRcd> > {};
 
 #endif /* RECORDS_ECALENDCAPGEOMETRYRECORD_H */

@@ -26,6 +26,7 @@
 
 class MagneticFieldMapRecord : public edm::eventsetup::DependentRecordImplementation<
                                    MagneticFieldMapRecord,
-                                   boost::mp11::mp_list<IdealMagneticFieldRecord, TrackerInteractionGeometryRecord> > {};
+                                   boost::mp11::mp_list<IdealMagneticFieldRecord, TrackerInteractionGeometryRecord> > {
+};
 
 #endif
