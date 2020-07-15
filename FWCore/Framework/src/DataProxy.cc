@@ -19,6 +19,7 @@
 #include "FWCore/Framework/interface/MakeDataException.h"
 #include "FWCore/Framework/interface/EventSetupRecord.h"
 #include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
+#include "FWCore/ServiceRegistry/interface/ServiceRegistry.h"
 #include "FWCore/Concurrency/interface/WaitingTaskList.h"
 
 #include "FWCore/Framework/src/esTaskArenas.h"
@@ -63,8 +64,9 @@ namespace edm {
     void DataProxy::prefetchAsync(WaitingTask* iTask,
                                   EventSetupRecordImpl const& iRecord,
                                   DataKey const& iKey,
-                                  EventSetupImpl const* iEventSetupImpl) const {
-      const_cast<DataProxy*>(this)->prefetchAsyncImpl(iTask, iRecord, iKey, iEventSetupImpl);
+                                  EventSetupImpl const* iEventSetupImpl,
+                                  ServiceToken const& iToken) const {
+      const_cast<DataProxy*>(this)->prefetchAsyncImpl(iTask, iRecord, iKey, iEventSetupImpl, iToken);
     }
 
     void const* DataProxy::getAfterPrefetch(const EventSetupRecordImpl& iRecord,
@@ -98,8 +100,9 @@ namespace edm {
         auto waitTask = edm::make_empty_waiting_task();
         waitTask->set_ref_count(2);
         auto waitTaskPtr = waitTask.get();
-        edm::esTaskArena().execute([this, waitTaskPtr, &iRecord, &iKey, iEventSetupImpl]() {
-          prefetchAsync(waitTaskPtr, iRecord, iKey, iEventSetupImpl);
+        auto token = ServiceRegistry::instance().presentToken();
+        edm::esTaskArena().execute([this, waitTaskPtr, &iRecord, &iKey, iEventSetupImpl, token]() {
+          prefetchAsync(waitTaskPtr, iRecord, iKey, iEventSetupImpl, token);
           waitTaskPtr->decrement_ref_count();
           waitTaskPtr->wait_for_all();
         });

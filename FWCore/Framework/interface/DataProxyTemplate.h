@@ -33,6 +33,7 @@
 // user include files
 #include "FWCore/Framework/interface/DataProxy.h"
 #include "FWCore/Framework/interface/EventSetupRecord.h"
+#include "FWCore/ServiceRegistry/interface/ServiceRegistry.h"
 #include "FWCore/Concurrency/interface/WaitingTaskList.h"
 #include <cassert>
 #include <limits>
@@ -57,7 +58,8 @@ namespace edm {
       void prefetchAsyncImpl(WaitingTask* iTask,
                              const EventSetupRecordImpl& iRecord,
                              const DataKey& iKey,
-                             EventSetupImpl const* iEventSetupImpl) override {
+                             EventSetupImpl const* iEventSetupImpl,
+                             edm::ServiceToken const& iToken) override {
         assert(iRecord.key() == RecordT::keyForClass());
         bool expected = false;
         bool doPrefetch = prefetching_.compare_exchange_strong(expected, true);
@@ -65,10 +67,11 @@ namespace edm {
 
         if (doPrefetch) {
           tbb::task::spawn(*edm::make_waiting_task(
-              tbb::task::allocate_root(), [this, &iRecord, iKey, iEventSetupImpl](std::exception_ptr const*) {
+              tbb::task::allocate_root(), [this, &iRecord, iKey, iEventSetupImpl, iToken](std::exception_ptr const*) {
                 try {
                   RecordT rec;
                   rec.setImpl(&iRecord, std::numeric_limits<unsigned int>::max(), nullptr, iEventSetupImpl, true);
+                  ServiceRegistry::Operate operate(iToken);
                   this->make(rec, iKey);
                 } catch (...) {
                   this->taskList_.doneWaiting(std::current_exception());

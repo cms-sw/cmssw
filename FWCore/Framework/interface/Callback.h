@@ -30,6 +30,8 @@
 #include "FWCore/Utilities/interface/ConvertException.h"
 #include "FWCore/Concurrency/interface/WaitingTaskList.h"
 #include "FWCore/Concurrency/interface/WaitingTaskHolder.h"
+#include "FWCore/ServiceRegistry/interface/ServiceToken.h"
+#include "FWCore/ServiceRegistry/interface/ServiceRegistry.h"
 
 namespace edm {
   namespace eventsetup {
@@ -66,7 +68,8 @@ namespace edm {
 
       void prefetchAsync(WaitingTask* iTask,
                          EventSetupRecordImpl const* iRecord,
-                         EventSetupImpl const* iEventSetupImpl) {
+                         EventSetupImpl const* iEventSetupImpl,
+                         ServiceToken const& token) {
         bool expected = false;
         auto doPrefetch = wasCalledForThisRecord_.compare_exchange_strong(expected, true);
         taskList_.add(iTask);
@@ -74,31 +77,31 @@ namespace edm {
           if UNLIKELY (producer_->hasMayConsumes()) {
             //after prefetching need to do the mayGet
             auto mayGetTask = edm::make_waiting_task(
-                tbb::task::allocate_root(), [this, iRecord, iEventSetupImpl](std::exception_ptr const* iExcept) {
+                tbb::task::allocate_root(), [this, iRecord, iEventSetupImpl, token](std::exception_ptr const* iExcept) {
                   if (iExcept) {
-                    runProducerAsync(iExcept, iRecord, iEventSetupImpl);
+                    runProducerAsync(iExcept, iRecord, iEventSetupImpl, token);
                     return;
                   }
                   if (handleMayGet(iRecord, iEventSetupImpl)) {
-                    auto runTask =
-                        edm::make_waiting_task(tbb::task::allocate_root(),
-                                               [this, iRecord, iEventSetupImpl](std::exception_ptr const* iExcept) {
-                                                 runProducerAsync(iExcept, iRecord, iEventSetupImpl);
-                                               });
-                    prefetchNeededDataAsync(runTask, iEventSetupImpl, &((*postMayGetProxies_).front()));
+                    auto runTask = edm::make_waiting_task(
+                        tbb::task::allocate_root(),
+                        [this, iRecord, iEventSetupImpl, token](std::exception_ptr const* iExcept) {
+                          runProducerAsync(iExcept, iRecord, iEventSetupImpl, token);
+                        });
+                    prefetchNeededDataAsync(runTask, iEventSetupImpl, &((*postMayGetProxies_).front()), token);
                   } else {
-                    runProducerAsync(iExcept, iRecord, iEventSetupImpl);
+                    runProducerAsync(iExcept, iRecord, iEventSetupImpl, token);
                   }
                 });
 
             //Get everything we can before knowing about the mayGets
-            prefetchNeededDataAsync(mayGetTask, iEventSetupImpl, getTokenIndices());
+            prefetchNeededDataAsync(mayGetTask, iEventSetupImpl, getTokenIndices(), token);
           } else {
-            auto task = edm::make_waiting_task(tbb::task::allocate_root(),
-                                               [this, iRecord, iEventSetupImpl](std::exception_ptr const* iExcept) {
-                                                 runProducerAsync(iExcept, iRecord, iEventSetupImpl);
-                                               });
-            prefetchNeededDataAsync(task, iEventSetupImpl, getTokenIndices());
+            auto task = edm::make_waiting_task(
+                tbb::task::allocate_root(), [this, iRecord, iEventSetupImpl, token](std::exception_ptr const* iExcept) {
+                  runProducerAsync(iExcept, iRecord, iEventSetupImpl, token);
+                });
+            prefetchNeededDataAsync(task, iEventSetupImpl, getTokenIndices(), token);
           }
         }
       }
@@ -132,14 +135,17 @@ namespace edm {
       ESProxyIndex const* getTokenIndices() const { return producer_->getTokenIndices(id_); }
 
     private:
-      void prefetchNeededDataAsync(WaitingTask* task, EventSetupImpl const* iImpl, ESProxyIndex const* proxies) const {
+      void prefetchNeededDataAsync(WaitingTask* task,
+                                   EventSetupImpl const* iImpl,
+                                   ESProxyIndex const* proxies,
+                                   edm::ServiceToken const& token) const {
         WaitingTaskHolder h(task);
         auto recs = producer_->getTokenRecordIndices(id_);
         auto n = producer_->numberOfTokenIndices(id_);
         for (size_t i = 0; i != n; ++i) {
           auto rec = iImpl->findImpl(recs[i]);
           if (rec) {
-            rec->prefetchAsync(task, proxies[i], iImpl);
+            rec->prefetchAsync(task, proxies[i], iImpl, token);
           }
         }
       }
@@ -154,22 +160,24 @@ namespace edm {
 
       void runProducerAsync(std::exception_ptr const* iExcept,
                             EventSetupRecordImpl const* iRecord,
-                            EventSetupImpl const* iEventSetupImpl) {
+                            EventSetupImpl const* iEventSetupImpl,
+                            ServiceToken const& token) {
         if (iExcept) {
           //The cache held by the CallbackProxy was already set to invalid at the beginning of the IOV
           taskList_.doneWaiting(*iExcept);
           return;
         }
-        producer_->queue().push([this, iRecord, iEventSetupImpl]() {
+        producer_->queue().push([this, iRecord, iEventSetupImpl, token]() {
           std::exception_ptr exceptPtr;
           try {
-            convertException::wrap([this, iRecord, iEventSetupImpl] {
+            convertException::wrap([this, iRecord, iEventSetupImpl, token] {
               auto proxies = getTokenIndices();
               if (postMayGetProxies_) {
                 proxies = &((*postMayGetProxies_).front());
               }
               TRecord rec;
               rec.setImpl(iRecord, transitionID(), proxies, iEventSetupImpl, true);
+              ServiceRegistry::Operate operate(token);
               decorator_.pre(rec);
               storeReturnedValues((producer_->*method_)(rec));
               decorator_.post(rec);

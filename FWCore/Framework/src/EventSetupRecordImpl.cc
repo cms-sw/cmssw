@@ -302,7 +302,8 @@ namespace edm {
 
     void EventSetupRecordImpl::prefetchAsync(WaitingTask* iTask,
                                              ESProxyIndex iProxyIndex,
-                                             EventSetupImpl const* iEventSetupImpl) const {
+                                             EventSetupImpl const* iEventSetupImpl,
+                                             ServiceToken const& iToken) const {
       if UNLIKELY (iProxyIndex.value() == std::numeric_limits<int>::max()) {
         return;
       }
@@ -310,7 +311,7 @@ namespace edm {
       const DataProxy* proxy = proxies_[iProxyIndex.value()];
       if (nullptr != proxy) {
         auto const& key = keysForProxies_[iProxyIndex.value()];
-        proxy->prefetchAsync(iTask, *this, key, iEventSetupImpl);
+        proxy->prefetchAsync(iTask, *this, key, iEventSetupImpl, iToken);
       }
     }
 
