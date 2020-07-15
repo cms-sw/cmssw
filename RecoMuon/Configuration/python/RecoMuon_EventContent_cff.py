@@ -51,6 +51,8 @@ RecoMuonAOD = cms.PSet(
                                            'keep recoTracks_generalTracks_*_*',
                                            'keep recoTrackExtras_thinnedGeneralTrackExtras_*_*',
                                            'keep TrackingRecHitsOwned_thinnedGeneralTrackHits_*_*',
+                                           'keep SiPixelClusteredmNewDetSetVector_thinnedSiPixelClusters_*_*',
+                                           'keep SiStripClusteredmNewDetSetVector_thinnedSiStripClusters_*_*',
                                            'keep recoTracks_displacedTracks_*_*',
                                            'keep recoTracksToOnerecoTracksAssociation_tevMuons_*_*',
                                            # Displaced Global Muons

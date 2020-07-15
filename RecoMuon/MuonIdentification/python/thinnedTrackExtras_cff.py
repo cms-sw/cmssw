@@ -1,5 +1,7 @@
 from RecoMuon.MuonIdentification.muonTrackExtraThinningProducer_cfi import muonTrackExtraThinningProducer
 from RecoTracker.TrackProducer.trackingRecHitThinningProducer_cfi import trackingRecHitThinningProducer
+from RecoTracker.TrackProducer.siPixelClusterThinningProducer_cfi import siPixelClusterThinningProducer
+from RecoTracker.TrackProducer.siStripClusterThinningProducer_cfi import siStripClusterThinningProducer
 
 import FWCore.ParameterSet.Config as cms
 
@@ -30,6 +32,18 @@ thinnedTevMuonHitsPicky = trackingRecHitThinningProducer.clone(inputTag = cms.In
 thinnedTevMuonHitsDyt = trackingRecHitThinningProducer.clone(inputTag = cms.InputTag("tevMuons","dyt"),
                                                                trackExtraTag = cms.InputTag("thinnedTevMuonExtrasDyt"))
 
+thinnedSiPixelClusters = siPixelClusterThinningProducer.clone(trackingRecHitsTags=cms.VInputTag("thinnedGeneralTrackHits",
+                                                                                    "thinnedGlobalMuonHits",
+                                                                                    "thinnedTevMuonHitsFirstHit",
+                                                                                    "thinnedTevMuonHitsPicky",
+                                                                                    "thinnedTevMuonHitsDyt"))
+
+thinnedSiStripClusters = siStripClusterThinningProducer.clone(trackingRecHitsTags=cms.VInputTag("thinnedGeneralTrackHits",
+                                                                                    "thinnedGlobalMuonHits",
+                                                                                    "thinnedTevMuonHitsFirstHit",
+                                                                                    "thinnedTevMuonHitsPicky",
+                                                                                    "thinnedTevMuonHitsDyt"))
+
 thinnedTrackExtrasTask = cms.Task(thinnedGeneralTrackExtras,
                                   thinnedGlobalMuonExtras,
                                   thinnedTevMuonExtrasFirstHit,
@@ -40,4 +54,6 @@ thinnedTrackExtrasTask = cms.Task(thinnedGeneralTrackExtras,
                                   thinnedTevMuonHitsFirstHit,
                                   thinnedTevMuonHitsPicky,
                                   thinnedTevMuonHitsDyt,
+                                  thinnedSiPixelClusters,
+                                  thinnedSiStripClusters,
                                   )
