@@ -16,7 +16,8 @@ namespace edm {
   class ParameterSetDescription;
 }
 
-class SiPixelClusterSelector : public edm::ThinningSelectorByRefBase<edm::Ref<edmNew::DetSetVector<SiPixelCluster>, SiPixelCluster> > {
+class SiPixelClusterSelector
+    : public edm::ThinningSelectorByRefBase<edm::Ref<edmNew::DetSetVector<SiPixelCluster>, SiPixelCluster> > {
 public:
   SiPixelClusterSelector(edm::ParameterSet const& pset, edm::ConsumesCollector&& cc);
   static void fillDescription(edm::ParameterSetDescription& desc);
@@ -28,6 +29,7 @@ private:
   std::vector<edm::EDGetTokenT<TrackingRecHitCollection> > trackingRecHitsTokens_;
 };
 
-typedef edm::ThinningProducer<edmNew::DetSetVector<SiPixelCluster>, SiPixelClusterSelector> SiPixelClusterThinningProducer;
+typedef edm::ThinningProducer<edmNew::DetSetVector<SiPixelCluster>, SiPixelClusterSelector>
+    SiPixelClusterThinningProducer;
 
 #endif

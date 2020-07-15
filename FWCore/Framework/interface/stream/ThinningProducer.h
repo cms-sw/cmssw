@@ -26,10 +26,13 @@
 namespace edm {
 
   class EventSetup;
-  
+
   //default implementation which works with std::vector type collections or those with compatible interfaces
   template <typename Collection, typename Selector>
-  void fillCollectionForThinning(edm::Handle<Collection> const& input, Collection& output, ThinnedAssociation& assoc, edm::propagate_const<std::unique_ptr<Selector>>& selector) {
+  void fillCollectionForThinning(edm::Handle<Collection> const& input,
+                                 Collection& output,
+                                 ThinnedAssociation& assoc,
+                                 edm::propagate_const<std::unique_ptr<Selector>>& selector) {
     unsigned int iIndex = 0;
     for (auto iter = input->begin(), iterEnd = input->end(); iter != iterEnd; ++iter, ++iIndex) {
       if (selector->choose(iIndex, *iter)) {
@@ -37,12 +40,15 @@ namespace edm {
         assoc.push_back(iIndex);
         selector->modify(output.back());
       }
-    } 
+    }
   }
-  
+
   //specialization for edmNew::DetSetVector
   template <typename T, typename Selector>
-  void fillCollectionForThinning(edm::Handle<edmNew::DetSetVector<T> > const& input, edmNew::DetSetVector<T>& output, ThinnedAssociation& assoc, edm::propagate_const<std::unique_ptr<Selector>>& selector) {
+  void fillCollectionForThinning(edm::Handle<edmNew::DetSetVector<T>> const& input,
+                                 edmNew::DetSetVector<T>& output,
+                                 ThinnedAssociation& assoc,
+                                 edm::propagate_const<std::unique_ptr<Selector>>& selector) {
     //this indexes the internal data array of the DetSetVector
     unsigned int iIndex = 0;
     //loop over edmNew:::DetSet<T>

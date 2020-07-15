@@ -12,12 +12,15 @@ namespace edm {
     virtual ~ThinningSelectorByRefBase<RefT>() {}
     void preChoose(Handle<typename RefT::product_type> inputCollection, Event const& event, EventSetup const& es);
     bool choose(unsigned int iIndex, typename RefT::value_type const& iItem);
-    virtual void preChooseRefs(Handle<typename RefT::product_type> inputCollection, Event const& event, EventSetup const& es) = 0;
+    virtual void preChooseRefs(Handle<typename RefT::product_type> inputCollection,
+                               Event const& event,
+                               EventSetup const& es) = 0;
     virtual void modify(typename RefT::value_type& iItem) {}
 
   protected:
     void addRef(RefT const& ref);
-    void addRefVector(RefVector<typename RefT::product_type, typename RefT::value_type, typename RefT::finder_type> const& refv);
+    void addRefVector(
+        RefVector<typename RefT::product_type, typename RefT::value_type, typename RefT::finder_type> const& refv);
 
   private:
     std::map<ProductID, std::vector<unsigned int> > idxMap_;
@@ -26,8 +29,8 @@ namespace edm {
 
   template <typename RefT>
   void ThinningSelectorByRefBase<RefT>::preChoose(Handle<typename RefT::product_type> inputCollection,
-                                                           Event const& event,
-                                                           EventSetup const& es) {
+                                                  Event const& event,
+                                                  EventSetup const& es) {
     //clear map
     idxMap_.clear();
     //reset set
@@ -73,7 +76,8 @@ namespace edm {
   }
 
   template <typename RefT>
-  void ThinningSelectorByRefBase<RefT>::addRefVector(RefVector<typename RefT::product_type, typename RefT::value_type, typename RefT::finder_type> const& refv) {
+  void ThinningSelectorByRefBase<RefT>::addRefVector(
+      RefVector<typename RefT::product_type, typename RefT::value_type, typename RefT::finder_type> const& refv) {
     for (RefT const& ref : refv) {
       idxMap_[ref.id()].push_back(ref.key());
     }

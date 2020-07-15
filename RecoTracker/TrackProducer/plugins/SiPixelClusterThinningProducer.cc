@@ -4,7 +4,8 @@
 #include "DataFormats/TrackerRecHit2D/interface/TrackerSingleRecHit.h"
 
 SiPixelClusterSelector::SiPixelClusterSelector(edm::ParameterSet const& pset, edm::ConsumesCollector&& cc) {
-  std::vector<edm::InputTag> trackingRecHitsInputTags = pset.getParameter<std::vector<edm::InputTag> >("trackingRecHitsTags");
+  std::vector<edm::InputTag> trackingRecHitsInputTags =
+      pset.getParameter<std::vector<edm::InputTag> >("trackingRecHitsTags");
   for (edm::InputTag const& tag : trackingRecHitsInputTags) {
     trackingRecHitsTokens_.push_back(cc.consumes<TrackingRecHitCollection>(tag));
   }
@@ -17,9 +18,7 @@ void SiPixelClusterSelector::fillDescription(edm::ParameterSetDescription& desc)
 void SiPixelClusterSelector::preChooseRefs(edm::Handle<edmNew::DetSetVector<SiPixelCluster> > hits,
                                            edm::Event const& event,
                                            edm::EventSetup const& es) {
-  
   for (auto const& token : trackingRecHitsTokens_) {
-  
     auto trackingRecHits = event.getHandle(token);
 
     for (const auto& hit : *trackingRecHits) {
