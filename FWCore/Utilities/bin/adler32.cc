@@ -12,15 +12,15 @@
 */
 
 #define _LARGEFILE64_SOURCE
-#include <sys/stat.h>
+#include <cstdio>
+#include <cstdlib>
 #include <fcntl.h>
-#include <unistd.h>
-#include <stdlib.h>
-#include <stdio.h>
-#include <zlib.h>
-#include <libgen.h>
-#include <iostream>
 #include <fmt/format.h>
+#include <iostream>
+#include <libgen.h>
+#include <sys/stat.h>
+#include <unistd.h>
+#include <zlib.h>
 #ifdef __APPLE__
 typedef off_t off64_t;
 #define O_LARGEFILE 0
@@ -37,7 +37,7 @@ int main(int argc, char* argv[]) {
   std::unique_ptr<unsigned char[]> buffer{new unsigned char[EDMFILEUTILADLERBUFSIZE]};
   int fileNum = 0;
   for (fileNum = 1; fileNum < argc; fileNum++) {
-    uLong adlerCksum = adler32(0, 0, 0);
+    uLong adlerCksum = adler32(0, nullptr, 0);
     off64_t fileSize = 0;
 
     int myFD = open(argv[fileNum], O_RDONLY | O_LARGEFILE);
