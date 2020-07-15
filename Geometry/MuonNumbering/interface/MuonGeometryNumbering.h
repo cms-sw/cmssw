@@ -24,7 +24,7 @@ class MuonGeometryConstants;
 class MuonGeometryNumbering {
 public:
   MuonGeometryNumbering(const MuonGeometryConstants& muonConstants);
-  ~MuonGeometryNumbering() {};
+  ~MuonGeometryNumbering(){};
 
   MuonBaseNumber geoHistoryToBaseNumber(const DDGeoHistory& history) const;
   MuonBaseNumber geoHistoryToBaseNumber(const cms::ExpandedNodes&) const;

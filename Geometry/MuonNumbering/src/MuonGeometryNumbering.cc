@@ -24,7 +24,8 @@ MuonGeometryNumbering::MuonGeometryNumbering(const MuonGeometryConstants &muonCo
     edm::LogWarning("Geometry") << "MuonGeometryNumbering finds unusual level constant:" << theLevelPart;
   }
   if ((theStartCopyNo != 0) && (theStartCopyNo != 1)) {
-    edm::LogWarning("Geometry") << "MuonGeometryNumbering finds unusual start value for copy numbers:" << theStartCopyNo;
+    edm::LogWarning("Geometry") << "MuonGeometryNumbering finds unusual start value for copy numbers:"
+                                << theStartCopyNo;
   }
 
 #ifdef LOCAL_DEBUG

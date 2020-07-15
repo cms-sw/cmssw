@@ -216,7 +216,7 @@ void ModuleInfo::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
         volume_pxb += volume;
         weight_pxb += weight;
         activeSurface_pxb += activeSurface;
-        std::string name = module->name();
+        const std::string& name = module->name();
         if (name == "PixelBarrelActiveFull")
           pxb_fullN++;
         if (name == "PixelBarrelActiveHalf")
@@ -243,7 +243,7 @@ void ModuleInfo::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
         volume_pxf += volume;
         weight_pxf += weight;
         activeSurface_pxf += activeSurface;
-        std::string name = module->name();
+        const std::string& name = module->name();
         if (name == "PixelForwardActive1x2")
           pxf_1x2N++;
         if (name == "PixelForwardActive1x5")
@@ -277,7 +277,7 @@ void ModuleInfo::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
         volume_tib += volume;
         weight_tib += weight;
         activeSurface_tib += activeSurface;
-        std::string name = module->name();
+        const std::string& name = module->name();
         if (name == "TIBActiveRphi0")
           tib_L12_rphiN++;
         if (name == "TIBActiveSter0")
@@ -312,7 +312,7 @@ void ModuleInfo::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
         volume_tid += volume;
         weight_tid += weight;
         activeSurface_tid += activeSurface;
-        std::string name = module->name();
+        const std::string& name = module->name();
         if (name == "TIDModule0RphiActive")
           tid_r1_rphiN++;
         if (name == "TIDModule0StereoActive")
@@ -348,7 +348,7 @@ void ModuleInfo::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
         volume_tob += volume;
         weight_tob += weight;
         activeSurface_tob += activeSurface;
-        std::string name = module->name();
+        const std::string& name = module->name();
         if (name == "TOBActiveRphi0")
           tob_L12_rphiN++;
         if (name == "TOBActiveSter0")
@@ -382,7 +382,7 @@ void ModuleInfo::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
         volume_tec += volume;
         weight_tec += weight;
         activeSurface_tec += activeSurface;
-        std::string name = module->name();
+        const std::string& name = module->name();
         if (name == "TECModule0RphiActive")
           tec_r1_rphiN++;
         if (name == "TECModule0StereoActive")
