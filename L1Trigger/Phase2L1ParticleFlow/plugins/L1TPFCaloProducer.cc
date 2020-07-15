@@ -268,12 +268,12 @@ void L1TPFCaloProducer::readPhase2BarrelCaloTowers_(edm::Event &event, const edm
         continue;
       if (debug_ && (t.hcalTowerEt() > 0 || t.ecalTowerEt() > 0)) {
         edm::LogWarning("L1TPFCaloProducer")
-            << "adding phase2 L1 CaloTower eta " << t.towerEta() << "   phi " << t.towerIPhi() << "   ieta "
+            << "adding phase2 L1 CaloTower eta " << t.towerEta() << "   phi " << t.towerPhi() << "   ieta "
             << t.towerIEta() << "   iphi " << t.towerIPhi() << "   ecal " << t.ecalTowerEt() << "    hcal "
             << t.hcalTowerEt() << "\n";
       }
-      hcalClusterer_.add(t.hcalTowerEt(), t.towerEta(), t.towerIPhi());
-      ecalClusterer_.add(t.ecalTowerEt(), t.towerEta(), t.towerIPhi());
+      hcalClusterer_.add(t.hcalTowerEt(), t.towerEta(), t.towerPhi());
+      ecalClusterer_.add(t.ecalTowerEt(), t.towerEta(), t.towerPhi());
     }
   }
 }
