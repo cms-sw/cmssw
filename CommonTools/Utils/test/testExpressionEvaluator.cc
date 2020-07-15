@@ -17,7 +17,7 @@ class testExpressionEvaluator : public CppUnit::TestFixture {
 
 public:
   testExpressionEvaluator() {}  // for crappy pats
-  ~testExpressionEvaluator() {}
+  ~testExpressionEvaluator() override {}
   void checkAll();
 };
 
@@ -32,8 +32,7 @@ namespace {
       std::string sexpr = "double eval(reco::LeafCandidate const& cand) const override { return ";
       sexpr += expression + ";}";
       // construct the expression evaluator (pkg where precompile.h resides, name of base class, declaration of overloaded member function)
-      reco::ExpressionEvaluator eval(
-          "CommonTools/CandUtils", "reco::ValueOnObject<reco::LeafCandidate>", sexpr.c_str());
+      reco::ExpressionEvaluator eval("CommonTools/CandUtils", "reco::ValueOnObject<reco::LeafCandidate>", sexpr);
       // obtain a pointer to the base class  (to be stored in Filter and Analyser at thier costruction time!)
       reco::ValueOnObject<reco::LeafCandidate> const *expr = eval.expr<reco::ValueOnObject<reco::LeafCandidate>>();
       CPPUNIT_ASSERT(expr);
@@ -42,7 +41,7 @@ namespace {
     } catch (cms::Exception const &e) {
       // if compilation fails, the compiler output is part of the exception message
       std::cerr << e.what() << std::endl;
-      CPPUNIT_ASSERT("ExpressionEvaluator threw" == 0);
+      CPPUNIT_ASSERT("ExpressionEvaluator threw" == nullptr);
     }
   }
 
@@ -68,13 +67,12 @@ namespace {
       sexpr += "mask(c,m,cut); }";
       std::cerr << "testing " << sexpr << std::endl;
       try {
-        reco::ExpressionEvaluator eval(
-            "CommonTools/CandUtils", "reco::MaskCollection<reco::LeafCandidate>", sexpr.c_str());
+        reco::ExpressionEvaluator eval("CommonTools/CandUtils", "reco::MaskCollection<reco::LeafCandidate>", sexpr);
         m_selector = eval.expr<Selector>();
         CPPUNIT_ASSERT(m_selector);
       } catch (cms::Exception const &e) {
         std::cerr << e.what() << std::endl;
-        CPPUNIT_ASSERT("ExpressionEvaluator threw" == 0);
+        CPPUNIT_ASSERT("ExpressionEvaluator threw" == nullptr);
       }
     }
 
@@ -106,13 +104,12 @@ namespace {
       sexpr += "select(c,cut); }";
       std::cerr << "testing " << sexpr << std::endl;
       try {
-        reco::ExpressionEvaluator eval(
-            "CommonTools/CandUtils", "reco::SelectInCollection<reco::LeafCandidate>", sexpr.c_str());
+        reco::ExpressionEvaluator eval("CommonTools/CandUtils", "reco::SelectInCollection<reco::LeafCandidate>", sexpr);
         m_selector = eval.expr<Selector>();
         CPPUNIT_ASSERT(m_selector);
       } catch (cms::Exception const &e) {
         std::cerr << e.what() << std::endl;
-        CPPUNIT_ASSERT("ExpressionEvaluator threw" == 0);
+        CPPUNIT_ASSERT("ExpressionEvaluator threw" == nullptr);
       }
     }
 
@@ -141,8 +138,8 @@ void testExpressionEvaluator::checkAll() {
   cand.addDaughter(c1);
   cand.addDaughter(c2);
   CPPUNIT_ASSERT(cand.numberOfDaughters() == 2);
-  CPPUNIT_ASSERT(cand.daughter(0) != 0);
-  CPPUNIT_ASSERT(cand.daughter(1) != 0);
+  CPPUNIT_ASSERT(cand.daughter(0) != nullptr);
+  CPPUNIT_ASSERT(cand.daughter(1) != nullptr);
   {
     checkCandidate(cand, "cand.numberOfDaughters()", cand.numberOfDaughters());
     checkCandidate(cand, "cand.daughter(0)->isStandAloneMuon()", cand.daughter(0)->isStandAloneMuon());
@@ -206,7 +203,7 @@ void testExpressionEvaluator::checkAll() {
     } catch (cms::Exception const &e) {
       // if compilation fails, the compiler output is part of the exception message
       std::cerr << e.what() << std::endl;
-      CPPUNIT_ASSERT("ExpressionEvaluator threw" == 0);
+      CPPUNIT_ASSERT("ExpressionEvaluator threw" == nullptr);
     }
   }
 }

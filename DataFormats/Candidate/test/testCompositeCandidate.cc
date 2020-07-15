@@ -8,8 +8,8 @@ class testCompositeCandidate : public CppUnit::TestFixture {
   CPPUNIT_TEST_SUITE_END();
 
 public:
-  void setUp() {}
-  void tearDown() {}
+  void setUp() override {}
+  void tearDown() override {}
   void checkAll();
 };
 
@@ -19,7 +19,7 @@ namespace test {
   class DummyCandidate : public reco::LeafCandidate {
   public:
     DummyCandidate(const LorentzVector& p, Charge q = 0, int x = 0) : reco::LeafCandidate(q, p), x_(x) {}
-    virtual DummyCandidate* clone() const { return new DummyCandidate(*this); }
+    DummyCandidate* clone() const override { return new DummyCandidate(*this); }
     int x() const { return x_; }
 
   private:

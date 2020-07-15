@@ -16,7 +16,7 @@
 class TestEventHypothesisWriter : public edm::EDProducer {
 public:
   TestEventHypothesisWriter(const edm::ParameterSet &iConfig);
-  virtual void produce(edm::Event &iEvent, const edm::EventSetup &iSetup);
+  void produce(edm::Event &iEvent, const edm::EventSetup &iSetup) override;
   void runTests(const pat::EventHypothesis &h);
 
 private:

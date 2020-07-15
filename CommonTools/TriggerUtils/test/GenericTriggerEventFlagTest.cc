@@ -24,11 +24,11 @@ class GenericTriggerEventFlagTest : public edm::EDFilter {
 
 public:
   explicit GenericTriggerEventFlagTest(const edm::ParameterSet& iConfig);
-  virtual ~GenericTriggerEventFlagTest();
+  ~GenericTriggerEventFlagTest() override;
 
 private:
-  virtual void beginRun(const edm::Run& iRun, const edm::EventSetup& iSetup) override;
-  virtual bool filter(edm::Event& iEvent, const edm::EventSetup& iSetup) override;
+  void beginRun(const edm::Run& iRun, const edm::EventSetup& iSetup) override;
+  bool filter(edm::Event& iEvent, const edm::EventSetup& iSetup) override;
 };
 
 GenericTriggerEventFlagTest::GenericTriggerEventFlagTest(const edm::ParameterSet& iConfig)

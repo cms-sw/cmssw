@@ -56,7 +56,7 @@ int main(int s, char **) {
 
   auto sn = 2 * n;
   unInitDynArray(T, sn + n, c);
-  assert(c.size() == 0);
+  assert(c.empty());
   for (int i = 0; i < int(sn); ++i)
     c.push_back(i);
   assert(c.size() == sn);

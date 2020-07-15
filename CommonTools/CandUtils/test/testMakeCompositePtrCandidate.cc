@@ -12,7 +12,7 @@ namespace test {
   class DummyCandidate : public reco::LeafCandidate {
   public:
     DummyCandidate(const LorentzVector& p, Charge q = 0) : reco::LeafCandidate(q, p) {}
-    virtual DummyCandidate* clone() const { return new DummyCandidate(*this); }
+    DummyCandidate* clone() const override { return new DummyCandidate(*this); }
   };
 
   typedef std::vector<DummyCandidate> DummyCandidateCollection;
@@ -24,8 +24,8 @@ class testMakePtrCompositeCandidate : public CppUnit::TestFixture {
   CPPUNIT_TEST_SUITE_END();
 
 public:
-  void setUp() {}
-  void tearDown() {}
+  void setUp() override {}
+  void tearDown() override {}
   void checkAll();
 };
 
@@ -48,8 +48,8 @@ void testMakePtrCompositeCandidate::checkAll() {
   const Candidate& cmp2 = *cmp;
   d[0] = cmp2.daughter(0);
   d[1] = cmp2.daughter(1);
-  CPPUNIT_ASSERT(d[0] != 0);
-  CPPUNIT_ASSERT(d[1] != 0);
+  CPPUNIT_ASSERT(d[0] != nullptr);
+  CPPUNIT_ASSERT(d[1] != nullptr);
   const double epsilon = 1.e-5;
   CPPUNIT_ASSERT(d[0]->charge() == q1);
   CPPUNIT_ASSERT(fabs(d[0]->p4().pt() - p1.pt()) < epsilon);
