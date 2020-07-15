@@ -158,7 +158,7 @@ namespace cond {
       RunInfoProxy getRunInfo(cond::Time_t start, cond::Time_t end);
 
       // get the ongoing run
-      cond::RunInfo_t getCurrentRun();
+      cond::RunInfo_t getLastRun();
 
       // runinfo write access
       RunInfoEditor editRunInfo();
