@@ -4,7 +4,7 @@ TTStubsFromPhase2TrackerDigis = cms.EDProducer("TTStubBuilder_Phase2TrackerDigi_
     TTClusters = cms.InputTag("TTClustersFromPhase2TrackerDigis", "ClusterInclusive"),
     OnlyOnePerInputCluster = cms.bool(True), 
     # Warning: results if FEineffs=True depend on order events processed in,
-    # so in multithreaded job can change if same job run twice.         
+    # so in multithreaded job can change if same job run twice.
     FEineffs      = cms.bool(False), # Turn ON (true) or OFF (false) dynamic FE stub truncation
     CBClimit      = cms.uint32(3),   # CBC chip limit (in stubs/chip/BX)
     MPAlimit      = cms.uint32(5),   # MPA chip limit (in stubs/chip/2BX)
