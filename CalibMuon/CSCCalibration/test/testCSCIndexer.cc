@@ -54,16 +54,16 @@ class IndexerAdapter : public IndexerAdapterBase {
   INDEXER indexer;
 
 public:
-  int ringsInStation(int s) { return indexer.ringsInStation(s); }
-  int chambersInRingOfStation(int s, int r) { return indexer.chambersInRingOfStation(s, r); }
-  int stripChannelsPerLayer(int s, int r) { return indexer.stripChannelsPerLayer(s, r); }
-  int chipsPerLayer(int s, int r) { return indexer.chipsPerLayer(s, r); }
-  int sectorsPerLayer(int s, int r) { return indexer.sectorsPerLayer(s, r); }
-  int chamberIndex(CSCDetId &id) { return indexer.chamberIndex(id); }
-  IndexType layerIndex(CSCDetId &id) { return indexer.layerIndex(id); }
-  LongIndexType stripChannelIndex(CSCDetId &id, int strip) { return indexer.stripChannelIndex(id, strip); }
-  IndexType chipIndex(CSCDetId &id, int chip) { return indexer.chipIndex(id, chip); }
-  IndexType gasGainIndex(int hvseg, int chip, CSCDetId &id) { return indexer.gasGainIndex(hvseg, chip, id); }
+  int ringsInStation(int s) override { return indexer.ringsInStation(s); }
+  int chambersInRingOfStation(int s, int r) override { return indexer.chambersInRingOfStation(s, r); }
+  int stripChannelsPerLayer(int s, int r) override { return indexer.stripChannelsPerLayer(s, r); }
+  int chipsPerLayer(int s, int r) override { return indexer.chipsPerLayer(s, r); }
+  int sectorsPerLayer(int s, int r) override { return indexer.sectorsPerLayer(s, r); }
+  int chamberIndex(CSCDetId &id) override { return indexer.chamberIndex(id); }
+  IndexType layerIndex(CSCDetId &id) override { return indexer.layerIndex(id); }
+  LongIndexType stripChannelIndex(CSCDetId &id, int strip) override { return indexer.stripChannelIndex(id, strip); }
+  IndexType chipIndex(CSCDetId &id, int chip) override { return indexer.chipIndex(id, chip); }
+  IndexType gasGainIndex(int hvseg, int chip, CSCDetId &id) override { return indexer.gasGainIndex(hvseg, chip, id); }
 };
 
 class testCSCIndexer : public CppUnit::TestFixture {
@@ -112,8 +112,8 @@ class testCSCIndexer : public CppUnit::TestFixture {
   }
 
 public:
-  void setUp();
-  void tearDown();
+  void setUp() override;
+  void tearDown() override;
 
   void testChamber();
   void testLayer();

@@ -32,9 +32,9 @@ class TestAlign : public edm::EDAnalyzer {
 public:
   explicit TestAlign(const edm::ParameterSet&);
 
-  virtual ~TestAlign();
+  ~TestAlign() override;
 
-  virtual void analyze(const edm::Event&, const edm::EventSetup&);
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
 
 private:
   //typedef Surface::RotationType    RotationType;
@@ -69,7 +69,7 @@ void TestAlign::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   // Loop over DT chamber to apply alignment corrections
   for (const auto& iter : theAlignableMuon->DTChambers()) {
     // Print inital position/orientation
-    align::GlobalPoint pos_i = iter->globalPosition();
+    const align::GlobalPoint& pos_i = iter->globalPosition();
     align::RotationType dir_i = iter->globalRotation();
 
     std::cout << "Initial pos: x=" << pos_i.x() << ",  y=" << pos_i.y() << ",  z=" << pos_i.z() << std::endl;
@@ -80,7 +80,7 @@ void TestAlign::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     align.moveAlignableGlobalCoord(detid, displacement, rotation);
 
     // Print final position/orientation
-    align::GlobalPoint pos_f = iter->globalPosition();
+    const align::GlobalPoint& pos_f = iter->globalPosition();
     align::RotationType dir_f = iter->globalRotation();
 
     std::cout << "Final pos: x=" << pos_f.x() << ",  y=" << pos_f.y() << ",  z=" << pos_f.z() << std::endl;

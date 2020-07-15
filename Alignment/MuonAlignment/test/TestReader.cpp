@@ -47,11 +47,11 @@
 class TestMuonReader : public edm::EDAnalyzer {
 public:
   explicit TestMuonReader(const edm::ParameterSet&);
-  ~TestMuonReader();
+  ~TestMuonReader() override;
 
   void recursiveGetMuChambers(const align::Alignables& composite, align::Alignables& chambers, int kind);
   align::EulerAngles toPhiXYZ(const align::RotationType&);
-  virtual void analyze(const edm::Event&, const edm::EventSetup&);
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
 
 private:
   // ----------member data ---------------------------
@@ -66,8 +66,8 @@ private:
 // constructors and destructor
 //
 TestMuonReader::TestMuonReader(const edm::ParameterSet& iConfig)
-    : theTree(0),
-      theFile(0),
+    : theTree(nullptr),
+      theFile(nullptr),
       x(0.),
       y(0.),
       z(0.),
@@ -76,7 +76,7 @@ TestMuonReader::TestMuonReader(const edm::ParameterSet& iConfig)
       length(0.),
       thick(0.),
       width(0.),
-      rot(0),
+      rot(nullptr),
       idealGeometryLabel("idealForTestReader") {}
 
 TestMuonReader::~TestMuonReader() {}

@@ -49,9 +49,9 @@ class TestConverter : public edm::EDAnalyzer {
 
 public:
   explicit TestConverter(const edm::ParameterSet&);
-  ~TestConverter();
+  ~TestConverter() override;
 
-  virtual void analyze(const edm::Event&, const edm::EventSetup&);
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
 
 private:
   // ----------member data ---------------------------

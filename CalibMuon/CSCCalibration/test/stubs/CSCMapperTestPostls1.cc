@@ -13,12 +13,12 @@
 class CSCMapperTestPostls1 : public edm::EDAnalyzer {
 public:
   explicit CSCMapperTestPostls1(const edm::ParameterSet &);
-  ~CSCMapperTestPostls1();
+  ~CSCMapperTestPostls1() override;
 
 private:
-  virtual void beginJob();
-  virtual void analyze(const edm::Event &, const edm::EventSetup &);
-  virtual void endJob();
+  void beginJob() override;
+  void analyze(const edm::Event &, const edm::EventSetup &) override;
+  void endJob() override;
 
   std::string algoName;
 };

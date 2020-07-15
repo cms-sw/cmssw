@@ -40,9 +40,9 @@
 class TestAnalyzer : public edm::EDAnalyzer {
 public:
   explicit TestAnalyzer(const edm::ParameterSet&);
-  ~TestAnalyzer();
+  ~TestAnalyzer() override;
 
-  virtual void analyze(const edm::Event&, const edm::EventSetup&);
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
 
 private:
   // ----------member data ---------------------------
@@ -71,7 +71,7 @@ TestAnalyzer::TestAnalyzer(const edm::ParameterSet& iConfig) {
   theTree->Branch("length", &length_, "length/F");
   theTree->Branch("width", &width_, "width/F");
   theTree->Branch("thick", &thick_, "thick/F");
-  rot_ = 0;
+  rot_ = nullptr;
   theTree->Branch("rot", "TRotMatrix", &rot_);
 }
 

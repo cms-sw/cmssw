@@ -63,7 +63,7 @@ void DTTTrigAnalyzer::endJob() {
     TH1D *hTMeanHisto = theTMeanHistoMap[make_pair(wireId.wheel(), wireId.superlayer())];
     TH1D *hSigmaHisto = theSigmaHistoMap[make_pair(wireId.wheel(), wireId.superlayer())];
     TH1D *hKFactorHisto = theKFactorHistoMap[make_pair(wireId.wheel(), wireId.superlayer())];
-    if (hTTrigHisto == 0) {
+    if (hTTrigHisto == nullptr) {
       theFile->cd();
       TString name = getHistoName(wireId).c_str();
       if (wireId.superlayer() != 2) {
@@ -111,7 +111,7 @@ void DTTTrigAnalyzer::endJob() {
     TH1D *hTMeanDistrib = theTMeanDistribMap[Wh_St_SL];
     TH1D *hSigmaDistrib = theSigmaDistribMap[Wh_St_SL];
     TH1D *hKFactorDistrib = theKFactorDistribMap[Wh_St_SL];
-    if (hTTrigDistrib == 0) {
+    if (hTTrigDistrib == nullptr) {
       theFile->cd();
       TString name = getDistribName(wireId).c_str();
       hTTrigDistrib = new TH1D(name + "_TTrig", "TTrig calibrated from TB per superlayer", 500, 100, 600);

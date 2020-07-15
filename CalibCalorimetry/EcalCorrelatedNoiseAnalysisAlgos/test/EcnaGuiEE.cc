@@ -14,16 +14,16 @@
 #include "TGClient.h"
 #include "TRint.h"
 
-#include <stdlib.h>
-#include <string>
-#include "TSystem.h"
-#include "TObject.h"
 #include "TGWindow.h"
+#include "TObject.h"
+#include "TSystem.h"
+#include <cstdlib>
+#include <string>
 
 #include "CalibCalorimetry/EcalCorrelatedNoiseAnalysisAlgos/interface/TEcnaParPaths.h"
 
 extern void InitGui();
-VoidFuncPtr_t initfuncs[] = {InitGui, 0};
+VoidFuncPtr_t initfuncs[] = {InitGui, nullptr};
 TROOT root("GUI", "GUI test environnement", initfuncs);
 
 using namespace std;

@@ -1,6 +1,6 @@
 
-#include "CalibFormats/SiStripObjects/interface/SiStripHashedDetId.h"
 #include "CalibFormats/SiStripObjects/test/plugins/testSiStripHashedDetId.h"
+#include "CalibFormats/SiStripObjects/interface/SiStripHashedDetId.h"
 #include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -13,11 +13,11 @@
 #include "Geometry/TrackerGeometryBuilder/interface/StripGeomDetUnit.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include <algorithm>
+#include <cstdint>
+#include <ctime>
 #include <iostream>
 #include <sstream>
-#include <time.h>
 #include <vector>
-#include <cstdint>
 
 using namespace sistrip;
 
@@ -95,7 +95,7 @@ void testSiStripHashedDetId::initialize(const edm::EventSetup &setup) {
 
   // Retrieve hashed indices
   std::vector<uint32_t> hashes;
-  uint32_t istart = time(NULL);
+  uint32_t istart = time(nullptr);
   for (uint16_t tt = 0; tt < 10000; ++tt) {  // 10000 loops just to see some non-negligible time meaasurement!
     hashes.clear();
     hashes.reserve(dets.size());
@@ -135,12 +135,12 @@ void testSiStripHashedDetId::initialize(const edm::EventSetup &setup) {
   LogTrace(mlDqmCommon_) << ss.str();
 
   edm::LogVerbatim(mlDqmCommon_) << "[testSiStripHashedDetId::" << __func__ << "]"
-                                 << " Processed " << hashes.size() << " DetIds in " << (time(NULL) - istart)
+                                 << " Processed " << hashes.size() << " DetIds in " << (time(nullptr) - istart)
                                  << " seconds";
 
   // Retrieve DetIds
   std::vector<uint32_t> detids;
-  uint32_t jstart = time(NULL);
+  uint32_t jstart = time(nullptr);
   for (uint16_t ttt = 0; ttt < 10000; ++ttt) {  // 10000 loops just to see some non-negligible time
                                                 // meaasurement!
     detids.clear();
@@ -171,7 +171,7 @@ void testSiStripHashedDetId::initialize(const edm::EventSetup &setup) {
   LogTrace(mlDqmCommon_) << sss.str();
 
   edm::LogVerbatim(mlDqmCommon_) << "[testSiStripHashedDetId::" << __func__ << "]"
-                                 << " Processed " << detids.size() << " hashed indices in " << (time(NULL) - jstart)
+                                 << " Processed " << detids.size() << " hashed indices in " << (time(nullptr) - jstart)
                                  << " seconds";
 }
 

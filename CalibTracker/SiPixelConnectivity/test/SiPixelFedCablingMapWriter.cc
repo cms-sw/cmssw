@@ -22,10 +22,10 @@ using namespace sipixelobjects;
 class SiPixelFedCablingMapWriter : public edm::EDAnalyzer {
 public:
   explicit SiPixelFedCablingMapWriter(const edm::ParameterSet& cfg);
-  ~SiPixelFedCablingMapWriter();
-  virtual void beginJob();
-  virtual void endJob();
-  virtual void analyze(const edm::Event&, const edm::EventSetup&);
+  ~SiPixelFedCablingMapWriter() override;
+  void beginJob() override;
+  void endJob() override;
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
 
 private:
   SiPixelFedCablingTree* cabling;

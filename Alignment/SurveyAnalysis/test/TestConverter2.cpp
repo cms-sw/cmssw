@@ -48,9 +48,9 @@ using namespace std;
 class TestConverter2 : public edm::EDAnalyzer {
 public:
   explicit TestConverter2(const edm::ParameterSet&);
-  ~TestConverter2();
+  ~TestConverter2() override;
 
-  virtual void analyze(const edm::Event&, const edm::EventSetup&);
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
 
 private:
   // ----------member data ---------------------------

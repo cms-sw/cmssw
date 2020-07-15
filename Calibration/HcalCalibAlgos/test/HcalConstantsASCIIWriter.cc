@@ -106,7 +106,7 @@ namespace cms {
     while (std::getline(in, line)) {
       //    std::cout<<" Line size "<<line.size()<< " "<<line<< std::endl;
 
-      if (!line.size() || line[0] == '#')
+      if (line.empty() || line[0] == '#')
         continue;
       std::istringstream linestream(line);
 

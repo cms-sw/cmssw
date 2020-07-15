@@ -43,14 +43,14 @@
 class CheckPhase2Cabling : public edm::EDAnalyzer {
 public:
   explicit CheckPhase2Cabling(const edm::ParameterSet&);
-  ~CheckPhase2Cabling();
+  ~CheckPhase2Cabling() override;
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
-  virtual void beginJob();
-  virtual void analyze(const edm::Event&, const edm::EventSetup&);
-  virtual void endJob();
+  void beginJob() override;
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void endJob() override;
 
   //virtual void beginRun(edm::Run const&, edm::EventSetup const&);
   //virtual void endRun(edm::Run const&, edm::EventSetup const&);
@@ -108,12 +108,12 @@ void CheckPhase2Cabling::analyze(const edm::Event& iEvent, const edm::EventSetup
   // look at one subset (based on cooling)
   Phase2TrackerCabling coolingLoop = cablingHandle->filterByCoolingLine(0);
   std::cout << "Subset in cooling line 0:" << std::endl;
-  std::cout << coolingLoop.description(1) << std::endl;
+  std::cout << coolingLoop.description(true) << std::endl;
 
   // look at one subset (based on power)
   Phase2TrackerCabling powerGroup = cablingHandle->filterByPowerGroup(1);
   std::cout << "Subset in power group 1:" << std::endl;
-  std::cout << powerGroup.description(1) << std::endl;
+  std::cout << powerGroup.description(true) << std::endl;
 }
 
 // ------------ method called once each job just before starting event loop  ------------

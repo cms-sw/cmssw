@@ -19,9 +19,9 @@
 class ComputeTransformation : public edm::EDAnalyzer {
 public:
   explicit ComputeTransformation(const edm::ParameterSet&);
-  ~ComputeTransformation();
+  ~ComputeTransformation() override;
 
-  virtual void analyze(const edm::Event&, const edm::EventSetup&);
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
 
 private:
   // ----------member data ---------------------------

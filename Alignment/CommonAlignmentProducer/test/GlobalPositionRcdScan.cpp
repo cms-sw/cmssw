@@ -20,9 +20,9 @@ class GlobalPositionRcdScan : public edm::EDAnalyzer {
 public:
   explicit GlobalPositionRcdScan(const edm::ParameterSet& iConfig);
 
-  virtual ~GlobalPositionRcdScan() {}
-  virtual void analyze(const edm::Event& evt, const edm::EventSetup& evtSetup);
-  virtual void endJob();
+  ~GlobalPositionRcdScan() override {}
+  void analyze(const edm::Event& evt, const edm::EventSetup& evtSetup) override;
+  void endJob() override;
 
 private:
   edm::ESWatcher<GlobalPositionRcd> watcher_;

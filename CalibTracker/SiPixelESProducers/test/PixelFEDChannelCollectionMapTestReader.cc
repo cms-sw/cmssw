@@ -15,12 +15,12 @@ class PixelFEDChannelCollectionMapTestReader : public edm::one::EDAnalyzer<> {
 public:
   typedef std::unordered_map<std::string, PixelFEDChannelCollection> PixelFEDChannelCollectionMap;
   explicit PixelFEDChannelCollectionMapTestReader(edm::ParameterSet const& p);
-  ~PixelFEDChannelCollectionMapTestReader();
+  ~PixelFEDChannelCollectionMapTestReader() override;
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
-  virtual void analyze(const edm::Event& e, const edm::EventSetup& c) override;
+  void analyze(const edm::Event& e, const edm::EventSetup& c) override;
 
   // ----------member data ---------------------------
   const bool printdebug_;
@@ -67,8 +67,8 @@ void PixelFEDChannelCollectionMapTestReader::analyze(const edm::Event& e, const 
       << "Size: " << thePixelFEDChannelCollectionMap->size() << std::endl;
   edm::LogInfo("PixelFEDChannelCollectionMapTestReader") << "Content of my PixelFEDChanneCollectionlMap: " << std::endl;
 
-  FILE* pFile = NULL;
-  if (formatedOutput_ != "")
+  FILE* pFile = nullptr;
+  if (!formatedOutput_.empty())
     pFile = fopen(formatedOutput_.c_str(), "w");
   if (pFile) {
     fprintf(pFile, "PixelFEDChannelCollectionMap::printAll() \n");

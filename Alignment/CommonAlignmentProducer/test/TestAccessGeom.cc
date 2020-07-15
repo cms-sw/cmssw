@@ -50,10 +50,10 @@
 class TestAccessGeom : public edm::EDAnalyzer {
 public:
   explicit TestAccessGeom(const edm::ParameterSet&);
-  ~TestAccessGeom();
+  ~TestAccessGeom() override;
 
 private:
-  virtual void analyze(const edm::Event&, const edm::EventSetup&);
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
 
   // ----------member data ---------------------------
 

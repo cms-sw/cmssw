@@ -179,7 +179,7 @@ void ValidationHcalIsoTrackAlCaReco::analyze(const edm::Event& iEvent, const edm
     hl3AbsEta->Fill(fabs(TObj.eta()), 1);
     hl3phi->Fill(TObj.phi(), 1);
 
-    if (recoIsoTracks->size() > 0) {
+    if (!recoIsoTracks->empty()) {
       double minRecoL3dist = 1000;
       reco::IsolatedPixelTrackCandidateCollection::const_iterator mrtr;
       for (reco::IsolatedPixelTrackCandidateCollection::const_iterator rtrit = recoIsoTracks->begin();

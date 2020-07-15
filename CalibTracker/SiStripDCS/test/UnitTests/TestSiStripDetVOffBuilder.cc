@@ -33,7 +33,7 @@ class TestSiStripDetVOffBuilder : public CppUnit::TestFixture {
 public:
   TestSiStripDetVOffBuilder() {}
 
-  void setUp() {
+  void setUp() override {
     edm::ParameterSet pset;
     // Must set the string type explicitly or it will take it as bool
     pset.addParameter("onlineDB", std::string("onlineDBString"));
@@ -58,7 +58,7 @@ public:
     detVoff = new SiStripDetVOff;
   }
 
-  void tearDown() {
+  void tearDown() override {
     delete object;
     delete detVoff;
   }
@@ -76,7 +76,7 @@ public:
         new SiStripCoralIface(object->onlineDbConnectionString, object->authenticationPath, false));
     SiStripDetVOffBuilder::TimesAndValues tStruct;
     object->statusChange(object->lastStoredCondObj.second, tStruct);
-    CPPUNIT_ASSERT(tStruct.actualStatus.size() != 0);
+    CPPUNIT_ASSERT(!tStruct.actualStatus.empty());
   }
   void testBuildDetVOffObj() {
     // CPPUNIT_ASSERT( object->BuildDetVOffObj() );

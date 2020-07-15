@@ -19,10 +19,10 @@
 //VoidFuncPtr_t initfuncs[] = { InitGui, 0 };
 //TROOT root("GUI","GUI test environnement", initfuncs);
 
-#include <stdlib.h>
-#include <string>
-#include "TSystem.h"
 #include "TObject.h"
+#include "TSystem.h"
+#include <cstdlib>
+#include <string>
 
 using namespace std;
 

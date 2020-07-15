@@ -60,12 +60,12 @@
 class StandAloneTest : public edm::EDAnalyzer {
 public:
   explicit StandAloneTest(const edm::ParameterSet &);
-  ~StandAloneTest();
+  ~StandAloneTest() override;
 
 private:
-  virtual void beginJob();
-  virtual void analyze(const edm::Event &, const edm::EventSetup &);
-  virtual void endJob();
+  void beginJob() override;
+  void analyze(const edm::Event &, const edm::EventSetup &) override;
+  void endJob() override;
 
   // ----------member data ---------------------------
 
@@ -107,7 +107,7 @@ StandAloneTest::StandAloneTest(const edm::ParameterSet &iConfig)
   m_ttree->Branch("phi", &m_ttree_phi, "phi/F");
   m_ttree->Branch("qoverpt", &m_ttree_qoverpt, "qoverpt/F");
 
-  m_muonAlignment = NULL;
+  m_muonAlignment = nullptr;
 }
 
 StandAloneTest::~StandAloneTest() {
@@ -122,7 +122,7 @@ StandAloneTest::~StandAloneTest() {
 // ------------ method called to for each event  ------------
 void StandAloneTest::analyze(const edm::Event &iEvent, const edm::EventSetup &iSetup) {
   // create a muon alignment object ONCE (not used for much, only a formalilty for MuonResidualsFromTrack)
-  if (m_muonAlignment == NULL) {
+  if (m_muonAlignment == nullptr) {
     m_muonAlignment = new MuonAlignment(iSetup);
   }
 
@@ -148,7 +148,7 @@ void StandAloneTest::analyze(const edm::Event &iEvent, const edm::EventSetup &iS
   // loop over tracks
   for (reco::TrackCollection::const_iterator track = tracks->begin(); track != tracks->end(); ++track) {
     // find the corresponding refitted trajectory
-    const Trajectory *traj = NULL;
+    const Trajectory *traj = nullptr;
     for (TrajTrackAssociationCollection::const_iterator iPair = trajtracksmap->begin(); iPair != trajtracksmap->end();
          ++iPair) {
       if (&(*(iPair->val)) == &(*track)) {
@@ -157,7 +157,7 @@ void StandAloneTest::analyze(const edm::Event &iEvent, const edm::EventSetup &iS
     }
 
     // if good track, good trajectory
-    if (track->pt() > 20. && traj != NULL && traj->isValid()) {
+    if (track->pt() > 20. && traj != nullptr && traj->isValid()) {
       // calculate all residuals on this track
       MuonResidualsFromTrack muonResidualsFromTrack(iSetup,
                                                     magneticField,
@@ -182,7 +182,7 @@ void StandAloneTest::analyze(const edm::Event &iEvent, const edm::EventSetup &iS
             MuonChamberResidual *csc = muonResidualsFromTrack.chamberResidual(*chamberId, MuonChamberResidual::kCSC);
 
             // if this segment is okay and has 6 hits
-            if (csc != NULL && csc->numHits() >= 6) {
+            if (csc != nullptr && csc->numHits() >= 6) {
               // fill the TTree
               m_ttree_station = station;
               m_ttree_chamber = cscid.chamber();

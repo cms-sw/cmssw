@@ -44,9 +44,9 @@
 class TestMuonAnalyzer : public edm::EDAnalyzer {
 public:
   explicit TestMuonAnalyzer(const edm::ParameterSet&);
-  ~TestMuonAnalyzer();
+  ~TestMuonAnalyzer() override;
 
-  virtual void analyze(const edm::Event&, const edm::EventSetup&);
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
 
 private:
   void fillTree(const GeomDet* geomDet);
@@ -77,7 +77,7 @@ TestMuonAnalyzer::TestMuonAnalyzer(const edm::ParameterSet& iConfig) {
   theTree->Branch("length", &length, "length/F");
   theTree->Branch("width", &width, "width/F");
   theTree->Branch("thick", &thick, "thick/F");
-  rot = 0;
+  rot = nullptr;
   theTree->Branch("rot", "TRotMatrix", &rot);
 }
 

@@ -32,7 +32,7 @@
 class HBHEDarkeningAnalyzer : public edm::one::EDAnalyzer<edm::one::WatchRuns> {
 public:
   explicit HBHEDarkeningAnalyzer(const edm::ParameterSet&);
-  ~HBHEDarkeningAnalyzer();
+  ~HBHEDarkeningAnalyzer() override;
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
@@ -62,11 +62,11 @@ private:
 //
 HBHEDarkeningAnalyzer::HBHEDarkeningAnalyzer(const edm::ParameterSet& iConfig)
     : intlumi(iConfig.getParameter<double>("deliveredLumi")),
-      hb_darkening(NULL),
-      he_darkening(NULL),
+      hb_darkening(nullptr),
+      he_darkening(nullptr),
       hb_recalibration(intlumi, 0, iConfig.getParameter<edm::FileInPath>("HBmeanenergies").fullPath()),
       he_recalibration(intlumi, 0, iConfig.getParameter<edm::FileInPath>("HEmeanenergies").fullPath()),
-      theTopology(NULL) {}
+      theTopology(nullptr) {}
 
 HBHEDarkeningAnalyzer::~HBHEDarkeningAnalyzer() {}
 

@@ -49,9 +49,9 @@ class TestIdealGeometry2 : public edm::EDAnalyzer {
 
 public:
   explicit TestIdealGeometry2(const edm::ParameterSet&);
-  ~TestIdealGeometry2();
+  ~TestIdealGeometry2() override;
 
-  virtual void analyze(const edm::Event&, const edm::EventSetup&);
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
 
 private:
   // ----------member data ---------------------------

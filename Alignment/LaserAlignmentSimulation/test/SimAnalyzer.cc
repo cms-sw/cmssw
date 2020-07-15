@@ -34,30 +34,30 @@ SimAnalyzer::SimAnalyzer(edm::ParameterSet const &theConf)
       theFile(),
       theCompression(theConf.getUntrackedParameter<int>("ROOTFileCompression", 1)),
       theFileName(theConf.getUntrackedParameter<std::string>("ROOTFileName", "test.root")),
-      theBarrelSimHitsX(0),
-      theBarrelSimHitsY(0),
-      theBarrelSimHitsZ(0),
-      theBarrelSimHitsYvsX(0),
-      theBarrelSimHitsXvsZ(0),
-      theBarrelSimHitsYvsZ(0),
-      theBarrelSimHitsRvsZ(0),
-      theBarrelSimHitsPhivsX(0),
-      theBarrelSimHitsPhivsY(0),
-      theBarrelSimHitsPhivsZ(0),
+      theBarrelSimHitsX(nullptr),
+      theBarrelSimHitsY(nullptr),
+      theBarrelSimHitsZ(nullptr),
+      theBarrelSimHitsYvsX(nullptr),
+      theBarrelSimHitsXvsZ(nullptr),
+      theBarrelSimHitsYvsZ(nullptr),
+      theBarrelSimHitsRvsZ(nullptr),
+      theBarrelSimHitsPhivsX(nullptr),
+      theBarrelSimHitsPhivsY(nullptr),
+      theBarrelSimHitsPhivsZ(nullptr),
       // the histograms for Endcap Hits
-      theEndcapSimHitsX(0),
-      theEndcapSimHitsY(0),
-      theEndcapSimHitsZ(0),
-      theEndcapSimHitsYvsX(0),
-      theEndcapSimHitsXvsZ(0),
-      theEndcapSimHitsYvsZ(0),
-      theEndcapSimHitsRvsZ(0),
-      theEndcapSimHitsPhivsX(0),
-      theEndcapSimHitsPhivsY(0),
-      theEndcapSimHitsPhivsZ(0),
+      theEndcapSimHitsX(nullptr),
+      theEndcapSimHitsY(nullptr),
+      theEndcapSimHitsZ(nullptr),
+      theEndcapSimHitsYvsX(nullptr),
+      theEndcapSimHitsXvsZ(nullptr),
+      theEndcapSimHitsYvsZ(nullptr),
+      theEndcapSimHitsRvsZ(nullptr),
+      theEndcapSimHitsPhivsX(nullptr),
+      theEndcapSimHitsPhivsY(nullptr),
+      theEndcapSimHitsPhivsZ(nullptr),
       // the histograms for all SimHits
-      theSimHitsRvsZ(0),
-      theSimHitsPhivsZ(0) {
+      theSimHitsRvsZ(nullptr),
+      theSimHitsPhivsZ(nullptr) {
   // load the configuration from the ParameterSet
   edm::LogInfo("SimAnalyzer") << "==========================================================="
                               << "===                Start configuration                  ==="
@@ -73,7 +73,7 @@ SimAnalyzer::SimAnalyzer(edm::ParameterSet const &theConf)
 }
 
 SimAnalyzer::~SimAnalyzer() {
-  if (theFile != 0) {
+  if (theFile != nullptr) {
     // close the rootfile
     closeRootFile();
 
@@ -256,7 +256,7 @@ void SimAnalyzer::trackerStatistics(edm::Event const &theEvent, edm::EventSetup 
   const TrackerGeometry &theTracker(*theTrackerGeometry);
 
   // the DetUnits
-  TrackingGeometry::DetContainer theDetUnits = theTracker.dets();
+  const TrackingGeometry::DetContainer &theDetUnits = theTracker.dets();
 
   // get the SimHitContainers
   std::vector<edm::Handle<edm::PSimHitContainer>> theSimHitContainers;

@@ -66,7 +66,7 @@ void DTT0Analyzer::endJob() {
 
     //Define an histo for means and an histo for sigmas for each layer
     TH1D* hT0Histo = theMeanHistoMap[layerId];
-    if (hT0Histo == 0) {
+    if (hT0Histo == nullptr) {
       theFile->cd();
       TString name = getHistoName(layerId).c_str();
       hT0Histo = new TH1D(name + "_t0Mean",
@@ -78,7 +78,7 @@ void DTT0Analyzer::endJob() {
     }
 
     TH1D* hSigmaT0Histo = theSigmaHistoMap[layerId];
-    if (hSigmaT0Histo == 0) {
+    if (hSigmaT0Histo == nullptr) {
       theFile->cd();
       TString name = getHistoName(layerId).c_str();
       hSigmaT0Histo = new TH1D(name + "_t0Sigma",
