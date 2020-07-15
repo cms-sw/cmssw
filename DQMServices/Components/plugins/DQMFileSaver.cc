@@ -5,6 +5,9 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/Run.h"
 #include "FWCore/Framework/interface/LuminosityBlock.h"
+#include "FWCore/Framework/interface/GetterOfProducts.h"
+#include "FWCore/Framework/interface/ProcessMatch.h"
+#include "FWCore/Framework/interface/LuminosityBlock.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Version/interface/GetReleaseVersion.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
@@ -60,6 +63,11 @@ private:
 
   // needed only for the harvesting step when saving in the endJob
   int irun_;
+
+  // We want to consume all DQMTokens for runs and jobs. But consumesMany is
+  // confused by the labels, so we sue these getters.
+  edm::GetterOfProducts<DQMToken> jobmegetter_;
+  edm::GetterOfProducts<DQMToken> runmegetter_;
 };
 
 //--------------------------------------------------------
@@ -146,9 +154,15 @@ DQMFileSaver::DQMFileSaver(const edm::ParameterSet &ps)
       fileBaseName_(""),
       dbe_(&*edm::Service<DQMStore>()),
       nrun_(0),
-      irun_(0) {
-  consumesMany<DQMToken, edm::InRun>();
-  consumesMany<DQMToken, edm::InProcess>();
+      irun_(0),
+      // Abuse ProcessMatch as a "match all".
+      jobmegetter_(edm::GetterOfProducts<DQMToken>(edm::ProcessMatch("*"), this, edm::InProcess)),
+      runmegetter_(edm::GetterOfProducts<DQMToken>(edm::ProcessMatch("*"), this, edm::InRun)) {
+  callWhenNewProductsRegistered([this](edm::BranchDescription const &bd) {
+    this->jobmegetter_(bd);
+    this->runmegetter_(bd);
+  });
+
   workflow_ = ps.getUntrackedParameter<std::string>("workflow", workflow_);
   if (workflow_.empty() || workflow_[0] != '/' || *workflow_.rbegin() == '/' ||
       std::count(workflow_.begin(), workflow_.end(), '/') != 3 ||
