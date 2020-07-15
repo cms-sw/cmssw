@@ -64,10 +64,10 @@ PixelTestBeamValidation::PixelTestBeamValidation(const edm::ParameterSet& iConfi
   // Helper map to build up the active entry angles
   std::map<std::string, std::vector<double>*> prov_ref_m;
   // Get the range of entry angles for the tracks on the detector surfaces, if any
-  if (tracksEntryAngleX_.size() != 0) {
+  if (!tracksEntryAngleX_.empty()) {
     prov_ref_m["X"] = &tracksEntryAngleX_;
   }
-  if (tracksEntryAngleY_.size() != 0) {
+  if (!tracksEntryAngleY_.empty()) {
     prov_ref_m["Y"] = &tracksEntryAngleY_;
   }
 
@@ -98,7 +98,7 @@ PixelTestBeamValidation::PixelTestBeamValidation(const edm::ParameterSet& iConfi
         std::pair<double, double>({(*label_v.second)[0], (*label_v.second)[1]});
   }
 
-  if (prov_ref_m.size() != 0) {
+  if (!prov_ref_m.empty()) {
     // The algorithm is defined in the implementation of _check_input_angles_
     use_this_track_ = std::bind(&PixelTestBeamValidation::_check_input_angles_, this, std::placeholders::_1);
     edm::LogInfo("Configuration") << "Considering hits from tracks entering the detectors between\n "
