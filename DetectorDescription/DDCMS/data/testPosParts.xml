@@ -126,6 +126,16 @@
       <rChild name="testLogicalParts:extrudedpgon"/>
       <Translation z="-8.5*m" y="5.5*m" x="0"/>
     </PosPart>
+    <PosPart copyNumber="0">
+      <rParent name="testLogicalParts:MotherOfAllBoxes"/>
+      <rChild name="testLogicalParts:phzsect"/>
+      <Translation z="-8.5*m" y="5.5*m" x="0"/>
+    </PosPart>
+    <PosPart copyNumber="0">
+      <rParent name="testLogicalParts:MotherOfAllBoxes"/>
+      <rChild name="testLogicalParts:phrz"/>
+      <Translation z="-8.5*m" y="5.5*m" x="0"/>
+    </PosPart>
     
 <!-- beyond this point I'm not worrying about overlaps :( -->
     <PosPart copyNumber="1">
