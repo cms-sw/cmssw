@@ -12,7 +12,6 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 // tmp
-#include "Geometry/Records/interface/GlobalTrackingGeometryRecord.h"
 #include "Geometry/CommonDetUnit/interface/GeomDet.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
@@ -25,6 +24,7 @@ GlobalMuonToMuonProducer::GlobalMuonToMuonProducer(const edm::ParameterSet& pSet
   setAlias(pSet.getParameter<std::string>("@module_label"));
   produces<reco::MuonCollection>().setBranchAlias(theAlias + "s");
   trackLinkToken_ = consumes<reco::MuonTrackLinksCollection>(theLinksCollectionLabel);
+  trackingGeomToken_ = esConsumes<GlobalTrackingGeometry, GlobalTrackingGeometryRecord>();
 }
 
 /// Destructor
@@ -63,8 +63,7 @@ void GlobalMuonToMuonProducer::produce(edm::StreamID, edm::Event& event, const e
   }
 
   // Global Tracking Geometry
-  edm::ESHandle<GlobalTrackingGeometry> trackingGeometry;
-  eventSetup.get<GlobalTrackingGeometryRecord>().get(trackingGeometry);
+  edm::ESHandle<GlobalTrackingGeometry> trackingGeometry = eventSetup.getHandle(trackingGeomToken_);
 
   for (reco::MuonTrackLinksCollection::const_iterator links = linksCollection->begin(); links != linksCollection->end();
        ++links) {
