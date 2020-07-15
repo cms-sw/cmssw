@@ -19,10 +19,8 @@ void TTStubBuilder<Ref_Phase2TrackerDigi_>::updateStubs(
     const edm::OrphanHandle<edmNew::DetSetVector<TTCluster<Ref_Phase2TrackerDigi_>>>& clusterHandle,
     const edmNew::DetSetVector<TTStub<Ref_Phase2TrackerDigi_>>& inputEDstubs,
     edmNew::DetSetVector<TTStub<Ref_Phase2TrackerDigi_>>& outputEDstubs) const {
-
   /// Loop over tracker modules
   for (const auto& module : inputEDstubs) {
-
     /// Get the DetId and prepare the FastFiller
     DetId thisStackedDetId = module.id();
     typename edmNew::DetSetVector<TTStub<Ref_Phase2TrackerDigi_>>::FastFiller outputFiller(outputEDstubs,
