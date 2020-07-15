@@ -24,6 +24,6 @@
 
 class HcalPFCorrsRcd : public edm::eventsetup::DependentRecordImplementation<
                            HcalPFCorrsRcd,
-                           boost::mpl::vector<HcalRecNumberingRecord, IdealGeometryRecord> > {};
+                           boost::mp11::mp_list<HcalRecNumberingRecord, IdealGeometryRecord> > {};
 
 #endif

@@ -18,13 +18,13 @@
 // Created:     Thu Dec 24 16:41:02 PDT 2013
 //
 
-#include <boost/mpl/vector.hpp>
+#include <boost/mp11/list.hpp>
 #include "Geometry/Records/interface/HcalParametersRcd.h"
 #include "FWCore/Framework/interface/DependentRecordImplementation.h"
 
 class HcalSimNumberingRecord
     : public edm::eventsetup::DependentRecordImplementation<HcalSimNumberingRecord,
-                                                            boost::mpl::vector<IdealGeometryRecord, HcalParametersRcd> > {
+                                                            boost::mp11::mp_list<IdealGeometryRecord, HcalParametersRcd> > {
 };
 
 #endif

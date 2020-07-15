@@ -4,10 +4,10 @@
 #include "FWCore/Framework/interface/EventSetupRecordImplementation.h"
 #include "FWCore/Framework/interface/DependentRecordImplementation.h"
 #include "Geometry/EcalMapping/interface/EcalMappingRcd.h"
-#include "boost/mpl/vector.hpp"
+#include <boost/mp11/list.hpp>
 
 class EcalRegionCablingRecord
     : public edm::eventsetup::DependentRecordImplementation<EcalRegionCablingRecord,
-                                                            boost::mpl::vector<EcalMappingRcd> > {};
+                                                            boost::mp11::mp_list<EcalMappingRcd> > {};
 
 #endif

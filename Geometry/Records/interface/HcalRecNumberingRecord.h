@@ -17,12 +17,12 @@
 // Author:
 // Created:     Thu Dec 24 16:41:02 PDT 2013
 //
-#include <boost/mpl/vector.hpp>
+#include <boost/mp11/list.hpp>
 #include "Geometry/Records/interface/HcalSimNumberingRecord.h"
 
 class HcalRecNumberingRecord
     : public edm::eventsetup::DependentRecordImplementation<
           HcalRecNumberingRecord,
-          boost::mpl::vector<IdealGeometryRecord, HcalParametersRcd, HcalSimNumberingRecord> > {};
+          boost::mp11::mp_list<IdealGeometryRecord, HcalParametersRcd, HcalSimNumberingRecord> > {};
 
 #endif

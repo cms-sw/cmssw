@@ -18,7 +18,7 @@
 // Created:     Tue Jul 31 19:49:12 CDT 2012
 //
 
-#include <boost/mpl/vector.hpp>
+#include <boost/mp11/list.hpp>
 
 #include "FWCore/Framework/interface/DependentRecordImplementation.h"
 #include "CondFormats/DataRecord/interface/FFTJetCorrectorParametersRcd.h"
@@ -26,7 +26,7 @@
 template <typename CT>
 struct FFTJetCorrectorSequenceRcd
     : public edm::eventsetup::DependentRecordImplementation<FFTJetCorrectorSequenceRcd<CT>,
-                                                            boost::mpl::vector<FFTJetCorrectorParametersRcd<CT> > > {
+                                                            boost::mp11::mp_list<FFTJetCorrectorParametersRcd<CT> > > {
   typedef CT correction_type;
 };
 

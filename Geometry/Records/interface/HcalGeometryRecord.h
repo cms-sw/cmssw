@@ -18,11 +18,11 @@
 #include "CondFormats/AlignmentRecord/interface/HcalAlignmentErrorExtendedRcd.h"
 #include "Geometry/Records/interface/PHcalRcd.h"
 #include "CondFormats/AlignmentRecord/interface/GlobalPositionRcd.h"
-#include "boost/mpl/vector.hpp"
+#include <boost/mp11/list.hpp>
 
 class HcalGeometryRecord
     : public edm::eventsetup::DependentRecordImplementation<HcalGeometryRecord,
-                                                            boost::mpl::vector<IdealGeometryRecord,
+                                                            boost::mp11::mp_list<IdealGeometryRecord,
                                                                                HcalParametersRcd,
                                                                                HcalSimNumberingRecord,
                                                                                HcalRecNumberingRecord,

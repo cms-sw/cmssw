@@ -9,11 +9,11 @@
 #include "RecoLocalTracker/Records/interface/TkPixelCPERecord.h"
 #include "Geometry/Records/interface/GlobalTrackingGeometryRecord.h"
 
-#include "boost/mpl/vector.hpp"
+#include <boost/mp11/list.hpp>
 
 class TransientRecHitRecord
     : public edm::eventsetup::DependentRecordImplementation<TransientRecHitRecord,
-                                                            boost::mpl::vector<CaloGeometryRecord,
+                                                            boost::mp11::mp_list<CaloGeometryRecord,
                                                                                TrackerDigiGeometryRecord,
                                                                                TkStripCPERecord,
                                                                                TkPixelCPERecord,

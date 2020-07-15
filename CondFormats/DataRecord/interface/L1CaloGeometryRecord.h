@@ -29,7 +29,7 @@
 /* {}; */
 class L1CaloGeometryRecord
     : public edm::eventsetup::DependentRecordImplementation<L1CaloGeometryRecord,
-                                                            boost::mpl::vector<L1TriggerKeyListRcd, L1TriggerKeyRcd> > {
+                                                            boost::mp11::mp_list<L1TriggerKeyListRcd, L1TriggerKeyRcd> > {
 };
 
 #endif

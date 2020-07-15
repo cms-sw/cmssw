@@ -13,11 +13,11 @@
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 #include "TrackingTools/Records/interface/TrackingComponentsRecord.h"
 
-#include "boost/mpl/vector.hpp"
+#include <boost/mp11/list.hpp>
 
 class TrackAssociatorRecord
     : public edm::eventsetup::DependentRecordImplementation<
           TrackAssociatorRecord,
-          boost::mpl::vector<IdealMagneticFieldRecord, TrackingComponentsRecord, GlobalTrackingGeometryRecord>> {};
+          boost::mp11::mp_list<IdealMagneticFieldRecord, TrackingComponentsRecord, GlobalTrackingGeometryRecord>> {};
 
 #endif

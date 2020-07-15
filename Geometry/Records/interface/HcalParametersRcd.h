@@ -3,10 +3,10 @@
 
 #include "FWCore/Framework/interface/DependentRecordImplementation.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
-#include "boost/mpl/vector.hpp"
+#include <boost/mp11/list.hpp>
 
 class HcalParametersRcd
-    : public edm::eventsetup::DependentRecordImplementation<HcalParametersRcd, boost::mpl::vector<IdealGeometryRecord> > {
+    : public edm::eventsetup::DependentRecordImplementation<HcalParametersRcd, boost::mp11::mp_list<IdealGeometryRecord> > {
 };
 
 #endif  // Geometry_Records_HcalParameters_H

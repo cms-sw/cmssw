@@ -27,10 +27,10 @@
 #include "CondFormats/DataRecord/interface/L1TriggerKeyListRcd.h"
 #include "CondFormats/DataRecord/interface/L1TriggerKeyRcd.h"
 #include "CondFormats/DataRecord/interface/L1RPCConeDefinitionRcd.h"
-#include <boost/mpl/vector.hpp>
+#include <boost/mp11/list.hpp>
 class L1RPCConeBuilderRcd
     : public edm::eventsetup::DependentRecordImplementation<
           L1RPCConeBuilderRcd,
-          boost::mpl::vector<MuonGeometryRecord, L1TriggerKeyListRcd, L1TriggerKeyRcd, L1RPCConeDefinitionRcd> > {};
+          boost::mp11::mp_list<MuonGeometryRecord, L1TriggerKeyListRcd, L1TriggerKeyRcd, L1RPCConeDefinitionRcd> > {};
 
 #endif

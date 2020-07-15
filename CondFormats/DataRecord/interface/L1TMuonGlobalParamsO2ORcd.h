@@ -26,6 +26,6 @@
 class L1TMuonGlobalParamsO2ORcd
     : public edm::eventsetup::DependentRecordImplementation<
           L1TMuonGlobalParamsO2ORcd,
-          boost::mpl::vector<L1TriggerKeyListExtRcd, L1TriggerKeyExtRcd, L1TMuonGlobalParamsRcd> > {};
+          boost::mp11::mp_list<L1TriggerKeyListExtRcd, L1TriggerKeyExtRcd, L1TMuonGlobalParamsRcd> > {};
 
 #endif

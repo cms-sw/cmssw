@@ -17,6 +17,6 @@
 #include "CondFormats/DataRecord/interface/L1TCaloParamsRcd.h"
 class L1TCaloParamsO2ORcd : public edm::eventsetup::DependentRecordImplementation<
                                 L1TCaloParamsO2ORcd,
-                                boost::mpl::vector<L1TriggerKeyListExtRcd, L1TriggerKeyExtRcd, L1TCaloParamsRcd> > {};
+                                boost::mp11::mp_list<L1TriggerKeyListExtRcd, L1TriggerKeyExtRcd, L1TCaloParamsRcd> > {};
 
 #endif

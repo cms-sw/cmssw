@@ -20,7 +20,7 @@
 //		SV September 2008: create dependent record from DTCCBConfigRcd
 //
 
-#include "boost/mpl/vector.hpp"
+#include <boost/mp11/list.hpp>
 #include "FWCore/Framework/interface/DependentRecordImplementation.h"
 #include "CondFormats/DataRecord/interface/DTCCBConfigRcd.h"
 #include "CondFormats/DataRecord/interface/DTKeyedConfigListRcd.h"
@@ -30,7 +30,7 @@ class DTTPGParametersRcd;
 
 class DTConfigManagerRcd : public edm::eventsetup::DependentRecordImplementation<
                                DTConfigManagerRcd,
-                               boost::mpl::vector<DTCCBConfigRcd, DTKeyedConfigListRcd, DTT0Rcd, DTTPGParametersRcd> > {
+                               boost::mp11::mp_list<DTCCBConfigRcd, DTKeyedConfigListRcd, DTT0Rcd, DTTPGParametersRcd> > {
 };
 
 #endif

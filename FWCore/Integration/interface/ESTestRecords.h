@@ -4,7 +4,7 @@
 #include "FWCore/Framework/interface/EventSetupRecordImplementation.h"
 #include "FWCore/Framework/interface/DependentRecordImplementation.h"
 
-#include "boost/mpl/vector.hpp"
+#include <boost/mp11/list.hpp>
 
 class ESTestRecordA : public edm::eventsetup::EventSetupRecordImplementation<ESTestRecordA> {
 public:
@@ -23,20 +23,20 @@ class ESTestRecordE : public edm::eventsetup::EventSetupRecordImplementation<EST
 
 class ESTestRecordD : public edm::eventsetup::DependentRecordImplementation<
                           ESTestRecordD,
-                          boost::mpl::vector<ESTestRecordF, ESTestRecordG, ESTestRecordH> > {};
+                          boost::mp11::mp_list<ESTestRecordF, ESTestRecordG, ESTestRecordH> > {};
 
 class ESTestRecordB : public edm::eventsetup::DependentRecordImplementation<
                           ESTestRecordB,
-                          boost::mpl::vector<ESTestRecordC, ESTestRecordD, ESTestRecordE> > {};
+                          boost::mp11::mp_list<ESTestRecordC, ESTestRecordD, ESTestRecordE> > {};
 
 class ESTestRecordZ : public edm::eventsetup::EventSetupRecordImplementation<ESTestRecordZ> {};
 
 class ESTestRecordK : public edm::eventsetup::EventSetupRecordImplementation<ESTestRecordK> {};
 
 class ESTestRecordI
-    : public edm::eventsetup::DependentRecordImplementation<ESTestRecordI, boost::mpl::vector<ESTestRecordK> > {};
+    : public edm::eventsetup::DependentRecordImplementation<ESTestRecordI, boost::mp11::mp_list<ESTestRecordK> > {};
 
 class ESTestRecordJ
-    : public edm::eventsetup::DependentRecordImplementation<ESTestRecordJ, boost::mpl::vector<ESTestRecordK> > {};
+    : public edm::eventsetup::DependentRecordImplementation<ESTestRecordJ, boost::mp11::mp_list<ESTestRecordK> > {};
 
 #endif

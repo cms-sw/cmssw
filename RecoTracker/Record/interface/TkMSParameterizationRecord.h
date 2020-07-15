@@ -8,10 +8,10 @@
 #include "RecoTracker/Record/interface/NavigationSchoolRecord.h"
 #include "TrackingTools/Records/interface/TrackingComponentsRecord.h"
 
-#include "boost/mpl/vector.hpp"
+#include <boost/mp11/list.hpp>
 
 class TkMSParameterizationRecord : public edm::eventsetup::DependentRecordImplementation<
                                        TkMSParameterizationRecord,
-                                       boost::mpl::vector<TrackingComponentsRecord, NavigationSchoolRecord> > {};
+                                       boost::mp11::mp_list<TrackingComponentsRecord, NavigationSchoolRecord> > {};
 
 #endif

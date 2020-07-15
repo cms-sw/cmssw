@@ -8,11 +8,11 @@
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 #include "CondFormats/DataRecord/interface/SiStripCondDataRecords.h"
 #include "CalibTracker/Records/interface/SiStripDependentRecords.h"
-#include "boost/mpl/vector.hpp"
+#include <boost/mp11/list.hpp>
 
 class TkStripCPERecord
     : public edm::eventsetup::DependentRecordImplementation<TkStripCPERecord,
-                                                            boost::mpl::vector<TrackerDigiGeometryRecord,
+                                                            boost::mp11::mp_list<TrackerDigiGeometryRecord,
                                                                                IdealMagneticFieldRecord,
                                                                                SiStripLorentzAngleDepRcd,
                                                                                SiStripBackPlaneCorrectionDepRcd,

@@ -6,5 +6,5 @@
 
 class HcalTPChannelParametersRcd : public edm::eventsetup::DependentRecordImplementation<
                                        HcalTPChannelParametersRcd,
-                                       boost::mpl::vector<HcalRecNumberingRecord, IdealGeometryRecord> > {};
+                                       boost::mp11::mp_list<HcalRecNumberingRecord, IdealGeometryRecord> > {};
 #endif

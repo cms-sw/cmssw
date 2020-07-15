@@ -1,7 +1,7 @@
 #ifndef L1MuDTPtaLutRCD_H
 #define L1MuDTPtaLutRCD_H
 
-#include "boost/mpl/vector.hpp"
+#include <boost/mp11/list.hpp>
 
 //#include "FWCore/Framework/interface/EventSetupRecordImplementation.h"
 #include "FWCore/Framework/interface/DependentRecordImplementation.h"
@@ -11,7 +11,7 @@
 //class L1MuDTPtaLutRcd : public edm::eventsetup::EventSetupRecordImplementation<L1MuDTPtaLutRcd> {};
 class L1MuDTPtaLutRcd
     : public edm::eventsetup::DependentRecordImplementation<L1MuDTPtaLutRcd,
-                                                            boost::mpl::vector<L1TriggerKeyListRcd, L1TriggerKeyRcd> > {
+                                                            boost::mp11::mp_list<L1TriggerKeyListRcd, L1TriggerKeyRcd> > {
 };
 
 #endif

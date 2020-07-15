@@ -10,11 +10,11 @@
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 #include "Geometry/Records/interface/MTDTopologyRcd.h"
 #include "Geometry/Records/interface/PMTDParametersRcd.h"
-#include "boost/mpl/vector.hpp"
+#include <boost/mp11/list.hpp>
 
 class MTDDigiGeometryRecord
     : public edm::eventsetup::DependentRecordImplementation<MTDDigiGeometryRecord,
-                                                            boost::mpl::vector<IdealGeometryRecord,
+                                                            boost::mp11::mp_list<IdealGeometryRecord,
                                                                                MTDAlignmentRcd,
                                                                                MTDAlignmentErrorExtendedRcd,
                                                                                MTDSurfaceDeformationRcd,

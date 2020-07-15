@@ -5,5 +5,5 @@
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 class HcalTimingParamsRcd : public edm::eventsetup::DependentRecordImplementation<
                                 HcalTimingParamsRcd,
-                                boost::mpl::vector<HcalRecNumberingRecord, IdealGeometryRecord> > {};
+                                boost::mp11::mp_list<HcalRecNumberingRecord, IdealGeometryRecord> > {};
 #endif

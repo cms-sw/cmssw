@@ -8,10 +8,10 @@
 #include "CondFormats/DataRecord/interface/CTPPSOpticsRcd.h"
 #include "CondFormats/DataRecord/interface/LHCInfoRcd.h"
 
-#include "boost/mpl/vector.hpp"
+#include <boost/mp11/list.hpp>
 
 class CTPPSInterpolatedOpticsRcd
     : public edm::eventsetup::DependentRecordImplementation<CTPPSInterpolatedOpticsRcd,
-                                                            boost::mpl::vector<CTPPSOpticsRcd, LHCInfoRcd>> {};
+                                                            boost::mp11::mp_list<CTPPSOpticsRcd, LHCInfoRcd>> {};
 
 #endif

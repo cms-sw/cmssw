@@ -18,7 +18,7 @@
  */
 
 // system include files
-#include "boost/mpl/vector.hpp"
+#include <boost/mp11/list.hpp>
 
 // user include files
 //#include "FWCore/Framework/interface/EventSetupRecordImplementation.h"
@@ -37,7 +37,7 @@
 // };
 class L1GtPrescaleFactorsTechTrigRcd
     : public edm::eventsetup::DependentRecordImplementation<L1GtPrescaleFactorsTechTrigRcd,
-                                                            boost::mpl::vector<L1TriggerKeyListRcd, L1TriggerKeyRcd> > {
+                                                            boost::mp11::mp_list<L1TriggerKeyListRcd, L1TriggerKeyRcd> > {
 };
 
 #endif

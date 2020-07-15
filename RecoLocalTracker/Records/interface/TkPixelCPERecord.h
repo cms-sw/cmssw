@@ -13,11 +13,11 @@
 #include "CalibTracker/Records/interface/SiPixelTemplateDBObjectESProducerRcd.h"
 #include "CalibTracker/Records/interface/SiPixel2DTemplateDBObjectESProducerRcd.h"
 
-#include "boost/mpl/vector.hpp"
+#include <boost/mp11/list.hpp>
 
 class TkPixelCPERecord
     : public edm::eventsetup::DependentRecordImplementation<TkPixelCPERecord,
-                                                            boost::mpl::vector<TrackerDigiGeometryRecord,
+                                                            boost::mp11::mp_list<TrackerDigiGeometryRecord,
                                                                                IdealMagneticFieldRecord,
                                                                                SiPixelLorentzAngleRcd,
                                                                                SiPixelGenErrorDBObjectRcd,

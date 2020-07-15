@@ -16,6 +16,7 @@
 #include "FWCore/Framework/interface/Event.h"
 
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
+
 #include "Geometry/Records/interface/GlobalTrackingGeometryRecord.h"
 #include "Geometry/CommonDetUnit/interface/GlobalTrackingGeometry.h"
 #include "Geometry/CommonDetUnit/interface/GeomDet.h"
@@ -41,6 +42,8 @@
 #include "DataFormats/GeometrySurface/interface/Cylinder.h"
 #include "DataFormats/GeometrySurface/interface/Plane.h"
 #include "DataFormats/GeometrySurface/interface/Cone.h"
+
+#include <boost/mp11/list.hpp>
 
 #include "TH2F.h"
 #include "TLorentzVector.h"

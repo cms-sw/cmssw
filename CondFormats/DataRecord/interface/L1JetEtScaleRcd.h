@@ -19,7 +19,7 @@
 // $Id: L1JetEtScaleRcd.h,v 1.1 2007/03/16 13:51:29 heath Exp $
 //
 
-#include "boost/mpl/vector.hpp"
+#include <boost/mp11/list.hpp>
 
 //#include "FWCore/Framework/interface/EventSetupRecordImplementation.h"
 #include "FWCore/Framework/interface/DependentRecordImplementation.h"
@@ -29,7 +29,7 @@
 //class L1JetEtScaleRcd : public edm::eventsetup::EventSetupRecordImplementation<L1JetEtScaleRcd> {};
 class L1JetEtScaleRcd
     : public edm::eventsetup::DependentRecordImplementation<L1JetEtScaleRcd,
-                                                            boost::mpl::vector<L1TriggerKeyListRcd, L1TriggerKeyRcd> > {
+                                                            boost::mp11::mp_list<L1TriggerKeyListRcd, L1TriggerKeyRcd> > {
 };
 
 #endif

@@ -14,6 +14,6 @@ class L1TMuonEndCapParamsRcd : public edm::eventsetup::EventSetupRecordImplement
 //#include "FWCore/Framework/interface/DependentRecordImplementation.h"
 //#include "CondFormats/DataRecord/interface/L1TriggerKeyListRcd.h"
 //#include "CondFormats/DataRecord/interface/L1TriggerKeyRcd.h"
-//class L1TMuonEndCapParamsRcd : public edm::eventsetup::DependentRecordImplementation<L1TMuonEndCapParamsRcd, boost::mpl::vector<L1TriggerKeyListRcd,L1TriggerKeyRcd> > {};
+//class L1TMuonEndCapParamsRcd : public edm::eventsetup::DependentRecordImplementation<L1TMuonEndCapParamsRcd, boost::mp11::mp_list<L1TriggerKeyListRcd,L1TriggerKeyRcd> > {};
 
 #endif

@@ -22,11 +22,11 @@
 #include "Geometry/Records/interface/GeometryFileRcd.h"
 #include "Geometry/Records/interface/PGeometricDetExtraRcd.h"
 #include "Geometry/Records/interface/PGeometricTimingDetExtraRcd.h"
-#include "boost/mpl/vector.hpp"
+#include <boost/mp11/list.hpp>
 
 class IdealGeometryRecord
     : public edm::eventsetup::DependentRecordImplementation<
           IdealGeometryRecord,
-          boost::mpl::vector<GeometryFileRcd, PGeometricDetExtraRcd, PGeometricTimingDetExtraRcd> > {};
+          boost::mp11::mp_list<GeometryFileRcd, PGeometricDetExtraRcd, PGeometricTimingDetExtraRcd> > {};
 
 #endif /* RECORDS_IDEALGEOMETRYRECORD_H */

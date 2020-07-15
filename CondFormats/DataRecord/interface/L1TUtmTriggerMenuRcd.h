@@ -14,6 +14,6 @@ class L1TUtmTriggerMenuRcd : public edm::eventsetup::EventSetupRecordImplementat
 //#include "FWCore/Framework/interface/DependentRecordImplementation.h"
 //#include "CondFormats/DataRecord/interface/L1TriggerKeyListRcd.h"
 //#include "CondFormats/DataRecord/interface/L1TriggerKeyRcd.h"
-//class L1TUtmTriggerMenuRcd : public edm::eventsetup::DependentRecordImplementation<L1TUtmTriggerMenuRcd, boost::mpl::vector<L1TriggerKeyListRcd,L1TriggerKeyRcd> > {};
+//class L1TUtmTriggerMenuRcd : public edm::eventsetup::DependentRecordImplementation<L1TUtmTriggerMenuRcd, boost::mp11::mp_list<L1TriggerKeyListRcd,L1TriggerKeyRcd> > {};
 
 #endif

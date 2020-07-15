@@ -16,11 +16,11 @@
 #include "CondFormats/AlignmentRecord/interface/HOAlignmentErrorRcd.h"
 #include "CondFormats/AlignmentRecord/interface/HEAlignmentErrorRcd.h"
 #include "CondFormats/AlignmentRecord/interface/HFAlignmentErrorRcd.h"
-#include "boost/mpl/vector.hpp"
+#include <boost/mp11/list.hpp>
 
 class HcalAlignmentErrorRcd
     : public edm::eventsetup::DependentRecordImplementation<
           HcalAlignmentErrorRcd,
-          boost::mpl::vector<HBAlignmentErrorRcd, HOAlignmentErrorRcd, HEAlignmentErrorRcd, HFAlignmentErrorRcd> > {};
+          boost::mp11::mp_list<HBAlignmentErrorRcd, HOAlignmentErrorRcd, HEAlignmentErrorRcd, HFAlignmentErrorRcd> > {};
 
 #endif /* RECORDS_HCALALIGNMENTERRORRCD_H */

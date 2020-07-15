@@ -25,7 +25,7 @@
 
 class CaloTPGRecord
     : public edm::eventsetup::DependentRecordImplementation<CaloTPGRecord,
-                                                            boost::mpl::vector<HcalLutMetadataRcd, CaloGeometryRecord> > {
+                                                            boost::mp11::mp_list<HcalLutMetadataRcd, CaloGeometryRecord> > {
 };
 
 #endif

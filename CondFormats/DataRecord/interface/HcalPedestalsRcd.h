@@ -8,5 +8,5 @@
 
 class HcalPedestalsRcd : public edm::eventsetup::DependentRecordImplementation<
                              HcalPedestalsRcd,
-                             boost::mpl::vector<HcalRecNumberingRecord, IdealGeometryRecord> > {};
+                             boost::mp11::mp_list<HcalRecNumberingRecord, IdealGeometryRecord> > {};
 #endif

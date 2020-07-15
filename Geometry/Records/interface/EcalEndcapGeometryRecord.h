@@ -18,11 +18,11 @@
 #include "CondFormats/AlignmentRecord/interface/EEAlignmentErrorRcd.h"
 #include "CondFormats/AlignmentRecord/interface/EEAlignmentErrorExtendedRcd.h"
 #include "CondFormats/AlignmentRecord/interface/GlobalPositionRcd.h"
-#include "boost/mpl/vector.hpp"
+#include <boost/mp11/list.hpp>
 
 class EcalEndcapGeometryRecord
     : public edm::eventsetup::DependentRecordImplementation<EcalEndcapGeometryRecord,
-                                                            boost::mpl::vector<IdealGeometryRecord,
+                                                            boost::mp11::mp_list<IdealGeometryRecord,
                                                                                EEAlignmentRcd,
                                                                                EEAlignmentErrorRcd,
                                                                                EEAlignmentErrorExtendedRcd,

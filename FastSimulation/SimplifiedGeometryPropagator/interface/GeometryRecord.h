@@ -3,10 +3,10 @@
 
 #include "FWCore/Framework/interface/DependentRecordImplementation.h"
 #include "RecoTracker/Record/interface/TrackerRecoGeometryRecord.h"
-#include "boost/mpl/vector.hpp"
+#include <boost/mp11/list.hpp>
 
 class GeometryRecord
     : public edm::eventsetup::DependentRecordImplementation<GeometryRecord,
-                                                            boost::mpl::vector<TrackerRecoGeometryRecord> > {};
+                                                            boost::mp11::mp_list<TrackerRecoGeometryRecord> > {};
 
 #endif

@@ -24,6 +24,6 @@
 
 class HcalQIETypesRcd : public edm::eventsetup::DependentRecordImplementation<
                             HcalQIETypesRcd,
-                            boost::mpl::vector<HcalRecNumberingRecord, IdealGeometryRecord> > {};
+                            boost::mp11::mp_list<HcalRecNumberingRecord, IdealGeometryRecord> > {};
 
 #endif

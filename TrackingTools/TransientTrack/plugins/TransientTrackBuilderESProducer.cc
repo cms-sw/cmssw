@@ -1,7 +1,7 @@
 #include "TransientTrackBuilderESProducer.h"
 #include "Geometry/Records/interface/GlobalTrackingGeometryRecord.h"
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
-#include "boost/mpl/vector.hpp"
+#include <boost/mp11/list.hpp>
 #include "Geometry/CommonDetUnit/interface/GlobalTrackingGeometry.h"
 
 #include "FWCore/Framework/interface/ESHandle.h"

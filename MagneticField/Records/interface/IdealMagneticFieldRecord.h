@@ -6,10 +6,10 @@
 #include "CondFormats/DataRecord/interface/RunSummaryRcd.h"
 #include "CondFormats/DataRecord/interface/MagFieldConfigRcd.h"
 #include "CondFormats/DataRecord/interface/MFGeometryFileRcd.h"
-#include "boost/mpl/vector.hpp"
+#include <boost/mp11/list.hpp>
 
 class IdealMagneticFieldRecord : public edm::eventsetup::DependentRecordImplementation<
                                      IdealMagneticFieldRecord,
-                                     boost::mpl::vector<MFGeometryFileRcd, RunInfoRcd, MagFieldConfigRcd> > {};
+                                     boost::mp11::mp_list<MFGeometryFileRcd, RunInfoRcd, MagFieldConfigRcd> > {};
 
 #endif

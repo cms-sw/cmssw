@@ -15,9 +15,9 @@
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 #include "Geometry/Records/interface/GlobalTrackingGeometryRecord.h"
 
-#include "boost/mpl/vector.hpp"
+#include <boost/mp11/list.hpp>
 
 class TTClusterAlgorithmRecord
     : public edm::eventsetup::DependentRecordImplementation<TTClusterAlgorithmRecord,
-                                                            boost::mpl::vector<IdealMagneticFieldRecord> > {};
+                                                            boost::mp11::mp_list<IdealMagneticFieldRecord> > {};
 #endif

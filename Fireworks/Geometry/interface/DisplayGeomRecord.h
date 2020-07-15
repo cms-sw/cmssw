@@ -22,7 +22,7 @@
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 
 class DisplayGeomRecord
-    : public edm::eventsetup::DependentRecordImplementation<DisplayGeomRecord, boost::mpl::vector<IdealGeometryRecord> > {
+    : public edm::eventsetup::DependentRecordImplementation<DisplayGeomRecord, boost::mp11::mp_list<IdealGeometryRecord> > {
 };
 
 #endif

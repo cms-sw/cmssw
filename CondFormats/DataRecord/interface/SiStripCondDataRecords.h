@@ -15,7 +15,7 @@ class SiStripBadChannelRcd : public edm::eventsetup::EventSetupRecordImplementat
 class SiStripBadFiberRcd : public edm::eventsetup::EventSetupRecordImplementation<SiStripBadFiberRcd> {};
 class SiStripBadModuleRcd
     : public edm::eventsetup::DependentRecordImplementation<SiStripBadModuleRcd,
-                                                            boost::mpl::vector<TrackerTopologyRcd> > {};
+                                                            boost::mp11::mp_list<TrackerTopologyRcd> > {};
 class SiStripBadStripRcd : public edm::eventsetup::EventSetupRecordImplementation<SiStripBadStripRcd> {};
 class SiStripDCSStatusRcd : public edm::eventsetup::EventSetupRecordImplementation<SiStripDCSStatusRcd> {};
 
@@ -24,12 +24,12 @@ class SiStripFedCablingRcd : public edm::eventsetup::EventSetupRecordImplementat
 /*Recod associated to SiStripLorenzaAngle Object: the SimRcd is used in simulation only*/
 class SiStripLorentzAngleRcd
     : public edm::eventsetup::DependentRecordImplementation<SiStripLorentzAngleRcd,
-                                                            boost::mpl::vector<TrackerTopologyRcd> > {};
+                                                            boost::mp11::mp_list<TrackerTopologyRcd> > {};
 class SiStripLorentzAngleSimRcd : public edm::eventsetup::EventSetupRecordImplementation<SiStripLorentzAngleSimRcd> {};
 
 class SiStripBackPlaneCorrectionRcd
     : public edm::eventsetup::DependentRecordImplementation<SiStripBackPlaneCorrectionRcd,
-                                                            boost::mpl::vector<TrackerTopologyRcd> > {};
+                                                            boost::mp11::mp_list<TrackerTopologyRcd> > {};
 
 class SiStripDetVOffRcd : public edm::eventsetup::EventSetupRecordImplementation<SiStripDetVOffRcd> {};
 
@@ -38,7 +38,7 @@ class SiStripLatencyRcd : public edm::eventsetup::EventSetupRecordImplementation
 class SiStripBaseDelayRcd : public edm::eventsetup::EventSetupRecordImplementation<SiStripBaseDelayRcd> {};
 
 class SiStripNoisesRcd
-    : public edm::eventsetup::DependentRecordImplementation<SiStripNoisesRcd, boost::mpl::vector<TrackerTopologyRcd> > {
+    : public edm::eventsetup::DependentRecordImplementation<SiStripNoisesRcd, boost::mp11::mp_list<TrackerTopologyRcd> > {
 };
 
 class SiStripPedestalsRcd : public edm::eventsetup::EventSetupRecordImplementation<SiStripPedestalsRcd> {};

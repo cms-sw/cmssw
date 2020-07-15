@@ -5,11 +5,11 @@
 #include "FWCore/Framework/interface/DependentRecordImplementation.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 #include "Geometry/Records/interface/PMTDParametersRcd.h"
-#include "boost/mpl/vector.hpp"
+#include <boost/mp11/list.hpp>
 
 class MTDTopologyRcd
     : public edm::eventsetup::DependentRecordImplementation<MTDTopologyRcd,
-                                                            boost::mpl::vector<IdealGeometryRecord, PMTDParametersRcd> > {
+                                                            boost::mp11::mp_list<IdealGeometryRecord, PMTDParametersRcd> > {
 };
 
 #endif

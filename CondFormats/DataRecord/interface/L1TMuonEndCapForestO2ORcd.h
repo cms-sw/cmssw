@@ -9,6 +9,6 @@
 class L1TMuonEndCapForestO2ORcd
     : public edm::eventsetup::DependentRecordImplementation<
           L1TMuonEndCapForestO2ORcd,
-          boost::mpl::vector<L1TriggerKeyListExtRcd, L1TriggerKeyExtRcd, L1TMuonEndCapForestRcd> > {};
+          boost::mp11::mp_list<L1TriggerKeyListExtRcd, L1TriggerKeyExtRcd, L1TMuonEndCapForestRcd> > {};
 
 #endif

@@ -14,6 +14,6 @@ class L1TUtmCutValueRcd : public edm::eventsetup::EventSetupRecordImplementation
 //#include "FWCore/Framework/interface/DependentRecordImplementation.h"
 //#include "CondFormats/DataRecord/interface/L1TriggerKeyListRcd.h"
 //#include "CondFormats/DataRecord/interface/L1TriggerKeyRcd.h"
-//class L1TUtmCutValueRcd : public edm::eventsetup::DependentRecordImplementation<L1TUtmCutValueRcd, boost::mpl::vector<L1TriggerKeyListRcd,L1TriggerKeyRcd> > {};
+//class L1TUtmCutValueRcd : public edm::eventsetup::DependentRecordImplementation<L1TUtmCutValueRcd, boost::mp11::mp_list<L1TriggerKeyListRcd,L1TriggerKeyRcd> > {};
 
 #endif

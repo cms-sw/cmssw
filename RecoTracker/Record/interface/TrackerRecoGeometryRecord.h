@@ -6,10 +6,10 @@
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "Geometry/Records/interface/TrackerTopologyRcd.h"
 
-#include "boost/mpl/vector.hpp"
+#include <boost/mp11/list.hpp>
 
 class TrackerRecoGeometryRecord : public edm::eventsetup::DependentRecordImplementation<
                                       TrackerRecoGeometryRecord,
-                                      boost::mpl::vector<TrackerTopologyRcd, TrackerDigiGeometryRecord> > {};
+                                      boost::mp11::mp_list<TrackerTopologyRcd, TrackerDigiGeometryRecord> > {};
 
 #endif

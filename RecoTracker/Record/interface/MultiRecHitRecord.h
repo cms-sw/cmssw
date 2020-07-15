@@ -7,10 +7,10 @@
 #include "TrackingTools/Records/interface/TransientRecHitRecord.h"
 #include "RecoTracker/Record/interface/CkfComponentsRecord.h"
 
-#include "boost/mpl/vector.hpp"
+#include <boost/mp11/list.hpp>
 
 class MultiRecHitRecord
     : public edm::eventsetup::DependentRecordImplementation<
           MultiRecHitRecord,
-          boost::mpl::vector<TrackerDigiGeometryRecord, TransientRecHitRecord, CkfComponentsRecord> > {};
+          boost::mp11::mp_list<TrackerDigiGeometryRecord, TransientRecHitRecord, CkfComponentsRecord> > {};
 #endif

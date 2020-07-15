@@ -19,7 +19,7 @@
 //
 
 // system include files
-#include "boost/mpl/vector.hpp"
+#include <boost/mp11/list.hpp>
 
 // user include files
 
@@ -30,6 +30,6 @@
 
 class DepOn2Record
     : public edm::eventsetup::DependentRecordImplementation<DepOn2Record,
-                                                            boost::mpl::vector<DummyRecord, Dummy2Record> > {};
+                                                            boost::mp11::mp_list<DummyRecord, Dummy2Record> > {};
 
 #endif

@@ -25,7 +25,7 @@
 class L1TMuonOverlapParamsO2ORcd
     : public edm::eventsetup::DependentRecordImplementation<
           L1TMuonOverlapParamsO2ORcd,
-          boost::mpl::vector<L1TriggerKeyListExtRcd, L1TriggerKeyExtRcd, L1TMuonOverlapParamsRcd> > {};
+          boost::mp11::mp_list<L1TriggerKeyListExtRcd, L1TriggerKeyExtRcd, L1TMuonOverlapParamsRcd> > {};
 
 //class L1TMuonOverlapParamsRcd : public edm::eventsetup::EventSetupRecordImplementation<L1TMuonOverlapParamsRcd> {};
 

@@ -5,7 +5,7 @@
 #ifndef ECALLASERCORRECTION_ECALLASERDBRECORD_H
 #define ECALLASERCORRECTION_ECALLASERDBRECORD_H
 
-#include "boost/mpl/vector.hpp"
+#include <boost/mp11/list.hpp>
 #include "FWCore/Framework/interface/DependentRecordImplementation.h"
 // #include "FWCore/Framework/interface/EventSetupRecordImplementation.h"
 
@@ -18,7 +18,7 @@
 
 class EcalLaserDbRecord
     : public edm::eventsetup::DependentRecordImplementation<EcalLaserDbRecord,
-                                                            boost::mpl::vector<EcalLaserAlphasRcd,
+                                                            boost::mp11::mp_list<EcalLaserAlphasRcd,
                                                                                EcalLaserAPDPNRatiosRefRcd,
                                                                                EcalLaserAPDPNRatiosRcd,
                                                                                EcalLinearCorrectionsRcd> > {};

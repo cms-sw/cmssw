@@ -29,7 +29,7 @@
 
 class HcalDbRecord
     : public edm::eventsetup::DependentRecordImplementation<HcalDbRecord,
-                                                            boost::mpl::vector25<HcalRecNumberingRecord,
+                                                            boost::mp11::mp_list<HcalRecNumberingRecord,
                                                                                  IdealGeometryRecord,
                                                                                  HcalPedestalsRcd,
                                                                                  HcalPedestalWidthsRcd,

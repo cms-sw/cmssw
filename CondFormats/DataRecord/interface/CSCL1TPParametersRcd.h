@@ -32,7 +32,7 @@
 
 //
 
-#include "boost/mpl/vector.hpp"
+#include <boost/mp11/list.hpp>
 
 //#include "FWCore/Framework/interface/EventSetupRecordImplementation.h"
 #include "FWCore/Framework/interface/DependentRecordImplementation.h"
@@ -42,7 +42,7 @@
 //class CSCL1TPParametersRcd : public edm::eventsetup::EventSetupRecordImplementation<CSCL1TPParametersRcd> {};
 class CSCL1TPParametersRcd
     : public edm::eventsetup::DependentRecordImplementation<CSCL1TPParametersRcd,
-                                                            boost::mpl::vector<L1TriggerKeyListRcd, L1TriggerKeyRcd> > {
+                                                            boost::mp11::mp_list<L1TriggerKeyListRcd, L1TriggerKeyRcd> > {
 };
 
 #endif

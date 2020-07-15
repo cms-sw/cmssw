@@ -19,11 +19,11 @@
 #include "CondFormats/AlignmentRecord/interface/CaloTowerAlignmentErrorExtendedRcd.h"
 #include "Geometry/Records/interface/PCaloTowerRcd.h"
 #include "CondFormats/AlignmentRecord/interface/GlobalPositionRcd.h"
-#include "boost/mpl/vector.hpp"
+#include <boost/mp11/list.hpp>
 
 class CaloTowerGeometryRecord
     : public edm::eventsetup::DependentRecordImplementation<CaloTowerGeometryRecord,
-                                                            boost::mpl::vector<IdealGeometryRecord,
+                                                            boost::mp11::mp_list<IdealGeometryRecord,
                                                                                HcalRecNumberingRecord,
                                                                                CaloTowerAlignmentRcd,
                                                                                CaloTowerAlignmentErrorRcd,
