@@ -7,7 +7,7 @@
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
 
 EgammaIsoHcalDetIdCollectionProducer::EgammaIsoHcalDetIdCollectionProducer(const edm::ParameterSet& iConfig)
-    : hcalHitSelector_(iConfig.getParameter<edm::ParameterSet>("hitSelection")) {
+    : hcalHitSelector_(iConfig.getParameter<edm::ParameterSet>("hitSelection"), consumesCollector()) {
   recHitsToken_ = consumes<HBHERecHitCollection>(iConfig.getParameter<edm::InputTag>("recHitsLabel"));
   elesToken_ = consumes<reco::GsfElectronCollection>(iConfig.getParameter<edm::InputTag>("elesLabel"));
 
