@@ -21,7 +21,7 @@ InterestingEcalDetIdProducer::InterestingEcalDetIdProducer(const edm::ParameterS
   inputCollection_ = iConfig.getParameter<edm::InputTag>("inputCollection");
   produces<DetIdCollection>();
   muonToken_ = consumes<reco::MuonCollection>(inputCollection_);
-  caloTopoToken_ = esConsumes<CaloTopology, CaloTopologyRecord,edm::Transition::BeginRun>();
+  caloTopoToken_ = esConsumes<CaloTopology, CaloTopologyRecord, edm::Transition::BeginRun>();
 }
 
 InterestingEcalDetIdProducer::~InterestingEcalDetIdProducer() {}
