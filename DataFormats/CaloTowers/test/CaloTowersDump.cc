@@ -13,7 +13,7 @@ using namespace std;
 class CaloTowersDump : public edm::EDAnalyzer {
 public:
   explicit CaloTowersDump(edm::ParameterSet const& conf);
-  virtual void analyze(edm::Event const& e, edm::EventSetup const& c);
+  void analyze(edm::Event const& e, edm::EventSetup const& c) override;
 };
 
 CaloTowersDump::CaloTowersDump(edm::ParameterSet const& conf) {}

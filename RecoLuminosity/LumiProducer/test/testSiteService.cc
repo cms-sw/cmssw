@@ -16,15 +16,15 @@
 class testSiteService : public edm::EDAnalyzer {
 public:
   explicit testSiteService(edm::ParameterSet const&);
-  virtual ~testSiteService();
+  ~testSiteService() override;
 
 private:
-  virtual void beginJob();
-  virtual void beginRun(const edm::Run& run, const edm::EventSetup& c);
-  virtual void analyze(edm::Event const& e, edm::EventSetup const& c);
-  virtual void endLuminosityBlock(edm::LuminosityBlock const& lumiBlock, edm::EventSetup const& c);
-  virtual void endRun(edm::Run const&, edm::EventSetup const&);
-  virtual void endJob();
+  void beginJob() override;
+  void beginRun(const edm::Run& run, const edm::EventSetup& c) override;
+  void analyze(edm::Event const& e, edm::EventSetup const& c) override;
+  void endLuminosityBlock(edm::LuminosityBlock const& lumiBlock, edm::EventSetup const& c) override;
+  void endRun(edm::Run const&, edm::EventSetup const&) override;
+  void endJob() override;
 };  //end class
 // -----------------------------------------------------------------
 testSiteService::testSiteService(edm::ParameterSet const& iConfig) {}

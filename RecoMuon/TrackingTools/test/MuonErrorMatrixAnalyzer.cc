@@ -224,7 +224,7 @@ void MuonErrorMatrixAnalyzer::analyze_from_pull(const edm::Event& iEvent, const 
 
     LogDebug(theCategory) << "I have found: " << tp.size() << " tracking particle associated with this reco::Track.";
 
-    if (tp.size() != 0) {
+    if (!tp.empty()) {
       //take the match with best quality
       std::vector<std::pair<TrackingParticleRef, double> >::const_iterator vector_iterator = tp.begin();
       const std::pair<TrackingParticleRef, double>& pair_in_vector = *vector_iterator;
@@ -363,28 +363,28 @@ void MuonErrorMatrixAnalyzer::analyze_from_pull(const edm::Event& iEvent, const 
 
 void MuonErrorMatrixAnalyzer::beginJob() {
   if (theErrorMatrixStore_Reported_pset.empty()) {
-    theErrorMatrixStore_Reported = 0;
+    theErrorMatrixStore_Reported = nullptr;
   } else {
     //create the error matrix provider, saying that you want to construct the things from here
     theErrorMatrixStore_Reported = new MuonErrorMatrix(theErrorMatrixStore_Reported_pset);
   }
 
   if (theErrorMatrixStore_Residual_pset.empty()) {
-    theErrorMatrixStore_Residual = 0;
+    theErrorMatrixStore_Residual = nullptr;
   } else {
     //create the error matrix provider for the alternative method
     theErrorMatrixStore_Residual = new MuonErrorMatrix(theErrorMatrixStore_Residual_pset);
   }
 
   if (theErrorMatrixStore_Pull_pset.empty()) {
-    theErrorMatrixStore_Pull = 0;
+    theErrorMatrixStore_Pull = nullptr;
   } else {
     //create the error matrix provider for the alternative method
     theErrorMatrixStore_Pull = new MuonErrorMatrix(theErrorMatrixStore_Pull_pset);
   }
 
-  if (thePlotFileName == "") {
-    thePlotFile = 0;
+  if (thePlotFileName.empty()) {
+    thePlotFile = nullptr;
     //    thePlotDir=0;
     gROOT->cd();
   } else {
@@ -616,15 +616,15 @@ void MuonErrorMatrixAnalyzer::endJob() {
   }
 
   //write the file with all the plots in it.
-  TFile* thePlotFile = 0;
-  if (thePlotFileName != "") {
+  TFile* thePlotFile = nullptr;
+  if (!thePlotFileName.empty()) {
     //    std::cout<<"trying to write in: "<<thePlotFileName<<std::endl;
 
     thePlotFile = TFile::Open(thePlotFileName.c_str(), "recreate");
     thePlotFile->cd();
     TListIter iter(theBookKeeping);
     //    std::cout<<"number of objects to write: "<<theBookKeeping->GetSize()<<std::endl;
-    TObject* o = 0;
+    TObject* o = nullptr;
     while ((o = iter.Next())) {
       //	std::cout<<"writing: "<<o->GetName()<<" in file: "<<thePlotFile->GetName()<<std::endl;
       o->Write();
@@ -683,7 +683,7 @@ void MuonErrorMatrixAnalyzer::endJob() {
               //please free the memory !!!
               LogDebug(theCategory) << "freing memory of: " << theH->GetName();
               theH->Delete();
-              theH = 0;
+              theH = nullptr;
             }
           }
         }  //end of loop over the pt,eta,phi
@@ -747,7 +747,7 @@ void MuonErrorMatrixAnalyzer::endJob() {
               //please free the memory !!!
               LogDebug(theCategory) << "freing memory of: " << theH->GetName();
               theH->Delete();
-              theH = 0;
+              theH = nullptr;
             }
           }
         }  //end of loop over the pt,eta,phi

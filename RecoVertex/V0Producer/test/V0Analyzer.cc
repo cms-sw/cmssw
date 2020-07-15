@@ -75,13 +75,13 @@
 class V0Analyzer : public edm::EDAnalyzer {
 public:
   explicit V0Analyzer(const edm::ParameterSet&);
-  ~V0Analyzer();
+  ~V0Analyzer() override;
 
 private:
   //virtual void beginJob() ;
-  virtual void beginJob();
-  virtual void analyze(const edm::Event&, const edm::EventSetup&);
-  virtual void endJob();
+  void beginJob() override;
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void endJob() override;
 
   std::string algoLabel;
   std::string recoAlgoLabel;
@@ -419,8 +419,8 @@ void V0Analyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
   // loop over sim tracks and calculate m_pipi, and histogram it
   for (unsigned int stkidx1 = 0; stkidx1 < theSimTracks.size(); stkidx1++) {
     for (unsigned int stkidx2 = stkidx1 + 1; stkidx2 < theSimTracks.size(); stkidx2++) {
-      SimTrack* thePosSimTk = 0;
-      SimTrack* theNegSimTk = 0;
+      SimTrack* thePosSimTk = nullptr;
+      SimTrack* theNegSimTk = nullptr;
       if (theSimTracks[stkidx1].charge() > 0. && theSimTracks[stkidx2].charge() < 0.) {
         thePosSimTk = &theSimTracks[stkidx1];
         theNegSimTk = &theSimTracks[stkidx2];
@@ -444,7 +444,7 @@ void V0Analyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
         double k0sInvMass = k0sMomentum.M();
         simTkMpipiHisto->Fill(k0sInvMass, 1.);
       }
-      thePosSimTk = theNegSimTk = 0;
+      thePosSimTk = theNegSimTk = nullptr;
     }
   }
 

@@ -84,14 +84,13 @@ BoundDisk* ForwardDetLayer::computeSurface() {
 pair<bool, TrajectoryStateOnSurface> ForwardDetLayer::compatible(const TrajectoryStateOnSurface& ts,
                                                                  const Propagator& prop,
                                                                  const MeasurementEstimator&) const {
-  if
-    UNLIKELY(theDisk == nullptr)
-  edm::LogError("DetLayers") << "ERROR: BarrelDetLayer::compatible() is used before the layer surface is initialized";
+  if UNLIKELY (theDisk == nullptr)
+    edm::LogError("DetLayers") << "ERROR: BarrelDetLayer::compatible() is used before the layer surface is initialized";
   // throw an exception? which one?
 
   TrajectoryStateOnSurface myState = prop.propagate(ts, specificSurface());
-  if
-    UNLIKELY(!myState.isValid()) return make_pair(false, myState);
+  if UNLIKELY (!myState.isValid())
+    return make_pair(false, myState);
 
   // check z;  (are we sure?????)
   // auto z = myState.localPosition().z();

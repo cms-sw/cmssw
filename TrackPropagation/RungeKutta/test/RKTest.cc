@@ -33,7 +33,7 @@
 
 class RKTestField final : public MagneticField {
 public:
-  virtual GlobalVector inTesla(const GlobalPoint&) const { return GlobalVector(0, 0, 4); }
+  GlobalVector inTesla(const GlobalPoint&) const override { return GlobalVector(0, 0, 4); }
 };
 
 using namespace std;
@@ -42,9 +42,9 @@ class RKTest : public edm::EDAnalyzer {
 public:
   RKTest(const edm::ParameterSet& pset) {}
 
-  ~RKTest() {}
+  ~RKTest() override {}
 
-  virtual void analyze(const edm::Event& event, const edm::EventSetup& setup) {
+  void analyze(const edm::Event& event, const edm::EventSetup& setup) override {
     using namespace edm;
     ESHandle<MagneticField> magfield;
     setup.get<IdealMagneticFieldRecord>().get(magfield);

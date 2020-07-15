@@ -29,8 +29,8 @@ namespace std {
 class testMuonAssociator : public edm::EDAnalyzer {
 public:
   explicit testMuonAssociator(const edm::ParameterSet& iConfig);
-  virtual ~testMuonAssociator();
-  virtual void analyze(const edm::Event& event, const edm::EventSetup& setup);
+  ~testMuonAssociator() override;
+  void analyze(const edm::Event& event, const edm::EventSetup& setup) override;
 
 private:
   edm::EDGetTokenT<edm::View<reco::Track> > token_recoTracks;

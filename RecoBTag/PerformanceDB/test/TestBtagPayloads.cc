@@ -17,9 +17,9 @@
 //
 
 // system include files
+#include <cstdio>
 #include <iostream>
 #include <memory>
-#include <stdio.h>
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -39,12 +39,12 @@
 class TestBtagPayloads : public edm::EDAnalyzer {
 public:
   explicit TestBtagPayloads(const edm::ParameterSet&);
-  ~TestBtagPayloads();
+  ~TestBtagPayloads() override;
 
 private:
-  virtual void beginJob();
-  virtual void analyze(const edm::Event&, const edm::EventSetup&);
-  virtual void endJob();
+  void beginJob() override;
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void endJob() override;
 };
 
 TestBtagPayloads::TestBtagPayloads(const edm::ParameterSet& iConfig) {}

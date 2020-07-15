@@ -32,10 +32,10 @@
 class ProbClustersFilter : public edm::EDFilter {
 public:
   explicit ProbClustersFilter(const edm::ParameterSet&);
-  ~ProbClustersFilter();
+  ~ProbClustersFilter() override;
 
 private:
-  virtual bool filter(edm::Event&, const edm::EventSetup&);
+  bool filter(edm::Event&, const edm::EventSetup&) override;
 
 private:
   int maxDistance_;

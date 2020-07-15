@@ -18,28 +18,28 @@ struct A {
 };
 template <class T>
 struct ACloned : public A {
-  std::shared_ptr<A> clone() const { return std::allocate_shared<T>(std::allocator<T>(), *this); }
+  std::shared_ptr<A> clone() const override { return std::allocate_shared<T>(std::allocator<T>(), *this); }
 };
 struct B final : public A {
-  ~B() { std::cout << "D B " << this << std::endl; }
+  ~B() override { std::cout << "D B " << this << std::endl; }
   explicit B(int) { std::cout << "C B " << this << std::endl; }
-  std::shared_ptr<A> clone() const { return build<B>(*this); }
+  std::shared_ptr<A> clone() const override { return build<B>(*this); }
 };
 struct C final : public A {
-  ~C() { std::cout << "D C " << this << std::endl; }
+  ~C() override { std::cout << "D C " << this << std::endl; }
   explicit C(int, float) { std::cout << "C C " << this << std::endl; }
-  std::shared_ptr<A> clone() const { return build<C>(*this); }
+  std::shared_ptr<A> clone() const override { return build<C>(*this); }
 };
 
 struct BB final : public A {
-  ~BB() { std::cout << "D BB " << this << std::endl; }
+  ~BB() override { std::cout << "D BB " << this << std::endl; }
   explicit BB(int) { std::cout << "C BB " << this << std::endl; }
-  std::shared_ptr<A> clone() const { return churn<BB>(*this); }
+  std::shared_ptr<A> clone() const override { return churn<BB>(*this); }
 };
 struct CC final : public A {
-  ~CC() { std::cout << "D CC " << this << std::endl; }
+  ~CC() override { std::cout << "D CC " << this << std::endl; }
   explicit CC(int, float) { std::cout << "C CC " << this << std::endl; }
-  std::shared_ptr<A> clone() const { return churn<CC>(*this); }
+  std::shared_ptr<A> clone() const override { return churn<CC>(*this); }
 };
 
 using Proxy = ProxyBase11<A>;

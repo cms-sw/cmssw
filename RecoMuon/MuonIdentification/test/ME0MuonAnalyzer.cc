@@ -88,7 +88,7 @@
 class ME0MuonAnalyzer : public edm::EDAnalyzer {
 public:
   explicit ME0MuonAnalyzer(const edm::ParameterSet &);
-  ~ME0MuonAnalyzer();
+  ~ME0MuonAnalyzer() override;
   FreeTrajectoryState getFTS(
       const GlobalVector &, const GlobalVector &, int, const AlgebraicSymMatrix66 &, const MagneticField *);
 
@@ -96,9 +96,9 @@ public:
       const GlobalVector &, const GlobalVector &, int, const AlgebraicSymMatrix55 &, const MagneticField *);
   void getFromFTS(const FreeTrajectoryState &, GlobalVector &, GlobalVector &, int &, AlgebraicSymMatrix66 &);
 
-  virtual void analyze(const edm::Event &, const edm::EventSetup &);
-  void beginRun(edm::Run const &, edm::EventSetup const &);
-  void endRun(edm::Run const &, edm::EventSetup const &);
+  void analyze(const edm::Event &, const edm::EventSetup &) override;
+  void beginRun(edm::Run const &, edm::EventSetup const &) override;
+  void endRun(edm::Run const &, edm::EventSetup const &) override;
 
   //protected:
 
@@ -1092,7 +1092,7 @@ void ME0MuonAnalyzer::analyze(const edm::Event &iEvent, const edm::EventSetup &i
           if (recSimColl.find(track) != recSimColl.end()) {
             tp = recSimColl[track];
 
-            if (tp.size() != 0) {
+            if (!tp.empty()) {
               tpr = tp.begin()->first;
 
               double assocChi2 = -(tp.begin()->second);
@@ -1101,7 +1101,7 @@ void ME0MuonAnalyzer::analyze(const edm::Event &iEvent, const edm::EventSetup &i
 
               if ((simRecColl.find(tpr) != simRecColl.end())) {
                 std::vector<std::pair<RefToBase<Track>, double> > rt;
-                if (simRecColl[tpr].size() > 0) {
+                if (!simRecColl[tpr].empty()) {
                   rt = simRecColl[tpr];
                   RefToBase<Track> bestrecotrackforeff = rt.begin()->first;
                   //Only fill the efficiency histo if the track found matches up to a gen particle's best choice
@@ -3162,7 +3162,7 @@ void ME0MuonAnalyzer::endRun(edm::Run const &, edm::EventSetup const &)
   logout.close();
 
   delete histoFile;
-  histoFile = 0;
+  histoFile = nullptr;
 }
 
 FreeTrajectoryState ME0MuonAnalyzer::getFTS(const GlobalVector &p3,

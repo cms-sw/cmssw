@@ -49,11 +49,11 @@ PCCNTupler::PCCNTupler(edm::ParameterSet const& iConfig)
       fPileUpInfoLabel(edm::InputTag("addPileupInfo")),
       saveType(iConfig.getUntrackedParameter<string>("saveType")),
       sampleType(iConfig.getUntrackedParameter<string>("sampleType")),
-      includeVertexInformation(iConfig.getUntrackedParameter<bool>("includeVertexInformation", 1)),
-      includePixels(iConfig.getUntrackedParameter<bool>("includePixels", 1)),
-      includeJets(iConfig.getUntrackedParameter<bool>("includeJets", 0)),
-      splitByBX(iConfig.getUntrackedParameter<bool>("splitByBX", 1)),
-      pixelPhase2Geometry(iConfig.getUntrackedParameter<bool>("pixelPhase2Geometry", 0)) {
+      includeVertexInformation(iConfig.getUntrackedParameter<bool>("includeVertexInformation", true)),
+      includePixels(iConfig.getUntrackedParameter<bool>("includePixels", true)),
+      includeJets(iConfig.getUntrackedParameter<bool>("includeJets", false)),
+      splitByBX(iConfig.getUntrackedParameter<bool>("splitByBX", true)),
+      pixelPhase2Geometry(iConfig.getUntrackedParameter<bool>("pixelPhase2Geometry", false)) {
   cout << "----------------------------------------------------------------------" << endl;
   cout << "--- PCCNTupler constructor" << endl;
 

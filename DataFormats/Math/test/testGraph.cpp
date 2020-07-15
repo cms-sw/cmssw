@@ -68,7 +68,7 @@ void build_graph3(const graph_type& input, graph_type& output) { input.invert(ou
 void list_roots(const graph_type& g, ostream& os) {
   graph_type::edge_list roots;
   g.findRoots(roots);
-  while (roots.size()) {
+  while (!roots.empty()) {
     os << g.nodeData(roots.back().first) << ' ';
     roots.pop_back();
   }

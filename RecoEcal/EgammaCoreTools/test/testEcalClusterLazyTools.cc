@@ -37,7 +37,7 @@ public:
   explicit testEcalClusterLazyTools(const edm::ParameterSet&);
 
 private:
-  virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
 
   using LazyTools = noZS::EcalClusterLazyTools;  // alternatively just EcalClusterLazyTools
 

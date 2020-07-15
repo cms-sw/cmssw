@@ -26,7 +26,7 @@
 class ClusterMCsplitStrips : public edm::stream::EDProducer<> {
 public:
   explicit ClusterMCsplitStrips(const edm::ParameterSet& conf);
-  virtual void produce(edm::Event&, const edm::EventSetup&);
+  void produce(edm::Event&, const edm::EventSetup&) override;
 
 private:
   template <class T>

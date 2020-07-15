@@ -513,17 +513,17 @@ public:
   //consumes<FEDRawDataCollection>(theConfig.getUntrackedParameter<std::string>("InputLabel","source"));}
 
   /// dtor
-  virtual ~SiPixelRawDumper() {}
+  ~SiPixelRawDumper() override {}
 
-  void beginJob();
+  void beginJob() override;
 
   //void beginRun( const edm::EventSetup& ) {}
 
   // end of job
-  void endJob();
+  void endJob() override;
 
   /// get data, convert to digis attach againe to Event
-  virtual void analyze(const edm::Event &, const edm::EventSetup &);
+  void analyze(const edm::Event &, const edm::EventSetup &) override;
 
 private:
   edm::ParameterSet theConfig;

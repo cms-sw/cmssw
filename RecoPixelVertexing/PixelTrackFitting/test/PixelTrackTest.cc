@@ -26,10 +26,10 @@ using namespace std;
 class PixelTrackTest : public edm::EDAnalyzer {
 public:
   explicit PixelTrackTest(const edm::ParameterSet& conf);
-  ~PixelTrackTest();
-  virtual void beginJob() {}
-  virtual void analyze(const edm::Event& ev, const edm::EventSetup& es);
-  virtual void endJob() {}
+  ~PixelTrackTest() override;
+  void beginJob() override {}
+  void analyze(const edm::Event& ev, const edm::EventSetup& es) override;
+  void endJob() override {}
 
 private:
   string collectionLabel;

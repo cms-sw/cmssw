@@ -8,16 +8,15 @@
 
 #include "RPCRecHitReader.h"
 
-#include <memory>
+#include <cmath>
+#include <cstdio>
 #include <fstream>
-#include <iostream>
-#include <string>
-#include <cmath>
-#include <cmath>
-#include <vector>
 #include <iomanip>
+#include <iostream>
+#include <memory>
 #include <set>
-#include <stdio.h>
+#include <string>
+#include <vector>
 
 #include "Geometry/CommonDetUnit/interface/GeomDet.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
@@ -245,7 +244,7 @@ void RPCRecHitReader::analyze(const edm::Event& event, const edm::EventSetup& ev
     }
   }
 
-  if (_mapTrig.size() == 0)
+  if (_mapTrig.empty())
     return;
 
   char folder[128];
@@ -261,7 +260,7 @@ void RPCRecHitReader::analyze(const edm::Event& event, const edm::EventSetup& ev
 
   if (_mapTrig.size() > 4) {
     _trigger++;
-    if (effX.size() > 0)
+    if (!effX.empty())
       _efficiencyBAD++;
 
     //-----------------------------------------------------
@@ -281,7 +280,7 @@ void RPCRecHitReader::analyze(const edm::Event& event, const edm::EventSetup& ev
 
       histoExpectedOcc->Fill(expStrip);
 
-      if (effX.size() > 0) {
+      if (!effX.empty()) {
         _efficiencyGOOD++;
 
         unsigned int k = 0;

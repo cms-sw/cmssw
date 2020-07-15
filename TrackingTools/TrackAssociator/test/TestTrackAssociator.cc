@@ -82,9 +82,9 @@
 class TestTrackAssociator : public edm::EDAnalyzer {
 public:
   explicit TestTrackAssociator(const edm::ParameterSet&);
-  virtual ~TestTrackAssociator() {}
+  ~TestTrackAssociator() override {}
 
-  virtual void analyze(const edm::Event&, const edm::EventSetup&);
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
 
 private:
   TrackDetectorAssociator trackAssociator_;

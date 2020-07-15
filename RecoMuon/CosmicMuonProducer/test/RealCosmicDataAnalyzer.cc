@@ -57,14 +57,14 @@ using namespace edm;
 class RealCosmicDataAnalyzer : public edm::EDAnalyzer {
 public:
   explicit RealCosmicDataAnalyzer(const edm::ParameterSet&);
-  ~RealCosmicDataAnalyzer();
+  ~RealCosmicDataAnalyzer() override;
 
 private:
-  virtual void beginJob();
+  void beginJob() override;
 
-  virtual void analyze(const edm::Event&, const edm::EventSetup&);
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
 
-  virtual void endJob();
+  void endJob() override;
 
   edm::ESHandle<Propagator> propagator() const;
 

@@ -37,7 +37,7 @@ class MuonRecoGeometryAnalyzer : public EDAnalyzer {
 public:
   MuonRecoGeometryAnalyzer(const ParameterSet& pset);
 
-  virtual void analyze(const Event& ev, const EventSetup& es);
+  void analyze(const Event& ev, const EventSetup& es) override;
 
   void testDTLayers(const MuonDetLayerGeometry*, const MagneticField* field);
   void testCSCLayers(const MuonDetLayerGeometry*, const MagneticField* field);
@@ -184,7 +184,7 @@ void MuonRecoGeometryAnalyzer::testDTLayers(const MuonDetLayerGeometry* geo, con
          << " phi=" << comp.second.globalPosition().phi() << " Z=" << comp.second.globalPosition().z() << endl;
 
     vector<DetLayer::DetWithState> compDets = layer->compatibleDets(tsos, prop, *theEstimator);
-    if (compDets.size()) {
+    if (!compDets.empty()) {
       cout << "compatibleDets: " << compDets.size() << endl
 
            << "  final state pos: " << compDets.front().second.globalPosition() << endl
@@ -232,7 +232,7 @@ void MuonRecoGeometryAnalyzer::testCSCLayers(const MuonDetLayerGeometry* geo, co
          << " phi=" << comp.second.globalPosition().phi() << " Z=" << comp.second.globalPosition().z() << endl;
 
     vector<DetLayer::DetWithState> compDets = layer->compatibleDets(tsos, prop, *theEstimator);
-    if (compDets.size()) {
+    if (!compDets.empty()) {
       cout << "compatibleDets: " << compDets.size() << endl
 
            << "  final state pos: " << compDets.front().second.globalPosition() << endl
@@ -256,9 +256,9 @@ void MuonRecoGeometryAnalyzer::testCSCLayers(const MuonDetLayerGeometry* geo, co
 string MuonRecoGeometryAnalyzer::dumpLayer(const DetLayer* layer) const {
   stringstream output;
 
-  const BoundSurface* sur = 0;
-  const BoundCylinder* bc = 0;
-  const BoundDisk* bd = 0;
+  const BoundSurface* sur = nullptr;
+  const BoundCylinder* bc = nullptr;
+  const BoundDisk* bd = nullptr;
 
   sur = &(layer->surface());
   if ((bc = dynamic_cast<const BoundCylinder*>(sur))) {

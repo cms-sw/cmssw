@@ -19,10 +19,10 @@ using namespace std;
 class IsolationExample : public edm::EDAnalyzer {
 public:
   IsolationExample(const edm::ParameterSet& conf);
-  ~IsolationExample();
-  virtual void beginJob();
-  virtual void analyze(const edm::Event&, const edm::EventSetup&);
-  virtual void endJob() {}
+  ~IsolationExample() override;
+  void beginJob() override;
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void endJob() override {}
 
 private:
   edm::InputTag theMuonTag;

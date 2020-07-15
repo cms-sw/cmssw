@@ -86,7 +86,7 @@ void EcalCompactTrigPrimProducerTest::analyze(edm::Event const& event, edm::Even
   event.getByToken(tpSkimToken_, hSkimTpDigis);
   const EcalTrigPrimDigiCollection* skimTrigPrims = hSkimTpDigis.product();
   err_ = false;
-  if (skimTrigPrims->size() == 0)
+  if (skimTrigPrims->empty())
     err("Skimmed TP collection is empty!");
   std::stringstream tpList;
   for (EcalTrigPrimDigiCollection::const_iterator skimTrigPrim = skimTrigPrims->begin();

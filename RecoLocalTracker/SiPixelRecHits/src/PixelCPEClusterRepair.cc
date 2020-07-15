@@ -362,40 +362,38 @@ void PixelCPEClusterRepair::callTempReco1D(DetParam const& theDetParam,
   // ******************************************************************
 
   //--- Check exit status
-  if
-    UNLIKELY(theClusterParam.ierr != 0) {
-      LogDebug("PixelCPEClusterRepair::localPosition")
-          << "reconstruction failed with error " << theClusterParam.ierr << "\n";
+  if UNLIKELY (theClusterParam.ierr != 0) {
+    LogDebug("PixelCPEClusterRepair::localPosition")
+        << "reconstruction failed with error " << theClusterParam.ierr << "\n";
 
-      theClusterParam.probabilityX_ = theClusterParam.probabilityY_ = theClusterParam.probabilityQ_ = 0.f;
-      theClusterParam.qBin_ = 0;
+    theClusterParam.probabilityX_ = theClusterParam.probabilityY_ = theClusterParam.probabilityQ_ = 0.f;
+    theClusterParam.qBin_ = 0;
 
-      // Gavril: what do we do in this case ? For now, just return the cluster center of gravity in microns
-      // In the x case, apply a rough Lorentz drift average correction
-      // To do: call PixelCPEGeneric whenever PixelTempReco1D fails
-      float lorentz_drift = -999.9;
-      if (!GeomDetEnumerators::isEndcap(theDetParam.thePart))
-        lorentz_drift = 60.0f;  // in microns
-      else
-        lorentz_drift = 10.0f;  // in microns
-      // GG: trk angles needed to correct for bows/kinks
-      if (theClusterParam.with_track_angle) {
-        theClusterParam.templXrec_ =
-            theDetParam.theTopol->localX(theClusterParam.theCluster->x(), theClusterParam.loc_trk_pred) -
-            lorentz_drift * micronsToCm;  // rough Lorentz drift correction
-        theClusterParam.templYrec_ =
-            theDetParam.theTopol->localY(theClusterParam.theCluster->y(), theClusterParam.loc_trk_pred);
-      } else {
-        edm::LogError("PixelCPEClusterRepair") << "@SUB = PixelCPEClusterRepair::localPosition"
-                                               << "Should never be here. PixelCPEClusterRepair should always be called "
-                                                  "with track angles. This is a bad error !!! ";
+    // Gavril: what do we do in this case ? For now, just return the cluster center of gravity in microns
+    // In the x case, apply a rough Lorentz drift average correction
+    // To do: call PixelCPEGeneric whenever PixelTempReco1D fails
+    float lorentz_drift = -999.9;
+    if (!GeomDetEnumerators::isEndcap(theDetParam.thePart))
+      lorentz_drift = 60.0f;  // in microns
+    else
+      lorentz_drift = 10.0f;  // in microns
+    // GG: trk angles needed to correct for bows/kinks
+    if (theClusterParam.with_track_angle) {
+      theClusterParam.templXrec_ =
+          theDetParam.theTopol->localX(theClusterParam.theCluster->x(), theClusterParam.loc_trk_pred) -
+          lorentz_drift * micronsToCm;  // rough Lorentz drift correction
+      theClusterParam.templYrec_ =
+          theDetParam.theTopol->localY(theClusterParam.theCluster->y(), theClusterParam.loc_trk_pred);
+    } else {
+      edm::LogError("PixelCPEClusterRepair") << "@SUB = PixelCPEClusterRepair::localPosition"
+                                             << "Should never be here. PixelCPEClusterRepair should always be called "
+                                                "with track angles. This is a bad error !!! ";
 
-        theClusterParam.templXrec_ = theDetParam.theTopol->localX(theClusterParam.theCluster->x()) -
-                                     lorentz_drift * micronsToCm;  // rough Lorentz drift correction
-        theClusterParam.templYrec_ = theDetParam.theTopol->localY(theClusterParam.theCluster->y());
-      }
+      theClusterParam.templXrec_ = theDetParam.theTopol->localX(theClusterParam.theCluster->x()) -
+                                   lorentz_drift * micronsToCm;  // rough Lorentz drift correction
+      theClusterParam.templYrec_ = theDetParam.theTopol->localY(theClusterParam.theCluster->y());
     }
-  else {
+  } else {
     //--- Template Reco succeeded.  The probabilities are filled.
     theClusterParam.hasFilledProb_ = true;
 
@@ -483,38 +481,36 @@ void PixelCPEClusterRepair::callTempReco2D(DetParam const& theDetParam,
   // ******************************************************************
 
   //--- Check exit status
-  if
-    UNLIKELY(theClusterParam.ierr2 != 0) {
-      LogDebug("PixelCPEClusterRepair::localPosition")
-          << "2D reconstruction failed with error " << theClusterParam.ierr2 << "\n";
+  if UNLIKELY (theClusterParam.ierr2 != 0) {
+    LogDebug("PixelCPEClusterRepair::localPosition")
+        << "2D reconstruction failed with error " << theClusterParam.ierr2 << "\n";
 
-      theClusterParam.probabilityX_ = theClusterParam.probabilityY_ = theClusterParam.probabilityQ_ = 0.f;
-      theClusterParam.qBin_ = 0;
-      // GG: what do we do in this case?  For now, just return the cluster center of gravity in microns
-      // In the x case, apply a rough Lorentz drift average correction
-      float lorentz_drift = -999.9;
-      if (!GeomDetEnumerators::isEndcap(theDetParam.thePart))
-        lorentz_drift = 60.0f;  // in microns  // &&& replace with a constant (globally)
-      else
-        lorentz_drift = 10.0f;  // in microns
-      // GG: trk angles needed to correct for bows/kinks
-      if (theClusterParam.with_track_angle) {
-        theClusterParam.templXrec_ =
-            theDetParam.theTopol->localX(theClusterParam.theCluster->x(), theClusterParam.loc_trk_pred) -
-            lorentz_drift * micronsToCm;  // rough Lorentz drift correction
-        theClusterParam.templYrec_ =
-            theDetParam.theTopol->localY(theClusterParam.theCluster->y(), theClusterParam.loc_trk_pred);
-      } else {
-        edm::LogError("PixelCPEClusterRepair") << "@SUB = PixelCPEClusterRepair::localPosition"
-                                               << "Should never be here. PixelCPEClusterRepair should always be called "
-                                                  "with track angles. This is a bad error !!! ";
+    theClusterParam.probabilityX_ = theClusterParam.probabilityY_ = theClusterParam.probabilityQ_ = 0.f;
+    theClusterParam.qBin_ = 0;
+    // GG: what do we do in this case?  For now, just return the cluster center of gravity in microns
+    // In the x case, apply a rough Lorentz drift average correction
+    float lorentz_drift = -999.9;
+    if (!GeomDetEnumerators::isEndcap(theDetParam.thePart))
+      lorentz_drift = 60.0f;  // in microns  // &&& replace with a constant (globally)
+    else
+      lorentz_drift = 10.0f;  // in microns
+    // GG: trk angles needed to correct for bows/kinks
+    if (theClusterParam.with_track_angle) {
+      theClusterParam.templXrec_ =
+          theDetParam.theTopol->localX(theClusterParam.theCluster->x(), theClusterParam.loc_trk_pred) -
+          lorentz_drift * micronsToCm;  // rough Lorentz drift correction
+      theClusterParam.templYrec_ =
+          theDetParam.theTopol->localY(theClusterParam.theCluster->y(), theClusterParam.loc_trk_pred);
+    } else {
+      edm::LogError("PixelCPEClusterRepair") << "@SUB = PixelCPEClusterRepair::localPosition"
+                                             << "Should never be here. PixelCPEClusterRepair should always be called "
+                                                "with track angles. This is a bad error !!! ";
 
-        theClusterParam.templXrec_ = theDetParam.theTopol->localX(theClusterParam.theCluster->x()) -
-                                     lorentz_drift * micronsToCm;  // rough Lorentz drift correction
-        theClusterParam.templYrec_ = theDetParam.theTopol->localY(theClusterParam.theCluster->y());
-      }
+      theClusterParam.templXrec_ = theDetParam.theTopol->localX(theClusterParam.theCluster->x()) -
+                                   lorentz_drift * micronsToCm;  // rough Lorentz drift correction
+      theClusterParam.templYrec_ = theDetParam.theTopol->localY(theClusterParam.theCluster->y());
     }
-  else {
+  } else {
     //--- Template Reco succeeded.
     theClusterParam.hasFilledProb_ = true;
 
@@ -632,24 +628,22 @@ LocalError PixelCPEClusterRepair::localError(DetParam const& theDetParam, Cluste
   float xerr = 0.0f, yerr = 0.0f;
 
   //--- Check status of both template calls.
-  if
-    UNLIKELY((theClusterParam.ierr != 0) || (theClusterParam.ierr2 != 0)) {
-      // If reconstruction fails the hit position is calculated from cluster center of gravity
-      // corrected in x by average Lorentz drift. Assign huge errors.
-      //
-      if
-        UNLIKELY(!GeomDetEnumerators::isTrackerPixel(theDetParam.thePart))
+  if UNLIKELY ((theClusterParam.ierr != 0) || (theClusterParam.ierr2 != 0)) {
+    // If reconstruction fails the hit position is calculated from cluster center of gravity
+    // corrected in x by average Lorentz drift. Assign huge errors.
+    //
+    if UNLIKELY (!GeomDetEnumerators::isTrackerPixel(theDetParam.thePart))
       throw cms::Exception("PixelCPEClusterRepair::localPosition :") << "A non-pixel detector type in here?";
 
-      // Assign better errors based on the residuals for failed template cases
-      if (GeomDetEnumerators::isBarrel(theDetParam.thePart)) {
-        xerr = 55.0f * micronsToCm;  // &&& get errors from elsewhere?
-        yerr = 36.0f * micronsToCm;
-      } else {
-        xerr = 42.0f * micronsToCm;
-        yerr = 39.0f * micronsToCm;
-      }
+    // Assign better errors based on the residuals for failed template cases
+    if (GeomDetEnumerators::isBarrel(theDetParam.thePart)) {
+      xerr = 55.0f * micronsToCm;  // &&& get errors from elsewhere?
+      yerr = 36.0f * micronsToCm;
+    } else {
+      xerr = 42.0f * micronsToCm;
+      yerr = 39.0f * micronsToCm;
     }
+  }
   // Leave commented for now, until we study the interplay of failure modes
   // of 1D template reco and edges.  For edge hits we run 2D reco by default!
   //

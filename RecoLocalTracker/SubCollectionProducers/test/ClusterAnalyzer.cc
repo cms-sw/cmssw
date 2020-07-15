@@ -46,11 +46,11 @@ using namespace std;
 class ClusterAnalyzer : public edm::EDAnalyzer {
 public:
   explicit ClusterAnalyzer(const edm::ParameterSet&);
-  ~ClusterAnalyzer();
+  ~ClusterAnalyzer() override;
 
 private:
-  virtual void beginJob() override;
-  virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void beginJob() override;
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
 
   // ----------member data ---------------------------
 
@@ -105,17 +105,17 @@ ClusterAnalyzer::ClusterAnalyzer(const edm::ParameterSet& iConfig) {
 
   for (auto i = allModules_.begin(); i != allModules_.end(); ++i) {
     std::string tmpstr = i->second;
-    histos1D_[(tmpstr + "nclusters").c_str()] =
+    histos1D_[tmpstr + "nclusters"] =
         fs->make<TH1D>((tmpstr + "nclusters").c_str(), (tmpstr + "nclusters").c_str(), 1000, 0, 3000);
-    histos1D_[(tmpstr + "nclusters").c_str()]->SetXTitle(("number of Clusters in " + tmpstr).c_str());
+    histos1D_[tmpstr + "nclusters"]->SetXTitle(("number of Clusters in " + tmpstr).c_str());
 
-    histos1D_[(tmpstr + "avgCharge").c_str()] =
+    histos1D_[tmpstr + "avgCharge"] =
         fs->make<TH1D>((tmpstr + "avgCharge").c_str(), (tmpstr + "avgCharge").c_str(), 500, 0, 1000);
-    histos1D_[(tmpstr + "avgCharge").c_str()]->SetXTitle(("average cluster charge in " + tmpstr).c_str());
+    histos1D_[tmpstr + "avgCharge"]->SetXTitle(("average cluster charge in " + tmpstr).c_str());
 
-    histos1D_[(tmpstr + "avgSize").c_str()] =
+    histos1D_[tmpstr + "avgSize"] =
         fs->make<TH1D>((tmpstr + "avgSize").c_str(), (tmpstr + "avgSize").c_str(), 30, 0, 10);
-    histos1D_[(tmpstr + "avgSize").c_str()]->SetXTitle(("average cluster size in " + tmpstr).c_str());
+    histos1D_[tmpstr + "avgSize"]->SetXTitle(("average cluster size in " + tmpstr).c_str());
   }
 }
 
@@ -134,9 +134,9 @@ void ClusterAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& i
 
     std::string tmpstr = iAllModules->second;
 
-    histos1D_[(tmpstr + "nclusters").c_str()]->Fill(class_->getNClusByIndex(iM));
-    histos1D_[(tmpstr + "avgSize").c_str()]->Fill(class_->getClusSizeByIndex(iM) / class_->getNClusByIndex(iM));
-    histos1D_[(tmpstr + "avgCharge").c_str()]->Fill(class_->getClusChargeByIndex(iM) / class_->getNClusByIndex(iM));
+    histos1D_[tmpstr + "nclusters"]->Fill(class_->getNClusByIndex(iM));
+    histos1D_[tmpstr + "avgSize"]->Fill(class_->getClusSizeByIndex(iM) / class_->getNClusByIndex(iM));
+    histos1D_[tmpstr + "avgCharge"]->Fill(class_->getClusChargeByIndex(iM) / class_->getNClusByIndex(iM));
 
     cout << "n" << tmpstr << ", avg size, avg charge = " << class_->getNClusByIndex(iM);
     cout << ", " << class_->getClusSizeByIndex(iM) / class_->getNClusByIndex(iM);

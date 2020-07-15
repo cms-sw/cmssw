@@ -30,7 +30,7 @@ EcalMatacqHist::~EcalMatacqHist() {
     for (std::vector<TProfile>::iterator it = profiles.begin(); it != profiles.end(); ++it) {
       it->Write();
     }
-    if (hTTrig != 0)
+    if (hTTrig != nullptr)
       hTTrig->Write();
     dsave->cd();
   }
@@ -79,7 +79,7 @@ void EcalMatacqHist::analyze(const edm::Event& e, const edm::EventSetup& c) {
       profileName << "matacq" << digis.chId();
       profiles.push_back(
           TProfile(profileName.str().c_str(), profTitle.str().c_str(), digis.size(), -.5, -.5 + digis.size(), "I"));
-      profiles.back().SetDirectory(0);  //mem. management done by std::vector
+      profiles.back().SetDirectory(nullptr);  //mem. management done by std::vector
       profChId.push_back(digis.chId());
     }
 

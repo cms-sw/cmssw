@@ -27,11 +27,10 @@ bool SeedFromConsecutiveHitsTripletOnlyCreator::initialKinematic(GlobalTrajector
                     &*bfield,
                     tth1->globalPosition());
     kine = helix.stateAtVertex();
-    if
-      UNLIKELY(isBOFF && (theBOFFMomentum > 0)) {
-        kine = GlobalTrajectoryParameters(
-            kine.position(), kine.momentum().unit() * theBOFFMomentum, kine.charge(), &*bfield);
-      }
+    if UNLIKELY (isBOFF && (theBOFFMomentum > 0)) {
+      kine = GlobalTrajectoryParameters(
+          kine.position(), kine.momentum().unit() * theBOFFMomentum, kine.charge(), &*bfield);
+    }
     return (filter ? filter->compatible(hits, kine, helix) : true);
   }
 
@@ -46,10 +45,9 @@ bool SeedFromConsecutiveHitsTripletOnlyCreator::initialKinematic(GlobalTrajector
     kine = GlobalTrajectoryParameters(vertexPos, initMomentum, 1, &*bfield);
   }
 
-  if
-    UNLIKELY(isBOFF && (theBOFFMomentum > 0)) {
-      kine = GlobalTrajectoryParameters(
-          kine.position(), kine.momentum().unit() * theBOFFMomentum, kine.charge(), &*bfield);
-    }
+  if UNLIKELY (isBOFF && (theBOFFMomentum > 0)) {
+    kine =
+        GlobalTrajectoryParameters(kine.position(), kine.momentum().unit() * theBOFFMomentum, kine.charge(), &*bfield);
+  }
   return (filter ? filter->compatible(hits, kine, helix) : true);
 }

@@ -85,11 +85,11 @@
 class SteppingHelixPropagatorAnalyzer : public edm::EDAnalyzer {
 public:
   explicit SteppingHelixPropagatorAnalyzer(const edm::ParameterSet&);
-  ~SteppingHelixPropagatorAnalyzer();
+  ~SteppingHelixPropagatorAnalyzer() override;
 
-  virtual void analyze(const edm::Event&, const edm::EventSetup&);
-  virtual void endJob();
-  void beginJob();
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void endJob() override;
+  void beginJob() override;
 
 protected:
   struct GlobalSimHit {
@@ -455,7 +455,7 @@ void SteppingHelixPropagatorAnalyzer::endJob() {
   ntFile_->cd();
   tr_->Write();
   delete ntFile_;
-  ntFile_ = 0;
+  ntFile_ = nullptr;
 }
 
 void SteppingHelixPropagatorAnalyzer::loadNtVars(int ind,

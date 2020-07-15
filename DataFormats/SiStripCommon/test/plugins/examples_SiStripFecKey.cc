@@ -1,16 +1,16 @@
 
 #include "DataFormats/SiStripCommon/test/plugins/examples_SiStripFecKey.h"
-#include "FWCore/Framework/interface/Event.h"
-#include "DataFormats/SiStripCommon/interface/SiStripFecKey.h"
 #include "DataFormats/SiStripCommon/interface/Constants.h"
 #include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
+#include "DataFormats/SiStripCommon/interface/SiStripFecKey.h"
+#include "FWCore/Framework/interface/Event.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include <iostream>
+#include <algorithm>
+#include <ctime>
 #include <iomanip>
+#include <iostream>
 #include <sstream>
 #include <string>
-#include <time.h>
-#include <algorithm>
 
 using namespace sistrip;
 
@@ -41,8 +41,8 @@ void examplesSiStripFecKey::beginJob() {
                     sistrip::invalid_);
   SiStripFecKey valid(1, 2, 1, 1, 16, 1, 32);
   SiStripFecKey all(0, 0, 0, 0, 0, 0, 0);
-  SiStripFecKey same(valid);
-  SiStripFecKey equal = valid;
+  const SiStripFecKey& same(valid);
+  const SiStripFecKey& equal = valid;
   SiStripFecKey equals;
   equals = valid;
   SiStripFecKey to_gran(valid, sistrip::CCU_CHAN);

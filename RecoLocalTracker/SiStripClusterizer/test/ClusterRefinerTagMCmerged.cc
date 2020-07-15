@@ -39,7 +39,7 @@ void ClusterRefinerTagMCmerged::refineCluster(const edm::Handle<edmNew::DetSetVe
     for (edmNew::DetSet<SiStripCluster>::iterator clust = det->begin(); clust != det->end(); clust++) {
       auto const& amp = clust->amplitudes();
       SiStripCluster* newCluster = new SiStripCluster(clust->firstStrip(), amp.begin(), amp.end());
-      if (associator_ != 0) {
+      if (associator_ != nullptr) {
         std::vector<SimHitIdpr> simtrackid;
         if (useAssociateHit_) {
           std::vector<PSimHit> simhit;

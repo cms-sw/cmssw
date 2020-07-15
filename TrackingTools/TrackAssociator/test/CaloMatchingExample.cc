@@ -82,13 +82,13 @@
 class CaloMatchingExample : public edm::EDAnalyzer {
 public:
   explicit CaloMatchingExample(const edm::ParameterSet&);
-  virtual ~CaloMatchingExample() {
+  ~CaloMatchingExample() override {
     file_->cd();
     tree_->Write();
     file_->Close();
   }
 
-  virtual void analyze(const edm::Event&, const edm::EventSetup&);
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
 
 private:
   TrackDetectorAssociator trackAssociator_;

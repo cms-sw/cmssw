@@ -14,8 +14,8 @@ class testEcalUncalibratedRecHit : public CppUnit::TestFixture {
   CPPUNIT_TEST_SUITE_END();
 
 public:
-  void setUp() {}
-  void tearDown() {}
+  void setUp() override {}
+  void tearDown() override {}
   void print(uint32_t k) {
     for (int i = 31; i >= 0; i--) {
       std::cout << (((0x1 << i) & k) != 0);

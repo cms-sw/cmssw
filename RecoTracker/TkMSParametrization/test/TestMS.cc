@@ -38,9 +38,9 @@ T sqr(T t) {
 class TestMS : public edm::EDAnalyzer {
 public:
   explicit TestMS(const edm::ParameterSet& conf);
-  ~TestMS();
-  virtual void beginRun(edm::Run const& run, const edm::EventSetup& es) override;
-  virtual void analyze(const edm::Event& ev, const edm::EventSetup& es) override;
+  ~TestMS() override;
+  void beginRun(edm::Run const& run, const edm::EventSetup& es) override;
+  void analyze(const edm::Event& ev, const edm::EventSetup& es) override;
 
 private:
   TFile* rootFile;

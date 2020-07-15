@@ -114,15 +114,13 @@ vector<const DetLayer*> SimpleBarrelNavigableLayer::nextLayers(const FreeTraject
   bool signZmomentumXORdir =
       (((momentum.z() > 0) && !(dir == alongMomentum)) || (!(momentum.z() > 0) && (dir == alongMomentum)));
 
-  if
-    LIKELY(dirOppositeXORisInOutTrackBarrel && dirOppositeXORisInOutTrackFWD) {
-      if (signZmomentumXORdir) {
-        wellInside(ftsWithoutErrors, dir, theNegOuterLayers, result);
-      } else {
-        wellInside(ftsWithoutErrors, dir, thePosOuterLayers, result);
-      }
+  if LIKELY (dirOppositeXORisInOutTrackBarrel && dirOppositeXORisInOutTrackFWD) {
+    if (signZmomentumXORdir) {
+      wellInside(ftsWithoutErrors, dir, theNegOuterLayers, result);
+    } else {
+      wellInside(ftsWithoutErrors, dir, thePosOuterLayers, result);
     }
-  else if (!dirOppositeXORisInOutTrackBarrel && !dirOppositeXORisInOutTrackFWD) {
+  } else if (!dirOppositeXORisInOutTrackBarrel && !dirOppositeXORisInOutTrackFWD) {
     if (signZmomentumXORdir) {
       wellInside(ftsWithoutErrors, dir, thePosInnerLayers, result);
     } else {
@@ -152,21 +150,20 @@ vector<const DetLayer*> SimpleBarrelNavigableLayer::nextLayers(const FreeTraject
 
   LogDebug("SimpleBarrelNavigableLayer") << "goingIntoTheBarrel: " << goingIntoTheBarrel;
 
-  if
-    UNLIKELY(theSelfSearch && result.empty()) {
-      if (!goingIntoTheBarrel) {
-        LogDebug("SimpleBarrelNavigableLayer")
-            << " state is not going toward the center of the barrel. not adding self search.";
-      } else {
-        const BarrelDetLayer* bl = reinterpret_cast<const BarrelDetLayer*>(detLayer());
-        unsigned int before = result.size();
-        LogDebug("SimpleBarrelNavigableLayer") << " I am trying to added myself as a next layer.";
-        wellInside(ftsWithoutErrors, dir, bl, result);
-        unsigned int after = result.size();
-        if (before != after)
-          LogDebug("SimpleBarrelNavigableLayer") << " I have added myself as a next layer.";
-      }
+  if UNLIKELY (theSelfSearch && result.empty()) {
+    if (!goingIntoTheBarrel) {
+      LogDebug("SimpleBarrelNavigableLayer")
+          << " state is not going toward the center of the barrel. not adding self search.";
+    } else {
+      const BarrelDetLayer* bl = reinterpret_cast<const BarrelDetLayer*>(detLayer());
+      unsigned int before = result.size();
+      LogDebug("SimpleBarrelNavigableLayer") << " I am trying to added myself as a next layer.";
+      wellInside(ftsWithoutErrors, dir, bl, result);
+      unsigned int after = result.size();
+      if (before != after)
+        LogDebug("SimpleBarrelNavigableLayer") << " I have added myself as a next layer.";
     }
+  }
 
   return result;
 }

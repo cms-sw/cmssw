@@ -96,26 +96,25 @@ TrajectorySegmentBuilder::TempTrajectoryContainer TrajectorySegmentBuilder::segm
     ++ngrp;
     int nhit(0);
     for (auto const& m : gr.measurements())
-      if
-        LIKELY(m.recHitR().isValid()) nhit++;
+      if LIKELY (m.recHitR().isValid())
+        nhit++;
 
     if (nhit > 1)
       ncomb *= nhit;
-    if
-      UNLIKELY(ncomb > MAXCOMB) {
-        edm::LogInfo("TrajectorySegmentBuilder")
-            << " found " << measGroups.size() << " groups and more than " << static_cast<unsigned int>(MAXCOMB)
-            << " combinations - limiting to " << (ngrp - 1) << " groups";
-        truncate = true;
+    if UNLIKELY (ncomb > MAXCOMB) {
+      edm::LogInfo("TrajectorySegmentBuilder")
+          << " found " << measGroups.size() << " groups and more than " << static_cast<unsigned int>(MAXCOMB)
+          << " combinations - limiting to " << (ngrp - 1) << " groups";
+      truncate = true;
 
-        statCount.truncated();
+      statCount.truncated();
 
-        break;
-      }
+      break;
+    }
   }
   //   cout << "Groups / combinations = " << measGroups.size() << " " << ncomb << endl;
-  if
-    UNLIKELY(truncate && ngrp > 0) measGroups.resize(ngrp - 1);
+  if UNLIKELY (truncate && ngrp > 0)
+    measGroups.resize(ngrp - 1);
 
 #endif
 
@@ -169,8 +168,8 @@ TrajectorySegmentBuilder::TempTrajectoryContainer TrajectorySegmentBuilder::segm
 
   TempTrajectoryContainer candidates = addGroup(startingTrajectory, measGroups.begin(), measGroups.end());
 
-  if
-    UNLIKELY(theDbgFlg) cout << "TSB: back with " << candidates.size() << " candidates" << endl;
+  if UNLIKELY (theDbgFlg)
+    cout << "TSB: back with " << candidates.size() << " candidates" << endl;
 
   //
   // add invalid hit - try to get first detector hit by the extrapolation
@@ -178,8 +177,8 @@ TrajectorySegmentBuilder::TempTrajectoryContainer TrajectorySegmentBuilder::segm
 
   updateWithInvalidHit(startingTrajectory, measGroups, candidates);
 
-  if
-    UNLIKELY(theDbgFlg) cout << "TSB: " << candidates.size() << " candidates after invalid hit" << endl;
+  if UNLIKELY (theDbgFlg)
+    cout << "TSB: " << candidates.size() << " candidates after invalid hit" << endl;
 
   statCount.incr(measGroups.size(), candidates.size(), theLockedHits.size());
 
@@ -219,19 +218,18 @@ TrajectorySegmentBuilder::TempTrajectoryContainer TrajectorySegmentBuilder::addG
   vector<TempTrajectory> ret;
   if (begin == end) {
     //std::cout << "TrajectorySegmentBuilder::addGroup" << " traj.empty()=" << traj.empty() << "EMPTY" << std::endl;
-    if
-      UNLIKELY(theDbgFlg) cout << "TSB::addGroup : no groups left" << endl;
+    if UNLIKELY (theDbgFlg)
+      cout << "TSB::addGroup : no groups left" << endl;
     if (!traj.empty())
       ret.push_back(traj);
     return ret;
   }
 
-  if
-    UNLIKELY(theDbgFlg)
-  cout << "TSB::addGroup : traj.size() = " << traj.measurements().size() << " first group at "
-       << &(*begin)
-       //        << " nr. of candidates = " << candidates.size()
-       << endl;
+  if UNLIKELY (theDbgFlg)
+    cout << "TSB::addGroup : traj.size() = " << traj.measurements().size() << " first group at "
+         << &(*begin)
+         //        << " nr. of candidates = " << candidates.size()
+         << endl;
 
   TempTrajectoryContainer updatedTrajectories;
   updatedTrajectories.reserve(2);
@@ -243,9 +241,8 @@ TrajectorySegmentBuilder::TempTrajectoryContainer TrajectorySegmentBuilder::addG
     } else {
       updateCandidates(traj, begin->measurements(), updatedTrajectories);
     }
-    if
-      UNLIKELY(theDbgFlg)
-    cout << "TSB::addGroup : updating with first group - " << updatedTrajectories.size() << " trajectories" << endl;
+    if UNLIKELY (theDbgFlg)
+      cout << "TSB::addGroup : updating with first group - " << updatedTrajectories.size() << " trajectories" << endl;
   } else {
     auto&& meas = redoMeasurements(traj, begin->detGroup());
     if (!meas.empty()) {
@@ -254,9 +251,8 @@ TrajectorySegmentBuilder::TempTrajectoryContainer TrajectorySegmentBuilder::addG
       } else {
         updateCandidates(traj, std::move(meas), updatedTrajectories);
       }
-      if
-        UNLIKELY(theDbgFlg)
-      cout << "TSB::addGroup : updating" << updatedTrajectories.size() << " trajectories-1" << endl;
+      if UNLIKELY (theDbgFlg)
+        cout << "TSB::addGroup : updating" << updatedTrajectories.size() << " trajectories-1" << endl;
     }
   }
   // keep old trajectory
@@ -266,25 +262,22 @@ TrajectorySegmentBuilder::TempTrajectoryContainer TrajectorySegmentBuilder::addG
   if (begin + 1 != end) {
     ret.reserve(4);  // a good upper bound
     for (auto const& ut : updatedTrajectories) {
-      if
-        UNLIKELY(theDbgFlg)
-      cout << "TSB::addGroup : trying to extend candidate at " << &ut << " size " << ut.measurements().size() << endl;
+      if UNLIKELY (theDbgFlg)
+        cout << "TSB::addGroup : trying to extend candidate at " << &ut << " size " << ut.measurements().size() << endl;
       vector<TempTrajectory>&& finalTrajectories = addGroup(ut, begin + 1, end);
-      if
-        UNLIKELY(theDbgFlg)
-      cout << "TSB::addGroup : " << finalTrajectories.size() << " finalised candidates before cleaning" << endl;
+      if UNLIKELY (theDbgFlg)
+        cout << "TSB::addGroup : " << finalTrajectories.size() << " finalised candidates before cleaning" << endl;
       //B.M. to be ported later
       // V.I. only mark invalidate
       cleanCandidates(finalTrajectories);
 
-      if
-        UNLIKELY(theDbgFlg) {
-          int ntf = 0;
-          for (auto const& t : finalTrajectories)
-            if (t.isValid())
-              ++ntf;
-          cout << "TSB::addGroup : got " << ntf << " finalised candidates" << endl;
-        }
+      if UNLIKELY (theDbgFlg) {
+        int ntf = 0;
+        for (auto const& t : finalTrajectories)
+          if (t.isValid())
+            ++ntf;
+        cout << "TSB::addGroup : got " << ntf << " finalised candidates" << endl;
+      }
 
       for (auto& t : finalTrajectories)
         if (t.isValid())
@@ -342,8 +335,8 @@ vector<TrajectoryMeasurement> TrajectorySegmentBuilder::redoMeasurements(const T
   //
   // loop over all dets
   //
-  if
-    UNLIKELY(theDbgFlg) cout << "TSB::redoMeasurements : nr. of measurements / group =";
+  if UNLIKELY (theDbgFlg)
+    cout << "TSB::redoMeasurements : nr. of measurements / group =";
 
   tracking::TempMeasurements tmps;
 
@@ -351,8 +344,8 @@ vector<TrajectoryMeasurement> TrajectorySegmentBuilder::redoMeasurements(const T
     pair<bool, TrajectoryStateOnSurface> compat = GeomDetCompatibilityChecker().isCompatible(
         det.det(), traj.lastMeasurement().updatedState(), theGeomPropagator, theEstimator);
 
-    if
-      UNLIKELY(theDbgFlg && !compat.first) std::cout << " 0";
+    if UNLIKELY (theDbgFlg && !compat.first)
+      std::cout << " 0";
 
     if (!compat.first)
       continue;
@@ -363,13 +356,13 @@ vector<TrajectoryMeasurement> TrajectorySegmentBuilder::redoMeasurements(const T
       for (std::size_t i = 0; i != tmps.size(); ++i)
         result.emplace_back(compat.second, std::move(tmps.hits[i]), tmps.distances[i], &theLayer);
 
-    if
-      UNLIKELY(theDbgFlg) std::cout << " " << tmps.size();
+    if UNLIKELY (theDbgFlg)
+      std::cout << " " << tmps.size();
     tmps.clear();
   }
 
-  if
-    UNLIKELY(theDbgFlg) cout << endl;
+  if UNLIKELY (theDbgFlg)
+    cout << endl;
 
   std::sort(result.begin(), result.end(), TrajMeasLessEstim());
 
@@ -402,10 +395,9 @@ void TrajectorySegmentBuilder::updateWithInvalidHit(TempTrajectory& traj,
             // add the hit
             candidates.push_back(traj);
             updateTrajectory(candidates.back(), *im);
-            if
-              UNLIKELY(theDbgFlg)
-            cout << "TrajectorySegmentBuilder::updateWithInvalidHit "
-                 << "added inactive hit" << endl;
+            if UNLIKELY (theDbgFlg)
+              cout << "TrajectorySegmentBuilder::updateWithInvalidHit "
+                   << "added inactive hit" << endl;
             return;
           }
         }
@@ -424,8 +416,8 @@ void TrajectorySegmentBuilder::updateWithInvalidHit(TempTrajectory& traj,
       for (auto im = measurements.rbegin(); im != measurements.rend(); ++im) {
         // only use invalid hits
         auto const& hit = im->recHitR();
-        if
-          LIKELY(hit.isValid()) continue;
+        if LIKELY (hit.isValid())
+          continue;
 
         // check, if the extrapolation traverses the Det
         auto const& predState = im->predictedState();
@@ -437,16 +429,14 @@ void TrajectorySegmentBuilder::updateWithInvalidHit(TempTrajectory& traj,
         }
       }
     }
-    if
-      UNLIKELY(theDbgFlg && iteration == 0)
-    cout << "TrajectorySegmentBuilder::updateWithInvalidHit: "
-         << " did not find invalid hit on 1st iteration" << endl;
+    if UNLIKELY (theDbgFlg && iteration == 0)
+      cout << "TrajectorySegmentBuilder::updateWithInvalidHit: "
+           << " did not find invalid hit on 1st iteration" << endl;
   }
 
-  if
-    UNLIKELY(theDbgFlg)
-  cout << "TrajectorySegmentBuilder::updateWithInvalidHit: "
-       << " did not find invalid hit" << endl;
+  if UNLIKELY (theDbgFlg)
+    cout << "TrajectorySegmentBuilder::updateWithInvalidHit: "
+         << " did not find invalid hit" << endl;
 }
 
 vector<TrajectoryMeasurement> TrajectorySegmentBuilder::unlockedMeasurements(const vector<TM>& measurements) const {
@@ -459,20 +449,19 @@ vector<TrajectoryMeasurement> TrajectorySegmentBuilder::unlockedMeasurements(con
 
   for (auto const& m : measurements) {
     auto const& testHit = m.recHitR();
-    if
-      UNLIKELY(!testHit.isValid()) continue;
+    if UNLIKELY (!testHit.isValid())
+      continue;
     bool found(false);
-    if
-      LIKELY(theLockHits) {
-        for (auto const& h : theLockedHits) {
-          if (h->hit()->sharesInput(testHit.hit(), TrackingRecHit::all)) {
-            found = true;
-            break;
-          }
+    if LIKELY (theLockHits) {
+      for (auto const& h : theLockedHits) {
+        if (h->hit()->sharesInput(testHit.hit(), TrackingRecHit::all)) {
+          found = true;
+          break;
         }
       }
-    if
-      LIKELY(!found) result.push_back(m);
+    }
+    if LIKELY (!found)
+      result.push_back(m);
   }
   return result;
 }

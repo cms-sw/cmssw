@@ -38,9 +38,9 @@ private:
 
 public:
   explicit VIDUsageExample(const edm::ParameterSet& para);
-  ~VIDUsageExample() {}
+  ~VIDUsageExample() override {}
 
-  virtual void analyze(const edm::Event& event, const edm::EventSetup& setup) override;
+  void analyze(const edm::Event& event, const edm::EventSetup& setup) override;
 
   void endStream() override {
     std::cout << "nrPass " << nrPassID_ << " nrFail " << nrFailID_

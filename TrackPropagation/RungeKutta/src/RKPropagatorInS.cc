@@ -25,8 +25,8 @@
 std::pair<TrajectoryStateOnSurface, double> RKPropagatorInS::propagateWithPath(const FreeTrajectoryState& fts,
                                                                                const Plane& plane) const {
   GlobalParametersWithPath gp = propagateParametersOnPlane(fts, plane);
-  if
-    UNLIKELY(!gp) return TsosWP(TrajectoryStateOnSurface(), 0.);
+  if UNLIKELY (!gp)
+    return TsosWP(TrajectoryStateOnSurface(), 0.);
 
   SurfaceSideDefinition::SurfaceSide side =
       PropagationDirectionFromPath()(gp.s(), propagationDirection()) == alongMomentum
@@ -38,8 +38,8 @@ std::pair<TrajectoryStateOnSurface, double> RKPropagatorInS::propagateWithPath(c
 std::pair<TrajectoryStateOnSurface, double> RKPropagatorInS::propagateWithPath(const FreeTrajectoryState& fts,
                                                                                const Cylinder& cyl) const {
   GlobalParametersWithPath gp = propagateParametersOnCylinder(fts, cyl);
-  if
-    UNLIKELY(!gp) return TsosWP(TrajectoryStateOnSurface(), 0.);
+  if UNLIKELY (!gp)
+    return TsosWP(TrajectoryStateOnSurface(), 0.);
 
   SurfaceSideDefinition::SurfaceSide side =
       PropagationDirectionFromPath()(gp.s(), propagationDirection()) == alongMomentum
@@ -59,42 +59,39 @@ GlobalParametersWithPath RKPropagatorInS::propagateParametersOnPlane(const FreeT
   // Straight line approximation? |rho|<1.e-10 equivalent to ~ 1um
   // difference in transversal position at 10m.
   //
-  if
-    UNLIKELY(fabs(rho) < 1.e-10) {
-      //
-      // Instantiate auxiliary object for finding intersection.
-      // Frame-independant point and vector are created explicitely to
-      // avoid confusing gcc (refuses to compile with temporary objects
-      // in the constructor).
-      //
-      LogDebug("RKPropagatorInS") << " startZ = " << startZ;
+  if UNLIKELY (fabs(rho) < 1.e-10) {
+    //
+    // Instantiate auxiliary object for finding intersection.
+    // Frame-independant point and vector are created explicitely to
+    // avoid confusing gcc (refuses to compile with temporary objects
+    // in the constructor).
+    //
+    LogDebug("RKPropagatorInS") << " startZ = " << startZ;
 
-      if
-        UNLIKELY(fabs(startZ) < 1e-5) {
-          LogDebug("RKPropagatorInS") << "Propagation is not performed: state is already on final surface.";
-          GlobalTrajectoryParameters res(gpos, gmom, ts.charge(), theVolume);
-          return GlobalParametersWithPath(res, 0.0);
-        }
-
-      StraightLinePlaneCrossing::PositionType pos(gpos);
-      StraightLinePlaneCrossing::DirectionType dir(gmom);
-      StraightLinePlaneCrossing planeCrossing(pos, dir, propagationDirection());
-      //
-      // get solution
-      //
-      std::pair<bool, double> propResult = planeCrossing.pathLength(plane);
-      if
-        LIKELY(propResult.first && theVolume != nullptr) {
-          double s = propResult.second;
-          // point (reconverted to GlobalPoint)
-          GlobalPoint x(planeCrossing.position(s));
-          GlobalTrajectoryParameters res(x, gmom, ts.charge(), theVolume);
-          return GlobalParametersWithPath(res, s);
-        }
-      //do someting
-      LogDebug("RKPropagatorInS") << "Straight line propgation to plane failed !!";
-      return GlobalParametersWithPath();
+    if UNLIKELY (fabs(startZ) < 1e-5) {
+      LogDebug("RKPropagatorInS") << "Propagation is not performed: state is already on final surface.";
+      GlobalTrajectoryParameters res(gpos, gmom, ts.charge(), theVolume);
+      return GlobalParametersWithPath(res, 0.0);
     }
+
+    StraightLinePlaneCrossing::PositionType pos(gpos);
+    StraightLinePlaneCrossing::DirectionType dir(gmom);
+    StraightLinePlaneCrossing planeCrossing(pos, dir, propagationDirection());
+    //
+    // get solution
+    //
+    std::pair<bool, double> propResult = planeCrossing.pathLength(plane);
+    if LIKELY (propResult.first && theVolume != nullptr) {
+      double s = propResult.second;
+      // point (reconverted to GlobalPoint)
+      GlobalPoint x(planeCrossing.position(s));
+      GlobalTrajectoryParameters res(x, gmom, ts.charge(), theVolume);
+      return GlobalParametersWithPath(res, s);
+    }
+    //do someting
+    LogDebug("RKPropagatorInS") << "Straight line propgation to plane failed !!";
+    return GlobalParametersWithPath();
+  }
 
 #ifdef EDM_ML_DEBUG
   if (theVolume != 0) {
@@ -138,26 +135,24 @@ GlobalParametersWithPath RKPropagatorInS::propagateParametersOnPlane(const FreeT
 
     std::pair<bool, double> path =
         pathLength(plane, startState.position(), startState.momentum(), (double)ts.charge(), currentDirection);
-    if
-      UNLIKELY(!path.first) {
-        LogDebug("RKPropagatorInS") << "RKPropagatorInS: Path length calculation to plane failed!"
-                                    << "...distance to plane " << plane.localZ(globalPosition(startState.position()))
-                                    << "...Local starting position in volume " << startState.position()
-                                    << "...Magnetic field " << field.inTesla(startState.position());
+    if UNLIKELY (!path.first) {
+      LogDebug("RKPropagatorInS") << "RKPropagatorInS: Path length calculation to plane failed!"
+                                  << "...distance to plane " << plane.localZ(globalPosition(startState.position()))
+                                  << "...Local starting position in volume " << startState.position()
+                                  << "...Magnetic field " << field.inTesla(startState.position());
 
-        return GlobalParametersWithPath();
-      }
+      return GlobalParametersWithPath();
+    }
 
     LogDebug("RKPropagatorInS") << "RKPropagatorInS: Path lenght to plane is " << path.second;
 
     double sstep = path.second;
-    if
-      UNLIKELY(std::abs(sstep) < eps) {
-        LogDebug("RKPropagatorInS") << "On-surface accuracy not reached, but pathLength calculation says we are there! "
-                                    << "path " << path.second << " distance to plane is " << startZ;
-        GlobalTrajectoryParameters res(gtpFromVolumeLocal(startState, ts.charge()));
-        return GlobalParametersWithPath(res, stot);
-      }
+    if UNLIKELY (std::abs(sstep) < eps) {
+      LogDebug("RKPropagatorInS") << "On-surface accuracy not reached, but pathLength calculation says we are there! "
+                                  << "path " << path.second << " distance to plane is " << startZ;
+      GlobalTrajectoryParameters res(gtpFromVolumeLocal(startState, ts.charge()));
+      return GlobalParametersWithPath(res, stot);
+    }
 
     LogDebug("RKPropagatorInS") << "RKPropagatorInS: Solving for " << sstep << " current distance to plane is "
                                 << startZ;
@@ -194,8 +189,9 @@ GlobalParametersWithPath RKPropagatorInS::propagateParametersOnCylinder(const Fr
   typedef Solver::Vector RKVector;
 
   const GlobalPoint& sp = cyl.position();
-  if
-    UNLIKELY(sp.x() != 0. || sp.y() != 0.) { throw PropagationException("Cannot propagate to an arbitrary cylinder"); }
+  if UNLIKELY (sp.x() != 0. || sp.y() != 0.) {
+    throw PropagationException("Cannot propagate to an arbitrary cylinder");
+  }
 
   GlobalPoint gpos(ts.position());
   GlobalVector gmom(ts.momentum());
@@ -211,35 +207,33 @@ GlobalParametersWithPath RKPropagatorInS::propagateParametersOnCylinder(const Fr
   // Straight line approximation? |rho|<1.e-10 equivalent to ~ 1um
   // difference in transversal position at 10m.
   //
-  if
-    UNLIKELY(fabs(rho) < 1.e-10) {
-      //
-      // Instantiate auxiliary object for finding intersection.
-      // Frame-independant point and vector are created explicitely to
-      // avoid confusing gcc (refuses to compile with temporary objects
-      // in the constructor).
-      //
+  if UNLIKELY (fabs(rho) < 1.e-10) {
+    //
+    // Instantiate auxiliary object for finding intersection.
+    // Frame-independant point and vector are created explicitely to
+    // avoid confusing gcc (refuses to compile with temporary objects
+    // in the constructor).
+    //
 
-      StraightLineBarrelCylinderCrossing cylCrossing(gpos, gmom, propagationDirection());
+    StraightLineBarrelCylinderCrossing cylCrossing(gpos, gmom, propagationDirection());
 
-      //
-      // get solution
-      //
-      std::pair<bool, double> propResult = cylCrossing.pathLength(cyl);
-      if
-        LIKELY(propResult.first && theVolume != nullptr) {
-          double s = propResult.second;
-          // point (reconverted to GlobalPoint)
-          GlobalPoint x(cylCrossing.position(s));
-          GlobalTrajectoryParameters res(x, gmom, ts.charge(), theVolume);
-          LogDebug("RKPropagatorInS") << "Straight line propagation to cylinder succeeded !!";
-          return GlobalParametersWithPath(res, s);
-        }
-
-      //do someting
-      edm::LogError("RKPropagatorInS") << "Straight line propagation to cylinder failed !!";
-      return GlobalParametersWithPath();
+    //
+    // get solution
+    //
+    std::pair<bool, double> propResult = cylCrossing.pathLength(cyl);
+    if LIKELY (propResult.first && theVolume != nullptr) {
+      double s = propResult.second;
+      // point (reconverted to GlobalPoint)
+      GlobalPoint x(cylCrossing.position(s));
+      GlobalTrajectoryParameters res(x, gmom, ts.charge(), theVolume);
+      LogDebug("RKPropagatorInS") << "Straight line propagation to cylinder succeeded !!";
+      return GlobalParametersWithPath(res, s);
     }
+
+    //do someting
+    edm::LogError("RKPropagatorInS") << "Straight line propagation to cylinder failed !!";
+    return GlobalParametersWithPath();
+  }
 
   RKLocalFieldProvider field(fieldProvider(cyl));
   // StraightLineCylinderCrossing pathLength( pos, mom, propagationDirection());
@@ -259,27 +253,25 @@ GlobalParametersWithPath RKPropagatorInS::propagateParametersOnCylinder(const Fr
         LocalPoint(startState.position()), LocalVector(startState.momentum()), currentDirection, eps);
 
     std::pair<bool, double> path = pathLength.pathLength(cyl);
-    if
-      UNLIKELY(!path.first) {
-        LogDebug("RKPropagatorInS") << "RKPropagatorInS: Path length calculation to cylinder failed!"
-                                    << "Radius " << cyl.radius() << " pos.perp() "
-                                    << LocalPoint(startState.position()).perp();
-        return GlobalParametersWithPath();
-      }
+    if UNLIKELY (!path.first) {
+      LogDebug("RKPropagatorInS") << "RKPropagatorInS: Path length calculation to cylinder failed!"
+                                  << "Radius " << cyl.radius() << " pos.perp() "
+                                  << LocalPoint(startState.position()).perp();
+      return GlobalParametersWithPath();
+    }
 
     LogDebug("RKPropagatorInS") << "RKPropagatorInS: Path lenght to cylinder is " << path.second << " from point (R,z) "
                                 << startState.position().perp() << ", " << startState.position().z() << " to R "
                                 << cyl.radius();
 
     double sstep = path.second;
-    if
-      UNLIKELY(std::abs(sstep) < eps) {
-        LogDebug("RKPropagatorInS") << "accuracy not reached, but pathLength calculation says we are there! "
-                                    << path.second;
+    if UNLIKELY (std::abs(sstep) < eps) {
+      LogDebug("RKPropagatorInS") << "accuracy not reached, but pathLength calculation says we are there! "
+                                  << path.second;
 
-        GlobalTrajectoryParameters res(gtpFromLocal(startState.position(), startState.momentum(), ts.charge(), cyl));
-        return GlobalParametersWithPath(res, stot);
-      }
+      GlobalTrajectoryParameters res(gtpFromLocal(startState.position(), startState.momentum(), ts.charge(), cyl));
+      return GlobalParametersWithPath(res, stot);
+    }
 
     LogDebug("RKPropagatorInS") << "RKPropagatorInS: Solving for " << sstep << " current distance to cylinder is "
                                 << startR;

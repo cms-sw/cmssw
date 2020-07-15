@@ -49,13 +49,13 @@ using namespace edm;
 class HcalRecHitReflagger : public edm::EDProducer {
 public:
   explicit HcalRecHitReflagger(const edm::ParameterSet&);
-  ~HcalRecHitReflagger();
+  ~HcalRecHitReflagger() override;
 
 private:
-  virtual void beginJob() override;
-  virtual void produce(edm::Event&, const edm::EventSetup&) override;
-  virtual void endJob() override;
-  virtual void beginRun(const Run& r, const EventSetup& c) override;
+  void beginJob() override;
+  void produce(edm::Event&, const edm::EventSetup&) override;
+  void endJob() override;
+  void beginRun(const Run& r, const EventSetup& c) override;
 
   // Threshold function gets values from polynomial-parameterized functions
   double GetThreshold(const int base, const std::vector<double>& params);
@@ -520,7 +520,7 @@ double HcalRecHitReflagger::GetThreshold(const double base, const std::vector<do
 
 double HcalRecHitReflagger::GetSlope(const int ieta, const std::vector<double>& params) {
   double slope = 0;
-  if (abs(ieta) == 40 && params.size() > 0)
+  if (abs(ieta) == 40 && !params.empty())
     slope = params[0];
   else if (abs(ieta) == 41 && params.size() > 1)
     slope = params[1];

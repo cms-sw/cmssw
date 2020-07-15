@@ -45,10 +45,10 @@
 class TrajectoryAnalyzer : public edm::stream::EDAnalyzer<> {
 public:
   explicit TrajectoryAnalyzer(const edm::ParameterSet&);
-  ~TrajectoryAnalyzer();
+  ~TrajectoryAnalyzer() override;
 
 private:
-  virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
 
   // ----------member data ---------------------------
   edm::EDGetTokenT<std::vector<Trajectory>> trajTag;

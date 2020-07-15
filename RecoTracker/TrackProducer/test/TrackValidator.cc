@@ -43,8 +43,8 @@ public:
     hFile = new TFile(out.c_str(), open.c_str());
   }
 
-  ~TrackValidator() {
-    if (hFile != 0) {
+  ~TrackValidator() override {
+    if (hFile != nullptr) {
       hFile->Close();
       delete hFile;
     }
@@ -114,7 +114,7 @@ public:
     setup.get<IdealMagneticFieldRecord>().get(theMF);
   }
 
-  virtual void analyze(const edm::Event& event, const edm::EventSetup& setup) override {
+  void analyze(const edm::Event& event, const edm::EventSetup& setup) override {
     std::cout << "In TrackValidator\n";
     edm::ESHandle<TransientTrackBuilder> theB;
     setup.get<TransientTrackRecord>().get("TransientTrackBuilder", theB);

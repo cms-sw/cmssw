@@ -26,9 +26,9 @@ class TrackAnalyzer : public edm::EDAnalyzer {
 public:
   TrackAnalyzer(const edm::ParameterSet& pset) {}
 
-  ~TrackAnalyzer() {}
+  ~TrackAnalyzer() override {}
 
-  virtual void analyze(const edm::Event& event, const edm::EventSetup& setup) {
+  void analyze(const edm::Event& event, const edm::EventSetup& setup) override {
     //
     // extract tracker geometry
     //

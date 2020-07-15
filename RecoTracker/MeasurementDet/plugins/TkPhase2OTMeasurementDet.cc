@@ -38,8 +38,8 @@ bool TkPhase2OTMeasurementDet::recHits(const TrajectoryStateOnSurface& stateOnTh
                                        const MeasurementTrackerEvent& data,
                                        RecHitContainer& result,
                                        std::vector<float>& diffs) const {
-  if
-    UNLIKELY((!isActive(data)) || isEmpty(data.phase2OTData())) return false;
+  if UNLIKELY ((!isActive(data)) || isEmpty(data.phase2OTData()))
+    return false;
 
   auto oldSize = result.size();
 

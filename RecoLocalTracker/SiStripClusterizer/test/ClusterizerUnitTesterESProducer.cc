@@ -51,7 +51,7 @@ void ClusterizerUnitTesterESProducer::extractNoiseGainQualityForDetId(
   }
   setNoises(detId, detNoises, noises);
   setGains(detId, detGains, apvGain);
-  if (detBadStrips.size())
+  if (!detBadStrips.empty())
     quality->add(detId, std::make_pair(detBadStrips.begin(), detBadStrips.end()));
 }
 

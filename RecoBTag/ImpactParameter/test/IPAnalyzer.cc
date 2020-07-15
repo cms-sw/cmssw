@@ -52,9 +52,9 @@ using namespace reco;
 class IPAnalyzer : public edm::EDAnalyzer {
 public:
   explicit IPAnalyzer(const edm::ParameterSet&);
-  ~IPAnalyzer() {}
+  ~IPAnalyzer() override {}
 
-  virtual void analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup);
+  void analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) override;
 
 private:
   edm::InputTag m_assoc;

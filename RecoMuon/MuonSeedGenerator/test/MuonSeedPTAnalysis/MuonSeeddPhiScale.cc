@@ -14,13 +14,13 @@
 #include "TFile.h"
 #include "TVector3.h"
 
-#include <iostream>
-#include <fstream>
-#include <map>
-#include <utility>
-#include <string>
-#include <stdio.h>
 #include <algorithm>
+#include <cstdio>
+#include <fstream>
+#include <iostream>
+#include <map>
+#include <string>
+#include <utility>
 
 using namespace std;
 using namespace edm;

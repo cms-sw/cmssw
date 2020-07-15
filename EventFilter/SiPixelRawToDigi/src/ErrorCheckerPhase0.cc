@@ -109,8 +109,8 @@ bool ErrorCheckerPhase0::checkROC(bool& errorsInEvent,
                                   Word32& errorWord,
                                   Errors& errors) {
   int errorType = (errorWord >> ROC_shift) & ERROR_mask;
-  if
-    LIKELY(errorType < 25) return true;
+  if LIKELY (errorType < 25)
+    return true;
 
   switch (errorType) {
     case (25): {

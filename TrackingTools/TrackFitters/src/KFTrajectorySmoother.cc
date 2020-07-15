@@ -44,12 +44,11 @@ Trajectory KFTrajectorySmoother::trajectory(const Trajectory& aTraj) const {
 
   do {
     auto hitSize = avtm.rend() - start;
-    if
-      UNLIKELY(hitSize < minHits_) {
-        LogDebug("TrackFitters") << " killing trajectory"
-                                 << "\n";
-        return Trajectory();
-      }
+    if UNLIKELY (hitSize < minHits_) {
+      LogDebug("TrackFitters") << " killing trajectory"
+                               << "\n";
+      return Trajectory();
+    }
     Trajectory ret(aTraj.seed(), usePropagator->propagationDirection());
     Trajectory& myTraj = ret;
     myTraj.reserve(hitSize);
@@ -65,29 +64,27 @@ Trajectory KFTrajectorySmoother::trajectory(const Trajectory& aTraj) const {
 
       //check surface just for safety: should never be ==0 because they are skipped in the fitter
       // if UNLIKELY(hit->det() == nullptr) continue;
-      if
-        UNLIKELY(hit->surface() == nullptr) {
-          LogDebug("TrackFitters") << " Error: invalid hit with no GeomDet attached .... skipping";
-          continue;
-        }
+      if UNLIKELY (hit->surface() == nullptr) {
+        LogDebug("TrackFitters") << " Error: invalid hit with no GeomDet attached .... skipping";
+        continue;
+      }
 
       if (itm != start)  //no propagation needed for first smoothed (==last fitted) hit
         predTsos = usePropagator->propagate(currTsos, *(hit->surface()));
 
-      if
-        UNLIKELY(!predTsos.isValid()) {
-          LogDebug("TrackFitters") << "KFTrajectorySmoother: predicted tsos not valid!";
-          LogDebug("TrackFitters") << " retry with last hit removed"
-                                   << "\n";
-          LogDebug("TrackFitters")
-              // std::cout
-              << "tsos not valid " << currTsos.globalMomentum().perp() << ' ' << hitSize << ' ' << hitCounter << ' '
-              << int(hit->geographicalId()) << ' ' << hit->surface()->position().perp() << ' ' << hit->surface()->eta()
-              << ' ' << hit->surface()->phi() << std::endl;
-          start++;
-          retry = true;
-          break;
-        }
+      if UNLIKELY (!predTsos.isValid()) {
+        LogDebug("TrackFitters") << "KFTrajectorySmoother: predicted tsos not valid!";
+        LogDebug("TrackFitters") << " retry with last hit removed"
+                                 << "\n";
+        LogDebug("TrackFitters")
+            // std::cout
+            << "tsos not valid " << currTsos.globalMomentum().perp() << ' ' << hitSize << ' ' << hitCounter << ' '
+            << int(hit->geographicalId()) << ' ' << hit->surface()->position().perp() << ' ' << hit->surface()->eta()
+            << ' ' << hit->surface()->phi() << std::endl;
+        start++;
+        retry = true;
+        break;
+      }
 
       if (hit->isValid()) {
         TSOS combTsos, smooTsos;
@@ -108,16 +105,15 @@ Trajectory KFTrajectorySmoother::trajectory(const Trajectory& aTraj) const {
         else
           combTsos = combiner(predTsos, itm->forwardPredictedState());
 
-        if
-          UNLIKELY(!combTsos.isValid()) {
-            LogDebug("TrackFitters") << "KFTrajectorySmoother: combined tsos not valid!\n"
-                                     << "pred Tsos pos: " << predTsos.globalPosition() << "\n"
-                                     << "pred Tsos mom: " << predTsos.globalMomentum() << "\n"
-                                     << "TrackingRecHit: " << hit->surface()->toGlobal(hit->localPosition()) << "\n";
-            start++;
-            retry = true;
-            break;
-          }
+        if UNLIKELY (!combTsos.isValid()) {
+          LogDebug("TrackFitters") << "KFTrajectorySmoother: combined tsos not valid!\n"
+                                   << "pred Tsos pos: " << predTsos.globalPosition() << "\n"
+                                   << "pred Tsos mom: " << predTsos.globalMomentum() << "\n"
+                                   << "TrackingRecHit: " << hit->surface()->toGlobal(hit->localPosition()) << "\n";
+          start++;
+          retry = true;
+          break;
+        }
 
         assert((hit->geographicalId() != 0U) | (!hit->canImproveWithTrack()));
         assert(hit->surface() != nullptr);
@@ -130,29 +126,26 @@ Trajectory KFTrajectorySmoother::trajectory(const Trajectory& aTraj) const {
 
         dump(*hit, hitCounter, "TrackFitters");
 
-        if
-          UNLIKELY(!preciseHit->isValid()) {
-            LogTrace("TrackFitters") << "THE Precise HIT IS NOT VALID: using currTsos = predTsos"
-                                     << "\n";
-            currTsos = predTsos;
-            myTraj.push(TM(predTsos, hit, 0, theGeometry->idToLayer(hit->geographicalId())));
-          }
-        else {
+        if UNLIKELY (!preciseHit->isValid()) {
+          LogTrace("TrackFitters") << "THE Precise HIT IS NOT VALID: using currTsos = predTsos"
+                                   << "\n";
+          currTsos = predTsos;
+          myTraj.push(TM(predTsos, hit, 0, theGeometry->idToLayer(hit->geographicalId())));
+        } else {
           LogTrace("TrackFitters") << "THE Precise HIT IS VALID: updating currTsos"
                                    << "\n";
 
           //update backward predicted tsos with the hit
           currTsos = updator()->update(predTsos, *preciseHit);
-          if
-            UNLIKELY(!currTsos.isValid()) {
-              currTsos = predTsos;
-              edm::LogWarning("KFSmoother_UpdateFailed")
-                  << "Failed updating state with hit. Rolling back to non-updated state.\n"
-                  << "State: " << predTsos << "Hit local pos:  " << hit->localPosition() << "\n"
-                  << "Hit local err:  " << hit->localPositionError() << "\n"
-                  << "Hit global pos: " << hit->globalPosition() << "\n"
-                  << "Hit global err: " << hit->globalPositionError().matrix() << "\n";
-            }
+          if UNLIKELY (!currTsos.isValid()) {
+            currTsos = predTsos;
+            edm::LogWarning("KFSmoother_UpdateFailed")
+                << "Failed updating state with hit. Rolling back to non-updated state.\n"
+                << "State: " << predTsos << "Hit local pos:  " << hit->localPosition() << "\n"
+                << "Hit local err:  " << hit->localPositionError() << "\n"
+                << "Hit global pos: " << hit->globalPosition() << "\n"
+                << "Hit global err: " << hit->globalPositionError().matrix() << "\n";
+          }
 
           //smooTsos updates the N-1 hits prediction with the hit
           if (itm == start)
@@ -162,13 +155,12 @@ Trajectory KFTrajectorySmoother::trajectory(const Trajectory& aTraj) const {
           else
             smooTsos = combiner(itm->forwardPredictedState(), currTsos);
 
-          if
-            UNLIKELY(!smooTsos.isValid()) {
-              LogDebug("TrackFitters") << "KFTrajectorySmoother: smoothed tsos not valid!";
-              start++;
-              retry = true;
-              break;
-            }
+          if UNLIKELY (!smooTsos.isValid()) {
+            LogDebug("TrackFitters") << "KFTrajectorySmoother: smoothed tsos not valid!";
+            start++;
+            retry = true;
+            break;
+          }
 
           double estimate;
           if (itm != start)
@@ -216,11 +208,10 @@ Trajectory KFTrajectorySmoother::trajectory(const Trajectory& aTraj) const {
         else
           combTsos = combiner(predTsos, itm->forwardPredictedState());
 
-        if
-          UNLIKELY(!combTsos.isValid()) {
-            LogDebug("TrackFitters") << "KFTrajectorySmoother: combined tsos not valid!";
-            return Trajectory();
-          }
+        if UNLIKELY (!combTsos.isValid()) {
+          LogDebug("TrackFitters") << "KFTrajectorySmoother: combined tsos not valid!";
+          return Trajectory();
+        }
         assert((hit->det() == nullptr) || hit->geographicalId() != 0U);
         if (hit->det())
           myTraj.push(TM(

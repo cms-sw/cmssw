@@ -22,8 +22,8 @@ TkStripMeasurementDet::TkStripMeasurementDet(const GeomDet* gdet, StMeasurementC
 
 // fast check if the det contains any useful cluster
 bool TkStripMeasurementDet::empty(const MeasurementTrackerEvent& data) const {
-  if
-    UNLIKELY((!isActive(data)) || isEmpty(data.stripData())) return true;
+  if UNLIKELY ((!isActive(data)) || isEmpty(data.stripData()))
+    return true;
 
   const detset& detSet = data.stripData().detSet(index());
   for (auto ci = detSet.begin(); ci != detSet.end(); ++ci) {
@@ -39,8 +39,8 @@ bool TkStripMeasurementDet::empty(const MeasurementTrackerEvent& data) const {
 TkStripMeasurementDet::RecHitContainer TkStripMeasurementDet::recHits(const TrajectoryStateOnSurface& ts,
                                                                       const MeasurementTrackerEvent& data) const {
   RecHitContainer result;
-  if
-    UNLIKELY((!isActive(data)) || isEmpty(data.stripData())) return result;
+  if UNLIKELY ((!isActive(data)) || isEmpty(data.stripData()))
+    return result;
   const detset& detSet = data.stripData().detSet(index());
   result.reserve(detSet.size());
   for (new_const_iterator ci = detSet.begin(); ci != detSet.end(); ++ci) {
@@ -62,8 +62,8 @@ bool TkStripMeasurementDet::recHits(SimpleHitContainer& result,
                                     const TrajectoryStateOnSurface& stateOnThisDet,
                                     const MeasurementEstimator& est,
                                     const MeasurementTrackerEvent& data) const {
-  if
-    UNLIKELY((!isActive(data)) || isEmpty(data.stripData())) return false;
+  if UNLIKELY ((!isActive(data)) || isEmpty(data.stripData()))
+    return false;
   auto oldSize = result.size();
 
   int utraj = specificGeomDet().specificTopology().measurementPosition(stateOnThisDet.localPosition()).x();
@@ -104,8 +104,8 @@ bool TkStripMeasurementDet::simpleRecHits(const TrajectoryStateOnSurface& stateO
                                           const MeasurementEstimator& est,
                                           const MeasurementTrackerEvent& data,
                                           std::vector<SiStripRecHit2D>& result) const {
-  if
-    UNLIKELY((!isActive(data)) || isEmpty(data.stripData())) return false;
+  if UNLIKELY ((!isActive(data)) || isEmpty(data.stripData()))
+    return false;
 
   auto oldSize = result.size();
 
@@ -141,8 +141,8 @@ bool TkStripMeasurementDet::recHits(const TrajectoryStateOnSurface& stateOnThisD
                                     const MeasurementTrackerEvent& data,
                                     RecHitContainer& result,
                                     std::vector<float>& diffs) const {
-  if
-    UNLIKELY((!isActive(data)) || isEmpty(data.stripData())) return false;
+  if UNLIKELY ((!isActive(data)) || isEmpty(data.stripData()))
+    return false;
 
   auto oldSize = result.size();
   auto const& cpepar = cpe()->getAlgoParam(specificGeomDet(), stateOnThisDet.localParameters());

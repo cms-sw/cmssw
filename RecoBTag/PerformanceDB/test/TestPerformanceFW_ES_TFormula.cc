@@ -41,13 +41,13 @@
 class TestPerformanceFW_ES_TFormula : public edm::EDAnalyzer {
 public:
   explicit TestPerformanceFW_ES_TFormula(const edm::ParameterSet&);
-  ~TestPerformanceFW_ES_TFormula();
+  ~TestPerformanceFW_ES_TFormula() override;
 
 private:
   std::string name;
-  virtual void beginJob();
-  virtual void analyze(const edm::Event&, const edm::EventSetup&);
-  virtual void endJob();
+  void beginJob() override;
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void endJob() override;
 
   // ----------member data ---------------------------
 };

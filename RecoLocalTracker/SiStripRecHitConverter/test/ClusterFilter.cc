@@ -24,7 +24,7 @@ bool ClusterFilter::filter(Event& e, EventSetup const& es) {
   }
 
   if (size > nMax_)
-    return 0;
+    return false;
   else
-    return 1;
+    return true;
 }
