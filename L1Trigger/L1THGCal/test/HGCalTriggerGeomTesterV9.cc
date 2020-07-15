@@ -42,10 +42,10 @@ namespace {
 class HGCalTriggerGeomTesterV9 : public edm::stream::EDAnalyzer<> {
 public:
   explicit HGCalTriggerGeomTesterV9(const edm::ParameterSet&);
-  ~HGCalTriggerGeomTesterV9();
+  ~HGCalTriggerGeomTesterV9() override;
 
-  virtual void beginRun(const edm::Run&, const edm::EventSetup&);
-  virtual void analyze(const edm::Event&, const edm::EventSetup&);
+  void beginRun(const edm::Run&, const edm::EventSetup&) override;
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
 
 private:
   void fillTriggerGeometry();
@@ -424,7 +424,7 @@ bool HGCalTriggerGeomTesterV9::checkMappingConsistency() {
       itr_insert.first->second.emplace(id);
     }
 
-    if (module_errors.size() > 0) {
+    if (!module_errors.empty()) {
       for (const auto& module : module_errors) {
         moduleErrorSubdet_ = std::get<0>(module);
         moduleErrorLayer_ = std::get<1>(module);
