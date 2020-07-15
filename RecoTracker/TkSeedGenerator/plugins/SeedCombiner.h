@@ -6,6 +6,7 @@
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
 #include "DataFormats/TrackerRecHit2D/interface/ClusterRemovalInfo.h"
 #include "FWCore/Utilities/interface/InputTag.h"
+#include "FWCore/Utilities/interface/Visibility.h"
 
 namespace edm {
   class Event;

@@ -442,8 +442,8 @@ G4VSolid *DDG4SolidConverter::trunctubs(const DDSolid &solid) {
                                 << ' ' << startPhi / CLHEP::deg << ' ' << deltaPhi / CLHEP::deg;
   LogDebug("SimG4CoreGeometry") << solid;
   // length & hight of the box
-  double boxX(30. * rOut),
-      boxY(20. * rOut);  // exaggerate dimensions - does not matter, it's subtracted!
+  double boxX(rOut * std::sqrt(2) * 1.1),
+      boxY(rOut * std::sqrt(2) * 1.1);  // exaggerate dimensions - does not matter, it's subtracted!
 
   // width of the box > width of the tubs
   double boxZ(1.1 * zHalf);

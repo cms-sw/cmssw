@@ -1,6 +1,7 @@
 #include "Geometry/CaloGeometry/interface/TruncatedPyramid.h"
 #include "Geometry/EcalAlgo/interface/EcalBarrelGeometry.h"
 #include "Geometry/CaloEventSetup/interface/CaloGeometryLoader.h"
+#include "DetectorDescription/DDCMS/interface/DDFilteredView.h"
 #include "DetectorDescription/Core/interface/DDFilteredView.h"
 #include "DetectorDescription/Core/interface/DDutils.h"
 

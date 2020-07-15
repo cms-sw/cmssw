@@ -16,7 +16,7 @@
 
 class GEMDetId;
 
-class GEMSegment GCC11_FINAL : public RecSegment {
+class GEMSegment final : public RecSegment {
 public:
   /// Default constructor
   GEMSegment() : theChi2(0.) {}

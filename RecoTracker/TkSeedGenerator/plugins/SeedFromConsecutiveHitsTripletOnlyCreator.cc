@@ -8,6 +8,7 @@
 #include "RecoTracker/TkTrackingRegions/interface/TrackingRegion.h"
 #include "RecoTracker/TkSeedGenerator/interface/FastHelix.h"
 #include "DataFormats/SiStripDetId/interface/SiStripDetId.h"
+#include "FWCore/Utilities/interface/Likely.h"
 
 bool SeedFromConsecutiveHitsTripletOnlyCreator::initialKinematic(GlobalTrajectoryParameters& kine,
                                                                  const SeedingHitSet& hits) const {

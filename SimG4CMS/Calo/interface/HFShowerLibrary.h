@@ -22,7 +22,6 @@
 #include <string>
 #include <memory>
 
-class DDCompactView;
 class G4Step;
 class G4ParticleTable;
 

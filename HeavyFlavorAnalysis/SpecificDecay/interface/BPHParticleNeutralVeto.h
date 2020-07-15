@@ -33,6 +33,10 @@ public:
    */
   BPHParticleNeutralVeto() {}
 
+  // deleted copy constructor and assignment operator
+  BPHParticleNeutralVeto(const BPHParticleNeutralVeto& x) = delete;
+  BPHParticleNeutralVeto& operator=(const BPHParticleNeutralVeto& x) = delete;
+
   /** Destructor
    */
   ~BPHParticleNeutralVeto() override {}
@@ -41,11 +45,6 @@ public:
    */
   /// select charged particles
   bool accept(const reco::Candidate& cand) const override { return (cand.charge() != 0); }
-
-private:
-  // private copy and assigment constructors
-  BPHParticleNeutralVeto(const BPHParticleNeutralVeto& x) = delete;
-  BPHParticleNeutralVeto& operator=(const BPHParticleNeutralVeto& x) = delete;
 };
 
 #endif

@@ -1,6 +1,6 @@
-<use   name="clhep"/>
-<use   name="gsl"/>
-<use   name="DataFormats/Math"/>
+<use name="clhep"/>
+<use name="gsl"/>
+<use name="DataFormats/Math"/>
 <export>
-  <lib   name="1"/>
+  <lib name="1"/>
 </export>

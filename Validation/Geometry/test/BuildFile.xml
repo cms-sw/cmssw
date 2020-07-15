@@ -1,3 +1,2 @@
 <!--CMSBot IB tests-->
 <test name="materialBudgetTrackerPlots" command="genTrackerPlots.sh"/>
-

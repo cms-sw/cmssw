@@ -9,6 +9,7 @@
 #include "FWCore/Utilities/interface/Exception.h"
 #include "Geometry/HGCalCommonData/interface/HGCalGeomTools.h"
 #include "Geometry/HGCalCommonData/interface/HGCalGeometryMode.h"
+#include "Geometry/HGCalCommonData/interface/HGCalTypes.h"
 #include "Geometry/HGCalCommonData/interface/HGCalWaferIndex.h"
 #include "Geometry/HGCalCommonData/interface/HGCalWaferMask.h"
 #include "Geometry/HGCalCommonData/interface/HGCalWaferType.h"
@@ -1164,6 +1165,40 @@ int HGCalDDDConstants::waferType(int layer, int waferU, int waferV) const {
       type = (hgpar_->waferTypeL_[waferU] - 1);
   }
   return type;
+}
+
+std::pair<int, int> HGCalDDDConstants::waferTypeRotation(int layer, int waferU, int waferV) const {
+  int type(HGCalTypes::WaferOut), rotn(0);
+  if ((mode_ == HGCalGeometryMode::Hexagon8) || (mode_ == HGCalGeometryMode::Hexagon8Full)) {
+    int wl = HGCalWaferIndex::waferIndex(layer, waferU, waferV);
+    auto itr = hgpar_->waferTypes_.find(wl);
+#ifdef EDM_ML_DEBUG
+    edm::LogVerbatim("HGCalGeom") << "waferTypeRotation: Layer " << layer << " Wafer " << waferU << ":" << waferV
+                                  << " Index " << wl << ":" << (itr != hgpar_->waferTypes_.end());
+#endif
+    if (itr != hgpar_->waferTypes_.end()) {
+      if ((itr->second).second <= HGCalWaferMask::k_OffsetRotation) {
+        rotn = (itr->second).second;
+        if ((itr->second).first == HGCalGeomTools::k_allCorners) {
+          type = HGCalTypes::WaferFull;
+        } else if ((itr->second).first == HGCalGeomTools::k_fiveCorners) {
+          type = HGCalTypes::WaferFive;
+        } else if ((itr->second).first == HGCalGeomTools::k_fourCorners) {
+          type = HGCalTypes::WaferHalf;
+        } else if ((itr->second).first == HGCalGeomTools::k_threeCorners) {
+          type = HGCalTypes::WaferThree;
+        }
+      } else {
+        type = (itr->second).first;
+        rotn = ((itr->second).second - HGCalWaferMask::k_OffsetRotation);
+      }
+    }
+  }
+#ifdef EDM_ML_DEBUG
+  k edm::LogVerbatim("HGCalGeom") << "waferTypeRotation: Layer " << layer << " Wafer " << waferU << ":" << waferV
+                                  << " Type " << type << " Rotation " << rotn;
+#endif
+  return std::make_pair(type, rotn);
 }
 
 bool HGCalDDDConstants::waferVirtual(int layer, int waferU, int waferV) const {

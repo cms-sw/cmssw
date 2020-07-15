@@ -1,15 +1,15 @@
-<library   file="*.cc" name="GeometryTrackerGeometryBuilderPlugins">
-  <use   name="CondFormats/Alignment"/>
-  <use   name="CondFormats/GeometryObjects"/>
-  <use   name="CondFormats/AlignmentRecord"/>
-  <use   name="DataFormats/MuonDetId"/>
-  <use   name="DetectorDescription/Core"/>
-  <use   name="FWCore/Framework"/>
-  <use   name="FWCore/ParameterSet"/>
-  <use   name="Geometry/Records"/>
-  <use   name="Geometry/TrackerGeometryBuilder"/>
-  <use   name="Geometry/TrackerNumberingBuilder"/>
-  <flags   EDM_PLUGIN="1"/>
+<library file="*.cc" name="GeometryTrackerGeometryBuilderPlugins">
+  <use name="CondFormats/Alignment"/>
+  <use name="CondFormats/GeometryObjects"/>
+  <use name="CondFormats/AlignmentRecord"/>
+  <use name="DataFormats/MuonDetId"/>
+  <use name="DetectorDescription/Core"/>
+  <use name="FWCore/Framework"/>
+  <use name="FWCore/ParameterSet"/>
+  <use name="Geometry/Records"/>
+  <use name="Geometry/TrackerGeometryBuilder"/>
+  <use name="Geometry/TrackerNumberingBuilder"/>
+  <flags EDM_PLUGIN="1"/>
 </library>
 
 <library name="DD4hep_GeometryTrackerGeometryBuilderPlugins" file="dd4hep/*.cc">

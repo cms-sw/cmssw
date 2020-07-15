@@ -13,14 +13,13 @@
   <use name="tauolapp"/>
   <use name="photospp"/>
   <use name="root"/>
-  <flags   EDM_PLUGIN="1"/>
+  <flags EDM_PLUGIN="1"/>
 </library>
-
 
 <library file="DataCardFileWriter.cc" name="GenDataCardFileWriter">
   <use name="FWCore/Framework"/>
   <use name="FWCore/MessageLogger"/>
   <use name="FWCore/ParameterSet"/>
   <use name="FWCore/PluginManager"/>
-  <flags   EDM_PLUGIN="1"/>
+  <flags EDM_PLUGIN="1"/>
 </library>

@@ -748,6 +748,7 @@ namespace edm {
     if (indexIntoFileIter_ == indexIntoFileEnd_) {
       return false;
     }
+
     if (eventSkipperByID_ && eventSkipperByID_->somethingToSkip()) {
       // See first if the entire lumi or run is skipped, so we won't have to read the event Auxiliary in that case.
       if (eventSkipperByID_->skipIt(indexIntoFileIter_.run(), indexIntoFileIter_.lumi(), 0U)) {
@@ -764,18 +765,16 @@ namespace edm {
 
       // Skip runs with no lumis if either lumisToSkip or lumisToProcess have been set to select lumis
       if (indexIntoFileIter_.getEntryType() == IndexIntoFile::kRun && eventSkipperByID_->skippingLumis()) {
-        IndexIntoFile::IndexIntoFileItr iterLumi = indexIntoFileIter_;
-
         // There are no lumis in this run, not even ones we will skip
-        if (iterLumi.peekAheadAtLumi() == IndexIntoFile::invalidLumi) {
+        if (indexIntoFileIter_.peekAheadAtLumi() == IndexIntoFile::invalidLumi) {
           return true;
         }
         // If we get here there are lumis in the run, check to see if we are skipping all of them
         do {
-          if (!eventSkipperByID_->skipIt(iterLumi.run(), iterLumi.peekAheadAtLumi(), 0U)) {
+          if (!eventSkipperByID_->skipIt(indexIntoFileIter_.run(), indexIntoFileIter_.peekAheadAtLumi(), 0U)) {
             return false;
           }
-        } while (iterLumi.skipLumiInRun());
+        } while (indexIntoFileIter_.skipLumiInRun());
         return true;
       }
     }

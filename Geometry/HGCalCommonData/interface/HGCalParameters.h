@@ -25,6 +25,7 @@ public:
   static constexpr double k_ScaleFromDD4HepToG4 = 10.0;
   static constexpr double k_ScaleToDD4HepFromG4 = 0.1;
   static constexpr uint32_t k_CornerSize = 6;
+  static constexpr double tol = 1.0e-12;
 
   struct hgtrap {
     int lay;

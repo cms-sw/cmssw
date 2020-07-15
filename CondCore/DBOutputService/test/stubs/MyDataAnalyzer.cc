@@ -44,7 +44,7 @@ void MyDataAnalyzer::endJob() {
       cond::Time_t firstSinceTime = mydbservice->beginOfTime();
       std::cout << "firstSinceTime is begin of time " << firstSinceTime << std::endl;
       std::cout << "firstTillTime is end of time " << firstTillTime << std::endl;
-      mydbservice->writeOne(myped, firstSinceTime, m_record, m_LoggingOn);
+      mydbservice->writeOne(myped, firstSinceTime, m_record);
     } else {
       //append
       std::cout << "appending payload" << std::endl;
@@ -56,7 +56,7 @@ void MyDataAnalyzer::endJob() {
       }
       cond::Time_t thisPayload_valid_since = 5;
       std::cout << "appeding since time " << thisPayload_valid_since << std::endl;
-      mydbservice->writeOne(myped, thisPayload_valid_since, m_record, m_LoggingOn);
+      mydbservice->writeOne(myped, thisPayload_valid_since, m_record);
       std::cout << "done" << std::endl;
     }
     //example for log reading

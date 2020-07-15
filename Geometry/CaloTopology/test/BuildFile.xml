@@ -1,10 +1,10 @@
-<use   name="DataFormats/HcalDetId"/>
-<use   name="DataFormats/ForwardDetId"/>
-<use   name="DataFormats/CaloTowers"/>
-<use   name="Geometry/CaloTopology"/>
-<use   name="Geometry/Records"/>
-<use   name="Geometry/HcalCommonData"/>
-<use   name="Geometry/HcalTowerAlgo"/>
-
-<flags   EDM_PLUGIN="1"/>
-<library   file="*.cc" name="testGeometryCaloTopology"> </library>
+<use name="DataFormats/HcalDetId"/>
+<use name="DataFormats/ForwardDetId"/>
+<use name="DataFormats/CaloTowers"/>
+<use name="Geometry/CaloTopology"/>
+<use name="Geometry/Records"/>
+<use name="Geometry/HcalCommonData"/>
+<use name="Geometry/HcalTowerAlgo"/>
+<flags EDM_PLUGIN="1"/>
+<library file="*.cc" name="testGeometryCaloTopology">
+</library>

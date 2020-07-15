@@ -20,7 +20,7 @@
         <Tubs name="TECWheelDisk6" rMin="[tecpetal3:PetalContRmin]" rMax="[tecwheel:WheelRmax]" dz="[tecwheel:DiskT]/2" startPhi="0*deg" deltaPhi="360.*deg"/>
         <Tubs name="TECWheelNomex6" rMin="[tecpetal3:PetalContRmin]" rMax="[tecwheel:NomexRmax]" dz="[tecwheel:NomexT]/2" startPhi="0*deg" deltaPhi="360.*deg"/>
         <Tubs name="TECFixSupport6" rMin="[tecpetal3:PetalContRmin]" rMax="[FixSuppRmax]" dz="[tecwheel:FixSuppT]/2" startPhi="-[FixSuppW]/2" deltaPhi="[FixSuppW]"/>
-        <Tubs name="TECOptConnector6" rMin="[tecwheel:OptConnRmin]" rMax="[tecwheel:OptConnRmax]" dz="[tecwheel:OptConnT2]/2" startPhi="-[tecwheel:OptConnW]/2" deltaPhi="[tecwheel:OptConnW]"/>
+        <Tubs name="TECOptConnector6" rMin="[tecwheel:OptConnRmin]" rMax="[tecwheel:OptConnRmax]" dz="[tecwheel:OptConnT2]/2" startPhi="-[tecwheel:OptConnWEpsilonShrink]/2" deltaPhi="[tecwheel:OptConnWEpsilonShrink]"/>
         <Box name="TECBeamsplitter" dx="0.5*[BeamsplitterHeight]" dy="0.5*[BeamsplitterWidth]" dz="0.5*[BeamsplitterThick]"/>
     </SolidSection>
     <LogicalPartSection label="tecwheel6.xml">

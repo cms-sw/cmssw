@@ -1,17 +1,13 @@
-<use   name="DataFormats/Provenance"/>
-<use   name="DataFormats/Common"/>
-<use   name="DataFormats/Streamer"/>
-<use   name="FWCore/MessageLogger"/>
-<use   name="FWCore/ParameterSet"/>
-<use   name="FWCore/PluginManager"/>
-<use   name="FWCore/ServiceRegistry"/>
-<use   name="FWCore/Utilities"/>
-<use   name="FWCore/Concurrency"/>
-<use   name="FWCore/Framework"/>
-<use   name="boost"/>
-<use   name="tinyxml2"/>
-<use   name="rootcore"/>
-<use   name="roothistmatrix"/>
+<use name="SimDataFormats/RandomEngine"/>
+<use name="FWCore/MessageLogger"/>
+<use name="FWCore/ParameterSet"/>
+<use name="FWCore/ServiceRegistry"/>
+<use name="FWCore/Utilities"/>
+<use name="boost"/>
+<use name="tinyxml2"/>
+<use name="rootcore"/>
+<use name="roothistmatrix"/>
+<use name="clhep"/>
 <export>
-  <lib   name="1"/>
+  <lib name="1"/>
 </export>

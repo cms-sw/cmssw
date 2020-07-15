@@ -7,20 +7,22 @@
 #include "HGCGraph.h"
 #include "DataFormats/Common/interface/ValueMap.h"
 
-void HGCGraph::makeAndConnectDoublets(const TICLLayerTiles &histo,
-                                      const std::vector<TICLSeedingRegion> &regions,
-                                      int nEtaBins,
-                                      int nPhiBins,
-                                      const std::vector<reco::CaloCluster> &layerClusters,
-                                      const std::vector<float> &mask,
-                                      const edm::ValueMap<std::pair<float, float>> &layerClustersTime,
-                                      int deltaIEta,
-                                      int deltaIPhi,
-                                      float minCosTheta,
-                                      float minCosPointing,
-                                      int missing_layers,
-                                      int maxNumberOfLayers,
-                                      float maxDeltaTime) {
+template <typename TILES>
+void HGCGraphT<TILES>::makeAndConnectDoublets(const TILES &histo,
+                                              const std::vector<TICLSeedingRegion> &regions,
+                                              int nEtaBins,
+                                              int nPhiBins,
+                                              const std::vector<reco::CaloCluster> &layerClusters,
+                                              const std::vector<float> &mask,
+                                              const edm::ValueMap<std::pair<float, float>> &layerClustersTime,
+                                              int deltaIEta,
+                                              int deltaIPhi,
+                                              float minCosTheta,
+                                              float minCosPointing,
+                                              float etaLimitIncreaseWindow,
+                                              int missing_layers,
+                                              int maxNumberOfLayers,
+                                              float maxDeltaTime) {
   isOuterClusterOfDoublets_.clear();
   isOuterClusterOfDoublets_.resize(layerClusters.size());
   allDoublets_.clear();
@@ -41,10 +43,35 @@ void HGCGraph::makeAndConnectDoublets(const TICLLayerTiles &histo,
 
       int entryEtaBin = firstLayerHisto.etaBin(r.origin.eta());
       int entryPhiBin = firstLayerHisto.phiBin(r.origin.phi());
-      startEtaBin = std::max(entryEtaBin - deltaIEta, 0);
-      endEtaBin = std::min(entryEtaBin + deltaIEta + 1, nEtaBins);
-      startPhiBin = entryPhiBin - deltaIPhi;
-      endPhiBin = entryPhiBin + deltaIPhi + 1;
+      // For track-seeded iterations, if the impact point is below a certain
+      // eta-threshold, i.e., it has higher eta, make the initial search
+      // window bigger in both eta and phi by one bin, to contain better low
+      // energy showers.
+      auto etaWindow = deltaIEta;
+      auto phiWindow = deltaIPhi;
+      if (std::abs(r.origin.eta()) > etaLimitIncreaseWindow) {
+        etaWindow++;
+        phiWindow++;
+        LogDebug("HGCGraph") << "Limit of Eta for increase: " << etaLimitIncreaseWindow
+                             << " reached! Increasing inner search window" << std::endl;
+      }
+      startEtaBin = std::max(entryEtaBin - etaWindow, 0);
+      endEtaBin = std::min(entryEtaBin + etaWindow + 1, nEtaBins);
+      startPhiBin = entryPhiBin - phiWindow;
+      endPhiBin = entryPhiBin + phiWindow + 1;
+      if (verbosity_ > Guru) {
+        LogDebug("HGCGraph") << " Entrance eta, phi: " << r.origin.eta() << ", " << r.origin.phi()
+                             << " entryEtaBin: " << entryEtaBin << " entryPhiBin: " << entryPhiBin
+                             << " globalBin: " << firstLayerHisto.globalBin(r.origin.eta(), r.origin.phi())
+                             << " on layer: " << firstLayerOnZSide << " startEtaBin: " << startEtaBin
+                             << " endEtaBin: " << endEtaBin << " startPhiBin: " << startPhiBin
+                             << " endPhiBin: " << endPhiBin << " phiBin(0): " << firstLayerHisto.phiBin(0.)
+                             << " phiBin(" << M_PI / 2. << "): " << firstLayerHisto.phiBin(M_PI / 2.) << " phiBin("
+                             << M_PI << "): " << firstLayerHisto.phiBin(M_PI) << " phiBin(" << -M_PI / 2.
+                             << "): " << firstLayerHisto.phiBin(-M_PI / 2.) << " phiBin(" << -M_PI
+                             << "): " << firstLayerHisto.phiBin(-M_PI) << " phiBin(" << 2. * M_PI
+                             << "): " << firstLayerHisto.phiBin(2. * M_PI) << std::endl;
+      }
     }
 
     for (int il = 0; il < maxNumberOfLayers - 1; ++il) {
@@ -53,35 +80,75 @@ void HGCGraph::makeAndConnectDoublets(const TICLLayerTiles &histo,
         int currentOuterLayerId = currentInnerLayerId + 1 + outer_layer;
         auto const &outerLayerHisto = histo[currentOuterLayerId];
         auto const &innerLayerHisto = histo[currentInnerLayerId];
+        const int etaLimitIncreaseWindowBin = innerLayerHisto.etaBin(etaLimitIncreaseWindow);
+        if (verbosity_ > Advanced) {
+          LogDebug("HGCGraph") << "Limit of Eta for increase: " << etaLimitIncreaseWindow
+                               << " at etaBin: " << etaLimitIncreaseWindowBin << std::endl;
+        }
 
         for (int ieta = startEtaBin; ieta < endEtaBin; ++ieta) {
           auto offset = ieta * nPhiBins;
           for (int iphi_it = startPhiBin; iphi_it < endPhiBin; ++iphi_it) {
             int iphi = ((iphi_it % nPhiBins + nPhiBins) % nPhiBins);
+            if (verbosity_ > Guru) {
+              LogDebug("HGCGraph") << "Inner Global Bin: " << (offset + iphi)
+                                   << " on layers I/O: " << currentInnerLayerId << "/" << currentOuterLayerId
+                                   << " with clusters: " << innerLayerHisto[offset + iphi].size() << std::endl;
+            }
             for (auto innerClusterId : innerLayerHisto[offset + iphi]) {
               // Skip masked clusters
-              if (mask[innerClusterId] == 0.)
+              if (mask[innerClusterId] == 0.) {
+                if (verbosity_ > Advanced)
+                  LogDebug("HGCGraph") << "Skipping inner masked cluster " << innerClusterId << std::endl;
                 continue;
-              const auto etaRangeMin = std::max(0, ieta - deltaIEta);
-              const auto etaRangeMax = std::min(ieta + deltaIEta + 1, nEtaBins);
+              }
+
+              // For global-seeded iterations, if the inner cluster is above a certain
+              // eta-threshold, i.e., it has higher eta, make the outer search
+              // window bigger in both eta and phi by one bin, to contain better low
+              // energy showers. Track-Seeded iterations are excluded since, in
+              // that case, the inner search window has already been enlarged.
+              auto etaWindow = deltaIEta;
+              auto phiWindow = deltaIPhi;
+              if (isGlobal && ieta > etaLimitIncreaseWindowBin) {
+                etaWindow++;
+                phiWindow++;
+                if (verbosity_ > Advanced) {
+                  LogDebug("HGCGraph") << "Eta and Phi window increased by one" << std::endl;
+                }
+              }
+              const auto etaRangeMin = std::max(0, ieta - etaWindow);
+              const auto etaRangeMax = std::min(ieta + etaWindow + 1, nEtaBins);
 
               for (int oeta = etaRangeMin; oeta < etaRangeMax; ++oeta) {
                 // wrap phi bin
-                for (int phiRange = 0; phiRange < 2 * deltaIPhi + 1; ++phiRange) {
+                for (int phiRange = 0; phiRange < 2 * phiWindow + 1; ++phiRange) {
                   // The first wrapping is to take into account the
                   // cases in which we would have to seach in
                   // negative bins. The second wrap is mandatory to
                   // account for all other cases, since we add in
                   // between a full nPhiBins slot.
-                  auto ophi = ((iphi + phiRange - deltaIPhi) % nPhiBins + nPhiBins) % nPhiBins;
+                  auto ophi = ((iphi + phiRange - phiWindow) % nPhiBins + nPhiBins) % nPhiBins;
+                  if (verbosity_ > Guru) {
+                    LogDebug("HGCGraph") << "Outer Global Bin: " << (oeta * nPhiBins + ophi)
+                                         << " on layers I/O: " << currentInnerLayerId << "/" << currentOuterLayerId
+                                         << " with clusters: " << innerLayerHisto[oeta * nPhiBins + ophi].size()
+                                         << std::endl;
+                  }
                   for (auto outerClusterId : outerLayerHisto[oeta * nPhiBins + ophi]) {
                     // Skip masked clusters
-                    if (mask[outerClusterId] == 0.)
+                    if (mask[outerClusterId] == 0.) {
+                      if (verbosity_ > Advanced)
+                        LogDebug("HGCGraph") << "Skipping outer masked cluster " << outerClusterId << std::endl;
                       continue;
+                    }
                     auto doubletId = allDoublets_.size();
                     if (maxDeltaTime != -1 &&
-                        !areTimeCompatible(innerClusterId, outerClusterId, layerClustersTime, maxDeltaTime))
+                        !areTimeCompatible(innerClusterId, outerClusterId, layerClustersTime, maxDeltaTime)) {
+                      if (verbosity_ > Advanced)
+                        LogDebug("HGCGraph") << "Rejecting doublets due to timing!" << std::endl;
                       continue;
+                    }
                     allDoublets_.emplace_back(innerClusterId, outerClusterId, doubletId, &layerClusters, r.index);
                     if (verbosity_ > Advanced) {
                       LogDebug("HGCGraph")
@@ -123,10 +190,11 @@ void HGCGraph::makeAndConnectDoublets(const TICLLayerTiles &histo,
   // #endif
 }
 
-bool HGCGraph::areTimeCompatible(int innerIdx,
-                                 int outerIdx,
-                                 const edm::ValueMap<std::pair<float, float>> &layerClustersTime,
-                                 float maxDeltaTime) {
+template <typename TILES>
+bool HGCGraphT<TILES>::areTimeCompatible(int innerIdx,
+                                         int outerIdx,
+                                         const edm::ValueMap<std::pair<float, float>> &layerClustersTime,
+                                         float maxDeltaTime) {
   float timeIn = layerClustersTime.get(innerIdx).first;
   float timeInE = layerClustersTime.get(innerIdx).second;
   float timeOut = layerClustersTime.get(outerIdx).first;
@@ -137,11 +205,12 @@ bool HGCGraph::areTimeCompatible(int innerIdx,
 }
 
 //also return a vector of seedIndex for the reconstructed tracksters
-void HGCGraph::findNtuplets(std::vector<HGCDoublet::HGCntuplet> &foundNtuplets,
-                            std::vector<int> &seedIndices,
-                            const unsigned int minClustersPerNtuplet,
-                            const bool outInDFS,
-                            unsigned int maxOutInHops) {
+template <typename TILES>
+void HGCGraphT<TILES>::findNtuplets(std::vector<HGCDoublet::HGCntuplet> &foundNtuplets,
+                                    std::vector<int> &seedIndices,
+                                    const unsigned int minClustersPerNtuplet,
+                                    const bool outInDFS,
+                                    unsigned int maxOutInHops) {
   HGCDoublet::HGCntuplet tmpNtuplet;
   tmpNtuplet.reserve(minClustersPerNtuplet);
   std::vector<std::pair<unsigned int, unsigned int>> outInToVisit;
@@ -164,3 +233,6 @@ void HGCGraph::findNtuplets(std::vector<HGCDoublet::HGCntuplet> &foundNtuplets,
     }
   }
 }
+
+template class HGCGraphT<TICLLayerTiles>;
+template class HGCGraphT<TICLLayerTilesHFNose>;

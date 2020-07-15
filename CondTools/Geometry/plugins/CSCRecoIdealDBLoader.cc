@@ -10,7 +10,7 @@
 #include "Geometry/Records/interface/CSCRecoGeometryRcd.h"
 #include "Geometry/Records/interface/CSCRecoDigiParametersRcd.h"
 #include "Geometry/Records/interface/MuonGeometryRecord.h"
-#include "Geometry/MuonNumbering/interface/MuonDDDConstants.h"
+#include "Geometry/MuonNumbering/interface/MuonGeometryConstants.h"
 #include "Geometry/CSCGeometryBuilder/src/CSCGeometryParsFromDD.h"
 #include "DetectorDescription/Core/interface/DDCompactView.h"
 
@@ -35,9 +35,9 @@ void CSCRecoIdealDBLoader::beginRun(const edm::Run&, edm::EventSetup const& es) 
   }
 
   edm::ESTransientHandle<DDCompactView> pDD;
-  edm::ESHandle<MuonDDDConstants> pMNDC;
+  edm::ESHandle<MuonGeometryConstants> pMNDC;
   es.get<IdealGeometryRecord>().get(pDD);
-  es.get<MuonNumberingRecord>().get(pMNDC);
+  es.get<IdealGeometryRecord>().get(pMNDC);
 
   const DDCompactView& cpv = *pDD;
   CSCGeometryParsFromDD cscgp;

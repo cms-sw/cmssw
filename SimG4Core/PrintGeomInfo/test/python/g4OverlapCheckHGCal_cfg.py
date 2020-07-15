@@ -16,6 +16,7 @@ process.g4SimHits.G4CheckOverlap.OutputBaseName = cms.string("HGcal2026D45")
 process.g4SimHits.G4CheckOverlap.OverlapFlag = cms.bool(True)
 process.g4SimHits.G4CheckOverlap.Tolerance  = cms.double(0.0)
 process.g4SimHits.G4CheckOverlap.Resolution = cms.int32(10000)
+process.g4SimHits.G4CheckOverlap.Depth      = cms.int32(-1)
 # tells if NodeName is G4Region or G4PhysicalVolume
 process.g4SimHits.G4CheckOverlap.RegionFlag = cms.bool(True)
 # list of names
@@ -29,7 +30,7 @@ process.g4SimHits.G4CheckOverlap.LVname     = ''
 
 # extra output files, created if a name is not empty
 process.g4SimHits.FileNameField   = ''
-process.g4SimHits.FileNameGDML    = 'cms2026D45.gdml'
+process.g4SimHits.FileNameGDML    = ''
 process.g4SimHits.FileNameRegions = ''
 #
 

@@ -8,7 +8,7 @@ using namespace std;
 namespace cms {
   namespace dd {
 
-    bool compareEqual(string_view node, string_view name) {
+    bool isMatch(string_view node, string_view name) {
       if (!isRegex(name)) {
         return (name == node);
       } else {
@@ -17,20 +17,20 @@ namespace cms {
       }
     }
 
-    bool accepted(vector<string_view> const& names, string_view node) {
-      return (find_if(begin(names), end(names), [&](const auto& n) -> bool { return compareEqual(node, n); }) !=
-              end(names));
+    bool compareEqual(string_view node, string_view name) { return (name == node); }
+
+    bool compareEqual(string_view node, regex pattern) {
+      return regex_match(std::string(node.data(), node.size()), pattern);
     }
 
-    int contains(string_view input, string_view needle) {
-      auto const& it = search(begin(input), end(input), default_searcher(begin(needle), end(needle)));
-      if (it != end(input)) {
-        return (it - begin(input));
-      }
-      return -1;
+    bool accepted(vector<std::regex> const& keys, string_view node) {
+      return (find_if(begin(keys), end(keys), [&](const auto& n) -> bool { return compareEqual(node, n); }) !=
+              end(keys));
     }
 
-    bool isRegex(string_view input) { return ((contains(input, "*") != -1) || (contains(input, ".") != -1)); }
+    bool isRegex(string_view input) {
+      return (input.find(".") != std::string_view::npos) || (input.find("*") != std::string_view::npos);
+    }
 
     string_view realTopName(string_view input) {
       string_view v = input;

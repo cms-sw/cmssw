@@ -17,6 +17,7 @@
 #include "TGGC.h"
 #include "TGColorDialog.h"
 #include "TColor.h"
+#include "TVirtualX.h"
 
 #include "Fireworks/Core/src/FWColorSelect.h"
 #include "Fireworks/Core/interface/FWColorManager.h"

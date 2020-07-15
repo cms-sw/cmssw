@@ -49,7 +49,7 @@ void HcalTDC::timing(const CaloSamples& lf, QIE11DataFrame& digi) const {
         }
 
         if (risingReady) {
-          if (i != 399 && i != 0 && (lf.preciseAt(i + 1) - lf.preciseAt(i - 1)) > TDC_Threshold) {
+          if (i != (lf.size() * tdcBins - 1) && i != 0 && (lf.preciseAt(i + 1) - lf.preciseAt(i - 1)) > TDC_Threshold) {
             risingReady = false;
             TDC_RisingEdge = i - preciseBegin;
           } else if (i == 0 && (lf.preciseAt(i + 1) - lf.preciseAt(i)) / 0.5 > TDC_Threshold) {
@@ -59,7 +59,7 @@ void HcalTDC::timing(const CaloSamples& lf, QIE11DataFrame& digi) const {
             TDC_RisingEdge = theTDCParameters.noTransitionCode();
         }
 
-        if ((!risingReady) && (i == (preciseEnd - 1)) && (i != 399)) {
+        if ((!risingReady) && (i == (preciseEnd - 1)) && (i != (lf.size() * tdcBins - 1))) {
           if (((lf.preciseAt(i + 1) - lf.preciseAt(i - 1)) < TDC_Threshold)) {
             risingReady = true;
           }

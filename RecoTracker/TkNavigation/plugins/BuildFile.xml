@@ -1,15 +1,12 @@
-<use   name="TrackingTools/PatternTools"/>
-<use   name="Utilities/General"/>
-<use   name="TrackingTools/GeomPropagators"/>
-<use   name="TrackingTools/DetLayers"/>
-<use   name="TrackingTools/KalmanUpdators"/>
-<use   name="DataFormats/TrackingRecHit"/>
-<use   name="DataFormats/DetId"/>
-<use   name="FWCore/PluginManager"/>
-<use   name="FWCore/ParameterSet"/>
-<use   name="RecoTracker/Record"/>
-<use   name="RecoTracker/TkDetLayers"/>
-<use   name="MagneticField/Engine"/>
-<library   file="*.cc" name="RecoTrackerTkNavigationPlugins">
-  <flags   EDM_PLUGIN="1"/>
+<use name="TrackingTools/PatternTools"/>
+<use name="TrackingTools/GeomPropagators"/>
+<use name="TrackingTools/DetLayers"/>
+<use name="TrackingTools/KalmanUpdators"/>
+<use name="FWCore/PluginManager"/>
+<use name="FWCore/ParameterSet"/>
+<use name="RecoTracker/Record"/>
+<use name="RecoTracker/TkDetLayers"/>
+<use name="MagneticField/Engine"/>
+<library file="*.cc" name="RecoTrackerTkNavigationPlugins">
+  <flags EDM_PLUGIN="1"/>
 </library>

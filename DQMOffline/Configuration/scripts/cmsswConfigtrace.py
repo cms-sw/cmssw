@@ -106,14 +106,6 @@ trace_location(Schedule, 'associate', lambda self, *tasks: {'args': list(tasks)}
 trace_location(Schedule, 'copy')
 # TODO: we could go deeper into Types and PSet, but that should not be needed for now.
 
-import FWCore.ParameterSet.Utilities
-def convertToUnscheduled(proc):
-  print("+ Blocking convertToUnscheduled to not mess up the process.")
-  # we could continue tracing, but the later manipulations don't make much sense and take forever.
-  raise Exception("Aborting in convertToUnscheduled.")
-  return proc
-FWCore.ParameterSet.Utilities.convertToUnscheduled = convertToUnscheduled
-
 # lifted from EnablePSetHistory, we don't need all of that stuff.
 def new_items_(self):
   items = []

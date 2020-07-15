@@ -247,10 +247,12 @@ namespace edm {
                                             ServiceToken const& token,
                                             SharedResourcesAcquirer* sra,
                                             ModuleCallingContext const* mcc) const {
+    //need to try changing m_prefetchRequested before adding to m_waitingTasks
+    bool expected = false;
+    bool prefetchRequested = m_prefetchRequested.compare_exchange_strong(expected, true);
     m_waitingTasks.add(waitTask);
 
-    bool expected = false;
-    if (m_prefetchRequested.compare_exchange_strong(expected, true)) {
+    if (prefetchRequested) {
       auto workToDo = [this, mcc, &principal, token]() {
         //need to make sure Service system is activated on the reading thread
         ServiceRegistry::Operate operate(token);
@@ -331,10 +333,12 @@ namespace edm {
           return;
         }
       }
+      //Need to try modifying prefetchRequested_ before adding to m_waitingTasks
+      bool expected = false;
+      bool prefetchRequested = prefetchRequested_.compare_exchange_strong(expected, true);
       m_waitingTasks.add(waitTask);
 
-      bool expected = false;
-      if (worker_ and prefetchRequested_.compare_exchange_strong(expected, true)) {
+      if (worker_ and prefetchRequested) {
         //using a waiting task to do a callback guarantees that
         // the m_waitingTasks list will be released from waiting even
         // if the module does not put this data product or the
@@ -425,9 +429,11 @@ namespace edm {
     if (skipCurrentProcess) {
       return;
     }
-    waitingTasks_.add(waitTask);
+    //need to try changing prefetchRequested_ before adding to waitingTasks_
     bool expected = false;
-    if (prefetchRequested_.compare_exchange_strong(expected, true)) {
+    bool prefetchRequested = prefetchRequested_.compare_exchange_strong(expected, true);
+    waitingTasks_.add(waitTask);
+    if (prefetchRequested) {
       //Have to create a new task which will make sure the state for UnscheduledProductResolver
       // is properly set after the module has run
       auto t = make_waiting_task(tbb::task::allocate_root(), [this](std::exception_ptr const* iPtr) {
@@ -696,10 +702,13 @@ namespace edm {
     if (branchDescription().availableOnlyAtEndTransition() and mcc and not mcc->parent().isAtEndTransition()) {
       return;
     }
+
+    //need to try changing prefetchRequested before adding to waitingTasks
+    bool expected = false;
+    bool doPrefetchRequested = prefetchRequested().compare_exchange_strong(expected, true);
     waitingTasks().add(waitTask);
 
-    bool expected = false;
-    if (prefetchRequested().compare_exchange_strong(expected, true)) {
+    if (doPrefetchRequested) {
       //using a waiting task to do a callback guarantees that
       // the waitingTasks() list will be released from waiting even
       // if the module does not put this data product or the
@@ -763,10 +772,13 @@ namespace edm {
     if (skipCurrentProcess) {
       return;
     }
+
+    //need to try changing prefetchRequested_ before adding to waitingTasks_
+    bool expected = false;
+    bool doPrefetchRequested = prefetchRequested().compare_exchange_strong(expected, true);
     waitingTasks().add(waitTask);
 
-    bool expected = false;
-    if (prefetchRequested().compare_exchange_strong(expected, true)) {
+    if (doPrefetchRequested) {
       //using a waiting task to do a callback guarantees that
       // the waitingTasks() list will be released from waiting even
       // if the module does not put this data product or the
@@ -920,10 +932,12 @@ namespace edm {
 
     //If timeToMakeAtEnd is false, then it is equivalent to skipping the current process
     if (not skipCurrentProcess and timeToMakeAtEnd) {
+      //need to try changing prefetchRequested_ before adding to waitingTasks_
+      bool expected = false;
+      bool prefetchRequested = prefetchRequested_.compare_exchange_strong(expected, true);
       waitingTasks_.add(waitTask);
 
-      bool expected = false;
-      if (prefetchRequested_.compare_exchange_strong(expected, true)) {
+      if (prefetchRequested) {
         //we are the first thread to request
         tryPrefetchResolverAsync(0, principal, false, sra, mcc, token);
       }

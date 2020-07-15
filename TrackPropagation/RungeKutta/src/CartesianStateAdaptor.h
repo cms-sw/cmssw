@@ -1,5 +1,6 @@
 #ifndef CartesianStateAdaptor_H
 #define CartesianStateAdaptor_H
+#include "FWCore/Utilities/interface/Visibility.h"
 
 #include "RKSmallVector.h"
 #include "DataFormats/GeometryVector/interface/Basic3DVector.h"

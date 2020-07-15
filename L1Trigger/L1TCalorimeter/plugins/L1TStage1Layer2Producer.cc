@@ -14,7 +14,7 @@
 
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -65,7 +65,7 @@ using namespace l1t;
 // class declaration
 //
 
-class L1TStage1Layer2Producer : public EDProducer {
+class L1TStage1Layer2Producer : public stream::EDProducer<> {
 public:
   explicit L1TStage1Layer2Producer(const ParameterSet&);
   ~L1TStage1Layer2Producer() override;
@@ -74,10 +74,7 @@ public:
 
 private:
   void produce(Event&, EventSetup const&) override;
-  void beginJob() override;
-  void endJob() override;
   void beginRun(Run const& iR, EventSetup const& iE) override;
-  void endRun(Run const& iR, EventSetup const& iE) override;
 
   // ----------member data ---------------------------
   unsigned long long m_paramsCacheId;  // Cache-ID from current parameters, to check if needs to be updated.
@@ -92,8 +89,8 @@ private:
   std::string m_conditionsLabel;
 
   // to be extended with other "consumes" stuff
-  EDGetToken regionToken;
-  EDGetToken candsToken;
+  EDGetTokenT<BXVector<CaloRegion>> regionToken;
+  EDGetTokenT<BXVector<CaloEmCand>> candsToken;
 };
 
 //
@@ -242,12 +239,6 @@ void L1TStage1Layer2Producer::produce(Event& iEvent, const EventSetup& iSetup) {
   iEvent.put(std::move(hfCounts), "HFBitCounts");
 }
 
-// ------------ method called once each job just before starting event loop ------------
-void L1TStage1Layer2Producer::beginJob() {}
-
-// ------------ method called once each job just after ending the event loop ------------
-void L1TStage1Layer2Producer::endJob() {}
-
 // ------------ method called when starting to processes a run ------------
 
 void L1TStage1Layer2Producer::beginRun(Run const& iR, EventSetup const& iE) {
@@ -369,15 +360,15 @@ void L1TStage1Layer2Producer::beginRun(Run const& iR, EventSetup const& iE) {
   }
 }
 
-// ------------ method called when ending the processing of a run ------------
-void L1TStage1Layer2Producer::endRun(Run const& iR, EventSetup const& iE) {}
-
 // ------------ method fills 'descriptions' with the allowed parameters for the module ------------
 void L1TStage1Layer2Producer::fillDescriptions(ConfigurationDescriptions& descriptions) {
   //The following says we do not know what parameters are allowed so do no validation
   // Please change this to state exactly what you do use, even if it is no parameters
   ParameterSetDescription desc;
-  desc.setUnknown();
+  desc.add<InputTag>("CaloRegions");
+  desc.add<InputTag>("CaloEmCands");
+  desc.add<std::string>("conditionsLabel");
+
   descriptions.addDefault(desc);
 }
 

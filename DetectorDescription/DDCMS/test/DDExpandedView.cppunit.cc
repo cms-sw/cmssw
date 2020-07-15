@@ -32,7 +32,7 @@ private:
 CPPUNIT_TEST_SUITE_REGISTRATION(testDDExpandedView);
 
 void testDDExpandedView::setUp() {
-  fileName_ = edm::FileInPath("DetectorDescription/DDCMS/data/cms-2015-muon-geometry.xml").fullPath();
+  fileName_ = edm::FileInPath("Geometry/CMSCommonData/data/dd4hep/cmsExtendedGeometry2021.xml").fullPath();
 }
 
 void testDDExpandedView::checkExpandedView() {

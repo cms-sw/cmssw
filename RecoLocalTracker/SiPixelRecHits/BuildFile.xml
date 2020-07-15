@@ -1,17 +1,14 @@
-<use   name="FWCore/Framework"/>
-
-<use   name="FWCore/ParameterSet"/>
-
-<use   name="CondFormats/SiPixelObjects"/>
-<use   name="CalibTracker/SiPixelESProducers"/>
-<use   name="DataFormats/TrackerCommon"/>
-<use   name="DataFormats/SiPixelCluster"/>
-<use   name="DataFormats/TrackerRecHit2D"/>
-<use   name="TrackingTools/TrajectoryState"/>
-<use   name="CondFormats/SiPixelTransient"/>
-<use   name="boost"/>
-<use   name="vdt_headers"/>
-
+<use name="FWCore/Framework"/>
+<use name="FWCore/ParameterSet"/>
+<use name="CondFormats/SiPixelObjects"/>
+<use name="CalibTracker/SiPixelESProducers"/>
+<use name="DataFormats/TrackerCommon"/>
+<use name="DataFormats/SiPixelCluster"/>
+<use name="DataFormats/TrackerRecHit2D"/>
+<use name="CondFormats/SiPixelTransient"/>
+<use name="RecoLocalTracker/ClusterParameterEstimator"/>
+<use name="boost"/>
+<use name="vdt_headers"/>
 <export>
-  <lib   name="1"/>
+  <lib name="1"/>
 </export>

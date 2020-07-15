@@ -34,8 +34,8 @@ process.ctppsPixelDAQMappingESSourceXML.configuration = cms.VPSet(
     # example configuration block:
     cms.PSet(
         validityRange = cms.EventRange("1:min - 999999999:max"),
-        mappingFileNames = cms.vstring("CondFormats/CTPPSReadoutObjects/xml/rpix_mapping_220_far.xml"),
-        maskFileNames = cms.vstring("CondFormats/CTPPSReadoutObjects/xml/rpix_channel_mask_220_far.xml")
+        mappingFileNames = cms.vstring("CondFormats/PPSObjects/xml/rpix_mapping_220_far.xml"),
+        maskFileNames = cms.vstring("CondFormats/PPSObjects/xml/rpix_channel_mask_220_far.xml")
         )
 
     )

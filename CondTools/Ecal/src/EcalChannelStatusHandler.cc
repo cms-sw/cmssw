@@ -1677,7 +1677,7 @@ void popcon::EcalChannelStatusHandler::getNewObjects() {
 
   // here we retrieve all the runs of a given type after the last from online DB
   unsigned int max_since = 0;
-  max_since = static_cast<unsigned int>(tagInfo().lastInterval.first);
+  max_since = static_cast<unsigned int>(tagInfo().lastInterval.since);
   std::cout << "max_since : " << max_since << std::endl;
 
   std::cout << "Retrieving run list from ONLINE DB ... " << std::endl;

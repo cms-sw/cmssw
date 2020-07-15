@@ -59,8 +59,9 @@ namespace {
       Base::setSingleIov(true);
     }
 
-    bool fill(const std::vector<std::tuple<cond::Time_t, cond::Hash> >& iovs) override {
-      for (auto const& iov : iovs) {
+    bool fill() override {
+      auto tag = PlotBase::getTag<0>();
+      for (auto const& iov : tag.iovs) {
         std::shared_ptr<SiStripPedestals> payload = Base::fetchPayload(std::get<1>(iov));
         if (payload.get()) {
           fillWithValue(1.);
@@ -197,8 +198,9 @@ namespace {
       Base::setSingleIov(true);
     }
 
-    bool fill(const std::vector<std::tuple<cond::Time_t, cond::Hash> >& iovs) override {
-      for (auto const& iov : iovs) {
+    bool fill() override {
+      auto tag = PlotBase::getTag<0>();
+      for (auto const& iov : tag.iovs) {
         std::shared_ptr<SiStripPedestals> payload = Base::fetchPayload(std::get<1>(iov));
         if (payload.get()) {
           std::vector<uint32_t> detid;
@@ -232,8 +234,9 @@ namespace {
       Base::setSingleIov(true);
     }
 
-    bool fill(const std::vector<std::tuple<cond::Time_t, cond::Hash> >& iovs) override {
-      for (auto const& iov : iovs) {
+    bool fill() override {
+      auto tag = PlotBase::getTag<0>();
+      for (auto const& iov : tag.iovs) {
         std::shared_ptr<SiStripPedestals> payload = Base::fetchPayload(std::get<1>(iov));
         unsigned int the_detid(0xFFFFFFFF);
         auto paramValues = cond::payloadInspector::PlotBase::inputParamValues();
@@ -592,7 +595,7 @@ namespace {
     1d histogram of fraction of Zero SiStripPedestals of 1 IOV 
   *************************************************/
 
-  // inherit from one of the predefined plot class: Histogram1D
+  // inherit from one of the predefined plot class PlotImage
   class SiStripZeroPedestalsFraction_TrackerMap : public cond::payloadInspector::PlotImage<SiStripPedestals> {
   public:
     SiStripZeroPedestalsFraction_TrackerMap()

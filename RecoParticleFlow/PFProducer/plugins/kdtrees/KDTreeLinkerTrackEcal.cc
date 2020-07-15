@@ -135,7 +135,7 @@ void KDTreeLinkerTrackEcal::buildTree() {
 }
 
 void KDTreeLinkerTrackEcal::searchLinks() {
-  // Must of the code has been taken from LinkByRecHit.cc
+  // Most of the code has been taken from LinkByRecHit.cc
 
   // We iterate over the tracks.
   for (BlockEltSet::iterator it = targetSet_.begin(); it != targetSet_.end(); it++) {

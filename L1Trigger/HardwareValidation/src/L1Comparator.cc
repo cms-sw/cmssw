@@ -3,29 +3,38 @@
 
 using namespace dedefs;
 
-L1Comparator::L1Comparator(const edm::ParameterSet& iConfig) {
-  verbose_ = iConfig.getUntrackedParameter<int>("VerboseFlag", 0);
-  m_stage1_layer2_ = iConfig.getParameter<bool>("stage1_layer2_");
+namespace {
+  std::array<bool, dedefs::DEnsys> fillDoSys(edm::ParameterSet const& iConfig) {
+    std::vector<unsigned int> dosys = iConfig.getUntrackedParameter<std::vector<unsigned int> >(
+        "COMPARE_COLLS", std::vector<unsigned int>(0, DEnsys));
 
+    if ((int)dosys.size() != DEnsys)
+      edm::LogError("L1Comparator") << "wrong selection of systems to be compared\n"
+                                    << "\t the size of the mask COPARE_COLLS (" << dosys.size() << ") is not " << DEnsys
+                                    << std::endl;
+    assert((int)dosys.size() == DEnsys);
+
+    for (int isys = 0; isys < DEnsys; isys++)
+      if (dosys[isys] != 0 && dosys[isys] != 1)
+        throw cms::Exception("Invalid configuration") << "L1Comparator: comparison flag for system " << isys
+                                                      << " is non boolean: " << dosys[isys] << ". Exiting.\n";
+
+    std::array<bool, dedefs::DEnsys> ret;
+    for (int i = 0; i < DEnsys; i++)
+      ret[i] = dosys[i];
+    return ret;
+  }
+}  // namespace
+
+L1Comparator::L1Comparator(const edm::ParameterSet& iConfig)
+    : m_stage1_layer2_{iConfig.getParameter<bool>("stage1_layer2_")},
+      verbose_{iConfig.getUntrackedParameter<int>("VerboseFlag", 0)},
+      m_doSys{fillDoSys(iConfig)},
+      m_dumpFileName{iConfig.getUntrackedParameter<std::string>("DumpFile", "")},
+      m_dumpMode{iConfig.getUntrackedParameter<int>("DumpMode", 0)},
+      m_fileGuard{} {
   if (verbose())
     std::cout << "\nL1COMPARATOR constructor...\n" << std::flush;
-
-  std::vector<unsigned int> dosys(0, DEnsys);
-  dosys = iConfig.getUntrackedParameter<std::vector<unsigned int> >("COMPARE_COLLS", dosys);
-
-  if ((int)dosys.size() != DEnsys)
-    edm::LogError("L1Comparator") << "wrong selection of systems to be compared\n"
-                                  << "\t the size of the mask COMPARE_COLLS (" << dosys.size() << ") is not " << DEnsys
-                                  << std::endl;
-  assert((int)dosys.size() == DEnsys);
-
-  for (int isys = 0; isys < DEnsys; isys++)
-    if (dosys[isys] != 0 && dosys[isys] != 1)
-      throw cms::Exception("Invalid configuration") << "L1Comparator: comparison flag for system " << isys
-                                                    << " is non boolean: " << dosys[isys] << ". Exiting.\n";
-
-  for (int i = 0; i < DEnsys; i++)
-    m_doSys[i] = dosys[i];
 
   if (verbose()) {
     std::cout << "[L1Comparator] do sys? ";
@@ -55,8 +64,6 @@ L1Comparator::L1Comparator(const edm::ParameterSet& iConfig) {
   assert(GLT == 11);
 
   /// dump level:  -1(all),0(none),1(disagree),2(loc.disagree),3(loc.agree)
-  m_dumpMode = iConfig.getUntrackedParameter<int>("DumpMode", 0);
-  m_dumpFileName = iConfig.getUntrackedParameter<std::string>("DumpFile", "");
   if (m_dumpMode) {
     m_dumpFile.open(m_dumpFileName.c_str(), std::ios::out);
     if (!m_dumpFile.good())
@@ -66,16 +73,8 @@ L1Comparator::L1Comparator(const edm::ParameterSet& iConfig) {
   }
 
   m_match = true;
-  dumpEvent_ = true;
   nevt_ = -1;
 
-  for (int i = 0; i < DEnsys; i++) {
-    for (int j = 0; j < 2; j++)
-      DEncand[i][j] = 0;
-    DEmatchEvt[i] = true;
-  }
-
-  m_dedigis.clear();
   /// create d|e record product
   produces<L1DataEmulRecord>().setBranchAlias("L1DataEmulRecord");
 
@@ -190,42 +189,41 @@ L1Comparator::L1Comparator(const edm::ParameterSet& iConfig) {
     std::cout << "\nL1Comparator constructor...done.\n" << std::flush;
 }
 
-L1Comparator::~L1Comparator() {}
-
-void L1Comparator::beginJob(void) {}
-
-void L1Comparator::beginRun(edm::Run const& iRun, const edm::EventSetup& iSetup) {
+std::shared_ptr<L1Comparator::RunCache> L1Comparator::globalBeginRun(edm::Run const& iRun,
+                                                                     const edm::EventSetup& iSetup) const {
   if (verbose())
     std::cout << "\nL1COMPARATOR beginRun...\n" << std::flush;
 
+  auto runDoSys = std::make_shared<RunCache>();
   // disable subsystem if not included in current run configuration
   try {
     edm::ESHandle<L1TriggerKey> pKey;
     iSetup.get<L1TriggerKeyRcd>().get(pKey);
+    *runDoSys = m_doSys;
 
-    m_doSys[RCT] &= (!(pKey->subsystemKey(L1TriggerKey::kRCT).empty()));
-    m_doSys[GCT] &= (!(pKey->subsystemKey(L1TriggerKey::kGCT).empty()));
-    m_doSys[DTF] &= (!(pKey->subsystemKey(L1TriggerKey::kDTTF).empty()));
-    m_doSys[CTF] &= (!(pKey->subsystemKey(L1TriggerKey::kCSCTF).empty()));
-    m_doSys[RPC] &= (!(pKey->subsystemKey(L1TriggerKey::kRPC).empty()));
-    m_doSys[GMT] &= (!(pKey->subsystemKey(L1TriggerKey::kGMT).empty()));
-    m_doSys[GLT] &= (!(pKey->subsystemKey(L1TriggerKey::kGT).empty()));
+    (*runDoSys)[RCT] &= (!(pKey->subsystemKey(L1TriggerKey::kRCT).empty()));
+    (*runDoSys)[GCT] &= (!(pKey->subsystemKey(L1TriggerKey::kGCT).empty()));
+    (*runDoSys)[DTF] &= (!(pKey->subsystemKey(L1TriggerKey::kDTTF).empty()));
+    (*runDoSys)[CTF] &= (!(pKey->subsystemKey(L1TriggerKey::kCSCTF).empty()));
+    (*runDoSys)[RPC] &= (!(pKey->subsystemKey(L1TriggerKey::kRPC).empty()));
+    (*runDoSys)[GMT] &= (!(pKey->subsystemKey(L1TriggerKey::kGMT).empty()));
+    (*runDoSys)[GLT] &= (!(pKey->subsystemKey(L1TriggerKey::kGT).empty()));
 
     if (verbose()) {
       if (pKey->subsystemKey(L1TriggerKey::kRCT).empty())
-        std::cout << "RCT   key is empty. Sub-systems is disabled (" << m_doSys[RCT] << ")\n";
+        std::cout << "RCT   key is empty. Sub-systems is disabled (" << (*runDoSys)[RCT] << ")\n";
       if (pKey->subsystemKey(L1TriggerKey::kGCT).empty())
-        std::cout << "GCT   key is empty. Sub-systems is disabled (" << m_doSys[GCT] << ")\n";
+        std::cout << "GCT   key is empty. Sub-systems is disabled (" << (*runDoSys)[GCT] << ")\n";
       if (pKey->subsystemKey(L1TriggerKey::kDTTF).empty())
-        std::cout << "DTTF  key is empty. Sub-systems is disabled (" << m_doSys[DTF] << ")\n";
+        std::cout << "DTTF  key is empty. Sub-systems is disabled (" << (*runDoSys)[DTF] << ")\n";
       if (pKey->subsystemKey(L1TriggerKey::kCSCTF).empty())
-        std::cout << "CSCTF key is empty. Sub-systems is disabled (" << m_doSys[CTF] << ")\n";
+        std::cout << "CSCTF key is empty. Sub-systems is disabled (" << (*runDoSys)[CTF] << ")\n";
       if (pKey->subsystemKey(L1TriggerKey::kRPC).empty())
-        std::cout << "RPC   key is empty. Sub-systems is disabled (" << m_doSys[RPC] << ")\n";
+        std::cout << "RPC   key is empty. Sub-systems is disabled (" << (*runDoSys)[RPC] << ")\n";
       if (pKey->subsystemKey(L1TriggerKey::kGMT).empty())
-        std::cout << "GMT   key is empty. Sub-systems is disabled (" << m_doSys[GMT] << ")\n";
+        std::cout << "GMT   key is empty. Sub-systems is disabled (" << (*runDoSys)[GMT] << ")\n";
       if (pKey->subsystemKey(L1TriggerKey::kGT).empty())
-        std::cout << "GT    key is empty. Sub-systems is disabled (" << m_doSys[GLT] << ")\n";
+        std::cout << "GT    key is empty. Sub-systems is disabled (" << (*runDoSys)[GLT] << ")\n";
       std::cout << "TSC key = " << pKey->tscKey() << std::endl;
     }
 
@@ -237,6 +235,7 @@ void L1Comparator::beginRun(edm::Run const& iRun, const edm::EventSetup& iSetup)
 
   if (verbose())
     std::cout << "L1COMPARATOR beginRun... done\n" << std::flush;
+  return runDoSys;
 }
 
 void L1Comparator::endJob() {
@@ -246,24 +245,16 @@ void L1Comparator::endJob() {
   m_dumpFile.close();
 }
 
-void L1Comparator::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
-  nevt_++;
-  evtNum_ = iEvent.id().event();
-  runNum_ = iEvent.id().run();
+void L1Comparator::produce(edm::StreamID, edm::Event& iEvent, const edm::EventSetup& iSetup) const {
+  EventInfo eventInfo;
+  eventInfo.nevt_ = ++nevt_;
+  eventInfo.evtNum_ = iEvent.id().event();
+  eventInfo.runNum_ = iEvent.id().run();
 
   if (verbose())
-    std::cout << "\nL1COMPARATOR entry:" << nevt_ << " | evt:" << evtNum_ << " | run:" << runNum_ << "\n" << std::flush;
-
-  //flag whether event id has already been written to dumpFile
-  dumpEvent_ = true;
-
-  //reset event holder quantities
-  for (int i = 0; i < DEnsys; i++) {
-    for (int j = 0; j < 2; j++)
-      DEncand[i][j] = 0;
-    DEmatchEvt[i] = true;
-  }
-  m_dedigis.clear();
+    std::cout << "\nL1COMPARATOR entry:" << eventInfo.nevt_ << " | evt:" << eventInfo.evtNum_
+              << " | run:" << eventInfo.runNum_ << "\n"
+              << std::flush;
 
   /// --  Get the data and emulated collections -----------------------------
 
@@ -272,7 +263,10 @@ void L1Comparator::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   edm::Handle<L1CaloEmCollection> rct_em_emul;
   edm::Handle<L1CaloRegionCollection> rct_rgn_data;
   edm::Handle<L1CaloRegionCollection> rct_rgn_emul;
-  if (m_doSys[RCT]) {
+  auto const runIndex = iEvent.getRun().index();
+  auto& runDoSys = *runCache(runIndex);
+
+  if (runDoSys[RCT]) {
     iEvent.getByToken(tokenCaloEm_[0], rct_em_data);
     iEvent.getByToken(tokenCaloEm_[1], rct_em_emul);
     iEvent.getByToken(tokenCaloRegion_[0], rct_rgn_data);
@@ -308,7 +302,7 @@ void L1Comparator::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   edm::Handle<L1GctJetCountsCollection> gct_jetcnt_data;
   edm::Handle<L1GctJetCountsCollection> gct_jetcnt_emul;
 
-  if (m_doSys[GCT]) {
+  if (runDoSys[GCT]) {
     if (m_stage1_layer2_ == false) {
       iEvent.getByToken(tokenGctEmCand_isoEm_[0], gct_isolaem_data);
       iEvent.getByToken(tokenGctEmCand_isoEm_[1], gct_isolaem_emul);
@@ -370,7 +364,7 @@ void L1Comparator::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   edm::Handle<L1MuDTChambPhContainer> dtp_ph_emul_;
   edm::Handle<L1MuDTChambThContainer> dtp_th_data_;
   edm::Handle<L1MuDTChambThContainer> dtp_th_emul_;
-  if (m_doSys[DTP]) {
+  if (runDoSys[DTP]) {
     iEvent.getByToken(tokenMuDTChambPh_[0], dtp_ph_data_);
     iEvent.getByToken(tokenMuDTChambPh_[1], dtp_ph_emul_);
     iEvent.getByToken(tokenMuDTChambTh_[0], dtp_th_data_);
@@ -395,7 +389,7 @@ void L1Comparator::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   edm::Handle<L1MuDTTrackContainer> dtf_trk_emul_;
   L1MuRegionalCandCollection const* dtf_trk_data = nullptr;
   L1MuRegionalCandCollection const* dtf_trk_emul = nullptr;
-  if (m_doSys[DTF]) {
+  if (runDoSys[DTF]) {
     iEvent.getByToken(tokenMuDTTrack_[0], dtf_trk_data_);
     iEvent.getByToken(tokenMuDTTrack_[1], dtf_trk_emul_);
   }
@@ -422,7 +416,7 @@ void L1Comparator::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   edm::Handle<L1MuRegionalCandCollection> rpc_cen_emul;
   edm::Handle<L1MuRegionalCandCollection> rpc_for_data;
   edm::Handle<L1MuRegionalCandCollection> rpc_for_emul;
-  if (m_doSys[RPC]) {
+  if (runDoSys[RPC]) {
     iEvent.getByToken(tokenMuRegionalCandRPCb_[0], rpc_cen_data);
     iEvent.getByToken(tokenMuRegionalCandRPCb_[1], rpc_cen_emul);
     iEvent.getByToken(tokenMuRegionalCandRPCf_[0], rpc_for_data);
@@ -432,7 +426,7 @@ void L1Comparator::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   // -- LTC [local trigger controller]
   edm::Handle<LTCDigiCollection> ltc_data;
   edm::Handle<LTCDigiCollection> ltc_emul;
-  if (m_doSys[LTC]) {
+  if (runDoSys[LTC]) {
     iEvent.getByToken(tokenLTCDigi_[0], ltc_data);
     iEvent.getByToken(tokenLTCDigi_[1], ltc_emul);
   }
@@ -447,7 +441,7 @@ void L1Comparator::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   //tbd: may compare extended candidates
   L1MuGMTCandCollection const* gmt_can_data(new L1MuGMTCandCollection);
   L1MuGMTCandCollection const* gmt_can_emul(new L1MuGMTCandCollection);
-  if (m_doSys[GMT]) {
+  if (runDoSys[GMT]) {
     iEvent.getByToken(tokenMuGMTCand_[0], gmt_data);
     iEvent.getByToken(tokenMuGMTCand_[1], gmt_emul);
     iEvent.getByToken(tokenMuReadoutCand_[0], gmt_rdt_data_);
@@ -612,7 +606,7 @@ void L1Comparator::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   }
 
   if (verbose()) {
-    std::cout << "L1Comparator sys isValid?  (evt:" << nevt_ << ") ";
+    std::cout << "L1Comparator sys isValid?  (evt:" << eventInfo.nevt_ << ") ";
     std::cout << "\n\t&: ";
     for (int i = 0; i < DEnsys; i++)
       std::cout << isValid[i] << " ";
@@ -632,83 +626,83 @@ void L1Comparator::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
     std::cout << "L1Comparator start processing the collections.\n" << std::flush;
 
   ///processing : compare the pairs of collections
-  if (m_doSys[RCT] && isValid[RCT])
-    process<L1CaloEmCollection>(rct_em_data, rct_em_emul, RCT, RCTem);
-  if (m_doSys[RCT] && isValid[RCT])
-    process<L1CaloRegionCollection>(rct_rgn_data, rct_rgn_emul, RCT, RCTrgn);
+  if (runDoSys[RCT] && isValid[RCT])
+    process<L1CaloEmCollection>(rct_em_data, rct_em_emul, RCT, RCTem, eventInfo);
+  if (runDoSys[RCT] && isValid[RCT])
+    process<L1CaloRegionCollection>(rct_rgn_data, rct_rgn_emul, RCT, RCTrgn, eventInfo);
 
   if (m_stage1_layer2_ == false) {
-    if (m_doSys[GCT] && isValid[GCT])
-      process<L1GctEmCandCollection>(gct_isolaem_data, gct_isolaem_emul, GCT, GCTisolaem);
-    if (m_doSys[GCT] && isValid[GCT])
-      process<L1GctEmCandCollection>(gct_noisoem_data, gct_noisoem_emul, GCT, GCTnoisoem);
-    if (m_doSys[GCT] && isValid[GCT])
-      process<L1GctJetCandCollection>(gct_cenjets_data, gct_cenjets_emul, GCT, GCTcenjets);
-    if (m_doSys[GCT] && isValid[GCT])
-      process<L1GctJetCandCollection>(gct_forjets_data, gct_forjets_emul, GCT, GCTforjets);
-    if (m_doSys[GCT] && isValid[GCT])
-      process<L1GctJetCandCollection>(gct_taujets_data, gct_taujets_emul, GCT, GCTtaujets);
-    if (m_doSys[GCT] && isValid[GCT])
-      process<L1GctEtHadCollection>(gct_ht_data, gct_ht_emul, GCT, GCTethad);
-    if (m_doSys[GCT] && isValid[GCT])
-      process<L1GctEtMissCollection>(gct_etmiss_data, gct_etmiss_emul, GCT, GCTetmiss);
-    if (m_doSys[GCT] && isValid[GCT])
-      process<L1GctEtTotalCollection>(gct_ettota_data, gct_ettota_emul, GCT, GCTettot);
-    if (m_doSys[GCT] && isValid[GCT])
-      process<L1GctHtMissCollection>(gct_htmiss_data, gct_htmiss_emul, GCT, GCThtmiss);
-    if (m_doSys[GCT] && isValid[GCT])
-      process<L1GctHFRingEtSumsCollection>(gct_hfring_data, gct_hfring_emul, GCT, GCThfring);
-    if (m_doSys[GCT] && isValid[GCT])
-      process<L1GctHFBitCountsCollection>(gct_hfbcnt_data, gct_hfbcnt_emul, GCT, GCThfbit);
-    //if(m_doSys[GCT]&&isValid[GCT]) process<L1GctJetCountsCollection>	 ( gct_jetcnt_data,  gct_jetcnt_emul, GCT,GCTjetcnt);#missing in emulator
+    if (runDoSys[GCT] && isValid[GCT])
+      process<L1GctEmCandCollection>(gct_isolaem_data, gct_isolaem_emul, GCT, GCTisolaem, eventInfo);
+    if (runDoSys[GCT] && isValid[GCT])
+      process<L1GctEmCandCollection>(gct_noisoem_data, gct_noisoem_emul, GCT, GCTnoisoem, eventInfo);
+    if (runDoSys[GCT] && isValid[GCT])
+      process<L1GctJetCandCollection>(gct_cenjets_data, gct_cenjets_emul, GCT, GCTcenjets, eventInfo);
+    if (runDoSys[GCT] && isValid[GCT])
+      process<L1GctJetCandCollection>(gct_forjets_data, gct_forjets_emul, GCT, GCTforjets, eventInfo);
+    if (runDoSys[GCT] && isValid[GCT])
+      process<L1GctJetCandCollection>(gct_taujets_data, gct_taujets_emul, GCT, GCTtaujets, eventInfo);
+    if (runDoSys[GCT] && isValid[GCT])
+      process<L1GctEtHadCollection>(gct_ht_data, gct_ht_emul, GCT, GCTethad, eventInfo);
+    if (runDoSys[GCT] && isValid[GCT])
+      process<L1GctEtMissCollection>(gct_etmiss_data, gct_etmiss_emul, GCT, GCTetmiss, eventInfo);
+    if (runDoSys[GCT] && isValid[GCT])
+      process<L1GctEtTotalCollection>(gct_ettota_data, gct_ettota_emul, GCT, GCTettot, eventInfo);
+    if (runDoSys[GCT] && isValid[GCT])
+      process<L1GctHtMissCollection>(gct_htmiss_data, gct_htmiss_emul, GCT, GCThtmiss, eventInfo);
+    if (runDoSys[GCT] && isValid[GCT])
+      process<L1GctHFRingEtSumsCollection>(gct_hfring_data, gct_hfring_emul, GCT, GCThfring, eventInfo);
+    if (runDoSys[GCT] && isValid[GCT])
+      process<L1GctHFBitCountsCollection>(gct_hfbcnt_data, gct_hfbcnt_emul, GCT, GCThfbit, eventInfo);
+    //if(runDoSys[GCT]&&isValid[GCT]) process<L1GctJetCountsCollection>	 ( gct_jetcnt_data,  gct_jetcnt_emul, GCT,GCTjetcnt);#missing in emulator
   }
   if (m_stage1_layer2_ == true) {
-    if (m_doSys[GCT] && isValid[GCT])
-      process<L1GctEmCandCollection>(gct_isolaem_data, gct_isolaem_emul, GCT, GCTisolaem);
-    if (m_doSys[GCT] && isValid[GCT])
-      process<L1GctEmCandCollection>(gct_noisoem_data, gct_noisoem_emul, GCT, GCTnoisoem);
-    if (m_doSys[GCT] && isValid[GCT])
-      process<L1GctJetCandCollection>(gct_cenjets_data, gct_cenjets_emul, GCT, GCTcenjets);
-    if (m_doSys[GCT] && isValid[GCT])
-      process<L1GctJetCandCollection>(gct_forjets_data, gct_forjets_emul, GCT, GCTforjets);
-    if (m_doSys[GCT] && isValid[GCT])
-      process<L1GctJetCandCollection>(gct_taujets_data, gct_taujets_emul, GCT, GCTtaujets);
-    if (m_doSys[GCT] && isValid[GCT])
-      process<L1GctJetCandCollection>(gct_isotaujets_data, gct_isotaujets_emul, GCT, GCTisotaujets);
-    if (m_doSys[GCT] && isValid[GCT])
-      process<L1GctEtHadCollection>(gct_ht_data, gct_ht_emul, GCT, GCTethad);
-    if (m_doSys[GCT] && isValid[GCT])
-      process<L1GctEtMissCollection>(gct_etmiss_data, gct_etmiss_emul, GCT, GCTetmiss);
-    if (m_doSys[GCT] && isValid[GCT])
-      process<L1GctEtTotalCollection>(gct_ettota_data, gct_ettota_emul, GCT, GCTettot);
-    if (m_doSys[GCT] && isValid[GCT])
-      process<L1GctHtMissCollection>(gct_htmiss_data, gct_htmiss_emul, GCT, GCThtmiss);
-    if (m_doSys[GCT] && isValid[GCT])
-      process<L1GctHFRingEtSumsCollection>(gct_hfring_data, gct_hfring_emul, GCT, GCThfring);
-    if (m_doSys[GCT] && isValid[GCT])
-      process<L1GctHFBitCountsCollection>(gct_hfbcnt_data, gct_hfbcnt_emul, GCT, GCThfbit);
-    //if(m_doSys[GCT]&&isValid[GCT]) process<L1GctJetCountsCollection>	 ( gct_jetcnt_data,  gct_jetcnt_emul, GCT,GCTjetcnt);#missing in emulator
+    if (runDoSys[GCT] && isValid[GCT])
+      process<L1GctEmCandCollection>(gct_isolaem_data, gct_isolaem_emul, GCT, GCTisolaem, eventInfo);
+    if (runDoSys[GCT] && isValid[GCT])
+      process<L1GctEmCandCollection>(gct_noisoem_data, gct_noisoem_emul, GCT, GCTnoisoem, eventInfo);
+    if (runDoSys[GCT] && isValid[GCT])
+      process<L1GctJetCandCollection>(gct_cenjets_data, gct_cenjets_emul, GCT, GCTcenjets, eventInfo);
+    if (runDoSys[GCT] && isValid[GCT])
+      process<L1GctJetCandCollection>(gct_forjets_data, gct_forjets_emul, GCT, GCTforjets, eventInfo);
+    if (runDoSys[GCT] && isValid[GCT])
+      process<L1GctJetCandCollection>(gct_taujets_data, gct_taujets_emul, GCT, GCTtaujets, eventInfo);
+    if (runDoSys[GCT] && isValid[GCT])
+      process<L1GctJetCandCollection>(gct_isotaujets_data, gct_isotaujets_emul, GCT, GCTisotaujets, eventInfo);
+    if (runDoSys[GCT] && isValid[GCT])
+      process<L1GctEtHadCollection>(gct_ht_data, gct_ht_emul, GCT, GCTethad, eventInfo);
+    if (runDoSys[GCT] && isValid[GCT])
+      process<L1GctEtMissCollection>(gct_etmiss_data, gct_etmiss_emul, GCT, GCTetmiss, eventInfo);
+    if (runDoSys[GCT] && isValid[GCT])
+      process<L1GctEtTotalCollection>(gct_ettota_data, gct_ettota_emul, GCT, GCTettot, eventInfo);
+    if (runDoSys[GCT] && isValid[GCT])
+      process<L1GctHtMissCollection>(gct_htmiss_data, gct_htmiss_emul, GCT, GCThtmiss, eventInfo);
+    if (runDoSys[GCT] && isValid[GCT])
+      process<L1GctHFRingEtSumsCollection>(gct_hfring_data, gct_hfring_emul, GCT, GCThfring, eventInfo);
+    if (runDoSys[GCT] && isValid[GCT])
+      process<L1GctHFBitCountsCollection>(gct_hfbcnt_data, gct_hfbcnt_emul, GCT, GCThfbit, eventInfo);
+    //if(runDoSys[GCT]&&isValid[GCT]) process<L1GctJetCountsCollection>	 ( gct_jetcnt_data,  gct_jetcnt_emul, GCT,GCTjetcnt);#missing in emulator
   }
 
-  if (m_doSys[DTP] && isValid[DTP])
-    process<L1MuDTChambPhDigiCollection>(dtp_ph_data, dtp_ph_emul, DTP, DTtpPh);
-  if (m_doSys[DTP] && isValid[DTP])
-    process<L1MuDTChambThDigiCollection>(dtp_th_data, dtp_th_emul, DTP, DTtpTh);
+  if (runDoSys[DTP] && isValid[DTP])
+    process<L1MuDTChambPhDigiCollection>(dtp_ph_data, dtp_ph_emul, DTP, DTtpPh, eventInfo);
+  if (runDoSys[DTP] && isValid[DTP])
+    process<L1MuDTChambThDigiCollection>(dtp_th_data, dtp_th_emul, DTP, DTtpTh, eventInfo);
 
-  if (m_doSys[DTF] && isValid[DTF])
-    process<L1MuRegionalCandCollection>(dtf_trk_data, dtf_trk_emul, DTF, DTtftrk);
+  if (runDoSys[DTF] && isValid[DTF])
+    process<L1MuRegionalCandCollection>(dtf_trk_data, dtf_trk_emul, DTF, DTtftrk, eventInfo);
 
-  if (m_doSys[RPC] && isValid[RPC])
-    process<L1MuRegionalCandCollection>(rpc_cen_data, rpc_cen_emul, RPC, RPCcen);
-  if (m_doSys[RPC] && isValid[RPC])
-    process<L1MuRegionalCandCollection>(rpc_for_data, rpc_for_emul, RPC, RPCfor);
+  if (runDoSys[RPC] && isValid[RPC])
+    process<L1MuRegionalCandCollection>(rpc_cen_data, rpc_cen_emul, RPC, RPCcen, eventInfo);
+  if (runDoSys[RPC] && isValid[RPC])
+    process<L1MuRegionalCandCollection>(rpc_for_data, rpc_for_emul, RPC, RPCfor, eventInfo);
 
-  if (m_doSys[GMT] && isValid[GMT])
-    process<L1MuGMTCandCollection>(gmt_data, gmt_emul, GMT, GMTmain);
-  if (m_doSys[GMT] && isValid[GMT])
-    process<L1MuRegionalCandCollection>(gmt_rdt_data, gmt_rdt_emul, GMT, GMTrdt);
-  if (m_doSys[GMT] && isValid[GMT])
-    process<L1MuGMTCandCollection>(gmt_can_data, gmt_can_emul, GMT, GMTcnd);
+  if (runDoSys[GMT] && isValid[GMT])
+    process<L1MuGMTCandCollection>(gmt_data, gmt_emul, GMT, GMTmain, eventInfo);
+  if (runDoSys[GMT] && isValid[GMT])
+    process<L1MuRegionalCandCollection>(gmt_rdt_data, gmt_rdt_emul, GMT, GMTrdt, eventInfo);
+  if (runDoSys[GMT] && isValid[GMT])
+    process<L1MuGMTCandCollection>(gmt_can_data, gmt_can_emul, GMT, GMTcnd, eventInfo);
 
   // >>---- GLT ---- <<
   GltDEDigi gltdigimon;
@@ -717,9 +711,9 @@ void L1Comparator::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
     std::cout << "L1Comparator done processing all collections.\n" << std::flush;
 
   if (verbose()) {
-    std::cout << "[L1Comparator] sys match? << evt." << nevt_ << ": ";
+    std::cout << "[L1Comparator] sys match? << evt." << eventInfo.nevt_ << ": ";
     for (int i = 0; i < DEnsys; i++)
-      std::cout << DEmatchEvt[i] << " ";
+      std::cout << eventInfo.DEmatchEvt[i] << " ";
     std::cout << std::endl;
   }
 
@@ -727,7 +721,7 @@ void L1Comparator::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
 
   bool evt_match = true;
   for (int i = 0; i < DEnsys; i++)
-    evt_match &= DEmatchEvt[i];
+    evt_match &= eventInfo.DEmatchEvt[i];
 
   /* char ok[10];
      if(evt_match) sprintf(ok,"GOOD :]");
@@ -738,22 +732,28 @@ void L1Comparator::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   */
 
   // >>---- Global match? ---- <<
-  m_match &= evt_match;
-  m_dumpFile << std::flush;
-
+  if (not evt_match) {
+    m_match = false;
+  }
+  {
+    if (m_dumpMode) {
+      std::lock_guard<std::mutex> guard(m_fileGuard);
+      m_dumpFile << eventInfo.dumpToFile_.rdbuf() << std::flush;
+    }
+  }
   //if collection is empty, add empty digi
-  if (m_dedigis.empty()) {
+  if (eventInfo.m_dedigis.empty()) {
     if (verbose())
       std::cout << "\n [L1Comparator] adding empty collection to DErecord\n";
-    m_dedigis.push_back(L1DataEmulDigi());
+    eventInfo.m_dedigis.push_back(L1DataEmulDigi());
   }
 
   // >>---- d|e record ---- <<
-  std::unique_ptr<L1DataEmulRecord> record(
-      new L1DataEmulRecord(evt_match, m_doSys, DEmatchEvt, DEncand, m_dedigis, gltdigimon));
+  std::unique_ptr<L1DataEmulRecord> record(new L1DataEmulRecord(
+      evt_match, runDoSys, eventInfo.DEmatchEvt, eventInfo.DEncand, eventInfo.m_dedigis, gltdigimon));
   if (verbose()) {
     std::cout << "\n [L1Comparator] printing DErecord"
-              << "(entry:" << nevt_ << "|evt:" << evtNum_ << "|run:" << runNum_ << "):\n"
+              << "(entry:" << eventInfo.nevt_ << "|evt:" << eventInfo.evtNum_ << "|run:" << eventInfo.runNum_ << "):\n"
               << std::flush;
     std::cout << *record << "\n" << std::flush;
   }
@@ -761,11 +761,11 @@ void L1Comparator::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   iEvent.put(std::move(record));
 
   if (verbose())
-    std::cout << "L1comparator::analize() end. " << nevt_ << std::endl;
+    std::cout << "L1comparator::analize() end. " << eventInfo.nevt_ << std::endl;
 }
 
 template <class T>
-void L1Comparator::process(T const* data, T const* emul, const int sys, const int cid) {
+void L1Comparator::process(T const* data, T const* emul, const int sys, const int cid, EventInfo& eventInfo) const {
   if (verbose())
     std::cout << "L1Comparator::process -ing system:" << sys << " (" << SystLabel[sys] << "), data type " << cid
               << "...\n"
@@ -787,7 +787,7 @@ void L1Comparator::process(T const* data, T const* emul, const int sys, const in
     if (tmp.get_ncand(0) == 0 && tmp.get_ncand(1) == 0)
       prt = false;
     else
-      prt = !tmp.do_compare(m_dumpFile, 0);
+      prt = !tmp.do_compare(eventInfo.dumpToFile_, 0);
   }
 
   //declare de compare object
@@ -812,23 +812,26 @@ void L1Comparator::process(T const* data, T const* emul, const int sys, const in
     return;
   }
 
-  m_dumpFile << std::setiosflags(std::ios::showpoint | std::ios::fixed | std::ios::right | std::ios::adjustfield);
+  eventInfo.dumpToFile_ << std::setiosflags(std::ios::showpoint | std::ios::fixed | std::ios::right |
+                                            std::ios::adjustfield);
   std::cout << std::setiosflags(std::ios::showpoint | std::ios::fixed | std::ios::right | std::ios::adjustfield);
 
-  if (dumpEvent_ && prt) {
-    m_dumpFile << "\nEntry: " << nevt_ << " (event:" << evtNum_ << " | run:" << runNum_ << ")\n" << std::flush;
-    dumpEvent_ = false;
+  if (eventInfo.dumpEvent_ && prt) {
+    eventInfo.dumpToFile_ << "\nEntry: " << eventInfo.nevt_ << " (event:" << eventInfo.evtNum_
+                          << " | run:" << eventInfo.runNum_ << ")\n"
+                          << std::flush;
+    eventInfo.dumpEvent_ = false;
   }
 
   if (prt)
-    m_dumpFile << "\n  sys:" << SystLabel[sys] << " (" << sys << "), type:" << cid  //cmp.GetName()
-               << " ...\n";
+    eventInfo.dumpToFile_ << "\n  sys:" << SystLabel[sys] << " (" << sys << "), type:" << cid  //cmp.GetName()
+                          << " ...\n";
 
   if (verbose())
     std::cout << "L1Comparator::process print:\n" << std::flush << cmp.print() << std::flush;
 
   ///perform comparison
-  DEmatchEvt[sys] &= cmp.do_compare(m_dumpFile, m_dumpMode);
+  eventInfo.DEmatchEvt[sys] &= cmp.do_compare(eventInfo.dumpToFile_, m_dumpMode);
 
   ///gather results
   L1DEDigiCollection dg = cmp.getDEDigis();
@@ -845,22 +848,24 @@ void L1Comparator::process(T const* data, T const* emul, const int sys, const in
     it->setCid(cid);
 
   ///append d|e digis to the record's collection
-  m_dedigis.insert(m_dedigis.end(), dg.begin(), dg.end());
+  eventInfo.m_dedigis.insert(eventInfo.m_dedigis.end(), dg.begin(), dg.end());
   for (int i = 0; i < 2; i++)
-    DEncand[sys][i] += cmp.get_ncand(i);
+    eventInfo.DEncand[sys][i] += cmp.get_ncand(i);
 
   if (verbose())
     std::cout << "L1Comparator::process "
-              << " system:" << SystLabel[sys] << " type:" << cmp.GetName(0) << " ndata:" << DEncand[sys][0]
-              << " nemul:" << DEncand[sys][1] << " (size " << data->size() << "," << emul->size() << ")"
-              << " ndigis:" << dg.size() << " agree? " << DEmatchEvt[sys] << std::endl;
+              << " system:" << SystLabel[sys] << " type:" << cmp.GetName(0) << " ndata:" << eventInfo.DEncand[sys][0]
+              << " nemul:" << eventInfo.DEncand[sys][1] << " (size " << data->size() << "," << emul->size() << ")"
+              << " ndigis:" << dg.size() << " agree? " << eventInfo.DEmatchEvt[sys] << std::endl;
 
   if (verbose())
     std::cout << "L1Comparator::process -ing system:" << sys << " (" << SystLabel[sys] << ")...done.\n" << std::flush;
 }
 
 template <class myCol>
-bool L1Comparator::CompareCollections(edm::Handle<myCol> data, edm::Handle<myCol> emul) {
+bool L1Comparator::CompareCollections(edm::Handle<myCol> data,
+                                      edm::Handle<myCol> emul,
+                                      std::ostream& dumpStream) const {
   bool match = true;
   typedef typename myCol::size_type col_sz;
   typedef typename myCol::iterator col_it;
@@ -868,19 +873,19 @@ bool L1Comparator::CompareCollections(edm::Handle<myCol> data, edm::Handle<myCol
   col_sz nemul = emul->size();
   if (ndata != nemul) {
     match &= false;
-    m_dumpFile << " #cand mismatch!"
+    dumpStream << " #cand mismatch!"
                << "\tdata: " << ndata << "\temul: " << nemul << std::endl;
   }
   col_it itd = data->begin();
   col_it itm = emul->begin();
   for (col_sz i = 0; i < ndata; i++) {
-    match &= dumpCandidate(*itd++, *itm++, m_dumpFile);
+    match &= dumpCandidate(*itd++, *itm++, dumpStream);
   }
   return match;
 }
 
 template <class T>
-bool L1Comparator::dumpCandidate(const T& dt, const T& em, std::ostream& s) {
+bool L1Comparator::dumpCandidate(const T& dt, const T& em, std::ostream& s) const {
   if (dt == em)
     return true;
   s << dt << std::endl;

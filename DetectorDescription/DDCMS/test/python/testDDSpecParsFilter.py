@@ -38,7 +38,7 @@ process.MessageLogger = cms.Service(
     )
 
 process.DDDetectorESProducer = cms.ESSource("DDDetectorESProducer",
-                                            confGeomXMLFiles = cms.FileInPath('DetectorDescription/DDCMS/data/cms-geometry-2021.xml'),
+                                            confGeomXMLFiles = cms.FileInPath('Geometry/CMSCommonData/data/dd4hep/cmsExtendedGeometry2021.xml'),
                                             appendToDataLabel = cms.string('CMS')
                                             )
 
@@ -48,8 +48,8 @@ process.DDSpecParRegistryESProducer = cms.ESProducer("DDSpecParRegistryESProduce
 
 process.test = cms.EDAnalyzer("DDTestSpecParsFilter",
                               DDDetector = cms.ESInputTag('','CMS'),
-                              attribute = cms.untracked.string('MuStructure'),
-                              value = cms.untracked.string('MuonEndcapCSC') ###'MuonBarrelDT')
+                              attribute = cms.untracked.string('TrackingMaterialGroup'), ###MuStructure'),
+                              value = cms.untracked.string('') ### MuonEndcapCSC') ###'MuonBarrelDT')
                               )
 
 process.p = cms.Path(process.test)

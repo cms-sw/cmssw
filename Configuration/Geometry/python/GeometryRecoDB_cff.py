@@ -9,6 +9,7 @@ from Geometry.TrackerNumberingBuilder.trackerTopology_cfi import *
 
 #Muon
 from RecoMuon.DetLayers.muonDetLayerGeometry_cfi import *
+from Geometry.MuonNumbering.muonGeometryConstants_cff import *
 
 #  Calorimeters
 from Geometry.CaloEventSetup.CaloTopology_cfi import *

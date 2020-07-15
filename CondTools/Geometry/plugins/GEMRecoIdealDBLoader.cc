@@ -8,7 +8,7 @@
 #include "CondFormats/GeometryObjects/interface/RecoIdealGeometry.h"
 #include "DetectorDescription/Core/interface/DDCompactView.h"
 #include "Geometry/GEMGeometryBuilder/src/GEMGeometryParsFromDD.h"
-#include "Geometry/MuonNumbering/interface/MuonDDDConstants.h"
+#include "Geometry/MuonNumbering/interface/MuonGeometryConstants.h"
 #include "Geometry/Records/interface/GEMRecoGeometryRcd.h"
 #include "Geometry/Records/interface/MuonNumberingRecord.h"
 
@@ -32,9 +32,9 @@ void GEMRecoIdealDBLoader::beginRun(const edm::Run&, edm::EventSetup const& es) 
 
   if (mydbservice->isNewTagRequest("GEMRecoGeometryRcd")) {
     edm::ESTransientHandle<DDCompactView> pDD;
-    edm::ESHandle<MuonDDDConstants> pMNDC;
+    edm::ESHandle<MuonGeometryConstants> pMNDC;
     es.get<IdealGeometryRecord>().get(pDD);
-    es.get<MuonNumberingRecord>().get(pMNDC);
+    es.get<IdealGeometryRecord>().get(pMNDC);
 
     const DDCompactView& cpv = *pDD;
     GEMGeometryParsFromDD rpcpd;

@@ -1,5 +1,5 @@
+<use name="Alignment/SurveyAnalysis"/>
 <use name="FWCore/Framework"/>
-<use name="FWCore/PluginManager"/>
 <use name="FWCore/ParameterSet"/>
 <use name="FWCore/ServiceRegistry"/>
 <use name="CommonTools/UtilAlgos"/>
@@ -10,5 +10,4 @@
 <use name="Geometry/TrackerGeometryBuilder"/>
 <use name="DQMServices/Core"/>
 <use name="Alignment/MillePedeAlignmentAlgorithm"/>
-<use name="classlib"/>
 <flags EDM_PLUGIN="1"/>

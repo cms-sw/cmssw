@@ -1,20 +1,23 @@
-<use   name="AnalysisDataFormats/TopObjects"/>
-<use   name="FWCore/FWLite"/>
-<use   name="FWCore/Framework"/>
-<use   name="root"/>
+<use name="AnalysisDataFormats/TopObjects"/>
+<use name="FWCore/FWLite"/>
+<use name="root"/>
 <environment>
-  <bin   file="TopHypothesisFWLiteAnalyzer.cc">
-  </bin>
+  <bin file="TopHypothesisFWLiteAnalyzer.cc">
+</bin>
+
 </environment>
 <environment>
-  <bin   file="TopMuonFWLiteAnalyzer.cc">
-  </bin>
+  <bin file="TopMuonFWLiteAnalyzer.cc">
+</bin>
+
 </environment>
 <environment>
-  <bin   file="TopElecFWLiteAnalyzer.cc">
-  </bin>
+  <bin file="TopElecFWLiteAnalyzer.cc">
+</bin>
+
 </environment>
 <environment>
-  <bin   file="TopJetFWLiteAnalyzer.cc">
-  </bin>
+  <bin file="TopJetFWLiteAnalyzer.cc">
+</bin>
+
 </environment>

@@ -1,10 +1,9 @@
 <iftool name="cuda-gcc-support">
-<use name="cub"/>
-<use name="cuda"/>
-<use name="FWCore/Utilities"/>
-<use name="FWCore/MessageLogger"/>
-
-<export>
+  <use name="cuda"/>
+  <use name="eigen"/>
+  <use name="FWCore/Utilities"/>
+  <use name="FWCore/MessageLogger"/>
+  <export>
     <lib name="1"/>
-</export>
+  </export>
 </iftool>

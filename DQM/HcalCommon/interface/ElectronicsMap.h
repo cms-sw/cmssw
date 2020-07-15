@@ -15,8 +15,8 @@
 #include "DQM/HcalCommon/interface/HashMapper.h"
 #include "DQM/HcalCommon/interface/HcalCommonHeaders.h"
 
-#include "boost/unordered_map.hpp"
 #include "string"
+#include <unordered_map>
 
 namespace hcaldqm {
   namespace electronicsmap {
@@ -51,7 +51,7 @@ namespace hcaldqm {
       ElectronicsMapType _etype;
 
       //	2 choices either use as HcalElectronicsMap or as ur hash
-      typedef boost::unordered_map<uint32_t, uint32_t> EMapType;
+      typedef std::unordered_map<uint32_t, uint32_t> EMapType;
       EMapType _ids;
 
       //

@@ -14,7 +14,8 @@ using namespace std;
 
 bool PixelHitMatcher::ForwardMeasurementEstimator::operator()(const GlobalPoint &vprim,
                                                               const TrajectoryStateOnSurface &absolute_ts,
-                                                              const GlobalPoint &absolute_gp) const {
+                                                              const GlobalPoint &absolute_gp,
+                                                              int charge) const {
   GlobalVector ts = absolute_ts.globalParameters().position() - vprim;
   GlobalVector gp = absolute_gp - vprim;
 
@@ -30,14 +31,15 @@ bool PixelHitMatcher::ForwardMeasurementEstimator::operator()(const GlobalPoint 
   if ((rDiff >= rMax) | (rDiff <= rMin))
     return false;
 
-  float phiDiff = normalizedPhi(gp.barePhi() - ts.barePhi());
+  float phiDiff = -charge * normalizedPhi(gp.barePhi() - ts.barePhi());
 
   return (phiDiff < thePhiMax) & (phiDiff > thePhiMin);
 }
 
 bool PixelHitMatcher::BarrelMeasurementEstimator::operator()(const GlobalPoint &vprim,
                                                              const TrajectoryStateOnSurface &absolute_ts,
-                                                             const GlobalPoint &absolute_gp) const {
+                                                             const GlobalPoint &absolute_gp,
+                                                             int charge) const {
   GlobalVector ts = absolute_ts.globalParameters().position() - vprim;
   GlobalVector gp = absolute_gp - vprim;
 
@@ -53,7 +55,7 @@ bool PixelHitMatcher::BarrelMeasurementEstimator::operator()(const GlobalPoint &
   if ((zDiff >= myZmax) | (zDiff <= myZmin))
     return false;
 
-  float phiDiff = normalizedPhi(gp.barePhi() - ts.barePhi());
+  float phiDiff = -charge * normalizedPhi(gp.barePhi() - ts.barePhi());
 
   return (phiDiff < thePhiMax) & (phiDiff > thePhiMin);
 }
@@ -64,20 +66,15 @@ PixelHitMatcher::PixelHitMatcher(float phi1min,
                                  float phi2maxB,
                                  float phi2minF,
                                  float phi2maxF,
-                                 float z2minB,
                                  float z2maxB,
-                                 float r2minF,
                                  float r2maxF,
-                                 float rMinI,
                                  float rMaxI,
                                  bool useRecoVertex)
     :  //zmin1 and zmax1 are dummy at this moment, set from beamspot later
       meas1stBLayer{phi1min, phi1max, 0., 0.},
-      meas2ndBLayer{phi2minB, phi2maxB, z2minB, z2maxB},
-      meas1stFLayer{phi1min, phi1max, 0., 0., rMinI, rMaxI},
-      meas2ndFLayer{phi2minF, phi2maxF, r2minF, r2maxF, rMinI, rMaxI},
-      prop1stLayer(nullptr),
-      prop2ndLayer(nullptr),
+      meas2ndBLayer{phi2minB, phi2maxB, -z2maxB, z2maxB},
+      meas1stFLayer{phi1min, phi1max, 0., 0., -rMaxI, rMaxI},
+      meas2ndFLayer{phi2minF, phi2maxF, -r2maxF, r2maxF, -rMaxI, rMaxI},
       useRecoVertex_(useRecoVertex) {}
 
 void PixelHitMatcher::set1stLayer(float dummyphi1min, float dummyphi1max) {
@@ -145,19 +142,19 @@ std::vector<SeedWithInfo> PixelHitMatcher::operator()(const std::vector<const Tr
         continue;
       }
 
-      const TrajectorySeed::range &hits = seed.recHits();
+      auto const &hits = seed.recHits();
       // cache the global points
 
-      for (auto it = hits.first; it != hits.second; ++it) {
-        hitGpMap.emplace_back(it->globalPosition());
+      for (auto const &hit : hits) {
+        hitGpMap.emplace_back(hit.globalPosition());
       }
 
       //iterate on the hits
-      auto he = hits.second - 1;
-      for (auto it1 = hits.first; it1 < he; ++it1) {
+      auto he = hits.end() - 1;
+      for (auto it1 = hits.begin(); it1 < he; ++it1) {
         if (!it1->isValid())
           continue;
-        auto idx1 = std::distance(hits.first, it1);
+        auto idx1 = std::distance(hits.begin(), it1);
         const DetId id1 = it1->geographicalId();
         const GeomDet *geomdet1 = it1->det();
 
@@ -183,7 +180,8 @@ std::vector<SeedWithInfo> PixelHitMatcher::operator()(const std::vector<const Tr
 
         if (!tsos1->isValid())
           continue;
-        bool est = id1.subdetId() % 2 ? meas1stBLayer(vprim, *tsos1, hit1Pos) : meas1stFLayer(vprim, *tsos1, hit1Pos);
+        bool est = id1.subdetId() % 2 ? meas1stBLayer(vprim, *tsos1, hit1Pos, charge)
+                                      : meas1stFLayer(vprim, *tsos1, hit1Pos, charge);
         if (!est)
           continue;
         EleRelPointPair pp1(hit1Pos, tsos1->globalParameters().position(), vprim);
@@ -211,10 +209,10 @@ std::vector<SeedWithInfo> PixelHitMatcher::operator()(const std::vector<const Tr
         GlobalPoint vertex(vprim.x(), vprim.y(), zVertex);
         auto fts2 = trackingTools::ftsFromVertexToPoint(*theMagField, hit1Pos, vertex, energy, charge);
         // now find the matching hit
-        for (auto it2 = it1 + 1; it2 != hits.second; ++it2) {
+        for (auto it2 = it1 + 1; it2 != hits.end(); ++it2) {
           if (!it2->isValid())
             continue;
-          auto idx2 = std::distance(hits.first, it2);
+          auto idx2 = std::distance(hits.begin(), it2);
           const DetId id2 = it2->geographicalId();
           const GeomDet *geomdet2 = it2->det();
           const auto det_key = std::make_pair(geomdet2->gdetIndex(), hit1Pos);
@@ -229,8 +227,8 @@ std::vector<SeedWithInfo> PixelHitMatcher::operator()(const std::vector<const Tr
           if (!tsos2->isValid())
             continue;
           const GlobalPoint &hit2Pos = hitGpMap[idx2];
-          bool est2 =
-              id2.subdetId() % 2 ? meas2ndBLayer(vertex, *tsos2, hit2Pos) : meas2ndFLayer(vertex, *tsos2, hit2Pos);
+          bool est2 = id2.subdetId() % 2 ? meas2ndBLayer(vertex, *tsos2, hit2Pos, charge)
+                                         : meas2ndFLayer(vertex, *tsos2, hit2Pos, charge);
           if (est2) {
             EleRelPointPair pp2(hit2Pos, tsos2->globalParameters().position(), vertex);
             const int subDet2 = id2.subdetId();

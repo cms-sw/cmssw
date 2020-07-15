@@ -184,8 +184,10 @@ fragment = customizeHLTforAll(fragment,"%s")
     else:
       if self.config.type=="Fake":
         prefix = "run1"
-      else:
+      elif self.config.type in ("Fake1","Fake2","2018"):
         prefix = "run2"
+      else:
+        prefix = "run3"
       _gtData = "auto:"+prefix+"_hlt_"+self.config.type
       _gtMc   = "auto:"+prefix+"_mc_" +self.config.type
       self.data += """
@@ -636,7 +638,6 @@ if 'GlobalTag' in %%(dict)s:
       # instrument the HLT menu with DQMStore and DQMRootOutputModule suitable for running offline
       dqmstore  = "\n# load the DQMStore and DQMRootOutputModule\n"
       dqmstore += self.loadCffCommand('DQMServices.Core.DQMStore_cfi')
-      dqmstore += "%(process)s.DQMStore.enableMultiThread = True\n"
       dqmstore += """
 %(process)s.dqmOutput = cms.OutputModule("DQMRootOutputModule",
     fileName = cms.untracked.string("DQMIO.root")

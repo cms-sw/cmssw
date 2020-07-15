@@ -1,5 +1,4 @@
 #include "RecoParticleFlow/PFProducer/interface/PFCandConnector.h"
-#include "DataFormats/ParticleFlowReco/interface/PFDisplacedVertexFwd.h"
 #include "DataFormats/ParticleFlowReco/interface/PFDisplacedVertex.h"
 #include "DataFormats/ParticleFlowReco/interface/PFBlock.h"
 #include "DataFormats/GsfTrackReco/interface/GsfTrack.h"

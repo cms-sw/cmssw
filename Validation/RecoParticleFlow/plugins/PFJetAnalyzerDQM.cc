@@ -112,12 +112,17 @@ private:
   };
 
   std::vector<Plot1DInBin> jetResponsePlots;
+  std::vector<Plot1DInBin> jetResponsePlots_noJEC;
   std::vector<Plot1DInBinVariable> genJetPlots;
 
   // Is this data or MC?
   bool isMC;
 
   float jetDeltaR;
+
+  bool genJetsOn;
+
+  std::string jetCollectionName;
 
   edm::InputTag recoJetsLabel;
   edm::InputTag genJetsLabel;
@@ -145,8 +150,15 @@ void PFJetAnalyzerDQM::prepareJetResponsePlots(const std::vector<edm::ParameterS
     const auto name = pset.getParameter<std::string>("name");
     const auto title = pset.getParameter<std::string>("title");
 
+    // for title of raw jet response histograms
+    auto rawTitle = title;
+    rawTitle = rawTitle.replace(rawTitle.begin(), rawTitle.begin(), "Raw ");
+
     jetResponsePlots.push_back(Plot1DInBin(
         name, title, response_nbins, response_low, response_high, ptbin_low, ptbin_high, etabin_low, etabin_high));
+
+    jetResponsePlots_noJEC.push_back(Plot1DInBin(
+        name, rawTitle, response_nbins, response_low, response_high, ptbin_low, ptbin_high, etabin_low, etabin_high));
   }
   if (jetResponsePlots.size() > 200) {
     throw std::runtime_error("Requested too many jet response plots, aborting as this seems unusual.");
@@ -165,13 +177,6 @@ void PFJetAnalyzerDQM::prepareGenJetPlots(const std::vector<edm::ParameterSet>& 
     const auto etabin_low = pset.getParameter<double>("etaBinLow");
     const auto etabin_high = pset.getParameter<double>("etaBinHigh");
 
-    /*
-        for (auto v : ptbins) {
-            std::cout << " " << v;
-        }
-        std::cout << std::endl;
-	*/
-
     genJetPlots.push_back(Plot1DInBinVariable(
         name,
         title,
@@ -187,8 +192,14 @@ PFJetAnalyzerDQM::PFJetAnalyzerDQM(const edm::ParameterSet& iConfig) {
   recoJetsLabel = iConfig.getParameter<edm::InputTag>("recoJetCollection");
   genJetsLabel = iConfig.getParameter<edm::InputTag>("genJetCollection");
 
+  //label for making new folder
+  jetCollectionName = recoJetsLabel.label();
+
   //DeltaR for reco to gen jet matching
   jetDeltaR = iConfig.getParameter<double>("jetDeltaR");
+
+  //for turn genJet on/off
+  genJetsOn = iConfig.getParameter<bool>("genJetsOn");
 
   //Create all jet response plots in bins of genjet pt and eta
   const auto& response_plots = iConfig.getParameter<std::vector<edm::ParameterSet>>("responsePlots");
@@ -202,8 +213,6 @@ PFJetAnalyzerDQM::PFJetAnalyzerDQM(const edm::ParameterSet& iConfig) {
 }
 
 void PFJetAnalyzerDQM::fillJetResponse(edm::View<pat::Jet>& recoJetCollection, edm::View<reco::Jet>& genJetCollection) {
-  bool use_rawpt = false;
-
   //match gen jets to reco jets, require minimum jetDeltaR, choose closest, do not try to match charge
   std::vector<int> matchIndices;
   PFB::match(genJetCollection, recoJetCollection, matchIndices, false, jetDeltaR);
@@ -214,10 +223,12 @@ void PFJetAnalyzerDQM::fillJetResponse(edm::View<pat::Jet>& recoJetCollection, e
     const auto eta_gen = abs(genJet.eta());
     const int iMatch = matchIndices[i];
 
-    //Fill genjet pt
-    for (auto& plot : genJetPlots) {
-      if (plot.isInEtaBin(eta_gen)) {
-        plot.fill(pt_gen);
+    //Fill genjet pt if genJetOn
+    if (genJetsOn) {
+      for (auto& plot : genJetPlots) {
+        if (plot.isInEtaBin(eta_gen)) {
+          plot.fill(pt_gen);
+        }
       }
     }
 
@@ -225,9 +236,9 @@ void PFJetAnalyzerDQM::fillJetResponse(edm::View<pat::Jet>& recoJetCollection, e
     if (iMatch != -1) {
       const auto& recoJet = recoJetCollection[iMatch];
       auto pt_reco = recoJet.pt();
-      if (use_rawpt)
-        pt_reco *= recoJet.jecFactor("Uncorrected");
+
       const auto response = pt_reco / pt_gen;
+      const auto response_raw = pt_reco * recoJet.jecFactor("Uncorrected") / pt_gen;
 
       //Loop linearly through all plots and check if they match the pt and eta bin
       //this is not algorithmically optimal but we don't expect to more than a few hundred plots
@@ -237,21 +248,33 @@ void PFJetAnalyzerDQM::fillJetResponse(edm::View<pat::Jet>& recoJetCollection, e
           plot.fill(response);
         }
       }
+      // this loop should be for NoJEC plots
+      for (auto& plot : jetResponsePlots_noJEC) {
+        if (plot.isInPtEtaBin(pt_gen, eta_gen)) {
+          plot.fill(response_raw);
+        }
+      }
     }
   }
 }
 
 void PFJetAnalyzerDQM::bookHistograms(DQMStore::IBooker& booker, edm::Run const&, edm::EventSetup const&) {
-  //std::cout << "PFJetAnalyzerDQM booking response histograms" << std::endl;
-  booker.setCurrentFolder("ParticleFlow/JetResponse/");
+  booker.setCurrentFolder("ParticleFlow/JetResponse/" + jetCollectionName + "/JEC/");
   for (auto& plot : jetResponsePlots) {
+    plot.book(booker);
+  }
+  //Book plots for noJEC
+  booker.setCurrentFolder("ParticleFlow/JetResponse/" + jetCollectionName + "/noJEC/");
+  for (auto& plot : jetResponsePlots_noJEC) {
     plot.book(booker);
   }
 
   //Book plots for gen-jet pt spectra
-  booker.setCurrentFolder("ParticleFlow/GenJets/");
-  for (auto& plot : genJetPlots) {
-    plot.book(booker);
+  if (genJetsOn) {
+    booker.setCurrentFolder("ParticleFlow/GenJets/");
+    for (auto& plot : genJetPlots) {
+      plot.book(booker);
+    }
   }
 }
 

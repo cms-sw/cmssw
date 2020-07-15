@@ -170,9 +170,7 @@ process.DQM = cms.Service("DQM",
 
 process.DQMStore = cms.Service("DQMStore",
     verboseQT = cms.untracked.int32(0),
-    referenceFileName = cms.untracked.string(''),
     verbose = cms.untracked.int32(0),
-    collateHistograms = cms.untracked.bool(False)
 )
 
 

@@ -22,7 +22,7 @@ process.MessageLogger = cms.Service("MessageLogger",
 
 process.comparedddump = cms.EDAnalyzer("TestCompareDDDumpFiles",
                                        dumpFile1 = cms.string('workarea/xml/dumpSTD'),
-                                       dumpFile2 = cms.string('workarea/db/dumpBDB'),
+                                       dumpFile2 = cms.string('workarea/db/dumpLocDB'),
                                        tolerance = cms.untracked.double(0.0004)
                                        )
 

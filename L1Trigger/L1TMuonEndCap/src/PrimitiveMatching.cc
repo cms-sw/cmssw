@@ -136,12 +136,7 @@ void PrimitiveMatching::process(const std::deque<EMTFHitCollection>& extended_co
       // conv_hit with the lowest phi_diff from the pattern in this station and zone
       process_single_zone_station(
           izone + 1, istation + 1, zone_roads.at(izone), zs_conv_hits.at(zs), zs_phi_differences.at(zs));
-
-      if (not(zone_roads.at(izone).size() == zs_phi_differences.at(zs).size())) {
-        edm::LogError("L1T") << "zone_roads.at(izone).size() = " << zone_roads.at(izone).size()
-                             << ", zs_phi_differences.at(zs).size() = " << zs_phi_differences.at(zs).size();
-        return;
-      }
+      emtf_assert(zone_roads.at(izone).size() == zs_phi_differences.at(zs).size());
     }  // end loop over stations
   }    // end loop over zones
 
@@ -197,10 +192,7 @@ void PrimitiveMatching::process(const std::deque<EMTFHitCollection>& extended_co
       }
 
       if (fixZonePhi_) {
-        if (not(!track.Hits().empty())) {
-          edm::LogError("L1T") << "track.Hits().empty() = " << track.Hits().empty();
-          return;
-        }
+        emtf_assert(!track.Hits().empty());
       }
 
       // Output track
@@ -311,10 +303,7 @@ void PrimitiveMatching::process_single_zone_station(int zone,
   for (; roads_it != roads_end; ++roads_it) {
     int ph_pat = roads_it->Key_zhit();    // pattern key phi value
     int ph_q = roads_it->Quality_code();  // pattern quality code
-    if (not(ph_pat >= 0 && ph_q > 0)) {
-      edm::LogError("L1T") << "ph_pat = " << ph_pat << ", ph_q = " << ph_q;
-      return;
-    }
+    emtf_assert(ph_pat >= 0 && ph_q > 0);
 
     if (fixZonePhi_) {
       ph_pat <<= 5;  // add missing 5 lower bits to pattern phi
@@ -328,10 +317,7 @@ void PrimitiveMatching::process_single_zone_station(int zone,
     for (; conv_hits_it != conv_hits_end; ++conv_hits_it) {
       int ph_seg = conv_hits_it->Phi_fp();             // ph from segments
       int ph_seg_red = ph_seg >> (bw_fph - bpow - 1);  // remove unused low bits
-      if (not(ph_seg >= 0)) {
-        edm::LogError("L1T") << "ph_seg = " << ph_seg;
-        return;
-      }
+      emtf_assert(ph_seg >= 0);
 
       if (fixZonePhi_) {
         ph_seg_red = ph_seg;  // use full-precision phi
@@ -383,17 +369,8 @@ void PrimitiveMatching::process_single_zone_station(int zone,
           fs_segment = (fs_segment & 0x1);
           unsigned fw_sort_array_index = (fs_history * zone_cham * seg_ch) + (fs_chamber * seg_ch) + fs_segment;
 
-          if (not(fs_history < max_drift && fs_chamber < zone_cham && fs_segment < seg_ch)) {
-            edm::LogError("L1T") << "fs_history = " << fs_history << ", max_drift = " << max_drift
-                                 << ", fs_chamber = " << fs_chamber << ", zone_cham = " << zone_cham
-                                 << ", fs_segment = " << fs_segment << ", seg_ch = " << seg_ch;
-            return;
-          }
-          if (not(fw_sort_array_index < fw_sort_array.size())) {
-            edm::LogError("L1T") << "fw_sort_array_index = " << fw_sort_array_index
-                                 << ", fw_sort_array.size() = " << fw_sort_array.size();
-            return;
-          }
+          emtf_assert(fs_history < max_drift && fs_chamber < zone_cham && fs_segment < seg_ch);
+          emtf_assert(fw_sort_array_index < fw_sort_array.size());
           fw_sort_array.at(fw_sort_array_index) = *phdiffs_it;
         }
 
@@ -480,11 +457,7 @@ void PrimitiveMatching::insert_hits(hit_ptr_t conv_hit_ptr,
           (conv_hit_i.Theta_fp() == conv_hit_j.Theta_fp()))) &&
         true) {
       // All duplicates with the same strip but different wire must have same phi_fp
-      if (not(conv_hit_i.Phi_fp() == conv_hit_j.Phi_fp())) {
-        edm::LogError("L1T") << "conv_hit_i.Phi_fp() = " << conv_hit_i.Phi_fp()
-                             << ", conv_hit_j.Phi_fp() = " << conv_hit_j.Phi_fp();
-        return;
-      }
+      emtf_assert(conv_hit_i.Phi_fp() == conv_hit_j.Phi_fp());
 
       track.push_Hit(conv_hit_i);
 

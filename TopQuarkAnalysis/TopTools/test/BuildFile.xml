@@ -1,14 +1,15 @@
 <environment>
-  <bin   file="runtestTqafTopTools.cpp">
-    <flags   TEST_RUNNER_ARGS=" /bin/bash TopQuarkAnalysis/TopTools/test runtests.sh"/>
-    <use   name="FWCore/Utilities"/>
+  <bin file="runtestTqafTopTools.cpp">
+    <flags TEST_RUNNER_ARGS=" /bin/bash TopQuarkAnalysis/TopTools/test runtests.sh"/>
+    <use name="FWCore/Utilities"/>
   </bin>
+
 </environment>
-<library   file="TestGenTtbarCategories.cc">
-  <flags   EDM_PLUGIN="1"/>
-  <use   name="FWCore/Framework"/>
-  <use   name="FWCore/Utilities"/>
-  <use   name="CommonTools/UtilAlgos"/>
-  <use   name="rootmath"/>
-  <use   name="root"/>
+<library file="TestGenTtbarCategories.cc">
+  <flags EDM_PLUGIN="1"/>
+  <use name="FWCore/Framework"/>
+  <use name="FWCore/Utilities"/>
+  <use name="CommonTools/UtilAlgos"/>
+  <use name="rootmath"/>
+  <use name="root"/>
 </library>

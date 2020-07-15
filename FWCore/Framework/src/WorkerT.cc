@@ -4,7 +4,6 @@
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Framework/interface/EDFilter.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
-#include "FWCore/Framework/interface/OutputModule.h"
 #include "FWCore/Framework/interface/one/EDProducerBase.h"
 #include "FWCore/Framework/interface/one/EDFilterBase.h"
 #include "FWCore/Framework/interface/one/EDAnalyzerBase.h"
@@ -170,14 +169,6 @@ namespace edm {
   SerialTaskQueue* WorkerT<EDAnalyzer>::globalLuminosityBlocksQueue() {
     return module_->globalLuminosityBlocksQueue();
   }
-  template <>
-  SerialTaskQueue* WorkerT<OutputModule>::globalRunsQueue() {
-    return module_->globalRunsQueue();
-  }
-  template <>
-  SerialTaskQueue* WorkerT<OutputModule>::globalLuminosityBlocksQueue() {
-    return module_->globalLuminosityBlocksQueue();
-  }
   //one
   template <>
   SerialTaskQueue* WorkerT<one::EDProducerBase>::globalRunsQueue() {
@@ -269,21 +260,6 @@ namespace edm {
   }
   template <typename T>
   inline void WorkerT<T>::itemsToGetForSelection(std::vector<ProductResolverIndexAndSkipBit>&) const {}
-
-  template <>
-  inline bool WorkerT<OutputModule>::implNeedToRunSelection() const {
-    return true;
-  }
-  template <>
-  inline bool WorkerT<OutputModule>::implDoPrePrefetchSelection(StreamID id,
-                                                                EventPrincipal const& ep,
-                                                                ModuleCallingContext const* mcc) {
-    return module_->prePrefetchSelection(id, ep, mcc);
-  }
-  template <>
-  inline void WorkerT<OutputModule>::itemsToGetForSelection(std::vector<ProductResolverIndexAndSkipBit>& iItems) const {
-    iItems = module_->productsUsedBySelection();
-  }
 
   template <>
   inline bool WorkerT<edm::one::OutputModuleBase>::implNeedToRunSelection() const {
@@ -519,10 +495,6 @@ namespace edm {
     return &(module_->sharedResourcesAcquirer().serialQueueChain());
   }
   template <>
-  Worker::TaskQueueAdaptor WorkerT<OutputModule>::serializeRunModule() {
-    return &(module_->sharedResourcesAcquirer().serialQueueChain());
-  }
-  template <>
   Worker::TaskQueueAdaptor WorkerT<one::EDAnalyzerBase>::serializeRunModule() {
     return &(module_->sharedResourcesAcquirer().serialQueueChain());
   }
@@ -569,10 +541,6 @@ namespace edm {
     }
     template <>
     bool mustPrefetchMayGet<EDFilter>() {
-      return true;
-    }
-    template <>
-    bool mustPrefetchMayGet<OutputModule>() {
       return true;
     }
 
@@ -726,10 +694,6 @@ namespace edm {
     return Worker::kFilter;
   }
   template <>
-  Worker::Types WorkerT<OutputModule>::moduleType() const {
-    return Worker::kOutputModule;
-  }
-  template <>
   Worker::Types WorkerT<edm::one::EDProducerBase>::moduleType() const {
     return Worker::kProducer;
   }
@@ -798,7 +762,6 @@ namespace edm {
   template class WorkerT<EDProducer>;
   template class WorkerT<EDFilter>;
   template class WorkerT<EDAnalyzer>;
-  template class WorkerT<OutputModule>;
   template class WorkerT<one::EDProducerBase>;
   template class WorkerT<one::EDFilterBase>;
   template class WorkerT<one::EDAnalyzerBase>;

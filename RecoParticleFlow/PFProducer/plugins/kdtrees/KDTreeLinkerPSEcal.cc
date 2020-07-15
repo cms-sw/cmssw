@@ -139,7 +139,7 @@ void KDTreeLinkerPSEcal::buildTree(const RecHitSet &rechitsSet, KDTreeLinkerAlgo
 }
 
 void KDTreeLinkerPSEcal::searchLinks() {
-  // Must of the code has been taken from LinkByRecHit.cc
+  // Most of the code has been taken from LinkByRecHit.cc
 
   // We iterate over the PS clusters.
   for (BlockEltSet::iterator it = targetSet_.begin(); it != targetSet_.end(); it++) {

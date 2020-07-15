@@ -160,7 +160,11 @@ cscTriggerPrimitiveDigis = cms.EDProducer("CSCTriggerPrimitivesProducer",
         verbosity = cms.int32(0),
 
         # BX to start CLCT finding (poor man's dead-time shortening):
-        clctStartBxShift  = cms.int32(0)
+        clctStartBxShift  = cms.int32(0),
+
+        useRun3Patterns = cms.bool(False),
+
+        useComparatorCodes = cms.bool(False),
     ),
 
     # Parameters for CLCT processors: SLHC studies
@@ -202,7 +206,11 @@ cscTriggerPrimitiveDigis = cms.EDProducer("CSCTriggerPrimitivesProducer",
         # (currently it is median time of all hits in a pattern) into the CSCCLCTDigi bx,
         # and temporary store the regular "key layer hit" time into the CSCCLCTDigi fullBX:
         # not feasible --Tao
-        clctUseCorrectedBx = cms.bool(False)
+        clctUseCorrectedBx = cms.bool(False),
+
+        useRun3Patterns = cms.bool(False),
+
+        useComparatorCodes = cms.bool(False),
     ),
 
     tmbParam = cms.PSet(
@@ -237,6 +245,9 @@ cscTriggerPrimitiveDigis = cms.EDProducer("CSCTriggerPrimitivesProducer",
         #  False = ALCT-centric matching (recommended for SLHC,
         #         take ALCTs in BX look for matching CLCTs in window)
         clctToAlct = cms.bool(False),
+
+        ## bits for high-multiplicity triggers
+        useHighMultiplicityBits = cms.bool(False),
     ),
 
     # to be used by ME11 chambers with upgraded TMB and ALCT
@@ -270,6 +281,9 @@ cscTriggerPrimitiveDigis = cms.EDProducer("CSCTriggerPrimitivesProducer",
         #  False = ALCT-centric matching (recommended for SLHC,
         #         take ALCTs in BX look for matching CLCTs in window)
         clctToAlct = cms.bool(False),
+
+        ## bits for high-multiplicity triggers
+        useHighMultiplicityBits = cms.bool(False),
 
         # For ALCT-centric matching, whether to drop CLCTs that were matched
         # to ALCTs in this BX, and not use them in the following BX
@@ -377,6 +391,9 @@ me11tmbSLHCGEM = cms.PSet(
     promoteALCTGEMquality = cms.bool(True),
     promoteCLCTGEMquality_ME1a = cms.bool(True),
     promoteCLCTGEMquality_ME1b = cms.bool(True),
+
+    ## bits for high-multiplicity triggers
+    useHighMultiplicityBits = cms.bool(False),
 )
 
 # to be used by ME21 chambers with GEM-CSC ILT
@@ -422,6 +439,9 @@ me21tmbSLHCGEM = cms.PSet(
     promoteALCTGEMpattern = cms.bool(True),
     promoteALCTGEMquality = cms.bool(True),
     promoteCLCTGEMquality = cms.bool(True),
+
+    ## bits for high-multiplicity triggers
+    useHighMultiplicityBits = cms.bool(False),
 )
 
 # to be used by ME31-ME41 chambers
@@ -446,6 +466,9 @@ meX1tmbSLHC = cms.PSet(
     ## run in debug mode
     debugLUTs = cms.bool(False),
     debugMatching = cms.bool(False),
+
+    ## bits for high-multiplicity triggers
+    useHighMultiplicityBits = cms.bool(False),
 )
 
 ## unganging in ME1/a

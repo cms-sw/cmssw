@@ -23,7 +23,7 @@ namespace edm {
             pset.getUntrackedParameter<std::vector<EventRange> >("eventsToSkip", std::vector<EventRange>())),
         whichEventsToProcess_(
             pset.getUntrackedParameter<std::vector<EventRange> >("eventsToProcess", std::vector<EventRange>())),
-        skippingLumis_(!(whichLumisToSkip_.empty() && whichLumisToProcess_.empty())),
+        skippingLumis_(!(whichLumisToSkip_.empty() && whichLumisToProcess_.empty() && firstLumi_ == 0)),
         skippingEvents_(!(whichEventsToSkip_.empty() && whichEventsToProcess_.empty())),
         somethingToSkip_(skippingLumis_ || skippingEvents_ ||
                          !(firstRun_ <= 1U && firstLumi_ <= 1U && firstEvent_ <= 1U)) {

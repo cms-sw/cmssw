@@ -1,0 +1,11 @@
+<bin file="testSerializationPPSTimingCalibration.cc">
+  <use name="CondFormats/PPSObjects"/>
+</bin>
+
+<bin file="testSerializationBeamParameters.cc">
+  <use name="CondFormats/PPSObjects"/>
+</bin>
+
+<bin file="testSerializationLHCOpticalFunctionsSet.cc">
+  <use name="CondFormats/PPSObjects"/>
+</bin>

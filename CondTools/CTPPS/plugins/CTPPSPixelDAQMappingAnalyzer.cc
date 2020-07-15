@@ -8,9 +8,9 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "CondCore/CondDB/interface/Time.h"
 
-#include "CondFormats/CTPPSReadoutObjects/interface/CTPPSPixelDAQMapping.h"
+#include "CondFormats/PPSObjects/interface/CTPPSPixelDAQMapping.h"
 #include "CondFormats/DataRecord/interface/CTPPSPixelDAQMappingRcd.h"
-#include "CondFormats/CTPPSReadoutObjects/interface/CTPPSPixelAnalysisMask.h"
+#include "CondFormats/PPSObjects/interface/CTPPSPixelAnalysisMask.h"
 #include "CondFormats/DataRecord/interface/CTPPSPixelAnalysisMaskRcd.h"
 
 using namespace std;

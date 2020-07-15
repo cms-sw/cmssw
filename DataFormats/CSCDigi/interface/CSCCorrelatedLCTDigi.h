@@ -1,9 +1,9 @@
-#ifndef CSCDigi_CSCCorrelatedLCTDigi_h
-#define CSCDigi_CSCCorrelatedLCTDigi_h
+#ifndef DataFormats_CSCDigi_CSCCorrelatedLCTDigi_h
+#define DataFormats_CSCDigi_CSCCorrelatedLCTDigi_h
 
 /**\class CSCCorrelatedLCTDigi
  *
- * Digi for Correlated LCT trigger primitives. 
+ * Digi for Correlated LCT trigger primitives.
  *
  *
  * \author L. Gray, UF
@@ -11,69 +11,97 @@
 
 #include <cstdint>
 #include <iosfwd>
+#include <limits>
 #include "DataFormats/CSCDigi/interface/CSCALCTDigi.h"
 #include "DataFormats/CSCDigi/interface/CSCCLCTDigi.h"
 #include "DataFormats/GEMDigi/interface/GEMPadDigi.h"
 
 class CSCCorrelatedLCTDigi {
 public:
+  enum LCTKeyStripMasks { kEightStripMask = 0x1, kQuartStripMask = 0x1, kHalfStripMask = 0xff };
+  enum LCTKeyStripShifts { kEightStripShift = 9, kQuartStripShift = 8, kHalfStripShift = 0 };
+  enum class Version { Legacy = 0, Run3 };
+
   /// Constructors
-  CSCCorrelatedLCTDigi(const int trknmb,
-                       const int valid,
-                       const int quality,
-                       const int keywire,
-                       const int strip,
-                       const int pattern,
-                       const int bend,
-                       const int bx,
-                       const int mpclink = 0,
+  CSCCorrelatedLCTDigi(const uint16_t trknmb,
+                       const uint16_t valid,
+                       const uint16_t quality,
+                       const uint16_t keywire,
+                       const uint16_t strip,
+                       const uint16_t pattern,
+                       const uint16_t bend,
+                       const uint16_t bx,
+                       const uint16_t mpclink = 0,
                        const uint16_t bx0 = 0,
                        const uint16_t syncErr = 0,
-                       const uint16_t cscID = 0);
-  CSCCorrelatedLCTDigi();  /// default
+                       const uint16_t cscID = 0,
+                       const uint16_t hmt = 0,
+                       const Version version = Version::Legacy);
+  /// default
+  CSCCorrelatedLCTDigi();
 
   /// clear this LCT
   void clear();
 
   /// return track number
-  int getTrknmb() const { return trknmb; }
+  uint16_t getTrknmb() const { return trknmb; }
 
   /// return valid pattern bit
   bool isValid() const { return valid; }
 
-  /// return the 4 bit Correlated LCT Quality
-  int getQuality() const { return quality; }
+  /// return the Quality
+  uint16_t getQuality() const { return quality; }
 
   /// return the key wire group. counts from 0.
-  int getKeyWG() const { return keywire; }
+  uint16_t getKeyWG() const { return keywire; }
 
   /// return the key halfstrip from 0,159
-  int getStrip() const { return strip; }
+  uint16_t getStrip(uint16_t n = 2) const;
+
+  /// set single quart strip bit
+  void setQuartStrip(const bool quartStrip);
+
+  /// get single quart strip bit
+  bool getQuartStrip() const;
+
+  /// set single eight strip bit
+  void setEightStrip(const bool eightStrip);
+
+  /// get single eight strip bit
+  bool getEightStrip() const;
 
   /// return the fractional strip. counts from 0.25
-  float getFractionalStrip() const;
+  float getFractionalStrip(uint16_t n = 2) const;
 
-  /// return pattern
-  int getPattern() const { return pattern; }
+  /// Legacy: return pattern ID
+  /// Run-3: return the bending angle value
+  uint16_t getPattern() const { return pattern; }
 
-  /// return bend
-  int getBend() const { return bend; }
+  /// return left/right bending
+  uint16_t getBend() const { return bend; }
 
   /// return BX
-  int getBX() const { return bx; }
+  uint16_t getBX() const { return bx; }
 
   /// return CLCT pattern number (in use again Feb 2011)
-  int getCLCTPattern() const { return (pattern & 0xF); }
+  /// This function should not be used for Run-3
+  uint16_t getCLCTPattern() const;
 
   /// return strip type (obsolete since mid-2008)
-  int getStripType() const { return ((pattern & 0x8) >> 3); }
+  uint16_t getStripType() const { return ((pattern & 0x8) >> 3); }
 
   /// return MPC link number, 0 means not sorted, 1-3 give MPC sorting rank
-  int getMPCLink() const { return mpclink; }
+  uint16_t getMPCLink() const { return mpclink; }
 
   uint16_t getCSCID() const { return cscID; }
   uint16_t getBX0() const { return bx0; }
   uint16_t getSyncErr() const { return syncErr; }
+
+  /// Run-3 introduces high-multiplicity bits for CSCs.
+  /// The allocation is different for ME1/1 and non-ME1/1
+  /// chambers. Both LCTs in a chamber are needed for the complete
+  /// high-multiplicity trigger information
+  uint16_t getHMT() const;
 
   /// Set track number (1,2) after sorting LCTs.
   void setTrknmb(const uint16_t number) { trknmb = number; }
@@ -89,34 +117,42 @@ public:
   bool operator!=(const CSCCorrelatedLCTDigi& rhs) const { return !(this->operator==(rhs)); }
 
   /// set wiregroup number
-  void setWireGroup(unsigned int wiregroup) { keywire = wiregroup; }
+  void setWireGroup(const uint16_t wiregroup) { keywire = wiregroup; }
 
   /// set quality code
-  void setQuality(unsigned int q) { quality = q; }
+  void setQuality(const uint16_t q) { quality = q; }
 
   /// set valid
-  void setValid(unsigned int v) { valid = v; }
+  void setValid(const uint16_t v) { valid = v; }
 
   /// set strip
-  void setStrip(unsigned int s) { strip = s; }
+  void setStrip(const uint16_t s) { strip = s; }
 
   /// set pattern
-  void setPattern(unsigned int p) { pattern = p; }
+  void setPattern(const uint16_t p) { pattern = p; }
 
   /// set bend
-  void setBend(unsigned int b) { bend = b; }
+  void setBend(const uint16_t b) { bend = b; }
 
   /// set bx
-  void setBX(unsigned int b) { bx = b; }
+  void setBX(const uint16_t b) { bx = b; }
 
   /// set bx0
-  void setBX0(unsigned int b) { bx0 = b; }
+  void setBX0(const uint16_t b) { bx0 = b; }
 
   /// set syncErr
-  void setSyncErr(unsigned int s) { syncErr = s; }
+  void setSyncErr(const uint16_t s) { syncErr = s; }
 
   /// set cscID
-  void setCSCID(unsigned int c) { cscID = c; }
+  void setCSCID(const uint16_t c) { cscID = c; }
+
+  /// set high-multiplicity bits
+  void setHMT(const uint16_t h);
+
+  /// Distinguish Run-1/2 from Run-3
+  bool isRun3() const { return version_ == Version::Run3; }
+
+  void setRun3(const bool isRun3);
 
   /// SIMULATION ONLY ////
   enum Type {
@@ -131,6 +167,7 @@ public:
   };
 
   int getType() const { return type_; }
+
   void setType(int type) { type_ = type; }
 
   void setALCT(const CSCALCTDigi& alct) { alct_ = alct; }
@@ -143,18 +180,45 @@ public:
   const GEMPadDigi& getGEM2() const { return gem2_; }
 
 private:
+  // Note: The Run-3 data format is substantially different than the
+  // Run-1/2 data format. Some explanation is provided below. For
+  // more information, please check "DN-20-016".
+
+  // Run-1, Run-2 and Run-3 trknmb is either 1 or 2.
   uint16_t trknmb;
+  // In Run-3, the valid will be encoded as a quality
+  // value "000" or "00".
   uint16_t valid;
+  // In Run-3, the LCT quality number will be 2 or 3 bits
+  // For ME1/1 chambers: 3 bits
+  // For non-ME1/1 chambers: 2 bits
   uint16_t quality;
+  // 7-bit key wire
   uint16_t keywire;
+  // In Run-3, the strip number receives two additional bits
+  // strip[7:0] -> 1/2 strip value
+  // strip[8]   -> 1/4 strip bit
+  // strip[9]   -> 1/8 strip bit
   uint16_t strip;
+  // In Run-3, the 4-bit pattern number is reinterpreted as the
+  // 4-bit bending value. There will be 16 bending values * 2 (left/right)
   uint16_t pattern;
+  // Common definition for left/right bending in Run-1, Run-2 and Run-3.
+  // 0: right; 1: left
   uint16_t bend;
   uint16_t bx;
   uint16_t mpclink;
   uint16_t bx0;
+  // The synchronization bit is actually not used by MPC or EMTF
   uint16_t syncErr;
+  // 4-bit CSC chamber identifier
   uint16_t cscID;
+  // In Run-3, LCT data will be carrying the high-multiplicity bits
+  // for chamber. These bits may indicate the observation of "exotic" events
+  // Depending on the chamber type 2 or 3 bits will be repurposed
+  // in the 32-bit LCT data word from the synchronization bit and
+  // quality bits.
+  uint16_t hmt;
 
   /// SIMULATION ONLY ////
   int type_;
@@ -163,6 +227,8 @@ private:
   CSCCLCTDigi clct_;
   GEMPadDigi gem1_;
   GEMPadDigi gem2_;
+
+  Version version_;
 };
 
 std::ostream& operator<<(std::ostream& o, const CSCCorrelatedLCTDigi& digi);

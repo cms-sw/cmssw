@@ -65,9 +65,9 @@ public:
   void run(const std::vector<int> halfstrip[CSCConstants::NUM_LAYERS][CSCConstants::NUM_HALF_STRIPS_7CFEBS]);
 
   /** Returns vector of CLCTs in the read-out time window, if any. */
-  std::vector<CSCCLCTDigi> readoutCLCTs() const;
-  std::vector<CSCCLCTDigi> readoutCLCTsME1a() const;
-  std::vector<CSCCLCTDigi> readoutCLCTsME1b() const;
+  std::vector<CSCCLCTDigi> readoutCLCTs(int nMaxCLCTs = CSCConstants::MAX_CLCTS_READOUT) const;
+  std::vector<CSCCLCTDigi> readoutCLCTsME1a(int nMaxCLCTs = CSCConstants::MAX_CLCTS_READOUT) const;
+  std::vector<CSCCLCTDigi> readoutCLCTsME1b(int nMaxCLCTs = CSCConstants::MAX_CLCTS_READOUT) const;
 
   /** Returns vector of all found CLCTs, if any. */
   std::vector<CSCCLCTDigi> getCLCTs() const;
@@ -85,11 +85,8 @@ public:
   std::vector<CSCCLCTPreTriggerDigi> preTriggerDigisME1b() const;
 
 protected:
-  /** Best LCT in this chamber, as found by the processor. */
-  CSCCLCTDigi bestCLCT[CSCConstants::MAX_CLCT_TBINS];
-
-  /** Second best LCT in this chamber, as found by the processor. */
-  CSCCLCTDigi secondCLCT[CSCConstants::MAX_CLCT_TBINS];
+  /** LCTs in this chamber, as found by the processor. */
+  CSCCLCTDigi CLCTContainer_[CSCConstants::MAX_CLCT_TBINS][CSCConstants::MAX_CLCTS_PER_PROCESSOR];
 
   /** Access routines to comparator digis. */
   bool getDigis(const CSCComparatorDigiCollection* compdc);
@@ -101,6 +98,8 @@ protected:
   /** Make sure that the parameter values are within the allowed range. */
   void checkConfigParameters();
 
+  typedef unsigned int PulseArray[CSCConstants::NUM_LAYERS][CSCConstants::NUM_HALF_STRIPS_7CFEBS];
+
   //---------------- Methods common to all firmware versions ------------------
   // Single-argument version for TMB07 (halfstrip-only) firmware.
   // Takes the comparator & time info and stuffs it into halfstrip vector.
@@ -108,21 +107,25 @@ protected:
   void readComparatorDigis(std::vector<int> halfstrip[CSCConstants::NUM_LAYERS][CSCConstants::NUM_HALF_STRIPS_7CFEBS]);
   void pulseExtension(const std::vector<int> time[CSCConstants::NUM_LAYERS][CSCConstants::NUM_HALF_STRIPS_7CFEBS],
                       const int nStrips,
-                      unsigned int pulse[CSCConstants::NUM_LAYERS][CSCConstants::NUM_HALF_STRIPS_7CFEBS]);
+                      PulseArray pulse);
 
   //--------------- Functions for post-2007 version of the firmware -----------
   virtual std::vector<CSCCLCTDigi> findLCTs(
       const std::vector<int> halfstrip[CSCConstants::NUM_LAYERS][CSCConstants::NUM_HALF_STRIPS_7CFEBS]);
 
   /* Check all half-strip pattern envelopes simultaneously, on every clock cycle, for a matching pattern */
-  virtual bool preTrigger(const unsigned int pulse[CSCConstants::NUM_LAYERS][CSCConstants::NUM_HALF_STRIPS_7CFEBS],
-                          const int start_bx,
-                          int& first_bx);
+  virtual bool preTrigger(const PulseArray pulse, const int start_bx, int& first_bx);
 
   /* For a given clock cycle, check each half-strip if a pattern matches */
-  bool patternFinding(const unsigned int pulse[CSCConstants::NUM_LAYERS][CSCConstants::NUM_HALF_STRIPS_7CFEBS],
+  bool patternFinding(const PulseArray pulse,
                       const int nStrips,
-                      const unsigned int bx_time);
+                      const unsigned int bx_time,
+                      std::map<int, std::map<int, CSCCLCTDigi::ComparatorContainer> >& hits_in_patterns);
+
+  // enum used in the comparator code logic
+  enum CLCT_CompCode { INVALID_HALFSTRIP = 65535 };
+
+  void cleanComparatorContainer(CSCCLCTDigi::ComparatorContainer& compHits) const;
 
   /* Mark the half-strips around the best half-strip as busy */
   void markBusyKeys(const int best_hstrip, const int best_patid, int quality[CSCConstants::NUM_HALF_STRIPS_7CFEBS]);
@@ -147,6 +150,9 @@ protected:
 
   /* does a given half-strip have a pre-trigger? */
   bool ispretrig[CSCConstants::NUM_HALF_STRIPS_7CFEBS];
+
+  // actual LUT used
+  CSCPatternBank::CLCTPatterns clct_pattern_ = {};
 
   // we use these next ones to address the various bits inside the array that's
   // used to make the cathode LCTs.
@@ -186,6 +192,13 @@ protected:
 
   /** VK: whether to readout only the earliest two LCTs in readout window */
   bool readout_earliest_2;
+
+  // Use the new patterns according to the comparator code format
+  bool use_run3_patterns_;
+  bool use_comparator_codes_;
+
+  // which hits per CLCT?
+  PulseArray hitsCLCT[99];
 
   /** Default values of configuration parameters. */
   static const unsigned int def_fifo_tbins, def_fifo_pretrig;

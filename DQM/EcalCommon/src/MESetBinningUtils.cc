@@ -7,6 +7,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
 #include "TPRegexp.h"
+#include "TObjArray.h"
 
 namespace ecaldqm {
   namespace binning {

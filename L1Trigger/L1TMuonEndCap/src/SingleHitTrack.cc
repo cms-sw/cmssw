@@ -59,7 +59,7 @@ void SingleHitTrack::process(const EMTFHitCollection& conv_hits, EMTFTrackCollec
         // Check if hit in track is identical
         // "Duplicate" hits (with same strip but different wire) are considered identical
         // const EMTFHit& conv_hit_i = *conv_hits_it;
-        const EMTFHit& conv_hit_j = best_tracks_it.Hits().front();
+        auto conv_hit_j = best_tracks_it.Hits().front();
 
         if ((conv_hits_it.Subsystem() == conv_hit_j.Subsystem()) &&
             (conv_hits_it.PC_station() == conv_hit_j.PC_station()) &&
@@ -88,8 +88,7 @@ void SingleHitTrack::process(const EMTFHitCollection& conv_hits, EMTFTrackCollec
       else if (zone_code & 0b0001)
         zone = 1;
       else {
-        edm::LogError("L1T") << "EMTF SingleHitTrack.cc - bizzare case where zone_code = " << zone_code;
-        return;
+        emtf_assert(false && "Incorrect zone_code");
       }
 
       EMTFTrack new_trk;

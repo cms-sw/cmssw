@@ -1,5 +1,6 @@
 #ifndef TkNavigation_SimpleNavigableLayer_H
 #define TkNavigation_SimpleNavigableLayer_H
+#include "FWCore/Utilities/interface/Visibility.h"
 
 #include "TrackingTools/DetLayers/interface/NavigableLayer.h"
 #include "DataFormats/TrajectorySeed/interface/PropagationDirection.h"

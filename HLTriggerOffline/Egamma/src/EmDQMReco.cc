@@ -322,7 +322,7 @@ void EmDQMReco::bookHistograms(DQMStore::IBooker &iBooker, edm::Run const &iRun,
     //    iBooker.book1D(histName.c_str(),histTitle.c_str(),plotBins,-plotPhiMax,plotPhiMax);
     //    phiHist.push_back(tmphisto);
 
-    standardHist.push_back(new FourVectorMonitorElements(
+    standardHist.push_back(std::make_unique<FourVectorMonitorElements>(
         this,
         iBooker,
         theHLTCollectionLabels[i].label() + "%s_all",  // histogram name
@@ -353,7 +353,7 @@ void EmDQMReco::bookHistograms(DQMStore::IBooker &iBooker, edm::Run const &iRun,
     //    tmphisto =
     //    iBooker.book1D(histName.c_str(),histTitle.c_str(),plotBins,-plotPhiMax,plotPhiMax);
     //    phiHistMatchReco.push_back(tmphisto);
-    histMatchReco.push_back(new FourVectorMonitorElements(
+    histMatchReco.push_back(std::make_unique<FourVectorMonitorElements>(
         this,
         iBooker,
         theHLTCollectionLabels[i].label() + "%s_RECO_matched",  // histogram name
@@ -387,7 +387,7 @@ void EmDQMReco::bookHistograms(DQMStore::IBooker &iBooker, edm::Run const &iRun,
     //    iBooker.book1D(histName.c_str(),histTitle.c_str(),plotBins,-plotPhiMax,plotPhiMax);
     //    phiHistMatchRecoMonPath.push_back(tmphisto);
 
-    histMatchRecoMonPath.push_back(new FourVectorMonitorElements(
+    histMatchRecoMonPath.push_back(std::make_unique<FourVectorMonitorElements>(
         this,
         iBooker,
         theHLTCollectionLabels[i].label() + "%s_RECO_matched_monpath",  // histogram name
@@ -419,7 +419,7 @@ void EmDQMReco::bookHistograms(DQMStore::IBooker &iBooker, edm::Run const &iRun,
     //    iBooker.book1D(histName.c_str(),histTitle.c_str(),plotBins,-plotPhiMax,plotPhiMax);
     //    histPhiOfHltObjMatchToReco.push_back(tmphisto);
 
-    histHltObjMatchToReco.push_back(new FourVectorMonitorElements(
+    histHltObjMatchToReco.push_back(std::make_unique<FourVectorMonitorElements>(
         this,
         iBooker,
         theHLTCollectionLabels[i].label() + "%s_reco",  // histogram name
@@ -830,7 +830,7 @@ void HistoFillerReco<T>::fillHistos(edm::Handle<trigger::TriggerEventWithRefs> &
   //  bool foundAllMatches = false;
   //  unsigned int numOfHLTobjectsMatched = 0;
   for (unsigned int i = 0; i < recoecalcands.size(); i++) {
-    dqm->standardHist[n].fill(recoecalcands[i]->p4());
+    dqm->standardHist[n]->fill(recoecalcands[i]->p4());
 
     ////////////////////////////////////////////////////////////
     //  Plot isolation variables (show the not-yet-cut        //
@@ -886,7 +886,7 @@ void HistoFillerReco<T>::fillHistos(edm::Handle<trigger::TriggerEventWithRefs> &
         //        histPhiOfHltObjMatchToReco[n]->Fill(
         //        recoecalcands[closestRecoEcalCandIndex]->phi() );
 
-        dqm->histHltObjMatchToReco[n].fill(recoecalcands[closestRecoEcalCandIndex]->p4());
+        dqm->histHltObjMatchToReco[n]->fill(recoecalcands[closestRecoEcalCandIndex]->p4());
 
         // Also store isolation info
         if (n + 1 < dqm->numOfHLTCollectionLabels) {  // can't plot beyond last
@@ -945,13 +945,13 @@ void HistoFillerReco<T>::fillHistos(edm::Handle<trigger::TriggerEventWithRefs> &
       //      ethistmatchreco[n] ->Fill( sortedReco[i].et()  );
       //      etahistmatchreco[n]->Fill( sortedReco[i].eta() );
       //      phiHistMatchReco[n]->Fill( sortedReco[i].phi() );
-      dqm->histMatchReco[n].fill(sortedReco[i].p4());
+      dqm->histMatchReco[n]->fill(sortedReco[i].p4());
 
       if (plotMonpath) {
         //        ethistmatchrecomonpath[n]->Fill( sortedReco[i].et() );
         //        etahistmatchrecomonpath[n]->Fill( sortedReco[i].eta() );
         //        phiHistMatchRecoMonPath[n]->Fill( sortedReco[i].phi() );
-        dqm->histMatchRecoMonPath[n].fill(sortedReco[i].p4());
+        dqm->histMatchRecoMonPath[n]->fill(sortedReco[i].p4());
       }
       ////////////////////////////////////////////////////////////
       //  Plot isolation variables (show the not-yet-cut        //

@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 # load standard files
-from RecoCTPPS.ProtonReconstruction.ctppsProtons_cff import *
+from RecoPPS.ProtonReconstruction.ctppsProtons_cff import *
 
 # undo unapplicable settings
 #del ctppsRPAlignmentCorrectionsDataESSourceXML
@@ -97,9 +97,9 @@ ctppsDirectProtonSimulation.produceScoringPlaneHits = False
 ctppsDirectProtonSimulation.produceRecHits = True
 
 # local reconstruction
-from RecoCTPPS.TotemRPLocal.totemRPLocalReconstruction_cff import *
-from RecoCTPPS.PixelLocal.ctppsPixelLocalReconstruction_cff import *
-from RecoCTPPS.TotemRPLocal.ctppsLocalTrackLiteProducer_cff import *
+from RecoPPS.Local.totemRPLocalReconstruction_cff import *
+from RecoPPS.Local.ctppsPixelLocalReconstruction_cff import *
+from RecoPPS.Local.ctppsLocalTrackLiteProducer_cff import *
 
 totemRPUVPatternFinder.tagRecHit = cms.InputTag('ctppsDirectProtonSimulation')
 ctppsPixelLocalTracks.label = "ctppsDirectProtonSimulation"

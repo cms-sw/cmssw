@@ -32,6 +32,7 @@ private:
   typedef std::map<G4LogicalVolume *, Doubles> DimensionMap;
 
   void initMap(const std::string &, const edm::EventSetup &);
+  void fillMap(const std::string &, double, double);
   double curve_LY(const G4Step *, int);
   double crystalLength(G4LogicalVolume *) const;
   double crystalWidth(G4LogicalVolume *) const;
@@ -48,16 +49,19 @@ private:
   /// Sets material properties at run-time...
   bool setPbWO2MaterialProperties_(G4Material *aMaterial);
 
-  bool useBirk, doCherenkov_, readBothSide_;
-  double birk1, birk2, birk3;
-  double slopeLY;
-  DimensionMap xtalLMap;  // Store length and width
+  static constexpr double k_ScaleFromDDDToG4 = 1.0;
+  static constexpr double k_ScaleFromDD4HepToG4 = 10.0;
 
-  int side;
+  bool useBirk_, doCherenkov_, readBothSide_, dd4hep_;
+  double birk1_, birk2_, birk3_;
+  double slopeLY_;
+  DimensionMap xtalLMap_;  // Store length and width
+
+  int side_;
 
   /// Table of Cherenkov angle integrals vs photon momentum
   std::unique_ptr<G4PhysicsOrderedFreeVector> chAngleIntegrals_;
-  G4MaterialPropertiesTable *materialPropertiesTable;
+  G4MaterialPropertiesTable *materialPropertiesTable_;
 
   int nphotons_;
 };

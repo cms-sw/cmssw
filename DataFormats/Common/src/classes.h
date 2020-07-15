@@ -30,6 +30,10 @@
 #include "DataFormats/Common/interface/ThinnedAssociation.h"
 #include "DataFormats/Common/interface/SecondaryEventIDAndFileInfo.h"
 #include "DataFormats/Provenance/interface/EventAuxiliary.h"
+#include "DataFormats/Provenance/interface/ParameterSetBlob.h"
+#include "DataFormats/Provenance/interface/ParameterSetID.h"
 #include "FWCore/MessageLogger/interface/ErrorSummaryEntry.h"
+#include "DataFormats/Common/interface/RandomNumberGeneratorState.h"
 
 #include <vector>
+#include <map>

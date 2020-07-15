@@ -242,7 +242,7 @@ namespace fit {
   Function RootMinuit<Function>::f_;
 
   template <class Function>
-  std::vector<std::shared_ptr<double> > *RootMinuit<Function>::fPars_ = 0;
+  std::vector<std::shared_ptr<double> > *RootMinuit<Function>::fPars_ = nullptr;
 }  // namespace fit
 
 #endif

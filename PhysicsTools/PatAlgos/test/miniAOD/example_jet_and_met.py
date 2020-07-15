@@ -17,7 +17,7 @@ process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1) )
 
 from RecoJets.JetProducers.ak5PFJets_cfi import ak5PFJets
 from RecoJets.JetProducers.ak5GenJets_cfi import ak5GenJets
-from RecoMET.METProducers.PFMET_cfi import pfMet
+from RecoMET.METProducers.pfMet_cfi import pfMet
 
 process.chs = cms.EDFilter("CandPtrSelector", src = cms.InputTag("packedPFCandidates"), cut = cms.string("fromPV"))
 

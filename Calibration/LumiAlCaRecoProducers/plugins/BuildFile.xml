@@ -1,32 +1,30 @@
-<use   name="FWCore/MessageLogger"/>
-<use   name="FWCore/Framework"/>
-<use   name="FWCore/ParameterSet"/>
-<use   name="DQMServices/Core"/>
-<use   name="DQMServices/Components"/>
-
-<use   name="CondCore/Utilities"/>
-<use   name="FWCore/ServiceRegistry"/>
-<use   name="FWCore/PluginManager"/>
+<use name="FWCore/MessageLogger"/>
+<use name="FWCore/Framework"/>
+<use name="FWCore/ParameterSet"/>
+<use name="DQMServices/Core"/>
+<use name="FWCore/ServiceRegistry"/>
 <use name="CondFormats/Luminosity"/>
 <use name="CoralBase"/>
-<use   name="CondCore/DBOutputService"/>
-<use name="CondCore/ESSources"/>
-
-<use   name="DataFormats/Luminosity"/>
+<use name="CondCore/DBOutputService"/>
+<use name="DataFormats/Luminosity"/>
 <use name="CondFormats/DataRecord"/>
 <flags EDM_PLUGIN="1"/>
-
-
-
-<library   file="AlcaPCCProducer.cc" name="AlcaPCCProducer">
-  <flags   EDM_PLUGIN="1"/>
+<library file="AlcaPCCProducer.cc" name="AlcaPCCProducer">
+  <flags EDM_PLUGIN="1"/>
 </library>
-<library   file="RawPCCProducer.cc" name="RawPCCProducer">
-  <flags   EDM_PLUGIN="1"/>
+
+<library file="RawPCCProducer.cc" name="RawPCCProducer">
+  <flags EDM_PLUGIN="1"/>
 </library>
-<library   file="CorrPCCProducer.cc" name="CorrPCCProducer">
-  <flags   EDM_PLUGIN="1"/>
+
+<library file="CorrPCCProducer.cc" name="CorrPCCProducer">
+  <flags EDM_PLUGIN="1"/>
 </library>
-<library   file="AlcaPCCProducerEvent.cc" name="AlcaPCCProducerEvent">
-  <flags   EDM_PLUGIN="1"/>
+
+<library file="AlcaPCCEventProducer.cc" name="AlcaPCCEventProducer">
+  <flags EDM_PLUGIN="1"/>
+</library>
+
+<library file="AlcaPCCIntegrator.cc" name="AlcaPCCIntegrator">
+  <flags EDM_PLUGIN="1"/>
 </library>

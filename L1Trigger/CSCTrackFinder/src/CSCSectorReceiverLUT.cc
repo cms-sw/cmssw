@@ -143,10 +143,7 @@ lclphidat CSCSectorReceiverLUT::calcLocalPhi(const lclphiadd& theadd) const {
 
   double patternOffset;
 
-  if (isTMB07)
-    patternOffset = CSCPatternLUT::get2007Position((theadd.pattern_type << 3) + theadd.clct_pattern);
-  else
-    patternOffset = CSCPatternLUT::getPosition(theadd.clct_pattern);
+  patternOffset = CSCPatternLUT::get2007Position((theadd.pattern_type << 3) + theadd.clct_pattern);
 
   // The phiL value stored is for the center of the half-/di-strip.
   if (theadd.strip < 2 * CSCConstants::MAX_NUM_STRIPS)
@@ -301,13 +298,8 @@ gblphidat CSCSectorReceiverLUT::calcGlobalPhiME(const gblphiadd& address) const 
     CSCDetId detid(_endcap, _station, ring, chid, 0);
     thechamber = const_cast<const CSCChamber*>(csc_g->chamber(detid));
     if (thechamber) {
-      if (isTMB07) {
-        layergeom = thechamber->layer(CSCConstants::KEY_CLCT_LAYER)->geometry();
-        thelayer = thechamber->layer(CSCConstants::KEY_CLCT_LAYER);
-      } else {
-        layergeom = thechamber->layer(CSCConstants::KEY_CLCT_LAYER_PRE_TMB07)->geometry();
-        thelayer = thechamber->layer(CSCConstants::KEY_CLCT_LAYER_PRE_TMB07);
-      }
+      layergeom = thechamber->layer(CSCConstants::KEY_CLCT_LAYER)->geometry();
+      thelayer = thechamber->layer(CSCConstants::KEY_CLCT_LAYER);
       const int nStrips = layergeom->numberOfStrips();
       // PhiL is the strip number converted into some units between 0 and
       // 1023.  When we did the conversion in fillLocalPhiTable(), we did

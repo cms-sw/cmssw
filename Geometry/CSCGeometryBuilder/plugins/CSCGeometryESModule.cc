@@ -1,4 +1,14 @@
-
+/*
+// \class CSCGeometryESModule
+//
+//  Description: CSC ESModule for DD4hep
+//              
+//
+// \author Sergio Lo Meo (sergio.lo.meo@cern.ch) following what Ianna Osburne made for DTs (DD4HEP migration)
+//         Created:  Thu, 05 March 2020 
+//   
+//         Original author: Tim Cox
+*/
 #include "CSCGeometryESModule.h"
 #include "Geometry/CSCGeometryBuilder/src/CSCGeometryBuilderFromDDD.h"
 #include "Geometry/CSCGeometryBuilder/src/CSCGeometryBuilder.h"
@@ -11,10 +21,14 @@
 
 #include <memory>
 
+#include "Geometry/MuonNumbering/interface/DD4hep_MuonNumbering.h"
+
 using namespace edm;
 
 CSCGeometryESModule::CSCGeometryESModule(const edm::ParameterSet& p)
-    : alignmentsLabel_(p.getParameter<std::string>("alignmentsLabel")),
+    : useDDD_(p.getParameter<bool>("useDDD")),
+      useDD4hep_{p.getUntrackedParameter<bool>("useDD4hep", false)},
+      alignmentsLabel_(p.getParameter<std::string>("alignmentsLabel")),
       myLabel_(p.getParameter<std::string>("appendToDataLabel")) {
   auto cc = setWhatProduced(this);
 
@@ -51,7 +65,10 @@ CSCGeometryESModule::CSCGeometryESModule(const edm::ParameterSet& p)
   useDDD_ = p.getParameter<bool>("useDDD");
   if (useDDD_) {
     cpvToken_ = cc.consumesFrom<DDCompactView, IdealGeometryRecord>(edm::ESInputTag{});
-    mdcToken_ = cc.consumesFrom<MuonDDDConstants, MuonNumberingRecord>(edm::ESInputTag{});
+    mdcToken_ = cc.consumesFrom<MuonGeometryConstants, IdealGeometryRecord>(edm::ESInputTag{});
+  } else if (useDD4hep_) {
+    cpvTokendd4hep_ = cc.consumesFrom<cms::DDCompactView, IdealGeometryRecord>(edm::ESInputTag{});
+    mdcTokendd4hep_ = cc.consumesFrom<cms::MuonNumbering, MuonNumberingRecord>(edm::ESInputTag{});
   } else {
     rigToken_ = cc.consumesFrom<RecoIdealGeometry, CSCRecoGeometryRcd>(edm::ESInputTag{});
     rdpToken_ = cc.consumesFrom<CSCRecoDigiParameters, CSCRecoDigiParametersRcd>(edm::ESInputTag{});
@@ -109,6 +126,14 @@ void CSCGeometryESModule::initCSCGeometry_(const MuonGeometryRecord& record, std
       host->clear();
       edm::ESTransientHandle<DDCompactView> cpv = record.getTransientHandle(cpvToken_);
       const auto& mdc = rec.get(mdcToken_);
+      CSCGeometryBuilderFromDDD builder;
+      builder.build(*host, cpv.product(), mdc);
+    });
+  } else if (useDD4hep_) {
+    host->ifRecordChanges<MuonNumberingRecord>(record, [&host, &record, this](auto const& rec) {
+      host->clear();
+      edm::ESTransientHandle<cms::DDCompactView> cpv = record.getTransientHandle(cpvTokendd4hep_);
+      const auto& mdc = rec.get(mdcTokendd4hep_);
       CSCGeometryBuilderFromDDD builder;
       builder.build(*host, cpv.product(), mdc);
     });

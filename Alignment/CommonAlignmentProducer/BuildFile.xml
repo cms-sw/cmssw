@@ -31,5 +31,5 @@
 <use   name="rootcore"/>
 <use   name="root"/>
 <export>
-  <lib   name="1"/>
+  <lib name="1"/>
 </export>

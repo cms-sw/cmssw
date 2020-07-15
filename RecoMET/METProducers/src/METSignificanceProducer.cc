@@ -13,20 +13,24 @@ namespace cms {
 
   //____________________________________________________________________________||
   METSignificanceProducer::METSignificanceProducer(const edm::ParameterSet& iConfig) {
-    std::vector<edm::InputTag> srcLeptonsTags = iConfig.getParameter<std::vector<edm::InputTag> >("srcLeptons");
+    std::vector<edm::InputTag> srcLeptonsTags = iConfig.getParameter<std::vector<edm::InputTag>>("srcLeptons");
     for (std::vector<edm::InputTag>::const_iterator it = srcLeptonsTags.begin(); it != srcLeptonsTags.end(); it++) {
-      lepTokens_.push_back(consumes<edm::View<reco::Candidate> >(*it));
+      lepTokens_.push_back(consumes<edm::View<reco::Candidate>>(*it));
     }
 
-    pfjetsToken_ = consumes<edm::View<reco::Jet> >(iConfig.getParameter<edm::InputTag>("srcPfJets"));
+    pfjetsToken_ = consumes<edm::View<reco::Jet>>(iConfig.getParameter<edm::InputTag>("srcPfJets"));
 
-    metToken_ = consumes<edm::View<reco::MET> >(iConfig.getParameter<edm::InputTag>("srcMet"));
-    pfCandidatesToken_ = consumes<edm::View<reco::Candidate> >(iConfig.getParameter<edm::InputTag>("srcPFCandidates"));
+    metToken_ = consumes<edm::View<reco::MET>>(iConfig.getParameter<edm::InputTag>("srcMet"));
+    pfCandidatesToken_ = consumes<edm::View<reco::Candidate>>(iConfig.getParameter<edm::InputTag>("srcPFCandidates"));
 
     jetSFType_ = iConfig.getParameter<std::string>("srcJetSF");
     jetResPtType_ = iConfig.getParameter<std::string>("srcJetResPt");
     jetResPhiType_ = iConfig.getParameter<std::string>("srcJetResPhi");
     rhoToken_ = consumes<double>(iConfig.getParameter<edm::InputTag>("srcRho"));
+
+    edm::InputTag srcWeights = iConfig.getParameter<edm::InputTag>("srcWeights");
+    if (!srcWeights.label().empty())
+      weightsToken_ = consumes<edm::ValueMap<float>>(srcWeights);
 
     metSigAlgo_ = new metsig::METSignificance(iConfig);
 
@@ -41,7 +45,7 @@ namespace cms {
     //
     // met
     //
-    edm::Handle<edm::View<reco::MET> > metHandle;
+    edm::Handle<edm::View<reco::MET>> metHandle;
     event.getByToken(metToken_, metHandle);
     const reco::MET& met = (*metHandle)[0];
 
@@ -54,8 +58,8 @@ namespace cms {
     //
     // leptons
     //
-    std::vector<edm::Handle<reco::CandidateView> > leptons;
-    for (std::vector<edm::EDGetTokenT<edm::View<reco::Candidate> > >::const_iterator srcLeptons_i = lepTokens_.begin();
+    std::vector<edm::Handle<reco::CandidateView>> leptons;
+    for (std::vector<edm::EDGetTokenT<edm::View<reco::Candidate>>>::const_iterator srcLeptons_i = lepTokens_.begin();
          srcLeptons_i != lepTokens_.end();
          ++srcLeptons_i) {
       edm::Handle<reco::CandidateView> leptons_i;
@@ -66,11 +70,15 @@ namespace cms {
     //
     // jets
     //
-    edm::Handle<edm::View<reco::Jet> > jets;
+    edm::Handle<edm::View<reco::Jet>> jets;
     event.getByToken(pfjetsToken_, jets);
 
     edm::Handle<double> rho;
     event.getByToken(rhoToken_, rho);
+
+    edm::Handle<edm::ValueMap<float>> weights;
+    if (!weightsToken_.isUninitialized())
+      event.getByToken(weightsToken_, weights);
 
     JME::JetResolution resPtObj = JME::JetResolution::get(setup, jetResPtType_);
     JME::JetResolution resPhiObj = JME::JetResolution::get(setup, jetResPhiType_);
@@ -80,8 +88,23 @@ namespace cms {
     // compute the significance
     //
     double sumPtUnclustered = 0;
-    const reco::METCovMatrix cov = metSigAlgo_->getCovariance(
-        *jets, leptons, pfCandidates, *rho, resPtObj, resPhiObj, resSFObj, event.isRealData(), sumPtUnclustered);
+    const edm::ValueMap<float>* weightsPtr = nullptr;
+    if (met.isWeighted()) {
+      if (weightsToken_.isUninitialized())
+        throw cms::Exception("InvalidInput")
+            << "MET is weighted (e.g. PUPPI), but no weights given in METSignificanceProducer\n";
+      weightsPtr = &*weights;
+    }
+    reco::METCovMatrix cov = metSigAlgo_->getCovariance(*jets,
+                                                        leptons,
+                                                        pfCandidates,
+                                                        *rho,
+                                                        resPtObj,
+                                                        resPhiObj,
+                                                        resSFObj,
+                                                        event.isRealData(),
+                                                        sumPtUnclustered,
+                                                        weightsPtr);
     double sig = metSigAlgo_->getSignificance(cov, met);
 
     auto significance = std::make_unique<double>();

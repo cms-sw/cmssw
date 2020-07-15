@@ -15,14 +15,10 @@ import pprint
 from optparse import OptionParser
 
 # package modules
-from FWCore.Skeletons.utils import code_generator, test_env
+from FWCore.Skeletons.utils import code_generator, test_env, template_directory
 
 if  sys.version_info < (2, 6):
     raise Exception("This script requires python 2.6 or greater")
-
-def tmpl_dir():
-    "Retturn default location of template directory"
-    return '%s/templates' % '/'.join(__file__.split('/')[:-1])
 
 class SkeletonOptionParser:
     "Skeleton option parser"
@@ -51,9 +47,6 @@ class SkeletonOptionParser:
         msg += "--keep-etags='@example_trac,@example_hist'"
         self.parser.add_option("--keep-etags", action="store", type="string",
                 default=None, dest="ketags", help=msg)
-        msg  = "specify template directory, "
-        self.parser.add_option("--tdir", action="store", type="string",
-                default=tmpl_dir(), dest="tdir", help=msg)
         msg  = "list template tags"
         self.parser.add_option("--tags", action="store_true",
                 default=False, dest="tags", help=msg)
@@ -91,7 +84,7 @@ def generator():
     test_env(os.path.join(opts.tdir, opts.tmpl), opts.tmpl)
     config = {'pname': opts.pname, 'tmpl': opts.tmpl, 'author': opts.author,
               'args': parse_args(args), 'debug': opts.debug,
-              'ftype': opts.ftype, 'tmpl_dir': opts.tdir}
+              'ftype': opts.ftype}
     if  opts.ketags:
         etags = opts.ketags.split(',')
         config.update({'tmpl_etags': etags})
@@ -105,7 +98,7 @@ def generator():
         obj.print_tags()
         sys.exit(0)
     elif opts.templates:
-        for name in os.listdir(opts.tdir):
+        for name in os.listdir(template_directory()):
             print(name)
         sys.exit(0)
     obj.generate()

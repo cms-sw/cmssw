@@ -51,9 +51,10 @@ reco::METCovMatrix metsig::METSignificance::getCovariance(const edm::View<reco::
                                                           JME::JetResolution& resPhiObj,
                                                           JME::JetResolutionScaleFactor& resSFObj,
                                                           bool isRealData,
-                                                          double& sumPtUnclustered) {
+                                                          double& sumPtUnclustered,
+                                                          edm::ValueMap<float> const* weights) {
   //pfcandidates
-  const edm::View<reco::Candidate>* pfCandidates = pfCandidatesH.product();
+  const edm::View<reco::Candidate>& pfCandidates = *pfCandidatesH;
 
   // metsig covariance
   double cov_xx = 0;
@@ -65,51 +66,54 @@ reco::METCovMatrix metsig::METSignificance::getCovariance(const edm::View<reco::
 
   // subtract leptons out of sumPtUnclustered
   for (const auto& lep_i : leptons) {
-    for (const auto& lep : *lep_i) {
-      if (lep.pt() > 10) {
-        for (unsigned int n = 0; n < lep.numberOfSourceCandidatePtrs(); n++) {
-          if (lep.sourceCandidatePtr(n).isNonnull() and lep.sourceCandidatePtr(n).isAvailable()) {
-            footprint.insert(lep.sourceCandidatePtr(n));
-          }
-        }
-      }
-    }
-  }
-  // subtract jets out of sumPtUnclustered
-  for (const auto& jet : jets) {
-    // disambiguate jets and leptons
-    if (!cleanJet(jet, leptons))
-      continue;
-    for (unsigned int n = 0; n < jet.numberOfSourceCandidatePtrs(); n++) {
-      if (jet.sourceCandidatePtr(n).isNonnull() and jet.sourceCandidatePtr(n).isAvailable()) {
-        footprint.insert(jet.sourceCandidatePtr(n));
+    for (const auto& lep : lep_i->ptrs()) {
+      if (lep->pt() > 10) {
+        for (unsigned int n = 0; n < lep->numberOfSourceCandidatePtrs(); n++)
+          footprint.insert(lep->sourceCandidatePtr(n));
       }
     }
   }
 
+  std::vector<bool> cleanedJets(jets.size(), false);
+  std::transform(jets.begin(), jets.end(), cleanedJets.begin(), [this, &leptons](auto const& jet) -> bool {
+    return cleanJet(jet, leptons);
+  });
+  // subtract jets out of sumPtUnclustered
+  auto iCleaned = cleanedJets.begin();
+  for (const auto& jet : jets) {
+    // disambiguate jets and leptons
+    if (!(*iCleaned++))
+      continue;
+    for (unsigned int n = 0; n < jet.numberOfSourceCandidatePtrs(); n++) {
+      footprint.insert(jet.sourceCandidatePtr(n));
+    }
+  }
+
   // calculate sumPtUnclustered
-  for (size_t i = 0; i < pfCandidates->size(); ++i) {
+  for (size_t i = 0; i < pfCandidates.size(); ++i) {
     // check if candidate exists in a lepton or jet
     bool cleancand = true;
-    if (footprint.find(pfCandidates->ptrAt(i)) == footprint.end()) {
+    if (footprint.find(pfCandidates.ptrAt(i)) == footprint.end()) {
+      float weight = (weights != nullptr) ? (*weights)[pfCandidates.ptrAt(i)] : 1.0;
       //dP4 recovery
       for (const auto& it : footprint) {
-        if ((it->p4() - (*pfCandidates)[i].p4()).Et2() < 0.000025) {
+        if (it.isNonnull() && it.isAvailable() && (reco::deltaR2(*it, pfCandidates[i]) < 0.00000025)) {
           cleancand = false;
           break;
         }
       }
       // if not, add to sumPtUnclustered
       if (cleancand) {
-        sumPtUnclustered += (*pfCandidates)[i].pt();
+        sumPtUnclustered += pfCandidates[i].pt() * weight;
       }
     }
   }
 
   // add jets to metsig covariance matrix and subtract them from sumPtUnclustered
+  iCleaned = cleanedJets.begin();
   for (const auto& jet : jets) {
     // disambiguate jets and leptons
-    if (!cleanJet(jet, leptons))
+    if (!(*iCleaned++))
       continue;
 
     double jpt = jet.pt();

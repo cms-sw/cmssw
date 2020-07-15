@@ -3,7 +3,7 @@
 #include <algorithm>  // for "max","min"
 #include <cmath>
 #include <iostream>
-#include <boost/scoped_ptr.hpp>
+#include <memory>
 
 // Function generates a lookup map for a passed-in function (via templated object algoObject,
 // which must contain method "calcpair" that spits out (x,y) pair from a type float seed.
@@ -121,5 +121,5 @@ private:
   double integrationwindowns_;
   double time0shiftns_;
   S shape_;
-  const boost::scoped_ptr<HcalShapeIntegrator> integrator_;
+  const std::unique_ptr<HcalShapeIntegrator> integrator_;
 };

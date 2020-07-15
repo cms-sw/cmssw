@@ -13,7 +13,6 @@
 #include "SimG4CMS/Calo/interface/EnergyResolutionVsLumi.h"
 #include "Geometry/EcalCommonData/interface/EcalNumberingScheme.h"
 #include "CondFormats/GeometryObjects/interface/EcalSimulationParameters.h"
-#include "DetectorDescription/Core/interface/DDsvalues.h"
 #include "DataFormats/DetId/interface/DetId.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 

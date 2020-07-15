@@ -1,12 +1,12 @@
 //Framework includes
 #include "FWCore/PluginManager/interface/PluginManager.h"
 #include "FWCore/PluginManager/interface/standard.h"
+#include "FWCore/PluginManager/interface/SharedLibrary.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/ServiceRegistry.h"
 //Module includes
 #include "CondCore/CondDB/interface/ConnectionPool.h"
 #include "CondCore/CondDB/interface/PayloadProxy.h"
-#include "CondCore/CondDB/interface/Types.h"
 //Entity class
 #include "CondFormats/RunInfo/interface/RunInfo.h"
 //CORAL includes
@@ -85,21 +85,13 @@ void testCreateSession(cond::persistency::ConnectionPool& connPool,
   cond::persistency::Session session = connPool.createSession(connectionString, writeCapable);
   auto requests = std::make_shared<std::vector<cond::Iov_t>>();
   cond::persistency::PayloadProxy<RunInfo> pp(&iov, &session, &requests);
-
   session.transaction().start(true);
   cond::persistency::IOVProxy iovProxy = session.readIov("RunInfo_v1_mc");
+  iov = iovProxy.getInterval(1);
   session.transaction().commit();
-
-  session.transaction().start(true);
-  auto it = iovProxy.find(1);
-  if (it != iovProxy.end()) {
-    iov = *it;
-  }
-  session.transaction().commit();
-
   pp.initializeForNewIOV();
   pp.make();
-  std::cout << "run number: " << pp().m_run << std::endl;
+  std::cout << "# run number: " << pp().m_run << std::endl;
 }
 
 void testCreateReadOnlySession(cond::persistency::ConnectionPool& connPool,
@@ -107,9 +99,9 @@ void testCreateReadOnlySession(cond::persistency::ConnectionPool& connPool,
                                std::string const& transactionId) {
   cond::persistency::Session session = connPool.createReadOnlySession(connectionString, transactionId);
   session.transaction().start();
-  cond::persistency::IOVProxy iov = session.readIov("RunInfo_v1_mc", true);
+  cond::persistency::IOVProxy iov = session.readIov("RunInfo_v1_mc");
   std::cout << "Loaded size=" << iov.loadedSize() << std::endl;
-  cond::Iov_t currentIov = *(iov.find(1));
+  cond::Iov_t currentIov = iov.getInterval(1);
   std::cout << "run number: " << session.fetchPayload<RunInfo>(currentIov.payloadId)->m_run << std::endl;
   session.transaction().commit();
 }
@@ -122,8 +114,8 @@ int main(int argc, char** argv) {
   edm::ParameterSet pSet;
   pSet.addParameter("@service_type", std::string("SiteLocalConfigService"));
   psets.push_back(pSet);
-  const edm::ServiceToken services(edm::ServiceRegistry::createSet(psets));
-  const edm::ServiceRegistry::Operate operate(services);
+  static const edm::ServiceToken services(edm::ServiceRegistry::createSet(psets));
+  static const edm::ServiceRegistry::Operate operate(services);
 
   std::array<std::string, 2> connectionStrings{
       {"frontier://FrontierPrep/CMS_CONDITIONS",

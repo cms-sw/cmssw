@@ -213,7 +213,7 @@ namespace edm {
 
   template <typename PROD>
   void LuminosityBlock::put(EDPutTokenT<PROD> token, std::unique_ptr<PROD> product) {
-    if (UNLIKELY(product.get() == 0)) {  // null pointer is illegal
+    if (UNLIKELY(product.get() == nullptr)) {  // null pointer is illegal
       TypeID typeID(typeid(PROD));
       principal_get_adapter_detail::throwOnPutOfNullProduct(
           "LuminosityBlock", typeID, provRecorder_.productInstanceLabel(token));
@@ -226,7 +226,7 @@ namespace edm {
 
   template <typename PROD>
   void LuminosityBlock::put(EDPutToken token, std::unique_ptr<PROD> product) {
-    if (UNLIKELY(product.get() == 0)) {  // null pointer is illegal
+    if (UNLIKELY(product.get() == nullptr)) {  // null pointer is illegal
       TypeID typeID(typeid(PROD));
       principal_get_adapter_detail::throwOnPutOfNullProduct(
           "LuminosityBlock", typeID, provRecorder_.productInstanceLabel(token));

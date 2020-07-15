@@ -1,4 +1,4 @@
-<use   name="DataFormats/EcalDetId"/>
-<use   name="Geometry/CaloTopology"/>
+<use name="DataFormats/EcalDetId"/>
+<use name="Geometry/CaloTopology"/>
 <export>
 </export>

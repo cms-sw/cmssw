@@ -1,6 +1,6 @@
-<use   name="hepmc"/>
-<use   name="FastSimulation/ParticlePropagator"/>
-<use   name="GeneratorInterface/Pythia6Interface"/>
+<use name="hepmc"/>
+<use name="FastSimulation/ParticlePropagator"/>
+<use name="GeneratorInterface/Pythia6Interface"/>
 <use name="SimDataFormats/GeneratorProducts"/>
 <use name="GeneratorInterface/Core"/>
 <use name="GeneratorInterface/ExternalDecays"/>
@@ -8,9 +8,9 @@
 <use name="FWCore/ServiceRegistry"/>
 <use name="boost"/>
 <use name="clhep"/>
-<use name="pythia8"/> 
-<use   name="f77compiler"/>
-<use   name="pydata"/>
+<use name="pythia8"/>
+<use name="f77compiler"/>
+<use name="pydata"/>
 <export>
-  <lib   name="1"/>
+  <lib name="1"/>
 </export>

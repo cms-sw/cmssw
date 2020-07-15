@@ -24,7 +24,6 @@ public:
   void checkFilter();
 
 private:
-  void print(Filter*);
   vector<unique_ptr<Filter>> filters_;
 };
 
@@ -44,27 +43,31 @@ void testFilter::setUp() {
     vector<string_view> toks = split(i, "/");
     unique_ptr<Filter> f = nullptr;
     auto const& filter = find_if(begin(filters_), end(filters_), [&](auto const& f) {
-      auto const& k = find(begin(f->keys), end(f->keys), toks.front());
-      if (k != end(f->keys)) {
+      auto const& k = find_if(begin(f->skeys), end(f->skeys), [&](auto const& p) { return toks.front() == p; });
+      if (k != end(f->skeys)) {
         currentFilter = f.get();
         return true;
       }
       return false;
     });
     if (filter == end(filters_)) {
-      filters_.emplace_back(unique_ptr<Filter>(new Filter{{toks.front()}, nullptr, nullptr}));
+      filters_.emplace_back(unique_ptr<Filter>(new Filter{
+          {toks.front()}, {std::regex(std::string(toks.front().data(), toks.front().size()))}, nullptr, nullptr}));
       currentFilter = filters_.back().get();
     }
     // all next levels
     for (size_t pos = 1; pos < toks.size(); ++pos) {
       if (currentFilter->next != nullptr) {
         currentFilter = currentFilter->next.get();
-        auto const& l = find(begin(currentFilter->keys), end(currentFilter->keys), toks[pos]);
-        if (l == end(currentFilter->keys)) {
-          currentFilter->keys.emplace_back(toks[pos]);
+        auto const& l = find_if(
+            begin(currentFilter->skeys), end(currentFilter->skeys), [&](auto const& p) { return toks[pos] == p; });
+        if (l == end(currentFilter->skeys)) {
+          currentFilter->skeys.emplace_back(toks.front());
+          currentFilter->keys.emplace_back(std::regex(std::string(toks.front().data(), toks.front().size())));
         }
       } else {
-        currentFilter->next.reset(new Filter{{toks[pos]}, nullptr, currentFilter});
+        currentFilter->next.reset(new Filter{
+            {toks[pos]}, {std::regex(std::string({toks[pos].data(), toks[pos].size()}))}, nullptr, currentFilter});
       }
     }
   }
@@ -72,25 +75,16 @@ void testFilter::setUp() {
 
 void testFilter::checkFilter() {
   string_view name = "MB2P.*"sv;
-  CPPUNIT_ASSERT(filters_.front()->keys.front() == name);
+  CPPUNIT_ASSERT(std::regex_match(std::string({name.data(), name.size()}), filters_.front()->keys.front()) == 1);
   CPPUNIT_ASSERT(filters_.front()->up == nullptr);
   CPPUNIT_ASSERT(filters_.front()->next != nullptr);
   CPPUNIT_ASSERT(filters_.size() == 1);
 
   Filter* current = nullptr;
-  cout << "Filters...\n";
   for (auto const& i : filters_) {
     current = i.get();
     do {
-      print(current);
       current = current->next.get();
     } while (current != nullptr);
   }
-}
-
-void testFilter::print(Filter* filter) {
-  for (auto const& it : filter->keys) {
-    cout << it << " ";
-  }
-  cout << "\n";
 }

@@ -9,7 +9,7 @@
 
 /*\note specialization free*/
 
-#include <fstream>
+#include <ostream>
 
 #include "L1Trigger/HardwareValidation/interface/DEtrait.h"
 #include "L1Trigger/HardwareValidation/interface/DEutils.h"
@@ -59,10 +59,10 @@ public:
   } 
   */
 
-  bool do_compare(std::ofstream&, int dump = 0);
-  bool CompareCollections(std::ofstream&, int dump = 0);
+  bool do_compare(std::ostream&, int dump = 0);
+  bool CompareCollections(std::ostream&, int dump = 0);
   bool SortCollections(cand_vec& dg, cand_vec& eg, cand_vec& db, cand_vec& eb);
-  bool DumpCandidate(col_cit itd, col_cit itm, std::ofstream&, int mode = 0);
+  bool DumpCandidate(col_cit itd, col_cit itm, std::ostream&, int mode = 0);
   int get_ncand(typeT) const;
   int get_ncand(int i) const {
     if (debug_ && (i < 0 || i > 2))
@@ -102,7 +102,7 @@ private:
 };
 
 template <typename T>
-bool DEcompare<T>::do_compare(std::ofstream& os, int dump) {
+bool DEcompare<T>::do_compare(std::ostream& os, int dump) {
   if (debug_)
     std::cout << " DEcompare::do_compare... " << GetName() << "\n" << std::flush;
   t_match = CompareCollections(os, dump);
@@ -128,7 +128,7 @@ int DEcompare<T>::get_ncand(typeT col) const {
 }
 
 template <typename T>
-bool DEcompare<T>::CompareCollections(std::ofstream& os, int dump) {
+bool DEcompare<T>::CompareCollections(std::ostream& os, int dump) {
   if (debug_)
     std::cout << " DEcompare::CompareCollections...\n" << std::flush;
   bool match = true;
@@ -301,7 +301,7 @@ bool DEcompare<T>::SortCollections(cand_vec& data_good, cand_vec& emul_good, can
 }
 
 template <typename T>
-bool DEcompare<T>::DumpCandidate(col_cit itd, col_cit itm, std::ofstream& os, int mode) {
+bool DEcompare<T>::DumpCandidate(col_cit itd, col_cit itm, std::ostream& os, int mode) {
   if (mode != 2)
     os << "   data: " << print(itd);
   if (mode != 1)

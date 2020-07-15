@@ -1,6 +1,9 @@
 
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "RecoJets/JetProducers/plugins/SubEventGenJetProducer.h"
+
+#include <memory>
+
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/Utilities/interface/isFinite.h"
 #include "RecoJets/JetProducers/interface/JetSpecific.h"
@@ -128,7 +131,7 @@ void SubEventGenJetProducer::runAlgorithm(edm::Event& iEvent, edm::EventSetup co
   // run algorithm
   fjJets_.clear();
 
-  fjClusterSeq_ = ClusterSequencePtr(new fastjet::ClusterSequence(fjInputs_, *fjJetDefinition_));
+  fjClusterSeq_ = std::make_shared<fastjet::ClusterSequence>(fjInputs_, *fjJetDefinition_);
   fjJets_ = fastjet::sorted_by_pt(fjClusterSeq_->inclusive_jets(jetPtMin_));
 
   using namespace reco;

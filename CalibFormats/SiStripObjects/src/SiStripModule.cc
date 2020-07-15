@@ -155,7 +155,7 @@ void SiStripModule::addApv(const uint16_t &apv_address) {
     edm::LogWarning(mlCabling_) << "SiStripModule::" << __func__ << "]"
                                 << " Null APV I2C address!";
     return;
-  } else if (apv_address < 32 && apv_address > 37) {
+  } else if (apv_address < 32 || apv_address > 37) {
     edm::LogWarning(mlCabling_) << "SiStripModule::" << __func__ << "]"
                                 << " Unexpected I2C address (" << apv_address << ") for APV!";
     return;

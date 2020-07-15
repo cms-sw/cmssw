@@ -503,7 +503,7 @@ void TrackExtenderWithMTDT<TrackCollection>::produce(edm::Event& ev, const edm::
   if (useVertex_ && !useSimVertex_) {
     edm::Handle<VertexCollection> vtxH;
     ev.getByToken(vtxToken_, vtxH);
-    if (vtxH.product()->size() > 0)
+    if (!vtxH.product()->empty())
       pv = &(vtxH.product()->at(0));
   }
 

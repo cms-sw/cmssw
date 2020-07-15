@@ -1,17 +1,13 @@
-<use   name="DataFormats/DetId"/>
-<use   name="DataFormats/SiPixelDetId"/>
-<use   name="CalibFormats/SiPixelObjects"/>
-<use   name="FWCore/Utilities"/>
-<use   name="DataFormats/FEDRawData"/>
-<use   name="DataFormats/SiPixelDigi"/>
-<use   name="CondFormats/Serialization"/>
-<use   name="CondFormats/DataRecord"/>
-<use   name="CondFormats/SiStripObjects"/>
-<use   name="root"/>
-<use   name="Geometry/TrackerGeometryBuilder"/>
-<use   name="boost"/>
-<use   name="boost_serialization"/>
-
+<use name="DataFormats/DetId"/>
+<use name="DataFormats/SiPixelDetId"/>
+<use name="CalibFormats/SiPixelObjects"/>
+<use name="FWCore/Utilities"/>
+<use name="DataFormats/FEDRawData"/>
+<use name="CondFormats/Serialization"/>
+<use name="CondFormats/DataRecord"/>
+<use name="CondFormats/SiStripObjects"/>
+<use name="root"/>
+<use name="Geometry/TrackerGeometryBuilder"/>
 <export>
-  <lib   name="1"/>
+  <lib name="1"/>
 </export>

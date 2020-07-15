@@ -6,36 +6,160 @@
 // Original Author:  Michele Pioppi
 //         Created:  Tue Jan 23 15:26:39 CET 2007
 
-// system include files
-#include <memory>
+/// \brief Abstract
+/*!
+\author Michele Pioppi, Daniele Benedetti
+\date January 2007
 
-// user include files
-#include "RecoParticleFlow/PFTracking/interface/PFElecTkProducer.h"
-#include "RecoParticleFlow/PFTracking/interface/PFTrackTransformer.h"
-#include "RecoParticleFlow/PFTracking/interface/ConvBremPFTrackFinder.h"
-#include "MagneticField/Engine/interface/MagneticField.h"
-#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
-#include "FWCore/Framework/interface/ESHandle.h"
-#include "TrackingTools/PatternTools/interface/Trajectory.h"
-#include "DataFormats/TrajectorySeed/interface/TrajectorySeed.h"
-#include "DataFormats/EgammaCandidates/interface/GsfElectronFwd.h"
+ PFElecTkProducer reads the merged GsfTracks collection
+ built with the TrackerDriven and EcalDriven seeds 
+ and transform them in PFGsfRecTracks.
+*/
+
 #include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
+#include "DataFormats/EgammaReco/interface/ElectronSeed.h"
+#include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
+#include "DataFormats/ParticleFlowReco/interface/GsfPFRecTrack.h"
+#include "DataFormats/ParticleFlowReco/interface/PFCluster.h"
+#include "DataFormats/ParticleFlowReco/interface/PFConversion.h"
+#include "DataFormats/ParticleFlowReco/interface/PFDisplacedTrackerVertex.h"
+#include "DataFormats/ParticleFlowReco/interface/PFDisplacedVertex.h"
+#include "DataFormats/ParticleFlowReco/interface/PFRecTrack.h"
+#include "DataFormats/ParticleFlowReco/interface/PFV0.h"
+#include "DataFormats/TrajectorySeed/interface/TrajectorySeed.h"
+#include "DataFormats/VertexReco/interface/Vertex.h"
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "MagneticField/Engine/interface/MagneticField.h"
-#include "DataFormats/ParticleFlowReco/interface/PFClusterFwd.h"
-#include "DataFormats/ParticleFlowReco/interface/PFCluster.h"
-#include "TrackingTools/TransientTrack/interface/TransientTrackBuilder.h"
-#include "TrackingTools/Records/interface/TransientTrackRecord.h"
-#include "DataFormats/VertexReco/interface/Vertex.h"
-#include "RecoParticleFlow/PFClusterTools/interface/LinkByRecHit.h"
+#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 #include "RecoParticleFlow/PFClusterTools/interface/ClusterClusterMapping.h"
+#include "RecoParticleFlow/PFClusterTools/interface/LinkByRecHit.h"
+#include "RecoParticleFlow/PFTracking/interface/ConvBremHeavyObjectCache.h"
+#include "RecoParticleFlow/PFTracking/interface/ConvBremPFTrackFinder.h"
 #include "RecoParticleFlow/PFTracking/interface/PFTrackAlgoTools.h"
+#include "RecoParticleFlow/PFTracking/interface/PFTrackTransformer.h"
+#include "TrackingTools/GsfTools/interface/MultiTrajectoryStateMode.h"
+#include "TrackingTools/GsfTools/interface/MultiTrajectoryStateTransform.h"
+#include "TrackingTools/PatternTools/interface/Trajectory.h"
+#include "TrackingTools/Records/interface/TransientTrackRecord.h"
+#include "TrackingTools/TransientTrack/interface/TransientTrackBuilder.h"
 
 #include "TMath.h"
+
+class PFElecTkProducer final : public edm::stream::EDProducer<edm::GlobalCache<convbremhelpers::HeavyObjectCache> > {
+public:
+  ///Constructor
+  explicit PFElecTkProducer(const edm::ParameterSet&, const convbremhelpers::HeavyObjectCache*);
+
+  static std::unique_ptr<convbremhelpers::HeavyObjectCache> initializeGlobalCache(const edm::ParameterSet& conf) {
+    return std::unique_ptr<convbremhelpers::HeavyObjectCache>(new convbremhelpers::HeavyObjectCache(conf));
+  }
+
+  static void globalEndJob(convbremhelpers::HeavyObjectCache const*) {}
+
+private:
+  void beginRun(const edm::Run&, const edm::EventSetup&) override;
+  void endRun(const edm::Run&, const edm::EventSetup&) override;
+
+  ///Produce the PFRecTrack collection
+  void produce(edm::Event&, const edm::EventSetup&) override;
+
+  int FindPfRef(const reco::PFRecTrackCollection& PfRTkColl, const reco::GsfTrack&, bool);
+
+  bool applySelection(const reco::GsfTrack&);
+
+  bool resolveGsfTracks(const std::vector<reco::GsfPFRecTrack>& GsfPFVec,
+                        unsigned int ngsf,
+                        std::vector<unsigned int>& secondaries,
+                        const reco::PFClusterCollection& theEClus);
+
+  float minTangDist(const reco::GsfPFRecTrack& primGsf, const reco::GsfPFRecTrack& secGsf);
+
+  bool isSameEgSC(const reco::ElectronSeed& nSeed,
+                  const reco::ElectronSeed& iSeed,
+                  bool& bothGsfEcalDriven,
+                  float& SCEnergy);
+
+  bool isSharingEcalEnergyWithEgSC(const reco::GsfPFRecTrack& nGsfPFRecTrack,
+                                   const reco::GsfPFRecTrack& iGsfPFRecTrack,
+                                   const reco::ElectronSeed& nSeed,
+                                   const reco::ElectronSeed& iSeed,
+                                   const reco::PFClusterCollection& theEClus,
+                                   bool& bothGsfTrackerDriven,
+                                   bool& nEcalDriven,
+                                   bool& iEcalDriven,
+                                   float& nEnergy,
+                                   float& iEnergy);
+
+  bool isInnerMost(const reco::GsfTrackRef& nGsfTrack, const reco::GsfTrackRef& iGsfTrack, bool& sameLayer);
+
+  bool isInnerMostWithLostHits(const reco::GsfTrackRef& nGsfTrack, const reco::GsfTrackRef& iGsfTrack, bool& sameLayer);
+
+  void createGsfPFRecTrackRef(const edm::OrphanHandle<reco::GsfPFRecTrackCollection>& gsfPfHandle,
+                              std::vector<reco::GsfPFRecTrack>& gsfPFRecTrackPrimary,
+                              const std::map<unsigned int, std::vector<reco::GsfPFRecTrack> >& MapPrimSec);
+
+  // ----------member data ---------------------------
+  reco::GsfPFRecTrack pftrack_;
+  reco::GsfPFRecTrack secpftrack_;
+  edm::ParameterSet conf_;
+  edm::EDGetTokenT<reco::GsfTrackCollection> gsfTrackLabel_;
+  edm::EDGetTokenT<reco::PFRecTrackCollection> pfTrackLabel_;
+  edm::EDGetTokenT<reco::VertexCollection> primVtxLabel_;
+  edm::EDGetTokenT<reco::PFClusterCollection> pfEcalClusters_;
+  edm::EDGetTokenT<reco::PFDisplacedTrackerVertexCollection> pfNuclear_;
+  edm::EDGetTokenT<reco::PFConversionCollection> pfConv_;
+  edm::EDGetTokenT<reco::PFV0Collection> pfV0_;
+  bool useNuclear_;
+  bool useConversions_;
+  bool useV0_;
+  bool applyAngularGsfClean_;
+  double detaCutGsfClean_;
+  double dphiCutGsfClean_;
+
+  ///PFTrackTransformer
+  std::unique_ptr<PFTrackTransformer> pfTransformer_;
+  MultiTrajectoryStateTransform mtsTransform_;
+  std::unique_ptr<ConvBremPFTrackFinder> convBremFinder_;
+
+  ///Trajectory of GSfTracks in the event?
+  bool trajinev_;
+  bool modemomentum_;
+  bool applySel_;
+  bool applyGsfClean_;
+  bool useFifthStepForEcalDriven_;
+  bool useFifthStepForTrackDriven_;
+  //   bool useFifthStepSec_;
+  bool debugGsfCleaning_;
+  double SCEne_;
+  double detaGsfSC_;
+  double dphiGsfSC_;
+  double maxPtConvReco_;
+
+  /// Conv Brem Finder
+  bool useConvBremFinder_;
+
+  double mvaConvBremFinderIDBarrelLowPt_;
+  double mvaConvBremFinderIDBarrelHighPt_;
+  double mvaConvBremFinderIDEndcapsLowPt_;
+  double mvaConvBremFinderIDEndcapsHighPt_;
+  std::string path_mvaWeightFileConvBremBarrelLowPt_;
+  std::string path_mvaWeightFileConvBremBarrelHighPt_;
+  std::string path_mvaWeightFileConvBremEndcapsLowPt_;
+  std::string path_mvaWeightFileConvBremEndcapsHighPt_;
+
+  // cache for multitrajectory states
+  std::vector<double> gsfInnerMomentumCache_;
+};
+
 using namespace std;
 using namespace edm;
 using namespace reco;
+
 PFElecTkProducer::PFElecTkProducer(const ParameterSet& iConfig, const convbremhelpers::HeavyObjectCache*)
     : conf_(iConfig) {
   gsfTrackLabel_ = consumes<reco::GsfTrackCollection>(iConfig.getParameter<InputTag>("GsfTrackModuleLabel"));
@@ -82,8 +206,6 @@ PFElecTkProducer::PFElecTkProducer(const ParameterSet& iConfig, const convbremhe
   mvaConvBremFinderIDEndcapsLowPt_ = iConfig.getParameter<double>("pf_convBremFinderID_mvaCutEndcapsLowPt");
   mvaConvBremFinderIDEndcapsHighPt_ = iConfig.getParameter<double>("pf_convBremFinderID_mvaCutEndcapsHighPt");
 }
-
-PFElecTkProducer::~PFElecTkProducer() {}
 
 //
 // member functions
@@ -362,12 +484,10 @@ int PFElecTkProducer::FindPfRef(const reco::PFRecTrackCollection& PfRTkColl,
       for (auto const& hhit : pft->trackRef()->recHits()) {
         if (!hhit->isValid())
           continue;
-        TrajectorySeed::const_iterator hit = gsftk.seedRef()->recHits().first;
-        TrajectorySeed::const_iterator hit_end = gsftk.seedRef()->recHits().second;
-        for (; hit != hit_end; ++hit) {
-          if (!(hit->isValid()))
+        for (auto const& hit : gsftk.seedRef()->recHits()) {
+          if (!(hit.isValid()))
             continue;
-          if (hhit->sharesInput(&*(hit), TrackingRecHit::all))
+          if (hhit->sharesInput(&hit, TrackingRecHit::all))
             ish++;
           // if((hit->geographicalId()==hhit->geographicalId())&&
           //     ((hhit->localPosition()-hit->localPosition()).mag()<0.01)) ish++;
@@ -1004,3 +1124,5 @@ void PFElecTkProducer::endRun(const edm::Run& run, const EventSetup& iSetup) {
 }
 
 //define this as a plug-in
+#include "FWCore/Framework/interface/MakerMacros.h"
+DEFINE_FWK_MODULE(PFElecTkProducer);

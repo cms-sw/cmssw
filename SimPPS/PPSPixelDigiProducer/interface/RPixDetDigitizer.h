@@ -20,10 +20,10 @@
 
 #include "SimPPS/PPSPixelDigiProducer/interface/RPixPileUpSignals.h"
 
-#include "CondFormats/CTPPSReadoutObjects/interface/CTPPSPixelGainCalibrations.h"
-#include "RecoCTPPS/PixelLocal/interface/CTPPSPixelGainCalibrationDBService.h"
+#include "CondFormats/PPSObjects/interface/CTPPSPixelGainCalibrations.h"
+#include "RecoPPS/Local/interface/CTPPSPixelGainCalibrationDBService.h"
 
-#include "CondFormats/CTPPSReadoutObjects/interface/CTPPSPixelAnalysisMask.h"
+#include "CondFormats/PPSObjects/interface/CTPPSPixelAnalysisMask.h"
 
 namespace CLHEP {
   class HepRandomEngine;

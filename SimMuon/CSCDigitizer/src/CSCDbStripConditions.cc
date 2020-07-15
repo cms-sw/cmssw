@@ -4,7 +4,6 @@
 #include "CondFormats/DataRecord/interface/CSCDBNoiseMatrixRcd.h"
 #include "CondFormats/DataRecord/interface/CSCDBPedestalsRcd.h"
 #include "DataFormats/MuonDetId/interface/CSCDetId.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "SimMuon/CSCDigitizer/src/CSCDbStripConditions.h"
 

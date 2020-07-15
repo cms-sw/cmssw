@@ -223,11 +223,14 @@ _addTimingLayer = particleFlowBlock.elementImporters.copy()
 _addTimingLayer.append( cms.PSet( importerName = cms.string("TrackTimingImporter"),
                              timeValueMap = cms.InputTag("tofPID:t0"),
                              timeErrorMap = cms.InputTag("tofPID:sigmat0"),
+                             timeQualityMap = cms.InputTag("mtdTrackQualityMVA:mtdQualMVA"),
+                             timeQualityThreshold = cms.double(0.5),
                              #this will cause no time to be set for gsf tracks
                              #(since this is not available for the fullsim/reconstruction yet)
                              #*TODO* update when gsf times are available
                              timeValueMapGsf = cms.InputTag("tofPID:t0"),
-                             timeErrorMapGsf = cms.InputTag("tofPID:sigmat0")
+                             timeErrorMapGsf = cms.InputTag("tofPID:sigmat0"),
+                             timeQualityMapGsf = cms.InputTag("mtdTrackQualityMVA:mtdQualMVA"),
                              )
                    )
 

@@ -1,7 +1,7 @@
-<use   name="root"/>
-<use   name="DQMServices/Core"/>
-<use   name="DataFormats/RecoCandidate"/>
+<use name="root"/>
+<use name="DQMServices/Core"/>
+<use name="DataFormats/Candidate"/>
+<use name="SimDataFormats/GeneratorProducts"/>
 <export>
   <lib name="1"/>
 </export>
-

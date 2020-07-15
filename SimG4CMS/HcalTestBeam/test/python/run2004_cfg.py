@@ -1,11 +1,13 @@
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("PROD")
-process.load("SimGeneral.HepPDTESSource.pdt_cfi")
 
+process.load('FWCore.MessageService.MessageLogger_cfi')
+process.load("SimGeneral.HepPDTESSource.pdt_cfi")
 process.load("SimG4CMS.HcalTestBeam.TB2004GeometryXML_cfi")
 process.load("Geometry.EcalCommonData.ecalSimulationParameters_cff")
 process.load("Geometry.HcalTestBeamData.hcalDDDSimConstants_cff")
+process.load('GeneratorInterface.Core.generatorSmeared_cfi')
 process.load("Configuration.EventContent.EventContent_cff")
 process.load("SimG4Core.Application.g4SimHits_cfi")
 
@@ -13,50 +15,16 @@ process.TFileService = cms.Service("TFileService",
     fileName = cms.string('hcaltb04.root')
 )
 
-process.MessageLogger = cms.Service("MessageLogger",
-    destinations = cms.untracked.vstring('cout'),
-    categories = cms.untracked.vstring('CaloSim', 
-        'EcalGeom', 
-        'EcalSim', 
-        'HCalGeom', 
-        'HcalSim', 
-        'HcalTBSim', 
-        'SimHCalData', 
-        'VertexGenerator'),
-    cout = cms.untracked.PSet(
-        threshold = cms.untracked.string('INFO'),
-        INFO = cms.untracked.PSet(
-            limit = cms.untracked.int32(0)
-        ),
-        DEBUG = cms.untracked.PSet(
-            limit = cms.untracked.int32(0)
-        ),
-        VertexGenerator = cms.untracked.PSet(
-            limit = cms.untracked.int32(0)
-        ),
-        EcalGeom = cms.untracked.PSet(
-            limit = cms.untracked.int32(0)
-        ),
-        HCalGeom = cms.untracked.PSet(
-            limit = cms.untracked.int32(0)
-        ),
-        CaloSim = cms.untracked.PSet(
-            limit = cms.untracked.int32(0)
-        ),
-        EcalSim = cms.untracked.PSet(
-            limit = cms.untracked.int32(0)
-        ),
-        HcalSim = cms.untracked.PSet(
-            limit = cms.untracked.int32(0)
-        ),
-        HcalTBSim = cms.untracked.PSet(
-            limit = cms.untracked.int32(0)
-        ),
-        SimHCalData = cms.untracked.PSet(
-            limit = cms.untracked.int32(0)
-        )
-    )
-)
+process.MessageLogger.cerr.FwkReport.reportEvery = 5
+if hasattr(process,'MessageLogger'):
+    process.MessageLogger.categories.append('HCalGeom')
+    process.MessageLogger.categories.append('EcalGeom')
+    process.MessageLogger.categories.append('HcalSim')
+    process.MessageLogger.categories.append('HcalTBSim')
+    process.MessageLogger.categories.append('EcalSim')
+    process.MessageLogger.categories.append('CaloSim')
+    process.MessageLogger.categories.append('SimHCalData')
+    process.MessageLogger.categories.append('VertexGenerator')
 
 process.load("IOMC.RandomEngine.IOMC_cff")
 process.RandomNumberGeneratorService.generator.initialSeed = 456789
@@ -70,7 +38,7 @@ process.common_heavy_suppression1 = cms.PSet(
 )
 
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(100)
+    input = cms.untracked.int32(10)
 )
 
 process.common_beam_direction_parameters = cms.PSet(
@@ -119,7 +87,7 @@ process.o1 = cms.OutputModule("PoolOutputModule",
 
 process.Timing = cms.Service("Timing")
 
-process.p1 = cms.Path(process.generator*process.VtxSmeared*process.g4SimHits)
+process.p1 = cms.Path(process.generator*process.VtxSmeared*process.generatorSmeared*process.g4SimHits)
 process.outpath = cms.EndPath(process.o1)
 process.common_maximum_timex = cms.PSet(
     MaxTrackTime  = cms.double(1000.0),
@@ -203,6 +171,7 @@ process.g4SimHits.CaloSD = cms.PSet(
     HCNames        = cms.vstring('EcalHitsEB','EcalHitsEE','EcalHitsES','HcalHits'),
     UseResponseTables = cms.vint32(0,0,0,0),
     SuppressHeavy  = cms.bool(False),
+    UseFineCaloID  = cms.bool(False),
     CheckHits      = cms.untracked.int32(25),
     UseMap         = cms.untracked.bool(True),
     Verbosity      = cms.untracked.int32(0),

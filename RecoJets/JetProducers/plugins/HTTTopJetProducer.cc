@@ -3,6 +3,8 @@
 #include "DataFormats/JetReco/interface/BasicJetCollection.h"
 #include "HTTTopJetProducer.h"
 
+#include <memory>
+
 using namespace edm;
 using namespace cms;
 using namespace reco;
@@ -90,7 +92,7 @@ void HTTTopJetProducer::produce(edm::Event& e, const edm::EventSetup& c) {
 
 void HTTTopJetProducer::runAlgorithm(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   if (!doAreaFastjet_ && !doRhoFastjet_) {
-    fjClusterSeq_ = ClusterSequencePtr(new fastjet::ClusterSequence(fjInputs_, *fjJetDefinition_));
+    fjClusterSeq_ = std::make_shared<fastjet::ClusterSequence>(fjInputs_, *fjJetDefinition_);
   } else if (voronoiRfact_ <= 0) {
     fjClusterSeq_ =
         ClusterSequencePtr(new fastjet::ClusterSequenceArea(fjInputs_, *fjJetDefinition_, *fjAreaDefinition_));

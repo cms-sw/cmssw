@@ -1,11 +1,11 @@
-<use   name="roothistmatrix"/>
-<use   name="Alignment/CommonAlignment"/>
-<use   name="DataFormats/MuonDetId"/>
-<use   name="DataFormats/SiStripDetId"/>
-<use   name="Geometry/DTGeometry"/>
-<use   name="FWCore/Framework"/>
-<use   name="FWCore/MessageLogger"/>
-<use   name="FWCore/Utilities"/>
+<use name="roothistmatrix"/>
+<use name="Alignment/CommonAlignment"/>
+<use name="DataFormats/MuonDetId"/>
+<use name="DataFormats/SiStripDetId"/>
+<use name="Geometry/DTGeometry"/>
+<use name="FWCore/Framework"/>
+<use name="FWCore/MessageLogger"/>
+<use name="FWCore/Utilities"/>
 <export>
-  <lib   name="1"/>
+  <lib name="1"/>
 </export>

@@ -37,6 +37,9 @@ using namespace Pythia8;
 #include "GeneratorInterface/Pythia8Interface/plugins/PowhegResHook.h"
 #include "GeneratorInterface/Pythia8Interface/plugins/PowhegHooksBB4L.h"
 
+//biased tau decayer
+#include "GeneratorInterface/Pythia8Interface/interface/BiasedTauDecayer.h"
+
 //decay filter hook
 #include "GeneratorInterface/Pythia8Interface/interface/ResonanceDecayFilterHook.h"
 
@@ -137,6 +140,9 @@ private:
   // Resonance scale hook
   std::unique_ptr<PowhegResHook> fPowhegResHook;
   std::unique_ptr<PowhegHooksBB4L> fPowhegHooksBB4L;
+
+  // biased tau decayer
+  std::unique_ptr<BiasedTauDecayer> fBiasedTauDecayer;
 
   //resonance decay filter hook
   std::unique_ptr<ResonanceDecayFilterHook> fResonanceDecayFilterHook;
@@ -414,6 +420,17 @@ bool Pythia8Hadronizer::initializeForInternalPartons() {
     fMergingHook.reset(new Pythia8::amcnlo_unitarised_interface(scheme));
     fMultiUserHook->addHook(fMergingHook.get());
   }
+  bool biasedTauDecayer = fMasterGen->settings.flag("BiasedTauDecayer:filter");
+  if (biasedTauDecayer) {
+    fBiasedTauDecayer.reset(new BiasedTauDecayer(&(fMasterGen->info),
+                                                 &(fMasterGen->settings),
+                                                 &(fMasterGen->particleData),
+                                                 &(fMasterGen->rndm),
+                                                 &(fMasterGen->couplings)));
+    std::vector<int> handledParticles;
+    handledParticles.push_back(15);
+    fMasterGen->setDecayPtr(fBiasedTauDecayer.get(), handledParticles);
+  }
 
   bool resonanceDecayFilter = fMasterGen->settings.flag("ResonanceDecayFilter:filter");
   if (resonanceDecayFilter) {
@@ -546,6 +563,18 @@ bool Pythia8Hadronizer::initializeForExternalPartons() {
                             : 0);
     fMergingHook.reset(new Pythia8::amcnlo_unitarised_interface(scheme));
     fMultiUserHook->addHook(fMergingHook.get());
+  }
+
+  bool biasedTauDecayer = fMasterGen->settings.flag("BiasedTauDecayer:filter");
+  if (biasedTauDecayer) {
+    fBiasedTauDecayer.reset(new BiasedTauDecayer(&(fMasterGen->info),
+                                                 &(fMasterGen->settings),
+                                                 &(fMasterGen->particleData),
+                                                 &(fMasterGen->rndm),
+                                                 &(fMasterGen->couplings)));
+    std::vector<int> handledParticles;
+    handledParticles.push_back(15);
+    fMasterGen->setDecayPtr(fBiasedTauDecayer.get(), handledParticles);
   }
 
   bool resonanceDecayFilter = fMasterGen->settings.flag("ResonanceDecayFilter:filter");

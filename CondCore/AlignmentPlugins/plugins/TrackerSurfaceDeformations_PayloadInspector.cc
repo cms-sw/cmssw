@@ -18,7 +18,7 @@
 #include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
 #include "DataFormats/DetId/interface/DetId.h"
 
-#include "Alignment/CommonAlignment/interface/Utilities.h"
+#include "CondFormats/Alignment/interface/Definitions.h"
 
 // needed for the tracker map
 #include "CommonTools/TrackerMap/interface/TrackerMap.h"
@@ -52,8 +52,9 @@ namespace {
       Base::setSingleIov(true);
     }
 
-    bool fill(const std::vector<std::tuple<cond::Time_t, cond::Hash> > &iovs) override {
-      for (auto const &iov : iovs) {
+    bool fill() override {
+      auto tag = PlotBase::getTag<0>();
+      for (auto const &iov : tag.iovs) {
         std::shared_ptr<AlignmentSurfaceDeformations> payload = Base::fetchPayload(std::get<1>(iov));
         if (payload.get()) {
           int i = 0;

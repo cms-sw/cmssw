@@ -43,13 +43,13 @@ BPHOniaToMuMuBuilder::BPHOniaToMuMuBuilder(const edm::EventSetup& es,
       evSetup(&es),
       posCollection(muPosCollection),
       negCollection(muNegCollection) {
-  setParameters(Phi, 3.0, 10.0, 0.50, 1.50, 0.0, BPHParticleMasses::phiMass, BPHParticleMasses::phiMWidth);
-  setParameters(Psi1, 3.0, 10.0, 2.00, 3.40, 0.0, BPHParticleMasses::jPsiMass, BPHParticleMasses::jPsiMWidth);
-  setParameters(Psi2, 3.0, 10.0, 3.40, 6.00, 0.0, BPHParticleMasses::psi2Mass, BPHParticleMasses::psi2MWidth);
-  setParameters(Ups, 3.0, 10.0, 6.00, 12.00, 0.0, -1.0, 0.0);
-  setParameters(Ups1, 3.0, 10.0, 6.00, 9.75, 0.0, BPHParticleMasses::ups1Mass, BPHParticleMasses::ups1MWidth);
-  setParameters(Ups2, 3.0, 10.0, 9.75, 10.20, 0.0, BPHParticleMasses::ups2Mass, BPHParticleMasses::ups2MWidth);
-  setParameters(Ups3, 3.0, 10.0, 10.20, 12.00, 0.0, BPHParticleMasses::ups3Mass, BPHParticleMasses::ups3MWidth);
+  setParameters(Phi, 2.0, 10.0, 0.50, 1.50, 0.0, BPHParticleMasses::phiMass, BPHParticleMasses::phiMWidth);
+  setParameters(Psi1, 2.0, 10.0, 2.00, 3.40, 0.0, BPHParticleMasses::jPsiMass, BPHParticleMasses::jPsiMWidth);
+  setParameters(Psi2, 2.0, 10.0, 3.40, 6.00, 0.0, BPHParticleMasses::psi2Mass, BPHParticleMasses::psi2MWidth);
+  setParameters(Ups, 2.0, 10.0, 6.00, 12.00, 0.0, -1.0, 0.0);
+  setParameters(Ups1, 2.0, 10.0, 6.00, 9.75, 0.0, BPHParticleMasses::ups1Mass, BPHParticleMasses::ups1MWidth);
+  setParameters(Ups2, 2.0, 10.0, 9.75, 10.20, 0.0, BPHParticleMasses::ups2Mass, BPHParticleMasses::ups2MWidth);
+  setParameters(Ups3, 2.0, 10.0, 10.20, 12.00, 0.0, BPHParticleMasses::ups3Mass, BPHParticleMasses::ups3MWidth);
   updated = false;
 }
 
@@ -75,10 +75,12 @@ vector<BPHPlusMinusConstCandPtr> BPHOniaToMuMuBuilder::build() {
   if (updated)
     return fullList;
 
-  BPHMultiSelect<BPHRecoSelect> ptSel(BPHSelectOperation::or_mode);
-  BPHMultiSelect<BPHRecoSelect> etaSel(BPHSelectOperation::or_mode);
-  BPHMultiSelect<BPHMomentumSelect> mSel(BPHSelectOperation::or_mode);
-  BPHMultiSelect<BPHVertexSelect> vSel(BPHSelectOperation::or_mode);
+  fullList.clear();
+
+  BPHMultiSelect<BPHSlimSelect<BPHRecoSelect>> ptSel(BPHSelectOperation::or_mode);
+  BPHMultiSelect<BPHSlimSelect<BPHRecoSelect>> etaSel(BPHSelectOperation::or_mode);
+  BPHMultiSelect<BPHSlimSelect<BPHMomentumSelect>> mSel(BPHSelectOperation::or_mode);
+  BPHMultiSelect<BPHSlimSelect<BPHVertexSelect>> vSel(BPHSelectOperation::or_mode);
 
   map<oniaType, OniaParameters>::iterator iter = oniaPar.begin();
   map<oniaType, OniaParameters>::iterator iend = oniaPar.end();
@@ -287,8 +289,8 @@ void BPHOniaToMuMuBuilder::extractList(oniaType type) {
     if (!par.chi2Sel->accept(*ptr))
       continue;
     BPHPlusMinusCandidate* np = new BPHPlusMinusCandidate(evSetup);
-    np->add("MuPos", muPos, ptr->getTrackSearchList(mcPos), BPHParticleMasses::muonMass);
-    np->add("MuNeg", muNeg, ptr->getTrackSearchList(mcNeg), BPHParticleMasses::muonMass);
+    np->add("MuPos", muPos, ptr->getTrackSearchList(mcPos), BPHParticleMasses::muonMass, BPHParticleMasses::muonMSigma);
+    np->add("MuNeg", muNeg, ptr->getTrackSearchList(mcNeg), BPHParticleMasses::muonMass, BPHParticleMasses::muonMSigma);
     if (par.mass > 0.0)
       np->setConstraint(par.mass, par.sigma);
     list.push_back(BPHPlusMinusConstCandPtr(np));

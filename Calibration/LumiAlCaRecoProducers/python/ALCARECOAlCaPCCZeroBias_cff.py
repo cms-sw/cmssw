@@ -19,8 +19,8 @@ siPixelClustersForLumiZB.src = cms.InputTag("siPixelDigisForLumiZB")
 
 from Calibration.LumiAlCaRecoProducers.alcaPCCProducer_cfi import alcaPCCProducer
 alcaPCCProducerZeroBias = alcaPCCProducer.clone()
-alcaPCCProducerZeroBias.AlcaPCCProducerParameters.pixelClusterLabel = cms.InputTag("siPixelClustersForLumiZB")
-alcaPCCProducerZeroBias.AlcaPCCProducerParameters.trigstring        = cms.untracked.string("alcaPCCZeroBias")
+alcaPCCProducerZeroBias.pixelClusterLabel = cms.InputTag("siPixelClustersForLumiZB")
+alcaPCCProducerZeroBias.trigstring        = cms.untracked.string("alcaPCCZeroBias")
 
 # Sequence #
 seqALCARECOAlCaPCCZeroBias = cms.Sequence(ALCARECOZeroBiasHLT + siPixelDigisForLumiZB + siPixelClustersForLumiZB + alcaPCCProducerZeroBias)

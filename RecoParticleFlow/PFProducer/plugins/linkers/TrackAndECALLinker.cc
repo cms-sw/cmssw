@@ -23,6 +23,7 @@ DEFINE_EDM_PLUGIN(BlockElementLinkerFactory, TrackAndECALLinker, "TrackAndECALLi
 
 bool TrackAndECALLinker::linkPrefilter(const reco::PFBlockElement* elem1, const reco::PFBlockElement* elem2) const {
   bool result = false;
+  // Track-ECAL KDTree multilinks are stored to track's elem
   switch (elem1->type()) {
     case reco::PFBlockElement::TRACK:
       result = (elem1->isMultilinksValide() && !elem1->getMultilinks().empty());

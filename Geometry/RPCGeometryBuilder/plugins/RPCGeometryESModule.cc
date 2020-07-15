@@ -13,7 +13,7 @@
 #include "Geometry/RPCGeometryBuilder/src/RPCGeometryBuilderFromCondDB.h"
 
 #include "Geometry/MuonNumbering/interface/DD4hep_MuonNumbering.h"
-#include "Geometry/MuonNumbering/interface/MuonDDDNumbering.h"
+#include "Geometry/MuonNumbering/interface/MuonGeometryConstants.h"
 #include "Geometry/MuonNumbering/interface/MuonBaseNumber.h"
 
 #include <FWCore/Framework/interface/EventSetup.h>
@@ -37,7 +37,7 @@ RPCGeometryESModule::RPCGeometryESModule(const edm::ParameterSet& p)
   const edm::ESInputTag kEmptyTag;
   if (useDDD_) {
     idealGeomToken_ = cc.consumesFrom<DDCompactView, IdealGeometryRecord>(kEmptyTag);
-    dddConstantsToken_ = cc.consumesFrom<MuonDDDConstants, MuonNumberingRecord>(kEmptyTag);
+    dddConstantsToken_ = cc.consumesFrom<MuonGeometryConstants, IdealGeometryRecord>(kEmptyTag);
   } else if (useDD4hep_) {
     idealDD4hepGeomToken_ = cc.consumesFrom<cms::DDCompactView, IdealGeometryRecord>(kEmptyTag);
     dd4hepConstantsToken_ = cc.consumesFrom<cms::MuonNumbering, MuonNumberingRecord>(kEmptyTag);

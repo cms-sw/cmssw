@@ -15,6 +15,8 @@ from DQM.RPCMonitorClient.RPCTier0Source_cff import *
 from DQM.CSCMonitorModule.csc_dqm_sourceclient_offline_cff import *
 from DQM.BeamMonitor.AlcaBeamMonitorHeavyIons_cff import *
 
+DQMNone = cms.Sequence()
+
 dqmProvInfo.runType = "hi_run"
 DQMOfflineHeavyIonsDCS = cms.Sequence( dqmProvInfo )
 
@@ -96,8 +98,7 @@ dqmElectronTagProbeAnalysis.ElectronCollection = cms.InputTag("gedGsfElectronsTm
 stdPhotonAnalysis.isHeavyIon = True
 stdPhotonAnalysis.barrelRecHitProducer = cms.InputTag("ecalRecHit", "EcalRecHitsEB")
 stdPhotonAnalysis.endcapRecHitProducer = cms.InputTag("ecalRecHit", "EcalRecHitsEE")
-hltResults.RecHitsEBTag = cms.untracked.InputTag("ecalRecHit", "EcalRecHitsEB")
-hltResults.RecHitsEETag = cms.untracked.InputTag("ecalRecHit", "EcalRecHitsEE")
+
 #disabled, until an appropriate configuration is set
 hltTauOfflineMonitor_PFTaus.Matching.doMatching = False
 

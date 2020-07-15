@@ -1,14 +1,14 @@
-<use   name="FWCore/PluginManager"/>
-<use   name="SimG4Core/SensitiveDetector"/>
-<use   name="SimG4Core/Notification"/>
-<use   name="SimG4CMS/Calo"/>
-<use   name="SimDataFormats/SimHitMaker"/>
-<use   name="SimDataFormats/CaloHit"/>
-<use   name="DetectorDescription/Core"/>
-<use   name="FWCore/ParameterSet"/>
-<use   name="FWCore/MessageLogger"/>
-<use   name="geant4core"/>
-<library   file="*.cc" name="SimG4CMSCherenkovAnalysisPlugins">
-  <use   name="SimG4CMS/CherenkovAnalysis"/>
-  <flags   EDM_PLUGIN="1"/>
+<use name="CommonTools/UtilAlgos"/>
+<use name="FWCore/Framework"/>
+<use name="FWCore/MessageLogger"/>
+<use name="FWCore/ParameterSet"/>
+<use name="FWCore/PluginManager"/>
+<use name="FWCore/ServiceRegistry"/>
+<use name="SimG4Core/SensitiveDetector"/>
+<use name="SimDataFormats/CaloHit"/>
+<use name="geant4core"/>
+<use name="root"/>
+<library file="*.cc" name="SimG4CMSCherenkovAnalysisPlugins">
+  <use name="SimG4CMS/CherenkovAnalysis"/>
+  <flags EDM_PLUGIN="1"/>
 </library>

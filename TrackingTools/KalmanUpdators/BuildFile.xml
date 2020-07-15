@@ -1,14 +1,14 @@
-<flags   CXXFLAGS="-funroll-all-loops"/>
-<use   name="ofast-flag"/>
-<use   name="clhep"/>
-<use   name="RecoTracker/TransientTrackingRecHit"/>
-<use   name="TrackingTools/TransientTrackingRecHit"/>
-<use   name="TrackingTools/TrajectoryState"/>
-<use   name="TrackingTools/DetLayers"/>
-<use   name="TrackingTools/GeomPropagators"/>
-<use   name="Geometry/CommonDetUnit"/>
-<use   name="Geometry/CommonTopologies"/>
+<flags CXXFLAGS="-funroll-all-loops"/>
+<use name="ofast-flag"/>
+<use name="clhep"/>
+<use name="RecoTracker/TransientTrackingRecHit"/>
+<use name="TrackingTools/TransientTrackingRecHit"/>
+<use name="TrackingTools/TrajectoryState"/>
+<use name="TrackingTools/DetLayers"/>
+<use name="TrackingTools/GeomPropagators"/>
+<use name="Geometry/CommonDetUnit"/>
+<use name="Geometry/CommonTopologies"/>
 <export>
-  <lib   name="1"/>
+  <lib name="1"/>
 </export>
-<use   name="FWCore/Utilities"/>
+<use name="FWCore/Utilities"/>

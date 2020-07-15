@@ -15,6 +15,7 @@
 #include "TrackingTools/TransientTrackingRecHit/interface/InvalidTransientRecHit.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/Utilities/interface/Likely.h"
 
 #include <algorithm>
 

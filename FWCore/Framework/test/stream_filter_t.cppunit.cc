@@ -134,6 +134,36 @@ private:
       ++m_count;
     }
   };
+  class GlobalProdWithBeginJob : public edm::stream::EDFilter<edm::GlobalCache<int>> {
+  public:
+    static unsigned int m_count;
+
+    static std::unique_ptr<int> initializeGlobalCache(edm::ParameterSet const&) { return std::make_unique<int>(1); }
+    GlobalProdWithBeginJob(edm::ParameterSet const&, const int* iGlobal) { CPPUNIT_ASSERT(*iGlobal == 1); }
+
+    static void globalBeginJob(int* iGlobal) {
+      CPPUNIT_ASSERT(1 == *iGlobal);
+      *iGlobal = 2;
+      ++m_count;
+    }
+
+    void beginStream(edm::StreamID) override {
+      int* iGlobal = const_cast<int*>(globalCache());
+      CPPUNIT_ASSERT(2 == *iGlobal);
+      *iGlobal = 3;
+      ++m_count;
+    }
+
+    bool filter(edm::Event&, edm::EventSetup const&) override {
+      ++m_count;
+      return true;
+    }
+
+    static void globalEndJob(int* iGlobal) {
+      CPPUNIT_ASSERT(3 == *iGlobal);
+      ++m_count;
+    }
+  };
   class RunProd : public edm::stream::EDFilter<edm::RunCache<int>> {
   public:
     static unsigned int m_count;
@@ -356,6 +386,7 @@ private:
 };
 unsigned int testStreamFilter::BasicProd::m_count = 0;
 unsigned int testStreamFilter::GlobalProd::m_count = 0;
+unsigned int testStreamFilter::GlobalProdWithBeginJob::m_count = 0;
 unsigned int testStreamFilter::RunProd::m_count = 0;
 unsigned int testStreamFilter::LumiProd::m_count = 0;
 unsigned int testStreamFilter::RunSummaryProd::m_count = 0;
@@ -422,6 +453,7 @@ testStreamFilter::testStreamFilter()
   m_actReg.reset(new edm::ActivityRegistry);
 
   //For each transition, bind a lambda which will call the proper method of the Worker
+  m_transToFunc[Trans::kBeginJob] = [](edm::Worker* iBase) { iBase->beginJob(); };
   m_transToFunc[Trans::kBeginStream] = [](edm::Worker* iBase) {
     edm::StreamContext streamContext(s_streamID0, nullptr);
     iBase->beginStream(s_streamID0, streamContext);
@@ -483,6 +515,7 @@ testStreamFilter::testStreamFilter()
     edm::StreamContext streamContext(s_streamID0, nullptr);
     iBase->endStream(s_streamID0, streamContext);
   };
+  m_transToFunc[Trans::kEndJob] = [](edm::Worker* iBase) { iBase->endJob(); };
 }
 
 namespace {
@@ -529,7 +562,10 @@ void testStreamFilter::runTest(Expectations const& iExpect) {
 
 void testStreamFilter::basicTest() { runTest<BasicProd>({Trans::kEvent}); }
 
-void testStreamFilter::globalTest() { runTest<GlobalProd>({Trans::kBeginJob, Trans::kEvent, Trans::kEndJob}); }
+void testStreamFilter::globalTest() {
+  runTest<GlobalProd>({Trans::kEvent, Trans::kEndJob});
+  runTest<GlobalProdWithBeginJob>({Trans::kBeginJob, Trans::kBeginStream, Trans::kEvent, Trans::kEndJob});
+}
 
 void testStreamFilter::runTest() { runTest<RunProd>({Trans::kGlobalBeginRun, Trans::kEvent, Trans::kGlobalEndRun}); }
 

@@ -47,7 +47,6 @@ namespace spr {
 
 #ifdef EDM_ML_DEBUG
     if (debug) {
-      std::cout << "Reconstructed Track with " << i << " recHits.";
       for (unsigned int isim = 0; isim < trkId.size(); isim++) {
         std::cout << "\n trkId " << trkId[isim] << "  Occurance " << trkOcc[isim] << ", ";
       }

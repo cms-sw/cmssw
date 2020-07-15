@@ -1,0 +1,18 @@
+<use name="CommonTools/UtilAlgos"/>
+<use name="DataFormats/EcalDetId"/>
+<use name="FWCore/PluginManager"/>
+<use name="FWCore/Framework"/>
+<use name="FWCore/ServiceRegistry"/>
+<use name="FWCore/Utilities"/>
+<use name="Geometry/Records"/>
+<use name="CondFormats/GeometryObjects"/>
+<use name="Geometry/CaloGeometry"/>
+<use name="Geometry/EcalAlgo"/>
+<use name="Geometry/EcalCommonData"/>
+<use name="CondFormats/Alignment"/>
+<use name="DetectorDescription/Core"/>
+<use name="DetectorDescription/DDCMS"/>
+<use name="root"/>
+<library file="*.cc" name="EcalAlgoEcalCellParameterDump">
+  <flags EDM_PLUGIN="1"/>
+</library>

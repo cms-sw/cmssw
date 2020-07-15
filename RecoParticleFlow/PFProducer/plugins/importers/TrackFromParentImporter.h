@@ -3,7 +3,6 @@
 
 #include "RecoParticleFlow/PFProducer/interface/BlockElementImporterBase.h"
 #include "DataFormats/ParticleFlowReco/interface/PFBlockElementTrack.h"
-#include "DataFormats/ParticleFlowReco/interface/PFRecTrackFwd.h"
 #include "DataFormats/ParticleFlowReco/interface/PFRecTrack.h"
 
 namespace pflow {

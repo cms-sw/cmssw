@@ -1,18 +1,11 @@
 <use name="FWCore/Framework"/>
-<use name="FWCore/PluginManager"/>
 <use name="FWCore/ParameterSet"/>
 <use name="DataFormats/PatCandidates"/>
-<use name="pythia8"/> 
-<use name="GeneratorInterface/Pythia8Interface"/>
-<use name="GeneratorInterface/ExternalDecays"/>
-<use name="GeneratorInterface/Herwig6Interface"/>
+<use name="pythia8"/>
 <use name="DataFormats/RPCRecHit"/>
-<use name="DataFormats/CaloRecHit"/>
 <use name="DataFormats/EcalRecHit"/>
 <use name="DataFormats/HcalRecHit"/>
 <use name="TrackingTools/TrackAssociator"/>
-<use name="TrackingTools/TransientTrack"/>
 <use name="DataFormats/TrackReco"/>
 <use name="CondFormats/BeamSpotObjects"/>
 <flags EDM_PLUGIN="1"/>
-

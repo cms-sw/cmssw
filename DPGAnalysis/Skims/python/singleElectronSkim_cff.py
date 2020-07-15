@@ -77,23 +77,6 @@ singleRecoElectronPt1Filter = cms.EDFilter("GsfElectronRefSelector",
 #                               minNumber = cms.uint32(1)
 #                               )
 
-#from RecoEgamma.EgammaElectronProducers.ecalDrivenElectronSeeds_cff import *
-
-#ecalDrivenElectronSeeds.SCEtCut = cms.double(1.0)
-#ecalDrivenElectronSeeds.applyHOverECut = cms.bool(False)
-#ecalDrivenElectronSeeds.SeedConfiguration.SeedConfigurationnSigmasDeltaZ1 = cms.double(5.)
-#ecalDrivenElectronSeeds.SeedConfiguration.z2MinB = cms.double(-0.9)
-#ecalDrivenElectronSeeds.SeedConfiguration.z2MaxB = cms.double(0.9)
-#ecalDrivenElectronSeeds.SeedConfiguration.r2MinF = cms.double(-1.5)
-#ecalDrivenElectronSeeds.SeedConfiguration.r2MaxF = cms.double(1.5)
-#ecalDrivenElectronSeeds.SeedConfiguration.rMinI = cms.double(-2.)
-#ecalDrivenElectronSeeds.SeedConfiguration.rMaxI = cms.double(2.)
-#ecalDrivenElectronSeeds.SeedConfiguration.DeltaPhi1Low = cms.double(0.3)
-#ecalDrivenElectronSeeds.SeedConfiguration.DeltaPhi1High = cms.double(0.3)
-#ecalDrivenElectronSeeds.SeedConfiguration.DeltaPhi2 = cms.double(0.3)
-#gedGsfElectrons.applyPreselection = cms.bool(False)
-#gedGsfElectrons.applyAmbResolution = cms.bool(True)
-
 #Define group sequence, using HLT/Reco quality cut. 
 #singleMuHLTQualitySeq = cms.Sequence()
 singleElectronPt20RecoQualitySeq = cms.Sequence(

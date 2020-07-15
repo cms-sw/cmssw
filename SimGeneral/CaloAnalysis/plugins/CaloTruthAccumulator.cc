@@ -206,6 +206,7 @@ private:
   calo_particles m_caloParticles;
   // geometry type (0 pre-TDR; 1 TDR)
   int geometryType_;
+  bool doHGCAL;
 };
 
 /* Graph utility functions */
@@ -368,7 +369,8 @@ CaloTruthAccumulator::CaloTruthAccumulator(const edm::ParameterSet &config,
       minEnergy_(config.getParameter<double>("MinEnergy")),
       maxPseudoRapidity_(config.getParameter<double>("MaxPseudoRapidity")),
       premixStage1_(config.getParameter<bool>("premixStage1")),
-      geometryType_(-1) {
+      geometryType_(-1),
+      doHGCAL(config.getParameter<bool>("doHGCAL")) {
   producesCollector.produces<SimClusterCollection>("MergedCaloTruth");
   producesCollector.produces<CaloParticleCollection>("MergedCaloTruth");
   if (premixStage1_) {
@@ -400,34 +402,38 @@ void CaloTruthAccumulator::beginLuminosityBlock(edm::LuminosityBlock const &iLum
   iSetup.get<CaloGeometryRecord>().get(geom);
   const HGCalGeometry *eegeom = nullptr, *fhgeom = nullptr, *bhgeomnew = nullptr;
   const HcalGeometry *bhgeom = nullptr;
+  bhgeom = static_cast<const HcalGeometry *>(geom->getSubdetectorGeometry(DetId::Hcal, HcalEndcap));
 
-  eegeom = static_cast<const HGCalGeometry *>(
-      geom->getSubdetectorGeometry(DetId::HGCalEE, ForwardSubdetector::ForwardEmpty));
-  // check if it's the new geometry
-  if (eegeom) {
-    geometryType_ = 1;
-    fhgeom = static_cast<const HGCalGeometry *>(
-        geom->getSubdetectorGeometry(DetId::HGCalHSi, ForwardSubdetector::ForwardEmpty));
-    bhgeomnew = static_cast<const HGCalGeometry *>(
-        geom->getSubdetectorGeometry(DetId::HGCalHSc, ForwardSubdetector::ForwardEmpty));
-  } else {
-    geometryType_ = 0;
-    eegeom = static_cast<const HGCalGeometry *>(geom->getSubdetectorGeometry(DetId::Forward, HGCEE));
-    fhgeom = static_cast<const HGCalGeometry *>(geom->getSubdetectorGeometry(DetId::Forward, HGCHEF));
-    bhgeom = static_cast<const HcalGeometry *>(geom->getSubdetectorGeometry(DetId::Hcal, HcalEndcap));
+  if (doHGCAL) {
+    eegeom = static_cast<const HGCalGeometry *>(
+        geom->getSubdetectorGeometry(DetId::HGCalEE, ForwardSubdetector::ForwardEmpty));
+    // check if it's the new geometry
+    if (eegeom) {
+      geometryType_ = 1;
+      fhgeom = static_cast<const HGCalGeometry *>(
+          geom->getSubdetectorGeometry(DetId::HGCalHSi, ForwardSubdetector::ForwardEmpty));
+      bhgeomnew = static_cast<const HGCalGeometry *>(
+          geom->getSubdetectorGeometry(DetId::HGCalHSc, ForwardSubdetector::ForwardEmpty));
+    } else {
+      geometryType_ = 0;
+      eegeom = static_cast<const HGCalGeometry *>(geom->getSubdetectorGeometry(DetId::Forward, HGCEE));
+      fhgeom = static_cast<const HGCalGeometry *>(geom->getSubdetectorGeometry(DetId::Forward, HGCHEF));
+      bhgeom = static_cast<const HcalGeometry *>(geom->getSubdetectorGeometry(DetId::Hcal, HcalEndcap));
+    }
+    hgtopo_[0] = &(eegeom->topology());
+    hgtopo_[1] = &(fhgeom->topology());
+    if (bhgeomnew)
+      hgtopo_[2] = &(bhgeomnew->topology());
+
+    for (unsigned i = 0; i < 3; ++i) {
+      if (hgtopo_[i])
+        hgddd_[i] = &(hgtopo_[i]->dddConstants());
+    }
   }
-  hgtopo_[0] = &(eegeom->topology());
-  hgtopo_[1] = &(fhgeom->topology());
-  if (bhgeomnew)
-    hgtopo_[2] = &(bhgeomnew->topology());
 
-  for (unsigned i = 0; i < 3; ++i) {
-    if (hgtopo_[i])
-      hgddd_[i] = &(hgtopo_[i]->dddConstants());
-  }
-
-  if (bhgeom)
+  if (bhgeom) {
     hcddd_ = bhgeom->topology().dddConstants();
+  }
 }
 
 void CaloTruthAccumulator::initializeEvent(edm::Event const &event, edm::EventSetup const &setup) {
@@ -672,37 +678,51 @@ void CaloTruthAccumulator::fillSimHits(std::vector<std::pair<DetId, const PCaloH
     edm::Handle<std::vector<PCaloHit>> hSimHits;
     const bool isHcal = (collectionTag.instance().find("HcalHits") != std::string::npos);
     event.getByLabel(collectionTag, hSimHits);
+
     for (auto const &simHit : *hSimHits) {
       DetId id(0);
-      const uint32_t simId = simHit.id();
-      if (geometryType_ == 1) {
-        // no test numbering in new geometry
-        id = simId;
-      } else if (isHcal) {
-        HcalDetId hid = HcalHitRelabeller::relabel(simId, hcddd_);
-        if (hid.subdet() == HcalEndcap)
-          id = hid;
+
+      //Relabel as necessary for HGCAL
+      if (doHGCAL) {
+        const uint32_t simId = simHit.id();
+        if (geometryType_ == 1) {
+          // no test numbering in new geometry
+          id = simId;
+        } else if (isHcal) {
+          HcalDetId hid = HcalHitRelabeller::relabel(simId, hcddd_);
+          if (hid.subdet() == HcalEndcap)
+            id = hid;
+        } else {
+          int subdet, layer, cell, sec, subsec, zp;
+          HGCalTestNumbering::unpackHexagonIndex(simId, subdet, zp, layer, sec, subsec, cell);
+          const HGCalDDDConstants *ddd = hgddd_[subdet - 3];
+          std::pair<int, int> recoLayerCell = ddd->simToReco(cell, layer, sec, hgtopo_[subdet - 3]->detectorType());
+          cell = recoLayerCell.first;
+          layer = recoLayerCell.second;
+          // skip simhits with bad barcodes or non-existant layers
+          if (layer == -1 || simHit.geantTrackId() == 0)
+            continue;
+          id = HGCalDetId((ForwardSubdetector)subdet, zp, layer, subsec, sec, cell);
+        }
       } else {
-        int subdet, layer, cell, sec, subsec, zp;
-        HGCalTestNumbering::unpackHexagonIndex(simId, subdet, zp, layer, sec, subsec, cell);
-        const HGCalDDDConstants *ddd = hgddd_[subdet - 3];
-        std::pair<int, int> recoLayerCell = ddd->simToReco(cell, layer, sec, hgtopo_[subdet - 3]->detectorType());
-        cell = recoLayerCell.first;
-        layer = recoLayerCell.second;
-        // skip simhits with bad barcodes or non-existant layers
-        if (layer == -1 || simHit.geantTrackId() == 0)
-          continue;
-        id = HGCalDetId((ForwardSubdetector)subdet, zp, layer, subsec, sec, cell);
+        id = simHit.id();
+        //Relabel all HCAL hits
+        if (isHcal) {
+          HcalDetId hid = HcalHitRelabeller::relabel(simHit.id(), hcddd_);
+          id = hid;
+        }
       }
 
-      if (DetId(0) == id)
+      if (id == DetId(0)) {
         continue;
+      }
+      if (simHit.geantTrackId() == 0) {
+        continue;
+      }
 
-      uint32_t detId = id.rawId();
       returnValue.emplace_back(id, &simHit);
       simTrackDetIdEnergyMap[simHit.geantTrackId()][id.rawId()] += simHit.energy();
-
-      m_detIdToTotalSimEnergy[detId] += simHit.energy();
+      m_detIdToTotalSimEnergy[id.rawId()] += simHit.energy();
     }
   }  // end of loop over InputTags
 }

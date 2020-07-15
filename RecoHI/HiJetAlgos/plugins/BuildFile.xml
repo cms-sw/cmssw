@@ -1,15 +1,10 @@
-<use   name="FWCore/Framework"/>
-<use   name="FWCore/PluginManager"/>
-<use   name="RecoJets/JetProducers"/>
-<use   name="FWCore/ParameterSet"/>
-<use   name="RecoHI/HiJetAlgos"/>
-<use   name="DataFormats/JetReco"/>
-<use   name="CondFormats/DataRecord"/>
-<use   name="CondCore/DBOutputService"/>
-<use   name="CondCore/PopCon"/>
-<use   name="JetMETCorrections/Objects"/>
-<use   name="Geometry/CaloGeometry"/>
-<flags   EDM_PLUGIN="1"/>
-<library   file="*.cc" name="HiJetAlgosPlugins">
+<use name="FWCore/Framework"/>
+<use name="FWCore/PluginManager"/>
+<use name="FWCore/ParameterSet"/>
+<use name="RecoHI/HiJetAlgos"/>
+<use name="DataFormats/JetReco"/>
+<use name="CondFormats/DataRecord"/>
+<use name="CondCore/DBOutputService"/>
+<flags EDM_PLUGIN="1"/>
+<library file="*.cc" name="HiJetAlgosPlugins">
 </library>
-

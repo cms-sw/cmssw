@@ -1,12 +1,11 @@
-<use   name="FWCore/ParameterSet"/>
-<use   name="FWCore/MessageLogger"/>
-<use   name="FWCore/PluginManager"/>
-<use   name="SimG4Core/PhysicsLists"/>
-<use   name="SimG4Core/Application"/>
-<use   name="SimGeneral/GFlash"/>
-<use   name="geant4core"/>
-<use   name="clhep"/>
-<use   name="root"/>
+<use name="FWCore/ParameterSet"/>
+<use name="FWCore/MessageLogger"/>
+<use name="SimG4Core/PhysicsLists"/>
+<use name="SimG4Core/Application"/>
+<use name="SimGeneral/GFlash"/>
+<use name="geant4core"/>
+<use name="clhep"/>
+<use name="root"/>
 <export>
-  <lib   name="1"/>
+  <lib name="1"/>
 </export>

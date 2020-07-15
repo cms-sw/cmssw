@@ -1,5 +1,6 @@
 // C++ headers
 #include <cmath>
+#include <fstream>
 #include <iomanip>
 #include <iostream>
 #include <limits>
@@ -12,6 +13,10 @@
 // boost headers
 #include <boost/format.hpp>
 #include <boost/range/irange.hpp>
+
+// JSON headers
+#include <nlohmann/json.hpp>
+using json = nlohmann::json;
 
 // CMSSW headers
 #include "DQMServices/Core/interface/DQMStore.h"
@@ -44,18 +49,27 @@ namespace {
   template <class Rep, class Period>
   double ms(std::chrono::duration<Rep, Period> duration) {
     return std::chrono::duration_cast<std::chrono::duration<double, std::milli>>(duration).count();
-    ;
   }
 
   // convert any boost::chrono::duration to milliseconds
   template <class Rep, class Period>
   double ms(boost::chrono::duration<Rep, Period> duration) {
     return boost::chrono::duration_cast<boost::chrono::duration<double, boost::milli>>(duration).count();
-    ;
+  }
+
+  // convert a std::atomic<boost::chrono::nanoseconds::rep> to milliseconds
+  double ms(std::atomic<boost::chrono::nanoseconds::rep> const& duration) {
+    return boost::chrono::duration_cast<boost::chrono::duration<double, boost::milli>>(
+               boost::chrono::nanoseconds(duration.load()))
+        .count();
   }
 
   // convert from bytes to kilobytes, rounding down
   uint64_t kB(uint64_t bytes) { return bytes / 1024; }
+
+  // convert from bytes to kilobytes, rounding down
+  uint64_t kB(std::atomic<uint64_t> const& bytes) { return bytes.load() / 1024; }
+
 }  // namespace
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -85,7 +99,21 @@ FastTimerService::Resources& FastTimerService::Resources::operator+=(Resources c
   return *this;
 }
 
+FastTimerService::Resources& FastTimerService::Resources::operator+=(AtomicResources const& other) {
+  time_thread += boost::chrono::nanoseconds(other.time_thread.load());
+  time_real += boost::chrono::nanoseconds(other.time_real.load());
+  allocated += other.allocated.load();
+  deallocated += other.deallocated.load();
+  return *this;
+}
+
 FastTimerService::Resources FastTimerService::Resources::operator+(Resources const& other) const {
+  Resources result(*this);
+  result += other;
+  return result;
+}
+
+FastTimerService::Resources FastTimerService::Resources::operator+(AtomicResources const& other) const {
   Resources result(*this);
   result += other;
   return result;
@@ -128,10 +156,22 @@ FastTimerService::AtomicResources& FastTimerService::AtomicResources::operator+=
   return *this;
 }
 
+FastTimerService::AtomicResources& FastTimerService::AtomicResources::operator+=(Resources const& other) {
+  time_thread += other.time_thread.count();
+  time_real += other.time_real.count();
+  allocated += other.allocated;
+  deallocated += other.deallocated;
+  return *this;
+}
+
 FastTimerService::AtomicResources FastTimerService::AtomicResources::operator+(AtomicResources const& other) const {
   AtomicResources result(*this);
   result += other;
   return result;
+}
+
+FastTimerService::Resources FastTimerService::AtomicResources::operator+(Resources const& other) const {
+  return other + *this;
 }
 
 // ResourcesPerModule
@@ -731,7 +771,13 @@ FastTimerService::FastTimerService(const edm::ParameterSet& config, edm::Activit
       print_event_summary_(config.getUntrackedParameter<bool>("printEventSummary")),
       print_run_summary_(config.getUntrackedParameter<bool>("printRunSummary")),
       print_job_summary_(config.getUntrackedParameter<bool>("printJobSummary")),
-      // dqm configuration
+      // JSON configuration
+      //write_json_per_event_(config.getUntrackedParameter<bool>("writeJSONByEvent")),
+      //write_json_per_ls_(config.getUntrackedParameter<bool>("writeJSONByLumiSection")),
+      //write_json_per_run_(config.getUntrackedParameter<bool>("writeJSONByRun")),
+      write_json_summary_(config.getUntrackedParameter<bool>("writeJSONSummary")),
+      json_filename_(config.getUntrackedParameter<std::string>("jsonFileName")),
+      // DQM configuration
       enable_dqm_(config.getUntrackedParameter<bool>("enableDQM")),
       enable_dqm_bymodule_(config.getUntrackedParameter<bool>("enableDQMbyModule")),
       enable_dqm_bypath_(config.getUntrackedParameter<bool>("enableDQMbyPath")),
@@ -958,7 +1004,7 @@ void FastTimerService::postBeginJob() {
   if (enable_dqm_ and not edm::Service<dqm::legacy::DQMStore>().isAvailable()) {
     // the DQMStore is not available, disable all DQM plots
     enable_dqm_ = false;
-    // FIXME issue a LogWarning ?
+    edm::LogWarning("FastTimerService") << "The DQMStore is not avalable, the DQM plots will not be generated";
   }
 
   // allocate the structures to hold pointers to the DQM plots
@@ -1053,6 +1099,9 @@ void FastTimerService::postEndJob() {
   if (print_job_summary_) {
     edm::LogVerbatim out("FastReport");
     printSummary(out, job_summary_, "Job");
+  }
+  if (write_json_summary_) {
+    writeSummaryJSON(job_summary_, json_filename_);
   }
 }
 
@@ -1175,6 +1224,32 @@ void FastTimerService::printSummaryLine(T& out, Resources const& data, uint64_t 
 
 template <typename T>
 void FastTimerService::printSummaryLine(
+    T& out, AtomicResources const& data, uint64_t events, uint64_t active, std::string const& label) const {
+  out << boost::format(
+             "FastReport  %10.1f ms  %10.1f ms  %10.1f ms  %10.1f ms  %+10d kB  %+10d kB  %+10d kB  %+10d kB  %s\n") %
+             (events ? ms(data.time_thread) / events : 0) % (active ? ms(data.time_thread) / active : 0) %
+             (events ? ms(data.time_real) / events : 0) % (active ? ms(data.time_real) / active : 0) %
+             (events ? +static_cast<int64_t>(kB(data.allocated) / events) : 0) %
+             (active ? +static_cast<int64_t>(kB(data.allocated) / active) : 0) %
+             (events ? -static_cast<int64_t>(kB(data.deallocated) / events) : 0) %
+             (active ? -static_cast<int64_t>(kB(data.deallocated) / active) : 0) % label;
+}
+
+template <typename T>
+void FastTimerService::printSummaryLine(T& out,
+                                        AtomicResources const& data,
+                                        uint64_t events,
+                                        std::string const& label) const {
+  out << boost::format(
+             "FastReport  %10.1f ms                 %10.1f ms                 %+10d kB                 %+10d kB        "
+             "         %s\n") %
+             (events ? ms(data.time_thread) / events : 0) % (events ? ms(data.time_real) / events : 0) %
+             (events ? +static_cast<int64_t>(kB(data.allocated) / events) : 0) %
+             (events ? -static_cast<int64_t>(kB(data.deallocated) / events) : 0) % label;
+}
+
+template <typename T>
+void FastTimerService::printSummaryLine(
     T& out, Resources const& data, uint64_t events, uint64_t active, std::string const& label) const {
   out << boost::format(
              "FastReport  %10.1f ms  %10.1f ms  %10.1f ms  %10.1f ms  %+10d kB  %+10d kB  %+10d kB  %+10d kB  %s\n") %
@@ -1217,6 +1292,7 @@ void FastTimerService::printSummary(T& out, ResourcesPerJob const& data, std::st
     }
   }
   printSummaryLine(out, data.total, data.events, "total");
+  printSummaryLine(out, data.overhead, data.events, "other");
   out << '\n';
   printPathSummaryHeader(out, "Processes and Paths");
   printSummaryLine(out, source.total, data.events, source_d.moduleLabel());
@@ -1236,6 +1312,7 @@ void FastTimerService::printSummary(T& out, ResourcesPerJob const& data, std::st
     }
   }
   printSummaryLine(out, data.total, data.events, "total");
+  printSummaryLine(out, data.overhead, data.events, "other");
   out << '\n';
   for (unsigned int group : boost::irange(0ul, highlight_modules_.size())) {
     printSummaryHeader(out, "Highlighted modules", true);
@@ -1253,6 +1330,51 @@ template <typename T>
 void FastTimerService::printTransition(T& out, AtomicResources const& data, std::string const& label) const {
   printEventHeader(out, "Transition");
   printEventLine(out, data, label);
+}
+
+template <typename T>
+json FastTimerService::encodeToJSON(std::string const& type,
+                                    std::string const& label,
+                                    unsigned int events,
+                                    T const& data) const {
+  return json{{"type", type},
+              {"label", label},
+              {"events", events},
+              {"time_thread", ms(data.time_thread)},
+              {"time_real", ms(data.time_real)},
+              {"mem_alloc", kB(data.allocated)},
+              {"mem_free", kB(data.deallocated)}};
+}
+
+json FastTimerService::encodeToJSON(edm::ModuleDescription const& module, ResourcesPerModule const& data) const {
+  return encodeToJSON(module.moduleName(), module.moduleLabel(), data.events, data.total);
+}
+
+void FastTimerService::writeSummaryJSON(ResourcesPerJob const& data, std::string const& filename) const {
+  json j;
+
+  // write a description of the resources
+  j["resources"] = json::array({json{{"time_real", "real time"}},
+                                json{{"time_thread", "cpu time"}},
+                                json{{"mem_alloc", "allocated memory"}},
+                                json{{"mem_free", "deallocated memory"}}});
+
+  // write the resources used by the job
+  j["total"] = encodeToJSON("Job", callgraph_.processDescription(0).name_, data.events, data.total + data.overhead);
+
+  // write the resources used by every module
+  j["modules"] = json::array();
+  for (unsigned int i = 0; i < callgraph_.size(); ++i) {
+    auto const& module = callgraph_.module(i);
+    auto const& data_m = data.modules[i];
+    j["modules"].push_back(encodeToJSON(module, data_m));
+  }
+
+  // add an entry for the "overhead"
+  j["modules"].push_back(encodeToJSON("other", "other", data.events, data.overhead));
+
+  std::ofstream out(filename);
+  out << std::setw(2) << j << std::flush;
 }
 
 // check if this is the first process being signalled
@@ -1284,8 +1406,8 @@ void FastTimerService::postEvent(edm::StreamContext const& sc) {
 
   // measure the event resources as the sum of all modules' resources
   auto& data = stream.processes[pid].total;
-  for (unsigned int i : process.modules_)
-    data += stream.modules[i].total;
+  for (unsigned int id : process.modules_)
+    data += stream.modules[id].total;
   stream.total += data;
 
   // handle the summaries and fill the plots only after the last subprocess has run
@@ -1295,6 +1417,10 @@ void FastTimerService::postEvent(edm::StreamContext const& sc) {
 
   // measure the event resources explicitly
   stream.event_measurement.measure_and_store(stream.event);
+
+  // add to the event resources those used by source (which is not part of any process)
+  unsigned int id = 0;
+  stream.total += stream.modules[id].total;
 
   // highlighted modules
   for (unsigned int group : boost::irange(0ul, highlight_modules_.size()))
@@ -1336,8 +1462,9 @@ void FastTimerService::postSourceEvent(edm::StreamID sid) {
   edm::ModuleDescription const& md = callgraph_.source();
   unsigned int id = md.id();
   auto& stream = streams_[sid];
+  auto& module = stream.modules[id];
 
-  thread().measure_and_store(stream.modules[id].total);
+  thread().measure_and_store(module.total);
   ++stream.modules[id].events;
 }
 
@@ -1527,6 +1654,13 @@ void FastTimerService::fillDescriptions(edm::ConfigurationDescriptions& descript
   desc.addUntracked<bool>("printEventSummary", false);
   desc.addUntracked<bool>("printRunSummary", true);
   desc.addUntracked<bool>("printJobSummary", true);
+  // JSON configuration
+  //desc.addUntracked<bool>("writeJSONByEvent", false);
+  //desc.addUntracked<bool>("writeJSONByLumiSection", false);
+  //desc.addUntracked<bool>("writeJSONByRun", false);
+  desc.addUntracked<bool>("writeJSONSummary", false);
+  desc.addUntracked<std::string>("jsonFileName", "resources.json");
+  // DQM configuration
   desc.addUntracked<bool>("enableDQM", true);
   desc.addUntracked<bool>("enableDQMbyModule", false);
   desc.addUntracked<bool>("enableDQMbyPath", false);

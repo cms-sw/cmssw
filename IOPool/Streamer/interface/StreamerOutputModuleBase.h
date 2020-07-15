@@ -5,6 +5,7 @@
 #include "FWCore/Framework/interface/one/OutputModule.h"
 #include "FWCore/Utilities/interface/EDGetToken.h"
 #include "IOPool/Streamer/interface/MsgTools.h"
+#include "DataFormats/Streamer/interface/StreamedProducts.h"
 //#include "IOPool/Streamer/interface/StreamSerializer.h"
 //#include <memory>
 //#include <vector>
@@ -41,6 +42,7 @@ namespace edm {
 
   private:
     edm::EDGetTokenT<edm::TriggerResults> trToken_;
+    edm::EDGetTokenT<SendJobHeader::ParameterSetMap> psetToken_;
 
   };  //end-of-class-def
 

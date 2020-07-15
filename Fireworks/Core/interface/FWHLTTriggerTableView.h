@@ -21,6 +21,8 @@
 #include "Fireworks/Core/interface/FWTriggerTableView.h"
 #include "Fireworks/Core/interface/FWStringParameter.h"
 
+#include <unordered_map>
+
 class FWTriggerTableViewManager;
 class FWTriggerTableViewTableManager;
 class ViewerParameterGUI;
@@ -34,7 +36,7 @@ protected:
   void fillTable(fwlite::Event* event) override;
 
 private:
-  typedef boost::unordered_map<std::string, double> acceptmap_t;
+  typedef std::unordered_map<std::string, double> acceptmap_t;
 
   fwlite::Event* m_event;
   acceptmap_t m_averageAccept;

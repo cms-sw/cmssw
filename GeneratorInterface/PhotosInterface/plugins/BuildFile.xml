@@ -7,9 +7,8 @@
   <use name="photos"/>
   <use name="hepmc"/>
   <use name="clhep"/>
-  <flags   EDM_PLUGIN="1"/>
+  <flags EDM_PLUGIN="1"/>
 </library>
-
 
 <library file="PhotosppInterface.cc" name="PhotosppInterface">
   <use name="FWCore/Framework"/>
@@ -20,5 +19,5 @@
   <use name="photospp"/>
   <use name="hepmc"/>
   <use name="clhep"/>
-  <flags   EDM_PLUGIN="1"/>
+  <flags EDM_PLUGIN="1"/>
 </library>

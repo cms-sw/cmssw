@@ -1,7 +1,7 @@
-<use   name="FWCore/ServiceRegistry"/>
-<use   name="FWCore/Utilities"/>
-<use   name="tinyxml2"/>
-<use   name="boost"/>
+<use name="FWCore/ServiceRegistry"/>
+<use name="FWCore/Utilities"/>
+<use name="tinyxml2"/>
+<use name="boost"/>
 <export>
-  <lib   name="1"/>
+  <lib name="1"/>
 </export>

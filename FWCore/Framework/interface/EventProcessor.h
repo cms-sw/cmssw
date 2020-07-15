@@ -237,9 +237,7 @@ namespace edm {
 
     void handleEndLumiExceptions(std::exception_ptr const* iPtr, WaitingTaskHolder& holder);
     void globalEndLumiAsync(edm::WaitingTaskHolder iTask, std::shared_ptr<LuminosityBlockProcessingStatus> iLumiStatus);
-    void streamEndLumiAsync(edm::WaitingTaskHolder iTask,
-                            unsigned int iStreamIndex,
-                            std::shared_ptr<LuminosityBlockProcessingStatus> iLumiStatus);
+    void streamEndLumiAsync(edm::WaitingTaskHolder iTask, unsigned int iStreamIndex);
     std::pair<ProcessHistoryID, RunNumber_t> readRun();
     std::pair<ProcessHistoryID, RunNumber_t> readAndMergeRun();
     void readLuminosityBlock(LuminosityBlockProcessingStatus&);

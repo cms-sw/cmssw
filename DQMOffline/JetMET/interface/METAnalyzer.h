@@ -86,7 +86,7 @@
 #include <map>
 #include <string>
 
-class METAnalyzer : public DQMOneLumiEDAnalyzer<> {
+class METAnalyzer : public DQMOneEDAnalyzer<> {
 public:
   /// Constructor
   METAnalyzer(const edm::ParameterSet&);

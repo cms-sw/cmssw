@@ -18,7 +18,7 @@
 
 #include "CondFormats/RunInfo/interface/LHCInfo.h"
 
-#include "CondFormats/CTPPSReadoutObjects/interface/CTPPSBeamParameters.h"
+#include "CondFormats/PPSObjects/interface/CTPPSBeamParameters.h"
 
 //----------------------------------------------------------------------------------------------------
 

@@ -72,9 +72,11 @@ CSCTriggerPrimitivesProducer::CSCTriggerPrimitivesProducer(const edm::ParameterS
   if (writeOutAllALCTs_) {
     produces<CSCALCTDigiCollection>("All");
   }
-  produces<CSCCLCTPreTriggerDigiCollection>();
   produces<CSCCLCTPreTriggerCollection>();
-  produces<CSCALCTPreTriggerDigiCollection>();
+  if (savePreTriggers_) {
+    produces<CSCCLCTPreTriggerDigiCollection>();
+    produces<CSCALCTPreTriggerDigiCollection>();
+  }
   produces<CSCCorrelatedLCTDigiCollection>();
   produces<CSCCorrelatedLCTDigiCollection>("MPCSORTED");
   if (runME11ILT_ or runME21ILT_)

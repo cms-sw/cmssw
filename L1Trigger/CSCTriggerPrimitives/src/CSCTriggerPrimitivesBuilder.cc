@@ -175,10 +175,12 @@ void CSCTriggerPrimitivesBuilder::build(const CSCBadChambers* badChambers,
               const std::vector<CSCCorrelatedLCTDigi>& lctV = tmb11->readoutLCTs1b();
               const std::vector<CSCCorrelatedLCTDigi>& lctV1a = tmb11->readoutLCTs1a();
               const std::vector<CSCALCTDigi>& alctV = tmb11->alctProc->readoutALCTs();
-              const std::vector<CSCALCTDigi>& alctV_all = tmb11->alctProc->getALCTs();
+              const std::vector<CSCALCTDigi>& alctV_all =
+                  tmb11->alctProc->readoutALCTs(CSCConstants::MAX_ALCTS_PER_PROCESSOR);
               const std::vector<CSCCLCTDigi>& clctV = tmb11->clctProc->readoutCLCTsME1b();
-              const std::vector<CSCCLCTDigi>& clctV_all = tmb11->clctProc->getCLCTs();
-              const std::vector<int> preTriggerBXs = tmb11->clctProc->preTriggerBXs();
+              const std::vector<CSCCLCTDigi>& clctV_all =
+                  tmb11->clctProc->readoutCLCTsME1b(CSCConstants::MAX_CLCTS_PER_PROCESSOR);
+              const std::vector<int>& preTriggerBXs = tmb11->clctProc->preTriggerBXs();
               const std::vector<CSCCLCTPreTriggerDigi>& pretriggerV = tmb11->clctProc->preTriggerDigisME1b();
               const std::vector<CSCCLCTDigi>& clctV1a = tmb11->clctProc->readoutCLCTsME1a();
               const std::vector<CSCCLCTPreTriggerDigi>& pretriggerV1a = tmb11->clctProc->preTriggerDigisME1a();
@@ -244,9 +246,11 @@ void CSCTriggerPrimitivesBuilder::build(const CSCBadChambers* badChambers,
               const std::vector<CSCCorrelatedLCTDigi>& lctV = tmb11GEM->readoutLCTs1b();
               const std::vector<CSCCorrelatedLCTDigi>& lctV1a = tmb11GEM->readoutLCTs1a();
               const std::vector<CSCALCTDigi>& alctV = tmb11GEM->alctProc->readoutALCTs();
-              const std::vector<CSCALCTDigi>& alctV_all = tmb11GEM->alctProc->getALCTs();
+              const std::vector<CSCALCTDigi>& alctV_all =
+                  tmb11GEM->alctProc->readoutALCTs(CSCConstants::MAX_ALCTS_PER_PROCESSOR);
               const std::vector<CSCCLCTDigi>& clctV = tmb11GEM->clctProc->readoutCLCTsME1b();
-              const std::vector<CSCCLCTDigi>& clctV_all = tmb11GEM->clctProc->getCLCTs();
+              const std::vector<CSCCLCTDigi>& clctV_all =
+                  tmb11GEM->clctProc->readoutCLCTsME1b(CSCConstants::MAX_CLCTS_PER_PROCESSOR);
               const std::vector<int>& preTriggerBXs = tmb11GEM->clctProc->preTriggerBXs();
               const std::vector<CSCCLCTPreTriggerDigi>& pretriggerV = tmb11GEM->clctProc->preTriggerDigisME1b();
               const std::vector<CSCCLCTDigi>& clctV1a = tmb11GEM->clctProc->readoutCLCTsME1a();
@@ -305,9 +309,11 @@ void CSCTriggerPrimitivesBuilder::build(const CSCBadChambers* badChambers,
               // get the collections
               const std::vector<CSCCorrelatedLCTDigi>& lctV = tmb21GEM->readoutLCTs();
               const std::vector<CSCALCTDigi>& alctV = tmb21GEM->alctProc->readoutALCTs();
-              const std::vector<CSCALCTDigi>& alctV_all = tmb21GEM->alctProc->getALCTs();
+              const std::vector<CSCALCTDigi>& alctV_all =
+                  tmb21GEM->alctProc->readoutALCTs(CSCConstants::MAX_ALCTS_PER_PROCESSOR);
               const std::vector<CSCCLCTDigi>& clctV = tmb21GEM->clctProc->readoutCLCTs();
-              const std::vector<CSCCLCTDigi>& clctV_all = tmb21GEM->clctProc->getCLCTs();
+              const std::vector<CSCCLCTDigi>& clctV_all =
+                  tmb21GEM->clctProc->readoutCLCTs(CSCConstants::MAX_CLCTS_PER_PROCESSOR);
               const std::vector<int>& preTriggerBXs = tmb21GEM->clctProc->preTriggerBXs();
               const std::vector<CSCCLCTPreTriggerDigi>& pretriggerV = tmb21GEM->clctProc->preTriggerDigis();
               const std::vector<GEMCoPadDigi>& copads = tmb21GEM->coPadProcessor->readoutCoPads();
@@ -338,9 +344,11 @@ void CSCTriggerPrimitivesBuilder::build(const CSCBadChambers* badChambers,
               // get the collections
               const std::vector<CSCCorrelatedLCTDigi>& lctV = utmb->readoutLCTs();
               const std::vector<CSCALCTDigi>& alctV = utmb->alctProc->readoutALCTs();
-              const std::vector<CSCALCTDigi>& alctV_all = utmb->alctProc->getALCTs();
+              const std::vector<CSCALCTDigi>& alctV_all =
+                  utmb->alctProc->readoutALCTs(CSCConstants::MAX_ALCTS_PER_PROCESSOR);
               const std::vector<CSCCLCTDigi>& clctV = utmb->clctProc->readoutCLCTs();
-              const std::vector<CSCCLCTDigi>& clctV_all = utmb->clctProc->getCLCTs();
+              const std::vector<CSCCLCTDigi>& clctV_all =
+                  utmb->clctProc->readoutCLCTs(CSCConstants::MAX_CLCTS_PER_PROCESSOR);
               const std::vector<int>& preTriggerBXs = utmb->clctProc->preTriggerBXs();
               const std::vector<CSCCLCTPreTriggerDigi>& pretriggerV = utmb->clctProc->preTriggerDigis();
               const std::vector<CSCALCTPreTriggerDigi>& alctpretriggerV = utmb->alctProc->preTriggerDigis();
@@ -368,9 +376,11 @@ void CSCTriggerPrimitivesBuilder::build(const CSCBadChambers* badChambers,
               // get the collections
               const std::vector<CSCCorrelatedLCTDigi>& lctV = tmb->readoutLCTs();
               const std::vector<CSCALCTDigi>& alctV = tmb->alctProc->readoutALCTs();
-              const std::vector<CSCALCTDigi>& alctV_all = tmb->alctProc->getALCTs();
+              const std::vector<CSCALCTDigi>& alctV_all =
+                  tmb->alctProc->readoutALCTs(CSCConstants::MAX_ALCTS_PER_PROCESSOR);
               const std::vector<CSCCLCTDigi>& clctV = tmb->clctProc->readoutCLCTs();
-              const std::vector<CSCCLCTDigi>& clctV_all = tmb->clctProc->getCLCTs();
+              const std::vector<CSCCLCTDigi>& clctV_all =
+                  tmb->clctProc->readoutCLCTs(CSCConstants::MAX_CLCTS_PER_PROCESSOR);
               const std::vector<int>& preTriggerBXs = tmb->clctProc->preTriggerBXs();
               const std::vector<CSCCLCTPreTriggerDigi>& pretriggerV = tmb->clctProc->preTriggerDigis();
               const std::vector<CSCALCTPreTriggerDigi>& alctpretriggerV = tmb->alctProc->preTriggerDigis();

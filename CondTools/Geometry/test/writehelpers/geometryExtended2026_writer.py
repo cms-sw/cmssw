@@ -10,6 +10,7 @@ process.load('CondCore.CondDB.CondDB_cfi')
 process.load('Configuration.Geometry.GeometryExtended2026D41_cff')
 process.load('Geometry.MuonNumbering.muonNumberingInitialization_cfi')
 process.load('Geometry.CaloEventSetup.CaloGeometry2026DBWriter_cfi')
+process.load('CondTools.Geometry.HcalParametersWriter_cff')
 
 process.source = cms.Source("EmptyIOVSource",
                             lastValue = cms.uint64(1),
@@ -39,8 +40,6 @@ process.CaloGeometryWriter = cms.EDAnalyzer("PCaloGeometryBuilder",
                                             EcalE = cms.untracked.bool(False),
                                             EcalP = cms.untracked.bool(False),
                                             HGCal = cms.untracked.bool(False))
-
-process.HcalParametersWriter = cms.EDAnalyzer("HcalParametersDBBuilder")
 
 process.CSCGeometryWriter = cms.EDAnalyzer("CSCRecoIdealDBLoader")
 

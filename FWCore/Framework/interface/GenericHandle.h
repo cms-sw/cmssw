@@ -107,7 +107,7 @@ namespace edm {
       whyFailedFactory_ = nullptr;
     }
 
-    void setWhyFailedFactory(std::shared_ptr<HandleExceptionFactory> const& iWhyFailed) {
+    void setWhyFailedFactory(std::shared_ptr<HandleExceptionFactory const> const& iWhyFailed) {
       whyFailedFactory_ = iWhyFailed;
     }
 
@@ -115,7 +115,7 @@ namespace edm {
     TypeWithDict type_;
     ObjectWithDict prod_;
     Provenance const* prov_;
-    std::shared_ptr<HandleExceptionFactory> whyFailedFactory_;
+    std::shared_ptr<HandleExceptionFactory const> whyFailedFactory_;
   };
 
   typedef Handle<GenericObject> GenericHandle;

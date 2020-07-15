@@ -270,7 +270,7 @@ void CSCDigiToRaw::add(const CSCCLCTDigiCollection& clctDigis, FindEventDataInfo
     if (me11a && fedInfo.formatVersion_ == 2013) {
       std::vector<CSCCLCTDigi> shiftedDigis((*j).second.first, (*j).second.second);
       for (std::vector<CSCCLCTDigi>::iterator iC = shiftedDigis.begin(); iC != shiftedDigis.end(); ++iC) {
-        if (iC->getCFEB() >= 0 && iC->getCFEB() < 3) {  //sanity check, mostly
+        if (iC->getCFEB() < 3) {  //sanity check, mostly
           (*iC) = CSCCLCTDigi(iC->isValid(),
                               iC->getQuality(),
                               iC->getPattern(),
@@ -302,7 +302,7 @@ void CSCDigiToRaw::add(const CSCCorrelatedLCTDigiCollection& corrLCTDigis, FindE
     if (me11a && fedInfo.formatVersion_ == 2013) {
       std::vector<CSCCorrelatedLCTDigi> shiftedDigis((*j).second.first, (*j).second.second);
       for (std::vector<CSCCorrelatedLCTDigi>::iterator iC = shiftedDigis.begin(); iC != shiftedDigis.end(); ++iC) {
-        if (iC->getStrip() >= 0 && iC->getStrip() < 96) {  //sanity check, mostly
+        if (iC->getStrip() < 96) {  //sanity check, mostly
           (*iC) = CSCCorrelatedLCTDigi(iC->getTrknmb(),
                                        iC->isValid(),
                                        iC->getQuality(),

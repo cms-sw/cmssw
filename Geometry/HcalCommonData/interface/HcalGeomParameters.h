@@ -40,7 +40,7 @@ public:
   void getConstRHO(std::vector<double>&) const;
   std::vector<int> getModHalfHBHE(const int type) const;
   void loadGeometry(const DDFilteredView& _fv, HcalParameters& php);
-  void loadGeometry(const cms::DDCompactView* cpv, HcalParameters& php);
+  void loadGeometry(const cms::DDCompactView& cpv, HcalParameters& php);
 
 private:
   unsigned find(int element, std::vector<int>& array) const;

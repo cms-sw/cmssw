@@ -1,6 +1,7 @@
 
 <lcgdict>
-  <class name="ticl::Trackster" ClassVersion="6">
+  <class name="ticl::Trackster" ClassVersion="7">
+    <version ClassVersion="7" checksum="1072014319"/>
     <version ClassVersion="6" checksum="3003722924"/>
     <version ClassVersion="5" checksum="1679804166"/>
     <version ClassVersion="4" checksum="2963413313"/>
@@ -23,6 +24,20 @@
     <field name="tiles_" transient="true"/>
   </class>
   <class name="edm::Wrapper<TICLGenericTile<ticl::TracksterTiles>>" persistent="false"/>
+
+  <class name="ticl::TICLLayerTileHFNose" persistent="false">
+    <field name="tile_" transient="true"/>
+  </class>
+
+  <class name="TICLGenericTile<ticl::TilesHFNose>" persistent="false">
+    <field name="tiles_" transient="true"/>
+  </class>
+  <class name="edm::Wrapper<TICLGenericTile<ticl::TilesHFNose>>" persistent="false"/>
+
+  <class name="TICLGenericTile<ticl::TracksterTilesHFNose>" persistent="false">
+    <field name="tiles_" transient="true"/>
+  </class>
+  <class name="edm::Wrapper<TICLGenericTile<ticl::TracksterTilesHFNose>>" persistent="false"/>
 
   <class name="TICLSeedingRegion" ClassVersion="3">
     <version ClassVersion="3" checksum="2409655320"/>

@@ -39,6 +39,8 @@ Description: Producer for ScoutingPFJets from reco::PFJet objects, ScoutingVerte
 
 #include "DataFormats/Math/interface/deltaR.h"
 
+#include "DataFormats/Math/interface/libminifloat.h"
+
 class HLTScoutingPFProducer : public edm::global::EDProducer<> {
 public:
   explicit HLTScoutingPFProducer(const edm::ParameterSet &);
@@ -60,6 +62,7 @@ private:
   const double pfJetEtaCut;
   const double pfCandidatePtCut;
   const double pfCandidateEtaCut;
+  const int mantissaPrecision;
 
   const bool doJetTags;
   const bool doCandidates;
@@ -81,6 +84,7 @@ HLTScoutingPFProducer::HLTScoutingPFProducer(const edm::ParameterSet &iConfig)
       pfJetEtaCut(iConfig.getParameter<double>("pfJetEtaCut")),
       pfCandidatePtCut(iConfig.getParameter<double>("pfCandidatePtCut")),
       pfCandidateEtaCut(iConfig.getParameter<double>("pfCandidateEtaCut")),
+      mantissaPrecision(iConfig.getParameter<int>("mantissaPrecision")),
       doJetTags(iConfig.getParameter<bool>("doJetTags")),
       doCandidates(iConfig.getParameter<bool>("doCandidates")),
       doMet(iConfig.getParameter<bool>("doMet")) {
@@ -151,7 +155,13 @@ void HLTScoutingPFProducer::produce(edm::StreamID sid, edm::Event &iEvent, edm::
             break;
           ++index_counter;
         }
-        outPFCandidates->emplace_back(cand.pt(), cand.eta(), cand.phi(), cand.mass(), cand.pdgId(), vertex_index);
+
+        outPFCandidates->emplace_back(MiniFloatConverter::reduceMantissaToNbitsRounding(cand.pt(), mantissaPrecision),
+                                      MiniFloatConverter::reduceMantissaToNbitsRounding(cand.eta(), mantissaPrecision),
+                                      MiniFloatConverter::reduceMantissaToNbitsRounding(cand.phi(), mantissaPrecision),
+                                      MiniFloatConverter::reduceMantissaToNbitsRounding(cand.mass(), mantissaPrecision),
+                                      cand.pdgId(),
+                                      vertex_index);
       }
     }
   }
@@ -253,6 +263,7 @@ void HLTScoutingPFProducer::fillDescriptions(edm::ConfigurationDescriptions &des
   desc.add<double>("pfJetEtaCut", 3.0);
   desc.add<double>("pfCandidatePtCut", 0.6);
   desc.add<double>("pfCandidateEtaCut", 5.0);
+  desc.add<int>("mantissaPrecision", 23);
   desc.add<bool>("doJetTags", true);
   desc.add<bool>("doCandidates", true);
   desc.add<bool>("doMet", true);

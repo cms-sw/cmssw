@@ -17,15 +17,6 @@ binSums = cms.vuint32(13,               # 0
                       3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3  # 28 - 41
                       )
 
-binSumsNose = cms.vuint32(13,               # 0
-                          13,               # 1
-                          11, 11, 11,       # 2 - 4
-                          9, 9, 9,          # 5 - 7
-                          7, 7, 7, 7, 7, 7,  # 8 - 13
-                          5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5,  # 14 - 28
-                          3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3  # 29 - 42
-)
-
 EE_DR_GROUP = 7
 FH_DR_GROUP = 6
 BH_DR_GROUP = 12
@@ -97,14 +88,6 @@ histoMax_C3d_seeding_params = cms.PSet(type_histoalgo=cms.string('HistoMaxC3d'),
                                seed_smoothing_ecal=seed_smoothing_ecal,
                                seed_smoothing_hcal=seed_smoothing_hcal,
                               )
-
-## Note: this customization change both HGC and HFnose, to be revised
-phase2_hfnose.toModify(histoMax_C3d_seeding_params,
-                       nBins_X1_histo_multicluster=cms.uint32(43),
-                       binSumsHisto=binSumsNose,
-                       kROverZMin=cms.double(0.025),
-                       kROverZMax=cms.double(0.58),
-                       )
 
 histoMax_C3d_clustering_params = cms.PSet(dR_multicluster=cms.double(0.03),
                                dR_multicluster_byLayer_coefficientA=cms.vdouble(),
@@ -184,3 +167,19 @@ hgcalBackEndLayer2Producer = cms.EDProducer(
     InputCluster = cms.InputTag('hgcalBackEndLayer1Producer:HGCalBackendLayer1Processor2DClustering'),
     ProcessorParameters = be_proc.clone()
     )
+
+
+hgcalBackEndLayer2ProducerHFNose = hgcalBackEndLayer2Producer.clone(
+    InputCluster = cms.InputTag('hgcalBackEndLayer1ProducerHFNose:HGCalBackendLayer1Processor2DClustering'),
+    ProcessorParameters = dict(
+        C3d_parameters = dict(
+            histoMax_C3d_seeding_parameters = dict(
+                ## note in #Phi same bin size for HGCAL and HFNose
+                nBins_X1_histo_multicluster = 4, # R bin size: 5 FullModules * 8 TP
+                binSumsHisto = cms.vuint32(13,11,9,9),
+                kROverZMin = 0.025,
+                kROverZMax = 0.1
+            )
+        )
+    )
+)

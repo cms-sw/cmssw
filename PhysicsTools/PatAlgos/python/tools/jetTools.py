@@ -199,6 +199,8 @@ def setupJetCorrections(process, knownModules, jetCorrections, jetSource, pvSour
                                     cms.InputTag(jetCorrections[0]+_labelCorrName+'JetMETcorr'+postfix, 'type1'),
                                     jetCorrections[0]+_labelCorrName+'corrPfMetType2'+postfix)),
                                 process, task)
+            if 'Puppi' in jetSource.value() and pfCandidates.value() == 'particleFlow':
+                getattr(process,jetCorrections[0]+_labelCorrName+'CandMETcorr'+postfix).srcWeights = "puppiNoLep"
 
         ## common configuration for Calo and PF
         if ('L1FastJet' in jetCorrections[1] or 'L1Fastjet' in jetCorrections[1]):
@@ -597,6 +599,19 @@ def setupBTagging(process, jetSource, pfCandidates, explicitJTA, pvSource, svSou
                                     btag.pixelClusterTagInfos.clone(jets = jetSource, vertices=pvSource),
                                     process, task)
 
+            if 'pfBoostedDouble' in btagInfo or 'SecondaryVertex' in btagInfo:
+              _btagInfo = getattr(process, btagPrefix+btagInfo+labelName+postfix)
+              if pfCandidates.value() == 'packedPFCandidates':
+                _btagInfo.weights = cms.InputTag("packedpuppi")
+                if not hasattr(process,"packedpuppi"):
+                  from CommonTools.PileupAlgos.Puppi_cff import puppi
+                  addToProcessAndTask('packedpuppi', puppi.clone(
+                        useExistingWeights = True,
+                        candName = 'packedPFCandidates',
+                        vertexName = 'offlineSlimmedPrimaryVertices') , process, task)
+              else:
+                _btagInfo.weights = cms.InputTag("puppi")
+
             if 'DeepFlavourTagInfos' in btagInfo:
                 svUsed = svSource
                 if btagInfo == 'pfNegativeDeepFlavourTagInfos':
@@ -653,6 +668,29 @@ def setupBTagging(process, jetSource, pfCandidates, explicitJTA, pvSource, svSou
                     raise ValueError("Invalid pfCandidates collection: %s." % pfCandidates.value())
                 addToProcessAndTask(btagPrefix+btagInfo+labelName+postfix,
                                     btag.pfDeepBoostedJetTagInfos.clone(
+                                      jets = jetSource,
+                                      vertices = pvSource,
+                                      secondary_vertices = svSource,
+                                      pf_candidates = pfCandidates,
+                                      puppi_value_map = puppi_value_map,
+                                      vertex_associator = vertex_associator,
+                                      ),
+                                    process, task)
+
+            if btagInfo == 'pfParticleNetTagInfos':
+                if pfCandidates.value() == 'packedPFCandidates':
+                    # case 1: running over jets whose daughters are PackedCandidates (only via updateJetCollection for now)
+                    puppi_value_map = ""
+                    vertex_associator = ""
+                elif pfCandidates.value() == 'particleFlow':
+                    raise ValueError("Running pfDeepBoostedJetTagInfos with reco::PFCandidates is currently not supported.")
+                    # case 2: running on new jet collection whose daughters are PFCandidates (e.g., cluster jets in RECO/AOD)
+                    puppi_value_map = "puppi"
+                    vertex_associator = "primaryVertexAssociation:original"
+                else:
+                    raise ValueError("Invalid pfCandidates collection: %s." % pfCandidates.value())
+                addToProcessAndTask(btagPrefix+btagInfo+labelName+postfix,
+                                    btag.pfParticleNetTagInfos.clone(
                                       jets = jetSource,
                                       vertices = pvSource,
                                       secondary_vertices = svSource,
@@ -1150,6 +1188,9 @@ class AddJetCollection(ConfigToolBase):
                                     process, task)
 
                 knownModules.append('patJetFlavourAssociation'+_labelName+postfix)
+            if 'Puppi' in jetSource.value() and pfCandidates.value() == 'particleFlow':
+                _newPatJetFlavourAssociation=getattr(process, 'patJetFlavourAssociation'+_labelName+postfix)
+                _newPatJetFlavourAssociation.weights = cms.InputTag("puppi")
             ## modify new patJets collection accordingly
             _newPatJets.JetFlavourInfoSource.setModuleLabel('patJetFlavourAssociation'+_labelName+postfix)
             ## if the jets is actually a subjet
@@ -1161,6 +1202,7 @@ class AddJetCollection(ConfigToolBase):
                 _newPatJets.JetFlavourInfoSource=cms.InputTag('patJetFlavourAssociation'+_labelName+postfix,'SubJets')
         else:
             _newPatJets.getJetMCFlavour = False
+            _newPatJets.addJetFlavourInfo = False
 
         ## add jetTrackAssociation for legacy btagging (or jetTracksAssociation only) if required by user
         if (jetTrackAssociation or bTaggingLegacy):

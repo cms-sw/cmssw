@@ -132,6 +132,7 @@ globalPrevalidationTrackingOnly = cms.Sequence(
     + vertexValidationTrackingOnly
 )
 globalValidationTrackingOnly = cms.Sequence()
+
 # Pixel tracking only validation
 globalPrevalidationPixelTrackingOnly = cms.Sequence(
       simHitTPAssocProducer
@@ -141,15 +142,35 @@ globalPrevalidationPixelTrackingOnly = cms.Sequence(
 globalValidationPixelTrackingOnly = cms.Sequence()
 
 globalValidationJetMETonly = cms.Sequence(
-                                   JetValidation
-                                 + METValidation
+      JetValidation
+    + METValidation
 )
 
 globalPrevalidationJetMETOnly = cms.Sequence(
-				   jetPreValidSeq
-				  +metPreValidSeq
+      jetPreValidSeq
+    + metPreValidSeq
 )
 
+# ECAL local reconstruction
+globalPrevalidationECAL = cms.Sequence()
+globalPrevalidationECALOnly = cms.Sequence(
+      baseCommonPreValidation
+    + globalPrevalidationECAL
+)
+
+globalValidationECAL = cms.Sequence(
+      ecalSimHitsValidationSequence
+    + ecalDigisValidationSequence
+    + ecalRecHitsValidationSequence
+    + ecalClustersValidationSequence
+)
+globalValidationECALOnly = cms.Sequence(
+      ecalSimHitsValidationSequence
+    + ecalDigisValidationSequence
+    + ecalRecHitsValidationSequence
+)
+
+# HCAL local reconstruction
 globalPrevalidationHCAL = cms.Sequence()
 
 globalValidationHCAL = cms.Sequence(
@@ -161,6 +182,7 @@ globalValidationHCAL = cms.Sequence(
 )
 
 globalValidationHGCal = cms.Sequence(hgcalValidation)
+globalPrevalidationHGCal = cms.Sequence(hgcalAssociators)
 
 globalValidationMTD = cms.Sequence()
 

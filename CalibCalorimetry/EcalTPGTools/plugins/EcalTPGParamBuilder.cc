@@ -375,7 +375,7 @@ bool EcalTPGParamBuilder::checkIfOK(EcalPedestals::Item item) {
 int EcalTPGParamBuilder::getEtaSlice(int tccId, int towerInTCC) {
   int etaSlice = (towerInTCC - 1) / 4 + 1;
   // barrel
-  if (tccId > 36 || tccId < 73)
+  if (tccId > 36 && tccId < 73)
     return etaSlice;
   //endcap
   else {

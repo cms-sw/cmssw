@@ -1,5 +1,5 @@
-<use   name="FWCore/Framework"/>
-<library   file="CaloGeometryAnalyzer.cc" name="testCaloGeometryESProducer">
+<use name="FWCore/Framework"/>
+<library file="CaloGeometryAnalyzer.cc" name="testCaloGeometryESProducer">
   <use name="rootgraphics"/>
   <use name="Geometry/Records"/>
   <use name="Geometry/EcalAlgo"/>
@@ -10,40 +10,45 @@
   <use name="Geometry/CaloTopology"/>
   <use name="DataFormats/HcalDetId"/>
   <use name="DataFormats/EcalDetId"/>
-  <flags   EDM_PLUGIN="1"/>
+  <flags EDM_PLUGIN="1"/>
 </library>
-<library   file="DumpEcalTrigTowerMapping.cc" name="testEcalTrigTowerMappingSProducer">
+
+<library file="DumpEcalTrigTowerMapping.cc" name="testEcalTrigTowerMappingSProducer">
   <use name="Geometry/Records"/>
   <use name="Geometry/CaloTopology"/>
   <use name="Geometry/CaloGeometry"/>
   <use name="DataFormats/HcalDetId"/>
   <use name="DataFormats/EcalDetId"/>
   <use name="rootgraphics"/>
-  <flags   EDM_PLUGIN="1"/>
+  <flags EDM_PLUGIN="1"/>
 </library>
-<library   file="TestEcalGetWindow.cc" name="testEcalGetWindow">
+
+<library file="TestEcalGetWindow.cc" name="testEcalGetWindow">
   <use name="Geometry/CaloTopology"/>
   <use name="rootgraphics"/>
   <use name="Geometry/Records"/>
   <use name="Geometry/CaloGeometry"/>
   <use name="DataFormats/HcalDetId"/>
   <use name="DataFormats/EcalDetId"/>
-  <flags   EDM_PLUGIN="1"/>
+  <flags EDM_PLUGIN="1"/>
 </library>
-<library   file="CaloAlignmentRcdRead.cc" name="CaloAlignmentRcdRead">
+
+<library file="CaloAlignmentRcdRead.cc" name="CaloAlignmentRcdRead">
   <use name="Utilities/General"/>
   <use name="CondFormats/Alignment"/>
   <use name="CondFormats/AlignmentRecord"/>
-  <flags   EDM_PLUGIN="1"/>
+  <flags EDM_PLUGIN="1"/>
 </library>
-<library   file="CaloAlignmentRcdWrite.cc" name="CaloAlignmentRcdWrite">
+
+<library file="CaloAlignmentRcdWrite.cc" name="CaloAlignmentRcdWrite">
   <use name="Utilities/General"/>
   <use name="CondCore/DBOutputService"/>
   <use name="CondFormats/Alignment"/>
   <use name="CondFormats/AlignmentRecord"/>
-  <flags   EDM_PLUGIN="1"/>
+  <flags EDM_PLUGIN="1"/>
 </library>
-<library   file="TestWriteESAlignments.cc" name="TestWriteESAlignments">
+
+<library file="TestWriteESAlignments.cc" name="TestWriteESAlignments">
   <use name="Utilities/General"/>
   <use name="CondCore/DBOutputService"/>
   <use name="CondFormats/Alignment"/>
@@ -51,9 +56,10 @@
   <use name="Geometry/EcalAlgo"/>
   <use name="Geometry/CaloGeometry"/>
   <use name="Geometry/Records"/>
-  <flags   EDM_PLUGIN="1"/>
+  <flags EDM_PLUGIN="1"/>
 </library>
-<bin   file="dumpEEIndices2D.cpp">
+
+<bin file="dumpEEIndices2D.cpp">
   <use name="rootgraphics"/>
   <use name="Geometry/CaloGeometry"/>
   <use name="DataFormats/HcalDetId"/>

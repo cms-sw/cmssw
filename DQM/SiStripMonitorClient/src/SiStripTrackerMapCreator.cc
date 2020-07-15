@@ -419,7 +419,7 @@ uint16_t SiStripTrackerMapCreator::getDetectorFlagAndComment(DQMStore* const dqm
   }
   std::ostringstream badmodule_path;
   badmodule_path << badmodule_folder << "/" << det_id;
-  LogDebug("SearchBadModule") << badmodule_folder << " exists: " << badmodule_path;
+  LogDebug("SearchBadModule") << badmodule_folder << " exists: " << badmodule_path.str();
 
   auto const* bad_module_me = dqm_store->get(badmodule_path.str());
   if (bad_module_me && bad_module_me->kind() == MonitorElement::Kind::INT) {

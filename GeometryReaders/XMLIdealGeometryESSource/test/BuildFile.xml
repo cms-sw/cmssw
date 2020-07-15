@@ -1,20 +1,26 @@
-<use   name="FWCore/Framework"/>
-<use   name="Geometry/Records"/>
-<use   name="MagneticField/Records"/>
-<use   name="DetectorDescription/Core"/>
-<use   name="DetectorDescription/Parser"/>
-<use   name="DetectorDescription/OfflineDBLoader"/>
-<use   name="CondFormats/GeometryObjects"/>
-<flags   EDM_PLUGIN="1"/>
-<library   file="PerfectGeometryAnalyzer.cc">
+<use name="FWCore/Framework"/>
+<use name="Geometry/Records"/>
+<use name="MagneticField/Records"/>
+<use name="DetectorDescription/Core"/>
+<use name="DetectorDescription/Parser"/>
+<use name="DetectorDescription/OfflineDBLoader"/>
+<use name="CondFormats/Common"/>
+<use name="CondFormats/GeometryObjects"/>
+<flags EDM_PLUGIN="1"/>
+<library file="PerfectGeometryAnalyzer.cc">
 </library>
-<library   file="ExtractXMLFile.cc">
+
+<library file="ExtractXMLFile.cc">
 </library>
-<library   file="TestIdealGeometryESProducer.cc">
+
+<library file="TestIdealGeometryESProducer.cc">
 </library>
-<library   file="TestSpecParAnalyzer.cc">
+
+<library file="TestSpecParAnalyzer.cc">
 </library>
-<library   file="TestCompareDDDumpFiles.cc">
+
+<library file="TestCompareDDDumpFiles.cc">
 </library>
+
 <library file="TestCompareDDSpecsDumpFiles.cc">
 </library>

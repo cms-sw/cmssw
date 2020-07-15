@@ -1,0 +1,48 @@
+<?xml version="1.0"?>
+<DDDefinition>
+  <debug>
+<!-- 
+    <debug_shapes/>
+    <debug_includes/>
+    <debug_rotations/>
+    <debug_includes/>
+    <debug_volumes/>
+    <debug_constants/>
+    <debug_materials/>
+    <debug_namespaces/>
+    <debug_placements/>
+    <debug_algorithms/>
+    <debug_materials/>
+    <debug_visattr/>
+-->
+  </debug>
+  
+  <open_geometry/>
+  <close_geometry/>
+
+  <IncludeSection>
+    <Include ref="Geometry/CMSCommonData/data/materials.xml"/>, 
+    <Include ref="Geometry/CMSCommonData/data/rotations.xml"/>
+    <Include ref="Geometry/CMSCommonData/data/normal/cmsextent.xml"/> 
+    <Include ref="Geometry/CMSCommonData/data/cms.xml"/> 
+    <Include ref="Geometry/CMSCommonData/data/cmsMother.xml"/> 
+    <Include ref="Geometry/CMSCommonData/data/cmsTracker.xml"/> 
+    <Include ref="Geometry/CMSCommonData/data/caloBase.xml"/> 
+    <Include ref="Geometry/CMSCommonData/data/cmsCalo.xml"/> 
+    <Include ref="Geometry/CMSCommonData/data/muonBase.xml"/> 
+    <Include ref="Geometry/CMSCommonData/data/cmsMuon.xml"/> 
+    <Include ref="Geometry/CMSCommonData/data/mgnt.xml"/> 
+    <Include ref="Geometry/CMSCommonData/data/beampipe.xml"/> 
+    <Include ref="Geometry/CMSCommonData/data/cmsBeam.xml"/> 
+    <Include ref="Geometry/CMSCommonData/data/muonMB.xml"/> 
+    <Include ref="Geometry/CMSCommonData/data/muonMagnet.xml"/> 
+    <Include ref="Geometry/CMSCommonData/data/cavern.xml"/> 
+    <Include ref="Geometry/TrackerCommonData/data/tracker.xml"/> 
+    <Include ref="Geometry/ForwardCommonData/data/forward.xml"/> 
+    <Include ref="Geometry/ForwardCommonData/data/forwardshield.xml"/> 
+    <Include ref="Geometry/ForwardCommonData/data/bhm.xml"/>
+    <Include ref="Geometry/ForwardCommonData/data/brmrotations.xml"/> 
+    <Include ref="Geometry/ForwardCommonData/data/brm.xml"/>
+  </IncludeSection>
+  
+</DDDefinition>

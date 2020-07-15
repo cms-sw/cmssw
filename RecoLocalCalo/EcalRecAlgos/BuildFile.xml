@@ -1,17 +1,16 @@
-<use   name="clhep"/>
-<use   name="DataFormats/EcalRecHit"/>
-<use   name="DataFormats/EcalDigi"/>
-<use   name="FWCore/MessageLogger"/>
-<use   name="FWCore/ParameterSet"/>
-<use   name="FWCore/Framework"/>
-<use   name="CondFormats/ESObjects"/>
-<use   name="CondFormats/EcalObjects"/>
-<use   name="CondFormats/DataRecord"/>
-<use   name="vdt_headers"/>
-<use   name="root"/>
-<use   name="rootminuit"/>
-<use   name="eigen"/>
-
+<use name="clhep"/>
+<use name="DataFormats/EcalRecHit"/>
+<use name="DataFormats/EcalDigi"/>
+<use name="FWCore/MessageLogger"/>
+<use name="FWCore/ParameterSet"/>
+<use name="FWCore/Framework"/>
+<use name="CondFormats/ESObjects"/>
+<use name="CondFormats/EcalObjects"/>
+<use name="CondFormats/DataRecord"/>
+<use name="vdt_headers"/>
+<use name="root"/>
+<use name="rootminuit"/>
+<use name="eigen"/>
 <export>
-  <lib   name="1"/>
+  <lib name="1"/>
 </export>

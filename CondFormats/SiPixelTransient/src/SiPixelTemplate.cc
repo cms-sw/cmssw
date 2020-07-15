@@ -4056,6 +4056,12 @@ void SiPixelTemplate::vavilov_pars(double& mpv, double& sigma, double& kappa)
 
   // Copy to parameter list
 
+  //Avoid rounding difference between floats and doubles causing issues later
+  if (kappavav_ <= 0.01f) {
+    LOGERROR("SiPixelTemplate") << "Vavilov kappa value is " << kappavav_ << " changing it to be above 0.01" << ENDL;
+    kappavav_ = 0.01f + 0.0000001f;
+  }
+
   mpv = (double)mpvvav_;
   sigma = (double)sigmavav_;
   kappa = (double)kappavav_;

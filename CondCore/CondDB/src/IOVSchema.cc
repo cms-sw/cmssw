@@ -68,12 +68,11 @@ namespace cond {
                             std::string& objectType,
                             cond::SynchronizationType& synchronizationType,
                             cond::Time_t& endOfValidity,
-                            std::string& description,
                             cond::Time_t& lastValidatedTime) {
-      Query<TIME_TYPE, OBJECT_TYPE, SYNCHRONIZATION, END_OF_VALIDITY, DESCRIPTION, LAST_VALIDATED_TIME> q(m_schema);
+      Query<TIME_TYPE, OBJECT_TYPE, SYNCHRONIZATION, END_OF_VALIDITY, LAST_VALIDATED_TIME> q(m_schema);
       q.addCondition<NAME>(name);
       for (auto row : q)
-        std::tie(timeType, objectType, synchronizationType, endOfValidity, description, lastValidatedTime) = row;
+        std::tie(timeType, objectType, synchronizationType, endOfValidity, lastValidatedTime) = row;
 
       return q.retrievedRows();
     }
@@ -121,12 +120,20 @@ namespace cond {
     void TAG::Table::update(const std::string& name,
                             cond::SynchronizationType synchronizationType,
                             cond::Time_t& endOfValidity,
-                            const std::string& description,
                             cond::Time_t lastValidatedTime,
                             const boost::posix_time::ptime& updateTime) {
       UpdateBuffer buffer;
-      buffer.setColumnData<SYNCHRONIZATION, END_OF_VALIDITY, DESCRIPTION, LAST_VALIDATED_TIME, MODIFICATION_TIME>(
-          std::tie(synchronizationType, endOfValidity, description, lastValidatedTime, updateTime));
+      buffer.setColumnData<SYNCHRONIZATION, END_OF_VALIDITY, LAST_VALIDATED_TIME, MODIFICATION_TIME>(
+          std::tie(synchronizationType, endOfValidity, lastValidatedTime, updateTime));
+      buffer.addWhereCondition<NAME>(name);
+      updateTable(m_schema, tname, buffer);
+    }
+
+    void TAG::Table::updateMetadata(const std::string& name,
+                                    const std::string& description,
+                                    const boost::posix_time::ptime& updateTime) {
+      UpdateBuffer buffer;
+      buffer.setColumnData<DESCRIPTION, MODIFICATION_TIME>(std::tie(description, updateTime));
       buffer.addWhereCondition<NAME>(name);
       updateTable(m_schema, tname, buffer);
     }
@@ -210,6 +217,7 @@ namespace cond {
       }
       q.addOrderClause<SINCE>(false);
       q.addOrderClause<INSERTION_TIME>(false);
+      q.limitReturnedRows(1);
       for (auto row : q) {
         since = std::get<0>(row);
         hash = std::get<1>(row);
@@ -282,8 +290,22 @@ namespace cond {
       BulkInserter<TAG_NAME, SINCE, PAYLOAD_HASH, INSERTION_TIME> inserter(m_schema, tname);
       for (auto row : iovs)
         inserter.insert(std::tuple_cat(std::tie(tag), row));
-
       inserter.flush();
+    }
+
+    void IOV::Table::eraseOne(const std::string& tag, cond::Time_t since, cond::Hash payloadId) {
+      DeleteBuffer buffer;
+      buffer.addWhereCondition<TAG_NAME>(tag);
+      buffer.addWhereCondition<SINCE>(since);
+      buffer.addWhereCondition<PAYLOAD_HASH>(payloadId);
+      deleteFromTable(m_schema, tname, buffer);
+    }
+
+    void IOV::Table::eraseMany(const std::string& tag, const std::vector<std::tuple<cond::Time_t, cond::Hash> >& iovs) {
+      BulkDeleter<TAG_NAME, SINCE, PAYLOAD_HASH> deleter(m_schema, tname);
+      for (auto iov : iovs)
+        deleter.erase(std::tuple_cat(std::tie(tag), iov));
+      deleter.flush();
     }
 
     void IOV::Table::erase(const std::string& tag) {

@@ -37,6 +37,55 @@ void testfriendlyName::test() {
   classToFriendly.insert(Values("bar::Foo", "barFoo"));
   classToFriendly.insert(Values("std::vector<Foo>", "Foos"));
   classToFriendly.insert(Values("std::vector<bar::Foo>", "barFoos"));
+  classToFriendly.insert(Values("std::set<bar::Foo>", "barFoostdset"));
+  classToFriendly.insert(Values("std::map<Foo, bar::Bar>", "FoobarBarstdmap"));
+  classToFriendly.insert(Values("std::unordered_set<bar::Foo>", "barFoostduset"));
+  classToFriendly.insert(Values("std::unordered_set<std::basic_string<char>>", "Stringstduset"));
+  classToFriendly.insert(Values("std::unordered_set<bar::Foo, std::hash<bar::Foo>>", "barFoostduset"));
+  classToFriendly.insert(
+      Values("std::unordered_set<std::basic_string<char>, std::hash<std::basic_string<char>>>", "Stringstduset"));
+  classToFriendly.insert(
+      Values("std::unordered_set<bar::Foo, std::hash<bar::Foo>, std::equal_to<bar::Foo>>", "barFoostduset"));
+  classToFriendly.insert(
+      Values("std::unordered_set<std::basic_string<char>, std::hash<std::basic_string<char>>, "
+             "std::equal_to<std::basic_string<char>>>",
+             "Stringstduset"));
+  classToFriendly.insert(
+      Values("std::unordered_set<bar::Foo, CustomHash, std::equal_to<bar::Foo>>", "barFooCustomHashstduset"));
+  classToFriendly.insert(
+      Values("std::unordered_set<std::basic_string<char>, CustomHash, std::equal_to<std::basic_string<char>>>",
+             "StringCustomHashstduset"));
+  classToFriendly.insert(Values("std::unordered_set<bar::Foo, CustomHash>", "barFooCustomHashstduset"));
+  classToFriendly.insert(Values("std::unordered_set<std::basic_string<char>, CustomHash>", "StringCustomHashstduset"));
+  classToFriendly.insert(Values("std::unordered_map<Foo, bar::Bar>", "FoobarBarstdumap"));
+  classToFriendly.insert(Values("std::unordered_map<std::basic_string<char>, bar::Bar>", "StringbarBarstdumap"));
+  classToFriendly.insert(Values("std::unordered_map<Foo, std::basic_string<char>>", "FooStringstdumap"));
+  classToFriendly.insert(Values("std::unordered_map<Foo, bar::Bar, std::hash<Foo>>", "FoobarBarstdumap"));
+  classToFriendly.insert(
+      Values("std::unordered_map<std::basic_string<char> , bar::Bar, std::hash<std::basic_string<char> > >",
+             "StringbarBarstdumap"));
+  classToFriendly.insert(
+      Values("std::unordered_map<Foo, std::basic_string<char> , std::hash<Foo>>", "FooStringstdumap"));
+  classToFriendly.insert(
+      Values("std::unordered_map<Foo, bar::Bar, std::hash<Foo>, std::equal_to<Foo>>", "FoobarBarstdumap"));
+  classToFriendly.insert(
+      Values("std::unordered_map<std::basic_string<char>, bar::Bar, std::hash<std::basic_string<char>>, "
+             "std::equal_to<std::basic_string<char>>>",
+             "StringbarBarstdumap"));
+  classToFriendly.insert(Values("std::unordered_map<Foo, std::basic_string<char>, std::hash<Foo>, std::equal_to<Foo>>",
+                                "FooStringstdumap"));
+  classToFriendly.insert(
+      Values("std::unordered_map<Foo, bar::Bar, CustomHash, std::equal_to<Foo>>", "FoobarBarCustomHashstdumap"));
+  classToFriendly.insert(Values(
+      "std::unordered_map<std::basic_string<char>, bar::Bar, CustomHash, std::equal_to<std::basic_string<char>>>",
+      "StringbarBarCustomHashstdumap"));
+  classToFriendly.insert(Values("std::unordered_map<Foo, std::basic_string<char>, CustomHash, std::equal_to<Foo>>",
+                                "FooStringCustomHashstdumap"));
+  classToFriendly.insert(Values("std::unordered_map<Foo, bar::Bar, CustomHash>", "FoobarBarCustomHashstdumap"));
+  classToFriendly.insert(
+      Values("std::unordered_map<std::basic_string<char>, bar::Bar, CustomHash>", "StringbarBarCustomHashstdumap"));
+  classToFriendly.insert(
+      Values("std::unordered_map<Foo, std::basic_string<char>, CustomHash>", "FooStringCustomHashstdumap"));
   classToFriendly.insert(Values("std::shared_ptr<Foo>", "FooSharedPtr"));
   classToFriendly.insert(Values("std::shared_ptr<bar::Foo>", "barFooSharedPtr"));
   classToFriendly.insert(Values("std::basic_string<char>", "String"));

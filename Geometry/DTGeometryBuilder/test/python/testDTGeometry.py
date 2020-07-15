@@ -10,7 +10,7 @@ process.maxEvents = cms.untracked.PSet(
 process.MessageLogger = cms.Service(
     "MessageLogger",
     statistics = cms.untracked.vstring('cout', 'dtGeometry'),
-    categories = cms.untracked.vstring('DTGeometryTest'),
+    categories = cms.untracked.vstring('DTGeometryTest', 'Geometry'),
     cout = cms.untracked.PSet(
         threshold = cms.untracked.string('WARNING'),
         noLineBreaks = cms.untracked.bool(True)
@@ -32,6 +32,9 @@ process.MessageLogger = cms.Service(
         threshold = cms.untracked.string('INFO'),
         DTGeometryTest = cms.untracked.PSet(
             limit = cms.untracked.int32(-1)
+            ),
+        Geometry = cms.untracked.PSet(
+            limit = cms.untracked.int32(-1)
             )
         ),
     destinations = cms.untracked.vstring('cout',
@@ -39,7 +42,7 @@ process.MessageLogger = cms.Service(
     )
 
 process.DDDetectorESProducer = cms.ESSource("DDDetectorESProducer",
-                                            confGeomXMLFiles = cms.FileInPath('DetectorDescription/DDCMS/data/cms-2015-muon-geometry.xml'),
+                                            confGeomXMLFiles = cms.FileInPath('Geometry/CMSCommonData/data/dd4hep/cmsExtendedGeometry2021.xml'),
                                             appendToDataLabel = cms.string('MUON')
                                             )
 

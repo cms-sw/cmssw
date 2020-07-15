@@ -1,4 +1,5 @@
 #! /bin/tcsh
+
 cmsenv
 
 echo " START Geometry Validation"
@@ -22,7 +23,7 @@ echo geometry = ${geometry}
 #global tag gtag is assumed to be of the form GeometryWORD such as GeometryExtended or GeometryIdeal
 #as of 3.4.X loaded objects in the DB, these correspond to condlabels Extended, Ideal, etc...
 # Run 2 Extended condlabel corresponds to GeometryExtended2015 scenario. 
-set condlabel = `(echo $geometry | sed '{s/Geometry//g}' | sed '{s/2015//g}')`
+set condlabel = `(echo $geometry | sed -e '{s/Geometry//g}' -e '{s/Plan//g}' -e '{s/[0-9]*//g}')`
 echo ${condlabel} " geometry label from db"
 
 set workArea = `(echo $geometry)`
@@ -31,14 +32,14 @@ cd ${workArea}
 set myDir=`pwd`
 echo $myDir
 
-cp $CMSSW_RELEASE_BASE/src/CondTools/Geometry/test/geometryxmlwriter.py .
+cp $CMSSW_RELEASE_BASE/src/CondTools/Geometry/test/writehelpers/geometryxmlwriter.py .
 echo $geometry
 sed -i "{s/GeometryExtended/${geometry}/}" geometryxmlwriter.py >  GeometryValidation.log
 cmsRun geometryxmlwriter.py >>  GeometryValidation.log
 
 cp $CMSSW_RELEASE_BASE/src/CondTools/Geometry/test/geometrywriter.py .
 sed -i "{s/GeometryExtended/${geometry}/}" geometrywriter.py >>  GeometryValidation.log
-##sed -i "{s/geTagXX.xml/fred.xml/g}" geometrywriter.py >>  GeometryValidation.log
+sed -i "{s/geTagXX.xml/geSingleBigFile.xml/g}" geometrywriter.py >>  GeometryValidation.log
 cmsRun geometrywriter.py >>  GeometryValidation.log
 if ( -e myfile.db ) then
     echo "The local DB file is present" | tee -a GeometryValidation.log
@@ -78,8 +79,20 @@ else
 endif
 
 diff outLocalDB.log outGTDB.log > logDiffLocalvsGT.log
-if ( -s logLocalvsGTDiff.log ) then
-    echo "WARNING THE CONTENT OF GLOBAL TAG IS DIFFERENT WHIT RESPECT TO THE LOCAL DB FILE" | tee -a GeometryValidation.log
+if ( -s logDiffLocalvsGT.log ) then
+    echo "WARNING THE CONTENT OF GLOBAL TAG MAY BE DIFFERENT WITH RESPECT TO THE LOCAL DB FILE" | tee -a GeometryValidation.log
+    cp $CMSSW_BASE/src/Validation/Geometry/test/dddvsdb/sortXML.sh .
+    cp $CMSSW_BASE/src/Validation/Geometry/test/dddvsdb/sortCompositeMaterials.py .
+    ./sortXML.sh outLocalDB.log localdb.xml
+    ./sortXML.sh outGTDB.log gtdb.xml
+    diff localdb.xml gtdb.xml > logDiffLocXMLvsGTXML.log
+    sort  localdb.xml > localdb.sort
+    sort gtdb.xml > gtdb.sort
+    diff localdb.sort gtdb.sort > logDiffLocvsGTSort.log
+    echo Examine logDiffLocXMLvsGTXML.log to see the differences in the local and GT XML files. | tee -a GeometryValidation.log
+    echo Examine logDiffLocvsGTSort.log to see the differences in sorted content of the local and GT XML files. | tee -a GeometryValidation.log
+    echo The two XML files may have real differences, or they may have identical content that is simply re-arranged. | tee -a GeometryValidation.log
+    echo Examining these log files can help you determine whether the XML files have significant differences. | tee -a GeometryValidation.log
 endif
 
 echo "End compare the content of GT and the local DB" | tee -a GeometryValidation.log
@@ -360,9 +373,9 @@ else
 endif
 cd ${myDir}
 
-less $CMSSW_BASE/src/Geometry/CaloEventSetup/test/GeometryCaloValidationDDD.log | tee -a GeometryValidation.log
-less $CMSSW_BASE/src/Geometry/CaloEventSetup/test/GeometryCaloValidationDB.log | tee -a GeometryValidation.log
-less $CMSSW_BASE/src/Geometry/CaloEventSetup/test/GeometryCaloValidationLocal.log | tee -a GeometryValidation.log
+less $CMSSW_BASE/src/Geometry/CaloEventSetup/test/GeometryCaloValidationDDD.log >> GeometryValidation.log
+less $CMSSW_BASE/src/Geometry/CaloEventSetup/test/GeometryCaloValidationDB.log >> GeometryValidation.log
+less $CMSSW_BASE/src/Geometry/CaloEventSetup/test/GeometryCaloValidationLocal.log >> GeometryValidation.log
 
 grep 'BIG DISAGREEMENT FOUND' $CMSSW_BASE/src/Geometry/CaloEventSetup/test/GeometryCaloValidationDDD.log > CALODDDError.log 
 grep 'BIG DISAGREEMENT FOUND' $CMSSW_BASE/src/Geometry/CaloEventSetup/test/GeometryCaloValidationDB.log > CALODBError.log 
@@ -399,19 +412,43 @@ echo "Start Simulation geometry validation" | tee -a GeometryValidation.log
 # the file blob that comes from the global tag that was provided to the 
 # script (GTDB, could be same or older version).
 
-echo "Here I am " > readXML.expected
-echo "Top Most LogicalPart =cms:OCMS " >> readXML.expected
-echo " mat=materials:Air" >> readXML.expected
-echo " solid=cms:OCMS   Polycone_rrz: 0 6.28319 -450000 0 1000 -27000 0 1000 -27000 0 17500 27000 0 17500 27000 0 1000 450000 0 1000 " >> readXML.expected
-echo "After the GeoHistory in the output file dumpGeoHistoryOnRead you will see x, y, z, r11, r12, r13, r21, r22, r23, r31, r32, r33" >> readXML.expected
-echo "finished" >> readXML.expected
+# Old version. Is it obsolete?
+# echo "Here I am " > readXML.expected
+# echo "Top Most LogicalPart =cms:OCMS " >> readXML.expected
+# echo " mat=materials:Air" >> readXML.expected
+# echo " solid=cms:OCMS   Polycone_rrz: 0 6.28319 -450000 0 1000 -27000 0 1000 -27000 0 17500 27000 0 17500 27000 0 1000 450000 0 1000 " >> readXML.expected
+# echo "After the GeoHistory in the output file dumpGeoHistoryOnRead you will see x, y, z, r11, r12, r13, r21, r22, r23, r31, r32, r33" >> readXML.expected
+# echo "finished" >> readXML.expected
 
+if ( ${geometry} == GeometryExtended2021 ) then                                                               
+  cat > readXML.expected <<END_OF_TEXT  
+Here I am 
+Top Most LogicalPart =cms:OCMS 
+ mat=materials:Air
+ solid=cms:OCMS   Box:  xhalf[cm]=10100 yhalf[cm]=10100 zhalf[cm]=45000
+After the GeoHistory in the output file dumpGeoHistoryOnRead you will see x, y, z, r11, r12, r13, r21, r22, r23, r31, r32, r33
+finished
+END_OF_TEXT
+
+else
+
+  cat > readXML.expected <<END_OF_TEXT  
+Here I am 
+Top Most LogicalPart =cms:OCMS 
+ mat=materials:Air
+ solid=cms:OCMS   Polycone_rrz:  startPhi[deg]=0 dPhi[deg]=360 Sizes[cm]=-45000 0 100 -2700 0 100 -2700 0 1750 2700 0 1750 2700 0 100 45000 0 100 
+After the GeoHistory in the output file dumpGeoHistoryOnRead you will see x, y, z, r11, r12, r13, r21, r22, r23, r31, r32, r33
+finished
+END_OF_TEXT
+
+endif
 
 cp $CMSSW_RELEASE_BASE/src/GeometryReaders/XMLIdealGeometryESSource/test/readExtendedAndDump.py .
 sed -i "{s/GeometryExtended/${geometry}/}" readExtendedAndDump.py >>  GeometryValidation.log
 cmsRun readExtendedAndDump.py > readXMLAndDump.log
 
 cp $CMSSW_RELEASE_BASE/src/GeometryReaders/XMLIdealGeometryESSource/test/testReadXMLFromGTDB.py .
+# cp $CMSSW_BASE/src/GeometryReaders/XMLIdealGeometryESSource/test/testReadXMLFromGTDB.py .
 sed -i "{/process.GlobalTag.globaltag/d}" testReadXMLFromGTDB.py >> GeometryValidation.log
 sed -i "{/process.XMLFromDBSource.label/d}" testReadXMLFromGTDB.py >> GeometryValidation.log
 sed -i "/FrontierConditions_GlobalTag_cff/ a\from Configuration.AlCa.GlobalTag import GlobalTag\nprocess.GlobalTag = GlobalTag(process.GlobalTag, '${gtag}', '')" testReadXMLFromGTDB.py >> GeometryValidation.log
@@ -419,6 +456,7 @@ sed -i "/FrontierConditions_GlobalTag_cff/ a\process.XMLFromDBSource.label = cms
 cmsRun testReadXMLFromGTDB.py > readXMLfromGTDB.log
 
 cp $CMSSW_RELEASE_BASE/src/GeometryReaders/XMLIdealGeometryESSource/test/testReadXMLFromDB.py .
+# cp $CMSSW_BASE/src/GeometryReaders/XMLIdealGeometryESSource/test/testReadXMLFromDB.py .
 sed -i "{/process.GlobalTag.globaltag/d}" testReadXMLFromDB.py >> GeometryValidation.log
 sed -i "{/process.XMLFromDBSource.label/d}" testReadXMLFromDB.py >> GeometryValidation.log
 sed -i "/FrontierConditions_GlobalTag_cff/ a\from Configuration.AlCa.GlobalTag import GlobalTag\nprocess.GlobalTag = GlobalTag(process.GlobalTag, '${gtag}', '')" testReadXMLFromDB.py >> GeometryValidation.log
@@ -427,7 +465,7 @@ cmsRun testReadXMLFromDB.py > readXMLfromLocDB.log
 
 cp $CMSSW_RELEASE_BASE/src/GeometryReaders/XMLIdealGeometryESSource/test/readBigXMLAndDump.py .
 sed -i "{/geomXMLFiles = cms.vstring('GeometryReaders\/XMLIdealGeometryESSource\/test\/fred.xml'),/d}" readBigXMLAndDump.py >> GeometryValidation.log
-sed -i "/XMLIdealGeometryESSource/ a\\t\tgeomXMLFiles=cms.vstring('workArea\/fred.xml')," readBigXMLAndDump.py >>  GeometryValidation.log
+sed -i "/XMLIdealGeometryESSource/ a\\t\tgeomXMLFiles=cms.vstring('${workArea}\/geSingleBigFile.xml')," readBigXMLAndDump.py >>  GeometryValidation.log
 cmsRun readBigXMLAndDump.py > readBigXMLAndDump.log
 
 diff readXMLAndDump.log readXML.expected > diffreadXMLSTD.log
@@ -474,9 +512,9 @@ echo ">>> processing event # run: 1 lumi: 1 event: 1 time 1" >compDDdumperrors.e
 echo ">>> processed 1 events" >>compDDdumperrors.expected
 
 cp $CMSSW_RELEASE_BASE/src/GeometryReaders/XMLIdealGeometryESSource/test/testCompareDumpFiles.py .
-sed -i "{/,dumpFile1 /d}" testCompareDumpFiles.py
-sed -i "{/,dumpFile2 /d}" testCompareDumpFiles.py
-sed -i "/TestCompareDDDumpFiles/ a\,dumpFile1=cms.string\('./dumpSTD'\)\,dumpFile2=cms.string\('./dumpBDB'\)" testCompareDumpFiles.py
+sed -i "{/dumpFile1 /d}" testCompareDumpFiles.py
+sed -i "{/dumpFile2 /d}" testCompareDumpFiles.py
+sed -i "/TestCompareDDDumpFiles/ a\dumpFile1=cms.string\('./dumpSTD'\)\, dumpFile2=cms.string\('./dumpBDB'\)," testCompareDumpFiles.py
 cmsRun testCompareDumpFiles.py > tcdfSTDvsBDB.log
 
 
@@ -484,10 +522,11 @@ if (-s tcdfSTDvsBDB.log || -s diffcompSTDvsBDB.log ) then
     echo "WARNING THE GEOMETRYFILE IS DIFFERENT BETWEEN STD XML AND BIG SINGLE XML." | tee -a GeometryValidation.log
 endif
 
+rm testCompareDumpFiles.py
 cp $CMSSW_RELEASE_BASE/src/GeometryReaders/XMLIdealGeometryESSource/test/testCompareDumpFiles.py .
-sed -i "{/,dumpFile1 /d}" testCompareDumpFiles.py
-sed -i "{/,dumpFile2 /d}" testCompareDumpFiles.py
-sed -i "/TestCompareDDDumpFiles/ a\,dumpFile1=cms.string\('./dumpSTD'\)\,dumpFile2=cms.string\('./dumpLocDB'\)" testCompareDumpFiles.py
+sed -i "{/dumpFile1 /d}" testCompareDumpFiles.py
+sed -i "{/dumpFile2 /d}" testCompareDumpFiles.py
+sed -i "/TestCompareDDDumpFiles/ a\dumpFile1=cms.string\('./dumpSTD'\)\, dumpFile2=cms.string\('./dumpLocDB'\)," testCompareDumpFiles.py
 cmsRun testCompareDumpFiles.py > tcdfSTDvsLocDB.log
 
 diff compDDdumperrors.log compDDdumperrors.expected > diffcompSTDvsLocDB.log
@@ -495,10 +534,11 @@ if (-s tcdfSTDvsLocDB.log || -s diffcompSTDvsLocDB.log ) then
     echo "WARNING THE GEOMETRYFILE IS DIFFERENT BETWEEN STD XML AND LOCAL DATABASE BLOB." | tee -a GeometryValidation.log
 endif
 
+rm testCompareDumpFiles.py
 cp $CMSSW_RELEASE_BASE/src/GeometryReaders/XMLIdealGeometryESSource/test/testCompareDumpFiles.py .
-sed -i "{/,dumpFile1 /d}" testCompareDumpFiles.py
-sed -i "{/,dumpFile2 /d}" testCompareDumpFiles.py
-sed -i "/TestCompareDDDumpFiles/ a\,dumpFile1=cms.string\('./dumpSTD'\)\,dumpFile2=cms.string\('./dumpGTDB'\)" testCompareDumpFiles.py
+sed -i "{/dumpFile1 /d}" testCompareDumpFiles.py
+sed -i "{/dumpFile2 /d}" testCompareDumpFiles.py
+sed -i "/TestCompareDDDumpFiles/ a\dumpFile1=cms.string\('./dumpSTD'\)\, dumpFile2=cms.string\('./dumpGTDB'\)," testCompareDumpFiles.py
 cmsRun testCompareDumpFiles.py > tcdfSTDvsGTDB.log
 
 diff compDDdumperrors.log compDDdumperrors.expected > diffcompSTDvsGTDB.log
@@ -506,10 +546,11 @@ if (-s tcdfSTDvsGTDB.log || -s diffcompSTDvsGTDB.log ) then
     echo "WARNING THE GEOMETRYFILE IS DIFFERENT BETWEEN STD XML AND GLOBALTAG DATABASE BLOB." | tee -a GeometryValidation.log
 endif
 
+rm testCompareDumpFiles.py
 cp $CMSSW_RELEASE_BASE/src/GeometryReaders/XMLIdealGeometryESSource/test/testCompareDumpFiles.py .
-sed -i "{/,dumpFile1 /d}" testCompareDumpFiles.py
-sed -i "{/,dumpFile2 /d}" testCompareDumpFiles.py
-sed -i "/TestCompareDDDumpFiles/ a\,dumpFile1=cms.string\('./dumpBDB'\)\,dumpFile2=cms.string\('./dumpLocDB'\)" testCompareDumpFiles.py
+sed -i "{/dumpFile1 /d}" testCompareDumpFiles.py
+sed -i "{/dumpFile2 /d}" testCompareDumpFiles.py
+sed -i "/TestCompareDDDumpFiles/ a\dumpFile1=cms.string\('./dumpBDB'\)\, dumpFile2=cms.string\('./dumpLocDB'\)," testCompareDumpFiles.py
 cmsRun testCompareDumpFiles.py > tcdfBDBvsLocDB.log
 
 diff compDDdumperrors.log compDDdumperrors.expected > diffcompBDBvsLocDB.log
@@ -517,10 +558,11 @@ if (-s tcdfBDBvsLocDB.log || -s diffcompBDBvsLocDB.log ) then
     echo "WARNING THE GEOMETRYFILE IS DIFFERENT BETWEEN SINGLE BIG XML FILE AND LOCAL DATABASE BLOB." | tee -a GeometryValidation.log
 endif
 
+rm testCompareDumpFiles.py
 cp $CMSSW_RELEASE_BASE/src/GeometryReaders/XMLIdealGeometryESSource/test/testCompareDumpFiles.py .
-sed -i "{/,dumpFile1 /d}" testCompareDumpFiles.py
-sed -i "{/,dumpFile2 /d}" testCompareDumpFiles.py
-sed -i "/TestCompareDDDumpFiles/ a\,dumpFile1=cms.string\('./dumpBDB'\)\,dumpFile2=cms.string\('./dumpGTDB'\)" testCompareDumpFiles.py
+sed -i "{/dumpFile1 /d}" testCompareDumpFiles.py
+sed -i "{/dumpFile2 /d}" testCompareDumpFiles.py
+sed -i "/TestCompareDDDumpFiles/ a\dumpFile1=cms.string\('./dumpBDB'\)\, dumpFile2=cms.string\('./dumpGTDB'\)," testCompareDumpFiles.py
 cmsRun testCompareDumpFiles.py > tcdfBDBvsGTDB.log
 
 diff compDDdumperrors.log compDDdumperrors.expected > diffcompBDBvsGTDB.log
@@ -528,10 +570,11 @@ if (-s tcdfBDBvsGTDB.log || -s diffcompBDBvsGTDB.log ) then
     echo "WARNING THE GEOMETRYFILE IS DIFFERENT BETWEEN SINGLE BIG XML FILE AND GLOBALTAG DATABASE BLOB."  | tee -a GeometryValidation.log
 endif
 
+rm testCompareDumpFiles.py
 cp $CMSSW_RELEASE_BASE/src/GeometryReaders/XMLIdealGeometryESSource/test/testCompareDumpFiles.py .
-sed -i "{/,dumpFile1 /d}" testCompareDumpFiles.py
-sed -i "{/,dumpFile2 /d}" testCompareDumpFiles.py
-sed -i "/TestCompareDDDumpFiles/ a\,dumpFile1=cms.string\('./dumpLocDB'\)\,dumpFile2=cms.string\('./dumpGTDB'\)" testCompareDumpFiles.py
+sed -i "{/dumpFile1 /d}" testCompareDumpFiles.py
+sed -i "{/dumpFile2 /d}" testCompareDumpFiles.py
+sed -i "/TestCompareDDDumpFiles/ a\dumpFile1=cms.string\('./dumpLocDB'\)\, dumpFile2=cms.string\('./dumpGTDB'\)," testCompareDumpFiles.py
 cmsRun testCompareDumpFiles.py > tcdfLocDBvsGTDB.log
 
 diff compDDdumperrors.log compDDdumperrors.expected > diffcompLocDBvsGTDB.log

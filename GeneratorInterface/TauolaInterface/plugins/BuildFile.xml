@@ -14,7 +14,6 @@
   <flags EDM_PLUGIN="1"/>
 </library>
 
-
 <library file="TauSpinner/*.cc" name="TauSpinnerInterface">
   <use name="FWCore/Concurrency"/>
   <use name="FWCore/Framework"/>

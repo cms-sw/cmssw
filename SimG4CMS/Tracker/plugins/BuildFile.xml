@@ -1,11 +1,6 @@
-  <use   name="SimG4CMS/Tracker"/>
-  <use   name="FWCore/ParameterSet"/>
-  <use   name="SimG4Core/SensitiveDetector"/>
-  <use   name="SimG4Core/Notification"/>
-  <use   name="SimG4Core/Physics"/>
-  <use   name="Geometry/TrackerNumberingBuilder"/>
-  <use   name="geant4core"/>
-  <use   name="SimDataFormats/SimHitMaker"/>
-<library   file="*.cc" name="SimG4CMSTrackerPlugins">
-  <flags   EDM_PLUGIN="1"/>
+<use name="SimG4CMS/Tracker"/>
+<use name="SimG4Core/SensitiveDetector"/>
+<use name="geant4core"/>
+<library file="*.cc" name="SimG4CMSTrackerPlugins">
+  <flags EDM_PLUGIN="1"/>
 </library>

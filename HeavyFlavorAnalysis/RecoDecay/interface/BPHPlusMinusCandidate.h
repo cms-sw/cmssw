@@ -37,6 +37,10 @@ public:
    */
   BPHPlusMinusCandidate(const edm::EventSetup* es);
 
+  // deleted copy constructor and assignment operator
+  BPHPlusMinusCandidate(const BPHPlusMinusCandidate& x) = delete;
+  BPHPlusMinusCandidate& operator=(const BPHPlusMinusCandidate& x) = delete;
+
   /** Destructor
    */
   ~BPHPlusMinusCandidate() override;
@@ -62,6 +66,10 @@ public:
                                                      const std::string& nNeg,
                                                      double mass = -1,
                                                      double msig = -1);
+
+  /// clone object, cloning daughters as well up to required depth
+  /// level = -1 to clone all levels
+  BPHRecoCandidate* clone(int level = -1) const override;
 
   /// get a composite by the simple sum of simple particles
   const pat::CompositeCandidate& composite() const override;

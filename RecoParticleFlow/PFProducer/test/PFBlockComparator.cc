@@ -8,68 +8,38 @@
 // Author: L. Gray (FNAL)
 //
 
-#include <memory>
-#include <map>
-
-#include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
-
 #include "DataFormats/EgammaCandidates/interface/Photon.h"
-#include "DataFormats/EgammaCandidates/interface/PhotonFwd.h"
-
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
-#include "DataFormats/ParticleFlowCandidate/interface/PFCandidateFwd.h"
-
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidatePhotonExtra.h"
-#include "DataFormats/ParticleFlowCandidate/interface/PFCandidatePhotonExtraFwd.h"
-
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidateEGammaExtra.h"
-#include "DataFormats/ParticleFlowCandidate/interface/PFCandidateEGammaExtraFwd.h"
-
 #include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
-#include "DataFormats/GsfTrackReco/interface/GsfTrackFwd.h"
-
 #include "DataFormats/GsfTrackReco/interface/GsfTrackExtra.h"
-#include "DataFormats/GsfTrackReco/interface/GsfTrackExtraFwd.h"
-
 #include "DataFormats/EgammaReco/interface/ElectronSeed.h"
-#include "DataFormats/EgammaReco/interface/ElectronSeedFwd.h"
-
-#include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
-#include "DataFormats/ParticleFlowReco/interface/PFClusterFwd.h"
 #include "DataFormats/ParticleFlowReco/interface/PFCluster.h"
-
-#include "DataFormats/VertexReco/interface/VertexFwd.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
-
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
-#include "TTree.h"
-#include "TVector2.h"
-
 #include "DataFormats/Math/interface/deltaR.h"
-
-#include "DataFormats/HepMCCandidate/interface/GenParticleFwd.h"
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
-
 #include "RecoEcal/EgammaCoreTools/interface/Mustache.h"
-namespace MK = reco::MustacheKernel;
-
 #include "RecoParticleFlow/PFClusterTools/interface/PFEnergyCalibration.h"
-
 #include "DataFormats/ParticleFlowReco/interface/PFBlockElementGsfTrack.h"
 #include "DataFormats/ParticleFlowReco/interface/PFBlockElementSuperCluster.h"
 #include "DataFormats/ParticleFlowReco/interface/PFBlockElementBrem.h"
-
 #include "DataFormats/ParticleFlowReco/interface/PFCluster.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
 
+#include "TTree.h"
+#include "TVector2.h"
+
 #include <algorithm>
+#include <map>
 #include <memory>
 
 namespace {

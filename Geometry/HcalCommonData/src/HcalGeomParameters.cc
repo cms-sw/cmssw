@@ -9,7 +9,6 @@
 #include "DetectorDescription/Core/interface/DDFilter.h"
 #include "DetectorDescription/Core/interface/DDSolid.h"
 #include "DetectorDescription/Core/interface/DDConstant.h"
-#include "DetectorDescription/Core/interface/DDVectorGetter.h"
 #include "DetectorDescription/RegressionTest/interface/DDErrorDetection.h"
 #include "CondFormats/GeometryObjects/interface/HcalParameters.h"
 
@@ -236,13 +235,9 @@ void HcalGeomParameters::loadGeometry(const DDFilteredView& _fv, HcalParameters&
   loadfinal(php);
 }
 
-void HcalGeomParameters::loadGeometry(const cms::DDCompactView* cpv, HcalParameters& php) {
-  cms::DDFilteredView fv(cpv->detector(), cpv->detector()->worldVolume());
-  std::string attribute = "OnlyForHcalSimNumbering";
-  cms::DDSpecParRefs ref;
-  const cms::DDSpecParRegistry& mypar = cpv->specpars();
-  mypar.filter(ref, attribute, "HCAL");
-  fv.mergedSpecifics(ref);
+void HcalGeomParameters::loadGeometry(const cms::DDCompactView& cpv, HcalParameters& php) {
+  const cms::DDFilter filter("OnlyForHcalSimNumbering", "HCAL");
+  cms::DDFilteredView fv(cpv, filter);
   clear(php);
   bool hf(false);
   while (fv.firstChild()) {

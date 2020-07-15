@@ -5,10 +5,10 @@ hcalOOTPileupESProducer = cms.ESProducer('OOTPileupDBCompatibilityESProducer')
 
 from RecoLocalCalo.HcalRecProducers.HBHEPhase1Reconstructor_cfi import hbheprereco as _phase1_hbheprereco
 hbheprereco = _phase1_hbheprereco.clone(
-    processQIE11 = cms.bool(False),
-    tsFromDB = cms.bool(True),
+    processQIE11 = False,
+    tsFromDB = True,
     pulseShapeParametersQIE8 = dict(
-        TrianglePeakTS = cms.uint32(4),
+        TrianglePeakTS = 4,
     )
 )
 

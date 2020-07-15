@@ -1,5 +1,5 @@
-<use   name="rootcore"/>
-<use   name="FWCore/Utilities"/>
+<use name="rootcore"/>
+<use name="FWCore/Utilities"/>
 <export>
-  <lib   name="1"/>
+  <lib name="1"/>
 </export>

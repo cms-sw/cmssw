@@ -77,10 +77,8 @@ process.load("DQM.DTMonitorClient.dtResolutionTestFinalCalib_cfi")
 process.modulo=process.resolutionTest.clone()
 
 process.source.processingMode = "RunsAndLumis"
-process.DQMStore.referenceFileName = ''
 process.dqmSaver.convention = 'Offline'
 process.dqmSaver.workflow = '/Muon/Dt/Test1'
-process.DQMStore.collateHistograms = False
 process.EDMtoMEConverter.convertOnEndLumi = True
 process.EDMtoMEConverter.convertOnEndRun = False
 

@@ -1,7 +1,7 @@
-<use   name="boost"/>
-<use   name="FWCore/Framework"/>
-<use   name="RecoJets/JetProducers"/>
-<use   name="DataFormats/HeavyIonEvent"/>
+<use name="boost"/>
+<use name="FWCore/Framework"/>
+<use name="RecoJets/JetProducers"/>
+<use name="DataFormats/HeavyIonEvent"/>
 <export>
-  <lib   name="1"/>
+  <lib name="1"/>
 </export>

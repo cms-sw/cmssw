@@ -15,7 +15,7 @@ void HcalZDCLowGainFractionsHandler::getNewObjects() {
                                                  <<
       //check whats already inside of database
       "got offlineInfo" << tagInfo().name << ", size " << tagInfo().size << ", last object valid since "
-                                                 << tagInfo().lastInterval.first << std::endl;
+                                                 << tagInfo().lastInterval.since << std::endl;
 
   if (!myDBObject)
     throw cms::Exception("Empty DB object")

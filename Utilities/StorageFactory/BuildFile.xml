@@ -1,11 +1,11 @@
-<use   name="FWCore/PluginManager"/>
-<use   name="FWCore/MessageLogger"/>
-<use   name="FWCore/Utilities"/>
-<use   name="FWCore/ServiceRegistry"/>
-<use   name="boost"/>
-<use   name="openssl"/>
-<use   name="tbb"/>
-<flags   cppflags="-D_FILE_OFFSET_BITS=64"/>
+<use name="FWCore/PluginManager"/>
+<use name="FWCore/MessageLogger"/>
+<use name="FWCore/Utilities"/>
+<use name="FWCore/ServiceRegistry"/>
+<use name="boost"/>
+<use name="openssl"/>
+<use name="tbb"/>
+<flags cppflags="-D_FILE_OFFSET_BITS=64"/>
 <export>
-  <lib   name="1"/>
+  <lib name="1"/>
 </export>

@@ -21,10 +21,10 @@ namespace ticl {
           max_cluster_size_(ps.getParameter<int>("max_cluster_size")) {}
     ~ClusterFilterByAlgoAndSize() override{};
 
-    std::unique_ptr<HgcalClusterFilterMask> filter(const std::vector<reco::CaloCluster>& layerClusters,
-                                                   const HgcalClusterFilterMask& availableLayerClusters,
-                                                   std::vector<float>& layerClustersMask,
-                                                   hgcal::RecHitTools& rhtools) const override {
+    void filter(const std::vector<reco::CaloCluster>& layerClusters,
+                const HgcalClusterFilterMask& availableLayerClusters,
+                std::vector<float>& layerClustersMask,
+                hgcal::RecHitTools& rhtools) const override {
       auto filteredLayerClusters = std::make_unique<HgcalClusterFilterMask>();
       for (auto const& cl : availableLayerClusters) {
         auto const& layerCluster = layerClusters[cl.first];
@@ -36,7 +36,6 @@ namespace ticl {
           layerClustersMask[cl.first] = 0.;
         }
       }
-      return filteredLayerClusters;
     }
 
   private:

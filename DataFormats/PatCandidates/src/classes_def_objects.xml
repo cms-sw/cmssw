@@ -248,7 +248,8 @@
              newObj->setPflowIsolationVariables(pfIsoVar);]]>
   </ioread>
 
-  <class name="pat::Jet"  ClassVersion="16">
+  <class name="pat::Jet"  ClassVersion="17">
+   <version ClassVersion="17" checksum="739868501"/>
    <field name="daughtersTemp_" transient="true"/>
    <version ClassVersion="16" checksum="4069285947"/>
    <version ClassVersion="15" checksum="727883729"/>
@@ -272,7 +273,8 @@
   <ioread sourceClass = "pat::Jet" version="[1-]" targetClass="pat::Jet" source="" target="daughtersTemp_">
     <![CDATA[daughtersTemp_.reset();]]>
   </ioread>
-  <class name="pat::MET"  ClassVersion="16">
+  <class name="pat::MET"  ClassVersion="17">
+    <version ClassVersion="17" checksum="1526897576"/>
     <version ClassVersion="16" checksum="2416242778"/>
     <field name="corMap_" transient="true"/>
    <version ClassVersion="15" checksum="428901429"/>

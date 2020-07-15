@@ -37,6 +37,10 @@ CSCMotherboard::CSCMotherboard(unsigned endcap,
 
   clct_to_alct = tmbParams_.getParameter<bool>("clctToAlct");
 
+  // special tmb bits
+  useHighMultiplicityBits_ = tmbParams_.getParameter<bool>("useHighMultiplicityBits");
+  highMultiplicityBits_ = 0;
+
   // whether to readout only the earliest two LCTs in readout window
   readout_earliest_2 = tmbParams_.getParameter<bool>("tmbReadoutEarliest2");
 
@@ -141,6 +145,10 @@ void CSCMotherboard::run(const CSCWireDigiCollection* wiredc, const CSCComparato
   // if there are no ALCTs and no CLCTs, it does not make sense to run this TMB
   if (alctV.empty() and clctV.empty())
     return;
+
+  // encode high multiplicity bits
+  unsigned alctBits = alctProc->getHighMultiplictyBits();
+  encodeHighMultiplicityBits(alctBits);
 
   // CLCT-centric matching
   if (clct_to_alct) {
@@ -478,9 +486,23 @@ CSCCorrelatedLCTDigi CSCMotherboard::constructLCTs(const CSCALCTDigi& aLCT,
   // Bunch crossing: get it from cathode LCT if anode LCT is not there.
   int bx = aLCT.isValid() ? aLCT.getBX() : cLCT.getBX();
 
+  // in Run-3 we plan to use the synchronization error bit
+  // to denote the presence of exotic signatures in the chamber
+  unsigned int syncErr = useHighMultiplicityBits_ ? highMultiplicityBits_ : 0;
+
   // construct correlated LCT
-  CSCCorrelatedLCTDigi thisLCT(
-      trknmb, 1, quality, aLCT.getKeyWG(), cLCT.getKeyStrip(), pattern, cLCT.getBend(), bx, 0, 0, 0, theTrigChamber);
+  CSCCorrelatedLCTDigi thisLCT(trknmb,
+                               1,
+                               quality,
+                               aLCT.getKeyWG(),
+                               cLCT.getKeyStrip(),
+                               pattern,
+                               cLCT.getBend(),
+                               bx,
+                               0,
+                               0,
+                               syncErr,
+                               theTrigChamber);
   thisLCT.setType(type);
   // make sure to shift the ALCT BX from 8 to 3 and the CLCT BX from 8 to 7!
   thisLCT.setALCT(getBXShiftedALCT(aLCT));
@@ -603,4 +625,13 @@ CSCCLCTDigi CSCMotherboard::getBXShiftedCLCT(const CSCCLCTDigi& cLCT) const {
   CSCCLCTDigi cLCT_shifted = cLCT;
   cLCT_shifted.setBX(cLCT_shifted.getBX() - alctClctOffset_);
   return cLCT_shifted;
+}
+
+void CSCMotherboard::encodeHighMultiplicityBits(unsigned alctBits) {
+  // encode the high multiplicity bits in the (O)TMB based on
+  // the high multiplicity bits from the ALCT processor
+  // draft version: simply rellay the ALCT bits.
+  // future versions may involve also bits from the CLCT processor
+  // this depends on memory constraints in the TMB FPGA
+  highMultiplicityBits_ = alctBits;
 }

@@ -60,8 +60,8 @@ TrackerCollisionTrackMon.doSeedETAHisto       = cms.bool(False)
 TrackerCollisionTrackMon.doSeedVsClusterHisto = cms.bool(False)
 
 # Number of Tracks per Event
-TrackerCollisionTrackMon.TkSizeBin             = cms.int32(200)
-TrackerCollisionTrackMon.TkSizeMax             = cms.double(999.5)                        
+TrackerCollisionTrackMon.TkSizeBin             = cms.int32(600)
+TrackerCollisionTrackMon.TkSizeMax             = cms.double(2999.5)                        
 TrackerCollisionTrackMon.TkSizeMin             = cms.double(-0.5)
 
 # chi2 dof
@@ -79,6 +79,16 @@ TrackerCollisionTrackMon.TCSizeBin = cms.int32(100)
 TrackerCollisionTrackMon.TCSizeMax = cms.double(499.5)
 TrackerCollisionTrackMon.TCSizeMin = cms.double(-0.5)
 
-TrackerCollisionTrackMon.GoodPVtxBin = cms.int32(60)
-TrackerCollisionTrackMon.GoodPVtxMin = cms.double( 0.)
-TrackerCollisionTrackMon.GoodPVtxMax = cms.double(60.)
+TrackerCollisionTrackMon.GoodPVtx.GoodPVtxBin = cms.int32(60)
+TrackerCollisionTrackMon.GoodPVtx.GoodPVtxMin = cms.double( 0.)
+TrackerCollisionTrackMon.GoodPVtx.GoodPVtxMax = cms.double(60.)
+
+
+from Configuration.Eras.Modifier_run3_common_cff import run3_common
+run3_common.toModify(TrackerCollisionTrackMon, GoodPVtx=dict(GoodPVtxBin = 150, GoodPVtxMax = 150.))
+run3_common.toModify(TrackerCollisionTrackMon, NTrkPVtx=dict(NTrkPVtxMax = 200.))
+run3_common.toModify(TrackerCollisionTrackMon, NClusStrMax = 299999.5)
+run3_common.toModify(TrackerCollisionTrackMon, NTrk2D=dict(NTrk2DBin = 100, NTrk2DMax = 5999.5))
+run3_common.toModify(TrackerCollisionTrackMon, PVBin = 75, PVMax = 149.5)
+run3_common.toModify(TrackerCollisionTrackMon, TkSizeMax = 5999.5)
+

@@ -7,6 +7,44 @@ process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(1))
 process.load("Configuration.Geometry.GeometryIdeal_cff")
 process.load("Geometry.MuonNumbering.muonNumberingInitialization_cfi")
 
+process.DTGeometryAlInputDB = cms.ESProducer("DTGeometryESModule",
+    appendToDataLabel = cms.string('idealForInputDB'),
+    applyAlignment = cms.bool(False), 
+    alignmentsLabel = cms.string(''),
+    fromDDD = cms.bool(True)
+)
+
+process.CSCGeometryAlInputDB = cms.ESProducer("CSCGeometryESModule",
+    appendToDataLabel = cms.string('idealForInputDB'),
+    debugV = cms.untracked.bool(False),
+    useGangedStripsInME1a = cms.bool(False),
+    alignmentsLabel = cms.string(''),
+    useOnlyWiresInME1a = cms.bool(False),
+    useRealWireGeometry = cms.bool(True),
+    useCentreTIOffsets = cms.bool(False),
+    applyAlignment = cms.bool(False), 
+    useDDD = cms.bool(True)
+)
+
+process.DTGeometryAlOutputXML = cms.ESProducer("DTGeometryESModule",
+    appendToDataLabel = cms.string('idealForOutputXML'),
+    applyAlignment = cms.bool(False), 
+    alignmentsLabel = cms.string(''),
+    fromDDD = cms.bool(True)
+)
+
+process.CSCGeometryAlOutputXML = cms.ESProducer("CSCGeometryESModule",
+    appendToDataLabel = cms.string('idealForOutputXML'),
+    debugV = cms.untracked.bool(False),
+    useGangedStripsInME1a = cms.bool(False),
+    alignmentsLabel = cms.string(''),
+    useOnlyWiresInME1a = cms.bool(False),
+    useRealWireGeometry = cms.bool(True),
+    useCentreTIOffsets = cms.bool(False),
+    applyAlignment = cms.bool(False), 
+    useDDD = cms.bool(True)
+)
+
 process.load("CondCore.DBCommon.CondDBSetup_cfi")
 process.PoolDBESSource = cms.ESSource("PoolDBESSource",
     process.CondDBSetup,

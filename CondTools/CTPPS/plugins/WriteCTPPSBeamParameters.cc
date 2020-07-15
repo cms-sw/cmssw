@@ -28,7 +28,7 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "CondCore/DBOutputService/interface/PoolDBOutputService.h"
 
-#include "CondFormats/CTPPSReadoutObjects/interface/CTPPSBeamParameters.h"
+#include "CondFormats/PPSObjects/interface/CTPPSBeamParameters.h"
 #include "CondFormats/DataRecord/interface/CTPPSBeamParametersRcd.h"
 
 #include <cstdint>

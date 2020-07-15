@@ -19,7 +19,7 @@
 class CMSHadronPhysicsFTFP_BERT : public G4VPhysicsConstructor {
 public:
   explicit CMSHadronPhysicsFTFP_BERT(G4int verb);
-  explicit CMSHadronPhysicsFTFP_BERT(G4double e1, G4double e2);
+  explicit CMSHadronPhysicsFTFP_BERT(G4double e1, G4double e2, G4double e3);
   ~CMSHadronPhysicsFTFP_BERT() override;
 
   void ConstructParticle() override;
@@ -39,6 +39,7 @@ private:
 
   G4double minFTFP_;
   G4double maxBERT_;
+  G4double maxBERTpi_;
 };
 
 #endif

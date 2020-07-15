@@ -2,7 +2,6 @@ import FWCore.ParameterSet.Config as cms
 
 #from DQM.HLTEvF.HLTEventInfoClient_cfi import *
 
-#from DQMOffline.Trigger.GeneralHLTOfflineClient_cff import *
 from DQMOffline.Trigger.EgHLTOfflineClient_cfi import *
 from DQMOffline.Trigger.MuonPostProcessor_cff import *
 #from DQMOffline.Trigger.BPAGPostProcessor_cff import *

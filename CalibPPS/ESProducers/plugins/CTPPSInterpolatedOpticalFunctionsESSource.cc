@@ -13,8 +13,8 @@
 #include "CondFormats/DataRecord/interface/CTPPSInterpolatedOpticsRcd.h"
 
 #include "CondFormats/RunInfo/interface/LHCInfo.h"
-#include "CondFormats/CTPPSReadoutObjects/interface/LHCOpticalFunctionsSetCollection.h"
-#include "CondFormats/CTPPSReadoutObjects/interface/LHCInterpolatedOpticalFunctionsSetCollection.h"
+#include "CondFormats/PPSObjects/interface/LHCOpticalFunctionsSetCollection.h"
+#include "CondFormats/PPSObjects/interface/LHCInterpolatedOpticalFunctionsSetCollection.h"
 
 class CTPPSInterpolatedOpticalFunctionsESSource : public edm::ESProducer {
 public:

@@ -216,8 +216,15 @@ HGCalRecHit = cms.EDProducer(
     layerWeights = dEdX.weights,
     layerNoseWeights = dEdX.weightsNose,
 
-    thicknessCorrection = cms.vdouble(1.132,1.092,1.084), # 100, 200, 300 um
+    #With the new regional em factors there are 7 different factors used. 
+    #Six of them are for silicon and one for scint. For silicon it is in the following order
+    # CE_E_120um, CE_E_200um, CE_E_300um, CE_H_120um, CE_H_200um, CE_H_300um
+    thicknessCorrection = cms.vdouble(1.132,1.092,1.084, 1.0, 1.0, 1.0), # 100, 200, 300 um
+    deltasi_index_regemfac = cms.int32(3),
+    #One factor for scint 
+    sciThicknessCorrection = cms.double(1.0),
     thicknessNoseCorrection = cms.vdouble(1.132,1.092,1.084), # 100, 200, 300 um
+ 
     HGCEE_noise_fC = hgceeDigitizer.digiCfg.noise_fC,
     HGCEE_cce = hgceeDigitizer.digiCfg.chargeCollectionEfficiencies,
     HGCHEF_noise_fC = hgchefrontDigitizer.digiCfg.noise_fC,
@@ -237,7 +244,8 @@ HGCalRecHit = cms.EDProducer(
 
     )
 
-phase2_hgcalV9.toModify( HGCalRecHit , thicknessCorrection = [0.759,0.760,0.773] ) #120um, 200um, 300um
-phase2_hgcalV10.toModify( HGCalRecHit , thicknessCorrection = [0.781,0.775,0.769] ) #120um, 200um, 300um
+# For silicon the order is: CE_E_120um, CE_E_200um, CE_E_300um, CE_H_120um, CE_H_200um, CE_H_300um
+phase2_hgcalV9.toModify( HGCalRecHit , thicknessCorrection = [0.759,0.760,0.773, 1.0, 1.0, 1.0] ) 
+phase2_hgcalV10.toModify( HGCalRecHit , thicknessCorrection = [0.77, 0.77, 0.77, 0.84, 0.84, 0.84] , sciThicknessCorrection =  cms.double(0.90) ) 
 
 phase2_hfnose.toModify( HGCalRecHit , thicknessNoseCorrection = [0.759,0.760,0.773])

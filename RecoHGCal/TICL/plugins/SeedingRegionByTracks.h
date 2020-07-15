@@ -23,8 +23,6 @@
 #include "Geometry/CommonDetUnit/interface/GeomDet.h"
 #include "CommonTools/Utils/interface/StringCutObjectSelector.h"
 
-class HGCGraph;
-
 namespace ticl {
   class SeedingRegionByTracks final : public SeedingRegionAlgoBase {
   public:

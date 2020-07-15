@@ -1,12 +1,11 @@
-<flags   CPPFLAGS="-DWITHOUT_CMS_FRAMEWORK=0"/>
-<use   name="FWCore/Framework"/>
-<use   name="FWCore/ParameterSet"/>
-<use   name="FWCore/ServiceRegistry"/>
-<use   name="FWCore/Utilities"/>
-<use   name="FWCore/Version"/>
-<use   name="classlib"/>
-<use   name="roothistmatrix"/>
-<use   name="protobuf"/>
+<use name="FWCore/Framework"/>
+<use name="FWCore/ParameterSet"/>
+<use name="FWCore/ServiceRegistry"/>
+<use name="FWCore/Utilities"/>
+<use name="FWCore/Version"/>
+<use name="classlib"/>
+<use name="roothistmatrix"/>
+<use name="protobuf"/>
 <export>
-  <lib   name="1"/>
+  <lib name="1"/>
 </export>

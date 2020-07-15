@@ -6,7 +6,6 @@ process.load("DQM.HLTEvF.HLTMonitor_cff")
 process.load("DQMServices.Core.DQM_cfg")
 
 ### include your reference file
-process.DQMStore.referenceFileName = 'ref.root'
 
 process.load("DQMServices.Components.DQMEnvironment_cfi")
 

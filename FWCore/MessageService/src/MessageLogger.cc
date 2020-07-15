@@ -107,18 +107,16 @@ using namespace edm;
 using namespace edm::service;
 
 namespace {
-  char const* const s_globalTransitionNames[] = {
-      "@beginJob", "@beginRun", "@beginLumi", "@endLumi", "@endRun", "@endJob", "@writeRun", "@writeLumi"};
+  constexpr std::array<char const*, 8> s_globalTransitionNames = {
+      {"@beginJob", "@beginRun", "@beginLumi", "@endLumi", "@endRun", "@endJob", "@writeRun", "@writeLumi"}};
 
-  char const* const s_streamTransitionNames[] = {
-      "@beginStream",
-      "@streamBeginRun",
-      "@streamBeginLumi",
-      "",  //event
-      "@streamEndLumi",
-      "@streamEndRun",
-      "@endStream",
-  };
+  constexpr std::array<char const*, 7> s_streamTransitionNames = {{"@beginStream",
+                                                                   "@streamBeginRun",
+                                                                   "@streamBeginLumi",
+                                                                   "",  //event
+                                                                   "@streamEndLumi",
+                                                                   "@streamEndRun",
+                                                                   "@endStream"}};
 
   char* fill_buffer(char* p, char*) { return p; }
 
@@ -673,7 +671,10 @@ namespace edm {
       MessageDrop::instance()->setSinglet("AfterBeginJob");  // Change Log 17
     }
 
-    void MessageLogger::preSourceEvent(StreamID) { establish("source"); }
+    void MessageLogger::preSourceEvent(StreamID) {
+      establish("source");
+      MessageDrop::instance()->runEvent = "PreSource";
+    }
     void MessageLogger::postSourceEvent(StreamID) {
       unEstablish("AfterSource");
       MessageDrop::instance()->runEvent = "AfterSource";

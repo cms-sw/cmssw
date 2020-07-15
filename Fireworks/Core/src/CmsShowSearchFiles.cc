@@ -15,6 +15,7 @@
 #include "TSystem.h"
 #include "TVirtualX.h"
 #include "TPRegexp.h"
+#include "TVirtualX.h"
 #include "Fireworks/Core/interface/CmsShowSearchFiles.h"
 #include "Fireworks/Core/interface/fwLog.h"
 #include "Fireworks/Core/interface/fwPaths.h"
@@ -46,22 +47,6 @@ const static char* const s_prefixes[][s_columns] = {{"http://", "Web site known 
 static const std::string s_httpPrefix("http:");
 static const std::string s_filePrefix("file:");
 static const std::string s_rootPostfix(".root");
-
-namespace {
-  float getURLResponseTime(const char* url) {
-    TString com = "ping -q -c 1 -n " + TString(url) + "| tail -n 1";
-    FILE* p = gSystem->OpenPipe(com, "r");
-    TString l;
-    l.Gets(p);
-    gSystem->ClosePipe(p);
-
-    TPMERegexp re("([\\d\\.]+)");
-    if (re.Match(l))
-      return re[1].Atof();
-    else
-      return -1;
-  }
-}  // namespace
 
 CmsShowSearchFiles::CmsShowSearchFiles(
     const char* filename, const char* windowname, const TGWindow* p, UInt_t w, UInt_t h)
@@ -98,15 +83,9 @@ CmsShowSearchFiles::CmsShowSearchFiles(
   cancel->Connect("Clicked()", "CmsShowSearchFiles", this, "UnmapWindow()");
 
   SetWindowName(windowname);
-  float x1 = getURLResponseTime("lxplus.cern.ch");
-  float x2 = getURLResponseTime("uaf.t2.ucsd.edu");
-  // printf("timtes %f %f \n", x1, x2); fflush(stdout);
 
-  std::string path;
-  if (x1 > 0 && x1 < x2)
-    path = Form("http://fireworks.web.cern.ch/fireworks/%d/", fireworks::supportedDataFormatsVersion()[0]);
-  else if (x2 > 0)
-    path = Form("http://uaf.t2.ucsd.edu/fireworks/%d/", fireworks::supportedDataFormatsVersion()[0]);
+  std::string path =
+      Form("http://cmsshow-rels.web.cern.ch/cmsShow-rels/samples/%d/", fireworks::supportedDataFormatsVersion()[0]);
 
   if (!path.empty())
     fwLog(fwlog::kInfo) << "Search files at " << path << "." << std::endl;

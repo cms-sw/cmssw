@@ -1,0 +1,8 @@
+<use name="DataFormats/Common"/>
+<use name="DataFormats/Phase2TrackerDigi"/>
+<use name="DataFormats/L1Trigger"/>
+<use name="DataFormats/L1TrackTrigger"/>
+<use name="rootrflx"/>
+<export>
+  <lib name="1"/>
+</export>

@@ -25,7 +25,7 @@ process.totemDAQMappingESSourceXML.subSystem = "TrackingStrip"
 process.totemDAQMappingESSourceXML.configuration = cms.VPSet(
   cms.PSet(
     validityRange = cms.EventRange("1:min - 999999999:max"),
-    mappingFileNames = cms.vstring("CondFormats/CTPPSReadoutObjects/xml/mapping_tracking_strip_2017.xml"),
+    mappingFileNames = cms.vstring("CondFormats/PPSObjects/xml/mapping_tracking_strip_2017.xml"),
     maskFileNames = cms.vstring()
   )
 )

@@ -38,6 +38,7 @@ public:
   GlobalPoint getTriggerCellPosition(const unsigned) const final;
   GlobalPoint getModulePosition(const unsigned) const final;
 
+  bool validCell(const unsigned) const final;
   bool validTriggerCell(const unsigned) const final;
   bool disconnectedModule(const unsigned) const final;
   unsigned lastTriggerLayer() const final { return last_trigger_layer_; }
@@ -658,6 +659,32 @@ void HGCalTriggerGeometryHexLayerBasedImp1::unpackWaferCellId(unsigned wafer_cel
 void HGCalTriggerGeometryHexLayerBasedImp1::unpackIetaIphi(unsigned ieta_iphi, unsigned& ieta, unsigned& iphi) const {
   iphi = ieta_iphi & HcalDetId::kHcalPhiMask2;
   ieta = (ieta_iphi >> HcalDetId::kHcalEtaOffset2) & HcalDetId::kHcalEtaMask2;
+}
+
+bool HGCalTriggerGeometryHexLayerBasedImp1::validCell(unsigned cell_id) const {
+  bool is_valid = false;
+  if (DetId(cell_id).det() == DetId::Hcal) {
+    HcalDetId cell_det_id(cell_id);
+    if (cell_det_id.subdetId() != HcalEndcap)
+      is_valid = false;
+    else
+      is_valid = bhTopology().valid(cell_id);
+  } else if (DetId(cell_id).det() == DetId::Forward) {
+    HGCalDetId cell_det_id(cell_id);
+    unsigned subdet = cell_det_id.subdetId();
+    switch (subdet) {
+      case ForwardSubdetector::HGCEE:
+        is_valid = eeTopology().valid(cell_id);
+        break;
+      case ForwardSubdetector::HGCHEF:
+        is_valid = fhTopology().valid(cell_id);
+        break;
+      default:
+        is_valid = false;
+        break;
+    }
+  }
+  return is_valid;
 }
 
 bool HGCalTriggerGeometryHexLayerBasedImp1::validTriggerCell(const unsigned trigger_cell_id) const {

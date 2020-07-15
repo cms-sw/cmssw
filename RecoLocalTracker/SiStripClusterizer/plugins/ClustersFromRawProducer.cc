@@ -21,14 +21,13 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Utilities/interface/Likely.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <sstream>
 #include <memory>
 #include <atomic>
 #include <mutex>
-
-#include "FWCore/Utilities/interface/GCC11Compatibility.h"
 
 // #define VIDEBUG
 #ifdef VIDEBUG
@@ -397,10 +396,8 @@ void ClusterFiller::fill(StripClusterizerAlgorithm::output_t::TSFastFiller& reco
                                                              lmode,
                                                              pCode);
             if (fedchannelunpacker::StatusCode::SUCCESS == st_ch) {
-              SiStripRawProcessingAlgorithms::digivector_t workRawDigis;
-              rawAlgos.convertHybridDigiToRawDigiVector(unpDigis, workRawDigis);
               edm::DetSet<SiStripDigi> suppDigis{id};
-              rawAlgos.suppressHybridData(id, ipair * 2, workRawDigis, suppDigis);
+              rawAlgos.suppressHybridData(unpDigis, suppDigis, ipair * 2);
               std::copy(std::begin(suppDigis), std::end(suppDigis), perStripAdder);
             }
           }

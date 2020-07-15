@@ -14,7 +14,7 @@ void HcalSiPMCharacteristicsHandler::getNewObjects() {
   //check whats already inside of database
   edm::LogInfo("HcalCondTools") << "------- " << m_name << " - > getNewObjects\n"
                                 << "got offlineInfo " << tagInfo().name << ", size " << tagInfo().size
-                                << ", last object valid since " << tagInfo().lastInterval.first << std::endl;
+                                << ", last object valid since " << tagInfo().lastInterval.since << std::endl;
 
   if (!myDBObject)
     throw cms::Exception("Empty DB object")

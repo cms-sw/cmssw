@@ -90,11 +90,12 @@ void SiStripDetVOffPrinter::analyze(const edm::Event& evt, const edm::EventSetup
   // query the database
   edm::LogInfo("SiStripDetVOffPrinter") << "[SiStripDetVOffPrinter::" << __func__ << "] "
                                         << "Reading IOVs from tag " << m_tagName;
-  cond::persistency::IOVProxy iovProxy = condDbSession.readIov(m_tagName, true);  // load all?
-  auto iiov = iovProxy.find(startIov);
-  auto eiov = iovProxy.find(endIov);
+  cond::persistency::IOVProxy iovProxy = condDbSession.readIov(m_tagName);  // load all?
+  auto iovs = iovProxy.selectAll();
+  auto iiov = iovs.find(startIov);
+  auto eiov = iovs.find(endIov);
   int niov = 0;
-  while (iiov != iovProxy.end() && (*iiov).since <= (*eiov).since) {
+  while (iiov != iovs.end() && (*iiov).since <= (*eiov).since) {
     // convert cond::Time_t to seconds since epoch
     if ((*iiov).since < startIov) {
       vTime.push_back(startIov);

@@ -83,7 +83,6 @@ if checkFile SingleMuPt10_step3_RECO_DQM_PhaseII.root ; then
 -s RAW2DIGI,L1Reco,RECO,VALIDATION:@phase2Validation,DQM:@phase2 \
 --conditions auto:phase2_realistic \
 -n -1  \
---runUnscheduled \
 --era Phase2C2  \
 --eventcontent FEVTDEBUGHLT,DQM  \
 --datatier GEN-SIM-RECO,DQMIO  \

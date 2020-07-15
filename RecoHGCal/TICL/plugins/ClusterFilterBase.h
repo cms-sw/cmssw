@@ -23,10 +23,10 @@ namespace ticl {
     explicit ClusterFilterBase(const edm::ParameterSet&){};
     virtual ~ClusterFilterBase(){};
 
-    virtual std::unique_ptr<HgcalClusterFilterMask> filter(const std::vector<reco::CaloCluster>& layerClusters,
-                                                           const HgcalClusterFilterMask& mask,
-                                                           std::vector<float>& layerClustersMask,
-                                                           hgcal::RecHitTools& rhtools) const = 0;
+    virtual void filter(const std::vector<reco::CaloCluster>& layerClusters,
+                        const HgcalClusterFilterMask& mask,
+                        std::vector<float>& layerClustersMask,
+                        hgcal::RecHitTools& rhtools) const = 0;
   };
 }  // namespace ticl
 

@@ -13,7 +13,6 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "SimDataFormats/CaloHit/interface/CastorShowerLibraryInfo.h"
 #include "SimDataFormats/CaloHit/interface/CastorShowerEvent.h"
-#include "DetectorDescription/Core/interface/DDsvalues.h"
 
 #include "G4ParticleTable.hh"
 #include "G4ThreeVector.hh"

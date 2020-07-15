@@ -4,8 +4,6 @@
 #include "TrackingTools/PatternTools/interface/Trajectory.h"
 #include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHit.h"
 
-#include "FWCore/Utilities/interface/GCC11Compatibility.h"
-
 #include <memory>
 
 class TrajectorySeed;

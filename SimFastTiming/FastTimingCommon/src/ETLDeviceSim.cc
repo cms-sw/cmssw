@@ -40,7 +40,7 @@ void ETLDeviceSim::getHitsResponse(const std::vector<std::tuple<int, uint32_t, f
       continue;  // to be ignored at RECO level
 
     ETLDetId etlid(detId);
-    DetId geoId = ETLDetId(etlid.mtdSide(), etlid.mtdRR(), etlid.module(), 0);
+    DetId geoId = ETLDetId(etlid.mtdSide(), etlid.mtdRR(), etlid.module(), etlid.modType());
     const MTDGeomDet* thedet = geom_->idToDet(geoId);
     if (thedet == nullptr) {
       throw cms::Exception("ETLDeviceSim") << "GeographicalID: " << std::hex << geoId.rawId() << " (" << detId.rawId()

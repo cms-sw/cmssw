@@ -1,39 +1,44 @@
-
-<use   name="CondCore/CondDB"/>
-<use   name="CondFormats/Common"/>
-<use   name="DataFormats/StdDictionaries"/>
-<use   name="FWCore/PluginManager"/>
-<use   name="FWCore/Utilities"/>
-
+<use name="CondCore/CondDB"/>
+<use name="FWCore/PluginManager"/>
+<use name="FWCore/Utilities"/>
 <library file="" name="testCondDBDict"/>
-
 <bin file="testReadWritePayloads.cpp" name="testReadWritePayloads">
 </bin>
 
-<bin   file="testConditionDatabase_0.cpp" name="testConditionDatabase_0">
-</bin>
-<bin   file="testConditionDatabase_1.cpp" name="testConditionDatabase_1">
+<bin file="testConditionDatabase_0.cpp" name="testConditionDatabase_0">
 </bin>
 
-<bin   file="testConditionDatabase_2.cpp" name="testConditionDatabase_2">
+<bin file="testConditionDatabase_1.cpp" name="testConditionDatabase_1">
 </bin>
 
-<bin   file="testRootStreaming.cpp" name="testRootStreaming">
+<bin file="testConditionDatabase_2.cpp" name="testConditionDatabase_2">
 </bin>
 
-<bin   file="testPayloadProxy.cpp" name="testPayloadProxy">
+<bin file="testConditionDatabase_3.cpp" name="testConditionDatabase_3">
 </bin>
 
-<bin   file="testFrontier.cpp" name="testFrontier">
+<bin file="testConditionDatabase_4.cpp" name="testConditionDatabase_4">
 </bin>
 
-<bin   file="testRunInfo.cpp" name="testRunInfo">
+<bin file="testRootStreaming.cpp" name="testRootStreaming">
 </bin>
-<bin   file="testGroupSelection.cpp" name="testGroupSelection">
+
+<bin file="testPayloadProxy.cpp" name="testPayloadProxy">
 </bin>
+
+<bin file="testFrontier.cpp" name="testFrontier">
+</bin>
+
+<bin file="testRunInfo.cpp" name="testRunInfo">
+</bin>
+
+<bin file="testGroupSelection.cpp" name="testGroupSelection">
+</bin>
+
 <architecture name="(slc|cc).*_amd64_.*">
-  <bin   file="testConnectionPool.cpp" name="testConnectionPool">
-    <use   name="CondFormats/RunInfo"/>
+  <bin file="testConnectionPool.cpp" name="testConnectionPool">
+    <use name="CondFormats/RunInfo"/>
   </bin>
+
   <test name="condTestRegression" command="condTestRegression.py"/>
 </architecture>

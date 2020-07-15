@@ -1,0 +1,192 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../../../../DetectorDescription/Schema/DDLSchema.xsd">
+
+<ConstantsSection label="totemt2.xml" eval="true">
+  <Constant name="tol"             value="1.0*mm"/>
+  <Constant name="SupportDiskRmin" value="155.0*mm"/>
+  <Constant name="SupportDiskRmax" value="198.0*mm"/>
+  <Constant name="SupportDiskDz"   value="3.0*mm"/>
+  <Constant name="SupportDiskZ1"   value="(-[forward:TotemT2dZ]+[SupportDiskDz])"/>
+  <Constant name="SupportDiskZ2"   value="([forward:TotemT2dZ]-[SupportDiskDz])"/>
+  <Constant name="SupportBoxDyOut" value="102.0*mm"/>
+  <Constant name="SupportBoxDyIn"  value="([SupportBoxDyOut]-9.5*mm)"/>
+  <Constant name="SupportBoxDxOut" value="46.0*mm"/>
+  <Constant name="SupportBoxDxIn"  value="([SupportBoxDxOut]-21.0*mm)"/>
+  <Constant name="SupportBoxDz"    value="3.0*mm"/>
+  <Constant name="T2ScintAng"      value="45.0*deg"/>
+  <Constant name="T2ScintH"        value="105.0*mm"/>
+  <Constant name="T2ScintDy"       value="10.0*mm"/>
+  <Constant name="T2ScintDz"       value="0.5*[T2ScintH]"/>
+  <Constant name="T2ScintDxLow"    value="24.0*mm"/>
+  <Constant name="T2ScintDxTop"    value="([T2ScintDxLow]+[T2ScintH]*tan(0.5*[T2ScintAng]))"/>
+  <Constant name="T2ScintR"        value="([cms:TotemBeamR4]+[T2ScintDz])"/>
+  <Constant name="T2ServiceDz"     value="200*mm"/>
+  <Constant name="T2ScintGap1"     value="1*mm"/>
+  <Constant name="T2ScintGap2"     value="([T2ServiceDz]-4*[T2ScintGap1]-
+                                           16*[T2ScintDy])/3"/>
+  <Constant name="T2ScintZ1"       value="(-0.5*[T2ServiceDz]+[T2ScintDy])"/>
+  <Constant name="T2ScintZ2"       value="([T2ScintZ1]+[T2ScintGap1]+2*[T2ScintDy])"/>
+  <Constant name="T2ScintZ3"       value="([T2ScintZ2]+[T2ScintGap2]+2*[T2ScintDy])"/>
+  <Constant name="T2ScintZ4"       value="([T2ScintZ3]+[T2ScintGap1]+2*[T2ScintDy])"/>
+  <Constant name="T2ScintZ5"       value="([T2ScintZ4]+[T2ScintGap2]+2*[T2ScintDy])"/>
+  <Constant name="T2ScintZ6"       value="([T2ScintZ5]+[T2ScintGap1]+2*[T2ScintDy])"/>
+  <Constant name="T2ScintZ7"       value="([T2ScintZ6]+[T2ScintGap2]+2*[T2ScintDy])"/>
+  <Constant name="T2ScintZ8"       value="([T2ScintZ7]+[T2ScintGap1]+2*[T2ScintDy])"/>
+  <Constant name="SupportBoxR0"    value="([cms:TotemBeamR4]+[T2ScintH])"/>
+  <Constant name="SupportBoxR"     value="(sqrt([SupportBoxR0]*[SupportBoxR0]+
+                                           [T2ScintDxTop]*[T2ScintDxTop])+
+                                           [SupportBoxDz]+[tol])"/>
+</ConstantsSection>
+
+<SolidSection label="totemt2.xml">
+  <Tubs name="TotemT2SupportDisk" rMin="[SupportDiskRmin]" rMax="[SupportDiskRmax]" dz="[SupportDiskDz]" startPhi="0*deg" deltaPhi="360*deg"/>
+  <Box name="TotemT2SupportBox" dx="[SupportBoxDxOut]" dy="[SupportBoxDyOut]" dz="[SupportBoxDz]"/>
+  <Box name="TotemT2SupportBoxIn" dx="[SupportBoxDxIn]" dy="[SupportBoxDyIn]" dz="[SupportBoxDz]"/>
+  <Trapezoid name="TotemT2Scint" dz="[T2ScintDz]" alp1="0*deg" bl1="[T2ScintDxLow]" tl1="[T2ScintDxLow]" h1="[T2ScintDy]" alp2="0*deg" bl2="[T2ScintDxTop]" tl2="[T2ScintDxTop]" h2="[T2ScintDy]" phi="0*deg" theta="0*deg"/>
+</SolidSection>
+
+<LogicalPartSection label="forward.xml">
+  <LogicalPart name="TotemT2SupportDisk" category="unspecified">
+    <rSolid name="TotemT2SupportDisk"/>
+    <rMaterial name="materials:Aluminium"/>
+  </LogicalPart>
+  <LogicalPart name="TotemT2SupportBox" category="unspecified">
+    <rSolid name="TotemT2SupportBox"/>
+    <rMaterial name="materials:Aluminium"/>
+  </LogicalPart>
+  <LogicalPart name="TotemT2SupportBoxIn" category="unspecified">
+    <rSolid name="TotemT2SupportBoxIn"/>
+    <rMaterial name="materials:Air"/>
+  </LogicalPart>
+  <LogicalPart name="TotemT2Scint" category="unspecified">
+    <rSolid name="TotemT2Scint"/>
+    <rMaterial name="materials:Scintillator"/>
+  </LogicalPart>
+</LogicalPartSection>
+
+<PosPartSection label="forward.xml">
+  <PosPart copyNumber="1">
+    <rParent name="forward:TotemT2"/>
+    <rChild name="totemt2:TotemT2SupportDisk"/>
+    <Translation x="0*fm" y="0*fm" z="[SupportDiskZ1]"/>
+  </PosPart>
+  <PosPart copyNumber="2">
+    <rParent name="forward:TotemT2"/>
+    <rChild name="totemt2:TotemT2SupportDisk"/>
+    <Translation x="0*fm" y="0*fm" z="[SupportDiskZ2]"/>
+  </PosPart>
+  <PosPart copyNumber="1">
+    <rParent name="totemt2:TotemT2SupportBox"/>
+    <rChild name="totemt2:TotemT2SupportBoxIn"/>
+  </PosPart>
+  <Algorithm name="forward:DDTotemAngular">
+    <rParent name="forward:TotemT2"/>
+    <String name="ChildName"    value="TotemT2SupportBox"/>
+    <String name="RotNameSpace" value="rotations"/>
+    <Numeric name="n"           value="8"/>
+    <Numeric name="startCopyNo" value="1"/>
+    <Numeric name="incrCopyNo"  value="1"/>
+    <Numeric name="stepAngle"   value="45*deg"/>
+    <Numeric name="startAngle"  value="0*deg"/>
+    <Numeric name="roffset"     value="[SupportBoxR]"/>
+    <Numeric name="zoffset"     value="0*fm"/>
+  </Algorithm>
+  <Algorithm name="forward:DDTotemAngular">
+    <rParent name="forward:TotemT2"/>
+    <String name="ChildName"    value="TotemT2Scint"/>
+    <String name="RotNameSpace" value="rotations"/>
+    <Numeric name="n"           value="4"/>
+    <Numeric name="startCopyNo" value="1"/>
+    <Numeric name="incrCopyNo"  value="2"/>
+    <Numeric name="stepAngle"   value="90*deg"/>
+    <Numeric name="startAngle"  value="22.5*deg"/>
+    <Numeric name="roffset"     value="[T2ScintR]"/>
+    <Numeric name="zoffset"     value="[T2ScintZ1]"/>
+  </Algorithm>
+  <Algorithm name="forward:DDTotemAngular">
+    <rParent name="forward:TotemT2"/>
+    <String name="ChildName"    value="TotemT2Scint"/>
+    <String name="RotNameSpace" value="rotations"/>
+    <Numeric name="n"           value="4"/>
+    <Numeric name="startCopyNo" value="2"/>
+    <Numeric name="incrCopyNo"  value="2"/>
+    <Numeric name="stepAngle"   value="90*deg"/>
+    <Numeric name="startAngle"  value="67.5*deg"/>
+    <Numeric name="roffset"     value="[T2ScintR]"/>
+    <Numeric name="zoffset"     value="[T2ScintZ2]"/>
+  </Algorithm>
+  <Algorithm name="forward:DDTotemAngular">
+    <rParent name="forward:TotemT2"/>
+    <String name="ChildName"    value="TotemT2Scint"/>
+    <String name="RotNameSpace" value="rotations"/>
+    <Numeric name="n"           value="4"/>
+    <Numeric name="startCopyNo" value="11"/>
+    <Numeric name="incrCopyNo"  value="2"/>
+    <Numeric name="stepAngle"   value="90*deg"/>
+    <Numeric name="startAngle"  value="22.5*deg"/>
+    <Numeric name="roffset"     value="[T2ScintR]"/>
+    <Numeric name="zoffset"     value="[T2ScintZ3]"/>
+  </Algorithm>
+  <Algorithm name="forward:DDTotemAngular">
+    <rParent name="forward:TotemT2"/>
+    <String name="ChildName"    value="TotemT2Scint"/>
+    <String name="RotNameSpace" value="rotations"/>
+    <Numeric name="n"           value="4"/>
+    <Numeric name="startCopyNo" value="12"/>
+    <Numeric name="incrCopyNo"  value="2"/>
+    <Numeric name="stepAngle"   value="90*deg"/>
+    <Numeric name="startAngle"  value="67.5*deg"/>
+    <Numeric name="roffset"     value="[T2ScintR]"/>
+    <Numeric name="zoffset"     value="[T2ScintZ4]"/>
+  </Algorithm>
+  <Algorithm name="forward:DDTotemAngular">
+    <rParent name="forward:TotemT2"/>
+    <String name="ChildName"    value="TotemT2Scint"/>
+    <String name="RotNameSpace" value="rotations"/>
+    <Numeric name="n"           value="4"/>
+    <Numeric name="startCopyNo" value="21"/>
+    <Numeric name="incrCopyNo"  value="2"/>
+    <Numeric name="stepAngle"   value="90*deg"/>
+    <Numeric name="startAngle"  value="22.5*deg"/>
+    <Numeric name="roffset"     value="[T2ScintR]"/>
+    <Numeric name="zoffset"     value="[T2ScintZ5]"/>
+  </Algorithm>
+  <Algorithm name="forward:DDTotemAngular">
+    <rParent name="forward:TotemT2"/>
+    <String name="ChildName"    value="TotemT2Scint"/>
+    <String name="RotNameSpace" value="rotations"/>
+    <Numeric name="n"           value="4"/>
+    <Numeric name="startCopyNo" value="22"/>
+    <Numeric name="incrCopyNo"  value="2"/>
+    <Numeric name="stepAngle"   value="90*deg"/>
+    <Numeric name="startAngle"  value="67.5*deg"/>
+    <Numeric name="roffset"     value="[T2ScintR]"/>
+    <Numeric name="zoffset"     value="[T2ScintZ6]"/>
+  </Algorithm>
+  <Algorithm name="forward:DDTotemAngular">
+    <rParent name="forward:TotemT2"/>
+    <String name="ChildName"    value="TotemT2Scint"/>
+    <String name="RotNameSpace" value="rotations"/>
+    <Numeric name="n"           value="4"/>
+    <Numeric name="startCopyNo" value="31"/>
+    <Numeric name="incrCopyNo"  value="2"/>
+    <Numeric name="stepAngle"   value="90*deg"/>
+    <Numeric name="startAngle"  value="22.5*deg"/>
+    <Numeric name="roffset"     value="[T2ScintR]"/>
+    <Numeric name="zoffset"     value="[T2ScintZ7]"/>
+  </Algorithm>
+  <Algorithm name="forward:DDTotemAngular">
+    <rParent name="forward:TotemT2"/>
+    <String name="ChildName"    value="TotemT2Scint"/>
+    <String name="RotNameSpace" value="rotations"/>
+    <Numeric name="n"           value="4"/>
+    <Numeric name="startCopyNo" value="32"/>
+    <Numeric name="incrCopyNo"  value="2"/>
+    <Numeric name="stepAngle"   value="90*deg"/>
+    <Numeric name="startAngle"  value="67.5*deg"/>
+    <Numeric name="roffset"     value="[T2ScintR]"/>
+    <Numeric name="zoffset"     value="[T2ScintZ8]"/>
+  </Algorithm>
+</PosPartSection>
+
+</DDDefinition>

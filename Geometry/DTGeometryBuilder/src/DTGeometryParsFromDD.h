@@ -18,7 +18,7 @@ class DTChamber;
 class DTSuperLayer;
 class DTLayer;
 class Bounds;
-class MuonDDDConstants;
+class MuonGeometryConstants;
 class RecoIdealGeometry;
 
 class DTGeometryParsFromDD {
@@ -30,7 +30,7 @@ public:
   virtual ~DTGeometryParsFromDD();
 
   // Operations
-  void build(const DDCompactView* cview, const MuonDDDConstants& muonConstants, RecoIdealGeometry& rig);
+  void build(const DDCompactView* cview, const MuonGeometryConstants& muonConstants, RecoIdealGeometry& rig);
 
   enum DTDetTag { DTChamberTag, DTSuperLayerTag, DTLayerTag };
 
@@ -38,19 +38,19 @@ private:
   /// create the chamber
   void insertChamber(DDFilteredView& fv,
                      const std::string& type,
-                     const MuonDDDConstants& muonConstants,
+                     const MuonGeometryConstants& muonConstants,
                      RecoIdealGeometry& rig) const;
 
   /// create the SL
   void insertSuperLayer(DDFilteredView& fv,
                         const std::string& type,
-                        const MuonDDDConstants& muonConstants,
+                        const MuonGeometryConstants& muonConstants,
                         RecoIdealGeometry& rig) const;
 
   /// create the layer
   void insertLayer(DDFilteredView& fv,
                    const std::string& type,
-                   const MuonDDDConstants& muonConstants,
+                   const MuonGeometryConstants& muonConstants,
                    RecoIdealGeometry& rig) const;
 
   /// get parameter also for boolean solid.
@@ -60,6 +60,6 @@ private:
 
   PosRotPair plane(const DDFilteredView& fv) const;
 
-  void buildGeometry(DDFilteredView& fv, const MuonDDDConstants& muonConstants, RecoIdealGeometry& rig) const;
+  void buildGeometry(DDFilteredView& fv, const MuonGeometryConstants& muonConstants, RecoIdealGeometry& rig) const;
 };
 #endif

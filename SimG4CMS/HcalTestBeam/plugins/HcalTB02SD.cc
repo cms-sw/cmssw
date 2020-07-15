@@ -16,12 +16,6 @@
 #include "FWCore/Framework/interface/ESTransientHandle.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
-#include "DetectorDescription/Core/interface/DDCompactView.h"
-#include "DetectorDescription/Core/interface/DDFilter.h"
-#include "DetectorDescription/Core/interface/DDFilteredView.h"
-#include "DetectorDescription/Core/interface/DDSolid.h"
-#include "DetectorDescription/Core/interface/DDSplit.h"
-#include "DetectorDescription/Core/interface/DDValue.h"
 #include "HcalTB02SD.h"
 #include "HcalTB02HcalNumberingScheme.h"
 #include "HcalTB02XtalNumberingScheme.h"
@@ -32,6 +26,8 @@
 
 #include "G4SystemOfUnits.hh"
 
+//#define EDM_ML_DEBUG
+
 //
 // constructors and destructor
 //
@@ -41,47 +37,49 @@ HcalTB02SD::HcalTB02SD(const std::string& name,
                        const SensitiveDetectorCatalog& clg,
                        edm::ParameterSet const& p,
                        const SimTrackManager* manager)
-    : CaloSD(name, es, clg, p, manager), numberingScheme(nullptr) {
+    : CaloSD(name, es, clg, p, manager) {
+  numberingScheme_.reset(nullptr);
   edm::ParameterSet m_SD = p.getParameter<edm::ParameterSet>("HcalTB02SD");
-  useBirk = m_SD.getUntrackedParameter<bool>("UseBirkLaw", false);
-  birk1 = m_SD.getUntrackedParameter<double>("BirkC1", 0.013) * (g / (MeV * cm2));
-  birk2 = m_SD.getUntrackedParameter<double>("BirkC2", 0.0568);
-  birk3 = m_SD.getUntrackedParameter<double>("BirkC3", 1.75);
-  useWeight = true;
+  useBirk_ = m_SD.getUntrackedParameter<bool>("UseBirkLaw", false);
+  birk1_ = m_SD.getUntrackedParameter<double>("BirkC1", 0.013) * (CLHEP::g / (CLHEP::MeV * CLHEP::cm2));
+  birk2_ = m_SD.getUntrackedParameter<double>("BirkC2", 0.0568);
+  birk3_ = m_SD.getUntrackedParameter<double>("BirkC3", 1.75);
+  useWeight_ = true;
 
   HcalTB02NumberingScheme* scheme = nullptr;
   if (name == "EcalHitsEB") {
     scheme = dynamic_cast<HcalTB02NumberingScheme*>(new HcalTB02XtalNumberingScheme());
-    useBirk = false;
+    useBirk_ = false;
   } else if (name == "HcalHits") {
     scheme = dynamic_cast<HcalTB02NumberingScheme*>(new HcalTB02HcalNumberingScheme());
-    useWeight = false;
+    useWeight_ = false;
   } else {
     edm::LogWarning("HcalTBSim") << "HcalTB02SD: ReadoutName " << name << " not supported\n";
   }
 
   if (scheme)
     setNumberingScheme(scheme);
-  LogDebug("HcalTBSim") << "***************************************************"
-                        << "\n"
-                        << "*                                                 *"
-                        << "\n"
-                        << "* Constructing a HcalTB02SD  with name " << GetName() << "\n"
-                        << "*                                                 *"
-                        << "\n"
-                        << "***************************************************";
-  edm::LogInfo("HcalTBSim") << "HcalTB02SD:: Use of Birks law is set to      " << useBirk
-                            << "        with three constants kB = " << birk1 << ", C1 = " << birk2
-                            << ", C2 = " << birk3;
-
-  if (useWeight)
-    initMap(name, es);
+#ifdef EDM_ML_DEBUG
+  edm::LogVerbatim("HcalTBSim") << "***************************************************\n"
+                                << "*                                                 *\n"
+                                << "* Constructing a HcalTB02SD  with name " << GetName() << "\n"
+                                << "*                                                 *\n"
+                                << "***************************************************";
+  edm::LogVerbatim("HcalTBSim") << "HcalTB02SD:: Use of Birks law is set to      " << useBirk_
+                                << "        with three constants kB = " << birk1_ << ", C1 = " << birk2_
+                                << ", C2 = " << birk3_;
+#endif
+  // Get pointers to HcalTB02Parameters
+  edm::ESHandle<HcalTB02Parameters> hdc;
+  es.get<IdealGeometryRecord>().get(hdc);
+  if (hdc.isValid()) {
+    hcalTB02Parameters_ = hdc.product();
+  } else {
+    throw cms::Exception("Unknown", "HcalTB02SD") << "Cannot find HcalTB02Parameters\n";
+  }
 }
 
-HcalTB02SD::~HcalTB02SD() {
-  if (numberingScheme)
-    delete numberingScheme;
-}
+HcalTB02SD::~HcalTB02SD() {}
 
 //
 // member functions
@@ -89,64 +87,34 @@ HcalTB02SD::~HcalTB02SD() {
 
 double HcalTB02SD::getEnergyDeposit(const G4Step* aStep) {
   auto const preStepPoint = aStep->GetPreStepPoint();
-  auto const& nameVolume = preStepPoint->GetPhysicalVolume()->GetName();
+  std::string nameVolume = static_cast<std::string>(preStepPoint->GetPhysicalVolume()->GetName());
 
   // take into account light collection curve for crystals
   double weight = 1.;
-  if (useWeight)
+  if (useWeight_)
     weight *= curve_LY(nameVolume, preStepPoint);
-  if (useBirk)
-    weight *= getAttenuation(aStep, birk1, birk2, birk3);
+  if (useBirk_)
+    weight *= getAttenuation(aStep, birk1_, birk2_, birk3_);
   double edep = aStep->GetTotalEnergyDeposit() * weight;
-  LogDebug("HcalTBSim") << "HcalTB02SD:: " << nameVolume << " Light Collection Efficiency " << weight
-                        << " Weighted Energy Deposit " << edep / MeV << " MeV";
+#ifdef EDM_ML_DEBUG
+  edm::LogVerbatim("HcalTBSim") << "HcalTB02SD:: " << nameVolume << " Light Collection Efficiency " << weight
+                                << " Weighted Energy Deposit " << edep / CLHEP::MeV << " MeV";
+#endif
   return edep;
 }
 
 uint32_t HcalTB02SD::setDetUnitId(const G4Step* aStep) {
-  return (numberingScheme == nullptr ? 0 : (uint32_t)(numberingScheme->getUnitID(aStep)));
+  return (numberingScheme_ == nullptr ? 0 : (uint32_t)(numberingScheme_->getUnitID(aStep)));
 }
 
 void HcalTB02SD::setNumberingScheme(HcalTB02NumberingScheme* scheme) {
   if (scheme != nullptr) {
-    edm::LogInfo("HcalTBSim") << "HcalTB02SD: updates numbering scheme for " << GetName();
-    if (numberingScheme)
-      delete numberingScheme;
-    numberingScheme = scheme;
+    edm::LogVerbatim("HcalTBSim") << "HcalTB02SD: updates numbering scheme for " << GetName();
+    numberingScheme_.reset(scheme);
   }
 }
 
-void HcalTB02SD::initMap(const std::string& sd, const edm::EventSetup& es) {
-  edm::ESTransientHandle<DDCompactView> cpv;
-  es.get<IdealGeometryRecord>().get(cpv);
-
-  G4String attribute = "ReadOutName";
-  DDSpecificsMatchesValueFilter filter{DDValue(attribute, sd, 0)};
-  DDFilteredView fv(*cpv, filter);
-  fv.firstChild();
-
-  bool dodet = true;
-  while (dodet) {
-    const DDSolid& sol = fv.logicalPart().solid();
-    const std::vector<double>& paras = sol.parameters();
-    G4String name = sol.name().name();
-    LogDebug("HcalTBSim") << "HcalTB02SD::initMap (for " << sd << "): Solid " << name << " Shape " << sol.shape()
-                          << " Parameter 0 = " << paras[0];
-    if (sol.shape() == DDSolidShape::ddtrap) {
-      double dz = 2 * paras[0];
-      lengthMap.insert(std::pair<G4String, double>(name, dz));
-    }
-    dodet = fv.next();
-  }
-  LogDebug("HcalTBSim") << "HcalTB02SD: Length Table for " << attribute << " = " << sd << ":";
-  std::map<G4String, double>::const_iterator it = lengthMap.begin();
-  int i = 0;
-  for (; it != lengthMap.end(); it++, i++) {
-    LogDebug("HcalTBSim") << " " << i << " " << it->first << " L = " << it->second;
-  }
-}
-
-double HcalTB02SD::curve_LY(const G4String& nameVolume, const G4StepPoint* stepPoint) {
+double HcalTB02SD::curve_LY(const std::string& nameVolume, const G4StepPoint* stepPoint) {
   double weight = 1.;
   G4ThreeVector localPoint = setToLocal(stepPoint->GetPosition(), stepPoint->GetTouchable());
   double crlength = crystalLength(nameVolume);
@@ -160,16 +128,18 @@ double HcalTB02SD::curve_LY(const G4String& nameVolume, const G4StepPoint* stepP
                                  << " crystal name = " << nameVolume << " z of localPoint = " << localPoint.z()
                                  << " take weight = " << weight;
   }
-  LogDebug("HcalTBSim") << "HcalTB02SD, light coll curve : " << dapd << " crlength = " << crlength
-                        << " crystal name = " << nameVolume << " z of localPoint = " << localPoint.z()
-                        << " take weight = " << weight;
+#ifdef EDM_ML_DEBUG
+  edm::LogVerbatim("HcalTBSim") << "HcalTB02SD, light coll curve : " << dapd << " crlength = " << crlength
+                                << " crystal name = " << nameVolume << " z of localPoint = " << localPoint.z()
+                                << " take weight = " << weight;
+#endif
   return weight;
 }
 
-double HcalTB02SD::crystalLength(const G4String& name) {
+double HcalTB02SD::crystalLength(const std::string& name) {
   double length = 230.;
-  std::map<G4String, double>::const_iterator it = lengthMap.find(name);
-  if (it != lengthMap.end())
+  std::map<std::string, double>::const_iterator it = hcalTB02Parameters_->lengthMap_.find(name);
+  if (it != hcalTB02Parameters_->lengthMap_.end())
     length = it->second;
   return length;
 }

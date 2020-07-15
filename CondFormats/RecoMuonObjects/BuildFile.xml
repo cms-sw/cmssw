@@ -1,9 +1,8 @@
-<use   name="FWCore/Utilities"/>
-<use   name="CondFormats/Common"/>
-<use   name="CondFormats/Serialization"/>
-<use   name="CondFormats/PhysicsToolsObjects"/>
-<use   name="boost_serialization"/>
-
+<use name="FWCore/MessageLogger"/>
+<use name="FWCore/Utilities"/>
+<use name="CondFormats/Serialization"/>
+<use name="CondFormats/External"/>
+<use name="DataFormats/DetId"/>
 <export>
-  <lib   name="1"/>
+  <lib name="1"/>
 </export>

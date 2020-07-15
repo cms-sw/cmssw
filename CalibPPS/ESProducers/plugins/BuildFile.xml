@@ -3,7 +3,7 @@
   <use name="FWCore/Framework"/>
   <use name="Utilities/Xerces"/>
   <use name="CondFormats/DataRecord"/>
-  <use name="CondFormats/CTPPSReadoutObjects"/>
+  <use name="CondFormats/PPSObjects"/>
   <use name="DataFormats/CTPPSDetId"/>
   <use name="CondFormats/RunInfo"/>
   <use name="clhep"/>

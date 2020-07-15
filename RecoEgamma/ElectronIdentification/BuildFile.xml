@@ -1,9 +1,9 @@
-<use   name="CondFormats/EgammaObjects"/>
-<use   name="DataFormats/TrackReco"/>
-<use   name="CommonTools/MVAUtils"/>
-<use   name="RecoEgamma/EgammaTools"/>
-<use   name="PhysicsTools/SelectorUtils"/>
-
+<use name="CondFormats/EgammaObjects"/>
+<use name="DataFormats/TrackReco"/>
+<use name="CommonTools/Egamma"/>
+<use name="CommonTools/MVAUtils"/>
+<use name="RecoEgamma/EgammaTools"/>
+<use name="PhysicsTools/SelectorUtils"/>
 <export>
-  <lib   name="1"/>
+  <lib name="1"/>
 </export>

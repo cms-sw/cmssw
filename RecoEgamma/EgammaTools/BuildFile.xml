@@ -1,17 +1,18 @@
-<use   name="FWCore/Framework"/>
-<use   name="DataFormats/HcalRecHit"/>
-<use   name="DataFormats/EgammaReco"/>
-<use   name="DataFormats/EgammaCandidates"/>
-<use   name="Geometry/CaloGeometry"/>
-<use   name="RecoLocalCalo/HGCalRecAlgos"/>
-<use   name="clhep"/>
-<use   name="root"/>
-<use   name="roottmva"/>
-<use   name="CondFormats/DataRecord"/>
-<use   name="CondFormats/EgammaObjects"/>
-<use   name="RecoEcal/EgammaCoreTools"/>
-<use   name="DataFormats/ParticleFlowReco"/>
-<use   name="CommonTools/Utils"/>
+<use name="CommonTools/Egamma"/>
+<use name="CommonTools/Utils"/>
+<use name="FWCore/Framework"/>
+<use name="DataFormats/HcalRecHit"/>
+<use name="DataFormats/EgammaReco"/>
+<use name="DataFormats/EgammaCandidates"/>
+<use name="Geometry/CaloGeometry"/>
+<use name="RecoLocalCalo/HGCalRecAlgos"/>
+<use name="clhep"/>
+<use name="root"/>
+<use name="roottmva"/>
+<use name="CondFormats/DataRecord"/>
+<use name="CondFormats/EgammaObjects"/>
+<use name="RecoEcal/EgammaCoreTools"/>
+<use name="DataFormats/ParticleFlowReco"/>
 <export>
-  <lib   name="1"/>
+  <lib name="1"/>
 </export>

@@ -6,10 +6,9 @@
 <use name="heppdt"/>
 <use name="clhep"/>
 <library name="GeneratorInterfaceHerwig6Hadronizer" file="Herwig6Hadronizer.cc hwudat.F">
-	<use name="GeneratorInterface/Core"/>
-	<use name="GeneratorInterface/Herwig6Interface"/>
-	<use name="GeneratorInterface/ExternalDecays"/>
-	<use name="photos"/>
-	<flags EDM_PLUGIN="1"/>
+  <use name="GeneratorInterface/Core"/>
+  <use name="GeneratorInterface/Herwig6Interface"/>
+  <use name="GeneratorInterface/ExternalDecays"/>
+  <use name="photos"/>
+  <flags EDM_PLUGIN="1"/>
 </library>
-

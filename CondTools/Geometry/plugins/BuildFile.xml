@@ -1,15 +1,12 @@
-<use name="boost"/>
 <use name="root"/>
-
 <use name="CondCore/DBOutputService"/>
+<use name="CondFormats/Common"/>
 <use name="CondFormats/GeometryObjects"/>
-<use name="CondFormats/DataRecord"/>
-
+<use name="DataFormats/CTPPSDetId"/>
 <use name="DetectorDescription/Core"/>
 <use name="FWCore/Framework"/>
 <use name="FWCore/ParameterSet"/>
 <use name="FWCore/ServiceRegistry"/>
-
 <use name="Geometry/Records"/>
 <use name="Geometry/TrackerGeometryBuilder"/>
 <use name="Geometry/TrackerNumberingBuilder"/>
@@ -19,16 +16,15 @@
 <use name="Geometry/HcalTowerAlgo"/>
 <use name="Geometry/ForwardGeometry"/>
 <use name="Geometry/CSCGeometryBuilder"/>
-<use name="Geometry/DTGeometry"/> 
+<use name="Geometry/DTGeometry"/>
 <use name="Geometry/DTGeometryBuilder"/>
 <use name="Geometry/RPCGeometry"/>
 <use name="Geometry/RPCGeometryBuilder"/>
 <use name="Geometry/GEMGeometry"/>
 <use name="Geometry/GEMGeometryBuilder"/>
-<use name="Geometry/MuonNumbering"/>  
-<use name="CondFormats/Alignment"/>
+<use name="Geometry/MuonNumbering"/>
 <use name="Geometry/HGCalGeometry"/>
+<use name="Geometry/VeryForwardGeometryBuilder"/>
 <library file="*.cc" name="CondToolsGeometryPlugins">
- <flags EDM_PLUGIN="1"/>
+  <flags EDM_PLUGIN="1"/>
 </library>
-        

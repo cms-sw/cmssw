@@ -1,5 +1,5 @@
-<use   name="FWCore/Utilities"/>
-<use   name="DataFormats/Common"/>
+<use name="FWCore/Utilities"/>
+<use name="DataFormats/Common"/>
 <export>
-  <lib   name="1"/>
+  <lib name="1"/>
 </export>

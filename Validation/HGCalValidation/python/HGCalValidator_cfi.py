@@ -15,19 +15,21 @@ hgcalValidator = DQMEDAnalyzer(
     #2dlayerclusters, pfclusters, multiclusters
     label_lcl = cms.InputTag("hgcalLayerClusters"),
     label_mcl = cms.VInputTag(
-      cms.InputTag("multiClustersFromTrackstersTrk", "TrkMultiClustersFromTracksterByCA"),
-      cms.InputTag("multiClustersFromTrackstersEM", "MultiClustersFromTracksterByCA"),
-      cms.InputTag("multiClustersFromTrackstersHAD", "MultiClustersFromTracksterByCA"),
-      cms.InputTag("multiClustersFromTrackstersMerge", "MultiClustersFromTracksterByCA")),
+      cms.InputTag("ticlMultiClustersFromTrackstersTrk"),
+      cms.InputTag("ticlMultiClustersFromTrackstersEM"),
+      cms.InputTag("ticlMultiClustersFromTrackstersHAD"),
+      cms.InputTag("ticlMultiClustersFromTrackstersMerge")),
 
     #General info on layers etc.
     SaveGeneralInfo = cms.untracked.bool(True),
     #CaloParticle related plots
     doCaloParticlePlots = cms.untracked.bool(True),
+    #Select caloParticles for efficiency or pass through
+    doCaloParticleSelection = cms.untracked.bool(True),
     #Layer Cluster related plots
     dolayerclustersPlots = cms.untracked.bool(True),
     #Multi Cluster related plots
-    domulticlustersPlots = cms.untracked.bool(False),
+    domulticlustersPlots = cms.untracked.bool(True),
 
     #The cumulative material budget in front of each layer. To be more specific, it
     #is the material budget just in front of the active material (not including it).

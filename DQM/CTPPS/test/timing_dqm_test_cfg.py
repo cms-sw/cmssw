@@ -48,11 +48,11 @@ process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_hlt_relval', '')
 process.load("EventFilter.CTPPSRawToDigi.ctppsRawToDigi_cff")
 
 # local RP reconstruction chain with standard settings
-process.load("RecoCTPPS.Configuration.recoCTPPS_cff")
+process.load("RecoPPS.Configuration.recoCTPPS_cff")
 
 # load local geometry to avoid GT
 process.load('Geometry.VeryForwardGeometry.geometryRPFromDD_2018_cfi')
-process.load('RecoCTPPS.TotemRPLocal.totemTimingLocalReconstruction_cff')
+process.load('RecoPPS.Local.totemTimingLocalReconstruction_cff')
 
 # CTPPS DQM modules
 process.load("DQM.CTPPS.ctppsDQM_cff")

@@ -394,7 +394,7 @@ namespace sistrip {
     const std::vector<uint32_t>* vectorFromEvent = getProduct<std::vector<uint32_t> >(event, tag);
     if (vectorFromEvent) {
       //vector is from event so, will be deleted when the event is destroyed (and not before)
-      return CountersPtr(new CountersWrapper(vectorFromEvent));
+      return std::make_shared<CountersWrapper>(vectorFromEvent);
     } else {
       const std::map<uint32_t, uint32_t>* mapFromEvent = getProduct<std::map<uint32_t, uint32_t> >(event, tag);
       if (mapFromEvent) {

@@ -11,7 +11,6 @@
 #include "DataFormats/SiStripDigi/interface/SiStripRawDigi.h"
 #include "DataFormats/SiStripDigi/interface/SiStripDigi.h"
 
-#include "FWCore/Utilities/interface/GCC11Compatibility.h"
 #include <cstdint>
 
 namespace sistrip {

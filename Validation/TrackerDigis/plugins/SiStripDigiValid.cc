@@ -18,7 +18,7 @@
 #include "Geometry/Records/interface/TrackerTopologyRcd.h"
 #include "Geometry/TrackerGeometryBuilder/interface/StripGeomDetUnit.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
-#include "Validation/TrackerDigis/interface/SiStripDigiValid.h"
+#include "SiStripDigiValid.h"
 
 SiStripDigiValid::SiStripDigiValid(const edm::ParameterSet &ps)
     : dbe_(nullptr),

@@ -28,7 +28,7 @@
 template <class T>
 typename CaloGeometryLoader<T>::PtrType CaloGeometryLoader<T>::load(const DDCompactView* cpv,
                                                                     const Alignments* alignments,
- 		                                                    const Alignments* globals) {
+                                                                    const Alignments* globals) {
   PtrType geom = std::make_unique<T>();
 
   makeGeometry(cpv, dynamic_cast<T*>(geom.get()), alignments, globals);
@@ -37,9 +37,9 @@ typename CaloGeometryLoader<T>::PtrType CaloGeometryLoader<T>::load(const DDComp
 }
 
 template <class T>
-typename CaloGeometryLoader<T>::PtrType CaloGeometryLoader<T>::load(const cms::DDCompactView* cpv,	
+typename CaloGeometryLoader<T>::PtrType CaloGeometryLoader<T>::load(const cms::DDCompactView* cpv,
                                                                     const Alignments* alignments,
-  			                                            const Alignments* globals) {
+                                                                    const Alignments* globals) {
   PtrType geom = std::make_unique<T>();
 
   makeGeometry(cpv, dynamic_cast<T*>(geom.get()), alignments, globals);
@@ -49,7 +49,7 @@ typename CaloGeometryLoader<T>::PtrType CaloGeometryLoader<T>::load(const cms::D
 
 template <class T>
 void CaloGeometryLoader<T>::makeGeometry(const DDCompactView* cpv,
-                             		 T* geom,
+                                         T* geom,
                                          const Alignments* alignments,
                                          const Alignments* globals) {
   DDAndFilter<DDSpecificsMatchesValueFilter, DDSpecificsMatchesValueFilter> filter(
@@ -112,7 +112,7 @@ void CaloGeometryLoader<T>::makeGeometry(const DDCompactView* cpv,
 
 template <class T>
 void CaloGeometryLoader<T>::makeGeometry(const cms::DDCompactView* cpv,
-                             		 T* geom,
+                                         T* geom,
                                          const Alignments* alignments,
                                          const Alignments* globals) {
   cms::DDFilteredView fv(cpv->detector(), cpv->detector()->worldVolume());
@@ -202,18 +202,18 @@ unsigned int CaloGeometryLoader<T>::getDetIdForDD4HepNode(const cms::DDFilteredV
   baseNumber.setSize(psize);
 
   size_t n = path.find("/") + 1;
-  edm::LogVerbatim("HCalGeom") << path << " n " << n;
+  edm::LogVerbatim("CaloGeometryBuilder") << path << " n " << n;
   size_t start = n;
   std::string det(""), num("");
   for (size_t i = n; i <= path.size(); ++i) {
     if (i == path.size() || path[i] == '/') {
-      num = path.substr(start, i-start);
+      num = path.substr(start, i - start);
       start = i + 1;
       baseNumber.addLevel(det, std::stoi(num));
     } else if (path[i] == ':') {
       start = i + 1;
     } else if (path[i] == '_') {
-      det = path.substr(start, i-start);
+      det = path.substr(start, i - start);
       start = i + 1;
     }
   }

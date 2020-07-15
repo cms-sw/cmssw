@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("TEST")
-process.DQMStore = cms.Service("DQMStore", forceResetOnBeginLumi = cms.untracked.bool(True))
+process.DQMStore = cms.Service("DQMStore")
 process.MessageLogger = cms.Service("MessageLogger")
 
 process.load("DQMServices.Demo.test_cfi")
@@ -37,7 +37,9 @@ parser.register('firstEvent',           1, one, int, "See EmptySource.")
 parser.register('firstRun',             1, one, int, "See EmptySource.")
 parser.register('numberEventsInRun',    100, one, int, "See EmptySource.")
 parser.register('numberEventsInLuminosityBlock', 20, one, int, "See EmptySource.")
+parser.register('processingMode',       'RunsLumisAndEvents', one, string, "See EmptySource.")
 parser.register('nEvents',              100, one, int, "Total number of events.")
+parser.register('nLumisections',        -1, one, int, "Total number of lumisections.")
 parser.register('nThreads',             1, one, int, "Number of threads and streams.")
 parser.register('nConcurrent',          1, one, int, "Number of concurrent runs/lumis.")
 parser.register('howmany',              1, one, int, "Number of MEs to book of each type.")
@@ -50,9 +52,13 @@ process.source = cms.Source("EmptySource", numberEventsInRun = cms.untracked.uin
                             numberEventsInLuminosityBlock = cms.untracked.uint32(args.numberEventsInLuminosityBlock),
                             firstLuminosityBlock = cms.untracked.uint32(args.firstLuminosityBlock),
                             firstEvent = cms.untracked.uint32(args.firstEvent),
-                            firstRun = cms.untracked.uint32(args.firstRun))
+                            firstRun = cms.untracked.uint32(args.firstRun),
+                            processingMode = cms.untracked.string(args.processingMode))
 
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(args.nEvents) )
+if args.nLumisections > 0:
+    process.maxLuminosityBlocks = cms.untracked.PSet( input = cms.untracked.int32(args.nLumisections) )
+
 
 process.options = cms.untracked.PSet(
   numberOfThreads = cms.untracked.uint32(args.nThreads),

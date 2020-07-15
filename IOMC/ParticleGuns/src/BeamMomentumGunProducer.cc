@@ -1,4 +1,3 @@
-#include <ostream>
 #include "IOMC/ParticleGuns/interface/BeamMomentumGunProducer.h"
 
 #include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
@@ -104,23 +103,29 @@ namespace edm {
       double mass = pData->mass().value();
       if (fVerbosity > 0)
         edm::LogVerbatim("BeamMomentumGun") << "PDGId: " << partID << "   mass: " << mass;
-      double xp = (xoff_ + mm2cm_ * parX_->at(ip));
-      double yp = (yoff_ + mm2cm_ * parY_->at(ip));
-      HepMC::GenVertex* Vtx = new HepMC::GenVertex(HepMC::FourVector(xp, yp, zpos_));
-      double pxGeV = MeV2GeV_ * parPx_->at(ip);
-      double pyGeV = MeV2GeV_ * parPy_->at(ip);
+      double xp = (xoff_ * cm2mm_ + (-1) * parY_->at(ip));  // 90 degree rotation applied
+      double yp = (yoff_ * cm2mm_ + parX_->at(ip));         // 90 degree rotation applied
+      double zp = zpos_ * cm2mm_;
+      HepMC::GenVertex* Vtx = new HepMC::GenVertex(HepMC::FourVector(xp, yp, zp));
+      double pxGeV = MeV2GeV_ * (-1) * parPy_->at(ip);  // 90 degree rotation applied
+      double pyGeV = MeV2GeV_ * parPx_->at(ip);         // 90 degree rotation applied
       double pzGeV = MeV2GeV_ * parPz_->at(ip);
-      double momRand2 = pxGeV * pxGeV + pyGeV * pyGeV + pzGeV * pzGeV;
-      double energy = std::sqrt(momRand2 + mass * mass);
-      double mom = std::sqrt(momRand2);
       double theta = CLHEP::RandFlat::shoot(engine, fMinTheta, fMaxTheta);
       double phi = CLHEP::RandFlat::shoot(engine, fMinPhi, fMaxPhi);
-      double px = mom * sin(theta) * cos(phi);
-      double py = mom * sin(theta) * sin(phi);
-      double pz = mom * cos(theta);
+      // rotation about Z axis
+      double px1 = pxGeV * cos(phi) - pyGeV * sin(phi);
+      double py1 = pxGeV * sin(phi) + pyGeV * cos(phi);
+      double pz1 = pzGeV;
+      // rotation about Y axis
+      double px = px1 * cos(theta) + pz1 * sin(theta);
+      double py = py1;
+      double pz = -px1 * sin(theta) + pz1 * cos(theta);
+      double energy = std::sqrt(px * px + py * py + pz * pz + mass * mass);
 
-      if (fVerbosity > 0)
-        edm::LogVerbatim("BeamMomentumGun") << "px:py:pz " << px << ":" << py << ":" << pz;
+      if (fVerbosity > 0) {
+        edm::LogVerbatim("BeamMomentumGun") << "x:y:z [mm] " << xp << ":" << yp << ":" << zpos_;
+        edm::LogVerbatim("BeamMomentumGun") << "px:py:pz [GeV] " << px << ":" << py << ":" << pz;
+      }
 
       HepMC::FourVector p(px, py, pz, energy);
       HepMC::GenParticle* part = new HepMC::GenParticle(p, partID, 1);

@@ -118,8 +118,8 @@ void DTHVStatusHandler::getNewObjects() {
   // offline info
 
   //to access the information on the tag inside the offline database:
-  cond::TagInfo const& ti = tagInfo();
-  cond::Time_t last = ti.lastInterval.first;
+  cond::TagInfo_t const& ti = tagInfo();
+  cond::Time_t last = ti.lastInterval.since;
   std::cout << "latest DCS data (HV) already copied until: " << last << std::endl;
 
   coral::TimeStamp coralSince(ySince, mSince, dSince, hSince, pSince, sSince, 0);

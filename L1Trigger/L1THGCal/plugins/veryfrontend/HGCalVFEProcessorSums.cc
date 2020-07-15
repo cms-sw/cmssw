@@ -28,6 +28,8 @@ void HGCalVFEProcessorSums::run(const HGCalDigiCollection& digiColl,
   for (const auto& digiData : digiColl) {
     if (DetId(digiData.id()).det() == DetId::Hcal && HcalDetId(digiData.id()).subdetId() != HcalEndcap)
       continue;
+    if (!geometry_->validCell(digiData.id()))
+      continue;
     uint32_t module = geometry_->getModuleFromCell(digiData.id());
 
     // no disconnected layer for HFNose

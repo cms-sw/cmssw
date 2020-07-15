@@ -15,13 +15,22 @@ namespace cond {
       return *this;
     }
 
-    void Transaction::start(bool readOnly) { m_session->startTransaction(readOnly); }
+    void Transaction::start(bool readOnly) {
+      if (m_session)
+        m_session->startTransaction(readOnly);
+    }
 
-    void Transaction::commit() { m_session->commitTransaction(); }
+    void Transaction::commit() {
+      if (m_session)
+        m_session->commitTransaction();
+    }
 
-    void Transaction::rollback() { m_session->rollbackTransaction(); }
+    void Transaction::rollback() {
+      if (m_session)
+        m_session->rollbackTransaction();
+    }
 
-    bool Transaction::isActive() { return m_session->isTransactionActive(); }
+    bool Transaction::isActive() { return m_session ? m_session->isTransactionActive() : false; }
 
     Session::Session() : m_session(new SessionImpl), m_transaction(*m_session) {}
 
@@ -51,17 +60,17 @@ namespace cond {
     //
     void Session::createDatabase() { m_session->openDb(); }
 
-    IOVProxy Session::readIov(const std::string& tag, bool full) {
+    IOVProxy Session::readIov(const std::string& tagName) {
       m_session->openIovDb();
       IOVProxy proxy(m_session);
-      proxy.load(tag, full);
+      proxy.load(tagName);
       return proxy;
     }
 
-    IOVProxy Session::readIov(const std::string& tag, const boost::posix_time::ptime& snapshottime, bool full) {
+    IOVProxy Session::readIov(const std::string& tagName, const boost::posix_time::ptime& snapshottime) {
       m_session->openIovDb();
       IOVProxy proxy(m_session);
-      proxy.load(tag, snapshottime, full);
+      proxy.load(tagName, snapshottime);
       return proxy;
     }
 
@@ -70,32 +79,14 @@ namespace cond {
       return m_session->iovSchema().tagTable().select(tag);
     }
 
-    bool Session::getTagInfo(const std::string& tag, cond::Tag_t& info) {
-      m_session->openIovDb();
-      std::string description;
-      return m_session->iovSchema().tagTable().select(tag,
-                                                      info.timeType,
-                                                      info.payloadType,
-                                                      info.synchronizationType,
-                                                      info.endOfValidity,
-                                                      description,
-                                                      info.lastValidatedTime);
-    }
-
-    IOVProxy Session::iovProxy() {
-      m_session->openIovDb();
-      IOVProxy proxy(m_session);
-      return proxy;
-    }
-
-    bool Session::getIovRange(const std::string& tag,
-                              cond::Time_t begin,
-                              cond::Time_t end,
-                              std::vector<std::tuple<cond::Time_t, cond::Hash> >& range) {
-      m_session->openIovDb();
-      boost::posix_time::ptime snapshotTime;
-      return m_session->iovSchema().iovTable().getRange(tag, begin, end, snapshotTime, range);
-    }
+    //bool Session::getIovRange(const std::string& tag,
+    //                          cond::Time_t begin,
+    //                          cond::Time_t end,
+    //                          std::vector<std::tuple<cond::Time_t, cond::Hash> >& range) {
+    //  m_session->openIovDb();
+    //  boost::posix_time::ptime snapshotTime;
+    //  return m_session->iovSchema().iovTable().getRange(tag, begin, end, snapshotTime, range);
+    //}
 
     IOVEditor Session::createIov(const std::string& payloadType,
                                  const std::string& tag,
@@ -205,6 +196,15 @@ namespace cond {
       RunInfoProxy proxy(m_session);
       proxy.load(start, end);
       return proxy;
+    }
+
+    cond::RunInfo_t Session::getCurrentRun() {
+      if (!m_session->transaction.get())
+        throwException("The transaction is not active.", "Session::getRunInfo");
+      RunInfoProxy proxy(m_session);
+      boost::posix_time::ptime now = boost::posix_time::second_clock::local_time();
+      proxy.load(now, now);
+      return proxy.get(now);
     }
 
     RunInfoEditor Session::editRunInfo() {

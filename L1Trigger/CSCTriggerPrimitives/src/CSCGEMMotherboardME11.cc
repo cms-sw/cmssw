@@ -59,7 +59,9 @@ void CSCGEMMotherboardME11::run(const CSCWireDigiCollection* wiredc,
   setupGeometry();
   debugLUTs();
 
-  //  generator_->generateLUTs(theEndcap, theStation, theSector, theSubsector, theTrigChamber);
+  // encode high multiplicity bits
+  unsigned alctBits = alctProc->getHighMultiplictyBits();
+  encodeHighMultiplicityBits(alctBits);
 
   if (gem_g != nullptr) {
     if (infoV >= 0)
@@ -525,7 +527,7 @@ void CSCGEMMotherboardME11::correlateLCTsGEM(const CSCALCTDigi& bALCT,
                                              CSCCorrelatedLCTDigi& lct2) const {
   CSCALCTDigi bestALCT = bALCT;
   CSCALCTDigi secondALCT = sALCT;
-  CSCCLCTDigi bestCLCT = bCLCT;
+  const CSCCLCTDigi& bestCLCT = bCLCT;
   CSCCLCTDigi secondCLCT = sCLCT;
 
   // assume that always anodeBestValid and cathodeBestValid

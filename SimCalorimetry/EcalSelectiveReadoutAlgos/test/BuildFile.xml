@@ -1,4 +1,4 @@
 <environment>
-  <use   name="SimCalorimetry/EcalSelectiveReadoutAlgos"/>
-  <use   name="SimCalorimetry/CaloSimAlgos"/>
+  <use name="SimCalorimetry/EcalSelectiveReadoutAlgos"/>
+  <use name="SimCalorimetry/CaloSimAlgos"/>
 </environment>

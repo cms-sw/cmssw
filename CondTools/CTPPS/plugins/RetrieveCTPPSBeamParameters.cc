@@ -26,7 +26,7 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
-#include "CondFormats/CTPPSReadoutObjects/interface/CTPPSBeamParameters.h"
+#include "CondFormats/PPSObjects/interface/CTPPSBeamParameters.h"
 #include "CondFormats/DataRecord/interface/CTPPSBeamParametersRcd.h"
 
 #include <cstdint>

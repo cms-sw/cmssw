@@ -1,5 +1,6 @@
 #ifndef TkNavigation_SimpleBarrelNavigableLayer_H
 #define TkNavigation_SimpleBarrelNavigableLayer_H
+#include "FWCore/Utilities/interface/Visibility.h"
 
 #include "SimpleNavigableLayer.h"
 

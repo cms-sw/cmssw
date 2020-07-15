@@ -18,7 +18,7 @@
 #include "DataFormats/PatCandidates/interface/Electron.h"
 #include "DataFormats/PatCandidates/interface/Muon.h"
 #include "DataFormats/PatCandidates/interface/Tau.h"
-#include "DataFormats/PatCandidates/interface/PATTauDiscriminator.h"
+#include "DataFormats/TauReco/interface/TauDiscriminatorContainer.h"
 #include "CommonTools/Utils/interface/StringObjectFunction.h"
 #include "RecoTauTag/RecoTau/interface/PFRecoTauClusterVariables.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
@@ -58,7 +58,7 @@ namespace deep_tau {
   class DeepTauBase : public edm::stream::EDProducer<edm::GlobalCache<DeepTauCache>> {
   public:
     using TauType = pat::Tau;
-    using TauDiscriminator = pat::PATTauDiscriminator;
+    using TauDiscriminator = reco::TauDiscriminatorContainer;
     using TauCollection = std::vector<TauType>;
     using TauRef = edm::Ref<TauCollection>;
     using TauRefProd = edm::RefProd<TauCollection>;
@@ -67,17 +67,16 @@ namespace deep_tau {
     using LorentzVectorXYZ = ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double>>;
     using Cutter = TauWPThreshold;
     using CutterPtr = std::unique_ptr<Cutter>;
-    using WPMap = std::map<std::string, CutterPtr>;
+    using WPList = std::vector<CutterPtr>;
 
     struct Output {
-      using ResultMap = std::map<std::string, std::unique_ptr<TauDiscriminator>>;
       std::vector<size_t> num_, den_;
 
       Output(const std::vector<size_t>& num, const std::vector<size_t>& den) : num_(num), den_(den) {}
 
-      ResultMap get_value(const edm::Handle<TauCollection>& taus,
-                          const tensorflow::Tensor& pred,
-                          const WPMap& working_points) const;
+      std::unique_ptr<TauDiscriminator> get_value(const edm::Handle<TauCollection>& taus,
+                                                  const tensorflow::Tensor& pred,
+                                                  const WPList& working_points) const;
     };
 
     using OutputCollection = std::map<std::string, Output>;
@@ -100,7 +99,7 @@ namespace deep_tau {
     edm::EDGetTokenT<TauCollection> tausToken_;
     edm::EDGetTokenT<pat::PackedCandidateCollection> pfcandToken_;
     edm::EDGetTokenT<reco::VertexCollection> vtxToken_;
-    std::map<std::string, WPMap> workingPoints_;
+    std::map<std::string, WPList> workingPoints_;
     OutputCollection outputs_;
     const DeepTauCache* cache_;
   };

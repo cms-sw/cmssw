@@ -1,15 +1,45 @@
 <library file="SiPixelQuality_PayloadInspector.cc" name="SiPixelQuality_PayloadInspector">
-  <use   name="CondCore/Utilities"/>
-  <use   name="CondCore/CondDB"/>
-  <use   name="CondFormats/Common"/>
-  <use   name="CalibTracker/StandaloneTrackerTopology"/>
-  <use   name="boost_python"/>
+  <use name="CondCore/Utilities"/>
+  <use name="CondCore/CondDB"/>
+  <use name="CondFormats/Common"/>
+  <use name="CalibTracker/StandaloneTrackerTopology"/>
+  <use name="CalibTracker/SiPixelESProducers"/>
+  <use name="boost_python"/>
 </library>
 
 <library file="SiPixelLorentzAngle_PayloadInspector.cc" name="SiPixelLorentzAngle_PayloadInspector">
-  <use   name="CondCore/Utilities"/>
-  <use   name="CondCore/CondDB"/>
-  <use   name="CondFormats/Common"/>
-  <use   name="CalibTracker/StandaloneTrackerTopology"/>
-  <use   name="boost_python"/>
+  <use name="CondCore/Utilities"/>
+  <use name="CondCore/CondDB"/>
+  <use name="CondFormats/Common"/>
+  <use name="CalibTracker/StandaloneTrackerTopology"/>
+  <use name="CalibTracker/SiPixelESProducers"/>
+  <use name="boost_python"/>
+</library>
+
+<library file="SiPixelGainCalibrationOffline_PayloadInspector.cc" name="SiPixelGainCalibrationOffline_PayloadInspector">
+  <use name="CondCore/Utilities"/>
+  <use name="CondCore/CondDB"/>
+  <use name="CondFormats/Common"/>
+  <use name="CalibTracker/StandaloneTrackerTopology"/>
+  <use name="CalibTracker/SiPixelESProducers"/>
+  <use name="boost_python"/>
+</library>
+
+<library file="SiPixelGainCalibrationForHLT_PayloadInspector.cc" name="SiPixelGainCalibrationForHLT_PayloadInspector">
+  <use name="CondCore/Utilities"/>
+  <use name="CondCore/CondDB"/>
+  <use name="CondFormats/Common"/>
+  <use name="CalibTracker/StandaloneTrackerTopology"/>
+  <use name="CalibTracker/SiPixelESProducers"/>
+  <use name="boost_python"/>
+</library>
+
+<library file="SiPixelTemplateDBObject_PayloadInspector.cc" name="SiPixelTemplateDBObject_PayloadInspector">
+  <use name="CondCore/Utilities"/>
+  <use name="CondCore/CondDB"/>
+  <use name="CondFormats/Common"/>
+  <use name="CondFormats/SiPixelTransient"/>
+  <use name="CalibTracker/StandaloneTrackerTopology"/>
+  <use name="CalibTracker/SiPixelESProducers"/>
+  <use name="boost_python"/>
 </library>

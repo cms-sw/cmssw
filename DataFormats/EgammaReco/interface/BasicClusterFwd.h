@@ -1,27 +1,16 @@
 #ifndef EgammaReco_BasicClusterFwd_h
 #define EgammaReco_BasicClusterFwd_h
-#include <vector>
+
 #include "DataFormats/Common/interface/Ref.h"
 #include "DataFormats/Common/interface/RefVector.h"
 #include "DataFormats/Common/interface/RefProd.h"
-// #include "DataFormats/Common/interface/ExtCollection.h"
-#include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
+#include "DataFormats/CaloRecHit/interface/CaloCluster.h"
 
-#include "DataFormats/EgammaReco/interface/BasicCluster.h"
+#include <vector>
 
 namespace reco {
-  //class BasicCluster;
-  /*
-  struct BasicClusterRefProds {
-    BasicClusterRefProds() { }
-    edm::RefProd<EcalRecHitCollection> recHits() const { return recHits_; }
-    void setRecHits( edm::RefProd<EcalRecHitCollection> ref ) { recHits_ = ref; }
-  private:
-    edm::RefProd<EcalRecHitCollection> recHits_;
-  };
 
-  typedef edm::ExtCollection<std::vector<BasicCluster>, BasicClusterRefProds> BasicClusterCollection;
-  */
+  typedef CaloCluster BasicCluster;
 
   /// collection of BasicCluster objects
   typedef std::vector<BasicCluster> BasicClusterCollection;
@@ -37,6 +26,7 @@ namespace reco {
 
   /// iterator over a vector of references to BasicCluster objects
   typedef BasicClusterRefVector::iterator basicCluster_iterator;
+
 }  // namespace reco
 
 #endif

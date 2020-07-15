@@ -81,7 +81,7 @@ static long algorithm(dd4hep::Detector& /* description */,
     }
     ny += incAlongY;
   }
-  return 1;
+  return cms::s_executed;
 }
 
 // first argument is the type from the xml file

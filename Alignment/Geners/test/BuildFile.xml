@@ -1,21 +1,21 @@
-<bin   name="cmerge" file="cmerge.cc">
-   <use  name="Alignment/Geners"/>
+<bin name="cmerge" file="cmerge.cc">
+  <use name="Alignment/Geners"/>
 </bin>
 
-<bin   name="crecover" file="crecover.cc">
-   <use  name="Alignment/Geners"/>
+<bin name="crecover" file="crecover.cc">
+  <use name="Alignment/Geners"/>
 </bin>
 
-<bin   name="print_items" file="print_items.cc">
-   <use  name="Alignment/Geners"/>
+<bin name="print_items" file="print_items.cc">
+  <use name="Alignment/Geners"/>
 </bin>
 
-<bin   name="gssa_dump" file="gssa_dump.cc">
-   <use  name="Alignment/Geners"/>
+<bin name="gssa_dump" file="gssa_dump.cc">
+  <use name="Alignment/Geners"/>
 </bin>
 
-<bin   name="cdump" file="cdump.cc">
-   <use  name="Alignment/Geners"/>
+<bin name="cdump" file="cdump.cc">
+  <use name="Alignment/Geners"/>
 </bin>
 
 <test name="GenersTestHelper_t" command="test_cdump.sh"/>

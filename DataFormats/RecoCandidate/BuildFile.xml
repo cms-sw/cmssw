@@ -1,15 +1,14 @@
-<use   name="DataFormats/CaloRecHit"/>
-<use   name="DataFormats/Candidate"/>
-<use   name="DataFormats/Common"/>
-<use   name="DataFormats/TrackReco"/>
-<use   name="DataFormats/CaloTowers"/>
-<use   name="DataFormats/EgammaReco"/>
-<use   name="DataFormats/GsfTrackReco"/>
-<use   name="DataFormats/HcalRecHit"/>
-<use   name="clhep"/>
-<use   name="SimDataFormats/GeneratorProducts"/>
-<use   name="SimDataFormats/TrackingAnalysis"/>
-
+<use name="DataFormats/CaloRecHit"/>
+<use name="DataFormats/Candidate"/>
+<use name="DataFormats/Common"/>
+<use name="DataFormats/TrackReco"/>
+<use name="DataFormats/CaloTowers"/>
+<use name="DataFormats/EgammaReco"/>
+<use name="DataFormats/GsfTrackReco"/>
+<use name="DataFormats/HcalRecHit"/>
+<use name="clhep"/>
+<use name="SimDataFormats/GeneratorProducts"/>
+<use name="SimDataFormats/TrackingAnalysis"/>
 <export>
-  <lib   name="1"/>
+  <lib name="1"/>
 </export>

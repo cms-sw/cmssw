@@ -39,6 +39,7 @@
 #include "TGeoManager.h"
 #include "TGeoMatrix.h"
 #include "TVirtualGeoPainter.h"
+#include "TVirtualX.h"
 
 #include "Fireworks/Core/interface/FWGeoTopNode.h"
 #include "Fireworks/Core/src/FWGeoTopNodeScene.h"

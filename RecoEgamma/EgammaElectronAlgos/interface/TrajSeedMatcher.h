@@ -25,6 +25,7 @@
 #include "MagneticField/Engine/interface/MagneticField.h"
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 
+#include "DataFormats/Math/interface/Point3D.h"
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
 #include "DataFormats/DetId/interface/DetId.h"
@@ -35,7 +36,12 @@
 #include "RecoTracker/MeasurementDet/interface/MeasurementTrackerEvent.h"
 #include "RecoEgamma/EgammaElectronAlgos/interface/utils.h"
 
+#include "RecoTracker/Record/interface/NavigationSchoolRecord.h"
+#include "TrackingTools/RecoGeometry/interface/RecoGeometryRecord.h"
+#include "TrackingTools/TrajectoryState/interface/ftsFromVertexToPoint.h"
+
 namespace edm {
+  class ConsumesCollector;
   class EventSetup;
   class ConfigurationDescriptions;
   class ParameterSet;
@@ -47,94 +53,31 @@ class TrackingRecHit;
 
 class TrajSeedMatcher {
 public:
-  class SCHitMatch {
-  public:
-    SCHitMatch()
-        : detId_(0),
-          dRZ_(std::numeric_limits<float>::max()),
-          dPhi_(std::numeric_limits<float>::max()),
-          hit_(nullptr),
-          et_(0),
-          eta_(0),
-          phi_(0),
-          charge_(0),
-          nrClus_(0) {}
-
-    //does not set charge,et,nrclus
-    SCHitMatch(const GlobalPoint& vtxPos, const TrajectoryStateOnSurface& trajState, const TrackingRecHit& hit);
-    ~SCHitMatch() = default;
-
-    void setExtra(float et, float eta, float phi, int charge, int nrClus) {
-      et_ = et;
-      eta_ = eta;
-      phi_ = phi;
-      charge_ = charge;
-      nrClus_ = nrClus;
-    }
-
-    int subdetId() const { return detId_.subdetId(); }
-    DetId detId() const { return detId_; }
-    float dRZ() const { return dRZ_; }
-    float dPhi() const { return dPhi_; }
-    const GlobalPoint& hitPos() const { return hitPos_; }
-    float et() const { return et_; }
-    float eta() const { return eta_; }
-    float phi() const { return phi_; }
-    int charge() const { return charge_; }
-    int nrClus() const { return nrClus_; }
-    const TrackingRecHit* hit() const { return hit_; }
-
-  private:
-    DetId detId_;
-    GlobalPoint hitPos_;
-    float dRZ_;
-    float dPhi_;
-    const TrackingRecHit* hit_;  //we do not own this
-    //extra quanities which are set later
-    float et_;
-    float eta_;
-    float phi_;
-    int charge_;
-    int nrClus_;
+  struct SCHitMatch {
+    const DetId detId = 0;
+    const GlobalPoint hitPos;
+    const float dRZ = std::numeric_limits<float>::max();
+    const float dPhi = std::numeric_limits<float>::max();
+    const TrackingRecHit& hit;
+    const float et = 0.f;
+    const float eta = 0.f;
+    const float phi = 0.f;
+    const int charge = 0;
+    const int nrClus = 0;
   };
 
   struct MatchInfo {
-  public:
-    DetId detId;
-    float dRZPos, dRZNeg;
-    float dPhiPos, dPhiNeg;
-
-    MatchInfo(const DetId& iDetId, float iDRZPos, float iDRZNeg, float iDPhiPos, float iDPhiNeg)
-        : detId(iDetId), dRZPos(iDRZPos), dRZNeg(iDRZNeg), dPhiPos(iDPhiPos), dPhiNeg(iDPhiNeg) {}
+    const DetId detId;
+    const float dRZPos;
+    const float dRZNeg;
+    const float dPhiPos;
+    const float dPhiNeg;
   };
 
-  class SeedWithInfo {
-  public:
-    SeedWithInfo(const TrajectorySeed& seed,
-                 const std::vector<SCHitMatch>& posCharge,
-                 const std::vector<SCHitMatch>& negCharge,
-                 int nrValidLayers);
-    ~SeedWithInfo() = default;
-
-    const TrajectorySeed& seed() const { return seed_; }
-    float dRZPos(size_t hitNr) const { return getVal(hitNr, &MatchInfo::dRZPos); }
-    float dRZNeg(size_t hitNr) const { return getVal(hitNr, &MatchInfo::dRZNeg); }
-    float dPhiPos(size_t hitNr) const { return getVal(hitNr, &MatchInfo::dPhiPos); }
-    float dPhiNeg(size_t hitNr) const { return getVal(hitNr, &MatchInfo::dPhiNeg); }
-    DetId detId(size_t hitNr) const { return hitNr < matchInfo_.size() ? matchInfo_[hitNr].detId : DetId(0); }
-    size_t nrMatchedHits() const { return matchInfo_.size(); }
-    const std::vector<MatchInfo>& matches() const { return matchInfo_; }
-    int nrValidLayers() const { return nrValidLayers_; }
-
-  private:
-    float getVal(size_t hitNr, float MatchInfo::*val) const {
-      return hitNr < matchInfo_.size() ? matchInfo_[hitNr].*val : std::numeric_limits<float>::max();
-    }
-
-  private:
-    const TrajectorySeed& seed_;
-    std::vector<MatchInfo> matchInfo_;
-    int nrValidLayers_;
+  struct SeedWithInfo {
+    const TrajectorySeed& seed;
+    const std::vector<MatchInfo> matchInfos;
+    const int nrValidLayers;
   };
 
   class MatchingCuts {
@@ -178,44 +121,50 @@ public:
   };
 
 public:
-  explicit TrajSeedMatcher(const edm::ParameterSet& pset);
+  struct Configuration {
+    Configuration(const edm::ParameterSet& pset, edm::ConsumesCollector&& cc);
+
+    const edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> magFieldToken;
+    const edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> paramMagFieldToken;
+    const edm::ESGetToken<NavigationSchool, NavigationSchoolRecord> navSchoolToken;
+    const edm::ESGetToken<DetLayerGeometry, RecoGeometryRecord> detLayerGeomToken;
+
+    const bool useRecoVertex;
+    const bool enableHitSkipping;
+    const bool requireExactMatchCount;
+    const bool useParamMagFieldIfDefined;
+
+    //these two variables determine how hits we require
+    //based on how many valid layers we had
+    //right now we always need atleast two hits
+    //also highly dependent on the seeds you pass in
+    //which also require a given number of hits
+    const std::vector<unsigned int> minNrHits;
+    const std::vector<int> minNrHitsValidLayerBins;
+
+    const std::vector<std::unique_ptr<MatchingCuts> > matchingCuts;
+  };
+
+  explicit TrajSeedMatcher(TrajectorySeedCollection const& seeds,
+                           math::XYZPoint const& vprim,
+                           Configuration const& cfg,
+                           edm::EventSetup const& iSetup,
+                           MeasurementTrackerEvent const& measTkEvt);
   ~TrajSeedMatcher() = default;
 
   static edm::ParameterSetDescription makePSetDescription();
 
-  void doEventSetup(const edm::EventSetup& iSetup);
-
-  std::vector<TrajSeedMatcher::SeedWithInfo> compatibleSeeds(const TrajectorySeedCollection& seeds,
-                                                             const GlobalPoint& candPos,
-                                                             const GlobalPoint& vprim,
-                                                             const float energy);
-
-  void setMeasTkEvtHandle(edm::Handle<MeasurementTrackerEvent> handle) { measTkEvt_ = std::move(handle); }
+  std::vector<TrajSeedMatcher::SeedWithInfo> operator()(const GlobalPoint& candPos, const float energy);
 
 private:
   std::vector<SCHitMatch> processSeed(const TrajectorySeed& seed,
                                       const GlobalPoint& candPos,
-                                      const GlobalPoint& vprim,
                                       const float energy,
                                       const TrajectoryStateOnSurface& initialTrajState);
 
   static float getZVtxFromExtrapolation(const GlobalPoint& primeVtxPos,
                                         const GlobalPoint& hitPos,
                                         const GlobalPoint& candPos);
-
-  bool passTrajPreSel(const GlobalPoint& hitPos, const GlobalPoint& candPos) const;
-
-  TrajSeedMatcher::SCHitMatch matchFirstHit(const TrajectorySeed& seed,
-                                            const TrajectoryStateOnSurface& trajState,
-                                            const GlobalPoint& vtxPos,
-                                            const PropagatorWithMaterial& propagator);
-
-  TrajSeedMatcher::SCHitMatch match2ndToNthHit(const TrajectorySeed& seed,
-                                               const FreeTrajectoryState& trajState,
-                                               const size_t hitNr,
-                                               const GlobalPoint& prevHitPos,
-                                               const GlobalPoint& vtxPos,
-                                               const PropagatorWithMaterial& propagator);
 
   const TrajectoryStateOnSurface& getTrajStateFromVtx(const TrackingRecHit& hit,
                                                       const TrajectoryStateOnSurface& initialState,
@@ -226,20 +175,11 @@ private:
                                                         const GlobalPoint& point,
                                                         const PropagatorWithMaterial& propagator);
 
-  TrajectoryStateOnSurface makeTrajStateOnSurface(const GlobalPoint& pos,
-                                                  const GlobalPoint& vtx,
-                                                  const float energy,
-                                                  const int charge) const;
+  TrajectoryStateOnSurface makeTrajStateOnSurface(const GlobalPoint& pos, const float energy, const int charge) const;
   void clearCache();
 
-  bool passesMatchSel(const SCHitMatch& hit, const size_t hitNr) const;
-
-  int getNrValidLayersAlongTraj(const SCHitMatch& hit1,
-                                const SCHitMatch& hit2,
-                                const GlobalPoint& candPos,
-                                const GlobalPoint& vprim,
-                                const float energy,
-                                const int charge);
+  int getNrValidLayersAlongTraj(
+      const SCHitMatch& hit1, const SCHitMatch& hit2, const GlobalPoint& candPos, const float energy, const int charge);
 
   int getNrValidLayersAlongTraj(const DetId& hitId, const TrajectoryStateOnSurface& hitTrajState) const;
 
@@ -249,40 +189,30 @@ private:
 
   size_t getNrHitsRequired(const int nrValidLayers) const;
 
-  //parameterised b-fields may not be valid for entire detector, just tracker volume
-  //however need we ecal so we auto select based on the position
-  const MagneticField& getMagField(const GlobalPoint& point) const {
-    return useParamMagFieldIfDefined_ && magFieldParam_->isDefined(point) ? *magFieldParam_ : *magField_;
+  inline auto ftsFromVertexToPoint(GlobalPoint const& point, GlobalPoint const& vertex, float energy, int charge) const {
+    //parameterised b-fields may not be valid for entire detector, just tracker volume
+    //however need we ecal so we auto select based on the position
+    bool useMagFieldParam = cfg_.useParamMagFieldIfDefined && magFieldParam_.isDefined(point);
+    auto const& magneticField = useMagFieldParam ? magFieldParam_ : magField_;
+    return trackingTools::ftsFromVertexToPoint(magneticField, point, vertex, energy, charge);
   }
 
 private:
   static constexpr float kElectronMass_ = 0.000511;
-  static constexpr float kPhiCut_ = -0.801144;  //cos(2.5)
-  std::unique_ptr<PropagatorWithMaterial> forwardPropagator_;
-  std::unique_ptr<PropagatorWithMaterial> backwardPropagator_;
-  unsigned long long cacheIDMagField_;
-  edm::ESHandle<MagneticField> magField_;
-  edm::ESHandle<MagneticField> magFieldParam_;
-  edm::Handle<MeasurementTrackerEvent> measTkEvt_;
-  edm::ESHandle<NavigationSchool> navSchool_;
-  edm::ESHandle<DetLayerGeometry> detLayerGeom_;
-  std::string paramMagFieldLabel_;
-  std::string navSchoolLabel_;
-  std::string detLayerGeomLabel_;
 
-  bool useRecoVertex_;
-  bool enableHitSkipping_;
-  bool requireExactMatchCount_;
-  bool useParamMagFieldIfDefined_;
-  std::vector<std::unique_ptr<MatchingCuts> > matchingCuts_;
+  TrajectorySeedCollection const& seeds_;
+  const GlobalPoint vprim_;
 
-  //these two varibles determine how hits we require
-  //based on how many valid layers we had
-  //right now we always need atleast two hits
-  //also highly dependent on the seeds you pass in
-  //which also require a given number of hits
-  const std::vector<unsigned int> minNrHits_;
-  const std::vector<int> minNrHitsValidLayerBins_;
+  Configuration const& cfg_;
+
+  MagneticField const& magField_;
+  MagneticField const& magFieldParam_;
+  MeasurementTrackerEvent const& measTkEvt_;
+  NavigationSchool const& navSchool_;
+  DetLayerGeometry const& detLayerGeom_;
+
+  PropagatorWithMaterial forwardPropagator_;
+  PropagatorWithMaterial backwardPropagator_;
 
   std::unordered_map<int, TrajectoryStateOnSurface> trajStateFromVtxPosChargeCache_;
   std::unordered_map<int, TrajectoryStateOnSurface> trajStateFromVtxNegChargeCache_;

@@ -19,6 +19,10 @@ def esproducers_by_type(process, *types):
     "Find all ESProducers in the Process that are instances of the given C++ type."
     return (module for module in process._Process__esproducers.values() if module._TypedParameterizable__type in types)
 
+def modules_by_type(process, *types):
+    "Find all modiles or other components in the Process that are instances of the given C++ type."
+    return (module for module in process.__dict__.values() if hasattr(module, '_TypedParameterizable__type') and module._TypedParameterizable__type in types)
+
 
 def insert_modules_before(process, target, *modules):
     "Add the `modules` before the `target` in any Sequence, Paths or EndPath that contains the latter."

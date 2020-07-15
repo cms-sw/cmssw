@@ -1,7 +1,6 @@
-
-<use   name="rootcore"/>
-<use   name="DataFormats/Common"/>
-<use   name="SimDataFormats/Vertex"/>
+<use name="rootcore"/>
+<use name="DataFormats/Common"/>
+<use name="SimDataFormats/Vertex"/>
 <export>
-  <lib   name="1"/>
+  <lib name="1"/>
 </export>

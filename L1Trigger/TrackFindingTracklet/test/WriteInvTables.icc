@@ -1,0 +1,83 @@
+edm::LogVerbatim("Tracklet") << " Writing Inverse Tables";
+
+ofstream finv;
+void (*writeLUT)(const VarInv&, ofstream&) = NULL;
+string extension = "";
+if (settings.writeInvTable()) {
+  writeLUT = [](const VarInv& x, ofstream& fs) -> void { return x.writeLUT(fs, VarBase::verilog); };
+  extension = "h";
+} else {
+  writeLUT = [](const VarInv& x, ofstream& fs) -> void { return x.writeLUT(fs, VarBase::hls); };
+  extension = "tab";
+}
+
+finv.open("TC_L1L2_drinv." + extension);
+writeLUT(globals->ITC_L1L2()->drinv, finv);
+finv.close();
+finv.open("TC_L1L2_invt." + extension);
+writeLUT(globals->ITC_L1L2()->invt, finv);
+finv.close();
+finv.open("TC_L3L4_drinv." + extension);
+writeLUT(globals->ITC_L3L4()->drinv, finv);
+finv.close();
+finv.open("TC_L3L4_invt." + extension);
+writeLUT(globals->ITC_L3L4()->invt, finv);
+finv.close();
+finv.open("TC_L5L6_drinv." + extension);
+writeLUT(globals->ITC_L5L6()->drinv, finv);
+finv.close();
+finv.open("TC_L5L6_invt." + extension);
+writeLUT(globals->ITC_L5L6()->invt, finv);
+finv.close();
+
+finv.open("F1F2_drinv." + extension);
+writeLUT(globals->ITC_F1F2()->drinv, finv);
+finv.close();
+finv.open("F1F2_invt." + extension);
+writeLUT(globals->ITC_F1F2()->invt, finv);
+finv.close();
+finv.open("B1B2_drinv." + extension);
+writeLUT(globals->ITC_B1B2()->drinv, finv);
+finv.close();
+finv.open("B1B2_invt." + extension);
+writeLUT(globals->ITC_B1B2()->invt, finv);
+finv.close();
+
+finv.open("F3F4_drinv." + extension);
+writeLUT(globals->ITC_F3F4()->drinv, finv);
+finv.close();
+finv.open("F3F4_invt." + extension);
+writeLUT(globals->ITC_F3F4()->invt, finv);
+finv.close();
+finv.open("B3B4_drinv." + extension);
+writeLUT(globals->ITC_B3B4()->drinv, finv);
+finv.close();
+finv.open("B3B4_invt." + extension);
+writeLUT(globals->ITC_B3B4()->invt, finv);
+finv.close();
+
+finv.open("L1F1_drinv." + extension);
+writeLUT(globals->ITC_L1F1()->drinv, finv);
+finv.close();
+finv.open("L1F1_invt." + extension);
+writeLUT(globals->ITC_L1F1()->invt, finv);
+finv.close();
+finv.open("L1B1_drinv." + extension);
+writeLUT(globals->ITC_L1B1()->drinv, finv);
+finv.close();
+finv.open("L1B1_invt." + extension);
+writeLUT(globals->ITC_L1B1()->invt, finv);
+finv.close();
+
+finv.open("L2F1_drinv." + extension);
+writeLUT(globals->ITC_L2F1()->drinv, finv);
+finv.close();
+finv.open("L2F1_invt." + extension);
+writeLUT(globals->ITC_L2F1()->invt, finv);
+finv.close();
+finv.open("L2B1_drinv." + extension);
+writeLUT(globals->ITC_L2B1()->drinv, finv);
+finv.close();
+finv.open("L2B1_invt." + extension);
+writeLUT(globals->ITC_L2B1()->invt, finv);
+finv.close();

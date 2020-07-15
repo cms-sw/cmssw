@@ -101,7 +101,7 @@ DeepVertexTFJetTagsProducer::DeepVertexTFJetTagsProducer(const edm::ParameterSet
 
   // get output names from flav_table
   const auto& flav_pset = iConfig.getParameter<edm::ParameterSet>("flav_table");
-  for (const auto flav_pair : flav_pset.tbl()) {
+  for (const auto& flav_pair : flav_pset.tbl()) {
     const auto& flav_name = flav_pair.first;
     flav_pairs_.emplace_back(flav_name, flav_pset.getParameter<std::vector<unsigned int>>(flav_name));
   }

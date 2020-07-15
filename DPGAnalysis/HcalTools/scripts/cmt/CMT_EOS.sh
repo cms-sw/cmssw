@@ -1,7 +1,7 @@
 #!/bin/bash
 
 WebDir='/eos/cms/store/group/dpg_hcal/comm_hcal/www/HcalRemoteMonitoring'
-WebSite='https://cms-conddb-dev.cern.ch/eosweb/hcal/HcalRemoteMonitoring'
+WebSite='https://cms-conddb.cern.ch/eosweb/hcal/HcalRemoteMonitoring'
 HistoDir='/store/group/dpg_hcal/comm_hcal/www/HcalRemoteMonitoring/CMT/histos'
 eos='/afs/cern.ch/project/eos/installation/0.3.15/bin/eos.select'
 
@@ -153,7 +153,7 @@ for i in ${runList} ; do
     
     #CMT processing
     echo -e "\nRemoteMonitoringGLOBAL\n" >> ${logFile}
-    ./RemoteMonitoringGLOBAL.cc.exe Global_$runnumber.root 2>&1 | tee -a ${logFile}
+    ./../../macros/cmt/RemoteMonitoringGLOBAL.cc.exe Global_$runnumber.root 2>&1 | tee -a ${logFile}
     if [ ! $? -eq 0 ] ; then
 	echo "GLOBAL processing failed"
 	exit 2
@@ -169,39 +169,68 @@ for i in ${runList} ; do
     rm -rf ${local_WebDir}
     if [ ! -d ${local_WebDir} ] ; then mkdir ${local_WebDir}; fi
     for j in $(ls -r *.html); do
-	cat $j | sed 's#cms-cpt-software.web.cern.ch\/cms-cpt-software\/General\/Validation\/SVSuite#cms-conddb-dev.cern.ch\/eosweb\/hcal#g' \
+	cat $j | sed 's#cms-cpt-software.web.cern.ch\/cms-cpt-software\/General\/Validation\/SVSuite#cms-conddb.cern.ch\/eosweb\/hcal#g' \
 	    > ${local_WebDir}/$j
     done
     cp *.png ${local_WebDir}
 ##    cp HELP.html ${local_WebDir}
-    files=`cd ${local_WebDir}; ls`
-    #echo "CMT files=${files}"
 
-    if [ ${debug} -eq 0 ] ; then
-	eos mkdir -p $WebDir/CMT/GLOBAL_$runnumber
-	if [ ! $? -eq 0 ] ; then
-	    echo "CMT eos mkdir failed"
-	    exit 2
-	fi
-	for f in ${files} ; do
-	    echo "eoscp ${local_WebDir}/${f} $WebDir/CMT/GLOBAL_$runnumber/${f}"
-	    eos cp ${local_WebDir}/${f} $WebDir/CMT/GLOBAL_$runnumber/${f}
-	    if [ ! $? -eq 0 ] ; then
-		echo "CMT eoscp failed for ${f}"
-#		exit 2
-	    fi
-	done
-    else
-        # debuging
-	echo "debugging: files are not copied to EOS"
-    fi
 
+
+#-----------------------------------------------------------------------------------------copying:
+
+
+#---------------111
+# first variant:
+    mkdir $WebDir/CMT/GLOBAL_$runnumber
+    cp *.png $WebDir/CMT/GLOBAL_$runnumber/.
+    cp *.html $WebDir/CMT/GLOBAL_$runnumber/.
+ echo "cp  png and html file done"
+
+
+#---------------222
+# more simple second variant:
+#scp -r ${local_WebDir} $WebDir/CMT/GLOBAL_$runnumber
+#echo "cp -r for dir with png and html file done"
+
+
+#---------------old
+# instead old variant:
+
+#    files=`cd ${local_WebDir}; ls`
+    ###echo "CMT files=${files}"
+#    if [ ${debug} -eq 0 ] ; then
+#	eos mkdir -p $WebDir/CMT/GLOBAL_$runnumber
+#	if [ ! $? -eq 0 ] ; then
+#	    echo "CMT eos mkdir failed"
+#	    exit 2
+#	fi
+#	for f in ${files} ; do
+#	    echo "eoscp ${local_WebDir}/${f} $WebDir/CMT/GLOBAL_$runnumber/${f}"
+#	    eos cp ${local_WebDir}/${f} $WebDir/CMT/GLOBAL_$runnumber/${f}
+#	    if [ ! $? -eq 0 ] ; then
+#		echo "CMT eoscp failed for ${f}"
+####		exit 2
+#	    fi
+#	done
+#    else
+        ## debuging
+#	echo "debugging: files are not copied to EOS"
+#    fi
+#
+#---------------
+#
+#   removing:
+#
+#
+#
     rm *.html
     rm *.png 
     rm -rf dir-CMT-GLOBAL_*
     rm *.root
+#
 
-
+#---------------
 
 #fi
 
@@ -211,7 +240,9 @@ if [ ${debug} -eq 2 ] ; then
     echo "debug=2 skipping web page creation"
     exit 2
 fi
+#---------------
 
 
 
 echo "CMT script done"
+#---------------

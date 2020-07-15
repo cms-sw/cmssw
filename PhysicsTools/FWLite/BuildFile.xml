@@ -1,9 +1,10 @@
-<use   name="boost"/>
-<use   name="rootcore"/>
-<use   name="roothistmatrix"/>
-<use   name="CommonTools/Utils"/>
-<use   name="DataFormats/FWLite"/>
-<use   name="DataFormats/PatCandidates"/>
+<use name="boost"/>
+<use name="rootcore"/>
+<use name="roothistmatrix"/>
+<use name="CommonTools/Utils"/>
+<use name="DataFormats/FWLite"/>
+<use name="DataFormats/PatCandidates"/>
+<use name="PhysicsTools/SelectorUtils"/>
 <export>
-  <lib   name="1"/>
+  <lib name="1"/>
 </export>

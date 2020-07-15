@@ -34,6 +34,10 @@ public:
    */
   BPHChi2Select(double prob) : probMin(prob) {}
 
+  // deleted copy constructor and assignment operator
+  BPHChi2Select(const BPHChi2Select& x) = delete;
+  BPHChi2Select& operator=(const BPHChi2Select& x) = delete;
+
   /** Destructor
    */
   ~BPHChi2Select() override {}
@@ -42,12 +46,14 @@ public:
    */
   /// select vertex
   bool accept(const BPHDecayVertex& cand) const override {
+    if (probMin < 0.0)
+      return true;
     const reco::Vertex& v = cand.vertex();
     if (v.isFake())
       return false;
     if (!v.isValid())
       return false;
-    return (TMath::Prob(v.chi2(), lround(v.ndof())) > probMin);
+    return (TMath::Prob(v.chi2(), lround(v.ndof())) >= probMin);
   }
 
   /// set prob min
@@ -60,10 +66,6 @@ public:
   double getProbMin() const { return probMin; }
 
 private:
-  // private copy and assigment constructors
-  BPHChi2Select(const BPHChi2Select& x) = delete;
-  BPHChi2Select& operator=(const BPHChi2Select& x) = delete;
-
   double probMin;
 };
 

@@ -55,7 +55,6 @@
 #include <boost/range.hpp>
 #include "DataFormats/Common/interface/CMS_CLASS_VERSION.h"
 #include "DataFormats/Provenance/interface/ProductID.h"
-#include "FWCore/Utilities/interface/GCC11Compatibility.h"
 
 namespace edm {
   namespace helper {

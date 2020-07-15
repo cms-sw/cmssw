@@ -1,10 +1,7 @@
 #include "CondFormats/PhysicsToolsObjects/interface/PerformancePayloadFromBinnedTFormula.h"
 
 #include "FWCore/Utilities/interface/Exception.h"
-#include <boost/uuid/uuid.hpp>
-#include <boost/uuid/uuid_generators.hpp>
-#include <boost/uuid/uuid_io.hpp>
-#include <boost/lexical_cast.hpp>
+#include "FWCore/Utilities/interface/GlobalIdentifier.h"
 
 const int PerformancePayloadFromBinnedTFormula::InvalidPos = -1;
 
@@ -12,12 +9,10 @@ const int PerformancePayloadFromBinnedTFormula::InvalidPos = -1;
 using namespace std;
 
 void PerformancePayloadFromBinnedTFormula::initialize() {
-  boost::uuids::random_generator gen;
   for (unsigned int t = 0; t < pls.size(); ++t) {
     std::vector<std::shared_ptr<TFormula> > temp;
     for (unsigned int i = 0; i < (pls[t].formulas()).size(); ++i) {
-      boost::uuids::uuid uniqueFormulaId = gen();
-      const auto formulaUniqueName = boost::lexical_cast<std::string>(uniqueFormulaId);
+      const auto formulaUniqueName = edm::createGlobalIdentifier();
       PhysicsTFormulaPayload tmp = pls[t];
       std::shared_ptr<TFormula> tt(new TFormula(formulaUniqueName.c_str(), tmp.formulas()[i].c_str()));
       tt->Compile();

@@ -1,5 +1,5 @@
 /*!
-  \file SiPixelQulity_PayloadInspector
+  \file SiPixelQuality_PayloadInspector
   \Payload Inspector Plugin for SiPixelQuality
   \author M. Musich
   \version $Revision: 1.0 $
@@ -42,16 +42,16 @@ namespace {
     test class
   *************************************************/
 
-  class SiPixelQualityTest : public cond::payloadInspector::Histogram1D<SiPixelQuality> {
+  class SiPixelQualityTest
+      : public cond::payloadInspector::Histogram1D<SiPixelQuality, cond::payloadInspector::SINGLE_IOV> {
   public:
     SiPixelQualityTest()
-        : cond::payloadInspector::Histogram1D<SiPixelQuality>(
-              "SiPixelQuality test", "SiPixelQuality test", 10, 0.0, 10.0) {
-      Base::setSingleIov(true);
-    }
+        : cond::payloadInspector::Histogram1D<SiPixelQuality, cond::payloadInspector::SINGLE_IOV>(
+              "SiPixelQuality test", "SiPixelQuality test", 10, 0.0, 10.0) {}
 
-    bool fill(const std::vector<std::tuple<cond::Time_t, cond::Hash> >& iovs) override {
-      for (auto const& iov : iovs) {
+    bool fill() override {
+      auto tag = PlotBase::getTag<0>();
+      for (auto const& iov : tag.iovs) {
         std::shared_ptr<SiPixelQuality> payload = Base::fetchPayload(std::get<1>(iov));
         if (payload.get()) {
           fillWithValue(1.);
@@ -76,16 +76,16 @@ namespace {
     summary class
   *************************************************/
 
-  class SiPixelQualityBadRocsSummary : public cond::payloadInspector::PlotImage<SiPixelQuality> {
+  class SiPixelQualityBadRocsSummary
+      : public cond::payloadInspector::PlotImage<SiPixelQuality, cond::payloadInspector::MULTI_IOV, 1> {
   public:
-    SiPixelQualityBadRocsSummary() : cond::payloadInspector::PlotImage<SiPixelQuality>("SiPixel Quality Summary") {
-      setSingleIov(false);
-    }
+    SiPixelQualityBadRocsSummary()
+        : cond::payloadInspector::PlotImage<SiPixelQuality, cond::payloadInspector::MULTI_IOV, 1>(
+              "SiPixel Quality Summary") {}
 
-    bool fill(const std::vector<std::tuple<cond::Time_t, cond::Hash> >& iovs) override {
-      std::vector<std::tuple<cond::Time_t, cond::Hash> > sorted_iovs = iovs;
-
-      for (const auto& iov : iovs) {
+    bool fill() override {
+      auto tag = PlotBase::getTag<0>();
+      for (const auto& iov : tag.iovs) {
         std::shared_ptr<SiPixelQuality> payload = fetchPayload(std::get<1>(iov));
         auto unpacked = SiPixelPI::unpack(std::get<0>(iov));
 
@@ -145,17 +145,18 @@ namespace {
    occupancy style map BPix
   *************************************************/
 
-  class SiPixelBPixQualityMap : public cond::payloadInspector::PlotImage<SiPixelQuality> {
+  class SiPixelBPixQualityMap
+      : public cond::payloadInspector::PlotImage<SiPixelQuality, cond::payloadInspector::SINGLE_IOV> {
   public:
     SiPixelBPixQualityMap()
-        : cond::payloadInspector::PlotImage<SiPixelQuality>("SiPixelQuality Barrel Pixel Map"),
+        : cond::payloadInspector::PlotImage<SiPixelQuality, cond::payloadInspector::SINGLE_IOV>(
+              "SiPixelQuality Barrel Pixel Map"),
           m_trackerTopo{StandaloneTrackerTopology::fromTrackerParametersXMLFile(
-              edm::FileInPath("Geometry/TrackerCommonData/data/PhaseI/trackerParameters.xml").fullPath())} {
-      setSingleIov(true);
-    }
+              edm::FileInPath("Geometry/TrackerCommonData/data/PhaseI/trackerParameters.xml").fullPath())} {}
 
-    bool fill(const std::vector<std::tuple<cond::Time_t, cond::Hash> >& iovs) override {
-      auto iov = iovs.front();
+    bool fill() override {
+      auto tag = PlotBase::getTag<0>();
+      auto iov = tag.iovs.front();
       std::shared_ptr<SiPixelQuality> payload = fetchPayload(std::get<1>(iov));
 
       static const int n_layers = 4;
@@ -259,17 +260,18 @@ namespace {
    occupancy style map FPix
   *************************************************/
 
-  class SiPixelFPixQualityMap : public cond::payloadInspector::PlotImage<SiPixelQuality> {
+  class SiPixelFPixQualityMap
+      : public cond::payloadInspector::PlotImage<SiPixelQuality, cond::payloadInspector::SINGLE_IOV> {
   public:
     SiPixelFPixQualityMap()
-        : cond::payloadInspector::PlotImage<SiPixelQuality>("SiPixelQuality Forward Pixel Map"),
+        : cond::payloadInspector::PlotImage<SiPixelQuality, cond::payloadInspector::SINGLE_IOV>(
+              "SiPixelQuality Forward Pixel Map"),
           m_trackerTopo{StandaloneTrackerTopology::fromTrackerParametersXMLFile(
-              edm::FileInPath("Geometry/TrackerCommonData/data/PhaseI/trackerParameters.xml").fullPath())} {
-      setSingleIov(true);
-    }
+              edm::FileInPath("Geometry/TrackerCommonData/data/PhaseI/trackerParameters.xml").fullPath())} {}
 
-    bool fill(const std::vector<std::tuple<cond::Time_t, cond::Hash> >& iovs) override {
-      auto iov = iovs.front();
+    bool fill() override {
+      auto tag = PlotBase::getTag<0>();
+      auto iov = tag.iovs.front();
       std::shared_ptr<SiPixelQuality> payload = fetchPayload(std::get<1>(iov));
 
       static const int n_rings = 2;

@@ -1,12 +1,10 @@
-<use   name="FWCore/Framework"/>
-<use   name="FWCore/ParameterSet"/>
-<use   name="DataFormats/Common"/>
-<use   name="CondFormats/SiPixelObjects"/>
-<use   name="Geometry/TrackerGeometryBuilder"/>
-<use   name="DataFormats/SiPixelDetId"/>
-<use   name="DataFormats/Phase2TrackerCluster"/>
-<use   name="DataFormats/Phase2TrackerDigi"/>
-<use   name="root"/>
-<library   file="*.cc" name="Phase2TrackerClusterizerPlugin">
-  <flags   EDM_PLUGIN="1"/>
+<use name="FWCore/Framework"/>
+<use name="FWCore/ParameterSet"/>
+<use name="DataFormats/Common"/>
+<use name="Geometry/TrackerGeometryBuilder"/>
+<use name="DataFormats/Phase2TrackerCluster"/>
+<use name="DataFormats/Phase2TrackerDigi"/>
+<use name="root"/>
+<library file="*.cc" name="Phase2TrackerClusterizerPlugin">
+  <flags EDM_PLUGIN="1"/>
 </library>

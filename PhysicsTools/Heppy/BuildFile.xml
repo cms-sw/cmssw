@@ -1,7 +1,5 @@
 <use name="root"/>
 <use name="rootcore"/>
-
-<use name="rootpy"/>
 <use name="clhepheader"/>
 <use name="DataFormats/Candidate"/>
 <use name="DataFormats/PatCandidates"/>
@@ -14,5 +12,3 @@
 <export>
   <lib name="1"/>
 </export>
-
-

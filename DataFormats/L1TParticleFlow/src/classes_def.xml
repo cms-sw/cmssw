@@ -1,0 +1,45 @@
+<lcgdict>
+                      
+  <class name="l1t::PFCluster" ClassVersion="3">
+        <version ClassVersion="3" checksum="1668592434"/>
+  </class> 
+  <class name="l1t::PFClusterCollection"/>
+  <class name="edm::Wrapper<l1t::PFClusterCollection>" />
+  <class name="edm::Ref<l1t::PFClusterCollection>" />
+  <class name="edm::RefVector<l1t::PFClusterCollection>" /> 
+
+  <class name="l1t::PFTrack::TrackRef" />
+  <class name="l1t::PFTrack"  ClassVersion="3">
+        <version ClassVersion="3" checksum="2332162612"/>
+  </class>
+  <class name="l1t::PFTrackCollection" />
+  <class name="edm::Wrapper<l1t::PFTrackCollection>" />
+  <class name="edm::Ref<l1t::PFTrackCollection>" />
+  <class name="edm::RefVector<l1t::PFTrackCollection>" /> 
+
+  <class name="l1t::PFCandidate"  ClassVersion="3">
+        <version ClassVersion="3" checksum="4253860178"/>
+  </class>
+  <class name="l1t::PFCandidateCollection" />
+  <class name="edm::Wrapper<l1t::PFCandidateCollection>" />
+  <class name="edm::Ref<l1t::PFCandidateCollection>" />
+  <class name="edm::RefVector<l1t::PFCandidateCollection>" />
+
+  <class name="l1t::PFJet"  ClassVersion="3">
+        <version ClassVersion="3" checksum="133342988"/>
+  </class>
+  <class name="l1t::PFJetCollection" />
+  <class name="edm::Wrapper<l1t::PFJetCollection>" />
+  <class name="edm::Ref<l1t::PFJetCollection>" />
+  <class name="edm::RefVector<l1t::PFJetCollection>" />
+
+  <class name="l1t::PFTau"  ClassVersion="3">
+        <version ClassVersion="3" checksum="1410157160"/>
+  </class>
+  <class name="l1t::PFTauCollection" />
+  <class name="edm::Wrapper<l1t::PFTauCollection>" />
+  <class name="edm::Ref<l1t::PFTauCollection>" /> 
+  <class name="edm::RefVector<l1t::PFTauCollection>" /> 
+
+</lcgdict>
+

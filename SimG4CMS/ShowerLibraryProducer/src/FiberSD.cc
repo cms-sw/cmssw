@@ -4,10 +4,7 @@
 #include "Geometry/HcalCommonData/interface/HcalDDDSimConstants.h"
 #include "Geometry/HcalCommonData/interface/HcalDDDSimulationConstants.h"
 #include "Geometry/Records/interface/HcalSimNumberingRecord.h"
-#include "Geometry/Records/interface/IdealGeometryRecord.h"
-#include "DetectorDescription/Core/interface/DDCompactView.h"
 #include "FWCore/Framework/interface/ESHandle.h"
-#include "FWCore/Framework/interface/ESTransientHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 
 #include "G4VPhysicalVolume.hh"

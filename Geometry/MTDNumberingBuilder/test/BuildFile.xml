@@ -1,22 +1,38 @@
 <library name="testMTDNumberingBuilder" file="GeometricTimingDetAnalyzer.cc">
- <use name="DetectorDescription/Core"/>
- <use name="FWCore/Framework"/>
- <use name="FWCore/MessageLogger"/>
- <use name="FWCore/ParameterSet"/>
- <use name="Geometry/MTDNumberingBuilder"/>
- <use name="Geometry/Records"/>
- <use name="rootcling"/>
- <flags EDM_PLUGIN="1"/>
+  <use name="FWCore/Framework"/>
+  <use name="FWCore/MessageLogger"/>
+  <use name="FWCore/ParameterSet"/>
+  <use name="Geometry/MTDNumberingBuilder"/>
+  <use name="Geometry/Records"/>
+  <use name="rootcling"/>
+  <flags EDM_PLUGIN="1"/>
 </library>
+
 <library name="MTDTopologyAnalyzer" file="MTDTopologyAnalyzer.cc">
- <use name="DataFormats/ForwardDetId"/>
- <use name="DetectorDescription/Core"/>
- <use name="FWCore/Framework"/>
- <use name="FWCore/MessageLogger"/>
- <use name="FWCore/ParameterSet"/>
- <use name="Geometry/MTDCommonData"/>
- <use name="Geometry/MTDNumberingBuilder"/>
- <use name="Geometry/Records"/>
- <use name="rootcling"/>
- <flags EDM_PLUGIN="1"/>
+  <use name="DataFormats/ForwardDetId"/>
+  <use name="DetectorDescription/Core"/>
+  <use name="FWCore/Framework"/>
+  <use name="FWCore/MessageLogger"/>
+  <use name="FWCore/ParameterSet"/>
+  <use name="Geometry/MTDCommonData"/>
+  <use name="Geometry/MTDNumberingBuilder"/>
+  <use name="Geometry/Records"/>
+  <use name="rootcling"/>
+  <flags EDM_PLUGIN="1"/>
 </library>
+
+<library name="DD4hep_MTDTopologyAnalyzer" file="DD4hep_MTDTopologyAnalyzer.cc">
+  <use name="DataFormats/ForwardDetId"/>
+  <use name="DetectorDescription/DDCMS"/>
+  <use name="FWCore/Framework"/>
+  <use name="FWCore/MessageLogger"/>
+  <use name="FWCore/ParameterSet"/>
+  <use name="Geometry/MTDCommonData"/>
+  <use name="Geometry/MTDNumberingBuilder"/>
+  <use name="Geometry/Records"/>
+  <use name="dd4hep"/>
+  <use name="rootcling"/>
+  <flags EDM_PLUGIN="1"/>
+</library>
+
+<test name="GeometryMTDNumberingBuilderTestDriver" command="runTest.sh"/>

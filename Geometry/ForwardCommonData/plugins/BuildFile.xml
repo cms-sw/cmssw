@@ -1,5 +1,12 @@
-<library   file="*.cc" name="GeometryForwardCommonDataPlugin">
- <use   name="DetectorDescription/Parser"/>
- <use   name="FWCore/PluginManager"/>
- <flags   EDM_PLUGIN="1"/>
+<library file="*.cc" name="GeometryForwardCommonDataPlugin">
+  <use name="DetectorDescription/Parser"/>
+  <use name="FWCore/PluginManager"/>
+  <flags EDM_PLUGIN="1"/>
+</library>
+
+<library name="DD4hep_GeometryForwardCommonDataPlugin" file="dd4hep/*.cc">
+  <use name="DetectorDescription/DDCMS"/>
+  <use name="dd4hep"/>
+  <lib name="Geom"/>
+  <flags DD4HEP_PLUGIN="1"/>
 </library>

@@ -1,8 +1,8 @@
-<use   name="DataFormats/Common"/>
-<use   Name="DataFormats/GeometryVector"/>
-<use   name="DataFormats/Math"/>
-<use   name="FWCore/Utilities"/>
-<use   name="rootmath"/>
+<use name="DataFormats/Common"/>
+<use Name="DataFormats/GeometryVector"/>
+<use name="DataFormats/Math"/>
+<use name="FWCore/Utilities"/>
+<use name="rootmath"/>
 <export>
-  <lib   name="1"/>
+  <lib name="1"/>
 </export>

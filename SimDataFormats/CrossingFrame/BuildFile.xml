@@ -1,15 +1,13 @@
-<use   name="DataFormats/Common"/>
-<use   name="DataFormats/HcalDetId"/>
-<use   name="DataFormats/Provenance"/>
-<use   name="FWCore/MessageLogger"/>
-<use   name="FWCore/Utilities"/>
-<use   name="SimDataFormats/CaloHit"/>
-<use   name="SimDataFormats/EncodedEventId"/>
-<use   name="SimDataFormats/Track"/>
-<use   name="SimDataFormats/TrackingHit"/>
-<use   name="SimDataFormats/Vertex"/>
-<use   name="SimDataFormats/GeneratorProducts"/>
-
+<use name="DataFormats/Common"/>
+<use name="DataFormats/Provenance"/>
+<use name="FWCore/MessageLogger"/>
+<use name="FWCore/Utilities"/>
+<use name="SimDataFormats/CaloHit"/>
+<use name="SimDataFormats/EncodedEventId"/>
+<use name="SimDataFormats/Track"/>
+<use name="SimDataFormats/TrackingHit"/>
+<use name="SimDataFormats/Vertex"/>
+<use name="SimDataFormats/GeneratorProducts"/>
 <export>
-  <lib   name="1"/>
+  <lib name="1"/>
 </export>

@@ -32,7 +32,7 @@
 #include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
 #include "DataFormats/EcalDetId/interface/EcalSubdetector.h"
 #include "RecoEcal/EgammaCoreTools/interface/EcalClusterLazyTools.h"
-#include "RecoEgamma/EgammaTools/interface/ConversionTools.h"
+#include "CommonTools/Egamma/interface/ConversionTools.h"
 #include "Geometry/CaloEventSetup/interface/CaloTopologyRecord.h"
 #include "Geometry/CaloTopology/interface/CaloTopology.h"
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
@@ -991,7 +991,7 @@ void PATElectronProducer::setElectronMiniIso(Electron& anElectron, const PackedC
   pat::PFIsolation miniiso;
   if (anElectron.isEE())
     miniiso = pat::getMiniPFIsolation(pc,
-                                      anElectron.p4(),
+                                      anElectron.polarP4(),
                                       miniIsoParamsE_[0],
                                       miniIsoParamsE_[1],
                                       miniIsoParamsE_[2],
@@ -1003,7 +1003,7 @@ void PATElectronProducer::setElectronMiniIso(Electron& anElectron, const PackedC
                                       miniIsoParamsE_[8]);
   else
     miniiso = pat::getMiniPFIsolation(pc,
-                                      anElectron.p4(),
+                                      anElectron.polarP4(),
                                       miniIsoParamsB_[0],
                                       miniIsoParamsB_[1],
                                       miniIsoParamsB_[2],

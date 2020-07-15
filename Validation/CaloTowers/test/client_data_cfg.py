@@ -75,8 +75,6 @@ process.options = cms.untracked.PSet(
 
 #process.load('Configuration/StandardSequences/EDMtoMEAtRunEnd_cff')
 ##process.EDMtoMEConverter.convertOnEndLumi = False
-#process.dqmSaver.referenceHandling = cms.untracked.string('all')
-## Don't do this: process.dqmSaver.enableMultiThread = cms.untracked.bool(True)
 
 cmssw_version = os.environ.get('CMSSW_VERSION','CMSSW_X_Y_Z')
 Workflow = '/HcalValidation/'+'Harvesting/'+str(cmssw_version)
@@ -89,7 +87,6 @@ process.dqmSaver.workflow = Workflow
 #process.dqmSaver.saveByRun = cms.untracked.int32(1)
 #process.dqmSaver.saveAtJobEnd = cms.untracked.bool(True)
 #process.dqmSaver.forceRunNumber = cms.untracked.int32(999999)
-process.DQMStore.collateHistograms = cms.untracked.bool(True)
 process.dqmSaver.convention = 'Offline'
 process.dqmSaver.saveByRun = -1
 process.dqmSaver.saveAtJobEnd = True

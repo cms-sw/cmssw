@@ -90,7 +90,7 @@ GenEventInfoProduct &GenEventInfoProduct::operator=(GenEventInfoProduct &&other)
   DJRValues_ = std::move(other.DJRValues_);
   nMEPartons_ = other.nMEPartons_;
   nMEPartonsFiltered_ = other.nMEPartonsFiltered_;
-  pdf_.reset(other.pdf_.release());
+  pdf_ = std::move(other.pdf_);
 
   return *this;
 }

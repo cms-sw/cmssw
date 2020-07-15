@@ -67,6 +67,7 @@ private:
   hgcal::RecHitTools recHitTools_;
   static constexpr int depletion1_ = 200;
   static constexpr int depletion2_ = 300;
+  static constexpr int scint_ = 400;
 
   std::map<int, MonitorElement*> h_EoP_CPene_calib_fraction_;
   std::map<int, MonitorElement*> hgcal_EoP_CPene_calib_fraction_;
@@ -126,24 +127,30 @@ void HGCalHitCalibration::bookHistograms(DQMStore::IBooker& ibooker,
   h_EoP_CPene_calib_fraction_[depletion0_] = ibooker.book1D("h_EoP_CPene_100_calib_fraction", "", 1000, -0.5, 2.5);
   h_EoP_CPene_calib_fraction_[depletion1_] = ibooker.book1D("h_EoP_CPene_200_calib_fraction", "", 1000, -0.5, 2.5);
   h_EoP_CPene_calib_fraction_[depletion2_] = ibooker.book1D("h_EoP_CPene_300_calib_fraction", "", 1000, -0.5, 2.5);
+  h_EoP_CPene_calib_fraction_[scint_] = ibooker.book1D("h_EoP_CPene_scint_calib_fraction", "", 1000, -0.5, 2.5);
   hgcal_EoP_CPene_calib_fraction_[depletion0_] =
       ibooker.book1D("hgcal_EoP_CPene_100_calib_fraction", "", 1000, -0.5, 2.5);
   hgcal_EoP_CPene_calib_fraction_[depletion1_] =
       ibooker.book1D("hgcal_EoP_CPene_200_calib_fraction", "", 1000, -0.5, 2.5);
   hgcal_EoP_CPene_calib_fraction_[depletion2_] =
       ibooker.book1D("hgcal_EoP_CPene_300_calib_fraction", "", 1000, -0.5, 2.5);
+  hgcal_EoP_CPene_calib_fraction_[scint_] = ibooker.book1D("hgcal_EoP_CPene_scint_calib_fraction", "", 1000, -0.5, 2.5);
   hgcal_ele_EoP_CPene_calib_fraction_[depletion0_] =
       ibooker.book1D("hgcal_ele_EoP_CPene_100_calib_fraction", "", 1000, -0.5, 2.5);
   hgcal_ele_EoP_CPene_calib_fraction_[depletion1_] =
       ibooker.book1D("hgcal_ele_EoP_CPene_200_calib_fraction", "", 1000, -0.5, 2.5);
   hgcal_ele_EoP_CPene_calib_fraction_[depletion2_] =
       ibooker.book1D("hgcal_ele_EoP_CPene_300_calib_fraction", "", 1000, -0.5, 2.5);
+  hgcal_ele_EoP_CPene_calib_fraction_[scint_] =
+      ibooker.book1D("hgcal_ele_EoP_CPene_scint_calib_fraction", "", 1000, -0.5, 2.5);
   hgcal_photon_EoP_CPene_calib_fraction_[depletion0_] =
       ibooker.book1D("hgcal_photon_EoP_CPene_100_calib_fraction", "", 1000, -0.5, 2.5);
   hgcal_photon_EoP_CPene_calib_fraction_[depletion1_] =
       ibooker.book1D("hgcal_photon_EoP_CPene_200_calib_fraction", "", 1000, -0.5, 2.5);
   hgcal_photon_EoP_CPene_calib_fraction_[depletion2_] =
       ibooker.book1D("hgcal_photon_EoP_CPene_300_calib_fraction", "", 1000, -0.5, 2.5);
+  hgcal_photon_EoP_CPene_calib_fraction_[scint_] =
+      ibooker.book1D("hgcal_photon_EoP_CPene_scint_calib_fraction", "", 1000, -0.5, 2.5);
   LayerOccupancy_ = ibooker.book1D("LayerOccupancy", "", layers_, 0., (float)layers_);
 }
 
@@ -167,6 +174,7 @@ void HGCalHitCalibration::fillWithRecHits(std::map<DetId, const HGCRecHit*>& hit
         << hitid.subdetId() << std::endl;
     return;
   }
+
   unsigned int layer = recHitTools_.getLayerWithOffset(hitid);
   assert(hitlayer == layer);
   Energy_layer_calib_fraction_[layer] += hitmap[hitid]->energy() * fraction;
@@ -174,6 +182,9 @@ void HGCalHitCalibration::fillWithRecHits(std::map<DetId, const HGCRecHit*>& hit
   if (seedEnergy < hitmap[hitid]->energy()) {
     seedEnergy = hitmap[hitid]->energy();
     seedDet = recHitTools_.getSiThickness(hitid);
+    if (hitid.det() == DetId::HGCalHSc) {
+      seedDet = scint_;
+    }
   }
 }
 
@@ -312,6 +323,9 @@ void HGCalHitCalibration::analyze(const edm::Event& iEvent, const edm::EventSetu
     if (closest != clusters.end() && reco::deltaR2(*closest, it_caloPart) < 0.01) {
       total_energy = closest->correctedEnergy();
       seedDet = recHitTools_.getSiThickness(closest->seed());
+      if (closest->seed().det() == DetId::HGCalHSc) {
+        seedDet = scint_;
+      }
       if (hgcal_EoP_CPene_calib_fraction_.count(seedDet)) {
         hgcal_EoP_CPene_calib_fraction_[seedDet]->Fill(total_energy / it_caloPart.energy());
       }
@@ -337,6 +351,9 @@ void HGCalHitCalibration::analyze(const edm::Event& iEvent, const edm::EventSetu
            closest->superCluster()->seed()->seed().det() == DetId::HGCalEE) &&
           reco::deltaR2(*closest, it_caloPart) < 0.01) {
         seedDet = recHitTools_.getSiThickness(closest->superCluster()->seed()->seed());
+        if (closest->superCluster()->seed()->seed().det() == DetId::HGCalHSc) {
+          seedDet = scint_;
+        }
         if (hgcal_ele_EoP_CPene_calib_fraction_.count(seedDet)) {
           hgcal_ele_EoP_CPene_calib_fraction_[seedDet]->Fill(closest->energy() / it_caloPart.energy());
         }

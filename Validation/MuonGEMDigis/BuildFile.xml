@@ -1,9 +1,6 @@
-<use name="DQMServices/Core"/>
 <use name="rootcore"/>
-<use name="Validation/MuonGEMHits"/>
 <use name="Validation/MuonHits"/>
-<use name="DataFormats/MuonDetId"/>
 <use name="DataFormats/GEMDigi"/>
 <export>
-<lib name="1"/>
+  <lib name="1"/>
 </export>

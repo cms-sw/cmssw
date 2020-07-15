@@ -3,7 +3,7 @@
 <use name="FWCore/ParameterSet"/>
 <use name="SimDataFormats/TrackingHit"/>
 <use name="DataFormats/Common"/>
-<use name="clhep"/>    
+<use name="clhep"/>
 <export>
-  <lib   name="1"/>
+  <lib name="1"/>
 </export>

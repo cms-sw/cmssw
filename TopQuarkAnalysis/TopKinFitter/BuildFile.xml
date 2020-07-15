@@ -1,7 +1,7 @@
-<use   name="CommonTools/Utils"/>
-<use   name="FWCore/ParameterSet"/>
-<use   name="PhysicsTools/KinFitter"/>
-<use   name="AnalysisDataFormats/TopObjects"/>
+<use name="CommonTools/Utils"/>
+<use name="FWCore/ParameterSet"/>
+<use name="PhysicsTools/KinFitter"/>
+<use name="AnalysisDataFormats/TopObjects"/>
 <export>
-  <lib   name="1"/>
+  <lib name="1"/>
 </export>

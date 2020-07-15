@@ -37,7 +37,7 @@ namespace edm {
     // thousands of files and prestaging all those files can cause a site to fail.
     // So, we stage in the first secondary file only.
     setAtFirstFile();
-    StorageFactory::get()->stagein(fileName());
+    StorageFactory::get()->stagein(fileNames()[0]);
 
     // Open the first file.
     for (setAtFirstFile(); !noMoreFiles(); setAtNextFile()) {
@@ -69,7 +69,7 @@ namespace edm {
   RootSecondaryFileSequence::RootFileSharedPtr RootSecondaryFileSequence::makeRootFile(
       std::shared_ptr<InputFile> filePtr) {
     size_t currentIndexIntoFile = sequenceNumberOfFile();
-    return std::make_shared<RootFile>(fileName(),
+    return std::make_shared<RootFile>(fileNames()[0],
                                       input_.processConfiguration(),
                                       logicalFileName(),
                                       filePtr,

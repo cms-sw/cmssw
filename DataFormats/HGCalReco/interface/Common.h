@@ -14,7 +14,20 @@ namespace ticl {
     static constexpr int nLayers = 104;
     static constexpr int iterations = 4;
     static constexpr int nBins = nEtaBins * nPhiBins;
+    static constexpr int type = 0;
   };
+
+  struct TileConstantsHFNose {
+    static constexpr float minEta = 3.0f;
+    static constexpr float maxEta = 4.2f;
+    static constexpr int nEtaBins = 24;
+    static constexpr int nPhiBins = 126;
+    static constexpr int nLayers = 16;  // 8x2
+    static constexpr int iterations = 4;
+    static constexpr int nBins = nEtaBins * nPhiBins;
+    static constexpr int type = 1;
+  };
+
 }  // namespace ticl
 
 namespace ticl {

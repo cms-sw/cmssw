@@ -174,8 +174,10 @@ JETVARS = cms.PSet(P4Vars,
   muEF      = jetTable.variables.muEF,
   rawFactor = jetTable.variables.rawFactor,
   jetId     = jetTable.variables.jetId,
-  jercCHPUF = jetTable.variables.jercCHPUF,
-  jercCHF   = jetTable.variables.jercCHF,
+  chFPV0EF  = jetTable.variables.chFPV0EF,
+  chFPV1EF  = jetTable.variables.chFPV1EF,
+  chFPV2EF  = jetTable.variables.chFPV2EF,
+  chFPV3EF  = jetTable.variables.chFPV3EF,
 )
 
 #============================================
@@ -304,11 +306,6 @@ class TableRecoJetAdder(object):
           area      = jetTable.variables.area,
           rawFactor = jetTable.variables.rawFactor,
         )
-    elif "puppi" in recoJetInfo.jet:
-      tableContents = JETVARS.clone(
-        puppiMultiplicity = Var("userFloat('patPuppiJetSpecificProducer:puppiMultiplicity')",float,doc="Sum of PUPPI weights of particles in the jet", precision= 6),
-        neutralPuppiMultiplicity = Var("userFloat('patPuppiJetSpecificProducer:neutralPuppiMultiplicity')",float,doc="Sum of PUPPI weights of neutral particles in the jet", precision= 6)
-      )
     else:
       tableContents = JETVARS.clone()
     
@@ -386,6 +383,27 @@ def AddPileUpJetIDVars(proc):
   proc.jetTable.variables.jetRchg  = Var("userFloat('jetRchg')", float, doc="fraction of jet pT carried by the leading charged constituent", precision= 6) 
   proc.jetTable.variables.nCharged = Var("userInt('nCharged')",  int, doc="number of charged constituents")
 
+def AddQGLTaggerVars(proc):
+  #
+  # Save variables as userFloats and userInts
+  # 
+  proc.updatedJetsWithUserData.userFloats.qgl_axis2 = cms.InputTag("qgtagger:axis2")
+  proc.updatedJetsWithUserData.userFloats.qgl_ptD = cms.InputTag("qgtagger:ptD")
+  proc.updatedJetsWithUserData.userInts.qgl_mult = cms.InputTag("qgtagger:mult")
+  #
+  # Specfiy variables in the jetTable to save in NanoAOD
+  #
+  proc.jetTable.variables.qgl_axis2 = Var("userFloat('qgl_axis2')", float, doc="ellipse minor jet axis (Quark vs Gluon likelihood input variable)", precision= 6) 
+  proc.jetTable.variables.qgl_ptD   = Var("userFloat('qgl_ptD')", float, doc="pT-weighted average pT of constituents (Quark vs Gluon likelihood input variable)", precision= 6) 
+  proc.jetTable.variables.qgl_mult  = Var("userInt('qgl_mult')", int, doc="PF candidates multiplicity (Quark vs Gluon likelihood input variable)") 
+
+def AddDeepJetGluonLQuarkScores(proc):
+  #
+  # Save DeepJet raw score for gluon and light quark
+  #
+  proc.jetTable.variables.btagDeepFlavG   = Var("bDiscriminator('pfDeepFlavourJetTags:probg')",float,doc="DeepFlavour gluon tag raw score",precision=10)
+  proc.jetTable.variables.btagDeepFlavUDS = Var("bDiscriminator('pfDeepFlavourJetTags:probuds')",float,doc="DeepFlavour uds tag raw score",precision=10)
+
 def PrepJMECustomNanoAOD(process,runOnMC):
   #
   # Additional variables to AK4GenJets 
@@ -421,15 +439,19 @@ def PrepJMECustomNanoAOD(process,runOnMC):
     maxDR = 0.8,
   )
   process.jetSequence.insert(process.jetSequence.index(process.updatedJetsAK8WithUserData), process.jercVarsFatJet)
+
+  process.updatedJetsAK8WithUserData.userFloats = cms.PSet(
+    chFPV0EF = cms.InputTag("%s:chargedFromPV0EnergyFraction" %process.jercVarsFatJet.label()),
+    chFPV1EF = cms.InputTag("%s:chargedFromPV1EnergyFraction" %process.jercVarsFatJet.label()),
+    chFPV2EF = cms.InputTag("%s:chargedFromPV2EnergyFraction" %process.jercVarsFatJet.label()),
+    chFPV3EF = cms.InputTag("%s:chargedFromPV3EnergyFraction" %process.jercVarsFatJet.label()),
+  )
   
-  process.updatedJetsAK8WithUserData.userFloats.jercCHPUF = cms.InputTag(
-    "%s:chargedHadronPUEnergyFraction"  % process.jercVarsFatJet.label()
-  )
-  process.updatedJetsAK8WithUserData.userFloats.jercCHF = cms.InputTag(
-    "%s:chargedHadronCHSEnergyFraction" % process.jercVarsFatJet.label()
-  )
-  process.fatJetTable.variables.jercCHPUF = JETVARS.jercCHPUF
-  process.fatJetTable.variables.jercCHF   = JETVARS.jercCHF
+  process.fatJetTable.variables.chFPV0EF  = JETVARS.chFPV0EF
+  process.fatJetTable.variables.chFPV1EF  = JETVARS.chFPV1EF
+  process.fatJetTable.variables.chFPV2EF  = JETVARS.chFPV2EF
+  process.fatJetTable.variables.chFPV3EF  = JETVARS.chFPV3EF
+
   #
   # 
   # 
@@ -443,6 +465,14 @@ def PrepJMECustomNanoAOD(process,runOnMC):
   # Add variables for pileup jet ID studies.
   #
   AddPileUpJetIDVars(process)
+  #
+  # Add variables for quark guon likelihood tagger studies.
+  #
+  AddQGLTaggerVars(process)
+  #
+  # Add DeepJet scores for gluon and light quarks tagging
+  #
+  AddDeepJetGluonLQuarkScores(process)
 
   ######################################################################################################################
 
@@ -477,8 +507,12 @@ def PrepJMECustomNanoAOD(process,runOnMC):
     process.nanoSequence  += recoJA.getSequence(process)
     process.nanoSequence  += tableRecoJA.getSequence(process)
 
+  return process
+
 def PrepJMECustomNanoAOD_MC(process):
   PrepJMECustomNanoAOD(process,runOnMC=True)
+  return process
 
 def PrepJMECustomNanoAOD_Data(process):
   PrepJMECustomNanoAOD(process,runOnMC=False)
+  return process
