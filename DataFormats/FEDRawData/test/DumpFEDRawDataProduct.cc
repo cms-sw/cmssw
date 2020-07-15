@@ -38,7 +38,7 @@ namespace test {
         FEDids_.insert(*i);
     }
 
-    void analyze(const Event& e, const EventSetup& c) {
+    void analyze(const Event& e, const EventSetup& c) override {
       cout << "--- Run: " << e.id().run() << " Event: " << e.id().event() << endl;
       Handle<FEDRawDataCollection> rawdata;
       e.getByLabel(label_, rawdata);
