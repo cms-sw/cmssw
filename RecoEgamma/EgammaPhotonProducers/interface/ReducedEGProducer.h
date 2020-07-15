@@ -16,8 +16,10 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Utilities/interface/ESGetToken.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "Geometry/CaloTopology/interface/CaloTopology.h"
+#include "Geometry/CaloEventSetup/interface/CaloTopologyRecord.h"
 #include "DataFormats/EgammaCandidates/interface/Conversion.h"
 #include "DataFormats/EgammaReco/interface/BasicCluster.h"
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
@@ -172,6 +174,7 @@ private:
   edm::EDGetTokenT<edm::ValueMap<float> > gsfElectronCalibEcalEnergyT_;
   edm::EDGetTokenT<edm::ValueMap<float> > gsfElectronCalibEcalEnergyErrT_;
 
+  edm::ESGetToken<CaloTopology, CaloTopologyRecord> caloTopology_;
   //names for output collections
   const std::string outPhotons_;
   const std::string outPhotonCores_;
