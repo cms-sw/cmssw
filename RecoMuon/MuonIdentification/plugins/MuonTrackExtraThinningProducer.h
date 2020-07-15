@@ -14,7 +14,7 @@ namespace edm {
   class ParameterSetDescription;
 }
 
-class MuonTrackExtraSelector : public edm::ThinningSelectorByRefBase<reco::TrackExtraCollection> {
+class MuonTrackExtraSelector : public edm::ThinningSelectorByRefBase<reco::TrackExtraRef> {
 public:
   MuonTrackExtraSelector(edm::ParameterSet const& pset, edm::ConsumesCollector&& cc);
   static void fillDescription(edm::ParameterSetDescription& desc);

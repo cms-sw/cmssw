@@ -13,7 +13,7 @@ namespace edm {
   class ParameterSetDescription;
 }
 
-class TrackingRecHitSelector : public edm::ThinningSelectorByRefBase<TrackingRecHitCollection> {
+class TrackingRecHitSelector : public edm::ThinningSelectorByRefBase<edm::Ref<TrackingRecHitCollection> > {
 public:
   TrackingRecHitSelector(edm::ParameterSet const& pset, edm::ConsumesCollector&& cc);
   static void fillDescription(edm::ParameterSetDescription& desc);

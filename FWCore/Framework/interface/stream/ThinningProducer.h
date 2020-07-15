@@ -19,12 +19,45 @@
 #include "FWCore/Utilities/interface/propagate_const.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+#include "DataFormats/Common/interface/DetSetVectorNew.h"
 
 #include <memory>
 
 namespace edm {
 
   class EventSetup;
+  
+  //default implementation which works with std::vector type collections or those with compatible interfaces
+  template <typename Collection, typename Selector>
+  void fillCollectionForThinning(edm::Handle<Collection> const& input, Collection& output, ThinnedAssociation& assoc, edm::propagate_const<std::unique_ptr<Selector>>& selector) {
+    unsigned int iIndex = 0;
+    for (auto iter = input->begin(), iterEnd = input->end(); iter != iterEnd; ++iter, ++iIndex) {
+      if (selector->choose(iIndex, *iter)) {
+        output.push_back(*iter);
+        assoc.push_back(iIndex);
+        selector->modify(output.back());
+      }
+    } 
+  }
+  
+  //specialization for edmNew::DetSetVector
+  template <typename T, typename Selector>
+  void fillCollectionForThinning(edm::Handle<edmNew::DetSetVector<T> > const& input, edmNew::DetSetVector<T>& output, ThinnedAssociation& assoc, edm::propagate_const<std::unique_ptr<Selector>>& selector) {
+    //this indexes the internal data array of the DetSetVector
+    unsigned int iIndex = 0;
+    //loop over edmNew:::DetSet<T>
+    for (auto setIter = input->begin(), setIterEnd = input->end(); setIter != setIterEnd; ++setIter) {
+      //fill items from this DetSet
+      typename edmNew::DetSetVector<T>::FastFiller ff(output, setIter->detId());
+      for (auto iter = setIter->begin(), iterEnd = setIter->end(); iter != iterEnd; ++iter, ++iIndex) {
+        if (selector->choose(iIndex, *iter)) {
+          ff.push_back(*iter);
+          assoc.push_back(iIndex);
+          selector->modify(ff.back());
+        }
+      }
+    }
+  }
 
   template <typename Collection, typename Selector>
   class ThinningProducer : public stream::EDProducer<> {
@@ -79,14 +112,7 @@ namespace edm {
     Collection thinnedCollection;
     ThinnedAssociation thinnedAssociation;
 
-    unsigned int iIndex = 0;
-    for (auto iter = inputCollection->begin(), iterEnd = inputCollection->end(); iter != iterEnd; ++iter, ++iIndex) {
-      if (selector_->choose(iIndex, *iter)) {
-        thinnedCollection.push_back(*iter);
-        thinnedAssociation.push_back(iIndex);
-        selector_->modify(thinnedCollection.back());
-      }
-    }
+    fillCollectionForThinning(inputCollection, thinnedCollection, thinnedAssociation, selector_);
     OrphanHandle<Collection> orphanHandle = event.emplace(outputToken_, std::move(thinnedCollection));
 
     thinnedAssociation.setParentCollectionID(inputCollection.id());

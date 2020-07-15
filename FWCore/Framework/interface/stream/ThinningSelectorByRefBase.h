@@ -6,38 +6,37 @@
 
 namespace edm {
 
-  template <typename Collection, typename T = typename Collection::value_type>
+  template <typename RefT>
   class ThinningSelectorByRefBase {
   public:
-    virtual ~ThinningSelectorByRefBase<Collection, T>() {}
-    void preChoose(Handle<Collection> inputCollection, Event const& event, EventSetup const& es);
-    bool choose(unsigned int iIndex, T const& iItem);
-    virtual void preChooseRefs(Handle<Collection> inputCollection, Event const& event, EventSetup const& es) = 0;
-    virtual void modify(T& iItem) {}
+    virtual ~ThinningSelectorByRefBase<RefT>() {}
+    void preChoose(Handle<typename RefT::product_type> inputCollection, Event const& event, EventSetup const& es);
+    bool choose(unsigned int iIndex, typename RefT::value_type const& iItem);
+    virtual void preChooseRefs(Handle<typename RefT::product_type> inputCollection, Event const& event, EventSetup const& es) = 0;
+    virtual void modify(typename RefT::value_type& iItem) {}
 
   protected:
-    void addRef(Ref<Collection> const& ref);
-    void addRefVector(RefVector<Collection> const& refv);
+    void addRef(RefT const& ref);
+    void addRefVector(RefVector<typename RefT::product_type, typename RefT::value_type, typename RefT::finder_type> const& refv);
 
   private:
     std::map<ProductID, std::vector<unsigned int> > idxMap_;
-    std::vector<bool> keepMask_;
+    std::set<unsigned int> keysToKeep_;
   };
 
-  template <typename Collection, typename T>
-  void ThinningSelectorByRefBase<Collection, T>::preChoose(Handle<Collection> inputCollection,
+  template <typename RefT>
+  void ThinningSelectorByRefBase<RefT>::preChoose(Handle<typename RefT::product_type> inputCollection,
                                                            Event const& event,
                                                            EventSetup const& es) {
     //clear map
     idxMap_.clear();
-    //reset mask
-    keepMask_.clear();
-    keepMask_.resize(inputCollection->size(), false);
+    //reset set
+    keysToKeep_.clear();
 
     //run derived class method which should call addRef and/or addRefVector on relevant refs which may point to collection being thinned
     preChooseRefs(inputCollection, event, es);
 
-    //find indices to thinned collection from refs and set the mask of items to keep
+    //find indices to thinned collection from refs and fill the set of items to keep
     for (auto& entry : idxMap_) {
       ProductID const& id = entry.first;
       std::vector<unsigned int>& keys = entry.second;
@@ -45,7 +44,7 @@ namespace edm {
       if (id == inputCollection.id()) {
         //collections match, use indices directly
         for (unsigned int i = 0; i < nkeys; ++i) {
-          keepMask_[keys[i]] = true;
+          keysToKeep_.insert(keys[i]);
         }
         continue;
       }
@@ -56,24 +55,26 @@ namespace edm {
         if (thinnedprods[i] == nullptr) {
           continue;
         }
-        keepMask_[keys[i]] = true;
+        keysToKeep_.insert(keys[i]);
       }
     }
   }
 
-  template <typename Collection, typename T>
-  bool ThinningSelectorByRefBase<Collection, T>::choose(unsigned int iIndex, T const& iItem) {
-    return keepMask_[iIndex];
+  template <typename RefT>
+  bool ThinningSelectorByRefBase<RefT>::choose(unsigned int iIndex, typename RefT::value_type const& iItem) {
+    return keysToKeep_.count(iIndex) > 0;
   }
 
-  template <typename Collection, typename T>
-  void ThinningSelectorByRefBase<Collection, T>::addRef(Ref<Collection> const& ref) {
-    idxMap_[ref.id()].push_back(ref.key());
+  template <typename RefT>
+  void ThinningSelectorByRefBase<RefT>::addRef(RefT const& ref) {
+    if (ref.isNonnull()) {
+      idxMap_[ref.id()].push_back(ref.key());
+    }
   }
 
-  template <typename Collection, typename T>
-  void ThinningSelectorByRefBase<Collection, T>::addRefVector(RefVector<Collection> const& refv) {
-    for (edm::Ref<Collection> const& ref : refv) {
+  template <typename RefT>
+  void ThinningSelectorByRefBase<RefT>::addRefVector(RefVector<typename RefT::product_type, typename RefT::value_type, typename RefT::finder_type> const& refv) {
+    for (RefT const& ref : refv) {
       idxMap_[ref.id()].push_back(ref.key());
     }
   }
