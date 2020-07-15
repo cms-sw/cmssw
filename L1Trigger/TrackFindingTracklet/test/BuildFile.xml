@@ -2,6 +2,7 @@
   <library   file="*.cc" name="TrackFindingTrackletTests">
     <flags   EDM_PLUGIN="1"/>
     <flags   SKIP_FILES="fpga.cc"/>
+    <flags   CXXFLAGS="-DUSEHYBRID"/>
     <use   name="clhep"/>
     <use   name="root"/>
     <use   name="heppdt"/>
