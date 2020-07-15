@@ -1,4 +1,3 @@
-
 import FWCore.ParameterSet.Config as cms
 
 from PhysicsTools.SelectorUtils.tools.vid_id_tools import *
