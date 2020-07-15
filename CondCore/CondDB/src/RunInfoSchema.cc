@@ -33,7 +33,7 @@ namespace cond {
       return ret;
     }
 
-    cond::Time_t RUN_INFO::Table::getLastInserted() {
+    cond::Time_t RUN_INFO::Table::getLastInserted(boost::posix_time::ptime& start, boost::posix_time::ptime& end) {
       cond::Time_t run = cond::time::MIN_VAL;
       Query<MAX_RUN_NUMBER> q0(m_schema);
       try {
@@ -46,6 +46,7 @@ namespace cond {
         if (message.find("Attempt to access data of NULL attribute") != 0)
           throw;
       }
+      select(run, start, end);
       return run;
     }
 
@@ -92,12 +93,6 @@ namespace cond {
       }
       return runData.size() > prevSize;
     }
-
-    //bool RUN_INFO::Table::getRunForTime( const boost::posix_time::ptime& time,
-    //					 cond::Time_t& runNumber, boost::posix_time::ptime& start, boost::posix_time::ptime& end ){
-    //      Query< RUN_NUMBER, START_TIME, END_TIME > q(m_schema);
-    //      q.addCondition< START_TIME >( upper,"<=" );
-    //    }
 
     void RUN_INFO::Table::insertOne(cond::Time_t runNumber,
                                     const boost::posix_time::ptime& start,
