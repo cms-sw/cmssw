@@ -36,13 +36,13 @@ ckfBaseTrajectoryFilterCDC = RecoTracker.CkfPattern.GroupedCkfTrajectoryBuilderP
 GroupedCkfTrajectoryBuilderCDC = RecoTracker.CkfPattern.GroupedCkfTrajectoryBuilderP5_cff.GroupedCkfTrajectoryBuilderP5.clone(
     maxCand   = 3,
     estimator = 'Chi2MeasurementEstimatorForCDC',
-    trajectoryFilter = dict(refToPSet_ = 'ckfBaseTrajectoryFilterCDC')
+    trajectoryFilter = cms.PSet(refToPSet_ = cms.string('ckfBaseTrajectoryFilterCDC'))
 )
 
 import RecoTracker.CkfPattern.CkfTrackCandidatesP5_cff
 cosmicDCCkfTrackCandidates = RecoTracker.CkfPattern.CkfTrackCandidatesP5_cff.ckfTrackCandidatesP5.clone(
     src = 'cosmicDCSeeds',
-    TrajectoryBuilderPSet = dict(refToPSet_ = 'GroupedCkfTrajectoryBuilderCDC')
+    TrajectoryBuilderPSet = cms.PSet(refToPSet_ = cms.string('GroupedCkfTrajectoryBuilderCDC'))
 )
 
 # Track producer
