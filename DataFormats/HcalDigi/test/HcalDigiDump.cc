@@ -14,7 +14,7 @@ using namespace std;
 class HcalDigiDump : public edm::EDAnalyzer {
 public:
   explicit HcalDigiDump(edm::ParameterSet const& conf);
-  virtual void analyze(edm::Event const& e, edm::EventSetup const& c);
+  void analyze(edm::Event const& e, edm::EventSetup const& c) override;
 };
 
 HcalDigiDump::HcalDigiDump(edm::ParameterSet const& conf) {

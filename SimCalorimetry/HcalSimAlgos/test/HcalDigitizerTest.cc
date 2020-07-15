@@ -202,8 +202,8 @@ void HcalDigitizerTest::analyze(const edm::Event& iEvent, const edm::EventSetup&
   HcalGainWidths gainWidths(&topology);
   // make a calibration service by hand
   for (auto detItr = allDetIds.begin(); detItr != allDetIds.end(); ++detItr) {
-    pedestals.addValues(dbHardcode.makePedestal(*detItr, false, false, NULL, 0.0));
-    pedestalWidths.addValues(dbHardcode.makePedestalWidth(*detItr, false, NULL, 0.0));
+    pedestals.addValues(dbHardcode.makePedestal(*detItr, false, false, nullptr, 0.0));
+    pedestalWidths.addValues(dbHardcode.makePedestalWidth(*detItr, false, nullptr, 0.0));
     gains.addValues(dbHardcode.makeGain(*detItr));
     gainWidths.addValues(dbHardcode.makeGainWidth(*detItr));
   }

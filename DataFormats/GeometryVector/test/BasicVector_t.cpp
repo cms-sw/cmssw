@@ -64,7 +64,7 @@ T normV(Basic2DVector<T> const& a) {
 
 long aligned(void* p) { return long(p) & 0xf; }
 
-volatile int* vi = 0;
+volatile int* vi = nullptr;
 
 template <typename T>
 void verifyAlign() {

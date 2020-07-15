@@ -4,11 +4,11 @@
   *
   */
 
-#include <iostream>
+#include <cassert>
 #include <fstream>
-#include <string>
+#include <iostream>
 #include <stdexcept>
-#include <assert.h>
+#include <string>
 
 #include "DataFormats/EcalDetId/interface/EcalScDetId.h"
 

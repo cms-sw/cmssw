@@ -47,7 +47,7 @@
 //#include "DataFormats/CSCDigi/interface/CSCEventFormatStatusDigi.h"
 //#include "DataFormats/CSCDigi/interface/CSCEventFormatStatusDigiCollection.h"
 
-#include <stdio.h>
+#include <cstdio>
 #include <iostream>
 
 using namespace std;
@@ -62,8 +62,8 @@ class testCSCDigis : public CppUnit::TestFixture {
   CPPUNIT_TEST_SUITE_END();
 
 public:
-  void setUp() {}
-  void tearDown() {}
+  void setUp() override {}
+  void tearDown() override {}
 
   void fillCSCWireDigi(CSCWireDigiCollection &);
   void fillCSCComparatorDigi(CSCComparatorDigiCollection &);
