@@ -155,7 +155,7 @@ void HLTMuonRateAnalyzer::analyze(const Event& event, const EventSetup& eventSet
     event.getByToken(theGenToken, genProduct);
     const HepMC::GenEvent* evt = genProduct->GetEvent();
     HepMC::WeightContainer weights = evt->weights();
-    if (weights.size() > 0)
+    if (!weights.empty())
       this_event_weight = weights[0];
   } catch (...) {
     LogInfo("HLTMuonRateAnalyzer") << " NO HepMCProduct found!!!!!!!!!!!!!!!";

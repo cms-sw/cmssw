@@ -226,7 +226,7 @@ void HLTMuonRateAnalyzerWithWeight::analyze(const Event& event, const EventSetup
     HepMC::WeightContainer weights = evt->weights();
     bcevent = isbc(*evt);
     hNumEvents->Fill(1. * bcevent);
-    if (weights.size() > 0)
+    if (!weights.empty())
       this_event_weight = weights[0];
     if (type == 3)
       this_event_weight *= parentWeight(*evt);
