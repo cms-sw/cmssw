@@ -415,6 +415,7 @@ double DAClusterizerInZT_vect::update(double beta, track_t& gtracks, vertex_t& g
     auto tmp_trk_z = tks_vec.z_ptr[track_num];
     auto tmp_trk_t = tks_vec.t_ptr[track_num];
     // auto-vectorized
+#pragma GCC ivdep
     for (unsigned int k = kmin; k < kmax; ++k) {
       // parens are important for numerical stability
       y_vec.se_ptr[k] += tmp_trk_pi * (y_vec.ei_ptr[k] * o_trk_Z_sum);
