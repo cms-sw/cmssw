@@ -220,7 +220,7 @@ tobTecStepChi2Est = RecoTracker.MeasurementDet.Chi2ChargeMeasurementEstimator_cf
     ComponentName    = 'tobTecStepChi2Est',
     nSigma           = 3.0,
     MaxChi2          = 16.0,
-    clusterChargeCut = dict(refToPSet_ = 'SiStripClusterChargeCutTight')
+    clusterChargeCut = cms.PSet(refToPSet_ = cms.string('SiStripClusterChargeCutTight'))
 )
 trackingLowPU.toModify(tobTecStepChi2Est,
     clusterChargeCut = dict(refToPSet_ = 'SiStripClusterChargeCutTiny')
@@ -230,8 +230,8 @@ trackingLowPU.toModify(tobTecStepChi2Est,
 import RecoTracker.CkfPattern.GroupedCkfTrajectoryBuilder_cfi
 tobTecStepTrajectoryBuilder = RecoTracker.CkfPattern.GroupedCkfTrajectoryBuilder_cfi.GroupedCkfTrajectoryBuilder.clone(
     MeasurementTrackerName = '',
-    trajectoryFilter       = dict(refToPSet_ = 'tobTecStepTrajectoryFilter'),
-    inOutTrajectoryFilter  = dict(refToPSet_ = 'tobTecStepInOutTrajectoryFilter'),
+    trajectoryFilter       = cms.PSet(refToPSet_ = cms.string('tobTecStepTrajectoryFilter')),
+    inOutTrajectoryFilter  = cms.PSet(refToPSet_ = cms.string('tobTecStepInOutTrajectoryFilter')),
     useSameTrajFilter      = False,
     minNrOfHitsForRebuild  = 4,
     alwaysUseInvalidHits   = False,
@@ -261,7 +261,7 @@ tobTecStepTrackCandidates = RecoTracker.CkfPattern.CkfTrackCandidates_cfi.ckfTra
     numHitsForSeedCleaner       = cms.int32(50),
     onlyPixelHitsForSeedCleaner = cms.bool(True),
 
-    TrajectoryBuilderPSet       = dict(refToPSet_ = 'tobTecStepTrajectoryBuilder'),
+    TrajectoryBuilderPSet       = cms.PSet(refToPSet_ = cms.string('tobTecStepTrajectoryBuilder')),
     doSeedingRegionRebuilding   = True,
     useHitsSplitting            = True,
     cleanTrajectoryAfterInOut   = True,

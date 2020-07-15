@@ -164,7 +164,7 @@ _lowPtTripletStepStandardTrajectoryFilterBase = _TrajectoryFilter_cff.CkfBaseTra
 )
 lowPtTripletStepStandardTrajectoryFilter = _lowPtTripletStepStandardTrajectoryFilterBase.clone(
     maxCCCLostHits     = 0,
-    minGoodStripCharge = dict(refToPSet_ = 'SiStripClusterChargeCutLoose')
+    minGoodStripCharge = cms.PSet(refToPSet_ = cms.string('SiStripClusterChargeCutLoose'))
 )
 from Configuration.Eras.Modifier_tracker_apv_vfp30_2016_cff import tracker_apv_vfp30_2016
 _tracker_apv_vfp30_2016.toModify(lowPtTripletStepStandardTrajectoryFilter, maxCCCLostHits = 1)
@@ -198,7 +198,7 @@ lowPtTripletStepChi2Est = RecoTracker.MeasurementDet.Chi2ChargeMeasurementEstima
     ComponentName    = 'lowPtTripletStepChi2Est',
     nSigma           = 3.0,
     MaxChi2          = 9.0,
-    clusterChargeCut = dict(refToPSet_ = 'SiStripClusterChargeCutTight'),
+    clusterChargeCut = cms.PSet(refToPSet_ = cms.string('SiStripClusterChargeCutTight')),
 )
 _tracker_apv_vfp30_2016.toModify(lowPtTripletStepChi2Est,
     clusterChargeCut = dict(refToPSet_ = 'SiStripClusterChargeCutTiny')
@@ -208,7 +208,7 @@ _tracker_apv_vfp30_2016.toModify(lowPtTripletStepChi2Est,
 import RecoTracker.CkfPattern.GroupedCkfTrajectoryBuilder_cfi
 lowPtTripletStepTrajectoryBuilder = RecoTracker.CkfPattern.GroupedCkfTrajectoryBuilder_cfi.GroupedCkfTrajectoryBuilder.clone(
     MeasurementTrackerName = '',
-    trajectoryFilter       = dict(refToPSet_ = 'lowPtTripletStepTrajectoryFilter'),
+    trajectoryFilter       = cms.PSet(refToPSet_ = cms.string('lowPtTripletStepTrajectoryFilter')),
     maxCand                = 4,
     estimator              = 'lowPtTripletStepChi2Est',
     maxDPhiForLooperReconstruction = cms.double(2.0),
@@ -230,7 +230,7 @@ lowPtTripletStepTrackCandidates = RecoTracker.CkfPattern.CkfTrackCandidates_cfi.
     ### these two parameters are relevant only for the CachingSeedCleanerBySharedInput
     numHitsForSeedCleaner       = cms.int32(50),
     onlyPixelHitsForSeedCleaner = cms.bool(True),
-    TrajectoryBuilderPSet       = dict(refToPSet_ = 'lowPtTripletStepTrajectoryBuilder'),
+    TrajectoryBuilderPSet       = cms.PSet(refToPSet_ = cms.string('lowPtTripletStepTrajectoryBuilder')),
     clustersToSkip              = cms.InputTag('lowPtTripletStepClusters'),
     doSeedingRegionRebuilding   = True,
     useHitsSplitting            = True,

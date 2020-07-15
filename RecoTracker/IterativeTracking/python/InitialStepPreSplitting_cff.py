@@ -99,7 +99,7 @@ initialStepChi2EstPreSplitting = RecoTracker.MeasurementDet.Chi2ChargeMeasuremen
     ComponentName = 'initialStepChi2EstPreSplitting',
     nSigma        = 3.0,
     MaxChi2       = 16.0,
-    clusterChargeCut = dict(refToPSet_ = 'SiStripClusterChargeCutLoose'),
+    clusterChargeCut = cms.PSet(refToPSet_ = cms.string('SiStripClusterChargeCutLoose')),
 )
 _tracker_apv_vfp30_2016.toModify(initialStepChi2EstPreSplitting,
     clusterChargeCut = dict(refToPSet_ = 'SiStripClusterChargeCutTiny')
@@ -107,7 +107,7 @@ _tracker_apv_vfp30_2016.toModify(initialStepChi2EstPreSplitting,
 
 import RecoTracker.CkfPattern.GroupedCkfTrajectoryBuilder_cfi
 initialStepTrajectoryBuilderPreSplitting = RecoTracker.CkfPattern.GroupedCkfTrajectoryBuilder_cfi.GroupedCkfTrajectoryBuilder.clone(
-    trajectoryFilter = dict(refToPSet_ = 'initialStepTrajectoryFilterPreSplitting'),
+    trajectoryFilter = cms.PSet(refToPSet_ = cms.string('initialStepTrajectoryFilterPreSplitting')),
     alwaysUseInvalidHits = True,
     maxCand   = 3,
     estimator = 'initialStepChi2Est',
@@ -119,7 +119,7 @@ initialStepTrackCandidatesPreSplitting = RecoTracker.CkfPattern.CkfTrackCandidat
     ### these two parameters are relevant only for the CachingSeedCleanerBySharedInput
     numHitsForSeedCleaner = cms.int32(50),
     onlyPixelHitsForSeedCleaner = cms.bool(True),
-    TrajectoryBuilderPSet = dict(refToPSet_ = 'initialStepTrajectoryBuilderPreSplitting'),
+    TrajectoryBuilderPSet = cms.PSet(refToPSet_ = cms.string('initialStepTrajectoryBuilderPreSplitting')),
     doSeedingRegionRebuilding = True,
     useHitsSplitting = True
 )

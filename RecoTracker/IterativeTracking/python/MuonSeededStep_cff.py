@@ -71,8 +71,8 @@ muonSeededTrajectoryBuilderForInOut = RecoTracker.CkfPattern.GroupedCkfTrajector
     lostHitPenalty   = 1.0,   
     maxCand          = 5,
     estimator        = 'muonSeededMeasurementEstimatorForInOut',
-    trajectoryFilter = dict(refToPSet_ = 'muonSeededTrajectoryFilterForInOut'),
-    inOutTrajectoryFilter      = dict(refToPSet_ = 'muonSeededTrajectoryFilterForInOut'), # not sure if it is used
+    trajectoryFilter = cms.PSet(refToPSet_ = cms.string('muonSeededTrajectoryFilterForInOut')),
+    inOutTrajectoryFilter      = cms.PSet(refToPSet_ = cms.string('muonSeededTrajectoryFilterForInOut')), # not sure if it is used
     minNrOfHitsForRebuild      = 2,
     requireSeedHitsInRebuild   = True, 
     keepOriginalIfRebuildFails = True, 
@@ -82,8 +82,8 @@ muonSeededTrajectoryBuilderForOutIn = RecoTracker.CkfPattern.GroupedCkfTrajector
     lostHitPenalty   = 1.0,   
     maxCand          = 3,
     estimator        = 'muonSeededMeasurementEstimatorForOutIn',
-    trajectoryFilter = dict(refToPSet_ = 'muonSeededTrajectoryFilterForOutIn'),
-    inOutTrajectoryFilter      = dict(refToPSet_ = 'muonSeededTrajectoryFilterForOutIn'), # not sure if it is used
+    trajectoryFilter = cms.PSet(refToPSet_ = cms.string('muonSeededTrajectoryFilterForOutIn')),
+    inOutTrajectoryFilter      = cms.PSet(refToPSet_ = cms.string('muonSeededTrajectoryFilterForOutIn')), # not sure if it is used
     minNrOfHitsForRebuild      = 5,
     requireSeedHitsInRebuild   = True, 
     keepOriginalIfRebuildFails = False, 
@@ -101,13 +101,13 @@ muonSeededFittingSmootherWithOutliersRejectionAndRK = TrackingTools.TrackFitters
 import RecoTracker.CkfPattern.CkfTrackCandidates_cfi
 muonSeededTrackCandidatesInOut = RecoTracker.CkfPattern.CkfTrackCandidates_cfi.ckfTrackCandidates.clone(
     src = 'muonSeededSeedsInOut',
-    TrajectoryBuilderPSet = dict(refToPSet_ = 'muonSeededTrajectoryBuilderForInOut'),
+    TrajectoryBuilderPSet = cms.PSet(refToPSet_ = cms.string('muonSeededTrajectoryBuilderForInOut')),
     TrajectoryCleaner     = 'muonSeededTrajectoryCleanerBySharedHits',
     RedundantSeedCleaner  = 'none', 
 )
 muonSeededTrackCandidatesOutIn = RecoTracker.CkfPattern.CkfTrackCandidates_cfi.ckfTrackCandidates.clone(
     src = 'muonSeededSeedsOutIn',
-    TrajectoryBuilderPSet       = dict(refToPSet_ = 'muonSeededTrajectoryBuilderForOutIn'),
+    TrajectoryBuilderPSet       = cms.PSet(refToPSet_ = cms.string('muonSeededTrajectoryBuilderForOutIn')),
     TrajectoryCleaner           = 'muonSeededTrajectoryCleanerBySharedHits',
     numHitsForSeedCleaner       = cms.int32(50),
     onlyPixelHitsForSeedCleaner = cms.bool(False),
