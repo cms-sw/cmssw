@@ -7,9 +7,9 @@
 
 #include <cstdint>
 #include <cstdlib>
+#include <cstring>
 #include <fstream>
 #include <sstream>
-#include <string.h>
 #include <vector>
 
 #include <boost/filesystem.hpp>
