@@ -17,14 +17,14 @@ void HLTTauDQMPathSummaryPlotter::bookHistograms(HistoWrapper& iWrapper, DQMStor
   iBooker.setCurrentFolder(triggerTag() + "/helpers");
 
   all_events =
-      iWrapper.book1D(iBooker, "RefEvents", "All events", pathObjects_.size(), 0, pathObjects_.size(), kEverything);
+      iWrapper.book1D(iBooker, "RefEvents", "All events", pathObjects_.size(), 0, pathObjects_.size(), kVital);
   accepted_events = iWrapper.book1D(iBooker,
                                     "PathTriggerBits",
                                     "Accepted Events per Path;;entries",
                                     pathObjects_.size(),
                                     0,
                                     pathObjects_.size(),
-                                    kEverything);
+                                    kVital);
   for (size_t i = 0; i < pathObjects_.size(); ++i) {
     if (all_events)
       all_events->setBinLabel(i + 1, pathObjects_[i]->getPathName());

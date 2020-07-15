@@ -52,7 +52,7 @@ void HLTTauDQMPathPlotter::bookHistograms(HistoWrapper& iWrapper, DQMStore::IBoo
                                      hltPath_.filtersSize(),
                                      0,
                                      hltPath_.filtersSize(),
-                                     kEverything);
+                                     kVital);
   for (size_t i = 0; i < hltPath_.filtersSize(); ++i) {
     if (hAcceptedEvents_)
       hAcceptedEvents_->setBinLabel(i + 1, hltPath_.getFilterName(i));
