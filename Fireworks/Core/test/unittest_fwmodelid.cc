@@ -21,13 +21,13 @@
 // constants, enums and typedefs
 //
 BOOST_AUTO_TEST_CASE(fwmodelid) {
-  FWModelId one(0, 1);
-  FWModelId one2(0, 1);
+  FWModelId one(nullptr, 1);
+  FWModelId one2(nullptr, 1);
 
   BOOST_CHECK(not(one < one2));
   BOOST_CHECK(not(one2 < one));
 
-  FWModelId two(0, 2);
+  FWModelId two(nullptr, 2);
   BOOST_CHECK(one < two);
   BOOST_CHECK(not(two < one));
 

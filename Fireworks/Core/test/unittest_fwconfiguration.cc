@@ -25,9 +25,9 @@
 
 namespace {
   struct Conf : public FWConfigurable {
-    virtual void addTo(FWConfiguration& iTop) const { iTop = m_config; }
+    void addTo(FWConfiguration& iTop) const override { iTop = m_config; }
 
-    virtual void setFrom(const FWConfiguration& iFrom) { m_config = iFrom; }
+    void setFrom(const FWConfiguration& iFrom) override { m_config = iFrom; }
 
     FWConfiguration m_config;
   };
@@ -38,53 +38,53 @@ namespace {
 BOOST_AUTO_TEST_CASE(fwconfiguration) {
   FWConfiguration config;
   BOOST_CHECK(1 == config.version());
-  BOOST_CHECK(0 == config.stringValues());
-  BOOST_CHECK(0 == config.keyValues());
+  BOOST_CHECK(nullptr == config.stringValues());
+  BOOST_CHECK(nullptr == config.keyValues());
 
   const std::string kValue("1.0");
   config.addValue(kValue);
-  BOOST_REQUIRE(0 != config.stringValues());
+  BOOST_REQUIRE(nullptr != config.stringValues());
   BOOST_CHECK(1 == config.stringValues()->size());
-  BOOST_CHECK(0 == config.keyValues());
+  BOOST_CHECK(nullptr == config.keyValues());
   BOOST_CHECK(kValue == config.value());
   BOOST_CHECK_THROW(config.addKeyValue("one", FWConfiguration("two")), std::runtime_error);
 
   //copy constructor
   FWConfiguration config2(config);
   BOOST_CHECK(1 == config2.version());
-  BOOST_REQUIRE(0 != config2.stringValues());
+  BOOST_REQUIRE(nullptr != config2.stringValues());
   BOOST_CHECK(1 == config2.stringValues()->size());
-  BOOST_CHECK(0 == config2.keyValues());
+  BOOST_CHECK(nullptr == config2.keyValues());
   BOOST_CHECK(kValue == config2.value());
 
   //operator=
   FWConfiguration config3;
   config3 = config;
   BOOST_CHECK(1 == config3.version());
-  BOOST_REQUIRE(0 != config3.stringValues());
+  BOOST_REQUIRE(nullptr != config3.stringValues());
   BOOST_CHECK(1 == config3.stringValues()->size());
-  BOOST_CHECK(0 == config3.keyValues());
+  BOOST_CHECK(nullptr == config3.keyValues());
   BOOST_CHECK(kValue == config3.value());
 
   FWConfiguration valueForConst(kValue);
   BOOST_CHECK(0 == valueForConst.version());
-  BOOST_REQUIRE(0 != valueForConst.stringValues());
+  BOOST_REQUIRE(nullptr != valueForConst.stringValues());
   BOOST_CHECK(1 == valueForConst.stringValues()->size());
-  BOOST_CHECK(0 == valueForConst.keyValues());
+  BOOST_CHECK(nullptr == valueForConst.keyValues());
   BOOST_CHECK(kValue == valueForConst.value());
 
   FWConfiguration topConfig;
   topConfig.addKeyValue("first", config);
-  BOOST_REQUIRE(0 != topConfig.keyValues());
+  BOOST_REQUIRE(nullptr != topConfig.keyValues());
   BOOST_CHECK(1 == topConfig.keyValues()->size());
-  BOOST_CHECK(0 == topConfig.stringValues());
+  BOOST_CHECK(nullptr == topConfig.stringValues());
   BOOST_CHECK(std::string("first") == topConfig.keyValues()->front().first);
   BOOST_CHECK(kValue == topConfig.keyValues()->front().second.value());
   BOOST_CHECK_THROW(topConfig.addValue("one"), std::runtime_error);
   const FWConfiguration* found = topConfig.valueForKey("second");
-  BOOST_CHECK(0 == found);
+  BOOST_CHECK(nullptr == found);
   found = topConfig.valueForKey("first");
-  BOOST_REQUIRE(0 != found);
+  BOOST_REQUIRE(nullptr != found);
   BOOST_CHECK(found->value() == kValue);
   BOOST_CHECK_THROW(config.valueForKey("blah"), std::runtime_error);
 
@@ -97,22 +97,22 @@ BOOST_AUTO_TEST_CASE(fwconfiguration) {
   confMgr.add("first", pConf.get());
 
   confMgr.setFrom(topConfig);
-  BOOST_REQUIRE(0 != pConf->m_config.stringValues());
+  BOOST_REQUIRE(nullptr != pConf->m_config.stringValues());
   BOOST_CHECK(1 == pConf->m_config.stringValues()->size());
-  BOOST_CHECK(0 == pConf->m_config.keyValues());
+  BOOST_CHECK(nullptr == pConf->m_config.keyValues());
   BOOST_CHECK(kValue == pConf->m_config.value());
 
   {
     FWConfiguration topConfig;
     confMgr.to(topConfig);
 
-    BOOST_REQUIRE(0 != topConfig.keyValues());
+    BOOST_REQUIRE(nullptr != topConfig.keyValues());
     BOOST_CHECK(1 == topConfig.keyValues()->size());
-    BOOST_CHECK(0 == topConfig.stringValues());
+    BOOST_CHECK(nullptr == topConfig.stringValues());
     BOOST_CHECK(std::string("first") == topConfig.keyValues()->front().first);
     BOOST_CHECK(kValue == topConfig.keyValues()->front().second.value());
     found = topConfig.valueForKey("first");
-    BOOST_REQUIRE(0 != found);
+    BOOST_REQUIRE(nullptr != found);
     BOOST_CHECK(found->value() == kValue);
   }
   confMgr.writeToFile("testConfig");
@@ -121,9 +121,9 @@ BOOST_AUTO_TEST_CASE(fwconfiguration) {
     pConf->m_config.swap(temp);
   }
   confMgr.readFromFile("testConfig");
-  BOOST_REQUIRE(0 != pConf->m_config.stringValues());
+  BOOST_REQUIRE(nullptr != pConf->m_config.stringValues());
   BOOST_CHECK(1 == pConf->m_config.stringValues()->size());
-  BOOST_CHECK(0 == pConf->m_config.keyValues());
+  BOOST_CHECK(nullptr == pConf->m_config.keyValues());
   BOOST_CHECK(kValue == pConf->m_config.value());
 
   std::ofstream log("testConfig", std::ios_base::app | std::ios_base::out);
