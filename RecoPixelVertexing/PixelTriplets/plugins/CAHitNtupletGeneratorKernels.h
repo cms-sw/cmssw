@@ -179,10 +179,11 @@ public:
 
 private:
   // workspace
-  CAConstants::CellNeighborsVector* device_theCellNeighbors_ = nullptr;
-  unique_ptr<CAConstants::CellNeighbors[]> device_theCellNeighborsContainer_;
-  CAConstants::CellTracksVector* device_theCellTracks_ = nullptr;
-  unique_ptr<CAConstants::CellTracks[]> device_theCellTracksContainer_;
+  unique_ptr<unsigned char[]> cellStorage_;
+  unique_ptr<CAConstants::CellNeighborsVector> device_theCellNeighbors_;
+  CAConstants::CellNeighbors* device_theCellNeighborsContainer_;
+  unique_ptr<CAConstants::CellTracksVector> device_theCellTracks_;
+  CAConstants::CellTracks* device_theCellTracksContainer_;
 
   unique_ptr<GPUCACell[]> device_theCells_;
   unique_ptr<GPUCACell::OuterHitOfCell[]> device_isOuterHitOfCell_;
