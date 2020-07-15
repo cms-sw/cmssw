@@ -65,12 +65,12 @@
 class ElectronTestAnalyzer : public edm::EDAnalyzer {
 public:
   explicit ElectronTestAnalyzer(const edm::ParameterSet&);
-  ~ElectronTestAnalyzer();
+  ~ElectronTestAnalyzer() override;
 
 private:
-  virtual void beginJob() override;
-  virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
-  virtual void endJob() override;
+  void beginJob() override;
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void endJob() override;
   virtual void myBindVariables();
   virtual void myVar(const reco::GsfElectron& ele,
                      const reco::Vertex& vertex,
@@ -284,7 +284,7 @@ void ElectronTestAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSet
 
   reco::Vertex dummy;
   const reco::Vertex* pv = &dummy;
-  if (thePrimaryVertexColl->size() != 0) {
+  if (!thePrimaryVertexColl->empty()) {
     pv = &*thePrimaryVertexColl->begin();
   } else {  // create a dummy PV
     reco::Vertex::Error e;

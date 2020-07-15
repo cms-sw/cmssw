@@ -33,10 +33,10 @@ using namespace ROOT::Math::VectorUtil;
 class matchOneToOne : public edm::EDAnalyzer {
 public:
   explicit matchOneToOne(const edm::ParameterSet&);
-  ~matchOneToOne() {}
-  virtual void analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup);
-  virtual void beginJob();
-  virtual void endJob();
+  ~matchOneToOne() override {}
+  void analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) override;
+  void beginJob() override;
+  void endJob() override;
 
 private:
   EDGetTokenT<CandidateCollection> sourceToken_;

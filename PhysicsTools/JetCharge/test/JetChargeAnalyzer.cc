@@ -31,9 +31,9 @@ public:
   typedef reco::JetFloatAssociation::Container JetChargeCollection;
 
   explicit JetChargeAnalyzer(const edm::ParameterSet&);
-  ~JetChargeAnalyzer() {}
+  ~JetChargeAnalyzer() override {}
 
-  virtual void analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) override;
+  void analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) override;
 
 private:
   // physics stuff
@@ -54,7 +54,7 @@ JetChargeAnalyzer::JetChargeAnalyzer(const edm::ParameterSet& iConfig)
       minET_(iConfig.getParameter<double>("minET")),
       dir_(iConfig.getParameter<std::string>("dir")) {
   edm::Service<TFileService> fs;
-  TFileDirectory cwd = fs->mkdir(dir_.c_str());
+  TFileDirectory cwd = fs->mkdir(dir_);
   char buff[255], biff[255];
   for (int i = 0; i < 12; i++) {
     sprintf(biff, "jch_id_%s%d", (pdgIds[i] >= 0 ? "p" : "m"), abs(pdgIds[i]));

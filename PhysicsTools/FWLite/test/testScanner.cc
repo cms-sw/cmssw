@@ -21,7 +21,7 @@ int main(int argc, char *argv[]) {
   FWLiteEnabler::enable();
   gROOT->SetStyle("Plain");
   gStyle->SetPalette(1);
-  gStyle->SetHistMinimumZero(1);
+  gStyle->SetHistMinimumZero(true);
 
   TFile *f = TFile::Open(argv[1]);
 

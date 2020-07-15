@@ -25,9 +25,9 @@ class CandIsoDumper : public edm::EDAnalyzer {
 public:
   CandIsoDumper(const edm::ParameterSet&);
 
-  virtual ~CandIsoDumper();
+  ~CandIsoDumper() override;
 
-  virtual void analyze(const edm::Event&, const edm::EventSetup&);
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
 
 private:
   edm::EDGetTokenT<reco::IsoDepositMap> srcToken_;

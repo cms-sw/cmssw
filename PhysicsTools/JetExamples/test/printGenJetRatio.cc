@@ -23,8 +23,8 @@ public:
   typedef reco::JetFloatAssociation::Container JetBCEnergyRatioCollection;
 
   explicit printGenJetRatio(const edm::ParameterSet&);
-  ~printGenJetRatio(){};
-  void analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup);
+  ~printGenJetRatio() override{};
+  void analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) override;
 
 private:
   edm::EDGetTokenT<JetBCEnergyRatioCollection> sourceBratioToken_;

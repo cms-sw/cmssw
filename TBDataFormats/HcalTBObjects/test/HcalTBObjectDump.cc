@@ -23,7 +23,7 @@ namespace cms {
   class HcalTBObjectDump : public edm::EDAnalyzer {
   public:
     explicit HcalTBObjectDump(edm::ParameterSet const& conf);
-    virtual void analyze(edm::Event const& e, edm::EventSetup const& c);
+    void analyze(edm::Event const& e, edm::EventSetup const& c) override;
 
   private:
     edm::EDGetTokenT<HcalTBTriggerData> tok_tb_;

@@ -27,8 +27,8 @@ class testRecord : public CppUnit::TestFixture {
   static bool s_firstSetup;
 
 public:
-  void setUp();
-  void tearDown() {}
+  void setUp() override;
+  void tearDown() override {}
 
   void testGood();
   void testFailures();
@@ -84,11 +84,11 @@ void testRecord::testGood() {
     unsigned int matches = 0;
     for (auto const& dataId : dataIds) {
       std::cout << dataId.first << " '" << dataId.second << "'" << std::endl;
-      if ((dataId.first == "std::vector<int>") && (dataId.second == "")) {
+      if ((dataId.first == "std::vector<int>") && (dataId.second.empty())) {
         ++matches;
         continue;
       }
-      if ((dataId.first == "edmtest::Simple") && (dataId.second == "")) {
+      if ((dataId.first == "edmtest::Simple") && (dataId.second.empty())) {
         ++matches;
       }
     }
