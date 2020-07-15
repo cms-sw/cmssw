@@ -4,14 +4,15 @@
 /** \class edm::GetterOfProducts
 
 Intended to be used by EDProducers, EDFilters, and
-EDAnalyzers to get products from the Event, Run
-or LuminosityBlock. In most cases, the preferred
+EDAnalyzers to get products from the Event, Run, LuminosityBlock
+or ProcessBlock. In most cases, the preferred
 method to get products is not to use this class. In
 most cases the preferred method is to use the function
-getByLabel with an InputTag that is configurable. But
-occasionally getByLabel will not work because one
+getByToken with a token obtained from a consumes call
+which was passed a configurable InputTag. But
+occasionally getByToken will not work because one
 wants to select the product based on the data that is
-available in the event and not have to modify the
+available and not have to modify the
 configuration as the data content changes. A real
 example would be a module that collects HLT trigger
 information from products written by the many HLT
@@ -30,21 +31,18 @@ to also select on process name.  It is possible
 to write other predicates which will select on
 anything in the BranchDescription. The selection
 is done during the initialization of the process.
-During this initialization a list of InputTags
+During this initialization a list of tokens
 is filled with all matching products from the
-ProductRegistry. This list of InputTags is accessible
-to the module. In the future there are plans
-for modules to register the products they might
-get to the Framework which will allow it to
-optimize performance for parallel processing
-among other things.
+ProductRegistry. This list of tokens is accessible
+to the module.
 
 The fillHandles functions will get a handle
-for each product on the list of InputTags that
+for each product on the list of tokens that
 is actually present in the current Event,
-LuminosityBlock, or Run. Internally, this
-function uses getByLabel and benefits from
-performance optimizations of getByLabel.
+LuminosityBlock, Run, or ProcessBlock. Internally,
+this function uses tokens and depends on the same
+things as getByToken and benefits from
+performance optimizations of getByToken.
 
 Typically one would use this as follows:
 
@@ -75,7 +73,7 @@ And that is all you need in most cases. In the above example,
 There are some variants for special cases
 
   - Use an extra argument to the constructor for products
-  in the Run or LuminosityBlock.
+  in a Run, LuminosityBlock or ProcessBlock For example:
 
     getterOfProducts_ = edm::GetterOfProducts<Thing>(edm::ProcessMatch(processName_), this, edm::InRun);
 
@@ -104,6 +102,7 @@ There are some variants for special cases
 #include "DataFormats/Provenance/interface/BranchDescription.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/LuminosityBlock.h"
+#include "FWCore/Framework/interface/ProcessBlock.h"
 #include "FWCore/Framework/interface/Run.h"
 #include "FWCore/Framework/interface/WillGetIfMatch.h"
 #include "FWCore/Utilities/interface/BranchType.h"
@@ -170,6 +169,18 @@ namespace edm {
         handles.reserve(tokens_->size());
         for (auto const& token : *tokens_) {
           if (auto handle = run.getHandle(token)) {
+            handles.push_back(handle);
+          }
+        }
+      }
+    }
+
+    void fillHandles(edm::ProcessBlock const& processBlock, std::vector<edm::Handle<T>>& handles) const {
+      handles.clear();
+      if (branchType_ == edm::InProcess) {
+        handles.reserve(tokens_->size());
+        for (auto const& token : *tokens_) {
+          if (auto handle = processBlock.getHandle(token)) {
             handles.push_back(handle);
           }
         }
