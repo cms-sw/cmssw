@@ -6,8 +6,8 @@
 import FWCore.ParameterSet.Config as cms
 
 
-from Configuration.Eras.Era_Phase2C9_cff import Phase2C9
-process = cms.Process('Phase2PixelNtuple',Phase2C9)
+from Configuration.Eras.Era_Phase2C8_cff import Phase2C8
+process = cms.Process('Phase2PixelNtuple',Phase2C8)
 
 # import of standard configurations
 process.load('Configuration.StandardSequences.Services_cff')
@@ -16,7 +16,7 @@ process.load('FWCore.MessageService.MessageLogger_cfi')
 process.load('Configuration.EventContent.EventContent_cff')
 process.load('SimGeneral.MixingModule.mixNoPU_cfi')
 #process.load('SimGeneral.MixingModule.mix_POISSON_average_cfi')
-process.load('Configuration.Geometry.GeometryExtended2026D49Reco_cff')
+process.load('Configuration.Geometry.GeometryExtended2026D41Reco_cff')
 process.load('Configuration.StandardSequences.MagneticField_cff')
 process.load('Configuration.StandardSequences.Digi_cff')
 process.load('Configuration.StandardSequences.SimL1Emulator_cff')
@@ -35,7 +35,7 @@ process.maxEvents = cms.untracked.PSet(
 
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring(
-		'/store/relval/CMSSW_11_2_0_pre1/RelValSingleMuPt10/GEN-SIM/110X_mcRun4_realistic_v3_2026D49noPU-v1/10000/743B02CC-F5B9-5642-A7EF-EE222E18C54F.root'
+       '/store/relval/CMSSW_10_6_0_patch2/RelValSingleMuPt10/GEN-SIM/106X_upgrade2023_realistic_v3_2023D41noPU-v1/10000/7377ED92-245C-CC4D-9F05-25ABB5522A08.root'
     )
 )
 

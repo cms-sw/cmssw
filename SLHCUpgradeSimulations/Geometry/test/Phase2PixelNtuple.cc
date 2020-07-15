@@ -67,10 +67,10 @@ using namespace reco;
 class Phase2PixelNtuple : public edm::one::EDAnalyzer<> {
 public:
   explicit Phase2PixelNtuple(const edm::ParameterSet& conf);
-  virtual ~Phase2PixelNtuple();
-  virtual void beginJob();
-  virtual void endJob();
-  virtual void analyze(const edm::Event& e, const edm::EventSetup& es);
+  ~Phase2PixelNtuple() override;
+  void beginJob() override;
+  void endJob() override;
+  void analyze(const edm::Event& e, const edm::EventSetup& es) override;
 
 protected:
   void fillEvt(const edm::Event&);
@@ -175,8 +175,8 @@ Phase2PixelNtuple::Phase2PixelNtuple(edm::ParameterSet const& conf)
       token_recoTracks(consumes<edm::View<reco::Track>>(conf.getParameter<edm::InputTag>("trackProducer"))),
       verbose_(conf.getUntrackedParameter<bool>("verbose", false)),
       picky_(conf.getUntrackedParameter<bool>("picky", false)),
-      pixeltree_(0),
-      pixeltreeOnTrack_(0) {}
+      pixeltree_(nullptr),
+      pixeltreeOnTrack_(nullptr) {}
 
 Phase2PixelNtuple::~Phase2PixelNtuple() {}
 

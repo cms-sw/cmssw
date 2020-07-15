@@ -70,9 +70,9 @@
 class ModuleInfo_Phase2 : public edm::EDAnalyzer {
 public:
   explicit ModuleInfo_Phase2(const edm::ParameterSet&);
-  ~ModuleInfo_Phase2();
+  ~ModuleInfo_Phase2() override;
 
-  virtual void analyze(const edm::Event&, const edm::EventSetup&);
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
 
 private:
   // ----------member data ---------------------------

@@ -120,7 +120,7 @@ void MTDTopologyAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetu
 
       bool isSens = false;
 
-      if (fv.geoHistory()[num - 1].logicalPart().specifics().size() > 0) {
+      if (!fv.geoHistory()[num - 1].logicalPart().specifics().empty()) {
         for (auto vec : fv.geoHistory()[num - 1].logicalPart().specifics()) {
           for (auto elem : *vec) {
             if (elem.second.name() == "SensitiveDetector") {
