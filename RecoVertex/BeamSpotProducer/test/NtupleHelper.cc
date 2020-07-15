@@ -51,7 +51,7 @@ zData NtupleHelper::Loop(int maxEvents) {
   std::cout << "  loop over entries" << std::endl;
   std::cout << "  maximum number of entries: " << maxEvents << std::endl;
   zData zvector;
-  if (fChain == 0)
+  if (fChain == nullptr)
     return zvector;
   zvector.erase(zvector.begin(), zvector.end());
   Long64_t nentries = fChain->GetEntriesFast();
