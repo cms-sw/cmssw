@@ -756,7 +756,7 @@ namespace {
         if (rec) {
           auto waitTask = edm::make_empty_waiting_task();
           waitTask->set_ref_count(2);
-          rec->prefetchAsync(waitTask.get(), proxies[i], &iImpl);
+          rec->prefetchAsync(waitTask.get(), proxies[i], &iImpl, edm::ServiceToken{});
           waitTask->decrement_ref_count();
           waitTask->wait_for_all();
           if (waitTask->exceptionPtr()) {
@@ -782,7 +782,7 @@ namespace {
         if (rec) {
           auto waitTask = edm::make_empty_waiting_task();
           waitTask->set_ref_count(2);
-          rec->prefetchAsync(waitTask.get(), proxies[i], &iImpl);
+          rec->prefetchAsync(waitTask.get(), proxies[i], &iImpl, edm::ServiceToken{});
           waitTask->decrement_ref_count();
           waitTask->wait_for_all();
           if (waitTask->exceptionPtr()) {

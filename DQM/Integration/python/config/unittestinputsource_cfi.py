@@ -109,7 +109,20 @@ eventRange = cms.untracked.VEventRange(eventsToProcess)
 
 print("Got %d files." % len(readFiles))
 
-source = cms.Source ("PoolSource", fileNames = readFiles, secondaryFileNames = secFiles, eventsToProcess = eventRange)
+source = cms.Source ("PoolSource",
+                     fileNames = readFiles,
+                     secondaryFileNames = secFiles,
+                     eventsToProcess = eventRange,
+                     ### As we are testing with FEVT, we don't want any unpacked collection
+                     ### This makes the tests slightly more realistic (live production uses streamer files
+                     inputCommands = cms.untracked.vstring(
+                       'drop *',
+                       'keep FEDRawDataCollection_rawDataCollector_*_*',
+                       'keep GlobalObjectMapRecord_hltGtStage2ObjectMap_*_*',
+                       'keep edmTriggerResults_TriggerResults_*_*'
+                     ),
+                     dropDescendantsOfDroppedBranches = cms.untracked.bool(True)
+                   )
 maxEvents = cms.untracked.PSet(
   input = cms.untracked.int32(-1)
 )

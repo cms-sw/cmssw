@@ -57,7 +57,8 @@ namespace edm::eventsetup {
     void prefetchAsyncImpl(edm::WaitingTask* iTask,
                            edm::eventsetup::EventSetupRecordImpl const&,
                            edm::eventsetup::DataKey const& iKey,
-                           edm::EventSetupImpl const*) final;
+                           edm::EventSetupImpl const*,
+                           edm::ServiceToken const&) final;
 
     // ---------- member data --------------------------------
 

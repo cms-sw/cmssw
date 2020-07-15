@@ -31,6 +31,7 @@ namespace edm {
   class ActivityRegistry;
   class EventSetupImpl;
   class WaitingTask;
+  class ServiceToken;
 
   namespace eventsetup {
     struct ComponentDescription;
@@ -47,7 +48,8 @@ namespace edm {
       // ---------- const member functions ---------------------
       bool cacheIsValid() const { return cacheIsValid_.load(std::memory_order_acquire); }
 
-      void prefetchAsync(WaitingTask*, EventSetupRecordImpl const&, DataKey const&, EventSetupImpl const*) const;
+      void prefetchAsync(
+          WaitingTask*, EventSetupRecordImpl const&, DataKey const&, EventSetupImpl const*, ServiceToken const&) const;
 
       void doGet(EventSetupRecordImpl const&,
                  DataKey const&,
@@ -86,7 +88,8 @@ namespace edm {
       virtual void prefetchAsyncImpl(WaitingTask*,
                                      EventSetupRecordImpl const&,
                                      DataKey const& iKey,
-                                     EventSetupImpl const*) = 0;
+                                     EventSetupImpl const*,
+                                     ServiceToken const&) = 0;
 
       /** indicates that the Proxy should invalidate any cached information
           as that information has 'expired' (i.e. we have moved to a new IOV)
