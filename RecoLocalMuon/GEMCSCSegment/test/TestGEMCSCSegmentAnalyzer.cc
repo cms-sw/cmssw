@@ -14,14 +14,14 @@
 // Original Author:  Raffaella Radogna
 
 // system include files
-#include <memory>
+#include <cmath>
 #include <fstream>
-#include <sys/time.h>
-#include <string>
-#include <sstream>
-#include <iostream>
 #include <iomanip>
-#include <math.h>
+#include <iostream>
+#include <memory>
+#include <sstream>
+#include <string>
+#include <sys/time.h>
 
 // root include files
 #include "TFile.h"
@@ -67,14 +67,14 @@ using namespace edm;
 class TestGEMCSCSegmentAnalyzer : public edm::EDAnalyzer {
 public:
   explicit TestGEMCSCSegmentAnalyzer(const edm::ParameterSet&);
-  ~TestGEMCSCSegmentAnalyzer();
+  ~TestGEMCSCSegmentAnalyzer() override;
 
 private:
-  virtual void beginJob();
-  virtual void analyze(const edm::Event&, const edm::EventSetup&);
-  virtual void endJob();
+  void beginJob() override;
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void endJob() override;
 
-  virtual void beginRun(edm::Run const&, edm::EventSetup const&);
+  void beginRun(edm::Run const&, edm::EventSetup const&) override;
   //virtual void endRun(edm::Run const&, edm::EventSetup const&);
   //virtual void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&);
   //virtual void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&);
@@ -1032,7 +1032,7 @@ void TestGEMCSCSegmentAnalyzer::analyze(const edm::Event& iEvent, const edm::Eve
       std::cout << "GEM-CSC Segment with " << gemcscs->gemRecHits().size() << " GEM rechits and "
                 << gemcscs->cscSegment().specificRecHits().size() << " CSC rechits" << std::endl;
     }
-    if (gemrhs_if.size() == 0)
+    if (gemrhs_if.empty())
       continue;
     // if(gemrhs_if.size()!=0) continue;
 

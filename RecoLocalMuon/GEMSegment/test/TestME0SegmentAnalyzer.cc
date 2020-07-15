@@ -54,10 +54,10 @@
 class TestME0SegmentAnalyzer : public edm::EDAnalyzer {
 public:
   explicit TestME0SegmentAnalyzer(const edm::ParameterSet&);
-  ~TestME0SegmentAnalyzer();
+  ~TestME0SegmentAnalyzer() override;
 
 private:
-  virtual void analyze(const edm::Event&, const edm::EventSetup&);
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
 
   // ----------member data ---------------------------
   edm::ESHandle<ME0Geometry> me0Geom;

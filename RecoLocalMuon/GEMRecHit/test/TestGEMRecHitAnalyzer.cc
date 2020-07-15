@@ -82,12 +82,12 @@
 class TestGEMRecHitAnalyzer : public edm::EDAnalyzer {
 public:
   explicit TestGEMRecHitAnalyzer(const edm::ParameterSet&);
-  ~TestGEMRecHitAnalyzer();
+  ~TestGEMRecHitAnalyzer() override;
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
-  virtual void analyze(const edm::Event&, const edm::EventSetup&);
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
 
   // ----------member data ---------------------------
   edm::ESHandle<GEMGeometry> gemGeom;

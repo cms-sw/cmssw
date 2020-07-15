@@ -81,7 +81,7 @@ public:
   typedef std::map<unsigned int, SimTrack> SimTracksMap;
 
   explicit Phase2TrackerRecHitsValidation(const edm::ParameterSet&);
-  ~Phase2TrackerRecHitsValidation();
+  ~Phase2TrackerRecHitsValidation() override;
   void beginJob() override;
   void endJob() override;
   void analyze(const edm::Event&, const edm::EventSetup&) override;
@@ -275,7 +275,7 @@ void Phase2TrackerRecHitsValidation::analyze(const edm::Event& event, const edm:
       // find the closest simhit
       // this is needed because otherwise you get cases with simhits and clusters being swapped
       // when there are more than 1 cluster with common simtrackids
-      const PSimHit* simhit = 0;  // bad naming to avoid changing code below. This is the closest simhit in x
+      const PSimHit* simhit = nullptr;  // bad naming to avoid changing code below. This is the closest simhit in x
       float minx = 10000;
       for (unsigned int simhitidx = 0; simhitidx < 2; ++simhitidx) {  // loop over both barrel and endcap hits
         for (edm::PSimHitContainer::const_iterator simhitIt(simHitsRaw[simhitidx]->begin());
@@ -463,8 +463,8 @@ std::map<unsigned int, RecHitHistos>::iterator Phase2TrackerRecHitsValidation::c
     }
   }
 
-  TFileDirectory td1 = fs->mkdir(fname1.str().c_str());
-  TFileDirectory td = td1.mkdir(fname2.str().c_str());
+  TFileDirectory td1 = fs->mkdir(fname1.str());
+  TFileDirectory td = td1.mkdir(fname2.str());
 
   RecHitHistos local_histos;
 
