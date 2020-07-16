@@ -67,7 +67,9 @@ void DDHGCalNoTaperEndcap::initialize(const DDNumericArguments& nArgs,
   m_incrCopyNo = int(nArgs["incrCopyNo"]);
   m_childName = sArgs["ChildName"];
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("HGCalGeom") << "Tilt Angle " << m_tiltAngle << " Invert " << m_invert << " R " << m_rMin << ":" << m_rMax << " Offset " << m_zoffset << ":" << m_xyoffset << " N " << m_n << " Copy " << m_startCopyNo << ":" << m_incrCopyNo << " Child " << m_childName;
+  edm::LogVerbatim("HGCalGeom") << "Tilt Angle " << m_tiltAngle << " Invert " << m_invert << " R " << m_rMin << ":"
+                                << m_rMax << " Offset " << m_zoffset << ":" << m_xyoffset << " N " << m_n << " Copy "
+                                << m_startCopyNo << ":" << m_incrCopyNo << " Child " << m_childName;
 #endif
 
   m_idNameSpace = DDCurrentNamespace::ns();
