@@ -47,6 +47,12 @@ upgradeKeys[2026] = [
     '2026D60PU',
     '2026D61',
     '2026D61PU',
+    '2026D62',
+    '2026D62PU',
+    '2026D63',
+    '2026D63PU',
+    '2026D64',
+    '2026D64PU',
 ]
 
 # pre-generation of WF numbers
@@ -921,6 +927,30 @@ upgradeProperties[2026] = {
         'GT' : 'auto:phase2_realistic_T17',
         'ProcessModifier': 'phase2_PixelCPEGeneric',
         'Era' : 'Phase2C9',
+        'ScenToRun' : ['GenSimHLBeamSpotFull','DigiFullTrigger','RecoFullGlobal', 'HARVESTFullGlobal'],
+    },
+    '2026D62' : {
+        'Geom' : 'Extended2026D62',
+        'HLTmenu': '@fake2',
+        'GT' : 'auto:phase2_realistic_T21',
+        'ProcessModifier': 'phase2_PixelCPEGeneric',
+        'Era' : 'Phase2C11',
+        'ScenToRun' : ['GenSimHLBeamSpotFull','DigiFullTrigger','RecoFullGlobal', 'HARVESTFullGlobal'],
+    },
+    '2026D63' : {
+        'Geom' : 'Extended2026D63',
+        'HLTmenu': '@fake2',
+        'GT' : 'auto:phase2_realistic_T22',
+        'ProcessModifier': 'phase2_PixelCPEGeneric',
+        'Era' : 'Phase2C11',
+        'ScenToRun' : ['GenSimHLBeamSpotFull','DigiFullTrigger','RecoFullGlobal', 'HARVESTFullGlobal'],
+    },
+    '2026D64' : {
+        'Geom' : 'Extended2026D64',
+        'HLTmenu': '@fake2',
+        'GT' : 'auto:phase2_realistic_T23',
+        'ProcessModifier': 'phase2_PixelCPEGeneric',
+        'Era' : 'Phase2C11',
         'ScenToRun' : ['GenSimHLBeamSpotFull','DigiFullTrigger','RecoFullGlobal', 'HARVESTFullGlobal'],
     },
 }
