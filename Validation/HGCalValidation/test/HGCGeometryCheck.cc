@@ -40,10 +40,10 @@ public:
   static void fillDescriptions(edm::ConfigurationDescriptions &descriptions);
 
 protected:
-  virtual void beginJob() override;
-  virtual void beginRun(edm::Run const &, edm::EventSetup const &) override;
-  virtual void analyze(edm::Event const &, edm::EventSetup const &) override;
-  virtual void endRun(edm::Run const &, edm::EventSetup const &) override {}
+  void beginJob() override;
+  void beginRun(edm::Run const &, edm::EventSetup const &) override;
+  void analyze(edm::Event const &, edm::EventSetup const &) override;
+  void endRun(edm::Run const &, edm::EventSetup const &) override {}
   virtual void beginLuminosityBlock(edm::LuminosityBlock const &, edm::EventSetup const &) {}
   virtual void endLuminosityBlock(edm::LuminosityBlock const &, edm::EventSetup const &) {}
 
@@ -63,7 +63,7 @@ private:
   static constexpr double mmTocm_ = 0.1;
 };
 
-HGCGeometryCheck::HGCGeometryCheck(const edm::ParameterSet &cfg) : hcons_(0) {
+HGCGeometryCheck::HGCGeometryCheck(const edm::ParameterSet &cfg) : hcons_(nullptr) {
   usesResource(TFileService::kSharedResource);
 
   g4Token_ = consumes<PHGCalValidInfo>(cfg.getParameter<edm::InputTag>("g4Source"));
@@ -110,7 +110,7 @@ void HGCGeometryCheck::beginRun(const edm::Run &, const edm::EventSetup &iSetup)
       iSetup.get<HcalSimNumberingRecord>().get(pHRNDC);
       if (pHRNDC.isValid()) {
         hcons_ = &(*pHRNDC);
-        hgcGeometry_.push_back(0);
+        hgcGeometry_.push_back(nullptr);
         edm::LogVerbatim("HGCalValid") << "Initialize geometry for " << geometrySource_[i];
       } else {
         edm::LogWarning("HGCalValid") << "Cannot initiate HcalGeometry for " << geometrySource_[i];

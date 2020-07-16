@@ -23,9 +23,9 @@
 #include "TPostScript.h"
 #include "TCanvas.h"
 
-#include <math.h>
-#include <vector>
+#include <cmath>
 #include <sstream>
+#include <vector>
 
 //******** Single include for the TkMap *************
 #include "DQM/SiStripCommon/interface/TkHistoMap.h"
@@ -38,7 +38,7 @@
 class testTkHistoMap : public DQMOneEDAnalyzer<> {
 public:
   explicit testTkHistoMap(const edm::ParameterSet&);
-  ~testTkHistoMap();
+  ~testTkHistoMap() override;
 
   void bookHistograms(DQMStore::IBooker&, edm::Run const&, edm::EventSetup const&) override {}
   void analyze(const edm::Event&, const edm::EventSetup&) override;
@@ -87,7 +87,7 @@ void testTkHistoMap::read(const TkDetMap* tkDetMap) {
   tkhistoCheck = std::make_unique<TkHistoMap>(tkDetMap);
 
   tkhisto->loadTkHistoMap("detId", "detId");
-  tkhistoBis->loadTkHistoMap("detIdBis", "detIdBis", 1);
+  tkhistoBis->loadTkHistoMap("detIdBis", "detIdBis", true);
   tkhistoZ->loadTkHistoMap("Zmap", "Zmap");
   tkhistoPhi->loadTkHistoMap("Phi", "Phi");
   tkhistoR->loadTkHistoMap("Rmap", "Rmap");

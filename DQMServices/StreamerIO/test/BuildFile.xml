@@ -2,7 +2,6 @@
 <use name="IOPool/Streamer"/>
 <use name="EventFilter/Utilities"/>
 <use name="DQMServices/Components"/>
-<use name="stdcxx-fs"/>
 <library file="*.cc" name="DQMServicesStreamerIOTestPlugins">
   <flags EDM_PLUGIN="1"/>
 </library>

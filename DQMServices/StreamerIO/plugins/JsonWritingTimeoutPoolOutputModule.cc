@@ -4,7 +4,7 @@
 #include "DQMServices/Components/interface/fillJson.h"
 
 #include <boost/format.hpp>
-#include <filesystem>
+#include <boost/filesystem.hpp>
 #include <boost/property_tree/json_parser.hpp>
 #include <boost/property_tree/ptree.hpp>
 
@@ -24,7 +24,7 @@ namespace dqmservices {
 
     std::string base = str(boost::format("run%06d_ls%04d_%s") % runNumber_ % sequence_ % streamLabel_);
 
-    std::filesystem::path p(outputPath_);
+    boost::filesystem::path p(outputPath_);
 
     currentFileName_ = (p / base).string() + ".root";
     currentJsonName_ = (p / base).string() + ".jsn";
