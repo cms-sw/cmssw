@@ -248,4 +248,3 @@ void DQMOfflineHLTEventInfoClient::endRun(const Run& r, const EventSetup& contex
   CertificationSummaryMap_->setBinContent(1, 5, 1);              //BJet
   CertificationSummaryMap_->setBinContent(1, 6, tauValue);       //Tau
 }
-
