@@ -462,8 +462,6 @@ namespace edmtest {
         : public edm::stream::EDProducer<edm::WatchProcessBlock, edm::GlobalCache<TestGlobalCache>> {
     public:
       explicit ProcessBlockIntProducer(edm::ParameterSet const& pset, TestGlobalCache const* testGlobalCache) {
-        produces<unsigned int>();
-
         {
           auto tag = pset.getParameter<edm::InputTag>("consumesBeginProcessBlock");
           if (not tag.label().empty()) {
@@ -498,10 +496,6 @@ namespace edmtest {
                 << "expected " << valueToGet << " but got " << processBlock.get(testGlobalCache->getTokenBegin_);
           }
         }
-      }
-
-      static std::shared_ptr<UnsafeCache> accessInputProcessBlock(edm::ProcessBlock const&, TestGlobalCache*) {
-        return std::make_shared<UnsafeCache>();
       }
 
       void produce(edm::Event&, edm::EventSetup const&) override {
@@ -560,7 +554,6 @@ namespace edmtest {
     public:
       explicit TestBeginProcessBlockProducer(edm::ParameterSet const& pset, TestGlobalCache const* testGlobalCache) {
         testGlobalCache->token_ = produces<unsigned int, edm::Transition::BeginProcessBlock>("begin");
-        produces<unsigned int>();
 
         auto tag = pset.getParameter<edm::InputTag>("consumesBeginProcessBlock");
         if (not tag.label().empty()) {
@@ -624,7 +617,6 @@ namespace edmtest {
     public:
       explicit TestEndProcessBlockProducer(edm::ParameterSet const& pset, TestGlobalCache const* testGlobalCache) {
         testGlobalCache->token_ = produces<unsigned int, edm::Transition::EndProcessBlock>("end");
-        produces<unsigned int>();
 
         auto tag = pset.getParameter<edm::InputTag>("consumesEndProcessBlock");
         if (not tag.label().empty()) {
@@ -675,6 +667,35 @@ namespace edmtest {
                                               << " but it was supposed to be " << testGlobalCache->trans_;
         }
       }
+    };
+
+    class ProcessBlockIntProducerNoGlobalCache : public edm::stream::EDProducer<edm::WatchProcessBlock> {
+    public:
+      explicit ProcessBlockIntProducerNoGlobalCache(edm::ParameterSet const&) {}
+
+      static void beginProcessBlock(edm::ProcessBlock const&) {}
+
+      void produce(edm::Event&, edm::EventSetup const&) override {}
+
+      static void endProcessBlock(edm::ProcessBlock const&) {}
+    };
+
+    class TestBeginProcessBlockProducerNoGlobalCache : public edm::stream::EDProducer<edm::BeginProcessBlockProducer> {
+    public:
+      explicit TestBeginProcessBlockProducerNoGlobalCache(edm::ParameterSet const&) {}
+
+      static void beginProcessBlockProduce(edm::ProcessBlock&) {}
+
+      void produce(edm::Event&, edm::EventSetup const&) override {}
+    };
+
+    class TestEndProcessBlockProducerNoGlobalCache : public edm::stream::EDProducer<edm::EndProcessBlockProducer> {
+    public:
+      explicit TestEndProcessBlockProducerNoGlobalCache(edm::ParameterSet const&) {}
+
+      void produce(edm::Event&, edm::EventSetup const&) override {}
+
+      static void endProcessBlockProduce(edm::ProcessBlock&) {}
     };
 
     class TestBeginRunProducer : public edm::stream::EDProducer<edm::RunCache<bool>, edm::BeginRunProducer> {
@@ -989,6 +1010,9 @@ DEFINE_FWK_MODULE(edmtest::stream::LumiSummaryIntProducer);
 DEFINE_FWK_MODULE(edmtest::stream::ProcessBlockIntProducer);
 DEFINE_FWK_MODULE(edmtest::stream::TestBeginProcessBlockProducer);
 DEFINE_FWK_MODULE(edmtest::stream::TestEndProcessBlockProducer);
+DEFINE_FWK_MODULE(edmtest::stream::ProcessBlockIntProducerNoGlobalCache);
+DEFINE_FWK_MODULE(edmtest::stream::TestBeginProcessBlockProducerNoGlobalCache);
+DEFINE_FWK_MODULE(edmtest::stream::TestEndProcessBlockProducerNoGlobalCache);
 DEFINE_FWK_MODULE(edmtest::stream::TestBeginRunProducer);
 DEFINE_FWK_MODULE(edmtest::stream::TestEndRunProducer);
 DEFINE_FWK_MODULE(edmtest::stream::TestBeginLumiBlockProducer);
