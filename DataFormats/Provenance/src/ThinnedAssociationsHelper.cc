@@ -250,4 +250,14 @@ namespace edm {
     }
     sort();
   }
+
+  bool ThinnedAssociationsHelper::indirectMatch(BranchID const& parent, BranchID const& target) const {
+    if (parent == target) {
+      return true;
+    }
+    for (auto assoc = parentBegin(parent), assocEnd = parentEnd(parent); assoc != assocEnd; ++assoc) {
+      return indirectMatch(assoc->thinned(), target);
+    }
+    return false;
+  }
 }  // namespace edm

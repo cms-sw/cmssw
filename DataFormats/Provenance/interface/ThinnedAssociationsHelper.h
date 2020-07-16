@@ -70,6 +70,8 @@ namespace edm {
 
     void initAssociationsFromSecondary(std::vector<BranchID> const&, ThinnedAssociationsHelper const&);
 
+    bool indirectMatch(BranchID const& parent, BranchID const& target) const;
+
   private:
     bool shouldKeepAssociation(
         BranchID const& association,

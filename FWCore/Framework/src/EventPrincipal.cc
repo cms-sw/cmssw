@@ -304,6 +304,13 @@ namespace edm {
                                                        unsigned int& key,
                                                        ProductID const& targetpid) const {
     BranchID parent = pidToBid(pid);
+    if (targetpid.isValid()) {
+      //check if there is actually a thinning relationship between the parent and target ids
+      BranchID target = pidToBid(targetpid);
+      if (!thinnedAssociationsHelper_->indirectMatch(parent, target)) {
+        return nullptr;
+      }
+    }
 
     // Loop over thinned containers which were made by selecting elements from the parent container
     for (auto associatedBranches = thinnedAssociationsHelper_->parentBegin(parent),
@@ -352,6 +359,13 @@ namespace edm {
                                           std::vector<unsigned int>& keys,
                                           ProductID const& targetpid) const {
     BranchID parent = pidToBid(pid);
+    if (targetpid.isValid()) {
+      //check if there is actually a thinning relationship between the parent and target ids
+      BranchID target = pidToBid(targetpid);
+      if (!thinnedAssociationsHelper_->indirectMatch(parent, target)) {
+        return;
+      }
+    }
 
     // Loop over thinned containers which were made by selecting elements from the parent container
     for (auto associatedBranches = thinnedAssociationsHelper_->parentBegin(parent),
@@ -433,9 +447,9 @@ namespace edm {
           << "EventPrincipal::getThinnedAssociation, ThinnedAssociation ProductResolver cannot be found\n"
           << "This should never happen. Contact a Framework developer";
     }
-    //handle case where thinnedAssociation hasn't been produced yet (then it is not needed by construction)
     if (phb->unscheduledWasNotRun()) {
-      return nullptr;
+      throw Exception(errors::ProductNotFound)
+          << "EventPrincipal::getThinnedAssociation tried to get a thinnedAssocation which has not been produced yet\n";
     }
     ProductData const* productData = (phb->resolveProduct(*this, false, nullptr, nullptr)).data();
     if (productData == nullptr) {

@@ -407,6 +407,13 @@ namespace fwlite {
     if (!parent.isValid())
       return nullptr;
     edm::ThinnedAssociationsHelper const& thinnedAssociationsHelper = branchMap_->thinnedAssociationsHelper();
+    if (targetpid.isValid()) {
+      //check if there is actually a thinning relationship between the parent and target ids
+      edm::BranchID target = branchMap_->productToBranchID(targetpid);
+      if (!thinnedAssociationsHelper.indirectMatch(parent, target)) {
+        return nullptr;
+      }
+    }
 
     // Loop over thinned containers which were made by selecting elements from the parent container
     for (auto associatedBranches = thinnedAssociationsHelper.parentBegin(parent),
@@ -462,6 +469,13 @@ namespace fwlite {
     if (!parent.isValid())
       return;
     edm::ThinnedAssociationsHelper const& thinnedAssociationsHelper = branchMap_->thinnedAssociationsHelper();
+    if (targetpid.isValid()) {
+      //check if there is actually a thinning relationship between the parent and target ids
+      edm::BranchID target = branchMap_->productToBranchID(targetpid);
+      if (!thinnedAssociationsHelper.indirectMatch(parent, target)) {
+        return;
+      }
+    }
 
     // Loop over thinned containers which were made by selecting elements from the parent container
     for (auto associatedBranches = thinnedAssociationsHelper.parentBegin(parent),
