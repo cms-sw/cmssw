@@ -55,12 +55,16 @@ bool Py8MassGun::generatePartonsAndHadronize()
 {
 
    fMasterGen->event.reset();
+   size_t pSize = fPartIDs.size();
+   if( pSize > 2 ) return false;
 
-   double totM  = 0.;
+   // Pick a flat mass range
    double phi, eta, the, ee, pp;
    double m0 = (fMaxM-fMinM)*randomEngine().flat() + fMinM;
+   // Global eta
+   eta  = (fMaxEta-fMinEta)*randomEngine().flat() + fMinEta;
 
-   if( fPartIDs.size() != 2 ) return false;
+   if( pSize == 2 ) {
    // Masses.
    double m1   = fMasterGen->particleData.m0( fPartIDs[0] );
    double m2   = fMasterGen->particleData.m0( fPartIDs[1] );
@@ -71,29 +75,29 @@ bool Py8MassGun::generatePartonsAndHadronize()
    double e2   = 0.5 * (m0*m0 + m2*m2 - m1*m1) / m0;
    double pAbs = 0.5 * sqrt( (m0 - m1 - m2) * (m0 + m1 + m2)
                                 * (m0 + m1 - m2) * (m0 - m1 + m2) ) / m0;
-
-   // Isotropic angles give three-momentum.
+   // Isotropic angles in rest frame give three-momentum.
    double cosTheta = 2. * randomEngine().flat() - 1.;
    double sinTheta = sqrt(1. - cosTheta*cosTheta);
    phi = 2. * M_PI * randomEngine().flat() ;
+
    double pX       = pAbs * sinTheta * cos(phi);
    double pY       = pAbs * sinTheta * sin(phi);
    double pZ       = pAbs * cosTheta;
    
    (fMasterGen->event).append( fPartIDs[0], 1, 0, 0, pX, pY, pZ, e1, m1);
    (fMasterGen->event).append( fPartIDs[1], 1, 0, 0, -pX, -pY, -pZ, e2, m2);
+   } else {
+   (fMasterGen->event).append( fPartIDs[0], 1, 0, 0, 0.0, 0.0, 0.0, m0, m0);
+   }
 
-   totM = m0;
    //now the boost (from input params)
-   //
-   eta  = (fMaxEta-fMinEta)*randomEngine().flat() + fMinEta;
    if( fMomMode == 0 ) {
       pp = (fMaxP-fMinP)*randomEngine().flat() + fMinP;
    } else {
       double pT = (fMaxPt-fMinPt)*randomEngine().flat() + fMinPt;
       pp = pT * cosh( eta );
    }
-   ee = sqrt( totM*totM + pp*pp );	 
+   ee = sqrt( m0*m0 + pp*pp );	 
 
    //the boost direction (from input params)
    //

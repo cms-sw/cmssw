@@ -15,9 +15,9 @@ process.generator = cms.EDFilter("Pythia8MassGun",
     pythiaHepMCVerbosity = cms.untracked.bool(True),
 
     PGunParameters = cms.PSet(
-       ParticleID = cms.vint32(15,-15),
+       ParticleID = cms.vint32(999999),
         # this defines "absolute" energy spead of particles in the jet
-	MinM   = cms.double(5.0),
+	MinM   = cms.double(8.0),
 	MaxM   = cms.double(15.0),
 	# the following params define the boost
         MinP   = cms.double(20.0),
@@ -35,6 +35,8 @@ process.generator = cms.EDFilter("Pythia8MassGun",
     pythia8CommonSettingsBlock,
 
     processParameters = cms.vstring(
+      '999999:all = GeneralResonance void 1 0 0 500. 1. 0. 0. 0.',
+      '999999:oneChannel = 1 1.00 101 15 -15 15 -15',
       'Main:timesAllowErrors    = 10000',
       '15:onMode = off',
       '15:onIfAll = 211 211 211',
