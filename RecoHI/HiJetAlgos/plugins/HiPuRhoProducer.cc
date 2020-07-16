@@ -247,8 +247,7 @@ void HiPuRhoProducer::setupGeometryMap(edm::Event& iEvent, const edm::EventSetup
     if (did.det() == DetId::Hcal) {
       HcalDetId hid = HcalDetId(did);
       allgeomid_.push_back(did);
-      towermap_.push_back(
-          {hid.ieta(), hid.iphi(), geo_->getPosition((DetId)did).eta(), geo_->getPosition((DetId)did).phi()});
+      towermap_.push_back({hid.ieta(), hid.iphi(), geo_->getPosition(did).eta(), geo_->getPosition(did).phi()});
       if (hid.ieta() != ietaold) {
         ietaold = hid.ieta();
         geomtowers_[hid.ieta()] = 1;
