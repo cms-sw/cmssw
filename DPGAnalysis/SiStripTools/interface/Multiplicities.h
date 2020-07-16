@@ -65,13 +65,7 @@ private:
 
 template <class T>
 SingleMultiplicity<T>::SingleMultiplicity()
-    : m_modthr(-1),
-      m_useQuality(false),
-      m_qualityLabel(),
-      m_mult(0),
-      m_collection()
-{
-}
+    : m_modthr(-1), m_useQuality(false), m_qualityLabel(), m_mult(0), m_collection() {}
 
 template <class T>
 SingleMultiplicity<T>::SingleMultiplicity(const edm::ParameterSet& iConfig, edm::ConsumesCollector&& iC)
