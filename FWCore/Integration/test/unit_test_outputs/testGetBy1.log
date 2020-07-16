@@ -1568,7 +1568,7 @@ Module type=IntProducer, Module label=intProducerA, Parameter Set ID=38971365e81
 ++++ finished: end job for module with label 'intProducer' id = 4
 ++++ starting: end job for module with label 'a1' id = 5
 Module type=TestFindProduct, Module label=a1, Parameter Set ID=73b313a2727141f62e12cd7cf1a5b8dc
-TestFindProduct sum = 110012
+TestFindProduct sum = 530021
 ++++ finished: end job for module with label 'a1' id = 5
 Module type=TestFindProduct, Module label=a1, Parameter Set ID=73b313a2727141f62e12cd7cf1a5b8dc
 ++++ starting: end job for module with label 'a2' id = 6
