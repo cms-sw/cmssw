@@ -73,7 +73,10 @@ namespace cond {
       checkTransaction("RunInfoProxy::load(Time_t,Time_t)");
 
       std::string dummy;
-      m_session->runInfoSchema().runInfoTable().getInclusiveRunRange(low, up, m_data->runList);
+      if (!m_session->runInfoSchema().runInfoTable().getInclusiveRunRange(low, up, m_data->runList)) {
+        throwException("No runs have been found in the range (" + std::to_string(low) + "," + std::to_string(up) + ")",
+                       "RunInfoProxy::load(Time_t,Time_t)");
+      }
     }
 
     void RunInfoProxy::load(const boost::posix_time::ptime& low, const boost::posix_time::ptime& up) {
@@ -86,7 +89,11 @@ namespace cond {
       checkTransaction("RunInfoProxy::load(const boost::posix_time::ptime&,const boost::posix_time::ptime&)");
 
       std::string dummy;
-      m_session->runInfoSchema().runInfoTable().getInclusiveTimeRange(low, up, m_data->runList);
+      if (!m_session->runInfoSchema().runInfoTable().getInclusiveTimeRange(low, up, m_data->runList)) {
+        throwException("No runs have been found in the interval (" + boost::posix_time::to_simple_string(low) + "," +
+                           boost::posix_time::to_simple_string(up) + ")",
+                       "RunInfoProxy::load(boost::posix_time::ptime&,const boost::posix_time::ptime&)");
+      }
     }
 
     void RunInfoProxy::reset() {
