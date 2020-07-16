@@ -81,9 +81,12 @@ void pat::PackedCandidateTrackChi2Producer::produce(edm::Event& iEvent, const ed
         continue;
 
       const auto& candTrack = (*candidate2PF)[cand]->trackRef();
-      const float nChi2 = candTrack->normalizedChi2();
 
-      trkChi2Map.at(i) = MiniFloatConverter::reduceMantissaToNbitsRounding<roundingPrecision>(nChi2);
+      if (candTrack.isNonnull()) {
+        const float nChi2 = candTrack->normalizedChi2();
+
+        trkChi2Map.at(i) = MiniFloatConverter::reduceMantissaToNbitsRounding<roundingPrecision>(nChi2);
+      }
     }
   }
 
