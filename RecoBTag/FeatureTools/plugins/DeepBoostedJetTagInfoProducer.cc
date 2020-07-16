@@ -6,6 +6,7 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/StreamID.h"
+#include "FWCore/Utilities/interface/ESGetToken.h"
 
 #include "DataFormats/Candidate/interface/Candidate.h"
 
@@ -59,6 +60,7 @@ private:
   edm::EDGetTokenT<edm::ValueMap<float>> puppi_value_map_token_;
   edm::EDGetTokenT<edm::ValueMap<int>> pvasq_value_map_token_;
   edm::EDGetTokenT<edm::Association<VertexCollection>> pvas_token_;
+  edm::ESGetToken<TransientTrackBuilder, TransientTrackRecord> track_builder_token_;
 
   edm::Handle<VertexCollection> vtxs_;
   edm::Handle<SVCollection> svs_;
@@ -118,7 +120,9 @@ DeepBoostedJetTagInfoProducer::DeepBoostedJetTagInfoProducer(const edm::Paramete
       sv_token_(consumes<SVCollection>(iConfig.getParameter<edm::InputTag>("secondary_vertices"))),
       pfcand_token_(consumes<CandidateView>(iConfig.getParameter<edm::InputTag>("pf_candidates"))),
       use_puppi_value_map_(false),
-      use_pvasq_value_map_(false) {
+      use_pvasq_value_map_(false),
+      track_builder_token_(
+          esConsumes<TransientTrackBuilder, TransientTrackRecord>(edm::ESInputTag("", "TransientTrackBuilder"))) {
   const auto &puppi_value_map_tag = iConfig.getParameter<edm::InputTag>("puppi_value_map");
   if (!puppi_value_map_tag.label().empty()) {
     puppi_value_map_token_ = consumes<edm::ValueMap<float>>(puppi_value_map_tag);
@@ -171,7 +175,7 @@ void DeepBoostedJetTagInfoProducer::produce(edm::Event &iEvent, const edm::Event
 
   iEvent.getByToken(pfcand_token_, pfcands_);
 
-  iSetup.get<TransientTrackRecord>().get("TransientTrackBuilder", track_builder_);
+  track_builder_ = iSetup.getHandle(track_builder_token_);
 
   if (use_puppi_value_map_) {
     iEvent.getByToken(puppi_value_map_token_, puppi_value_map_);
