@@ -13,6 +13,7 @@
 #include "DetectorDescription/DDCMS/interface/DDPlugins.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/Exception.h"
+#include "Geometry/HGCalCommonData/interface/HGCalTypes.h"
 
 //#define EDM_ML_DEBUG
 using namespace geant_units::operators;
@@ -120,11 +121,7 @@ namespace DDHGCalGeom {
               if (cornerAll) {
                 double rpos = std::sqrt(xpos * xpos + ypos * ypos);
                 dd4hep::Position tran(xpos, ypos, zz);
-                int copyx = inr * 100 + inc;
-                if (nc < 0)
-                  copyx += 10000;
-                if (nr < 0)
-                  copyx += 100000;
+                int copyx = HGCalTypes::packTypeUV(0, nr, nc);
                 if (layerSense[ly] == 1) {
                   dd4hep::Solid solid = ns.solid(covers[0]);
                   std::string name0 = name + "M" + std::to_string(copyx);
@@ -175,15 +172,16 @@ namespace DDHGCalGeom {
       zi = zo;
     }  // End of loop over layers in a block
 
-    if (fabs(thickTot - totalWidth) < tolerance) {
-    } else if (thickTot > totalWidth) {
-      edm::LogError("HGCalGeom") << "Thickness of the partition " << totalWidth << " is smaller than " << thickTot
-                                 << ": total thickness of all its components in " << module.name() << " Layers "
-                                 << firstLayer << ":" << lastLayer << ":" << ignoreCenter << "**** ERROR ****";
-    } else if (thickTot < totalWidth) {
-      edm::LogWarning("HGCalGeom") << "Thickness of the partition " << totalWidth << " does not match with " << thickTot
-                                   << " of the components in " << module.name() << " Layers " << firstLayer << ":"
-                                   << lastLayer << ":" << ignoreCenter;
+    if (fabs(thickTot - totalWidth) > tolerance) {
+      if (thickTot > totalWidth) {
+	edm::LogError("HGCalGeom") << "Thickness of the partition " << totalWidth << " is smaller than " << thickTot
+				   << ": total thickness of all its components in " << module.name() << " Layers "
+				   << firstLayer << ":" << lastLayer << ":" << ignoreCenter << "**** ERROR ****";
+      } else {
+	edm::LogWarning("HGCalGeom") << "Thickness of the partition " << totalWidth << " does not match with " << thickTot
+				     << " of the components in " << module.name() << " Layers " << firstLayer << ":"
+				     << lastLayer << ":" << ignoreCenter;
+      }
     }
   }
 }  // namespace DDHGCalGeom
@@ -216,9 +214,7 @@ static long algorithm(dd4hep::Detector& /* description */,
   const auto& names = args.value<std::vector<std::string> >("VolumeNames");        // Names of each layer
   const auto& layerThick = args.value<std::vector<double> >("Thickness");          // Thickness of the material
   std::vector<int> copyNumber;                                                     // Copy numbers (initiated to 1)
-  for (unsigned int k = 0; k < layerThick.size(); ++k) {
-    copyNumber.emplace_back(1);
-  }
+  copyNumber.resize(materials.size(), 1);
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HGCalGeom") << "DDHGCalTBModuleX: " << materials.size() << " types of volumes";
   for (unsigned int i = 0; i < names.size(); ++i)
@@ -360,7 +356,7 @@ static long algorithm(dd4hep::Detector& /* description */,
                                 << convertCmToMm(zi) << " with " << copies.size() << " different wafer copy numbers";
 #endif
 
-  return 1;
+  return cms::s_executed;
 }
 
 // first argument is the type from the xml file

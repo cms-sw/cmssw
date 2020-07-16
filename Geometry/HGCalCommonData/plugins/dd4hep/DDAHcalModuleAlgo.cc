@@ -21,14 +21,14 @@ static long algorithm(dd4hep::Detector& /* description */,
                       dd4hep::SensitiveDetector& /* sens */) {
   cms::DDNamespace ns(ctxt, e, true);
   cms::DDAlgoArguments args(ctxt, e);
+  static constexpr double tol = 0.00001;
 
   const auto& tile = args.value<std::string>("TileName");                          // Scintillator tile
   const auto& materials = args.value<std::vector<std::string> >("MaterialNames");  // Materials
   const auto& names = args.value<std::vector<std::string> >("VolumeNames");        // Names
   const auto& thick = args.value<std::vector<double> >("Thickness");               // Thickness of the material
   std::vector<int> copyNumber;                                                     // Initial copy numbers
-  for (unsigned int i = 0; i < materials.size(); ++i)
-    copyNumber.emplace_back(1);
+  copyNumber.resize(materials.size(), 1);
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HGCalGeom") << "DDAHcalModuleAlgo: Tile " << tile;
   edm::LogVerbatim("HGCalGeom") << "DDAHcalModuleAlgo: " << materials.size() << " types of volumes";
@@ -144,28 +144,28 @@ static long algorithm(dd4hep::Detector& /* description */,
 #endif
       }
       dd4hep::Position r1(0, 0, zz);
-      dd4hep::Rotation3D rot;
-      module.placeVolume(glog, copy, dd4hep::Transform3D(rot, r1));
+      module.placeVolume(glog, copy, r1);
       ++copyNumber[ii];
 #ifdef EDM_ML_DEBUG
       edm::LogVerbatim("HGCalGeom") << "DDAHcalModuleAlgo: " << glog.name() << " number " << copy << " positioned in "
-                                    << module.name() << " at " << r1 << " with " << rot;
+                                    << module.name() << " at " << r1 << " with no rotation";
 #endif
       zz += (0.5 * thick[ii]);
     }  // End of loop over layers in a block
     zi = zo;
     laymin = laymax;
-    if (fabs(thickTot - layerThick[i]) < 0.00001) {
-    } else if (thickTot > layerThick[i]) {
-      edm::LogError("HGCalGeom") << "Thickness of the partition " << layerThick[i] << " is smaller than thickness "
-                                 << thickTot << " of all its components **** ERROR ****\n";
-    } else if (thickTot < layerThick[i]) {
-      edm::LogWarning("HGCalGeom") << "Thickness of the partition " << layerThick[i] << " does not match with "
-                                   << thickTot << " of the components\n";
+    if (fabs(thickTot - layerThick[i]) > tol) {
+      if (thickTot > layerThick[i]) {
+	edm::LogError("HGCalGeom") << "Thickness of the partition " << layerThick[i] << " is smaller than thickness "
+				   << thickTot << " of all its components **** ERROR ****\n";
+      } else {
+	edm::LogWarning("HGCalGeom") << "Thickness of the partition " << layerThick[i] << " does not match with "
+				     << thickTot << " of the components\n";
+      }
     }
   }  // End of loop over blocks
 
-  return 1;
+  return cms::s_executed;
 }
 
 // first argument is the type from the xml file
