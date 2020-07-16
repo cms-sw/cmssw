@@ -84,7 +84,6 @@ HGCSiNoiseMapAnalyzer::HGCSiNoiseMapAnalyzer(const edm::ParameterSet &iConfig) {
 
   noiseMaps_[DetId::HGCalEE] = std::unique_ptr<HGCalSiNoiseMap>(new HGCalSiNoiseMap);
   noiseMaps_[DetId::HGCalEE]->setDoseMap(doseMapURL, doseMapAlgo);
-  noiseMaps_[DetId::HGCalEE]->setDoseMap(doseMapURL, doseMapAlgo);
   noiseMaps_[DetId::HGCalEE]->setFluenceScaleFactor(scaleByDoseFactor);
 
   noiseMaps_[DetId::HGCalEE]->setIleakParam(ileakParam);
