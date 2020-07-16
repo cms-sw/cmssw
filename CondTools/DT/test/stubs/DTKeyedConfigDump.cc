@@ -70,10 +70,10 @@ namespace edmtest {
         std::cout << std::endl;
         if (!dumpAllData)
           continue;
-        const DTKeyedConfig* kBrick = 0;
+        const DTKeyedConfig* kBrick = nullptr;
         cfgCache.get(keyList, id, kBrick);
         allBricks[nBricks++] = kBrick;
-        if (kBrick == 0) {
+        if (kBrick == nullptr) {
           std::cout << "brick missing" << std::endl;
           continue;
         }

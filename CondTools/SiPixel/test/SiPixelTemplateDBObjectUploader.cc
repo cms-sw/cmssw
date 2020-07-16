@@ -15,8 +15,8 @@
 #include "DataFormats/SiPixelDetId/interface/PixelBarrelName.h"
 #include "DataFormats/SiPixelDetId/interface/PixelEndcapName.h"
 
+#include <cstdio>
 #include <fstream>
-#include <stdio.h>
 #include <iostream>
 
 SiPixelTemplateDBObjectUploader::SiPixelTemplateDBObjectUploader(const edm::ParameterSet& iConfig)
@@ -110,7 +110,7 @@ void SiPixelTemplateDBObjectUploader::analyze(const edm::Event& iEvent, const ed
 
   //Loop over the detector elements and put template IDs in place
   for (const auto& it : pDD->detUnits()) {
-    if (it != 0) {
+    if (it != nullptr) {
       // Here is the actual looping step over all DetIds:
       DetId detid = it->geographicalId();
       unsigned int layer = 0, ladder = 0, disk = 0, side = 0, blade = 0, panel = 0, module = 0;

@@ -28,7 +28,7 @@ void SiPixelPerformanceSummaryBuilder::analyze(const edm::Event& iEvent, const e
   edm::LogInfo("SiPixelPerformanceSummaryBuilder") << pDD->detUnits().size() << " detectors" << std::endl;
 
   for (const auto& it : pDD->detUnits()) {
-    if (dynamic_cast<PixelGeomDetUnit const*>(it) != 0) {
+    if (dynamic_cast<PixelGeomDetUnit const*>(it) != nullptr) {
       detectorModules_.push_back(it->geographicalId().rawId());
     }
   }

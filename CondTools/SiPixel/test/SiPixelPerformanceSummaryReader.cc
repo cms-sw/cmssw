@@ -5,8 +5,8 @@
 
 #include "CondTools/SiPixel/test/SiPixelPerformanceSummaryReader.h"
 
+#include <cstdio>
 #include <iostream>
-#include <stdio.h>
 #include <sys/time.h>
 
 using namespace cms;
@@ -25,7 +25,7 @@ void SiPixelPerformanceSummaryReader::analyze(const edm::Event& e, const edm::Ev
 
   SiPixelPerformanceSummary_->print();
   vector<uint32_t> allDetIds = SiPixelPerformanceSummary_->getAllDetIds();
-  if (allDetIds.size() > 0)
+  if (!allDetIds.empty())
     SiPixelPerformanceSummary_->print(allDetIds[0]);
   SiPixelPerformanceSummary_->printAll();
 }
