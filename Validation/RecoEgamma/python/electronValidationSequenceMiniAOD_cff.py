@@ -12,5 +12,6 @@ miniAODElectronIsolation = _egmElectronIsolationCITK.clone()
 miniAODElectronIsolation.srcToIsolate = cms.InputTag("slimmedElectrons")
 miniAODElectronIsolation.srcForIsolationCone = cms.InputTag("packedPFCandidates")
 
-electronValidationSequenceMiniAOD = cms.Sequence( egmElectronIsolationCITK + miniAODElectronIsolation + ElectronIsolation + electronMcSignalValidatorMiniAOD )
+electronValidationTaskMiniAOD = cms.Task(egmElectronIsolationCITK, miniAODElectronIsolation, ElectronIsolation)
+electronValidationSequenceMiniAOD = cms.Sequence(electronMcSignalValidatorMiniAOD, electronValidationTaskMiniAOD)
 

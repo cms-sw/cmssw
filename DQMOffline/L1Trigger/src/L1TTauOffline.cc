@@ -678,7 +678,7 @@ void L1TTauOffline::getProbeTaus(const edm::Event& iEvent,
       {
         const edm::Provenance* prov = antiele.provenance();
         const std::vector<std::string> psetsFromProvenance =
-            edm::parameterSet(*prov, iEvent.processHistory()).getParameter<std::vector<std::string>>("workingsPoints");
+            edm::parameterSet(*prov, iEvent.processHistory()).getParameter<std::vector<std::string>>("workingPoints");
         for (uint i = 0; i < psetsFromProvenance.size(); i++) {
           if (psetsFromProvenance[i] == AntiEleWP_)
             AntiEleWPIndex_ = i;

@@ -42,9 +42,15 @@ DQMOfflineEcal = cms.Sequence(
     ecal_dqm_source_offline +
     es_dqm_source_offline )
 
+#offline version of the online DQM: used in validation/certification
 DQMOfflineHcal = cms.Sequence( hcalOfflineSourceSequence )
 
+# offline DQM: used in Release validation
 DQMOfflineHcal2 = cms.Sequence( HcalDQMOfflineSequence )
+
+DQMOfflineHcalOnly = cms.Sequence( hcalOnlyOfflineSourceSequence )
+
+DQMOfflineHcal2Only = cms.Sequence( RecHitsDQMOffline )
 
 DQMOfflineTrackerStrip = cms.Sequence( SiStripDQMTier0 )
 
@@ -236,9 +242,9 @@ DQMOfflineMiniAOD = cms.Sequence(jetMETDQMOfflineRedoProductsMiniAOD*muonMonitor
 PostDQMOfflineMiniAOD = cms.Sequence(miniAODDQMSequence*jetMETDQMOfflineSourceMiniAOD*tracksDQMMiniAOD*topPhysicsminiAOD)
 PostDQMOffline = cms.Sequence()
 
-from Configuration.Eras.Modifier_phase2_hcal_cff import phase2_hcal
-phase2_hcal.toReplaceWith( PostDQMOfflineMiniAOD, PostDQMOfflineMiniAOD.copyAndExclude([
-    pfMetDQMAnalyzerMiniAOD, pfPuppiMetDQMAnalyzerMiniAOD # No hcalnoise yet
+from Configuration.Eras.Modifier_run3_HB_cff import run3_HB
+run3_HB.toReplaceWith( PostDQMOfflineMiniAOD, PostDQMOfflineMiniAOD.copyAndExclude([
+    pfMetDQMAnalyzerMiniAOD, pfPuppiMetDQMAnalyzerMiniAOD # No hcalnoise (yet)
 ]))
 
 from PhysicsTools.NanoAOD.nanoDQM_cff import nanoDQM

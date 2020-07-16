@@ -17,12 +17,13 @@
 #define L1_TRACK_TRIGGER_STUB_BUILDER_H
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/one/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Utilities/interface/ESGetToken.h"
 
 #include "Geometry/CommonDetUnit/interface/PixelGeomDetUnit.h"
 #include "Geometry/CommonTopologies/interface/PixelTopology.h"
@@ -40,7 +41,7 @@
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 
 template <typename T>
-class TTStubBuilder : public edm::EDProducer {
+class TTStubBuilder : public edm::one::EDProducer<edm::one::WatchRuns> {
 public:
   /// Constructor
   explicit TTStubBuilder(const edm::ParameterSet& iConfig);
@@ -52,6 +53,9 @@ private:
   /// Data members
   edm::ESHandle<TTStubAlgorithm<T> > theStubFindingAlgoHandle;
   edm::EDGetTokenT<edmNew::DetSetVector<TTCluster<T> > > clustersToken;
+  edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> tTopoToken;
+  edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> tGeomToken;
+  edm::ESGetToken<TTStubAlgorithm<T>, TTStubAlgorithmRecord> ttStubToken;
   bool ForbidMultipleStubs;
 
   /// Mandatory methods
@@ -108,6 +112,9 @@ private:
 template <typename T>
 TTStubBuilder<T>::TTStubBuilder(const edm::ParameterSet& iConfig) {
   clustersToken = consumes<edmNew::DetSetVector<TTCluster<T> > >(iConfig.getParameter<edm::InputTag>("TTClusters"));
+  tTopoToken = esConsumes<TrackerTopology, TrackerTopologyRcd>();
+  tGeomToken = esConsumes<TrackerGeometry, TrackerDigiGeometryRecord>();
+  ttStubToken = esConsumes<TTStubAlgorithm<T>, TTStubAlgorithmRecord, edm::Transition::BeginRun>();
   ForbidMultipleStubs = iConfig.getParameter<bool>("OnlyOnePerInputCluster");
   applyFE = iConfig.getParameter<bool>("FEineffs");
   maxStubs_2S = iConfig.getParameter<uint32_t>("CBClimit");
@@ -136,7 +143,7 @@ TTStubBuilder<T>::~TTStubBuilder() {}
 template <typename T>
 void TTStubBuilder<T>::beginRun(const edm::Run& run, const edm::EventSetup& iSetup) {
   /// Get the stub finding algorithm
-  iSetup.get<TTStubAlgorithmRecord>().get(theStubFindingAlgoHandle);
+  theStubFindingAlgoHandle = iSetup.getHandle(ttStubToken);
   ievt = 0;
   moduleStubs_CIC.clear();
   moduleStubs_MPA.clear();

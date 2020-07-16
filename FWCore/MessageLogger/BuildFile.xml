@@ -1,6 +1,7 @@
 <use name="FWCore/Utilities"/>
 <use name="DataFormats/Provenance"/>
 <use name="boost"/>
+<use name="fmt"/>
 <use name="tinyxml2"/>
 <use name="tbb"/>
 <export>

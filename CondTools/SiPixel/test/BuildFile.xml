@@ -5,8 +5,17 @@
 <use name="Geometry/TrackerGeometryBuilder"/>
 <use name="CondCore/DBOutputService"/>
 <use name="CondTools/SiPixel"/>
+<use name="CalibTracker/Records"/>
 <use name="CalibTracker/SiPixelESProducers"/>
+<use name="MagneticField/Records"/>
 <use name="RecoLocalTracker/SiPixelRecHits"/>
 <library file="*.cc" name="testCondToolsSiPixel">
   <flags EDM_PLUGIN="1"/>
 </library>
+<environment>
+  <bin   file="testPixelDBs.cpp">
+    <flags TEST_RUNNER_ARGS=" /bin/bash CondTools/SiPixel/test run_0T_BoR3.sh"/>
+    <use   name="FWCore/Utilities"/>
+  </bin>
+</environment>
+

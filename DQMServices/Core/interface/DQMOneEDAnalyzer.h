@@ -49,7 +49,7 @@ public:
     edm::Service<DQMStore>()->enterLumi(run.run(), /* lumi */ 0, this->moduleDescription().id());
   }
 
-  void accumulate(edm::Event const& event, edm::EventSetup const& setup) {
+  void accumulate(edm::Event const& event, edm::EventSetup const& setup) override {
     auto& lumi = event.getLuminosityBlock();
     edm::Service<dqm::legacy::DQMStore>()->enterLumi(
         lumi.run(), lumi.luminosityBlock(), this->moduleDescription().id());

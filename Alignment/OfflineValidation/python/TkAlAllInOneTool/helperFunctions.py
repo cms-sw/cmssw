@@ -202,9 +202,12 @@ def getTagsMap(db):
     con = conddblib.connect(url = conddblib.make_url(db))
     session = con.session()
     TAG = session.get_dbtype(conddblib.Tag)
-    q1 = session.query(TAG.object_type).order_by(TAG.name).all()[0]
-    q2 = session.query(TAG.name).order_by(TAG.name).all()[0]
-    dictionary = dict(zip(q1, q2))
+    dictionary = {}
+    for i in range(0,len(session.query(TAG.object_type).order_by(TAG.name).all())):
+        q1 = session.query(TAG.object_type).order_by(TAG.name).all()[i][0]
+        q2 = session.query(TAG.name).order_by(TAG.name).all()[i][0]
+        dictionary[q1]=q2
+
     return dictionary
 
 def clean_name(s):

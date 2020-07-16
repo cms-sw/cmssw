@@ -110,6 +110,8 @@ namespace edm {
       bool wantsGlobalRuns() const { return true; }
       bool wantsGlobalLuminosityBlocks() const { return true; }
 
+      virtual bool wantsProcessBlocks() const = 0;
+      virtual bool wantsInputProcessBlocks() const = 0;
       virtual bool wantsStreamRuns() const = 0;
       virtual bool wantsStreamLuminosityBlocks() const = 0;
 
@@ -142,6 +144,9 @@ namespace edm {
                                                     ModuleCallingContext const& iModuleCallingContext,
                                                     Principal const& iPrincipal) const {}
 
+      void doBeginProcessBlock(ProcessBlockPrincipal const&, ModuleCallingContext const*) {}
+      void doAccessInputProcessBlock(ProcessBlockPrincipal const&, ModuleCallingContext const*) {}
+      void doEndProcessBlock(ProcessBlockPrincipal const&, ModuleCallingContext const*) {}
       bool doBeginRun(RunPrincipal const& rp, EventSetupImpl const& c, ModuleCallingContext const*);
       bool doEndRun(RunPrincipal const& rp, EventSetupImpl const& c, ModuleCallingContext const*);
       bool doBeginLuminosityBlock(LuminosityBlockPrincipal const& lbp,
@@ -210,6 +215,7 @@ namespace edm {
 
       void updateBranchIDListsWithKeptAliases();
 
+      void doWriteProcessBlock(ProcessBlockPrincipal const&, ModuleCallingContext const*) {}
       void doWriteRun(RunPrincipal const& rp, ModuleCallingContext const*, MergeableRunProductMetadata const*);
       void doWriteLuminosityBlock(LuminosityBlockPrincipal const& lbp, ModuleCallingContext const*);
       void doOpenFile(FileBlock const& fb);

@@ -9,6 +9,8 @@
 #include <TCanvas.h>
 #include <TFrame.h>
 
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 #include "DataFormats/Math/interface/Vector3D.h"
 #include "DetectorDescription/DDCMS/interface/Filter.h"
@@ -17,7 +19,8 @@
 #include "SimDataFormats/ValidationFormats/interface/MaterialAccountingDetector.h"
 #include "DD4hep_MaterialAccountingGroup.h"
 
-DD4hep_MaterialAccountingGroup::DD4hep_MaterialAccountingGroup(const std::string& name, const cms::DDCompactView& geometry)
+DD4hep_MaterialAccountingGroup::DD4hep_MaterialAccountingGroup(const std::string& name,
+                                                               const cms::DDCompactView& geometry)
     : m_name(name),
       m_elements(),
       m_boundingbox(),
@@ -33,14 +36,16 @@ DD4hep_MaterialAccountingGroup::DD4hep_MaterialAccountingGroup(const std::string
   edm::LogVerbatim("TrackingMaterialAnalysis") << "Elements within: " << name;
 
   for (const auto j : fv.specpars()) {
-    for (const auto k : j->paths) {
+    for (const auto& k : j->paths) {
       if (firstChild) {
         std::vector<std::vector<cms::Node*>> children = fv.children(k);
         for (auto const& path : children) {
           cms::Translation trans = fv.translation(path);
           GlobalPoint gp = GlobalPoint(trans.x(), trans.y(), trans.z());
           m_elements.push_back(gp);
-          std::cout << "Adding element at (r,z) " << gp.perp() << "," << gp.z() << std::endl;
+          edm::LogVerbatim("TrackerMaterialAnalysis")
+              << "MaterialAccountingGroup:\t"
+              << "Adding element at (r,z) " << gp.perp() << "," << gp.z() << std::endl;
         }
       }
     }
@@ -52,10 +57,10 @@ DD4hep_MaterialAccountingGroup::DD4hep_MaterialAccountingGroup(const std::string
 
   m_boundingbox.grow(s_tolerance);
 
-  std::cout << "Final BBox r_range: " << m_boundingbox.range_r().first << ", " << m_boundingbox.range_r().second
-            << std::endl
-            << "Final BBox z_range: " << m_boundingbox.range_z().first << ", " << m_boundingbox.range_z().second
-            << std::endl;
+  edm::LogVerbatim("TrackerMaterialAnalysis")
+      << "MaterialAccountingGroup:\t"
+      << "Final BBox r_range: " << m_boundingbox.range_r().first << ", " << m_boundingbox.range_r().second << std::endl
+      << "Final BBox z_range: " << m_boundingbox.range_z().first << ", " << m_boundingbox.range_z().second << std::endl;
 
   // initialize the histograms
   m_dedx_spectrum =
@@ -211,7 +216,9 @@ MaterialAccountingStep DD4hep_MaterialAccountingGroup::average(void) const {
   return m_tracks ? m_accounting / m_tracks : MaterialAccountingStep();
 }
 
-double DD4hep_MaterialAccountingGroup::averageLength(void) const { return m_tracks ? m_accounting.length() / m_tracks : 0.; }
+double DD4hep_MaterialAccountingGroup::averageLength(void) const {
+  return m_tracks ? m_accounting.length() / m_tracks : 0.;
+}
 
 double DD4hep_MaterialAccountingGroup::averageEnergyLoss(void) const {
   return m_tracks ? m_accounting.energyLoss() / m_tracks : 0.;

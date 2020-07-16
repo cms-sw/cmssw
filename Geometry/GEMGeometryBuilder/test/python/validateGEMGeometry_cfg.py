@@ -10,27 +10,13 @@ process.maxEvents = cms.untracked.PSet(
 
 process.load('Configuration.StandardSequences.DD4hep_GeometrySim_cff')
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
-process.load("Geometry.MuonNumbering.muonNumberingInitialization_cfi")
+process.load("Geometry.MuonNumbering.muonGeometryConstants_cff")
+process.load("Geometry.GEMGeometryBuilder.gemGeometry_cff")
 
+if 'MessageLogger' in process.__dict__:
+    process.MessageLogger.categories.append('Geometry')
+    process.MessageLogger.categories.append('GEMNumberingScheme')
 
-process.GEMGeometryESProducer = cms.ESProducer("GEMGeometryESModule",
-                                               DDDetector = cms.ESInputTag('',''),
-                                               applyAlignment = cms.bool(False),
-                                               alignmentsLabel = cms.string(''),
-                                               attribute = cms.string('MuStructure'),
-                                               value = cms.string('MuonEndCapGEM'),
-                                               useDDD = cms.bool(False),
-                                               useDD4hep = cms.untracked.bool(True)
-                                              )
-
-process.DDSpecParRegistryESProducer = cms.ESProducer("DDSpecParRegistryESProducer",
-                                                     appendToDataLabel = cms.string('') #it was ''
-                                                     )
-
-process.MuonNumberingESProducer = cms.ESProducer("MuonNumberingESProducer",
-                                                 label = cms.string(''),# it was ''
-                                                 key = cms.string('MuonCommonNumbering')
-                                                 )
 
 process.test = cms.EDAnalyzer("DDTestMuonNumbering")
 
@@ -45,5 +31,9 @@ process.valid = cms.EDAnalyzer("GEMGeometryValidate",
                                outfileName = cms.untracked.string('validateGEMGeometry.root'),
                                tolerance = cms.untracked.int32(7)
                                )
+
+process.muonGeometryConstants.fromDD4Hep = True
+process.gemGeometry.useDDD = False
+process.gemGeometry.useDD4Hep = True
 
 process.p = cms.Path(process.valid)

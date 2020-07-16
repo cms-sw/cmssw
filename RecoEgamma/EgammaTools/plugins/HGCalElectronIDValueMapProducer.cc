@@ -232,6 +232,7 @@ void HGCalElectronIDValueMapProducer::fillDescriptions(edm::ConfigurationDescrip
   desc.add<edm::InputTag>("EERecHits", edm::InputTag("HGCalRecHit", "HGCEERecHits"));
   desc.add<edm::InputTag>("FHRecHits", edm::InputTag("HGCalRecHit", "HGCHEFRecHits"));
   desc.add<edm::InputTag>("BHRecHits", edm::InputTag("HGCalRecHit", "HGCHEBRecHits"));
+  desc.add<edm::InputTag>("hitMapTag", edm::InputTag("hgcalRecHitMapProducer"));
   descriptions.add("hgcalElectronIDValueMap", desc);
 }
 

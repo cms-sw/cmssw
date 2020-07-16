@@ -2,10 +2,6 @@ import FWCore.ParameterSet.Config as cms
 
 from Validation.CTPPS.simu_config.base_cff import *
 
-# define era
-from Configuration.Eras.Era_Run2_2016_cff import *
-era = Run2_2016
-
 # geometry
 from Geometry.VeryForwardGeometry.geometryRPFromDD_2017_cfi import * # using 2017 here is OK
 

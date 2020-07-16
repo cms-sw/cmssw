@@ -21,6 +21,7 @@
 // system include files
 
 // user include files
+#include "FWCore/Framework/interface/ProcessBlock.h"
 #include "FWCore/Framework/interface/Run.h"
 #include "FWCore/Framework/interface/LuminosityBlock.h"
 #include "FWCore/Framework/interface/RunPrincipal.h"
@@ -63,17 +64,21 @@ namespace edm {
       static void fillDescriptions(ConfigurationDescriptions& descriptions) { T::fillDescriptions(descriptions); }
       static void prevalidate(ConfigurationDescriptions& descriptions) { T::prevalidate(descriptions); }
 
+      bool wantsProcessBlocks() const final { return T::HasAbility::kWatchProcessBlock; }
+      bool wantsInputProcessBlocks() const final { return T::HasAbility::kInputProcessBlockCache; }
       bool wantsGlobalRuns() const final { return T::HasAbility::kRunCache or T::HasAbility::kRunSummaryCache; }
       bool wantsGlobalLuminosityBlocks() const final {
         return T::HasAbility::kLuminosityBlockCache or T::HasAbility::kLuminosityBlockSummaryCache;
       }
 
     private:
-      typedef CallGlobal<T> MyGlobal;
-      typedef CallGlobalRun<T> MyGlobalRun;
-      typedef CallGlobalRunSummary<T> MyGlobalRunSummary;
-      typedef CallGlobalLuminosityBlock<T> MyGlobalLuminosityBlock;
-      typedef CallGlobalLuminosityBlockSummary<T> MyGlobalLuminosityBlockSummary;
+      using MyGlobal = CallGlobal<T>;
+      using MyInputProcessBlock = CallInputProcessBlock<T>;
+      using MyWatchProcessBlock = CallWatchProcessBlock<T>;
+      using MyGlobalRun = CallGlobalRun<T>;
+      using MyGlobalRunSummary = CallGlobalRunSummary<T>;
+      using MyGlobalLuminosityBlock = CallGlobalLuminosityBlock<T>;
+      using MyGlobalLuminosityBlockSummary = CallGlobalLuminosityBlockSummary<T>;
 
       void setupStreamModules() final {
         this->createStreamModules([this]() -> EDAnalyzerBase* {
@@ -107,6 +112,33 @@ namespace edm {
         auto s = m_lumiSummaries[iLumi.index()].get();
         std::lock_guard<decltype(m_lumiSummaryLock)> guard(m_lumiSummaryLock);
         MyGlobalLuminosityBlockSummary::streamEndLuminosityBlockSummary(iProd, iLumi, iES, s);
+      }
+
+      void doBeginProcessBlock(ProcessBlockPrincipal const& pbp, ModuleCallingContext const* mcc) final {
+        if constexpr (T::HasAbility::kWatchProcessBlock) {
+          ProcessBlock processBlock(pbp, moduleDescription(), mcc, false);
+          processBlock.setConsumer(consumer());
+          ProcessBlock const& cnstProcessBlock = processBlock;
+          MyWatchProcessBlock::beginProcessBlock(cnstProcessBlock, m_global.get());
+        }
+      }
+
+      void doAccessInputProcessBlock(ProcessBlockPrincipal const& pbp, ModuleCallingContext const* mcc) final {
+        if constexpr (T::HasAbility::kInputProcessBlockCache) {
+          ProcessBlock processBlock(pbp, moduleDescription(), mcc, false);
+          processBlock.setConsumer(consumer());
+          ProcessBlock const& cnstProcessBlock = processBlock;
+          MyInputProcessBlock::accessInputProcessBlock(cnstProcessBlock, m_global.get());
+        }
+      }
+
+      void doEndProcessBlock(ProcessBlockPrincipal const& pbp, ModuleCallingContext const* mcc) final {
+        if constexpr (T::HasAbility::kWatchProcessBlock) {
+          ProcessBlock processBlock(pbp, moduleDescription(), mcc, true);
+          processBlock.setConsumer(consumer());
+          ProcessBlock const& cnstProcessBlock = processBlock;
+          MyWatchProcessBlock::endProcessBlock(cnstProcessBlock, m_global.get());
+        }
       }
 
       void doBeginRun(RunPrincipal const& rp, EventSetupImpl const& ci, ModuleCallingContext const* mcc) final {

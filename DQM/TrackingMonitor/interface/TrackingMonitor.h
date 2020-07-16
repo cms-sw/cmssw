@@ -40,6 +40,7 @@ Monitoring source for general quantities related to tracks.
 #include "DataFormats/SiPixelCluster/interface/SiPixelCluster.h"
 
 #include "DataFormats/Scalers/interface/LumiScalers.h"
+#include "DataFormats/OnlineMetaData/interface/OnlineLuminosityRecord.h"
 
 #include "DataFormats/Common/interface/OwnVector.h"
 #include "RecoTracker/TkTrackingRegions/interface/TrackingRegion.h"
@@ -104,6 +105,7 @@ private:
   edm::EDGetTokenT<reco::CandidateView> regionCandidateToken_;
 
   edm::EDGetTokenT<LumiScalersCollection> lumiscalersToken_;
+  edm::EDGetTokenT<OnlineLuminosityRecord> metaDataToken_;
 
   edm::InputTag stripClusterInputTag_;
   edm::InputTag pixelClusterInputTag_;
@@ -226,6 +228,7 @@ private:
   StringCutObjectSelector<reco::Track, true> numSelection_;
   StringCutObjectSelector<reco::Track, true> denSelection_;
   int pvNDOF_;
+  const bool forceSCAL_;
 };
 
 #endif  //define TrackingMonitor_H

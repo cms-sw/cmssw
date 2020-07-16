@@ -153,3 +153,53 @@ def _appendME0Digis(obj):
 
 from Configuration.Eras.Modifier_phase2_muon_cff import phase2_muon
 phase2_muon.toModify(L1TriggerFEVTDEBUG, func=_appendME0Digis)
+
+# adding phase2 trigger
+def _appendPhase2Digis(obj):
+    l1Phase2Digis = [
+        "keep *_simKBmtfDigis_*_*",
+        'keep *_hgcalVFEProducerhgcalConcentratorProducer_*_*',
+        'keep *_hgcalBackEndLayer1Producer_*_*',
+        'keep *_hgcalBackEndLayer2Producer_*_*',
+        'keep *_hgcalTowerMapProducer_*_*',
+        'keep *_hgcalTowerProducer_*_*',
+        'keep *_L1EGammaClusterEmuProducer_*_*',
+        'keep *_l1EGammaEEProducer_*_*',
+        'keep *_L1TkPrimaryVertex_*_*',
+        'keep *_L1TkElectronsCrystal_*_*',
+        'keep *_L1TkElectronsLooseCrystal_*_*',
+        'keep *_L1TkElectronsEllipticMatchCrystal_*_*',
+        'keep *_L1TkIsoElectronsCrystal_*_*',
+        'keep *_L1TkPhotonsCrystal_*_*',
+        'keep *_L1TkElectronsHGC_*_*',
+        'keep *_L1TkElectronsEllipticMatchHGC_*_*',
+        'keep *_L1TkIsoElectronsHGC_*_*',
+        'keep *_L1TkPhotonsHGC_*_*',
+        'keep *_L1TkMuons_*_*',
+        'keep *_pfClustersFromL1EGClusters_*_*',
+        'keep *_pfClustersFromCombinedCaloHCal_*_*',
+        'keep *_pfClustersFromCombinedCaloHF_*_*',
+        'keep *_pfClustersFromHGC3DClusters_*_*',
+        'keep *_pfTracksFromL1TracksBarrel_*_*',
+        'keep *_l1pfProducerBarrel_*_*',
+        'keep *_pfTracksFromL1TracksHGCal_*_*',
+        'keep *_l1pfProducerHGCal_*_*',
+        'keep *_l1pfProducerHGCalNoTK_*_*',
+        'keep *_l1pfProducerHF_*_*',
+        'keep *_l1pfCandidates_*_*',
+        'keep *_ak4PFL1Calo_*_*',
+        'keep *_ak4PFL1PF_*_*',
+        'keep *_ak4PFL1Puppi_*_*',
+        'keep *_ak4PFL1CaloCorrected_*_*',
+        'keep *_ak4PFL1PFCorrected_*_*',
+        'keep *_ak4PFL1PuppiCorrected_*_*',
+        'keep *_l1PFMetCalo_*_*',
+        'keep *_l1PFMetPF_*_*',
+        'keep *_l1PFMetPuppi_*_*',
+        'keep *_TTTracksFromExtendedTrackletEmulation_*_*',
+        'keep *_TTTracksFromTrackletEmulation_*_*',
+        ]
+    obj.outputCommands += l1Phase2Digis
+
+from Configuration.Eras.Modifier_phase2_trigger_cff import phase2_trigger
+phase2_muon.toModify(L1TriggerFEVTDEBUG, func=_appendPhase2Digis)

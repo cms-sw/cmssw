@@ -58,10 +58,80 @@ from L1Trigger.L1TGlobal.GlobalParameters_cff import *
 # soon to be removed when availble in GTs
 from L1Trigger.L1TTwinMux.fakeTwinMuxParams_cff import *
 
-# Customisation for the phase2_hgcal era. Includes the HGCAL L1 trigger
-from  L1Trigger.L1THGCal.hgcalTriggerPrimitives_cff import *
 _phase2_siml1emulator = SimL1EmulatorTask.copy()
-_phase2_siml1emulator.add(hgcalTriggerPrimitivesTask)
 
-from Configuration.Eras.Modifier_phase2_hgcal_cff import phase2_hgcal
-phase2_hgcal.toReplaceWith( SimL1EmulatorTask , _phase2_siml1emulator )
+# ########################################################################
+# ########################################################################
+#
+# Phase-2 
+#
+# ########################################################################
+# ########################################################################
+
+# ########################################################################
+# Phase-2 Trigger Primitives
+# ########################################################################
+
+# HGCAL TP 
+# ########################################################################
+from  L1Trigger.L1THGCal.hgcalTriggerPrimitives_cff import *
+_phase2_siml1emulator.add(hgcalTriggerPrimitivesTask)
+ 
+# ########################################################################
+# Phase 2 L1T
+# ########################################################################
+
+# Barrel and EndCap EGamma
+# ########################################################################
+
+from L1Trigger.L1CaloTrigger.L1EGammaCrystalsEmulatorProducer_cfi import *
+_phase2_siml1emulator.add(L1EGammaClusterEmuProducer)
+
+from L1Trigger.L1CaloTrigger.l1EGammaEEProducer_cfi import *
+_phase2_siml1emulator.add(l1EGammaEEProducer)
+
+# ########################################################################
+# Phase-2 L1T - TrackTrigger dependent modules
+# ########################################################################
+
+# Tk + StandaloneObj, including L1TkPrimaryVertex
+# ########################################################################
+from L1Trigger.L1TTrackMatch.L1TkObjectProducers_cff import *
+
+_phase2_siml1emulator.add(L1TkPrimaryVertex)
+
+_phase2_siml1emulator.add(L1TkElectronsCrystal)
+_phase2_siml1emulator.add(L1TkElectronsLooseCrystal)
+_phase2_siml1emulator.add(L1TkElectronsEllipticMatchCrystal)
+_phase2_siml1emulator.add(L1TkIsoElectronsCrystal)
+_phase2_siml1emulator.add(L1TkPhotonsCrystal)
+
+_phase2_siml1emulator.add(L1TkElectronsHGC)
+_phase2_siml1emulator.add(L1TkElectronsEllipticMatchHGC)
+_phase2_siml1emulator.add(L1TkIsoElectronsHGC)
+_phase2_siml1emulator.add(L1TkPhotonsHGC)
+
+_phase2_siml1emulator.add( L1TkMuons )
+
+# PF Candidates
+# ########################################################################
+from L1Trigger.Phase2L1ParticleFlow.l1ParticleFlow_cff import *
+_phase2_siml1emulator.add(l1ParticleFlowTask)
+
+# PF JetMET
+# ########################################################################
+from L1Trigger.Phase2L1ParticleFlow.l1pfJetMet_cff import *
+# Describe here l1PFJets Task
+# ###############################
+l1PFJetsTask = cms.Task(
+  ak4PFL1Calo , ak4PFL1PF , ak4PFL1Puppi ,
+  ak4PFL1CaloCorrected , ak4PFL1PFCorrected , ak4PFL1PuppiCorrected)
+_phase2_siml1emulator.add(l1PFJetsTask)
+# Describe here l1PFMets Task
+# ###############################
+l1PFMetsTask = cms.Task(l1PFMetCalo , l1PFMetPF , l1PFMetPuppi)
+_phase2_siml1emulator.add(l1PFMetsTask)
+
+# --> add modules
+from Configuration.Eras.Modifier_phase2_trigger_cff import phase2_trigger
+phase2_trigger.toReplaceWith( SimL1EmulatorTask , _phase2_siml1emulator)

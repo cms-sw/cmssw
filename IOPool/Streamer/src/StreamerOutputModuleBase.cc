@@ -68,7 +68,7 @@ namespace edm {
   void StreamerOutputModuleBase::fillDescription(ParameterSetDescription& desc) {
     StreamerOutputModuleCommon::fillDescription(desc);
     OutputModule::fillDescription(desc);
-    desc.addUntracked<edm::InputTag>("psetMap", {"psetMap"})
+    desc.addUntracked<edm::InputTag>("psetMap", {"hltPSetMap"})
         ->setComment("Optionally allow the map of ParameterSets to be calculated externally.");
   }
 }  // namespace edm

@@ -59,6 +59,7 @@ vfe_proc = cms.PSet( ProcessorName = cms.string('HGCalVFEProcessorSums'),
                      adcnBits_sc = adcNbits_sc,
                      tdcsaturation_sc = tdcSaturation_sc,
                      linnBits = cms.uint32(16),
+                     oot_coefficients = cms.vdouble(0., 0.), # OOT PU subtraction coeffs for samples (bx-2, bx-1). (0,0) = no OOT PU subtraction
                      siliconCellLSB_fC =  cms.double( triggerCellLsbBeforeCompression*(2**triggerCellTruncationBits) ),
                      scintillatorCellLSB_MIP = cms.double(float(adcSaturation_sc.value())/(2**float(adcNbits_sc.value()))),
                      noiseSilicon = cms.PSet(),
@@ -92,7 +93,14 @@ hgcalVFEProducer = cms.EDProducer(
         eeDigis = cms.InputTag('simHGCalUnsuppressedDigis:EE'),
         fhDigis = cms.InputTag('simHGCalUnsuppressedDigis:HEfront'),
         bhDigis = cms.InputTag('simHGCalUnsuppressedDigis:HEback'),
+        ProcessorParameters = vfe_proc.clone()
+       )
+
+hfnoseVFEProducer = cms.EDProducer(
+        "HFNoseVFEProducer",
         noseDigis = cms.InputTag('simHFNoseUnsuppressedDigis:HFNose'),
         ProcessorParameters = vfe_proc.clone()
        )
+
+
 

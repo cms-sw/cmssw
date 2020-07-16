@@ -78,6 +78,7 @@ equivDict = \
          {'TauReco'               : ['reco::PFJetRef']},
          {'JetReco'               : ['reco::.*Jet','reco::.*Jet(Collection|Ref)']},
          {'HGCDigi'               : ['HGCSample']},
+         {'HGCRecHit'             : ['constHGCRecHit','HGCRecHit']},
          {'SiPixelObjects'        : ['SiPixelQuality.*']},
      ]
 

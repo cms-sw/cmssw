@@ -18,7 +18,7 @@
 #include <Geometry/DTGeometry/interface/DTGeometry.h>
 
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
-#include "Geometry/MuonNumbering/interface/MuonDDDConstants.h"
+#include "Geometry/MuonNumbering/interface/MuonGeometryConstants.h"
 #include "Geometry/Records/interface/MuonNumberingRecord.h"
 #include "CondFormats/GeometryObjects/interface/RecoIdealGeometry.h"
 #include "Geometry/Records/interface/DTRecoGeometryRcd.h"
@@ -31,6 +31,8 @@
 #include "CondFormats/AlignmentRecord/interface/DTAlignmentRcd.h"
 #include "CondFormats/AlignmentRecord/interface/DTAlignmentErrorRcd.h"
 #include "CondFormats/AlignmentRecord/interface/DTAlignmentErrorExtendedRcd.h"
+
+#include "DetectorDescription/Core/interface/DDCompactView.h"
 
 #include <memory>
 #include <string>
@@ -57,7 +59,7 @@ private:
   edm::ESGetToken<Alignments, GlobalPositionRcd> globalPositionToken_;
   edm::ESGetToken<Alignments, DTAlignmentRcd> alignmentsToken_;
   edm::ESGetToken<AlignmentErrorsExtended, DTAlignmentErrorExtendedRcd> alignmentErrorsToken_;
-  edm::ESGetToken<MuonDDDConstants, MuonNumberingRecord> mdcToken_;
+  edm::ESGetToken<MuonGeometryConstants, IdealGeometryRecord> mdcToken_;
   edm::ESGetToken<DDCompactView, IdealGeometryRecord> cpvToken_;
   edm::ESGetToken<RecoIdealGeometry, DTRecoGeometryRcd> rigToken_;
 

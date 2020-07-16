@@ -498,15 +498,10 @@ vector<bool> ConvBremSeedProducer::sharedHits(const vector<pair<TrajectorySeed, 
           continue;
         //    if (unclean[iu].second.second *unclean[iu2].second.second >0)continue;
 
-        TrajectorySeed::const_iterator sh = unclean[iu].first.recHits().first;
-        TrajectorySeed::const_iterator sh_end = unclean[iu].first.recHits().second;
-
         unsigned int shar = 0;
-        for (; sh != sh_end; ++sh) {
-          TrajectorySeed::const_iterator sh2 = unclean[iu2].first.recHits().first;
-          TrajectorySeed::const_iterator sh2_end = unclean[iu2].first.recHits().second;
-          for (; sh2 != sh2_end; ++sh2) {
-            if ((*sh).sharesInput(&(*sh2), TrackingRecHit::all))
+        for (auto const& sh : unclean[iu].first.recHits()) {
+          for (auto const& sh2 : unclean[iu2].first.recHits()) {
+            if (sh.sharesInput(&sh2, TrackingRecHit::all))
 
               shar++;
           }

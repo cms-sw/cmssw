@@ -38,24 +38,25 @@ private:
   bool isItEC(std::string);
 
 private:
-  static const int maxSet = 25, maxSet2 = 9;
-  std::vector<std::string> sensitives, hfNames, sensitiveEC;
-  std::vector<int> hfLevels;
-  bool fillHistos, printSum;
-  int binEta, binPhi;
-  double maxEta, etaLow, etaHigh;
-  std::vector<std::string> matList;
-  std::vector<double> stepLength, radLength, intLength;
-  TH1F *me400[maxSet], *me800[maxSet], *me1300[maxSet2];
-  TH2F *me1200[maxSet], *me1400[maxSet2];
-  TProfile *me100[maxSet], *me200[maxSet], *me300[maxSet];
-  TProfile *me500[maxSet], *me600[maxSet], *me700[maxSet];
-  TProfile *me1500[maxSet2];
-  TProfile2D *me900[maxSet], *me1000[maxSet], *me1100[maxSet];
-  int id, layer, steps;
-  double radLen, intLen, stepLen;
-  double eta, phi;
-  int nlayHB, nlayHE, nlayHO, nlayHF;
+  static const int maxSet_ = 25, maxSet2_ = 9;
+  std::vector<std::string> sensitives_, hfNames_, sensitiveEC_;
+  std::vector<int> hfLevels_;
+  bool fillHistos_, printSum_;
+  int binEta_, binPhi_;
+  double maxEta_, etaLow_, etaHigh_;
+  double etaMinP_, etaMaxP_;
+  std::vector<std::string> matList_;
+  std::vector<double> stepLength_, radLength_, intLength_;
+  TH1F *me400[maxSet_], *me800[maxSet_], *me1300[maxSet2_];
+  TH2F *me1200[maxSet_], *me1400[maxSet2_];
+  TProfile *me100[maxSet_], *me200[maxSet_], *me300[maxSet_];
+  TProfile *me500[maxSet_], *me600[maxSet_], *me700[maxSet_];
+  TProfile *me1500[maxSet2_];
+  TProfile2D *me900[maxSet_], *me1000[maxSet_], *me1100[maxSet_];
+  int id_, layer_, steps_;
+  double radLen_, intLen_, stepLen_;
+  double eta_, phi_;
+  int nlayHB_, nlayHE_, nlayHO_, nlayHF_;
 };
 
 #endif

@@ -6,6 +6,7 @@
 <use name="CommonTools/TriggerUtils"/>
 <use name="DataFormats/TrackReco"/>
 <use name="DataFormats/Luminosity"/>
+<use   name="DataFormats/OnlineMetaData"/>
 <use name="DataFormats/VertexReco"/>
 <use name="DataFormats/PatCandidates"/>
 <use name="TrackingTools/TransientTrackingRecHit"/>

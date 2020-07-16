@@ -12,10 +12,13 @@
 #include <cstdint>
 #include <iosfwd>
 #include <limits>
+#include <vector>
 
 class CSCALCTDigi {
 public:
   enum class Version { Legacy = 0, Run3 };
+
+  typedef std::vector<std::vector<uint16_t>> WireContainer;
 
   /// Constructors
   CSCALCTDigi(const uint16_t valid,
@@ -111,6 +114,11 @@ public:
 
   void setRun3(const bool isRun3);
 
+  // wire hits in this ALCT
+  const WireContainer& getHits() const { return hits_; }
+
+  void setHits(const WireContainer& hits) { hits_ = hits; }
+
 private:
   uint16_t valid_;
   uint16_t quality_;
@@ -126,6 +134,8 @@ private:
   uint16_t hmt_;
 
   Version version_;
+  // which hits are in this ALCT?
+  WireContainer hits_;
 };
 
 std::ostream& operator<<(std::ostream& o, const CSCALCTDigi& digi);

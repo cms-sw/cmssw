@@ -36,8 +36,8 @@ namespace ecaldqm {
     // Flags the Client ME to run as lumibased:
     // In offline mode will save the ME client at the end of the LS
     // See: EcalDQMonitorClient::dqmEndLuminosityBlock
-    for (MESetCollection::iterator mItr(MEs_.begin()); mItr != MEs_.end(); ++mItr) {
-      if (mItr->second->getLumiFlag()) {
+    for (auto& mItr : MEs_) {
+      if (mItr.second->getLumiFlag()) {
         hasLumiPlots_ = true;
         break;
       }
@@ -111,15 +111,15 @@ namespace ecaldqm {
   }
 
   void DQWorkerClient::resetMEs() {
-    for (MESetCollection::iterator mItr(MEs_.begin()); mItr != MEs_.end(); ++mItr) {
-      MESet* meset(mItr->second);
+    for (auto& mItr : MEs_) {
+      MESet* meset(mItr.second.get());
 
       // Protects Trend-type Client MEs from being reset at the end of the LS
       // See: EcalDQMonitorClient::runWorkers
       if (meset->getBinType() == ecaldqm::binning::kTrend)
         continue;
 
-      if (qualitySummaries_.find(mItr->first) != qualitySummaries_.end()) {
+      if (qualitySummaries_.find(mItr.first) != qualitySummaries_.end()) {
         MESetMulti* multi(dynamic_cast<MESetMulti*>(meset));
         if (multi) {
           for (unsigned iS(0); iS < multi->getMultiplicity(); ++iS) {

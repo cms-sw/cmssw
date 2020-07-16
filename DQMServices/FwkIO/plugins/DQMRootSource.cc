@@ -425,7 +425,7 @@ DQMRootSource::DQMRootSource(edm::ParameterSet const& iPSet, const edm::InputSou
       m_fileMetadatas(std::vector<FileMetadata>()) {
   edm::sortAndRemoveOverlaps(m_lumisToProcess);
 
-  if (m_catalog.fileNames().empty()) {
+  if (m_catalog.fileNames(0).empty()) {
     m_nextItemType = edm::InputSource::IsStop;
   } else {
     m_treeReaders[kIntIndex].reset(new TreeSimpleReader<Long64_t>(MonitorElementData::Kind::INT, m_rescope));
@@ -464,110 +464,80 @@ edm::InputSource::ItemType DQMRootSource::getNextItemType() { return m_nextItemT
 
 // We will read the metadata of all files and fill m_fileMetadatas vector
 std::unique_ptr<edm::FileBlock> DQMRootSource::readFile_() {
-  const int numFiles = m_catalog.fileNames().size();
+  const int numFiles = m_catalog.fileNames(0).size();
   m_openFiles.reserve(numFiles);
 
   for (auto& fileitem : m_catalog.fileCatalogItems()) {
-    const auto& filename = fileitem.fileName();
-    const auto& fallbackname = fileitem.fallbackFileName();
-    bool hasFallback = !fallbackname.empty() && fallbackname != filename;
     TFile* file;
-    std::list<std::string> originalInfo;
-
-    // Try to open a file
-    try {
-      file = TFile::Open(filename.c_str());
-
-      // Exception will be trapped so we pull it out ourselves
-      std::exception_ptr e = edm::threadLocalException::getException();
-      if (e != std::exception_ptr()) {
-        edm::threadLocalException::setException(std::exception_ptr());
-        std::rethrow_exception(e);
-      }
-
-    } catch (cms::Exception const& e) {
-      file = nullptr;  // is there anything we need to free?
-      if (!hasFallback) {
-        if (m_skipBadFiles) {
-          continue;
-        } else {
-          edm::Exception ex(edm::errors::FileOpenError, "", e);
-          ex.addContext("Opening DQM Root file");
-          ex << "\nInput file " << filename << " was not found, could not be opened, or is corrupted.\n";
-          throw ex;
-        }
-      }
-      originalInfo = e.additionalInfo();  // save in case of fallback error
-    }
-
-    // Check if a file is usable
-    if (file && !file->IsZombie()) {
-      logFileAction("Successfully opened file ", filename.c_str());
-    } else {
-      if (!hasFallback) {
-        if (!m_skipBadFiles) {
-          edm::Exception ex(edm::errors::FileOpenError);
-          ex << "Input file " << filename.c_str() << " could not be opened.\n";
-          ex.addContext("Opening DQM Root file");
-          throw ex;
-        }
-      }
-      if (file) {
-        delete file;
-        file = nullptr;
-      }
-    }
-
-    if (!file && hasFallback) {
-      logFileAction("  Initiating request to open fallback file ", fallbackname.c_str());
+    std::list<std::string> exInfo;
+    //loop over names of a file, each of them corresponds to a data catalog
+    bool isGoodFile(true);
+    //get all names of a file, each of them corresponds to a data catalog
+    const std::vector<std::string>& fNames = fileitem.fileNames();
+    for (std::vector<std::string>::const_iterator it = fNames.begin(); it != fNames.end(); ++it) {
+      // Try to open a file
       try {
-        {
-          TDirectory::TContext contextEraser;
-          file = TFile::Open(fallbackname.c_str());
-        }
+        file = TFile::Open(it->c_str());
+
+        // Exception will be trapped so we pull it out ourselves
         std::exception_ptr e = edm::threadLocalException::getException();
         if (e != std::exception_ptr()) {
           edm::threadLocalException::setException(std::exception_ptr());
           std::rethrow_exception(e);
         }
+
       } catch (cms::Exception const& e) {
-        file = nullptr;  // is there anything we need to free?
-        if (m_skipBadFiles) {
-          continue;
-        } else {
-          edm::Exception ex(edm::errors::FileOpenError, "", e);
-          ex.addContext("Opening DQM Root file");
-          ex << "\nInput file " << filename << " and fallback input file " << fallbackname
-             << " were not found, could not be opened, or are corrupted.\n";
-          for (auto const& s : originalInfo) {
-            ex.addAdditionalInfo(s);
+        file = nullptr;                       // is there anything we need to free?
+        if (std::next(it) == fNames.end()) {  //last name corresponding to the last data catalog to try
+          if (!m_skipBadFiles) {
+            edm::Exception ex(edm::errors::FileOpenError, "", e);
+            ex.addContext("Opening DQM Root file");
+            ex << "\nInput file " << it->c_str() << " was not found, could not be opened, or is corrupted.\n";
+            //report previous exceptions when use other names to open file
+            for (auto const& s : exInfo)
+              ex.addAdditionalInfo(s);
+            throw ex;
           }
-          throw ex;
+          isGoodFile = false;
         }
+        // save in case of error when trying next name
+        for (auto const& s : e.additionalInfo())
+          exInfo.push_back(s);
       }
-      if (not file->IsZombie()) {
-        logFileAction("  Successfully opened fallback file ", fallbackname.c_str());
+
+      // Check if a file is usable
+      if (file && !file->IsZombie()) {
+        logFileAction("Successfully opened file ", it->c_str());
+        break;
       } else {
-        if (m_skipBadFiles) {
-          continue;
-        } else {
-          edm::Exception ex(edm::errors::FileOpenError);
-          ex << "Input file " << filename << " and fallback input file " << fallbackname << " could not be opened.\n";
-          ex.addContext("Opening DQM Root file");
-          for (auto const& s : originalInfo) {
-            ex.addAdditionalInfo(s);
+        if (std::next(it) == fNames.end()) {
+          if (!m_skipBadFiles) {
+            edm::Exception ex(edm::errors::FileOpenError);
+            ex << "Input file " << it->c_str() << " could not be opened.\n";
+            ex.addContext("Opening DQM Root file");
+            //report previous exceptions when use other names to open file
+            for (auto const& s : exInfo)
+              ex.addAdditionalInfo(s);
+            throw ex;
           }
-          throw ex;
+          isGoodFile = false;
+        }
+        if (file) {
+          delete file;
+          file = nullptr;
         }
       }
-    }
+    }  //end loop over names of the file
+
+    if (!isGoodFile && m_skipBadFiles)
+      continue;
 
     m_openFiles.insert(m_openFiles.begin(), file);
 
     // Check file format version, which is encoded in the Title of the TFile
     if (strcmp(file->GetTitle(), "1") != 0) {
       edm::Exception ex(edm::errors::FileReadError);
-      ex << "Input file " << filename.c_str() << " does not appear to be a DQM Root file.\n";
+      ex << "Input file " << fNames[0].c_str() << " does not appear to be a DQM Root file.\n";
     }
 
     // Read metadata from the file
@@ -592,7 +562,8 @@ std::unique_ptr<edm::FileBlock> DQMRootSource::readFile_() {
         m_fileMetadatas.push_back(temp);
       }
     }
-  }
+
+  }  //end loop over files
 
   // Sort to make sure runs and lumis appear in sequential order
   std::stable_sort(m_fileMetadatas.begin(), m_fileMetadatas.end());

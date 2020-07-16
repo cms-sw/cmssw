@@ -1,32 +1,36 @@
-<use   name="clhep"/>
-<library   file="printEvent.cc">
-  <flags   EDM_PLUGIN="1"/>
-  <use   name="DataFormats/JetReco"/>
-  <use   name="FWCore/Framework"/>
-  <use   name="SimGeneral/HepPDTRecord"/>
-  <use   name="PhysicsTools/JetMCUtils"/>
-  <use   name="rootmath"/>
-  <use   name="root"/>
+<use name="clhep"/>
+<library file="printEvent.cc">
+  <flags EDM_PLUGIN="1"/>
+  <use name="DataFormats/JetReco"/>
+  <use name="FWCore/Framework"/>
+  <use name="SimGeneral/HepPDTRecord"/>
+  <use name="PhysicsTools/JetMCUtils"/>
+  <use name="rootmath"/>
+  <use name="root"/>
 </library>
-<library   file="jetMatch.cc">
-  <flags   EDM_PLUGIN="1"/>
-  <use   name="DataFormats/Candidate"/>
-  <use   name="FWCore/Framework"/>
-  <use   name="rootmath"/>
-  <use   name="root"/>
+
+<library file="jetMatch.cc">
+  <flags EDM_PLUGIN="1"/>
+  <use name="DataFormats/Candidate"/>
+  <use name="FWCore/Framework"/>
+  <use name="rootmath"/>
+  <use name="root"/>
 </library>
-<library   file="matchOneToOne.cc">
-  <flags   EDM_PLUGIN="1"/>
-  <use   name="DataFormats/Candidate"/>
-  <use   name="FWCore/Framework"/>
-  <use   name="rootmath"/>
-  <use   name="root"/>
+
+<library file="matchOneToOne.cc">
+  <flags EDM_PLUGIN="1"/>
+  <use name="DataFormats/Candidate"/>
+  <use name="FWCore/Framework"/>
+  <use name="rootmath"/>
+  <use name="root"/>
 </library>
-<library   file="matchGenHFHadrons.cc">
-  <flags   EDM_PLUGIN="1"/>
-  <use   name="FWCore/Framework"/>
-  <use   name="FWCore/Utilities"/>
-  <use   name="CommonTools/UtilAlgos"/>
-  <use   name="rootmath"/>
-  <use   name="root"/>
+
+<library file="matchGenHFHadrons.cc">
+  <flags EDM_PLUGIN="1"/>
+  <use name="FWCore/Framework"/>
+  <use name="FWCore/Utilities"/>
+  <use name="CommonTools/UtilAlgos"/>
+  <use name="DataFormats/Candidate"/>
+  <use name="rootmath"/>
+  <use name="root"/>
 </library>

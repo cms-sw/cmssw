@@ -84,6 +84,7 @@ process.TFileService = cms.Service("TFileService",
 process.p1 = cms.Path(process.generator*process.VtxSmeared*process.g4SimHits)
 process.g4SimHits.NonBeamEvent = True
 process.g4SimHits.UseMagneticField = False
+process.g4SimHits.StackingAction.TrackNeutrino = True
 process.g4SimHits.Physics.type = 'SimG4Core/Physics/DummyPhysics'
 process.g4SimHits.Physics.DummyEMPhysics = True
 process.g4SimHits.Physics.CutsPerRegion = False

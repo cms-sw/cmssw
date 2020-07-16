@@ -65,7 +65,6 @@ process.maxEvents = cms.untracked.PSet(
 
 # DQMStore service
 process.load('DQMServices.Core.DQMStore_cfi')
-process.DQMStore.referenceFileName = cms.string(options.dqmFile)
 
 process.siStripQualityESProducer.ListOfRecordToMerge = cms.VPSet(
        cms.PSet(record = cms.string('SiStripDetCablingRcd'), tag = cms.string('')), # Use Detector cabling information to exclude detectors not connected            

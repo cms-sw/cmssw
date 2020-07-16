@@ -36,13 +36,17 @@ namespace edm {
 
       void setData(std::unique_ptr<T> iData) { data_ = std::move(iData); }
 
-      void const* getImpl(eventsetup::EventSetupRecordImpl const&,
-                          eventsetup::DataKey const&,
-                          EventSetupImpl const*) final {
-        return data_.get();
+      void prefetchAsyncImpl(WaitingTask*,
+                             eventsetup::EventSetupRecordImpl const&,
+                             eventsetup::DataKey const&,
+                             EventSetupImpl const*,
+                             ServiceToken const&) final {
+        return;
       }
 
       void invalidateCache() final { data_.reset(); }
+
+      void const* getAfterPrefetchImpl() const final { return data_.get(); }
 
     private:
       std::unique_ptr<T> data_;

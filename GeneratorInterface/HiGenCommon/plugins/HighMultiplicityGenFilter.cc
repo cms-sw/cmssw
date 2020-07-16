@@ -26,6 +26,7 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/Utilities/interface/ESGetToken.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "SimGeneral/HepPDTRecord/interface/ParticleDataTable.h"
 #include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
@@ -44,7 +45,7 @@ private:
   void endJob() override;
 
   // ----------member data ---------------------------
-  edm::ESHandle<ParticleDataTable> pdt;
+  edm::ESGetToken<ParticleDataTable, edm::DefaultRecord> pdtToken_;
   edm::EDGetTokenT<edm::HepMCProduct> hepmcSrc;
   double etaMax;
   double ptMin;
@@ -64,7 +65,8 @@ private:
 // constructors and destructor
 //
 HighMultiplicityGenFilter::HighMultiplicityGenFilter(const edm::ParameterSet& iConfig)
-    : hepmcSrc(consumes<edm::HepMCProduct>(iConfig.getParameter<edm::InputTag>("generatorSmeared"))),
+    : pdtToken_(esConsumes<ParticleDataTable, edm::DefaultRecord>()),
+      hepmcSrc(consumes<edm::HepMCProduct>(iConfig.getParameter<edm::InputTag>("generatorSmeared"))),
       etaMax(iConfig.getUntrackedParameter<double>("etaMax")),
       ptMin(iConfig.getUntrackedParameter<double>("ptMin")),
       nMin(iConfig.getUntrackedParameter<int>("nMin")) {
@@ -86,8 +88,7 @@ bool HighMultiplicityGenFilter::filter(edm::Event& iEvent, const edm::EventSetup
   bool accepted = false;
   edm::Handle<edm::HepMCProduct> evt;
   iEvent.getByToken(hepmcSrc, evt);
-
-  iSetup.getData(pdt);
+  edm::ESHandle<ParticleDataTable> pdt = iSetup.getHandle(pdtToken_);
 
   const HepMC::GenEvent* myGenEvent = evt->GetEvent();
 

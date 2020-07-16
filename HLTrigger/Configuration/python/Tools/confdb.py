@@ -638,7 +638,6 @@ if 'GlobalTag' in %%(dict)s:
       # instrument the HLT menu with DQMStore and DQMRootOutputModule suitable for running offline
       dqmstore  = "\n# load the DQMStore and DQMRootOutputModule\n"
       dqmstore += self.loadCffCommand('DQMServices.Core.DQMStore_cfi')
-      dqmstore += "%(process)s.DQMStore.enableMultiThread = True\n"
       dqmstore += """
 %(process)s.dqmOutput = cms.OutputModule("DQMRootOutputModule",
     fileName = cms.untracked.string("DQMIO.root")

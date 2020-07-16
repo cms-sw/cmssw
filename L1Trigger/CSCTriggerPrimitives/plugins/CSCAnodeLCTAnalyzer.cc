@@ -95,12 +95,11 @@ vector<CSCAnodeLayerInfo> CSCAnodeLCTAnalyzer::lctDigis(const CSCALCTDigi& alct,
     }
 
     // Loop over all the wires in a pattern.
-    int mask;
-    for (int i_wire = 0; i_wire < CSCConstants::MAX_WIRES_IN_PATTERN; i_wire++) {
-      if (CSCPatternBank::alct_pattern_envelope[i_wire] == i_layer) {
-        mask = CSCPatternBank::alct_pattern_mask_open[alct_pattern][i_wire];
-        if (mask == 1) {
-          int wire = alct_keywire + CSCPatternBank::alct_keywire_offset[MESelection][i_wire];
+    for (int i_layer = 0; i_layer < CSCConstants::NUM_LAYERS; ++i_layer) {
+      for (int i_wire = 0; i_wire < CSCConstants::ALCT_PATTERN_WIDTH; ++i_wire) {
+        // check the mask
+        if (CSCPatternBank::alct_pattern_legacy_[alct_pattern][i_layer][i_wire]) {
+          int wire = alct_keywire + CSCPatternBank::alct_keywire_offset_[MESelection][i_wire];
           if (wire >= 0 && wire < CSCConstants::MAX_NUM_WIRES) {
             // Check if there is a "good" Digi on this wire.
             if (digiMap.count(wire) > 0) {

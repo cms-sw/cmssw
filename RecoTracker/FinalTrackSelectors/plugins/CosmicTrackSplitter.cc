@@ -411,10 +411,9 @@ namespace reco {
 
 #ifdef EDM_ML_DEBUG
       LogDebug("CosmicTrackSplitter") << "   dumping the hits now: ";
-      for (TrackCandidate::range hitR = cand.recHits(); hitR.first != hitR.second; ++hitR.first) {
-        auto const &tmp = *hitR.first;
-        LogTrace("CosmicTrackSplitter") << "     hit detid = " << hitR.first->geographicalId().rawId()
-                                        << ", type  = " << typeid(tmp).name();
+      for (auto const &hit : cand.recHits()) {
+        LogTrace("CosmicTrackSplitter") << "     hit detid = " << hit.geographicalId().rawId()
+                                        << ", type  = " << typeid(hit).name();
       }
 #endif
 

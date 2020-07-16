@@ -1,7 +1,9 @@
 #include "RecoEgamma/ElectronIdentification/interface/ElectronMVAEstimatorRun2.h"
+#include "RecoEgamma/EgammaTools/interface/MVAVariableHelper.h"
 
 ElectronMVAEstimatorRun2::ElectronMVAEstimatorRun2(const edm::ParameterSet& conf)
-    : AnyMVAEstimatorRun2Base(conf), mvaVarMngr_(conf.getParameter<std::string>("variableDefinition")) {
+    : AnyMVAEstimatorRun2Base(conf),
+      mvaVarMngr_(conf.getParameter<std::string>("variableDefinition"), MVAVariableHelper::indexMap()) {
   const auto weightFileNames = conf.getParameter<std::vector<std::string> >("weightFileNames");
   const auto categoryCutStrings = conf.getParameter<std::vector<std::string> >("categoryCuts");
 
@@ -24,7 +26,8 @@ ElectronMVAEstimatorRun2::ElectronMVAEstimatorRun2(const std::string& mvaTag,
                                                    const std::vector<std::string>& categoryCutStrings,
                                                    const std::vector<std::string>& weightFileNames,
                                                    bool debug)
-    : AnyMVAEstimatorRun2Base(mvaName, mvaTag, nCategories, debug), mvaVarMngr_(variableDefinition) {
+    : AnyMVAEstimatorRun2Base(mvaName, mvaTag, nCategories, debug),
+      mvaVarMngr_(variableDefinition, MVAVariableHelper::indexMap()) {
   if ((int)(categoryCutStrings.size()) != getNCategories())
     throw cms::Exception("MVA config failure: ")
         << "wrong number of category cuts in " << getName() << getTag() << std::endl;

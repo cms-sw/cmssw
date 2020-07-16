@@ -19,7 +19,7 @@
 
 #include <openssl/md5.h>
 #include <boost/property_tree/json_parser.hpp>
-#include <boost/filesystem.hpp>
+#include <filesystem>
 #include <boost/format.hpp>
 
 #include <google/protobuf/io/coded_stream.h>
@@ -44,6 +44,13 @@ void DQMFileSaverPB::initRun() const {
     transferDestination_ = edm::Service<evf::EvFDaqDirector>()->getStreamDestinations(streamLabel_);
     mergeType_ = edm::Service<evf::EvFDaqDirector>()->getStreamMergeType(streamLabel_, evf::MergeTypePB);
   }
+
+  if (!fakeFilterUnitMode_) {
+    evf::EvFDaqDirector* daqDirector = (evf::EvFDaqDirector*)(edm::Service<evf::EvFDaqDirector>().operator->());
+    const std::string initFileName = daqDirector->getInitFilePath(streamLabel_);
+    std::ofstream file(initFileName);
+    file.close();
+  }
 }
 
 void DQMFileSaverPB::saveLumi(const FileParameters& fp) const {
@@ -63,7 +70,7 @@ void DQMFileSaverPB::saveLumi(const FileParameters& fp) const {
     std::string runDir = str(boost::format("%s/run%06d") % fp.path_ % fp.run_);
     std::string baseName = str(boost::format("%s/run%06d_ls%04d_%s") % runDir % fp.run_ % fp.lumi_ % streamLabel_);
 
-    boost::filesystem::create_directories(runDir);
+    std::filesystem::create_directories(runDir);
 
     jsonFilePathName = baseName + ".jsn";
     openJsonFilePathName = jsonFilePathName + ".open";
@@ -106,7 +113,7 @@ boost::property_tree::ptree DQMFileSaverPB::fillJson(int run,
                                                      const std::string& mergeTypeStr,
                                                      evf::FastMonitoringService* fms) {
   namespace bpt = boost::property_tree;
-  namespace bfs = boost::filesystem;
+  namespace bfs = std::filesystem;
 
   bpt::ptree pt;
 
@@ -207,7 +214,6 @@ void DQMFileSaverPB::savePB(DQMStore* store, std::string const& filename, int ru
 
   dqmstorepb::ROOTFilePB dqmstore_message;
 
-  // TODO: while we still have enableMultiThread, maybe this does the wrong thing.
   // We save all histograms, indifferent of the lumi flag: even tough we save per lumi, this is a *snapshot*.
   auto mes = store->getAllContents("");
   for (auto const me : mes) {
@@ -230,8 +236,26 @@ void DQMFileSaverPB::savePB(DQMStore* store, std::string const& filename, int ru
     histo.set_size(buffer.Length());
     histo.set_streamed_histo((void const*)buffer.Buffer(), buffer.Length());
 
-    // Save quality reports if this is not in reference section.
-    // XXX not supported by protobuf files.
+    // Save quality reports
+    for (QReport* qr : me->getQReports()) {
+      std::string result;
+      // TODO: 64 is likely too short; memory corruption in the old code?
+      char buf[64];
+      std::snprintf(buf, sizeof(buf), "qr=st:%d:%.*g:", qr->getStatus(), DBL_DIG + 2, qr->getQTresult());
+      result = '<' + me->getName() + '.' + qr->getQRName() + '>';
+      result += buf;
+      result += qr->getAlgorithm() + ':' + qr->getMessage();
+      result += "</" + me->getName() + '.' + qr->getQRName() + '>';
+      TObjString str(result.c_str());
+
+      dqmstorepb::ROOTFilePB::Histo& qr_histo = *dqmstore_message.add_histo();
+      TBufferFile qr_buffer(TBufferFile::kWrite);
+      qr_buffer.WriteObject(&str);
+      qr_histo.set_full_pathname(me->getFullname() + '.' + qr->getQRName());
+      qr_histo.set_flags(static_cast<uint32_t>(MonitorElement::Kind::STRING));
+      qr_histo.set_size(qr_buffer.Length());
+      qr_histo.set_streamed_histo((void const*)qr_buffer.Buffer(), qr_buffer.Length());
+    }
 
     // Save efficiency tag, if any.
     // XXX not supported by protobuf files.

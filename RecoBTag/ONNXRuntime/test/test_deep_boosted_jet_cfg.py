@@ -48,7 +48,7 @@ process.outpath = cms.EndPath(process.out, patAlgosToolsTask)
 
 ## and add them to the event content
 from PhysicsTools.PatAlgos.tools.jetTools import updateJetCollection
-from RecoBTag.MXNet.pfDeepBoostedJet_cff import _pfDeepBoostedJetTagsAll as pfDeepBoostedJetTagsAll
+from RecoBTag.ONNXRuntime.pfDeepBoostedJet_cff import _pfDeepBoostedJetTagsAll as pfDeepBoostedJetTagsAll
 
 updateJetCollection(
    process,

@@ -1,0 +1,4 @@
+<flags EDM_PLUGIN="1"/>
+<use name="HeterogeneousCore/SonicCore"/>
+<use name="HeterogeneousCore/SonicTriton"/>
+<library file="*.cc" name="testHeterogenousCoreSonicTriton"/>

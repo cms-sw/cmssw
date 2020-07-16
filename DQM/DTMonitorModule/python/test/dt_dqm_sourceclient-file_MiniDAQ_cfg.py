@@ -13,7 +13,6 @@ process.load("DQM.DTMonitorModule.test.NewEventStreamFileReader_cfi")
 #### DQM Environment
 #----------------------------
 process.load("DQMServices.Core.DQM_cfg")
-#process.DQMStore.referenceFileName = "DT_reference.root"
 
 process.load("DQMServices.Components.DQMEnvironment_cfi")
 

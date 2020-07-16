@@ -80,4 +80,90 @@ namespace emtf {
     }
   }
 
+  // Use CSC trigger sector definitions
+  // Copied from DataFormats/MuonDetId/src/CSCDetId.cc
+  int get_trigger_sector(int ring, int station, int chamber) {
+    int result = 0;
+    if (station > 1 && ring > 1) {
+      result = ((static_cast<unsigned>(chamber - 3) & 0x7f) / 6) + 1;  // ch 3-8->1, 9-14->2, ... 1,2 -> 6
+    } else if (station == 1) {
+      result = ((static_cast<unsigned>(chamber - 3) & 0x7f) / 6) + 1;  // ch 3-8->1, 9-14->2, ... 1,2 -> 6
+    } else {
+      result = ((static_cast<unsigned>(chamber - 2) & 0x1f) / 3) + 1;  // ch 2-4-> 1, 5-7->2, ...
+    }
+    return (result <= 6) ? result
+                         : 6;  // max sector is 6, some calculations give a value greater than six but this is expected.
+  }
+
+  // Use CSC trigger "CSC ID" definitions
+  // Copied from DataFormats/MuonDetId/src/CSCDetId.cc
+  int get_trigger_csc_ID(int ring, int station, int chamber) {
+    int result = 0;
+    if (station == 1) {
+      result = (chamber) % 3 + 1;  // 1,2,3
+      switch (ring) {
+        case 1:
+          break;
+        case 2:
+          result += 3;  // 4,5,6
+          break;
+        case 3:
+          result += 6;  // 7,8,9
+          break;
+        case 4:                            // ME0
+          result = (chamber + 1) % 3 + 1;  // 1,2,3
+          break;
+      }
+    } else {
+      if (ring == 1) {
+        result = (chamber + 1) % 3 + 1;  // 1,2,3
+      } else {
+        result = (chamber + 3) % 6 + 4;  // 4,5,6,7,8,9
+      }
+    }
+    return result;
+  }
+
+  // Number of halfstrips and wiregroups
+  // +----------------------------+------------+------------+
+  // | Chamber type               | Num of     | Num of     |
+  // |                            | halfstrips | wiregroups |
+  // +----------------------------+------------+------------+
+  // | ME1/1a                     | 96         | 48         |
+  // | ME1/1b                     | 128        | 48         |
+  // | ME1/2                      | 160        | 64         |
+  // | ME1/3                      | 128        | 32         |
+  // | ME2/1                      | 160        | 112        |
+  // | ME3/1, ME4/1               | 160        | 96         |
+  // | ME2/2, ME3/2, ME4/2        | 160        | 64         |
+  // +----------------------------+------------+------------+
+
+  void get_csc_max_strip_and_wire(int station, int ring, int& max_strip, int& max_wire) {
+    max_strip = 0;                    // halfstrip
+    max_wire = 0;                     // wiregroup
+    if (station == 1 && ring == 4) {  // ME1/1a
+      max_strip = 96;
+      max_wire = 48;
+    } else if (station == 1 && ring == 1) {  // ME1/1b
+      max_strip = 128;
+      max_wire = 48;
+    } else if (station == 1 && ring == 2) {  // ME1/2
+      max_strip = 160;
+      max_wire = 64;
+    } else if (station == 1 && ring == 3) {  // ME1/3
+      max_strip = 128;
+      max_wire = 32;
+    } else if (station == 2 && ring == 1) {  // ME2/1
+      max_strip = 160;
+      max_wire = 112;
+    } else if (station >= 3 && ring == 1) {  // ME3/1, ME4/1
+      max_strip = 160;
+      max_wire = 96;
+    } else if (station >= 2 && ring == 2) {  // ME2/2, ME3/2, ME4/2
+      max_strip = 160;
+      max_wire = 64;
+    }
+    return;
+  }
+
 }  // namespace emtf

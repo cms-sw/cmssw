@@ -52,7 +52,7 @@ namespace cms {
       });
     }
 
-    std::vector<std::string> skeys;
+    std::vector<std::string_view> skeys;
     std::vector<std::regex> keys;
     std::unique_ptr<Filter> next;
     struct Filter* up;
@@ -61,7 +61,6 @@ namespace cms {
 
   namespace dd {
     bool accepted(std::vector<std::regex> const&, std::string_view);
-    int contains(std::string_view, std::string_view);
     bool isRegex(std::string_view);
     bool isMatch(std::string_view, std::string_view);
     bool compareEqual(std::string_view, std::string_view);

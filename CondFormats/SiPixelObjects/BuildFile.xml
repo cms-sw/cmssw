@@ -3,14 +3,20 @@
 <use name="CalibFormats/SiPixelObjects"/>
 <use name="FWCore/Utilities"/>
 <use name="DataFormats/FEDRawData"/>
-<use name="DataFormats/SiPixelDigi"/>
 <use name="CondFormats/Serialization"/>
 <use name="CondFormats/DataRecord"/>
 <use name="CondFormats/SiStripObjects"/>
 <use name="root"/>
 <use name="Geometry/TrackerGeometryBuilder"/>
-<use name="boost"/>
-<use name="boost_serialization"/>
+<use name="CondFormats/External"/>
+<use name="DataFormats/Common"/>
+<use name="DataFormats/GeometryVector"/>
+<use name="FWCore/Framework"/>
+<use name="FWCore/MessageLogger"/>
+<use name="FWCore/ParameterSet"/>
+<use name="Geometry/CommonDetUnit"/>
+<use name="Geometry/CommonTopologies"/>
+<use name="Geometry/Records"/>
 <export>
   <lib name="1"/>
 </export>

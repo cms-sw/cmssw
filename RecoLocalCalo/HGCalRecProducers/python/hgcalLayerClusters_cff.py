@@ -18,7 +18,6 @@ hgcalLayerClusters.plugin.fcPerEle = cms.double(fC_per_ele)
 hgcalLayerClusters.plugin.noises = cms.PSet(refToPSet_ = cms.string('HGCAL_noises'))
 hgcalLayerClusters.plugin.noiseMip = hgchebackDigitizer.digiCfg.noise
 
-
 hgcalLayerClustersHFNose = hgcalLayerClusters_.clone(
     detector = 'HFNose',
     timeOffset = hfnoseDigitizer.tofDelay,

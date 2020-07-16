@@ -7,39 +7,6 @@
 
 namespace muon {
   SelectionType selectionTypeFromString(const std::string& label) {
-    static const SelectionTypeStringToEnum selectionTypeStringToEnumMap[] = {
-        {"All", All},
-        {"AllGlobalMuons", AllGlobalMuons},
-        {"AllStandAloneMuons", AllStandAloneMuons},
-        {"AllTrackerMuons", AllTrackerMuons},
-        {"TrackerMuonArbitrated", TrackerMuonArbitrated},
-        {"AllArbitrated", AllArbitrated},
-        {"GlobalMuonPromptTight", GlobalMuonPromptTight},
-        {"TMLastStationLoose", TMLastStationLoose},
-        {"TMLastStationTight", TMLastStationTight},
-        {"TM2DCompatibilityLoose", TM2DCompatibilityLoose},
-        {"TM2DCompatibilityTight", TM2DCompatibilityTight},
-        {"TMOneStationLoose", TMOneStationLoose},
-        {"TMOneStationTight", TMOneStationTight},
-        {"TMLastStationOptimizedLowPtLoose", TMLastStationOptimizedLowPtLoose},
-        {"TMLastStationOptimizedLowPtTight", TMLastStationOptimizedLowPtTight},
-        {"GMTkChiCompatibility", GMTkChiCompatibility},
-        {"GMStaChiCompatibility", GMStaChiCompatibility},
-        {"GMTkKinkTight", GMTkKinkTight},
-        {"TMLastStationAngLoose", TMLastStationAngLoose},
-        {"TMLastStationAngTight", TMLastStationAngTight},
-        {"TMOneStationAngLoose", TMOneStationAngLoose},
-        {"TMOneStationAngTight", TMOneStationAngTight},
-        {"TMLastStationOptimizedBarrelLowPtLoose", TMLastStationOptimizedBarrelLowPtLoose},
-        {"TMLastStationOptimizedBarrelLowPtTight", TMLastStationOptimizedBarrelLowPtTight},
-        {"RPCMuLoose", RPCMuLoose},
-        {"AllME0Muons", AllME0Muons},
-        {"ME0MuonArbitrated", ME0MuonArbitrated},
-        {"AllGEMMuons", AllGEMMuons},
-        {"GEMMuonArbitrated", GEMMuonArbitrated},
-        {"TriggerIdLoose", TriggerIdLoose},
-        {nullptr, (SelectionType)-1}};
-
     SelectionType value = (SelectionType)-1;
     bool found = false;
     for (int i = 0; selectionTypeStringToEnumMap[i].label && (!found); ++i)
@@ -51,6 +18,21 @@ namespace muon {
     // in case of unrecognized selection type
     if (!found)
       throw cms::Exception("MuonSelectorError") << label << " is not a recognized SelectionType";
+    return value;
+  }
+
+  reco::Muon::Selector selectorFromString(const std::string& label) {
+    reco::Muon::Selector value = (reco::Muon::Selector)-1;
+    bool found = false;
+    for (int i = 0; selectorStringToEnumMap[i].label && (!found); ++i)
+      if (!strcmp(label.c_str(), selectorStringToEnumMap[i].label)) {
+        found = true;
+        value = selectorStringToEnumMap[i].value;
+      }
+
+    // in case of unrecognized selection type
+    if (!found)
+      throw cms::Exception("MuonSelectorError") << label << " is not a recognized reco::Muon::Selector";
     return value;
   }
 }  // namespace muon

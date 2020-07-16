@@ -1,5 +1,4 @@
 <use name="FWCore/Framework"/>
-<use name="FWCore/PluginManager"/>
 <use name="FWCore/ParameterSet"/>
 <use name="DataFormats/PatCandidates"/>
 <use name="DataFormats/Common"/>
@@ -7,11 +6,10 @@
 <use name="Geometry/CaloGeometry"/>
 <use name="Geometry/CaloTopology"/>
 <use name="CommonTools/UtilAlgos"/>
-<use name="L1Trigger/GlobalTriggerAnalyzer"/>
 <use name="MagneticField/Records"/>
 <use name="MagneticField/Engine"/>
-<use name="RecoEgamma/EgammaTools"/>
 <use name="RecoEcal/EgammaCoreTools"/>
+<use name="RecoEgamma/EgammaTools"/>
 <use name="RecoLocalCalo/EcalRecAlgos"/>
 <use name="HLTrigger/HLTcore"/>
 <use name="root"/>

@@ -3,9 +3,6 @@
 
 #include <cmath>
 
-#include "DataFormats/L1TMuon/interface/EMTFTrack.h"
-#include "DataFormats/L1TMuon/interface/EMTFTrack.h"
-
 namespace emtf {
 
   // Please refers to DN-2015/017 for uGMT conventions
@@ -16,9 +13,19 @@ namespace emtf {
 
   int calc_uGMT_chamber(int csc_ID, int subsector, int neighbor, int station);
 
+  // CSC trigger sector & CSC ID
+
+  int get_trigger_sector(int ring, int station, int chamber);
+
+  int get_trigger_csc_ID(int ring, int station, int chamber);
+
+  // CSC max strip & max wire
+
+  void get_csc_max_strip_and_wire(int station, int ring, int& max_strip, int& max_wire);
+
   // ___________________________________________________________________________
   // coordinate ranges: phi[-180, 180] or [-pi, pi], theta[0, 90] or [0, pi/2]
-  inline double range_phi_deg(double deg) {
+  inline double wrap_phi_deg(double deg) {
     while (deg < -180.)
       deg += 360.;
     while (deg >= +180.)
@@ -26,7 +33,7 @@ namespace emtf {
     return deg;
   }
 
-  inline double range_phi_rad(double rad) {
+  inline double wrap_phi_rad(double rad) {
     while (rad < -M_PI)
       rad += 2. * M_PI;
     while (rad >= +M_PI)
@@ -34,8 +41,8 @@ namespace emtf {
     return rad;
   }
 
-  inline double range_theta_deg(double deg) {
-    deg = fabs(deg);
+  inline double wrap_theta_deg(double deg) {
+    deg = std::abs(deg);
     while (deg >= 180.)
       deg -= 180.;
     if (deg >= 180. / 2.)
@@ -43,8 +50,8 @@ namespace emtf {
     return deg;
   }
 
-  inline double range_theta_rad(double rad) {
-    rad = fabs(rad);
+  inline double wrap_theta_rad(double rad) {
+    rad = std::abs(rad);
     while (rad >= M_PI)
       rad -= M_PI;
     if (rad >= M_PI / 2.)
@@ -100,7 +107,7 @@ namespace emtf {
   }
 
   inline double calc_eta_from_theta_deg(double theta_deg, int endcap) {  // endcap [-1,+1]
-    double theta_rad = deg_to_rad(range_theta_deg(theta_deg));           // put theta in [0, 90] range
+    double theta_rad = deg_to_rad(wrap_theta_deg(theta_deg));            // put theta in [0, 90] range
     double eta = calc_eta_from_theta_rad(theta_rad);
     eta = (endcap == -1) ? -eta : eta;
     return eta;
@@ -182,7 +189,7 @@ namespace emtf {
   //}
 
   inline double calc_phi_loc_deg_from_glob(double glob, int sector) {  // glob in deg, sector [1-6]
-    glob = range_phi_deg(glob);                                        // put phi in [-180,180] range
+    glob = wrap_phi_deg(glob);                                         // put phi in [-180,180] range
     double loc = glob - 15. - (60. * (sector - 1));
     return loc;
   }
@@ -216,7 +223,7 @@ namespace emtf {
   inline double calc_phi_GMT_rad(int bits) { return deg_to_rad(calc_phi_GMT_deg(bits)); }
 
   inline int calc_phi_GMT_int(double val) {  // phi in deg
-    val = range_phi_deg(val);                // put phi in [-180,180] range
+    val = wrap_phi_deg(val);                 // put phi in [-180,180] range
     val = (val - 180. / 576.) / (360. / 576.);
     int gmt_phi = static_cast<int>(std::round(val));
     return gmt_phi;

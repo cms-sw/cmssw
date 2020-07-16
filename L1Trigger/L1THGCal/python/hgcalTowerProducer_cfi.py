@@ -8,3 +8,9 @@ hgcalTowerProducer = cms.EDProducer(
     InputTowerMaps = cms.InputTag('hgcalTowerMapProducer:HGCalTowerMapProcessor'), 
     ProcessorParameters = tower.clone()
     )
+
+
+hgcalTowerProducerHFNose = hgcalTowerProducer.clone(
+    InputTowerMaps = cms.InputTag('hgcalTowerMapProducerHFNose:HGCalTowerMapProcessor')
+)
+

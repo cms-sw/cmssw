@@ -37,7 +37,7 @@ void ClusterRefinerTagMCmerged::refineCluster(const edm::Handle<edmNew::DetSetVe
     int ntk = 0;
     int NtkAll = 0;
     for (edmNew::DetSet<SiStripCluster>::iterator clust = det->begin(); clust != det->end(); clust++) {
-      std::vector<uint8_t> amp = clust->amplitudes();
+      auto const& amp = clust->amplitudes();
       SiStripCluster* newCluster = new SiStripCluster(clust->firstStrip(), amp.begin(), amp.end());
       if (associator_ != 0) {
         std::vector<SimHitIdpr> simtrackid;

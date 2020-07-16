@@ -34,6 +34,10 @@ class testEventsetup;
 
 namespace edm {
   class ESInputTag;
+  class ProcessBlockTransitionInfo;
+  class Schedule;
+  class ServiceToken;
+  class WaitingTaskHolder;
 
   namespace eventsetup {
     class EventSetupProvider;
@@ -50,6 +54,7 @@ namespace edm {
 
     // ---------- const member functions ---------------------
     eventsetup::EventSetupRecordImpl const* findImpl(const eventsetup::EventSetupRecordKey&) const;
+    eventsetup::EventSetupRecordImpl const* findImpl(ESRecordIndex) const;
 
     std::optional<eventsetup::EventSetupRecordGeneric> find(const eventsetup::EventSetupRecordKey&,
                                                             unsigned int iTransitionID,
@@ -68,6 +73,7 @@ namespace edm {
     friend class eventsetup::EventSetupProvider;
     friend class eventsetup::EventSetupRecordProvider;
     friend class ::testEventsetup;
+    friend class ProcessBlockTransitionInfo;
 
   protected:
     void addRecordImpl(const eventsetup::EventSetupRecordImpl& iRecord);

@@ -382,7 +382,8 @@ reco::ForwardProton ProtonReconstructionAlgorithm::reconstructFromMultiRP(const 
 
   // print results
   if (verbosity_)
-    os << "    xi=" << xi << ", th_x=" << th_x << ", th_y=" << th_y << ", vtx_y=" << vtx_y << ", chiSq = " << chi2
+    os << "    fit valid=" << valid << std::endl
+       << "    xi=" << xi << ", th_x=" << th_x << ", th_y=" << th_y << ", vtx_y=" << vtx_y << ", chiSq = " << chi2
        << std::endl;
 
   // save reco candidate

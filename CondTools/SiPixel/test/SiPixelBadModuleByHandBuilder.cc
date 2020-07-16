@@ -2,9 +2,9 @@
 #include "DataFormats/SiPixelDetId/interface/PixelBarrelName.h"
 #include "DataFormats/SiPixelDetId/interface/PixelEndcapName.h"
 
-#include <math.h>
-#include <iostream>
+#include <cmath>
 #include <fstream>
+#include <iostream>
 
 SiPixelBadModuleByHandBuilder::SiPixelBadModuleByHandBuilder(const edm::ParameterSet& iConfig)
     : ConditionDBWriter<SiPixelQuality>(iConfig) {
@@ -79,7 +79,7 @@ std::unique_ptr<SiPixelQuality> SiPixelBadModuleByHandBuilder::getNewObject() {
   }
 
   // fill DB from DQM list
-  if (ROCListFile_ != "") {
+  if (!ROCListFile_.empty()) {
     std::map<uint32_t, uint32_t> disabledModules;
     std::ifstream aFile(ROCListFile_.c_str());
     std::string aLine;

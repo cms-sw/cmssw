@@ -8,7 +8,6 @@
 <use name="CondFormats/SiPixelObjects"/>
 <use name="DataFormats/TrackReco"/>
 <use name="DataFormats/MuonReco"/>
-<use name="FWCore/PluginManager"/>
 <use name="FWCore/Framework"/>
 <use name="FWCore/Utilities"/>
 <use name="FWCore/ParameterSet"/>
@@ -21,8 +20,6 @@
 <use name="TrackingTools/TransientTrack"/>
 <use name="SimDataFormats/Track"/>
 <use name="SimDataFormats/GeneratorProducts"/>
-<use name="SimTracker/Records"/>
-<use name="SimTracker/TrackAssociation"/>
 <use name="SimTracker/TrackerHitAssociation"/>
 <use name="DataFormats/DetId"/>
 <use name="DataFormats/MuonDetId"/>
@@ -39,11 +36,9 @@
 <use name="TrackingTools/IPTools"/>
 <use name="DataFormats/TrajectorySeed"/>
 <use name="DataFormats/VertexReco"/>
-<use name="SimDataFormats/Vertex"/>
 <use name="DataFormats/BeamSpot"/>
 <use name="RecoVertex/PrimaryVertexProducer"/>
 <use name="MagneticField/Records"/>
-<use name="DQM/SiStripCommon"/>
 <use name="DQMServices/Core"/>
 <use name="CLHEP"/>
 <use name="root"/>
@@ -52,7 +47,6 @@
 <use name="rootmath"/>
 <use name="rootrflx"/>
 <use name="rootcore"/>
-<use name="boost"/>
 <library file="*.cc" name="AlignmentOfflinevalidationPlugins">
   <use name="Alignment/OfflineValidation"/>
   <use name="CondFormats/GeometryObjects"/>

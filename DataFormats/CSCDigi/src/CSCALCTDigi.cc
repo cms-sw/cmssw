@@ -11,6 +11,8 @@
 #include <iomanip>
 #include <iostream>
 
+enum Pattern_Info { NUM_LAYERS = 6, ALCT_PATTERN_WIDTH = 5 };
+
 using namespace std;
 
 /// Constructors
@@ -31,7 +33,12 @@ CSCALCTDigi::CSCALCTDigi(const uint16_t valid,
       bx_(bx),
       trknmb_(trknmb),
       hmt_(hmt),
-      version_(version) {}
+      version_(version) {
+  hits_.resize(NUM_LAYERS);
+  for (auto& p : hits_) {
+    p.resize(ALCT_PATTERN_WIDTH);
+  }
+}
 
 /// Default
 CSCALCTDigi::CSCALCTDigi() {
@@ -50,6 +57,10 @@ void CSCALCTDigi::clear() {
   trknmb_ = 0;
   fullbx_ = 0;
   hmt_ = 0;
+  hits_.resize(NUM_LAYERS);
+  for (auto& p : hits_) {
+    p.resize(ALCT_PATTERN_WIDTH);
+  }
 }
 
 uint16_t CSCALCTDigi::getHMT() const { return (isRun3() ? hmt_ : std::numeric_limits<uint16_t>::max()); }

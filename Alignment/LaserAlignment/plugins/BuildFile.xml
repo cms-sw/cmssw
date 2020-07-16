@@ -21,7 +21,6 @@
   <use name="Alignment/LaserAlignment"/>
   <use name="Alignment/TrackerAlignment"/>
   <use name="CommonTools/UtilAlgos"/>
-  <use name="boost"/>
   <use name="CLHEP"/>
   <use name="rootcore"/>
   <flags EDM_PLUGIN="1"/>

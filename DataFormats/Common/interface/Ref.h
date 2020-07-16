@@ -349,7 +349,7 @@ namespace edm {
     //  the Event.
 
     Ref(ProductID const& iProductID, T const* item, key_type itemKey, product_type const* /* iProduct */)
-        : product_(iProductID, item, 0, false, itemKey) {}
+        : product_(iProductID, item, nullptr, false, itemKey) {}
 
     Ref(ProductID const& iProductID, T const* item, key_type itemKey)
         : product_(iProductID, item, nullptr, false, itemKey) {}
@@ -400,7 +400,7 @@ namespace edm {
     key_type index() const { return product_.index(); }
 
     /// Returns true if container referenced by the Ref has been cached
-    bool hasProductCache() const { return product_.productPtr() != 0; }
+    bool hasProductCache() const { return product_.productPtr() != nullptr; }
 
     /// Checks if collection is in memory or available
     /// in the Event. No type checking is done.

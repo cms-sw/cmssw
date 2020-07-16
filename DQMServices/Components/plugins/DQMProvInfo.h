@@ -19,7 +19,7 @@
 #include <string>
 #include <vector>
 
-class DQMProvInfo : public DQMOneEDAnalyzer<edm::one::WatchLuminosityBlocks> {
+class DQMProvInfo : public DQMOneEDAnalyzer<> {
 public:
   // Constructor
   DQMProvInfo(const edm::ParameterSet& ps);
@@ -29,9 +29,7 @@ public:
 protected:
   void dqmBeginRun(const edm::Run& r, const edm::EventSetup& c) override;
   void bookHistograms(DQMStore::IBooker&, edm::Run const&, edm::EventSetup const&) override;
-  void beginLuminosityBlock(const edm::LuminosityBlock& l, const edm::EventSetup& c) override;
   void analyze(const edm::Event& e, const edm::EventSetup& c) override;
-  void endLuminosityBlock(const edm::LuminosityBlock& l, const edm::EventSetup& c) override;
 
 private:
   void bookHistogramsLhcInfo(DQMStore::IBooker&);
@@ -42,14 +40,13 @@ private:
   void analyzeEventInfo(const edm::Event& e);
   void analyzeProvInfo(const edm::Event& e);
 
-  void fillDcsBitsFromDCSRecord(const DCSRecord&);
-  void fillDcsBitsFromDcsStatusCollection(const edm::Handle<DcsStatusCollection>&);
-  bool isPhysicsDeclared();
+  void fillDcsBitsFromDCSRecord(const DCSRecord&, bool* dcsBits);
+  void fillDcsBitsFromDcsStatusCollection(const edm::Handle<DcsStatusCollection>&, bool* dcsBits);
+  bool isPhysicsDeclared(bool* dcsBits);
 
-  void endLuminosityBlockLhcInfo(const int currentLSNumber);
-  void endLuminosityBlockEventInfo(const int currentLSNumber);
-  void blankPreviousLumiSections(const int currentLSNumber);
   void blankAllLumiSections();
+  void fillSummaryMapBin(int ls, int bin, double value);
+  void setupLumiSection(int ls);
 
   // To max amount of lumisections we foresee for the plots
   // DQM GUI renderplugins provide scaling to actual amount
@@ -118,22 +115,13 @@ private:
   MonitorElement* hBeamMode_;
   int beamMode_;
   MonitorElement* hIntensity1_;
-  int intensity1_;
   MonitorElement* hIntensity2_;
-  int intensity2_;
   MonitorElement* hLhcFill_;
-  int lhcFill_;
   MonitorElement* hMomentum_;
-  int momentum_;
 
   // MonitorElements for EventInfo and corresponding variables
   MonitorElement* reportSummary_;
   MonitorElement* reportSummaryMap_;
-  int previousLSNumber_;
-  bool physicsDeclared_;
-  bool foundFirstPhysicsDeclared_;
-  bool dcsBits_[MAX_DCS_VBINS + 1];
-  bool foundFirstDcsBits_;
 
   // MonitorElements for ProvInfo and corresponding variables
   MonitorElement* versCMSSW_;

@@ -4,10 +4,11 @@
 <use name="DataFormats/TrackingRecHit"/>
 <use name="DataFormats/TrajectorySeed"/>
 <use name="DataFormats/TrajectoryState"/>
-<use name="SimDataFormats/GeneratorProducts"/>
 <use name="SimDataFormats/TrackingAnalysis"/>
-<use name="TrackingTools/PatternTools"/>
 <use name="FWCore/MessageLogger"/>
+<use name="DataFormats/BeamSpot"/>
+<use name="DataFormats/GeometryVector"/>
+<use name="DataFormats/Math"/>
 <export>
   <lib name="1"/>
 </export>

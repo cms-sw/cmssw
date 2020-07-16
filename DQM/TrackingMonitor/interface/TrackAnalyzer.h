@@ -27,6 +27,7 @@ Monitoring source for general quantities related to tracks.
 
 #include "DataFormats/SiPixelCluster/interface/SiPixelCluster.h"
 #include "DataFormats/Scalers/interface/LumiScalers.h"
+#include "DataFormats/OnlineMetaData/interface/OnlineLuminosityRecord.h"
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 #include "Geometry/Records/interface/TrackerTopologyRcd.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
@@ -84,6 +85,7 @@ namespace tadqm {
     edm::EDGetTokenT<reco::VertexCollection> pvToken_;
     edm::EDGetTokenT<edmNew::DetSetVector<SiPixelCluster> > pixelClustersToken_;
     edm::EDGetTokenT<LumiScalersCollection> lumiscalersToken_;
+    edm::EDGetTokenT<OnlineLuminosityRecord> metaDataToken_;
     edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> trackerGeometryToken_;
     edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> trackerTopologyToken_;
     edm::ESGetToken<TransientTrackBuilder, TransientTrackRecord> transientTrackBuilderToken_;
@@ -137,6 +139,7 @@ namespace tadqm {
     bool doEffFromHitPatternVsBX_;
     bool doEffFromHitPatternVsLUMI_;
     int pvNDOF_;
+    const bool forceSCAL_;
     bool useBPixLayer1_;
     int minNumberOfPixelsPerCluster_;
     float minPixelClusterCharge_;

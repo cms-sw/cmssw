@@ -33,7 +33,7 @@ public:
     }
   }
   //accessor
-  void dispatch(edm::WaitingTaskWithArenaHolder holder) override final {
+  void dispatch(edm::WaitingTaskWithArenaHolder holder) final {
     //do all read/writes inside lock to ensure cache synchronization
     {
       std::lock_guard<std::mutex> guard(mutex_);

@@ -7,9 +7,7 @@
 <use name="Geometry/CSCGeometry"/>
 <use name="Geometry/CSCGeometryBuilder"/>
 <use name="Geometry/CommonTopologies"/>
-<use name="DetectorDescription/Core"/>
 <use name="Geometry/Records"/>
-<use name="DataFormats/DetId"/>
 <use name="FWCore/Framework"/>
 <use name="Utilities/Xerces"/>
 <use name="CondCore/DBOutputService"/>

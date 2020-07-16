@@ -1,15 +1,10 @@
 <use name="FWCore/Framework"/>
-<use name="FWCore/PluginManager"/>
 <use name="FWCore/ParameterSet"/>
-<use name="DataFormats/DetId"/>
-<use name="Geometry/TrackerGeometryBuilder"/>
-<use name="Geometry/Records"/>
 <use name="DataFormats/SiPixelDetId"/>
-<use name="DataFormats/FEDRawData"/>
-<use name="CondFormats/DataRecord"/>
-<use name="DQM/SiPixelPhase1Common"/>
+<use name="DataFormats/Common"/>
+<use name="DataFormats/Provenance"/>
+<use name="FWCore/MessageLogger"/>
 <use name="clhep"/>
-<use name="boost"/>
 <use name="root"/>
 <export>
   <lib name="1"/>

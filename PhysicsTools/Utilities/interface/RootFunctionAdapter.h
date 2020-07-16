@@ -10,7 +10,7 @@ namespace root {
 
     template <typename F, unsigned int args>
     struct RootFunctionAdapter {
-      RootFunctionAdapter() : f_(0) {}
+      RootFunctionAdapter() : f_(nullptr) {}
       RootFunctionAdapter(F& f) : f_(&f) {}
       void addParameter(const std::shared_ptr<double>& par) { pars_.push_back(par); }
       void setParameters(const double* pars) {

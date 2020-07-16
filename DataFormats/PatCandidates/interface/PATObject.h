@@ -38,11 +38,8 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 namespace pat {
-
-  namespace pat_statics {
-    static const reco::CandidatePtrVector EMPTY_CPV;
-    static const std::string EMPTY_STR("");
-  }  // namespace pat_statics
+  const reco::CandidatePtrVector &get_empty_cpv();
+  const std::string &get_empty_str();
 
   template <class ObjectType>
   class PATObject : public ObjectType {
@@ -333,7 +330,7 @@ namespace pat {
     /// Get human-readable type of user data object, for debugging
     const std::string &userDataObjectType(const std::string &key) const {
       const pat::UserData *data = userDataObject_(key);
-      return (data != nullptr ? data->typeName() : pat_statics::EMPTY_STR);
+      return (data != nullptr ? data->typeName() : get_empty_str());
     };
     /// Get list of user data object names
     const std::vector<std::string> &userDataNames() const { return userDataLabels_; }
@@ -829,7 +826,7 @@ namespace pat {
   const reco::CandidatePtrVector &PATObject<ObjectType>::overlaps(const std::string &label) const {
     auto match = std::lower_bound(overlapLabels_.cbegin(), overlapLabels_.cend(), label);
     if (match == overlapLabels_.cend() || *match != label)
-      return pat_statics::EMPTY_CPV;
+      return get_empty_cpv();
     return overlapItems_[std::distance(overlapLabels_.begin(), match)];
   }
 

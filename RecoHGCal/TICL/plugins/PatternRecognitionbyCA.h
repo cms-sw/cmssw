@@ -7,16 +7,16 @@
 #include "RecoHGCal/TICL/plugins/PatternRecognitionAlgoBase.h"
 #include "RecoLocalCalo/HGCalRecAlgos/interface/RecHitTools.h"
 #include "PhysicsTools/TensorFlow/interface/TensorFlow.h"
-
-class HGCGraph;
+#include "HGCGraph.h"
 
 namespace ticl {
-  class PatternRecognitionbyCA final : public PatternRecognitionAlgoBase {
+  template <typename TILES>
+  class PatternRecognitionbyCA final : public PatternRecognitionAlgoBaseT<TILES> {
   public:
     PatternRecognitionbyCA(const edm::ParameterSet& conf, const CacheBase* cache);
     ~PatternRecognitionbyCA() override;
 
-    void makeTracksters(const PatternRecognitionAlgoBase::Inputs& input,
+    void makeTracksters(const typename PatternRecognitionAlgoBaseT<TILES>::Inputs& input,
                         std::vector<Trackster>& result,
                         std::unordered_map<int, std::vector<int>>& seedToTracksterAssociation) override;
 
@@ -30,7 +30,7 @@ namespace ticl {
                             const std::vector<reco::CaloCluster>&,
                             std::vector<Trackster>&,
                             std::unordered_map<int, std::vector<int>>& seedToTracksterAssociation) const;
-    const std::unique_ptr<HGCGraph> theGraph_;
+    const std::unique_ptr<HGCGraphT<TILES>> theGraph_;
     const bool oneTracksterPerTrackSeed_;
     const bool promoteEmptyRegionToTrackster_;
     const bool out_in_dfs_;
@@ -53,5 +53,6 @@ namespace ticl {
 
     static const int eidNFeatures_ = 3;
   };
+
 }  // namespace ticl
 #endif

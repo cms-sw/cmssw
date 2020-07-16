@@ -157,7 +157,6 @@ process.preScaler.prescaleFactor = 1
 
 process.source.streamLabel = "streamDQMCalibration"
 
-process.DQMStore.referenceFileName = "/dqmdata/dqm/reference/ecalcalib_reference.root"
 
 process.ecalPedestalMonitorTask.verbosity = 0
 process.ecalPedestalMonitorTask.commonParameters.onlineMode = True

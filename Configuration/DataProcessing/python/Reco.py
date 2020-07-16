@@ -68,11 +68,6 @@ class Reco(Scenario):
                 if a['dataTier'] == 'MINIAOD':
                     miniAODStep=',PAT' 
 
-        """
-        Unscheduled for all
-        """
-        options.runUnscheduled=True
-                    
         self._checkRepackedFlag(options, **args)
 
         if 'customs' in args:

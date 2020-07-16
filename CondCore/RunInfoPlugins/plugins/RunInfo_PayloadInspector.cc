@@ -45,12 +45,14 @@ namespace {
       Base::setSingleIov(true);
     }
 
-    bool fill(const std::vector<std::tuple<cond::Time_t, cond::Hash> >& iovs) override {
-      auto iov = iovs.front();
-      std::shared_ptr<RunInfo> payload = Base::fetchPayload(std::get<1>(iov));
+    bool fill() override {
+      auto tag = PlotBase::getTag<0>();
+      for (auto const& iov : tag.iovs) {
+        std::shared_ptr<RunInfo> payload = Base::fetchPayload(std::get<1>(iov));
 
-      if (payload.get()) {
-        payload->printAllValues();
+        if (payload.get()) {
+          payload->printAllValues();
+        }
       }
       return true;
     }

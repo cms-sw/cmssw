@@ -6,6 +6,7 @@ from L1Trigger.L1THGCal.egammaIdentification import egamma_identification_drnn_c
 
 from Configuration.Eras.Modifier_phase2_hgcalV9_cff import phase2_hgcalV9
 from Configuration.Eras.Modifier_phase2_hgcalV10_cff import phase2_hgcalV10
+from Configuration.Eras.Modifier_phase2_hgcalV11_cff import phase2_hgcalV11
 from Configuration.Eras.Modifier_phase2_hfnose_cff import phase2_hfnose
 
 
@@ -16,15 +17,6 @@ binSums = cms.vuint32(13,               # 0
                       5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5,  # 13 - 27
                       3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3  # 28 - 41
                       )
-
-binSumsNose = cms.vuint32(13,               # 0
-                          13,               # 1
-                          11, 11, 11,       # 2 - 4
-                          9, 9, 9,          # 5 - 7
-                          7, 7, 7, 7, 7, 7,  # 8 - 13
-                          5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5,  # 14 - 28
-                          3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3  # 29 - 42
-)
 
 EE_DR_GROUP = 7
 FH_DR_GROUP = 6
@@ -98,14 +90,6 @@ histoMax_C3d_seeding_params = cms.PSet(type_histoalgo=cms.string('HistoMaxC3d'),
                                seed_smoothing_hcal=seed_smoothing_hcal,
                               )
 
-## Note: this customization change both HGC and HFnose, to be revised
-phase2_hfnose.toModify(histoMax_C3d_seeding_params,
-                       nBins_X1_histo_multicluster=cms.uint32(43),
-                       binSumsHisto=binSumsNose,
-                       kROverZMin=cms.double(0.025),
-                       kROverZMax=cms.double(0.58),
-                       )
-
 histoMax_C3d_clustering_params = cms.PSet(dR_multicluster=cms.double(0.03),
                                dR_multicluster_byLayer_coefficientA=cms.vdouble(),
                                dR_multicluster_byLayer_coefficientB=cms.vdouble(),
@@ -161,15 +145,22 @@ histoMax_C3d_params = cms.PSet(
 
 
 energy_interpretations_em = cms.PSet(type = cms.string('HGCalTriggerClusterInterpretationEM'),
-                                     layer_containment_corrs = cms.vdouble(0., 0., 1.6144949, 0.92495334, 1.0820811, 0.9753549, 0.9742881, 1.0634482, 1.0599478, 0.9376349, 0.92587173, 0.8003076, 1.0417082, 1.7032381, 2.),
-                                     scale_correction_coeff = cms.vdouble(16.68182373, -8.487143517),
+                                     layer_containment_corrs = cms.vdouble(0., 0.0, 1.38, 0.97, 1.11, 0.92, 1.06, 1.01, 1.06, 0.89, 1.0, 1.06, 0.89, 1.62, 1.83),
+                                     scale_correction_coeff = cms.vdouble(-27.15, 53.94),
                                      dr_bylayer = cms.vdouble([0.015]*15)
                                      )
 
-phase2_hgcalV10.toModify(energy_interpretations_em,
-                         layer_containment_corrs=cms.vdouble(0., 0., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1.),
-                         scale_correction_coeff=cms.vdouble(0., 0.),
-                         )
+phase2_hgcalV10.toModify(
+        energy_interpretations_em,
+        layer_containment_corrs=cms.vdouble(0., 0.0, 1.73, 0.97, 1.08, 1.1, 1.01, 0.96, 1.18, 0.98, 1.05, 0.99, 0.89, 1.75, 2.0),
+        scale_correction_coeff=cms.vdouble(-27.53, 53.92),
+        )
+
+phase2_hgcalV11.toModify(
+        energy_interpretations_em,
+        layer_containment_corrs=cms.vdouble(0., 0.0, 1.28, 1.09, 1.0, 1.07, 1.09, 1.04, 1.0, 1.09, 1.07, 1.03, 0.93, 1.4, 1.89),
+        scale_correction_coeff=cms.vdouble(-24.96, 52.99),
+        )
 
 
 energy_interpretations = cms.VPSet(energy_interpretations_em)
@@ -184,3 +175,19 @@ hgcalBackEndLayer2Producer = cms.EDProducer(
     InputCluster = cms.InputTag('hgcalBackEndLayer1Producer:HGCalBackendLayer1Processor2DClustering'),
     ProcessorParameters = be_proc.clone()
     )
+
+
+hgcalBackEndLayer2ProducerHFNose = hgcalBackEndLayer2Producer.clone(
+    InputCluster = cms.InputTag('hgcalBackEndLayer1ProducerHFNose:HGCalBackendLayer1Processor2DClustering'),
+    ProcessorParameters = dict(
+        C3d_parameters = dict(
+            histoMax_C3d_seeding_parameters = dict(
+                ## note in #Phi same bin size for HGCAL and HFNose
+                nBins_X1_histo_multicluster = 4, # R bin size: 5 FullModules * 8 TP
+                binSumsHisto = cms.vuint32(13,11,9,9),
+                kROverZMin = 0.025,
+                kROverZMax = 0.1
+            )
+        )
+    )
+)

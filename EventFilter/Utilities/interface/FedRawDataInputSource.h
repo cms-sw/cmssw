@@ -1,15 +1,15 @@
 #ifndef EventFilter_Utilities_FedRawDataInputSource_h
 #define EventFilter_Utilities_FedRawDataInputSource_h
 
-#include <memory>
-#include <cstdio>
-#include <mutex>
 #include <condition_variable>
+#include <cstdio>
+#include <filesystem>
+#include <memory>
+#include <mutex>
 #include <thread>
+
 #include "tbb/concurrent_queue.h"
 #include "tbb/concurrent_vector.h"
-
-#include "boost/filesystem.hpp"
 
 #include "DataFormats/Provenance/interface/ProcessHistoryID.h"
 #include "DataFormats/Provenance/interface/Timestamp.h"

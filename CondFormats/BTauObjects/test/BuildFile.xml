@@ -1,4 +1,3 @@
-<use name="CondFormats/PhysicsToolsObjects"/>
 <bin file="testSerializationBTauObjects.cpp">
   <use name="CondFormats/BTauObjects"/>
 </bin>

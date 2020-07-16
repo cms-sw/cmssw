@@ -5,6 +5,5 @@ from RecoLocalTracker.SiStripClusterizer.SiStripClusterChargeCut_cfi import *
 
 mkFitInputConverter = _mkFitInputConverterDefault.clone(
     minGoodStripCharge = cms.PSet(
-        refToPSet_ = cms.string('SiStripClusterChargeCutLoose')
-    )
+        refToPSet_ = cms.string('SiStripClusterChargeCutLoose'))
 )

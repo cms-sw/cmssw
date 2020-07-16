@@ -1,5 +1,4 @@
 <use name="CalibCalorimetry/HcalAlgos"/>
-<use name="CondFormats/HcalObjects"/>
 <use name="FWCore/Framework"/>
 <use name="FWCore/ParameterSet"/>
 <library file="HcalPulseContainmentTest.cc" name="HcalPulseContainmentTest">

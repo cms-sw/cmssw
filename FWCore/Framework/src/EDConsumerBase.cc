@@ -216,6 +216,8 @@ void EDConsumerBase::updateLookup(eventsetup::ESRecordsToProxyIndices const& iPI
       for (auto& itemIndex : items) {
         if (itemIndex.value() == negIndex) {
           itemIndex = indexInRecord;
+          esRecordsToGetFromTransition_[&items - &esItemsToGetFromTransition_.front()][&itemIndex - &items.front()] =
+              iPI.recordIndexFor(it->m_record);
           negIndex = 1;
           break;
         }
@@ -249,8 +251,12 @@ ESTokenIndex EDConsumerBase::recordESConsumes(Transition iTrans,
   m_esTokenInfo.emplace_back(
       ESTokenLookupInfo{iRecord, eventsetup::DataKey{iDataType, iTag.data().c_str()}, startOfComponentName},
       ESProxyIndex{-1});
+  if (iTrans >= edm::Transition::NumberOfEventSetupTransitions) {
+    throwESConsumesInProcessBlock();
+  }
   auto indexForToken = esItemsToGetFromTransition_[static_cast<unsigned int>(iTrans)].size();
-  esItemsToGetFromTransition_[static_cast<unsigned int>(iTrans)].push_back(ESProxyIndex{-1 * (index + 1)});
+  esItemsToGetFromTransition_[static_cast<unsigned int>(iTrans)].emplace_back(-1 * (index + 1));
+  esRecordsToGetFromTransition_[static_cast<unsigned int>(iTrans)].emplace_back();
   return ESTokenIndex{static_cast<ESTokenIndex::Value_t>(indexForToken)};
 }
 
@@ -321,7 +327,7 @@ void EDConsumerBase::itemsMayGet(BranchType iBranch, std::vector<ProductResolver
          ++it, ++itAlwaysGet) {
       if (iBranch == it->m_branchType) {
         if (it->m_index.productResolverIndex() != ProductResolverIndexInvalid) {
-          if (not*itAlwaysGet) {
+          if (not *itAlwaysGet) {
             ++count;
           }
         }
@@ -335,7 +341,7 @@ void EDConsumerBase::itemsMayGet(BranchType iBranch, std::vector<ProductResolver
          ++it, ++itAlwaysGet) {
       if (iBranch == it->m_branchType) {
         if (it->m_index.productResolverIndex() != ProductResolverIndexInvalid) {
-          if (not*itAlwaysGet) {
+          if (not *itAlwaysGet) {
             oIndices.push_back(it->m_index);
           }
         }
@@ -407,6 +413,12 @@ void EDConsumerBase::throwConsumesCallAfterFrozen(TypeToGet const& typeToGet, In
                                      << "This must be done in the contructor\n"
                                      << "The product type was: " << typeToGet.type() << "\n"
                                      << "and " << inputTag << "\n";
+}
+
+void EDConsumerBase::throwESConsumesInProcessBlock() const {
+  throw cms::Exception("LogicError")
+      << "A module declared it consumes an EventSetup product during a ProcessBlock transition.\n"
+      << "EventSetup products can only be consumed in Event, Lumi, or Run transitions.\n";
 }
 
 namespace {

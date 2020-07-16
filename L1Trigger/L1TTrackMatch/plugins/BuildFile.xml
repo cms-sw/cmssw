@@ -1,0 +1,18 @@
+<library   file="*.cc" name="L1TrackTriggerPlugins">
+<use   name="Geometry/TrackerNumberingBuilder"/>
+<use   name="Geometry/TrackerGeometryBuilder"/>
+<use   name="Geometry/Records"/>
+<use   name="Geometry/CommonDetUnit"/>
+<use   name="MagneticField/Records"/>
+<use   name="L1Trigger/L1TTrackMatch"/>
+<use   name="SimGeneral/HepPDTRecord"/>
+<use   name="CommonTools/BaseParticlePropagator"/>
+<use   name="SimDataFormats/GeneratorProducts"/>
+<use   name="PhysicsTools/UtilAlgos"/>
+<use   name="CommonTools/UtilAlgos"/>
+<use   name="DataFormats/L1TrackTrigger"/>
+<use   name="L1Trigger/TrackTrigger"/>
+<use   name="hepmc"/>
+<use   name="root"/>
+<flags   EDM_PLUGIN="1"/>
+</library>

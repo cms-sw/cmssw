@@ -35,13 +35,11 @@ namespace edm {
       : frozen_(false),
         productProduced_(),
         anyProductProduced_(false),
-        eventProductLookup_(new ProductResolverIndexHelper),
-        lumiProductLookup_(new ProductResolverIndexHelper),
-        runProductLookup_(new ProductResolverIndexHelper),
-        eventNextIndexValue_(0),
-        lumiNextIndexValue_(0),
-        runNextIndexValue_(0),
-
+        productLookups_{{std::make_unique<ProductResolverIndexHelper>(),
+                         std::make_unique<ProductResolverIndexHelper>(),
+                         std::make_unique<ProductResolverIndexHelper>(),
+                         std::make_unique<ProductResolverIndexHelper>()}},
+        nextIndexValues_(),
         branchIDToIndex_() {
     for (bool& isProduced : productProduced_)
       isProduced = false;
@@ -54,13 +52,10 @@ namespace edm {
     anyProductProduced_ = false;
 
     // propagate_const<T> has no reset() function
-    eventProductLookup_ = std::make_unique<ProductResolverIndexHelper>();
-    lumiProductLookup_ = std::make_unique<ProductResolverIndexHelper>();
-    runProductLookup_ = std::make_unique<ProductResolverIndexHelper>();
-
-    eventNextIndexValue_ = 0;
-    lumiNextIndexValue_ = 0;
-    runNextIndexValue_ = 0;
+    for (auto& iterProductLookup : productLookups_) {
+      iterProductLookup = std::make_unique<ProductResolverIndexHelper>();
+    }
+    nextIndexValues_.fill(0);
 
     branchIDToIndex_.clear();
   }
@@ -147,19 +142,11 @@ namespace edm {
   }
 
   std::shared_ptr<ProductResolverIndexHelper const> ProductRegistry::productLookup(BranchType branchType) const {
-    if (branchType == InEvent)
-      return transient_.eventProductLookup();
-    if (branchType == InLumi)
-      return transient_.lumiProductLookup();
-    return transient_.runProductLookup();
+    return get_underlying_safe(transient_.productLookups_[branchType]);
   }
 
   std::shared_ptr<ProductResolverIndexHelper> ProductRegistry::productLookup(BranchType branchType) {
-    if (branchType == InEvent)
-      return transient_.eventProductLookup();
-    if (branchType == InLumi)
-      return transient_.lumiProductLookup();
-    return transient_.runProductLookup();
+    return get_underlying_safe(transient_.productLookups_[branchType]);
   }
 
   void ProductRegistry::setFrozen(bool initializeLookupInfo) {
@@ -451,13 +438,15 @@ namespace edm {
       throwMissingDictionariesException(missingDictionaries, context, producedTypes, branchNamesForMissing);
     }
 
-    productLookup(InEvent)->setFrozen();
-    productLookup(InLumi)->setFrozen();
-    productLookup(InRun)->setFrozen();
+    for (auto& iterProductLookup : transient_.productLookups_) {
+      iterProductLookup->setFrozen();
+    }
 
-    transient_.eventNextIndexValue_ = productLookup(InEvent)->nextIndexValue();
-    transient_.lumiNextIndexValue_ = productLookup(InLumi)->nextIndexValue();
-    transient_.runNextIndexValue_ = productLookup(InRun)->nextIndexValue();
+    unsigned int indexIntoNextIndexValue = 0;
+    for (auto const& iterProductLookup : transient_.productLookups_) {
+      transient_.nextIndexValues_[indexIntoNextIndexValue] = iterProductLookup->nextIndexValue();
+      ++indexIntoNextIndexValue;
+    }
 
     for (auto const& product : productList_) {
       auto const& desc = product.second;
@@ -576,18 +565,10 @@ namespace edm {
   }
 
   ProductResolverIndex const& ProductRegistry::getNextIndexValue(BranchType branchType) const {
-    if (branchType == InEvent)
-      return transient_.eventNextIndexValue_;
-    if (branchType == InLumi)
-      return transient_.lumiNextIndexValue_;
-    return transient_.runNextIndexValue_;
+    return transient_.nextIndexValues_[branchType];
   }
 
   ProductResolverIndex& ProductRegistry::nextIndexValue(BranchType branchType) {
-    if (branchType == InEvent)
-      return transient_.eventNextIndexValue_;
-    if (branchType == InLumi)
-      return transient_.lumiNextIndexValue_;
-    return transient_.runNextIndexValue_;
+    return transient_.nextIndexValues_[branchType];
   }
 }  // namespace edm

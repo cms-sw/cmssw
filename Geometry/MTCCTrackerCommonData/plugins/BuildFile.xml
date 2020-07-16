@@ -1,7 +1,0 @@
-<library file="*.cc" name="GeometryMTCCTrackerCommonDataPlugin">
-  <use name="clhep"/>
-  <use name="DetectorDescription/Core"/>
-  <use name="DetectorDescription/Parser"/>
-  <use name="FWCore/PluginManager"/>
-  <flags EDM_PLUGIN="1"/>
-</library>

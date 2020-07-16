@@ -89,12 +89,13 @@ void PFCandidateAnalyzerDQM::bookHistograms(DQMStore::IBooker& booker, edm::Run 
   me["AllCandidatePtMid"] = booker.book1D("AllCandidatePtMid", "AllCandidatePtMid", 100, 0., 200.);
   me["AllCandidatePtHigh"] = booker.book1D("AllCandidatePtHigh", "AllCandidatePtHigh", 100, 0., 1000.);
 
+  std::string etaHistName;
   for (auto& pair : pdgMap) {
     booker.setCurrentFolder("ParticleFlow/PackedCandidates/" + pair.second);
 
     //TH1F only takes char*, so have to do conversions for histogram name
-    const char* etaHistName = (pair.second + "Eta").c_str();
-    TH1F* etaHist = new TH1F(etaHistName, etaHistName, n, etabinArray);
+    etaHistName = pair.second + "Eta";
+    TH1F* etaHist = new TH1F(etaHistName.c_str(), etaHistName.c_str(), n, etabinArray);
     me[pair.second + "Eta"] = booker.book1D(pair.second + "Eta", etaHist);
 
     me[pair.second + "Log10Pt"] = booker.book1D(pair.second + "Log10Pt", pair.second + "Log10Pt", 120, -2, 4);

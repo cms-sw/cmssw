@@ -9,11 +9,16 @@
 <use name="DataFormats/EcalDetId"/>
 <use name="DataFormats/HcalDetId"/>
 <use name="DataFormats/DetId"/>
-<use name="DataFormats/HcalDigi"/>
 <use name="DataFormats/HcalRecHit"/>
 <use name="Geometry/HcalTowerAlgo"/>
 <use name="Geometry/Records"/>
 <use name="CondTools/Hcal"/>
+<use name="Calibration/Tools"/>
+<use name="DataFormats/EcalRecHit"/>
+<use name="DataFormats/GeometryVector"/>
+<use name="Geometry/CaloGeometry"/>
+<use name="Geometry/CaloTopology"/>
+<use name="Utilities/Xerces"/>
 <export>
   <lib name="1"/>
 </export>

@@ -32,5 +32,7 @@
 </library>
 
 <library file="CalibrationTrackSelectorFromDetIdList.cc" name="CalibrationTrackSelectorFromDetIdList">
+  <use name="MagneticField/Records"/>
+  <use name="TrackingTools/TrajectoryState"/>
   <flags EDM_PLUGIN="1"/>
 </library>

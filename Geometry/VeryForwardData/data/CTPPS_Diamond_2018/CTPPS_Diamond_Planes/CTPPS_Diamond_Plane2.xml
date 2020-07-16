@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../DetectorDescription/Schema/DDLSchema.xsd">
 
-  <ConstantsSection label="CTPPS_Diamond_Plane2.xml">
+  <ConstantsSection label="CTPPS_Diamond_Plane2.xml" eval="true">
     <Constant name="Str1_dx" value="-[CTPPS_Diamond_Parameters:Diamond_dx]*2+[CTPPS_Diamond_Parameters:UnMet_Edge]+[CTPPS_Diamond_Parameters:Pat3_Str1_dx]/2"/>
     <Constant name="Str2_dx" value="-[CTPPS_Diamond_Parameters:Diamond_dx]*2+[CTPPS_Diamond_Parameters:UnMet_Edge]+[CTPPS_Diamond_Parameters:Pat3_Str1_dx]+[CTPPS_Diamond_Parameters:Pat3_Str2_dx]/2+[CTPPS_Diamond_Parameters:UnMet_gap]"/>
     <Constant name="Str3_dx" value="-[CTPPS_Diamond_Parameters:Diamond_dx]*2+[CTPPS_Diamond_Parameters:UnMet_Edge]+[CTPPS_Diamond_Parameters:Pat3_Str1_dx]+[CTPPS_Diamond_Parameters:Pat3_Str2_dx]+[CTPPS_Diamond_Parameters:Pat3_Str3_dx]/2+[CTPPS_Diamond_Parameters:UnMet_gap]*2"/>

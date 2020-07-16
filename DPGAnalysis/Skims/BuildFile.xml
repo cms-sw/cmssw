@@ -9,7 +9,6 @@
 <use name="DataFormats/CSCRecHit"/>
 <use name="DataFormats/Common"/>
 <use name="DataFormats/MuonDetId"/>
-<use name="CondFormats/CSCObjects"/>
 <use name="DataFormats/DTDigi"/>
 <use name="CondFormats/DTObjects"/>
 <use name="DataFormats/RPCRecHit"/>
@@ -17,7 +16,6 @@
 <use name="DataFormats/EcalRecHit"/>
 <use name="DataFormats/L1GlobalTrigger"/>
 <use name="DataFormats/Scalers"/>
-<use name="Geometry/EcalMapping"/>
 <use name="DataFormats/TrackReco"/>
 <use name="DataFormats/MuonReco"/>
 <use name="DataFormats/VertexReco"/>
@@ -31,7 +29,6 @@
 <use name="root"/>
 <use name="HLTrigger/HLTcore"/>
 <use name="DataFormats/HcalRecHit"/>
-<use name="RecoEcal/EgammaCoreTools"/>
 <use name="DataFormats/EgammaReco"/>
 <use name="PhysicsTools/SelectorUtils"/>
 <use name="DataFormats/Provenance"/>

@@ -32,3 +32,10 @@
   <use name="Geometry/GEMGeometryBuilder"/>
   <flags EDM_PLUGIN="1"/>
 </library>
+
+<library name="ME0GeometryValidationPlugins" file="ME0GeometryValidate.cc">
+  <use name="Fireworks/Core"/>
+  <use name="Geometry/GEMGeometry"/>
+  <use name="rootgeom"/>
+  <flags EDM_PLUGIN="1"/>
+</library>

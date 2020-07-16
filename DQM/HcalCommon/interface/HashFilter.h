@@ -11,7 +11,7 @@
 
 #include "DQM/HcalCommon/interface/HashMapper.h"
 
-#include <boost/unordered_set.hpp>
+#include <unordered_set>
 #include <vector>
 
 namespace hcaldqm {
@@ -42,7 +42,7 @@ namespace hcaldqm {
 
     protected:
       FilterType _ftype;
-      typedef boost::unordered_set<uint32_t> FilterMap;
+      typedef std::unordered_set<uint32_t> FilterMap;
       FilterMap _ids;
 
       virtual bool preserve(uint32_t) const;

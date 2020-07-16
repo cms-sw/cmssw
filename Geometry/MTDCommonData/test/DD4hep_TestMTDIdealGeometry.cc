@@ -31,6 +31,7 @@
 #include "DataFormats/ForwardDetId/interface/ETLDetId.h"
 
 #include "DataFormats/Math/interface/GeantUnits.h"
+#include "DataFormats/Math/interface/Rounding.h"
 
 //#define EDM_ML_DEBUG
 
@@ -62,6 +63,7 @@ private:
 
 using DD3Vector = ROOT::Math::DisplacementVector3D<ROOT::Math::Cartesian3D<double>>;
 using angle_units::operators::convertRadToDeg;
+using cms_rounding::roundIfNear0;
 using geant_units::operators::convertCmToMm;
 
 DD4hep_TestMTDIdealGeometry::DD4hep_TestMTDIdealGeometry(const edm::ParameterSet& iConfig)
@@ -205,6 +207,7 @@ void DD4hep_TestMTDIdealGeometry::analyze(const edm::Event& iEvent, const edm::E
         // Test of numbering scheme for sensitive detectors
         //
 
+        std::stringstream sunitt;
         std::stringstream snum;
 
         if (isBarrel) {
@@ -212,6 +215,7 @@ void DD4hep_TestMTDIdealGeometry::analyze(const edm::Event& iEvent, const edm::E
           BTLDetId theId(btlNS_.getUnitID(thisN_));
           int hIndex = theId.hashedIndex(lay);
           BTLDetId theNewId(theId.getUnhashedIndex(hIndex, lay));
+          sunitt << theId.rawId();
           snum << theId << "\n layout type = " << static_cast<int>(lay) << "\n ieta        = " << theId.ieta(lay)
                << "\n iphi        = " << theId.iphi(lay) << "\n hashedIndex = " << theId.hashedIndex(lay)
                << "\n BTLDetId hI = " << theNewId;
@@ -233,6 +237,7 @@ void DD4hep_TestMTDIdealGeometry::analyze(const edm::Event& iEvent, const edm::E
           snum << "\n";
         } else {
           ETLDetId theId(etlNS_.getUnitID(thisN_));
+          sunitt << theId.rawId();
           snum << theId;
         }
         edm::LogInfo("DD4hep_TestMTDNumbering") << snum.str();
@@ -243,26 +248,29 @@ void DD4hep_TestMTDIdealGeometry::analyze(const edm::Event& iEvent, const edm::E
 
         std::stringstream spos;
 
+        auto fround = [&](double in) {
+          std::stringstream ss;
+          ss << std::fixed << std::setw(14) << roundIfNear0(in);
+          return ss.str();
+        };
+
         if (!fv.isABox()) {
           throw cms::Exception("TestMTDIdealGeometry") << "MTD sensitive element not a DDBox";
           break;
         }
         dd::DDBox mySens(fv);
         spos << "Solid shape name: " << DDSolidShapesName::name(fv.legacyShape(dd::getCurrentShape(fv))) << "\n";
-        spos << "Box dimensions: " << std::setw(14) << std::fixed << convertCmToMm(mySens.halfX()) << " "
-             << std::setw(14) << convertCmToMm(mySens.halfY()) << " " << std::setw(14) << convertCmToMm(mySens.halfZ())
-             << "\n";
+        spos << "Box dimensions: " << fround(convertCmToMm(mySens.halfX())) << " "
+             << fround(convertCmToMm(mySens.halfY())) << " " << fround(convertCmToMm(mySens.halfZ())) << "\n";
 
         DD3Vector x, y, z;
         fv.rotation().GetComponents(x, y, z);
-        spos << "Translation vector components: " << std::setw(14) << std::fixed << convertCmToMm(fv.translation().x())
-             << " " << std::setw(14) << convertCmToMm(fv.translation().y()) << " " << std::setw(14)
-             << convertCmToMm(fv.translation().z()) << " "
+        spos << "Translation vector components: " << fround(convertCmToMm(fv.translation().x())) << " "
+             << fround(convertCmToMm(fv.translation().y())) << " " << fround(convertCmToMm(fv.translation().z())) << " "
              << "\n";
-        spos << "Rotation matrix components: " << std::setw(14) << x.X() << " " << std::setw(14) << x.Y() << " "
-             << std::setw(14) << x.Z() << " " << std::setw(14) << y.X() << " " << std::setw(14) << y.Y() << " "
-             << std::setw(14) << y.Z() << " " << std::setw(14) << z.X() << " " << std::setw(14) << z.Y() << " "
-             << std::setw(14) << z.Z() << "\n";
+        spos << "Rotation matrix components: " << fround(x.X()) << " " << fround(x.Y()) << " " << fround(x.Z()) << " "
+             << fround(y.X()) << " " << fround(y.Y()) << " " << fround(y.Z()) << " " << fround(z.X()) << " "
+             << fround(z.Y()) << " " << fround(z.Z()) << "\n";
 
         DD3Vector zeroLocal(0., 0., 0.);
         DD3Vector cn1Local(mySens.halfX(), mySens.halfY(), mySens.halfZ());
@@ -273,24 +281,26 @@ void DD4hep_TestMTDIdealGeometry::analyze(const edm::Event& iEvent, const edm::E
             std::sqrt(std::pow(zeroGlobal.X() - cn1Global.X(), 2) + std::pow(zeroGlobal.Y() - cn1Global.Y(), 2) +
                       std::pow(zeroGlobal.Z() - cn1Global.Z(), 2));
 
-        spos << "Center global   = " << std::setw(14) << convertCmToMm(zeroGlobal.X()) << std::setw(14)
-             << convertCmToMm(zeroGlobal.Y()) << std::setw(14) << convertCmToMm(zeroGlobal.Z())
-             << " r = " << std::setw(14) << convertCmToMm(zeroGlobal.Rho()) << " phi = " << std::setw(14)
-             << convertRadToDeg(zeroGlobal.Phi()) << "\n";
+        spos << "Center global   = " << fround(convertCmToMm(zeroGlobal.X())) << fround(convertCmToMm(zeroGlobal.Y()))
+             << fround(convertCmToMm(zeroGlobal.Z())) << " r = " << fround(convertCmToMm(zeroGlobal.Rho()))
+             << " phi = " << fround(convertRadToDeg(zeroGlobal.Phi())) << "\n";
 
-        spos << "Corner 1 local  = " << std::setw(14) << convertCmToMm(cn1Local.X()) << std::setw(14)
-             << convertCmToMm(cn1Local.Y()) << std::setw(14) << convertCmToMm(cn1Local.Z())
-             << " DeltaR = " << std::setw(14) << convertCmToMm(distLocal) << "\n";
+        spos << "Corner 1 local  = " << fround(convertCmToMm(cn1Local.X())) << fround(convertCmToMm(cn1Local.Y()))
+             << fround(convertCmToMm(cn1Local.Z())) << " DeltaR = " << fround(convertCmToMm(distLocal)) << "\n";
 
-        spos << "Corner 1 global = " << std::setw(14) << convertCmToMm(cn1Global.X()) << std::setw(14)
-             << convertCmToMm(cn1Global.Y()) << std::setw(14) << convertCmToMm(cn1Global.Z())
-             << " DeltaR = " << std::setw(14) << convertCmToMm(distGlobal) << "\n";
+        spos << "Corner 1 global = " << fround(convertCmToMm(cn1Global.X())) << fround(convertCmToMm(cn1Global.Y()))
+             << fround(convertCmToMm(cn1Global.Z())) << " DeltaR = " << fround(convertCmToMm(distGlobal)) << "\n";
 
         spos << "\n";
         if (std::fabs(convertCmToMm(distGlobal - distLocal)) > 1.e-6) {
           spos << "DIFFERENCE IN DISTANCE \n";
         }
+        sunitt << fround(convertCmToMm(zeroGlobal.X())) << fround(convertCmToMm(zeroGlobal.Y()))
+               << fround(convertCmToMm(zeroGlobal.Z())) << fround(convertCmToMm(cn1Global.X()))
+               << fround(convertCmToMm(cn1Global.Y())) << fround(convertCmToMm(cn1Global.Z()));
         edm::LogInfo("DD4hep_TestMTDPosition") << spos.str();
+
+        edm::LogVerbatim("MTDUnitTest") << sunitt.str();
       }
     }
   } while (fv.next(0));

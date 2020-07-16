@@ -22,6 +22,8 @@ public:
 private:
   template <typename T>
   void myPrint(std::string const& s, std::vector<T> const& obj, int n) const;
+  template <typename T>
+  void myPrint(std::string const& s, std::vector<std::pair<T, T> > const& obj, int n) const;
   void myPrint(std::string const& s, std::vector<double> const& obj1, std::vector<double> const& obj2, int n) const;
   void myPrint(std::string const& s, HGCalParameters::wafer_map const& obj, int n) const;
   void printTrform(HGCalParameters const*) const;
@@ -46,6 +48,7 @@ void HGCalParameterTester::analyze(const edm::Event& iEvent, const edm::EventSet
 
   std::cout << phgp->name_ << "\n";
   if (mode_ == 0) {
+    // Wafers of 6-inch format
     std::cout << "DetectorType: " << phgp->detectorType_ << "\n";
     std::cout << "WaferR_: " << phgp->waferR_ << "\n";
     std::cout << "nCells_: " << phgp->nCells_ << "\n";
@@ -72,7 +75,7 @@ void HGCalParameterTester::analyze(const edm::Event& iEvent, const edm::EventSet
     myPrint("moduleDzR", phgp->moduleDzR_, 10);
     myPrint("moduleAlphaR", phgp->moduleAlphaR_, 10);
     myPrint("moduleCellR", phgp->moduleCellR_, 10);
-    myPrint("trformTranX", phgp->trformTranY_, 10);
+    myPrint("trformTranX", phgp->trformTranX_, 10);
     myPrint("trformTranY", phgp->trformTranY_, 10);
     myPrint("trformTranZ", phgp->trformTranZ_, 10);
     myPrint("trformRotXX", phgp->trformRotXX_, 10);
@@ -112,6 +115,7 @@ void HGCalParameterTester::analyze(const edm::Event& iEvent, const edm::EventSet
     printWaferType(phgp);
 
   } else if (mode_ == 1) {
+    // Wafers of 8-inch format
     std::cout << "DetectorType: " << phgp->detectorType_ << "\n";
     std::cout << "Wafer Parameters: " << phgp->waferSize_ << ":" << phgp->waferR_ << ":" << phgp->waferThick_ << ":"
               << phgp->sensorSeparation_ << ":" << phgp->mouseBite_ << "\n";
@@ -151,9 +155,9 @@ void HGCalParameterTester::analyze(const edm::Event& iEvent, const edm::EventSet
     myPrint("moduleDzR", phgp->moduleDzR_, 10);
     myPrint("moduleAlphaR", phgp->moduleAlphaR_, 10);
     myPrint("moduleCellR", phgp->moduleCellR_, 10);
-    myPrint("trformTranX", phgp->trformTranY_, 10);
-    myPrint("trformTranY", phgp->trformTranY_, 10);
-    myPrint("trformTranZ", phgp->trformTranZ_, 10);
+    myPrint("trformTranX", phgp->trformTranX_, 8);
+    myPrint("trformTranY", phgp->trformTranY_, 8);
+    myPrint("trformTranZ", phgp->trformTranZ_, 8);
     myPrint("trformRotXX", phgp->trformRotXX_, 10);
     myPrint("trformRotYX", phgp->trformRotYX_, 10);
     myPrint("trformRotZX", phgp->trformRotZX_, 10);
@@ -163,15 +167,15 @@ void HGCalParameterTester::analyze(const edm::Event& iEvent, const edm::EventSet
     myPrint("trformRotXZ", phgp->trformRotXZ_, 10);
     myPrint("trformRotYZ", phgp->trformRotYZ_, 10);
     myPrint("trformRotZZ", phgp->trformRotZZ_, 10);
-    myPrint("xLayerHex", phgp->xLayerHex_, 10);
-    myPrint("yLayerHex", phgp->yLayerHex_, 10);
-    myPrint("zLayerHex", phgp->zLayerHex_, 10);
-    myPrint("rMinLayHex", phgp->rMinLayHex_, 10);
-    myPrint("rMaxLayHex", phgp->rMaxLayHex_, 10);
+    myPrint("xLayerHex", phgp->xLayerHex_, 8);
+    myPrint("yLayerHex", phgp->yLayerHex_, 8);
+    myPrint("zLayerHex", phgp->zLayerHex_, 8);
+    myPrint("rMinLayHex", phgp->rMinLayHex_, 8);
+    myPrint("rMaxLayHex", phgp->rMaxLayHex_, 8);
     myPrint("waferPos", phgp->waferPosX_, phgp->waferPosY_, 4);
-    myPrint("cellFineIndex", phgp->cellFineIndex_, 10);
+    myPrint("cellFineIndex", phgp->cellFineIndex_, 8);
     myPrint("cellFine", phgp->cellFineX_, phgp->cellFineY_, 4);
-    myPrint("cellCoarseIndex", phgp->cellCoarseIndex_, 10);
+    myPrint("cellCoarseIndex", phgp->cellCoarseIndex_, 8);
     myPrint("cellCoarse", phgp->cellCoarseX_, phgp->cellCoarseY_, 4);
     myPrint("layer", phgp->layer_, 18);
     myPrint("layerIndex", phgp->layerIndex_, 18);
@@ -184,7 +188,17 @@ void HGCalParameterTester::analyze(const edm::Event& iEvent, const edm::EventSet
     myPrint("levelTop", phgp->levelT_, 10);
     printWaferType(phgp);
 
+    std::cout << "MaskMode: " << phgp->waferMaskMode_ << "\n";
+    if (phgp->waferMaskMode_ > 1) {
+      std::cout << "WaferInfo with " << phgp->waferInfoMap_.size();
+      unsigned int kk(0);
+      std::unordered_map<int32_t, HGCalParameters::waferInfo>::const_iterator itr = phgp->waferInfoMap_.begin();
+      for (; itr != phgp->waferInfoMap_.end(); ++itr, ++kk)
+        std::cout << "[" << kk << "] " << itr->first << " (" << (itr->second).type << ", " << (itr->second).part << ", "
+                  << (itr->second).orient << ")" << std::endl;
+    }
   } else {
+    // Tpaezoid (scintillator) type
     std::cout << "DetectorType: " << phgp->detectorType_ << "\n";
     std::cout << "nCells_: " << phgp->nCellsFine_ << ":" << phgp->nCellsCoarse_ << "\n";
     std::cout << "MinTileZize: " << phgp->minTileSize_ << "\n";
@@ -226,10 +240,10 @@ void HGCalParameterTester::analyze(const edm::Event& iEvent, const edm::EventSet
     myPrint("moduleHR", phgp->moduleHR_, 10);
     myPrint("moduleDzR", phgp->moduleDzR_, 10);
     myPrint("moduleAlphaR", phgp->moduleAlphaR_, 10);
-    myPrint("moduleCellR", phgp->moduleCellR_, 10);
-    myPrint("trformTranX", phgp->trformTranY_, 10);
-    myPrint("trformTranY", phgp->trformTranY_, 10);
-    myPrint("trformTranZ", phgp->trformTranZ_, 10);
+    myPrint("moduleCellR", phgp->moduleCellR_, 9);
+    myPrint("trformTranX", phgp->trformTranY_, 9);
+    myPrint("trformTranY", phgp->trformTranY_, 9);
+    myPrint("trformTranZ", phgp->trformTranZ_, 9);
     myPrint("trformRotXX", phgp->trformRotXX_, 10);
     myPrint("trformRotYX", phgp->trformRotYX_, 10);
     myPrint("trformRotZX", phgp->trformRotZX_, 10);
@@ -242,8 +256,8 @@ void HGCalParameterTester::analyze(const edm::Event& iEvent, const edm::EventSet
     myPrint("xLayerHex", phgp->xLayerHex_, 10);
     myPrint("yLayerHex", phgp->yLayerHex_, 10);
     myPrint("zLayerHex", phgp->zLayerHex_, 10);
-    myPrint("rMinLayHex", phgp->rMinLayHex_, 10);
-    myPrint("rMaxLayHex", phgp->rMaxLayHex_, 10);
+    myPrint("rMinLayHex", phgp->rMinLayHex_, 9);
+    myPrint("rMaxLayHex", phgp->rMaxLayHex_, 9);
     myPrint("layer", phgp->layer_, 18);
     myPrint("layerIndex", phgp->layerIndex_, 18);
     myPrint("depth", phgp->depth_, 18);
@@ -252,6 +266,19 @@ void HGCalParameterTester::analyze(const edm::Event& iEvent, const edm::EventSet
     printTrform(phgp);
     myPrint("levelTop", phgp->levelT_, 10);
     printWaferType(phgp);
+
+    std::cout << "MaskMode: " << phgp->waferMaskMode_ << "\n";
+    if (phgp->waferMaskMode_ > 1) {
+      myPrint("tileRingR", phgp->tileRingR_, 4);
+      myPrint("tileRingRange", phgp->tileRingRange_, 8);
+      std::cout << "TileInfo with " << phgp->tileInfoMap_.size();
+      unsigned int kk(0);
+      std::unordered_map<int32_t, HGCalParameters::tileInfo>::const_iterator itr = phgp->tileInfoMap_.begin();
+      for (; itr != phgp->tileInfoMap_.end(); ++itr, ++kk)
+        std::cout << "[" << kk << "] " << itr->first << " (" << (itr->second).type << ", " << (itr->second).sipm
+                  << std::hex << ", " << (itr->second).hex1 << ", " << (itr->second).hex2 << ", " << (itr->second).hex3
+                  << ", " << (itr->second).hex4 << ")" << std::dec << std::endl;
+    }
   }
 
   auto finish = std::chrono::high_resolution_clock::now();
@@ -265,6 +292,22 @@ void HGCalParameterTester::myPrint(std::string const& s, std::vector<T> const& o
   std::cout << s << " with " << obj.size() << " elements\n";
   for (auto const& it : obj) {
     std::cout << it << ", ";
+    ++k;
+    if (k == n) {
+      std::cout << "\n";
+      k = 0;
+    }
+  }
+  if (k > 0)
+    std::cout << "\n";
+}
+
+template <typename T>
+void HGCalParameterTester::myPrint(std::string const& s, std::vector<std::pair<T, T> > const& obj, int n) const {
+  int k(0);
+  std::cout << s << " with " << obj.size() << " elements\n";
+  for (auto const& it : obj) {
+    std::cout << "(" << it.first << ", " << it.second << ") ";
     ++k;
     if (k == n) {
       std::cout << "\n";
@@ -315,7 +358,7 @@ void HGCalParameterTester::printTrform(HGCalParameters const* phgp) const {
     std::array<int, 4> id = phgp->getID(i);
     std::cout << id[0] << ":" << id[1] << ":" << id[2] << ":" << id[3] << ", ";
     ++k;
-    if (k == 10) {
+    if (k == 7) {
       std::cout << "\n";
       k = 0;
     }

@@ -12,24 +12,20 @@ from Configuration.PyReleaseValidation.relval_upgrade import workflows as _upgra
 
 #just define all of them
 
-#2026 WFs to run in IB (TTbar, TTbar+Timing)
-numWFIB = [20034.0] #2026D35
-numWFIB.extend([20434.0,20434.1]) #2026D41 w/ special tracking and timing workflows
-numWFIB.extend([20661.97]) # 2026D41 premixing stage1 (NuGun+PU)
-numWFIB.extend([20634.99]) # 2026D41 premixing combined stage1+stage2 (ttbar+PU)
-numWFIB.extend([20434.21,20634.21]) #2026D41 prodlike, prodlike PU
-numWFIB.extend([20434.103]) #2026D41 aging
-numWFIB.extend([20834.0]) #2026D43
-numWFIB.extend([21234.0]) #2026D44
-numWFIB.extend([21634.0]) #2026D45
-numWFIB.extend([22034.0]) #2026D46
-numWFIB.extend([22434.0]) #2026D47
-numWFIB.extend([22834.0]) #2026D48
+#2026 WFs to run in IB (TTbar)
+numWFIB = []
 numWFIB.extend([23234.0,23234.1001,23434.1001]) #2026D49, TestOldDigi, TestOldDigi w/ PU
+numWFIB.extend([23234.1002,23434.1002]) #2026D49 TestOldDigiProdLike, TestOldDigiProdLike w/ PU
+numWFIB.extend([23234.21,23434.21]) #2026D49 prodlike, prodlike PU
+numWFIB.extend([23234.103]) #2026D49 aging
 numWFIB.extend([23634.0]) #2026D51
 numWFIB.extend([24834.0]) #2026D54
-numWFIB.extend([26234.0]) #2026D55
 numWFIB.extend([26634.0]) #2026D56
+numWFIB.extend([27034.0]) #2026D57
+numWFIB.extend([27434.0]) #2026D58
+numWFIB.extend([27834.0]) #2026D59
+numWFIB.extend([28234.0]) #2026D60
+numWFIB.extend([28634.0]) #2026D61
 
 for numWF in numWFIB:
     workflows[numWF] = _upgrade_workflows[numWF]

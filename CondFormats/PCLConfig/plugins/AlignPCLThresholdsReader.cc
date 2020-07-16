@@ -118,8 +118,10 @@ namespace edmtest {
         if ((it->second).hasExtraDOF()) {
           for (unsigned int j = 0; j < (it->second).extraDOFSize(); j++) {
             std::array<float, 4> extraDOFCuts = thresholds->getExtraDOFCutsForAlignable(it->first, j);
-            const char* theLabel = (thresholds->getExtraDOFLabelForAlignable(it->first, j)).c_str();
-            fprintf(pFile, "Extra DOF: %i with label %s \n ", j, theLabel);
+            fprintf(pFile,
+                    "Extra DOF: %i with label %s \n ",
+                    j,
+                    thresholds->getExtraDOFLabelForAlignable(it->first, j).c_str());
             fprintf(pFile, "- cut              : %8.3f        ", extraDOFCuts.at(0));
             fprintf(pFile, "| sigCut           : %8.3f        ", extraDOFCuts.at(1));
             fprintf(pFile, "| maxMoveCut       : %8.3f        ", extraDOFCuts.at(2));

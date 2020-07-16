@@ -116,6 +116,7 @@ namespace {
 
 #include "FWCore/Framework/interface/global/EDProducer.h"
 #include "FWCore/Utilities/interface/InputTag.h"
+#include "FWCore/Utilities/interface/ESGetToken.h"
 #include "DataFormats/Candidate/interface/CandidateFwd.h"
 #include "DataFormats/HepMCCandidate/interface/GenParticleFwd.h"
 
@@ -123,6 +124,7 @@ namespace {
 #include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 #include "SimGeneral/HepPDTRecord/interface/ParticleDataTable.h"
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
+#include "SimGeneral/HepPDTRecord/interface/ParticleDataTable.h"
 
 namespace edm {
   class ParameterSet;
@@ -139,7 +141,7 @@ public:
 
 private:
   edm::EDGetTokenT<CrossingFrame<edm::HepMCProduct> > mixToken_;
-
+  edm::ESGetToken<HepPDT::ParticleDataTable, edm::DefaultRecord> pdtToken_;
   bool abortOnUnknownPDGCode_;
   std::vector<int> bunchList_;
   double minPz_;
@@ -156,7 +158,6 @@ private:
 
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 #include "SimDataFormats/CrossingFrame/interface/MixCollection.h"
-#include "SimGeneral/HepPDTRecord/interface/ParticleDataTable.h"
 
 #include <algorithm>
 
@@ -172,13 +173,13 @@ GenPUProtonProducer::GenPUProtonProducer(const ParameterSet& cfg)
   produces<GenParticleCollection>();
   mixToken_ =
       consumes<CrossingFrame<HepMCProduct> >(InputTag(cfg.getParameter<std::string>("mix"), "generatorSmeared"));
+  pdtToken_ = esConsumes<HepPDT::ParticleDataTable, edm::DefaultRecord, edm::Transition::BeginRun>();
 }
 
 GenPUProtonProducer::~GenPUProtonProducer() {}
 
 std::shared_ptr<ConvertParticle> GenPUProtonProducer::globalBeginRun(const Run&, const EventSetup& es) const {
-  ESHandle<HepPDT::ParticleDataTable> pdt;
-  es.getData(pdt);
+  ESHandle<HepPDT::ParticleDataTable> pdt = es.getHandle(pdtToken_);
   auto convert_ptr = std::make_shared<ConvertParticle>(abortOnUnknownPDGCode_);
   if (!convert_ptr->initialized())
     convert_ptr->init(*pdt);

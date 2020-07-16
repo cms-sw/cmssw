@@ -3,10 +3,12 @@
 <use name="FWCore/Utilities"/>
 <use name="CondCore/ESSources"/>
 <use name="CondFormats/PhysicsToolsObjects"/>
+<use name="FWCore/MessageLogger"/>
+<use name="FWCore/PluginManager"/>
 <use name="rootcore"/>
 <use name="boost"/>
 <use name="zlib"/>
 <use name="tbb"/>
 <export>
-   <lib name="1"/>
+  <lib name="1"/>
 </export>

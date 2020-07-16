@@ -95,6 +95,7 @@ private:
   bool validUpgradeFG(const HcalTrigTowerDetId& id, int depth) const;
   bool validChannel(const QIE10DataFrame& digi, int ts) const;
   bool needLegacyFG(const HcalTrigTowerDetId& id) const;
+  bool needUpgradeID(const HcalTrigTowerDetId& id, int depth) const;
 
   /// adds the actual digis
   void analyze(IntegerCaloSamples& samples, HcalTriggerPrimitiveDigi& result);
@@ -205,6 +206,7 @@ private:
 
   // HE constants
   static const int HBHE_OVERLAP_TOWER = 16;
+  static const int FIRST_DEPTH7_TOWER = 26;
   static const int LAST_FINEGRAIN_DEPTH = 6;
   static const int LAST_FINEGRAIN_TOWER = 28;
 

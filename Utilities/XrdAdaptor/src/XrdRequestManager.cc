@@ -66,7 +66,7 @@ long long timeDiffMS(const timespec &a, const timespec &b) {
  * We do not care about the response of sending the monitoring information;
  * this handler class simply frees any returned buffer to prevent memory leaks.
  */
-class SendMonitoringInfoHandler : boost::noncopyable, public XrdCl::ResponseHandler {
+class SendMonitoringInfoHandler : public XrdCl::ResponseHandler {
   void HandleResponse(XrdCl::XRootDStatus *status, XrdCl::AnyObject *response) override {
     if (response) {
       XrdCl::Buffer *buffer = nullptr;
@@ -78,6 +78,11 @@ class SendMonitoringInfoHandler : boost::noncopyable, public XrdCl::ResponseHand
     delete response;
     delete status;
   }
+
+public:
+  SendMonitoringInfoHandler(const SendMonitoringInfoHandler &) = delete;
+  SendMonitoringInfoHandler &operator=(const SendMonitoringInfoHandler &) = delete;
+  SendMonitoringInfoHandler() = default;
 };
 
 CMS_THREAD_SAFE SendMonitoringInfoHandler nullHandler;

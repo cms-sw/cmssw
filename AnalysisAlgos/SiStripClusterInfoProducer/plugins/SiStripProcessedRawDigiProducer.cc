@@ -13,8 +13,6 @@
 #include "DataFormats/SiStripDigi/interface/SiStripRawDigi.h"
 #include "DataFormats/SiStripDigi/interface/SiStripProcessedRawDigi.h"
 
-#include "boost/bind.hpp"
-
 #include <functional>
 
 SiStripProcessedRawDigiProducer::SiStripProcessedRawDigiProducer(edm::ParameterSet const& conf)
@@ -83,7 +81,8 @@ void SiStripProcessedRawDigiProducer::pr_process(const edm::DetSetVector<SiStrip
                                                  edm::DetSetVector<SiStripProcessedRawDigi>& output) {
   for (edm::DetSetVector<SiStripRawDigi>::const_iterator detset = input.begin(); detset != input.end(); ++detset) {
     std::vector<float> digis;
-    transform(detset->begin(), detset->end(), back_inserter(digis), boost::bind(&SiStripRawDigi::adc, _1));
+    transform(
+        detset->begin(), detset->end(), back_inserter(digis), std::bind(&SiStripRawDigi::adc, std::placeholders::_1));
     subtractorCMN->subtract(detset->id, 0, digis);
     common_process(detset->id, digis, output);
   }

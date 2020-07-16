@@ -53,6 +53,10 @@ volumeHandle::volumeHandle(const cms::DDFilteredView &fv, bool expand2Pi, bool d
     case DDSolidShape::ddtubs:
       buildTubs();
       break;
+    case DDSolidShape::ddpseudotrap: {
+      vector<double> d = solid.volume().volume().solid().dimensions();
+      buildPseudoTrap(d[0], d[1], d[2], d[3], d[4], d[5], d[6]);
+    } break;
     case DDSolidShape::ddtrunctubs:
       buildTruncTubs();
       break;
@@ -148,11 +152,10 @@ void volumeHandle::referencePlane(const cms::DDFilteredView &fv) {
     // See comments above for the conventions for orientation.
     LocalVector globalZdir(0., 0., 1.);  // Local direction of the axis along global Z
 
-    /* Preserve in case pseudotrap is needed again
     if (theShape == DDSolidShape::ddpseudotrap) {
       globalZdir = LocalVector(0., 1., 0.);
     }
-    */
+
     if (refPlane->toGlobal(globalZdir).z() < 0.) {
       globalZdir = -globalZdir;
     }
@@ -198,4 +201,5 @@ using namespace cms::dd;
 #include "buildTrap.icc"
 #include "buildTubs.icc"
 #include "buildCons.icc"
+#include "buildPseudoTrap.icc"
 #include "buildTruncTubs.icc"

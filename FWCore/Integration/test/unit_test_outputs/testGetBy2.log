@@ -75,6 +75,18 @@ ModuleCallingContext state = Running
 ++++ finished: begin stream for module: stream = 0 label = 'intProducerU' id = 6
 ++++ starting: begin stream for module: stream = 0 label = 'intVectorProducer' id = 7
 ++++ finished: begin stream for module: stream = 0 label = 'intVectorProducer' id = 7
+++++ starting: begin process block
+GlobalContext: transition = BeginProcessBlock
+    run: 0 luminosityBlock: 0
+    runIndex = 4294967295  luminosityBlockIndex = 4294967295  unixTime = 0 microsecondOffset = 0
+    ProcessContext: PROD2 7da3661f4f7dead5e42f07cf3ddf5a59
+
+++++ finished: begin process block
+GlobalContext: transition = BeginProcessBlock
+    run: 0 luminosityBlock: 0
+    runIndex = 4294967295  luminosityBlockIndex = 4294967295  unixTime = 0 microsecondOffset = 0
+    ProcessContext: PROD2 7da3661f4f7dead5e42f07cf3ddf5a59
+
 ++++ starting: source run
 ++++ finished: source run
 ++++ starting: global begin run 1 : time = 1
@@ -767,6 +779,32 @@ GlobalContext: transition = WriteRun
 
 ++++ starting: close input file: lfn = file:testGetBy1.root usedFallBack = 0
 ++++ finished: close input file: lfn = file:testGetBy1.root usedFallBack = 0
+++++ starting: end process block
+GlobalContext: transition = EndProcessBlock
+    run: 0 luminosityBlock: 0
+    runIndex = 4294967295  luminosityBlockIndex = 4294967295  unixTime = 0 microsecondOffset = 0
+    ProcessContext: PROD2 7da3661f4f7dead5e42f07cf3ddf5a59
+
+++++ finished: end process block
+GlobalContext: transition = EndProcessBlock
+    run: 0 luminosityBlock: 0
+    runIndex = 4294967295  luminosityBlockIndex = 4294967295  unixTime = 0 microsecondOffset = 0
+    ProcessContext: PROD2 7da3661f4f7dead5e42f07cf3ddf5a59
+
+++++ starting: write process block
+GlobalContext: transition = WriteProcessBlock
+    run: 0 luminosityBlock: 0
+    runIndex = 4294967295  luminosityBlockIndex = 4294967295  unixTime = 0 microsecondOffset = 0
+    ProcessContext: PROD2 7da3661f4f7dead5e42f07cf3ddf5a59
+
+++++++ starting: write process block for module: label = 'out' id = 5
+++++++ finished: write process block for module: label = 'out' id = 5
+++++ finished: write process block
+GlobalContext: transition = WriteProcessBlock
+    run: 0 luminosityBlock: 0
+    runIndex = 4294967295  luminosityBlockIndex = 4294967295  unixTime = 0 microsecondOffset = 0
+    ProcessContext: PROD2 7da3661f4f7dead5e42f07cf3ddf5a59
+
 ++++ starting: end stream for module: stream = 0 label = 'intProducer' id = 4
 StreamContext: StreamID = 0 transition = EndStream
     run: 0 lumi: 0 event: 0

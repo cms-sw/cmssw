@@ -25,6 +25,7 @@
 #include <TProfile2D.h>
 #include <TNamed.h>
 #include <TRandom3.h>
+#include <TDirectory.h>
 
 class L1TOccupancyClient : public DQMEDHarvester {
 public:

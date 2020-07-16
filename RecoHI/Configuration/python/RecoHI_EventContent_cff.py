@@ -45,3 +45,4 @@ RecoHIFEVT.outputCommands.extend(RecoHiEgammaFEVT.outputCommands)
 RecoHIFEVT.outputCommands.extend(RecoHiEvtPlaneFEVT.outputCommands)
 RecoHIFEVT.outputCommands.extend(RecoHiCentralityFEVT.outputCommands)
 RecoHIFEVT.outputCommands.extend(RecoHiMuonFEVT.outputCommands)
+

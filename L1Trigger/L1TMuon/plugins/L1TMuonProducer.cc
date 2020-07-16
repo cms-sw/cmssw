@@ -31,6 +31,7 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Utilities/interface/ESGetToken.h"
 
 #include "L1Trigger/L1TMuon/interface/MicroGMTConfiguration.h"
 #include "L1Trigger/L1TMuon/interface/MicroGMTRankPtQualLUT.h"
@@ -124,6 +125,8 @@ private:
   edm::EDGetTokenT<MicroGMTConfiguration::InputCollection> m_overlapTfInputToken;
   edm::EDGetTokenT<MicroGMTConfiguration::InputCollection> m_endcapTfInputToken;
   edm::EDGetTokenT<MicroGMTConfiguration::CaloInputCollection> m_caloTowerInputToken;
+  edm::ESGetToken<L1TMuonGlobalParams, L1TMuonGlobalParamsRcd> m_microGMTParamsToken;
+  edm::ESGetToken<L1TMuonGlobalParams, L1TMuonGlobalParamsO2ORcd> m_o2oProtoToken;
 };
 
 //
@@ -161,6 +164,8 @@ L1TMuonProducer::L1TMuonProducer(const edm::ParameterSet& iConfig)
   m_overlapTfInputToken = consumes<MicroGMTConfiguration::InputCollection>(m_overlapTfInputTag);
   m_endcapTfInputToken = consumes<MicroGMTConfiguration::InputCollection>(m_endcapTfInputTag);
   m_caloTowerInputToken = consumes<MicroGMTConfiguration::CaloInputCollection>(m_trigTowerTag);
+  m_microGMTParamsToken = esConsumes<L1TMuonGlobalParams, L1TMuonGlobalParamsRcd, edm::Transition::BeginRun>();
+  m_o2oProtoToken = esConsumes<L1TMuonGlobalParams, L1TMuonGlobalParamsO2ORcd, edm::Transition::BeginRun>();
 
   //register your products
   produces<MuonBxCollection>();
@@ -524,15 +529,12 @@ void L1TMuonProducer::convertMuons(const edm::Handle<MicroGMTConfiguration::Inpu
 
 // ------------ method called when starting to processes a run  ------------
 void L1TMuonProducer::beginRun(edm::Run const& run, edm::EventSetup const& iSetup) {
-  const L1TMuonGlobalParamsRcd& microGMTParamsRcd = iSetup.get<L1TMuonGlobalParamsRcd>();
-  edm::ESHandle<L1TMuonGlobalParams> microGMTParamsHandle;
-  microGMTParamsRcd.get(microGMTParamsHandle);
+  edm::ESHandle<L1TMuonGlobalParams> microGMTParamsHandle = iSetup.getHandle(m_microGMTParamsToken);
 
   std::unique_ptr<L1TMuonGlobalParams_PUBLIC> microGMTParams(
       new L1TMuonGlobalParams_PUBLIC(cast_to_L1TMuonGlobalParams_PUBLIC(*microGMTParamsHandle.product())));
   if (microGMTParams->pnodes_.empty()) {
-    edm::ESHandle<L1TMuonGlobalParams> o2oProtoHandle;
-    iSetup.get<L1TMuonGlobalParamsO2ORcd>().get(o2oProtoHandle);
+    edm::ESHandle<L1TMuonGlobalParams> o2oProtoHandle = iSetup.getHandle(m_o2oProtoToken);
     microGMTParamsHelper =
         std::unique_ptr<L1TMuonGlobalParamsHelper>(new L1TMuonGlobalParamsHelper(*o2oProtoHandle.product()));
   } else

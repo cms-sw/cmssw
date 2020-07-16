@@ -12,15 +12,14 @@
 <use name="DataFormats/EcalDetId"/>
 <use name="Geometry/CaloGeometry"/>
 <use name="Geometry/CaloTopology"/>
-<use name="RecoPixelVertexing/PixelTrackFitting"/>
 <use name="DataFormats/HLTReco"/>
 <use name="DataFormats/VertexReco"/>
-<use name="CondFormats/EcalObjects"/>
 <use name="Geometry/EcalMapping"/>
 <use name="Geometry/EcalAlgo"/>
 <use name="DataFormats/EcalRawData"/>
 <use name="DataFormats/FEDRawData"/>
-<use name="RecoEcal/EgammaCoreTools"/>
+<use name="MagneticField/Records"/>
 <use name="MagneticField/VolumeBasedEngine"/>
+<use name="RecoTracker/TkTrackingRegions"/>
 <use name="rootmath"/>
 <flags EDM_PLUGIN="1"/>

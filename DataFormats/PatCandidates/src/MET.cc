@@ -193,6 +193,16 @@ void MET::initCorMap() {
   std::vector<MET::METCorrectionType> tmpRawTrk;
   tmpRawTrk.push_back(MET::Trk);
   corMap_[MET::RawTrk] = tmpRawTrk;
+
+  //specific deep response tune case
+  std::vector<MET::METCorrectionType> tmpDeepResponse;
+  tmpDeepResponse.push_back(MET::DeepResponseTune);
+  corMap_[MET::RawDeepResponseTune] = tmpDeepResponse;
+
+  //specific deep resolution tune case
+  std::vector<MET::METCorrectionType> tmpDeepResolution;
+  tmpDeepResolution.push_back(MET::DeepResolutionTune);
+  corMap_[MET::RawDeepResolutionTune] = tmpDeepResolution;
 }
 
 const MET::PackedMETUncertainty MET::findMETTotalShift(MET::METCorrectionLevel cor, MET::METUncertainty shift) const {

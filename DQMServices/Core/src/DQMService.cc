@@ -1,4 +1,3 @@
-#if !WITHOUT_CMS_FRAMEWORK
 #include "DQMServices/Core/src/DQMService.h"
 #include "DQMServices/Core/interface/DQMNet.h"
 #include "DQMServices/Core/interface/DQMStore.h"
@@ -132,5 +131,3 @@ void DQMService::shutdown() {
   if (net_)
     net_->shutdown();
 }
-
-#endif  // !WITHOUT_CMS_FRAMEWORK

@@ -110,8 +110,16 @@ run2_miniAOD_94XFall17.toModify(
 
 from RecoEgamma.EgammaPhotonProducers.reducedEgamma_tools import calibrateReducedEgamma
 from Configuration.Eras.Modifier_run2_miniAOD_94XFall17_cff import run2_miniAOD_94XFall17
-modifyReducedEGammaRun2MiniAOD9XFall17_ = run2_miniAOD_94XFall17.makeProcessModifier(calibrateReducedEgamma)
 from Configuration.Eras.Modifier_run2_miniAOD_80XLegacy_cff import run2_miniAOD_80XLegacy
-modifyReducedEGammaRun2MiniAOD8XLegacy_ = run2_miniAOD_80XLegacy.makeProcessModifier(calibrateReducedEgamma)
+from Configuration.ProcessModifiers.run2_miniAOD_UL_cff import run2_miniAOD_UL
+modifyReducedEGammaRun2MiniAOD = (
+    run2_miniAOD_94XFall17 | run2_miniAOD_80XLegacy | run2_miniAOD_UL).makeProcessModifier(calibrateReducedEgamma)
+
 from Configuration.Eras.Modifier_pp_on_AA_2018_cff import pp_on_AA_2018
-pp_on_AA_2018.toModify( reducedEgamma, ootPhotons = cms.InputTag("") )
+from Configuration.Eras.Modifier_pp_on_PbPb_run3_cff import pp_on_PbPb_run3
+(pp_on_AA_2018 | pp_on_PbPb_run3).toModify(reducedEgamma,
+    ootPhotons = cms.InputTag(""),
+    keepPhotons = "pt>15 && abs(eta)<2.5",
+    slimRelinkPhotons = "pt>15 && abs(eta)<2.5",
+    relinkPhotons = "pt>15 && abs(eta)<2.5"
+    )

@@ -39,6 +39,8 @@
 ++++ finished: begin stream for module: stream = 0 label = 'TriggerResults' id = 1
 ++++ starting: begin stream for module: stream = 0 label = 'p' id = 2
 ++++ finished: begin stream for module: stream = 0 label = 'p' id = 2
+++++ starting: begin process block
+++++ finished: begin process block
 ++++ starting: source run
 ++++ finished: source run
 ++++ starting: global begin run 1 : time = 1000000
@@ -179,6 +181,10 @@
 ++++ finished: global end run 1 : time = 1000030
 ++++ starting: global write run 1 : time = 1000030
 ++++ finished: global write run 1 : time = 1000030
+++++ starting: end process block
+++++ finished: end process block
+++++ starting: write process block
+++++ finished: write process block
 ++++ starting: end stream for module: stream = 0 label = 'one' id = 3
 ++++ finished: end stream for module: stream = 0 label = 'one' id = 3
 ++++ starting: end stream for module: stream = 0 label = 'getOne' id = 4

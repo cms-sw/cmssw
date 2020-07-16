@@ -82,11 +82,9 @@ process.qTester = DQMQualityTester(
     qtList = cms.untracked.FileInPath('DQMOffline/CalibMuon/data/QualityTests.xml')
 )
 
-process.DQMStore.referenceFileName = ''
 process.dqmSaver.convention = 'Offline'
 process.dqmSaver.workflow = config.workflowName
 process.dqmSaver.dirName = config.outputdir 
-process.DQMStore.collateHistograms = False
 process.DQM.collectorHost = ''
 
 #process.p = cms.Path(process.dtNoiseAnalyzer*process.qTester*process.dqmSaver)

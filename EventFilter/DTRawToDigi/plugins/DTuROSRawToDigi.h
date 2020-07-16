@@ -17,10 +17,13 @@
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Utilities/interface/ESGetToken.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "DataFormats/DTDigi/interface/DTDigiCollection.h"
 #include "DataFormats/MuonDetId/interface/DTLayerId.h"
+#include "CondFormats/DTObjects/interface/DTReadOutMapping.h"
+#include "CondFormats/DataRecord/interface/DTReadOutMappingRcd.h"
 
 #include <DataFormats/FEDRawData/interface/FEDRawDataCollection.h>
 #include <DataFormats/FEDRawData/interface/FEDNumbering.h>
@@ -84,5 +87,6 @@ private:
   edm::InputTag getDTuROSInputTag() { return DTuROSInputTag_; }
 
   edm::EDGetTokenT<FEDRawDataCollection> Raw_token;
+  edm::ESGetToken<DTReadOutMapping, DTReadOutMappingRcd> mapping_token_;
 };
 #endif

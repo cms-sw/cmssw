@@ -1,8 +1,6 @@
 #include "L1Trigger/L1TMuonEndCap/interface/PtAssignmentEngine2017.h"
 #include "L1Trigger/L1TMuonEndCap/interface/PtAssignmentEngineAux2017.h"
-#include "L1Trigger/L1TMuonEndCap/interface/PtLUTVarCalc.h"
 
-#include <cassert>
 #include <iostream>
 #include <sstream>
 
@@ -13,10 +11,7 @@ const PtAssignmentEngineAux2017& PtAssignmentEngine2017::aux() const {
 }
 
 float PtAssignmentEngine2017::scale_pt(const float pt, const int mode) const {
-  if (not(ptLUTVersion_ >= 6)) {
-    edm::LogError("L1T") << "ptLUTVersion_ = " << ptLUTVersion_;
-    return 0;
-  }
+  emtf_assert(ptLUTVersion_ >= 6);
 
   float pt_xml = -99;
   float pt_scale = -99;
@@ -39,10 +34,7 @@ float PtAssignmentEngine2017::scale_pt(const float pt, const int mode) const {
 }
 
 float PtAssignmentEngine2017::unscale_pt(const float pt, const int mode) const {
-  if (not(ptLUTVersion_ >= 6)) {
-    edm::LogError("L1T") << "ptLUTVersion_ = " << ptLUTVersion_;
-    return 0;
-  }
+  emtf_assert(ptLUTVersion_ >= 6);
 
   float pt_unscale = -99;
 
@@ -64,10 +56,7 @@ PtAssignmentEngine::address_t PtAssignmentEngine2017::calculate_address(const EM
   int theta = track.Theta_fp();
   int endcap = track.Endcap();
   int nHits = (mode / 8) + ((mode % 8) / 4) + ((mode % 4) / 2) + ((mode % 2) / 1);
-  if (not(nHits > 1 && nHits < 5)) {
-    edm::LogError("L1T") << "nHits = " << nHits;
-    return 0;
-  }
+  emtf_assert(nHits > 1 && nHits < 5);
 
   // 'A' is first station in the track, 'B' the second, etc.
   int mode_ID = -1;
@@ -179,11 +168,7 @@ PtAssignmentEngine::address_t PtAssignmentEngine2017::calculate_address(const EM
     address |= (frA & ((1 << 1) - 1)) << (0 + 7 + 5 + 4 + 1 + 1 + 2);
     address |= (mode15_8b & ((1 << 8) - 1)) << (0 + 7 + 5 + 4 + 1 + 1 + 2 + 1);
     address |= (mode_ID & ((1 << 1) - 1)) << (0 + 7 + 5 + 4 + 1 + 1 + 2 + 1 + 8);
-    if (not(address < pow(2, 30) && address >= pow(2, 29))) {
-      edm::LogError("L1T") << "address = " << address;
-      return 0;
-    }
-
+    emtf_assert(address < pow(2, 30) && address >= pow(2, 29));
   } else if (nHits == 3) {
     int dPhiAB = data.delta_ph[iAB];
     int dPhiBC = data.delta_ph[iBC];
@@ -221,16 +206,10 @@ PtAssignmentEngine::address_t PtAssignmentEngine2017::calculate_address(const EM
     address |= (theta & ((1 << 5) - 1)) << (0 + 7 + 5 + 1 + 3 + 1 + bit + 2 + 2);
     if (mode != 7) {
       address |= (mode_ID & ((1 << 2) - 1)) << (0 + 7 + 5 + 1 + 3 + 1 + bit + 2 + 2 + 5);
-      if (not(address < pow(2, 29) && address >= pow(2, 27))) {
-        edm::LogError("L1T") << "address = " << address;
-        return 0;
-      }
+      emtf_assert(address < pow(2, 29) && address >= pow(2, 27));
     } else {
       address |= (mode_ID & ((1 << 1) - 1)) << (0 + 7 + 5 + 1 + 3 + 1 + bit + 2 + 2 + 5);
-      if (not(address < pow(2, 27) && address >= pow(2, 26))) {
-        edm::LogError("L1T") << "address = " << address;
-        return 0;
-      }
+      emtf_assert(address < pow(2, 27) && address >= pow(2, 26));
     }
 
   } else if (nHits == 2) {
@@ -258,10 +237,7 @@ PtAssignmentEngine::address_t PtAssignmentEngine2017::calculate_address(const EM
     address |= (clctB & ((1 << 3) - 1)) << (0 + 7 + 3 + 1 + 1 + 3);
     address |= (theta & ((1 << 5) - 1)) << (0 + 7 + 3 + 1 + 1 + 3 + 3);
     address |= (mode_ID & ((1 << 3) - 1)) << (0 + 7 + 3 + 1 + 1 + 3 + 3 + 5);
-    if (not(address < pow(2, 26) && address >= pow(2, 24))) {
-      edm::LogError("L1T") << "address = " << address;
-      return 0;
-    }
+    emtf_assert(address < pow(2, 26) && address >= pow(2, 24));
   }
   return address;
 }  // End function: PtAssignmentEngine2017::calculate_address()
@@ -278,10 +254,7 @@ float PtAssignmentEngine2017::calculate_pt_xml(const address_t& address) const {
   float pt_xml = 0.;
   int nHits = -1, mode = -1;
 
-  if (not(address < pow(2, 30))) {
-    edm::LogError("L1T") << "address = " << address;
-    return 0;
-  }
+  emtf_assert(address < pow(2, 30));
   if (address >= pow(2, 29)) {
     nHits = 4;
     mode = 15;
@@ -318,10 +291,7 @@ float PtAssignmentEngine2017::calculate_pt_xml(const address_t& address) const {
     frA = (address >> (0 + 7 + 5 + 4 + 1 + 1 + 2) & ((1 << 1) - 1));
     mode15_8b = (address >> (0 + 7 + 5 + 4 + 1 + 1 + 2 + 1) & ((1 << 8) - 1));
     mode_ID = (address >> (0 + 7 + 5 + 4 + 1 + 1 + 2 + 1 + 8) & ((1 << 1) - 1));
-    if (not(address < pow(2, 30))) {
-      edm::LogError("L1T") << "address = " << address;
-      return 0;
-    }
+    emtf_assert(address < pow(2, 30));
   } else if (nHits == 3) {
     dPhiAB = (address >> (0) & ((1 << 7) - 1));
     dPhiBC = (address >> (0 + 7) & ((1 << 5) - 1));
@@ -338,16 +308,10 @@ float PtAssignmentEngine2017::calculate_pt_xml(const address_t& address) const {
     theta = (address >> (0 + 7 + 5 + 1 + 3 + 1 + bit + 2 + 2) & ((1 << 5) - 1));
     if (mode != 7) {
       mode_ID = (address >> (0 + 7 + 5 + 1 + 3 + 1 + bit + 2 + 2 + 5) & ((1 << 2) - 1));
-      if (not(address < pow(2, 29))) {
-        edm::LogError("L1T") << "address = " << address;
-        return 0;
-      }
+      emtf_assert(address < pow(2, 29));
     } else {
       mode_ID = (address >> (0 + 7 + 5 + 1 + 3 + 1 + bit + 2 + 2 + 5) & ((1 << 1) - 1));
-      if (not(address < pow(2, 27))) {
-        edm::LogError("L1T") << "address = " << address;
-        return 0;
-      }
+      emtf_assert(address < pow(2, 27));
     }
   } else if (nHits == 2) {
     dPhiAB = (address >> (0) & ((1 << 7) - 1));
@@ -358,10 +322,7 @@ float PtAssignmentEngine2017::calculate_pt_xml(const address_t& address) const {
     clctB = (address >> (0 + 7 + 3 + 1 + 1 + 3) & ((1 << 3) - 1));
     theta = (address >> (0 + 7 + 3 + 1 + 1 + 3 + 3) & ((1 << 5) - 1));
     mode_ID = (address >> (0 + 7 + 3 + 1 + 1 + 3 + 3 + 5) & ((1 << 3) - 1));
-    if (not(address < pow(2, 26))) {
-      edm::LogError("L1T") << "address = " << address;
-      return 0;
-    }
+    emtf_assert(address < pow(2, 26));
   }
 
   // Infer track mode (and stations with hits) from mode_ID
@@ -404,10 +365,7 @@ float PtAssignmentEngine2017::calculate_pt_xml(const address_t& address) const {
     }
   }
 
-  if (not(mode > 0)) {
-    edm::LogError("L1T") << "mode = " << mode;
-    return 0;
-  }
+  emtf_assert(mode > 0);
 
   // Un-compress words from address
   // For most variables (e.g. theta, dTheta, CLCT) don't need to unpack, since compressed version was used in training
@@ -419,8 +377,7 @@ float PtAssignmentEngine2017::calculate_pt_xml(const address_t& address) const {
     aux().unpack8bMode15(mode15_8b, theta, St1_ring2, endcap, (sPhiAB == 1 ? 1 : -1), clctA, rpcA, rpcB, rpcC, rpcD);
 
     // // Check bit-wise compression / de-compression
-    // if (not( dTheta == aux().getdTheta( aux().unpackdTheta( dTheta, 2), 2) );
-    // { edm::LogError("L1T") << " = " << ; return; }
+    // emtf_assert( dTheta == aux().getdTheta( aux().unpackdTheta( dTheta, 2), 2) );
   } else if (nHits == 3) {
     dPhiAB = aux().getdPhiFromBin(dPhiAB, 7, 512);
     dPhiBC = aux().getdPhiFromBin(dPhiBC, 5, 256) * (sPhiBC == 1 ? 1 : -1);
@@ -428,32 +385,25 @@ float PtAssignmentEngine2017::calculate_pt_xml(const address_t& address) const {
     aux().unpack2bRPC(rpc_2b, rpcA, rpcB, rpcC);
 
     // // Check bit-wise compression / de-compression
-    // if (not( dTheta == aux().getdTheta( aux().unpackdTheta( dTheta, 3), 3) );
-    // { edm::LogError("L1T") << " = " << ; return; }
-    // if (not( clctA  == aux().getCLCT( aux().unpackCLCT( clctA, endcap, (sPhiAB == 1 ? 1 : -1), 2),
+    // emtf_assert( dTheta == aux().getdTheta( aux().unpackdTheta( dTheta, 3), 3) );
+    // emtf_assert( clctA  == aux().getCLCT( aux().unpackCLCT( clctA, endcap, (sPhiAB == 1 ? 1 : -1), 2),
     //                               endcap, (sPhiAB == 1 ? 1 : -1), 2) );
-    // { edm::LogError("L1T") << " = " << ; return; }
     // int theta_unp = theta;
     // aux().unpackTheta( theta_unp, St1_ring2, 5 );
-    // if (not( theta == aux().getTheta(theta_unp, St1_ring2, 5) );
-    // { edm::LogError("L1T") << " = " << ; return; }
+    // emtf_assert( theta == aux().getTheta(theta_unp, St1_ring2, 5) );
   } else if (nHits == 2) {
     dPhiAB = aux().getdPhiFromBin(dPhiAB, 7, 512);
     St1_ring2 = aux().unpackSt1Ring2(theta, 5);
 
     // // Check bit-wise compression / de-compression
-    // if (not( dTheta == aux().getdTheta( aux().unpackdTheta( dTheta, 3), 3) );
-    // { edm::LogError("L1T") << " = " << ; return; }
-    // if (not( clctA  == aux().getCLCT( aux().unpackCLCT( clctA, endcap, (sPhiAB == 1 ? 1 : -1), 3),
+    // emtf_assert( dTheta == aux().getdTheta( aux().unpackdTheta( dTheta, 3), 3) );
+    // emtf_assert( clctA  == aux().getCLCT( aux().unpackCLCT( clctA, endcap, (sPhiAB == 1 ? 1 : -1), 3),
     //                               endcap, (sPhiAB == 1 ? 1 : -1), 3) );
-    // { edm::LogError("L1T") << " = " << ; return; }
-    // if (not( clctB  == aux().getCLCT( aux().unpackCLCT( clctB, endcap, (sPhiAB == 1 ? 1 : -1), 3),
+    // emtf_assert( clctB  == aux().getCLCT( aux().unpackCLCT( clctB, endcap, (sPhiAB == 1 ? 1 : -1), 3),
     //                               endcap, (sPhiAB == 1 ? 1 : -1), 3) );
-    // { edm::LogError("L1T") << " = " << ; return; }
     // int theta_unp = theta;
     // aux().unpackTheta( theta_unp, St1_ring2, 5 );
-    // if (not( theta == aux().getTheta(theta_unp, St1_ring2, 5) );
-    // { edm::LogError("L1T") << " = " << ; return; }
+    // emtf_assert( theta == aux().getTheta(theta_unp, St1_ring2, 5) );
   }
 
   // Fill vectors of variables for XMLs
@@ -468,17 +418,17 @@ float PtAssignmentEngine2017::calculate_pt_xml(const address_t& address) const {
     predictors = {
         theta, St1_ring2, dPhiAB, dPhiBC, dPhiCD, dPhiAB + dPhiBC, dPhiAB + dPhiBC + dPhiCD, dPhiBC + dPhiCD, frA, clctA};
 
-    CalcDeltaPhiSums(dPhiSum4,
-                     dPhiSum4A,
-                     dPhiSum3,
-                     dPhiSum3A,
-                     outStPhi,
-                     dPhiAB,
-                     dPhiAB + dPhiBC,
-                     dPhiAB + dPhiBC + dPhiCD,
-                     dPhiBC,
-                     dPhiBC + dPhiCD,
-                     dPhiCD);
+    aux().calcDeltaPhiSums(dPhiSum4,
+                           dPhiSum4A,
+                           dPhiSum3,
+                           dPhiSum3A,
+                           outStPhi,
+                           dPhiAB,
+                           dPhiAB + dPhiBC,
+                           dPhiAB + dPhiBC + dPhiCD,
+                           dPhiBC,
+                           dPhiBC + dPhiCD,
+                           dPhiCD);
 
     int tmp[10] = {dPhiSum4, dPhiSum4A, dPhiSum3, dPhiSum3A, outStPhi, dTheta, rpcA, rpcB, rpcC, rpcD};
     predictors.insert(predictors.end(), tmp, tmp + 10);
@@ -496,8 +446,7 @@ float PtAssignmentEngine2017::calculate_pt_xml(const address_t& address) const {
   } else if (nHits == 2 && mode < 8) {
     predictors = {theta, dPhiAB, frA, frB, clctA, clctB, dTheta, (clctA == 0), (clctB == 0)};
   } else {
-    edm::LogError("L1T") << "nHits = " << nHits << ", mode = " << mode;
-    return 0;
+    emtf_assert(false && "Incorrect nHits or mode");
   }
 
   // Retreive pT from XMLs
@@ -617,42 +566,42 @@ float PtAssignmentEngine2017::calculate_pt_xml(const EMTFTrack& track) const {
 
   // BEGIN: Identical (almost) to BDT training code in EMTFPtAssign2017/PtRegression_Apr_2017.C
 
-  theta = CalcTrackTheta(th1, th2, th3, th4, St1_ring2, mode, true);
+  theta = aux().calcTrackTheta(th1, th2, th3, th4, St1_ring2, mode, true);
 
-  CalcDeltaPhis(dPhi_12,
-                dPhi_13,
-                dPhi_14,
-                dPhi_23,
-                dPhi_24,
-                dPhi_34,
-                dPhiSign,
-                dPhiSum4,
-                dPhiSum4A,
-                dPhiSum3,
-                dPhiSum3A,
-                outStPhi,
-                ph1,
-                ph2,
-                ph3,
-                ph4,
-                mode,
-                true);
+  aux().calcDeltaPhis(dPhi_12,
+                      dPhi_13,
+                      dPhi_14,
+                      dPhi_23,
+                      dPhi_24,
+                      dPhi_34,
+                      dPhiSign,
+                      dPhiSum4,
+                      dPhiSum4A,
+                      dPhiSum3,
+                      dPhiSum3A,
+                      outStPhi,
+                      ph1,
+                      ph2,
+                      ph3,
+                      ph4,
+                      mode,
+                      true);
 
-  CalcDeltaThetas(dTh_12, dTh_13, dTh_14, dTh_23, dTh_24, dTh_34, th1, th2, th3, th4, mode, true);
+  aux().calcDeltaThetas(dTh_12, dTh_13, dTh_14, dTh_23, dTh_24, dTh_34, th1, th2, th3, th4, mode, true);
 
   FR_1 = (st1 ? data.fr[0] : -99);
   FR_2 = (st2 ? data.fr[1] : -99);
   FR_3 = (st3 ? data.fr[2] : -99);
   FR_4 = (st4 ? data.fr[3] : -99);
 
-  CalcBends(bend_1, bend_2, bend_3, bend_4, pat1, pat2, pat3, pat4, dPhiSign, endcap, mode, true);
+  aux().calcBends(bend_1, bend_2, bend_3, bend_4, pat1, pat2, pat3, pat4, dPhiSign, endcap, mode, true);
 
   RPC_1 = (st1 ? (pat1 == 0) : -99);
   RPC_2 = (st2 ? (pat2 == 0) : -99);
   RPC_3 = (st3 ? (pat3 == 0) : -99);
   RPC_4 = (st4 ? (pat4 == 0) : -99);
 
-  CalcRPCs(RPC_1, RPC_2, RPC_3, RPC_4, mode, St1_ring2, theta, true);
+  aux().calcRPCs(RPC_1, RPC_2, RPC_3, RPC_4, mode, St1_ring2, theta, true);
 
   // END: Identical (almost) to BDT training code in EMTFPtAssign2017/PtRegression_Apr_2017.C
 

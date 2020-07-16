@@ -40,6 +40,7 @@ public:
 
 L1TGlobalPrescalesVetosOnlineProd::L1TGlobalPrescalesVetosOnlineProd(const edm::ParameterSet &iConfig)
     : L1ConfigOnlineProdBaseExt<L1TGlobalPrescalesVetosO2ORcd, L1TGlobalPrescalesVetos>(iConfig) {
+  wrappedSetWhatProduced(iConfig);
   transactionSafe = iConfig.getParameter<bool>("transactionSafe");
 }
 
@@ -614,7 +615,7 @@ std::unique_ptr<const L1TGlobalPrescalesVetos> L1TGlobalPrescalesVetosOnlineProd
         << "\nWarning: No default found in BX mask xml, used 1 (unmasked) as default" << std::endl;
   }
 
-  for (const std::pair<std::string, std::set<Range_t, RangeComp_t>> &algo : non_default_bx_ranges) {
+  for (auto &algo : non_default_bx_ranges) {
     const std::string &algoName = algo.first;
     unsigned int algoBit = algoName2bit[algoName];
     for (auto range : algo.second)

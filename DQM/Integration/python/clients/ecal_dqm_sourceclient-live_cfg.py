@@ -104,7 +104,6 @@ process.preScaler.prescaleFactor = 1
 process.tcdsDigis = tcdsRawToDigi.clone()
 process.tcdsDigis.InputLabel = cms.InputTag("rawDataCollector")
 
-process.DQMStore.referenceFileName = "/dqmdata/dqm/reference/ecal_reference.root"
 
 process.dqmEnv.subSystemFolder = cms.untracked.string('Ecal')
 process.dqmSaver.tag = cms.untracked.string('Ecal')
@@ -146,23 +145,19 @@ process.schedule = cms.Schedule(process.ecalMonitorPath,process.ecalClientPath,p
 
 ### Run type specific ###
 
-referenceFileName = process.DQMStore.referenceFileName.pythonValue()
 runTypeName = process.runType.getRunTypeName()
 if (runTypeName == 'pp_run' or runTypeName == 'pp_run_stage1'):
-    process.DQMStore.referenceFileName = referenceFileName.replace('.root', '_pp.root')
+    pass
 elif (runTypeName == 'cosmic_run' or runTypeName == 'cosmic_run_stage1'):
-    process.DQMStore.referenceFileName = referenceFileName.replace('.root', '_cosmic.root')
 #    process.dqmEndPath.remove(process.dqmQTest)
     process.ecalMonitorTask.workers = ['EnergyTask', 'IntegrityTask', 'OccupancyTask', 'RawDataTask', 'TimingTask', 'TrigPrimTask', 'PresampleTask', 'SelectiveReadoutTask']
     process.ecalMonitorClient.workers = ['IntegrityClient', 'OccupancyClient', 'PresampleClient', 'RawDataClient', 'TimingClient', 'SelectiveReadoutClient', 'TrigPrimClient', 'SummaryClient']
     process.ecalMonitorClient.workerParameters.SummaryClient.params.activeSources = ['Integrity', 'RawData', 'Presample', 'TriggerPrimitives', 'Timing', 'HotCell']
     process.ecalMonitorTask.workerParameters.PresampleTask.params.doPulseMaxCheck = False 
 elif runTypeName == 'hi_run':
-    process.DQMStore.referenceFileName = referenceFileName.replace('.root', '_hi.root')
     process.ecalMonitorTask.collectionTags.Source = "rawDataRepacker"
     process.ecalDigis.InputLabel = cms.InputTag('rawDataRepacker')
 elif runTypeName == 'hpu_run':
-    process.DQMStore.referenceFileName = referenceFileName.replace('.root', '_hpu.root')
     if not unitTest:
         process.source.SelectEvents = cms.untracked.PSet(SelectEvents = cms.vstring('*'))
 
