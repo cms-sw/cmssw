@@ -58,9 +58,6 @@ protected:
   /// EndRun
   void endRun(const edm::Run& r, const edm::EventSetup& c);
 
-  /// Endjob
-  void endJob();
-
 private:
 
   void initialize();
@@ -252,5 +249,3 @@ void DQMOfflineHLTEventInfoClient::endRun(const Run& r, const EventSetup& contex
   CertificationSummaryMap_->setBinContent(1, 6, tauValue);       //Tau
 }
 
-//--------------------------------------------------------
-void DQMOfflineHLTEventInfoClient::endJob() {}
