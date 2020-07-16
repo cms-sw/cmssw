@@ -26,7 +26,8 @@ namespace ecal {
     };
 
     struct ConfigurationParameters {
-      uint32_t maxChannels;
+      uint32_t maxChannelsEE;
+      uint32_t maxChannelsEB;
     };
 
     struct OutputDataCPU {
@@ -40,11 +41,11 @@ namespace ecal {
       // FIXME: we should separate max channels parameter for eb and ee
       // FIXME: replace hardcoded values
       void allocate(ConfigurationParameters const &config, cudaStream_t cudaStream) {
-        digisEB.data = cms::cuda::make_device_unique<uint16_t[]>(config.maxChannels, cudaStream);
-        digisEE.data = cms::cuda::make_device_unique<uint16_t[]>(config.maxChannels, cudaStream);
+        digisEB.data = cms::cuda::make_device_unique<uint16_t[]>(config.maxChannelsEB, cudaStream);
+        digisEE.data = cms::cuda::make_device_unique<uint16_t[]>(config.maxChannelsEE, cudaStream);
 
-        digisEB.ids = cms::cuda::make_device_unique<uint32_t[]>(config.maxChannels, cudaStream);
-        digisEE.ids = cms::cuda::make_device_unique<uint32_t[]>(config.maxChannels, cudaStream);
+        digisEB.ids = cms::cuda::make_device_unique<uint32_t[]>(config.maxChannelsEB, cudaStream);
+        digisEE.ids = cms::cuda::make_device_unique<uint32_t[]>(config.maxChannelsEE, cudaStream);
       }
     };
 
