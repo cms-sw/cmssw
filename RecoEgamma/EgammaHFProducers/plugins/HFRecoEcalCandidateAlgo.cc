@@ -6,12 +6,7 @@
  *
  */
 
-//#includes
 #include "DataFormats/Math/interface/LorentzVector.h"
-#include "DataFormats/Math/interface/deltaR.h"
-#include "DataFormats/Math/interface/deltaPhi.h"
-#include "CLHEP/Vector/LorentzVector.h"
-#include <iostream>
 #include "DataFormats/RecoCandidate/interface/RecoEcalCandidate.h"
 #include "HFRecoEcalCandidateAlgo.h"
 #include "HFEGammaSLCorrector.h"

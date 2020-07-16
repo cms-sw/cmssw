@@ -24,7 +24,6 @@
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/EgammaCandidates/interface/Conversion.h"
 #include "DataFormats/EgammaCandidates/interface/ConversionFwd.h"
-//#include "DataFormats/EgammaReco/interface/SuperCluster.h"
 #include "DataFormats/CaloRecHit/interface/CaloCluster.h"
 //
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
