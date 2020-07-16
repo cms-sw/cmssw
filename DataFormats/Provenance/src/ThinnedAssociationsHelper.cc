@@ -252,11 +252,16 @@ namespace edm {
   }
 
   bool ThinnedAssociationsHelper::indirectMatch(BranchID const& parent, BranchID const& target) const {
-    if (parent == target) {
-      return true;
-    }
     for (auto assoc = parentBegin(parent), assocEnd = parentEnd(parent); assoc != assocEnd; ++assoc) {
-      return indirectMatch(assoc->thinned(), target);
+      BranchID const& thinned = assoc->thinned();
+      if (thinned == target) {
+        return true;
+      }
+      //recursive search
+      bool match = indirectMatch(thinned, target);
+      if (match) {
+        return true;
+      }
     }
     return false;
   }
