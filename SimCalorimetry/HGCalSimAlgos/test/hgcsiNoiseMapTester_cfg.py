@@ -18,7 +18,7 @@ process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase2_realistic', '')
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(1) )
 process.source = cms.Source("EmptySource")
 
-from SimCalorimetry.HGCalSimProducers.hgcalDigitizer_cfi import * #HGCAL_ileakParam_toUse, HGCAL_cceParams_toUse
+from SimCalorimetry.HGCalSimProducers.hgcalDigitizer_cfi import HGCAL_ileakParam_toUse, HGCAL_cceParams_toUse
 process.plotter_eol = cms.EDAnalyzer("HGCSiNoiseMapAnalyzer",
                                      scaleByDoseFactor  = cms.double(1.),
                                      doseMap            = cms.string( options.doseMap ),
