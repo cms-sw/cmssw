@@ -36,7 +36,7 @@ def inspectsequence(seq):
     if not seq.seqname:
         sep = ""
     otherstep = ""
-    if seq.step != "HARVESTING":
+    if seq.step not in ("HARVESTING", "ALCAHARVEST"):
         # cmsDriver refuses to run some steps on their own, so we add this to them
         # only loading a single module that we can blacklist later
         otherstep = "RAW2DIGI:siPixelDigis,"
@@ -74,7 +74,7 @@ def inspectsequence(seq):
     tracedump, _ = proc.communicate()
     # for HARVESTING, the code in endJob makes most jobs crash. But that is fine,
     # we have the data we need by then.
-    if proc.returncode and seq.step != "HARVESTING":
+    if proc.returncode and seq.step not in ("HARVESTING", "ALCAHARVEST"):
         raise Exception("cmsRun failed for cmsDriver command %s" % driverargs)
 
     lines = tracedump.splitlines()
@@ -498,7 +498,7 @@ if __name__ == "__main__":
     parser.add_argument("--fast", default=False, action="store_true", help="Pass --fast to cmsDriver.")
     parser.add_argument("--workflow", default=None, help="Ignore other options and inspect this workflow instead (implies --sqlite).")
     parser.add_argument("--runTheMatrix", default=False, action="store_true", help="Ignore other options and inspect the full matrix instea (implies --sqlite).")
-    parser.add_argument("--steps", default="ALCA,DQM,HARVESTING,VALIDATION", help="Which workflow steps to inspect from runTheMatrix.")
+    parser.add_argument("--steps", default="ALCA,ALCAPRODUCER,ALCAHARVEST,DQM,HARVESTING,VALIDATION", help="Which workflow steps to inspect from runTheMatrix.")
     parser.add_argument("--sqlite", default=False, action="store_true", help="Write information to SQLite DB instead of stdout.")
     parser.add_argument("--dbfile", default="sequences.db", help="Name of the DB file to use.")
     parser.add_argument("--threads", default=None, type=int, help="Use a fixed number of threads (default is #cores).")
