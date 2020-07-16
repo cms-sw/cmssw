@@ -10,7 +10,7 @@
 #include "FWCore/Utilities/interface/RegexMatch.h"
 #include "DQMStreamerReader.h"
 
-#include <cstdlib> 
+#include <cstdlib>
 #include <filesystem>
 #include <fstream>
 #include <memory>
