@@ -45,7 +45,7 @@ process.out = cms.OutputModule("PoolOutputModule",
 
 process.a1 = cms.EDAnalyzer("TestFindProduct",
   inputTags = cms.untracked.VInputTag( cms.InputTag("source") ),
-  expectedSum = cms.untracked.int32(110012),
+  expectedSum = cms.untracked.int32(530021),
   inputTagsNotFound = cms.untracked.VInputTag(
     cms.InputTag("source", processName=cms.InputTag.skipCurrentProcess()),
     cms.InputTag("intProducer", processName=cms.InputTag.skipCurrentProcess()),
@@ -65,7 +65,8 @@ process.a1 = cms.EDAnalyzer("TestFindProduct",
   ),
   inputTagsEndProcessBlock4 = cms.untracked.VInputTag(
     cms.InputTag("intProducerEndProcessBlock", "four"),
-  )
+  ),
+  testGetterOfProducts = cms.untracked.bool(True)
 )
 
 process.a2 = cms.EDAnalyzer("TestFindProduct",
