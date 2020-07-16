@@ -29,25 +29,21 @@
   3. combine the global rotation from DDD with the rotation defined in 2.   
   */
 
-Bounds* TrackerShapeToBounds::buildBounds(const DDSolidShape& _shape, const std::vector<double>& _par) const {
+Bounds* TrackerShapeToBounds::buildBounds(const cms::DDSolidShape& _shape, const std::vector<double>& _par) const {
   switch (_shape) {
-    case DDSolidShape::ddbox:
+    case cms::DDSolidShape::ddbox:
       return buildBox(_par);
       break;
-    case DDSolidShape::ddtrap:
+    case cms::DDSolidShape::ddtrap:
       return buildTrap(_par);
       break;
-    case DDSolidShape::ddtubs:
-      return buildOpen(_par);
-      break;
-    case DDSolidShape::ddpolycone_rrz:
-      return buildOpen(_par);
-      break;
-    case DDSolidShape::ddsubtraction:
-      return buildOpen(_par);
+    case cms::DDSolidShape::ddtubs:
+    case cms::DDSolidShape::ddpolycone:
+    case cms::DDSolidShape::ddsubtraction:
+      return buildOpen();
       break;
     default:
-      std::cout << "Wrong DDshape to build...." << DDSolidShapesName::name(_shape) << std::endl;
+      std::cout << "Wrong DDshape to build...." << cms::dd::name(cms::DDSolidShapeMap, _shape) << std::endl;
       Bounds* bounds = nullptr;
       return bounds;
   }
@@ -106,7 +102,7 @@ Bounds* TrackerShapeToBounds::buildTrap(const std::vector<double>& paras) const 
   return bounds;
 }
 
-Bounds* TrackerShapeToBounds::buildOpen(const std::vector<double>& paras) const {
+Bounds* TrackerShapeToBounds::buildOpen() const {
   OpenBounds* bounds = new OpenBounds();
   return bounds;
 }
