@@ -215,11 +215,11 @@ static long algorithm(dd4hep::Detector& /* description */,
     laymin = laymax;
     if (fabs(thickTot - layerThick[i]) > tol2) {
       if (thickTot > layerThick[i]) {
-	edm::LogError("HGCalGeom") << "Thickness of the partition " << layerThick[i] << " is smaller than thickness "
-				   << thickTot << " of all its components **** ERROR ****\n";
+        edm::LogError("HGCalGeom") << "Thickness of the partition " << layerThick[i] << " is smaller than thickness "
+                                   << thickTot << " of all its components **** ERROR ****\n";
       } else {
-	edm::LogWarning("HGCalGeom") << "Thickness of the partition " << layerThick[i] << " does not match with "
-				     << thickTot << " of the components\n";
+        edm::LogWarning("HGCalGeom") << "Thickness of the partition " << layerThick[i] << " does not match with "
+                                     << thickTot << " of the components\n";
       }
     }
   }  // End of loop over blocks
