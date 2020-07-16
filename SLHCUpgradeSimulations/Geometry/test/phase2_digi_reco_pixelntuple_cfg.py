@@ -102,7 +102,7 @@ process.siPixelClusters.ElectronPerADCGain  = cms.double(135.)
 process.siPixelClustersPreSplitting.ElectronPerADCGain  = cms.double(135.)
 
 from Configuration.AlCa.GlobalTag import GlobalTag
-process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase2_realistic_T14', '')
+process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase2_realistic_T15', '')
 
 # Path and EndPath definitions
 process.digitisation_step = cms.Path(process.pdigi_valid)
