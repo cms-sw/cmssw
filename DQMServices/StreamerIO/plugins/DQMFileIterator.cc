@@ -5,7 +5,7 @@
 #include <boost/regex.hpp>
 #include <boost/format.hpp>
 #include <boost/range.hpp>
-#include <filesystem>
+#include <boost/filesystem.hpp>
 #include <boost/algorithm/string/predicate.hpp>
 
 #include <memory>
@@ -45,7 +45,7 @@ namespace dqmservices {
     if (boost::starts_with(datafn, "/"))
       return datafn;
 
-    std::filesystem::path p(run_path);
+    boost::filesystem::path p(run_path);
     p /= datafn;
     return p.string();
   }
@@ -183,10 +183,10 @@ namespace dqmservices {
     std::time_t mtime_now = 0;
 
     for (auto path : runPath_) {
-      if (!std::filesystem::exists(path))
+      if (!boost::filesystem::exists(path))
         continue;
 
-      mtime_now = mtime_now ^ std::chrono::system_clock::to_time_t(std::filesystem::last_write_time(path));
+      mtime_now = mtime_now ^ boost::filesystem::last_write_time(path);
     }
 
     return mtime_now;
@@ -217,13 +217,13 @@ namespace dqmservices {
     runPathMTime_ = mtime_now;
     runPathLastCollect_ = now;
 
-    using std::filesystem::directory_entry;
-    using std::filesystem::directory_iterator;
+    using boost::filesystem::directory_entry;
+    using boost::filesystem::directory_iterator;
 
     std::string fn_eor;
 
     for (auto runPath : runPath_) {
-      if (!std::filesystem::exists(runPath)) {
+      if (!boost::filesystem::exists(runPath)) {
         logFileAction("Directory does not exist: ", runPath);
 
         continue;

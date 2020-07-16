@@ -4,7 +4,6 @@
 <use name="IOPool/Output"/>
 <use name="DQMServices/Core"/>
 <use name="DQMServices/Components"/>
-<use name="stdcxx-fs"/>
 <library file="*.cc" name="DQMServicesStreamerIOPlugins">
   <flags EDM_PLUGIN="1"/>
   <flags REM_CXXFLAGS="-Werror=unused-variable"/>

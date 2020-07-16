@@ -20,9 +20,9 @@ class TestSchemaEvolution : public CppUnit::TestFixture {
 
 public:
   TestSchemaEvolution() = default;
-  ~TestSchemaEvolution() = default;
-  void setUp() {}
-  void tearDown() {}
+  ~TestSchemaEvolution() override = default;
+  void setUp() override {}
+  void tearDown() override {}
   void checkVersions();
 
 private:
@@ -107,7 +107,7 @@ void TestSchemaEvolution::gatherAllClasses() {
                                   "TProfile",
                                   "TProfile2D",
                                   "TF1",
-                                  0};
+                                  nullptr};
 
   int i = 0;
   while (classes[i]) {
