@@ -1,4 +1,4 @@
-#include "EventFilter/GEMRawToDigi/interface/VFATdata.h"
+#include "DataFormats/GEMDigi/interface/VFATdata.h"
 #include <iostream>
 using namespace gem;
 
