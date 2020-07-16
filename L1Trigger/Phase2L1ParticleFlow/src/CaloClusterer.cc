@@ -34,8 +34,8 @@ l1tpf_calo::Phase1GridBase::Phase1GridBase(
         continue;
       ieta_[icell] = ie;
       iphi_[icell] = iph;
-      float etaLo = (absie < nEta_ ? towerEtas_[absie-1] : towerEtas_[absie-2]);
-      float etaHi = (absie < nEta_ ? towerEtas_[absie] : towerEtas_[absie-1]);
+      float etaLo = (absie < nEta_ ? towerEtas_[absie - 1] : towerEtas_[absie - 2]);
+      float etaHi = (absie < nEta_ ? towerEtas_[absie] : towerEtas_[absie - 1]);
       eta_[icell] = (ie > 0 ? 0.5 : -0.5) * (etaLo + etaHi);
       etaWidth_[icell] = (etaHi - etaLo);
       phiWidth_[icell] = 2 * M_PI / nPhi_;
