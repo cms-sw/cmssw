@@ -79,6 +79,10 @@ process.TestEndProcessBlockProdRead = cms.EDProducer("edmtest::stream::TestEndPr
     consumesEndProcessBlock = cms.InputTag("TestEndProcessBlockProd", "end")
 )
 
+process.ProcessBlockIntProdNoGlobalCache = cms.EDProducer("edmtest::stream::ProcessBlockIntProducerNoGlobalCache")
+process.TestBeginProcessBlockProdNoGlobalCache = cms.EDProducer("edmtest::stream::TestBeginProcessBlockProducerNoGlobalCache")
+process.TestEndProcessBlockProdNoGlobalCache = cms.EDProducer("edmtest::stream::TestEndProcessBlockProducerNoGlobalCache")
+
 process.TestBeginRunProd = cms.EDProducer("edmtest::stream::TestBeginRunProducer",
     transitions = cms.int32(int(nEvt/nEvtRun))
     ,cachevalue = cms.int32(nEvt)
@@ -227,6 +231,9 @@ process.p = cms.Path(process.GlobIntProd +
                      process.TestBeginProcessBlockProd +
                      process.TestEndProcessBlockProdRead +
                      process.TestEndProcessBlockProd +
+                     process.ProcessBlockIntProdNoGlobalCache +
+                     process.TestBeginProcessBlockProdNoGlobalCache +
+                     process.TestEndProcessBlockProdNoGlobalCache +
                      process.TestBeginRunProd +
                      process.TestEndRunProd +
                      process.TestBeginLumiBlockProd +
