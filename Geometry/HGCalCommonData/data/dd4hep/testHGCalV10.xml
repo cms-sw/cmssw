@@ -4,7 +4,7 @@
   <close_geometry/>
 
   <IncludeSection>
-    <Include ref="Geometry/CMSCommonData/data/materials.xml"/>
+    <Include ref="Geometry/CMSCommonData/data/materials/2021/v1/materials.xml"/>
     <Include ref="Geometry/CMSCommonData/data/rotations.xml"/>
     <Include ref="Geometry/CMSCommonData/data/extend/cmsextent.xml"/>
     <Include ref="Geometry/CMSCommonData/data/cms/2026/v2/cms.xml"/>
@@ -30,7 +30,6 @@
     <Include ref="Geometry/HGCalCommonData/data/hgcalHEsil/v10/hgcalHEsil.xml"/>
     <Include ref="Geometry/HGCalCommonData/data/hgcalHEmix/v10/hgcalHEmix.xml"/>
     <Include ref="Geometry/HGCalCommonData/data/hgcalCons/v10/hgcalCons.xml"/>
-    <Include ref="Geometry/CMSCommonData/data/FieldParameters.xml"/>
   </IncludeSection>
   
 </DDDefinition>

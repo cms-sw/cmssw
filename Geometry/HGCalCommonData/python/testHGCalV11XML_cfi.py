@@ -1,11 +1,8 @@
 import FWCore.ParameterSet.Config as cms
 
-# This config was generated automatically using generate2026Geometry.py
-# If you notice a mistake, please update the generating script, not just this config
-
 XMLIdealGeometryESSource = cms.ESSource("XMLIdealGeometryESSource",
     geomXMLFiles = cms.vstring(
-        'Geometry/CMSCommonData/data/materials.xml',
+        'Geometry/CMSCommonData/data/materials/2021/v1/materials.xml',
         'Geometry/CMSCommonData/data/rotations.xml',
         'Geometry/CMSCommonData/data/extend/cmsextent.xml',
         'Geometry/CMSCommonData/data/cms/2026/v2/cms.xml',
@@ -38,15 +35,13 @@ XMLIdealGeometryESSource = cms.ESSource("XMLIdealGeometryESSource",
         'Geometry/HcalCommonData/data/average/hcalforwardmaterial.xml',
         'Geometry/HGCalCommonData/data/hgcalMaterial/v1/hgcalMaterial.xml',
         'Geometry/HGCalCommonData/data/hgcal/v11/hgcal.xml',
+        'Geometry/HGCalCommonData/data/hgcalcell/v9/hgcalcell.xml',
+        'Geometry/HGCalCommonData/data/hgcalwafer/v9/hgcalwafer.xml',
         'Geometry/HGCalCommonData/data/hgcalEE/v10/hgcalEE.xml',
         'Geometry/HGCalCommonData/data/hgcalHEsil/v11/hgcalHEsil.xml',
         'Geometry/HGCalCommonData/data/hgcalHEmix/v11/hgcalHEmix.xml',
-        'Geometry/HGCalCommonData/data/hgcalwafer/v9/hgcalwafer.xml',
-        'Geometry/HGCalCommonData/data/hgcalcell/v9/hgcalcell.xml',
         'Geometry/HGCalCommonData/data/hgcalCons/v11m/hgcalCons.xml',
         'Geometry/ForwardCommonData/data/forwardshield/2017/v1/forwardshield.xml',
-    )+
-    cms.vstring(
         'Geometry/EcalSimData/data/PhaseII/ecalsens.xml',
         'Geometry/HcalCommonData/data/hcalsens/NoHE/hcalsenspmf.xml',
         'Geometry/HcalSimData/data/hf.xml',
