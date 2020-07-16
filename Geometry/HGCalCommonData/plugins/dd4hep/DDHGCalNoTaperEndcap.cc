@@ -24,7 +24,9 @@ static long algorithm(dd4hep::Detector& /* description */,
   auto const& m_incrCopyNo = args.value<int>("incrCopyNo");        // Increment copy Number
   auto const& m_childName = args.value<std::string>("ChildName");  // Children name
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("HGCalGeom") << "Tilt Angle " << m_tiltAngle << " R " << m_rMin << ":" << m_rMax << " Offset " << m_zoffset << ":" << m_xyoffset << " Copy " << m_startCopyNo << ":" << m_incrCopyNo << " Child " << m_childName;
+  edm::LogVerbatim("HGCalGeom") << "Tilt Angle " << m_tiltAngle << " R " << m_rMin << ":" << m_rMax << " Offset "
+                                << m_zoffset << ":" << m_xyoffset << " Copy " << m_startCopyNo << ":" << m_incrCopyNo
+                                << " Child " << m_childName;
 
   edm::LogVerbatim("HGCalGeom") << "DDHGCalNoTaperEndcap: NameSpace " << ns.name() << "\tParent " << args.parentName();
 #endif
