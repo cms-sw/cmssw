@@ -12,7 +12,7 @@
 #include "FWCore/ServiceRegistry/interface/StreamContext.h"
 #include "FWCore/ServiceRegistry/interface/GlobalContext.h"
 #include "FWCore/Utilities/interface/StreamID.h"
-#include <filesystem>
+#include "boost/filesystem.hpp"
 
 #include <string>
 #include <vector>
@@ -22,7 +22,7 @@
 #include <chrono>
 #include <unordered_map>
 
-#include <filesystem>
+#include <boost/filesystem.hpp>
 #include <boost/format.hpp>
 #include <boost/property_tree/json_parser.hpp>
 #include <boost/property_tree/ptree.hpp>
