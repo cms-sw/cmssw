@@ -8,7 +8,10 @@ Tracker:
 * T15: Phase2 tilted tracker (v6.1.6) w/ phase 2 pixel (v6.1.3) (Active geometry: same as T14. Material Budget: major update in IT, gathering info from recent Mechanical designs.)
 * T17: Phase2 tilted tracker (v6.1.6) w/ phase 2 pixel (v6.1.5) TFPX: Changed sensors spacing within all double-disks + Increased distance between Disks 6 and 7 + Put TBPX portcards between Disks 6 and 7.
 * T19: Phase2 tilted tracker (v6.1.6) w/ phase 2 pixel (v7.0.0) Inner Tracker description with 3D sensors in TBPX L1 + TBPX L2 + TFPX R1.
-* T20: Phase2 tilted tracker (v6.1.6) Outer Tracker: All sensors 200 um -> 290 um + Update in Module MB + PS modules: s-sensor 164 um longer + Major update in OTST MB. Inner Tracker: (v6.1.5) from T17 is called.
+* T20: Phase2 tilted tracker. Outer Tracker (v6.1.6): All sensors 200 um -> 290 um + Update in Module MB + PS modules: s-sensor 164 um longer + Major update in OTST MB. Inner Tracker: (v6.1.5) from T17 is called.
+* T21: Phase2 tilted tracker. Outer Tracker (v8.0.0): TBPS update in Layer 1 (facilitate IT insertion) + In all TEDD, update sensors Z inter-spacing. Inner Tracker: (v6.1.5) from T17.
+* T22: Phase2 tilted tracker. Outer Tracker (v8.0.0): same as T21. Inner Tracker: Based on (v6.1.5) (T21), but with 50x50 pixel aspect ratio everywhere.
+* T23: Phase2 tilted tracker. Outer Tracker (v8.0.0): same as T21. Inner Tracker: Based on (v6.1.5) (T21), but with 3D sensors in TBPX L1 + TBPX L2 + TFPX R1.
 
 Calorimeters:
 * C9: HGCal (v11 post TDR HGCal Geometry w/ corner centering for HE part) + Phase2 HCAL and EB + Tracker cables
@@ -50,5 +53,8 @@ Several detector combinations have been generated:
 * D59 = T17+C13+M7+I11+O6+F6
 * D60 = T15+C10+M4+I10+O4+F3
 * D61 = T17+C9+M5+I10+O4+F2
+* D62 = T21+C11+M6+I11+O5+F4
+* D63 = T22+C11+M6+I11+O5+F4
+* D64 = T23+C11+M6+I11+O5+F4
 
 D49 is the HLT TDR baseline.
