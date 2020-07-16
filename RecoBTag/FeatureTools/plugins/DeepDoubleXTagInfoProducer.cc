@@ -7,6 +7,7 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/StreamID.h"
+#include "FWCore/Utilities/interface/ESGetToken.h"
 
 #include "DataFormats/Candidate/interface/Candidate.h"
 
@@ -59,6 +60,7 @@ private:
   edm::EDGetTokenT<VertexCollection> vtx_token_;
   edm::EDGetTokenT<SVCollection> sv_token_;
   edm::EDGetTokenT<BoostedDoubleSVTagInfoCollection> shallow_tag_info_token_;
+  edm::ESGetToken<TransientTrackBuilder, TransientTrackRecord> track_builder_token_;
 };
 
 DeepDoubleXTagInfoProducer::DeepDoubleXTagInfoProducer(const edm::ParameterSet& iConfig)
@@ -69,7 +71,9 @@ DeepDoubleXTagInfoProducer::DeepDoubleXTagInfoProducer(const edm::ParameterSet& 
       vtx_token_(consumes<VertexCollection>(iConfig.getParameter<edm::InputTag>("vertices"))),
       sv_token_(consumes<SVCollection>(iConfig.getParameter<edm::InputTag>("secondary_vertices"))),
       shallow_tag_info_token_(
-          consumes<BoostedDoubleSVTagInfoCollection>(iConfig.getParameter<edm::InputTag>("shallow_tag_infos"))) {
+          consumes<BoostedDoubleSVTagInfoCollection>(iConfig.getParameter<edm::InputTag>("shallow_tag_infos"))),
+      track_builder_token_(
+          esConsumes<TransientTrackBuilder, TransientTrackRecord>(edm::ESInputTag("", "TransientTrackBuilder"))) {
   produces<DeepDoubleXTagInfoCollection>();
 }
 
@@ -110,8 +114,7 @@ void DeepDoubleXTagInfoProducer::produce(edm::Event& iEvent, const edm::EventSet
   edm::Handle<BoostedDoubleSVTagInfoCollection> shallow_tag_infos;
   iEvent.getByToken(shallow_tag_info_token_, shallow_tag_infos);
 
-  edm::ESHandle<TransientTrackBuilder> track_builder;
-  iSetup.get<TransientTrackRecord>().get("TransientTrackBuilder", track_builder);
+  edm::ESHandle<TransientTrackBuilder> track_builder = iSetup.getHandle(track_builder_token_);
 
   for (std::size_t jet_n = 0; jet_n < jets->size(); jet_n++) {
     // create data containing structure
