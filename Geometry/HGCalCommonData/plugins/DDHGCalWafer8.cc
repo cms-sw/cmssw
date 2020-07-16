@@ -9,6 +9,7 @@
 #include "DetectorDescription/Core/interface/DDutils.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/PluginManager/interface/PluginFactory.h"
+#include "Geometry/HGCalCommonData/interface/HGCalTypes.h"
 
 #include <string>
 #include <vector>
@@ -136,7 +137,7 @@ void DDHGCalWafer8::execute(DDCompactView& cpv) {
         else if (v == 0)
           cell = 6;
         DDTranslation tran(xp, yp, 0);
-        int copy = (cellType_ * 100 + v) * 100 + u;
+        int copy = HGCalTypes::packCellTypeUV(cellType_, u, v);
         cpv.position(DDName(cellNames_[cell]), glog, copy, tran, rot);
 #ifdef EDM_ML_DEBUG
         edm::LogVerbatim("HGCalGeom") << "DDHGCalWafer8: " << cellNames_[cell] << " number " << copy << " position in "

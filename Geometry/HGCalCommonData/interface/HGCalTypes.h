@@ -68,6 +68,10 @@ public:
   static int32_t getUnpackedType(int id);
   static int32_t getUnpackedU(int id);
   static int32_t getUnpackedV(int id);
+  static int32_t packCellTypeUV(int type, int u, int v);
+  static int32_t getUnpackedCellType(int id);
+  static int32_t getUnpackedCellU(int id);
+  static int32_t getUnpackedCellV(int id);
 
 private:
   static constexpr int32_t facu_ = 1;
@@ -77,6 +81,9 @@ private:
   static constexpr int32_t signv_ = 100000;
   static constexpr int32_t maxuv_ = 100;
   static constexpr int32_t maxsign_ = 10;
+  static constexpr int32_t maxtype_ = 10;
+  static constexpr int32_t faccell_ = 100;
+  static constexpr int32_t faccelltype_ = 10000;
 };
 
 #endif
