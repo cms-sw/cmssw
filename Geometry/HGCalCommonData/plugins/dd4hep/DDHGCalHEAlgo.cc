@@ -56,8 +56,8 @@ struct HGCalHEAlgo {
 #ifdef EDM_ML_DEBUG
     edm::LogVerbatim("HGCalGeom") << "There are " << layerNumbers_.size() << " blocks";
     for (unsigned int i = 0; i < layerNumbers_.size(); ++i)
-      edm::LogVerbatim("HGCalGeom") << "Block [" << i << "] of thickness " << layerThick_[i] << " Rmid " << rMixLayer_[i]
-                                    << " with " << layerNumbers_[i] << " layers";
+      edm::LogVerbatim("HGCalGeom") << "Block [" << i << "] of thickness " << layerThick_[i] << " Rmid "
+                                    << rMixLayer_[i] << " with " << layerNumbers_[i] << " layers";
 #endif
     layerType_ = args.value<std::vector<int>>("LayerType");
     layerSense_ = args.value<std::vector<int>>("LayerSense");
@@ -100,7 +100,8 @@ struct HGCalHEAlgo {
     edm::LogVerbatim("HGCalGeom") << "DDHGCalHEAlgo: " << materialsTop_.size() << " types of volumes in the top part";
     for (unsigned int i = 0; i < materialsTop_.size(); ++i)
       edm::LogVerbatim("HGCalGeom") << "Volume [" << i << "] " << namesTop_[i] << " of thickness " << layerThickTop_[i]
-                                    << " filled with " << materialsTop_[i] << " first copy number " << copyNumberTop_[i];
+                                    << " filled with " << materialsTop_[i] << " first copy number "
+                                    << copyNumberTop_[i];
     edm::LogVerbatim("HGCalGeom") << "There are " << layerTypeTop_.size() << " layers in the top part";
     for (unsigned int i = 0; i < layerTypeTop_.size(); ++i)
       edm::LogVerbatim("HGCalGeom") << "Layer [" << i << "] with material type " << layerTypeTop_[i];
@@ -112,10 +113,12 @@ struct HGCalHEAlgo {
     layerThickBot_ = args.value<std::vector<double>>("BottomLayerThickness");
     copyNumberBot_.resize(materialsBot_.size(), 1);
 #ifdef EDM_ML_DEBUG
-    edm::LogVerbatim("HGCalGeom") << "DDHGCalHEAlgo: " << materialsBot_.size() << " types of volumes in the bottom part";
+    edm::LogVerbatim("HGCalGeom") << "DDHGCalHEAlgo: " << materialsBot_.size()
+                                  << " types of volumes in the bottom part";
     for (unsigned int i = 0; i < materialsBot_.size(); ++i)
       edm::LogVerbatim("HGCalGeom") << "Volume [" << i << "] " << namesBot_[i] << " of thickness " << layerThickBot_[i]
-                                    << " filled with " << materialsBot_[i] << " first copy number " << copyNumberBot_[i];
+                                    << " filled with " << materialsBot_[i] << " first copy number "
+                                    << copyNumberBot_[i];
     edm::LogVerbatim("HGCalGeom") << "There are " << layerTypeBot_.size() << " layers in the bottom part";
     for (unsigned int i = 0; i < layerTypeBot_.size(); ++i)
       edm::LogVerbatim("HGCalGeom") << "Layer [" << i << "] with material type " << layerTypeBot_[i]
@@ -196,7 +199,8 @@ struct HGCalHEAlgo {
           std::vector<double> pgonZ, pgonRin, pgonRout;
           if (layerSense_[ly] == 0 || absorbMode_ == 0) {
             double rmax =
-                (std::min(routF, HGCalGeomTools::radius(zz + hthick, zFrontT_, rMaxFront_, slopeT_)) * cosAlpha_) - tol1_;
+                (std::min(routF, HGCalGeomTools::radius(zz + hthick, zFrontT_, rMaxFront_, slopeT_)) * cosAlpha_) -
+                tol1_;
             pgonZ.emplace_back(-hthick);
             pgonZ.emplace_back(hthick);
             pgonRin.emplace_back(rinB);
@@ -222,7 +226,8 @@ struct HGCalHEAlgo {
             }
           }
 
-          dd4hep::Solid solid = dd4hep::Polyhedra(sectors_, -alpha_, 2. * cms_units::piRadians, pgonZ, pgonRin, pgonRout);
+          dd4hep::Solid solid =
+              dd4hep::Polyhedra(sectors_, -alpha_, 2. * cms_units::piRadians, pgonZ, pgonRin, pgonRout);
           ns.addSolidNS(ns.prepend(name), solid);
           glog = dd4hep::Volume(solid.name(), solid, matter);
           ns.addVolumeNS(glog);
@@ -473,7 +478,7 @@ struct HGCalHEAlgo {
         double ypos = xyoff.second + nr * dy;
         const auto& corner = HGCalGeomTools::waferCorner(xpos, ypos, r, R, rin, rout, false);
 #ifdef EDM_ML_DEBUG
-	int iu = std::abs(u);
+        int iu = std::abs(u);
         int iv = std::abs(v);
         ++ntot;
 #endif

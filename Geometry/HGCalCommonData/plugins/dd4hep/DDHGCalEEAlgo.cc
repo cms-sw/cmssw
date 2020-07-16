@@ -351,7 +351,7 @@ struct HGCalEEAlgo {
         double ypos = xyoff.second + nr * dy;
         const auto& corner = HGCalGeomTools::waferCorner(xpos, ypos, r, R, rin, rout, false);
 #ifdef EDM_ML_DEBUG
-	int iu = std::abs(u);
+        int iu = std::abs(u);
         int iv = std::abs(v);
         ++ntot;
         if (((corner.first <= 0) && std::abs(u) < 5 && std::abs(v) < 5) || (std::abs(u) < 2 && std::abs(v) < 2)) {
@@ -362,7 +362,7 @@ struct HGCalEEAlgo {
 #endif
         if (corner.first > 0) {
           int type = waferType_->getType(xpos, ypos, zpos);
-	  int copy = HGCalTypes::packTypeUV(type, u, v);
+          int copy = HGCalTypes::packTypeUV(type, u, v);
 #ifdef EDM_ML_DEBUG
           if (iu > ium)
             ium = iu;
