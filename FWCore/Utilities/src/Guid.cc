@@ -15,13 +15,11 @@
 #include <cstring>
 #include <cstdlib>
 #include <string>
+#include <fmt/format.h>
 #include "uuid/uuid.h"
 
 namespace edm {
-  static char const* fmt_Guid = "%08lX-%04hX-%04hX-%02hhX%02hhX-%02hhX%02hhX%02hhX%02hhX%02hhX%02hhX";
-
-  static int const bufSize = 128;
-
+  constexpr char const* const fmt_Guid = "{:08X}-{:04X}-{:04X}-{:02X}{:02X}-{:02X}{:02X}{:02X}{:02X}{:02X}{:02X}";
   /// Initialize a new Guid
   void Guid::init() {
     uuid_t me_;
@@ -38,22 +36,8 @@ namespace edm {
   }
 
   std::string const Guid::toString() const {
-    char text[bufSize];
-    ::snprintf(text,
-               sizeof(text),
-               fmt_Guid,
-               Data1,
-               Data2,
-               Data3,
-               Data4[0],
-               Data4[1],
-               Data4[2],
-               Data4[3],
-               Data4[4],
-               Data4[5],
-               Data4[6],
-               Data4[7]);
-    return text;
+    return fmt::format(
+        fmt_Guid, Data1, Data2, Data3, Data4[0], Data4[1], Data4[2], Data4[3], Data4[4], Data4[5], Data4[6], Data4[7]);
   }
 
   // fromString is used only in a unit test, so performance is not critical.
