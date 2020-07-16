@@ -40,13 +40,13 @@ namespace pat {
     edm::EDGetTokenT<edm::Association<pat::PackedCandidateCollection>> track2LostTrackToken_;
     const edm::EDGetTokenT<reco::TrackCollection> trackToken_;
     const bool doLostTracks_;
+    static const uint8_t roundingPrecision = 8;
   };
 
 }  // namespace pat
 
 void pat::PackedCandidateTrackChi2Producer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
-  edm::Handle<pat::PackedCandidateCollection> candidates;
-  iEvent.getByToken(candidateToken_, candidates);
+  auto const candidates = iEvent.getHandle(candidateToken_);
 
   const edm::Association<reco::PFCandidateCollection>* candidate2PF = nullptr;
   if (!doLostTracks_) {
@@ -65,28 +65,25 @@ void pat::PackedCandidateTrackChi2Producer::produce(edm::Event& iEvent, const ed
 
   if (doLostTracks_) {  //for Lost tracks we don't have references to PFCands, so we must loop over tracks and check keys...
     for (size_t i = 0; i < trks->size(); i++) {
-      float nChi2 = 0;
-      //const auto& trk = trks->refAt(i);
       const auto& trk = reco::TrackRef(trks, i);
       const auto& lostTrack = (*tracks2LT)[trk];
       if (lostTrack.isNonnull()) {
-        nChi2 = trk->normalizedChi2();
-        trkChi2Map.at(lostTrack.key()) = MiniFloatConverter::reduceMantissaToNbitsRounding<12>(nChi2);
+        const float nChi2 = trk->normalizedChi2();
+        trkChi2Map.at(lostTrack.key()) = MiniFloatConverter::reduceMantissaToNbitsRounding<roundingPrecision>(nChi2);
       }
     }
   } else {  //for the regular PackedPFCands we have direct references...
     for (size_t i = 0; i < nCand; i++) {
       const auto& cand = pat::PackedCandidateRef(candidates, i);
-      float nChi2 = 0;
 
       // ignore neutral candidates or without track
       if (cand->charge() == 0 || !cand->hasTrackDetails())
         continue;
 
       const auto& candTrack = (*candidate2PF)[cand]->trackRef();
-      nChi2 = candTrack->normalizedChi2();
+      const float nChi2 = candTrack->normalizedChi2();
 
-      trkChi2Map.at(i) = MiniFloatConverter::reduceMantissaToNbitsRounding<12>(nChi2);
+      trkChi2Map.at(i) = MiniFloatConverter::reduceMantissaToNbitsRounding<roundingPrecision>(nChi2);
     }
   }
 
