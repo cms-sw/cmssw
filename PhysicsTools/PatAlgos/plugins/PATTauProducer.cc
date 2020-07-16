@@ -588,17 +588,17 @@ void PATTauProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) 
           reco::TrackRef trackRef = pfCandPtr->trackRef();
           if (trackRef.isNonnull()) {
             leadingTrackNormChi2 = trackRef->normalizedChi2();
-          }
-          for (const auto& isoPFCand : pfTauRef->isolationPFCands()) {
-            myHCALenergy += isoPFCand->hcalEnergy();
-            myECALenergy += isoPFCand->ecalEnergy();
-          }
-          for (const auto& signalPFCand : pfTauRef->signalPFCands()) {
-            myHCALenergy += signalPFCand->hcalEnergy();
-            myECALenergy += signalPFCand->ecalEnergy();
-          }
-          if (myHCALenergy + myECALenergy != 0.) {
-            emFraction = myECALenergy / (myHCALenergy + myECALenergy);
+            for (const auto& isoPFCand : pfTauRef->isolationPFCands()) {
+              myHCALenergy += isoPFCand->hcalEnergy();
+              myECALenergy += isoPFCand->ecalEnergy();
+            }
+            for (const auto& signalPFCand : pfTauRef->signalPFCands()) {
+              myHCALenergy += signalPFCand->hcalEnergy();
+              myECALenergy += signalPFCand->ecalEnergy();
+            }
+            if (myHCALenergy + myECALenergy != 0.) {
+              emFraction = myECALenergy / (myHCALenergy + myECALenergy);
+            }
           }
         } else {
           const pat::PackedCandidate* packedCandPtr = dynamic_cast<const pat::PackedCandidate*>(leadingPFCharged.get());
@@ -612,25 +612,25 @@ void PATTauProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) 
             const reco::Track* track = packedCandPtr->bestTrack();
             if (track != nullptr) {
               leadingTrackNormChi2 = track->normalizedChi2();
-            }
-            for (const auto& isoCand : pfTauRef->isolationCands()) {
-              //can safely use static_cast as it is ensured that this PFTau is
-              //built with packedCands as its leadingCanidate
-              const pat::PackedCandidate* isoPackedCand = static_cast<const pat::PackedCandidate*>(isoCand.get());
-              myHCALenergy += isoPackedCand->caloFraction() * isoPackedCand->energy() * isoPackedCand->hcalFraction();
-              myECALenergy +=
-                  isoPackedCand->caloFraction() * isoPackedCand->energy() * (1. - isoPackedCand->hcalFraction());
-            }
-            for (const auto& signalCand : pfTauRef->signalCands()) {
-              //can safely use static_cast as it is ensured that this PFTau is
-              //built with packedCands as its leadingCanidate
-              const pat::PackedCandidate* sigPackedCand = static_cast<const pat::PackedCandidate*>(signalCand.get());
-              myHCALenergy += sigPackedCand->caloFraction() * sigPackedCand->energy() * sigPackedCand->hcalFraction();
-              myECALenergy +=
-                  sigPackedCand->caloFraction() * sigPackedCand->energy() * (1. - sigPackedCand->hcalFraction());
-            }
-            if (myHCALenergy + myECALenergy != 0.) {
-              emFraction = myECALenergy / (myHCALenergy + myECALenergy);
+              for (const auto& isoCand : pfTauRef->isolationCands()) {
+                //can safely use static_cast as it is ensured that this PFTau is
+                //built with packedCands as its leadingCanidate
+                const pat::PackedCandidate* isoPackedCand = static_cast<const pat::PackedCandidate*>(isoCand.get());
+                myHCALenergy += isoPackedCand->caloFraction() * isoPackedCand->energy() * isoPackedCand->hcalFraction();
+                myECALenergy +=
+                    isoPackedCand->caloFraction() * isoPackedCand->energy() * (1. - isoPackedCand->hcalFraction());
+              }
+              for (const auto& signalCand : pfTauRef->signalCands()) {
+                //can safely use static_cast as it is ensured that this PFTau is
+                //built with packedCands as its leadingCanidate
+                const pat::PackedCandidate* sigPackedCand = static_cast<const pat::PackedCandidate*>(signalCand.get());
+                myHCALenergy += sigPackedCand->caloFraction() * sigPackedCand->energy() * sigPackedCand->hcalFraction();
+                myECALenergy +=
+                    sigPackedCand->caloFraction() * sigPackedCand->energy() * (1. - sigPackedCand->hcalFraction());
+              }
+              if (myHCALenergy + myECALenergy != 0.) {
+                emFraction = myECALenergy / (myHCALenergy + myECALenergy);
+              }
             }
           }
         }
