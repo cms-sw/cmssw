@@ -179,14 +179,16 @@ namespace dqmservices {
     mon_->outputUpdate(doc);
   }
 
-  std::time_t DQMFileIterator::mtimeHash() const {
-    std::time_t mtime_now = 0;
+  unsigned DQMFileIterator::mtimeHash() const {
+    unsigned mtime_now = 0;
 
     for (auto path : runPath_) {
       if (!std::filesystem::exists(path))
         continue;
 
-      mtime_now = mtime_now ^ std::chrono::system_clock::to_time_t(std::filesystem::last_write_time(path));
+      auto write_time = std::filesystem::last_write_time(path);
+      mtime_now =
+          mtime_now ^ std::chrono::duration_cast<std::chrono::microseconds>(write_time.time_since_epoch()).count();
     }
 
     return mtime_now;
@@ -205,7 +207,7 @@ namespace dqmservices {
     }
 
     // check if directory changed
-    std::time_t mtime_now = mtimeHash();
+    auto mtime_now = mtimeHash();
 
     if ((!ignoreTimers) && (last_ms < forceFileCheckTimeoutMillis_) && (mtime_now == runPathMTime_)) {
       // logFileAction("Directory hasn't changed.");
