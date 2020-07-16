@@ -995,7 +995,8 @@ std::pair<int, int> HGCalDDDConstants::rowColumnWafer(int wafer) const {
   if (wafer < (int)(hgpar_->waferCopy_.size())) {
     int copy = hgpar_->waferCopy_[wafer];
     col = HGCalTypes::getUnpackedU(copy);
-    row = HGCalTypes::getUnpackedV(copy);;
+    row = HGCalTypes::getUnpackedV(copy);
+    ;
   }
   return std::make_pair(row, col);
 }

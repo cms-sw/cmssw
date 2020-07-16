@@ -25,9 +25,7 @@ int32_t HGCalTypes::getUnpackedV(int copy) {
   return v;
 }
 
-int32_t HGCalTypes::packCellTypeUV(int type, int u, int v) {
-  return (type * faccelltype_ + v * faccell_ + u);
-}
+int32_t HGCalTypes::packCellTypeUV(int type, int u, int v) { return (type * faccelltype_ + v * faccell_ + u); }
 
 int32_t HGCalTypes::getUnpackedCellType(int copy) { return ((copy / faccelltype_) % faccell_); }
 
