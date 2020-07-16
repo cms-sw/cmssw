@@ -9,6 +9,7 @@
 #include "FWCore/Utilities/interface/Exception.h"
 #include "Geometry/HGCalCommonData/interface/HGCalGeomTools.h"
 #include "Geometry/HGCalCommonData/interface/HGCalGeometryMode.h"
+#include "Geometry/HGCalCommonData/interface/HGCalTypes.h"
 #include "Geometry/HGCalCommonData/interface/HGCalWaferIndex.h"
 #include "Geometry/HGCalCommonData/interface/HGCalWaferMask.h"
 #include "Geometry/HGCalCommonData/interface/HGCalWaferType.h"
@@ -993,12 +994,8 @@ std::pair<int, int> HGCalDDDConstants::rowColumnWafer(int wafer) const {
   int row(0), col(0);
   if (wafer < (int)(hgpar_->waferCopy_.size())) {
     int copy = hgpar_->waferCopy_[wafer];
-    col = copy % 100;
-    if ((copy / 10000) % 10 != 0)
-      col = -col;
-    row = (copy / 100) % 100;
-    if ((copy / 100000) % 10 != 0)
-      row = -row;
+    col = HGCalTypes::getUnpackedU(copy);
+    row = HGCalTypes::getUnpackedV(copy);;
   }
   return std::make_pair(row, col);
 }
