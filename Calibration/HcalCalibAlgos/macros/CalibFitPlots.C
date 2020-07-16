@@ -9,7 +9,7 @@
 //             For extended set of histograms from CalibMonitor
 //  FitHistExtended(infile, outfile, prefix, numb, type, append, fiteta, iname,
 //                  debug);
-//      Defaults: numb=50, type=3, append=true, fiteta=true, iname=2,
+//      Defaults: numb=50, type=3, append=true, fiteta=true, iname=3,
 //                debug=false
 //
 //             For RBX dependence in sets of histograms from CalibMonitor
@@ -102,7 +102,7 @@
 //  type     (int)          = defines eta binning type (see CalibMonitor)
 //  append   (bool)         = Open the output in Update/Recreate mode (True)
 //  fiteta   (bool)         = fit the eta dependence with pol0
-//  iname    (int)          = choose the momentum bin (2: 40-60 GeV)
+//  iname    (int)          = choose the momentum bin (3: 40-60 GeV)
 //  saveAll  (bool)         = Flag to save intermediate plots (False)
 //  numb     (int)          = Number of eta bins (42 for -21:21)
 //  text     (std::string)  = Extra text to be put in the text title
@@ -508,8 +508,8 @@ void FitHistStandard(std::string infile,
                      bool append = true,
                      bool saveAll = false,
                      bool debug = false) {
-  int iname[5] = {0, 1, 2, 3, 4};
-  int checkmode[5] = {10, 1000, 1, 10000, 100};
+  int iname[6] = {0, 1, 2, 3, 4, 5};
+  int checkmode[6] = {1000, 10, 10000, 1, 100000, 100};
   double xbin0[9] = {-21.0, -16.0, -12.0, -6.0, 0.0, 6.0, 12.0, 16.0, 21.0};
   double xbins[11] = {-25.0, -20.0, -15.0, -10.0, -5.0, 0.0, 5.0, 10.0, 15.0, 20.0, 25.0};
   double vbins[6] = {0.0, 7.0, 10.0, 13.0, 16.0, 50.0};
@@ -530,7 +530,7 @@ void FitHistStandard(std::string infile,
   char name[100], namw[100];
   if (file != nullptr) {
     for (int m1 = 0; m1 < 4; ++m1) {
-      for (int m2 = 0; m2 < 5; ++m2) {
+      for (int m2 = 0; m2 < 6; ++m2) {
         sprintf(name, "%s%s%d0", prefix.c_str(), sname[m1].c_str(), iname[m2]);
         TH1D* hist0 = (TH1D*)file->FindObjectAny(name);
         bool ok = ((hist0 != nullptr) && (hist0->GetEntries() > 25));
@@ -630,7 +630,7 @@ void FitHistExtended(const char* infile,
                      int type = 3,
                      bool append = true,
                      bool fiteta = true,
-                     int iname = 2,
+                     int iname = 3,
                      bool debug = false) {
   std::string sname("ratio"), lname("Z"), wname("W"), ename("etaB");
   double xbins[99];
@@ -852,7 +852,7 @@ void FitHistExtended(const char* infile,
   }
 }
 
-void FitHistRBX(const char* infile, const char* outfile, std::string prefix, bool append = true, int iname = 2) {
+void FitHistRBX(const char* infile, const char* outfile, std::string prefix, bool append = true, int iname = 3) {
   std::string sname("RBX"), lname("R");
   int numb(18);
   bool debug(false);
@@ -930,25 +930,41 @@ void PlotHist(const char* infile,
               bool dataMC = false,
               bool drawStatBox = true,
               bool save = false) {
-  std::string name0[5] = {"ratio00", "ratio10", "ratio20", "ratio30", "ratio40"};
+  std::string name0[6] = {"ratio00", "ratio10", "ratio20", "ratio30", "ratio40", "ratio50"};
   std::string name1[5] = {"Z0", "Z1", "Z2", "Z3", "Z4"};
   std::string name2[5] = {"L0", "L1", "L2", "L3", "L4"};
   std::string name3[5] = {"V0", "V1", "V2", "V3", "V4"};
-  std::string name4[8] = {"etaB21", "etaB22", "etaB23", "etaB24", "etaB01", "etaB02", "etaB03", "etaB04"};
+  std::string name4[12] = {"etaB31",
+                           "etaB32",
+                           "etaB33",
+                           "etaB34",
+                           "etaB11",
+                           "etaB12",
+                           "etaB13",
+                           "etaB14",
+                           "etaB01",
+                           "etaB02",
+                           "etaB03",
+                           "etaB04"};
   std::string name5[5] = {"W0", "W1", "W2", "W3", "W4"};
-  std::string title[5] = {"Tracks with p = 20:30 GeV",
+  std::string title[6] = {"Tracks with p = 10:20 GeV",
+                          "Tracks with p = 20:30 GeV",
                           "Tracks with p = 30:40 GeV",
                           "Tracks with p = 40:60 GeV",
                           "Tracks with p = 60:100 GeV",
                           "Tracks with p = 20:100 GeV"};
-  std::string title1[8] = {"Tracks with p = 40:60 GeV (Barrel)",
-                           "Tracks with p = 40:60 GeV (Transition)",
-                           "Tracks with p = 40:60 GeV (Endcap)",
-                           "Tracks with p = 40:60 GeV",
-                           "Tracks with p = 20:30 GeV (Barrel)",
-                           "Tracks with p = 20:30 GeV (Transition)",
-                           "Tracks with p = 20:30 GeV (Endcap)",
-                           "Tracks with p = 20:30 GeV"};
+  std::string title1[12] = {"Tracks with p = 40:60 GeV (Barrel)",
+                            "Tracks with p = 40:60 GeV (Transition)",
+                            "Tracks with p = 40:60 GeV (Endcap)",
+                            "Tracks with p = 40:60 GeV",
+                            "Tracks with p = 20:30 GeV (Barrel)",
+                            "Tracks with p = 20:30 GeV (Transition)",
+                            "Tracks with p = 20:30 GeV (Endcap)",
+                            "Tracks with p = 20:30 GeV",
+                            "Tracks with p = 10:20 GeV (Barrel)",
+                            "Tracks with p = 10:20 GeV (Transition)",
+                            "Tracks with p = 10:20 GeV (Endcap)",
+                            "Tracks with p = 10:20 GeV"};
   std::string xtitl[5] = {"E_{HCAL}/(p-E_{ECAL})", "i#eta", "d_{L1}", "# Vertex", "E_{HCAL}/(p-E_{ECAL})"};
   std::string ytitl[5] = {
       "Tracks", "MPV(E_{HCAL}/(p-E_{ECAL}))", "MPV(E_{HCAL}/(p-E_{ECAL}))", "MPV(E_{HCAL}/(p-E_{ECAL}))", "Tracks"};
@@ -973,7 +989,7 @@ void PlotHist(const char* infile,
   TFile* file = new TFile(infile);
   TLine* line(0);
   char name[100], namep[100];
-  int kmax = (mode == 4) ? 8 : 5;
+  int kmax = (mode == 4) ? 12 : (((mode < 1) && (mode > 5)) ? 6 : 5);
   for (int k = 0; k < kmax; ++k) {
     if (mode == 1) {
       sprintf(name, "%s%s", prefix.c_str(), name1[k].c_str());
@@ -1246,7 +1262,7 @@ void PlotTwoHists(std::string infile,
                   std::string text2,
                   std::string text0,
                   int type = 0,
-                  int iname = 2,
+                  int iname = 3,
                   double lumi = 0,
                   double ener = 13.0,
                   int drawStatBox = 0,
@@ -1254,11 +1270,12 @@ void PlotTwoHists(std::string infile,
   int colors[2] = {2, 4};
   int numb[2] = {5, 1};
   std::string names0[5] = {"ratio00", "ratio00One", "etaB04One", "Z0", "W0"};
-  std::string names1[5] = {"ratio20", "ratio20One", "etaB24One", "Z2", "W2"};
+  std::string names1[5] = {"ratio10", "ratio10One", "etaB14One", "Z1", "W1"};
+  std::string names2[5] = {"ratio30", "ratio30One", "etaB34One", "Z3", "W3"};
   std::string xtitl1[5] = {"E_{HCAL}/(p-E_{ECAL})", "E_{HCAL}/(p-E_{ECAL})", "E_{HCAL}/(p-E_{ECAL})", "i#eta", "i#eta"};
   std::string ytitl1[5] = {
       "Tracks", "Tracks", "Tracks", "MPV(E_{HCAL}/(p-E_{ECAL}))", "MPV/Width(E_{HCAL}/(p-E_{ECAL}))"};
-  std::string names2[1] = {"R"};
+  std::string names3[1] = {"R"};
   std::string xtitl2[1] = {"RBX #"};
   std::string ytitl2[1] = {"MPV(E_{HCAL}/(p-E_{ECAL}))"};
 
@@ -1294,10 +1311,12 @@ void PlotTwoHists(std::string infile,
       if (type == 0) {
         if (iname == 0)
           sprintf(name, "%s%s", prefix.c_str(), names0[i].c_str());
-        else
+        else if (iname == 1)
           sprintf(name, "%s%s", prefix.c_str(), names1[i].c_str());
+        else
+          sprintf(name, "%s%s", prefix.c_str(), names2[i].c_str());
       } else {
-        sprintf(name, "%s%s%d", prefix.c_str(), names2[i].c_str(), iname);
+        sprintf(name, "%s%s%d", prefix.c_str(), names3[i].c_str(), iname);
       }
       TH1D* hist1 = (TH1D*)file->FindObjectAny(name);
       if (hist1 != nullptr) {
@@ -1309,10 +1328,12 @@ void PlotTwoHists(std::string infile,
       if (type == 0) {
         if (iname == 0)
           sprintf(namep, "c_%s%s%s", prefix1.c_str(), prefix2.c_str(), names0[i].c_str());
-        else
+        else if (iname == 1)
           sprintf(namep, "c_%s%s%s", prefix1.c_str(), prefix2.c_str(), names1[i].c_str());
+        else
+          sprintf(namep, "c_%s%s%s", prefix1.c_str(), prefix2.c_str(), names2[i].c_str());
       } else {
-        sprintf(namep, "c_%s%s%s%d", prefix1.c_str(), prefix2.c_str(), names2[i].c_str(), iname);
+        sprintf(namep, "c_%s%s%s%d", prefix1.c_str(), prefix2.c_str(), names3[i].c_str(), iname);
       }
       double ymax(0.90);
       double dy = (i == 0) ? 0.13 : 0.08;
@@ -1423,7 +1444,7 @@ void PlotFiveHists(std::string infile,
                    std::string text0,
                    std::string prefix0,
                    int type = 0,
-                   int iname = 0,
+                   int iname = 3,
                    int drawStatBox = 0,
                    bool normalize = false,
                    bool save = false,
@@ -1440,14 +1461,15 @@ void PlotFiveHists(std::string infile,
   int colors[5] = {2, 4, 6, 1, 7};
   int numb[3] = {5, 1, 4};
   std::string names0[5] = {"ratio00", "ratio00One", "etaB04", "Z0", "W0"};
-  std::string names1[5] = {"ratio20", "ratio20One", "etaB24", "Z2", "W2"};
+  std::string names1[5] = {"ratio10", "ratio10One", "etaB14", "Z1", "W1"};
+  std::string names2[5] = {"ratio30", "ratio30One", "etaB34", "Z3", "W3"};
   std::string xtitl1[5] = {"E_{HCAL}/(p-E_{ECAL})", "E_{HCAL}/(p-E_{ECAL})", "E_{HCAL}/(p-E_{ECAL})", "i#eta", "i#eta"};
   std::string ytitl1[5] = {
       "Tracks", "Tracks", "Tracks", "MPV(E_{HCAL}/(p-E_{ECAL}))", "MPV/Width(E_{HCAL}/(p-E_{ECAL}))"};
-  std::string names2[1] = {"R"};
+  std::string names3[1] = {"R"};
   std::string xtitl2[1] = {"RBX #"};
   std::string ytitl2[1] = {"MPV(E_{HCAL}/(p-E_{ECAL}))"};
-  std::string names3[4] = {"pp21", "pp22", "pp23", "pp24"};
+  std::string names4[4] = {"pp21", "pp22", "pp23", "pp24"};
   std::string xtitl3[4] = {"p (GeV)", "p (GeV)", "p (GeV)", "p (GeV)"};
   std::string ytitl3[4] = {"Tracks", "Tracks", "Tracks", "Tracks"};
   std::string title3[4] = {"Barrel", "Transition", "Endcap", "Combined"};
@@ -1504,12 +1526,14 @@ void PlotFiveHists(std::string infile,
         if (type == 0) {
           if (iname == 0)
             sprintf(name, "%s%s", prefix.c_str(), names0[i].c_str());
-          else
+          else if (iname == 1)
             sprintf(name, "%s%s", prefix.c_str(), names1[i].c_str());
+          else
+            sprintf(name, "%s%s", prefix.c_str(), names2[i].c_str());
         } else if (type == 1) {
-          sprintf(name, "%s%s%d", prefix.c_str(), names2[i].c_str(), iname);
+          sprintf(name, "%s%s%d", prefix.c_str(), names3[i].c_str(), iname);
         } else {
-          sprintf(name, "%s%s", prefix.c_str(), names3[i].c_str());
+          sprintf(name, "%s%s", prefix.c_str(), names4[i].c_str());
         }
         TH1D* hist1 = (TH1D*)file->FindObjectAny(name);
         if (hist1 != nullptr) {
@@ -1523,12 +1547,14 @@ void PlotFiveHists(std::string infile,
       if (type == 0) {
         if (iname == 0)
           sprintf(namep, "c_%s%s", prefix0.c_str(), names0[i].c_str());
-        else
+        else if (iname == 1)
           sprintf(namep, "c_%s%s", prefix0.c_str(), names1[i].c_str());
+        else
+          sprintf(namep, "c_%s%s", prefix0.c_str(), names2[i].c_str());
       } else if (type == 1) {
-        sprintf(namep, "c_%s%s%d", prefix0.c_str(), names2[i].c_str(), iname);
+        sprintf(namep, "c_%s%s%d", prefix0.c_str(), names3[i].c_str(), iname);
       } else {
-        sprintf(namep, "c_%s%s", prefix0.c_str(), names3[i].c_str());
+        sprintf(namep, "c_%s%s", prefix0.c_str(), names4[i].c_str());
       }
       double ymax(0.90);
       double dy = (i == 0 && type == 0) ? 0.13 : 0.08;
@@ -2455,7 +2481,7 @@ void PlotFourHists(std::string infile,
                    std::string prefix4 = "",
                    std::string text4 = "") {
   int colors[4] = {2, 4, 6, 1};
-  std::string names[5] = {"eta02", "eta12", "eta22", "eta32", "eta42"};
+  std::string names[5] = {"eta03", "eta13", "eta23", "eta33", "eta43"};
   std::string xtitle[5] = {"i#eta", "i#eta", "i#eta", "i#eta", "i#eta"};
   std::string ytitle[5] = {"Tracks", "Tracks", "Tracks", "Tracks", "Tracks"};
   std::string title[5] = {"All Tracks (p = 40:60 GeV)",

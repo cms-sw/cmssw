@@ -29,7 +29,8 @@
    <class name="CSCCLCTPreTriggerDigi" ClassVersion="10">
     <version ClassVersion="10" checksum="1207676078"/>
    </class>
-   <class name="CSCALCTDigi" ClassVersion="11">
+   <class name="CSCALCTDigi" ClassVersion="12">
+     <version ClassVersion="12" checksum="2762007033"/>
      <version ClassVersion="11" checksum="4162193785"/>
      <version ClassVersion="10" checksum="817473300"/>
    </class>

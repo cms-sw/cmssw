@@ -9,6 +9,11 @@
     <use name="cppunit"/>
   </bin>
 
+  <bin name="TestDebugTools" file="unittests/TestDebugTools.cpp">
+    <use name="L1Trigger/L1TMuonEndCap"/>
+    <use name="cppunit"/>
+  </bin>
+
 </environment>
 <environment>
   <export>

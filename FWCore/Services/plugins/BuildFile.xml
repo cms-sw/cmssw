@@ -1,3 +1,8 @@
+<use name="DataFormats/Common"/>
+<use name="DataFormats/Provenance"/>
+<use name="FWCore/Concurrency"/>
+<use name="FWCore/Framework"/>
+<use name="FWCore/PluginManager"/>
 <use name="FWCore/Services"/>
 <use name="FWCore/Reflection"/>
 <use name="Utilities/StorageFactory"/>

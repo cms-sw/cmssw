@@ -57,7 +57,8 @@ through the 'validityInterval' method.
 // forward declarations
 namespace cms {
   class Exception;
-}
+  class WaitingTask;
+}  // namespace cms
 
 namespace edm {
 
@@ -65,6 +66,8 @@ namespace edm {
   class ESHandleExceptionFactory;
   class ESInputTag;
   class EventSetupImpl;
+  class WaitingTask;
+  class ServiceToken;
 
   namespace eventsetup {
     struct ComponentDescription;
@@ -84,6 +87,10 @@ namespace edm {
 
       ///returns false if no data available for key
       bool doGet(DataKey const& aKey, EventSetupImpl const*, bool aGetTransiently = false) const;
+      bool doGet(ESProxyIndex iProxyIndex, EventSetupImpl const*, bool aGetTransiently = false) const;
+
+      ///prefetch the data to setup for subsequent calls to getImplementation
+      void prefetchAsync(WaitingTask* iTask, ESProxyIndex iProxyIndex, EventSetupImpl const*, ServiceToken const&) const;
 
       /**returns true only if someone has already requested data for this key
           and the data was retrieved
@@ -161,6 +168,11 @@ namespace edm {
                                DataKey const*& oGottenKey,
                                EventSetupImpl const* = nullptr) const;
 
+      void const* getFromProxyAfterPrefetch(ESProxyIndex iProxyIndex,
+                                            bool iTransientAccessOnly,
+                                            ComponentDescription const*& iDesc,
+                                            DataKey const*& oGottenKey) const;
+
       template <typename DataT>
       void getImplementation(DataT const*& iData,
                              char const* iName,
@@ -198,7 +210,7 @@ namespace edm {
         }
         assert(iProxyIndex.value() > -1 and
                iProxyIndex.value() < static_cast<ESProxyIndex::Value_t>(keysForProxies_.size()));
-        void const* pValue = this->getFromProxy(iProxyIndex, iTransientAccessOnly, oDesc, dataKey, iEventSetupImpl);
+        void const* pValue = this->getFromProxyAfterPrefetch(iProxyIndex, iTransientAccessOnly, oDesc, dataKey);
         if (nullptr == pValue) {
           whyFailedFactory = makeESHandleExceptionFactory([=] {
             NoProxyException<DataT> ex(this->key(), *dataKey);

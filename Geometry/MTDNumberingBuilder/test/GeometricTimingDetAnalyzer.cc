@@ -30,13 +30,18 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "DetectorDescription/Core/interface/DDCompactView.h"
-#include "DetectorDescription/Core/interface/DDTranslation.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 #include "Geometry/MTDNumberingBuilder/interface/GeometricTimingDet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "DataFormats/ForwardDetId/interface/MTDDetId.h"
+
+#include "DataFormats/Math/interface/Rounding.h"
+
+// Trivial using definition valid both for DDD and DD4hep
+
+#include "DetectorDescription/DDCMS/interface/DDTranslation.h"
+#include "DetectorDescription/DDCMS/interface/DDRotationMatrix.h"
 
 //
 //
@@ -78,6 +83,8 @@ GeometricTimingDetAnalyzer::~GeometricTimingDetAnalyzer() {
 // member functions
 //
 
+using cms_rounding::roundIfNear0;
+
 // ------------ method called to produce the data  ------------
 void GeometricTimingDetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
   using namespace edm;
@@ -88,6 +95,12 @@ void GeometricTimingDetAnalyzer::analyze(const edm::Event& iEvent, const edm::Ev
   //
   edm::ESHandle<GeometricTimingDet> rDD;
   iSetup.get<IdealGeometryRecord>().get(rDD);
+
+  if (!rDD.isValid()) {
+    edm::LogError("DD4hep_MTDTopologyAnalyzer") << "ESTransientHandle<DDCompactView> rDD is not valid!";
+    return;
+  }
+
   edm::LogVerbatim("GeometricTimingDetAnalyzer")
       << "\n Top node is  " << rDD.product() << " " << rDD.product()->name() << std::endl;
 
@@ -128,6 +141,12 @@ void GeometricTimingDetAnalyzer::dumpGeometricTimingDet(const GeometricTimingDet
 
   MTDDetId thisDet(det->geographicalID());
 
+  auto fround = [&](double in) {
+    std::stringstream ss;
+    ss << std::fixed << std::setw(14) << roundIfNear0(in);
+    return ss.str();
+  };
+
   edm::LogVerbatim("GeometricTimingDetAnalyzer").log([&](auto& log) {
     log << "\n---------------------------------------------------------------------------------------\n";
     log << "Module = " << det->name() << " rawId = " << det->geographicalID().rawId()
@@ -151,16 +170,18 @@ void GeometricTimingDetAnalyzer::dumpGeometricTimingDet(const GeometricTimingDet
         << " And Contains SubDetectors: " << det->components().size() << "\n"
         << " And Contains Daughters:    " << det->deepComponents().size() << "\n"
         << " Is leaf: " << det->isLeaf() << "\n\n"
-        << " Translation = " << std::fixed << std::setw(14) << trans.X() << " " << std::setw(14) << trans.Y() << " "
-        << std::setw(14) << trans.Z() << "\n"
-        << " Rotation    = " << std::fixed << std::setw(14) << x.X() << " " << std::setw(14) << x.Y() << " "
-        << std::setw(14) << x.Z() << " " << std::setw(14) << y.X() << " " << std::setw(14) << y.Y() << " "
-        << std::setw(14) << y.Z() << " " << std::setw(14) << z.X() << " " << std::setw(14) << z.Y() << " "
-        << std::setw(14) << z.Z() << "\n"
-        << " Phi = " << std::fixed << std::setw(14) << det->phi() << " Rho = " << std::fixed << std::setw(14)
-        << det->rho() << "\n";
+        << " Translation = " << fround(trans.X()) << " " << fround(trans.Y()) << " " << fround(trans.Z()) << "\n"
+        << " Rotation    = " << fround(x.X()) << " " << fround(x.Y()) << " " << fround(x.Z()) << " " << fround(y.X())
+        << " " << fround(y.Y()) << " " << fround(y.Z()) << " " << fround(z.X()) << " " << fround(z.Y()) << " "
+        << fround(z.Z()) << "\n"
+        << " Phi = " << fround(det->phi()) << " Rho = " << fround(det->rho()) << "\n";
     log << "\n---------------------------------------------------------------------------------------\n";
   });
+
+  edm::LogVerbatim("MTDUnitTest") << det->geographicalID().rawId() << fround(trans.X()) << fround(trans.Y())
+                                  << fround(trans.Z()) << fround(x.X()) << fround(x.Y()) << fround(x.Z())
+                                  << fround(y.X()) << fround(y.Y()) << fround(y.Z()) << fround(z.X()) << fround(z.Y())
+                                  << fround(z.Z());
 
   DD3Vector colx(x.X(), x.Y(), x.Z());
   DD3Vector coly(y.X(), y.Y(), y.Z());

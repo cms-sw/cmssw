@@ -4,8 +4,9 @@
 <use name="DataFormats/PatCandidates"/>
 <use name="Geometry/CaloGeometry"/>
 <use name="PhysicsTools/SelectorUtils"/>
-<use name="CommonTools/UtilAlgos"/>
+<use name="CommonTools/Egamma"/>
 <use name="CommonTools/MVAUtils"/>
+<use name="CommonTools/UtilAlgos"/>
 <library name="RecoEgammaPhotonIdentificationPlugins" file="*.cc">
   <use name="RecoEgamma/PhotonIdentification"/>
   <use name="RecoEgamma/EgammaTools"/>

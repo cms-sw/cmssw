@@ -72,6 +72,7 @@ public:
                   CaloSubdetectorGeometry::IVec& dinsVector) const override;
 
   GlobalPoint getPosition(const DetId& id) const;
+  GlobalPoint getWaferPosition(const DetId& id) const;
 
   /// Returns area of a cell
   double getArea(const DetId& detid) const;

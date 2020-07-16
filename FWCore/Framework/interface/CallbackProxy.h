@@ -26,6 +26,7 @@
 // user include files
 #include "FWCore/Framework/interface/DataProxy.h"
 #include "FWCore/Framework/interface/EventSetupRecord.h"
+#include "FWCore/Concurrency/interface/WaitingTaskList.h"
 
 #include "FWCore/Framework/interface/produce_helpers.h"
 #include "FWCore/Utilities/interface/propagate_const.h"
@@ -34,7 +35,7 @@
 namespace edm::eventsetup {
 
   template <class CallbackT, class RecordT, class DataT>
-  class CallbackProxy : public DataProxy {
+  class CallbackProxy final : public DataProxy {
   public:
     using smart_pointer_traits = produce::smart_pointer_traits<DataT>;
     using ValueType = typename smart_pointer_traits::type;
@@ -47,20 +48,21 @@ namespace edm::eventsetup {
       iCallback->holdOntoPointer(&data_);
     }
 
-    ~CallbackProxy() override {
+    ~CallbackProxy() final {
       DataT* dummy(nullptr);
       callback_->holdOntoPointer(dummy);
     }
 
-    const void* getImpl(const EventSetupRecordImpl& iRecord,
-                        const DataKey&,
-                        EventSetupImpl const* iEventSetupImpl) override {
+    void prefetchAsyncImpl(WaitingTask* iWaitTask,
+                           const EventSetupRecordImpl& iRecord,
+                           const DataKey&,
+                           EventSetupImpl const* iEventSetupImpl,
+                           ServiceToken const& iToken) final {
       assert(iRecord.key() == RecordT::keyForClass());
-      RecordType rec;
-      rec.setImpl(&iRecord, callback_->transitionID(), callback_->getTokenIndices(), iEventSetupImpl, true);
-      (*callback_)(rec);
-      return smart_pointer_traits::getPointer(data_);
+      callback_->prefetchAsync(iWaitTask, &iRecord, iEventSetupImpl, iToken);
     }
+
+    void const* getAfterPrefetchImpl() const final { return smart_pointer_traits::getPointer(data_); }
 
     void invalidateCache() override {
       data_ = DataT{};

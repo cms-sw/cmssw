@@ -92,6 +92,8 @@ double PuppiContainer::var_within_R(int iId,
   near_pts.reserve(std::min(50UL, particles.size()));
   const double r2 = R * R;
   for (auto const &part : particles) {
+    if (part.puppi_register() == 3)
+      continue;
     //squared_distance is in (y,phi) coords: rap() has faster access -> check it first
     if (std::abs(part.rap() - centre.rap()) < R && part.squared_distance(centre) < r2) {
       near_dR2s.push_back(reco::deltaR2(part, centre));
@@ -296,6 +298,9 @@ std::vector<double> const &PuppiContainer::puppiWeights() {
       pWeight = 1;
     if (rParticle.id == 2 && fApplyCHS)
       pWeight = 0;
+    //Apply weight of 1 for leptons if puppiNoLep
+    if (rParticle.id == 3)
+      pWeight = 1;
     //Basic Weight Checks
     if (!edm::isFinite(pWeight)) {
       pWeight = 0.0;

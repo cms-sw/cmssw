@@ -33,7 +33,6 @@ namespace edm {
   class EDProducer;
   class EDFilter;
   class EDAnalyzer;
-  class OutputModule;
 
   namespace one {
     class EDProducerBase;
@@ -84,7 +83,6 @@ namespace edm {
     static const std::string kExtendedBaseForEDAnalyzer;
     static const std::string kExtendedBaseForEDProducer;
     static const std::string kExtendedBaseForEDFilter;
-    static const std::string kExtendedBaseForOutputModule;
     static const std::string kExtendedBaseForOneEDAnalyzer;
     static const std::string kExtendedBaseForOneEDProducer;
     static const std::string kExtendedBaseForOneEDFilter;
@@ -104,7 +102,6 @@ namespace edm {
     static const std::string& extendedBaseType(EDAnalyzer const*) { return kExtendedBaseForEDAnalyzer; }
     static const std::string& extendedBaseType(EDProducer const*) { return kExtendedBaseForEDProducer; }
     static const std::string& extendedBaseType(EDFilter const*) { return kExtendedBaseForEDFilter; }
-    static const std::string& extendedBaseType(OutputModule const*) { return kExtendedBaseForOutputModule; }
     static const std::string& extendedBaseType(one::EDAnalyzerBase const*) { return kExtendedBaseForOneEDAnalyzer; }
     static const std::string& extendedBaseType(one::EDProducerBase const*) { return kExtendedBaseForOneEDProducer; }
     static const std::string& extendedBaseType(one::EDFilterBase const*) { return kExtendedBaseForOneEDFilter; }

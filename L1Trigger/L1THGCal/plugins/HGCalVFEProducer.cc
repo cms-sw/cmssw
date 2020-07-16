@@ -4,7 +4,7 @@
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
-
+#include "FWCore/Utilities/interface/ESGetToken.h"
 #include "DataFormats/HGCDigi/interface/HGCDigiCollections.h"
 #include "DataFormats/L1THGCal/interface/HGCalTriggerCell.h"
 #include "DataFormats/L1THGCal/interface/HGCalTriggerSums.h"
@@ -26,9 +26,9 @@ public:
 
 private:
   // inputs
-  edm::EDGetToken inputee_, inputfh_, inputbh_, inputnose_;
+  edm::EDGetToken inputee_, inputfh_, inputbh_;
   edm::ESHandle<HGCalTriggerGeometryBase> triggerGeometry_;
-
+  edm::ESGetToken<HGCalTriggerGeometryBase, CaloGeometryRecord> triggerGeomToken_;
   std::unique_ptr<HGCalVFEProcessorBase> vfeProcess_;
 };
 
@@ -38,7 +38,7 @@ HGCalVFEProducer::HGCalVFEProducer(const edm::ParameterSet& conf)
     : inputee_(consumes<HGCalDigiCollection>(conf.getParameter<edm::InputTag>("eeDigis"))),
       inputfh_(consumes<HGCalDigiCollection>(conf.getParameter<edm::InputTag>("fhDigis"))),
       inputbh_(consumes<HGCalDigiCollection>(conf.getParameter<edm::InputTag>("bhDigis"))),
-      inputnose_(consumes<HGCalDigiCollection>(conf.getParameter<edm::InputTag>("noseDigis"))) {
+      triggerGeomToken_(esConsumes<HGCalTriggerGeometryBase, CaloGeometryRecord, edm::Transition::BeginRun>()) {
   // setup VFE parameters
   const edm::ParameterSet& vfeParamConfig = conf.getParameterSet("ProcessorParameters");
   const std::string& vfeProcessorName = vfeParamConfig.getParameter<std::string>("ProcessorName");
@@ -50,7 +50,7 @@ HGCalVFEProducer::HGCalVFEProducer(const edm::ParameterSet& conf)
 }
 
 void HGCalVFEProducer::beginRun(const edm::Run& /*run*/, const edm::EventSetup& es) {
-  es.get<CaloGeometryRecord>().get(triggerGeometry_);
+  triggerGeometry_ = es.getHandle(triggerGeomToken_);
   vfeProcess_->setGeometry(triggerGeometry_.product());
 }
 
@@ -68,21 +68,20 @@ void HGCalVFEProducer::produce(edm::Event& e, const edm::EventSetup& es) {
   e.getByToken(inputfh_, fh_digis_h);
   e.getByToken(inputbh_, bh_digis_h);
 
-  const HGCalDigiCollection& ee_digis = *ee_digis_h;
-  const HGCalDigiCollection& fh_digis = *fh_digis_h;
-  const HGCalDigiCollection& bh_digis = *bh_digis_h;
+  // Processing DigiCollections and putting the results into the HGCalTriggerCellBxCollectio
+  if (ee_digis_h.isValid()) {
+    const HGCalDigiCollection& ee_digis = *ee_digis_h;
+    vfeProcess_->run(ee_digis, *vfe_trigcell_output, es);
+  }
 
-  // Processing DigiCollections and putting the results into the HGCalTriggerCellBxCollection
-  vfeProcess_->run(ee_digis, *vfe_trigcell_output, es);
-  vfeProcess_->run(fh_digis, *vfe_trigcell_output, es);
-  vfeProcess_->run(bh_digis, *vfe_trigcell_output, es);
+  if (fh_digis_h.isValid()) {
+    const HGCalDigiCollection& fh_digis = *fh_digis_h;
+    vfeProcess_->run(fh_digis, *vfe_trigcell_output, es);
+  }
 
-  edm::Handle<HGCalDigiCollection> nose_digis_h;
-  e.getByToken(inputnose_, nose_digis_h);
-
-  if (nose_digis_h.isValid()) {
-    const HGCalDigiCollection& nose_digis = *nose_digis_h;
-    vfeProcess_->run(nose_digis, *vfe_trigcell_output, es);
+  if (bh_digis_h.isValid()) {
+    const HGCalDigiCollection& bh_digis = *bh_digis_h;
+    vfeProcess_->run(bh_digis, *vfe_trigcell_output, es);
   }
 
   // Put in the event

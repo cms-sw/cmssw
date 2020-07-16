@@ -1,28 +1,23 @@
-#To make sure we rebuild this package when python_tools package updated
+<!-- To make sure we rebuild this package when python_tools package updated -->
 <use name="python_tools"/>
 
 <test name="testPandas" command="testPandas.py"/>
 <test name="testRootNumpy" command="testRootNumpy.py"/>
 <test name="test_pycurl" command="test_pycurl.py"/>
-
 <test name="testBottleneck" command="testBottleneck.py"/>
 <test name="testNumExpr" command="testNumExpr.py"/>
 <test name="testTables" command="testTables.py"/>
-
 <test name="testXGBoost_and_sklearn" command="testXGBoost_and_sklearn.py"/>
-
 <test name="testUncertainties" command="testUncertainties.py"/>
 <test name="testJupyter" command="testJupyter.sh"/>
-
 <test name="testDownhill" command="testTheano.sh testDownhill.py"/>
-<test name="testTheano"   command="testTheano.sh testTheano.py"/>
-<test name="testhep_ml"   command="testTheano.sh testhep_ml.py"/>
-
+<test name="testTheano" command="testTheano.sh testTheano.py"/>
+<test name="testhep_ml" command="testTheano.sh testhep_ml.py"/>
 
 <bin name="test_PyMVA" file="test_PyMVA.cpp">
   <use name="rootpymva"/>
 </bin>
-<test name="test_root_PyMVA" command="rm -f tmp/test_PyMVA; mkdir tmp/test_PyMVA; cd tmp/test_PyMVA; cp $(LOCALTOP)/src/PhysicsTools/PythonAnalysis/test/test_PyMVA.cpp .;  root -n -b -l -q test_PyMVA.cpp+">
+<test name="test_root_PyMVA" command="rm -f tmp/test_PyMVA; mkdir tmp/test_PyMVA; cd tmp/test_PyMVA; cp $(LOCALTOP)/src/PhysicsTools/PythonAnalysis/test/test_PyMVA.cpp .; root -n -b -l -q test_PyMVA.cpp+">
   <use name="rootpymva"/>
 </test>
 <iftool name="py2-numba">
@@ -38,7 +33,7 @@
   <test name="testCxOracle" command="python -c 'import cx_Oracle'"/>
 </iftool>
 
-<test name="import-jinja2"   command="python -c 'import jinja2'"/>
+<test name="import-jinja2" command="python -c 'import jinja2'"/>
 <test name="import-keras" command="python -c 'import keras'"/>
 <test name="import-markupsafe" command="python -c 'import markupsafe'"/>
 <test name="import-yaml" command="python -c 'import yaml'"/>
@@ -95,7 +90,6 @@
 <test name="import-notebook" command="python -c 'import notebook'"/>
 <test name="import-numexpr" command="python -c 'import numexpr'"/>
 <test name="import-numpy" command="python -c 'import numpy'"/>
-<test name="import-oamap" command="python -c 'import oamap'"/>
 <test name="import-ordereddict" command="python2 -c 'import ordereddict'"/>
 <test name="import-packaging" command="python -c 'import packaging'"/>
 <test name="import-pandas" command="python -c 'import pandas'"/>

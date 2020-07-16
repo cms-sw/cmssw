@@ -48,6 +48,12 @@ namespace edm {
       return *this;
     }
 
+    WaitingTaskHolder& operator=(WaitingTaskHolder&& iRHS) {
+      WaitingTaskHolder tmp(std::move(iRHS));
+      std::swap(m_task, tmp.m_task);
+      return *this;
+    }
+
     // ---------- const member functions ---------------------
     bool taskHasFailed() const { return m_task->exceptionPtr() != nullptr; }
 

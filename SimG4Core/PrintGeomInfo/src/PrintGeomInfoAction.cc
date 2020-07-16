@@ -12,6 +12,8 @@
 #include "DetectorDescription/Core/interface/DDLogicalPart.h"
 #include "DetectorDescription/Core/interface/DDSplit.h"
 #include "DetectorDescription/Core/interface/DDValue.h"
+#include "DetectorDescription/DDCMS/interface/DDCompactView.h"
+#include "DetectorDescription/DDCMS/interface/DDFilteredView.h"
 
 #include "G4Run.hh"
 #include "G4PhysicalVolumeStore.hh"
@@ -29,101 +31,130 @@
 #include <map>
 
 PrintGeomInfoAction::PrintGeomInfoAction(const edm::ParameterSet &p) {
-  _dumpSummary = p.getUntrackedParameter<bool>("DumpSummary", true);
-  _dumpLVTree = p.getUntrackedParameter<bool>("DumpLVTree", true);
-  _dumpMaterial = p.getUntrackedParameter<bool>("DumpMaterial", false);
-  _dumpLVList = p.getUntrackedParameter<bool>("DumpLVList", false);
-  _dumpLV = p.getUntrackedParameter<bool>("DumpLV", false);
-  _dumpSolid = p.getUntrackedParameter<bool>("DumpSolid", false);
-  _dumpAtts = p.getUntrackedParameter<bool>("DumpAttributes", false);
-  _dumpPV = p.getUntrackedParameter<bool>("DumpPV", false);
-  _dumpRotation = p.getUntrackedParameter<bool>("DumpRotation", false);
-  _dumpReplica = p.getUntrackedParameter<bool>("DumpReplica", false);
-  _dumpTouch = p.getUntrackedParameter<bool>("DumpTouch", false);
-  _dumpSense = p.getUntrackedParameter<bool>("DumpSense", false);
-  name = p.getUntrackedParameter<std::string>("Name", "*");
-  nchar = name.find("*");
-  name.assign(name, 0, nchar);
-  names = p.getUntrackedParameter<std::vector<std::string> >("Names");
-  G4cout << "PrintGeomInfoAction:: initialised with verbosity levels:"
-         << " Summary   " << _dumpSummary << " LVTree   " << _dumpLVTree << " LVList    " << _dumpLVList << " Material "
-         << _dumpMaterial << "\n                                                        "
-         << " LV        " << _dumpLV << " Solid    " << _dumpSolid << " Attribs   " << _dumpAtts
+  dumpSummary_ = p.getUntrackedParameter<bool>("DumpSummary", true);
+  dumpLVTree_ = p.getUntrackedParameter<bool>("DumpLVTree", true);
+  dumpLVList_ = p.getUntrackedParameter<bool>("DumpLVList", false);
+  dumpMaterial_ = p.getUntrackedParameter<bool>("DumpMaterial", false);
+  dumpLV_ = p.getUntrackedParameter<bool>("DumpLV", false);
+  dumpSolid_ = p.getUntrackedParameter<bool>("DumpSolid", false);
+  dumpAtts_ = p.getUntrackedParameter<bool>("DumpAttributes", false);
+  dumpPV_ = p.getUntrackedParameter<bool>("DumpPV", false);
+  dumpRotation_ = p.getUntrackedParameter<bool>("DumpRotation", false);
+  dumpReplica_ = p.getUntrackedParameter<bool>("DumpReplica", false);
+  dumpTouch_ = p.getUntrackedParameter<bool>("DumpTouch", false);
+  dumpSense_ = p.getUntrackedParameter<bool>("DumpSense", false);
+  dd4hep_ = p.getUntrackedParameter<bool>("DD4Hep", false);
+  name_ = p.getUntrackedParameter<std::string>("Name", "*");
+  nchar_ = name_.find("*");
+  name_.assign(name_, 0, nchar_);
+  names_ = p.getUntrackedParameter<std::vector<std::string> >("Names");
+  G4cout << "PrintGeomInfoAction:: initialised for dd4hep " << dd4hep_ << " with verbosity levels:"
+         << " Summary   " << dumpSummary_ << " LVTree   " << dumpLVTree_ << " LVList    " << dumpLVList_ << " Material "
+         << dumpMaterial_ << "\n                                                        "
+         << " LV        " << dumpLV_ << " Solid    " << dumpSolid_ << " Attribs   " << dumpAtts_
          << "\n                                                        "
-         << " PV        " << _dumpPV << " Rotation " << _dumpRotation << " Replica   " << _dumpReplica
+         << " PV        " << dumpPV_ << " Rotation " << dumpRotation_ << " Replica   " << dumpReplica_
          << "\n                                                        "
-         << " Touchable " << _dumpTouch << " for names (0-" << nchar << ") = " << name
+         << " Touchable " << dumpTouch_ << " for names (0-" << nchar_ << ") = " << name_
          << "\n                                                        "
-         << " Sensitive " << _dumpSense << " for " << names.size() << " namess";
-  for (unsigned int i = 0; i < names.size(); i++)
-    G4cout << " " << names[i];
+         << " Sensitive " << dumpSense_ << " for " << names_.size() << " names:";
+  for (unsigned int i = 0; i < names_.size(); i++)
+    G4cout << " " << names_[i];
   G4cout << G4endl;
 }
 
 PrintGeomInfoAction::~PrintGeomInfoAction() {}
 
 void PrintGeomInfoAction::update(const BeginOfJob *job) {
-  if (_dumpSense) {
-    edm::ESTransientHandle<DDCompactView> pDD;
-    (*job)()->get<IdealGeometryRecord>().get(pDD);
+  if (dumpSense_) {
+    if (dd4hep_) {
+      edm::ESTransientHandle<cms::DDCompactView> pDD;
+      (*job)()->get<IdealGeometryRecord>().get(pDD);
 
-    G4cout << "PrintGeomInfoAction::Get Printout of Sensitive Volumes "
-           << "for " << names.size() << " Readout Units" << G4endl;
-    for (unsigned int i = 0; i < names.size(); i++) {
-      std::string attribute = "ReadOutName";
-      std::string sd = names[i];
-      DDSpecificsMatchesValueFilter filter{DDValue(attribute, sd, 0)};
-      DDFilteredView fv(*pDD, filter);
-      G4cout << "PrintGeomInfoAction:: Get Filtered view for " << attribute << " = " << sd << G4endl;
-      bool dodet = fv.firstChild();
+      G4cout << "PrintGeomInfoAction::Get Printout of Sensitive Volumes "
+             << "for " << names_.size() << " Readout Units" << G4endl;
+      for (unsigned int i = 0; i < names_.size(); i++) {
+        std::string sd = names_[i];
+        const cms::DDFilter filter("ReadOutName", sd);
+        cms::DDFilteredView fv(*pDD, filter);
+        G4cout << "PrintGeomInfoAction:: Get Filtered view for ReadOutName = " << sd << G4endl;
 
-      std::string spaces = spacesFromLeafDepth(1);
+        std::string spaces = spacesFromLeafDepth(1);
 
-      while (dodet) {
-        const DDLogicalPart &log = fv.logicalPart();
-        std::string lvname = log.name().name();
-        DDTranslation tran = fv.translation();
-        std::vector<int> copy = fv.copyNumbers();
+        while (fv.firstChild()) {
+          auto tran = fv.translation();
+          std::vector<int> copy = fv.copyNos();
+          auto lvname = fv.name();
+          unsigned int leafDepth = copy.size();
+          G4cout << leafDepth << spaces << "### VOLUME = " << lvname << " Copy No";
+          for (unsigned int k = 0; k < leafDepth; ++k)
+            G4cout << " " << copy[k];
+          G4cout << " Centre at " << tran << " (r = " << tran.Rho() << ", phi = " << tran.phi() / CLHEP::deg << ")"
+                 << G4endl;
+        }
+      }
+    } else {
+      edm::ESTransientHandle<DDCompactView> pDD;
+      (*job)()->get<IdealGeometryRecord>().get(pDD);
 
-        unsigned int leafDepth = copy.size();
-        G4cout << leafDepth << spaces << "### VOLUME = " << lvname << " Copy No";
-        for (int k = leafDepth - 1; k >= 0; k--)
-          G4cout << " " << copy[k];
-        G4cout << " Centre at " << tran << " (r = " << tran.Rho() << ", phi = " << tran.phi() / CLHEP::deg << ")"
-               << G4endl;
-        dodet = fv.next();
+      G4cout << "PrintGeomInfoAction::Get Printout of Sensitive Volumes "
+             << "for " << names_.size() << " Readout Units" << G4endl;
+      for (unsigned int i = 0; i < names_.size(); i++) {
+        std::string attribute = "ReadOutName";
+        std::string sd = names_[i];
+        DDSpecificsMatchesValueFilter filter{DDValue(attribute, sd, 0)};
+        DDFilteredView fv(*pDD, filter);
+        G4cout << "PrintGeomInfoAction:: Get Filtered view for " << attribute << " = " << sd << G4endl;
+        bool dodet = fv.firstChild();
+
+        std::string spaces = spacesFromLeafDepth(1);
+
+        while (dodet) {
+          const DDLogicalPart &log = fv.logicalPart();
+          std::string lvname = log.name().name();
+          DDTranslation tran = fv.translation();
+          std::vector<int> copy = fv.copyNumbers();
+
+          unsigned int leafDepth = copy.size();
+          G4cout << leafDepth << spaces << "### VOLUME = " << lvname << " Copy No";
+          for (int k = leafDepth - 1; k >= 0; k--)
+            G4cout << " " << copy[k];
+          G4cout << " Centre at " << tran << " (r = " << tran.Rho() << ", phi = " << tran.phi() / CLHEP::deg << ")"
+                 << G4endl;
+          dodet = fv.next();
+        }
       }
     }
   }
 }
 
 void PrintGeomInfoAction::update(const BeginOfRun *run) {
-  theTopPV = getTopPV();
+  theTopPV_ = getTopPV();
 
-  if (_dumpSummary)
+  if (dumpSummary_)
     dumpSummary(G4cout);
-  if (_dumpLVTree)
+  if (dumpLVTree_)
     dumpG4LVTree(G4cout);
 
   //---------- Dump list of objects of each class with detail of parameters
-  if (_dumpMaterial)
+  if (dumpMaterial_)
     dumpMaterialList(G4cout);
-  if (_dumpLVList)
+  if (dumpLVList_)
     dumpG4LVList(G4cout);
 
   //---------- Dump LV and PV information
-  if (_dumpLV || _dumpPV || _dumpTouch)
+  if (dumpLV_ || dumpPV_ || dumpTouch_)
     dumpHierarchyTreePVLV(G4cout);
 }
 
 void PrintGeomInfoAction::dumpSummary(std::ostream &out) {
   //---------- Dump number of objects of each class
   out << " @@@@@@@@@@@@@@@@@@ Dumping G4 geometry objects Summary " << G4endl;
-  if (theTopPV == nullptr) {
+  if (theTopPV_ == nullptr) {
     out << " No volume created " << G4endl;
     return;
   }
-  out << " @@@ Geometry built inside world volume: " << theTopPV->GetName() << G4endl;
+  out << " @@@ Geometry built inside world volume: " << theTopPV_->GetName() << G4endl;
   // Get number of solids (< # LV if several LV share a solid)
   const G4LogicalVolumeStore *lvs = G4LogicalVolumeStore::GetInstance();
   std::vector<G4LogicalVolume *>::const_iterator lvcite;
@@ -208,11 +239,11 @@ void PrintGeomInfoAction::dumpHierarchyTreePVLV(std::ostream &out) {
 
   //----- Dump this leaf (it will recursively dump all the tree)
   dumpHierarchyLeafPVLV(topLV, 0, out);
-  dumpPV(theTopPV, 0, out);
+  dumpPV(theTopPV_, 0, out);
 
   //----- Dump the touchables (it will recursively dump all the tree)
-  if (_dumpTouch)
-    dumpTouch(theTopPV, 0, out);
+  if (dumpTouch_)
+    dumpTouch(theTopPV_, 0, out);
 }
 
 void PrintGeomInfoAction::dumpHierarchyLeafPVLV(G4LogicalVolume *lv, unsigned int leafDepth, std::ostream &out) {
@@ -247,15 +278,15 @@ void PrintGeomInfoAction::dumpLV(G4LogicalVolume *lv, unsigned int leafDepth, st
   std::string spaces = spacesFromLeafDepth(leafDepth);
 
   //----- dump name
-  if (_dumpLV) {
+  if (dumpLV_) {
     out << leafDepth << spaces << "$$$ VOLUME = " << lv->GetName() << "  Solid: " << lv->GetSolid()->GetName()
         << "  MATERIAL: " << lv->GetMaterial()->GetName() << G4endl;
-    if (_dumpSolid)
+    if (dumpSolid_)
       dumpSolid(lv->GetSolid(), leafDepth, out);  //----- dump solid
 
     //----- dump LV info
     //--- material
-    if (_dumpAtts) {
+    if (dumpAtts_) {
       //--- Visualisation attributes
       const G4VisAttributes *fVA = lv->GetVisAttributes();
       if (fVA != nullptr) {
@@ -302,7 +333,7 @@ void PrintGeomInfoAction::dumpPV(G4VPhysicalVolume *pv, unsigned int leafDepth, 
   std::string spaces = spacesFromLeafDepth(leafDepth);
 
   //----- PV info
-  if (_dumpPV) {
+  if (dumpPV_) {
     std::string mother = "World";
     if (pv->GetMotherLogical())
       mother = pv->GetMotherLogical()->GetName();
@@ -310,16 +341,16 @@ void PrintGeomInfoAction::dumpPV(G4VPhysicalVolume *pv, unsigned int leafDepth, 
         << " at " << pv->GetTranslation();
   }
   if (!pv->IsReplicated()) {
-    if (_dumpPV) {
+    if (dumpPV_) {
       if (pv->GetRotation() == nullptr)
         out << " with no rotation" << G4endl;
-      else if (!_dumpRotation)
+      else if (!dumpRotation_)
         out << " with rotation" << G4endl;  //just rotation name
       else
         out << " with rotation " << *(pv->GetRotation()) << G4endl;
     }
   } else {
-    if (_dumpReplica) {
+    if (dumpReplica_) {
       out << spaces << "    It is replica: " << G4endl;
       EAxis axis;
       int nReplicas;
@@ -342,19 +373,19 @@ void PrintGeomInfoAction::dumpPV(G4VPhysicalVolume *pv, unsigned int leafDepth, 
 void PrintGeomInfoAction::dumpTouch(G4VPhysicalVolume *pv, unsigned int leafDepth, std::ostream &out) {
   std::string spaces = spacesFromLeafDepth(leafDepth);
   if (leafDepth == 0)
-    fHistory.SetFirstEntry(pv);
+    fHistory_.SetFirstEntry(pv);
   else
-    fHistory.NewLevel(pv, kNormal, pv->GetCopyNo());
+    fHistory_.NewLevel(pv, kNormal, pv->GetCopyNo());
 
-  G4ThreeVector globalpoint = fHistory.GetTopTransform().Inverse().TransformPoint(G4ThreeVector(0, 0, 0));
+  G4ThreeVector globalpoint = fHistory_.GetTopTransform().Inverse().TransformPoint(G4ThreeVector(0, 0, 0));
   G4LogicalVolume *lv = pv->GetLogicalVolume();
 
   std::string mother = "World";
   if (pv->GetMotherLogical())
     mother = pv->GetMotherLogical()->GetName();
   std::string lvname = lv->GetName();
-  lvname.assign(lvname, 0, nchar);
-  if (lvname == name)
+  lvname.assign(lvname, 0, nchar_);
+  if (lvname == name_)
     out << leafDepth << spaces << "### VOLUME = " << lv->GetName() << " Copy No " << pv->GetCopyNo() << " in " << mother
         << " global position of centre " << globalpoint << " (r = " << globalpoint.perp()
         << ", phi = " << globalpoint.phi() / CLHEP::deg << ")" << G4endl;
@@ -367,7 +398,7 @@ void PrintGeomInfoAction::dumpTouch(G4VPhysicalVolume *pv, unsigned int leafDept
   }
 
   if (leafDepth > 0)
-    fHistory.BackLevel();
+    fHistory_.BackLevel();
 }
 
 std::string PrintGeomInfoAction::spacesFromLeafDepth(unsigned int leafDepth) {
@@ -388,4 +419,4 @@ G4VPhysicalVolume *PrintGeomInfoAction::getTopPV() {
   return G4TransportationManager::GetTransportationManager()->GetNavigatorForTracking()->GetWorldVolume();
 }
 
-G4LogicalVolume *PrintGeomInfoAction::getTopLV() { return theTopPV->GetLogicalVolume(); }
+G4LogicalVolume *PrintGeomInfoAction::getTopLV() { return theTopPV_->GetLogicalVolume(); }

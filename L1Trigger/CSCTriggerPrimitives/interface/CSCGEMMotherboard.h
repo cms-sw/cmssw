@@ -200,6 +200,8 @@ protected:
 
   /** Chamber id (trigger-type labels). */
   unsigned gemId;
+  int maxPads() const;
+  int maxRolls() const;
 
   const GEMGeometry* gem_g;
   bool gemGeometryAvailable;

@@ -263,8 +263,6 @@ class MatrixInjector(object):
             wmsplit['DigiFullPU']=1
             wmsplit['RecoFullPU']=1
             wmsplit['RECOHID11']=1
-            wmsplit['DigiFullTriggerPU_2026D17PU'] = 1 
-            wmsplit['RecoFullGlobalPU_2026D17PU']=1
             wmsplit['DIGIUP17']=1
             wmsplit['RECOUP17']=1
             wmsplit['DIGIUP17_PU25']=1
@@ -281,30 +279,12 @@ class MatrixInjector(object):
             wmsplit['HYBRIDZSHI2015']=1
             wmsplit['RECOHID15']=1
             wmsplit['RECOHID18']=1
-            wmsplit['DigiFullTriggerPU_2026D35PU'] = 1
-            wmsplit['RecoFullGlobalPU_2026D35PU']=1
-            wmsplit['DigiFullTriggerPU_2026D41PU'] = 1
-            wmsplit['RecoFullGlobalPU_2026D41PU']=1
-            wmsplit['DigiFullTriggerPU_2026D43PU'] = 1
-            wmsplit['RecoFullGlobalPU_2026D43PU']=1
-            wmsplit['DigiFullTriggerPU_2026D44PU'] = 1
-            wmsplit['RecoFullGlobalPU_2026D44PU']=1
-            wmsplit['DigiFullTriggerPU_2026D45PU'] = 1
-            wmsplit['RecoFullGlobalPU_2026D45PU']=1
-            wmsplit['DigiFullTriggerPU_2026D46PU'] = 1
-            wmsplit['RecoFullGlobalPU_2026D46PU']=1
-            wmsplit['DigiFullTriggerPU_2026D47PU'] = 1
-            wmsplit['RecoFullGlobalPU_2026D47PU']=1
-            wmsplit['DigiFullTriggerPU_2026D48PU'] = 1
-            wmsplit['RecoFullGlobalPU_2026D48PU']=1
-            wmsplit['DigiFullTriggerPU_2026D49PU'] = 1
-            wmsplit['RecoFullGlobalPU_2026D49PU']=1
-            wmsplit['DigiFullTriggerPU_2026D50PU'] = 1
-            wmsplit['RecoFullGlobalPU_2026D50PU']=1
-            wmsplit['DigiFullTriggerPU_2026D51PU'] = 1
-            wmsplit['RecoFullGlobalPU_2026D51PU']=1
-            wmsplit['DigiFullTriggerPU_2026D52PU'] = 1	
-            wmsplit['RecoFullGlobalPU_2026D52PU']=1           
+            # automate for phase 2
+            from .upgradeWorkflowComponents import upgradeKeys
+            for key in upgradeKeys[2026]:
+                if not "PU" in key: continue
+                wmsplit['DigiFullTriggerPU_'+key] = 1
+                wmsplit['RecoFullGlobalPU_'+key] = 1
                          
             #import pprint
             #pprint.pprint(wmsplit)            

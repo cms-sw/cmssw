@@ -55,6 +55,9 @@ namespace cms {
     dd4hep::Solid addSolid(const std::string& name, dd4hep::Solid solid) const;
     dd4hep::Solid addSolidNS(const std::string& name, dd4hep::Solid solid) const;
 
+    dd4hep::Assembly addAssembly(dd4hep::Assembly asmb) const;
+    dd4hep::Assembly assembly(const std::string& name) const;
+
     dd4hep::Volume volume(const std::string& name, bool exc = true) const;
     dd4hep::Volume addVolume(dd4hep::Volume vol) const;
     dd4hep::Volume addVolumeNS(dd4hep::Volume vol) const;
@@ -68,6 +71,7 @@ namespace cms {
     std::string_view name() const { return m_name; }
 
     std::vector<double> vecDbl(const std::string& name) const;
+    std::vector<float> vecFloat(const std::string& name) const;
 
   private:
     DDParsingContext* m_context = nullptr;

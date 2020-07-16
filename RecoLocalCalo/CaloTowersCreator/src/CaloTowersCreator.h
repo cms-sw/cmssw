@@ -5,6 +5,7 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/ESWatcher.h"
 #include "DataFormats/Common/interface/Handle.h"
+#include "FWCore/Utilities/interface/ESGetToken.h"
 
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -12,6 +13,7 @@
 #include "RecoLocalCalo/EcalRecAlgos/interface/EcalSeverityLevelAlgoRcd.h"
 #include "RecoLocalCalo/CaloTowersCreator/interface/CaloTowersCreationAlgo.h"
 #include "RecoLocalCalo/CaloTowersCreator/interface/EScales.h"
+#include "Geometry/Records/interface/CaloGeometryRecord.h"
 
 /** \class CaloTowersCreator
   *  
@@ -41,6 +43,15 @@ private:
   std::vector<edm::InputTag> ecalLabels_;
   std::vector<edm::EDGetTokenT<EcalRecHitCollection> > toks_ecal_;
   bool allowMissingInputs_;
+
+  edm::ESGetToken<CaloGeometry, CaloGeometryRecord> tok_geom_;
+  edm::ESGetToken<HcalTopology, HcalRecNumberingRecord> tok_topo_;
+  edm::ESGetToken<CaloTowerTopology, HcalRecNumberingRecord> tok_cttopo_;
+  edm::ESGetToken<CaloTowerConstituentsMap, CaloGeometryRecord> tok_ctmap_;
+  edm::ESGetToken<EcalChannelStatus, EcalChannelStatusRcd> tok_ecalChStatus_;
+  edm::ESGetToken<HcalChannelQuality, HcalChannelQualityRcd> tok_hcalChStatus_;
+  edm::ESGetToken<HcalSeverityLevelComputer, HcalSeverityLevelComputerRcd> tok_hcalSevComputer_;
+  edm::ESGetToken<EcalSeverityLevelAlgo, EcalSeverityLevelAlgoRcd> tok_ecalSevAlgo_;
 
   // more compact flags: all HCAL are combined
 

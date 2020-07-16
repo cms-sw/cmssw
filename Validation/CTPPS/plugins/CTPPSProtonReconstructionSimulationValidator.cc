@@ -27,6 +27,8 @@
 #include "TProfile.h"
 #include "TGraphErrors.h"
 
+#include "CLHEP/Units/GlobalPhysicalConstants.h"
+
 #include <map>
 #include <string>
 
@@ -144,6 +146,38 @@ private:
   };
 
   std::map<unsigned int, std::map<unsigned int, PlotGroup>> plots_;
+
+  struct DoubleArmPlotGroup {
+    std::unique_ptr<TH2D> h2_t_sh_vs_vtx_t, h2_t_dh_vs_vtx_z;
+    std::unique_ptr<TH1D> h_t_sh_minus_vtx_t, h_t_dh_minus_vtx_z;
+
+    DoubleArmPlotGroup()
+        : h2_t_sh_vs_vtx_t(new TH2D("", ";vtx_t   (mm);(t_56 + t_45)/2   (mm)", 100, -250., -250., 100, +250., +250.)),
+          h2_t_dh_vs_vtx_z(new TH2D("", ";vtx_z   (mm);(t_56 - t_45)/2   (mm)", 100, -250., -250., 100, +250., +250.)),
+          h_t_sh_minus_vtx_t(new TH1D("", ";(t_56 + t_45)/2 - vtx_t   (mm)", 100, -100., +100.)),
+          h_t_dh_minus_vtx_z(new TH1D("", ";(t_56 - t_45)/2 - vtx_z   (mm)", 100, -100., +100.)) {}
+
+    void fill(double time_45, double time_56, double vtx_z, double vtx_t) {
+      const double t_sum_half = (time_56 + time_45) / 2. * CLHEP::c_light;
+      const double t_dif_half = (time_56 - time_45) / 2. * CLHEP::c_light;
+
+      h2_t_sh_vs_vtx_t->Fill(t_sum_half, vtx_t);
+      h_t_sh_minus_vtx_t->Fill(t_sum_half - vtx_t);
+
+      h2_t_dh_vs_vtx_z->Fill(t_dif_half, vtx_z);
+      h_t_dh_minus_vtx_z->Fill(t_dif_half - vtx_z);
+    }
+
+    void write() const {
+      h2_t_sh_vs_vtx_t->Write("h2_t_sh_vs_vtx_t");
+      h_t_sh_minus_vtx_t->Write("h_t_sh_minus_vtx_t");
+
+      h2_t_dh_vs_vtx_z->Write("h2_t_dh_vs_vtx_z");
+      h_t_dh_minus_vtx_z->Write("h_t_dh_minus_vtx_z");
+    }
+  };
+
+  DoubleArmPlotGroup double_arm_plots_;
 };
 
 //----------------------------------------------------------------------------------------------------
@@ -246,7 +280,7 @@ void CTPPSProtonReconstructionSimulationValidator::analyze(const edm::Event &iEv
     }
   }
 
-  // do comparison
+  // single-arm comparison
   for (const auto &handle : {hRecoProtonsSingleRP, hRecoProtonsMultiRP}) {
     for (const auto &rec_pr : *handle) {
       if (!rec_pr.validFit())
@@ -285,6 +319,29 @@ void CTPPSProtonReconstructionSimulationValidator::analyze(const edm::Event &iEv
       fillPlots(meth_idx, idx, rec_pr, vtx, mom, *hLHCInfo);
     }
   }
+
+  // double-arm comparison
+  bool time_set_45 = false, time_set_56 = false;
+  double time_45 = 0., time_56 = 0.;
+  for (const auto &rec_pr : *hRecoProtonsMultiRP) {
+    if (!rec_pr.validFit())
+      continue;
+
+    // skip protons with no timing information
+    if (rec_pr.timeError() < 1E-3)
+      continue;
+
+    if (rec_pr.lhcSector() == reco::ForwardProton::LHCSector::sector45) {
+      time_set_45 = true;
+      time_45 = rec_pr.time();
+    } else {
+      time_set_56 = true;
+      time_56 = rec_pr.time();
+    }
+  }
+
+  if (time_set_45 && time_set_56)
+    double_arm_plots_.fill(time_45, time_56, vtx.z(), vtx.t());
 }
 
 //----------------------------------------------------------------------------------------------------
@@ -343,6 +400,9 @@ void CTPPSProtonReconstructionSimulationValidator::endJob() {
       eit.second.write();
     }
   }
+
+  gDirectory = f_out->mkdir("double arm");
+  double_arm_plots_.write();
 }
 
 //----------------------------------------------------------------------------------------------------

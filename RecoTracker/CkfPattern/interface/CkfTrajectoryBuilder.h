@@ -26,7 +26,6 @@ class TrajectoryFilter;
 #include "TrackingTools/PatternTools/interface/TrajectoryMeasurement.h"
 
 #include <map>
-#include <boost/unordered_map.hpp>
 
 class TransientTrackingRecHitBuilder;
 class TrajectoryFilter;

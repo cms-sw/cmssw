@@ -31,8 +31,6 @@ Implementation:
 #include <sys/resource.h>
 #include "tbb/task_arena.h"
 
-#include "boost/bind.hpp"
-
 #include "boost/ptr_container/ptr_deque.hpp"
 
 // user include files
@@ -184,7 +182,7 @@ void ExternalLHEProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSe
   }
   std::for_each(partonLevel_->weights().begin(),
                 partonLevel_->weights().end(),
-                boost::bind(&LHEEventProduct::addWeight, product.get(), _1));
+                std::bind(&LHEEventProduct::addWeight, product.get(), std::placeholders::_1));
   product->setScales(partonLevel_->scales());
   if (nPartonMapping_.empty()) {
     product->setNpLO(partonLevel_->npLO());
@@ -219,7 +217,7 @@ void ExternalLHEProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSe
 
   std::for_each(partonLevel_->getComments().begin(),
                 partonLevel_->getComments().end(),
-                boost::bind(&LHEEventProduct::addComment, product.get(), _1));
+                std::bind(&LHEEventProduct::addComment, product.get(), std::placeholders::_1));
 
   iEvent.put(std::move(product));
 
@@ -227,10 +225,10 @@ void ExternalLHEProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSe
     std::unique_ptr<LHERunInfoProduct> product(new LHERunInfoProduct(*runInfo_->getHEPRUP()));
     std::for_each(runInfo_->getHeaders().begin(),
                   runInfo_->getHeaders().end(),
-                  boost::bind(&LHERunInfoProduct::addHeader, product.get(), _1));
+                  std::bind(&LHERunInfoProduct::addHeader, product.get(), std::placeholders::_1));
     std::for_each(runInfo_->getComments().begin(),
                   runInfo_->getComments().end(),
-                  boost::bind(&LHERunInfoProduct::addComment, product.get(), _1));
+                  std::bind(&LHERunInfoProduct::addComment, product.get(), std::placeholders::_1));
 
     if (!runInfoProducts_.empty()) {
       runInfoProducts_.front().mergeProduct(*product);
@@ -348,10 +346,10 @@ void ExternalLHEProducer::beginRunProduce(edm::Run& run, edm::EventSetup const& 
     std::unique_ptr<LHERunInfoProduct> product(new LHERunInfoProduct(*runInfo_->getHEPRUP()));
     std::for_each(runInfo_->getHeaders().begin(),
                   runInfo_->getHeaders().end(),
-                  boost::bind(&LHERunInfoProduct::addHeader, product.get(), _1));
+                  std::bind(&LHERunInfoProduct::addHeader, product.get(), std::placeholders::_1));
     std::for_each(runInfo_->getComments().begin(),
                   runInfo_->getComments().end(),
-                  boost::bind(&LHERunInfoProduct::addComment, product.get(), _1));
+                  std::bind(&LHERunInfoProduct::addComment, product.get(), std::placeholders::_1));
 
     // keep a copy around in case of merging
     runInfoProducts_.push_back(new LHERunInfoProduct(*product));

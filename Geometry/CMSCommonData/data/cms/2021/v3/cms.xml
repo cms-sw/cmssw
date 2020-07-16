@@ -78,15 +78,25 @@
  <Constant name="ForwdBeamZ7"  value="17.920*m"/>
  <Constant name="ForwdBeamZ8"  value="18.562*m"/>
  <Constant name="ForwdBeamZ9"  value="18.905*m"/>
+ <Constant name="ForwdBeamZ10" value="18.997*m"/>
+ <Constant name="ForwdBeamZ11" value="19.050*m"/>
+ <Constant name="ForwdBeamZ12" value="20.850*m"/>
+ <Constant name="ForwdBeamZ13" value="20.900*m"/>
+ <Constant name="ForwdBeamZ14" value="20.966*m"/>
  <Constant name="ForwdBeamR0"  value="15.95*cm"/>
  <Constant name="ForwdBeamR1"  value="12.495*cm"/>
  <Constant name="ForwdBeamR2"  value="12.50*cm"/>
  <Constant name="ForwdBeamR3"  value="25.0*cm"/>
- <Constant name="ForwdBeamR4"  value="2.85*cm+0.65*cm"/> <!-- Post LS2 beam-pipe -->
+ <Constant name="ForwdBeamR4"  value="3.90*cm"/> <!-- Post LS2 beam-pipe -->
  <Constant name="ForwdBeamR5"  value="7.50*cm"/>
  <Constant name="ForwdBeamR6"  value="20.5*cm"/>
  <Constant name="ForwdBeamR7"  value="4.00*cm"/>
  <Constant name="ForwdBeamR8"  value="2.15*cm"/>
+ <Constant name="ForwdBeamR9"  value="12.00*cm"/>
+ <Constant name="ForwdBeamR10" value="3.00*cm"/>
+ <Constant name="ForwdBeamR11" value="3.35*cm"/>
+ <Constant name="ForwdBeamR12" value="5.70*cm"/>
+ <Constant name="ForwdBeamR13" value="2.00*cm"/>
  <Constant name="ForwdVcalZ1"  value="11.1495*m"/>
  <Constant name="ForwdVcalZ2"  value="12.8005*m"/>
  <Constant name="ForwdVcalR1"  value="1.595*m"/>

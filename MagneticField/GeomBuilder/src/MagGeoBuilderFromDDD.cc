@@ -186,7 +186,7 @@ void MagGeoBuilderFromDDD::build(const DDCompactView& cpva) {
     //       }
     //     }
 
-    volumeHandle* v = new volumeHandle(fv, expand);
+    volumeHandle* v = new volumeHandle(fv, expand, debug);
 
     if (theGridFiles != nullptr) {
       int key = (v->volumeno) * 100 + v->copyno;

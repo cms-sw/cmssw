@@ -1,19 +1,14 @@
 #include "DataFormats/MuonDetId/interface/CSCDetId.h"
 #include "Geometry/MuonNumbering/interface/CSCNumberingScheme.h"
 #include "Geometry/MuonNumbering/interface/MuonBaseNumber.h"
-#include "Geometry/MuonNumbering/interface/MuonDDDConstants.h"
+#include "Geometry/MuonNumbering/interface/MuonGeometryConstants.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#define LOCAL_DEBUG
+//#define LOCAL_DEBUG
 
-CSCNumberingScheme::CSCNumberingScheme(const MuonDDDConstants& muonConstants) { initMe(muonConstants); }
+CSCNumberingScheme::CSCNumberingScheme(const MuonGeometryConstants& muonConstants) { initMe(muonConstants); }
 
-CSCNumberingScheme::CSCNumberingScheme(const DDCompactView& cpv) {
-  MuonDDDConstants muonConstants(cpv);
-  initMe(muonConstants);
-}
-
-void CSCNumberingScheme::initMe(const MuonDDDConstants& muonConstants) {
+void CSCNumberingScheme::initMe(const MuonGeometryConstants& muonConstants) {
   int theLevelPart = muonConstants.getValue("level");
   theRegionLevel = muonConstants.getValue("me_region") / theLevelPart;
   theStationLevel = muonConstants.getValue("me_station") / theLevelPart;

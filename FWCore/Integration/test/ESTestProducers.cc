@@ -300,6 +300,7 @@ namespace edmtest {
     }
 
     void invalidateCache() override {}
+    void const* getAfterPrefetchImpl() const override { return &testDataJ_; }
 
     ESTestDataJ testDataJ_;
     std::vector<unsigned> const* expectedCacheIds_;

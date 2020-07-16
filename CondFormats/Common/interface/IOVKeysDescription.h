@@ -16,8 +16,8 @@ namespace cond {
     explicit IOVKeysDescription(std::vector<std::string> const& idict, std::string const& itag)
         : dict_m(idict), m_tag(itag) {}
 
-    virtual ~IOVKeysDescription() {}
-    virtual IOVKeysDescription* clone() const { return new IOVKeysDescription(*this); }
+    ~IOVKeysDescription() override {}
+    IOVKeysDescription* clone() const override { return new IOVKeysDescription(*this); }
 
     // the associated "tag"
     std::string const& tag() const { return m_tag; }

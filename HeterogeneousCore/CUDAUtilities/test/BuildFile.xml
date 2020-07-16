@@ -1,30 +1,39 @@
 <use name="HeterogeneousCore/CUDAUtilities"/>
 <iftool name="cuda-gcc-support">
   <bin file="assert_t.cu" name="cudaAssert_t">
-</bin>
+    <flags CUDA_FLAGS="-g"/>
+  </bin>
 
   <bin file="assert_t.cu" name="cudaAssert_debug">
     <flags CUDA_FLAGS="-g -DGPU_DEBUG"/>
   </bin>
 
-  <bin file="test_SimpleVector.cu" name="test_SimpleVector">
+  <bin file="test_SimpleVector.cu" name="gpuSimpleVector_t">
+    <flags CUDA_FLAGS="-g"/>
+  </bin>
+
+  <bin file="test_SimpleVector.cu" name="gpuSimpleVector_debug">
     <flags CUDA_FLAGS="-g -DGPU_DEBUG"/>
   </bin>
 
   <bin file="cudastdAlgorithm_t.cpp">
-</bin>
+    <flags CUDA_FLAGS="-g"/>
+  </bin>
 
   <bin file="cudastdAlgorithm_t.cu" name="gpuCudastdAlgorithm_t">
+    <flags CUDA_FLAGS="-g"/>
+  </bin>
+
+  <bin file="cudastdAlgorithm_t.cu" name="gpuCudastdAlgorithm_debug">
     <flags CUDA_FLAGS="-g -DGPU_DEBUG"/>
   </bin>
 
   <bin file="radixSort_t.cu" name="gpuRadixSort_t">
-    <flags CUDA_FLAGS="-g -DGPU_DEBUG"/>
+    <flags CUDA_FLAGS="-g"/>
   </bin>
 
   <bin file="radixSort_t.cu" name="gpuRadixSort_debug">
-    <flags CUDA_FLAGS="-g -G -DGPU_DEBUG"/>
-    <flags REM_CUDA_FLAGS="--generate-line-info -lineinfo"/>
+    <flags CUDA_FLAGS="-g -DGPU_DEBUG"/>
   </bin>
 
   <bin file="HistoContainer_t.cpp">
@@ -32,36 +41,46 @@
   </bin>
 
   <bin file="HistoContainer_t.cu" name="gpuHistoContainer_t">
-    <use name="cub"/>
-    <flags CUDA_FLAGS="-g -DGPU_DEBUG"/>
+    <flags CUDA_FLAGS="-g"/>
   </bin>
 
   <bin file="HistoContainer_t.cu" name="gpuHistoContainer_debug">
-    <use name="cub"/>
-    <flags CUDA_FLAGS="-g -G -DGPU_DEBUG"/>
-    <flags REM_CUDA_FLAGS="--generate-line-info -lineinfo"/>
+    <flags CUDA_FLAGS="-g -DGPU_DEBUG"/>
   </bin>
 
   <bin file="OneHistoContainer_t.cu" name="gpuOneHistoContainer_t">
-    <use name="cub"/>
+    <flags CUDA_FLAGS="-g"/>
+  </bin>
+
+  <bin file="OneHistoContainer_t.cu" name="gpuOneHistoContainer_debug">
     <flags CUDA_FLAGS="-g -DGPU_DEBUG"/>
   </bin>
 
   <bin file="AtomicPairCounter_t.cu" name="gpuAtomicPairCounter_t">
+    <flags CUDA_FLAGS="-g"/>
+  </bin>
+
+  <bin file="AtomicPairCounter_t.cu" name="gpuAtomicPairCounter_debug">
     <flags CUDA_FLAGS="-g -DGPU_DEBUG"/>
   </bin>
 
   <bin file="OneToManyAssoc_t.cu" name="gpuOneToManyAssoc_t">
-    <use name="cub"/>
+    <flags CUDA_FLAGS="-g"/>
+  </bin>
+
+  <bin file="OneToManyAssoc_t.cu" name="gpuOneToManyAssoc_debug">
     <flags CUDA_FLAGS="-g -DGPU_DEBUG"/>
   </bin>
 
   <bin file="OneToManyAssoc_t.cpp" name="cpuOneToManyAssoc_t">
-    <flags CXXFLAGS="-g -DGPU_DEBUG"/>
+    <flags CXXFLAGS="-g"/>
   </bin>
 
   <bin file="prefixScan_t.cu" name="gpuPrefixScan_t">
-    <use name="cub"/>
+    <flags CUDA_FLAGS="-g"/>
+  </bin>
+
+  <bin file="prefixScan_t.cu" name="gpuPrefixScan_debug">
     <flags CUDA_FLAGS="-g -DGPU_DEBUG"/>
   </bin>
 
@@ -71,13 +90,18 @@
 
   <bin file="eigenSoA_t.cpp" name="cpuEigenSoA_t">
     <use name="eigen"/>
-    <flags CXXFLAGS="-g -DGPU_DEBUG"/>
+    <flags CXXFLAGS="-g"/>
   </bin>
 
   <bin file="eigenSoA_t.cu" name="gpuEigenSoA_t">
     <use name="eigen"/>
+    <flags CUDA_FLAGS="-g"/>
+    <flags CXXFLAGS="-g"/>
+  </bin>
+
+  <bin file="eigenSoA_t.cu" name="gpuEigenSoA_debug">
+    <use name="eigen"/>
     <flags CUDA_FLAGS="-g -DGPU_DEBUG"/>
     <flags CXXFLAGS="-g -DGPU_DEBUG"/>
   </bin>
-
 </iftool>

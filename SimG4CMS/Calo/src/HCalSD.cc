@@ -141,7 +141,7 @@ HCalSD::HCalSD(const std::string& name,
     useHF = false;
     matNames.emplace_back("Scintillator");
   } else {
-    edm::ESHandle<HcalDDDSimulationConstants> hdsc;
+    edm::ESHandle<HcalSimulationConstants> hdsc;
     es.get<HcalSimNumberingRecord>().get(hdsc);
     if (hdsc.isValid()) {
       hcalSimConstants_ = hdsc.product();

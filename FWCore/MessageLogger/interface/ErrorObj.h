@@ -78,6 +78,8 @@ namespace edm {
     ErrorObj& opltlt(const char s[]);
     inline ErrorObj& operator<<(std::ostream& (*f)(std::ostream&));
     inline ErrorObj& operator<<(std::ios_base& (*f)(std::ios_base&));
+    template <typename... Args>
+    inline ErrorObj& format(std::string_view fmt, Args const&... args);
 
     virtual ErrorObj& emitToken(const ELstring& txt);
 

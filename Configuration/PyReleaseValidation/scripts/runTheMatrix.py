@@ -68,11 +68,13 @@ if __name__ == '__main__':
                      136.731, #2016B Photon data
                      136.7611, #2016E JetHT reMINIAOD from 80X legacy
                      136.8311, #2017F JetHT reMINIAOD from 94X reprocessing
+                     136.88811,#2018D JetHT reMINIAOD from UL processing
                      136.793, #2017C DoubleEG
                      136.874, #2018C EGamma
                      140.53, #2011 HI data
                      140.56, #2018 HI data
                      158.0, #2018 HI MC with pp-like reco
+                     158.01, #reMiniAOD of 2018 HI MC with pp-like reco
                      1306.0, #SingleMu Pt1 UP15
                      1325.7, #test NanoAOD from existing MINI
                      1330, #Run2 MC Zmm
@@ -83,10 +85,9 @@ if __name__ == '__main__':
                      10824.0, #2018 ttbar
                      11634.0, #2021 ttbar
                      12434.0, #2023 ttbar
-                     20034.0, #2026D35 ttbar (MTD TDR baseline)
-                     20434.0, #2026D41 ttbar (L1T TDR baseline)
-                     21234.0, #2026D44 (exercise HF nose)
                      23234.0, #2026D49 ttbar (HLT TDR baseline w/ HGCal v11)
+                     23234.1001, #as 23234.0 but reading 11_0_X digi inputs
+                     28234.0, #2026D60 (exercise HF nose)
                      25202.0, #2016 ttbar UP15 PU
                      250202.181, #2018 ttbar stage1 + stage2 premix
                      ],

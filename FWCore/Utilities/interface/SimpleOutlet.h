@@ -34,9 +34,9 @@ namespace edm {
     }
 
   private:
-    SimpleOutlet(const SimpleOutlet&);  // stop default
+    SimpleOutlet(const SimpleOutlet&) = delete;  // stop default
 
-    const SimpleOutlet& operator=(const SimpleOutlet&);  // stop default
+    const SimpleOutlet& operator=(const SimpleOutlet&) = delete;  // stop default
   };
 
 }  // namespace edm

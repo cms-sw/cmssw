@@ -15,7 +15,7 @@ import Alignment.MuonAlignment.Scenarios_cff as _MuonScenarios
 #process.load("Alignment.MuonAlignment.MisalignedMuon_cfi")
 #process.MisalignedMuon.saveToDbase = True # to store to DB
 #process.MisalignedMuon.scenario = _MuonScenarios.Muon0inversePbScenario2008
-process.MisalignedMuon = cms.ESProducer("MisalignedMuonESProducer",
+process.MisalignedMuon = cms.EDAnalyzer("MuonMisalignedProducer",
                                         _MuonScenarios.ExampleScenario,
                                         saveToDbase = cms.untracked.bool(True)
                                         )
@@ -25,10 +25,32 @@ process.MisalignedMuon = cms.ESProducer("MisalignedMuonESProducer",
 #process.load("Geometry.DTGeometry.dtGeometry_cfi")
 #process.load("Geometry.CSCGeometry.cscGeometry_cfi")
 
+process.MisalignedMuon.scenario = _MuonScenarios.Muon100InversepbScenario
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(1)
 )
+
 process.source = cms.Source("EmptySource")
+
+process.DTGeometryMisalignedMuonProducer = cms.ESProducer("DTGeometryESModule",
+    appendToDataLabel = cms.string('idealForMuonMisalignedProducer'),
+    applyAlignment = cms.bool(False), 
+    alignmentsLabel = cms.string(''),
+    fromDDD = cms.bool(True)
+)
+
+process.CSCGeometryMisalignedMuonProducer = cms.ESProducer("CSCGeometryESModule",
+    appendToDataLabel = cms.string('idealForMuonMisalignedProducer'),
+    debugV = cms.untracked.bool(False),
+    useGangedStripsInME1a = cms.bool(False),
+    alignmentsLabel = cms.string(''),
+    useOnlyWiresInME1a = cms.bool(False),
+    useRealWireGeometry = cms.bool(True),
+    useCentreTIOffsets = cms.bool(False),
+    applyAlignment = cms.bool(False), 
+    useDDD = cms.bool(True)
+)
+
 
 # Database output service if you want to store soemthing in MisalignedMuon
 from CondCore.DBCommon.CondDBSetup_cfi import CondDBSetup
@@ -57,7 +79,7 @@ process.prod = cms.EDAnalyzer("TestMisalign",
     fileName = cms.untracked.string('misaligment.root')
 )
 
-process.p1 = cms.Path(process.prod)
+process.p1 = cms.Path(process.MisalignedMuon+process.prod)
 process.MessageLogger.cout = cms.untracked.PSet(
     threshold = cms.untracked.string('INFO'),
     default = cms.untracked.PSet(

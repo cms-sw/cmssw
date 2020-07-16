@@ -1,6 +1,5 @@
 <use name="CondCore/CondDB"/>
 <use name="CondFormats/DTObjects"/>
-<use name="CondFormats/DataRecord"/>
 <use name="CoralBase"/>
 <use name="DataFormats/Provenance"/>
 <use name="FWCore/ParameterSet"/>

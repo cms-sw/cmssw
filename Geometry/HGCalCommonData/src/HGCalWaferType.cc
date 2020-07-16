@@ -47,7 +47,7 @@ int HGCalWaferType::getType(double xpos, double ypos, double zpos) {
   yc[4] = ypos - R_;
   xc[5] = xpos + r_;
   yc[5] = ypos - 0.5 * R_;
-  std::pair<double, double> rv = rLimits(zpos);
+  const auto& rv = rLimits(zpos);
   std::vector<int> fine, coarse;
   for (unsigned int k = 0; k < HGCalParameters::k_CornerSize; ++k) {
     double rpos = std::sqrt(xc[k] * xc[k] + yc[k] * yc[k]);
@@ -86,7 +86,7 @@ int HGCalWaferType::getType(double xpos, double ypos, double zpos) {
         ycn.emplace_back(yc[k1]);
         if (!ok) {
           double rr = (type == -1) ? rv.first : rv.second;
-          std::pair<double, double> xy = intersection(k1, k2, xc, yc, xpos, ypos, rr);
+          const auto& xy = intersection(k1, k2, xc, yc, xpos, ypos, rr);
           xcn.emplace_back(xy.first);
           ycn.emplace_back(xy.second);
         }
@@ -103,6 +103,12 @@ int HGCalWaferType::getType(double xpos, double ypos, double zpos) {
   return type;
 }
 
+int HGCalWaferType::getType(int index, const std::vector<int>& indices, const std::vector<int>& types) {
+  auto itr = static_cast<unsigned int>(std::find(std::begin(indices), std::end(indices), index) - std::begin(indices));
+  int type = (itr < indices.size()) ? types[itr] : -1;
+  return type;
+}
+
 std::pair<double, double> HGCalWaferType::rLimits(double zpos) {
   double zz = std::abs(zpos);
   if (zz < zMin_)
@@ -116,12 +122,17 @@ std::pair<double, double> HGCalWaferType::rLimits(double zpos) {
     rcoarse *= zz;
     rcoarse += rad200_[i];
   }
-  return std::pair<double, double>(rfine * HGCalParameters::k_ScaleToDDD, rcoarse * HGCalParameters::k_ScaleToDDD);
+  rfine *= HGCalParameters::k_ScaleToDDD;
+  rcoarse *= HGCalParameters::k_ScaleToDDD;
+#ifdef EDM_ML_DEBUG
+  edm::LogVerbatim("HGCalGeom") << "HGCalWaferType: Z " << zpos << ":" << zz << " R " << rfine << ":" << rcoarse;
+#endif
+  return std::make_pair(rfine, rcoarse);
 }
 
 double HGCalWaferType::areaPolygon(std::vector<double> const& x, std::vector<double> const& y) {
   double area = 0.0;
-  int n = x.size();
+  int n = static_cast<int>(x.size());
   int j = n - 1;
   for (int i = 0; i < n; ++i) {
     area += ((x[j] + x[i]) * (y[i] - y[j]));
@@ -142,8 +153,12 @@ std::pair<double, double> HGCalWaferType::intersection(
     xx[i] = (slope * yy[i] + interc);
     dist[i] = ((xx[i] - xpos) * (xx[i] - xpos)) + ((yy[i] - ypos) * (yy[i] - ypos));
   }
+#ifdef EDM_ML_DEBUG
+  edm::LogVerbatim("HGCalGeom") << "HGCalWaferType: InterSection " << dist[0] << ":" << xx[0] << ":" << yy[0] << " vs "
+                                << dist[1] << ":" << xx[1] << ":" << yy[1];
+#endif
   if (dist[0] > dist[1])
-    return std::pair<double, double>(xx[1], yy[1]);
+    return std::make_pair(xx[1], yy[1]);
   else
-    return std::pair<double, double>(xx[0], yy[0]);
+    return std::make_pair(xx[0], yy[0]);
 }

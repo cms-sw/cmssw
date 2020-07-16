@@ -72,10 +72,10 @@ public:
   void run(const std::vector<int> wire[CSCConstants::NUM_LAYERS][CSCConstants::MAX_NUM_WIRES]);
 
   /** Returns vector of ALCTs in the read-out time window, if any. */
-  std::vector<CSCALCTDigi> readoutALCTs() const;
+  std::vector<CSCALCTDigi> readoutALCTs(int nMaxALCTs = CSCConstants::MAX_ALCTS_READOUT) const;
 
   /** Returns vector of all found ALCTs, if any. */
-  std::vector<CSCALCTDigi> getALCTs() const;
+  std::vector<CSCALCTDigi> getALCTs(int nMaxALCTs = CSCConstants::MAX_ALCTS_READOUT) const;
 
   /** read out pre-ALCTs */
   std::vector<CSCALCTPreTriggerDigi> preTriggerDigis() const { return thePreTriggerDigis; }
@@ -97,6 +97,9 @@ protected:
 
   /** Second best LCTs in this chamber, as found by the processor. */
   CSCALCTDigi secondALCT[CSCConstants::MAX_ALCT_TBINS];
+
+  /** LCTs in this chamber, as found by the processor. */
+  CSCALCTDigi ALCTContainer_[CSCConstants::MAX_ALCT_TBINS][CSCConstants::MAX_ALCTS_PER_PROCESSOR];
 
   /** Access routines to wire digis. */
   bool getDigis(const CSCWireDigiCollection* wiredc);
@@ -157,7 +160,7 @@ protected:
   static const unsigned int def_l1a_window_width;
 
   /** Chosen pattern mask. */
-  int pattern_mask[CSCConstants::NUM_ALCT_PATTERNS][CSCConstants::MAX_WIRES_IN_PATTERN];
+  CSCPatternBank::LCTPatterns alct_pattern_ = {};
 
   /** Load pattern mask defined by configuration into pattern_mask */
   void loadPatternMask();

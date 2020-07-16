@@ -30,6 +30,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/StreamID.h"
 #include "FWCore/Utilities/interface/isFinite.h"
+#include "FWCore/Utilities/interface/ESGetToken.h"
 
 #include "DataFormats/BTauReco/interface/CandIPTagInfo.h"
 #include "DataFormats/BTauReco/interface/CandSecondaryVertexTagInfo.h"
@@ -93,6 +94,7 @@ private:
   reco::TrackSelector trackSelector;
 
   edm::EDGetTokenT<edm::ValueMap<float>> weightsToken_;
+  edm::ESGetToken<TransientTrackBuilder, TransientTrackRecord> trackBuilderToken_;
   edm::Handle<edm::ValueMap<float>> weightsHandle_;
 
   // static variables
@@ -131,7 +133,9 @@ BoostedDoubleSVProducer::BoostedDoubleSVProducer(const edm::ParameterSet& iConfi
       trackPairV0Filter(iConfig.getParameter<edm::ParameterSet>("trackPairV0Filter")),
       trackSelector(iConfig.getParameter<edm::ParameterSet>("trackSelection")) {
   edm::InputTag srcWeights = iConfig.getParameter<edm::InputTag>("weights");
-  if (srcWeights.label() != "")
+  trackBuilderToken_ =
+      esConsumes<TransientTrackBuilder, TransientTrackRecord>(edm::ESInputTag("", "TransientTrackBuilder"));
+  if (!srcWeights.label().empty())
     weightsToken_ = consumes<edm::ValueMap<float>>(srcWeights);
   produces<std::vector<reco::BoostedDoubleSVTagInfo>>();
 }
@@ -148,8 +152,7 @@ BoostedDoubleSVProducer::~BoostedDoubleSVProducer() {
 // ------------ method called to produce the data  ------------
 void BoostedDoubleSVProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   // get the track builder
-  edm::ESHandle<TransientTrackBuilder> trackBuilder;
-  iSetup.get<TransientTrackRecord>().get("TransientTrackBuilder", trackBuilder);
+  edm::ESHandle<TransientTrackBuilder> trackBuilder = iSetup.getHandle(trackBuilderToken_);
 
   // get input secondary vertex TagInfos
   edm::Handle<std::vector<reco::CandSecondaryVertexTagInfo>> svTagInfos;

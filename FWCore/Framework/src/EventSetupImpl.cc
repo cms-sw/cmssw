@@ -65,6 +65,13 @@ namespace edm {
     return recordImpls_[index];
   }
 
+  eventsetup::EventSetupRecordImpl const* EventSetupImpl::findImpl(ESRecordIndex iKey) const {
+    if UNLIKELY (iKey.value() == std::numeric_limits<int>::max()) {
+      return nullptr;
+    }
+    return recordImpls_[iKey.value()];
+  }
+
   void EventSetupImpl::fillAvailableRecordKeys(std::vector<eventsetup::EventSetupRecordKey>& oToFill) const {
     oToFill.clear();
     oToFill.reserve(recordImpls_.size());

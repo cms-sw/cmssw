@@ -145,7 +145,7 @@
     <Tubs name="Ring10Disc1" rMin="1056.6*mm" rMax="1153.9*mm" dz="4.01*mm" startPhi="0*deg" deltaPhi="360*deg"/>
     <Tubs name="Ring11Disc1_support" rMin="1134.99*mm" rMax="1232.27*mm" dz="1.7*mm" startPhi="0*deg" deltaPhi="360*deg"/>
     <Tubs name="Ring11Disc1" rMin="1134.99*mm" rMax="1232.27*mm" dz="4.01*mm" startPhi="0*deg" deltaPhi="360*deg"/>
-    <Tubs name="Disc1" rMin="264.98*mm" rMax="1232.28*mm" dz="13.52*mm" startPhi="0*deg" deltaPhi="360*deg"/>
+    <Tubs name="Disc1Timing" rMin="264.98*mm" rMax="1232.28*mm" dz="13.52*mm" startPhi="0*deg" deltaPhi="360*deg"/>
     <Tubs name="serviceR264Z2666" rMin="264.999*mm" rMax="361.73*mm" dz="1*mm" startPhi="0*deg" deltaPhi="360*deg"/>
     <Tubs name="serviceR361Z2666" rMin="361.83*mm" rMax="452.753*mm" dz="1*mm" startPhi="0*deg" deltaPhi="360*deg"/>
     <Tubs name="serviceR452Z2666" rMin="452.853*mm" rMax="537.838*mm" dz="1*mm" startPhi="0*deg" deltaPhi="360*deg"/>
@@ -691,8 +691,8 @@
       <rSolid name="etl:Ring11Disc1"/>
       <rMaterial name="materials:Air"/>
     </LogicalPart>
-    <LogicalPart name="Disc1" category="unspecified">
-      <rSolid name="etl:Disc1"/>
+    <LogicalPart name="Disc1Timing" category="unspecified">
+      <rSolid name="etl:Disc1Timing"/>
       <rMaterial name="materials:Air"/>
     </LogicalPart>
     <LogicalPart name="serviceR264Z2666" category="unspecified">
@@ -1162,57 +1162,57 @@
       <Translation x="0*mm" y="0*mm" z="-0.65*mm"/>
     </PosPart>
     <PosPart copyNumber="1">
-      <rParent name="etl:Disc1"/>
+      <rParent name="etl:Disc1Timing"/>
       <rChild name="etl:Disc1_support2"/>
       <Translation x="0*mm" y="0*mm" z="-9.5*mm"/>
     </PosPart>
     <PosPart copyNumber="1">
-      <rParent name="etl:Disc1"/>
+      <rParent name="etl:Disc1Timing"/>
       <rChild name="etl:Disc1_support4"/>
       <Translation x="0*mm" y="0*mm" z="-9.5*mm"/>
     </PosPart>
     <PosPart copyNumber="1">
-      <rParent name="etl:Disc1"/>
+      <rParent name="etl:Disc1Timing"/>
       <rChild name="etl:Disc1_support6"/>
       <Translation x="0*mm" y="0*mm" z="-9.5*mm"/>
     </PosPart>
     <PosPart copyNumber="1">
-      <rParent name="etl:Disc1"/>
+      <rParent name="etl:Disc1Timing"/>
       <rChild name="etl:Disc1_support8"/>
       <Translation x="0*mm" y="0*mm" z="-9.5*mm"/>
     </PosPart>
     <PosPart copyNumber="1">
-      <rParent name="etl:Disc1"/>
+      <rParent name="etl:Disc1Timing"/>
       <rChild name="etl:Disc1_support10"/>
       <Translation x="0*mm" y="0*mm" z="-9.5*mm"/>
     </PosPart>
     <PosPart copyNumber="1">
-      <rParent name="etl:Disc1"/>
+      <rParent name="etl:Disc1Timing"/>
       <rChild name="etl:Disc1_support1"/>
       <Translation x="0*mm" y="0*mm" z="9.5*mm"/>
     </PosPart>
     <PosPart copyNumber="1">
-      <rParent name="etl:Disc1"/>
+      <rParent name="etl:Disc1Timing"/>
       <rChild name="etl:Disc1_support11"/>
       <Translation x="0*mm" y="0*mm" z="9.5*mm"/>
     </PosPart>
     <PosPart copyNumber="1">
-      <rParent name="etl:Disc1"/>
+      <rParent name="etl:Disc1Timing"/>
       <rChild name="etl:Disc1_support3"/>
       <Translation x="0*mm" y="0*mm" z="9.5*mm"/>
     </PosPart>
     <PosPart copyNumber="1">
-      <rParent name="etl:Disc1"/>
+      <rParent name="etl:Disc1Timing"/>
       <rChild name="etl:Disc1_support5"/>
       <Translation x="0*mm" y="0*mm" z="9.5*mm"/>
     </PosPart>
     <PosPart copyNumber="1">
-      <rParent name="etl:Disc1"/>
+      <rParent name="etl:Disc1Timing"/>
       <rChild name="etl:Disc1_support7"/>
       <Translation x="0*mm" y="0*mm" z="9.5*mm"/>
     </PosPart>
     <PosPart copyNumber="1">
-      <rParent name="etl:Disc1"/>
+      <rParent name="etl:Disc1Timing"/>
       <rChild name="etl:Disc1_support9"/>
       <Translation x="0*mm" y="0*mm" z="9.5*mm"/>
     </PosPart>
@@ -1221,7 +1221,7 @@
       <rChild name="etl:Ring1Disc1_support"/>
     </PosPart>
     <PosPart copyNumber="1">
-      <rParent name="etl:Disc1"/>
+      <rParent name="etl:Disc1Timing"/>
       <rChild name="etl:Ring1Disc1"/>
       <Translation x="0*mm" y="0*mm" z="-9.5*mm"/>
     </PosPart>
@@ -1230,7 +1230,7 @@
       <rChild name="etl:Ring2Disc1_support"/>
     </PosPart>
     <PosPart copyNumber="1">
-      <rParent name="etl:Disc1"/>
+      <rParent name="etl:Disc1Timing"/>
       <rChild name="etl:Ring2Disc1"/>
       <Translation x="0*mm" y="0*mm" z="9.5*mm"/>
     </PosPart>
@@ -1239,7 +1239,7 @@
       <rChild name="etl:Ring3Disc1_support"/>
     </PosPart>
     <PosPart copyNumber="1">
-      <rParent name="etl:Disc1"/>
+      <rParent name="etl:Disc1Timing"/>
       <rChild name="etl:Ring3Disc1"/>
       <Translation x="0*mm" y="0*mm" z="-9.5*mm"/>
     </PosPart>
@@ -1248,7 +1248,7 @@
       <rChild name="etl:Ring4Disc1_support"/>
     </PosPart>
     <PosPart copyNumber="1">
-      <rParent name="etl:Disc1"/>
+      <rParent name="etl:Disc1Timing"/>
       <rChild name="etl:Ring4Disc1"/>
       <Translation x="0*mm" y="0*mm" z="9.5*mm"/>
     </PosPart>
@@ -1257,7 +1257,7 @@
       <rChild name="etl:Ring5Disc1_support"/>
     </PosPart>
     <PosPart copyNumber="1">
-      <rParent name="etl:Disc1"/>
+      <rParent name="etl:Disc1Timing"/>
       <rChild name="etl:Ring5Disc1"/>
       <Translation x="0*mm" y="0*mm" z="-9.5*mm"/>
     </PosPart>
@@ -1266,7 +1266,7 @@
       <rChild name="etl:Ring6Disc1_support"/>
     </PosPart>
     <PosPart copyNumber="1">
-      <rParent name="etl:Disc1"/>
+      <rParent name="etl:Disc1Timing"/>
       <rChild name="etl:Ring6Disc1"/>
       <Translation x="0*mm" y="0*mm" z="9.5*mm"/>
     </PosPart>
@@ -1275,7 +1275,7 @@
       <rChild name="etl:Ring7Disc1_support"/>
     </PosPart>
     <PosPart copyNumber="1">
-      <rParent name="etl:Disc1"/>
+      <rParent name="etl:Disc1Timing"/>
       <rChild name="etl:Ring7Disc1"/>
       <Translation x="0*mm" y="0*mm" z="-9.5*mm"/>
     </PosPart>
@@ -1284,7 +1284,7 @@
       <rChild name="etl:Ring8Disc1_support"/>
     </PosPart>
     <PosPart copyNumber="1">
-      <rParent name="etl:Disc1"/>
+      <rParent name="etl:Disc1Timing"/>
       <rChild name="etl:Ring8Disc1"/>
       <Translation x="0*mm" y="0*mm" z="9.5*mm"/>
     </PosPart>
@@ -1293,7 +1293,7 @@
       <rChild name="etl:Ring9Disc1_support"/>
     </PosPart>
     <PosPart copyNumber="1">
-      <rParent name="etl:Disc1"/>
+      <rParent name="etl:Disc1Timing"/>
       <rChild name="etl:Ring9Disc1"/>
       <Translation x="0*mm" y="0*mm" z="-9.5*mm"/>
     </PosPart>
@@ -1302,7 +1302,7 @@
       <rChild name="etl:Ring10Disc1_support"/>
     </PosPart>
     <PosPart copyNumber="1">
-      <rParent name="etl:Disc1"/>
+      <rParent name="etl:Disc1Timing"/>
       <rChild name="etl:Ring10Disc1"/>
       <Translation x="0*mm" y="0*mm" z="9.5*mm"/>
     </PosPart>
@@ -1311,13 +1311,13 @@
       <rChild name="etl:Ring11Disc1_support"/>
     </PosPart>
     <PosPart copyNumber="1">
-      <rParent name="etl:Disc1"/>
+      <rParent name="etl:Disc1Timing"/>
       <rChild name="etl:Ring11Disc1"/>
       <Translation x="0*mm" y="0*mm" z="-9.5*mm"/>
     </PosPart>
     <PosPart copyNumber="1">
       <rParent name="etl:EndcapTimingLayer"/>
-      <rChild name="etl:Disc1"/>
+      <rChild name="etl:Disc1Timing"/>
     </PosPart>
     <PosPart copyNumber="1">
       <rParent name="etl:EndcapTimingLayer"/>

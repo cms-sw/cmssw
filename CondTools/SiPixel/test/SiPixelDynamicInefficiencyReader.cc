@@ -15,8 +15,8 @@
 
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 
+#include <cstdio>
 #include <iostream>
-#include <stdio.h>
 #include <sys/time.h>
 
 using namespace cms;
@@ -140,7 +140,7 @@ void SiPixelDynamicInefficiencyReader::analyze(const edm::Event& e, const edm::E
   unsigned int match = 0, mismatch = 0, pu_match = 0, pu_mismatch = 0;
 
   for (const auto& it : pDD->detUnits()) {
-    if (dynamic_cast<PixelGeomDetUnit const*>(it) == 0)
+    if (dynamic_cast<PixelGeomDetUnit const*>(it) == nullptr)
       continue;
     const DetId detid = it->geographicalId();
     double scale_db = 1;

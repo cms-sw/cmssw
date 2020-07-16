@@ -5,7 +5,7 @@ function checkDiff {
     FSIZE=$(stat -c%s "$1")
     echo "The output diff is $FSIZE:"
     cat $1;
-    if [ $FSIZE -gt 1000 ]
+    if [ $FSIZE -gt 2000 ]
     then
 	exit -1;
     fi
@@ -16,6 +16,7 @@ F2=${LOCAL_TEST_DIR}/python/testDTGeometry.py
 FILE1=${LOCAL_TEST_DIR}/dtGeometry.log.org
 FILE2=dtGeometry.log
 FILE3=diff.log
+FILE4=dtGeometryFiltered.log
 
 echo " testing Geometry/DTGeometryBuilder"
 
@@ -24,5 +25,6 @@ echo "===== Test \"cmsRun validateDTGeometry_cfg.py\" ===="
 (cmsRun $F1) || die "Failure using cmsRun $F1" $?
 echo "===== Test \"cmsRun testDTGeometry.py\" ===="
 (cmsRun $F2;
-    diff $FILE1 $FILE2 >& $FILE3;
+    grep -v 'Benchmark ' $FILE2 | grep -v '^ *[1-9]' | grep -v '%MSG-i' | grep -v '^Info '>& $FILE4;
+    diff -B -w $FILE1 $FILE4 >& $FILE3;
     [ -s $FILE3 ] && checkDiff $FILE3 || echo "OK") || die "Failure using cmsRun $F2" $?

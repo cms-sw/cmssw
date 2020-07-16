@@ -37,8 +37,10 @@ namespace clangcms {
                                         "std::isnan / std::isinf does not work when fast-math is used. Please use "
                                         "edm::isNotFinite from 'FWCore/Utilities/interface/isFinite.h'",
                                         "fastmath plugin"));
-
-    std::unique_ptr<clang::ento::BugReport> report = llvm::make_unique<clang::ento::BugReport>(*BT, BT->getName(), N);
+    std::unique_ptr<clang::ento::PathSensitiveBugReport> PSBR =
+        std::make_unique<clang::ento::PathSensitiveBugReport>(*BT, BT->getCheckerName(), N);
+    std::unique_ptr<clang::ento::BasicBugReport> report =
+        std::make_unique<clang::ento::BasicBugReport>(*BT, BT->getCheckerName(), PSBR->getLocation());
     report->addRange(Callee->getSourceRange());
     ctx.emitReport(std::move(report));
   }

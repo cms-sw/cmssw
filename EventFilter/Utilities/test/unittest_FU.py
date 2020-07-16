@@ -152,14 +152,8 @@ process.streamD = cms.OutputModule("EventStreamFileWriter",
 process.hltJson = cms.EDAnalyzer("HLTriggerJSONMonitoring")
 
 process.DQMStore = cms.Service( "DQMStore",
-    referenceFileName = cms.untracked.string( "" ),
     verbose = cms.untracked.int32( 0 ),
-    collateHistograms = cms.untracked.bool( False ),
-    enableMultiThread = cms.untracked.bool( True ),
-    forceResetOnBeginLumi = cms.untracked.bool( False ),
     saveByLumi = cms.untracked.bool( False ),
-    LSbasedMode = cms.untracked.bool( True ),
-    verboseQT = cms.untracked.int32( 0 )
 )
 
 from DQMServices.FileIO.DQMFileSaverPB_cfi import dqmSaver

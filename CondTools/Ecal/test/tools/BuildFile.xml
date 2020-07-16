@@ -1,7 +1,4 @@
 <use name="xerces-c"/>
-<use name="CondTools/Ecal"/>
-<use name="CondFormats/EcalObjects"/>
-<use name="CondFormats/DataRecord"/>
 <bin name="testXMLTranslators" file="testXMLTranslators.cc">
 </bin>
 

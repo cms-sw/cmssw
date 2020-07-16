@@ -8,6 +8,10 @@
 <use name="SimDataFormats/Track"/>
 <use name="SimDataFormats/GeneratorProducts"/>
 <use name="CondFormats/RecoMuonObjects"/>
+<use name="DataFormats/HepMCCandidate"/>
+<use name="DataFormats/Math"/>
+<use name="DataFormats/MuonReco"/>
+<use name="FWCore/MessageLogger"/>
 <export>
   <lib name="1"/>
 </export>

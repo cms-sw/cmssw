@@ -1,7 +1,6 @@
 <use name="CondCore/DBOutputService"/>
 <use name="CondFormats/Calibration"/>
 <use name="CondFormats/BeamSpotObjects"/>
-<use name="CondFormats/External"/>
 <library file="stubs/IOVPayloadAnalyzer.cc" name="IOVPayloadAnalyze">
   <flags EDM_PLUGIN="1"/>
 </library>

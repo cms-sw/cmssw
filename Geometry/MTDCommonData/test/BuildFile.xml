@@ -1,14 +1,4 @@
-<library name="TestMTDPosition" file="TestMTDPosition.cc">
-  <use name="DetectorDescription/Core"/>
-  <use name="FWCore/Framework"/>
-  <use name="FWCore/ParameterSet"/>
-  <use name="FWCore/Utilities"/>
-  <use name="Geometry/Records"/>
-  <use name="rootcling"/>
-  <flags EDM_PLUGIN="1"/>
-</library>
-
-<library name="TestMTDNumbering" file="TestMTDNumbering.cc">
+<library name="TestMTDIdealGeometry" file="TestMTDIdealGeometry.cc">
   <use name="DataFormats/ForwardDetId"/>
   <use name="DetectorDescription/Core"/>
   <use name="FWCore/Framework"/>
@@ -32,3 +22,5 @@
   <use name="rootcling"/>
   <flags EDM_PLUGIN="1"/>
 </library>
+
+<test name="GeometryMTDCommonDataTestDriver" command="runTest.sh"/>

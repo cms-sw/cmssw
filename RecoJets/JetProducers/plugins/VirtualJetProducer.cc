@@ -1057,4 +1057,5 @@ void VirtualJetProducer::fillDescriptionsFromVirtualJetProducer(edm::ParameterSe
   desc.add<vector<double>>("puCenters", puCentersDefault);
   desc.add<bool>("applyWeight", false);
   desc.add<edm::InputTag>("srcWeights", edm::InputTag(""));
+  desc.add<double>("minimumTowersFraction", 0.);
 }

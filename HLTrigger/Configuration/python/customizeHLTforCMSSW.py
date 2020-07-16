@@ -76,6 +76,12 @@ def synchronizeHCALHLTofflineRun3on2018data(process):
         producer.setNoiseFlagsQIE8 = cms.bool( True )
         producer.setPulseShapeFlagsQIE8 = cms.bool( True )
 
+    #----------------------------------------------------------
+    # Use 1+8p fit (PR29617) and apply HB- correction (PR26177)
+    for producer in producers_by_type(process, "HBHEPhase1Reconstructor"):
+        producer.algorithm.applyLegacyHBMCorrection = cms.bool( True )
+        producer.algorithm.chiSqSwitch = cms.double(15.0)
+
     return process
 
 def synchronizeHCALHLTofflineRun2(process):
@@ -164,30 +170,10 @@ def customiseFor2017DtUnpacking(process):
 
     return process
 
-def customiseFor29512(process):
-    """Refresh configuration of ElectronNHitSeedProducer instances.
-    
-    Loops over some parameters of ElectronNHitSeedProducer instances and changes their type from string to ESInputTag.
-
-    For PR https://github.com/cms-sw/cmssw/pull/29512 "ElectronNHitSeedProducer modernization"
-    """
-
-    for producer in producers_by_type(process, "ElectronNHitSeedProducer"):
-        matcherConfig = producer.matcherConfig
-        for parameter_name in ("detLayerGeom", "navSchool", "paramMagField"):
-            if hasattr(matcherConfig, parameter_name):
-                old_parameter = getattr(matcherConfig, parameter_name)
-                if old_parameter.pythonTypeName().endswith("string"):
-                    old_value = old_parameter.pythonValue()[1:-1]
-                    setattr(matcherConfig, parameter_name, cms.ESInputTag("", old_value))
-
-    return process
-
 # CMSSW version specific customizations
 def customizeHLTforCMSSW(process, menuType="GRun"):
 
     # add call to action function in proper order: newest last!
     # process = customiseFor12718(process)
-    process = customiseFor29512(process)
 
     return process

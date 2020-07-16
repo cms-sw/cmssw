@@ -86,6 +86,8 @@ patElectrons = cms.EDProducer("PATElectronProducer",
 
     # PFClusterIso
     addPFClusterIso = cms.bool(False),
+    ecalPFClusterIsoMap = cms.InputTag(""),
+    hcalPFClusterIsoMap = cms.InputTag(""),
     addPuppiIsolation = cms.bool(False),
 
     # Compute and store Mini-Isolation.

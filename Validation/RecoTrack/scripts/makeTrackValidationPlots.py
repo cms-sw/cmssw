@@ -47,6 +47,7 @@ def main(opts):
             "fromPV": limitProcessing,
             "fromPVAllTP": limitProcessing,
             "tpPtLess09": limitProcessing,
+            "tpEtaGreater2p7": limitProcessing,
             "seeding": limitProcessing,
             "building": limitProcessing,
             "bhadron": limitProcessing,
@@ -60,6 +61,7 @@ def main(opts):
             "fromPV": ignore,
             "fromPVAllTP": ignore,
             "tpPtLess09": limitRelVal,
+            "tpEtaGreater2p7": limitRelVal,
             "seeding": ignore,
             "bhadron": limitRelVal,
         }

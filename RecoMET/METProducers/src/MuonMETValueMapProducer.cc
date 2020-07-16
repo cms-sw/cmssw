@@ -46,8 +46,6 @@
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/Common/interface/ValueMap.h"
-#include "MagneticField/Engine/interface/MagneticField.h"
-#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
@@ -68,6 +66,7 @@ namespace cms {
         useRecHits_(iConfig.getParameter<bool>("useRecHits")) {
     muonToken_ = consumes<edm::View<reco::Muon>>(iConfig.getParameter<edm::InputTag>("muonInputTag"));
     beamSpotToken_ = consumes<reco::BeamSpot>(iConfig.getParameter<edm::InputTag>("beamSpotInputTag"));
+    magFieldToken_ = esConsumes<MagneticField, IdealMagneticFieldRecord>();
 
     edm::ParameterSet trackAssociatorParams = iConfig.getParameter<edm::ParameterSet>("TrackAssociatorParameters");
     edm::ConsumesCollector iC = consumesCollector();
@@ -85,8 +84,7 @@ namespace cms {
     edm::Handle<reco::BeamSpot> beamSpot;
     iEvent.getByToken(beamSpotToken_, beamSpot);
 
-    edm::ESHandle<MagneticField> magneticField;
-    iSetup.get<IdealMagneticFieldRecord>().get(magneticField);
+    edm::ESHandle<MagneticField> magneticField = iSetup.getHandle(magFieldToken_);
 
     double bfield = magneticField->inTesla(GlobalPoint(0., 0., 0.)).z();
 

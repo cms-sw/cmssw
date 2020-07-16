@@ -1,3 +1,4 @@
+<use name="CommonTools/Egamma"/>
 <use name="DataFormats/BeamSpot"/>
 <use name="DataFormats/BTauReco"/>
 <use name="DataFormats/Candidate"/>
@@ -20,6 +21,5 @@
 <use name="FWCore/ServiceRegistry"/>
 <use name="HLTrigger/HLTcore"/>
 <use name="HLTrigger/JetMET"/>
-<use name="RecoEgamma/EgammaTools"/>
 <use name="rootgraphics"/>
 <flags EDM_PLUGIN="1"/>

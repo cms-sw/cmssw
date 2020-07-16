@@ -15,7 +15,7 @@ namespace fwlite {
   class EventSelector : public TNamed {
   public:
     EventSelector(const char *name = "", const char *title = "") : TNamed(name, title) {}
-    virtual ~EventSelector() {}
+    ~EventSelector() override {}
     virtual bool accept(const fwlite::EventBase &ev) const = 0;
   };
 
@@ -28,8 +28,8 @@ namespace fwlite {
       add(run, firstLumi, lastLumi);
     }
 
-    virtual ~RunLumiSelector() {}
-    virtual bool accept(const fwlite::EventBase &ev) const { return accept(ev.id().run(), ev.luminosityBlock()); }
+    ~RunLumiSelector() override {}
+    bool accept(const fwlite::EventBase &ev) const override { return accept(ev.id().run(), ev.luminosityBlock()); }
     void add(int run, int firstLumi = 0, int lastLumi = 9999999) {
       runs.push_back(run);
       firstLumis.push_back(firstLumi);
@@ -74,8 +74,8 @@ namespace fwlite {
       scanner->setCut(cut);
       scanner->setIgnoreExceptions(true);
     }
-    ~ObjectCountSelector() { delete scanner; }
-    virtual bool accept(const fwlite::EventBase &ev) const {
+    ~ObjectCountSelector() override { delete scanner; }
+    bool accept(const fwlite::EventBase &ev) const override {
       int nfound = 0;
       HandleT handle;  // here, not as a datamember, otherwise CINT segfaults (!?)
       handle.getByLabel(ev, label_.c_str(), instance_.c_str(), process_.c_str());

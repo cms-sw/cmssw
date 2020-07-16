@@ -43,9 +43,7 @@ void testFilter::setUp() {
     vector<string_view> toks = split(i, "/");
     unique_ptr<Filter> f = nullptr;
     auto const& filter = find_if(begin(filters_), end(filters_), [&](auto const& f) {
-      auto const& k = find_if(begin(f->skeys), end(f->skeys), [&](auto const& p) {
-        return std::string({toks.front().data(), toks.front().size()}) == p;
-      });
+      auto const& k = find_if(begin(f->skeys), end(f->skeys), [&](auto const& p) { return toks.front() == p; });
       if (k != end(f->skeys)) {
         currentFilter = f.get();
         return true;
@@ -53,29 +51,23 @@ void testFilter::setUp() {
       return false;
     });
     if (filter == end(filters_)) {
-      filters_.emplace_back(
-          unique_ptr<Filter>(new Filter{{std::string(toks.front().data(), toks.front().size())},
-                                        {std::regex(std::string(toks.front().data(), toks.front().size()))},
-                                        nullptr,
-                                        nullptr}));
+      filters_.emplace_back(unique_ptr<Filter>(new Filter{
+          {toks.front()}, {std::regex(std::string(toks.front().data(), toks.front().size()))}, nullptr, nullptr}));
       currentFilter = filters_.back().get();
     }
     // all next levels
     for (size_t pos = 1; pos < toks.size(); ++pos) {
       if (currentFilter->next != nullptr) {
         currentFilter = currentFilter->next.get();
-        auto const& l = find_if(begin(currentFilter->skeys), end(currentFilter->skeys), [&](auto const& p) {
-          return std::string({toks[pos].data(), toks[pos].size()}) == p;
-        });
+        auto const& l = find_if(
+            begin(currentFilter->skeys), end(currentFilter->skeys), [&](auto const& p) { return toks[pos] == p; });
         if (l == end(currentFilter->skeys)) {
-          currentFilter->skeys.emplace_back(std::string(toks.front().data(), toks.front().size()));
+          currentFilter->skeys.emplace_back(toks.front());
           currentFilter->keys.emplace_back(std::regex(std::string(toks.front().data(), toks.front().size())));
         }
       } else {
-        currentFilter->next.reset(new Filter{{std::string({toks[pos].data(), toks[pos].size()})},
-                                             {std::regex(std::string({toks[pos].data(), toks[pos].size()}))},
-                                             nullptr,
-                                             currentFilter});
+        currentFilter->next.reset(new Filter{
+            {toks[pos]}, {std::regex(std::string({toks[pos].data(), toks[pos].size()}))}, nullptr, currentFilter});
       }
     }
   }

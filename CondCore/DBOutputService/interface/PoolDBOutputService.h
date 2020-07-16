@@ -57,7 +57,6 @@ namespace cond {
         if (!payload)
           throwException("Provided payload pointer is invalid.", "PoolDBOutputService::writeOne");
         std::lock_guard<std::recursive_mutex> lock(m_mutex);
-        std::cout << "WriteOne: opening trans..." << std::endl;
         doStartTransaction();
         cond::persistency::TransactionScope scope(m_session.transaction());
         Hash thePayloadHash("");
@@ -116,7 +115,6 @@ namespace cond {
         if (!myrecord.m_isNewTag) {
           cond::throwException(myrecord.m_tag + " is not a new tag", "PoolDBOutputService::createNewIOV");
         }
-        std::cout << "createNewIOV: opening trans..." << std::endl;
         doStartTransaction();
         cond::persistency::TransactionScope scope(m_session.transaction());
         try {
@@ -129,12 +127,6 @@ namespace cond {
         scope.close();
       }
 
-      // this one we need to avoid to adapt client code around... to be removed in the long term!
-      //void createNewIOV(const std::string& firstPayloadId,
-      //                  cond::Time_t firstSinceTime,
-      //                  cond::Time_t firstTillTime,
-      //                  const std::string& recordName);
-
       //
       template <typename T>
       void appendSinceTime(const T* payloadObj, cond::Time_t sinceTime, const std::string& recordName) {
@@ -146,7 +138,6 @@ namespace cond {
           cond::throwException(std::string("Cannot append to non-existing tag ") + myrecord.m_tag,
                                "PoolDBOutputService::appendSinceTime");
         }
-        std::cout << "appendSinceTime: opening trans..." << std::endl;
         doStartTransaction();
         cond::persistency::TransactionScope scope(m_session.transaction());
         try {
@@ -212,13 +203,7 @@ namespace cond {
       //
       bool getTagInfo(const std::string& recordName, cond::TagInfo_t& result);
 
-      /**
-      void createNewIOV(const std::string& firstPayloadId,
-                        const std::string payloadType,
-                        cond::Time_t firstSinceTime,
-                        cond::Time_t firstTillTime,
-                        const std::string& recordName);
-      **/
+      //
       void createNewIOV(const std::string& firstPayloadId,
                         const std::string payloadType,
                         cond::Time_t firstSinceTime,
@@ -228,11 +213,6 @@ namespace cond {
       // Note: the iov index appended to MUST pre-existing and the existing
       // conditions data are retrieved from the DB
       //
-      /**
-      void appendSinceTime(const std::string& payloadId,
-                           cond::Time_t sinceTime,
-                           const std::string& recordName);
-      **/
       bool appendSinceTime(const std::string& payloadId, cond::Time_t sinceTime, Record& record);
 
       //use these to control transaction interval
@@ -253,7 +233,6 @@ namespace cond {
       static constexpr const char* const MSGSOURCE = "PoolDBOuputService";
       std::recursive_mutex m_mutex;
       cond::TimeType m_timetype;
-      //std::string m_timetypestr;
       std::vector<cond::Time_t> m_currentTimes;
 
       cond::persistency::ConnectionPool m_connection;
@@ -264,8 +243,6 @@ namespace cond {
       bool m_dbInitialised;
 
       std::map<std::string, Record> m_records;
-      //std::vector<std::pair<std::string, std::string> > m_newtags;
-      //bool m_closeIOV;
       std::map<std::string, cond::UserLogInfo> m_logheaders;
 
     };  //PoolDBOutputService

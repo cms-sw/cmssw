@@ -15,6 +15,7 @@
   <use name="DataFormats/HcalRecHit"/>
   <use name="SimDataFormats/TrackingAnalysis"/>
   <use name="TrackingTools/PatternTools"/>
+  <use name="TrackingTools/Records"/>
   <use name="CommonTools/Utils"/>
   <use name="CommonTools/RecoAlgos"/>
   <use name="MagneticField/Records"/>

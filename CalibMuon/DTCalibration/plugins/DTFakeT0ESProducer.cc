@@ -19,7 +19,7 @@
 #include "CondFormats/DataRecord/interface/DTT0Rcd.h"
 #include "DataFormats/MuonDetId/interface/DTLayerId.h"
 
-#include "Geometry/MuonNumbering/interface/MuonDDDConstants.h"
+#include "Geometry/MuonNumbering/interface/MuonGeometryConstants.h"
 #include "DetectorDescription/Core/interface/DDCompactView.h"
 #include "CalibMuon/DTCalibration/plugins/DTGeometryParserFromDDD.h"
 
@@ -60,10 +60,10 @@ std::unique_ptr<DTT0> DTFakeT0ESProducer::produce(const DTT0Rcd& iRecord) {
 
 void DTFakeT0ESProducer::parseDDD(const DTT0Rcd& iRecord) {
   edm::ESTransientHandle<DDCompactView> cpv;
-  edm::ESHandle<MuonDDDConstants> mdc;
+  edm::ESHandle<MuonGeometryConstants> mdc;
 
   iRecord.getRecord<IdealGeometryRecord>().get(cpv);
-  iRecord.getRecord<MuonNumberingRecord>().get(mdc);
+  iRecord.getRecord<IdealGeometryRecord>().get(mdc);
 
   DTGeometryParserFromDDD parser(&(*cpv), *mdc, theLayerIdWiresMap);
 }

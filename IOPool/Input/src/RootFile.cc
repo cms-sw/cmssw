@@ -247,6 +247,7 @@ namespace edm {
     treePointers_[InEvent] = &eventTree_;
     treePointers_[InLumi] = &lumiTree_;
     treePointers_[InRun] = &runTree_;
+    treePointers_[InProcess] = nullptr;
 
     // Read the metadata tree.
     // We use a smart pointer so the tree will be deleted after use, and not kept for the life of the file.
@@ -503,6 +504,10 @@ namespace edm {
     for (auto& product : pList) {
       BranchDescription& prod = product.second;
       prod.init();
+      if (prod.branchType() == InProcess) {
+        // ProcessBlock input not implemented yet
+        continue;
+      }
       treePointers_[prod.branchType()]->setPresence(prod, newBranchToOldBranch(prod.branchName()));
     }
 
@@ -559,12 +564,20 @@ namespace edm {
 
       int i = 0;
       for (auto t : treePointers_) {
+        if (t == nullptr) {
+          // ProcessBlock input not implemented yet
+          continue;
+        }
         t->numberOfBranchesToAdd(nBranches[i]);
         ++i;
       }
     }
     for (auto const& product : prodList) {
       BranchDescription const& prod = product.second;
+      if (prod.branchType() == InProcess) {
+        // ProcessBlock input not implemented yet
+        continue;
+      }
       treePointers_[prod.branchType()]->addBranch(prod, newBranchToOldBranch(prod.branchName()));
     }
 
@@ -1200,6 +1213,10 @@ namespace edm {
     // Just to play it safe, zero all pointers to objects in the InputFile to be closed.
     eventHistoryTree_ = nullptr;
     for (auto& treePointer : treePointers_) {
+      if (treePointer == nullptr) {
+        // ProcessBlock input not implemented yet
+        continue;
+      }
       treePointer->close();
       treePointer = nullptr;
     }
@@ -1784,7 +1801,10 @@ namespace edm {
                                    << "of file '" << file_ << "' because it is dependent on a branch\n"
                                    << "that was explicitly dropped.\n";
           }
-          treePointers_[prod.branchType()]->dropBranch(newBranchToOldBranch(prod.branchName()));
+          // ProcessBlock input is not implemented yet
+          if (prod.branchType() != InProcess) {
+            treePointers_[prod.branchType()]->dropBranch(newBranchToOldBranch(prod.branchName()));
+          }
           hasNewlyDroppedBranch_[prod.branchType()] = true;
         }
         ProductRegistry::ProductList::iterator icopy = it;
@@ -1800,7 +1820,7 @@ namespace edm {
       TString tString;
       for (ProductRegistry::ProductList::iterator it = prodList.begin(), itEnd = prodList.end(); it != itEnd;) {
         BranchDescription const& prod = it->second;
-        if (prod.branchType() != InEvent) {
+        if (prod.branchType() != InEvent && prod.branchType() != InProcess) {
           TClass* cp = prod.wrappedType().getClass();
           void* p = cp->New();
           int offset = cp->GetBaseClassOffset(edProductClass_);

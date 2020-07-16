@@ -9,6 +9,7 @@
  */
 #include "FWCore/Framework/interface/global/EDProducer.h"
 #include "FWCore/Utilities/interface/InputTag.h"
+#include "FWCore/Utilities/interface/ESGetToken.h"
 #include "DataFormats/Candidate/interface/CandidateFwd.h"
 #include "DataFormats/HepMCCandidate/interface/GenParticleFwd.h"
 #include "SimDataFormats/CrossingFrame/interface/CrossingFrame.h"
@@ -105,6 +106,7 @@ private:
   edm::EDGetTokenT<edm::HepMCProduct> srcToken_;
   std::vector<edm::EDGetTokenT<edm::HepMCProduct>> vectorSrcTokens_;
   edm::EDGetTokenT<CrossingFrame<edm::HepMCProduct>> mixToken_;
+  edm::ESGetToken<HepPDT::ParticleDataTable, edm::DefaultRecord> particleTableToken_;
 
   /// unknown code treatment flag
   bool abortOnUnknownPDGCode_;
@@ -132,6 +134,7 @@ private:
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "FWCore/Utilities/interface/transform.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+
 #include <fstream>
 #include <algorithm>
 using namespace edm;
@@ -147,6 +150,7 @@ GenParticleProducer::GenParticleProducer(const ParameterSet& cfg)
       saveBarCodes_(cfg.getUntrackedParameter<bool>("saveBarCodes", false)),
       doSubEvent_(cfg.getUntrackedParameter<bool>("doSubEvent", false)),
       useCF_(cfg.getUntrackedParameter<bool>("useCrossingFrame", false)) {
+  particleTableToken_ = esConsumes<HepPDT::ParticleDataTable, edm::DefaultRecord, edm::Transition::BeginRun>();
   produces<GenParticleCollection>();
   produces<math::XYZPointF>("xyz0");
   produces<float>("t0");
@@ -165,8 +169,7 @@ GenParticleProducer::GenParticleProducer(const ParameterSet& cfg)
 GenParticleProducer::~GenParticleProducer() {}
 
 std::shared_ptr<IDto3Charge> GenParticleProducer::globalBeginRun(const Run&, const EventSetup& es) const {
-  ESHandle<HepPDT::ParticleDataTable> pdt;
-  es.getData(pdt);
+  ESHandle<HepPDT::ParticleDataTable> pdt = es.getHandle(particleTableToken_);
   return std::make_shared<IDto3Charge>(*pdt, abortOnUnknownPDGCode_);
 }
 

@@ -16,7 +16,6 @@
   <use name="FWCore/Framework"/>
   <use name="FWCore/Sources"/>
   <use name="SimDataFormats/GeneratorProducts"/>
-  <use name="mcdb"/>
   <flags EDM_PLUGIN="1"/>
 </library>
 

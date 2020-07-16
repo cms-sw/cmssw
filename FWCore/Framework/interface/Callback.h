@@ -21,13 +21,21 @@
 // system include files
 #include <vector>
 #include <type_traits>
+#include <atomic>
 // user include files
 #include "FWCore/Framework/interface/produce_helpers.h"
+#include "FWCore/Framework/interface/EventSetupImpl.h"
 #include "FWCore/Utilities/interface/propagate_const.h"
 #include "FWCore/Utilities/interface/ESIndices.h"
+#include "FWCore/Utilities/interface/ConvertException.h"
+#include "FWCore/Concurrency/interface/WaitingTaskList.h"
+#include "FWCore/Concurrency/interface/WaitingTaskHolder.h"
+#include "FWCore/ServiceRegistry/interface/ServiceToken.h"
+#include "FWCore/ServiceRegistry/interface/ServiceRegistry.h"
 
 namespace edm {
   namespace eventsetup {
+    class EventSetupRecordImpl;
 
     // The default decorator that does nothing
     template <typename TRecord>
@@ -40,7 +48,7 @@ namespace edm {
               typename TReturn,    //return type of the producer's method
               typename TRecord,    //the record passed in as an argument
               typename TDecorator  //allows customization using pre/post calls
-              = CallbackSimpleDecorator<TRecord> >
+              = CallbackSimpleDecorator<TRecord>>
     class Callback {
     public:
       using method_type = TReturn (T ::*)(const TRecord&);
@@ -58,13 +66,43 @@ namespace edm {
       Callback(const Callback&) = delete;
       const Callback& operator=(const Callback&) = delete;
 
-      void operator()(const TRecord& iRecord) {
-        if (!wasCalledForThisRecord_) {
-          producer_->updateFromMayConsumes(id_, iRecord);
-          decorator_.pre(iRecord);
-          storeReturnedValues((producer_->*method_)(iRecord));
-          wasCalledForThisRecord_ = true;
-          decorator_.post(iRecord);
+      void prefetchAsync(WaitingTask* iTask,
+                         EventSetupRecordImpl const* iRecord,
+                         EventSetupImpl const* iEventSetupImpl,
+                         ServiceToken const& token) {
+        bool expected = false;
+        auto doPrefetch = wasCalledForThisRecord_.compare_exchange_strong(expected, true);
+        taskList_.add(iTask);
+        if (doPrefetch) {
+          if UNLIKELY (producer_->hasMayConsumes()) {
+            //after prefetching need to do the mayGet
+            auto mayGetTask = edm::make_waiting_task(
+                tbb::task::allocate_root(), [this, iRecord, iEventSetupImpl, token](std::exception_ptr const* iExcept) {
+                  if (iExcept) {
+                    runProducerAsync(iExcept, iRecord, iEventSetupImpl, token);
+                    return;
+                  }
+                  if (handleMayGet(iRecord, iEventSetupImpl)) {
+                    auto runTask = edm::make_waiting_task(
+                        tbb::task::allocate_root(),
+                        [this, iRecord, iEventSetupImpl, token](std::exception_ptr const* iExcept) {
+                          runProducerAsync(iExcept, iRecord, iEventSetupImpl, token);
+                        });
+                    prefetchNeededDataAsync(runTask, iEventSetupImpl, &((*postMayGetProxies_).front()), token);
+                  } else {
+                    runProducerAsync(iExcept, iRecord, iEventSetupImpl, token);
+                  }
+                });
+
+            //Get everything we can before knowing about the mayGets
+            prefetchNeededDataAsync(mayGetTask, iEventSetupImpl, getTokenIndices(), token);
+          } else {
+            auto task = edm::make_waiting_task(
+                tbb::task::allocate_root(), [this, iRecord, iEventSetupImpl, token](std::exception_ptr const* iExcept) {
+                  runProducerAsync(iExcept, iRecord, iEventSetupImpl, token);
+                });
+            prefetchNeededDataAsync(task, iEventSetupImpl, getTokenIndices(), token);
+          }
         }
       }
 
@@ -88,18 +126,81 @@ namespace edm {
           setData<typename RemainingContainerT::head_type, typename RemainingContainerT::tail_type>(iProducts);
         }
       }
-      void newRecordComing() { wasCalledForThisRecord_ = false; }
+      void newRecordComing() {
+        wasCalledForThisRecord_ = false;
+        taskList_.reset();
+      }
 
       unsigned int transitionID() const { return id_; }
       ESProxyIndex const* getTokenIndices() const { return producer_->getTokenIndices(id_); }
 
     private:
+      void prefetchNeededDataAsync(WaitingTask* task,
+                                   EventSetupImpl const* iImpl,
+                                   ESProxyIndex const* proxies,
+                                   edm::ServiceToken const& token) const {
+        WaitingTaskHolder h(task);
+        auto recs = producer_->getTokenRecordIndices(id_);
+        auto n = producer_->numberOfTokenIndices(id_);
+        for (size_t i = 0; i != n; ++i) {
+          auto rec = iImpl->findImpl(recs[i]);
+          if (rec) {
+            rec->prefetchAsync(task, proxies[i], iImpl, token);
+          }
+        }
+      }
+
+      bool handleMayGet(EventSetupRecordImpl const* iRecord, EventSetupImpl const* iEventSetupImpl) {
+        //Handle mayGets
+        TRecord rec;
+        rec.setImpl(iRecord, transitionID(), getTokenIndices(), iEventSetupImpl, true);
+        postMayGetProxies_ = producer_->updateFromMayConsumes(id_, rec);
+        return static_cast<bool>(postMayGetProxies_);
+      }
+
+      void runProducerAsync(std::exception_ptr const* iExcept,
+                            EventSetupRecordImpl const* iRecord,
+                            EventSetupImpl const* iEventSetupImpl,
+                            ServiceToken const& token) {
+        if (iExcept) {
+          //The cache held by the CallbackProxy was already set to invalid at the beginning of the IOV
+          taskList_.doneWaiting(*iExcept);
+          return;
+        }
+        producer_->queue().push([this, iRecord, iEventSetupImpl, token]() {
+          std::exception_ptr exceptPtr;
+          try {
+            convertException::wrap([this, iRecord, iEventSetupImpl, token] {
+              auto proxies = getTokenIndices();
+              if (postMayGetProxies_) {
+                proxies = &((*postMayGetProxies_).front());
+              }
+              TRecord rec;
+              rec.setImpl(iRecord, transitionID(), proxies, iEventSetupImpl, true);
+              ServiceRegistry::Operate operate(token);
+              decorator_.pre(rec);
+              storeReturnedValues((producer_->*method_)(rec));
+              decorator_.post(rec);
+            });
+          } catch (cms::Exception& iException) {
+            auto const& description = producer_->description();
+            std::ostringstream ost;
+            ost << "Running EventSetup component " << description.type_ << "/'" << description.label_;
+            iException.addContext(ost.str());
+            exceptPtr = std::current_exception();
+          }
+          taskList_.doneWaiting(exceptPtr);
+        });
+      }
+
       std::array<void*, produce::size<TReturn>::value> proxyData_;
+      std::optional<std::vector<ESProxyIndex>> postMayGetProxies_;
       edm::propagate_const<T*> producer_;
+      edm::WaitingTaskList taskList_;
       method_type method_;
       // This transition id identifies which setWhatProduced call this Callback is associated with
-      unsigned int id_;
-      bool wasCalledForThisRecord_;
+      const unsigned int id_;
+      std::atomic<bool> wasCalledForThisRecord_;
       TDecorator decorator_;
     };
   }  // namespace eventsetup

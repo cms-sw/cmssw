@@ -170,6 +170,11 @@ namespace edm {
                                   InputTag(desc.moduleLabel(), desc.productInstanceName(), desc.processName()));
           break;
         }
+        case InProcess: {
+          token = consumes<InProcess>(TypeToGet{desc.unwrappedTypeID(), PRODUCT_TYPE},
+                                      InputTag(desc.moduleLabel(), desc.productInstanceName(), desc.processName()));
+          break;
+        }
         default:
           assert(false);
           break;
@@ -347,8 +352,9 @@ namespace edm {
       descriptions.addDefault(desc);
     }
 
-    void OutputModuleBase::fillDescription(ParameterSetDescription& desc) {
-      ProductSelectorRules::fillDescription(desc, "outputCommands");
+    void OutputModuleBase::fillDescription(ParameterSetDescription& desc,
+                                           std::vector<std::string> const& defaultOutputCommands) {
+      ProductSelectorRules::fillDescription(desc, "outputCommands", defaultOutputCommands);
       EventSelector::fillDescription(desc);
     }
 

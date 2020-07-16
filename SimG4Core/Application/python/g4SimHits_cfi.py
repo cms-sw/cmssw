@@ -70,6 +70,7 @@ g4SimHits = cms.EDProducer("OscarMTProducer",
         NodeNames = cms.vstring('World')
     ),
     G4Commands = cms.vstring(),
+    #G4Commands = cms.vstring('/process/em/UseGeneralProcess true'), # eneble G4 general process
     SteppingVerbosity = cms.untracked.int32(0),
     StepVerboseThreshold = cms.untracked.double(0.1), # in GeV
     VerboseEvents = cms.untracked.vint32(),
@@ -151,7 +152,7 @@ g4SimHits = cms.EDProducer("OscarMTProducer",
         EminFTFP    = cms.double(3.), # in GeV
         EmaxBERT    = cms.double(6.), # in GeV
         EminQGSP    = cms.double(12.), # in GeV
-        EmaxFTFP    = cms.double(30.), # in GeV
+        EmaxFTFP    = cms.double(25.), # in GeV
         EmaxBERTpi  = cms.double(12.), # in GeV
         LowEnergyGflashEcal = cms.bool(False),
         LowEnergyGflashEcalEmax = cms.double(100),

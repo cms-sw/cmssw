@@ -78,3 +78,20 @@ looper = cms.Looper("AlignmentProducer",
                     # update alignables if triggered by corresponding input IOV boundary
                     enableAlignableUpdates = cms.bool(False),
                     )
+DTGeometryAlignmentProducer = cms.ESProducer("DTGeometryESModule",
+    appendToDataLabel = cms.string('idealForAlignmentProducerBase'),
+    applyAlignment = cms.bool(False), ## to be abondoned (?)
+    alignmentsLabel = cms.string(''),
+    fromDDD = cms.bool(True)
+)
+CSCGeometryAlignmentProducer = cms.ESProducer("CSCGeometryESModule",
+    appendToDataLabel = cms.string('idealForAlignmentProducerBase'),
+    debugV = cms.untracked.bool(False),
+    useGangedStripsInME1a = cms.bool(False),
+    alignmentsLabel = cms.string(''),
+    useOnlyWiresInME1a = cms.bool(False),
+    useRealWireGeometry = cms.bool(True),
+    useCentreTIOffsets = cms.bool(False),
+    applyAlignment = cms.bool(False), ## GF: to be abandoned
+    useDDD = cms.bool(True)
+) 

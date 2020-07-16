@@ -48,6 +48,7 @@ public:
   // Both ALCT and CLCTs have patterns. CLCTs have a better granularity than ALCTs, thus more patterns
   enum Pattern_Info {
     NUM_ALCT_PATTERNS = 3,
+    ALCT_PATTERN_WIDTH = 5,
     NUM_CLCT_PATTERNS = 11,
     CLCT_PATTERN_WIDTH = 11,
     // Max number of wires participating in a pattern
@@ -64,9 +65,11 @@ public:
     // Maximum allowed matching window size
     MAX_MATCH_WINDOW_SIZE = 15,
     // Each CLCT processor can send up to 2 CLCTs to TMB per BX
-    MAX_CLCTS_PER_PROCESSOR = 2,
+    MAX_CLCTS_PER_PROCESSOR = 50,
+    MAX_CLCTS_READOUT = 2,
     // Each ALCT processor can send up to 2 ALCTs to TMB per BX
-    MAX_ALCTS_PER_PROCESSOR = 2,
+    MAX_ALCTS_PER_PROCESSOR = 50,
+    MAX_ALCTS_READOUT = 2,
     // Each CSC can send up to 2 LCTs to the MPC per BX
     MAX_LCTS_PER_CSC = 2,
     // An MPC receives up to 18 LCTs from 9 CSCs in the trigger sector

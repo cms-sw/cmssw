@@ -20,24 +20,6 @@
 #include "DataFormats/Provenance/interface/Provenance.h"
 #include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
 //
-#include "CondFormats/DataRecord/interface/EcalTPGLinearizationConstRcd.h"
-#include "CondFormats/DataRecord/interface/EcalTPGPedestalsRcd.h"
-#include "CondFormats/DataRecord/interface/EcalTPGCrystalStatusRcd.h"
-
-#include "CondFormats/EcalObjects/interface/EcalTPGLinearizationConst.h"
-#include "CondFormats/EcalObjects/interface/EcalTPGPedestals.h"
-#include "CondFormats/EcalObjects/interface/EcalTPGCrystalStatus.h"
-#include "CondFormats/DataRecord/interface/EcalTPGWeightIdMapRcd.h"
-#include "CondFormats/DataRecord/interface/EcalTPGWeightGroupRcd.h"
-#include "CondFormats/DataRecord/interface/EcalTPGSlidingWindowRcd.h"
-#include "CondFormats/EcalObjects/interface/EcalTPGSlidingWindow.h"
-#include "CondFormats/DataRecord/interface/EcalTPGLutGroupRcd.h"
-#include "CondFormats/DataRecord/interface/EcalTPGLutIdMapRcd.h"
-#include "CondFormats/EcalObjects/interface/EcalTPGLutGroup.h"
-#include "CondFormats/EcalObjects/interface/EcalTPGLutIdMap.h"
-#include "CondFormats/DataRecord/interface/EcalTPGTowerStatusRcd.h"
-#include "CondFormats/DataRecord/interface/EcalTPGSpikeRcd.h"
-#include "CondFormats/EcalObjects/interface/EcalTPGSpike.h"
 
 /*
 #include "CondFormats/DataRecord/interface/EcalTPGFineGrainEBGroupRcd.h"
@@ -67,6 +49,19 @@ EcalEBTrigPrimProducer::EcalEBTrigPrimProducer(const edm::ParameterSet& iConfig)
       nSamples_(iConfig.getParameter<int>("nOfSamples")),
       binOfMaximum_(iConfig.getParameter<int>("binOfMaximum")) {
   tokenEBdigi_ = consumes<EBDigiCollection>(iConfig.getParameter<edm::InputTag>("barrelEcalDigis"));
+  theEcalTPGLinearization_Token_ =
+      esConsumes<EcalTPGLinearizationConst, EcalTPGLinearizationConstRcd, edm::Transition::BeginRun>();
+  theEcalTPGPedestals_Token_ = esConsumes<EcalTPGPedestals, EcalTPGPedestalsRcd, edm::Transition::BeginRun>();
+  theEcalTPGCrystalStatus_Token_ =
+      esConsumes<EcalTPGCrystalStatus, EcalTPGCrystalStatusRcd, edm::Transition::BeginRun>();
+  theEcalTPGWEightIdMap_Token_ = esConsumes<EcalTPGWeightIdMap, EcalTPGWeightIdMapRcd, edm::Transition::BeginRun>();
+  theEcalTPGWEightGroup_Token_ = esConsumes<EcalTPGWeightGroup, EcalTPGWeightGroupRcd, edm::Transition::BeginRun>();
+  theEcalTPGSlidingWindow_Token_ =
+      esConsumes<EcalTPGSlidingWindow, EcalTPGSlidingWindowRcd, edm::Transition::BeginRun>();
+  theEcalTPGLutGroup_Token_ = esConsumes<EcalTPGLutGroup, EcalTPGLutGroupRcd, edm::Transition::BeginRun>();
+  theEcalTPGLutIdMap_Token_ = esConsumes<EcalTPGLutIdMap, EcalTPGLutIdMapRcd, edm::Transition::BeginRun>();
+  theEcalTPGTowerStatus_Token_ = esConsumes<EcalTPGTowerStatus, EcalTPGTowerStatusRcd, edm::Transition::BeginRun>();
+  theEcalTPGSpike_Token_ = esConsumes<EcalTPGSpike, EcalTPGSpikeRcd, edm::Transition::BeginRun>();
   //register your products
   produces<EcalEBTrigPrimDigiCollection>();
   if (tcpFormat_)
@@ -85,46 +80,36 @@ void EcalEBTrigPrimProducer::beginRun(edm::Run const& run, edm::EventSetup const
 
 unsigned long long EcalEBTrigPrimProducer::getRecords(edm::EventSetup const& setup) {
   // get parameter records for xtals
-  edm::ESHandle<EcalTPGLinearizationConst> theEcalTPGLinearization_handle;
-  setup.get<EcalTPGLinearizationConstRcd>().get(theEcalTPGLinearization_handle);
+  auto theEcalTPGLinearization_handle = setup.getHandle(theEcalTPGLinearization_Token_);
   const EcalTPGLinearizationConst* ecaltpLin = theEcalTPGLinearization_handle.product();
   //
-  edm::ESHandle<EcalTPGPedestals> theEcalTPGPedestals_handle;
-  setup.get<EcalTPGPedestalsRcd>().get(theEcalTPGPedestals_handle);
+  edm::ESHandle<EcalTPGPedestals> theEcalTPGPedestals_handle = setup.getHandle(theEcalTPGPedestals_Token_);
   const EcalTPGPedestals* ecaltpPed = theEcalTPGPedestals_handle.product();
   //
-  edm::ESHandle<EcalTPGCrystalStatus> theEcalTPGCrystalStatus_handle;
-  setup.get<EcalTPGCrystalStatusRcd>().get(theEcalTPGCrystalStatus_handle);
+  edm::ESHandle<EcalTPGCrystalStatus> theEcalTPGCrystalStatus_handle = setup.getHandle(theEcalTPGCrystalStatus_Token_);
   const EcalTPGCrystalStatus* ecaltpgBadX = theEcalTPGCrystalStatus_handle.product();
   //
   //for strips
   //
-  edm::ESHandle<EcalTPGWeightIdMap> theEcalTPGWEightIdMap_handle;
-  setup.get<EcalTPGWeightIdMapRcd>().get(theEcalTPGWEightIdMap_handle);
+  edm::ESHandle<EcalTPGWeightIdMap> theEcalTPGWEightIdMap_handle = setup.getHandle(theEcalTPGWEightIdMap_Token_);
   const EcalTPGWeightIdMap* ecaltpgWeightMap = theEcalTPGWEightIdMap_handle.product();
   //
-  edm::ESHandle<EcalTPGWeightGroup> theEcalTPGWEightGroup_handle;
-  setup.get<EcalTPGWeightGroupRcd>().get(theEcalTPGWEightGroup_handle);
+  edm::ESHandle<EcalTPGWeightGroup> theEcalTPGWEightGroup_handle = setup.getHandle(theEcalTPGWEightGroup_Token_);
   const EcalTPGWeightGroup* ecaltpgWeightGroup = theEcalTPGWEightGroup_handle.product();
   //
-  edm::ESHandle<EcalTPGSlidingWindow> theEcalTPGSlidingWindow_handle;
-  setup.get<EcalTPGSlidingWindowRcd>().get(theEcalTPGSlidingWindow_handle);
+  edm::ESHandle<EcalTPGSlidingWindow> theEcalTPGSlidingWindow_handle = setup.getHandle(theEcalTPGSlidingWindow_Token_);
   const EcalTPGSlidingWindow* ecaltpgSlidW = theEcalTPGSlidingWindow_handle.product();
   //  TCP
-  edm::ESHandle<EcalTPGLutGroup> theEcalTPGLutGroup_handle;
-  setup.get<EcalTPGLutGroupRcd>().get(theEcalTPGLutGroup_handle);
+  edm::ESHandle<EcalTPGLutGroup> theEcalTPGLutGroup_handle = setup.getHandle(theEcalTPGLutGroup_Token_);
   const EcalTPGLutGroup* ecaltpgLutGroup = theEcalTPGLutGroup_handle.product();
   //
-  edm::ESHandle<EcalTPGLutIdMap> theEcalTPGLutIdMap_handle;
-  setup.get<EcalTPGLutIdMapRcd>().get(theEcalTPGLutIdMap_handle);
+  edm::ESHandle<EcalTPGLutIdMap> theEcalTPGLutIdMap_handle = setup.getHandle(theEcalTPGLutIdMap_Token_);
   const EcalTPGLutIdMap* ecaltpgLut = theEcalTPGLutIdMap_handle.product();
   //
-  edm::ESHandle<EcalTPGTowerStatus> theEcalTPGTowerStatus_handle;
-  setup.get<EcalTPGTowerStatusRcd>().get(theEcalTPGTowerStatus_handle);
+  edm::ESHandle<EcalTPGTowerStatus> theEcalTPGTowerStatus_handle = setup.getHandle(theEcalTPGTowerStatus_Token_);
   const EcalTPGTowerStatus* ecaltpgBadTT = theEcalTPGTowerStatus_handle.product();
   //
-  edm::ESHandle<EcalTPGSpike> theEcalTPGSpike_handle;
-  setup.get<EcalTPGSpikeRcd>().get(theEcalTPGSpike_handle);
+  edm::ESHandle<EcalTPGSpike> theEcalTPGSpike_handle = setup.getHandle(theEcalTPGSpike_Token_);
   const EcalTPGSpike* ecaltpgSpike = theEcalTPGSpike_handle.product();
 
   ////////////////

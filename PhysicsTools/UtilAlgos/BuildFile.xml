@@ -1,18 +1,18 @@
-<use   name="FWCore/ServiceRegistry"/>
-<use   name="FWCore/MessageLogger"/>
-<use   name="FWCore/Framework"/>
-<use   name="FWCore/ParameterSet"/>
-<use   name="FWCore/Utilities"/>
-<use   name="FWCore/Common"/>
-<use   name="FWCore/FWLite"/>
-<use   name="DataFormats/Common"/>
-<use   name="DataFormats/Provenance"/>
-<use   name="CommonTools/UtilAlgos"/>
-<use   name="DataFormats/MuonReco"/>
-<use   name="DataFormats/PatCandidates"/>
-<use   name="DataFormats/FWLite"/>
-<use   name="PhysicsTools/FWLite"/>
-<use   name="root"/>
+<use name="FWCore/ServiceRegistry"/>
+<use name="FWCore/MessageLogger"/>
+<use name="FWCore/Framework"/>
+<use name="FWCore/ParameterSet"/>
+<use name="FWCore/Utilities"/>
+<use name="FWCore/Common"/>
+<use name="FWCore/FWLite"/>
+<use name="DataFormats/Common"/>
+<use name="DataFormats/Provenance"/>
+<use name="CommonTools/UtilAlgos"/>
+<use name="DataFormats/MuonReco"/>
+<use name="DataFormats/PatCandidates"/>
+<use name="DataFormats/FWLite"/>
+<use name="PhysicsTools/FWLite"/>
+<use name="root"/>
 <export>
-  <lib   name="1"/>
+  <lib name="1"/>
 </export>

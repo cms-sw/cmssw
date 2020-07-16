@@ -1,12 +1,15 @@
 #ifndef ZDCSIMPLERECONSTRUCTOR_H
 #define ZDCSIMPLERECONSTRUCTOR_H 1
 
+#include <memory>
+
 #include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "CondFormats/HcalObjects/interface/HcalLongRecoParams.h"
 #include "CondFormats/HcalObjects/interface/HcalLongRecoParam.h"
 #include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Utilities/interface/ESGetToken.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "CalibCalorimetry/HcalAlgos/interface/HcalTimeSlew.h"
@@ -15,6 +18,14 @@
 
 #include "DataFormats/HcalDigi/interface/HcalDigiCollections.h"
 #include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"
+
+class HcalTopology;
+class HcalRecNumberingRecord;
+class HcalLongRecoParamsRcd;
+class HcalDbService;
+class HcalDbRecord;
+class HcalTimeSlew;
+class HcalTimeSlewRecord;
 
 /** \class HcalSimpleReconstructor	
     \author E. Garcia - CSU
@@ -38,9 +49,15 @@ private:
 
   bool dropZSmarkedPassed_;  // turn on/off dropping of zero suppression marked and passed digis
 
-  HcalLongRecoParams* myobject;  //noiseTS and signalTS from db
+  std::unique_ptr<HcalLongRecoParams> longRecoParams_;  //noiseTS and signalTS from db
 
   const HcalTimeSlew* hcalTimeSlew_delay_;
+
+  // ES tokens
+  edm::ESGetToken<HcalTopology, HcalRecNumberingRecord> htopoToken_;
+  edm::ESGetToken<HcalLongRecoParams, HcalLongRecoParamsRcd> paramsToken_;
+  edm::ESGetToken<HcalDbService, HcalDbRecord> conditionsToken_;
+  edm::ESGetToken<HcalTimeSlew, HcalTimeSlewRecord> timeSlewToken_;
 };
 
 #endif

@@ -35,6 +35,8 @@ namespace edm {
           return module_->template consumes<T, edm::InLumi>(tag);
         } else if (transition == edm::InRun) {
           return module_->template consumes<T, edm::InRun>(tag);
+        } else if (transition == edm::InProcess) {
+          return module_->template consumes<T, edm::InProcess>(tag);
         }
       }
       return EDGetTokenT<T>{};

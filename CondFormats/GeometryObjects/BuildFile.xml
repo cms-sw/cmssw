@@ -1,6 +1,3 @@
-<use name="CondFormats/Common"/>
-<use name="FWCore/MessageLogger"/>
-<use name="DataFormats/Common"/>
 <use name="DataFormats/DetId"/>
 <use name="CondFormats/Serialization"/>
 <use name="boost_serialization"/>

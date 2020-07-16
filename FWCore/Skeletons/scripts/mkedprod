@@ -16,10 +16,6 @@ if  sys.version_info < (2, 6):
 # package modules
 from FWCore.Skeletons.cms import generate, config
 
-def tmpl_dir():
-    "Return location of template directory wrt script location"
-    return '%s/mkTemplates' % '/'.join(__file__.split('/')[:-1])
-
 def pkg_help():
     "mkedprod help function"
     msg  = '\nmkedprod script generates CMS EDProducer code'
@@ -48,4 +44,4 @@ def pkg_help():
     return msg
 
 if __name__ == '__main__':
-    generate(config('EDProducer', pkg_help(), tmpl_dir()))
+    generate(config('EDProducer', pkg_help()))

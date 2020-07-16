@@ -57,6 +57,9 @@ public:
   void mergedSpecificsV(DDsvalues_type &merged) const;
   DDsvalues_type mergedSpecifics() const;
 
+  //! The DDVector information
+  std::vector<double> const &vector(std::string_view iKey) const { return epv_.vector(iKey); }
+
   //! Copy number associated with the current node
   int copyno() const;
 

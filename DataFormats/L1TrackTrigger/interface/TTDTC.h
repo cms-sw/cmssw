@@ -25,23 +25,10 @@ public:
   // collection of optical links
   typedef std::vector<Stream> Streams;
 
-private:
-  // number of ATCA slots per shelf
-  static constexpr int numSlots_ = 12;
-
-public:
   TTDTC() {}
   TTDTC(int numRegions, int numOverlappingRegions, int numDTCsPerRegion);
   ~TTDTC() {}
 
-  // number of phi slices the outer tracker readout is organized in [default 9]
-  int numRegions() const { return numRegions_; }
-  // number of DTC boards used to readout a detector region [default 24]
-  int numDTCBoards() const { return numDTCsPerRegion_; }
-  // number of regions a reconstructable particle may cross [default 2]
-  int numDTCChannel() const { return numOverlappingRegions_; }
-  // number of DTC boards connected to one TFP [default 48]
-  int numTFPChannel() const { return numDTCsPerTFP_; }
   // all regions [default 0..8]
   const std::vector<int>& tfpRegions() const { return regions_; }
   // all TFP channel [default 0..47]
@@ -58,18 +45,6 @@ public:
   int nStubs() const;
   // total number of gaps
   int nGaps() const;
-  // converts dtc id into tk layout scheme
-  int tkLayoutId(int dtcId) const;
-  // converts tk layout id into dtc id
-  int dtcId(int tkLayoutId) const;
-  // converts TFP identifier (region[0-8], channel[0-47]) into dtcId [0-215]
-  int dtcId(int tfpRegion, int tfpChannel) const;
-  // checks if given dtcId is connected to PS or 2S sensormodules
-  bool psModlue(int dtcId) const;
-  // checks if given dtcId is connected to -z (false) or +z (true)
-  bool side(int dtcId) const;
-  // ATCA slot number [0-11] of given dtcId
-  int slot(int dtcId) const;
 
 private:
   // converts DTC identifier (region[0-8], board[0-23], channel[0-1]) into allStreams_ index [0-431]

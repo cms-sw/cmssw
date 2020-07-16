@@ -226,6 +226,25 @@ GlobalPoint HGCalGeometry::getPosition(const DetId& detid) const {
   return glob;
 }
 
+GlobalPoint HGCalGeometry::getWaferPosition(const DetId& detid) const {
+  unsigned int cellIndex = indexFor(detid);
+  GlobalPoint glob;
+  unsigned int maxSize = ((mode_ == HGCalGeometryMode::Trapezoid) ? m_cellVec2.size() : m_cellVec.size());
+  if (cellIndex < maxSize) {
+    const HepGeom::Point3D<float> lcoord(0, 0, 0);
+    if (mode_ == HGCalGeometryMode::Trapezoid) {
+      glob = m_cellVec2[cellIndex].getPosition(lcoord);
+    } else {
+      glob = m_cellVec[cellIndex].getPosition(lcoord);
+    }
+#ifdef EDM_ML_DEBUG
+    edm::LogVerbatim("HGCalGeom") << "getPositionTrap:: ID " << std::hex << detid.rawId() << std::dec << " index "
+                                  << cellIndex << " Global " << glob;
+#endif
+  }
+  return glob;
+}
+
 double HGCalGeometry::getArea(const DetId& detid) const {
   HGCalGeometry::CornersVec corners = getNewCorners(detid);
   double area(0);

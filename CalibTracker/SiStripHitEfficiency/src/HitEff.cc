@@ -43,7 +43,7 @@
 #include "RecoLocalTracker/ClusterParameterEstimator/interface/StripClusterParameterEstimator.h"
 #include "TrackingTools/GeomPropagators/interface/AnalyticalPropagator.h"
 #include "DataFormats/TrackReco/interface/DeDxData.h"
-//#include "DataFormats/DetId/interface/DetIdCollection.h"
+#include "TrackingTools/MeasurementDet/interface/LayerMeasurements.h"
 #include "TrackingTools/DetLayers/interface/DetLayer.h"
 #include "RecoTracker/MeasurementDet/interface/MeasurementTracker.h"
 #include "RecoTracker/MeasurementDet/interface/MeasurementTrackerEvent.h"
@@ -463,11 +463,9 @@ void HitEff::analyze(const edm::Event& e, const edm::EventSetup& es) {
               measurementTrackerHandle->geometricSearchTracker()->tobLayers();
           const DetLayer* tob6 = barrelTOBLayers[barrelTOBLayers.size() - 1];
           const MeasurementEstimator* estimator = est.product();
-          const LayerMeasurements* theLayerMeasurements =
-              new LayerMeasurements(*measurementTrackerHandle, *measurementTrackerEvent);
+          const LayerMeasurements layerMeasurements{*measurementTrackerHandle, *measurementTrackerEvent};
           const TrajectoryStateOnSurface tsosTOB5 = itm->updatedState();
-          vector<TrajectoryMeasurement> tmp =
-              theLayerMeasurements->measurements(*tob6, tsosTOB5, *thePropagator, *estimator);
+          auto tmp = layerMeasurements.measurements(*tob6, tsosTOB5, *thePropagator, *estimator);
 
           if (!tmp.empty()) {
             LogDebug("SiStripHitEfficiency:HitEff") << "size of TM from propagation = " << tmp.size() << endl;
@@ -503,8 +501,7 @@ void HitEff::analyze(const edm::Event& e, const edm::EventSetup& es) {
           const DetLayer* tec9neg = negTecLayers[negTecLayers.size() - 1];
 
           const MeasurementEstimator* estimator = est.product();
-          const LayerMeasurements* theLayerMeasurements =
-              new LayerMeasurements(*measurementTrackerHandle, *measurementTrackerEvent);
+          const LayerMeasurements layerMeasurements{*measurementTrackerHandle, *measurementTrackerEvent};
           const TrajectoryStateOnSurface tsosTEC9 = itm->updatedState();
 
           // check if track on positive or negative z
@@ -514,11 +511,11 @@ void HitEff::analyze(const edm::Event& e, const edm::EventSetup& es) {
           //cout << " tec9 id = " << iidd << " and side = " << tTopo->tecSide(iidd) << endl;
           vector<TrajectoryMeasurement> tmp;
           if (tTopo->tecSide(iidd) == 1) {
-            tmp = theLayerMeasurements->measurements(*tec9neg, tsosTEC9, *thePropagator, *estimator);
+            tmp = layerMeasurements.measurements(*tec9neg, tsosTEC9, *thePropagator, *estimator);
             //cout << "on negative side" << endl;
           }
           if (tTopo->tecSide(iidd) == 2) {
-            tmp = theLayerMeasurements->measurements(*tec9pos, tsosTEC9, *thePropagator, *estimator);
+            tmp = layerMeasurements.measurements(*tec9pos, tsosTEC9, *thePropagator, *estimator);
             //cout << "on positive side" << endl;
           }
 

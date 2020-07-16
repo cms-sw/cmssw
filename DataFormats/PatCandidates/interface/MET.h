@@ -184,7 +184,9 @@ namespace pat {
       RawCalo = 10,
       RawChs = 11,
       RawTrk = 12,
-      METCorrectionLevelSize = 13
+      RawDeepResponseTune = 13,
+      RawDeepResolutionTune = 14,
+      METCorrectionLevelSize = 15
     };
     enum METCorrectionType {
       None = 0,
@@ -199,7 +201,9 @@ namespace pat {
       Calo = 9,
       Chs = 10,
       Trk = 11,
-      METCorrectionTypeSize = 12
+      DeepResponseTune = 12,
+      DeepResolutionTune = 13,
+      METCorrectionTypeSize = 14
     };
 
     struct Vector2 {

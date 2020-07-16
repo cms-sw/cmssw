@@ -32,7 +32,6 @@ process.dqmEnv.subSystemFolder = 'L1TEMU'
 process.dqmSaver.tag = 'L1TEMU'
 #
 # no references needed
-# replace DQMStore.referenceFileName = "L1TEMU_reference.root"
 
 #
 # Condition for P5 cluster

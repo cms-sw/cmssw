@@ -2,7 +2,6 @@ import FWCore.ParameterSet.Config as cms
 
 MicroEventContent = cms.PSet(
     outputCommands = cms.untracked.vstring(
-        'drop *',
         'keep *_slimmedPhotons_*_*',
         'keep *_slimmedOOTPhotons_*_*',
         'keep *_slimmedElectrons_*_*',
@@ -133,6 +132,14 @@ _run3_common_extraCommands = ["drop *_packedPFCandidates_hcalDepthEnergyFraction
 from Configuration.Eras.Modifier_run3_common_cff import run3_common
 run3_common.toModify(MicroEventContent, outputCommands = MicroEventContent.outputCommands + _run3_common_extraCommands)
 # --- 
+
+_pp_on_AA_extraCommands = [
+    'keep patPackedCandidates_hiPixelTracks_*_*',
+    'keep *_packedCandidateMuonID_*_*' 
+]
+from Configuration.Eras.Modifier_pp_on_AA_2018_cff import pp_on_AA_2018
+from Configuration.Eras.Modifier_pp_on_PbPb_run3_cff import pp_on_PbPb_run3
+(pp_on_AA_2018 | pp_on_PbPb_run3).toModify(MicroEventContent, outputCommands = MicroEventContent.outputCommands + _pp_on_AA_extraCommands)
 
 MicroEventContentMC = cms.PSet(
     outputCommands = cms.untracked.vstring(MicroEventContent.outputCommands)

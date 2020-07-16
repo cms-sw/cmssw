@@ -24,7 +24,6 @@ else:
 #================================
 # DQM Environment
 #================================
-#process.DQMStore.referenceFileName = 'castor_reference.root'
 
 process.load("Configuration.StandardSequences.GeometryRecoDB_cff")
 

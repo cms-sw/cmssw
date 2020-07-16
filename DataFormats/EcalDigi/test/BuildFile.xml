@@ -1,4 +1,3 @@
-<use name="boost"/>
 <use name="cppunit"/>
 <use name="DataFormats/Common"/>
 <use name="DataFormats/EcalDigi"/>

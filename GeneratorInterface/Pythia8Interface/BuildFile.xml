@@ -7,8 +7,6 @@
 <use name="boost"/>
 <use name="pythia8"/>
 <use name="evtgen"/>
-<use name="vincia"/>
-<use name="dire"/>
 <use name="hepmc"/>
 <use name="clhep"/>
 <export>

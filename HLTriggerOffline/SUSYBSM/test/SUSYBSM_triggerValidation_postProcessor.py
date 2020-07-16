@@ -34,7 +34,6 @@ Rethrow = cms.untracked.vstring('ProductNotFound'),
 fileMode = cms.untracked.string('FULLMERGE')
 )
 ## DQMStore and output configuration
-process.DQMStore.collateHistograms = True
 process.EDMtoMEConverter.convertOnEndLumi = True
 process.EDMtoMEConverter.convertOnEndRun = True
 process.dqmSaver.saveByRun = cms.untracked.int32( -1)

@@ -10,7 +10,7 @@ using namespace edm;
 string_view DDSpecPar::strValue(const string& key) const {
   auto const& item = spars.find(key);
   if (item == end(spars))
-    return string();
+    return string_view();
   return *begin(item->second);
 }
 

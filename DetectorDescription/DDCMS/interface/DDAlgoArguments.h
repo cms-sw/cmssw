@@ -47,6 +47,7 @@ namespace cms {
     double dble(const std::string& nam) const;
     int integer(const std::string& nam) const;
     std::vector<double> vecDble(const std::string& nam) const;
+    std::vector<float> vecFloat(const std::string& nam) const;
     std::vector<int> vecInt(const std::string& nam) const;
     std::vector<std::string> vecStr(const std::string& nam) const;
     std::string resolveValue(const std::string& value) const;

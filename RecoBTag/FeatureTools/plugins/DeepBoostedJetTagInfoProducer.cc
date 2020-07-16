@@ -14,6 +14,7 @@
 
 #include "RecoBTag/FeatureTools/interface/TrackInfoBuilder.h"
 #include "RecoBTag/FeatureTools/interface/deep_helpers.h"
+#include "RecoBTag/FeatureTools/interface/sorting_modules.h"
 #include "TrackingTools/Records/interface/TransientTrackRecord.h"
 
 #include "DataFormats/Candidate/interface/VertexCompositePtrCandidate.h"
@@ -47,6 +48,9 @@ private:
   const double min_jet_pt_;
   const double min_pt_for_track_properties_;
   const bool use_puppiP4_;
+  const bool include_neutrals_;
+  const bool sort_by_sip2dsig_;
+  const double min_puppi_wgt_;
 
   edm::EDGetTokenT<edm::View<reco::Jet>> jet_token_;
   edm::EDGetTokenT<VertexCollection> vtx_token_;
@@ -85,27 +89,12 @@ const std::vector<std::string> DeepBoostedJetTagInfoProducer::particle_features_
     "pfcand_dphidxy",       "pfcand_dlambdadz",      "pfcand_btagEtaRel",   "pfcand_btagPtRatio",
     "pfcand_btagPParRatio", "pfcand_btagSip2dVal",   "pfcand_btagSip2dSig", "pfcand_btagSip3dVal",
     "pfcand_btagSip3dSig",  "pfcand_btagJetDistVal", "pfcand_mask",         "pfcand_pt_log_nopuppi",
-    "pfcand_e_log_nopuppi"
-
-};
+    "pfcand_e_log_nopuppi", "pfcand_ptrel",          "pfcand_erel"};
 
 const std::vector<std::string> DeepBoostedJetTagInfoProducer::sv_features_{
-    "sv_mask",
-    "sv_phirel",
-    "sv_etarel",
-    "sv_deltaR",
-    "sv_abseta",
-    "sv_mass",
-    "sv_ptrel_log",
-    "sv_erel_log",
-    "sv_pt_log",
-    "sv_ntracks",
-    "sv_normchi2",
-    "sv_dxy",
-    "sv_dxysig",
-    "sv_d3d",
-    "sv_d3dsig",
-    "sv_costhetasvpv",
+    "sv_mask", "sv_ptrel",     "sv_erel",     "sv_phirel", "sv_etarel",       "sv_deltaR",  "sv_abseta",
+    "sv_mass", "sv_ptrel_log", "sv_erel_log", "sv_pt_log", "sv_pt",           "sv_ntracks", "sv_normchi2",
+    "sv_dxy",  "sv_dxysig",    "sv_d3d",      "sv_d3dsig", "sv_costhetasvpv",
 };
 
 DeepBoostedJetTagInfoProducer::DeepBoostedJetTagInfoProducer(const edm::ParameterSet &iConfig)
@@ -113,6 +102,9 @@ DeepBoostedJetTagInfoProducer::DeepBoostedJetTagInfoProducer(const edm::Paramete
       min_jet_pt_(iConfig.getParameter<double>("min_jet_pt")),
       min_pt_for_track_properties_(iConfig.getParameter<double>("min_pt_for_track_properties")),
       use_puppiP4_(iConfig.getParameter<bool>("use_puppiP4")),
+      include_neutrals_(iConfig.getParameter<bool>("include_neutrals")),
+      sort_by_sip2dsig_(iConfig.getParameter<bool>("sort_by_sip2dsig")),
+      min_puppi_wgt_(iConfig.getParameter<double>("min_puppi_wgt")),
       jet_token_(consumes<edm::View<reco::Jet>>(iConfig.getParameter<edm::InputTag>("jets"))),
       vtx_token_(consumes<VertexCollection>(iConfig.getParameter<edm::InputTag>("vertices"))),
       sv_token_(consumes<SVCollection>(iConfig.getParameter<edm::InputTag>("secondary_vertices"))),
@@ -144,6 +136,9 @@ void DeepBoostedJetTagInfoProducer::fillDescriptions(edm::ConfigurationDescripti
   desc.add<double>("min_jet_pt", 150);
   desc.add<double>("min_pt_for_track_properties", -1);
   desc.add<bool>("use_puppiP4", true);
+  desc.add<bool>("include_neutrals", true);
+  desc.add<bool>("sort_by_sip2dsig", false);
+  desc.add<double>("min_puppi_wgt", 0.01);
   desc.add<edm::InputTag>("vertices", edm::InputTag("offlinePrimaryVertices"));
   desc.add<edm::InputTag>("secondary_vertices", edm::InputTag("inclusiveCandidateSecondaryVertices"));
   desc.add<edm::InputTag>("pf_candidates", edm::InputTag("particleFlow"));
@@ -259,21 +254,44 @@ void DeepBoostedJetTagInfoProducer::fillParticleFeatures(DeepBoostedJetFeatures 
   std::vector<reco::CandidatePtr> daughters;
   for (const auto &cand : jet.daughterPtrVector()) {
     // remove particles w/ extremely low puppi weights
-    if ((puppiWgt(cand)) < 0.01)
+    if ((puppiWgt(cand)) < min_puppi_wgt_)
+      continue;
+    auto daugh = pfcands_->ptrAt(cand.key());
+    if (!include_neutrals_ && (daugh->charge() == 0 || daugh->pt() < min_pt_for_track_properties_))
       continue;
     // get the original reco/packed candidate not scaled by the puppi weight
-    daughters.push_back(pfcands_->ptrAt(cand.key()));
+    daughters.push_back(daugh);
   }
-  if (use_puppiP4_) {
-    // sort by Puppi-weighted pt
-    std::sort(daughters.begin(),
-              daughters.end(),
-              [&puppi_wgt_cache](const reco::CandidatePtr &a, const reco::CandidatePtr &b) {
-                return puppi_wgt_cache.at(a.key()) * a->pt() > puppi_wgt_cache.at(b.key()) * b->pt();
-              });
+
+  std::vector<btagbtvdeep::SortingClass<reco::CandidatePtr>> c_sorted;
+  if (sort_by_sip2dsig_) {
+    // sort charged pf candidates by 2d impact parameter significance
+    for (const auto &cand : daughters) {
+      TrackInfoBuilder trkinfo(track_builder_);
+      trkinfo.buildTrackInfo(&(*cand), jet_dir, jet_ref_track_dir, *pv_);
+      c_sorted.emplace_back(cand,
+                            trkinfo.getTrackSip2dSig(),
+                            -btagbtvdeep::mindrsvpfcand(*svs_, &(*cand), jet_radius_),
+                            cand->pt() / jet.pt());
+      std::sort(c_sorted.begin(), c_sorted.end(), btagbtvdeep::SortingClass<reco::CandidatePtr>::compareByABCInv);
+    }
+    for (unsigned int i = 0; i < c_sorted.size(); i++) {
+      const auto &c = c_sorted.at(i);
+      const auto &cand = c.get();
+      daughters.at(i) = cand;
+    }
   } else {
-    // sort by original pt (not Puppi-weighted)
-    std::sort(daughters.begin(), daughters.end(), [](const auto &a, const auto &b) { return a->pt() > b->pt(); });
+    if (use_puppiP4_) {
+      // sort by Puppi-weighted pt
+      std::sort(daughters.begin(),
+                daughters.end(),
+                [&puppi_wgt_cache](const reco::CandidatePtr &a, const reco::CandidatePtr &b) {
+                  return puppi_wgt_cache.at(a.key()) * a->pt() > puppi_wgt_cache.at(b.key()) * b->pt();
+                });
+    } else {
+      // sort by original pt (not Puppi-weighted)
+      std::sort(daughters.begin(), daughters.end(), [](const auto &a, const auto &b) { return a->pt() > b->pt(); });
+    }
   }
 
   // reserve space
@@ -289,6 +307,10 @@ void DeepBoostedJetTagInfoProducer::fillParticleFeatures(DeepBoostedJetFeatures 
   for (const auto &cand : daughters) {
     const auto *packed_cand = dynamic_cast<const pat::PackedCandidate *>(&(*cand));
     const auto *reco_cand = dynamic_cast<const reco::PFCandidate *>(&(*cand));
+
+    if (!include_neutrals_ &&
+        ((packed_cand && !packed_cand->hasTrackDetails()) || (reco_cand && !useTrackProperties(reco_cand))))
+      continue;
 
     auto candP4 = use_puppiP4_ ? puppi_wgt_cache.at(cand.key()) * cand->p4() : cand->p4();
     if (packed_cand) {
@@ -312,11 +334,10 @@ void DeepBoostedJetTagInfoProducer::fillParticleFeatures(DeepBoostedJetFeatures 
       fts.fill("pfcand_isNeutralHad", std::abs(packed_cand->pdgId()) == 130);
 
       // impact parameters
-      fts.fill("pfcand_dz", catch_infs(packed_cand->dz()));
-      fts.fill("pfcand_dzsig", packed_cand->bestTrack() ? catch_infs(packed_cand->dz() / packed_cand->dzError()) : 0);
-      fts.fill("pfcand_dxy", catch_infs(packed_cand->dxy()));
-      fts.fill("pfcand_dxysig",
-               packed_cand->bestTrack() ? catch_infs(packed_cand->dxy() / packed_cand->dxyError()) : 0);
+      fts.fill("pfcand_dz", packed_cand->dz());
+      fts.fill("pfcand_dxy", packed_cand->dxy());
+      fts.fill("pfcand_dzsig", packed_cand->bestTrack() ? packed_cand->dz() / packed_cand->dzError() : 0);
+      fts.fill("pfcand_dxysig", packed_cand->bestTrack() ? packed_cand->dxy() / packed_cand->dxyError() : 0);
 
     } else if (reco_cand) {
       // get vertex association quality
@@ -346,10 +367,10 @@ void DeepBoostedJetTagInfoProducer::fillParticleFeatures(DeepBoostedJetFeatures 
       const auto *trk = reco_cand->bestTrack();
       float dz = trk ? trk->dz(pv_->position()) : 0;
       float dxy = trk ? trk->dxy(pv_->position()) : 0;
-      fts.fill("pfcand_dz", catch_infs(dz));
-      fts.fill("pfcand_dzsig", trk ? catch_infs(dz / trk->dzError()) : 0);
-      fts.fill("pfcand_dxy", catch_infs(dxy));
-      fts.fill("pfcand_dxysig", trk ? catch_infs(dxy / trk->dxyError()) : 0);
+      fts.fill("pfcand_dz", dz);
+      fts.fill("pfcand_dzsig", trk ? dz / trk->dzError() : 0);
+      fts.fill("pfcand_dxy", dxy);
+      fts.fill("pfcand_dxysig", trk ? dxy / trk->dxyError() : 0);
     }
 
     // basic kinematics
@@ -359,21 +380,18 @@ void DeepBoostedJetTagInfoProducer::fillParticleFeatures(DeepBoostedJetFeatures 
     fts.fill("pfcand_deltaR", reco::deltaR(candP4, jet));
     fts.fill("pfcand_abseta", std::abs(candP4.eta()));
 
-    fts.fill("pfcand_ptrel_log", catch_infs(std::log(candP4.pt() / jet.pt()), -99));
-    fts.fill("pfcand_erel_log", catch_infs(std::log(candP4.energy() / jet.energy()), -99));
-    fts.fill("pfcand_pt_log", catch_infs(std::log(candP4.pt()), -99));
+    fts.fill("pfcand_ptrel_log", std::log(candP4.pt() / jet.pt()));
+    fts.fill("pfcand_ptrel", candP4.pt() / jet.pt());
+    fts.fill("pfcand_erel_log", std::log(candP4.energy() / jet.energy()));
+    fts.fill("pfcand_erel", candP4.energy() / jet.energy());
+    fts.fill("pfcand_pt_log", std::log(candP4.pt()));
 
     fts.fill("pfcand_mask", 1);
-    fts.fill("pfcand_pt_log_nopuppi", catch_infs(std::log(cand->pt()), -99));
-    fts.fill("pfcand_e_log_nopuppi", catch_infs(std::log(cand->energy()), -99));
+    fts.fill("pfcand_pt_log_nopuppi", std::log(cand->pt()));
+    fts.fill("pfcand_e_log_nopuppi", std::log(cand->energy()));
 
-    double minDR = 999;
-    for (const auto &sv : *svs_) {
-      double dr = reco::deltaR(*cand, sv);
-      if (dr < minDR)
-        minDR = dr;
-    }
-    fts.fill("pfcand_drminsv", minDR == 999 ? -1 : minDR);
+    float drminpfcandsv = btagbtvdeep::mindrsvpfcand(*svs_, &(*cand), std::numeric_limits<float>::infinity());
+    fts.fill("pfcand_drminsv", drminpfcandsv);
 
     // subjets
     auto subjets = patJet->subjets();
@@ -390,10 +408,10 @@ void DeepBoostedJetTagInfoProducer::fillParticleFeatures(DeepBoostedJetFeatures 
       trk = reco_cand->bestTrack();
     }
     if (trk) {
-      fts.fill("pfcand_normchi2", catch_infs(std::floor(trk->normalizedChi2())));
+      fts.fill("pfcand_normchi2", std::floor(trk->normalizedChi2()));
 
       // track covariance
-      auto cov = [&](unsigned i, unsigned j) { return catch_infs(trk->covariance(i, j)); };
+      auto cov = [&](unsigned i, unsigned j) { return trk->covariance(i, j); };
       fts.fill("pfcand_dptdpt", cov(0, 0));
       fts.fill("pfcand_detadeta", cov(1, 1));
       fts.fill("pfcand_dphidphi", cov(2, 2));
@@ -405,14 +423,14 @@ void DeepBoostedJetTagInfoProducer::fillParticleFeatures(DeepBoostedJetFeatures 
 
       TrackInfoBuilder trkinfo(track_builder_);
       trkinfo.buildTrackInfo(&(*cand), jet_dir, jet_ref_track_dir, *pv_);
-      fts.fill("pfcand_btagEtaRel", catch_infs(trkinfo.getTrackEtaRel()));
-      fts.fill("pfcand_btagPtRatio", catch_infs(trkinfo.getTrackPtRatio()));
-      fts.fill("pfcand_btagPParRatio", catch_infs(trkinfo.getTrackPParRatio()));
-      fts.fill("pfcand_btagSip2dVal", catch_infs(trkinfo.getTrackSip2dVal()));
-      fts.fill("pfcand_btagSip2dSig", catch_infs(trkinfo.getTrackSip2dSig()));
-      fts.fill("pfcand_btagSip3dVal", catch_infs(trkinfo.getTrackSip3dVal()));
-      fts.fill("pfcand_btagSip3dSig", catch_infs(trkinfo.getTrackSip3dSig()));
-      fts.fill("pfcand_btagJetDistVal", catch_infs(trkinfo.getTrackJetDistVal()));
+      fts.fill("pfcand_btagEtaRel", trkinfo.getTrackEtaRel());
+      fts.fill("pfcand_btagPtRatio", trkinfo.getTrackPtRatio());
+      fts.fill("pfcand_btagPParRatio", trkinfo.getTrackPParRatio());
+      fts.fill("pfcand_btagSip2dVal", trkinfo.getTrackSip2dVal());
+      fts.fill("pfcand_btagSip2dSig", trkinfo.getTrackSip2dSig());
+      fts.fill("pfcand_btagSip3dVal", trkinfo.getTrackSip3dVal());
+      fts.fill("pfcand_btagSip3dSig", trkinfo.getTrackSip3dSig());
+      fts.fill("pfcand_btagJetDistVal", trkinfo.getTrackJetDistVal());
     } else {
       fts.fill("pfcand_normchi2", 999);
 
@@ -467,13 +485,16 @@ void DeepBoostedJetTagInfoProducer::fillSVFeatures(DeepBoostedJetFeatures &fts, 
     fts.fill("sv_abseta", std::abs(sv->eta()));
     fts.fill("sv_mass", sv->mass());
 
-    fts.fill("sv_ptrel_log", catch_infs(std::log(sv->pt() / jet.pt()), -99));
-    fts.fill("sv_erel_log", catch_infs(std::log(sv->energy() / jet.energy()), -99));
-    fts.fill("sv_pt_log", catch_infs(std::log(sv->pt()), -99));
+    fts.fill("sv_ptrel_log", std::log(sv->pt() / jet.pt()));
+    fts.fill("sv_ptrel", sv->pt() / jet.pt());
+    fts.fill("sv_erel_log", std::log(sv->energy() / jet.energy()));
+    fts.fill("sv_erel", sv->energy() / jet.energy());
+    fts.fill("sv_pt_log", std::log(sv->pt()));
+    fts.fill("sv_pt", sv->pt());
 
     // sv properties
     fts.fill("sv_ntracks", sv->numberOfDaughters());
-    fts.fill("sv_normchi2", catch_infs(sv->vertexNormalizedChi2()));
+    fts.fill("sv_normchi2", sv->vertexNormalizedChi2());
 
     const auto &dxy = vertexDxy(*sv, *pv_);
     fts.fill("sv_dxy", dxy.value());

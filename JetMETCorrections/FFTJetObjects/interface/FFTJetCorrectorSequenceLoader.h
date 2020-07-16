@@ -7,7 +7,7 @@
 class FFTBasicJetCorrectorSequenceLoader : public DefaultFFTJetRcdMapper<FFTBasicJetCorrectorSequence> {
   typedef DefaultFFTJetRcdMapper<FFTBasicJetCorrectorSequence> Base;
   friend class StaticFFTJetRcdMapper<FFTBasicJetCorrectorSequenceLoader>;
-  FFTBasicJetCorrectorSequenceLoader();
+  FFTBasicJetCorrectorSequenceLoader();  // NOLINT - prevent clang-tidy from adding `= delete`
 };
 
 typedef StaticFFTJetRcdMapper<FFTBasicJetCorrectorSequenceLoader> StaticFFTBasicJetCorrectorSequenceLoader;
@@ -15,7 +15,7 @@ typedef StaticFFTJetRcdMapper<FFTBasicJetCorrectorSequenceLoader> StaticFFTBasic
 class FFTCaloJetCorrectorSequenceLoader : public DefaultFFTJetRcdMapper<FFTCaloJetCorrectorSequence> {
   typedef DefaultFFTJetRcdMapper<FFTCaloJetCorrectorSequence> Base;
   friend class StaticFFTJetRcdMapper<FFTCaloJetCorrectorSequenceLoader>;
-  FFTCaloJetCorrectorSequenceLoader();
+  FFTCaloJetCorrectorSequenceLoader();  // NOLINT - prevent clang-tidy from adding `= delete`
 };
 
 typedef StaticFFTJetRcdMapper<FFTCaloJetCorrectorSequenceLoader> StaticFFTCaloJetCorrectorSequenceLoader;
@@ -23,7 +23,7 @@ typedef StaticFFTJetRcdMapper<FFTCaloJetCorrectorSequenceLoader> StaticFFTCaloJe
 class FFTGenJetCorrectorSequenceLoader : public DefaultFFTJetRcdMapper<FFTGenJetCorrectorSequence> {
   typedef DefaultFFTJetRcdMapper<FFTGenJetCorrectorSequence> Base;
   friend class StaticFFTJetRcdMapper<FFTGenJetCorrectorSequenceLoader>;
-  FFTGenJetCorrectorSequenceLoader();
+  FFTGenJetCorrectorSequenceLoader();  // NOLINT - prevent clang-tidy from adding `= delete`
 };
 
 typedef StaticFFTJetRcdMapper<FFTGenJetCorrectorSequenceLoader> StaticFFTGenJetCorrectorSequenceLoader;
@@ -31,7 +31,7 @@ typedef StaticFFTJetRcdMapper<FFTGenJetCorrectorSequenceLoader> StaticFFTGenJetC
 class FFTPFJetCorrectorSequenceLoader : public DefaultFFTJetRcdMapper<FFTPFJetCorrectorSequence> {
   typedef DefaultFFTJetRcdMapper<FFTPFJetCorrectorSequence> Base;
   friend class StaticFFTJetRcdMapper<FFTPFJetCorrectorSequenceLoader>;
-  FFTPFJetCorrectorSequenceLoader();
+  FFTPFJetCorrectorSequenceLoader();  // NOLINT - prevent clang-tidy from adding `= delete`
 };
 
 typedef StaticFFTJetRcdMapper<FFTPFJetCorrectorSequenceLoader> StaticFFTPFJetCorrectorSequenceLoader;
@@ -39,7 +39,7 @@ typedef StaticFFTJetRcdMapper<FFTPFJetCorrectorSequenceLoader> StaticFFTPFJetCor
 class FFTTrackJetCorrectorSequenceLoader : public DefaultFFTJetRcdMapper<FFTTrackJetCorrectorSequence> {
   typedef DefaultFFTJetRcdMapper<FFTTrackJetCorrectorSequence> Base;
   friend class StaticFFTJetRcdMapper<FFTTrackJetCorrectorSequenceLoader>;
-  FFTTrackJetCorrectorSequenceLoader();
+  FFTTrackJetCorrectorSequenceLoader();  // NOLINT - prevent clang-tidy from adding `= delete`
 };
 
 typedef StaticFFTJetRcdMapper<FFTTrackJetCorrectorSequenceLoader> StaticFFTTrackJetCorrectorSequenceLoader;
@@ -47,7 +47,7 @@ typedef StaticFFTJetRcdMapper<FFTTrackJetCorrectorSequenceLoader> StaticFFTTrack
 class FFTJPTJetCorrectorSequenceLoader : public DefaultFFTJetRcdMapper<FFTJPTJetCorrectorSequence> {
   typedef DefaultFFTJetRcdMapper<FFTJPTJetCorrectorSequence> Base;
   friend class StaticFFTJetRcdMapper<FFTJPTJetCorrectorSequenceLoader>;
-  FFTJPTJetCorrectorSequenceLoader();
+  FFTJPTJetCorrectorSequenceLoader();  // NOLINT - prevent clang-tidy from adding `= delete`
 };
 
 typedef StaticFFTJetRcdMapper<FFTJPTJetCorrectorSequenceLoader> StaticFFTJPTJetCorrectorSequenceLoader;

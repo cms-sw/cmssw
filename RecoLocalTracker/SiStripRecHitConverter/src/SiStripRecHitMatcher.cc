@@ -8,7 +8,7 @@
 #include "DataFormats/CLHEP/interface/AlgebraicObjects.h"
 
 #include "TrackingTools/TransientTrackingRecHit/interface/HelpertRecHit2DLocalPos.h"
-#include <boost/bind.hpp>
+#include <functional>
 
 #include <DataFormats/TrackingRecHit/interface/AlignmentPositionError.h>
 
@@ -45,7 +45,8 @@ void SiStripRecHitMatcher::match(const SiStripRecHit2D* monoRH,
                                  std::vector<SiStripMatchedRecHit2D*>& collector,
                                  const GluedGeomDet* gluedDet,
                                  LocalVector trackdirection) const {
-  Collector result(boost::bind(&pb1, boost::ref(collector), boost::bind(&SiStripMatchedRecHit2D::clone, _1)));
+  Collector result(
+      std::bind(&pb1, std::ref(collector), std::bind(&SiStripMatchedRecHit2D::clone, std::placeholders::_1)));
   match(monoRH, begin, end, result, gluedDet, trackdirection);
 }
 
@@ -55,7 +56,7 @@ void SiStripRecHitMatcher::match(const SiStripRecHit2D* monoRH,
                                  CollectorMatched& collector,
                                  const GluedGeomDet* gluedDet,
                                  LocalVector trackdirection) const {
-  Collector result(boost::bind(pb2, boost::ref(collector), _1));
+  Collector result(std::bind(pb2, std::ref(collector), std::placeholders::_1));
   match(monoRH, begin, end, result, gluedDet, trackdirection);
 }
 

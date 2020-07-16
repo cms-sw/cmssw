@@ -17,7 +17,7 @@ class Py8toJetInput;
 
 class JetMatchingHook : public Pythia8::UserHooks {
 public:
-  JetMatchingHook(const edm::ParameterSet&, Pythia8::Info*);
+  JetMatchingHook(const edm::ParameterSet&, const Pythia8::Info*);
   ~JetMatchingHook() override;
 
   //

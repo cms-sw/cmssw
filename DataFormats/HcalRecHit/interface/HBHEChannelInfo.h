@@ -2,6 +2,7 @@
 #define DataFormats_HcalRecHit_HBHEChannelInfo_h_
 
 #include <cfloat>
+#include <iostream>
 
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
 #include "DataFormats/HcalRecHit/interface/HcalSpecialTimes.h"
@@ -290,5 +291,7 @@ private:
   bool hasLinkError_;
   bool hasCapidError_;
 };
+
+std::ostream& operator<<(std::ostream& s, const HBHEChannelInfo& inf);
 
 #endif  // DataFormats_HcalRecHit_HBHEChannelInfo_h_

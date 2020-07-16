@@ -6,9 +6,6 @@ process.load("Geometry.CMSCommonData.cmsExtendedGeometry2026D46XML_cfi")
 process.load("Geometry.MuonNumbering.muonGeometryConstants_cff")
 process.load('FWCore.MessageService.MessageLogger_cfi')
 
-if hasattr(process,'MessageLogger'):
-    process.MessageLogger.categories.append('Geometry')
-
 process.DDDetectorESProducer = cms.ESSource("DDDetectorESProducer",
                                             confGeomXMLFiles = cms.FileInPath('Geometry/CMSCommonData/data/dd4hep/cmsExtendedGeometry2026D46.xml'),
                                             appendToDataLabel = cms.string('')

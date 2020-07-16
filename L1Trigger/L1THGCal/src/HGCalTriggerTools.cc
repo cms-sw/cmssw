@@ -195,6 +195,18 @@ bool HGCalTriggerTools::isSilicon(const DetId& id) const {
   return silicon;
 }
 
+HGCalTriggerTools::SubDetectorType HGCalTriggerTools::getSubDetectorType(const DetId& id) const {
+  SubDetectorType subdet;
+  if (!isScintillator(id)) {
+    if (isEm(id))
+      subdet = HGCalTriggerTools::hgcal_silicon_CEE;
+    else
+      subdet = HGCalTriggerTools::hgcal_silicon_CEH;
+  } else
+    subdet = HGCalTriggerTools::hgcal_scintillator;
+  return subdet;
+}
+
 int HGCalTriggerTools::zside(const DetId& id) const {
   int zside = 0;
   if (id.det() == DetId::Forward && id.subdetId() != ForwardSubdetector::HFNose) {

@@ -1,5 +1,5 @@
 <library file="*.cc" name="HLTriggerTimerPlugins">
-  <use name="boost_regex"/>
+  <use name="fmt"/>
   <use name="json"/>
   <use name="DQMServices/Core"/>
   <use name="DataFormats/Luminosity"/>

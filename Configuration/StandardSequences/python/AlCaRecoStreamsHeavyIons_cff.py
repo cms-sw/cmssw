@@ -83,11 +83,6 @@ from Alignment.CommonAlignmentProducer.ALCARECOMuAlOverlaps_cff import *
 # RPC calibration
 ###############################################################
 from CalibMuon.RPCCalibration.ALCARECORpcCalHLT_cff import *
-###############################################################
-# DT calibration
-###############################################################
-from CalibMuon.DTCalibration.ALCARECODtCalibHI_cff import *
-
 
 ###############################################################
 # nonbeam alcas
@@ -148,7 +143,6 @@ pathALCARECOMuAlCalIsolatedMu = cms.Path(seqALCARECOMuAlCalIsolatedMu)
 pathALCARECOMuAlZMuMu = cms.Path(seqALCARECOMuAlZMuMu)
 pathALCARECOMuAlOverlaps = cms.Path(seqALCARECOMuAlOverlaps)
 pathALCARECORpcCalHLT = cms.Path(seqALCARECORpcCalHLT)
-pathALCARECODtCalibHI = cms.Path(seqALCARECODtCalibHI*ALCARECODTCalibSynchDQM)
 pathALCARECOTkAlBeamHalo = cms.Path(seqALCARECOTkAlBeamHalo*ALCARECOTkAlBeamHaloDQM)
 pathALCARECOMuAlBeamHaloOverlaps = cms.Path(seqALCARECOMuAlBeamHaloOverlaps)
 pathALCARECOMuAlBeamHalo = cms.Path(seqALCARECOMuAlBeamHalo)
@@ -423,15 +417,6 @@ ALCARECOStreamRpcCalHLT = cms.FilteredStream(
 	paths  = (pathALCARECORpcCalHLT),
 	content = OutALCARECORpcCalHLT.outputCommands,
 	selectEvents = OutALCARECORpcCalHLT.SelectEvents,
-	dataTier = cms.untracked.string('ALCARECO')
-	)
-
-ALCARECOStreamDtCalibHI = cms.FilteredStream(
-	responsible = 'Antonio Vileila',
-	name = 'DtCalibHI',
-	paths  = (pathALCARECODtCalibHI),
-	content = OutALCARECODtCalibHI.outputCommands,
-	selectEvents = OutALCARECODtCalibHI.SelectEvents,
 	dataTier = cms.untracked.string('ALCARECO')
 	)
 

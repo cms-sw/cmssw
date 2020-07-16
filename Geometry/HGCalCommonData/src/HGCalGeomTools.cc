@@ -1,4 +1,5 @@
 #include "Geometry/HGCalCommonData/interface/HGCalGeomTools.h"
+#include "Geometry/HGCalCommonData/interface/HGCalTypes.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "Geometry/HGCalCommonData/interface/HGCalParameters.h"
 
@@ -46,7 +47,7 @@ void HGCalGeomTools::radius(double zf,
 #endif
   if ((zf1 == zb1) && (zf2 == zb2)) {
 #ifdef EDM_ML_DEBUG
-    edm::LogVerbatim("HGCalGeom") << "HGCalGeomTools::radius:Try " << zf << ":" << zb << " dz " << dz1 << ":" << dz2;
+    edm::LogVerbatim("HGCalGeom") << "HGCalGeomTools::radius:Try 1: " << zf << ":" << zb << " dz " << dz1 << ":" << dz2;
 #endif
     zz.emplace_back(zf);
     rin.emplace_back(radius(zf + dz1, zFront1, rFront1, slope1));
@@ -57,7 +58,7 @@ void HGCalGeomTools::radius(double zf,
   } else if (zf1 == zb1) {
 #ifdef EDM_ML_DEBUG
     double z1 = std::max(*zf2, *zb2);
-    edm::LogVerbatim("HGCalGeom") << "HGCalGeomTools::radius:Try " << zf << ":" << *zb2 << " (" << z1 << ") : " << zb;
+    edm::LogVerbatim("HGCalGeom") << "HGCalGeomTools::radius:Try 2:" << zf << ":" << *zb2 << " (" << z1 << ") : " << zb;
 #endif
     zz.emplace_back(zf);
     rin.emplace_back(radius(zf, zFront1, rFront1, slope1));
@@ -67,15 +68,17 @@ void HGCalGeomTools::radius(double zf,
       rin.emplace_back(radius(*zb2, zFront1, rFront1, slope1));
       rout.emplace_back(radius(*zb2 - tol_, zFront2, rFront2, slope2));
     }
-    zz.emplace_back(*zb2);
-    rin.emplace_back(radius(*zb2, zFront1, rFront1, slope1));
-    rout.emplace_back(radius(*zb2, zFront2, rFront2, slope2));
+    if ((std::abs(*zb2 - zb) > tol_) && (std::abs(*zb2 - zf) > tol_)) {
+      zz.emplace_back(*zb2);
+      rin.emplace_back(radius(*zb2, zFront1, rFront1, slope1));
+      rout.emplace_back(radius(*zb2, zFront2, rFront2, slope2));
+    }
     zz.emplace_back(zb);
     rin.emplace_back(radius(zb, zFront1, rFront1, slope1));
     rout.emplace_back(radius(zb, zFront2, rFront2, slope2));
   } else if (zf2 == zb2) {
 #ifdef EDM_ML_DEBUG
-    edm::LogVerbatim("HGCalGeom") << "HGCalGeomTools::radius:Try " << zf << ":" << *zb1 << ":" << zb;
+    edm::LogVerbatim("HGCalGeom") << "HGCalGeomTools::radius:Try 3: " << zf << ":" << *zb1 << ":" << zb;
 #endif
     zz.emplace_back(zf);
     rin.emplace_back(radius(zf, zFront1, rFront1, slope1));
@@ -85,9 +88,11 @@ void HGCalGeomTools::radius(double zf,
       rin.emplace_back(radius(*zb1 - tol_, zFront1, rFront1, slope1));
       rout.emplace_back(radius(*zb1, zFront2, rFront2, slope2));
     }
-    zz.emplace_back(*zb1);
-    rin.emplace_back(radius(*zb1, zFront1, rFront1, slope1));
-    rout.emplace_back(radius(*zb1, zFront2, rFront2, slope2));
+    if ((std::abs(*zb1 - zb) > tol_) && (std::abs(*zb1 - zf) > tol_)) {
+      zz.emplace_back(*zb1);
+      rin.emplace_back(radius(*zb1, zFront1, rFront1, slope1));
+      rout.emplace_back(radius(*zb1, zFront2, rFront2, slope2));
+    }
     zz.emplace_back(zb);
     rin.emplace_back(radius(zb, zFront1, rFront1, slope1));
     rout.emplace_back(radius(zb, zFront2, rFront2, slope2));
@@ -95,7 +100,7 @@ void HGCalGeomTools::radius(double zf,
     double z1 = std::min(*zf2, *zb1);
     double z2 = std::max(*zf2, *zb1);
 #ifdef EDM_ML_DEBUG
-    edm::LogVerbatim("HGCalGeom") << "HGCalGeomTools::radius:Try " << zf << ":" << z1 << " : " << z2 << ":" << zb;
+    edm::LogVerbatim("HGCalGeom") << "HGCalGeomTools::radius:Try 4: " << zf << ":" << z1 << " : " << z2 << ":" << zb;
 #endif
     zz.emplace_back(zf);
     rin.emplace_back(radius(zf, zFront1, rFront1, slope1));
@@ -162,22 +167,22 @@ double HGCalGeomTools::radius(
   return r;
 }
 
-std::pair<double, double> HGCalGeomTools::shiftXY(int waferPosition, double waferSize) {
+std::pair<double, double> HGCalGeomTools::shiftXY(int waferPosition, double waferSize) const {
   double dx(0), dy(0);
   switch (waferPosition) {
-    case (CornerCenterYp): {
+    case (HGCalTypes::CornerCenterYp): {
       dy = factor_ * waferSize;
       break;
     }
-    case (CornerCenterYm): {
+    case (HGCalTypes::CornerCenterYm): {
       dy = -factor_ * waferSize;
       break;
     }
-    case (CornerCenterXp): {
+    case (HGCalTypes::CornerCenterXp): {
       dx = factor_ * waferSize;
       break;
     }
-    case (CornerCenterXm): {
+    case (HGCalTypes::CornerCenterXm): {
       dx = -factor_ * waferSize;
       break;
     }

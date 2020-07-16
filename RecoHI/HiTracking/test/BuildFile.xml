@@ -1,5 +1,6 @@
 <use name="root"/>
 <use name="CommonTools/UtilAlgos"/>
+<use name="DataFormats/SiPixelDetId"/>
 <use name="DataFormats/TrackerRecHit2D"/>
 <use name="Geometry/CommonDetUnit"/>
 <use name="Geometry/Records"/>

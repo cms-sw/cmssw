@@ -13,24 +13,22 @@ from RecoTracker.TransientTrackingRecHit.TransientTrackingRecHitBuilderWithoutRe
 from TrackingTools.TrackRefitter.TracksToTrajectories_cff import *
 from RecoMuon.GlobalMuonProducer.globalMuons_cfi import *
 import TrackingTools.KalmanUpdators.Chi2MeasurementEstimator_cfi
-Chi2EstimatorForMuRefit = TrackingTools.KalmanUpdators.Chi2MeasurementEstimator_cfi.Chi2MeasurementEstimator.clone()
-Chi2EstimatorForMuRefit.ComponentName = cms.string('Chi2EstimatorForMuRefit')
-Chi2EstimatorForMuRefit.nSigma = 3.0
-Chi2EstimatorForMuRefit.MaxChi2 = 100000.0
-
+Chi2EstimatorForMuRefit = TrackingTools.KalmanUpdators.Chi2MeasurementEstimator_cfi.Chi2MeasurementEstimator.clone(
+    ComponentName = 'Chi2EstimatorForMuRefit',
+    nSigma        = 3.0,
+    MaxChi2       = 100000.0
+)
 
 from TrackingTools.TrackFitters.TrackFitters_cff import *
 GlbMuKFFitter = TrackingTools.TrackFitters.KFTrajectoryFitter_cfi.KFTrajectoryFitter.clone(
-    ComponentName = cms.string('GlbMuKFFitter'),
-    Estimator = cms.string('Chi2EstimatorForMuRefit'),
-    Propagator = cms.string('SmartPropagatorAnyRK'),
-    Updator = cms.string('KFUpdator'),
-    minHits = cms.int32(3)
+    ComponentName = 'GlbMuKFFitter',
+    Estimator     = 'Chi2EstimatorForMuRefit',
+    Propagator    = 'SmartPropagatorAnyRK',
+    Updator       = 'KFUpdator',
+    minHits       = 3
 )
 
 from Configuration.Eras.Modifier_fastSim_cff import fastSim
 # FastSim doesn't use Runge Kute for propagation
 fastSim.toModify(GlbMuKFFitter,
-                 Propagator = "SmartPropagatorAny")
-
-
+                 Propagator = 'SmartPropagatorAny')

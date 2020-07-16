@@ -11,7 +11,6 @@
 
 #include "PhysicsTools/Utilities/interface/Simplify_begin.h"
 
-#include <boost/mpl/if.hpp>
 #include <type_traits>
 
 namespace funct {
@@ -177,7 +176,7 @@ namespace funct {
       inline static const A& a(const F& f, const G& g, const H& h) { return f; }
       inline static const B& b(const F& f, const G& g, const H& h) { return h; }
       inline static const C& c(const F& f, const G& g, const H& h) { return g; }
-      enum { value = not::std::is_same<AB, base>::value };
+      enum { value = not ::std::is_same<AB, base>::value };
     };
     struct prod2 {
       typedef G A;
@@ -188,10 +187,12 @@ namespace funct {
       inline static const A& a(const F& f, const G& g, const H& h) { return g; }
       inline static const B& b(const F& f, const G& g, const H& h) { return h; }
       inline static const C& c(const F& f, const G& g, const H& h) { return f; }
-      enum { value = not::std::is_same<AB, base>::value };
+      enum { value = not ::std::is_same<AB, base>::value };
     };
 
-    typedef typename ::boost::mpl::if_<prod1, prod1, typename ::boost::mpl::if_<prod2, prod2, prod0>::type>::type prod;
+    typedef
+        typename std::conditional<prod1::value, prod1, typename std::conditional<prod2::value, prod2, prod0>::type>::type
+            prod;
     typedef typename AuxProductRatio<prod>::type type;
     inline static type combine(const PROD_S(F, G) & fg, const H& h) {
       const F& f = fg._1;
@@ -243,7 +244,7 @@ namespace funct {
       inline static const A& a(const F& f, const G& g, const H& h) { return f; }
       inline static const B& b(const F& f, const G& g, const H& h) { return h; }
       inline static const C& c(const F& f, const G& g, const H& h) { return g; }
-      enum { value = not::std::is_same<AB, base>::value };
+      enum { value = not ::std::is_same<AB, base>::value };
     };
     struct prod2 {
       typedef G A;
@@ -254,10 +255,12 @@ namespace funct {
       inline static const A& a(const F& f, const G& g, const H& h) { return g; }
       inline static const B& b(const F& f, const G& g, const H& h) { return h; }
       inline static const C& c(const F& f, const G& g, const H& h) { return f; }
-      enum { value = not::std::is_same<AB, base>::value };
+      enum { value = not ::std::is_same<AB, base>::value };
     };
 
-    typedef typename ::boost::mpl::if_<prod1, prod1, typename ::boost::mpl::if_<prod2, prod2, prod0>::type>::type prod;
+    typedef
+        typename std::conditional<prod1::value, prod1, typename std::conditional<prod2::value, prod2, prod0>::type>::type
+            prod;
     typedef typename AuxProductRatio2<prod>::type type;
     inline static type combine(const H& h, const PROD_S(F, G) & fg) {
       const F& f = fg._1;
@@ -293,12 +296,12 @@ namespace funct {
     struct ratio1 {
       typedef RATIO_S(A, C) base;
       typedef RATIO(A, C) type;
-      enum { value = not::std::is_same<type, base>::value };
+      enum { value = not ::std::is_same<type, base>::value };
     };
     struct ratio2 {
       typedef RATIO_S(B, C) base;
       typedef RATIO(B, C) type;
-      enum { value = not::std::is_same<type, base>::value };
+      enum { value = not ::std::is_same<type, base>::value };
     };
     typedef AuxSumRatio<A, B, C, ratio1::value or ratio2::value> aux;
     typedef typename aux::type type;

@@ -22,9 +22,7 @@ pushd ${LOCAL_TMP_DIR}
 
   echo cmsRun testSubProcessEventSetup_cfg.py
   cmsRun -p ${LOCAL_TEST_DIR}/testSubProcessEventSetup_cfg.py > testSubProcessEventSetup.log 2>&1 || die "cmsRun testSubProcessEventSetup_cfg.py" $?
-  grep "ESTestAnalyzerA: p" testSubProcessEventSetup.log > testSubProcessEventSetup.grep.txt
-  grep "ESTestAnalyzerAZ: p" testSubProcessEventSetup.log >> testSubProcessEventSetup.grep.txt
-  grep "Sharing" testSubProcessEventSetup.log >> testSubProcessEventSetup.grep.txt
+  grep "Sharing" testSubProcessEventSetup.log > testSubProcessEventSetup.grep.txt
   diff ${LOCAL_TEST_DIR}/unit_test_outputs/testSubProcessEventSetup.grep.txt  testSubProcessEventSetup.grep.txt || die "comparing testSubProcessEventSetup.grep.txt" $?
 
   echo cmsRun testSubProcessEventSetup1_cfg.py

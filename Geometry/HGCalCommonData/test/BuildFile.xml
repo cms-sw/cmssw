@@ -7,3 +7,4 @@
 <flags EDM_PLUGIN="1"/>
 <library file="*.cc" name="testGeometryHGCalCommonData">
 </library>
+<bin name="HGCalConvert" file="HGCalConvert.cpp"> </bin>

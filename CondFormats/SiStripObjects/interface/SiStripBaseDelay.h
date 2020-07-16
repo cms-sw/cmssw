@@ -3,11 +3,10 @@
 
 #include "CondFormats/Serialization/interface/Serializable.h"
 
-#include <vector>
 #include <algorithm>
 #include <cstdint>
 #include <sstream>
-#include <boost/bind/bind.hpp>
+#include <vector>
 
 #include "CondFormats/SiStripObjects/interface/SiStripDetSummary.h"
 

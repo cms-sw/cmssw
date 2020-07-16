@@ -2,8 +2,8 @@ from __future__ import print_function
 import FWCore.ParameterSet.Config as cms
 
 import sys
-from Configuration.Eras.Era_Run2_2018_pp_on_AA_cff import Run2_2018_pp_on_AA
-process = cms.Process("PIXELDQMLIVE", Run2_2018_pp_on_AA)
+from Configuration.Eras.Era_Run3_cff import Run3
+process = cms.Process("PIXELDQMLIVE", Run3)
 
 live=True
 unitTest = False
@@ -57,13 +57,6 @@ process.load("DQM.Integration.config.environment_cfi")
 process.dqmEnv.subSystemFolder = TAG
 process.dqmSaver.tag = TAG
 
-
-process.DQMStore.referenceFileName = '/dqmdata/dqm/reference/pixel_reference_pp.root'
-#if (process.runType.getRunType() == process.runType.hi_run):
-#    process.DQMStore.referenceFileName = '/dqmdata/dqm/reference/pixel_reference_hi.root'
-
-if (process.runType.getRunType() == process.runType.cosmic_run):
-    process.DQMStore.referenceFileName = '/dqmdata/dqm/reference/pixel_reference_cosmic.root'
 
 #-----------------------------
 # Magnetic Field

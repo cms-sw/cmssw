@@ -1,3 +1,5 @@
+//#define EDM_ML_DEBUG
+
 /** \file
  *
  *  \author L. Gray
@@ -9,7 +11,6 @@
 #include <DataFormats/GeometrySurface/interface/SimpleDiskBounds.h>
 #include <TrackingTools/GeomPropagators/interface/Propagator.h>
 #include <TrackingTools/DetLayers/interface/MeasurementEstimator.h>
-
 #include <FWCore/MessageLogger/interface/MessageLogger.h>
 
 #include <algorithm>
@@ -26,8 +27,6 @@ MTDRingForwardDoubleLayer::MTDRingForwardDoubleLayer(const vector<const ForwardD
       theRings(frontRings),  // add back later
       theComponents(),
       theBasicComponents() {
-  const std::string metname = "MTD|RecoMTD|RecoMTDDetLayers|MTDRingForwardDoubleLayer";
-
   theRings.insert(theRings.end(), backRings.begin(), backRings.end());
   theComponents = std::vector<const GeometricSearchDet*>(theRings.begin(), theRings.end());
 
@@ -40,10 +39,10 @@ MTDRingForwardDoubleLayer::MTDRingForwardDoubleLayer(const vector<const ForwardD
 
   setSurface(computeSurface());
 
-  LogTrace(metname) << "Constructing MTDRingForwardDoubleLayer: " << basicComponents().size() << " Dets "
-                    << theRings.size() << " Rings "
-                    << " Z: " << specificSurface().position().z() << " R1: " << specificSurface().innerRadius()
-                    << " R2: " << specificSurface().outerRadius();
+  LogTrace("MTDDetLayers") << "Constructing MTDRingForwardDoubleLayer: " << basicComponents().size() << " Dets "
+                           << theRings.size() << " Rings "
+                           << " Z: " << specificSurface().position().z() << " R1: " << specificSurface().innerRadius()
+                           << " R2: " << specificSurface().outerRadius();
 
   selfTest();
 }
@@ -75,11 +74,10 @@ std::pair<bool, TrajectoryStateOnSurface> MTDRingForwardDoubleLayer::compatible(
     const TrajectoryStateOnSurface& startingState, const Propagator& prop, const MeasurementEstimator& est) const {
   // mostly copied from ForwardDetLayer, except propagates to closest surface,
   // not to center
-  const std::string metname = "MTD|RecoMTD|RecoMTDDetLayers|MTDRingForwardDoubleLayer";
 
   bool insideOut = isInsideOut(startingState);
   const MTDRingForwardLayer& closerLayer = (insideOut) ? theFrontLayer : theBackLayer;
-  LogTrace(metname) << "MTDRingForwardDoubleLayer::compatible is assuming inside-out direction: " << insideOut;
+  LogTrace("MTDDetLayers") << "MTDRingForwardDoubleLayer::compatible is assuming inside-out direction: " << insideOut;
 
   TrajectoryStateOnSurface myState = prop.propagate(startingState, closerLayer.specificSurface());
   if (!myState.isValid())
@@ -105,12 +103,11 @@ std::pair<bool, TrajectoryStateOnSurface> MTDRingForwardDoubleLayer::compatible(
 vector<GeometricSearchDet::DetWithState> MTDRingForwardDoubleLayer::compatibleDets(
     const TrajectoryStateOnSurface& startingState, const Propagator& prop, const MeasurementEstimator& est) const {
   vector<DetWithState> result;
-  const std::string metname = "MTD|RecoMTD|RecoMTDDetLayers|MTDRingForwardDoubleLayer";
   pair<bool, TrajectoryStateOnSurface> compat = compatible(startingState, prop, est);
 
   if (!compat.first) {
-    LogTrace(metname) << "     MTDRingForwardDoubleLayer::compatibleDets: not compatible"
-                      << " (should not have been selected!)";
+    LogTrace("MTDDetLayers") << "     MTDRingForwardDoubleLayer::compatibleDets: not compatible"
+                             << " (should not have been selected!)";
     return result;
   }
 
@@ -132,10 +129,9 @@ vector<GeometricSearchDet::DetWithState> MTDRingForwardDoubleLayer::compatibleDe
 vector<DetGroup> MTDRingForwardDoubleLayer::groupedCompatibleDets(const TrajectoryStateOnSurface& startingState,
                                                                   const Propagator& prop,
                                                                   const MeasurementEstimator& est) const {
-  const std::string metname = "MTD|RecoMTD|RecoMTDDetLayers|MTDRingForwardDoubleLayer";
   vector<GeometricSearchDet::DetWithState> detWithStates1, detWithStates2;
 
-  LogTrace(metname) << "groupedCompatibleDets are currently given always in inside-out order";
+  LogTrace("MTDDetLayers") << "groupedCompatibleDets are currently given always in inside-out order";
   // this should be fixed either in RecoMTD/MeasurementDet/MTDDetLayerMeasurements or
   // RecoMTD/DetLayers/MTDRingForwardDoubleLayer
 
@@ -147,12 +143,11 @@ vector<DetGroup> MTDRingForwardDoubleLayer::groupedCompatibleDets(const Trajecto
     result.push_back(DetGroup(detWithStates1));
   if (!detWithStates2.empty())
     result.push_back(DetGroup(detWithStates2));
-  LogTrace(metname) << "DoubleLayer Compatible dets: " << result.size();
+  LogTrace("MTDDetLayers") << "DoubleLayer Compatible dets: " << result.size();
   return result;
 }
 
 bool MTDRingForwardDoubleLayer::isCrack(const GlobalPoint& gp) const {
-  const std::string metname = "MTD|RecoMTD|RecoMTDDetLayers|MTDRingForwardDoubleLayer";
   // approximate
   bool result = false;
   double r = gp.perp();
@@ -163,7 +158,7 @@ bool MTDRingForwardDoubleLayer::isCrack(const GlobalPoint& gp) const {
     assert(innerRing && outerRing);
     float crackInner = innerRing->specificSurface().outerRadius();
     float crackOuter = outerRing->specificSurface().innerRadius();
-    LogTrace(metname) << "In a crack:" << crackInner << " " << r << " " << crackOuter;
+    LogTrace("MTDDetLayers") << "In a crack:" << crackInner << " " << r << " " << crackOuter;
     if (r > crackInner && r < crackOuter)
       return true;
   }

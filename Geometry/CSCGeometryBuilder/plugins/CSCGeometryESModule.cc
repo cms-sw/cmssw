@@ -4,32 +4,96 @@
 //  Description: CSC ESModule for DD4hep
 //              
 //
-// \author Sergio Lo Meo (sergio.lo.meo@cern.ch) following what Ianna Osburne made for DTs (DD4HEP migration)
+// \author Sergio Lo Meo (sergio.lo.meo@cern.ch) following what Ianna Osborne made for DTs (DD4HEP migration)
 //         Created:  Thu, 05 March 2020 
-//   
+//         Modified: Thu, 04 June 2020, following what made in PR #30047               
+//
 //         Original author: Tim Cox
 */
-#include "CSCGeometryESModule.h"
-#include "Geometry/CSCGeometryBuilder/src/CSCGeometryBuilderFromDDD.h"
-#include "Geometry/CSCGeometryBuilder/src/CSCGeometryBuilder.h"
-#include "Geometry/CSCGeometry/interface/CSCChamberSpecs.h"
 
-#include "Geometry/CommonTopologies/interface/GeometryAligner.h"
-
+#include "FWCore/Framework/interface/ESProducer.h"
+#include "FWCore/Framework/interface/ESProductHost.h"
 #include "FWCore/Framework/interface/ESTransientHandle.h"
 #include "FWCore/Framework/interface/ModuleFactory.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/Utilities/interface/ESGetToken.h"
+#include "FWCore/Utilities/interface/ReusableObjectHolder.h"
+#include "Geometry/CSCGeometryBuilder/src/CSCGeometryBuilderFromDDD.h"
+#include "Geometry/CSCGeometryBuilder/src/CSCGeometryBuilder.h"
+#include "Geometry/CSCGeometry/interface/CSCGeometry.h"
+#include "Geometry/CSCGeometry/interface/CSCChamberSpecs.h"
+#include "Geometry/CommonTopologies/interface/GeometryAligner.h"
+#include "Geometry/MuonNumbering/interface/MuonGeometryConstants.h"
+#include "Geometry/Records/interface/MuonNumberingRecord.h"
+#include "Geometry/Records/interface/MuonGeometryRecord.h"
+#include "DetectorDescription/Core/interface/DDCompactView.h"
+#include "DetectorDescription/DDCMS/interface/DDCompactView.h"
+#include "Geometry/Records/interface/IdealGeometryRecord.h"
+#include "Geometry/Records/interface/CSCRecoGeometryRcd.h"
+#include "Geometry/Records/interface/CSCRecoDigiParametersRcd.h"
+#include "Geometry/MuonNumbering/interface/MuonGeometryConstants.h"
+#include "CondFormats/GeometryObjects/interface/RecoIdealGeometry.h"
+#include "CondFormats/GeometryObjects/interface/CSCRecoDigiParameters.h"
+
+// Alignments
+#include "CondFormats/Alignment/interface/DetectorGlobalPosition.h"
+#include "CondFormats/Alignment/interface/AlignmentErrorsExtended.h"
+#include "CondFormats/AlignmentRecord/interface/GlobalPositionRcd.h"
+#include "CondFormats/AlignmentRecord/interface/CSCAlignmentRcd.h"
+#include "CondFormats/AlignmentRecord/interface/CSCAlignmentErrorExtendedRcd.h"
 
 #include <memory>
+#include <string>
 
-#include "Geometry/MuonNumbering/interface/DD4hep_MuonNumbering.h"
-#include "Geometry/MuonNumbering/interface/MuonDDDNumbering.h"
-#include "Geometry/MuonNumbering/interface/MuonBaseNumber.h"
+class CSCGeometryESModule : public edm::ESProducer {
+public:
+  /// Constructor
+  CSCGeometryESModule(const edm::ParameterSet& p);
+
+  /// Creation of configuration file
+  static void fillDescriptions(edm::ConfigurationDescriptions&);
+
+  /// Produce CSCGeometry
+  std::shared_ptr<CSCGeometry> produce(const MuonGeometryRecord& record);
+
+private:
+  using HostType = edm::ESProductHost<CSCGeometry, IdealGeometryRecord, CSCRecoGeometryRcd, CSCRecoDigiParametersRcd>;
+
+  void initCSCGeometry_(const MuonGeometryRecord&, std::shared_ptr<HostType>& host);
+
+  edm::ReusableObjectHolder<HostType> holder_;
+  // DDD
+  edm::ESGetToken<DDCompactView, IdealGeometryRecord> cpvToken_;
+  edm::ESGetToken<MuonGeometryConstants, IdealGeometryRecord> mdcToken_;
+  //dd4hep
+  edm::ESGetToken<cms::DDCompactView, IdealGeometryRecord> cpvTokendd4hep_;
+
+  edm::ESGetToken<RecoIdealGeometry, CSCRecoGeometryRcd> rigToken_;
+  edm::ESGetToken<CSCRecoDigiParameters, CSCRecoDigiParametersRcd> rdpToken_;
+
+  edm::ESGetToken<Alignments, GlobalPositionRcd> globalPositionToken_;
+  edm::ESGetToken<Alignments, CSCAlignmentRcd> alignmentsToken_;
+  edm::ESGetToken<AlignmentErrorsExtended, CSCAlignmentErrorExtendedRcd> alignmentErrorsToken_;
+
+  // Flags for controlling geometry modelling during build of CSCGeometry
+  bool useRealWireGeometry_;
+  bool useOnlyWiresInME1a_;
+  bool useGangedStripsInME1a_;
+  bool useCentreTIOffsets_;
+  bool debugV_;
+  bool applyAlignment_;  // Switch to apply alignment corrections
+  bool useDDD_;          // whether to build from DDD or DB
+  bool useDD4hep_;
+  const std::string alignmentsLabel_;
+  const std::string myLabel_;
+};
 
 using namespace edm;
 
 CSCGeometryESModule::CSCGeometryESModule(const edm::ParameterSet& p)
     : useDDD_(p.getParameter<bool>("useDDD")),
-      useDD4hep_{p.getUntrackedParameter<bool>("useDD4hep", false)},
+      useDD4hep_(p.getParameter<bool>("useDD4hep")),
       alignmentsLabel_(p.getParameter<std::string>("alignmentsLabel")),
       myLabel_(p.getParameter<std::string>("appendToDataLabel")) {
   auto cc = setWhatProduced(this);
@@ -42,35 +106,31 @@ CSCGeometryESModule::CSCGeometryESModule(const edm::ParameterSet& p)
   // the calculated geometry values used up to and including ORCA_8_8_1.
   // (This was the default in ORCA.)
 
-  useRealWireGeometry = p.getParameter<bool>("useRealWireGeometry");
+  useRealWireGeometry_ = p.getParameter<bool>("useRealWireGeometry");
 
   // Suppress strips altogether in ME1a region of ME11?
 
-  useOnlyWiresInME1a = p.getParameter<bool>("useOnlyWiresInME1a");
+  useOnlyWiresInME1a_ = p.getParameter<bool>("useOnlyWiresInME1a");
 
   // Allow strips in ME1a region of ME11 but gang them?
   // Default is now to treat ME1a with ganged strips (e.g. in clusterizer)
 
-  useGangedStripsInME1a = p.getParameter<bool>("useGangedStripsInME1a");
+  useGangedStripsInME1a_ = p.getParameter<bool>("useGangedStripsInME1a");
 
-  if (useGangedStripsInME1a)
-    useOnlyWiresInME1a = false;  // override possible inconsistentcy
+  if (useGangedStripsInME1a_)
+    useOnlyWiresInME1a_ = false;  // override possible inconsistentcy
 
   // Use the backed-out offsets that correct the CTI
-  useCentreTIOffsets = p.getParameter<bool>("useCentreTIOffsets");
+  useCentreTIOffsets_ = p.getParameter<bool>("useCentreTIOffsets");
 
   // Debug printout etc. in CSCGeometry etc.
 
-  debugV = p.getUntrackedParameter<bool>("debugV", false);
+  debugV_ = p.getUntrackedParameter<bool>("debugV", false);
 
-  // Find out if using the DDD or CondDB Geometry source.
-  useDDD_ = p.getParameter<bool>("useDDD");
   if (useDDD_) {
-    cpvToken_ = cc.consumesFrom<DDCompactView, IdealGeometryRecord>(edm::ESInputTag{});
-    mdcToken_ = cc.consumesFrom<MuonDDDConstants, MuonNumberingRecord>(edm::ESInputTag{});
+    cc.setConsumes(cpvToken_).setConsumes(mdcToken_);
   } else if (useDD4hep_) {
-    cpvTokendd4hep_ = cc.consumesFrom<cms::DDCompactView, IdealGeometryRecord>(edm::ESInputTag{});
-    mdcTokendd4hep_ = cc.consumesFrom<cms::MuonNumbering, MuonNumberingRecord>(edm::ESInputTag{});
+    cc.setConsumes(cpvTokendd4hep_).setConsumes(mdcToken_);
   } else {
     rigToken_ = cc.consumesFrom<RecoIdealGeometry, CSCRecoGeometryRcd>(edm::ESInputTag{});
     rdpToken_ = cc.consumesFrom<CSCRecoDigiParameters, CSCRecoDigiParametersRcd>(edm::ESInputTag{});
@@ -85,16 +145,36 @@ CSCGeometryESModule::CSCGeometryESModule(const edm::ParameterSet& p)
         cc.consumesFrom<AlignmentErrorsExtended, CSCAlignmentErrorExtendedRcd>(edm::ESInputTag{"", alignmentsLabel_});
   }
 
-  edm::LogInfo("Geometry") << "@SUB=CSCGeometryESModule"
-                           << "Label '" << myLabel_ << "' " << (applyAlignment_ ? "looking for" : "IGNORING")
-                           << " alignment labels '" << alignmentsLabel_ << "'.";
+  edm::LogVerbatim("Geometry") << "@SUB=CSCGeometryESModule Label '" << myLabel_ << "' "
+                               << (applyAlignment_ ? "looking for" : "IGNORING") << " alignment labels '"
+                               << alignmentsLabel_ << "'.";
 }
 
-CSCGeometryESModule::~CSCGeometryESModule() {}
+void CSCGeometryESModule::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  //
+  // This cfi should be included to build the CSC geometry model.
+  //
+  // modelling flags (for completeness - internal defaults are already sane)
+  // GF would like to have a shorter name (e.g. CSCGeometry), but since originally
+  // there was no name, replace statements in other configs would not work anymore...
+  edm::ParameterSetDescription desc;
+  desc.add<bool>("useDDD", true);
+  desc.add<bool>("useDD4hep", false);
+  desc.add<std::string>("alignmentsLabel", "");
+  desc.add<std::string>("appendToDataLabel", "");
+  desc.add<bool>("useRealWireGeometry", true);
+  desc.add<bool>("useOnlyWiresInME1a", false);
+  desc.add<bool>("useGangedStripsInME1a", true);
+  desc.add<bool>("useCentreTIOffsets", false);
+  desc.add<bool>("applyAlignment", true);  //GF: to be abandoned
+  desc.addUntracked<bool>("debugV", false);
+  descriptions.add("CSCGeometryESModule", desc);
+}
 
 std::shared_ptr<CSCGeometry> CSCGeometryESModule::produce(const MuonGeometryRecord& record) {
   auto host = holder_.makeOrGet([this]() {
-    return new HostType(debugV, useGangedStripsInME1a, useOnlyWiresInME1a, useRealWireGeometry, useCentreTIOffsets);
+    return new HostType(
+        debugV_, useGangedStripsInME1a_, useOnlyWiresInME1a_, useRealWireGeometry_, useCentreTIOffsets_);
   });
 
   initCSCGeometry_(record, host);
@@ -109,10 +189,9 @@ std::shared_ptr<CSCGeometry> CSCGeometryESModule::produce(const MuonGeometryReco
     const auto& alignmentErrors = record.get(alignmentErrorsToken_);
     // Only apply alignment if values exist
     if (alignments.empty() && alignmentErrors.empty() && globalPosition.empty()) {
-      edm::LogInfo("Config") << "@SUB=CSCGeometryRecord::produce"
-                             << "Alignment(Error)s and global position (label '" << alignmentsLabel_
-                             << "') empty: Geometry producer (label "
-                             << "'" << myLabel_ << "') assumes fake and does not apply.";
+      edm::LogVerbatim("Config") << "@SUB=CSCGeometryRecord::produce Alignment(Error)s and global position (label '"
+                                 << alignmentsLabel_ << "') empty: Geometry producer (label "
+                                 << "'" << myLabel_ << "') assumes fake and does not apply.";
     } else {
       GeometryAligner aligner;
       aligner.applyAlignments<CSCGeometry>(
@@ -124,7 +203,7 @@ std::shared_ptr<CSCGeometry> CSCGeometryESModule::produce(const MuonGeometryReco
 
 void CSCGeometryESModule::initCSCGeometry_(const MuonGeometryRecord& record, std::shared_ptr<HostType>& host) {
   if (useDDD_) {
-    host->ifRecordChanges<MuonNumberingRecord>(record, [&host, &record, this](auto const& rec) {
+    host->ifRecordChanges<IdealGeometryRecord>(record, [&host, &record, this](auto const& rec) {
       host->clear();
       edm::ESTransientHandle<DDCompactView> cpv = record.getTransientHandle(cpvToken_);
       const auto& mdc = rec.get(mdcToken_);
@@ -132,10 +211,10 @@ void CSCGeometryESModule::initCSCGeometry_(const MuonGeometryRecord& record, std
       builder.build(*host, cpv.product(), mdc);
     });
   } else if (useDD4hep_) {
-    host->ifRecordChanges<MuonNumberingRecord>(record, [&host, &record, this](auto const& rec) {
+    host->ifRecordChanges<IdealGeometryRecord>(record, [&host, &record, this](auto const& rec) {
       host->clear();
       edm::ESTransientHandle<cms::DDCompactView> cpv = record.getTransientHandle(cpvTokendd4hep_);
-      const auto& mdc = rec.get(mdcTokendd4hep_);
+      const auto& mdc = rec.get(mdcToken_);
       CSCGeometryBuilderFromDDD builder;
       builder.build(*host, cpv.product(), mdc);
     });

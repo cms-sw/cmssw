@@ -1,4 +1,5 @@
 #include "RecoLocalFastTime/FTLCommonAlgos/interface/MTDUncalibratedRecHitAlgoBase.h"
+#include "RecoLocalFastTime/FTLClusterizer/interface/BTLRecHitsErrorEstimatorIM.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 class BTLUncalibRecHitAlgo : public BTLUncalibratedRecHitAlgoBase {
@@ -13,7 +14,8 @@ public:
         timeError_(conf.getParameter<double>("timeResolutionInNs")),
         timeCorr_p0_(conf.getParameter<double>("timeCorr_p0")),
         timeCorr_p1_(conf.getParameter<double>("timeCorr_p1")),
-        timeCorr_p2_(conf.getParameter<double>("timeCorr_p2")) {}
+        timeCorr_p2_(conf.getParameter<double>("timeCorr_p2")),
+        c_LYSO_(conf.getParameter<double>("c_LYSO")) {}
 
   /// Destructor
   ~BTLUncalibRecHitAlgo() override {}
@@ -34,6 +36,7 @@ private:
   const double timeCorr_p0_;
   const double timeCorr_p1_;
   const double timeCorr_p2_;
+  const double c_LYSO_;
 };
 
 FTLUncalibratedRecHit BTLUncalibRecHitAlgo::makeRecHit(const BTLDataFrame& dataFrame) const {
@@ -70,6 +73,11 @@ FTLUncalibratedRecHit BTLUncalibRecHitAlgo::makeRecHit(const BTLDataFrame& dataF
     flag |= (0x1 << 1);
   }
 
+  // Calculate the position
+  // Distance from center of bar to hit
+  float position = 0.5f * (c_LYSO_ * (time.second - time.first));
+  float positionError = BTLRecHitsErrorEstimatorIM::positionError();
+
   LogDebug("BTLUncalibRecHit") << "ADC+: set the charge to: (" << amplitude.first << ", " << amplitude.second << ")  ("
                                << sampleLeft.data() << ", " << sampleRight.data() << "  " << adcLSB_ << ' '
                                << std::endl;
@@ -77,7 +85,8 @@ FTLUncalibratedRecHit BTLUncalibRecHitAlgo::makeRecHit(const BTLDataFrame& dataF
                                << sampleLeft.toa() << ", " << sampleRight.toa() << "  " << toaLSBToNS_ << ' '
                                << std::endl;
 
-  return FTLUncalibratedRecHit(dataFrame.id(), dataFrame.row(), dataFrame.column(), amplitude, time, timeError_, flag);
+  return FTLUncalibratedRecHit(
+      dataFrame.id(), dataFrame.row(), dataFrame.column(), amplitude, time, timeError_, position, positionError, flag);
 }
 
 #include "FWCore/Framework/interface/MakerMacros.h"

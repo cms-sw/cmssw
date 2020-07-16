@@ -39,7 +39,6 @@ process.load("DQM.Integration.config.environment_cfi")
 
 process.dqmEnv.subSystemFolder = "L1T"
 process.dqmSaver.tag = "L1T"
-process.DQMStore.referenceFileName = "/dqmdata/dqm/reference/l1t_reference.root"
 
 process.dqmEndPath = cms.EndPath(process.dqmEnv * process.dqmSaver)
 
@@ -110,7 +109,6 @@ process.l1tStage2MonitorClientPath = cms.Path(process.l1tStage2MonitorClient)
 
 # Cosmic run
 if (process.runType.getRunType() == process.runType.cosmic_run):
-    process.DQMStore.referenceFileName = "/dqmdata/dqm/reference/l1t_reference_cosmic.root"
     # Remove Quality Tests for L1T Muon Subsystems since they are not optimized yet for cosmics
     process.l1tStage2MonitorClient.remove(process.l1TStage2uGMTQualityTests)
     process.l1tStage2MonitorClient.remove(process.l1TStage2EMTFQualityTests)
@@ -121,7 +119,6 @@ if (process.runType.getRunType() == process.runType.cosmic_run):
 
 # Heavy-Ion run
 if (process.runType.getRunType() == process.runType.hi_run):
-    process.DQMStore.referenceFileName = "/dqmdata/dqm/reference/l1t_reference_hi.root"
     process.onlineMetaDataDigis.onlineMetaDataInputLabel = cms.InputTag("rawDataRepacker")
     process.onlineMetaDataRawToDigi.onlineMetaDataInputLabel = cms.InputTag("rawDataRepacker")
     process.castorDigis.InputLabel = cms.InputTag("rawDataRepacker")

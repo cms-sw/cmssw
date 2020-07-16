@@ -101,6 +101,7 @@ namespace {
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/Utilities/interface/EDMException.h"
+#include "FWCore/Utilities/interface/ESGetToken.h"
 #include "CondFormats/DataRecord/interface/L1TGlobalPrescalesVetosRcd.h"
 #include "CondFormats/L1TObjects/interface/L1TGlobalPrescalesVetos.h"
 #include "DataFormats/L1TGlobal/interface/GlobalAlgBlk.h"
@@ -168,6 +169,7 @@ private:
   std::array<unsigned int, GlobalAlgBlk::maxPhysicsTriggers> m_counters;
   const int m_l1tPrescaleColumn;
   int m_oldIndex;
+  edm::ESGetToken<L1TGlobalPrescalesVetos, L1TGlobalPrescalesVetosRcd> m_l1tGtPrescalesVetosToken;
 };
 
 const constexpr Entry<L1TGlobalPrescaler::Mode> L1TGlobalPrescaler::s_modes[];
@@ -196,6 +198,7 @@ L1TGlobalPrescaler::L1TGlobalPrescaler(edm::ParameterSet const& config)
     case Mode::ApplyPrescaleRatios:
     case Mode::ApplyColumnRatios:
     case Mode::ForceColumnValues:
+      m_l1tGtPrescalesVetosToken = esConsumes<L1TGlobalPrescalesVetos, L1TGlobalPrescalesVetosRcd>();
       break;
 
     // this should never happen
@@ -227,7 +230,7 @@ bool L1TGlobalPrescaler::filter(edm::Event& event, edm::EventSetup const& setup)
   // Mode::ApplyPrescaleRatios
   // apply prescales equal to ratio between the given values and the ones read from the EventSetup
   if (m_mode == Mode::ApplyPrescaleRatios and m_oldIndex != index) {
-    edm::ESHandle<L1TGlobalPrescalesVetos> h;
+    edm::ESHandle<L1TGlobalPrescalesVetos> h = setup.getHandle(m_l1tGtPrescalesVetosToken);
     setup.get<L1TGlobalPrescalesVetosRcd>().get(h);
     auto const& prescaleTable = h->prescale_table_;
     if (index >= (int)prescaleTable.size())
@@ -266,8 +269,7 @@ bool L1TGlobalPrescaler::filter(edm::Event& event, edm::EventSetup const& setup)
   // Mode::ApplyColumnValues and Mode::ForceColumnValues
   // apply the prescale values from the EventSetup corresponding to the given column index
   if ((m_mode == Mode::ApplyColumnValues or m_mode == Mode::ForceColumnValues) and m_oldIndex != m_l1tPrescaleColumn) {
-    edm::ESHandle<L1TGlobalPrescalesVetos> h;
-    setup.get<L1TGlobalPrescalesVetosRcd>().get(h);
+    edm::ESHandle<L1TGlobalPrescalesVetos> h = setup.getHandle(m_l1tGtPrescalesVetosToken);
     auto const& prescaleTable = h->prescale_table_;
     if (m_l1tPrescaleColumn >= (int)prescaleTable.size())
       throw edm::Exception(edm::errors::Configuration)
@@ -289,8 +291,7 @@ bool L1TGlobalPrescaler::filter(edm::Event& event, edm::EventSetup const& setup)
   // Mode::ApplyColumnRatios
   // apply prescales equal to ratio between the values corresponsing to the given column index, and the ones read from the EventSetup
   if (m_mode == Mode::ApplyColumnRatios and m_oldIndex != index) {
-    edm::ESHandle<L1TGlobalPrescalesVetos> h;
-    setup.get<L1TGlobalPrescalesVetosRcd>().get(h);
+    edm::ESHandle<L1TGlobalPrescalesVetos> h = setup.getHandle(m_l1tGtPrescalesVetosToken);
     auto const& prescaleTable = h->prescale_table_;
     if (index >= (int)prescaleTable.size())
       throw edm::Exception(edm::errors::LogicError)

@@ -9,10 +9,10 @@
  */
 
 #include "RecoMuon/MuonSeedGenerator/src/RPCSeedFinder.h"
-#include <RecoMuon/TransientTrackingRecHit/interface/MuonTransientTrackingRecHit.h>
-#include <FWCore/ParameterSet/interface/ParameterSet.h>
-#include <DataFormats/MuonDetId/interface/RPCDetId.h>
-#include <FWCore/Framework/interface/EventSetup.h>
+#include "RecoMuon/TransientTrackingRecHit/interface/MuonTransientTrackingRecHit.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "DataFormats/MuonDetId/interface/RPCDetId.h"
+#include <Geometry/RPCGeometry/interface/RPCGeometry.h>
 
 #ifndef RPCLayerNumber
 #define RPCLayerNumber 12
@@ -36,7 +36,7 @@ public:
   RPCCosmicSeedrecHitFinder();
   ~RPCCosmicSeedrecHitFinder();
   void configure(const edm::ParameterSet& iConfig);
-  void setEdge(const edm::EventSetup& iSetup);
+  void setEdge(const RPCGeometry&);
   void unsetEdge();
   void setInput(MuonRecHitContainer (&recHits)[RPCLayerNumber]);
   void unsetInput();

@@ -13,6 +13,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Utilities/interface/RandomNumberGenerator.h"
+#include "FWCore/Utilities/interface/ESGetToken.h"
 
 #include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 
@@ -36,13 +37,14 @@ public:
 
 private:
   edm::EDGetTokenT<edm::HepMCProduct> sourceToken_;
+  edm::ESGetToken<CTPPSBeamParameters, CTPPSBeamParametersRcd> beamParametersToken_;
   std::vector<edm::EDGetTokenT<reco::GenParticleCollection>> genParticleTokens_;
 
   bool simulateVertex_;
   bool simulateBeamDivergence_;
 
   struct SmearingParameters {
-    double vtx_x, vtx_y, vtx_z;                 // cm
+    double vtx_x, vtx_y, vtx_z, vtx_t;          // cm
     double bd_x_45, bd_y_45, bd_x_56, bd_y_56;  // rad
   };
 
@@ -57,7 +59,8 @@ private:
 //----------------------------------------------------------------------------------------------------
 
 BeamDivergenceVtxGenerator::BeamDivergenceVtxGenerator(const edm::ParameterSet &iConfig)
-    : simulateVertex_(iConfig.getParameter<bool>("simulateVertex")),
+    : beamParametersToken_(esConsumes<CTPPSBeamParameters, CTPPSBeamParametersRcd>()),
+      simulateVertex_(iConfig.getParameter<bool>("simulateVertex")),
       simulateBeamDivergence_(iConfig.getParameter<bool>("simulateBeamDivergence")) {
   const edm::InputTag tagSrcHepMC = iConfig.getParameter<edm::InputTag>("src");
   if (!tagSrcHepMC.label().empty())
@@ -102,8 +105,7 @@ void BeamDivergenceVtxGenerator::produce(edm::Event &iEvent, const edm::EventSet
   CLHEP::HepRandomEngine *rnd = &(rng->getEngine(iEvent.streamID()));
 
   // get conditions
-  edm::ESHandle<CTPPSBeamParameters> hBeamParameters;
-  iSetup.get<CTPPSBeamParametersRcd>().get(hBeamParameters);
+  edm::ESHandle<CTPPSBeamParameters> hBeamParameters = iSetup.getHandle(beamParametersToken_);
 
   // get HepMC input (if given)
   HepMC::GenEvent *genEvt;
@@ -127,6 +129,7 @@ void BeamDivergenceVtxGenerator::produce(edm::Event &iEvent, const edm::EventSet
     sp.vtx_x = hBeamParameters->getVtxOffsetX45() + CLHEP::RandGauss::shoot(rnd) * hBeamParameters->getVtxStddevX();
     sp.vtx_y = hBeamParameters->getVtxOffsetY45() + CLHEP::RandGauss::shoot(rnd) * hBeamParameters->getVtxStddevY();
     sp.vtx_z = hBeamParameters->getVtxOffsetZ45() + CLHEP::RandGauss::shoot(rnd) * hBeamParameters->getVtxStddevZ();
+    sp.vtx_t = hBeamParameters->getVtxOffsetT45() + CLHEP::RandGauss::shoot(rnd) * hBeamParameters->getVtxStddevT();
   }
 
   if (simulateBeamDivergence_) {
@@ -186,7 +189,7 @@ void BeamDivergenceVtxGenerator::applySmearingHepMC(const SmearingParameters &sp
       (*vit)->set_position(HepMC::FourVector(pos.x() + sp.vtx_x * 1E1,  // conversion: cm to mm
                                              pos.y() + sp.vtx_y * 1E1,
                                              pos.z() + sp.vtx_z * 1E1,
-                                             pos.t()));
+                                             pos.t() + sp.vtx_t * 1E1));
     }
   }
 
@@ -202,10 +205,11 @@ void BeamDivergenceVtxGenerator::addSmearedGenParticle(const reco::GenParticle &
                                                        const SmearingParameters &sp,
                                                        HepMC::GenEvent *genEvt) {
   // add vertex of the particle
-  HepMC::GenVertex *vtx = new HepMC::GenVertex(HepMC::FourVector((gp.vx() + sp.vtx_x) * 1E1,  // conversion: cm to mm
-                                                                 (gp.vy() + sp.vtx_y) * 1E1,
-                                                                 (gp.vz() + sp.vtx_z) * 1E1,
-                                                                 0.));
+  HepMC::GenVertex *vtx = new HepMC::GenVertex(HepMC::FourVector(
+      (gp.vx() + sp.vtx_x) * 1E1,  // conversion: cm to mm
+      (gp.vy() + sp.vtx_y) * 1E1,
+      (gp.vz() + sp.vtx_z) * 1E1,
+      (/*gp.vt()*/ +sp.vtx_t) * 1E1));  // TODO: GenParticle doesn't seem to have time component of the vertex
   genEvt->add_vertex(vtx);
 
   // add the particle itself

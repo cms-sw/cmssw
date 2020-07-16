@@ -94,7 +94,7 @@ void Pixel3DDigitizerAlgorithm::accumulateSimHits(std::vector<PSimHit>::const_it
     LogDebug("Pixel3DDigitizerAlgorithm:: Geant4 hit info: ")
         << (*it).particleType() << " " << (*it).pabs() << " " << (*it).energyLoss() << " " << (*it).tof() << " "
         << (*it).trackId() << " " << (*it).processType() << " " << (*it).detUnitId() << (*it).entryPoint() << " "
-        << (*it).exitPoint();
+        << (*it).exitPoint() << " Global index for PSimHit:" << simHitGlobalIndex;
 
     // Convert the simhit position into global to check if the simhit was
     // produced within a given time-window
@@ -268,6 +268,9 @@ std::vector<DigitizerUtility::SignalPoint> Pixel3DDigitizerAlgorithm::drift(
   const auto pitch = pixdet->specificTopology().pitch();
   const auto half_pitch = std::make_pair<float, float>(pitch.first * 0.5, pitch.second * 0.5);
   const float thickness = pixdet->specificSurface().bounds().thickness();
+  const int nrows = pixdet->specificTopology().nrows();
+  const int ncolumns = pixdet->specificTopology().ncolumns();
+  const float pix_rounding = 0.99;
 
   // the maximum radial distance is going to be use to evaluate radiation damage XXX?
   const float max_radial_distance =
@@ -300,7 +303,16 @@ std::vector<DigitizerUtility::SignalPoint> Pixel3DDigitizerAlgorithm::drift(
 
   for (const auto& super_charge : ionization_points) {
     // Extract the pixel cell
-    const auto current_pixel = pixdet->specificTopology().pixel(LocalPoint(super_charge.x(), super_charge.y()));
+    auto current_pixel = pixdet->specificTopology().pixel(LocalPoint(super_charge.x(), super_charge.y()));
+    // `pixel` function does not check to be in the ROC bounds,
+    // so check it here and fix potential rounding problems.
+    // Careful, this is assuming a rounding problem (1 unit), more than 1 pixel
+    // away is probably showing some backward problem worth it to track.
+    // This is also correcting out of bounds migrated charge from diffusion.
+    // The charge will be moved to the edge of the row/column.
+    current_pixel.first = std::clamp(current_pixel.first, float(0.0), (nrows - 1) + pix_rounding);
+    current_pixel.second = std::clamp(current_pixel.second, float(0.0), (ncolumns - 1) + pix_rounding);
+
     const auto current_pixel_int = std::make_pair(std::floor(current_pixel.first), std::floor(current_pixel.second));
 
     // Convert to the 1x1 proxy pixel cell (pc), where all calculations are going to be
@@ -398,25 +410,32 @@ void Pixel3DDigitizerAlgorithm::induce_signal(const PSimHit& hit,
                                               const std::vector<DigitizerUtility::SignalPoint>& collection_points) {
   // X  - Rows, Left-Right
   // Y  - Columns, Down-Up
-  const Phase2TrackerTopology& topo = pixdet->specificTopology();
   const uint32_t detId = pixdet->geographicalId().rawId();
   // Accumulated signal at each channel of this detector
   signal_map_type& the_signal = _signal[detId];
 
+  // Choose the proper pixel-to-channel converter
+  std::function<int(int, int)> pixelToChannel =
+      pixelFlag_ ? PixelDigi::pixelToChannel
+                 : static_cast<std::function<int(int, int)> >(Phase2TrackerDigi::pixelToChannel);
+
   // Iterate over collection points on the collection plane
   for (const auto& pt : collection_points) {
-    // Find the corresponding (ROC) channel to that pixel
-    MeasurementPoint rowcol(pt.position().x(), pt.position().y());
-    const int channel = topo.channel(topo.localPosition(rowcol));
+    // Extract corresponding channel (position is already given in pixel indices)
+    const int channel = pixelToChannel(pt.position().x(), pt.position().y());
 
+    float corr_time = hit.tof() - pixdet->surface().toGlobal(hit.localPosition()).mag() * c_inv;
     if (makeDigiSimLinks_) {
-      the_signal[channel] += DigitizerUtility::Amplitude(pt.amplitude(), &hit, pt.amplitude(), hitIndex, tofBin);
+      the_signal[channel] +=
+          DigitizerUtility::Amplitude(pt.amplitude(), &hit, pt.amplitude(), corr_time, hitIndex, tofBin);
     } else {
       the_signal[channel] += DigitizerUtility::Amplitude(pt.amplitude(), nullptr, pt.amplitude());
     }
 
     LogDebug("Pixel3DDigitizerAlgorithm::induce_signal")
-        << " Induce charge at row,col:" << rowcol << " N_electrons:" << pt.amplitude() << " [Channel:" << channel
-        << "]\n   [Accumulated signal in this channel:" << the_signal[channel].ampl() << "]";
+        << " Induce charge at row,col:" << pt.position() << " N_electrons:" << pt.amplitude() << " [Channel:" << channel
+        << "]\n   [Accumulated signal in this channel:" << the_signal[channel].ampl() << "] "
+        << " Global index linked PSimHit:" << hitIndex;
+    ;
   }
 }

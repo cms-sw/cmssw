@@ -52,6 +52,7 @@ to this file that go beyond the obvious cut and paste type of edits.
 
 // system include files
 #include <functional>
+#include <string>
 
 // user include files
 #include "FWCore/ServiceRegistry/interface/TerminationOrigin.h"
@@ -267,6 +268,48 @@ namespace edm {
     }
     AR_WATCH_USING_METHOD_2(watchPostModuleEndStream)
 
+    typedef signalslot::Signal<void(GlobalContext const&)> PreBeginProcessBlock;
+    PreBeginProcessBlock preBeginProcessBlockSignal_;
+    void watchPreBeginProcessBlock(PreBeginProcessBlock::slot_type const& iSlot) {
+      preBeginProcessBlockSignal_.connect(iSlot);
+    }
+    AR_WATCH_USING_METHOD_1(watchPreBeginProcessBlock)
+
+    typedef signalslot::Signal<void(GlobalContext const&)> PostBeginProcessBlock;
+    PostBeginProcessBlock postBeginProcessBlockSignal_;
+    void watchPostBeginProcessBlock(PostBeginProcessBlock::slot_type const& iSlot) {
+      postBeginProcessBlockSignal_.connect_front(iSlot);
+    }
+    AR_WATCH_USING_METHOD_1(watchPostBeginProcessBlock)
+
+    typedef signalslot::Signal<void(GlobalContext const&)> PreAccessInputProcessBlock;
+    PreAccessInputProcessBlock preAccessInputProcessBlockSignal_;
+    void watchPreAccessInputProcessBlock(PreAccessInputProcessBlock::slot_type const& iSlot) {
+      preAccessInputProcessBlockSignal_.connect(iSlot);
+    }
+    AR_WATCH_USING_METHOD_1(watchPreAccessInputProcessBlock)
+
+    typedef signalslot::Signal<void(GlobalContext const&)> PostAccessInputProcessBlock;
+    PostAccessInputProcessBlock postAccessInputProcessBlockSignal_;
+    void watchPostAccessInputProcessBlock(PostAccessInputProcessBlock::slot_type const& iSlot) {
+      postAccessInputProcessBlockSignal_.connect_front(iSlot);
+    }
+    AR_WATCH_USING_METHOD_1(watchPostAccessInputProcessBlock)
+
+    typedef signalslot::Signal<void(GlobalContext const&)> PreEndProcessBlock;
+    PreEndProcessBlock preEndProcessBlockSignal_;
+    void watchPreEndProcessBlock(PreEndProcessBlock::slot_type const& iSlot) {
+      preEndProcessBlockSignal_.connect(iSlot);
+    }
+    AR_WATCH_USING_METHOD_1(watchPreEndProcessBlock)
+
+    typedef signalslot::Signal<void(GlobalContext const&)> PostEndProcessBlock;
+    PostEndProcessBlock postEndProcessBlockSignal_;
+    void watchPostEndProcessBlock(PostEndProcessBlock::slot_type const& iSlot) {
+      postEndProcessBlockSignal_.connect_front(iSlot);
+    }
+    AR_WATCH_USING_METHOD_1(watchPostEndProcessBlock)
+
     typedef signalslot::Signal<void(GlobalContext const&)> PreGlobalBeginRun;
     /// signal is emitted after the Run has been created by the InputSource but before any modules have seen the Run
     PreGlobalBeginRun preGlobalBeginRunSignal_;
@@ -291,6 +334,20 @@ namespace edm {
       postGlobalEndRunSignal_.connect_front(iSlot);
     }
     AR_WATCH_USING_METHOD_1(watchPostGlobalEndRun)
+
+    typedef signalslot::Signal<void(GlobalContext const&)> PreWriteProcessBlock;
+    PreWriteProcessBlock preWriteProcessBlockSignal_;
+    void watchPreWriteProcessBlock(PreWriteProcessBlock::slot_type const& iSlot) {
+      preWriteProcessBlockSignal_.connect(iSlot);
+    }
+    AR_WATCH_USING_METHOD_1(watchPreWriteProcessBlock)
+
+    typedef signalslot::Signal<void(GlobalContext const&)> PostWriteProcessBlock;
+    PostWriteProcessBlock postWriteProcessBlockSignal_;
+    void watchPostWriteProcessBlock(PostWriteProcessBlock::slot_type const& iSlot) {
+      postWriteProcessBlockSignal_.connect_front(iSlot);
+    }
+    AR_WATCH_USING_METHOD_1(watchPostWriteProcessBlock)
 
     typedef signalslot::Signal<void(GlobalContext const&)> PreGlobalWriteRun;
     PreGlobalWriteRun preGlobalWriteRunSignal_;
@@ -781,6 +838,49 @@ namespace edm {
     }
     AR_WATCH_USING_METHOD_2(watchPostModuleStreamEndLumi)
 
+    typedef signalslot::Signal<void(GlobalContext const&, ModuleCallingContext const&)> PreModuleBeginProcessBlock;
+    PreModuleBeginProcessBlock preModuleBeginProcessBlockSignal_;
+    void watchPreModuleBeginProcessBlock(PreModuleBeginProcessBlock::slot_type const& iSlot) {
+      preModuleBeginProcessBlockSignal_.connect(iSlot);
+    }
+    AR_WATCH_USING_METHOD_2(watchPreModuleBeginProcessBlock)
+
+    typedef signalslot::Signal<void(GlobalContext const&, ModuleCallingContext const&)> PostModuleBeginProcessBlock;
+    PostModuleBeginProcessBlock postModuleBeginProcessBlockSignal_;
+    void watchPostModuleBeginProcessBlock(PostModuleBeginProcessBlock::slot_type const& iSlot) {
+      postModuleBeginProcessBlockSignal_.connect_front(iSlot);
+    }
+    AR_WATCH_USING_METHOD_2(watchPostModuleBeginProcessBlock)
+
+    typedef signalslot::Signal<void(GlobalContext const&, ModuleCallingContext const&)> PreModuleAccessInputProcessBlock;
+    PreModuleAccessInputProcessBlock preModuleAccessInputProcessBlockSignal_;
+    void watchPreModuleAccessInputProcessBlock(PreModuleAccessInputProcessBlock::slot_type const& iSlot) {
+      preModuleAccessInputProcessBlockSignal_.connect(iSlot);
+    }
+    AR_WATCH_USING_METHOD_2(watchPreModuleAccessInputProcessBlock)
+
+    typedef signalslot::Signal<void(GlobalContext const&, ModuleCallingContext const&)>
+        PostModuleAccessInputProcessBlock;
+    PostModuleAccessInputProcessBlock postModuleAccessInputProcessBlockSignal_;
+    void watchPostModuleAccessInputProcessBlock(PostModuleAccessInputProcessBlock::slot_type const& iSlot) {
+      postModuleAccessInputProcessBlockSignal_.connect_front(iSlot);
+    }
+    AR_WATCH_USING_METHOD_2(watchPostModuleAccessInputProcessBlock)
+
+    typedef signalslot::Signal<void(GlobalContext const&, ModuleCallingContext const&)> PreModuleEndProcessBlock;
+    PreModuleEndProcessBlock preModuleEndProcessBlockSignal_;
+    void watchPreModuleEndProcessBlock(PreModuleEndProcessBlock::slot_type const& iSlot) {
+      preModuleEndProcessBlockSignal_.connect(iSlot);
+    }
+    AR_WATCH_USING_METHOD_2(watchPreModuleEndProcessBlock)
+
+    typedef signalslot::Signal<void(GlobalContext const&, ModuleCallingContext const&)> PostModuleEndProcessBlock;
+    PostModuleEndProcessBlock postModuleEndProcessBlockSignal_;
+    void watchPostModuleEndProcessBlock(PostModuleEndProcessBlock::slot_type const& iSlot) {
+      postModuleEndProcessBlockSignal_.connect_front(iSlot);
+    }
+    AR_WATCH_USING_METHOD_2(watchPostModuleEndProcessBlock)
+
     typedef signalslot::Signal<void(GlobalContext const&, ModuleCallingContext const&)> PreModuleGlobalBeginRun;
     PreModuleGlobalBeginRun preModuleGlobalBeginRunSignal_;
     void watchPreModuleGlobalBeginRun(PreModuleGlobalBeginRun::slot_type const& iSlot) {
@@ -836,6 +936,20 @@ namespace edm {
       postModuleGlobalEndLumiSignal_.connect_front(iSlot);
     }
     AR_WATCH_USING_METHOD_2(watchPostModuleGlobalEndLumi)
+
+    typedef signalslot::Signal<void(GlobalContext const&, ModuleCallingContext const&)> PreModuleWriteProcessBlock;
+    PreModuleWriteProcessBlock preModuleWriteProcessBlockSignal_;
+    void watchPreModuleWriteProcessBlock(PreModuleWriteProcessBlock::slot_type const& iSlot) {
+      preModuleWriteProcessBlockSignal_.connect(iSlot);
+    }
+    AR_WATCH_USING_METHOD_2(watchPreModuleWriteProcessBlock)
+
+    typedef signalslot::Signal<void(GlobalContext const&, ModuleCallingContext const&)> PostModuleWriteProcessBlock;
+    PostModuleWriteProcessBlock postModuleWriteProcessBlockSignal_;
+    void watchPostModuleWriteProcessBlock(PostModuleWriteProcessBlock::slot_type const& iSlot) {
+      postModuleWriteProcessBlockSignal_.connect_front(iSlot);
+    }
+    AR_WATCH_USING_METHOD_2(watchPostModuleWriteProcessBlock)
 
     typedef signalslot::Signal<void(GlobalContext const&, ModuleCallingContext const&)> PreModuleWriteRun;
     PreModuleWriteRun preModuleWriteRunSignal_;
@@ -961,6 +1075,7 @@ namespace edm {
     // WARNING - ModuleDescription is not in fixed place.  See note M above.
     AR_WATCH_USING_METHOD_1(watchPostSourceConstruction)
 
+    //DEPRECATED
     typedef signalslot::Signal<void(
         eventsetup::ComponentDescription const*, eventsetup::EventSetupRecordKey const&, eventsetup::DataKey const&)>
         PreLockEventSetupGet;
@@ -971,6 +1086,7 @@ namespace edm {
     }
     AR_WATCH_USING_METHOD_3(watchPreLockEventSetupGet)
 
+    //DEPRECATED
     typedef signalslot::Signal<void(
         eventsetup::ComponentDescription const*, eventsetup::EventSetupRecordKey const&, eventsetup::DataKey const&)>
         PostLockEventSetupGet;
@@ -981,6 +1097,7 @@ namespace edm {
     }
     AR_WATCH_USING_METHOD_3(watchPostLockEventSetupGet)
 
+    //DEPRECATED
     typedef signalslot::Signal<void(
         eventsetup::ComponentDescription const*, eventsetup::EventSetupRecordKey const&, eventsetup::DataKey const&)>
         PostEventSetupGet;

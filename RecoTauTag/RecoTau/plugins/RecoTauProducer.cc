@@ -16,8 +16,6 @@
  *          Christian Veelken (LLR)
  *
  */
-#include "boost/bind.hpp"
-#include <boost/ptr_container/ptr_vector.hpp>
 
 #include <algorithm>
 #include <functional>
@@ -32,6 +30,7 @@
 
 #include "RecoTauTag/RecoTau/interface/RecoTauBuilderPlugins.h"
 #include "RecoTauTag/RecoTau/interface/RecoTauCommonUtilities.h"
+#include "RecoTauTag/RecoTau/interface/RecoTauQualityCuts.h"
 
 #include "DataFormats/JetReco/interface/PFJetCollection.h"
 #include "DataFormats/TauReco/interface/PFJetChargedHadronAssociation.h"
@@ -198,7 +197,7 @@ void RecoTauProducer::produce(edm::Event& evt, const edm::EventSetup& es) {
           (*builder)(jetRef, chargedHadrons, piZeros, uniqueRegionalCands));
 
       // Make sure all taus have their jetref set correctly
-      std::for_each(taus.begin(), taus.end(), boost::bind(&reco::PFTau::setjetRef, _1, reco::JetBaseRef(jetRef)));
+      std::for_each(taus.begin(), taus.end(), [&](auto& arg) { arg.setjetRef(reco::JetBaseRef(jetRef)); });
       // Copy without selection
       if (!outputSelector_.get()) {
         output->insert(output->end(), taus.begin(), taus.end());
@@ -242,48 +241,8 @@ void RecoTauProducer::fillDescriptions(edm::ConfigurationDescriptions& descripti
   edm::ParameterSetDescription desc;
   desc.add<edm::InputTag>("piZeroSrc", edm::InputTag("ak4PFJetsRecoTauPiZeros"));
 
-  edm::ParameterSetDescription pset_signalQualityCuts;
-  pset_signalQualityCuts.add<double>("maxDeltaZ", 0.4);
-  pset_signalQualityCuts.add<double>("minTrackPt", 0.5);
-  pset_signalQualityCuts.add<double>("minTrackVertexWeight", -1.0);
-  pset_signalQualityCuts.add<double>("maxTrackChi2", 100.0);
-  pset_signalQualityCuts.add<unsigned int>("minTrackPixelHits", 0);
-  pset_signalQualityCuts.add<double>("minGammaEt", 1.0);
-  pset_signalQualityCuts.add<unsigned int>("minTrackHits", 3);
-  pset_signalQualityCuts.add<double>("minNeutralHadronEt", 30.0);
-  pset_signalQualityCuts.add<double>("maxTransverseImpactParameter", 0.1);
-  pset_signalQualityCuts.addOptional<bool>("useTracksInsteadOfPFHadrons");
-
-  edm::ParameterSetDescription pset_vxAssocQualityCuts;
-  pset_vxAssocQualityCuts.add<double>("minTrackPt", 0.5);
-  pset_vxAssocQualityCuts.add<double>("minTrackVertexWeight", -1.0);
-  pset_vxAssocQualityCuts.add<double>("maxTrackChi2", 100.0);
-  pset_vxAssocQualityCuts.add<unsigned int>("minTrackPixelHits", 0);
-  pset_vxAssocQualityCuts.add<double>("minGammaEt", 1.0);
-  pset_vxAssocQualityCuts.add<unsigned int>("minTrackHits", 3);
-  pset_vxAssocQualityCuts.add<double>("maxTransverseImpactParameter", 0.1);
-  pset_vxAssocQualityCuts.addOptional<bool>("useTracksInsteadOfPFHadrons");
-
-  edm::ParameterSetDescription pset_isolationQualityCuts;
-  pset_isolationQualityCuts.add<double>("maxDeltaZ", 0.2);
-  pset_isolationQualityCuts.add<double>("minTrackPt", 1.0);
-  pset_isolationQualityCuts.add<double>("minTrackVertexWeight", -1.0);
-  pset_isolationQualityCuts.add<double>("maxTrackChi2", 100.0);
-  pset_isolationQualityCuts.add<unsigned int>("minTrackPixelHits", 0);
-  pset_isolationQualityCuts.add<double>("minGammaEt", 1.5);
-  pset_isolationQualityCuts.add<unsigned int>("minTrackHits", 8);
-  pset_isolationQualityCuts.add<double>("maxTransverseImpactParameter", 0.03);
-  pset_isolationQualityCuts.addOptional<bool>("useTracksInsteadOfPFHadrons");
-
-  edm::ParameterSetDescription pset_qualityCuts;
-  pset_qualityCuts.add<edm::ParameterSetDescription>("signalQualityCuts", pset_signalQualityCuts);
-  pset_qualityCuts.add<edm::ParameterSetDescription>("vxAssocQualityCuts", pset_vxAssocQualityCuts);
-  pset_qualityCuts.add<edm::ParameterSetDescription>("isolationQualityCuts", pset_isolationQualityCuts);
-  pset_qualityCuts.add<std::string>("leadingTrkOrPFCandOption", "leadPFCand");
-  pset_qualityCuts.add<std::string>("pvFindingAlgo", "closestInDeltaZ");
-  pset_qualityCuts.add<edm::InputTag>("primaryVertexSrc", edm::InputTag("offlinePrimaryVertices"));
-  pset_qualityCuts.add<bool>("vertexTrackFiltering", false);
-  pset_qualityCuts.add<bool>("recoverLeadingTrk", false);
+  edm::ParameterSetDescription desc_qualityCuts;
+  reco::tau::RecoTauQualityCuts::fillDescriptions(desc_qualityCuts);
 
   {
     edm::ParameterSetDescription vpsd_modifiers;
@@ -291,7 +250,7 @@ void RecoTauProducer::fillDescriptions(edm::ConfigurationDescriptions& descripti
     vpsd_modifiers.add<std::string>("plugin");
     vpsd_modifiers.add<int>("verbosity", 0);
 
-    vpsd_modifiers.add<edm::ParameterSetDescription>("qualityCuts", pset_qualityCuts);
+    vpsd_modifiers.add<edm::ParameterSetDescription>("qualityCuts", desc_qualityCuts);
     vpsd_modifiers.addOptional<edm::InputTag>("ElectronPreIDProducer");
     vpsd_modifiers.addOptional<std::string>("DataType");
     vpsd_modifiers.addOptional<double>("maximumForElectrionPreIDOutput");
@@ -322,7 +281,7 @@ void RecoTauProducer::fillDescriptions(edm::ConfigurationDescriptions& descripti
     desc_builders.add<std::string>("plugin");
     desc_builders.add<int>("verbosity", 0);
 
-    desc_builders.add<edm::ParameterSetDescription>("qualityCuts", pset_qualityCuts);
+    desc_builders.add<edm::ParameterSetDescription>("qualityCuts", desc_qualityCuts);
     {
       edm::ParameterSetDescription desc_decayModes;
       desc_decayModes.add<unsigned int>("nPiZeros", 0);

@@ -152,26 +152,26 @@ calotowermaker = cms.EDProducer("CaloTowersCreator",
 
 from Configuration.Eras.Modifier_run2_HE_2018_cff import run2_HE_2018
 run2_HE_2018.toModify(calotowermaker, 
-                      HcalPhase = cms.int32(1),
-                      HESThreshold1 = cms.double(0.1),
-                      HESThreshold  = cms.double(0.2),
-                      HEDThreshold1 = cms.double(0.1),
-                      HEDThreshold  = cms.double(0.2)
+                      HcalPhase = 1,
+                      HESThreshold1 = 0.1,
+                      HESThreshold  = 0.2,
+                      HEDThreshold1 = 0.1,
+                      HEDThreshold  = 0.2
 )
 
 # needed to handle inner/outer assignment
 from Configuration.ProcessModifiers.run2_HECollapse_2018_cff import run2_HECollapse_2018
 run2_HECollapse_2018.toModify(calotowermaker,
-    HcalPhase = cms.int32(0),
-    HESThreshold1 = cms.double(0.8),
-    HESThreshold  = cms.double(0.8),
-    HEDThreshold1 = cms.double(0.8),
-    HEDThreshold  = cms.double(0.8)
+    HcalPhase = 0,
+    HESThreshold1 = 0.8,
+    HESThreshold  = 0.8,
+    HEDThreshold1 = 0.8,
+    HEDThreshold  = 0.8
 )
 
 from Configuration.Eras.Modifier_run3_HB_cff import run3_HB
 run3_HB.toModify(calotowermaker,
-    HBThreshold1 = cms.double(0.1),
-    HBThreshold2 = cms.double(0.2),
-    HBThreshold = cms.double(0.3),
+    HBThreshold1 = 0.1,
+    HBThreshold2 = 0.2,
+    HBThreshold = 0.3,
 )

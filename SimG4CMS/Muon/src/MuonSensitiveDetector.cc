@@ -5,23 +5,23 @@
 #include "SimG4CMS/Muon/interface/MuonGEMFrameRotation.h"
 #include "SimG4CMS/Muon/interface/MuonME0FrameRotation.h"
 #include "Geometry/MuonNumbering/interface/MuonSubDetector.h"
-#include "Geometry/MuonNumbering/interface/MuonDDDConstants.h"
 
 #include "SimG4CMS/Muon/interface/SimHitPrinter.h"
 #include "SimDataFormats/TrackingHit/interface/UpdatablePSimHit.h"
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 
 #include "SimG4CMS/Muon/interface/MuonG4Numbering.h"
+#include "Geometry/MuonNumbering/interface/MuonGeometryConstants.h"
 #include "Geometry/MuonNumbering/interface/MuonBaseNumber.h"
 #include "Geometry/MuonNumbering/interface/MuonSimHitNumberingScheme.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
-#include "DetectorDescription/Core/interface/DDCompactView.h"
 
 #include "SimG4Core/Notification/interface/TrackInformation.h"
 #include "SimG4Core/Notification/interface/G4TrackToParticleID.h"
 #include "SimG4Core/Physics/interface/G4ProcessTypeEnumerator.h"
 
-#include "FWCore/Framework/interface/ESTransientHandle.h"
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/EventSetup.h"
 
 #include "G4VProcess.hh"
 #include "G4EventManager.hh"
@@ -34,7 +34,7 @@
 
 #include <iostream>
 
-//#define DebugLog
+//#define EDM_ML_DEBUG
 
 MuonSensitiveDetector::MuonSensitiveDetector(const std::string& name,
                                              const edm::EventSetup& es,
@@ -56,14 +56,17 @@ MuonSensitiveDetector::MuonSensitiveDetector(const std::string& name,
   //
   // Here simply create 1 MuonSlaveSD for the moment
   //
-  LogDebug("MuonSimDebug") << "create MuonSubDetector " << name;
+#ifdef EDM_ML_DEBUG
+  edm::LogVerbatim("MuonSim") << "create MuonSubDetector " << name;
+#endif
   detector = new MuonSubDetector(name);
 
-  edm::ESTransientHandle<DDCompactView> cpv;
-  es.get<IdealGeometryRecord>().get(cpv);
-
   //The constants take time to calculate and are needed by many helpers
-  MuonDDDConstants constants(*cpv);
+  edm::ESHandle<MuonGeometryConstants> mdc;
+  es.get<IdealGeometryRecord>().get(mdc);
+  if (!mdc.isValid())
+    throw cms::Exception("MuonSensitiveDetector") << "Cannot find MuonGeometryConstants\n";
+  MuonGeometryConstants constants = *(mdc.product());
   G4String sdet = "unknown";
   if (detector->isEndcap()) {
     theRotation = new MuonEndcapFrameRotation();
@@ -113,12 +116,16 @@ void MuonSensitiveDetector::update(const BeginOfEvent* i) {
 }
 
 void MuonSensitiveDetector::clearHits() {
-  LogDebug("MuonSimDebug") << "MuonSensitiveDetector::clearHits";
+#ifdef EDM_ML_DEBUG
+  edm::LogVerbatim("MuonSim") << "MuonSensitiveDetector::clearHits";
+#endif
   slaveMuon->Initialize();
 }
 
 bool MuonSensitiveDetector::ProcessHits(G4Step* aStep, G4TouchableHistory* ROhist) {
-  LogDebug("MuonSimDebug") << " MuonSensitiveDetector::ProcessHits " << InitialStepPosition(aStep, WorldCoordinates);
+#ifdef EDM_ML_DEBUG
+  edm::LogVerbatim("MuonSim") << " MuonSensitiveDetector::ProcessHits " << InitialStepPosition(aStep, WorldCoordinates);
+#endif
 
   if (aStep->GetTotalEnergyDeposit() > 0.) {
     newDetUnitId = setDetUnitId(aStep);
@@ -139,7 +146,7 @@ bool MuonSensitiveDetector::ProcessHits(G4Step* aStep, G4TouchableHistory* ROhis
 uint32_t MuonSensitiveDetector::setDetUnitId(const G4Step* aStep) {
   MuonBaseNumber num = g4numbering->PhysicalVolumeToBaseNumber(aStep);
 
-#ifdef DebugLog
+#ifdef EDM_ML_DEBUG
   std::stringstream MuonBaseNumber;
   MuonBaseNumber << "MuonNumbering :: number of levels = " << num.getLevels() << std::endl;
   MuonBaseNumber << "Level \t SuperNo \t BaseNo" << std::endl;
@@ -148,9 +155,9 @@ uint32_t MuonSensitiveDetector::setDetUnitId(const G4Step* aStep) {
   }
   std::string MuonBaseNumbr = MuonBaseNumber.str();
 
-  LogDebug("MuonSimDebug") << "MuonSensitiveDetector::setDetUnitId :: " << MuonBaseNumbr;
-  LogDebug("MuonSimDebug") << "MuonSensitiveDetector::setDetUnitId :: MuonDetUnitId = "
-                           << (numbering->baseNumberToUnitNumber(num));
+  edm::LogVerbatim("MuonSim") << "MuonSensitiveDetector::setDetUnitId :: " << MuonBaseNumbr;
+  edm::LogVerbatim("MuonSim") << "MuonSensitiveDetector::setDetUnitId :: MuonDetUnitId = "
+                              << (numbering->baseNumberToUnitNumber(num));
 #endif
   return numbering->baseNumberToUnitNumber(num);
 }
@@ -228,25 +235,25 @@ void MuonSensitiveDetector::createHit(const G4Step* aStep) {
     info->storeTrack(true);
   }
 
-#ifdef DebugLog
-  edm::LogVerbatim("MuonSimDebug") << "=== NEW Muon hit for " << GetName() << " Edep(GeV)= " << theEnergyLoss << " "
-                                   << thePV->GetLogicalVolume()->GetName();
+#ifdef EDM_ML_DEBUG
+  edm::LogVerbatim("MuonSim") << "=== NEW Muon hit for " << GetName() << " Edep(GeV)= " << theEnergyLoss << " "
+                              << thePV->GetLogicalVolume()->GetName();
   const G4VProcess* p = aStep->GetPostStepPoint()->GetProcessDefinedStep();
-  const G4VProcess* p2 = preStepPoint->GetProcessDefinedStep();
+  const G4VProcess* p2 = aStep->GetPreStepPoint()->GetProcessDefinedStep();
   G4String sss = "";
   if (p)
     sss += " POST PROCESS: " + p->GetProcessName();
   if (p2)
     sss += ";  PRE  PROCESS: " + p2->GetProcessName();
-  if ("" != sss)
-    edm::LogVerbatim("MuonSimDebug") << sss;
-  edm::LogVerbatim("MuonSimDebug") << " theta= " << theThetaAtEntry << " phi= " << thePhiAtEntry << " Pabs(GeV/c)  "
-                                   << thePabs << " Eloss(GeV)= " << theEnergyLoss << " Tof(ns)=  " << theTof
-                                   << " trackID= " << theTrackID << " detID= " << theDetUnitId << "\n Local:  entry "
-                                   << theEntryPoint << " exit " << theExitPoint << " delta "
-                                   << (theExitPoint - theEntryPoint) << "\n Global: entry "
-                                   << preStepPoint->GetPosition() << " exit "
-                                   << aStep->GetPostStepPoint()->GetPosition();
+  if (!sss.empty())
+    edm::LogVerbatim("MuonSim") << sss;
+  edm::LogVerbatim("MuonSim") << " theta= " << theThetaAtEntry << " phi= " << thePhiAtEntry << " Pabs(GeV/c)  "
+                              << thePabs << " Eloss(GeV)= " << theEnergyLoss << " Tof(ns)=  " << theTof
+                              << " trackID= " << theTrackID << " detID= " << theDetUnitId << "\n Local:  entry "
+                              << theEntryPoint << " exit " << theExitPoint << " delta "
+                              << (theExitPoint - theEntryPoint) << "\n Global: entry "
+                              << aStep->GetPreStepPoint()->GetPosition() << " exit "
+                              << aStep->GetPostStepPoint()->GetPosition();
 #endif
 }
 
@@ -270,21 +277,21 @@ void MuonSensitiveDetector::updateHit(const G4Step* aStep) {
   theHit->updateExitPoint(theExitPoint);
   theHit->addEnergyLoss(theEnergyLoss);
 
-#ifdef DebugLog
-  edm::LogVerbatim("MuonSimDebug") << "=== NEW Update muon hit for " << GetName() << " Edep(GeV)= " << theEnergyLoss
-                                   << " " << thePV->GetLogicalVolume()->GetName();
+#ifdef EDM_ML_DEBUG
+  edm::LogVerbatim("MuonSim") << "=== NEW Update muon hit for " << GetName() << " Edep(GeV)= " << theEnergyLoss << " "
+                              << thePV->GetLogicalVolume()->GetName();
   const G4VProcess* p = aStep->GetPostStepPoint()->GetProcessDefinedStep();
-  const G4VProcess* p2 = preStepPoint->GetProcessDefinedStep();
+  const G4VProcess* p2 = aStep->GetPreStepPoint()->GetProcessDefinedStep();
   G4String sss = "";
   if (p)
     sss += " POST PROCESS: " + p->GetProcessName();
   if (p2)
     sss += ";  PRE  PROCESS: " + p2->GetProcessName();
-  if ("" != sss)
-    edm::LogVerbatim("MuonSimDebug") << sss;
-  edm::LogVerbatim("MuonSimDebug") << " delEloss(GeV)= " << theEnergyLoss << " Tof(ns)=  " << theTof
-                                   << " trackID= " << theTrackID << " detID= " << theDetUnitId << " exit "
-                                   << theExitPoint;
+  if (!sss.empty())
+    edm::LogVerbatim("MuonSim") << sss;
+  edm::LogVerbatim("MuonSim") << " delEloss(GeV)= " << theEnergyLoss
+                              << " Tof(ns)=  " << aStep->GetPreStepPoint()->GetGlobalTime() / CLHEP::nanosecond
+                              << " trackID= " << theTrackID << " detID= " << theDetUnitId << " exit " << theExitPoint;
 #endif
 }
 

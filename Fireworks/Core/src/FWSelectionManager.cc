@@ -11,7 +11,7 @@
 //
 
 // system include files
-#include <boost/bind.hpp>
+#include <functional>
 #include <iostream>
 #include <cassert>
 
@@ -33,7 +33,7 @@
 //
 FWSelectionManager::FWSelectionManager(FWModelChangeManager* iCM) : m_changeManager(iCM), m_wasChanged(false) {
   assert(nullptr != m_changeManager);
-  m_changeManager->changeSignalsAreDone_.connect(boost::bind(&FWSelectionManager::finishedAllSelections, this));
+  m_changeManager->changeSignalsAreDone_.connect(std::bind(&FWSelectionManager::finishedAllSelections, this));
 }
 
 // FWSelectionManager::FWSelectionManager(const FWSelectionManager& rhs)
@@ -109,7 +109,7 @@ void FWSelectionManager::select(const FWModelId& iId) {
       // as part of the itemChange message from the ChangeManager
       // This way if more than one Item has changed, we still only send one 'selectionChanged' message
       m_itemConnectionCount[iId.item()->id()].second =
-          iId.item()->preItemChanged_.connect(boost::bind(&FWSelectionManager::itemChanged, this, _1));
+          iId.item()->preItemChanged_.connect(std::bind(&FWSelectionManager::itemChanged, this, std::placeholders::_1));
     }
   }
 }

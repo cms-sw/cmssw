@@ -28,6 +28,7 @@ namespace cond {
       cond::Time_t lastValidatedTime = cond::time::MIN_VAL;
       boost::posix_time::ptime creationTime;
       bool change = false;
+      bool metadataChange = false;
       bool exists = false;
       // buffer for the iov sequence
       std::vector<std::tuple<cond::Time_t, cond::Hash, boost::posix_time::ptime> > iovBuffer;
@@ -53,6 +54,7 @@ namespace cond {
       m_data->synchronizationType = synchronizationType;
       m_data->creationTime = creationTime;
       m_data->change = true;
+      m_data->metadataChange = true;
     }
 
     IOVEditor::IOVEditor(const IOVEditor& rhs) : m_data(rhs.m_data), m_session(rhs.m_session) {}
@@ -71,7 +73,6 @@ namespace cond {
                                                     m_data->payloadType,
                                                     m_data->synchronizationType,
                                                     m_data->endOfValidity,
-                                                    m_data->description,
                                                     m_data->lastValidatedTime)) {
         cond::throwException("Tag \"" + tag + "\" has not been found in the database.", "IOVEditor::load");
       }
@@ -113,7 +114,7 @@ namespace cond {
     void IOVEditor::setDescription(const std::string& description) {
       if (m_data.get()) {
         m_data->description = description;
-        m_data->change = true;
+        m_data->metadataChange = true;
         m_data->changes.insert("Description");
       }
     }
@@ -169,8 +170,8 @@ namespace cond {
       std::string lt = logText;
       if (lt.empty())
         lt = "-";
-      if (m_data->change) {
-        if (m_data->description.empty())
+      if (m_data->change || m_data->metadataChange) {
+        if (m_data->metadataChange && m_data->description.empty())
           throwException("A non-empty description string is mandatory.", "IOVEditor::flush");
         if (m_data->validationMode)
           m_session->iovSchema().tagTable().setValidationMode();
@@ -197,12 +198,16 @@ namespace cond {
           m_data->exists = true;
           ret = true;
         } else {
-          m_session->iovSchema().tagTable().update(m_data->tag,
-                                                   m_data->synchronizationType,
-                                                   m_data->endOfValidity,
-                                                   m_data->description,
-                                                   m_data->lastValidatedTime,
-                                                   operationTime);
+          if (m_data->change) {
+            m_session->iovSchema().tagTable().update(m_data->tag,
+                                                     m_data->synchronizationType,
+                                                     m_data->endOfValidity,
+                                                     m_data->lastValidatedTime,
+                                                     operationTime);
+          }
+          if (m_data->metadataChange) {
+            m_session->iovSchema().tagTable().updateMetadata(m_data->tag, m_data->description, operationTime);
+          }
           if (m_session->iovSchema().tagLogTable().exists()) {
             std::string action("Tag header updated. Changes involve: ");
             size_t i = 0;

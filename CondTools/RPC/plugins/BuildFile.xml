@@ -1,12 +1,9 @@
 <use name="CondTools/RPC"/>
 <use name="CondCore/DBOutputService"/>
 <use name="CondCore/PopCon"/>
-<use name="CondFormats/DTObjects"/>
 <use name="CondFormats/DataRecord"/>
 <use name="CoralBase"/>
 <use name="DataFormats/MuonDetId"/>
-<use name="DataFormats/Provenance"/>
-<use name="FWCore/Catalog"/>
 <use name="FWCore/Framework"/>
 <use name="FWCore/ParameterSet"/>
 <use name="FWCore/ServiceRegistry"/>

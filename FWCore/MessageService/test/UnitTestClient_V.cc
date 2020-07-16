@@ -26,12 +26,22 @@ namespace edmtest {
 
   void UTC_V1::beginRun(edm::Run const& /*unused*/, edm::EventSetup const& /*unused*/) {
     edm::LogInfo("cat_BR") << "T1 beginRun info with identifier " << identifier << " event " << ev;
-    LogDebug("cat_BJ") << "T1 beginRun debug with identifier " << identifier << " event " << ev;
+    LogDebug("cat_BR") << "T1 beginRun debug with identifier " << identifier << " event " << ev;
   }
 
   void UTC_V1::beginLuminosityBlock(edm::LuminosityBlock const& /*unused*/, edm::EventSetup const& /*unused*/) {
     edm::LogWarning("cat_BL") << "T1 beginLumi warning with identifier " << identifier << " event " << ev;
     LogDebug("cat_BL") << "T1 beginLumi debug with identifier " << identifier << " event " << ev;
+  }
+
+  void UTC_V1::beginProcessBlock(edm::ProcessBlock const&) {
+    edm::LogInfo("cat_BPB") << "T1 beginProcessBlock info with identifier " << identifier << " event " << ev;
+    LogDebug("cat_BPB") << "T1 beginProcessBlock debug with identifier " << identifier << " event " << ev;
+  }
+
+  void UTC_V1::endProcessBlock(edm::ProcessBlock const&) {
+    edm::LogInfo("cat_EPB") << "T1 endProcessBlock info with identifier " << identifier << " event " << ev;
+    LogDebug("cat_EPB") << "T1 endProcessBlock debug with identifier " << identifier << " event " << ev;
   }
 
   void UTC_V2::analyze(edm::Event const& /*unused*/

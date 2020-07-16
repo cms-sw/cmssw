@@ -23,6 +23,7 @@
 #include "TEvePointSet.h"
 #include "TEveStraightLineSet.h"
 #include "TEveGeoNode.h"
+#include "TEveGeoShape.h"
 #include "TEveManager.h"
 #include "TEveProjectionManager.h"
 

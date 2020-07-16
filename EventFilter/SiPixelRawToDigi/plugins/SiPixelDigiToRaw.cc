@@ -18,6 +18,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "FWCore/Utilities/interface/thread_safety_macros.h"
+#include "FWCore/Utilities/interface/ESGetToken.h"
 
 #include "DataFormats/Common/interface/DetSetVector.h"
 #include "DataFormats/SiPixelDigi/interface/PixelDigi.h"
@@ -66,6 +67,7 @@ private:
   CMS_THREAD_GUARD(lock_) mutable std::shared_ptr<pr::Cache> previousCache_;
   const edm::EDGetTokenT<edm::DetSetVector<PixelDigi>> tPixelDigi;
   const edm::EDGetTokenT<PixelFEDChannelCollection> theBadPixelFEDChannelsToken;
+  const edm::ESGetToken<SiPixelFedCablingMap, SiPixelFedCablingMapRcd> cabelingMapToken_;
   const edm::EDPutTokenT<FEDRawDataCollection> putToken_;
   const bool usePilotBlade = false;  // I am not yet sure we need it here?
   const bool usePhase1;
@@ -76,6 +78,8 @@ using namespace std;
 SiPixelDigiToRaw::SiPixelDigiToRaw(const edm::ParameterSet& pset)
     : tPixelDigi{consumes<edm::DetSetVector<PixelDigi>>(pset.getParameter<edm::InputTag>("InputLabel"))},
       theBadPixelFEDChannelsToken{consumes<PixelFEDChannelCollection>(pset.getParameter<edm::InputTag>("InputLabel"))},
+      cabelingMapToken_(
+          esConsumes<SiPixelFedCablingMap, SiPixelFedCablingMapRcd, edm::Transition::BeginLuminosityBlock>()),
       putToken_{produces<FEDRawDataCollection>()},
       usePhase1{pset.getParameter<bool>("UsePhase1")} {
   // Define EDProduct type
@@ -93,8 +97,7 @@ std::shared_ptr<pr::Cache> SiPixelDigiToRaw::globalBeginLuminosityBlock(edm::Lum
   std::unique_ptr<std::atomic_flag, decltype(rel)> guard(&lock_, rel);
 
   if (recordWatcher.check(es)) {
-    edm::ESHandle<SiPixelFedCablingMap> cablingMap;
-    es.get<SiPixelFedCablingMapRcd>().get(cablingMap);
+    edm::ESHandle<SiPixelFedCablingMap> cablingMap = es.getHandle(cabelingMapToken_);
     previousCache_ = std::make_shared<pr::Cache>();
     previousCache_->cablingTree_ = cablingMap->cablingTree();
     previousCache_->frameReverter_ = std::make_unique<SiPixelFrameReverter>(cablingMap.product());

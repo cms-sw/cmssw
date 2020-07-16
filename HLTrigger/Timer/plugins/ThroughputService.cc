@@ -3,17 +3,15 @@
 #include <chrono>
 #include <ctime>
 
-// boost headers
-#include <boost/format.hpp>
+// {fmt} headers
+#include <fmt/printf.h>
 
 // CMSSW headers
+#include "DQMServices/Core/interface/DQMStore.h"
 #include "FWCore/ParameterSet/interface/EmptyGroupDescription.h"
 #include "FWCore/Utilities/interface/TimeOfDay.h"
-#include "DQMServices/Core/interface/DQMStore.h"
+#include "HLTrigger/Timer/interface/processor_model.h"
 #include "ThroughputService.h"
-
-// local headers
-#include "processor_model.h"
 
 // describe the module's configuration
 void ThroughputService::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
@@ -57,9 +55,8 @@ void ThroughputService::preallocate(edm::service::SystemBounds const& bounds) {
   auto concurrent_threads = bounds.maxNumberOfThreads();
 
   if (m_enable_dqm and m_dqm_bynproc)
-    m_dqm_path += (boost::format("/Running on %s with %d streams on %d threads") % processor_model %
-                   concurrent_streams % concurrent_threads)
-                      .str();
+    m_dqm_path += fmt::sprintf(
+        "/Running on %s with %d streams on %d threads", processor_model, concurrent_streams, concurrent_threads);
 }
 
 void ThroughputService::preGlobalBeginRun(edm::GlobalContext const& gc) {
@@ -72,7 +69,7 @@ void ThroughputService::preGlobalBeginRun(edm::GlobalContext const& gc) {
   }
 
   if (m_enable_dqm) {
-    std::string y_axis_title = (boost::format("events / %g s") % m_time_resolution).str();
+    std::string y_axis_title = fmt::sprintf("events / %g s", m_time_resolution);
     unsigned int bins = std::round(m_time_range / m_time_resolution);
     double range = bins * m_time_resolution;
 

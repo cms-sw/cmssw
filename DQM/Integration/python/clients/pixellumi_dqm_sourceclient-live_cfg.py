@@ -43,9 +43,7 @@ process.dqmSaver.tag = "PixelLumi"
 
 if not unitTest:
     process.source.SelectEvents = cms.untracked.vstring("HLT_ZeroBias*","HLT_L1AlwaysTrue*", "HLT_PAZeroBias*", "HLT_PAL1AlwaysTrue*")
-#process.DQMStore.referenceFileName = '/dqmdata/dqm/reference/pixel_reference_pp.root'
 #if (process.runType.getRunType() == process.runType.hi_run):
-#    process.DQMStore.referenceFileName = '/dqmdata/dqm/reference/pixel_reference_hi.root'
 
 if (process.runType.getRunType() == process.runType.cosmic_run and not unitTest):
     process.source.SelectEvents = cms.untracked.vstring('HLT*SingleMu*')

@@ -22,52 +22,29 @@
  *  have a DetLayer
  */
 
-class PTrajectoryStateOnDet;
-
 class StartingLayerFinder {
-private:
-  typedef FreeTrajectoryState FTS;
-  typedef TrajectoryStateOnSurface TSOS;
-  typedef std::pair<float, float> Range;
-
 public:
-  StartingLayerFinder(const Propagator* aPropagator, const MeasurementTracker* tracker)
-      :
-
-        thePropagator(aPropagator),
+  StartingLayerFinder(Propagator const& aPropagator, MeasurementTracker const& tracker)
+      : thePropagator(aPropagator),
         theMeasurementTracker(tracker),
-        thePixelLayersValid(false),
-        theFirstPixelBarrelLayer(nullptr),
         theFirstNegPixelFwdLayer(0),
         theFirstPosPixelFwdLayer(0) {}
 
-  ~StartingLayerFinder() {}
+  std::vector<const DetLayer*> operator()(const FreeTrajectoryState& aFts, float dr, float dz) const;
 
-  std::vector<const DetLayer*> startingLayers(const FTS& aFts, float dr, float dz) const;
-
-  std::vector<const DetLayer*> startingLayers(const TrajectorySeed& aSeed) const;
-
+private:
   const BarrelDetLayer* firstPixelBarrelLayer() const;
   const std::vector<const ForwardDetLayer*> firstNegPixelFwdLayer() const;
   const std::vector<const ForwardDetLayer*> firstPosPixelFwdLayer() const;
 
-  const Propagator* propagator() const { return thePropagator; }
-
-private:
-  const Propagator* thePropagator;
-  const MeasurementTracker* theMeasurementTracker;
-  mutable bool thePixelLayersValid;
-  mutable const BarrelDetLayer* theFirstPixelBarrelLayer;
+  Propagator const& thePropagator;
+  MeasurementTracker const& theMeasurementTracker;
+  mutable bool thePixelLayersValid = false;
+  mutable const BarrelDetLayer* theFirstPixelBarrelLayer = nullptr;
   mutable std::vector<const ForwardDetLayer*> theFirstNegPixelFwdLayer;
   mutable std::vector<const ForwardDetLayer*> theFirstPosPixelFwdLayer;
 
   void checkPixelLayers() const;
-
-  inline bool rangesIntersect(const Range& a, const Range& b) const {
-    if (a.first > b.second || b.first > a.second)
-      return false;
-    else
-      return true;
-  }
 };
-#endif  //TR_StartingLayerFinder_H_
+
+#endif

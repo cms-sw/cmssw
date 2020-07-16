@@ -4,7 +4,6 @@
 #include <fstream>
 #include <iostream>
 #include <stdexcept>
-#include <cassert>
 
 #define PTLUT_SIZE (1 << 30)
 

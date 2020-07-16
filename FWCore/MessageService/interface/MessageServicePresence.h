@@ -4,9 +4,8 @@
 #include "FWCore/Utilities/interface/Presence.h"
 #include "FWCore/Utilities/interface/get_underlying_safe.h"
 
-#include "boost/thread/thread.hpp"
-
 #include <memory>
+#include <thread>
 
 namespace edm {
   namespace service {
@@ -29,7 +28,7 @@ namespace edm {
 
       // --- data:
       edm::propagate_const<std::shared_ptr<ThreadQueue>> m_queue;
-      boost::thread m_scribeThread;
+      std::thread m_scribeThread;
 
     };  // MessageServicePresence
 

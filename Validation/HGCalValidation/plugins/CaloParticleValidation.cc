@@ -76,9 +76,7 @@ private:
   edm::EDGetTokenT<std::vector<CaloParticle>> caloParticles_;
   edm::EDGetTokenT<std::vector<reco::SuperCluster>> simPFClusters_;
   edm::EDGetTokenT<reco::PFCandidateCollection> simPFCandidates_;
-  edm::EDGetTokenT<HGCRecHitCollection> recHitsEE_;
-  edm::EDGetTokenT<HGCRecHitCollection> recHitsFH_;
-  edm::EDGetTokenT<HGCRecHitCollection> recHitsBH_;
+  const edm::EDGetTokenT<std::unordered_map<DetId, const HGCRecHit*>> hitMap_;
 };
 
 //
@@ -99,9 +97,7 @@ CaloParticleValidation::CaloParticleValidation(const edm::ParameterSet& iConfig)
       caloParticles_(consumes<std::vector<CaloParticle>>(iConfig.getParameter<edm::InputTag>("caloParticles"))),
       simPFClusters_(consumes<std::vector<reco::SuperCluster>>(iConfig.getParameter<edm::InputTag>("simPFClusters"))),
       simPFCandidates_(consumes<reco::PFCandidateCollection>(iConfig.getParameter<edm::InputTag>("simPFCandidates"))),
-      recHitsEE_(consumes<HGCRecHitCollection>(iConfig.getParameter<edm::InputTag>("recHitsEE"))),
-      recHitsFH_(consumes<HGCRecHitCollection>(iConfig.getParameter<edm::InputTag>("recHitsFH"))),
-      recHitsBH_(consumes<HGCRecHitCollection>(iConfig.getParameter<edm::InputTag>("recHitsBH"))) {
+      hitMap_(consumes<std::unordered_map<DetId, const HGCRecHit*>>(iConfig.getParameter<edm::InputTag>("hitMapTag"))) {
   //now do what ever initialization is needed
 }
 
@@ -121,27 +117,9 @@ void CaloParticleValidation::dqmAnalyze(edm::Event const& iEvent,
                                         Histograms_CaloParticleValidation const& histos) const {
   using namespace edm;
 
-  Handle<HGCRecHitCollection> recHitHandleEE;
-  Handle<HGCRecHitCollection> recHitHandleFH;
-  Handle<HGCRecHitCollection> recHitHandleBH;
-  // make a map detid-rechit
-
-  iEvent.getByToken(recHitsEE_, recHitHandleEE);
-  iEvent.getByToken(recHitsFH_, recHitHandleFH);
-  iEvent.getByToken(recHitsBH_, recHitHandleBH);
-  const auto& rechitsEE = *recHitHandleEE;
-  const auto& rechitsFH = *recHitHandleFH;
-  const auto& rechitsBH = *recHitHandleBH;
-  std::map<DetId, const HGCRecHit*> hitmap;
-  for (unsigned int i = 0; i < rechitsEE.size(); ++i) {
-    hitmap[rechitsEE[i].detid()] = &rechitsEE[i];
-  }
-  for (unsigned int i = 0; i < rechitsFH.size(); ++i) {
-    hitmap[rechitsFH[i].detid()] = &rechitsFH[i];
-  }
-  for (unsigned int i = 0; i < rechitsBH.size(); ++i) {
-    hitmap[rechitsBH[i].detid()] = &rechitsBH[i];
-  }
+  Handle<std::unordered_map<DetId, const HGCRecHit*>> hitMapHandle;
+  iEvent.getByToken(hitMap_, hitMapHandle);
+  const auto hitmap = *hitMapHandle;
 
   Handle<std::vector<SimVertex>> simVerticesHandle;
   iEvent.getByToken(simVertices_, simVerticesHandle);
@@ -184,7 +162,7 @@ void CaloParticleValidation::dqmAnalyze(edm::Event const& iEvent,
         simHits += sc->hits_and_fractions().size();
         for (auto const& h_and_f : sc->hits_and_fractions()) {
           if (hitmap.count(h_and_f.first))
-            energy += hitmap[h_and_f.first]->energy() * h_and_f.second;
+            energy += hitmap.at(h_and_f.first)->energy() * h_and_f.second;
         }
       }
       histo.nHitInSimClusters_->Fill((float)simHits);
@@ -266,9 +244,7 @@ void CaloParticleValidation::fillDescriptions(edm::ConfigurationDescriptions& de
   desc.add<edm::InputTag>("caloParticles", edm::InputTag("mix", "MergedCaloTruth"));
   desc.add<edm::InputTag>("simPFClusters", edm::InputTag("simPFProducer", "perfect"));
   desc.add<edm::InputTag>("simPFCandidates", edm::InputTag("simPFProducer"));
-  desc.add<edm::InputTag>("recHitsEE", edm::InputTag("HGCalRecHit", "HGCEERecHits"));
-  desc.add<edm::InputTag>("recHitsFH", edm::InputTag("HGCalRecHit", "HGCHEFRecHits"));
-  desc.add<edm::InputTag>("recHitsBH", edm::InputTag("HGCalRecHit", "HGCHEBRecHits"));
+  desc.add<edm::InputTag>("hitMapTag", edm::InputTag("hgcalRecHitMapProducer"));
   descriptions.add("caloparticlevalidationDefault", desc);
 }
 

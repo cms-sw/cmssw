@@ -73,6 +73,8 @@ public:
 private:
   void matchSimHitsToSimTrack();
 
+  void clear();
+
   edm::ESHandle<CSCGeometry> csc_geom_;
 };
 

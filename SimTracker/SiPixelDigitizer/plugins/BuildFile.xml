@@ -14,6 +14,7 @@
 <use name="Geometry/TrackerGeometryBuilder"/>
 <use name="SimGeneral/NoiseGenerators"/>
 <use name="SimTracker/Common"/>
+<use name="CalibTracker/Records"/>
 <use name="CalibTracker/SiPixelESProducers"/>
 <use name="gsl"/>
 <use name="clhep"/>

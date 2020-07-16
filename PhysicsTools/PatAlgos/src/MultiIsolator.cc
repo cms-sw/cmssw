@@ -52,7 +52,7 @@ MultiIsolator::MultiIsolator(const edm::ParameterSet &conf, edm::ConsumesCollect
 }
 
 void MultiIsolator::addIsolator(BaseIsolator *iso, uint32_t mask, pat::IsolationKeys key) {
-  isolators_.push_back(iso);
+  isolators_.emplace_back(iso);
   masks_.push_back(mask);
   keys_.push_back(key);
 }
@@ -77,21 +77,21 @@ void MultiIsolator::addIsolator(
 }
 
 void MultiIsolator::beginEvent(const edm::Event &event, const edm::EventSetup &eventSetup) {
-  for (boost::ptr_vector<BaseIsolator>::iterator it = isolators_.begin(), ed = isolators_.end(); it != ed; ++it) {
-    it->beginEvent(event, eventSetup);
+  for (auto it = isolators_.begin(), ed = isolators_.end(); it != ed; ++it) {
+    (*it)->beginEvent(event, eventSetup);
   }
 }
 
 void MultiIsolator::endEvent() {
-  for (boost::ptr_vector<BaseIsolator>::iterator it = isolators_.begin(), ed = isolators_.end(); it != ed; ++it) {
-    it->endEvent();
+  for (auto it = isolators_.begin(), ed = isolators_.end(); it != ed; ++it) {
+    (*it)->endEvent();
   }
 }
 
 void MultiIsolator::print(std::ostream &out) const {
-  for (boost::ptr_vector<BaseIsolator>::const_iterator it = isolators_.begin(), ed = isolators_.end(); it != ed; ++it) {
+  for (auto it = isolators_.cbegin(), ed = isolators_.end(); it != ed; ++it) {
     out << " * ";
-    it->print(out);
+    (*it)->print(out);
     out << ": Flag " << pat::Flags::bitToString(masks_[it - isolators_.begin()]) << "\n";
   }
   out << "\n";

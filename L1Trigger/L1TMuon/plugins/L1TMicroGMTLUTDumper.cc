@@ -92,6 +92,7 @@ private:
   std::shared_ptr<MicroGMTMatchQualLUT> m_ovlNegSingleMatchQualLUT;
   std::shared_ptr<MicroGMTMatchQualLUT> m_fwdPosSingleMatchQualLUT;
   std::shared_ptr<MicroGMTMatchQualLUT> m_fwdNegSingleMatchQualLUT;
+  edm::ESGetToken<L1TMuonGlobalParams, L1TMuonGlobalParamsRcd> m_microGMTParamsToken;
 };
 
 //
@@ -108,6 +109,7 @@ private:
 L1TMicroGMTLUTDumper::L1TMicroGMTLUTDumper(const edm::ParameterSet& iConfig) {
   //now do what ever other initialization is needed
   m_foldername = iConfig.getParameter<std::string>("out_directory");
+  m_microGMTParamsToken = esConsumes<L1TMuonGlobalParams, L1TMuonGlobalParamsRcd, edm::Transition::BeginRun>();
 
   microGMTParamsHelper = std::make_unique<L1TMuonGlobalParamsHelper>();
 }
@@ -153,9 +155,7 @@ void L1TMicroGMTLUTDumper::analyze(const edm::Event& iEvent, const edm::EventSet
 
 // ------------ method called when starting to processes a run  ------------
 void L1TMicroGMTLUTDumper::beginRun(edm::Run const& run, edm::EventSetup const& iSetup) {
-  const L1TMuonGlobalParamsRcd& microGMTParamsRcd = iSetup.get<L1TMuonGlobalParamsRcd>();
-  edm::ESHandle<L1TMuonGlobalParams> microGMTParamsHandle;
-  microGMTParamsRcd.get(microGMTParamsHandle);
+  edm::ESHandle<L1TMuonGlobalParams> microGMTParamsHandle = iSetup.getHandle(m_microGMTParamsToken);
 
   microGMTParamsHelper = std::make_unique<L1TMuonGlobalParamsHelper>(*microGMTParamsHandle.product());
   if (!microGMTParamsHelper) {

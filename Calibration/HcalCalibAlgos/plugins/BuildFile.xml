@@ -1,7 +1,6 @@
 <use name="Calibration/HcalCalibAlgos"/>
 <use name="CondFormats/HcalObjects"/>
 <use name="CondFormats/L1TObjects"/>
-<use name="DQMServices/Core"/>
 <use name="DataFormats/Common"/>
 <use name="DataFormats/DetId"/>
 <use name="DataFormats/EcalDetId"/>
@@ -10,7 +9,6 @@
 <use name="DataFormats/HcalRecHit"/>
 <use name="DataFormats/JetReco"/>
 <use name="DataFormats/L1GlobalTrigger"/>
-<use name="DataFormats/ParticleFlowReco"/>
 <use name="DataFormats/TrackReco"/>
 <use name="DataFormats/HcalIsolatedTrack"/>
 <use name="FWCore/Framework"/>
@@ -18,19 +16,14 @@
 <use name="FWCore/ParameterSet"/>
 <use name="FWCore/Utilities"/>
 <use name="Geometry/Records"/>
-<use name="JetMETCorrections/Objects"/>
-<use name="JetMETCorrections/Type1MET"/>
-<use name="CondTools/Hcal"/>
 <use name="HLTrigger/HLTcore"/>
 <use name="Calibration/IsolatedParticles"/>
 <use name="rootphysics"/>
 <use name="boost"/>
 <use name="root"/>
-<use name="DataFormats/CaloRecHit"/>
 <use name="clhep"/>
 <use name="hepmc"/>
 <use name="CommonTools/UtilAlgos"/>
-<use name="TrackPropagation/SteppingHelixPropagator"/>
 <use name="TrackingTools/TrackAssociator"/>
 <library file="*.cc" name="CalibrationHcalCalibAlgosPlugins">
   <flags EDM_PLUGIN="1"/>

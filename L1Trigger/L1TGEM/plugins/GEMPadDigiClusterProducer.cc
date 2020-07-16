@@ -20,6 +20,7 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 
 #include "FWCore/Utilities/interface/Exception.h"
+#include "FWCore/Utilities/interface/ESGetToken.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -101,6 +102,7 @@ private:
 
   /// Name of input digi Collection
   edm::EDGetTokenT<GEMPadDigiCollection> pad_token_;
+  edm::ESGetToken<GEMGeometry, MuonGeometryRecord> geom_token_;
   edm::InputTag pads_;
 
   unsigned int maxClustersOHGE11_;
@@ -108,6 +110,7 @@ private:
   unsigned int nOHGE11_;
   unsigned int nOHGE21_;
   unsigned int maxClusterSize_;
+  bool sendOverflowClusters_;
 
   const GEMGeometry* geometry_;
 };
@@ -119,8 +122,15 @@ GEMPadDigiClusterProducer::GEMPadDigiClusterProducer(const edm::ParameterSet& ps
   nOHGE11_ = ps.getParameter<unsigned int>("nOHGE11");
   nOHGE21_ = ps.getParameter<unsigned int>("nOHGE21");
   maxClusterSize_ = ps.getParameter<unsigned int>("maxClusterSize");
+  sendOverflowClusters_ = ps.getParameter<bool>("sendOverflowClusters");
+
+  if (sendOverflowClusters_) {
+    maxClustersOHGE11_ *= 2;
+    maxClustersOHGE21_ *= 2;
+  }
 
   pad_token_ = consumes<GEMPadDigiCollection>(pads_);
+  geom_token_ = esConsumes<GEMGeometry, MuonGeometryRecord, edm::Transition::BeginRun>();
 
   produces<GEMPadDigiClusterCollection>();
   consumes<GEMPadDigiCollection>(pads_);
@@ -136,13 +146,13 @@ void GEMPadDigiClusterProducer::fillDescriptions(edm::ConfigurationDescriptions&
   desc.add<unsigned int>("nOHGE11", 2);
   desc.add<unsigned int>("nOHGE21", 4);
   desc.add<unsigned int>("maxClusterSize", 8);
+  desc.add<bool>("sendOverflowClusters", false);
 
   descriptions.add("simMuonGEMPadDigiClustersDef", desc);
 }
 
 void GEMPadDigiClusterProducer::beginRun(const edm::Run& run, const edm::EventSetup& eventSetup) {
-  edm::ESHandle<GEMGeometry> hGeom;
-  eventSetup.get<MuonGeometryRecord>().get(hGeom);
+  edm::ESHandle<GEMGeometry> hGeom = eventSetup.getHandle(geom_token_);
   geometry_ = &*hGeom;
 }
 
@@ -196,7 +206,7 @@ void GEMPadDigiClusterProducer::buildClusters(const GEMPadDigiCollection& det_pa
           cl.push_back((*d).pad());
         } else {
           // put the current cluster in the proto collection
-          GEMPadDigiCluster pad_cluster(cl, startBX);
+          GEMPadDigiCluster pad_cluster(cl, startBX, GEMSubDetId::station(part->id().station()));
 
           all_pad_clusters.emplace_back(pad_cluster);
 
@@ -210,7 +220,7 @@ void GEMPadDigiClusterProducer::buildClusters(const GEMPadDigiCollection& det_pa
 
     // put the last cluster in the proto collection
     if (pads.first != pads.second) {
-      GEMPadDigiCluster pad_cluster(cl, startBX);
+      GEMPadDigiCluster pad_cluster(cl, startBX, GEMSubDetId::station(part->id().station()));
       all_pad_clusters.emplace_back(pad_cluster);
     }
     proto_clusters.emplace(part->id(), all_pad_clusters);

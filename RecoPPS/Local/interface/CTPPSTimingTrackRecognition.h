@@ -197,7 +197,7 @@ template <class TRACK_TYPE, class HIT_TYPE>
 inline typename CTPPSTimingTrackRecognition<TRACK_TYPE, HIT_TYPE>::SpatialRange
 CTPPSTimingTrackRecognition<TRACK_TYPE, HIT_TYPE>::getHitSpatialRange(const HitVector& hits) {
   bool initialized = false;
-  SpatialRange result;
+  SpatialRange result = {};
 
   for (const auto& hit : hits) {
     const float xBegin = hit.x() - 0.5f * hit.xWidth(), xEnd = hit.x() + 0.5f * hit.xWidth();

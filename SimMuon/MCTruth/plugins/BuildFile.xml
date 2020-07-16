@@ -15,7 +15,6 @@
   <use name="SimTracker/Records"/>
   <use name="SimTracker/TrackAssociation"/>
   <use name="SimMuon/MCTruth"/>
-  <use name="boost"/>
   <use name="clhep"/>
   <flags EDM_PLUGIN="1"/>
 </library>

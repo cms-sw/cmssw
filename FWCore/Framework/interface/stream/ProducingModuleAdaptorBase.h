@@ -33,7 +33,9 @@
 #include "FWCore/Utilities/interface/StreamID.h"
 #include "FWCore/Utilities/interface/RunIndex.h"
 #include "FWCore/Utilities/interface/LuminosityBlockIndex.h"
+#include "FWCore/Utilities/interface/ESIndices.h"
 #include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/ProcessBlock.h"
 #include "FWCore/Framework/interface/Run.h"
 #include "FWCore/Framework/interface/LuminosityBlock.h"
 #include "FWCore/ServiceRegistry/interface/ConsumesInfo.h"
@@ -78,6 +80,8 @@ namespace edm {
       // ---------- member functions ---------------------------
       const ModuleDescription& moduleDescription() const { return moduleDescription_; }
 
+      virtual bool wantsProcessBlocks() const = 0;
+      virtual bool wantsInputProcessBlocks() const = 0;
       virtual bool wantsGlobalRuns() const = 0;
       virtual bool wantsGlobalLuminosityBlocks() const = 0;
       virtual bool hasAcquire() const = 0;
@@ -90,6 +94,9 @@ namespace edm {
       void itemsToGet(BranchType, std::vector<ProductResolverIndexAndSkipBit>&) const;
       void itemsMayGet(BranchType, std::vector<ProductResolverIndexAndSkipBit>&) const;
       std::vector<ProductResolverIndexAndSkipBit> const& itemsToGetFrom(BranchType) const;
+
+      std::vector<ESProxyIndex> const& esGetTokenIndicesVector(edm::Transition iTrans) const;
+      std::vector<ESRecordIndex> const& esGetTokenRecordIndicesVector(edm::Transition iTrans) const;
 
       void updateLookup(BranchType iBranchType, ProductResolverIndexHelper const&, bool iPrefetchMayGet);
       void updateLookup(eventsetup::ESRecordsToProxyIndices const&);
@@ -121,6 +128,9 @@ namespace edm {
         }
       }
 
+      void commit(ProcessBlock& iProcessBlock) {
+        iProcessBlock.commit_(m_streamModules[0]->indiciesForPutProducts(InProcess));
+      }
       void commit(Run& iRun) { iRun.commit_(m_streamModules[0]->indiciesForPutProducts(InRun)); }
       void commit(LuminosityBlock& iLumi) { iLumi.commit_(m_streamModules[0]->indiciesForPutProducts(InLumi)); }
       template <typename I>
@@ -161,6 +171,9 @@ namespace edm {
                                       ModuleCallingContext const*);
       virtual void streamEndLuminosityBlockSummary(T*, edm::LuminosityBlock const&, edm::EventSetup const&) = 0;
 
+      virtual void doBeginProcessBlock(ProcessBlockPrincipal const&, ModuleCallingContext const*) = 0;
+      virtual void doAccessInputProcessBlock(ProcessBlockPrincipal const&, ModuleCallingContext const*) = 0;
+      virtual void doEndProcessBlock(ProcessBlockPrincipal const&, ModuleCallingContext const*) = 0;
       virtual void doBeginRun(RunPrincipal const& rp, EventSetupImpl const& c, ModuleCallingContext const*) = 0;
       virtual void doEndRun(RunPrincipal const& rp, EventSetupImpl const& c, ModuleCallingContext const*) = 0;
       virtual void doBeginLuminosityBlock(LuminosityBlockPrincipal const& lbp,

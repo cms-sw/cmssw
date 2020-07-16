@@ -99,7 +99,7 @@ AlpgenSource::AlpgenSource(const edm::ParameterSet &params, const edm::InputSour
       writeAlpgenWgtFile(params.getUntrackedParameter<bool>("writeAlpgenWgtFile", true)),
       writeAlpgenParFile(params.getUntrackedParameter<bool>("writeAlpgenParFile", true)),
       writeExtraHeader(params.getUntrackedParameter<bool>("writeExtraHeader", false)) {
-  std::vector<std::string> allFileNames = fileNames();
+  std::vector<std::string> allFileNames = fileNames(0);
 
   // Only one filename
   if (allFileNames.size() != 1)

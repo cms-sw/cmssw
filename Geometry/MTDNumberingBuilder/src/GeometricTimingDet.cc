@@ -1,9 +1,11 @@
 #include "Geometry/MTDNumberingBuilder/interface/GeometricTimingDet.h"
 #include "Geometry/TrackerNumberingBuilder/interface/TrackerShapeToBounds.h"
 #include "DetectorDescription/Core/interface/DDFilteredView.h"
+#include "DetectorDescription/DDCMS/interface/DDFilteredView.h"
 #include "CondFormats/GeometryObjects/interface/PGeometricTimingDet.h"
 
 #include "CLHEP/Units/GlobalSystemOfUnits.h"
+#include "DataFormats/Math/interface/GeantUnits.h"
 
 #include <cfloat>
 #include <vector>
@@ -86,6 +88,38 @@ GeometricTimingDet::GeometricTimingDet(DDFilteredView* fv, GeometricTimingEnumTy
       siliconAPVNum_(getDouble("SiliconAPVNumber", *fv)) {
   const DDFilteredView::nav_type& nt = fv->navPos();
   ddd_ = nav_type(nt.begin(), nt.end());
+}
+
+using namespace geant_units::operators;
+
+GeometricTimingDet::GeometricTimingDet(cms::DDFilteredView* fv, GeometricTimingEnumType type)
+    : trans_(fv->translation()),
+      rot_(fv->rotation()),
+      shape_(DDSolidShape(static_cast<int>(fv->shape()))),
+      ddname_(fv->name()),
+      type_(type),
+      params_(fv->parameters()),
+      radLength_(fv->get<double>("TrackerRadLength")),
+      xi_(fv->get<double>("TrackerXi")),
+      pixROCRows_(fv->get<double>("PixelROCRows")),
+      pixROCCols_(fv->get<double>("PixelROCCols")),
+      pixROCx_(fv->get<double>("PixelROC_X")),
+      pixROCy_(fv->get<double>("PixelROC_Y")),
+      stereo_(fv->get<std::string_view>("TrackerStereoDetectors") == strue),
+      siliconAPVNum_(fv->get<double>("SiliconAPVNumber")) {
+  //
+  // Translate DD4hep lenghts from cm to mm
+  //
+  trans_.SetCoordinates(convertCmToMm(trans_.X()), convertCmToMm(trans_.Y()), convertCmToMm(trans_.Z()));
+  phi_ = trans_.Phi();
+  rho_ = trans_.Rho();
+  for (size_t pit = 0; pit < params_.size(); pit++) {
+    params_[pit] = convertCmToMm(params_[pit]);
+  }
+  //
+  // Not navPos(), as not properly working for DD4hep and not used
+  //
+  ddd_ = nav_type(fv->copyNos().size(), 0);
 }
 
 // PGeometricTimingDet is persistent version... make it... then come back here and make the
@@ -223,5 +257,6 @@ GeometricTimingDet::Rotation GeometricTimingDet::rotationBounds() const {
 std::unique_ptr<Bounds> GeometricTimingDet::bounds() const {
   const std::vector<double>& par = params_;
   TrackerShapeToBounds shapeToBounds;
-  return std::unique_ptr<Bounds>(shapeToBounds.buildBounds(shape_, par));
+  return std::unique_ptr<Bounds>(
+      shapeToBounds.buildBounds(cms::dd::name_from_value(cms::LegacySolidShapeMap, shape_), par));
 }

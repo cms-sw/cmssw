@@ -1,21 +1,17 @@
 #ifndef L1Trigger_TrackerDTC_Stub_h
 #define L1Trigger_TrackerDTC_Stub_h
 
-#include "DataFormats/L1TrackTrigger/interface/TTTypes.h"
-#include "DataFormats/L1TrackTrigger/interface/TTDTC.h"
+#include "L1Trigger/TrackerDTC/interface/Setup.h"
 
 #include <utility>
 #include <vector>
 
 namespace trackerDTC {
 
-  class Settings;
-  class Module;
-
   // representation of a stub
   class Stub {
   public:
-    Stub(Settings* settings, Module* module, const TTStubRef& ttStubRef);
+    Stub(const edm::ParameterSet&, const Setup&, SensorModule*, const TTStubRef&);
     ~Stub() {}
 
     // underlying TTStubRef
@@ -28,8 +24,6 @@ namespace trackerDTC {
     TTDTC::BV frame(int region) const;
     // checks stubs region assignment
     bool inRegion(int region) const;
-    double r() const { return r_; }
-    double phi() const { return phi_; }
 
   private:
     // truncates double precision to f/w integer equivalent
@@ -40,11 +34,13 @@ namespace trackerDTC {
     TTDTC::BV formatTMTT(int region) const;
 
     // stores, calculates and provides run-time constants
-    Settings* settings_;
+    const Setup* setup_;
+    // representation of an outer tracker sensormodule
+    SensorModule* sm_;
     // underlying TTStubRef
     TTStubRef ttStubRef_;
-    // representation of an outer tracker sensormodule
-    Module* module_;
+    // chosen TT algorithm
+    bool hybrid_;
     // passes pt and eta cut
     bool valid_;
     // column number in pitch units

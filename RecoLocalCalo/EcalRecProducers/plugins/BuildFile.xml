@@ -12,6 +12,7 @@
 <use name="CondFormats/DataRecord"/>
 <use name="RecoLocalCalo/EcalRecAlgos"/>
 <use name="FWCore/MessageLogger"/>
+<use name="SimCalorimetry/EcalSimAlgos"/>
 <library file="*.cc" name="RecoLocalCaloEcalRecProducersPlugins">
   <flags EDM_PLUGIN="1"/>
 </library>

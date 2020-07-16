@@ -11,7 +11,7 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
-#include "FWCore/Framework/interface/LuminosityBlock.h"
+//#include "FWCore/Framework/interface/LuminosityBlock.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -72,7 +72,7 @@ void DTResolutionAnalysisTask::bookHistograms(DQMStore::IBooker& ibooker,
     }
   }
 }
-
+/*
 void DTResolutionAnalysisTask::beginLuminosityBlock(const LuminosityBlock& lumiSeg, const EventSetup& context) {
   edm::LogVerbatim("DTDQM|DTMonitorModule|DTResolutionAnalysisTask")
       << "[DTResolutionTask]: Begin of LS transition" << endl;
@@ -88,7 +88,7 @@ void DTResolutionAnalysisTask::beginLuminosityBlock(const LuminosityBlock& lumiS
     }
   }
 }
-
+*/
 void DTResolutionAnalysisTask::analyze(const edm::Event& event, const edm::EventSetup& setup) {
   edm::LogVerbatim("DTDQM|DTMonitorModule|DTResolutionAnalysisTask")
       << "[DTResolutionAnalysisTask] Analyze #Run: " << event.id().run() << " #Event: " << event.id().event() << endl;

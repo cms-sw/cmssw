@@ -1,6 +1,5 @@
-#ifndef MuonRecoAnalyzer_H
-#define MuonRecoAnalyzer_H
-
+#ifndef DQMOffline_Muon_MuonRecoAnalyzer_h
+#define DQMOffline_Muon_MuonRecoAnalyzer_h
 /** \class MuRecoAnalyzer
  *
  *  DQM monitoring source for muon reco track
@@ -59,6 +58,8 @@ private:
   // Switch for verbosity
   std::string metname;
   bool doMVA;
+  bool useGEM;
+  int maxGEMhitsSoftMuonMVA;
 
   //histo binning parameters
   int etaBin;
@@ -147,6 +148,7 @@ private:
   MonitorElement* trkRelChi2SoftMuonMVA;
   MonitorElement* vDThitsSoftMuonMVA;
   MonitorElement* vCSChitsSoftMuonMVA;
+  MonitorElement* vGEMhitsSoftMuonMVA;
   MonitorElement* timeAtIpInOutSoftMuonMVA;
   MonitorElement* timeAtIpInOutErrSoftMuonMVA;
   MonitorElement* getMuonHitsPerStationSoftMuonMVA;
@@ -187,4 +189,4 @@ private:
   bool IsminiAOD;
   std::string theFolder;
 };
-#endif
+#endif  // DQMOffline_Muon_MuonRecoAnalyzer_h

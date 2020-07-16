@@ -58,8 +58,9 @@ namespace {
       Base::setSingleIov(true);
     }
 
-    bool fill(const std::vector<std::tuple<cond::Time_t, cond::Hash> >& iovs) override {
-      for (auto const& iov : iovs) {
+    bool fill() override {
+      auto tag = PlotBase::getTag<0>();
+      for (auto const& iov : tag.iovs) {
         std::shared_ptr<SiStripThreshold> payload = Base::fetchPayload(std::get<1>(iov));
         if (payload.get()) {
           fillWithValue(1.);
@@ -96,11 +97,12 @@ namespace {
       Base::setSingleIov(true);
     }
 
-    bool fill(const std::vector<std::tuple<cond::Time_t, cond::Hash> >& iovs) override {
+    bool fill() override {
+      auto tag = PlotBase::getTag<0>();
       edm::FileInPath fp_ = edm::FileInPath("CalibTracker/SiStripCommon/data/SiStripDetInfo.dat");
       SiStripDetInfoFileReader* reader = new SiStripDetInfoFileReader(fp_.fullPath());
 
-      for (auto const& iov : iovs) {
+      for (auto const& iov : tag.iovs) {
         std::shared_ptr<SiStripThreshold> payload = Base::fetchPayload(std::get<1>(iov));
         if (payload.get()) {
           std::vector<uint32_t> detid;
@@ -141,11 +143,12 @@ namespace {
       Base::setSingleIov(true);
     }
 
-    bool fill(const std::vector<std::tuple<cond::Time_t, cond::Hash> >& iovs) override {
+    bool fill() override {
+      auto tag = PlotBase::getTag<0>();
       edm::FileInPath fp_ = edm::FileInPath("CalibTracker/SiStripCommon/data/SiStripDetInfo.dat");
       SiStripDetInfoFileReader* reader = new SiStripDetInfoFileReader(fp_.fullPath());
 
-      for (auto const& iov : iovs) {
+      for (auto const& iov : tag.iovs) {
         std::shared_ptr<SiStripThreshold> payload = Base::fetchPayload(std::get<1>(iov));
         if (payload.get()) {
           std::vector<uint32_t> detid;

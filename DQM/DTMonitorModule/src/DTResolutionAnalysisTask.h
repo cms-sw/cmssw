@@ -29,7 +29,7 @@
 
 class DTGeometry;
 
-class DTResolutionAnalysisTask : public DQMOneEDAnalyzer<edm::one::WatchLuminosityBlocks> {
+class DTResolutionAnalysisTask : public DQMOneEDAnalyzer<> {
 public:
   /// Constructor
   DTResolutionAnalysisTask(const edm::ParameterSet& pset);
@@ -44,8 +44,8 @@ public:
   void dqmBeginRun(const edm::Run&, const edm::EventSetup&) override;
 
   /// To reset the MEs
-  void beginLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& context) override;
-  void endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& context) final {}
+  //  void beginLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& context) override;
+  //  void endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& context) final {}
 
   // Operations
   void analyze(const edm::Event& event, const edm::EventSetup& setup) override;

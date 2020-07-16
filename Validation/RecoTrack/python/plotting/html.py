@@ -48,6 +48,7 @@ _allTPEfficName = _allName+" (all TPs)"
 _fromPVName = "Tracks from PV"
 _fromPVAllTPName = "Tracks from PV (all TPs)"
 _tpPtLess09Name = "All tracks (TP pT &lt; 0.9 GeV)"
+_tpEtaGreater2p7Name = "All tracks (TP |eta| &gt; 2.7)"
 _conversionName = "Tracks for conversions"
 _gsfName = "Electron GSF tracks"
 _bhadronName = "All tracks (B-hadron TPs)"
@@ -85,6 +86,8 @@ _trackQualityNameOrder = collections.OrderedDict([
     ("tpPtLess09_highPurityByOriginalAlgo", _toOriAlgo(_allToHP(_tpPtLess09Name))),
     ("tpPtLess09_ByAlgoMask", _toAlgoMask(_tpPtLess09Name)),
     ("tpPtLess09_highPurityByAlgoMask", _toAlgoMask(_allToHP(_tpPtLess09Name))),
+    ("tpEtaGreater2p7_", _tpEtaGreater2p7Name),
+    ("tpEtaGreater2p7_highPurity", _allToHP(_tpEtaGreater2p7Name)),
     ("btvLike", _allToBTV(_allName)),
     ("ak4PFJets", "AK4 PF jets"),
     ("allTPEffic_", _allTPEfficName),
@@ -181,6 +184,8 @@ _sectionNameMapOrder = collections.OrderedDict([
     ("highPurityPt09", "High purity tracks (pT&gt;0.9 GeV)"),
     ("tpPtLess09", _tpPtLess09Name),
     ("tpPtLess09_highPurity", _allToHP(_tpPtLess09Name)),
+    ("tpEtaGreater2p7", _tpEtaGreater2p7Name),
+    ("tpEtaGreater2p7_highPurity", _allToHP(_tpEtaGreater2p7Name)),
     ("btvLike", "BTV-like"),
     ("ak4PFJets", "AK4 PF jets"),
     ("allTPEffic", _allTPEfficName),

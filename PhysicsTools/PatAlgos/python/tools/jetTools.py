@@ -199,6 +199,8 @@ def setupJetCorrections(process, knownModules, jetCorrections, jetSource, pvSour
                                     cms.InputTag(jetCorrections[0]+_labelCorrName+'JetMETcorr'+postfix, 'type1'),
                                     jetCorrections[0]+_labelCorrName+'corrPfMetType2'+postfix)),
                                 process, task)
+            if 'Puppi' in jetSource.value() and pfCandidates.value() == 'particleFlow':
+                getattr(process,jetCorrections[0]+_labelCorrName+'CandMETcorr'+postfix).srcWeights = "puppiNoLep"
 
         ## common configuration for Calo and PF
         if ('L1FastJet' in jetCorrections[1] or 'L1Fastjet' in jetCorrections[1]):
@@ -645,6 +647,16 @@ def setupBTagging(process, jetSource, pfCandidates, explicitJTA, pvSource, svSou
                                       vertices=pvSource,
                                       secondary_vertices=svSource,
                                       shallow_tag_infos = cms.InputTag(btagPrefix+'pfBoostedDoubleSVAK8TagInfos'+labelName+postfix),
+                                      ),
+                                    process, task)
+
+            if btagInfo == 'pfHiggsInteractionNetTagInfos':
+                addToProcessAndTask(btagPrefix+btagInfo+labelName+postfix,
+                                    btag.pfHiggsInteractionNetTagInfos.clone(
+                                      jets = jetSource,
+                                      vertices = pvSource,
+                                      secondary_vertices = svSource,
+                                      pf_candidates = pfCandidates,
                                       ),
                                     process, task)
 

@@ -37,6 +37,7 @@ namespace popcon {
     if (!m_dbService.isAvailable())
       throw Exception("DBService not available");
     const std::string& connectionStr = m_dbService->session().connectionString();
+    m_dbService->forceInit();
     m_tag = m_dbService->tag(m_record);
     m_tagInfo.name = m_tag;
     if (m_targetConnectionString.empty())
@@ -51,15 +52,15 @@ namespace popcon {
     }
     if (m_targetSession.existsDatabase() && m_targetSession.existsIov(m_tag)) {
       cond::persistency::IOVProxy iov = m_targetSession.readIov(m_tag);
-      size_t tagSize = iov.sequenceSize();
-      if (tagSize > 0) {
+      m_tagInfo.size = iov.sequenceSize();
+      if (m_tagInfo.size > 0) {
         m_tagInfo.lastInterval = iov.getLast();
       }
 
       edm::LogInfo("PopCon") << "destination DB: " << connectionStr << ", target DB: "
                              << (m_targetConnectionString.empty() ? connectionStr : m_targetConnectionString) << "\n"
                              << "TAG: " << m_tag << ", last since/till: " << m_tagInfo.lastInterval.since << "/"
-                             << m_tagInfo.lastInterval.till << ", size: " << tagSize << "\n"
+                             << m_tagInfo.lastInterval.till << ", size: " << m_tagInfo.size << "\n"
                              << std::endl;
     } else {
       edm::LogInfo("PopCon") << "destination DB: " << connectionStr << ", target DB: "
