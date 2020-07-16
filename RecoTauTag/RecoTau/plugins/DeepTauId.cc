@@ -965,9 +965,7 @@ private:
   }
 
 private:
-  tensorflow::Tensor getPredictions(edm::Event& event,
-                                    const edm::EventSetup& es,
-                                    edm::Handle<TauCollection> taus) override {
+  tensorflow::Tensor getPredictions(edm::Event& event, edm::Handle<TauCollection> taus) override {
     edm::Handle<pat::ElectronCollection> electrons;
     event.getByToken(electrons_token_, electrons);
 

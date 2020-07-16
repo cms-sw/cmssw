@@ -94,7 +94,7 @@ namespace deep_tau {
     edm::Handle<TauCollection> taus;
     event.getByToken(tausToken_, taus);
 
-    const tensorflow::Tensor& pred = getPredictions(event, es, taus);
+    const tensorflow::Tensor& pred = getPredictions(event, taus);
     createOutputs(event, pred, taus);
   }
 
