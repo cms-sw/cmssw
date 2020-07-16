@@ -32,9 +32,9 @@ process.TrackerGeometricDetExtraESModule = cms.ESProducer( "TrackerGeometricDetE
                                                            fromDDD = cms.bool( True ),
                                                            )
 
-process.TrackerGeometryWriter = cms.EDAnalyzer("PGeometricDetBuilder")
-process.TrackerGeometryExtraWriter = cms.EDAnalyzer("PGeometricDetExtraBuilder")
-process.TrackerParametersWriter = cms.EDAnalyzer("PTrackerParametersDBBuilder")
+process.TrackerGeometryWriter = cms.EDAnalyzer("PGeometricDetBuilder",fromDD4hep=cms.bool(False))
+process.TrackerGeometryExtraWriter = cms.EDAnalyzer("PGeometricDetExtraBuilder",fromDD4hep=cms.bool(False))
+process.TrackerParametersWriter = cms.EDAnalyzer("PTrackerParametersDBBuilder",fromDD4hep=cms.bool(False))
 
 process.CaloGeometryWriter = cms.EDAnalyzer("PCaloGeometryBuilder")
 

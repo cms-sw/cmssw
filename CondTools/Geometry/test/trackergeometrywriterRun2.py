@@ -15,9 +15,9 @@ process.TrackerGeometricDetExtraESModule = cms.ESProducer( "TrackerGeometricDetE
                                                            fromDDD = cms.bool( True )
                                                            )
 
-process.TrackerGeometryWriter = cms.EDAnalyzer("PGeometricDetBuilder")
-process.TrackerGeometryExtraWriter = cms.EDAnalyzer("PGeometricDetExtraBuilder")
-process.TrackerParametersWriter = cms.EDAnalyzer("PTrackerParametersDBBuilder")
+process.TrackerGeometryWriter = cms.EDAnalyzer("PGeometricDetBuilder",fromDD4hep=cms.bool( False ))
+process.TrackerGeometryExtraWriter = cms.EDAnalyzer("PGeometricDetExtraBuilder",fromDD4hep=cms.bool( False ))
+process.TrackerParametersWriter = cms.EDAnalyzer("PTrackerParametersDBBuilder",fromDD4hep=cms.bool( False ))
 
 process.CondDB.timetype = cms.untracked.string('runnumber')
 process.CondDB.connect = cms.string('sqlite_file:myfilerun2.db')

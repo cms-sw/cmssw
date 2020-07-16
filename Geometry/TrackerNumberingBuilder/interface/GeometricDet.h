@@ -2,7 +2,7 @@
 #define Geometry_TrackerNumberingBuilder_GeometricDet_H
 
 #include "CondFormats/GeometryObjects/interface/PGeometricDet.h"
-#include "DetectorDescription/Core/interface/DDSolidShapes.h"
+#include "DetectorDescription/DDCMS/interface/DDSolidShapes.h"
 #include "DataFormats/GeometrySurface/interface/Surface.h"
 #include "DataFormats/GeometrySurface/interface/Bounds.h"
 #include "DataFormats/DetId/interface/DetId.h"
@@ -118,7 +118,8 @@ public:
   double phi() const { return _phi; }
   double rho() const { return _rho; }
 
-  DDSolidShape const& shape() const { return _shape; }
+  LegacySolidShape shape() const { return cms::dd::value(cms::LegacySolidShapeMap, _shape); }
+  cms::DDSolidShape shape_dd4hep() const { return _shape; }
   GeometricEnumType type() const { return _type; }
   std::string const& name() const { return _ddname; }
 
@@ -187,7 +188,7 @@ private:
   double _phi;
   double _rho;
   RotationMatrix _rot;
-  DDSolidShape _shape;
+  cms::DDSolidShape _shape;
   nav_type _ddd;
   std::string _ddname;
   GeometricEnumType _type;

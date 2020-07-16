@@ -100,64 +100,65 @@ private:
   const SurveyErrors* theSurveyErrors;
 
   // configurables
-  const std::vector<std::string> _levelStrings;
-  std::string _moduleListName;
-  std::string _inputFilename1;
-  std::string _inputFilename2;
-  std::string _inputTreenameAlign;
-  std::string _inputTreenameDeform;
-  bool _writeToDB;
-  std::string _weightBy;
-  std::string _setCommonTrackerSystem;
-  bool _detIdFlag;
-  std::string _detIdFlagFile;
-  bool _weightById;
-  std::string _weightByIdFile;
-  std::vector<unsigned int> _weightByIdVector;
+  const std::vector<std::string> levelStrings_;
+  std::string moduleListName_;
+  std::string inputFilename1_;
+  std::string inputFilename2_;
+  std::string inputTreenameAlign_;
+  std::string inputTreenameDeform_;
+  bool fromDD4hep_;
+  bool writeToDB_;
+  std::string weightBy_;
+  std::string setCommonTrackerSystem_;
+  bool detIdFlag_;
+  std::string detIdFlagFile_;
+  bool weightById_;
+  std::string weightByIdFile_;
+  std::vector<unsigned int> weightByIdVector_;
 
-  std::vector<uint32_t> _detIdFlagVector;
-  align::StructureType _commonTrackerLevel;
-  align::GlobalVector _TrackerCommonT;
-  align::GlobalVector _TrackerCommonR;
-  align::PositionType _TrackerCommonCM;
+  std::vector<uint32_t> detIdFlagVector_;
+  align::StructureType commonTrackerLevel_;
+  align::GlobalVector TrackerCommonT_;
+  align::GlobalVector TrackerCommonR_;
+  align::PositionType TrackerCommonCM_;
 
-  std::ifstream _moduleListFile;
-  std::vector<int> _moduleList;
-  int _moduleInList;
+  std::ifstream moduleListFile_;
+  std::vector<int> moduleList_;
+  int moduleInList_;
 
   //root configuration
-  std::string _filename;
-  TFile* _theFile;
-  TTree* _alignTree;
-  TFile* _inputRootFile1;
-  TFile* _inputRootFile2;
-  TTree* _inputTree01;
-  TTree* _inputTree02;
-  TTree* _inputTree11;
-  TTree* _inputTree12;
+  std::string filename_;
+  TFile* theFile_;
+  TTree* alignTree_;
+  TFile* inputRootFile1_;
+  TFile* inputRootFile2_;
+  TTree* inputTree01_;
+  TTree* inputTree02_;
+  TTree* inputTree11_;
+  TTree* inputTree12_;
 
   /**\ Tree variables */
-  int _id, _badModuleQuality, _inModuleList, _level, _mid, _mlevel, _sublevel, _useDetId, _detDim;
-  float _xVal, _yVal, _zVal, _rVal, _etaVal, _phiVal, _alphaVal, _betaVal, _gammaVal;
+  int id_, badModuleQuality_, inModuleList_, level_, mid_, mlevel_, sublevel_, useDetId_, detDim_;
+  float xVal_, yVal_, zVal_, rVal_, etaVal_, phiVal_, alphaVal_, betaVal_, gammaVal_;
   // changes in global variables
-  float _dxVal, _dyVal, _dzVal, _drVal, _dphiVal, _dalphaVal, _dbetaVal, _dgammaVal;
+  float dxVal_, dyVal_, dzVal_, drVal_, dphiVal_, dalphaVal_, dbetaVal_, dgammaVal_;
   // changes local variables: u, v, w, alpha, beta, gamma
-  float _duVal, _dvVal, _dwVal, _daVal, _dbVal, _dgVal;
-  float _surWidth, _surLength;
-  uint32_t _identifiers[6];
-  double _surRot[9];
-  int _type;
-  double _surfDeform[13];
+  float duVal_, dvVal_, dwVal_, daVal_, dbVal_, dgVal_;
+  float surWidth_, surLength_;
+  uint32_t identifiers_[6];
+  double surRot_[9];
+  int type_;
+  double surfDeform_[13];
 
-  int m_nBins;
-  double m_rangeLow;
-  double m_rangeHigh;
+  int m_nBins_;
+  double m_rangeLow_;
+  double m_rangeHigh_;
 
   bool firstEvent_;
 
-  std::vector<TrackerMap> m_vtkmap;
+  std::vector<TrackerMap> m_vtkmap_;
 
-  std::map<std::string, TH1D*> m_h1;
+  std::map<std::string, TH1D*> m_h1_;
 };
 
 #endif
