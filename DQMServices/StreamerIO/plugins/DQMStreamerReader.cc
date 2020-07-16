@@ -16,7 +16,7 @@
 #include <boost/regex.hpp>
 #include <boost/format.hpp>
 #include <boost/range.hpp>
-#include <filesystem>
+#include <boost/filesystem.hpp>
 #include <boost/algorithm/string.hpp>
 
 #include <IOPool/Streamer/interface/DumpTools.h>
@@ -158,7 +158,7 @@ namespace dqmservices {
     DQMFileIterator::LumiEntry currentLumi = fiterator_.open();
     std::string p = currentLumi.get_data_path();
 
-    if (std::filesystem::exists(p)) {
+    if (boost::filesystem::exists(p)) {
       try {
         openFileImp_(currentLumi);
         return true;

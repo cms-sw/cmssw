@@ -4,8 +4,8 @@
 
 #include <zlib.h>
 #include <boost/algorithm/string.hpp>
-#include <filesystem>
-#include <filesystem>
+#include <boost/filesystem.hpp>
+#include <boost/filesystem.hpp>
 #include <boost/format.hpp>
 #include <boost/property_tree/json_parser.hpp>
 #include <boost/property_tree/ptree.hpp>
@@ -33,17 +33,17 @@ namespace dqmservices {
   class DQMStreamerOutputRepackerTest : public edm::StreamerOutputModuleBase {
   public:
     explicit DQMStreamerOutputRepackerTest(edm::ParameterSet const& ps);
-    virtual ~DQMStreamerOutputRepackerTest();
+    ~DQMStreamerOutputRepackerTest() override;
     static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
   private:
-    virtual void start() override;
-    virtual void stop() override;
-    virtual void doOutputHeader(InitMsgBuilder const& init_message) override;
-    virtual void doOutputEvent(EventMsgBuilder const& msg) override;
+    void start() override;
+    void stop() override;
+    void doOutputHeader(InitMsgBuilder const& init_message) override;
+    void doOutputEvent(EventMsgBuilder const& msg) override;
 
-    virtual void beginLuminosityBlock(edm::LuminosityBlockForOutput const&) override{};
-    virtual void endLuminosityBlock(edm::LuminosityBlockForOutput const&) override{};
+    void beginLuminosityBlock(edm::LuminosityBlockForOutput const&) override{};
+    void endLuminosityBlock(edm::LuminosityBlockForOutput const&) override{};
 
   private:
     void openFile_(uint32_t run, uint32_t lumi);
@@ -86,10 +86,10 @@ namespace dqmservices {
 
     currentFileBase_ = str(boost::format("run%06d_ls%04d_stream%s_local") % run % lumi % streamLabel_);
 
-    std::filesystem::path p = outputPath_;
+    boost::filesystem::path p = outputPath_;
     p /= str(boost::format("run%06d") % run);
 
-    std::filesystem::create_directories(p);
+    boost::filesystem::create_directories(p);
 
     currentFilePath_ = (p / currentFileBase_).string() + ".dat";
     currentJsonPath_ = (p / currentFileBase_).string() + ".jsn";
@@ -110,7 +110,7 @@ namespace dqmservices {
 
   void DQMStreamerOutputRepackerTest::closeFile() {
     edm::LogAbsolute("DQMStreamerOutputRepackerTest") << "Writing json: " << currentJsonPath_;
-    size_t fsize = std::filesystem::file_size(currentFilePath_);
+    size_t fsize = boost::filesystem::file_size(currentFilePath_);
 
     using namespace boost::property_tree;
     ptree pt;

@@ -17,9 +17,11 @@
 #include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/getProducerParameterSet.h"
+#include "FWCore/Framework/interface/GetterOfProducts.h"
 #include "FWCore/Framework/interface/LuminosityBlock.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/ProcessBlock.h"
+#include "FWCore/Framework/interface/ProcessMatch.h"
 #include "FWCore/Framework/interface/Run.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/BranchType.h"
@@ -54,6 +56,8 @@ namespace edmtest {
     bool getByTokenFirst_;
     std::vector<edm::InputTag> inputTagsView_;
     bool runProducerParameterCheck_;
+    bool testGetterOfProducts_;
+
     std::vector<edm::InputTag> inputTagsUInt64_;
     std::vector<edm::InputTag> inputTagsEndLumi_;
     std::vector<edm::InputTag> inputTagsEndRun_;
@@ -74,6 +78,9 @@ namespace edmtest {
     std::vector<edm::EDGetToken> tokensEndProcessBlock2_;
     std::vector<edm::EDGetTokenT<IntProduct>> tokensEndProcessBlock3_;
     std::vector<edm::EDGetTokenT<IntProduct>> tokensEndProcessBlock4_;
+
+    edm::GetterOfProducts<IntProduct> getterOfProducts_;
+
   };  // class TestFindProduct
 
   //--------------------------------------------------------------------
@@ -87,7 +94,12 @@ namespace edmtest {
         inputTagsNotFound_(),
         getByTokenFirst_(pset.getUntrackedParameter<bool>("getByTokenFirst", false)),
         inputTagsView_(),
-        runProducerParameterCheck_(pset.getUntrackedParameter<bool>("runProducerParameterCheck", false)) {
+        runProducerParameterCheck_(pset.getUntrackedParameter<bool>("runProducerParameterCheck", false)),
+        testGetterOfProducts_(pset.getUntrackedParameter<bool>("testGetterOfProducts", false)),
+        getterOfProducts_(edm::ProcessMatch("*"), this, edm::InProcess) {
+    if (testGetterOfProducts_) {
+      callWhenNewProductsRegistered(getterOfProducts_);
+    }
     std::vector<edm::InputTag> emptyTagVector;
     inputTagsNotFound_ = pset.getUntrackedParameter<std::vector<edm::InputTag>>("inputTagsNotFound", emptyTagVector);
     inputTagsView_ = pset.getUntrackedParameter<std::vector<edm::InputTag>>("inputTagsView", emptyTagVector);
@@ -255,6 +267,13 @@ namespace edmtest {
     for (auto const& token : tokensBeginProcessBlock_) {
       sum_ += processBlock.get(token).value;
     }
+    if (testGetterOfProducts_) {
+      std::vector<edm::Handle<IntProduct>> handles;
+      getterOfProducts_.fillHandles(processBlock, handles);
+      for (auto const& intHandle : handles) {
+        sum_ += intHandle->value;
+      }
+    }
   }
 
   void TestFindProduct::endProcessBlock(edm::ProcessBlock const& processBlock) {
@@ -286,6 +305,13 @@ namespace edmtest {
         }
       }
       ++i;
+    }
+    if (testGetterOfProducts_) {
+      std::vector<edm::Handle<IntProduct>> handles;
+      getterOfProducts_.fillHandles(processBlock, handles);
+      for (auto const& intHandle : handles) {
+        sum_ += intHandle->value;
+      }
     }
   }
 

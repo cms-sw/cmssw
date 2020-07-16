@@ -19,9 +19,9 @@ from RecoTracker.TkSeedingLayers.MixedLayerPairs_cfi import *
 
 import RecoTracker.TkSeedGenerator.SeedGeneratorFromRegionHitsEDProducer_cfi
 globalMixedSeeds = RecoTracker.TkSeedGenerator.SeedGeneratorFromRegionHitsEDProducer_cfi.seedGeneratorFromRegionHitsEDProducer.clone(
-    OrderedHitsFactoryPSet = cms.PSet(
-       ComponentName = cms.string('StandardHitPairGenerator'),
-       SeedingLayers = cms.InputTag('MixedLayerPairs'),
-       maxElement = cms.uint32(1000000)
+    OrderedHitsFactoryPSet = dict(
+       ComponentName = 'StandardHitPairGenerator',
+       SeedingLayers = 'MixedLayerPairs',
+       maxElement    = 1000000
     )
 )

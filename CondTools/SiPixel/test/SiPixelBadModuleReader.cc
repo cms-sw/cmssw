@@ -18,15 +18,15 @@
 #include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 
-#include "TStyle.h"
 #include "TCanvas.h"
-#include <iostream>
+#include "TStyle.h"
+#include <cmath>
+#include <cstdio>
 #include <fstream>
 #include <iomanip>
-#include <stdio.h>
-#include <sys/time.h>
-#include <math.h>
+#include <iostream>
 #include <string>
+#include <sys/time.h>
 
 SiPixelBadModuleReader::SiPixelBadModuleReader(const edm::ParameterSet& iConfig)
     : printdebug_(iConfig.getUntrackedParameter<uint32_t>("printDebug", 1)),
@@ -120,7 +120,7 @@ void SiPixelBadModuleReader::analyze(const edm::Event& e, const edm::EventSetup&
   int nbadmodules = 0;
   int npartialbad = 0;
   for (TrackerGeometry::DetContainer::const_iterator it = geom->dets().begin(); it != geom->dets().end(); it++) {
-    if (dynamic_cast<PixelGeomDetUnit const*>((*it)) != 0) {
+    if (dynamic_cast<PixelGeomDetUnit const*>((*it)) != nullptr) {
       DetId detId = (*it)->geographicalId();
       uint32_t id = detId();
       nmodules++;
