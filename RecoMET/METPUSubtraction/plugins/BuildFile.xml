@@ -16,7 +16,8 @@
   <use   name="DataFormats/VertexReco"/>
   <use   name="JetMETCorrections/Objects"/>
   <use   name="RecoMET/METPUSubtraction"/>
-  <use   name="RecoJets/JetProducers"/> 
+  <use   name="RecoJets/JetProducers"/>
+  <use   name="PhysicsTools/TensorFlow"/>
   <use   name="root"/>
   <use   name="roottmva"/>
 </library>
