@@ -12,6 +12,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
+#include "FWCore/Utilities/interface/ESGetToken.h"
 
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/Math/interface/AlgebraicROOTObjects.h"
@@ -53,6 +54,9 @@ private:
   edm::InputTag OurSegmentsTag, generalTracksTag;
   edm::EDGetTokenT<ME0SegmentCollection> OurSegmentsToken_;
   edm::EDGetTokenT<reco::TrackCollection> generalTracksToken_;
+  edm::ESGetToken<ME0Geometry, MuonGeometryRecord> me0GeomToken_;
+  edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> bFieldToken_;
+  edm::ESGetToken<Propagator, TrackingComponentsRecord> propToken_;
 };
 
 ME0SegmentMatcher::ME0SegmentMatcher(const edm::ParameterSet& pas) {
@@ -67,6 +71,9 @@ ME0SegmentMatcher::ME0SegmentMatcher(const edm::ParameterSet& pas) {
   generalTracksTag = pas.getParameter<edm::InputTag>("tracksTag");
   OurSegmentsToken_ = consumes<ME0SegmentCollection>(OurSegmentsTag);
   generalTracksToken_ = consumes<reco::TrackCollection>(generalTracksTag);
+  me0GeomToken_ = esConsumes<ME0Geometry, MuonGeometryRecord>();
+  bFieldToken_ = esConsumes<MagneticField, IdealMagneticFieldRecord>();
+  propToken_ = esConsumes<Propagator, TrackingComponentsRecord>(edm::ESInputTag("", "SteppingHelixPropagtorAlong"));
 }
 
 ME0SegmentMatcher::~ME0SegmentMatcher() {}
@@ -75,12 +82,9 @@ void ME0SegmentMatcher::produce(edm::Event& ev, const edm::EventSetup& setup) {
   //Getting the objects we'll need
   using namespace edm;
 
-  ESHandle<ME0Geometry> me0Geom;
-  setup.get<MuonGeometryRecord>().get(me0Geom);
-  ESHandle<MagneticField> bField;
-  setup.get<IdealMagneticFieldRecord>().get(bField);
-  ESHandle<Propagator> ThisshProp;
-  setup.get<TrackingComponentsRecord>().get("SteppingHelixPropagatorAlong", ThisshProp);
+  ESHandle<ME0Geometry> me0Geom = setup.getHandle(me0GeomToken_);
+  ESHandle<MagneticField> bField = setup.getHandle(bFieldToken_);
+  ESHandle<Propagator> ThisshProp = setup.getHandle(propToken_);
 
   using namespace reco;
 
