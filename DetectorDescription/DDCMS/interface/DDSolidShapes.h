@@ -57,6 +57,17 @@ namespace cms {
       }
       return std::begin(a)->value;
     }
+
+    template <class Mapping, class V>
+    typename Mapping::value_type::name_type name_from_value(Mapping a, V value) {
+      auto pos = std::find_if(
+          std::begin(a), std::end(a), [&value](const typename Mapping::value_type& t) { return (t.value == value); });
+      if (pos != std::end(a)) {
+        return pos->name;
+      }
+      return std::begin(a)->name;
+    }
+
   };  // namespace dd
 
   enum class DDSolidShape {
@@ -67,18 +78,20 @@ namespace cms {
     ddcons = 4,
     ddpolycone = 5,
     ddpolyhedra = 6,
-    ddtorus = 7,
-    ddunion = 8,
-    ddsubtraction = 9,
-    ddintersection = 10,
-    ddshapeless = 11,
-    ddpseudotrap = 12,
-    ddtrunctubs = 13,
-    ddsphere = 14,
-    ddellipticaltube = 15,
-    ddcuttubs = 16,
-    ddextrudedpolygon = 17,
-    ddtrd1 = 18,
+    ddunsupported1 = 7,
+    ddunsupported2 = 8,
+    ddtorus = 9,
+    ddunion = 10,
+    ddsubtraction = 11,
+    ddintersection = 12,
+    ddshapeless = 13,
+    ddpseudotrap = 14,
+    ddtrunctubs = 15,
+    ddsphere = 16,
+    ddellipticaltube = 17,
+    ddcuttubs = 18,
+    ddextrudedpolygon = 19,
+    ddtrd1 = 20,
   };
 
   const std::array<const cms::dd::NameValuePair<DDSolidShape>, 19> DDSolidShapeMap{
