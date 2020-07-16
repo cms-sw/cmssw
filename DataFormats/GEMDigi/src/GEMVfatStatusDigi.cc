@@ -1,4 +1,4 @@
-#include "EventFilter/GEMRawToDigi/interface/GEMVfatStatusDigi.h"
+#include "DataFormats/GEMDigi/interface/GEMVfatStatusDigi.h"
 #include <iostream>
 
 GEMVfatStatusDigi::GEMVfatStatusDigi(gem::VFATdata &vfat) {
