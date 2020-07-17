@@ -1,8 +1,6 @@
 #include <memory>
 
-
-
-        #include "CondCore/CondDB/interface/IOVProxy.h"
+#include "CondCore/CondDB/interface/IOVProxy.h"
 #include "SessionImpl.h"
 
 namespace cond {

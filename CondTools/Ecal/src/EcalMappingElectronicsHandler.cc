@@ -12,7 +12,6 @@
 #include <iostream>
 #include <memory>
 
-        
 EcalMappingElectronicsHandler::EcalMappingElectronicsHandler(const edm::ParameterSet &ps)
     : txtFileSource_(ps.getUntrackedParameter<std::string>("txtFile")),
       m_name(ps.getUntrackedParameter<std::string>("name", "EcalMappingElectronicsHandler")),
@@ -25,8 +24,7 @@ EcalMappingElectronicsHandler::~EcalMappingElectronicsHandler() {}
 void EcalMappingElectronicsHandler::getNewObjects() {
   std::cout << "------- Ecal - > getNewObjects\n";
   EcalMappingElectronics *payload = new EcalMappingElectronics;
-  std::unique_ptr<EcalMappingElectronics> mapping =
-      std::make_unique<EcalMappingElectronics>();
+  std::unique_ptr<EcalMappingElectronics> mapping = std::make_unique<EcalMappingElectronics>();
   //Filling map reading from file
   edm::LogInfo("EcalMappingElectronicsHandler")
       << "Reading mapping from file " << edm::FileInPath(txtFileSource_).fullPath().c_str();

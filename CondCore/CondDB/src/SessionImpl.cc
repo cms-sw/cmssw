@@ -1,10 +1,9 @@
 #include "CondCore/CondDB/interface/Exception.h"
 #include "SessionImpl.h"
 
+#include <memory>
 
-        #include <memory>
-
-        #include "DbConnectionString.h"
+#include "DbConnectionString.h"
 //
 //
 #include "RelationalAccess/ISessionProxy.h"

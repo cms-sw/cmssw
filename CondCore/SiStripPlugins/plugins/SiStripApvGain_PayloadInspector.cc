@@ -1657,17 +1657,16 @@ namespace {
       auto h2last = std::make_unique<TH2F>(
           "byRegion2", "SiStrip APV Gain values by region;; average SiStrip Gain", 38, 1., 39., 100., 0., 2.);
 
-      auto h2ratio =
-          std::make_unique<TH2F>("byRegionRatio",
-                                         Form("SiStrip APV Gains ratio by region;; Gains ratio IOV: %s/ IOV %s",
-                                              lastIOVsince.c_str(),
-                                              firstIOVsince.c_str()),
-                                         38,
-                                         1.,
-                                         39.,
-                                         100.,
-                                         0.85,
-                                         1.15);
+      auto h2ratio = std::make_unique<TH2F>("byRegionRatio",
+                                            Form("SiStrip APV Gains ratio by region;; Gains ratio IOV: %s/ IOV %s",
+                                                 lastIOVsince.c_str(),
+                                                 firstIOVsince.c_str()),
+                                            38,
+                                            1.,
+                                            39.,
+                                            100.,
+                                            0.85,
+                                            1.15);
 
       h2first->SetStats(false);
       h2last->SetStats(false);
@@ -1851,10 +1850,10 @@ namespace {
       canvas.cd();
 
       auto hfirst = std::make_unique<TH1F>("byRegion1",
-                                                   "SiStrip APV Gain average by region;; average SiStrip Gain",
-                                                   firstmap.size(),
-                                                   0.,
-                                                   firstmap.size());
+                                           "SiStrip APV Gain average by region;; average SiStrip Gain",
+                                           firstmap.size(),
+                                           0.,
+                                           firstmap.size());
       auto hlast = std::make_unique<TH1F>(
           "byRegion2", "SiStrip APV Gain average by region;; average SiStrip Gain", lastmap.size(), 0., lastmap.size());
 

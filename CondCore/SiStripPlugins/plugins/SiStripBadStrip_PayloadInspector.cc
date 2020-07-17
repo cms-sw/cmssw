@@ -450,10 +450,10 @@ namespace {
       TCanvas canvas("BadStrip Region summary", "SiStripBadStrip region summary", 1200, 1000);
       canvas.cd();
       auto h_BadStrips = std::make_unique<TH1F>("BadStripsbyRegion",
-                                                        "SiStrip Bad Strip summary by region;; n. bad strips",
-                                                        mapBadStrips.size(),
-                                                        0.,
-                                                        mapBadStrips.size());
+                                                "SiStrip Bad Strip summary by region;; n. bad strips",
+                                                mapBadStrips.size(),
+                                                0.,
+                                                mapBadStrips.size());
       h_BadStrips->SetStats(false);
 
       canvas.SetBottomMargin(0.18);
@@ -616,17 +616,17 @@ namespace {
       canvas.cd();
 
       auto h_LastBadStrips = std::make_unique<TH1F>("BadStripsbyRegion1",
-                                                            "SiStrip Bad Strip summary by region;; n. bad strips",
-                                                            mapLastBadStrips.size(),
-                                                            0.,
-                                                            mapLastBadStrips.size());
+                                                    "SiStrip Bad Strip summary by region;; n. bad strips",
+                                                    mapLastBadStrips.size(),
+                                                    0.,
+                                                    mapLastBadStrips.size());
       h_LastBadStrips->SetStats(false);
 
       auto h_FirstBadStrips = std::make_unique<TH1F>("BadStripsbyRegion2",
-                                                             "SiStrip Bad Strip summary by region;; n. bad strips",
-                                                             mapFirstBadStrips.size(),
-                                                             0.,
-                                                             mapFirstBadStrips.size());
+                                                     "SiStrip Bad Strip summary by region;; n. bad strips",
+                                                     mapFirstBadStrips.size(),
+                                                     0.,
+                                                     mapFirstBadStrips.size());
       h_FirstBadStrips->SetStats(false);
 
       canvas.SetBottomMargin(0.18);
