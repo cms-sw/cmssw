@@ -1,13 +1,11 @@
 #include <memory>
 
-
-
 #include "CommonTools/UtilAlgos/interface/StringCutObjectSelector.h"
 #include "DataFormats/MuonReco/interface/MuonSelectors.h"
 #include "DataFormats/PatCandidates/interface/Muon.h"
 #include "DataFormats/PatCandidates/interface/PackedCandidate.h"
 #include "FWCore/Framework/interface/Event.h"
-        #include "FWCore/Framework/interface/stream/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
@@ -19,12 +17,12 @@ namespace pat {
     explicit PackedCandidateMuonSelectorProducer(const edm::ParameterSet& iConfig)
         : muonToken_(consumes<reco::MuonCollection>(iConfig.getParameter<edm::InputTag>("muons"))),
           candidateToken_(consumes<pat::PackedCandidateCollection>(iConfig.getParameter<edm::InputTag>("candidates"))),
-          candidate2PFToken_(consumes<edm::Association<reco::PFCandidateCollection> >(
+          candidate2PFToken_(consumes<edm::Association<reco::PFCandidateCollection>>(
               iConfig.getParameter<edm::InputTag>("candidates"))),
-          track2LostTrackToken_(consumes<edm::Association<pat::PackedCandidateCollection> >(
+          track2LostTrackToken_(consumes<edm::Association<pat::PackedCandidateCollection>>(
               iConfig.getParameter<edm::InputTag>("lostTracks"))),
-          muonSelectors_(iConfig.getParameter<std::vector<std::string> >("muonSelectors")),
-          muonIDs_(iConfig.getParameter<std::vector<std::string> >("muonIDs")) {
+          muonSelectors_(iConfig.getParameter<std::vector<std::string>>("muonSelectors")),
+          muonIDs_(iConfig.getParameter<std::vector<std::string>>("muonIDs")) {
       for (const auto& sel : muonSelectors_) {
         produces<pat::PackedCandidateRefVector>("lostTracks" + sel);
         produces<pat::PackedCandidateRefVector>("pfCandidates" + sel);
@@ -45,11 +43,11 @@ namespace pat {
     const edm::EDGetTokenT<reco::MuonCollection> muonToken_;
     const edm::EDGetTokenT<pat::PackedCandidateCollection> candidateToken_;
     const edm::EDGetTokenT<pat::PackedCandidateCollection> lostTrackToken_;
-    const edm::EDGetTokenT<edm::Association<reco::PFCandidateCollection> > candidate2PFToken_;
-    const edm::EDGetTokenT<edm::Association<pat::PackedCandidateCollection> > track2LostTrackToken_;
+    const edm::EDGetTokenT<edm::Association<reco::PFCandidateCollection>> candidate2PFToken_;
+    const edm::EDGetTokenT<edm::Association<pat::PackedCandidateCollection>> track2LostTrackToken_;
     const std::vector<std::string> muonSelectors_;
     const std::vector<std::string> muonIDs_;
-    std::map<std::string, std::unique_ptr<StringCutObjectSelector<reco::Muon> > > muonIDMap_;
+    std::map<std::string, std::unique_ptr<StringCutObjectSelector<reco::Muon>>> muonIDMap_;
   };
 
 }  // namespace pat
@@ -60,7 +58,7 @@ void pat::PackedCandidateMuonSelectorProducer::produce(edm::Event& iEvent, const
   const auto& candidate2PF = iEvent.get(candidate2PFToken_);
   const auto& track2LostTrack = iEvent.get(track2LostTrackToken_);
 
-  std::map<std::string, std::unique_ptr<pat::PackedCandidateRefVector> > lostTrackMap, candMap;
+  std::map<std::string, std::unique_ptr<pat::PackedCandidateRefVector>> lostTrackMap, candMap;
   for (const auto& sel : muonSelectors_) {
     lostTrackMap.emplace(sel, new pat::PackedCandidateRefVector());
     candMap.emplace(sel, new pat::PackedCandidateRefVector());
@@ -125,9 +123,9 @@ void pat::PackedCandidateMuonSelectorProducer::fillDescriptions(edm::Configurati
   desc.add<edm::InputTag>("candidates", edm::InputTag("packedPFCandidates"))
       ->setComment("packed PF candidate input collection");
   desc.add<edm::InputTag>("lostTracks", edm::InputTag("lostTracks"))->setComment("lost track input collection");
-  desc.add<std::vector<std::string> >("muonSelectors", {"AllTrackerMuons", "TMOneStationTight"})
+  desc.add<std::vector<std::string>>("muonSelectors", {"AllTrackerMuons", "TMOneStationTight"})
       ->setComment("muon selectors");
-  desc.add<std::vector<std::string> >("muonIDs", {})->setComment("muon IDs");
+  desc.add<std::vector<std::string>>("muonIDs", {})->setComment("muon IDs");
   descriptions.add("packedCandidateMuonID", desc);
 }
 

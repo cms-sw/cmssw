@@ -1,7 +1,5 @@
 #include <memory>
 
-
-
 #include "CommonTools/MVAUtils/interface/GBRForestTools.h"
 #include "CommonTools/MVAUtils/interface/TMVAEvaluator.h"
 #include "CommonTools/MVAUtils/interface/TMVAZipReader.h"

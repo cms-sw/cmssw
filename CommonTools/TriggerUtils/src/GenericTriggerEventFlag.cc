@@ -8,7 +8,7 @@
 
 #include <memory>
 
-        #include <vector>
+#include <vector>
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/Transition.h"
