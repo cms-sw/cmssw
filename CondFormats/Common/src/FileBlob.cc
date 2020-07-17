@@ -1,8 +1,10 @@
 #include "CondFormats/Common/interface/FileBlob.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include <iostream>
 #include <fstream>
+#include <iostream>
+#include <memory>
+
 #include <string>
 #include <zlib.h>
 
@@ -73,7 +75,7 @@ void FileBlob::write(std::ostream& os) const {
 std::unique_ptr<std::vector<unsigned char> > FileBlob::getUncompressedBlob() const {
   std::unique_ptr<std::vector<unsigned char> > newblob;
   if (compressed) {
-    newblob.reset(new std::vector<unsigned char>(isize));
+    newblob = std::make_unique<std::vector<unsigned char>>(isize);
     uLongf destLen = newblob->size();
     //    std::cout<<"Store isize = "<<isize<<"; newblob->size() = "<<newblob->size()<<"; destLen = "<<destLen<<std::endl;
     int zerr = uncompress(&*(newblob->begin()), &destLen, &*blob.begin(), blob.size());
@@ -81,7 +83,7 @@ std::unique_ptr<std::vector<unsigned char> > FileBlob::getUncompressedBlob() con
       edm::LogError("FileBlob") << "uncompressing error " << zerr << " original size was " << isize << " new size is "
                                 << destLen;
   } else {
-    newblob.reset(new std::vector<unsigned char>(blob));
+    newblob = std::make_unique<std::vector<unsigned char>>(blob);
   }
   return newblob;
 }
