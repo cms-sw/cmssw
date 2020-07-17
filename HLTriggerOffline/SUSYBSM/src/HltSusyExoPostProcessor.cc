@@ -58,11 +58,11 @@ void HltSusyExoPostProcessor::dqmEndJob(DQMStore::IBooker &iBooker_, DQMStore::I
 
   std::vector<int> L1placement;
   L1placement.reserve(nL1bins - 1 * mcFlag);
- for (int i = 0; i < nL1bins - 1 * mcFlag; ++i)
+  for (int i = 0; i < nL1bins - 1 * mcFlag; ++i)
     L1placement.push_back(6);
   std::vector<int> Hltplacement;
   Hltplacement.reserve(nHltbins - 1 * mcFlag);
- for (int i = 0; i < nHltbins - 1 * mcFlag; ++i)
+  for (int i = 0; i < nHltbins - 1 * mcFlag; ++i)
     Hltplacement.push_back(7);
   int L1bins[7];
   for (unsigned int i = 0; i < sizeof(L1bins) / sizeof(L1bins[0]); ++i)

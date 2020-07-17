@@ -6,8 +6,6 @@
 //                         June 2017
 #include <memory>
 
-
-
 #include "CommonTools/TriggerUtils/interface/GenericTriggerEventFlag.h"
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 #include "DQMServices/Core/interface/DQMStore.h"
@@ -17,7 +15,7 @@
 #include "DataFormats/HLTReco/interface/TriggerObject.h"
 #include "DataFormats/HLTReco/interface/TriggerTypeDefs.h"
 #include "DataFormats/Math/interface/deltaR.h"
-        #include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"

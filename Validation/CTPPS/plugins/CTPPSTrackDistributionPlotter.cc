@@ -28,7 +28,6 @@
 #include <map>
 #include <memory>
 
-        
 //----------------------------------------------------------------------------------------------------
 
 class CTPPSTrackDistributionPlotter : public edm::one::EDAnalyzer<> {

@@ -17,7 +17,7 @@
 
 #include <map>
 #include <memory>
-        #include <string>
+#include <string>
 #include <vector>
 
 #include <boost/filesystem.hpp>
@@ -327,9 +327,9 @@ void DQMRootOutputModule::openFile(edm::FileBlock const&) {
   //NOTE: I need to also set the I/O performance settings
 
   m_file = std::make_unique<TFile>(m_fileName.c_str(),
-                                            "RECREATE",
-                                            "1"  //This is the file format version number
-                                            );
+                                   "RECREATE",
+                                   "1"  //This is the file format version number
+  );
 
   edm::Service<edm::JobReport> jr;
   cms::Digest branchHash;
