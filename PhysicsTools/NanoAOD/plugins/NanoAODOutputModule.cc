@@ -19,7 +19,7 @@
 #include "TObjString.h"
 #include "TROOT.h"
 #include "TTree.h"
-        #include <string>
+#include <string>
 
 // user include files
 #include "FWCore/Framework/interface/one/OutputModule.h"
