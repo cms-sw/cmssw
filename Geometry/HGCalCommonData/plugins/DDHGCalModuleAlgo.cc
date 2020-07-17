@@ -24,6 +24,7 @@
 #include "FWCore/PluginManager/interface/PluginFactory.h"
 #include "Geometry/HGCalCommonData/interface/HGCalGeomTools.h"
 #include "Geometry/HGCalCommonData/interface/HGCalParameters.h"
+#include "Geometry/HGCalCommonData/interface/HGCalTypes.h"
 
 //#define EDM_ML_DEBUG
 using namespace geant_units::operators;
@@ -286,11 +287,7 @@ void DDHGCalModuleAlgo::positionSensitive(DDLogicalPart& glog, double rin, doubl
           double rpos = std::sqrt(xpos * xpos + ypos * ypos);
           DDTranslation tran(xpos, ypos, 0.0);
           DDRotation rotation;
-          int copy = inr * 100 + inc;
-          if (nc < 0)
-            copy += 10000;
-          if (nr < 0)
-            copy += 100000;
+	  int copy = HGCalTypes::packTypeUV(0, nc, nr);
           DDName name = (rpos < rMaxFine_) ? DDName(DDSplit(wafer_[0]).first, DDSplit(wafer_[0]).second)
                                            : DDName(DDSplit(wafer_[1]).first, DDSplit(wafer_[1]).second);
           cpv.position(name, glog.ddname(), copy, tran, rotation);
