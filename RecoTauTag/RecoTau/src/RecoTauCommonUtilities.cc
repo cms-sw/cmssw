@@ -62,7 +62,8 @@ namespace reco {
 
     std::vector<CandidatePtr> pfCandidates(const Jet& jet, const std::vector<int>& particleIds, bool sort) {
       std::vector<int> pdgIds;
-      for (auto particleId : particleIds)
+      pdgIds.reserve(particleIds.size());
+ for (auto particleId : particleIds)
         pdgIds.push_back(translateTypeToAbsPdgId(particleId));
       return pfCandidatesByPdgId(jet, pdgIds, sort);
     }

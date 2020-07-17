@@ -1,8 +1,12 @@
 #include "CombinedHitPairGeneratorForPhotonConversion.h"
-#include "HitPairGeneratorFromLayerPairForPhotonConversion.h"
+
+
+        #include <memory>
+
+#include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/Framework/interface/Event.h"
-#include "DataFormats/Common/interface/Handle.h"
+        #include "HitPairGeneratorFromLayerPairForPhotonConversion.h"
 
 #include "FWCore/Utilities/interface/RunningAverage.h"
 namespace {
@@ -14,8 +18,8 @@ CombinedHitPairGeneratorForPhotonConversion::CombinedHitPairGeneratorForPhotonCo
     : theSeedingLayerToken(iC.consumes<SeedingLayerSetsHits>(cfg.getParameter<edm::InputTag>("SeedingLayers"))) {
   theMaxElement = cfg.getParameter<unsigned int>("maxElement");
   maxHitPairsPerTrackAndGenerator = cfg.getParameter<unsigned int>("maxHitPairsPerTrackAndGenerator");
-  theGenerator.reset(
-      new HitPairGeneratorFromLayerPairForPhotonConversion(0, 1, &theLayerCache, 0, maxHitPairsPerTrackAndGenerator));
+  theGenerator = std::make_unique<HitPairGeneratorFromLayerPairForPhotonConversion>(
+      0, 1, &theLayerCache, 0, maxHitPairsPerTrackAndGenerator);
 }
 
 const OrderedHitPairs& CombinedHitPairGeneratorForPhotonConversion::run(const ConversionRegion& convRegion,

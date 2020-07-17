@@ -8,6 +8,10 @@
 
 #include "SiPixelRawToDigi.h"
 
+
+        #include <memory>
+
+        
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/ESTransientHandle.h"
@@ -73,7 +77,7 @@ SiPixelRawToDigi::SiPixelRawToDigi(const edm::ParameterSet& conf)
   // Timing
   bool timing = config_.getUntrackedParameter<bool>("Timing", false);
   if (timing) {
-    theTimer.reset(new edm::CPUTimer);
+    theTimer = std::make_unique<edm::CPUTimer>();
     hCPU = new TH1D("hCPU", "hCPU", 100, 0., 0.050);
     hDigi = new TH1D("hDigi", "hDigi", 50, 0., 15000.);
   }

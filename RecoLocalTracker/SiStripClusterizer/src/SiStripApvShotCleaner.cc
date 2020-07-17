@@ -1,6 +1,8 @@
 #include "RecoLocalTracker/SiStripClusterizer/interface/SiStripApvShotCleaner.h"
 #include <algorithm>
+#include <memory>
 
+        
 //Uncomment the following #define to have print debug
 //#define DEBUGME
 
@@ -146,7 +148,7 @@ void SiStripApvShotCleaner::subtractCM() {
 
 void SiStripApvShotCleaner::reset(edm::DetSet<SiStripDigi>::const_iterator& a,
                                   edm::DetSet<SiStripDigi>::const_iterator& b) {
-  pDetSet.reset(new edm::DetSet<SiStripDigi>(cacheDetId));
+  pDetSet = std::make_unique<edm::DetSet<SiStripDigi>>(cacheDetId);
   pDetSet->data.swap(vdigis);
   a = pDetSet->begin();
   b = pDetSet->end();

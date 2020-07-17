@@ -6,7 +6,9 @@
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
 #include "RecoParticleFlow/PFProducer/interface/PFBlockElementSCEqual.h"
 
-#include <unordered_map>
+#include <memory>
+
+        #include <unordered_map>
 
 class EGPhotonImporter : public BlockElementImporterBase {
 public:
@@ -45,7 +47,7 @@ EGPhotonImporter::EGPhotonImporter(const edm::ParameterSet& conf, edm::ConsumesC
   const float hoe = selDef.getParameter<double>("HoverE");
   const float loose_hoe = selDef.getParameter<double>("LooseHoverE");
   const float combIso = selDef.getParameter<double>("combIsoConstTerm");
-  _selector.reset(new PhotonSelectorAlgo((float)_selectionChoice,
+  _selector = std::make_unique<PhotonSelectorAlgo>((float)_selectionChoice,
                                          minEt,
                                          trackIso_const,
                                          trackIso_slope,
@@ -55,7 +57,7 @@ EGPhotonImporter::EGPhotonImporter(const edm::ParameterSet& conf, edm::ConsumesC
                                          hcalIso_slope,
                                          hoe,
                                          combIso,
-                                         loose_hoe));
+                                         loose_hoe);
 }
 
 void EGPhotonImporter::importToBlock(const edm::Event& e, BlockElementImporterBase::ElementList& elems) const {

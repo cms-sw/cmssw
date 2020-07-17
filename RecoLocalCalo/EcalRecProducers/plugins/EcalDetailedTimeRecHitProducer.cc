@@ -18,9 +18,11 @@
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include <iostream>
 #include <cmath>
-#include <vector>
+#include <iostream>
+#include <memory>
+
+        #include <vector>
 
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
@@ -137,7 +139,7 @@ void EcalDetailedTimeRecHitProducer::produce(edm::Event& evt, const edm::EventSe
         if (!(*VertexHandle).empty())  //at least 1 vertex
         {
           const reco::Vertex* myVertex = &(*VertexHandle)[0];
-          vertex.reset(new GlobalPoint(myVertex->x(), myVertex->y(), myVertex->z()));
+          vertex = std::make_unique<GlobalPoint>(myVertex->x(), myVertex->y(), myVertex->z());
         }
       }
 
@@ -150,7 +152,7 @@ void EcalDetailedTimeRecHitProducer::produce(edm::Event& evt, const edm::EventSe
         {
           assert((*VertexHandle)[0].vertexId() == 0);
           const SimVertex* myVertex = &(*VertexHandle)[0];
-          vertex.reset(new GlobalPoint(myVertex->position().x(), myVertex->position().y(), myVertex->position().z()));
+          vertex = std::make_unique<GlobalPoint>(myVertex->position().x(), myVertex->position().y(), myVertex->position().z());
         }
       }
     }

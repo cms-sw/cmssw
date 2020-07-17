@@ -16,11 +16,13 @@
 //
 //
 
-#include <iostream>
+#include <algorithm>
 #include <fstream>
 #include <functional>
-#include <algorithm>
+#include <iostream>
+#include <memory>
 
+        
 #include "fftjet/peakEtLifetime.hh"
 
 // Header for this class
@@ -376,8 +378,8 @@ bool FFTJetProducer::loadEnergyFlow(const edm::Event& iEvent, std::unique_ptr<ff
           flow->etaMax() == input->etaMax() && flow->phiBin0Edge() == input->phiBin0Edge());
   if (rebuildGrid) {
     // We should not get here very often...
-    flow = std::unique_ptr<fftjet::Grid2d<Real> >(new fftjet::Grid2d<Real>(
-        input->nEtaBins(), input->etaMin(), input->etaMax(), input->nPhiBins(), input->phiBin0Edge(), input->title()));
+    flow = std::make_unique<fftjet::Grid2d<Real> >(
+        input->nEtaBins(), input->etaMin(), input->etaMax(), input->nPhiBins(), input->phiBin0Edge(), input->title());
   }
   flow->blockSet(input->data(), input->nEtaBins(), input->nPhiBins());
   return rebuildGrid;

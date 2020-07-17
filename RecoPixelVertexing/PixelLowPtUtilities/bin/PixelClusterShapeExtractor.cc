@@ -30,8 +30,10 @@
 #include "TH2F.h"
 
 #include <map>
-#include <vector>
+#include <memory>
+
 #include <fstream>
+        #include <vector>
 
 #include <mutex>
 
@@ -136,7 +138,7 @@ void PixelClusterShapeExtractor::init() {
                                 (eyMax + 2)));
       }
   }
-  theMutex.reset(new std::mutex[hspc.size()]);
+  theMutex = std::make_unique<std::mutex[]>(hspc.size());
 }
 
 /*****************************************************************************/

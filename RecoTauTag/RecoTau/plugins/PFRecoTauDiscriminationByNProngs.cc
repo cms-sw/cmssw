@@ -2,9 +2,13 @@
 #include "FWCore/Utilities/interface/InputTag.h"
 #include <FWCore/ParameterSet/interface/ConfigurationDescriptions.h>
 #include <FWCore/ParameterSet/interface/ParameterSetDescription.h>
-#include "RecoTauTag/RecoTau/interface/RecoTauQualityCuts.h"
-#include "RecoTauTag/RecoTau/interface/RecoTauVertexAssociator.h"
+
+
+        #include <memory>
+
 #include "DataFormats/VertexReco/interface/Vertex.h"
+        #include "RecoTauTag/RecoTau/interface/RecoTauQualityCuts.h"
+#include "RecoTauTag/RecoTau/interface/RecoTauVertexAssociator.h"
 
 /* class PFRecoTauDiscriminationByNProngs
  * created : August 30 2010,
@@ -42,8 +46,8 @@ PFRecoTauDiscriminationByNProngs::PFRecoTauDiscriminationByNProngs(const Paramet
   maxN = iConfig.getParameter<uint32_t>("MaxN");
   booleanOutput = iConfig.getParameter<bool>("BooleanOutput");
 
-  qcuts_.reset(new tau::RecoTauQualityCuts(qualityCuts.getParameterSet("signalQualityCuts")));
-  vertexAssociator_.reset(new tau::RecoTauVertexAssociator(qualityCuts, consumesCollector()));
+  qcuts_ = std::make_unique<tau::RecoTauQualityCuts>(qualityCuts.getParameterSet("signalQualityCuts"));
+  vertexAssociator_ = std::make_unique<tau::RecoTauVertexAssociator>(qualityCuts, consumesCollector());
 }
 
 void PFRecoTauDiscriminationByNProngs::beginEvent(const Event& iEvent, const EventSetup& iSetup) {
