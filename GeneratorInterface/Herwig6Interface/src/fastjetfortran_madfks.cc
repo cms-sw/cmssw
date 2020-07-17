@@ -26,6 +26,8 @@
 //ENDHEADER
 
 #include <iostream>
+#include <memory>
+
 #include "fastjet/ClusterSequence.hh"
 #include "fastjet/ClusterSequenceArea.hh"
 #include "fastjet/Selector.hh"
@@ -89,12 +91,12 @@ namespace fwrapper {
     // perform the clustering
     if ( ghost_maxrap == 0.0 ) {
          // cluster without areas
-	 cs.reset(new ClusterSequence(input_particles,jet_def));
+	 cs = std::make_unique<ClusterSequence>(input_particles,jet_def);
     } else {
          // cluster with areas
          GhostedAreaSpec area_spec(ghost_maxrap,nrepeat,ghost_area);
          AreaDefinition area_def(active_area, area_spec);
-	 cs.reset(new ClusterSequenceArea(input_particles,jet_def,area_def));
+	 cs = std::make_unique<ClusterSequenceArea>(input_particles,jet_def,area_def);
     }
     // extract jets (pt-ordered)
     jets = sorted_by_pt(cs->inclusive_jets(ptmin));
@@ -158,7 +160,7 @@ void fastjetsiscone_(const double * p, const int & npart,
                      double * f77jets, int & njets, int * whichjet) {
     
     // prepare jet def
-    plugin.reset(new SISConePlugin(R,f));
+    plugin = std::make_unique<SISConePlugin>(R,f);
     jet_def = plugin.get();
 
     // do everything
@@ -208,7 +210,7 @@ void fastjetsisconewitharea_(const double * p, const int & npart,
                      double * f77jets, int & njets, int * whichjet) {
     
     // prepare jet def
-    plugin.reset(new SISConePlugin(R,f));
+    plugin = std::make_unique<SISConePlugin>(R,f);
     jet_def = plugin.get();
 
     // do everything

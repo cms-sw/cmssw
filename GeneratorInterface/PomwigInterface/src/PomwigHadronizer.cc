@@ -1,12 +1,14 @@
 #include "GeneratorInterface/PomwigInterface/interface/PomwigHadronizer.h"
 
 #include <cstring>
-#include <sstream>
+#include <memory>
+
+#include <map>
+#include <memory>
+#include <set>
+        #include <sstream>
 #include <string>
 #include <vector>
-#include <memory>
-#include <map>
-#include <set>
 
 #include <boost/algorithm/string/classification.hpp>
 #include <boost/algorithm/string/split.hpp>
@@ -344,7 +346,7 @@ namespace gen {
     if (hwevnt.IERROR)
       return false;
 
-    event().reset(new HepMC::GenEvent);
+    event() = std::make_unique<HepMC::GenEvent>();
     if (!conv.fill_next_event(event().get()))
       throw cms::Exception("PomwigError") << "HepMC Conversion problems in event." << std::endl;
 

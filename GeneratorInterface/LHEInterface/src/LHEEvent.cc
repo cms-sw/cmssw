@@ -1,12 +1,14 @@
 #include <algorithm>
-#include <iostream>
 #include <iomanip>
-#include <sstream>
+#include <iostream>
+#include <memory>
+
+#include <cmath>
 #include <cstring>
+#include <memory>
+        #include <sstream>
 #include <string>
 #include <vector>
-#include <memory>
-#include <cmath>
 
 #include "HepMC/GenEvent.h"
 #include "HepMC/GenVertex.h"
@@ -83,7 +85,7 @@ namespace lhef {
       std::string tag;
       ss >> tag;
       if (tag == "#pdf") {
-        pdf.reset(new PDF);
+        pdf = std::make_unique<PDF>();
         ss >> pdf->id.first >> pdf->id.second >> pdf->x.first >> pdf->x.second >> pdf->scalePDF >> pdf->xPDF.first >>
             pdf->xPDF.second;
         if (ss.bad()) {

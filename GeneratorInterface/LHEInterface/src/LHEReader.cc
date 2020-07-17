@@ -1,12 +1,14 @@
 #include <algorithm>
 #include <iomanip>
 #include <iostream>
-#include <sstream>
-#include <fstream>
+#include <memory>
+
+#include <cstdio>
 #include <cstring>
+#include <fstream>
+        #include <sstream>
 #include <string>
 #include <vector>
-#include <cstdio>
 
 #include <xercesc/sax2/Attributes.hpp>
 #include <xercesc/dom/DOM.hpp>
@@ -51,7 +53,7 @@ namespace lhef {
         throw cms::Exception("FileOpenError")
             << "Could not open LHE file \"" << fileURL << "\" for reading" << std::endl;
 
-      fileStream.reset(new StorageWrap(std::move(storage)));
+      fileStream = std::make_unique<StorageWrap>(std::move(storage));
     }
 
     ~FileSource() override {}
@@ -448,13 +450,13 @@ namespace lhef {
         }
         if (!fileURLs.empty()) {
           logFileAction("  Initiating request to open LHE file ", fileURLs[curIndex]);
-          curSource.reset(new FileSource(fileURLs[curIndex]));
+          curSource = std::make_unique<FileSource>(fileURLs[curIndex]);
           logFileAction("  Successfully opened LHE file ", fileURLs[curIndex]);
           if (newFileOpened != nullptr)
             *newFileOpened = true;
           ++curIndex;
         } else if (!strName.empty()) {
-          curSource.reset(new StringSource(strName));
+          curSource = std::make_unique<StringSource>(strName);
         }
         handler->reset();
         curDoc.reset(curSource->createReader(*handler));

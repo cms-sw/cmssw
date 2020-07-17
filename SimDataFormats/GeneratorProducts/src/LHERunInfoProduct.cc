@@ -211,7 +211,7 @@ bool LHERunInfoProduct::mergeProduct(const LHERunInfoProduct &other) {
     // make a list of headers contained in the second file
     std::vector<std::vector<std::string> > runcard_v2;
     std::vector<std::string> runcard_v2_header;
-    for (auto header2 : headers_) {
+    for (const auto& header2 : headers_) {
       // fill a vector with the relevant header tags that can be not equal but sill compatible
       if (find_if_checklist(header2.tag(), tag_comparison_checklist)) {
         runcard_v2.push_back(header2.lines());
