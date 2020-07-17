@@ -159,7 +159,7 @@ DTConfigDBProducer::~DTConfigDBProducer() {}
 std::unique_ptr<DTConfigManager> DTConfigDBProducer::produce(const DTConfigManagerRcd &iRecord) {
   using namespace edm;
 
-  std::unique_ptr<DTConfigManager> dtConfig = std::unique_ptr<DTConfigManager>(new DTConfigManager());
+  std::unique_ptr<DTConfigManager> dtConfig = std::make_unique<DTConfigManager>();
   DTConfigManager &dttpgConfig = *(dtConfig.get());
 
   // DB specific requests

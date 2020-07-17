@@ -1,3 +1,7 @@
+#include <memory>
+
+
+
 #include "L1Trigger/CSCTriggerPrimitives/interface/CSCGEMMotherboardME21.h"
 
 CSCGEMMotherboardME21::CSCGEMMotherboardME21(unsigned endcap,
@@ -16,7 +20,7 @@ CSCGEMMotherboardME21::CSCGEMMotherboardME21(unsigned endcap,
         << "+++ Upgrade CSCGEMMotherboardME21 constructed while isSLHC is not set! +++\n";
 
   // set LUTs
-  tmbLUT_.reset(new CSCGEMMotherboardLUTME21());
+  tmbLUT_ = std::make_unique<CSCGEMMotherboardLUTME21>();
 }
 
 CSCGEMMotherboardME21::CSCGEMMotherboardME21() : CSCGEMMotherboard() {
@@ -447,7 +451,7 @@ void CSCGEMMotherboardME21::correlateLCTsGEM(const CSCALCTDigi& bALCT,
                                              const GEMCoPadDigiIds& copads,
                                              CSCCorrelatedLCTDigi& lct1,
                                              CSCCorrelatedLCTDigi& lct2) const {
-  CSCALCTDigi bestALCT = bALCT;
+  const CSCALCTDigi& bestALCT = bALCT;
   CSCALCTDigi secondALCT = sALCT;
   const CSCCLCTDigi& bestCLCT = bCLCT;
   CSCCLCTDigi secondCLCT = sCLCT;
