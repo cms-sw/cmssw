@@ -34,7 +34,6 @@ HepMC::IO_HEPEVT conv;
 #include <iomanip>
 #include <memory>
 
-        
 namespace gen {
 
   extern "C" {

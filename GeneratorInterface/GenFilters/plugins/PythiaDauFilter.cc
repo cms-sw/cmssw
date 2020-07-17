@@ -5,7 +5,6 @@
 #include <iostream>
 #include <memory>
 
-        
 using namespace edm;
 using namespace std;
 using namespace Pythia8;
