@@ -205,7 +205,7 @@ void MCMisalignmentScaler::analyze(const edm::Event&, const edm::EventSetup& iSe
                            (*ideal)->rotation().zz() + scaleFactor * zz_diff}};
 
       const AlignTransform rescaledTransform{rescaledTranslation, rescaledRotation, misaligned->rawId()};
-      rescaledAlignments.m_align.emplace_back(std::move(rescaledTransform));
+      rescaledAlignments.m_align.emplace_back(rescaledTransform);
     }
   }
 
@@ -232,9 +232,9 @@ MCMisalignmentScaler::ScalerMap MCMisalignmentScaler::decodeSubDetectors(const e
     const auto& factor = pset.getUntrackedParameter<double>("factor");
 
     std::vector<int> sides;
-    if (name.find("-") != std::string::npos)
+    if (name.find('-') != std::string::npos)
       sides.push_back(1);
-    if (name.find("+") != std::string::npos)
+    if (name.find('+') != std::string::npos)
       sides.push_back(2);
     if (sides.empty()) {  // -> use both sides
       sides.push_back(1);

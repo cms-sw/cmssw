@@ -1,3 +1,7 @@
+#include <memory>
+
+
+
 #include "CalibTracker/SiStripDCS/interface/SiStripCoralIface.h"
 #include "CondCore/CondDB/interface/ConnectionPool.h"
 #include "RelationalAccess/ISessionProxy.h"
@@ -37,7 +41,7 @@ void SiStripCoralIface::initialize() {
   connection.configure();
   m_session = connection.createSession(m_connectionString);
   try {
-    m_transaction.reset(new cond::persistency::TransactionScope(m_session.transaction()));
+    m_transaction = std::make_unique<cond::persistency::TransactionScope>(m_session.transaction());
     m_transaction->start(true);
     LogTrace("SiStripCoralIface") << "[SiStripCoralIface::" << __func__ << "] Database connection opened";
   } catch (...) {
