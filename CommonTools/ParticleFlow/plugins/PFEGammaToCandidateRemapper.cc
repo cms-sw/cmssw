@@ -44,7 +44,7 @@ private:
     std::vector<std::vector<reco::PFCandidateRef>> refs(handle->size());
     for (unsigned int i = 0, n = handle->size(); i < n; ++i) {
       edm::Ref<std::vector<T>> egRef(handle, i);
-      for (reco::PFCandidateRef pfRef : (*oldmap)[egRef]) {
+      for (const reco::PFCandidateRef& pfRef : (*oldmap)[egRef]) {
         refs[i].push_back(pf2pf[pfRef]);
       }
     }

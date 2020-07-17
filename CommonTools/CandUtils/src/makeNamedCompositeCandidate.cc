@@ -1,4 +1,8 @@
-#include "CommonTools/CandUtils/interface/makeNamedCompositeCandidate.h"
+#include <memory>
+
+
+
+        #include "CommonTools/CandUtils/interface/makeNamedCompositeCandidate.h"
 using namespace reco;
 using namespace std;
 
@@ -6,7 +10,7 @@ helpers::NamedCompositeCandidateMaker makeNamedCompositeCandidate(const Candidat
                                                                   std::string s1,
                                                                   const Candidate& c2,
                                                                   std::string s2) {
-  helpers::NamedCompositeCandidateMaker cmp(unique_ptr<NamedCompositeCandidate>(new NamedCompositeCandidate));
+  helpers::NamedCompositeCandidateMaker cmp(std::make_unique<NamedCompositeCandidate>());
   cmp.addDaughter(c1, s1);
   cmp.addDaughter(c2, s2);
   return cmp;
@@ -14,7 +18,7 @@ helpers::NamedCompositeCandidateMaker makeNamedCompositeCandidate(const Candidat
 
 helpers::NamedCompositeCandidateMaker makeNamedCompositeCandidate(
     const Candidate& c1, std::string s1, const Candidate& c2, std::string s2, const Candidate& c3, std::string s3) {
-  helpers::NamedCompositeCandidateMaker cmp(unique_ptr<NamedCompositeCandidate>(new NamedCompositeCandidate));
+  helpers::NamedCompositeCandidateMaker cmp(std::make_unique<NamedCompositeCandidate>());
   cmp.addDaughter(c1, s1);
   cmp.addDaughter(c2, s2);
   cmp.addDaughter(c3, s3);
@@ -29,7 +33,7 @@ helpers::NamedCompositeCandidateMaker makeNamedCompositeCandidate(const Candidat
                                                                   std::string s3,
                                                                   const Candidate& c4,
                                                                   std::string s4) {
-  helpers::NamedCompositeCandidateMaker cmp(unique_ptr<NamedCompositeCandidate>(new NamedCompositeCandidate));
+  helpers::NamedCompositeCandidateMaker cmp(std::make_unique<NamedCompositeCandidate>());
   cmp.addDaughter(c1, s1);
   cmp.addDaughter(c2, s2);
   cmp.addDaughter(c3, s3);
@@ -41,7 +45,7 @@ helpers::NamedCompositeCandidateMaker makeNamedCompositeCandidateWithRefsToMaste
                                                                                   std::string s1,
                                                                                   const reco::CandidateRef& c2,
                                                                                   std::string s2) {
-  helpers::NamedCompositeCandidateMaker cmp(unique_ptr<NamedCompositeCandidate>(new NamedCompositeCandidate));
+  helpers::NamedCompositeCandidateMaker cmp(std::make_unique<NamedCompositeCandidate>());
   cmp.addDaughter(ShallowCloneCandidate(CandidateBaseRef(c1)), s1);
   cmp.addDaughter(ShallowCloneCandidate(CandidateBaseRef(c2)), s2);
   return cmp;
@@ -53,7 +57,7 @@ helpers::NamedCompositeCandidateMaker makeNamedCompositeCandidateWithRefsToMaste
                                                                                   std::string s2,
                                                                                   const reco::CandidateRef& c3,
                                                                                   std::string s3) {
-  helpers::NamedCompositeCandidateMaker cmp(unique_ptr<NamedCompositeCandidate>(new NamedCompositeCandidate));
+  helpers::NamedCompositeCandidateMaker cmp(std::make_unique<NamedCompositeCandidate>());
   cmp.addDaughter(ShallowCloneCandidate(CandidateBaseRef(c1)), s1);
   cmp.addDaughter(ShallowCloneCandidate(CandidateBaseRef(c2)), s2);
   cmp.addDaughter(ShallowCloneCandidate(CandidateBaseRef(c3)), s3);
@@ -68,7 +72,7 @@ helpers::NamedCompositeCandidateMaker makeNamedCompositeCandidateWithRefsToMaste
                                                                                   std::string s3,
                                                                                   const reco::CandidateRef& c4,
                                                                                   std::string s4) {
-  helpers::NamedCompositeCandidateMaker cmp(unique_ptr<NamedCompositeCandidate>(new NamedCompositeCandidate));
+  helpers::NamedCompositeCandidateMaker cmp(std::make_unique<NamedCompositeCandidate>());
   cmp.addDaughter(ShallowCloneCandidate(CandidateBaseRef(c1)), s1);
   cmp.addDaughter(ShallowCloneCandidate(CandidateBaseRef(c2)), s2);
   cmp.addDaughter(ShallowCloneCandidate(CandidateBaseRef(c3)), s3);

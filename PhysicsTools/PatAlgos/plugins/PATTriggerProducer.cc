@@ -3,11 +3,13 @@
 
 #include "PhysicsTools/PatAlgos/plugins/PATTriggerProducer.h"
 
-#include <vector>
-#include <map>
-#include <utility>
+#include <memory>
+
 #include <cassert>
+#include <map>
 #include <string>
+#include <utility>
+        #include <vector>
 
 #include "FWCore/Framework/interface/InputTagMatch.h"
 
@@ -642,9 +644,9 @@ void PATTriggerProducer::produce(Event& iEvent, const EventSetup& iSetup) {
     }
 
     if (packPrescales_) {
-      packedPrescales.reset(new PackedTriggerPrescales(handleTriggerResults));
-      packedPrescalesL1min.reset(new PackedTriggerPrescales(handleTriggerResults));
-      packedPrescalesL1max.reset(new PackedTriggerPrescales(handleTriggerResults));
+      packedPrescales = std::make_unique<PackedTriggerPrescales>(handleTriggerResults);
+      packedPrescalesL1min = std::make_unique<PackedTriggerPrescales>(handleTriggerResults);
+      packedPrescalesL1max = std::make_unique<PackedTriggerPrescales>(handleTriggerResults);
       const edm::TriggerNames& names = iEvent.triggerNames(*handleTriggerResults);
       //std::cout << "Run " << iEvent.id().run() << ", LS " << iEvent.id().luminosityBlock() << ": pset " << set << std::endl;
       for (unsigned int i = 0, n = names.size(); i < n; ++i) {

@@ -1,12 +1,16 @@
-#include "FWCore/Framework/interface/stream/EDProducer.h"
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
-#include "FWCore/Utilities/interface/InputTag.h"
+#include <memory>
+
+
+
+#include "CommonTools/UtilAlgos/interface/StringCutObjectSelector.h"
+#include "DataFormats/MuonReco/interface/MuonSelectors.h"
 #include "DataFormats/PatCandidates/interface/Muon.h"
 #include "DataFormats/PatCandidates/interface/PackedCandidate.h"
-#include "DataFormats/MuonReco/interface/MuonSelectors.h"
-#include "CommonTools/UtilAlgos/interface/StringCutObjectSelector.h"
+#include "FWCore/Framework/interface/Event.h"
+        #include "FWCore/Framework/interface/stream/EDProducer.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 
 namespace pat {
 
@@ -26,7 +30,7 @@ namespace pat {
         produces<pat::PackedCandidateRefVector>("pfCandidates" + sel);
       }
       for (const auto& sel : muonIDs_) {
-        muonIDMap_[sel].reset(new StringCutObjectSelector<reco::Muon>("passed('" + sel + "')"));
+        muonIDMap_[sel] = std::make_unique<StringCutObjectSelector<reco::Muon>>("passed('" + sel + "')");
         produces<pat::PackedCandidateRefVector>("lostTracks" + sel);
         produces<pat::PackedCandidateRefVector>("pfCandidates" + sel);
       }
