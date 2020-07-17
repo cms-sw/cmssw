@@ -5,9 +5,7 @@
 
 #include <memory>
 
-
-
-        #include "RecoTauTag/HLTProducers/interface/L2TauPixelIsoTagProducer.h"
+#include "RecoTauTag/HLTProducers/interface/L2TauPixelIsoTagProducer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
