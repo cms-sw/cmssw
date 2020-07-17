@@ -23,6 +23,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/Utilities/interface/thread_safety_macros.h"
+#include "FWCore/Utilities/interface/ESGetToken.h"
 #include "RecoTracker/FinalTrackSelectors/interface/TrackAlgoPriorityOrder.h"
 #include "RecoTracker/Record/interface/CkfComponentsRecord.h"
 #include "TrackingTools/PatternTools/interface/TrajTrackAssociation.h"
@@ -55,6 +56,8 @@ private:
 
   bool copyExtras_;
   bool makeReKeyedSeeds_;
+
+  edm::ESGetToken<TrackAlgoPriorityOrder, CkfComponentsRecord> priorityToken;
 
   struct TkEDGetTokenss {
     edm::InputTag tag;
@@ -215,6 +218,7 @@ TrackListMerger::TrackListMerger(edm::ParameterSet const& conf) {
   lostHitPenalty_ = conf.getParameter<double>("LostHitPenalty");
   indivShareFrac_ = conf.getParameter<std::vector<double>>("indivShareFrac");
   std::string qualityStr = conf.getParameter<std::string>("newQuality");
+  priorityToken = esConsumes<TrackAlgoPriorityOrder, CkfComponentsRecord>(edm::ESInputTag("", priorityName_));
 
   if (!qualityStr.empty()) {
     qualityToSet_ = reco::TrackBase::qualityByName(conf.getParameter<std::string>("newQuality"));
@@ -309,8 +313,7 @@ void TrackListMerger::produce(edm::Event& e, const edm::EventSetup& es) {
 
   //    using namespace reco;
 
-  edm::ESHandle<TrackAlgoPriorityOrder> priorityH;
-  es.get<CkfComponentsRecord>().get(priorityName_, priorityH);
+  edm::ESHandle<TrackAlgoPriorityOrder> priorityH = es.getHandle(priorityToken);
   auto const& trackAlgoPriorityOrder = *priorityH;
 
   // get Inputs
