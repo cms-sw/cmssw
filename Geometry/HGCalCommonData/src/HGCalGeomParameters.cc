@@ -13,6 +13,7 @@
 #include "DetectorDescription/Core/interface/DDutils.h"
 #include "DetectorDescription/DDCMS/interface/DDShapes.h"
 #include "DetectorDescription/RegressionTest/interface/DDErrorDetection.h"
+#include "Geometry/HGCalCommonData/interface/HGCalTypes.h"
 #include "Geometry/HGCalCommonData/interface/HGCalWaferIndex.h"
 #include "Geometry/HGCalCommonData/interface/HGCalWaferMask.h"
 #include "Geometry/HGCalCommonData/interface/HGCalWaferType.h"
@@ -1418,11 +1419,7 @@ void HGCalGeomParameters::loadWaferHexagon(HGCalParameters& php) {
         }
         ++ntot;
         if (corner.first > 0) {
-          int copy = inr * 100 + inc;
-          if (nc < 0)
-            copy += 10000;
-          if (nr < 0)
-            copy += 100000;
+          int copy = HGCalTypes::packTypeUV(typel, nc, nr);
           if (inc > incm)
             incm = inc;
           if (inr > inrm)
