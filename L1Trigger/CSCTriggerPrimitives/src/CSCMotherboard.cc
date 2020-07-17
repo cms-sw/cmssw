@@ -1,5 +1,7 @@
 #include "L1Trigger/CSCTriggerPrimitives/interface/CSCMotherboard.h"
 #include <iostream>
+#include <memory>
+
 
 // Default values of configuration parameters.
 const unsigned int CSCMotherboard::def_mpc_block_me1a = 1;
@@ -46,8 +48,8 @@ CSCMotherboard::CSCMotherboard(unsigned endcap,
 
   infoV = tmbParams_.getParameter<int>("verbosity");
 
-  alctProc.reset(new CSCAnodeLCTProcessor(endcap, station, sector, subsector, chamber, conf));
-  clctProc.reset(new CSCCathodeLCTProcessor(endcap, station, sector, subsector, chamber, conf));
+  alctProc = std::make_unique<CSCAnodeLCTProcessor>(endcap, station, sector, subsector, chamber, conf);
+  clctProc = std::make_unique<CSCCathodeLCTProcessor>(endcap, station, sector, subsector, chamber, conf);
 
   // Check and print configuration parameters.
   checkConfigParameters();
@@ -63,8 +65,8 @@ CSCMotherboard::CSCMotherboard() : CSCBaseboard() {
 
   early_tbins = 4;
 
-  alctProc.reset(new CSCAnodeLCTProcessor());
-  clctProc.reset(new CSCCathodeLCTProcessor());
+  alctProc = std::make_unique<CSCAnodeLCTProcessor>();
+  clctProc = std::make_unique<CSCCathodeLCTProcessor>();
   mpc_block_me1a = def_mpc_block_me1a;
   alct_trig_enable = def_alct_trig_enable;
   clct_trig_enable = def_clct_trig_enable;

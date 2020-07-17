@@ -547,7 +547,7 @@ namespace tmtt {
       float minD = std::numeric_limits<float>::infinity();
       float d(0);
       unsigned int m(0);
-      for (auto binCenters : cellCenters_) {
+      for (const auto& binCenters : cellCenters_) {
         unsigned int c(0);
         for (auto cellCenter : binCenters) {
           d = std::pow((cellCenter.first - qOverPt) / (float)binSizeQoverPtAxis_, 2) +

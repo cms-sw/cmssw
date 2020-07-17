@@ -2,6 +2,8 @@
 
 #include <iomanip>
 #include <iostream>
+#include <memory>
+
 
 // Default values of configuration parameters.
 const unsigned int CSCCathodeLCTProcessor::def_fifo_tbins = 12;
@@ -93,8 +95,8 @@ CSCCathodeLCTProcessor::CSCCathodeLCTProcessor(unsigned endcap,
     slopeLUTFiles_ = conf.getParameter<std::vector<std::string>>("slopeLUTFiles");
 
     for (int i = 0; i < 5; ++i) {
-      lutpos_[i].reset(new CSCComparatorCodeLUT(positionLUTFiles_[i]));
-      lutslope_[i].reset(new CSCComparatorCodeLUT(slopeLUTFiles_[i]));
+      lutpos_[i] = std::make_unique<CSCComparatorCodeLUT>(positionLUTFiles_[i]);
+      lutslope_[i] = std::make_unique<CSCComparatorCodeLUT>(slopeLUTFiles_[i]);
     }
   }
 

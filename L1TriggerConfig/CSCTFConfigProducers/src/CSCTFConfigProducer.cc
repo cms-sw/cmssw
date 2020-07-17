@@ -1,10 +1,12 @@
 #include <L1TriggerConfig/CSCTFConfigProducers/interface/CSCTFConfigProducer.h>
 #include <FWCore/MessageLogger/interface/MessageLogger.h>
 
-#include <cstdio>
 #include <cerrno>
-#include <iostream>
+#include <cstdio>
 #include <fstream>
+#include <iostream>
+#include <memory>
+
 
 CSCTFConfigProducer::CSCTFConfigProducer(const edm::ParameterSet& pset) {
   const char* name[12] = {"registersSP1",
@@ -39,7 +41,7 @@ std::unique_ptr<L1MuCSCTFConfiguration> CSCTFConfigProducer::produceL1MuCSCTFCon
                                               << " L1MuCSCTFConfiguration from PSET";
 
   std::unique_ptr<L1MuCSCTFConfiguration> config =
-      std::unique_ptr<L1MuCSCTFConfiguration>(new L1MuCSCTFConfiguration(registers));
+      std::make_unique<L1MuCSCTFConfiguration>(registers);
   return config;
 }
 
@@ -48,7 +50,7 @@ std::unique_ptr<L1MuCSCTFAlignment> CSCTFConfigProducer::produceL1MuCSCTFAlignme
   edm::LogInfo("L1-O2O: CSCTFConfigProducer") << "Producing "
                                               << " L1MuCSCTFAlignment from PSET";
 
-  std::unique_ptr<L1MuCSCTFAlignment> al = std::unique_ptr<L1MuCSCTFAlignment>(new L1MuCSCTFAlignment(alignment));
+  std::unique_ptr<L1MuCSCTFAlignment> al = std::make_unique<L1MuCSCTFAlignment>(alignment);
   return al;
 }
 
@@ -56,7 +58,7 @@ std::unique_ptr<L1MuCSCPtLut> CSCTFConfigProducer::produceL1MuCSCPtLutRcd(const 
   edm::LogInfo("L1-O2O: CSCTFConfigProducer") << "Producing "
                                               << " L1MuCSCPtLut from PSET";
 
-  std::unique_ptr<L1MuCSCPtLut> pt_lut = std::unique_ptr<L1MuCSCPtLut>(new L1MuCSCPtLut());
+  std::unique_ptr<L1MuCSCPtLut> pt_lut = std::make_unique<L1MuCSCPtLut>();
 
   if (ptLUT_path.length()) {
     readLUT(ptLUT_path, (unsigned short*)pt_lut->pt_lut, 1 << 21);  //CSCBitWidths::kPtAddressWidth

@@ -90,7 +90,7 @@ void XMLConfigReader::readLUTs(std::vector<l1t::LUT *> luts,
 
     unsigned int in = 0;
     int out = 0;
-    for (auto it : aGPs) {
+    for (const auto& it : aGPs) {
       if (type == "iCharge")
         out = it->key().theCharge == -1 ? 0 : 1;
       if (type == "iEta")

@@ -724,11 +724,11 @@ void L1TStage2CaloLayer2Comp::accuSort(std::vector<l1t::Jet> *jets) {
 
   // put all 12 candidates in the original jet vector, removing zero energy ones
   jets->clear();
-  for (l1t::Jet accjet : accumEtaPos) {
+  for (const l1t::Jet& accjet : accumEtaPos) {
     if (accjet.hwPt() > 0)
       jets->push_back(accjet);
   }
-  for (l1t::Jet accjet : accumEtaNeg) {
+  for (const l1t::Jet& accjet : accumEtaNeg) {
     if (accjet.hwPt() > 0)
       jets->push_back(accjet);
   }
@@ -784,11 +784,11 @@ void L1TStage2CaloLayer2Comp::accuSort(std::vector<l1t::EGamma> *egs) {
 
   // put all 12 candidates in the original jet vector, removing zero energy ones
   egs->clear();
-  for (l1t::EGamma accjet : accumEtaPos) {
+  for (const l1t::EGamma& accjet : accumEtaPos) {
     if (accjet.hwPt() > 0)
       egs->push_back(accjet);
   }
-  for (l1t::EGamma accjet : accumEtaNeg) {
+  for (const l1t::EGamma& accjet : accumEtaNeg) {
     if (accjet.hwPt() > 0)
       egs->push_back(accjet);
   }
@@ -844,11 +844,11 @@ void L1TStage2CaloLayer2Comp::accuSort(std::vector<l1t::Tau> *taus) {
 
   // put all 12 candidates in the original jet vector, removing zero energy ones
   taus->clear();
-  for (l1t::Tau accjet : accumEtaPos) {
+  for (const l1t::Tau& accjet : accumEtaPos) {
     if (accjet.hwPt() > 0)
       taus->push_back(accjet);
   }
-  for (l1t::Tau accjet : accumEtaNeg) {
+  for (const l1t::Tau& accjet : accumEtaNeg) {
     if (accjet.hwPt() > 0)
       taus->push_back(accjet);
   }

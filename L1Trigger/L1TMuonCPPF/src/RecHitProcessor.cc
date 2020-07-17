@@ -43,7 +43,7 @@ void RecHitProcessor::processLook(const edm::Event &iEvent,
     CPPFRollMask mask;
     CPPFClusterContainer cls = mrclizer.doAction(rpcId, tcls, mask);
 
-    for (auto cl : cls) {
+    for (const auto& cl : cls) {
       int isValid = rpcDigis.isValid();
       int rawId = rpcId.rawId();
       int Bx = cl.bx();
@@ -307,7 +307,7 @@ void RecHitProcessor::process(const edm::Event &iEvent,
     CPPFRollMask mask;
     CPPFClusterContainer cls = mrclizer.doAction(rpcId, tcls, mask);
 
-    for (auto cl : cls) {
+    for (const auto& cl : cls) {
       int region = rpcId.region();
       int isValid = rpcDigis.isValid();
       //      int rawId = rpcId.rawId();
