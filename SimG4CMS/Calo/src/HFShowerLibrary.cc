@@ -41,7 +41,7 @@ HFShowerLibrary::HFShowerLibrary(const std::string& name,
   verbose = m_HS.getUntrackedParameter<bool>("Verbosity", false);
   applyFidCut = m_HS.getParameter<bool>("ApplyFiducialCut");
 
-  if (pTreeName.find(".") == 0)
+  if (pTreeName.find('.') == 0)
     pTreeName.erase(0, 2);
   const char* nTree = pTreeName.c_str();
   hf = TFile::Open(nTree);

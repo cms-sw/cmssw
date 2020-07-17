@@ -4,6 +4,10 @@
 // Description: Sensitive Detector class for Zdc
 // Modifications:
 ///////////////////////////////////////////////////////////////////////////////
+#include <memory>
+
+
+
 #include "SimG4CMS/Forward/interface/ZdcSD.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Framework/interface/ESTransientHandle.h"
@@ -50,7 +54,7 @@ ZdcSD::ZdcSD(const std::string& name,
   edm::LogVerbatim("ZdcSD") << "\nEnergy Threshold Cut set to " << zdcHitEnergyCut / GeV << " (GeV)";
 
   if (useShowerLibrary) {
-    showerLibrary.reset(new ZdcShowerLibrary(name, p));
+    showerLibrary = std::make_unique<ZdcShowerLibrary>(name, p);
     setParameterized(true);
   } else {
     showerLibrary.reset(nullptr);

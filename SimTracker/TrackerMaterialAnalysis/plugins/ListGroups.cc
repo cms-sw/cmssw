@@ -318,7 +318,7 @@ void ListGroups::produceAndSaveSummaryPlot(const edm::EventSetup &setup) {
   edm::ESTransientHandle<DDCompactView> hDdd;
   setup.get<IdealGeometryRecord>().get(hDdd);
 
-  for (auto n : m_group_names) {
+  for (const auto& n : m_group_names) {
     m_groups.push_back(new MaterialAccountingGroup(n, *hDdd));
   };
 
@@ -351,7 +351,7 @@ void ListGroups::produceAndSaveSummaryPlot(const edm::EventSetup &setup) {
     current.SetMarkerStyle(markerStyles[color_index % 10]);
     current.SetMarkerSize(0.8);
     current.SetLineWidth(1);
-    for (auto element : g->elements()) {
+    for (const auto& element : g->elements()) {
       current.Fill(element.z(), element.perp());
       radlen->Fill(element.z(), element.perp(), m_values[g->name()].first);
       eneloss->Fill(element.z(), element.perp(), m_values[g->name()].second);
@@ -380,7 +380,7 @@ void ListGroups::produceAndSaveSummaryPlot(const edm::EventSetup &setup) {
   radlen->SetMinimum(0);
   radlen->SetMaximum(0.25);
   radlen->Draw("COLZ");
-  for (auto line : lines) {
+  for (const auto& line : lines) {
     line.first->SetLineWidth(5);
     line.first->Draw();
     line.second->Draw();
@@ -391,7 +391,7 @@ void ListGroups::produceAndSaveSummaryPlot(const edm::EventSetup &setup) {
   eneloss->SetMinimum(0.00001);
   eneloss->SetMaximum(0.0005);
   eneloss->Draw("COLZ");
-  for (auto line : lines) {
+  for (const auto& line : lines) {
     line.first->SetLineWidth(5);
     line.first->Draw();
     line.second->Draw();
@@ -404,7 +404,7 @@ void ListGroups::produceAndSaveSummaryPlot(const edm::EventSetup &setup) {
   radlen_diff->SetMinimum(-100);
   radlen_diff->SetMaximum(100);
   radlen_diff->Draw("COLZ");
-  for (auto line : lines) {
+  for (const auto& line : lines) {
     line.first->SetLineWidth(5);
     line.first->Draw();
     line.second->Draw();
@@ -415,7 +415,7 @@ void ListGroups::produceAndSaveSummaryPlot(const edm::EventSetup &setup) {
   eneloss_diff->SetMinimum(-100);
   eneloss_diff->SetMaximum(100);
   eneloss_diff->Draw("COLZ");
-  for (auto line : lines) {
+  for (const auto& line : lines) {
     line.first->SetLineWidth(5);
     line.first->Draw();
     line.second->Draw();

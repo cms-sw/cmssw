@@ -8,7 +8,9 @@
 #include "HcalRealisticZS.h"
 
 #include <iostream>
+#include <memory>
 
+        
 HcalRealisticZS::HcalRealisticZS(edm::ParameterSet const &conf)
     : inputLabel_(conf.getParameter<std::string>("digiLabel")) {
   bool markAndPass = conf.getParameter<bool>("markAndPass");
@@ -64,7 +66,7 @@ HcalRealisticZS::HcalRealisticZS(edm::ParameterSet const &conf)
   // HcalZeroSuppressionProducers/python/hcalDigisRealistic_cfi.py
   // which means that channel-by-channel ZS thresholds from DB will NOT be used
   if (conf.getParameter<int>("useConfigZSvalues")) {
-    algo_.reset(new HcalZSAlgoRealistic(markAndPass,
+    algo_ = std::make_unique<HcalZSAlgoRealistic>(markAndPass,
                                         use1ts_,
                                         conf.getParameter<int>("HBlevel"),
                                         conf.getParameter<int>("HElevel"),
@@ -73,10 +75,10 @@ HcalRealisticZS::HcalRealisticZS(edm::ParameterSet const &conf)
                                         HBsearchTS,
                                         HEsearchTS,
                                         HOsearchTS,
-                                        HFsearchTS));
+                                        HFsearchTS);
 
   } else {
-    algo_.reset(new HcalZSAlgoRealistic(markAndPass, use1ts_, HBsearchTS, HEsearchTS, HOsearchTS, HFsearchTS));
+    algo_ = std::make_unique<HcalZSAlgoRealistic>(markAndPass, use1ts_, HBsearchTS, HEsearchTS, HOsearchTS, HFsearchTS);
   }
 
   produces<HBHEDigiCollection>();

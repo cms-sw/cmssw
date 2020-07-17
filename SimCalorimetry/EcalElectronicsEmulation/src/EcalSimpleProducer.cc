@@ -1,14 +1,16 @@
+#include "SimCalorimetry/EcalElectronicsEmulation/interface/EcalSimpleProducer.h"
 #include "DataFormats/EcalDetId/interface/EBDetId.h"
 #include "DataFormats/EcalDigi/interface/EBDataFrame.h"
 #include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/Exception.h"
-#include "SimCalorimetry/EcalElectronicsEmulation/interface/EcalSimpleProducer.h"
 #include "SimDataFormats/CaloHit/interface/PCaloHitContainer.h"
 #include "TFormula.h"
 #include <iostream>
-#include <string>
+#include <memory>
+
+        #include <string>
 
 using namespace std;
 using namespace edm;
@@ -40,10 +42,10 @@ void EcalSimpleProducer::produce(edm::Event &evt, const edm::EventSetup &) {
     }
     evt.put(std::move(digis));
     // puts an empty digi collecion for endcap:
-    evt.put(unique_ptr<EEDigiCollection>(new EEDigiCollection()));
+    evt.put(std::make_unique<EEDigiCollection>());
   }
   if (tpFormula_.get() != nullptr) {
-    unique_ptr<EcalTrigPrimDigiCollection> tps = unique_ptr<EcalTrigPrimDigiCollection>(new EcalTrigPrimDigiCollection);
+    unique_ptr<EcalTrigPrimDigiCollection> tps = std::make_unique<EcalTrigPrimDigiCollection>();
     tps->reserve(56 * 72);
     const int nSamples = 5;
     for (int iTtEta0 = 0; iTtEta0 < 56; ++iTtEta0) {
@@ -73,7 +75,7 @@ void EcalSimpleProducer::produce(edm::Event &evt, const edm::EventSetup &) {
     evt.put(std::move(tps));
   }
   if (simHitFormula_.get() != nullptr) {  // generation of barrel sim hits
-    unique_ptr<PCaloHitContainer> hits = unique_ptr<PCaloHitContainer>(new PCaloHitContainer);
+    unique_ptr<PCaloHitContainer> hits = std::make_unique<PCaloHitContainer>();
     for (int iEta0 = 0; iEta0 < 170; ++iEta0) {
       for (int iPhi0 = 0; iPhi0 < 360; ++iPhi0) {
         int iEta1 = cIndex2iEta(iEta0);
@@ -90,7 +92,7 @@ void EcalSimpleProducer::produce(edm::Event &evt, const edm::EventSetup &) {
     }
     evt.put(std::move(hits), "EcalHitsEB");
     // puts an empty digi collecion for endcap:
-    evt.put(unique_ptr<PCaloHitContainer>(new PCaloHitContainer()), "EcalHitsEE");
+    evt.put(std::make_unique<PCaloHitContainer>(), "EcalHitsEE");
   }
 }
 
@@ -132,7 +134,7 @@ EcalSimpleProducer::EcalSimpleProducer(const edm::ParameterSet &pset) : EDProduc
   replaceAll(simHitFormula, "ievt0", "z");
 
   if (!formula.empty()) {
-    formula_ = unique_ptr<TFormula>(new TFormula("f", formula.c_str()));
+    formula_ = std::make_unique<TFormula>("f", formula.c_str());
     Int_t err = formula_->Compile();
     if (err != 0) {
       throw cms::Exception("Error in EcalSimpleProducer 'formula' config.");
@@ -141,7 +143,7 @@ EcalSimpleProducer::EcalSimpleProducer(const edm::ParameterSet &pset) : EDProduc
     produces<EEDigiCollection>();
   }
   if (!tpFormula.empty()) {
-    tpFormula_ = unique_ptr<TFormula>(new TFormula("f", tpFormula.c_str()));
+    tpFormula_ = std::make_unique<TFormula>("f", tpFormula.c_str());
     Int_t err = tpFormula_->Compile();
     if (err != 0) {
       throw cms::Exception("Error in EcalSimpleProducer 'tpFormula' config.");
@@ -149,7 +151,7 @@ EcalSimpleProducer::EcalSimpleProducer(const edm::ParameterSet &pset) : EDProduc
     produces<EcalTrigPrimDigiCollection>();
   }
   if (!simHitFormula.empty()) {
-    simHitFormula_ = unique_ptr<TFormula>(new TFormula("f", simHitFormula.c_str()));
+    simHitFormula_ = std::make_unique<TFormula>("f", simHitFormula.c_str());
     Int_t err = simHitFormula_->Compile();
     if (err != 0) {
       throw cms::Exception(

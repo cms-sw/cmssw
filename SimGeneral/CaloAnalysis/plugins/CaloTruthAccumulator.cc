@@ -17,7 +17,9 @@
 #endif
 
 #include <iterator>
-#include <numeric>  // for std::accumulate
+#include <memory>
+
+        #include <numeric>  // for std::accumulate
 #include <unordered_map>
 
 #include "FWCore/Framework/interface/ConsumesCollector.h"
@@ -437,8 +439,8 @@ void CaloTruthAccumulator::beginLuminosityBlock(edm::LuminosityBlock const &iLum
 }
 
 void CaloTruthAccumulator::initializeEvent(edm::Event const &event, edm::EventSetup const &setup) {
-  output_.pSimClusters.reset(new SimClusterCollection());
-  output_.pCaloParticles.reset(new CaloParticleCollection());
+  output_.pSimClusters = std::make_unique<SimClusterCollection>();
+  output_.pCaloParticles = std::make_unique<CaloParticleCollection>();
 
   m_detIdToTotalSimEnergy.clear();
 }

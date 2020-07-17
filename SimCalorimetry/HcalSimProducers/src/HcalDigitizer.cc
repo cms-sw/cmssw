@@ -1,3 +1,4 @@
+#include "SimCalorimetry/HcalSimProducers/interface/HcalDigitizer.h"
 #include "CalibFormats/HcalObjects/interface/HcalDbRecord.h"
 #include "CalibFormats/HcalObjects/interface/HcalDbService.h"
 #include "CondFormats/DataRecord/interface/HBHEDarkeningRecord.h"
@@ -26,12 +27,13 @@
 #include "SimCalorimetry/HcalSimAlgos/interface/HcalSiPMHitResponse.h"
 #include "SimCalorimetry/HcalSimAlgos/interface/HcalSimParameterMap.h"
 #include "SimCalorimetry/HcalSimAlgos/interface/HcalTimeSlewSim.h"
-#include "SimCalorimetry/HcalSimProducers/interface/HcalDigitizer.h"
 #include "SimDataFormats/CrossingFrame/interface/CrossingFrame.h"
 #include "SimDataFormats/CrossingFrame/interface/MixCollection.h"
 #include "SimGeneral/MixingModule/interface/PileUpEventPrincipal.h"
 #include <boost/foreach.hpp>
+#include <memory>
 
+        
 //#define DebugLog
 
 HcalDigitizer::HcalDigitizer(const edm::ParameterSet &ps, edm::ConsumesCollector &iC)
@@ -235,7 +237,7 @@ HcalDigitizer::HcalDigitizer(const edm::ParameterSet &ps, edm::ConsumesCollector
   }
 
   if (agingFlagHF)
-    m_HFRecalibration.reset(new HFRecalibration(ps.getParameter<edm::ParameterSet>("HFRecalParameterBlock")));
+    m_HFRecalibration = std::make_unique<HFRecalibration>(ps.getParameter<edm::ParameterSet>("HFRecalParameterBlock"));
 }
 
 HcalDigitizer::~HcalDigitizer() {}
