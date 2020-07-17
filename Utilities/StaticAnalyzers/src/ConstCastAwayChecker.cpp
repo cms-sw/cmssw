@@ -7,6 +7,10 @@
 //===----------------------------------------------------------------------===//
 #include <clang/AST/ExprCXX.h>
 #include <clang/AST/Attr.h>
+
+
+#include <memory>
+
 #include "ConstCastAwayChecker.h"
 #include "CmsSupport.h"
 
@@ -37,7 +41,7 @@ namespace clangcms {
     if (support::isConst(OrigTy) && !support::isConst(ToTy)) {
       if (clang::ento::ExplodedNode *errorNode = C.generateErrorNode()) {
         if (!BT)
-          BT.reset(new clang::ento::BugType(this, "const cast away", "ConstThreadSafety"));
+          BT = std::make_unique<clang::ento::BugType>(this, "const cast away", "ConstThreadSafety");
         std::string buf;
         llvm::raw_string_ostream os(buf);
         os << "const qualifier was removed via a cast, this may result in thread-unsafe code.";
