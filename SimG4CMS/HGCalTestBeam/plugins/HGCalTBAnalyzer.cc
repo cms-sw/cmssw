@@ -166,7 +166,7 @@ HGCalTBAnalyzer::HGCalTBAnalyzer(const edm::ParameterSet& iConfig)
       stoc_smear_time_200_(iConfig.getUntrackedParameter<double>("stoc_smear_time_200", 10.24)),
       stoc_smear_time_300_(iConfig.getUntrackedParameter<double>("stoc_smear_time_300", 15.5)) {
   usesResource("TFileService");
-  ahcalGeom_.reset(new AHCalGeometry(iConfig));
+  ahcalGeom_ = std::make_unique<AHCalGeometry>(iConfig);
 
   // now do whatever initialization is needed
   ///TIME SMEARING
