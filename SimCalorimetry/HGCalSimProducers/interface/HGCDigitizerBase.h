@@ -137,6 +137,9 @@ protected:
   //determines if the dose map should be used instead
   bool scaleByDose_;
 
+  //multiplicative fator to scale fluence map
+  double scaleByDoseFactor_;
+
   //path to dose map
   std::string doseMapFile_;
 
