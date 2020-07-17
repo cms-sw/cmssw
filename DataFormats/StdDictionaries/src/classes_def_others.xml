@@ -9,6 +9,7 @@
  <class name="std::bitset<7>"/>
  <class name="std::bitset<15>"/>
  <class name="std::bitset<25>"/>
+ <class name="std::bitset<64>"/>
  <class name="std::bitset<96>"/>
  <class name="std::deque<int>"/>
  <class name="std::forward_iterator_tag"/>
