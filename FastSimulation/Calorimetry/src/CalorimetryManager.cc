@@ -44,8 +44,10 @@
 #include "FastSimulation/ShowerDevelopment/interface/FastHFShowerLibrary.h"
 
 // STL headers
-#include <vector>
+#include <memory>
+
 #include <iostream>
+        #include <vector>
 
 //CMSSW headers
 #include "DataFormats/DetId/interface/DetId.h"
@@ -111,8 +113,8 @@ CalorimetryManager::CalorimetryManager(FSimEvent* aSimEvent,
     theMuonHcalEffects = new MaterialEffects(fastMuHCAL);
 
   if (fastCalo.exists("ECALResponseScaling")) {
-    ecalCorrection = std::unique_ptr<KKCorrectionFactors>(
-        new KKCorrectionFactors(fastCalo.getParameter<edm::ParameterSet>("ECALResponseScaling")));
+    ecalCorrection = std::make_unique<KKCorrectionFactors>(
+        fastCalo.getParameter<edm::ParameterSet>("ECALResponseScaling"));
   }
 }
 
