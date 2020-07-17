@@ -15,7 +15,6 @@
 #include <map>
 #include <memory>
 
-        
 // user include files
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Framework/interface/EventSetup.h"

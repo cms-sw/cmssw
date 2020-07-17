@@ -5,7 +5,6 @@
 #include <exception>
 #include <memory>
 
-
 namespace edm {
 
   class MultipleException : public cms::Exception {
