@@ -1,5 +1,5 @@
-#ifndef EventFilter_GEMRawToDigi_AMCdata_h
-#define EventFilter_GEMRawToDigi_AMCdata_h
+#ifndef DataFormats_GEMDigi_AMCdata_h
+#define DataFormats_GEMDigi_AMCdata_h
 #include "GEBdata.h"
 #include <vector>
 
