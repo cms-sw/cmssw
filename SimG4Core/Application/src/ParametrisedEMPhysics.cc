@@ -33,12 +33,14 @@
 #include "G4AntiProton.hh"
 
 #include "G4EmParameters.hh"
-#include "G4PhysicsListHelper.hh"
-#include "G4SystemOfUnits.hh"
-#include "G4UAtomicDeexcitation.hh"
 #include "G4LossTableManager.hh"
+#include "G4PhysicsListHelper.hh"
 #include "G4ProcessManager.hh"
+#include "G4SystemOfUnits.hh"
 #include "G4Transportation.hh"
+#include "G4UAtomicDeexcitation.hh"
+#include <memory>
+
 #include <string>
 #include <vector>
 
@@ -151,7 +153,7 @@ void ParametrisedEMPhysics::ConstructProcess() {
         << "ParametrisedEMPhysics: GFlash Construct for e+-: " << gem << "  " << ghad << " " << lowEnergyGem
         << " for hadrons: " << gemHad << "  " << ghadHad;
 
-    m_tpmod->theFastSimulationManagerProcess.reset(new G4FastSimulationManagerProcess());
+    m_tpmod->theFastSimulationManagerProcess = std::make_unique<G4FastSimulationManagerProcess>();
 
     if (gem || ghad) {
       G4Electron::Electron()->GetProcessManager()->AddDiscreteProcess(m_tpmod->theFastSimulationManagerProcess.get());
@@ -180,17 +182,17 @@ void ParametrisedEMPhysics::ConstructProcess() {
       } else {
         if (gem) {
           //Electromagnetic Shower Model for ECAL
-          m_tpmod->theEcalEMShowerModel.reset(new GFlashEMShowerModel("GflashEcalEMShowerModel", aRegion, theParSet));
+          m_tpmod->theEcalEMShowerModel = std::make_unique<GFlashEMShowerModel>("GflashEcalEMShowerModel", aRegion, theParSet);
         } else if (lowEnergyGem) {
           //Low energy electromagnetic Shower Model for ECAL
-          m_tpmod->theLowEnergyFastSimModel.reset(
-              new LowEnergyFastSimModel("LowEnergyFastSimModel", aRegion, theParSet));
+          m_tpmod->theLowEnergyFastSimModel = std::make_unique<LowEnergyFastSimModel>(
+              "LowEnergyFastSimModel", aRegion, theParSet);
         }
 
         if (gemHad) {
           //Electromagnetic Shower Model for ECAL
-          m_tpmod->theEcalHadShowerModel.reset(
-              new GFlashHadronShowerModel("GflashEcalHadShowerModel", aRegion, theParSet));
+          m_tpmod->theEcalHadShowerModel = std::make_unique<GFlashHadronShowerModel>(
+              "GflashEcalHadShowerModel", aRegion, theParSet);
         }
       }
     }
@@ -203,12 +205,12 @@ void ParametrisedEMPhysics::ConstructProcess() {
       } else {
         if (ghad) {
           //Electromagnetic Shower Model for HCAL
-          m_tpmod->theHcalEMShowerModel.reset(new GFlashEMShowerModel("GflashHcalEMShowerModel", aRegion, theParSet));
+          m_tpmod->theHcalEMShowerModel = std::make_unique<GFlashEMShowerModel>("GflashHcalEMShowerModel", aRegion, theParSet);
         }
         if (ghadHad) {
           //Electromagnetic Shower Model for ECAL
-          m_tpmod->theHcalHadShowerModel.reset(
-              new GFlashHadronShowerModel("GflashHcalHadShowerModel", aRegion, theParSet));
+          m_tpmod->theHcalHadShowerModel = std::make_unique<GFlashHadronShowerModel>(
+              "GflashHcalHadShowerModel", aRegion, theParSet);
         }
       }
     }

@@ -17,9 +17,11 @@
 //
 
 // system include files
-#include <vector>
 #include <memory>
+
 #include <iostream>
+#include <memory>
+        #include <vector>
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -252,7 +254,7 @@ namespace edm {
     }
 
     std::unique_ptr<PileupMixingContent> PileupMixing_ =
-        std::unique_ptr<PileupMixingContent>(new PileupMixingContent());
+        std::make_unique<PileupMixingContent>();
     iEvent.put(std::move(PileupMixing_));
   }
 

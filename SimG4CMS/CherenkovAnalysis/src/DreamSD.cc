@@ -1,4 +1,8 @@
 
+#include <memory>
+
+
+
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 #include "DetectorDescription/Core/interface/DDCompactView.h"
 #include "DetectorDescription/Core/interface/DDFilter.h"
@@ -464,7 +468,7 @@ bool DreamSD::setPbWO2MaterialProperties_(G4Material *aMaterial) {
 
   // Calculate Cherenkov angle integrals:
   // This is an ad-hoc solution (we hold it in the class, not in the material)
-  chAngleIntegrals_.reset(new G4PhysicsOrderedFreeVector());
+  chAngleIntegrals_ = std::make_unique<G4PhysicsOrderedFreeVector>();
 
   int index = 0;
   double currentRI = RefractiveIndex[index];

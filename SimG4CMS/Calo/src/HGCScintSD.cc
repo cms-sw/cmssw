@@ -23,9 +23,11 @@
 #include "G4VProcess.hh"
 #include "G4Trap.hh"
 
-#include <iostream>
 #include <fstream>
 #include <iomanip>
+#include <iostream>
+#include <memory>
+
 
 //#define EDM_ML_DEBUG
 
@@ -193,7 +195,7 @@ void HGCScintSD::update(const BeginOfJob* job) {
                                << " top Level " << levelT1_ << ":" << levelT2_;
 #endif
 
-    numberingScheme_.reset(new HGCalNumberingScheme(*hgcons_, mydet_, nameX_));
+    numberingScheme_ = std::make_unique<HGCalNumberingScheme>(*hgcons_, mydet_, nameX_);
   } else {
     throw cms::Exception("Unknown", "HGCScintSD") << "Cannot find HGCalDDDConstants for " << nameX_ << "\n";
   }

@@ -7,7 +7,9 @@
  */
 
 #include <algorithm>
-#include <vector>
+#include <memory>
+
+        #include <vector>
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
@@ -134,7 +136,7 @@ TrackQuality::TrackQuality(const edm::ParameterSet &config, edm::ConsumesCollect
     : trackerHitAssociatorConfig_(config.getParameter<edm::ParameterSet>("hitAssociator"), std::move(iC)) {}
 
 void TrackQuality::newEvent(const edm::Event &ev, const edm::EventSetup &es) {
-  associator_.reset(new TrackerHitAssociator(ev, trackerHitAssociatorConfig_));
+  associator_ = std::make_unique<TrackerHitAssociator>(ev, trackerHitAssociatorConfig_);
 }
 
 void TrackQuality::evaluate(SimParticleTrail const &spt, reco::TrackBaseRef const &tr, const TrackerTopology *tTopo) {
