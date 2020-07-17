@@ -76,7 +76,7 @@ void Phase2TrackerClusterizer::produce(edm::Event& event, const edm::EventSetup&
   auto outputClusters = std::make_unique<Phase2TrackerCluster1DCollectionNew>();
 
   // Go over all the modules
-  for (auto DSViter : *digis) {
+  for (const auto& DSViter : *digis) {
     DetId detId(DSViter.detId());
 
     Phase2TrackerCluster1DCollectionNew::FastFiller clusters(*outputClusters, DSViter.detId());
