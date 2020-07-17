@@ -223,7 +223,7 @@ void CTPPSRecHitProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSe
 
       std::vector<double> vToFCellWidth;
       vToFCellWidth.reserve(8);
- for (int i = 0; i < 8; i++) {
+      for (int i = 0; i < 8; i++) {
         vToFCellWidth.push_back(fToFCellWidth[i]);
       }
       CTPPSToFDetector* ToFDet = new CTPPSToFDetector(

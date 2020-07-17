@@ -18,9 +18,7 @@ Implementation:
 
 #include <memory>
 
-
-
-        #include "DataFormats/Common/interface/Handle.h"
+#include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/Math/interface/Point3D.h"
 #include "DataFormats/Math/interface/Vector.h"
 #include "DataFormats/Math/interface/Vector3D.h"
@@ -201,7 +199,7 @@ CTPPSFastTrackingProducer::CTPPSFastTrackingProducer(const edm::ParameterSet& iC
   //Timing Detector Description
   std::vector<double> vToFCellWidth;
   vToFCellWidth.reserve(8);
- for (int i = 0; i < 8; i++) {
+  for (int i = 0; i < 8; i++) {
     vToFCellWidth.push_back(fToFCellWidth[i]);
   }
   double pos_tof = fToFInsertion * fBeamXRMS_ToF + fToFXOffset;
@@ -445,7 +443,7 @@ void CTPPSFastTrackingProducer::FastReco(int Direction, H_RecRPObject* station) 
   int cellId = 0;
   std::vector<double> vToFCellWidth;
   vToFCellWidth.reserve(8);
- for (int i = 0; i < 8; i++) {
+  for (int i = 0; i < 8; i++) {
     vToFCellWidth.push_back(fToFCellWidth[i]);
   }
   CTPPSToFDetector* ToF = new CTPPSToFDetector(

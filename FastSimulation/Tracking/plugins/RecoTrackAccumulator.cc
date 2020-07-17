@@ -1,11 +1,10 @@
 #include "FastSimulation/Tracking/plugins/RecoTrackAccumulator.h"
 
-
-        #include <memory>
+#include <memory>
 
 #include "DataFormats/Common/interface/ValueMap.h"
 #include "DataFormats/TrackReco/interface/Track.h"
-        #include "FWCore/Framework/interface/ConsumesCollector.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 RecoTrackAccumulator::RecoTrackAccumulator(const edm::ParameterSet& conf,

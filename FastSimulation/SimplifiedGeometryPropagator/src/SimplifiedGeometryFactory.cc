@@ -11,7 +11,6 @@
 #include <cctype>
 #include <memory>
 
-
 fastsim::SimplifiedGeometryFactory::SimplifiedGeometryFactory(
     const GeometricSearchTracker *geometricSearchTracker,
     const MagneticField &magneticField,
@@ -166,8 +165,8 @@ std::unique_ptr<fastsim::SimplifiedGeometry> fastsim::SimplifiedGeometryFactory:
   // magnetic field
   // -----------------------------
 
-  layer->magneticFieldHist_ = std::make_unique<TH1F>(
-      "h", "h", 100, 0., isForward ? magneticFieldHistMaxR_ : magneticFieldHistMaxZ_);
+  layer->magneticFieldHist_ =
+      std::make_unique<TH1F>("h", "h", 100, 0., isForward ? magneticFieldHistMaxR_ : magneticFieldHistMaxZ_);
   layer->magneticFieldHist_->SetDirectory(nullptr);
   for (int i = 1; i <= 101; i++) {
     GlobalPoint point = isForward ? GlobalPoint(layer->magneticFieldHist_->GetXaxis()->GetBinCenter(i), 0., position)

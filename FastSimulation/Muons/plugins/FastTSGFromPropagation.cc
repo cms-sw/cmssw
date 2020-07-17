@@ -1,9 +1,7 @@
 #include "FastSimulation/Muons/plugins/FastTSGFromPropagation.h"
 
+#include <memory>
 
-        #include <memory>
-
-        
 /** \class FastTSGFromPropagation
  *
  *  Emulate TSGFromPropagation in RecoMuon
