@@ -8,7 +8,6 @@
 #include <clang/AST/ExprCXX.h>
 #include <clang/AST/Attr.h>
 
-
 #include <memory>
 
 #include "ConstCastAwayChecker.h"

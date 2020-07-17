@@ -18,7 +18,6 @@
 #include <cassert>
 #include <memory>
 
-
 #include "FWCore/Concurrency/interface/WaitingTaskList.h"
 #include "FWCore/Concurrency/interface/hardware_pause.h"
 #include "FWCore/Utilities/interface/Likely.h"

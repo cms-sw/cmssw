@@ -15,14 +15,12 @@
 // user include files
 #include <memory>
 
-
-
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/LuminosityBlock.h"
 #include "FWCore/Framework/interface/ProcessBlock.h"
 #include "FWCore/Framework/interface/Run.h"
-        #include "FWCore/Framework/interface/limited/EDFilterBase.h"
+#include "FWCore/Framework/interface/limited/EDFilterBase.h"
 #include "FWCore/Framework/src/EventSignalsSentry.h"
 #include "FWCore/Framework/src/PreallocationConfiguration.h"
 #include "FWCore/Framework/src/edmodule_mightGet_config.h"
