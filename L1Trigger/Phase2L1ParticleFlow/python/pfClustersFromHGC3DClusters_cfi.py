@@ -58,8 +58,8 @@ phase2_hgcalV11.toModify(pfClustersFromHGC3DClusters,
     corrector = "L1Trigger/Phase2L1ParticleFlow/data/hadcorr_HGCal3D_TC_110X.root",
     resol = cms.PSet(
         etaBins = cms.vdouble( 1.700,  1.900,  2.200,  2.500,  2.800,  2.900),
-        offset  = cms.vdouble( 1.413,  1.631,  2.366,  2.768,  2.908,  1.434),
-        scale   = cms.vdouble( 0.169,  0.155,  0.132,  0.114,  0.137,  0.338),
-        kind    = cms.string('calo')
+        offset  = cms.vdouble( 1.793,  1.827,  2.363,  2.538,  2.812,  2.642),
+        scale   = cms.vdouble( 0.138,  0.137,  0.124,  0.115,  0.106,  0.121),
+        kind    = cms.string('calo'),
     ),
 ) 
