@@ -1,11 +1,10 @@
 #include "RecoLocalCalo/HGCalRecProducers/plugins/HGCalRecHitWorkerSimple.h"
 
-
-        #include <memory>
+#include <memory>
 
 #include "CommonTools/Utils/interface/StringToEnumValue.h"
 #include "DataFormats/ForwardDetId/interface/ForwardSubdetector.h"
-        #include "DataFormats/ForwardDetId/interface/HGCalDetId.h"
+#include "DataFormats/ForwardDetId/interface/HGCalDetId.h"
 #include "DataFormats/HcalDetId/interface/HcalSubdetector.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
