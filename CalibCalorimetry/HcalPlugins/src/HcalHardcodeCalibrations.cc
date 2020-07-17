@@ -169,17 +169,20 @@ HcalHardcodeCalibrations::HcalHardcodeCalibrations(const edm::ParameterSet& iCon
     bool he_recalib = iConfig.getParameter<bool>("HERecalibration");
     bool hf_recalib = iConfig.getParameter<bool>("HFRecalibration");
     if (hb_recalib) {
-      hb_recalibration = std::make_unique<HBHERecalibration>(iLumi,
-                                                   iConfig.getParameter<double>("HBreCalibCutoff"),
-                                                   iConfig.getParameter<edm::FileInPath>("HBmeanenergies").fullPath());
+      hb_recalibration =
+          std::make_unique<HBHERecalibration>(iLumi,
+                                              iConfig.getParameter<double>("HBreCalibCutoff"),
+                                              iConfig.getParameter<edm::FileInPath>("HBmeanenergies").fullPath());
     }
     if (he_recalib) {
-      he_recalibration = std::make_unique<HBHERecalibration>(iLumi,
-                                                   iConfig.getParameter<double>("HEreCalibCutoff"),
-                                                   iConfig.getParameter<edm::FileInPath>("HEmeanenergies").fullPath());
+      he_recalibration =
+          std::make_unique<HBHERecalibration>(iLumi,
+                                              iConfig.getParameter<double>("HEreCalibCutoff"),
+                                              iConfig.getParameter<edm::FileInPath>("HEmeanenergies").fullPath());
     }
     if (hf_recalib && !iConfig.getParameter<edm::ParameterSet>("HFRecalParameterBlock").empty())
-      hf_recalibration = std::make_unique<HFRecalibration>(iConfig.getParameter<edm::ParameterSet>("HFRecalParameterBlock"));
+      hf_recalibration =
+          std::make_unique<HFRecalibration>(iConfig.getParameter<edm::ParameterSet>("HFRecalParameterBlock"));
 
 #ifdef DebugLog
     std::cout << " HcalHardcodeCalibrations:  iLumi = " << iLumi << std::endl;

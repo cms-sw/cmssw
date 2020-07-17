@@ -1,7 +1,5 @@
 #include <memory>
 
-
-
 #include "CalibTracker/SiStripDCS/interface/SiStripCoralIface.h"
 #include "CondCore/CondDB/interface/ConnectionPool.h"
 #include "RelationalAccess/ISessionProxy.h"
