@@ -95,7 +95,7 @@ void HiGenCleaner<T2>::produce(edm::StreamID, edm::Event& iEvent, const edm::Eve
 
   vector<int> selection;
   selection.reserve(jetsize);
- for (int ijet = 0; ijet < jetsize; ++ijet) {
+  for (int ijet = 0; ijet < jetsize; ++ijet) {
     selection.push_back(-1);
   }
 

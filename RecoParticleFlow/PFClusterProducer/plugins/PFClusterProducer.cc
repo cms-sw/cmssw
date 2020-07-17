@@ -1,9 +1,7 @@
 #include "PFClusterProducer.h"
 
+#include <memory>
 
-        #include <memory>
-
-        
 #ifdef PFLOW_DEBUG
 #define LOGVERB(x) edm::LogVerbatim(x)
 #define LOGWARN(x) edm::LogWarning(x)

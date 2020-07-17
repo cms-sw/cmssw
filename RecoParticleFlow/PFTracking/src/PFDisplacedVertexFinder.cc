@@ -1,8 +1,6 @@
 #include <memory>
 
-
-
-        #include "RecoParticleFlow/PFTracking/interface/PFDisplacedVertexFinder.h"
+#include "RecoParticleFlow/PFTracking/interface/PFDisplacedVertexFinder.h"
 #include "RecoParticleFlow/PFTracking/interface/PFTrackAlgoTools.h"
 
 #include "FWCore/Utilities/interface/Exception.h"

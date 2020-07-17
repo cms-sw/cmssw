@@ -19,7 +19,6 @@
 #include <fstream>
 #include <memory>
 
-        
 // FFTJet headers
 #include "fftjet/ProximityClusteringTree.hh"
 #include "fftjet/ClusteringSequencer.hh"

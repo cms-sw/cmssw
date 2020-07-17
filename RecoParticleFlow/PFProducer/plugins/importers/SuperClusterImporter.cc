@@ -16,7 +16,7 @@ inline double ptFast(const double energy, const math::XYZPoint& position, const 
 
 #include <memory>
 
-        #include <unordered_map>
+#include <unordered_map>
 
 class SuperClusterImporter : public BlockElementImporterBase {
 public:

@@ -5,7 +5,6 @@
 #include <cmath>
 #include <memory>
 
-        
 #include "DataFormats/Math/interface/Error.h"
 #include "DataFormats/Math/interface/AlgebraicROOTObjects.h"
 #include "CondFormats/PPSObjects/interface/CTPPSPixelIndices.h"

@@ -192,7 +192,7 @@ void PFTauPrimaryVertexProducerBase::produce(edm::Event& iEvent, const edm::Even
         TransientVertex transVtx;
         std::vector<reco::TransientTrack> transTracks;
         transTracks.reserve(nonTauTracks.size());
- for (const auto track : nonTauTracks) {
+        for (const auto track : nonTauTracks) {
           transTracks.push_back(transTrackBuilder->build(*track));
         }
         bool fitOK(true);

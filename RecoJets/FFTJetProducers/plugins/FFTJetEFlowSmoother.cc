@@ -19,7 +19,6 @@
 #include <cmath>
 #include <memory>
 
-        
 // FFTJet headers
 #include "fftjet/FrequencyKernelConvolver.hh"
 #include "fftjet/DiscreteGauss2d.hh"

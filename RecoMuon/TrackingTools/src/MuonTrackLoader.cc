@@ -8,9 +8,7 @@
 
 #include <memory>
 
-
-
-        #include "RecoMuon/TrackingTools/interface/MuonTrackLoader.h"
+#include "RecoMuon/TrackingTools/interface/MuonTrackLoader.h"
 
 #include "RecoMuon/TrackingTools/interface/MuonPatternRecoDumper.h"
 #include "RecoMuon/TrackingTools/interface/MuonServiceProxy.h"
@@ -298,14 +296,14 @@ OrphanHandle<reco::TrackCollection> MuonTrackLoader::loadTracks(TrajectoryContai
       auto const& hit = (*recHitCollection)[ih];
       auto hits = MuonTrackLoader::unpackHit(hit);
       for (auto hh : hits) {
-        if
-          UNLIKELY(!track.appendHitPattern(*hh, ttopo)) break;
+        if UNLIKELY (!track.appendHitPattern(*hh, ttopo))
+          break;
       }
 
       if (theUpdatingAtVtx && updateResult.first) {
         for (auto hh : hits) {
-          if
-            UNLIKELY(!updateResult.second.appendHitPattern(*hh, ttopo)) break;
+          if UNLIKELY (!updateResult.second.appendHitPattern(*hh, ttopo))
+            break;
         }
       }
     }
@@ -618,14 +616,14 @@ OrphanHandle<reco::TrackCollection> MuonTrackLoader::loadTracks(
       auto const& hit = (*recHitCollection)[ih];
       auto hits = MuonTrackLoader::unpackHit(hit);
       for (auto hh : hits) {
-        if
-          UNLIKELY(!track.appendHitPattern(*hh, ttopo)) break;
+        if UNLIKELY (!track.appendHitPattern(*hh, ttopo))
+          break;
       }
 
       if (theUpdatingAtVtx && updateResult.first) {
         for (auto hh : hits) {
-          if
-            UNLIKELY(!updateResult.second.appendHitPattern(*hh, ttopo)) break;
+          if UNLIKELY (!updateResult.second.appendHitPattern(*hh, ttopo))
+            break;
         }
       }
     }

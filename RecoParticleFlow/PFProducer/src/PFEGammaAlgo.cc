@@ -1812,7 +1812,7 @@ reco::SuperCluster PFEGammaAlgo::buildRefinedSuperCluster(const PFEGammaAlgo::Pr
 
       std::vector<reco::PFCluster const*> psClusterPointers;
       psClusterPointers.reserve(psclusters.size());
- for (auto const& psc : psclusters) {
+      for (auto const& psc : psclusters) {
         psClusterPointers.push_back(psc->clusterRef().get());
       }
       auto calibratedEnergies = thePFEnergyCalibration_.calibrateEndcapClusterEnergies(

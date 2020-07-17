@@ -8,10 +8,8 @@
 
 #include "SiPixelRawToDigi.h"
 
+#include <memory>
 
-        #include <memory>
-
-        
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/ESTransientHandle.h"

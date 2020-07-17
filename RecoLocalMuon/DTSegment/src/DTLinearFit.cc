@@ -280,7 +280,7 @@ void DTLinearFit::fit4Var(const vector<float>& xfit,
   int nppar4 = 0;
 
   sigy.reserve(nptfit);
- for (int j = 0; j < nptfit; j++)
+  for (int j = 0; j < nptfit; j++)
     sigy.push_back(sigma);
 
   float a = 0.;
