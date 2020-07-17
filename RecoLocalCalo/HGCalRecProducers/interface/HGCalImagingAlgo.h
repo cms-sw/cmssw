@@ -104,6 +104,7 @@ public:
     iDesc.add<edm::ParameterSetDescription>("noises", descNestedNoises);
     edm::ParameterSetDescription descNestedNoiseMIP;
     descNestedNoiseMIP.add<bool>("scaleByDose", false);
+    descNestedNoiseMIP.add<double>("scaleByDoseFactor", 1.);
     iDesc.add<edm::ParameterSetDescription>("scaleByDose", descNestedNoiseMIP);
     descNestedNoiseMIP.add<std::string>("doseMap", "");
     iDesc.add<edm::ParameterSetDescription>("doseMap", descNestedNoiseMIP);
