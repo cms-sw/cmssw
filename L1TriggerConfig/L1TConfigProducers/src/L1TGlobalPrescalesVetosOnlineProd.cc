@@ -126,7 +126,7 @@ std::unique_ptr<const L1TGlobalPrescalesVetos> L1TGlobalPrescalesVetosOnlineProd
   std::shared_ptr<L1TUtmTriggerMenu> pMenu(
       const_cast<L1TUtmTriggerMenu *>(reinterpret_cast<const L1TUtmTriggerMenu *>(tmeventsetup::getTriggerMenu(iss))));
 
-  for (const auto& algo : pMenu->getAlgorithmMap())
+  for (const auto &algo : pMenu->getAlgorithmMap())
     algoName2bit[algo.first] = algo.second.getIndex();
 
   ///std::vector< std::string > queryColumns;

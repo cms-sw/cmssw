@@ -1,8 +1,6 @@
 #include <memory>
 
-
-
-        #include "L1Trigger/L1TGEM/interface/ME0TriggerBuilder.h"
+#include "L1Trigger/L1TGEM/interface/ME0TriggerBuilder.h"
 
 ME0TriggerBuilder::ME0TriggerBuilder(const edm::ParameterSet& conf) {
   config_ = conf;

@@ -3,10 +3,8 @@
 
 #include "L1Trigger/L1TMuonOverlap/plugins/L1TMuonOverlapParamsDBProducer.h"
 
+#include <memory>
 
-        #include <memory>
-
-        
 #include "CondFormats/DataRecord/interface/L1TMuonOverlapParamsRcd.h"
 #include "CondFormats/L1TObjects/interface/L1TMuonOverlapParams.h"
 

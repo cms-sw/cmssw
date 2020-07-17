@@ -371,7 +371,7 @@ std::vector<const reco::LeafCandidate*> L1ParticleMap::candidateCombo(const L1In
   std::vector<const reco::LeafCandidate*> tmp;
 
   tmp.reserve(numOfObjects());
- for (int i = 0; i < numOfObjects(); ++i) {
+  for (int i = 0; i < numOfObjects(); ++i) {
     tmp.push_back(candidateInCombo(i, aCombo));
   }
 

@@ -7,7 +7,6 @@
 #include <iostream>
 #include <memory>
 
-
 CSCTFConfigProducer::CSCTFConfigProducer(const edm::ParameterSet& pset) {
   const char* name[12] = {"registersSP1",
                           "registersSP2",
@@ -40,8 +39,7 @@ std::unique_ptr<L1MuCSCTFConfiguration> CSCTFConfigProducer::produceL1MuCSCTFCon
   edm::LogInfo("L1-O2O: CSCTFConfigProducer") << "Producing "
                                               << " L1MuCSCTFConfiguration from PSET";
 
-  std::unique_ptr<L1MuCSCTFConfiguration> config =
-      std::make_unique<L1MuCSCTFConfiguration>(registers);
+  std::unique_ptr<L1MuCSCTFConfiguration> config = std::make_unique<L1MuCSCTFConfiguration>(registers);
   return config;
 }
 

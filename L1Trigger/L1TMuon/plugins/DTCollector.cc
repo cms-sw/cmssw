@@ -1,11 +1,9 @@
 #include <memory>
 
-
-
 #include "DataFormats/L1DTTrackFinder/interface/L1MuDTChambPhContainer.h"
 #include "DataFormats/L1DTTrackFinder/interface/L1MuDTChambThContainer.h"
 #include "DataFormats/MuonDetId/interface/DTChamberId.h"
-        #include "L1Trigger/L1TMuon/interface/deprecate/DTCollector.h"
+#include "L1Trigger/L1TMuon/interface/deprecate/DTCollector.h"
 
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/Event.h"

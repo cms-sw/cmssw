@@ -1,7 +1,5 @@
 #include <memory>
 
-
-
 #include "L1Trigger/CSCTriggerPrimitives/interface/CSCUpgradeMotherboard.h"
 
 CSCUpgradeMotherboard::CSCUpgradeMotherboard(unsigned endcap,

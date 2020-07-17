@@ -12,8 +12,6 @@
 
 #include <memory>
 
-
-
 #include "L1Trigger/CSCTriggerPrimitives/interface/CSCMotherboardME11.h"
 
 CSCMotherboardME11::CSCMotherboardME11(unsigned endcap,
