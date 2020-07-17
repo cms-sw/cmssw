@@ -17,7 +17,6 @@
 #include <map>
 #include <memory>
 
-
 using namespace fastsim;
 
 Geometry::~Geometry() { ; }
