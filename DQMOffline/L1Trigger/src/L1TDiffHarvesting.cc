@@ -140,9 +140,9 @@ namespace dqmoffline {
 
     L1TDiffHarvesting::L1TDiffHarvesting(const edm::ParameterSet &ps) : plotHandlers_() {
       using namespace std;
-      for (auto plotConfig : ps.getUntrackedParameter<std::vector<edm::ParameterSet>>("plotCfgs")) {
+      for (const auto& plotConfig : ps.getUntrackedParameter<std::vector<edm::ParameterSet>>("plotCfgs")) {
         vector<string> plots = plotConfig.getUntrackedParameter<vector<string>>("plots");
-        for (auto plot : plots) {
+        for (const auto& plot : plots) {
           plotHandlers_.push_back(L1TDiffPlotHandler(plotConfig, plot));
         }
       }
