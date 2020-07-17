@@ -133,8 +133,6 @@ void HGCalLayerClusterProducer::produce(edm::Event& evt, const edm::EventSetup& 
       clusters_sharing(new std::vector<reco::BasicCluster>);
   auto density = std::make_unique<Density>();
 
-  algo->reset();
-
   algo->getEventSetup(es);
 
   //make a map detid-rechit
@@ -246,6 +244,7 @@ void HGCalLayerClusterProducer::produce(edm::Event& evt, const edm::EventSetup& 
       clusterPtrsSharing.push_back(ptr);
     }
   }
+  algo->reset();
 }
 
 #endif
