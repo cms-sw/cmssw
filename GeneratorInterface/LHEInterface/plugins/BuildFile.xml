@@ -4,7 +4,6 @@
 <use name="FWCore/Utilities"/>
 <use name="GeneratorInterface/LHEInterface"/>
 <use name="GeneratorInterface/Core"/>
-<use name="boost"/>
 <use name="stdcxx-fs"/>
 <library name="GeneratorInterfaceLHEProducer" file="LHEFilter.cc LHE2HepMCConverter.cc ExternalLHEProducer.cc ExternalLHEAsciiDumper.cc">
   <use name="FWCore/Framework"/>

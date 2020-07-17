@@ -102,10 +102,10 @@ private:
   std::shared_ptr<lhef::LHERunInfo> runInfoLast_;
   std::shared_ptr<lhef::LHERunInfo> runInfo_;
   std::shared_ptr<lhef::LHEEvent> partonLevel_;
-  boost::ptr_deque<LHERunInfoProduct> runInfoProducts_;
+  std::deque<std::unique_ptr<LHERunInfoProduct>> runInfoProducts_;
   bool wasMerged;
 
-  class FileCloseSentry{
+  class FileCloseSentry {
   public:
     explicit FileCloseSentry(int fd) : fd_(fd){};
 
@@ -114,6 +114,7 @@ private:
     //Make this noncopyable
     FileCloseSentry(const FileCloseSentry&) = delete;
     FileCloseSentry& operator=(const FileCloseSentry&) = delete;
+
   private:
     int fd_;
   };
@@ -235,10 +236,10 @@ void ExternalLHEProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSe
                   std::bind(&LHERunInfoProduct::addComment, product.get(), std::placeholders::_1));
 
     if (!runInfoProducts_.empty()) {
-      runInfoProducts_.front().mergeProduct(*product);
+      runInfoProducts_.front()->mergeProduct(*product);
       if (!wasMerged) {
         runInfoProducts_.pop_front();
-        runInfoProducts_.push_front(product.release());
+        runInfoProducts_.emplace_front(product.release());
         wasMerged = true;
       }
     }
@@ -356,7 +357,7 @@ void ExternalLHEProducer::beginRunProduce(edm::Run& run, edm::EventSetup const& 
                   std::bind(&LHERunInfoProduct::addComment, product.get(), std::placeholders::_1));
 
     // keep a copy around in case of merging
-    runInfoProducts_.push_back(new LHERunInfoProduct(*product));
+    runInfoProducts_.emplace_back(new LHERunInfoProduct(*product));
     wasMerged = false;
 
     run.put(std::move(product));
@@ -368,7 +369,8 @@ void ExternalLHEProducer::beginRunProduce(edm::Run& run, edm::EventSetup const& 
 // ------------ method called when ending the processing of a run  ------------
 void ExternalLHEProducer::endRunProduce(edm::Run& run, edm::EventSetup const& es) {
   if (!runInfoProducts_.empty()) {
-    std::unique_ptr<LHERunInfoProduct> product(runInfoProducts_.pop_front().release());
+    std::unique_ptr<LHERunInfoProduct> product(runInfoProducts_.front().release());
+    runInfoProducts_.pop_front();
     run.put(std::move(product));
   }
 
