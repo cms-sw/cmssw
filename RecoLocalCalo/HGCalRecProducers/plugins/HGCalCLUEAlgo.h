@@ -72,6 +72,7 @@ public:
       cells.clear();
       cells.shrink_to_fit();
     }
+    density_.clear();
   }
 
   Density getDensity() override;
