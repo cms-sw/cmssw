@@ -1404,7 +1404,7 @@ void TkConvValidator::analyze(const edm::Event& e, const edm::EventSetup& esup) 
       theConvTP_.clear();
       //      std::cout << " TkConvValidator TrackingParticles   TrackingParticleCollection size "<<  trackingParticles.size() <<  "\n";
       //duplicated TP collections for two associations
-      for (const TrackingParticleRef tp : tpForEfficiency) {
+      for (const TrackingParticleRef& tp : tpForEfficiency) {
         if (fabs(tp->vx() - (*mcPho).vertex().x()) < 0.0001 && fabs(tp->vy() - (*mcPho).vertex().y()) < 0.0001 &&
             fabs(tp->vz() - (*mcPho).vertex().z()) < 0.0001) {
           theConvTP_.push_back(tp);
@@ -1882,7 +1882,7 @@ void TkConvValidator::analyze(const edm::Event& e, const edm::EventSetup& esup) 
         continue;
 
       theConvTP_.clear();
-      for (const TrackingParticleRef tp : tpForFakeRate) {
+      for (const TrackingParticleRef& tp : tpForFakeRate) {
         if (fabs(tp->vx() - (*mcPho).vertex().x()) < 0.0001 && fabs(tp->vy() - (*mcPho).vertex().y()) < 0.0001 &&
             fabs(tp->vz() - (*mcPho).vertex().z()) < 0.0001) {
           theConvTP_.push_back(tp);
@@ -1971,7 +1971,7 @@ void TkConvValidator::analyze(const edm::Event& e, const edm::EventSetup& esup) 
           continue;
 
         theConvTP_.clear();
-        for (TrackingParticleRef tp : tpForFakeRate) {
+        for (const TrackingParticleRef& tp : tpForFakeRate) {
           if (fabs(tp->vx() - (*mcPho).vertex().x()) < 0.0001 && fabs(tp->vy() - (*mcPho).vertex().y()) < 0.0001 &&
               fabs(tp->vz() - (*mcPho).vertex().z()) < 0.0001) {
             theConvTP_.push_back(tp);

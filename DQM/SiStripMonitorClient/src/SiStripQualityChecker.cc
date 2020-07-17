@@ -278,7 +278,7 @@ void SiStripQualityChecker::fillSubDetStatus(DQMStore& dqm_store,
     int errdet_hasDcsErr = 0;
 
     int ston_stat = 1;
-    int lnum = atoi(dname.substr(dname.find_last_of("_") + 1).c_str());
+    int lnum = atoi(dname.substr(dname.find_last_of('_') + 1).c_str());
     ndet = cabling->connectedNumber(mes.detectorTag, lnum);
 
     getModuleStatus(dqm_store,
@@ -431,7 +431,7 @@ void SiStripQualityChecker::getModuleStatus(DQMStore& dqm_store,
         detid_str << detId;
         // now in the layer/wheel dir
         const std::string& currentdir = dqm_store.pwd();
-        std::string thisMEpath = currentdir.substr(0, currentdir.rfind("/")) + "/BadModuleList/" + detid_str.str();
+        std::string thisMEpath = currentdir.substr(0, currentdir.rfind('/')) + "/BadModuleList/" + detid_str.str();
 
         MonitorElement* meBadModule = dqm_store.get(thisMEpath);
         if (meBadModule) {
