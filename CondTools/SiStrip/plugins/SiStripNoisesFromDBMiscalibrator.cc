@@ -88,28 +88,28 @@ SiStripNoisesFromDBMiscalibrator::SiStripNoisesFromDBMiscalibrator(const edm::Pa
           "file", edm::FileInPath("CalibTracker/SiStripCommon/data/SiStripDetInfo.dat"))} {
   //now do what ever initialization is needed
 
-  scale_map = std::unique_ptr<TrackerMap>(new TrackerMap("scale"));
+  scale_map = std::make_unique<TrackerMap>("scale");
   scale_map->setTitle("Tracker Map of Scale factor averaged by module");
   scale_map->setPalette(1);
 
-  smear_map = std::unique_ptr<TrackerMap>(new TrackerMap("smear"));
+  smear_map = std::make_unique<TrackerMap>("smear");
   smear_map->setTitle("Tracker Map of Smear factor averaged by module");
   smear_map->setPalette(1);
 
-  old_payload_map = std::unique_ptr<TrackerMap>(new TrackerMap("old_payload"));
+  old_payload_map = std::make_unique<TrackerMap>("old_payload");
   old_payload_map->setTitle("Tracker Map of Starting Noise Payload averaged by module");
   old_payload_map->setPalette(1);
 
-  new_payload_map = std::unique_ptr<TrackerMap>(new TrackerMap("new_payload"));
+  new_payload_map = std::make_unique<TrackerMap>("new_payload");
   new_payload_map->setTitle("Tracker Map of Modified Noise Payload averaged by module");
   new_payload_map->setPalette(1);
 
-  ratio_map = std::unique_ptr<TrackerMap>(new TrackerMap("ratio"));
+  ratio_map = std::make_unique<TrackerMap>("ratio");
   ratio_map->setTitle("Tracker Map of Average by module of the payload ratio (new/old)");
   ratio_map->setPalette(1);
 
   if (m_fillDefaults) {
-    missing_map = std::unique_ptr<TrackerMap>(new TrackerMap("uncabled"));
+    missing_map = std::make_unique<TrackerMap>("uncabled");
     missing_map->setTitle("Tracker Map of uncabled modules");
     missing_map->setPalette(1);
   }
@@ -293,7 +293,7 @@ void SiStripNoisesFromDBMiscalibrator::endJob() {
 //********************************************************************************//
 std::unique_ptr<SiStripNoises> SiStripNoisesFromDBMiscalibrator::getNewObject_withDefaults(
     const std::map<std::pair<uint32_t, int>, float>& theMap, const float theDefault) {
-  std::unique_ptr<SiStripNoises> obj = std::unique_ptr<SiStripNoises>(new SiStripNoises());
+  std::unique_ptr<SiStripNoises> obj = std::make_unique<SiStripNoises>();
 
   SiStripDetInfoFileReader reader(fp_.fullPath());
   const std::map<uint32_t, SiStripDetInfoFileReader::DetInfo>& DetInfos = reader.getAllData();
@@ -355,7 +355,7 @@ std::unique_ptr<SiStripNoises> SiStripNoisesFromDBMiscalibrator::getNewObject_wi
 //********************************************************************************//
 std::unique_ptr<SiStripNoises> SiStripNoisesFromDBMiscalibrator::getNewObject(
     const std::map<std::pair<uint32_t, int>, float>& theMap) {
-  std::unique_ptr<SiStripNoises> obj = std::unique_ptr<SiStripNoises>(new SiStripNoises());
+  std::unique_ptr<SiStripNoises> obj = std::make_unique<SiStripNoises>();
 
   uint32_t PreviousDetId = 0;
   SiStripNoises::InputVector theSiStripVector;

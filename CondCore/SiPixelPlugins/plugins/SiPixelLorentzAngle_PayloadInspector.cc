@@ -81,12 +81,12 @@ namespace {
 
       TCanvas canvas("Canv", "Canv", 1200, 1000);
       canvas.cd();
-      auto h1 = std::unique_ptr<TH1F>(
-          new TH1F("value",
+      auto h1 = std::make_unique<TH1F>(
+          "value",
                    "SiPixel LA value;SiPixel LorentzAngle #mu_{H}(tan#theta_{L}/B) [1/T];# modules",
                    50,
                    extrema.first * 0.9,
-                   extrema.second * 1.1));
+                   extrema.second * 1.1);
 
       SiPixelPI::adjustCanvasMargins(canvas.cd(), 0.06, 0.12, 0.12, 0.05);
       canvas.Modified();
@@ -436,20 +436,20 @@ namespace {
 
       TCanvas canvas("Canv", "Canv", 1200, 1000);
       canvas.cd();
-      auto hfirst = std::unique_ptr<TH1F>(
-          new TH1F("value_first",
+      auto hfirst = std::make_unique<TH1F>(
+          "value_first",
                    "SiPixel LA value;SiPixel LorentzAngle #mu_{H}(tan#theta_{L}/B) [1/T];# modules",
                    50,
                    min * 0.9,
-                   max * 1.1));
+                   max * 1.1);
       hfirst->SetStats(false);
 
-      auto hlast = std::unique_ptr<TH1F>(
-          new TH1F("value_last",
+      auto hlast = std::make_unique<TH1F>(
+          "value_last",
                    "SiPixel LA value;SiPixel LorentzAngle #mu_{H}(tan#theta_{L}/B) [1/T];# modules",
                    50,
                    min * 0.9,
-                   max * 1.1));
+                   max * 1.1);
       hlast->SetStats(false);
 
       SiPixelPI::adjustCanvasMargins(canvas.cd(), 0.06, 0.12, 0.12, 0.05);

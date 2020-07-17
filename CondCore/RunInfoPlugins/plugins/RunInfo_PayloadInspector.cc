@@ -83,8 +83,8 @@ namespace {
       canvas.Modified();
       canvas.SetGrid();
 
-      auto h2_RunInfoParameters = std::unique_ptr<TH2F>(new TH2F("Parameters", "", 1, 0.0, 1.0, 11, 0, 11.));
-      auto h2_RunInfoState = std::unique_ptr<TH2F>(new TH2F("State", "", 1, 0.0, 1.0, 11, 0, 11.));
+      auto h2_RunInfoParameters = std::make_unique<TH2F>("Parameters", "", 1, 0.0, 1.0, 11, 0, 11.);
+      auto h2_RunInfoState = std::make_unique<TH2F>("State", "", 1, 0.0, 1.0, 11, 0, 11.);
       h2_RunInfoParameters->SetStats(false);
       h2_RunInfoState->SetStats(false);
 

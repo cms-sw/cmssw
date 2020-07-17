@@ -10,7 +10,9 @@
 
 #include "DataFormats/Provenance/interface/Timestamp.h"
 #include <iostream>
+#include <memory>
 
+        
 EcalMappingElectronicsHandler::EcalMappingElectronicsHandler(const edm::ParameterSet &ps)
     : txtFileSource_(ps.getUntrackedParameter<std::string>("txtFile")),
       m_name(ps.getUntrackedParameter<std::string>("name", "EcalMappingElectronicsHandler")),
@@ -24,7 +26,7 @@ void EcalMappingElectronicsHandler::getNewObjects() {
   std::cout << "------- Ecal - > getNewObjects\n";
   EcalMappingElectronics *payload = new EcalMappingElectronics;
   std::unique_ptr<EcalMappingElectronics> mapping =
-      std::unique_ptr<EcalMappingElectronics>(new EcalMappingElectronics());
+      std::make_unique<EcalMappingElectronics>();
   //Filling map reading from file
   edm::LogInfo("EcalMappingElectronicsHandler")
       << "Reading mapping from file " << edm::FileInPath(txtFileSource_).fullPath().c_str();
