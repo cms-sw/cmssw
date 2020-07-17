@@ -72,8 +72,8 @@ void FileBlob::write(std::ostream& os) const {
   }
 }
 
-std::unique_ptr<std::vector<unsigned char> > FileBlob::getUncompressedBlob() const {
-  std::unique_ptr<std::vector<unsigned char> > newblob;
+std::unique_ptr<std::vector<unsigned char>> FileBlob::getUncompressedBlob() const {
+  std::unique_ptr<std::vector<unsigned char>> newblob;
   if (compressed) {
     newblob = std::make_unique<std::vector<unsigned char>>(isize);
     uLongf destLen = newblob->size();
