@@ -380,7 +380,7 @@ namespace edm {
                        edm::Transition);
 
     bool needsESPrefetching(Transition iTrans) const noexcept { return not esItemsToGetFrom(iTrans).empty(); }
-    void esPrefetchAsync(WaitingTask* iHolder, EventSetupImpl const&, Transition);
+    void esPrefetchAsync(WaitingTask* iHolder, EventSetupImpl const&, Transition, ServiceToken const&);
 
     void emitPostModuleEventPrefetchingSignal() {
       actReg_->postModuleEventPrefetchingSignal_.emit(*moduleCallingContext_.getStreamContext(), moduleCallingContext_);
@@ -987,7 +987,7 @@ namespace edm {
                 }
               }
             });
-        esPrefetchAsync(afterPrefetch, es, T::transition_);
+        esPrefetchAsync(afterPrefetch, es, T::transition_, serviceToken);
       } else {
         if (auto queue = this->serializeRunModule()) {
           queue.push(toDo);

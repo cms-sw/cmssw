@@ -457,7 +457,8 @@ namespace {
       void prefetchAsyncImpl(edm::WaitingTask*,
                              EventSetupRecordImpl const&,
                              DataKey const&,
-                             edm::EventSetupImpl const*) override {}
+                             edm::EventSetupImpl const*,
+                             edm::ServiceToken const&) override {}
       void invalidateCache() override {}
       void const* getAfterPrefetchImpl() const override { return nullptr; }
     };
