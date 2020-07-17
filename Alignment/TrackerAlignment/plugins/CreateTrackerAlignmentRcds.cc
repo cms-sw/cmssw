@@ -223,7 +223,7 @@ std::vector<GeomDetEnumerators::SubDetector> CreateIdealTkAlRecords::toSubDetect
     const std::vector<std::string>& subs) {
   std::vector<GeomDetEnumerators::SubDetector> result;
   result.reserve(subs.size());
- for (const auto& sub : subs)
+  for (const auto& sub : subs)
     result.emplace_back(toSubDetector(sub));
   return result;
 }
