@@ -11,10 +11,10 @@
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/Utilities/interface/ESGetToken.h"
 
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/TrackReco/interface/Track.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "DataFormats/TrackCandidate/interface/TrackCandidate.h"
 
@@ -31,6 +31,8 @@
 #include <atomic>
 
 #include "CondFormats/EgammaObjects/interface/GBRForest.h"
+#include "CondFormats/DataRecord/interface/GBRWrapperRcd.h"
+#include "TrackingTools/Records/interface/TrackingComponentsRecord.h"
 
 using namespace reco;
 namespace {
@@ -100,6 +102,13 @@ namespace {
     const Propagator *propagator_;
     const Chi2MeasurementEstimatorBase *chi2Estimator_;
 
+    edm::ESGetToken<GBRForest, GBRWrapperRcd> forestToken_;
+    edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> magFieldToken_;
+    edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> trackerTopoToken_;
+    edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> geometryToken_;
+    edm::ESGetToken<Propagator, TrackingComponentsRecord> propagatorToken_;
+    edm::ESGetToken<Chi2MeasurementEstimatorBase, TrackingComponentsRecord> estimatorToken_;
+
     ///Merger
     TrackMerger merger_;
 
@@ -113,8 +122,6 @@ namespace {
 #include "TrackingTools/TrajectoryState/interface/FreeTrajectoryState.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateTransform.h"
-#include "CondFormats/DataRecord/interface/GBRWrapperRcd.h"
-#include "TrackingTools/Records/interface/TrackingComponentsRecord.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "TFile.h"
@@ -151,7 +158,8 @@ namespace {
     descriptions.add("DuplicateTrackMerger", desc);
   }
 
-  DuplicateTrackMerger::DuplicateTrackMerger(const edm::ParameterSet &iPara) : forest_(nullptr), merger_(iPara) {
+  DuplicateTrackMerger::DuplicateTrackMerger(const edm::ParameterSet &iPara)
+      : forest_(nullptr), merger_(iPara, consumesCollector()) {
     trackSource_ = consumes<reco::TrackCollection>(iPara.getParameter<edm::InputTag>("source"));
     minDeltaR3d2_ = iPara.getParameter<double>("minDeltaR3d");
     minDeltaR3d2_ *= std::abs(minDeltaR3d2_);
@@ -180,6 +188,15 @@ namespace {
 
     propagatorName_ = iPara.getParameter<std::string>("propagatorName");
     chi2EstimatorName_ = iPara.getParameter<std::string>("chi2EstimatorName");
+    if (useForestFromDB_) {
+      forestToken_ = esConsumes<GBRForest, GBRWrapperRcd>(edm::ESInputTag("", forestLabel_));
+    }
+    magFieldToken_ = esConsumes<MagneticField, IdealMagneticFieldRecord>();
+    trackerTopoToken_ = esConsumes<TrackerTopology, TrackerTopologyRcd>();
+    geometryToken_ = esConsumes<TrackerGeometry, TrackerDigiGeometryRecord>();
+    propagatorToken_ = esConsumes<Propagator, TrackingComponentsRecord>(edm::ESInputTag("", propagatorName_));
+    estimatorToken_ =
+        esConsumes<Chi2MeasurementEstimatorBase, TrackingComponentsRecord>(edm::ESInputTag("", chi2EstimatorName_));
 
     /*
   tmvaReader_ = new TMVA::Reader("!Color:Silent");
@@ -230,8 +247,7 @@ namespace {
 
     if (!forest_) {
       if (useForestFromDB_) {
-        edm::ESHandle<GBRForest> forestHandle;
-        iSetup.get<GBRWrapperRcd>().get(forestLabel_, forestHandle);
+        edm::ESHandle<GBRForest> forestHandle = iSetup.getHandle(forestToken_);
         forest_ = forestHandle.product();
       } else {
         TFile gbrfile(dbFileName_.c_str());
@@ -244,24 +260,19 @@ namespace {
     iEvent.getByToken(trackSource_, handle);
     auto const &tracks = *handle;
 
-    edm::ESHandle<MagneticField> hmagfield;
-    iSetup.get<IdealMagneticFieldRecord>().get(hmagfield);
+    edm::ESHandle<MagneticField> hmagfield = iSetup.getHandle(magFieldToken_);
     magfield_ = hmagfield.product();
 
-    edm::ESHandle<TrackerTopology> httopo;
-    iSetup.get<TrackerTopologyRcd>().get(httopo);
+    edm::ESHandle<TrackerTopology> httopo = iSetup.getHandle(trackerTopoToken_);
     ttopo_ = httopo.product();
 
-    edm::ESHandle<TrackerGeometry> hgeom;
-    iSetup.get<TrackerDigiGeometryRecord>().get(hgeom);
+    edm::ESHandle<TrackerGeometry> hgeom = iSetup.getHandle(geometryToken_);
     geom_ = hgeom.product();
 
-    edm::ESHandle<Propagator> hpropagator;
-    iSetup.get<TrackingComponentsRecord>().get(propagatorName_, hpropagator);
+    edm::ESHandle<Propagator> hpropagator = iSetup.getHandle(propagatorToken_);
     propagator_ = hpropagator.product();
 
-    edm::ESHandle<Chi2MeasurementEstimatorBase> hestimator;
-    iSetup.get<TrackingComponentsRecord>().get(chi2EstimatorName_, hestimator);
+    edm::ESHandle<Chi2MeasurementEstimatorBase> hestimator = iSetup.getHandle(estimatorToken_);
     chi2Estimator_ = hestimator.product();
 
     TSCPBuilderNoMaterial tscpBuilder;

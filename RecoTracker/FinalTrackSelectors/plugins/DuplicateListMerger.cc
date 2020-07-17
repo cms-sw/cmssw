@@ -11,6 +11,7 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Utilities/interface/InputTag.h"
+#include "FWCore/Utilities/interface/ESGetToken.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
@@ -66,6 +67,7 @@ namespace {
 
     edm::EDGetTokenT<MVACollection> originalMVAValsToken_;
     edm::EDGetTokenT<MVACollection> mergedMVAValsToken_;
+    edm::ESGetToken<TrackAlgoPriorityOrder, CkfComponentsRecord> priorityOrderToken_;
 
     std::string priorityName_;
 
@@ -111,6 +113,7 @@ namespace {
 
     mergedMVAValsToken_ = consumes<MVACollection>(iPara.getParameter<edm::InputTag>("mergedMVAVals"));
     originalMVAValsToken_ = consumes<MVACollection>(iPara.getParameter<edm::InputTag>("originalMVAVals"));
+    priorityOrderToken_ = esConsumes<TrackAlgoPriorityOrder, CkfComponentsRecord>(edm::ESInputTag("", priorityName_));
 
     produces<MVACollection>("MVAValues");
     produces<QualityMaskCollection>("QualityMasks");
@@ -140,8 +143,7 @@ namespace {
     iEvent.getByToken(originalMVAValsToken_, originalMVAStore);
     iEvent.getByToken(mergedMVAValsToken_, mergedMVAStore);
 
-    edm::ESHandle<TrackAlgoPriorityOrder> priorityH;
-    iSetup.get<CkfComponentsRecord>().get(priorityName_, priorityH);
+    edm::ESHandle<TrackAlgoPriorityOrder> priorityH = iSetup.getHandle(priorityOrderToken_);
     auto const& trackAlgoPriorityOrder = *priorityH;
 
     MVACollection mvaVec;
