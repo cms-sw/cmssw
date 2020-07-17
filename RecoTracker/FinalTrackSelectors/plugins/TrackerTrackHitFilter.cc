@@ -769,8 +769,7 @@ namespace reco {
       return hitresult;
     }  //end  TrackerTrackHitFilter::checkHit()
 
-    bool TrackerTrackHitFilter::checkStoN(const DetId &id,
-                                          const TrackingRecHit *therechit) {
+    bool TrackerTrackHitFilter::checkStoN(const DetId &id, const TrackingRecHit *therechit) {
       bool keepthishit = true;
       // const uint32_t& recHitDetId = id.rawId();
 
