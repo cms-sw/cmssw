@@ -9,19 +9,21 @@
 
 #include "FWCore/Framework/interface/ESHandle.h"
 
-#include "DataFormats/TrackReco/interface/Track.h"
-#include "DataFormats/MuonReco/interface/Muon.h"
-#include "DataFormats/RecoCandidate/interface/IsoDepositDirection.h"
-#include "DataFormats/RecoCandidate/interface/IsoDeposit.h"
-#include "DataFormats/RecoCandidate/interface/IsoDepositFwd.h"
-#include "DataFormats/RecoCandidate/interface/IsoDepositVetos.h"
-#include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
-#include "DataFormats/RecoCandidate/interface/RecoCandidate.h"
 #include "DataFormats/Candidate/interface/CandAssociation.h"
 #include "DataFormats/EcalDetId/interface/EcalSubdetector.h"
+#include "DataFormats/MuonReco/interface/Muon.h"
+#include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
+#include "DataFormats/RecoCandidate/interface/IsoDeposit.h"
+#include "DataFormats/RecoCandidate/interface/IsoDepositDirection.h"
+#include "DataFormats/RecoCandidate/interface/IsoDepositFwd.h"
+#include "DataFormats/RecoCandidate/interface/IsoDepositVetos.h"
+#include "DataFormats/RecoCandidate/interface/RecoCandidate.h"
+#include "DataFormats/TrackReco/interface/Track.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include <string>
+#include <memory>
+
 #include <regex>
+        #include <string>
 
 #include "PhysicsTools/IsolationAlgos/interface/IsoDepositVetoFactory.h"
 
@@ -201,7 +203,7 @@ void PFCandIsolatorFromDeposits::produce(Event &event, const EventSetup &eventSe
   const IsoDepositMap &map = begin->map();
 
   if (map.empty()) {  // !!???
-    event.put(std::unique_ptr<CandDoubleMap>(new CandDoubleMap()));
+    event.put(std::make_unique<CandDoubleMap>());
     return;
   }
   std::unique_ptr<CandDoubleMap> ret(new CandDoubleMap());

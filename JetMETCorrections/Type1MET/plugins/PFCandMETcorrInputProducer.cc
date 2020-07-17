@@ -1,5 +1,9 @@
 #include "JetMETCorrections/Type1MET/plugins/PFCandMETcorrInputProducer.h"
 
+
+        #include <memory>
+
+        
 #include "DataFormats/Common/interface/View.h"
 
 PFCandMETcorrInputProducer::PFCandMETcorrInputProducer(const edm::ParameterSet& cfg)
@@ -53,7 +57,7 @@ void PFCandMETcorrInputProducer::produce(edm::Event& evt, const edm::EventSetup&
 
   //--- add momentum sum of PFCandidates not within jets ("unclustered energy") to the event
   for (auto binningEntry = binning_.cbegin(); binningEntry != binning_.cend(); ++binningEntry) {
-    evt.put(std::unique_ptr<CorrMETData>(new CorrMETData((*binningEntry)->binUnclEnergySum_)),
+    evt.put(std::make_unique<CorrMETData>((*binningEntry)->binUnclEnergySum_),
             (*binningEntry)->binLabel_);
   }
 }
