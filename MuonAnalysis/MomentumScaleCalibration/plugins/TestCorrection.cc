@@ -155,11 +155,11 @@ TestCorrection::TestCorrection(const edm::ParameterSet& iConfig)
   correctedPtVsEta_ = new TProfile("correctedPtVsEta", "corrected pt vs eta", 1000, 0, 100, -3., 3.);
   eventCounter_ = 0;
   // Create the corrector and set the parameters
-  corrector_.reset(new MomentumScaleCorrector(iConfig.getUntrackedParameter<std::string>("CorrectionsIdentifier")));
+  corrector_ = std::make_unique<MomentumScaleCorrector>(iConfig.getUntrackedParameter<std::string>("CorrectionsIdentifier"));
   std::cout << "corrector_ = " << &*corrector_ << std::endl;
-  resolution_.reset(new ResolutionFunction(iConfig.getUntrackedParameter<std::string>("ResolutionsIdentifier")));
+  resolution_ = std::make_unique<ResolutionFunction>(iConfig.getUntrackedParameter<std::string>("ResolutionsIdentifier"));
   std::cout << "resolution_ = " << &*resolution_ << std::endl;
-  background_.reset(new BackgroundFunction(iConfig.getUntrackedParameter<std::string>("BackgroundIdentifier")));
+  background_ = std::make_unique<BackgroundFunction>(iConfig.getUntrackedParameter<std::string>("BackgroundIdentifier"));
 
   // Initialize the parameters of MuScleFitUtils from those saved in the functions.
   // MuScleFitUtils::parScale = corrector_.getFunction(0)->parameters();
