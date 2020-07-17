@@ -58,7 +58,7 @@ void CollectionMerger<T1, T2>::fill_output_obj_tracker(std::unique_ptr<MergeColl
        ++outHits) {
     DetId detIdObject(outHits->first);
     typename MergeCollection::FastFiller spc(*output, detIdObject);
-    for (auto Hit : outHits->second) {
+    for (const auto& Hit : outHits->second) {
       spc.push_back(Hit);
     }
   }
