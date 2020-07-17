@@ -19,7 +19,7 @@
 #include <boost/range.hpp>
 #include <boost/regex.hpp>
 #include <cstdlib>
-        #include <queue>
+#include <queue>
 
 #include <IOPool/Streamer/interface/DumpTools.h>
 

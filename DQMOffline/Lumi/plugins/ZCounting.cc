@@ -14,10 +14,8 @@
 
 #include <TLorentzVector.h>
 
+#include <memory>
 
-        #include <memory>
-
-        
 #include "DQMOffline/Lumi/plugins/ZCounting.h"
 
 using namespace ZCountingTrigger;

@@ -193,7 +193,7 @@ void EcalMixingModuleValidation::dqmEndRun(const edm::Run& run, const edm::Event
 
   std::vector<MonitorElement*> theBunches;
   theBunches.reserve(nBunch);
- for (int i = 0; i < nBunch; i++) {
+  for (int i = 0; i < nBunch; i++) {
     theBunches.push_back(meEBBunchShape_[i]);
   }
   bunchSumTest(theBunches, meEBShape_, meEBShapeRatio_, EcalDataFrame::MAXSAMPLES);

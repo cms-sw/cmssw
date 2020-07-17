@@ -699,7 +699,7 @@ namespace dqm::implementation {
     auto mes = this->getContents(this->cwd_);
     std::vector<std::string> out;
     out.reserve(mes.size());
- for (auto me : mes) {
+    for (auto me : mes) {
       out.push_back(me->getName());
     }
     return out;

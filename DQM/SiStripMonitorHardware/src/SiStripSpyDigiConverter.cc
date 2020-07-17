@@ -1,6 +1,6 @@
 #include <memory>
 
-        #include <vector>
+#include <vector>
 
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"

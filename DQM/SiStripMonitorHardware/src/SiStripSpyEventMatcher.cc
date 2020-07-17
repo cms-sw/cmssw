@@ -64,10 +64,10 @@ namespace sistrip {
     productRegistry_->setFrozen();
 
     eventPrincipal_ = std::make_unique<edm::EventPrincipal>(source_->productRegistry(),
-                                                  std::make_shared<edm::BranchIDListHelper>(),
-                                                  std::make_shared<edm::ThinnedAssociationsHelper>(),
-                                                  *processConfiguration_,
-                                                  nullptr);
+                                                            std::make_shared<edm::BranchIDListHelper>(),
+                                                            std::make_shared<edm::ThinnedAssociationsHelper>(),
+                                                            *processConfiguration_,
+                                                            nullptr);
   }
 
   std::unique_ptr<SpyEventMatcher::Source> SpyEventMatcher::constructSource(const edm::ParameterSet& sourceConfig) {

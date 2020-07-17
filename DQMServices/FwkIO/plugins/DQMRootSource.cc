@@ -18,7 +18,7 @@
 #include "TTree.h"
 #include <map>
 #include <string>
-        #include <vector>
+#include <vector>
 
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DataFormats/Histograms/interface/DQMToken.h"
