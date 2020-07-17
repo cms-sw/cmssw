@@ -1,12 +1,16 @@
-#include "HeavyFlavorAnalysis/Onia2MuMu/interface/OniaVtxReProducer.h"
+#include <memory>
+
+
+
+#include "DataFormats/Provenance/interface/ProductProvenance.h"
+#include "FWCore/Common/interface/Provenance.h"
 #include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ParameterSet/interface/Registry.h"
+        #include "HeavyFlavorAnalysis/Onia2MuMu/interface/OniaVtxReProducer.h"
+#include "TrackingTools/Records/interface/TransientTrackRecord.h"
 #include "TrackingTools/TransientTrack/interface/TransientTrack.h"
 #include "TrackingTools/TransientTrack/interface/TransientTrackBuilder.h"
-#include "TrackingTools/Records/interface/TransientTrackRecord.h"
-#include "FWCore/ParameterSet/interface/Registry.h"
-#include "FWCore/Common/interface/Provenance.h"
-#include "DataFormats/Provenance/interface/ProductProvenance.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 OniaVtxReProducer::OniaVtxReProducer(const edm::Handle<reco::VertexCollection> &handle, const edm::Event &iEvent) {
   const edm::Provenance *prov = handle.provenance();
@@ -66,7 +70,7 @@ void OniaVtxReProducer::configure(const edm::ParameterSet &iConfig) {
   config_ = iConfig;
   tracksTag_ = iConfig.getParameter<edm::InputTag>("TrackLabel");
   beamSpotTag_ = iConfig.getParameter<edm::InputTag>("beamSpotLabel");
-  algo_.reset(new PrimaryVertexProducerAlgorithm(iConfig));
+  algo_ = std::make_unique<PrimaryVertexProducerAlgorithm>(iConfig);
 }
 
 std::vector<TransientVertex> OniaVtxReProducer::makeVertices(const reco::TrackCollection &tracks,

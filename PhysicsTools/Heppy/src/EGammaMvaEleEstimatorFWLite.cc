@@ -22,7 +22,8 @@ namespace heppy {
     delete estimatorCSA14_;
     estimatorCSA14_ = nullptr;
     std::vector<std::string> weightspaths;
-    for (const std::string& s : weightsfiles) {
+    weightspaths.reserve(weightsfiles.size());
+ for (const std::string& s : weightsfiles) {
       weightspaths.push_back(edm::FileInPath(s).fullPath());
     }
     switch (type) {
