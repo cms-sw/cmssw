@@ -6,7 +6,7 @@ from RecoHI.HiJetAlgos.HiPFJetParameters_cff import *
 
 #pseudo towers for noise suppression background subtraction
 import RecoHI.HiJetAlgos.particleTowerProducer_cfi as _mod
-PFTowers = _mod.particleTowerProducer.clone(useHF = False)
+PFTowers = _mod.particleTowerProducer.clone(useHF = True)
 
 #dummy sequence to speed-up reconstruction in pp_on_AA era
 pfNoPileUpJMEHI = cms.EDFilter('GenericPFCandidateSelector',
