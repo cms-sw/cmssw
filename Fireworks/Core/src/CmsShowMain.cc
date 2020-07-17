@@ -563,8 +563,8 @@ void CmsShowMain::appendData() {
 
 void CmsShowMain::openDataViaURL() {
   if (m_searchFiles.get() == nullptr) {
-    m_searchFiles = std::make_unique<CmsShowSearchFiles>(
-        "", "Open Remote Data Files", guiManager()->getMainFrame(), 500, 400);
+    m_searchFiles =
+        std::make_unique<CmsShowSearchFiles>("", "Open Remote Data Files", guiManager()->getMainFrame(), 500, 400);
     m_searchFiles->CenterOnParent(kTRUE, TGTransientFrame::kBottomRight);
   }
   std::string chosenFile = m_searchFiles->chooseFileFromURL();
