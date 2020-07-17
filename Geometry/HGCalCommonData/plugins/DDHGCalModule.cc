@@ -283,7 +283,7 @@ void DDHGCalModule::positionSensitive(DDLogicalPart& glog, double rin, double ro
         auto const& corner = HGCalGeomTools::waferCorner(xpos, ypos, dx, rr, rin, rout, true);
         ++ntot;
         if (corner.first > 0) {
-	  int copy = HGCalTypes::packTypeUV(0, nc, nr);
+          int copy = HGCalTypes::packTypeUV(0, nc, nr);
           if (inc > incm)
             incm = inc;
           if (inr > inrm)
