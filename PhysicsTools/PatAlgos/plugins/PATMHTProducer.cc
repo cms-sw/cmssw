@@ -3,10 +3,8 @@
 
 #include "PhysicsTools/PatAlgos/plugins/PATMHTProducer.h"
 
+#include <memory>
 
-        #include <memory>
-
-        
 pat::PATMHTProducer::PATMHTProducer(const edm::ParameterSet& iConfig) {
   // Initialize the configurables
   verbose_ = iConfig.getParameter<double>("verbose");
@@ -344,7 +342,8 @@ void pat::PATMHTProducer::setUncertaintyParameters() {
   //-- Ecal Uncertainty Functions ------------------------------------//
   //-- From: FastSimulation/Calorimetry/data/HcalResponse.cfi --//
   //-- Ecal Barrel --//
-  ecalEBUncertainty.etUncertainty = std::make_unique<TF1>("ecalEBEtFunc", "x*sqrt(([0]*[0]/(x*x))+([1]*[1]/x)+([2]*[2]))", 3);
+  ecalEBUncertainty.etUncertainty =
+      std::make_unique<TF1>("ecalEBEtFunc", "x*sqrt(([0]*[0]/(x*x))+([1]*[1]/x)+([2]*[2]))", 3);
   ecalEBUncertainty.etUncertainty->SetParameter(0, 0.2);
   ecalEBUncertainty.etUncertainty->SetParameter(1, 0.03);
   ecalEBUncertainty.etUncertainty->SetParameter(2, 0.005);
@@ -353,7 +352,8 @@ void pat::PATMHTProducer::setUncertaintyParameters() {
   ecalEBUncertainty.phiUncertainty->SetParameter(0, 0.0174);
 
   //-- Ecal Endcap --//
-  ecalEEUncertainty.etUncertainty = std::make_unique<TF1>("ecalEEEtFunc", "x*sqrt(([0]*[0]/(x*x))+([1]*[1]/x)+([2]*[2]))", 3);
+  ecalEEUncertainty.etUncertainty =
+      std::make_unique<TF1>("ecalEEEtFunc", "x*sqrt(([0]*[0]/(x*x))+([1]*[1]/x)+([2]*[2]))", 3);
   ecalEEUncertainty.etUncertainty->SetParameter(0, 0.2);
   ecalEEUncertainty.etUncertainty->SetParameter(1, 0.03);
   ecalEEUncertainty.etUncertainty->SetParameter(2, 0.005);
@@ -364,7 +364,8 @@ void pat::PATMHTProducer::setUncertaintyParameters() {
   //-- Hcal Uncertainty Functions --------------------------------------//
   //-- From: FastSimulation/Calorimetry/data/HcalResponse.cfi --//
   //-- Hcal Barrel --//
-  hcalHBUncertainty.etUncertainty = std::make_unique<TF1>("hcalHBEtFunc", "x*sqrt(([0]*[0]/(x*x))+([1]*[1]/x)+([2]*[2]))", 3);
+  hcalHBUncertainty.etUncertainty =
+      std::make_unique<TF1>("hcalHBEtFunc", "x*sqrt(([0]*[0]/(x*x))+([1]*[1]/x)+([2]*[2]))", 3);
   hcalHBUncertainty.etUncertainty->SetParameter(0, 0.);
   hcalHBUncertainty.etUncertainty->SetParameter(1, 1.22);
   hcalHBUncertainty.etUncertainty->SetParameter(2, 0.05);
@@ -373,7 +374,8 @@ void pat::PATMHTProducer::setUncertaintyParameters() {
   hcalHBUncertainty.phiUncertainty->SetParameter(0, 0.087);
 
   //-- Hcal Endcap --//
-  hcalHEUncertainty.etUncertainty = std::make_unique<TF1>("hcalHEEtFunc", "x*sqrt(([0]*[0]/(x*x))+([1]*[1]/x)+([2]*[2]))", 3);
+  hcalHEUncertainty.etUncertainty =
+      std::make_unique<TF1>("hcalHEEtFunc", "x*sqrt(([0]*[0]/(x*x))+([1]*[1]/x)+([2]*[2]))", 3);
   hcalHEUncertainty.etUncertainty->SetParameter(0, 0.);
   hcalHEUncertainty.etUncertainty->SetParameter(1, 1.3);
   hcalHEUncertainty.etUncertainty->SetParameter(2, 0.05);
@@ -382,7 +384,8 @@ void pat::PATMHTProducer::setUncertaintyParameters() {
   hcalHEUncertainty.phiUncertainty->SetParameter(0, 0.087);
 
   //-- Hcal Outer --//
-  hcalHOUncertainty.etUncertainty = std::make_unique<TF1>("hcalHOEtFunc", "x*sqrt(([0]*[0]/(x*x))+([1]*[1]/x)+([2]*[2]))", 3);
+  hcalHOUncertainty.etUncertainty =
+      std::make_unique<TF1>("hcalHOEtFunc", "x*sqrt(([0]*[0]/(x*x))+([1]*[1]/x)+([2]*[2]))", 3);
   hcalHOUncertainty.etUncertainty->SetParameter(0, 0.);
   hcalHOUncertainty.etUncertainty->SetParameter(1, 1.82);
   hcalHOUncertainty.etUncertainty->SetParameter(2, 0.09);
@@ -391,7 +394,8 @@ void pat::PATMHTProducer::setUncertaintyParameters() {
   hcalHOUncertainty.phiUncertainty->SetParameter(0, 0.087);
 
   //-- Hcal Forward --//
-  hcalHFUncertainty.etUncertainty = std::make_unique<TF1>("hcalHFEtFunc", "x*sqrt(([0]*[0]/(x*x))+([1]*[1]/x)+([2]*[2]))", 3);
+  hcalHFUncertainty.etUncertainty =
+      std::make_unique<TF1>("hcalHFEtFunc", "x*sqrt(([0]*[0]/(x*x))+([1]*[1]/x)+([2]*[2]))", 3);
   hcalHFUncertainty.etUncertainty->SetParameter(0, 0.);
   hcalHFUncertainty.etUncertainty->SetParameter(1, 1.82);
   hcalHFUncertainty.etUncertainty->SetParameter(2, 0.09);
@@ -412,7 +416,8 @@ void pat::PATMHTProducer::setUncertaintyParameters() {
 
   //-- phi Functions and values from
   // http://indico.cern.ch/getFile.py/access?contribId=9&sessionId=0&resId=0&materialId=slides&confId=46394
-  jetUncertainty.phiUncertainty = std::make_unique<TF1>("jetPhiFunc", "x*sqrt(([0]*[0]/(x*x))+([1]*[1]/x)+([2]*[2]))", 3);
+  jetUncertainty.phiUncertainty =
+      std::make_unique<TF1>("jetPhiFunc", "x*sqrt(([0]*[0]/(x*x))+([1]*[1]/x)+([2]*[2]))", 3);
   jetUncertainty.phiUncertainty->SetParameter(0, jetPhiUncertaintyParameter0_);
   jetUncertainty.phiUncertainty->SetParameter(1, jetPhiUncertaintyParameter1_);
   jetUncertainty.phiUncertainty->SetParameter(2, jetPhiUncertaintyParameter2_);
