@@ -215,10 +215,10 @@ vector<int> CandOneToOneDeltaRMatcher::AlgoBruteForce(int nMin, int nMax) {
   float BestTotalDeltaR = 1000;
 
   ca.reserve(nMax);
- for (int i1 = 0; i1 < nMax; i1++)
+  for (int i1 = 0; i1 < nMax; i1++)
     ca.push_back(i1);
   cb.reserve(nMin);
- for (int i1 = 0; i1 < nMin; i1++)
+  for (int i1 = 0; i1 < nMin; i1++)
     cb.push_back(i1);
 
   do {

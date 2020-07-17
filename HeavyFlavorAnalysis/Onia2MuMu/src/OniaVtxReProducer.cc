@@ -1,13 +1,11 @@
 #include <memory>
 
-
-
 #include "DataFormats/Provenance/interface/ProductProvenance.h"
 #include "FWCore/Common/interface/Provenance.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/Registry.h"
-        #include "HeavyFlavorAnalysis/Onia2MuMu/interface/OniaVtxReProducer.h"
+#include "HeavyFlavorAnalysis/Onia2MuMu/interface/OniaVtxReProducer.h"
 #include "TrackingTools/Records/interface/TransientTrackRecord.h"
 #include "TrackingTools/TransientTrack/interface/TransientTrack.h"
 #include "TrackingTools/TransientTrack/interface/TransientTrackBuilder.h"
