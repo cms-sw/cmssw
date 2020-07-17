@@ -1,8 +1,12 @@
 #include "FastSimulation/Tracking/plugins/RecoTrackAccumulator.h"
-#include "FWCore/Framework/interface/ConsumesCollector.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
+
+
+        #include <memory>
+
 #include "DataFormats/Common/interface/ValueMap.h"
 #include "DataFormats/TrackReco/interface/Track.h"
+        #include "FWCore/Framework/interface/ConsumesCollector.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 RecoTrackAccumulator::RecoTrackAccumulator(const edm::ParameterSet& conf,
                                            edm::ProducesCollector producesCollector,
@@ -22,9 +26,9 @@ RecoTrackAccumulator::RecoTrackAccumulator(const edm::ParameterSet& conf,
 RecoTrackAccumulator::~RecoTrackAccumulator() {}
 
 void RecoTrackAccumulator::initializeEvent(edm::Event const& e, edm::EventSetup const& iSetup) {
-  newTracks_ = std::unique_ptr<reco::TrackCollection>(new reco::TrackCollection);
-  newHits_ = std::unique_ptr<TrackingRecHitCollection>(new TrackingRecHitCollection);
-  newTrackExtras_ = std::unique_ptr<reco::TrackExtraCollection>(new reco::TrackExtraCollection);
+  newTracks_ = std::make_unique<reco::TrackCollection>();
+  newHits_ = std::make_unique<TrackingRecHitCollection>();
+  newTrackExtras_ = std::make_unique<reco::TrackExtraCollection>();
 
   // this is needed to get the ProductId of the TrackExtra and TrackingRecHit and Track collections
   rNewTracks = const_cast<edm::Event&>(e).getRefBeforePut<reco::TrackCollection>(outputLabel);

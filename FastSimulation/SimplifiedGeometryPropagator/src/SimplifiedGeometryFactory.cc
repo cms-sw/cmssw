@@ -9,6 +9,8 @@
 
 #include <TH1F.h>
 #include <cctype>
+#include <memory>
+
 
 fastsim::SimplifiedGeometryFactory::SimplifiedGeometryFactory(
     const GeometricSearchTracker *geometricSearchTracker,
@@ -115,9 +117,9 @@ std::unique_ptr<fastsim::SimplifiedGeometry> fastsim::SimplifiedGeometryFactory:
 
   std::unique_ptr<fastsim::SimplifiedGeometry> layer;
   if (isForward) {
-    layer.reset(new fastsim::ForwardSimplifiedGeometry(position));
+    layer = std::make_unique<fastsim::ForwardSimplifiedGeometry>(position);
   } else {
-    layer.reset(new fastsim::BarrelSimplifiedGeometry(position));
+    layer = std::make_unique<fastsim::BarrelSimplifiedGeometry>(position);
   }
   layer->detLayer_ = detLayer;
 
@@ -147,7 +149,7 @@ std::unique_ptr<fastsim::SimplifiedGeometry> fastsim::SimplifiedGeometryFactory:
         << "layer thickness and limits not configured properly! error in:" << cfgString;
   }
   // create the histogram
-  layer->thicknessHist_.reset(new TH1F("h", "h", limits.size() - 1, &limits[0]));
+  layer->thicknessHist_ = std::make_unique<TH1F>("h", "h", limits.size() - 1, &limits[0]);
   layer->thicknessHist_->SetDirectory(nullptr);
   for (unsigned i = 1; i < limits.size(); ++i) {
     layer->thicknessHist_->SetBinContent(i, thickness[i - 1]);
@@ -164,8 +166,8 @@ std::unique_ptr<fastsim::SimplifiedGeometry> fastsim::SimplifiedGeometryFactory:
   // magnetic field
   // -----------------------------
 
-  layer->magneticFieldHist_.reset(
-      new TH1F("h", "h", 100, 0., isForward ? magneticFieldHistMaxR_ : magneticFieldHistMaxZ_));
+  layer->magneticFieldHist_ = std::make_unique<TH1F>(
+      "h", "h", 100, 0., isForward ? magneticFieldHistMaxR_ : magneticFieldHistMaxZ_);
   layer->magneticFieldHist_->SetDirectory(nullptr);
   for (int i = 1; i <= 101; i++) {
     GlobalPoint point = isForward ? GlobalPoint(layer->magneticFieldHist_->GetXaxis()->GetBinCenter(i), 0., position)
