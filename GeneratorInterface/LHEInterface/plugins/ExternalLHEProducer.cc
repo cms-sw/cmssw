@@ -108,9 +108,12 @@ private:
   class FileCloseSentry{
   public:
     explicit FileCloseSentry(int fd) : fd_(fd){};
-    
+
     ~FileCloseSentry() { close(fd_); }
-    
+
+    //Make this noncopyable
+    FileCloseSentry(const FileCloseSentry&) = delete;
+    FileCloseSentry& operator=(const FileCloseSentry&) = delete;
   private:
     int fd_;
   };
