@@ -40,7 +40,7 @@
 
 #include <memory>
 
-        #include <unordered_map>
+#include <unordered_map>
 
 class HGCalTrackCollectionProducer : public edm::stream::EDProducer<> {
 public:

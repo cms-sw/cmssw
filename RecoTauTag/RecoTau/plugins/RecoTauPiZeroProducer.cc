@@ -17,7 +17,6 @@
 #include <functional>
 #include <memory>
 
-        
 #include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"

@@ -33,7 +33,7 @@
 #include "CommonTools/CandUtils/interface/AddFourMomenta.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include <memory>
-        #include <typeinfo>
+#include <typeinfo>
 
 // pdg mass constants
 namespace {
@@ -278,11 +278,15 @@ void V0Fitter::fitAll(const edm::Event& iEvent,
         }
         if (thePositiveRefTrack == nullptr || theNegativeRefTrack == nullptr)
           continue;
-        trajPlus = std::make_unique<TrajectoryStateClosestToPoint>(thePositiveRefTrack->trajectoryStateClosestToPoint(vtxPos));
-        trajMins = std::make_unique<TrajectoryStateClosestToPoint>(theNegativeRefTrack->trajectoryStateClosestToPoint(vtxPos));
+        trajPlus =
+            std::make_unique<TrajectoryStateClosestToPoint>(thePositiveRefTrack->trajectoryStateClosestToPoint(vtxPos));
+        trajMins =
+            std::make_unique<TrajectoryStateClosestToPoint>(theNegativeRefTrack->trajectoryStateClosestToPoint(vtxPos));
       } else {
-        trajPlus = std::make_unique<TrajectoryStateClosestToPoint>(posTransTkPtr->trajectoryStateClosestToPoint(vtxPos));
-        trajMins = std::make_unique<TrajectoryStateClosestToPoint>(negTransTkPtr->trajectoryStateClosestToPoint(vtxPos));
+        trajPlus =
+            std::make_unique<TrajectoryStateClosestToPoint>(posTransTkPtr->trajectoryStateClosestToPoint(vtxPos));
+        trajMins =
+            std::make_unique<TrajectoryStateClosestToPoint>(negTransTkPtr->trajectoryStateClosestToPoint(vtxPos));
       }
 
       if (trajPlus.get() == nullptr || trajMins.get() == nullptr || !trajPlus->isValid() || !trajMins->isValid())

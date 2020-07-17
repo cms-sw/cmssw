@@ -8,7 +8,7 @@
 #include "RecoTauTag/RecoTau/interface/ConeTools.h"
 #include "RecoTauTag/RecoTau/interface/RecoTauQualityCuts.h"
 #include "RecoTauTag/RecoTau/interface/RecoTauVertexAssociator.h"
-        #include "RecoTauTag/RecoTau/interface/TauDiscriminationProducerBase.h"
+#include "RecoTauTag/RecoTau/interface/TauDiscriminationProducerBase.h"
 #include <FWCore/ParameterSet/interface/ConfigurationDescriptions.h>
 #include <FWCore/ParameterSet/interface/ParameterSetDescription.h>
 

@@ -21,7 +21,7 @@
 
 #include <fstream>
 #include <functional>
-        #include <sstream>
+#include <sstream>
 
 // FFTJet headers
 #include "fftjet/ProximityClusteringTree.hh"

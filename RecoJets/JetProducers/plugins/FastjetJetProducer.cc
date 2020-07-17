@@ -429,8 +429,7 @@ void FastjetJetProducer::runAlgorithm(edm::Event& iEvent, edm::EventSetup const&
     unique_ptr<fastjet::Subtractor> subtractor;
     unique_ptr<fastjet::GridMedianBackgroundEstimator> bge_rho_grid;
     if (correctShape_) {
-      bge_rho_grid = std::make_unique<fastjet::GridMedianBackgroundEstimator>(
-          gridMaxRapidity_, gridSpacing_);
+      bge_rho_grid = std::make_unique<fastjet::GridMedianBackgroundEstimator>(gridMaxRapidity_, gridSpacing_);
       bge_rho_grid->set_particles(fjInputs_);
       subtractor = std::make_unique<fastjet::Subtractor>(bge_rho_grid.get());
       subtractor->set_use_rho_m();

@@ -3,11 +3,10 @@
 #include <FWCore/ParameterSet/interface/ConfigurationDescriptions.h>
 #include <FWCore/ParameterSet/interface/ParameterSetDescription.h>
 
-
-        #include <memory>
+#include <memory>
 
 #include "DataFormats/VertexReco/interface/Vertex.h"
-        #include "RecoTauTag/RecoTau/interface/RecoTauQualityCuts.h"
+#include "RecoTauTag/RecoTau/interface/RecoTauQualityCuts.h"
 #include "RecoTauTag/RecoTau/interface/RecoTauVertexAssociator.h"
 
 /* class PFRecoTauDiscriminationByNProngs

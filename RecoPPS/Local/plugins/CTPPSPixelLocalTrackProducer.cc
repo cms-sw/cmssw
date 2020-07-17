@@ -26,7 +26,7 @@
 
 #include <memory>
 
-        #include <string>
+#include <string>
 #include <vector>
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"

@@ -35,9 +35,8 @@ Trajectory KFTrajectoryFitter::fitOne(const TrajectorySeed& aSeed,
   if (hits.empty())
     return Trajectory();
 
-  if
-    UNLIKELY(aSeed.direction() == anyDirection)
-  throw cms::Exception("KFTrajectoryFitter", "TrajectorySeed::direction() requested but not set");
+  if UNLIKELY (aSeed.direction() == anyDirection)
+    throw cms::Exception("KFTrajectoryFitter", "TrajectorySeed::direction() requested but not set");
 
   std::unique_ptr<Propagator> p_cloned = SetPropagationDirection(*thePropagator, aSeed.direction());
 
@@ -71,113 +70,104 @@ Trajectory KFTrajectoryFitter::fitOne(const TrajectorySeed& aSeed,
 
     // if UNLIKELY(hit.det() == nullptr) continue;
 
-    if
-      UNLIKELY((!hit.isValid()) && hit.surface() == nullptr) {
-        LogDebug("TrackFitters") << " Error: invalid hit with no GeomDet attached .... skipping";
-        continue;
-      }
+    if UNLIKELY ((!hit.isValid()) && hit.surface() == nullptr) {
+      LogDebug("TrackFitters") << " Error: invalid hit with no GeomDet attached .... skipping";
+      continue;
+    }
     // if (hit.det() && hit.geographicalId()<1000U) LogDebug("TrackFitters")<< "Problem 0 det id for " << typeid(hit).name() << ' ' <<  hit.det()->geographicalId() ;
     // if (hit.isValid() && hit.geographicalId()<1000U) LogDebug("TrackFitters")<< "Problem 0 det id for " << typeid(hit).name() << ' ' <<  hit.det()->geographicalId();
 
     if (hitcounter != 1)  //no propagation needed for the first hit
       predTsos = p_cloned->propagate(currTsos, *(hit.surface()));
 
-    if
-      UNLIKELY(!predTsos.isValid()) {
-        LogDebug("TrackFitters") << "SOMETHING WRONG !"
-                                 << "\n"
-                                 << "KFTrajectoryFitter: predicted tsos not valid!\n"
-                                 << "current TSOS: " << currTsos << "\n";
+    if UNLIKELY (!predTsos.isValid()) {
+      LogDebug("TrackFitters") << "SOMETHING WRONG !"
+                               << "\n"
+                               << "KFTrajectoryFitter: predicted tsos not valid!\n"
+                               << "current TSOS: " << currTsos << "\n";
 
-        if (hit.surface())
-          LogTrace("TrackFitters") << "next Surface: " << hit.surface()->position() << "\n";
+      if (hit.surface())
+        LogTrace("TrackFitters") << "next Surface: " << hit.surface()->position() << "\n";
 
-        if (myTraj.foundHits() >= minHits_) {
-          LogDebug("TrackFitters") << " breaking trajectory"
-                                   << "\n";
-          break;
-        } else {
-          LogDebug("TrackFitters") << " killing trajectory"
-                                   << "\n";
-          return Trajectory();
-        }
+      if (myTraj.foundHits() >= minHits_) {
+        LogDebug("TrackFitters") << " breaking trajectory"
+                                 << "\n";
+        break;
+      } else {
+        LogDebug("TrackFitters") << " killing trajectory"
+                                 << "\n";
+        return Trajectory();
       }
+    }
 
-    if
-      LIKELY(hit.isValid()) {
-        assert((hit.geographicalId() != 0U) | !hit.canImproveWithTrack());
-        assert(hit.surface() != nullptr);
-        //update
-        LogTrace("TrackFitters") << "THE HIT IS VALID: updating hit with predTsos";
-        assert((!hit.canImproveWithTrack()) | (nullptr != theHitCloner));
-        assert((!hit.canImproveWithTrack()) | (nullptr != dynamic_cast<BaseTrackerRecHit const*>((ihit).get())));
-        auto preciseHit = theHitCloner->makeShared(ihit, predTsos);
-        dump(*preciseHit, hitcounter, "TrackFitters");
-        assert(preciseHit->isValid());
-        assert((preciseHit->geographicalId() != 0U) | (!preciseHit->canImproveWithTrack()));
-        assert(preciseHit->surface() != nullptr);
+    if LIKELY (hit.isValid()) {
+      assert((hit.geographicalId() != 0U) | !hit.canImproveWithTrack());
+      assert(hit.surface() != nullptr);
+      //update
+      LogTrace("TrackFitters") << "THE HIT IS VALID: updating hit with predTsos";
+      assert((!hit.canImproveWithTrack()) | (nullptr != theHitCloner));
+      assert((!hit.canImproveWithTrack()) | (nullptr != dynamic_cast<BaseTrackerRecHit const*>((ihit).get())));
+      auto preciseHit = theHitCloner->makeShared(ihit, predTsos);
+      dump(*preciseHit, hitcounter, "TrackFitters");
+      assert(preciseHit->isValid());
+      assert((preciseHit->geographicalId() != 0U) | (!preciseHit->canImproveWithTrack()));
+      assert(preciseHit->surface() != nullptr);
 
-        if
-          UNLIKELY(!preciseHit->isValid()) {
-            LogTrace("TrackFitters") << "THE Precise HIT IS NOT VALID: using currTsos = predTsos"
+      if UNLIKELY (!preciseHit->isValid()) {
+        LogTrace("TrackFitters") << "THE Precise HIT IS NOT VALID: using currTsos = predTsos"
+                                 << "\n";
+        currTsos = predTsos;
+        myTraj.push(TM(predTsos, ihit, 0, theGeometry->idToLayer((ihit)->geographicalId())));
+      } else {
+        LogTrace("TrackFitters") << "THE Precise HIT IS VALID: updating currTsos"
+                                 << "\n";
+        currTsos = updator()->update(predTsos, *preciseHit);
+        //check for valid hits with no det (refitter with constraints)
+        bool badState = (!currTsos.isValid()) ||
+                        (hit.geographicalId().det() == DetId::Tracker &&
+                         (std::abs(currTsos.localParameters().qbp()) > 100 ||
+                          std::abs(currTsos.localParameters().position().y()) > 1000 ||
+                          std::abs(currTsos.localParameters().position().x()) > 1000)) ||
+                        edm::isNotFinite(currTsos.localParameters().qbp()) || !currTsos.localError().posDef();
+        if UNLIKELY (badState) {
+          if (!currTsos.isValid()) {
+            edm::LogError("FailedUpdate") << "updating with the hit failed. Not updating the trajectory with the hit";
+
+          } else if (edm::isNotFinite(currTsos.localParameters().qbp())) {
+            edm::LogError("TrajectoryNaN") << "Trajectory has NaN";
+
+          } else if (!currTsos.localError().posDef()) {
+            edm::LogError("TrajectoryNotPosDef") << "Trajectory covariance is not positive-definite";
+
+          } else {
+            LogTrace("FailedUpdate") << "updated state is valid but pretty bad, skipping. currTsos " << currTsos
+                                     << "\n predTsos " << predTsos;
+          }
+          myTraj.push(TM(predTsos, ihit, 0, theGeometry->idToLayer((ihit)->geographicalId())));
+          //There is a no-fail policy here. So, it's time to give up
+          //Keep the traj with invalid TSOS so that it's clear what happened
+          if (myTraj.foundHits() >= minHits_) {
+            LogDebug("TrackFitters") << " breaking trajectory"
                                      << "\n";
-            currTsos = predTsos;
-            myTraj.push(TM(predTsos, ihit, 0, theGeometry->idToLayer((ihit)->geographicalId())));
+            break;
+          } else {
+            LogDebug("TrackFitters") << " killing trajectory"
+                                     << "\n";
+            return Trajectory();
           }
-        else {
-          LogTrace("TrackFitters") << "THE Precise HIT IS VALID: updating currTsos"
-                                   << "\n";
-          currTsos = updator()->update(predTsos, *preciseHit);
-          //check for valid hits with no det (refitter with constraints)
-          bool badState = (!currTsos.isValid()) ||
-                          (hit.geographicalId().det() == DetId::Tracker &&
-                           (std::abs(currTsos.localParameters().qbp()) > 100 ||
-                            std::abs(currTsos.localParameters().position().y()) > 1000 ||
-                            std::abs(currTsos.localParameters().position().x()) > 1000)) ||
-                          edm::isNotFinite(currTsos.localParameters().qbp()) || !currTsos.localError().posDef();
-          if
-            UNLIKELY(badState) {
-              if (!currTsos.isValid()) {
-                edm::LogError("FailedUpdate")
-                    << "updating with the hit failed. Not updating the trajectory with the hit";
-
-              } else if (edm::isNotFinite(currTsos.localParameters().qbp())) {
-                edm::LogError("TrajectoryNaN") << "Trajectory has NaN";
-
-              } else if (!currTsos.localError().posDef()) {
-                edm::LogError("TrajectoryNotPosDef") << "Trajectory covariance is not positive-definite";
-
-              } else {
-                LogTrace("FailedUpdate") << "updated state is valid but pretty bad, skipping. currTsos " << currTsos
-                                         << "\n predTsos " << predTsos;
-              }
-              myTraj.push(TM(predTsos, ihit, 0, theGeometry->idToLayer((ihit)->geographicalId())));
-              //There is a no-fail policy here. So, it's time to give up
-              //Keep the traj with invalid TSOS so that it's clear what happened
-              if (myTraj.foundHits() >= minHits_) {
-                LogDebug("TrackFitters") << " breaking trajectory"
-                                         << "\n";
-                break;
-              } else {
-                LogDebug("TrackFitters") << " killing trajectory"
-                                         << "\n";
-                return Trajectory();
-              }
-            }
-          else {
-            if (preciseHit->det()) {
-              myTraj.push(TM(predTsos,
-                             currTsos,
-                             preciseHit,
-                             estimator()->estimate(predTsos, *preciseHit).second,
-                             theGeometry->idToLayer(preciseHit->geographicalId())));
-            } else {
-              myTraj.push(TM(predTsos, currTsos, preciseHit, estimator()->estimate(predTsos, *preciseHit).second));
-            }
+        } else {
+          if (preciseHit->det()) {
+            myTraj.push(TM(predTsos,
+                           currTsos,
+                           preciseHit,
+                           estimator()->estimate(predTsos, *preciseHit).second,
+                           theGeometry->idToLayer(preciseHit->geographicalId())));
+          } else {
+            myTraj.push(TM(predTsos, currTsos, preciseHit, estimator()->estimate(predTsos, *preciseHit).second));
           }
         }
       }
-    else {  // invalid hit
+    } else {  // invalid hit
       dump(hit, hitcounter, "TrackFitters");
       //no update
       LogDebug("TrackFitters") << "THE HIT IS NOT VALID: using currTsos"

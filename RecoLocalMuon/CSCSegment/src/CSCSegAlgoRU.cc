@@ -17,7 +17,7 @@
 #include <iostream>
 #include <memory>
 
-        #include <string>
+#include <string>
 
 CSCSegAlgoRU::CSCSegAlgoRU(const edm::ParameterSet& ps) : CSCSegmentAlgorithm(ps), myName("CSCSegAlgoRU") {
   doCollisions = ps.getParameter<bool>("doCollisions");

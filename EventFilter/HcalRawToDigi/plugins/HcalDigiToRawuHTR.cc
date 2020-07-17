@@ -30,7 +30,7 @@
 #include <iostream>
 #include <memory>
 
-        #include <sstream>
+#include <sstream>
 #include <string>
 
 /* QUESTION: what about dual FED readout? */
@@ -251,8 +251,8 @@ void HcalDigiToRawuHTR::produce(edm::StreamID id, edm::Event& iEvent, const edm:
     int fedId = FEDNumbering::MINHCALuTCAFEDID + crateId;
     if (fedMap.find(fedId) == fedMap.end()) {
       /* QUESTION: where should the orbit number come from? */
-      fedMap[fedId] = std::make_unique<HCalFED>(
-          fedId, iEvent.id().event(), iEvent.orbitNumber(), iEvent.bunchCrossing());
+      fedMap[fedId] =
+          std::make_unique<HCalFED>(fedId, iEvent.id().event(), iEvent.orbitNumber(), iEvent.bunchCrossing());
     }
     fedMap[fedId]->addUHTR(uhtr->second, crateId, slotId);
   }  // end loop over uhtr containers

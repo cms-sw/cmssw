@@ -53,8 +53,7 @@ std::unique_ptr<Phase2TrackerRecHit1D> TkClonerImpl::operator()(Phase2TrackerRec
   const Phase2TrackerCluster1D& clust = hit.phase2OTCluster();
   const PixelGeomDetUnit& gdu = (const PixelGeomDetUnit&)*(hit.detUnit());
   auto&& params = phase2TrackerCPE->localParameters(clust, gdu, tsos);
-  return std::make_unique<Phase2TrackerRecHit1D>(
-      params.first, params.second, *hit.det(), hit.cluster());
+  return std::make_unique<Phase2TrackerRecHit1D>(params.first, params.second, *hit.det(), hit.cluster());
 }
 
 TrackingRecHit::ConstRecHitPointer TkClonerImpl::makeShared(SiPixelRecHit const& hit,
@@ -90,8 +89,7 @@ TrackingRecHit::ConstRecHitPointer TkClonerImpl::makeShared(Phase2TrackerRecHit1
   const Phase2TrackerCluster1D& clust = hit.phase2OTCluster();
   const PixelGeomDetUnit& gdu = (const PixelGeomDetUnit&)*(hit.detUnit());
   auto&& params = phase2TrackerCPE->localParameters(clust, gdu, tsos);
-  return std::make_unique<Phase2TrackerRecHit1D>(
-      params.first, params.second, *hit.det(), hit.cluster());
+  return std::make_unique<Phase2TrackerRecHit1D>(params.first, params.second, *hit.det(), hit.cluster());
 }
 
 namespace {

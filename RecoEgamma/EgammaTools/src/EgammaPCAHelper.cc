@@ -12,7 +12,6 @@
 #include <iostream>
 #include <memory>
 
-        
 using namespace hgcal;
 
 EGammaPCAHelper::EGammaPCAHelper()
