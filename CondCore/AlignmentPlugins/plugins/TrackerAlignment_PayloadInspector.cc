@@ -125,10 +125,10 @@ namespace {
       //std::unique_ptr<TH1F> compare = std::unique_ptr<TH1F>(new TH1F("comparison",Form("Comparison of %s;DetId index; #Delta%s %s",s_coord.c_str(),s_coord.c_str(),unit.c_str()),ref_ali.size(),-0.5,ref_ali.size()-0.5));
       std::unique_ptr<TH1F> compare =
           std::make_unique<TH1F>("comparison",
-                                         Form(";Detector Id index; #Delta%s %s", s_coord.c_str(), unit.c_str()),
-                                         ref_ali.size(),
-                                         -0.5,
-                                         ref_ali.size() - 0.5);
+                                 Form(";Detector Id index; #Delta%s %s", s_coord.c_str(), unit.c_str()),
+                                 ref_ali.size(),
+                                 -0.5,
+                                 ref_ali.size() - 0.5);
 
       std::vector<int> boundaries;
       AlignmentPI::partitions currentPart = AlignmentPI::BPix;
@@ -739,8 +739,8 @@ namespace {
       canvas.Modified();
       canvas.SetGrid();
 
-      auto h2_BarycenterDiff = std::make_unique<TH2F>(
-          "Parameters diff", "SubDetector Barycenter Difference", 3, 0.0, 3.0, 6, 0, 6.);
+      auto h2_BarycenterDiff =
+          std::make_unique<TH2F>("Parameters diff", "SubDetector Barycenter Difference", 3, 0.0, 3.0, 6, 0, 6.);
 
       h2_BarycenterDiff->SetStats(false);
       h2_BarycenterDiff->SetTitle(nullptr);
@@ -898,13 +898,13 @@ namespace {
         const char *name = piece.c_str();
         histos[index] = std::make_unique<TH2F>(
             name,
-                     Form("%s x-y Barycenter Difference;x_{%s}-x_{TOB} [mm];y_{%s}-y_{TOB} [mm]", name, name, name),
-                     100,
-                     -3.,
-                     3.,
-                     100,
-                     -3.,
-                     3.);
+            Form("%s x-y Barycenter Difference;x_{%s}-x_{TOB} [mm];y_{%s}-y_{TOB} [mm]", name, name, name),
+            100,
+            -3.,
+            3.,
+            100,
+            -3.,
+            3.);
 
         histos[index]->SetStats(false);
         histos[index]->SetTitle(nullptr);

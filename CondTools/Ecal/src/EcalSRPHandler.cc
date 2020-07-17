@@ -373,7 +373,7 @@ void popcon::EcalSRPHandler::getNewObjects() {
               } else {  // no difference keep only one
                 std::vector<float> dccwRow;
                 dccwRow.reserve(6);
- for (int ich = 0; ich < 6; ich++) {
+                for (int ich = 0; ich < 6; ich++) {
                   dccwRow.push_back(my_dccw[0][ich]);
                 }
                 sr->dccNormalizedWeights_.push_back(dccwRow);
