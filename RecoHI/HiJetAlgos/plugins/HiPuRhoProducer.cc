@@ -283,9 +283,7 @@ void HiPuRhoProducer::calculatePedestal(std::vector<fastjet::PseudoJet> const& c
   // Initial values for emean_, emean2, esigma_, ntowers
 
   for (int vi = 0; vi < nEtaTow_; ++vi) {
-
     vntow_[vi] = initialValue_;
-
     vmean1_[vi] = initialValue_;
     vrms1_[vi] = initialValue_;
     vrho1_[vi] = initialValue_;
