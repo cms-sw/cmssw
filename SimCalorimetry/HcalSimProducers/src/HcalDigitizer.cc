@@ -33,7 +33,6 @@
 #include <boost/foreach.hpp>
 #include <memory>
 
-        
 //#define DebugLog
 
 HcalDigitizer::HcalDigitizer(const edm::ParameterSet &ps, edm::ConsumesCollector &iC)

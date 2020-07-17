@@ -9,7 +9,7 @@
 #include <algorithm>
 #include <memory>
 
-        #include <vector>
+#include <vector>
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 

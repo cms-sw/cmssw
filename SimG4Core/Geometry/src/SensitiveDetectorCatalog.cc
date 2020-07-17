@@ -36,7 +36,7 @@ std::vector<std::string_view> SensitiveDetectorCatalog::logicalNamesFromClassNam
   std::vector<std::string_view> temp;
   const std::vector<std::string_view> rous(theClassNameMap.at(className).begin(), theClassNameMap.at(className).end());
   temp.reserve(rous.size());
- for (auto const &it : rous)
+  for (auto const &it : rous)
     temp.emplace_back(it);
   return temp;
 }
@@ -63,9 +63,9 @@ void SensitiveDetectorCatalog::printMe() const {
   edm::LogVerbatim("SimG4CoreGeometry") << "Class names map size is: " << theClassNameMap.size() << "\n";
   edm::LogVerbatim("SimG4CoreGeometry").log([&](auto &log) {
     int i(0);
-    for (const auto& cn : theClassNameMap) {
+    for (const auto &cn : theClassNameMap) {
       log << "#" << ++i << ": " << cn.first << " has " << cn.second.size() << " class names:\n";
-      for (const auto& cnv : cn.second)
+      for (const auto &cnv : cn.second)
         log << cnv << ", ";
       log << "\n";
     }
@@ -74,9 +74,9 @@ void SensitiveDetectorCatalog::printMe() const {
   edm::LogVerbatim("SimG4CoreGeometry") << "\nROU names map: " << theROUNameMap.size() << "\n";
   edm::LogVerbatim("SimG4CoreGeometry").log([&](auto &log) {
     int i(0);
-    for (const auto& rn : theROUNameMap) {
+    for (const auto &rn : theROUNameMap) {
       log << "#" << ++i << ": " << rn.first << " has " << rn.second.size() << " ROU names:\n";
-      for (const auto& rnv : rn.second)
+      for (const auto &rnv : rn.second)
         log << rnv << ", ";
       log << "\n";
     }

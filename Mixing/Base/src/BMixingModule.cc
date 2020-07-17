@@ -19,7 +19,7 @@
 #include <iostream>
 #include <memory>
 
-        const unsigned int edm::BMixingModule::maxNbSources_ = 4;
+const unsigned int edm::BMixingModule::maxNbSources_ = 4;
 
 namespace {
   std::shared_ptr<edm::PileUpConfig> maybeConfigPileUp(

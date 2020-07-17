@@ -28,7 +28,6 @@
 #include <iostream>
 #include <memory>
 
-
 //#define EDM_ML_DEBUG
 
 HGCScintSD::HGCScintSD(const std::string& name,

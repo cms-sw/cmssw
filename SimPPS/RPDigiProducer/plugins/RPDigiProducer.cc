@@ -173,8 +173,7 @@ void RPDigiProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) 
     edm::DetSet<TotemRPDigi> digi_collector(it->first);
 
     if (theAlgoMap.find(it->first) == theAlgoMap.end()) {
-      theAlgoMap[it->first] =
-          std::make_unique<RPDetDigitizer>(conf_, *rndEngine_, it->first, iSetup);
+      theAlgoMap[it->first] = std::make_unique<RPDetDigitizer>(conf_, *rndEngine_, it->first, iSetup);
     }
 
     std::vector<int> input_links;

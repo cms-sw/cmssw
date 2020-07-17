@@ -182,17 +182,18 @@ void ParametrisedEMPhysics::ConstructProcess() {
       } else {
         if (gem) {
           //Electromagnetic Shower Model for ECAL
-          m_tpmod->theEcalEMShowerModel = std::make_unique<GFlashEMShowerModel>("GflashEcalEMShowerModel", aRegion, theParSet);
+          m_tpmod->theEcalEMShowerModel =
+              std::make_unique<GFlashEMShowerModel>("GflashEcalEMShowerModel", aRegion, theParSet);
         } else if (lowEnergyGem) {
           //Low energy electromagnetic Shower Model for ECAL
-          m_tpmod->theLowEnergyFastSimModel = std::make_unique<LowEnergyFastSimModel>(
-              "LowEnergyFastSimModel", aRegion, theParSet);
+          m_tpmod->theLowEnergyFastSimModel =
+              std::make_unique<LowEnergyFastSimModel>("LowEnergyFastSimModel", aRegion, theParSet);
         }
 
         if (gemHad) {
           //Electromagnetic Shower Model for ECAL
-          m_tpmod->theEcalHadShowerModel = std::make_unique<GFlashHadronShowerModel>(
-              "GflashEcalHadShowerModel", aRegion, theParSet);
+          m_tpmod->theEcalHadShowerModel =
+              std::make_unique<GFlashHadronShowerModel>("GflashEcalHadShowerModel", aRegion, theParSet);
         }
       }
     }
@@ -205,12 +206,13 @@ void ParametrisedEMPhysics::ConstructProcess() {
       } else {
         if (ghad) {
           //Electromagnetic Shower Model for HCAL
-          m_tpmod->theHcalEMShowerModel = std::make_unique<GFlashEMShowerModel>("GflashHcalEMShowerModel", aRegion, theParSet);
+          m_tpmod->theHcalEMShowerModel =
+              std::make_unique<GFlashEMShowerModel>("GflashHcalEMShowerModel", aRegion, theParSet);
         }
         if (ghadHad) {
           //Electromagnetic Shower Model for ECAL
-          m_tpmod->theHcalHadShowerModel = std::make_unique<GFlashHadronShowerModel>(
-              "GflashHcalHadShowerModel", aRegion, theParSet);
+          m_tpmod->theHcalHadShowerModel =
+              std::make_unique<GFlashHadronShowerModel>("GflashHcalHadShowerModel", aRegion, theParSet);
         }
       }
     }

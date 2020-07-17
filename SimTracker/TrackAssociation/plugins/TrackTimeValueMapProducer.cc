@@ -138,7 +138,7 @@ void TrackTimeValueMapProducer::produce(edm::StreamID sid, edm::Event &evt, cons
   // associate the reco tracks / gsf Tracks
   std::vector<reco::RecoToSimCollection> associatedTracks;
   associatedTracks.reserve(associators.size());
- for (const auto& associator : associators) {
+  for (const auto &associator : associators) {
     associatedTracks.emplace_back(associator->associateRecoToSim(TrackCollectionH, TPCollectionH));
   }
 

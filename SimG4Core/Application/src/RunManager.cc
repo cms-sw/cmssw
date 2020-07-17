@@ -84,7 +84,7 @@
 
 #include <fstream>
 #include <memory>
-        #include <sstream>
+#include <sstream>
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
