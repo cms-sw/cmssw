@@ -175,11 +175,11 @@ trackingLowPU.toModify(pixelLessStepSeeds,
     seedingHitSets = 'pixelLessStepHitDoublets',
     SeedComparitorPSet = dict(# FIXME: is this defined in any cfi that could be imported instead of copy-paste?
         ComponentName      = 'PixelClusterShapeSeedComparitor',
-        FilterAtHelixStage = True,
-        FilterPixelHits    = False,
-        FilterStripHits    = True,
-        ClusterShapeHitFilterName = 'ClusterShapeHitFilter',
-        ClusterShapeCacheSrc      = 'siPixelClusterShapeCache' # not really needed here since FilterPixelHits=False
+        FilterAtHelixStage = cms.bool(True),
+        FilterPixelHits    = cms.bool(False),
+        FilterStripHits    = cms.bool(True),
+        ClusterShapeHitFilterName = cms.string('ClusterShapeHitFilter'),
+        ClusterShapeCacheSrc      = cms.InputTag('siPixelClusterShapeCache') # not really needed here since FilterPixelHits=False
     )
 )
 #fastsim
