@@ -16,7 +16,7 @@
 
 #include <TRandom2.h>
 #include <random>
-        #include <vector>
+#include <vector>
 
 template <typename T>
 class CalibratedPhotonProducerRun2T : public edm::stream::EDProducer<> {

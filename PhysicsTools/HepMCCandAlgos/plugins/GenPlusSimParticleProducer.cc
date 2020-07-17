@@ -36,7 +36,6 @@ process.genParticlePlusGEANT = cms.EDProducer("GenPlusSimParticleProducer",
 #include <ext/algorithm>
 #include <memory>
 
-        
 namespace pat {
   class GenPlusSimParticleProducer : public edm::EDProducer {
   public:

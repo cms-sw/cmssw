@@ -3,10 +3,8 @@
 
 #include "TestResolution.h"
 
+#include <memory>
 
-        #include <memory>
-
-        
 #include "TCanvas.h"
 #include "TLegend.h"
 
@@ -34,8 +32,8 @@ TestResolution::TestResolution(const edm::ParameterSet& iConfig)
   sigmaPt_ = new TProfile("sigmaPtOverPt", "sigmaPt/Pt vs muon Pt", 1000, 0, 100);
   eventCounter_ = 0;
   // Create the corrector and set the parameters
-  resolutionFunction_ = std::make_unique<ResolutionFunction>(
-      iConfig.getUntrackedParameter<std::string>("ResolutionsIdentifier"));
+  resolutionFunction_ =
+      std::make_unique<ResolutionFunction>(iConfig.getUntrackedParameter<std::string>("ResolutionsIdentifier"));
   std::cout << "resolutionFunction_ = " << &*resolutionFunction_ << std::endl;
 }
 

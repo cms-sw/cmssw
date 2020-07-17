@@ -20,7 +20,8 @@ DBWriter::DBWriter(const edm::ParameterSet& ps) {
   std::string type(ps.getUntrackedParameter<std::string>("Type"));
   // Create the corrector and set the parameters
   if (type == "scale")
-    corrector_ = std::make_unique<MomentumScaleCorrector>(ps.getUntrackedParameter<std::string>("CorrectionsIdentifier"));
+    corrector_ =
+        std::make_unique<MomentumScaleCorrector>(ps.getUntrackedParameter<std::string>("CorrectionsIdentifier"));
   else if (type == "resolution")
     corrector_ = std::make_unique<ResolutionFunction>(ps.getUntrackedParameter<std::string>("CorrectionsIdentifier"));
   else if (type == "background")
