@@ -165,7 +165,7 @@ static long algorithm(dd4hep::Detector& /* description */,
               ++ntot;
 #endif
               if (corner.first > 0) {
-                int copyL = HGCalTypes::packTypeUV(0, nr, nc);
+                int copyL = HGCalTypes::packTypeUV(0, nc, nr);
 #ifdef EDM_ML_DEBUG
                 if (inc > incm)
                   incm = inc;

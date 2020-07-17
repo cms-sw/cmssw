@@ -194,7 +194,7 @@ static long algorithm(dd4hep::Detector& /* description */,
                 } else {
                   glog1 = ns.volume(covers[layerSense[ly] - 2]);
                 }
-                int copyL = HGCalTypes::packTypeUV(0, nr, nc);
+                int copyL = HGCalTypes::packTypeUV(0, nc, nr);
 #ifdef EDM_ML_DEBUG
                 if (inc > incm)
                   incm = inc;

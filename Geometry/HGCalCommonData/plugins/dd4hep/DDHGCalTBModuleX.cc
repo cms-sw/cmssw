@@ -121,7 +121,7 @@ namespace DDHGCalGeom {
               if (cornerAll) {
                 double rpos = std::sqrt(xpos * xpos + ypos * ypos);
                 dd4hep::Position tran(xpos, ypos, zz);
-                int copyx = HGCalTypes::packTypeUV(0, nr, nc);
+                int copyx = HGCalTypes::packTypeUV(0, nc, nr);
                 if (layerSense[ly] == 1) {
                   dd4hep::Solid solid = ns.solid(covers[0]);
                   std::string name0 = name + "M" + std::to_string(copyx);
