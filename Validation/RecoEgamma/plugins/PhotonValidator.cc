@@ -1,5 +1,7 @@
 #include <iostream>
-//
+#include <memory>
+
+        //
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
 //
@@ -3161,7 +3163,7 @@ void PhotonValidator::dqmBeginRun(edm::Run const& r, edm::EventSetup const& theE
                                           << "\n";
   theEventSetup.get<IdealMagneticFieldRecord>().get(theMF_);
 
-  thePhotonMCTruthFinder_.reset(new PhotonMCTruthFinder());
+  thePhotonMCTruthFinder_ = std::make_unique<PhotonMCTruthFinder>();
 }
 
 void PhotonValidator::dqmEndRun(edm::Run const& r, edm::EventSetup const& theEventSetup) {

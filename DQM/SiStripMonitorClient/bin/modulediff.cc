@@ -183,7 +183,7 @@ int read_badmodlist ( int run , string repro_type , vector < int >& badlist )
 	      string sflag = key->GetName();
 	      if ( sflag.empty() ) continue;
 	      
-	      string detid = sflag.substr ( sflag.find ( "<" ) + 1 , 9 ); 
+	      string detid = sflag.substr ( sflag.find ( '<' ) + 1 , 9 ); 
 	      badlist.push_back ( atoi ( detid.c_str() ) );
 	    }
 	}

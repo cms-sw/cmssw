@@ -238,7 +238,7 @@ void HLTBTagPerformanceAnalyzer::analyze(const edm::Event &iEvent, const edm::Ev
 
       // fill 1D btag plot for 'all'
       H1_.at(ind)[JetTagCollection_Label[ind]]->Fill(std::fmax(0.0, BtagJT.second));
-      for (auto i : HCALSpecialsNames) {
+      for (const auto& i : HCALSpecialsNames) {
         if (inmodule[i.first])
           H1mod_.at(ind)[JetTagCollection_Label[ind]][i.first]->Fill(std::fmax(0.0, BtagJT.second));
       }
@@ -254,7 +254,7 @@ void HLTBTagPerformanceAnalyzer::analyze(const edm::Event &iEvent, const edm::Ev
           std::string label = JetTagCollection_Label[ind] + "__";
           label += flavour_str;
           H1_.at(ind)[label]->Fill(std::fmax(0.0, BtagJT.second));  // fill 1D btag plot for 'b,c,uds'
-          for (auto j : HCALSpecialsNames) {
+          for (const auto& j : HCALSpecialsNames) {
             if (inmodule[j.first])
               H1mod_.at(ind)[label][j.first]->Fill(
                   std::fmax(0.0, BtagJT.second));  // fill 1D btag plot for 'b,c,uds' in
@@ -269,7 +269,7 @@ void HLTBTagPerformanceAnalyzer::analyze(const edm::Event &iEvent, const edm::Ev
           label += "_disc_pT";
           H2_.at(ind)[label]->Fill(std::fmax(0.0, BtagJT.second),
                                    BtagJT.first->pt());  // fill 2D btag, jetPt plot for 'b,c,uds'
-          for (auto j : HCALSpecialsNames) {
+          for (const auto& j : HCALSpecialsNames) {
             if (inmodule[j.first])
               H2mod_.at(ind)[label][j.first]->Fill(std::fmax(0.0, BtagJT.second), BtagJT.first->pt());
           }
@@ -353,7 +353,7 @@ void HLTBTagPerformanceAnalyzer::bookHistograms(DQMStore::IBooker &ibooker,
           continue;
       }
 
-      for (auto i : HCALSpecialsNames) {
+      for (const auto& i : HCALSpecialsNames) {
         ibooker.setCurrentFolder(dqmFolder + "/" + i.second);
         H1mod_.back()[JetTagCollection_Label[ind]][i.first] = ibooker.book1D(
             JetTagCollection_Label[ind] + "_all", JetTagCollection_Label[ind] + "_all", btagBins, btagL, btagU);
@@ -387,7 +387,7 @@ void HLTBTagPerformanceAnalyzer::bookHistograms(DQMStore::IBooker &ibooker,
         H1_.back()[label] = ibooker.book1D(
             label, Form("%s %s", JetTagCollection_Label[ind].c_str(), flavour.c_str()), btagBins, btagL, btagU);
         H1_.back()[label]->setAxisTitle("disc", 1);
-        for (auto j : HCALSpecialsNames) {
+        for (const auto& j : HCALSpecialsNames) {
           ibooker.setCurrentFolder(dqmFolder + "/" + j.second);
           H1mod_.back()[label][j.first] = ibooker.book1D(
               label, Form("%s %s", JetTagCollection_Label[ind].c_str(), flavour.c_str()), btagBins, btagL, btagU);
@@ -409,7 +409,7 @@ void HLTBTagPerformanceAnalyzer::bookHistograms(DQMStore::IBooker &ibooker,
         H2_.back()[label] = ibooker.book2D(label, label, btagBins, btagL, btagU, nBinsPt, pTmin, pTMax);
         H2_.back()[label]->setAxisTitle("pT", 2);
         H2_.back()[label]->setAxisTitle("disc", 1);
-        for (auto j : HCALSpecialsNames) {
+        for (const auto& j : HCALSpecialsNames) {
           ibooker.setCurrentFolder(dqmFolder + "/" + j.second);
           H2mod_.back()[label][j.first] = ibooker.book2D(label, label, btagBins, btagL, btagU, nBinsPt, pTmin, pTMax);
           H2mod_.back()[label][j.first]->setAxisTitle("pT", 2);

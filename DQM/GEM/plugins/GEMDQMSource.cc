@@ -122,7 +122,7 @@ void GEMDQMSource::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const&, e
     int n_lay = sch->nChambers();
     for (int l = 0; l < n_lay; l++) {
       Bool_t bExist = false;
-      for (auto ch : gemChambers_)
+      for (const auto& ch : gemChambers_)
         if (ch.id() == sch->chamber(l + 1)->id())
           bExist = true;
       if (bExist)
@@ -135,7 +135,7 @@ void GEMDQMSource::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const&, e
   ibooker.cd();
   ibooker.setCurrentFolder("GEM/recHit");
 
-  for (auto ch : gemChambers_) {
+  for (const auto& ch : gemChambers_) {
     GEMDetId gid = ch.id();
 
     std::string strIdxName = "Gemini_" + to_string(gid.chamber()) + "_GE" + (gid.region() > 0 ? "p" : "m") +
@@ -204,7 +204,7 @@ void GEMDQMSource::analyze(edm::Event const& event, edm::EventSetup const& event
     edm::LogError("GEMDQMSource") << "GEM recHit is not valid.\n";
     return;
   }
-  for (auto ch : gemChambers_) {
+  for (const auto& ch : gemChambers_) {
     GEMDetId cId = ch.id();
     for (auto roll : ch.etaPartitions()) {
       GEMDetId rId = roll->id();

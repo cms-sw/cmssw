@@ -191,7 +191,7 @@ std::vector<std::string> GEMEfficiencyHarvester::splitString(std::string name, c
   std::vector<std::string> tokens;
   size_t delimiter_pos;
   size_t delimiter_len = delimiter.length();
-  while ((delimiter_pos = name.find("_")) != std::string::npos) {
+  while ((delimiter_pos = name.find('_')) != std::string::npos) {
     tokens.push_back(name.substr(0, delimiter_pos));
     name.erase(0, delimiter_pos + delimiter_len);
   }

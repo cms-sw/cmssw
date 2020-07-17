@@ -162,12 +162,12 @@ void CalibrationTask::fill(const SiStripEventSummary& summary, const edm::DetSet
 void CalibrationTask::update() {
   LogDebug("Commissioning") << "[CalibrationTask::update]";  // huge output
 
-  for (auto element : calib1_) {            // all pulse for different calChan
+  for (const auto& element : calib1_) {            // all pulse for different calChan
     for (auto vecelement : element.second)  // all strips in a calCan
       updateHistoSet(vecelement);
   }
 
-  for (auto element : calib2_) {            // all pulse for different calChan
+  for (const auto& element : calib2_) {            // all pulse for different calChan
     for (auto vecelement : element.second)  // all strips in a calCan
       updateHistoSet(vecelement);
   }

@@ -72,7 +72,7 @@ namespace dqm {
   RamdiskMonitor::~RamdiskMonitor(){};
 
   void RamdiskMonitor::bookHistograms(DQMStore::IBooker &ib, edm::Run const &, edm::EventSetup const &) {
-    for (auto stream : streamLabels_) {
+    for (const auto& stream : streamLabels_) {
       edm::LogInfo("RamdiskMonitor") << "Booking: " << stream;
 
       ib.cd();
