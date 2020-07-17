@@ -90,9 +90,7 @@ namespace deep_tau {
     static void globalEndJob(const DeepTauCache* cache) {}
 
   private:
-    virtual tensorflow::Tensor getPredictions(edm::Event& event,
-                                              const edm::EventSetup& es,
-                                              edm::Handle<TauCollection> taus) = 0;
+    virtual tensorflow::Tensor getPredictions(edm::Event& event, edm::Handle<TauCollection> taus) = 0;
     virtual void createOutputs(edm::Event& event, const tensorflow::Tensor& pred, edm::Handle<TauCollection> taus);
 
   protected:
