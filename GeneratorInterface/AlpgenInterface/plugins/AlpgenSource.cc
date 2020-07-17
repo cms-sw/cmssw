@@ -1,10 +1,12 @@
-#include <iostream>
 #include <iomanip>
-#include <sstream>
-#include <fstream>
-#include <string>
+#include <iostream>
 #include <memory>
+
 #include <cmath>
+#include <fstream>
+#include <memory>
+        #include <sstream>
+#include <string>
 
 #include <boost/algorithm/string/classification.hpp>
 #include <boost/algorithm/string/split.hpp>
@@ -255,7 +257,7 @@ void AlpgenSource::beginRun(edm::Run &run) {
   run.put(std::move(runInfo));
 
   // Open the .unw file in the heap, and set the global pointer to it.
-  inputFile_.reset(new std::ifstream((fileName_ + ".unw").c_str()));
+  inputFile_ = std::make_unique<std::ifstream>((fileName_ + ".unw").c_str());
   if (!inputFile_->good())
     throw cms::Exception("Generator|AlpgenInterface")
         << "AlpgenSource was unable to open the file \"" << fileName_ << ".unw\"." << std::endl;
@@ -394,7 +396,7 @@ bool AlpgenSource::readAlpgenEvent(lhef::HEPEUP &hepeup) {
 
 bool AlpgenSource::setRunAndEventInfo(edm::EventID &, edm::TimeValue_t &, edm::EventAuxiliary::ExperimentType &) {
   // The LHE Event Record
-  hepeup_.reset(new lhef::HEPEUP);
+  hepeup_ = std::make_unique<lhef::HEPEUP>();
 
   lhef::HEPEUP &hepeup = *hepeup_;
 

@@ -47,7 +47,7 @@ namespace Rivet {
         return false;
       // for each ancestor, check if it matches any of the input particles
       for (const auto &ancestor : HepMCUtils::particles(prodVtx, HepMC::ancestors)) {
-        for (auto part : ptcls)
+        for (const auto& part : ptcls)
           if (ancestor == part.genParticle())
             return true;
       }
@@ -63,7 +63,7 @@ namespace Rivet {
 
     /// @brief Checks whether the input particle has a child with a given PDGID
     bool hasChild(const ConstGenParticlePtr &ptcl, int pdgID) {
-      for (auto child : Particle(*ptcl).children()) {
+      for (const auto& child : Particle(*ptcl).children()) {
         if (child.pid() == pdgID) {
           return true;
         }
@@ -81,7 +81,7 @@ namespace Rivet {
 
     /// @brief Return true is particle decays to quarks
     bool quarkDecay(const Particle &p) {
-      for (auto child : p.children()) {
+      for (const auto& child : p.children()) {
         if (PID::isQuark(child.pid())) {
           return true;
         }
@@ -91,7 +91,7 @@ namespace Rivet {
 
     /// @brief Return true if particle decays to charged leptons.
     bool ChLeptonDecay(const Particle &p) {
-      for (auto child : p.children()) {
+      for (const auto& child : p.children()) {
         if (PID::isChLepton(child.pid())) {
           return true;
         }
@@ -242,7 +242,7 @@ namespace Rivet {
           ++nTop;
           Particle top = getLastInstance(Particle(ptcl));
           if (top.genParticle()->end_vertex())
-            for (auto child : top.children())
+            for (const auto& child : top.children())
               if (PID::isW(child.pid()))
                 Ws += getLastInstance(child);
         }
@@ -267,7 +267,7 @@ namespace Rivet {
           leptonicVs += cat.V;
       } else
         leptonicVs = uncatV_decays;
-      for (auto W : Ws)
+      for (const auto& W : Ws)
         if (W.genParticle()->end_vertex() && !quarkDecay(W))
           leptonicVs += W;
 
@@ -1073,7 +1073,7 @@ namespace Rivet {
     void finalize() override {
       printClassificationSummary();
       double sf = m_sumw > 0 ? 1.0 / m_sumw : 1.0;
-      for (auto hist : {hist_stage0,
+      for (const auto& hist : {hist_stage0,
                         hist_stage1_pTjet25,
                         hist_stage1_pTjet30,
                         hist_stage1_2_pTjet25,
