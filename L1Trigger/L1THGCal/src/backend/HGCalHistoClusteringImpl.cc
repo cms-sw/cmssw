@@ -98,7 +98,7 @@ std::vector<l1t::HGCalMulticluster> HGCalHistoClusteringImpl::clusterSeedMulticl
   }
 
   multiclustersTmp.reserve(mapSeedMulticluster.size());
- for (const auto& mclu : mapSeedMulticluster)
+  for (const auto& mclu : mapSeedMulticluster)
     multiclustersTmp.emplace_back(mclu.second);
 
   return multiclustersTmp;
