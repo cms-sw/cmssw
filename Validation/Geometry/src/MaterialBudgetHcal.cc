@@ -18,7 +18,6 @@
 #include <iostream>
 #include <memory>
 
-
 MaterialBudgetHcal::MaterialBudgetHcal(const edm::ParameterSet& p) {
   edm::ParameterSet m_p = p.getParameter<edm::ParameterSet>("MaterialBudgetHcal");
   rMax_ = m_p.getUntrackedParameter<double>("RMax", 4.5) * CLHEP::m;
