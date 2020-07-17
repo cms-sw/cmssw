@@ -13,7 +13,9 @@
 // system include files
 #include <iostream>
 #include <map>
+#include <memory>
 
+        
 // user include files
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -181,7 +183,7 @@ namespace edm {
         bool wasGotten = r->wasGotten(itDatum->first);
         if (wasGotten != itDatum->second) {
           if (not msg)
-            msg.reset(new LogSystem("ESContent"));
+            msg = std::make_unique<LogSystem>("ESContent");
           else
             *msg << "\n";
           itDatum->second = wasGotten;

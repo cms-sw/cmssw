@@ -16,6 +16,8 @@
 // user include files
 #include "tbb/task.h"
 #include <cassert>
+#include <memory>
+
 
 #include "FWCore/Concurrency/interface/WaitingTaskList.h"
 #include "FWCore/Concurrency/interface/hardware_pause.h"
@@ -57,7 +59,7 @@ void WaitingTaskList::reset() {
     //need to expand so next time we don't have to do any
     // memory requests
     m_nodeCacheSize = nSeenTasks;
-    m_nodeCache.reset(new WaitNode[nSeenTasks]);
+    m_nodeCache = std::make_unique<WaitNode[]>(nSeenTasks);
     auto nodeCache = m_nodeCache.get();
     for (auto it = nodeCache, itEnd = nodeCache + m_nodeCacheSize; it != itEnd; ++it) {
       it->m_fromCache = true;
