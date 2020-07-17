@@ -207,7 +207,7 @@ void PickEvents::beginJob() {
             whattodo.push_back(true);
 
           // start with run selecion
-          int loc = tokens[1].find(":", 0);
+          int loc = tokens[1].find(':', 0);
 
           std::string first = tokens[1].substr(0, loc);
           startrun.push_back((edm::RunNumber_t)atoi(first.c_str()));
@@ -219,7 +219,7 @@ void PickEvents::beginJob() {
             endrun.push_back((edm::RunNumber_t)atoi(last.c_str()));
 
           // then event number selecion
-          loc = tokens[2].find(":", 0);
+          loc = tokens[2].find(':', 0);
 
           first = tokens[2].substr(0, loc);
           startevent.push_back((edm::EventNumber_t)atoi(first.c_str()));
