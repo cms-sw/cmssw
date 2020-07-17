@@ -283,7 +283,7 @@ void HGCalClusteringImpl::clusterizeDRNN(const std::vector<edm::Ptr<l1t::HGCalTr
 
   // every seed generates a cluster
   clustersTmp.reserve(seedPositions.size());
- for (auto pos : seedPositions) {
+  for (auto pos : seedPositions) {
     clustersTmp.emplace_back(triggerCellsPtrs[pos]);
   }
 
