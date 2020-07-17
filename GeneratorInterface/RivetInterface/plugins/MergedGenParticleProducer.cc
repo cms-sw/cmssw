@@ -1,8 +1,6 @@
 #include <memory>
 
-
-
-        #include "MergedGenParticleProducer.hh"
+#include "MergedGenParticleProducer.hh"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
