@@ -7,6 +7,7 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/StreamID.h"
+#include "FWCore/Utilities/interface/ESGetToken.h"
 
 #include "DataFormats/PatCandidates/interface/Jet.h"
 #include "DataFormats/PatCandidates/interface/PackedCandidate.h"
@@ -84,6 +85,9 @@ private:
   edm::EDGetTokenT<edm::ValueMap<int>> pvasq_value_map_token_;
   edm::EDGetTokenT<edm::Association<VertexCollection>> pvas_token_;
   edm::EDGetTokenT<edm::View<reco::Candidate>> candidateToken_;
+  edm::ESGetToken<TransientTrackBuilder, TransientTrackRecord> track_builder_token_;
+  edm::ESGetToken<TrackProbabilityCalibration, BTagTrackProbability2DRcd> calib2d_token_;
+  edm::ESGetToken<TrackProbabilityCalibration, BTagTrackProbability3DRcd> calib3d_token_;
 
   bool use_puppi_value_map_;
   bool use_pvasq_value_map_;
@@ -114,6 +118,8 @@ DeepFlavourTagInfoProducer::DeepFlavourTagInfoProducer(const edm::ParameterSet& 
       shallow_tag_info_token_(
           consumes<ShallowTagInfoCollection>(iConfig.getParameter<edm::InputTag>("shallow_tag_infos"))),
       candidateToken_(consumes<edm::View<reco::Candidate>>(iConfig.getParameter<edm::InputTag>("candidates"))),
+      track_builder_token_(
+          esConsumes<TransientTrackBuilder, TransientTrackRecord>(edm::ESInputTag("", "TransientTrackBuilder"))),
       use_puppi_value_map_(false),
       use_pvasq_value_map_(false),
       fallback_puppi_weight_(iConfig.getParameter<bool>("fallback_puppi_weight")),
@@ -135,6 +141,10 @@ DeepFlavourTagInfoProducer::DeepFlavourTagInfoProducer(const edm::ParameterSet& 
     pvasq_value_map_token_ = consumes<edm::ValueMap<int>>(pvas_tag);
     pvas_token_ = consumes<edm::Association<VertexCollection>>(pvas_tag);
     use_pvasq_value_map_ = true;
+  }
+  if (compute_probabilities_) {
+    calib2d_token_ = esConsumes<TrackProbabilityCalibration, BTagTrackProbability2DRcd>();
+    calib3d_token_ = esConsumes<TrackProbabilityCalibration, BTagTrackProbability3DRcd>();
   }
 }
 
@@ -209,8 +219,7 @@ void DeepFlavourTagInfoProducer::produce(edm::Event& iEvent, const edm::EventSet
     iEvent.getByToken(pvas_token_, pvas);
   }
 
-  edm::ESHandle<TransientTrackBuilder> track_builder;
-  iSetup.get<TransientTrackRecord>().get("TransientTrackBuilder", track_builder);
+  edm::ESHandle<TransientTrackBuilder> track_builder = iSetup.getHandle(track_builder_token_);
 
   std::vector<reco::TransientTrack> selectedTracks;
   std::vector<float> masses;
@@ -459,10 +468,8 @@ void DeepFlavourTagInfoProducer::checkEventSetup(const edm::EventSetup& iSetup) 
   unsigned long long cacheId3D = re3D.cacheIdentifier();
   if (cacheId2D != calibrationCacheId2D_ || cacheId3D != calibrationCacheId3D_)  //Calibration changed
   {
-    ESHandle<TrackProbabilityCalibration> calib2DHandle;
-    iSetup.get<BTagTrackProbability2DRcd>().get(calib2DHandle);
-    ESHandle<TrackProbabilityCalibration> calib3DHandle;
-    iSetup.get<BTagTrackProbability3DRcd>().get(calib3DHandle);
+    ESHandle<TrackProbabilityCalibration> calib2DHandle = iSetup.getHandle(calib2d_token_);
+    ESHandle<TrackProbabilityCalibration> calib3DHandle = iSetup.getHandle(calib3d_token_);
     probabilityEstimator_.reset(new HistogramProbabilityEstimator(calib3DHandle.product(), calib2DHandle.product()));
   }
 
