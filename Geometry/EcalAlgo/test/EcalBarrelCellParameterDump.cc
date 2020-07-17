@@ -22,7 +22,6 @@ public:
   void beginJob() override {}
   void analyze(edm::Event const& iEvent, edm::EventSetup const&) override;
   void endJob() override {}
-
 };
 
 void EcalBarrelCellParameterDump::analyze(const edm::Event& /*iEvent*/, const edm::EventSetup& iSetup) {
