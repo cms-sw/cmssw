@@ -26,7 +26,6 @@
 #include <iostream>
 #include <memory>
 
-
 //#define EDM_ML_DEBUG
 
 HGCalSD::HGCalSD(const std::string& name,

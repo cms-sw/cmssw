@@ -1,7 +1,5 @@
 #include <memory>
 
-
-
 #include "SimG4Core/CustomPhysics/interface/CustomPhysicsList.h"
 #include "SimG4Core/CustomPhysics/interface/CustomParticleFactory.h"
 #include "SimG4Core/CustomPhysics/interface/CustomParticle.h"

@@ -32,10 +32,8 @@
  */
 #include "SimGeneral/TrackingAnalysis/plugins/TrackingTruthAccumulator.h"
 
+#include <memory>
 
-        #include <memory>
-
-        
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"

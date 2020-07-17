@@ -1,7 +1,5 @@
 #include <memory>
 
-
-
 #include "SimG4Core/Application/interface/OscarMTMasterThread.h"
 
 #include "SimG4Core/Application/interface/RunManagerMT.h"

@@ -1,9 +1,8 @@
 #include "SimMuon/Neutron/src/EDMNeutronWriter.h"
 
+#include <memory>
 
-        #include <memory>
-
-        #include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/Event.h"
 
 EDMNeutronWriter::EDMNeutronWriter() : theEvent(nullptr), theHits(nullptr) {}
 

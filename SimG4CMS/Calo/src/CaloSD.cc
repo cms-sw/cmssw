@@ -23,7 +23,6 @@
 #include <fstream>
 #include <memory>
 
-
 //#define EDM_ML_DEBUG
 
 CaloSD::CaloSD(const std::string& name,

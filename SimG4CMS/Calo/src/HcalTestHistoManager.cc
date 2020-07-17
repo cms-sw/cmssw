@@ -11,7 +11,6 @@
 #include <iostream>
 #include <memory>
 
-
 //#define EDM_ML_DEBUG
 
 HcalTestHistoManager::HcalTestHistoManager(const std::string& file) : tree_(nullptr), kount_(0) {

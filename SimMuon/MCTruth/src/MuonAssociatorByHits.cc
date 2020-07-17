@@ -13,7 +13,7 @@
 #include "SimMuon/MCTruth/interface/TrackerMuonHitExtractor.h"
 #include <memory>
 
-        #include <sstream>
+#include <sstream>
 
 using namespace reco;
 using namespace std;
