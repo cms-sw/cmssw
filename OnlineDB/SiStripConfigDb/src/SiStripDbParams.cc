@@ -194,8 +194,8 @@ void SiStripDbParams::pset(const edm::ParameterSet& cfg) {
 //
 void SiStripDbParams::confdb(const std::string& confdb) {
   confdb_ = confdb;
-  size_t ipass = confdb.find("/");
-  size_t ipath = confdb.find("@");
+  size_t ipass = confdb.find('/');
+  size_t ipath = confdb.find('@');
   if (ipass != std::string::npos && ipath != std::string::npos) {
     user_ = confdb.substr(0, ipass);
     passwd_ = confdb.substr(ipass + 1, ipath - ipass - 1);

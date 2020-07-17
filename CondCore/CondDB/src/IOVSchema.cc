@@ -71,7 +71,7 @@ namespace cond {
                             cond::Time_t& lastValidatedTime) {
       Query<TIME_TYPE, OBJECT_TYPE, SYNCHRONIZATION, END_OF_VALIDITY, LAST_VALIDATED_TIME> q(m_schema);
       q.addCondition<NAME>(name);
-      for (auto row : q)
+      for (const auto& row : q)
         std::tie(timeType, objectType, synchronizationType, endOfValidity, lastValidatedTime) = row;
 
       return q.retrievedRows();
@@ -83,7 +83,7 @@ namespace cond {
                                  boost::posix_time::ptime& modificationTime) {
       Query<DESCRIPTION, INSERTION_TIME, MODIFICATION_TIME> q(m_schema);
       q.addCondition<NAME>(name);
-      for (auto row : q)
+      for (const auto& row : q)
         std::tie(description, insertionTime, modificationTime) = row;
       return q.retrievedRows();
     }
@@ -379,7 +379,7 @@ namespace cond {
                                 cond::Binary& streamerInfoData) {
       Query<DATA, STREAMER_INFO, OBJECT_TYPE> q(m_schema);
       q.addCondition<HASH>(payloadHash);
-      for (auto row : q) {
+      for (const auto& row : q) {
         std::tie(payloadData, streamerInfoData, objectType) = row;
       }
       return q.retrievedRows();

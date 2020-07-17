@@ -462,7 +462,7 @@ namespace {
 
       std::string titleMap = "SiStrip APV Gain average per module (payload : " + std::get<1>(iov) + ")";
 
-      std::unique_ptr<TrackerMap> tmap = std::unique_ptr<TrackerMap>(new TrackerMap("SiStripApvGains"));
+      std::unique_ptr<TrackerMap> tmap = std::make_unique<TrackerMap>("SiStripApvGains");
       tmap->setTitle(titleMap);
       tmap->setPalette(1);
 
@@ -509,7 +509,7 @@ namespace {
       auto iov = iovs.front();
       std::shared_ptr<SiStripApvGain> payload = fetchPayload(std::get<1>(iov));
 
-      std::unique_ptr<TrackerMap> tmap = std::unique_ptr<TrackerMap>(new TrackerMap("SiStripApvGains"));
+      std::unique_ptr<TrackerMap> tmap = std::make_unique<TrackerMap>("SiStripApvGains");
 
       tmap->setPalette(1);
 
@@ -605,7 +605,7 @@ namespace {
 
       titleMap += +" " + std::to_string(nsigma) + " std. dev. saturation";
 
-      std::unique_ptr<TrackerMap> tmap = std::unique_ptr<TrackerMap>(new TrackerMap("SiStripApvGains"));
+      std::unique_ptr<TrackerMap> tmap = std::make_unique<TrackerMap>("SiStripApvGains");
       tmap->setTitle(titleMap);
       tmap->setPalette(1);
 
@@ -721,7 +721,7 @@ namespace {
 
       titleMap += +" - " + std::to_string(nsigma) + " std. dev. saturation";
 
-      std::unique_ptr<TrackerMap> tmap = std::unique_ptr<TrackerMap>(new TrackerMap("SiStripApvGains"));
+      std::unique_ptr<TrackerMap> tmap = std::make_unique<TrackerMap>("SiStripApvGains");
       tmap->setTitle(titleMap);
       tmap->setPalette(1);
 
@@ -828,7 +828,7 @@ namespace {
 
       std::string titleMap = "SiStrip APV Gain maximum per module (payload : " + std::get<1>(iov) + ")";
 
-      std::unique_ptr<TrackerMap> tmap = std::unique_ptr<TrackerMap>(new TrackerMap("SiStripApvGains"));
+      std::unique_ptr<TrackerMap> tmap = std::make_unique<TrackerMap>("SiStripApvGains");
       tmap->setTitle(titleMap);
       tmap->setPalette(1);
 
@@ -881,7 +881,7 @@ namespace {
 
       std::string titleMap = "SiStrip APV Gain minumum per module (payload : " + std::get<1>(iov) + ")";
 
-      std::unique_ptr<TrackerMap> tmap = std::unique_ptr<TrackerMap>(new TrackerMap("SiStripApvGains"));
+      std::unique_ptr<TrackerMap> tmap = std::make_unique<TrackerMap>("SiStripApvGains");
       tmap->setTitle(titleMap);
       tmap->setPalette(1);
 
@@ -1652,13 +1652,13 @@ namespace {
       TCanvas canvas("Payload comparison by Tracker Region", "payload comparison by Tracker Region", 1800, 800);
       canvas.Divide(2, 1);
 
-      auto h2first = std::unique_ptr<TH2F>(
-          new TH2F("byRegion1", "SiStrip APV Gain values by region;; average SiStrip Gain", 38, 1., 39., 100., 0., 2.));
-      auto h2last = std::unique_ptr<TH2F>(
-          new TH2F("byRegion2", "SiStrip APV Gain values by region;; average SiStrip Gain", 38, 1., 39., 100., 0., 2.));
+      auto h2first = std::make_unique<TH2F>(
+          "byRegion1", "SiStrip APV Gain values by region;; average SiStrip Gain", 38, 1., 39., 100., 0., 2.);
+      auto h2last = std::make_unique<TH2F>(
+          "byRegion2", "SiStrip APV Gain values by region;; average SiStrip Gain", 38, 1., 39., 100., 0., 2.);
 
       auto h2ratio =
-          std::unique_ptr<TH2F>(new TH2F("byRegionRatio",
+          std::make_unique<TH2F>("byRegionRatio",
                                          Form("SiStrip APV Gains ratio by region;; Gains ratio IOV: %s/ IOV %s",
                                               lastIOVsince.c_str(),
                                               firstIOVsince.c_str()),
@@ -1667,7 +1667,7 @@ namespace {
                                          39.,
                                          100.,
                                          0.85,
-                                         1.15));
+                                         1.15);
 
       h2first->SetStats(false);
       h2last->SetStats(false);
@@ -1850,13 +1850,13 @@ namespace {
       TCanvas canvas("Region summary", "region summary", 1200, 1000);
       canvas.cd();
 
-      auto hfirst = std::unique_ptr<TH1F>(new TH1F("byRegion1",
+      auto hfirst = std::make_unique<TH1F>("byRegion1",
                                                    "SiStrip APV Gain average by region;; average SiStrip Gain",
                                                    firstmap.size(),
                                                    0.,
-                                                   firstmap.size()));
-      auto hlast = std::unique_ptr<TH1F>(new TH1F(
-          "byRegion2", "SiStrip APV Gain average by region;; average SiStrip Gain", lastmap.size(), 0., lastmap.size()));
+                                                   firstmap.size());
+      auto hlast = std::make_unique<TH1F>(
+          "byRegion2", "SiStrip APV Gain average by region;; average SiStrip Gain", lastmap.size(), 0., lastmap.size());
 
       hfirst->SetStats(false);
       hlast->SetStats(false);
@@ -2010,8 +2010,8 @@ namespace {
 
       TCanvas canvas("Region summary", "region summary", 1200, 1000);
       canvas.cd();
-      auto h1 = std::unique_ptr<TH1F>(
-          new TH1F("byRegion", "SiStrip Gain average by region;; average SiStrip Gain", map.size(), 0., map.size()));
+      auto h1 = std::make_unique<TH1F>(
+          "byRegion", "SiStrip Gain average by region;; average SiStrip Gain", map.size(), 0., map.size());
       h1->SetStats(false);
       canvas.SetBottomMargin(0.18);
       canvas.SetLeftMargin(0.12);
