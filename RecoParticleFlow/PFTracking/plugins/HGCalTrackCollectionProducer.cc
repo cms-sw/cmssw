@@ -38,7 +38,9 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/stream/EDProducer.h"
 
-#include <unordered_map>
+#include <memory>
+
+        #include <unordered_map>
 
 class HGCalTrackCollectionProducer : public edm::stream::EDProducer<> {
 public:
@@ -103,7 +105,7 @@ void HGCalTrackCollectionProducer::beginLuminosityBlock(const edm::LuminosityBlo
   }
 
   // make propagator
-  mat_prop_.reset(new PropagatorWithMaterial(alongMomentum, m_pion, bField_.product()));
+  mat_prop_ = std::make_unique<PropagatorWithMaterial>(alongMomentum, m_pion, bField_.product());
   // setup HGC layers for track propagation
   Surface::RotationType rot;  //unit rotation matrix
   for (unsigned i = 0; i < hgcGeometries_.size(); ++i) {

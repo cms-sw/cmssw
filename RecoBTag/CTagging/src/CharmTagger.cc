@@ -7,10 +7,12 @@
 #include "CondFormats/DataRecord/interface/GBRWrapperRcd.h"
 
 #include <iostream>
-#include <vector>
+#include <memory>
+
 #include <algorithm>
-#include <map>
 #include <iostream>
+#include <map>
+        #include <vector>
 
 CharmTagger::Tokens::Tokens(const edm::ParameterSet &configuration, edm::ESConsumesCollector &&cc) {
   if (configuration.getParameter<bool>("useCondDB")) {
@@ -29,7 +31,7 @@ CharmTagger::CharmTagger(const edm::ParameterSet &configuration, Tokens tokens)
       use_GBRForest_(configuration.getParameter<bool>("useGBRForest")),
       use_adaBoost_(configuration.getParameter<bool>("useAdaBoost")),
       defaultValueNoTracks_(configuration.getParameter<bool>("defaultValueNoTracks")),
-      tokens_{std::move(tokens)} {
+      tokens_{tokens} {
   vpset vars_definition = configuration.getParameter<vpset>("variables");
   for (auto &var : vars_definition) {
     MVAVar mva_var;
@@ -49,7 +51,7 @@ CharmTagger::CharmTagger(const edm::ParameterSet &configuration, Tokens tokens)
 }
 
 void CharmTagger::initialize(const JetTagComputerRecord &record) {
-  mvaID_.reset(new TMVAEvaluator());
+  mvaID_ = std::make_unique<TMVAEvaluator>();
 
   std::vector<std::string> variable_names;
   variable_names.reserve(variables_.size());

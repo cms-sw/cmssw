@@ -79,12 +79,12 @@ private:
 };
 
 BTagProbabilityToDiscriminator::BTagProbabilityToDiscriminator(const edm::ParameterSet &iConfig) {
-  for (auto discriminator : iConfig.getParameter<vPSet>("discriminators")) {
+  for (const auto& discriminator : iConfig.getParameter<vPSet>("discriminators")) {
     Discriminator current;
     current.name = discriminator.getParameter<std::string>("name");
     produces<JetTagCollection>(current.name);
 
-    for (auto intag : discriminator.getParameter<vInputTag>("numerator")) {
+    for (const auto& intag : discriminator.getParameter<vInputTag>("numerator")) {
       if (jet_tags_.find(intag.encode()) == jet_tags_.end()) {  // new
                                                                 // probability
         jet_tags_[intag.encode()] = consumes<JetTagCollection>(intag);
@@ -92,7 +92,7 @@ BTagProbabilityToDiscriminator::BTagProbabilityToDiscriminator(const edm::Parame
       current.numerator.push_back(intag.encode());
     }
 
-    for (auto intag : discriminator.getParameter<vInputTag>("denominator")) {
+    for (const auto& intag : discriminator.getParameter<vInputTag>("denominator")) {
       if (jet_tags_.find(intag.encode()) == jet_tags_.end()) {  // new
                                                                 // probability
         jet_tags_[intag.encode()] = consumes<JetTagCollection>(intag);

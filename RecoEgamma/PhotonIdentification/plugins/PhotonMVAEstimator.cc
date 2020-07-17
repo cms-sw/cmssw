@@ -115,7 +115,8 @@ float PhotonMVAEstimator::mvaValue(const reco::Candidate* candPtr,
 
   std::vector<float> vars;
 
-  for (int i = 0; i < nVariables_[iCategory]; ++i) {
+  vars.reserve(nVariables_[iCategory]);
+ for (int i = 0; i < nVariables_[iCategory]; ++i) {
     vars.push_back(mvaVarMngr_.getValue(variables_[iCategory][i], *phoPtr, auxVars));
   }
 

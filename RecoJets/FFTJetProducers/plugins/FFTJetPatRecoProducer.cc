@@ -17,7 +17,9 @@
 //
 
 #include <fstream>
+#include <memory>
 
+        
 // FFTJet headers
 #include "fftjet/ProximityClusteringTree.hh"
 #include "fftjet/ClusteringSequencer.hh"
@@ -218,8 +220,8 @@ FFTJetPatRecoProducer::FFTJetPatRecoProducer(const edm::ParameterSet& ps)
   }
 
   // At this point we are ready to build the clustering sequencer
-  sequencer = std::unique_ptr<Sequencer>(new Sequencer(
-      convolver.get(), peakSelector.get(), buildPeakFinder(ps), *iniScales, maxAdaptiveScales, minAdaptiveRatioLog));
+  sequencer = std::make_unique<Sequencer>(
+      convolver.get(), peakSelector.get(), buildPeakFinder(ps), *iniScales, maxAdaptiveScales, minAdaptiveRatioLog);
 
   // Build the clustering tree sparsifier
   const edm::ParameterSet& SparsifierConfiguration(ps.getParameter<edm::ParameterSet>("SparsifierConfiguration"));
@@ -268,7 +270,7 @@ void FFTJetPatRecoProducer::buildKernelConvolver(const edm::ParameterSet& ps) {
 
   if (use2dKernel) {
     // Build the FFT engine
-    engine = std::unique_ptr<MyFFTEngine>(new MyFFTEngine(energyFlow->nEta(), energyFlow->nPhi()));
+    engine = std::make_unique<MyFFTEngine>(energyFlow->nEta(), energyFlow->nPhi());
 
     // 2d kernel
     kernel2d = std::unique_ptr<fftjet::AbsFrequencyKernel>(
@@ -279,8 +281,8 @@ void FFTJetPatRecoProducer::buildKernelConvolver(const edm::ParameterSet& ps) {
         engine.get(), kernel2d.get(), convolverMinBin, convolverMaxBin));
   } else {
     // Need separate FFT engines for eta and phi
-    engine = std::unique_ptr<MyFFTEngine>(new MyFFTEngine(1, energyFlow->nEta()));
-    anotherEngine = std::unique_ptr<MyFFTEngine>(new MyFFTEngine(1, energyFlow->nPhi()));
+    engine = std::make_unique<MyFFTEngine>(1, energyFlow->nEta());
+    anotherEngine = std::make_unique<MyFFTEngine>(1, energyFlow->nPhi());
 
     // 1d kernels
     etaKernel =

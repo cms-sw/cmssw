@@ -18,6 +18,10 @@ Implementation:
 
 #include "RecoJets/JetProducers/plugins/PileupJetIdProducer.h"
 
+
+        #include <memory>
+
+        
 GBRForestsAndConstants::GBRForestsAndConstants(edm::ParameterSet const& iConfig)
     : runMvas_(iConfig.getParameter<bool>("runMvas")),
       produceJetIds_(iConfig.getParameter<bool>("produceJetIds")),
@@ -153,7 +157,7 @@ void PileupJetIdProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSe
     if (applyJec) {
       float scale = jec;
       if (ispat) {
-        corrJet.reset(new pat::Jet(patjet->correctedJet(0)));
+        corrJet = std::make_unique<pat::Jet>(patjet->correctedJet(0));
       } else {
         corrJet.reset(dynamic_cast<reco::Jet*>(jet.clone()));
       }

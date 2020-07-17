@@ -17,7 +17,7 @@ CATopJetProducer::CATopJetProducer(edm::ParameterSet const& conf)
       centralEtaCut_(conf.getParameter<double>("centralEtaCut")),
       verbose_(conf.getParameter<bool>("verbose")) {
   if (tagAlgo_ == CA_TOPTAGGER) {
-    legacyCMSTopTagger_ = std::unique_ptr<CATopJetAlgorithm>(new CATopJetAlgorithm(
+    legacyCMSTopTagger_ = std::make_unique<CATopJetAlgorithm>(
         src_,
         conf.getParameter<bool>("verbose"),
         conf.getParameter<int>("algorithm"),         // 0 = KT, 1 = CA, 2 = anti-KT
@@ -41,25 +41,25 @@ CATopJetProducer::CATopJetProducer(edm::ParameterSet const& conf)
             "useMaxTower"),  // use max tower as adjacency criterion, otherwise use centroid - NOT USED
         conf.getParameter<double>("sumEtEtaCut"),  // eta for event SumEt - NOT USED
         conf.getParameter<double>("etFrac")  // fraction of event sumEt / 2 for a jet to be considered "hard" -NOT USED
-        ));
+        );
   } else if (tagAlgo_ == FJ_CMS_TOPTAG) {
     fjCMSTopTagger_ =
-        std::unique_ptr<fastjet::CMSTopTagger>(new fastjet::CMSTopTagger(conf.getParameter<double>("ptFrac"),
+        std::make_unique<fastjet::CMSTopTagger>(conf.getParameter<double>("ptFrac"),
                                                                          conf.getParameter<double>("rFrac"),
-                                                                         conf.getParameter<double>("adjacencyParam")));
+                                                                         conf.getParameter<double>("adjacencyParam"));
   } else if (tagAlgo_ == FJ_JHU_TOPTAG) {
     fjJHUTopTagger_ =
-        std::unique_ptr<fastjet::JHTopTagger>(new fastjet::JHTopTagger(conf.getParameter<double>("ptFrac"),
+        std::make_unique<fastjet::JHTopTagger>(conf.getParameter<double>("ptFrac"),
                                                                        conf.getParameter<double>("deltaRCut"),
-                                                                       conf.getParameter<double>("cosThetaWMax")));
+                                                                       conf.getParameter<double>("cosThetaWMax"));
   } else if (tagAlgo_ == FJ_NSUB_TAG) {
     fastjet::JetDefinition::Plugin* plugin = new fastjet::SISConePlugin(0.6, 0.75);
     fastjet::JetDefinition NsubJetDef(plugin);
-    fjNSUBTagger_ = std::unique_ptr<fastjet::RestFrameNSubjettinessTagger>(
-        new fastjet::RestFrameNSubjettinessTagger(NsubJetDef,
+    fjNSUBTagger_ = std::make_unique<fastjet::RestFrameNSubjettinessTagger>(
+        NsubJetDef,
                                                   conf.getParameter<double>("tau2Cut"),
                                                   conf.getParameter<double>("cosThetaSCut"),
-                                                  conf.getParameter<bool>("useExclusive")));
+                                                  conf.getParameter<bool>("useExclusive"));
   }
 }
 
