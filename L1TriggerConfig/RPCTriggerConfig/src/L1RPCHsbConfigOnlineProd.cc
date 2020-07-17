@@ -67,7 +67,7 @@ std::unique_ptr<L1RPCHsbConfig> L1RPCHsbConfigOnlineProd::newObject(const std::s
   int mask = 3;
   // XX was: i<9, corrected
   hsbconf.reserve(8);
- for (int i = 0; i < 8; i++)
+  for (int i = 0; i < 8; i++)
     hsbconf.push_back(mask);
   pHsbConfig->setHsbMask(0, hsbconf);
   pHsbConfig->setHsbMask(1, hsbconf);

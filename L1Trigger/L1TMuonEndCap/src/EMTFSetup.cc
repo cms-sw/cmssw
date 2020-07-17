@@ -1,8 +1,6 @@
 #include <memory>
 
-
-
-        #include "L1Trigger/L1TMuonEndCap/interface/EMTFSetup.h"
+#include "L1Trigger/L1TMuonEndCap/interface/EMTFSetup.h"
 
 #include "FWCore/Utilities/interface/Exception.h"
 

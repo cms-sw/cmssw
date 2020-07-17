@@ -4,7 +4,6 @@
 #include <iostream>
 #include <memory>
 
-
 // Default values of configuration parameters.
 const unsigned int CSCCathodeLCTProcessor::def_fifo_tbins = 12;
 const unsigned int CSCCathodeLCTProcessor::def_fifo_pretrig = 7;

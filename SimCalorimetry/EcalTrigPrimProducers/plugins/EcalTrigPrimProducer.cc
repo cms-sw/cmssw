@@ -60,10 +60,9 @@
 
 #include "EcalTrigPrimProducer.h"
 
+#include <memory>
 
-        #include <memory>
-
-        #include "SimCalorimetry/EcalTrigPrimAlgos/interface/EcalTrigPrimFunctionalAlgo.h"
+#include "SimCalorimetry/EcalTrigPrimAlgos/interface/EcalTrigPrimFunctionalAlgo.h"
 
 EcalTrigPrimProducer::EcalTrigPrimProducer(const edm::ParameterSet &iConfig)
     : barrelOnly_(iConfig.getParameter<bool>("BarrelOnly")),
