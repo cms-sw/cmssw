@@ -81,14 +81,17 @@ int HGCDoublet::areAligned(double xi,
 
   // inner product
   auto dot = dx1 * dx2 + dy1 * dy2 + dz1 * dz2;
+  auto dotsq = dot * dot;
   // magnitudes
-  auto mag1 = std::sqrt(dx1 * dx1 + dy1 * dy1 + dz1 * dz1);
-  auto mag2 = std::sqrt(dx2 * dx2 + dy2 * dy2 + dz2 * dz2);
-  // angle between the vectors
-  auto cosTheta = dot / (mag1 * mag2);
+  auto mag1sq = dx1 * dx1 + dy1 * dy1 + dz1 * dz1;
+  auto mag2sq = dx2 * dx2 + dy2 * dy2 + dz2 * dz2;
+
+  auto minCosTheta_sq = minCosTheta * minCosTheta;
+  bool isWithinLimits = (dotsq > minCosTheta_sq * mag1sq * mag2sq);
+
   if (debug) {
-    LogDebug("HGCDoublet") << "-- Are Aligned -- dot: " << dot << " mag1: " << mag1 << " mag2: " << mag2
-                           << " cosTheta: " << cosTheta << " isWithinLimits: " << (cosTheta > minCosTheta) << std::endl;
+    LogDebug("HGCDoublet") << "-- Are Aligned -- dotsq: " << dotsq << " mag1sq: " << mag1sq << " mag2sq: " << mag2sq
+                           << "minCosTheta_sq:" << minCosTheta_sq << " isWithinLimits: " << isWithinLimits << std::endl;
   }
 
   // Now check the compatibility with the pointing origin.
@@ -102,15 +105,18 @@ int HGCDoublet::areAligned(double xi,
   const GlobalVector pointingDir = (seedIndex_ == -1) ? GlobalVector(innerX(), innerY(), innerZ()) : refDir;
 
   auto dot_pointing = pointingDir.dot(firstDoublet);
-  auto mag_pointing = sqrt(pointingDir.mag2());
-  auto cosTheta_pointing = dot_pointing / (mag2 * mag_pointing);
+  auto dot_pointing_sq = dot_pointing * dot_pointing;
+  auto mag_pointing_sq = pointingDir.mag2();
+  auto minCosPointing_sq = minCosPointing * minCosPointing;
+  bool isWithinLimitsPointing = (dot_pointing_sq > minCosPointing_sq * mag_pointing_sq * mag2sq);
   if (debug) {
-    LogDebug("HGCDoublet") << "-- Are Aligned -- dot_pointing: " << dot_pointing << " mag_pointing: " << mag_pointing
-                           << " mag2: " << mag2 << " cosTheta_pointing: " << cosTheta_pointing
-                           << " isWithinLimits: " << (cosTheta_pointing > minCosPointing) << std::endl;
+    LogDebug("HGCDoublet") << "-- Are Aligned -- dot_pointing_sq: " << dot_pointing * dot_pointing
+                           << " mag_pointing_sq: " << mag_pointing_sq << " mag2sq: " << mag2sq
+                           << " isWithinLimits: " << isWithinLimitsPointing << std::endl;
   }
-
-  return (cosTheta > minCosTheta) && (cosTheta_pointing > minCosPointing);
+  // by squaring cosTheta and multiplying by the squares of the magnitudes
+  // an equivalent comparison is made without the division and square root which are costly FP ops.
+  return isWithinLimits && isWithinLimitsPointing;
 }
 
 void HGCDoublet::findNtuplets(std::vector<HGCDoublet> &allDoublets,
