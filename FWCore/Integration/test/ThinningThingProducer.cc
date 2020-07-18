@@ -30,7 +30,7 @@ namespace edmtest {
   public:
     ThinningThingSelector(edm::ParameterSet const& pset, edm::ConsumesCollector&& cc);
 
-    static void fillDescription(edm::ParameterSetDescription& desc);
+    static void fillPSetDescription(edm::ParameterSetDescription& desc);
 
     void preChoose(edm::Handle<edmtest::ThingCollection> tc, edm::Event const& event, edm::EventSetup const& es);
 
@@ -49,7 +49,7 @@ namespace edmtest {
     expectedCollectionSize_ = pset.getParameter<unsigned int>("expectedCollectionSize");
   }
 
-  void ThinningThingSelector::fillDescription(edm::ParameterSetDescription& desc) {
+  void ThinningThingSelector::fillPSetDescription(edm::ParameterSetDescription& desc) {
     desc.add<edm::InputTag>("trackTag");
     desc.add<unsigned int>("offsetToThinnedKey");
     desc.add<unsigned int>("expectedCollectionSize");
