@@ -2,6 +2,7 @@
 #include "DataFormats/Math/interface/CMSUnits.h"
 #include "DetectorDescription/DDCMS/interface/DDPlugins.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "Geometry/HGCalCommonData/interface/HGCalTypes.h"
 
 //#define EDM_ML_DEBUG
 using namespace cms_units::operators;
@@ -51,7 +52,7 @@ static long algorithm(dd4hep::Detector& /* description */,
     double xpos = dx * positionX[k];
     double ypos = dy * positionY[k];
     dd4hep::Position tran(xpos, ypos, 0);
-    int copy = cellType * 1000 + k;
+    int copy = HGCalTypes::packCellType6(cellType, k);
     mother.placeVolume(ns.volume(name), copy, dd4hep::Transform3D(rotation, tran));
 #ifdef EDM_ML_DEBUG
     edm::LogVerbatim("HGCalGeom") << "DDHGCalWaferAlgo: " << name << " number " << copy << " positioned in " << idName
