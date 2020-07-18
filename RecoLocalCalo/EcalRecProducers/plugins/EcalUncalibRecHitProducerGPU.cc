@@ -45,21 +45,21 @@ private:
 
 private:
   using InputProduct = cms::cuda::Product<ecal::DigisCollection<calo::common::DevStoragePolicy>>;
-  edm::EDGetTokenT<InputProduct> digisTokenEB_, digisTokenEE_;
+  const edm::EDGetTokenT<InputProduct> digisTokenEB_, digisTokenEE_;
   using OutputProduct = cms::cuda::Product<ecal::UncalibratedRecHit<calo::common::DevStoragePolicy>>;
-  edm::EDPutTokenT<OutputProduct> recHitsTokenEB_, recHitsTokenEE_;
+  const edm::EDPutTokenT<OutputProduct> recHitsTokenEB_, recHitsTokenEE_;
 
-  // conditions handles
-  edm::ESHandle<EcalPedestalsGPU> pedestalsHandle_;
-  edm::ESHandle<EcalGainRatiosGPU> gainRatiosHandle_;
-  edm::ESHandle<EcalPulseShapesGPU> pulseShapesHandle_;
-  edm::ESHandle<EcalPulseCovariancesGPU> pulseCovariancesHandle_;
-  edm::ESHandle<EcalSamplesCorrelationGPU> samplesCorrelationHandle_;
-  edm::ESHandle<EcalTimeBiasCorrectionsGPU> timeBiasCorrectionsHandle_;
-  edm::ESHandle<EcalTimeCalibConstantsGPU> timeCalibConstantsHandle_;
-  edm::ESHandle<EcalSampleMask> sampleMaskHandle_;
-  edm::ESHandle<EcalTimeOffsetConstant> timeOffsetConstantHandle_;
-  edm::ESHandle<EcalMultifitParametersGPU> multifitParametersHandle_;
+  // conditions tokens
+  const edm::ESGetToken<EcalPedestalsGPU, EcalPedestalsRcd> pedestalsToken_;
+  const edm::ESGetToken<EcalGainRatiosGPU, EcalGainRatiosRcd> gainRatiosToken_;
+  const edm::ESGetToken<EcalPulseShapesGPU, EcalPulseShapesRcd> pulseShapesToken_;
+  const edm::ESGetToken<EcalPulseCovariancesGPU, EcalPulseCovariancesRcd> pulseCovariancesToken_;
+  const edm::ESGetToken<EcalSamplesCorrelationGPU, EcalSamplesCorrelationRcd> samplesCorrelationToken_;
+  const edm::ESGetToken<EcalTimeBiasCorrectionsGPU, EcalTimeBiasCorrectionsRcd> timeBiasCorrectionsToken_;
+  const edm::ESGetToken<EcalTimeCalibConstantsGPU, EcalTimeCalibConstantsRcd> timeCalibConstantsToken_;
+  const edm::ESGetToken<EcalSampleMask, EcalSampleMaskRcd> sampleMaskToken_;
+  const edm::ESGetToken<EcalTimeOffsetConstant, EcalTimeOffsetConstantRcd> timeOffsetConstantToken_;
+  const edm::ESGetToken<EcalMultifitParametersGPU, EcalMultifitParametersGPURecord> multifitParametersToken_;
 
   // configuration parameters
   ecal::multifit::ConfigurationParameters configParameters_;
@@ -111,7 +111,17 @@ EcalUncalibRecHitProducerGPU::EcalUncalibRecHitProducerGPU(const edm::ParameterS
     : digisTokenEB_{consumes<InputProduct>(ps.getParameter<edm::InputTag>("digisLabelEB"))},
       digisTokenEE_{consumes<InputProduct>(ps.getParameter<edm::InputTag>("digisLabelEE"))},
       recHitsTokenEB_{produces<OutputProduct>(ps.getParameter<std::string>("recHitsLabelEB"))},
-      recHitsTokenEE_{produces<OutputProduct>(ps.getParameter<std::string>("recHitsLabelEE"))} {
+      recHitsTokenEE_{produces<OutputProduct>(ps.getParameter<std::string>("recHitsLabelEE"))},
+      pedestalsToken_{esConsumes<EcalPedestalsGPU, EcalPedestalsRcd>()},
+      gainRatiosToken_{esConsumes<EcalGainRatiosGPU, EcalGainRatiosRcd>()},
+      pulseShapesToken_{esConsumes<EcalPulseShapesGPU, EcalPulseShapesRcd>()},
+      pulseCovariancesToken_{esConsumes<EcalPulseCovariancesGPU, EcalPulseCovariancesRcd>()},
+      samplesCorrelationToken_{esConsumes<EcalSamplesCorrelationGPU, EcalSamplesCorrelationRcd>()},
+      timeBiasCorrectionsToken_{esConsumes<EcalTimeBiasCorrectionsGPU, EcalTimeBiasCorrectionsRcd>()},
+      timeCalibConstantsToken_{esConsumes<EcalTimeCalibConstantsGPU, EcalTimeCalibConstantsRcd>()},
+      sampleMaskToken_{esConsumes<EcalSampleMask, EcalSampleMaskRcd>()},
+      timeOffsetConstantToken_{esConsumes<EcalTimeOffsetConstant, EcalTimeOffsetConstantRcd>()},
+      multifitParametersToken_{esConsumes<EcalMultifitParametersGPU, EcalMultifitParametersGPURecord>()} {
   std::pair<double, double> EBtimeFitLimits, EEtimeFitLimits;
   EBtimeFitLimits.first = ps.getParameter<double>("EBtimeFitLimits_Lower");
   EBtimeFitLimits.second = ps.getParameter<double>("EBtimeFitLimits_Upper");
@@ -205,46 +215,40 @@ void EcalUncalibRecHitProducerGPU::acquire(edm::Event const& event,
   }
 
   // conditions
-  setup.get<EcalPedestalsRcd>().get(pedestalsHandle_);
-  setup.get<EcalGainRatiosRcd>().get(gainRatiosHandle_);
-  setup.get<EcalPulseShapesRcd>().get(pulseShapesHandle_);
-  setup.get<EcalPulseCovariancesRcd>().get(pulseCovariancesHandle_);
-  setup.get<EcalSamplesCorrelationRcd>().get(samplesCorrelationHandle_);
-  setup.get<EcalTimeBiasCorrectionsRcd>().get(timeBiasCorrectionsHandle_);
-  setup.get<EcalTimeCalibConstantsRcd>().get(timeCalibConstantsHandle_);
-  setup.get<EcalSampleMaskRcd>().get(sampleMaskHandle_);
-  setup.get<EcalTimeOffsetConstantRcd>().get(timeOffsetConstantHandle_);
-  setup.get<EcalMultifitParametersGPURecord>().get(multifitParametersHandle_);
+  auto const& timeCalibConstantsData = setup.getData(timeCalibConstantsToken_);
+  auto const& sampleMaskData = setup.getData(sampleMaskToken_);
+  auto const& timeOffsetConstantData = setup.getData(timeOffsetConstantToken_);
+  auto const& multifitParametersData = setup.getData(multifitParametersToken_);
 
-  auto const& pedProduct = pedestalsHandle_->getProduct(ctx.stream());
-  auto const& gainsProduct = gainRatiosHandle_->getProduct(ctx.stream());
-  auto const& pulseShapesProduct = pulseShapesHandle_->getProduct(ctx.stream());
-  auto const& pulseCovariancesProduct = pulseCovariancesHandle_->getProduct(ctx.stream());
-  auto const& samplesCorrelationProduct = samplesCorrelationHandle_->getProduct(ctx.stream());
-  auto const& timeBiasCorrectionsProduct = timeBiasCorrectionsHandle_->getProduct(ctx.stream());
-  auto const& timeCalibConstantsProduct = timeCalibConstantsHandle_->getProduct(ctx.stream());
-  auto const& multifitParametersProduct = multifitParametersHandle_->getProduct(ctx.stream());
+  auto const& pedestals = setup.getData(pedestalsToken_).getProduct(ctx.stream());
+  auto const& gainRatios = setup.getData(gainRatiosToken_).getProduct(ctx.stream());
+  auto const& pulseShapes = setup.getData(pulseShapesToken_).getProduct(ctx.stream());
+  auto const& pulseCovariances = setup.getData(pulseCovariancesToken_).getProduct(ctx.stream());
+  auto const& samplesCorrelation = setup.getData(samplesCorrelationToken_).getProduct(ctx.stream());
+  auto const& timeBiasCorrections = setup.getData(timeBiasCorrectionsToken_).getProduct(ctx.stream());
+  auto const& timeCalibConstants = timeCalibConstantsData.getProduct(ctx.stream());
+  auto const& multifitParameters = multifitParametersData.getProduct(ctx.stream());
 
   // assign ptrs/values: this is done not to change how things look downstream
-  configParameters_.amplitudeFitParametersEB = multifitParametersProduct.amplitudeFitParametersEB;
-  configParameters_.amplitudeFitParametersEE = multifitParametersProduct.amplitudeFitParametersEE;
-  configParameters_.timeFitParametersEB = multifitParametersProduct.timeFitParametersEB;
-  configParameters_.timeFitParametersEE = multifitParametersProduct.timeFitParametersEE;
-  configParameters_.timeFitParametersSizeEB = multifitParametersHandle_->getValues()[2].get().size();
-  configParameters_.timeFitParametersSizeEE = multifitParametersHandle_->getValues()[3].get().size();
+  configParameters_.amplitudeFitParametersEB = multifitParameters.amplitudeFitParametersEB;
+  configParameters_.amplitudeFitParametersEE = multifitParameters.amplitudeFitParametersEE;
+  configParameters_.timeFitParametersEB = multifitParameters.timeFitParametersEB;
+  configParameters_.timeFitParametersEE = multifitParameters.timeFitParametersEE;
+  configParameters_.timeFitParametersSizeEB = multifitParametersData.getValues()[2].get().size();
+  configParameters_.timeFitParametersSizeEE = multifitParametersData.getValues()[3].get().size();
 
   // bundle up conditions
-  ecal::multifit::ConditionsProducts conditions{pedProduct,
-                                                gainsProduct,
-                                                pulseShapesProduct,
-                                                pulseCovariancesProduct,
-                                                samplesCorrelationProduct,
-                                                timeBiasCorrectionsProduct,
-                                                timeCalibConstantsProduct,
-                                                *sampleMaskHandle_,
-                                                *timeOffsetConstantHandle_,
-                                                timeCalibConstantsHandle_->getOffset(),
-                                                multifitParametersProduct};
+  ecal::multifit::ConditionsProducts conditions{pedestals,
+                                                gainRatios,
+                                                pulseShapes,
+                                                pulseCovariances,
+                                                samplesCorrelation,
+                                                timeBiasCorrections,
+                                                timeCalibConstants,
+                                                sampleMaskData,
+                                                timeOffsetConstantData,
+                                                timeCalibConstantsData.getOffset(),
+                                                multifitParameters};
 
   // dev mem
   eventOutputDataGPU_.allocate(configParameters_, ctx.stream());
