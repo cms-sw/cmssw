@@ -132,7 +132,6 @@ process.DDDetectorESProducer = cms.ESSource(
 )
 
 from Geometry.TrackerNumberingBuilder.trackerNumberingGeometry_cff import *
-from SLHCUpgradeSimulations.Geometry.fakeConditions_phase2TkT14_cff import *
 from Geometry.EcalCommonData.ecalSimulationParameters_cff import *
 from Geometry.HcalCommonData.hcalDDDSimConstants_cff import *
 from Geometry.HGCalCommonData.hgcalParametersInitialization_cfi import *
