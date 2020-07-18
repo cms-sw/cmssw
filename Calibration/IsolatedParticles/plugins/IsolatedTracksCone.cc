@@ -360,7 +360,7 @@ IsolatedTracksCone::IsolatedTracksCone(const edm::ParameterSet& iConfig)
   edm::ParameterSet parameters = iConfig.getParameter<edm::ParameterSet>("TrackAssociatorParameters");
   edm::ConsumesCollector iC = consumesCollector();
   parameters_.loadParameters(parameters, iC);
-  trackAssociator_ = std::unique_ptr<TrackDetectorAssociator>(new TrackDetectorAssociator());
+  trackAssociator_ = std::make_unique<TrackDetectorAssociator>();
   trackAssociator_->useDefaultPropagator();
 
   if (myverbose_ >= 0) {
@@ -620,7 +620,7 @@ void IsolatedTracksCone::analyze(const edm::Event& iEvent, const edm::EventSetup
   ////////////////////////////
   std::unique_ptr<TrackerHitAssociator> associate;
   if (doMC_)
-    associate.reset(new TrackerHitAssociator(iEvent, trackerHitAssociatorConfig_));
+    associate = std::make_unique<TrackerHitAssociator>(iEvent, trackerHitAssociatorConfig_);
 
   nTRK = 0;
   nRawTRK = 0;

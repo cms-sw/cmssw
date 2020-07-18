@@ -133,14 +133,14 @@ void IsolatedPixelTrackCandidateL1TProducer::produce(edm::Event& theEvent, const
   //  l1trigobj->getObjects(trigger::TriggerJet, l1jetobjref);
   l1trigobj->getObjects(trigger::TriggerL1Jet, l1jetobjref);
 
-  for (auto p : l1tauobjref) {
+  for (const auto& p : l1tauobjref) {
     if (p->pt() > ptTriggered) {
       ptTriggered = p->pt();
       phiTriggered = p->phi();
       etaTriggered = p->eta();
     }
   }
-  for (auto p : l1jetobjref) {
+  for (const auto& p : l1jetobjref) {
     if (p->pt() > ptTriggered) {
       ptTriggered = p->pt();
       phiTriggered = p->phi();
