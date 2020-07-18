@@ -18,6 +18,7 @@
 #include "DetectorDescription/Core/interface/DDutils.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/PluginManager/interface/PluginFactory.h"
+#include "Geometry/HGCalCommonData/interface/HGCalTypes.h"
 
 //#define EDM_ML_DEBUG
 using namespace geant_units::operators;
@@ -107,7 +108,7 @@ void DDHGCalWaferAlgo::execute(DDCompactView& cpv) {
     double xpos = dx * positionX_[k];
     double ypos = dy * positionY_[k];
     DDTranslation tran(xpos, ypos, 0);
-    int copy = cellType_ * 1000 + k;
+    int copy = HGCalTypes::packCellType6(cellType_, k);
     cpv.position(DDName(name, idNameSpace_), parentName_, copy, tran, rotation);
 #ifdef EDM_ML_DEBUG
     edm::LogVerbatim("HGCalGeom") << "DDHGCalWaferAlgo: " << DDName(name, idNameSpace_) << " number " << copy
