@@ -99,7 +99,7 @@ SiStripDigitizer::SiStripDigitizer(const edm::ParameterSet& conf,
            "which is not present in the configuration file.  You must add the service\n"
            "in the configuration file or remove the modules that require it.";
   }
-  theDigiAlgo.reset(new SiStripDigitizerAlgorithm(conf));
+  theDigiAlgo = std::make_unique<SiStripDigitizerAlgorithm>(conf);
 }
 
 // Virtual destructor needed.
