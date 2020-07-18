@@ -205,6 +205,7 @@ namespace {
 
 TrackListMerger::TrackListMerger(edm::ParameterSet const& conf) {
   copyExtras_ = conf.getUntrackedParameter<bool>("copyExtras", true);
+  priorityName_ = conf.getParameter<std::string>("trackAlgoPriorityOrder");
 
   std::vector<edm::InputTag> trackProducerTags(conf.getParameter<std::vector<edm::InputTag>>("TrackProducers"));
   //which of these do I need to turn into vectors?
@@ -298,7 +299,7 @@ TrackListMerger::TrackListMerger(edm::ParameterSet const& conf) {
                                              : edTokens(trackProducerTags[i], mvaStores[i]);
   }
 
-  priorityName_ = conf.getParameter<std::string>("trackAlgoPriorityOrder");
+  
 }
 
 // Virtual destructor needed.
