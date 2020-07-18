@@ -298,8 +298,6 @@ TrackListMerger::TrackListMerger(edm::ParameterSet const& conf) {
     trackProducers_[i] = hasSelector_[i] > 0 ? edTokens(trackProducerTags[i], selectors[i], mvaStores[i])
                                              : edTokens(trackProducerTags[i], mvaStores[i]);
   }
-
-  
 }
 
 // Virtual destructor needed.
