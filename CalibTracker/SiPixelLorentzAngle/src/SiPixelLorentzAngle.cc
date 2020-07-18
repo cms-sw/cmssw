@@ -197,7 +197,7 @@ void SiPixelLorentzAngle::analyze(const edm::Event& e, const edm::EventSetup& es
 
   std::unique_ptr<TrackerHitAssociator> associate;
   if (simData_)
-    associate.reset(new TrackerHitAssociator(e, trackerHitAssociatorConfig_));
+    associate = std::make_unique<TrackerHitAssociator>(e, trackerHitAssociatorConfig_);
   // restet values
   module_ = -1;
   layer_ = -1;

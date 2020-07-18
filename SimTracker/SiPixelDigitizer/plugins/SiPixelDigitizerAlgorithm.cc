@@ -692,7 +692,7 @@ void SiPixelDigitizerAlgorithm::PixelEfficiencies::init_from_db(
   // piluep scale factors are calculated once per event
   // therefore vector index is stored in a map for each module that matches to a db_id
   size_t i = 0;
-  for (auto factor : PUFactors) {
+  for (const auto& factor : PUFactors) {
     const DetId db_id = DetId(factor.first);
     for (const auto& it_module : geom->detUnits()) {
       if (dynamic_cast<PixelGeomDetUnit const*>(it_module) == nullptr)

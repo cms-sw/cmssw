@@ -77,7 +77,7 @@ void CastorShowerLibrary::initFile(edm::ParameterSet const& p) {
   verbose = m_CS.getUntrackedParameter<bool>("Verbosity", false);
 
   // Open TFile
-  if (pTreeName.find(".") == 0)
+  if (pTreeName.find('.') == 0)
     pTreeName.erase(0, 2);
   const char* nTree = pTreeName.c_str();
   hf = TFile::Open(nTree);

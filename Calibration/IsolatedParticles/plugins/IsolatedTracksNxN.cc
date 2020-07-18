@@ -1091,7 +1091,7 @@ void IsolatedTracksNxN::analyze(const edm::Event &iEvent, const edm::EventSetup 
   //associates tracker rechits/simhits to a track
   std::unique_ptr<TrackerHitAssociator> associate;
   if (doMC_)
-    associate.reset(new TrackerHitAssociator(iEvent, trackerHitAssociatorConfig_));
+    associate = std::make_unique<TrackerHitAssociator>(iEvent, trackerHitAssociatorConfig_);
 
   //===================================================================================
 

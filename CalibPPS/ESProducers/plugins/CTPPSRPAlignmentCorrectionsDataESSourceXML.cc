@@ -189,6 +189,7 @@ void CTPPSRPAlignmentCorrectionsDataESSourceXML::PrepareSequence(const string &l
         << "CTPPSRPAlignmentCorrectionsDataESSourceXML::PrepareSequence(" << label << ")";
 
   vector<CTPPSRPAlignmentCorrectionsDataSequence> sequences;
+  sequences.reserve(files.size());
   for (const auto &file : files)
     sequences.emplace_back(CTPPSRPAlignmentCorrectionsMethods::loadFromXML(file));
 

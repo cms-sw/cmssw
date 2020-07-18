@@ -46,7 +46,7 @@ namespace edm {
     // Create new track list; Rely on the fact that addSignals gets called
     // first...
 
-    NewTrackList_ = std::unique_ptr<reco::TrackCollection>(new reco::TrackCollection());
+    NewTrackList_ = std::make_unique<reco::TrackCollection>();
 
     // grab tracks, store copy
 
