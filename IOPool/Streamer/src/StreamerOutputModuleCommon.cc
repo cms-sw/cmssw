@@ -283,7 +283,7 @@ namespace edm {
   SerializeDataBuffer* StreamerOutputModuleCommon::getSerializerBuffer() {
     auto* ptr = serializerBuffer_.get();
     if (!ptr) {
-      serializerBuffer_.reset(new SerializeDataBuffer);
+      serializerBuffer_ = std::make_unique<SerializeDataBuffer>();
       ptr = serializerBuffer_.get();
     }
     return ptr;

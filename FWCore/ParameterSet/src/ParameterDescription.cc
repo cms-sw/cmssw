@@ -417,7 +417,7 @@ namespace edm {
         ss << std::setprecision(17) << value;
         result = ss.str();
       }
-      if (result.size() > 15 && std::string::npos != result.find(".")) {
+      if (result.size() > 15 && std::string::npos != result.find('.')) {
         std::stringstream ss;
         ss << std::setprecision(15) << value;
         std::string resultLessPrecision = ss.str();

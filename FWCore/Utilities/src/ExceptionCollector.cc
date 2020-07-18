@@ -3,6 +3,7 @@
 #include "FWCore/Utilities/interface/ConvertException.h"
 
 #include <exception>
+#include <memory>
 
 namespace edm {
 
@@ -41,7 +42,7 @@ namespace edm {
       ++nExceptions_;
       if (nExceptions_ == 1) {
         firstException_.reset(ex.clone());
-        accumulatedExceptions_.reset(new MultipleException(ex.returnCode(), initialMessage_));
+        accumulatedExceptions_ = std::make_unique<MultipleException>(ex.returnCode(), initialMessage_);
       }
       *accumulatedExceptions_ << nExceptions_ << "\n" << ex.explainSelf();
     }
@@ -51,7 +52,7 @@ namespace edm {
     ++nExceptions_;
     if (nExceptions_ == 1) {
       firstException_.reset(exception.clone());
-      accumulatedExceptions_.reset(new MultipleException(exception.returnCode(), initialMessage_));
+      accumulatedExceptions_ = std::make_unique<MultipleException>(exception.returnCode(), initialMessage_);
     }
     *accumulatedExceptions_ << "----- Exception " << nExceptions_ << " -----"
                             << "\n"
