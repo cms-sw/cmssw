@@ -65,7 +65,8 @@ TripletEngine::TripletEngine(string name, Settings const &settings, Globals *glo
     secondphibits_ = settings_.nfinephi(1, iSeed_);
     thirdphibits_ = settings_.nfinephi(2, iSeed_);
   }
-  readTables();
+  if (settings_.enableTripletTables() && !settings_.writeTripletTables())
+    readTables();
 }
 
 TripletEngine::~TripletEngine() {
@@ -201,29 +202,28 @@ void TripletEngine::execute() {
               index = (index << secondbend.nbits()) + secondbend.value();
               index = (index << thirdbend.nbits()) + thirdbend.value();
 
-              if (index >= table_.size())
-                table_.resize(index + 1, false);
-
-              if (!table_[index]) {
+              if ((settings_.enableTripletTables() && !settings_.writeTripletTables()) && (index >= table_.size() || !table_[index])) {
                 if (settings_.debugTracklet()) {
                   edm::LogVerbatim("Tracklet")
                       << "Stub pair rejected because of stub pt cut bends : "
                       << benddecode(secondvmstub.bend().value(), secondvmstub.isPSmodule()) << " "
                       << benddecode(thirdvmstub.bend().value(), thirdvmstub.isPSmodule());
                 }
-                if (!settings_.writeTripletTables())
-                  continue;
+                continue;
               }
-              if (settings_.writeTripletTables())
+              if (settings_.writeTripletTables()) {
+                if (index >= table_.size())
+                  table_.resize(index + 1, false);
                 table_[index] = true;
 
-              const unsigned spIndex = stubpairs_.at(i)->getIndex(j);
-              const string &tedName = stubpairs_.at(i)->getTEDName(j);
-              if (!tmpSPTable_.count(tedName))
-                tmpSPTable_[tedName];
-              if (spIndex >= tmpSPTable_.at(tedName).size())
-                tmpSPTable_.at(tedName).resize(spIndex + 1);
-              tmpSPTable_.at(tedName).at(spIndex).push_back(stubpairs_.at(i)->getName());
+                const unsigned spIndex = stubpairs_.at(i)->getIndex(j);
+                const string &tedName = stubpairs_.at(i)->getTEDName(j);
+                if (!tmpSPTable_.count(tedName))
+                  tmpSPTable_[tedName];
+                if (spIndex >= tmpSPTable_.at(tedName).size())
+                  tmpSPTable_.at(tedName).resize(spIndex + 1);
+                tmpSPTable_.at(tedName).at(spIndex).push_back(stubpairs_.at(i)->getName());
+              }
 
               if (settings_.debugTracklet())
                 edm::LogVerbatim("Tracklet") << "Adding layer-layer pair in " << getName();
@@ -284,27 +284,28 @@ void TripletEngine::execute() {
               index = (index << secondbend.nbits()) + secondbend.value();
               index = (index << thirdbend.nbits()) + thirdbend.value();
 
-              if (index >= table_.size())
-                table_.resize(index + 1, false);
-
-              if (!table_[index]) {
+              if ((settings_.enableTripletTables() && !settings_.writeTripletTables()) && (index >= table_.size() || !table_[index])) {
                 if (settings_.debugTracklet()) {
                   edm::LogVerbatim("Tracklet")
                       << "Stub triplet rejected because of stub pt cut bends : "
                       << benddecode(secondvmstub.bend().value(), secondvmstub.isPSmodule()) << " "
                       << benddecode(thirdvmstub.bend().value(), thirdvmstub.isPSmodule());
                 }
+                continue;
               }
-              if (settings_.writeTripletTables())
+              if (settings_.writeTripletTables()) {
+                if (index >= table_.size())
+                  table_.resize(index + 1, false);
                 table_[index] = true;
 
-              const unsigned spIndex = stubpairs_.at(i)->getIndex(j);
-              const string &tedName = stubpairs_.at(i)->getTEDName(j);
-              if (!tmpSPTable_.count(tedName))
-                tmpSPTable_[tedName];
-              if (spIndex >= tmpSPTable_.at(tedName).size())
-                tmpSPTable_.at(tedName).resize(spIndex + 1);
-              tmpSPTable_.at(tedName).at(spIndex).push_back(stubpairs_.at(i)->getName());
+                const unsigned spIndex = stubpairs_.at(i)->getIndex(j);
+                const string &tedName = stubpairs_.at(i)->getTEDName(j);
+                if (!tmpSPTable_.count(tedName))
+                  tmpSPTable_[tedName];
+                if (spIndex >= tmpSPTable_.at(tedName).size())
+                  tmpSPTable_.at(tedName).resize(spIndex + 1);
+                tmpSPTable_.at(tedName).at(spIndex).push_back(stubpairs_.at(i)->getName());
+              }
 
               if (settings_.debugTracklet())
                 edm::LogVerbatim("Tracklet") << "Adding layer-disk pair in " << getName();
@@ -366,27 +367,28 @@ void TripletEngine::execute() {
               index = (index << secondbend.nbits()) + secondbend.value();
               index = (index << thirdbend.nbits()) + thirdbend.value();
 
-              if (index >= table_.size())
-                table_.resize(index + 1, false);
-
-              if (!table_[index]) {
+              if ((settings_.enableTripletTables() && !settings_.writeTripletTables()) && (index >= table_.size() || !table_[index])) {
                 if (settings_.debugTracklet()) {
                   edm::LogVerbatim("Tracklet")
                       << "Stub pair rejected because of stub pt cut bends : "
                       << benddecode(secondvmstub.bend().value(), secondvmstub.isPSmodule()) << " "
                       << benddecode(thirdvmstub.bend().value(), thirdvmstub.isPSmodule());
                 }
+                continue;
               }
-              if (settings_.writeTripletTables())
+              if (settings_.writeTripletTables()) {
+                if (index >= table_.size())
+                  table_.resize(index + 1, false);
                 table_[index] = true;
 
-              const unsigned spIndex = stubpairs_.at(i)->getIndex(j);
-              const string &tedName = stubpairs_.at(i)->getTEDName(j);
-              if (!tmpSPTable_.count(tedName))
-                tmpSPTable_[tedName];
-              if (spIndex >= tmpSPTable_.at(tedName).size())
-                tmpSPTable_.at(tedName).resize(spIndex + 1);
-              tmpSPTable_.at(tedName).at(spIndex).push_back(stubpairs_.at(i)->getName());
+                const unsigned spIndex = stubpairs_.at(i)->getIndex(j);
+                const string &tedName = stubpairs_.at(i)->getTEDName(j);
+                if (!tmpSPTable_.count(tedName))
+                  tmpSPTable_[tedName];
+                if (spIndex >= tmpSPTable_.at(tedName).size())
+                  tmpSPTable_.at(tedName).resize(spIndex + 1);
+                tmpSPTable_.at(tedName).at(spIndex).push_back(stubpairs_.at(i)->getName());
+              }
 
               if (settings_.debugTracklet())
                 edm::LogVerbatim("Tracklet") << "Adding layer-disk pair in " << getName();

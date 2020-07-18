@@ -30,6 +30,8 @@ namespace trklet {
 
     void readTables();
 
+    const short memNameToIndex(const std::string &name);
+
   private:
     int layer1_;
     int layer2_;
@@ -41,7 +43,7 @@ namespace trklet {
 
     std::vector<StubPairsMemory*> stubpairs_;
 
-    std::vector<std::set<std::string> > table_;
+    std::vector<std::set<short> > table_;
 
     int firstphibits_;
     int secondphibits_;
