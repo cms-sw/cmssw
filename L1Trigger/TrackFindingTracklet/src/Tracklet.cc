@@ -272,7 +272,7 @@ std::string Tracklet::trackletprojstr(int layer) const {
   if (trackletIndex_ < 0 || trackletIndex_ > (int)settings_.ntrackletmax()) {
     throw cms::Exception("BadConfig") << __FILE__ << " " << __LINE__ << " trackletIndex_ = " << trackletIndex_;
   }
-  tmp.set(trackletIndex_, 7, true, __LINE__, __FILE__);
+  tmp.set(trackletIndex_, settings_.nbitstrackletindex(), true, __LINE__, __FILE__);
   FPGAWord tcid;
   if (settings_.extended()) {
     tcid.set(TCIndex_, 8, true, __LINE__, __FILE__);
@@ -292,7 +292,7 @@ std::string Tracklet::trackletprojstrD(int disk) const {
   if (trackletIndex_ < 0 || trackletIndex_ > (int)settings_.ntrackletmax()) {
     throw cms::Exception("BadConfig") << __FILE__ << " " << __LINE__ << " trackletIndex_ = " << trackletIndex_;
   }
-  tmp.set(trackletIndex_, 7, true, __LINE__, __FILE__);
+  tmp.set(trackletIndex_, settings_.nbitstrackletindex(), true, __LINE__, __FILE__);
   FPGAWord tcid;
   if (settings_.extended()) {
     tcid.set(TCIndex_, 8, true, __LINE__, __FILE__);
@@ -377,7 +377,7 @@ std::string Tracklet::fullmatchstr(int layer) {
   if (trackletIndex_ < 0 || trackletIndex_ > (int)settings_.ntrackletmax()) {
     throw cms::Exception("BadConfig") << __FILE__ << " " << __LINE__ << " trackletIndex_ = " << trackletIndex_;
   }
-  tmp.set(trackletIndex_, 7, true, __LINE__, __FILE__);
+  tmp.set(trackletIndex_, settings_.nbitstrackletindex(), true, __LINE__, __FILE__);
   FPGAWord tcid;
   if (settings_.extended()) {
     tcid.set(TCIndex_, 8, true, __LINE__, __FILE__);
@@ -396,7 +396,7 @@ std::string Tracklet::fullmatchdiskstr(int disk) {
   if (trackletIndex_ < 0 || trackletIndex_ > (int)settings_.ntrackletmax()) {
     throw cms::Exception("BadConfig") << __FILE__ << " " << __LINE__ << " trackletIndex_ = " << trackletIndex_;
   }
-  tmp.set(trackletIndex_, 7, true, __LINE__, __FILE__);
+  tmp.set(trackletIndex_, settings_.nbitstrackletindex(), true, __LINE__, __FILE__);
   FPGAWord tcid;
   if (settings_.extended()) {
     tcid.set(TCIndex_, 8, true, __LINE__, __FILE__);
@@ -839,9 +839,9 @@ int Tracklet::disk2() const {
   return innerStub_->disk() - 1;
 }
 
-void Tracklet::setTrackletIndex(int index) {
+void Tracklet::setTrackletIndex(unsigned int index) {
   trackletIndex_ = index;
-  assert(index < 128);
+  assert(index <= settings_.ntrackletmax());
 }
 
 int Tracklet::getISeed() const {
