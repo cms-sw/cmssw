@@ -114,7 +114,6 @@ trackerDict = {
         ],
         "sim" : [
             'from Geometry.TrackerNumberingBuilder.trackerNumberingGeometry_cfi import *',
-            'from SLHCUpgradeSimulations.Geometry.fakeConditions_phase2TkT14_cff import *',
         ],
         "reco" : [
             'from Geometry.CommonTopologies.globalTrackingGeometry_cfi import *',
@@ -149,7 +148,6 @@ trackerDict = {
         ],
         "sim" : [
             'from Geometry.TrackerNumberingBuilder.trackerNumberingGeometry_cfi import *',
-            'from SLHCUpgradeSimulations.Geometry.fakeConditions_phase2TkT14_cff import *',
         ],
         "reco" : [
             'from Geometry.CommonTopologies.globalTrackingGeometry_cfi import *',
@@ -184,7 +182,6 @@ trackerDict = {
         ],
         "sim" : [
             'from Geometry.TrackerNumberingBuilder.trackerNumberingGeometry_cfi import *',
-            'from SLHCUpgradeSimulations.Geometry.fakeConditions_phase2TkT14_cff import *',
         ],
         "reco" : [
             'from Geometry.CommonTopologies.globalTrackingGeometry_cfi import *',
@@ -219,7 +216,6 @@ trackerDict = {
         ],
         "sim" : [
             'from Geometry.TrackerNumberingBuilder.trackerNumberingGeometry_cfi import *',
-            'from SLHCUpgradeSimulations.Geometry.fakeConditions_phase2TkT14_cff import *',
         ],
         "reco" : [
             'from Geometry.CommonTopologies.globalTrackingGeometry_cfi import *',
