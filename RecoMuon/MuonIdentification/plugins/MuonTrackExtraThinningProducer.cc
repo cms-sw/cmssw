@@ -9,12 +9,12 @@ MuonTrackExtraSelector::MuonTrackExtraSelector(edm::ParameterSet const& pset, ed
       muonToken_(cc.consumes<edm::View<reco::Muon> >(pset.getParameter<edm::InputTag>("muonTag"))),
       selector_(cut_) {}
 
-void MuonTrackExtraSelector::fillDescription(edm::ParameterSetDescription& desc) {
-  desc.add<std::string>("cut");
-  desc.add<bool>("slimTrajParams");
-  desc.add<bool>("slimResiduals");
-  desc.add<bool>("slimFinalState");
-  desc.add<edm::InputTag>("muonTag");
+void MuonTrackExtraSelector::fillPSetDescription(edm::ParameterSetDescription& desc) {
+  desc.add<std::string>("cut", "");
+  desc.add<bool>("slimTrajParams", false);
+  desc.add<bool>("slimResiduals", false);
+  desc.add<bool>("slimFinalState", false);
+  desc.add<edm::InputTag>("muonTag", edm::InputTag("muons"));
 }
 
 void MuonTrackExtraSelector::preChooseRefs(edm::Handle<reco::TrackExtraCollection> trackExtras,

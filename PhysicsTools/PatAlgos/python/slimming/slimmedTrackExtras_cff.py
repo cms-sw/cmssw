@@ -8,6 +8,9 @@ import FWCore.ParameterSet.Config as cms
 slimmedGeneralTrackExtras = muonTrackExtraThinningProducer.clone(inputTag = cms.InputTag("thinnedGeneralTrackExtras"),
                                                   muonTag = "slimmedMuons",
                                                   cut = "",
+                                                  slimTrajParams = cms.bool(True),
+                                                  slimResiduals = cms.bool(True),
+                                                  slimFinalState = cms.bool(True),
                                                   )
 
 #this one points to the original full collection of TrackExtras since it is available in the AOD

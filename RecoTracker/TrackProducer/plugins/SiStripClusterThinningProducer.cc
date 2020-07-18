@@ -12,7 +12,7 @@ SiStripClusterSelector::SiStripClusterSelector(edm::ParameterSet const& pset, ed
   }
 }
 
-void SiStripClusterSelector::fillDescription(edm::ParameterSetDescription& desc) {
+void SiStripClusterSelector::fillPSetDescription(edm::ParameterSetDescription& desc) {
   desc.add<std::vector<edm::InputTag> >("trackingRecHitsTags");
 }
 

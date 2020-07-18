@@ -17,7 +17,7 @@ namespace edm {
 class MuonTrackExtraSelector : public edm::ThinningSelectorByRefBase<reco::TrackExtraRef> {
 public:
   MuonTrackExtraSelector(edm::ParameterSet const& pset, edm::ConsumesCollector&& cc);
-  static void fillDescription(edm::ParameterSetDescription& desc);
+  static void fillPSetDescription(edm::ParameterSetDescription& desc);
   void preChooseRefs(edm::Handle<reco::TrackExtraCollection> trackExtras,
                      edm::Event const& event,
                      edm::EventSetup const& es) override;

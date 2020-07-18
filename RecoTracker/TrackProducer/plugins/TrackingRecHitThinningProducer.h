@@ -16,7 +16,7 @@ namespace edm {
 class TrackingRecHitSelector : public edm::ThinningSelectorByRefBase<edm::Ref<TrackingRecHitCollection> > {
 public:
   TrackingRecHitSelector(edm::ParameterSet const& pset, edm::ConsumesCollector&& cc);
-  static void fillDescription(edm::ParameterSetDescription& desc);
+  static void fillPSetDescription(edm::ParameterSetDescription& desc);
   void preChooseRefs(edm::Handle<TrackingRecHitCollection> hits,
                      edm::Event const& event,
                      edm::EventSetup const& es) override;

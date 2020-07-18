@@ -5,17 +5,21 @@ from RecoTracker.TrackProducer.siStripClusterThinningProducer_cfi import siStrip
 
 import FWCore.ParameterSet.Config as cms
 
-thinnedGeneralTrackExtras = muonTrackExtraThinningProducer.clone(inputTag = cms.InputTag("generalTracks"))
+thinnedGeneralTrackExtras = muonTrackExtraThinningProducer.clone(inputTag = cms.InputTag("generalTracks"),
+                                                                  cut = cms.string("pt > 3. || isPFMuon"),
+                                                                  slimTrajParams = cms.bool(True),
+                                                                  slimResiduals = cms.bool(True),
+                                                                  slimFinalState = cms.bool(True))
 
 #standalone muons not needed here because full collection of both TrackExtras and TrackingRecHits are stored in AOD
 
-thinnedGlobalMuonExtras = muonTrackExtraThinningProducer.clone(inputTag = cms.InputTag("globalMuons"))
+thinnedGlobalMuonExtras = thinnedGeneralTrackExtras.clone(inputTag = cms.InputTag("globalMuons"))
 
-thinnedTevMuonExtrasFirstHit = muonTrackExtraThinningProducer.clone(inputTag = cms.InputTag("tevMuons","firstHit"))
+thinnedTevMuonExtrasFirstHit = thinnedGeneralTrackExtras.clone(inputTag = cms.InputTag("tevMuons","firstHit"))
 
-thinnedTevMuonExtrasPicky = muonTrackExtraThinningProducer.clone(inputTag = cms.InputTag("tevMuons","picky"))
+thinnedTevMuonExtrasPicky = thinnedGeneralTrackExtras.clone(inputTag = cms.InputTag("tevMuons","picky"))
 
-thinnedTevMuonExtrasDyt = muonTrackExtraThinningProducer.clone(inputTag = cms.InputTag("tevMuons","dyt"))
+thinnedTevMuonExtrasDyt = thinnedGeneralTrackExtras.clone(inputTag = cms.InputTag("tevMuons","dyt"))
 
 thinnedGeneralTrackHits = trackingRecHitThinningProducer.clone(inputTag = cms.InputTag("generalTracks"),
                                                                trackExtraTag = cms.InputTag("thinnedGeneralTrackExtras"))
@@ -32,13 +36,15 @@ thinnedTevMuonHitsPicky = trackingRecHitThinningProducer.clone(inputTag = cms.In
 thinnedTevMuonHitsDyt = trackingRecHitThinningProducer.clone(inputTag = cms.InputTag("tevMuons","dyt"),
                                                                trackExtraTag = cms.InputTag("thinnedTevMuonExtrasDyt"))
 
-thinnedSiPixelClusters = siPixelClusterThinningProducer.clone(trackingRecHitsTags=cms.VInputTag("thinnedGeneralTrackHits",
+thinnedSiPixelClusters = siPixelClusterThinningProducer.clone(inputTag = cms.InputTag("siPixelClusters"),
+                                                              trackingRecHitsTags=cms.VInputTag("thinnedGeneralTrackHits",
                                                                                     "thinnedGlobalMuonHits",
                                                                                     "thinnedTevMuonHitsFirstHit",
                                                                                     "thinnedTevMuonHitsPicky",
                                                                                     "thinnedTevMuonHitsDyt"))
 
-thinnedSiStripClusters = siStripClusterThinningProducer.clone(trackingRecHitsTags=cms.VInputTag("thinnedGeneralTrackHits",
+thinnedSiStripClusters = siStripClusterThinningProducer.clone(inputTag = cms.InputTag("siStripClusters"),
+                                                              trackingRecHitsTags=cms.VInputTag("thinnedGeneralTrackHits",
                                                                                     "thinnedGlobalMuonHits",
                                                                                     "thinnedTevMuonHitsFirstHit",
                                                                                     "thinnedTevMuonHitsPicky",

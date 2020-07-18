@@ -4,7 +4,7 @@
 TrackingRecHitSelector::TrackingRecHitSelector(edm::ParameterSet const& pset, edm::ConsumesCollector&& cc)
     : trackExtraToken_(cc.consumes<reco::TrackExtraCollection>(pset.getParameter<edm::InputTag>("trackExtraTag"))) {}
 
-void TrackingRecHitSelector::fillDescription(edm::ParameterSetDescription& desc) {
+void TrackingRecHitSelector::fillPSetDescription(edm::ParameterSetDescription& desc) {
   desc.add<edm::InputTag>("trackExtraTag");
 }
 

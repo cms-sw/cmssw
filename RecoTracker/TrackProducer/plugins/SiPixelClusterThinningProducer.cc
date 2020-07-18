@@ -11,7 +11,7 @@ SiPixelClusterSelector::SiPixelClusterSelector(edm::ParameterSet const& pset, ed
   }
 }
 
-void SiPixelClusterSelector::fillDescription(edm::ParameterSetDescription& desc) {
+void SiPixelClusterSelector::fillPSetDescription(edm::ParameterSetDescription& desc) {
   desc.add<std::vector<edm::InputTag> >("trackingRecHitsTags");
 }
 

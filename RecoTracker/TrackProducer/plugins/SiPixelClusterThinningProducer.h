@@ -20,7 +20,7 @@ class SiPixelClusterSelector
     : public edm::ThinningSelectorByRefBase<edm::Ref<edmNew::DetSetVector<SiPixelCluster>, SiPixelCluster> > {
 public:
   SiPixelClusterSelector(edm::ParameterSet const& pset, edm::ConsumesCollector&& cc);
-  static void fillDescription(edm::ParameterSetDescription& desc);
+  static void fillPSetDescription(edm::ParameterSetDescription& desc);
   void preChooseRefs(edm::Handle<edmNew::DetSetVector<SiPixelCluster> > clusters,
                      edm::Event const& event,
                      edm::EventSetup const& es) override;

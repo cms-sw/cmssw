@@ -19,7 +19,7 @@ class SiStripClusterSelector
     : public edm::ThinningSelectorByRefBase<edm::Ref<edmNew::DetSetVector<SiStripCluster>, SiStripCluster> > {
 public:
   SiStripClusterSelector(edm::ParameterSet const& pset, edm::ConsumesCollector&& cc);
-  static void fillDescription(edm::ParameterSetDescription& desc);
+  static void fillPSetDescription(edm::ParameterSetDescription& desc);
   void preChooseRefs(edm::Handle<edmNew::DetSetVector<SiStripCluster> > clusters,
                      edm::Event const& event,
                      edm::EventSetup const& es) override;
