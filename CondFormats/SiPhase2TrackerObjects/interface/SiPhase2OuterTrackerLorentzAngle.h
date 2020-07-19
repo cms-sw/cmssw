@@ -3,6 +3,7 @@
 
 #include "CondFormats/Serialization/interface/Serializable.h"
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
+#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 
 #include <vector>
 #include <map>
@@ -26,6 +27,10 @@ public:
 
   inline void putLorentsAngles(std::unordered_map<unsigned int, float>& LA) { m_LA = LA; }
   inline const std::unordered_map<unsigned int, float>& getLorentzAngles() const { return m_LA; }
+
+  void getLorentzAngles_PSP(const TrackerGeometry*, std::unordered_map<unsigned int, float>&) const;
+  void getLorentzAngles_PSS(const TrackerGeometry*, std::unordered_map<unsigned int, float>&) const;
+  void getLorentzAngles_2S(const TrackerGeometry*, std::unordered_map<unsigned int, float>&) const;
 
   bool putLorentzAngle(const uint32_t&, float);
   float getLorentzAngle(const uint32_t&) const;
