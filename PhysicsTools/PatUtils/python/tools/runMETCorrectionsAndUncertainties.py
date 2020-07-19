@@ -372,8 +372,8 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
             from PhysicsTools.PatUtils.pfeGammaToCandidate_cfi import pfeGammaToCandidate
             task = getPatAlgosToolsTask(process)
             addToProcessAndTask("pfeGammaToCandidate", pfeGammaToCandidate.clone(
-                                electrons = copy.copy(electronCollection),
-                                photons = copy.copy(photonCollection)),
+                                  electrons = copy.copy(electronCollection),
+                                  photons = copy.copy(photonCollection)),
                                 process, task)
             if hasattr(process,"patElectrons") and process.patElectrons.electronSource == cms.InputTag("reducedEgamma","reducedGedGsfElectrons"):
                 process.pfeGammaToCandidate.electron2pf = "reducedEgamma:reducedGsfElectronPfCandMap"
