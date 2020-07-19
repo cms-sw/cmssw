@@ -63,14 +63,6 @@ private:
 };
 
 //
-// constants, enums and typedefs
-//
-
-//
-// static data member definitions
-//
-
-//
 // constructors and destructor
 //
 SiPhase2OuterTrackerLorentzAngleWriter::SiPhase2OuterTrackerLorentzAngleWriter(const edm::ParameterSet& iConfig)
@@ -80,7 +72,8 @@ SiPhase2OuterTrackerLorentzAngleWriter::SiPhase2OuterTrackerLorentzAngleWriter(c
 
 SiPhase2OuterTrackerLorentzAngleWriter::~SiPhase2OuterTrackerLorentzAngleWriter() {
   delete lorentzAngle;
-  edm::LogInfo("SiPhase2OuterTrackerLorentzAngleWriter") << "SiPhase2OuterTrackerLorentzAngleWriter::~SiPhase2OuterTrackerLorentzAngleWriter" << std::endl;
+  edm::LogInfo("SiPhase2OuterTrackerLorentzAngleWriter")
+      << "SiPhase2OuterTrackerLorentzAngleWriter::~SiPhase2OuterTrackerLorentzAngleWriter" << std::endl;
 }
 
 //
@@ -91,7 +84,8 @@ SiPhase2OuterTrackerLorentzAngleWriter::~SiPhase2OuterTrackerLorentzAngleWriter(
 void SiPhase2OuterTrackerLorentzAngleWriter::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
   using Phase2TrackerGeomDetUnit = PixelGeomDetUnit;
   using namespace edm;
-  edm::LogInfo("SiPhase2OuterTrackerLorentzAngleWriter") << "SiPhase2OuterTrackerLorentzAngleWriter::analyze " << std::endl;
+  edm::LogInfo("SiPhase2OuterTrackerLorentzAngleWriter")
+      << "SiPhase2OuterTrackerLorentzAngleWriter::analyze " << std::endl;
 
   // Database services (write)
   edm::Service<cond::service::PoolDBOutputService> mydbservice;
@@ -116,7 +110,8 @@ void SiPhase2OuterTrackerLorentzAngleWriter::analyze(const edm::Event& iEvent, c
   // Retrieve old style tracker geometry from geometry
   edm::ESHandle<TrackerGeometry> pDD;
   iSetup.get<TrackerDigiGeometryRecord>().get(pDD);
-  edm::LogInfo("SiPhase2OuterTrackerLorentzAngleWriter") << " There are " << pDD->detUnits().size() << " modules" << std::endl;
+  edm::LogInfo("SiPhase2OuterTrackerLorentzAngleWriter")
+      << " There are " << pDD->detUnits().size() << " modules in this geometry." << std::endl;
 
   for (auto const& det_u : pDD->detUnits()) {
     const DetId detid = det_u->geographicalId();
@@ -127,12 +122,15 @@ void SiPhase2OuterTrackerLorentzAngleWriter::analyze(const edm::Event& iEvent, c
       assert(pixdet);
       LogDebug("SiPhase2OuterTrackerLorentzAngleWriter") << rawId << " is a " << subid << " det" << std::endl;
       if (subid == StripSubdetector::TOB || subid == StripSubdetector::TID) {
+        LogDebug("SiPhase2OuterTrackerLorentzAngleWriter")
+            << "subdetector ID:" << subid << " layer:" << tTopo->layer(detid) << std::endl;
         detsLAtoDB[rawId] = m_value;
       }
     }
   }
 
-  edm::LogInfo("SiPhase2OuterTrackerLorentzAngleWriter") << " There are " << detsLAtoDB.size() << " values assigned" << std::endl;
+  edm::LogInfo("SiPhase2OuterTrackerLorentzAngleWriter")
+      << " There are " << detsLAtoDB.size() << " OT Lorentz Angle values assigned" << std::endl;
 
   // SiStripLorentzAngle object
   lorentzAngle = new SiPhase2OuterTrackerLorentzAngle();
