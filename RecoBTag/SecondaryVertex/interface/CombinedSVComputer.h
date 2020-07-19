@@ -345,4 +345,3 @@ void CombinedSVComputer::fillCommonVariables(reco::TaggingVariableList & vars, r
 
 
 #endif // RecoBTag_SecondaryVertex_CombinedSVComputer_h
-
