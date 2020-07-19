@@ -48,18 +48,14 @@ OuterTrackerMonitorTrackingParticles::OuterTrackerMonitorTrackingParticles(const
       conf_.getParameter<edm::InputTag>("MCTruthClusterInputTag"));
   ttTrackMCTruthToken_ = consumes<TTTrackAssociationMap<Ref_Phase2TrackerDigi_>>(
       conf_.getParameter<edm::InputTag>("MCTruthTrackInputTag"));
-  L1Tk_nPar = conf_.getParameter<int>("L1Tk_nPar");                 // 4 or 5(d0) track parameters
   L1Tk_minNStub = conf_.getParameter<int>("L1Tk_minNStub");         // min number of stubs in the track
-  L1Tk_maxChi2 = conf_.getParameter<double>("L1Tk_maxChi2");        // maximum chi2 of the track
   L1Tk_maxChi2dof = conf_.getParameter<double>("L1Tk_maxChi2dof");  // maximum chi2/dof of the track
   TP_minNStub = conf_.getParameter<int>("TP_minNStub");             // min number of stubs in the tracking particle to
   //min number of layers with stubs in the tracking particle to consider matching
   TP_minNLayersStub = conf_.getParameter<int>("TP_minNLayersStub");
-  TP_minPt = conf_.getParameter<double>("TP_minPt");                 // min pT to consider matching
-  TP_maxPt = conf_.getParameter<double>("TP_maxPt");                 // max pT to consider matching
-  TP_maxEta = conf_.getParameter<double>("TP_maxEta");               // max eta to consider matching
-  TP_maxVtxZ = conf_.getParameter<double>("TP_maxVtxZ");             // max vertZ (or z0) to consider matching
-  TP_select_eventid = conf_.getParameter<int>("TP_select_eventid");  // PI or not
+  TP_minPt = conf_.getParameter<double>("TP_minPt");      // min pT to consider matching
+  TP_maxEta = conf_.getParameter<double>("TP_maxEta");    // max eta to consider matching
+  TP_maxVtxZ = conf_.getParameter<double>("TP_maxVtxZ");  // max vertZ (or z0) to consider matching
 }
 
 OuterTrackerMonitorTrackingParticles::~OuterTrackerMonitorTrackingParticles() {
@@ -94,7 +90,7 @@ void OuterTrackerMonitorTrackingParticles::analyze(const edm::Event &iEvent, con
     edm::Ptr<TrackingParticle> tp_ptr(trackingParticleHandle, this_tp);
     this_tp++;
 
-    int tmp_eventid = iterTP.eventId().event();
+    // int tmp_eventid = iterTP.eventId().event();
     float tmp_tp_pt = iterTP.pt();
     float tmp_tp_phi = iterTP.phi();
     float tmp_tp_eta = iterTP.eta();
@@ -120,12 +116,9 @@ void OuterTrackerMonitorTrackingParticles::analyze(const edm::Event &iEvent, con
     }
 
     int nStubLayerTP = 0;
-    int nStubLayerTP_g = 0;
     for (int isum = 0; isum < 11; isum++) {
       if (hasStubInLayer[isum] >= 1)
         nStubLayerTP += 1;
-      else if (hasStubInLayer[isum] == 2)
-        nStubLayerTP_g += 1;
     }
 
     if (std::fabs(tmp_tp_eta) > TP_maxEta)
@@ -137,8 +130,8 @@ void OuterTrackerMonitorTrackingParticles::analyze(const edm::Event &iEvent, con
       trackParts_Phi->Fill(tmp_tp_phi);
     }
 
-    if (TP_select_eventid == 0 && tmp_eventid != 0)
-      continue;  //only care about tracking particles from the primary interaction for efficiency/resolution
+    // if (TP_select_eventid == 0 && tmp_eventid != 0)
+    //   continue;  //only care about tracking particles from the primary interaction for efficiency/resolution
     int nStubTP = -1;
     if (MCTruthTTStubHandle.isValid()) {
       std::vector<edm::Ref<edmNew::DetSetVector<TTStub<Ref_Phase2TrackerDigi_>>, TTStub<Ref_Phase2TrackerDigi_>>>
@@ -240,7 +233,7 @@ void OuterTrackerMonitorTrackingParticles::analyze(const edm::Event &iEvent, con
         dmatch_eta = std::fabs(my_tp->p4().eta() - tmp_tp_eta);
         dmatch_phi = std::fabs(my_tp->p4().phi() - tmp_tp_phi);
         match_id = my_tp->pdgId();
-        float tmp_trk_chi2dof = (thisTrack->chi2()) / (2 * tmp_trk_nstub - L1Tk_nPar);
+        float tmp_trk_chi2dof = thisTrack->chi2Red();
 
         // ensure that track is uniquely matched to the TP we are looking at!
         if (dmatch_pt < 0.1 && dmatch_eta < 0.1 && dmatch_phi < 0.1 && tmp_tp_pdgid == match_id) {
@@ -260,21 +253,16 @@ void OuterTrackerMonitorTrackingParticles::analyze(const edm::Event &iEvent, con
       float tmp_matchtrk_eta = -999;
       float tmp_matchtrk_phi = -999;
       float tmp_matchtrk_VtxZ = -999;
-      float tmp_matchtrk_chi2 = -999;
       float tmp_matchtrk_chi2dof = -999;
       int tmp_matchTrk_nStub = -999;
       float tmp_matchtrk_d0 = -999;
 
       tmp_matchtrk_pt = matchedTracks[i_track]->momentum().perp();
-      tmp_matchtrk_eta = matchedTracks[i_track]->eta();
-      tmp_matchtrk_phi = matchedTracks[i_track]->phi();
+      tmp_matchtrk_eta = matchedTracks[i_track]->momentum().eta();
+      tmp_matchtrk_phi = matchedTracks[i_track]->momentum().phi();
       tmp_matchtrk_VtxZ = matchedTracks[i_track]->z0();
-      tmp_matchtrk_chi2 = matchedTracks[i_track]->chi2();
       tmp_matchtrk_chi2dof = matchedTracks[i_track]->chi2Red();
       tmp_matchTrk_nStub = (int)matchedTracks[i_track]->getStubRefs().size();
-
-      Track_MatchedChi2->Fill(tmp_matchtrk_chi2);
-      Track_MatchedChi2Red->Fill(tmp_matchtrk_chi2dof);
 
       //for d0
       float tmp_matchtrk_x0 = matchedTracks[i_track]->POCA().x();
@@ -282,10 +270,7 @@ void OuterTrackerMonitorTrackingParticles::analyze(const edm::Event &iEvent, con
       tmp_matchtrk_d0 = -tmp_matchtrk_x0 * sin(tmp_matchtrk_phi) + tmp_matchtrk_y0 * cos(tmp_matchtrk_phi);
 
       //Add cuts for the matched tracks, numerator
-      if (tmp_tp_pt > TP_maxPt)
-        continue;
-      if (tmp_matchTrk_nStub < L1Tk_minNStub || tmp_matchtrk_chi2 > L1Tk_maxChi2 ||
-          tmp_matchtrk_chi2dof > L1Tk_maxChi2dof)
+      if (tmp_matchTrk_nStub < L1Tk_minNStub || tmp_matchtrk_chi2dof > L1Tk_maxChi2dof)
         continue;
 
       // fill matched track histograms (if passes all criteria)
@@ -424,30 +409,6 @@ void OuterTrackerMonitorTrackingParticles::bookHistograms(DQMStore::IBooker &iBo
                                   psTrackParts_Phi.getParameter<double>("xmax"));
   trackParts_Phi->setAxisTitle("#phi", 1);
   trackParts_Phi->setAxisTitle("# tracking particles", 2);
-
-  // For tracks correctly matched to truth-level track
-  iBooker.setCurrentFolder(topFolderName_ + "/Tracks");
-  // chi2
-  edm::ParameterSet psTrack_Chi2 = conf_.getParameter<edm::ParameterSet>("TH1_Track_Chi2");
-  HistoName = "Track_MatchedChi2";
-  Track_MatchedChi2 = iBooker.book1D(HistoName,
-                                     HistoName,
-                                     psTrack_Chi2.getParameter<int32_t>("Nbinsx"),
-                                     psTrack_Chi2.getParameter<double>("xmin"),
-                                     psTrack_Chi2.getParameter<double>("xmax"));
-  Track_MatchedChi2->setAxisTitle("L1 Track #chi^{2}", 1);
-  Track_MatchedChi2->setAxisTitle("# Correctly Matched L1 Tracks", 2);
-
-  // chi2Red
-  edm::ParameterSet psTrack_Chi2Red = conf_.getParameter<edm::ParameterSet>("TH1_Track_Chi2R");
-  HistoName = "Track_MatchedChi2Red";
-  Track_MatchedChi2Red = iBooker.book1D(HistoName,
-                                        HistoName,
-                                        psTrack_Chi2Red.getParameter<int32_t>("Nbinsx"),
-                                        psTrack_Chi2Red.getParameter<double>("xmin"),
-                                        psTrack_Chi2Red.getParameter<double>("xmax"));
-  Track_MatchedChi2Red->setAxisTitle("L1 Track #chi^{2}/ndf", 1);
-  Track_MatchedChi2Red->setAxisTitle("# Correctly Matched L1 Tracks", 2);
 
   // 1D plots for efficiency
   iBooker.setCurrentFolder(topFolderName_ + "/Tracks/Efficiency");

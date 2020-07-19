@@ -15,6 +15,7 @@
 #include <memory>
 #include <string>
 #include <vector>
+#include <bitset>
 
 class OuterTrackerMonitorTTTrack : public DQMEDAnalyzer {
 public:
@@ -24,34 +25,43 @@ public:
   void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
 
   // Distributions of all tracks
-  MonitorElement *Track_NStubs = nullptr;      // Number of stubs per track
-  MonitorElement *Track_Eta_NStubs = nullptr;  // Number of stubs per track vs
-                                               // eta
+  MonitorElement *Track_All_N = nullptr;                 // Number of tracks per event
+  MonitorElement *Track_All_NStubs = nullptr;            // Number of stubs per track
+  MonitorElement *Track_All_NLayersMissed = nullptr;     // Number of layers missed per track
+  MonitorElement *Track_All_Eta_NStubs = nullptr;        // Number of stubs per track vs eta
+  MonitorElement *Track_All_Pt = nullptr;                // pT distrubtion for tracks
+  MonitorElement *Track_All_Eta = nullptr;               // eta distrubtion for tracks
+  MonitorElement *Track_All_Phi = nullptr;               // phi distrubtion for tracks
+  MonitorElement *Track_All_D0 = nullptr;                // d0 distrubtion for tracks
+  MonitorElement *Track_All_VtxZ = nullptr;              // z0 distrubtion for tracks
+  MonitorElement *Track_All_BendChi2 = nullptr;          // Bendchi2 distrubtion for tracks
+  MonitorElement *Track_All_Chi2 = nullptr;              // chi2 distrubtion for tracks
+  MonitorElement *Track_All_Chi2Red = nullptr;           // chi2/dof distrubtion for tracks
+  MonitorElement *Track_All_Chi2RZ = nullptr;            // chi2 r-phi distrubtion for tracks
+  MonitorElement *Track_All_Chi2RPhi = nullptr;          // chi2 r-z distrubtion for tracks
+  MonitorElement *Track_All_Chi2Red_NStubs = nullptr;    // chi2/dof vs number of stubs
+  MonitorElement *Track_All_Chi2Red_Eta = nullptr;       // chi2/dof vs eta of track
+  MonitorElement *Track_All_Eta_BarrelStubs = nullptr;   // eta vs number of stubs in barrel
+  MonitorElement *Track_All_Eta_ECStubs = nullptr;       // eta vs number of stubs in end caps
+  MonitorElement *Track_All_Chi2_Probability = nullptr;  // chi2 probability
 
-  /// Low-quality TTTracks (All tracks)
-  MonitorElement *Track_LQ_N = nullptr;                 // Number of tracks per event
-  MonitorElement *Track_LQ_Pt = nullptr;                // pT distrubtion for tracks
-  MonitorElement *Track_LQ_Eta = nullptr;               // eta distrubtion for tracks
-  MonitorElement *Track_LQ_Phi = nullptr;               // phi distrubtion for tracks
-  MonitorElement *Track_LQ_D0 = nullptr;                // d0 distrubtion for tracks
-  MonitorElement *Track_LQ_VtxZ = nullptr;              // z0 distrubtion for tracks
-  MonitorElement *Track_LQ_Chi2 = nullptr;              // chi2 distrubtion for tracks
-  MonitorElement *Track_LQ_Chi2Red = nullptr;           // chi2/dof distrubtion for tracks
-  MonitorElement *Track_LQ_Chi2Red_NStubs = nullptr;    // chi2/dof vs number of stubs
-  MonitorElement *Track_LQ_Chi2Red_Eta = nullptr;       // chi2/dof vs eta of track
-  MonitorElement *Track_LQ_Eta_BarrelStubs = nullptr;   // eta vs number of stubs in barrel
-  MonitorElement *Track_LQ_Eta_ECStubs = nullptr;       // eta vs number of stubs in end caps
-  MonitorElement *Track_LQ_Chi2_Probability = nullptr;  // chi2 probability
-
-  /// High-quality TTTracks (NStubs >=5, chi2/dof<10)
+  /// High-quality TTTracks; different depending on prompt vs displaced tracks
+  // Quality cuts: chi2/dof<10, bendchi2<2.2 (Prompt), default in config
+  // Quality cuts: chi2/dof<40, bendchi2<2.4 (Extended/Displaced tracks)  MonitorElement *Track_HQ_N = nullptr;                 // Number of tracks per event
   MonitorElement *Track_HQ_N = nullptr;                 // Number of tracks per event
+  MonitorElement *Track_HQ_NStubs = nullptr;            // Number of stubs per track
+  MonitorElement *Track_HQ_NLayersMissed = nullptr;     // Number of layers missed per track
+  MonitorElement *Track_HQ_Eta_NStubs = nullptr;        // Number of stubs per track vs eta
   MonitorElement *Track_HQ_Pt = nullptr;                // pT distrubtion for tracks
   MonitorElement *Track_HQ_Eta = nullptr;               // eta distrubtion for tracks
   MonitorElement *Track_HQ_Phi = nullptr;               // phi distrubtion for tracks
   MonitorElement *Track_HQ_D0 = nullptr;                // d0 distrubtion for tracks
   MonitorElement *Track_HQ_VtxZ = nullptr;              // z0 distrubtion for tracks
+  MonitorElement *Track_HQ_BendChi2 = nullptr;          // Bendchi2 distrubtion for tracks
   MonitorElement *Track_HQ_Chi2 = nullptr;              // chi2 distrubtion for tracks
   MonitorElement *Track_HQ_Chi2Red = nullptr;           // chi2/dof distrubtion for tracks
+  MonitorElement *Track_HQ_Chi2RZ = nullptr;            // chi2 r-z distrubtion for tracks
+  MonitorElement *Track_HQ_Chi2RPhi = nullptr;          // chi2 r-phi distrubtion for tracks
   MonitorElement *Track_HQ_Chi2Red_NStubs = nullptr;    // chi2/dof vs number of stubs
   MonitorElement *Track_HQ_Chi2Red_Eta = nullptr;       // chi2/dof vs eta of track
   MonitorElement *Track_HQ_Eta_BarrelStubs = nullptr;   // eta vs number of stubs in barrel
@@ -64,6 +74,7 @@ private:
 
   unsigned int HQNStubs_;
   double HQChi2dof_;
+  double HQBendChi2_;
   std::string topFolderName_;
 };
 #endif
