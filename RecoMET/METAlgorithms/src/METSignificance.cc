@@ -101,7 +101,7 @@ metsig::METSignificance::getCovariance(const edm::View<reco::Jet>& jets,
          // can't be matched through the sourceCandidatePtrs and may have different energy, but same direction.
 	 if((it.isNonnull()) && (it.isAvailable()) &&
 	    (((!useDeltaRforFootprint_) && ((it->p4()-(*pfCandidates)[i].p4()).Et2()<0.000025)) ||
-	    (( useDeltaRforFootprint_) && (reco::deltaR2(it->p4(),(*pfCandidates)[i].p4())<0.00000025)))){
+	    (( useDeltaRforFootprint_) && (reco::deltaR2(*it,(*pfCandidates)[i])<0.00000025)))){
 	   
 	   cleancand = false;
 	   break;
