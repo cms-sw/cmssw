@@ -10,15 +10,13 @@
 #include <cstdint>
 
 /**
- * Stores the lorentz angle value for all DetIds.
- * The values are saved internally in a std::map<detid, lorentzAngle>.
+ * Stores the Lorentz Angle value for all DetIds.
+ * The values are saved internally in a std::unordered_map<detid, lorentzAngle>.
  * It can be filled either by the complete map (putLorentzAngles) or passing
  * a single detIds and lorentzAngles (putLorentzAngle).
  * In the same way getLorentzAngles returns the complete map, while getLorentzAngle
  * the value corresponding to a given DetId.
  * The printDebug method prints LorentzAngles for all detIds.
- * The printSummary mehtod uses the SiStripDetSummary class to produce a summary
- * of LorentzAngle values divided by subdetector and layer/disk.
  */
 
 class SiPhase2OuterTrackerLorentzAngle {
@@ -35,11 +33,8 @@ public:
   // Prints LorentzAngles for all detIds.
   void printDebug(std::stringstream& ss, const TrackerTopology* trackerTopo) const;
 
-  // Prints the mean value of the LorentzAngle divided by subdetector, layer and mono/stereo.
-  //void printSummary(std::stringstream& ss, const TrackerTopology* trackerTopo) const;
-
 private:
-  std::map<unsigned int, float> m_LA;
+  std::unordered_map<unsigned int, float> m_LA;
 
   COND_SERIALIZABLE;
 };
