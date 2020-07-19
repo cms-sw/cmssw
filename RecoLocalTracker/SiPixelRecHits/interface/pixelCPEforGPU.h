@@ -10,7 +10,6 @@
 #include "DataFormats/GeometrySurface/interface/SOARotation.h"
 #include "Geometry/TrackerGeometryBuilder/interface/phase1PixelTopology.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/cudaCompat.h"
-#include "HeterogeneousCore/CUDAUtilities/interface/cuda_cxx17.h"
 
 namespace pixelCPEforGPU {
 
