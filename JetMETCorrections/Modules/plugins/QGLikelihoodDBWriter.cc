@@ -112,7 +112,7 @@ void QGLikelihoodDBWriter::beginJob() {
 
   // The ROOT file contains the binning for each variable, needed to set up the binning grid
   std::map<TString, std::vector<float>> gridOfBins;
-  for (TString binVariable : {"eta", "pt", "rho"}) {
+  for (const TString& binVariable : {"eta", "pt", "rho"}) {
     if (!getVectorFromFile(f, gridOfBins[binVariable], binVariable + "Bins")) {
       edm::LogError("NoBins") << "Missing bin information for " << binVariable << " in input file" << std::endl;
       return;
@@ -124,9 +124,9 @@ void QGLikelihoodDBWriter::beginJob() {
   // Here we do not store the copies, but try to extend the range of the neighbouring category (will result in less comparisons during application phase)
   std::map<std::vector<int>, TH1*> pdfs;
   std::map<std::vector<int>, QGLikelihoodCategory> categories;
-  for (TString type : {"gluon", "quark"}) {
+  for (const TString& type : {"gluon", "quark"}) {
     int qgIndex = (type == "gluon");  // Keep numbering same as in RecoJets/JetAlgorithms/src/QGLikelihoodCalculator.cc
-    for (TString likelihoodVar : {"mult", "ptD", "axis2"}) {
+    for (const TString& likelihoodVar : {"mult", "ptD", "axis2"}) {
       int varIndex =
           (likelihoodVar == "mult"
                ? 0
@@ -175,7 +175,7 @@ void QGLikelihoodDBWriter::beginJob() {
 
   // Write all categories with their histograms to file
   int i = 0;
-  for (auto category : categories) {
+  for (const auto& category : categories) {
     QGLikelihoodObject::Entry entry;
     entry.category = category.second;
     entry.histogram = transformToHistogramObject(pdfs[category.first]);
