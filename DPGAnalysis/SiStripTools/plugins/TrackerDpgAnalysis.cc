@@ -1508,12 +1508,12 @@ std::map<uint32_t, float> TrackerDpgAnalysis::delay(const std::vector<std::strin
         // one line containing dcuid
         if (pos != std::string::npos) {
           // decode dcuid
-          std::string dcuids = line.substr(pos + 7, line.find(" ", pos) - pos - 8);
+          std::string dcuids = line.substr(pos + 7, line.find(' ', pos) - pos - 8);
           std::istringstream dcuidstr(dcuids);
           dcuidstr >> std::hex >> dcuid;
           // decode delay
           pos = line.find("difpll");
-          std::string diffs = line.substr(pos + 8, line.find(" ", pos) - pos - 9);
+          std::string diffs = line.substr(pos + 8, line.find(' ', pos) - pos - 9);
           std::istringstream diffstr(diffs);
           diffstr >> delay;
           // fill the map
