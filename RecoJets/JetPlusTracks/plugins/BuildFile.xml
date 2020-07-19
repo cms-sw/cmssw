@@ -1,15 +1,22 @@
 <export>
 </export>
-<library file="*.cc" name="RecoJetsJetPlusTracks_plugins">
-  <use name="CondFormats/JetMETObjects"/>
-  <use name="DataFormats/Common"/>
-  <use name="DataFormats/EgammaCandidates"/>
-  <use name="DataFormats/JetReco"/>
-  <use name="DataFormats/Math"/>
-  <use name="DataFormats/MuonReco"/>
-  <use name="DataFormats/TrackReco"/>
-  <use name="FWCore/Framework"/>
-  <use name="FWCore/ParameterSet"/>
-  <use name="boost"/>
-  <flags EDM_PLUGIN="1"/>
+<library   file="*.cc" name="RecoJetsJetPlusTracks_plugins">
+  <use   name="CondFormats/JetMETObjects"/>
+  <use   name="DataFormats/CaloTowers"/>
+  <use   name="DataFormats/Candidate"/>
+  <use   name="DataFormats/PatCandidates"/>
+  <use   name="DataFormats/Common"/>
+  <use   name="DataFormats/DetId"/>
+  <use   name="DataFormats/EgammaCandidates"/>
+  <use   name="DataFormats/JetReco"/>
+  <use   name="DataFormats/Math"/>
+  <use   name="DataFormats/MuonReco"/>
+  <use   name="DataFormats/TrackReco"/>
+  <use   name="DataFormats/VertexReco"/>
+  <use   name="FWCore/Framework"/>
+  <use   name="FWCore/ParameterSet"/>
+  <use   name="Geometry/Records"/>
+  <use   name="Geometry/TrackerGeometryBuilder"/>
+  <use   name="FWCore/PluginManager"/>
+  <flags   EDM_PLUGIN="1"/>
 </library>
