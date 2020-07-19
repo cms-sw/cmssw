@@ -21,7 +21,7 @@
 #include <memory>
 #include <iostream>
 #include <string>
-#include <map>
+#include <unordered_map>
 
 // user include files
 #include "CondCore/DBOutputService/interface/PoolDBOutputService.h"
@@ -42,11 +42,6 @@
 //
 // class declaration
 //
-
-// If the analyzer does not use TFileService, please remove
-// the template argument to the base class so the class inherits
-// from  edm::one::EDAnalyzer<>
-// This will improve performance in multithreaded jobs.
 
 class SiPhase2OuterTrackerLorentzAngleWriter : public edm::one::EDAnalyzer<> {
 public:
@@ -85,7 +80,7 @@ SiPhase2OuterTrackerLorentzAngleWriter::SiPhase2OuterTrackerLorentzAngleWriter(c
 
 SiPhase2OuterTrackerLorentzAngleWriter::~SiPhase2OuterTrackerLorentzAngleWriter() {
   delete lorentzAngle;
-  std::cout << "SiPhase2OuterTrackerLorentzAngleWriter::~SiPhase2OuterTrackerLorentzAngleWriter" << std::endl;
+  edm::LogInfo("SiPhase2OuterTrackerLorentzAngleWriter") << "SiPhase2OuterTrackerLorentzAngleWriter::~SiPhase2OuterTrackerLorentzAngleWriter" << std::endl;
 }
 
 //
@@ -96,22 +91,22 @@ SiPhase2OuterTrackerLorentzAngleWriter::~SiPhase2OuterTrackerLorentzAngleWriter(
 void SiPhase2OuterTrackerLorentzAngleWriter::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
   using Phase2TrackerGeomDetUnit = PixelGeomDetUnit;
   using namespace edm;
-  std::cout << "SiPhase2OuterTrackerLorentzAngleWriter::analyze " << std::endl;
+  edm::LogInfo("SiPhase2OuterTrackerLorentzAngleWriter") << "SiPhase2OuterTrackerLorentzAngleWriter::analyze " << std::endl;
 
   // Database services (write)
   edm::Service<cond::service::PoolDBOutputService> mydbservice;
   if (!mydbservice.isAvailable()) {
-    std::cout << "Service is unavailable" << std::endl;
+    edm::LogWarning("SiPhase2OuterTrackerLorentzAngleWriter") << "Service is unavailable" << std::endl;
     return;
   }
 
   std::string tag = mydbservice->tag(m_record);
   unsigned int irun = iEvent.id().run();
-  std::cout << "tag : " << tag << std::endl;
-  std::cout << "run : " << irun << std::endl;
+  edm::LogVerbatim("SiPhase2OuterTrackerLorentzAngleWriter") << "Writing on tag : " << tag << std::endl;
+  edm::LogVerbatim("SiPhase2OuterTrackerLorentzAngleWriter") << "Usinng as IOV run : " << irun << std::endl;
 
   // map to be filled
-  std::map<unsigned int, float> detsLAtoDB;
+  std::unordered_map<unsigned int, float> detsLAtoDB;
 
   // Retrieve tracker topology from geometry
   edm::ESHandle<TrackerTopology> tTopoHandle;
@@ -121,7 +116,7 @@ void SiPhase2OuterTrackerLorentzAngleWriter::analyze(const edm::Event& iEvent, c
   // Retrieve old style tracker geometry from geometry
   edm::ESHandle<TrackerGeometry> pDD;
   iSetup.get<TrackerDigiGeometryRecord>().get(pDD);
-  std::cout << " There are " << pDD->detUnits().size() << " modules" << std::endl;
+  edm::LogInfo("SiPhase2OuterTrackerLorentzAngleWriter") << " There are " << pDD->detUnits().size() << " modules" << std::endl;
 
   for (auto const& det_u : pDD->detUnits()) {
     const DetId detid = det_u->geographicalId();
@@ -130,19 +125,19 @@ void SiPhase2OuterTrackerLorentzAngleWriter::analyze(const edm::Event& iEvent, c
     if (detid.det() == DetId::Detector::Tracker) {
       const Phase2TrackerGeomDetUnit* pixdet = dynamic_cast<const Phase2TrackerGeomDetUnit*>(det_u);
       assert(pixdet);
-      std::cout << rawId << " is a " << subid << " det" << std::endl;
+      LogDebug("SiPhase2OuterTrackerLorentzAngleWriter") << rawId << " is a " << subid << " det" << std::endl;
       if (subid == StripSubdetector::TOB || subid == StripSubdetector::TID) {
         detsLAtoDB[rawId] = m_value;
       }
     }
   }
 
-  std::cout << " There are " << detsLAtoDB.size() << " values assigned" << std::endl;
+  edm::LogInfo("SiPhase2OuterTrackerLorentzAngleWriter") << " There are " << detsLAtoDB.size() << " values assigned" << std::endl;
 
   // SiStripLorentzAngle object
   lorentzAngle = new SiPhase2OuterTrackerLorentzAngle();
   lorentzAngle->putLorentsAngles(detsLAtoDB);
-  std::cout << "currentTime " << mydbservice->currentTime() << std::endl;
+  edm::LogInfo("SiPhase2OuterTrackerLorentzAngleWriter") << "currentTime " << mydbservice->currentTime() << std::endl;
   mydbservice->writeOne(lorentzAngle, mydbservice->currentTime(), m_record);
 }
 
