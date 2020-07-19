@@ -72,8 +72,8 @@ metsig::METSignificance::getCovariance(const edm::View<reco::Jet>& jets,
    for ( const auto& lep_i : leptons ) {
      for (const auto& lep : lep_i->ptrs()) {
        if (lep->pt() > 10) {
-	 for (unsigned int n = 0; n < lep->numberOfSourceCandidatePtrs(); n++)
-	   footprint.insert(lep->sourceCandidatePtr(n));
+         for (unsigned int n = 0; n < lep->numberOfSourceCandidatePtrs(); n++)
+           footprint.insert(lep->sourceCandidatePtr(n));
        }
      }
    }
