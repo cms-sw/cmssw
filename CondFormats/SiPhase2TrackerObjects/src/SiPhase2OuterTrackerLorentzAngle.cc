@@ -11,6 +11,7 @@ bool SiPhase2OuterTrackerLorentzAngle::putLorentzAngle(const uint32_t& detid, fl
     m_LA[detid] = value;
   return true;
 }
+
 float SiPhase2OuterTrackerLorentzAngle::getLorentzAngle(const uint32_t& detid) const {
   std::unordered_map<unsigned int, float>::const_iterator id = m_LA.find(detid);
   if (id != m_LA.end())
@@ -20,6 +21,33 @@ float SiPhase2OuterTrackerLorentzAngle::getLorentzAngle(const uint32_t& detid) c
         << "SiPhase2OuterTrackerLorentzAngle for DetID " << detid << " is not stored" << std::endl;
   }
   return 0;
+}
+
+void SiPhase2OuterTrackerLorentzAngle::getLorentzAngles_PSP(const TrackerGeometry* trackerGeometry,
+                                                            std::unordered_map<unsigned int, float>& out) const {
+  for (const auto& [det, LA] : m_LA) {
+    if (trackerGeometry->getDetectorType(det) == TrackerGeometry::ModuleType::Ph2PSP) {
+      out[det] = LA;
+    }
+  }
+}
+
+void SiPhase2OuterTrackerLorentzAngle::getLorentzAngles_PSS(const TrackerGeometry* trackerGeometry,
+                                                            std::unordered_map<unsigned int, float>& out) const {
+  for (const auto& [det, LA] : m_LA) {
+    if (trackerGeometry->getDetectorType(det) == TrackerGeometry::ModuleType::Ph2PSS) {
+      out[det] = LA;
+    }
+  }
+}
+
+void SiPhase2OuterTrackerLorentzAngle::getLorentzAngles_2S(const TrackerGeometry* trackerGeometry,
+                                                           std::unordered_map<unsigned int, float>& out) const {
+  for (const auto& [det, LA] : m_LA) {
+    if (trackerGeometry->getDetectorType(det) == TrackerGeometry::ModuleType::Ph2SS) {
+      out[det] = LA;
+    }
+  }
 }
 
 void SiPhase2OuterTrackerLorentzAngle::printDebug(std::stringstream& ss, const TrackerTopology* /*trackerTopo*/) const {
