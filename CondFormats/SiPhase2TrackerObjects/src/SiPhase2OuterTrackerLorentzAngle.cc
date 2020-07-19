@@ -2,7 +2,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 bool SiPhase2OuterTrackerLorentzAngle::putLorentzAngle(const uint32_t& detid, float value) {
-  std::map<unsigned int, float>::const_iterator id = m_LA.find(detid);
+  std::unordered_map<unsigned int, float>::const_iterator id = m_LA.find(detid);
   if (id != m_LA.end()) {
     edm::LogError("SiPhase2OuterTrackerLorentzAngle") << "SiPhase2OuterTrackerLorentzAngle for DetID " << detid
                                                       << " is already stored. Skippig this put" << std::endl;
@@ -12,7 +12,7 @@ bool SiPhase2OuterTrackerLorentzAngle::putLorentzAngle(const uint32_t& detid, fl
   return true;
 }
 float SiPhase2OuterTrackerLorentzAngle::getLorentzAngle(const uint32_t& detid) const {
-  std::map<unsigned int, float>::const_iterator id = m_LA.find(detid);
+  std::unordered_map<unsigned int, float>::const_iterator id = m_LA.find(detid);
   if (id != m_LA.end())
     return id->second;
   else {
@@ -23,8 +23,8 @@ float SiPhase2OuterTrackerLorentzAngle::getLorentzAngle(const uint32_t& detid) c
 }
 
 void SiPhase2OuterTrackerLorentzAngle::printDebug(std::stringstream& ss, const TrackerTopology* /*trackerTopo*/) const {
-  std::map<unsigned int, float> detid_la = getLorentzAngles();
-  std::map<unsigned int, float>::const_iterator it;
+  std::unordered_map<unsigned int, float> detid_la = getLorentzAngles();
+  std::unordered_map<unsigned int, float>::const_iterator it;
   size_t count = 0;
   ss << "SiPhase2OuterTrackerLorentzAngleReader:" << std::endl;
   ss << "detid \t Lorentz angle" << std::endl;
@@ -33,20 +33,3 @@ void SiPhase2OuterTrackerLorentzAngle::printDebug(std::stringstream& ss, const T
     ++count;
   }
 }
-
-/*
-void SiPhase2OuterTrackerLorentzAngle::printSummary(std::stringstream& ss, const TrackerTopology* trackerTopo) const {
-  std::map<unsigned int, float> detid_la = getLorentzAngles();
-  std::map<unsigned int, float>::const_iterator it;
-
-  SiStripDetSummary summary{trackerTopo};
-
-  for (it = detid_la.begin(); it != detid_la.end(); ++it) {
-    DetId detid(it->first);
-    float value = it->second;
-    summary.add(detid, value);
-  }
-  ss << "Summary of lorentz angles:" << std::endl;
-  summary.print(ss);
-}
-*/
