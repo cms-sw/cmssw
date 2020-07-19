@@ -97,6 +97,8 @@ metsig::METSignificance::getCovariance(const edm::View<reco::Jet>& jets,
 
        //dP4 recovery
        for( const auto& it : footprint) {
+         // Special treatment for PUPPI with dR, since jet candidates (puppi) and MET candidates (puppiForMet)
+         // can't be matched through the sourceCandidatePtrs and may have different energy, but same direction.
 	 if((it.isNonnull()) && (it.isAvailable()) &&
 	    (((!useDeltaRforFootprint_) && ((it->p4()-(*pfCandidates)[i].p4()).Et2()<0.000025)) ||
 	    (( useDeltaRforFootprint_) && (reco::deltaR2(it->p4(),(*pfCandidates)[i].p4())<0.00000025)))){
