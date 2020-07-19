@@ -503,7 +503,6 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
             addToProcessAndTask(_myPatMet,  getattr(process,'patPFMet').clone(), process, task)
             getattr(process, _myPatMet).metSource = cms.InputTag("pfMet"+postfix)
             getattr(process, _myPatMet).srcPFCands = copy.copy(self.getvalue("pfCandCollection"))
-
         if metType == "PF":
             from Configuration.Eras.Modifier_run2_miniAOD_devel_cff import run2_miniAOD_devel
             run2_miniAOD_devel.toModify(getattr(process, _myPatMet), srcLeptons = \
