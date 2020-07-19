@@ -496,7 +496,6 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
             task.add(process.patPFMetTxyCorrTask)
             task.add(process.jetCorrectorsTask)
 
-
         _myPatMet = 'pat'+metType+'Met'+postfix
         if postfix != "" and metType == "PF" and not hasattr(process, _myPatMet):
             noClonesTmp = [ "particleFlowDisplacedVertex", "pfCandidateToVertexAssociation" ]
