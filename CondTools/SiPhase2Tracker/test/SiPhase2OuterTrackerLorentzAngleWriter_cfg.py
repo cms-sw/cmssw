@@ -6,10 +6,27 @@ import os, shlex, shutil, getpass
 #import subprocess
 
 import FWCore.ParameterSet.Config as cms
-
 process = cms.Process("TEST")
 
-tag = 'SiPhase2OuterTrackerLorentzAngle_T6'
+###################################################################
+# Messages
+###################################################################
+process.load('FWCore.MessageService.MessageLogger_cfi')   
+process.MessageLogger.categories.append("SiPhase2OuterTrackerLorentzAngleWriter")  
+process.MessageLogger.categories.append("SiPhase2OuterTrackerLorentzAngle")
+process.MessageLogger.destinations = cms.untracked.vstring("cout")
+process.MessageLogger.cout = cms.untracked.PSet(
+    threshold = cms.untracked.string("INFO"),
+    default   = cms.untracked.PSet(limit = cms.untracked.int32(0)),                       
+    FwkReport = cms.untracked.PSet(limit = cms.untracked.int32(-1),
+                                   reportEvery = cms.untracked.int32(1000)
+                                   ),                                                      
+  SiPhase2OuterTrackerLorentzAngleWriter = cms.untracked.PSet( limit = cms.untracked.int32(-1)),
+  SiPhase2OuterTrackerLorentzAngle = cms.untracked.PSet( limit = cms.untracked.int32(-1)),
+)
+process.MessageLogger.statistics.append('cout') 
+
+tag = 'SiPhase2OuterTrackerLorentzAngle_T15'
 suffix = 'v0'
 outfile = tag+'_'+suffix+'.db'
 outdb = 'sqlite_file:'+outfile
@@ -22,12 +39,12 @@ if os.path.exists(outfile):
 process.load("CondCore.CondDB.CondDB_cfi")
 process.CondDB.connect = cms.string(outdb)
 
-process.load('Configuration.Geometry.GeometryExtended2026D35Reco_cff')
-process.load('Configuration.Geometry.GeometryExtended2026D35_cff')
+process.load('Configuration.Geometry.GeometryExtended2026D49Reco_cff')
+process.load('Configuration.Geometry.GeometryExtended2026D49_cff')
 
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 from Configuration.AlCa.GlobalTag import GlobalTag
-process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase2_realistic_T6')
+process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase2_realistic')
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(1) )
 
 process.source = cms.Source("EmptyIOVSource",
