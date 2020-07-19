@@ -47,8 +47,7 @@ private:
     iEvent.getByToken(oldmaptoken, oldmap);
 
     auto result = std::make_unique<std::vector<reco::VertexCompositePtrCandidate>>();
-    for (unsigned int i = 0, n = collhandle->size(); i < n; ++i) {
-      auto &obj = (*collhandle)[i];
+    for (auto const &obj : *collhandle) {
       result->push_back(reco::VertexCompositePtrCandidate(obj));
       for (reco::PFCandidateRef pfRef : (*oldmap)[obj.originalObjectRef()])
         result->back().addDaughter(refToPtr(pfRef));
