@@ -664,7 +664,7 @@ bool DAClusterizerInZ_vect::purge(vertex_t& y, track_t& tks, double& rho0, const
   for (unsigned i = 0; i < nt; ++i) {
     inverse_zsums[i] = tks.Z_sum_ptr[i] > eps ? 1. / tks.Z_sum_ptr[i] : 0.0;
   }
-  const auto rhoconst = rho0 * exp(-beta * dzCutOff_ * dzCutOff_);
+  const auto rhoconst = rho0 * local_exp(-beta * dzCutOff_ * dzCutOff_);
   for (unsigned int k = 0; k < nv; k++) {
     const double pmax = y.pk_ptr[k] / (y.pk_ptr[k] + rhoconst);
     ppcut_cache[k] = uniquetrkweight_ * pmax;
