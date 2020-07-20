@@ -256,7 +256,7 @@ void DTLocalTriggerTask::bookHistos(DQMStore::IBooker& ibooker,
   double maxBX = 0;
   int rangeBX = 0;
 
-  string histoType = histoTag.substr(3, histoTag.find("_", 3) - 3);
+  string histoType = histoTag.substr(3, histoTag.find('_', 3) - 3);
 
   ibooker.setCurrentFolder(topFolder() + "Wheel" + wheel.str() + "/Sector" + sector.str() + "/Station" + station.str() +
                            "/" + folder);
@@ -398,7 +398,7 @@ void DTLocalTriggerTask::bookWheelHistos(DQMStore::IBooker& ibooker, int wh, str
   stringstream wheel;
   wheel << wh;
 
-  string histoType = histoTag.substr(3, histoTag.find("_", 3) - 3);
+  string histoType = histoTag.substr(3, histoTag.find('_', 3) - 3);
 
   ibooker.setCurrentFolder(topFolder() + "Wheel" + wheel.str() + "/");
 

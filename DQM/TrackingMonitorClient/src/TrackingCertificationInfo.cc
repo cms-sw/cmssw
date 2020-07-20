@@ -55,7 +55,7 @@ TrackingCertificationInfo::TrackingCertificationInfo(edm::ParameterSet const& pS
 
   std::vector<edm::ParameterSet> TrackingGlobalQualityMEs =
       pSet_.getParameter<std::vector<edm::ParameterSet> >("TrackingGlobalQualityPSets");
-  for (auto meQTset : TrackingGlobalQualityMEs) {
+  for (const auto& meQTset : TrackingGlobalQualityMEs) {
     std::string QTname = meQTset.getParameter<std::string>("QT");
     tracking_mes.TrackingFlag = nullptr;
 
@@ -69,7 +69,7 @@ TrackingCertificationInfo::TrackingCertificationInfo(edm::ParameterSet const& pS
   // load variables for LS certification
   std::vector<edm::ParameterSet> TrackingLSQualityMEs =
       pSet_.getParameter<std::vector<edm::ParameterSet> >("TrackingLSQualityMEs");
-  for (auto meQTset : TrackingLSQualityMEs) {
+  for (const auto& meQTset : TrackingLSQualityMEs) {
     std::string QTname = meQTset.getParameter<std::string>("QT");
     tracking_ls_mes.TrackingFlag = nullptr;
 
@@ -161,7 +161,7 @@ void TrackingCertificationInfo::bookTrackingCertificationMEs(DQMStore::IBooker& 
     TrackingCertificationSummaryMap->setAxisTitle("Track Quality Type", 1);
     TrackingCertificationSummaryMap->setAxisTitle("QTest Flag", 2);
     size_t ibin = 0;
-    for (auto meQTset : TrackingMEsMap) {
+    for (const auto& meQTset : TrackingMEsMap) {
       TrackingCertificationSummaryMap->setBinLabel(ibin + 1, meQTset.first);
       ibin++;
     }
