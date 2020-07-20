@@ -1201,29 +1201,24 @@ void PATElectronProducer::embedHighLevel(pat::Electron& anElectron,
                                          reco::BeamSpot& beamspot,
                                          bool beamspotIsValid) {
   // Correct to PV
-
   // PV2D
-  std::pair<bool, Measurement1D> result =
-      IPTools::signedTransverseImpactParameter(tt, GlobalVector(track->px(), track->py(), track->pz()), primaryVertex);
-  double d0_corr = result.second.value();
-  double d0_err = primaryVertexIsValid ? result.second.error() : -1.0;
-  anElectron.setDB(d0_corr, d0_err, pat::Electron::PV2D);
+  anElectron.setDB(track->dxy(primaryVertex.position()),
+                   track->dxyError(primaryVertex.position(), primaryVertex.covariance()),
+                   pat::Electron::PV2D);
 
   // PV3D
-  result = IPTools::signedImpactParameter3D(tt, GlobalVector(track->px(), track->py(), track->pz()), primaryVertex);
-  d0_corr = result.second.value();
-  d0_err = primaryVertexIsValid ? result.second.error() : -1.0;
+  std::pair<bool, Measurement1D> result =
+      IPTools::signedImpactParameter3D(tt, GlobalVector(track->px(), track->py(), track->pz()), primaryVertex);
+  double d0_corr = result.second.value();
+  double d0_err = primaryVertexIsValid ? result.second.error() : -1.0;
   anElectron.setDB(d0_corr, d0_err, pat::Electron::PV3D);
 
   // Correct to beam spot
+  // BS2D
+  anElectron.setDB(track->dxy(beamspot), track->dxyError(beamspot), pat::Electron::BS2D);
+
   // make a fake vertex out of beam spot
   reco::Vertex vBeamspot(beamspot.position(), beamspot.covariance3D());
-
-  // BS2D
-  result = IPTools::signedTransverseImpactParameter(tt, GlobalVector(track->px(), track->py(), track->pz()), vBeamspot);
-  d0_corr = result.second.value();
-  d0_err = beamspotIsValid ? result.second.error() : -1.0;
-  anElectron.setDB(d0_corr, d0_err, pat::Electron::BS2D);
 
   // BS3D
   result = IPTools::signedImpactParameter3D(tt, GlobalVector(track->px(), track->py(), track->pz()), vBeamspot);
