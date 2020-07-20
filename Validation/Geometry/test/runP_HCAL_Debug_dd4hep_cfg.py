@@ -1,10 +1,9 @@
 import FWCore.ParameterSet.Config as cms
 
-from Configuration.Eras.Era_Run3_cff import Run3
-process = cms.Process('PROD',Run3)
+from Configuration.Eras.Era_Run3_dd4hep_cff import Run3_dd4hep
+process = cms.Process('PROD',Run3_dd4hep)
 
 process.load("SimGeneral.HepPDTESSource.pythiapdt_cfi")
-process.load("Configuration.Geometry.GeometryExtended2021_cff")
 process.load("Configuration.StandardSequences.MagneticField_38T_cff")
 process.load("SimG4Core.Application.g4SimHits_cfi")
 process.load("GeneratorInterface.Core.generatorSmeared_cfi")
@@ -21,6 +20,19 @@ process.load('FWCore.MessageService.MessageLogger_cfi')
 if hasattr(process,'MessageLogger'):
     process.MessageLogger.categories.append('MaterialBudget')
 #   process.MessageLogger.categories.append('MaterialBudgetFull')
+
+process.DDDetectorESProducer = cms.ESSource("DDDetectorESProducer",
+                                            confGeomXMLFiles = cms.FileInPath('Validation/Geometry/data/cmsExtendedGeometryNoMuon2021.xml'),
+                                            appendToDataLabel = cms.string(''))
+process.DDSpecParRegistryESProducer = cms.ESProducer("DDSpecParRegistryESProducer",
+                                                     appendToDataLabel = cms.string(''))
+process.DDVectorRegistryESProducer = cms.ESProducer("DDVectorRegistryESProducer",
+                                                    appendToDataLabel = cms.string(''))
+process.DDCompactViewESProducer = cms.ESProducer("DDCompactViewESProducer",
+                                                 appendToDataLabel = cms.string(''))
+process.load("Geometry.TrackerNumberingBuilder.trackerNumberingGeometry_cff")
+process.load("Geometry.EcalCommonData.ecalSimulationParameters_cff")
+process.load("Geometry.HcalCommonData.hcalDDDSimConstants_cff")
 
 process.source = cms.Source("EmptySource",
     firstRun        = cms.untracked.uint32(1),
@@ -57,7 +69,7 @@ process.g4SimHits.Physics.CutsPerRegion = False
 process.g4SimHits.Generator.ApplyEtaCuts = False
 process.g4SimHits.Watchers = cms.VPSet(cms.PSet(
     MaterialBudgetHcal = cms.PSet(
-        FillHisto    = cms.untracked.bool(False),
+        FillHisto    = cms.untracked.bool(True),
         PrintSummary = cms.untracked.bool(True),
         DoHCAL       = cms.untracked.bool(True),
         NBinPhi      = cms.untracked.int32(180),
@@ -69,7 +81,7 @@ process.g4SimHits.Watchers = cms.VPSet(cms.PSet(
         EtaMaxP      = cms.untracked.double(5.5),
         RMax         = cms.untracked.double(5.0),
         ZMax         = cms.untracked.double(14.0),
-        UseDD4Hep    = cms.untracked.bool(False)
+        UseDD4Hep    = cms.untracked.bool(True)
     ),
     type = cms.string('MaterialBudgetHcal')
 ))
