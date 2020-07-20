@@ -343,7 +343,7 @@ namespace hcaldqm {
     }
 
     uint32_t hash_FEDSpigot(std::string const &name) {
-      int pos = name.find("S");
+      int pos = name.find('S');
       int fed = std::stoi(name.substr(3, pos - 3), nullptr);
       int s = std::stoi(name.substr(pos + 1, name.length() - pos - 1), nullptr);
       if (fed >= FED_uTCA_MIN) {
@@ -365,7 +365,7 @@ namespace hcaldqm {
     }
 
     uint32_t hash_FEDSlot(std::string const &name) {
-      int pos = name.find("S");
+      int pos = name.find('S');
       int fed = std::stoi(name.substr(3, pos - 3), nullptr);
       int s = std::stoi(name.substr(pos + 1, name.length() - pos - 1), nullptr);
       if (fed >= FED_uTCA_MIN) {

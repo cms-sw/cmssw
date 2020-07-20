@@ -410,6 +410,7 @@ void SiStripPopConFEDErrorsHandlerFromDQM::addErrors() {
     //encode the new flag
     std::vector<unsigned int> lStripVector;
     const unsigned short lConsecutiveBadStrips = 128;
+    lStripVector.reserve(lAPVMap.size());
     for (const auto& lIter : lAPVMap) {
       lStripVector.push_back(obj_.encode(lIter.first, lConsecutiveBadStrips, lIter.second));
     }
