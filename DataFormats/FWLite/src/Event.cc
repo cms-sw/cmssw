@@ -89,6 +89,19 @@ namespace fwlite {
         event_->getThinnedProducts(pid, foundContainers, keys);
       }
 
+      // This overload is allowed to be called also without getIt()
+      // being called first, but he thinned ProductID must come from an
+      // existing RefCore. The input key is the index of the desired
+      // element in the container identified by the parent ProductID.
+      // If the return value is not null, then the desired element was found
+      // in a thinned container. If the desired element is not found, then
+      // an optional without a value is returned.
+      std::optional<unsigned int> getThinnedKeyFrom(edm::ProductID const& parent,
+                                                    unsigned int key,
+                                                    edm::ProductID const& thinned) const override {
+        return event_->getThinnedKeyFrom(parent, key, thinned);
+      }
+
     private:
       unsigned int transitionIndex_() const override { return 0U; }
 
@@ -377,6 +390,13 @@ namespace fwlite {
                                  std::vector<unsigned int>& keys) const {
     Long_t eventEntry = branchMap_.getEventEntry();
     return dataHelper_.getThinnedProducts(pid, foundContainers, keys, eventEntry);
+  }
+
+  std::optional<unsigned int> Event::getThinnedKeyFrom(edm::ProductID const& parent,
+                                                       unsigned int key,
+                                                       edm::ProductID const& thinned) const {
+    Long_t eventEntry = branchMap_.getEventEntry();
+    return dataHelper_.getThinnedKeyFrom(parent, key, thinned, eventEntry);
   }
 
   edm::TriggerNames const& Event::triggerNames(edm::TriggerResults const& triggerResults) const {

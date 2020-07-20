@@ -98,6 +98,7 @@ namespace edm {
       void getThinnedProducts(ProductID const& pid,
                               std::vector<WrapperBase const*>& wrappers,
                               std::vector<unsigned int>& keys) const override;
+      std::optional<unsigned int> getThinnedKeyFrom(ProductID const&, unsigned int, ProductID const&) const override;
 
       unsigned int transitionIndex_() const override;
 

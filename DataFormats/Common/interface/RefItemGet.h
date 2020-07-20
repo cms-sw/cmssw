@@ -115,6 +115,26 @@ namespace edm {
   inline bool isThinnedAvailable(RefCore const& product, KEY const& iKey) {
     return refitem::IsThinnedAvailableImpl<C, KEY>::isThinnedAvailable_(product, iKey);
   }
+
+  /// Return a Ref to thinned collection corresponding to an element of the Ref to parent collection
+  //
+  // The thinned may point to parent collection, in which case the Ref-to-parent is returned
+  //
+  // If there are no thinned collections containing the element of the Ref-to-parent, a Null Ref is returned.
+  template <typename C, typename T, typename F>
+  Ref<C, T, F> thinnedRefFrom(Ref<C, T, F> const& parent,
+                              RefProd<C> const& thinned,
+                              edm::EDProductGetter const& prodGetter) {
+    if (parent.id() == thinned.id()) {
+      return parent;
+    }
+
+    auto thinnedKey = prodGetter.getThinnedKeyFrom(parent.id(), parent.key(), thinned.id());
+    if (thinnedKey.has_value()) {
+      return Ref<C, T, F>(thinned, *thinnedKey);
+    }
+    return Ref<C, T, F>();
+  }
 }  // namespace edm
 
 #endif

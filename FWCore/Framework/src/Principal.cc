@@ -894,6 +894,11 @@ namespace edm {
     assert(false);
   }
 
+  std::optional<unsigned int> Principal::getThinnedKeyFrom(ProductID const&, unsigned int, ProductID const&) const {
+    assert(false);
+    return std::nullopt;
+  }
+
   void Principal::putOrMerge(std::unique_ptr<WrapperBase> prod, ProductResolverBase const* phb) const {
     phb->putOrMergeProduct(std::move(prod));
   }
