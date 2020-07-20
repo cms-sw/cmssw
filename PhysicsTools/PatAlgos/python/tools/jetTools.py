@@ -691,6 +691,30 @@ def setupBTagging(process, jetSource, pfCandidates, explicitJTA, pvSource, svSou
                                       ),
                                     process, task)
 
+            if 'ParticleNetAK4TagInfos' in btagInfo:
+                # TODO: add negative tag
+                if pfCandidates.value() == 'packedPFCandidates':
+                    # case 1: running over jets whose daughters are PackedCandidates (only via updateJetCollection for now)
+                    puppi_value_map = ""
+                    vertex_associator = ""
+                elif pfCandidates.value() == 'particleFlow':
+                    raise ValueError("Running pfDeepBoostedJetTagInfos with reco::PFCandidates is currently not supported.")
+                    # case 2: running on new jet collection whose daughters are PFCandidates (e.g., cluster jets in RECO/AOD)
+                    puppi_value_map = "puppi"
+                    vertex_associator = "primaryVertexAssociation:original"
+                else:
+                    raise ValueError("Invalid pfCandidates collection: %s." % pfCandidates.value())
+                addToProcessAndTask(btagPrefix+btagInfo+labelName+postfix,
+                                    btag.pfParticleNetAK4TagInfos.clone(
+                                      jets = jetSource,
+                                      vertices = pvSource,
+                                      secondary_vertices = svSource,
+                                      pf_candidates = pfCandidates,
+                                      puppi_value_map = puppi_value_map,
+                                      vertex_associator = vertex_associator,
+                                      ),
+                                    process, task)
+
             acceptedTagInfos.append(btagInfo)
         elif hasattr(toptag, btagInfo) :
             acceptedTagInfos.append(btagInfo)

@@ -46,6 +46,7 @@ private:
 
   const double jet_radius_;
   const double min_jet_pt_;
+  const double max_jet_eta_;
   const double min_pt_for_track_properties_;
   const bool use_puppiP4_;
   const bool include_neutrals_;
@@ -100,6 +101,7 @@ const std::vector<std::string> DeepBoostedJetTagInfoProducer::sv_features_{
 DeepBoostedJetTagInfoProducer::DeepBoostedJetTagInfoProducer(const edm::ParameterSet &iConfig)
     : jet_radius_(iConfig.getParameter<double>("jet_radius")),
       min_jet_pt_(iConfig.getParameter<double>("min_jet_pt")),
+      max_jet_eta_(iConfig.getParameter<double>("max_jet_eta")),
       min_pt_for_track_properties_(iConfig.getParameter<double>("min_pt_for_track_properties")),
       use_puppiP4_(iConfig.getParameter<bool>("use_puppiP4")),
       include_neutrals_(iConfig.getParameter<bool>("include_neutrals")),
@@ -134,6 +136,7 @@ void DeepBoostedJetTagInfoProducer::fillDescriptions(edm::ConfigurationDescripti
   edm::ParameterSetDescription desc;
   desc.add<double>("jet_radius", 0.8);
   desc.add<double>("min_jet_pt", 150);
+  desc.add<double>("max_jet_eta", 99);
   desc.add<double>("min_pt_for_track_properties", -1);
   desc.add<bool>("use_puppiP4", true);
   desc.add<bool>("include_neutrals", true);
@@ -194,7 +197,7 @@ void DeepBoostedJetTagInfoProducer::produce(edm::Event &iEvent, const edm::Event
     // fill values only if above pt threshold and has daughters, otherwise left
     // empty
     bool fill_vars = true;
-    if (jet.pt() < min_jet_pt_)
+    if (jet.pt() < min_jet_pt_ || std::abs(jet.eta()) > max_jet_eta_)
       fill_vars = false;
     if (jet.numberOfDaughters() == 0)
       fill_vars = false;
@@ -394,12 +397,17 @@ void DeepBoostedJetTagInfoProducer::fillParticleFeatures(DeepBoostedJetFeatures 
     fts.fill("pfcand_drminsv", drminpfcandsv);
 
     // subjets
-    auto subjets = patJet->subjets();
-    std::sort(subjets.begin(), subjets.end(), [](const edm::Ptr<pat::Jet> &p1, const edm::Ptr<pat::Jet> &p2) {
-      return p1->pt() > p2->pt();
-    });  // sort by pt
-    fts.fill("pfcand_drsubjet1", !subjets.empty() ? reco::deltaR(*cand, *subjets.at(0)) : -1);
-    fts.fill("pfcand_drsubjet2", subjets.size() > 1 ? reco::deltaR(*cand, *subjets.at(1)) : -1);
+    if (patJet->nSubjetCollections() > 0) {
+      auto subjets = patJet->subjets();
+      std::sort(subjets.begin(), subjets.end(), [](const edm::Ptr<pat::Jet> &p1, const edm::Ptr<pat::Jet> &p2) {
+        return p1->pt() > p2->pt();
+      });  // sort by pt
+      fts.fill("pfcand_drsubjet1", !subjets.empty() ? reco::deltaR(*cand, *subjets.at(0)) : -1);
+      fts.fill("pfcand_drsubjet2", subjets.size() > 1 ? reco::deltaR(*cand, *subjets.at(1)) : -1);
+    } else {
+      fts.fill("pfcand_drsubjet1", -1);
+      fts.fill("pfcand_drsubjet2", -1);
+    }
 
     const reco::Track *trk = nullptr;
     if (packed_cand) {
