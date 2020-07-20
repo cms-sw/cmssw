@@ -16,8 +16,6 @@
 #include "TrackingTools/GsfTracking/interface/GsfBetheHeitlerUpdator.h"
 #include "TrackingTools/GsfTracking/interface/GsfCombinedMaterialEffectsUpdator.h"
 
-#include <memory>
-
 #include <string>
 #include <memory>
 #include <optional>
