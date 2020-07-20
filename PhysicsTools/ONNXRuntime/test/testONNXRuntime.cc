@@ -27,7 +27,7 @@ void testONNXRuntime::checkAll() {
         std::vector<float>(batch_size * 2, 1),
     };
     FloatArrays outputs;
-    CPPUNIT_ASSERT_NO_THROW(outputs = rt.run({"X"}, input_values, {"Y"}, batch_size));
+    CPPUNIT_ASSERT_NO_THROW(outputs = rt.run({"X"}, input_values, {}, {"Y"}, batch_size));
     CPPUNIT_ASSERT(outputs.size() == 1);
     CPPUNIT_ASSERT(outputs[0].size() == batch_size);
     for (const auto &v : outputs[0]) {
