@@ -37,6 +37,7 @@ private:
   std::unique_ptr<MaterialBudgetHcalHistos> theHistoHcal_;
   std::unique_ptr<MaterialBudgetCastorHistos> theHistoCastor_;
   double rMax_, zMax_;
+  bool useDD4Hep_;
 };
 
 #endif
