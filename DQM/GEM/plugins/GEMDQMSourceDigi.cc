@@ -95,7 +95,7 @@ void GEMDQMSourceDigi::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const
     int n_lay = sch->nChambers();
     for (int l = 0; l < n_lay; l++) {
       Bool_t bExist = false;
-      for (auto ch : gemChambers_)
+      for (const auto& ch : gemChambers_)
         if (ch.id() == sch->chamber(l + 1)->id())
           bExist = true;
       if (bExist)
@@ -106,7 +106,7 @@ void GEMDQMSourceDigi::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const
   }
   ibooker.cd();
   ibooker.setCurrentFolder("GEM/digi");
-  for (auto ch : gemChambers_) {
+  for (const auto& ch : gemChambers_) {
     GEMDetId gid = ch.id();
 
     std::string strIdxName = "Gemini_" + to_string(gid.chamber()) + "_GE" + (gid.region() > 0 ? "p" : "m") +
@@ -134,7 +134,7 @@ void GEMDQMSourceDigi::analyze(edm::Event const& event, edm::EventSetup const& e
 
   edm::Handle<GEMDigiCollection> gemDigis;
   event.getByToken(this->tagDigi_, gemDigis);
-  for (auto ch : gemChambers_) {
+  for (const auto& ch : gemChambers_) {
     GEMDetId cId = ch.id();
     for (auto roll : ch.etaPartitions()) {
       GEMDetId rId = roll->id();

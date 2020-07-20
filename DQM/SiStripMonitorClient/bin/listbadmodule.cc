@@ -135,9 +135,9 @@ void listbadmodule(std::string filename, std::string pclfilename) {
         std::string sflag = key->GetName();
         if (sflag.empty())
           continue;
-        std::string detid = sflag.substr(sflag.find("<") + 1, 9);
-        size_t pos1 = sflag.find("/");
-        sflag = sflag.substr(sflag.find("<") + 13, pos1 - 2);
+        std::string detid = sflag.substr(sflag.find('<') + 1, 9);
+        size_t pos1 = sflag.find('/');
+        sflag = sflag.substr(sflag.find('<') + 13, pos1 - 2);
         int flag = atoi(sflag.c_str());
         sscanf(detid.c_str(), "%u", &pcldetid);
         // the following loop add modules which are bad only for the PCL to the list.
