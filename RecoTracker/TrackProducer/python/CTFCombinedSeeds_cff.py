@@ -16,6 +16,6 @@ from RecoTracker.TransientTrackingRecHit.TransientTrackingRecHitBuilder_cfi impo
 
 import RecoTracker.TrackProducer.TrackProducer_cfi
 # TrackProducer
-ctfCombinedSeeds = RecoTracker.TrackProducer.TrackProducer_cfi.TrackProducer.clone()
-ctfCombinedSeeds.src = 'ckfTrackCandidatesCombinedSeeds'
-
+ctfCombinedSeeds = RecoTracker.TrackProducer.TrackProducer_cfi.TrackProducer.clone(
+    src = 'ckfTrackCandidatesCombinedSeeds'
+)
