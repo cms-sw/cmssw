@@ -1,8 +1,6 @@
 #include <algorithm>
 #include <iostream>
 #include <memory>
-
-#include <memory>
 #include <string>
 
 #include "FWCore/Utilities/interface/Exception.h"

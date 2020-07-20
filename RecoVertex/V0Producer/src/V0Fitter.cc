@@ -28,8 +28,6 @@
 #include <Math/Functions.h>
 #include <Math/SMatrix.h>
 #include <Math/SVector.h>
-#include <memory>
-
 #include "CommonTools/CandUtils/interface/AddFourMomenta.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include <memory>

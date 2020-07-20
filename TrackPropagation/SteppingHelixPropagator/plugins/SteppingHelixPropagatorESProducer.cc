@@ -10,8 +10,6 @@
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include <memory>
-
 #include <string>
 #include <memory>
 

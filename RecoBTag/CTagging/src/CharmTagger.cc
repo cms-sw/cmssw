@@ -6,9 +6,7 @@
 #include "FWCore/Utilities/interface/ESInputTag.h"
 #include "CondFormats/DataRecord/interface/GBRWrapperRcd.h"
 
-#include <iostream>
 #include <memory>
-
 #include <algorithm>
 #include <iostream>
 #include <map>
