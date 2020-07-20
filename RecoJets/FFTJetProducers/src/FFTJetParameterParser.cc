@@ -391,7 +391,6 @@ namespace fftjetcms {
 
   std::unique_ptr<fftjet::ClusteringTreeSparsifier<fftjet::Peak, long>> fftjet_ClusteringTreeSparsifier_parser(
       const edm::ParameterSet& ps) {
-
     const int maxLevelNumber = ps.getParameter<int>("maxLevelNumber");
     const unsigned filterMask = ps.getParameter<unsigned>("filterMask");
     const std::vector<double> userScalesV = ps.getParameter<std::vector<double>>("userScales");
