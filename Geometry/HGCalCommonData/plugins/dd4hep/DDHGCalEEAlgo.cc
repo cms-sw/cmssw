@@ -13,12 +13,13 @@
 #include <unordered_set>
 #include <vector>
 
-#include "Geometry/HGCalCommonData/interface/HGCalParameters.h"
-#include "Geometry/HGCalCommonData/interface/HGCalGeomTools.h"
 #include "DD4hep/DetFactoryHelper.h"
 #include "DataFormats/Math/interface/CMSUnits.h"
 #include "DetectorDescription/DDCMS/interface/DDPlugins.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "Geometry/HGCalCommonData/interface/HGCalGeomTools.h"
+#include "Geometry/HGCalCommonData/interface/HGCalParameters.h"
+#include "Geometry/HGCalCommonData/interface/HGCalTypes.h"
 #include "Geometry/HGCalCommonData/interface/HGCalWaferType.h"
 
 //#define EDM_ML_DEBUG
@@ -343,15 +344,15 @@ struct HGCalEEAlgo {
 #endif
 
     for (int u = -N; u <= N; ++u) {
-      int iu = std::abs(u);
       for (int v = -N; v <= N; ++v) {
-        int iv = std::abs(v);
         int nr = 2 * v;
         int nc = -2 * u + v;
         double xpos = xyoff.first + nc * r;
         double ypos = xyoff.second + nr * dy;
         const auto& corner = HGCalGeomTools::waferCorner(xpos, ypos, r, R, rin, rout, false);
 #ifdef EDM_ML_DEBUG
+        int iu = std::abs(u);
+        int iv = std::abs(v);
         ++ntot;
         if (((corner.first <= 0) && std::abs(u) < 5 && std::abs(v) < 5) || (std::abs(u) < 2 && std::abs(v) < 2)) {
           edm::LogVerbatim("HGCalGeom") << "DDHGCalEEAlgo: " << glog.name() << " R " << rin << ":" << rout << "\n Z "
@@ -361,11 +362,7 @@ struct HGCalEEAlgo {
 #endif
         if (corner.first > 0) {
           int type = waferType_->getType(xpos, ypos, zpos);
-          int copy = type * 1000000 + iv * 100 + iu;
-          if (u < 0)
-            copy += 10000;
-          if (v < 0)
-            copy += 100000;
+          int copy = HGCalTypes::packTypeUV(type, u, v);
 #ifdef EDM_ML_DEBUG
           if (iu > ium)
             ium = iu;

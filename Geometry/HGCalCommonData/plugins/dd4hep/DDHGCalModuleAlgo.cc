@@ -12,6 +12,7 @@
 #include "FWCore/Utilities/interface/Exception.h"
 #include "Geometry/HGCalCommonData/interface/HGCalGeomTools.h"
 #include "Geometry/HGCalCommonData/interface/HGCalParameters.h"
+#include "Geometry/HGCalCommonData/interface/HGCalTypes.h"
 
 //#define EDM_ML_DEBUG
 
@@ -26,6 +27,8 @@ static long algorithm(dd4hep::Detector& /* description */,
                       dd4hep::SensitiveDetector& /* sens */) {
   cms::DDNamespace ns(ctxt, e, true);
   cms::DDAlgoArguments args(ctxt, e);
+  static constexpr double tol = 0.01;
+  static constexpr double tol2 = 0.00001;
 
   const auto& wafer = args.value<std::vector<std::string> >("WaferName");    // Wafers
   auto materials = args.value<std::vector<std::string> >("MaterialNames");   // Materials
@@ -93,7 +96,6 @@ static long algorithm(dd4hep::Detector& /* description */,
 
   double zi(zMinBlock);
   int laymin(0);
-  const double tol(0.01);
   for (unsigned int i = 0; i < layers.size(); i++) {
     double zo = zi + layerThick[i];
     double routF = HGCalGeomTools::radius(zi, zFront, rMaxFront, slopeT);
@@ -166,11 +168,7 @@ static long algorithm(dd4hep::Detector& /* description */,
               ++ntot;
 #endif
               if (corner.first > 0) {
-                int copyL = inr * 100 + inc;
-                if (nc < 0)
-                  copyL += 10000;
-                if (nr < 0)
-                  copyL += 100000;
+                int copyL = HGCalTypes::packTypeUV(0, nc, nr);
 #ifdef EDM_ML_DEBUG
                 if (inc > incm)
                   incm = inc;
@@ -218,13 +216,14 @@ static long algorithm(dd4hep::Detector& /* description */,
     }  // End of loop over layers in a block
     zi = zo;
     laymin = laymax;
-    if (fabs(thickTot - layerThick[i]) < 0.00001) {
-    } else if (thickTot > layerThick[i]) {
-      edm::LogError("HGCalGeom") << "Thickness of the partition " << layerThick[i] << " is smaller than thickness "
-                                 << thickTot << " of all its components **** ERROR ****\n";
-    } else if (thickTot < layerThick[i]) {
-      edm::LogWarning("HGCalGeom") << "Thickness of the partition " << layerThick[i] << " does not match with "
-                                   << thickTot << " of the components\n";
+    if (fabs(thickTot - layerThick[i]) > tol2) {
+      if (thickTot > layerThick[i]) {
+        edm::LogError("HGCalGeom") << "Thickness of the partition " << layerThick[i] << " is smaller than thickness "
+                                   << thickTot << " of all its components **** ERROR ****\n";
+      } else {
+        edm::LogWarning("HGCalGeom") << "Thickness of the partition " << layerThick[i] << " does not match with "
+                                     << thickTot << " of the components\n";
+      }
     }
   }  // End of loop over blocks
 
@@ -236,7 +235,7 @@ static long algorithm(dd4hep::Detector& /* description */,
   edm::LogVerbatim("HGCalGeom") << "<<== End of DDHGCalModule construction ...";
 #endif
 
-  return 1;
+  return cms::s_executed;
 }
 
 // first argument is the type from the xml file
