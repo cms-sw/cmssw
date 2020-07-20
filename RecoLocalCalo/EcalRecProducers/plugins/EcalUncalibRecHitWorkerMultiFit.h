@@ -16,6 +16,7 @@
 #include "RecoLocalCalo/EcalRecAlgos/interface/EcalUncalibRecHitRatioMethodAlgo.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Utilities/interface/ESGetToken.h"
 #include "CondFormats/EcalObjects/interface/EcalTimeCalibConstants.h"
 #include "CondFormats/EcalObjects/interface/EcalTimeOffsetConstant.h"
 #include "CondFormats/EcalObjects/interface/EcalPedestals.h"
@@ -28,6 +29,17 @@
 #include "CondFormats/EcalObjects/interface/EcalPulseShapes.h"
 #include "CondFormats/EcalObjects/interface/EcalPulseCovariances.h"
 #include "RecoLocalCalo/EcalRecAlgos/interface/EigenMatrixTypes.h"
+#include "CondFormats/DataRecord/interface/EcalGainRatiosRcd.h"
+#include "CondFormats/DataRecord/interface/EcalPedestalsRcd.h"
+#include "CondFormats/DataRecord/interface/EcalWeightXtalGroupsRcd.h"
+#include "CondFormats/DataRecord/interface/EcalTBWeightsRcd.h"
+#include "CondFormats/DataRecord/interface/EcalSampleMaskRcd.h"
+#include "CondFormats/DataRecord/interface/EcalTimeCalibConstantsRcd.h"
+#include "CondFormats/DataRecord/interface/EcalTimeOffsetConstantRcd.h"
+#include "CondFormats/DataRecord/interface/EcalTimeBiasCorrectionsRcd.h"
+#include "CondFormats/DataRecord/interface/EcalSamplesCorrelationRcd.h"
+#include "CondFormats/DataRecord/interface/EcalPulseShapesRcd.h"
+#include "CondFormats/DataRecord/interface/EcalPulseCovariancesRcd.h"
 
 namespace edm {
   class Event;
@@ -52,10 +64,15 @@ public:
 
 private:
   edm::ESHandle<EcalPedestals> peds;
+  edm::ESGetToken<EcalPedestals, EcalPedestalsRcd> pedsToken_;
   edm::ESHandle<EcalGainRatios> gains;
+  edm::ESGetToken<EcalGainRatios, EcalGainRatiosRcd> gainsToken_;
   edm::ESHandle<EcalSamplesCorrelation> noisecovariances;
+  edm::ESGetToken<EcalSamplesCorrelation, EcalSamplesCorrelationRcd> noiseConvariancesToken_;
   edm::ESHandle<EcalPulseShapes> pulseshapes;
+  edm::ESGetToken<EcalPulseShapes, EcalPulseShapesRcd> pulseShapesToken_;
   edm::ESHandle<EcalPulseCovariances> pulsecovariances;
+  edm::ESGetToken<EcalPulseCovariances, EcalPulseCovariancesRcd> pulseConvariancesToken_;
 
   double timeCorrection(float ampli, const std::vector<float>& amplitudeBins, const std::vector<float>& shiftBins);
 
@@ -74,6 +91,7 @@ private:
 
   // determine which of the samples must actually be used by ECAL local reco
   edm::ESHandle<EcalSampleMask> sampleMaskHand_;
+  edm::ESGetToken<EcalSampleMask, EcalSampleMaskRcd> sampleMaskToken_;
 
   // time algorithm to be used to set the jitter and its uncertainty
   enum TimeAlgo { noMethod, ratioMethod, weightsMethod };
@@ -81,7 +99,9 @@ private:
 
   // time weights method
   edm::ESHandle<EcalWeightXtalGroups> grps;
+  edm::ESGetToken<EcalWeightXtalGroups, EcalWeightXtalGroupsRcd> grpsToken_;
   edm::ESHandle<EcalTBWeights> wgts;
+  edm::ESGetToken<EcalTBWeights, EcalTBWeightsRcd> wgtsToken_;
   const EcalWeightSet::EcalWeightMatrix* weights[2];
   EcalUncalibRecHitTimeWeightsAlgo<EBDataFrame> weightsMethod_barrel_;
   EcalUncalibRecHitTimeWeightsAlgo<EEDataFrame> weightsMethod_endcap_;
@@ -129,9 +149,12 @@ private:
   double ebSpikeThresh_;
 
   edm::ESHandle<EcalTimeBiasCorrections> timeCorrBias_;
+  edm::ESGetToken<EcalTimeBiasCorrections, EcalTimeBiasCorrectionsRcd> timeCorrBiasToken_;
 
   edm::ESHandle<EcalTimeCalibConstants> itime;
+  edm::ESGetToken<EcalTimeCalibConstants, EcalTimeCalibConstantsRcd> itimeToken_;
   edm::ESHandle<EcalTimeOffsetConstant> offtime;
+  edm::ESGetToken<EcalTimeOffsetConstant, EcalTimeOffsetConstantRcd> offtimeToken_;
   std::vector<double> ebPulseShape_;
   std::vector<double> eePulseShape_;
 

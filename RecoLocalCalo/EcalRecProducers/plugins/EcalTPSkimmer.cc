@@ -16,11 +16,6 @@
 #include "DataFormats/EcalDetId/interface/EEDetId.h"
 #include "DataFormats/EcalDetId/interface/EcalTrigTowerDetId.h"
 
-#include "CondFormats/DataRecord/interface/EcalChannelStatusRcd.h"
-#include "CondFormats/EcalObjects/interface/EcalChannelStatus.h"
-
-#include "Geometry/Records/interface/IdealGeometryRecord.h"
-
 EcalTPSkimmer::EcalTPSkimmer(const edm::ParameterSet& ps) {
   skipModule_ = ps.getParameter<bool>("skipModule");
 
@@ -31,7 +26,10 @@ EcalTPSkimmer::EcalTPSkimmer(const edm::ParameterSet& ps) {
 
   tpOutputCollection_ = ps.getParameter<std::string>("tpOutputCollection");
   tpInputToken_ = consumes<EcalTrigPrimDigiCollection>(ps.getParameter<edm::InputTag>("tpInputCollection"));
-
+  ttMapToken_ = esConsumes<EcalTrigTowerConstituentsMap, IdealGeometryRecord>();
+  if (skipModule_) {
+    chStatusToken_ = esConsumes<EcalChannelStatus, EcalChannelStatusRcd>();
+  }
   produces<EcalTrigPrimDigiCollection>(tpOutputCollection_);
 }
 
@@ -42,7 +40,7 @@ void EcalTPSkimmer::produce(edm::Event& evt, const edm::EventSetup& es) {
 
   using namespace edm;
 
-  es.get<IdealGeometryRecord>().get(ttMap_);
+  ttMap_ = es.getHandle(ttMapToken_);
 
   // collection of rechits to put in the event
   auto tpOut = std::make_unique<EcalTrigPrimDigiCollection>();
@@ -52,8 +50,7 @@ void EcalTPSkimmer::produce(edm::Event& evt, const edm::EventSetup& es) {
     return;
   }
 
-  edm::ESHandle<EcalChannelStatus> chStatus;
-  es.get<EcalChannelStatusRcd>().get(chStatus);
+  edm::ESHandle<EcalChannelStatus> chStatus = es.getHandle(chStatusToken_);
 
   edm::Handle<EcalTrigPrimDigiCollection> tpIn;
   evt.getByToken(tpInputToken_, tpIn);
