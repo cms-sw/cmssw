@@ -815,9 +815,9 @@ void TrackerMap::save(bool print_total, float minval, float maxval, std::string 
     std::string filetype = s, outputfilename = s;
     std::vector<TPolyLine *> vp;
     TGaxis *axis = nullptr;
-    size_t found = filetype.find_last_of(".");
+    size_t found = filetype.find_last_of('.');
     filetype = filetype.substr(found + 1);
-    found = outputfilename.find_last_of(".");
+    found = outputfilename.find_last_of('.');
     outputfilename = outputfilename.substr(0, found);
     //outputfilename.erase(outputfilename.begin()+outputfilename.find("."),outputfilename.end());
     temporary_file = true;
@@ -1692,9 +1692,9 @@ void TrackerMap::save_as_fectrackermap(
     std::string filetype = s, outputfilename = s;
     std::vector<TPolyLine *> vp;
     TGaxis *axis = nullptr;
-    size_t found = filetype.find_last_of(".");
+    size_t found = filetype.find_last_of('.');
     filetype = filetype.substr(found + 1);
-    found = outputfilename.find_last_of(".");
+    found = outputfilename.find_last_of('.');
     outputfilename = outputfilename.substr(0, found);
     temporary_file = true;
     if (filetype == "xml" || filetype == "svg")
@@ -1980,9 +1980,9 @@ void TrackerMap::save_as_HVtrackermap(
     std::string filetype = s, outputfilename = s;
     std::vector<TPolyLine *> vp;
     TGaxis *axis = nullptr;
-    size_t found = filetype.find_last_of(".");
+    size_t found = filetype.find_last_of('.');
     filetype = filetype.substr(found + 1);
-    found = outputfilename.find_last_of(".");
+    found = outputfilename.find_last_of('.');
     outputfilename = outputfilename.substr(0, found);
 
     temporary_file = true;
@@ -2304,9 +2304,9 @@ void TrackerMap::save_as_psutrackermap(
     std::vector<TPolyLine *> vp;
     TGaxis *axis = nullptr;
 
-    size_t found = filetype.find_last_of(".");
+    size_t found = filetype.find_last_of('.');
     filetype = filetype.substr(found + 1);
-    found = outputfilename.find_last_of(".");
+    found = outputfilename.find_last_of('.');
     outputfilename = outputfilename.substr(0, found);
 
     temporary_file = true;
@@ -2610,9 +2610,9 @@ void TrackerMap::save_as_fedtrackermap(
     std::vector<TPolyLine *> vp;
     TGaxis *axis = nullptr;
 
-    size_t found = filetype.find_last_of(".");
+    size_t found = filetype.find_last_of('.');
     filetype = filetype.substr(found + 1);
-    found = outputfilename.find_last_of(".");
+    found = outputfilename.find_last_of('.');
     outputfilename = outputfilename.substr(0, found);
 
     temporary_file = true;
@@ -2915,14 +2915,14 @@ void TrackerMap::load(std::string inputfilename) {
     ipos1 = line.find("value=\"");
     if (ipos1 > 0) {
       value = line.substr(ipos1 + 7, 10);
-      ipos = value.find("\"");
+      ipos = value.find('\"');
       value = value.substr(0, ipos);
       val = atoi(value.c_str());
     }
     ipos2 = line.find("detid=\"");
     if (ipos2 > 0) {
       value = line.substr(ipos2 + 7, 10);
-      ipos = value.find("\"");
+      ipos = value.find('\"');
       value = value.substr(0, ipos);
       id = atoi(value.c_str());
     }
@@ -3764,9 +3764,9 @@ void TrackerMap::printall(bool print_total, float minval1, float maxval1, std::s
     width = 6000;
     height = 3200;
   } else {
-    size_t found = filetype.find_last_of(".");
+    size_t found = filetype.find_last_of('.');
     filetype = filetype.substr(found + 1);
-    found = outputfilename.find_last_of(".");
+    found = outputfilename.find_last_of('.');
     outputfilename = outputfilename.substr(0, found);
   }
   std::ofstream *ofilename;
