@@ -879,10 +879,10 @@ upgradeProperties[2026] = {
         'ScenToRun' : ['GenSimHLBeamSpotFull','DigiFullTrigger','RecoFullGlobal', 'HARVESTFullGlobal'],
     },
     '2026D54' : {
-        'Geom' : 'Extended2026D54',
+        'Geom' : 'Extended2026D54',                   ### N.B.: this is a geometry is featuring 3D pixels in the Inner Tracker
         'HLTmenu': '@fake2',
-        'GT' : 'auto:phase2_realistic_T19',
-        'ProcessModifier': 'phase2_PixelCPEGeneric',
+        'GT' : 'auto:phase2_realistic_T19',           ### This symbolic GT has no pixel template / GenError informations
+        'ProcessModifier': 'phase2_PixelCPEGeneric',  ### N.B.: this modifier removes all need for IT template information. DO NOT USE for standard planar sensors
         'Era' : 'Phase2C9',
         'ScenToRun' : ['GenSimHLBeamSpotFull','DigiFullTrigger','RecoFullGlobal', 'HARVESTFullGlobal'],
     },
@@ -925,7 +925,6 @@ upgradeProperties[2026] = {
         'Geom' : 'Extended2026D61',
         'HLTmenu': '@fake2',
         'GT' : 'auto:phase2_realistic_T17',
-        'ProcessModifier': 'phase2_PixelCPEGeneric',
         'Era' : 'Phase2C9',
         'ScenToRun' : ['GenSimHLBeamSpotFull','DigiFullTrigger','RecoFullGlobal', 'HARVESTFullGlobal'],
     },
@@ -933,23 +932,22 @@ upgradeProperties[2026] = {
         'Geom' : 'Extended2026D62',
         'HLTmenu': '@fake2',
         'GT' : 'auto:phase2_realistic_T21',
-        'ProcessModifier': 'phase2_PixelCPEGeneric',
         'Era' : 'Phase2C11',
         'ScenToRun' : ['GenSimHLBeamSpotFull','DigiFullTrigger','RecoFullGlobal', 'HARVESTFullGlobal'],
     },
     '2026D63' : {
-        'Geom' : 'Extended2026D63',
+        'Geom' : 'Extended2026D63',                   ### N.B.: this is a geometry is featuring square 50x50um2 pixels in the Inner Tracker
         'HLTmenu': '@fake2',
         'GT' : 'auto:phase2_realistic_T22',
-        'ProcessModifier': 'phase2_PixelCPEGeneric',
+        'ProcessModifier': 'phase2_PixelCPEGeneric',  ### Pixel Template reconstruction is temporarily inactive (will update once conditions are availalble)
         'Era' : 'Phase2C11',
         'ScenToRun' : ['GenSimHLBeamSpotFull','DigiFullTrigger','RecoFullGlobal', 'HARVESTFullGlobal'],
     },
     '2026D64' : {
-        'Geom' : 'Extended2026D64',
+        'Geom' : 'Extended2026D64',                   ### N.B.: this is a geometry is featuring 3D pixels in the Inner Tracker
         'HLTmenu': '@fake2',
-        'GT' : 'auto:phase2_realistic_T23',
-        'ProcessModifier': 'phase2_PixelCPEGeneric',
+        'GT' : 'auto:phase2_realistic_T23',           ### This symbolic GT has no pixel template / GenError informations
+        'ProcessModifier': 'phase2_PixelCPEGeneric',  ### N.B.: this modifier removes all need for IT template information. DO NOT USE for standard planar sensors
         'Era' : 'Phase2C11',
         'ScenToRun' : ['GenSimHLBeamSpotFull','DigiFullTrigger','RecoFullGlobal', 'HARVESTFullGlobal'],
     },
