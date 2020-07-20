@@ -294,10 +294,10 @@ void OuterTrackerMCHarvester::dqmEndJob(DQMStore::IBooker &ibooker, DQMStore::IG
       resPt1->SetMinimum(0.0);
       resPt1->SetStats(false);
 
-      //int testNumEntries1 = resPt1a->GetEntries();
-      if (resPt1a->GetEntries() > 0 && resPt2a->GetEntries() > 0 && resPt3a->GetEntries() > 0 &&
-          resPt4a->GetEntries() > 0 && resPt5a->GetEntries() > 0 && resPt6a->GetEntries() > 0) {
-        //if (testNumEntries1 > 0) {
+      int testNumEntries1 = resPt1a->GetEntries();
+      // if (resPt1a->GetEntries() > 0 && resPt2a->GetEntries() > 0 && resPt3a->GetEntries() > 0 &&
+      //     resPt4a->GetEntries() > 0 && resPt5a->GetEntries() > 0 && resPt6a->GetEntries() > 0) {
+      if (testNumEntries1 > 0) {
         // Fit the histograms with a gaussian curve - take sigma and the error
         // from the fit
         resPt1a->Fit(fit2, "Q", "R");
@@ -358,10 +358,10 @@ void OuterTrackerMCHarvester::dqmEndJob(DQMStore::IBooker &ibooker, DQMStore::IG
       resPt2->SetMinimum(0.0);
       resPt2->SetStats(false);
 
-      //int testNumEntries2 = resPt1b->GetEntries();
-      // if (testNumEntries2 > 0) {
-      if (resPt1b->GetEntries() > 0 && resPt2b->GetEntries() > 0 && resPt3b->GetEntries() > 0 &&
-          resPt4b->GetEntries() > 0 && resPt5b->GetEntries() > 0 && resPt6b->GetEntries() > 0) {
+      int testNumEntries2 = resPt1b->GetEntries();
+      if (testNumEntries2 > 0) {
+      // if (resPt1b->GetEntries() > 0 && resPt2b->GetEntries() > 0 && resPt3b->GetEntries() > 0 &&
+      //     resPt4b->GetEntries() > 0 && resPt5b->GetEntries() > 0 && resPt6b->GetEntries() > 0) {
         // Fit the histograms with a gaussian curve - take sigma and the error
         // from the fit
         resPt1b->Fit(fit2, "Q", "R");
@@ -422,10 +422,10 @@ void OuterTrackerMCHarvester::dqmEndJob(DQMStore::IBooker &ibooker, DQMStore::IG
       resPt3->SetMinimum(0.0);
       resPt3->SetStats(false);
 
-      //int testNumEntries3 = resPt1c->GetEntries();
-      if (resPt1c->GetEntries() > 0 && resPt2c->GetEntries() > 0 && resPt3c->GetEntries() > 0 &&
-          resPt4c->GetEntries() > 0 && resPt5c->GetEntries() > 0 && resPt6c->GetEntries() > 0) {
-        //        if (testNumEntries3 > 0) {
+      int testNumEntries3 = resPt1c->GetEntries();
+      // if (resPt1c->GetEntries() > 0 && resPt2c->GetEntries() > 0 && resPt3c->GetEntries() > 0 &&
+      //     resPt4c->GetEntries() > 0 && resPt5c->GetEntries() > 0 && resPt6c->GetEntries() > 0) {
+      if (testNumEntries3 > 0) {
         // Fit the histograms with a gaussian curve - take sigma and the error
         // from the fit
         resPt1c->Fit(fit2, "Q", "R");
@@ -485,9 +485,10 @@ void OuterTrackerMCHarvester::dqmEndJob(DQMStore::IBooker &ibooker, DQMStore::IG
       resEta->SetMinimum(0.0);
       resEta->SetStats(false);
 
-      //int testNumEntries4 = resEta1->GetEntries();
-      if (resEta1->GetEntries() > 0 && resEta2->GetEntries() > 0 && resEta3->GetEntries() > 0 &&
-          resEta4->GetEntries() > 0 && resEta5->GetEntries() > 0 && resEta6->GetEntries() > 0) {
+      int testNumEntries4 = resEta1->GetEntries();
+      if (testNumEntries4 > 0) {
+      // if (resEta1->GetEntries() > 0 && resEta2->GetEntries() > 0 && resEta3->GetEntries() > 0 &&
+      //     resEta4->GetEntries() > 0 && resEta5->GetEntries() > 0 && resEta6->GetEntries() > 0) {
         // Fit the histograms with a gaussian curve - take sigma and the error
         // from the fit
         resEta1->Fit(fit, "Q", "R");
@@ -547,9 +548,10 @@ void OuterTrackerMCHarvester::dqmEndJob(DQMStore::IBooker &ibooker, DQMStore::IG
       resPhi->SetMinimum(0.0);
       resPhi->SetStats(false);
 
-      //int testNumEntries5 = resPhi1->GetEntries();
-      if (resPhi1->GetEntries() > 0 && resPhi2->GetEntries() > 0 && resPhi3->GetEntries() > 0 &&
-          resPhi4->GetEntries() > 0 && resPhi5->GetEntries() > 0 && resPhi6->GetEntries() > 0) {
+      int testNumEntries5 = resPhi1->GetEntries();
+      if (testNumEntries5 > 0) {
+      // if (resPhi1->GetEntries() > 0 && resPhi2->GetEntries() > 0 && resPhi3->GetEntries() > 0 &&
+      //     resPhi4->GetEntries() > 0 && resPhi5->GetEntries() > 0 && resPhi6->GetEntries() > 0) {
         // Fit the histograms with a gaussian curve - take sigma and the error
         // from the fit
         resPhi1->Fit(fit, "Q", "R");
@@ -609,9 +611,10 @@ void OuterTrackerMCHarvester::dqmEndJob(DQMStore::IBooker &ibooker, DQMStore::IG
       resVtxZ->SetMinimum(0.0);
       resVtxZ->SetStats(false);
 
-      //int testNumEntries6 = resVtxZ_1->GetEntries();
-      if (resVtxZ_1->GetEntries() > 0 && resVtxZ_2->GetEntries() > 0 && resVtxZ_3->GetEntries() > 0 &&
-          resVtxZ_4->GetEntries() > 0 && resVtxZ_5->GetEntries() > 0 && resVtxZ_6->GetEntries() > 0) {
+      int testNumEntries6 = resVtxZ_1->GetEntries();
+      if (testNumEntries6 > 0) {
+      // if (resVtxZ_1->GetEntries() > 0 && resVtxZ_2->GetEntries() > 0 && resVtxZ_3->GetEntries() > 0 &&
+      //     resVtxZ_4->GetEntries() > 0 && resVtxZ_5->GetEntries() > 0 && resVtxZ_6->GetEntries() > 0) {
         // Fit the histograms with a gaussian curve - take sigma and the error
         // from the fit
         resVtxZ_1->Fit(fit3, "Q", "R");
@@ -671,9 +674,10 @@ void OuterTrackerMCHarvester::dqmEndJob(DQMStore::IBooker &ibooker, DQMStore::IG
       resd0->SetMinimum(0.0);
       resd0->SetStats(false);
 
-      //int testNumEntries7 = resd0_1->GetEntries();
-      if (resd0_1->GetEntries() > 0 && resd0_2->GetEntries() > 0 && resd0_3->GetEntries() > 0 &&
-          resd0_4->GetEntries() > 0 && resd0_5->GetEntries() > 0 && resd0_6->GetEntries() > 0) {
+      int testNumEntries7 = resd0_1->GetEntries();
+      if (testNumEntries7 > 0) {
+      // if (resd0_1->GetEntries() > 0 && resd0_2->GetEntries() > 0 && resd0_3->GetEntries() > 0 &&
+      //     resd0_4->GetEntries() > 0 && resd0_5->GetEntries() > 0 && resd0_6->GetEntries() > 0) {
         // Fit the histograms with a gaussian curve - take sigma and the error
         // from the fit
         resd0_1->Fit(fit, "Q", "R");
