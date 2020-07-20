@@ -168,10 +168,12 @@ patTauDiscriminationByIsolationMVArun2v1DBoldDMwLT2015Seq = cms.Sequence(
 ### Define new anit-e discriminants (2018)
 antiElectronDiscrMVA6_version = "MVA"
 ## Raw
-from RecoTauTag.RecoTau.PATTauDiscriminationAgainstElectronMVA6_cfi import patTauDiscriminationAgainstElectronMVA6
+from RecoTauTag.RecoTau.patTauDiscriminationAgainstElectronMVA6_cfi import patTauDiscriminationAgainstElectronMVA6
 from RecoTauTag.RecoTau.TauDiscriminatorTools import noPrediscriminants
 patTauDiscriminationByElectronRejectionMVA62018Raw = patTauDiscriminationAgainstElectronMVA6.clone(
+    PATTauProducer = 'slimmedTaus',
     Prediscriminants = noPrediscriminants, #already selected for MiniAOD
+    srcElectrons = 'slimmedElectrons',
     vetoEcalCracks = False, #keep tau candidates in EB-EE cracks
     mvaName_NoEleMatch_wGwoGSF_BL = 'RecoTauTag_antiElectron'+antiElectronDiscrMVA6_version+'_NoEleMatch_wGwoGSF_BL',
     mvaName_NoEleMatch_wGwoGSF_EC = 'RecoTauTag_antiElectron'+antiElectronDiscrMVA6_version+'_NoEleMatch_wGwoGSF_EC',
@@ -247,7 +249,9 @@ patTauDiscriminationByElectronRejectionMVA62018 = patTauDiscriminantCutMultiplex
 antiElectronDiscrMVA6v1_version = "MVA6v1"
 ## Raw
 patTauDiscriminationByElectronRejectionMVA62015Raw = patTauDiscriminationAgainstElectronMVA6.clone(
+    PATTauProducer = 'slimmedTaus',
     Prediscriminants = noPrediscriminants, #already selected for MiniAOD
+    srcElectrons = 'slimmedElectrons',
     vetoEcalCracks = True, #don't keep tau candidates in EB-EE cracks for v1
     mvaName_NoEleMatch_wGwoGSF_BL = 'RecoTauTag_antiElectron'+antiElectronDiscrMVA6v1_version+'_gbr_NoEleMatch_wGwoGSF_BL',
     mvaName_NoEleMatch_wGwoGSF_EC = 'RecoTauTag_antiElectron'+antiElectronDiscrMVA6v1_version+'_gbr_NoEleMatch_wGwoGSF_EC',
