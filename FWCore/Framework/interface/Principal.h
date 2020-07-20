@@ -237,6 +237,9 @@ namespace edm {
     void getThinnedProducts(ProductID const&,
                             std::vector<WrapperBase const*>&,
                             std::vector<unsigned int>&) const override;
+    std::optional<unsigned int> getThinnedKeyFrom(ProductID const& parent,
+                                                  unsigned int key,
+                                                  ProductID const& thinned) const override;
 
     void findProducts(std::vector<ProductResolverBase const*> const& holders,
                       TypeID const& typeID,

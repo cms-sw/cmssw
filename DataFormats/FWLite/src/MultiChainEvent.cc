@@ -44,6 +44,12 @@ namespace fwlite {
         event_->getThinnedProducts(pid, foundContainers, keys);
       }
 
+      std::optional<unsigned int> getThinnedKeyFrom(edm::ProductID const& parent,
+                                                    unsigned int key,
+                                                    edm::ProductID const& thinned) const override {
+        return event_->getThinnedKeyFrom(parent, key, thinned);
+      }
+
     private:
       unsigned int transitionIndex_() const override { return 0U; }
 
@@ -342,6 +348,19 @@ namespace fwlite {
       (const_cast<MultiChainEvent*>(this))->toSec(event1_->id());
       event2_->getThinnedProducts(pid, wrappers, keys);
     }
+  }
+
+  std::optional<unsigned int> MultiChainEvent::getThinnedKeyFrom(edm::ProductID const& parent,
+                                                                 unsigned int key,
+                                                                 edm::ProductID const& thinned) const {
+    // First try the first file
+    auto edp = event1_->getThinnedKeyFrom(parent, key, thinned);
+    // Did not find the product, try secondary file
+    if (not edp.has_value()) {
+      (const_cast<MultiChainEvent*>(this))->toSec(event1_->id());
+      edp = event2_->getThinnedKeyFrom(parent, key, thinned);
+    }
+    return edp;
   }
 
   bool MultiChainEvent::isValid() const { return event1_->isValid(); }

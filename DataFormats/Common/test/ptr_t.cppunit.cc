@@ -298,6 +298,10 @@ namespace {
                             std::vector<WrapperBase const*>& wrappers,
                             std::vector<unsigned int>& keys) const override {}
 
+    std::optional<unsigned int> getThinnedKeyFrom(ProductID const&, unsigned int, ProductID const&) const override {
+      return std::nullopt;
+    }
+
     unsigned int transitionIndex_() const override { return 0U; }
 
     TestGetter() : hold_() {}

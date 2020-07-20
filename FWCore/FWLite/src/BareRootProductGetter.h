@@ -72,6 +72,17 @@ public:
                           std::vector<edm::WrapperBase const*>& foundContainers,
                           std::vector<unsigned int>& keys) const override;
 
+  // This overload is allowed to be called also without getIt()
+  // being called first, but he thinned ProductID must come from an
+  // existing RefCore. The input key is the index of the desired
+  // element in the container identified by the parent ProductID.
+  // If the return value is not null, then the desired element was found
+  // in a thinned container. If the desired element is not found, then
+  // an optional without a value is returned.
+  std::optional<unsigned int> getThinnedKeyFrom(edm::ProductID const& parent,
+                                                unsigned int key,
+                                                edm::ProductID const& thinned) const override;
+
 private:
   // ---------- static member functions --------------------
 

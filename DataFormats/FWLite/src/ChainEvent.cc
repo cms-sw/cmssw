@@ -229,6 +229,12 @@ namespace fwlite {
     event_->getThinnedProducts(pid, foundContainers, keys);
   }
 
+  std::optional<unsigned int> ChainEvent::getThinnedKeyFrom(edm::ProductID const& parent,
+                                                            unsigned int key,
+                                                            edm::ProductID const& thinned) const {
+    return event_->getThinnedKeyFrom(parent, key, thinned);
+  }
+
   bool ChainEvent::isValid() const { return event_->isValid(); }
   ChainEvent::operator bool() const { return *event_; }
 

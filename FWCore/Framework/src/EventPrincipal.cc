@@ -325,6 +325,23 @@ namespace edm {
         keys);
   }
 
+  std::optional<unsigned int> EventPrincipal::getThinnedKeyFrom(ProductID const& parentID,
+                                                                unsigned int key,
+                                                                ProductID const& thinnedID) const {
+    BranchID parent = pidToBid(parentID);
+    BranchID thinned = pidToBid(thinnedID);
+
+    try {
+      return detail::getThinnedKeyFrom_implementation(
+          parentID, parent, key, thinnedID, thinned, *thinnedAssociationsHelper_, [this](BranchID const& branchID) {
+            return getThinnedAssociation(branchID);
+          });
+    } catch (Exception& ex) {
+      ex.addContext("Calling EventPrincipal::getThinnedKeyFrom()");
+      throw ex;
+    }
+  }
+
   Provenance EventPrincipal::getProvenance(ProductID const& pid, ModuleCallingContext const* mcc) const {
     BranchID bid = pidToBid(pid);
     return getProvenance(bid, mcc);

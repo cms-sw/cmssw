@@ -116,6 +116,10 @@ namespace fwlite {
                             std::vector<edm::WrapperBase const*>& foundContainers,
                             std::vector<unsigned int>& keys) const;
 
+    std::optional<unsigned int> getThinnedKeyFrom(edm::ProductID const& parent,
+                                                  unsigned int key,
+                                                  edm::ProductID const& thinned) const;
+
     fwlite::LuminosityBlock const& getLuminosityBlock();
     fwlite::Run const& getRun();
 

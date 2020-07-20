@@ -120,11 +120,13 @@ namespace edmtest {
     // Check to see the content is what we expect based on what was written
     // by ThingProducer and TrackOfThingsProducer. The values are somewhat
     // arbitrary and meaningless.
+    edm::RefProd<ThingCollection> thinnedRefProd;
     if (thinnedWasDropped_) {
       if (thinnedCollection.isValid()) {
         throw cms::Exception("TestFailure") << "thinned collection present, should have been dropped";
       }
     } else {
+      thinnedRefProd = edm::RefProd<ThingCollection>{thinnedCollection};
       unsigned expectedIndex = 0;
       if (thinnedCollection->size() != expectedThinnedContent_.size()) {
         throw cms::Exception("TestFailure") << "thinned collection has unexpected size";
@@ -191,6 +193,36 @@ namespace edmtest {
         }
       }
 
+      if (not thinnedWasDropped_) {
+        auto refToThinned = edm::thinnedRefFrom(track.ref1, thinnedRefProd, event.productGetter());
+        if (*expectedValue == -1) {
+          if (refToThinned.isNonnull()) {
+            throw cms::Exception("TestFailure") << "thinnedRefFrom(ref1) is non-null when it should be null";
+          }
+          if (refToThinned.isAvailable()) {
+            throw cms::Exception("TestFailure") << "thinnedRefFrom(ref1) is available when it should not be";
+          }
+        } else {
+          if (refToThinned.isNull()) {
+            throw cms::Exception("TestFailure") << "thinnedRefFrom(ref1) is null when it should not be";
+          }
+          if (refToThinned.id() != thinnedCollection.id()) {
+            throw cms::Exception("TestFailure") << "thinnedRefFrom(ref).id() " << refToThinned.id()
+                                                << " differs from expectation " << thinnedCollection.id();
+          }
+          if (not refToThinned.isAvailable()) {
+            throw cms::Exception("TestFailure") << "thinnedRefFrom(ref1) is not available when it should be";
+          }
+          // Check twice to test some possible caching problems.
+          if (refToThinned->a != *expectedValue + eventOffset) {
+            throw cms::Exception("TestFailure") << "Unexpected values from thinnedRefFrom(ref1)";
+          }
+          if (refToThinned->a != *expectedValue + eventOffset) {
+            throw cms::Exception("TestFailure") << "Unexpected values from thinnedRefFrom(ref1) (2nd try)";
+          }
+        }
+      }
+
       if (*expectedValue == -1) {
         if (track.refToBase1.isAvailable()) {
           throw cms::Exception("TestFailure") << "refToBase1 is available when it should not be";
@@ -226,6 +258,37 @@ namespace edmtest {
           throw cms::Exception("TestFailure") << "unexpected values from ref2";
         }
       }
+
+      if (not thinnedWasDropped_) {
+        auto refToThinned = edm::thinnedRefFrom(track.ref2, thinnedRefProd, event.productGetter());
+        if (*expectedValue == -1) {
+          if (refToThinned.isNonnull()) {
+            throw cms::Exception("TestFailure") << "thinnedRefFrom(ref2) is non-null when it should be null";
+          }
+          if (refToThinned.isAvailable()) {
+            throw cms::Exception("TestFailure") << "thinnedRefFrom(ref2) is available when it should not be";
+          }
+        } else {
+          if (refToThinned.isNull()) {
+            throw cms::Exception("TestFailure") << "thinnedRefFrom(ref2) is null when it should not be";
+          }
+          if (refToThinned.id() != thinnedCollection.id()) {
+            throw cms::Exception("TestFailure") << "thinnedRefFrom(ref2).id() " << refToThinned.id()
+                                                << " differs from expectation " << thinnedCollection.id();
+          }
+          if (not refToThinned.isAvailable()) {
+            throw cms::Exception("TestFailure") << "thinnedRefFrom(ref2) is not available when it should be";
+          }
+          // Check twice to test some possible caching problems.
+          if (refToThinned->a != *expectedValue + eventOffset) {
+            throw cms::Exception("TestFailure") << "Unexpected values from thinnedRefFrom(ref2)";
+          }
+          if (refToThinned->a != *expectedValue + eventOffset) {
+            throw cms::Exception("TestFailure") << "Unexpected values from thinnedRefFrom(ref2) (2nd try)";
+          }
+        }
+      }
+
       incrementExpectedValue(expectedValue);
 
       if (*expectedValue == -1) {
@@ -269,6 +332,12 @@ namespace edmtest {
       bool allPresent = true;
       for (auto iExpectedValue : expectedValues_) {
         if (iExpectedValue != -1) {
+          if (not thinnedWasDropped_) {
+            auto refToThinned = edm::thinnedRefFrom(track.refVector1[k], thinnedRefProd, event.productGetter());
+            if (refToThinned->a != iExpectedValue + eventOffset) {
+              throw cms::Exception("TestFailure") << "unexpected values from thinnedRefFrom(refVector1)";
+            }
+          }
           if (track.refVector1[k]->a != iExpectedValue + eventOffset) {
             throw cms::Exception("TestFailure") << "unexpected values from refVector1";
           }
