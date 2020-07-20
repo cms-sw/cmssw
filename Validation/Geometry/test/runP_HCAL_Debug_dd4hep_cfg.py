@@ -81,7 +81,7 @@ process.g4SimHits.Watchers = cms.VPSet(cms.PSet(
         EtaMaxP      = cms.untracked.double(5.5),
         RMax         = cms.untracked.double(5.0),
         ZMax         = cms.untracked.double(14.0),
-        UseDD4Hep    = cms.untracked.bool(True)
+        Fromdd4hep   = cms.untracked.bool(True)
     ),
     type = cms.string('MaterialBudgetHcal')
 ))

@@ -63,7 +63,7 @@ void MaterialBudgetHcalHistos::fillBeginJob(const DDCompactView& cpv) {
           << "MaterialBudgetHcalHistos:  HF[" << i << "] = " << hfNames_[i] << " at level " << hfLevels_[i];
     }
 
-    std::string ecalRO[2] = {"EcalHitsEB", "EcalHitsEE"};
+    const std::string ecalRO[2] = {"EcalHitsEB", "EcalHitsEE"};
     attribute = "ReadOutName";
     for (int k = 0; k < 2; k++) {
       value = ecalRO[k];
@@ -107,7 +107,7 @@ void MaterialBudgetHcalHistos::fillBeginJob(const cms::DDCompactView& cpv) {
           << "MaterialBudgetHcalHistos:  HF[" << i << "] = " << hfNames_[i] << " at level " << hfLevels_[i];
     }
 
-    std::string ecalRO[2] = {"EcalHitsEB", "EcalHitsEE"};
+    const std::string ecalRO[2] = {"EcalHitsEB", "EcalHitsEE"};
     attribute = "ReadOutName";
     for (int k = 0; k < 2; k++) {
       value = ecalRO[k];
@@ -467,7 +467,7 @@ std::vector<std::string> MaterialBudgetHcalHistos::getNames(DDFilteredView& fv) 
 
 std::vector<std::string> MaterialBudgetHcalHistos::getNames(cms::DDFilteredView& fv) {
   std::vector<std::string> tmp;
-  std::vector<std::string> notIn = {
+  const std::vector<std::string> notIn = {
       "CALO", "HCal", "MBBTL", "MBBTR", "MBBTC", "MBAT", "MBBT_R1M", "MBBT_R1P", "VCAL", "HVQF"};
   while (fv.firstChild()) {
     const std::string n{fv.name().data(), fv.name().size()};
