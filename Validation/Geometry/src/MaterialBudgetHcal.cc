@@ -22,10 +22,10 @@ MaterialBudgetHcal::MaterialBudgetHcal(const edm::ParameterSet& p) {
   edm::ParameterSet m_p = p.getParameter<edm::ParameterSet>("MaterialBudgetHcal");
   rMax_ = m_p.getUntrackedParameter<double>("RMax", 4.5) * CLHEP::m;
   zMax_ = m_p.getUntrackedParameter<double>("ZMax", 13.0) * CLHEP::m;
-  useDD4Hep_ = m_p.getUntrackedParameter<bool>("UseDD4Hep", false);
+  fromdd4hep_ = m_p.getUntrackedParameter<bool>("Fromdd4hep", false);
   bool doHcal = m_p.getUntrackedParameter<bool>("DoHCAL", true);
   edm::LogVerbatim("MaterialBudget") << "MaterialBudgetHcal initialized with rMax " << rMax_ << " mm and zMax " << zMax_
-                                     << " mm doHcal is set to " << doHcal << " and UseDD4Hep to " << useDD4Hep_;
+                                     << " mm doHcal is set to " << doHcal << " and Fromdd4hep to " << fromdd4hep_;
   if (doHcal) {
     theHistoHcal_.reset(new MaterialBudgetHcalHistos(m_p));
     theHistoCastor_.reset(nullptr);
@@ -38,7 +38,7 @@ MaterialBudgetHcal::MaterialBudgetHcal(const edm::ParameterSet& p) {
 void MaterialBudgetHcal::update(const BeginOfJob* job) {
   //----- Check that selected volumes are indeed part of the geometry
   // Numbering From DDD
-  if (useDD4Hep_) {
+  if (fromdd4hep_) {
     edm::ESTransientHandle<cms::DDCompactView> pDD;
     (*job)()->get<IdealGeometryRecord>().get(pDD);
     if (theHistoHcal_)
