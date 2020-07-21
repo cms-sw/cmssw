@@ -1,5 +1,5 @@
 #include <cstdint>
-#include "EventFilter/GEMRawToDigi/interface/AMCdata.h"
+#include "DataFormats/GEMDigi/interface/AMCdata.h"
 
 using namespace gem;
 

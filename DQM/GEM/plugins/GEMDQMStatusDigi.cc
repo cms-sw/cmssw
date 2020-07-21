@@ -14,9 +14,9 @@
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 
-#include "EventFilter/GEMRawToDigi/interface/GEMVfatStatusDigiCollection.h"
-#include "EventFilter/GEMRawToDigi/interface/GEMGEBdataCollection.h"
-#include "EventFilter/GEMRawToDigi/interface/GEMAMCdataCollection.h"
+#include "DataFormats/GEMDigi/interface/GEMVfatStatusDigiCollection.h"
+#include "DataFormats/GEMDigi/interface/GEMGEBdataCollection.h"
+#include "DataFormats/GEMDigi/interface/GEMAMCdataCollection.h"
 #include "DataFormats/GEMDigi/interface/GEMDigiCollection.h"
 
 #include <string>

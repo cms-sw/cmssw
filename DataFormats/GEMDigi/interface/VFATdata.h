@@ -1,5 +1,5 @@
-#ifndef EventFilter_GEMRawToDigi_VFATdata_h
-#define EventFilter_GEMRawToDigi_VFATdata_h
+#ifndef DataFormats_GEMDigi_VFATdata_h
+#define DataFormats_GEMDigi_VFATdata_h
 
 #include <cstdint>
 
