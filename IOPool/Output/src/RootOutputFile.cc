@@ -636,9 +636,9 @@ namespace edm {
 
     assert(b);
 
-    LogDebug("writeEventAuxiliary")
-        << "EventAuxiliary ratio extras/GUIDs/all = " << compactEventAuxiliary_.extrasSize() 
-        << "/" << compactEventAuxiliary_.guidsSize() << "/" << compactEventAuxiliary_.size();
+    LogDebug("writeEventAuxiliary") << "EventAuxiliary ratio extras/GUIDs/all = " << compactEventAuxiliary_.extrasSize()
+                                    << "/" << compactEventAuxiliary_.guidsSize() << "/"
+                                    << compactEventAuxiliary_.size();
 
     for (auto const& aux : compactEventAuxiliary_) {
       const auto ea = aux.eventAuxiliary();
