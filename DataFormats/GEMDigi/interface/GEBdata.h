@@ -1,5 +1,5 @@
-#ifndef EventFilter_GEMRawToDigi_GEBdata_h
-#define EventFilter_GEMRawToDigi_GEBdata_h
+#ifndef DataFormats_GEMDigi_GEBdata_h
+#define DataFormats_GEMDigi_GEBdata_h
 #include "VFATdata.h"
 #include <vector>
 

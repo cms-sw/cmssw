@@ -2,7 +2,7 @@
 #define DataFormats_GEMDigi_GEMVfatStatusDigi_H
 
 #include <cstdint>
-#include "EventFilter/GEMRawToDigi/interface/VFATdata.h"
+#include "DataFormats/GEMDigi/interface/VFATdata.h"
 
 class GEMVfatStatusDigi {
 public:
