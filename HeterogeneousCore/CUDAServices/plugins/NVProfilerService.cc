@@ -12,7 +12,7 @@
 #include <tbb/concurrent_vector.h>
 #include <tbb/enumerable_thread_specific.h>
 
-#include <boost/format.hpp>
+#include <fmt/printf.h>
 
 #include <cuda_profiler_api.h>
 #include <nvToolsExt.h>
@@ -502,7 +502,7 @@ void NVProfilerService::preallocate(edm::service::SystemBounds const& bounds) {
   // create the NVTX domains for per-EDM-stream transitions
   stream_domain_.resize(concurrentStreams);
   for (unsigned int sid = 0; sid < concurrentStreams; ++sid) {
-    stream_domain_[sid] = nvtxDomainCreate((boost::format("EDM Stream %d") % sid).str().c_str());
+    stream_domain_[sid] = nvtxDomainCreate(fmt::sprintf("EDM Stream %d", sid).c_str());
   }
 
   event_.resize(concurrentStreams);
