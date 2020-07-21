@@ -1706,13 +1706,13 @@ void HGCalGeomParameters::loadCellTrapezoid(HGCalParameters& php) {
     //Ring radii for each partition
     for (unsigned k = 0; k < 2; ++k) {
       for (unsigned int kk = 0; kk < php.tileRingR_.size(); ++kk) {
-	php.radiusLayer_[k].emplace_back(php.tileRingR_[kk].first);
+        php.radiusLayer_[k].emplace_back(php.tileRingR_[kk].first);
 #ifdef EDM_ML_DEBUG
-	double zv = ((k == 0) ? (php.zLayerHex_[php.layerFrontBH_[1] - php.firstLayer_])
+        double zv = ((k == 0) ? (php.zLayerHex_[php.layerFrontBH_[1] - php.firstLayer_])
                               : (php.zLayerHex_[php.zLayerHex_.size() - 1]));
-	double rv = php.radiusLayer_[k].back();
-	double eta = -(std::log(std::tan(0.5 * std::atan(rv / zv))));
-	edm::LogVerbatim("HGCalGeom") << "[" << kk << "] new R = " << rv << " Eta = " << eta;
+        double rv = php.radiusLayer_[k].back();
+        double eta = -(std::log(std::tan(0.5 * std::atan(rv / zv))));
+        edm::LogVerbatim("HGCalGeom") << "[" << kk << "] new R = " << rv << " Eta = " << eta;
 #endif
       }
     }
@@ -1723,14 +1723,14 @@ void HGCalGeomParameters::loadCellTrapezoid(HGCalParameters& php) {
 #ifdef EDM_ML_DEBUG
       int kk = php.scintType(php.firstLayer_ + (int)(k));
       edm::LogVerbatim("HGcalGeom") << "Layer " << k << " Type " << kk << " Low edge " << php.iradMinBH_.back()
-				    << " Top edge " << php.iradMaxBH_.back();
+                                    << " Top edge " << php.iradMaxBH_.back();
 #endif
     }
   } else {
     //Ring radii for each partition
     for (unsigned k = 0; k < 2; ++k) {
       double rmax = ((k == 0) ? (php.rMaxLayHex_[php.layerFrontBH_[1] - php.firstLayer_] - 1)
-		              : (php.rMaxLayHex_[php.rMaxLayHex_.size() - 1]));
+                              : (php.rMaxLayHex_[php.rMaxLayHex_.size() - 1]));
       double rv = php.rMinLayerBH_[k];
       double zv = ((k == 0) ? (php.zLayerHex_[php.layerFrontBH_[1] - php.firstLayer_])
                             : (php.zLayerHex_[php.zLayerHex_.size() - 1]));
@@ -1738,16 +1738,16 @@ void HGCalGeomParameters::loadCellTrapezoid(HGCalParameters& php) {
 #ifdef EDM_ML_DEBUG
       double eta = -(std::log(std::tan(0.5 * std::atan(rv / zv))));
       edm::LogVerbatim("HGCalGeom") << "[" << k << "] rmax " << rmax << " Z = " << zv << " dEta = " << php.cellSize_[k]
-				    << "\n[0] new R = " << rv << " Eta = " << eta;
+                                    << "\n[0] new R = " << rv << " Eta = " << eta;
       int kount(1);
 #endif
       while (rv < rmax) {
-	double eta = -(php.cellSize_[k] + std::log(std::tan(0.5 * std::atan(rv / zv))));
-	rv = zv * std::tan(2.0 * std::atan(std::exp(-eta)));
-	php.radiusLayer_[k].emplace_back(rv);
+        double eta = -(php.cellSize_[k] + std::log(std::tan(0.5 * std::atan(rv / zv))));
+        rv = zv * std::tan(2.0 * std::atan(std::exp(-eta)));
+        php.radiusLayer_[k].emplace_back(rv);
 #ifdef EDM_ML_DEBUG
-	edm::LogVerbatim("HGCalGeom") << "[" << kount << "] new R = " << rv << " Eta = " << eta;
-	++kount;
+        edm::LogVerbatim("HGCalGeom") << "[" << kount << "] new R = " << rv << " Eta = " << eta;
+        ++kount;
 #endif
       }
     }
@@ -1758,46 +1758,46 @@ void HGCalGeomParameters::loadCellTrapezoid(HGCalParameters& php) {
       low = std::lower_bound(php.radiusLayer_[kk].begin(), php.radiusLayer_[kk].end(), php.rMinLayHex_[k]);
 #ifdef EDM_ML_DEBUG
       edm::LogVerbatim("HGCalGeom") << "[" << k << "] RLow = " << php.rMinLayHex_[k] << " pos "
-				    << (int)(low - php.radiusLayer_[kk].begin());
+                                    << (int)(low - php.radiusLayer_[kk].begin());
 #endif
       if (low == php.radiusLayer_[kk].begin())
-	++low;
+        ++low;
       int irlow = (int)(low - php.radiusLayer_[kk].begin());
       double drlow = php.radiusLayer_[kk][irlow] - php.rMinLayHex_[k];
 #ifdef EDM_ML_DEBUG
       edm::LogVerbatim("HGCalGeom") << "irlow " << irlow << " dr " << drlow << " min " << php.minTileSize_;
 #endif
       if (drlow < php.minTileSize_) {
-	++irlow;
+        ++irlow;
 #ifdef EDM_ML_DEBUG
-	drlow = php.radiusLayer_[kk][irlow] - php.rMinLayHex_[k];
-	edm::LogVerbatim("HGCalGeom") << "Modified irlow " << irlow << " dr " << drlow;
+        drlow = php.radiusLayer_[kk][irlow] - php.rMinLayHex_[k];
+        edm::LogVerbatim("HGCalGeom") << "Modified irlow " << irlow << " dr " << drlow;
 #endif
       }
       high = std::lower_bound(php.radiusLayer_[kk].begin(), php.radiusLayer_[kk].end(), php.rMaxLayHex_[k]);
 #ifdef EDM_ML_DEBUG
       edm::LogVerbatim("HGCalGeom") << "[" << k << "] RHigh = " << php.rMaxLayHex_[k] << " pos "
-				    << (int)(high - php.radiusLayer_[kk].begin());
+                                    << (int)(high - php.radiusLayer_[kk].begin());
 #endif
       if (high == php.radiusLayer_[kk].end())
-	--high;
+        --high;
       int irhigh = (int)(high - php.radiusLayer_[kk].begin());
       double drhigh = php.rMaxLayHex_[k] - php.radiusLayer_[kk][irhigh - 1];
 #ifdef EDM_ML_DEBUG
       edm::LogVerbatim("HGCalGeom") << "irhigh " << irhigh << " dr " << drhigh << " min " << php.minTileSize_;
 #endif
       if (drhigh < php.minTileSize_) {
-	--irhigh;
+        --irhigh;
 #ifdef EDM_ML_DEBUG
-	drhigh = php.rMaxLayHex_[k] - php.radiusLayer_[kk][irhigh - 1];
-	edm::LogVerbatim("HGCalGeom") << "Modified irhigh " << irhigh << " dr " << drhigh;
+        drhigh = php.rMaxLayHex_[k] - php.radiusLayer_[kk][irhigh - 1];
+        edm::LogVerbatim("HGCalGeom") << "Modified irhigh " << irhigh << " dr " << drhigh;
 #endif
       }
       php.iradMinBH_.emplace_back(irlow);
       php.iradMaxBH_.emplace_back(irhigh);
 #ifdef EDM_ML_DEBUG
       edm::LogVerbatim("HGcalGeom") << "Layer " << k << " Type " << kk << " Low edge " << irlow << ":" << drlow
-				    << " Top edge " << irhigh << ":" << drhigh;
+                                    << " Top edge " << irhigh << ":" << drhigh;
 #endif
     }
   }
