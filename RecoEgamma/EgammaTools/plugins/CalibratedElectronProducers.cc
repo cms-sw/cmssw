@@ -31,6 +31,8 @@
 
 #include "TRandom2.h"
 
+#include <memory>
+
 #include <vector>
 
 template <typename T>
@@ -92,7 +94,7 @@ CalibratedElectronProducerT<T>::CalibratedElectronProducerT(const edm::Parameter
   energyCorrector_.setMinEt(conf.getParameter<double>("minEtToCalibrate"));
 
   if (conf.getParameter<bool>("semiDeterministic")) {
-    semiDeterministicRng_.reset(new TRandom2());
+    semiDeterministicRng_ = std::make_unique<TRandom2>();
     energyCorrector_.initPrivateRng(semiDeterministicRng_.get());
   }
 
@@ -116,6 +118,7 @@ void CalibratedElectronProducerT<T>::fillDescriptions(edm::ConfigurationDescript
   desc.add<bool>("produceCalibratedObjs", true);
   desc.add<bool>("semiDeterministic", true);
   std::vector<std::string> valMapsProduced;
+  valMapsProduced.reserve(valMapsToStore_.size());
   for (auto varToStore : valMapsToStore_)
     valMapsProduced.push_back(EGEnergySysIndex::name(varToStore));
   desc.add<std::vector<std::string>>("valueMapsStored", valMapsProduced)

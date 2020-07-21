@@ -1,3 +1,5 @@
+#include <memory>
+
 #include "RecoLocalTracker/SiStripZeroSuppression/interface/SiStripRawProcessingFactory.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -66,11 +68,11 @@ std::unique_ptr<SiStripFedZeroSuppression> SiStripRawProcessingFactory::create_S
     case 2:
     case 3:
     case 4:
-      return std::unique_ptr<SiStripFedZeroSuppression>(new SiStripFedZeroSuppression(mode, trunc, trunc10bits));
+      return std::make_unique<SiStripFedZeroSuppression>(mode, trunc, trunc10bits);
     default:
       edm::LogError("SiStripRawProcessingFactory::createSuppressor")
           << "Unregistered mode: " << mode << ". Use one of {1,2,3,4}.";
-      return std::unique_ptr<SiStripFedZeroSuppression>(new SiStripFedZeroSuppression(4, true, trunc10bits));
+      return std::make_unique<SiStripFedZeroSuppression>(4, true, trunc10bits);
   }
 }
 

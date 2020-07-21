@@ -303,9 +303,9 @@ void CkfTrajectoryBuilder::updateTrajectory(TempTrajectory& traj, TM&& tm) const
   auto&& hit = tm.recHit();
   if (hit->isValid()) {
     auto&& upState = theUpdator->update(predictedState, *hit);
-    traj.emplace(std::move(predictedState), std::move(upState), std::move(hit), tm.estimate(), tm.layer());
+    traj.emplace(predictedState, std::move(upState), hit, tm.estimate(), tm.layer());
   } else {
-    traj.emplace(std::move(predictedState), std::move(hit), 0, tm.layer());
+    traj.emplace(predictedState, hit, 0, tm.layer());
   }
 }
 
@@ -328,19 +328,18 @@ void CkfTrajectoryBuilder::findCompatibleMeasurements(const TrajectorySeed& seed
 
     TSOS stateToUse = stateAndLayers.first;
     //Added protection before asking for the lastLayer on the trajectory
-    if
-      UNLIKELY(!traj.empty() && (*il) == traj.lastLayer()) {
-        LogDebug("CkfPattern") << " self propagating in findCompatibleMeasurements.\n from: \n" << stateToUse;
-        //self navigation case
-        // go to a middle point first
-        TransverseImpactPointExtrapolator middle;
-        GlobalPoint center(0, 0, 0);
-        stateToUse = middle.extrapolate(stateToUse, center, *fwdPropagator);
+    if UNLIKELY (!traj.empty() && (*il) == traj.lastLayer()) {
+      LogDebug("CkfPattern") << " self propagating in findCompatibleMeasurements.\n from: \n" << stateToUse;
+      //self navigation case
+      // go to a middle point first
+      TransverseImpactPointExtrapolator middle;
+      GlobalPoint center(0, 0, 0);
+      stateToUse = middle.extrapolate(stateToUse, center, *fwdPropagator);
 
-        if (!stateToUse.isValid())
-          continue;
-        LogDebug("CkfPattern") << "to: " << stateToUse;
-      }
+      if (!stateToUse.isValid())
+        continue;
+      LogDebug("CkfPattern") << "to: " << stateToUse;
+    }
 
     LayerMeasurements layerMeasurements(theMeasurementTracker->measurementTracker(), *theMeasurementTracker);
     std::vector<TrajectoryMeasurement>&& tmp =

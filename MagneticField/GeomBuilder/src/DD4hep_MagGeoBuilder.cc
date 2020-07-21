@@ -357,7 +357,7 @@ void MagGeoBuilder::build(const cms::DDDetector* det) {
   buildMagVolumes(bVolumes_, bInterpolators);
 
   // Build MagBLayers
-  for (auto ilay : layers) {
+  for (const auto& ilay : layers) {
     mBLayers_.push_back(ilay.buildMagBLayer());
   }
   LogTrace("MagGeoBuilder") << "*** BARREL ********************************************" << newln
@@ -372,7 +372,7 @@ void MagGeoBuilder::build(const cms::DDDetector* det) {
   buildMagVolumes(eVolumes_, eInterpolators);
 
   // Build the MagESectors
-  for (auto isec : sectors) {
+  for (const auto& isec : sectors) {
     mESectors_.push_back(isec.buildMagESector());
   }
   LogTrace("MagGeoBuilder") << "*** ENDCAP ********************************************" << newln

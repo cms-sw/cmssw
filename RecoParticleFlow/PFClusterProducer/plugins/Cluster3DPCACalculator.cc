@@ -2,6 +2,8 @@
 #include "FWCore/Utilities/interface/isFinite.h"
 
 #include <cmath>
+#include <memory>
+
 #include <unordered_map>
 
 #include "vdt/vdtMath.h"
@@ -38,13 +40,13 @@ private:
 DEFINE_EDM_PLUGIN(PFCPositionCalculatorFactory, Cluster3DPCACalculator, "Cluster3DPCACalculator");
 
 void Cluster3DPCACalculator::calculateAndSetPosition(reco::PFCluster& cluster) {
-  pca_.reset(new TPrincipal(3, "D"));
+  pca_ = std::make_unique<TPrincipal>(3, "D");
   calculateAndSetPositionActual(cluster);
 }
 
 void Cluster3DPCACalculator::calculateAndSetPositions(reco::PFClusterCollection& clusters) {
   for (reco::PFCluster& cluster : clusters) {
-    pca_.reset(new TPrincipal(3, "D"));
+    pca_ = std::make_unique<TPrincipal>(3, "D");
     calculateAndSetPositionActual(cluster);
   }
 }

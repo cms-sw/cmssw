@@ -7,14 +7,16 @@
 
 #include "CSCSegAlgoRU.h"
 #include "CSCSegFit.h"
-#include "Geometry/CSCGeometry/interface/CSCLayer.h"
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 #include "DataFormats/Math/interface/deltaPhi.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "Geometry/CSCGeometry/interface/CSCLayer.h"
 #include <algorithm>
 #include <cmath>
 #include <iostream>
+#include <memory>
+
 #include <string>
 
 CSCSegAlgoRU::CSCSegAlgoRU(const edm::ParameterSet& ps) : CSCSegmentAlgorithm(ps), myName("CSCSegAlgoRU") {
@@ -620,7 +622,7 @@ bool CSCSegAlgoRU::addHit(AlgoState& aState, const CSCRecHit2D* aHit, int layer)
 void CSCSegAlgoRU::updateParameters(AlgoState& aState) const {
   // Delete input CSCSegFit, create a new one and make the fit
   // delete sfit;
-  aState.sfit.reset(new CSCSegFit(aState.aChamber, aState.proto_segment));
+  aState.sfit = std::make_unique<CSCSegFit>(aState.aChamber, aState.proto_segment);
   aState.sfit->fit();
 }
 
@@ -897,7 +899,7 @@ bool CSCSegAlgoRU::replaceHit(AlgoState& aState, const CSCRecHit2D* h, int layer
 void CSCSegAlgoRU::compareProtoSegment(AlgoState& aState, const CSCRecHit2D* h, int layer) const {
   // Copy the input CSCSegFit
   std::unique_ptr<CSCSegFit> oldfit;
-  oldfit.reset(new CSCSegFit(aState.aChamber, aState.proto_segment));
+  oldfit = std::make_unique<CSCSegFit>(aState.aChamber, aState.proto_segment);
   oldfit->fit();
   ChamberHitContainer oldproto = aState.proto_segment;
 
@@ -914,7 +916,7 @@ void CSCSegAlgoRU::increaseProtoSegment(AlgoState& aState, const CSCRecHit2D* h,
   // Creates a new fit
   std::unique_ptr<CSCSegFit> oldfit;
   ChamberHitContainer oldproto = aState.proto_segment;
-  oldfit.reset(new CSCSegFit(aState.aChamber, aState.proto_segment));
+  oldfit = std::make_unique<CSCSegFit>(aState.aChamber, aState.proto_segment);
   oldfit->fit();
 
   bool ok = addHit(aState, h, layer);

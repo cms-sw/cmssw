@@ -199,7 +199,7 @@ void MultiTrajectoryStateAssembler::removeWrongPz() {
   for (auto const &is : oldStates) {
     if (meanPz * is.localParameters().pzSign() >= 0.) {
       theValidWeightSum += is.weight();
-      theStates.push_back(std::move(is));
+      theStates.push_back(is);
     } else {
       theInvalidWeightSum += is.weight();
       LogDebug("GsfTrackFitters") << "removing  weight / pz / global position = " << is.weight() << " "

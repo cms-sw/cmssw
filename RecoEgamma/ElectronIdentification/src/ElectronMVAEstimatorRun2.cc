@@ -97,6 +97,7 @@ float ElectronMVAEstimatorRun2::mvaValue(const reco::Candidate* candidate,
 
   std::vector<float> vars;
 
+  vars.reserve(nVariables_[iCategory]);
   for (int i = 0; i < nVariables_[iCategory]; ++i) {
     vars.push_back(mvaVarMngr_.getValue(variables_[iCategory][i], *electron, auxVariables));
   }
