@@ -285,6 +285,7 @@ namespace edm {
   void PoolOutputModule::writeRun(RunForOutput const& r) { rootOutputFile_->writeRun(r); }
 
   void PoolOutputModule::reallyCloseFile() {
+    writeEventAuxiliary();
     fillDependencyGraph();
     branchParents_.clear();
     startEndFile();
@@ -321,6 +322,7 @@ namespace edm {
   void PoolOutputModule::writeBranchIDListRegistry() { rootOutputFile_->writeBranchIDListRegistry(); }
   void PoolOutputModule::writeThinnedAssociationsHelper() { rootOutputFile_->writeThinnedAssociationsHelper(); }
   void PoolOutputModule::writeProductDependencies() { rootOutputFile_->writeProductDependencies(); }
+  void PoolOutputModule::writeEventAuxiliary() { rootOutputFile_->writeEventAuxiliary(); }
   void PoolOutputModule::finishEndFile() {
     rootOutputFile_->finishEndFile();
     rootOutputFile_ = nullptr;

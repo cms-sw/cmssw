@@ -130,7 +130,10 @@ namespace edm {
       eventTree_.setAutoFlush(-1 * om->eventAutoFlushSize());
     }
     eventTree_.addAuxiliary<EventAuxiliary>(
-        BranchTypeToAuxiliaryBranchName(InEvent), pEventAux_, om_->auxItems()[InEvent].basketSize_);
+        BranchTypeToAuxiliaryBranchName(InEvent), pEventAux_, om_->auxItems()[InEvent].basketSize_, false);
+    eventTree_.tree()->SetBranchStatus(BranchTypeToAuxiliaryBranchName(InEvent).c_str(),
+                                       false);  // see writeEventAuxiliary
+
     eventTree_.addAuxiliary<StoredProductProvenanceVector>(BranchTypeToProductProvenanceBranchName(InEvent),
                                                            pEventEntryInfoVector(),
                                                            om_->auxItems()[InEvent].basketSize_);
@@ -382,7 +385,9 @@ namespace edm {
   }
 
   void RootOutputFile::respondToCloseInputFile(FileBlock const&) {
-    eventTree_.setEntries();
+    // We can't do setEntries() on the event tree because EventAuxiliary is empty;
+    // only do setEntries() when the output file closes
+    //eventTree_.setEntries();
     lumiTree_.setEntries();
     runTree_.setEntries();
   }
@@ -399,7 +404,7 @@ namespace edm {
 
     // Because getting the data may cause an exception to be thrown we want to do that
     // first before writing anything to the file about this event
-    // NOTE: pEventAux_, pBranchListIndexes_, pEventSelectionIDs_, and pEventEntryInfoVector_
+    // NOTE: pBranchListIndexes_, pEventSelectionIDs_, and pEventEntryInfoVector_
     // must be set before calling fillBranches since they get written out in that routine.
     assert(pEventAux_->processHistoryID() == e.processHistoryID());
     pBranchListIndexes_ = &e.branchListIndexes();
@@ -435,6 +440,8 @@ namespace edm {
     indexIntoFile_.addEntry(
         reducedPHID, pEventAux_->run(), pEventAux_->luminosityBlock(), pEventAux_->event(), eventEntryNumber_);
     ++eventEntryNumber_;
+
+    compactEventAuxiliary_.push_back(*pEventAux_);
 
     // Report event written
     Service<JobReport> reportSvc;
@@ -609,6 +616,36 @@ namespace edm {
         metaDataTree_->Branch(poolNames::productDependenciesBranchName().c_str(), &ppDeps, om_->basketSize(), 0);
     assert(b);
     b->Fill();
+  }
+
+  // For duplicate removal and to determine if fast cloning is possible, the input
+  // module by default reads the entire EventAuxiliary branch when it opens the
+  // input files.  If EventAuxiliary is written in the usual way, this results
+  // in many small reads scattered throughout the file, which can have very poor
+  // performance characteristics on some filesystems.  As a workaround, we save
+  // EventAuxiliary and write it at the end of the file.
+
+  void RootOutputFile::writeEventAuxiliary() {
+    auto tree = eventTree_.tree();
+    auto bname = BranchTypeToAuxiliaryBranchName(InEvent).c_str();
+
+    tree->SetBranchStatus(bname, true);
+    auto basketsize = compactEventAuxiliary_.size() * (sizeof(EventAuxiliary) + 26);  // 26 is an empirical fudge factor
+    tree->SetBasketSize(bname, basketsize);
+    auto b = tree->GetBranch(bname);
+
+    assert(b);
+
+    LogDebug("writeEventAuxiliary")
+        << "EventAuxiliary ratio extras/GUIDs/all = " << compactEventAuxiliary_.extrasSize() 
+        << "/" << compactEventAuxiliary_.guidsSize() << "/" << compactEventAuxiliary_.size();
+
+    for (auto const& aux : compactEventAuxiliary_) {
+      const auto ea = aux.eventAuxiliary();
+      pEventAux_ = &ea;
+      // Fill EventAuxiliary branch
+      b->Fill();
+    }
   }
 
   void RootOutputFile::finishEndFile() {
