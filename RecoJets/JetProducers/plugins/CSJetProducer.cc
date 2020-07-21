@@ -117,13 +117,14 @@ void CSJetProducer::runAlgorithm(edm::Event& iEvent, edm::EventSetup const& iSet
       }
 
       int32_t ghostPos = -1;
-      if (ighost.eta() <= etaRanges->at(0) || bkgVecSize == 1) {
+      auto const ighostEta = ighost.eta();
+      if (ighostEta <= etaRanges->at(0) || bkgVecSize == 1) {
         ghostPos = 0;
-      } else if (ighost.eta() >= etaRanges->at(bkgVecSize - 1)) {
+      } else if (ighostEta >= etaRanges->at(bkgVecSize - 1)) {
         ghostPos = rhoRanges->size() - 1;
       } else {
         for (unsigned int ie = 0; ie < (bkgVecSize - 1); ie++) {
-          if (ighost.eta() >= etaRanges->at(ie) && ighost.eta() < etaRanges->at(ie + 1)) {
+          if (ighostEta >= etaRanges->at(ie) && ighostEta < etaRanges->at(ie + 1)) {
             ghostPos = ie;
             break;
           }
