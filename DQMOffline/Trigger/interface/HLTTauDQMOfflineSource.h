@@ -45,7 +45,7 @@ private:
   edm::EDGetTokenT<trigger::TriggerEvent> triggerEventToken_;
 
   // For path plotters
-  const std::regex pathRegex_;
+  const std::string pathRegex_;
   const int nPtBins_, nEtaBins_, nPhiBins_;
   const double ptMax_, highPtMax_, l1MatchDr_, hltMatchDr_;
   const std::string dqmBaseFolder_;
