@@ -1,78 +1,60 @@
 #ifndef HeterogeneousCore_SonicCore_SonicClientBase
 #define HeterogeneousCore_SonicCore_SonicClientBase
 
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/Concurrency/interface/WaitingTaskWithArenaHolder.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "HeterogeneousCore/SonicCore/interface/SonicDispatcher.h"
+#include "HeterogeneousCore/SonicCore/interface/SonicDispatcherPseudoAsync.h"
 
 #include <string>
 #include <chrono>
 #include <exception>
+#include <memory>
+
+enum class SonicMode { Sync = 1, Async = 2, PseudoAsync = 3 };
 
 class SonicClientBase {
 public:
   //constructor
-  SonicClientBase() : tries_(0) {}
+  SonicClientBase(const edm::ParameterSet& params);
 
   //destructor
   virtual ~SonicClientBase() = default;
 
-  void setDebugName(const std::string& debugName) {
-    debugName_ = debugName;
-    fullDebugName_ = debugName_;
-    if (!clientName_.empty())
-      fullDebugName_ += ":" + clientName_;
-  }
+  void setDebugName(const std::string& debugName);
   const std::string& debugName() const { return debugName_; }
   const std::string& clientName() const { return clientName_; }
 
   //main operation
-  virtual void dispatch(edm::WaitingTaskWithArenaHolder holder) = 0;
+  virtual void dispatch(edm::WaitingTaskWithArenaHolder holder) { dispatcher_->dispatch(std::move(holder)); }
+
+  //helper
+  virtual void reset() = 0;
+
+  //provide base params
+  static edm::ParameterSetDescription basePSetDescription(bool allowRetry = true);
 
 protected:
   virtual void evaluate() = 0;
 
-  //this should be overridden by clients that allow retries
-  virtual unsigned allowedTries() const { return 0; }
+  void start(edm::WaitingTaskWithArenaHolder holder);
 
-  void setStartTime() {
-    tries_ = 0;
-    if (debugName_.empty())
-      return;
-    t0_ = std::chrono::high_resolution_clock::now();
-  }
-
-  void finish(bool success, std::exception_ptr eptr = std::exception_ptr{}) {
-    //retries are only allowed if no exception was raised
-    if (!success and !eptr) {
-      ++tries_;
-      //if max retries has not been exceeded, call evaluate again
-      if (tries_ < allowedTries()) {
-        evaluate();
-        //avoid calling doneWaiting() twice
-        return;
-      }
-      //prepare an exception if exceeded
-      else {
-        cms::Exception ex("SonicCallFailed");
-        ex << "call failed after max " << tries_ << " tries";
-        eptr = make_exception_ptr(ex);
-      }
-    }
-    if (!debugName_.empty()) {
-      auto t1 = std::chrono::high_resolution_clock::now();
-      edm::LogInfo(fullDebugName_) << "Client time: "
-                                   << std::chrono::duration_cast<std::chrono::microseconds>(t1 - t0_).count();
-    }
-    holder_.doneWaiting(eptr);
-  }
+  void finish(bool success, std::exception_ptr eptr = std::exception_ptr{});
 
   //members
-  unsigned tries_;
+  SonicMode mode_;
+  std::unique_ptr<SonicDispatcher> dispatcher_;
+  unsigned allowedTries_, tries_;
   edm::WaitingTaskWithArenaHolder holder_;
 
   //for logging/debugging
   std::string clientName_, debugName_, fullDebugName_;
   std::chrono::time_point<std::chrono::high_resolution_clock> t0_;
+
+  friend class SonicDispatcher;
+  friend class SonicDispatcherPseudoAsync;
 };
 
 #endif
