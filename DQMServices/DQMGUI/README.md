@@ -326,6 +326,83 @@ cp ../../Core/src/ROOTFilePB.proto protobuf/
 protoc -I=protobuf --python_out=protobuf protobuf/ROOTFilePB.proto
 ```
 
+
+# HLTD online instalation
+
+First, generate two RPM packages. One will have python dependencies and the other will be the HLTD code:
+
+``` bash
+git clone https://gitlab.cern.ch/cms-daq/FFF/hltd.git
+cd hltd/scripts/
+# Before running the following script add this file to scripts
+# directory and the parameter values will be taken from it
+# Bellow is the contents of the file.
+vim paramcache
+
+# Check output to see where .rpm file was generated
+./hltdrpm.sh -b
+# Check output to see where .rpm file was generated
+./libshltdrpm.sh
+
+# scp both files to P5 machine (playback fu03 used in this example) (assuming you start on lxplus):
+# Name of the .rpm file might change!
+scp -o ProxyCommand="ssh cmsusr.cern.ch nc fu-c2f11-15-03.cms 22" /tmp/hltd-build-tmp/RPMBUILD/RPMS/x86_64/hltd-python36-2.8.0-0.x86_64.rpm fu-c2f11-15-03.cms:/nfshome0/akirilov/
+scp -o ProxyCommand="ssh cmsusr.cern.ch nc fu-c2f11-15-03.cms 22" /tmp/hltd-libs-build-tmp-area/RPMBUILD/RPMS/x86_64/hltd-libs-python36-2.8.0-0.x86_64.rpm fu-c2f11-15-03.cms:/nfshome0/akirilov/
+
+# Go to the P5 machine where files were copied to (playback fu03)...
+cd /nfshome0/akirilov/
+
+# For now, get the missing dependencies from a local folder (in the future this shouldn't be required):
+sudo yum install /nfshome0/akirilov/hltd_missing_deps/python36-defusedxml-0.5.0-2.el7.noarch.rpm
+sudo yum install /nfshome0/akirilov/hltd_missing_deps/python36-dateutil-2.4.2-5.el7.noarch.rpm
+# sudo yum install /nfshome0/akirilov/hltd_missing_deps/python3-cx_Oracle-7.1-5.el7.cern.x86_64.rpm
+# If it's missing, defusedxml can be installed from here:
+# http://linuxsoft.cern.ch/epel/7/x86_64/Packages/p/python36-defusedxml-0.5.0-2.el7.noarch.rpm
+
+# You might need to delete the old hltd python3.4 package if it causes errore:
+sudo yum remove hltd-python34.x86_64
+# To get a list of installed packages:
+# yum list installed | grep hltd
+
+# Install RPM packages from file:
+sudo yum install hltd-libs-python36-2.8.0-0.x86_64.rpm
+sudo yum install hltd-python36-2.8.0-0.x86_64.rpm
+```
+
+`paramcache`:
+```
+python3.6
+null
+es-cdaq.cms
+es-local.cms
+cms_rcms
+CMS_DAQ2_HW_CONF_R
+pwd
+latest
+/opt/offline
+daqlocal
+4
+4
+ERROR
+ERROR
+cmshltdjsonwriter
+```
+
+# New GUI P5 instalation
+
+`gotoplaybackfu03`
+
+Run usual cmssw_deploy with --no-build option. Then go to the release and build manually with -k (keep going) option.
+
+Intall python dependencies from lxplus. A zipped folder is available here: `/nfshome0/akirilov/python_packages.zip`
+``` bash
+cd DQMServices/DQMGUI/python/
+cp /nfshome0/akirilov/python_packages.zip .
+unzip python_packages.zip
+rm python_packages.zip
+```
+
+
 # TODO
 
 Backend related task list.
@@ -347,14 +424,16 @@ Backend related task list.
 * Check RelVal files are handled correctly
 * ~~Make sure exceptions are logged to log file (atm the go to stderr)~~
 * ~~Handle crashing import processes (prob. can't restart them, so at least crash the full server and wait for restart)~~
-  * Whenever an import process crashes we restart ProcessPoolExecutor and return an error
+  * ~~Whenever an import process crashes we restart ProcessPoolExecutor and return an error~~
+  * We instantiate new process pool on demand to keep things simple and more stable
 * Check handling of XRD access failures (atm 500 response on the request, retry on next request -- might be good enough.)
 * Make logging async
   * Will probably not increase perf by much, needs measuring
 * ~~Renderer hangs when negative width/height is passed~~
-* Validate samples in registration endpoint
+* ~~Validate samples in registration endpoint~~
 * ~~Add timeout when interacting with the renderer~~
 * ~~When renderer returns an error code, return an image with 500 status code.~~
 * ~~Add QTest result support to the API~~
 * Hanging/aborted requests don't get logged?
 * Add the alternative of /data/browse to view raw ROOT files if Rucio is not there
+* Fix CMSSW warnings/errors
