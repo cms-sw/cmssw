@@ -1,7 +1,6 @@
 <library file="*.cc" name="TrackingToolsTransientTrackPlugins">
   <use name="Geometry/CommonDetUnit"/>
   <use name="Geometry/Records"/>
-  <use name="MagneticField/Engine"/>
   <use name="TrackingTools/Records"/>
   <use name="TrackingTools/TransientTrack"/>
   <use name="FWCore/Framework"/>

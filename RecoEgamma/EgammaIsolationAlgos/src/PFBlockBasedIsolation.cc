@@ -1,21 +1,11 @@
 #include "RecoEgamma/EgammaIsolationAlgos/interface/PFBlockBasedIsolation.h"
-#include <cmath>
-#include "DataFormats/Math/interface/deltaR.h"
-
-#include "DataFormats/TrackReco/interface/Track.h"
-#include "DataFormats/TrackReco/interface/TrackFwd.h"
-#include "DataFormats/EgammaReco/interface/SuperCluster.h"
-#include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
-#include "DataFormats/Common/interface/RefToPtr.h"
-#include "DataFormats/VertexReco/interface/Vertex.h"
-#include "RecoEcal/EgammaCoreTools/interface/EcalClusterLazyTools.h"
-#include "TrackingTools/TransientTrack/interface/TransientTrackBuilder.h"
-#include "TrackingTools/IPTools/interface/IPTools.h"
 #include "DataFormats/Math/interface/deltaR.h"
 #include "DataFormats/ParticleFlowReco/interface/PFBlockFwd.h"
 #include "DataFormats/ParticleFlowReco/interface/PFBlock.h"
 #include "DataFormats/ParticleFlowReco/interface/PFCluster.h"
 #include "DataFormats/ParticleFlowReco/interface/PFBlockElementCluster.h"
+
+#include <cmath>
 
 //--------------------------------------------------------------------------------------------------
 
