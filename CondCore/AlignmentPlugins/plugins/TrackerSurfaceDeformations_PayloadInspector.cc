@@ -320,7 +320,7 @@ namespace {
       std::string titleMap =
           "Surface deformation parameter " + std::to_string(par) + " value (payload : " + std::get<1>(iov) + ")";
 
-      std::unique_ptr<TrackerMap> tmap = std::unique_ptr<TrackerMap>(new TrackerMap("Surface Deformations"));
+      std::unique_ptr<TrackerMap> tmap = std::make_unique<TrackerMap>("Surface Deformations");
       tmap->setTitle(titleMap);
       tmap->setPalette(1);
 
@@ -432,7 +432,7 @@ namespace {
                              " (IOV : " + std::to_string(std::get<0>(lastiov)) + "- " +
                              std::to_string(std::get<0>(firstiov)) + ")";
 
-      std::unique_ptr<TrackerMap> tmap = std::unique_ptr<TrackerMap>(new TrackerMap("Surface Deformations #Delta"));
+      std::unique_ptr<TrackerMap> tmap = std::make_unique<TrackerMap>("Surface Deformations #Delta");
       tmap->setTitle(titleMap);
       tmap->setPalette(1);
 

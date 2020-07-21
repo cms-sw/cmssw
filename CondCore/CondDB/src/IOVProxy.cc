@@ -1,3 +1,5 @@
+#include <memory>
+
 #include "CondCore/CondDB/interface/IOVProxy.h"
 #include "SessionImpl.h"
 
@@ -75,11 +77,11 @@ namespace cond {
     IOVArray::IOVArray() : m_array(new IOVContainer) {}
 
     IOVArray::IOVArray(const IOVArray& rhs) : m_array(), m_tagInfo(rhs.m_tagInfo) {
-      m_array.reset(new IOVContainer(*rhs.m_array));
+      m_array = std::make_unique<IOVContainer>(*rhs.m_array);
     }
 
     IOVArray& IOVArray::operator=(const IOVArray& rhs) {
-      m_array.reset(new IOVContainer(*rhs.m_array));
+      m_array = std::make_unique<IOVContainer>(*rhs.m_array);
       m_tagInfo = rhs.m_tagInfo;
       return *this;
     }
