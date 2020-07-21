@@ -16,6 +16,7 @@
 #include "G4Track.hh"
 
 #include <iostream>
+#include <memory>
 
 MaterialBudgetHcal::MaterialBudgetHcal(const edm::ParameterSet& p) {
   edm::ParameterSet m_p = p.getParameter<edm::ParameterSet>("MaterialBudgetHcal");
@@ -25,11 +26,11 @@ MaterialBudgetHcal::MaterialBudgetHcal(const edm::ParameterSet& p) {
   edm::LogVerbatim("MaterialBudget") << "MaterialBudgetHcal initialized with rMax " << rMax_ << " mm and zMax " << zMax_
                                      << " mm doHcal is set to " << doHcal;
   if (doHcal) {
-    theHistoHcal_.reset(new MaterialBudgetHcalHistos(m_p));
+    theHistoHcal_ = std::make_unique<MaterialBudgetHcalHistos>(m_p);
     theHistoCastor_.reset(nullptr);
   } else {
     theHistoHcal_.reset(nullptr);
-    theHistoCastor_.reset(new MaterialBudgetCastorHistos(m_p));
+    theHistoCastor_ = std::make_unique<MaterialBudgetCastorHistos>(m_p);
   }
 }
 
