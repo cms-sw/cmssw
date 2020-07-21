@@ -4,7 +4,7 @@
 #include <iostream>
 #include <iomanip>
 
-#include "boost/format.hpp"
+#include <fmt/printf.h>
 
 #include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -336,21 +336,20 @@ std::vector<std::pair<std::shared_ptr<TLine>, std::shared_ptr<TText>>> DD4hep_Li
     if (eta >= 1.8) {
       lines.push_back(std::make_pair<std::shared_ptr<TLine>, std::shared_ptr<TText>>(
           std::make_shared<TLine>(deltaZ.first, deltaZ.first * tan(theta), deltaZ.second, deltaZ.second * tan(theta)),
-          std::make_shared<TText>(deltaZ.first, deltaZ.first * tan(theta), str(boost::format("%2.1f") % eta).c_str())));
+          std::make_shared<TText>(deltaZ.first, deltaZ.first * tan(theta), fmt::sprintf("%2.1f", eta).c_str())));
       lines.back().second->SetTextFont(42);
       lines.back().second->SetTextSize(text_size);
       lines.back().second->SetTextAlign(33);
       lines.push_back(std::make_pair<std::shared_ptr<TLine>, std::shared_ptr<TText>>(
           std::make_shared<TLine>(-deltaZ.first, deltaZ.first * tan(theta), -deltaZ.second, deltaZ.second * tan(theta)),
-          std::make_shared<TText>(
-              -deltaZ.first, deltaZ.first * tan(theta), str(boost::format("-%2.1f") % eta).c_str())));
+          std::make_shared<TText>(-deltaZ.first, deltaZ.first * tan(theta), fmt::sprintf("-%2.1f", eta).c_str())));
       lines.back().second->SetTextFont(42);
       lines.back().second->SetTextSize(text_size);
       lines.back().second->SetTextAlign(13);
     } else {
       lines.push_back(std::make_pair<std::shared_ptr<TLine>, std::shared_ptr<TText>>(
           std::make_shared<TLine>(deltaR.first / tan(theta), deltaR.first, deltaR.second / tan(theta), deltaR.second),
-          std::make_shared<TText>(deltaR.first / tan(theta), deltaR.first, str(boost::format("%2.1f") % eta).c_str())));
+          std::make_shared<TText>(deltaR.first / tan(theta), deltaR.first, fmt::sprintf("%2.1f", eta).c_str())));
       lines.back().second->SetTextFont(42);
       lines.back().second->SetTextSize(text_size);
       lines.back().second->SetTextAlign(23);
@@ -358,8 +357,7 @@ std::vector<std::pair<std::shared_ptr<TLine>, std::shared_ptr<TText>>> DD4hep_Li
         lines.push_back(std::make_pair<std::shared_ptr<TLine>, std::shared_ptr<TText>>(
             std::make_shared<TLine>(
                 -deltaR.first / tan(theta), deltaR.first, -deltaR.second / tan(theta), deltaR.second),
-            std::make_shared<TText>(
-                -deltaR.first / tan(theta), deltaR.first, str(boost::format("-%2.1f") % eta).c_str())));
+            std::make_shared<TText>(-deltaR.first / tan(theta), deltaR.first, fmt::sprintf("-%2.1f", eta).c_str())));
         lines.back().second->SetTextFont(42);
         lines.back().second->SetTextSize(text_size);
         lines.back().second->SetTextAlign(23);
