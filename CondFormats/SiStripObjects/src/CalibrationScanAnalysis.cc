@@ -98,7 +98,7 @@ void CalibrationScanAnalysis::reset() {
   tunedISHA_ = VInt(2, sistrip::invalid_);
   tunedVFS_ = VInt(2, sistrip::invalid_);
 
-  for (auto key : amplitude_) {
+  for (const auto& key : amplitude_) {
     amplitude_[key.first] = VFloat(2, sistrip::invalid_);
     tail_[key.first] = VFloat(2, sistrip::invalid_);
     riseTime_[key.first] = VFloat(2, sistrip::invalid_);
