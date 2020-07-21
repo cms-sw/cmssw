@@ -694,7 +694,7 @@ namespace {
       std::string titleMap =
           "Tracker Map of Zero SiStrip Pedestals fraction per module (payload : " + std::get<1>(iov) + ")";
 
-      std::unique_ptr<TrackerMap> tmap = std::unique_ptr<TrackerMap>(new TrackerMap("SiStripPedestals"));
+      std::unique_ptr<TrackerMap> tmap = std::make_unique<TrackerMap>("SiStripPedestals");
       tmap->setTitle(titleMap);
       tmap->setPalette(1);
 
@@ -750,7 +750,7 @@ namespace {
       std::string titleMap =
           "Tracker Map of SiStrip Pedestals " + estimatorType(est) + " per module (payload : " + std::get<1>(iov) + ")";
 
-      std::unique_ptr<TrackerMap> tmap = std::unique_ptr<TrackerMap>(new TrackerMap("SiStripPedestals"));
+      std::unique_ptr<TrackerMap> tmap = std::make_unique<TrackerMap>("SiStripPedestals");
       tmap->setTitle(titleMap);
       tmap->setPalette(1);
 

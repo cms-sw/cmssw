@@ -41,15 +41,14 @@ namespace {
       auto iov = iovs.front();
       std::shared_ptr<SiStripFedCabling> payload = fetchPayload(std::get<1>(iov));
 
-      std::unique_ptr<TrackerMap> tmap = std::unique_ptr<TrackerMap>(new TrackerMap("SiStripFedCabling"));
+      std::unique_ptr<TrackerMap> tmap = std::make_unique<TrackerMap>("SiStripFedCabling");
       tmap->setPalette(1);
       std::string titleMap = "TrackerMap of SiStrip Fed Cabling per module, IOV : " + std::to_string(std::get<0>(iov));
       tmap->setTitle(titleMap);
 
       TrackerTopology tTopo = StandaloneTrackerTopology::fromTrackerParametersXMLFile(
           edm::FileInPath("Geometry/TrackerCommonData/data/trackerParameters.xml").fullPath());
-      std::unique_ptr<SiStripDetCabling> detCabling_ =
-          std::unique_ptr<SiStripDetCabling>(new SiStripDetCabling(*(payload.get()), &tTopo));
+      std::unique_ptr<SiStripDetCabling> detCabling_ = std::make_unique<SiStripDetCabling>(*(payload.get()), &tTopo);
 
       std::vector<uint32_t> activeDetIds;
       detCabling_->addActiveDetectorsRawIds(activeDetIds);
@@ -90,8 +89,7 @@ namespace {
 
       TrackerTopology tTopo = StandaloneTrackerTopology::fromTrackerParametersXMLFile(
           edm::FileInPath("Geometry/TrackerCommonData/data/trackerParameters.xml").fullPath());
-      std::unique_ptr<SiStripDetCabling> detCabling_ =
-          std::unique_ptr<SiStripDetCabling>(new SiStripDetCabling(*(payload.get()), &tTopo));
+      std::unique_ptr<SiStripDetCabling> detCabling_ = std::make_unique<SiStripDetCabling>(*(payload.get()), &tTopo);
 
       detCabling_->addActiveDetectorsRawIds(activeDetIds);
 
