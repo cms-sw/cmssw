@@ -119,8 +119,8 @@ HGCalSimHitStudy::HGCalSimHitStudy(const edm::ParameterSet& iConfig)
 
 void HGCalSimHitStudy::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
-  std::vector<std::string> names = {"HGCalEESensitive", "HGCalHESiliconSensitive", "Hcal"};
-  std::vector<std::string> sources = {"HGCHitsEE", "HGCHitsHEfront", "HcalHits"};
+  std::vector<std::string> names = {"HGCalEESensitive", "HGCalHESiliconSensitive", "HGCalHEScintillatorSensitive"};
+  std::vector<std::string> sources = {"HGCHitsEE", "HGCHitsHEfront", "HGCHitsHEback"};
   desc.add<std::vector<std::string> >("detectorNames", names);
   desc.add<std::vector<std::string> >("caloHitSources", sources);
   desc.addUntracked<double>("rMin", 0.0);
