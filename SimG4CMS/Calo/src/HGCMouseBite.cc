@@ -8,8 +8,7 @@
 
 HGCMouseBite::HGCMouseBite(const HGCalDDDConstants& hgc, const std::vector<double>& angle, double maxL, bool rot)
     : hgcons_(hgc), cut_(maxL), rot_(rot) {
-  modeUV_ =
-      ((hgcons_.geomMode() == HGCalGeometryMode::Hexagon8) || (hgcons_.geomMode() == HGCalGeometryMode::Hexagon8Full));
+  modeUV_ =  hgcons_.waferHexagon8();
   for (auto ang : angle) {
     projXY_.push_back(std::pair<double, double>(cos(ang * CLHEP::deg), sin(ang * CLHEP::deg)));
   }

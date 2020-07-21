@@ -121,6 +121,10 @@ public:
     return (((det_ == DetId::Forward) && (subdet_ == ForwardSubdetector::HFNose)) ? true : false);
   }
 
+  bool tileTrapezoid() const { return ((mode_ == HGCalGeometryMode::Trapezoid) || (mode_ == HGCalGeometryMode::TrapezoidFile)); }
+  bool waferHexagon6() const { return ((mode_ == HGCalGeometryMode::Hexagon) || (mode_ == HGCalGeometryMode::HexagonFull)); }
+  bool waferHexagon8() const { return ((mode_ == HGCalGeometryMode::Hexagon8) || (mode_ == HGCalGeometryMode::Hexagon8Full) || (mode_ == HGCalGeometryMode::Hexagon8File)); }
+
 private:
   /// add DetId of Scintillator and Silicon type if valid
   void addHGCSCintillatorId(std::vector<DetId>& ids, int zside, int type, int lay, int iradius, int iphi) const;
