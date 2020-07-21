@@ -78,7 +78,7 @@ void HLTTauDQMOfflineSource::dqmBeginRun(const edm::Run& iRun, const edm::EventS
         std::vector<std::string> foundPaths;
         std::smatch what;
         LogDebug("HLTTauDQMOffline") << "Looking for paths with regex " << pathRegex_;
-	const std::regex pathRegex(pathRegex_);
+        const std::regex pathRegex(pathRegex_);
         for (const std::string& pathName : HLTCP_.triggerNames()) {
           if (std::regex_search(pathName, what, pathRegex)) {
             LogDebug("HLTTauDQMOffline") << "Found path " << pathName;
