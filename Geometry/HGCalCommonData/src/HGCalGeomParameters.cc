@@ -212,8 +212,8 @@ void HGCalGeomParameters::loadGeometryHexagon(const DDFilteredView& _fv,
       int nsiz = (int)(copy.size());
       int cellx = (nsiz > 0) ? copy[nsiz - 1] : 0;
       int wafer = (nsiz > 1) ? copy[nsiz - 2] : 0;
-      int cell = cellx % 1000;
-      int type = cellx / 1000;
+      int cell = HGCalTypes::getUnpackedCell6(cellx);
+      int type = HGCalTypes::getUnpackedCellType6(cellx);
       if (type != 1 && type != 2) {
         throw cms::Exception("DDException")
             << "Funny cell # " << cell << " type " << type << " in " << nsiz << " components";
@@ -434,8 +434,8 @@ void HGCalGeomParameters::loadGeometryHexagon(const cms::DDCompactView* cpv,
       int nsiz = (int)(copy.size());
       int cellx = (nsiz > 0) ? copy[0] : 0;
       int wafer = (nsiz > 1) ? copy[1] : 0;
-      int cell = cellx % 1000;
-      int type = cellx / 1000;
+      int cell = HGCalTypes::getUnpackedCell6(cellx);
+      int type = HGCalTypes::getUnpackedCellType6(cellx);
       if (type != 1 && type != 2) {
         throw cms::Exception("DDException")
             << "Funny cell # " << cell << " type " << type << " in " << nsiz << " components";
