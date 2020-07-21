@@ -3,6 +3,7 @@
 #include "CUDADataFormats/EcalDigi/interface/DigisCollection.h"
 #include "CondFormats/DataRecord/interface/EcalMappingElectronicsRcd.h"
 #include "DataFormats/EcalDetId/interface/EcalDetIdCollections.h"
+#include "DataFormats/EcalDigi/interface/EcalDataFrame.h"
 #include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
 #include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
 #include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
@@ -134,11 +135,10 @@ void EcalCPUDigisProducer::acquire(edm::Event const& event,
   auto const& eedigis = ctx.get(eedigisProduct);
 
   // resize tmp buffers
-  // FIXME remove hardcoded values
+  dataebtmp.resize(ebdigis.size * EcalDataFrame::MAXSAMPLES);
+  dataeetmp.resize(eedigis.size * EcalDataFrame::MAXSAMPLES);
   idsebtmp.resize(ebdigis.size);
-  dataebtmp.resize(ebdigis.size * 10);
   idseetmp.resize(eedigis.size);
-  dataeetmp.resize(eedigis.size * 10);
 
   // enqeue transfers
   cudaCheck(cudaMemcpyAsync(
