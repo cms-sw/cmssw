@@ -656,10 +656,10 @@ namespace trklet {
     bool enableTripletTables_{false};  //Enable the application of the TED and
                                        //TRE tables; when this flag is false,
                                        //the tables will not be read from disk
-    bool writeTripletTables_{false};  //Train and write the TED and TRE tables. N.B.: the tables
-                                      //cannot be applied while they are being trained, i.e.,
-                                      //this flag effectively turns off the cuts in
-                                      //TrackletEngineDisplaced and TripletEngine
+    bool writeTripletTables_{false};   //Train and write the TED and TRE tables. N.B.: the tables
+                                       //cannot be applied while they are being trained, i.e.,
+                                       //this flag effectively turns off the cuts in
+                                       //TrackletEngineDisplaced and TripletEngine
 
     bool writeoutReal_{false};
 

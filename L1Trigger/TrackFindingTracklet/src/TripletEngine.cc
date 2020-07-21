@@ -202,7 +202,8 @@ void TripletEngine::execute() {
               index = (index << secondbend.nbits()) + secondbend.value();
               index = (index << thirdbend.nbits()) + thirdbend.value();
 
-              if ((settings_.enableTripletTables() && !settings_.writeTripletTables()) && (index >= table_.size() || !table_[index])) {
+              if ((settings_.enableTripletTables() && !settings_.writeTripletTables()) &&
+                  (index >= table_.size() || !table_[index])) {
                 if (settings_.debugTracklet()) {
                   edm::LogVerbatim("Tracklet")
                       << "Stub pair rejected because of stub pt cut bends : "
@@ -284,7 +285,8 @@ void TripletEngine::execute() {
               index = (index << secondbend.nbits()) + secondbend.value();
               index = (index << thirdbend.nbits()) + thirdbend.value();
 
-              if ((settings_.enableTripletTables() && !settings_.writeTripletTables()) && (index >= table_.size() || !table_[index])) {
+              if ((settings_.enableTripletTables() && !settings_.writeTripletTables()) &&
+                  (index >= table_.size() || !table_[index])) {
                 if (settings_.debugTracklet()) {
                   edm::LogVerbatim("Tracklet")
                       << "Stub triplet rejected because of stub pt cut bends : "
@@ -367,7 +369,8 @@ void TripletEngine::execute() {
               index = (index << secondbend.nbits()) + secondbend.value();
               index = (index << thirdbend.nbits()) + thirdbend.value();
 
-              if ((settings_.enableTripletTables() && !settings_.writeTripletTables()) && (index >= table_.size() || !table_[index])) {
+              if ((settings_.enableTripletTables() && !settings_.writeTripletTables()) &&
+                  (index >= table_.size() || !table_[index])) {
                 if (settings_.debugTracklet()) {
                   edm::LogVerbatim("Tracklet")
                       << "Stub pair rejected because of stub pt cut bends : "

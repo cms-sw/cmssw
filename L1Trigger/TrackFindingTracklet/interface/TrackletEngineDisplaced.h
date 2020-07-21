@@ -30,7 +30,7 @@ namespace trklet {
 
     void readTables();
 
-    const short memNameToIndex(const std::string &name);
+    const short memNameToIndex(const std::string& name);
 
   private:
     int layer1_;
