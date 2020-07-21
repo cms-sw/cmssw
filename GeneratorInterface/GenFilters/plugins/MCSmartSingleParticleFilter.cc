@@ -55,8 +55,7 @@ private:
 using namespace std;
 
 MCSmartSingleParticleFilter::MCSmartSingleParticleFilter(const edm::ParameterSet& iConfig)
-    : token_(consumes<edm::HepMCProduct>(
-          edm::InputTag(iConfig.getUntrackedParameter("moduleLabel", std::string("generator")), "unsmeared"))),
+  : token_(consumes<edm::HepMCProduct>(iConfig.getUntrackedParameter<edm::InputTag>("moduleLabel", edm::InputTag("generator","unsmeared")))),
       betaBoost(iConfig.getUntrackedParameter("BetaBoost", 0.)) {
   vector<int> defpid;
   defpid.push_back(0);
