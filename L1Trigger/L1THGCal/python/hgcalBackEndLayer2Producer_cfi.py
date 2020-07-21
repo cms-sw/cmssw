@@ -4,7 +4,6 @@ from L1Trigger.L1THGCal.egammaIdentification import egamma_identification_drnn_c
                                                     egamma_identification_drnn_dbscan, \
                                                     egamma_identification_histomax
 
-from Configuration.Eras.Modifier_phase2_hgcalV9_cff import phase2_hgcalV9
 from Configuration.Eras.Modifier_phase2_hgcalV10_cff import phase2_hgcalV10
 from Configuration.Eras.Modifier_phase2_hgcalV11_cff import phase2_hgcalV11
 from Configuration.Eras.Modifier_phase2_hfnose_cff import phase2_hfnose
@@ -101,11 +100,11 @@ histoMax_C3d_clustering_params = cms.PSet(dR_multicluster=cms.double(0.03),
                                )
 
 
-# V9 samples have a different defintion of the dEdx calibrations. To account for it
-# we reascale the thresholds of the clustering seeds
+# V9 samples have a different definition of the dEdx calibrations. To account for it
+# we rescale the thresholds of the clustering seeds
 # (see https://indico.cern.ch/event/806845/contributions/3359859/attachments/1815187/2966402/19-03-20_EGPerf_HGCBE.pdf
 # for more details)
-phase2_hgcalV9.toModify(histoMax_C3d_seeding_params,
+phase2_hgcalV10.toModify(histoMax_C3d_seeding_params,
                         threshold_histo_multicluster=7.5,  # MipT
                         )
 
