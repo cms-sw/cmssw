@@ -12,25 +12,23 @@ namespace edm {
     // http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n3876.pdf
     // same algorithm as boost::hash_combine
     template <typename T>
-    inline void hash_combine(std::size_t& seed, const T& val)
-    {
-      seed ^= std::hash<T>()(val) + 0x9e3779b9 + (seed<<6) + (seed>>2);
+    inline void hash_combine(std::size_t& seed, const T& val) {
+      seed ^= std::hash<T>()(val) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
     }
 
     template <typename T, typename... Types>
-    inline void hash_combine(std::size_t& seed, const T& val, const Types&... args)
-    {
+    inline void hash_combine(std::size_t& seed, const T& val, const Types&... args) {
       hash_combine(seed, val);
       hash_combine(seed, args...);
     }
-    
+
     template <typename... Types>
     inline std::size_t hash_value(const Types&... args) {
       std::size_t seed{0};
-      hash_combine (seed, args...);
+      hash_combine(seed, args...);
       return seed;
     }
-  }
+  }  // namespace details
 
   class CompactEventAuxiliaryVector {
   public:
@@ -39,26 +37,21 @@ namespace edm {
     static int const invalidStoreNumber = EventAuxiliary::invalidStoreNumber;
 
     // These components of EventAuxiliary change infrequently, so
-    // they are stored in a std::unique_hash with a reference in 
+    // they are stored in a std::unique_hash with a reference in
     // CompactEventAuxiliary
     class CompactEventAuxiliaryExtra {
     public:
       CompactEventAuxiliaryExtra(bool isReal, ExperimentType eType, int storeNum)
-        : processHistoryID_(),
-          isRealData_(isReal),
-          experimentType_(eType),
-          storeNumber_(storeNum) {}
+          : processHistoryID_(), isRealData_(isReal), experimentType_(eType), storeNumber_(storeNum) {}
       CompactEventAuxiliaryExtra(const EventAuxiliary& ea)
-        : processHistoryID_(ea.processHistoryID()),
-          isRealData_(ea.isRealData()),
-          experimentType_(ea.experimentType()),
-          storeNumber_(ea.storeNumber()) {}
+          : processHistoryID_(ea.processHistoryID()),
+            isRealData_(ea.isRealData()),
+            experimentType_(ea.experimentType()),
+            storeNumber_(ea.storeNumber()) {}
 
       bool operator==(const CompactEventAuxiliaryExtra& extra) const {
-        return processHistoryID_ == extra.processHistoryID_ &&
-               isRealData_ == extra.isRealData_ &&
-               experimentType_ == extra.experimentType_ &&
-               storeNumber_ == extra.storeNumber_;
+        return processHistoryID_ == extra.processHistoryID_ && isRealData_ == extra.isRealData_ &&
+               experimentType_ == extra.experimentType_ && storeNumber_ == extra.storeNumber_;
       }
       void write(std::ostream& os) const;
 
@@ -73,12 +66,9 @@ namespace edm {
     };
 
     struct ExtraHash {
-      std::size_t operator()(CompactEventAuxiliaryExtra const& extra) const noexcept
-      {
-        return details::hash_value(extra.processHistoryID_.compactForm(),
-                                   extra.isRealData_,
-                                   extra.experimentType_,
-                                   extra.storeNumber_);
+      std::size_t operator()(CompactEventAuxiliaryExtra const& extra) const noexcept {
+        return details::hash_value(
+            extra.processHistoryID_.compactForm(), extra.isRealData_, extra.experimentType_, extra.storeNumber_);
       }
     };
 
@@ -87,7 +77,7 @@ namespace edm {
 
     class CompactEventAuxiliary {
     public:
-      CompactEventAuxiliary(EventID const& theId, 
+      CompactEventAuxiliary(EventID const& theId,
                             std::string const& processGUID,
                             Timestamp const& theTime,
                             int bunchXing,
@@ -95,19 +85,19 @@ namespace edm {
                             CompactEventAuxiliaryExtra const& extra,
                             GUIDmemo& guidmemo,
                             extraMemo& extramemo)
-        : id_(theId),
-          processGUID_(memoize(processGUID, guidmemo)),
-          time_(theTime),
-          bunchCrossing_(bunchXing),
-          orbitNumber_(orbitNum),
-          extra_(memoize(extra, extramemo)) {}
+          : id_(theId),
+            processGUID_(memoize(processGUID, guidmemo)),
+            time_(theTime),
+            bunchCrossing_(bunchXing),
+            orbitNumber_(orbitNum),
+            extra_(memoize(extra, extramemo)) {}
       CompactEventAuxiliary(const EventAuxiliary& ea, GUIDmemo& guidmemo, extraMemo& extramemo)
-        : id_(ea.id()),
-          processGUID_(memoize(ea.processGUID(), guidmemo)),
-          time_(ea.time()),
-          bunchCrossing_(ea.bunchCrossing()),
-          orbitNumber_(ea.orbitNumber()),
-          extra_(memoize(CompactEventAuxiliaryExtra(ea), extramemo)) {}
+          : id_(ea.id()),
+            processGUID_(memoize(ea.processGUID(), guidmemo)),
+            time_(ea.time()),
+            bunchCrossing_(ea.bunchCrossing()),
+            orbitNumber_(ea.orbitNumber()),
+            extra_(memoize(CompactEventAuxiliaryExtra(ea), extramemo)) {}
 
       void write(std::ostream& os) const;
 
@@ -125,14 +115,14 @@ namespace edm {
       int storeNumber() const { return extra_.storeNumber_; }
 
       EventAuxiliary eventAuxiliary() const {
-        auto ea { EventAuxiliary(id_, 
-                                 processGUID_,
-                                 time_,
-                                 extra_.isRealData_,
-                                 extra_.experimentType_,
-                                 bunchCrossing_,
-                                 orbitNumber_,
-                                 extra_.storeNumber_) };
+        auto ea{EventAuxiliary(id_,
+                               processGUID_,
+                               time_,
+                               extra_.isRealData_,
+                               extra_.experimentType_,
+                               bunchCrossing_,
+                               orbitNumber_,
+                               extra_.storeNumber_)};
         ea.setProcessHistoryID(extra_.processHistoryID_);
         return ea;
       }
@@ -172,14 +162,12 @@ namespace edm {
     size_type extrasSize() const { return extras_.size(); }
     size_type guidsSize() const { return processGUIDs_.size(); }
 
-    void push_back(const EventAuxiliary& ea) {
-      compactAuxiliaries_.emplace_back(ea, processGUIDs_, extras_);
-    }
+    void push_back(const EventAuxiliary& ea) { compactAuxiliaries_.emplace_back(ea, processGUIDs_, extras_); }
 
   private:
     // Items that change every event
     std::vector<CompactEventAuxiliary> compactAuxiliaries_;
-      // Items that change relatively infrequently
+    // Items that change relatively infrequently
     extraMemo extras_;
     // Globally unique process IDs of processes that created events.
     GUIDmemo processGUIDs_;
