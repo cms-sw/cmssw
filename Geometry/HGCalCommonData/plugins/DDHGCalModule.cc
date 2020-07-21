@@ -24,6 +24,7 @@
 #include "FWCore/PluginManager/interface/PluginFactory.h"
 #include "Geometry/HGCalCommonData/interface/HGCalGeomTools.h"
 #include "Geometry/HGCalCommonData/interface/HGCalParameters.h"
+#include "Geometry/HGCalCommonData/interface/HGCalTypes.h"
 
 //#define EDM_ML_DEBUG
 using namespace geant_units::operators;
@@ -282,11 +283,7 @@ void DDHGCalModule::positionSensitive(DDLogicalPart& glog, double rin, double ro
         auto const& corner = HGCalGeomTools::waferCorner(xpos, ypos, dx, rr, rin, rout, true);
         ++ntot;
         if (corner.first > 0) {
-          int copy = inr * 100 + inc;
-          if (nc < 0)
-            copy += 10000;
-          if (nr < 0)
-            copy += 100000;
+          int copy = HGCalTypes::packTypeUV(0, nc, nr);
           if (inc > incm)
             incm = inc;
           if (inr > inrm)
