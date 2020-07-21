@@ -24,7 +24,6 @@ class PFEGammaToCandidate : public edm::global::EDProducer<> {
 public:
   explicit PFEGammaToCandidate(const edm::ParameterSet &iConfig);
   ~PFEGammaToCandidate() override = default;
-  //  ~PFEGammaToCandidate() override {}
 
   void produce(edm::StreamID iID, edm::Event &iEvent, const edm::EventSetup &iSetup) const override;
   static void fillDescriptions(edm::ConfigurationDescriptions &descriptions);
