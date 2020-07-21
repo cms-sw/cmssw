@@ -127,6 +127,11 @@ if __name__ == '__main__':
                       dest='nThreads',
                       default=1
                      )
+    parser.add_option('--nStreams',
+                      help='number of streams to use in cmsRun.',
+                      dest='nStreams',
+                      default=0
+                     )
     parser.add_option('--numberEventsInLuminosityBlock',
                       help='number of events in a luminosity block',
                       dest='numberEventsInLuminosityBlock',
@@ -340,6 +345,7 @@ if __name__ == '__main__':
     if opt.fromScratch: opt.fromScratch = opt.fromScratch.split(',')
     if opt.nProcs: opt.nProcs=int(opt.nProcs)
     if opt.nThreads: opt.nThreads=int(opt.nThreads)
+    if opt.nStreams: opt.nStreams=int(opt.nStreams)
     if (opt.numberEventsInLuminosityBlock): opt.numberEventsInLuminosityBlock=int(opt.numberEventsInLuminosityBlock)
     if (opt.memoryOffset): opt.memoryOffset=int(opt.memoryOffset)
     if (opt.memPerCore): opt.memPerCore=int(opt.memPerCore)
