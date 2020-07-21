@@ -28,9 +28,8 @@ using namespace hgc_digi;
 typedef std::vector<std::pair<float, float>>::iterator itr;
 typedef std::map<uint32_t, std::vector<std::pair<float, float>>> IdHit_Map;
 typedef std::tuple<float, float, float> hit_timeStamp;
-typedef std::unordered_map<uint32_t, std::vector<hit_timeStamp > > hitRec_container;
-typedef std::vector<hit_timeStamp >::iterator hitRec_itr;
-
+typedef std::unordered_map<uint32_t, std::vector<hit_timeStamp>> hitRec_container;
+typedef std::vector<hit_timeStamp>::iterator hitRec_itr;
 
 namespace {
 
@@ -360,18 +359,17 @@ void HGCDigitizer::finalizeEvent(edm::Event& e, edm::EventSetup const& es, CLHEP
   //update occupancy guess
   const double thisOcc = simHitAccumulator_->size() / ((double)validIds_.size());
   averageOccupancies_[idx] = (averageOccupancies_[idx] * (nEvents_ - 1) + thisOcc) / nEvents_;
-  
+
   if (premixStage1_) {
     auto simRecord = std::make_unique<PHGCSimAccumulator>();
 
     if (!pusimHitAccumulator_->empty()) {
-      
       saveSimHitAccumulator_forPreMix(
           *simRecord, *pusimHitAccumulator_, validIds_, premixStage1MinCharge_, premixStage1MaxCharge_);
     }
-    
+
     e.put(std::move(simRecord), digiCollection());
-    
+
   } else {
     if (producesEEDigis()) {
       auto digiResult = std::make_unique<HGCalDigiCollection>();
@@ -416,28 +414,24 @@ void HGCDigitizer::finalizeEvent(edm::Event& e, edm::EventSetup const& es, CLHEP
       e.put(std::move(digiResult), digiCollection());
     }
   }
-  
+
   hgc::HGCSimHitDataAccumulator().swap(*simHitAccumulator_);
-  
+
   if (pusimHitAccumulator_->size() > 1) {
-    
-    for(const auto itr : *pusimHitAccumulator_) {
+    for (const auto itr : *pusimHitAccumulator_) {
       auto stuff = itr.second.PUhit_info;
       auto charge_series = stuff[0][9];
-      auto time_series   = stuff[1][9];
-      
+      auto time_series = stuff[1][9];
     }
-
   }
-    
+
   hgc::HGCPUSimHitDataAccumulator().swap(*pusimHitAccumulator_);
-  
 }
 void HGCDigitizer::accumulate_forPreMix(edm::Event const& e,
                                         edm::EventSetup const& eventSetup,
                                         CLHEP::HepRandomEngine* hre) {
   //get inputs
-  
+
   edm::Handle<edm::PCaloHitContainer> hits;
   e.getByLabel(edm::InputTag("g4SimHits", hitCollection_), hits);
   if (!hits.isValid()) {
@@ -480,7 +474,6 @@ void HGCDigitizer::accumulate(edm::Event const& e, edm::EventSetup const& eventS
 void HGCDigitizer::accumulate_forPreMix(PileUpEventPrincipal const& e,
                                         edm::EventSetup const& eventSetup,
                                         CLHEP::HepRandomEngine* hre) {
-  
   edm::Handle<edm::PCaloHitContainer> hits;
   e.getByLabel(edm::InputTag("g4SimHits", hitCollection_), hits);
 
@@ -529,11 +522,11 @@ void HGCDigitizer::accumulate_forPreMix(edm::Handle<edm::PCaloHitContainer> cons
                                         CLHEP::HepRandomEngine* hre) {
   if (nullptr == geom)
     return;
-  
+
   float keV2fC(0.f);
   //configuration to apply for the computation of time-of-flight
   std::array<float, 3> tdcForToAOnset{{0.f, 0.f, 0.f}};
-  
+
   int nchits = (int)hits->size();
   int count_thisbx = 0;
   std::vector<HGCCaloHitTuple_t> hitRefs;
@@ -555,7 +548,6 @@ void HGCDigitizer::accumulate_forPreMix(edm::Handle<edm::PCaloHitContainer> cons
     if (!validIds_.count(id))
       continue;
 
-    
     if (id == 0)
       continue;
 
@@ -570,80 +562,74 @@ void HGCDigitizer::accumulate_forPreMix(edm::Handle<edm::PCaloHitContainer> cons
     if (itime < 0 || itime > (int)maxBx_)
       continue;
 
-    if (itime >= (int)(maxBx_+1))
+    if (itime >= (int)(maxBx_ + 1))
       continue;
-    
+
     int waferThickness = getCellThickness(geom, id);
     if (itime == (int)thisBx_) {
       ++count_thisbx;
-      if(PhitRefs_bx0[id].empty()){
-	PhitRefs_bx0[id].emplace_back(charge, charge, tof);
-      }
-      else if(tof > std::get<2>(PhitRefs_bx0[id].back())){
-	PhitRefs_bx0[id].emplace_back(charge, charge + std::get<1>(PhitRefs_bx0[id].back()), tof);
-      }
-      else if(tof == std::get<2>(PhitRefs_bx0[id].back())){
-	
-	std::get<0>(PhitRefs_bx0[id].back()) += charge;
-	std::get<1>(PhitRefs_bx0[id].back()) += charge;
-      }
-      else{
-	//find position to insert new entry preserving time sorting
-	hitRec_itr findPos =
-	  std::upper_bound(PhitRefs_bx0[id].begin(),
-			   PhitRefs_bx0[id].end(),
-			   hit_timeStamp(charge, 0.f, tof),
-			   [](const auto& i, const auto& j) { return std::get<2>(i) <= std::get<2>(j); });
-	
-	hitRec_itr insertedPos = findPos;
-	
-	if(tof == std::get<2>(*(findPos-1))){
-	  
-	  std::get<0>(*(findPos-1)) += charge;
-	  std::get<1>(*(findPos-1)) += charge;
+      if (PhitRefs_bx0[id].empty()) {
+        PhitRefs_bx0[id].emplace_back(charge, charge, tof);
+      } else if (tof > std::get<2>(PhitRefs_bx0[id].back())) {
+        PhitRefs_bx0[id].emplace_back(charge, charge + std::get<1>(PhitRefs_bx0[id].back()), tof);
+      } else if (tof == std::get<2>(PhitRefs_bx0[id].back())) {
+        std::get<0>(PhitRefs_bx0[id].back()) += charge;
+        std::get<1>(PhitRefs_bx0[id].back()) += charge;
+      } else {
+        //find position to insert new entry preserving time sorting
+        hitRec_itr findPos =
+            std::upper_bound(PhitRefs_bx0[id].begin(),
+                             PhitRefs_bx0[id].end(),
+                             hit_timeStamp(charge, 0.f, tof),
+                             [](const auto& i, const auto& j) { return std::get<2>(i) <= std::get<2>(j); });
 
-	}
-	else {
-	  insertedPos = PhitRefs_bx0[id].insert(findPos,
-						(findPos == PhitRefs_bx0[id].begin())
-						? hit_timeStamp(charge, charge, tof)
-						: hit_timeStamp(charge, charge + std::get<1>(*(findPos-1)), tof));
-	
-	}
-	//cumulate the charge of new entry for all elements that follow in the sorted list                                         
-	//and resize list accounting for cases when the inserted element itself crosses the threshold 
-	
-	for (hitRec_itr step = insertedPos; step != PhitRefs_bx0[id].end(); ++step) {
-	  if (step != insertedPos)
-	    std::get<1>(*(step)) += charge;
+        hitRec_itr insertedPos = findPos;
 
-	  // resize the list stopping with the first timeStamp with cumulative charge above threshold
-	  if (std::get<1>(*step) > tdcForToAOnset[waferThickness - 1] && 
-	      std::get<2>(*step) != std::get<2>(PhitRefs_bx0[id].back())) {
-	    PhitRefs_bx0[id].resize(std::upper_bound(PhitRefs_bx0[id].begin(),
-						     PhitRefs_bx0[id].end(),
-						     hit_timeStamp(charge, 0.f, std::get<2>(*step)),
-						     [](const auto& i, const auto& j) { return std::get<2>(i) < std::get<2>(j); }) -
-				    PhitRefs_bx0[id].begin());
-	    for (auto stepEnd = step + 1; stepEnd != PhitRefs_bx0[id].end(); ++stepEnd)
-	      std::get<1>(*stepEnd) += charge;
-	    break;
-	  }
-	}
+        if (tof == std::get<2>(*(findPos - 1))) {
+          std::get<0>(*(findPos - 1)) += charge;
+          std::get<1>(*(findPos - 1)) += charge;
+
+        } else {
+          insertedPos = PhitRefs_bx0[id].insert(findPos,
+                                                (findPos == PhitRefs_bx0[id].begin())
+                                                    ? hit_timeStamp(charge, charge, tof)
+                                                    : hit_timeStamp(charge, charge + std::get<1>(*(findPos - 1)), tof));
+        }
+        //cumulate the charge of new entry for all elements that follow in the sorted list
+        //and resize list accounting for cases when the inserted element itself crosses the threshold
+
+        for (hitRec_itr step = insertedPos; step != PhitRefs_bx0[id].end(); ++step) {
+          if (step != insertedPos)
+            std::get<1>(*(step)) += charge;
+
+          // resize the list stopping with the first timeStamp with cumulative charge above threshold
+          if (std::get<1>(*step) > tdcForToAOnset[waferThickness - 1] &&
+              std::get<2>(*step) != std::get<2>(PhitRefs_bx0[id].back())) {
+            PhitRefs_bx0[id].resize(
+                std::upper_bound(PhitRefs_bx0[id].begin(),
+                                 PhitRefs_bx0[id].end(),
+                                 hit_timeStamp(charge, 0.f, std::get<2>(*step)),
+                                 [](const auto& i, const auto& j) { return std::get<2>(i) < std::get<2>(j); }) -
+                PhitRefs_bx0[id].begin());
+            for (auto stepEnd = step + 1; stepEnd != PhitRefs_bx0[id].end(); ++stepEnd)
+              std::get<1>(*stepEnd) += charge;
+            break;
+          }
+        }
       }
     }
   }
-  
-  for(const auto& hitCollection : PhitRefs_bx0){
+
+  for (const auto& hitCollection : PhitRefs_bx0) {
     const uint32_t detectorId = hitCollection.first;
     auto simHitIt = pusimHitAccumulator_->emplace(detectorId, HGCCellHitInfo()).first;
-    
-    for(const auto& hit_timestamp: PhitRefs_bx0[detectorId]){
+
+    for (const auto& hit_timestamp : PhitRefs_bx0[detectorId]) {
       (simHitIt->second).PUhit_info[1][thisBx_].push_back(std::get<2>(hit_timestamp));
       (simHitIt->second).PUhit_info[0][thisBx_].push_back(std::get<0>(hit_timestamp));
     }
   }
-  
+
   if (nchits == 0) {
     HGCPUSimHitDataAccumulator::iterator simHitIt = pusimHitAccumulator_->emplace(0, HGCCellHitInfo()).first;
     (simHitIt->second).PUhit_info[1][9].push_back(0.0);
