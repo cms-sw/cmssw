@@ -6,7 +6,7 @@
 #include <stdexcept>
 #include <cstring>
 #include <cstdlib>
-#include <boost/format.hpp>
+#include <fmt/printf.h>
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -77,25 +77,32 @@ void DD4hep_TrackingMaterialAnalyser::saveParameters(const char* name) {
     DD4hep_MaterialAccountingGroup& layer = *(m_groups[i]);
     edm::LogVerbatim("TrackerMaterialAnalysis") << "TrackingMaterialAnalyser" << layer.name() << std::endl;
     edm::LogVerbatim("TrackerMaterialAnalysis")
-        << "TrackingMaterialAnalyser" << boost::format("\tnumber of hits:               %9d") % layer.tracks()
+        << "TrackingMaterialAnalyser" << fmt::sprintf("\tnumber of hits:               %9d", layer.tracks())
+        << std::endl;
+    edm::LogVerbatim("TrackerMaterialAnalysis")
+        << "TrackingMaterialAnalyser"
+        << fmt::sprintf("\tnormalized segment length:    %9.1f ± %9.1f cm", layer.averageLength(), layer.sigmaLength())
         << std::endl;
     edm::LogVerbatim("TrackerMaterialAnalysis") << "TrackingMaterialAnalyser"
-                                                << boost::format("\tnormalized segment length:    %9.1f ± %9.1f cm") %
-                                                       layer.averageLength() % layer.sigmaLength()
-                                                << std::endl;
-    edm::LogVerbatim("TrackerMaterialAnalysis") << "TrackingMaterialAnalyser"
-                                                << boost::format("\tnormalized radiation lengths: %9.3f ± %9.3f") %
-                                                       layer.averageRadiationLengths() % layer.sigmaRadiationLengths()
+                                                << fmt::sprintf("\tnormalized radiation lengths: %9.3f ± %9.3f",
+                                                                layer.averageRadiationLengths(),
+                                                                layer.sigmaRadiationLengths())
                                                 << std::endl;
     edm::LogVerbatim("TrackerMaterialAnalysis")
         << "TrackingMaterialAnalyser"
-        << boost::format("\tnormalized energy loss:       %6.5fe-03 ± %6.5fe-03 GeV") % layer.averageEnergyLoss() %
-               layer.sigmaEnergyLoss()
+        << fmt::sprintf("\tnormalized energy loss:       %6.5fe-03 ± %6.5fe-03 GeV",
+                        layer.averageEnergyLoss(),
+                        layer.sigmaEnergyLoss())
         << std::endl;
-    parameters << boost::format("%-20s\t%7d\t%5.1f ± %5.1f cm\t%6.4f ± %6.4f \t%6.4fe-03 ± %6.4fe-03 GeV") %
-                      layer.name() % layer.tracks() % layer.averageLength() % layer.sigmaLength() %
-                      layer.averageRadiationLengths() % layer.sigmaRadiationLengths() % layer.averageEnergyLoss() %
-                      layer.sigmaEnergyLoss()
+    parameters << fmt::sprintf("%-20s\t%7d\t%5.1f ± %5.1f cm\t%6.4f ± %6.4f \t%6.4fe-03 ± %6.4fe-03 GeV",
+                               layer.name(),
+                               layer.tracks(),
+                               layer.averageLength(),
+                               layer.sigmaLength(),
+                               layer.averageRadiationLengths(),
+                               layer.sigmaRadiationLengths(),
+                               layer.averageEnergyLoss(),
+                               layer.sigmaEnergyLoss())
                << std::endl;
   }
   edm::LogVerbatim("TrackerMaterialAnalysis") << "TrackingMaterialAnalyser" << std::endl;
