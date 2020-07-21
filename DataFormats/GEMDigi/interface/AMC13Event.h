@@ -1,5 +1,5 @@
-#ifndef EventFilter_GEMRawToDigi_AMC13Event_h
-#define EventFilter_GEMRawToDigi_AMC13Event_h
+#ifndef DataFormats_GEMDigi_AMC13Event_h
+#define DataFormats_GEMDigi_AMC13Event_h
 #include <vector>
 #include "AMCdata.h"
 
