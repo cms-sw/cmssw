@@ -8,7 +8,7 @@ from os.path import exists, basename, join
 from datetime import datetime
 
 class WorkFlowRunner(Thread):
-    def __init__(self, wf, noRun=False,dryRun=False,cafVeto=True,dasOptions="",jobReport=False, nThreads=1, maxSteps=9999):
+    def __init__(self, wf, noRun=False,dryRun=False,cafVeto=True,dasOptions="",jobReport=False, nThreads=1, nStreams=0, maxSteps=9999):
         Thread.__init__(self)
         self.wf = wf
 
@@ -22,7 +22,8 @@ class WorkFlowRunner(Thread):
         self.dasOptions=dasOptions
         self.jobReport=jobReport
         self.nThreads=nThreads
-        self.maxSteps = maxSteps
+        self.nStreams=nStreams
+        self.maxSteps=maxSteps
         
         self.wfDir=str(self.wf.numId)+'_'+self.wf.nameId
         return
@@ -163,6 +164,8 @@ class WorkFlowRunner(Thread):
                   cmd += ' --suffix "-j JobReport%s.xml " ' % istep
                 if (self.nThreads > 1) and ('HARVESTING' not in cmd) and ('ALCAHARVEST' not in cmd):
                   cmd += ' --nThreads %s' % self.nThreads
+                if (self.nStreams > 0) and ('HARVESTING' not in cmd) and ('ALCAHARVEST' not in cmd):
+                  cmd += ' --nStreams %s' % self.nStreams
                 cmd+=closeCmd(istep,self.wf.nameId)            
                 retStep = 0
                 if istep>self.maxSteps:
