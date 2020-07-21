@@ -697,24 +697,24 @@ namespace {
       std::shared_ptr<SiStripNoises> f_payload = fetchPayload(std::get<1>(firstiov));
       std::shared_ptr<SiStripNoises> l_payload = fetchPayload(std::get<1>(lastiov));
 
-      auto h_first = std::unique_ptr<TH1F>(
-          new TH1F("f_Noise",
-                   Form("Strip noise values comparison [%s,%s];Strip Noise [ADC counts];n. strips",
-                        std::to_string(std::get<0>(firstiov)).c_str(),
-                        std::to_string(std::get<0>(lastiov)).c_str()),
-                   100,
-                   0.1,
-                   10.));
+      auto h_first =
+          std::make_unique<TH1F>("f_Noise",
+                                 Form("Strip noise values comparison [%s,%s];Strip Noise [ADC counts];n. strips",
+                                      std::to_string(std::get<0>(firstiov)).c_str(),
+                                      std::to_string(std::get<0>(lastiov)).c_str()),
+                                 100,
+                                 0.1,
+                                 10.);
       h_first->SetStats(false);
 
-      auto h_last = std::unique_ptr<TH1F>(
-          new TH1F("l_Noise",
-                   Form("Strip noise values comparison [%s,%s];Strip Noise [ADC counts];n. strips",
-                        std::to_string(std::get<0>(firstiov)).c_str(),
-                        std::to_string(std::get<0>(lastiov)).c_str()),
-                   100,
-                   0.1,
-                   10.));
+      auto h_last =
+          std::make_unique<TH1F>("l_Noise",
+                                 Form("Strip noise values comparison [%s,%s];Strip Noise [ADC counts];n. strips",
+                                      std::to_string(std::get<0>(firstiov)).c_str(),
+                                      std::to_string(std::get<0>(lastiov)).c_str()),
+                                 100,
+                                 0.1,
+                                 10.);
       h_last->SetStats(false);
 
       std::vector<uint32_t> f_detid;
@@ -815,7 +815,7 @@ namespace {
       std::string titleMap =
           "Tracker Map of Noise " + estimatorType(est) + " per module (payload : " + std::get<1>(iov) + ")";
 
-      std::unique_ptr<TrackerMap> tmap = std::unique_ptr<TrackerMap>(new TrackerMap("SiStripNoises"));
+      std::unique_ptr<TrackerMap> tmap = std::make_unique<TrackerMap>("SiStripNoises");
       tmap->setTitle(titleMap);
       tmap->setPalette(1);
 
@@ -997,7 +997,7 @@ namespace {
       titleMap += ")";
       titleMap += +" " + std::to_string(nsigma) + " std. dev. saturation";
 
-      std::unique_ptr<TrackerMap> tmap = std::unique_ptr<TrackerMap>(new TrackerMap("SiStripNoises"));
+      std::unique_ptr<TrackerMap> tmap = std::make_unique<TrackerMap>("SiStripNoises");
       tmap->setTitle(titleMap);
       tmap->setPalette(1);
 
@@ -1455,8 +1455,7 @@ namespace {
         //std::cout<<" strip lenght: " << element.first << " avg noise=" << mean <<" +/-" << rms << std::endl;
       }
 
-      auto graph =
-          std::unique_ptr<TGraphErrors>(new TGraphErrors(noisePerStripLength.size(), &x[0], &y[0], &ex[0], &ey[0]));
+      auto graph = std::make_unique<TGraphErrors>(noisePerStripLength.size(), &x[0], &y[0], &ex[0], &ey[0]);
       graph->SetTitle("SiStrip Noise Linearity");
       graph->GetXaxis()->SetTitle("Strip length [cm]");
       graph->GetYaxis()->SetTitle("Average Strip Noise [ADC counts]");
@@ -1491,7 +1490,7 @@ namespace {
       f1->SetLineColor(kBlue);
       f1->Draw("same");
 
-      auto fits = std::unique_ptr<TPaveText>(new TPaveText(0.2, 0.72, 0.6, 0.9, "NDC"));
+      auto fits = std::make_unique<TPaveText>(0.2, 0.72, 0.6, 0.9, "NDC");
       char buffer[255];
       sprintf(buffer, "fit function: p_{0} + p_{1} * l_{strip}");
       fits->AddText(buffer);
@@ -1752,8 +1751,8 @@ namespace {
       int el = 0;
 
       for (auto& entry : noises_avg) {
-        graph[el] = std::unique_ptr<TGraphErrors>(
-            new TGraphErrors(runs.size(), &runs[0], &(entry.second[0]), &runs_err[0], &(noises_err[entry.first][0])));
+        graph[el] = std::make_unique<TGraphErrors>(
+            runs.size(), &runs[0], &(entry.second[0]), &runs_err[0], &(noises_err[entry.first][0]));
         char title[100];
         char name[100];
         snprintf(name, sizeof(name), "gr%d", entry.first);
