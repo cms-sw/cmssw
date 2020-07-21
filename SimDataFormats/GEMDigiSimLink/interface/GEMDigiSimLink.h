@@ -35,7 +35,7 @@ public:
   ~GEMDigiSimLink() { ; }
 
   unsigned int getStrip() const { return _digi.first; }
-  unsigned int getBx() const { return _digi.second; }
+  int getBx() const { return _digi.second; }
   Local3DPoint getEntryPoint() const { return _entryPoint; }
   LocalVector getMomentumAtEntry() const { return _momentumAtEntry; }
   float getTimeOfFlight() const { return _timeOfFlight; }

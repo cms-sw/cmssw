@@ -64,7 +64,7 @@ void RPCSimHitMatcher::matchSimHitsToSimTrack() {
       if (simMuOnly_ && std::abs(pdgid) != 13)
         continue;
       // discard electron hits in the RPC chambers
-      if (discardEleHits_ && pdgid == 11)
+      if (discardEleHits_ && std::abs(pdgid) == 11)
         continue;
 
       const RPCDetId& layer_id(h.detUnitId());
