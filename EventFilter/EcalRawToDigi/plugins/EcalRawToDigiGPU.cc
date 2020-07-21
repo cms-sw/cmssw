@@ -48,7 +48,8 @@ void EcalRawToDigiGPU::fillDescriptions(edm::ConfigurationDescriptions& confDesc
   for (uint32_t i = 0; i < 54; ++i)
     feds[i] = i + 601;
   desc.add<std::vector<int>>("FEDs", feds);
-  desc.add<uint32_t>("maxChannels", 20000);
+  desc.add<uint32_t>("maxChannelsEB", 61200);
+  desc.add<uint32_t>("maxChannelsEE", 14648);
   desc.add<std::string>("digisLabelEB", "ebDigisGPU");
   desc.add<std::string>("digisLabelEE", "eeDigisGPU");
 
@@ -61,7 +62,8 @@ EcalRawToDigiGPU::EcalRawToDigiGPU(const edm::ParameterSet& ps)
       digisEBToken_{produces<OutputProduct>(ps.getParameter<std::string>("digisLabelEB"))},
       digisEEToken_{produces<OutputProduct>(ps.getParameter<std::string>("digisLabelEE"))},
       fedsToUnpack_{ps.getParameter<std::vector<int>>("FEDs")} {
-  config_.maxChannels = ps.getParameter<uint32_t>("maxChannels");
+  config_.maxChannelsEB = ps.getParameter<uint32_t>("maxChannelsEB");
+  config_.maxChannelsEE = ps.getParameter<uint32_t>("maxChannelsEE");
 }
 
 EcalRawToDigiGPU::~EcalRawToDigiGPU() {}

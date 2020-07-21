@@ -91,41 +91,43 @@ namespace ecal {
 
       bool shouldRunTimingComputation;
 
-      uint32_t maxNumberHits;
+      uint32_t maxNumberHitsEB;
+      uint32_t maxNumberHitsEE;
     };
 
     struct EventOutputDataGPU {
       UncalibratedRecHit<::calo::common::DevStoragePolicy> recHitsEB, recHitsEE;
 
       void allocate(ConfigurationParameters const& configParameters, cudaStream_t cudaStream) {
-        auto const size = configParameters.maxNumberHits;
+        auto const sizeEB = configParameters.maxNumberHitsEB;
         recHitsEB.amplitudesAll =
-            cms::cuda::make_device_unique<reco::ComputationScalarType[]>(size * EcalDataFrame::MAXSAMPLES, cudaStream);
-        recHitsEB.amplitude = cms::cuda::make_device_unique<reco::StorageScalarType[]>(size, cudaStream);
-        recHitsEB.chi2 = cms::cuda::make_device_unique<reco::StorageScalarType[]>(size, cudaStream);
-        recHitsEB.pedestal = cms::cuda::make_device_unique<reco::StorageScalarType[]>(size, cudaStream);
+            cms::cuda::make_device_unique<reco::ComputationScalarType[]>(sizeEB * EcalDataFrame::MAXSAMPLES, cudaStream);
+        recHitsEB.amplitude = cms::cuda::make_device_unique<reco::StorageScalarType[]>(sizeEB, cudaStream);
+        recHitsEB.chi2 = cms::cuda::make_device_unique<reco::StorageScalarType[]>(sizeEB, cudaStream);
+        recHitsEB.pedestal = cms::cuda::make_device_unique<reco::StorageScalarType[]>(sizeEB, cudaStream);
 
         if (configParameters.shouldRunTimingComputation) {
-          recHitsEB.jitter = cms::cuda::make_device_unique<reco::StorageScalarType[]>(size, cudaStream);
-          recHitsEB.jitterError = cms::cuda::make_device_unique<reco::StorageScalarType[]>(size, cudaStream);
+          recHitsEB.jitter = cms::cuda::make_device_unique<reco::StorageScalarType[]>(sizeEB, cudaStream);
+          recHitsEB.jitterError = cms::cuda::make_device_unique<reco::StorageScalarType[]>(sizeEB, cudaStream);
         }
 
-        recHitsEB.did = cms::cuda::make_device_unique<uint32_t[]>(size, cudaStream);
-        recHitsEB.flags = cms::cuda::make_device_unique<uint32_t[]>(size, cudaStream);
+        recHitsEB.did = cms::cuda::make_device_unique<uint32_t[]>(sizeEB, cudaStream);
+        recHitsEB.flags = cms::cuda::make_device_unique<uint32_t[]>(sizeEB, cudaStream);
 
+        auto const sizeEE = configParameters.maxNumberHitsEE;
         recHitsEE.amplitudesAll =
-            cms::cuda::make_device_unique<reco::ComputationScalarType[]>(size * EcalDataFrame::MAXSAMPLES, cudaStream);
-        recHitsEE.amplitude = cms::cuda::make_device_unique<reco::StorageScalarType[]>(size, cudaStream);
-        recHitsEE.chi2 = cms::cuda::make_device_unique<reco::StorageScalarType[]>(size, cudaStream);
-        recHitsEE.pedestal = cms::cuda::make_device_unique<reco::StorageScalarType[]>(size, cudaStream);
+            cms::cuda::make_device_unique<reco::ComputationScalarType[]>(sizeEE * EcalDataFrame::MAXSAMPLES, cudaStream);
+        recHitsEE.amplitude = cms::cuda::make_device_unique<reco::StorageScalarType[]>(sizeEE, cudaStream);
+        recHitsEE.chi2 = cms::cuda::make_device_unique<reco::StorageScalarType[]>(sizeEE, cudaStream);
+        recHitsEE.pedestal = cms::cuda::make_device_unique<reco::StorageScalarType[]>(sizeEE, cudaStream);
 
         if (configParameters.shouldRunTimingComputation) {
-          recHitsEE.jitter = cms::cuda::make_device_unique<reco::StorageScalarType[]>(size, cudaStream);
-          recHitsEE.jitterError = cms::cuda::make_device_unique<reco::StorageScalarType[]>(size, cudaStream);
+          recHitsEE.jitter = cms::cuda::make_device_unique<reco::StorageScalarType[]>(sizeEE, cudaStream);
+          recHitsEE.jitterError = cms::cuda::make_device_unique<reco::StorageScalarType[]>(sizeEE, cudaStream);
         }
 
-        recHitsEE.did = cms::cuda::make_device_unique<uint32_t[]>(size, cudaStream);
-        recHitsEE.flags = cms::cuda::make_device_unique<uint32_t[]>(size, cudaStream);
+        recHitsEE.did = cms::cuda::make_device_unique<uint32_t[]>(sizeEE, cudaStream);
+        recHitsEE.flags = cms::cuda::make_device_unique<uint32_t[]>(sizeEE, cudaStream);
       }
     };
 
@@ -169,64 +171,43 @@ namespace ecal {
         constexpr auto smlength = getLength<SampleMatrix>();
         constexpr auto pmlength = getLength<PulseMatrixType>();
         constexpr auto bxvlength = getLength<BXVectorType>();
-        auto const size = configParameters.maxNumberHits;
+        auto const size = configParameters.maxNumberHitsEB + configParameters.maxNumberHitsEE;
 
-#define MYMALLOC(var, size) var = cms::cuda::make_device_unique<decltype(var)::element_type[]>(size, cudaStream)
-        MYMALLOC(samples, size * svlength);
-        //cudaCheck(cudaMalloc((void**)&samples, size * sizeof(SampleVector)));
-        MYMALLOC(gainsNoise, size * sgvlength);
-        //cudaCheck(cudaMalloc((void**)&gainsNoise, size * sizeof(SampleGainVector)));
+        auto alloc = [cudaStream](auto& var, uint32_t size) {
+          using element_type = typename std::remove_reference_t<decltype(var)>::element_type;
+          var = cms::cuda::make_device_unique<element_type[]>(size, cudaStream);
+        };
 
-        MYMALLOC(noisecov, size * smlength);
-        //cudaCheck(cudaMalloc((void**)&noisecov, size * sizeof(SampleMatrix)));
-        MYMALLOC(pulse_matrix, size * pmlength);
-        //cudaCheck(cudaMalloc((void**)&pulse_matrix, size * sizeof(PulseMatrixType)));
-        MYMALLOC(activeBXs, size * bxvlength);
-        //cudaCheck(cudaMalloc((void**)&activeBXs, size * sizeof(BXVectorType)));
-        MYMALLOC(acState, size);
-        //cudaCheck(cudaMalloc((void**)&acState, size * sizeof(char)));
+        alloc(samples, size * svlength);
+        alloc(gainsNoise, size * sgvlength);
 
-        MYMALLOC(hasSwitchToGain6, size);
-        //cudaCheck(cudaMalloc((void**)&hasSwitchToGain6, size * sizeof(bool)));
-        MYMALLOC(hasSwitchToGain1, size);
-        //cudaCheck(cudaMalloc((void**)&hasSwitchToGain1, size * sizeof(bool)));
-        MYMALLOC(isSaturated, size);
-        //cudaCheck(cudaMalloc((void**)&isSaturated, size * sizeof(bool)));
+        alloc(noisecov, size * smlength);
+        alloc(pulse_matrix, size * pmlength);
+        alloc(activeBXs, size * bxvlength);
+        alloc(acState, size);
+
+        alloc(hasSwitchToGain6, size);
+        alloc(hasSwitchToGain1, size);
+        alloc(isSaturated, size);
 
         if (configParameters.shouldRunTimingComputation) {
-          MYMALLOC(sample_values, size * svlength);
-          //cudaCheck(cudaMalloc((void**)&sample_values, size * sizeof(SampleVector)));
-          MYMALLOC(sample_value_errors, size * svlength);
-          //cudaCheck(cudaMalloc((void**)&sample_value_errors, size * sizeof(SampleVector)));
-          MYMALLOC(useless_sample_values, size * EcalDataFrame::MAXSAMPLES);
-          //cudaCheck(cudaMalloc((void**)&useless_sample_values, size * sizeof(bool) * EcalDataFrame::MAXSAMPLES));
-          MYMALLOC(chi2sNullHypot, size);
-          //cudaCheck(cudaMalloc((void**)&chi2sNullHypot, size * sizeof(SampleVector::Scalar)));
-          MYMALLOC(sum0sNullHypot, size);
-          //cudaCheck(cudaMalloc((void**)&sum0sNullHypot, size * sizeof(SampleVector::Scalar)));
-          MYMALLOC(sumAAsNullHypot, size);
-          //cudaCheck(cudaMalloc((void**)&sumAAsNullHypot, size * sizeof(SampleVector::Scalar)));
-          MYMALLOC(pedestal_nums, size);
-          //cudaCheck(cudaMalloc((void**)&pedestal_nums, size * sizeof(char)));
+          alloc(sample_values, size * svlength);
+          alloc(sample_value_errors, size * svlength);
+          alloc(useless_sample_values, size * EcalDataFrame::MAXSAMPLES);
+          alloc(chi2sNullHypot, size);
+          alloc(sum0sNullHypot, size);
+          alloc(sumAAsNullHypot, size);
+          alloc(pedestal_nums, size);
 
-          MYMALLOC(tMaxAlphaBetas, size);
-          //cudaCheck(cudaMalloc((void**)&tMaxAlphaBetas, size * sizeof(SampleVector::Scalar)));
-          MYMALLOC(tMaxErrorAlphaBetas, size);
-          //cudaCheck(cudaMalloc((void**)&tMaxErrorAlphaBetas, size * sizeof(SampleVector::Scalar)));
-          MYMALLOC(accTimeMax, size);
-          //cudaCheck(cudaMalloc((void**)&accTimeMax, size * sizeof(SampleVector::Scalar)));
-          MYMALLOC(accTimeWgt, size);
-          //cudaCheck(cudaMalloc((void**)&accTimeWgt, size * sizeof(SampleVector::Scalar)));
-          MYMALLOC(ampMaxAlphaBeta, size);
-          //cudaCheck(cudaMalloc((void**)&ampMaxAlphaBeta, size * sizeof(SampleVector::Scalar)));
-          MYMALLOC(ampMaxError, size);
-          //cudaCheck(cudaMalloc((void**)&ampMaxError, size * sizeof(SampleVector::Scalar)));
-          MYMALLOC(timeMax, size);
-          //cudaCheck(cudaMalloc((void**)&timeMax, size * sizeof(SampleVector::Scalar)));
-          MYMALLOC(timeError, size);
-          //cudaCheck(cudaMalloc((void**)&timeError, size * sizeof(SampleVector::Scalar)));
-          MYMALLOC(tcState, size);
-          //cudaCheck(cudaMalloc((void**)&tcState, size * sizeof(TimeComputationState)));
+          alloc(tMaxAlphaBetas, size);
+          alloc(tMaxErrorAlphaBetas, size);
+          alloc(accTimeMax, size);
+          alloc(accTimeWgt, size);
+          alloc(ampMaxAlphaBeta, size);
+          alloc(ampMaxError, size);
+          alloc(timeMax, size);
+          alloc(timeError, size);
+          alloc(tcState, size);
         }
       }
     };
@@ -295,8 +276,9 @@ namespace ecal {
       uint32_t expanded_v_DB_reco_flagsSize;
 
       uint32_t flagmask;
-      uint32_t maxNumberHits;
-
+      uint32_t maxNumberHitsEB;
+      uint32_t maxNumberHitsEE;
+      
       //
       //       bool shouldRunTimingComputation;
     };
@@ -307,20 +289,21 @@ namespace ecal {
       void allocate(ConfigurationParameters const& configParameters, cudaStream_t cudaStream) {
         //      void allocate(uint32_t size) {
         //---- configParameters -> needed only to decide if to save the timing information or not
-        auto const size = configParameters.maxNumberHits;
-        recHitsEB.energy = cms::cuda::make_device_unique<::ecal::reco::StorageScalarType[]>(size, cudaStream);
-        recHitsEB.time = cms::cuda::make_device_unique<::ecal::reco::StorageScalarType[]>(size, cudaStream);
-        recHitsEB.chi2 = cms::cuda::make_device_unique<::ecal::reco::StorageScalarType[]>(size, cudaStream);
-        recHitsEB.flagBits = cms::cuda::make_device_unique<uint32_t[]>(size, cudaStream);
-        recHitsEB.extra = cms::cuda::make_device_unique<uint32_t[]>(size, cudaStream);
-        recHitsEB.did = cms::cuda::make_device_unique<uint32_t[]>(size, cudaStream);
+        auto const sizeEB = configParameters.maxNumberHitsEB;
+        recHitsEB.energy = cms::cuda::make_device_unique<::ecal::reco::StorageScalarType[]>(sizeEB, cudaStream);
+        recHitsEB.time = cms::cuda::make_device_unique<::ecal::reco::StorageScalarType[]>(sizeEB, cudaStream);
+        recHitsEB.chi2 = cms::cuda::make_device_unique<::ecal::reco::StorageScalarType[]>(sizeEB, cudaStream);
+        recHitsEB.flagBits = cms::cuda::make_device_unique<uint32_t[]>(sizeEB, cudaStream);
+        recHitsEB.extra = cms::cuda::make_device_unique<uint32_t[]>(sizeEB, cudaStream);
+        recHitsEB.did = cms::cuda::make_device_unique<uint32_t[]>(sizeEB, cudaStream);
 
-        recHitsEE.energy = cms::cuda::make_device_unique<::ecal::reco::StorageScalarType[]>(size, cudaStream);
-        recHitsEE.time = cms::cuda::make_device_unique<::ecal::reco::StorageScalarType[]>(size, cudaStream);
-        recHitsEE.chi2 = cms::cuda::make_device_unique<::ecal::reco::StorageScalarType[]>(size, cudaStream);
-        recHitsEE.flagBits = cms::cuda::make_device_unique<uint32_t[]>(size, cudaStream);
-        recHitsEE.extra = cms::cuda::make_device_unique<uint32_t[]>(size, cudaStream);
-        recHitsEE.did = cms::cuda::make_device_unique<uint32_t[]>(size, cudaStream);
+        auto const sizeEE = configParameters.maxNumberHitsEE;
+        recHitsEE.energy = cms::cuda::make_device_unique<::ecal::reco::StorageScalarType[]>(sizeEE, cudaStream);
+        recHitsEE.time = cms::cuda::make_device_unique<::ecal::reco::StorageScalarType[]>(sizeEE, cudaStream);
+        recHitsEE.chi2 = cms::cuda::make_device_unique<::ecal::reco::StorageScalarType[]>(sizeEE, cudaStream);
+        recHitsEE.flagBits = cms::cuda::make_device_unique<uint32_t[]>(sizeEE, cudaStream);
+        recHitsEE.extra = cms::cuda::make_device_unique<uint32_t[]>(sizeEE, cudaStream);
+        recHitsEE.did = cms::cuda::make_device_unique<uint32_t[]>(sizeEE, cudaStream);
       }
     };
 
