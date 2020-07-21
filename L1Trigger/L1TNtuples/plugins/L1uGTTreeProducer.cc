@@ -1,25 +1,25 @@
 // system include files
 #include <memory>
-#include <boost/format.hpp>
 
-// framework
-#include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/ESHandle.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
+// {fmt} headers
+#include <fmt/printf.h>
 
-// data formats
-#include "DataFormats/L1TGlobal/interface/GlobalAlgBlk.h"
+// ROOT
+#include <TTree.h>
+
+// framework and data formats
+#include "CommonTools/UtilAlgos/interface/TFileService.h"
 #include "CondFormats/DataRecord/interface/L1TUtmTriggerMenuRcd.h"
 #include "CondFormats/L1TObjects/interface/L1TUtmTriggerMenu.h"
-
-// ROOT output stuff
+#include "DataFormats/L1TGlobal/interface/GlobalAlgBlk.h"
+#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
-#include "CommonTools/UtilAlgos/interface/TFileService.h"
-#include "TTree.h"
 
 //
 // class declaration
@@ -82,8 +82,8 @@ void L1uGTTreeProducer::analyze(edm::Event const &event, edm::EventSetup const &
     for (auto const &keyval : menu->getAlgorithmMap()) {
       std::string const &name = keyval.second.getName();
       unsigned int index = keyval.second.getIndex();
-      //std::cerr << (boost::format("bit %4d: %s") % index % name).str() << std::endl;
-      tree_->SetAlias(name.c_str(), (boost::format("L1uGT.m_algoDecisionInitial[%d]") % index).str().c_str());
+      //std::cerr << fmt::sprintf("bit %4d: %s", index, name) << std::endl;
+      tree_->SetAlias(name.c_str(), fmt::sprintf("L1uGT.m_algoDecisionInitial[%d]", index).c_str());
     }
   }
 
