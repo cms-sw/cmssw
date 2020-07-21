@@ -141,9 +141,9 @@ uint32_t SectorProcessorLUT::get_ph_init(int fw_endcap, int fw_sector, int pc_lu
   const uint32_t index = (fw_endcap * 6 + fw_sector) * 61 + pc_lut_id;
   uint32_t entry = 0;
 
-  try {
+  if (index < ph_init_neighbor_.size()) {
     entry = ph_init_neighbor_.at(index);
-  } catch (...) {
+  } else {
     edm::LogError("L1T") << "Could not retrieve entry from LUT. fw_endcap: " << fw_endcap
                          << ", fw_sector: " << fw_sector << ", pc_lut_id: " << pc_lut_id;
   }
@@ -154,9 +154,9 @@ uint32_t SectorProcessorLUT::get_ph_disp(int fw_endcap, int fw_sector, int pc_lu
   const uint32_t index = (fw_endcap * 6 + fw_sector) * 61 + pc_lut_id;
   uint32_t entry = 0;
 
-  try {
+  if (index < ph_disp_neighbor_.size()) {
     entry = ph_disp_neighbor_.at(index);
-  } catch (...) {
+  } else {
     edm::LogError("L1T") << "Could not retrieve entry from LUT. fw_endcap: " << fw_endcap
                          << ", fw_sector: " << fw_sector << ", pc_lut_id: " << pc_lut_id;
   }
@@ -167,9 +167,9 @@ uint32_t SectorProcessorLUT::get_th_init(int fw_endcap, int fw_sector, int pc_lu
   const uint32_t index = (fw_endcap * 6 + fw_sector) * 61 + pc_lut_id;
   uint32_t entry = 0;
 
-  try {
+  if (index < th_init_neighbor_.size()) {
     entry = th_init_neighbor_.at(index);
-  } catch (...) {
+  } else {
     edm::LogError("L1T") << "Could not retrieve entry from LUT. fw_endcap: " << fw_endcap
                          << ", fw_sector: " << fw_sector << ", pc_lut_id: " << pc_lut_id;
   }
@@ -180,9 +180,9 @@ uint32_t SectorProcessorLUT::get_th_disp(int fw_endcap, int fw_sector, int pc_lu
   const uint32_t index = (fw_endcap * 6 + fw_sector) * 61 + pc_lut_id;
   uint32_t entry = 0;
 
-  try {
+  if (index < th_disp_neighbor_.size()) {
     entry = th_disp_neighbor_.at(index);
-  } catch (...) {
+  } else {
     edm::LogError("L1T") << "Could not retrieve entry from LUT. fw_endcap: " << fw_endcap
                          << ", fw_sector: " << fw_sector << ", pc_lut_id: " << pc_lut_id;
   }
@@ -202,9 +202,9 @@ uint32_t SectorProcessorLUT::get_th_lut(int fw_endcap, int fw_sector, int pc_lut
   const uint32_t index = ((fw_endcap * 6 + fw_sector) * 61 + pc_lut_id2) * 128 + pc_wire_id;
   uint32_t entry = 0;
 
-  try {
+  if (index < th_lut_neighbor_.size()) {
     entry = th_lut_neighbor_.at(index);
-  } catch (...) {
+  } else {
     edm::LogError("L1T") << "Could not retrieve entry from LUT. fw_endcap: " << fw_endcap
                          << ", fw_sector: " << fw_sector << ", pc_lut_id: " << pc_lut_id
                          << ", pc_wire_id: " << pc_wire_id;
@@ -235,9 +235,9 @@ uint32_t SectorProcessorLUT::get_th_corr_lut(int fw_endcap, int fw_sector, int p
   const uint32_t index = ((fw_endcap * 6 + fw_sector) * 7 + pc_lut_id2) * 128 + pc_wire_strip_id;
   uint32_t entry = 0;
 
-  try {
+  if (index < th_corr_lut_neighbor_.size()) {
     entry = th_corr_lut_neighbor_.at(index);
-  } catch (...) {
+  } else {
     edm::LogError("L1T") << "Could not retrieve entry from LUT. fw_endcap: " << fw_endcap
                          << ", fw_sector: " << fw_sector << ", pc_lut_id: " << pc_lut_id
                          << ", pc_wire_strip_id: " << pc_wire_strip_id;
@@ -249,9 +249,9 @@ uint32_t SectorProcessorLUT::get_ph_patt_corr(int pattern) const {
   const uint32_t index = pattern;
   uint32_t entry = 0;
 
-  try {
+  if (index < ph_patt_corr_.size()) {
     entry = ph_patt_corr_.at(index);
-  } catch (...) {
+  } else {
     edm::LogError("L1T") << "Could not retrieve entry from LUT. pattern: " << pattern;
   }
   return entry;
@@ -261,9 +261,9 @@ uint32_t SectorProcessorLUT::get_ph_patt_corr_sign(int pattern) const {
   const uint32_t index = pattern;
   uint32_t entry = 0;
 
-  try {
+  if (index < ph_patt_corr_sign_.size()) {
     entry = ph_patt_corr_sign_.at(index);
-  } catch (...) {
+  } else {
     edm::LogError("L1T") << "Could not retrieve entry from LUT. pattern: " << pattern;
   }
   return entry;
@@ -273,9 +273,9 @@ uint32_t SectorProcessorLUT::get_ph_zone_offset(int pc_station, int pc_chamber) 
   const uint32_t index = pc_station * 9 + pc_chamber;
   uint32_t entry = 0;
 
-  try {
+  if (index < ph_zone_offset_.size()) {
     entry = ph_zone_offset_.at(index);
-  } catch (...) {
+  } else {
     edm::LogError("L1T") << "Could not retrieve entry from LUT. pc_station: " << pc_station
                          << ", pc_chamber: " << pc_chamber;
   }
@@ -286,9 +286,9 @@ uint32_t SectorProcessorLUT::get_ph_init_hard(int fw_station, int fw_cscid) cons
   const uint32_t index = fw_station * 16 + fw_cscid;
   uint32_t entry = 0;
 
-  try {
+  if (index < ph_init_hard_.size()) {
     entry = ph_init_hard_.at(index);
-  } catch (...) {
+  } else {
     edm::LogError("L1T") << "Could not retrieve entry from LUT. fw_station: " << fw_station
                          << ", fw_cscid: " << fw_cscid;
   }
@@ -317,9 +317,9 @@ uint32_t SectorProcessorLUT::get_cppf_ph_lut(int rpc_region,
   const uint32_t ph_index = (th_index * 64) + (halfstrip - 1);
   uint32_t ph = 0;
 
-  try {
+  if (ph_index < cppf_ph_lut_.size()) {
     ph = cppf_ph_lut_.at(ph_index);
-  } catch (...) {
+  } else {
     edm::LogError("L1T") << "Could not retrieve entry from LUT. rpc_region: " << rpc_region
                          << ", rpc_sector: " << rpc_sector << ", rpc_station: " << rpc_station
                          << ", rpc_ring: " << rpc_ring << ", rpc_subsector: " << rpc_subsector
@@ -337,9 +337,9 @@ uint32_t SectorProcessorLUT::get_cppf_th_lut(
   const uint32_t th_index = get_cppf_lut_id(rpc_region, rpc_sector, rpc_station, rpc_ring, rpc_subsector, rpc_roll);
   uint32_t th = 0;
 
-  try {
+  if (th_index < cppf_th_lut_.size()) {
     th = cppf_th_lut_.at(th_index);
-  } catch (...) {
+  } else {
     edm::LogError("L1T") << "Could not retrieve entry from LUT. rpc_region: " << rpc_region
                          << ", rpc_sector: " << rpc_sector << ", rpc_station: " << rpc_station
                          << ", rpc_ring: " << rpc_ring << ", rpc_subsector: " << rpc_subsector
