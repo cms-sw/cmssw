@@ -4,7 +4,7 @@
   <IncludeSection>
     <Include ref="Geometry/CMSCommonData/data/materials.xml"/>
     <Include ref="Geometry/TrackerCommonData/data/trackermaterial.xml"/>
-    <Include ref="Geometry/CMSCommonData/data/dd4hep/cmsExtendedGeometry2026D41.xml"/>
+    <Include ref="Geometry/CMSCommonData/data/dd4hep/cmsExtendedGeometry2026D49.xml"/>
   </IncludeSection>
 
   <SpecParSection label="spec-pars2.xml">
