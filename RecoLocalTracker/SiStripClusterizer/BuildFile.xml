@@ -7,7 +7,6 @@
 <use name="CondFormats/SiStripObjects"/>
 <use name="CalibFormats/SiStripObjects"/>
 <use name="CalibTracker/Records"/>
-<use name="EventFilter/SiStripRawToDigi"/>
 <use name="RecoLocalTracker/Records"/>
 <export>
   <lib name="1"/>
