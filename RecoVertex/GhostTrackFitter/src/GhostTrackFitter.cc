@@ -21,8 +21,8 @@
 using namespace reco;
 
 GhostTrackFitter::GhostTrackFitter() {
-  fitter.reset(new AnnealingGhostTrackFitter);
-  updater.reset(new KalmanGhostTrackUpdater);
+  fitter = std::make_unique<AnnealingGhostTrackFitter>();
+  updater = std::make_unique<KalmanGhostTrackUpdater>();
 }
 
 GhostTrackFitter::~GhostTrackFitter() {}

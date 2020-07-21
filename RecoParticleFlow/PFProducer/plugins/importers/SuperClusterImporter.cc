@@ -14,6 +14,8 @@ inline double ptFast(const double energy, const math::XYZPoint& position, const 
   return energy * std::sqrt(v.perp2() / v.mag2());
 }
 
+#include <memory>
+
 #include <unordered_map>
 
 class SuperClusterImporter : public BlockElementImporterBase {
@@ -49,7 +51,7 @@ SuperClusterImporter::SuperClusterImporter(const edm::ParameterSet& conf, edm::C
       _superClustersArePF(conf.getParameter<bool>("superClustersArePF")) {}
 
 void SuperClusterImporter::updateEventSetup(const edm::EventSetup& es) {
-  _hadTower.reset(new EgammaHadTower(es, EgammaHadTower::SingleTower));
+  _hadTower = std::make_unique<EgammaHadTower>(es, EgammaHadTower::SingleTower);
 }
 
 void SuperClusterImporter::importToBlock(const edm::Event& e, BlockElementImporterBase::ElementList& elems) const {

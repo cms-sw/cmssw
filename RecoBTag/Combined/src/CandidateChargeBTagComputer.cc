@@ -1,3 +1,5 @@
+#include <memory>
+
 #include "RecoBTag/Combined/interface/CandidateChargeBTagComputer.h"
 
 CandidateChargeBTagComputer::Tokens::Tokens(const edm::ParameterSet& parameters, edm::ESConsumesCollector&& cc) {
@@ -11,13 +13,13 @@ CandidateChargeBTagComputer::CandidateChargeBTagComputer(const edm::ParameterSet
       useAdaBoost_(parameters.getParameter<bool>("useAdaBoost")),
       jetChargeExp_(parameters.getParameter<double>("jetChargeExp")),
       svChargeExp_(parameters.getParameter<double>("svChargeExp")),
-      tokens_{std::move(tokens)} {
+      tokens_{tokens} {
   uses(0, "pfImpactParameterTagInfos");
   uses(1, "pfInclusiveSecondaryVertexFinderCvsLTagInfos");
   uses(2, "softPFMuonsTagInfos");
   uses(3, "softPFElectronsTagInfos");
 
-  mvaID.reset(new TMVAEvaluator());
+  mvaID = std::make_unique<TMVAEvaluator>();
 }
 
 CandidateChargeBTagComputer::~CandidateChargeBTagComputer() {}

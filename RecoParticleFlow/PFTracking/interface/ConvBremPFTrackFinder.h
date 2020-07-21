@@ -1,6 +1,3 @@
-
-#include <memory>
-
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 

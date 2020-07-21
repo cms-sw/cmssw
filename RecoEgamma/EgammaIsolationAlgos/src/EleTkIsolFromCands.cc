@@ -68,7 +68,7 @@ EleTkIsolFromCands::TrackTable EleTkIsolFromCands::preselectTracks(reco::TrackCo
     }
   }
 
-  return {std::move(pt), std::move(eta), std::move(phi), std::move(vz)};
+  return {pt, std::move(eta), std::move(phi), std::move(vz)};
 }
 
 EleTkIsolFromCands::TrackTable EleTkIsolFromCands::preselectTracksFromCands(pat::PackedCandidateCollection const& cands,
@@ -96,7 +96,7 @@ EleTkIsolFromCands::TrackTable EleTkIsolFromCands::preselectTracksFromCands(pat:
     }
   }
 
-  return {std::move(pt), std::move(eta), std::move(phi), std::move(vz)};
+  return {pt, std::move(eta), std::move(phi), std::move(vz)};
 }
 
 EleTkIsolFromCands::Output EleTkIsolFromCands::operator()(const reco::TrackBase& eleTrk) {

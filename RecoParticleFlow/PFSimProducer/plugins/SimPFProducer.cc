@@ -211,7 +211,7 @@ void SimPFProducer::produce(edm::StreamID, edm::Event& evt, const edm::EventSetu
 
   // associate the reco tracks / gsf Tracks
   std::vector<reco::RecoToSimCollection> associatedTracks, associatedTracksGsf;
-  for (auto associator : associators) {
+  for (const auto& associator : associators) {
     associatedTracks.emplace_back(associator->associateRecoToSim(TrackCollectionH, TPCollectionH));
     //associatedTracksGsf.emplace_back(associator->associateRecoToSim(GsfTrackCollectionH, TPCollectionH));
   }
