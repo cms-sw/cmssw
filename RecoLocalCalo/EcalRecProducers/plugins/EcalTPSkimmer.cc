@@ -27,7 +27,7 @@ EcalTPSkimmer::EcalTPSkimmer(const edm::ParameterSet& ps) {
   tpOutputCollection_ = ps.getParameter<std::string>("tpOutputCollection");
   tpInputToken_ = consumes<EcalTrigPrimDigiCollection>(ps.getParameter<edm::InputTag>("tpInputCollection"));
   ttMapToken_ = esConsumes<EcalTrigTowerConstituentsMap, IdealGeometryRecord>();
-  if (skipModule_) {
+  if (not skipModule_) {
     chStatusToken_ = esConsumes<EcalChannelStatus, EcalChannelStatusRcd>();
   }
   produces<EcalTrigPrimDigiCollection>(tpOutputCollection_);
