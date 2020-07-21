@@ -203,7 +203,8 @@ bool HGCalDDDConstants::cellInLayer(int waferU, int waferV, int cellU, int cellV
   const auto& indx = getIndex(lay, true);
   if (indx.first >= 0) {
     if (waferHexagon8() || waferHexagon6()) {
-      const auto& xy = ((waferHexagon8()) ? locateCell(lay, waferU, waferV, cellU, cellV, reco, true, false) : locateCell(cellU, lay, waferU, reco));
+      const auto& xy = ((waferHexagon8()) ? locateCell(lay, waferU, waferV, cellU, cellV, reco, true, false)
+                                          : locateCell(cellU, lay, waferU, reco));
       double rpos = sqrt(xy.first * xy.first + xy.second * xy.second);
       return ((rpos >= hgpar_->rMinLayHex_[indx.first]) && (rpos <= hgpar_->rMaxLayHex_[indx.first]));
     } else {
@@ -229,7 +230,8 @@ double HGCalDDDConstants::cellThickness(int layer, int waferU, int waferV) const
 
 double HGCalDDDConstants::cellSizeHex(int type) const {
   int indx = ((waferHexagon8()) ? ((type >= 1) ? 1 : 0) : ((type == 1) ? 1 : 0));
-  double cell = (tileTrapezoid() ? 0.5 * hgpar_->cellSize_[indx] : 0.5 * HGCalParameters::k_ScaleFromDDD * hgpar_->cellSize_[indx]);
+  double cell = (tileTrapezoid() ? 0.5 * hgpar_->cellSize_[indx]
+                                 : 0.5 * HGCalParameters::k_ScaleFromDDD * hgpar_->cellSize_[indx]);
   return cell;
 }
 
@@ -392,9 +394,7 @@ std::vector<HGCalParameters::hgtrap> HGCalDDDConstants::getModules() const {
   return mytrs;
 }
 
-int HGCalDDDConstants::getPhiBins(int lay) const {
-  return (tileTrapezoid() ? hgpar_->scintCells(lay) : 0);
-}
+int HGCalDDDConstants::getPhiBins(int lay) const { return (tileTrapezoid() ? hgpar_->scintCells(lay) : 0); }
 
 std::pair<int, int> HGCalDDDConstants::getREtaRange(int lay) const {
   int irmin(0), irmax(0);

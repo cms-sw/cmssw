@@ -84,9 +84,7 @@ public:
   std::pair<float, float> locateCellTrap(int lay, int ieta, int iphi, bool reco) const;
   int levelTop(int ind = 0) const { return hgpar_->levelT_[ind]; }
   bool maskCell(const DetId& id, int corners) const;
-  int maxCellUV() const {
-    return (tileTrapezoid() ? hgpar_->nCellsFine_ : 2 * hgpar_->nCellsFine_);
-  }
+  int maxCellUV() const { return (tileTrapezoid() ? hgpar_->nCellsFine_ : 2 * hgpar_->nCellsFine_); }
   int maxCells(bool reco) const;
   int maxCells(int lay, bool reco) const;
   int maxModules() const { return modHalf_; }
@@ -107,7 +105,9 @@ public:
   std::pair<int, int> rowColumnWafer(const int wafer) const;
   int sectors() const { return hgpar_->nSectors_; }
   std::pair<int, int> simToReco(int cell, int layer, int mod, bool half) const;
-  bool tileTrapezoid() const { return ((mode_ == HGCalGeometryMode::Trapezoid) || (mode_ == HGCalGeometryMode::TrapezoidFile)); }
+  bool tileTrapezoid() const {
+    return ((mode_ == HGCalGeometryMode::Trapezoid) || (mode_ == HGCalGeometryMode::TrapezoidFile));
+  }
   unsigned int volumes() const { return hgpar_->moduleLayR_.size(); }
   int waferFromCopy(int copy) const;
   void waferFromPosition(const double x, const double y, int& wafer, int& icell, int& celltyp) const;
@@ -121,8 +121,13 @@ public:
                          int& celltype,
                          double& wt,
                          bool debug = false) const;
-  bool waferHexagon6() const { return ((mode_ == HGCalGeometryMode::Hexagon) || (mode_ == HGCalGeometryMode::HexagonFull)); }
-  bool waferHexagon8() const { return ((mode_ == HGCalGeometryMode::Hexagon8) || (mode_ == HGCalGeometryMode::Hexagon8Full) || (mode_ == HGCalGeometryMode::Hexagon8File)); }
+  bool waferHexagon6() const {
+    return ((mode_ == HGCalGeometryMode::Hexagon) || (mode_ == HGCalGeometryMode::HexagonFull));
+  }
+  bool waferHexagon8() const {
+    return ((mode_ == HGCalGeometryMode::Hexagon8) || (mode_ == HGCalGeometryMode::Hexagon8Full) ||
+            (mode_ == HGCalGeometryMode::Hexagon8File));
+  }
   bool waferInLayer(int wafer, int lay, bool reco) const;
   bool waferFullInLayer(int wafer, int lay, bool reco) const;
   int waferCount(const int type) const { return ((type == 0) ? waferMax_[2] : waferMax_[3]); }

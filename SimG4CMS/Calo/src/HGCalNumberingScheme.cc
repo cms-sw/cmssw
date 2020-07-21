@@ -31,9 +31,13 @@ uint32_t HGCalNumberingScheme::getUnitID(int layer, int module, int cell, int iz
   wt = 1.0;
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HGCSim") << "HGCalNumberingScheme:: input Layer " << layer << " Module " << module << " Cell "
-                             << cell << " iz " << iz << " Position " << pos << " Mode " << mode_ << ":" << HGCalGeometryMode::Hexagon8Full << ":" << HGCalGeometryMode::Hexagon8 << ":" << HGCalGeometryMode::Hexagon8File << ":" << HGCalGeometryMode::Trapezoid << ":" << HGCalGeometryMode::TrapezoidFile;
+                             << cell << " iz " << iz << " Position " << pos << " Mode " << mode_ << ":"
+                             << HGCalGeometryMode::Hexagon8Full << ":" << HGCalGeometryMode::Hexagon8 << ":"
+                             << HGCalGeometryMode::Hexagon8File << ":" << HGCalGeometryMode::Trapezoid << ":"
+                             << HGCalGeometryMode::TrapezoidFile;
 #endif
-  if ((mode_ == HGCalGeometryMode::Hexagon8Full) || (mode_ == HGCalGeometryMode::Hexagon8) || (mode_ == HGCalGeometryMode::Hexagon8File)) {
+  if ((mode_ == HGCalGeometryMode::Hexagon8Full) || (mode_ == HGCalGeometryMode::Hexagon8) ||
+      (mode_ == HGCalGeometryMode::Hexagon8File)) {
     int cellU(0), cellV(0), waferType(-1), waferU(0), waferV(0);
     if (cell >= 0) {
       waferType = HGCalTypes::getUnpackedType(module);
