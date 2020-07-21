@@ -106,7 +106,7 @@ jetDQMAnalyzerAk4PFUncleaned=jetDQMAnalyzerAk4CaloUncleaned.clone(
     #for PFJets: LOOSE,TIGHT
     JetIDQuality               = cms.string("LOOSE"),
     #options for Calo and JPT: PURE09,DQM09,CRAFT08
-    #for PFJets: RUN2ULPUPPI for 11_1_X onwards
+    #for PFJets: RUN2ULCHS for 11_1_X onwards
     JetIDVersion               = cms.string("RUN2ULCHS"),
     JetType = cms.string('pf'),#pf, calo or jpt
     JetCorrections = cms.InputTag("dqmAk4PFL1FastL2L3ResidualCorrector"),
