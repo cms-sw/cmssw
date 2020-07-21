@@ -15,11 +15,13 @@
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include <stdexcept>
-#include <string>
-#include <sstream>
+#include <memory>
+
 #include <cmath>
 #include <functional>
+#include <sstream>
+#include <stdexcept>
+#include <string>
 
 using namespace std;
 using namespace std::placeholders;  // for _1, _2, _3...
@@ -121,7 +123,7 @@ void PFECALSuperClusterAlgo::setTokens(const edm::ParameterSet& iConfig, edm::Co
   if (useRegression_) {
     const edm::ParameterSet& regconf = iConfig.getParameter<edm::ParameterSet>("regressionConfig");
 
-    regr_.reset(new SCEnergyCorrectorSemiParm());
+    regr_ = std::make_unique<SCEnergyCorrectorSemiParm>();
     regr_->setTokens(regconf, cc);
   }
 
