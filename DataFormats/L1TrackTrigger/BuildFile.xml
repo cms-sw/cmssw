@@ -5,6 +5,8 @@
 <use name="DataFormats/Phase2TrackerDigi"/>
 <use name="DataFormats/SiStripDetId"/>
 <use name="DataFormats/TrackerCommon"/>
+<flags LCG_DICT_HEADER="classes.h classes_extra.h"/>
+<flags LCG_DICT_XML="classes_def.xml classes_extra_def.xml"/>
 <export>
   <lib name="1"/>
 </export>
