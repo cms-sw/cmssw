@@ -2,9 +2,10 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 
+#include <fmt/printf.h>
+
 #include <boost/algorithm/string.hpp>
 #include <boost/filesystem.hpp>
-#include <boost/format.hpp>
 #include <boost/property_tree/json_parser.hpp>
 #include <boost/property_tree/ptree.hpp>
 
@@ -38,7 +39,7 @@ namespace dqmservices {
         nEventsSeenSinceWrite_{0},
         fileIndex_{0} {
     boost::filesystem::path path = iPSet.getUntrackedParameter<std::string>("pathToWriteJson");
-    writePath_ /= str(boost::format("run%06d") % runNumber_);
+    writePath_ /= fmt::sprintf("run%06d", runNumber_);
 
     boost::filesystem::create_directories(writePath_);
   }
@@ -68,8 +69,7 @@ namespace dqmservices {
   }
 
   void DQMStreamerWriteJsonAnalyzer::writeJson() const {
-    auto currentFileBase =
-        str(boost::format("run%06d_ls%04d_%s_local.jsn") % runNumber_ % (fileIndex_ + 2) % streamName_);
+    auto currentFileBase = fmt::sprintf("run%06d_ls%04d_%s_local.jsn", runNumber_, fileIndex_ + 2, streamName_);
     auto currentJsonPath = (writePath_ / currentFileBase).string();
 
     using namespace boost::property_tree;
@@ -95,7 +95,7 @@ namespace dqmservices {
   }
 
   void DQMStreamerWriteJsonAnalyzer::writeEndJob() const {
-    auto currentFileBase = str(boost::format("run%06d_ls%04d_EoR.jsn") % runNumber_ % 0);
+    auto currentFileBase = fmt::sprintf("run%06d_ls%04d_EoR.jsn", runNumber_, 0);
     auto currentJsonPath = (writePath_ / currentFileBase).string();
 
     using namespace boost::property_tree;

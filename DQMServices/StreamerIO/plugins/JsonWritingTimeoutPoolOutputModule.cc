@@ -1,12 +1,12 @@
-#include "JsonWritingTimeoutPoolOutputModule.h"
-
-#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
-#include "DQMServices/Components/interface/fillJson.h"
-
-#include <boost/format.hpp>
+#include <fmt/printf.h>
 #include <boost/filesystem.hpp>
 #include <boost/property_tree/json_parser.hpp>
 #include <boost/property_tree/ptree.hpp>
+
+#include "DQMServices/Components/interface/fillJson.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+
+#include "JsonWritingTimeoutPoolOutputModule.h"
 
 namespace dqmservices {
 
@@ -22,7 +22,7 @@ namespace dqmservices {
   std::pair<std::string, std::string> JsonWritingTimeoutPoolOutputModule::physicalAndLogicalNameForNewFile() {
     sequence_++;
 
-    std::string base = str(boost::format("run%06d_ls%04d_%s") % runNumber_ % sequence_ % streamLabel_);
+    std::string base = fmt::sprintf("run%06d_ls%04d_%s", runNumber_, sequence_, streamLabel_);
 
     boost::filesystem::path p(outputPath_);
 
