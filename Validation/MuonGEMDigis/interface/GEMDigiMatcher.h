@@ -10,16 +10,19 @@
 
 #include "Validation/MuonHits/interface/GEMSimHitMatcher.h"
 #include "Geometry/GEMGeometry/interface/GEMGeometry.h"
+#include "SimDataFormats/GEMDigiSimLink/interface/GEMDigiSimLink.h"
 #include "DataFormats/GEMDigi/interface/GEMDigiCollection.h"
 #include "DataFormats/GEMDigi/interface/GEMPadDigiCollection.h"
 #include "DataFormats/GEMDigi/interface/GEMPadDigiClusterCollection.h"
 #include "DataFormats/GEMDigi/interface/GEMCoPadDigiCollection.h"
+#include "DataFormats/Common/interface/DetSetVector.h"
 
 #include <vector>
 #include <map>
 #include <set>
 #include <unordered_set>
 
+typedef std::vector<GEMDigiSimLink> GEMDigiSimLinkContainer;
 typedef std::vector<GEMDigi> GEMDigiContainer;
 typedef std::vector<GEMPadDigi> GEMPadDigiContainer;
 typedef std::vector<GEMPadDigiCluster> GEMPadDigiClusterContainer;
@@ -39,6 +42,8 @@ public:
   // do the matching
   void match(const SimTrack& t, const SimVertex& v);
 
+  std::set<unsigned int> detIdsSimLink(int gem_type = MuonHitHelper::GEM_ALL) const;
+
   // partition GEM detIds with digis
   std::set<unsigned int> detIdsDigi(int gem_type = MuonHitHelper::GEM_ALL) const;
   std::set<unsigned int> detIdsPad(int gem_type = MuonHitHelper::GEM_ALL) const;
@@ -54,6 +59,8 @@ public:
   std::set<unsigned int> superChamberIdsPad(int gem_type = MuonHitHelper::GEM_ALL) const;
   std::set<unsigned int> superChamberIdsCluster(int gem_type = MuonHitHelper::GEM_ALL) const;
   std::set<unsigned int> superChamberIdsCoPad(int gem_type = MuonHitHelper::GEM_ALL) const;
+
+  const GEMDigiSimLinkContainer& simLinksInDetId(unsigned int) const;
 
   // GEM digis from a particular partition, chamber or superchamber
   const GEMDigiContainer& digisInDetId(unsigned int) const;
@@ -78,6 +85,7 @@ public:
   // #layers with digis from this simtrack
   int nLayersWithDigisInSuperChamber(unsigned int) const;
   int nLayersWithPadsInSuperChamber(unsigned int) const;
+  int nLayersWithClustersInSuperChamber(unsigned int) const;
 
   /// How many pads in GEM did this simtrack get in total?
   int nPads() const;
@@ -102,6 +110,7 @@ public:
   std::shared_ptr<GEMSimHitMatcher> muonSimHitMatcher() { return muonSimHitMatcher_; }
 
 private:
+  void matchDigisSLToSimTrack(const edm::DetSetVector<GEMDigiSimLink>&);
   void matchDigisToSimTrack(const GEMDigiCollection&);
   void matchPadsToSimTrack(const GEMPadDigiCollection&);
   void matchClustersToSimTrack(const GEMPadDigiClusterCollection&);
@@ -109,11 +118,13 @@ private:
 
   void clear();
 
+  edm::EDGetTokenT<edm::DetSetVector<GEMDigiSimLink>> gemSimLinkToken_;
   edm::EDGetTokenT<GEMDigiCollection> gemDigiToken_;
   edm::EDGetTokenT<GEMPadDigiCollection> gemPadToken_;
   edm::EDGetTokenT<GEMPadDigiClusterCollection> gemClusterToken_;
   edm::EDGetTokenT<GEMCoPadDigiCollection> gemCoPadToken_;
 
+  edm::Handle<edm::DetSetVector<GEMDigiSimLink>> gemDigisSLH_;
   edm::Handle<GEMDigiCollection> gemDigisH_;
   edm::Handle<GEMPadDigiCollection> gemPadsH_;
   edm::Handle<GEMPadDigiClusterCollection> gemClustersH_;
@@ -127,6 +138,9 @@ private:
   template <class T>
   std::set<unsigned int> selectDetIds(const T&, int) const;
 
+  bool simMuOnly_;
+  bool discardEleHits_;
+
   int minBXDigi_, maxBXDigi_;
   int minBXPad_, maxBXPad_;
   int minBXCluster_, maxBXCluster_;
@@ -134,10 +148,13 @@ private:
 
   int matchDeltaStrip_;
 
+  bool verboseSimLink_;
   bool verboseDigi_;
   bool verbosePad_;
   bool verboseCluster_;
   bool verboseCoPad_;
+
+  std::map<unsigned int, GEMDigiSimLinkContainer> detid_to_simLinks_;
 
   std::map<unsigned int, GEMDigiContainer> detid_to_digis_;
   std::map<unsigned int, GEMDigiContainer> chamber_to_digis_;
@@ -153,6 +170,7 @@ private:
 
   std::map<unsigned int, GEMCoPadDigiContainer> superchamber_to_copads_;
 
+  GEMDigiSimLinkContainer no_gem_simLinks_;
   GEMDigiContainer no_gem_digis_;
   GEMPadDigiContainer no_gem_pads_;
   GEMPadDigiClusterContainer no_gem_clusters_;

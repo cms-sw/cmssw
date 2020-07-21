@@ -65,7 +65,7 @@ public:
   // calculate average strip number for a provided collection of simhits
   float simHitsMeanStrip(const edm::PSimHitContainer& sim_hits) const;
 
-  std::set<int> hitStripsInDetId(unsigned int, int margin_n_strips = 0) const;
+  std::set<int> hitStripsInDetId(unsigned int, int margin_n_strips = 1) const;
   std::set<int> hitPadsInDetId(unsigned int) const;
   std::set<int> hitCoPadsInDetId(unsigned int) const;
 
