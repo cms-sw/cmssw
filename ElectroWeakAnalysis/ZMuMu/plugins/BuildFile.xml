@@ -1,7 +1,6 @@
 <export>
 </export>
 <library name="ElectroWeakAnalysisZMuMu_plugins" file="*.cc">
-  <use name="CommonTools/Utils"/>
   <use name="FWCore/Framework"/>
   <use name="CommonTools/UtilAlgos"/>
   <use name="DataFormats/MuonReco"/>
