@@ -1,6 +1,12 @@
 import FWCore.ParameterSet.Config as cms
 
 muonGEMDigiPSet = cms.PSet(
+    gemSimLink = cms.PSet(
+        verbose = cms.int32(0),
+        inputTag = cms.InputTag("simMuonGEMDigis","GEM"),
+        simMuOnly = cms.bool(True),
+        discardEleHits = cms.bool(True),
+    ),
     gemStripDigi = cms.PSet(
         verbose = cms.int32(0),
         inputTag = cms.InputTag("simMuonGEMDigis"),
@@ -30,7 +36,7 @@ muonGEMDigiPSet = cms.PSet(
     gemCoPadDigi = cms.PSet(
         verbose = cms.int32(0),
         inputTag = cms.InputTag("simCscTriggerPrimitiveDigis"),
-        minBX = cms.int32(-1),
-        maxBX = cms.int32(1),
+        minBX = cms.int32(0),
+        maxBX = cms.int32(0),
     ),
 )

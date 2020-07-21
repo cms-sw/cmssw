@@ -31,6 +31,10 @@ void GEMSimHitMatcher::match(const SimTrack& track, const SimVertex& vertex) {
   // instantiates the track ids and simhits
   MuonSimHitMatcher::match(track, vertex);
 
+  // hard cut on non-GEM muons
+  if (std::abs(track.momentum().eta()) < 1.55)
+    return;
+
   if (hasGeometry_) {
     matchSimHitsToSimTrack();
 
@@ -69,15 +73,27 @@ void GEMSimHitMatcher::matchSimHitsToSimTrack() {
     for (const auto& h : simHits_) {
       if (h.trackId() != track_id)
         continue;
-      int pdgid = h.particleType();
-      if (simMuOnly_ && std::abs(pdgid) != 13)
-        continue;
-      // discard electron hits in the GEM chambers
-      if (discardEleHits_ && pdgid == 11)
-        continue;
 
       const GEMDetId& p_id(h.detUnitId());
-      detid_to_hits_[h.detUnitId()].push_back(h);
+
+      if (verbose_)
+        std::cout << "Candidate GEM simhit " << p_id << " " << h << " " << h.particleType() << " " << h.processType()
+                  << std::endl;
+
+      int pdgid = h.particleType();
+
+      // consider only the muon hits
+      if (simMuOnly_ && std::abs(pdgid) != 13)
+        continue;
+
+      // discard electron hits in the GEM chambers
+      if (discardEleHits_ && std::abs(pdgid) == 11)
+        continue;
+
+      if (verbose_)
+        std::cout << "...was matched" << std::endl;
+
+      detid_to_hits_[p_id.rawId()].push_back(h);
       hits_.push_back(h);
       chamber_to_hits_[p_id.chamberId().rawId()].push_back(h);
       superchamber_to_hits_[p_id.superChamberId().rawId()].push_back(h);
@@ -95,7 +111,7 @@ void GEMSimHitMatcher::matchSimHitsToSimTrack() {
     set<int> pads;
     for (const auto& h : hits) {
       const LocalPoint& lp = h.entryPoint();
-      pads.insert(1 + static_cast<int>(roll->padTopology().channel(lp)));
+      pads.insert(static_cast<int>(roll->padTopology().channel(lp)));
     }
     detids_to_pads_[d] = pads;
   }
@@ -115,10 +131,10 @@ void GEMSimHitMatcher::matchSimHitsToSimTrack() {
 
     for (const auto& h : hits1) {
       const LocalPoint& lp = h.entryPoint();
-      pads1.insert(1 + static_cast<int>(roll1->padTopology().channel(lp)));
+      pads1.insert(static_cast<int>(roll1->padTopology().channel(lp)));
       if (verbose_)
         edm::LogInfo("GEMSimHitMatcher") << "GEMHits detid1 " << id1 << " pad1 "
-                                         << 1 + static_cast<int>(roll1->padTopology().channel(lp)) << std::endl;
+                                         << static_cast<int>(roll1->padTopology().channel(lp)) << std::endl;
     }
 
     // find pads with hits in layer2
@@ -133,10 +149,10 @@ void GEMSimHitMatcher::matchSimHitsToSimTrack() {
       const auto& roll2 = dynamic_cast<const GEMGeometry*>(geometry_)->etaPartition(id2);
       for (const auto& h : hits2) {
         const LocalPoint& lp = h.entryPoint();
-        pads2.insert(1 + static_cast<int>(roll2->padTopology().channel(lp)));
+        pads2.insert(static_cast<int>(roll2->padTopology().channel(lp)));
         if (verbose_)
           edm::LogInfo("GEMSimHitMatcher") << "GEMHits detid2 " << id2 << " pad2 "
-                                           << 1 + static_cast<int>(roll2->padTopology().channel(lp)) << std::endl;
+                                           << static_cast<int>(roll2->padTopology().channel(lp)) << std::endl;
       }
     }
 
@@ -296,7 +312,7 @@ std::set<int> GEMSimHitMatcher::hitStripsInDetId(unsigned int detid, int margin_
     int central_strip =
         static_cast<int>(dynamic_cast<const GEMGeometry*>(geometry_)->etaPartition(id)->topology().channel(lp));
     int smin = central_strip - margin_n_strips;
-    smin = (smin > 0) ? smin : 1;
+    smin = (smin > 0) ? smin : 0;
     int smax = central_strip + margin_n_strips;
     smax = (smax <= max_nstrips) ? smax : max_nstrips;
     for (int ss = smin; ss <= smax; ++ss)

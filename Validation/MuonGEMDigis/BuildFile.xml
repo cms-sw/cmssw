@@ -1,6 +1,7 @@
 <use name="rootcore"/>
 <use name="Validation/MuonHits"/>
 <use name="DataFormats/GEMDigi"/>
+<use name="SimDataFormats/GEMDigiSimLink"/>
 <export>
   <lib name="1"/>
 </export>
