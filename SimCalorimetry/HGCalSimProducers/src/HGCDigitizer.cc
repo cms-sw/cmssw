@@ -25,8 +25,9 @@
 //#define EDM_ML_DEBUG
 using namespace std;
 using namespace hgc_digi;
+
 typedef std::vector<std::pair<float, float>>::iterator itr;
-typedef std::map<uint32_t, std::vector<std::pair<float, float>>> IdHit_Map;
+typedef std::unordered_map<uint32_t, std::vector<std::pair<float, float>>> IdHit_Map;
 typedef std::tuple<float, float, float> hit_timeStamp;
 typedef std::unordered_map<uint32_t, std::vector<hit_timeStamp>> hitRec_container;
 typedef std::vector<hit_timeStamp>::iterator hitRec_itr;
@@ -147,8 +148,6 @@ namespace {
     simResult.shrink_to_fit();
   }
 
-  typedef std::vector<std::pair<float, float>>::iterator itr;
-  typedef std::unordered_map<uint32_t, std::vector<std::pair<float, float>>> IdHit_Map;
   template <typename GEOM>
   void loadSimHitAccumulator_forPreMix(hgc::HGCSimHitDataAccumulator& simData,
                                        hgc::HGCPUSimHitDataAccumulator& PUSimData,
@@ -416,15 +415,6 @@ void HGCDigitizer::finalizeEvent(edm::Event& e, edm::EventSetup const& es, CLHEP
   }
 
   hgc::HGCSimHitDataAccumulator().swap(*simHitAccumulator_);
-
-  if (pusimHitAccumulator_->size() > 1) {
-    for (const auto itr : *pusimHitAccumulator_) {
-      auto stuff = itr.second.PUhit_info;
-      auto charge_series = stuff[0][9];
-      auto time_series = stuff[1][9];
-    }
-  }
-
   hgc::HGCPUSimHitDataAccumulator().swap(*pusimHitAccumulator_);
 }
 void HGCDigitizer::accumulate_forPreMix(edm::Event const& e,
