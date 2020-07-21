@@ -3,14 +3,14 @@
 
 #include <vector>
 
+#include "CUDADataFormats/EcalDigi/interface/DigisCollection.h"
+#include "DataFormats/EcalDigi/interface/EcalDataFrame.h"
 #include "EventFilter/EcalRawToDigi/interface/DCCRawDataDefinitions.h"
 #include "EventFilter/EcalRawToDigi/interface/ElectronicsMappingGPU.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/HostAllocator.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/cudaCheck.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/device_unique_ptr.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/host_unique_ptr.h"
-
-#include "CUDADataFormats/EcalDigi/interface/DigisCollection.h"
 
 namespace ecal {
   namespace raw {
@@ -26,7 +26,8 @@ namespace ecal {
     };
 
     struct ConfigurationParameters {
-      uint32_t maxChannels;
+      uint32_t maxChannelsEE;
+      uint32_t maxChannelsEB;
     };
 
     struct OutputDataCPU {
@@ -37,14 +38,11 @@ namespace ecal {
     struct OutputDataGPU {
       DigisCollection<::calo::common::DevStoragePolicy> digisEB, digisEE;
 
-      // FIXME: we should separate max channels parameter for eb and ee
-      // FIXME: replace hardcoded values
       void allocate(ConfigurationParameters const &config, cudaStream_t cudaStream) {
-        digisEB.data = cms::cuda::make_device_unique<uint16_t[]>(config.maxChannels, cudaStream);
-        digisEE.data = cms::cuda::make_device_unique<uint16_t[]>(config.maxChannels, cudaStream);
-
-        digisEB.ids = cms::cuda::make_device_unique<uint32_t[]>(config.maxChannels, cudaStream);
-        digisEE.ids = cms::cuda::make_device_unique<uint32_t[]>(config.maxChannels, cudaStream);
+        digisEB.data = cms::cuda::make_device_unique<uint16_t[]>(config.maxChannelsEB * EcalDataFrame::MAXSAMPLES, cudaStream);
+        digisEE.data = cms::cuda::make_device_unique<uint16_t[]>(config.maxChannelsEE * EcalDataFrame::MAXSAMPLES, cudaStream);
+        digisEB.ids = cms::cuda::make_device_unique<uint32_t[]>(config.maxChannelsEB, cudaStream);
+        digisEE.ids = cms::cuda::make_device_unique<uint32_t[]>(config.maxChannelsEE, cudaStream);
       }
     };
 
