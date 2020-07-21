@@ -1,19 +1,20 @@
-#include "DQMFileIterator.h"
+#include <iterator>
+#include <memory>
+#include <string>
+
+#include <fmt/printf.h>
+#include <boost/algorithm/string.hpp>
+#include <boost/algorithm/string/predicate.hpp>
+#include <boost/filesystem.hpp>
+#include <boost/property_tree/json_parser.hpp>
+#include <boost/property_tree/ptree.hpp>
+#include <boost/range.hpp>
+#include <boost/regex.hpp>
+
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/TimeOfDay.h"
 
-#include <boost/regex.hpp>
-#include <boost/format.hpp>
-#include <boost/range.hpp>
-#include <boost/filesystem.hpp>
-#include <boost/algorithm/string/predicate.hpp>
-
-#include <memory>
-#include <string>
-#include <iterator>
-#include <boost/property_tree/json_parser.hpp>
-#include <boost/property_tree/ptree.hpp>
-#include <boost/algorithm/string.hpp>
+#include "DQMFileIterator.h"
 
 namespace dqmservices {
 
@@ -95,7 +96,7 @@ namespace dqmservices {
     boost::split(tokens, runInputDir_, boost::is_any_of(":"));
 
     for (auto token : tokens) {
-      runPath_.push_back(boost::str(boost::format("%s/run%06d") % token % runNumber_));
+      runPath_.push_back(fmt::sprintf("%s/run%06d", token, runNumber_));
     }
 
     eor_.loaded = false;
@@ -175,7 +176,7 @@ namespace dqmservices {
       return;
 
     ptree doc;
-    doc.put(str(boost::format("extra.lumi_seen.lumi%06d") % lumi.file_ls), lumi.state);
+    doc.put(fmt::sprintf("extra.lumi_seen.lumi%06d", lumi.file_ls), lumi.state);
     mon_->outputUpdate(doc);
   }
 
