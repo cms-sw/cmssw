@@ -18,14 +18,15 @@ Implementation:
 
 // system include files
 #include <cstdio>
-#include <memory>
-#include <vector>
-#include <string>
-#include <fstream>
-#include "boost/filesystem.hpp"
-#include <unistd.h>
 #include <dirent.h>
 #include <fcntl.h>
+#include <filesystem>
+#include <fstream>
+#include <memory>
+#include <string>
+#include <system_error>
+#include <unistd.h>
+#include <vector>
 #include <sys/wait.h>
 #include <sys/time.h>
 #include <sys/resource.h>
@@ -101,14 +102,18 @@ private:
   std::shared_ptr<lhef::LHERunInfo> runInfoLast_;
   std::shared_ptr<lhef::LHERunInfo> runInfo_;
   std::shared_ptr<lhef::LHEEvent> partonLevel_;
-  boost::ptr_deque<LHERunInfoProduct> runInfoProducts_;
+  std::deque<std::unique_ptr<LHERunInfoProduct>> runInfoProducts_;
   bool wasMerged;
 
-  class FileCloseSentry : private boost::noncopyable {
+  class FileCloseSentry {
   public:
     explicit FileCloseSentry(int fd) : fd_(fd){};
 
     ~FileCloseSentry() { close(fd_); }
+
+    //Make this noncopyable
+    FileCloseSentry(const FileCloseSentry&) = delete;
+    FileCloseSentry& operator=(const FileCloseSentry&) = delete;
 
   private:
     int fd_;
@@ -231,10 +236,10 @@ void ExternalLHEProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSe
                   std::bind(&LHERunInfoProduct::addComment, product.get(), std::placeholders::_1));
 
     if (!runInfoProducts_.empty()) {
-      runInfoProducts_.front().mergeProduct(*product);
+      runInfoProducts_.front()->mergeProduct(*product);
       if (!wasMerged) {
         runInfoProducts_.pop_front();
-        runInfoProducts_.push_front(product.release());
+        runInfoProducts_.emplace_front(product.release());
         wasMerged = true;
       }
     }
@@ -282,7 +287,7 @@ void ExternalLHEProducer::beginRunProduce(edm::Run& run, edm::EventSetup const& 
         auto task = edm::make_functor_task(tbb::task::allocate_root(),
                                            [t, this, &infiles, seed, nEvents, &except, &exceptSet, waitTask]() {
                                              CMS_SA_ALLOW try {
-                                               using namespace boost::filesystem;
+                                               using namespace std::filesystem;
                                                using namespace std::string_literals;
                                                auto out = path("thread"s + std::to_string(t)) / path(outputFile_);
                                                infiles[t] = out.native();
@@ -316,7 +321,7 @@ void ExternalLHEProducer::beginRunProduce(edm::Run& run, edm::EventSetup const& 
   if (storeXML_) {
     std::string file;
     if (generateConcurrently_) {
-      using namespace boost::filesystem;
+      using namespace std::filesystem;
       file = (path("thread0") / path(outputFile_)).native();
     } else {
       file = outputFile_;
@@ -352,7 +357,7 @@ void ExternalLHEProducer::beginRunProduce(edm::Run& run, edm::EventSetup const& 
                   std::bind(&LHERunInfoProduct::addComment, product.get(), std::placeholders::_1));
 
     // keep a copy around in case of merging
-    runInfoProducts_.push_back(new LHERunInfoProduct(*product));
+    runInfoProducts_.emplace_back(new LHERunInfoProduct(*product));
     wasMerged = false;
 
     run.put(std::move(product));
@@ -364,7 +369,8 @@ void ExternalLHEProducer::beginRunProduce(edm::Run& run, edm::EventSetup const& 
 // ------------ method called when ending the processing of a run  ------------
 void ExternalLHEProducer::endRunProduce(edm::Run& run, edm::EventSetup const& es) {
   if (!runInfoProducts_.empty()) {
-    std::unique_ptr<LHERunInfoProduct> product(runInfoProducts_.pop_front().release());
+    std::unique_ptr<LHERunInfoProduct> product(runInfoProducts_.front().release());
+    runInfoProducts_.pop_front();
     run.put(std::move(product));
   }
 
@@ -379,7 +385,7 @@ void ExternalLHEProducer::endRunProduce(edm::Run& run, edm::EventSetup const& es
   reader_.reset();
   if (generateConcurrently_) {
     for (unsigned int t = 0; t < nThreads_; ++t) {
-      using namespace boost::filesystem;
+      using namespace std::filesystem;
       using namespace std::string_literals;
       auto out = path("thread"s + std::to_string(t)) / path(outputFile_);
       if (unlink(out.c_str())) {
@@ -488,9 +494,9 @@ void ExternalLHEProducer::executeScript(std::vector<std::string> const& args, in
     // The child process
     if (!(rc = closeDescriptors(filedes[1]))) {
       if (generateConcurrently_) {
-        using namespace boost::filesystem;
+        using namespace std::filesystem;
         using namespace std::string_literals;
-        boost::system::error_code ec;
+        std::error_code ec;
         auto newDir = path("thread"s + std::to_string(id));
         create_directory(newDir, ec);
         current_path(newDir, ec);
