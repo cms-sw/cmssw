@@ -1,13 +1,13 @@
 # hltGetConfiguration --cff --data /dev/CMSSW_11_2_0/HIon --type HIon
 
-# /dev/CMSSW_11_2_0/HIon/V3 (CMSSW_11_2_0_pre2)
+# /dev/CMSSW_11_2_0/HIon/V4 (CMSSW_11_2_0_pre2)
 
 import FWCore.ParameterSet.Config as cms
 
 fragment = cms.ProcessFragment( "HLT" )
 
 fragment.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_11_2_0/HIon/V3')
+  tableName = cms.string('/dev/CMSSW_11_2_0/HIon/V4')
 )
 
 fragment.transferSystem = cms.PSet( 
@@ -12242,14 +12242,6 @@ fragment.hltLightPFTracksPPOnAA = cms.EDProducer( "LightPFTrackProducer",
 fragment.hltParticleFlowBlockPPOnAA = cms.EDProducer( "PFBlockProducer",
     debug = cms.untracked.bool( False ),
     linkDefinitions = cms.VPSet( 
-      cms.PSet(  linkType = cms.string( "PS1:ECAL" ),
-        useKDTree = cms.bool( True ),
-        linkerName = cms.string( "PreshowerAndECALLinker" )
-      ),
-      cms.PSet(  linkType = cms.string( "PS2:ECAL" ),
-        useKDTree = cms.bool( True ),
-        linkerName = cms.string( "PreshowerAndECALLinker" )
-      ),
       cms.PSet(  linkType = cms.string( "TRACK:ECAL" ),
         useKDTree = cms.bool( True ),
         linkerName = cms.string( "TrackAndECALLinker" )
@@ -12285,9 +12277,6 @@ fragment.hltParticleFlowBlockPPOnAA = cms.EDProducer( "PFBlockProducer",
         importerName = cms.string( "GenericClusterImporter" )
       ),
       cms.PSet(  source = cms.InputTag( "hltParticleFlowClusterHF" ),
-        importerName = cms.string( "GenericClusterImporter" )
-      ),
-      cms.PSet(  source = cms.InputTag( "hltParticleFlowClusterPSUnseeded" ),
         importerName = cms.string( "GenericClusterImporter" )
       )
     ),
