@@ -4,11 +4,10 @@
     <use name="FWCore/Framework"/>
     <use name="DataFormats/Common"/>
     <use name="DataFormats/TrackReco"/>
-    <use name="DataFormats/StdDictionaries"/>
     <use name="FWCore/ParameterSet"/>
-    <use name="SimTracker/Common"/>
+    <use name="Geometry/Records"/>
+    <use name="Geometry/TrackerGeometryBuilder"/>
     <use name="SimTracker/TrackerHitAssociation"/>
-    <use name="RecoLocalTracker/SiPixelRecHits"/>
   </library>
 
   <library file="ModuleInfo_Phase2.cc" name="ModuleInfo_Phase2">
@@ -18,7 +17,6 @@
     <use name="Geometry/TrackerGeometryBuilder"/>
     <use name="Geometry/TrackerNumberingBuilder"/>
     <use name="Geometry/CommonDetUnit"/>
-    <use name="CondFormats/Alignment"/>
   </library>
 
   <library file="Phase2PixelNtuple.cc" name="Phase2PixelNtuple">
@@ -30,9 +28,9 @@
     <use name="CommonTools/UtilAlgos"/>
     <use name="DataFormats/Common"/>
     <use name="DataFormats/TrackReco"/>
-    <use name="DataFormats/StdDictionaries"/>
     <use name="SimTracker/TrackerHitAssociation"/>
-    <use name="RecoLocalTracker/SiPixelRecHits"/>
+    <use name="Geometry/Records"/>
+    <use name="Geometry/TrackerGeometryBuilder"/>
   </library>
 
   <bin name="testPhase2PixelNtuple" file="testPhase2PixelNtuple.cpp">

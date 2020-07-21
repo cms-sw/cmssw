@@ -1,4 +1,5 @@
 <use name="CommonTools/RecoAlgos"/>
+<use name="DataFormats/L1TrackTrigger"/>
 <use name="RecoTracker/TkSeedGenerator"/>
 <use name="RecoTracker/TkTrackingRegions"/>
 <use name="RecoPixelVertexing/PixelTriplets"/>

@@ -30,8 +30,6 @@
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 
-//#include "DataFormats/TrackReco/src/classes.h"
-
 #include "CommonTools/Statistics/interface/ChiSquaredProbability.h"
 
 ConversionTrackMerger::ConversionTrackMerger(edm::ParameterSet const& conf) : conf_(conf) {

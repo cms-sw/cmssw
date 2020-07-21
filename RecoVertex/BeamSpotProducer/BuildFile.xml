@@ -1,7 +1,6 @@
 <use name="CondCore/DBOutputService"/>
 <use name="CondFormats/BeamSpotObjects"/>
 <use name="DataFormats/BeamSpot"/>
-<use name="DataFormats/Scalers"/>
 <use name="DataFormats/Common"/>
 <use name="DataFormats/TrackReco"/>
 <use name="DataFormats/VertexReco"/>
