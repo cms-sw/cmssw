@@ -23,7 +23,7 @@
   <SpecPar name="HGCalEESensitive">
     <PartSelector path="//HGCalEESensitive.*"/>    
     <Parameter name="Volume" value="HGCalEESensitive" eval="false"/>
-    <Parameter name="GeometryMode" value="HGCalGeometryMode::Hexagon8Full" eval="false"/>
+    <Parameter name="GeometryMode" value="HGCalGeometryMode::Hexagon8File" eval="false"/>
     <Parameter name="LevelZSide"          value="3"/>
     <Parameter name="LevelTop"            value="9"/>
     <Parameter name="LevelTop"            value="9"/>
@@ -76,7 +76,7 @@
   <SpecPar name="HGCalHESiliconSensitive">
     <PartSelector path="//HGCalHESiliconSensitive.*"/>
     <Parameter name="Volume" value="HGCalHESiliconSensitive" eval="false"/>
-    <Parameter name="GeometryMode" value="HGCalGeometryMode::Hexagon8Full" eval="false"/>
+    <Parameter name="GeometryMode" value="HGCalGeometryMode::Hexagon8File" eval="false"/>
     <Parameter name="LevelZSide"          value="3"/>
     <Parameter name="LevelTop"            value="9"/>
     <Parameter name="LevelTop"            value="11"/>
@@ -129,7 +129,7 @@
   <SpecPar name="HGCalHEScintillatorSensitive">
     <PartSelector path="//HGCalHEScintillatorSensitive.*"/>
     <Parameter name="Volume" value="HGCalHEScintillatorSensitive" eval="false"/>
-    <Parameter name="GeometryMode" value="HGCalGeometryMode::Trapezoid" eval="false"/>
+    <Parameter name="GeometryMode" value="HGCalGeometryMode::TrapezoidFile" eval="false"/>
     <Parameter name="LevelZSide"          value="3"/>
     <Parameter name="LevelTop"            value="11"/>
     <Parameter name="LevelTop"            value="11"/>

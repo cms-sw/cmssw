@@ -31,11 +31,9 @@ uint32_t HGCalNumberingScheme::getUnitID(int layer, int module, int cell, int iz
   wt = 1.0;
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HGCSim") << "HGCalNumberingScheme:: input Layer " << layer << " Module " << module << " Cell "
-                             << cell << " iz " << iz << " Position " << pos << " Mode " << mode_ << ":"
-                             << HGCalGeometryMode::Hexagon8Full << ":" << HGCalGeometryMode::Hexagon8 << ":"
-                             << HGCalGeometryMode::Trapezoid;
+                             << cell << " iz " << iz << " Position " << pos << " Mode " << mode_ << ":" << HGCalGeometryMode::Hexagon8Full << ":" << HGCalGeometryMode::Hexagon8 << ":" << HGCalGeometryMode::Hexagon8File << ":" << HGCalGeometryMode::Trapezoid << ":" << HGCalGeometryMode::TrapezoidFile;
 #endif
-  if ((mode_ == HGCalGeometryMode::Hexagon8Full) || (mode_ == HGCalGeometryMode::Hexagon8)) {
+  if ((mode_ == HGCalGeometryMode::Hexagon8Full) || (mode_ == HGCalGeometryMode::Hexagon8) || (mode_ == HGCalGeometryMode::Hexagon8File)) {
     int cellU(0), cellV(0), waferType(-1), waferU(0), waferV(0);
     if (cell >= 0) {
       waferType = HGCalTypes::getUnpackedType(module);
@@ -43,7 +41,7 @@ uint32_t HGCalNumberingScheme::getUnitID(int layer, int module, int cell, int iz
       waferV = HGCalTypes::getUnpackedV(module);
       cellU = HGCalTypes::getUnpackedCellU(cell);
       cellV = HGCalTypes::getUnpackedCellV(cell);
-    } else if (mode_ == HGCalGeometryMode::Hexagon8Full) {
+    } else if (mode_ != HGCalGeometryMode::Hexagon8) {
       double xx = (pos.z() > 0) ? pos.x() : -pos.x();
       hgcons_.waferFromPosition(xx, pos.y(), layer, waferU, waferV, cellU, cellV, waferType, wt);
     }
@@ -56,7 +54,7 @@ uint32_t HGCalNumberingScheme::getUnitID(int layer, int module, int cell, int iz
       edm::LogVerbatim("HGCSim") << "Bad WaferType " << waferType;
 #endif
     }
-  } else if (mode_ == HGCalGeometryMode::Trapezoid) {
+  } else if ((mode_ == HGCalGeometryMode::Trapezoid) || (mode_ == HGCalGeometryMode::TrapezoidFile)) {
     std::array<int, 3> id = hgcons_.assignCellTrap(pos.x(), pos.y(), pos.z(), layer, false);
     if (id[2] >= 0) {
       index = HGCScintillatorDetId(id[2], layer, iz * id[0], id[1]).rawId();

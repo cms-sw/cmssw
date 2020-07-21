@@ -77,9 +77,7 @@ namespace {
     const auto& topo = geom->topology();
     const auto& dddConst = topo.dddConstants();
 
-    if ((dddConst.geomMode() == HGCalGeometryMode::Hexagon8) ||
-        (dddConst.geomMode() == HGCalGeometryMode::Hexagon8Full) ||
-        (dddConst.geomMode() == HGCalGeometryMode::Trapezoid)) {
+    if (dddConst.waferHexagon8() || dddConst.tileTrapezoid()) {
       result = DetId(simId);
     } else {
       int subdet(DetId(simId).subdetId()), layer, cell, sec, subsec, zp;

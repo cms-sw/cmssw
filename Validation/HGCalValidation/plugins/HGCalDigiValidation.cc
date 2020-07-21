@@ -156,10 +156,9 @@ void HGCalDigiValidation::analyze(const edm::Event& iEvent, const edm::EventSetu
       edm::LogVerbatim("HGCalValidation") << "HGCalDigiValidation: Cannot get "
                                           << "valid Geometry Object for " << nameDetector_;
     geom0 = geom.product();
-    HGCalGeometryMode::GeometryMode mode = geom0->topology().geomMode();
-    if ((mode == HGCalGeometryMode::Hexagon8) || (mode == HGCalGeometryMode::Hexagon8Full))
+    if (geom0->topology().waferHexagon8())
       geomType = 1;
-    else if (mode == HGCalGeometryMode::Trapezoid)
+    else if (geom0->topology().tileTrapezoid())
       geomType = 2;
     if (nameDetector_ == "HGCalHFNoseSensitive")
       geomType = 3;

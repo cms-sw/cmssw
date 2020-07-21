@@ -71,7 +71,7 @@ void HGCalWaferCheck::analyze(const edm::Event& iEvent, const edm::EventSetup& i
   const auto& geomR = iSetup.getData(geomToken_);
   const HGCalGeometry* geom = &geomR;
   std::cout << nameDetector_ << " Layers = " << hgdc.layers(reco_) << " Sectors = " << hgdc.sectors() << std::endl;
-  if ((hgdc.geomMode() == HGCalGeometryMode::Hexagon8) || (hgdc.geomMode() == HGCalGeometryMode::Hexagon8Full)) {
+  if (hgdc.waferHexagon8()) {
     DetId::Detector det = (nameSense_ == "HGCalHESiliconSensitive") ? DetId::HGCalHSi : DetId::HGCalEE;
     for (int layer = 1; layer <= 2; ++layer) {
       for (int waferU = -12; waferU <= 12; ++waferU) {
