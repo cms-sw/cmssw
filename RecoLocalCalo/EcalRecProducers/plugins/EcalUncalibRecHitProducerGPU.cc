@@ -99,7 +99,8 @@ void EcalUncalibRecHitProducerGPU::fillDescriptions(edm::ConfigurationDescriptio
   desc.add<double>("outOfTimeThresholdGain61mEE", 1000);
   desc.add<double>("amplitudeThresholdEB", 10);
   desc.add<double>("amplitudeThresholdEE", 10);
-  desc.add<uint32_t>("maxNumberHits", 20000);  //---- AM TEST
+  desc.add<uint32_t>("maxNumberHitsEB", 61200);
+  desc.add<uint32_t>("maxNumberHitsEE", 14648);
   desc.add<std::vector<uint32_t>>("kernelMinimizeThreads", {32, 1, 1});
   // ---- default false or true? It was set to true, but at HLT it is false
   desc.add<bool>("shouldRunTimingComputation", false);
@@ -135,8 +136,9 @@ EcalUncalibRecHitProducerGPU::EcalUncalibRecHitProducerGPU(const edm::ParameterS
   auto amplitudeThreshEE = ps.getParameter<double>("amplitudeThresholdEE");
 
   // max number of digis to allocate for
-  configParameters_.maxNumberHits = ps.getParameter<uint32_t>("maxNumberHits");
-
+  configParameters_.maxNumberHitsEB = ps.getParameter<uint32_t>("maxNumberHitsEB");
+  configParameters_.maxNumberHitsEE = ps.getParameter<uint32_t>("maxNumberHitsEE");
+  
   // switch to run timing computation kernels
   configParameters_.shouldRunTimingComputation = ps.getParameter<bool>("shouldRunTimingComputation");
 
@@ -200,8 +202,8 @@ void EcalUncalibRecHitProducerGPU::acquire(edm::Event const& event,
   neb_ = ebDigis.size;
   nee_ = eeDigis.size;
 
-  if ((neb_ + nee_) > configParameters_.maxNumberHits) {
-    edm::LogError("EcalUncalibRecHitProducerGPU") << "max number of channels exceeded. See options 'maxNumberHits' ";
+  if ((neb_ > configParameters_.maxNumberHitsEB) || (nee_ > configParameters_.maxNumberHitsEE)) {
+    edm::LogError("EcalUncalibRecHitProducerGPU") << "max number of channels exceeded. See options 'maxNumberHitsEB and maxNumberHitsEE' ";
   }
 
   // conditions
