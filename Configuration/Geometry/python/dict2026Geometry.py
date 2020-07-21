@@ -304,7 +304,7 @@ caloDict = {
             'from Geometry.EcalMapping.EcalMapping_cfi import *',
             'from Geometry.EcalMapping.EcalMappingRecord_cfi import *',
         ],
-        "era" : "phase2_ecal, phase2_hcal, phase2_hgcal, phase2_hgcalV9, hcalHardcodeConditions, phase2_hgcalV10, phase2_hgcalV11",
+        "era" : "phase2_ecal, phase2_hcal, phase2_hgcal, hcalHardcodeConditions, phase2_hgcalV10, phase2_hgcalV11",
     },
     "C10" : {
         1 : [
@@ -389,7 +389,7 @@ caloDict = {
             'from Geometry.EcalMapping.EcalMapping_cfi import *',
             'from Geometry.EcalMapping.EcalMappingRecord_cfi import *',
         ],
-        "era" : "phase2_ecal, phase2_hcal, phase2_hgcal, phase2_hgcalV9, hcalHardcodeConditions, phase2_hgcalV10, phase2_hgcalV11, phase2_hfnose",
+        "era" : "phase2_ecal, phase2_hcal, phase2_hgcal, hcalHardcodeConditions, phase2_hgcalV10, phase2_hgcalV11, phase2_hfnose",
     },
     "C11" : {
         1 : [
@@ -462,7 +462,7 @@ caloDict = {
             'from Geometry.EcalMapping.EcalMapping_cfi import *',
             'from Geometry.EcalMapping.EcalMappingRecord_cfi import *',
         ],
-        "era" : "phase2_ecal, phase2_hcal, phase2_hgcal, phase2_hgcalV9, hcalHardcodeConditions, phase2_hgcalV10, phase2_hgcalV11, phase2_hgcalV12",
+        "era" : "phase2_ecal, phase2_hcal, phase2_hgcal, hcalHardcodeConditions, phase2_hgcalV10, phase2_hgcalV11, phase2_hgcalV12",
     },
     "C12" : {
         1 : [
@@ -547,7 +547,7 @@ caloDict = {
             'from Geometry.EcalMapping.EcalMapping_cfi import *',
             'from Geometry.EcalMapping.EcalMappingRecord_cfi import *',
         ],
-        "era" : "phase2_ecal, phase2_hcal, phase2_hgcal, phase2_hgcalV9, hcalHardcodeConditions, phase2_hgcalV10, phase2_hgcalV11, phase2_hgcalV12, phase2_hfnose",
+        "era" : "phase2_ecal, phase2_hcal, phase2_hgcal, hcalHardcodeConditions, phase2_hgcalV10, phase2_hgcalV11, phase2_hgcalV12, phase2_hfnose",
     },
     "C13" : {
         1 : [
@@ -621,7 +621,7 @@ caloDict = {
             'from Geometry.EcalMapping.EcalMapping_cfi import *',
             'from Geometry.EcalMapping.EcalMappingRecord_cfi import *',
         ],
-        "era" : "phase2_ecal, phase2_hcal, phase2_hgcal, phase2_hgcalV9, hcalHardcodeConditions, phase2_hgcalV10, phase2_hgcalV11, phase2_hgcalV12, phase2_hfnose",
+        "era" : "phase2_ecal, phase2_hcal, phase2_hgcal, hcalHardcodeConditions, phase2_hgcalV10, phase2_hgcalV11, phase2_hgcalV12, phase2_hfnose",
     },
 
 }
