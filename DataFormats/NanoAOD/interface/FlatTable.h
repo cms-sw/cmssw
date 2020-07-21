@@ -18,7 +18,7 @@ namespace nanoaod {
       MaybeMantissaReduce(int mantissaBits) {}
       inline T one(const T &val) const { return val; }
       template <typename Span>
-      inline void bulk(Span &&data) const {}
+      inline void bulk(Span const &data) const {}
     };
     template <>
     struct MaybeMantissaReduce<float> {
