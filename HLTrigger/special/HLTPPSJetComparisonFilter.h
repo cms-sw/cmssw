@@ -1,3 +1,17 @@
+#ifndef HLTPPSJetComparisonFilter_h
+#define HLTPPSJetComparisonFilter_h
+
+// Author: Mariana Araujo
+// Created: 2019-12-10
+/*
+Description:
+HLT filter module to select events according to matching of central (jets) and PPS (RP tracks) kinematics
+
+Implementation:
+Matching can be done on the xi and/or mass+rapidity variables, using the do_xi and do_my booleans. If both are set to true, both matching conditions must be met
+*/
+
+// include files
 #include "FWCore/Framework/interface/global/EDFilter.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
@@ -35,3 +49,5 @@ private:
   bool do_xi_;
   bool do_my_;
 };
+
+#endif
