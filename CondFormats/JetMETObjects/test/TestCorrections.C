@@ -14,7 +14,7 @@ void TestCorrections(double rawPt, double rawEta, double rawPhi, double rawE, do
   ////////////// Construct a FactorizedJetCorrector object //////////////////////
   FactorizedJetCorrector *JetCorrector = new FactorizedJetCorrector(vPar);
   ////////////// Loop over jets //////////////////////
-  TLorentzVector rawJetP4(0);
+  TLorentzVector rawJetP4;
   rawJetP4.SetPtEtaPhiE(rawPt,rawEta,rawPhi,rawE);
   JetCorrector->setJPTrawP4(rawJetP4); 
   JetCorrector->setJetE(JPTE);
