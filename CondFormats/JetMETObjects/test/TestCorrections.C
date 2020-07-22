@@ -1,5 +1,4 @@
-void TestCorrections(double rawPt, double rawEta, double rawPhi, double rawE, double JPTE, int NPV)
-{
+void TestCorrections(double rawPt, double rawEta, double rawPhi, double rawE, double JPTE, int NPV) {
   gROOT->ProcessLine("#include <vector>");
   gSystem->Load("libFWCoreFWLite.so");
   FWLiteEnabler::enable();
