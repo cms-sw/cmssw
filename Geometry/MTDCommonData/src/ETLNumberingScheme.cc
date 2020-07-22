@@ -38,7 +38,7 @@ uint32_t ETLNumberingScheme::getUnitID(const MTDBaseNumber& baseNumber) const {
 
   const std::string& ringName(baseNumber.getLevelName(3));  // name of ring volume
   int modtyp(0);
-  std::string baseName = ringName.substr(ringName.find(":") + 1);
+  std::string baseName = ringName.substr(ringName.find(':') + 1);
   int ringCopy(::atoi(baseName.c_str() + 4));
 
   uint32_t discN, sectorS, sectorN;
