@@ -18,7 +18,7 @@
 #include <functional>
 #include <numeric>
 
-#define EDM_ML_DEBUG
+//#define EDM_ML_DEBUG
 using namespace geant_units::operators;
 
 HGCalDDDConstants::HGCalDDDConstants(const HGCalParameters* hp, const std::string& name)
@@ -1108,9 +1108,14 @@ void HGCalDDDConstants::waferFromPosition(const double x,
       if ((dy <= 0.5 * hexside_) || (dx * tan30deg_ <= (hexside_ - dy))) {
         waferU = HGCalWaferIndex::waferU(hgpar_->waferCopy_[k]);
         waferV = HGCalWaferIndex::waferV(hgpar_->waferCopy_[k]);
-        auto itr = hgpar_->typesInLayers_.find(HGCalWaferIndex::waferIndex(layer, waferU, waferV));
-        celltype = ((itr == hgpar_->typesInLayers_.end()) ? HGCSiliconDetId::HGCalCoarseThick
-                                                          : hgpar_->waferTypeL_[itr->second]);
+	if (mode_ == HGCalGeometryMode::Hexagon8File) {
+	  int index = HGCalWaferIndex::waferIndex(layer, waferU, waferV);
+	  celltype = HGCalWaferType::getType(index, hgpar_->waferInfoMap_);
+	} else {
+	  auto itr = hgpar_->typesInLayers_.find(HGCalWaferIndex::waferIndex(layer, waferU, waferV));
+	  celltype = ((itr == hgpar_->typesInLayers_.end()) ? HGCSiliconDetId::HGCalCoarseThick
+		                                            : hgpar_->waferTypeL_[itr->second]);
+	}
 #ifdef EDM_ML_DEBUG
         if (debug)
           edm::LogVerbatim("HGCalGeom") << "WaferFromPosition:: Input " << layer << ":" << ll << ":"
@@ -1127,7 +1132,7 @@ void HGCalDDDConstants::waferFromPosition(const double x,
       }
     }
   }
-  if (std::abs(waferU) <= hgpar_->waferUVMax_) {
+  if ((std::abs(waferU) <= hgpar_->waferUVMax_) && (celltype >= 0)) {
     cellHex(xx, yy, celltype, cellU, cellV, debug);
     wt = ((celltype < 2) ? (hgpar_->cellThickness_[celltype] / hgpar_->waferThick_) : 1.0);
   } else {
