@@ -2846,7 +2846,7 @@ void JetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
       jetpassid = pfjetIDFunctor((*pfJets)[ijet]);
       if (jetCleaningFlag_) {
         Thiscleaned = jetpassid;
-        //JetIDWPU= (jetpassid && PileupJetIdentifier::passJetId( puidmvaflag, PileupJetIdentifier::kLoose ));
+        JetIDWPU = jetpassid;  // && PileupJetIdentifier::passJetId( puidmvaflag, PileupJetIdentifier::kLoose )
       }
       if (Thiscleaned && pass_uncorrected) {
         mPt_uncor = map_of_MEs[DirName + "/" + "Pt_uncor"];
