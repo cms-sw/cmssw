@@ -26,7 +26,7 @@ public:
   ~PPSKinFilter() override;
 
   static void fillDescriptions(edm::ConfigurationDescriptions&);
-  bool filter(edm::StreamID, edm::Event&, const edm::EventSetup&) const override; 
+  bool filter(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
 
 private:
   // ----------member data ---------------------------
@@ -39,11 +39,11 @@ private:
   edm::EDGetTokenT<std::vector<reco::ForwardProton>> recoProtonSingleRPToken_;
 
   std::string lhcInfoLabel_;
-  
+
   double maxDiffxi_;
   double maxDiffm_;
   double maxDiffy_;
-  
+
   unsigned int n_jets_;
 
   bool do_xi_;
