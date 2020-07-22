@@ -23,6 +23,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/Utilities/interface/thread_safety_macros.h"
+#include "FWCore/Utilities/interface/ESGetToken.h"
 #include "RecoTracker/FinalTrackSelectors/interface/TrackAlgoPriorityOrder.h"
 #include "RecoTracker/Record/interface/CkfComponentsRecord.h"
 #include "TrackingTools/PatternTools/interface/TrajTrackAssociation.h"
@@ -55,6 +56,8 @@ private:
 
   bool copyExtras_;
   bool makeReKeyedSeeds_;
+
+  edm::ESGetToken<TrackAlgoPriorityOrder, CkfComponentsRecord> priorityToken;
 
   struct TkEDGetTokenss {
     edm::InputTag tag;
@@ -202,6 +205,7 @@ namespace {
 
 TrackListMerger::TrackListMerger(edm::ParameterSet const& conf) {
   copyExtras_ = conf.getUntrackedParameter<bool>("copyExtras", true);
+  priorityName_ = conf.getParameter<std::string>("trackAlgoPriorityOrder");
 
   std::vector<edm::InputTag> trackProducerTags(conf.getParameter<std::vector<edm::InputTag>>("TrackProducers"));
   //which of these do I need to turn into vectors?
@@ -215,6 +219,7 @@ TrackListMerger::TrackListMerger(edm::ParameterSet const& conf) {
   lostHitPenalty_ = conf.getParameter<double>("LostHitPenalty");
   indivShareFrac_ = conf.getParameter<std::vector<double>>("indivShareFrac");
   std::string qualityStr = conf.getParameter<std::string>("newQuality");
+  priorityToken = esConsumes<TrackAlgoPriorityOrder, CkfComponentsRecord>(edm::ESInputTag("", priorityName_));
 
   if (!qualityStr.empty()) {
     qualityToSet_ = reco::TrackBase::qualityByName(conf.getParameter<std::string>("newQuality"));
@@ -293,8 +298,6 @@ TrackListMerger::TrackListMerger(edm::ParameterSet const& conf) {
     trackProducers_[i] = hasSelector_[i] > 0 ? edTokens(trackProducerTags[i], selectors[i], mvaStores[i])
                                              : edTokens(trackProducerTags[i], mvaStores[i]);
   }
-
-  priorityName_ = conf.getParameter<std::string>("trackAlgoPriorityOrder");
 }
 
 // Virtual destructor needed.
@@ -309,8 +312,7 @@ void TrackListMerger::produce(edm::Event& e, const edm::EventSetup& es) {
 
   //    using namespace reco;
 
-  edm::ESHandle<TrackAlgoPriorityOrder> priorityH;
-  es.get<CkfComponentsRecord>().get(priorityName_, priorityH);
+  edm::ESHandle<TrackAlgoPriorityOrder> priorityH = es.getHandle(priorityToken);
   auto const& trackAlgoPriorityOrder = *priorityH;
 
   // get Inputs

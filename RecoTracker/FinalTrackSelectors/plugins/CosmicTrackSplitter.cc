@@ -43,6 +43,7 @@
 
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/Utilities/interface/ESGetToken.h"
 
 #include "TrackingTools/PatternTools/interface/TrajTrackAssociation.h"
 #include "TrackingTools/PatternTools/interface/Trajectory.h"
@@ -97,6 +98,8 @@ namespace reco {
 
       edm::ESHandle<TrackerGeometry> theGeometry;
       edm::ESHandle<MagneticField> theMagField;
+      edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> tokenGeometry;
+      edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> tokenMagField;
 
       TrackCandidate makeCandidate(const reco::Track &tk,
                                    std::vector<TrackingRecHit *>::iterator hitsBegin,
@@ -122,6 +125,8 @@ namespace reco {
       tokenTracks = consumes<reco::TrackCollection>(iConfig.getParameter<edm::InputTag>("tracks"));
       tokenTrajTrack =
           consumes<TrajTrackAssociationCollection>(iConfig.getParameter<edm::InputTag>("tjTkAssociationMapTag"));
+      tokenGeometry = esConsumes<TrackerGeometry, TrackerDigiGeometryRecord>();
+      tokenMagField = esConsumes<MagneticField, IdealMagneticFieldRecord>();
 
       LogDebug("CosmicTrackSplitter") << "sanity check";
 
@@ -148,8 +153,8 @@ namespace reco {
       iEvent.getByToken(tokenTrajTrack, m_TrajTracksMap);
 
       // read from EventSetup
-      iSetup.get<TrackerDigiGeometryRecord>().get(theGeometry);
-      iSetup.get<IdealMagneticFieldRecord>().get(theMagField);
+      theGeometry = iSetup.getHandle(tokenGeometry);
+      theMagField = iSetup.getHandle(tokenMagField);
 
       // prepare output collection
       auto output = std::make_unique<TrackCandidateCollection>();
