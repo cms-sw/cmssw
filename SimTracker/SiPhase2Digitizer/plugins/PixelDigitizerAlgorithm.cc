@@ -64,50 +64,10 @@ PixelDigitizerAlgorithm::PixelDigitizerAlgorithm(const edm::ParameterSet& conf)
                                       << addPixelInefficiency_;
 }
 PixelDigitizerAlgorithm::~PixelDigitizerAlgorithm() { LogDebug("PixelDigitizerAlgorithm") << "Algorithm deleted"; }
-void PixelDigitizerAlgorithm::accumulateSimHits(std::vector<PSimHit>::const_iterator inputBegin,
-                                                std::vector<PSimHit>::const_iterator inputEnd,
-                                                const size_t inputBeginGlobalIndex,
-                                                const uint32_t tofBin,
-                                                const Phase2TrackerGeomDetUnit* pixdet,
-                                                const GlobalVector& bfield) {
-  // produce SignalPoint's for all SimHit's in detector
-  // Loop over hits
-  uint32_t detId = pixdet->geographicalId().rawId();
-  size_t simHitGlobalIndex = inputBeginGlobalIndex;  // This needs to be stored to create the digi-sim link later
-
-  // find the relevant hits
-  std::vector<PSimHit> matchedSimHits;
-  std::copy_if(inputBegin, inputEnd, std::back_inserter(matchedSimHits), [detId](auto const& hit) -> bool {
-    return hit.detUnitId() == detId;
-  });
-  // loop over a much reduced set of SimHits
-  for (auto const& hit : matchedSimHits) {
-    LogDebug("PixelDigitizerAlgorithm") << hit.particleType() << " " << hit.pabs() << " " << hit.energyLoss() << " "
-                                        << hit.tof() << " " << hit.trackId() << " " << hit.processType() << " "
-                                        << hit.detUnitId() << hit.entryPoint() << " " << hit.exitPoint();
-
-    std::vector<DigitizerUtility::EnergyDepositUnit> ionization_points;
-    std::vector<DigitizerUtility::SignalPoint> collection_points;
-
-    double signalScale = 1.0;
-    // fill collection_points for this SimHit, indpendent of topology
-    if (select_hit(hit, (pixdet->surface().toGlobal(hit.localPosition()).mag() * c_inv), signalScale)) {
-      primary_ionization(hit, ionization_points);  // fills ionization_points
-
-      // transforms ionization_points -> collection_points
-      drift(hit, pixdet, bfield, ionization_points, collection_points);
-
-      // compute induced signal on readout elements and add to _signal
-      // hit needed only for SimHit<-->Digi link
-      induce_signal(hit, simHitGlobalIndex, tofBin, pixdet, collection_points);
-    }
-    ++simHitGlobalIndex;
-  }
-}
 //
 // -- Select the Hit for Digitization
 //
-bool PixelDigitizerAlgorithm::select_hit(const PSimHit& hit, double tCorr, double& sigScale) {
+bool PixelDigitizerAlgorithm::select_hit(const PSimHit& hit, double tCorr, double& sigScale) const {
   double time = hit.tof() - tCorr;
   return (time >= theTofLowerCut_ && time < theTofUpperCut_);
 }
@@ -267,7 +227,9 @@ std::size_t PixelDigitizerAlgorithm::TimewalkModel::find_closest_index(const std
 //
 // -- Compare Signal with Threshold
 //
-bool PixelDigitizerAlgorithm::isAboveThreshold(const DigitizerUtility::SimHitInfo* hitInfo, float charge, float thr) {
+bool PixelDigitizerAlgorithm::isAboveThreshold(const DigitizerUtility::SimHitInfo* hitInfo,
+                                               float charge,
+                                               float thr) const {
   if (charge < thr)
     return false;
   if (apply_timewalk_ && hitInfo) {
