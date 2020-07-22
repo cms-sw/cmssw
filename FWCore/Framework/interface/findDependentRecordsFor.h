@@ -21,53 +21,39 @@
 // system include files
 #include <set>
 #include <type_traits>
-#include "boost/mpl/begin_end.hpp"
-#include "boost/mpl/deref.hpp"
-#include "boost/mpl/next.hpp"
 
 // user include files
 #include "FWCore/Framework/interface/EventSetupRecordKey.h"
 #include "FWCore/Framework/interface/DependentRecordTag.h"
+#include "FWCore/Utilities/interface/mplVector.h"
 
 // forward declarations
 namespace edm {
   namespace eventsetup {
 
-    //If the types are the same, stop the recursion
-    template <typename T>
-    void addRecordToDependencies(const T*, const T*, std::set<EventSetupRecordKey>&) {}
-
     //Recursively desend container while adding first type's info to set
-    template <typename TFirst, typename TEnd>
-    void addRecordToDependencies(const TFirst*, const TEnd* iEnd, std::set<EventSetupRecordKey>& oSet) {
-      oSet.insert(EventSetupRecordKey::makeKey<typename boost::mpl::deref<TFirst>::type>());
-      const typename boost::mpl::next<TFirst>::type* next(nullptr);
-      addRecordToDependencies(next, iEnd, oSet);
-    }
-
-    //Handle the case where a Record has dependencies
-    template <typename T>
-    struct FindDependenciesFromDependentRecord {
-      inline static void dependentRecords(std::set<EventSetupRecordKey>& oSet) {
-        typedef typename T::list_type list_type;
-        const typename boost::mpl::begin<list_type>::type* begin(nullptr);
-        const typename boost::mpl::end<list_type>::type* end(nullptr);
-        addRecordToDependencies(begin, end, oSet);
+    template <typename TFirst, typename TRemaining>
+    void addRecordToDependencies(const TFirst*, const TRemaining*, std::set<EventSetupRecordKey>& oSet) {
+      oSet.insert(EventSetupRecordKey::makeKey<TFirst>());
+      using Pop = edm::mpl::Pop<TRemaining>;
+      if constexpr (not Pop::empty) {
+        const typename Pop::Item* next(nullptr);
+        const typename Pop::Remaining* remaining(nullptr);
+        addRecordToDependencies(next, remaining, oSet);
       }
-    };
-
-    //Handle the case where a Record has no dependencies
-    struct NoDependenciesForRecord {
-      inline static void dependentRecords(std::set<EventSetupRecordKey>&) {}
-    };
+    }
 
     template <typename T>
     std::set<EventSetupRecordKey> findDependentRecordsFor() {
-      typedef typename boost::mpl::if_<typename std::is_base_of<edm::eventsetup::DependentRecordTag, T>::type,
-                                       FindDependenciesFromDependentRecord<T>,
-                                       NoDependenciesForRecord>::type DepFinder;
       std::set<EventSetupRecordKey> returnValue;
-      DepFinder::dependentRecords(returnValue);
+      if constexpr (std::is_base_of_v<edm::eventsetup::DependentRecordTag, T>) {
+        using list_type = typename T::list_type;
+        using Pop = edm::mpl::Pop<list_type>;
+
+        const typename Pop::Item* begin(nullptr);
+        const typename Pop::Remaining* remaining(nullptr);
+        addRecordToDependencies(begin, remaining, returnValue);
+      }
       return returnValue;
     }
   }  // namespace eventsetup
