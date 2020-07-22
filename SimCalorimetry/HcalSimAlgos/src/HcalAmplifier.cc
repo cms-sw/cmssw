@@ -44,11 +44,12 @@ void HcalAmplifier::amplify(CaloSamples& frame, CLHEP::HepRandomEngine* engine) 
   }
   pe2fC(frame);
 
-  const HcalSimParameters& params = static_cast<const HcalSimParameters&>(theParameterMap->simParameters(frame.id()));
-  if (((frame.id().subdetId() == HcalGenericDetId::HcalGenBarrel) ||
-       (frame.id().subdetId() == HcalGenericDetId::HcalGenEndcap)) &&
-      params.delayQIE() > 0)
-    applyQIEdelay(frame, params.delayQIE());
+  if ((frame.id().subdetId() == HcalGenericDetId::HcalGenBarrel) ||
+      (frame.id().subdetId() == HcalGenericDetId::HcalGenEndcap)) {
+    const HcalSimParameters& params = static_cast<const HcalSimParameters&>(theParameterMap->simParameters(frame.id()));
+    if (params.delayQIE() > 0)
+      applyQIEdelay(frame, params.delayQIE());
+  }
 
   // don't bother for blank signals
   if (theTimeSlewSim && frame.size() > 4 && frame[4] > 1.e-6) {
