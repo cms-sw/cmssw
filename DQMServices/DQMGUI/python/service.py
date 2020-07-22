@@ -13,6 +13,7 @@ from .storage import GUIDataStore
 from .helpers import get_api_error, binary_search, binary_search_qtests, logged
 from .rendering import GUIRenderer
 from .importing.importing import GUIImportManager
+from .cache_invalidation import CacheInvalidationService
 from .data_types import Sample, RootDir, RootObj, RootDirContent, RenderingInfo, FileFormat, SampleFull
 
 from .layouts.layout_manager import LayoutManager
@@ -24,6 +25,7 @@ class GUIService:
     renderer = GUIRenderer()
     import_manager = GUIImportManager()
     layouts_manager = LayoutManager()
+    cache_invalidation_service = CacheInvalidationService()
 
     @classmethod
     @alru_cache(maxsize=10, cache_exceptions=False)
@@ -213,6 +215,11 @@ class GUIService:
             return get_api_error(message='Please provide correctly formatted JSON')
 
         await cls.import_manager.register_samples(samples)
+
+        # Iterate new samples and invalidate caches
+        for sample in samples:
+            cls.cache_invalidation_service.invalidate_on_new_sample(cls, sample)
+
         return True
 
 

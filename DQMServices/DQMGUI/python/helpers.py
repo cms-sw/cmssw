@@ -176,14 +176,12 @@ def parse_run_lumi(runlumi):
     """
     
     if not runlumi:
-        return None, None
+        return 0, 0
     elif ':' in runlumi:
         parts = runlumi.split(':')
         if not parts[1]:
-            return parts[0], 0
+            return int(parts[0]), 0
         else:
-            return parts[0], parts[1]
+            return int(parts[0]), int(parts[1])
     else:
-        return runlumi, 0
-
-
+        return int(runlumi), 0
