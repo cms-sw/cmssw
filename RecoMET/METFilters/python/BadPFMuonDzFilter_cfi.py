@@ -4,5 +4,5 @@ import  RecoMET.METFilters.BadPFMuonFilter_cfi as _mod
 
 BadPFMuonDzFilter = _mod.BadPFMuonFilter.clone(
   filterType = "BadPFMuonDz",
-  minDzBestTrack = cms.double(0.5),
+  minDzBestTrack = 0.5
 )
