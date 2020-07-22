@@ -161,6 +161,10 @@ JetAnalyzer::JetAnalyzer(const edm::ParameterSet& pSet)
       pfjetidversion = PFJetIDSelectionFunctor::WINTER17;
     } else if (JetIDVersion_ == "WINTER17PUPPI") {
       pfjetidversion = PFJetIDSelectionFunctor::WINTER17PUPPI;
+    } else if (JetIDVersion_ == "RUN2ULCHS") {
+      pfjetidversion = PFJetIDSelectionFunctor::RUN2ULCHS;
+    } else if (JetIDVersion_ == "RUN2ULPUPPI") {
+      pfjetidversion = PFJetIDSelectionFunctor::RUN2ULPUPPI;
     } else {
       if (verbose_)
         std::cout << "no valid PF JetID version given" << std::endl;
