@@ -22,7 +22,7 @@
 //Note that the Association Map is filled with -ch2 and not chi2 because it is ordered using std::greater:
 //the track with the lowest association chi2 will be the first in the output map.
 
-namespace edm {  
+namespace edm {
   class EDProductGetter;
 }
 
@@ -56,11 +56,11 @@ public:
   */
 
   /// Constructor
-  TrackAssociatorByChi2Impl(edm::EDProductGetter const& productGetter, 
-			    const MagneticField& mF, 
-			    const reco::BeamSpot& bs, 
-			    double chi2Cut, 
-			    bool onlyDiag)
+  TrackAssociatorByChi2Impl(edm::EDProductGetter const& productGetter,
+                            const MagneticField& mF,
+                            const reco::BeamSpot& bs,
+                            double chi2Cut,
+                            bool onlyDiag)
       : productGetter_(&productGetter), theMF(&mF), theBeamSpot(&bs), chi2cut(chi2Cut), onlyDiagonal(onlyDiag) {}
 
   /// Association Reco To Sim with Collections
