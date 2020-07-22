@@ -72,9 +72,7 @@ BadParticleFilter::BadParticleFilter(const edm::ParameterSet& iConfig)
       innerTrackRelErr_(iConfig.getParameter<double>("innerTrackRelErr")),
       minDzBestTrack_(iConfig.getParameter<double>("minDzBestTrack")),
       minMuPt_(iConfig.getParameter<double>("minMuonPt")),
-      segmentCompatibility_(iConfig.getParameter<double>("segmentCompatibility"))
-
-{
+      segmentCompatibility_(iConfig.getParameter<double>("segmentCompatibility")) {
   maxDR2_ = maxDR_ * maxDR_;
 
   std::string filterName = iConfig.getParameter<std::string>("filterType");
@@ -236,6 +234,7 @@ void BadParticleFilter::fillDescriptions(edm::ConfigurationDescriptions& descrip
   desc.add<edm::InputTag>("muons", edm::InputTag("muons"));
   desc.add<double>("minPtDiffRel", 0.0);
   descriptions.add("BadPFMuonFilter", desc);
+  descriptions.addWithDefaultLabel(desc);
 }
 
 //define this as a plug-in
