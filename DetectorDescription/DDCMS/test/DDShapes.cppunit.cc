@@ -60,9 +60,13 @@ void testDDShapes::checkDDShapes() {
       DDBox box(fview);
       if (box.valid) {
         std::cout << "Box (x, y, z) = (" << box.halfX() << ", " << box.halfY() << ", " << box.halfZ() << ")" << std::endl;
-        if (fview.name() == "box1" && ((box.halfX() != 10.) || (box.halfY() != 10.) || (box.halfZ() != 10.))) {
-          std::cout << "ERROR: box1 sides should equal 10" << std::endl;
-          CPPUNIT_ASSERT(false);
+        if (fview.name() == "box1") {
+          if ((box.halfX() != 9.) || (box.halfY() != 10.) || (box.halfZ() != 11.)) {
+            std::cout << "ERROR: box1 sides should be dx=9*cm dy=10*cm dz=11*cm" << std::endl;
+            CPPUNIT_ASSERT(false);
+          } else {
+            std::cout << "box1 matches reference." << std::endl;
+          }
         }
       } else {
         std::cout << "Box invalid" << std::endl;
@@ -87,7 +91,7 @@ void testDDShapes::checkDDShapes() {
             std::cout << "ERROR: Mismatch of params for tube segment." << std::endl;
             std::cout << tubeParams << " does not match reference " << std::endl;
             std::cout << referenceStr << std::endl;
-            CPPUNIT_ASSERT(false);
+            CPPUNIT_ASSERT(referenceStr == tubeParams);
           }
         }
       } else {
@@ -116,7 +120,7 @@ void testDDShapes::checkDDShapes() {
             std::cout << "ERROR: Mismatch of params for trapezoid." << std::endl;
             std::cout << shapeParams << " does not match reference " << std::endl;
             std::cout << referenceStr << std::endl;
-            CPPUNIT_ASSERT(false);
+            CPPUNIT_ASSERT(referenceStr == shapeParams);
           }
         }
       } else {
@@ -143,7 +147,7 @@ void testDDShapes::checkDDShapes() {
             std::cout << "ERROR: Mismatch of params for cone segment." << std::endl;
             std::cout << shapeParams << " does not match reference " << std::endl;
             std::cout << referenceStr << std::endl;
-            CPPUNIT_ASSERT(false);
+            CPPUNIT_ASSERT(referenceStr == shapeParams);
           }
         }
       } else {
@@ -177,27 +181,33 @@ void testDDShapes::checkDDShapes() {
         referenceStr += "\n<ZSection z=2*m rMin=51*cm rMax=75*cm/>\n";
         char shapeParams[400];
         (void) sprintf(shapeParams, "startPhi=%g*deg deltaPhi=%g*deg", convertRadToDeg(pcone.startPhi()), convertRadToDeg(pcone.deltaPhi()));
-        char line1[3][200];
-        const auto &zvec{pcone.zVec()};
+        char fullLine[3][200];
         for (int index = 0; index < 3; ++index) {
-          (void) sprintf(line[index], "\n<ZSection z=%g*m ", convertCmToM(zvec[index]));
+          (void) sprintf(fullLine[index], "\n<ZSection z=%g*m ", convertCmToM(pcone.zVec()[index]));
         }
+        for (int index = 0; index < 3; ++index) {
+          char line[100];
+          (void) sprintf(line, "rMin=%g*cm ", pcone.rMinVec()[index]);
+          (void) strcat(fullLine[index], line);
+        }
+        for (int index = 0; index < 3; ++index) {
+          char line[100];
+          (void) sprintf(line, "rMax=%g*cm/>", pcone.rMaxVec()[index]);
+          (void) strcat(fullLine[index], line);
+        }
+        (void) strcat(shapeParams, fullLine[0]);
+        (void) strcat(shapeParams, fullLine[1]);
+        (void) strcat(shapeParams, fullLine[2]);
+        (void) strcat(shapeParams, "\n");
         if (referenceStr == shapeParams) {
           std::cout << "Correct match with reference: " << referenceStr << std::endl;
         } else {
-          std::cout << "ERROR: Mismatch of params for trapezoid." << std::endl;
+          std::cout << "ERROR: Mismatch of params for polycone." << std::endl;
           std::cout << shapeParams << " does not match reference " << std::endl;
           std::cout << referenceStr << std::endl;
-          CPPUNIT_ASSERT(false);
+          CPPUNIT_ASSERT(referenceStr == shapeParams);
         }
       }
-      /*
-         const std::string referenceStr{"startPhi=2*deg deltaPhi=360*deg"};
-         referenceStr += "\n<ZSection z=1*m rMin=49*cm rMax=55*cm/>";
-         referenceStr += "\n<ZSection z=1.5*m rMin=50*cm rMax=60*cm/>";
-         referenceStr += "\n<ZSection z=2*m rMin=51*cm rMax=75*cm/>\n";
-       *
-       */
       break;
     }
     case cms::DDSolidShape::ddpolyhedra :
@@ -224,6 +234,40 @@ void testDDShapes::checkDDShapes() {
         std::cout << val << ", ";
       }
       cout << std::endl;
+      if (fview.name() == "phzsect") {
+        std::string referenceStr{"numSide=18 startPhi=2*deg deltaPhi=360*deg"};
+        referenceStr += "\n<ZSection z=1*m rMin=50*cm rMax=50*cm/>";
+        referenceStr += "\n<ZSection z=1.5*m rMin=49*cm rMax=60*cm/>";
+        referenceStr += "\n<ZSection z=2*m rMin=51*cm rMax=75*cm/>\n";
+        char shapeParams[400];
+        (void) sprintf(shapeParams, "numSide=%d startPhi=%g*deg deltaPhi=%g*deg", pholyd.sides(), convertRadToDeg(pholyd.startPhi()), convertRadToDeg(pholyd.deltaPhi()));
+        char fullLine[3][200];
+        for (int index = 0; index < 3; ++index) {
+          (void) sprintf(fullLine[index], "\n<ZSection z=%g*m ", convertCmToM(pholyd.zVec()[index]));
+        }
+        for (int index = 0; index < 3; ++index) {
+          char line[100];
+          (void) sprintf(line, "rMin=%g*cm ", pholyd.rMinVec()[index]);
+          (void) strcat(fullLine[index], line);
+        }
+        for (int index = 0; index < 3; ++index) {
+          char line[100];
+          (void) sprintf(line, "rMax=%g*cm/>", pholyd.rMaxVec()[index]);
+          (void) strcat(fullLine[index], line);
+        }
+        (void) strcat(shapeParams, fullLine[0]);
+        (void) strcat(shapeParams, fullLine[1]);
+        (void) strcat(shapeParams, fullLine[2]);
+        (void) strcat(shapeParams, "\n");
+        if (referenceStr == shapeParams) {
+          std::cout << "Correct match with reference: " << referenceStr << std::endl;
+        } else {
+          std::cout << "ERROR: Mismatch of params for polyhedra." << std::endl;
+          std::cout << shapeParams << " does not match reference " << std::endl;
+          std::cout << referenceStr << std::endl;
+          CPPUNIT_ASSERT(referenceStr == shapeParams);
+        }
+      }
       break;
     }
     case cms::DDSolidShape::ddtrunctubs :
@@ -236,6 +280,24 @@ void testDDShapes::checkDDShapes() {
       } else {
         std::cout << "Tube invalid" << std::endl;
       }
+        if (fview.name() == "trunctubs2") {
+          const std::string referenceStr{"rMin=6.9551*m rMax=9*m cutAtStart=6.9551*m cutAtDelta=7.20045*m cutInside=true startPhi=0*deg deltaPhi=15*deg zHalf=6.57005*m"};
+          char tubeParams[400];
+          std::string boolVal{"false"};
+          if (tubs.cutInside())
+            boolVal = "true";
+          (void) sprintf(tubeParams, "rMin=%.5g*m rMax=%g*m cutAtStart=%.5g*m cutAtDelta=%.6g*m cutInside=%s startPhi=%g*deg deltaPhi=%g*deg zHalf=%.6g*m",
+            convertCmToM(tubs.rIn()), convertCmToM(tubs.rOut()), convertCmToM(tubs.cutAtStart()), convertCmToM(tubs.cutAtDelta()), boolVal.c_str(),
+            convertRadToDeg(tubs.startPhi()), convertRadToDeg(tubs.deltaPhi()), convertCmToM(tubs.zHalf()));
+          if (referenceStr == tubeParams) {
+            std::cout << "Correct match with reference: " << referenceStr << std::endl;
+          } else {
+            std::cout << "ERROR: Mismatch of params for tube segment." << std::endl;
+            std::cout << tubeParams << " does not match reference " << std::endl;
+            std::cout << referenceStr << std::endl;
+            CPPUNIT_ASSERT(referenceStr == tubeParams);
+          }
+        }
       break;
     }
     case cms::DDSolidShape::ddextrudedpolygon :
@@ -271,6 +333,60 @@ void testDDShapes::checkDDShapes() {
         std::cout << val << ", ";
       }
       cout << std::endl;
+      if (fview.name() == "extrudedpgon") {
+        std::string referenceStr{"<XYPoint x=-30*cm y=-31*cm/>"};
+        referenceStr += "\n<XYPoint x=-29*cm y=30*cm/>";
+        referenceStr += "\n<XYPoint x=30.5*cm y=29.5*cm/>";
+        referenceStr += "\n<XYPoint x=30.2*cm y=-30.1*cm/>";
+        referenceStr += "\n<XYPoint x=15*cm y=-30.2*cm/>";
+        referenceStr += "\n<XYPoint x=14.9*cm y=15.1*cm/>";
+        referenceStr += "\n<XYPoint x=-15*cm y=14.8*cm/>";
+        referenceStr += "\n<XYPoint x=-15.1*cm y=-29.8*cm/>";
+        referenceStr += "\n<ZXYSection z=-60*cm x=0*cm y=30*cm scale=0.8/>";
+        referenceStr += "\n<ZXYSection z=-14.9*cm x=0.1*cm y=-30*cm scale=1/>";
+        referenceStr += "\n<ZXYSection z=10*cm x=0.2*cm y=0.4*cm scale=0.6/>";
+        referenceStr += "\n<ZXYSection z=60*cm x=0.3*cm y=29.9*cm scale=1.2/>\n";
+        char shapeParams[2400];
+        shapeParams[0] = '\0';
+        char fullLine[12][200];
+        for (int index = 0; index < 8; ++index) {
+          (void) sprintf(fullLine[index], "<XYPoint x=%g*cm ", pgon.xVec()[index + 8]);
+        }
+        for (int index = 0; index < 8; ++index) {
+          char line[100];
+          (void) sprintf(line, "y=%g*cm/>\n", pgon.yVec()[index + 8]);
+          (void) strcat(fullLine[index], line);
+        }
+        for (int index = 8; index < 12; ++index) {
+          (void) sprintf(fullLine[index], "<ZXYSection z=%g*cm ", pgon.zVec()[index - 8]);
+        }
+        for (int index = 8; index < 12; ++index) {
+          char line[100];
+          (void) sprintf(line, "x=%g*cm ", pgon.zxVec()[index - 4]);
+          (void) strcat(fullLine[index], line);
+        }
+        for (int index = 8; index < 12; ++index) {
+          char line[100];
+          (void) sprintf(line, "y=%g*cm ", pgon.zyVec()[index - 4]);
+          (void) strcat(fullLine[index], line);
+        }
+        for (int index = 8; index < 12; ++index) {
+          char line[100];
+          (void) sprintf(line, "scale=%g/>\n", pgon.zscaleVec()[index - 4]);
+          (void) strcat(fullLine[index], line);
+        }
+        for (int index = 0; index < 12; ++index) {
+          (void) strcat(shapeParams, fullLine[index]);
+        }
+        if (referenceStr == shapeParams) {
+          std::cout << "Correct match with reference:\n" << referenceStr << std::endl;
+        } else {
+          std::cout << "ERROR: Mismatch of params for extruded polygon." << std::endl;
+          std::cout << shapeParams << " does not match reference " << std::endl;
+          std::cout << referenceStr << std::endl;
+          CPPUNIT_ASSERT(referenceStr == shapeParams);
+        }
+      }
       break;
     }
     default:

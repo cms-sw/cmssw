@@ -2,6 +2,7 @@
 #define Detector_Description_DDCMS_DDShapes_h
 
 #include "DetectorDescription/DDCMS/interface/DDFilteredView.h"
+#include "DataFormats/Math/interface/angle_units.h"
 
 namespace cms {
 
@@ -218,6 +219,16 @@ namespace cms {
 
 
     template <class ShapeType>
+    double startPhiImpl(const ShapeType *shape) {
+       return (angle_units::operators::convertDegToRad(shape->access()->GetPhi1())); 
+    }
+
+    template <class ShapeType>
+    double deltaPhiImpl(const ShapeType *shape) {
+       return (angle_units::operators::convertDegToRad(shape->access()->GetDphi())); 
+    }
+
+    template <class ShapeType>
     std::vector<double> vecImpl(const ShapeType *shape, const double *begin) {
       const auto length = shape->access()->GetNz();
       return {begin, (begin + length)};
@@ -253,8 +264,8 @@ namespace cms {
 
       int sides(void) const { return (access()->GetNedges()); }
 
-      double startPhi(void) const { return (access()->GetPhi1()); }
-      double deltaPhi(void) const { return (access()->GetDphi());  }
+      double startPhi(void) const { return (startPhiImpl(this)); }
+      double deltaPhi(void) const { return (deltaPhiImpl(this)); }
 
       std::vector<double> zVec(void) const { return (zVecImpl(this)); }
       std::vector<double> rMinVec(void) const { return (rMinVecImpl(this)); }
@@ -275,8 +286,8 @@ namespace cms {
       template <typename Q> DDPolycone(const dd4hep::Handle<Q>& handle) : dd4hep::Solid_type<dd4hep::Handle<TGeoHalfSpace>::Object>(handle) {}
 
 
-      double startPhi(void) const { return (access()->GetPhi1()); }
-      double deltaPhi(void) const { return (access()->GetDphi());  }
+      double startPhi(void) const { return (startPhiImpl(this)); }
+      double deltaPhi(void) const { return (deltaPhiImpl(this)); }
 
       std::vector<double> zVec(void) const { return (zVecImpl(this)); }
       std::vector<double> rMinVec(void) const { return (rMinVecImpl(this)); }
