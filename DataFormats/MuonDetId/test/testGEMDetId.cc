@@ -15,7 +15,7 @@ int testCell() {
                 GEMDetId id(re, ri, st, la, ch, ro);
                 if ((id.region() != re) || (id.ring() != ri) || (id.station() != st) || (id.layer() != la) ||
                     (id.chamber() != ch) || (id.roll() != ro)) {
-		  ++nerr;
+                  ++nerr;
                   std::cout << id << " should have been (" << re << ", " << ri << ", " << st << ", " << la << ", " << ch
                             << ", " << ro << ") " << std::hex << id.rawId() << std::dec << " ***** ERROR *****"
                             << std::endl;
