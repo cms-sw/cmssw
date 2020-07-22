@@ -55,7 +55,8 @@ uint32_t HGCalNumberingScheme::getUnitID(int layer, int module, int cell, int iz
       edm::LogVerbatim("HGCSim") << "OK WaferType " << waferType << " Wafer " << waferU << ":" << waferV << " Cell "
                                  << cellU << ":" << cellV;
     } else {
-      edm::LogVerbatim("HGCSim") << "Bad WaferType " << waferType << " for Layer:u:v " << layer << ":" << waferU << ":" << waferV;
+      edm::LogVerbatim("HGCSim") << "Bad WaferType " << waferType << " for Layer:u:v " << layer << ":" << waferU << ":"
+                                 << waferV;
 #endif
     }
   } else if ((mode_ == HGCalGeometryMode::Trapezoid) || (mode_ == HGCalGeometryMode::TrapezoidFile)) {
