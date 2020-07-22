@@ -14,7 +14,7 @@
         <Constant name="RP_220_Right_Hor_Vac_Length" value="[RP_Device:RP_Device_Envelope_Radius]+[RP_Device:RP_Device_Length_y]/2-[RP_Horizontal_Device:RP_Device_Hor_Closed_Wall_Thick_Int]"/>
     </ConstantsSection>
 
-    <RotationSection label="CTPPS_220_Right_Station.xml" eval="true">
+    <RotationSection label="CTPPS_220_Right_Station.xml">
         <Rotation name="RP_220_Right_Sec_Rotation_180" 
             phiX="[RP_220_Right_Rot_Angle_180]" thetaX="90*deg" 
             phiY="(90*deg+[RP_220_Right_Rot_Angle_180])" thetaY="90*deg"
