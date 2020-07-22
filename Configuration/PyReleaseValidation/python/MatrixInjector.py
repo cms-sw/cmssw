@@ -57,6 +57,9 @@ class MatrixInjector(object):
         self.memoryOffset = opt.memoryOffset
         self.memPerCore = opt.memPerCore
         self.numberEventsInLuminosityBlock = opt.numberEventsInLuminosityBlock
+        self.numberOfStreams = 0
+        if(opt.nStreams>0):
+            self.numberOfStreams = opt.nStreams
         self.batchName = ''
         self.batchTime = str(int(time.time()))
         if(opt.batchName):
@@ -138,6 +141,7 @@ class MatrixInjector(object):
             "PrimaryDataset" : None,                          #Primary Dataset to be created
             "nowmIO": {},
             "Multicore" : opt.nThreads,                  # this is the per-taskchain Multicore; it's the default assigned to a task if it has no value specified 
+            "EventStreams": self.numberOfStreams,
             "KeepOutput" : False
             }
         self.defaultInput={
@@ -149,6 +153,7 @@ class MatrixInjector(object):
             "LumisPerJob" : 10,               #Size of jobs in terms of splitting algorithm
             "nowmIO": {},
             "Multicore" : opt.nThreads,                       # this is the per-taskchain Multicore; it's the default assigned to a task if it has no value specified 
+            "EventStreams": self.numberOfStreams,
             "KeepOutput" : False
             }
         self.defaultTask={
@@ -161,6 +166,7 @@ class MatrixInjector(object):
             "LumisPerJob" : 10,               #Size of jobs in terms of splitting algorithm
             "nowmIO": {},
             "Multicore" : opt.nThreads,                       # this is the per-taskchain Multicore; it's the default assigned to a task if it has no value specified 
+            "EventStreams": self.numberOfStreams,
             "KeepOutput" : False
             }
 
