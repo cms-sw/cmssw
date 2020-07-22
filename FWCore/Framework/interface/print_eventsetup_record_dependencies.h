@@ -21,6 +21,7 @@
 // user include files
 #include "FWCore/Framework/interface/EventSetupRecordKey.h"
 #include "FWCore/Framework/interface/DependentRecordTag.h"
+#include "FWCore/Utilities/interface/mplVector.h"
 
 // system include files
 
