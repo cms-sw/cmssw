@@ -6,18 +6,6 @@ SonicDispatcherPseudoAsync::SonicDispatcherPseudoAsync(SonicClientBase* client)
   thread_ = std::make_unique<std::thread>([this]() { waitForNext(); });
 }
 
-SonicDispatcherPseudoAsync::~SonicDispatcherPseudoAsync() {
-  stop_ = true;
-  cond_.notify_one();
-  if (thread_) {
-    try {
-      thread_->join();
-      thread_.reset();
-    } catch (...) {
-    }
-  }
-}
-
 void SonicDispatcherPseudoAsync::dispatch(edm::WaitingTaskWithArenaHolder holder) {
   //do all read/writes inside lock to ensure cache synchronization
   {
