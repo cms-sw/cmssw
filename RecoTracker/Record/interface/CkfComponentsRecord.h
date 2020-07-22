@@ -17,25 +17,25 @@
 #include "CondFormats/DataRecord/interface/SiPixelQualityRcd.h"
 #include "CondFormats/DataRecord/interface/SiPixelFedCablingMapRcd.h"  // FIXME should be in the dependencies of the SiPixelQualityRcd
 
-#include "boost/mpl/vector.hpp"
+#include "FWCore/Utilities/interface/mplVector.h"
 
 class CkfComponentsRecord
     : public edm::eventsetup::DependentRecordImplementation<CkfComponentsRecord,
-                                                            boost::mpl::vector<TrackerDigiGeometryRecord,
-                                                                               TkPixelCPERecord,
-                                                                               TkStripCPERecord,
-                                                                               TransientRecHitRecord,
-                                                                               TrackingComponentsRecord,
-                                                                               TrackerRecoGeometryRecord,
-                                                                               TrackerTopologyRcd,
-                                                                               SiStripQualityRcd,
-                                                                               SiStripDetCablingRcd,
-                                                                               SiStripNoisesRcd,
-                                                                               SiStripRegionCablingRcd,
-                                                                               SiPixelQualityRcd,
-                                                                               SiPixelFedCablingMapRcd,
-                                                                               IdealMagneticFieldRecord,
-                                                                               SiPixelLorentzAngleRcd,
-                                                                               SiStripLorentzAngleDepRcd> > {};
+                                                            edm::mpl::Vector<TrackerDigiGeometryRecord,
+                                                                             TkPixelCPERecord,
+                                                                             TkStripCPERecord,
+                                                                             TransientRecHitRecord,
+                                                                             TrackingComponentsRecord,
+                                                                             TrackerRecoGeometryRecord,
+                                                                             TrackerTopologyRcd,
+                                                                             SiStripQualityRcd,
+                                                                             SiStripDetCablingRcd,
+                                                                             SiStripNoisesRcd,
+                                                                             SiStripRegionCablingRcd,
+                                                                             SiPixelQualityRcd,
+                                                                             SiPixelFedCablingMapRcd,
+                                                                             IdealMagneticFieldRecord,
+                                                                             SiPixelLorentzAngleRcd,
+                                                                             SiStripLorentzAngleDepRcd> > {};
 
 #endif

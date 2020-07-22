@@ -7,6 +7,6 @@
 
 class HcalElectronicsMapRcd : public edm::eventsetup::DependentRecordImplementation<
                                   HcalElectronicsMapRcd,
-                                  boost::mpl::vector<HcalRecNumberingRecord, IdealGeometryRecord> > {};
+                                  edm::mpl::Vector<HcalRecNumberingRecord, IdealGeometryRecord> > {};
 
 #endif

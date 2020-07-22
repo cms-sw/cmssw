@@ -10,16 +10,16 @@
 #include "CondFormats/DataRecord/interface/TrackerDetToDTCELinkCablingMapRcd.h"
 #include "L1Trigger/TrackTrigger/interface/TTStubAlgorithmRecord.h"
 
-#include "boost/mpl/vector.hpp"
+#include "FWCore/Utilities/interface/mplVector.h"
 
 namespace trackerDTC {
 
-  typedef boost::mpl::vector<TrackerDigiGeometryRecord,
-                             TrackerTopologyRcd,
-                             IdealMagneticFieldRecord,
-                             IdealGeometryRecord,
-                             TrackerDetToDTCELinkCablingMapRcd,
-                             TTStubAlgorithmRecord>
+  typedef edm::mpl::Vector<TrackerDigiGeometryRecord,
+                           TrackerTopologyRcd,
+                           IdealMagneticFieldRecord,
+                           IdealGeometryRecord,
+                           TrackerDetToDTCELinkCablingMapRcd,
+                           TTStubAlgorithmRecord>
       Rcds;
 
   class SetupRcd : public edm::eventsetup::DependentRecordImplementation<SetupRcd, Rcds> {};

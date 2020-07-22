@@ -9,9 +9,9 @@
 
 #include "CondFormats/DataRecord/interface/LHCInfoRcd.h"
 
-#include "boost/mpl/vector.hpp"
+#include "FWCore/Utilities/interface/mplVector.h"
 
 class CTPPSBeamParametersRcd
-    : public edm::eventsetup::DependentRecordImplementation<CTPPSBeamParametersRcd, boost::mpl::vector<LHCInfoRcd>> {};
+    : public edm::eventsetup::DependentRecordImplementation<CTPPSBeamParametersRcd, edm::mpl::Vector<LHCInfoRcd>> {};
 
 #endif
