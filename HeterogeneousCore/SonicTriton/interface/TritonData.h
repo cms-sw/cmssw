@@ -30,13 +30,9 @@ public:
 
   //io accessors
   template <typename DT>
-  void toServer(std::shared_ptr<std::vector<DT>> ptr) {
-    throw cms::Exception("UnimplementedError");
-  }
+  void toServer(std::shared_ptr<std::vector<DT>> ptr);
   template <typename DT>
-  void fromServer(std::vector<DT>& data_out) const {
-    throw cms::Exception("UnimplementedError");
-  }
+  void fromServer(std::vector<DT>& data_out) const;
 
   //const accessors
   const std::shared_ptr<IO>& data() const { return data_; }
