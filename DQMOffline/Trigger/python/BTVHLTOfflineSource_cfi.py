@@ -18,9 +18,16 @@ BTVHLTOfflineSource = DQMEDAnalyzer("BTVHLTOfflineSource",
     hltPFPVLabel            = cms.InputTag("hltVerticesPFSelector"),
     hltCaloPVLabel          = cms.InputTag("hltVerticesL3"),
     offlinePVLabel          = cms.InputTag("offlinePrimaryVertices"),
+    offlineIPLabel          = cms.InputTag("pfImpactParameterTagInfos"),
     turnon_threshold_loose  = cms.double(0.2),
     turnon_threshold_medium = cms.double(0.5),
     turnon_threshold_tight  = cms.double(0.8),
+    minDecayLength          = cms.double(-9999.0),
+    maxDecayLength          = cms.double(5.0),
+    minJetDistance          = cms.double(0.0),
+    maxJetDistance          = cms.double(0.07),
+    dRTrackMatch            = cms.double(0.01),
+
 
     pathPairs = cms.VPSet(
 
