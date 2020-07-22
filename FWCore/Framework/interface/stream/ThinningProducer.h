@@ -21,10 +21,23 @@
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
 #include <memory>
+#include <optional>
+#include <type_traits>
 
 namespace edm {
 
   class EventSetup;
+
+  namespace detail {
+    template <typename T>
+    struct IsStdOptional {
+      static constexpr bool value = false;
+    };
+    template <typename T>
+    struct IsStdOptional<std::optional<T>> {
+      static constexpr bool value = true;
+    };
+  }  // namespace detail
 
   template <typename Collection, typename Selector>
   class ThinningProducer : public stream::EDProducer<> {
@@ -45,6 +58,13 @@ namespace edm {
     edm::InputTag inputTag_;
     edm::EDPutTokenT<Collection> outputToken_;
     edm::EDPutTokenT<ThinnedAssociation> thinnedOutToken_;
+
+    //using SelectorChooseReturnType = decltype(Selector(edm::ParameterSet(), edm::Consumes).choose(0U, *Collection().begin()));
+    using SelectorChooseReturnType = decltype(selector_->choose(0U, *Collection().begin()));
+    static constexpr bool isSlimming = detail::IsStdOptional<SelectorChooseReturnType>::value;
+    static_assert(
+        std::is_same_v<SelectorChooseReturnType, bool> || isSlimming,
+        "Selector::choose() must return bool (for pure thinning) or std::optional<ElementType> (for slimming)");
   };
 
   template <typename Collection, typename Selector>
@@ -81,9 +101,18 @@ namespace edm {
 
     unsigned int iIndex = 0;
     for (auto iter = inputCollection->begin(), iterEnd = inputCollection->end(); iter != iterEnd; ++iter, ++iIndex) {
-      if (selector_->choose(iIndex, *iter)) {
-        thinnedCollection.push_back(*iter);
-        thinnedAssociation.push_back(iIndex);
+      if constexpr (isSlimming) {
+        std::optional<typename SelectorChooseReturnType::value_type> obj = selector_->choose(iIndex, *iter);
+        if (obj.has_value()) {
+          // move to support std::unique_ptr<T> with edm::OwnVector<T> or std::vector<unique_ptr<T>>
+          thinnedCollection.push_back(std::move(*obj));
+          thinnedAssociation.push_back(iIndex);
+        }
+      } else {
+        if (selector_->choose(iIndex, *iter)) {
+          thinnedCollection.push_back(*iter);
+          thinnedAssociation.push_back(iIndex);
+        }
       }
     }
     OrphanHandle<Collection> orphanHandle = event.emplace(outputToken_, std::move(thinnedCollection));
@@ -143,10 +172,10 @@ namespace edm {
       // This could happen if the input collection was dropped. Go ahead and add
       // an entry and let the exception be thrown only if the module is run (when
       // it cannot find the product).
-      thinnedAssociationsHelper.addAssociation(BranchID(), associationID, thinnedCollectionID);
+      thinnedAssociationsHelper.addAssociation(BranchID(), associationID, thinnedCollectionID, isSlimming);
     } else {
       for (auto const& parentCollectionID : parentCollectionIDs) {
-        thinnedAssociationsHelper.addAssociation(parentCollectionID, associationID, thinnedCollectionID);
+        thinnedAssociationsHelper.addAssociation(parentCollectionID, associationID, thinnedCollectionID, isSlimming);
       }
     }
   }

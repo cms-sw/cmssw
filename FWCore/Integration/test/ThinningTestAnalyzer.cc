@@ -42,10 +42,14 @@ namespace edmtest {
     std::vector<int> expectedParentContent_;
     bool thinnedWasDropped_;
     bool thinnedIsAlias_;
+    bool refToParentIsAvailable_;
     std::vector<int> expectedThinnedContent_;
     std::vector<unsigned int> expectedIndexesIntoParent_;
     bool associationShouldBeDropped_;
     std::vector<int> expectedValues_;
+    int parentSlimmedValueFactor_;
+    int thinnedSlimmedValueFactor_;
+    int refSlimmedValueFactor_;
   };
 
   ThinningTestAnalyzer::ThinningTestAnalyzer(edm::ParameterSet const& pset) {
@@ -62,11 +66,24 @@ namespace edmtest {
     if (!thinnedWasDropped_) {
       expectedThinnedContent_ = pset.getParameter<std::vector<int> >("expectedThinnedContent");
     }
+    refToParentIsAvailable_ = pset.getParameter<bool>("refToParentIsAvailable");
     associationShouldBeDropped_ = pset.getParameter<bool>("associationShouldBeDropped");
     if (!associationShouldBeDropped_) {
       expectedIndexesIntoParent_ = pset.getParameter<std::vector<unsigned int> >("expectedIndexesIntoParent");
     }
     expectedValues_ = pset.getParameter<std::vector<int> >("expectedValues");
+
+    auto slimmedFactor = [](int count, int factor) {
+      int ret = 1;
+      for (int i = 0; i < count; ++i) {
+        ret *= factor;
+      }
+      return ret;
+    };
+    int const slimmedValueFactor = pset.getParameter<int>("slimmedValueFactor");
+    parentSlimmedValueFactor_ = slimmedFactor(pset.getParameter<int>("parentSlimmedCount"), slimmedValueFactor);
+    thinnedSlimmedValueFactor_ = slimmedFactor(pset.getParameter<int>("thinnedSlimmedCount"), slimmedValueFactor);
+    refSlimmedValueFactor_ = slimmedFactor(pset.getParameter<int>("refSlimmedCount"), slimmedValueFactor);
   }
 
   void ThinningTestAnalyzer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
@@ -78,6 +95,11 @@ namespace edmtest {
     desc.add<bool>("parentWasDropped", false);
     desc.add<bool>("thinnedWasDropped", false);
     desc.add<bool>("thinnedIsAlias", false);
+    desc.add<bool>("refToParentIsAvailable", true)
+        ->setComment(
+            "If Ref-to-parent is generally available. With thinnedRefFrom it may happen that the Ref-to-parent is not "
+            "available, but the Ref-to-thinned is. In such case this parameter should be set to 'False', and the "
+            "'expectedValues' should be set to correspond the values via Ref-to-thinned.");
     std::vector<int> defaultV;
     std::vector<unsigned int> defaultVU;
     desc.add<std::vector<int> >("expectedParentContent", defaultV);
@@ -85,6 +107,10 @@ namespace edmtest {
     desc.add<std::vector<unsigned int> >("expectedIndexesIntoParent", defaultVU);
     desc.add<bool>("associationShouldBeDropped", false);
     desc.add<std::vector<int> >("expectedValues");
+    desc.add<int>("parentSlimmedCount", 0);
+    desc.add<int>("thinnedSlimmedCount", 0);
+    desc.add<int>("refSlimmedCount", 0);
+    desc.add<int>("slimmedValueFactor", 10);
     descriptions.addDefault(desc);
   }
 
@@ -104,14 +130,17 @@ namespace edmtest {
       }
     } else if (!expectedParentContent_.empty()) {
       if (parentCollection->size() != expectedParentContent_.size()) {
-        throw cms::Exception("TestFailure") << "parent collection has unexpected size";
+        throw cms::Exception("TestFailure") << "parent collection has unexpected size, got " << parentCollection->size()
+                                            << " expected " << expectedParentContent_.size();
       }
       for (auto const& thing : *parentCollection) {
         // Just some numbers that match the somewhat arbitrary values put in
         // by the ThingProducer.
-        int expected = static_cast<int>(expectedParentContent_.at(i) + event.eventAuxiliary().event() * 100 + 100);
+        int expected = static_cast<int>(expectedParentContent_.at(i) + event.eventAuxiliary().event() * 100 + 100) *
+                       parentSlimmedValueFactor_;
         if (thing.a != expected) {
-          throw cms::Exception("TestFailure") << "parent collection has unexpected content";
+          throw cms::Exception("TestFailure")
+              << "parent collection has unexpected content, got " << thing.a << " expected " << expected;
         }
         ++i;
       }
@@ -129,12 +158,16 @@ namespace edmtest {
       thinnedRefProd = edm::RefProd<ThingCollection>{thinnedCollection};
       unsigned expectedIndex = 0;
       if (thinnedCollection->size() != expectedThinnedContent_.size()) {
-        throw cms::Exception("TestFailure") << "thinned collection has unexpected size";
+        throw cms::Exception("TestFailure")
+            << "thinned collection has unexpected size, got " << thinnedCollection->size() << " expected "
+            << expectedThinnedContent_.size();
       }
       for (auto const& thing : *thinnedCollection) {
-        if (thing.a !=
-            static_cast<int>(expectedThinnedContent_.at(expectedIndex) + event.eventAuxiliary().event() * 100 + 100)) {
-          throw cms::Exception("TestFailure") << "thinned collection has unexpected content";
+        const int expected = (expectedThinnedContent_.at(expectedIndex) + event.eventAuxiliary().event() * 100 + 100) *
+                             thinnedSlimmedValueFactor_;
+        if (thing.a != expected) {
+          throw cms::Exception("TestFailure")
+              << "thinned collection has unexpected content, got " << thing.a << " expected " << expected;
         }
         ++expectedIndex;
       }
@@ -150,7 +183,9 @@ namespace edmtest {
       }
       for (auto const& association : associationCollection->indexesIntoParent()) {
         if (association != expectedIndexesIntoParent_.at(expectedIndex)) {
-          throw cms::Exception("TestFailure") << "association collection has unexpected content";
+          throw cms::Exception("TestFailure")
+              << "association collection has unexpected content, for index " << expectedIndex << " got " << association
+              << " expected " << expectedIndexesIntoParent_.at(expectedIndex);
         }
         ++expectedIndex;
       }
@@ -176,20 +211,25 @@ namespace edmtest {
 
     std::vector<int>::const_iterator expectedValue = expectedValues_.begin();
     for (auto const& track : *trackCollection) {
-      if (*expectedValue == -1) {
+      if (not refToParentIsAvailable_ or *expectedValue == -1) {
         if (track.ref1.isAvailable()) {
-          throw cms::Exception("TestFailure") << "ref1 is available when it should not be";
+          throw cms::Exception("TestFailure") << "ref1 is available when it should not be, refers to "
+                                              << track.ref1.id() << " key " << track.ref1.key();
         }
       } else {
         if (!track.ref1.isAvailable()) {
           throw cms::Exception("TestFailure") << "ref1 is not available when it should be";
         }
         // Check twice to test some possible caching problems.
-        if (track.ref1->a != *expectedValue + eventOffset) {
-          throw cms::Exception("TestFailure") << "Unexpected values from ref1";
+        const int expected = (*expectedValue + eventOffset) * refSlimmedValueFactor_;
+        if (track.ref1->a != expected) {
+          throw cms::Exception("TestFailure")
+              << "Unexpected values from ref1, got " << track.ref1->a << " expected " << expected;
         }
-        if (track.ref1->a != *expectedValue + eventOffset) {
-          throw cms::Exception("TestFailure") << "Unexpected values from ref1 (2nd try)";
+        if (track.ref1->a != expected) {
+          throw cms::Exception("TestFailure")
+              << "Unexpected values from ref1 (2nd try), got " << track.ref1->a << " expected " << expected;
+          ;
         }
       }
 
@@ -214,16 +254,20 @@ namespace edmtest {
             throw cms::Exception("TestFailure") << "thinnedRefFrom(ref1) is not available when it should be";
           }
           // Check twice to test some possible caching problems.
-          if (refToThinned->a != *expectedValue + eventOffset) {
-            throw cms::Exception("TestFailure") << "Unexpected values from thinnedRefFrom(ref1)";
+          // need to account for slimming because going through an explicit ref-to-slimmed
+          const int expected = (*expectedValue + eventOffset) * thinnedSlimmedValueFactor_;
+          if (refToThinned->a != expected) {
+            throw cms::Exception("TestFailure")
+                << "Unexpected values from thinnedRefFrom(ref1), got " << refToThinned->a << " expected " << expected;
           }
-          if (refToThinned->a != *expectedValue + eventOffset) {
-            throw cms::Exception("TestFailure") << "Unexpected values from thinnedRefFrom(ref1) (2nd try)";
+          if (refToThinned->a != expected) {
+            throw cms::Exception("TestFailure") << "Unexpected values from thinnedRefFrom(ref1) (2nd try) "
+                                                << refToThinned->a << " expected " << expected;
           }
         }
       }
 
-      if (*expectedValue == -1) {
+      if (not refToParentIsAvailable_ or *expectedValue == -1) {
         if (track.refToBase1.isAvailable()) {
           throw cms::Exception("TestFailure") << "refToBase1 is available when it should not be";
         }
@@ -233,16 +277,17 @@ namespace edmtest {
         }
 
         // Check twice to test some possible caching problems.
-        if (track.refToBase1->a != *expectedValue + eventOffset) {
+        const int expected = (*expectedValue + eventOffset) * refSlimmedValueFactor_;
+        if (track.refToBase1->a != expected) {
           throw cms::Exception("TestFailure") << "unexpected values from refToBase1";
         }
-        if (track.refToBase1->a != *expectedValue + eventOffset) {
-          throw cms::Exception("TestFailure") << "unexpected values from refToBase1";
+        if (track.refToBase1->a != expected) {
+          throw cms::Exception("TestFailure") << "unexpected values from refToBase1 (2nd try)";
         }
       }
       incrementExpectedValue(expectedValue);
 
-      if (*expectedValue == -1) {
+      if (not refToParentIsAvailable_ or *expectedValue == -1) {
         if (track.ref2.isAvailable()) {
           throw cms::Exception("TestFailure") << "ref2 is available when it should not be";
         }
@@ -251,11 +296,14 @@ namespace edmtest {
           throw cms::Exception("TestFailure") << "ref2 is not available when it should be";
         }
 
-        if (track.ref2->a != *expectedValue + eventOffset) {
-          throw cms::Exception("TestFailure") << "unexpected values from ref2";
+        const int expected = (*expectedValue + eventOffset) * refSlimmedValueFactor_;
+        if (track.ref2->a != expected) {
+          throw cms::Exception("TestFailure")
+              << "unexpected values from ref2, got " << track.ref2->a << " expected " << expected;
         }
-        if (track.ref2->a != *expectedValue + eventOffset) {
-          throw cms::Exception("TestFailure") << "unexpected values from ref2";
+        if (track.ref2->a != expected) {
+          throw cms::Exception("TestFailure")
+              << "unexpected values from ref2 (2nd try), got " << track.ref2->a << " expected " << expected;
         }
       }
 
@@ -280,18 +328,22 @@ namespace edmtest {
             throw cms::Exception("TestFailure") << "thinnedRefFrom(ref2) is not available when it should be";
           }
           // Check twice to test some possible caching problems.
-          if (refToThinned->a != *expectedValue + eventOffset) {
-            throw cms::Exception("TestFailure") << "Unexpected values from thinnedRefFrom(ref2)";
+          // need to account for slimming because going through an explicit ref-to-slimmed
+          const int expected = (*expectedValue + eventOffset) * thinnedSlimmedValueFactor_;
+          if (refToThinned->a != expected) {
+            throw cms::Exception("TestFailure")
+                << "Unexpected values from thinnedRefFrom(ref2), got " << refToThinned->a << " expected " << expected;
           }
-          if (refToThinned->a != *expectedValue + eventOffset) {
-            throw cms::Exception("TestFailure") << "Unexpected values from thinnedRefFrom(ref2) (2nd try)";
+          if (refToThinned->a != expected) {
+            throw cms::Exception("TestFailure") << "Unexpected values from thinnedRefFrom(ref2) (2nd try), got "
+                                                << refToThinned->a << " expected " << expected;
           }
         }
       }
 
       incrementExpectedValue(expectedValue);
 
-      if (*expectedValue == -1) {
+      if (not refToParentIsAvailable_ or *expectedValue == -1) {
         if (track.ptr1.isAvailable()) {
           throw cms::Exception("TestFailure") << "ptr1 is available when it should not be";
         }
@@ -300,16 +352,17 @@ namespace edmtest {
           throw cms::Exception("TestFailure") << "ptr1 is not available when it should be";
         }
 
-        if (track.ptr1->a != *expectedValue + eventOffset) {
+        const int expected = (*expectedValue + eventOffset) * refSlimmedValueFactor_;
+        if (track.ptr1->a != expected) {
           throw cms::Exception("TestFailure") << "unexpected values from ptr1";
         }
-        if (track.ptr1->a != *expectedValue + eventOffset) {
+        if (track.ptr1->a != expected) {
           throw cms::Exception("TestFailure") << "unexpected values from ptr1 (2)";
         }
       }
       incrementExpectedValue(expectedValue);
 
-      if (*expectedValue == -1) {
+      if (not refToParentIsAvailable_ or *expectedValue == -1) {
         if (track.ptr2.isAvailable()) {
           throw cms::Exception("TestFailure") << "ptr2 is available when it should not be";
         }
@@ -318,10 +371,11 @@ namespace edmtest {
           throw cms::Exception("TestFailure") << "ptr2 is not available when it should be";
         }
 
-        if (track.ptr2->a != *expectedValue + eventOffset) {
+        const int expected = (*expectedValue + eventOffset) * refSlimmedValueFactor_;
+        if (track.ptr2->a != expected) {
           throw cms::Exception("TestFailure") << "unexpected values from ptr2";
         }
-        if (track.ptr2->a != *expectedValue + eventOffset) {
+        if (track.ptr2->a != expected) {
           throw cms::Exception("TestFailure") << " unexpected values from ptr2";
         }
       }
@@ -334,18 +388,25 @@ namespace edmtest {
         if (iExpectedValue != -1) {
           if (not thinnedWasDropped_) {
             auto refToThinned = edm::thinnedRefFrom(track.refVector1[k], thinnedRefProd, event.productGetter());
-            if (refToThinned->a != iExpectedValue + eventOffset) {
-              throw cms::Exception("TestFailure") << "unexpected values from thinnedRefFrom(refVector1)";
+            // need to account for slimming because going through an explicit ref-to-slimmed
+            const int expected = (iExpectedValue + eventOffset) * thinnedSlimmedValueFactor_;
+            if (refToThinned->a != expected) {
+              throw cms::Exception("TestFailure") << "unexpected values from thinnedRefFrom(refVector1), got "
+                                                  << refToThinned->a << " expected " << expected;
             }
           }
-          if (track.refVector1[k]->a != iExpectedValue + eventOffset) {
-            throw cms::Exception("TestFailure") << "unexpected values from refVector1";
-          }
-          if (track.ptrVector1[k]->a != iExpectedValue + eventOffset) {
-            throw cms::Exception("TestFailure") << "unexpected values from ptrVector1";
-          }
-          if (track.refToBaseVector1[k]->a != iExpectedValue + eventOffset) {
-            throw cms::Exception("TestFailure") << "unexpected values from refToBaseVector1";
+          if (refToParentIsAvailable_) {
+            const int expected = (iExpectedValue + eventOffset) * refSlimmedValueFactor_;
+            if (track.refVector1[k]->a != expected) {
+              throw cms::Exception("TestFailure")
+                  << "unexpected values from refVector1, got " << track.refVector1[k]->a << " expected " << expected;
+            }
+            if (track.ptrVector1[k]->a != expected) {
+              throw cms::Exception("TestFailure") << "unexpected values from ptrVector1";
+            }
+            if (track.refToBaseVector1[k]->a != expected) {
+              throw cms::Exception("TestFailure") << "unexpected values from refToBaseVector1";
+            }
           }
         } else {
           allPresent = false;
@@ -353,7 +414,7 @@ namespace edmtest {
         ++k;
       }
 
-      if (allPresent) {
+      if (refToParentIsAvailable_ and allPresent) {
         if (!track.refVector1.isAvailable()) {
           throw cms::Exception("TestFailure") << "unexpected value (false) from refVector::isAvailable";
         }
@@ -376,14 +437,16 @@ namespace edmtest {
       }
       k = 0;
       for (auto iExpectedValue : expectedValues_) {
-        if (iExpectedValue != -1) {
-          if (track.refVector1[k]->a != iExpectedValue + eventOffset) {
-            throw cms::Exception("TestFailure") << "unexpected values from refVector1";
+        if (refToParentIsAvailable_ and iExpectedValue != -1) {
+          const int expected = (iExpectedValue + eventOffset) * refSlimmedValueFactor_;
+          if (track.refVector1[k]->a != expected) {
+            throw cms::Exception("TestFailure")
+                << "unexpected values from refVector1, got " << track.refVector1[k]->a << " expected " << expected;
           }
-          if (track.ptrVector1[k]->a != iExpectedValue + eventOffset) {
+          if (track.ptrVector1[k]->a != expected) {
             throw cms::Exception("TestFailure") << "unexpected values from ptrVector1";
           }
-          if (track.refToBaseVector1[k]->a != iExpectedValue + eventOffset) {
+          if (track.refToBaseVector1[k]->a != expected) {
             throw cms::Exception("TestFailure") << "unexpected values from refToBaseVector1";
           }
         } else {

@@ -1,8 +1,3 @@
-
-/** \class edm::ThinningThingSelector
-\author W. David Dagenhart, created 11 June 2014
-*/
-
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/TestObjects/interface/Thing.h"
 #include "DataFormats/TestObjects/interface/ThingCollection.h"
@@ -26,34 +21,35 @@
 
 namespace edmtest {
 
-  class ThinningThingSelector {
+  class SlimmingThingSelector {
   public:
-    ThinningThingSelector(edm::ParameterSet const& pset, edm::ConsumesCollector&& cc);
+    SlimmingThingSelector(edm::ParameterSet const& pset, edm::ConsumesCollector&& cc);
 
     static void fillPSetDescription(edm::ParameterSetDescription& desc);
 
     void preChoose(edm::Handle<edmtest::ThingCollection> tc, edm::Event const& event, edm::EventSetup const& es);
 
-    bool choose(unsigned int iIndex, edmtest::Thing const& iItem);
+    std::optional<edmtest::Thing> choose(unsigned int iIndex, edmtest::Thing const& iItem) const;
 
   private:
-    edm::EDGetTokenT<TrackOfThingsCollection> trackToken_;
+    edm::EDGetTokenT<TrackOfThingsCollection> const trackToken_;
+    edm::ESGetToken<edmtest::WhatsIt, GadgetRcd> const setupToken_;
     std::set<unsigned int> keysToSave_;
-    unsigned int offsetToThinnedKey_;
-    unsigned int offsetToValue_;
-    unsigned int expectedCollectionSize_;
-    int slimmedValueFactor_;
+    unsigned int const offsetToThinnedKey_;
+    unsigned int const offsetToValue_;
+    unsigned int const expectedCollectionSize_;
+    int const slimmedValueFactor_;
   };
 
-  ThinningThingSelector::ThinningThingSelector(edm::ParameterSet const& pset, edm::ConsumesCollector&& cc) {
-    trackToken_ = cc.consumes<TrackOfThingsCollection>(pset.getParameter<edm::InputTag>("trackTag"));
-    offsetToThinnedKey_ = pset.getParameter<unsigned int>("offsetToThinnedKey");
-    offsetToValue_ = pset.getParameter<unsigned int>("offsetToValue");
-    expectedCollectionSize_ = pset.getParameter<unsigned int>("expectedCollectionSize");
-    slimmedValueFactor_ = pset.getParameter<int>("slimmedValueFactor");
-  }
+  SlimmingThingSelector::SlimmingThingSelector(edm::ParameterSet const& pset, edm::ConsumesCollector&& cc)
+      : trackToken_(cc.consumes<TrackOfThingsCollection>(pset.getParameter<edm::InputTag>("trackTag"))),
+        setupToken_(cc.esConsumes<edmtest::WhatsIt, GadgetRcd>()),
+        offsetToThinnedKey_(pset.getParameter<unsigned int>("offsetToThinnedKey")),
+        offsetToValue_(pset.getParameter<unsigned int>("offsetToValue")),
+        expectedCollectionSize_(pset.getParameter<unsigned int>("expectedCollectionSize")),
+        slimmedValueFactor_(pset.getParameter<int>("slimmedValueFactor")) {}
 
-  void ThinningThingSelector::fillPSetDescription(edm::ParameterSetDescription& desc) {
+  void SlimmingThingSelector::fillPSetDescription(edm::ParameterSetDescription& desc) {
     desc.add<edm::InputTag>("trackTag");
     desc.add<unsigned int>("offsetToThinnedKey");
     desc.add<unsigned int>("offsetToValue", 0);
@@ -61,7 +57,7 @@ namespace edmtest {
     desc.add<int>("slimmedValueFactor", 1);
   }
 
-  void ThinningThingSelector::preChoose(edm::Handle<edmtest::ThingCollection> tc,
+  void SlimmingThingSelector::preChoose(edm::Handle<edmtest::ThingCollection> tc,
                                         edm::Event const& event,
                                         edm::EventSetup const& es) {
     for (auto const& track : event.get(trackToken_)) {
@@ -73,31 +69,32 @@ namespace edmtest {
 
     // Just checking to see if the collection got passed in. Not really using it for anything.
     if (tc->size() != expectedCollectionSize_) {
-      throw cms::Exception("TestFailure") << "ThinningThingSelector::preChoose, collection size = " << tc->size()
+      throw cms::Exception("TestFailure") << "SlimmingThingSelector::preChoose, collection size = " << tc->size()
                                           << " expected size = " << expectedCollectionSize_;
     }
 
     // Just checking to see the EventSetup works from here. Not really using it for anything.
-    edm::ESHandle<edmtest::WhatsIt> pSetup;
-    es.get<GadgetRcd>().get(pSetup);
+    edm::ESHandle<edmtest::WhatsIt> pSetup = es.getHandle(setupToken_);
     pSetup.isValid();
   }
 
-  bool ThinningThingSelector::choose(unsigned int iIndex, edmtest::Thing const& iItem) {
+  std::optional<edmtest::Thing> SlimmingThingSelector::choose(unsigned int iIndex, edmtest::Thing const& iItem) const {
     // Just checking to see the element in the container got passed in OK. Not really using it.
     // Just using %10 because it coincidentally works with the arbitrary numbers I picked, no meaning really.
     auto const expected = slimmedValueFactor_ * (iIndex + offsetToValue_);
     if (static_cast<unsigned>(iItem.a % 10) != static_cast<unsigned>(expected % 10)) {
-      throw cms::Exception("TestFailure") << "ThinningThingSelector::choose, item content = " << iItem.a
+      throw cms::Exception("TestFailure") << "SlimmingThingSelector::choose, item content = " << iItem.a
                                           << " index = " << iIndex << " expected " << expected;
     }
 
     // Save the Things referenced by the Tracks
     if (keysToSave_.find(iIndex) == keysToSave_.end())
-      return false;
-    return true;
+      return {};
+    auto copy = iItem;
+    copy.a *= 10;
+    return copy;
   }
 }  // namespace edmtest
 
-typedef edm::ThinningProducer<edmtest::ThingCollection, edmtest::ThinningThingSelector> ThinningThingProducer;
-DEFINE_FWK_MODULE(ThinningThingProducer);
+typedef edm::ThinningProducer<edmtest::ThingCollection, edmtest::SlimmingThingSelector> SlimmingThingProducer;
+DEFINE_FWK_MODULE(SlimmingThingProducer);

@@ -20,6 +20,30 @@ pushd ${LOCAL_TMP_DIR}
 
   cmsRun -p ${LOCAL_TEST_DIR}/ThinningTestStreamerIn_cfg.py || die "cmsRun ThinningTestStreamerIn_cfg.py" $?
 
+  cmsRun -p ${LOCAL_TEST_DIR}/ThinningTest4Slimming_cfg.py || die "cmsRun ThinningTest4Slimming_cfg.py" $?
+
+
+  cmsRun -p ${LOCAL_TEST_DIR}/SlimmingTestSiblings_cfg.py && die "cmsRun SlimmingTestSiblings_cfg.py" $?
+
+  cmsRun -p ${LOCAL_TEST_DIR}/SlimmingTestFartherSiblings_cfg.py && die "cmsRun SlimmingTestFartherSiblings_cfg.py" $?
+
+  cmsRun -p ${LOCAL_TEST_DIR}/SlimmingTest1_cfg.py || die "cmsRun SlimmingTest1_cfg.py" $?
+
+  cmsRun -p ${LOCAL_TEST_DIR}/SlimmingTest2A_cfg.py || die "cmsRun SlimmingTest2A_cfg.py" $?
+  cmsRun -p ${LOCAL_TEST_DIR}/SlimmingTest2B_cfg.py || die "cmsRun SlimmingTest2B_cfg.py" $?
+  cmsRun -p ${LOCAL_TEST_DIR}/SlimmingTest2C_cfg.py || die "cmsRun SlimmingTest2C_cfg.py" $?
+  cmsRun -p ${LOCAL_TEST_DIR}/SlimmingTest2D_cfg.py || die "cmsRun SlimmingTest2D_cfg.py" $?
+  cmsRun -p ${LOCAL_TEST_DIR}/SlimmingTest2E_cfg.py || die "cmsRun SlimmingTest2E_cfg.py" $?
+  cmsRun -p ${LOCAL_TEST_DIR}/SlimmingTest2F_cfg.py || die "cmsRun SlimmingTest2E_cfg.py" $?
+
+  cmsRun -p ${LOCAL_TEST_DIR}/SlimmingTest3B_cfg.py || die "cmsRun SlimmingTest3B_cfg.py" $?
+  cmsRun -p ${LOCAL_TEST_DIR}/SlimmingTest3C_cfg.py || die "cmsRun SlimmingTest3C_cfg.py" $?
+  cmsRun -p ${LOCAL_TEST_DIR}/SlimmingTest3D_cfg.py || die "cmsRun SlimmingTest3D_cfg.py" $?
+  cmsRun -p ${LOCAL_TEST_DIR}/SlimmingTest3E_cfg.py || die "cmsRun SlimmingTest3E_cfg.py" $?
+
+  cmsRun -p ${LOCAL_TEST_DIR}/SlimmingTest4B_cfg.py || die "cmsRun SlimmingTest4B_cfg.py" $?
+  cmsRun -p ${LOCAL_TEST_DIR}/SlimmingTest4F_cfg.py && die "cmsRun SlimmingTest4F_cfg.py" $?
+
 popd
 
 exit 0
