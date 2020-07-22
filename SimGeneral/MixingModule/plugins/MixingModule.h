@@ -107,6 +107,7 @@ namespace edm {
     std::vector<std::string> wantedBranches_;
     bool useCurrentProcessOnly_;
     bool wrapLongTimes_;
+    bool skipSignal_;
 
     // Digi-producing algorithms
     Accumulators digiAccumulators_;
