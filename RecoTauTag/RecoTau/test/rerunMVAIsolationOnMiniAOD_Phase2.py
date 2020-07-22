@@ -33,24 +33,24 @@ process.load('RecoTauTag.Configuration.loadRecoTauTagMVAsFromPrepDB_cfi')
 
 from RecoTauTag.RecoTau.PATTauDiscriminationByMVAIsolationRun2_cff import *
 process.rerunDiscriminationByIsolationMVADBnewDMwLTPhase2raw = patDiscriminationByIsolationMVArun2v1raw.clone(
-    PATTauProducer = cms.InputTag('slimmedTaus'),
+    PATTauProducer = 'slimmedTaus',
     Prediscriminants = noPrediscriminants,
-    loadMVAfromDB = cms.bool(True),
-    #loadMVAfromDB = cms.bool(False),
-    #inputFileName = cms.FileInPath("gbrDiscriminationByIsolationMVAPhase2.root"),
-    mvaName = cms.string("RecoTauTag_tauIdMVAIsoPhase2"),
-    mvaOpt = cms.string("DBnewDMwLTwGJPhase2"),
-    verbosity = cms.int32(0)
+    loadMVAfromDB = True,
+    #loadMVAfromDB = False,
+    #inputFileName = 'gbrDiscriminationByIsolationMVAPhase2.root',
+    mvaName = 'RecoTauTag_tauIdMVAIsoPhase2',
+    mvaOpt = 'DBnewDMwLTwGJPhase2',
+    verbosity = 0
 )
 
 process.rerunDiscriminationByIsolationMVADBnewDMwLTPhase2 = patDiscriminationByIsolationMVArun2v1.clone(
-    PATTauProducer = cms.InputTag('slimmedTaus'),
+    PATTauProducer = 'slimmedTaus',
     Prediscriminants = noPrediscriminants,
-    toMultiplex = cms.InputTag('rerunDiscriminationByIsolationMVADBnewDMwLTPhase2raw'),
-    loadMVAfromDB = cms.bool(True),
-    #loadMVAfromDB = cms.bool(False),
-    #inputFileName = cms.FileInPath("wpDiscriminationByIsolationMVAPhase2_tauIdMVAIsoPhase2.root"),
-    mvaOutput_normalization = cms.string("RecoTauTag_tauIdMVAIsoPhase2_mvaOutput_normalization"),
+    toMultiplex = 'rerunDiscriminationByIsolationMVADBnewDMwLTPhase2raw',
+    loadMVAfromDB = True,
+    #loadMVAfromDB = False,
+    #inputFileName = 'wpDiscriminationByIsolationMVAPhase2_tauIdMVAIsoPhase2.root',
+    mvaOutput_normalization = 'RecoTauTag_tauIdMVAIsoPhase2_mvaOutput_normalization',
     mapping = cms.VPSet(
         cms.PSet(
             category = cms.uint32(0),
