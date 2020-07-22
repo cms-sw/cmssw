@@ -302,14 +302,13 @@ namespace reco {
           mvaInput[19] = tau.ip3d() >= 0. ? +1 : -1;
           mvaInput[20] = sqrt(std::abs(tau.ip3d()));
           mvaInput[21] = std::abs(tau.ip3d_Sig());
-          mvaInput[22] = tau.hasSecondaryVertex();
+          mvaInput[22] = (tau.hasSecondaryVertex()) ? 1. : 0.;
           mvaInput[23] = decayDistMag;  //sqrt(tau.flightLength().Mag2());
           mvaInput[24] = tau.flightLengthSig();
           mvaInput[25] = leadingTrackChi2;  //tau.leadingTrackNormChi2();
 
           float thetaGJmax, thetaGJ;
-          thetaGJmax = thetaGJ = 0.;
-          if (decayDistMag > 0.) {
+          if (decayDistMag > 0. && tau.hasSecondaryVertex()) {
             const float mAOne = tau.p4().M();
             const float pAOneMag = tau.p();
             thetaGJmax = (mTau * mTau - mAOne * mAOne) / (2. * mTau * pAOneMag);
@@ -318,15 +317,15 @@ namespace reco {
                        tau.pz() * tau.flightLength().z()) /
                       (pAOneMag * decayDistMag);
             thetaGJ = acos(thetaGJ);
+            if (std::isnan(thetaGJ))
+              thetaGJ = -16.;
+            if (std::isnan(thetaGJmax))
+              thetaGJmax = -11.;
           } else {
             thetaGJ = -15.;
             thetaGJmax = -10.;
           }
-          if (std::isnan(thetaGJ))
-            thetaGJ = -16.;
-          if (std::isnan(thetaGJmax))
-            thetaGJmax = -11.;
-          mvaInput[26] = tau.hasSecondaryVertex() ? thetaGJ - thetaGJmax : -5.;
+          mvaInput[26] = thetaGJ - thetaGJmax;
 
           mvaInput[27] = 0;
           mvaInput[28] = 10.;

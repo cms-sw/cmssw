@@ -869,20 +869,20 @@ class TauIDEmbedder(object):
             def tauIDMVAinputs(module, wp):
                 return cms.PSet(inputTag = cms.InputTag(module), workingPointIndex = cms.int32(-1 if wp=="raw" else -2 if wp=="category" else getattr(self.process, module).workingPoints.index(wp)))
             self.process.rerunDiscriminationByIsolationMVADBnewDMwLTPhase2raw = patDiscriminationByIsolationMVArun2v1raw.clone(
-                PATTauProducer = cms.InputTag('slimmedTaus'),
+                PATTauProducer = 'slimmedTaus',
                 Prediscriminants = noPrediscriminants,
-                loadMVAfromDB = cms.bool(True),
-                mvaName = cms.string("RecoTauTag_tauIdMVAIsoPhase2"),
-                mvaOpt = cms.string("DBnewDMwLTwGJPhase2"),
-                verbosity = cms.int32(0)
+                loadMVAfromDB = True,
+                mvaName = 'RecoTauTag_tauIdMVAIsoPhase2',
+                mvaOpt = 'DBnewDMwLTwGJPhase2',
+                verbosity = 0
             )
 
             self.process.rerunDiscriminationByIsolationMVADBnewDMwLTPhase2 = patDiscriminationByIsolationMVArun2v1.clone(
-                PATTauProducer = cms.InputTag('slimmedTaus'),
+                PATTauProducer = 'slimmedTaus',
                 Prediscriminants = noPrediscriminants,
-                toMultiplex = cms.InputTag('rerunDiscriminationByIsolationMVADBnewDMwLTPhase2raw'),
-                loadMVAfromDB = cms.bool(True),
-                mvaOutput_normalization = cms.string("RecoTauTag_tauIdMVAIsoPhase2_mvaOutput_normalization"),
+                toMultiplex = 'rerunDiscriminationByIsolationMVADBnewDMwLTPhase2raw',
+                loadMVAfromDB = True,
+                mvaOutput_normalization = 'RecoTauTag_tauIdMVAIsoPhase2_mvaOutput_normalization',
                 mapping = cms.VPSet(
                     cms.PSet(
                         category = cms.uint32(0),
