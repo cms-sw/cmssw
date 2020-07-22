@@ -217,15 +217,14 @@ namespace cms {
       bool cutInside_;
     };
 
-
     template <class ShapeType>
     double startPhiImpl(const ShapeType *shape) {
-       return (angle_units::operators::convertDegToRad(shape->access()->GetPhi1())); 
+      return (angle_units::operators::convertDegToRad(shape->access()->GetPhi1()));
     }
 
     template <class ShapeType>
     double deltaPhiImpl(const ShapeType *shape) {
-       return (angle_units::operators::convertDegToRad(shape->access()->GetDphi())); 
+      return (angle_units::operators::convertDegToRad(shape->access()->GetDphi()));
     }
 
     template <class ShapeType>
@@ -258,9 +257,11 @@ namespace cms {
 
       DDPolyhedra(void) = delete;
 
-      template <typename Q> DDPolyhedra(const Q* ptr) : dd4hep::Solid_type<dd4hep::Handle<TGeoHalfSpace>::Object>(ptr) {}
-      template <typename Q> DDPolyhedra(const dd4hep::Handle<Q>& handle) : dd4hep::Solid_type<dd4hep::Handle<TGeoHalfSpace>::Object>(handle) {}
-
+      template <typename Q>
+      DDPolyhedra(const Q *ptr) : dd4hep::Solid_type<dd4hep::Handle<TGeoHalfSpace>::Object>(ptr) {}
+      template <typename Q>
+      DDPolyhedra(const dd4hep::Handle<Q> &handle)
+          : dd4hep::Solid_type<dd4hep::Handle<TGeoHalfSpace>::Object>(handle) {}
 
       int sides(void) const { return (access()->GetNedges()); }
 
@@ -275,16 +276,16 @@ namespace cms {
       // Use of rVec() assumes that the rMin vector is all 0.
     };
 
-
     class DDPolycone : public dd4hep::Solid_type<TGeoPcon> {
     public:
       DDPolycone(const dd4hep::Solid &solid) : dd4hep::Solid_type<TGeoPcon>(solid) {}
 
       DDPolycone(void) = delete;
 
-      template <typename Q> DDPolycone(const Q* ptr) : dd4hep::Solid_type<dd4hep::Handle<TGeoHalfSpace>::Object>(ptr) {}
-      template <typename Q> DDPolycone(const dd4hep::Handle<Q>& handle) : dd4hep::Solid_type<dd4hep::Handle<TGeoHalfSpace>::Object>(handle) {}
-
+      template <typename Q>
+      DDPolycone(const Q *ptr) : dd4hep::Solid_type<dd4hep::Handle<TGeoHalfSpace>::Object>(ptr) {}
+      template <typename Q>
+      DDPolycone(const dd4hep::Handle<Q> &handle) : dd4hep::Solid_type<dd4hep::Handle<TGeoHalfSpace>::Object>(handle) {}
 
       double startPhi(void) const { return (startPhiImpl(this)); }
       double deltaPhi(void) const { return (deltaPhiImpl(this)); }
@@ -294,15 +295,17 @@ namespace cms {
       std::vector<double> rMaxVec(void) const { return (rMaxVecImpl(this)); }
     };
 
-
     class DDExtrudedPolygon : public dd4hep::Solid_type<TGeoXtru> {
     public:
       DDExtrudedPolygon(const dd4hep::Solid &solid) : dd4hep::Solid_type<TGeoXtru>(solid) {}
 
       DDExtrudedPolygon(void) = delete;
 
-      template <typename Q> DDExtrudedPolygon(const Q* ptr) : dd4hep::Solid_type<dd4hep::Handle<TGeoHalfSpace>::Object>(ptr) {}
-      template <typename Q> DDExtrudedPolygon(const dd4hep::Handle<Q>& handle) : dd4hep::Solid_type<dd4hep::Handle<TGeoHalfSpace>::Object>(handle) {}
+      template <typename Q>
+      DDExtrudedPolygon(const Q *ptr) : dd4hep::Solid_type<dd4hep::Handle<TGeoHalfSpace>::Object>(ptr) {}
+      template <typename Q>
+      DDExtrudedPolygon(const dd4hep::Handle<Q> &handle)
+          : dd4hep::Solid_type<dd4hep::Handle<TGeoHalfSpace>::Object>(handle) {}
 
       std::vector<double> xVec(void) const;
       std::vector<double> yVec(void) const;
@@ -310,7 +313,7 @@ namespace cms {
       std::vector<double> zxVec(void) const;
       std::vector<double> zyVec(void) const;
       std::vector<double> zscaleVec(void) const;
-   };
+    };
   }  // namespace dd
 }  // namespace cms
 
