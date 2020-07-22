@@ -177,9 +177,7 @@ namespace edm {
     void respondToOpenInputFile(FileBlock const& fb) { implRespondToOpenInputFile(fb); }
     void respondToCloseInputFile(FileBlock const& fb) { implRespondToCloseInputFile(fb); }
 
-    void registerThinnedAssociations(ProductRegistry const& registry, ThinnedAssociationsHelper& helper) {
-      implRegisterThinnedAssociations(registry, helper);
-    }
+    void registerThinnedAssociations(ProductRegistry const& registry, ThinnedAssociationsHelper& helper);
 
     void reset() {
       cached_exception_ = std::exception_ptr();
