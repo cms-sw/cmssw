@@ -190,9 +190,45 @@ BTVEfficiency_TurnOnCurves = DQMEDHarvester("DQMGenericClient",
     ),
 )
 
+
+BTVEfficiency_OnlineTrackEff = DQMEDHarvester("DQMGenericClient",
+    subDirs        = cms.untracked.vstring(
+        "HLT/BTV/HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ_PFDiJet30_PFBtagDeepCSV_1p5*",
+        "HLT/BTV/HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ_CaloDiJet30_CaloBtagDeepCSV_1p5*",
+        "HLT/BTV/HLT_PFHT400_SixPFJet32_DoublePFBTagDeepCSV_2p94*",
+    ),
+    verbose        = cms.untracked.uint32(0),
+    resolution     = cms.vstring(),
+    efficiency     = cms.vstring(
+        "OnlineTrkEff_Pt   'Relative Online Track Eff vs Pt;Pt;relative efficiency'   OnlineTrkEff_Pt_numerator   OnlineTrkEff_Pt_denominator",
+        "OnlineTrkEff_Eta  'Relative Online Track Eff vs Eta;Eta;relative efficiency' OnlineTrkEff_Eta_numerator   OnlineTrkEff_Eta_denominator",
+        "OnlineTrkEff_3d_ip_distance  'Relative Online Track Eff vs IP3D;IP3D;relative efficiency' OnlineTrkEff_3d_ip_distance_numerator   OnlineTrkEff_3d_ip_distance_denominator",
+        "OnlineTrkEff_3d_ip_sig  'Relative Online Track Eff vs IP3D signifance;IP3D significance;relative efficiency' OnlineTrkEff_3d_ip_sig_numerator   OnlineTrkEff_3d_ip_sig_denominator",
+    ),
+)
+
+BTVEfficiency_OnlineTrackFake = DQMEDHarvester("DQMGenericClient",
+    subDirs        = cms.untracked.vstring(
+        "HLT/BTV/HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ_PFDiJet30_PFBtagDeepCSV_1p5*",
+        "HLT/BTV/HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ_CaloDiJet30_CaloBtagDeepCSV_1p5*",
+        "HLT/BTV/HLT_PFHT400_SixPFJet32_DoublePFBTagDeepCSV_2p94*",
+    ),
+    verbose        = cms.untracked.uint32(0),
+    resolution     = cms.vstring(),
+    efficiency     = cms.vstring(
+        "OnlineTrkFake_Pt   'Relative Online Fake Rate vs Pt;Pt;relative fake rate'   OnlineTrkFake_Pt_numerator   OnlineTrkFake_Pt_denominator",
+        "OnlineTrkFake_Eta  'Relative Online Fake Rate vs Eta;Eta;relative fake rate' OnlineTrkFake_Eta_numerator   OnlineTrkFake_Eta_denominator",
+        "OnlineTrkFake_3d_ip_distance  'Relative Online Fake Rate vs IP3D;IP3D;relative fake rate' OnlineTrkFake_3d_ip_distance_numerator   OnlineTrkFake_3d_ip_distance_denominator",
+        "OnlineTrkFake_3d_ip_sig  'Relative Online Fake Rate vs IP3D signifance;IP3D significance;relative fake rate' OnlineTrkFake_3d_ip_sig_numerator   OnlineTrkFake_3d_ip_sig_denominator",
+    ),
+)
+
+
 btaggingClient = cms.Sequence(
 
     BTVEfficiency_TurnOnCurves
+  + BTVEfficiency_OnlineTrackEff
+  + BTVEfficiency_OnlineTrackFake
   + BTVEfficiency_BTagMu_DiJet
   + BTVEfficiency_BTagMu_Jet
   + BTVEfficiency_BTagDiMu_Jet

@@ -1379,6 +1379,8 @@ class ConfigBuilder(object):
             if self._options.scenario == 'HeavyIons':
                 if self._options.pileup=='HiMixGEN':
                     self.loadAndRemember("Configuration/StandardSequences/GeneratorMix_cff")
+                elif self._options.pileup=='HiMixEmbGEN':
+                    self.loadAndRemember("Configuration/StandardSequences/GeneratorEmbMix_cff")
                 else:
                     self.loadAndRemember("Configuration/StandardSequences/GeneratorHI_cff")
 
@@ -2175,6 +2177,9 @@ class ConfigBuilder(object):
                 self.pythonCfgCode +='\n'
                 self.pythonCfgCode +=dumpPython(self.process,object)
 
+        if self._options.pileup=='HiMixEmbGEN':
+            self.pythonCfgCode += "\nprocess.generator.embeddingMode=cms.bool(True)\n"
+
         # dump all paths
         self.pythonCfgCode += "\n# Path and EndPath definitions\n"
         for path in self.process.paths:
@@ -2239,7 +2244,7 @@ class ConfigBuilder(object):
             MassReplaceInputTag(self.process, new="rawDataMapperByLabel", old="rawDataCollector")
 
         # special treatment in case of production filter sequence 2/2
-        if self.productionFilterSequence:
+        if self.productionFilterSequence and not (self._options.pileup=='HiMixEmbGEN'):
             self.pythonCfgCode +='# filter all path with the production filter sequence\n'
             self.pythonCfgCode +='for path in process.paths:\n'
             if len(self.conditionalPaths):

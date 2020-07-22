@@ -72,51 +72,12 @@ Pixel3DDigitizerAlgorithm::Pixel3DDigitizerAlgorithm(const edm::ParameterSet& co
 
 Pixel3DDigitizerAlgorithm::~Pixel3DDigitizerAlgorithm() {}
 
-void Pixel3DDigitizerAlgorithm::accumulateSimHits(std::vector<PSimHit>::const_iterator inputBegin,
-                                                  std::vector<PSimHit>::const_iterator inputEnd,
-                                                  const size_t inputBeginGlobalIndex,
-                                                  const unsigned int tofBin,
-                                                  const Phase2TrackerGeomDetUnit* pix3Ddet,
-                                                  const GlobalVector& bfield) {
-  // produce SignalPoint's for all SimHit's in detector
-
-  const uint32_t detId = pix3Ddet->geographicalId().rawId();
-  // This needs to be stored to create the digi-sim link later
-  size_t simHitGlobalIndex = inputBeginGlobalIndex;
-
-  // Loop over hits
-  for (auto it = inputBegin; it != inputEnd; ++it, ++simHitGlobalIndex) {
-    // skip hit: not in this detector.
-    if (it->detUnitId() != detId) {
-      continue;
-    }
-
-    LogDebug("Pixel3DDigitizerAlgorithm:: Geant4 hit info: ")
-        << (*it).particleType() << " " << (*it).pabs() << " " << (*it).energyLoss() << " " << (*it).tof() << " "
-        << (*it).trackId() << " " << (*it).processType() << " " << (*it).detUnitId() << (*it).entryPoint() << " "
-        << (*it).exitPoint() << " Global index for PSimHit:" << simHitGlobalIndex;
-
-    // Convert the simhit position into global to check if the simhit was
-    // produced within a given time-window
-    const auto global_hit_position = pix3Ddet->surface().toGlobal(it->localPosition()).mag();
-
-    // Only accept those sim hits produced inside a time window (same bunch-crossing)
-    if ((it->tof() - global_hit_position * c_inv >= theTofLowerCut_) &&
-        (it->tof() - global_hit_position * c_inv <= theTofUpperCut_)) {
-      // XXX: this vectors are the output of the next methods, the methods should
-      // return them, instead of an input argument
-      std::vector<DigitizerUtility::EnergyDepositUnit> ionization_points;
-
-      // For each sim hit, super-charges (electron-holes) are created every 10um
-      primary_ionization(*it, ionization_points);
-      // Drift the super-charges (only electrons) to the collecting electrodes
-      const auto collection_points = drift(*it, pix3Ddet, bfield, ionization_points, true);
-
-      // compute induced signal on readout elements and add to _signal
-      // *ihit needed only for SimHit<-->Digi link
-      induce_signal(*it, simHitGlobalIndex, tofBin, pix3Ddet, collection_points);
-    }
-  }
+//
+// -- Select the Hit for Digitization
+//
+bool Pixel3DDigitizerAlgorithm::select_hit(const PSimHit& hit, double tCorr, double& sigScale) const {
+  double time = hit.tof() - tCorr;
+  return (time >= theTofLowerCut_ && time < theTofUpperCut_);
 }
 
 const bool Pixel3DDigitizerAlgorithm::_is_inside_n_column(const LocalPoint& p) const {
@@ -146,7 +107,7 @@ std::vector<DigitizerUtility::EnergyDepositUnit> Pixel3DDigitizerAlgorithm::diff
     const float& ncarriers,
     const std::function<LocalVector(float, float)>& u_drift,
     const std::pair<float, float> hpitches,
-    const float& thickness) {
+    const float& thickness) const {
   // FIXME -- DM : Note that with a 0.3 will be enough (if using current sigma formulae)
   //          With the current sigma, this value is dependent of the thickness,
   //          Note that this formulae is coming from planar sensors, a similar
@@ -250,13 +211,19 @@ std::vector<DigitizerUtility::EnergyDepositUnit> Pixel3DDigitizerAlgorithm::diff
 // Include the effect of E-field and B-field
 //
 // =====================================================================
-// XXX: Signature to be checked
+std::vector<DigitizerUtility::SignalPoint> Pixel3DDigitizerAlgorithm::drift(
+    const PSimHit& hit,
+    const Phase2TrackerGeomDetUnit* pixdet,
+    const GlobalVector& bfield,
+    const std::vector<DigitizerUtility::EnergyDepositUnit>& ionization_points) const {
+  return drift(hit, pixdet, bfield, ionization_points, true);
+}
 std::vector<DigitizerUtility::SignalPoint> Pixel3DDigitizerAlgorithm::drift(
     const PSimHit& hit,
     const Phase2TrackerGeomDetUnit* pixdet,
     const GlobalVector& bfield,
     const std::vector<DigitizerUtility::EnergyDepositUnit>& ionization_points,
-    bool diffusion_activated) {
+    bool diffusion_activated) const {
   // -- Current reference system is placed in the center on the module
   // -- The natural reference frame should be discribed taking advantatge of
   // -- the cylindrical nature of the pixel geometry -->
@@ -405,7 +372,7 @@ std::vector<DigitizerUtility::SignalPoint> Pixel3DDigitizerAlgorithm::drift(
 // signal and linking it to the simulated energy deposit (hit)
 void Pixel3DDigitizerAlgorithm::induce_signal(const PSimHit& hit,
                                               const size_t hitIndex,
-                                              const unsigned int tofBin,
+                                              const uint32_t tofBin,
                                               const Phase2TrackerGeomDetUnit* pixdet,
                                               const std::vector<DigitizerUtility::SignalPoint>& collection_points) {
   // X  - Rows, Left-Right
