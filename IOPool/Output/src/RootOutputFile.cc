@@ -129,11 +129,14 @@ namespace edm {
     if (-1 != om->eventAutoFlushSize()) {
       eventTree_.setAutoFlush(-1 * om->eventAutoFlushSize());
     }
-    eventTree_.addAuxiliary<EventAuxiliary>(
-        BranchTypeToAuxiliaryBranchName(InEvent), pEventAux_, om_->auxItems()[InEvent].basketSize_, false);
     if (om_->compactEventAuxiliary()) {
+      eventTree_.addAuxiliary<EventAuxiliary>(
+          BranchTypeToAuxiliaryBranchName(InEvent), pEventAux_, om_->auxItems()[InEvent].basketSize_, false);
       eventTree_.tree()->SetBranchStatus(BranchTypeToAuxiliaryBranchName(InEvent).c_str(),
                                          false);  // see writeEventAuxiliary
+    } else {
+      eventTree_.addAuxiliary<EventAuxiliary>(
+          BranchTypeToAuxiliaryBranchName(InEvent), pEventAux_, om_->auxItems()[InEvent].basketSize_);
     }
 
     eventTree_.addAuxiliary<StoredProductProvenanceVector>(BranchTypeToProductProvenanceBranchName(InEvent),
@@ -419,7 +422,7 @@ namespace edm {
 
     // Because getting the data may cause an exception to be thrown we want to do that
     // first before writing anything to the file about this event
-    // NOTE: pBranchListIndexes_, pEventSelectionIDs_, and pEventEntryInfoVector_
+    // NOTE: pEventAux_, pBranchListIndexes_, pEventSelectionIDs_, and pEventEntryInfoVector_
     // must be set before calling fillBranches since they get written out in that routine.
     assert(pEventAux_->processHistoryID() == e.processHistoryID());
     pBranchListIndexes_ = &e.branchListIndexes();
@@ -656,8 +659,8 @@ namespace edm {
       assert(b);
 
       LogDebug("writeEventAuxiliary") << "EventAuxiliary ratio extras/GUIDs/all = "
-                                       << compactEventAuxiliary_.extrasSize() << "/"
-                                       << compactEventAuxiliary_.guidsSize() << "/" << compactEventAuxiliary_.size();
+                                      << compactEventAuxiliary_.extrasSize() << "/"
+                                      << compactEventAuxiliary_.guidsSize() << "/" << compactEventAuxiliary_.size();
 
       for (auto const& aux : compactEventAuxiliary_) {
         const auto ea = aux.eventAuxiliary();
