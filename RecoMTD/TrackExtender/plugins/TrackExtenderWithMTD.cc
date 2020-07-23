@@ -207,7 +207,30 @@ namespace {
     }
     return tofpid;
   }
+
+  bool getTrajectoryStateClosestToBeamLine(const Trajectory& traj,
+                                           const reco::BeamSpot& bs,
+                                           const Propagator* thePropagator,
+                                           TrajectoryStateClosestToBeamLine& tscbl) {
+    // get the state closest to the beamline
+    TrajectoryStateOnSurface stateForProjectionToBeamLineOnSurface =
+        traj.closestMeasurement(GlobalPoint(bs.x0(), bs.y0(), bs.z0())).updatedState();
+
+    if (!stateForProjectionToBeamLineOnSurface.isValid()) {
+      edm::LogError("CannotPropagateToBeamLine") << "the state on the closest measurement isnot valid. skipping track.";
+      return false;
+    }
+
+    const FreeTrajectoryState& stateForProjectionToBeamLine = *stateForProjectionToBeamLineOnSurface.freeState();
+
+    TSCBLBuilderWithPropagator tscblBuilder(*thePropagator);
+    tscbl = tscblBuilder(stateForProjectionToBeamLine, bs);
+
+    return tscbl.isValid();
+  }
+
 }  // namespace
+
 template <class TrackCollection>
 class TrackExtenderWithMTDT : public edm::stream::EDProducer<> {
 public:
@@ -225,6 +248,7 @@ public:
 
   TransientTrackingRecHit::ConstRecHitContainer tryBTLLayers(const TrajectoryStateOnSurface&,
                                                              const Trajectory& traj,
+                                                             const TrajectoryStateClosestToBeamLine&,
                                                              const MTDTrackingDetSetVector&,
                                                              const MTDDetLayerGeometry*,
                                                              const MagneticField* field,
@@ -236,6 +260,7 @@ public:
 
   TransientTrackingRecHit::ConstRecHitContainer tryETLLayers(const TrajectoryStateOnSurface&,
                                                              const Trajectory& traj,
+                                                             const TrajectoryStateClosestToBeamLine&,
                                                              const MTDTrackingDetSetVector&,
                                                              const MTDDetLayerGeometry*,
                                                              const MagneticField* field,
@@ -248,6 +273,7 @@ public:
   void fillMatchingHits(const DetLayer*,
                         const TrajectoryStateOnSurface&,
                         const Trajectory&,
+                        const TrajectoryStateClosestToBeamLine&,
                         const MTDTrackingDetSetVector&,
                         const Propagator*,
                         const reco::BeamSpot&,
@@ -542,33 +568,39 @@ void TrackExtenderWithMTDT<TrackCollection>::produce(edm::Event& ev, const edm::
     if (!trajs.empty()) {
       // get the outermost trajectory point on the track
       TrajectoryStateOnSurface tsos = builder_->build(track).outermostMeasurementState();
+      TrajectoryStateClosestToBeamLine tscbl;
+      bool tscbl_status = getTrajectoryStateClosestToBeamLine(trajs.front(), bs, prop.product(), tscbl);
 
-      const auto& btlhits = tryBTLLayers(tsos,
-                                         trajs.front(),
-                                         hits,
-                                         geo.product(),
-                                         magfield.product(),
-                                         prop.product(),
-                                         bs,
-                                         trackVtxTime,
-                                         trackVtxTime != 0.,
-                                         mBTL);
-      mtdthits.insert(mtdthits.end(), btlhits.begin(), btlhits.end());
-
-      // in the future this should include an intermediate refit before propagating to the ETL
-      // for now it is ok
-      const auto& etlhits = tryETLLayers(tsos,
-                                         trajs.front(),
-                                         hits,
-                                         geo.product(),
-                                         magfield.product(),
-                                         prop.product(),
-                                         bs,
-                                         trackVtxTime,
-                                         trackVtxTime != 0.,
-                                         mETL);
-      mtdthits.insert(mtdthits.end(), etlhits.begin(), etlhits.end());
-    }
+      if (tscbl_status) {
+        const auto& btlhits = tryBTLLayers(tsos,
+                                           trajs.front(),
+                                           tscbl,
+                                           hits,
+                                           geo.product(),
+                                           magfield.product(),
+                                           prop.product(),
+                                           bs,
+                                           trackVtxTime,
+                                           trackVtxTime != 0.,
+                                           mBTL);
+        mtdthits.insert(mtdthits.end(), btlhits.begin(), btlhits.end());
+        
+        // in the future this should include an intermediate refit before propagating to the ETL
+        // for now it is ok
+        const auto& etlhits = tryETLLayers(tsos,
+                                           trajs.front(),
+                                           tscbl,
+                                           hits,
+                                           geo.product(),
+                                           magfield.product(),
+                                           prop.product(),
+                                           bs,
+                                           trackVtxTime,
+                                           trackVtxTime != 0.,
+                                           mETL);
+        mtdthits.insert(mtdthits.end(), etlhits.begin(), etlhits.end());
+      }
+    }//!trajs.empty()
 
     auto ordering = checkRecHitsOrdering(thits);
     if (ordering == RefitDirection::insideOut) {
@@ -674,27 +706,6 @@ void TrackExtenderWithMTDT<TrackCollection>::produce(edm::Event& ev, const edm::
 namespace {
   bool cmp_for_detset(const unsigned one, const unsigned two) { return one < two; };
 
-  bool getTrajectoryStateClosestToBeamLine(const Trajectory& traj,
-                                           const reco::BeamSpot& bs,
-                                           const Propagator* thePropagator,
-                                           TrajectoryStateClosestToBeamLine& tscbl) {
-    // get the state closest to the beamline
-    TrajectoryStateOnSurface stateForProjectionToBeamLineOnSurface =
-        traj.closestMeasurement(GlobalPoint(bs.x0(), bs.y0(), bs.z0())).updatedState();
-
-    if (!stateForProjectionToBeamLineOnSurface.isValid()) {
-      edm::LogError("CannotPropagateToBeamLine") << "the state on the closest measurement isnot valid. skipping track.";
-      return false;
-    }
-
-    const FreeTrajectoryState& stateForProjectionToBeamLine = *stateForProjectionToBeamLineOnSurface.freeState();
-
-    TSCBLBuilderWithPropagator tscblBuilder(*thePropagator);
-    tscbl = tscblBuilder(stateForProjectionToBeamLine, bs);
-
-    return tscbl.isValid();
-  }
-
   bool trackPathLength(const Trajectory& traj,
                        const reco::BeamSpot& bs,
                        const Propagator* thePropagator,
@@ -747,6 +758,7 @@ namespace {
                          const Trajectory& traj,
                          const DetLayer* layer,
                          const TrajectoryStateOnSurface& tsos,
+                         const TrajectoryStateClosestToBeamLine& tscbl,
                          const double vtxTime,
                          const reco::BeamSpot& bs,
                          const float bsTimeSpread,
@@ -754,12 +766,6 @@ namespace {
                          const std::unique_ptr<MeasurementEstimator>& theEstimator,
                          bool useVtxConstraint,
                          std::set<MTDHitMatchingInfo>& out) {
-    TrajectoryStateClosestToBeamLine tscbl;
-    bool tscbl_status = getTrajectoryStateClosestToBeamLine(traj, bs, prop, tscbl);
-
-    if (!tscbl_status)
-      return;
-
     GlobalVector p = tscbl.trackStateAtPCA().momentum();
 
     double pathlength;
@@ -812,6 +818,7 @@ template <class TrackCollection>
 TransientTrackingRecHit::ConstRecHitContainer TrackExtenderWithMTDT<TrackCollection>::tryBTLLayers(
     const TrajectoryStateOnSurface& tsos,
     const Trajectory& traj,
+    const TrajectoryStateClosestToBeamLine& tscbl,
     const MTDTrackingDetSetVector& hits,
     const MTDDetLayerGeometry* geo,
     const MagneticField* field,
@@ -825,7 +832,7 @@ TransientTrackingRecHit::ConstRecHitContainer TrackExtenderWithMTDT<TrackCollect
   TransientTrackingRecHit::ConstRecHitContainer output;
   bestHit = MTDHitMatchingInfo();
   for (const DetLayer* ilay : layers)
-    fillMatchingHits(ilay, tsos, traj, hits, prop, bs, vtxTime, matchVertex, output, bestHit);
+    fillMatchingHits(ilay, tsos, traj, tscbl, hits, prop, bs, vtxTime, matchVertex, output, bestHit);
   return output;
 }
 
@@ -833,6 +840,7 @@ template <class TrackCollection>
 TransientTrackingRecHit::ConstRecHitContainer TrackExtenderWithMTDT<TrackCollection>::tryETLLayers(
     const TrajectoryStateOnSurface& tsos,
     const Trajectory& traj,
+    const TrajectoryStateClosestToBeamLine& tscbl,
     const MTDTrackingDetSetVector& hits,
     const MTDDetLayerGeometry* geo,
     const MagneticField* field,
@@ -852,7 +860,7 @@ TransientTrackingRecHit::ConstRecHitContainer TrackExtenderWithMTDT<TrackCollect
     if (tsos.globalPosition().z() * diskZ < 0)
       continue;  // only propagate to the disk that's on the same side
 
-    fillMatchingHits(ilay, tsos, traj, hits, prop, bs, vtxTime, matchVertex, output, bestHit);
+    fillMatchingHits(ilay, tsos, traj, tscbl, hits, prop, bs, vtxTime, matchVertex, output, bestHit);
   }
   return output;
 }
@@ -861,6 +869,7 @@ template <class TrackCollection>
 void TrackExtenderWithMTDT<TrackCollection>::fillMatchingHits(const DetLayer* ilay,
                                                               const TrajectoryStateOnSurface& tsos,
                                                               const Trajectory& traj,
+                                                              const TrajectoryStateClosestToBeamLine& tscbl,
                                                               const MTDTrackingDetSetVector& hits,
                                                               const Propagator* prop,
                                                               const reco::BeamSpot& bs,
@@ -877,6 +886,7 @@ void TrackExtenderWithMTDT<TrackCollection>::fillMatchingHits(const DetLayer* il
                              traj,
                              ilay,
                              tsos,
+                             tscbl,
                              _1,
                              bs,
                              bsTimeSpread_,
