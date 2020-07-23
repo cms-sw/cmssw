@@ -44,23 +44,25 @@ namespace edm {
                             });
   }
 
-  void ThinnedAssociationsHelper::sort() {
-    std::sort(vThinnedAssociationBranches_.begin(),
-              vThinnedAssociationBranches_.end(),
-              [](ThinnedAssociationBranches const& x, ThinnedAssociationBranches const& y) {
-                return x.parent() < y.parent() ? true
-                                               : y.parent() < x.parent() ? false : x.association() < y.association();
-              });
+  std::vector<ThinnedAssociationBranches>::const_iterator ThinnedAssociationsHelper::lower_bound(
+      ThinnedAssociationBranches const& branches) const {
+    return std::lower_bound(
+        vThinnedAssociationBranches_.begin(),
+        vThinnedAssociationBranches_.end(),
+        branches,
+        [](ThinnedAssociationBranches const& x, ThinnedAssociationBranches const& y) {
+          return x.parent() < y.parent() ? true : y.parent() < x.parent() ? false : x.association() < y.association();
+        });
   }
 
   void ThinnedAssociationsHelper::addAssociation(BranchID const& parent,
                                                  BranchID const& association,
                                                  BranchID const& thinned) {
-    vThinnedAssociationBranches_.push_back(ThinnedAssociationBranches(parent, association, thinned));
+    addAssociation(ThinnedAssociationBranches(parent, association, thinned));
   }
 
   void ThinnedAssociationsHelper::addAssociation(ThinnedAssociationBranches const& branches) {
-    vThinnedAssociationBranches_.push_back(branches);
+    vThinnedAssociationBranches_.insert(lower_bound(branches), branches);
   }
 
   std::vector<std::pair<BranchID, ThinnedAssociationBranches const*> >
@@ -222,7 +224,6 @@ namespace edm {
         addAssociation(parent, associationBranches.association(), thinned);
       }
     }
-    sort();
   }
 
   void ThinnedAssociationsHelper::initAssociationsFromSecondary(
@@ -248,6 +249,5 @@ namespace edm {
       }
       addAssociation(*(branches->second));
     }
-    sort();
   }
 }  // namespace edm
