@@ -666,6 +666,9 @@ void DQMRootSource::readElements() {
     for (; index != endIndex; ++index) {
       reader->read(index, edm::Service<DQMStore>().operator->(), metadata.m_run, metadata.m_lumi);
     }
+    // Drop buffers in the TTree. This reduces memory consuption while the tree
+    // just sits there and waits for the next block to be read.
+    tree->Reset();
   }
 }
 
