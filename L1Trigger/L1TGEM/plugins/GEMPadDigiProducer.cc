@@ -168,7 +168,7 @@ void GEMPadDigiProducer::buildPads16GE21(const GEMDigiCollection& det_digis, GEM
 }
 
 void GEMPadDigiProducer::checkValid(const GEMPadDigi& pad, const GEMDetId& id) const {
-  // check if the cluster is valid
+  // check if the pad is valid
   // in principle, invalid pads can appear in the CMS raw data
   if (!pad.isValid()) {
     edm::LogWarning("GEMPadDigiProducer") << "Invalid " << pad << " in " << id;
