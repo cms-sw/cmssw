@@ -295,17 +295,15 @@ void OuterTrackerMCHarvester::dqmEndJob(DQMStore::IBooker &ibooker, DQMStore::IG
       resPt1->SetStats(false);
 
       int testNumEntries1 = resPt1a->GetEntries();
-      // if (resPt1a->GetEntries() > 0 && resPt2a->GetEntries() > 0 && resPt3a->GetEntries() > 0 &&
-      //     resPt4a->GetEntries() > 0 && resPt5a->GetEntries() > 0 && resPt6a->GetEntries() > 0) {
       if (testNumEntries1 > 0) {
         // Fit the histograms with a gaussian curve - take sigma and the error
         // from the fit
-        resPt1a->Fit(fit2, "Q", "R");
-        resPt2a->Fit(fit2, "Q", "R");
-        resPt3a->Fit(fit2, "Q", "R");
-        resPt4a->Fit(fit2, "Q", "R");
-        resPt5a->Fit(fit2, "Q", "R");
-        resPt6a->Fit(fit2, "Q", "R");
+        resPt1a->Fit(fit2, "R");
+        resPt2a->Fit(fit2, "R");
+        resPt3a->Fit(fit2, "R");
+        resPt4a->Fit(fit2, "R");
+        resPt5a->Fit(fit2, "R");
+        resPt6a->Fit(fit2, "R");
         sigma_pt1.push_back(resPt1a->GetFunction("fit2")->GetParameter(2));
         sigma_pt1.push_back(resPt2a->GetFunction("fit2")->GetParameter(2));
         sigma_pt1.push_back(resPt3a->GetFunction("fit2")->GetParameter(2));
@@ -360,16 +358,14 @@ void OuterTrackerMCHarvester::dqmEndJob(DQMStore::IBooker &ibooker, DQMStore::IG
 
       int testNumEntries2 = resPt1b->GetEntries();
       if (testNumEntries2 > 0) {
-      // if (resPt1b->GetEntries() > 0 && resPt2b->GetEntries() > 0 && resPt3b->GetEntries() > 0 &&
-      //     resPt4b->GetEntries() > 0 && resPt5b->GetEntries() > 0 && resPt6b->GetEntries() > 0) {
         // Fit the histograms with a gaussian curve - take sigma and the error
         // from the fit
-        resPt1b->Fit(fit2, "Q", "R");
-        resPt2b->Fit(fit2, "Q", "R");
-        resPt3b->Fit(fit2, "Q", "R");
-        resPt4b->Fit(fit2, "Q", "R");
-        resPt5b->Fit(fit2, "Q", "R");
-        resPt6b->Fit(fit2, "Q", "R");
+        resPt1b->Fit(fit2, "R");
+        resPt2b->Fit(fit2, "R");
+        resPt3b->Fit(fit2, "R");
+        resPt4b->Fit(fit2, "R");
+        resPt5b->Fit(fit2, "R");
+        resPt6b->Fit(fit2, "R");
         sigma_pt2.push_back(resPt1b->GetFunction("fit2")->GetParameter(2));
         sigma_pt2.push_back(resPt2b->GetFunction("fit2")->GetParameter(2));
         sigma_pt2.push_back(resPt3b->GetFunction("fit2")->GetParameter(2));
@@ -423,17 +419,15 @@ void OuterTrackerMCHarvester::dqmEndJob(DQMStore::IBooker &ibooker, DQMStore::IG
       resPt3->SetStats(false);
 
       int testNumEntries3 = resPt1c->GetEntries();
-      // if (resPt1c->GetEntries() > 0 && resPt2c->GetEntries() > 0 && resPt3c->GetEntries() > 0 &&
-      //     resPt4c->GetEntries() > 0 && resPt5c->GetEntries() > 0 && resPt6c->GetEntries() > 0) {
       if (testNumEntries3 > 0) {
         // Fit the histograms with a gaussian curve - take sigma and the error
         // from the fit
-        resPt1c->Fit(fit2, "Q", "R");
-        resPt2c->Fit(fit2, "Q", "R");
-        resPt3c->Fit(fit2, "Q", "R");
-        resPt4c->Fit(fit2, "Q", "R");
-        resPt5c->Fit(fit2, "Q", "R");
-        resPt6c->Fit(fit2, "Q", "R");
+        resPt1c->Fit(fit2, "R");
+        resPt2c->Fit(fit2, "R");
+        resPt3c->Fit(fit2, "R");
+        resPt4c->Fit(fit2, "R");
+        resPt5c->Fit(fit2, "R");
+        resPt6c->Fit(fit2, "R");
         sigma_pt3.push_back(resPt1c->GetFunction("fit2")->GetParameter(2));
         sigma_pt3.push_back(resPt2c->GetFunction("fit2")->GetParameter(2));
         sigma_pt3.push_back(resPt3c->GetFunction("fit2")->GetParameter(2));
@@ -487,16 +481,14 @@ void OuterTrackerMCHarvester::dqmEndJob(DQMStore::IBooker &ibooker, DQMStore::IG
 
       int testNumEntries4 = resEta1->GetEntries();
       if (testNumEntries4 > 0) {
-      // if (resEta1->GetEntries() > 0 && resEta2->GetEntries() > 0 && resEta3->GetEntries() > 0 &&
-      //     resEta4->GetEntries() > 0 && resEta5->GetEntries() > 0 && resEta6->GetEntries() > 0) {
         // Fit the histograms with a gaussian curve - take sigma and the error
         // from the fit
-        resEta1->Fit(fit, "Q", "R");
-        resEta2->Fit(fit, "Q", "R");
-        resEta3->Fit(fit, "Q", "R");
-        resEta4->Fit(fit, "Q", "R");
-        resEta5->Fit(fit, "Q", "R");
-        resEta6->Fit(fit, "Q", "R");
+        resEta1->Fit(fit, "R");
+        resEta2->Fit(fit, "R");
+        resEta3->Fit(fit, "R");
+        resEta4->Fit(fit, "R");
+        resEta5->Fit(fit, "R");
+        resEta6->Fit(fit, "R");
         sigma_eta.push_back(resEta1->GetFunction("fit")->GetParameter(2));
         sigma_eta.push_back(resEta2->GetFunction("fit")->GetParameter(2));
         sigma_eta.push_back(resEta3->GetFunction("fit")->GetParameter(2));
@@ -550,16 +542,14 @@ void OuterTrackerMCHarvester::dqmEndJob(DQMStore::IBooker &ibooker, DQMStore::IG
 
       int testNumEntries5 = resPhi1->GetEntries();
       if (testNumEntries5 > 0) {
-      // if (resPhi1->GetEntries() > 0 && resPhi2->GetEntries() > 0 && resPhi3->GetEntries() > 0 &&
-      //     resPhi4->GetEntries() > 0 && resPhi5->GetEntries() > 0 && resPhi6->GetEntries() > 0) {
         // Fit the histograms with a gaussian curve - take sigma and the error
         // from the fit
-        resPhi1->Fit(fit, "Q", "R");
-        resPhi2->Fit(fit, "Q", "R");
-        resPhi3->Fit(fit, "Q", "R");
-        resPhi4->Fit(fit, "Q", "R");
-        resPhi5->Fit(fit, "Q", "R");
-        resPhi6->Fit(fit, "Q", "R");
+        resPhi1->Fit(fit, "R");
+        resPhi2->Fit(fit, "R");
+        resPhi3->Fit(fit, "R");
+        resPhi4->Fit(fit, "R");
+        resPhi5->Fit(fit, "R");
+        resPhi6->Fit(fit, "R");
         sigma_phi.push_back(resPhi1->GetFunction("fit")->GetParameter(2));
         sigma_phi.push_back(resPhi2->GetFunction("fit")->GetParameter(2));
         sigma_phi.push_back(resPhi3->GetFunction("fit")->GetParameter(2));
@@ -613,16 +603,14 @@ void OuterTrackerMCHarvester::dqmEndJob(DQMStore::IBooker &ibooker, DQMStore::IG
 
       int testNumEntries6 = resVtxZ_1->GetEntries();
       if (testNumEntries6 > 0) {
-      // if (resVtxZ_1->GetEntries() > 0 && resVtxZ_2->GetEntries() > 0 && resVtxZ_3->GetEntries() > 0 &&
-      //     resVtxZ_4->GetEntries() > 0 && resVtxZ_5->GetEntries() > 0 && resVtxZ_6->GetEntries() > 0) {
         // Fit the histograms with a gaussian curve - take sigma and the error
         // from the fit
-        resVtxZ_1->Fit(fit3, "Q", "R");
-        resVtxZ_2->Fit(fit3, "Q", "R");
-        resVtxZ_3->Fit(fit3, "Q", "R");
-        resVtxZ_4->Fit(fit3, "Q", "R");
-        resVtxZ_5->Fit(fit3, "Q", "R");
-        resVtxZ_6->Fit(fit3, "Q", "R");
+        resVtxZ_1->Fit(fit3, "R");
+        resVtxZ_2->Fit(fit3, "R");
+        resVtxZ_3->Fit(fit3, "R");
+        resVtxZ_4->Fit(fit3, "R");
+        resVtxZ_5->Fit(fit3, "R");
+        resVtxZ_6->Fit(fit3, "R");
         sigma_VtxZ.push_back(resVtxZ_1->GetFunction("fit3")->GetParameter(2));
         sigma_VtxZ.push_back(resVtxZ_2->GetFunction("fit3")->GetParameter(2));
         sigma_VtxZ.push_back(resVtxZ_3->GetFunction("fit3")->GetParameter(2));
@@ -676,16 +664,14 @@ void OuterTrackerMCHarvester::dqmEndJob(DQMStore::IBooker &ibooker, DQMStore::IG
 
       int testNumEntries7 = resd0_1->GetEntries();
       if (testNumEntries7 > 0) {
-      // if (resd0_1->GetEntries() > 0 && resd0_2->GetEntries() > 0 && resd0_3->GetEntries() > 0 &&
-      //     resd0_4->GetEntries() > 0 && resd0_5->GetEntries() > 0 && resd0_6->GetEntries() > 0) {
         // Fit the histograms with a gaussian curve - take sigma and the error
         // from the fit
-        resd0_1->Fit(fit, "Q", "R");
-        resd0_2->Fit(fit, "Q", "R");
-        resd0_3->Fit(fit, "Q", "R");
-        resd0_4->Fit(fit, "Q", "R");
-        resd0_5->Fit(fit, "Q", "R");
-        resd0_6->Fit(fit, "Q", "R");
+        resd0_1->Fit(fit, "R");
+        resd0_2->Fit(fit, "R");
+        resd0_3->Fit(fit, "R");
+        resd0_4->Fit(fit, "R");
+        resd0_5->Fit(fit, "R");
+        resd0_6->Fit(fit, "R");
         sigma_d0.push_back(resd0_1->GetFunction("fit")->GetParameter(2));
         sigma_d0.push_back(resd0_2->GetFunction("fit")->GetParameter(2));
         sigma_d0.push_back(resd0_3->GetFunction("fit")->GetParameter(2));
