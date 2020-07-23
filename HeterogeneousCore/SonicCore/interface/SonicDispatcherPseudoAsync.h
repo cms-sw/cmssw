@@ -19,17 +19,7 @@ public:
   SonicDispatcherPseudoAsync(SonicClientBase* client);
 
   //destructor
-  ~SonicDispatcherPseudoAsync() override {
-    stop_ = true;
-    cond_.notify_one();
-    if (thread_) {
-      try {
-        thread_->join();
-        thread_.reset();
-      } catch (...) {
-      }
-    }
-  }
+  ~SonicDispatcherPseudoAsync() override;
 
   //main operation
   void dispatch(edm::WaitingTaskWithArenaHolder holder) override;

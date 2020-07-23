@@ -81,10 +81,6 @@ public:
     //to ensure distinct cfi names
     descriptions.addWithDefaultLabel(desc);
   }
-
-private:
-  std::vector<float> data1_;
-  std::vector<int64_t> data2_;
 };
 
 DEFINE_FWK_MODULE(TritonGraphProducer);

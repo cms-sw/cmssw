@@ -10,9 +10,6 @@ class SonicClient : public SonicClientBase, public SonicClientTypes<InputT, Outp
 public:
   //constructor
   SonicClient(const edm::ParameterSet& params) : SonicClientBase(params), SonicClientTypes<InputT, OutputT>() {}
-
-  //do nothing by default
-  void reset() override {}
 };
 
 #endif

@@ -1,7 +1,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "HeterogeneousCore/SonicTriton/interface/TritonClient.h"
-#include "HeterogeneousCore/SonicTriton/interface/TritonUtils.h"
+#include "HeterogeneousCore/SonicTriton/interface/triton_utils.h"
 
 #include "request_grpc.h"
 
@@ -31,12 +31,12 @@ TritonClient::TritonClient(const edm::ParameterSet& params)
   fullDebugName_ = clientName_;
 
   //connect to the server
-  TritonUtils::wrap(nic::InferGrpcContext::Create(&context_, url_, modelName_, modelVersion_, false),
-                    "TritonClient(): unable to create inference context");
+  triton_utils::throwIfError(nic::InferGrpcContext::Create(&context_, url_, modelName_, modelVersion_, false),
+                             "TritonClient(): unable to create inference context");
 
   //get options
-  TritonUtils::wrap(nic::InferContext::Options::Create(&options_),
-                    "TritonClient(): unable to create inference context options");
+  triton_utils::throwIfError(nic::InferContext::Options::Create(&options_),
+                             "TritonClient(): unable to create inference context options");
 
   //get input and output (which know their sizes)
   const auto& nicInputs = context_->Inputs();
@@ -70,7 +70,7 @@ TritonClient::TritonClient(const edm::ParameterSet& params)
     if (verbose_) {
       const auto& curr_input = curr_itr.first->second;
       io_msg << "  " << iname << " (" << curr_input.dname() << ", " << curr_input.byteSize()
-             << " b) : " << TritonUtils::printVec(curr_input.dims()) << "\n";
+             << " b) : " << triton_utils::printVec(curr_input.dims()) << "\n";
     }
   }
 
@@ -83,11 +83,11 @@ TritonClient::TritonClient(const edm::ParameterSet& params)
     const auto& curr_itr = output_.emplace(
         std::piecewise_construct, std::forward_as_tuple(oname), std::forward_as_tuple(oname, nicOutput));
     const auto& curr_output = curr_itr.first->second;
-    TritonUtils::wrap(options_->AddRawResult(curr_output.data()),
-                      "TritonClient(): unable to add raw result " + curr_itr.first->first);
+    triton_utils::throwIfError(options_->AddRawResult(nicOutput),
+                               "TritonClient(): unable to add raw result " + curr_itr.first->first);
     if (verbose_) {
       io_msg << "  " << oname << " (" << curr_output.dname() << ", " << curr_output.byteSize()
-             << " b) : " << TritonUtils::printVec(curr_output.dims()) << "\n";
+             << " b) : " << triton_utils::printVec(curr_output.dims()) << "\n";
     }
   }
 
@@ -102,7 +102,7 @@ TritonClient::TritonClient(const edm::ParameterSet& params)
   setBatchSize(params.getUntrackedParameter<unsigned>("batchSize"));
 
   //initial server settings
-  TritonUtils::wrap(context_->SetRunOptions(*options_), "TritonClient(): unable to set run options");
+  triton_utils::throwIfError(context_->SetRunOptions(*options_), "TritonClient(): unable to set run options");
 
   //print model info
   std::stringstream model_msg;
@@ -118,8 +118,8 @@ TritonClient::TritonClient(const edm::ParameterSet& params)
     //print model info
     edm::LogInfo(fullDebugName_) << model_msg.str() << io_msg.str();
 
-    has_server = TritonUtils::warn(nic::ServerStatusGrpcContext::Create(&serverCtx_, url_, false),
-                                   "TritonClient(): unable to create server context");
+    has_server = triton_utils::warnIfError(nic::ServerStatusGrpcContext::Create(&serverCtx_, url_, false),
+                                           "TritonClient(): unable to create server context");
   }
   if (!has_server)
     serverCtx_ = nullptr;
@@ -142,7 +142,7 @@ bool TritonClient::setBatchSize(unsigned bsize) {
     //set for server (and Input objects)
     if (!noBatch_) {
       options_->SetBatchSize(batchSize_);
-      TritonUtils::wrap(context_->SetRunOptions(*options_), "setBatchSize(): unable to set run options");
+      triton_utils::throwIfError(context_->SetRunOptions(*options_), "setBatchSize(): unable to set run options");
     }
     return true;
   }
@@ -173,7 +173,7 @@ bool TritonClient::getResults(std::map<std::string, std::unique_ptr<nic::InferCo
     //set shape here before output becomes const
     if (output.variableDims()) {
       bool status =
-          TritonUtils::warn(result->GetRawShape(&(output.shape())), "getResults(): unable to get output shape");
+          triton_utils::warnIfError(result->GetRawShape(&(output.shape())), "getResults(): unable to get output shape");
       if (!status)
         return status;
     }
@@ -198,13 +198,13 @@ void TritonClient::evaluate() {
   if (mode_ == SonicMode::Async) {
     //non-blocking call
     auto t1 = std::chrono::high_resolution_clock::now();
-    bool status = TritonUtils::warn(
+    bool status = triton_utils::warnIfError(
         context_->AsyncRun([t1, start_status, this](nic::InferContext* ctx,
                                                     const std::shared_ptr<nic::InferContext::Request>& request) {
           //get results
-          bool status = true;
           std::map<std::string, std::unique_ptr<nic::InferContext::Result>> results;
-          status = TritonUtils::warn(ctx->GetAsyncRunResults(request, &results), "evaluate(): unable to get result");
+          bool status =
+              triton_utils::warnIfError(ctx->GetAsyncRunResults(request, &results), "evaluate(): unable to get result");
           if (!status) {
             finish(false);
             return;
@@ -237,7 +237,7 @@ void TritonClient::evaluate() {
     //blocking call
     auto t1 = std::chrono::high_resolution_clock::now();
     std::map<std::string, std::unique_ptr<nic::InferContext::Result>> results;
-    bool status = TritonUtils::warn(context_->Run(&results), "evaluate(): unable to run and/or get result");
+    bool status = triton_utils::warnIfError(context_->Run(&results), "evaluate(): unable to run and/or get result");
     if (!status) {
       finish(false);
       return;
@@ -347,7 +347,8 @@ ni::ModelStatus TritonClient::getServerSideStatus() const {
 
 //for fillDescriptions
 void TritonClient::fillPSetDescription(edm::ParameterSetDescription& iDesc) {
-  edm::ParameterSetDescription descClient(basePSetDescription());
+  edm::ParameterSetDescription descClient;
+  fillBasePSetDescription(descClient);
   descClient.add<std::string>("modelName");
   descClient.add<int>("modelVersion", -1);
   //server parameters should not affect the physics results

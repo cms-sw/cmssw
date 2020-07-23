@@ -29,9 +29,6 @@ public:
   //constructor
   TritonClient(const edm::ParameterSet& params);
 
-  //helper
-  bool getResults(std::map<std::string, std::unique_ptr<InferContext::Result>>& results);
-
   //accessors
   unsigned batchSize() const { return batchSize_; }
   bool verbose() const { return verbose_; }
@@ -42,6 +39,9 @@ public:
   static void fillPSetDescription(edm::ParameterSetDescription& iDesc);
 
 protected:
+  //helper
+  bool getResults(std::map<std::string, std::unique_ptr<InferContext::Result>>& results);
+
   void evaluate() override;
 
   void reportServerSideStats(const ServerSideStats& stats) const;

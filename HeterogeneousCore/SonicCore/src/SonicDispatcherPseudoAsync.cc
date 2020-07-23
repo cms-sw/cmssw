@@ -1,9 +1,23 @@
 #include "HeterogeneousCore/SonicCore/interface/SonicDispatcherPseudoAsync.h"
 #include "HeterogeneousCore/SonicCore/interface/SonicClientBase.h"
+#include "FWCore/Utilities/interface/thread_safety_macros.h"
 
 SonicDispatcherPseudoAsync::SonicDispatcherPseudoAsync(SonicClientBase* client)
     : SonicDispatcher(client), hasCall_(false), stop_(false) {
   thread_ = std::make_unique<std::thread>([this]() { waitForNext(); });
+}
+
+SonicDispatcherPseudoAsync::~SonicDispatcherPseudoAsync() {
+  stop_ = true;
+  cond_.notify_one();
+  if (thread_) {
+    // avoid throwing in destructor
+    CMS_SA_ALLOW try {
+      thread_->join();
+      thread_.reset();
+    } catch (...) {
+    }
+  }
 }
 
 void SonicDispatcherPseudoAsync::dispatch(edm::WaitingTaskWithArenaHolder holder) {
