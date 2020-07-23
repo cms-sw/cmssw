@@ -45,20 +45,21 @@ namespace edm {
     PoolOutputModule& operator=(PoolOutputModule const&) = delete;  // Disallow copying and moving
     std::string const& fileName() const { return fileName_; }
     std::string const& logicalFileName() const { return logicalFileName_; }
-    int const& compressionLevel() const { return compressionLevel_; }
+    int const compressionLevel() const { return compressionLevel_; }
     std::string const& compressionAlgorithm() const { return compressionAlgorithm_; }
-    int const& basketSize() const { return basketSize_; }
+    int const basketSize() const { return basketSize_; }
     int eventAutoFlushSize() const { return eventAutoFlushSize_; }
-    int const& splitLevel() const { return splitLevel_; }
+    int const splitLevel() const { return splitLevel_; }
     std::string const& basketOrder() const { return basketOrder_; }
-    int const& treeMaxVirtualSize() const { return treeMaxVirtualSize_; }
-    bool const& overrideInputFileSplitLevels() const { return overrideInputFileSplitLevels_; }
+    int const treeMaxVirtualSize() const { return treeMaxVirtualSize_; }
+    bool const overrideInputFileSplitLevels() const { return overrideInputFileSplitLevels_; }
+    bool const compactEventAuxiliary() const { return compactEventAuxiliary_; }
     DropMetaData const& dropMetaData() const { return dropMetaData_; }
     std::string const& catalog() const { return catalog_; }
     std::string const& moduleLabel() const { return moduleLabel_; }
     unsigned int const& maxFileSize() const { return maxFileSize_; }
-    int const& inputFileCount() const { return inputFileCount_; }
-    int const& whyNotFastClonable() const { return whyNotFastClonable_; }
+    int const inputFileCount() const { return inputFileCount_; }
+    int const whyNotFastClonable() const { return whyNotFastClonable_; }
 
     std::string const& currentFileName() const;
 
@@ -209,6 +210,7 @@ namespace edm {
     BranchChildren branchChildren_;
     std::vector<BranchID> producedBranches_;
     bool overrideInputFileSplitLevels_;
+    bool compactEventAuxiliary_;
     edm::propagate_const<std::unique_ptr<RootOutputFile>> rootOutputFile_;
     std::string statusFileName_;
     std::vector<std::string> processesWithSelectedMergeableRunProducts_;

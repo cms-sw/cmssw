@@ -37,7 +37,7 @@ namespace edm {
     static int const invalidStoreNumber = EventAuxiliary::invalidStoreNumber;
 
     // These components of EventAuxiliary change infrequently, so
-    // they are stored in a std::unique_hash with a reference in
+    // they are stored in a std::unordered_set with a reference in
     // CompactEventAuxiliary
     class CompactEventAuxiliaryExtra {
     public:
@@ -154,8 +154,9 @@ namespace edm {
     using const_iterator = std::vector<value_type>::const_iterator;
 
     size_type size() const { return compactAuxiliaries_.size(); }
-    const_iterator begin() { return compactAuxiliaries_.begin(); }
-    const_iterator end() { return compactAuxiliaries_.end(); }
+    void reserve(std::size_t size) { compactAuxiliaries_.reserve(size); }
+    const_iterator begin() const { return compactAuxiliaries_.begin(); }
+    const_iterator end() const { return compactAuxiliaries_.end(); }
     const_iterator cbegin() const { return compactAuxiliaries_.cbegin(); }
     const_iterator cend() const { return compactAuxiliaries_.cend(); }
 

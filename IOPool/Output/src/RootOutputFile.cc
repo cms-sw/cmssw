@@ -131,8 +131,10 @@ namespace edm {
     }
     eventTree_.addAuxiliary<EventAuxiliary>(
         BranchTypeToAuxiliaryBranchName(InEvent), pEventAux_, om_->auxItems()[InEvent].basketSize_, false);
-    eventTree_.tree()->SetBranchStatus(BranchTypeToAuxiliaryBranchName(InEvent).c_str(),
-                                       false);  // see writeEventAuxiliary
+    if (om_->compactEventAuxiliary()) {
+      eventTree_.tree()->SetBranchStatus(BranchTypeToAuxiliaryBranchName(InEvent).c_str(),
+                                         false);  // see writeEventAuxiliary
+    }
 
     eventTree_.addAuxiliary<StoredProductProvenanceVector>(BranchTypeToProductProvenanceBranchName(InEvent),
                                                            pEventEntryInfoVector(),
@@ -382,12 +384,26 @@ namespace edm {
     if (fb.tree() != nullptr && whyNotFastClonable_ != FileBlock::CanFastClone) {
       maybeIssueWarning(whyNotFastClonable_, fb.fileName(), file_);
     }
+
+    if (om_->compactEventAuxiliary() &&
+        (whyNotFastClonable_ & (FileBlock::EventsOrLumisSelectedByID | FileBlock::InitialEventsSkipped |
+                                FileBlock::EventSelectionUsed)) == 0) {
+      long long int reserve = remainingEvents;
+      if (fb.tree() != nullptr) {
+        reserve = reserve > 0 ? std::min(fb.tree()->GetEntries(), reserve) : fb.tree()->GetEntries();
+      }
+      if (reserve > 0) {
+        LogSystem("beginInputFile") << "Reserving " << compactEventAuxiliary_.size() + reserve;
+        compactEventAuxiliary_.reserve(compactEventAuxiliary_.size() + reserve);
+      }
+    }
   }
 
   void RootOutputFile::respondToCloseInputFile(FileBlock const&) {
-    // We can't do setEntries() on the event tree because EventAuxiliary is empty;
-    // only do setEntries() when the output file closes
-    //eventTree_.setEntries();
+    // We can't do setEntries() on the event tree if the EventAuxiliary branch is empty & disabled
+    if (not om_->compactEventAuxiliary()) {
+      eventTree_.setEntries();
+    }
     lumiTree_.setEntries();
     runTree_.setEntries();
   }
@@ -441,7 +457,9 @@ namespace edm {
         reducedPHID, pEventAux_->run(), pEventAux_->luminosityBlock(), pEventAux_->event(), eventEntryNumber_);
     ++eventEntryNumber_;
 
-    compactEventAuxiliary_.push_back(*pEventAux_);
+    if (om_->compactEventAuxiliary()) {
+      compactEventAuxiliary_.push_back(*pEventAux_);
+    }
 
     // Report event written
     Service<JobReport> reportSvc;
@@ -626,25 +644,28 @@ namespace edm {
   // EventAuxiliary and write it at the end of the file.
 
   void RootOutputFile::writeEventAuxiliary() {
-    auto tree = eventTree_.tree();
-    auto bname = BranchTypeToAuxiliaryBranchName(InEvent).c_str();
+    if (om_->compactEventAuxiliary()) {
+      auto tree = eventTree_.tree();
+      auto const& bname = BranchTypeToAuxiliaryBranchName(InEvent).c_str();
 
-    tree->SetBranchStatus(bname, true);
-    auto basketsize = compactEventAuxiliary_.size() * (sizeof(EventAuxiliary) + 26);  // 26 is an empirical fudge factor
-    tree->SetBasketSize(bname, basketsize);
-    auto b = tree->GetBranch(bname);
+      tree->SetBranchStatus(bname, true);
+      auto basketsize =
+          compactEventAuxiliary_.size() * (sizeof(EventAuxiliary) + 26);  // 26 is an empirical fudge factor
+      tree->SetBasketSize(bname, basketsize);
+      auto b = tree->GetBranch(bname);
 
-    assert(b);
+      assert(b);
 
-    LogDebug("writeEventAuxiliary") << "EventAuxiliary ratio extras/GUIDs/all = " << compactEventAuxiliary_.extrasSize()
-                                    << "/" << compactEventAuxiliary_.guidsSize() << "/"
-                                    << compactEventAuxiliary_.size();
+      LogSystem("writeEventAuxiliary") << "EventAuxiliary ratio extras/GUIDs/all = "
+                                       << compactEventAuxiliary_.extrasSize() << "/"
+                                       << compactEventAuxiliary_.guidsSize() << "/" << compactEventAuxiliary_.size();
 
-    for (auto const& aux : compactEventAuxiliary_) {
-      const auto ea = aux.eventAuxiliary();
-      pEventAux_ = &ea;
-      // Fill EventAuxiliary branch
-      b->Fill();
+      for (auto const& aux : compactEventAuxiliary_) {
+        const auto ea = aux.eventAuxiliary();
+        pEventAux_ = &ea;
+        // Fill EventAuxiliary branch
+        b->Fill();
+      }
     }
   }
 
