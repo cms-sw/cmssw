@@ -259,8 +259,8 @@ public:
   RefitDirection::GeometricalDirection checkRecHitsOrdering(
       TransientTrackingRecHit::ConstRecHitContainer const& recHits) const {
     if (!recHits.empty()) {
-      GlobalPoint first = gtg->idToDet(recHits.front()->geographicalId())->position();
-      GlobalPoint last = gtg->idToDet(recHits.back()->geographicalId())->position();
+      GlobalPoint first = gtg_->idToDet(recHits.front()->geographicalId())->position();
+      GlobalPoint last = gtg_->idToDet(recHits.back()->geographicalId())->position();
 
       // maybe perp2?
       auto rFirst = first.mag2();
@@ -316,10 +316,9 @@ private:
   const std::string mtdRecHitBuilder_, propagator_, transientTrackBuilder_;
   std::unique_ptr<MeasurementEstimator> theEstimator;
   std::unique_ptr<TrackTransformer> theTransformer;
-  edm::ESHandle<TransientTrackBuilder> builder;
-  edm::ESHandle<TransientTrackingRecHitBuilder> hitbuilder;
-  edm::ESHandle<GlobalTrackingGeometry> gtg;
-  edm::ESHandle<Propagator> prop;
+  edm::ESHandle<TransientTrackBuilder> builder_;
+  edm::ESHandle<TransientTrackingRecHitBuilder> hitbuilder_;
+  edm::ESHandle<GlobalTrackingGeometry> gtg_;
 
   const float estMaxChi2_;
   const float estMaxNSigma_;
@@ -449,7 +448,7 @@ void TrackExtenderWithMTDT<TrackCollection>::produce(edm::Event& ev, const edm::
   TrackingRecHitRefProd hitsRefProd = ev.getRefBeforePut<TrackingRecHitCollection>();
   reco::TrackExtraRefProd extrasRefProd = ev.getRefBeforePut<reco::TrackExtraCollection>();
 
-  es.get<GlobalTrackingGeometryRecord>().get(gtg);
+  es.get<GlobalTrackingGeometryRecord>().get(gtg_);
 
   edm::ESHandle<MTDDetLayerGeometry> geo;
   es.get<MTDRecoGeometryRecord>().get(geo);
@@ -457,8 +456,8 @@ void TrackExtenderWithMTDT<TrackCollection>::produce(edm::Event& ev, const edm::
   edm::ESHandle<MagneticField> magfield;
   es.get<IdealMagneticFieldRecord>().get(magfield);
 
-  es.get<TransientTrackRecord>().get(transientTrackBuilder_, builder);
-  es.get<TransientRecHitRecord>().get(mtdRecHitBuilder_, hitbuilder);
+  es.get<TransientTrackRecord>().get(transientTrackBuilder_, builder_);
+  es.get<TransientRecHitRecord>().get(mtdRecHitBuilder_, hitbuilder_);
 
   edm::ESHandle<Propagator> prop;
   es.get<TrackingComponentsRecord>().get(propagator_, prop);
@@ -535,7 +534,7 @@ void TrackExtenderWithMTDT<TrackCollection>::produce(edm::Event& ev, const edm::
         trackVtxTime = vtxTime;
     }
 
-    reco::TransientTrack ttrack(track, magfield.product(), gtg);
+    reco::TransientTrack ttrack(track, magfield.product(), gtg_);
     const auto& trajs = theTransformer->transform(track);
     auto thits = theTransformer->getTransientRecHits(ttrack);
     TransientTrackingRecHit::ConstRecHitContainer mtdthits;
@@ -820,7 +819,7 @@ TransientTrackingRecHit::ConstRecHitContainer TrackExtenderWithMTDT<TrackCollect
     MTDHitMatchingInfo& bestHit) const {
   const vector<const DetLayer*>& layers = geo->allBTLLayers();
 
-  auto tTrack = builder->build(track);
+  auto tTrack = builder_->build(track);
   // get the outermost trajectory point on the track
   TrajectoryStateOnSurface tsos = tTrack.outermostMeasurementState();
 
@@ -845,7 +844,7 @@ TransientTrackingRecHit::ConstRecHitContainer TrackExtenderWithMTDT<TrackCollect
     MTDHitMatchingInfo& bestHit) const {
   const vector<const DetLayer*>& layers = geo->allETLLayers();
 
-  auto tTrack = builder->build(track);
+  auto tTrack = builder_->build(track);
   // get the outermost trajectory point on the track
   TrajectoryStateOnSurface tsos = tTrack.outermostMeasurementState();
 
@@ -901,7 +900,7 @@ void TrackExtenderWithMTDT<TrackCollection>::fillMatchingHits(const DetLayer* il
     //check hits to pass minimum quality matching requirements
     if (hitsInLayer.begin()->estChi2 < etlChi2Cut_ && hitsInLayer.begin()->timeChi2 < etlTimeChi2Cut_) {
       hitMatched = true;
-      output.push_back(hitbuilder->build(hitsInLayer.begin()->hit));
+      output.push_back(hitbuilder_->build(hitsInLayer.begin()->hit));
       if (*(hitsInLayer.begin()) < bestHit)
         bestHit = *(hitsInLayer.begin());
     }
@@ -915,7 +914,7 @@ void TrackExtenderWithMTDT<TrackCollection>::fillMatchingHits(const DetLayer* il
       if (hitsInLayer.begin()->timeChi2 < etlTimeChi2Cut_) {
         if (hitsInLayer.begin()->estChi2 < etlChi2Cut_) {
           hitMatched = true;
-          output.push_back(hitbuilder->build(hitsInLayer.begin()->hit));
+          output.push_back(hitbuilder_->build(hitsInLayer.begin()->hit));
           if ((*hitsInLayer.begin()) < bestHit)
             bestHit = *(hitsInLayer.begin());
         }
@@ -1041,7 +1040,7 @@ reco::TrackExtra TrackExtenderWithMTDT<TrackCollection>::buildTrackExtra(const T
   } else
     LogError(metname) << "Wrong propagation direction!";
 
-  const GeomDet* outerDet = gtg->idToDet(outerDetId);
+  const GeomDet* outerDet = gtg_->idToDet(outerDetId);
   GlobalPoint outerTSOSPos = outerTSOS.globalParameters().position();
   bool inside = outerDet->surface().bounds().inside(outerDet->toLocal(outerTSOSPos));
 
