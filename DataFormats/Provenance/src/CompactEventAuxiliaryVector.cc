@@ -3,8 +3,9 @@
 
 namespace edm {
   void CompactEventAuxiliaryVector::CompactEventAuxiliary::write(std::ostream& os) const {
-    os << "Process History ID = " << processHistoryID() << std::endl;
-    os << id() << " " << storeNumber() << std::endl;
+    os << "processGUID = " << processGUID() << std::endl;
+    os << id() << " " << time().unixTime() << " " << bunchCrossing() << " " << orbitNumber() << std::endl;
+    os << extra_;
   }
 
   void CompactEventAuxiliaryVector::CompactEventAuxiliaryExtra::write(std::ostream& os) const {
