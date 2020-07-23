@@ -47,7 +47,7 @@ HGCalBackendLayer2Producer::HGCalBackendLayer2Producer(const edm::ParameterSet& 
       HGCalBackendLayer2Factory::get()->create(beProcessorName, beParamConfig)};
 
   produces<l1t::HGCalMulticlusterBxCollection>(backendProcess_->name());
-  produces<l1t::HGCalClusterBxCollection>(backendProcess_->name());
+  produces<l1t::HGCalClusterBxCollection>(backendProcess_->name() + "Unclustered");
 }
 
 void HGCalBackendLayer2Producer::beginRun(const edm::Run& /*run*/, const edm::EventSetup& es) {
@@ -67,5 +67,6 @@ void HGCalBackendLayer2Producer::produce(edm::Event& e, const edm::EventSetup& e
   backendProcess_->run(trigCluster2DBxColl, be_output, es);
 
   e.put(std::make_unique<l1t::HGCalMulticlusterBxCollection>(std::move(be_output.first)), backendProcess_->name());
-  e.put(std::make_unique<l1t::HGCalClusterBxCollection>(std::move(be_output.second)), backendProcess_->name());
+  e.put(std::make_unique<l1t::HGCalClusterBxCollection>(std::move(be_output.second)),
+        backendProcess_->name() + "Unclustered");
 }
