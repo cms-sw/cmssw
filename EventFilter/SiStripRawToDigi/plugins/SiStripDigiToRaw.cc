@@ -2,7 +2,7 @@
 #include <iostream>
 #include <sstream>
 
-#include <fmt/printf.h>
+#include <fmt/format.h>
 
 #include "CondFormats/SiStripObjects/interface/SiStripFedCabling.h"
 #include "DataFormats/FEDRawData/interface/FEDHeader.h"
@@ -136,7 +136,7 @@ namespace sistrip {
 
           //need to construct full object to copy full header
           if (rawfedData.size() == 0)
-            warnings_.add("Invalid raw data for FED, skipping", fmt::sprintf("id %1%", *ifed));
+            warnings_.add("Invalid raw data for FED, skipping", fmt::format("id {0}", *ifed));
           const auto st_buffer = preconstructCheckFEDBuffer(rawfedData, true);
           if (FEDBufferStatusCode::SUCCESS != st_buffer) {
             edm::LogWarning("DigiToRaw") << "[sistrip::DigiToRaw::createFedBuffers_]"
@@ -150,7 +150,7 @@ namespace sistrip {
                                          << " Could not construct FEDBuffer for FED " << *ifed << std::endl;
           }
           if (fedbuffer.headerType() == sistrip::HEADER_TYPE_INVALID) {
-            warnings_.add("Invalid header type for FED, skipping", fmt::sprintf("id %1%", *ifed));
+            warnings_.add("Invalid header type for FED, skipping", fmt::format("id {0}", *ifed));
             continue;
           }
 
