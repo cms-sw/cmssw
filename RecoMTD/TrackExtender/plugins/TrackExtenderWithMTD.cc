@@ -487,32 +487,28 @@ void TrackExtenderWithMTDT<TrackCollection>::produce(edm::Event& ev, const edm::
   std::vector<float> sigmatmtdOrigTrkRaw;
   std::vector<int> assocOrigTrkRaw;
 
-  edm::Handle<InputCollection> tracksH;
-  ev.getByToken(tracksToken_, tracksH);
+  auto const tracksH = ev.getHandle(tracksToken_);
   const auto& tracks = *tracksH;
 
-  edm::Handle<MTDTrackingDetSetVector> hitsH;
-  ev.getByToken(hitsToken_, hitsH);
-  const auto& hits = *hitsH;
+  //MTD hits DetSet
+  const auto& hits = ev.get(hitsToken_);
 
-  edm::Handle<reco::BeamSpot> bsH;
-  ev.getByToken(bsToken_, bsH);
-  const auto& bs = *bsH;
+  //beam spot
+  const auto& bs = ev.get(bsToken_);
 
   const Vertex* pv = nullptr;
   if (useVertex_ && !useSimVertex_) {
-    edm::Handle<VertexCollection> vtxH;
-    ev.getByToken(vtxToken_, vtxH);
-    if (!vtxH.product()->empty())
-      pv = &(vtxH.product()->at(0));
+    auto const& vtxs = ev.get(vtxToken_);
+    if (!vtxs.empty())
+      pv = &vtxs[0];
   }
 
   std::unique_ptr<math::XYZTLorentzVectorF> genPV(nullptr);
   if (useVertex_ && useSimVertex_) {
-    const auto& genVtxPositionHandle = ev.getHandle(genVtxPositionToken_);
-    const auto& genVtxTimeHandle = ev.getHandle(genVtxTimeToken_);
+    const auto& genVtxPosition = ev.get(genVtxPositionToken_);
+    const auto& genVtxTime = ev.get(genVtxTimeToken_);
     genPV = std::make_unique<math::XYZTLorentzVectorF>(
-        genVtxPositionHandle->x(), genVtxPositionHandle->y(), genVtxPositionHandle->z(), *(genVtxTimeHandle));
+        genVtxPosition.x(), genVtxPosition.y(), genVtxPosition.z(), genVtxTime);
   }
 
   double vtxTime = 0.;
