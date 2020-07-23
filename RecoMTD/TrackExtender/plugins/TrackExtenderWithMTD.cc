@@ -223,7 +223,7 @@ public:
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
-  TransientTrackingRecHit::ConstRecHitContainer tryBTLLayers(const TrackType&,
+  TransientTrackingRecHit::ConstRecHitContainer tryBTLLayers(const TrajectoryStateOnSurface&,
                                                              const Trajectory& traj,
                                                              const MTDTrackingDetSetVector&,
                                                              const MTDDetLayerGeometry*,
@@ -234,7 +234,7 @@ public:
                                                              const bool matchVertex,
                                                              MTDHitMatchingInfo& bestHit) const;
 
-  TransientTrackingRecHit::ConstRecHitContainer tryETLLayers(const TrackType&,
+  TransientTrackingRecHit::ConstRecHitContainer tryETLLayers(const TrajectoryStateOnSurface&,
                                                              const Trajectory& traj,
                                                              const MTDTrackingDetSetVector&,
                                                              const MTDDetLayerGeometry*,
@@ -540,7 +540,10 @@ void TrackExtenderWithMTDT<TrackCollection>::produce(edm::Event& ev, const edm::
     TransientTrackingRecHit::ConstRecHitContainer mtdthits;
     MTDHitMatchingInfo mBTL, mETL;
     if (!trajs.empty()) {
-      const auto& btlhits = tryBTLLayers(track,
+      // get the outermost trajectory point on the track
+      TrajectoryStateOnSurface tsos = builder_->build(track).outermostMeasurementState();
+
+      const auto& btlhits = tryBTLLayers(tsos,
                                          trajs.front(),
                                          hits,
                                          geo.product(),
@@ -554,7 +557,7 @@ void TrackExtenderWithMTDT<TrackCollection>::produce(edm::Event& ev, const edm::
 
       // in the future this should include an intermediate refit before propagating to the ETL
       // for now it is ok
-      const auto& etlhits = tryETLLayers(track,
+      const auto& etlhits = tryETLLayers(tsos,
                                          trajs.front(),
                                          hits,
                                          geo.product(),
@@ -807,7 +810,7 @@ namespace {
 
 template <class TrackCollection>
 TransientTrackingRecHit::ConstRecHitContainer TrackExtenderWithMTDT<TrackCollection>::tryBTLLayers(
-    const TrackType& track,
+    const TrajectoryStateOnSurface& tsos,
     const Trajectory& traj,
     const MTDTrackingDetSetVector& hits,
     const MTDDetLayerGeometry* geo,
@@ -819,10 +822,6 @@ TransientTrackingRecHit::ConstRecHitContainer TrackExtenderWithMTDT<TrackCollect
     MTDHitMatchingInfo& bestHit) const {
   const vector<const DetLayer*>& layers = geo->allBTLLayers();
 
-  auto tTrack = builder_->build(track);
-  // get the outermost trajectory point on the track
-  TrajectoryStateOnSurface tsos = tTrack.outermostMeasurementState();
-
   TransientTrackingRecHit::ConstRecHitContainer output;
   bestHit = MTDHitMatchingInfo();
   for (const DetLayer* ilay : layers)
@@ -832,7 +831,7 @@ TransientTrackingRecHit::ConstRecHitContainer TrackExtenderWithMTDT<TrackCollect
 
 template <class TrackCollection>
 TransientTrackingRecHit::ConstRecHitContainer TrackExtenderWithMTDT<TrackCollection>::tryETLLayers(
-    const TrackType& track,
+    const TrajectoryStateOnSurface& tsos,
     const Trajectory& traj,
     const MTDTrackingDetSetVector& hits,
     const MTDDetLayerGeometry* geo,
@@ -843,10 +842,6 @@ TransientTrackingRecHit::ConstRecHitContainer TrackExtenderWithMTDT<TrackCollect
     const bool matchVertex,
     MTDHitMatchingInfo& bestHit) const {
   const vector<const DetLayer*>& layers = geo->allETLLayers();
-
-  auto tTrack = builder_->build(track);
-  // get the outermost trajectory point on the track
-  TrajectoryStateOnSurface tsos = tTrack.outermostMeasurementState();
 
   TransientTrackingRecHit::ConstRecHitContainer output;
   bestHit = MTDHitMatchingInfo();
