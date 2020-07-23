@@ -15,6 +15,8 @@ from Configuration.PyReleaseValidation.relval_upgrade import workflows as _upgra
 #2026 WFs to run in IB (TTbar)
 numWFIB = []
 numWFIB.extend([23234.0]) #2026D49
+numWFIB.extend([23461.97]) #2026D49 premixing stage1 (NuGun+PU)
+numWFIB.extend([23434.99]) #2026D49 premixing combined stage1+stage2 (ttbar+PU)
 numWFIB.extend([23234.21,23434.21]) #2026D49 prodlike, prodlike PU
 numWFIB.extend([23234.103]) #2026D49 aging
 numWFIB.extend([23634.0]) #2026D51
