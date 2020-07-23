@@ -707,16 +707,10 @@ namespace {
   bool cmp_for_detset(const unsigned one, const unsigned two) { return one < two; };
 
   bool trackPathLength(const Trajectory& traj,
-                       const reco::BeamSpot& bs,
+                       const TrajectoryStateClosestToBeamLine& tscbl,
                        const Propagator* thePropagator,
                        double& pathlength) {
     pathlength = 0.;
-
-    TrajectoryStateClosestToBeamLine tscbl;
-    bool tscbl_status = getTrajectoryStateClosestToBeamLine(traj, bs, thePropagator, tscbl);
-
-    if (!tscbl_status)
-      return false;
 
     bool validpropagation = true;
     double pathlength1 = 0.;
@@ -754,6 +748,21 @@ namespace {
     return validpropagation;
   }
 
+  bool trackPathLength(const Trajectory& traj,
+                       const reco::BeamSpot& bs,
+                       const Propagator* thePropagator,
+                       double& pathlength) {
+    pathlength = 0.;
+
+    TrajectoryStateClosestToBeamLine tscbl;
+    bool tscbl_status = getTrajectoryStateClosestToBeamLine(traj, bs, thePropagator, tscbl);
+
+    if (!tscbl_status)
+      return false;
+
+    return trackPathLength(traj, tscbl, thePropagator, pathlength);
+  }
+
   void find_hits_in_dets(const MTDTrackingDetSetVector& hits,
                          const Trajectory& traj,
                          const DetLayer* layer,
@@ -769,7 +778,7 @@ namespace {
     GlobalVector p = tscbl.trackStateAtPCA().momentum();
 
     double pathlength;
-    trackPathLength(traj, bs, prop, pathlength);
+    trackPathLength(traj, tscbl, prop, pathlength);
 
     pair<bool, TrajectoryStateOnSurface> comp = layer->compatible(tsos, *prop, *theEstimator);
     if (comp.first) {
