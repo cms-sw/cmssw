@@ -54,8 +54,7 @@ OscarMTMasterThread::OscarMTMasterThread(const edm::ParameterSet& iConfig)
     runManagerMaster = std::make_shared<RunManagerMT>(iConfig);
     m_runManagerMaster = runManagerMaster;
 
-    edm::LogVerbatim("SimG4CoreApplication") 
-        << "OscarMTMasterThread: initialization of RunManagerMT finished";
+    edm::LogVerbatim("SimG4CoreApplication") << "OscarMTMasterThread: initialization of RunManagerMT finished";
 
     /////////////
     // State loop
@@ -81,11 +80,11 @@ OscarMTMasterThread::OscarMTMasterThread(const edm::ParameterSet& iConfig)
         isG4Alive = true;
       } else if (m_masterThreadState == ThreadState::EndRun) {
         // Stop Geant4
-	edm::LogVerbatim("OscarMTMasterThread") << "Master thread: Stopping Geant4";
+        edm::LogVerbatim("OscarMTMasterThread") << "Master thread: Stopping Geant4";
         runManagerMaster->stopG4();
         isG4Alive = false;
       } else if (m_masterThreadState == ThreadState::Destruct) {
-	edm::LogVerbatim("OscarMTMasterThread") << "Master thread: Breaking out of state loop";
+        edm::LogVerbatim("OscarMTMasterThread") << "Master thread: Breaking out of state loop";
         if (isG4Alive)
           throw edm::Exception(edm::errors::LogicError)
               << "Geant4 is still alive, master thread state must be set to EndRun before Destruct";
