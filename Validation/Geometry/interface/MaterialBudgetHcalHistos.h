@@ -2,7 +2,10 @@
 #define Validation_Geometry_MaterialBudgetHcalHistos_h 1
 
 #include "DetectorDescription/Core/interface/DDFilteredView.h"
+#include "DetectorDescription/Core/interface/DDFilteredView.h"
 #include "DetectorDescription/Core/interface/DDsvalues.h"
+#include "DetectorDescription/DDCMS/interface/DDCompactView.h"
+#include "DetectorDescription/DDCMS/interface/DDFilteredView.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "G4Step.hh"
@@ -22,6 +25,7 @@ public:
   virtual ~MaterialBudgetHcalHistos() { hend(); }
 
   void fillBeginJob(const DDCompactView &);
+  void fillBeginJob(const cms::DDCompactView &);
   void fillStartTrack(const G4Track *);
   void fillPerStep(const G4Step *);
   void fillEndTrack();
@@ -32,6 +36,7 @@ private:
   void fillLayer();
   void hend();
   std::vector<std::string> getNames(DDFilteredView &fv);
+  std::vector<std::string> getNames(cms::DDFilteredView &fv);
   std::vector<double> getDDDArray(const std::string &str, const DDsvalues_type &sv);
   bool isSensitive(std::string);
   bool isItHF(const G4VTouchable *);
