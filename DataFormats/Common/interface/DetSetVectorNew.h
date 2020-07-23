@@ -381,8 +381,7 @@ namespace edmNew {
       using second_argument_type = unsigned int;
       using result_type = const T*;
 
-      result_type operator()(first_argument_type iContainer, second_argument_type iIndex)
-      {
+      result_type operator()(first_argument_type iContainer, second_argument_type iIndex) {
         bool expected = false;
         while (!iContainer.m_filling.compare_exchange_weak(expected, true, std::memory_order_acq_rel)) {
           expected = false;
@@ -713,6 +712,5 @@ namespace edm {
     }
   };
 }  // namespace edm
-
 
 #endif
