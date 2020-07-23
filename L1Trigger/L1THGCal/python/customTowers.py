@@ -2,8 +2,8 @@ import FWCore.ParameterSet.Config as cms
 import math
 
 def custom_towers_unclustered_tc(process):
-    process.hgcalTowerProducer.InputTriggerCells = cms.InputTag('hgcalBackEndLayer2Producer:HGCalBackendLayer2Processor3DClustering')
-    process.hgcalTowerProducerHFNose.InputTriggerCells = cms.InputTag('hgcalBackEndLayer2ProducerHFNose:HGCalBackendLayer2Processor3DClustering')
+    process.hgcalTowerProducer.InputTriggerCells = cms.InputTag('hgcalBackEndLayer2Producer:HGCalBackendLayer2Processor3DClusteringUnclustered')
+    process.hgcalTowerProducerHFNose.InputTriggerCells = cms.InputTag('hgcalBackEndLayer2ProducerHFNose:HGCalBackendLayer2Processor3DClusteringUnclustered')
     return process
 
 
