@@ -105,14 +105,15 @@ A Python configuration parameter can be provided to enable retries with a specif
 The client must also provide a static method `fillPSetDescription()` to populate its parameters in the `fillDescriptions()` for the producers that use the client:
 ```cpp
 void MyClient::fillPSetDescription(edm::ParameterSetDescription& iDesc) {
-  edm::ParameterSetDescription descClient(basePSetDescription());
+  edm::ParameterSetDescription descClient;
+  fillBasePSetDescription(descClient);
   //add parameters
   iDesc.add<edm::ParameterSetDescription>("Client",descClient);
 }
 ```
 
-As indicated, the `descClient` object should always be initialized using the `basePSetDescription()` function,
+As indicated, the `fillBasePSetDescription()` function should always be applied to the `descClient` object,
 to ensure that it includes the necessary parameters.
-(Calling `basePSetDescription(false)` will omit the `allowedTries` parameter, disabling retries.)
+(Calling `fillBasePSetDescription(descClient, false)` will omit the `allowedTries` parameter, disabling retries.)
 
 Example client code can be found in the `interface` and `src` directories of the other Sonic packages in this repository.

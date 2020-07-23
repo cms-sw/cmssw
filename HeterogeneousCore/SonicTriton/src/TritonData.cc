@@ -1,5 +1,5 @@
 #include "HeterogeneousCore/SonicTriton/interface/TritonData.h"
-#include "HeterogeneousCore/SonicTriton/interface/TritonUtils.h"
+#include "HeterogeneousCore/SonicTriton/interface/triton_utils.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "model_config.pb.h"
 
@@ -17,7 +17,7 @@ namespace nvidia {
 
 template <typename IO>
 TritonData<IO>::TritonData(const std::string& name, std::shared_ptr<IO> data)
-    : name_(name), data_(data), batchSize_(0) {
+    : name_(name), data_(std::move(data)), batchSize_(0) {
   //convert google::protobuf::RepeatedField to vector
   const auto& dimsTmp = data_->Dims();
   dims_.assign(dimsTmp.begin(), dimsTmp.end());
@@ -39,16 +39,16 @@ TritonData<IO>::TritonData(const std::string& name, std::shared_ptr<IO> data)
 template <>
 template <typename DT>
 void TritonInputData::toServer(std::shared_ptr<std::vector<DT>> ptr) {
-  const auto& data_in = *(ptr.get());
+  const auto& data_in = *ptr;
 
   //shape must be specified for variable dims
   if (variableDims_) {
     if (shape_.size() != dims_.size()) {
       throw cms::Exception("TritonDataError")
-          << name_ << " input(): incorrect or missing shape (" << TritonUtils::printVec(shape_)
-          << ") for model with variable dimensions (" << TritonUtils::printVec(dims_) << ")";
+          << name_ << " input(): incorrect or missing shape (" << triton_utils::printVec(shape_)
+          << ") for model with variable dimensions (" << triton_utils::printVec(dims_) << ")";
     } else {
-      TritonUtils::wrap(data_->SetShape(shape_), name_ + " input(): unable to set input shape");
+      triton_utils::throwIfError(data_->SetShape(shape_), name_ + " input(): unable to set input shape");
     }
   }
 
@@ -59,12 +59,12 @@ void TritonInputData::toServer(std::shared_ptr<std::vector<DT>> ptr) {
   int64_t nInput = sizeShape();
   for (unsigned i0 = 0; i0 < batchSize_; ++i0) {
     const DT* arr = &(data_in[i0 * nInput]);
-    TritonUtils::wrap(data_->SetRaw(reinterpret_cast<const uint8_t*>(arr), nInput * byteSize_),
-                      name_ + " input(): unable to set data for batch entry " + std::to_string(i0));
+    triton_utils::throwIfError(data_->SetRaw(reinterpret_cast<const uint8_t*>(arr), nInput * byteSize_),
+                               name_ + " input(): unable to set data for batch entry " + std::to_string(i0));
   }
 
   //keep input data in scope
-  callback_ = [ptr]() { return; };
+  holder_ = std::move(ptr);
 }
 
 template <>
@@ -78,8 +78,8 @@ void TritonOutputData::fromServer(std::vector<DT>& dataOut) const {
   if (variableDims_) {
     if (shape_.size() != dims_.size()) {
       throw cms::Exception("TritonDataError")
-          << name_ << " output(): incorrect or missing shape (" << TritonUtils::printVec(shape_)
-          << ") for model with variable dimensions (" << TritonUtils::printVec(dims_) << ")";
+          << name_ << " output(): incorrect or missing shape (" << triton_utils::printVec(shape_)
+          << ") for model with variable dimensions (" << triton_utils::printVec(dims_) << ")";
     }
   }
 
@@ -93,8 +93,8 @@ void TritonOutputData::fromServer(std::vector<DT>& dataOut) const {
   for (unsigned i0 = 0; i0 < batchSize_; ++i0) {
     const uint8_t* r0;
     size_t contentByteSize;
-    TritonUtils::wrap(result_->GetRaw(i0, &r0, &contentByteSize),
-                      "output(): unable to get raw for entry " + std::to_string(i0));
+    triton_utils::throwIfError(result_->GetRaw(i0, &r0, &contentByteSize),
+                               "output(): unable to get raw for entry " + std::to_string(i0));
     std::memcpy(&(dataOut[i0 * nOutput]), r0, nOutput * byteSize_);
   }
 }
@@ -103,8 +103,7 @@ template <>
 void TritonInputData::reset() {
   shape_.clear();
   data_->Reset();
-  if (callback_)
-    callback_();
+  holder_.reset();
 }
 
 template <>

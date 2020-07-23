@@ -30,11 +30,11 @@ public:
   //main operation
   virtual void dispatch(edm::WaitingTaskWithArenaHolder holder) { dispatcher_->dispatch(std::move(holder)); }
 
-  //helper
-  virtual void reset() = 0;
+  //helper: does nothing by default
+  virtual void reset() {}
 
   //provide base params
-  static edm::ParameterSetDescription basePSetDescription(bool allowRetry = true);
+  static void fillBasePSetDescription(edm::ParameterSetDescription& desc, bool allowRetry = true);
 
 protected:
   virtual void evaluate() = 0;

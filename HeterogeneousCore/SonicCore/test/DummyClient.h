@@ -20,7 +20,8 @@ public:
 
   //for fillDescriptions
   static void fillPSetDescription(edm::ParameterSetDescription& iDesc) {
-    edm::ParameterSetDescription descClient(basePSetDescription());
+    edm::ParameterSetDescription descClient;
+    fillBasePSetDescription(descClient);
     descClient.add<int>("factor", -1);
     descClient.add<int>("wait", 10);
     descClient.add<unsigned>("fails", 0);

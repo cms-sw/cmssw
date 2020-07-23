@@ -28,8 +28,6 @@ public:
   //(no need to interact with callback holder)
   void acquire(edm::Event const& iEvent, edm::EventSetup const& iSetup, edm::WaitingTaskWithArenaHolder holder) final {
     auto t0 = std::chrono::high_resolution_clock::now();
-    //reset client data
-    client_.reset();
     acquire(iEvent, iSetup, client_.input());
     auto t1 = std::chrono::high_resolution_clock::now();
     if (!client_.debugName().empty())
@@ -53,6 +51,8 @@ public:
     if (!client_.debugName().empty())
       edm::LogInfo(client_.debugName()) << "produce() time: "
                                         << std::chrono::duration_cast<std::chrono::microseconds>(t1 - t0).count();
+    //reset client data
+    client_.reset();
   }
   virtual void produce(edm::Event& iEvent, edm::EventSetup const& iSetup, Output const& iOutput) = 0;
 

@@ -11,7 +11,7 @@ SonicClientBase::SonicClientBase(const edm::ParameterSet& params)
   else if (modeName == "PseudoAsync")
     mode_ = SonicMode::PseudoAsync;
   else
-    throw cms::Exception("UnknownMode") << "Unknown mode for SonicClient: " << modeName;
+    throw cms::Exception("Configuration") << "Unknown mode for SonicClient: " << modeName;
 
   //get correct dispatcher for mode
   if (mode_ == SonicMode::Sync or mode_ == SonicMode::Async)
@@ -59,10 +59,8 @@ void SonicClientBase::finish(bool success, std::exception_ptr eptr) {
   holder_.doneWaiting(eptr);
 }
 
-edm::ParameterSetDescription SonicClientBase::basePSetDescription(bool allowRetry) {
-  edm::ParameterSetDescription descClient;
-  descClient.add<std::string>("mode");
+void SonicClientBase::fillBasePSetDescription(edm::ParameterSetDescription& desc, bool allowRetry) {
+  desc.add<std::string>("mode");
   if (allowRetry)
-    descClient.addUntracked<unsigned>("allowedTries", 0);
-  return descClient;
+    desc.addUntracked<unsigned>("allowedTries", 0);
 }

@@ -7,9 +7,9 @@
 #include <string>
 #include <unordered_map>
 #include <numeric>
-#include <functional>
 #include <algorithm>
 #include <memory>
+#include <any>
 
 #include "request_grpc.h"
 
@@ -35,7 +35,6 @@ public:
   void fromServer(std::vector<DT>& data_out) const;
 
   //const accessors
-  const std::shared_ptr<IO>& data() const { return data_; }
   const std::vector<int64_t>& dims() const { return dims_; }
   const std::vector<int64_t>& shape() const { return shape_.empty() ? dims() : shape_; }
   int64_t byteSize() const { return byteSize_; }
@@ -68,7 +67,7 @@ private:
   int64_t byteSize_;
   std::vector<int64_t> shape_;
   unsigned batchSize_;
-  std::function<void(void)> callback_;
+  std::any holder_;
   std::unique_ptr<Result> result_;
 };
 
