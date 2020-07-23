@@ -7,13 +7,12 @@ import json
 import struct
 from collections import defaultdict
 
-from async_lru import alru_cache
+from .async_lru_timed import alru_cache_timed
 
 from .storage import GUIDataStore
 from .helpers import get_api_error, binary_search, binary_search_qtests, logged
 from .rendering import GUIRenderer
 from .importing.importing import GUIImportManager
-from .cache_invalidation import CacheInvalidationService
 from .data_types import Sample, RootDir, RootObj, RootDirContent, RenderingInfo, FileFormat, SampleFull
 
 from .layouts.layout_manager import LayoutManager
@@ -25,12 +24,11 @@ class GUIService:
     renderer = GUIRenderer()
     import_manager = GUIImportManager()
     layouts_manager = LayoutManager()
-    cache_invalidation_service = CacheInvalidationService()
 
     @classmethod
-    @alru_cache(maxsize=10, cache_exceptions=False)
+    @alru_cache_timed(maxsize=10, cache_exceptions=False)
     @logged
-    async def get_samples(cls, run, dataset, lumi=0):
+    async def get_samples(cls, run, dataset, lumi=0, notOlderThan=None):
         if run == '':
             run = None
         if dataset == '':
@@ -43,9 +41,9 @@ class GUIService:
 
 
     @classmethod
-    @alru_cache(maxsize=10, cache_exceptions=False)
+    @alru_cache_timed(maxsize=10, cache_exceptions=False)
     @logged
-    async def get_archive(cls, run, dataset, path, search, lumi=0):
+    async def get_archive(cls, run, dataset, path, search, lumi=0, notOlderThan=None):
         """
         Returns a directory listing for run/lumi/dataset/path combination.
         Search is performed on ME name if it is provided.
@@ -58,8 +56,8 @@ class GUIService:
             path = path + '/'
         
         # Get a list of all MEs and their infos
-        me_names = await cls.__get_me_names_list(dataset, run, lumi)
-        me_infos = await cls.__get_me_infos_list(dataset, run, lumi)
+        me_names = await cls.__get_me_names_list(dataset, run, lumi, notOlderThan)
+        me_infos = await cls.__get_me_infos_list(dataset, run, lumi, notOlderThan)
         if not me_names or not me_infos:
             return None
 
@@ -216,17 +214,13 @@ class GUIService:
 
         await cls.import_manager.register_samples(samples)
 
-        # Iterate new samples and invalidate caches
-        for sample in samples:
-            cls.cache_invalidation_service.invalidate_on_new_sample(cls, sample)
-
         return True
 
 
     @classmethod
-    @alru_cache(maxsize=10, cache_exceptions=False)
+    @alru_cache_timed(maxsize=10, cache_exceptions=False)
     @logged
-    async def __get_me_names_list(cls, dataset, run, lumi=0):
+    async def __get_me_names_list(cls, dataset, run, lumi=0, notOlderThan=None):
         lines = await cls.store.get_me_names_list(dataset, run, lumi)
 
         if lines == None:
@@ -240,9 +234,9 @@ class GUIService:
 
 
     @classmethod
-    @alru_cache(maxsize=10, cache_exceptions=False)
+    @alru_cache_timed(maxsize=10, cache_exceptions=False)
     @logged
-    async def __get_me_infos_list(cls, dataset, run, lumi=0):
+    async def __get_me_infos_list(cls, dataset, run, lumi=0, notOlderThan=None):
         infos = await cls.store.get_me_infos_list(dataset, run, lumi)
 
         if infos == None:
@@ -256,9 +250,9 @@ class GUIService:
 
 
     @classmethod
-    @alru_cache(maxsize=10, cache_exceptions=False)
+    @alru_cache_timed(maxsize=10, cache_exceptions=False)
     @logged
-    async def __get_filename_fileformat_names_infos(cls, dataset, run, lumi=0):
+    async def __get_filename_fileformat_names_infos(cls, dataset, run, lumi=0, notOlderThan=None):
         filename_fileformat_names_infos = await cls.store.get_filename_fileformat_names_infos(dataset, run, lumi)
 
         if filename_fileformat_names_infos == None:

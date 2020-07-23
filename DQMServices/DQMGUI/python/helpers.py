@@ -185,3 +185,21 @@ def parse_run_lumi(runlumi):
             return int(parts[0]), int(parts[1])
     else:
         return int(runlumi), 0
+
+
+def getNotOlderThanFromUrl(function):
+    """
+    Gets the value of notOlderThan from the request object and passes it down to the function.
+    Supposed to be used on aiohttp endpoint methods that accept only one (request) parameter.
+    If notOlderThan is missformatted, returns an error.
+    """
+
+    def wrap_function(*args, **kwargs):
+        notOlderThan = args[0].rel_url.query.get('notOlderThan', None)
+        if notOlderThan and not notOlderThan.isnumeric():
+            return web.json_response(get_api_error('notOlderThan is a numeric timestamp in seconds, in UTC time zone.'))
+
+        notOlderThan = int(notOlderThan) if notOlderThan else None
+
+        return function(*args, **kwargs, notOlderThan=notOlderThan)
+    return wrap_function

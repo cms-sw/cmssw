@@ -5,7 +5,7 @@ _|    _|  _|  _|_|    _|  _|  _|      _|  _|_|  _|    _|    _|
 _|    _|  _|    _|    _|      _|      _|    _|  _|    _|    _|    
 _|_|_|      _|_|  _|  _|      _|        _|_|_|    _|_|    _|_|_|  
 
-This is an entry point to the DQM GUI application. It can be started like this: python3 app.py
+This is an entry point to the DQM GUI application. It can be started like this: dqmguibackend.sh
 
 This file configures and initializes aiohttp web server and all DQM GUI services. 
 Responsibilities of the endpoint methods here are to parse input parameters, call 
@@ -52,7 +52,7 @@ from logging.handlers import TimedRotatingFileHandler
 
 from .service import GUIService
 from .storage import GUIDataStore
-from .helpers import get_absolute_path, parse_run_lumi
+from .helpers import get_absolute_path, parse_run_lumi, getNotOlderThanFromUrl
 from .rendering import GUIRenderer
 from .data_types import RenderingOptions, MEDescription
 from .importing.importing import GUIImportManager
@@ -71,13 +71,14 @@ async def index(request):
     return web.FileResponse(get_absolute_path('../data/index.html'))
 
 
-async def samples_legacy(request):
+@getNotOlderThanFromUrl
+async def samples_legacy(request, notOlderThan):
     """Returns a list of matching run/dataset pairs based on provided regex search."""
 
     run, lumi = parse_run_lumi(request.rel_url.query.get('run'))
     dataset = request.rel_url.query.get('match')
 
-    samples = await service.get_samples(run, dataset, lumi)
+    samples = await service.get_samples(run, dataset, lumi, notOlderThan=notOlderThan)
 
     result = {
         'samples': [{
@@ -91,14 +92,15 @@ async def samples_legacy(request):
     return web.json_response(result)
 
 
-async def samples_v1(request):
+@getNotOlderThanFromUrl
+async def samples_v1(request, notOlderThan):
     """Returns a list of matching run/dataset pairs based on provided regex search."""
 
     run = request.rel_url.query.get('run')
     lumi = request.rel_url.query.get('lumi', 0)
     dataset = request.rel_url.query.get('dataset')
 
-    samples = await service.get_samples(run, dataset, lumi)
+    samples = await service.get_samples(run, dataset, lumi, notOlderThan=notOlderThan)
 
     result = {
         'data': [{
@@ -110,7 +112,8 @@ async def samples_v1(request):
     return web.json_response(result)
 
 
-async def archive_legacy(request):
+@getNotOlderThanFromUrl
+async def archive_legacy(request, notOlderThan):
     """Returns a directory listing for provided run:lumi/dataset/path combination."""
 
     run, lumi = parse_run_lumi(request.match_info['run'])
@@ -122,7 +125,7 @@ async def archive_legacy(request):
     dataset = '/' + '/'.join(parts[0:3])
     path = '/'.join(parts[3:])
 
-    data = await service.get_archive(run, dataset, path, search, lumi)
+    data = await service.get_archive(run, dataset, path, search, lumi, notOlderThan=notOlderThan)
     if not data:
         return web.HTTPNotFound()
 
@@ -138,7 +141,8 @@ async def archive_legacy(request):
     return web.json_response(result)
 
 
-async def archive_v1(request):
+@getNotOlderThanFromUrl
+async def archive_v1(request, notOlderThan):
     """Returns a directory listing for provided run:lumi/dataset/path combination."""
 
     run, lumi = parse_run_lumi(request.match_info['run'])
@@ -150,7 +154,7 @@ async def archive_v1(request):
     dataset = '/' + '/'.join(parts[0:3])
     path = '/'.join(parts[3:])
 
-    data = await service.get_archive(run, dataset, path, search, lumi)
+    data = await service.get_archive(run, dataset, path, search, lumi, notOlderThan=notOlderThan)
     if not data:
         return web.HTTPNotFound()
 

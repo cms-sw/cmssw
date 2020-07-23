@@ -176,6 +176,8 @@ Returns run/dataset pairs available in the GUI. All arguments are optional. If l
 }
 ```
 
+Supports `notOlderThan` parameter to bypass the cache.
+
 #### ROOT file directory listing endpoint
 
 Run, full dataset and a path has to be provided in the URL.
@@ -209,6 +211,8 @@ If `layout` is `null`, ME is not coming from a layout. Otherwise, `layout` conta
   ]
 }
 ```
+
+Supports `notOlderThan` parameter to bypass the cache.
 
 #### Layouts endpoint
 
@@ -253,7 +257,7 @@ HTTP request body:
 
 ### API endpoints for dealing with per lumisection data:
 
-### Archive endpoint
+#### Archive endpoint
 
 Because not all plots are being saved per lumisection (depends on CMSSW configuration) and new per run plots are created in harvesting step, per run and per lumi directory listings of the same dataset will not match. For this reason, archive endpoint supports querying a directory listing of a specific lumisection:
 
@@ -261,29 +265,38 @@ Because not all plots are being saved per lumisection (depends on CMSSW configur
 
 Lumi 0 indicates per run plots. If lumi is omitted and only run is provided, it's assumed that it's value is 0.
 
-### Samples endpoint
+Supports `notOlderThan` parameter to bypass the cache.
+
+#### Samples endpoint
 
 `/api/v1/samples?run=317297&dataset=ZeroBias&lumi=555`
 
-### Render endpoint
+Supports `notOlderThan` parameter to bypass the cache.
+
+#### Render endpoint
 
 `/api/v1/render/run:lumi/dataset/me_path`
 
-### Render overlay endpoint
+#### Render overlay endpoint
 
 `/api/v1/render_overlay?obj=archive/run:lumi/dataset/me_path`
 
-### JSRoot render endpoint
+#### JSRoot render endpoint
 
 `/api/v1/json/run:lumi/dataset/me_path`
 
-### JSRoot overlay render endpoint
+#### JSRoot overlay render endpoint
 
 `/api/v1/json_overlay?obj=archive/run:lumi/dataset/me_path`
 
-## List of lumisection available in dataset/run combination
+#### List of lumisection available in dataset/run combination
 
 `/api/v1/lumis/run/dataset`
+
+### Cache bypass and invalidation
+
+Archive and samples API endpoints support `notOlderThan` to bypass the cache. `notOlderThan` is UTC timestamp in seconds and can be provided a URL argument.
+Cached value will be returned only if it was cached after `notOlderThan`. Otherwise, cached value will be invalidated and new value will be fetched.
 
 
 ## Getting DQMIO files
