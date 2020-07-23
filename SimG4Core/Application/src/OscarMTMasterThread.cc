@@ -32,7 +32,7 @@ OscarMTMasterThread::OscarMTMasterThread(const edm::ParameterSet& iConfig)
   // Lock the mutex
   std::unique_lock<std::mutex> lk(m_threadMutex);
 
-  edm::LogInfo("SimG4CoreApplication") << "OscarMTMasterThread: creating master thread";
+  edm::LogVerbatim("SimG4CoreApplication") << "OscarMTMasterThread: creating master thread";
 
   // Create Genat4 master thread
   m_masterThread = std::thread([&]() {
@@ -54,7 +54,8 @@ OscarMTMasterThread::OscarMTMasterThread(const edm::ParameterSet& iConfig)
     runManagerMaster = std::make_shared<RunManagerMT>(iConfig);
     m_runManagerMaster = runManagerMaster;
 
-    LogDebug("SimG4CoreApplication") << "OscarMTMasterThread: initialization of RunManagerMT finished";
+    edm::LogVerbatim("SimG4CoreApplication") 
+        << "OscarMTMasterThread: initialization of RunManagerMT finished";
 
     /////////////
     // State loop
@@ -71,20 +72,20 @@ OscarMTMasterThread::OscarMTMasterThread(const edm::ParameterSet& iConfig)
       m_notifyMasterCv.wait(lk2, [&] { return m_masterCanProceed; });
 
       // Act according to the state
-      edm::LogInfo("OscarMTMasterThread")
+      edm::LogVerbatim("OscarMTMasterThread")
           << "Master thread: Woke up, state is " << static_cast<int>(m_masterThreadState);
       if (m_masterThreadState == ThreadState::BeginRun) {
         // Initialize Geant4
-        edm::LogInfo("OscarMTMasterThread") << "Master thread: Initializing Geant4";
+        edm::LogVerbatim("OscarMTMasterThread") << "Master thread: Initializing Geant4";
         runManagerMaster->initG4(m_pDD, m_pDD4hep, m_pTable);
         isG4Alive = true;
       } else if (m_masterThreadState == ThreadState::EndRun) {
         // Stop Geant4
-        LogDebug("OscarMTMasterThread") << "Master thread: Stopping Geant4";
+	edm::LogVerbatim("OscarMTMasterThread") << "Master thread: Stopping Geant4";
         runManagerMaster->stopG4();
         isG4Alive = false;
       } else if (m_masterThreadState == ThreadState::Destruct) {
-        LogDebug("OscarMTMasterThread") << "Master thread: Breaking out of state loop";
+	edm::LogVerbatim("OscarMTMasterThread") << "Master thread: Breaking out of state loop";
         if (isG4Alive)
           throw edm::Exception(edm::errors::LogicError)
               << "Geant4 is still alive, master thread state must be set to EndRun before Destruct";
@@ -105,7 +106,7 @@ OscarMTMasterThread::OscarMTMasterThread(const edm::ParameterSet& iConfig)
     runManagerMaster.reset();
     G4PhysicalVolumeStore::Clean();
 
-    LogDebug("OscarMTMasterThread") << "Master thread: Reseted shared_ptr";
+    edm::LogVerbatim("OscarMTMasterThread") << "Master thread: Reseted shared_ptr";
     lk2.unlock();
     edm::LogVerbatim("SimG4CoreApplication") << "OscarMTMasterThread: Master thread is finished";
   });
