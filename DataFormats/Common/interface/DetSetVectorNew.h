@@ -10,11 +10,6 @@
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/Utilities/interface/thread_safety_macros.h"
 
-#if !defined(__ROOTCLING__)
-#define DSVN_USE_ATOMIC
-// #warning using atomic
-#endif
-
 #include <atomic>
 #include <memory>
 #include <vector>
@@ -71,11 +66,7 @@ namespace edmNew {
         // better no one is filling...
         assert(rh.m_filling == false);
         m_getter = rh.m_getter;
-#ifdef DSVN_USE_ATOMIC
         m_dataSize.store(rh.m_dataSize.load());
-#else
-        m_dataSize = rh.m_dataSize;
-#endif
       }
 
       DetSetVectorTrans(DetSetVectorTrans&& rh)
@@ -84,31 +75,19 @@ namespace edmNew {
         // better no one is filling...
         assert(rh.m_filling == false);
         m_getter = std::move(rh.m_getter);
-#ifdef DSVN_USE_ATOMIC
         m_dataSize.store(rh.m_dataSize.exchange(m_dataSize.load()));
-#else
-        m_dataSize = std::move(rh.m_dataSize);
-#endif
       }
       DetSetVectorTrans& operator=(DetSetVectorTrans&& rh) {  // can't be default because of atomics
         // better no one is filling...
         assert(m_filling == false);
         assert(rh.m_filling == false);
         m_getter = std::move(rh.m_getter);
-#ifdef DSVN_USE_ATOMIC
         m_dataSize.store(rh.m_dataSize.exchange(m_dataSize.load()));
-#else
-        m_dataSize = std::move(rh.m_dataSize);
-#endif
         return *this;
       }
       mutable std::atomic<bool> m_filling;
       boost::any m_getter;
-#ifdef DSVN_USE_ATOMIC
       mutable std::atomic<size_type> m_dataSize;
-#else
-      mutable size_type m_dataSize;
-#endif
 
       void swap(DetSetVectorTrans& rh) {
         // better no one is filling...
@@ -116,11 +95,7 @@ namespace edmNew {
         assert(rh.m_filling == false);
         //	std::swap(m_filling,rh.m_filling);
         std::swap(m_getter, rh.m_getter);
-#ifdef DSVN_USE_ATOMIC
         m_dataSize.store(rh.m_dataSize.exchange(m_dataSize.load()));
-#else
-        std::swap(m_dataSize, rh.m_dataSize);
-#endif
       }
 
       struct Item {
@@ -142,15 +117,11 @@ namespace edmNew {
         }
 
         id_type id;
-#ifdef DSVN_USE_ATOMIC
         mutable std::atomic<int> offset;
         bool initialize() const {
           int expected = -1;
           return offset.compare_exchange_strong(expected, -2);
         }
-#else
-        mutable int offset;
-#endif
         CMS_THREAD_GUARD(offset) mutable size_type size;
 
         bool uninitialized() const { return (-1) == offset; }
@@ -160,16 +131,12 @@ namespace edmNew {
         operator id_type() const { return id; }
       };
 
-#ifdef DSVN_USE_ATOMIC
       bool ready() const {
         bool expected = false;
         if (!m_filling.compare_exchange_strong(expected, true))
           errorFilling();
         return true;
       }
-#else
-      bool ready() const { return true; }
-#endif
     };
 
     inline void throwCapacityExausted() { throw CapacityExaustedException(); }
@@ -338,7 +305,6 @@ namespace edmNew {
       typedef typename DetSetVector<T>::id_type id_type;
       typedef typename DetSetVector<T>::size_type size_type;
 
-#ifdef DSVN_USE_ATOMIC
       // here just to make the compiler happy
       static DetSetVector<T>::Item const& dummy() {
         assert(false);
@@ -371,8 +337,6 @@ namespace edmNew {
         assert(m_v.m_filling == true);
         m_v.m_filling = false;
       }
-
-#endif
 
       bool full() const {
         int offset = m_v.m_dataSize;
@@ -418,7 +382,6 @@ namespace edmNew {
       using result_type = const T*;
 
       result_type operator()(first_argument_type iContainer, second_argument_type iIndex)
-#ifdef DSVN_USE_ATOMIC
       {
         bool expected = false;
         while (!iContainer.m_filling.compare_exchange_weak(expected, true, std::memory_order_acq_rel)) {
@@ -430,9 +393,6 @@ namespace edmNew {
         iContainer.m_filling = false;
         return item;
       }
-#else
-          ;
-#endif
     };
     friend class FindForDetSetVector;
 
@@ -658,7 +618,6 @@ namespace edmNew {
     }
   }
 
-#ifdef DSVN_USE_ATOMIC
   template <typename T>
   inline void DetSetVector<T>::update(const Item& item) const {
     // no m_getter or already updated
@@ -675,9 +634,7 @@ namespace edmNew {
       assert(item.isValid());
     }
   }
-#endif
 
-#ifdef DSVN_USE_ATOMIC
   template <typename T>
   inline void DetSet<T>::set(DetSetVector<T> const& icont, typename Container::Item const& item, bool update) {
     // if an item is being updated we wait
@@ -690,7 +647,6 @@ namespace edmNew {
     m_offset = item.offset;
     m_size = item.size;
   }
-#endif
 }  // namespace edmNew
 
 #include "DataFormats/Common/interface/Ref.h"
@@ -758,8 +714,5 @@ namespace edm {
   };
 }  // namespace edm
 
-#ifdef DSVN_USE_ATOMIC
-#undef DSVN_USE_ATOMIC
-#endif
 
 #endif
