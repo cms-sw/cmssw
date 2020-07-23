@@ -2,6 +2,7 @@
 #define Detector_Description_DDCMS_DDShapes_h
 
 #include "DetectorDescription/DDCMS/interface/DDFilteredView.h"
+#include "DataFormats/Math/interface/angle_units.h"
 
 namespace cms {
 
@@ -214,6 +215,104 @@ namespace cms {
       double cutAtStart_;
       double cutAtDelta_;
       bool cutInside_;
+    };
+
+    template <class ShapeType>
+    double startPhiImpl(const ShapeType *shape) {
+      return (angle_units::operators::convertDegToRad(shape->access()->GetPhi1()));
+    }
+
+    template <class ShapeType>
+    double deltaPhiImpl(const ShapeType *shape) {
+      return (angle_units::operators::convertDegToRad(shape->access()->GetDphi()));
+    }
+
+    template <class ShapeType>
+    std::vector<double> vecImpl(const ShapeType *shape, const double *begin) {
+      const auto length = shape->access()->GetNz();
+      return {begin, (begin + length)};
+    }
+
+    template <class ShapeType>
+    std::vector<double> zVecImpl(const ShapeType *shape) {
+      const auto begin = shape->access()->GetZ();
+      return (vecImpl(shape, begin));
+    }
+
+    template <class ShapeType>
+    std::vector<double> rMinVecImpl(const ShapeType *shape) {
+      const auto begin = shape->access()->GetRmin();
+      return (vecImpl(shape, begin));
+    }
+
+    template <class ShapeType>
+    std::vector<double> rMaxVecImpl(const ShapeType *shape) {
+      const auto begin = shape->access()->GetRmax();
+      return (vecImpl(shape, begin));
+    }
+
+    class DDPolyhedra : public dd4hep::Solid_type<TGeoPgon> {
+    public:
+      DDPolyhedra(const dd4hep::Solid &solid) : dd4hep::Solid_type<TGeoPgon>(solid) {}
+
+      DDPolyhedra(void) = delete;
+
+      template <typename Q>
+      DDPolyhedra(const Q *ptr) : dd4hep::Solid_type<dd4hep::Handle<TGeoHalfSpace>::Object>(ptr) {}
+      template <typename Q>
+      DDPolyhedra(const dd4hep::Handle<Q> &handle)
+          : dd4hep::Solid_type<dd4hep::Handle<TGeoHalfSpace>::Object>(handle) {}
+
+      int sides(void) const { return (access()->GetNedges()); }
+
+      double startPhi(void) const { return (startPhiImpl(this)); }
+      double deltaPhi(void) const { return (deltaPhiImpl(this)); }
+
+      std::vector<double> zVec(void) const { return (zVecImpl(this)); }
+      std::vector<double> rMinVec(void) const { return (rMinVecImpl(this)); }
+      std::vector<double> rMaxVec(void) const { return (rMaxVecImpl(this)); }
+
+      std::vector<double> rVec(void) const { return (rMaxVec()); }
+      // Use of rVec() assumes that the rMin vector is all 0.
+    };
+
+    class DDPolycone : public dd4hep::Solid_type<TGeoPcon> {
+    public:
+      DDPolycone(const dd4hep::Solid &solid) : dd4hep::Solid_type<TGeoPcon>(solid) {}
+
+      DDPolycone(void) = delete;
+
+      template <typename Q>
+      DDPolycone(const Q *ptr) : dd4hep::Solid_type<dd4hep::Handle<TGeoHalfSpace>::Object>(ptr) {}
+      template <typename Q>
+      DDPolycone(const dd4hep::Handle<Q> &handle) : dd4hep::Solid_type<dd4hep::Handle<TGeoHalfSpace>::Object>(handle) {}
+
+      double startPhi(void) const { return (startPhiImpl(this)); }
+      double deltaPhi(void) const { return (deltaPhiImpl(this)); }
+
+      std::vector<double> zVec(void) const { return (zVecImpl(this)); }
+      std::vector<double> rMinVec(void) const { return (rMinVecImpl(this)); }
+      std::vector<double> rMaxVec(void) const { return (rMaxVecImpl(this)); }
+    };
+
+    class DDExtrudedPolygon : public dd4hep::Solid_type<TGeoXtru> {
+    public:
+      DDExtrudedPolygon(const dd4hep::Solid &solid) : dd4hep::Solid_type<TGeoXtru>(solid) {}
+
+      DDExtrudedPolygon(void) = delete;
+
+      template <typename Q>
+      DDExtrudedPolygon(const Q *ptr) : dd4hep::Solid_type<dd4hep::Handle<TGeoHalfSpace>::Object>(ptr) {}
+      template <typename Q>
+      DDExtrudedPolygon(const dd4hep::Handle<Q> &handle)
+          : dd4hep::Solid_type<dd4hep::Handle<TGeoHalfSpace>::Object>(handle) {}
+
+      std::vector<double> xVec(void) const;
+      std::vector<double> yVec(void) const;
+      std::vector<double> zVec(void) const { return (zVecImpl(this)); }
+      std::vector<double> zxVec(void) const;
+      std::vector<double> zyVec(void) const;
+      std::vector<double> zscaleVec(void) const;
     };
   }  // namespace dd
 }  // namespace cms

@@ -26,6 +26,10 @@
   <use name="DetectorDescription/DDCMS"/>
 </bin>
 
+<bin name="testDD4hepDDShapes" file="DDShapes.cppunit.cc,testRunner.cpp">
+  <use name="DetectorDescription/DDCMS"/>
+</bin>
+
 <bin name="testDD4hepDDSolid" file="DDSolid.cppunit.cc,testRunner.cpp">
   <use name="DetectorDescription/DDCMS"/>
 </bin>

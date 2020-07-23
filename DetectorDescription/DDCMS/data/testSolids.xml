@@ -3,22 +3,22 @@
 
   <SolidSection label="testSolids.xml">
     <!-- Trapezoid name="trap1" alp1="10*deg" alp2="10*deg" bl1="50*cm" bl2="75*cm" dz="1*m" h1="20*cm" h2="40*cm" phi="30*deg" theta="30*deg" tl1="50*cm" tl2="75*cm"/ -->
-    <Trapezoid name="trap1" alp1="10*deg" alp2="10*deg" bl1="30*cm" bl2="10*cm" dz="60*cm" h1="40*cm" h2="16*cm" phi="5*deg" theta="20*deg" tl1="40*cm" tl2="14*cm"/>
+    <Trapezoid name="trap1" alp1="10*deg" alp2="10*deg" bl1="30*cm" bl2="10*cm" dz="60*cm" h1="40*cm" h2="16*cm" phi="5*deg" theta="20*deg" tl1="41*cm" tl2="14*cm"/>
     <Trapezoid name="trap2" alp1="10*deg" alp2="10*deg" bl1="50*cm" bl2="75*cm" dz="1*m" h1="20*cm" h2="40*cm" tl1="50*cm" tl2="75*cm"/>
     <PseudoTrap name="ptrap1" dx1="10*cm" dx2="3*cm" dy1="30*cm" dy2="10*cm" dz="30*cm" radius="10*cm" atMinusZ="false"/>
     <PseudoTrap name="ptrap2" dx1="10*cm" dx2="3*cm" dy1="30*cm" dy2="10*cm" dz="30*cm" radius="10*cm" atMinusZ="true"/>
     <PseudoTrap name="YE1_b" dx1="0.293734*m" dx2="1.86356*m" dy1="0.3000*m" dy2="0.3000*m" dz="2.92934*m" radius="-1.1350*m" atMinusZ="true"/>
-    <Box name="box1" dx="10*cm" dy="10*cm" dz="10*cm"/>
-    <Cone name="cone1" dz="1*m" rMin1="50*cm" rMax1="100*cm" rMin2="75*cm" rMax2="125*cm" startPhi="0*deg" deltaPhi="360*deg"/>
+    <Box name="box1" dx="9*cm" dy="10*cm" dz="11*cm"/>
+    <Cone name="cone1" dz="1*m" rMin1="50*cm" rMax1="101*cm" rMin2="75*cm" rMax2="125*cm" startPhi="1*deg" deltaPhi="360*deg"/>
     <Cone name="cone2" dz="1*m" rMin1="50*cm" rMax1="100*cm" rMin2="50*cm" rMax2="100*cm" startPhi="0*deg" deltaPhi="360*deg"/>
     <Cone name="cone2hole" dz="20*cm" rMin1="50*cm" rMax1="100*cm" rMin2="50*cm" rMax2="100*cm" startPhi="0*deg" deltaPhi="20*deg"/>
     <!-- While using this as a test solid I found that there is a 
 problem with it.  Can a Polycone come to a point "in the real world?" -->
-    <Polycone name="pczsect" startPhi="0*deg" deltaPhi="360*deg">
+    <Polycone name="pczsect" startPhi="2*deg" deltaPhi="360*deg">
       <!-- see above comment ZSection z="1*m" rMin="50*cm" rMax="50*cm"/ -->
-      <ZSection z="1*m" rMin="50*cm" rMax="55*cm"/>
+      <ZSection z="1*m" rMin="49*cm" rMax="55*cm"/>
       <ZSection z="1.5*m" rMin="50*cm" rMax="60*cm"/>
-      <ZSection z="2*m" rMin="50*cm" rMax="75*cm"/>
+      <ZSection z="2*m" rMin="51*cm" rMax="75*cm"/>
     </Polycone>
     <Polycone name="pcrz" startPhi="0*deg" deltaPhi="360*deg">
       <RZPoint r="50*cm" z="1*m"/>
@@ -26,10 +26,10 @@ problem with it.  Can a Polycone come to a point "in the real world?" -->
       <RZPoint r="75*cm" z="2*m"/>
       <RZPoint r="50*cm" z="2.5*m"/>
     </Polycone>
-    <Polyhedra name="phzsect" numSide="18" startPhi="0*deg" deltaPhi="360*deg">
+    <Polyhedra name="phzsect" numSide="18" startPhi="2*deg" deltaPhi="360*deg">
       <ZSection z="1*m" rMin="50*cm" rMax="50*cm"/>
-      <ZSection z="1.5*m" rMin="50*cm" rMax="60*cm"/>
-      <ZSection z="2*m" rMin="50*cm" rMax="75*cm"/>
+      <ZSection z="1.5*m" rMin="49*cm" rMax="60*cm"/>
+      <ZSection z="2*m" rMin="51*cm" rMax="75*cm"/>
     </Polyhedra>
     <Polyhedra name="phrz" numSide="18" startPhi="0*deg" deltaPhi="360*deg">
       <RZPoint r="50*cm" z="1*m"/>
@@ -38,18 +38,18 @@ problem with it.  Can a Polycone come to a point "in the real world?" -->
       <RZPoint r="50*cm" z="2.5*m"/>
     </Polyhedra>
     <ExtrudedPolygon name="extrudedpgon">
-      <XYPoint x="-30*cm" y="-30*cm"/>
-      <XYPoint x="-30*cm" y=" 30*cm"/>
-      <XYPoint x=" 30*cm" y=" 30*cm"/>
-      <XYPoint x=" 30*cm" y="-30*cm"/>
-      <XYPoint x=" 15*cm" y="-30*cm"/>
-      <XYPoint x=" 15*cm" y=" 15*cm"/>
-      <XYPoint x="-15*cm" y=" 15*cm"/>
-      <XYPoint x="-15*cm" y="-30*cm"/>
+      <XYPoint x="-30*cm" y="-31*cm"/>
+      <XYPoint x="-29*cm" y=" 30*cm"/>
+      <XYPoint x=" 30.5*cm" y=" 29.5*cm"/>
+      <XYPoint x=" 30.2*cm" y="-30.1*cm"/>
+      <XYPoint x=" 15*cm" y="-30.2*cm"/>
+      <XYPoint x=" 14.9*cm" y=" 15.1*cm"/>
+      <XYPoint x="-15*cm" y=" 14.8*cm"/>
+      <XYPoint x="-15.1*cm" y="-29.8*cm"/>
       <ZXYSection z="-60*cm" x="0*cm" y="30*cm" scale="0.8"/>
-      <ZXYSection z="-15*cm" x="0*cm" y="-30*cm" scale="1."/>
-      <ZXYSection z="10*cm" x="0*cm" y="0*cm" scale="0.6"/>
-      <ZXYSection z="60*cm" x="0*cm" y="30*cm" scale="1.2"/>
+      <ZXYSection z="-14.9*cm" x="0.1*cm" y="-30*cm" scale="1."/>
+      <ZXYSection z="10*cm" x="0.2*cm" y="0.4*cm" scale="0.6"/>
+      <ZXYSection z="60*cm" x="0.3*cm" y="29.9*cm" scale="1.2"/>
     </ExtrudedPolygon>
     <Trd1 name="trd1" dx1="1*m" dx2="1.3*m" dz="3*m" dy1="30*cm"/>
     <!-- Trd2 is don defined in CMS DD -->

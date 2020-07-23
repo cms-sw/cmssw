@@ -180,6 +180,21 @@ namespace cms {
     }
 
     template <typename... Ts>
+    auto isAPolycone(Ts&&... ts) const -> decltype(isA<dd4hep::Polycone>(std::forward<Ts>(ts)...)) {
+      return isA<dd4hep::Polycone>(std::forward<Ts>(ts)...);
+    }
+
+    template <typename... Ts>
+    auto isAPolyhedra(Ts&&... ts) const -> decltype(isA<dd4hep::Polyhedra>(std::forward<Ts>(ts)...)) {
+      return isA<dd4hep::Polyhedra>(std::forward<Ts>(ts)...);
+    }
+
+    template <typename... Ts>
+    auto isAnExtrudedPolygon(Ts&&... ts) const -> decltype(isA<dd4hep::ExtrudedPolygon>(std::forward<Ts>(ts)...)) {
+      return isA<dd4hep::ExtrudedPolygon>(std::forward<Ts>(ts)...);
+    }
+
+    template <typename... Ts>
     auto isASubtraction(Ts&&... ts) const -> decltype(isA<dd4hep::SubtractionSolid>(std::forward<Ts>(ts)...)) {
       return (isA<dd4hep::SubtractionSolid>(std::forward<Ts>(ts)...) and
               not isA<dd4hep::TruncatedTube>(std::forward<Ts>(ts)...) and
