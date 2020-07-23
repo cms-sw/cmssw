@@ -99,6 +99,8 @@ private:
   void sortClusters(const GEMPadDigiClusterContainer& in_clusters,
                     GEMPadDigiClusterSortedContainer& out_clusters) const;
   void selectClusters(const GEMPadDigiClusterSortedContainer& in, GEMPadDigiClusterCollection& out) const;
+  template <class T>
+  void checkValid(const T& cluster, const GEMDetId& id) const;
 
   /// Name of input digi Collection
   edm::EDGetTokenT<GEMPadDigiCollection> pad_token_;
@@ -197,6 +199,9 @@ void GEMPadDigiClusterProducer::buildClusters(const GEMPadDigiCollection& det_pa
     int startBX = 99;
 
     for (auto d = pads.first; d != pads.second; ++d) {
+      // check if the input pad is valid
+      checkValid(*d, part->id());
+
       if (cl.empty()) {
         cl.push_back((*d).pad());
       } else {
@@ -207,6 +212,9 @@ void GEMPadDigiClusterProducer::buildClusters(const GEMPadDigiCollection& det_pa
         } else {
           // put the current cluster in the proto collection
           GEMPadDigiCluster pad_cluster(cl, startBX, GEMSubDetId::station(part->id().station()));
+
+          // check if the output cluster is valid
+          checkValid(pad_cluster, part->id());
 
           all_pad_clusters.emplace_back(pad_cluster);
 
@@ -221,6 +229,10 @@ void GEMPadDigiClusterProducer::buildClusters(const GEMPadDigiCollection& det_pa
     // put the last cluster in the proto collection
     if (pads.first != pads.second) {
       GEMPadDigiCluster pad_cluster(cl, startBX, GEMSubDetId::station(part->id().station()));
+
+      // check if the output cluster is valid
+      checkValid(pad_cluster, part->id());
+
       all_pad_clusters.emplace_back(pad_cluster);
     }
     proto_clusters.emplace(part->id(), all_pad_clusters);
@@ -285,6 +297,9 @@ void GEMPadDigiClusterProducer::selectClusters(const GEMPadDigiClusterSortedCont
         // pick the clusters with lowest pad number
         for (const auto& clus : clusters) {
           if (nClusters < maxClustersOH) {
+            // check if the output cluster is valid
+            checkValid(clus, detid);
+
             out_clusters.insertDigi(detid, clus);
             nClusters++;
           }
@@ -292,6 +307,15 @@ void GEMPadDigiClusterProducer::selectClusters(const GEMPadDigiClusterSortedCont
       }    // end of eta partition loop
     }      // end of OH loop
   }        // end of chamber loop
+}
+
+template <class T>
+void GEMPadDigiClusterProducer::checkValid(const T& tp, const GEMDetId& id) const {
+  // check if the pad/cluster is valid
+  // in principle, invalid pads/clusters can appear in the CMS raw data
+  if (!tp.isValid()) {
+    edm::LogWarning("GEMPadDigiClusterProducer") << "Invalid " << tp << " in " << id;
+  }
 }
 
 DEFINE_FWK_MODULE(GEMPadDigiClusterProducer);

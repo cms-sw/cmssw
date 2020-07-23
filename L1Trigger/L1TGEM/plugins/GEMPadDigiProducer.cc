@@ -37,6 +37,7 @@ public:
 private:
   void buildPads(const GEMDigiCollection& digis, GEMPadDigiCollection& out_pads) const;
   void buildPads16GE21(const GEMDigiCollection& digis, GEMPadDigiCollection& out_pads) const;
+  void checkValid(const GEMPadDigi& pad, const GEMDetId& id) const;
 
   /// Name of input digi Collection
   edm::EDGetTokenT<GEMDigiCollection> digi_token_;
@@ -104,13 +105,22 @@ void GEMPadDigiProducer::buildPads(const GEMDigiCollection& det_digis, GEMPadDig
     // and stuff them into a set of unique pads (equivalent of OR operation)
     auto digis = det_digis.get(p->id());
     for (auto d = digis.first; d != digis.second; ++d) {
-      int pad_num = static_cast<int>(p->padOfStrip(d->strip()));
+      unsigned pad_num = static_cast<int>(p->padOfStrip(d->strip()));
+
+      // check that the input digi is valid
+      if ((GEMSubDetId::station(p->id().station()) == GEMSubDetId::Station::GE11 and
+           pad_num == GEMPadDigi::GE11InValid) or
+          (GEMSubDetId::station(p->id().station()) == GEMSubDetId::Station::GE21 and
+           pad_num == GEMPadDigi::GE21InValid)) {
+        edm::LogWarning("GEMPadDigiProducer") << "Invalid " << pad_num << " from  " << *d << " in " << p->id();
+      }
       proto_pads.emplace(pad_num, d->bx());
     }
 
     // fill the output collections
     for (const auto& d : proto_pads) {
       GEMPadDigi pad_digi(d.first, d.second, GEMSubDetId::station(p->id().station()));
+      checkValid(pad_digi, p->id());
       out_pads.insertDigi(p->id(), pad_digi);
     }
   }
@@ -151,8 +161,17 @@ void GEMPadDigiProducer::buildPads16GE21(const GEMDigiCollection& det_digis, GEM
     // fill the output collections
     for (const auto& d : proto_pads) {
       GEMPadDigi pad_digi(d.first, d.second);
+      checkValid(pad_digi, p->id());
       out_pads.insertDigi(p->id(), pad_digi);
     }
+  }
+}
+
+void GEMPadDigiProducer::checkValid(const GEMPadDigi& pad, const GEMDetId& id) const {
+  // check if the cluster is valid
+  // in principle, invalid pads can appear in the CMS raw data
+  if (!pad.isValid()) {
+    edm::LogWarning("GEMPadDigiProducer") << "Invalid " << pad << " in " << id;
   }
 }
 
