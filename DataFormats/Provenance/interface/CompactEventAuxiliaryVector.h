@@ -121,8 +121,8 @@ namespace edm {
                                extra_.isRealData_,
                                extra_.experimentType_,
                                bunchCrossing_,
-                               orbitNumber_,
-                               extra_.storeNumber_)};
+                               extra_.storeNumber_,
+                               orbitNumber_)};
         ea.setProcessHistoryID(extra_.processHistoryID_);
         return ea;
       }

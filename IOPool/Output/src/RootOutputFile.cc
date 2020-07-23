@@ -393,7 +393,6 @@ namespace edm {
         reserve = reserve > 0 ? std::min(fb.tree()->GetEntries(), reserve) : fb.tree()->GetEntries();
       }
       if (reserve > 0) {
-        LogSystem("beginInputFile") << "Reserving " << compactEventAuxiliary_.size() + reserve;
         compactEventAuxiliary_.reserve(compactEventAuxiliary_.size() + reserve);
       }
     }
@@ -656,7 +655,7 @@ namespace edm {
 
       assert(b);
 
-      LogSystem("writeEventAuxiliary") << "EventAuxiliary ratio extras/GUIDs/all = "
+      LogDebug("writeEventAuxiliary") << "EventAuxiliary ratio extras/GUIDs/all = "
                                        << compactEventAuxiliary_.extrasSize() << "/"
                                        << compactEventAuxiliary_.guidsSize() << "/" << compactEventAuxiliary_.size();
 
