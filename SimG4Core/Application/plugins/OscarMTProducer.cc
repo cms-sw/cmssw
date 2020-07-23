@@ -159,9 +159,9 @@ void OscarMTProducer::globalEndRun(const edm::Run& iRun, const edm::EventSetup& 
   iContext->global()->endRun();
 }
 
-void OscarMTProducer::globalEndJob(OscarMTMasterThread* masterThread) { 
+void OscarMTProducer::globalEndJob(OscarMTMasterThread* masterThread) {
   edm::LogVerbatim("SimG4CoreApplication") << "OscarMTProducer::globalEndJob";
-  masterThread->stopThread(); 
+  masterThread->stopThread();
 }
 
 void OscarMTProducer::endRun(const edm::Run&, const edm::EventSetup&) {

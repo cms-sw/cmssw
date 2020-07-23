@@ -209,10 +209,10 @@ void RunManagerMTWorker::resetTLS() {
   --n_tls_shutdown_task;
 }
 
-void RunManagerMTWorker::endRun() { 
+void RunManagerMTWorker::endRun() {
   int thisID = getThreadIndex();
   edm::LogVerbatim("SimG4CoreApplication") << "RunManagerMTWorker::endRun for the thread " << thisID;
-  terminateRun(); 
+  terminateRun();
 }
 
 void RunManagerMTWorker::initializeTLS() {
@@ -467,9 +467,8 @@ std::unique_ptr<G4SimEvent> RunManagerMTWorker::produce(const edm::Event& inpevt
   // per-run initialization here by ourselves.
 
   if (!(m_tls && m_tls->threadInitialized)) {
-    edm::LogVerbatim("SimG4CoreApplication") 
-        << "RunManagerMTWorker::produce(): stream " << inpevt.streamID() << " thread " 
-        << getThreadIndex() << " initializing";
+    edm::LogVerbatim("SimG4CoreApplication") << "RunManagerMTWorker::produce(): stream " << inpevt.streamID()
+                                             << " thread " << getThreadIndex() << " initializing";
     initializeG4(&runManagerMaster, es);
     m_tls->threadInitialized = true;
   }
