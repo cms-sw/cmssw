@@ -47,7 +47,6 @@ namespace edm {
 
     std::vector<std::pair<BranchID, ThinnedAssociationBranches const*> > associationToBranches() const;
 
-    void sort();
     void clear() { vThinnedAssociationBranches_.clear(); }
 
     void selectAssociationProducts(std::vector<BranchDescription const*> const& associationDescriptions,
@@ -77,6 +76,8 @@ namespace edm {
         std::set<BranchID>& branchesInRecursion,
         std::set<BranchID> const& keptProductsInEvent,
         std::map<BranchID, bool>& keepAssociation) const;
+    std::vector<ThinnedAssociationBranches>::const_iterator lower_bound(
+        ThinnedAssociationBranches const& branches) const;
 
     std::vector<ThinnedAssociationBranches> vThinnedAssociationBranches_;
   };
