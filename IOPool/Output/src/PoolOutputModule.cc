@@ -62,6 +62,7 @@ namespace edm {
         branchParents_(),
         branchChildren_(),
         overrideInputFileSplitLevels_(pset.getUntrackedParameter<bool>("overrideInputFileSplitLevels")),
+        compactEventAuxiliary_(pset.getUntrackedParameter<bool>("compactEventAuxiliary")),
         rootOutputFile_(),
         statusFileName_() {
     if (pset.getUntrackedParameter<bool>("writeStatusFile")) {
@@ -461,6 +462,11 @@ namespace edm {
         ->setComment(
             "True:  Allow fast copying, if possible.\n"
             "False: Disable fast copying.");
+    desc.addUntracked<bool>("compactEventAuxiliary", true)
+        ->setComment(
+            "False: Write EventAuxiliary as we go like any other event metadata branch.\n"
+            "True:  Optimize the file layout be deferring writing the EventAuxiliary branch until the output file is "
+            "closed.");
     desc.addUntracked<bool>("overrideInputFileSplitLevels", false)
         ->setComment(
             "False: Use branch split levels and basket sizes from input file, if possible.\n"
