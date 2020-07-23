@@ -37,10 +37,10 @@ bool GEMPadDigiCluster::isValid() const {
 }
 
 std::ostream& operator<<(std::ostream& o, const GEMPadDigiCluster& digi) {
-  o << " bx: " << digi.bx() << " pads: ";
+  o << " bx: " << digi.bx() << " pads: [";
   for (auto p : digi.pads())
     o << " " << p;
-  o << std::endl;
+  o << "]";
   return o;
 }
 
