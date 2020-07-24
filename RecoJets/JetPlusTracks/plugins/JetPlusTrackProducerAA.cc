@@ -21,8 +21,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
-
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
@@ -402,11 +401,6 @@ reco::TrackRefVector JetPlusTrackProducerAA::calculateBGtracksJet(
 
   return trBgOutOfVertex;
 }
-// ------------ method called once each job just before starting event loop  ------------
-void JetPlusTrackProducerAA::beginJob() {}
-
-// ------------ method called once each job just after ending the event loop  ------------
-void JetPlusTrackProducerAA::endJob() {}
 
 //define this as a plug-in
 //DEFINE_FWK_MODULE(JetPlusTrackProducerAA);

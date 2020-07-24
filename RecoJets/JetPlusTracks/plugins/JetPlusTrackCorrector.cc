@@ -350,7 +350,6 @@ bool JetPlusTrackCorrector::jtaUsingEventData(const reco::Jet& fJet, const edm::
   }
 
   // Check if any tracks are associated to jet at vertex
-
   if (trks.vertex_.empty()) {
     return false;
   }

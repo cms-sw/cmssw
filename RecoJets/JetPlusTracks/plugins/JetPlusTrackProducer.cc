@@ -60,8 +60,8 @@ using namespace jpt;
 //
 JetPlusTrackProducer::JetPlusTrackProducer(const edm::ParameterSet& iConfig) {
   //register your products
-  src = iConfig.getParameter<edm::InputTag>("src");
-  srcTrackJets = iConfig.getParameter<edm::InputTag>("srcTrackJets");
+  src_ = iConfig.getParameter<edm::InputTag>("src");
+  srcTrackJets_ = iConfig.getParameter<edm::InputTag>("srcTrackJets");
   alias_ = iConfig.getUntrackedParameter<string>("alias");
   srcPVs_ = iConfig.getParameter<edm::InputTag>("srcPVs");
   vectorial_ = iConfig.getParameter<bool>("VectorialCorrection");
@@ -77,11 +77,11 @@ JetPlusTrackProducer::JetPlusTrackProducer(const edm::ParameterSet& iConfig) {
   produces<reco::JPTJetCollection>().setBranchAlias(alias_);
   produces<reco::CaloJetCollection>().setBranchAlias("ak4CaloJetsJPT");
 
-  input_jets_token_ = consumes<edm::View<reco::CaloJet> >(src);
+  input_jets_token_ = consumes<edm::View<reco::CaloJet> >(src_);
   input_addjets_token_ = consumes<edm::View<reco::CaloJet> >(iConfig.getParameter<edm::InputTag>("srcAddCaloJets"));
-  input_trackjets_token_ = consumes<edm::View<reco::TrackJet> >(srcTrackJets);
+  input_trackjets_token_ = consumes<edm::View<reco::TrackJet> >(srcTrackJets_);
   input_vertex_token_ = consumes<reco::VertexCollection>(srcPVs_);
-  mExtrapolations =
+  mExtrapolations_ =
       consumes<std::vector<reco::TrackExtrapolation> >(iConfig.getParameter<edm::InputTag>("extrapolations"));
 }
 
@@ -93,7 +93,7 @@ JetPlusTrackProducer::~JetPlusTrackProducer() {
 //
 // member functions
 //
-bool sort_by_pt(const reco::JPTJet a, const reco::JPTJet b) { return (a.pt() > b.pt()); }
+bool sort_by_pt(const reco::JPTJet& a, const reco::JPTJet& b) { return (a.pt() > b.pt()); }
 
 // ------------ method called to produce the data  ------------
 void JetPlusTrackProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
@@ -101,7 +101,7 @@ void JetPlusTrackProducer::produce(edm::Event& iEvent, const edm::EventSetup& iS
 
   auto const& jets_h = iEvent.get(input_jets_token_);
   auto const& addjets_h = iEvent.get(input_addjets_token_);
-  auto const& iExtrapolations = iEvent.get(mExtrapolations);
+  auto const& iExtrapolations = iEvent.get(mExtrapolations_);
   edm::RefProd<reco::CaloJetCollection> pOut1RefProd = iEvent.getRefBeforePut<reco::CaloJetCollection>();
   edm::Ref<reco::CaloJetCollection>::key_type idxCaloJet = 0;
 
@@ -109,7 +109,6 @@ void JetPlusTrackProducer::produce(edm::Event& iEvent, const edm::EventSetup& iS
   auto pOut1 = std::make_unique<reco::CaloJetCollection>();
 
   double scaleJPT = 1.;
-  std::vector<reco::JPTJet> theJPTJets;
   for (auto const& jet : iEvent.get(input_trackjets_token_)) {
     int icalo = -1;
     int i = 0;
@@ -173,10 +172,9 @@ void JetPlusTrackProducer::produce(edm::Event& iEvent, const edm::EventSetup& iS
       reco::JPTJet fJet(p4, jet.primaryVertex()->position(), jptspe, mycalo.getJetConstituents());
       pOut->push_back(fJet);
       pOut1->push_back(mycalo);
-      theJPTJets.push_back(fJet);
     }
   }  // trackjets
-
+     
   int iJet = 0;
   for (auto const& oldjet : jets_h) {
     reco::CaloJet corrected = oldjet;

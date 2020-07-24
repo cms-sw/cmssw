@@ -50,8 +50,8 @@ public:
 private:
   JetPlusTrackCorrector* mJPTalgo;
   ZSPJPTJetCorrector* mZSPalgo;
-  edm::InputTag src;
-  edm::InputTag srcTrackJets;
+  edm::InputTag src_;
+  edm::InputTag srcTrackJets_;
   edm::InputTag srcPVs_;
   std::string alias_;
   bool vectorial_;
@@ -64,5 +64,5 @@ private:
   edm::EDGetTokenT<edm::View<reco::CaloJet> > input_addjets_token_;
   edm::EDGetTokenT<edm::View<reco::TrackJet> > input_trackjets_token_;
   edm::EDGetTokenT<reco::VertexCollection> input_vertex_token_;
-  edm::EDGetTokenT<std::vector<reco::TrackExtrapolation> > mExtrapolations;
+  edm::EDGetTokenT<std::vector<reco::TrackExtrapolation> > mExtrapolations_;
 };

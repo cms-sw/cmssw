@@ -2,8 +2,8 @@ import FWCore.ParameterSet.Config as cms
 # ---------- Add assigned jet-track association
 
 from RecoJets.JetAssociationProducers.trackExtrapolator_cfi import *
-trackExtrapolatorPAT = trackExtrapolator.clone(
-                      trackSrc = "produceTracks",
+trackExtrapolatorJPTPAT = trackExtrapolator.clone(
+                      trackSrc = "trackFromPackedCandidate",
                       trackQuality = 'highPurity'
 )
 
@@ -12,12 +12,12 @@ ak4JetTracksAssociatorAtVertexJPTPAT = ak4JetTracksAssociatorAtVertex.clone(
                                        useAssigned = True,
                                        pvSrc = "offlineSlimmedPrimaryVertices",
                                        jets = "slimmedCaloJets",
-                                       tracks = "produceTracks"
+                                       tracks = "trackFromPackedCandidate"
 )
 ak4JetTracksAssociatorAtCaloFaceJPTPAT = ak4JetTracksAssociatorAtCaloFace.clone(
                                          jets = "slimmedCaloJets",
-                                         tracks = "produceTracks",
-                                         extrapolations = "trackExtrapolatorPAT"
+                                         tracks = "trackFromPackedCandidate",
+                                         extrapolations = "trackExtrapolatorJPTPAT"
 )
 ak4JetExtenderJPTPAT = ak4JetExtender.clone(
                        jets = "slimmedCaloJets",
@@ -28,24 +28,33 @@ ak4JetExtenderJPTPAT = ak4JetExtender.clone(
 # ---------- Supported Modules
 
 from CommonTools.RecoAlgos.trackFromPackedCandidateProducer_cfi import *
-produceTracks = trackFromPackedCandidateProducer.clone()
+trackFromPackedCandidate = trackFromPackedCandidateProducer.clone(PFCandidates = 'packedPFCandidates')
 
 
 from RecoJets.JetPlusTracks.jetPlusTrackAddonSeedProducer_cfi import *
 JetPlusTrackAddonSeedRecoPAT = jetPlusTrackAddonSeedProducer.clone(
-    srcCaloJets = cms.InputTag("slimmedCaloJets"),
-    srcPVs = cms.InputTag('offlineSlimmedPrimaryVertices'),
+    srcCaloJets = "slimmedCaloJets",
+    srcTrackJets = "ak4TrackJetsJPTPAT",
+    srcPVs = 'offlineSlimmedPrimaryVertices',
     UsePAT = True
 )
 
 
 from CommonTools.RecoAlgos.TrackWithVertexRefSelector_cfi import *
-trackWithVertexRefSelector.vertexTag = cms.InputTag('offlineSlimmedPrimaryVertices')
-trackWithVertexRefSelector.src = cms.InputTag('produceTracks')
+trackWithVertexRefSelectorJPTPAT = trackWithVertexRefSelector.clone(
+    vertexTag = 'offlineSlimmedPrimaryVertices',
+    src = 'trackFromPackedCandidate'
+)
 from RecoJets.JetProducers.TracksForJets_cff import *
+trackRefsForJetsJPTPAT = trackRefsForJets.clone(
+    src = 'trackWithVertexRefSelectorJPTPAT'
+)
 from RecoJets.Configuration.RecoTrackJets_cff import *
-ak4TrackJets.srcPVs = cms.InputTag('offlineSlimmedPrimaryVertices')
-ak4TrackJets.UseOnlyOnePV = cms.bool(True)
+ak4TrackJetsJPTPAT = ak4TrackJets.clone(
+    srcPVs = 'offlineSlimmedPrimaryVertices',
+    UseOnlyOnePV = True,
+    src = 'trackRefsForJetsJPTPAT'
+)
 
 # ---------- Module definition
 
@@ -55,9 +64,9 @@ JetPlusTrackZSPCorJetAntiKt4PAT = cms.EDProducer(
     "JetPlusTrackProducer",
     cms.PSet(JPTZSPCorrectorAntiKt4),
     src = cms.InputTag("slimmedCaloJets"),
-    srcTrackJets = cms.InputTag("ak4TrackJets"), 
+    srcTrackJets = cms.InputTag("ak4TrackJetsJPTPAT"), 
     srcAddCaloJets = cms.InputTag('JetPlusTrackAddonSeedRecoPAT'),
-    extrapolations = cms.InputTag("trackExtrapolatorPAT"),
+    extrapolations = cms.InputTag("trackExtrapolatorJPTPAT"),
     tagName = cms.vstring('ZSP_CMSSW390_Akt_05_PU0'),
     tagNameOffset = cms.vstring(),
     PU = cms.int32(-1),
@@ -77,17 +86,19 @@ JetPlusTrackZSPCorJetAntiKt4PAT.JetSplitMerge = 2
 JetPlusTrackZSPCorJetAntiKt4PAT.UsePAT = True
 ### ---------- Sequences
 
-# Anti-Kt
-
-PATJetPlusTrackCorrectionsAntiKt4 = cms.Sequence(
-    produceTracks*
-    trackWithVertexRefSelector*
-    trackRefsForJets*
-    ak4TrackJets*
-    JetPlusTrackAddonSeedRecoPAT*
-    trackExtrapolatorPAT*
-    ak4JetTracksAssociatorAtVertexJPTPAT*
-    ak4JetTracksAssociatorAtCaloFaceJPTPAT*
-    ak4JetExtenderJPTPAT*
+# Task
+PATJetPlusTrackCorrectionsAntiKt4Task = cms.Task(
+    trackFromPackedCandidate,
+    trackWithVertexRefSelectorJPTPAT,
+    trackRefsForJetsJPTPAT,
+    ak4TrackJetsJPTPAT,
+    JetPlusTrackAddonSeedRecoPAT,
+    trackExtrapolatorJPTPAT,
+    ak4JetTracksAssociatorAtVertexJPTPAT,
+    ak4JetTracksAssociatorAtCaloFaceJPTPAT,
+    ak4JetExtenderJPTPAT,
     JetPlusTrackZSPCorJetAntiKt4PAT
     )
+
+PATJetPlusTrackCorrectionsAntiKt4 = cms.Sequence(PATJetPlusTrackCorrectionsAntiKt4Task)
+

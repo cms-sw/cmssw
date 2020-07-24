@@ -20,7 +20,6 @@
 #include "FWCore/Framework/interface/global/EDProducer.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "DataFormats/PatCandidates/interface/PackedCandidate.h"
-#include "DataFormats/PatCandidates/interface/PackedCandidate.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 
