@@ -113,7 +113,7 @@ void ParticleLevelProducer::produce(edm::Event& event, const edm::EventSetup& ev
 
   const HepMC::GenEvent* genEvent = srcHandle->GetEvent();
   
-  if (_isFirstEvent) {
+  if (_isFirstEvent || !rivetAnalysis_->hasProjection("FS")) {
     rivetAnalysis_ = new Rivet::RivetAnalysis(pset_);
     analysisHandler_ = new Rivet::AnalysisHandler();
     
