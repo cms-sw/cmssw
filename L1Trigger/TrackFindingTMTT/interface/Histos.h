@@ -7,9 +7,6 @@
 #include "L1Trigger/TrackFindingTMTT/interface/L1track3D.h"
 #include "L1Trigger/TrackFindingTMTT/interface/TrackerModule.h"
 
-#include <boost/numeric/ublas/matrix.hpp>
-using boost::numeric::ublas::matrix;
-
 #include <vector>
 #include <map>
 #include <list>
