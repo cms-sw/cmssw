@@ -905,19 +905,19 @@ void TrackExtenderWithMTDT<TrackCollection>::fillMatchingHits(const DetLayer* il
 
   using namespace std::placeholders;
   auto find_hits = std::bind(find_hits_in_dets,
-                             hits,
-                             traj,
+                             std::cref(hits),
+                             std::cref(traj),
                              ilay,
-                             tsos,
+                             std::cref(tsos),
                              pmag2,
                              pathlength0,
                              _1,
-                             bs,
+                             std::cref(bs),
                              bsTimeSpread_,
                              prop,
                              theEstimator.get(),
                              _2,
-                             hitsInLayer);
+                             std::ref(hitsInLayer));
 
   if (useVertex_ && matchVertex)
     find_hits(vtxTime, true);
