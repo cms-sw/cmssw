@@ -80,6 +80,9 @@ HGCalTriggerNtupleHGCDigis::HGCalTriggerNtupleHGCDigis(const edm::ParameterSet& 
   is_Simhit_comp_ = conf.getParameter<bool>("isSimhitComp");
   digiBXselect_ = conf.getParameter<std::vector<unsigned int>>("digiBXselect");
 
+  if (digiBXselect_.empty()) {
+    throw cms::Exception("BadInitialization") << "digiBXselect vector is empty";
+  }
   if (*std::max_element(digiBXselect_.begin(), digiBXselect_.end()) >= kDigiSize_) {
     throw cms::Exception("BadInitialization")
         << "digiBXselect vector requests a BX outside of maximum size of digis (" << kDigiSize_ << " BX)";

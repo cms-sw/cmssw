@@ -121,11 +121,11 @@ void HGCalHistoClusteringImpl::clusterizeHisto(const std::vector<edm::Ptr<l1t::H
 }
 
 void HGCalHistoClusteringImpl::finalizeClusters(std::vector<l1t::HGCalMulticluster>& multiclusters_in,
-                                                std::vector<l1t::HGCalCluster>& rejected_clusters_in,
+                                                const std::vector<l1t::HGCalCluster>& rejected_clusters_in,
                                                 l1t::HGCalMulticlusterBxCollection& multiclusters_out,
                                                 l1t::HGCalClusterBxCollection& rejected_clusters_out,
                                                 const HGCalTriggerGeometryBase& triggerGeometry) const {
-  for (auto& tc : rejected_clusters_in) {
+  for (const auto& tc : rejected_clusters_in) {
     rejected_clusters_out.push_back(0, tc);
   }
 
@@ -147,7 +147,7 @@ void HGCalHistoClusteringImpl::finalizeClusters(std::vector<l1t::HGCalMulticlust
 
       multiclusters_out.push_back(0, multicluster);
     } else {
-      for (auto& tc : multicluster.constituents()) {
+      for (const auto& tc : multicluster.constituents()) {
         rejected_clusters_out.push_back(0, *(tc.second));
       }
     }
