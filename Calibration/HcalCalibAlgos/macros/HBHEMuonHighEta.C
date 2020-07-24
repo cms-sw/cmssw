@@ -4,7 +4,7 @@
 //   h1.Loop()
 //
 //   infile     const char*  Name of the input file
-//   outfile    const char*  Name of the output file 
+//   outfile    const char*  Name of the output file
 //                           (dyll_PU20_25_output_10.root)
 //   mode       int          Geometry file used 0:(defined by maxDHB/HE);
 //                           1 (Run 1; valid till 2016); 2 (Run 2; 2018);
@@ -32,272 +32,272 @@
 #include <vector>
 
 class HBHEMuonHighEta {
-
-public :
-  HBHEMuonHighEta(const char *infile, const char *outfile,
-		  const int mode=0, const bool debug=false);
+public:
+  HBHEMuonHighEta(const char *infile, const char *outfile, const int mode = 0, const bool debug = false);
   virtual ~HBHEMuonHighEta();
-  virtual Int_t    Cut(Long64_t entry);
-  virtual Int_t    GetEntry(Long64_t entry);
+  virtual Int_t Cut(Long64_t entry);
+  virtual Int_t GetEntry(Long64_t entry);
   virtual Long64_t LoadTree(Long64_t entry);
-  virtual void     Init(TTree *tree);
-  virtual void     Loop();
-  virtual Bool_t   Notify();
-  virtual void     Show(Long64_t entry = -1);
+  virtual void Init(TTree *tree);
+  virtual void Loop();
+  virtual Bool_t Notify();
+  virtual void Show(Long64_t entry = -1);
 
 private:
-  void             BookHistograms(const char* fname);
-  void             Close();
-  int              nDepthBins(int eta, int phi);
-  TTree           *fChain;   //!pointer to the analyzed TTree or TChain
-  Int_t            fCurrent; //!current Tree number in a TChain
+  void BookHistograms(const char *fname);
+  void Close();
+  int nDepthBins(int eta, int phi);
+  TTree *fChain;   //!pointer to the analyzed TTree or TChain
+  Int_t fCurrent;  //!current Tree number in a TChain
 
-  static const int          maxDepthHB_ = 7;
-  static const int          maxDepthHE_ = 4;
+  static const int maxDepthHB_ = 7;
+  static const int maxDepthHE_ = 4;
 
   // Fixed size dimensions of array or collections stored in the TTree if any.
   // Declaration of leaf types
-  std::vector<double>       *pt_of_muon;
-  std::vector<double>       *eta_of_muon;
-  std::vector<double>       *phi_of_muon;
-  std::vector<double>       *energy_of_muon;
-  std::vector<double>       *p_of_muon;
-  std::vector<bool>         *MediumMuon;
-  std::vector<double>       *IsolationR04;
-  std::vector<double>       *IsolationR03;
-  std::vector<double>       *ecal_3into3;
-  std::vector<double>       *hcal_3into3;
-  std::vector<double>       *tracker_3into3;
-  std::vector<double>       *emaxNearP;
-  UInt_t                     Run_No;
-  UInt_t                     Event_No;
-  UInt_t                     GoodVertex;
-  std::vector<bool>         *matchedId;
-  std::vector<bool>         *hcal_cellHot;
-  std::vector<double>       *ecal_3x3;
-  std::vector<double>       *hcal_1x1;
+  std::vector<double> *pt_of_muon;
+  std::vector<double> *eta_of_muon;
+  std::vector<double> *phi_of_muon;
+  std::vector<double> *energy_of_muon;
+  std::vector<double> *p_of_muon;
+  std::vector<bool> *MediumMuon;
+  std::vector<double> *IsolationR04;
+  std::vector<double> *IsolationR03;
+  std::vector<double> *ecal_3into3;
+  std::vector<double> *hcal_3into3;
+  std::vector<double> *tracker_3into3;
+  std::vector<double> *emaxNearP;
+  UInt_t Run_No;
+  UInt_t Event_No;
+  UInt_t GoodVertex;
+  std::vector<bool> *matchedId;
+  std::vector<bool> *hcal_cellHot;
+  std::vector<double> *ecal_3x3;
+  std::vector<double> *hcal_1x1;
   std::vector<unsigned int> *ecal_detID;
   std::vector<unsigned int> *hcal_detID;
   std::vector<unsigned int> *ehcal_detID;
-  std::vector<int>          *hcal_ieta;
-  std::vector<int>          *hcal_iphi;
-  std::vector<double>       *hcal_edepth1;
-  std::vector<double>       *hcal_activeL1;
-  std::vector<double>       *hcal_edepthHot1;
-  std::vector<double>       *hcal_activeHotL1;
-  std::vector<double>       *hcal_cdepthHot1;
-  std::vector<double>       *hcal_cdepthHotBG1;
-  std::vector<double>       *hcal_edepthCorrect1;
-  std::vector<double>       *hcal_edepthHotCorrect1;
-  std::vector<bool>         *hcal_depthMatch1;
-  std::vector<bool>         *hcal_depthMatchHot1;
-  std::vector<double>       *hcal_edepth2;
-  std::vector<double>       *hcal_activeL2;
-  std::vector<double>       *hcal_edepthHot2;
-  std::vector<double>       *hcal_activeHotL2;
-  std::vector<double>       *hcal_cdepthHot2;
-  std::vector<double>       *hcal_cdepthHotBG2;
-  std::vector<double>       *hcal_edepthCorrect2;
-  std::vector<double>       *hcal_edepthHotCorrect2;
-  std::vector<bool>         *hcal_depthMatch2;
-  std::vector<bool>         *hcal_depthMatchHot2;
-  std::vector<double>       *hcal_edepth3;
-  std::vector<double>       *hcal_activeL3;
-  std::vector<double>       *hcal_edepthHot3;
-  std::vector<double>       *hcal_activeHotL3;
-  std::vector<double>       *hcal_cdepthHot3;
-  std::vector<double>       *hcal_cdepthHotBG3;
-  std::vector<double>       *hcal_edepthCorrect3;
-  std::vector<double>       *hcal_edepthHotCorrect3;
-  std::vector<bool>         *hcal_depthMatch3;
-  std::vector<bool>         *hcal_depthMatchHot3;
-  std::vector<double>       *hcal_edepth4;
-  std::vector<double>       *hcal_activeL4;
-  std::vector<double>       *hcal_edepthHot4;
-  std::vector<double>       *hcal_activeHotL4;
-  std::vector<double>       *hcal_cdepthHot4;
-  std::vector<double>       *hcal_cdepthHotBG4;
-  std::vector<double>       *hcal_edepthCorrect4;
-  std::vector<double>       *hcal_edepthHotCorrect4;
-  std::vector<bool>         *hcal_depthMatch4;
-  std::vector<bool>         *hcal_depthMatchHot4;
-  std::vector<double>       *hcal_edepth5;
-  std::vector<double>       *hcal_activeL5;
-  std::vector<double>       *hcal_edepthHot5;
-  std::vector<double>       *hcal_activeHotL5;
-  std::vector<double>       *hcal_cdepthHot5;
-  std::vector<double>       *hcal_cdepthHotBG5;
-  std::vector<double>       *hcal_edepthCorrect5;
-  std::vector<double>       *hcal_edepthHotCorrect5;
-  std::vector<bool>         *hcal_depthMatch5;
-  std::vector<bool>         *hcal_depthMatchHot5;
-  std::vector<double>       *hcal_edepth6;
-  std::vector<double>       *hcal_activeL6;
-  std::vector<double>       *hcal_edepthHot6;
-  std::vector<double>       *hcal_activeHotL6;
-  std::vector<double>       *hcal_cdepthHot6;
-  std::vector<double>       *hcal_cdepthHotBG6;
-  std::vector<double>       *hcal_edepthCorrect6;
-  std::vector<double>       *hcal_edepthHotCorrect6;
-  std::vector<bool>         *hcal_depthMatch6;
-  std::vector<bool>         *hcal_depthMatchHot6;
-  std::vector<double>       *hcal_edepth7;
-  std::vector<double>       *hcal_activeL7;
-  std::vector<double>       *hcal_edepthHot7;
-  std::vector<double>       *hcal_activeHotL7;
-  std::vector<double>       *hcal_cdepthHot7;
-  std::vector<double>       *hcal_cdepthHotBG7;
-  std::vector<double>       *hcal_edepthCorrect7;
-  std::vector<double>       *hcal_edepthHotCorrect7;
-  std::vector<bool>         *hcal_depthMatch7;
-  std::vector<bool>         *hcal_depthMatchHot7;
-  std::vector<double>       *activeLength;
-  std::vector<double>       *activeLengthHot;
-  std::vector<double>       *trackDz;
-  std::vector<int>          *trackLayerCrossed;
-  std::vector<int>          *trackOuterHit;
-  std::vector<int>          *trackMissedInnerHits;
-  std::vector<int>          *trackMissedOuterHits;
+  std::vector<int> *hcal_ieta;
+  std::vector<int> *hcal_iphi;
+  std::vector<double> *hcal_edepth1;
+  std::vector<double> *hcal_activeL1;
+  std::vector<double> *hcal_edepthHot1;
+  std::vector<double> *hcal_activeHotL1;
+  std::vector<double> *hcal_cdepthHot1;
+  std::vector<double> *hcal_cdepthHotBG1;
+  std::vector<double> *hcal_edepthCorrect1;
+  std::vector<double> *hcal_edepthHotCorrect1;
+  std::vector<bool> *hcal_depthMatch1;
+  std::vector<bool> *hcal_depthMatchHot1;
+  std::vector<double> *hcal_edepth2;
+  std::vector<double> *hcal_activeL2;
+  std::vector<double> *hcal_edepthHot2;
+  std::vector<double> *hcal_activeHotL2;
+  std::vector<double> *hcal_cdepthHot2;
+  std::vector<double> *hcal_cdepthHotBG2;
+  std::vector<double> *hcal_edepthCorrect2;
+  std::vector<double> *hcal_edepthHotCorrect2;
+  std::vector<bool> *hcal_depthMatch2;
+  std::vector<bool> *hcal_depthMatchHot2;
+  std::vector<double> *hcal_edepth3;
+  std::vector<double> *hcal_activeL3;
+  std::vector<double> *hcal_edepthHot3;
+  std::vector<double> *hcal_activeHotL3;
+  std::vector<double> *hcal_cdepthHot3;
+  std::vector<double> *hcal_cdepthHotBG3;
+  std::vector<double> *hcal_edepthCorrect3;
+  std::vector<double> *hcal_edepthHotCorrect3;
+  std::vector<bool> *hcal_depthMatch3;
+  std::vector<bool> *hcal_depthMatchHot3;
+  std::vector<double> *hcal_edepth4;
+  std::vector<double> *hcal_activeL4;
+  std::vector<double> *hcal_edepthHot4;
+  std::vector<double> *hcal_activeHotL4;
+  std::vector<double> *hcal_cdepthHot4;
+  std::vector<double> *hcal_cdepthHotBG4;
+  std::vector<double> *hcal_edepthCorrect4;
+  std::vector<double> *hcal_edepthHotCorrect4;
+  std::vector<bool> *hcal_depthMatch4;
+  std::vector<bool> *hcal_depthMatchHot4;
+  std::vector<double> *hcal_edepth5;
+  std::vector<double> *hcal_activeL5;
+  std::vector<double> *hcal_edepthHot5;
+  std::vector<double> *hcal_activeHotL5;
+  std::vector<double> *hcal_cdepthHot5;
+  std::vector<double> *hcal_cdepthHotBG5;
+  std::vector<double> *hcal_edepthCorrect5;
+  std::vector<double> *hcal_edepthHotCorrect5;
+  std::vector<bool> *hcal_depthMatch5;
+  std::vector<bool> *hcal_depthMatchHot5;
+  std::vector<double> *hcal_edepth6;
+  std::vector<double> *hcal_activeL6;
+  std::vector<double> *hcal_edepthHot6;
+  std::vector<double> *hcal_activeHotL6;
+  std::vector<double> *hcal_cdepthHot6;
+  std::vector<double> *hcal_cdepthHotBG6;
+  std::vector<double> *hcal_edepthCorrect6;
+  std::vector<double> *hcal_edepthHotCorrect6;
+  std::vector<bool> *hcal_depthMatch6;
+  std::vector<bool> *hcal_depthMatchHot6;
+  std::vector<double> *hcal_edepth7;
+  std::vector<double> *hcal_activeL7;
+  std::vector<double> *hcal_edepthHot7;
+  std::vector<double> *hcal_activeHotL7;
+  std::vector<double> *hcal_cdepthHot7;
+  std::vector<double> *hcal_cdepthHotBG7;
+  std::vector<double> *hcal_edepthCorrect7;
+  std::vector<double> *hcal_edepthHotCorrect7;
+  std::vector<bool> *hcal_depthMatch7;
+  std::vector<bool> *hcal_depthMatchHot7;
+  std::vector<double> *activeLength;
+  std::vector<double> *activeLengthHot;
+  std::vector<double> *trackDz;
+  std::vector<int> *trackLayerCrossed;
+  std::vector<int> *trackOuterHit;
+  std::vector<int> *trackMissedInnerHits;
+  std::vector<int> *trackMissedOuterHits;
 
   // List of branches
-  TBranch                   *b_pt_of_muon;
-  TBranch                   *b_eta_of_muon;
-  TBranch                   *b_phi_of_muon;
-  TBranch                   *b_energy_of_muon;
-  TBranch                   *b_p_of_muon;
-  TBranch                   *b_MediumMuon;
-  TBranch                   *b_IsolationR04;
-  TBranch                   *b_IsolationR03;
-  TBranch                   *b_ecal_3into3;
-  TBranch                   *b_hcal_3into3;
-  TBranch                   *b_tracker_3into3;
-  TBranch                   *b_emaxNearP;
-  TBranch                   *b_Run_No;
-  TBranch                   *b_Event_No;
-  TBranch                   *b_GoodVertex;
-  TBranch                   *b_matchedId;
-  TBranch                   *b_hcal_cellHot;
-  TBranch                   *b_ecal_3x3;
-  TBranch                   *b_hcal_1x1;
-  TBranch                   *b_ecal_detID;
-  TBranch                   *b_hcal_detID;
-  TBranch                   *b_ehcal_detID;
-  TBranch                   *b_hcal_ieta;
-  TBranch                   *b_hcal_iphi;
-  TBranch                   *b_hcal_edepth1;
-  TBranch                   *b_hcal_activeL1;
-  TBranch                   *b_hcal_edepthHot1;
-  TBranch                   *b_hcal_activeHotL1;
-  TBranch                   *b_hcal_cdepthHot1;
-  TBranch                   *b_hcal_cdepthHotBG1;
-  TBranch                   *b_hcal_edepthCorrect1;
-  TBranch                   *b_hcal_edepthHotCorrect1;
-  TBranch                   *b_hcal_depthMatch1;
-  TBranch                   *b_hcal_depthMatchHot1;
-  TBranch                   *b_hcal_edepth2;
-  TBranch                   *b_hcal_activeL2;
-  TBranch                   *b_hcal_edepthHot2;
-  TBranch                   *b_hcal_activeHotL2;
-  TBranch                   *b_hcal_cdepthHot2;
-  TBranch                   *b_hcal_cdepthHotBG2;
-  TBranch                   *b_hcal_edepthCorrect2;
-  TBranch                   *b_hcal_edepthHotCorrect2;
-  TBranch                   *b_hcal_depthMatch2;
-  TBranch                   *b_hcal_depthMatchHot2;
-  TBranch                   *b_hcal_edepth3;
-  TBranch                   *b_hcal_activeL3;
-  TBranch                   *b_hcal_edepthHot3;
-  TBranch                   *b_hcal_activeHotL3;
-  TBranch                   *b_hcal_cdepthHot3;
-  TBranch                   *b_hcal_cdepthHotBG3;
-  TBranch                   *b_hcal_edepthCorrect3;
-  TBranch                   *b_hcal_edepthHotCorrect3;
-  TBranch                   *b_hcal_depthMatch3;
-  TBranch                   *b_hcal_depthMatchHot3;
-  TBranch                   *b_hcal_edepth4;
-  TBranch                   *b_hcal_activeL4;
-  TBranch                   *b_hcal_edepthHot4;
-  TBranch                   *b_hcal_activeHotL4;
-  TBranch                   *b_hcal_cdepthHot4;
-  TBranch                   *b_hcal_cdepthHotBG4;
-  TBranch                   *b_hcal_edepthCorrect4;
-  TBranch                   *b_hcal_edepthHotCorrect4;
-  TBranch                   *b_hcal_depthMatch4;
-  TBranch                   *b_hcal_depthMatchHot4;
-  TBranch                   *b_hcal_edepth5;
-  TBranch                   *b_hcal_activeL5;
-  TBranch                   *b_hcal_edepthHot5;
-  TBranch                   *b_hcal_activeHotL5;
-  TBranch                   *b_hcal_cdepthHot5;
-  TBranch                   *b_hcal_cdepthHotBG5;
-  TBranch                   *b_hcal_edepthCorrect5;
-  TBranch                   *b_hcal_edepthHotCorrect5;
-  TBranch                   *b_hcal_depthMatch5;
-  TBranch                   *b_hcal_depthMatchHot5;
-  TBranch                   *b_hcal_edepth6;
-  TBranch                   *b_hcal_activeL6;
-  TBranch                   *b_hcal_edepthHot6;
-  TBranch                   *b_hcal_activeHotL6;
-  TBranch                   *b_hcal_cdepthHot6;
-  TBranch                   *b_hcal_cdepthHotBG6;
-  TBranch                   *b_hcal_edepthCorrect6;
-  TBranch                   *b_hcal_edepthHotCorrect6;
-  TBranch                   *b_hcal_depthMatch6;
-  TBranch                   *b_hcal_depthMatchHot6;
-  TBranch                   *b_hcal_edepth7;
-  TBranch                   *b_hcal_activeL7;
-  TBranch                   *b_hcal_edepthHot7;
-  TBranch                   *b_hcal_activeHotL7;
-  TBranch                   *b_hcal_cdepthHot7;
-  TBranch                   *b_hcal_cdepthHotBG7;
-  TBranch                   *b_hcal_edepthCorrect7;
-  TBranch                   *b_hcal_edepthHotCorrect7;
-  TBranch                   *b_hcal_depthMatch7;
-  TBranch                   *b_hcal_depthMatchHot7;
-  TBranch                   *b_activeLength;
-  TBranch                   *b_activeLengthHot;
-  TBranch                   *b_trackDz;
-  TBranch                   *b_trackLayerCrossed;
-  TBranch                   *b_trackOuterHit;
-  TBranch                   *b_trackMissedInnerHits;
-  TBranch                   *b_trackMissedOuterHits;
+  TBranch *b_pt_of_muon;
+  TBranch *b_eta_of_muon;
+  TBranch *b_phi_of_muon;
+  TBranch *b_energy_of_muon;
+  TBranch *b_p_of_muon;
+  TBranch *b_MediumMuon;
+  TBranch *b_IsolationR04;
+  TBranch *b_IsolationR03;
+  TBranch *b_ecal_3into3;
+  TBranch *b_hcal_3into3;
+  TBranch *b_tracker_3into3;
+  TBranch *b_emaxNearP;
+  TBranch *b_Run_No;
+  TBranch *b_Event_No;
+  TBranch *b_GoodVertex;
+  TBranch *b_matchedId;
+  TBranch *b_hcal_cellHot;
+  TBranch *b_ecal_3x3;
+  TBranch *b_hcal_1x1;
+  TBranch *b_ecal_detID;
+  TBranch *b_hcal_detID;
+  TBranch *b_ehcal_detID;
+  TBranch *b_hcal_ieta;
+  TBranch *b_hcal_iphi;
+  TBranch *b_hcal_edepth1;
+  TBranch *b_hcal_activeL1;
+  TBranch *b_hcal_edepthHot1;
+  TBranch *b_hcal_activeHotL1;
+  TBranch *b_hcal_cdepthHot1;
+  TBranch *b_hcal_cdepthHotBG1;
+  TBranch *b_hcal_edepthCorrect1;
+  TBranch *b_hcal_edepthHotCorrect1;
+  TBranch *b_hcal_depthMatch1;
+  TBranch *b_hcal_depthMatchHot1;
+  TBranch *b_hcal_edepth2;
+  TBranch *b_hcal_activeL2;
+  TBranch *b_hcal_edepthHot2;
+  TBranch *b_hcal_activeHotL2;
+  TBranch *b_hcal_cdepthHot2;
+  TBranch *b_hcal_cdepthHotBG2;
+  TBranch *b_hcal_edepthCorrect2;
+  TBranch *b_hcal_edepthHotCorrect2;
+  TBranch *b_hcal_depthMatch2;
+  TBranch *b_hcal_depthMatchHot2;
+  TBranch *b_hcal_edepth3;
+  TBranch *b_hcal_activeL3;
+  TBranch *b_hcal_edepthHot3;
+  TBranch *b_hcal_activeHotL3;
+  TBranch *b_hcal_cdepthHot3;
+  TBranch *b_hcal_cdepthHotBG3;
+  TBranch *b_hcal_edepthCorrect3;
+  TBranch *b_hcal_edepthHotCorrect3;
+  TBranch *b_hcal_depthMatch3;
+  TBranch *b_hcal_depthMatchHot3;
+  TBranch *b_hcal_edepth4;
+  TBranch *b_hcal_activeL4;
+  TBranch *b_hcal_edepthHot4;
+  TBranch *b_hcal_activeHotL4;
+  TBranch *b_hcal_cdepthHot4;
+  TBranch *b_hcal_cdepthHotBG4;
+  TBranch *b_hcal_edepthCorrect4;
+  TBranch *b_hcal_edepthHotCorrect4;
+  TBranch *b_hcal_depthMatch4;
+  TBranch *b_hcal_depthMatchHot4;
+  TBranch *b_hcal_edepth5;
+  TBranch *b_hcal_activeL5;
+  TBranch *b_hcal_edepthHot5;
+  TBranch *b_hcal_activeHotL5;
+  TBranch *b_hcal_cdepthHot5;
+  TBranch *b_hcal_cdepthHotBG5;
+  TBranch *b_hcal_edepthCorrect5;
+  TBranch *b_hcal_edepthHotCorrect5;
+  TBranch *b_hcal_depthMatch5;
+  TBranch *b_hcal_depthMatchHot5;
+  TBranch *b_hcal_edepth6;
+  TBranch *b_hcal_activeL6;
+  TBranch *b_hcal_edepthHot6;
+  TBranch *b_hcal_activeHotL6;
+  TBranch *b_hcal_cdepthHot6;
+  TBranch *b_hcal_cdepthHotBG6;
+  TBranch *b_hcal_edepthCorrect6;
+  TBranch *b_hcal_edepthHotCorrect6;
+  TBranch *b_hcal_depthMatch6;
+  TBranch *b_hcal_depthMatchHot6;
+  TBranch *b_hcal_edepth7;
+  TBranch *b_hcal_activeL7;
+  TBranch *b_hcal_edepthHot7;
+  TBranch *b_hcal_activeHotL7;
+  TBranch *b_hcal_cdepthHot7;
+  TBranch *b_hcal_cdepthHotBG7;
+  TBranch *b_hcal_edepthCorrect7;
+  TBranch *b_hcal_edepthHotCorrect7;
+  TBranch *b_hcal_depthMatch7;
+  TBranch *b_hcal_depthMatchHot7;
+  TBranch *b_activeLength;
+  TBranch *b_activeLengthHot;
+  TBranch *b_trackDz;
+  TBranch *b_trackLayerCrossed;
+  TBranch *b_trackOuterHit;
+  TBranch *b_trackMissedInnerHits;
+  TBranch *b_trackMissedOuterHits;
 
-  int                        modeLHC_;
-  bool                       debug_;
-  TFile                     *output_file;
+  int modeLHC_;
+  bool debug_;
+  TFile *output_file;
 };
 
-HBHEMuonHighEta::HBHEMuonHighEta(const char *infile, const char *outfile,
-				 const int mode, const bool debug) {
+HBHEMuonHighEta::HBHEMuonHighEta(const char *infile, const char *outfile, const int mode, const bool debug) {
   modeLHC_ = mode;
   debug_ = debug;
-  TFile      *file = new TFile(infile);
-  TDirectory *dir  = (TDirectory*)(file->FindObjectAny("hcalHBHEMuonHighEta"));
-  TTree      *tree = (TTree*)(dir->FindObjectAny("HBHEMuonHighEta"));
-  std::cout << "Attaches tree HBHEMuonHighEta at " << tree << " in file " 
-	    << infile << std::endl;
-  
+  TFile *file = new TFile(infile);
+  TDirectory *dir = (TDirectory *)(file->FindObjectAny("hcalHBHEMuonHighEta"));
+  TTree *tree = (TTree *)(dir->FindObjectAny("HBHEMuonHighEta"));
+  std::cout << "Attaches tree HBHEMuonHighEta at " << tree << " in file " << infile << std::endl;
+
   BookHistograms(outfile);
   Init(tree);
 }
 
 HBHEMuonHighEta::~HBHEMuonHighEta() {
   Close();
-  if (!fChain) return;
+  if (!fChain)
+    return;
   delete fChain->GetCurrentFile();
 }
 
 Int_t HBHEMuonHighEta::GetEntry(Long64_t entry) {
   // Read contents of entry.
-  if (!fChain) return 0;
+  if (!fChain)
+    return 0;
   return fChain->GetEntry(entry);
 }
 
 Long64_t HBHEMuonHighEta::LoadTree(Long64_t entry) {
   // Set the environment to read one entry
-  if (!fChain) return -5;
+  if (!fChain)
+    return -5;
   Long64_t centry = fChain->LoadTree(entry);
-  if (centry < 0) return centry;
+  if (centry < 0)
+    return centry;
   if (fChain->GetTreeNumber() != fCurrent) {
     fCurrent = fChain->GetTreeNumber();
     Notify();
@@ -413,13 +413,14 @@ void HBHEMuonHighEta::Init(TTree *tree) {
   trackOuterHit = 0;
   trackMissedInnerHits = 0;
   trackMissedOuterHits = 0;
-  
+
   // Set branch addresses and branch pointers
-  if (!tree) return;
+  if (!tree)
+    return;
   fChain = tree;
   fCurrent = -1;
   fChain->SetMakeClass(1);
-  
+
   fChain->SetBranchAddress("pt_of_muon", &pt_of_muon, &b_pt_of_muon);
   fChain->SetBranchAddress("eta_of_muon", &eta_of_muon, &b_eta_of_muon);
   fChain->SetBranchAddress("phi_of_muon", &phi_of_muon, &b_phi_of_muon);
@@ -530,18 +531,19 @@ Bool_t HBHEMuonHighEta::Notify() {
   // is started when using PROOF. It is normally not necessary to make changes
   // to the generated code, but the routine can be extended by the
   // user if needed. The return value is currently not used.
-  
-   return kTRUE;
+
+  return kTRUE;
 }
 
 void HBHEMuonHighEta::Show(Long64_t entry) {
   // Print contents of entry.
   // If entry is not specified, print current entry
-  if (!fChain) return;
+  if (!fChain)
+    return;
   fChain->Show(entry);
 }
 
-Int_t HBHEMuonHighEta::Cut(Long64_t ) {
+Int_t HBHEMuonHighEta::Cut(Long64_t) {
   // This function may be called from Loop.
   // returns  1 if entry is accepted.
   // returns -1 otherwise.
@@ -557,7 +559,7 @@ void HBHEMuonHighEta::Loop() {
   //      root> t.Show(16);     // Read and show values of entry 16
   //      root> t.Loop();       // Loop on all entries
   //
-  
+
   //     This is the loop skeleton where:
   //    jentry is the global entry number in the chain
   //    ientry is the entry number in the current Tree
@@ -572,43 +574,44 @@ void HBHEMuonHighEta::Loop() {
   // METHOD2: replace line
   //    fChain->GetEntry(jentry);       //read all branches
   //by  b_branchname->GetEntry(ientry); //read only this branch
-  if (fChain == 0) return;
+  if (fChain == 0)
+    return;
 
   Long64_t nentries = fChain->GetEntriesFast();
 
   Long64_t nbytes = 0, nb = 0;
-  for (Long64_t jentry=0; jentry<nentries;jentry++) {
+  for (Long64_t jentry = 0; jentry < nentries; jentry++) {
     Long64_t ientry = LoadTree(jentry);
-    if (ientry < 0) break;
-    nb = fChain->GetEntry(jentry);   nbytes += nb;
+    if (ientry < 0)
+      break;
+    nb = fChain->GetEntry(jentry);
+    nbytes += nb;
     // if (Cut(ientry) < 0) continue;
-   }
+  }
 }
 
-void HBHEMuonHighEta::BookHistograms(const char* fname) {
-
-  output_file = TFile::Open(fname,"RECREATE");
-}
+void HBHEMuonHighEta::BookHistograms(const char *fname) { output_file = TFile::Open(fname, "RECREATE"); }
 
 void HBHEMuonHighEta::Close() {
   output_file->cd();
-  if (debug_) std::cout << "file yet to be Written" << std::endl;
+  if (debug_)
+    std::cout << "file yet to be Written" << std::endl;
   output_file->Write();
   std::cout << "output file Written" << std::endl;
   output_file->Close();
-  if (debug_) std::cout << "now doing return" << std::endl;
+  if (debug_)
+    std::cout << "now doing return" << std::endl;
 }
-
 
 int HBHEMuonHighEta::nDepthBins(int eta, int phi) {
   // Run 1 scenario
-  int  nDepthR1[29]={1,1,1,1,1,1,1,1,1,1,1,1,1,1,2,3,1,2,2,2,2,2,2,2,2,2,3,3,2};
+  int nDepthR1[29] = {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 3, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 3, 3, 2};
   // Run 2 scenario from 2018
-  int  nDepthR2[29]={1,1,1,1,1,1,1,1,1,1,1,1,1,1,2,4,3,5,6,6,6,6,6,6,6,7,7,7,3};
+  int nDepthR2[29] = {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 4, 3, 5, 6, 6, 6, 6, 6, 6, 6, 7, 7, 7, 3};
   // Run 3 scenario
-  int  nDepthR3[29]={4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,3,5,6,6,6,6,6,6,6,7,7,7,3};
+  int nDepthR3[29] = {4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 3, 5, 6, 6, 6, 6, 6, 6, 6, 7, 7, 7, 3};
   // Run 4 scenario
-  int  nDepthR4[29]={4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,7,7,7,7,7,7,7,7,7,7,7,7,7};
+  int nDepthR4[29] = {4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7};
   // for 2021 scenario multi depth segmentation
   //    int  nDepth[29]={3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,5,5,5,5,5,5,5,5,5,5,5,5,5};
   // modeLHC_ = 0 --> nbin defined maxDepthHB/HE
@@ -617,9 +620,9 @@ int HBHEMuonHighEta::nDepthBins(int eta, int phi) {
   //          = 3 -->      corresponds to Run 3 (post LS2)
   //          = 4 -->      corresponds to 2017 (Plan 1)
   //          = 5 -->      corresponds to Run 4 (post LS3)
-  int  nbin(0);
+  int nbin(0);
   if (modeLHC_ == 0) {
-    if (eta<=15) {
+    if (eta <= 15) {
       nbin = maxDepthHB_;
     } else if (eta == 16) {
       nbin = 4;
@@ -627,28 +630,28 @@ int HBHEMuonHighEta::nDepthBins(int eta, int phi) {
       nbin = maxDepthHE_;
     }
   } else if (modeLHC_ == 1) {
-    nbin = nDepthR1[eta-1];
+    nbin = nDepthR1[eta - 1];
   } else if (modeLHC_ == 2) {
-    nbin = nDepthR2[eta-1];
+    nbin = nDepthR2[eta - 1];
   } else if (modeLHC_ == 3) {
-    nbin = nDepthR3[eta-1];
+    nbin = nDepthR3[eta - 1];
   } else if (modeLHC_ == 4) {
     if (phi > 0) {
       if (eta >= 16 && phi >= 63 && phi <= 66) {
-	nbin = nDepthR2[eta-1];
+        nbin = nDepthR2[eta - 1];
       } else {
-	nbin = nDepthR1[eta-1];
+        nbin = nDepthR1[eta - 1];
       }
     } else {
       if (eta >= 16) {
-	nbin = (nDepthR2[eta-1] > nDepthR1[eta-1]) ? nDepthR2[eta-1] : nDepthR1[eta-1];
+        nbin = (nDepthR2[eta - 1] > nDepthR1[eta - 1]) ? nDepthR2[eta - 1] : nDepthR1[eta - 1];
       } else {
-	nbin = nDepthR1[eta-1];
+        nbin = nDepthR1[eta - 1];
       }
     }
   } else {
     if (eta > 0 && eta < 30) {
-      nbin = nDepthR4[eta-1];
+      nbin = nDepthR4[eta - 1];
     } else {
       nbin = nDepthR4[28];
     }
