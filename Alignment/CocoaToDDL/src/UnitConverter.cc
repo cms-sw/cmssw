@@ -34,7 +34,7 @@ std::string UnitConverter::ucstring() {
   } else {
     str << *bu_ << '\0';
     std::string s(str.str());
-    return s.replace(s.find(" "), 1, "*");
+    return s.replace(s.find(' '), 1, "*");
   }
   //return s;
 }

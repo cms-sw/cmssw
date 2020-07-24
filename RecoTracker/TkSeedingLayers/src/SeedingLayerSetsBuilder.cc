@@ -276,7 +276,7 @@ vector<vector<string> > SeedingLayerSetsBuilder::layerNamesInSets(const vector<s
     string line = *is;
     string::size_type pos = 0;
     while (pos != string::npos) {
-      pos = line.find("+");
+      pos = line.find('+');
       string layer = line.substr(0, pos);
       layersInSet.push_back(layer);
       line = line.substr(pos + 1, string::npos);

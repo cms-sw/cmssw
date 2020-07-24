@@ -156,10 +156,7 @@ namespace edm {
     }
   }
 
-  bool Worker::shouldRethrowException(std::exception_ptr iPtr,
-                                      ParentContext const& parentContext,
-                                      bool isEvent,
-                                      TransitionIDValueBase const& iID) const {
+  bool Worker::shouldRethrowException(std::exception_ptr iPtr, ParentContext const& parentContext, bool isEvent) const {
     // NOTE: the warning printed as a result of ignoring or failing
     // a module will only be printed during the full true processing
     // pass of this module
@@ -217,7 +214,7 @@ namespace edm {
     //Need to be sure the ref count isn't set to 0 immediately
     iTask->increment_ref_count();
 
-    esPrefetchAsync(iTask, iEventSetup, iTransition);
+    esPrefetchAsync(iTask, iEventSetup, iTransition, token);
     for (auto const& item : items) {
       ProductResolverIndex productResolverIndex = item.productResolverIndex();
       bool skipCurrentProcess = item.skipCurrentProcess();
@@ -279,7 +276,13 @@ namespace edm {
     choiceHolder.doneWaiting(std::exception_ptr{});
   }
 
-  void Worker::esPrefetchAsync(WaitingTask* iTask, EventSetupImpl const& iImpl, Transition iTrans) {
+  void Worker::esPrefetchAsync(WaitingTask* iTask,
+                               EventSetupImpl const& iImpl,
+                               Transition iTrans,
+                               edm::ServiceToken const& iToken) {
+    if (iTrans >= edm::Transition::NumberOfEventSetupTransitions) {
+      return;
+    }
     auto const& recs = esRecordsToGetFrom(iTrans);
     auto const& items = esItemsToGetFrom(iTrans);
 
@@ -294,34 +297,34 @@ namespace edm {
     // will work.
     if UNLIKELY (tbb::this_task_arena::max_concurrency() == 1) {
       //We spawn this first so that the other ES tasks are before it in the TBB queue
-      tbb::task::spawn(*make_functor_task(tbb::task::allocate_root(),
-                                          [this, task = edm::WaitingTaskHolder(iTask), iTrans, &iImpl]() mutable {
-                                            auto waitTask = edm::make_empty_waiting_task();
-                                            waitTask->set_ref_count(2);
-                                            auto waitTaskPtr = waitTask.get();
-                                            esTaskArena().execute([waitTaskPtr, this, iTrans, &iImpl]() {
-                                              auto const& recs = esRecordsToGetFrom(iTrans);
-                                              auto const& items = esItemsToGetFrom(iTrans);
-                                              waitTaskPtr->set_ref_count(2);
-                                              for (size_t i = 0; i != items.size(); ++i) {
-                                                if (recs[i] != ESRecordIndex{}) {
-                                                  auto rec = iImpl.findImpl(recs[i]);
-                                                  if (rec) {
-                                                    rec->prefetchAsync(waitTaskPtr, items[i], &iImpl);
-                                                  }
-                                                }
-                                              }
-                                              waitTaskPtr->decrement_ref_count();
-                                              waitTaskPtr->wait_for_all();
-                                            });
+      tbb::task::spawn(*make_functor_task(
+          tbb::task::allocate_root(), [this, task = edm::WaitingTaskHolder(iTask), iTrans, &iImpl, iToken]() mutable {
+            auto waitTask = edm::make_empty_waiting_task();
+            waitTask->set_ref_count(2);
+            auto waitTaskPtr = waitTask.get();
+            esTaskArena().execute([waitTaskPtr, this, iTrans, &iImpl, iToken]() {
+              auto const& recs = esRecordsToGetFrom(iTrans);
+              auto const& items = esItemsToGetFrom(iTrans);
+              waitTaskPtr->set_ref_count(2);
+              for (size_t i = 0; i != items.size(); ++i) {
+                if (recs[i] != ESRecordIndex{}) {
+                  auto rec = iImpl.findImpl(recs[i]);
+                  if (rec) {
+                    rec->prefetchAsync(waitTaskPtr, items[i], &iImpl, iToken);
+                  }
+                }
+              }
+              waitTaskPtr->decrement_ref_count();
+              waitTaskPtr->wait_for_all();
+            });
 
-                                            auto exPtr = waitTask->exceptionPtr();
-                                            if (exPtr) {
-                                              task.doneWaiting(*exPtr);
-                                            } else {
-                                              task.doneWaiting(std::exception_ptr{});
-                                            }
-                                          }));
+            auto exPtr = waitTask->exceptionPtr();
+            if (exPtr) {
+              task.doneWaiting(*exPtr);
+            } else {
+              task.doneWaiting(std::exception_ptr{});
+            }
+          }));
     } else {
       //We need iTask to run in the default arena since it is not an ES task
       auto task =
@@ -340,7 +343,7 @@ namespace edm {
           if (recs[i] != ESRecordIndex{}) {
             auto rec = iImpl.findImpl(recs[i]);
             if (rec) {
-              rec->prefetchAsync(task, items[i], &iImpl);
+              rec->prefetchAsync(task, items[i], &iImpl, iToken);
             }
           }
         }
@@ -460,8 +463,7 @@ namespace edm {
       convertException::wrap([&]() { this->implDoAcquire(ep, es, &moduleCallingContext_, holder); });
     } catch (cms::Exception& ex) {
       exceptionContext(ex, &moduleCallingContext_);
-      TransitionIDValue<EventPrincipal> idValue(ep);
-      if (shouldRethrowException(std::current_exception(), parentContext, true, idValue)) {
+      if (shouldRethrowException(std::current_exception(), parentContext, true)) {
         timesRun_.fetch_add(1, std::memory_order_relaxed);
         throw;
       }
@@ -477,8 +479,7 @@ namespace edm {
     std::exception_ptr exceptionPtr;
     if (iEPtr) {
       assert(*iEPtr);
-      TransitionIDValue<EventPrincipal> idValue(ep);
-      if (shouldRethrowException(*iEPtr, parentContext, true, idValue)) {
+      if (shouldRethrowException(*iEPtr, parentContext, true)) {
         exceptionPtr = *iEPtr;
       }
       moduleCallingContext_.setContext(ModuleCallingContext::State::kInvalid, ParentContext(), nullptr);

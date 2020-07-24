@@ -43,14 +43,14 @@ EcalHaloDataProducer::EcalHaloDataProducer(const edm::ParameterSet& iConfig) {
   hbherechit_token_ = consumes<HBHERecHitCollection>(IT_HBHERecHit);
   supercluster_token_ = consumes<reco::SuperClusterCollection>(IT_SuperCluster);
   photon_token_ = consumes<reco::PhotonCollection>(IT_Photon);
+  calogeometry_token_ = esConsumes<CaloGeometry, CaloGeometryRecord>();
 
   produces<EcalHaloData>();
 }
 
 void EcalHaloDataProducer::produce(Event& iEvent, const EventSetup& iSetup) {
   //Get CaloGeometry
-  edm::ESHandle<CaloGeometry> TheCaloGeometry;
-  iSetup.get<CaloGeometryRecord>().get(TheCaloGeometry);
+  edm::ESHandle<CaloGeometry> TheCaloGeometry = iSetup.getHandle(calogeometry_token_);
 
   //Get  EB RecHits
   edm::Handle<EBRecHitCollection> TheEBRecHits;

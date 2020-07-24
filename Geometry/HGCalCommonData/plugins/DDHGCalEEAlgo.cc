@@ -17,6 +17,7 @@
 #include "FWCore/PluginManager/interface/PluginFactory.h"
 #include "Geometry/HGCalCommonData/interface/HGCalGeomTools.h"
 #include "Geometry/HGCalCommonData/interface/HGCalParameters.h"
+#include "Geometry/HGCalCommonData/interface/HGCalTypes.h"
 #include "Geometry/HGCalCommonData/interface/HGCalWaferType.h"
 
 #include <cmath>
@@ -356,15 +357,15 @@ void DDHGCalEEAlgo::positionSensitive(const DDLogicalPart& glog,
                                 << (waferSize_ + waferSepar_);
 #endif
   for (int u = -N; u <= N; ++u) {
-    int iu = std::abs(u);
     for (int v = -N; v <= N; ++v) {
-      int iv = std::abs(v);
       int nr = 2 * v;
       int nc = -2 * u + v;
       double xpos = xyoff.first + nc * r;
       double ypos = xyoff.second + nr * dy;
       const auto& corner = HGCalGeomTools::waferCorner(xpos, ypos, r, R, rin, rout, false);
 #ifdef EDM_ML_DEBUG
+      int iu = std::abs(u);
+      int iv = std::abs(v);
       ++ntot;
       if (((corner.first <= 0) && std::abs(u) < 5 && std::abs(v) < 5) || (std::abs(u) < 2 && std::abs(v) < 2)) {
         edm::LogVerbatim("HGCalGeom") << "DDHGCalEEAlgo: " << glog.ddname() << " R " << rin << ":" << rout << "\n Z "
@@ -374,11 +375,7 @@ void DDHGCalEEAlgo::positionSensitive(const DDLogicalPart& glog,
 #endif
       if (corner.first > 0) {
         int type = waferType_->getType(xpos, ypos, zpos);
-        int copy = type * 1000000 + iv * 100 + iu;
-        if (u < 0)
-          copy += 10000;
-        if (v < 0)
-          copy += 100000;
+        int copy = HGCalTypes::packTypeUV(type, u, v);
 #ifdef EDM_ML_DEBUG
         if (iu > ium)
           ium = iu;

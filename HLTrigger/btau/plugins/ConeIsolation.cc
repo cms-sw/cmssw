@@ -91,9 +91,9 @@ void ConeIsolation::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   std::unique_ptr<reco::IsolatedTauTagInfoCollection> extCollection(new reco::IsolatedTauTagInfoCollection());
   if (not jetTracksAssociation->empty()) {
     RefToBaseProd<reco::Jet> prod(edm::makeRefToBaseProdFrom(jetTracksAssociation->begin()->first, iEvent));
-    tagCollection.reset(new reco::JetTagCollection(prod));
+    tagCollection = std::make_unique<reco::JetTagCollection>(prod);
   } else {
-    tagCollection.reset(new reco::JetTagCollection());
+    tagCollection = std::make_unique<reco::JetTagCollection>();
   }
 
   Vertex::Error e;

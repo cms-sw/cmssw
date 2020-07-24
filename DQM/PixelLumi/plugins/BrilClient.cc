@@ -1,9 +1,9 @@
 #include "BrilClient.h"
 
-#include <boost/filesystem.hpp>
 #include <boost/property_tree/json_parser.hpp>
 #include <boost/property_tree/ptree.hpp>
 
+#include <filesystem>
 #include <iostream>
 #include <vector>
 
@@ -38,7 +38,7 @@ void BrilClient::dqmEndLuminosityBlock(DQMStore::IBooker &ibooker_,
   //
 
   ptree json;
-  if (!boost::filesystem::exists(*filePath_)) {
+  if (!std::filesystem::exists(*filePath_)) {
     edm::LogWarning("BrilClient") << "BrilClient"
                                   << " File missing: " << *filePath_ << std::endl;
 
@@ -53,7 +53,7 @@ void BrilClient::dqmEndLuminosityBlock(DQMStore::IBooker &ibooker_,
   // Parse the json
   for (auto &mainTree : json.get_child("OccupancyPlots")) {
     std::string title = mainTree.second.get<std::string>("titles");
-    std::size_t pos = title.find(",");
+    std::size_t pos = title.find(',');
     if (pos <= 0) {
       edm::LogWarning("BrilClient") << "BrilClient::dqmEndLuminosityBlock"
                                     << " Invalid title" << title << std::endl;

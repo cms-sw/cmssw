@@ -85,15 +85,8 @@ void BTLDeviceSim::getHitsResponse(const std::vector<std::tuple<int, uint32_t, f
     float Npe = 1000. * hit.energyLoss() * LightYield_ * LightCollEff_ * PDE_;
 
     // --- Calculate the light propagation time to the crystal bases (labeled L and R)
-    double distR = 0.5 * topo.pitch().second - 0.1 * hit.localPosition().y();
-    double distL = 0.5 * topo.pitch().second + 0.1 * hit.localPosition().y();
-
-    // This is for the layouts with bars along phi
-    if (MTDTopologyMode::crysLayoutFromTopoMode(topo_->getMTDTopologyMode()) == BTLDetId::CrysLayout::bar ||
-        MTDTopologyMode::crysLayoutFromTopoMode(topo_->getMTDTopologyMode()) == BTLDetId::CrysLayout::barphiflat) {
-      distR = 0.5 * topo.pitch().first - 0.1 * hit.localPosition().x();
-      distL = 0.5 * topo.pitch().first + 0.1 * hit.localPosition().x();
-    }
+    double distR = 0.5 * topo.pitch().first - 0.1 * hit.localPosition().x();
+    double distL = 0.5 * topo.pitch().first + 0.1 * hit.localPosition().x();
 
     double tR = std::get<2>(hitRef) + LightCollSlopeR_ * distR;
     double tL = std::get<2>(hitRef) + LightCollSlopeL_ * distL;

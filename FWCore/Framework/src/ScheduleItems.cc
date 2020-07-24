@@ -20,6 +20,8 @@
 #include "FWCore/Utilities/interface/GetPassID.h"
 #include "FWCore/Version/interface/GetReleaseVersion.h"
 
+#include <memory>
+
 #include <set>
 
 namespace edm {
@@ -48,6 +50,11 @@ namespace edm {
 
     // Mark dropped branches as dropped in the product registry.
     std::set<BranchID> keptBranches;
+    SelectedProducts const& keptVectorP = om.keptProducts()[InProcess];
+    for (auto const& item : keptVectorP) {
+      BranchDescription const& desc = *item.first;
+      keptBranches.insert(desc.branchID());
+    }
     SelectedProducts const& keptVectorR = om.keptProducts()[InRun];
     for (auto const& item : keptVectorR) {
       BranchDescription const& desc = *item.first;
@@ -109,7 +116,7 @@ namespace edm {
   }
 
   std::shared_ptr<CommonParams> ScheduleItems::initMisc(ParameterSet& parameterSet) {
-    act_table_.reset(new ExceptionToActionTable(parameterSet));
+    act_table_ = std::make_unique<ExceptionToActionTable>(parameterSet);
     std::string processName = parameterSet.getParameter<std::string>("@process_name");
     processConfiguration_ = std::make_shared<ProcessConfiguration>(
         processName, getReleaseVersion(), getPassID());  // propagate_const<T> has no reset() function

@@ -3,7 +3,7 @@
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../DDLSchema/DDLSchema.xsd">
     <ConstantsSection label="CTPPS_210_Left_Station.xml" eval="true">
-        <Constant name="RP_210_Left_Station_Length" value="([CTPPS_Stations_Assembly:CTPPS_220_Left_Station_Position_z]-[CTPPS_Stations_Assembly:CTPPS_210_Left_Station_Position_z])*mm"/>
+        <Constant name="RP_210_Left_Station_Length" value="[CTPPS_Stations_Assembly:CTPPS_220_Left_Station_Position_z]-[CTPPS_Stations_Assembly:CTPPS_210_Left_Station_Position_z]"/>
         <!--Positions calculated from the wall closer to IP point-->
         <Constant name="RP_210_Left_Prim_Vert_z" value="608*mm"/>
         <Constant name="RP_210_Left_Prim_Hor_z" value="1058*mm"/>

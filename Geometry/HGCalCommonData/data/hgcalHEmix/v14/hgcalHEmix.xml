@@ -634,19 +634,19 @@
     <Vector name="SlopeBottom" type="numeric" nEntries="4">
       0, 0, 0, 0</Vector>
     <Vector name="ZFrontBottom" type="numeric" nEntries="4">
-      [hgcal:zHGCal1], [hgcal:zHGCal2], [hgcal:zHGCal6], 
-      [hgcal:zHGCal7]</Vector>
+      [hgcal:zHGCal0], [hgcal:zHGCal2], [hgcal:zHGCal7], 
+      [hgcal:zHGCal8]</Vector>
     <Vector name="RMinFront" type="numeric" nEntries="4">
-      [hgcal:rMinHGCalEE1],    [hgcal:rMinHGCalHEsil1], 
-      [hgcal:rMinHGCalHEmix1], [hgcal:rMinHGCalHEmix2]</Vector>
+      [hgcal:rMinHGCal2], [hgcal:rMinHGCal4], 
+      [hgcal:rMinHGCal6], [hgcal:rMinHGCal8]</Vector>
     <Vector name="SlopeTop" type="numeric" nEntries="4">
       [hgcal:slope2], [hgcal:slope3], 0, 0</Vector>
     <Vector name="ZFrontTop" type="numeric" nEntries="4">
-      [hgcal:zHGCal1], [hgcal:zHGCal4], [hgcal:zHGCal8], 
-      [hgcal:zHGCal9]</Vector>
+      [hgcal:zHGCal0], [hgcal:zHGCal5], [hgcal:zHGCal10], 
+      [hgcal:zHGCal11]</Vector>
     <Vector name="RMaxFront" type="numeric" nEntries="4">
-      [hgcal:rMaxHGCal1], [hgcal:rMaxHGCal4], [hgcal:rMaxHGCal8], 
-      [hgcal:rMaxHGCal9]</Vector>
+      [hgcal:rMaxHGCal0], [hgcal:rMaxHGCal5], [hgcal:rMaxHGCal10], 
+      [hgcal:rMaxHGCal11]</Vector>
     <String name="RotNameSpace" value="hgcalmodule"/>
   </Algorithm>
 </PosPartSection> 

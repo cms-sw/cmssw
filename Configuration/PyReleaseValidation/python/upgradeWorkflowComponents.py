@@ -27,22 +27,6 @@ upgradeKeys[2017] = [
 ]
 
 upgradeKeys[2026] = [
-    '2026D35',
-    '2026D35PU',
-    '2026D41',
-    '2026D41PU',
-    '2026D43',
-    '2026D43PU',
-    '2026D44',
-    '2026D44PU',
-    '2026D45',
-    '2026D45PU',
-    '2026D46',
-    '2026D46PU',
-    '2026D47',
-    '2026D47PU',
-    '2026D48',
-    '2026D48PU',
     '2026D49',
     '2026D49PU',
     '2026D51',
@@ -51,8 +35,6 @@ upgradeKeys[2026] = [
     '2026D53PU',
     '2026D54',
     '2026D54PU',
-    '2026D55',
-    '2026D55PU',
     '2026D56',
     '2026D56PU',
     '2026D57',
@@ -61,6 +43,10 @@ upgradeKeys[2026] = [
     '2026D58PU',
     '2026D59',
     '2026D59PU',
+    '2026D60',
+    '2026D60PU',
+    '2026D61',
+    '2026D61PU',
 ]
 
 # pre-generation of WF numbers
@@ -70,7 +56,7 @@ numWFStart={
 }
 numWFSkip=200
 # temporary measure to keep other WF numbers the same
-numWFConflict = [[24000,24400],[25000,26000],[50000,51000]]
+numWFConflict = [[20000,23200],[24000,24400],[25000,26000],[26200,26600],[50000,51000]]
 numWFAll={
     2017: [],
     2026: []
@@ -690,81 +676,6 @@ upgradeWFs['premixS1S2'] = UpgradeWorkflow(
     offset = 0.99,
 )
 
-class UpgradeWorkflow_TestOldDigi(UpgradeWorkflow):
-    def setup_(self, step, stepName, stepDict, k, properties):
-        if 'Reco' in step:
-            # use existing DIGI-RAW file from old release
-            # re-emulate the full L1 trigger when running on 11_0 DIGI, i.e. replace L1Reco with L1TrackTrigger,L1
-            mods = {
-                '--filein': 'das:/RelValTTbar_14TeV/CMSSW_11_0_0_pre13-110X_mcRun4_realistic_v2_2026D49noPU-v1/GEN-SIM-DIGI-RAW',
-                '--customise': "L1Trigger/Configuration/customisePhase2TTNoMC.customisePhase2TTNoMC",
-            }
-            # for prodlike case
-            if self.prodlike:
-                mods['-s'] = 'RAW2DIGI,L1TrackTrigger,L1,RECO,RECOSIM'
-                mods['--datatier'] = 'AODSIM'
-                mods['--eventcontent'] = 'AODSIM'
-            else:
-                mods['-s'] = stepDict[step][k]['-s'].replace("L1Reco","L1TrackTrigger,L1")
-            stepDict[stepName][k] = merge([mods, stepDict[step][k]])
-            # handle separate PU input
-            stepNamePU = step + 'PU' + self.suffix
-            mods['--filein'] = 'das:/RelValTTbar_14TeV/CMSSW_11_0_0_pre13-PU25ns_110X_mcRun4_realistic_v2_2026D49PU200-v2/GEN-SIM-DIGI-RAW'
-            stepDict[stepNamePU][k] = merge([mods,stepDict[stepName][k]])
-        elif 'GenSim' in step or 'Digi' in step:
-            # remove step
-            stepDict[stepName][k] = None
-
-        # other prodlike adjustments
-        if self.prodlike:
-            if 'MiniAOD' in step and self.prodlike:
-                # the separate miniAOD step is used here
-                stepDict[stepName][k] = deepcopy(stepDict[step][k])
-            elif 'ALCA' in step or 'HARVEST' in step:
-                # remove step
-                stepDict[stepName][k] = None
-            elif 'Nano' in step:
-                stepDict[stepName][k] = merge([{'--filein':'file:step4.root'}, stepDict[step][k]])
-    def condition(self, fragment, stepList, key, hasHarvest):
-        # limited to HLT TDR production geometry
-        return fragment=="TTbar_14TeV" and '2026D49' in key
-    def workflow_(self, workflows, num, fragment, stepList):
-        UpgradeWorkflow.workflow_(self, workflows, num, fragment, stepList)
-upgradeWFs['TestOldDigi'] = UpgradeWorkflow_TestOldDigi(
-    steps = [
-        'GenSimHLBeamSpotFull',
-        'GenSimHLBeamSpotFull14',
-        'DigiFullTrigger',
-        'RecoFullGlobal',
-    ],
-    PU = [
-        'DigiFullTrigger',
-        'RecoFullGlobal',
-    ],
-    suffix = '_TestOldDigi',
-    offset = 0.1001,
-)
-upgradeWFs['TestOldDigi'].prodlike = False
-upgradeWFs['TestOldDigiProdLike'] = UpgradeWorkflow_TestOldDigi(
-    steps = [
-        'GenSimHLBeamSpotFull',
-        'GenSimHLBeamSpotFull14',
-        'DigiFullTrigger',
-        'RecoFullGlobal',
-        'HARVESTFullGlobal',
-        'MiniAODFullGlobal',
-    ],
-    PU = [
-        'DigiFullTrigger',
-        'RecoFullGlobal',
-        'HARVESTFullGlobal',
-        'MiniAODFullGlobal',
-    ],
-    suffix = '_TestOldDigiProdLike',
-    offset = 0.1002,
-)
-upgradeWFs['TestOldDigiProdLike'].prodlike = True
-
 class UpgradeWorkflow_DD4hep(UpgradeWorkflow):
     def setup_(self, step, stepName, stepDict, k, properties):
         stepDict[stepName][k] = merge([{'--geometry': 'DD4hepExtended2021', '--era': 'Run3_dd4hep'}, stepDict[step][k]])
@@ -865,62 +776,6 @@ for key in list(upgradeProperties[2017].keys()):
                                                      (['NanoFull'] if 'Design' not in key else [])
 
 upgradeProperties[2026] = {
-    '2026D35' : {
-        'Geom' : 'Extended2026D35',
-        'HLTmenu': '@fake2',
-        'GT' : 'auto:phase2_realistic_T6',
-        'Era' : 'Phase2C4',
-        'ScenToRun' : ['GenSimHLBeamSpotFull','DigiFullTrigger','RecoFullGlobal', 'HARVESTFullGlobal'],
-    },
-    '2026D41' : {
-        'Geom' : 'Extended2026D41',
-        'HLTmenu': '@fake2',
-        'GT' : 'auto:phase2_realistic_T14',
-        'Era' : 'Phase2C8',
-        'ScenToRun' : ['GenSimHLBeamSpotFull','DigiFullTrigger','RecoFullGlobal', 'HARVESTFullGlobal'],
-    },
-    '2026D43' : {
-        'Geom' : 'Extended2026D43',
-        'HLTmenu': '@fake2',
-        'GT' : 'auto:phase2_realistic_T14',
-        'Era' : 'Phase2C4',
-        'ScenToRun' : ['GenSimHLBeamSpotFull','DigiFullTrigger','RecoFullGlobal', 'HARVESTFullGlobal'],
-    },
-    '2026D44' : {
-        'Geom' : 'Extended2026D44',
-        'HLTmenu': '@fake2',
-        'GT' : 'auto:phase2_realistic_T14',
-        'Era' : 'Phase2C6',
-        'ScenToRun' : ['GenSimHLBeamSpotFull','DigiFullTrigger','RecoFullGlobal', 'HARVESTFullGlobal'],
-    },
-    '2026D45' : {
-        'Geom' : 'Extended2026D45',
-        'HLTmenu': '@fake2',
-        'GT' : 'auto:phase2_realistic_T15',
-        'Era' : 'Phase2C8',
-        'ScenToRun' : ['GenSimHLBeamSpotFull','DigiFullTrigger','RecoFullGlobal', 'HARVESTFullGlobal'],
-    },
-    '2026D46' : {
-        'Geom' : 'Extended2026D46',
-        'HLTmenu': '@fake2',
-        'GT' : 'auto:phase2_realistic_T15',
-        'Era' : 'Phase2C9',
-        'ScenToRun' : ['GenSimHLBeamSpotFull','DigiFullTrigger','RecoFullGlobal', 'HARVESTFullGlobal'],
-    },
-    '2026D47' : {
-        'Geom' : 'Extended2026D47',
-        'HLTmenu': '@fake2',
-        'GT' : 'auto:phase2_realistic_T15',
-        'Era' : 'Phase2C10',
-        'ScenToRun' : ['GenSimHLBeamSpotFull','DigiFullTrigger','RecoFullGlobal', 'HARVESTFullGlobal'],
-    },
-    '2026D48' : {
-        'Geom' : 'Extended2026D48',
-        'HLTmenu': '@fake2',
-        'GT' : 'auto:phase2_realistic_T15',
-        'Era' : 'Phase2C9',
-        'ScenToRun' : ['GenSimHLBeamSpotFull','DigiFullTrigger','RecoFullGlobal', 'HARVESTFullGlobal'],
-    },
     '2026D49' : {
         'Geom' : 'Extended2026D49',
         'HLTmenu': '@fake2',
@@ -950,40 +805,47 @@ upgradeProperties[2026] = {
         'Era' : 'Phase2C9',
         'ScenToRun' : ['GenSimHLBeamSpotFull','DigiFullTrigger','RecoFullGlobal', 'HARVESTFullGlobal'],
     },
-    '2026D55' : {
-        'Geom' : 'Extended2026D55',
-        'HLTmenu': '@fake2',
-        'GT' : 'auto:phase2_realistic_T19',
-        'ProcessModifier': 'phase2_PixelCPEGeneric',
-        'Era' : 'Phase2C9',
-        'ScenToRun' : ['GenSimHLBeamSpotFull','DigiFullTrigger','RecoFullGlobal', 'HARVESTFullGlobal'],
-    },
     '2026D56' : {
         'Geom' : 'Extended2026D56',
         'HLTmenu': '@fake2',
-        'GT' : 'auto:phase2_realistic_T15',
+        'GT' : 'auto:phase2_realistic_T20',
         'Era' : 'Phase2C9',
         'ScenToRun' : ['GenSimHLBeamSpotFull','DigiFullTrigger','RecoFullGlobal', 'HARVESTFullGlobal'],
     },
     '2026D57' : {
         'Geom' : 'Extended2026D57',
         'HLTmenu': '@fake2',
-        'GT' : 'auto:phase2_realistic_T15',
+        'GT' : 'auto:phase2_realistic_T17',
         'Era' : 'Phase2C11',
         'ScenToRun' : ['GenSimHLBeamSpotFull','DigiFullTrigger','RecoFullGlobal', 'HARVESTFullGlobal'],
     },
     '2026D58' : {
         'Geom' : 'Extended2026D58',
         'HLTmenu': '@fake2',
-        'GT' : 'auto:phase2_realistic_T15',
+        'GT' : 'auto:phase2_realistic_T17',
         'Era' : 'Phase2C12',
         'ScenToRun' : ['GenSimHLBeamSpotFull','DigiFullTrigger','RecoFullGlobal', 'HARVESTFullGlobal'],
     },
     '2026D59' : {
         'Geom' : 'Extended2026D59',
         'HLTmenu': '@fake2',
-        'GT' : 'auto:phase2_realistic_T15',
+        'GT' : 'auto:phase2_realistic_T17',
         'Era' : 'Phase2C11',
+        'ScenToRun' : ['GenSimHLBeamSpotFull','DigiFullTrigger','RecoFullGlobal', 'HARVESTFullGlobal'],
+    },
+    '2026D60' : {
+        'Geom' : 'Extended2026D60',
+        'HLTmenu': '@fake2',
+        'GT' : 'auto:phase2_realistic_T15',
+        'Era' : 'Phase2C10',
+        'ScenToRun' : ['GenSimHLBeamSpotFull','DigiFullTrigger','RecoFullGlobal', 'HARVESTFullGlobal'],
+    },
+    '2026D61' : {
+        'Geom' : 'Extended2026D61',
+        'HLTmenu': '@fake2',
+        'GT' : 'auto:phase2_realistic_T17',
+        'ProcessModifier': 'phase2_PixelCPEGeneric',
+        'Era' : 'Phase2C9',
         'ScenToRun' : ['GenSimHLBeamSpotFull','DigiFullTrigger','RecoFullGlobal', 'HARVESTFullGlobal'],
     },
 }

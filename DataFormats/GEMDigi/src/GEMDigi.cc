@@ -1,7 +1,7 @@
 #include "DataFormats/GEMDigi/interface/GEMDigi.h"
 #include <iostream>
 
-GEMDigi::GEMDigi(int strip, int bx) : strip_(strip), bx_(bx) {}
+GEMDigi::GEMDigi(uint16_t strip, int16_t bx) : strip_(strip), bx_(bx) {}
 
 GEMDigi::GEMDigi() : strip_(65535), bx_(-99) {}
 

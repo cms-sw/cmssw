@@ -23,6 +23,7 @@
 #include <cstdlib>
 
 // user include files
+#include "FWCore/Utilities/interface/ESGetToken.h"
 #include "FWCore/Utilities/interface/EDGetToken.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/stream/EDProducer.h"
@@ -103,6 +104,7 @@ namespace reco {
     edm::EDGetTokenT<HBHERecHitCollection> hbherechit_token_;
     edm::EDGetTokenT<HFRecHitCollection> hfrechit_token_;
     edm::EDGetTokenT<CaloTowerCollection> calotower_token_;
+    edm::ESGetToken<CaloGeometry, CaloGeometryRecord> calogeometry_token_;
 
     float HBRecHitEnergyThreshold;
     float HERecHitEnergyThreshold;

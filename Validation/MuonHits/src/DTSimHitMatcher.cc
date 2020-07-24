@@ -58,7 +58,7 @@ void DTSimHitMatcher::matchSimHitsToSimTrack() {
       if (simMuOnly_ && std::abs(pdgid) != 13)
         continue;
       // discard electron hits in the DT chambers
-      if (discardEleHits_ && pdgid == 11)
+      if (discardEleHits_ && std::abs(pdgid) == 11)
         continue;
 
       const DTWireId layer_id(h.detUnitId());

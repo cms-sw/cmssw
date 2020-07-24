@@ -63,12 +63,16 @@ public:
 
   void reset() override {
     clusters_v_.clear();
+    clusters_v_.shrink_to_fit();
     for (auto& cl : numberOfClustersPerLayer_) {
       cl = 0;
     }
 
-    for (auto& cells : cells_)
+    for (auto& cells : cells_) {
       cells.clear();
+      cells.shrink_to_fit();
+    }
+    density_.clear();
   }
 
   Density getDensity() override;
@@ -98,6 +102,7 @@ public:
     edm::ParameterSetDescription descNestedNoiseMIP;
     descNestedNoiseMIP.add<bool>("scaleByDose", false);
     descNestedNoiseMIP.add<unsigned int>("scaleByDoseAlgo", 0);
+    descNestedNoiseMIP.add<double>("scaleByDoseFactor", 1.);
     descNestedNoiseMIP.add<std::string>("doseMap", "");
     descNestedNoiseMIP.add<double>("noise_MIP", 1. / 100.);
     iDesc.add<edm::ParameterSetDescription>("noiseMip", descNestedNoiseMIP);
@@ -173,6 +178,23 @@ private:
       sigmaNoise.clear();
       followers.clear();
       isSeed.clear();
+    }
+
+    void shrink_to_fit() {
+      detid.shrink_to_fit();
+      isSi.shrink_to_fit();
+      x.shrink_to_fit();
+      y.shrink_to_fit();
+      eta.shrink_to_fit();
+      phi.shrink_to_fit();
+      weight.shrink_to_fit();
+      rho.shrink_to_fit();
+      delta.shrink_to_fit();
+      nearestHigher.shrink_to_fit();
+      clusterIndex.shrink_to_fit();
+      sigmaNoise.shrink_to_fit();
+      followers.shrink_to_fit();
+      isSeed.shrink_to_fit();
     }
   };
 

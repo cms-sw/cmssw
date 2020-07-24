@@ -9,10 +9,8 @@
  */
 
 #include <DataFormats/TrajectorySeed/interface/TrajectorySeed.h>
-#include <FWCore/Framework/interface/EventSetup.h>
 #include <FWCore/ParameterSet/interface/ParameterSet.h>
 #include <Geometry/RPCGeometry/interface/RPCGeometry.h>
-#include <FWCore/Framework/interface/ESHandle.h>
 #include <DataFormats/Common/interface/OwnVector.h>
 #include <DataFormats/TrackingRecHit/interface/TrackingRecHit.h>
 #include "RecoMuon/MuonSeedGenerator/src/RPCSeedPattern.h"
@@ -28,17 +26,16 @@ public:
   void unsetIO();
   void run();
   void configure(const edm::ParameterSet &iConfig);
-  void setEventSetup(const edm::EventSetup &iSetup);
+  void setGeometry(const RPCGeometry &iGeom);
 
 private:
-  void CheckOverlap(const edm::EventSetup &iSetup, std::vector<weightedTrajectorySeed> *SeedsRef);
+  void CheckOverlap(const RPCGeometry &iGeom, std::vector<weightedTrajectorySeed> *SeedsRef);
   bool isShareHit(const std::vector<TrackingRecHit const *> &RecHits,
                   const TrackingRecHit &hit,
-                  edm::ESHandle<RPCGeometry> rpcGeometry);
+                  const RPCGeometry &rpcGeometry);
   // Signal for call run()
   bool isConfigured;
   bool isIOset;
-  bool isEventSetupset;
   // Parameters for configuration
   bool isCheckgoodOverlap;
   bool isCheckcandidateOverlap;
@@ -46,7 +43,7 @@ private:
   // IO ref
   std::vector<weightedTrajectorySeed> *goodweightedSeedsRef;
   std::vector<weightedTrajectorySeed> *candidateweightedSeedsRef;
-  const edm::EventSetup *eSetup;
+  const RPCGeometry *rpcGeometry;
 };
 
 #endif

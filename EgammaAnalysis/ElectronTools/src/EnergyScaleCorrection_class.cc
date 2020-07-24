@@ -445,11 +445,11 @@ correctionCategory_class::correctionCategory_class(TString category_) {
     etamax = 3;
   } else {
     if (p1 != std::string::npos) {
-      p1 = category.find("_", p1);
-      p2 = category.find("_", p1 + 1);
+      p1 = category.find('_', p1);
+      p2 = category.find('_', p1 + 1);
       etamin = TString(category.substr(p1 + 1, p2 - p1 - 1)).Atof();
       p1 = p2;
-      p2 = category.find("-", p1);
+      p2 = category.find('-', p1);
       etamax = TString(category.substr(p1 + 1, p2 - p1 - 1)).Atof();
     }
   }
@@ -477,11 +477,11 @@ correctionCategory_class::correctionCategory_class(TString category_) {
   //    std::cout << "p1 = " << p1 << "\t" << std::string::npos << "\t" << category.size() << std::endl;
   //std::cout << etmin << "\t" << etmax << "\t" << category.substr(p1+1, p2-p1-1) << "\t" << p1 << "\t" << p2 << std::endl;
   if (p1 != std::string::npos) {
-    p1 = category.find("_", p1);
-    p2 = category.find("_", p1 + 1);
+    p1 = category.find('_', p1);
+    p2 = category.find('_', p1 + 1);
     etmin = TString(category.substr(p1 + 1, p2 - p1 - 1)).Atof();
     p1 = p2;
-    p2 = category.find("-", p1);
+    p2 = category.find('-', p1);
     etmax = TString(category.substr(p1 + 1, p2 - p1 - 1)).Atof();
     //  std::cout << etmin << "\t" << etmax << "\t" << category.substr(p1 + 1, p2 - p1 - 1) << std::endl;
   }

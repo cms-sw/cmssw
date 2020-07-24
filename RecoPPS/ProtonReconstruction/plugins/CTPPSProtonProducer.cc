@@ -9,6 +9,8 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/ESWatcher.h"
+#include "FWCore/Utilities/interface/ESGetToken.h"
+#include "FWCore/Utilities/interface/ESInputTag.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
@@ -128,6 +130,10 @@ private:
 
   bool opticsValid_;
   edm::ESWatcher<CTPPSInterpolatedOpticsRcd> opticsWatcher_;
+
+  edm::ESGetToken<LHCInfo, LHCInfoRcd> lhcInfoToken_;
+  edm::ESGetToken<LHCInterpolatedOpticalFunctionsSetCollection, CTPPSInterpolatedOpticsRcd> opticalFunctionsToken_;
+  edm::ESGetToken<CTPPSGeometry, VeryForwardRealGeometryRecord> geometryToken_;
 };
 
 //----------------------------------------------------------------------------------------------------
@@ -157,7 +163,11 @@ CTPPSProtonProducer::CTPPSProtonProducer(const edm::ParameterSet &iConfig)
                  iConfig.getParameter<bool>("useImprovedInitialEstimate"),
                  iConfig.getParameter<std::string>("multiRPAlgorithm"),
                  verbosity_),
-      opticsValid_(false) {
+      opticsValid_(false),
+      lhcInfoToken_(esConsumes<LHCInfo, LHCInfoRcd>(edm::ESInputTag("", lhcInfoLabel_))),
+      opticalFunctionsToken_(esConsumes<LHCInterpolatedOpticalFunctionsSetCollection, CTPPSInterpolatedOpticsRcd>(
+          edm::ESInputTag("", opticsLabel_))),
+      geometryToken_(esConsumes<CTPPSGeometry, VeryForwardRealGeometryRecord>()) {
   for (const std::string &sector : {"45", "56"}) {
     const unsigned int arm = (sector == "45") ? 0 : 1;
     association_cuts_[arm].load(iConfig.getParameterSet("association_cuts_" + sector));
@@ -241,14 +251,12 @@ void CTPPSProtonProducer::produce(edm::Event &iEvent, const edm::EventSetup &iSe
   // NB: this avoids loading (possibly non-existing) conditions in workflows without proton data
   if (!hTracks->empty()) {
     // get conditions
-    edm::ESHandle<LHCInfo> hLHCInfo;
-    iSetup.get<LHCInfoRcd>().get(lhcInfoLabel_, hLHCInfo);
+    edm::ESHandle<LHCInfo> hLHCInfo = iSetup.getHandle(lhcInfoToken_);
 
-    edm::ESHandle<LHCInterpolatedOpticalFunctionsSetCollection> hOpticalFunctions;
-    iSetup.get<CTPPSInterpolatedOpticsRcd>().get(opticsLabel_, hOpticalFunctions);
+    edm::ESHandle<LHCInterpolatedOpticalFunctionsSetCollection> hOpticalFunctions =
+        iSetup.getHandle(opticalFunctionsToken_);
 
-    edm::ESHandle<CTPPSGeometry> hGeometry;
-    iSetup.get<VeryForwardRealGeometryRecord>().get(hGeometry);
+    edm::ESHandle<CTPPSGeometry> hGeometry = iSetup.getHandle(geometryToken_);
 
     // re-initialise algorithm upon crossing-angle change
     if (opticsWatcher_.check(iSetup)) {

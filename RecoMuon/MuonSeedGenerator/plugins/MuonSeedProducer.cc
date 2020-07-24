@@ -10,16 +10,9 @@
 // Data Formats
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
 
-// Magnetic Field
-#include "MagneticField/Engine/interface/MagneticField.h"
-#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
-
 // Geometry
 #include "Geometry/CommonDetUnit/interface/GeomDet.h"
 #include "TrackingTools/DetLayers/interface/DetLayer.h"
-
-#include "RecoMuon/DetLayers/interface/MuonDetLayerGeometry.h"
-#include "RecoMuon/Records/interface/MuonRecoGeometryRecord.h"
 
 // Framework
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -44,6 +37,9 @@ MuonSeedProducer::MuonSeedProducer(const edm::ParameterSet& pset) {
 
   // Builder which returns seed collection
   muonSeedBuilder_ = new MuonSeedBuilder(pset, iC);
+
+  muonLayersToken_ = esConsumes<MuonDetLayerGeometry, MuonRecoGeometryRecord>();
+  magFieldToken_ = esConsumes<MagneticField, IdealMagneticFieldRecord>();
 }
 
 /*
@@ -56,14 +52,12 @@ MuonSeedProducer::~MuonSeedProducer() { delete muonSeedBuilder_; }
  */
 void MuonSeedProducer::produce(edm::Event& event, const edm::EventSetup& eSetup) {
   // Muon Geometry
-  edm::ESHandle<MuonDetLayerGeometry> muonLayers;
-  eSetup.get<MuonRecoGeometryRecord>().get(muonLayers);
+  edm::ESHandle<MuonDetLayerGeometry> muonLayers = eSetup.getHandle(muonLayersToken_);
   const MuonDetLayerGeometry* lgeom = &*muonLayers;
   muonSeedBuilder_->setGeometry(lgeom);
 
   // Magnetic field
-  edm::ESHandle<MagneticField> field;
-  eSetup.get<IdealMagneticFieldRecord>().get(field);
+  edm::ESHandle<MagneticField> field = eSetup.getHandle(magFieldToken_);
   const MagneticField* theField = &*field;
   muonSeedBuilder_->setBField(theField);
 

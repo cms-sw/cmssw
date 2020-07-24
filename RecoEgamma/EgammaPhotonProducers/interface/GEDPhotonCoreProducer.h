@@ -15,9 +15,6 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "DataFormats/EgammaCandidates/interface/PhotonCore.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidateFwd.h"
-//#include "RecoEgamma/EgammaTools/interface/HoECalculator.h"
-//#include "RecoEcal/EgammaCoreTools/interface/EcalClusterTools.h"
-//#include "RecoEgamma/PhotonIdentification/interface/PhotonIsolationCalculator.h"
 
 // GEDPhotonCoreProducer inherits from EDProducer, so it can be a module:
 class GEDPhotonCoreProducer : public edm::stream::EDProducer<> {

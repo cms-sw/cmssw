@@ -10,10 +10,9 @@
 using namespace std;
 using namespace edm;
 
-RPCSeedOverlapper::RPCSeedOverlapper() {
+RPCSeedOverlapper::RPCSeedOverlapper() : rpcGeometry{nullptr} {
   isConfigured = false;
   isIOset = false;
-  isEventSetupset = false;
 }
 
 RPCSeedOverlapper::~RPCSeedOverlapper() {}
@@ -34,30 +33,24 @@ void RPCSeedOverlapper::setIO(std::vector<weightedTrajectorySeed> *goodweightedR
 
 void RPCSeedOverlapper::unsetIO() { isIOset = false; }
 
-void RPCSeedOverlapper::setEventSetup(const edm::EventSetup &iSetup) {
-  eSetup = &iSetup;
-  isEventSetupset = true;
-}
+void RPCSeedOverlapper::setGeometry(const RPCGeometry &iGeom) { rpcGeometry = &iGeom; }
 
 void RPCSeedOverlapper::run() {
-  if (isConfigured == false || isIOset == false || isEventSetupset == false) {
+  if (isConfigured == false || isIOset == false || rpcGeometry != nullptr) {
     cout << "Configuration or IO is not set yet" << endl;
     return;
   }
   if (isCheckgoodOverlap == true)
-    CheckOverlap(*eSetup, goodweightedSeedsRef);
+    CheckOverlap(*rpcGeometry, goodweightedSeedsRef);
   if (isCheckcandidateOverlap == true)
-    CheckOverlap(*eSetup, candidateweightedSeedsRef);
+    CheckOverlap(*rpcGeometry, candidateweightedSeedsRef);
 }
 
-void RPCSeedOverlapper::CheckOverlap(const edm::EventSetup &iSetup,
+void RPCSeedOverlapper::CheckOverlap(const RPCGeometry &rpcGeometry,
                                      std::vector<weightedTrajectorySeed> *weightedSeedsRef) {
   std::vector<weightedTrajectorySeed> sortweightedSeeds;
   std::vector<weightedTrajectorySeed> tempweightedSeeds;
   std::vector<TrackingRecHit const *> tempRecHits;
-
-  edm::ESHandle<RPCGeometry> rpcGeometry;
-  iSetup.get<MuonGeometryRecord>().get(rpcGeometry);
 
   while (!weightedSeedsRef->empty()) {
     cout << "Finding the weighted seeds group from " << weightedSeedsRef->size() << " seeds which share some recHits"
@@ -163,21 +156,21 @@ void RPCSeedOverlapper::CheckOverlap(const edm::EventSetup &iSetup,
 
 bool RPCSeedOverlapper::isShareHit(const std::vector<TrackingRecHit const *> &recHits,
                                    const TrackingRecHit &hit,
-                                   edm::ESHandle<RPCGeometry> rpcGeometry) {
+                                   const RPCGeometry &rpcGeometry) {
   bool istheSame = false;
   unsigned int n = 1;
   cout << "Checking from " << recHits.size() << " temp recHits" << endl;
 
   LocalPoint lpos1 = hit.localPosition();
   DetId RPCId1 = hit.geographicalId();
-  const GeomDetUnit *rpcroll1 = rpcGeometry->idToDetUnit(RPCId1);
+  const GeomDetUnit *rpcroll1 = rpcGeometry.idToDetUnit(RPCId1);
   GlobalPoint gpos1 = rpcroll1->toGlobal(lpos1);
   cout << "The hit's position: " << gpos1.x() << ", " << gpos1.y() << ", " << gpos1.z() << endl;
   for (auto const &recHit : recHits) {
     cout << "Checking the " << n << " th recHit from tempRecHits" << endl;
     LocalPoint lpos2 = recHit->localPosition();
     DetId RPCId2 = recHit->geographicalId();
-    const GeomDetUnit *rpcroll2 = rpcGeometry->idToDetUnit(RPCId2);
+    const GeomDetUnit *rpcroll2 = rpcGeometry.idToDetUnit(RPCId2);
     GlobalPoint gpos2 = rpcroll2->toGlobal(lpos2);
     cout << "The temp hit's position: " << gpos2.x() << ", " << gpos2.y() << ", " << gpos2.z() << endl;
 

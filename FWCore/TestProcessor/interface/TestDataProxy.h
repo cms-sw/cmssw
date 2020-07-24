@@ -39,7 +39,8 @@ namespace edm {
       void prefetchAsyncImpl(WaitingTask*,
                              eventsetup::EventSetupRecordImpl const&,
                              eventsetup::DataKey const&,
-                             EventSetupImpl const*) final {
+                             EventSetupImpl const*,
+                             ServiceToken const&) final {
         return;
       }
 

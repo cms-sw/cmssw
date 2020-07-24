@@ -120,6 +120,9 @@ namespace edm {
     /// Read next luminosity block (same as a prior lumi)
     void readAndMergeLumi(LuminosityBlockPrincipal& lbp);
 
+    /// Read next process block
+    bool readProcessBlock();
+
     /// Read next file
     std::unique_ptr<FileBlock> readFile();
 

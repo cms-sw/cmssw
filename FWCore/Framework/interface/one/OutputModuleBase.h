@@ -104,6 +104,8 @@ namespace edm {
       static void prevalidate(ConfigurationDescriptions&);
 
       //Output modules always need writeRun and writeLumi to be called
+      virtual bool wantsProcessBlocks() const = 0;
+      virtual bool wantsInputProcessBlocks() const = 0;
       virtual bool wantsGlobalRuns() const = 0;
       virtual bool wantsGlobalLuminosityBlocks() const = 0;
       bool wantsStreamRuns() const { return false; }
@@ -134,6 +136,9 @@ namespace edm {
       void doBeginJob();
       void doEndJob();
       bool doEvent(EventPrincipal const& ep, EventSetupImpl const& c, ActivityRegistry*, ModuleCallingContext const*);
+      void doBeginProcessBlock(ProcessBlockPrincipal const&, ModuleCallingContext const*) {}
+      void doAccessInputProcessBlock(ProcessBlockPrincipal const&, ModuleCallingContext const*) {}
+      void doEndProcessBlock(ProcessBlockPrincipal const&, ModuleCallingContext const*) {}
       bool doBeginRun(RunPrincipal const& rp, EventSetupImpl const& c, ModuleCallingContext const*);
       bool doEndRun(RunPrincipal const& rp, EventSetupImpl const& c, ModuleCallingContext const*);
       bool doBeginLuminosityBlock(LuminosityBlockPrincipal const& lbp,
@@ -208,6 +213,7 @@ namespace edm {
 
       virtual SharedResourcesAcquirer createAcquirer();
 
+      void doWriteProcessBlock(ProcessBlockPrincipal const&, ModuleCallingContext const*) {}
       void doWriteRun(RunPrincipal const& rp, ModuleCallingContext const*, MergeableRunProductMetadata const*);
       void doWriteLuminosityBlock(LuminosityBlockPrincipal const& lbp, ModuleCallingContext const*);
       void doOpenFile(FileBlock const& fb);

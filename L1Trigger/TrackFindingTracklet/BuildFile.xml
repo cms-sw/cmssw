@@ -38,6 +38,7 @@
 <use name="TrackingTools/TrajectoryParametrization"/>
 <use name="TrackingTools/TrajectoryState"/>
 <use name="TrackingTools/TransientTrack"/>
+<flags CXXFLAGS="-DUSEHYBRID"/>
 
 <export>
   <lib   name="1"/>

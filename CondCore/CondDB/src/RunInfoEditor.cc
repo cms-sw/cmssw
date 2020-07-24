@@ -40,7 +40,8 @@ namespace cond {
     cond::Time_t RunInfoEditor::getLastInserted() {
       if (m_data.get()) {
         checkTransaction("RunInfoEditor::getLastInserted");
-        return m_session->runInfoSchema().runInfoTable().getLastInserted();
+        boost::posix_time::ptime start, end;
+        return m_session->runInfoSchema().runInfoTable().getLastInserted(start, end);
       }
       return cond::time::MIN_VAL;
     }

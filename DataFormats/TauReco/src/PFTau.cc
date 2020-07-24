@@ -1,5 +1,7 @@
-#include "DataFormats/TauReco/interface/PFTau.h"
+#include <memory>
+
 #include "DataFormats/Common/interface/RefToPtr.h"
+#include "DataFormats/TauReco/interface/PFTau.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 //using namespace std;
@@ -132,12 +134,12 @@ namespace reco {
       if (ptr.isNonnull()) {
         const reco::PFCandidate* pf_cand = dynamic_cast<const reco::PFCandidate*>(&*ptr);
         if (pf_cand != nullptr) {
-          return std::unique_ptr<reco::PFCandidatePtr>(new reco::PFCandidatePtr(ptr));
+          return std::make_unique<reco::PFCandidatePtr>(ptr);
         } else
           throw cms::Exception("Type Mismatch")
               << "This PFTau was not made from PFCandidates, but it is being tried to access a PFCandidate.\n";
       }
-      return std::unique_ptr<reco::PFCandidatePtr>(new reco::PFCandidatePtr());
+      return std::make_unique<reco::PFCandidatePtr>();
     }
 
     std::unique_ptr<std::vector<reco::PFCandidatePtr> > convertToPFPtrs(const std::vector<reco::CandidatePtr>& cands) {

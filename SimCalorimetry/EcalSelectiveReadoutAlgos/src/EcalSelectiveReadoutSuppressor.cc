@@ -18,9 +18,10 @@
 //exceptions:
 #include "FWCore/Utilities/interface/Exception.h"
 
-#include <limits>
 #include <cmath>
 #include <iostream>
+#include <limits>
+#include <memory>
 
 using namespace boost;
 using namespace std;
@@ -68,8 +69,7 @@ EcalSelectiveReadoutSuppressor::EcalSelectiveReadoutSuppressor(const edm::Parame
 
   adcToGeV = settings->eeDccAdcToGeV_;
   thrUnit[ENDCAP] = adcToGeV / 4.;  //unit=1/4th ADC count
-  ecalSelectiveReadout =
-      unique_ptr<EcalSelectiveReadout>(new EcalSelectiveReadout(settings->deltaEta_[0], settings->deltaPhi_[0]));
+  ecalSelectiveReadout = std::make_unique<EcalSelectiveReadout>(settings->deltaEta_[0], settings->deltaPhi_[0]);
   const int eb = 0;
   const int ee = 1;
   initCellThresholds(settings->srpLowInterestChannelZS_[eb],

@@ -11,6 +11,7 @@
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
 
 #include <string>
+#include <vector>
 
 using namespace geant_units::operators;
 
@@ -62,13 +63,57 @@ void MaterialBudgetHcalHistos::fillBeginJob(const DDCompactView& cpv) {
           << "MaterialBudgetHcalHistos:  HF[" << i << "] = " << hfNames_[i] << " at level " << hfLevels_[i];
     }
 
-    std::string ecalRO[2] = {"EcalHitsEB", "EcalHitsEE"};
+    const std::string ecalRO[2] = {"EcalHitsEB", "EcalHitsEE"};
     attribute = "ReadOutName";
     for (int k = 0; k < 2; k++) {
       value = ecalRO[k];
       DDSpecificsMatchesValueFilter filter3{DDValue(attribute, value, 0)};
       DDFilteredView fv3(cpv, filter3);
       std::vector<std::string> senstmp = getNames(fv3);
+      edm::LogVerbatim("MaterialBudgetFull") << "MaterialBudgetHcalHistos: Names to be tested for " << attribute
+                                             << " = " << value << " has " << senstmp.size() << " elements";
+      for (unsigned int i = 0; i < senstmp.size(); i++)
+        sensitiveEC_.push_back(senstmp[i]);
+    }
+    for (unsigned int i = 0; i < sensitiveEC_.size(); i++)
+      edm::LogVerbatim("MaterialBudgetFull")
+          << "MaterialBudgetHcalHistos:sensitiveEC[" << i << "] = " << sensitiveEC_[i];
+  }
+}
+
+void MaterialBudgetHcalHistos::fillBeginJob(const cms::DDCompactView& cpv) {
+  if (fillHistos_) {
+    std::string attribute = "ReadOutName";
+    std::string value = "HcalHits";
+    const cms::DDFilter filter1(attribute, value);
+    cms::DDFilteredView fv1(cpv, filter1);
+    sensitives_ = getNames(fv1);
+    edm::LogVerbatim("MaterialBudgetFull") << "MaterialBudgetHcalHistos: Names to be tested for " << attribute << " = "
+                                           << value << " has " << sensitives_.size() << " elements";
+    for (unsigned int i = 0; i < sensitives_.size(); i++)
+      edm::LogVerbatim("MaterialBudgetFull")
+          << "MaterialBudgetHcalHistos: sensitives[" << i << "] = " << sensitives_[i];
+    attribute = "Volume";
+    value = "HF";
+    const cms::DDFilter filter2(attribute, value);
+    cms::DDFilteredView fv2(cpv, filter2);
+    std::vector<int> temp = fv2.get<std::vector<int> >("hf", "Levels");
+    hfNames_ = getNames(fv2);
+    edm::LogVerbatim("MaterialBudgetFull") << "MaterialBudgetHcalHistos: Names to be tested for " << attribute << " = "
+                                           << value << " has " << hfNames_.size() << " elements";
+    for (unsigned int i = 0; i < hfNames_.size(); i++) {
+      hfLevels_.push_back(temp[i]);
+      edm::LogVerbatim("MaterialBudgetFull")
+          << "MaterialBudgetHcalHistos:  HF[" << i << "] = " << hfNames_[i] << " at level " << hfLevels_[i];
+    }
+
+    const std::string ecalRO[2] = {"EcalHitsEB", "EcalHitsEE"};
+    attribute = "ReadOutName";
+    for (int k = 0; k < 2; k++) {
+      value = ecalRO[k];
+      const cms::DDFilter filter(attribute, value);
+      cms::DDFilteredView fv(cpv, filter);
+      std::vector<std::string> senstmp = getNames(fv);
       edm::LogVerbatim("MaterialBudgetFull") << "MaterialBudgetHcalHistos: Names to be tested for " << attribute
                                              << " = " << value << " has " << senstmp.size() << " elements";
       for (unsigned int i = 0; i < senstmp.size(); i++)
@@ -413,13 +458,25 @@ std::vector<std::string> MaterialBudgetHcalHistos::getNames(DDFilteredView& fv) 
   while (dodet) {
     const DDLogicalPart& log = fv.logicalPart();
     std::string namx = log.name().name();
-    bool ok = true;
-    for (unsigned int i = 0; i < tmp.size(); i++)
-      if (namx == tmp[i])
-        ok = false;
-    if (ok)
+    if (std::find(tmp.begin(), tmp.end(), namx) == tmp.end())
       tmp.push_back(namx);
     dodet = fv.next();
+  }
+  return tmp;
+}
+
+std::vector<std::string> MaterialBudgetHcalHistos::getNames(cms::DDFilteredView& fv) {
+  std::vector<std::string> tmp;
+  const std::vector<std::string> notIn = {
+      "CALO", "HCal", "MBBTL", "MBBTR", "MBBTC", "MBAT", "MBBT_R1M", "MBBT_R1P", "VCAL", "HVQF"};
+  while (fv.firstChild()) {
+    const std::string n{fv.name().data(), fv.name().size()};
+    if (std::find(notIn.begin(), notIn.end(), n) == notIn.end()) {
+      std::string::size_type pos = n.find(':');
+      const std::string namx = (pos == std::string::npos) ? n : std::string(n, pos + 1, n.size() - 1);
+      if (std::find(tmp.begin(), tmp.end(), namx) == tmp.end())
+        tmp.push_back(namx);
+    }
   }
   return tmp;
 }

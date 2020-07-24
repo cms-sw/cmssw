@@ -43,8 +43,18 @@ namespace {
   constexpr double m_electron = 0.511;
   constexpr double m_muon = 105.658;
   constexpr double m_proton = 938.272;
+  float calcQ(float x);
 }  // namespace
+namespace {
+  float calcQ(float x) {
+    constexpr float p1 = 12.5f;
+    constexpr float p2 = 0.2733f;
+    constexpr float p3 = 0.147f;
 
+    auto xx = std::min(0.5f * x * x, p1);
+    return 0.5f * (1.f - std::copysign(std::sqrt(1.f - unsafe_expf<4>(-xx * (1.f + p2 / (1.f + p3 * xx)))), x));
+  }
+}  // namespace
 Phase2TrackerDigitizerAlgorithm::Phase2TrackerDigitizerAlgorithm(const edm::ParameterSet& conf_common,
                                                                  const edm::ParameterSet& conf_specific)
     : _signal(),
@@ -174,14 +184,50 @@ Phase2TrackerDigitizerAlgorithm::SubdetEfficiencies::SubdetEfficiencies(const ed
   barrel_efficiencies = conf.getParameter<std::vector<double> >("EfficiencyFactors_Barrel");
   endcap_efficiencies = conf.getParameter<std::vector<double> >("EfficiencyFactors_Endcap");
 }
+void Phase2TrackerDigitizerAlgorithm::accumulateSimHits(std::vector<PSimHit>::const_iterator inputBegin,
+                                                        std::vector<PSimHit>::const_iterator inputEnd,
+                                                        const size_t inputBeginGlobalIndex,
+                                                        const uint32_t tofBin,
+                                                        const Phase2TrackerGeomDetUnit* pixdet,
+                                                        const GlobalVector& bfield) {
+  // produce SignalPoint's for all SimHit's in detector
+  // Loop over hits
+  uint32_t detId = pixdet->geographicalId().rawId();
+  size_t simHitGlobalIndex = inputBeginGlobalIndex;  // This needs to be stored to create the digi-sim link later
+
+  // find the relevant hits
+  std::vector<PSimHit> matchedSimHits;
+  std::copy_if(inputBegin, inputEnd, std::back_inserter(matchedSimHits), [detId](auto const& hit) -> bool {
+    return hit.detUnitId() == detId;
+  });
+  // loop over a much reduced set of SimHits
+  for (auto const& hit : matchedSimHits) {
+    LogDebug("Phase2DigitizerAlgorithm") << hit.particleType() << " " << hit.pabs() << " " << hit.energyLoss() << " "
+                                         << hit.tof() << " " << hit.trackId() << " " << hit.processType() << " "
+                                         << hit.detUnitId() << hit.entryPoint() << " " << hit.exitPoint();
+    double signalScale = 1.0;
+    // fill collection_points for this SimHit, indpendent of topology
+    if (select_hit(hit, (pixdet->surface().toGlobal(hit.localPosition()).mag() * c_inv), signalScale)) {
+      const auto& ionization_points = primary_ionization(hit);  // fills ionization_points
+
+      // transforms ionization_points -> collection_points
+      const auto& collection_points = drift(hit, pixdet, bfield, ionization_points);
+
+      // compute induced signal on readout elements and add to _signal
+      // hit needed only for SimHit<-->Digi link
+      induce_signal(hit, simHitGlobalIndex, tofBin, pixdet, collection_points);
+    }
+    ++simHitGlobalIndex;
+  }
+}
 // =================================================================
 //
 // Generate primary ionization along the track segment.
 // Divide the track into small sub-segments
 //
 // =================================================================
-void Phase2TrackerDigitizerAlgorithm::primary_ionization(
-    const PSimHit& hit, std::vector<DigitizerUtility::EnergyDepositUnit>& ionization_points) const {
+std::vector<DigitizerUtility::EnergyDepositUnit> Phase2TrackerDigitizerAlgorithm::primary_ionization(
+    const PSimHit& hit) const {
   // Straight line approximation for trajectory inside active media
   constexpr float SegmentLength = 0.0010;  // in cm (10 microns)
   // Get the 3D segment direction vector
@@ -198,26 +244,30 @@ void Phase2TrackerDigitizerAlgorithm::primary_ionization(
       << " " << hit.exitPoint().y() - hit.entryPoint().y() << " " << hit.exitPoint().z() - hit.entryPoint().z() << " "
       << hit.particleType() << " " << hit.pabs();
 
-  std::vector<float> elossVector;  // Eloss vector
+  std::vector<float> elossVector;
   elossVector.reserve(NumberOfSegments);
   if (fluctuateCharge_) {
     // Generate fluctuated charge points
-    fluctuateEloss(hit.particleType(), hit.pabs(), eLoss, length, NumberOfSegments, elossVector);
+    elossVector = fluctuateEloss(hit.particleType(), hit.pabs(), eLoss, length, NumberOfSegments);
+  } else {
+    float averageEloss = eLoss / NumberOfSegments;
+    elossVector.resize(NumberOfSegments, averageEloss);
   }
-  ionization_points.reserve(NumberOfSegments);  // set size
 
+  std::vector<DigitizerUtility::EnergyDepositUnit> ionization_points;
+  ionization_points.reserve(NumberOfSegments);  // set size
   // loop over segments
   for (size_t i = 0; i < elossVector.size(); ++i) {
     // Divide the segment into equal length subsegments
     Local3DPoint point = hit.entryPoint() + ((i + 0.5) / NumberOfSegments) * direction;
-    float energy = fluctuateCharge_ ? elossVector[i] / GeVperElectron_  // Convert charge to elec.
-                                    : eLoss / GeVperElectron_ / NumberOfSegments;
+    float energy = elossVector[i] / GeVperElectron_;  // Convert charge to elec.
 
     DigitizerUtility::EnergyDepositUnit edu(energy, point);  // define position,energy point
     ionization_points.push_back(edu);                        // save
     LogDebug("Phase2TrackerDigitizerAlgorithm")
         << i << " " << edu.x() << " " << edu.y() << " " << edu.z() << " " << edu.energy();
   }
+  return ionization_points;
 }
 //==============================================================================
 //
@@ -225,17 +275,8 @@ void Phase2TrackerDigitizerAlgorithm::primary_ionization(
 // Use the G4 routine. For mip pions for the moment.
 //
 //==============================================================================
-void Phase2TrackerDigitizerAlgorithm::fluctuateEloss(int pid,
-                                                     float particleMomentum,
-                                                     float eloss,
-                                                     float length,
-                                                     int NumberOfSegs,
-                                                     std::vector<float>& elossVector) const {
-  // Get dedx for this track
-  //float dedx;
-  //if( length > 0.) dedx = eloss/length;
-  //else dedx = eloss;
-
+std::vector<float> Phase2TrackerDigitizerAlgorithm::fluctuateEloss(
+    int pid, float particleMomentum, float eloss, float length, int NumberOfSegs) const {
   double particleMass = ::m_pion;  // Mass in MeV, assume pion
   pid = std::abs(pid);
   if (pid != 211) {  // Mass in MeV
@@ -254,9 +295,9 @@ void Phase2TrackerDigitizerAlgorithm::fluctuateEloss(int pid,
   // Generate charge fluctuations.
   float sum = 0.;
   double segmentEloss = (1000. * eloss) / NumberOfSegs;  //eloss in MeV
+  std::vector<float> elossVector;
+  elossVector.reserve(NumberOfSegs);
   for (int i = 0; i < NumberOfSegs; ++i) {
-    //       material,*,   momentum,energy,*, *,  mass
-    //myglandz_(14.,segmentLength,2.,2.,dedx,de,0.14);
     // The G4 routine needs momentum in MeV, mass in Mev, delta-cut in MeV,
     // track segment length in mm, segment eloss in MeV
     // Returns fluctuated eloss in MeV
@@ -280,8 +321,9 @@ void Phase2TrackerDigitizerAlgorithm::fluctuateEloss(int pid,
         });  // use a simple lambda expression
   } else {   // if fluctuations gives 0 eloss
     float averageEloss = eloss / NumberOfSegs;
-    std::fill(std::begin(elossVector), std::end(elossVector), averageEloss);
+    elossVector.resize(NumberOfSegs, averageEloss);
   }
+  return elossVector;
 }
 
 // ======================================================================
@@ -290,18 +332,19 @@ void Phase2TrackerDigitizerAlgorithm::fluctuateEloss(int pid,
 // Include the effect of E-field and B-field
 //
 // =====================================================================
-void Phase2TrackerDigitizerAlgorithm::drift(const PSimHit& hit,
-                                            const Phase2TrackerGeomDetUnit* pixdet,
-                                            const GlobalVector& bfield,
-                                            const std::vector<DigitizerUtility::EnergyDepositUnit>& ionization_points,
-                                            std::vector<DigitizerUtility::SignalPoint>& collection_points) const {
+std::vector<DigitizerUtility::SignalPoint> Phase2TrackerDigitizerAlgorithm::drift(
+    const PSimHit& hit,
+    const Phase2TrackerGeomDetUnit* pixdet,
+    const GlobalVector& bfield,
+    const std::vector<DigitizerUtility::EnergyDepositUnit>& ionization_points) const {
   LogDebug("Phase2TrackerDigitizerAlgorithm") << "enter drift ";
 
+  std::vector<DigitizerUtility::SignalPoint> collection_points;
   collection_points.reserve(ionization_points.size());                     // set size
   LocalVector driftDir = DriftDirection(pixdet, bfield, hit.detUnitId());  // get the charge drift direction
   if (driftDir.z() == 0.) {
     LogWarning("Phase2TrackerDigitizerAlgorithm") << " pxlx: drift in z is zero ";
-    return;
+    return collection_points;
   }
 
   float TanLorenzAngleX = driftDir.x();                                       // tangent of Lorentz angle
@@ -381,6 +424,7 @@ void Phase2TrackerDigitizerAlgorithm::drift(const PSimHit& hit,
     // Load the Charge distribution parameters
     collection_points.push_back(sp);
   }
+  return collection_points;
 }
 
 // ====================================================================
@@ -467,7 +511,7 @@ void Phase2TrackerDigitizerAlgorithm::induce_signal(
       } else {
         mp = MeasurementPoint(ix, 0.0);
         xLB = topol->localPosition(mp).x();
-        LowerBound = 1 - calcQ((xLB - CloudCenterX) / SigmaX);
+        LowerBound = 1 - ::calcQ((xLB - CloudCenterX) / SigmaX);
       }
 
       float xUB, UpperBound;
@@ -476,7 +520,7 @@ void Phase2TrackerDigitizerAlgorithm::induce_signal(
       } else {
         mp = MeasurementPoint(ix + 1, 0.0);
         xUB = topol->localPosition(mp).x();
-        UpperBound = 1. - calcQ((xUB - CloudCenterX) / SigmaX);
+        UpperBound = 1. - ::calcQ((xUB - CloudCenterX) / SigmaX);
       }
       float TotalIntegrationRange = UpperBound - LowerBound;  // get strip
       x.emplace(ix, TotalIntegrationRange);                   // save strip integral
@@ -491,7 +535,7 @@ void Phase2TrackerDigitizerAlgorithm::induce_signal(
       } else {
         mp = MeasurementPoint(0.0, iy);
         yLB = topol->localPosition(mp).y();
-        LowerBound = 1. - calcQ((yLB - CloudCenterY) / SigmaY);
+        LowerBound = 1. - ::calcQ((yLB - CloudCenterY) / SigmaY);
       }
 
       float yUB, UpperBound;
@@ -500,7 +544,7 @@ void Phase2TrackerDigitizerAlgorithm::induce_signal(
       } else {
         mp = MeasurementPoint(0.0, iy + 1);
         yUB = topol->localPosition(mp).y();
-        UpperBound = 1. - calcQ((yUB - CloudCenterY) / SigmaY);
+        UpperBound = 1. - ::calcQ((yUB - CloudCenterY) / SigmaY);
       }
 
       float TotalIntegrationRange = UpperBound - LowerBound;
@@ -978,7 +1022,8 @@ int Phase2TrackerDigitizerAlgorithm::convertSignalToAdc(uint32_t detID, float si
       // calculate the kink point and the slope
       int dualslope_param = std::min(std::abs(thePhase2ReadoutMode_), max_limit);
       int kink_point = static_cast<int>(theAdcFullScale_ / 2) + 1;
-      temp_signal = std::floor((signal_in_elec - threshold) / theElectronPerADC_) + 1;
+      // C-ROC: first valid ToT code above threshold is 0b0000
+      temp_signal = std::floor((signal_in_elec - threshold) / theElectronPerADC_);
       if (temp_signal > kink_point)
         temp_signal = std::floor((temp_signal - kink_point) / (pow(2, dualslope_param - 1))) + kink_point;
     }

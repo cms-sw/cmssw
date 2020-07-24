@@ -117,7 +117,7 @@ void EcalTBHodoscopeGeometryAnalyzer::build(const CaloGeometry& cg, DetId::Detec
 void EcalTBHodoscopeGeometryAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
   std::cout << "Here I am " << std::endl;
 
-  auto const pG = iSetup.getData(geometryToken_);
+  auto const& pG = iSetup.getData(geometryToken_);
   //
   // get the ecal & hcal geometry
   //

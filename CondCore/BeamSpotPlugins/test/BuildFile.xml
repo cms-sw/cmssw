@@ -1,0 +1,7 @@
+<use name="CondCore/Utilities"/>
+<use name="FWCore/PluginManager"/>
+<bin file="testBeamSpotPayloadInspector.cpp" name="testBeamSpotPayloadInspector">
+ <ifrelease name="_PY3_">
+    <flags SETENV="PYTHONHOME=$(PYTHON_BASE)"/>
+ </ifrelease>
+</bin>

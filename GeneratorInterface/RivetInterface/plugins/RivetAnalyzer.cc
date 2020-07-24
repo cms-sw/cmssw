@@ -157,7 +157,7 @@ void RivetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
     }
     // clean weight names to be accepted by Rivet plotting
     std::vector<std::string> cleanedWeightNames;
-    for (std::string wn : _weightNames) {
+    for (const std::string& wn : _weightNames) {
       cleanedWeightNames.push_back(std::regex_replace(wn, std::regex("[^A-Za-z\\d\\._=]"), "_"));
     }
     _analysisHandler.init(*myGenEvent, cleanedWeightNames);

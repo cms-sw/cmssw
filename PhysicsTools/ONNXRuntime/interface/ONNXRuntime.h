@@ -32,12 +32,14 @@ namespace cms::Ort {
     // Run inference and get outputs
     // input_names: list of the names of the input nodes.
     // input_values: list of input arrays for each input node. The order of `input_values` must match `input_names`.
+    // input_shapes: list of `int64_t` arrays specifying the shape of each input node. Can leave empty if the model does not have dynamic axes.
     // output_names: names of the output nodes to get outputs from. Empty list means all output nodes.
     // batch_size: number of samples in the batch. Each array in `input_values` must have a shape layout of (batch_size, ...).
     // Returns: a std::vector<std::vector<float>>, with the order matched to `output_names`.
     // When `output_names` is empty, will return all outputs ordered as in `getOutputNames()`.
     FloatArrays run(const std::vector<std::string>& input_names,
                     FloatArrays& input_values,
+                    const std::vector<std::vector<int64_t>>& input_shapes = {},
                     const std::vector<std::string>& output_names = {},
                     int64_t batch_size = 1) const;
 

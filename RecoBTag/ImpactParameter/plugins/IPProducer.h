@@ -18,6 +18,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+#include "FWCore/Utilities/interface/ESGetToken.h"
 
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/JetReco/interface/JetTracksAssociation.h"
@@ -41,6 +42,8 @@
 #include "RecoBTag/TrackProbability/interface/HistogramProbabilityEstimator.h"
 #include "DataFormats/BTauReco/interface/JTATagInfo.h"
 #include "DataFormats/BTauReco/interface/JetTagInfo.h"
+#include "CondFormats/DataRecord/interface/BTagTrackProbability2DRcd.h"
+#include "CondFormats/DataRecord/interface/BTagTrackProbability3DRcd.h"
 
 // system include files
 #include <memory>
@@ -139,6 +142,9 @@ private:
 
   const edm::ParameterSet& m_config;
   edm::EDGetTokenT<reco::VertexCollection> token_primaryVertex;
+  edm::ESGetToken<TransientTrackBuilder, TransientTrackRecord> token_trackBuilder;
+  edm::ESGetToken<TrackProbabilityCalibration, BTagTrackProbability2DRcd> token_calib2D;
+  edm::ESGetToken<TrackProbabilityCalibration, BTagTrackProbability3DRcd> token_calib3D;
 
   bool m_computeProbabilities;
   bool m_computeGhostTrack;
@@ -188,6 +194,10 @@ IPProducer<Container, Base, Helper>::IPProducer(const edm::ParameterSet& iConfig
   m_calibrationCacheId2D = 0;
 
   token_primaryVertex = consumes<reco::VertexCollection>(m_config.getParameter<edm::InputTag>("primaryVertex"));
+  token_trackBuilder =
+      esConsumes<TransientTrackBuilder, TransientTrackRecord>(edm::ESInputTag("", "TransientTrackBuilder"));
+  token_calib2D = esConsumes<TrackProbabilityCalibration, BTagTrackProbability2DRcd>();
+  token_calib3D = esConsumes<TrackProbabilityCalibration, BTagTrackProbability3DRcd>();
 
   m_computeProbabilities = m_config.getParameter<bool>("computeProbabilities");
   m_computeGhostTrack = m_config.getParameter<bool>("computeGhostTrack");
@@ -223,8 +233,7 @@ void IPProducer<Container, Base, Helper>::produce(edm::Event& iEvent, const edm:
   edm::Handle<reco::VertexCollection> primaryVertex;
   iEvent.getByToken(token_primaryVertex, primaryVertex);
 
-  edm::ESHandle<TransientTrackBuilder> builder;
-  iSetup.get<TransientTrackRecord>().get("TransientTrackBuilder", builder);
+  edm::ESHandle<TransientTrackBuilder> builder = iSetup.getHandle(token_trackBuilder);
   // m_algo.setTransientTrackBuilder(builder.product());
 
   // output collections
@@ -417,10 +426,8 @@ void IPProducer<Container, Base, Helper>::checkEventSetup(const edm::EventSetup&
   if (cacheId2D != m_calibrationCacheId2D || cacheId3D != m_calibrationCacheId3D)  //Calibration changed
   {
     //iSetup.get<BTagTrackProbabilityRcd>().get(calib);
-    edm::ESHandle<TrackProbabilityCalibration> calib2DHandle;
-    iSetup.get<BTagTrackProbability2DRcd>().get(calib2DHandle);
-    edm::ESHandle<TrackProbabilityCalibration> calib3DHandle;
-    iSetup.get<BTagTrackProbability3DRcd>().get(calib3DHandle);
+    edm::ESHandle<TrackProbabilityCalibration> calib2DHandle = iSetup.getHandle(token_calib2D);
+    edm::ESHandle<TrackProbabilityCalibration> calib3DHandle = iSetup.getHandle(token_calib3D);
 
     const TrackProbabilityCalibration* ca2D = calib2DHandle.product();
     const TrackProbabilityCalibration* ca3D = calib3DHandle.product();

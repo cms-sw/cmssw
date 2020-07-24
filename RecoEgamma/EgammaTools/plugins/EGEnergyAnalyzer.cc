@@ -29,8 +29,6 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "TFile.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
-//#include "CondCore/DBOutputService/interface/PoolDBOutputService.h"
-//#include "CondCore/DBCommon/interface/CoralServiceManager.h"
 
 #include "CondCore/DBOutputService/interface/PoolDBOutputService.h"
 #include "FWCore/Framework/interface/ESHandle.h"

@@ -770,9 +770,11 @@ class TauIDEmbedder(object):
             antiElectronDiscrMVA6_version = "MVA6v3_noeveto"
             ### Define new anti-e discriminants
             ## Raw
-            from RecoTauTag.RecoTau.PATTauDiscriminationAgainstElectronMVA6_cfi import patTauDiscriminationAgainstElectronMVA6
+            from RecoTauTag.RecoTau.patTauDiscriminationAgainstElectronMVA6_cfi import patTauDiscriminationAgainstElectronMVA6
             self.process.patTauDiscriminationByElectronRejectionMVA62018Raw = patTauDiscriminationAgainstElectronMVA6.clone(
+                PATTauProducer = cms.InputTag('slimmedTaus'),
                 Prediscriminants = noPrediscriminants, #already selected for MiniAOD
+                srcElectrons = cms.InputTag('slimmedElectrons'),
                 vetoEcalCracks = cms.bool(False), #keep taus in EB-EE cracks
                 mvaName_NoEleMatch_wGwoGSF_BL = 'RecoTauTag_antiElectron'+antiElectronDiscrMVA6_version+'_gbr_NoEleMatch_wGwoGSF_BL',
                 mvaName_NoEleMatch_wGwoGSF_EC = 'RecoTauTag_antiElectron'+antiElectronDiscrMVA6_version+'_gbr_NoEleMatch_wGwoGSF_EC',

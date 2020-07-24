@@ -23,7 +23,7 @@
 #include <vector>
 
 #include <openssl/md5.h>
-#include <boost/filesystem.hpp>
+#include <filesystem>
 #include <boost/iostreams/device/mapped_file.hpp>
 
 using namespace dqm;

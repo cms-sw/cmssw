@@ -68,7 +68,7 @@ void SiStripDaqInfo::bookStatus(DQMStore& dqm_store) {
   for (auto const& det : det_types) {
     std::string const me_name{"SiStrip_" + det};
     SubDetMEs local_mes{dqm_store.bookFloat(me_name), 0};
-    subDetMEsMap_.emplace(det, std::move(local_mes));
+    subDetMEsMap_.emplace(det, local_mes);
   }
   bookedStatus_ = true;
   dqm_store.cd();

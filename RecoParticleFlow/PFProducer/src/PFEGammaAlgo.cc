@@ -1811,6 +1811,7 @@ reco::SuperCluster PFEGammaAlgo::buildRefinedSuperCluster(const PFEGammaAlgo::Pr
       const auto& psclusters = RO.ecal2ps.at(clus.get());
 
       std::vector<reco::PFCluster const*> psClusterPointers;
+      psClusterPointers.reserve(psclusters.size());
       for (auto const& psc : psclusters) {
         psClusterPointers.push_back(psc->clusterRef().get());
       }

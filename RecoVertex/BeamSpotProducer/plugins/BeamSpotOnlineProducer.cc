@@ -1,10 +1,46 @@
+/**_________________________________________________________________
+   class:   BeamSpotOnlineProducer.h
+   package: RecoVertex/BeamSpotProducer
 
-#include "RecoVertex/BeamSpotProducer/interface/BeamSpotOnlineProducer.h"
+
+
+ author: Francisco Yumiceva, Fermilab (yumiceva@fnal.gov)
+
+
+________________________________________________________________**/
+
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
-
+#include "DataFormats/Common/interface/Handle.h"
+#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerEvmReadoutRecord.h"
+#include "DataFormats/Scalers/interface/BeamSpotOnline.h"
+#include "CondFormats/BeamSpotObjects/interface/BeamSpotObjects.h"
+#include "CondFormats/DataRecord/interface/BeamSpotObjectsRcd.h"
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/IOVSyncValue.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Utilities/interface/ESGetToken.h"
+
+class BeamSpotOnlineProducer : public edm::stream::EDProducer<> {
+public:
+  /// constructor
+  explicit BeamSpotOnlineProducer(const edm::ParameterSet& iConf);
+
+  /// produce a beam spot class
+  void produce(edm::Event& iEvent, const edm::EventSetup& iSetup) override;
+
+private:
+  const bool changeFrame_;
+  const double theMaxZ, theSetSigmaZ;
+  double theMaxR2;
+  const edm::EDGetTokenT<BeamSpotOnlineCollection> scalerToken_;
+  const edm::EDGetTokenT<L1GlobalTriggerEvmReadoutRecord> l1GtEvmReadoutRecordToken_;
+  const edm::ESGetToken<BeamSpotObjects, BeamSpotObjectsRcd> beamToken_;
+
+  const unsigned int theBeamShoutMode;
+};
 
 using namespace edm;
 
@@ -21,8 +57,6 @@ BeamSpotOnlineProducer::BeamSpotOnlineProducer(const ParameterSet& iconf)
 
   produces<reco::BeamSpot>();
 }
-
-BeamSpotOnlineProducer::~BeamSpotOnlineProducer() {}
 
 void BeamSpotOnlineProducer::produce(Event& iEvent, const EventSetup& iSetup) {
   //shout MODE only in stable beam
@@ -131,4 +165,5 @@ void BeamSpotOnlineProducer::produce(Event& iEvent, const EventSetup& iSetup) {
   iEvent.put(std::move(result));
 }
 
+#include "FWCore/Framework/interface/MakerMacros.h"
 DEFINE_FWK_MODULE(BeamSpotOnlineProducer);

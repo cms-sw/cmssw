@@ -52,8 +52,8 @@ class EmDQMReco : public DQMEDAnalyzer {
   class FourVectorMonitorElements {
   public:
     /** @param histogramNameTemplate should be a format string (like used in
-     * printf(..) or boost::format(..) for the histogram NAME where the first %s
-     * is replaced with et,eta or phi.
+     * printf(..) for the histogram NAME where the first %s is replaced with 
+     * et,eta or phi.
      *
      *  @param histogramTitleTemplate should be a format string (see
      * histogramNameTemplate) for the histogram TITLE where the first %s is

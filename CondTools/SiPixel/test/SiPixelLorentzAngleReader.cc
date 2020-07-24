@@ -14,8 +14,8 @@
 #include "DataFormats/SiPixelDetId/interface/PixelEndcapName.h"
 #include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
 
+#include <cstdio>
 #include <iostream>
-#include <stdio.h>
 #include <sys/time.h>
 
 using namespace cms;

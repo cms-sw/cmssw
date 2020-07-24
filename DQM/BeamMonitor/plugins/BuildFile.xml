@@ -1,4 +1,5 @@
 <use name="DQMServices/Core"/>
+<use name="DataFormats/Scalers"/>
 <use name="DataFormats/TrackReco"/>
 <use name="FWCore/Framework"/>
 <use name="DataFormats/BeamSpot"/>

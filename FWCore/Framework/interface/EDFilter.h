@@ -55,6 +55,8 @@ namespace edm {
     // Warning: the returned moduleDescription will be invalid during construction
     ModuleDescription const& moduleDescription() const { return moduleDescription_; }
 
+    static bool wantsProcessBlocks() { return false; }
+    static bool wantsInputProcessBlocks() { return false; }
     static bool wantsGlobalRuns() { return true; }
     static bool wantsGlobalLuminosityBlocks() { return true; }
     static bool wantsStreamRuns() { return false; }
@@ -76,6 +78,9 @@ namespace edm {
     void doPreallocate(PreallocationConfiguration const&) {}
     void doBeginJob();
     void doEndJob();
+    void doBeginProcessBlock(ProcessBlockPrincipal const&, ModuleCallingContext const*) {}
+    void doAccessInputProcessBlock(ProcessBlockPrincipal const&, ModuleCallingContext const*) {}
+    void doEndProcessBlock(ProcessBlockPrincipal const&, ModuleCallingContext const*) {}
     void doBeginRun(RunPrincipal const& rp, EventSetupImpl const& c, ModuleCallingContext const* mcc);
     void doEndRun(RunPrincipal const& rp, EventSetupImpl const& c, ModuleCallingContext const* mcc);
     void doBeginLuminosityBlock(LuminosityBlockPrincipal const& lbp,

@@ -16,6 +16,7 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Utilities/interface/ESGetToken.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
@@ -57,6 +58,8 @@
 
 #include "MagneticField/Engine/interface/MagneticField.h"
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
+#include "TrackingTools/TransientTrack/interface/TransientTrackBuilder.h"
+#include "TrackingTools/Records/interface/TransientTrackRecord.h"
 
 class TransientTrackBuilder;
 class ConversionVertexFinder;
@@ -86,6 +89,10 @@ private:
   edm::EDGetTokenT<edm::View<reco::CaloCluster> > bcBarrelCollection_;
   edm::EDGetTokenT<edm::View<reco::CaloCluster> > bcEndcapCollection_;
   std::string ConvertedPhotonCollection_;
+
+  edm::ESGetToken<TransientTrackBuilder, TransientTrackRecord> transientTrackBuilder_;
+  edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> trackerGeometry_;
+  edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> magneticField_;
 
   bool allowD0_, allowDeltaPhi_, allowTrackBC_, allowDeltaCot_, allowMinApproach_, allowOppCharge_, allowVertex_;
 

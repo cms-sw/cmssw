@@ -6,7 +6,7 @@ from RecoHI.HiJetAlgos.HiPFJetParameters_cff import *
 
 #pseudo towers for noise suppression background subtraction
 import RecoHI.HiJetAlgos.particleTowerProducer_cfi as _mod
-PFTowers = _mod.particleTowerProducer.clone(useHF = False)
+PFTowers = _mod.particleTowerProducer.clone(useHF = True)
 
 #dummy sequence to speed-up reconstruction in pp_on_AA era
 pfNoPileUpJMEHI = cms.EDFilter('GenericPFCandidateSelector',
@@ -43,6 +43,22 @@ akPu4PFJets = akPu5PFJets.clone(rParam       = cms.double(0.4), puPtMin = 20)
 akPu6PFJets = akPu5PFJets.clone(rParam       = cms.double(0.6), puPtMin = 30)
 akPu7PFJets = akPu5PFJets.clone(rParam       = cms.double(0.7), puPtMin = 35)
 
+hiPFCandCleanerforJets = cms.EDFilter('GenericPFCandidateSelector',
+                                src = cms.InputTag('particleFlow'),
+                                cut = cms.string("pt>5 && abs(eta)< 2")
+                                )
+
+ak4PFJetsForFlow = akPu5PFJets.clone(
+   Ghost_EtaMax = 5.0,
+   Rho_EtaMax = 4.4,
+   doRhoFastjet = False,
+   jetPtMin = 15.0,
+   nSigmaPU = cms.double(1.0),
+   rParam = 0.4,
+   radiusPU = cms.double(0.5),
+   src = "hiPFCandCleanerforJets",
+)
+
 kt4PFJetsForRho = cms.EDProducer(
     "FastjetJetProducer",
     HiPFJetParameters,
@@ -58,19 +74,27 @@ kt4PFJetsForRho.GhostArea     = cms.double(0.005)
 
 from RecoHI.HiJetAlgos.hiFJRhoProducer import hiFJRhoProducer
 
+import RecoHI.HiJetAlgos.hiFJRhoFlowModulationProducer_cfi as _mod
+hiFJRhoFlowModulation = _mod.hiFJRhoFlowModulationProducer.clone()
+
+import RecoHI.HiJetAlgos.hiPuRhoProducer_cfi as _mod
+hiPuRho = _mod.hiPuRhoProducer.clone()
+
 akCs4PFJets = cms.EDProducer(
     "CSJetProducer",
     HiPFJetParameters,
     AnomalousCellParameters,
     jetAlgorithm  = cms.string("AntiKt"),
     rParam        = cms.double(0.4),
-    etaMap    = cms.InputTag('hiFJRhoProducer','mapEtaEdges'),
-    rho       = cms.InputTag('hiFJRhoProducer','mapToRho'),
-    rhom      = cms.InputTag('hiFJRhoProducer','mapToRhoM'),
+    etaMap = cms.InputTag('hiPuRho', 'mapEtaEdges'),
+    rho = cms.InputTag('hiPuRho', 'mapToRho'),
+    rhom = cms.InputTag('hiPuRho', 'mapToRhoM'),
     csRParam  = cms.double(-1.),
     csAlpha   = cms.double(2.),
     writeJetsWithConst = cms.bool(True),
-    jetCollInstanceName = cms.string("pfParticlesCs")
+    useModulatedRho = cms.bool(True),
+    rhoFlowFitParams = cms.InputTag('hiFJRhoFlowModulation', 'rhoFlowFitParams'),
+    jetCollInstanceName = cms.string("pfParticlesCs"),
 )
 akCs4PFJets.src           = cms.InputTag('particleFlow')
 akCs4PFJets.doAreaFastjet = cms.bool(True)
@@ -81,9 +105,20 @@ akCs4PFJets.GhostArea     = cms.double(0.005)
 akCs3PFJets = akCs4PFJets.clone(rParam       = cms.double(0.3))
 
 hiRecoPFJetsTask = cms.Task(
-    PFTowers
-    ,akPu3PFJets,akPu4PFJets,akPu5PFJets
-    ,kt4PFJetsForRho,hiFJRhoProducer
-    ,akCs3PFJets,akCs4PFJets
+                           PFTowers,
+                           akPu3PFJets,
+                           akPu4PFJets,
+                           akPu5PFJets,
+                           hiPFCandCleanerforJets,
+                           kt4PFJetsForRho,
+                           ak4PFJetsForFlow,
+                           hiFJRhoProducer,
+                           hiPuRho,
+                           hiFJRhoFlowModulation,
+                           akCs3PFJets,
+                           akCs4PFJets
     )
 hiRecoPFJets = cms.Sequence(hiRecoPFJetsTask)
+
+
+
