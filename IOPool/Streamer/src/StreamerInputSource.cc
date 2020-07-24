@@ -480,9 +480,11 @@ namespace edm {
     return eventPrincipal_ ? eventPrincipal_->getIt(id) : nullptr;
   }
 
-  WrapperBase const* StreamerInputSource::EventPrincipalHolder::getThinnedProduct(edm::ProductID const& id,
-                                                                                  unsigned int& index) const {
-    return eventPrincipal_ ? eventPrincipal_->getThinnedProduct(id, index) : nullptr;
+  std::optional<std::tuple<edm::WrapperBase const*, unsigned int>>
+  StreamerInputSource::EventPrincipalHolder::getThinnedProduct(edm::ProductID const& id, unsigned int index) const {
+    if (eventPrincipal_)
+      return eventPrincipal_->getThinnedProduct(id, index);
+    return std::nullopt;
   }
 
   void StreamerInputSource::EventPrincipalHolder::getThinnedProducts(ProductID const& pid,

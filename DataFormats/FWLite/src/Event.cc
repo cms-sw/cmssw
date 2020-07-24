@@ -64,11 +64,11 @@ namespace fwlite {
       // getThinnedProduct assumes getIt was already called and failed to find
       // the product. The input key is the index of the desired element in the
       // container identified by ProductID (which cannot be found).
-      // If the return value is not null, then the desired element was found
-      // in a thinned container and key is modified to be the index into
-      // that thinned container. If the desired element is not found, then
-      // nullptr is returned.
-      edm::WrapperBase const* getThinnedProduct(edm::ProductID const& pid, unsigned int& key) const override {
+      // If the return value is not null, then the desired element was
+      // found in a thinned container. If the desired element is not
+      // found, then an optional without a value is returned.
+      std::optional<std::tuple<edm::WrapperBase const*, unsigned int>> getThinnedProduct(
+          edm::ProductID const& pid, unsigned int key) const override {
         return event_->getThinnedProduct(pid, key);
       }
 
@@ -366,7 +366,8 @@ namespace fwlite {
     return dataHelper_.getByProductID(iID, eventEntry);
   }
 
-  edm::WrapperBase const* Event::getThinnedProduct(edm::ProductID const& pid, unsigned int& key) const {
+  std::optional<std::tuple<edm::WrapperBase const*, unsigned int>> Event::getThinnedProduct(edm::ProductID const& pid,
+                                                                                            unsigned int key) const {
     Long_t eventEntry = branchMap_.getEventEntry();
     return dataHelper_.getThinnedProduct(pid, key, eventEntry);
   }

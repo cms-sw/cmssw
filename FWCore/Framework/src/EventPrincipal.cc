@@ -301,19 +301,15 @@ namespace edm {
 
   WrapperBase const* EventPrincipal::getIt(ProductID const& pid) const { return getByProductID(pid).wrapper(); }
 
-  WrapperBase const* EventPrincipal::getThinnedProduct(ProductID const& pid, unsigned int& key) const {
-    auto wrapperKey = detail::getThinnedProduct(
+  std::optional<std::tuple<WrapperBase const*, unsigned int>> EventPrincipal::getThinnedProduct(
+      ProductID const& pid, unsigned int key) const {
+    return detail::getThinnedProduct(
         pid,
         key,
         *thinnedAssociationsHelper_,
         [this](ProductID const& p) { return pidToBid(p); },
         [this](BranchID const& b) { return getThinnedAssociation(b); },
         [this](ProductID const& p) { return getIt(p); });
-    if (wrapperKey.has_value()) {
-      key = std::get<unsigned int>(*wrapperKey);
-      return std::get<WrapperBase const*>(*wrapperKey);
-    }
-    return nullptr;
   }
 
   void EventPrincipal::getThinnedProducts(ProductID const& pid,
