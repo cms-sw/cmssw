@@ -57,17 +57,17 @@ EcalRecHitWorkerSimple::EcalRecHitWorkerSimple(const edm::ParameterSet& ps, edm:
 }
 
 void EcalRecHitWorkerSimple::set(const edm::EventSetup& es) {
-  es.get<EcalIntercalibConstantsRcd>().get(ical);
+  ical = es.getHandle(icalToken_);
 
   if (!skipTimeCalib_) {
-    es.get<EcalTimeCalibConstantsRcd>().get(itime);
-    es.get<EcalTimeOffsetConstantRcd>().get(offtime);
+    itime = es.getHandle(itimeToken_);
+    offtime = es.getHandle(offtimeToken_);
   }
 
-  es.get<EcalADCToGeVConstantRcd>().get(agc);
-  es.get<EcalChannelStatusRcd>().get(chStatus);
+  agc = es.getHandle(agcToken_);
+  chStatus = es.getHandle(chStatusToken_);
   if (laserCorrection_)
-    es.get<EcalLaserDbRecord>().get(laser);
+    laser = es.getHandle(laserToken_);
 }
 
 bool EcalRecHitWorkerSimple::run(const edm::Event& evt,
