@@ -174,7 +174,7 @@ void JetPlusTrackProducer::produce(edm::Event& iEvent, const edm::EventSetup& iS
       pOut1->push_back(mycalo);
     }
   }  // trackjets
-     
+
   int iJet = 0;
   for (auto const& oldjet : jets_h) {
     reco::CaloJet corrected = oldjet;
