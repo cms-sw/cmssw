@@ -19,7 +19,7 @@
 //
 
 // system include files
-#include <boost/filesystem/path.hpp>
+#include <filesystem>
 
 // user include files
 
@@ -28,12 +28,12 @@
 namespace edmplugin {
   class SharedLibrary {
   public:
-    SharedLibrary(const boost::filesystem::path& iName);
+    SharedLibrary(const std::filesystem::path& iName);
     ~SharedLibrary();
 
     // ---------- const member functions ---------------------
     bool symbol(const std::string& iSymbolName, void*& iSymbol) const;
-    const boost::filesystem::path& path() const { return path_; }
+    const std::filesystem::path& path() const { return path_; }
 
     // ---------- static member functions --------------------
 
@@ -46,7 +46,7 @@ namespace edmplugin {
 
     // ---------- member data --------------------------------
     void* libraryHandle_;
-    boost::filesystem::path path_;
+    std::filesystem::path path_;
   };
 
 }  // namespace edmplugin
