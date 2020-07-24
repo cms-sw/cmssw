@@ -39,7 +39,7 @@ public:
     std::vector<edm::Ptr<l1t::HGCalTriggerCell>> trigCellVec;
     for (unsigned i = 0; i < unclTCsCollHandle->size(); ++i) {
       edm::Ptr<l1t::HGCalCluster> ptr(unclTCsCollHandle, i);
-      for (auto itTC : ptr->constituents()) {
+      for (const auto& itTC : ptr->constituents()) {
         trigCellVec.push_back(itTC.second);
       }
     }

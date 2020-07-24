@@ -21,7 +21,7 @@ public:
   void buildTowerMap2D(const std::vector<edm::Ptr<T>>& ptrs, l1t::HGCalTowerMapBxCollection& towerMaps) {
     std::unordered_map<int, l1t::HGCalTowerMap> towerMapsTmp = newTowerMaps();
 
-    for (auto ptr : ptrs) {
+    for (const auto& ptr : ptrs) {
       if (triggerTools_.isNose(ptr->detId()))
         continue;
       unsigned layer = triggerTools_.layerWithOffset(ptr->detId());
@@ -43,7 +43,7 @@ public:
     /* store towerMaps in the persistent collection */
     towerMaps.resize(0, towerMapsTmp.size());
     int i = 0;
-    for (auto towerMap : towerMapsTmp) {
+    for (const auto& towerMap : towerMapsTmp) {
       towerMaps.set(0, i, towerMap.second);
       i++;
     }

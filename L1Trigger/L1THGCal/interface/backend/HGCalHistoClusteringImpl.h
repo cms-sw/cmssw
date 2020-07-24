@@ -44,7 +44,7 @@ private:
       std::vector<l1t::HGCalCluster>& rejected_clusters) const;
 
   void finalizeClusters(std::vector<l1t::HGCalMulticluster>&,
-                        std::vector<l1t::HGCalCluster>&,
+                        const std::vector<l1t::HGCalCluster>&,
                         l1t::HGCalMulticlusterBxCollection&,
                         l1t::HGCalClusterBxCollection&,
                         const HGCalTriggerGeometryBase&) const;
