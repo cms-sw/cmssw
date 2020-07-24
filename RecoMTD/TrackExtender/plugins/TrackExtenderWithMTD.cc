@@ -678,7 +678,7 @@ void TrackExtenderWithMTDT<TrackCollection>::produce(edm::Event& ev, const edm::
       thits.swap(mtdthits);
     }
 
-    const auto& trajwithmtd = theTransformer->transform(ttrack, thits);
+    const auto& trajwithmtd = mtdthits.empty() ? trajs : theTransformer->transform(ttrack, thits);
     float pMap = 0.f, betaMap = 0.f, t0Map = 0.f, sigmat0Map = -1.f, pathLengthMap = -1.f, tmtdMap = 0.f,
           sigmatmtdMap = -1.f;
     int iMap = -1;
