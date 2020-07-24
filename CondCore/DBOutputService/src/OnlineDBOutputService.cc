@@ -6,19 +6,19 @@
 cond::service::OnlineDBOutputService::OnlineDBOutputService(const edm::ParameterSet& iConfig,
                                                             edm::ActivityRegistry& iAR)
     : PoolDBOutputService(iConfig, iAR),
+      m_runNumber(iConfig.getUntrackedParameter<unsigned long long>("runNumber", 0)),
       m_latencyInLumisections(iConfig.getUntrackedParameter<unsigned int>("latency", 1)),
       m_lastLumiUrl(iConfig.getUntrackedParameter<std::string>("lastLumiUrl", "")),
       m_preLoadConnectionString(iConfig.getUntrackedParameter<std::string>("preLoadConnectionString", "")),
       m_debug(iConfig.getUntrackedParameter<bool>("debugLogging", false)) {
   if (!m_lastLumiUrl.empty()) {
     startTransaction();
-    m_runNumber = PoolDBOutputService::session().getCurrentRun().run;
+    auto lastRun = PoolDBOutputService::session().getLastRun();
+    if (lastRun.isOnGoing()) {
+      m_runNumber = lastRun.run;
+    }
   } else {
     m_lastLumiFile = iConfig.getUntrackedParameter<std::string>("lastLumiFile", "");
-    //if( m_lastLumiFile.size() == 0 ){
-    //  m_runNumber = iConfig.getUntrackedParameter<unsigned long long>("runNumber",100000);
-    //  m_startRunTime = std::chrono::steady_clock::now();
-    //}
   }
 }
 
