@@ -32,7 +32,6 @@ public:
   explicit HTXSRivetProducer(const edm::ParameterSet& cfg)
       : _hepmcCollection(consumes<HepMCProduct>(cfg.getParameter<edm::InputTag>("HepMCCollection"))),
         _lheRunInfo(consumes<LHERunInfoProduct, edm::InRun>(cfg.getParameter<edm::InputTag>("LHERunInfo"))) {
-
     _HTXS = new Rivet::HiggsTemplateCrossSections();
 
     _isFirstEvent = true;
