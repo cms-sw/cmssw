@@ -783,12 +783,12 @@ namespace {
                          const reco::BeamSpot& bs,
                          const float bsTimeSpread,
                          const Propagator* prop,
-                         const std::unique_ptr<MeasurementEstimator>& theEstimator,
+                         const MeasurementEstimator* estimator,
                          bool useVtxConstraint,
                          std::set<MTDHitMatchingInfo>& out) {
-    pair<bool, TrajectoryStateOnSurface> comp = layer->compatible(tsos, *prop, *theEstimator);
+    pair<bool, TrajectoryStateOnSurface> comp = layer->compatible(tsos, *prop, *estimator);
     if (comp.first) {
-      const vector<DetLayer::DetWithState> compDets = layer->compatibleDets(tsos, *prop, *theEstimator);
+      const vector<DetLayer::DetWithState> compDets = layer->compatibleDets(tsos, *prop, *estimator);
       if (!compDets.empty()) {
         for (const auto& detWithState : compDets) {
           auto range = hits.equal_range(detWithState.first->geographicalId(), cmp_for_detset);
@@ -809,7 +809,7 @@ namespace {
 
           for (auto detitr = range.first; detitr != range.second; ++detitr) {
             for (const auto& hit : *detitr) {
-              auto est = theEstimator->estimate(detWithState.second, hit);
+              auto est = estimator->estimate(detWithState.second, hit);
               if (!est.first)
                 continue;
 
@@ -915,9 +915,9 @@ void TrackExtenderWithMTDT<TrackCollection>::fillMatchingHits(const DetLayer* il
                              bs,
                              bsTimeSpread_,
                              prop,
-                             std::ref(theEstimator),
+                             theEstimator.get(),
                              _2,
-                             std::ref(hitsInLayer));
+                             hitsInLayer);
 
   if (useVertex_ && matchVertex)
     find_hits(vtxTime, true);
