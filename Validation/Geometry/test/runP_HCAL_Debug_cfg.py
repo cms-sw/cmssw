@@ -20,6 +20,7 @@ process.RandomNumberGeneratorService.VtxSmeared.initialSeed = 123456789
 process.load('FWCore.MessageService.MessageLogger_cfi')
 if hasattr(process,'MessageLogger'):
     process.MessageLogger.categories.append('MaterialBudget')
+#   process.MessageLogger.categories.append('MaterialBudgetFull')
 
 process.source = cms.Source("EmptySource",
     firstRun        = cms.untracked.uint32(1),
@@ -67,7 +68,8 @@ process.g4SimHits.Watchers = cms.VPSet(cms.PSet(
         EtaMinP      = cms.untracked.double(-5.5),
         EtaMaxP      = cms.untracked.double(5.5),
         RMax         = cms.untracked.double(5.0),
-        ZMax         = cms.untracked.double(14.0)
+        ZMax         = cms.untracked.double(14.0),
+        Fromdd4hep   = cms.untracked.bool(False)
     ),
     type = cms.string('MaterialBudgetHcal')
 ))

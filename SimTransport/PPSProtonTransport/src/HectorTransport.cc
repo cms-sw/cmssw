@@ -5,6 +5,8 @@
 //Hector headers
 #include "H_BeamLine.h"
 #include "H_BeamParticle.h"
+#include <memory>
+
 #include <string>
 
 HectorTransport::~HectorTransport(){};
@@ -171,11 +173,11 @@ bool HectorTransport::setBeamLine() {
 
   // construct beam line for PPS (forward 1 backward 2):
   if (fPPSBeamLineLength_ > 0.) {
-    m_beamline45 = std::unique_ptr<H_BeamLine>(
-        new H_BeamLine(-1, fPPSBeamLineLength_ + 0.1));  // it is needed to move too  (direction, length, beamEnergy_)
+    m_beamline45 = std::make_unique<H_BeamLine>(
+        -1, fPPSBeamLineLength_ + 0.1);  // it is needed to move too  (direction, length, beamEnergy_)
     m_beamline45->fill(b2.fullPath(), 1, "IP5");
-    m_beamline56 = std::unique_ptr<H_BeamLine>(
-        new H_BeamLine(1, fPPSBeamLineLength_ + 0.1));  // the same as above, it requires a change in HECTOR
+    m_beamline56 = std::make_unique<H_BeamLine>(
+        1, fPPSBeamLineLength_ + 0.1);  // the same as above, it requires a change in HECTOR
     m_beamline56->fill(b1.fullPath(), 1, "IP5");
   } else {
     if (verbosity_)

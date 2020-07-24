@@ -143,7 +143,7 @@ void SiStripApvGainRescaler::endJob() {}
 //********************************************************************************//
 std::unique_ptr<SiStripApvGain> SiStripApvGainRescaler::getNewObject(
     const std::map<std::pair<uint32_t, int>, float>& theMap) {
-  std::unique_ptr<SiStripApvGain> obj = std::unique_ptr<SiStripApvGain>(new SiStripApvGain());
+  std::unique_ptr<SiStripApvGain> obj = std::make_unique<SiStripApvGain>();
 
   std::vector<float> theSiStripVector;
   uint32_t PreviousDetId = 0;

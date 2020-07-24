@@ -220,7 +220,7 @@ edm::RawInputSource::Next FedRawDataInputSource::checkNext() {
     //this thread opens new files and dispatches reading to worker readers
     //threadInit_.store(false,std::memory_order_release);
     std::unique_lock<std::mutex> lk(startupLock_);
-    readSupervisorThread_.reset(new std::thread(&FedRawDataInputSource::readSupervisor, this));
+    readSupervisorThread_ = std::make_unique<std::thread>(&FedRawDataInputSource::readSupervisor, this);
     startedSupervisorThread_ = true;
     startupCv_.wait(lk);
   }
@@ -486,7 +486,7 @@ inline evf::EvFDaqDirector::FileStatus FedRawDataInputSource::getNextEvent() {
       }
     }
 
-    event_.reset(new FRDEventMsgView(dataPosition));
+    event_ = std::make_unique<FRDEventMsgView>(dataPosition);
     if (event_->size() > eventChunkSize_) {
       throw cms::Exception("FedRawDataInputSource::getNextEvent")
           << " event id:" << event_->event() << " lumi:" << event_->lumi() << " run:" << event_->run()
@@ -504,7 +504,7 @@ inline evf::EvFDaqDirector::FileStatus FedRawDataInputSource::getNextEvent() {
       readNextChunkIntoBuffer(currentFile_.get());
       //recalculate chunk position
       dataPosition = currentFile_->chunks_[0]->buf_ + currentFile_->chunkPosition_;
-      event_.reset(new FRDEventMsgView(dataPosition));
+      event_ = std::make_unique<FRDEventMsgView>(dataPosition);
     }
     currentFile_->bufferPosition_ += event_->size();
     currentFile_->chunkPosition_ += event_->size();
@@ -531,7 +531,7 @@ inline evf::EvFDaqDirector::FileStatus FedRawDataInputSource::getNextEvent() {
     //read header, copy it to a single chunk if necessary
     bool chunkEnd = currentFile_->advance(dataPosition, FRDHeaderVersionSize[detectedFRDversion_]);
 
-    event_.reset(new FRDEventMsgView(dataPosition));
+    event_ = std::make_unique<FRDEventMsgView>(dataPosition);
     if (event_->size() > eventChunkSize_) {
       throw cms::Exception("FedRawDataInputSource::getNextEvent")
           << " event id:" << event_->event() << " lumi:" << event_->lumi() << " run:" << event_->run()
@@ -560,7 +560,7 @@ inline evf::EvFDaqDirector::FileStatus FedRawDataInputSource::getNextEvent() {
         assert(chunkEnd);
         chunkIsFree_ = true;
         //header is moved
-        event_.reset(new FRDEventMsgView(dataPosition));
+        event_ = std::make_unique<FRDEventMsgView>(dataPosition);
       } else {
         //everything is in a single chunk, only move pointers forward
         chunkEnd = currentFile_->advance(dataPosition, msgSize);
@@ -977,7 +977,7 @@ void FedRawDataInputSource::readSupervisor() {
       if (useFileBroker_ || rawHeaderSize)
         rawFile = nextFile;
       else {
-        boost::filesystem::path rawFilePath(nextFile);
+        std::filesystem::path rawFilePath(nextFile);
         rawFile = rawFilePath.replace_extension(".raw").string();
       }
 
@@ -1386,20 +1386,20 @@ InputFile::~InputFile() {
     close(rawFd_);
 
   if (deleteFile_ && !fileName_.empty()) {
-    const boost::filesystem::path filePath(fileName_);
+    const std::filesystem::path filePath(fileName_);
     try {
       //sometimes this fails but file gets deleted
       LogDebug("FedRawDataInputSource:InputFile") << "Deleting input file -:" << fileName_;
-      boost::filesystem::remove(filePath);
+      std::filesystem::remove(filePath);
       return;
-    } catch (const boost::filesystem::filesystem_error& ex) {
+    } catch (const std::filesystem::filesystem_error& ex) {
       edm::LogError("FedRawDataInputSource:InputFile")
           << " - deleteFile BOOST FILESYSTEM ERROR CAUGHT -: " << ex.what() << ". Trying again.";
     } catch (std::exception& ex) {
       edm::LogError("FedRawDataInputSource:InputFile")
           << " - deleteFile std::exception CAUGHT -: " << ex.what() << ". Trying again.";
     }
-    boost::filesystem::remove(filePath);
+    std::filesystem::remove(filePath);
   }
 }
 
@@ -1498,18 +1498,18 @@ std::pair<bool, unsigned int> FedRawDataInputSource::getEventReport(unsigned int
 
 long FedRawDataInputSource::initFileList() {
   std::sort(fileNames_.begin(), fileNames_.end(), [](std::string a, std::string b) {
-    if (a.rfind("/") != std::string::npos)
-      a = a.substr(a.rfind("/"));
-    if (b.rfind("/") != std::string::npos)
-      b = b.substr(b.rfind("/"));
+    if (a.rfind('/') != std::string::npos)
+      a = a.substr(a.rfind('/'));
+    if (b.rfind('/') != std::string::npos)
+      b = b.substr(b.rfind('/'));
     return b > a;
   });
 
   if (!fileNames_.empty()) {
     //get run number from first file in the vector
-    boost::filesystem::path fileName = fileNames_[0];
+    std::filesystem::path fileName = fileNames_[0];
     std::string fileStem = fileName.stem().string();
-    auto end = fileStem.find("_");
+    auto end = fileStem.find('_');
     if (fileStem.find("run") == 0) {
       std::string runStr = fileStem.substr(3, end - 3);
       try {
@@ -1536,12 +1536,12 @@ evf::EvFDaqDirector::FileStatus FedRawDataInputSource::getFile(unsigned int& ls,
       nextFile = nextFile.substr(7);
     else if (nextFile.find("file:") == 0)
       nextFile = nextFile.substr(5);
-    boost::filesystem::path fileName = nextFile;
+    std::filesystem::path fileName = nextFile;
     std::string fileStem = fileName.stem().string();
     if (fileStem.find("ls"))
       fileStem = fileStem.substr(fileStem.find("ls") + 2);
-    if (fileStem.find("_"))
-      fileStem = fileStem.substr(0, fileStem.find("_"));
+    if (fileStem.find('_'))
+      fileStem = fileStem.substr(0, fileStem.find('_'));
 
     if (!fileListLoopMode_)
       ls = boost::lexical_cast<unsigned int>(fileStem);

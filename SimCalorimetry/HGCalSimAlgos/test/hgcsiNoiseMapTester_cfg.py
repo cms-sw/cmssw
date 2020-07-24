@@ -11,7 +11,7 @@ options.parseArguments()
 process = cms.Process("demo",eras.Phase2C8)
 
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-process.load('Configuration.Geometry.GeometryExtended2026D41Reco_cff')
+process.load('Configuration.Geometry.GeometryExtended2026D49Reco_cff')
 from Configuration.AlCa.GlobalTag import GlobalTag
 process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase2_realistic', '')
 
@@ -20,6 +20,7 @@ process.source = cms.Source("EmptySource")
 
 from SimCalorimetry.HGCalSimProducers.hgcalDigitizer_cfi import HGCAL_ileakParam_toUse, HGCAL_cceParams_toUse
 process.plotter_eol = cms.EDAnalyzer("HGCSiNoiseMapAnalyzer",
+                                     scaleByDoseFactor  = cms.double(1.),
                                      doseMap            = cms.string( options.doseMap ),
                                      doseMapAlgo        = cms.uint32(0),
                                      ileakParam         = HGCAL_ileakParam_toUse,

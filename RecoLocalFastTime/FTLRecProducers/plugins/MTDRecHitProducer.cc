@@ -83,7 +83,7 @@ void MTDRecHitProducer::produce(edm::Event& evt, const edm::EventSetup& es) {
     uint32_t flags = FTLRecHit::kGood;
     auto rechit = barrel_->makeRecHit(uhit, flags);
     if (flags == FTLRecHit::kGood)
-      barrelRechits->push_back(std::move(rechit));
+      barrelRechits->push_back(rechit);
   }
 
   edm::Handle<FTLUncalibratedRecHitCollection> hEndcap;
@@ -93,7 +93,7 @@ void MTDRecHitProducer::produce(edm::Event& evt, const edm::EventSetup& es) {
     uint32_t flags = FTLRecHit::kGood;
     auto rechit = endcap_->makeRecHit(uhit, flags);
     if (flags == FTLRecHit::kGood)
-      endcapRechits->push_back(std::move(rechit));
+      endcapRechits->push_back(rechit);
   }
 
   // put the collection of recunstructed hits in the event

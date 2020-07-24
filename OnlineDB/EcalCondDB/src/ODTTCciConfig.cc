@@ -122,7 +122,7 @@ void ODTTCciConfig::setParameters(const std::map<string, string>& my_keys_map) {
       string str3;
       size_t pos, pose;
 
-      pos = fname.find("=");  // position of "live" in str
+      pos = fname.find('=');  // position of "live" in str
       pose = fname.size();    // position of "]" in str
       str3 = fname.substr(pos + 1, pose - pos - 2);
 

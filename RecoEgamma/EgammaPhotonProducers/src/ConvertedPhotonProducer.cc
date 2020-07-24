@@ -26,8 +26,7 @@
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 //
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
-//
-#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
+#include "RecoTracker/Record/interface/TrackerRecoGeometryRecord.h"
 //
 #include "RecoEgamma/EgammaPhotonAlgos/interface/ConversionTrackEcalImpactPoint.h"
 #include "RecoEgamma/EgammaPhotonAlgos/interface/ConversionTrackPairFinder.h"
@@ -35,7 +34,6 @@
 #include "RecoEgamma/EgammaPhotonProducers/interface/ConvertedPhotonProducer.h"
 //
 #include "RecoTracker/Record/interface/CkfComponentsRecord.h"
-#include "RecoTracker/Record/interface/TrackerRecoGeometryRecord.h"
 //
 #include "TrackingTools/TransientTrack/interface/TransientTrack.h"
 #include "TrackingTools/TransientTrack/interface/TrackTransientTrack.h"
@@ -89,6 +87,11 @@ ConvertedPhotonProducer::ConvertedPhotonProducer(const edm::ParameterSet& config
   risolveAmbiguity_ = conf_.getParameter<bool>("risolveConversionAmbiguity");
   likelihoodWeights_ = conf_.getParameter<std::string>("MVA_weights_location");
 
+  caloGeomToken_ = esConsumes<CaloGeometry, CaloGeometryRecord>();
+  mFToken_ = esConsumes<MagneticField, IdealMagneticFieldRecord, edm::Transition::BeginRun>();
+  transientTrackToken_ = esConsumes<TransientTrackBuilder, TransientTrackRecord, edm::Transition::BeginRun>(
+      edm::ESInputTag("", "TransientTrackBuilder"));
+
   // use configuration file to setup output collection names
   ConvertedPhotonCollection_ = conf_.getParameter<std::string>("convertedPhotonCollection");
   CleanedConvertedPhotonCollection_ = conf_.getParameter<std::string>("cleanedConvertedPhotonCollection");
@@ -118,10 +121,10 @@ ConvertedPhotonProducer::~ConvertedPhotonProducer() {
 void ConvertedPhotonProducer::beginRun(edm::Run const& r, edm::EventSetup const& theEventSetup) {
   //get magnetic field
   //edm::LogInfo("ConvertedPhotonProducer") << " get magnetic field" << "\n";
-  theEventSetup.get<IdealMagneticFieldRecord>().get(theMF_);
+  theMF_ = theEventSetup.getHandle(mFToken_);
 
   // Transform Track into TransientTrack (needed by the Vertex fitter)
-  theEventSetup.get<TransientTrackRecord>().get("TransientTrackBuilder", theTransientTrackBuilder_);
+  theTransientTrackBuilder_ = theEventSetup.getHandle(transientTrackToken_);
 }
 
 void ConvertedPhotonProducer::produce(edm::Event& theEvent, const edm::EventSetup& theEventSetup) {
@@ -231,7 +234,7 @@ void ConvertedPhotonProducer::produce(edm::Event& theEvent, const edm::EventSetu
   theEvent.getByToken(hcalTowers_, hcalTowersHandle);
 
   // get the geometry from the event setup:
-  theEventSetup.get<CaloGeometryRecord>().get(theCaloGeom_);
+  theCaloGeom_ = theEventSetup.getHandle(caloGeomToken_);
 
   if (validTrackInputs) {
     //do the conversion:

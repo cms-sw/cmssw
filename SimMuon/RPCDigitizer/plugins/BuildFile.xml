@@ -2,12 +2,10 @@
   <use name="FWCore/Utilities"/>
   <use name="FWCore/Framework"/>
   <use name="FWCore/ServiceRegistry"/>
-  <use name="CommonTools/UtilAlgos"/>
   <use name="CondFormats/RecoMuonObjects"/>
   <use name="DataFormats/Common"/>
   <use name="DataFormats/RPCDigi"/>
   <use name="DataFormats/MuonDetId"/>
-  <use name="DataFormats/GeometryVector"/>
   <use name="Geometry/RPCGeometry"/>
   <use name="Geometry/Records"/>
   <use name="CondFormats/DataRecord"/>

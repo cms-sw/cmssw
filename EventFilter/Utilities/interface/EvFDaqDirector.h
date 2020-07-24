@@ -9,13 +9,14 @@
 #include "EventFilter/Utilities/interface/DirManager.h"
 
 //std headers
-#include <string>
-#include <sstream>
+#include <filesystem>
 #include <iomanip>
-#include <vector>
-#include <map>
 #include <list>
+#include <map>
 #include <mutex>
+#include <sstream>
+#include <string>
+#include <vector>
 
 //system headers
 #include <sys/stat.h>
@@ -26,7 +27,6 @@
 #include <cstdio>
 
 #include <tbb/concurrent_hash_map.h>
-#include <boost/filesystem.hpp>
 #include <boost/asio.hpp>
 
 class SystemBounds;
@@ -149,7 +149,7 @@ namespace evf {
                          std::string const& rawSourcePath,
                          int64_t& fileSizeFromJson,
                          bool& fileFound);
-    int grabNextJsonFileAndUnlock(boost::filesystem::path const& jsonSourcePath);
+    int grabNextJsonFileAndUnlock(std::filesystem::path const& jsonSourcePath);
 
     EvFDaqDirector::FileStatus contactFileBroker(unsigned int& serverHttpStatus,
                                                  bool& serverState,

@@ -266,16 +266,11 @@ from Configuration.Eras.Modifier_phase2_hgcal_cff import phase2_hgcal
 phase2_hgcal.toModify( theMixObjects,
     mixCH = dict(
         input = theMixObjects.mixCH.input + [ cms.InputTag("g4SimHits",hgceeDigitizer.hitCollection.value()),
-                                              cms.InputTag("g4SimHits",hgchefrontDigitizer.hitCollection.value()) ],
+                                              cms.InputTag("g4SimHits",hgchefrontDigitizer.hitCollection.value()),
+                                              cms.InputTag("g4SimHits",hgchebackDigitizer.hitCollection.value()) ],
         subdets = theMixObjects.mixCH.subdets + [ hgceeDigitizer.hitCollection.value(),
-                                                  hgchefrontDigitizer.hitCollection.value() ],
-    )
-)
-from Configuration.Eras.Modifier_phase2_hgcalV9_cff import phase2_hgcalV9
-phase2_hgcalV9.toModify( theMixObjects,
-    mixCH = dict(
-        input = theMixObjects.mixCH.input + [ cms.InputTag("g4SimHits",hgchebackDigitizer.hitCollection.value()) ],
-        subdets = theMixObjects.mixCH.subdets + [ hgchebackDigitizer.hitCollection.value() ],
+                                                  hgchefrontDigitizer.hitCollection.value(),
+                                                  hgchebackDigitizer.hitCollection.value() ],
     )
 )
 from Configuration.Eras.Modifier_phase2_hfnose_cff import phase2_hfnose

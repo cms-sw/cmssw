@@ -18,11 +18,11 @@ from Configuration.Eras.Modifier_phase2_hfnose_cff import phase2_hfnose
 phase2_hfnose.toReplaceWith(
         hgcalTriggerPrimitivesTask, _hfnose_hgcalTriggerPrimitivesTask )
 
-from Configuration.Eras.Modifier_phase2_hgcalV9_cff import phase2_hgcalV9
+from Configuration.Eras.Modifier_phase2_hgcalV10_cff import phase2_hgcalV10
 from Configuration.Eras.Modifier_phase2_hgcalV11_cff import phase2_hgcalV11
 from L1Trigger.L1THGCal.customTriggerGeometry import custom_geometry_decentralized_V9, custom_geometry_decentralized_V11
 from L1Trigger.L1THGCal.customCalibration import  custom_cluster_calibration_global
-modifyHgcalTriggerPrimitivesWithV9Geometry_ = (phase2_hgcalV9 & ~phase2_hgcalV11).makeProcessModifier(custom_geometry_decentralized_V9)
+modifyHgcalTriggerPrimitivesWithV9Geometry_ = (phase2_hgcalV10 & ~phase2_hgcalV11).makeProcessModifier(custom_geometry_decentralized_V9)
 modifyHgcalTriggerPrimitivesWithV11Geometry_ = phase2_hgcalV11.makeProcessModifier(custom_geometry_decentralized_V11)
 
 from Configuration.ProcessModifiers.convertHGCalDigisSim_cff import convertHGCalDigisSim

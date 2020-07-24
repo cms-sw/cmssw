@@ -59,10 +59,10 @@ namespace {
       m_valueToFill = iPSet.getUntrackedParameter<double>("value");
     }
 
-    virtual ~TH1FFiller(){};
+    ~TH1FFiller() override{};
 
-    void reset() { m_element->Reset(); }
-    void fill() { m_element->Fill(m_valueToFill); }
+    void reset() override { m_element->Reset(); }
+    void fill() override { m_element->Fill(m_valueToFill); }
 
   private:
     double m_valueToFill;
@@ -90,10 +90,10 @@ namespace {
       m_valueToFill = iPSet.getUntrackedParameter<double>("value");
     }
 
-    virtual ~TH2FFiller(){};
+    ~TH2FFiller() override{};
 
-    void reset() { m_element->Reset(); }
-    void fill() { m_element->Fill(m_valueToFill, m_valueToFill); }
+    void reset() override { m_element->Reset(); }
+    void fill() override { m_element->Fill(m_valueToFill, m_valueToFill); }
 
   private:
     double m_valueToFill;
@@ -107,15 +107,15 @@ namespace {
 class DummyFillDQMStore : public DQMOneLumiEDAnalyzer<> {
 public:
   explicit DummyFillDQMStore(const edm::ParameterSet&);
-  ~DummyFillDQMStore();
+  ~DummyFillDQMStore() override;
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
-  virtual void bookHistograms(DQMStore::IBooker&, edm::Run const&, edm::EventSetup const&) override;
-  virtual void analyze(edm::Event const&, edm::EventSetup const&) override;
-  virtual void dqmEndRun(edm::Run const&, edm::EventSetup const&) override;
-  virtual void dqmBeginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
-  virtual void dqmEndLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
+  void bookHistograms(DQMStore::IBooker&, edm::Run const&, edm::EventSetup const&) override;
+  void analyze(edm::Event const&, edm::EventSetup const&) override;
+  void dqmEndRun(edm::Run const&, edm::EventSetup const&) override;
+  void dqmBeginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
+  void dqmEndLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
 
 private:
   // ----------member data ---------------------------

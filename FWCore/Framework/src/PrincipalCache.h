@@ -36,6 +36,7 @@ Original Author: W. David Dagenhart
 
 namespace edm {
 
+  class ProcessBlockPrincipal;
   class RunPrincipal;
   class LuminosityBlockPrincipal;
   class EventPrincipal;
@@ -50,6 +51,14 @@ namespace edm {
     ~PrincipalCache();
     PrincipalCache(PrincipalCache&&) = default;
 
+    ProcessBlockPrincipal& processBlockPrincipal() const { return *processBlockPrincipal_; }
+    ProcessBlockPrincipal& inputProcessBlockPrincipal() const { return *inputProcessBlockPrincipal_; }
+
+    enum class ProcessBlockType { New, Input };
+    ProcessBlockPrincipal& processBlockPrincipal(ProcessBlockType processBlockType) const {
+      return processBlockType == ProcessBlockType::Input ? *inputProcessBlockPrincipal_ : *processBlockPrincipal_;
+    }
+
     RunPrincipal& runPrincipal(ProcessHistoryID const& phid, RunNumber_t run) const;
     std::shared_ptr<RunPrincipal> const& runPrincipalPtr(ProcessHistoryID const& phid, RunNumber_t run) const;
     RunPrincipal& runPrincipal() const;
@@ -63,6 +72,8 @@ namespace edm {
     void merge(std::shared_ptr<RunAuxiliary> aux, std::shared_ptr<ProductRegistry const> reg);
 
     void setNumberOfConcurrentPrincipals(PreallocationConfiguration const&);
+    void insert(std::unique_ptr<ProcessBlockPrincipal>);
+    void insertForInput(std::unique_ptr<ProcessBlockPrincipal>);
     void insert(std::shared_ptr<RunPrincipal> rp);
     void insert(std::unique_ptr<LuminosityBlockPrincipal> lbp);
     void insert(std::shared_ptr<EventPrincipal> ep);
@@ -81,8 +92,10 @@ namespace edm {
     void throwRunMissing() const;
     void throwLumiMissing() const;
 
-    // These are explicitly cleared when finished with the run,
+    // These are explicitly cleared when finished with the processblock, run,
     // lumi, or event
+    std::unique_ptr<ProcessBlockPrincipal> processBlockPrincipal_;
+    std::unique_ptr<ProcessBlockPrincipal> inputProcessBlockPrincipal_;
     std::shared_ptr<RunPrincipal> runPrincipal_;
     edm::ReusableObjectHolder<LuminosityBlockPrincipal> lumiHolder_;
     std::vector<std::shared_ptr<EventPrincipal>> eventPrincipals_;

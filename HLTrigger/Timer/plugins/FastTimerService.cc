@@ -11,8 +11,10 @@
 #include <unordered_set>
 
 // boost headers
-#include <boost/format.hpp>
 #include <boost/range/irange.hpp>
+
+// {fmt} headers
+#include <fmt/printf.h>
 
 // JSON headers
 #include <nlohmann/json.hpp>
@@ -377,8 +379,8 @@ void FastTimerService::PlotsPerElement::book(dqm::reco::DQMStore::IBooker& booke
                                              bool byls) {
   int time_bins = (int)std::ceil(ranges.time_range / ranges.time_resolution);
   int mem_bins = (int)std::ceil(ranges.memory_range / ranges.memory_resolution);
-  std::string y_title_ms = (boost::format("events / %.1f ms") % ranges.time_resolution).str();
-  std::string y_title_kB = (boost::format("events / %.1f kB") % ranges.memory_resolution).str();
+  std::string y_title_ms = fmt::sprintf("events / %.1f ms", ranges.time_resolution);
+  std::string y_title_kB = fmt::sprintf("events / %.1f kB", ranges.memory_resolution);
 
   time_thread_ =
       booker.book1D(name + " time_thread", title + " processing time (cpu)", time_bins, 0., ranges.time_range);
@@ -936,9 +938,8 @@ void FastTimerService::preallocate(edm::service::SystemBounds const& bounds) {
   concurrent_threads_ = bounds.maxNumberOfThreads();
 
   if (enable_dqm_bynproc_)
-    dqm_path_ += (boost::format("/Running on %s with %d streams on %d threads") % processor_model %
-                  concurrent_streams_ % concurrent_threads_)
-                     .str();
+    dqm_path_ += fmt::sprintf(
+        "/Running on %s with %d streams on %d threads", processor_model, concurrent_streams_, concurrent_threads_);
 
   // clean characters that are deemed unsafe for DQM
   // see the definition of `s_safe` in DQMServices/Core/src/DQMStore.cc
@@ -1042,9 +1043,8 @@ void FastTimerService::postGlobalEndLumi(edm::GlobalContext const& gc) {
     return;
 
   edm::LogVerbatim out("FastReport");
-  auto const& label = (boost::format("run %d, lumisection %d") % gc.luminosityBlockID().run() %
-                       gc.luminosityBlockID().luminosityBlock())
-                          .str();
+  auto const& label =
+      fmt::sprintf("run %d, lumisection %d", gc.luminosityBlockID().run(), gc.luminosityBlockID().luminosityBlock());
   printTransition(out, lumi_transition_[index], label);
 
   if (enable_dqm_transitions_) {
@@ -1072,7 +1072,7 @@ void FastTimerService::postGlobalEndRun(edm::GlobalContext const& gc) {
     return;
 
   edm::LogVerbatim out("FastReport");
-  auto const& label = (boost::format("Run %d") % gc.luminosityBlockID().run()).str();
+  auto const& label = fmt::sprintf("Run %d", gc.luminosityBlockID().run());
   if (print_run_summary_) {
     printSummary(out, run_summary_[index], label);
   }
@@ -1124,17 +1124,22 @@ void FastTimerService::printEventHeader(T& out, std::string const& label) const 
 
 template <typename T>
 void FastTimerService::printEventLine(T& out, Resources const& data, std::string const& label) const {
-  out << boost::format("FastReport  %10.1f ms  %10.1f ms  %+10d kB  %+10d kB  %s\n") % ms(data.time_thread) %
-             ms(data.time_real) % +static_cast<int64_t>(kB(data.allocated)) %
-             -static_cast<int64_t>(kB(data.deallocated)) % label;
+  out << fmt::sprintf("FastReport  %10.1f ms  %10.1f ms  %+10d kB  %+10d kB  %s\n",
+                      ms(data.time_thread),
+                      ms(data.time_real),
+                      +static_cast<int64_t>(kB(data.allocated)),
+                      -static_cast<int64_t>(kB(data.deallocated)),
+                      label);
 }
 
 template <typename T>
 void FastTimerService::printEventLine(T& out, AtomicResources const& data, std::string const& label) const {
-  out << boost::format("FastReport  %10.1f ms  %10.1f ms  %+10d kB  %+10d kB  %s\n") %
-             ms(boost::chrono::nanoseconds(data.time_thread.load())) %
-             ms(boost::chrono::nanoseconds(data.time_real.load())) % +static_cast<int64_t>(kB(data.allocated)) %
-             -static_cast<int64_t>(kB(data.deallocated)) % label;
+  out << fmt::sprintf("FastReport  %10.1f ms  %10.1f ms  %+10d kB  %+10d kB  %s\n",
+                      ms(boost::chrono::nanoseconds(data.time_thread.load())),
+                      ms(boost::chrono::nanoseconds(data.time_real.load())),
+                      +static_cast<int64_t>(kB(data.allocated)),
+                      -static_cast<int64_t>(kB(data.deallocated)),
+                      label);
 }
 
 template <typename T>
@@ -1191,46 +1196,55 @@ void FastTimerService::printEvent(T& out, ResourcesPerJob const& data) const {
 
 template <typename T>
 void FastTimerService::printSummaryHeader(T& out, std::string const& label, bool detailed) const {
+  // clang-format off
   if (detailed)
-    out << "FastReport   CPU time avg.      when run  Real time avg.      when run     Alloc. avg.      when run   "
-           "Dealloc. avg.      when run  ";
-  //      FastReport  ########.# ms  ########.# ms  ########.# ms  ########.# ms  +######### kB  +######### kB  -######### kB  -######### kB  ...
+    out << "FastReport   CPU time avg.      when run  Real time avg.      when run     Alloc. avg.      when run   Dealloc. avg.      when run  ";
+  //        FastReport  ########.# ms  ########.# ms  ########.# ms  ########.# ms  +######### kB  +######### kB  -######### kB  -######### kB  ...
   else
-    out << "FastReport   CPU time avg.                Real time avg.                   Alloc. avg.                 "
-           "Dealloc. avg.                ";
-  //      FastReport  ########.# ms                 ########.# ms                 +######### kB                 -######### kB                 ...
+    out << "FastReport   CPU time avg.                Real time avg.                   Alloc. avg.                 Dealloc. avg.                ";
+  //        FastReport  ########.# ms                 ########.# ms                 +######### kB                 -######### kB                 ...
   out << label << '\n';
+  // clang-format on
 }
 
 template <typename T>
 void FastTimerService::printPathSummaryHeader(T& out, std::string const& label) const {
-  out << "FastReport     CPU time sched. / depend.    Real time sched. / depend.       Alloc. sched. / depend.     "
-         "Dealloc. sched. / depend.  ";
+  // clang-format off
+  out << "FastReport     CPU time sched. / depend.    Real time sched. / depend.       Alloc. sched. / depend.     Dealloc. sched. / depend.  ";
   //      FastReport  ########.# ms  ########.# ms  ########.# ms  ########.# ms  +######### kB  +######### kB  -######### kB  -######### kB  ...
   out << label << '\n';
+  // clang-format om
 }
 
 template <typename T>
 void FastTimerService::printSummaryLine(T& out, Resources const& data, uint64_t events, std::string const& label) const {
-  out << boost::format(
-             "FastReport  %10.1f ms                 %10.1f ms                 %+10d kB                 %+10d kB        "
-             "         %s\n") %
-             (events ? ms(data.time_thread) / events : 0) % (events ? ms(data.time_real) / events : 0) %
-             (events ? +static_cast<int64_t>(kB(data.allocated) / events) : 0) %
-             (events ? -static_cast<int64_t>(kB(data.deallocated) / events) : 0) % label;
+  out << fmt::sprintf(
+  // clang-format off
+      "FastReport  %10.1f ms                 %10.1f ms                 %+10d kB                 %+10d kB                 %s\n",
+  // clang-format om
+      (events ? ms(data.time_thread) / events : 0),
+      (events ? ms(data.time_real) / events : 0),
+      (events ? +static_cast<int64_t>(kB(data.allocated) / events) : 0),
+      (events ? -static_cast<int64_t>(kB(data.deallocated) / events) : 0),
+      label);
 }
 
 template <typename T>
 void FastTimerService::printSummaryLine(
     T& out, AtomicResources const& data, uint64_t events, uint64_t active, std::string const& label) const {
-  out << boost::format(
-             "FastReport  %10.1f ms  %10.1f ms  %10.1f ms  %10.1f ms  %+10d kB  %+10d kB  %+10d kB  %+10d kB  %s\n") %
-             (events ? ms(data.time_thread) / events : 0) % (active ? ms(data.time_thread) / active : 0) %
-             (events ? ms(data.time_real) / events : 0) % (active ? ms(data.time_real) / active : 0) %
-             (events ? +static_cast<int64_t>(kB(data.allocated) / events) : 0) %
-             (active ? +static_cast<int64_t>(kB(data.allocated) / active) : 0) %
-             (events ? -static_cast<int64_t>(kB(data.deallocated) / events) : 0) %
-             (active ? -static_cast<int64_t>(kB(data.deallocated) / active) : 0) % label;
+  out << fmt::sprintf(
+  // clang-format off
+      "FastReport  %10.1f ms  %10.1f ms  %10.1f ms  %10.1f ms  %+10d kB  %+10d kB  %+10d kB  %+10d kB  %s\n",
+  // clang-format om
+      (events ? ms(data.time_thread) / events : 0),
+      (active ? ms(data.time_thread) / active : 0),
+      (events ? ms(data.time_real) / events : 0),
+      (active ? ms(data.time_real) / active : 0),
+      (events ? +static_cast<int64_t>(kB(data.allocated) / events) : 0),
+      (active ? +static_cast<int64_t>(kB(data.allocated) / active) : 0),
+      (events ? -static_cast<int64_t>(kB(data.deallocated) / events) : 0),
+      (active ? -static_cast<int64_t>(kB(data.deallocated) / active) : 0),
+      label);
 }
 
 template <typename T>
@@ -1238,38 +1252,47 @@ void FastTimerService::printSummaryLine(T& out,
                                         AtomicResources const& data,
                                         uint64_t events,
                                         std::string const& label) const {
-  out << boost::format(
-             "FastReport  %10.1f ms                 %10.1f ms                 %+10d kB                 %+10d kB        "
-             "         %s\n") %
-             (events ? ms(data.time_thread) / events : 0) % (events ? ms(data.time_real) / events : 0) %
-             (events ? +static_cast<int64_t>(kB(data.allocated) / events) : 0) %
-             (events ? -static_cast<int64_t>(kB(data.deallocated) / events) : 0) % label;
+  out << fmt::sprintf(
+  // clang-format off
+      "FastReport  %10.1f ms                 %10.1f ms                 %+10d kB                 %+10d kB                 %s\n",
+  // clang-format om
+      (events ? ms(data.time_thread) / events : 0),
+      (events ? ms(data.time_real) / events : 0),
+      (events ? +static_cast<int64_t>(kB(data.allocated) / events) : 0),
+      (events ? -static_cast<int64_t>(kB(data.deallocated) / events) : 0),
+      label);
 }
 
 template <typename T>
 void FastTimerService::printSummaryLine(
     T& out, Resources const& data, uint64_t events, uint64_t active, std::string const& label) const {
-  out << boost::format(
-             "FastReport  %10.1f ms  %10.1f ms  %10.1f ms  %10.1f ms  %+10d kB  %+10d kB  %+10d kB  %+10d kB  %s\n") %
-             (events ? ms(data.time_thread) / events : 0) % (active ? ms(data.time_thread) / active : 0) %
-             (events ? ms(data.time_real) / events : 0) % (active ? ms(data.time_real) / active : 0) %
-             (events ? +static_cast<int64_t>(kB(data.allocated) / events) : 0) %
-             (active ? +static_cast<int64_t>(kB(data.allocated) / active) : 0) %
-             (events ? -static_cast<int64_t>(kB(data.deallocated) / events) : 0) %
-             (active ? -static_cast<int64_t>(kB(data.deallocated) / active) : 0) % label;
+  out << fmt::sprintf(
+      "FastReport  %10.1f ms  %10.1f ms  %10.1f ms  %10.1f ms  %+10d kB  %+10d kB  %+10d kB  %+10d kB  %s\n",
+      (events ? ms(data.time_thread) / events : 0),
+      (active ? ms(data.time_thread) / active : 0),
+      (events ? ms(data.time_real) / events : 0),
+      (active ? ms(data.time_real) / active : 0),
+      (events ? +static_cast<int64_t>(kB(data.allocated) / events) : 0),
+      (active ? +static_cast<int64_t>(kB(data.allocated) / active) : 0),
+      (events ? -static_cast<int64_t>(kB(data.deallocated) / events) : 0),
+      (active ? -static_cast<int64_t>(kB(data.deallocated) / active) : 0),
+      label);
 }
 
 template <typename T>
 void FastTimerService::printPathSummaryLine(
     T& out, Resources const& data, Resources const& total, uint64_t events, std::string const& label) const {
-  out << boost::format(
-             "FastReport  %10.1f ms  %10.1f ms  %10.1f ms  %10.1f ms  %+10d kB  %+10d kB  %+10d kB  %+10d kB  %s\n") %
-             (events ? ms(data.time_thread) / events : 0) % (events ? ms(total.time_thread) / events : 0) %
-             (events ? ms(data.time_real) / events : 0) % (events ? ms(total.time_real) / events : 0) %
-             (events ? +static_cast<int64_t>(kB(data.allocated) / events) : 0) %
-             (events ? +static_cast<int64_t>(kB(total.allocated) / events) : 0) %
-             (events ? -static_cast<int64_t>(kB(data.deallocated) / events) : 0) %
-             (events ? -static_cast<int64_t>(kB(total.deallocated) / events) : 0) % label;
+  out << fmt::sprintf(
+      "FastReport  %10.1f ms  %10.1f ms  %10.1f ms  %10.1f ms  %+10d kB  %+10d kB  %+10d kB  %+10d kB  %s\n",
+      (events ? ms(data.time_thread) / events : 0),
+      (events ? ms(total.time_thread) / events : 0),
+      (events ? ms(data.time_real) / events : 0),
+      (events ? ms(total.time_real) / events : 0),
+      (events ? +static_cast<int64_t>(kB(data.allocated) / events) : 0),
+      (events ? +static_cast<int64_t>(kB(total.allocated) / events) : 0),
+      (events ? -static_cast<int64_t>(kB(data.deallocated) / events) : 0),
+      (events ? -static_cast<int64_t>(kB(total.deallocated) / events) : 0),
+      label);
 }
 
 template <typename T>

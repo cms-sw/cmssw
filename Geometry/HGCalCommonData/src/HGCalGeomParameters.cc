@@ -13,6 +13,7 @@
 #include "DetectorDescription/Core/interface/DDutils.h"
 #include "DetectorDescription/DDCMS/interface/DDShapes.h"
 #include "DetectorDescription/RegressionTest/interface/DDErrorDetection.h"
+#include "Geometry/HGCalCommonData/interface/HGCalTypes.h"
 #include "Geometry/HGCalCommonData/interface/HGCalWaferIndex.h"
 #include "Geometry/HGCalCommonData/interface/HGCalWaferMask.h"
 #include "Geometry/HGCalCommonData/interface/HGCalWaferType.h"
@@ -211,8 +212,8 @@ void HGCalGeomParameters::loadGeometryHexagon(const DDFilteredView& _fv,
       int nsiz = (int)(copy.size());
       int cellx = (nsiz > 0) ? copy[nsiz - 1] : 0;
       int wafer = (nsiz > 1) ? copy[nsiz - 2] : 0;
-      int cell = cellx % 1000;
-      int type = cellx / 1000;
+      int cell = HGCalTypes::getUnpackedCell6(cellx);
+      int type = HGCalTypes::getUnpackedCellType6(cellx);
       if (type != 1 && type != 2) {
         throw cms::Exception("DDException")
             << "Funny cell # " << cell << " type " << type << " in " << nsiz << " components";
@@ -433,8 +434,8 @@ void HGCalGeomParameters::loadGeometryHexagon(const cms::DDCompactView* cpv,
       int nsiz = (int)(copy.size());
       int cellx = (nsiz > 0) ? copy[0] : 0;
       int wafer = (nsiz > 1) ? copy[1] : 0;
-      int cell = cellx % 1000;
-      int type = cellx / 1000;
+      int cell = HGCalTypes::getUnpackedCell6(cellx);
+      int type = HGCalTypes::getUnpackedCellType6(cellx);
       if (type != 1 && type != 2) {
         throw cms::Exception("DDException")
             << "Funny cell # " << cell << " type " << type << " in " << nsiz << " components";
@@ -1418,11 +1419,7 @@ void HGCalGeomParameters::loadWaferHexagon(HGCalParameters& php) {
         }
         ++ntot;
         if (corner.first > 0) {
-          int copy = inr * 100 + inc;
-          if (nc < 0)
-            copy += 10000;
-          if (nr < 0)
-            copy += 100000;
+          int copy = HGCalTypes::packTypeUV(typel, nc, nr);
           if (inc > incm)
             incm = inc;
           if (inr > inrm)

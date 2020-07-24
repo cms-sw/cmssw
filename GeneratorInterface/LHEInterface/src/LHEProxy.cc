@@ -1,12 +1,11 @@
 #include <map>
-
-#include <boost/thread.hpp>
+#include <mutex>
 
 #include "GeneratorInterface/LHEInterface/interface/LHEProxy.h"
 
 using namespace lhef;
 
-static boost::mutex mutex;
+static std::mutex mutex;
 
 typedef std::map<LHEProxy::ProxyID, std::weak_ptr<LHEProxy> > ProxyMap;
 
@@ -27,7 +26,7 @@ static ProxyMap *getProxyMapInstance() {
 LHEProxy::LHEProxy(ProxyID id) : id(id) {}
 
 LHEProxy::~LHEProxy() {
-  boost::mutex::scoped_lock scoped_lock(mutex);
+  std::scoped_lock scoped_lock(mutex);
 
   ProxyMap *map = getProxyMapInstance();
   if (map)
@@ -37,7 +36,7 @@ LHEProxy::~LHEProxy() {
 std::shared_ptr<LHEProxy> LHEProxy::create() {
   static LHEProxy::ProxyID nextProxyID = 0;
 
-  boost::mutex::scoped_lock scoped_lock(mutex);
+  std::scoped_lock scoped_lock(mutex);
 
   std::shared_ptr<LHEProxy> proxy(new LHEProxy(++nextProxyID));
 
@@ -49,7 +48,7 @@ std::shared_ptr<LHEProxy> LHEProxy::create() {
 }
 
 std::shared_ptr<LHEProxy> LHEProxy::find(ProxyID id) {
-  boost::mutex::scoped_lock scoped_lock(mutex);
+  std::scoped_lock scoped_lock(mutex);
 
   ProxyMap *map = getProxyMapInstance();
   if (!map)

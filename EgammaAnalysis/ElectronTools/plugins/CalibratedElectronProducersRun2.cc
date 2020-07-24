@@ -16,9 +16,11 @@
 #include "EgammaAnalysis/ElectronTools/interface/EpCombinationTool.h"
 #include "EgammaAnalysis/ElectronTools/interface/ElectronEnergyCalibratorRun2.h"
 
-#include <vector>
-#include <random>
+#include <memory>
+
 #include <TRandom2.h>
+#include <random>
+#include <vector>
 
 template <typename T>
 class CalibratedElectronProducerRun2T : public edm::stream::EDProducer<> {
@@ -47,7 +49,7 @@ CalibratedElectronProducerRun2T<T>::CalibratedElectronProducerRun2T(const edm::P
                          conf.getParameter<bool>("isSynchronization"),
                          conf.getParameter<std::string>("correctionFile")) {
   if (conf.existsAs<bool>("semiDeterministic") && conf.getParameter<bool>("semiDeterministic")) {
-    theSemiDeterministicRng.reset(new TRandom2());
+    theSemiDeterministicRng = std::make_unique<TRandom2>();
     theEnCorrectorRun2.initPrivateRng(theSemiDeterministicRng.get());
   }
   produces<std::vector<T> >();

@@ -15,8 +15,8 @@
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
 #include "DataFormats/GEMDigi/interface/GEMDigiCollection.h"
+#include "DataFormats/GEMDigi/interface/AMC13Event.h"
 
-#include "EventFilter/GEMRawToDigi/interface/AMC13Event.h"
 #include "CondFormats/DataRecord/interface/GEMeMapRcd.h"
 #include "CondFormats/GEMObjects/interface/GEMeMap.h"
 #include "CondFormats/GEMObjects/interface/GEMROMapping.h"

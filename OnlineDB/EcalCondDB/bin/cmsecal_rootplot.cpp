@@ -704,8 +704,8 @@ int main(int argc, char* argv[]) {
   }
 
   string path = "";
-  if ((int)file.find("/") >= 0) {
-    path = file.substr(0, file.rfind("/"));
+  if ((int)file.find('/') >= 0) {
+    path = file.substr(0, file.rfind('/'));
   }
   outputFile = path + "/" + outputFile;
 

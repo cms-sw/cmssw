@@ -6,6 +6,7 @@
 #include <netdb.h>
 
 #include <functional>
+#include <memory>
 
 #include "TGLWidget.h"
 #include "TGMsgBox.h"
@@ -205,7 +206,7 @@ void CmsShowMainBase::setup(FWNavigatorBase *navigator,
 
   m_colorManager->initialize();
   m_contextPtr->initEveElements();
-  m_guiManager.reset(new FWGUIManager(m_contextPtr, m_viewManager.get(), m_navigatorPtr));
+  m_guiManager = std::make_unique<FWGUIManager>(m_contextPtr, m_viewManager.get(), m_navigatorPtr);
 
   m_eiManager->newItem_.connect(
       std::bind(&FWModelChangeManager::newItemSlot, m_changeManager.get(), std::placeholders::_1));

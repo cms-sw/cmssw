@@ -2,11 +2,13 @@
 #include "CondFormats/SiStripObjects/interface/VpspScanAnalysis.h"
 #include "DQM/SiStripCommissioningAnalysis/interface/VpspScanAlgorithm.h"
 #include "DQM/SiStripCommissioningSummary/interface/VpspScanSummaryFactory.h"
-#include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
 #include "DQM/SiStripCommon/interface/ExtractTObject.h"
+#include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "TProfile.h"
 #include <iostream>
+#include <memory>
+
 #include <sstream>
 #include <iomanip>
 
@@ -17,7 +19,7 @@ using namespace sistrip;
 /** */
 VpspScanHistograms::VpspScanHistograms(const edm::ParameterSet& pset, DQMStore* bei)
     : CommissioningHistograms(pset.getParameter<edm::ParameterSet>("VpspScanParameters"), bei, sistrip::VPSP_SCAN) {
-  factory_ = unique_ptr<VpspScanSummaryFactory>(new VpspScanSummaryFactory);
+  factory_ = std::make_unique<VpspScanSummaryFactory>();
   LogTrace(mlDqmClient_) << "[VpspScanHistograms::" << __func__ << "]"
                          << " Constructing object...";
 }

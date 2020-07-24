@@ -118,6 +118,16 @@ namespace edm {
   WorkerT<T>::~WorkerT() {}
 
   template <typename T>
+  bool WorkerT<T>::wantsProcessBlocks() const {
+    return module_->wantsProcessBlocks();
+  }
+
+  template <typename T>
+  bool WorkerT<T>::wantsInputProcessBlocks() const {
+    return module_->wantsInputProcessBlocks();
+  }
+
+  template <typename T>
   bool WorkerT<T>::wantsGlobalRuns() const {
     return module_->wantsGlobalRuns();
   }
@@ -308,6 +318,24 @@ namespace edm {
   inline void WorkerT<edm::limited::OutputModuleBase>::itemsToGetForSelection(
       std::vector<ProductResolverIndexAndSkipBit>& iItems) const {
     iItems = module_->productsUsedBySelection();
+  }
+
+  template <typename T>
+  bool WorkerT<T>::implDoBeginProcessBlock(ProcessBlockPrincipal const& pbp, ModuleCallingContext const* mcc) {
+    module_->doBeginProcessBlock(pbp, mcc);
+    return true;
+  }
+
+  template <typename T>
+  bool WorkerT<T>::implDoAccessInputProcessBlock(ProcessBlockPrincipal const& pbp, ModuleCallingContext const* mcc) {
+    module_->doAccessInputProcessBlock(pbp, mcc);
+    return true;
+  }
+
+  template <typename T>
+  bool WorkerT<T>::implDoEndProcessBlock(ProcessBlockPrincipal const& pbp, ModuleCallingContext const* mcc) {
+    module_->doEndProcessBlock(pbp, mcc);
+    return true;
   }
 
   template <typename T>

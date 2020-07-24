@@ -240,11 +240,11 @@ namespace evf {
             throw cms::Exception("DaqDirector")
                 << " Error creating bu run dir -: " << hltdir << " mkdir error:" << strerror(errno) << "\n";
 
-          boost::filesystem::copy_file(hltSourceDirectory_ + "/HltConfig.py", tmphltdir + "/HltConfig.py");
+          std::filesystem::copy_file(hltSourceDirectory_ + "/HltConfig.py", tmphltdir + "/HltConfig.py");
 
-          boost::filesystem::copy_file(hltSourceDirectory_ + "/fffParameters.jsn", tmphltdir + "/fffParameters.jsn");
+          std::filesystem::copy_file(hltSourceDirectory_ + "/fffParameters.jsn", tmphltdir + "/fffParameters.jsn");
 
-          boost::filesystem::rename(tmphltdir, hltdir);
+          std::filesystem::rename(tmphltdir, hltdir);
         } else
           throw cms::Exception("DaqDirector") << " Error looking for HLT configuration -: " << hltSourceDirectory_;
       }
@@ -710,7 +710,7 @@ namespace evf {
   }
 
   int EvFDaqDirector::getNFilesFromEoLS(std::string BUEoLSFile) {
-    boost::filesystem::ifstream ij(BUEoLSFile);
+    std::ifstream ij(BUEoLSFile);
     Json::Value deserializeRoot;
     Json::Reader reader;
 
@@ -1097,9 +1097,9 @@ namespace evf {
     fileFound = true;
 
     //take only first three tokens delimited by "_" in the renamed raw file name
-    std::string jsonStem = boost::filesystem::path(rawSourcePath).stem().string();
+    std::string jsonStem = std::filesystem::path(rawSourcePath).stem().string();
     size_t pos = 0, n_tokens = 0;
-    while (n_tokens++ < 3 && (pos = jsonStem.find("_", pos + 1)) != std::string::npos) {
+    while (n_tokens++ < 3 && (pos = jsonStem.find('_', pos + 1)) != std::string::npos) {
     }
     std::string reducedJsonStem = jsonStem.substr(0, pos);
 
@@ -1177,7 +1177,7 @@ namespace evf {
 
     //should be ported to use fffnaming
     std::ostringstream fileNameWithPID;
-    fileNameWithPID << boost::filesystem::path(rawSourcePath).stem().string() << "_pid" << std::setfill('0')
+    fileNameWithPID << std::filesystem::path(rawSourcePath).stem().string() << "_pid" << std::setfill('0')
                     << std::setw(5) << pid_ << ".jsn";
 
     // assemble json destination path
@@ -1273,9 +1273,9 @@ namespace evf {
       } else {
         //json will normally not be bigger than buf_sz bytes
         try {
-          boost::filesystem::ifstream ij(jsonDestPath);
+          std::ifstream ij(jsonDestPath);
           ss << ij.rdbuf();
-        } catch (boost::filesystem::filesystem_error const& ex) {
+        } catch (std::filesystem::filesystem_error const& ex) {
           edm::LogError("EvFDaqDirector") << "grabNextJsonFile - BOOST FILESYSTEM ERROR CAUGHT -: " << ex.what();
           return -1;
         }
@@ -1349,11 +1349,11 @@ namespace evf {
     return -1;
   }
 
-  int EvFDaqDirector::grabNextJsonFileAndUnlock(boost::filesystem::path const& jsonSourcePath) {
+  int EvFDaqDirector::grabNextJsonFileAndUnlock(std::filesystem::path const& jsonSourcePath) {
     std::string data;
     try {
       // assemble json destination path
-      boost::filesystem::path jsonDestPath(baseRunDir());
+      std::filesystem::path jsonDestPath(baseRunDir());
 
       //should be ported to use fffnaming
       std::ostringstream fileNameWithPID;
@@ -1363,20 +1363,20 @@ namespace evf {
 
       LogDebug("EvFDaqDirector") << "JSON rename -: " << jsonSourcePath << " to " << jsonDestPath;
       try {
-        boost::filesystem::copy(jsonSourcePath, jsonDestPath);
-      } catch (boost::filesystem::filesystem_error const& ex) {
+        std::filesystem::copy(jsonSourcePath, jsonDestPath);
+      } catch (std::filesystem::filesystem_error const& ex) {
         // Input dir gone?
         edm::LogError("EvFDaqDirector") << "grabNextFile BOOST FILESYSTEM ERROR CAUGHT -: " << ex.what();
         //                                     << " Maybe the file is not yet visible by FU. Trying again in one second";
         sleep(1);
-        boost::filesystem::copy(jsonSourcePath, jsonDestPath);
+        std::filesystem::copy(jsonSourcePath, jsonDestPath);
       }
       unlockFULocal();
 
       try {
         //sometimes this fails but file gets deleted
-        boost::filesystem::remove(jsonSourcePath);
-      } catch (boost::filesystem::filesystem_error const& ex) {
+        std::filesystem::remove(jsonSourcePath);
+      } catch (std::filesystem::filesystem_error const& ex) {
         // Input dir gone?
         edm::LogError("EvFDaqDirector") << "grabNextFile BOOST FILESYSTEM ERROR CAUGHT -: " << ex.what();
       } catch (std::exception const& ex) {
@@ -1384,7 +1384,7 @@ namespace evf {
         edm::LogError("EvFDaqDirector") << "grabNextFile std::exception CAUGHT -: " << ex.what();
       }
 
-      boost::filesystem::ifstream ij(jsonDestPath);
+      std::ifstream ij(jsonDestPath);
       Json::Value deserializeRoot;
       Json::Reader reader;
 
@@ -1418,7 +1418,7 @@ namespace evf {
               << " error reading number of events from BU JSON -: No input value " << data;
       }
       return boost::lexical_cast<int>(data);
-    } catch (boost::filesystem::filesystem_error const& ex) {
+    } catch (std::filesystem::filesystem_error const& ex) {
       // Input dir gone?
       unlockFULocal();
       edm::LogError("EvFDaqDirector") << "grabNextFile BOOST FILESYSTEM ERROR CAUGHT -: " << ex.what();
@@ -1531,7 +1531,7 @@ namespace evf {
         std::string fileInfo;
         std::map<std::string, std::string> serverMap;
         while (std::getline(response_stream, fileInfo) && fileInfo != "\r") {
-          auto pos = fileInfo.find("=");
+          auto pos = fileInfo.find('=');
           if (pos == std::string::npos)
             continue;
           auto stitle = fileInfo.substr(0, pos);
@@ -1832,15 +1832,15 @@ namespace evf {
   void EvFDaqDirector::createRunOpendirMaybe() {
     // create open dir if not already there
 
-    boost::filesystem::path openPath = getRunOpenDirPath();
-    if (!boost::filesystem::is_directory(openPath)) {
+    std::filesystem::path openPath = getRunOpenDirPath();
+    if (!std::filesystem::is_directory(openPath)) {
       LogDebug("EvFDaqDirector") << "<open> FU dir not found. Creating... -:" << openPath.string();
-      boost::filesystem::create_directories(openPath);
+      std::filesystem::create_directories(openPath);
     }
   }
 
   int EvFDaqDirector::readLastLSEntry(std::string const& file) {
-    boost::filesystem::ifstream ij(file);
+    std::ifstream ij(file);
     Json::Value deserializeRoot;
     Json::Reader reader;
 
@@ -1984,7 +1984,7 @@ namespace evf {
     edm::ParameterSet const& topPset = edm::getParameterSet(pc.parameterSetID());
     if (topPset.existsAs<edm::ParameterSet>(mergeTypePset_, true)) {
       const edm::ParameterSet& tsPset(topPset.getParameterSet(mergeTypePset_));
-      for (std::string pname : tsPset.getParameterNames()) {
+      for (const std::string& pname : tsPset.getParameterNames()) {
         std::string streamType = tsPset.getParameter<std::string>(pname);
         tbb::concurrent_hash_map<std::string, std::string>::accessor ac;
         mergeTypeMap_.insert(ac, pname);

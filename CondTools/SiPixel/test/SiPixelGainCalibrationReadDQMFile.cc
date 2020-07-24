@@ -149,7 +149,7 @@ void SiPixelGainCalibrationReadDQMFile::fillDatabase(const edm::EventSetup &iSet
   int NDetid = 0;
   for (TrackerGeometry::DetContainer::const_iterator it = pDD->dets().begin(); it != pDD->dets().end(); it++) {
     detid = 0;
-    if (dynamic_cast<PixelGeomDetUnit const *>((*it)) != 0)
+    if (dynamic_cast<PixelGeomDetUnit const *>((*it)) != nullptr)
       detid = ((*it)->geographicalId()).rawId();
     if (detid == 0)
       continue;
@@ -175,26 +175,26 @@ void SiPixelGainCalibrationReadDQMFile::fillDatabase(const edm::EventSetup &iSet
     if (!badDetId) {
       TString tempchi2string = bookkeeper_[detid]["chi2prob_2d"];
       tempchi2 = dynamic_cast<TH2F *>(therootfile->Get(tempchi2string));
-      if (tempchi2 == 0 || badDetId) {
+      if (tempchi2 == nullptr || badDetId) {
         tempchi2 = defaultChi2_.get();
         useddefaultfortree = 1;
       }
       TString tempfitresultstring = bookkeeper_[detid]["fitresult_2d"];
       tempfitresult = dynamic_cast<TH2F *>(therootfile->Get(tempfitresultstring));
-      if (tempfitresult == 0) {
+      if (tempfitresult == nullptr) {
         tempfitresult = defaultFitResult_.get();
         useddefaultfortree = 1;
       }
       TString tempgainstring = bookkeeper_[detid]["gain_2d"];
       tempgain = dynamic_cast<TH2F *>(therootfile->Get(tempgainstring));
-      if (tempgain == 0) {
+      if (tempgain == nullptr) {
         //  std::cout <<"WARNING, gain histo " << bookkeeper_[detid]["gain_2d"] << " does not exist, using default instead" << std::endl;
         tempgain = defaultGain_.get();
         useddefaultfortree = 1;
       }
       TString temppedstring = bookkeeper_[detid]["ped_2d"];
       tempped = dynamic_cast<TH2F *>(therootfile->Get(temppedstring));
-      if (tempped == 0) {
+      if (tempped == nullptr) {
         //      std::cout <<"WARNING, ped histo " << bookkeeper_[detid]["ped_2d"] << " for detid " << detid << " does not exist, using default instead" << std::endl;
         std::pair<TString, int> tempval(tempgainstring, 0);
         badresults[detid] = tempval;
@@ -571,7 +571,7 @@ std::unique_ptr<TFile> SiPixelGainCalibrationReadDQMFile::getHistograms() {
 
   for (ikey = 0; ikey < list->GetEntries(); ikey++) {
     TKey *thekey = (TKey *)list->At(ikey);
-    if (thekey == 0)
+    if (thekey == nullptr)
       continue;
     TString keyname = thekey->GetName();
     TString keytype = thekey->GetClassName();
@@ -608,7 +608,7 @@ std::unique_ptr<TFile> SiPixelGainCalibrationReadDQMFile::getHistograms() {
       int ndirectories = 0;
       for (ikey = 0; ikey < list->GetEntries(); ikey++) {
         TKey *thekey = (TKey *)list->At(ikey);
-        if (thekey == 0)
+        if (thekey == nullptr)
           continue;
         TString keyname = thekey->GetName();
         TString keytype = thekey->GetClassName();
@@ -648,7 +648,7 @@ std::unique_ptr<TFile> SiPixelGainCalibrationReadDQMFile::getHistograms() {
     list = dir->GetListOfKeys();
     for (ikey = 0; ikey < list->GetEntries(); ikey++) {
       TKey *thekey = (TKey *)list->At(ikey);
-      if (thekey == 0)
+      if (thekey == nullptr)
         continue;
       TString keyname = thekey->GetName();
       TString keytype = thekey->GetClassName();

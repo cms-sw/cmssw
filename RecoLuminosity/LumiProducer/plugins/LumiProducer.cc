@@ -61,14 +61,13 @@ from the configuration file, the DB is not implemented yet)
 #include <vector>
 #include <cstring>
 #include <iterator>
+#include <filesystem>
+
 #include <boost/tokenizer.hpp>
 #include <xercesc/dom/DOM.hpp>
 #include <xercesc/parsers/XercesDOMParser.hpp>
 #include "Utilities/Xerces/interface/Xerces.h"
 #include <xercesc/util/XMLString.hpp>
-
-#include "boost/filesystem/path.hpp"
-#include "boost/filesystem/operations.hpp"
 
 namespace edm {
   class EventSetup;
@@ -244,7 +243,7 @@ LumiProducer::LumiProducer::LumiProducer(const edm::ParameterSet& iConfig)
   //test if need frontier servlet site-local translation
   if (connectStr.substr(0, fproto.length()) == fproto) {
     std::string::size_type startservlet = fproto.length();
-    std::string::size_type endservlet = connectStr.find("(", startservlet);
+    std::string::size_type endservlet = connectStr.find('(', startservlet);
     if (endservlet == std::string::npos) {
       endservlet = connectStr.rfind('/', connectStr.length());
     }
@@ -255,19 +254,19 @@ LumiProducer::LumiProducer::LumiProducer(const edm::ParameterSet& iConfig)
 
       std::string siteconfpath = iConfig.getUntrackedParameter<std::string>("siteconfpath", "");
       if (siteconfpath.length() == 0) {
-        std::string url = (boost::filesystem::path("SITECONF") / boost::filesystem::path("local") /
-                           boost::filesystem::path("JobConfig") / boost::filesystem::path("site-local-config.xml"))
+        std::string url = (std::filesystem::path("SITECONF") / std::filesystem::path("local") /
+                           std::filesystem::path("JobConfig") / std::filesystem::path("site-local-config.xml"))
                               .string();
         char* tmp = std::getenv("CMS_PATH");
         if (tmp) {
-          m_siteconfpath = (boost::filesystem::path(tmp) / boost::filesystem::path(url)).string();
+          m_siteconfpath = (std::filesystem::path(tmp) / std::filesystem::path(url)).string();
         }
       } else {
-        if (!boost::filesystem::exists(boost::filesystem::path(siteconfpath))) {
+        if (!std::filesystem::exists(std::filesystem::path(siteconfpath))) {
           throw cms::Exception("Non existing path ") << siteconfpath;
         }
         m_siteconfpath =
-            (boost::filesystem::path(siteconfpath) / boost::filesystem::path("site-local-config.xml")).string();
+            (std::filesystem::path(siteconfpath) / std::filesystem::path("site-local-config.xml")).string();
       }
       //std::cout<<"servlet : "<<servlet<<std::endl;
       m_connectStr = fproto + servletTranslation(servlet) + connectStr.substr(endservlet);

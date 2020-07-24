@@ -63,6 +63,8 @@ namespace edm {
       // Warning: the returned moduleDescription will be invalid during construction
       ModuleDescription const& moduleDescription() const { return moduleDescription_; }
 
+      virtual bool wantsProcessBlocks() const = 0;
+      virtual bool wantsInputProcessBlocks() const = 0;
       virtual bool wantsGlobalRuns() const = 0;
       virtual bool wantsGlobalLuminosityBlocks() const = 0;
       bool wantsStreamRuns() const { return false; }
@@ -84,6 +86,9 @@ namespace edm {
       void doBeginJob();
       void doEndJob();
 
+      void doBeginProcessBlock(ProcessBlockPrincipal const&, ModuleCallingContext const*);
+      void doAccessInputProcessBlock(ProcessBlockPrincipal const&, ModuleCallingContext const*);
+      void doEndProcessBlock(ProcessBlockPrincipal const&, ModuleCallingContext const*);
       void doBeginRun(RunPrincipal const& rp, EventSetupImpl const& c, ModuleCallingContext const*);
       void doEndRun(RunPrincipal const& rp, EventSetupImpl const& c, ModuleCallingContext const*);
       void doBeginLuminosityBlock(LuminosityBlockPrincipal const& lbp,
@@ -107,6 +112,9 @@ namespace edm {
       virtual void beginJob() {}
       virtual void endJob() {}
 
+      virtual void doBeginProcessBlock_(ProcessBlock const&);
+      virtual void doAccessInputProcessBlock_(ProcessBlock const&);
+      virtual void doEndProcessBlock_(ProcessBlock const&);
       virtual void doBeginRun_(Run const& rp, EventSetup const& c);
       virtual void doEndRun_(Run const& rp, EventSetup const& c);
       virtual void doBeginLuminosityBlock_(LuminosityBlock const& lbp, EventSetup const& c);

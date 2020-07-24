@@ -4,14 +4,12 @@
 </bin>
 
 <library name="rerunMVAIsolationOnMiniAOD" file="rerunMVAIsolationOnMiniAOD.cc">
+  <use name="CommonTools/UtilAlgos"/>
   <use name="FWCore/Framework"/>
-  <use name="FWCore/PluginManager"/>
   <use name="FWCore/ParameterSet"/>
   <use name="DataFormats/PatCandidates"/>
   <use name="DataFormats/TauReco"/>
   <use name="RecoTauTag/RecoTau"/>
-  <use name="PhysicsTools/PatAlgos"/>
-  <use name="PhysicsTools/UtilAlgos"/>
   <use name="FWCore/ServiceRegistry"/>
   <use name="clhep"/>
   <use name="root"/>

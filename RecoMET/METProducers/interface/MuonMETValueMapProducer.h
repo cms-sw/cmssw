@@ -23,6 +23,7 @@
 #include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Utilities/interface/ESGetToken.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "TrackingTools/TrackAssociator/interface/TrackDetectorAssociator.h"
 #include "TrackingTools/TrackAssociator/interface/TrackAssociatorParameters.h"
@@ -30,6 +31,8 @@
 #include "DataFormats/MuonReco/interface/Muon.h"
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
 #include "DataFormats/MuonReco/interface/MuonMETCorrectionData.h"
+#include "MagneticField/Engine/interface/MagneticField.h"
+#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 
 //____________________________________________________________________________||
 namespace cms {
@@ -67,6 +70,7 @@ namespace cms {
 
     edm::EDGetTokenT<edm::View<reco::Muon> > muonToken_;
     edm::EDGetTokenT<reco::BeamSpot> beamSpotToken_;
+    edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> magFieldToken_;
 
     TrackAssociatorParameters trackAssociatorParameters_;
     TrackDetectorAssociator trackAssociator_;

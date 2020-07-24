@@ -22,7 +22,7 @@ process.source = cms.Source("EmptySource",
     timeBetweenEvents = cms.untracked.uint64(1000),
     firstTime = cms.untracked.uint64(1000000),
     numberEventsInRun = cms.untracked.uint32(nEvtRun),
-    numberEventsInLuminosityBlock = cms.untracked.uint32(nEvtLumi) 
+    numberEventsInLuminosityBlock = cms.untracked.uint32(nEvtLumi)
 )
 
 #process.Tracer = cms.Service("Tracer")
@@ -52,6 +52,36 @@ process.LumiSumIntProd = cms.EDProducer("edmtest::stream::LumiSummaryIntProducer
     transitions = cms.int32(nEvt+4*int(nEvt/nEvtLumi))
     ,cachevalue = cms.int32(nEvtLumi)
 )
+
+process.ProcessBlockIntProd = cms.EDProducer("edmtest::stream::ProcessBlockIntProducer",
+    transitions = cms.int32(int(nEvt + 2)),
+    consumesBeginProcessBlock = cms.InputTag("TestBeginProcessBlockProd" ,"begin"),
+    consumesEndProcessBlock = cms.InputTag("TestEndProcessBlockProd", "end")
+)
+
+process.TestBeginProcessBlockProd = cms.EDProducer("edmtest::stream::TestBeginProcessBlockProducer",
+    transitions = cms.int32(int(nEvt + 1)),
+    consumesBeginProcessBlock = cms.InputTag("")
+)
+
+process.TestBeginProcessBlockProdRead = cms.EDProducer("edmtest::stream::TestBeginProcessBlockProducer",
+    transitions = cms.int32(int(nEvt + 1)),
+    consumesBeginProcessBlock = cms.InputTag("TestBeginProcessBlockProd" ,"begin")
+)
+
+process.TestEndProcessBlockProd = cms.EDProducer("edmtest::stream::TestEndProcessBlockProducer",
+    transitions = cms.int32(int(nEvt + 1)),
+    consumesEndProcessBlock = cms.InputTag("")
+)
+
+process.TestEndProcessBlockProdRead = cms.EDProducer("edmtest::stream::TestEndProcessBlockProducer",
+    transitions = cms.int32(int(nEvt + 1)),
+    consumesEndProcessBlock = cms.InputTag("TestEndProcessBlockProd", "end")
+)
+
+process.ProcessBlockIntProdNoGlobalCache = cms.EDProducer("edmtest::stream::ProcessBlockIntProducerNoGlobalCache")
+process.TestBeginProcessBlockProdNoGlobalCache = cms.EDProducer("edmtest::stream::TestBeginProcessBlockProducerNoGlobalCache")
+process.TestEndProcessBlockProdNoGlobalCache = cms.EDProducer("edmtest::stream::TestEndProcessBlockProducerNoGlobalCache")
 
 process.TestBeginRunProd = cms.EDProducer("edmtest::stream::TestBeginRunProducer",
     transitions = cms.int32(int(nEvt/nEvtRun))
@@ -99,6 +129,12 @@ process.LumiSumIntAn = cms.EDAnalyzer("edmtest::stream::LumiSummaryIntAnalyzer",
     ,cachevalue = cms.int32(nEvtLumi)
 )
 
+process.ProcessBlockIntAn = cms.EDAnalyzer("edmtest::stream::ProcessBlockIntAnalyzer",
+    transitions = cms.int32(int(nEvt + 2)),
+    consumesBeginProcessBlock = cms.InputTag("TestBeginProcessBlockProd" ,"begin"),
+    consumesEndProcessBlock = cms.InputTag("TestEndProcessBlockProd", "end")
+)
+
 process.GlobIntFil = cms.EDFilter("edmtest::stream::GlobalIntFilter",
     transitions = cms.int32(nEvt+3)
     ,cachevalue = cms.int32(nEvt)
@@ -123,6 +159,33 @@ process.LumiSumIntFil = cms.EDFilter("edmtest::stream::LumiSummaryIntFilter",
     transitions = cms.int32(nEvt+4*int(nEvt/nEvtLumi))
     ,cachevalue = cms.int32(nEvtLumi)
 )
+
+process.ProcessBlockIntFil = cms.EDFilter("edmtest::stream::ProcessBlockIntFilter",
+    transitions = cms.int32(int(nEvt + 2)),
+    consumesBeginProcessBlock = cms.InputTag("TestBeginProcessBlockFil" ,"begin"),
+    consumesEndProcessBlock = cms.InputTag("TestEndProcessBlockFil", "end")
+)
+
+process.TestBeginProcessBlockFil = cms.EDFilter("edmtest::stream::TestBeginProcessBlockFilter",
+    transitions = cms.int32(int(nEvt + 1)),
+    consumesBeginProcessBlock = cms.InputTag("")
+)
+
+process.TestBeginProcessBlockFilRead = cms.EDFilter("edmtest::stream::TestBeginProcessBlockFilter",
+    transitions = cms.int32(int(nEvt + 1)),
+    consumesBeginProcessBlock = cms.InputTag("TestBeginProcessBlockFil", "begin")
+)
+
+process.TestEndProcessBlockFil = cms.EDFilter("edmtest::stream::TestEndProcessBlockFilter",
+    transitions = cms.int32(int(nEvt + 1)),
+    consumesEndProcessBlock = cms.InputTag("")
+)
+
+process.TestEndProcessBlockFilRead = cms.EDFilter("edmtest::stream::TestEndProcessBlockFilter",
+    transitions = cms.int32(int(nEvt + 1)),
+    consumesEndProcessBlock = cms.InputTag("TestEndProcessBlockFil", "end")
+)
+
 process.TestBeginRunFil = cms.EDFilter("edmtest::stream::TestBeginRunFilter",
     transitions = cms.int32(nEvt+3*int(nEvt/nEvtRun))
     ,cachevalue = cms.int32(nEvt)
@@ -158,5 +221,43 @@ process.testFilterModule = cms.EDFilter("TestFilterModule",
 
 process.task = cms.Task(process.TestAccumulator1)
 
-process.p = cms.Path(process.GlobIntProd+process.RunIntProd+process.LumiIntProd+process.RunSumIntProd+process.LumiSumIntProd+process.TestBeginRunProd+process.TestEndRunProd+process.TestBeginLumiBlockProd+process.TestEndLumiBlockProd+process.GlobIntAn+process.RunIntAn+process.LumiIntAn+process.RunSumIntAn+process.LumiSumIntAn+process.GlobIntFil+process.RunIntFil+process.LumiIntFil+process.RunSumIntFil+process.LumiSumIntFil+process.TestBeginRunFil+process.TestEndRunFil+process.TestBeginLumiBlockFil+process.TestEndLumiBlockFil+process.testFilterModule+process.TestAccumulator2, process.task)
-
+process.p = cms.Path(process.GlobIntProd +
+                     process.RunIntProd +
+                     process.LumiIntProd +
+                     process.RunSumIntProd +
+                     process.LumiSumIntProd +
+                     process.ProcessBlockIntProd +
+                     process.TestBeginProcessBlockProdRead +
+                     process.TestBeginProcessBlockProd +
+                     process.TestEndProcessBlockProdRead +
+                     process.TestEndProcessBlockProd +
+                     process.ProcessBlockIntProdNoGlobalCache +
+                     process.TestBeginProcessBlockProdNoGlobalCache +
+                     process.TestEndProcessBlockProdNoGlobalCache +
+                     process.TestBeginRunProd +
+                     process.TestEndRunProd +
+                     process.TestBeginLumiBlockProd +
+                     process.TestEndLumiBlockProd +
+                     process.GlobIntAn +
+                     process.RunIntAn +
+                     process.LumiIntAn +
+                     process.RunSumIntAn +
+                     process.LumiSumIntAn +
+                     process.ProcessBlockIntAn +
+                     process.GlobIntFil +
+                     process.RunIntFil +
+                     process.LumiIntFil +
+                     process.RunSumIntFil +
+                     process.LumiSumIntFil +
+                     process.ProcessBlockIntFil +
+                     process.TestBeginProcessBlockFil +
+                     process.TestBeginProcessBlockFilRead +
+                     process.TestEndProcessBlockFil +
+                     process.TestEndProcessBlockFilRead +
+                     process.TestBeginRunFil +
+                     process.TestEndRunFil +
+                     process.TestBeginLumiBlockFil +
+                     process.TestEndLumiBlockFil +
+                     process.testFilterModule +
+                     process.TestAccumulator2,
+                     process.task)

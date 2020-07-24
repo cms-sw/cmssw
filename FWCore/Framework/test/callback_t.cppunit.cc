@@ -103,7 +103,7 @@ namespace {
   void call(CALLBACK& iCallback) {
     auto waitTask = edm::make_empty_waiting_task();
     waitTask->set_ref_count(1);
-    iCallback.prefetchAsync(waitTask.get(), nullptr, nullptr);
+    iCallback.prefetchAsync(waitTask.get(), nullptr, nullptr, edm::ServiceToken{});
     waitTask->wait_for_all();
   }
 }  // namespace

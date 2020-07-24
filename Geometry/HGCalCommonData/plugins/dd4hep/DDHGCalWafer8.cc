@@ -9,6 +9,7 @@
 #include "DetectorDescription/DDCMS/interface/DDPlugins.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/Exception.h"
+#include "Geometry/HGCalCommonData/interface/HGCalTypes.h"
 
 //#define EDM_ML_DEBUG
 
@@ -102,7 +103,7 @@ static long algorithm(dd4hep::Detector& /* description */,
         else if (v == 0)
           cell = 6;
         dd4hep::Position tran(xp, yp, 0);
-        int copy = (cellType * 100 + v) * 100 + u;
+        int copy = HGCalTypes::packCellTypeUV(cellType, u, v);
         glog.placeVolume(ns.volume(cellNames[cell]), copy, dd4hep::Transform3D(rotation, tran));
 #ifdef EDM_ML_DEBUG
         edm::LogVerbatim("HGCalGeom") << "DDHGCalWafer8: " << cellNames[cell] << " number " << copy << " position in "

@@ -31,7 +31,11 @@ private:
   float theVersion;
   float theMagField;
   std::vector<uint32_t> theDetIds;
-  std::vector<uint32_t> theTemplIds;
+  vstring theBarrelLocations;
+  vstring theEndcapLocations;
+  std::vector<uint32_t> theBarrelTemplateIds;
+  std::vector<uint32_t> theEndcapTemplateIds;
+  bool useVectorIndices;
 };
 
 #endif

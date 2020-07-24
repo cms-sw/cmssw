@@ -14,6 +14,8 @@
 
 #include <TLorentzVector.h>
 
+#include <memory>
+
 #include "DQMOffline/Lumi/plugins/ZCounting.h"
 
 using namespace ZCountingTrigger;
@@ -130,7 +132,7 @@ void ZCounting::dqmBeginRun(edm::Run const&, edm::EventSetup const&) {
   edm::LogInfo("ZCounting") << "ZCounting::beginRun" << std::endl;
 
   // Triggers
-  fTrigger.reset(new ZCountingTrigger::TTrigger(fMuonHLTNames, fMuonHLTObjectNames));
+  fTrigger = std::make_unique<ZCountingTrigger::TTrigger>(fMuonHLTNames, fMuonHLTObjectNames);
 }
 //
 // -------------------------------------- bookHistos --------------------------------------------

@@ -29,7 +29,7 @@ void SiPixelVCalDB::analyze(const edm::Event& e, const edm::EventSetup& iSetup) 
   std::cout << " There are " << pDD->detUnits().size() << " modules" << std::endl;
 
   for (const auto& it : pDD->detUnits()) {
-    if (dynamic_cast<PixelGeomDetUnit const*>(it) != 0) {
+    if (dynamic_cast<PixelGeomDetUnit const*>(it) != nullptr) {
       const DetId detid = it->geographicalId();
       const unsigned int rawDetId = detid.rawId();
       int subid = detid.subdetId();

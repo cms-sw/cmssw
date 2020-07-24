@@ -57,6 +57,9 @@ class MatrixInjector(object):
         self.memoryOffset = opt.memoryOffset
         self.memPerCore = opt.memPerCore
         self.numberEventsInLuminosityBlock = opt.numberEventsInLuminosityBlock
+        self.numberOfStreams = 0
+        if(opt.nStreams>0):
+            self.numberOfStreams = opt.nStreams
         self.batchName = ''
         self.batchTime = str(int(time.time()))
         if(opt.batchName):
@@ -138,6 +141,7 @@ class MatrixInjector(object):
             "PrimaryDataset" : None,                          #Primary Dataset to be created
             "nowmIO": {},
             "Multicore" : opt.nThreads,                  # this is the per-taskchain Multicore; it's the default assigned to a task if it has no value specified 
+            "EventStreams": self.numberOfStreams,
             "KeepOutput" : False
             }
         self.defaultInput={
@@ -149,6 +153,7 @@ class MatrixInjector(object):
             "LumisPerJob" : 10,               #Size of jobs in terms of splitting algorithm
             "nowmIO": {},
             "Multicore" : opt.nThreads,                       # this is the per-taskchain Multicore; it's the default assigned to a task if it has no value specified 
+            "EventStreams": self.numberOfStreams,
             "KeepOutput" : False
             }
         self.defaultTask={
@@ -161,6 +166,7 @@ class MatrixInjector(object):
             "LumisPerJob" : 10,               #Size of jobs in terms of splitting algorithm
             "nowmIO": {},
             "Multicore" : opt.nThreads,                       # this is the per-taskchain Multicore; it's the default assigned to a task if it has no value specified 
+            "EventStreams": self.numberOfStreams,
             "KeepOutput" : False
             }
 
@@ -263,8 +269,6 @@ class MatrixInjector(object):
             wmsplit['DigiFullPU']=1
             wmsplit['RecoFullPU']=1
             wmsplit['RECOHID11']=1
-            wmsplit['DigiFullTriggerPU_2026D17PU'] = 1 
-            wmsplit['RecoFullGlobalPU_2026D17PU']=1
             wmsplit['DIGIUP17']=1
             wmsplit['RECOUP17']=1
             wmsplit['DIGIUP17_PU25']=1
@@ -281,36 +285,12 @@ class MatrixInjector(object):
             wmsplit['HYBRIDZSHI2015']=1
             wmsplit['RECOHID15']=1
             wmsplit['RECOHID18']=1
-            wmsplit['DigiFullTriggerPU_2026D35PU'] = 1
-            wmsplit['RecoFullGlobalPU_2026D35PU']=1
-            wmsplit['DigiFullTriggerPU_2026D41PU'] = 1
-            wmsplit['RecoFullGlobalPU_2026D41PU']=1
-            wmsplit['DigiFullTriggerPU_2026D43PU'] = 1
-            wmsplit['RecoFullGlobalPU_2026D43PU']=1
-            wmsplit['DigiFullTriggerPU_2026D44PU'] = 1
-            wmsplit['RecoFullGlobalPU_2026D44PU']=1
-            wmsplit['DigiFullTriggerPU_2026D45PU'] = 1
-            wmsplit['RecoFullGlobalPU_2026D45PU']=1
-            wmsplit['DigiFullTriggerPU_2026D46PU'] = 1
-            wmsplit['RecoFullGlobalPU_2026D46PU']=1
-            wmsplit['DigiFullTriggerPU_2026D47PU'] = 1
-            wmsplit['RecoFullGlobalPU_2026D47PU']=1
-            wmsplit['DigiFullTriggerPU_2026D48PU'] = 1
-            wmsplit['RecoFullGlobalPU_2026D48PU']=1
-            wmsplit['DigiFullTriggerPU_2026D49PU'] = 1
-            wmsplit['RecoFullGlobalPU_2026D49PU']=1
-            wmsplit['DigiFullTriggerPU_2026D50PU'] = 1
-            wmsplit['RecoFullGlobalPU_2026D50PU']=1
-            wmsplit['DigiFullTriggerPU_2026D51PU'] = 1
-            wmsplit['RecoFullGlobalPU_2026D51PU']=1
-            wmsplit['DigiFullTriggerPU_2026D52PU'] = 1	
-            wmsplit['RecoFullGlobalPU_2026D52PU']=1           
-            wmsplit['DigiFullTriggerPU_2026D57PU'] = 1	
-            wmsplit['RecoFullGlobalPU_2026D57PU']=1           
-            wmsplit['DigiFullTriggerPU_2026D58PU'] = 1	
-            wmsplit['RecoFullGlobalPU_2026D58PU']=1           
-            wmsplit['DigiFullTriggerPU_2026D59PU'] = 1	
-            wmsplit['RecoFullGlobalPU_2026D59PU']=1           
+            # automate for phase 2
+            from .upgradeWorkflowComponents import upgradeKeys
+            for key in upgradeKeys[2026]:
+                if not "PU" in key: continue
+                wmsplit['DigiFullTriggerPU_'+key] = 1
+                wmsplit['RecoFullGlobalPU_'+key] = 1
                          
             #import pprint
             #pprint.pprint(wmsplit)            

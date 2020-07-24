@@ -9,6 +9,7 @@
 #include "FWCore/Utilities/interface/Exception.h"
 #include "Geometry/HGCalCommonData/interface/HGCalGeomTools.h"
 #include "Geometry/HGCalCommonData/interface/HGCalGeometryMode.h"
+#include "Geometry/HGCalCommonData/interface/HGCalTypes.h"
 #include "Geometry/HGCalCommonData/interface/HGCalWaferIndex.h"
 #include "Geometry/HGCalCommonData/interface/HGCalWaferMask.h"
 #include "Geometry/HGCalCommonData/interface/HGCalWaferType.h"
@@ -993,12 +994,9 @@ std::pair<int, int> HGCalDDDConstants::rowColumnWafer(int wafer) const {
   int row(0), col(0);
   if (wafer < (int)(hgpar_->waferCopy_.size())) {
     int copy = hgpar_->waferCopy_[wafer];
-    col = copy % 100;
-    if ((copy / 10000) % 10 != 0)
-      col = -col;
-    row = (copy / 100) % 100;
-    if ((copy / 100000) % 10 != 0)
-      row = -row;
+    col = HGCalTypes::getUnpackedU(copy);
+    row = HGCalTypes::getUnpackedV(copy);
+    ;
   }
   return std::make_pair(row, col);
 }
@@ -1315,16 +1313,19 @@ std::pair<int, int> HGCalDDDConstants::waferTypeRotation(
     int layer, int waferU, int waferV, bool fromFile, bool debug) const {
   int type(HGCalTypes::WaferOut), rotn(0);
   int wl = HGCalWaferIndex::waferIndex(layer, waferU, waferV);
+  bool withinList(true);
   if (fromFile && (waferFileSize() > 0)) {
     auto itr = hgpar_->waferInfoMap_.find(wl);
-    if (itr != hgpar_->waferInfoMap_.end()) {
+    withinList = (itr != hgpar_->waferInfoMap_.end());
+    if (withinList) {
       type = (itr->second).part;
       rotn = (itr->second).orient;
     }
   } else {
     auto itr = hgpar_->waferTypes_.find(wl);
     if ((mode_ == HGCalGeometryMode::Hexagon8) || (mode_ == HGCalGeometryMode::Hexagon8Full)) {
-      if (itr != hgpar_->waferTypes_.end()) {
+      withinList = (itr != hgpar_->waferTypes_.end());
+      if (withinList) {
         if ((itr->second).second < HGCalWaferMask::k_OffsetRotation) {
           rotn = (itr->second).second;
           if ((itr->second).first == HGCalGeomTools::k_allCorners) {
@@ -1346,8 +1347,8 @@ std::pair<int, int> HGCalDDDConstants::waferTypeRotation(
 #ifdef EDM_ML_DEBUG
   if (debug)
     edm::LogVerbatim("HGCalGeom") << "waferTypeRotation: Layer " << layer << " Wafer " << waferU << ":" << waferV
-                                  << " Index " << std::hex << wl << std::dec << ":"
-                                  << (itr != hgpar_->waferTypes_.end()) << " Type " << type << " Rotation " << rotn;
+                                  << " Index " << std::hex << wl << std::dec << ":" << withinList << " Type " << type
+                                  << " Rotation " << rotn;
 #endif
   return std::make_pair(type, rotn);
 }

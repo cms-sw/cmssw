@@ -32,13 +32,16 @@ cceParamThick_ttu600 = [6e+14,   -8.01557e-16, 0.157375]      #300
 cceParamFine_ttu800  = [1.5e+15, 3.35246e-17,  0.251679]      #120
 cceParamThin_ttu800  = [1.5e+15, -1.62096e-16, 0.293828]      #200
 cceParamThick_ttu800 = [6e+14,   -5.95259e-16, 0.183929]      #300
+# scaling the ddfz curve to match Timo's 800V measuremetn at 3.5E15
+cceParamFine_epi800 = [3.5e+15, -1.4285714e-17, 0.263812]     #120
 #  line+log tdr 600V EPI
-cceParamFine_epi600  = [3.5e+15, -9.73872e-19, 0.263812]      #100
+cceParamFine_epi600  = [3.5e+15, -3.428571e-17, 0.263812]     #120 - scaling the ddfz curve to match Timo's 600V measurement at 3.5E15 
 cceParamThin_epi600  = [1.5e+15, -3.09878e-16, 0.211207]      #200
 cceParamThick_epi600 = [6e+14,   -7.96539e-16, 0.251751]      #300
 
+
 HGCAL_cceParams_toUse = cms.PSet(
-    cceParamFine  = cms.vdouble(cceParamFine_tdr600),
+    cceParamFine  = cms.vdouble(cceParamFine_epi600),
     cceParamThin  = cms.vdouble(cceParamThin_tdr600),
     cceParamThick = cms.vdouble(cceParamThick_tdr600)
     )
@@ -46,6 +49,7 @@ HGCAL_cceParams_toUse = cms.PSet(
 HGCAL_noise_fC = cms.PSet(
     scaleByDose = cms.bool(False),
     scaleByDoseAlgo = cms.uint32(0),
+    scaleByDoseFactor = cms.double(1),
     doseMap = cms.string(""),
     values = cms.vdouble( [x*fC_per_ele for x in nonAgedNoises] ), #100,200,300 um
     )
@@ -53,6 +57,7 @@ HGCAL_noise_fC = cms.PSet(
 HGCAL_noise_heback = cms.PSet(
     scaleByDose = cms.bool(False),
     scaleByDoseAlgo = cms.uint32(0),
+    scaleByDoseFactor = cms.double(1),
     doseMap = cms.string(""), #empty dose map at begin-of-life
     noise_MIP = cms.double(1./100.)
     )
@@ -75,7 +80,7 @@ hgceeDigitizer = cms.PSet(
     bxTime            = cms.double(25),
     eVPerEleHolePair = cms.double(eV_per_eh_pair),
     tofDelay          = cms.double(5),
-    geometryType      = cms.uint32(0),
+    geometryType      = cms.uint32(1),
     digitizationType  = cms.uint32(0),
     makeDigiSimLinks  = cms.bool(False),
     premixStage1      = cms.bool(False),
@@ -104,7 +109,7 @@ hgchefrontDigitizer = cms.PSet(
     maxSimHitsAccTime = cms.uint32(100),
     bxTime            = cms.double(25),
     tofDelay          = cms.double(5),
-    geometryType      = cms.uint32(0),
+    geometryType      = cms.uint32(1),
     digitizationType  = cms.uint32(0),
     makeDigiSimLinks  = cms.bool(False),
     premixStage1      = cms.bool(False),
@@ -127,13 +132,13 @@ hgchefrontDigitizer = cms.PSet(
 # HCAL back
 hgchebackDigitizer = cms.PSet(
     accumulatorType   = cms.string("HGCDigiProducer"),
-    hitCollection = cms.string("HcalHits"),
+    hitCollection = cms.string("HGCHitsHEback"),
     digiCollection = cms.string("HGCDigisHEback"),
     NoiseGeneration_Method = cms.bool(True),
     maxSimHitsAccTime = cms.uint32(100),
     bxTime            = cms.double(25),
     tofDelay          = cms.double(1),
-    geometryType      = cms.uint32(0),
+    geometryType      = cms.uint32(1),
     digitizationType  = cms.uint32(1),
     makeDigiSimLinks  = cms.bool(False),
     premixStage1      = cms.bool(False),
@@ -206,12 +211,34 @@ for _m in [hgceeDigitizer, hgchefrontDigitizer, hgchebackDigitizer, hfnoseDigiti
 #function to set noise to aged HGCal
 endOfLifeCCEs = [0.5, 0.5, 0.7]
 endOfLifeNoises = [2400.0,2250.0,1750.0]
-def HGCal_setEndOfLifeNoise(process,byDose=True,byDoseAlgo=0):
+def HGCal_setEndOfLifeNoise(process,byDose=True,byDoseAlgo=0,byDoseFactor=1):
     """includes all effects from radiation and gain choice"""
     # byDoseAlgo is used as a collection of bits to toggle: FLUENCE, CCE, NOISE, PULSEPERGAIN, CACHEDOP (from lsb to Msb)
-    process=HGCal_setRealisticNoiseSi(process,byDose=byDose,byDoseAlgo=byDoseAlgo)
-    process=HGCal_setRealisticNoiseSci(process,byDose=byDose,byDoseAlgo=byDoseAlgo)
+    process=HGCal_setRealisticNoiseSi(process,byDose=byDose,byDoseAlgo=byDoseAlgo,byDoseFactor=byDoseFactor)
+    process=HGCal_setRealisticNoiseSci(process,byDose=byDose,byDoseAlgo=byDoseAlgo,byDoseFactor=byDoseFactor)
     return process
+
+def HGCal_setEndOfLifeNoise_4000(process):
+    process.HGCAL_cceParams_toUse = cms.PSet(
+        cceParamFine  = cms.vdouble(cceParamFine_epi800),
+        cceParamThin  = cms.vdouble(cceParamThin_tdr800),
+        cceParamThick = cms.vdouble(cceParamThick_tdr800)
+    )
+    process.HGCAL_ileakParam_toUse    = cms.PSet(
+        ileakParam = cms.vdouble(ileakParam_800V)
+    )
+    return HGCal_setEndOfLifeNoise(process,byDoseFactor=1.333)
+
+def HGCal_setEndOfLifeNoise_1500(process):
+    process.HGCAL_cceParams_toUse = cms.PSet(
+        cceParamFine  = cms.vdouble(cceParamFine_epi600),
+        cceParamThin  = cms.vdouble(cceParamThin_tdr600),
+        cceParamThick = cms.vdouble(cceParamThick_tdr600)
+    )
+    process.HGCAL_ileakParam_toUse    = cms.PSet(
+        ileakParam = cms.vdouble(ileakParam_600V)
+    )
+    return HGCal_setEndOfLifeNoise(process,byDoseFactor=0.5)
 
 def HGCal_ignoreFluence(process):
     """include all effects except fluence impact on leakage current and CCE"""
@@ -256,10 +283,11 @@ def HGCal_useCaching(process):
 
 doseMap = cms.string("SimCalorimetry/HGCalSimProducers/data/doseParams_3000fb_fluka-3.7.20.txt")
 
-def HGCal_setRealisticNoiseSi(process,byDose=True,byDoseAlgo=0,byDoseMap=doseMap):
+def HGCal_setRealisticNoiseSi(process,byDose=True,byDoseAlgo=0,byDoseMap=doseMap,byDoseFactor=1):
     process.HGCAL_noise_fC = cms.PSet(
         scaleByDose = cms.bool(byDose),
         scaleByDoseAlgo = cms.uint32(byDoseAlgo),
+        scaleByDoseFactor = cms.double(byDoseFactor),
         doseMap = byDoseMap,
         values = cms.vdouble( [x*fC_per_ele for x in endOfLifeNoises] ), #100,200,300 um
         )
@@ -271,10 +299,11 @@ def HGCal_setRealisticNoiseSi(process,byDose=True,byDoseAlgo=0,byDoseMap=doseMap
         )
     return process
 
-def HGCal_setRealisticNoiseSci(process,byDose=True,byDoseAlgo=0,byDoseMap=doseMap):
+def HGCal_setRealisticNoiseSci(process,byDose=True,byDoseAlgo=0,byDoseMap=doseMap,byDoseFactor=1):
     process.HGCAL_noise_heback = cms.PSet(
         scaleByDose = cms.bool(byDose),
         scaleByDoseAlgo = cms.uint32(byDoseAlgo),
+        scaleByDoseFactor = cms.double(byDoseFactor),
         doseMap = byDoseMap,
         noise_MIP = cms.double(1./5.) #uses noise map
         )
@@ -284,12 +313,14 @@ def HGCal_disableNoise(process):
     process.HGCAL_noise_fC = cms.PSet(
         scaleByDose = cms.bool(False),
         scaleByDoseAlgo = cms.uint32(0),
+        scaleByDoseFactor = cms.double(1),
         doseMap = cms.string(""),
         values = cms.vdouble(0,0,0), #100,200,300 um
     )
     process.HGCAL_noise_heback = cms.PSet(
         scaleByDose = cms.bool(False),
         scaleByDoseAlgo = cms.uint32(0),
+        scaleByDoseFactor = cms.double(1),
         doseMap = cms.string(""),
         noise_MIP = cms.double(0.) #zero noise
         )
@@ -298,17 +329,7 @@ def HGCal_disableNoise(process):
     )
     return process
 
-from Configuration.Eras.Modifier_phase2_hgcalV9_cff import phase2_hgcalV9
+from Configuration.Eras.Modifier_phase2_hgcalV10_cff import phase2_hgcalV10
 
-phase2_hgcalV9.toModify( hgceeDigitizer,
-      geometryType      = cms.uint32(1),
-)
-phase2_hgcalV9.toModify( hgchefrontDigitizer,
-      geometryType      = cms.uint32(1),
-)
-phase2_hgcalV9.toModify( hgchebackDigitizer,
-      geometryType      = cms.uint32(1),
-      hitCollection = cms.string("HGCHitsHEback"),
-)
-phase2_hgcalV9.toModify(HGCAL_noise_fC, values = [x*fC_per_ele for x in nonAgedNoises_v9])
-phase2_hgcalV9.toModify(HGCAL_noises, values = [x for x in nonAgedNoises_v9])
+phase2_hgcalV10.toModify(HGCAL_noise_fC, values = [x*fC_per_ele for x in nonAgedNoises_v9])
+phase2_hgcalV10.toModify(HGCAL_noises, values = [x for x in nonAgedNoises_v9])

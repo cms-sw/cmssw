@@ -8,7 +8,6 @@
 <use name="Geometry/CommonDetUnit"/>
 <use name="DataFormats/TrajectorySeed"/>
 <use name="DataFormats/TrackerRecHit2D"/>
-<use name="DataFormats/L1TrackTrigger"/>
 <use name="Geometry/TrackerGeometryBuilder"/>
 <use name="MagneticField/Records"/>
 <use name="MagneticField/Engine"/>

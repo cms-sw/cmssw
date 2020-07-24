@@ -13,14 +13,17 @@
 // system include files
 
 // user include files
-#include "FWCore/Framework/interface/limited/EDFilterBase.h"
+#include <memory>
+
 #include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/LuminosityBlock.h"
-#include "FWCore/Framework/interface/Run.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/src/edmodule_mightGet_config.h"
-#include "FWCore/Framework/src/PreallocationConfiguration.h"
+#include "FWCore/Framework/interface/LuminosityBlock.h"
+#include "FWCore/Framework/interface/ProcessBlock.h"
+#include "FWCore/Framework/interface/Run.h"
+#include "FWCore/Framework/interface/limited/EDFilterBase.h"
 #include "FWCore/Framework/src/EventSignalsSentry.h"
+#include "FWCore/Framework/src/PreallocationConfiguration.h"
+#include "FWCore/Framework/src/edmodule_mightGet_config.h"
 
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
@@ -63,8 +66,8 @@ namespace edm {
 
     void EDFilterBase::doPreallocate(PreallocationConfiguration const& iPrealloc) {
       const auto nStreams = iPrealloc.numberOfStreams();
-      previousParentages_.reset(new std::vector<BranchID>[nStreams]);
-      previousParentageIds_.reset(new ParentageID[nStreams]);
+      previousParentages_ = std::make_unique<std::vector<BranchID>[]>(nStreams);
+      previousParentageIds_ = std::make_unique<ParentageID[]>(nStreams);
       preallocStreams(nStreams);
       preallocLumis(iPrealloc.numberOfLuminosityBlocks());
       preallocLumisSummary(iPrealloc.numberOfLuminosityBlocks());
@@ -74,6 +77,33 @@ namespace edm {
     void EDFilterBase::doBeginJob() { this->beginJob(); }
 
     void EDFilterBase::doEndJob() { this->endJob(); }
+
+    void EDFilterBase::doBeginProcessBlock(ProcessBlockPrincipal const& pbp, ModuleCallingContext const* mcc) {
+      ProcessBlock processBlock(pbp, moduleDescription_, mcc, false);
+      processBlock.setConsumer(this);
+      ProcessBlock const& constProcessBlock = processBlock;
+      this->doBeginProcessBlock_(constProcessBlock);
+      processBlock.setProducer(this);
+      this->doBeginProcessBlockProduce_(processBlock);
+      commit_(processBlock);
+    }
+
+    void EDFilterBase::doAccessInputProcessBlock(ProcessBlockPrincipal const& pbp, ModuleCallingContext const* mcc) {
+      ProcessBlock processBlock(pbp, moduleDescription_, mcc, false);
+      processBlock.setConsumer(this);
+      ProcessBlock const& constProcessBlock = processBlock;
+      this->doAccessInputProcessBlock_(constProcessBlock);
+    }
+
+    void EDFilterBase::doEndProcessBlock(ProcessBlockPrincipal const& pbp, ModuleCallingContext const* mcc) {
+      ProcessBlock processBlock(pbp, moduleDescription_, mcc, true);
+      processBlock.setConsumer(this);
+      ProcessBlock const& constProcessBlock = processBlock;
+      this->doEndProcessBlock_(constProcessBlock);
+      processBlock.setProducer(this);
+      this->doEndProcessBlockProduce_(processBlock);
+      commit_(processBlock);
+    }
 
     void EDFilterBase::doBeginRun(RunPrincipal const& rp, EventSetupImpl const& ci, ModuleCallingContext const* mcc) {
       Run r(rp, moduleDescription_, mcc, false);
@@ -208,6 +238,9 @@ namespace edm {
                                                           LuminosityBlock const& lbp,
                                                           EventSetup const& c) {}
 
+    void EDFilterBase::doBeginProcessBlock_(ProcessBlock const&) {}
+    void EDFilterBase::doAccessInputProcessBlock_(ProcessBlock const&) {}
+    void EDFilterBase::doEndProcessBlock_(ProcessBlock const&) {}
     void EDFilterBase::doBeginRun_(Run const& rp, EventSetup const& c) {}
     void EDFilterBase::doEndRun_(Run const& rp, EventSetup const& c) {}
     void EDFilterBase::doBeginRunSummary_(Run const& rp, EventSetup const& c) {}
@@ -218,6 +251,8 @@ namespace edm {
     void EDFilterBase::doBeginLuminosityBlockSummary_(LuminosityBlock const& rp, EventSetup const& c) {}
     void EDFilterBase::doEndLuminosityBlockSummary_(LuminosityBlock const& lb, EventSetup const& c) {}
 
+    void EDFilterBase::doBeginProcessBlockProduce_(ProcessBlock&) {}
+    void EDFilterBase::doEndProcessBlockProduce_(ProcessBlock&) {}
     void EDFilterBase::doBeginRunProduce_(Run& rp, EventSetup const& c) {}
     void EDFilterBase::doEndRunProduce_(Run& rp, EventSetup const& c) {}
     void EDFilterBase::doBeginLuminosityBlockProduce_(LuminosityBlock& lbp, EventSetup const& c) {}

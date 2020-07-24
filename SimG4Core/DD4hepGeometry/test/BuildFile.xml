@@ -7,14 +7,7 @@
 </bin>
 
 <library name="DD4hepGeometryTestPlugins" file="plugins/*.cc">
-  <use name="DataFormats/GeometryVector"/>
-  <use name="SimG4Core/Notification"/>
-  <use name="SimG4Core/Watcher"/>
   <use name="SimG4Core/DD4hepGeometry"/>
-  <use name="SimG4Core/SensitiveDetector"/>
-  <use name="SimG4Core/MagneticField"/>
-  <use name="MagneticField/Engine"/>
-  <use name="MagneticField/Records"/>
   <use name="geant4core"/>
   <use name="Geometry/Records"/>
   <lib name="Geom"/>

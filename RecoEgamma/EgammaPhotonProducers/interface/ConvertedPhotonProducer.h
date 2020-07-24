@@ -12,8 +12,11 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Utilities/interface/ESGetToken.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
+#include "Geometry/Records/interface/CaloGeometryRecord.h"
 #include "MagneticField/Engine/interface/MagneticField.h"
+#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 #include "RecoTracker/MeasurementDet/interface/MeasurementTracker.h"
 #include "TrackingTools/TransientTrack/interface/TransientTrack.h"
 #include "TrackingTools/MeasurementDet/interface/LayerMeasurements.h"
@@ -27,6 +30,7 @@
 #include "RecoEgamma/EgammaPhotonAlgos/interface/ConversionTrackPairFinder.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 #include "DataFormats/EgammaTrackReco/interface/TrackCaloClusterAssociation.h"
+#include "TrackingTools/Records/interface/TransientTrackRecord.h"
 
 class ConversionTrackEcalImpactPoint;
 class ConversionTrackPairFinder;
@@ -79,6 +83,10 @@ private:
   edm::ESHandle<CaloGeometry> theCaloGeom_;
   edm::ESHandle<MagneticField> theMF_;
   edm::ESHandle<TransientTrackBuilder> theTransientTrackBuilder_;
+
+  edm::ESGetToken<CaloGeometry, CaloGeometryRecord> caloGeomToken_;
+  edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> mFToken_;
+  edm::ESGetToken<TransientTrackBuilder, TransientTrackRecord> transientTrackToken_;
 
   ConversionTrackPairFinder* theTrackPairFinder_;
   ConversionVertexFinder* theVertexFinder_;

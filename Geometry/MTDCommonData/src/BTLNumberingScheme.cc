@@ -48,7 +48,7 @@ uint32_t BTLNumberingScheme::getUnitID(const MTDBaseNumber& baseNumber) const {
   uint32_t pos = modName.find("Positive");
 
   const uint32_t zside = (pos <= strlen(modName.c_str()) ? 1 : 0);
-  std::string baseName = modName.substr(modName.find(":") + 1);
+  std::string baseName = modName.substr(modName.find(':') + 1);
 
   // trick to accomodate both 54, 42 and 48 modules designs
   const int modtyp(

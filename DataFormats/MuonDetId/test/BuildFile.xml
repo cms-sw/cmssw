@@ -8,3 +8,5 @@
 <bin name="testCSCDetId" file="testCSCDetId.cc,testMuonDetId.cpp">
   <use name="cppunit"/>
 </bin>
+
+<bin name="testGEMDetId" file="testGEMDetId.cc"> </bin>

@@ -4,7 +4,7 @@
  *  \author J. Lee, Yechan Kang - UoS
  */
 #include <memory>
-#include "EventFilter/GEMRawToDigi/interface/AMC13Event.h"
+#include "DataFormats/GEMDigi/interface/AMC13Event.h"
 
 class GEMRawToDigi {
 public:

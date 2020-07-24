@@ -6,6 +6,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
+#include "FWCore/Utilities/interface/ESGetToken.h"
 
 #include "DataFormats/Common/interface/View.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
@@ -128,7 +129,7 @@ namespace reco {
       std::vector<bool> subdetStoN_;           //(6); //,std::bool(false));
       std::vector<double> subdetStoNlowcut_;   //(6,-1.0);
       std::vector<double> subdetStoNhighcut_;  //(6,-1.0);
-      bool checkStoN(const edm::EventSetup &iSetup, const DetId &id, const TrackingRecHit *therechit);
+      bool checkStoN(const DetId &id, const TrackingRecHit *therechit);
       void parseStoN(const std::string &str);
 
       std::vector<uint32_t> detsToIgnore_;
@@ -149,10 +150,11 @@ namespace reco {
       edm::ESHandle<TrackerGeometry> theGeometry;
       edm::ESHandle<MagneticField> theMagField;
 
-      edm::ESHandle<TransientTrackingRecHitBuilder> theBuilder;
-
       edm::EDGetTokenT<reco::TrackCollection> tokenTracks;
       edm::EDGetTokenT<TrajTrackAssociationCollection> tokenTrajTrack;
+      edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> tokenGeometry;
+      edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> tokenMagField;
+      edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> tokenTrackerTopo;
 
       SiStripClusterInfo siStripClusterInfo_;
 
@@ -309,6 +311,9 @@ namespace reco {
           PXLcorrClusChargeCut_(iConfig.getParameter<double>("PxlCorrClusterChargeCut")),
           siStripClusterInfo_(consumesCollector()),
           tagOverlaps_(iConfig.getParameter<bool>("tagOverlaps")) {
+      tokenGeometry = esConsumes<TrackerGeometry, TrackerDigiGeometryRecord>();
+      tokenMagField = esConsumes<MagneticField, IdealMagneticFieldRecord>();
+      tokenTrackerTopo = esConsumes<TrackerTopology, TrackerTopologyRcd>();
       if (useTrajectories_)
         tokenTrajTrack = consumes<TrajTrackAssociationCollection>(src_);
       else
@@ -392,10 +397,8 @@ namespace reco {
         iEvent.getByToken(tokenTracks, tracks);
 
       // read from EventSetup
-      iSetup.get<TrackerDigiGeometryRecord>().get(theGeometry);
-      iSetup.get<IdealMagneticFieldRecord>().get(theMagField);
-      //iSetup.get<TransientRecHitRecord>().get("WithTrackAngle",theBuilder);
-      // RHBuilder=   theBuilder.product();
+      theGeometry = iSetup.getHandle(tokenGeometry);
+      theMagField = iSetup.getHandle(tokenMagField);
       siStripClusterInfo_.initEvent(iSetup);
 
       // prepare output collection
@@ -621,8 +624,7 @@ namespace reco {
       nOverlaps = 0;
 
       //Retrieve tracker topology from geometry
-      edm::ESHandle<TrackerTopology> tTopoHand;
-      iSetup.get<TrackerTopologyRcd>().get(tTopoHand);
+      edm::ESHandle<TrackerTopology> tTopoHand = iSetup.getHandle(tokenTrackerTopo);
       const TrackerTopology *tTopo = tTopoHand.product();
 
       std::vector<TrajectoryMeasurement> tmColl = itt->measurements();
@@ -734,8 +736,7 @@ namespace reco {
 
     int TrackerTrackHitFilter::checkHit(const edm::EventSetup &iSetup, const DetId &detid, const TrackingRecHit *hit) {
       //Retrieve tracker topology from geometry
-      edm::ESHandle<TrackerTopology> tTopoHand;
-      iSetup.get<TrackerTopologyRcd>().get(tTopoHand);
+      edm::ESHandle<TrackerTopology> tTopoHand = iSetup.getHandle(tokenTrackerTopo);
       const TrackerTopology *tTopo = tTopoHand.product();
 
       int hitresult = 0;
@@ -756,7 +757,7 @@ namespace reco {
             hitresult = -3;
           //if the hit is in the desired part of the det, check other things
           if (hitresult == 0 && rejectBadStoNHits_) {
-            if (!checkStoN(iSetup, detid, hit))
+            if (!checkStoN(detid, hit))
               hitresult = -5;
           }  //end if S/N is ok
         }    //end hit in tracker
@@ -768,9 +769,7 @@ namespace reco {
       return hitresult;
     }  //end  TrackerTrackHitFilter::checkHit()
 
-    bool TrackerTrackHitFilter::checkStoN(const edm::EventSetup &iSetup,
-                                          const DetId &id,
-                                          const TrackingRecHit *therechit) {
+    bool TrackerTrackHitFilter::checkStoN(const DetId &id, const TrackingRecHit *therechit) {
       bool keepthishit = true;
       // const uint32_t& recHitDetId = id.rawId();
 
