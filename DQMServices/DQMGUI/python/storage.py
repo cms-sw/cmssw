@@ -16,7 +16,7 @@ class GUIDataStore:
 
     __DBSCHEMA = """
     BEGIN;
-    CREATE TABLE IF NOT EXISTS samples(dataset, run, lumi, filename, fileformat, menamesid, meinfosid);
+    CREATE TABLE IF NOT EXISTS samples(dataset, run, lumi, filename, fileformat, menamesid, meinfosid, registered default (strftime('%s','now')));
     CREATE INDEX IF NOT EXISTS samplelookup ON samples(dataset, run, lumi);
     CREATE UNIQUE INDEX IF NOT EXISTS uniquesamples on samples(dataset, run, lumi);
     CREATE TABLE IF NOT EXISTS menames(menamesid INTEGER PRIMARY KEY, menameblob);
@@ -180,14 +180,16 @@ class GUIDataStore:
 
         return (filename, fileformat, names_list, infos_list)
 
-
+    
     @classmethod
-    async def get_samples_count(cls):
-        sql = 'SELECT COUNT(*) FROM samples;'
+    async def is_samples_empty(cls):
+        """Returns True if at least one sample exists, False otherwise."""
+
+        sql = 'SELECT COUNT(*) FROM (SELECT * FROM samples LIMIT 1);'
         cursor = await cls.__db.execute(sql)
         row = await cursor.fetchone()
         await cursor.close()
-        return row[0]
+        return row[0] == 0
 
 
     @classmethod
@@ -227,7 +229,7 @@ class GUIDataStore:
         Sample is declared here: data_types.SampleFull
         """
 
-        sql = 'INSERT OR REPLACE INTO samples VALUES(?,?,?,?,?,NULL,NULL);'
+        sql = 'INSERT OR REPLACE INTO samples(dataset, run, lumi, filename, fileformat, menamesid, meinfosid) VALUES(?,?,?,?,?,NULL,NULL);'
         try:
             await cls.__lock.acquire()
             await cls.__db.execute('BEGIN;')
@@ -242,6 +244,30 @@ class GUIDataStore:
                 pass
         finally:
             cls.__lock.release()
+
+
+    @classmethod
+    async def search_dataset_names(cls, search):
+        """Returns at most 100 dataset names matching the search term."""
+
+        search = '%%%s%%' % search.lower()
+        sql = 'SELECT DISTINCT dataset FROM samples WHERE dataset LIKE ? LIMIT 100;'
+        cursor = await cls.__db.execute(sql, (search,))
+        rows = await cursor.fetchall()
+        await cursor.close()
+        return [x[0] for x in rows]
+
+
+    @classmethod
+    async def get_latest_runs(cls):
+        """Returns at most 100 latest run numbers."""
+
+        sql = 'SELECT DISTINCT run FROM samples ORDER BY run DESC LIMIT 100;'
+        cursor = await cls.__db.execute(sql)
+        rows = await cursor.fetchall()
+        await cursor.close()
+        return [x[0] for x in rows]
+
 
     @classmethod
     async def add_blobs(cls, names_blob, infos_blob, dataset, filename, run, lumi=0):

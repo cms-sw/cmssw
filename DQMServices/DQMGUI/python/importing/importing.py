@@ -34,8 +34,8 @@ class GUIImportManager:
         If files is a string, it is globed to get the list of files.
         If files is a list, all these files gets imported.
         """
-        count = await cls.store.get_samples_count()
-        if count == 0:
+        
+        if await cls.store.is_samples_empty():
             if files == None:
                 files = cls.__EOSPATH
 

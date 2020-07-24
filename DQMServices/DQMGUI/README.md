@@ -295,9 +295,22 @@ Supports `notOlderThan` parameter to bypass the cache.
 
 ### Cache bypass and invalidation
 
-Archive and samples API endpoints support `notOlderThan` to bypass the cache. `notOlderThan` is UTC timestamp in seconds and can be provided as a URL argument.
+Archive, samples, datasets search and latest runs API endpoints support `notOlderThan` to bypass the cache. `notOlderThan` is UTC timestamp in seconds and can be provided as a URL argument.
 Cached value will be returned only if it was cached after `notOlderThan`. Otherwise, cached value will be invalidated and new value will be fetched.
 
+### Other API endpoints
+
+#### Returns last 100 dataset names matching search keyword
+
+`/api/v1/datasets?search=StreamExpress`
+
+Supports `notOlderThan` parameter to bypass the cache.
+
+#### Returns 100 latest runs
+
+`/api/v1/latest_runs`
+
+Supports `notOlderThan` parameter to bypass the cache.
 
 ## Getting DQMIO files
 

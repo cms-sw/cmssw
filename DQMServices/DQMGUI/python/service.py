@@ -213,8 +213,21 @@ class GUIService:
             return get_api_error(message='Please provide correctly formatted JSON')
 
         await cls.import_manager.register_samples(samples)
-
         return True
+
+
+    @classmethod
+    @alru_cache_timed(maxsize=10, cache_exceptions=False)
+    @logged
+    async def search_dataset_names(cls, search, notOlderThan=None):
+        return await cls.store.search_dataset_names(search)
+
+
+    @classmethod
+    @alru_cache_timed(maxsize=10, cache_exceptions=False)
+    @logged
+    async def get_latest_runs(cls, notOlderThan=None):
+        return await cls.store.get_latest_runs()
 
 
     @classmethod

@@ -355,6 +355,21 @@ async def register(request):
     return web.HTTPCreated()
 
 
+async def dataset_search(request):
+    """Returns at most 100 dataset names matching the search term."""
+
+    search = request.rel_url.query.get('search', '')
+    data = await service.search_dataset_names(search)
+    return web.json_response({'datasets': data})
+
+
+async def latest_runs(request):
+    """Returns at most 100 latest run numbers."""
+
+    data = await service.get_latest_runs()
+    return web.json_response({'runs': data})
+
+
 # ###################################################################################################### #
 # ==================== Server configuration, initialization/destruction of services ==================== #
 # ###################################################################################################### #
@@ -398,7 +413,9 @@ def config_and_start_webserver(port):
                     web.get(r'/api/v1/json/{run}/{path:.+}', jsroot_legacy),
                     web.get('/api/v1/json_overlay', jsroot_overlay),
                     web.get(r'/api/v1/lumis/{run}/{dataset:.+}', available_lumis_v1),
-                    web.post('/api/v1/register', register)])
+                    web.post('/api/v1/register', register),
+                    web.get('/api/v1/datasets', dataset_search),
+                    web.get('/api/v1/latest_runs', latest_runs)])
 
     # Routes for HTML files
     app.add_routes([web.get('/', index), web.static('/', get_absolute_path('../data/'), show_index=True)])
