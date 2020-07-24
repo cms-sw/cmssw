@@ -48,12 +48,12 @@ Generator::Generator(const ParameterSet &p)
     fLumiFilter = new LumiMonitorFilter();
   }
 
-  double theRDecLenCut = p.getParameter<double>("RDecLenCut") * cm;
+  double theRDecLenCut = p.getParameter<double>("RDecLenCut") * CLHEP::cm;
   theDecRCut2 = theRDecLenCut * theRDecLenCut;
 
   theMinPtCut2 = theMinPCut * theMinPCut;
 
-  double theDecLenCut = p.getParameter<double>("LDecLenCut") * cm;
+  double theDecLenCut = p.getParameter<double>("LDecLenCut") * CLHEP::cm;
 
   fFiductialCuts = (fPCuts || fPtransCut || fEtaCuts || fPhiCuts);
 
@@ -84,13 +84,20 @@ Generator::Generator(const ParameterSet &p)
 
   Z_hector = theRDecLenCut * ((1 - exp(-2 * theEtaCutForHector)) / (2 * exp(-theEtaCutForHector)));
 
-  edm::LogVerbatim("SimG4CoreGenerator") << "SimG4Core/Generator: Rdecaycut= " << theRDecLenCut / cm
-                                         << " cm;  Zdecaycut= " << theDecLenCut / cm << "Z_min= " << Z_lmin / cm
-                                         << " cm; Z_max= " << Z_lmax << " cm;  Z_hector = " << Z_hector << " cm\n"
+  edm::LogVerbatim("SimG4CoreGenerator") << "SimG4Core/Generator: Rdecaycut= " << theRDecLenCut / CLHEP::cm
+                                         << " cm;  Zdecaycut= " << theDecLenCut / CLHEP::cm
+                                         << "Z_min= " << Z_lmin / CLHEP::cm << " cm; Z_max= " << Z_lmax / CLHEP::cm
+                                         << " cm;  Z_hector = " << Z_hector / CLHEP::cm << " cm\n"
                                          << "                     ApplyCuts: " << fFiductialCuts
                                          << "  PCuts: " << fPCuts << "  PtransCut: " << fPtransCut
                                          << "  EtaCut: " << fEtaCuts << "  PhiCut: " << fPhiCuts
                                          << "  LumiMonitorCut: " << lumi;
+  if (fFiductialCuts) {
+    edm::LogVerbatim("SimG4CoreGenerator")
+        << "SimG4Core/Generator: Pmin(GeV)= " << theMinPCut << "; Pmax(GeV)= " << theMaxPCut
+        << "; EtaMin= " << theMinEtaCut << "; EtaMax= " << theMaxEtaCut << "; PhiMin(rad)= " << theMinPhiCut
+        << "; PhiMax(rad)= " << theMaxPhiCut;
+  }
   if (lumi) {
     fLumiFilter->Describe();
   }
@@ -129,6 +136,7 @@ void Generator::HepMC2G4(const HepMC::GenEvent *evt_orig, G4Event *g4evt) {
                                          << vtx_->z() << ")";
 
   unsigned int ng4vtx = 0;
+  unsigned int ng4par = 0;
 
   for (HepMC::GenEvent::vertex_const_iterator vitr = evt->vertices_begin(); vitr != evt->vertices_end(); ++vitr) {
     // loop for vertex, is it a real vertex?
@@ -214,19 +222,21 @@ void Generator::HepMC2G4(const HepMC::GenEvent *evt_orig, G4Event *g4evt) {
       if (fPDGFilter) {
         bool isInTheList = IsInTheFilterList(pdg);
         if ((!pdgFilterSel && isInTheList) || (pdgFilterSel && !isInTheList)) {
-          edm::LogVerbatim("SimG4CoreGenerator")
-              << " Skiped GenParticle barcode= " << (*pitr)->barcode() << " PDGid= " << pdg << " status= " << status
-              << " isExotic: " << isExotic(pdg) << " isExoticNotDet: " << isExoticNonDetectable(pdg)
-              << " isInTheList: " << isInTheList << " hasDecayVertex: " << hasDecayVertex;
+          if (0 < verbose)
+            edm::LogVerbatim("SimG4CoreGenerator")
+                << " Skiped GenParticle barcode= " << (*pitr)->barcode() << " PDGid= " << pdg << " status= " << status
+                << " isExotic: " << isExotic(pdg) << " isExoticNotDet: " << isExoticNonDetectable(pdg)
+                << " isInTheList: " << isInTheList << " hasDecayVertex: " << hasDecayVertex;
           continue;
         }
       }
 
-      edm::LogVerbatim("SimG4CoreGenerator")
-          << "Generator: pdg= " << pdg << " status= " << status << " hasPreDefinedDecay: " << hasDecayVertex
-          << " isExotic: " << isExotic(pdg) << " isExoticNotDet: " << isExoticNonDetectable(pdg)
-          << " isInTheList: " << IsInTheFilterList(pdg) << "\n         (x,y,z,t): (" << x1 << "," << y1 << "," << z1
-          << "," << t1 << ")";
+      if (0 < verbose)
+        edm::LogVerbatim("SimG4CoreGenerator")
+            << "Generator: pdg= " << pdg << " status= " << status << " hasPreDefinedDecay: " << hasDecayVertex
+            << " isExotic: " << isExotic(pdg) << " isExoticNotDet: " << isExoticNonDetectable(pdg)
+            << " isInTheList: " << IsInTheFilterList(pdg) << "\n         (x,y,z,t): (" << x1 << "," << y1 << "," << z1
+            << "," << t1 << ")";
 
       if (status > 3 && isExotic(pdg) && (!(isExoticNonDetectable(pdg)))) {
         status = hasDecayVertex ? 2 : 1;
@@ -290,8 +300,9 @@ void Generator::HepMC2G4(const HepMC::GenEvent *evt_orig, G4Event *g4evt) {
       // detectors (HECTOR) always pass to Geant4 without cuts
       if (1 == status && std::abs(zimpact) >= Z_hector && rimpact2 <= theDecRCut2) {
         toBeAdded = true;
-        if (verbose > 2)
-          LogDebug("SimG4CoreGenerator") << "GenParticle barcode = " << (*pitr)->barcode() << " passed case 3";
+        status = 3;
+        if (verbose > 1)
+          edm::LogVerbatim("SimG4CoreGenerator") << "GenParticle barcode = " << (*pitr)->barcode() << " passed case 3";
       } else {
         // Standard case: particles not decayed by the generator
         if (1 == status && (std::abs(zimpact) < Z_hector || rimpact2 > theDecRCut2)) {
@@ -340,17 +351,18 @@ void Generator::HepMC2G4(const HepMC::GenEvent *evt_orig, G4Event *g4evt) {
             continue;
           }
           toBeAdded = true;
-          if (verbose > 2)
-            LogDebug("SimG4CoreGenerator") << "GenParticle barcode = " << (*pitr)->barcode() << " passed case 1";
+          if (verbose > 1)
+            edm::LogVerbatim("SimG4CoreGenerator")
+                << "GenParticle barcode = " << (*pitr)->barcode() << " passed case 1";
 
           // Decay chain outside the fiducial cylinder defined by theRDecLenCut
           // are used for Geant4 tracking with predefined decay channel
           // In the case of decay in vacuum particle is not tracked by Geant4
         } else if (2 == status && x2 * x2 + y2 * y2 >= theDecRCut2 && std::abs(z2) < Z_hector) {
           toBeAdded = true;
-          if (verbose > 2)
-            LogDebug("SimG4CoreGenerator") << "GenParticle barcode = " << (*pitr)->barcode() << " passed case 2"
-                                           << " decay_length(cm)= " << decay_length / cm;
+          if (verbose > 1)
+            edm::LogVerbatim("SimG4CoreGenerator") << "GenParticle barcode = " << (*pitr)->barcode() << " passed case 2"
+                                                   << " decay_length(cm)= " << decay_length / CLHEP::cm;
         }
       }
       if (toBeAdded) {
@@ -361,7 +373,7 @@ void Generator::HepMC2G4(const HepMC::GenEvent *evt_orig, G4Event *g4evt) {
           double charge = g4prim->GetG4code()->GetPDGCharge();
 
           // apply Pt cut
-          if (fPtransCut && 0.0 != charge && px * px + py * py < theMinPtCut2) {
+          if (fPtransCut && 1 == status && 0.0 != charge && px * px + py * py < theMinPtCut2) {
             delete g4prim;
             continue;
           }
@@ -378,9 +390,12 @@ void Generator::HepMC2G4(const HepMC::GenEvent *evt_orig, G4Event *g4evt) {
         }
         if (verbose > 1)
           g4prim->Print();
+
+        ++ng4par;
         g4vtx->SetPrimary(g4prim);
-        edm::LogVerbatim("SimG4CoreGenerator") << "Generator: new particle pdg= " << pdg << " Ptot(GeV/c)= " << ptot
-                                               << " Pt= " << std::sqrt(px * px + py * py);
+        edm::LogVerbatim("SimG4CoreGenerator") << "   " << ng4par << ". new Geant4 particle pdg= " << pdg
+                                               << " Ptot(GeV/c)= " << ptot << " Pt= " << std::sqrt(px * px + py * py)
+                                               << " status= " << status << "; dir= " << g4prim->GetMomentumDirection();
       }
     }
 
@@ -399,6 +414,8 @@ void Generator::HepMC2G4(const HepMC::GenEvent *evt_orig, G4Event *g4evt) {
     g4evt->AddPrimaryVertex(g4vtx);
   }
 
+  edm::LogVerbatim("SimG4CoreGenerator") << "The list of Geant4 primaries includes " << ng4par << " particles in "
+                                         << ng4vtx << " vertex";
   delete evt;
 }
 
