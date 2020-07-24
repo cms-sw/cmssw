@@ -305,7 +305,7 @@ public:
 
   TransientTrackingRecHit::ConstRecHitContainer tryBTLLayers(const TrajectoryStateOnSurface&,
                                                              const Trajectory& traj,
-                                                             const TrajectoryStateClosestToBeamLine&,
+                                                             const double,
                                                              const double,
                                                              const MTDTrackingDetSetVector&,
                                                              const MTDDetLayerGeometry*,
@@ -318,7 +318,7 @@ public:
 
   TransientTrackingRecHit::ConstRecHitContainer tryETLLayers(const TrajectoryStateOnSurface&,
                                                              const Trajectory& traj,
-                                                             const TrajectoryStateClosestToBeamLine&,
+                                                             const double,
                                                              const double,
                                                              const MTDTrackingDetSetVector&,
                                                              const MTDDetLayerGeometry*,
@@ -332,7 +332,7 @@ public:
   void fillMatchingHits(const DetLayer*,
                         const TrajectoryStateOnSurface&,
                         const Trajectory&,
-                        const TrajectoryStateClosestToBeamLine&,
+                        const double,
                         const double,
                         const MTDTrackingDetSetVector&,
                         const Propagator*,
@@ -633,12 +633,13 @@ void TrackExtenderWithMTDT<TrackCollection>::produce(edm::Event& ev, const edm::
       bool tscbl_status = getTrajectoryStateClosestToBeamLine(trajs.front(), bs, prop, tscbl);
 
       if (tscbl_status) {
+        double pmag2 = tscbl.trackStateAtPCA().momentum().mag2();
         double pathlength0;
         trackPathLength(trajs.front(), tscbl, prop, pathlength0);
 
         const auto& btlhits = tryBTLLayers(tsos,
                                            trajs.front(),
-                                           tscbl,
+                                           pmag2,
                                            pathlength0,
                                            hits,
                                            geo.product(),
@@ -654,7 +655,7 @@ void TrackExtenderWithMTDT<TrackCollection>::produce(edm::Event& ev, const edm::
         // for now it is ok
         const auto& etlhits = tryETLLayers(tsos,
                                            trajs.front(),
-                                           tscbl,
+                                           pmag2,
                                            pathlength0,
                                            hits,
                                            geo.product(),
@@ -776,7 +777,7 @@ namespace {
                          const Trajectory& traj,
                          const DetLayer* layer,
                          const TrajectoryStateOnSurface& tsos,
-                         const TrajectoryStateClosestToBeamLine& tscbl,
+                         const double pmag2,
                          const double pathlength0,
                          const double vtxTime,
                          const reco::BeamSpot& bs,
@@ -785,8 +786,6 @@ namespace {
                          const std::unique_ptr<MeasurementEstimator>& theEstimator,
                          bool useVtxConstraint,
                          std::set<MTDHitMatchingInfo>& out) {
-    const auto pmag2 = tscbl.trackStateAtPCA().momentum().mag2();
-
     pair<bool, TrajectoryStateOnSurface> comp = layer->compatible(tsos, *prop, *theEstimator);
     if (comp.first) {
       const vector<DetLayer::DetWithState> compDets = layer->compatibleDets(tsos, *prop, *theEstimator);
@@ -839,7 +838,7 @@ template <class TrackCollection>
 TransientTrackingRecHit::ConstRecHitContainer TrackExtenderWithMTDT<TrackCollection>::tryBTLLayers(
     const TrajectoryStateOnSurface& tsos,
     const Trajectory& traj,
-    const TrajectoryStateClosestToBeamLine& tscbl,
+    const double pmag2,
     const double pathlength0,
     const MTDTrackingDetSetVector& hits,
     const MTDDetLayerGeometry* geo,
@@ -854,7 +853,7 @@ TransientTrackingRecHit::ConstRecHitContainer TrackExtenderWithMTDT<TrackCollect
   TransientTrackingRecHit::ConstRecHitContainer output;
   bestHit = MTDHitMatchingInfo();
   for (const DetLayer* ilay : layers)
-    fillMatchingHits(ilay, tsos, traj, tscbl, pathlength0, hits, prop, bs, vtxTime, matchVertex, output, bestHit);
+    fillMatchingHits(ilay, tsos, traj, pmag2, pathlength0, hits, prop, bs, vtxTime, matchVertex, output, bestHit);
   return output;
 }
 
@@ -862,7 +861,7 @@ template <class TrackCollection>
 TransientTrackingRecHit::ConstRecHitContainer TrackExtenderWithMTDT<TrackCollection>::tryETLLayers(
     const TrajectoryStateOnSurface& tsos,
     const Trajectory& traj,
-    const TrajectoryStateClosestToBeamLine& tscbl,
+    const double pmag2,
     const double pathlength0,
     const MTDTrackingDetSetVector& hits,
     const MTDDetLayerGeometry* geo,
@@ -883,7 +882,7 @@ TransientTrackingRecHit::ConstRecHitContainer TrackExtenderWithMTDT<TrackCollect
     if (tsos.globalPosition().z() * diskZ < 0)
       continue;  // only propagate to the disk that's on the same side
 
-    fillMatchingHits(ilay, tsos, traj, tscbl, pathlength0, hits, prop, bs, vtxTime, matchVertex, output, bestHit);
+    fillMatchingHits(ilay, tsos, traj, pmag2, pathlength0, hits, prop, bs, vtxTime, matchVertex, output, bestHit);
   }
   return output;
 }
@@ -892,7 +891,7 @@ template <class TrackCollection>
 void TrackExtenderWithMTDT<TrackCollection>::fillMatchingHits(const DetLayer* ilay,
                                                               const TrajectoryStateOnSurface& tsos,
                                                               const Trajectory& traj,
-                                                              const TrajectoryStateClosestToBeamLine& tscbl,
+                                                              const double pmag2,
                                                               const double pathlength0,
                                                               const MTDTrackingDetSetVector& hits,
                                                               const Propagator* prop,
@@ -910,7 +909,7 @@ void TrackExtenderWithMTDT<TrackCollection>::fillMatchingHits(const DetLayer* il
                              traj,
                              ilay,
                              tsos,
-                             tscbl,
+                             pmag2,
                              pathlength0,
                              _1,
                              bs,
