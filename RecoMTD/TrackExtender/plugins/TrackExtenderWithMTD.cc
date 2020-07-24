@@ -927,11 +927,12 @@ void TrackExtenderWithMTDT<TrackCollection>::fillMatchingHits(const DetLayer* il
   //just take the first hit because the hits are sorted on their matching quality
   if (!hitsInLayer.empty()) {
     //check hits to pass minimum quality matching requirements
-    if (hitsInLayer.begin()->estChi2 < etlChi2Cut_ && hitsInLayer.begin()->timeChi2 < etlTimeChi2Cut_) {
+    auto const& firstHit = *hitsInLayer.begin();
+    if (firstHit.estChi2 < etlChi2Cut_ && firstHit.timeChi2 < etlTimeChi2Cut_) {
       hitMatched = true;
-      output.push_back(hitbuilder_->build(hitsInLayer.begin()->hit));
-      if (*(hitsInLayer.begin()) < bestHit)
-        bestHit = *(hitsInLayer.begin());
+      output.push_back(hitbuilder_->build(firstHit.hit));
+      if (firstHit < bestHit)
+        bestHit = firstHit;
     }
   }
 
@@ -940,12 +941,13 @@ void TrackExtenderWithMTDT<TrackCollection>::fillMatchingHits(const DetLayer* il
     hitsInLayer.clear();
     find_hits(0, false);
     if (!hitsInLayer.empty()) {
-      if (hitsInLayer.begin()->timeChi2 < etlTimeChi2Cut_) {
-        if (hitsInLayer.begin()->estChi2 < etlChi2Cut_) {
+      auto const& firstHit = *hitsInLayer.begin();
+      if (firstHit.timeChi2 < etlTimeChi2Cut_) {
+        if (firstHit.estChi2 < etlChi2Cut_) {
           hitMatched = true;
-          output.push_back(hitbuilder_->build(hitsInLayer.begin()->hit));
-          if ((*hitsInLayer.begin()) < bestHit)
-            bestHit = *(hitsInLayer.begin());
+          output.push_back(hitbuilder_->build(firstHit.hit));
+          if (firstHit < bestHit)
+            bestHit = firstHit;
         }
       }
     }
