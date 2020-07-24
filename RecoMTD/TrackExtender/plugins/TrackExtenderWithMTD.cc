@@ -775,42 +775,47 @@ namespace {
                          const std::unique_ptr<MeasurementEstimator>& theEstimator,
                          bool useVtxConstraint,
                          std::set<MTDHitMatchingInfo>& out) {
-    GlobalVector p = tscbl.trackStateAtPCA().momentum();
+    const auto pmag2 = tscbl.trackStateAtPCA().momentum().mag2();
 
     double pathlength;
     trackPathLength(traj, tscbl, prop, pathlength);
 
     pair<bool, TrajectoryStateOnSurface> comp = layer->compatible(tsos, *prop, *theEstimator);
     if (comp.first) {
-      vector<DetLayer::DetWithState> compDets = layer->compatibleDets(tsos, *prop, *theEstimator);
+      const vector<DetLayer::DetWithState> compDets = layer->compatibleDets(tsos, *prop, *theEstimator);
       if (!compDets.empty()) {
         for (const auto& detWithState : compDets) {
           auto range = hits.equal_range(detWithState.first->geographicalId(), cmp_for_detset);
-          for (auto detitr = range.first; detitr != range.second; ++detitr) {
-            for (auto itr = detitr->begin(); itr != detitr->end(); ++itr) {
-              auto est = theEstimator->estimate(detWithState.second, *itr);
-              auto pl = prop->propagateWithPath(tsos, detWithState.second.surface());
+          if (range.first == range.second)
+            continue;
 
-              if (!est.first || std::abs(pl.second) == 0.)
+          auto pl = prop->propagateWithPath(tsos, detWithState.second.surface());
+          if (pl.second == 0.)
+            continue;
+
+          const double tot_pl = pathlength + std::abs(pl.second);
+          const double t_vtx = useVtxConstraint ? vtxTime : 0.;
+
+          constexpr double vtx_res = 0.008;
+          const double t_vtx_err = useVtxConstraint ? vtx_res : bsTimeSpread;
+
+          constexpr double t_res_manual = 0.035;
+
+          for (auto detitr = range.first; detitr != range.second; ++detitr) {
+            for (const auto& hit : *detitr) {
+              auto est = theEstimator->estimate(detWithState.second, hit);
+              if (!est.first)
                 continue;
 
-              double tot_pl = pathlength + std::abs(pl.second);
-              double t_vtx = useVtxConstraint ? vtxTime : 0.;
-
-              constexpr double vtx_res = 0.008;
-              double t_vtx_err = useVtxConstraint ? vtx_res : bsTimeSpread;
-
-              constexpr double t_res_manual = 0.035;
-
-              TrackTofPidInfo tof = computeTrackTofPidInfo(p.mag2(),
+              TrackTofPidInfo tof = computeTrackTofPidInfo(pmag2,
                                                            tot_pl,
-                                                           itr->time(),
+                                                           hit.time(),
                                                            t_res_manual,  //put hit error by hand for the moment
                                                            t_vtx,
                                                            t_vtx_err,  //put vtx error by hand for the moment
                                                            false);
               MTDHitMatchingInfo mi;
-              mi.hit = &(*itr);
+              mi.hit = &hit;
               mi.estChi2 = est.second;
               mi.timeChi2 = tof.dtchi2_best;  //use the chi2 for the best matching hypothesis
 
