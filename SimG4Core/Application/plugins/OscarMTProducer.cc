@@ -174,8 +174,8 @@ void OscarMTProducer::endRun(const edm::Run&, const edm::EventSetup&) {
 
 void OscarMTProducer::produce(edm::Event& e, const edm::EventSetup& es) {
   StaticRandomEngineSetUnset random(e.streamID());
-  edm::LogVerbatim("SimG4CoreApplication")
-      << "Produce event " << e.id() << " stream " << e.streamID() << " rand= " << G4UniformRand();
+  edm::LogVerbatim("SimG4CoreApplication") << "Produce event " << e.id() << " stream " << e.streamID();
+  LogDebug("SimG4CoreApplication") << "Before event rand= " << G4UniformRand();
 
   auto& sTk = m_runManagerWorker->sensTkDetectors();
   auto& sCalo = m_runManagerWorker->sensCaloDetectors();
@@ -225,8 +225,8 @@ void OscarMTProducer::produce(edm::Event& e, const edm::EventSetup& es) {
   for (auto& prod : producers) {
     prod.get()->produce(e, es);
   }
-  edm::LogVerbatim("SimG4CoreApplication")
-      << "Event is produced " << e.id() << " stream " << e.streamID() << " rand= " << G4UniformRand();
+  edm::LogVerbatim("SimG4CoreApplication") << "Event is produced " << e.id() << " stream " << e.streamID();
+  LogDebug("SimG4CoreApplication") << "End of event rand= " << G4UniformRand();
 }
 
 StaticRandomEngineSetUnset::StaticRandomEngineSetUnset(edm::StreamID const& streamID) {
