@@ -650,7 +650,7 @@ void TrackExtenderWithMTDT<TrackCollection>::produce(edm::Event& ev, const edm::
                                            trackVtxTime != 0.,
                                            mBTL);
         mtdthits.insert(mtdthits.end(), btlhits.begin(), btlhits.end());
-        
+
         // in the future this should include an intermediate refit before propagating to the ETL
         // for now it is ok
         const auto& etlhits = tryETLLayers(tsos,
@@ -667,7 +667,7 @@ void TrackExtenderWithMTDT<TrackCollection>::produce(edm::Event& ev, const edm::
                                            mETL);
         mtdthits.insert(mtdthits.end(), etlhits.begin(), etlhits.end());
       }
-    }//!trajs.empty()
+    }  //!trajs.empty()
 
     auto ordering = checkRecHitsOrdering(thits);
     if (ordering == RefitDirection::insideOut) {
