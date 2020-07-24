@@ -73,7 +73,7 @@ namespace {
       return;
     previousName = pluginInfo.name_;
 
-    if (!library.empty() && pluginInfo.loadable_.leaf() != library) {
+    if (!library.empty() && pluginInfo.loadable_.filename() != library) {
       return;
     }
 
@@ -137,13 +137,13 @@ namespace {
       os << std::setw(6) << iPlugin << " ";
       os << std::setw(50) << pluginInfo.name_;
       os << std::setw(24) << baseType;
-      os << pluginInfo.loadable_.leaf() << "\n";
+      os << pluginInfo.loadable_.filename() << "\n";
       os.flags(oldFlags);
       return;
     }
 
-    os << std::left << iPlugin << "  " << pluginInfo.name_ << "  (" << baseType << ")  " << pluginInfo.loadable_.leaf()
-       << "\n";
+    os << std::left << iPlugin << "  " << pluginInfo.name_ << "  (" << baseType << ")  "
+       << pluginInfo.loadable_.filename() << "\n";
     os.flags(oldFlags);
 
     edm::ConfigurationDescriptions descriptions(filler->baseType(), pluginInfo.name_);

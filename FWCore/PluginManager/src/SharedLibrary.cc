@@ -31,7 +31,7 @@ namespace edmplugin {
   //
   // constructors and destructor
   //
-  SharedLibrary::SharedLibrary(const boost::filesystem::path& iName)
+  SharedLibrary::SharedLibrary(const std::filesystem::path& iName)
       : libraryHandle_(::dlopen(iName.string().c_str(), RTLD_LAZY | RTLD_GLOBAL)), path_(iName) {
     if (libraryHandle_ == nullptr) {
       char const* err = dlerror();
