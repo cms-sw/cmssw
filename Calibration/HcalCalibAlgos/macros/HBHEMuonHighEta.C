@@ -1,9 +1,19 @@
-//////////////////////////////////////////////////////////
-// This class has been automatically generated on
-// Fri Oct 25 18:21:22 2019 by ROOT version 6.14/09
-// from TTree HBHEMuonHighEta/HBHEMuonHighEta
-// found on file: muonHighEta.root
-//////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
+//
+//   HBHEMuonHighEta h1(infile, outfile,t mode, debug)
+//   h1.Loop()
+//
+//   infile     const char*  Name of the input file
+//   outfile    const char*  Name of the output file 
+//                           (dyll_PU20_25_output_10.root)
+//   mode       int          Geometry file used 0:(defined by maxDHB/HE);
+//                           1 (Run 1; valid till 2016); 2 (Run 2; 2018);
+//                           3 (Run 3; post LS2); 4 (2017 Plan 1);
+//                           5 (Run 4; post LS3); (default: 0)
+//   debug      bool         Debug flag (default: false)
+//
+///////////////////////////////////////////////////////////////////////////////
+
 #include <TCanvas.h>
 #include <TChain.h>
 #include <TFile.h>
@@ -25,7 +35,7 @@ class HBHEMuonHighEta {
 
 public :
   HBHEMuonHighEta(const char *infile, const char *outfile,
-		  const int mode=1, const bool debug=false);
+		  const int mode=0, const bool debug=false);
   virtual ~HBHEMuonHighEta();
   virtual Int_t    Cut(Long64_t entry);
   virtual Int_t    GetEntry(Long64_t entry);
@@ -38,9 +48,12 @@ public :
 private:
   void             BookHistograms(const char* fname);
   void             Close();
+  int              nDepthBins(int eta, int phi);
+  TTree           *fChain;   //!pointer to the analyzed TTree or TChain
+  Int_t            fCurrent; //!current Tree number in a TChain
 
-  TTree          *fChain;   //!pointer to the analyzed TTree or TChain
-  Int_t           fCurrent; //!current Tree number in a TChain
+  static const int          maxDepthHB_ = 7;
+  static const int          maxDepthHE_ = 4;
 
   // Fixed size dimensions of array or collections stored in the TTree if any.
   // Declaration of leaf types
@@ -54,7 +67,7 @@ private:
   std::vector<double>       *IsolationR03;
   std::vector<double>       *ecal_3into3;
   std::vector<double>       *hcal_3into3;
-  std::vector<double>       *ho_3into3;
+  std::vector<double>       *tracker_3into3;
   std::vector<double>       *emaxNearP;
   UInt_t                     Run_No;
   UInt_t                     Event_No;
@@ -157,7 +170,7 @@ private:
   TBranch                   *b_IsolationR03;
   TBranch                   *b_ecal_3into3;
   TBranch                   *b_hcal_3into3;
-  TBranch                   *b_ho_3into3;
+  TBranch                   *b_tracker_3into3;
   TBranch                   *b_emaxNearP;
   TBranch                   *b_Run_No;
   TBranch                   *b_Event_No;
@@ -312,7 +325,7 @@ void HBHEMuonHighEta::Init(TTree *tree) {
   IsolationR03 = 0;
   ecal_3into3 = 0;
   hcal_3into3 = 0;
-  ho_3into3 = 0;
+  tracker_3into3 = 0;
   emaxNearP = 0;
   matchedId = 0;
   hcal_cellHot = 0;
@@ -417,7 +430,7 @@ void HBHEMuonHighEta::Init(TTree *tree) {
   fChain->SetBranchAddress("IsolationR03", &IsolationR03, &b_IsolationR03);
   fChain->SetBranchAddress("ecal_3into3", &ecal_3into3, &b_ecal_3into3);
   fChain->SetBranchAddress("hcal_3into3", &hcal_3into3, &b_hcal_3into3);
-  fChain->SetBranchAddress("ho_3into3", &ho_3into3, &b_ho_3into3);
+  fChain->SetBranchAddress("tracker_3into3", &tracker_3into3, &b_tracker_3into3);
   fChain->SetBranchAddress("emaxNearP", &emaxNearP, &b_emaxNearP);
   fChain->SetBranchAddress("Run_No", &Run_No, &b_Run_No);
   fChain->SetBranchAddress("Event_No", &Event_No, &b_Event_No);
@@ -584,4 +597,61 @@ void HBHEMuonHighEta::Close() {
   std::cout << "output file Written" << std::endl;
   output_file->Close();
   if (debug_) std::cout << "now doing return" << std::endl;
+}
+
+
+int HBHEMuonHighEta::nDepthBins(int eta, int phi) {
+  // Run 1 scenario
+  int  nDepthR1[29]={1,1,1,1,1,1,1,1,1,1,1,1,1,1,2,3,1,2,2,2,2,2,2,2,2,2,3,3,2};
+  // Run 2 scenario from 2018
+  int  nDepthR2[29]={1,1,1,1,1,1,1,1,1,1,1,1,1,1,2,4,3,5,6,6,6,6,6,6,6,7,7,7,3};
+  // Run 3 scenario
+  int  nDepthR3[29]={4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,3,5,6,6,6,6,6,6,6,7,7,7,3};
+  // Run 4 scenario
+  int  nDepthR4[29]={4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,7,7,7,7,7,7,7,7,7,7,7,7,7};
+  // for 2021 scenario multi depth segmentation
+  //    int  nDepth[29]={3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,5,5,5,5,5,5,5,5,5,5,5,5,5};
+  // modeLHC_ = 0 --> nbin defined maxDepthHB/HE
+  //          = 1 -->      corresponds to Run 1 (valid till 2016)
+  //          = 2 -->      corresponds to Run 2 (2018 geometry)
+  //          = 3 -->      corresponds to Run 3 (post LS2)
+  //          = 4 -->      corresponds to 2017 (Plan 1)
+  //          = 5 -->      corresponds to Run 4 (post LS3)
+  int  nbin(0);
+  if (modeLHC_ == 0) {
+    if (eta<=15) {
+      nbin = maxDepthHB_;
+    } else if (eta == 16) {
+      nbin = 4;
+    } else {
+      nbin = maxDepthHE_;
+    }
+  } else if (modeLHC_ == 1) {
+    nbin = nDepthR1[eta-1];
+  } else if (modeLHC_ == 2) {
+    nbin = nDepthR2[eta-1];
+  } else if (modeLHC_ == 3) {
+    nbin = nDepthR3[eta-1];
+  } else if (modeLHC_ == 4) {
+    if (phi > 0) {
+      if (eta >= 16 && phi >= 63 && phi <= 66) {
+	nbin = nDepthR2[eta-1];
+      } else {
+	nbin = nDepthR1[eta-1];
+      }
+    } else {
+      if (eta >= 16) {
+	nbin = (nDepthR2[eta-1] > nDepthR1[eta-1]) ? nDepthR2[eta-1] : nDepthR1[eta-1];
+      } else {
+	nbin = nDepthR1[eta-1];
+      }
+    }
+  } else {
+    if (eta > 0 && eta < 30) {
+      nbin = nDepthR4[eta-1];
+    } else {
+      nbin = nDepthR4[28];
+    }
+  }
+  return nbin;
 }

@@ -1,5 +1,5 @@
 //////////////////////////////////////////////////////////////////////////////
-// This class analyzes the "Lep Tree" created by HBHEOfflineAnalyzer
+// This class analyzes the "Lep Tree" created by HBHEMuonOfflineAnalyzer
 // It has two constructors using either a pointer to the tree chain or
 // the file name where the tree resides
 // There are 2 additional arguments:
@@ -284,6 +284,8 @@ void AnalyzeLepTree::Init(TChain *tree) {
   fChain->SetBranchAddress("t_depth",  &t_depth,  &b_t_depth);
   Notify();
 
+  t_ediff  = 0;
+
   bookHisto();
 }
 
@@ -342,6 +344,7 @@ void AnalyzeLepTree::Loop(Long64_t nmax, bool debug) {
   const double ethr = 0.00001;        // Threshold of 10 keV
 
   Long64_t nbytes = 0, nb = 0;
+  int32_t n15(0), n16(0);
   for (Long64_t jentry=0; jentry<nentries; jentry++) {
     Long64_t ientry = LoadTree(jentry);
     if ((jentry%1000000 == 0) || debug) 
@@ -376,6 +379,8 @@ void AnalyzeLepTree::Loop(Long64_t nmax, bool debug) {
       if (phi > 0 && pbin >= 0 && vbin >= 0) {
 	if (kdepth_ == 0) {
 	  for (unsigned int k=0; k<t_depth->size(); ++k) {
+	    if (eta == 15) ++n15;
+	    else if (eta == 16) ++n16;
 	    int depth       = (*t_depth)[k];
 	    unsigned int id = packID(zside,eta,phi,depth+1,vbin,pbin);
 	    double ene      = (*t_ene)[k];
@@ -412,29 +417,50 @@ void AnalyzeLepTree::Loop(Long64_t nmax, bool debug) {
 	    }
 	  }
 	} else if (kdepth_ == 1) {
-	  double ene(0), enec(0), actl(0), charge(0);
-	  unsigned int id = packID(zside,eta,phi,1,vbin,pbin);
+	  double ene[2], enec[2], actl[2], charge[2];
+	  for (unsigned int k=0; k<2; ++k) {
+	    ene[k] = enec[k] = actl[k] = charge[k] = 0;
+	  }
 	  for (unsigned int k=0; k<t_depth->size(); ++k) {
 	    if ((*t_ene)[k] > 0 && (*t_actln)[k] > 0) {
-	      ene    += (*t_ene)[k];
-	      enec   += (*t_enec)[k];
-	      charge += (*t_charge)[k];
-	      actl   += (*t_actln)[k];
+	      int dep   = (*t_depth)[k];
+	      int depth = ((eta != 16) ? 0 : ((dep > 1) ? 1 : 0));
+	      ene[depth]    += (*t_ene)[k];
+	      enec[depth]   += (*t_enec)[k];
+	      charge[depth] += (*t_charge)[k];
+	      actl[depth]   += (*t_actln)[k];
 	    }
 	  }
-	  if (ene > ethr && actl > 0 && charge > 0 && t_ediff < cutEdiff_) {
-	    std::map<unsigned int,TH1D*>::iterator it1 = h_Energy_.find(id);
-	    if (it1 != h_Energy_.end())  (it1->second)->Fill(ene);
-	    std::map<unsigned int,TH1D*>::iterator it2 = h_Ecorr_.find(id);
-	    if (it2 != h_Ecorr_.end())   (it2->second)->Fill(ene/actl);
-	    std::map<unsigned int,TH1D*>::iterator it3 = h_EnergyC_.find(id);
-	    if (it3 != h_EnergyC_.end()) (it3->second)->Fill(enec);
-	    std::map<unsigned int,TH1D*>::iterator it4 = h_EcorrC_.find(id);
-	    if (it4 != h_EcorrC_.end())  (it4->second)->Fill(enec/actl);
-	    std::map<unsigned int,TH1D*>::iterator it5 = h_Charge_.find(id);
-	    if (it5 != h_Charge_.end())  (it5->second)->Fill(charge);
-	    std::map<unsigned int,TH1D*>::iterator it6 = h_Chcorr_.find(id);
-	    if (it6 != h_Chcorr_.end())  (it6->second)->Fill(charge/actl);
+	  int nDepth = (eta == 16) ? 2 : 1;
+	  for (int k=0; k<nDepth; ++k) {
+	    if (ene[k] > ethr && actl[k] > 0 && charge[k] > 0 && 
+		t_ediff < cutEdiff_) {
+	      if (eta == 15) ++n15;
+	      else if (eta == 16) ++n16;
+	      int depth = k + 1;
+	      unsigned int id = packID(zside,eta,phi,depth,vbin,pbin);
+	      std::map<unsigned int,TH1D*>::iterator it1 = h_Energy_.find(id);
+	      if (it1 != h_Energy_.end())  (it1->second)->Fill(ene[k]);
+	      std::map<unsigned int,TH1D*>::iterator it2 = h_Ecorr_.find(id);
+	      if (it2 != h_Ecorr_.end())   (it2->second)->Fill(ene[k]/actl[k]);
+	      std::map<unsigned int,TH1D*>::iterator it3 = h_EnergyC_.find(id);
+	      if (it3 != h_EnergyC_.end()) (it3->second)->Fill(enec[k]);
+	      std::map<unsigned int,TH1D*>::iterator it4 = h_EcorrC_.find(id);
+	      if (it4 != h_EcorrC_.end())  (it4->second)->Fill(enec[k]/actl[k]);
+	      std::map<unsigned int,TH1D*>::iterator it5 = h_Charge_.find(id);
+	      if (it5 != h_Charge_.end())  (it5->second)->Fill(charge[k]);
+	      std::map<unsigned int,TH1D*>::iterator it6 = h_Chcorr_.find(id);
+	      if (it6 != h_Chcorr_.end())  (it6->second)->Fill(charge[k]/actl[k]);
+	      if (((eta == 15) || (eta == 16)) && debug_)
+		std::cout << zside << ":" << eta << ":" << phi << ":" 
+			  << t_iphi << ":" << depth << ":" << vbin << ":" 
+			  << pbin << " ID " << std::hex << id << std::dec 
+			  << " Flags " <<  (it1 != h_Energy_.end()) << ":" 
+			  << (it2 != h_Ecorr_.end()) << ":" 
+			  << (it3 != h_Charge_.end()) << ":" 
+			  << (it4 != h_Chcorr_.end()) << " E " << ene 
+			  << " C " << charge << " L " << actl << std::endl;
+	    }
 	  }
 	} else {
 	  double ene[3], enec[3], actl[3], charge[3];
@@ -454,7 +480,10 @@ void AnalyzeLepTree::Loop(Long64_t nmax, bool debug) {
 	  for (int k=0; k<nDepthBins(eta,phi,0); ++k) {
 	    if (ene[k] > ethr && actl[k] > 0 && charge[k] > 0 && 
 		t_ediff < cutEdiff_) {
-	      unsigned int id = packID(zside,eta,phi,k+1,vbin,pbin);
+	      if (eta == 15) ++n15;
+	      else if (eta == 16) ++n16;
+	      int depth = k + 1;
+	      unsigned int id = packID(zside,eta,phi,depth,vbin,pbin);
 	      std::map<unsigned int,TH1D*>::iterator it1 = h_Energy_.find(id);
 	      if (it1 != h_Energy_.end())  (it1->second)->Fill(ene[k]);
 	      std::map<unsigned int,TH1D*>::iterator it2 = h_Ecorr_.find(id);
@@ -467,12 +496,23 @@ void AnalyzeLepTree::Loop(Long64_t nmax, bool debug) {
 	      if (it5 != h_Charge_.end())  (it5->second)->Fill(charge[k]);
 	      std::map<unsigned int,TH1D*>::iterator it6 = h_Chcorr_.find(id);
 	      if (it6 != h_Chcorr_.end())  (it6->second)->Fill(charge[k]/actl[k]);
+	      if (((eta == 15) || (eta == 16)) && debug_)
+		std::cout << zside << ":" << eta << ":" << phi << ":" 
+			  << t_iphi << ":" << depth << ":" << vbin << ":" 
+			  << pbin << " ID " << std::hex << id << std::dec 
+			  << " Flags " <<  (it1 != h_Energy_.end()) << ":" 
+			  << (it2 != h_Ecorr_.end()) << ":" 
+			  << (it3 != h_Charge_.end()) << ":" 
+			  << (it4 != h_Chcorr_.end()) << " E " << ene[k] 
+			  << " C " << charge[k] << " L " << actl[k] << std::endl;
 	    }
 	  }
 	}
       }
     }
   }
+  std::cout << "Number of events with eta15: " << n15 << " and eta16: "
+	    << n16 << std::endl;
 }
 
 bool AnalyzeLepTree::fillChain(TChain *chain, const char* inputFileList) {
@@ -535,7 +575,8 @@ void AnalyzeLepTree::bookHisto() {
 	int eta   = (ieta>0) ? ieta : -ieta;
 	if (eta != 0) {
 	  int ndepth = ((kdepth_ == 0) ? nDepthBins(eta, 63, modeLHC_) : 
-			(kdepth_ == 1) ? 1 : nDepthBins(eta, 63, 0));
+			((kdepth_ != 1) ? nDepthBins(eta, 63, 0) :
+			 (eta == 16) ? 2 : 1));
 	  std::cout << "Eta " << ieta << " with " << nPhiBins(eta) 
 		    << " phi bins " << ndepth << " maximum depths and " 
 		    << nPBins(eta) << " p bins" << std::endl;
@@ -638,11 +679,16 @@ void AnalyzeLepTree::bookHisto() {
 	    sprintf (phis, "All i#phi");
 	  }
 	  int ndepth = ((kdepth_ == 0) ? nDepthBins(eta, phi0, modeLHC_) : 
-			(kdepth_ == 1) ? 1 : nDepthBins(eta, phi0, 0));
+			((kdepth_ != 1) ? nDepthBins(eta, phi0, 0) :
+			 (eta == 16) ? 2 : 1));
 	  for (int depth=0; depth<ndepth; ++depth) {
 	    char deps[20];
-	    if (kdepth_ == 1) sprintf (deps, "all depths");
-	    else              sprintf (deps, "Depth=%d", depth+1);
+	    if (kdepth_ == 1) {
+	      if (depth == 0) sprintf (deps, "all depths");
+	      else            sprintf (deps, "all endcap depths");
+	    } else {
+	      sprintf (deps, "Depth=%d", depth+1);
+	    }
 	    for (int pbin=0; pbin<nPBins(eta); ++pbin) {
 	      char ps[30];
 	      if ((mode_/4)%2 == 1) {
@@ -740,7 +786,8 @@ void AnalyzeLepTree::writeHisto(const char* outfile) {
 	    phi  = iphi + 1;
 	  };
 	  int ndepth = ((kdepth_ == 0) ? nDepthBins(eta, phi0, modeLHC_) : 
-			(kdepth_ == 1) ? 1 : nDepthBins(eta, phi0, 0));
+			((kdepth_ != 1) ? nDepthBins(eta, phi0, 0) : 
+			 (eta == 16) ? 2 : 1));
 	  for (int depth=0; depth<ndepth; ++depth) {
 	    for (int pbin=0; pbin<nPBins(eta); ++pbin) {
 	      for (int vbin=0; vbin<nVxBins(); ++vbin) {
@@ -950,8 +997,7 @@ int AnalyzeLepTree::getCollapsedDepth(int eta, int phi, int dep) {
   } else if (ieta == 16) {
     if (modeLHC_ == 0 || (modeLHC_ == 3 && (phi < 63 || phi > 66 || eta < 0))) {
     } else {
-      if      (dep == 3) depth = 2;
-      else if (dep == 4) depth = 3;
+      if      (dep > 2)  depth = 3;
     }
   } else if (ieta < 26) {
     if (modeLHC_ == 0 || (modeLHC_ == 3 && (phi < 63 || phi > 66 || eta < 0))) {
