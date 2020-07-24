@@ -1,5 +1,5 @@
 <use name="DataFormats/Common"/>
-<use Name="DataFormats/GeometryVector"/>
+<use name="DataFormats/GeometryVector"/>
 <use name="DataFormats/Math"/>
 <use name="FWCore/Utilities"/>
 <use name="rootmath"/>
