@@ -89,7 +89,7 @@ def alru_cache_timed(
         async def wrapped(*fn_args, **fn_kwargs):
             # If notOlderThan is not provided or None, use default timestamp delta:
             # utcnow() - DEFAULT_NOT_OLDER_THAN_SECONDS_DELTA
-            notOlderThan = fn_kwargs.get('notOlderThan', None)
+            notOlderThan = fn_kwargs.pop('notOlderThan', None)
             notOlderThan = int(notOlderThan) if notOlderThan else None
             if not notOlderThan:
                 notOlderThan = int(datetime.utcnow().timestamp()) - DEFAULT_NOT_OLDER_THAN_SECONDS_DELTA
