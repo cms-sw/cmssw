@@ -114,6 +114,7 @@ namespace pat {
       const bool          embedHighLevelSelection_;
       const edm::EDGetTokenT<reco::BeamSpot> beamLineToken_;
       const edm::EDGetTokenT<std::vector<reco::Vertex> > pvToken_;
+      bool                getdBFromTrack_;
 
       typedef edm::RefToBase<reco::GsfElectron> ElectronBaseRef;
       typedef std::vector< edm::Handle< edm::ValueMap<IsoDeposit> > > IsoDepositMaps;
