@@ -646,13 +646,16 @@ namespace edm {
   // EventAuxiliary and write it at the end of the file.
 
   void RootOutputFile::writeEventAuxiliary() {
+    constexpr std::size_t maxEaBasketSize = 4 * 1024 * 1024;
+
     if (om_->compactEventAuxiliary()) {
       auto tree = eventTree_.tree();
       auto const& bname = BranchTypeToAuxiliaryBranchName(InEvent).c_str();
 
       tree->SetBranchStatus(bname, true);
       auto basketsize =
-          compactEventAuxiliary_.size() * (sizeof(EventAuxiliary) + 26);  // 26 is an empirical fudge factor
+          std::min(maxEaBasketSize,
+                   compactEventAuxiliary_.size() * (sizeof(EventAuxiliary) + 26));  // 26 is an empirical fudge factor
       tree->SetBasketSize(bname, basketsize);
       auto b = tree->GetBranch(bname);
 
