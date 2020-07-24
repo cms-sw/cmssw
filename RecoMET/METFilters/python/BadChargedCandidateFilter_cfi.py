@@ -1,8 +1,8 @@
 import FWCore.ParameterSet.Config as cms
 
-import  RecoMET.METFilters.BadPFMuonFilter_cfi as _mod
+import  RecoMET.METFilters.badParticleFilter_cfi  as _mod
 
-BadChargedCandidateFilter = _mod.BadPFMuonFilter.clone(
+BadChargedCandidateFilter = _mod.badParticleFilter.clone(
     filterType  ="BadChargedCandidate",
     maxDR = 0.00001,
     minPtDiffRel = 0.00001
