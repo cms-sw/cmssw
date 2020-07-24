@@ -288,7 +288,7 @@ public:
     // table for gen info, always available
     auto out = std::make_unique<nanoaod::FlatTable>(1, "genWeight", true);
     out->setDoc("generator weight");
-    out->addColumnValue<float>("", weight, "generator weight", nanoaod::FlatTable::FloatColumn);
+    out->addColumnValue<float>("", weight, "generator weight");
     iEvent.put(std::move(out));
 
     std::string model_label = streamCache(id)->countermap.getLabel();
@@ -399,31 +399,23 @@ public:
                             vectorSize > 1 ? "PS weights (w_var / w_nominal); [0] is ISR=0.5 FSR=1; [1] is ISR=1 "
                                              "FSR=0.5; [2] is ISR=2 FSR=1; [3] is ISR=1 FSR=2 "
                                            : "dummy PS weight (1.0) ",
-                            nanoaod::FlatTable::FloatColumn,
                             lheWeightPrecision_);
 
     outScale.reset(new nanoaod::FlatTable(wScale.size(), "LHEScaleWeight", false));
-    outScale->addColumn<float>(
-        "", wScale, weightChoice->scaleWeightsDoc, nanoaod::FlatTable::FloatColumn, lheWeightPrecision_);
+    outScale->addColumn<float>("", wScale, weightChoice->scaleWeightsDoc, lheWeightPrecision_);
 
     outPdf.reset(new nanoaod::FlatTable(wPDF.size(), "LHEPdfWeight", false));
-    outPdf->addColumn<float>(
-        "", wPDF, weightChoice->pdfWeightsDoc, nanoaod::FlatTable::FloatColumn, lheWeightPrecision_);
+    outPdf->addColumn<float>("", wPDF, weightChoice->pdfWeightsDoc, lheWeightPrecision_);
 
     outRwgt.reset(new nanoaod::FlatTable(wRwgt.size(), "LHEReweightingWeight", false));
-    outRwgt->addColumn<float>(
-        "", wRwgt, weightChoice->rwgtWeightDoc, nanoaod::FlatTable::FloatColumn, lheWeightPrecision_);
+    outRwgt->addColumn<float>("", wRwgt, weightChoice->rwgtWeightDoc, lheWeightPrecision_);
 
     outNamed.reset(new nanoaod::FlatTable(1, "LHEWeight", true));
-    outNamed->addColumnValue<float>("originalXWGTUP",
-                                    lheProd.originalXWGTUP(),
-                                    "Nominal event weight in the LHE file",
-                                    nanoaod::FlatTable::FloatColumn);
+    outNamed->addColumnValue<float>("originalXWGTUP", lheProd.originalXWGTUP(), "Nominal event weight in the LHE file");
     for (unsigned int i = 0, n = wNamed.size(); i < n; ++i) {
       outNamed->addColumnValue<float>(namedWeightLabels_[i],
                                       wNamed[i],
                                       "LHE weight for id " + namedWeightIDs_[i] + ", relative to nominal",
-                                      nanoaod::FlatTable::FloatColumn,
                                       lheWeightPrecision_);
     }
 
@@ -460,12 +452,10 @@ public:
       wPS.push_back(1.0);
 
     outScale.reset(new nanoaod::FlatTable(wScale.size(), "LHEScaleWeight", false));
-    outScale->addColumn<float>(
-        "", wScale, weightChoice->scaleWeightsDoc, nanoaod::FlatTable::FloatColumn, lheWeightPrecision_);
+    outScale->addColumn<float>("", wScale, weightChoice->scaleWeightsDoc, lheWeightPrecision_);
 
     outPdf.reset(new nanoaod::FlatTable(wPDF.size(), "LHEPdfWeight", false));
-    outPdf->addColumn<float>(
-        "", wPDF, weightChoice->pdfWeightsDoc, nanoaod::FlatTable::FloatColumn, lheWeightPrecision_);
+    outPdf->addColumn<float>("", wPDF, weightChoice->pdfWeightsDoc, lheWeightPrecision_);
 
     outPS.reset(new nanoaod::FlatTable(wPS.size(), "PSWeight", false));
     outPS->addColumn<float>("",
@@ -473,14 +463,12 @@ public:
                             wPS.size() > 1 ? "PS weights (w_var / w_nominal); [0] is ISR=0.5 FSR=1; [1] is ISR=1 "
                                              "FSR=0.5; [2] is ISR=2 FSR=1; [3] is ISR=1 FSR=2 "
                                            : "dummy PS weight (1.0) ",
-                            nanoaod::FlatTable::FloatColumn,
                             lheWeightPrecision_);
 
     outNamed.reset(new nanoaod::FlatTable(1, "LHEWeight", true));
-    outNamed->addColumnValue<float>(
-        "originalXWGTUP", originalXWGTUP, "Nominal event weight in the LHE file", nanoaod::FlatTable::FloatColumn);
+    outNamed->addColumnValue<float>("originalXWGTUP", originalXWGTUP, "Nominal event weight in the LHE file");
     /*for (unsigned int i = 0, n = wNamed.size(); i < n; ++i) {
-      outNamed->addColumnValue<float>(namedWeightLabels_[i], wNamed[i], "LHE weight for id "+namedWeightIDs_[i]+", relative to nominal", nanoaod::FlatTable::FloatColumn, lheWeightPrecision_);
+      outNamed->addColumnValue<float>(namedWeightLabels_[i], wNamed[i], "LHE weight for id "+namedWeightIDs_[i]+", relative to nominal", lheWeightPrecision_);
       }*/
 
     counter->incLHE(genWeight, wScale, wPDF, std::vector<double>(), std::vector<double>(), wPS);
@@ -506,7 +494,6 @@ public:
                             vectorSize > 1 ? "PS weights (w_var / w_nominal); [0] is ISR=0.5 FSR=1; [1] is ISR=1 "
                                              "FSR=0.5; [2] is ISR=2 FSR=1; [3] is ISR=1 FSR=2 "
                                            : "dummy PS weight (1.0) ",
-                            nanoaod::FlatTable::FloatColumn,
                             lheWeightPrecision_);
 
     counter->incGenOnly(genWeight);
