@@ -158,20 +158,16 @@ edm::WrapperBase const* BareRootProductGetter::getIt(edm::BranchID const& branch
   return buffer->product_.get();
 }
 
-edm::WrapperBase const* BareRootProductGetter::getThinnedProduct(edm::ProductID const& pid, unsigned int& key) const {
+std::optional<std::tuple<edm::WrapperBase const*, unsigned int>> BareRootProductGetter::getThinnedProduct(
+    edm::ProductID const& pid, unsigned int key) const {
   Long_t eventEntry = branchMap_.getEventTree()->GetReadEntry();
-  auto wrapperKey = edm::detail::getThinnedProduct(
+  return edm::detail::getThinnedProduct(
       pid,
       key,
       branchMap_.thinnedAssociationsHelper(),
       [this](edm::ProductID const& p) { return branchMap_.productToBranchID(p); },
       [this, eventEntry](edm::BranchID const& b) { return getThinnedAssociation(b, eventEntry); },
       [this](edm::ProductID const& p) { return getIt(p); });
-  if (wrapperKey.has_value()) {
-    key = std::get<unsigned int>(*wrapperKey);
-    return std::get<edm::WrapperBase const*>(*wrapperKey);
-  }
-  return nullptr;
 }
 
 void BareRootProductGetter::getThinnedProducts(edm::ProductID const& pid,

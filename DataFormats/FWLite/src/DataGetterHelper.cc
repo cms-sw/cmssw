@@ -344,7 +344,7 @@ namespace fwlite {
   edm::WrapperBase const* DataGetterHelper::getByProductID(edm::ProductID const& iID, Long_t eventEntry) const {
     typedef std::pair<edm::ProductID, edm::BranchListIndex> IDPair;
     IDPair theID = std::make_pair(iID, branchMap_->branchListIndexes()[iID.processIndex() - 1]);
-    std::map<IDPair, std::shared_ptr<internal::Data> >::const_iterator itFound = idToData_.find(theID);
+    std::map<IDPair, std::shared_ptr<internal::Data>>::const_iterator itFound = idToData_.find(theID);
 
     if (itFound == idToData_.end()) {
       edm::BranchDescription const& bDesc = branchMap_->productToBranch(iID);
@@ -400,21 +400,15 @@ namespace fwlite {
         wrapperBaseTypeWithDict.pointerToBaseType(objectWithDict.address(), objectWithDict.typeOf()));
   }
 
-  edm::WrapperBase const* DataGetterHelper::getThinnedProduct(edm::ProductID const& pid,
-                                                              unsigned int& key,
-                                                              Long_t eventEntry) const {
-    auto wrapperKey = edm::detail::getThinnedProduct(
+  std::optional<std::tuple<edm::WrapperBase const*, unsigned int>> DataGetterHelper::getThinnedProduct(
+      edm::ProductID const& pid, unsigned int key, Long_t eventEntry) const {
+    return edm::detail::getThinnedProduct(
         pid,
         key,
         branchMap_->thinnedAssociationsHelper(),
         [this](edm::ProductID const& p) { return branchMap_->productToBranchID(p); },
         [this, eventEntry](edm::BranchID const& b) { return getThinnedAssociation(b, eventEntry); },
         [this, eventEntry](edm::ProductID const& p) { return getByProductID(p, eventEntry); });
-    if (wrapperKey.has_value()) {
-      key = std::get<unsigned int>(*wrapperKey);
-      return std::get<edm::WrapperBase const*>(*wrapperKey);
-    }
-    return nullptr;
   }
 
   void DataGetterHelper::getThinnedProducts(edm::ProductID const& pid,

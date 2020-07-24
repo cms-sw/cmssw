@@ -132,7 +132,8 @@ namespace edm {
                    std::optional<ProductProvenance> productProvenance) const;
 
     WrapperBase const* getIt(ProductID const& pid) const override;
-    WrapperBase const* getThinnedProduct(ProductID const& pid, unsigned int& key) const override;
+    std::optional<std::tuple<WrapperBase const*, unsigned int>> getThinnedProduct(ProductID const& pid,
+                                                                                  unsigned int key) const override;
     void getThinnedProducts(ProductID const& pid,
                             std::vector<WrapperBase const*>& foundContainers,
                             std::vector<unsigned int>& keys) const override;

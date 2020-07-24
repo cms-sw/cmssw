@@ -882,9 +882,10 @@ namespace edm {
     return nullptr;
   }
 
-  WrapperBase const* Principal::getThinnedProduct(ProductID const&, unsigned int&) const {
+  std::optional<std::tuple<WrapperBase const*, unsigned int>> Principal::getThinnedProduct(ProductID const&,
+                                                                                           unsigned int) const {
     assert(false);
-    return nullptr;
+    return std::nullopt;
   }
 
   void Principal::getThinnedProducts(ProductID const&,
