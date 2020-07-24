@@ -384,19 +384,19 @@ public :
 				       int& zside, int& ieta, int& iphi,
 				       int& depth);
 private:
-  static const int              maxDep=7;
-  static const int              maxEta=29;
-  static const int              maxPhi=72;
+  static const int              maxDep_=7;
+  static const int              maxEta_=29;
+  static const int              maxPhi_=72;
   //3x16x72x2 + 5x4x72x2 + 5x9x36x2
-  static const int              maxHist=20000;//13032;
+  static const int              maxHist_=20000;//13032;
   static const int              nCut_=1;
   static const unsigned int     nmax_=10;
   const bool                    debug_;
   int                           modeLHC_, maxDepthHB_, maxDepthHE_, maxDepth_;
   int                           runLo_, runHi_, etaMin_, etaMax_;
   bool                          cFactor_, useCorrect_, mergeDepth_;
-  int                           nHist, nDepths[maxEta], nDepthsPhi[maxEta];
-  int                           indxEta[maxEta][maxDep][maxPhi];
+  int                           nHist, nDepths[maxEta_], nDepthsPhi[maxEta_];
+  int                           indxEta[maxEta_][maxDep_][maxPhi_];
   TFile                        *output_file;
   std::map<unsigned int,float>  corrFac_[nmax_];
   std::vector<int>              runlow_;
@@ -415,19 +415,19 @@ private:
   TH1D  *h_LongImpactParameter[3], *h_LongImpactParameterBin1[3], *h_LongImpactParameterBin2[3];
   
   TH1D  *h_TransImpactParameter[3], *h_TransImpactParameterBin1[3], *h_TransImpactParameterBin2[3];
-  TH1D  *h_Hot_MuonEnergy_hcal_ClosestCell[3][maxHist] , *h_Hot_MuonEnergy_hcal_HotCell[3][maxHist] , *h_Hot_MuonEnergy_hcal_HotCell_VsActiveLength[3][maxHist], *h_HotCell_MuonEnergy_phi[3][maxHist], *h_active_length_Fill[3][maxHist], *h_p_muon_ineta[3][maxHist], *h_charge_signal[3][maxHist], *h_charge_bg[3][maxHist]; 
+  TH1D  *h_Hot_MuonEnergy_hcal_ClosestCell[3][maxHist_] , *h_Hot_MuonEnergy_hcal_HotCell[3][maxHist_] , *h_Hot_MuonEnergy_hcal_HotCell_VsActiveLength[3][maxHist_], *h_HotCell_MuonEnergy_phi[3][maxHist_], *h_active_length_Fill[3][maxHist_], *h_p_muon_ineta[3][maxHist_], *h_charge_signal[3][maxHist_], *h_charge_bg[3][maxHist_]; 
   TH2D  *h_2D_Bin1[3], *h_2D_Bin2[3];
   TH1D  *h_ecal_energy[3], *h_hcal_energy[3], *h_3x3_ecal[3], *h_1x1_hcal[3];
-  TH1D  *h_MuonHittingEcal[3], *h_HotCell[3], *h_MuonEnergy_hcal[3][maxHist];
-  TH1D  *h_Hot_MuonEnergy_hcal[3][maxHist];
+  TH1D  *h_MuonHittingEcal[3], *h_HotCell[3], *h_MuonEnergy_hcal[3][maxHist_];
+  TH1D  *h_Hot_MuonEnergy_hcal[3][maxHist_];
   TH2D  *hcal_ietaVsEnergy[3];
   TProfile *h_EtaX_hcal[3], *h_PhiY_hcal[3], *h_EtaX_ecal[3], *h_PhiY_ecal[3];
   TProfile *h_Eta_ecal[3], *h_Phi_ecal[3];
-  TProfile *h_MuonEnergy_eta[3][maxDep], *h_MuonEnergy_phi[3][maxDep], *h_MuonEnergy_muon_eta[3][maxDep];
-  TProfile *h_Hot_MuonEnergy_eta[3][maxDep], *h_Hot_MuonEnergy_phi[3][maxDep],  *h_Hot_MuonEnergy_muon_eta[3][maxDep];
-  TProfile *h_IsoHot_MuonEnergy_eta[3][maxDep], *h_IsoHot_MuonEnergy_phi[3][maxDep], *h_IsoHot_MuonEnergy_muon_eta[3][maxDep];
-  TProfile *h_IsoWithoutHot_MuonEnergy_eta[3][maxDep], *h_IsoWithoutHot_MuonEnergy_phi[3][maxDep], *h_IsoWithoutHot_MuonEnergy_muon_eta[3][maxDep];
-  TProfile *h_HotWithoutIso_MuonEnergy_eta[3][maxDep], *h_HotWithoutIso_MuonEnergy_phi[3][maxDep], *h_HotWithoutIso_MuonEnergy_muon_eta[3][maxDep];
+  TProfile *h_MuonEnergy_eta[3][maxDep_], *h_MuonEnergy_phi[3][maxDep_], *h_MuonEnergy_muon_eta[3][maxDep_];
+  TProfile *h_Hot_MuonEnergy_eta[3][maxDep_], *h_Hot_MuonEnergy_phi[3][maxDep_],  *h_Hot_MuonEnergy_muon_eta[3][maxDep_];
+  TProfile *h_IsoHot_MuonEnergy_eta[3][maxDep_], *h_IsoHot_MuonEnergy_phi[3][maxDep_], *h_IsoHot_MuonEnergy_muon_eta[3][maxDep_];
+  TProfile *h_IsoWithoutHot_MuonEnergy_eta[3][maxDep_], *h_IsoWithoutHot_MuonEnergy_phi[3][maxDep_], *h_IsoWithoutHot_MuonEnergy_muon_eta[3][maxDep_];
+  TProfile *h_HotWithoutIso_MuonEnergy_eta[3][maxDep_], *h_HotWithoutIso_MuonEnergy_phi[3][maxDep_], *h_HotWithoutIso_MuonEnergy_muon_eta[3][maxDep_];
   
 };
 
@@ -1176,8 +1176,8 @@ void HBHEMuonOfflineAnalyzer::bookHistograms(const char* fname) {
       }
     }
   }
-  if (nHist >= maxHist) {
-    std::cout << "Problem here " << nHist << ":" << maxHist << std::endl;
+  if (nHist >= maxHist_) {
+    std::cout << "Problem here " << nHist << ":" << maxHist_ << std::endl;
   }
   //	TDirectory *d_output_file[nCut_][29];
   //output_file->cd();
@@ -1714,7 +1714,7 @@ int HBHEMuonOfflineAnalyzer::nDepthBins(int eta, int phi) {
   int  nDepthR3[29]={4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,3,5,6,6,6,6,6,6,6,7,7,7,3};
   // Run 4 scenario
   int  nDepthR4[29]={4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,7,7,7,7,7,7,7,7,7,7,7,7,7};
-  // for 2021 scenario multi depth segmentation
+  // for a test scenario with multi depth segmentation considered during Run 1
   //    int  nDepth[29]={3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,5,5,5,5,5,5,5,5,5,5,5,5,5};
   // modeLHC_ = 0 --> nbin defined maxDepthHB/HE
   //          = 1 -->      corresponds to Run 1 (valid till 2016)
