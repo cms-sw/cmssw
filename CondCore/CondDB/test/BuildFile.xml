@@ -1,6 +1,4 @@
 <use name="CondCore/CondDB"/>
-<use name="CondFormats/Common"/>
-<use name="DataFormats/StdDictionaries"/>
 <use name="FWCore/PluginManager"/>
 <use name="FWCore/Utilities"/>
 <library file="" name="testCondDBDict"/>
@@ -32,6 +30,9 @@
 </bin>
 
 <bin file="testRunInfo.cpp" name="testRunInfo">
+</bin>
+
+<bin file="testRunInfo2.cpp" name="testRunInfo2">
 </bin>
 
 <bin file="testGroupSelection.cpp" name="testGroupSelection">
