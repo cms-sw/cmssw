@@ -182,15 +182,15 @@ namespace edm {
         WrapperBase const* prod = getter->getIt(core_.id());
         unsigned int iKey = key_;
         if (prod == nullptr) {
-          std::optional optProd = getter->getThinnedProduct(core_.id(), key_);
-          if (not optProd.has_value()) {
+          auto optionalProd = getter->getThinnedProduct(core_.id(), key_);
+          if (not optionalProd.has_value()) {
             if (throwIfNotFound) {
               core_.productNotFoundException(typeid(T));
             } else {
               return;
             }
           }
-          std::tie(prod, iKey) = *optProd;
+          std::tie(prod, iKey) = *optionalProd;
         }
         void const* ad = nullptr;
         prod->setPtr(typeid(T), iKey, ad);
