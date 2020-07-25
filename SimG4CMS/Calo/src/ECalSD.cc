@@ -60,7 +60,8 @@ ECalSD::ECalSD(const std::string& name,
   edm::ParameterSet m_EC = p.getParameter<edm::ParameterSet>("ECalSD");
   useBirk = m_EC.getParameter<bool>("UseBirkLaw");
   useBirkL3 = m_EC.getParameter<bool>("BirkL3Parametrization");
-  birk1 = m_EC.getParameter<double>("BirkC1") * (g / (MeV * cm2));
+  double bunit = (CLHEP::g / (CLHEP::MeV * CLHEP::cm2));
+  birk1 = m_EC.getParameter<double>("BirkC1") * bunit;
   birk2 = m_EC.getParameter<double>("BirkC2");
   birk3 = m_EC.getParameter<double>("BirkC3");
   birkSlope = m_EC.getParameter<double>("BirkSlope");
@@ -123,8 +124,8 @@ ECalSD::ECalSD(const std::string& name,
   edm::LogVerbatim("EcalSim") << "Constructing a ECalSD  with name " << GetName();
 #endif
   if (useWeight) {
-    edm::LogVerbatim("EcalSim") << "ECalSD:: Use of Birks law is set to      " << useBirk
-                                << "        with three constants kB = " << birk1 << ", C1 = " << birk2
+    edm::LogVerbatim("EcalSim") << "ECalSD:: Use of Birks law is set to " << useBirk
+                                << " with three constants kB = " << birk1 / bunit << ", C1 = " << birk2
                                 << ", C2 = " << birk3 << "\n         Use of L3 parametrization " << useBirkL3
                                 << " with slope " << birkSlope << " and cut off " << birkCut << "\n"
                                 << "         Slope for Light yield is set to " << slopeLY;
