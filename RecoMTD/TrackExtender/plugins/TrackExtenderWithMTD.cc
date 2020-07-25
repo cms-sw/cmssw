@@ -254,19 +254,15 @@ namespace {
       const auto& propresult2 =
           thePropagator->propagateWithPath(tscbl.trackStateAtPCA(), traj.firstMeasurement().updatedState().surface());
       pathlength2 = propresult2.second;
-      if (pathlength2 == 0.) {
-        validpropagation = false;
-      }
-      pathlength = pathlength1 + pathlength2;
     } else {
       const auto& propresult2 =
           thePropagator->propagateWithPath(tscbl.trackStateAtPCA(), traj.lastMeasurement().updatedState().surface());
       pathlength2 = propresult2.second;
-      if (pathlength2 == 0.) {
-        validpropagation = false;
-      }
-      pathlength = pathlength1 + pathlength2;
     }
+    if (pathlength2 == 0.) {
+      validpropagation = false;
+    }
+    pathlength = pathlength1 + pathlength2;
 
     return validpropagation;
   }
