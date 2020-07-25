@@ -242,7 +242,7 @@ namespace reco {
           mvaInput[3] = neutralIsoPtSum;               //tauID("neutralIsoPtSum");
           mvaInput[4] = puCorrPtSum;                   //tauID("puCorrPtSum");
           mvaInput[5] = photonPtSumOutsideSignalCone;  //tauID("photonPtSumOutsideSignalCone");
-          mvaInput[7] = tauDecayMode;                  //tau.decayMode();
+          mvaInput[6] = tauDecayMode;                  //tau.decayMode();
           mvaInput[7] = tau.signalGammaCands().size();
           mvaInput[8] = tau.isolationGammaCands().size();
 
