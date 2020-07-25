@@ -19,6 +19,7 @@
 
 #include "FWCore/Framework/interface/defaultCmsRunServices.h"
 #include "FWCore/ParameterSet/interface/ProcessDesc.h"
+#include "FWCore/ParameterSet/interface/ThreadsInfo.h"
 
 #include "FWCore/ServiceRegistry/interface/ServiceRegistry.h"
 #include "FWCore/ServiceRegistry/interface/ServiceToken.h"
@@ -27,6 +28,7 @@
 
 #include "FWCore/PluginManager/interface/PluginManager.h"
 #include "FWCore/PluginManager/interface/standard.h"
+#include "FWCore/Concurrency/interface/setNThreads.h"
 #include "FWCore/Utilities/interface/thread_safety_macros.h"
 
 namespace {
@@ -38,6 +40,22 @@ namespace {
 
   std::shared_ptr<edm::ProcessDesc> addDefaultServicesToProcessDesc(std::shared_ptr<edm::ProcessDesc> iDesc) {
     iDesc->addServices(edm::defaultCmsRunServices());
+    return iDesc;
+  }
+
+  //TBB only allows 1 task_scheduler_init active on a thread.
+  CMS_THREAD_SAFE std::unique_ptr<tbb::task_scheduler_init> tsiPtr;
+
+  std::shared_ptr<edm::ProcessDesc> setupThreading(std::shared_ptr<edm::ProcessDesc> iDesc) {
+    // check the "options" ParameterSet
+    std::shared_ptr<edm::ParameterSet> pset = iDesc->getProcessPSet();
+    auto threadsInfo = threadOptions(*pset);
+
+    threadsInfo.nThreads_ = edm::setNThreads(threadsInfo.nThreads_, threadsInfo.stackSize_, tsiPtr);
+
+    // update the numberOfThreads and sizeOfStackForThreadsInKB in the "options" ParameterSet
+    setThreadOptions(threadsInfo, *pset);
+
     return iDesc;
   }
 
@@ -61,7 +79,7 @@ namespace {
 //
 PythonEventProcessor::PythonEventProcessor(PyBind11ProcessDesc const& iDesc)
     : forcePluginSetupFirst_(setupPluginSystem()),
-      processor_(addDefaultServicesToProcessDesc(iDesc.processDesc()),
+      processor_(addDefaultServicesToProcessDesc(setupThreading(iDesc.processDesc())),
                  createJobReport(),
                  edm::serviceregistry::kOverlapIsError) {}
 
