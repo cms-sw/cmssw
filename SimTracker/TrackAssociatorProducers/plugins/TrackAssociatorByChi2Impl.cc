@@ -22,7 +22,7 @@ RecoToSimCollection TrackAssociatorByChi2Impl::associateRecoToSim(
     const edm::RefToBaseVector<reco::Track>& tC, const edm::RefVector<TrackingParticleCollection>& tPCH) const {
   const reco::BeamSpot& bs = *theBeamSpot;
 
-  RecoToSimCollection outputCollection;
+  RecoToSimCollection outputCollection(productGetter_);
 
   //dereference the edm::Refs only once
   std::vector<TrackingParticle const*> tPC;
