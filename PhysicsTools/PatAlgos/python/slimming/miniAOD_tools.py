@@ -359,6 +359,8 @@ def miniAOD_customizeCommon(process):
         updatedTauName = _updatedTauName,
         toKeep = ['deepTau2017v2p1']
     )
+    from Configuration.Eras.Modifier_phase2_common_cff import phase2_common #Phase2 Tau MVA
+    phase2_common.toModify(tauIdEmbedder.toKeep, func=lambda t:t.append('newDMPhase2v1')) #Phase2 Tau MVA
     tauIdEmbedder.runTauID()
     addToProcessAndTask(_noUpdatedTauName, process.slimmedTaus.clone(),process,task)
     delattr(process, 'slimmedTaus')
@@ -368,6 +370,10 @@ def miniAOD_customizeCommon(process):
     )
     process.deepTauIDTask = cms.Task(process.deepTau2017v2p1, process.slimmedTaus)
     task.add(process.deepTauIDTask)
+    if 'newDMPhase2v1' in tauIdEmbedder.toKeep:
+        process.rerunDiscriminationByIsolationMVADBnewDMwLTPhase2raw.PATTauProducer=_noUpdatedTauName
+        process.rerunDiscriminationByIsolationMVADBnewDMwLTPhase2.PATTauProducer=_noUpdatedTauName
+        task.add(process.rerunIsolationMVADBnewDMwLTPhase2Task)
 
     #-- Adding customization for 80X 2016 legacy reMiniAOD and 2018 heavy ions
     _makePatTausTaskWithTauReReco = process.makePatTausTask.copy()
