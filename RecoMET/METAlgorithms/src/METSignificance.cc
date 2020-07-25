@@ -39,7 +39,7 @@ metsig::METSignificance::METSignificance(const edm::ParameterSet& iConfig) {
   jetEtas_ = cfgParams.getParameter<std::vector<double> >("jeta");
   jetParams_ = cfgParams.getParameter<std::vector<double> >("jpar");
   pjetParams_ = cfgParams.getParameter<std::vector<double> >("pjpar");
-  
+  useDeltaRforFootprint_ = cfgParams.getParameter<bool>("useDeltaRforFootprint");
 }
 
 metsig::METSignificance::~METSignificance() {
@@ -70,13 +70,10 @@ metsig::METSignificance::getCovariance(const edm::View<reco::Jet>& jets,
 
    // subtract leptons out of sumPtUnclustered
    for ( const auto& lep_i : leptons ) {
-     for( const auto& lep : *lep_i ) {
-       if( lep.pt() > 10 ){
-	 for( unsigned int n=0; n < lep.numberOfSourceCandidatePtrs(); n++ ){
-	   if( lep.sourceCandidatePtr(n).isNonnull() and lep.sourceCandidatePtr(n).isAvailable() ){
-	     footprint.insert(lep.sourceCandidatePtr(n));
-	   } 
-	 }
+     for (const auto& lep : lep_i->ptrs()) {
+       if (lep->pt() > 10) {
+         for (unsigned int n = 0; n < lep->numberOfSourceCandidatePtrs(); n++)
+           footprint.insert(lep->sourceCandidatePtr(n));
        }
      }
    }
@@ -86,10 +83,7 @@ metsig::METSignificance::getCovariance(const edm::View<reco::Jet>& jets,
      // disambiguate jets and leptons
      if(!cleanJet(jet, leptons) ) continue;
      for( unsigned int n=0; n < jet.numberOfSourceCandidatePtrs(); n++){
-       if( jet.sourceCandidatePtr(n).isNonnull() and jet.sourceCandidatePtr(n).isAvailable() ){
-
-	 footprint.insert(jet.sourceCandidatePtr(n));
-       }
+       footprint.insert(jet.sourceCandidatePtr(n));
      }
 
    }
@@ -103,7 +97,12 @@ metsig::METSignificance::getCovariance(const edm::View<reco::Jet>& jets,
 
        //dP4 recovery
        for( const auto& it : footprint) {
-	 if( (it->p4()-(*pfCandidates)[i].p4()).Et2()<0.000025 ){
+         // Special treatment for PUPPI with dR, since jet candidates (puppi) and MET candidates (puppiForMet)
+         // can't be matched through the sourceCandidatePtrs and may have different energy, but same direction.
+	 if((it.isNonnull()) && (it.isAvailable()) &&
+	    (((!useDeltaRforFootprint_) && ((it->p4()-(*pfCandidates)[i].p4()).Et2()<0.000025)) ||
+	    (( useDeltaRforFootprint_) && (reco::deltaR2(*it,(*pfCandidates)[i])<0.00000025)))){
+	   
 	   cleancand = false;
 	   break;
 	 }
