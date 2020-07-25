@@ -250,15 +250,10 @@ namespace {
     }
 
     //add distance from bs to first measurement
-    if (traj.direction() == alongMomentum) {
-      const auto& propresult2 =
-          thePropagator->propagateWithPath(tscbl.trackStateAtPCA(), traj.firstMeasurement().updatedState().surface());
-      pathlength2 = propresult2.second;
-    } else {
-      const auto& propresult2 =
-          thePropagator->propagateWithPath(tscbl.trackStateAtPCA(), traj.lastMeasurement().updatedState().surface());
-      pathlength2 = propresult2.second;
-    }
+    auto const& tscblPCA = tscbl.trackStateAtPCA();
+    auto const& aSurface = traj.direction() == alongMomentum ? traj.firstMeasurement().updatedState().surface()
+                                                             : traj.lastMeasurement().updatedState().surface();
+    pathlength2 = thePropagator->propagateWithPath(tscblPCA, aSurface).second;
     if (pathlength2 == 0.) {
       validpropagation = false;
     }
