@@ -64,9 +64,10 @@ public:
   std::vector<SensitiveCaloDetector*>& sensCaloDetectors();
   std::vector<std::shared_ptr<SimProducer> >& producers();
 
+  void initializeG4(RunManagerMT* runManagerMaster, const edm::EventSetup& es);
+
 private:
   void initializeTLS();
-  void initializeThread(RunManagerMT& runManagerMaster, const edm::EventSetup& es);
   void initializeUserActions();
 
   void initializeRun();
