@@ -123,7 +123,7 @@ namespace {
                                              o_extrema.second + o_range);
 
       for (unsigned int i = 1; i <= 2; i++) {
-        SiPixelPI::adjustCanvasMargins(canvas.cd(i), 0.06, 0.12, 0.12, 0.05);
+        SiPixelPI::adjustCanvasMargins(canvas.cd(i), 0.06, 0.12, 0.08, 0.03);
       }
 
       for (const auto &slope : slopes) {
@@ -187,6 +187,7 @@ namespace {
       histo->Draw("bar2");
       SiPixelPI::makeNicePlotStyle(histo.get());
       histo->SetStats(true);
+      histo->GetYaxis()->SetTitleOffset(0.9);
     }
   };
 
@@ -235,8 +236,8 @@ namespace {
 
       auto myPlots = PixelRegions::PixelRegionContainers(&tTopo, (Map_.size() == SiPixelPI::phase1size));
       myPlots.bookAll((myType == SiPixelVCalPI::t_slope) ? "SiPixel VCal slope value" : "SiPixel VCal offset value",
-                      (myType == SiPixelVCalPI::t_slope) ? "SiPixel VCal slope value [#electrons/VCal units]"
-                                                         : "SiPixel VCal offset value [#electrons]",
+                      (myType == SiPixelVCalPI::t_slope) ? "SiPixel VCal slope value [ADC/VCal units]"
+                                                         : "SiPixel VCal offset value [ADC]",
                       "#modules",
                       50,
                       extrema.first - range,
@@ -261,7 +262,7 @@ namespace {
       unsigned int maxPads = isBarrel ? 4 : 12;
       for (unsigned int c = 1; c <= maxPads; c++) {
         canvas.cd(c);
-        SiPixelPI::adjustCanvasMargins(canvas.cd(c), 0.07, 0.12, 0.12, 0.05);
+        SiPixelPI::adjustCanvasMargins(canvas.cd(c), 0.06, 0.12, 0.12, 0.05);
         legend.Draw("same");
         canvas.cd(c)->Update();
       }
