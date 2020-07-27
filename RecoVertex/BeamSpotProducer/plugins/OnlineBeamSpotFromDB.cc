@@ -13,7 +13,7 @@ ________________________________________________________________**/
 #include <string>
 // CMS
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
-#include "RecoVertex/BeamSpotProducer/interface/OnlineBeamSpotFromDB.h"
+#include "RecoVertex/BeamSpotProducer/plugins/OnlineBeamSpotFromDB.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
@@ -36,16 +36,14 @@ void OnlineBeamSpotFromDB::analyze(const edm::Event& iEvent, const edm::EventSet
   edm::ESHandle<BeamSpotObjects> beamhandle;
   iSetup.get<BeamSpotTransientObjectsRcd>().get(beamhandle);
   const BeamSpotObjects* mybeamspot = beamhandle.product();
-  iSetup.get<BeamSpotObjectsRcd>().get(beamGThandle);
-  const BeamSpotObjects* myGTbeamspot = beamGThandle.product();
+  //iSetup.get<BeamSpotObjectsRcd>().get(beamGThandle);
+  //const BeamSpotObjects* myGTbeamspot = beamGThandle.product();
 
-  std::cout << " for runs: " << iEvent.id().run() << " - " << iEvent.id().run() << std::endl;
-  //std::cout << iEvent.getRun().beginTime().value() << std::endl;
-  //std::cout << iEvent.time().value() << std::endl;
-  std::cout << *mybeamspot << std::endl;
-  std::cout << *myGTbeamspot << std::endl;
+  edm::LogInfo("Run numver: ") << iEvent.id().run();
+  edm::LogInfo("beamspot from HLT ") << *mybeamspot;
+  //edm::LogInfo("beamspot from GT ")<<*myGTbeamspot;
 }
-
+void OnlineBeamSpotFromDB::fillDescription(edm::ParameterSetDescription& desc){}
 void OnlineBeamSpotFromDB::beginJob() {}
 
 void OnlineBeamSpotFromDB::endJob() {}
