@@ -52,7 +52,6 @@ float EcalTools::swissCross(const DetId& id,
 }
 
 bool EcalTools::isNextToDead(const DetId& id, const EcalNextToDeadChannel& dch) {
-
   EcalNextToDeadChannel::const_iterator chIt = dch.find(id);
 
   if (chIt != dch.end()) {
