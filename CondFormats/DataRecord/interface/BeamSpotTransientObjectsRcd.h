@@ -27,5 +27,5 @@
 class BeamSpotTransientObjectsRcd
     : public edm::eventsetup::DependentRecordImplementation<
           BeamSpotTransientObjectsRcd,
-          boost::mpl::vector<BeamSpotOnlineHLTObjectsRcd, BeamSpotOnlineLegacyObjectsRcd, BeamSpotObjectsRcd> > {};          
+          boost::mpl::vector<BeamSpotOnlineHLTObjectsRcd, BeamSpotOnlineLegacyObjectsRcd, BeamSpotObjectsRcd> > {};
 #endif
