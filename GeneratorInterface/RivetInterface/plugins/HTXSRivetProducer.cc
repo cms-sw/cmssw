@@ -32,8 +32,6 @@ public:
   explicit HTXSRivetProducer(const edm::ParameterSet& cfg)
       : _hepmcCollection(consumes<HepMCProduct>(cfg.getParameter<edm::InputTag>("HepMCCollection"))),
         _lheRunInfo(consumes<LHERunInfoProduct, edm::InRun>(cfg.getParameter<edm::InputTag>("LHERunInfo"))) {
-    _HTXS = new Rivet::HiggsTemplateCrossSections();
-
     _isFirstEvent = true;
     _prodMode = cfg.getParameter<string>("ProductionMode");
     m_HiggsProdMode = HTXS::UNKNOWN;
@@ -50,8 +48,8 @@ private:
   edm::EDGetTokenT<edm::HepMCProduct> _hepmcCollection;
   edm::EDGetTokenT<LHERunInfoProduct> _lheRunInfo;
 
-  Rivet::AnalysisHandler _analysisHandler;
-  Rivet::HiggsTemplateCrossSections* _HTXS;
+  Rivet::AnalysisHandler* _analysisHandler = 0;
+  Rivet::HiggsTemplateCrossSections* _HTXS = 0;
 
   bool _isFirstEvent;
   std::string _prodMode;
@@ -106,13 +104,17 @@ void HTXSRivetProducer::produce(edm::Event& iEvent, const edm::EventSetup&) {
         } else if (nBs == 2 && nHs == 1 && nZs == 0) {
           m_HiggsProdMode = HTXS::BBH;
         }
-
-        _HTXS->setHiggsProdMode(m_HiggsProdMode);
       }
     }
 
-    if (_isFirstEvent) {
-      _analysisHandler.addAnalysis(_HTXS);
+    if (_isFirstEvent || !_HTXS->hasProjection("FS")) {
+      if (_analysisHandler)
+        delete _analysisHandler;
+      _analysisHandler = new Rivet::AnalysisHandler();
+      if (_HTXS)
+        delete _HTXS;
+      _HTXS = new Rivet::HiggsTemplateCrossSections();
+      _analysisHandler->addAnalysis(_HTXS);
 
       // set the production mode if not done already
       if (_prodMode == "GGF")
@@ -150,7 +152,7 @@ void HTXSRivetProducer::produce(edm::Event& iEvent, const edm::EventSetup&) {
       }
 
       // initialize rivet analysis
-      _analysisHandler.init(*myGenEvent);
+      _analysisHandler->init(*myGenEvent);
       _isFirstEvent = false;
     }
 

@@ -114,7 +114,11 @@ void ParticleLevelProducer::produce(edm::Event& event, const edm::EventSetup& ev
   const HepMC::GenEvent* genEvent = srcHandle->GetEvent();
 
   if (_isFirstEvent || !rivetAnalysis_->hasProjection("FS")) {
+    if (rivetAnalysis_)
+      delete rivetAnalysis_;
     rivetAnalysis_ = new Rivet::RivetAnalysis(pset_);
+    if (analysisHandler_)
+      delete analysisHandler_;
     analysisHandler_ = new Rivet::AnalysisHandler();
 
     analysisHandler_->setIgnoreBeams(true);
