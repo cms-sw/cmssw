@@ -6,7 +6,7 @@ process.load("SimGeneral.HepPDTESSource.pdt_cfi")
 #process.load("Geometry.CMSCommonData.cmsExtendedGeometry2026D35XML_cfi")
 #process.load("Geometry.CMSCommonData.cmsExtendedGeometry2026D41XML_cfi")
 #process.load("Geometry.CMSCommonData.cmsExtendedGeometry2026D46XML_cfi")
-process.load("Geometry.HGCalCommonData.testHGCXML_cfi")
+process.load("Geometry.HGCalCommonData.testHGCalV14XML_cfi")
 process.load("Geometry.HGCalCommonData.hgcalParametersInitialization_cfi")
 process.load("Geometry.HGCalCommonData.hgcalNumberingInitialization_cfi")
 #process.load("Geometry.HGCalCommonData.hgcalV6ParametersInitialization_cfi")
@@ -63,8 +63,8 @@ process.prodHEB = process.prodEE.clone(
     NameSense  = "HGCalHEScintillatorSensitive",
     NameDevice = "HGCal HE Back",
     Increment  = 9,
-    LocalPositionX= [1000.0,1400.0,1500.0,1600.0],
-    LocalPositionY= [1000.0,0.0,0.0,0.0],
+    LocalPositionX= [1100.0,1400.0,1500.0,1600.0],
+    LocalPositionY= [1100.0,1000.0,500.0,0.0],
     DetType    = 0
 )
  

@@ -37,7 +37,8 @@ void HGCalGeomLocaterTester::analyze(const edm::Event&, const edm::EventSetup& i
   const auto& geomR = iSetup.getData(geomToken_);
   const HGCalGeometry* geom = &geomR;
   HGCalGeometryMode::GeometryMode mode = geom->topology().dddConstants().geomMode();
-  if ((mode == HGCalGeometryMode::Hexagon8) || (mode == HGCalGeometryMode::Hexagon8Full)) {
+  if ((mode == HGCalGeometryMode::Hexagon8) || (mode == HGCalGeometryMode::Hexagon8Full) ||
+      (mode == HGCalGeometryMode::Hexagon8File)) {
     DetId::Detector det;
     if (name_ == "HGCalHESiliconSensitive")
       det = DetId::HGCalHSi;
