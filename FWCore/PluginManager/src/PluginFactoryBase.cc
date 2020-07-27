@@ -11,6 +11,7 @@
 //
 
 // system include files
+#include <cassert>
 
 // user include files
 #include "FWCore/PluginManager/interface/PluginFactoryBase.h"
@@ -57,7 +58,7 @@ namespace edmplugin {
 
   void PluginFactoryBase::newPlugin(const std::string& iName) {
     PluginInfo info;
-    info.loadable_ = boost::filesystem::path(PluginManager::loadingFile());
+    info.loadable_ = std::filesystem::path(PluginManager::loadingFile());
     info.name_ = iName;
     newPluginAdded_(category(), info);
   }
