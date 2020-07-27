@@ -203,8 +203,7 @@ void HGCalSimHitValidation::analyzeHits(std::vector<PCaloHit>& hits) {
       subsector = 1;
       layer = detId.depth();
       zside = detId.zside();
-    } else if ((hgcons_->geomMode() == HGCalGeometryMode::Hexagon8) ||
-               (hgcons_->geomMode() == HGCalGeometryMode::Hexagon8Full)) {
+    } else if (hgcons_->waferHexagon8()) {
       HGCSiliconDetId detId = HGCSiliconDetId(id_);
       subdet = ForwardEmpty;
       cell = detId.cellU();
@@ -216,7 +215,7 @@ void HGCalSimHitValidation::analyzeHits(std::vector<PCaloHit>& hits) {
       zside = detId.zside();
     } else if (hgcons_->geomMode() == HGCalGeometryMode::Square) {
       HGCalTestNumbering::unpackSquareIndex(id_, zside, layer, sector, subsector, cell);
-    } else if (hgcons_->geomMode() == HGCalGeometryMode::Trapezoid) {
+    } else if (hgcons_->tileTrapezoid()) {
       HGCScintillatorDetId detId = HGCScintillatorDetId(id_);
       subdet = ForwardEmpty;
       sector = detId.ietaAbs();
@@ -253,10 +252,9 @@ void HGCalSimHitValidation::analyzeHits(std::vector<PCaloHit>& hits) {
       gcoord = (transMap_[id_] * lcoord);
     } else {
       std::pair<float, float> xy;
-      if ((hgcons_->geomMode() == HGCalGeometryMode::Hexagon8) ||
-          (hgcons_->geomMode() == HGCalGeometryMode::Hexagon8Full)) {
+      if (hgcons_->waferHexagon8()) {
         xy = hgcons_->locateCell(layer, sector, subsector, cell, cell2, false, true);
-      } else if (hgcons_->geomMode() == HGCalGeometryMode::Trapezoid) {
+      } else if (hgcons_->tileTrapezoid()) {
         xy = hgcons_->locateCellTrap(layer, sector, cell, false);
       } else {
         xy = hgcons_->locateCell(cell, layer, sector, false);

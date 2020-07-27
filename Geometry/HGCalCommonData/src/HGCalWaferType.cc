@@ -109,6 +109,11 @@ int HGCalWaferType::getType(int index, const std::vector<int>& indices, const st
   return type;
 }
 
+int HGCalWaferType::getType(int index, const HGCalParameters::waferInfo_map& wafers) {
+  auto itr = wafers.find(index);
+  return ((itr == wafers.end()) ? -1 : ((itr->second).type));
+}
+
 std::pair<double, double> HGCalWaferType::rLimits(double zpos) {
   double zz = std::abs(zpos);
   if (zz < zMin_)

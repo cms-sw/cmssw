@@ -347,8 +347,7 @@ DetId HGCalTriggerTools::simToReco(const DetId& simid, const HGCalTopology& topo
   DetId recoid(0);
   const auto& dddConst = topo.dddConstants();
   // V9
-  if (dddConst.geomMode() == HGCalGeometryMode::Hexagon8 || dddConst.geomMode() == HGCalGeometryMode::Hexagon8Full ||
-      dddConst.geomMode() == HGCalGeometryMode::Trapezoid) {
+  if (dddConst.waferHexagon8() || dddConst.tileTrapezoid()) {
     recoid = simid;
   }
   // V8
