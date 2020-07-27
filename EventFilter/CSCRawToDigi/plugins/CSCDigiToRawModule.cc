@@ -155,7 +155,6 @@ void CSCDigiToRawModule::produce(edm::StreamID, edm::Event& e, const edm::EventS
   edm::Handle<CSCCLCTDigiCollection> clctDigis;
   edm::Handle<CSCCLCTPreTriggerCollection> preTriggers;
   edm::Handle<CSCCorrelatedLCTDigiCollection> correlatedLCTDigis;
-  edm::Handle<GEMPadDigiClusterCollection> padDigiClusters;
 
   e.getByToken(wd_token, wireDigis);
   e.getByToken(sd_token, stripDigis);
@@ -165,8 +164,9 @@ void CSCDigiToRawModule::produce(edm::StreamID, edm::Event& e, const edm::EventS
   if (usePreTriggers)
     e.getByToken(pr_token, preTriggers);
   e.getByToken(co_token, correlatedLCTDigis);
+  const GEMPadDigiClusterCollection* padDigiClustersPtr = nullptr;
   if (useGEMs_) {
-    e.getByToken(gem_token, padDigiClusters);
+    padDigiClustersPtr = &e.get(gem_token);
   }
   // Create the packed data
   packer_->createFedBuffers(*stripDigis,
@@ -176,13 +176,12 @@ void CSCDigiToRawModule::produce(edm::StreamID, edm::Event& e, const edm::EventS
                             *clctDigis,
                             *preTriggers,
                             *correlatedLCTDigis,
-                            *padDigiClusters,
+                            padDigiClustersPtr,
                             fed_buffers,
                             theMapping,
                             e,
                             theFormatVersion,
                             usePreTriggers,
-                            useGEMs_,
                             packEverything_);
 
   // put the raw data to the event

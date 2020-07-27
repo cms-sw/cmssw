@@ -343,13 +343,12 @@ void CSCDigiToRaw::createFedBuffers(const CSCStripDigiCollection& stripDigis,
                                     const CSCCLCTDigiCollection& clctDigis,
                                     const CSCCLCTPreTriggerCollection& preTriggers,
                                     const CSCCorrelatedLCTDigiCollection& correlatedLCTDigis,
-                                    const GEMPadDigiClusterCollection& gemPadDigiClusters,
+                                    const GEMPadDigiClusterCollection* gemPadDigiClusters,
                                     FEDRawDataCollection& fed_buffers,
                                     const CSCChamberMap* mapping,
-                                    Event& e,
+                                    const Event& e,
                                     uint16_t format_version,
                                     bool use_pre_triggers,
-                                    bool useGEMs,
                                     bool packEverything) const {
   //bits of code from ORCA/Muon/METBFormatter - thanks, Rick:)!
 
@@ -361,8 +360,8 @@ void CSCDigiToRaw::createFedBuffers(const CSCStripDigiCollection& stripDigis,
   add(comparatorDigis, clctDigis, fedInfo, packEverything);
   add(correlatedLCTDigis, fedInfo);
   // Starting Run-3, the CSC DAQ will pack/unpack GEM clusters
-  if (useGEMs) {
-    add(gemPadDigiClusters, fedInfo);
+  if (gemPadDigiClusters) {
+    add(*gemPadDigiClusters, fedInfo);
   }
   int l1a = e.id().event();  //need to add increments or get it from lct digis
   int bx = l1a;              //same as above

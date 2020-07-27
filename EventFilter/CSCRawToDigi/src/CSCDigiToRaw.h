@@ -34,13 +34,12 @@ public:
                         const CSCCLCTDigiCollection& clctDigis,
                         const CSCCLCTPreTriggerCollection& preTriggers,
                         const CSCCorrelatedLCTDigiCollection& correlatedLCTDigis,
-                        const GEMPadDigiClusterCollection& padDigiClusters,
+                        const GEMPadDigiClusterCollection* padDigiClusters,
                         FEDRawDataCollection& fed_buffers,
                         const CSCChamberMap* theMapping,
-                        edm::Event& e,
+                        const edm::Event& e,
                         uint16_t theFormatVersion = 2005,
                         bool usePreTriggers = true,
-                        bool useGEMs = false,
                         bool packEverything = false) const;
 
 private:
