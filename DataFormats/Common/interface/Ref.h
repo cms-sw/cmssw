@@ -113,29 +113,29 @@ Ref: A template for a interproduct reference to a member of a product_.
 #include "DataFormats/Provenance/interface/ProductID.h"
 
 #include "boost/functional.hpp"
-#include "boost/call_traits.hpp"
-#include "boost/type_traits.hpp"
-#include "boost/mpl/has_xxx.hpp"
 
 #include <vector>
 #include <type_traits>
 
-BOOST_MPL_HAS_XXX_TRAIT_DEF(key_compare)
-
-template <typename C, typename K>
-typename std::enable_if<has_key_compare<C>::value, bool>::type compare_key(K const& lhs, K const& rhs) {
-  typedef typename C::key_compare comparison_functor;
-  return comparison_functor()(lhs, rhs);
-}
-
-template <typename C, typename K>
-typename std::enable_if<!(has_key_compare<C>::value), bool>::type compare_key(K const& lhs, K const& rhs) {
-  return lhs < rhs;
-}
-
 #include "DataFormats/Common/interface/RefTraits.h"
 
 namespace edm {
+  //Use SFINAE to test for embedded type with name key_compare
+  template <typename, typename = void>
+  struct has_key_compare : std::false_type {};
+  template <typename T>
+  struct has_key_compare<T, std::void_t<typename T::key_compare>> : std::true_type {};
+
+  template <typename C, typename K>
+  bool compare_key(K const& lhs, K const& rhs) {
+    if constexpr (has_key_compare<C>::value) {
+      using comparison_functor = typename C::key_compare;
+      return comparison_functor()(lhs, rhs);
+    } else {
+      return lhs < rhs;
+    }
+  }
+
   template <typename C, typename T, typename F>
   class RefVector;
 
@@ -147,8 +147,8 @@ namespace edm {
             typename F = typename refhelper::FindTrait<C, T>::value>
   class Ref {
   private:
-    typedef refhelper::FindRefVectorUsingAdvance<RefVector<C, T, F> > VF;
-    typedef refhelper::FindRefVectorUsingAdvance<RefToBaseVector<T> > VBF;
+    typedef refhelper::FindRefVectorUsingAdvance<RefVector<C, T, F>> VF;
+    typedef refhelper::FindRefVectorUsingAdvance<RefToBaseVector<T>> VBF;
     friend class RefVectorIterator<C, T, F>;
     friend class RefVector<C, T, F>;
     friend class RefVector<RefVector<C, T, F>, T, VF>;
@@ -282,19 +282,19 @@ namespace edm {
   //***************************
   //Specialization for a vector
   //***************************
-#define REF_FOR_VECTOR_ARGS                                               \
-  std::vector<E>, typename refhelper::ValueTrait<std::vector<E> >::value, \
-      typename refhelper::FindTrait<std::vector<E>, typename refhelper::ValueTrait<std::vector<E> >::value>::value
+#define REF_FOR_VECTOR_ARGS                                              \
+  std::vector<E>, typename refhelper::ValueTrait<std::vector<E>>::value, \
+      typename refhelper::FindTrait<std::vector<E>, typename refhelper::ValueTrait<std::vector<E>>::value>::value
 
   template <typename E>
   class Ref<REF_FOR_VECTOR_ARGS> {
   private:
-    typedef typename refhelper::ValueTrait<std::vector<E> >::value T;
+    typedef typename refhelper::ValueTrait<std::vector<E>>::value T;
     typedef
-        typename refhelper::FindTrait<std::vector<E>, typename refhelper::ValueTrait<std::vector<E> >::value>::value F;
+        typename refhelper::FindTrait<std::vector<E>, typename refhelper::ValueTrait<std::vector<E>>::value>::value F;
 
-    typedef refhelper::FindRefVectorUsingAdvance<RefVector<std::vector<E>, T, F> > VF;
-    typedef refhelper::FindRefVectorUsingAdvance<RefToBaseVector<T> > VBF;
+    typedef refhelper::FindRefVectorUsingAdvance<RefVector<std::vector<E>, T, F>> VF;
+    typedef refhelper::FindRefVectorUsingAdvance<RefToBaseVector<T>> VBF;
     friend class RefVectorIterator<std::vector<E>, T, F>;
     friend class RefVector<std::vector<E>, T, F>;
     friend class RefVector<RefVector<std::vector<E>, T, F>, T, VF>;
@@ -303,9 +303,9 @@ namespace edm {
   public:
     /// for export
     typedef std::vector<E> product_type;
-    typedef typename refhelper::ValueTrait<std::vector<E> >::value value_type;
+    typedef typename refhelper::ValueTrait<std::vector<E>>::value value_type;
     typedef value_type const element_type;  //used for generic programming
-    typedef typename refhelper::FindTrait<std::vector<E>, typename refhelper::ValueTrait<std::vector<E> >::value>::value
+    typedef typename refhelper::FindTrait<std::vector<E>, typename refhelper::ValueTrait<std::vector<E>>::value>::value
         finder_type;
     typedef typename boost::binary_traits<F>::second_argument_type argument_type;
     typedef unsigned int key_type;
@@ -443,7 +443,7 @@ namespace edm {
 
   /// General purpose constructor from handle.
   template <typename E>
-  inline Ref<REF_FOR_VECTOR_ARGS>::Ref(Handle<std::vector<E> > const& handle, key_type itemKey, bool)
+  inline Ref<REF_FOR_VECTOR_ARGS>::Ref(Handle<std::vector<E>> const& handle, key_type itemKey, bool)
       : product_(handle.id(), nullptr, nullptr, false, itemKey) {
     if (itemKey == key_traits<key_type>::value)
       return;
@@ -462,7 +462,7 @@ namespace edm {
 
   /// General purpose constructor from orphan handle.
   template <typename E>
-  inline Ref<REF_FOR_VECTOR_ARGS>::Ref(OrphanHandle<std::vector<E> > const& handle, key_type itemKey, bool)
+  inline Ref<REF_FOR_VECTOR_ARGS>::Ref(OrphanHandle<std::vector<E>> const& handle, key_type itemKey, bool)
       : product_(handle.id(), nullptr, nullptr, false, itemKey) {
     if (itemKey == key_traits<key_type>::value)
       return;
@@ -505,7 +505,7 @@ namespace edm {
   }
 
   template <typename E>
-  inline Ref<REF_FOR_VECTOR_ARGS>::Ref(TestHandle<std::vector<E> > const& handle, key_type itemKey, bool)
+  inline Ref<REF_FOR_VECTOR_ARGS>::Ref(TestHandle<std::vector<E>> const& handle, key_type itemKey, bool)
       : product_(handle.id(), nullptr, nullptr, true, itemKey) {
     if (itemKey == key_traits<key_type>::value)
       return;
@@ -525,7 +525,7 @@ namespace edm {
   }
 
   template <typename E>
-  inline Ref<REF_FOR_VECTOR_ARGS>::Ref(RefProd<std::vector<E> > const& refProd, key_type itemKey)
+  inline Ref<REF_FOR_VECTOR_ARGS>::Ref(RefProd<std::vector<E>> const& refProd, key_type itemKey)
       : product_(refProd.id(), nullptr, refProd.refCore().productGetter(), refProd.refCore().isTransient(), itemKey) {
     if (refProd.refCore().productPtr() != nullptr && itemKey != key_traits<key_type>::value) {
       refitem::findRefItem<product_type, value_type, finder_type, key_type>(
@@ -546,7 +546,7 @@ namespace edm {
     if (product_.isAvailable()) {
       return true;
     }
-    return isThinnedAvailable<std::vector<E> >(product_.toRefCore(), key());
+    return isThinnedAvailable<std::vector<E>>(product_.toRefCore(), key());
   }
 
   /// Dereference operator
@@ -555,7 +555,7 @@ namespace edm {
     return *getRefPtr<C, T, F>(product_, index_);
   }
   template <typename E>
-  inline typename refhelper::ValueTrait<std::vector<E> >::value const& Ref<REF_FOR_VECTOR_ARGS>::operator*() const {
+  inline typename refhelper::ValueTrait<std::vector<E>>::value const& Ref<REF_FOR_VECTOR_ARGS>::operator*() const {
     return *getRefPtr<REF_FOR_VECTOR_ARGS>(product_.toRefCore(), key());
   }
 
@@ -565,7 +565,7 @@ namespace edm {
     return getRefPtr<C, T, F>(product_, index_);
   }
   template <typename E>
-  inline typename refhelper::ValueTrait<std::vector<E> >::value const* Ref<REF_FOR_VECTOR_ARGS>::operator->() const {
+  inline typename refhelper::ValueTrait<std::vector<E>>::value const* Ref<REF_FOR_VECTOR_ARGS>::operator->() const {
     return getRefPtr<REF_FOR_VECTOR_ARGS>(product_.toRefCore(), key());
   }
 
