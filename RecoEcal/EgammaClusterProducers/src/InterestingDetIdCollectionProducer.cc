@@ -10,18 +10,16 @@
 #include "DataFormats/DetId/interface/DetIdCollection.h"
 #include "DataFormats/EgammaReco/interface/BasicCluster.h"
 
-#include "Geometry/CaloEventSetup/interface/CaloTopologyRecord.h"
-#include "Geometry/CaloTopology/interface/CaloTopology.h"
 #include "Geometry/CaloTopology/interface/CaloSubdetectorTopology.h"
 
-#include "RecoLocalCalo/EcalRecAlgos/interface/EcalSeverityLevelAlgoRcd.h"
-#include "RecoLocalCalo/EcalRecAlgos/interface/EcalSeverityLevelAlgo.h"
-#include "RecoEcal/EgammaCoreTools/interface/EcalTools.h"
 
 InterestingDetIdCollectionProducer::InterestingDetIdCollectionProducer(const edm::ParameterSet& iConfig) {
   recHitsToken_ = consumes<EcalRecHitCollection>(iConfig.getParameter<edm::InputTag>("recHitsLabel"));
   basicClustersToken_ =
       consumes<reco::BasicClusterCollection>(iConfig.getParameter<edm::InputTag>("basicClustersLabel"));
+  caloTopologyToken_ = esConsumes<CaloTopology, CaloTopologyRecord, edm::Transition::BeginRun>();
+  sevLVToken_ = esConsumes<EcalSeverityLevelAlgo, EcalSeverityLevelAlgoRcd, edm::Transition::BeginRun>();
+  nextToDeadToken_ = esConsumes<EcalNextToDeadChannel, EcalNextToDeadChannelRcd>();
 
   interestingDetIdCollection_ = iConfig.getParameter<std::string>("interestingDetIdCollection");
 
@@ -39,12 +37,10 @@ InterestingDetIdCollectionProducer::InterestingDetIdCollectionProducer(const edm
 }
 
 void InterestingDetIdCollectionProducer::beginRun(edm::Run const& run, const edm::EventSetup& iSetup) {
-  edm::ESHandle<CaloTopology> theCaloTopology;
-  iSetup.get<CaloTopologyRecord>().get(theCaloTopology);
+  edm::ESHandle<CaloTopology> theCaloTopology = iSetup.getHandle(caloTopologyToken_);
   caloTopology_ = &(*theCaloTopology);
 
-  edm::ESHandle<EcalSeverityLevelAlgo> sevLv;
-  iSetup.get<EcalSeverityLevelAlgoRcd>().get(sevLv);
+  edm::ESHandle<EcalSeverityLevelAlgo> sevLv = iSetup.getHandle(sevLVToken_);
   severity_ = sevLv.product();
 }
 
@@ -116,8 +112,9 @@ void InterestingDetIdCollectionProducer::produce(edm::Event& iEvent, const edm::
         indexToStore.push_back(it->id());
       }
       if (keepNextToDead_) {
+        edm::ESHandle<EcalNextToDeadChannel> dch = iSetup.getHandle(nextToDeadToken_);
         // also keep channels next to dead ones
-        if (EcalTools::isNextToDead(it->id(), iSetup)) {
+        if (EcalTools::isNextToDead(it->id(), *dch)) {
           indexToStore.push_back(it->id());
         }
       }

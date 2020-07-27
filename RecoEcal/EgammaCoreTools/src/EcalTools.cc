@@ -2,8 +2,6 @@
 #include "RecoEcal/EgammaCoreTools/interface/EcalTools.h"
 #include "DataFormats/EcalDetId/interface/EBDetId.h"
 #include "DataFormats/EcalDetId/interface/EEDetId.h"
-#include "RecoEcal/EgammaCoreTools/interface/EcalNextToDeadChannel.h"
-#include "RecoEcal/EgammaCoreTools/interface/EcalNextToDeadChannelRcd.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -53,13 +51,11 @@ float EcalTools::swissCross(const DetId& id,
   return 0;
 }
 
-bool EcalTools::isNextToDead(const DetId& id, const edm::EventSetup& es) {
-  edm::ESHandle<EcalNextToDeadChannel> dch;
-  es.get<EcalNextToDeadChannelRcd>().get(dch);
+bool EcalTools::isNextToDead(const DetId& id, const EcalNextToDeadChannel& dch) {
 
-  EcalNextToDeadChannel::const_iterator chIt = dch->find(id);
+  EcalNextToDeadChannel::const_iterator chIt = dch.find(id);
 
-  if (chIt != dch->end()) {
+  if (chIt != dch.end()) {
     return *chIt;
   } else {
     edm::LogError("EcalDBError") << "No NextToDead  status found for xtal " << id.rawId();
