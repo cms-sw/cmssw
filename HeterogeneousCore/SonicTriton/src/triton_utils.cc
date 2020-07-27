@@ -19,12 +19,12 @@ namespace triton_utils {
     return msg.str();
   }
 
-  void throwIfError(const Error& err, const std::string_view& msg) {
+  void throwIfError(const Error& err, std::string_view msg) {
     if (!err.IsOk())
       throw cms::Exception("TritonServerFailure") << msg << ": " << err;
   }
 
-  bool warnIfError(const Error& err, const std::string_view& msg) {
+  bool warnIfError(const Error& err, std::string_view msg) {
     if (!err.IsOk())
       edm::LogWarning("TritonServerWarning") << msg << ": " << err;
     return err.IsOk();

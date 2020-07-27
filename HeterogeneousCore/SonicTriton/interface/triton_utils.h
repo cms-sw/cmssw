@@ -15,10 +15,10 @@ namespace triton_utils {
   std::string printVec(const std::vector<T>& vec, const std::string& delim = ", ");
 
   //helper to turn triton error into exception
-  void throwIfError(const Error& err, const std::string_view& msg);
+  void throwIfError(const Error& err, std::string_view msg);
 
   //helper to turn triton error into warning
-  bool warnIfError(const Error& err, const std::string_view& msg);
+  bool warnIfError(const Error& err, std::string_view msg);
 
 }  // namespace triton_utils
 

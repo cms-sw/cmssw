@@ -1,5 +1,6 @@
 #include "HeterogeneousCore/SonicCore/interface/SonicClientBase.h"
 #include "FWCore/Utilities/interface/Exception.h"
+#include "FWCore/ParameterSet/interface/EmptyGroupDescription.h"
 
 SonicClientBase::SonicClientBase(const edm::ParameterSet& params)
     : allowedTries_(params.getUntrackedParameter<unsigned>("allowedTries", 0)) {
@@ -60,7 +61,10 @@ void SonicClientBase::finish(bool success, std::exception_ptr eptr) {
 }
 
 void SonicClientBase::fillBasePSetDescription(edm::ParameterSetDescription& desc, bool allowRetry) {
-  desc.add<std::string>("mode");
+  //restrict allowed values
+  desc.ifValue(edm::ParameterDescription<std::string>("mode", "PseudoAsync", true),
+               "Sync" >> edm::EmptyGroupDescription() or "Async" >> edm::EmptyGroupDescription() or
+                   "PseudoAsync" >> edm::EmptyGroupDescription());
   if (allowRetry)
     desc.addUntracked<unsigned>("allowedTries", 0);
 }

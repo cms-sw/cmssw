@@ -88,14 +88,18 @@ void TritonOutputData::fromServer(std::vector<DT>& dataOut) const {
                                             << " (should be " << byteSize_ << " for " << dname_ << ")";
   }
 
-  int64_t nOutput = sizeShape();
+  uint64_t nOutput = sizeShape();
   dataOut.resize(nOutput * batchSize_, 0);
   for (unsigned i0 = 0; i0 < batchSize_; ++i0) {
     const uint8_t* r0;
     size_t contentByteSize;
     triton_utils::throwIfError(result_->GetRaw(i0, &r0, &contentByteSize),
                                "output(): unable to get raw for entry " + std::to_string(i0));
-    std::memcpy(&(dataOut[i0 * nOutput]), r0, nOutput * byteSize_);
+    if (contentByteSize != nOutput * byteSize_) {
+      throw cms::Exception("TritonDataError") << name_ << " output(): unexpected content byte size " << contentByteSize
+                                              << " (expected " << nOutput * byteSize_ << ")";
+    }
+    std::memcpy(&(dataOut[i0 * nOutput]), r0, contentByteSize);
   }
 }
 
