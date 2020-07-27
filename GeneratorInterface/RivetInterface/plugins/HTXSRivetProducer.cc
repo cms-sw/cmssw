@@ -48,8 +48,8 @@ private:
   edm::EDGetTokenT<edm::HepMCProduct> _hepmcCollection;
   edm::EDGetTokenT<LHERunInfoProduct> _lheRunInfo;
 
-  Rivet::AnalysisHandler* _analysisHandler = 0;
-  Rivet::HiggsTemplateCrossSections* _HTXS = 0;
+  Rivet::AnalysisHandler* _analysisHandler = nullptr;
+  Rivet::HiggsTemplateCrossSections* _HTXS = nullptr;
 
   bool _isFirstEvent;
   std::string _prodMode;
@@ -108,11 +108,9 @@ void HTXSRivetProducer::produce(edm::Event& iEvent, const edm::EventSetup&) {
     }
 
     if (_isFirstEvent || !_HTXS->hasProjection("FS")) {
-      if (_analysisHandler)
-        delete _analysisHandler;
+      delete _analysisHandler;
+      delete _HTXS;
       _analysisHandler = new Rivet::AnalysisHandler();
-      if (_HTXS)
-        delete _HTXS;
       _HTXS = new Rivet::HiggsTemplateCrossSections();
       _analysisHandler->addAnalysis(_HTXS);
 
