@@ -5,9 +5,7 @@
 using namespace cms_units::operators;
 
 HGCalMouseBite::HGCalMouseBite(const HGCalDDDConstants& hgc, const bool rot) {
-  bool modeUV =
-      ((hgc.geomMode() == HGCalGeometryMode::Hexagon8) || (hgc.geomMode() == HGCalGeometryMode::Hexagon8Full));
-  if (modeUV) {
+  if (hgc.waferHexagon8()) {
     const std::vector<double> angle = {90._deg, 30._deg};
     std::vector<std::pair<double, double> > projXY;
     projXY.reserve(angle.size());
