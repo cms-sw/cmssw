@@ -12,7 +12,6 @@
 
 #include "Geometry/CaloTopology/interface/CaloSubdetectorTopology.h"
 
-
 InterestingDetIdCollectionProducer::InterestingDetIdCollectionProducer(const edm::ParameterSet& iConfig) {
   recHitsToken_ = consumes<EcalRecHitCollection>(iConfig.getParameter<edm::InputTag>("recHitsLabel"));
   basicClustersToken_ =
