@@ -23,12 +23,12 @@
 //             7-11:   RBX # to be excluded (maximum 5 bits needed for RBX)
 //               12: 0 varying ranges of p depending on |ieta|
 //                   1 constant p ranges
-//            13-15: 0 no cut on ediff; 1-4 cuts at 5, 10, 15, 20 GeV
+//            13-15: 0 no cut on ediff; 1-14 cuts at 5, 10, 15, 20 GeV
 //      modeLHC (integer) specifies the detector condition
 //              0      Run1   detector (till 2016)
-//              1      Plan36 detector
-//              2      Phase1 detector
-//              3      Plan1  detector
+//              1      Plan36 detector (2018)
+//              2      Phase1 detector (Run3)
+//              3      Plan1  detector (2017)
 //              4      Phase2 detector
 //
 //   AnalyzeLepTree a1(tree, mode, modeLHC);
@@ -82,8 +82,8 @@
 
 class AnalyzeLepTree {
 public:
-  AnalyzeLepTree(TChain* tree, int mode = 0, int modeLHC = 3);
-  AnalyzeLepTree(const char* fname, int mode = 0, int modeLHC = 3);
+  AnalyzeLepTree(TChain* tree, int mode = 0, int modeLHC = 1);
+  AnalyzeLepTree(const char* fname, int mode = 0, int modeLHC = 1);
   virtual ~AnalyzeLepTree();
   virtual Int_t Cut(Long64_t entry);
   virtual Int_t GetEntry(Long64_t entry);
@@ -262,7 +262,7 @@ void AnalyzeLepTree::Init(TChain* tree) {
   else if (modeLHC_ == 3)
     std::cout << "This is Plan1  detector (2017)\n";
   else
-    std::cout << "This is Phase2 detector (after 2024)\n";
+    std::cout << "This is Phase2 detector (after 2026)\n";
   static const double cuts[8] = {200, 5, 10, 15, 20, 25, 30, 40};
   int cutE = (mode_ / 4096) % 8;
   cutEdiff_ = cuts[cutE];
