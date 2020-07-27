@@ -144,8 +144,10 @@ PFProducer::PFProducer(const edm::ParameterSet& iConfig)
 
   // Reading new EGamma selection cuts
   bool useProtectionsForJetMET(false);
+
   // Reading new EGamma ubiased collections and value maps
   if (use_EGammaFilters_) {
+
     inputTagPFEGammaCandidates_ =
         consumes<edm::View<reco::PFCandidate>>((iConfig.getParameter<edm::InputTag>("PFEGammaCandidates")));
     inputTagValueMapGedElectrons_ =
@@ -153,7 +155,15 @@ PFProducer::PFProducer(const edm::ParameterSet& iConfig)
     inputTagValueMapGedPhotons_ =
         consumes<edm::ValueMap<reco::PhotonRef>>(iConfig.getParameter<edm::InputTag>("GedPhotonValueMap"));
     useProtectionsForJetMET = iConfig.getParameter<bool>("useProtectionsForJetMET");
+
+    const edm::ParameterSet pfEGammaFiltersParams =
+        iConfig.getParameter<edm::ParameterSet>("PFEGammaFiltersParameters");
+    pfegamma_ = std::make_unique<PFEGammaFilters>(pfEGammaFiltersParams);
+
   }
+
+  // EGamma filters
+  pfAlgo_.setEGammaParameters(use_EGammaFilters_, useProtectionsForJetMET);
 
   //Secondary tracks and displaced vertices parameters
 
@@ -173,15 +183,6 @@ PFProducer::PFProducer(const edm::ParameterSet& iConfig)
 
   if (useCalibrationsFromDB_)
     calibrationsLabel_ = iConfig.getParameter<std::string>("calibrationsLabel");
-
-  // EGamma filters
-  pfAlgo_.setEGammaParameters(use_EGammaFilters_, useProtectionsForJetMET);
-
-  if (use_EGammaFilters_) {
-    const edm::ParameterSet pfEGammaFiltersParams =
-        iConfig.getParameter<edm::ParameterSet>("PFEGammaFiltersParameters");
-    pfegamma_ = std::make_unique<PFEGammaFilters>(pfEGammaFiltersParams);
-  }
 
   // Secondary tracks and displaced vertices parameters
   pfAlgo_.setDisplacedVerticesParameters(
@@ -349,7 +350,7 @@ void PFProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) 
 
   // For PFMuonAlgo
   edm::ParameterSetDescription psd_PFMuonAlgo;
-  PFEGammaFilters::fillPSetDescription(psd_PFMuonAlgo);
+  PFMuonAlgo::fillPSetDescription(psd_PFMuonAlgo);
   desc.add<edm::ParameterSetDescription>("PFMuonAlgoParameters", psd_PFMuonAlgo);
 
   // Input displaced vertices
