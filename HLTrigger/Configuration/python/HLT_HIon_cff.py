@@ -1,13 +1,13 @@
 # hltGetConfiguration --cff --data /dev/CMSSW_11_2_0/HIon --type HIon
 
-# /dev/CMSSW_11_2_0/HIon/V4 (CMSSW_11_2_0_pre2)
+# /dev/CMSSW_11_2_0/HIon/V5 (CMSSW_11_2_0_pre2)
 
 import FWCore.ParameterSet.Config as cms
 
 fragment = cms.ProcessFragment( "HLT" )
 
 fragment.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_11_2_0/HIon/V4')
+  tableName = cms.string('/dev/CMSSW_11_2_0/HIon/V5')
 )
 
 fragment.transferSystem = cms.PSet( 
