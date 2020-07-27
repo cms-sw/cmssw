@@ -86,8 +86,8 @@ std::shared_ptr<const BeamSpotObjects> OnlineBeamSpotESProducer::produce(const B
   if (newHLT_ && !newLegacy_) {
     //compare newHLT with transientBS_
     //temporary test
-    transientBS_ =  theHLTBS_;
-    newHLT_= false;
+    transientBS_ = theHLTBS_;
+    newHLT_ = false;
     //transientBS_ = compareBS(theHLTBS_, transientBS_);
   }
 
