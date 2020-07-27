@@ -8,6 +8,7 @@
 #include "CondFormats/DataRecord/interface/BeamSpotOnlineLegacyObjectsRcd.h"
 #include "CondFormats/DataRecord/interface/BeamSpotOnlineHLTObjectsRcd.h"
 #include "CondFormats/DataRecord/interface/BeamSpotTransientObjectsRcd.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 
 #include "FWCore/Framework/interface/ESProductHost.h"
 #include "FWCore/Utilities/interface/ReusableObjectHolder.h"
@@ -15,12 +16,18 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include <memory>
 
+namespace edm{
+  class ParameterSetDescription;
+
+}
+
+
 class OnlineBeamSpotESProducer : public edm::ESProducer {
 public:
   OnlineBeamSpotESProducer(const edm::ParameterSet& p);
   ~OnlineBeamSpotESProducer() override;
   std::shared_ptr<const BeamSpotObjects> produce(const BeamSpotTransientObjectsRcd&);
-
+  static void fillDescription(edm::ParameterSetDescription& desc);
 private:
   const BeamSpotOnlineObjects* compareBS(const BeamSpotOnlineObjects* bs1, const BeamSpotOnlineObjects* bs2);
   const BeamSpotOnlineObjects* theHLTBS_;

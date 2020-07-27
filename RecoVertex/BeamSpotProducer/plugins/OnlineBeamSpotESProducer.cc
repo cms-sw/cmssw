@@ -28,6 +28,8 @@ OnlineBeamSpotESProducer::OnlineBeamSpotESProducer(const edm::ParameterSet& p) {
   bsLegacyToken_ = cc.consumesFrom<BeamSpotOnlineObjects, BeamSpotOnlineLegacyObjectsRcd>();
 }
 
+void OnlineBeamSpotESProducer::fillDescription(edm::ParameterSetDescription& desc) {}
+
 const BeamSpotOnlineObjects* OnlineBeamSpotESProducer::compareBS(const BeamSpotOnlineObjects* bs1,
                                                                  const BeamSpotOnlineObjects* bs2) {
   //Random logic so far ...
