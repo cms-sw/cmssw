@@ -116,12 +116,11 @@ namespace {
                                  s_extrema.first * 0.9,
                                  s_extrema.second * 1.1);
 
-      auto h_offset =
-          std::make_shared<TH1F>("offset value",
-                                 "SiPixel VCal offset value;SiPixel VCal offset value [ADC];# modules",
-                                 50,
-                                 o_extrema.first - o_range,
-                                 o_extrema.second + o_range);
+      auto h_offset = std::make_shared<TH1F>("offset value",
+                                             "SiPixel VCal offset value;SiPixel VCal offset value [ADC];# modules",
+                                             50,
+                                             o_extrema.first - o_range,
+                                             o_extrema.second + o_range);
 
       for (unsigned int i = 1; i <= 2; i++) {
         SiPixelPI::adjustCanvasMargins(canvas.cd(i), 0.06, 0.12, 0.12, 0.05);
