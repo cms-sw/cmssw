@@ -11,6 +11,7 @@
 #include <algorithm>
 
 // user include files
+#include "DataFormats/CaloRecHit/interface/CaloCluster.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
@@ -28,12 +29,13 @@
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/Math/interface/deltaR.h"
 
+#include "RecoLocalCalo/HGCalRecAlgos/interface/RecHitTools.h"
 #include "SimDataFormats/CaloAnalysis/interface/CaloParticle.h"
 //
 // class declaration
 //
 
-class TiclDebugger : public edm::one::EDAnalyzer<> {
+class TiclDebugger : public edm::one::EDAnalyzer<edm::one::WatchRuns> {
 public:
   explicit TiclDebugger(const edm::ParameterSet&);
   ~TiclDebugger() override;
@@ -42,25 +44,32 @@ public:
 
 private:
   void beginJob() override;
+  void beginRun(const edm::Run&, const edm::EventSetup&) override;
   void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void endRun(edm::Run const& iEvent, edm::EventSetup const&) override {};
   void endJob() override;
 
   const edm::InputTag trackstersMerge_;
   const edm::InputTag tracks_;
   const edm::InputTag caloParticles_;
+  const edm::InputTag layerClusters_;
+  hgcal::RecHitTools rhtools_;
   edm::EDGetTokenT<std::vector<ticl::Trackster>> trackstersMergeToken_;
   edm::EDGetTokenT<std::vector<reco::Track>> tracksToken_;
   edm::EDGetTokenT<std::vector<CaloParticle>> caloParticlesToken_;
+  edm::EDGetTokenT<std::vector<reco::CaloCluster>> layerClustersToken_;
 };
 
 TiclDebugger::TiclDebugger(const edm::ParameterSet& iConfig)
     : trackstersMerge_(iConfig.getParameter<edm::InputTag>("trackstersMerge")),
       tracks_(iConfig.getParameter<edm::InputTag>("tracks")),
-      caloParticles_(iConfig.getParameter<edm::InputTag>("caloParticles")) {
+      caloParticles_(iConfig.getParameter<edm::InputTag>("caloParticles")),
+      layerClusters_(iConfig.getParameter<edm::InputTag>("layerClusters")) {
   edm::ConsumesCollector&& iC = consumesCollector();
   trackstersMergeToken_ = iC.consumes<std::vector<ticl::Trackster>>(trackstersMerge_);
   tracksToken_ = iC.consumes<std::vector<reco::Track>>(tracks_);
   caloParticlesToken_ = iC.consumes<std::vector<CaloParticle>>(caloParticles_);
+  layerClustersToken_ = iC.consumes<std::vector<reco::CaloCluster>>(layerClusters_);
 }
 
 TiclDebugger::~TiclDebugger() {}
@@ -82,6 +91,10 @@ void TiclDebugger::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
   sort(begin(sorted_tracksters_idx), end(sorted_tracksters_idx), [&tracksters](int i, int j) {
     return tracksters[i].raw_energy() > tracksters[j].raw_energy();
   });
+
+  edm::Handle<std::vector<reco::CaloCluster>> layerClustersH;
+  iEvent.getByToken(layerClustersToken_, layerClustersH);
+  auto const& layerClusters = *layerClustersH.product();
 
   edm::Handle<std::vector<reco::Track>> tracksH;
   iEvent.getByToken(tracksToken_, tracksH);
@@ -112,6 +125,15 @@ void TiclDebugger::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
     std::vector<int> sorted_probs_idx(probs.size());
     iota(begin(sorted_probs_idx), end(sorted_probs_idx), 0);
     sort(begin(sorted_probs_idx), end(sorted_probs_idx), [&probs](int i, int j) { return probs[i] > probs[j]; });
+    // Sort edges in ascending order
+    std::vector<int> sorted_edges_idx(trackster.edges().size());
+    iota(begin(sorted_edges_idx), end(sorted_edges_idx), 0);
+    sort(begin(sorted_edges_idx), end(sorted_edges_idx), [&trackster](int i, int j) {
+        if (trackster.edges()[i][0] != trackster.edges()[j][0])
+          return trackster.edges()[i][0] < trackster.edges()[j][0];
+        else
+          return trackster.edges()[i][1] < trackster.edges()[j][1];
+    });
 
     std::cout << "\nTrksIdx: " << t << "\n bary: " << trackster.barycenter()
               << " baryEta: " << trackster.barycenter().eta() << " baryPhi: " << trackster.barycenter().phi()
@@ -127,6 +149,28 @@ void TiclDebugger::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
                      std::begin(trackster.vertex_multiplicity()), std::end(trackster.vertex_multiplicity()), 0.) /
                      trackster.vertex_multiplicity().size()
               << std::endl;
+    std::cout << " link connections: " << trackster.edges().size() << std::endl;
+    auto dumpLayerCluster = [&layerClusters](hgcal::RecHitTools const & rhtools, int cluster_idx) {
+      auto const & cluster = layerClusters[cluster_idx];
+      const auto firstHitDetId = cluster.hitsAndFractions()[0].first;
+      int layers = rhtools.lastLayer();
+      int lcLayerId =
+        rhtools.getLayerWithOffset(firstHitDetId) + layers * ((rhtools.zside(firstHitDetId) + 1) >> 1) - 1;
+
+      std::cout << "Idx: " << cluster_idx
+        << "("
+        << lcLayerId << ", "
+        << cluster.energy() << ", "
+        << cluster.hitsAndFractions().size() << ", "
+        << cluster.position()
+        << ") ";
+    };
+    for (auto link : sorted_edges_idx) {
+      std::cout << "(" << trackster.edges()[link][0] << ", " << trackster.edges()[link][1] << ")  ";
+      dumpLayerCluster(rhtools_, trackster.edges()[link][0]);
+      dumpLayerCluster(rhtools_, trackster.edges()[link][1]);
+      std::cout << std::endl;
+    }
     if (trackster.seedID().id() != 0) {
       auto const& track = tracks[trackster.seedIndex()];
       std::cout << " Seeding Track:" << std::endl;
@@ -149,6 +193,8 @@ void TiclDebugger::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
   }
 }
 
+void TiclDebugger::beginRun(edm::Run const&, edm::EventSetup const& es) { rhtools_.getEventSetup(es); }
+
 void TiclDebugger::beginJob() {}
 
 void TiclDebugger::endJob() {}
@@ -159,6 +205,7 @@ void TiclDebugger::fillDescriptions(edm::ConfigurationDescriptions& descriptions
   desc.add<edm::InputTag>("trackstersMerge", edm::InputTag("ticlTrackstersMerge"));
   desc.add<edm::InputTag>("tracks", edm::InputTag("generalTracks"));
   desc.add<edm::InputTag>("caloParticles", edm::InputTag("mix", "MergedCaloTruth"));
+  desc.add<edm::InputTag>("layerClusters", edm::InputTag("hgcalLayerClusters"));
   descriptions.add("ticlDebugger", desc);
 }
 
