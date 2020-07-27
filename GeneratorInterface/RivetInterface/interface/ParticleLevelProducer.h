@@ -41,8 +41,8 @@ private:
 
   reco::Particle::Point genVertex_;
 
-  Rivet::RivetAnalysis* rivetAnalysis_;
-  Rivet::AnalysisHandler* analysisHandler_;
+  Rivet::RivetAnalysis* rivetAnalysis_ = 0;
+  Rivet::AnalysisHandler* analysisHandler_ = 0;
 
   bool _isFirstEvent;
 };
