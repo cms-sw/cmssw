@@ -10,6 +10,7 @@
 #include <set>
 #include <array>
 #include <map>
+#include <cmath>
 
 class TrackerGeometry;
 class TrackerTopology;
