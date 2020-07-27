@@ -43,7 +43,7 @@ void OnlineBeamSpotFromDB::analyze(const edm::Event& iEvent, const edm::EventSet
   edm::LogInfo("beamspot from HLT ") << *mybeamspot;
   //edm::LogInfo("beamspot from GT ")<<*myGTbeamspot;
 }
-void OnlineBeamSpotFromDB::fillDescription(edm::ParameterSetDescription& desc){}
+void OnlineBeamSpotFromDB::fillDescription(edm::ParameterSetDescription& desc) {}
 void OnlineBeamSpotFromDB::beginJob() {}
 
 void OnlineBeamSpotFromDB::endJob() {}

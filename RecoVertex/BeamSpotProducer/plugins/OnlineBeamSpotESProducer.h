@@ -16,11 +16,10 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include <memory>
 
-namespace edm{
+namespace edm {
   class ParameterSetDescription;
 
 }
-
 
 class OnlineBeamSpotESProducer : public edm::ESProducer {
 public:
@@ -28,6 +27,7 @@ public:
   ~OnlineBeamSpotESProducer() override;
   std::shared_ptr<const BeamSpotObjects> produce(const BeamSpotTransientObjectsRcd&);
   static void fillDescription(edm::ParameterSetDescription& desc);
+
 private:
   const BeamSpotOnlineObjects* compareBS(const BeamSpotOnlineObjects* bs1, const BeamSpotOnlineObjects* bs2);
   const BeamSpotOnlineObjects* theHLTBS_;
