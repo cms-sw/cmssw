@@ -1,12 +1,12 @@
-#include <vector>
 #include <array>
-#include <memory>
 #include <cassert>
-#include <string>
-#include <stdexcept>
 #include <cstring>
+#include <memory>
+#include <stdexcept>
+#include <string>
+#include <vector>
 
-#include <boost/format.hpp>
+#include <fmt/printf.h>
 
 template <class T, std::size_t N>
 std::array<T, N> make_array(std::vector<T> const& values) {
@@ -235,8 +235,9 @@ bool L1TGlobalPrescaler::filter(edm::Event& event, edm::EventSetup const& setup)
     auto const& prescaleTable = h->prescale_table_;
     if (index >= (int)prescaleTable.size())
       throw edm::Exception(edm::errors::LogicError)
-          << boost::format("The prescale index %d is invalid, it should be smaller than the prescale table size %d.") %
-                 index % prescaleTable.size();
+          << fmt::sprintf("The prescale index %d is invalid, it should be smaller than the prescale table size %d.",
+                          index,
+                          prescaleTable.size());
     auto const& prescales = prescaleTable[index];
     unsigned long i = 0;
     for (; i < std::min(prescales.size(), (unsigned long)GlobalAlgBlk::maxPhysicsTriggers); ++i)
@@ -273,8 +274,9 @@ bool L1TGlobalPrescaler::filter(edm::Event& event, edm::EventSetup const& setup)
     auto const& prescaleTable = h->prescale_table_;
     if (m_l1tPrescaleColumn >= (int)prescaleTable.size())
       throw edm::Exception(edm::errors::Configuration)
-          << boost::format("The prescale index %d is invalid, it should be smaller than the prescale table size %d.") %
-                 m_l1tPrescaleColumn % prescaleTable.size();
+          << fmt::sprintf("The prescale index %d is invalid, it should be smaller than the prescale table size %d.",
+                          m_l1tPrescaleColumn,
+                          prescaleTable.size());
     auto const& targets = prescaleTable[m_l1tPrescaleColumn];
     unsigned long i = 0;
     for (; i < std::min(targets.size(), (unsigned long)GlobalAlgBlk::maxPhysicsTriggers); ++i)
@@ -295,12 +297,14 @@ bool L1TGlobalPrescaler::filter(edm::Event& event, edm::EventSetup const& setup)
     auto const& prescaleTable = h->prescale_table_;
     if (index >= (int)prescaleTable.size())
       throw edm::Exception(edm::errors::LogicError)
-          << boost::format("The prescale index %d is invalid, it should be smaller than the prescale table size %d.") %
-                 index % prescaleTable.size();
+          << fmt::sprintf("The prescale index %d is invalid, it should be smaller than the prescale table size %d.",
+                          index,
+                          prescaleTable.size());
     if (m_l1tPrescaleColumn >= (int)prescaleTable.size())
       throw edm::Exception(edm::errors::Configuration)
-          << boost::format("The prescale index %d is invalid, it should be smaller than the prescale table size %d.") %
-                 m_l1tPrescaleColumn % prescaleTable.size();
+          << fmt::sprintf("The prescale index %d is invalid, it should be smaller than the prescale table size %d.",
+                          m_l1tPrescaleColumn,
+                          prescaleTable.size());
     auto const& prescales = prescaleTable[index];
     auto const& targets = prescaleTable[m_l1tPrescaleColumn];
     unsigned long i = 0;
