@@ -25,7 +25,7 @@ private:
   const BeamSpotOnlineObjects* compareBS(const BeamSpotOnlineObjects* bs1, const BeamSpotOnlineObjects* bs2);
   const BeamSpotOnlineObjects* theHLTBS_;
   const BeamSpotOnlineObjects* theLegacyBS_;
-  BeamSpotObjects* transientBS_;
+  const BeamSpotObjects* transientBS_;
   BeamSpotObjects* fakeBS_;
   bool newHLT_;
   bool newLegacy_;

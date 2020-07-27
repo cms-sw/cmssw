@@ -82,48 +82,28 @@ std::shared_ptr<const BeamSpotObjects> OnlineBeamSpotESProducer::produce(const B
   //we need to compare the transientBS_ which is the last one put in the event with whatever new one arrives. We cannot exclude we
   //have both new records at the same LS
   if (newHLT_ && !newLegacy_) {
-    std::cout << "pippo1" << std::endl;
     //compare newHLT with transientBS_
     //temporary test
-    //transientBS_ =  theHLTBS_;
-    transientBS_->SetPosition(0, 0, 0);
-    transientBS_->SetBeamWidthY(0.1);
-    transientBS_->SetBeamWidthX(0.1);
-    transientBS_->SetSigmaZ(5.0);
-    //newHLT_= false;
+    transientBS_ =  theHLTBS_;
+    newHLT_= false;
     //transientBS_ = compareBS(theHLTBS_, transientBS_);
   }
 
   if (newLegacy_ && !newHLT_) {
-    std::cout << "pippo2" << std::endl;
     //compare newLegacy_ with transientBS_
-    //test
-    transientBS_->SetPosition(1, 1, 1);
-    transientBS_->SetBeamWidthY(0.1);
-    transientBS_->SetBeamWidthX(0.1);
-    transientBS_->SetSigmaZ(5.0);
-    //transientBS_ = theLegacyBS_;
-    //newLegacy_ = false;
+    transientBS_ = theLegacyBS_;
+    newLegacy_ = false;
     //transientBS_ = compareBS(theLegacyBS_, transientBS_);
   }
   if (newHLT_ && newLegacy_) {
     //compare newHLT_ with transientBS_ and then with newLegacy_
-    std::cout << "pippo3" << std::endl;
     //test
-    //transientBS_ = theHLTBS_;
-    transientBS_->SetPosition(2, 2, 2);
-    transientBS_->SetBeamWidthY(0.1);
-    transientBS_->SetBeamWidthX(0.1);
-    transientBS_->SetSigmaZ(5.0);
-    //newHLT_ = false;
-    //newLegacy_ = false;
+    transientBS_ = theHLTBS_;
+    newHLT_ = false;
+    newLegacy_ = false;
     //transientBS_ = compareBS(theHLTBS_, transientBS_);
     // transientBS_ = compareBS(theLegacyBS_, transientBS_);
   };
-
-  std::cout << "Transient " << *transientBS_ << std::endl;
-  std::cout << "Legacy " << *theLegacyBS_ << std::endl;
-  std::cout << "HLT " << *theHLTBS_ << std::endl;
 
   return std::shared_ptr<const BeamSpotObjects>(&(*transientBS_), edm::do_nothing_deleter());
 };
