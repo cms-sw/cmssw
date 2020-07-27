@@ -254,6 +254,8 @@ namespace cms {
     class DDPolyhedra : public dd4hep::Solid_type<TGeoPgon> {
     public:
       DDPolyhedra(const dd4hep::Solid &solid) : dd4hep::Solid_type<TGeoPgon>(solid) {}
+      // Passing the wrong type of solid generates an invalid handle exception
+      // when object is referenced.
 
       DDPolyhedra(void) = delete;
 
@@ -279,6 +281,8 @@ namespace cms {
     class DDPolycone : public dd4hep::Solid_type<TGeoPcon> {
     public:
       DDPolycone(const dd4hep::Solid &solid) : dd4hep::Solid_type<TGeoPcon>(solid) {}
+      // Passing the wrong type of solid generates an invalid handle exception
+      // when object is referenced.
 
       DDPolycone(void) = delete;
 
@@ -298,6 +302,8 @@ namespace cms {
     class DDExtrudedPolygon : public dd4hep::Solid_type<TGeoXtru> {
     public:
       DDExtrudedPolygon(const dd4hep::Solid &solid) : dd4hep::Solid_type<TGeoXtru>(solid) {}
+      // Passing the wrong type of solid generates an invalid handle exception
+      // when object is referenced.
 
       DDExtrudedPolygon(void) = delete;
 

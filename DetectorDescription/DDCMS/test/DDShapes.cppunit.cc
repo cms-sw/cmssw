@@ -44,10 +44,10 @@ void testDDShapes::checkDDShapes() {
   DDFilteredView fview(det.get(), det->description()->worldVolume());
   std::string prevShape{"null"};
   while (fview.next(0)) {
-    std::string title(fview.solid()->GetTitle());
     if (fview.name() == prevShape)
       continue;
     prevShape = fview.name();
+    std::string title(fview.solid()->GetTitle());
     cms::DDSolidShape theShape{fview.shape()};
     std::string name(dd::name(DDSolidShapeMap, theShape));
     std::cout << fview.name() << " is a " << title << " == " << name << "\n";

@@ -166,6 +166,9 @@ DDTruncTubs::DDTruncTubs(const DDFilteredView &fv) : valid{fv.isATruncTube()} {
   }
 }
 
+// ** end of DDTruncTubs
+
+
 static std::vector<double> getVec(std::function<Double_t(Int_t)> getValFunc, int numItems) {
   std::vector<double> shapeSet(numItems);
   for (int index = 0; index < numItems; ++index) {
