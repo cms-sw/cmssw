@@ -4,6 +4,7 @@
 #include "FWCore/Framework/interface/ModuleFactory.h"
 #include "FWCore/Framework/interface/ESProducer.h"
 #include "FWCore/Utilities/interface/do_nothing_deleter.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
 #include <iostream>
 #include <memory>
@@ -20,10 +21,13 @@ OfflineToTransientBeamSpotESProducer::OfflineToTransientBeamSpotESProducer(const
 }
 
 OfflineToTransientBeamSpotESProducer::~OfflineToTransientBeamSpotESProducer() {
-  delete transientBS_;
+  //delete transientBS_;
   //delete theOfflineBS_;
 }
-
+void OfflineToTransientBeamSpotESProducer::fillDescription(edm::ConfigurationDescriptions& desc) {
+  edm::ParameterSetDescription dsc;
+  desc.addWithDefaultLabel(dsc);
+}
 std::shared_ptr<const BeamSpotObjects> OfflineToTransientBeamSpotESProducer::produce(
     const BeamSpotTransientObjectsRcd& iRecord) {
   if (!(iRecord.tryToGetRecord<BeamSpotObjectsRcd>())) {
@@ -39,7 +43,7 @@ std::shared_ptr<const BeamSpotObjects> OfflineToTransientBeamSpotESProducer::pro
         iRecord, [this, h = host.get()](auto const& rec) { transientBS_ = &rec.get(bsOfflineToken_); });
   }
 
-  std::cout << "Transient " << *transientBS_ << std::endl;
+  //std::cout << "Transient " << *transientBS_ << std::endl;
 
   return std::shared_ptr<const BeamSpotObjects>(&(*transientBS_), edm::do_nothing_deleter());
 };
