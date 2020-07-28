@@ -16,7 +16,6 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include <memory>
 
-
 class OnlineBeamSpotESProducer : public edm::ESProducer {
 public:
   OnlineBeamSpotESProducer(const edm::ParameterSet& p);
