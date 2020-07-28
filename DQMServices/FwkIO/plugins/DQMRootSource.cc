@@ -658,6 +658,10 @@ void DQMRootSource::readElements() {
   if (metadata.m_type != kNoTypesStored) {
     std::shared_ptr<TreeReaderBase> reader = m_treeReaders[metadata.m_type];
     TTree* tree = dynamic_cast<TTree*>(metadata.m_file->Get(kTypeNames[metadata.m_type]));
+    // The Reset() below screws up the tree, so we need to re-read it from file
+    // before use here.
+    tree->Refresh();
+
     reader->setTree(tree);
 
     ULong64_t index = metadata.m_firstIndex;
