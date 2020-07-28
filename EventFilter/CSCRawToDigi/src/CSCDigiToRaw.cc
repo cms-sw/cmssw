@@ -18,7 +18,7 @@
 #include "CondFormats/CSCObjects/interface/CSCChamberMap.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/Framework/interface/Event.h"
+
 #include <algorithm>
 
 using namespace edm;
@@ -137,9 +137,8 @@ CSCEventData& CSCDigiToRaw::findEventData(const CSCDetId& cscDetId, FindEventDat
 }
 
 void CSCDigiToRaw::add(const CSCStripDigiCollection& stripDigis,
-                       const CSCCLCTPreTriggerCollection& preTriggers,
+                       const CSCCLCTPreTriggerCollection* preTriggers,
                        FindEventDataInfo& fedInfo,
-                       bool usePreTriggers,
                        bool packEverything) const {  //iterate over chambers with strip digis in them
   for (CSCStripDigiCollection::DigiRangeIterator j = stripDigis.begin(); j != stripDigis.end(); ++j) {
     CSCDetId cscDetId = (*j).first;
@@ -147,9 +146,10 @@ void CSCDigiToRaw::add(const CSCStripDigiCollection& stripDigis,
 
     bool me1abCheck = fedInfo.formatVersion_ == 2013;
     /* !!! Testing. Uncomment for production */
+    const bool usePreTriggers = preTriggers != nullptr;
     if (!usePreTriggers || packEverything ||
         (usePreTriggers &&
-         cscd2r::accept(cscDetId, preTriggers, preTriggerWindowMin_, preTriggerWindowMax_, me1abCheck))) {
+         cscd2r::accept(cscDetId, *preTriggers, preTriggerWindowMin_, preTriggerWindowMax_, me1abCheck))) {
       bool me1a = (cscDetId.station() == 1) && (cscDetId.ring() == 4);
       bool zplus = (cscDetId.endcap() == 1);
       bool me1b = (cscDetId.station() == 1) && (cscDetId.ring() == 1);
@@ -341,31 +341,29 @@ void CSCDigiToRaw::createFedBuffers(const CSCStripDigiCollection& stripDigis,
                                     const CSCComparatorDigiCollection& comparatorDigis,
                                     const CSCALCTDigiCollection& alctDigis,
                                     const CSCCLCTDigiCollection& clctDigis,
-                                    const CSCCLCTPreTriggerCollection& preTriggers,
+                                    const CSCCLCTPreTriggerCollection* preTriggers,
                                     const CSCCorrelatedLCTDigiCollection& correlatedLCTDigis,
-                                    const GEMPadDigiClusterCollection& gemPadDigiClusters,
+                                    const GEMPadDigiClusterCollection* gemPadDigiClusters,
                                     FEDRawDataCollection& fed_buffers,
                                     const CSCChamberMap* mapping,
-                                    Event& e,
+                                    const EventID& eid,
                                     uint16_t format_version,
-                                    bool use_pre_triggers,
-                                    bool useGEMs,
                                     bool packEverything) const {
   //bits of code from ORCA/Muon/METBFormatter - thanks, Rick:)!
 
   //get fed object from fed_buffers
   // make a map from the index of a chamber to the event data from it
   FindEventDataInfo fedInfo{mapping, format_version};
-  add(stripDigis, preTriggers, fedInfo, use_pre_triggers, packEverything);
+  add(stripDigis, preTriggers, fedInfo, packEverything);
   add(wireDigis, alctDigis, fedInfo, packEverything);
   add(comparatorDigis, clctDigis, fedInfo, packEverything);
   add(correlatedLCTDigis, fedInfo);
   // Starting Run-3, the CSC DAQ will pack/unpack GEM clusters
-  if (useGEMs) {
-    add(gemPadDigiClusters, fedInfo);
+  if (gemPadDigiClusters) {
+    add(*gemPadDigiClusters, fedInfo);
   }
-  int l1a = e.id().event();  //need to add increments or get it from lct digis
-  int bx = l1a;              //same as above
+  int l1a = eid.event();  //need to add increments or get it from lct digis
+  int bx = l1a;           //same as above
   //int startingFED = FEDNumbering::MINCSCFEDID;
 
   if (fedInfo.formatVersion_ == 2005)  /// Handle pre-LS1 format data
