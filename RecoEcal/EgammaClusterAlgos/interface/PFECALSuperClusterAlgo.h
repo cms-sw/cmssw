@@ -25,8 +25,12 @@
 
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
+#include "FWCore/Utilities/interface/ESGetToken.h"
 
 #include "CondFormats/ESObjects/interface/ESChannelStatus.h"
+#include "CondFormats/DataRecord/interface/ESEEIntercalibConstantsRcd.h"
+#include "CondFormats/DataRecord/interface/ESChannelStatusRcd.h"
+#include "CondFormats/ESObjects/interface/ESEEIntercalibConstants.h"
 
 #include <vector>
 #include <memory>
@@ -114,6 +118,9 @@ private:
   edm::EDGetTokenT<edm::View<reco::PFCluster> > inputTagPFClusters_;
   edm::EDGetTokenT<reco::PFCluster::EEtoPSAssociation> inputTagPFClustersES_;
   edm::EDGetTokenT<reco::BeamSpot> inputTagBeamSpot_;
+
+  edm::ESGetToken<ESEEIntercalibConstants, ESEEIntercalibConstantsRcd> esEEInterCalibToken_;
+  edm::ESGetToken<ESChannelStatus, ESChannelStatusRcd> esChannelStatusToken_;
 
   const reco::BeamSpot* beamSpot_;
   const ESChannelStatus* channelStatus_;

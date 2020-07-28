@@ -10,19 +10,14 @@
 #include "DataFormats/DetId/interface/DetIdCollection.h"
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
 
-#include "Geometry/CaloEventSetup/interface/CaloTopologyRecord.h"
-#include "Geometry/CaloTopology/interface/CaloTopology.h"
 #include "Geometry/CaloTopology/interface/CaloSubdetectorTopology.h"
-
-#include "RecoLocalCalo/EcalRecAlgos/interface/EcalSeverityLevelAlgoRcd.h"
-#include "RecoLocalCalo/EcalRecAlgos/interface/EcalSeverityLevelAlgo.h"
-#include "RecoEcal/EgammaCoreTools/interface/EcalTools.h"
 
 InterestingDetIdFromSuperClusterProducer::InterestingDetIdFromSuperClusterProducer(const edm::ParameterSet& iConfig) {
   recHitsToken_ = consumes<EcalRecHitCollection>(iConfig.getParameter<edm::InputTag>("recHitsLabel"));
   superClustersToken_ =
       consumes<reco::SuperClusterCollection>(iConfig.getParameter<edm::InputTag>("superClustersLabel"));
-
+  caloTopologyToken_ = esConsumes<CaloTopology, CaloTopologyRecord, edm::Transition::BeginRun>();
+  severityLevelToken_ = esConsumes<EcalSeverityLevelAlgo, EcalSeverityLevelAlgoRcd, edm::Transition::BeginRun>();
   interestingDetIdCollection_ = iConfig.getParameter<std::string>("interestingDetIdCollection");
 
   minimalEtaSize_ = iConfig.getParameter<int>("etaSize");
@@ -36,15 +31,16 @@ InterestingDetIdFromSuperClusterProducer::InterestingDetIdFromSuperClusterProduc
   severityLevel_ = iConfig.getParameter<int>("severityLevel");
   keepNextToDead_ = iConfig.getParameter<bool>("keepNextToDead");
   keepNextToBoundary_ = iConfig.getParameter<bool>("keepNextToBoundary");
+  if (keepNextToDead_) {
+    nextToDeadToken_ = esConsumes<EcalNextToDeadChannel, EcalNextToDeadChannelRcd>();
+  }
 }
 
 void InterestingDetIdFromSuperClusterProducer::beginRun(edm::Run const& run, const edm::EventSetup& iSetup) {
-  edm::ESHandle<CaloTopology> theCaloTopology;
-  iSetup.get<CaloTopologyRecord>().get(theCaloTopology);
+  edm::ESHandle<CaloTopology> theCaloTopology = iSetup.getHandle(caloTopologyToken_);
   caloTopology_ = &(*theCaloTopology);
 
-  edm::ESHandle<EcalSeverityLevelAlgo> sevLv;
-  iSetup.get<EcalSeverityLevelAlgoRcd>().get(sevLv);
+  edm::ESHandle<EcalSeverityLevelAlgo> sevLv = iSetup.getHandle(severityLevelToken_);
   severity_ = sevLv.product();
 }
 
@@ -118,8 +114,9 @@ void InterestingDetIdFromSuperClusterProducer::produce(edm::Event& iEvent, const
       indexToStore.push_back(it->id());
     }
     if (keepNextToDead_) {
+      edm::ESHandle<EcalNextToDeadChannel> dch = iSetup.getHandle(nextToDeadToken_);
       // also keep channels next to dead ones
-      if (EcalTools::isNextToDead(it->id(), iSetup)) {
+      if (EcalTools::isNextToDead(it->id(), *dch)) {
         indexToStore.push_back(it->id());
       }
     }

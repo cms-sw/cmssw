@@ -10,8 +10,11 @@
 #include "DataFormats/Math/interface/Point3D.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Utilities/interface/ESGetToken.h"
 
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
+#include "Geometry/CaloGeometry/interface/CaloGeometry.h"
+#include "Geometry/Records/interface/CaloGeometryRecord.h"
 
 #include "DataFormats/EgammaReco/interface/PreshowerClusterShape.h"
 #include "RecoEcal/EgammaClusterAlgos/interface/EndcapPiZeroDiscriminatorAlgo.h"
@@ -37,6 +40,7 @@ private:
                                                                         // producing hits
   edm::EDGetTokenT<reco::SuperClusterCollection> endcapSClusterToken_;  // likewise for producer
                                                                         // of endcap superclusters
+  edm::ESGetToken<CaloGeometry, CaloGeometryRecord> caloGeometryToken_;
 
   std::string PreshowerClusterShapeCollectionX_;
   std::string PreshowerClusterShapeCollectionY_;
