@@ -19,7 +19,6 @@
 //
 
 // system include files
-#include "boost/mpl/vector.hpp"
 
 // user include files
 
@@ -27,6 +26,6 @@
 #include "FWCore/Framework/interface/DependentRecordImplementation.h"
 #include "FWCore/Framework/test/DummyRecord.h"
 
-class DepRecord : public edm::eventsetup::DependentRecordImplementation<DepRecord, boost::mpl::vector<DummyRecord> > {};
+class DepRecord : public edm::eventsetup::DependentRecordImplementation<DepRecord, edm::mpl::Vector<DummyRecord> > {};
 
 #endif
