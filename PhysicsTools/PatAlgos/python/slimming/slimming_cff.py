@@ -76,7 +76,6 @@ lostTrackChi2 = packedPFCandidateTrackChi2.clone(candidates = "lostTracks", doLo
 from RecoHI.HiCentralityAlgos.HiHFFilterProducer_cfi import hiHFfilters
 (pp_on_AA_2018 | pp_on_PbPb_run3).toReplaceWith(slimmingTask, cms.Task(slimmingTask.copy(), hiHFfilters))
 
-
 from Configuration.Eras.Modifier_phase2_timing_cff import phase2_timing
 _phase2_timing_slimmingTask = cms.Task(slimmingTask.copy(),
                                        offlineSlimmedPrimaryVertices4D)
