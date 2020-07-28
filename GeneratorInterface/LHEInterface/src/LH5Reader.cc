@@ -65,15 +65,14 @@ namespace lhef {
     ~StringSource() override {}
   };
 
-  H5Handler::H5Handler(const std::string &fileNameIn) : 
-    h5file( new HighFive::File(fileNameIn) ),
-    indexStatus( h5file->exist("/index") ),
-    _index( h5file->getGroup( indexStatus ? "index" : "event") ),
-    _particle( h5file->getGroup("particle") ),
-    _event( h5file->getGroup("event") ),
-    _init( h5file->getGroup("init") ),
-    _procInfo( h5file->getGroup("procInfo") )
-   {
+  H5Handler::H5Handler(const std::string &fileNameIn)
+      : h5file(new HighFive::File(fileNameIn)),
+        indexStatus(h5file->exist("/index")),
+        _index(h5file->getGroup(indexStatus ? "index" : "event")),
+        _particle(h5file->getGroup("particle")),
+        _event(h5file->getGroup("event")),
+        _init(h5file->getGroup("init")),
+        _procInfo(h5file->getGroup("procInfo")) {
     hid_t dspace;
     _formatType = 1;
 
@@ -82,6 +81,7 @@ namespace lhef {
       _formatType = 2;
     } else {
       _index = h5file->getGroup("event");
+      dspace = H5Dget_space(h5file->getDataSet("event/start").getId());
       _formatType = 1;
     }
 
