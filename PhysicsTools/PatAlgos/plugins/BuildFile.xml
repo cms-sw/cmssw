@@ -6,7 +6,6 @@
   <use name="FWCore/Framework"/>
   <use name="FWCore/ParameterSet"/>
   <use name="FWCore/MessageLogger"/>
-  <use name="FWCore/MessageService"/>
   <use name="L1Trigger/GlobalTriggerAnalyzer"/>
   <use name="HLTrigger/HLTcore"/>
   <use name="DataFormats/PatCandidates"/>
