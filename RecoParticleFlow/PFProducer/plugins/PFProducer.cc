@@ -147,7 +147,6 @@ PFProducer::PFProducer(const edm::ParameterSet& iConfig)
 
   // Reading new EGamma ubiased collections and value maps
   if (use_EGammaFilters_) {
-
     inputTagPFEGammaCandidates_ =
         consumes<edm::View<reco::PFCandidate>>((iConfig.getParameter<edm::InputTag>("PFEGammaCandidates")));
     inputTagValueMapGedElectrons_ =
@@ -159,7 +158,6 @@ PFProducer::PFProducer(const edm::ParameterSet& iConfig)
     const edm::ParameterSet pfEGammaFiltersParams =
         iConfig.getParameter<edm::ParameterSet>("PFEGammaFiltersParameters");
     pfegamma_ = std::make_unique<PFEGammaFilters>(pfEGammaFiltersParams);
-
   }
 
   // EGamma filters
