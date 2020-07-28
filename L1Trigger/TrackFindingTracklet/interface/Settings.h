@@ -650,9 +650,6 @@ namespace trklet {
 
     unsigned int writememsect_{3};  //writemem only for this sector (note that the files will have _4 extension)
 
-    //FIXME: The TED and TRE tables are currently under development. They use
-    //substantial memory during processing, and their effects on efficiency are
-    //not fully understood
     bool enableTripletTables_{false};  //Enable the application of the TED and
                                        //TRE tables; when this flag is false,
                                        //the tables will not be read from disk
