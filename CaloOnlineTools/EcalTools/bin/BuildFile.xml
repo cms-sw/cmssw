@@ -1,4 +1,4 @@
 <bin name="TPGTreeReader" file="TPGTreeReader.cpp">
-  <use name="CaloOnlineTools/EcalTools"/>
   <use name="boost_header"/>
+  <use name="root"/>
 </bin>
