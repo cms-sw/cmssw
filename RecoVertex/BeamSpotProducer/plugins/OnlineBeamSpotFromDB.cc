@@ -28,7 +28,6 @@ ________________________________________________________________**/
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include <string>
 
-
 class OnlineBeamSpotFromDB : public edm::one::EDAnalyzer<> {
 public:
   explicit OnlineBeamSpotFromDB(const edm::ParameterSet& iConfig);
@@ -40,11 +39,8 @@ private:
   void analyze(const edm::Event&, const edm::EventSetup&) override;
 };
 
-OnlineBeamSpotFromDB::OnlineBeamSpotFromDB(const edm::ParameterSet& iConfig) 
-: bsToken_(esConsumes<BeamSpotObjects, BeamSpotTransientObjectsRcd>()) 
-{}
-  
-
+OnlineBeamSpotFromDB::OnlineBeamSpotFromDB(const edm::ParameterSet& iConfig)
+    : bsToken_(esConsumes<BeamSpotObjects, BeamSpotTransientObjectsRcd>()) {}
 
 OnlineBeamSpotFromDB::~OnlineBeamSpotFromDB() {}
 
@@ -65,7 +61,6 @@ void OnlineBeamSpotFromDB::fillDescriptions(edm::ConfigurationDescriptions& desc
   edm::ParameterSetDescription dsc;
   desc.addWithDefaultLabel(dsc);
 }
-
 
 //define this as a plug-in
 DEFINE_FWK_MODULE(OnlineBeamSpotFromDB);
