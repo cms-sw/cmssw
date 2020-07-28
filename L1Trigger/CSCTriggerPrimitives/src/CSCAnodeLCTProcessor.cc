@@ -296,8 +296,8 @@ void CSCAnodeLCTProcessor::run(const std::vector<int> wire[CSCConstants::NUM_LAY
   int ALCTIndex_[CSCConstants::MAX_ALCT_TBINS] = {};
 
   // define a new pattern map
-  // for each key half strip, and for each pattern, store the 2D collection of fired comparator digis
-  std::map<int, std::map<int, CSCCLCTDigi::ComparatorContainer>> hits_in_patterns;
+  // for each key wiregroup, and for each pattern, store the 2D collection of fired wire digis
+  std::map<int, std::map<int, CSCALCTDigi::WireContainer>> hits_in_patterns;
   hits_in_patterns.clear();
 
   // Only do the rest of the processing if chamber is not empty.
