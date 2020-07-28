@@ -27,14 +27,7 @@ ________________________________________________________________**/
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include <string>
-class MyHelper {
-public:
-  MyHelper(edm::ParameterSet const& iPS,
-           edm::ConsumesCollector&& iC,
-           edm::ESGetToken<BeamSpotObjects, BeamSpotTransientObjectsRcd>& bsToken_) {
-    bsToken_ = iC.esConsumes<BeamSpotObjects, BeamSpotTransientObjectsRcd>();
-  }
-};
+
 
 class OnlineBeamSpotFromDB : public edm::one::EDAnalyzer<> {
 public:
@@ -44,14 +37,14 @@ public:
   edm::ESGetToken<BeamSpotObjects, BeamSpotTransientObjectsRcd> bsToken_;
 
 private:
-  void beginJob() override;
   void analyze(const edm::Event&, const edm::EventSetup&) override;
-  void endJob() override;
 };
 
-OnlineBeamSpotFromDB::OnlineBeamSpotFromDB(const edm::ParameterSet& iConfig) {
-  MyHelper m_helper(iConfig, consumesCollector(), bsToken_);
-}
+OnlineBeamSpotFromDB::OnlineBeamSpotFromDB(const edm::ParameterSet& iConfig) 
+: bsToken_(esConsumes<BeamSpotObjects, BeamSpotTransientObjectsRcd>()) 
+{}
+  
+
 
 OnlineBeamSpotFromDB::~OnlineBeamSpotFromDB() {}
 
@@ -72,9 +65,7 @@ void OnlineBeamSpotFromDB::fillDescriptions(edm::ConfigurationDescriptions& desc
   edm::ParameterSetDescription dsc;
   desc.addWithDefaultLabel(dsc);
 }
-void OnlineBeamSpotFromDB::beginJob() {}
 
-void OnlineBeamSpotFromDB::endJob() {}
 
 //define this as a plug-in
 DEFINE_FWK_MODULE(OnlineBeamSpotFromDB);
