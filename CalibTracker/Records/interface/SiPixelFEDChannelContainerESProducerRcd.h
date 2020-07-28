@@ -3,11 +3,11 @@
 
 #include "FWCore/Framework/interface/EventSetupRecordImplementation.h"
 #include "FWCore/Framework/interface/DependentRecordImplementation.h"
-#include "boost/mpl/vector.hpp"
+#include "FWCore/Utilities/interface/mplVector.h"
 #include "CondFormats/DataRecord/interface/SiPixelStatusScenariosRcd.h"
 
 class SiPixelFEDChannelContainerESProducerRcd
     : public edm::eventsetup::DependentRecordImplementation<SiPixelFEDChannelContainerESProducerRcd,
-                                                            boost::mpl::vector<SiPixelStatusScenariosRcd> > {};
+                                                            edm::mpl::Vector<SiPixelStatusScenariosRcd> > {};
 
 #endif
