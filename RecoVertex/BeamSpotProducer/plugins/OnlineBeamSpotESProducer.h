@@ -16,23 +16,19 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include <memory>
 
-namespace edm {
-  class ParameterSetDescription;
-
-}
 
 class OnlineBeamSpotESProducer : public edm::ESProducer {
 public:
   OnlineBeamSpotESProducer(const edm::ParameterSet& p);
   ~OnlineBeamSpotESProducer() override;
   std::shared_ptr<const BeamSpotObjects> produce(const BeamSpotTransientObjectsRcd&);
-  static void fillDescription(edm::ParameterSetDescription& desc);
+  static void fillDescription(edm::ConfigurationDescriptions& desc);
 
 private:
   const BeamSpotOnlineObjects* compareBS(const BeamSpotOnlineObjects* bs1, const BeamSpotOnlineObjects* bs2);
   const BeamSpotOnlineObjects* theHLTBS_;
   const BeamSpotOnlineObjects* theLegacyBS_;
-  const BeamSpotObjects* transientBS_;
+  const BeamSpotObjects* transientBS_ = nullptr;
   BeamSpotObjects* fakeBS_;
   bool newHLT_;
   bool newLegacy_;

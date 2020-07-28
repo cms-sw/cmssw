@@ -4,7 +4,7 @@
 #include "CondFormats/DataRecord/interface/BeamSpotObjectsRcd.h"
 #include "CondFormats/BeamSpotObjects/interface/BeamSpotObjects.h"
 #include "CondFormats/DataRecord/interface/BeamSpotTransientObjectsRcd.h"
-
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/Framework/interface/ESProductHost.h"
 #include "FWCore/Utilities/interface/ReusableObjectHolder.h"
 #include "FWCore/Framework/interface/ESProducer.h"
@@ -16,7 +16,7 @@ public:
   OfflineToTransientBeamSpotESProducer(const edm::ParameterSet &p);
   ~OfflineToTransientBeamSpotESProducer() override;
   std::shared_ptr<const BeamSpotObjects> produce(const BeamSpotTransientObjectsRcd &);
-
+  static void fillDescription(edm::ConfigurationDescriptions& desc);
 private:
   //const BeamSpotObjects* theOfflineBS_;
   const BeamSpotObjects *transientBS_;
