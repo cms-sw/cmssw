@@ -19,7 +19,8 @@ public:
   static void fillDescription(edm::ConfigurationDescriptions& desc);
 private:
   //const BeamSpotObjects* theOfflineBS_;
-  const BeamSpotObjects *transientBS_;
+  //const BeamSpotObjects *transientBS_ = nullptr;
+  const BeamSpotObjects dummyBS_;
   edm::ESGetToken<BeamSpotObjects, BeamSpotTransientObjectsRcd> const bsToken_;
   edm::ESGetToken<BeamSpotObjects, BeamSpotObjectsRcd> bsOfflineToken_;
   using HostType = edm::ESProductHost<BeamSpotObjects, BeamSpotObjectsRcd>;
