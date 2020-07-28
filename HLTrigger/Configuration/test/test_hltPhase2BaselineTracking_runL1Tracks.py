@@ -10,6 +10,10 @@ process.prefer("es_hardcode")
 process.prefer("ppsDBESSource")
 process.prefer("siPixelFakeGainOfflineESSource")
 
+### GlobalTag
+process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
+process.GlobalTag.globaltag = "111X_mcRun4_realistic_T15_v1"
+
 ### Rerun the module that makes TrackTrigger tracks
 process.TTTracksFromTrackletEmulation = cms.EDProducer(
     "L1FPGATrackProducer",
