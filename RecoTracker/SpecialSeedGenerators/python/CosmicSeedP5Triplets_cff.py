@@ -9,10 +9,9 @@ from RecoLocalTracker.SiStripRecHitConverter.StripCPEfromTrackAngle_cfi import *
 from RecoLocalTracker.SiPixelRecHits.PixelCPEParmError_cfi import *
 #TransientTrackingBuilder
 from RecoTracker.TransientTrackingRecHit.TransientTrackingRecHitBuilder_cfi import *
-import copy
 from RecoTracker.SpecialSeedGenerators.CosmicSeed_cfi import *
 # generate Cosmic seeds #####################
-cosmicseedfinderP5 = copy.deepcopy(cosmicseedfinder)
-cosmicseedfinderP5.GeometricStructure = 'TECPAIRS_TOBTRIPLETS'
-cosmicseedfinderP5.HitsForSeeds = 'pairsandtriplets'
-
+cosmicseedfinderP5 = cosmicseedfinder.clone(
+    GeometricStructure = 'TECPAIRS_TOBTRIPLETS',
+    HitsForSeeds = 'pairsandtriplets'
+)

@@ -21,6 +21,6 @@ from RecoTracker.TransientTrackingRecHit.TransientTrackingRecHitBuilder_cfi impo
 
 import RecoTracker.TrackProducer.TrackProducer_cfi
 # TrackProducer
-ctfNoOverlaps = RecoTracker.TrackProducer.TrackProducer_cfi.TrackProducer.clone()
-ctfNoOverlaps.src = 'ckfTrackCandidatesNoOverlaps'
-
+ctfNoOverlaps = RecoTracker.TrackProducer.TrackProducer_cfi.TrackProducer.clone(
+    src = 'ckfTrackCandidatesNoOverlaps'
+)
