@@ -6,5 +6,4 @@
   <use name="cppunit"/>
   <use name="PhysicsTools/ONNXRuntime"/>
   <use name="FWCore/ParameterSet"/>
-  <use name="FWCore/Utilities"/>
 </bin>
