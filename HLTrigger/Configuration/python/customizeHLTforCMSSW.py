@@ -170,10 +170,20 @@ def customiseFor2017DtUnpacking(process):
 
     return process
 
+def customiseFor30936(process):
+    """PFProducer fix for PFMuonAlgo's fillPSetDescription"""
+
+    for producer in producers_by_type(process, "PFProducer"):
+        del producer.PFMuonAlgoParameters
+        # The parameters should be populated automatically via fillPSetDescription
+        
+    return process
+            
 # CMSSW version specific customizations
 def customizeHLTforCMSSW(process, menuType="GRun"):
 
     # add call to action function in proper order: newest last!
     # process = customiseFor12718(process)
+    process = customiseFor30936(process)
 
     return process
