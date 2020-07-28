@@ -27,13 +27,11 @@ void OfflineToTransientBeamSpotESProducer::fillDescription(edm::ConfigurationDes
 }
 std::shared_ptr<const BeamSpotObjects> OfflineToTransientBeamSpotESProducer::produce(
     const BeamSpotTransientObjectsRcd& iRecord) {
-
   auto optionalRec = iRecord.tryToGetRecord<BeamSpotObjectsRcd>();
   if (not optionalRec) {
     return std::shared_ptr<const BeamSpotObjects>(&dummyBS_, edm::do_nothing_deleter());
-}
+  }
   return std::shared_ptr<const BeamSpotObjects>(&optionalRec->get(bsOfflineToken_), edm::do_nothing_deleter());
-  
 };
 
 DEFINE_FWK_EVENTSETUP_MODULE(OfflineToTransientBeamSpotESProducer);
