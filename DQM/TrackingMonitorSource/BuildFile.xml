@@ -1,0 +1,23 @@
+<use   name="SimTracker/Records"/>
+<use   name="FWCore/Framework"/>
+<use   name="FWCore/ParameterSet"/>
+<use   name="FWCore/Utilities"/>
+<use   name="DataFormats/Common"/>
+<use   name="DataFormats/RecoCandidate"/>
+<use   name="DataFormats/TrackCandidate"/>
+<use   name="DataFormats/TrajectorySeed"/>
+<use   name="DataFormats/VertexReco"/>
+<use   name="MagneticField/Engine"/>
+<use   name="MagneticField/Records"/>
+<use   name="Geometry/Records"/>
+<use   name="Geometry/TrackerGeometryBuilder"/>
+<use   name="Geometry/TrackerNumberingBuilder"/>
+<use   name="TrackingTools/GeomPropagators"/>
+<use   name="TrackingTools/PatternTools"/>
+<use   name="DQMServices/Core"/>
+<use   name="boost"/>
+<use   name="root"/>
+<use   name="rootrflx"/>
+<export>
+  <lib    name="1"/>
+</export>
