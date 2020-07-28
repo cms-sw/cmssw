@@ -4,6 +4,7 @@
 #include "FWCore/Framework/interface/ModuleFactory.h"
 #include "FWCore/Framework/interface/ESProducer.h"
 #include "FWCore/Utilities/interface/do_nothing_deleter.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
 #include <iostream>
 #include <memory>
@@ -14,7 +15,7 @@ using namespace edm;
 OnlineBeamSpotESProducer::OnlineBeamSpotESProducer(const edm::ParameterSet& p) {
   auto cc = setWhatProduced(this);
 
-  transientBS_ = new BeamSpotObjects;
+  //transientBS_ = new BeamSpotObjects;
   theHLTBS_ = new BeamSpotOnlineObjects;
   theLegacyBS_ = new BeamSpotOnlineObjects;
   fakeBS_ = new BeamSpotOnlineObjects;
@@ -28,7 +29,10 @@ OnlineBeamSpotESProducer::OnlineBeamSpotESProducer(const edm::ParameterSet& p) {
   bsLegacyToken_ = cc.consumesFrom<BeamSpotOnlineObjects, BeamSpotOnlineLegacyObjectsRcd>();
 }
 
-void OnlineBeamSpotESProducer::fillDescription(edm::ParameterSetDescription& desc) {}
+void OnlineBeamSpotESProducer::fillDescription(edm::ConfigurationDescriptions& desc) {
+  edm::ParameterSetDescription dsc;
+  desc.addWithDefaultLabel(dsc);
+}
 
 const BeamSpotOnlineObjects* OnlineBeamSpotESProducer::compareBS(const BeamSpotOnlineObjects* bs1,
                                                                  const BeamSpotOnlineObjects* bs2) {
@@ -47,19 +51,17 @@ const BeamSpotOnlineObjects* OnlineBeamSpotESProducer::compareBS(const BeamSpotO
       return bs1;
     }
   }
-}
-
+                                                                 }
 OnlineBeamSpotESProducer::~OnlineBeamSpotESProducer() {
   delete theHLTBS_;
   delete theLegacyBS_;
-  delete transientBS_;
+  //delete transientBS_;
   delete fakeBS_;
 }
 
 std::shared_ptr<const BeamSpotObjects> OnlineBeamSpotESProducer::produce(const BeamSpotTransientObjectsRcd& iRecord) {
   if (!(iRecord.tryToGetRecord<BeamSpotOnlineLegacyObjectsRcd>()) &&
       !(iRecord.tryToGetRecord<BeamSpotOnlineHLTObjectsRcd>())) {
-    std::cout << "Sending out the fakeBS_" << std::endl;
     transientBS_ = fakeBS_;
     return std::shared_ptr<const BeamSpotObjects>(&(*transientBS_), edm::do_nothing_deleter());
   }

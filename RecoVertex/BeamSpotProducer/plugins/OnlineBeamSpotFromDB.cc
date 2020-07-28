@@ -26,6 +26,7 @@ ________________________________________________________________**/
 #include "CondFormats/DataRecord/interface/BeamSpotTransientObjectsRcd.h"
 #include "CondFormats/BeamSpotObjects/interface/BeamSpotOnlineObjects.h"
 #include "CondFormats/BeamSpotObjects/interface/BeamSpotObjects.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
 OnlineBeamSpotFromDB::OnlineBeamSpotFromDB(const edm::ParameterSet& iConfig) {}
 
@@ -43,7 +44,10 @@ void OnlineBeamSpotFromDB::analyze(const edm::Event& iEvent, const edm::EventSet
   edm::LogInfo("beamspot from HLT ") << *mybeamspot;
   //edm::LogInfo("beamspot from GT ")<<*myGTbeamspot;
 }
-void OnlineBeamSpotFromDB::fillDescription(edm::ParameterSetDescription& desc) {}
+void OnlineBeamSpotFromDB::fillDescription(edm::ConfigurationDescriptions& desc) {
+  edm::ParameterSetDescription dsc;
+  desc.addWithDefaultLabel(dsc);
+}
 void OnlineBeamSpotFromDB::beginJob() {}
 
 void OnlineBeamSpotFromDB::endJob() {}
