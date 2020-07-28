@@ -24,6 +24,6 @@
 
 class HcalZSThresholdsRcd : public edm::eventsetup::DependentRecordImplementation<
                                 HcalZSThresholdsRcd,
-                                boost::mpl::vector<HcalRecNumberingRecord, IdealGeometryRecord> > {};
+                                edm::mpl::Vector<HcalRecNumberingRecord, IdealGeometryRecord> > {};
 
 #endif
