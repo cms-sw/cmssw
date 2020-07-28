@@ -24,6 +24,7 @@ ReducedESRecHitCollectionProducer::ReducedESRecHitCollectionProducer(const edm::
   InputRecHitES_ = consumes<ESRecHitCollection>(ps.getParameter<edm::InputTag>("EcalRecHitCollectionES"));
   InputSuperClusterEE_ =
       consumes<reco::SuperClusterCollection>(ps.getParameter<edm::InputTag>("EndcapSuperClusterCollection"));
+  caloGeometryToken_ = esConsumes<CaloGeometry, CaloGeometryRecord, edm::Transition::BeginRun>();
 
   OutputLabelES_ = ps.getParameter<std::string>("OutputLabel_ES");
 
@@ -41,8 +42,7 @@ ReducedESRecHitCollectionProducer::ReducedESRecHitCollectionProducer(const edm::
 ReducedESRecHitCollectionProducer::~ReducedESRecHitCollectionProducer() = default;
 
 void ReducedESRecHitCollectionProducer::beginRun(edm::Run const&, const edm::EventSetup& iSetup) {
-  ESHandle<CaloGeometry> geoHandle;
-  iSetup.get<CaloGeometryRecord>().get(geoHandle);
+  ESHandle<CaloGeometry> geoHandle = iSetup.getHandle(caloGeometryToken_);
   geometry_p =
       dynamic_cast<const EcalPreshowerGeometry*>(geoHandle->getSubdetectorGeometry(DetId::Ecal, EcalPreshower));
   if (!geometry_p) {
