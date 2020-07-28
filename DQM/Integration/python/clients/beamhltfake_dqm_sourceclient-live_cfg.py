@@ -165,8 +165,8 @@ if (process.runType.getRunType() == process.runType.pp_run or
         preLoadConnectionString = cms.untracked.string('frontier://FrontierProd/CMS_CONDITIONS'),
 
         runNumber = cms.untracked.uint64(options.runNumber),
-        #lastLumiFile = cms.untracked.string('last_lumi.txt'),
-        lastLumiUrl = cms.untracked.string('http://ru-c2e14-11-01.cms:11100/urn:xdaq-application:lid=52/getLatestLumiSection'),
+        lastLumiFile = cms.untracked.string('last_lumi.txt'),
+        #lastLumiUrl = cms.untracked.string('http://ru-c2e14-11-01.cms:11100/urn:xdaq-application:lid=52/getLatestLumiSection'),
         writeTransactionDelay = cms.untracked.uint32(options.transDelay),
         autoCommit = cms.untracked.bool(True),
         toPut = cms.VPSet(cms.PSet(
