@@ -1,5 +1,5 @@
 import FWCore.ParameterSet.Config as cms
 
-hihffilter = cms.EDProducer("HIhfFilter_miniAOD",
+hiHFfilters = cms.EDProducer("HiHFFilterProducer",
 srcTowers = cms.InputTag("towerMaker")
 )
