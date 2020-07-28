@@ -38,21 +38,19 @@ private:
   BeamSpotObjects* fakeBS_;
   bool newHLT_;
   bool newLegacy_;
-  
 
   edm::ESGetToken<BeamSpotObjects, BeamSpotTransientObjectsRcd> const bsToken_;
   edm::ESGetToken<BeamSpotOnlineObjects, BeamSpotOnlineHLTObjectsRcd> bsHLTToken_;
   edm::ESGetToken<BeamSpotOnlineObjects, BeamSpotOnlineLegacyObjectsRcd> bsLegacyToken_;
   //using HostType =
-    //  edm::ESProductHost<BeamSpotOnlineObjects, BeamSpotOnlineHLTObjectsRcd, BeamSpotOnlineLegacyObjectsRcd>;
+  //  edm::ESProductHost<BeamSpotOnlineObjects, BeamSpotOnlineHLTObjectsRcd, BeamSpotOnlineLegacyObjectsRcd>;
 
   //edm::ReusableObjectHolder<HostType> holder_;
 };
 OnlineBeamSpotESProducer::OnlineBeamSpotESProducer(const edm::ParameterSet& p) {
   auto cc = setWhatProduced(this);
 
-
- // theHLTBS_ = new BeamSpotOnlineObjects;
+  // theHLTBS_ = new BeamSpotOnlineObjects;
   //theLegacyBS_ = new BeamSpotOnlineObjects;
   fakeBS_ = new BeamSpotOnlineObjects;
   fakeBS_->SetBeamWidthX(0.1);
@@ -96,26 +94,23 @@ OnlineBeamSpotESProducer::~OnlineBeamSpotESProducer() {
 }
 
 std::shared_ptr<const BeamSpotObjects> OnlineBeamSpotESProducer::produce(const BeamSpotTransientObjectsRcd& iRecord) {
-auto legacyRec = iRecord.tryToGetRecord<BeamSpotOnlineLegacyObjectsRcd>();
-auto hltRec = iRecord.tryToGetRecord<BeamSpotOnlineHLTObjectsRcd>();
-if (not legacyRec and not hltRec) {
-  return std::shared_ptr<const BeamSpotObjects>(&(*fakeBS_), edm::do_nothing_deleter());
-  // or copy in case 'const BeamSpotObjects fakeBS_' member would not be preferred
-  //return std::make_shared<BeamSpotObjects>(fakeBS_);
-}
- 
-const BeamSpotOnlineObjects* best;
-if (legacyRec and hltRec) {
-  best = compareBS(&legacyRec->get(bsLegacyToken_), &hltRec->get(bsHLTToken_));
-}
-else if (legacyRec) {
-  best = &legacyRec->get(bsLegacyToken_);
-}
-else {
-  best = &hltRec->get(bsHLTToken_);
-}
-return std::shared_ptr<const BeamSpotObjects>(best, edm::do_nothing_deleter());
+  auto legacyRec = iRecord.tryToGetRecord<BeamSpotOnlineLegacyObjectsRcd>();
+  auto hltRec = iRecord.tryToGetRecord<BeamSpotOnlineHLTObjectsRcd>();
+  if (not legacyRec and not hltRec) {
+    return std::shared_ptr<const BeamSpotObjects>(&(*fakeBS_), edm::do_nothing_deleter());
+    // or copy in case 'const BeamSpotObjects fakeBS_' member would not be preferred
+    //return std::make_shared<BeamSpotObjects>(fakeBS_);
+  }
 
+  const BeamSpotOnlineObjects* best;
+  if (legacyRec and hltRec) {
+    best = compareBS(&legacyRec->get(bsLegacyToken_), &hltRec->get(bsHLTToken_));
+  } else if (legacyRec) {
+    best = &legacyRec->get(bsLegacyToken_);
+  } else {
+    best = &hltRec->get(bsHLTToken_);
+  }
+  return std::shared_ptr<const BeamSpotObjects>(best, edm::do_nothing_deleter());
 };
 
 DEFINE_FWK_EVENTSETUP_MODULE(OnlineBeamSpotESProducer);

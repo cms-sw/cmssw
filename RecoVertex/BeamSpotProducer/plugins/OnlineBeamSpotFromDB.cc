@@ -9,7 +9,6 @@
 
 ________________________________________________________________**/
 
-
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -29,10 +28,12 @@ ________________________________________________________________**/
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include <string>
 class MyHelper {
-  public:
-    MyHelper(edm::ParameterSet const& iPS, edm::ConsumesCollector && iC, edm::ESGetToken<BeamSpotObjects, BeamSpotTransientObjectsRcd>& bsToken_){    
-       bsToken_ =iC.esConsumes<BeamSpotObjects, BeamSpotTransientObjectsRcd>();
-    }
+public:
+  MyHelper(edm::ParameterSet const& iPS,
+           edm::ConsumesCollector&& iC,
+           edm::ESGetToken<BeamSpotObjects, BeamSpotTransientObjectsRcd>& bsToken_) {
+    bsToken_ = iC.esConsumes<BeamSpotObjects, BeamSpotTransientObjectsRcd>();
+  }
 };
 
 class OnlineBeamSpotFromDB : public edm::one::EDAnalyzer<> {
@@ -41,17 +42,15 @@ public:
   ~OnlineBeamSpotFromDB() override;
   static void fillDescriptions(edm::ConfigurationDescriptions& desc);
   edm::ESGetToken<BeamSpotObjects, BeamSpotTransientObjectsRcd> bsToken_;
-  
 
-private:  
+private:
   void beginJob() override;
   void analyze(const edm::Event&, const edm::EventSetup&) override;
   void endJob() override;
 };
 
 OnlineBeamSpotFromDB::OnlineBeamSpotFromDB(const edm::ParameterSet& iConfig) {
-  MyHelper m_helper(iConfig, consumesCollector(),bsToken_); 
- 
+  MyHelper m_helper(iConfig, consumesCollector(), bsToken_);
 }
 
 OnlineBeamSpotFromDB::~OnlineBeamSpotFromDB() {}
@@ -76,8 +75,6 @@ void OnlineBeamSpotFromDB::fillDescriptions(edm::ConfigurationDescriptions& desc
 void OnlineBeamSpotFromDB::beginJob() {}
 
 void OnlineBeamSpotFromDB::endJob() {}
-
-
 
 //define this as a plug-in
 DEFINE_FWK_MODULE(OnlineBeamSpotFromDB);
