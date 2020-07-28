@@ -1,23 +1,59 @@
-#include "RecoVertex/BeamSpotProducer/plugins/OnlineBeamSpotESProducer.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/ModuleFactory.h"
 #include "FWCore/Framework/interface/ESProducer.h"
 #include "FWCore/Utilities/interface/do_nothing_deleter.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+#include "DataFormats/BeamSpot/interface/BeamSpot.h"
+#include "CondFormats/DataRecord/interface/BeamSpotObjectsRcd.h"
+//#include "CondFormats/BeamSpotObjects/interface/BeamSpotObjects.h"
+#include "CondFormats/BeamSpotObjects/interface/BeamSpotOnlineObjects.h"
+#include "CondFormats/DataRecord/interface/BeamSpotOnlineLegacyObjectsRcd.h"
+#include "CondFormats/DataRecord/interface/BeamSpotOnlineHLTObjectsRcd.h"
+#include "CondFormats/DataRecord/interface/BeamSpotTransientObjectsRcd.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 
-#include <iostream>
+#include "FWCore/Framework/interface/ESProductHost.h"
+#include "FWCore/Utilities/interface/ReusableObjectHolder.h"
+#include "FWCore/Framework/interface/ESProducer.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include <memory>
+#include <iostream>
 #include <string>
 
 using namespace edm;
 
+class OnlineBeamSpotESProducer : public edm::ESProducer {
+public:
+  OnlineBeamSpotESProducer(const edm::ParameterSet& p);
+  ~OnlineBeamSpotESProducer() override;
+  std::shared_ptr<const BeamSpotObjects> produce(const BeamSpotTransientObjectsRcd&);
+  static void fillDescriptions(edm::ConfigurationDescriptions& desc);
+
+private:
+  const BeamSpotOnlineObjects* compareBS(const BeamSpotOnlineObjects* bs1, const BeamSpotOnlineObjects* bs2);
+  const BeamSpotOnlineObjects* theHLTBS_ = nullptr;
+  const BeamSpotOnlineObjects* theLegacyBS_ = nullptr;
+  const BeamSpotObjects* transientBS_ = nullptr;
+  BeamSpotObjects* fakeBS_;
+  bool newHLT_;
+  bool newLegacy_;
+  
+
+  edm::ESGetToken<BeamSpotObjects, BeamSpotTransientObjectsRcd> const bsToken_;
+  edm::ESGetToken<BeamSpotOnlineObjects, BeamSpotOnlineHLTObjectsRcd> bsHLTToken_;
+  edm::ESGetToken<BeamSpotOnlineObjects, BeamSpotOnlineLegacyObjectsRcd> bsLegacyToken_;
+  //using HostType =
+    //  edm::ESProductHost<BeamSpotOnlineObjects, BeamSpotOnlineHLTObjectsRcd, BeamSpotOnlineLegacyObjectsRcd>;
+
+  //edm::ReusableObjectHolder<HostType> holder_;
+};
 OnlineBeamSpotESProducer::OnlineBeamSpotESProducer(const edm::ParameterSet& p) {
   auto cc = setWhatProduced(this);
 
-  //transientBS_ = new BeamSpotObjects;
-  theHLTBS_ = new BeamSpotOnlineObjects;
-  theLegacyBS_ = new BeamSpotOnlineObjects;
+
+ // theHLTBS_ = new BeamSpotOnlineObjects;
+  //theLegacyBS_ = new BeamSpotOnlineObjects;
   fakeBS_ = new BeamSpotOnlineObjects;
   fakeBS_->SetBeamWidthX(0.1);
   fakeBS_->SetBeamWidthY(0.1);
@@ -29,7 +65,7 @@ OnlineBeamSpotESProducer::OnlineBeamSpotESProducer(const edm::ParameterSet& p) {
   bsLegacyToken_ = cc.consumesFrom<BeamSpotOnlineObjects, BeamSpotOnlineLegacyObjectsRcd>();
 }
 
-void OnlineBeamSpotESProducer::fillDescription(edm::ConfigurationDescriptions& desc) {
+void OnlineBeamSpotESProducer::fillDescriptions(edm::ConfigurationDescriptions& desc) {
   edm::ParameterSetDescription dsc;
   desc.addWithDefaultLabel(dsc);
 }
@@ -60,56 +96,26 @@ OnlineBeamSpotESProducer::~OnlineBeamSpotESProducer() {
 }
 
 std::shared_ptr<const BeamSpotObjects> OnlineBeamSpotESProducer::produce(const BeamSpotTransientObjectsRcd& iRecord) {
-  if (!(iRecord.tryToGetRecord<BeamSpotOnlineLegacyObjectsRcd>()) &&
-      !(iRecord.tryToGetRecord<BeamSpotOnlineHLTObjectsRcd>())) {
-    transientBS_ = fakeBS_;
-    return std::shared_ptr<const BeamSpotObjects>(&(*transientBS_), edm::do_nothing_deleter());
-  }
+auto legacyRec = iRecord.tryToGetRecord<BeamSpotOnlineLegacyObjectsRcd>();
+auto hltRec = iRecord.tryToGetRecord<BeamSpotOnlineHLTObjectsRcd>();
+if (not legacyRec and not hltRec) {
+  return std::shared_ptr<const BeamSpotObjects>(&(*fakeBS_), edm::do_nothing_deleter());
+  // or copy in case 'const BeamSpotObjects fakeBS_' member would not be preferred
+  //return std::make_shared<BeamSpotObjects>(fakeBS_);
+}
+ 
+const BeamSpotOnlineObjects* best;
+if (legacyRec and hltRec) {
+  best = compareBS(&legacyRec->get(bsLegacyToken_), &hltRec->get(bsHLTToken_));
+}
+else if (legacyRec) {
+  best = &legacyRec->get(bsLegacyToken_);
+}
+else {
+  best = &hltRec->get(bsHLTToken_);
+}
+return std::shared_ptr<const BeamSpotObjects>(best, edm::do_nothing_deleter());
 
-  auto host = holder_.makeOrGet([]() { return new HostType; });
-
-  newHLT_ = false;
-  newLegacy_ = false;
-  if (iRecord.tryToGetRecord<BeamSpotOnlineHLTObjectsRcd>()) {
-    host->ifRecordChanges<BeamSpotOnlineHLTObjectsRcd>(iRecord, [this, h = host.get()](auto const& rec) {
-      newHLT_ = true;
-      theHLTBS_ = &rec.get(bsHLTToken_);
-    });
-  }
-  if (iRecord.tryToGetRecord<BeamSpotOnlineLegacyObjectsRcd>()) {
-    host->ifRecordChanges<BeamSpotOnlineLegacyObjectsRcd>(iRecord, [this, h = host.get()](auto const& rec) {
-      newLegacy_ = true;
-      theLegacyBS_ = &rec.get(bsLegacyToken_);
-    });
-  }
-
-  //we need to compare the transientBS_ which is the last one put in the event with whatever new one arrives. We cannot exclude we
-  //have both new records at the same LS
-  if (newHLT_ && !newLegacy_) {
-    //compare newHLT with transientBS_
-    //temporary test
-    transientBS_ = theHLTBS_;
-    newHLT_ = false;
-    //transientBS_ = compareBS(theHLTBS_, transientBS_);
-  }
-
-  if (newLegacy_ && !newHLT_) {
-    //compare newLegacy_ with transientBS_
-    transientBS_ = theLegacyBS_;
-    newLegacy_ = false;
-    //transientBS_ = compareBS(theLegacyBS_, transientBS_);
-  }
-  if (newHLT_ && newLegacy_) {
-    //compare newHLT_ with transientBS_ and then with newLegacy_
-    //test
-    transientBS_ = theHLTBS_;
-    newHLT_ = false;
-    newLegacy_ = false;
-    //transientBS_ = compareBS(theHLTBS_, transientBS_);
-    // transientBS_ = compareBS(theLegacyBS_, transientBS_);
-  };
-
-  return std::shared_ptr<const BeamSpotObjects>(&(*transientBS_), edm::do_nothing_deleter());
 };
 
 DEFINE_FWK_EVENTSETUP_MODULE(OnlineBeamSpotESProducer);
