@@ -226,8 +226,8 @@ void L1MuGMTLUT::Load(const char* path) {
 
       L1MuGMTLUTHelpers::replace(tok[1], "\t", " ", false);  // convert tabs to spaces
       L1MuGMTLUTHelpers::replace(tok[1], "  ", " ", true);   // skip multiple spaces
-      tok[1].erase(0, tok[1].find_first_not_of(" "));        // skip leading spaces
-      tok[1].erase(tok[1].find_last_not_of(" ") + 1);        // skip trailing spaces
+      tok[1].erase(0, tok[1].find_first_not_of(' '));        // skip leading spaces
+      tok[1].erase(tok[1].find_last_not_of(' ') + 1);        // skip trailing spaces
 
       if (tok[0] == "NAME")
         lf_name = tok[1];

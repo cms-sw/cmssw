@@ -545,6 +545,7 @@ void HcalTriggerPrimitiveAlgo::analyzeHF2016(const IntegerCaloSamples& samples,
   }
 
   std::vector<int> finegrain_converted;
+  finegrain_converted.reserve(finegrain.size());
   for (const auto& fg : finegrain)
     finegrain_converted.push_back(fg.to_ulong());
   outcoder_->compress(output, finegrain_converted, result);
@@ -682,6 +683,7 @@ void HcalTriggerPrimitiveAlgo::analyzeHFQIE10(const IntegerCaloSamples& samples,
     output[bin] = min({(unsigned int)QIE10_MAX_LINEARIZATION_ET, output[bin] >> (hf_lumi_shift - 2)});
   }
   std::vector<int> finegrain_converted;
+  finegrain_converted.reserve(finegrain.size());
   for (const auto& fg : finegrain)
     finegrain_converted.push_back(fg.to_ulong());
   outcoder_->compress(output, finegrain_converted, result);
