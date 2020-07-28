@@ -21,10 +21,8 @@
 #include "DataFormats/CaloRecHit/interface/CaloID.h"
 
 // Geometry
-#include "Geometry/Records/interface/CaloGeometryRecord.h"
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
-#include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "Geometry/CaloTopology/interface/EcalEndcapTopology.h"
 #include "Geometry/CaloTopology/interface/EcalBarrelTopology.h"
 
@@ -39,6 +37,9 @@ Multi5x5ClusterProducer::Multi5x5ClusterProducer(const edm::ParameterSet& ps) {
   barrelHitToken_ = consumes<EcalRecHitCollection>(ps.getParameter<edm::InputTag>("barrelHitTag"));
 
   endcapHitToken_ = consumes<EcalRecHitCollection>(ps.getParameter<edm::InputTag>("endcapHitTag"));
+
+  //EventSetup Token for CaloGeometry
+  caloGeometryToken_ = esConsumes<CaloGeometry, CaloGeometryRecord>();
 
   // should cluster algo be run in barrel and endcap?
   doEndcap_ = ps.getParameter<bool>("doEndcap");
@@ -103,8 +104,7 @@ void Multi5x5ClusterProducer::clusterizeECALPart(edm::Event& evt,
   const EcalRecHitCollection* hitCollection_p = getCollection(evt, token);
 
   // get the geometry and topology from the event setup:
-  edm::ESHandle<CaloGeometry> geoHandle;
-  es.get<CaloGeometryRecord>().get(geoHandle);
+  edm::ESHandle<CaloGeometry> geoHandle = es.getHandle(caloGeometryToken_);
 
   const CaloSubdetectorGeometry* geometry_p;
   std::unique_ptr<CaloSubdetectorTopology> topology_p;
