@@ -10,3 +10,4 @@ ttrhbwr = cms.ESProducer("TkTransientTrackingRecHitBuilderESProducer",
 
 from Configuration.Eras.Modifier_trackingPhase2PU140_cff import trackingPhase2PU140
 trackingPhase2PU140.toModify(ttrhbwr, Phase2StripCPE = cms.string('Phase2StripCPE'))
+
