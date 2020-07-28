@@ -5,11 +5,6 @@ process = cms.Process("HLTX")
 ### Load all ESSources, ESProducers and PSets
 process.load("HLTrigger.Configuration.Phase2.hltPhase2Setup_cff")
 
-### ES Prefers... would "prefer" to have them somewhere else
-process.prefer("es_hardcode")
-process.prefer("ppsDBESSource")
-process.prefer("siPixelFakeGainOfflineESSource")
-
 ### GlobalTag
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 process.GlobalTag.globaltag = "111X_mcRun4_realistic_T15_v1"
