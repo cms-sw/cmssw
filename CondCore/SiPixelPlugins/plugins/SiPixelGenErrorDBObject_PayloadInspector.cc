@@ -48,8 +48,6 @@
 
 namespace {
 
-  enum MapType { t_barrel = 0, t_forward = 1 };
-
   /************************************************
   // header plotting
   *************************************************/
@@ -140,11 +138,10 @@ namespace {
     }
   };
 
-
- /************************************************
+  /************************************************
   // testing TH2Poly classes for plotting
   *************************************************/
-  template <MapType myType>
+  template <SiPixelPI::DetType myType>
   class SiPixelGenErrorIDs
       : public cond::payloadInspector::PlotImage<SiPixelGenErrorDBObject, cond::payloadInspector::SINGLE_IOV> {
   public:
@@ -162,14 +159,14 @@ namespace {
       if (payload.get()) {
         // Book the TH2Poly
         Phase1PixelMaps theMaps("text");
-        if (myType == t_barrel) {
-          theMaps.bookBarrelHistograms("templateIDsBarrel", "IDs", "template IDs");
+        if (myType == SiPixelPI::t_barrel) {
+          theMaps.bookBarrelHistograms("generrorIDsBarrel", "genErrorIDs", "genError IDs");
           // book the barrel bins of the TH2Poly
-          theMaps.bookBarrelBins("templateIDsBarrel");
-        } else if (myType == t_forward) {
-          theMaps.bookForwardHistograms("templateIDsForward", "IDs", "template IDs");
+          theMaps.bookBarrelBins("generrorIDsBarrel");
+        } else if (myType == SiPixelPI::t_forward) {
+          theMaps.bookForwardHistograms("generrorIDsForward", "genErrorIDs", "genError IDs");
           // book the forward bins of the TH2Poly
-          theMaps.bookForwardBins("templateIDsForward");
+          theMaps.bookForwardBins("generrorIDsForward");
         }
 
         std::map<unsigned int, short> templMap = payload->getGenErrorIDs();
@@ -191,31 +188,23 @@ namespace {
           }
         }
 
-        /*
-        std::vector<unsigned int> detids;
-        std::transform(templMap.begin(),
-                       templMap.end(),
-                       std::back_inserter(detids),
-                       [](const std::map<unsigned int, short>::value_type& pair) { return pair.first; });
-	*/
-
         for (auto const& entry : templMap) {
-          COUT << "DetID: " << entry.first << " template ID: " << entry.second << std::endl;
+          COUT << "DetID: " << entry.first << " generror ID: " << entry.second << std::endl;
           auto detid = DetId(entry.first);
-          if ((detid.subdetId() == PixelSubdetector::PixelBarrel) && (myType == t_barrel)) {
-            theMaps.fillBarrelBin("templateIDsBarrel", entry.first, entry.second);
-          } else if ((detid.subdetId() == PixelSubdetector::PixelEndcap) && (myType == t_forward)) {
-            theMaps.fillForwardBin("templateIDsForward", entry.first, entry.second);
+          if ((detid.subdetId() == PixelSubdetector::PixelBarrel) && (myType == SiPixelPI::t_barrel)) {
+            theMaps.fillBarrelBin("generrorIDsBarrel", entry.first, entry.second);
+          } else if ((detid.subdetId() == PixelSubdetector::PixelEndcap) && (myType == SiPixelPI::t_forward)) {
+            theMaps.fillForwardBin("generrorIDsForward", entry.first, entry.second);
           }
         }
 
         theMaps.beautifyAllHistograms();
 
-        TCanvas canvas("Canv", "Canv", (myType == t_barrel) ? 1200 : 1500, 1000);
-        if (myType == t_barrel) {
-          theMaps.DrawBarrelMaps("templateIDsBarrel", canvas);
-        } else if (myType == t_forward) {
-          theMaps.DrawForwardMaps("templateIDsForward", canvas);
+        TCanvas canvas("Canv", "Canv", (myType == SiPixelPI::t_barrel) ? 1200 : 1500, 1000);
+        if (myType == SiPixelPI::t_barrel) {
+          theMaps.DrawBarrelMaps("generrorIDsBarrel", canvas);
+        } else if (myType == SiPixelPI::t_forward) {
+          theMaps.DrawForwardMaps("generrorIDsForward", canvas);
         }
 
         canvas.cd();
@@ -227,15 +216,14 @@ namespace {
     }
   };
 
-  using SiPixelGenErrorIDsBPixMap = SiPixelGenErrorIDs<t_barrel>;
-  using SiPixelGenErrorIDsFPixMap = SiPixelGenErrorIDs<t_forward>;
+  using SiPixelGenErrorIDsBPixMap = SiPixelGenErrorIDs<SiPixelPI::t_barrel>;
+  using SiPixelGenErrorIDsFPixMap = SiPixelGenErrorIDs<SiPixelPI::t_forward>;
 
-}
+}  // namespace
 
 // Register the classes as boost python plugin
 PAYLOAD_INSPECTOR_MODULE(SiPixelGenErrorDBObject) {
   PAYLOAD_INSPECTOR_CLASS(SiPixelGenErrorHeaderTable);
-  //PAYLOAD_INSPECTOR_CLASS(SiPixelGenErrorDBObjectTest);
   PAYLOAD_INSPECTOR_CLASS(SiPixelGenErrorIDsBPixMap);
   PAYLOAD_INSPECTOR_CLASS(SiPixelGenErrorIDsFPixMap);
 }
