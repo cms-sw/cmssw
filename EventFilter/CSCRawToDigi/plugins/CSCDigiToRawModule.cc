@@ -153,7 +153,6 @@ void CSCDigiToRawModule::produce(edm::StreamID, edm::Event& e, const edm::EventS
   edm::Handle<CSCComparatorDigiCollection> comparatorDigis;
   edm::Handle<CSCALCTDigiCollection> alctDigis;
   edm::Handle<CSCCLCTDigiCollection> clctDigis;
-  edm::Handle<CSCCLCTPreTriggerCollection> preTriggers;
   edm::Handle<CSCCorrelatedLCTDigiCollection> correlatedLCTDigis;
 
   e.getByToken(wd_token, wireDigis);
@@ -161,8 +160,9 @@ void CSCDigiToRawModule::produce(edm::StreamID, edm::Event& e, const edm::EventS
   e.getByToken(cd_token, comparatorDigis);
   e.getByToken(al_token, alctDigis);
   e.getByToken(cl_token, clctDigis);
+  CSCCLCTPreTriggerCollection const* preTriggersPtr = nullptr;
   if (usePreTriggers)
-    e.getByToken(pr_token, preTriggers);
+    preTriggersPtr = &e.get(pr_token);
   e.getByToken(co_token, correlatedLCTDigis);
   const GEMPadDigiClusterCollection* padDigiClustersPtr = nullptr;
   if (useGEMs_) {
@@ -174,14 +174,13 @@ void CSCDigiToRawModule::produce(edm::StreamID, edm::Event& e, const edm::EventS
                             *comparatorDigis,
                             *alctDigis,
                             *clctDigis,
-                            *preTriggers,
+                            preTriggersPtr,
                             *correlatedLCTDigis,
                             padDigiClustersPtr,
                             fed_buffers,
                             theMapping,
-                            e,
+                            e.id(),
                             theFormatVersion,
-                            usePreTriggers,
                             packEverything_);
 
   // put the raw data to the event
