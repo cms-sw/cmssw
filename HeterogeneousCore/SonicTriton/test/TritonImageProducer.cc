@@ -11,16 +11,12 @@
 #include <vector>
 #include <map>
 
-template <typename Client>
-class TritonImageProducer : public SonicEDProducer<Client> {
+class TritonImageProducer : public SonicEDProducer<TritonClient> {
 public:
-  //needed because base class has dependent scope
-  using typename SonicEDProducer<Client>::Input;
-  using typename SonicEDProducer<Client>::Output;
   explicit TritonImageProducer(edm::ParameterSet const& cfg)
-      : SonicEDProducer<Client>(cfg), topN_(cfg.getParameter<unsigned>("topN")) {
+      : SonicEDProducer<TritonClient>(cfg), topN_(cfg.getParameter<unsigned>("topN")) {
     //for debugging
-    this->setDebugName("TritonImageProducer");
+    setDebugName("TritonImageProducer");
     //load score list
     std::string imageListFile(cfg.getParameter<std::string>("imageList"));
     std::ifstream ifile(imageListFile);
@@ -35,17 +31,21 @@ public:
   }
   void acquire(edm::Event const& iEvent, edm::EventSetup const& iSetup, Input& iInput) override {
     // create an npix x npix x ncol image w/ arbitrary color value
-    iInput.resize(client_.nInput() * client_.batchSize(), 0.5f);
+    // model only has one input, so just pick begin()
+    auto& input1 = iInput.begin()->second;
+    auto data1 = std::make_shared<std::vector<float>>(input1.sizeDims() * input1.batchSize(), 0.5f);
+    // convert to server format
+    input1.toServer(data1);
   }
   void produce(edm::Event& iEvent, edm::EventSetup const& iSetup, Output const& iOutput) override {
-    //check the results
-    findTopN(iOutput);
+    // check the results
+    findTopN(iOutput.begin()->second);
   }
   ~TritonImageProducer() override = default;
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
     edm::ParameterSetDescription desc;
-    Client::fillPSetDescription(desc);
+    TritonClient::fillPSetDescription(desc);
     desc.add<unsigned>("topN", 5);
     desc.add<std::string>("imageList");
     //to ensure distinct cfi names
@@ -53,14 +53,15 @@ public:
   }
 
 private:
-  using SonicEDProducer<Client>::client_;
-  void findTopN(const std::vector<float>& scores, unsigned n = 5) const {
-    auto dim = client_.nOutput();
-    for (unsigned i0 = 0; i0 < client_.batchSize(); i0++) {
+  void findTopN(const TritonOutputData& scores, unsigned n = 5) const {
+    std::vector<float> tmp;
+    scores.fromServer(tmp);
+    auto dim = scores.sizeDims();
+    for (unsigned i0 = 0; i0 < scores.batchSize(); i0++) {
       //match score to type by index, then put in largest-first map
       std::map<float, std::string, std::greater<float>> score_map;
       for (unsigned i = 0; i < std::min((unsigned)dim, (unsigned)imageList_.size()); ++i) {
-        score_map.emplace(scores[i0 * dim + i], imageList_[i]);
+        score_map.emplace(tmp[i0 * dim + i], imageList_[i]);
       }
       //get top n
       std::stringstream msg;
@@ -80,10 +81,4 @@ private:
   std::vector<std::string> imageList_;
 };
 
-using TritonImageProducerSync = TritonImageProducer<TritonClientSync>;
-using TritonImageProducerAsync = TritonImageProducer<TritonClientAsync>;
-using TritonImageProducerPseudoAsync = TritonImageProducer<TritonClientPseudoAsync>;
-
-DEFINE_FWK_MODULE(TritonImageProducerSync);
-DEFINE_FWK_MODULE(TritonImageProducerAsync);
-DEFINE_FWK_MODULE(TritonImageProducerPseudoAsync);
+DEFINE_FWK_MODULE(TritonImageProducer);
