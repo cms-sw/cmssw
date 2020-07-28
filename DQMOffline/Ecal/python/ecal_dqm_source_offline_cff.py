@@ -15,6 +15,7 @@ dqmInfoEcal = DQMEDAnalyzer('DQMEventInfo',
 ## standard
 ecal_dqm_source_offline = cms.Sequence(
     dqmInfoEcal +
+    ecalMonitorTask +
     ecalFEDMonitor +
     ecalPreshowerRecoSummary +
     ecalzmasstask +
