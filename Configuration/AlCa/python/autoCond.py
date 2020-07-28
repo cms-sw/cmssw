@@ -59,7 +59,7 @@ autoCond = {
     # GlobalTag for MC production with realistic conditions for full Phase1 2018 detector
     'phase1_2018_realistic'    :  '112X_upgrade2018_realistic_v2',
     # GlobalTag for MC production with realistic conditions for full Phase1 2018 detector for Heavy Ion
-    'phase1_2018_realistic_hi' :  '112X_upgrade2018_realistic_HI_v1',
+    'phase1_2018_realistic_hi' :  '112X_upgrade2018_realistic_HI_v2',
     # GlobalTag for MC production with realistic conditions for full Phase1 2018 detector: HEM-15-16 fail
     'phase1_2018_realistic_HEfail' :  '112X_upgrade2018_realistic_HEfail_v2',
     # GlobalTag for MC production (cosmics) with realistic conditions for full Phase1 2018 detector,  Strip tracker in DECO mode
@@ -73,7 +73,7 @@ autoCond = {
     # GlobalTag for MC production (cosmics) with realistic conditions for Phase1 2021,  Strip tracker in DECO mode
     'phase1_2021_cosmics'      : '112X_mcRun3_2021cosmics_realistic_deco_v5',
     # GlobalTag for MC production with realistic conditions for Phase1 2021 detector for Heavy Ion
-    'phase1_2021_realistic_hi' : '112X_mcRun3_2021_realistic_HI_v5',
+    'phase1_2021_realistic_hi' : '112X_mcRun3_2021_realistic_HI_v6',
     # GlobalTag for MC production with realistic conditions for Phase1 2023
     'phase1_2023_realistic'    : '112X_mcRun3_2023_realistic_v4', # GT containing realistic conditions for Phase1 2023
     # GlobalTag for MC production with realistic conditions for Phase1 2024
