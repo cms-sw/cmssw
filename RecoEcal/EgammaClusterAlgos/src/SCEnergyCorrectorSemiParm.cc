@@ -41,7 +41,7 @@ void SCEnergyCorrectorSemiParm::setTokens(const edm::ParameterSet &iConfig, edm:
       edm::ESInputTag("", regressionKeyEB_));
   tokenUncertaintyKeyEB_ = cc.esConsumes<GBRForestD, GBRDWrapperRcd, edm::Transition::BeginLuminosityBlock>(
       edm::ESInputTag("", uncertaintyKeyEB_));
-  tokenRegressionReyEE_ = cc.esConsumes<GBRForestD, GBRDWrapperRcd, edm::Transition::BeginLuminosityBlock>(
+  tokenRegressionKeyEE_ = cc.esConsumes<GBRForestD, GBRDWrapperRcd, edm::Transition::BeginLuminosityBlock>(
       edm::ESInputTag("", regressionKeyEE_));
   tokenUncertaintyKeyEE_ = cc.esConsumes<GBRForestD, GBRDWrapperRcd, edm::Transition::BeginLuminosityBlock>(
       edm::ESInputTag("", uncertaintyKeyEE_));
@@ -60,7 +60,7 @@ void SCEnergyCorrectorSemiParm::setEventSetup(const edm::EventSetup &es) {
 
   edm::ESHandle<GBRForestD> readereb = es.getHandle(tokenRegressionKeyEB_);
   edm::ESHandle<GBRForestD> readerebvar = es.getHandle(tokenUncertaintyKeyEB_);
-  edm::ESHandle<GBRForestD> readeree = es.getHandle(tokenRegressionReyEE_);
+  edm::ESHandle<GBRForestD> readeree = es.getHandle(tokenRegressionKeyEE_);
   edm::ESHandle<GBRForestD> readereevar = es.getHandle(tokenUncertaintyKeyEE_);
 
   foresteb_ = readereb.product();

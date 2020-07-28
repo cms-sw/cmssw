@@ -55,7 +55,7 @@ protected:
   edm::ESGetToken<CaloGeometry, CaloGeometryRecord> tokenCaloGeom_;
   edm::ESGetToken<GBRForestD, GBRDWrapperRcd> tokenRegressionKeyEB_;
   edm::ESGetToken<GBRForestD, GBRDWrapperRcd> tokenUncertaintyKeyEB_;
-  edm::ESGetToken<GBRForestD, GBRDWrapperRcd> tokenRegressionReyEE_;
+  edm::ESGetToken<GBRForestD, GBRDWrapperRcd> tokenRegressionKeyEE_;
   edm::ESGetToken<GBRForestD, GBRDWrapperRcd> tokenUncertaintyKeyEE_;
 
   edm::EDGetTokenT<EcalRecHitCollection> tokenEBRecHits_;
