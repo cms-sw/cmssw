@@ -51,7 +51,7 @@ const BeamSpotOnlineObjects* OnlineBeamSpotESProducer::compareBS(const BeamSpotO
       return bs1;
     }
   }
-                                                                 }
+}
 OnlineBeamSpotESProducer::~OnlineBeamSpotESProducer() {
   delete theHLTBS_;
   delete theLegacyBS_;
