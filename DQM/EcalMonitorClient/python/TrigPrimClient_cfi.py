@@ -18,10 +18,8 @@ ecalTrigPrimClient = cms.untracked.PSet(
         EtEmulError = ecalTrigPrimTask.MEs.EtEmulError,
         MatchedIndex = ecalTrigPrimTask.MEs.MatchedIndex,
         TTFlags4 = ecalTrigPrimTask.MEs.TTFlags4,
-        TTFlags4ByLumi = ecalTrigPrimTask.MEs.TTFlags4ByLumi,
         TTMaskMapAll = ecalTrigPrimTask.MEs.TTMaskMapAll,
         TTFMismatch = ecalTrigPrimTask.MEs.TTFMismatch,
-        LHCStatusByLumi = ecalTrigPrimTask.MEs.LHCStatusByLumi,
         TPDigiThrAll = ecalOccupancyTask.MEs.TPDigiThrAll
     ),
     MEs = cms.untracked.PSet(
@@ -58,13 +56,6 @@ ecalTrigPrimClient = cms.untracked.PSet(
             otype = cms.untracked.string('Ecal3P'),
             btype = cms.untracked.string('TriggerTower'),
             description = cms.untracked.string('Summarizes whether a TT was masked in the TPGRecords, or had an instance of TT Flag=4.<br/>GRAY: Masked, no TTF4,<br/>BLACK: Masked, with TTF4,<br/>BLUE: Not Masked, with TTF4.')
-        ),
-        TTF4vMaskByLumi = cms.untracked.PSet(
-            path = cms.untracked.string('%(subdet)s/%(prefix)sTriggerTowerTask/%(prefix)sTTT TTF4 vs Masking Status%(suffix)s by lumi'),
-            kind = cms.untracked.string('TH2F'),
-            otype = cms.untracked.string('Ecal3P'),
-            btype = cms.untracked.string('TriggerTower'),
-            description = cms.untracked.string('Summarizes whether a TT was masked in this lumisection in the TPGRecords, or had an instance of TT Flag=4.<br/>GRAY: Masked, no TTF4,<br/>BLACK: Masked, with TTF4,<br/>BLUE: Not Masked, with TTF4.')
         ),
         TrendTTF4Flags = cms.untracked.PSet(
             path = cms.untracked.string('Ecal/Trends/TrigPrimClient %(prefix)s number of TTs with TTF4 set'),

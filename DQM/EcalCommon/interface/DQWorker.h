@@ -57,9 +57,6 @@ namespace ecaldqm {
     virtual void beginRun(edm::Run const &, edm::EventSetup const &) {}
     virtual void endRun(edm::Run const &, edm::EventSetup const &) {}
 
-    virtual void beginLuminosityBlock(edm::LuminosityBlock const &, edm::EventSetup const &) {}
-    virtual void endLuminosityBlock(edm::LuminosityBlock const &, edm::EventSetup const &) {}
-
     virtual void bookMEs(DQMStore::IBooker &);
     virtual void releaseMEs();
 

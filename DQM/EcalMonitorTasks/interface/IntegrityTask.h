@@ -15,8 +15,6 @@ namespace ecaldqm {
     IntegrityTask();
     ~IntegrityTask() override {}
 
-    void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
-
     bool analyze(void const*, Collections) override;
 
     template <class C>

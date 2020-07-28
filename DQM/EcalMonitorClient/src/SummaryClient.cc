@@ -58,18 +58,6 @@ namespace ecaldqm {
     }
     meReportSummary.fill(-1.);
 
-    MESet const& sIntegrityByLumi(sources_.at("IntegrityByLumi"));
-    MESet const& sDesyncByLumi(sources_.at("DesyncByLumi"));
-    MESet const& sFEByLumi(sources_.at("FEByLumi"));                          // Does NOT include FE=Disabled
-    MESet const& sFEStatusErrMapByLumi(sources_.at("FEStatusErrMapByLumi"));  // Includes FE=Disabled
-
-    double integrityByLumi[nDCC];
-    double rawDataByLumi[nDCC];
-    for (unsigned iDCC(0); iDCC < nDCC; ++iDCC) {
-      integrityByLumi[iDCC] = sIntegrityByLumi.getBinContent(iDCC + 1);
-      rawDataByLumi[iDCC] = sDesyncByLumi.getBinContent(iDCC + 1) + sFEByLumi.getBinContent(iDCC + 1);
-    }
-
     MESet& meQualitySummary(MEs_.at("QualitySummary"));
     MESet& meReportSummaryMap(MEs_.at("ReportSummaryMap"));
 
@@ -118,14 +106,12 @@ namespace ecaldqm {
       int trigprim(sTriggerPrimitives ? (int)sTriggerPrimitives->getBinContent(id) : kUnknown);
       int rawdata(sRawData.getBinContent(id));
 
-      double rawdataLS(sFEStatusErrMapByLumi.getBinContent(id));  // Includes FE=Disabled
-
       // If there are no RawData or Integrity errors in this LS, set them back to GOOD
       //if(integrity == kBad && integrityByLumi[iDCC] == 0.) integrity = kGood;
-      if (integrity == kBad && integrityByLumi[iDCC] == 0. && !hasMismatchDCC[iDCC])
+      if (integrity == kBad && !hasMismatchDCC[iDCC])
         integrity = kGood;
       //if(rawdata == kBad && rawDataByLumi[iDCC] == 0.) rawdata = kGood;
-      if (rawdata == kBad && rawDataByLumi[iDCC] == 0. && rawdataLS == 0.)
+      if (rawdata == kBad)
         rawdata = kGood;
 
       // Fill Global Quality Summary
@@ -162,7 +148,7 @@ namespace ecaldqm {
       // Keep running count of good channels in RawData only: Uses LS stats only.
       // LS-based reports only use RawData as input to save on having to run other workers
       bool isMasked(meQualitySummary.maskMatches(id, mask, statusManager_));
-      if (rawdataLS == 0. || isMasked) {  // channel != kBad in rawdata
+      if (isMasked) {  // channel != kBad in rawdata
         dccGoodRaw[iDCC] += 1.;
         totalGoodRaw += 1.;
       }

@@ -67,17 +67,6 @@ namespace ecaldqm {
     }
   }
 
-  void DQWorkerClient::endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) {
-// MESetChannel class removed until concurrency issue is finalized
-#if 0
-    for(MESetCollection::iterator sItr(sources_.begin()); sItr != sources_.end(); ++sItr){
-      if(!sItr->second->getLumiFlag()) continue;
-      MESetChannel const* channel(dynamic_cast<MESetChannel const*>(sItr->second));
-      if(channel) channel->checkDirectory();
-    }
-#endif
-  }
-
   void DQWorkerClient::bookMEs(DQMStore::IBooker& _ibooker) {
     DQWorker::bookMEs(_ibooker);
     resetMEs();

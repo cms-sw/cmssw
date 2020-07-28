@@ -19,7 +19,6 @@ namespace ecaldqm {
 
     static void fillDescriptions(edm::ParameterSetDescription&);
 
-    void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
     void resetPerLumi();
 
     void bookMEs(DQMStore::IBooker&) override;

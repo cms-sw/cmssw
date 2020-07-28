@@ -177,13 +177,6 @@ ecalTrigPrimTask = cms.untracked.PSet(
             btype = cms.untracked.string('TriggerTower'),
             description = cms.untracked.string('Occupancy for TP digis with TTF=4.')
         ),
-        TTFlags4ByLumi = cms.untracked.PSet(
-            path = cms.untracked.string('%(subdet)s/%(prefix)sTriggerTowerTask/%(prefix)sTTT TTF4 Occupancy%(suffix)s by lumi'),
-            kind = cms.untracked.string('TH2F'),
-            otype = cms.untracked.string('Ecal3P'),
-            btype = cms.untracked.string('TriggerTower'),
-            description = cms.untracked.string('Occupancy for TP digis with TTF=4, by lumisection.')
-        ),
         TTMaskMap = cms.untracked.PSet(
             path = cms.untracked.string('%(subdet)s/%(prefix)sTriggerTowerTask/TTStatus/%(prefix)sTTT TT Masking Status%(sm)s'),
             kind = cms.untracked.string('TProfile2D'),
@@ -218,19 +211,6 @@ ecalTrigPrimTask = cms.untracked.PSet(
             otype = cms.untracked.string('Ecal3P'),
             btype = cms.untracked.string('TriggerTower'),
             description = cms.untracked.string('2D distribution of the trigger primitive Et.')
-        ),
-        EtSummaryByLumi = cms.untracked.PSet(
-            path = cms.untracked.string('%(subdet)s/%(prefix)sSummaryClient/%(prefix)sTTT%(suffix)s Et trigger tower summary by lumi'),
-            kind = cms.untracked.string('TProfile2D'),
-            zaxis = cms.untracked.PSet(
-                high = cms.untracked.double(256.0),
-                nbins = cms.untracked.int32(128),
-                low = cms.untracked.double(0.0),
-                title = cms.untracked.string('TP Et')
-            ),
-            otype = cms.untracked.string('Ecal3P'),
-            btype = cms.untracked.string('TriggerTower'),
-            description = cms.untracked.string('2D distribution of the Trigger Primitives Et for this lumisection.')
         ),
         EtRealMap = cms.untracked.PSet(
             path = cms.untracked.string('%(subdet)s/%(prefix)sTriggerTowerTask/%(prefix)sTTT Et map Real Digis %(sm)s'),
@@ -276,13 +256,6 @@ ecalTrigPrimTask = cms.untracked.PSet(
             btype = cms.untracked.string('User'),
             path = cms.untracked.string('%(subdet)s/%(prefix)sTriggerTowerTask/%(prefix)sTTT Real vs Emulated TP Et%(suffix)s'),
             description = cms.untracked.string('Real data VS emulated TP Et (in-time)')
-        ),
-        LHCStatusByLumi = cms.untracked.PSet(
-            path = cms.untracked.string('Ecal/Trends/LHC status by lumi'),
-            kind = cms.untracked.string('REAL'),
-            otype = cms.untracked.string('None'),
-            btype = cms.untracked.string('User'),
-            description = cms.untracked.string('LHC Status in this lumisection. The convention for the value is the same as in the plot Info/LhcInfo/beamMode')
         )
     )
 )

@@ -167,28 +167,12 @@ ecalRawDataTask = cms.untracked.PSet(
             btype = cms.untracked.string('DCC'),
             description = cms.untracked.string('Number of discrepancies between bunch crossing numbers recorded in the DCC and that in CMS Event.')
         ),
-        DesyncByLumi = cms.untracked.PSet(
-            path = cms.untracked.string('%(subdet)s/%(prefix)sRawDataTask/%(prefix)sRDT FE synchronization errors by lumi'),
-            kind = cms.untracked.string('TH1F'),
-            otype = cms.untracked.string('Ecal2P'),
-            btype = cms.untracked.string('DCC'),
-            perLumi = cms.untracked.bool(True),
-            description = cms.untracked.string('Total number of synchronization errors (L1A & BX mismatches) between DCC and FE in this lumi section.')
-        ),
         L1ATCC = cms.untracked.PSet(
             path = cms.untracked.string('%(subdet)s/%(prefix)sRawDataTask/%(prefix)sRDT L1A TCC errors'),
             kind = cms.untracked.string('TH1F'),
             otype = cms.untracked.string('Ecal2P'),
             btype = cms.untracked.string('DCC'),
             description = cms.untracked.string('Number of L1A value mismatches between DCC and TCC.')
-        ),
-        FEByLumi = cms.untracked.PSet(
-            path = cms.untracked.string('%(subdet)s/%(prefix)sStatusFlagsTask/FEStatus/%(prefix)sSFT weighted frontend errors by lumi'),
-            kind = cms.untracked.string('TH1F'),
-            otype = cms.untracked.string('Ecal2P'),
-            btype = cms.untracked.string('DCC'),
-            perLumi = cms.untracked.bool(True),
-            description = cms.untracked.string('Total number of front-ends in error status in this lumi section.')
         ),
         TrendNSyncErrors = cms.untracked.PSet(
             path = cms.untracked.string('Ecal/Trends/RawDataTask accumulated number of sync errors'),
@@ -277,14 +261,6 @@ ecalRawDataTask = cms.untracked.PSet(
             otype = cms.untracked.string('SM'),
             btype = cms.untracked.string('SuperCrystal'),
             description = cms.untracked.string('FE status counter.')
-        ),
-        FEStatusErrMapByLumi = cms.untracked.PSet(
-            path = cms.untracked.string('%(subdet)s/%(prefix)sStatusFlagsTask/FEStatus/%(prefix)sSFT%(suffix)s front-end status error map by lumi'),
-            kind = cms.untracked.string('TH2F'),
-            otype = cms.untracked.string('Ecal3P'),
-            btype = cms.untracked.string('SuperCrystal'),
-            perLumi = cms.untracked.bool(True),
-            description = cms.untracked.string('FE status error occupancy map for this lumisection. Nominal FE status flags such as ENABLED, SUPPRESSED, FIFOFILL, FIFOFULLL1ADESYNC, and FORCEDZS are NOT included.')
         )
     )
 )

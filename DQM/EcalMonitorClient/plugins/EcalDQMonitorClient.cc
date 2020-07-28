@@ -80,33 +80,6 @@ void EcalDQMonitorClient::beginRun(edm::Run const& _run, edm::EventSetup const& 
 
 void EcalDQMonitorClient::endRun(edm::Run const& _run, edm::EventSetup const& _es) { ecaldqmEndRun(_run, _es); }
 
-void EcalDQMonitorClient::dqmEndLuminosityBlock(DQMStore::IBooker& _ibooker,
-                                                DQMStore::IGetter& _igetter,
-                                                edm::LuminosityBlock const& _lumi,
-                                                edm::EventSetup const& _es) {
-  executeOnWorkers_(
-      [&_ibooker](ecaldqm::DQWorker* worker) {
-        ecaldqm::DQWorkerClient* client(static_cast<ecaldqm::DQWorkerClient*>(worker));
-        if (!client->onlineMode() && !client->runsOn(ecaldqm::DQWorkerClient::kLumi))
-          return;
-        client->bookMEs(_ibooker);
-      },
-      "bookMEs",
-      "Booking MEs");
-
-  ecaldqmEndLuminosityBlock(_lumi, _es);
-
-  runWorkers(_igetter, ecaldqm::DQWorkerClient::kLumi);
-
-  executeOnWorkers_(
-      [](ecaldqm::DQWorker* worker) {
-        ecaldqm::DQWorkerClient* client(static_cast<ecaldqm::DQWorkerClient*>(worker));
-        client->resetPerLumi();
-      },
-      "dqmEndLuminosityBlock",
-      "Reset per-lumi MEs");
-}
-
 void EcalDQMonitorClient::dqmEndJob(DQMStore::IBooker& _ibooker, DQMStore::IGetter& _igetter) {
   executeOnWorkers_(
       [&_ibooker](ecaldqm::DQWorker* worker) {

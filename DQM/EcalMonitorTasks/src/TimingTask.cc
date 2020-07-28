@@ -20,8 +20,7 @@ namespace ecaldqm {
         energyThresholdEE_(0.),
         energyThresholdEEFwd_(0.),
         timingVsBXThreshold_(0.),
-        timeErrorThreshold_(0.),
-        meTimeMapByLS(nullptr) {}
+        timeErrorThreshold_(0.) {}
 
   void TimingTask::setParams(edm::ParameterSet const& _params) {
     bxBinEdges_ = onlineMode_ ? _params.getUntrackedParameter<std::vector<int> >("bxBins")
@@ -45,15 +44,6 @@ namespace ecaldqm {
     }
 
     return false;
-  }
-
-  void TimingTask::beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) {
-    // Fill separate MEs with only 10 LSs worth of stats
-    // Used to correctly fill Presample Trend plots:
-    // 1 pt:10 LS in Trend plots
-    meTimeMapByLS = &MEs_.at("TimeMapByLS");
-    if (timestamp_.iLumi % 10 == 0)
-      meTimeMapByLS->reset();
   }
 
   void TimingTask::beginEvent(edm::Event const& _evt, edm::EventSetup const& _es) {
@@ -123,7 +113,6 @@ namespace ecaldqm {
       if (energy > energyThreshold) {
         meTimeAll.fill(id, time);
         meTimeMap.fill(id, time);
-        meTimeMapByLS->fill(id, time);
         meTime1D.fill(id, time);
         meTimeAllMap.fill(id, time);
       }

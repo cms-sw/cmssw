@@ -29,8 +29,6 @@ ecalTimingClient = cms.untracked.PSet(
     sources = cms.untracked.PSet(
         TimeAllMap = ecalTimingTask.MEs.TimeAllMap,
         TimeMap = ecalTimingTask.MEs.TimeMap,
-        TimeMapByLS = ecalTimingTask.MEs.TimeMapByLS,
-        ChStatus = ecalIntegrityClient.MEs.ChStatus
     ),
     MEs = cms.untracked.PSet(
         RMSAll = cms.untracked.PSet(

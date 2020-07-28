@@ -20,13 +20,6 @@ namespace ecaldqm {
 
   void RawDataTask::beginRun(edm::Run const& _run, edm::EventSetup const&) { runNumber_ = _run.run(); }
 
-  void RawDataTask::beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) {
-    // Reset by LS plots at beginning of every LS
-    MEs_.at("DesyncByLumi").reset();
-    MEs_.at("FEByLumi").reset();
-    MEs_.at("FEStatusErrMapByLumi").reset();
-  }
-
   void RawDataTask::beginEvent(edm::Event const& _evt, edm::EventSetup const&) {
     orbit_ = _evt.orbitNumber() & 0xffffffff;
     bx_ = _evt.bunchCrossing() & 0xfff;
@@ -71,10 +64,7 @@ namespace ecaldqm {
     MESet& meBXFEInvalid(MEs_.at("BXFEInvalid"));
     MESet& meL1AFE(MEs_.at("L1AFE"));
     MESet& meFEStatus(MEs_.at("FEStatus"));
-    MESet& meFEStatusErrMapByLumi(MEs_.at("FEStatusErrMapByLumi"));
-    MESet& meDesyncByLumi(MEs_.at("DesyncByLumi"));
     MESet& meDesyncTotal(MEs_.at("DesyncTotal"));
-    MESet& meFEByLumi(MEs_.at("FEByLumi"));
     MESet& meBXTCC(MEs_.at("BXTCC"));
     MESet& meL1ATCC(MEs_.at("L1ATCC"));
     MESet& meBXSRP(MEs_.at("BXSRP"));
@@ -160,10 +150,6 @@ namespace ecaldqm {
 
         DetId id(getElectronicsMap()->dccTowerConstituents(dccId, iFE + 1).at(0));
         meFEStatus.fill(id, status);
-        // Fill FE Status Error Map with error states only
-        if (status != Enabled && status != Suppressed && status != FIFOFull && status != FIFOFullL1ADesync &&
-            status != ForcedZS)
-          meFEStatusErrMapByLumi.fill(id, status);
 
         switch (status) {
           case Timeout:
@@ -184,12 +170,9 @@ namespace ecaldqm {
       }
 
       if (feDesync > 0.) {
-        meDesyncByLumi.fill(dccId, feDesync);
         meDesyncTotal.fill(dccId, feDesync);
         meTrendNSyncErrors.fill(double(timestamp_.iLumi), feDesync);
       }
-      if (statusError > 0.)
-        meFEByLumi.fill(dccId, statusError);
 
       const vector<short>& tccBx(dcchItr->getTCCBx());
       const vector<short>& tccL1(dcchItr->getTCCLv1());

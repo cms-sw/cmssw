@@ -55,12 +55,6 @@ namespace ecaldqm {
 
   void LedTask::beginRun(edm::Run const&, edm::EventSetup const&) { emptyLS_ = 0; }
 
-  void LedTask::beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) {
-    isemptyLS = 0;
-    if (emptyLS_ + 1 > emptyLSLimit_)
-      emptyLS_ = -1;
-  }
-
   void LedTask::beginEvent(edm::Event const&, edm::EventSetup const&) { pnAmp_.clear(); }
 
   void LedTask::runOnRawData(EcalRawDataCollection const& _rawData) {
@@ -330,11 +324,6 @@ namespace ecaldqm {
 
       meAOverP.fill(id, aop);
     }
-  }
-
-  void LedTask::endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) {
-    if (isemptyLS == 1)
-      emptyLS_ += 1;
   }
 
   DEFINE_ECALDQM_WORKER(LedTask);

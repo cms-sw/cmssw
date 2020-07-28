@@ -21,7 +21,6 @@ namespace ecaldqm {
     bool filterRunType(short const*) override;
 
     void beginRun(edm::Run const&, edm::EventSetup const&) override;
-    void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
     void beginEvent(edm::Event const&, edm::EventSetup const&) override;
 
     bool analyze(void const*, Collections) override;
@@ -30,8 +29,6 @@ namespace ecaldqm {
     void runOnDigis(EEDigiCollection const&);
     void runOnPnDigis(EcalPnDiodeDigiCollection const&);
     void runOnUncalibRecHits(EcalUncalibratedRecHitCollection const&);
-
-    void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
 
   private:
     void setParams(edm::ParameterSet const&) override;

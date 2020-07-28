@@ -25,13 +25,11 @@
 #include <sstream>
 
 EcalDQMonitorTask::EcalDQMonitorTask(edm::ParameterSet const& _ps)
-    : DQMOneLumiEDAnalyzer(),
+    : DQMOneEDAnalyzer(),
       ecaldqm::EcalDQMonitor(_ps),
       schedule_(),
       allowMissingCollections_(_ps.getUntrackedParameter<bool>("allowMissingCollections")),
-      processedEvents_(0),
-      lastResetTime_(0),
-      resetInterval_(_ps.getUntrackedParameter<double>("resetInterval")) {
+      processedEvents_(0) {
   ecaldqm::DependencySet dependencies;
   std::bitset<ecaldqm::nCollections> hasTaskToRun;
   edm::ConsumesCollector collector(consumesCollector());
@@ -70,10 +68,6 @@ EcalDQMonitorTask::EcalDQMonitorTask(edm::ParameterSet const& _ps)
       ss << ecaldqm::collectionName[schedule_[iCol].second] << std::endl;
     edm::LogInfo("EcalDQM") << ss.str();
   }
-
-  edm::ParameterSet const& commonParams(_ps.getUntrackedParameterSet("commonParameters"));
-  if (commonParams.getUntrackedParameter<bool>("onlineMode"))
-    lastResetTime_ = time(nullptr);
 }
 
 /*static*/
@@ -108,30 +102,12 @@ void EcalDQMonitorTask::dqmBeginRun(edm::Run const& _run, edm::EventSetup const&
   ecaldqmBeginRun(_run, _es);
 
   processedEvents_ = 0;
-
-  if (lastResetTime_ != 0)
-    lastResetTime_ = time(nullptr);
 }
 
 void EcalDQMonitorTask::dqmEndRun(edm::Run const& _run, edm::EventSetup const& _es) {
   ecaldqmEndRun(_run, _es);
 
   executeOnWorkers_([](ecaldqm::DQWorker* worker) { worker->releaseMEs(); }, "releaseMEs", "releasing histograms");
-}
-
-void EcalDQMonitorTask::dqmBeginLuminosityBlock(edm::LuminosityBlock const& _lumi, edm::EventSetup const& _es) {
-  ecaldqmBeginLuminosityBlock(_lumi, _es);
-}
-
-void EcalDQMonitorTask::dqmEndLuminosityBlock(edm::LuminosityBlock const& _lumi, edm::EventSetup const& _es) {
-  ecaldqmEndLuminosityBlock(_lumi, _es);
-
-  if (lastResetTime_ != 0 && (time(nullptr) - lastResetTime_) / 3600. > resetInterval_) {
-    if (verbosity_ > 0)
-      edm::LogInfo("EcalDQM") << moduleName_ << ": Soft-resetting the histograms";
-    // TODO: soft-reset is no longer supported.
-    lastResetTime_ = time(nullptr);
-  }
 }
 
 void EcalDQMonitorTask::analyze(edm::Event const& _evt, edm::EventSetup const& _es) {

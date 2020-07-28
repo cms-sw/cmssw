@@ -21,13 +21,9 @@ ecalSummaryClient = cms.untracked.PSet(
     ),
     sources = cms.untracked.PSet(
         Integrity = ecalIntegrityClient.MEs.QualitySummary,
-        IntegrityByLumi = ecalIntegrityTask.MEs.ByLumi,
         Presample = ecalPresampleClient.MEs.QualitySummary,
         Timing = ecalTimingClient.MEs.QualitySummary,
         RawData = ecalRawDataClient.MEs.QualitySummary,
-        DesyncByLumi = ecalRawDataTask.MEs.DesyncByLumi,
-        FEByLumi = ecalRawDataTask.MEs.FEByLumi,
-        FEStatusErrMapByLumi = ecalRawDataTask.MEs.FEStatusErrMapByLumi,
         TriggerPrimitives = ecalTrigPrimClient.MEs.EmulQualitySummary,
         HotCell = ecalOccupancyClient.MEs.QualitySummary,
         BXSRP = ecalRawDataTask.MEs.BXSRP,

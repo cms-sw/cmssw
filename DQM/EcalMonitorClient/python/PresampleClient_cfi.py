@@ -20,9 +20,7 @@ ecalPresampleClient = cms.untracked.PSet(
         toleranceRMSFwd = cms.untracked.double(toleranceRMSFwd)
     ),
     sources = cms.untracked.PSet(
-        Pedestal = ecalPresampleTask.MEs.Pedestal,
-        PedestalByLS = ecalPresampleTask.MEs.PedestalByLS,
-        ChStatus = ecalIntegrityClient.MEs.ChStatus
+        Pedestal = ecalPresampleTask.MEs.Pedestal
     ),
     MEs = cms.untracked.PSet(
         RMS = cms.untracked.PSet(
@@ -63,16 +61,6 @@ ecalPresampleClient = cms.untracked.PSet(
             otype = cms.untracked.string('Ecal3P'),
             btype = cms.untracked.string('SuperCrystal'),
             description = cms.untracked.string('2D distribution of the presample RMS. Channels with entries less than ' + str(minChannelEntries) + ' are not considered.')
-        ),
-        RMSMapAllByLumi = cms.untracked.PSet(
-            path = cms.untracked.string('%(subdet)s/%(prefix)sSummaryClient/%(prefix)sPOT%(suffix)s pedestal G12 RMS map by lumi'),
-            kind = cms.untracked.string('TH2F'),
-            zaxis = cms.untracked.PSet(
-                title = cms.untracked.string('RMS')
-            ),
-            otype = cms.untracked.string('Ecal3P'),
-            btype = cms.untracked.string('Crystal'),
-            description = cms.untracked.string('2D distribution of the presample RMS in this lumisection. Channels with entries less than ' + str(minChannelEntries) + ' are not considered.')
         ),
         TrendMean = cms.untracked.PSet(
             path = cms.untracked.string('Ecal/Trends/PresampleClient %(prefix)s pedestal mean max - min'),

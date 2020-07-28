@@ -28,8 +28,6 @@ namespace ecaldqm {
     void ecaldqmGetSetupObjects(edm::EventSetup const &);
     void ecaldqmBeginRun(edm::Run const &, edm::EventSetup const &);
     void ecaldqmEndRun(edm::Run const &, edm::EventSetup const &);
-    void ecaldqmBeginLuminosityBlock(edm::LuminosityBlock const &, edm::EventSetup const &);
-    void ecaldqmEndLuminosityBlock(edm::LuminosityBlock const &, edm::EventSetup const &);
 
     template <typename FuncOnWorker>
     void executeOnWorkers_(FuncOnWorker,

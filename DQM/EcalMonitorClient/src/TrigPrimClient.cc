@@ -38,17 +38,13 @@ namespace ecaldqm {
     MESet& meTrendTTF4Flags(MEs_.at("TrendTTF4Flags"));
 
     MESet const& sTPDigiThrAll(sources_.at("TPDigiThrAll"));
-    MESetNonObject const& sLHCStatusByLumi(static_cast<MESetNonObject&>(sources_.at("LHCStatusByLumi")));
 
     uint32_t mask(1 << EcalDQMStatusHelper::PHYSICS_BAD_CHANNEL_WARNING);
 
     // Store # of entries for Occupancy analysis
     std::vector<float> Nentries(nDCC, 0.);
 
-    double currentLHCStatus = sLHCStatusByLumi.getFloatValue();
-    bool statsCheckEnabled =
-        ((currentLHCStatus > 10.5 && currentLHCStatus < 11.5) ||
-         currentLHCStatus < 0);  // currentLHCStatus = -1 is the default when no beam info is available
+    bool statsCheckEnabled = true;
 
     for (unsigned iTT(0); iTT < EcalTrigTowerDetId::kSizeForDenseIndexing; iTT++) {
       EcalTrigTowerDetId ttid(EcalTrigTowerDetId::detIdFromDenseIndex(iTT));
@@ -100,9 +96,7 @@ namespace ecaldqm {
     // NOT an occupancy plot: only tells you if non-zero TTF4 occupancy was seen
     // without giving info about how many were seen
     MESet& meTTF4vMask(MEs_.at("TTF4vMask"));
-    MESet& meTTF4vMaskByLumi(MEs_.at("TTF4vMaskByLumi"));
     MESet const& sTTFlags4(sources_.at("TTFlags4"));
-    MESet const& sTTFlags4ByLumi(sources_.at("TTFlags4ByLumi"));
     MESet const& sTTMaskMapAll(sources_.at("TTMaskMapAll"));
 
     std::vector<float> nWithTTF4(nDCC,
@@ -112,33 +106,17 @@ namespace ecaldqm {
     // Loop over all TTs
     for (unsigned iTT(0); iTT < EcalTrigTowerDetId::kSizeForDenseIndexing; iTT++) {
       EcalTrigTowerDetId ttid(EcalTrigTowerDetId::detIdFromDenseIndex(iTT));
-      unsigned iDCC(dccId(ttid) - 1);
       bool isMasked(sTTMaskMapAll.getBinContent(ttid) > 0.);
       bool hasTTF4(sTTFlags4.getBinContent(ttid) > 0.);
-      bool hasTTF4InThisLumiSection(sTTFlags4ByLumi.getBinContent(ttid) > 0.);
-      if (hasTTF4InThisLumiSection) {
-        nWithTTF4[iDCC]++;
-        if (ttid.subDet() == EcalBarrel)
-          nWithTTF4_EB++;
-        else if (ttid.subDet() == EcalEndcap)
-          nWithTTF4_EE++;
-      }
       if (isMasked) {
         if (hasTTF4) {
           meTTF4vMask.setBinContent(ttid, 12);  // Masked, has TTF4
         } else {
           meTTF4vMask.setBinContent(ttid, 11);  // Masked, no TTF4
         }
-        if (hasTTF4InThisLumiSection) {
-          meTTF4vMaskByLumi.setBinContent(ttid, 12);  // Masked, has TTF4
-        } else {
-          meTTF4vMaskByLumi.setBinContent(ttid, 11);  // Masked, no TTF4
-        }
       } else {
         if (hasTTF4)
           meTTF4vMask.setBinContent(ttid, 13);  // not Masked, has TTF4
-        if (hasTTF4InThisLumiSection)
-          meTTF4vMaskByLumi.setBinContent(ttid, 13);  // not Masked, has TTF4
       }
     }  // TT loop
 

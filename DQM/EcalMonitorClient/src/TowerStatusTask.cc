@@ -40,54 +40,6 @@ namespace ecaldqm {
       throw cms::Exception("InvalidConfiguration") << "Nothing to do in TowerStatusTask";
   }
 
-  void TowerStatusTask::endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const& _es) {
-    if (doDAQInfo_) {
-      std::fill_n(daqStatus_, nDCC, 1.);
-
-      edm::ESHandle<EcalDAQTowerStatus> daqHndl;
-      _es.get<EcalDAQTowerStatusRcd>().get(daqHndl);
-      if (daqHndl.isValid()) {
-        for (unsigned id(0); id < EcalTrigTowerDetId::kEBTotalTowers; id++) {
-          if (daqHndl->barrel(id).getStatusCode() != 0) {
-            EcalTrigTowerDetId ttid(EcalTrigTowerDetId::detIdFromDenseIndex(id));
-            daqStatus_[dccId(ttid) - 1] -= 25. / 1700.;
-          }
-        }
-        for (unsigned id(0); id < EcalScDetId::kSizeForDenseIndexing; id++) {
-          if (daqHndl->endcap(id).getStatusCode() != 0) {
-            EcalScDetId scid(EcalScDetId::unhashIndex(id));
-            unsigned dccid(dccId(scid));
-            daqStatus_[dccid - 1] -= double(scConstituents(scid).size()) / nCrystals(dccid);
-          }
-        }
-      } else
-        edm::LogWarning("EventSetup") << "EcalDAQTowerStatus record not valid";
-    }
-
-    if (doDCSInfo_) {
-      std::fill_n(dcsStatus_, nDCC, 1.);
-
-      edm::ESHandle<EcalDCSTowerStatus> dcsHndl;
-      _es.get<EcalDCSTowerStatusRcd>().get(dcsHndl);
-      if (dcsHndl.isValid()) {
-        for (unsigned id(0); id < EcalTrigTowerDetId::kEBTotalTowers; id++) {
-          if (dcsHndl->barrel(id).getStatusCode() != 0) {
-            EcalTrigTowerDetId ttid(EcalTrigTowerDetId::detIdFromDenseIndex(id));
-            dcsStatus_[dccId(ttid) - 1] -= 25. / 1700.;
-          }
-        }
-        for (unsigned id(0); id < EcalScDetId::kSizeForDenseIndexing; id++) {
-          if (dcsHndl->endcap(id).getStatusCode() != 0) {
-            EcalScDetId scid(EcalScDetId::unhashIndex(id));
-            unsigned dccid(dccId(scid));
-            dcsStatus_[dccid - 1] -= double(scConstituents(scid).size()) / nCrystals(dccid);
-          }
-        }
-      } else
-        edm::LogWarning("EventSetup") << "EcalDCSTowerStatus record not valid";
-    }
-  }
-
   void TowerStatusTask::producePlots(ProcessType) {
     if (doDAQInfo_)
       producePlotsTask_(daqStatus_, "DAQ");

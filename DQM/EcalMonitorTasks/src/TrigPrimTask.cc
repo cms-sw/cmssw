@@ -52,15 +52,6 @@ namespace ecaldqm {
     // but filled by LS in runOnRealTPs() because MEs are not yet booked at beginRun()
     _es.get<EcalTPGTowerStatusRcd>().get(TTStatusRcd);
     _es.get<EcalTPGStripStatusRcd>().get(StripStatusRcd);
-  }
-
-  void TrigPrimTask::beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) {
-    // Reset by LS plots at beginning of every LS
-    MEs_.at("EtSummaryByLumi").reset();
-    MEs_.at("TTFlags4ByLumi").reset();
-    MEs_.at("LHCStatusByLumi").reset(-1);
-
-    // Reset lhcStatusSet_ to false at the beginning of each LS; when LHC status is set in some event this variable will be set to true
     lhcStatusSet_ = false;
   }
 
@@ -68,17 +59,6 @@ namespace ecaldqm {
     using namespace std;
 
     towerReadouts_.clear();
-
-    if (!lhcStatusSet_) {
-      // Update LHC status once each LS
-      MESet& meLHCStatusByLumi(static_cast<MESet&>(MEs_.at("LHCStatusByLumi")));
-      edm::Handle<TCDSRecord> tcdsData;
-      _evt.getByToken(lhcStatusInfoRecordToken_, tcdsData);
-      if (tcdsData.isValid()) {
-        meLHCStatusByLumi.fill(double(tcdsData->getBST().getBeamMode()));
-        lhcStatusSet_ = true;
-      }
-    }
 
     realTps_ = nullptr;
 
@@ -189,14 +169,12 @@ namespace ecaldqm {
     MESet& meEtReal(MEs_.at("EtReal"));
     MESet& meEtRealMap(MEs_.at("EtRealMap"));
     MESet& meEtSummary(MEs_.at("EtSummary"));
-    MESet& meEtSummaryByLumi(MEs_.at("EtSummaryByLumi"));
     MESet& meLowIntMap(MEs_.at("LowIntMap"));
     MESet& meMedIntMap(MEs_.at("MedIntMap"));
     MESet& meHighIntMap(MEs_.at("HighIntMap"));
     MESet& meTTFlags(MEs_.at("TTFlags"));
     MESet& meTTFlagsVsEt(MEs_.at("TTFlagsVsEt"));
     MESet& meTTFlags4(MEs_.at("TTFlags4"));
-    MESet& meTTFlags4ByLumi(MEs_.at("TTFlags4ByLumi"));
     MESet& meTTFMismatch(MEs_.at("TTFMismatch"));
     MESet& meOccVsBx(MEs_.at("OccVsBx"));
 
@@ -221,7 +199,6 @@ namespace ecaldqm {
       meEtReal.fill(ttid, et);
       meEtRealMap.fill(ttid, et);
       meEtSummary.fill(ttid, et);
-      meEtSummaryByLumi.fill(ttid, et);
 
       int interest(tpItr->ttFlag() & 0x3);
 
@@ -247,7 +224,6 @@ namespace ecaldqm {
       // which contains info about TT auto-masking
       if (ttF >= 4) {
         meTTFlags4.fill(ttid);
-        meTTFlags4ByLumi.fill(ttid);
       }
       if ((ttF == 1 || ttF == 3) && towerReadouts_[ttid.rawId()] != getTrigTowerMap()->constituentsOf(ttid).size())
         meTTFMismatch.fill(ttid);

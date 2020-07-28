@@ -15,7 +15,7 @@ namespace edm {
   class ParameterSetDescription;
 }  // namespace edm
 
-class EcalDQMonitorTask : public DQMOneLumiEDAnalyzer<>, public ecaldqm::EcalDQMonitor {
+class EcalDQMonitorTask : public DQMOneEDAnalyzer<>, public ecaldqm::EcalDQMonitor {
 public:
   EcalDQMonitorTask(edm::ParameterSet const&);
   ~EcalDQMonitorTask() override {}
@@ -27,8 +27,6 @@ public:
 
 private:
   void dqmEndRun(edm::Run const&, edm::EventSetup const&) override;
-  void dqmBeginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
-  void dqmEndLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
   void analyze(edm::Event const&, edm::EventSetup const&) override;
 
   typedef void (EcalDQMonitorTask::*Processor)(edm::Event const&,
@@ -46,10 +44,6 @@ private:
   std::vector<std::pair<Processor, ecaldqm::Collections> > schedule_;  // schedule of collections to run
   bool allowMissingCollections_;                                       // when true, skip missing collections silently
   int processedEvents_;
-
-  /* TASK TIME PROFILING */
-  time_t lastResetTime_;
-  float resetInterval_;
 };
 
 #endif

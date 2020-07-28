@@ -12,8 +12,6 @@ namespace ecaldqm {
     TowerStatusTask();
     ~TowerStatusTask() override {}
 
-    void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
-
     void producePlots(ProcessType) override;
 
   private:
