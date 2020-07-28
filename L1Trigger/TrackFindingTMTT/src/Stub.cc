@@ -358,7 +358,7 @@ namespace tmtt {
         // Now identify all TP's contributing to either cluster in stub.
         vector<edm::Ptr<TrackingParticle> > vecTpPtr = mcTruthTTClusterHandle->findTrackingParticlePtrs(ttClusterRef);
 
-        for (edm::Ptr<TrackingParticle> tpPtr : vecTpPtr) {
+        for (const edm::Ptr<TrackingParticle>& tpPtr : vecTpPtr) {
           if (translateTP.find(tpPtr) != translateTP.end()) {
             assocTPs_.insert(translateTP.at(tpPtr));
             // N.B. Since not all tracking particles are stored in InputData::vTPs_, sometimes no match will be found.

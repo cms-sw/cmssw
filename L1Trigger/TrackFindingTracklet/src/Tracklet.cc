@@ -6,6 +6,8 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/Exception.h"
 
+#include <memory>
+
 #include <sstream>
 
 using namespace std;
@@ -639,7 +641,7 @@ void Tracklet::setFitPars(double rinvfit,
 
   hitpattern_ = hitpattern;
 
-  fpgatrack_.reset(new Track(makeTrack(l1stubs)));
+  fpgatrack_ = std::make_unique<Track>(makeTrack(l1stubs));
 }
 
 std::string Tracklet::trackfitstr() {
