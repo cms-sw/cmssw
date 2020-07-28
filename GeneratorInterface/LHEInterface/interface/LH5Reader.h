@@ -18,9 +18,11 @@ namespace lhef {
     H5Handler(const std::string &fileNameIn);
     virtual ~H5Handler() {}
     void readBlock();
-    void init(int, int);
-    int npLO, npNLO;
+    void counter(int, int);
+    std::unique_ptr<HighFive::File> h5file;
+    bool indexStatus;
     HighFive::Group _index, _particle, _event, _init, _procInfo;
+    int npLO, npNLO;
     unsigned int long _eventsRead;
     lheh5::Events2 _events2;
     lheh5::Events _events1;
@@ -29,7 +31,6 @@ namespace lhef {
     std::pair<lheh5::EventHeader, std::vector<lheh5::Particle> > getEventProperties();
 
   private:
-    std::unique_ptr<HighFive::File> h5file;
     unsigned int long _eventsTotal;
     int _eventsInBlock;
     int _formatType;
