@@ -29,8 +29,7 @@ public:
 
 private:
   void produce(edm::Event&, const edm::EventSetup&) override;
-  edm::EDGetTokenT<CaloTowerCollection>  srcTowers_;
-
+  edm::EDGetTokenT<CaloTowerCollection> srcTowers_;
 };
 
 HiHFFilterProducer::HiHFFilterProducer(const edm::ParameterSet& iConfig)
@@ -56,31 +55,32 @@ void HiHFFilterProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSet
   std::size_t size = 4;
   auto hiHFfiltersOut = std::make_unique<std::vector<int>>(size);
 
-  for( unsigned int towerIndx = 0; towerIndx<towers->size(); ++towerIndx){
-    const CaloTower & tower = (*towers)[ towerIndx ];
+  for (unsigned int towerIndx = 0; towerIndx < towers->size(); ++towerIndx) {
+    const CaloTower& tower = (*towers)[towerIndx];
     const auto et = tower.et();
     const auto energy = tower.energy();
     const auto eta = tower.eta();
     const bool eta_plus = (eta > 3.0) && (eta < 6.0);
     const bool eta_minus = (eta < -3.0) && (eta > -6.0);
-    if(et < 0.0)continue;
-    if(eta_plus){
-      if(energy >= 2.0)
+    if (et < 0.0)
+      continue;
+    if (eta_plus) {
+      if (energy >= 2.0)
         nTowersTh2HFplus += 1;
-      if(energy >= 3.0)
+      if (energy >= 3.0)
         nTowersTh3HFplus += 1;
-      if(energy >= 4.0)
+      if (energy >= 4.0)
         nTowersTh4HFplus += 1;
-      if(energy >= 5.0)
+      if (energy >= 5.0)
         nTowersTh5HFplus += 1;
-    }else if(eta_minus){
-      if(energy >= 2.0)
+    } else if (eta_minus) {
+      if (energy >= 2.0)
         nTowersTh2HFminus += 1;
-      if(energy >= 3.0)
+      if (energy >= 3.0)
         nTowersTh3HFminus += 1;
-      if(energy >= 4.0)
+      if (energy >= 4.0)
         nTowersTh4HFminus += 1;
-      if(energy >= 5.0)
+      if (energy >= 5.0)
         nTowersTh5HFminus += 1;
     }
   }
@@ -91,9 +91,7 @@ void HiHFFilterProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSet
   (*hiHFfiltersOut)[3] = std::min(nTowersTh5HFplus, nTowersTh5HFminus);
 
   iEvent.put(std::move(hiHFfiltersOut), "hiHFfilters");
-
 }
-
 
 void HiHFFilterProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
