@@ -12,19 +12,20 @@ from RecoTracker.TransientTrackingRecHit.TransientTrackingRecHitBuilder_cfi impo
 
 #could it just use the standard KFFittingSmootherWithOutliersRejectionAndRK ??
 import TrackingTools.TrackFitters.KFFittingSmoother_cfi
-FittingSmootherRKP5 = TrackingTools.TrackFitters.KFFittingSmoother_cfi.KFFittingSmoother.clone()
-FittingSmootherRKP5.ComponentName = 'FittingSmootherRKP5'
-FittingSmootherRKP5.Fitter = 'RKFitter'
-FittingSmootherRKP5.Smoother = 'RKSmoother'
-FittingSmootherRKP5.MinNumberOfHits = 4 #why is this set to 4??
-FittingSmootherRKP5.EstimateCut = cms.double(20.0)
-FittingSmootherRKP5.BreakTrajWith2ConsecutiveMissing = cms.bool(False)
+FittingSmootherRKP5 = TrackingTools.TrackFitters.KFFittingSmoother_cfi.KFFittingSmoother.clone(
+    ComponentName    = 'FittingSmootherRKP5',
+    Fitter           = 'RKFitter',
+    Smoother         = 'RKSmoother',
+    MinNumberOfHits  = 4, #why is this set to 4??
+    EstimateCut      = 20.0,
+    BreakTrajWith2ConsecutiveMissing = False
+)
 
 import RecoTracker.TrackProducer.TrackProducer_cfi
 ctfWithMaterialTracksCosmics = RecoTracker.TrackProducer.TrackProducer_cfi.TrackProducer.clone(
-    src = 'ckfTrackCandidatesP5',
-    Fitter = 'FittingSmootherRKP5',
+    src                 = 'ckfTrackCandidatesP5',
+    Fitter              = 'FittingSmootherRKP5',
     #TTRHBuilder = 'WithTrackAngle',
-    AlgorithmName = cms.string('ctf'),
-    GeometricInnerState = cms.bool(True)
+    AlgorithmName       = 'ctf',
+    GeometricInnerState = True
 )

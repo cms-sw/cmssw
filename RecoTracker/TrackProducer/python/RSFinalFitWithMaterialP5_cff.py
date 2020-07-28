@@ -27,7 +27,6 @@ from RecoTracker.TransientTrackingRecHit.TransientTrackingRecHitBuilder_cfi impo
 import RecoTracker.TrackProducer.RSFinalFitWithMaterial_cff
 # include TrackProducer and clone with new module label
 rsWithMaterialTracksCosmics = RecoTracker.TrackProducer.RSFinalFitWithMaterial_cff.rsWithMaterialTracks.clone(
-    src = 'rsTrackCandidatesP5',
+    src         = 'rsTrackCandidatesP5',
     TTRHBuilder = 'WithTrackAngle'
-    )
-
+)

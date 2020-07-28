@@ -35,9 +35,9 @@ from RecoTracker.TransientTrackingRecHit.TransientTrackingRecHitBuilder_cfi impo
 import RecoTracker.TrackProducer.TrackProducer_cfi
 
 RecoTracker.TrackProducer.TrackProducer_cfi.TrackProducer.clone(
-    src = 'rsTrackCandidates',
+    src           = 'rsTrackCandidates',
     AlgorithmName = 'rs',
-    Propagator = 'AnalyticalPropagator',
-    Fitter = 'KFFittingSmoother',
-    TTRHBuilder = 'WithTrackAngle'
-    )
+    Propagator    = 'AnalyticalPropagator',
+    Fitter        = 'KFFittingSmoother',
+    TTRHBuilder   = 'WithTrackAngle'
+)

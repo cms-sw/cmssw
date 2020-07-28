@@ -45,13 +45,13 @@ from RecoTracker.SpecialSeedGenerators.CombinatorialSeedGeneratorForCosmicsRegio
 # Ckf pattern
 import RecoTracker.CkfPattern.CkfTrackCandidatesP5_cff
 regionalCosmicCkfTrackCandidates = RecoTracker.CkfPattern.CkfTrackCandidatesP5_cff.ckfTrackCandidatesP5.clone(
-    src = cms.InputTag( "regionalCosmicTrackerSeeds" ),
+    src = "regionalCosmicTrackerSeeds",
 )
 
 # Track producer
 import RecoTracker.TrackProducer.CTFFinalFitWithMaterialP5_cff
 regionalCosmicTracks = RecoTracker.TrackProducer.CTFFinalFitWithMaterialP5_cff.ctfWithMaterialTracksCosmics.clone(
-    src = cms.InputTag( "regionalCosmicCkfTrackCandidates" ),
+    src = "regionalCosmicCkfTrackCandidates",
 )
 # Final Sequence
 regionalCosmicTracksTask = cms.Task(regionalCosmicTrackerSeedingLayers,
