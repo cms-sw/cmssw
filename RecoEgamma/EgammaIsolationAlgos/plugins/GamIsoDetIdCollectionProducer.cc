@@ -15,7 +15,6 @@
 #include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
 #include "DataFormats/RecoCandidate/interface/RecoCandidate.h"
 #include "DataFormats/EcalDetId/interface/EcalSubdetector.h"
-#include "Geometry/Records/interface/CaloGeometryRecord.h"
 
 #include "DataFormats/EcalDetId/interface/EBDetId.h"
 #include "DataFormats/EcalDetId/interface/EEDetId.h"
@@ -25,12 +24,11 @@
 #include "CondFormats/EcalObjects/interface/EcalChannelStatus.h"
 #include "CondFormats/DataRecord/interface/EcalChannelStatusRcd.h"
 
-#include "RecoLocalCalo/EcalRecAlgos/interface/EcalSeverityLevelAlgo.h"
-#include "RecoLocalCalo/EcalRecAlgos/interface/EcalSeverityLevelAlgoRcd.h"
-
 GamIsoDetIdCollectionProducer::GamIsoDetIdCollectionProducer(const edm::ParameterSet& iConfig)
     : recHitsToken_(consumes<EcalRecHitCollection>(iConfig.getParameter<edm::InputTag>("recHitsLabel"))),
       emObjectToken_(consumes<reco::PhotonCollection>(iConfig.getParameter<edm::InputTag>("emObjectLabel"))),
+      caloGeometryToken_(esConsumes<CaloGeometry, CaloGeometryRecord>()),
+      sevLvToken_(esConsumes<EcalSeverityLevelAlgo, EcalSeverityLevelAlgoRcd>()),
       //the labels are still used to decide if its endcap or barrel...
       recHitsLabel_(iConfig.getParameter<edm::InputTag>("recHitsLabel")),
       emObjectLabel_(iConfig.getParameter<edm::InputTag>("emObjectLabel")),
@@ -81,12 +79,10 @@ void GamIsoDetIdCollectionProducer::produce(edm::Event& iEvent, const edm::Event
   Handle<EcalRecHitCollection> recHitsH;
   iEvent.getByToken(recHitsToken_, recHitsH);
 
-  edm::ESHandle<CaloGeometry> pG;
-  iSetup.get<CaloGeometryRecord>().get(pG);
+  edm::ESHandle<CaloGeometry> pG = iSetup.getHandle(caloGeometryToken_);
   const CaloGeometry* caloGeom = pG.product();
 
-  edm::ESHandle<EcalSeverityLevelAlgo> sevlv;
-  iSetup.get<EcalSeverityLevelAlgoRcd>().get(sevlv);
+  edm::ESHandle<EcalSeverityLevelAlgo> sevlv = iSetup.getHandle(sevLvToken_);
   const EcalSeverityLevelAlgo* sevLevel = sevlv.product();
 
   CaloDualConeSelector<EcalRecHit>* doubleConeSel_ = nullptr;
