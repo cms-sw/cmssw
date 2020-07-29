@@ -13,7 +13,7 @@ namespace edm {
   namespace soa {
 
     using EtaPhiTable = edm::soa::Table<col::Eta, col::Phi>;
-    using EtaPhiTableView = edm::soa::TableView<col::Eta, col::Phi>;
+    using EtaPhiTableView = edm::soa::ViewFromTable_t<EtaPhiTable>;
     using PtEtaPhiTable = edm::soa::Table<col::Pt, col::Eta, col::Phi>;
     using PtEtaPhiThetaTable = edm::soa::Table<col::Pt, col::Eta, col::Phi, col::Theta>;
 

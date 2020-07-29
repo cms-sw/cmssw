@@ -220,8 +220,8 @@ private:
                       MultiTrajectoryStateTransform const& mtsTransform,
                       double magneticFieldInTesla,
                       const HeavyObjectCache*,
-                      egamma::conv::TrackTable const& ctfTable,
-                      egamma::conv::TrackTable const& gsfTable);
+                      egamma::conv::TrackTableView ctfTable,
+                      egamma::conv::TrackTableView gsfTable);
 
   void setCutBasedPreselectionFlag(reco::GsfElectron& ele, const reco::BeamSpot&) const;
 

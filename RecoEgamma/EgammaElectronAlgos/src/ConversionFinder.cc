@@ -18,8 +18,8 @@ namespace egamma::conv {
 
   //-----------------------------------------------------------------------------
   std::vector<ConversionInfo> getConversionInfos(const reco::GsfElectronCore& gsfElectron,
-                                                 TrackTable const& ctfTable,
-                                                 TrackTable const& gsfTable,
+                                                 TrackTableView ctfTable,
+                                                 TrackTableView gsfTable,
                                                  float bFieldAtOrigin,
                                                  float minFracSharedHits) {
     using namespace reco;
@@ -157,8 +157,8 @@ namespace egamma::conv {
 
   //-----------------------------------------------------------------------------
   ConversionInfo findConversion(const reco::GsfElectronCore& gsfElectron,
-                                TrackTable const& ctfTable,
-                                TrackTable const& gsfTable,
+                                TrackTableView ctfTable,
+                                TrackTableView gsfTable,
                                 float bFieldAtOrigin,
                                 float minFracSharedHits) {
     return findBestConversionMatch(
