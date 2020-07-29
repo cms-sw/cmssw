@@ -46,8 +46,8 @@ GEMGeometryBuilder::~GEMGeometryBuilder() {}
 
 // DDD
 void GEMGeometryBuilder::build(GEMGeometry& theGeometry,
-			       const DDCompactView* cview,
-			       const MuonGeometryConstants& muonConstants) {
+                               const DDCompactView* cview,
+                               const MuonGeometryConstants& muonConstants) {
   std::string attribute = "MuStructure";
   std::string value = "MuonEndCapGEM";
 
@@ -63,7 +63,9 @@ void GEMGeometryBuilder::build(GEMGeometry& theGeometry,
   bool doSuper = fv.firstChild();
 
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("Geometry") << "doSuperChamber = " << doSuper << " with " << fv.geoHistory() << " Levels " << mdddnum.geoHistoryToBaseNumber(fv.geoHistory()).getLevels();;
+  edm::LogVerbatim("Geometry") << "doSuperChamber = " << doSuper << " with " << fv.geoHistory() << " Levels "
+                               << mdddnum.geoHistoryToBaseNumber(fv.geoHistory()).getLevels();
+  ;
 #endif
   // loop over superchambers
   std::vector<GEMSuperChamber*> superChambers;
@@ -76,7 +78,8 @@ void GEMGeometryBuilder::build(GEMGeometry& theGeometry,
     fv.firstChild();
 
 #ifdef EDM_ML_DEBUG
-    edm::LogVerbatim("Geometry") << "MuonGeometry 1 " << fv.geoHistory() << " Levels " << mdddnum.geoHistoryToBaseNumber(fv.geoHistory()).getLevels();
+    edm::LogVerbatim("Geometry") << "MuonGeometry 1 " << fv.geoHistory() << " Levels "
+                                 << mdddnum.geoHistoryToBaseNumber(fv.geoHistory()).getLevels();
 #endif
     int rawidCh = gemNum.baseNumberToUnitNumber(mdddnum.geoHistoryToBaseNumber(fv.geoHistory()));
     GEMDetId detIdCh = GEMDetId(rawidCh);
@@ -86,7 +89,8 @@ void GEMGeometryBuilder::build(GEMGeometry& theGeometry,
     fv.parent();
     fv.parent();
 #ifdef EDM_ML_DEBUG
-    edm::LogVerbatim("Geometry") << "MuonGeometry 2 " << fv.geoHistory() << " Levels " << mdddnum.geoHistoryToBaseNumber(fv.geoHistory()).getLevels();
+    edm::LogVerbatim("Geometry") << "MuonGeometry 2 " << fv.geoHistory() << " Levels "
+                                 << mdddnum.geoHistoryToBaseNumber(fv.geoHistory()).getLevels();
     gemNum.baseNumberToUnitNumber(mdddnum.geoHistoryToBaseNumber(fv.geoHistory()));
 #endif
     // currently there is no superchamber in the geometry
@@ -112,8 +116,9 @@ void GEMGeometryBuilder::build(GEMGeometry& theGeometry,
         GEMDetId detId = GEMDetId(rawId);
         fv.parent();
 #ifdef EDM_ML_DEBUG
-	edm::LogVerbatim("Geometry") << "MuonGeometry 3 " << fv.geoHistory() << " Levels " << mdddnum.geoHistoryToBaseNumber(fv.geoHistory()).getLevels();
-	gemNum.baseNumberToUnitNumber(mdddnum.geoHistoryToBaseNumber(fv.geoHistory()));
+        edm::LogVerbatim("Geometry") << "MuonGeometry 3 " << fv.geoHistory() << " Levels "
+                                     << mdddnum.geoHistoryToBaseNumber(fv.geoHistory()).getLevels();
+        gemNum.baseNumberToUnitNumber(mdddnum.geoHistoryToBaseNumber(fv.geoHistory()));
 #endif
         gemChamber = buildChamber(fv, detId);
       }
@@ -123,7 +128,8 @@ void GEMGeometryBuilder::build(GEMGeometry& theGeometry,
 
       while (doEtaPart) {
 #ifdef EDM_ML_DEBUG
-	edm::LogVerbatim("Geometry") << "MuonGeometry 4 " << fv.geoHistory() << " Levels " << mdddnum.geoHistoryToBaseNumber(fv.geoHistory()).getLevels();
+        edm::LogVerbatim("Geometry") << "MuonGeometry 4 " << fv.geoHistory() << " Levels "
+                                     << mdddnum.geoHistoryToBaseNumber(fv.geoHistory()).getLevels();
 #endif
         int rawid = gemNum.baseNumberToUnitNumber(mdddnum.geoHistoryToBaseNumber(fv.geoHistory()));
         GEMDetId detId = GEMDetId(rawid);
@@ -263,8 +269,8 @@ GEMEtaPartition* GEMGeometryBuilder::buildEtaPartition(DDFilteredView& fv, GEMDe
 }
 
 GEMGeometryBuilder::RCPBoundPlane GEMGeometryBuilder::boundPlane(const DDFilteredView& fv,
-								 Bounds* bounds,
-								 bool isOddChamber) const {
+                                                                 Bounds* bounds,
+                                                                 bool isOddChamber) const {
   // extract the position
   const DDTranslation& trans(fv.translation());
   const Surface::PositionType posResult(float(trans.x() / cm), float(trans.y() / cm), float(trans.z() / cm));
@@ -297,8 +303,8 @@ GEMGeometryBuilder::RCPBoundPlane GEMGeometryBuilder::boundPlane(const DDFiltere
 // DD4HEP
 
 void GEMGeometryBuilder::build(GEMGeometry& theGeometry,
-			       const cms::DDCompactView* cview,
-			       const MuonGeometryConstants& muonConstants) {
+                               const cms::DDCompactView* cview,
+                               const MuonGeometryConstants& muonConstants) {
   std::string attribute = "MuStructure";
   std::string value = "MuonEndCapGEM";
   const cms::DDFilter filter(attribute, value);
@@ -320,45 +326,49 @@ void GEMGeometryBuilder::build(GEMGeometry& theGeometry,
     MuonBaseNumber num(mdddnum.geoHistoryToBaseNumber(history));
     GEMDetId detId(gemNum.baseNumberToUnitNumber(num));
 #ifdef EDM_ML_DEBUG
-    edm::LogVerbatim("Geometry") << fv.name() << " with " << history.tags.size() << " Levels and ID " << detId << " Mask " << std::hex << chamberIdMask << ":" << chamberIdMask1 << std::dec << " and " << GEMDetId(((detId.rawId())&chamberIdMask)) << " Levels " << theRingLevel << ":" << theSectorLevel << ":" << history.tags.size() << ":" << fv.copyNos().size();
+    edm::LogVerbatim("Geometry") << fv.name() << " with " << history.tags.size() << " Levels and ID " << detId
+                                 << " Mask " << std::hex << chamberIdMask << ":" << chamberIdMask1 << std::dec
+                                 << " and " << GEMDetId(((detId.rawId()) & chamberIdMask)) << " Levels " << theRingLevel
+                                 << ":" << theSectorLevel << ":" << history.tags.size() << ":" << fv.copyNos().size();
     for (unsigned int k = 0; k < history.tags.size(); ++k)
-      edm::LogVerbatim("Geometry") << "[" << k << "] Tag " << history.tags[k] << " Offset " << history.offsets[k] << " copy " << history.copyNos[k];
+      edm::LogVerbatim("Geometry") << "[" << k << "] Tag " << history.tags[k] << " Offset " << history.offsets[k]
+                                   << " copy " << history.copyNos[k];
 #endif
 
     if (detId.station() == GEMDetId::minStationId0) {
       if (num.getLevels() == theRingLevel) {
-	if (detId.region() != region) {
-	  region = detId.region();
-	  chamb = 0;
-	}
-	++chamb;
-	detId = GEMDetId(detId.region(), detId.ring(), detId.station(), detId.layer(), chamb, 0);
-	GEMSuperChamber* gemSuperChamber = buildSuperChamber(fv, detId);
-	superChambers.emplace_back(gemSuperChamber);
+        if (detId.region() != region) {
+          region = detId.region();
+          chamb = 0;
+        }
+        ++chamb;
+        detId = GEMDetId(detId.region(), detId.ring(), detId.station(), detId.layer(), chamb, 0);
+        GEMSuperChamber* gemSuperChamber = buildSuperChamber(fv, detId);
+        superChambers.emplace_back(gemSuperChamber);
       } else if (num.getLevels() == theSectorLevel) {
-	GEMChamber* gemChamber = buildChamber(fv, detId);
-	chambers.emplace_back(gemChamber);
+        GEMChamber* gemChamber = buildChamber(fv, detId);
+        chambers.emplace_back(gemChamber);
       } else {
-	GEMEtaPartition* etaPart = buildEtaPartition(fv, detId);
-	theGeometry.add(etaPart);
+        GEMEtaPartition* etaPart = buildEtaPartition(fv, detId);
+        theGeometry.add(etaPart);
       }
     } else {
       if (fv.copyNos().size() == levelChamb) {
-	if (detId.layer() == 1) {
-	  GEMSuperChamber* gemSuperChamber = buildSuperChamber(fv, detId);
-	  superChambers.emplace_back(gemSuperChamber);
-	}
-	GEMChamber* gemChamber = buildChamber(fv, detId);
-	chambers.emplace_back(gemChamber);
+        if (detId.layer() == 1) {
+          GEMSuperChamber* gemSuperChamber = buildSuperChamber(fv, detId);
+          superChambers.emplace_back(gemSuperChamber);
+        }
+        GEMChamber* gemChamber = buildChamber(fv, detId);
+        chambers.emplace_back(gemChamber);
       } else if (num.getLevels() > theSectorLevel) {
-	GEMEtaPartition* etaPart = buildEtaPartition(fv, detId);
-	theGeometry.add(etaPart);
+        GEMEtaPartition* etaPart = buildEtaPartition(fv, detId);
+        theGeometry.add(etaPart);
       }
     }
   }
 
-  auto & partitions = theGeometry.etaPartitions();
-  for (auto & gemChamber : chambers) {
+  auto& partitions = theGeometry.etaPartitions();
+  for (auto& gemChamber : chambers) {
     uint32_t id0 = ((gemChamber->id().rawId()) & chamberIdMask);
     for (auto& etaPart : partitions) {
       if (((etaPart->id().rawId()) & chamberIdMask) == id0) {
@@ -445,8 +455,8 @@ GEMEtaPartition* GEMGeometryBuilder::buildEtaPartition(cms::DDFilteredView& fv, 
 }
 
 GEMGeometryBuilder::RCPBoundPlane GEMGeometryBuilder::boundPlane(const cms::DDFilteredView& fv,
-								 Bounds* bounds,
-								 bool isOddChamber) const {
+                                                                 Bounds* bounds,
+                                                                 bool isOddChamber) const {
   // extract the position
   const Double_t* tran = fv.trans();
   Surface::PositionType posResult(tran[0], tran[1], tran[2]);
@@ -476,8 +486,7 @@ GEMGeometryBuilder::RCPBoundPlane GEMGeometryBuilder::boundPlane(const cms::DDFi
   return RCPBoundPlane(new BoundPlane(posResult, rotResult, bounds));
 }
 
-void GEMGeometryBuilder::buildRegions(GEMGeometry& theGeometry,
-				      const std::vector<GEMSuperChamber*>& superChambers) {
+void GEMGeometryBuilder::buildRegions(GEMGeometry& theGeometry, const std::vector<GEMSuperChamber*>& superChambers) {
   // construct the regions, stations and rings.
   for (int re = -1; re <= 1; re = re + 2) {
     GEMRegion* region = new GEMRegion(re);

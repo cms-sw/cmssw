@@ -68,7 +68,6 @@ private:
 
   // Common
   void buildRegions(GEMGeometry&, const std::vector<GEMSuperChamber*>&);
-
 };
 
 #endif
