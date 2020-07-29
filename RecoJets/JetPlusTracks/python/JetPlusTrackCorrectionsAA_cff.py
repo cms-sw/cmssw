@@ -24,13 +24,13 @@ JetPlusTrackZSPCorJetAntiKtPu4 = cms.EDProducer(
     extrapolations = cms.InputTag("trackExtrapolator")
     )
 
-JetPlusTrackZSPCorJetAntiKtPu4.JetTracksAssociationAtVertex = cms.InputTag("JPTAntiKtPu4JetTracksAssociatorAtVertex")
-JetPlusTrackZSPCorJetAntiKtPu4.JetTracksAssociationAtCaloFace = cms.InputTag("JPTAntiKtPu4JetTracksAssociatorAtCaloFace")
-JetPlusTrackZSPCorJetAntiKtPu4.JetSplitMerge = cms.int32(2)
-JetPlusTrackZSPCorJetAntiKtPu4.UseTrackQuality = cms.bool(False)
-JetPlusTrackZSPCorJetAntiKtPu4.UseMuons = cms.bool(False)
-JetPlusTrackZSPCorJetAntiKtPu4.UseElectron = cms.bool(False)
-JetPlusTrackZSPCorJetAntiKtPu4.EfficiencyMap = cms.string("CondFormats/JetMETObjects/data/CMSSW_538HI_TrackNonEff.txt")
+JetPlusTrackZSPCorJetAntiKtPu4.JetTracksAssociationAtVertex = "JPTAntiKtPu4JetTracksAssociatorAtVertex"
+JetPlusTrackZSPCorJetAntiKtPu4.JetTracksAssociationAtCaloFace = "JPTAntiKtPu4JetTracksAssociatorAtCaloFace"
+JetPlusTrackZSPCorJetAntiKtPu4.JetSplitMerge = 2
+JetPlusTrackZSPCorJetAntiKtPu4.UseTrackQuality = False
+JetPlusTrackZSPCorJetAntiKtPu4.UseMuons = False
+JetPlusTrackZSPCorJetAntiKtPu4.UseElectron = False
+JetPlusTrackZSPCorJetAntiKtPu4.EfficiencyMap = "CondFormats/JetMETObjects/data/CMSSW_538HI_TrackNonEff.txt"
 
 from RecoJets.JetAssociationProducers.trackExtrapolator_cfi import *
 JPTtrackExtrapolatorAA = trackExtrapolator.clone(
