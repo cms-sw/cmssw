@@ -9,7 +9,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/stream/EDProducer.h"
+#include "FWCore/Framework/interface/global/EDProducer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -44,7 +44,7 @@ using namespace l1t;
 // class declaration
 //
 
-class L1TkEmParticleProducer : public edm::stream::EDProducer<> {
+class L1TkEmParticleProducer : public edm::global::EDProducer<> {
 public:
   typedef TTTrack<Ref_Phase2TrackerDigi_> L1TTTrackType;
   typedef std::vector<L1TTTrackType> L1TTTrackCollectionType;
@@ -57,7 +57,7 @@ public:
   float CorrectedEta(float eta, float zv) const;
 
 private:
-  void produce(edm::Event&, const edm::EventSetup&) override;
+  void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
 
   // ----------member data ---------------------------
 
@@ -116,7 +116,7 @@ L1TkEmParticleProducer::L1TkEmParticleProducer(const edm::ParameterSet& iConfig)
 L1TkEmParticleProducer::~L1TkEmParticleProducer() {}
 
 // ------------ method called to produce the data  ------------
-void L1TkEmParticleProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
+void L1TkEmParticleProducer::produce(edm::StreamID, edm::Event& iEvent, const edm::EventSetup& iSetup) const {
   using namespace edm;
 
   auto result = std::make_unique<TkEmCollection>();
@@ -135,11 +135,12 @@ void L1TkEmParticleProducer::produce(edm::Event& iEvent, const edm::EventSetup& 
   float zvtxL1tk = -999;
   edm::Handle<TkPrimaryVertexCollection> L1VertexHandle;
   iEvent.getByToken(vertexToken_, L1VertexHandle);
+  bool primaryVtxConstrain = primaryVtxConstrain_;
   if (!L1VertexHandle.isValid()) {
     LogWarning("L1TkEmParticleProducer")
         << "Warning: TkPrimaryVertexCollection not found in the event. Won't use any PrimaryVertex constraint."
         << std::endl;
-    primaryVtxConstrain_ = false;
+    primaryVtxConstrain = false;
   } else {
     std::vector<TkPrimaryVertex>::const_iterator vtxIter = L1VertexHandle->begin();
     // by convention, the first vertex in the collection is the one that should
@@ -225,7 +226,7 @@ void L1TkEmParticleProducer::produce(edm::Event& iEvent, const edm::EventSetup& 
     }
 
     float isolation = trkisol;
-    if (primaryVtxConstrain_) {
+    if (primaryVtxConstrain) {
       isolation = trkisolPV;
     }
 
