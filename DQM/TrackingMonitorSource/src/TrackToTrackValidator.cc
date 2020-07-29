@@ -7,6 +7,7 @@
 #include "DataFormats/VertexReco/interface/Vertex.h"
 
 #include "DataFormats/Math/interface/deltaR.h"
+#include "CommonTools/TriggerUtils/interface/GenericTriggerEventFlag.h"
 
 //
 // constructors and destructor
@@ -16,6 +17,9 @@ TrackToTrackValidator::TrackToTrackValidator(const edm::ParameterSet& iConfig)
   , referenceTrackInputTag_ ( iConfig.getParameter<edm::InputTag>("referenceTrack")       )
   , topDirName_       ( iConfig.getParameter<std::string>  ("topDirName")     )
   , dRmin_            ( iConfig.getParameter<double>("dRmin")                 )
+  , requireValidHLTPaths_( iConfig.getParameter<bool>("requireValidHLTPaths") )
+  , genTriggerEventFlag_(new GenericTriggerEventFlag(iConfig.getParameter<edm::ParameterSet>("genericTriggerEventPSet"), consumesCollector(), *this))
+							 
 {
   initialize_parameter(iConfig);
 
@@ -39,6 +43,8 @@ TrackToTrackValidator::TrackToTrackValidator(const edm::ParameterSet& iConfig)
 
 TrackToTrackValidator::~TrackToTrackValidator()
 {
+  if (genTriggerEventFlag_)
+    genTriggerEventFlag_.reset();
 }
 
 void
@@ -48,6 +54,17 @@ TrackToTrackValidator::beginJob(const edm::EventSetup& iSetup) {
 void
 TrackToTrackValidator::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
+  // if valid HLT paths are required,
+  // analyze event only if paths are valid
+  if (requireValidHLTPaths_ and (not hltPathsAreValid_)) {
+    return;
+  }
+
+  // Filter out events if Trigger Filtering is requested
+  if (genTriggerEventFlag_->on() && !genTriggerEventFlag_->accept(iEvent, iSetup)) {
+    return;
+  }
+
 
   //
   //  Get Reference Track Info
@@ -192,6 +209,19 @@ TrackToTrackValidator::bookHistograms(DQMStore::IBooker & ibooker,
 				     edm::EventSetup const & iSetup)
 {
   
+  if (genTriggerEventFlag_ && genTriggerEventFlag_->on())
+    genTriggerEventFlag_->initRun(iRun, iSetup);
+
+  // check if every HLT path specified has a valid match in the HLT Menu
+  hltPathsAreValid_ = (genTriggerEventFlag_ && genTriggerEventFlag_->on() && genTriggerEventFlag_->allHLTPathsAreValid() );
+  
+  // if valid HLT paths are required,
+  // create DQM outputs only if all paths are valid
+  if (requireValidHLTPaths_ and (not hltPathsAreValid_)) {
+    return;
+  }
+
+
   std::string dir = topDirName_;
 
   bookHistos(ibooker,referenceTracksMEs_,          "ref",            dir);
@@ -210,6 +240,8 @@ void
 TrackToTrackValidator::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
 
+  desc.add<bool>("requireValidHLTPaths", true);
+
   desc.add<edm::InputTag>("monitoredTrack",           edm::InputTag("hltMergedTracks"));
   desc.add<edm::InputTag>("monitoredBeamSpot",        edm::InputTag("hltOnlineBeamSpot"));
   desc.add<edm::InputTag>("monitoredPrimaryVertices", edm::InputTag("hltVerticesPFSelector"));
@@ -220,6 +252,21 @@ TrackToTrackValidator::fillDescriptions(edm::ConfigurationDescriptions& descript
 
   desc.add<std::string>("topDirName",               "HLT/Tracking/ValidationWRTOffline");
   desc.add<double>("dRmin", 0.002);
+
+  edm::ParameterSetDescription genericTriggerEventPSet;
+  genericTriggerEventPSet.add<bool>("andOr", false);
+  genericTriggerEventPSet.add<edm::InputTag>("dcsInputTag", edm::InputTag("scalersRawToDigi"));
+  genericTriggerEventPSet.add<std::vector<int> >("dcsPartitions", {24, 25, 26, 27, 28, 29});  // 24-27: strip, 28-29
+  genericTriggerEventPSet.add<bool>("andOrDcs", false);
+  genericTriggerEventPSet.add<bool>("errorReplyDcs", true);
+  genericTriggerEventPSet.add<std::string>("dbLabel", "");
+  genericTriggerEventPSet.add<bool>("andOrHlt", true); // True:=OR; False:=AND
+  genericTriggerEventPSet.add<edm::InputTag>("hltInputTag", edm::InputTag("TriggerResults::HLT"));
+  genericTriggerEventPSet.add<std::vector<std::string> >("hltPaths", {});
+  genericTriggerEventPSet.add<std::string>("hltDBKey", "");
+  genericTriggerEventPSet.add<bool>("errorReplyHlt", false);
+  genericTriggerEventPSet.add<unsigned int>("verbosityLevel", 1);
+  desc.add<edm::ParameterSetDescription>("genericTriggerEventPSet", genericTriggerEventPSet);
 
   edm::ParameterSetDescription histoPSet;
   fillHistoPSetDescription(histoPSet);

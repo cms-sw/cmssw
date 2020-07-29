@@ -40,6 +40,7 @@ namespace reco {
   class Vertex;
 }
 class DQMStore;
+class GenericTriggerEventFlag;
 
 class TrackToTrackValidator : public DQMEDAnalyzer {
 
@@ -101,6 +102,9 @@ class TrackToTrackValidator : public DQMEDAnalyzer {
   //  edm::ParameterSet conf_;
   std::string topDirName_;
   double dRmin_;
+  bool requireValidHLTPaths_;
+  bool hltPathsAreValid_ = false;
+  std::unique_ptr<GenericTriggerEventFlag> genTriggerEventFlag_;
 
   // reference tracks All and matched
   generalME referenceTracksMEs_;  
