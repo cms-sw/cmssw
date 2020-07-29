@@ -208,11 +208,24 @@ TrackToTrackValidator::bookHistograms(DQMStore::IBooker & ibooker,
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
 void
 TrackToTrackValidator::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
-  //The following says we do not know what parameters are allowed so do no validation
-  // Please change this to state exactly what you do use, even if it is no parameters
   edm::ParameterSetDescription desc;
-  desc.setUnknown();
-  descriptions.addDefault(desc);
+
+  desc.add<edm::InputTag>("monitoredTrack",           edm::InputTag("hltMergedTracks"));
+  desc.add<edm::InputTag>("monitoredBeamSpot",        edm::InputTag("hltOnlineBeamSpot"));
+  desc.add<edm::InputTag>("monitoredPrimaryVertices", edm::InputTag("hltVerticesPFSelector"));
+
+  desc.add<edm::InputTag>("referenceTrack",           edm::InputTag("generalTracks"));
+  desc.add<edm::InputTag>("referenceBeamSpot",        edm::InputTag("offlineBeamSpot"));
+  desc.add<edm::InputTag>("referencePrimaryVertices", edm::InputTag("offlinePrimaryVertices"));
+
+  desc.add<std::string>("topDirName",               "HLT/Tracking/ValidationWRTOffline");
+  desc.add<double>("dRmin", 0.002);
+
+  edm::ParameterSetDescription histoPSet;
+  fillHistoPSetDescription(histoPSet);
+  desc.add<edm::ParameterSetDescription>("histoPSet", histoPSet);
+
+  descriptions.add("trackToTrackValidator", desc);
 }
 
 void
@@ -269,20 +282,19 @@ TrackToTrackValidator::book_generic_tracks_histos(DQMStore::IBooker & ibooker, g
 
   ibooker.cd();
   ibooker.setCurrentFolder(dir);
+  (mes.h_pt )      = ibooker.book1D(label+"_pt",       "track p_{T}",                                Pt_nbin,  Pt_rangeMin,  Pt_rangeMax   );
+  (mes.h_eta)      = ibooker.book1D(label+"_eta",      "track pseudorapidity",                      Eta_nbin, Eta_rangeMin, Eta_rangeMax   );
+  (mes.h_phi)      = ibooker.book1D(label+"_phi",      "track #phi",                                Phi_nbin, Phi_rangeMin, Phi_rangeMax   );
+  (mes.h_dxy)      = ibooker.book1D(label+"_dxy",      "track transverse dca to beam spot",         Dxy_nbin, Dxy_rangeMin, Dxy_rangeMax   );
+  (mes.h_dz )      = ibooker.book1D(label+"_dz",       "track longitudinal dca to beam spot",        Dz_nbin,  Dz_rangeMin,  Dz_rangeMax   );
+  (mes.h_dxyWRTpv) = ibooker.book1D(label+"_dxyWRTpv", "track transverse dca to primary vertex",    Dxy_nbin, Dxy_rangeMin, Dxy_rangeMax   );
+  (mes.h_dzWRTpv)  = ibooker.book1D(label+"_dzWRTpv",  "track longitudinal dca to primary vertex",   Dz_nbin,  0.1*Dz_rangeMin,  0.1*Dz_rangeMax   );
+  (mes.h_charge)   = ibooker.book1D(label+"_charge",   "track charge",                                     5,   -2,        2   );
+  (mes.h_hits  )   = ibooker.book1D(label+"_hits",     "track number of hits",                            35,   -0.5,     34.5 );
+  (mes.h_dRmin)    = ibooker.book1D(label+"_dRmin",    "track min dR",                                   100,    0.,       0.01); 
+  (mes.h_dRmin_l)  = ibooker.book1D(label+"_dRmin_l",  "track min dR",                                   100,    0.,       0.4); 
 
-  (mes.h_pt )      = ibooker.book1D(label+"_pt",       "track p_{T}",                               nintPt,  minPt,  maxPt   );
-  (mes.h_eta)      = ibooker.book1D(label+"_eta",      "track pseudorapidity",                     nintEta, minEta, maxEta   );
-  (mes.h_phi)      = ibooker.book1D(label+"_phi",      "track #phi",                               nintPhi, minPhi, maxPhi   );
-  (mes.h_dxy)      = ibooker.book1D(label+"_dxy",      "track transverse dca to beam spot",        nintDxy, minDxy, maxDxy   );
-  (mes.h_dz )      = ibooker.book1D(label+"_dz",       "track longitudinal dca to beam spot",       nintDz,  minDz,  maxDz   );
-  (mes.h_dxyWRTpv) = ibooker.book1D(label+"_dxyWRTpv", "track transverse dca to primary vertex",   nintDxy, minDxy, maxDxy   );
-  (mes.h_dzWRTpv)  = ibooker.book1D(label+"_dzWRTpv",  "track longitudinal dca to primary vertex",  nintDz,  0.1*minDz,  0.1*maxDz   );
-  (mes.h_charge)   = ibooker.book1D(label+"_charge",   "track charge",                                   5,   -2,        2   );
-  (mes.h_hits  )   = ibooker.book1D(label+"_hits",     "track number of hits",                          35,   -0.5,     34.5 );
-  (mes.h_dRmin)    = ibooker.book1D(label+"_dRmin",    "track min dR",                                 100,    0.,       0.01); 
-  (mes.h_dRmin_l)  = ibooker.book1D(label+"_dRmin_l",  "track min dR",                                 100,    0.,       0.4); 
-
-  (mes.h_pt_vs_eta)  = ibooker.book2D(label+"_ptVSeta","track p_{T} vs #eta", nintEta, minEta, maxEta, nintPt, minPt, maxPt);
+  (mes.h_pt_vs_eta)  = ibooker.book2D(label+"_ptVSeta","track p_{T} vs #eta", Eta_nbin, Eta_rangeMin, Eta_rangeMax, Pt_nbin, Pt_rangeMin, Pt_rangeMax);
 
 }
 
@@ -293,9 +305,9 @@ TrackToTrackValidator::book_matching_tracks_histos(DQMStore::IBooker & ibooker, 
   ibooker.setCurrentFolder(dir);
 
   (mes.h_hits_vs_hits)  = ibooker.book2D(label+"_hits_vs_hits","monitored track # hits vs reference track # hits", 35, -0.5, 34.5, 35,-0.5, 34.5);
-  (mes.h_pt_vs_pt)      = ibooker.book2D(label+"_pt_vs_pt",    "monitored track p_{T} vs reference track p_{T}",    nintPt,  minPt,  maxPt,  nintPt,  minPt,  maxPt);
-  (mes.h_eta_vs_eta)    = ibooker.book2D(label+"_eta_vs_eta",  "monitored track #eta vs reference track #eta",     nintEta, minEta, maxEta, nintEta, minEta, maxEta);
-  (mes.h_phi_vs_phi)    = ibooker.book2D(label+"_phi_vs_phi",  "monitored track #phi vs reference track #phi",     nintPhi, minPhi, maxPhi, nintPhi, minPhi, maxPhi);
+  (mes.h_pt_vs_pt)      = ibooker.book2D(label+"_pt_vs_pt",    "monitored track p_{T} vs reference track p_{T}",    Pt_nbin,  Pt_rangeMin,  Pt_rangeMax,  Pt_nbin,  Pt_rangeMin,  Pt_rangeMax);
+  (mes.h_eta_vs_eta)    = ibooker.book2D(label+"_eta_vs_eta",  "monitored track #eta vs reference track #eta",     Eta_nbin, Eta_rangeMin, Eta_rangeMax, Eta_nbin, Eta_rangeMin, Eta_rangeMax);
+  (mes.h_phi_vs_phi)    = ibooker.book2D(label+"_phi_vs_phi",  "monitored track #phi vs reference track #phi",     Phi_nbin, Phi_rangeMin, Phi_rangeMax, Phi_nbin, Phi_rangeMin, Phi_rangeMax);
 
   (mes.h_dPt)       = ibooker.book1D(label+"_dPt",       "#Delta track #P_T",                                         ptRes_nbin,    ptRes_rangeMin,         ptRes_rangeMax   );
   (mes.h_dEta)      = ibooker.book1D(label+"_dEta",      "#Delta track #eta",                                         etaRes_nbin,   etaRes_rangeMin,        etaRes_rangeMax   );
@@ -383,52 +395,89 @@ TrackToTrackValidator::initialize_parameter(const edm::ParameterSet& iConfig)
 
   const edm::ParameterSet& pset = iConfig.getParameter<edm::ParameterSet>("histoPSet");
 
-  //parameters for _vs_eta plots
-  minEta     = pset.getParameter<double>("minEta");
-  maxEta     = pset.getParameter<double>("maxEta");
-  nintEta    = pset.getParameter<int>("nintEta");
-  useFabsEta = pset.getParameter<bool>("useFabsEta");
+  Eta_rangeMin     = pset.getParameter<double>("Eta_rangeMin");
+  Eta_rangeMax     = pset.getParameter<double>("Eta_rangeMax");
+  Eta_nbin         = pset.getParameter<unsigned int>("Eta_nbin");
 
-  //parameters for _vs_pt plots
-  minPt    = pset.getParameter<double>("minPt");
-  maxPt    = pset.getParameter<double>("maxPt");
-  nintPt   = pset.getParameter<int>("nintPt");
+  Pt_rangeMin    = pset.getParameter<double>("Pt_rangeMin");
+  Pt_rangeMax    = pset.getParameter<double>("Pt_rangeMax");
+  Pt_nbin        = pset.getParameter<unsigned int>("Pt_nbin");
 
-  //parameters for _vs_phi plots
-  minPhi  = pset.getParameter<double>("minPhi");
-  maxPhi  = pset.getParameter<double>("maxPhi");
-  nintPhi = pset.getParameter<int>("nintPhi");
+  Phi_rangeMin   = pset.getParameter<double>("Phi_rangeMin");
+  Phi_rangeMax   = pset.getParameter<double>("Phi_rangeMax");
+  Phi_nbin       = pset.getParameter<unsigned int>("Phi_nbin");
 
-  //parameters for _vs_Dxy plots
-  minDxy  = pset.getParameter<double>("minDxy");
-  maxDxy  = pset.getParameter<double>("maxDxy");
-  nintDxy = pset.getParameter<int>("nintDxy");
+  Dxy_rangeMin   = pset.getParameter<double>("Dxy_rangeMin");
+  Dxy_rangeMax   = pset.getParameter<double>("Dxy_rangeMax");
+  Dxy_nbin       = pset.getParameter<unsigned int>("Dxy_nbin");
 
-  //parameters for _vs_Dz plots
-  minDz  = pset.getParameter<double>("minDz");
-  maxDz  = pset.getParameter<double>("maxDz");
-  nintDz = pset.getParameter<int>("nintDz");
+  Dz_rangeMin   = pset.getParameter<double>("Dz_rangeMin");
+  Dz_rangeMax   = pset.getParameter<double>("Dz_rangeMax");
+  Dz_nbin       = pset.getParameter<unsigned int>("Dz_nbin");
 
-  //parameters for resolution plots
   ptRes_rangeMin = pset.getParameter<double>("ptRes_rangeMin");
   ptRes_rangeMax = pset.getParameter<double>("ptRes_rangeMax");
-  ptRes_nbin = pset.getParameter<int>("ptRes_nbin");
+  ptRes_nbin     = pset.getParameter<unsigned int>("ptRes_nbin");
 
   phiRes_rangeMin = pset.getParameter<double>("phiRes_rangeMin");
   phiRes_rangeMax = pset.getParameter<double>("phiRes_rangeMax");
-  phiRes_nbin     = pset.getParameter<int>("phiRes_nbin");
+  phiRes_nbin     = pset.getParameter<unsigned int>("phiRes_nbin");
   
   etaRes_rangeMin = pset.getParameter<double>("etaRes_rangeMin");
   etaRes_rangeMax = pset.getParameter<double>("etaRes_rangeMax");
-  etaRes_nbin     = pset.getParameter<int>("etaRes_nbin");
+  etaRes_nbin     = pset.getParameter<unsigned int>("etaRes_nbin");
   
   dxyRes_rangeMin = pset.getParameter<double>("dxyRes_rangeMin");
   dxyRes_rangeMax = pset.getParameter<double>("dxyRes_rangeMax");
-  dxyRes_nbin = pset.getParameter<int>("dxyRes_nbin");
+  dxyRes_nbin = pset.getParameter<unsigned int>("dxyRes_nbin");
   
   dzRes_rangeMin = pset.getParameter<double>("dzRes_rangeMin");
   dzRes_rangeMax = pset.getParameter<double>("dzRes_rangeMax");
-  dzRes_nbin = pset.getParameter<int>("dzRes_nbin");
+  dzRes_nbin     = pset.getParameter<unsigned int>("dzRes_nbin");
 
+}
+
+void 
+TrackToTrackValidator::fillHistoPSetDescription(edm::ParameterSetDescription& pset) {
+
+  pset.add<double>      ("Eta_rangeMin",   -2.5);   
+  pset.add<double>      ("Eta_rangeMax",    2.5);   
+  pset.add<unsigned int>("Eta_nbin",       50);	     
+
+  pset.add<double>      ("Pt_rangeMin",        0.1);   
+  pset.add<double>      ("Pt_rangeMax",     100.0);    
+  pset.add<unsigned int>("Pt_nbin",         1000);	     
+		        
+  pset.add<double>      ("Phi_rangeMin",    -3.1416);   
+  pset.add<double>      ("Phi_rangeMax",     3.1416);   
+  pset.add<unsigned int>("Phi_nbin",        36);	     
+		        
+  pset.add<double>      ("Dxy_rangeMin",     -1.0);     
+  pset.add<double>      ("Dxy_rangeMax",      1.0);     
+  pset.add<unsigned int>("Dxy_nbin",         300);	     
+		        
+  pset.add<double>      ("Dz_rangeMin",      -30.0);	     
+  pset.add<double>      ("Dz_rangeMax",       30.0);	     
+  pset.add<unsigned int>("Dz_nbin",          60);          
+		        
+  pset.add<double>      ("ptRes_rangeMin",   -0.1);
+  pset.add<double>      ("ptRes_rangeMax",    0.1);
+  pset.add<unsigned int>("ptRes_nbin",       100);                                   
+		        
+  pset.add<double>      ("phiRes_rangeMin",  -0.01);
+  pset.add<double>      ("phiRes_rangeMax",   0.01);
+  pset.add<unsigned int>("phiRes_nbin",      300);                                   
+		        
+  pset.add<double>      ("etaRes_rangeMin",  -0.01);
+  pset.add<double>      ("etaRes_rangeMax",   0.01);
+  pset.add<unsigned int>("etaRes_nbin",      300);                                   
+		        
+  pset.add<double>      ("dxyRes_rangeMin",  -0.05);
+  pset.add<double>      ("dxyRes_rangeMax",   0.05);
+  pset.add<unsigned int>("dxyRes_nbin",      500);                                   
+		        
+  pset.add<double>      ("dzRes_rangeMin",   -0.05);
+  pset.add<double>      ("dzRes_rangeMax",    0.05);
+  pset.add<unsigned int>("dzRes_nbin",       150);                                   
 
 }
