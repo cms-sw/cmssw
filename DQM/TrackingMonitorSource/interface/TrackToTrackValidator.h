@@ -56,6 +56,7 @@ class TrackToTrackValidator : public DQMEDAnalyzer {
   struct matchingME {
     std::string label;
     MonitorElement *h_hits_vs_hits, *h_pt_vs_pt, *h_eta_vs_eta, *h_phi_vs_phi;
+    MonitorElement *h_dPt, *h_dEta, *h_dPhi, *h_dDxy, *h_dDz, *h_dDxyWRTpv, *h_dDzWRTpv, *h_dCharge, *h_dHits;
   };
   
   typedef std::vector<std::pair<int, std::map<double, int> > > idx2idxByDoubleColl;
@@ -69,9 +70,6 @@ class TrackToTrackValidator : public DQMEDAnalyzer {
   void beginJob(const edm::EventSetup& iSetup);
   void analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup);
   void bookHistograms(DQMStore::IBooker & iBooker, edm::Run const & iRun, edm::EventSetup const & iSetup) override;
-  //void endLuminosityBlock(const edm::LuminosityBlock& iLumi, const edm::EventSetup& iSetup);
-  //void endRun(const edm::Run& iRun, const edm::EventSetup& iSetup);
-  // ----------member data ---------------------------
 
   void fillMap(reco::TrackCollection tracks1, reco::TrackCollection tracks2, idx2idxByDoubleColl& map, float dRMin);
 
@@ -82,7 +80,6 @@ class TrackToTrackValidator : public DQMEDAnalyzer {
 
   void fill_generic_tracks_histos(generalME& mes, reco::Track* trk, reco::BeamSpot* bs, reco::Vertex* pv);
   void fill_matching_tracks_histos(matchingME& mes, reco::Track* mon, reco::Track* ref, reco::BeamSpot* bs, reco::Vertex* pv);
-
 
   DQMStore* dqmStore_;
 
@@ -115,34 +112,16 @@ class TrackToTrackValidator : public DQMEDAnalyzer {
   matchingME matchTracksMEs_;
 
   double minEta, maxEta;  int nintEta;  bool useFabsEta;
-  double minPt, maxPt;  int nintPt;   bool useInvPt;   bool useLogPt;
-  //double minHit, maxHit;  int nintHit;
-  //double minLayers, maxLayers;  int nintLayers;
+  double minPt, maxPt;  int nintPt;   //bool useInvPt;   bool useLogPt;
   double minPhi, maxPhi;  int nintPhi;
   double minDxy, maxDxy;  int nintDxy;
   double minDz, maxDz;  int nintDz;
-  //double minVertpos, maxVertpos;  int nintVertpos;
-  //double minZpos, maxZpos;  int nintZpos;
-  //double minDeDx, maxDeDx;  int nintDeDx;
-  //double minVertcount, maxVertcount;  int nintVertcount;
 
-
-  //double ptRes_rangeMin,ptRes_rangeMax; int ptRes_nbin;
-  //double phiRes_rangeMin,phiRes_rangeMax; int phiRes_nbin;
-  //double cotThetaRes_rangeMin,cotThetaRes_rangeMax; int cotThetaRes_nbin;
-  //double dxyRes_rangeMin,dxyRes_rangeMax; int dxyRes_nbin;
-  //double dzRes_rangeMin,dzRes_rangeMax; int dzRes_nbin;
-
-
-  //MonitorElement* nrec_vs_nsim;
-  //MonitorElement* nrecHit_vs_nsimHit_sim2rec;
-  //MonitorElement* nrecHit_vs_nsimHit_rec2sim;
-
-  //assoc hits
-  //MonitorElement* h_assocFraction, h_assocSharedHit;
-
-  //pulls of track params vs eta: to be used with fitslicesytool
-  //MonitorElement* pull_dxy_vs_eta, ptpull_vs_eta, dzpull_vs_eta, phipull_vs_eta, thetapull_vs_eta;
+  double ptRes_rangeMin,ptRes_rangeMax; int ptRes_nbin;
+  double phiRes_rangeMin,phiRes_rangeMax; int phiRes_nbin;
+  double etaRes_rangeMin,etaRes_rangeMax; int etaRes_nbin;
+  double dxyRes_rangeMin,dxyRes_rangeMax; int dxyRes_nbin;
+  double dzRes_rangeMin,dzRes_rangeMax; int dzRes_nbin;
 
   //std::vector<int> totSIMeta,totRECeta,totASSeta,totASS2eta,totloopeta,totmisideta,totASS2etaSig;
   //std::vector<int> totSIMpT,totRECpT,totASSpT,totASS2pT,totlooppT,totmisidpT;

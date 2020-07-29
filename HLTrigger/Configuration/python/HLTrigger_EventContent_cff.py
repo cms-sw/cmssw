@@ -744,7 +744,13 @@ HLTDebugFEVT  = cms.PSet(
         'keep *_hltScoutingPrimaryVertexPackerCaloMuon_*_*',
         'keep *_hltScoutingPrimaryVertexPacker_*_*',
         'keep *_hltScoutingTrackPacker_*_*',
-        'keep edmTriggerResults_*_*_*'
+        'keep edmTriggerResults_*_*_*',
+        'keep *_hltImpactParameterTagInfos_*_*',
+        'keep *_hltDeepBLifetimeTagInfosPF_*_*',
+        'keep *_hltDeepSecondaryVertexTagInfosPF_*_*',
+        'keep *_hltInclusiveSecondaryVertexFinderTagInfos_*_*',
+        'keep *_hltMergedTracksForBTag_*_*',
+        'keep *_hltFastPixelBLifetimeL3Associator_*_*',
     ) )
 )
 

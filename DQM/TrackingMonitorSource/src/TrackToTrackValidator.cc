@@ -5,8 +5,6 @@
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
-//#include "TrackingTools/TrajectoryState/interface/FreeTrajectoryState.h"
-//#include "TrackingTools/PatternTools/interface/TSCBLBuilderNoMaterial.h"
 
 #include "DataFormats/Math/interface/deltaR.h"
 
@@ -182,9 +180,9 @@ TrackToTrackValidator::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 
   
   edm::LogVerbatim("TrackToTrackValidator") << "Total reference tracks: "          << nReferenceTracks << "\n"
-					   << "Total matched reference tracks: "  << nMatchedReferenceTracks << "\n"
-					   << "Total monitored tracks: "          << nMonitoredTracks << "\n"
-					   << "Total unMatched monitored tracks: "  << nUnmatchedMonitoredTracks << "\n";
+					    << "Total matched reference tracks: "  << nMatchedReferenceTracks << "\n"
+					    << "Total monitored tracks: "          << nMonitoredTracks << "\n"
+					    << "Total unMatched monitored tracks: "  << nUnmatchedMonitoredTracks << "\n";
     
 }
 
@@ -299,6 +297,15 @@ TrackToTrackValidator::book_matching_tracks_histos(DQMStore::IBooker & ibooker, 
   (mes.h_eta_vs_eta)    = ibooker.book2D(label+"_eta_vs_eta",  "monitored track #eta vs reference track #eta",     nintEta, minEta, maxEta, nintEta, minEta, maxEta);
   (mes.h_phi_vs_phi)    = ibooker.book2D(label+"_phi_vs_phi",  "monitored track #phi vs reference track #phi",     nintPhi, minPhi, maxPhi, nintPhi, minPhi, maxPhi);
 
+  (mes.h_dPt)       = ibooker.book1D(label+"_dPt",       "#Delta track #P_T",                                         ptRes_nbin,    ptRes_rangeMin,         ptRes_rangeMax   );
+  (mes.h_dEta)      = ibooker.book1D(label+"_dEta",      "#Delta track #eta",                                         etaRes_nbin,   etaRes_rangeMin,        etaRes_rangeMax   );
+  (mes.h_dPhi)      = ibooker.book1D(label+"_dPhi",      "#Delta track #phi",                                         phiRes_nbin,   phiRes_rangeMin,        phiRes_rangeMax   );
+  (mes.h_dDxy)      = ibooker.book1D(label+"_dDxy",      "#Delta track transverse dca to beam spot",                  dxyRes_nbin,   dxyRes_rangeMin,        dxyRes_rangeMax   );
+  (mes.h_dDz)       = ibooker.book1D(label+"_dDz",       "#Delta track longitudinal dca to beam spot",                dzRes_nbin,    dzRes_rangeMin,         dzRes_rangeMax   );
+  (mes.h_dDxyWRTpv) = ibooker.book1D(label+"_dDxyWRTpv", "#Delta track transverse dca to primary vertex ",            dxyRes_nbin,   dxyRes_rangeMin,        dxyRes_rangeMax   );
+  (mes.h_dDzWRTpv)  = ibooker.book1D(label+"_dDzWRTpv",  "#Delta track longitudinal dca to primary vertex",           dzRes_nbin,    dzRes_rangeMin,         dzRes_rangeMax   );
+  (mes.h_dCharge)   = ibooker.book1D(label+"_dCharge",   "#Delta track charge",                                       5,                       -2.5,                    2.5   );
+  (mes.h_dHits)     = ibooker.book1D(label+"_dHits",     "#Delta track number of hits",                               39,                      -19.5,                  19.5   );
 }
 
 
@@ -335,27 +342,38 @@ TrackToTrackValidator::fill_matching_tracks_histos(matchingME& mes, reco::Track*
   float mon_pt       = mon->pt();
   float mon_eta      = mon->eta();
   float mon_phi      = mon->phi();
-  //  float mon_dxy      = mon->dxy(bs->position());
-  //  float mon_dz       = mon->dz(bs->position());
-  //  float mon_dxyWRTpv = mon->dxy(pv->position());
-  //  float mon_dzWRTpv  = mon->dz(pv->position());
-  //  float mon_charge   = mon->charge();
+  float mon_dxy      = mon->dxy(bs->position());
+  float mon_dz       = mon->dz(bs->position());
+  float mon_dxyWRTpv = mon->dxy(pv->position());
+  float mon_dzWRTpv  = mon->dz(pv->position());
+  float mon_charge   = mon->charge();
   float mon_nhits    = mon->hitPattern().numberOfValidHits();
 
   float ref_pt       = ref->pt();
   float ref_eta      = ref->eta();
   float ref_phi      = ref->phi();
-  //  float ref_dxy      = ref->dxy(bs->position());
-  //  float ref_dz       = ref->dz(bs->position());
-  //  float ref_dxyWRTpv = ref->dxy(pv->position());
-  //  float ref_dzWRTpv  = ref->dz(pv->position());
-  //  float ref_charge   = ref->charge();
+  float ref_dxy      = ref->dxy(bs->position());
+  float ref_dz       = ref->dz(bs->position());
+  float ref_dxyWRTpv = ref->dxy(pv->position());
+  float ref_dzWRTpv  = ref->dz(pv->position());
+  float ref_charge   = ref->charge();
   float ref_nhits    = ref->hitPattern().numberOfValidHits();
 
   (mes.h_hits_vs_hits) -> Fill(ref_nhits,mon_nhits);
   (mes.h_pt_vs_pt    ) -> Fill(ref_pt,   mon_pt);
   (mes.h_eta_vs_eta  ) -> Fill(ref_eta,  mon_eta);
   (mes.h_phi_vs_phi  ) -> Fill(ref_phi,  mon_phi);
+
+
+  (mes.h_dPt)       -> Fill(ref_pt        - mon_pt);
+  (mes.h_dEta)      -> Fill(ref_eta       - mon_eta);
+  (mes.h_dPhi)      -> Fill(ref_phi       - mon_phi);
+  (mes.h_dDxy)      -> Fill(ref_dxy       - mon_dxy);
+  (mes.h_dDz)       -> Fill(ref_dz        - mon_dz);
+  (mes.h_dDxyWRTpv) -> Fill(ref_dxyWRTpv  - mon_dxyWRTpv);
+  (mes.h_dDzWRTpv)  -> Fill(ref_dzWRTpv   - mon_dzWRTpv);
+  (mes.h_dCharge)   -> Fill(ref_charge    - mon_charge);
+  (mes.h_dHits)     -> Fill(ref_nhits     - mon_nhits);
   
 }
 
@@ -375,18 +393,6 @@ TrackToTrackValidator::initialize_parameter(const edm::ParameterSet& iConfig)
   minPt    = pset.getParameter<double>("minPt");
   maxPt    = pset.getParameter<double>("maxPt");
   nintPt   = pset.getParameter<int>("nintPt");
-  useInvPt = pset.getParameter<bool>("useInvPt");
-  useLogPt = pset.getUntrackedParameter<bool>("useLogPt",false);
-
-  //parameters for _vs_Hit plots
-  //minHit  = pset.getParameter<double>("minHit");
-  //maxHit  = pset.getParameter<double>("maxHit");
-  //nintHit = pset.getParameter<int>("nintHit");
-
-  //parameters for _vs_Layer plots
-  //minLayers  = pset.getParameter<double>("minLayers");
-  //maxLayers  = pset.getParameter<double>("maxLayers");
-  //nintLayers = pset.getParameter<int>("nintLayers");
 
   //parameters for _vs_phi plots
   minPhi  = pset.getParameter<double>("minPhi");
@@ -403,47 +409,26 @@ TrackToTrackValidator::initialize_parameter(const edm::ParameterSet& iConfig)
   maxDz  = pset.getParameter<double>("maxDz");
   nintDz = pset.getParameter<int>("nintDz");
 
-  //parameters for _vs_ProductionVertexTransvPosition plots
-  //minVertpos  = pset.getParameter<double>("minVertpos");
-  //maxVertpos  = pset.getParameter<double>("maxVertpos");
-  //nintVertpos = pset.getParameter<int>("nintVertpos");
-
-  //parameters for _vs_ProductionVertexZPosition plots
-  //minZpos  = pset.getParameter<double>("minZpos");
-  //maxZpos  = pset.getParameter<double>("maxZpos");
-  //nintZpos = pset.getParameter<int>("nintZpos");
-
   //parameters for resolution plots
-  //ptRes_rangeMin = pset.getParameter<double>("ptRes_rangeMin");
-  //ptRes_rangeMax = pset.getParameter<double>("ptRes_rangeMax");
-  //ptRes_nbin = pset.getParameter<int>("ptRes_nbin");
-  //
-  //phiRes_rangeMin = pset.getParameter<double>("phiRes_rangeMin");
-  //phiRes_rangeMax = pset.getParameter<double>("phiRes_rangeMax");
-  //phiRes_nbin = pset.getParameter<int>("phiRes_nbin");
-  //
-  //cotThetaRes_rangeMin = pset.getParameter<double>("cotThetaRes_rangeMin");
-  //cotThetaRes_rangeMax = pset.getParameter<double>("cotThetaRes_rangeMax");
-  //cotThetaRes_nbin = pset.getParameter<int>("cotThetaRes_nbin");
-  //
-  //dxyRes_rangeMin = pset.getParameter<double>("dxyRes_rangeMin");
-  //dxyRes_rangeMax = pset.getParameter<double>("dxyRes_rangeMax");
-  //dxyRes_nbin = pset.getParameter<int>("dxyRes_nbin");
-  //
-  //dzRes_rangeMin = pset.getParameter<double>("dzRes_rangeMin");
-  //dzRes_rangeMax = pset.getParameter<double>("dzRes_rangeMax");
-  //dzRes_nbin = pset.getParameter<int>("dzRes_nbin");
+  ptRes_rangeMin = pset.getParameter<double>("ptRes_rangeMin");
+  ptRes_rangeMax = pset.getParameter<double>("ptRes_rangeMax");
+  ptRes_nbin = pset.getParameter<int>("ptRes_nbin");
 
-  useLogPt = pset.getUntrackedParameter<bool>("useLogPt",false);
+  phiRes_rangeMin = pset.getParameter<double>("phiRes_rangeMin");
+  phiRes_rangeMax = pset.getParameter<double>("phiRes_rangeMax");
+  phiRes_nbin     = pset.getParameter<int>("phiRes_nbin");
+  
+  etaRes_rangeMin = pset.getParameter<double>("etaRes_rangeMin");
+  etaRes_rangeMax = pset.getParameter<double>("etaRes_rangeMax");
+  etaRes_nbin     = pset.getParameter<int>("etaRes_nbin");
+  
+  dxyRes_rangeMin = pset.getParameter<double>("dxyRes_rangeMin");
+  dxyRes_rangeMax = pset.getParameter<double>("dxyRes_rangeMax");
+  dxyRes_nbin = pset.getParameter<int>("dxyRes_nbin");
+  
+  dzRes_rangeMin = pset.getParameter<double>("dzRes_rangeMin");
+  dzRes_rangeMax = pset.getParameter<double>("dzRes_rangeMax");
+  dzRes_nbin = pset.getParameter<int>("dzRes_nbin");
 
-  // fix for the LogScale
-  if(useLogPt){
-    maxPt=log10(maxPt);
-    if(minPt > 0){
-      minPt=log10(minPt);
-    }
-    else{
-    }
-  }
 
 }
