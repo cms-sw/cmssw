@@ -185,6 +185,7 @@ offlineHLTSource4HLTMonitorPD = cms.Sequence(
     sistripMonitorHLTsequence *       # strip
     sipixelMonitorHLTsequence *       # pixel
     BTVHLTOfflineSource *             # BTV
+    bTagHLTTrackMonitoring *          # BTV relative track efficeicies
     trackingMonitorHLT *              # tracking
     trackingMonitorHLTDisplacedJet*   # EXO : DisplacedJet Tracking 
     egmTrackingMonitorHLT *           # EGM tracking
