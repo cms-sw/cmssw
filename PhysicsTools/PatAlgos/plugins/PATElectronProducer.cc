@@ -1132,7 +1132,7 @@ void PATElectronProducer::fillDescriptions(edm::ConfigurationDescriptions & desc
                  )->setComment("input with high level selection");
   iDesc.addNode( edm::ParameterDescription<edm::InputTag>("pvSrc", edm::InputTag(), true)
                  )->setComment("input with high level selection");
-  iDesc.add<bool>("getdBFromTrack", true)->setComment("switch IP2D computation to use the GSF track instead of IPTools");
+  iDesc.add<bool>("getdBFromTrack", false)->setComment("switch IP2D computation to use the GSF track instead of IPTools");
 
   descriptions.add("PATElectronProducer", iDesc);
 
