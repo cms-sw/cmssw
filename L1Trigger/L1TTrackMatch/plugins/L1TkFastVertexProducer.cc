@@ -18,7 +18,7 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-
+#include "FWCore/Utilities/interface/ESGetToken.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "DataFormats/L1TrackTrigger/interface/TTTypes.h"
@@ -88,6 +88,7 @@ private:
   const edm::EDGetTokenT<edm::HepMCProduct> hepmcToken_;
   const edm::EDGetTokenT<std::vector<reco::GenParticle> > genparticleToken_;
   const edm::EDGetTokenT<std::vector<TTTrack<Ref_Phase2TrackerDigi_> > > trackToken_;
+  const edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> topoToken_;
 };
 
 //
@@ -106,7 +107,8 @@ L1TkFastVertexProducer::L1TkFastVertexProducer(const edm::ParameterSet& iConfig)
       genparticleToken_(
           consumes<std::vector<reco::GenParticle> >(iConfig.getParameter<edm::InputTag>("GenParticleInputTag"))),
       trackToken_(consumes<std::vector<TTTrack<Ref_Phase2TrackerDigi_> > >(
-          iConfig.getParameter<edm::InputTag>("L1TrackInputTag"))) {
+          iConfig.getParameter<edm::InputTag>("L1TrackInputTag"))),
+      topoToken_(esConsumes<TrackerTopology, TrackerTopologyRcd>()) {
   zMax_ = (float)iConfig.getParameter<double>("ZMAX");
   chi2Max_ = (float)iConfig.getParameter<double>("CHI2MAX");
   pTMinTra_ = (float)iConfig.getParameter<double>("PTMINTRA");
@@ -143,9 +145,8 @@ void L1TkFastVertexProducer::produce(edm::StreamID, edm::Event& iEvent, const ed
   auto result = std::make_unique<TkPrimaryVertexCollection>();
 
   // Tracker Topology
-  edm::ESHandle<TrackerTopology> tTopoHandle_;
-  iSetup.get<TrackerTopologyRcd>().get(tTopoHandle_);
-  const TrackerTopology* tTopo = tTopoHandle_.product();
+  edm::ESHandle<TrackerTopology> tTopoHandle = iSetup.getHandle(topoToken_);
+  const TrackerTopology* tTopo = tTopoHandle.product();
 
   TH1F htmp("htmp", ";z (cm); Tracks", nBinning_, xmin_, xmax_);
   TH1F htmp_weight("htmp_weight", ";z (cm); Tracks", nBinning_, xmin_, xmax_);
