@@ -11,6 +11,9 @@ trackSelector = cms.EDFilter('TrackSelector',
 highPurityTracks = trackSelector.clone()
 highPurityTracks.cut = cms.string("quality('highPurity')")
 
+#
+# Sanity Check (Remove...)
+#
 hltMerged2hltMerged = trackToTrackValidator.clone()
 hltMerged2hltMerged.monitoredTrack      = cms.InputTag("hltMergedTracks")
 hltMerged2hltMerged.referenceTrack      = cms.InputTag("hltMergedTracks")
@@ -30,18 +33,28 @@ hltMerged2generalTracks.referencePrimaryVertices = cms.InputTag("offlinePrimaryV
 hltMerged2generalTracks.monitoredPrimaryVertices = cms.InputTag("hltVerticesPFSelector")
 
 hltMerged2highPurity = trackToTrackValidator.clone()
-hltMerged2highPurity.monitoredTrack      = cms.InputTag("hltMergedTracks")
-hltMerged2highPurity.referenceTrack      = cms.InputTag("highPurityTracks")
-hltMerged2highPurity.monitoredBeamSpot   = cms.InputTag("hltOnlineBeamSpot")
-hltMerged2highPurity.referenceBeamSpot   = cms.InputTag("offlineBeamSpot")
-hltMerged2highPurity.topDirName    = cms.string("HLT/Tracking/ValidationWRTOffline/hltMergedWrtHighPurity")
+hltMerged2highPurity.monitoredTrack           = cms.InputTag("hltMergedTracks")
+hltMerged2highPurity.referenceTrack           = cms.InputTag("highPurityTracks")
+hltMerged2highPurity.monitoredBeamSpot        = cms.InputTag("hltOnlineBeamSpot")
+hltMerged2highPurity.referenceBeamSpot        = cms.InputTag("offlineBeamSpot")
+hltMerged2highPurity.topDirName               = cms.string("HLT/Tracking/ValidationWRTOffline/hltMergedWrtHighPurity")
 hltMerged2highPurity.referencePrimaryVertices = cms.InputTag("offlinePrimaryVertices")
 hltMerged2highPurity.monitoredPrimaryVertices = cms.InputTag("hltVerticesPFSelector")
 
+hltMergedForBTag2highPurity = trackToTrackValidator.clone()
+hltMergedForBTag2highPurity.monitoredTrack           = cms.InputTag("hltMergedTracksForBTag")
+hltMergedForBTag2highPurity.referenceTrack           = cms.InputTag("highPurityTracks")
+hltMergedForBTag2highPurity.monitoredBeamSpot        = cms.InputTag("hltOnlineBeamSpot")
+hltMergedForBTag2highPurity.referenceBeamSpot        = cms.InputTag("offlineBeamSpot")
+hltMergedForBTag2highPurity.topDirName               = cms.string("HLT/Tracking/ValidationWRTOffline/hltMergedWrtHighPurity")
+hltMergedForBTag2highPurity.referencePrimaryVertices = cms.InputTag("offlinePrimaryVertices")
+hltMergedForBTag2highPurity.monitoredPrimaryVertices = cms.InputTag("hltVerticesPFSelector")
+
 
 hltToOfflineTrackValidatorSequence = cms.Sequence(
-    cms.ignore(highPurityTracks)+
-    hltMerged2hltMerged+
-    hltMerged2generalTracks+
-    hltMerged2highPurity
+    cms.ignore(highPurityTracks)
+    + hltMerged2hltMerged
+    + hltMerged2generalTracks
+    + hltMerged2highPurity
+    + hltMergedForBTag2highPurity
 )
