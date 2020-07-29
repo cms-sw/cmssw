@@ -12,7 +12,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -46,7 +46,7 @@ using namespace l1t;
 // class declaration
 //
 
-class L1TkFastVertexProducer : public edm::EDProducer {
+class L1TkFastVertexProducer : public edm::stream::EDProducer<> {
 public:
   typedef TTTrack<Ref_Phase2TrackerDigi_> L1TTTrackType;
   typedef std::vector<L1TTTrackType> L1TTTrackCollectionType;
@@ -57,11 +57,7 @@ public:
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
-  void beginJob() override;
   void produce(edm::Event&, const edm::EventSetup&) override;
-  void endJob() override;
-
-  //virtual void beginRun(edm::Run&, edm::EventSetup const&);
 
   // ----------member data ---------------------------
 
@@ -89,9 +85,9 @@ private:
   TH1F* htmp_;
   TH1F* htmp_weight_;
 
-  const edm::EDGetTokenT<edm::HepMCProduct> hepmcToken;
-  const edm::EDGetTokenT<std::vector<reco::GenParticle> > genparticleToken;
-  const edm::EDGetTokenT<std::vector<TTTrack<Ref_Phase2TrackerDigi_> > > trackToken;
+  const edm::EDGetTokenT<edm::HepMCProduct> hepmcToken_;
+  const edm::EDGetTokenT<std::vector<reco::GenParticle> > genparticleToken_;
+  const edm::EDGetTokenT<std::vector<TTTrack<Ref_Phase2TrackerDigi_> > > trackToken_;
 };
 
 //
@@ -106,10 +102,10 @@ private:
 // constructors and destructor
 //
 L1TkFastVertexProducer::L1TkFastVertexProducer(const edm::ParameterSet& iConfig)
-    : hepmcToken(consumes<edm::HepMCProduct>(iConfig.getParameter<edm::InputTag>("HepMCInputTag"))),
-      genparticleToken(
+    : hepmcToken_(consumes<edm::HepMCProduct>(iConfig.getParameter<edm::InputTag>("HepMCInputTag"))),
+      genparticleToken_(
           consumes<std::vector<reco::GenParticle> >(iConfig.getParameter<edm::InputTag>("GenParticleInputTag"))),
-      trackToken(consumes<std::vector<TTTrack<Ref_Phase2TrackerDigi_> > >(
+      trackToken_(consumes<std::vector<TTTrack<Ref_Phase2TrackerDigi_> > >(
           iConfig.getParameter<edm::InputTag>("L1TrackInputTag"))) {
   zMax_ = (float)iConfig.getParameter<double>("ZMAX");
   chi2Max_ = (float)iConfig.getParameter<double>("CHI2MAX");
@@ -151,7 +147,7 @@ L1TkFastVertexProducer::~L1TkFastVertexProducer() {
 void L1TkFastVertexProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   using namespace edm;
 
-  std::unique_ptr<TkPrimaryVertexCollection> result(new TkPrimaryVertexCollection);
+  auto result = std::make_unique<TkPrimaryVertexCollection>();
 
   // Tracker Topology
   edm::ESHandle<TrackerTopology> tTopoHandle_;
@@ -166,10 +162,10 @@ void L1TkFastVertexProducer::produce(edm::Event& iEvent, const edm::EventSetup& 
   if (monteCarloVertex_) {
     // MC info  ... retrieve the zvertex
     edm::Handle<edm::HepMCProduct> HepMCEvt;
-    iEvent.getByToken(hepmcToken, HepMCEvt);
+    iEvent.getByToken(hepmcToken_, HepMCEvt);
 
     edm::Handle<std::vector<reco::GenParticle> > GenParticleHandle;
-    iEvent.getByToken(genparticleToken, GenParticleHandle);
+    iEvent.getByToken(genparticleToken_, GenParticleHandle);
 
     const double mm = 0.1;
     float zvtx_gen = -999;
@@ -201,25 +197,22 @@ void L1TkFastVertexProducer::produce(edm::Event& iEvent, const edm::EventSetup& 
       }         // end loop over gen vertices
 
     } else if (GenParticleHandle.isValid()) {
-      std::vector<reco::GenParticle>::const_iterator genpartIter;
-      for (genpartIter = GenParticleHandle->begin(); genpartIter != GenParticleHandle->end(); ++genpartIter) {
-        int status = genpartIter->status();
+      for (const auto& genpart : *GenParticleHandle) {
+        int status = genpart.status();
         if (status != 3)
           continue;
-        if (genpartIter->numberOfMothers() == 0)
+        if (genpart.numberOfMothers() == 0)
           continue;  // the incoming hadrons
-        float part_zvertex = genpartIter->vz();
+        float part_zvertex = genpart.vz();
         zvtx_gen = part_zvertex;
         break;  //
       }
     } else {
       throw cms::Exception("L1TkFastVertexProducer")
           << "\nerror: try to retrieve the MC vertex (monteCarloVertex_ = True) "
-          << "\nbut the input file contains neither edm::HepMCProduct>  nor vector<reco::GenParticle>. Exit"
+          << "\nbut the input file contains neither edm::HepMCProduct> nor vector<reco::GenParticle>. Exit"
           << std::endl;
     }
-
-    //     std::cout<<zvtx_gen<<endl;
 
     TkPrimaryVertex genvtx(zvtx_gen, -999.);
 
@@ -229,7 +222,7 @@ void L1TkFastVertexProducer::produce(edm::Event& iEvent, const edm::EventSetup& 
   }
 
   edm::Handle<L1TTTrackCollectionType> L1TTTrackHandle;
-  iEvent.getByToken(trackToken, L1TTTrackHandle);
+  iEvent.getByToken(trackToken_, L1TTTrackHandle);
 
   if (!L1TTTrackHandle.isValid()) {
     throw cms::Exception("L1TkFastVertexProducer")
@@ -237,12 +230,11 @@ void L1TkFastVertexProducer::produce(edm::Event& iEvent, const edm::EventSetup& 
     return;
   }
 
-  L1TTTrackCollectionType::const_iterator trackIter;
-  for (trackIter = L1TTTrackHandle->begin(); trackIter != L1TTTrackHandle->end(); ++trackIter) {
-    float z = trackIter->POCA().z();
-    float chi2 = trackIter->chi2();
-    float pt = trackIter->momentum().perp();
-    float eta = trackIter->momentum().eta();
+  for (const auto& track : *L1TTTrackHandle) {
+    float z = track.POCA().z();
+    float chi2 = track.chi2();
+    float pt = track.momentum().perp();
+    float eta = track.momentum().eta();
 
     //..............................................................
     float wt = pow(pt, weight_);  // calculating the weight for tks in as pt^0,pt^1 or pt^2 based on weight_
@@ -268,7 +260,7 @@ void L1TkFastVertexProducer::produce(edm::Event& iEvent, const edm::EventSetup& 
 
     // get pointers to stubs associated to the L1 track
     const std::vector<edm::Ref<edmNew::DetSetVector<TTStub<Ref_Phase2TrackerDigi_> >, TTStub<Ref_Phase2TrackerDigi_> > >&
-        theStubs = trackIter->getStubRefs();
+        theStubs = track.getStubRefs();
 
     int tmp_trk_nstub = (int)theStubs.size();
     if (tmp_trk_nstub < 0) {
@@ -278,10 +270,10 @@ void L1TkFastVertexProducer::produce(edm::Event& iEvent, const edm::EventSetup& 
     }
 
     // loop over the stubs
-    for (unsigned int istub = 0; istub < (unsigned int)theStubs.size(); istub++) {
+    for (const auto& stub : theStubs) {
       nstubs++;
       bool isPS = false;
-      DetId detId(theStubs.at(istub)->getDetId());
+      DetId detId(stub->getDetId());
       if (detId.det() == DetId::Detector::Tracker) {
         if (detId.subdetId() == StripSubdetector::TOB && tTopo->tobLayer(detId) <= 3)
           isPS = true;
@@ -297,13 +289,11 @@ void L1TkFastVertexProducer::produce(edm::Event& iEvent, const edm::EventSetup& 
       continue;
 
     // quality cuts from Louise S, based on the pt-stub compatibility (June 20, 2014)
-    int trk_nstub = (int)trackIter->getStubRefs().size();
+    int trk_nstub = (int)track.getStubRefs().size();
     float chi2dof = chi2 / (2 * trk_nstub - 4);
 
     if (doPtComp_) {
-      float trk_consistency = trackIter->stubPtConsistency();
-      //if (trk_nstub < 4) continue;	// done earlier
-      //if (chi2 > 100.0) continue;	// done earlier
+      float trk_consistency = track.stubPtConsistency();
       if (trk_nstub == 4) {
         if (std::abs(eta) < 2.2 && trk_consistency > 10)
           continue;
@@ -362,15 +352,6 @@ void L1TkFastVertexProducer::produce(edm::Event& iEvent, const edm::EventSetup& 
 
   iEvent.put(std::move(result));
 }
-
-// ------------ method called once each job just before starting event loop  ------------
-void L1TkFastVertexProducer::beginJob() {}
-
-// ------------ method called once each job just after ending the event loop  ------------
-void L1TkFastVertexProducer::endJob() {}
-
-// ------------ method called when starting to processes a run  ------------
-//void L1TkFastVertexProducer::beginRun(edm::Run& iRun, edm::EventSetup const& iSetup) {}
 
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
 void L1TkFastVertexProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
