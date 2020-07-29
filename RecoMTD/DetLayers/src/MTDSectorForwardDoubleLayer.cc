@@ -143,21 +143,9 @@ vector<DetGroup> MTDSectorForwardDoubleLayer::groupedCompatibleDets(const Trajec
 }
 
 bool MTDSectorForwardDoubleLayer::isCrack(const GlobalPoint& gp) const {
-  // approximate
   bool result = false;
-  double r = gp.perp();
-  const std::vector<const MTDDetSector*>& backSectors = theBackLayer.sectors();
-  if (backSectors.size() > 1) {
-    const MTDDetSector* innerSector = dynamic_cast<const MTDDetSector*>(backSectors[0]);
-    const MTDDetSector* outerSector = dynamic_cast<const MTDDetSector*>(backSectors[1]);
-    assert(innerSector && outerSector);
-    float crackInner = innerSector->specificSurface().outerRadius();
-    float crackOuter = outerSector->specificSurface().innerRadius();
-    LogTrace("MTDDetLayers") << "In a crack:" << crackInner << " " << r << " " << crackOuter;
-    if (r > crackInner && r < crackOuter)
-      return true;
-  }
-  // non-overlapping sectors
+  LogTrace("MTDDetLayers")
+      << "MTDSectorForwardDoubleLayer::isCrack kept only for backward compatibility, no real implementation";
   return result;
 }
 

@@ -4,6 +4,8 @@
 
 #include <RecoMTD/DetLayers/interface/MTDRingForwardDoubleLayer.h>
 #include <RecoMTD/DetLayers/interface/MTDDetRing.h>
+#include <RecoMTD/DetLayers/interface/MTDSectorForwardDoubleLayer.h>
+#include <RecoMTD/DetLayers/interface/MTDDetSector.h>
 #include <DataFormats/ForwardDetId/interface/ETLDetId.h>
 #include <Geometry/CommonDetUnit/interface/GeomDet.h>
 #include <Geometry/MTDCommonData/interface/MTDTopologyMode.h>
@@ -18,11 +20,9 @@ using namespace std;
 
 pair<vector<DetLayer*>, vector<DetLayer*> > ETLDetLayerGeometryBuilder::buildLayers(const MTDGeometry& geo,
                                                                                     const int mtdTopologyMode) {
-  pair<vector<DetLayer*>, vector<DetLayer*> > res_pair;
+  vector<DetLayer*> result[2];  // one for each endcap
 
   if (mtdTopologyMode <= static_cast<int>(MTDTopologyMode::Mode::barphiflat)) {
-    vector<DetLayer*> result[2];  // one for each endcap
-
     for (unsigned endcap = 0; endcap < 2; ++endcap) {
       // there is only one layer for ETL right now, maybe more later
       for (unsigned layer = 0; layer < ETLDetId::kETLv1nDisc; ++layer) {
@@ -35,8 +35,36 @@ pair<vector<DetLayer*>, vector<DetLayer*> > ETLDetLayerGeometryBuilder::buildLay
           result[endcap].push_back(thelayer);
       }
     }
-    res_pair = std::make_pair(result[0], result[1]);
+  } else {
+    // number of layers is identical for post TDR scenarios, pick v4
+    // loop on number of sectors per face, two faces per disc (i.e. layer) taken into account in layer building (front/back)
+    unsigned int nSector(1);
+    switch (mtdTopologyMode) {
+      case static_cast<int>(MTDTopologyMode::Mode::btlv1etlv4):
+        nSector *= ETLDetId::kETLv4maxSector;
+        break;
+      //case static_cast<int>(MTDTopologyMode::Mode::btlv1etlv5):
+      //nSector *= ETLDetId::kETLv5maxSector;
+      //break;
+      default:
+        throw cms::Exception("MTDDetLayers") << "Not implemented scenario " << mtdTopologyMode;
+        break;
+    }
+
+    for (unsigned endcap = 0; endcap < 2; ++endcap) {
+      // number of layers is two, identical for post TDR scenarios, pick v4
+      for (unsigned layer = 1; layer <= ETLDetId::kETLv4nDisc; ++layer) {
+        vector<unsigned> sectors;
+        for (unsigned sector = 1; sector <= nSector; ++sector) {
+          sectors.push_back(sector);
+        }
+        MTDSectorForwardDoubleLayer* thelayer = buildLayerNew(endcap, layer, sectors, geo);
+        if (thelayer)
+          result[endcap].push_back(thelayer);
+      }
+    }
   }
+  pair<vector<DetLayer*>, vector<DetLayer*> > res_pair(result[0], result[1]);
   return res_pair;
 }
 
@@ -100,5 +128,73 @@ MTDDetRing* ETLDetLayerGeometryBuilder::makeDetRing(vector<const GeomDet*>& geom
                            << " chambers at z=" << result->position().z()
                            << " R1: " << result->specificSurface().innerRadius()
                            << " R2: " << result->specificSurface().outerRadius();
+  return result;
+}
+
+MTDSectorForwardDoubleLayer* ETLDetLayerGeometryBuilder::buildLayerNew(int endcap,
+                                                                       int layer,
+                                                                       vector<unsigned>& sectors,
+                                                                       const MTDGeometry& geo) {
+  MTDSectorForwardDoubleLayer* result = nullptr;
+
+  std::vector<const MTDDetSector*> frontSectors, backSectors;
+
+  LogDebug("MTDDetLayers") << "ETL dets array size = " << geo.detsETL().size();
+
+  for (unsigned sector : sectors) {
+    std::vector<const GeomDet*> frontGeomDets, backGeomDets;
+    LogTrace("MTDDetLayers") << "endcap = " << endcap << " layer = " << layer << " sector = " << sector;
+#ifdef EDM_ML_DEBUG
+    unsigned int nfront(0), nback(0);
+#endif
+    for (auto det : geo.detsETL()) {
+      ETLDetId theMod(det->geographicalId().rawId());
+      if (theMod.mtdSide() == endcap && theMod.nDisc() == layer && theMod.sector() == static_cast<int>(sector)) {
+        LogDebug("MTDDetLayers") << theMod;
+        // front layer face
+        if (theMod.discSide() == 0) {
+#ifdef EDM_ML_DEBUG
+          nfront++;
+          LogTrace("MTDDetLayers") << "Front " << theMod.discSide() << " " << nfront;
+#endif
+          frontGeomDets.emplace_back(det);
+          // back layer face
+        } else if (theMod.discSide() == 1) {
+#ifdef EDM_ML_DEBUG
+          nback++;
+          LogTrace("MTDDetLayers") << "Back " << theMod.discSide() << " " << nback;
+#endif
+          backGeomDets.emplace_back(det);
+        }
+      }
+    }
+
+    if (!backGeomDets.empty()) {
+      LogDebug("MTDDetLayers") << "backGeomDets size = " << backGeomDets.size();
+      backSectors.emplace_back(makeDetSector(backGeomDets));
+    }
+
+    if (!frontGeomDets.empty()) {
+      LogDebug("MTDDetLayers") << "frontGeomDets size = " << frontGeomDets.size();
+      frontSectors.emplace_back(makeDetSector(frontGeomDets));
+      assert(!backGeomDets.empty());
+      float frontz = frontSectors.back()->position().z();
+      float backz = backSectors.back()->position().z();
+      assert(fabs(frontz) < fabs(backz));
+    }
+  }
+
+  return result;
+}
+
+MTDDetSector* ETLDetLayerGeometryBuilder::makeDetSector(vector<const GeomDet*>& geomDets) {
+  LogTrace("MTDDetLayers") << "ETLDetLayerGeometryBuilder: new MTDDetSector with " << geomDets.size();
+
+  MTDDetSector* result = new MTDDetSector(geomDets);
+  LogTrace("MTDDetLayers") << "ETLDetLayerGeometryBuilder: new MTDDetSector with " << geomDets.size()
+                           << " chambers at z=" << result->position().z()
+                           << " R1: " << result->specificSurface().innerRadius()
+                           << " R2: " << result->specificSurface().outerRadius();
+
   return result;
 }
