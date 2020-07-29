@@ -26,7 +26,6 @@ namespace egamma::conv {
     using namespace std;
     using namespace edm;
     using namespace edm::soa::col;
-    using namespace col;
 
     constexpr float dR2Max = 0.5 * 0.5;
 
@@ -168,7 +167,6 @@ namespace egamma::conv {
   //-------------------------------------------------------------------------------------
   ConversionInfo getConversionInfo(reco::Track const& ele, TrackRowView const& track, float bFieldAtOrigin) {
     using namespace edm::soa::col;
-    using namespace col;
 
     //now calculate the conversion related information
     float elCurvature = -0.3f * bFieldAtOrigin * (ele.charge() / ele.pt()) / 100.f;
@@ -183,7 +181,7 @@ namespace egamma::conv {
 
     float d = sqrt(pow(xEl - xCand, 2) + pow(yEl - yCand, 2));
     float dist = d - (rEl + rCand);
-    float dcot = 1.f / tan(ele.theta()) - 1.f / tan(track.get<Theta>());
+    float dcot = 1.f / tan(ele.theta()) - 1.f / (track.get<Pt>() / track.get<Pz>());
 
     //get the point of conversion
     float xa1 = xEl + (xCand - xEl) * rEl / d;
@@ -253,8 +251,8 @@ namespace egamma::conv {
         if (std::abs(temp.dist) < 0.02 && std::abs(temp.dcot) < 0.02 && temp.deltaMissingHits < 3 &&
             temp.radiusOfConversion > -2)
           isConv = true;
-        if (pow(temp.dist, 2) + pow(temp.dcot, 2) < square(0.05f) && temp.deltaMissingHits < 2 &&
-            temp.radiusOfConversion > -2)
+        else if (pow(temp.dist, 2) + pow(temp.dcot, 2) < square(0.05f) && temp.deltaMissingHits < 2 &&
+                 temp.radiusOfConversion > -2)
           isConv = true;
 
         if (isConv)

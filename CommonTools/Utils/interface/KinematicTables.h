@@ -14,14 +14,13 @@ namespace edm {
 
     using EtaPhiTable = edm::soa::Table<col::Eta, col::Phi>;
     using EtaPhiTableView = edm::soa::ViewFromTable_t<EtaPhiTable>;
+
     using PtEtaPhiTable = edm::soa::Table<col::Pt, col::Eta, col::Phi>;
-    using PtEtaPhiThetaTable = edm::soa::Table<col::Pt, col::Eta, col::Phi, col::Theta>;
+    using PtEtaPhiTableView = edm::soa::ViewFromTable_t<PtEtaPhiTable>;
 
     template <class Object>
     EtaPhiTable makeEtaPhiTable(std::vector<Object> const& objects) {
-      return {objects,
-              edm::soa::column_fillers(col::Eta::filler([](Object const& x) { return x.eta(); }),
-                                       col::Phi::filler([](Object const& x) { return x.phi(); }))};
+      return {objects};
     }
 
     template <class Object>

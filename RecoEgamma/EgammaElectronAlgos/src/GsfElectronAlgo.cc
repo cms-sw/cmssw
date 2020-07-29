@@ -571,10 +571,10 @@ reco::GsfElectronCollection GsfElectronAlgo::completeElectrons(edm::Event const&
     }
 
     if (ctfTrackTable == std::nullopt) {
-      ctfTrackTable = egamma::conv::makeTrackTable(*eventData.originalCtfTracks);
+      ctfTrackTable = egamma::conv::TrackTable(*eventData.originalCtfTracks);
     }
     if (gsfTrackTable == std::nullopt) {
-      gsfTrackTable = egamma::conv::makeTrackTable(*eventData.originalGsfTracks);
+      gsfTrackTable = egamma::conv::TrackTable(*eventData.originalGsfTracks);
     }
 
     createElectron(electrons,
