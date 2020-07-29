@@ -12,7 +12,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/stream/EDProducer.h"
+#include "FWCore/Framework/interface/global/EDProducer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -46,7 +46,7 @@ using namespace l1t;
 // class declaration
 //
 
-class L1TkFastVertexProducer : public edm::stream::EDProducer<> {
+class L1TkFastVertexProducer : public edm::global::EDProducer<> {
 public:
   typedef TTTrack<Ref_Phase2TrackerDigi_> L1TTTrackType;
   typedef std::vector<L1TTTrackType> L1TTTrackCollectionType;
@@ -57,7 +57,7 @@ public:
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
-  void produce(edm::Event&, const edm::EventSetup&) override;
+  void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
 
   // ----------member data ---------------------------
 
@@ -82,8 +82,8 @@ private:
 
   int weight_;  // weight (power) of pT 0 , 1, 2
 
-  TH1F* htmp_;
-  TH1F* htmp_weight_;
+  constexpr static float xmin_ = -30;
+  constexpr static float xmax_ = +30;
 
   const edm::EDGetTokenT<edm::HepMCProduct> hepmcToken_;
   const edm::EDGetTokenT<std::vector<reco::GenParticle> > genparticleToken_;
@@ -124,13 +124,6 @@ L1TkFastVertexProducer::L1TkFastVertexProducer(const edm::ParameterSet& iConfig)
 
   weight_ = iConfig.getParameter<int>("WEIGHT");
 
-  int nbins = nBinning_;  // should be odd
-  float xmin = -30;
-  float xmax = +30;
-
-  htmp_ = new TH1F("htmp_", ";z (cm); Tracks", nbins, xmin, xmax);
-  htmp_weight_ = new TH1F("htmp_weight_", ";z (cm); Tracks", nbins, xmin, xmax);
-
   produces<TkPrimaryVertexCollection>();
 }
 
@@ -144,7 +137,7 @@ L1TkFastVertexProducer::~L1TkFastVertexProducer() {
 //
 
 // ------------ method called to produce the data  ------------
-void L1TkFastVertexProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
+void L1TkFastVertexProducer::produce(edm::StreamID, edm::Event& iEvent, const edm::EventSetup& iSetup) const {
   using namespace edm;
 
   auto result = std::make_unique<TkPrimaryVertexCollection>();
@@ -154,8 +147,8 @@ void L1TkFastVertexProducer::produce(edm::Event& iEvent, const edm::EventSetup& 
   iSetup.get<TrackerTopologyRcd>().get(tTopoHandle_);
   const TrackerTopology* tTopo = tTopoHandle_.product();
 
-  htmp_->Reset();
-  htmp_weight_->Reset();
+  TH1F htmp("htmp", ";z (cm); Tracks", nBinning_, xmin_, xmax_);
+  TH1F htmp_weight("htmp_weight", ";z (cm); Tracks", nBinning_, xmin_, xmax_);
 
   // ----------------------------------------------------------------------
 
@@ -306,8 +299,8 @@ void L1TkFastVertexProducer::produce(edm::Event& iEvent, const edm::EventSetup& 
         continue;
     }
 
-    htmp_->Fill(z);
-    htmp_weight_->Fill(z, wt);  // changed from "pt" to "wt" which is some power of pt (0,1 or 2)
+    htmp.Fill(z);
+    htmp_weight.Fill(z, wt);  // changed from "pt" to "wt" which is some power of pt (0,1 or 2)
 
   }  // end loop over tracks
 
@@ -315,17 +308,17 @@ void L1TkFastVertexProducer::produce(edm::Event& iEvent, const edm::EventSetup& 
 
   float zvtx_sliding = -999;
   float sigma_max = -999;
-  int nb = htmp_->GetNbinsX();
+  int nb = htmp.GetNbinsX();
   for (int i = 2; i <= nb - 1; i++) {
-    float a0 = htmp_->GetBinContent(i - 1);
-    float a1 = htmp_->GetBinContent(i);
-    float a2 = htmp_->GetBinContent(i + 1);
+    float a0 = htmp.GetBinContent(i - 1);
+    float a1 = htmp.GetBinContent(i);
+    float a2 = htmp.GetBinContent(i + 1);
     float sigma = a0 + a1 + a2;
     if (sigma > sigma_max) {
       sigma_max = sigma;
-      float z0 = htmp_->GetBinCenter(i - 1);
-      float z1 = htmp_->GetBinCenter(i);
-      float z2 = htmp_->GetBinCenter(i + 1);
+      float z0 = htmp.GetBinCenter(i - 1);
+      float z1 = htmp.GetBinCenter(i);
+      float z2 = htmp.GetBinCenter(i + 1);
       zvtx_sliding = (a0 * z0 + a1 * z1 + a2 * z2) / sigma;
     }
   }
@@ -333,15 +326,15 @@ void L1TkFastVertexProducer::produce(edm::Event& iEvent, const edm::EventSetup& 
   zvtx_sliding = -999;
   sigma_max = -999;
   for (int i = 2; i <= nb - 1; i++) {
-    float a0 = htmp_weight_->GetBinContent(i - 1);
-    float a1 = htmp_weight_->GetBinContent(i);
-    float a2 = htmp_weight_->GetBinContent(i + 1);
+    float a0 = htmp_weight.GetBinContent(i - 1);
+    float a1 = htmp_weight.GetBinContent(i);
+    float a2 = htmp_weight.GetBinContent(i + 1);
     float sigma = a0 + a1 + a2;
     if (sigma > sigma_max) {
       sigma_max = sigma;
-      float z0 = htmp_weight_->GetBinCenter(i - 1);
-      float z1 = htmp_weight_->GetBinCenter(i);
-      float z2 = htmp_weight_->GetBinCenter(i + 1);
+      float z0 = htmp_weight.GetBinCenter(i - 1);
+      float z1 = htmp_weight.GetBinCenter(i);
+      float z2 = htmp_weight.GetBinCenter(i + 1);
       zvtx_sliding = (a0 * z0 + a1 * z1 + a2 * z2) / sigma;
     }
   }
