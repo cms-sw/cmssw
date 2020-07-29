@@ -1198,11 +1198,9 @@ namespace edm {
             rng->preBeginLumi(lb);
           }
 
-          IOVSyncValue ts(EventID(lumiPrincipal.run(), lumiPrincipal.luminosityBlock(), 0), lumiPrincipal.beginTime());
-
           //Task to start the stream beginLumis
           auto beginStreamsTask = make_waiting_task(
-              tbb::task::allocate_root(), [this, holder = iHolder, status, ts](std::exception_ptr const* iPtr) mutable {
+              tbb::task::allocate_root(), [this, holder = iHolder, status](std::exception_ptr const* iPtr) mutable {
                 if (iPtr) {
                   status->resetResources();
                   holder.doneWaiting(*iPtr);
@@ -1225,7 +1223,7 @@ namespace edm {
                   using Traits = OccurrenceTraits<LuminosityBlockPrincipal, BranchActionStreamBegin>;
 
                   for (unsigned int i = 0; i < preallocations_.numberOfStreams(); ++i) {
-                    streamQueues_[i].push([this, i, status, holder, ts, &es]() mutable {
+                    streamQueues_[i].push([this, i, status, holder, &es]() mutable {
                       streamQueues_[i].pause();
 
                       auto eventTask =
