@@ -16,6 +16,7 @@ Calorimeters:
 * C11: HGCal (v12 post TDR HGCal Geometry same as C9 + modified support structure + full list of masked wafers)
 * C12: HGCal (as in C11) + HFNose with corrected wafer size + Phase2 HCAL and EB
 * C13: HGCal (reading the constants of the flat file and made provision to be used downstream) + Phase2 HCAL and EB
+* C14: HGCal (reading the constants of the flat file and use it to create geometry) + Phase2 HCAL and EB
 
 Muon system:
 * M4: Phase2 muon system for TDR w/ GE2/1, ME0, RE3/1, RE4/1 (incl. granularity in ME0, staggered GE2/1), 96 iRPC strips, no overlaps, MB4Shields
@@ -32,6 +33,7 @@ The script also handles the common and forward elements of the geometry:
 * O4: detailed cavern description, changes for modified CALO region for endcap part, no overlaps inside the Muon System 
 * O5: same as O4 but with changes needed for new support structure 
 * O6: same as O5 with changes needed for new defintion of boundaries
+* O7: same as O6 with changes needed for new defintion of calorimeter boundaries
 * F2: modifications needed to accommodate detailed cavern, ZDC description is removed.
 * F3: same as F2 but changes due to HFNose
 * F4: same as F2 but with modifications needed to forward shield
@@ -50,5 +52,6 @@ Several detector combinations have been generated:
 * D59 = T17+C13+M7+I11+O6+F6
 * D60 = T15+C10+M4+I10+O4+F3
 * D61 = T17+C9+M5+I10+O4+F2
+* D62 = T17+C14+M7+I11+O7+F6
 
 D49 is the HLT TDR baseline.
