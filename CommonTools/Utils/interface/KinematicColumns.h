@@ -21,13 +21,6 @@ namespace edm {
       SOA_DECLARE_COLUMN(Pt, float, "pt");
       SOA_DECLARE_COLUMN(P, float, "p");
 
-      SOA_DECLARE_COLUMN(PtError, float, "ptError");
-      SOA_DECLARE_COLUMN(D0, float, "d0");
-
-      SOA_DECLARE_COLUMN(NumberOfValidHits, int, "numberOfValidHits");
-      SOA_DECLARE_COLUMN(MissingInnerHits, int, "missingInnerHits");
-      SOA_DECLARE_COLUMN(Charge, int, "charge");
-
     }  // namespace col
 
   }  // namespace soa

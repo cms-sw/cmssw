@@ -1,7 +1,7 @@
-#ifndef RecoEgamma_EgammaElectronAlgos_ConversionFinder_h
-#define RecoEgamma_EgammaElectronAlgos_ConversionFinder_h
+#ifndef RecoEgamma_EgammaElectronAlgos__h
+#define RecoEgamma_EgammaElectronAlgos__h
 
-/** \class reco::ConversionFinder ConversionFinder.h RecoEgamma/EgammaElectronAlgos/interface/ConversionFinder.h
+/** \class reco:: .h RecoEgamma/EgammaElectronAlgos/interface/.h
   *
   * Conversion finding and rejection code
   * Uses simple geometric methods to determine whether or not the
@@ -35,7 +35,7 @@
    radius of conversion for this pair and fill the ConversionInfo
 */
 
-namespace egamma {
+namespace egamma::conv {
 
   struct ConversionInfo {
     const float dist;
@@ -56,14 +56,45 @@ namespace egamma {
     // flag 3: Partner track found in the GSF collection using the electron's GSF track
   };
 
+  namespace col {
+    SOA_DECLARE_COLUMN(PtError, float, "ptError");
+    SOA_DECLARE_COLUMN(D0, float, "d0");
+
+    SOA_DECLARE_COLUMN(NumberOfValidHits, int, "numberOfValidHits");
+    SOA_DECLARE_COLUMN(MissingInnerHits, int, "missingInnerHits");
+    SOA_DECLARE_COLUMN(Charge, int, "charge");
+  }  // namespace col
+
+  using TrackSpecificColumns =
+      std::tuple<col::PtError, col::MissingInnerHits, col::NumberOfValidHits, col::Charge, col::D0>;
+  using TrackTable = edm::soa::AddColumns<edm::soa::PtEtaPhiThetaTable, TrackSpecificColumns>::type;
+  using TrackRowView = TrackTable::const_iterator::value_type;
+
+  template <class Object>
+  TrackTable makeTrackTable(std::vector<Object> const& objects) {
+    return {
+        objects,
+        edm::soa::column_fillers(col::D0::filler([](Object const& x) { return x.d0(); }),
+                                 edm::soa::col::Pt::filler([](Object const& x) { return x.pt(); }),
+                                 edm::soa::col::Theta::filler([](Object const& x) { return x.theta(); }),
+                                 col::PtError::filler([](Object const& x) { return x.ptError(); }),
+                                 col::MissingInnerHits::filler([](Object const& x) {
+                                   return x.hitPattern().numberOfLostHits(reco::HitPattern::MISSING_INNER_HITS);
+                                 }),
+                                 col::NumberOfValidHits::filler([](Object const& x) { return x.numberOfValidHits(); }),
+                                 col::Charge::filler([](Object const& x) { return x.charge(); }),
+                                 edm::soa::col::Eta::filler([](Object const& x) { return x.eta(); }),
+                                 edm::soa::col::Phi::filler([](Object const& x) { return x.phi(); }))};
+  }
+
   // returns the "best" conversion,
   // bField has to be supplied in Tesla
   ConversionInfo findConversion(const reco::GsfElectronCore&,
-                                edm::soa::TrackTableView ctfTable,
-                                edm::soa::TrackTableView gsfTable,
+                                TrackTable const& ctfTable,
+                                TrackTable const& gsfTable,
                                 float bFieldAtOrigin,
                                 float minFracSharedHits = 0.45);
 
-}  // namespace egamma
+}  // namespace egamma::conv
 
 #endif
