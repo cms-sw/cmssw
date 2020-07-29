@@ -615,7 +615,8 @@ std::vector<L1TkMuMantraDF::track_df> L1TkMuonProducer::product_to_trkvec(const 
   return result;
 }
 
-std::vector<L1TkMuMantraDF::muon_df> L1TkMuonProducer::product_to_muvec(const RegionalMuonCandBxCollection& l1mtfs) const {
+std::vector<L1TkMuMantraDF::muon_df> L1TkMuonProducer::product_to_muvec(
+    const RegionalMuonCandBxCollection& l1mtfs) const {
   std::vector<L1TkMuMantraDF::muon_df> result;
   for (auto l1mu = l1mtfs.begin(0); l1mu != l1mtfs.end(0); ++l1mu)  // considering BX = 0 only
   {
@@ -662,7 +663,8 @@ void L1TkMuonProducer::build_tkMuons_from_idxs(TkMuonCollection& tkMuons,
     math::XYZTLorentzVector l1tkp4(p3.x(), p3.y(), p3.z(), p4e);
 
     edm::Ptr<L1TTTrackType> l1tkPtr(l1tksH, match_trk_idx);
-    auto l1muRef = muonH.isValid() ? edm::Ref<RegionalMuonCandBxCollection>(muonH, imatch) : edm::Ref<RegionalMuonCandBxCollection>();
+    auto l1muRef = muonH.isValid() ? edm::Ref<RegionalMuonCandBxCollection>(muonH, imatch)
+                                   : edm::Ref<RegionalMuonCandBxCollection>();
 
     float trkisol = -999;
     TkMuon l1tkmu(l1tkp4, l1muRef, l1tkPtr, trkisol);
