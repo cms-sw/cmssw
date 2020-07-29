@@ -25,8 +25,6 @@
 #include "DataFormats/Math/interface/Point3D.h"
 #include "CommonTools/Utils/interface/KinematicTables.h"
 
-#include "Math/VectorUtil.h"
-
 #include <optional>
 
 /*
@@ -40,10 +38,9 @@
 namespace egamma {
 
   struct ConversionInfo {
-    const double dist;
-    const double dcot;
-    const double radiusOfConversion;
-    const math::XYZPoint pointOfConversion;
+    const float dist;
+    const float dcot;
+    const float radiusOfConversion;
     // if the partner track is found in the  GSF track collection,
     // this is a ref to the GSF partner track
     const std::optional<int> conversionPartnerCtfTkIdx;
@@ -64,8 +61,8 @@ namespace egamma {
   ConversionInfo findConversion(const reco::GsfElectronCore&,
                                 edm::soa::TrackTableView ctfTable,
                                 edm::soa::TrackTableView gsfTable,
-                                const double bFieldAtOrigin,
-                                const double minFracSharedHits = 0.45);
+                                float bFieldAtOrigin,
+                                float minFracSharedHits = 0.45);
 
 }  // namespace egamma
 

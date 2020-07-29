@@ -5,6 +5,7 @@
 #include "CommonTools/Utils/interface/LazyResult.h"
 #include "FWCore/SOA/interface/Table.h"
 #include "FWCore/SOA/interface/TableView.h"
+#include "DataFormats/TrackReco/interface/HitPattern.h"
 
 #include <vector>
 

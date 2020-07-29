@@ -900,16 +900,11 @@ void GsfElectronAlgo::createElectron(reco::GsfElectronCollection& electrons,
         electronData.coreRef->ctfTrack(), *eventData.conversions, eventData.beamspot->position(), 2.0, 1e-6, 0);
     conversionVars.vtxFitProb = ConversionTools::getVtxFitProb(matchedConv);
   }
-  if ((conversionVars.flags == 0) or (conversionVars.flags == 1)) {
-    if (conversionInfo.conversionPartnerCtfTkIdx) {
-      conversionVars.partner =
-          TrackBaseRef(reco::TrackRef(ctfTracks, conversionInfo.conversionPartnerCtfTkIdx.value()));
-    }
-  } else if ((conversionVars.flags == 2) or (conversionVars.flags == 3)) {
-    if (conversionInfo.conversionPartnerGsfTkIdx) {
-      conversionVars.partner = TrackBaseRef(
-          reco::GsfTrackRef(eventData.originalGsfTracks, conversionInfo.conversionPartnerGsfTkIdx.value()));
-    }
+  if (conversionInfo.conversionPartnerCtfTkIdx) {
+    conversionVars.partner = TrackBaseRef(reco::TrackRef(ctfTracks, conversionInfo.conversionPartnerCtfTkIdx.value()));
+  } else if (conversionInfo.conversionPartnerGsfTkIdx) {
+    conversionVars.partner =
+        TrackBaseRef(reco::GsfTrackRef(eventData.originalGsfTracks, conversionInfo.conversionPartnerGsfTkIdx.value()));
   }
 
   //====================================================
