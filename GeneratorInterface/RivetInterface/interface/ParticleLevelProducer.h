@@ -2,7 +2,7 @@
 #define GeneratorInterface_RivetInterface_ParticleLevelProducer_H
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/stream/EDProducer.h"
+#include "FWCore/Framework/interface/one/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -15,7 +15,7 @@
 #include "Rivet/AnalysisHandler.hh"
 #include "GeneratorInterface/RivetInterface/interface/RivetAnalysis.h"
 
-class ParticleLevelProducer : public edm::stream::EDProducer<> {
+class ParticleLevelProducer : public edm::one::EDProducer<edm::one::SharedResources> {
 public:
   ParticleLevelProducer(const edm::ParameterSet& pset);
   ~ParticleLevelProducer() override {}

@@ -20,6 +20,7 @@ ParticleLevelProducer::ParticleLevelProducer(const edm::ParameterSet& pset)
     : srcToken_(consumes<edm::HepMCProduct>(pset.getParameter<edm::InputTag>("src"))),
       pset_(pset),
       _isFirstEvent(true) {
+  usesResource("Rivet");
   genVertex_ = reco::Particle::Point(0, 0, 0);
 
   produces<reco::GenParticleCollection>("neutrinos");
