@@ -20,12 +20,6 @@
 #include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
 
 #include "DataFormats/DetId/interface/DetId.h"
-#include "Geometry/CaloGeometry/interface/CaloGeometry.h"
-
-#include "Geometry/Records/interface/CaloGeometryRecord.h"
-
-#include "RecoLocalCalo/EcalRecAlgos/interface/EcalSeverityLevelAlgo.h"
-#include "RecoLocalCalo/EcalRecAlgos/interface/EcalSeverityLevelAlgoRcd.h"
 
 EgammaEcalRecHitIsolationProducer::EgammaEcalRecHitIsolationProducer(const edm::ParameterSet& config) : conf_(config) {
   // use configuration file to setup input/output collection names
@@ -53,6 +47,10 @@ EgammaEcalRecHitIsolationProducer::EgammaEcalRecHitIsolationProducer(const edm::
   useNumCrystals_ = conf_.getParameter<bool>("useNumCrystals");
   vetoClustered_ = conf_.getParameter<bool>("vetoClustered");
 
+  //EventSetup Tokens
+  sevLvToken_ = esConsumes<EcalSeverityLevelAlgo, EcalSeverityLevelAlgoRcd>();
+  caloGeometrytoken_ = esConsumes<CaloGeometry, CaloGeometryRecord>();
+
   //register your products
   produces<edm::ValueMap<double>>();
 }
@@ -77,13 +75,11 @@ void EgammaEcalRecHitIsolationProducer::produce(edm::Event& iEvent, const edm::E
   edm::Handle<EcalRecHitCollection> ecalEndcapRecHitHandle;
   iEvent.getByLabel(ecalEndcapRecHitProducer_.label(), ecalEndcapRecHitCollection_.label(), ecalEndcapRecHitHandle);
 
-  edm::ESHandle<EcalSeverityLevelAlgo> sevlv;
-  iSetup.get<EcalSeverityLevelAlgoRcd>().get(sevlv);
+  edm::ESHandle<EcalSeverityLevelAlgo> sevlv = iSetup.getHandle(sevLvToken_);
   const EcalSeverityLevelAlgo* sevLevel = sevlv.product();
 
   //Get Calo Geometry
-  edm::ESHandle<CaloGeometry> pG;
-  iSetup.get<CaloGeometryRecord>().get(pG);
+  edm::ESHandle<CaloGeometry> pG = iSetup.getHandle(caloGeometrytoken_);
   const CaloGeometry* caloGeom = pG.product();
 
   //reco::CandViewDoubleAssociations* isoMap = new reco::CandViewDoubleAssociations( reco::CandidateBaseRefProd( emObjectHandle ) );
