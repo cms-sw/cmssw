@@ -173,6 +173,7 @@ def parse_run_lumi(runlumi):
     Run/lumi pair is passed to the API in this format: run:lumi
     This method parses such string and returns a tuple (run, lumi).
     If lumi is not passed, it's assumed that it's value is 0.
+    If run is not passed, it's assumed that it's value is None.
     """
 
     def intTryParse(value, default=0):
@@ -182,12 +183,12 @@ def parse_run_lumi(runlumi):
             return default
         
     if not runlumi:
-        return 0, 0
+        return None, 0
     elif ':' in runlumi:
         parts = runlumi.split(':')
-        return intTryParse(parts[0]), intTryParse(parts[1])
+        return intTryParse(parts[0], default=None), intTryParse(parts[1], default=0)
     else:
-        return intTryParse(runlumi), 0
+        return intTryParse(runlumi, default=None), 0
 
 
 def getNotOlderThanFromUrl(function):
