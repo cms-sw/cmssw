@@ -6,7 +6,7 @@
  *
  */
 
-#include "FWCore/Framework/interface/stream/EDProducer.h"
+#include "FWCore/Framework/interface/one/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/Run.h"
@@ -27,11 +27,12 @@ using namespace Rivet;
 using namespace edm;
 using namespace std;
 
-class HTXSRivetProducer : public edm::stream::EDProducer<> {
+class HTXSRivetProducer : public edm::one::EDProducer<edm::one::WatchRuns, edm::one::SharedResources> {
 public:
   explicit HTXSRivetProducer(const edm::ParameterSet& cfg)
       : _hepmcCollection(consumes<HepMCProduct>(cfg.getParameter<edm::InputTag>("HepMCCollection"))),
         _lheRunInfo(consumes<LHERunInfoProduct, edm::InRun>(cfg.getParameter<edm::InputTag>("LHERunInfo"))) {
+    usesResource("Rivet");
     _isFirstEvent = true;
     _prodMode = cfg.getParameter<string>("ProductionMode");
     m_HiggsProdMode = HTXS::UNKNOWN;
