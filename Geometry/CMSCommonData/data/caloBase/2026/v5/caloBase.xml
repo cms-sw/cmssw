@@ -69,6 +69,10 @@
  <Constant name="Zpos37"     value="5137.0*mm"/>
  <Constant name="Rmax37"     value="2484.9*mm"/>
  <Constant name="Zpos38"     value="5234.5*mm"/>
+ <Constant name="Rmin100"    value="[Rmin11]"/>
+ <Constant name="Rmax100"    value="[Rmax10]"/>
+ <Constant name="Zpos100"    value="[Zpos10]"/>
+ <Constant name="Zpos110"    value="[ZposAL]"/>
 </ConstantsSection>
 
 <MaterialSection label="caloBase.xml">
