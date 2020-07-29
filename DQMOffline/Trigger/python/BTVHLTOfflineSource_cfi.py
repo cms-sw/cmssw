@@ -43,17 +43,31 @@ BTVHLTOfflineSource = DQMEDAnalyzer("BTVHLTOfflineSource",
     ),
 )
 
+#
+#  Relative Online-Offline Track Monitoring
+#
 from DQM.TrackingMonitorSource.trackToTrackValidator_cfi import trackToTrackValidator
+
+referenceTracksForHLTBTag = cms.EDFilter('TrackSelector',
+    src = cms.InputTag('generalTracks'),
+    cut = cms.string("quality('highPurity')")
+)
 
 bTagHLTTrackMonitoring = trackToTrackValidator.clone()
 bTagHLTTrackMonitoring.monitoredTrack           = cms.InputTag("hltMergedTracksForBTag")
-bTagHLTTrackMonitoring.referenceTrack           = cms.InputTag("highPurityTracks")
+bTagHLTTrackMonitoring.referenceTrack           = cms.InputTag("referenceTracksForHLTBTag")
 bTagHLTTrackMonitoring.monitoredBeamSpot        = cms.InputTag("hltOnlineBeamSpot")
 bTagHLTTrackMonitoring.referenceBeamSpot        = cms.InputTag("offlineBeamSpot")
 bTagHLTTrackMonitoring.topDirName               = cms.string("HLT/BTV/HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ_PFDiJet30_PFBtagDeepCSV_1p5_v")
 bTagHLTTrackMonitoring.referencePrimaryVertices = cms.InputTag("offlinePrimaryVertices")
 bTagHLTTrackMonitoring.monitoredPrimaryVertices = cms.InputTag("hltVerticesPFSelector")
 bTagHLTTrackMonitoring.genericTriggerEventPSet.hltPaths = cms.vstring('HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ_PFDiJet30_PFBtagDeepCSV_1p5_v*')
+
+
+bTagHLTTrackMonitoringSequence = cms.Sequence(
+    cms.ignore(referenceTracksForHLTBTag)
+    + bTagHLTTrackMonitoring
+)
 
 
 
