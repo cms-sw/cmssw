@@ -60,22 +60,27 @@ referenceTracksForHLTBTag = cms.EDFilter('TrackSelector',
     cut = cms.string("quality('highPurity')")
 )
 
-bTagHLTTrackMonitoring = trackToTrackValidator.clone()
-bTagHLTTrackMonitoring.monitoredTrack           = cms.InputTag("hltMergedTracksForBTag")
-bTagHLTTrackMonitoring.referenceTrack           = cms.InputTag("referenceTracksForHLTBTag")
-bTagHLTTrackMonitoring.monitoredBeamSpot        = cms.InputTag("hltOnlineBeamSpot")
-bTagHLTTrackMonitoring.referenceBeamSpot        = cms.InputTag("offlineBeamSpot")
-bTagHLTTrackMonitoring.topDirName               = cms.string("HLT/BTV/HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ_PFDiJet30_PFBtagDeepCSV_1p5_v")
-bTagHLTTrackMonitoring.referencePrimaryVertices = cms.InputTag("offlinePrimaryVertices")
-bTagHLTTrackMonitoring.monitoredPrimaryVertices = cms.InputTag("hltVerticesPFSelector")
-bTagHLTTrackMonitoring.genericTriggerEventPSet.hltPaths = cms.vstring('HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ_PFDiJet30_PFBtagDeepCSV_1p5_v*')
+bTagHLTTrackMonitoringCalo = trackToTrackValidator.clone()
+bTagHLTTrackMonitoringCalo.monitoredTrack           = cms.InputTag("hltMergedTracksForBTag")
+bTagHLTTrackMonitoringCalo.referenceTrack           = cms.InputTag("referenceTracksForHLTBTag")
+bTagHLTTrackMonitoringCalo.monitoredBeamSpot        = cms.InputTag("hltOnlineBeamSpot")
+bTagHLTTrackMonitoringCalo.referenceBeamSpot        = cms.InputTag("offlineBeamSpot")
+bTagHLTTrackMonitoringCalo.topDirName               = cms.string("HLT/BTV/HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ_CaloDiJet30_CaloBtagDeepCSV_1p5Calo")
+bTagHLTTrackMonitoringCalo.referencePrimaryVertices = cms.InputTag("offlinePrimaryVertices")
+bTagHLTTrackMonitoringCalo.monitoredPrimaryVertices = cms.InputTag("hltVerticesL3")
+bTagHLTTrackMonitoringCalo.genericTriggerEventPSet.hltPaths = cms.vstring("HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ_CaloDiJet30_CaloBtagDeepCSV_1p5*")
 
+bTagHLTTrackMonitoringPF = bTagHLTTrackMonitoringCalo.clone()
+bTagHLTTrackMonitoringPF.monitoredTrack           = cms.InputTag("hltMergedTracks")
+bTagHLTTrackMonitoringPF.monitoredPrimaryVertices = cms.InputTag("hltVerticesPFSelector")
+bTagHLTTrackMonitoringPF.topDirName               = cms.string("HLT/BTV/HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ_PFDiJet30_PFBtagDeepCSV_1p5PF")
+bTagHLTTrackMonitoringPF.genericTriggerEventPSet.hltPaths = cms.vstring("HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ_PFDiJet30_PFBtagDeepCSV_1p5*")
 
 bTagHLTTrackMonitoringSequence = cms.Sequence(
     cms.ignore(referenceTracksForHLTBTag)
-    + bTagHLTTrackMonitoring
+    + bTagHLTTrackMonitoringCalo
+    + bTagHLTTrackMonitoringPF
 )
-
 
 
 
