@@ -19,6 +19,7 @@
 
 #include "Geometry/MuonNumbering/interface/MuonGeometryNumbering.h"
 #include "Geometry/MuonNumbering/interface/MuonBaseNumber.h"
+#include "Geometry/MuonNumbering/interface/MuonGeometryConstants.h"
 #include "Geometry/MuonNumbering/interface/GEMNumberingScheme.h"
 
 #include "DataFormats/GeometrySurface/interface/TrapezoidalPlaneBounds.h"
@@ -59,11 +60,10 @@ void GEMGeometryBuilder::build(GEMGeometry& theGeometry,
   edm::LogVerbatim("Geometry") << "About to run through the GEM structure\n"
                                << " First logical part " << fv.logicalPart().name().name();
 #endif
-
   bool doSuper = fv.firstChild();
 
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("Geometry") << "doSuperChamber = " << doSuper;
+  edm::LogVerbatim("Geometry") << "doSuperChamber = " << doSuper << " with " << fv.geoHistory() << " Levels " << mdddnum.geoHistoryToBaseNumber(fv.geoHistory()).getLevels();;
 #endif
   // loop over superchambers
   std::vector<GEMSuperChamber*> superChambers;
@@ -75,6 +75,9 @@ void GEMGeometryBuilder::build(GEMGeometry& theGeometry,
     fv.firstChild();
     fv.firstChild();
 
+#ifdef EDM_ML_DEBUG
+    edm::LogVerbatim("Geometry") << "MuonGeometry 1 " << fv.geoHistory() << " Levels " << mdddnum.geoHistoryToBaseNumber(fv.geoHistory()).getLevels();
+#endif
     int rawidCh = gemNum.baseNumberToUnitNumber(mdddnum.geoHistoryToBaseNumber(fv.geoHistory()));
     GEMDetId detIdCh = GEMDetId(rawidCh);
 
@@ -82,7 +85,10 @@ void GEMGeometryBuilder::build(GEMGeometry& theGeometry,
 
     fv.parent();
     fv.parent();
-
+#ifdef EDM_ML_DEBUG
+    edm::LogVerbatim("Geometry") << "MuonGeometry 2 " << fv.geoHistory() << " Levels " << mdddnum.geoHistoryToBaseNumber(fv.geoHistory()).getLevels();
+    gemNum.baseNumberToUnitNumber(mdddnum.geoHistoryToBaseNumber(fv.geoHistory()));
+#endif
     // currently there is no superchamber in the geometry
     // only 2 chambers are present separated by a gap.
     // making superchamber out of the first chamber layer including the gap between chambers
@@ -105,7 +111,10 @@ void GEMGeometryBuilder::build(GEMGeometry& theGeometry,
         int rawId = gemNum.baseNumberToUnitNumber(mdddnum.geoHistoryToBaseNumber(fv.geoHistory()));
         GEMDetId detId = GEMDetId(rawId);
         fv.parent();
-
+#ifdef EDM_ML_DEBUG
+	edm::LogVerbatim("Geometry") << "MuonGeometry 3 " << fv.geoHistory() << " Levels " << mdddnum.geoHistoryToBaseNumber(fv.geoHistory()).getLevels();
+	gemNum.baseNumberToUnitNumber(mdddnum.geoHistoryToBaseNumber(fv.geoHistory()));
+#endif
         gemChamber = buildChamber(fv, detId);
       }
 
@@ -113,6 +122,9 @@ void GEMGeometryBuilder::build(GEMGeometry& theGeometry,
       bool doEtaPart = fv.firstChild();
 
       while (doEtaPart) {
+#ifdef EDM_ML_DEBUG
+	edm::LogVerbatim("Geometry") << "MuonGeometry 4 " << fv.geoHistory() << " Levels " << mdddnum.geoHistoryToBaseNumber(fv.geoHistory()).getLevels();
+#endif
         int rawid = gemNum.baseNumberToUnitNumber(mdddnum.geoHistoryToBaseNumber(fv.geoHistory()));
         GEMDetId detId = GEMDetId(rawid);
         GEMEtaPartition* etaPart = buildEtaPartition(fv, detId);
@@ -136,72 +148,7 @@ void GEMGeometryBuilder::build(GEMGeometry& theGeometry,
     }
   }
 
-  // construct the regions, stations and rings.
-  for (int re = -1; re <= 1; re = re + 2) {
-    GEMRegion* region = new GEMRegion(re);
-    for (int st = GEMDetId::minStationId0; st <= GEMDetId::maxStationId; ++st) {
-      bool ge0Station = st == GEMDetId::minStationId0;
-      GEMStation* station = new GEMStation(re, st);
-      std::string sign(re == -1 ? "-" : "");
-      std::string suffix = ge0Station ? "" : "/1";
-      std::string name = "GE" + sign + std::to_string(st) + suffix;
-      station->setName(name);
-      bool foundSuperChamber = false;
-      for (int ri = 1; ri <= 1; ++ri) {
-        GEMRing* ring = new GEMRing(re, st, ri);
-        for (auto superChamber : superChambers) {
-          const GEMDetId detId(superChamber->id());
-          if (detId.region() != re || detId.station() != st || detId.ring() != ri)
-            continue;
-
-          foundSuperChamber = true;
-          int nlayers = ge0Station ? GEMDetId::maxLayerId0 : GEMDetId::maxLayerId;
-
-          // GEMDetId::minLayerId is to id the superchamber, so minLayerId+1 is the first layer
-          for (int la = GEMDetId::minLayerId + 1; la <= nlayers; ++la) {
-            GEMDetId chId(detId.region(), detId.ring(), detId.station(), la, detId.chamber(), 0);
-            auto chamber = theGeometry.chamber(chId);
-            if (!chamber) {
-              edm::LogWarning("GEMGeometryBuilder") << "Missing chamber " << chId;
-            }
-            superChamber->add(chamber);
-          }
-          ring->add(superChamber);
-          theGeometry.add(superChamber);
-#ifdef EDM_ML_DEBUG
-          edm::LogVerbatim("Geometry") << "Adding super chamber " << detId << " to ring: "
-                                       << "re " << re << " st " << st << " ri " << ri;
-#endif
-        }
-#ifdef EDM_ML_DEBUG
-        edm::LogVerbatim("Geometry") << "Adding ring " << ri << " to station "
-                                     << "re " << re << " st " << st;
-#endif
-        if (!foundSuperChamber) {
-          delete ring;
-        } else {
-          station->add(ring);
-          theGeometry.add(ring);
-        }
-      }
-      if (!foundSuperChamber) {
-#ifdef EDM_ML_DEBUG
-        edm::LogVerbatim("Geometry") << "No superchamber found: re:" << re << " st:" << st;
-#endif
-        delete station;
-      } else {
-#ifdef EDM_ML_DEBUG
-        edm::LogVerbatim("Geometry") << "Adding station " << st << " to region " << re;
-#endif
-        region->add(station);
-        theGeometry.add(station);
-      }
-    }
-#ifdef EDM_ML_DEBUG
-    edm::LogVerbatim("Geometry") << "Adding region " << re << " to the geometry ";
-#endif
-    theGeometry.add(region);
-  }
+  buildRegions(theGeometry, superChambers);
 }
 
 GEMSuperChamber* GEMGeometryBuilder::buildSuperChamber(DDFilteredView& fv, GEMDetId detId) const {
@@ -354,99 +301,74 @@ void GEMGeometryBuilder::build(GEMGeometry& theGeometry,
 			       const MuonGeometryConstants& muonConstants) {
   std::string attribute = "MuStructure";
   std::string value = "MuonEndCapGEM";
-  cms::DDFilteredView fv(cview->detector(), cview->detector()->worldVolume());
-  cms::DDSpecParRefs refs;
-  const cms::DDSpecParRegistry& mypar = cview->specpars();
-  mypar.filter(refs, attribute, value);
-  fv.mergedSpecifics(refs);
+  const cms::DDFilter filter(attribute, value);
+  cms::DDFilteredView fv(*cview, filter);
 
-  bool doChambers = fv.firstChild();
-
-  // loop over superchambers
-  std::vector<GEMSuperChamber*> superChambers;
   MuonGeometryNumbering mdddnum(muonConstants);
   GEMNumberingScheme gemNum(muonConstants);
+  static constexpr uint32_t chamberIdMask = ~(31 << 19);
+  static constexpr uint32_t levelChamb = 7;
+  int chamb(0), region(0);
+  int theLevelPart = muonConstants.getValue("level");
+  int theRingLevel = muonConstants.getValue("mg_ring") / theLevelPart;
+  int theSectorLevel = muonConstants.getValue("mg_sector") / theLevelPart;
+  std::vector<GEMSuperChamber*> superChambers;
+  std::vector<GEMChamber*> chambers;
 
-  while (doChambers) {
-    int rawidCh = gemNum.baseNumberToUnitNumber(mdddnum.geoHistoryToBaseNumber(fv.history()));
-    GEMDetId detIdCh = GEMDetId(rawidCh);
+  while (fv.firstChild()) {
+    const auto& history = fv.history();
+    MuonBaseNumber num(mdddnum.geoHistoryToBaseNumber(history));
+    GEMDetId detId(gemNum.baseNumberToUnitNumber(num));
+#ifdef EDM_ML_DEBUG
+    edm::LogVerbatim("Geometry") << fv.name() << " with " << history.tags.size() << " Levels and ID " << detId << " Mask " << std::hex << chamberIdMask << ":" << chamberIdMask1 << std::dec << " and " << GEMDetId(((detId.rawId())&chamberIdMask)) << " Levels " << theRingLevel << ":" << theSectorLevel << ":" << history.tags.size() << ":" << fv.copyNos().size();
+    for (unsigned int k = 0; k < history.tags.size(); ++k)
+      edm::LogVerbatim("Geometry") << "[" << k << "] Tag " << history.tags[k] << " Offset " << history.offsets[k] << " copy " << history.copyNos[k];
+#endif
 
-    if (detIdCh.layer() == 1) {  // only make superChambers when doing layer 1
-      GEMSuperChamber* gemSuperChamber = buildSuperChamber(fv, detIdCh);
-      superChambers.push_back(gemSuperChamber);
+    if (detId.station() == GEMDetId::minStationId0) {
+      if (num.getLevels() == theRingLevel) {
+	if (detId.region() != region) {
+	  region = detId.region();
+	  chamb = 0;
+	}
+	++chamb;
+	detId = GEMDetId(detId.region(), detId.ring(), detId.station(), detId.layer(), chamb, 0);
+	GEMSuperChamber* gemSuperChamber = buildSuperChamber(fv, detId);
+	superChambers.emplace_back(gemSuperChamber);
+      } else if (num.getLevels() == theSectorLevel) {
+	GEMChamber* gemChamber = buildChamber(fv, detId);
+	chambers.emplace_back(gemChamber);
+      } else {
+	GEMEtaPartition* etaPart = buildEtaPartition(fv, detId);
+	theGeometry.add(etaPart);
+      }
+    } else {
+      if (fv.copyNos().size() == levelChamb) {
+	if (detId.layer() == 1) {
+	  GEMSuperChamber* gemSuperChamber = buildSuperChamber(fv, detId);
+	  superChambers.emplace_back(gemSuperChamber);
+	}
+	GEMChamber* gemChamber = buildChamber(fv, detId);
+	chambers.emplace_back(gemChamber);
+      } else if (num.getLevels() > theSectorLevel) {
+	GEMEtaPartition* etaPart = buildEtaPartition(fv, detId);
+	theGeometry.add(etaPart);
+      }
     }
+  }
 
-    //  GEMChamber* gemChamber = ((detIdCh.station() == GEMDetId::minStationId0) ? nullptr : buildChamber(fv, detIdCh));
-    GEMChamber* gemChamber = buildChamber(fv, detIdCh);
-
-    fv.down();
-    fv.down();
-    bool doEtaPart = fv.nextSibling();
-    while (doEtaPart) {
-      int rawid = gemNum.baseNumberToUnitNumber(mdddnum.geoHistoryToBaseNumber(fv.history()));
-      GEMDetId detId = GEMDetId(rawid);
-      GEMEtaPartition* etaPart = buildEtaPartition(fv, detId);
-
-      gemChamber->add(etaPart);
-
-      theGeometry.add(etaPart);
-      doEtaPart = fv.sibling();
+  auto & partitions = theGeometry.etaPartitions();
+  for (auto & gemChamber : chambers) {
+    uint32_t id0 = ((gemChamber->id().rawId()) & chamberIdMask);
+    for (auto& etaPart : partitions) {
+      if (((etaPart->id().rawId()) & chamberIdMask) == id0) {
+        gemChamber->add(etaPart);
+      }
     }
     theGeometry.add(gemChamber);
-    fv.up();
-    fv.up();
-    fv.up();
-
-    doChambers = fv.firstChild();
-
-  }  // close while Chambers
-
-  // construct the regions, stations and rings.
-  for (int re = -1; re <= 1; re = re + 2) {
-    GEMRegion* region = new GEMRegion(re);
-    for (int st = 1; st <= GEMDetId::maxStationId; ++st) {
-      GEMStation* station = new GEMStation(re, st);
-      std::string sign(re == -1 ? "-" : "");
-      std::string name("GE" + sign + std::to_string(st) + "/1");
-      station->setName(name);
-      for (int ri = 1; ri <= 1; ++ri) {
-        GEMRing* ring = new GEMRing(re, st, ri);
-        for (auto superChamber : superChambers) {
-          const GEMDetId detId(superChamber->id());
-          if (detId.region() != re || detId.station() != st || detId.ring() != ri)
-            continue;
-
-          superChamber->add(
-              theGeometry.chamber(GEMDetId(detId.region(), detId.ring(), detId.station(), 1, detId.chamber(), 0)));
-          superChamber->add(
-              theGeometry.chamber(GEMDetId(detId.region(), detId.ring(), detId.station(), 2, detId.chamber(), 0)));
-
-          ring->add(superChamber);
-          theGeometry.add(superChamber);
-
-#ifdef EDM_ML_DEBUG
-          edm::LogVerbatim("Geometry") << "Adding super chamber " << detId << " to ring: "
-                                       << "re " << re << " st " << st << " ri " << ri;
-#endif
-        }
-#ifdef EDM_ML_DEBUG
-        edm::LogVerbatim("Geometry") << "Adding ring " << ri << " to station "
-                                     << "re " << re << " st " << st;
-#endif
-        station->add(ring);
-        theGeometry.add(ring);
-      }
-#ifdef EDM_ML_DEBUG
-      edm::LogVerbatim("Geometry") << "Adding station " << st << " to region " << re;
-#endif
-      region->add(station);
-      theGeometry.add(station);
-    }
-#ifdef EDM_ML_DEBUG
-    edm::LogVerbatim("Geometry") << "Adding region " << re << " to the geometry";
-#endif
-    theGeometry.add(region);
   }
+
+  buildRegions(theGeometry, superChambers);
 }
 
 GEMSuperChamber* GEMGeometryBuilder::buildSuperChamber(cms::DDFilteredView& fv, GEMDetId detId) const {
@@ -552,4 +474,72 @@ GEMGeometryBuilder::RCPBoundPlane GEMGeometryBuilder::boundPlane(const cms::DDFi
   rotResult.rotateAxes(newX, newY, newZ);
 
   return RCPBoundPlane(new BoundPlane(posResult, rotResult, bounds));
+}
+
+void GEMGeometryBuilder::buildRegions(GEMGeometry& theGeometry,
+				      const std::vector<GEMSuperChamber*>& superChambers) {
+  // construct the regions, stations and rings.
+  for (int re = -1; re <= 1; re = re + 2) {
+    GEMRegion* region = new GEMRegion(re);
+    for (int st = GEMDetId::minStationId0; st <= GEMDetId::maxStationId; ++st) {
+      bool ge0Station = st == GEMDetId::minStationId0;
+      GEMStation* station = new GEMStation(re, st);
+      std::string sign(re == -1 ? "-" : "");
+      std::string suffix = ge0Station ? "" : "/1";
+      std::string name = "GE" + sign + std::to_string(st) + suffix;
+      station->setName(name);
+      bool foundSuperChamber = false;
+      for (int ri = 1; ri <= 1; ++ri) {
+        GEMRing* ring = new GEMRing(re, st, ri);
+        for (auto superChamber : superChambers) {
+          const GEMDetId detId(superChamber->id());
+          if (detId.region() != re || detId.station() != st || detId.ring() != ri)
+            continue;
+
+          foundSuperChamber = true;
+          int nlayers = ge0Station ? GEMDetId::maxLayerId0 : GEMDetId::maxLayerId;
+
+          // GEMDetId::minLayerId is to id the superchamber, so minLayerId+1 is the first layer
+          for (int la = GEMDetId::minLayerId + 1; la <= nlayers; ++la) {
+            GEMDetId chId(detId.region(), detId.ring(), detId.station(), la, detId.chamber(), 0);
+            auto chamber = theGeometry.chamber(chId);
+            if (!chamber) {
+              edm::LogWarning("GEMGeometryBuilder") << "Missing chamber " << chId;
+            }
+            superChamber->add(chamber);
+          }
+          ring->add(superChamber);
+          theGeometry.add(superChamber);
+#ifdef EDM_ML_DEBUG
+          edm::LogVerbatim("Geometry") << "Adding super chamber " << detId << " to ring: "
+                                       << "re " << re << " st " << st << " ri " << ri;
+#endif
+        }
+#ifdef EDM_ML_DEBUG
+        edm::LogVerbatim("Geometry") << "Adding ring " << ri << " to station "
+                                     << "re " << re << " st " << st;
+#endif
+        if (foundSuperChamber) {
+          station->add(ring);
+          theGeometry.add(ring);
+        }
+      }
+      if (!foundSuperChamber) {
+#ifdef EDM_ML_DEBUG
+        edm::LogVerbatim("Geometry") << "No superchamber found: re:" << re << " st:" << st;
+#endif
+        delete station;
+      } else {
+#ifdef EDM_ML_DEBUG
+        edm::LogVerbatim("Geometry") << "Adding station " << st << " to region " << re;
+#endif
+        region->add(station);
+        theGeometry.add(station);
+      }
+    }
+#ifdef EDM_ML_DEBUG
+    edm::LogVerbatim("Geometry") << "Adding region " << re << " to the geometry ";
+#endif
+    theGeometry.add(region);
+  }
 }
