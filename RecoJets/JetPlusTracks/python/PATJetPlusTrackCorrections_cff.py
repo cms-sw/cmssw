@@ -36,6 +36,7 @@ JetPlusTrackAddonSeedRecoPAT = jetPlusTrackAddonSeedProducer.clone(
     srcCaloJets = "slimmedCaloJets",
     srcTrackJets = "ak4TrackJetsJPTPAT",
     srcPVs = 'offlineSlimmedPrimaryVertices',
+    PFCandidates = 'packedPFCandidates',
     UsePAT = True
 )
 
