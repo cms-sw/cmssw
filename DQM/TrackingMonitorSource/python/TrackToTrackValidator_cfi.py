@@ -10,7 +10,7 @@ trackToTrackValidator = DQMEDAnalyzer("TrackToTrackValidator",
     referenceBeamSpot        = cms.InputTag("offlineBeamSpot"),
     monitoredPrimaryVertices = cms.InputTag("hltVerticesPFSelector"),
     referencePrimaryVertices = cms.InputTag("offlinePrimaryVertices"),
-    topDirName         = cms.string("HLT/Tracking/ValidationWRTreco"),
+    topDirName               = cms.string("HLT/Tracking/ValidationWRTOffline"),
 
     dRmin         = cms.double(0.002),
 
