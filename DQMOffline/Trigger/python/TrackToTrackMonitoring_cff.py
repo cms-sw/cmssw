@@ -46,7 +46,7 @@ hltMergedForBTag2highPurity.monitoredTrack           = cms.InputTag("hltMergedTr
 hltMergedForBTag2highPurity.referenceTrack           = cms.InputTag("highPurityTracks")
 hltMergedForBTag2highPurity.monitoredBeamSpot        = cms.InputTag("hltOnlineBeamSpot")
 hltMergedForBTag2highPurity.referenceBeamSpot        = cms.InputTag("offlineBeamSpot")
-hltMergedForBTag2highPurity.topDirName               = cms.string("HLT/Tracking/ValidationWRTOffline/hltMergedWrtHighPurity")
+hltMergedForBTag2highPurity.topDirName               = cms.string("HLT/Tracking/ValidationWRTOffline/hltMergedForBTagWrtHighPurity")
 hltMergedForBTag2highPurity.referencePrimaryVertices = cms.InputTag("offlinePrimaryVertices")
 hltMergedForBTag2highPurity.monitoredPrimaryVertices = cms.InputTag("hltVerticesPFSelector")
 

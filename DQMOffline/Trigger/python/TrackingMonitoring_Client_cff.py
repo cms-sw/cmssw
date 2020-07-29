@@ -37,6 +37,7 @@ TrackToTrackEfficiencies = DQMEDHarvester("DQMGenericClient",
     subDirs        = cms.untracked.vstring(
         "HLT/Tracking/ValidationWRTOffline/hltMerged",
         "HLT/Tracking/ValidationWRTOffline/hltMergedWrtHighPurity",
+        "HLT/Tracking/ValidationWRTOffline/hltMergedForBTagWrtHighPurity",
         "HLT/Tracking/ValidationWRTOffline/sanity",
     ),
     verbose        = cms.untracked.uint32(0),
