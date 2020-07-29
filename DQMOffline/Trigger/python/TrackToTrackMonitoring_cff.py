@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 from DQMServices.Core.DQM_cfg import *
 DQMStore.collateHistograms =cms.untracked.bool(True)
-from DQM.TrackingMonitorSource.TrackToTrackValidator_cfi import *
+from DQM.TrackingMonitorSource.trackToTrackValidator_cfi import trackToTrackValidator
 
 trackSelector = cms.EDFilter('TrackSelector',
     src = cms.InputTag('generalTracks'),

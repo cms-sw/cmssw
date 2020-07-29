@@ -65,8 +65,10 @@ class TrackToTrackValidator : public DQMEDAnalyzer {
   ~TrackToTrackValidator();
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+  static void fillHistoPSetDescription(edm::ParameterSetDescription& pset);
 
  protected:
+
   void beginJob(const edm::EventSetup& iSetup);
   void analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup);
   void bookHistograms(DQMStore::IBooker & iBooker, edm::Run const & iRun, edm::EventSetup const & iSetup) override;
@@ -111,17 +113,17 @@ class TrackToTrackValidator : public DQMEDAnalyzer {
   // Track matching statistics
   matchingME matchTracksMEs_;
 
-  double minEta, maxEta;  int nintEta;  bool useFabsEta;
-  double minPt, maxPt;  int nintPt;   //bool useInvPt;   bool useLogPt;
-  double minPhi, maxPhi;  int nintPhi;
-  double minDxy, maxDxy;  int nintDxy;
-  double minDz, maxDz;  int nintDz;
+  double Eta_rangeMin, Eta_rangeMax;  unsigned int Eta_nbin;
+  double Pt_rangeMin,  Pt_rangeMax;   unsigned int Pt_nbin;   //bool useInvPt;   bool useLogPt;
+  double Phi_rangeMin, Phi_rangeMax;  unsigned int Phi_nbin;
+  double Dxy_rangeMin, Dxy_rangeMax;  unsigned int Dxy_nbin;
+  double Dz_rangeMin,  Dz_rangeMax;   unsigned int Dz_nbin;
 
-  double ptRes_rangeMin,ptRes_rangeMax; int ptRes_nbin;
-  double phiRes_rangeMin,phiRes_rangeMax; int phiRes_nbin;
-  double etaRes_rangeMin,etaRes_rangeMax; int etaRes_nbin;
-  double dxyRes_rangeMin,dxyRes_rangeMax; int dxyRes_nbin;
-  double dzRes_rangeMin,dzRes_rangeMax; int dzRes_nbin;
+  double ptRes_rangeMin,  ptRes_rangeMax;   unsigned int ptRes_nbin;
+  double phiRes_rangeMin, phiRes_rangeMax;  unsigned int phiRes_nbin;
+  double etaRes_rangeMin, etaRes_rangeMax;  unsigned int etaRes_nbin;
+  double dxyRes_rangeMin, dxyRes_rangeMax;  unsigned int dxyRes_nbin;
+  double dzRes_rangeMin,  dzRes_rangeMax;   unsigned int dzRes_nbin;
 
   //std::vector<int> totSIMeta,totRECeta,totASSeta,totASS2eta,totloopeta,totmisideta,totASS2etaSig;
   //std::vector<int> totSIMpT,totRECpT,totASSpT,totASS2pT,totlooppT,totmisidpT;
