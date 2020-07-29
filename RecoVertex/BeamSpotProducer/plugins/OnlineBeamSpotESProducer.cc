@@ -32,26 +32,15 @@ public:
 
 private:
   const BeamSpotOnlineObjects* compareBS(const BeamSpotOnlineObjects* bs1, const BeamSpotOnlineObjects* bs2);
-  const BeamSpotOnlineObjects* theHLTBS_ = nullptr;
-  const BeamSpotOnlineObjects* theLegacyBS_ = nullptr;
-  const BeamSpotObjects* transientBS_ = nullptr;
   BeamSpotObjects* fakeBS_;
-  bool newHLT_;
-  bool newLegacy_;
-
+  
   edm::ESGetToken<BeamSpotObjects, BeamSpotTransientObjectsRcd> const bsToken_;
   edm::ESGetToken<BeamSpotOnlineObjects, BeamSpotOnlineHLTObjectsRcd> bsHLTToken_;
   edm::ESGetToken<BeamSpotOnlineObjects, BeamSpotOnlineLegacyObjectsRcd> bsLegacyToken_;
-  //using HostType =
-  //  edm::ESProductHost<BeamSpotOnlineObjects, BeamSpotOnlineHLTObjectsRcd, BeamSpotOnlineLegacyObjectsRcd>;
-
-  //edm::ReusableObjectHolder<HostType> holder_;
 };
 OnlineBeamSpotESProducer::OnlineBeamSpotESProducer(const edm::ParameterSet& p) {
   auto cc = setWhatProduced(this);
 
-  // theHLTBS_ = new BeamSpotOnlineObjects;
-  //theLegacyBS_ = new BeamSpotOnlineObjects;
   fakeBS_ = new BeamSpotOnlineObjects;
   fakeBS_->SetBeamWidthX(0.1);
   fakeBS_->SetBeamWidthY(0.1);
@@ -87,10 +76,7 @@ const BeamSpotOnlineObjects* OnlineBeamSpotESProducer::compareBS(const BeamSpotO
   }
 }
 OnlineBeamSpotESProducer::~OnlineBeamSpotESProducer() {
-  delete theHLTBS_;
-  delete theLegacyBS_;
-  //delete transientBS_;
-  delete fakeBS_;
+  //delete fakeBS_;
 }
 
 std::shared_ptr<const BeamSpotObjects> OnlineBeamSpotESProducer::produce(const BeamSpotTransientObjectsRcd& iRecord) {
