@@ -53,11 +53,11 @@ std::unique_ptr<MTDDetLayerGeometry> MTDDetLayerGeometryESProducer::produce(cons
   if (auto mtd = record.getHandle(geomToken_)) {
     // Build BTL layers
     mtdDetLayerGeometry->addBTLLayers(BTLDetLayerGeometryBuilder::buildLayers(*mtd));
-    // Build ETL layers
-    // depends on the scenario
+    // Build ETL layers, depends on the scenario
     if (auto mtdtopo = record.getHandle(mtdtopoToken_)) {
       mtdDetLayerGeometry->addETLLayers(ETLDetLayerGeometryBuilder::buildLayers(*mtd, mtdtopo->getMTDTopologyMode()));
-      //mtdDetLayerGeometry->addETLLayers(ETLDetLayerGeometryBuilder::buildLayers(*mtd));
+    } else {
+      LogWarning("MTDDetLayers") << "No MTD topology  is available.";
     }
   } else {
     LogWarning("MTDDetLayers") << "No MTD geometry is available.";

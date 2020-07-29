@@ -9,9 +9,6 @@
 
 #include <FWCore/MessageLogger/interface/MessageLogger.h>
 
-//#include "RBorderFinder.h"
-//#include "GeneralBinFinderInR.h"
-
 #include <algorithm>
 #include <iostream>
 #include <vector>
@@ -19,12 +16,8 @@
 using namespace std;
 
 MTDSectorForwardLayer::MTDSectorForwardLayer(const vector<const MTDDetSector*>& sectors)
-    : ForwardDetLayer(false),
-      theSectors(sectors),
-      theComponents(theSectors.begin(), theSectors.end()),
-      theBinFinder(nullptr),
-      isOverlapping(false) {
-  // Initial values for R and Z bounds
+    : ForwardDetLayer(false), theSectors(sectors), theComponents(theSectors.begin(), theSectors.end()) {
+  // Initial values for R, Z and Phi bounds
   float theRmin = sectors.front()->basicComponents().front()->position().perp();
   float theRmax = theRmin;
   float theZmin = sectors.front()->position().z();
@@ -44,10 +37,6 @@ MTDSectorForwardLayer::MTDSectorForwardLayer(const vector<const MTDDetSector*>& 
     theZmax = max(theZmax, zCenter + halfThick);
   }
 
-  //RBorderFinder bf(theSectors);
-  //isOverlapping = bf.isROverlapping();
-  //theBinFinder = new GeneralBinFinderInR<double>(bf);
-
   // Build surface
 
   float zPos = (theZmax + theZmin) / 2.;
@@ -60,12 +49,9 @@ MTDSectorForwardLayer::MTDSectorForwardLayer(const vector<const MTDDetSector*>& 
                            << theSectors.size() << " Sectors "
                            << " Z: " << specificSurface().position().z() << " R1: " << specificSurface().innerRadius()
                            << " R2: " << specificSurface().outerRadius();
-  //<< " Per.: " << bf.isRPeriodic()
-  //<< " Overl.: " << bf.isROverlapping();
 }
 
 MTDSectorForwardLayer::~MTDSectorForwardLayer() {
-  delete theBinFinder;
   for (vector<const MTDDetSector*>::iterator i = theSectors.begin(); i < theSectors.end(); i++) {
     delete *i;
   }
@@ -89,30 +75,7 @@ vector<GeometricSearchDet::DetWithState> MTDSectorForwardLayer::compatibleDets(
 
   TrajectoryStateOnSurface& tsos = compat.second;
 
-  int closest = theBinFinder->binIndex(tsos.globalPosition().perp());
-  const MTDDetSector* closestSector = theSectors[closest];
-
-  // Check the closest ring
-
-#ifdef EDM_ML_DEBUG
-  LogTrace("MTDDetLayers") << "     MTDSectorForwardLayer::fastCompatibleDets, closestSector: " << closest << " R1 "
-                           << closestSector->specificSurface().innerRadius()
-                           << " R2: " << closestSector->specificSurface().outerRadius()
-                           << " FTS R: " << tsos.globalPosition().perp();
-  if (tsos.hasError()) {
-    LogTrace("MTDDetLayers") << " sR: " << sqrt(tsos.localError().positionError().yy())
-                             << " sX: " << sqrt(tsos.localError().positionError().xx());
-  }
-#endif
-
-  result = closestSector->compatibleDets(tsos, prop, est);
-
-#ifdef EDM_ML_DEBUG
-  int nclosest = result.size();
-  int nnextdet = 0;  // MDEBUG counters
-#endif
-
-  //FIXME: if closest is not compatible next cannot be either?
+  // as there are either two or four sectors only, avoid complex logic and just loop on all of them
 
   // Use state on layer surface. Note that local coordinates and errors
   // are the same on the layer and on all sectors surfaces, since
@@ -124,7 +87,7 @@ vector<GeometricSearchDet::DetWithState> MTDSectorForwardLayer::compatibleDets(
   GlobalPoint startPos = tsos.globalPosition();
   LocalPoint nextPos(surface().toLocal(startPos));
 
-  for (unsigned int idet = closest + 1; idet < theSectors.size(); idet++) {
+  for (unsigned int idet = 0; idet < theSectors.size(); idet++) {
     bool inside = false;
     if (tsos.hasError()) {
       inside = theSectors[idet]->specificSurface().bounds().inside(nextPos, tsos.localError().positionError(), 1.);
@@ -135,33 +98,17 @@ vector<GeometricSearchDet::DetWithState> MTDSectorForwardLayer::compatibleDets(
 #ifdef EDM_ML_DEBUG
       LogTrace("MTDDetLayers") << "     MTDSectorForwardLayer::fastCompatibleDets:NextSector" << idet << " R1 "
                                << theSectors[idet]->specificSurface().innerRadius()
-                               << " R2: " << theSectors[idet]->specificSurface().outerRadius() << " FTS R "
-                               << nextPos.perp();
-      nnextdet++;
-#endif
-      vector<DetWithState> nextRodDets = theSectors[idet]->compatibleDets(tsos, prop, est);
-      if (!nextRodDets.empty()) {
-        result.insert(result.end(), nextRodDets.begin(), nextRodDets.end());
-      } else {
-        break;
+                               << " R2: " << theSectors[idet]->specificSurface().outerRadius() << " PhiMin: "
+                               << theSectors[idet]->specificSurface().position().phi() -
+                                      theSectors[idet]->specificSurface().phiHalfExtension()
+                               << " PhiMax: "
+                               << theSectors[idet]->specificSurface().position().phi() +
+                                      theSectors[idet]->specificSurface().phiHalfExtension()
+                               << " FTS R: " << tsos.globalPosition().perp();
+      if (tsos.hasError()) {
+        LogTrace("MTDDetLayers") << " sR: " << sqrt(tsos.localError().positionError().yy())
+                                 << " sX: " << sqrt(tsos.localError().positionError().xx());
       }
-    }
-  }
-
-  for (int idet = closest - 1; idet >= 0; idet--) {
-    bool inside = false;
-    if (tsos.hasError()) {
-      inside = theSectors[idet]->specificSurface().bounds().inside(nextPos, tsos.localError().positionError(), 1.);
-    } else {
-      inside = theSectors[idet]->specificSurface().bounds().inside(nextPos);
-    }
-    if (inside) {
-#ifdef EDM_ML_DEBUG
-      LogTrace("MTDDetLayers") << "     MTDSectorForwardLayer::fastCompatibleDets:PreviousSector:" << idet << " R1 "
-                               << theSectors[idet]->specificSurface().innerRadius()
-                               << " R2: " << theSectors[idet]->specificSurface().outerRadius() << " FTS R "
-                               << nextPos.perp();
-      nnextdet++;
 #endif
       vector<DetWithState> nextRodDets = theSectors[idet]->compatibleDets(tsos, prop, est);
       if (!nextRodDets.empty()) {
@@ -173,8 +120,7 @@ vector<GeometricSearchDet::DetWithState> MTDSectorForwardLayer::compatibleDets(
   }
 
 #ifdef EDM_ML_DEBUG
-  LogTrace("MTDDetLayers") << "     MTDSectorForwardLayer::fastCompatibleDets: found: " << result.size()
-                           << " on closest: " << nclosest << " # checked sectors: " << 1 + nnextdet;
+  LogTrace("MTDDetLayers") << "     MTDSectorForwardLayer::fastCompatibleDets: found: " << result.size();
 #endif
 
   return result;

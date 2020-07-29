@@ -4,6 +4,8 @@
 #include "Geometry/CommonDetUnit/interface/GeomDet.h"
 #include "TrackingTools/GeomPropagators/interface/Propagator.h"
 #include "TrackingTools/DetLayers/interface/MeasurementEstimator.h"
+#include "MTDDiskSectorBuilderFromDet.h"
+#include "DataFormats/GeometrySurface/interface/RectangularPlaneBounds.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include <iostream>
@@ -19,7 +21,10 @@ MTDDetSector::MTDDetSector(vector<const GeomDet*>::const_iterator first, vector<
 MTDDetSector::MTDDetSector(const vector<const GeomDet*>& vdets) : GeometricSearchDet(false), theDets(vdets) { init(); }
 
 void MTDDetSector::init() {
-  //theBinFinder = BinFinderType(basicComponents().front()->position().phi(), basicComponents().size());
+  // Add here the sector build based on a collection of GeomDets, mimic what done in ForwardDetRingOneZ
+  // using the code from tracker BladeShapeBuilderFromDet
+  // simple initial version, no sorting for the time being
+  setDisk(MTDDiskSectorBuilderFromDet()(theDets));
 }
 
 MTDDetSector::~MTDDetSector() {}
@@ -39,6 +44,8 @@ pair<bool, TrajectoryStateOnSurface> MTDDetSector::compatible(const TrajectorySt
 #ifdef EDM_ML_DEBUG
   LogTrace("MTDDetLayers") << "MTDDetSector::compatible, Surface at Z: " << specificSurface().position().z()
                            << " R1: " << specificSurface().innerRadius() << " R2: " << specificSurface().outerRadius()
+                           << " PhiMin: " << specificSurface().position().phi() - specificSurface().phiHalfExtension()
+                           << " PhiMax: " << specificSurface().position().phi() + specificSurface().phiHalfExtension()
                            << " TS   at Z,R: " << ts.globalPosition().z() << "," << ts.globalPosition().perp();
   if (ms.isValid()) {
     LogTrace("MTDDetLayers") << " DEST at Z,R: " << ms.globalPosition().z() << "," << ms.globalPosition().perp()
@@ -59,6 +66,8 @@ vector<GeometricSearchDet::DetWithState> MTDDetSector::compatibleDets(const Traj
                                                                       const MeasurementEstimator& est) const {
   LogTrace("MTDDetLayers") << "MTDDetSector::compatibleDets, Surface at Z: " << surface().position().z()
                            << " R1: " << specificSurface().innerRadius() << " R2: " << specificSurface().outerRadius()
+                           << " PhiMin: " << specificSurface().position().phi() - specificSurface().phiHalfExtension()
+                           << " PhiMax: " << specificSurface().position().phi() + specificSurface().phiHalfExtension()
                            << " TS at Z,R: " << startingState.globalPosition().z() << ","
                            << startingState.globalPosition().perp() << "     DetRing pos." << position();
 
@@ -70,6 +79,36 @@ vector<GeometricSearchDet::DetWithState> MTDDetSector::compatibleDets(const Traj
     LogTrace("MTDDetLayers") << "    MTDDetSector::compatibleDets: not compatible"
                              << "    (should not have been selected!)";
     return result;
+  }
+
+  TrajectoryStateOnSurface& tsos = compat.second;
+  GlobalPoint startPos = tsos.globalPosition();
+
+  // determine distance of det center from extrapolation on the surface, sort dets accordingly
+
+  std::vector<std::pair<double, size_t> > tmpDets;
+  for (size_t idet = 0; idet < basicComponents().size(); idet++) {
+    double dist2 = (startPos - theDets[idet]->position()).mag2();
+#ifdef EDM_ML_DEBUG
+    LogTrace("MTDDetLayers") << "MTDDetSector compatible dets list: " << idet << " " << startPos << " "
+                             << theDets[idet]->position() << " " << dist2;
+#endif
+    tmpDets.emplace_back(make_pair(dist2, idet));
+  }
+  sort(tmpDets.begin(), tmpDets.end());
+
+  // start from the closest det, loop until no compatibility is seen
+
+  for (const auto& thisDet : tmpDets) {
+#ifdef EDM_ML_DEBUG
+    LogTrace("MTDDetLayers") << "MTDDetSector compatible dets trial: " << thisDet.first << " " << thisDet.second;
+#endif
+    if (!add(static_cast<int>(thisDet.second), result, tsos, prop, est)) {
+      break;
+    }
+  }
+  if (result.empty()) {
+    LogTrace("MTDDetLayers") << "     MTDDetSector::compatibleDets, closest not compatible!";
   }
 
   return result;
@@ -90,4 +129,18 @@ vector<DetGroup> MTDDetSector::groupedCompatibleDets(const TrajectoryStateOnSurf
   edm::LogInfo("MTDDetLayers") << "dummy implementation of MTDDetSector::groupedCompatibleDets()";
   vector<DetGroup> result;
   return result;
+}
+
+bool MTDDetSector::add(int idet,
+                       vector<DetWithState>& result,
+                       const TrajectoryStateOnSurface& tsos,
+                       const Propagator& prop,
+                       const MeasurementEstimator& est) const {
+  pair<bool, TrajectoryStateOnSurface> compat = theCompatibilityChecker.isCompatible(theDets[idet], tsos, prop, est);
+
+  if (compat.first) {
+    result.push_back(DetWithState(theDets[idet], compat.second));
+  }
+
+  return compat.first;
 }

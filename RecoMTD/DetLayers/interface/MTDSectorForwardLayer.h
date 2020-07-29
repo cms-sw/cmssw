@@ -2,7 +2,6 @@
 #define RecoMTD_DetLayers_MTDSectorForwardLayer_H
 
 #include "TrackingTools/DetLayers/interface/ForwardDetLayer.h"
-#include "Utilities/BinningTools/interface/BaseBinFinder.h"
 
 class MTDDetSector;
 class GeomDet;
@@ -40,7 +39,5 @@ private:
   std::vector<const MTDDetSector*> theSectors;
   std::vector<const GeometricSearchDet*> theComponents;  // duplication of the above
   std::vector<const GeomDet*> theBasicComps;             // All chambers
-  BaseBinFinder<double>* theBinFinder;
-  bool isOverlapping;
 };
 #endif

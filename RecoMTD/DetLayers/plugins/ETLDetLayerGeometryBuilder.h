@@ -14,6 +14,8 @@
 class DetLayer;
 class MTDRingForwardDoubleLayer;
 class MTDDetRing;
+class MTDSectorForwardDoubleLayer;
+class MTDDetSector;
 
 class ETLDetLayerGeometryBuilder {
 public:
@@ -31,7 +33,13 @@ private:
                                                std::vector<unsigned>& rings,
                                                const MTDGeometry& geo);
 
+  static MTDSectorForwardDoubleLayer* buildLayerNew(int endcap,
+                                                    int layer,
+                                                    std::vector<unsigned>& sectors,
+                                                    const MTDGeometry& geo);
+
   static MTDDetRing* makeDetRing(std::vector<const GeomDet*>& geomDets);
   static bool isFront(int layer, int ring, int module);
+  static MTDDetSector* makeDetSector(std::vector<const GeomDet*>& geomDets);
 };
 #endif

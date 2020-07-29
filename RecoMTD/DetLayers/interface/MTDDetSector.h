@@ -20,6 +20,8 @@ public:
 
   // GeometricSearchDet structure
 
+  const std::vector<const GeomDet*>& basicComponents() const override { return theDets; }
+
   const BoundSurface& surface() const final { return *theDiskS; }
 
   const std::vector<const GeometricSearchDet*>& components() const override;
@@ -47,6 +49,12 @@ public:
 
 protected:
   void setDisk(BoundDiskSector* diskS) { theDiskS = diskS; }
+
+  bool add(int idet,
+           std::vector<DetWithState>& result,
+           const TrajectoryStateOnSurface& tsos,
+           const Propagator& prop,
+           const MeasurementEstimator& est) const;
 
 private:
   ReferenceCountingPointer<BoundDiskSector> theDiskS;
