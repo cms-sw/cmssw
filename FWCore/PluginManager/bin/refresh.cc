@@ -147,7 +147,7 @@ int main(int argc, char** argv) try {
       path cacheFile(directory);
       cacheFile /= standard::cachefileName();
 
-      std::filesystem::file_time_type cacheLastChange;
+      std::filesystem::file_time_type cacheLastChange = std::filesystem::file_time_type::min();
       if (exists(cacheFile)) {
         cacheLastChange = last_write_time(cacheFile);
       }
