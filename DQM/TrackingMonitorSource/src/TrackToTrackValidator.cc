@@ -1,3 +1,4 @@
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DQM/TrackingMonitorSource/interface/TrackToTrackValidator.h"
 
 #include "DQMServices/Core/interface/DQMStore.h"
@@ -54,12 +55,14 @@ TrackToTrackValidator::beginJob(const edm::EventSetup& iSetup) {
 void
 TrackToTrackValidator::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
+  edm::LogInfo("TrackToTrackValidator") << " requireValidHLTPaths_ " << requireValidHLTPaths_  << " hltPathsAreValid_  " << hltPathsAreValid_ << "\n";
   // if valid HLT paths are required,
   // analyze event only if paths are valid
   if (requireValidHLTPaths_ and (not hltPathsAreValid_)) {
     return;
   }
 
+  edm::LogInfo("TrackToTrackValidator") << " genTriggerEventFlag_->on() " << genTriggerEventFlag_->on()  << "   " << genTriggerEventFlag_->accept(iEvent, iSetup) << "\n";
   // Filter out events if Trigger Filtering is requested
   if (genTriggerEventFlag_->on() && !genTriggerEventFlag_->accept(iEvent, iSetup)) {
     return;
@@ -97,13 +100,13 @@ TrackToTrackValidator::analyze(const edm::Event& iEvent, const edm::EventSetup& 
   reco::Vertex monitoredPV = monitoredPVHandle->at(0);
 
 
-  edm::LogVerbatim("TrackToTrackValidator") << "analyzing "
-					   << monitoredTrackInputTag_.process()  << ":"
-					   << monitoredTrackInputTag_.label()    << ":"
-					   << monitoredTrackInputTag_.instance() << " w.r.t. "
-					   << referenceTrackInputTag_.process()  << ":"
-					   << referenceTrackInputTag_.label()    << ":"
-					   << referenceTrackInputTag_.instance() << " \n";
+  edm::LogInfo("TrackToTrackValidator") << "analyzing "
+				    << monitoredTrackInputTag_.process()  << ":"
+				    << monitoredTrackInputTag_.label()    << ":"
+				    << monitoredTrackInputTag_.instance() << " w.r.t. "
+				    << referenceTrackInputTag_.process()  << ":"
+				    << referenceTrackInputTag_.label()    << ":"
+				    << referenceTrackInputTag_.instance() << " \n";
   
   //
   // Build the dR maps
@@ -114,7 +117,7 @@ TrackToTrackValidator::analyze(const edm::Event& iEvent, const edm::EventSetup& 
   idx2idxByDoubleColl reference2monitoredColl;
   fillMap(referenceTracks,monitoredTracks,reference2monitoredColl, dRmin_);
 
-
+ 
   unsigned int nReferenceTracks(0);       // Counts the number of refernce tracks
   unsigned int nMatchedReferenceTracks(0);// Counts the number of matched refernce tracks
   unsigned int nMonitoredTracks(0);       // Counts the number of monitored tracks
@@ -124,7 +127,7 @@ TrackToTrackValidator::analyze(const edm::Event& iEvent, const edm::EventSetup& 
   //
   // loop over reference tracks
   //
-  edm::LogVerbatim("TrackToTrackValidator") << "\n# of tracks (reference): " << referenceTracks.size() << "\n";
+  edm::LogInfo("TrackToTrackValidator") << "\n# of tracks (reference): " << referenceTracks.size() << "\n";
   for (idx2idxByDoubleColl::const_iterator pItr = reference2monitoredColl.begin(), eItr = reference2monitoredColl.end(); pItr != eItr; ++pItr) {
     
     nReferenceTracks++;       
@@ -163,7 +166,7 @@ TrackToTrackValidator::analyze(const edm::Event& iEvent, const edm::EventSetup& 
   //
   // loop over monitoed tracks
   //
-  edm::LogVerbatim("TrackToTrackValidator") << "\n# of tracks (monitored): " << monitoredTracks.size() << "\n";
+  edm::LogInfo("TrackToTrackValidator") << "\n# of tracks (monitored): " << monitoredTracks.size() << "\n";
   for (idx2idxByDoubleColl::const_iterator pItr = monitored2referenceColl.begin(), eItr = monitored2referenceColl.end(); pItr != eItr; ++pItr) {
     
     nMonitoredTracks++;   
@@ -196,10 +199,10 @@ TrackToTrackValidator::analyze(const edm::Event& iEvent, const edm::EventSetup& 
   } // over monitoed tracks
 
   
-  edm::LogVerbatim("TrackToTrackValidator") << "Total reference tracks: "          << nReferenceTracks << "\n"
-					    << "Total matched reference tracks: "  << nMatchedReferenceTracks << "\n"
-					    << "Total monitored tracks: "          << nMonitoredTracks << "\n"
-					    << "Total unMatched monitored tracks: "  << nUnmatchedMonitoredTracks << "\n";
+  edm::LogInfo("TrackToTrackValidator") << "Total reference tracks: "          << nReferenceTracks << "\n"
+					 << "Total matched reference tracks: "  << nMatchedReferenceTracks << "\n"
+					 << "Total monitored tracks: "          << nMonitoredTracks << "\n"
+					 << "Total unMatched monitored tracks: "  << nUnmatchedMonitoredTracks << "\n";
     
 }
 
