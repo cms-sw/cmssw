@@ -68,6 +68,7 @@ namespace egamma::conv {
   using TrackSpecificColumns =
       std::tuple<col::PtError, col::MissingInnerHits, col::NumberOfValidHits, col::Charge, col::D0>;
   using TrackTable = edm::soa::AddColumns<edm::soa::PtEtaPhiThetaTable, TrackSpecificColumns>::type;
+  using TrackTableView = edm::soa::ViewFromTable_t<TrackTable>;
   using TrackRowView = TrackTable::const_iterator::value_type;
 
   template <class Object>
@@ -90,8 +91,8 @@ namespace egamma::conv {
   // returns the "best" conversion,
   // bField has to be supplied in Tesla
   ConversionInfo findConversion(const reco::GsfElectronCore&,
-                                TrackTable const& ctfTable,
-                                TrackTable const& gsfTable,
+                                TrackTableView ctfTable,
+                                TrackTableView gsfTable,
                                 float bFieldAtOrigin,
                                 float minFracSharedHits = 0.45);
 

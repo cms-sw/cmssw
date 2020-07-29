@@ -718,8 +718,8 @@ void GsfElectronAlgo::createElectron(reco::GsfElectronCollection& electrons,
                                      MultiTrajectoryStateTransform const& mtsTransform,
                                      double magneticFieldInTesla,
                                      const GsfElectronAlgo::HeavyObjectCache* hoc,
-                                     egamma::conv::TrackTable const& ctfTable,
-                                     egamma::conv::TrackTable const& gsfTable) {
+                                     egamma::conv::TrackTableView ctfTable,
+                                     egamma::conv::TrackTableView gsfTable) {
   // charge ID
   int eleCharge;
   GsfElectron::ChargeInfo eleChargeInfo;
