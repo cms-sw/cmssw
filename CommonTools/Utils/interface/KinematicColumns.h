@@ -23,6 +23,16 @@ namespace edm {
 
     }  // namespace col
 
+    SOA_DECLARE_DEFAULT(col::Eta, eta());
+    SOA_DECLARE_DEFAULT(col::Phi, phi());
+    SOA_DECLARE_DEFAULT(col::Theta, theta());
+    SOA_DECLARE_DEFAULT(col::Vz, vz());
+    SOA_DECLARE_DEFAULT(col::Px, px());
+    SOA_DECLARE_DEFAULT(col::Py, py());
+    SOA_DECLARE_DEFAULT(col::Pz, pz());
+    SOA_DECLARE_DEFAULT(col::Pt, pt());
+    SOA_DECLARE_DEFAULT(col::P, p());
+
   }  // namespace soa
 
 }  // namespace edm

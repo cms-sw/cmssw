@@ -24,6 +24,7 @@
 #include "DataFormats/GsfTrackReco/interface/GsfTrackFwd.h"
 #include "DataFormats/Math/interface/Point3D.h"
 #include "CommonTools/Utils/interface/KinematicTables.h"
+#include "CommonTools/Utils/interface/TrackSpecificColumns.h"
 
 #include <optional>
 
@@ -56,37 +57,15 @@ namespace egamma::conv {
     // flag 3: Partner track found in the GSF collection using the electron's GSF track
   };
 
-  namespace col {
-    SOA_DECLARE_COLUMN(PtError, float, "ptError");
-    SOA_DECLARE_COLUMN(D0, float, "d0");
-
-    SOA_DECLARE_COLUMN(NumberOfValidHits, int, "numberOfValidHits");
-    SOA_DECLARE_COLUMN(MissingInnerHits, int, "missingInnerHits");
-    SOA_DECLARE_COLUMN(Charge, int, "charge");
-  }  // namespace col
-
-  using TrackSpecificColumns =
-      std::tuple<col::PtError, col::MissingInnerHits, col::NumberOfValidHits, col::Charge, col::D0>;
-  using TrackTable = edm::soa::AddColumns<edm::soa::PtEtaPhiThetaTable, TrackSpecificColumns>::type;
+  using TrackTableSpecificColumns = std::tuple<edm::soa::col::Pz,
+                                               edm::soa::col::PtError,
+                                               edm::soa::col::MissingInnerHits,
+                                               edm::soa::col::NumberOfValidHits,
+                                               edm::soa::col::Charge,
+                                               edm::soa::col::D0>;
+  using TrackTable = edm::soa::AddColumns<edm::soa::PtEtaPhiTable, TrackTableSpecificColumns>::type;
   using TrackTableView = edm::soa::ViewFromTable_t<TrackTable>;
   using TrackRowView = TrackTable::const_iterator::value_type;
-
-  template <class Object>
-  TrackTable makeTrackTable(std::vector<Object> const& objects) {
-    return {
-        objects,
-        edm::soa::column_fillers(col::D0::filler([](Object const& x) { return x.d0(); }),
-                                 edm::soa::col::Pt::filler([](Object const& x) { return x.pt(); }),
-                                 edm::soa::col::Theta::filler([](Object const& x) { return x.theta(); }),
-                                 col::PtError::filler([](Object const& x) { return x.ptError(); }),
-                                 col::MissingInnerHits::filler([](Object const& x) {
-                                   return x.hitPattern().numberOfLostHits(reco::HitPattern::MISSING_INNER_HITS);
-                                 }),
-                                 col::NumberOfValidHits::filler([](Object const& x) { return x.numberOfValidHits(); }),
-                                 col::Charge::filler([](Object const& x) { return x.charge(); }),
-                                 edm::soa::col::Eta::filler([](Object const& x) { return x.eta(); }),
-                                 edm::soa::col::Phi::filler([](Object const& x) { return x.phi(); }))};
-  }
 
   // returns the "best" conversion,
   // bField has to be supplied in Tesla

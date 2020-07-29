@@ -85,4 +85,9 @@ namespace edm {
   struct _ClassName_ : public edm::soa::Column<_Type_, _ClassName_> { \
     static constexpr const char* const kLabel = _String_;             \
   }
+#define SOA_DECLARE_DEFAULT(_ClassName_, _Expression_)                \
+  template <class Object>                                             \
+  _ClassName_::type value_for_column(Object const& x, _ClassName_*) { \
+    return x._Expression_;                                            \
+  }
 #endif
