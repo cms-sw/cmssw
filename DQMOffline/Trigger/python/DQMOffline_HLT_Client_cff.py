@@ -34,6 +34,7 @@ hltOfflineDQMClient = cms.Sequence(
     sipixelHarvesterHLTsequence
 #  * trackingMonitorClientHLT
 #  * trackingForElectronsMonitorClientHLT
+  * trackEfficiencyMonitoringClientHLT
   * egHLTOffDQMClient
   * hltMuonPostVal
   * jetMETHLTOfflineClient
