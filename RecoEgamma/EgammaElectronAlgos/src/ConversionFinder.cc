@@ -3,25 +3,30 @@
 #include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-namespace egamma {
+namespace egamma::conv {
+
+  namespace {
+
+    constexpr float square(float x) { return x * x; };
+
+  }  // namespace
 
   //places different cuts on dist, dcot, delmissing hits and arbitration based on R = sqrt(dist*dist + dcot*dcot)
   ConversionInfo findBestConversionMatch(const std::vector<ConversionInfo>& v_convCandidates);
 
-  ConversionInfo getConversionInfo(reco::Track const& el_track,
-                                   edm::soa::TrackRowView const& track,
-                                   float bFieldAtOrigin);
+  ConversionInfo getConversionInfo(reco::Track const& el_track, TrackRowView const& track, float bFieldAtOrigin);
 
   //-----------------------------------------------------------------------------
   std::vector<ConversionInfo> getConversionInfos(const reco::GsfElectronCore& gsfElectron,
-                                                 edm::soa::TrackTableView ctfTable,
-                                                 edm::soa::TrackTableView gsfTable,
+                                                 TrackTable const& ctfTable,
+                                                 TrackTable const& gsfTable,
                                                  float bFieldAtOrigin,
                                                  float minFracSharedHits) {
     using namespace reco;
     using namespace std;
     using namespace edm;
     using namespace edm::soa::col;
+    using namespace col;
 
     constexpr float dR2Max = 0.5 * 0.5;
 
@@ -152,8 +157,8 @@ namespace egamma {
 
   //-----------------------------------------------------------------------------
   ConversionInfo findConversion(const reco::GsfElectronCore& gsfElectron,
-                                edm::soa::TrackTableView ctfTable,
-                                edm::soa::TrackTableView gsfTable,
+                                TrackTable const& ctfTable,
+                                TrackTable const& gsfTable,
                                 float bFieldAtOrigin,
                                 float minFracSharedHits) {
     return findBestConversionMatch(
@@ -161,23 +166,24 @@ namespace egamma {
   }
 
   //-------------------------------------------------------------------------------------
-  ConversionInfo getConversionInfo(reco::Track const& ele, edm::soa::TrackRowView const& track, float bFieldAtOrigin) {
+  ConversionInfo getConversionInfo(reco::Track const& ele, TrackRowView const& track, float bFieldAtOrigin) {
     using namespace edm::soa::col;
+    using namespace col;
 
     //now calculate the conversion related information
-    float elCurvature = -0.3 * bFieldAtOrigin * (ele.charge() / ele.pt()) / 100.;
-    float rEl = std::abs(1. / elCurvature);
-    float xEl = -1 * (1. / elCurvature - ele.d0()) * sin(ele.phi());
-    float yEl = (1. / elCurvature - ele.d0()) * cos(ele.phi());
+    float elCurvature = -0.3f * bFieldAtOrigin * (ele.charge() / ele.pt()) / 100.f;
+    float rEl = std::abs(1.f / elCurvature);
+    float xEl = -1.f * (1.f / elCurvature - ele.d0()) * sin(ele.phi());
+    float yEl = (1.f / elCurvature - ele.d0()) * cos(ele.phi());
 
-    float candCurvature = -0.3 * bFieldAtOrigin * (track.get<Charge>() / track.get<Pt>()) / 100.;
-    float rCand = std::abs(1. / candCurvature);
-    float xCand = -1 * (1. / candCurvature - track.get<D0>()) * sin(track.get<Phi>());
-    float yCand = (1. / candCurvature - track.get<D0>()) * cos(track.get<Phi>());
+    float candCurvature = -0.3f * bFieldAtOrigin * (track.get<Charge>() / track.get<Pt>()) / 100.f;
+    float rCand = std::abs(1.f / candCurvature);
+    float xCand = -1.f * (1.f / candCurvature - track.get<D0>()) * sin(track.get<Phi>());
+    float yCand = (1.f / candCurvature - track.get<D0>()) * cos(track.get<Phi>());
 
     float d = sqrt(pow(xEl - xCand, 2) + pow(yEl - yCand, 2));
     float dist = d - (rEl + rCand);
-    float dcot = 1. / tan(ele.theta()) - 1. / tan(track.get<Theta>());
+    float dcot = 1.f / tan(ele.theta()) - 1.f / tan(track.get<Theta>());
 
     //get the point of conversion
     float xa1 = xEl + (xCand - xEl) * rEl / d;
@@ -185,8 +191,8 @@ namespace egamma {
     float ya1 = yEl + (yCand - yEl) * rEl / d;
     float ya2 = yCand + (yEl - yCand) * rCand / d;
 
-    float x = .5 * (xa1 + xa2);
-    float y = .5 * (ya1 + ya2);
+    float x = .5f * (xa1 + xa2);
+    float y = .5f * (ya1 + ya2);
     float rconv = sqrt(pow(x, 2) + pow(y, 2));
     // The z-position of the conversion is unused, but here is how it could be computed if needed:
     // float z = ele.dz() + rEl * ele.pz() * std::acos(1 - pow(rconv, 2) / (2. * pow(rEl, 2))) / ele.pt();
@@ -247,7 +253,7 @@ namespace egamma {
         if (std::abs(temp.dist) < 0.02 && std::abs(temp.dcot) < 0.02 && temp.deltaMissingHits < 3 &&
             temp.radiusOfConversion > -2)
           isConv = true;
-        if (sqrt(pow(temp.dist, 2) + pow(temp.dcot, 2)) < 0.05 && temp.deltaMissingHits < 2 &&
+        if (pow(temp.dist, 2) + pow(temp.dcot, 2) < square(0.05f) && temp.deltaMissingHits < 2 &&
             temp.radiusOfConversion > -2)
           isConv = true;
 
@@ -256,17 +262,17 @@ namespace egamma {
       }
 
       if (temp.flag == 1) {
-        if (sqrt(pow(temp.dist, 2) + pow(temp.dcot, 2)) < 0.05 && temp.deltaMissingHits < 2 &&
+        if (pow(temp.dist, 2) + pow(temp.dcot, 2) < square(0.05f) && temp.deltaMissingHits < 2 &&
             temp.radiusOfConversion > -2)
           v_1.push_back(temp);
       }
       if (temp.flag == 2) {
-        if (sqrt(pow(temp.dist, 2) + pow(temp.dcot * temp.dcot, 2)) < 0.05 && temp.deltaMissingHits < 2 &&
+        if (pow(temp.dist, 2) + pow(temp.dcot * temp.dcot, 2) < square(0.05f) && temp.deltaMissingHits < 2 &&
             temp.radiusOfConversion > -2)
           v_2.push_back(temp);
       }
       if (temp.flag == 3) {
-        if (sqrt(temp.dist * temp.dist + temp.dcot * temp.dcot) < 0.05 && temp.deltaMissingHits < 2 &&
+        if (temp.dist * temp.dist + temp.dcot * temp.dcot < square(0.05f) && temp.deltaMissingHits < 2 &&
             temp.radiusOfConversion > -2)
           v_3.push_back(temp);
       }
@@ -295,4 +301,4 @@ namespace egamma {
     return arbitrateConversionPartnersbyR(v_convCandidates);
   }
 
-}  // namespace egamma
+}  // namespace egamma::conv

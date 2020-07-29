@@ -545,8 +545,8 @@ reco::GsfElectronCollection GsfElectronAlgo::completeElectrons(edm::Event const&
   MultiTrajectoryStateTransform mtsTransform(&trackerGeometry, &magneticField);
   GsfConstraintAtVertex constraintAtVtx(eventSetup);
 
-  std::optional<edm::soa::TrackTable> ctfTrackTable = std::nullopt;
-  std::optional<edm::soa::TrackTable> gsfTrackTable = std::nullopt;
+  std::optional<egamma::conv::TrackTable> ctfTrackTable = std::nullopt;
+  std::optional<egamma::conv::TrackTable> gsfTrackTable = std::nullopt;
 
   const GsfElectronCoreCollection* coreCollection = eventData.coreElectrons.product();
   for (unsigned int i = 0; i < coreCollection->size(); ++i) {
@@ -571,10 +571,10 @@ reco::GsfElectronCollection GsfElectronAlgo::completeElectrons(edm::Event const&
     }
 
     if (ctfTrackTable == std::nullopt) {
-      ctfTrackTable = edm::soa::makeTrackTable(*eventData.originalCtfTracks);
+      ctfTrackTable = egamma::conv::makeTrackTable(*eventData.originalCtfTracks);
     }
     if (gsfTrackTable == std::nullopt) {
-      gsfTrackTable = edm::soa::makeTrackTable(*eventData.originalGsfTracks);
+      gsfTrackTable = egamma::conv::makeTrackTable(*eventData.originalGsfTracks);
     }
 
     createElectron(electrons,
@@ -718,8 +718,8 @@ void GsfElectronAlgo::createElectron(reco::GsfElectronCollection& electrons,
                                      MultiTrajectoryStateTransform const& mtsTransform,
                                      double magneticFieldInTesla,
                                      const GsfElectronAlgo::HeavyObjectCache* hoc,
-                                     edm::soa::TrackTableView ctfTable,
-                                     edm::soa::TrackTableView gsfTable) {
+                                     egamma::conv::TrackTable const& ctfTable,
+                                     egamma::conv::TrackTable const& gsfTable) {
   // charge ID
   int eleCharge;
   GsfElectron::ChargeInfo eleChargeInfo;
@@ -883,7 +883,7 @@ void GsfElectronAlgo::createElectron(reco::GsfElectronCollection& electrons,
   // 1     : Partner track found in the CTF collection using
   // 2     : Partner track found in the GSF collection using
   // 3     : Partner track found in the GSF collection using the electron's GSF track
-  auto conversionInfo = egamma::findConversion(*electronData.coreRef, ctfTable, gsfTable, magneticFieldInTesla);
+  auto conversionInfo = egamma::conv::findConversion(*electronData.coreRef, ctfTable, gsfTable, magneticFieldInTesla);
 
   reco::GsfElectron::ConversionRejection conversionVars;
   conversionVars.flags = conversionInfo.flag;
