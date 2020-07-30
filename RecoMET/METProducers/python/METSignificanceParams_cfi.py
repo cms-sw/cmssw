@@ -42,6 +42,6 @@ METSignificanceParams_Data=cms.PSet(
       useDeltaRforFootprint = cms.bool(False)
       )
 
-from Configuration.Eras.Modifier_run2_miniAOD_devel_cff import run2_miniAOD_devel
-run2_miniAOD_devel.toModify(METSignificanceParams, useDeltaRforFootprint = True)
-run2_miniAOD_devel.toModify(METSignificanceParams_Data, useDeltaRforFootprint = True)
+from Configuration.ProcessModifiers.run2_miniAOD_UL_cff import run2_miniAOD_UL
+run2_miniAOD_UL.toModify(METSignificanceParams, useDeltaRforFootprint = True)
+run2_miniAOD_UL.toModify(METSignificanceParams_Data, useDeltaRforFootprint = True)

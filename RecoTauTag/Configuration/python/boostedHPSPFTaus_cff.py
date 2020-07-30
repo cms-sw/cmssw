@@ -44,8 +44,8 @@ boostedTauSeeds = cms.EDProducer("BoostedTauSeedsProducer",
     verbosity = cms.int32(0)
 )
 #enable correct behaviour of overlap removal in boosted tau seeding
-from Configuration.Eras.Modifier_run2_miniAOD_devel_cff import run2_miniAOD_devel
-run2_miniAOD_devel.toModify(boostedTauSeeds, correctlyExcludeOverlap = True)
+from Configuration.ProcessModifiers.run2_miniAOD_UL_cff import run2_miniAOD_UL
+run2_miniAOD_UL.toModify(boostedTauSeeds, correctlyExcludeOverlap = True)
 
 boostedHPSPFTausTask = cms.Task(
     pfPileUpForBoostedTaus,

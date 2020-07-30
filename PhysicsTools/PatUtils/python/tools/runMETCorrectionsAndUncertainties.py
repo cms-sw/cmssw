@@ -506,8 +506,8 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
             getattr(process, _myPatMet).metSource = cms.InputTag("pfMet"+postfix)
             getattr(process, _myPatMet).srcPFCands = copy.copy(self.getvalue("pfCandCollection"))
         if metType == "PF":
-            from Configuration.Eras.Modifier_run2_miniAOD_devel_cff import run2_miniAOD_devel
-            run2_miniAOD_devel.toModify(getattr(process, _myPatMet), srcLeptons = \
+            from Configuration.ProcessModifiers.run2_miniAOD_UL_cff import run2_miniAOD_UL
+            run2_miniAOD_UL.toModify(getattr(process, _myPatMet), srcLeptons = \
               cms.VInputTag(copy.copy(self.getvalue("electronCollection")) if self.getvalue("onMiniAOD") else
                               cms.InputTag("pfeGammaToCandidate","electrons"),
                             copy.copy(self.getvalue("muonCollection")),
@@ -627,8 +627,8 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
             _myPatMet = "pat"+metType+"Met"+postfix
             getattr(process, _myPatMet).computeMETSignificance = cms.bool(self.getvalue("computeMETSignificance"))
             getattr(process, _myPatMet).srcPFCands = copy.copy(self.getvalue("pfCandCollection"))
-            from Configuration.Eras.Modifier_run2_miniAOD_devel_cff import run2_miniAOD_devel
-            run2_miniAOD_devel.toModify(getattr(process, _myPatMet), srcLeptons = \
+            from Configuration.ProcessModifiers.run2_miniAOD_UL_cff import run2_miniAOD_UL
+            run2_miniAOD_UL.toModify(getattr(process, _myPatMet), srcLeptons = \
               cms.VInputTag(copy.copy(self.getvalue("electronCollection")) if self.getvalue("onMiniAOD") else
                               cms.InputTag("pfeGammaToCandidate","electrons"),
                             copy.copy(self.getvalue("muonCollection")),
@@ -651,8 +651,8 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
             _myPatMet = "patMETs"+postfix
             getattr(process, _myPatMet).computeMETSignificance = cms.bool(self.getvalue("computeMETSignificance"))
             getattr(process, _myPatMet).srcPFCands=copy.copy(self.getvalue("pfCandCollection"))
-            from Configuration.Eras.Modifier_run2_miniAOD_devel_cff import run2_miniAOD_devel
-            run2_miniAOD_devel.toModify(getattr(process, _myPatMet), srcLeptons = \
+            from Configuration.ProcessModifiers.run2_miniAOD_UL_cff import run2_miniAOD_UL
+            run2_miniAOD_UL.toModify(getattr(process, _myPatMet), srcLeptons = \
               cms.VInputTag(copy.copy(self.getvalue("electronCollection")) if self.getvalue("onMiniAOD") else
                               cms.InputTag("pfeGammaToCandidate","electrons"),
                             copy.copy(self.getvalue("muonCollection")),
@@ -829,8 +829,8 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
                                            useDeltaRforFootprint = cms.bool(False)
                                            )
             if self.getvalue("Puppi"):
-              from Configuration.Eras.Modifier_run2_miniAOD_devel_cff import run2_miniAOD_devel
-              run2_miniAOD_devel.toModify(pfCandsNoJets, useDeltaRforFootprint = True)
+              from Configuration.ProcessModifiers.run2_miniAOD_UL_cff import run2_miniAOD_UL
+              run2_miniAOD_UL.toModify(pfCandsNoJets, useDeltaRforFootprint = True)
             addToProcessAndTask("pfCandsNoJets"+postfix, pfCandsNoJets, process, task)
             metUncSequence += getattr(process, "pfCandsNoJets"+postfix)
 
@@ -841,9 +841,9 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
                                                 useDeltaRforFootprint = cms.bool(False)
                                                 )
             if not self.getvalue("onMiniAOD"):
-              from Configuration.Eras.Modifier_run2_miniAOD_devel_cff import run2_miniAOD_devel
-              run2_miniAOD_devel.toModify(pfCandsNoJetsNoEle, useDeltaRforFootprint = True)
-              run2_miniAOD_devel.toModify(pfCandsNoJetsNoEle, veto = cms.InputTag("pfeGammaToCandidate","electrons"))
+              from Configuration.ProcessModifiers.run2_miniAOD_UL_cff import run2_miniAOD_UL
+              run2_miniAOD_UL.toModify(pfCandsNoJetsNoEle, useDeltaRforFootprint = True)
+              run2_miniAOD_UL.toModify(pfCandsNoJetsNoEle, veto = cms.InputTag("pfeGammaToCandidate","electrons"))
             addToProcessAndTask("pfCandsNoJetsNoEle"+postfix, pfCandsNoJetsNoEle, process, task)
             metUncSequence += getattr(process, "pfCandsNoJetsNoEle"+postfix)
 
@@ -854,8 +854,8 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
                                               useDeltaRforFootprint = cms.bool(False)
                                               )
             if not self.getvalue("onMiniAOD"):
-              from Configuration.Eras.Modifier_run2_miniAOD_devel_cff import run2_miniAOD_devel
-              run2_miniAOD_devel.toModify(pfCandsNoJetsNoEleNoMu, useDeltaRforFootprint = True)
+              from Configuration.ProcessModifiers.run2_miniAOD_UL_cff import run2_miniAOD_UL
+              run2_miniAOD_UL.toModify(pfCandsNoJetsNoEleNoMu, useDeltaRforFootprint = True)
             addToProcessAndTask("pfCandsNoJetsNoEleNoMu"+postfix, pfCandsNoJetsNoEleNoMu, process, task)
             metUncSequence += getattr(process, "pfCandsNoJetsNoEleNoMu"+postfix)
 
@@ -866,8 +866,8 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
                                               useDeltaRforFootprint = cms.bool(False)
                                               )
             if self.getvalue("Puppi"):
-              from Configuration.Eras.Modifier_run2_miniAOD_devel_cff import run2_miniAOD_devel
-              run2_miniAOD_devel.toModify(pfCandsNoJetsNoEleNoMuNoTau, useDeltaRforFootprint = True)
+              from Configuration.ProcessModifiers.run2_miniAOD_UL_cff import run2_miniAOD_UL
+              run2_miniAOD_UL.toModify(pfCandsNoJetsNoEleNoMuNoTau, useDeltaRforFootprint = True)
             addToProcessAndTask("pfCandsNoJetsNoEleNoMuNoTau"+postfix, pfCandsNoJetsNoEleNoMuNoTau, process, task)
             metUncSequence += getattr(process, "pfCandsNoJetsNoEleNoMuNoTau"+postfix)
 
@@ -878,9 +878,9 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
                                               useDeltaRforFootprint = cms.bool(False)
                                               )
             if not self.getvalue("onMiniAOD"):
-              from Configuration.Eras.Modifier_run2_miniAOD_devel_cff import run2_miniAOD_devel
-              run2_miniAOD_devel.toModify(pfCandsForUnclusteredUnc, useDeltaRforFootprint = True)
-              run2_miniAOD_devel.toModify(pfCandsForUnclusteredUnc, veto = cms.InputTag("pfeGammaToCandidate","photons"))
+              from Configuration.ProcessModifiers.run2_miniAOD_UL_cff import run2_miniAOD_UL
+              run2_miniAOD_UL.toModify(pfCandsForUnclusteredUnc, useDeltaRforFootprint = True)
+              run2_miniAOD_UL.toModify(pfCandsForUnclusteredUnc, veto = cms.InputTag("pfeGammaToCandidate","photons"))
             addToProcessAndTask("pfCandsForUnclusteredUnc"+postfix, pfCandsForUnclusteredUnc, process, task)
             metUncSequence += getattr(process, "pfCandsForUnclusteredUnc"+postfix)
 
@@ -1484,8 +1484,8 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
                 addToProcessAndTask(_myPatMet, getattr(process,'patMETs' ).clone(), process, task)
                 getattr(process, _myPatMet).metSource = cms.InputTag("pfMetT1"+postfix)
                 getattr(process, _myPatMet).computeMETSignificance = cms.bool(self.getvalue("computeMETSignificance"))
-                from Configuration.Eras.Modifier_run2_miniAOD_devel_cff import run2_miniAOD_devel
-                run2_miniAOD_devel.toModify(getattr(process, _myPatMet), srcLeptons = \
+                from Configuration.ProcessModifiers.run2_miniAOD_UL_cff import run2_miniAOD_UL
+                run2_miniAOD_UL.toModify(getattr(process, _myPatMet), srcLeptons = \
                   cms.VInputTag(copy.copy(self.getvalue("electronCollection")) if self.getvalue("onMiniAOD") else
                                   cms.InputTag("pfeGammaToCandidate","electrons"),
                                 copy.copy(self.getvalue("muonCollection")),

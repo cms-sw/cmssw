@@ -64,9 +64,9 @@ def applyDeepBtagging( process, postfix="" ) :
         'pfMassIndependentDeepDoubleCvBJetTags:probHcc',
         ) + pfDeepBoostedJetTagsAll
     )
-    from Configuration.Eras.Modifier_run2_miniAOD_devel_cff import run2_miniAOD_devel
-    run2_miniAOD_devel.toModify(_btagDiscriminators, 
-                                names = _btagDiscriminators.names + pfParticleNetJetTagsAll + pfHiggsInteractionNetTagsProbs)
+    from Configuration.ProcessModifiers.run2_miniAOD_UL_cff import run2_miniAOD_UL
+    run2_miniAOD_UL.toModify(_btagDiscriminators,
+                             names = _btagDiscriminators.names + pfParticleNetJetTagsAll + pfHiggsInteractionNetTagsProbs)
     updateJetCollection(
        process,
        jetSource = cms.InputTag('slimmedJetsAK8NoDeepTags'),
