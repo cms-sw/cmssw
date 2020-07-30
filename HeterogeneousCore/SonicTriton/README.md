@@ -49,9 +49,8 @@ In a SONIC Triton producer, the basic flow should follow this pattern:
     e. convert using `toServer()` function of input object(s)  
 2. `produce()`:  
     a. access output object(s) from `TritonOutputMap`  
-    b. allocate output data as `std::vector<T>()`  
-    c. convert using `fromServer()` function of output object(s) (sets output shape(s) if variable dimensions exist)  
-    d. fill output products  
+    b. obtain output data as `std::vector<edm::Span<T>>` using `fromServer()` function of output object(s) (sets output shape(s) if variable dimensions exist)  
+    c. fill output products  
 
 Several example producers (running ResNet50 or Graph Attention Network), along with instructions to run a local server,
 can be found in the [test](./test) directory.
