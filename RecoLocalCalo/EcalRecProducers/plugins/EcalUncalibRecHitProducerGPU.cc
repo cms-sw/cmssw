@@ -138,7 +138,7 @@ EcalUncalibRecHitProducerGPU::EcalUncalibRecHitProducerGPU(const edm::ParameterS
   // max number of digis to allocate for
   configParameters_.maxNumberHitsEB = ps.getParameter<uint32_t>("maxNumberHitsEB");
   configParameters_.maxNumberHitsEE = ps.getParameter<uint32_t>("maxNumberHitsEE");
-  
+
   // switch to run timing computation kernels
   configParameters_.shouldRunTimingComputation = ps.getParameter<bool>("shouldRunTimingComputation");
 
@@ -203,7 +203,8 @@ void EcalUncalibRecHitProducerGPU::acquire(edm::Event const& event,
   nee_ = eeDigis.size;
 
   if ((neb_ > configParameters_.maxNumberHitsEB) || (nee_ > configParameters_.maxNumberHitsEE)) {
-    edm::LogError("EcalUncalibRecHitProducerGPU") << "max number of channels exceeded. See options 'maxNumberHitsEB and maxNumberHitsEE' ";
+    edm::LogError("EcalUncalibRecHitProducerGPU")
+        << "max number of channels exceeded. See options 'maxNumberHitsEB and maxNumberHitsEE' ";
   }
 
   // conditions
