@@ -84,8 +84,7 @@ namespace egamma::conv {
 
         //need to add the track reference information for completeness
         //because the overloaded fnc above does not make a trackRef
-        int deltaMissingHits = ctftk.get<MissingInnerHits>() -
-                               eleCtfTk->hitPattern().numberOfLostHits(reco::HitPattern::MISSING_INNER_HITS);
+        int deltaMissingHits = ctftk.get<MissingInnerHits>() - eleCtfTk->missingInnerHits();
 
         v_candidatePartners.push_back(
             {convInfo.dist, convInfo.dcot, convInfo.radiusOfConversion, ctftk_i, std::nullopt, deltaMissingHits, 0});
@@ -96,8 +95,7 @@ namespace egamma::conv {
       if (eleGsfTk->charge() + ctftk.get<Charge>() == 0 &&
           deltaR2(eleGsfEta, eleGsfPhi, ctftk.get<Eta>(), ctftk.get<Phi>()) < dR2Max &&
           eleGsfTk->ptError() < 0.25 * eleGsfPt) {
-        int deltaMissingHits = ctftk.get<MissingInnerHits>() -
-                               eleGsfTk->hitPattern().numberOfLostHits(reco::HitPattern::MISSING_INNER_HITS);
+        int deltaMissingHits = ctftk.get<MissingInnerHits>() - eleGsfTk->missingInnerHits();
 
         ConversionInfo convInfo = getConversionInfo(*eleGsfTk, ctftk, bFieldAtOrigin);
 
@@ -127,8 +125,7 @@ namespace egamma::conv {
       //require opposite sign
       if (useEleCtfTrack && eleCtfTk->charge() + gsftk.get<Charge>() == 0 &&
           deltaR2(eleCtfEta.value(), eleCtfPhi.value(), gsftk.get<Eta>(), gsftk.get<Phi>()) < dR2Max) {
-        int deltaMissingHits = gsftk.get<MissingInnerHits>() -
-                               eleCtfTk->hitPattern().numberOfLostHits(reco::HitPattern::MISSING_INNER_HITS);
+        int deltaMissingHits = gsftk.get<MissingInnerHits>() - eleCtfTk->missingInnerHits();
 
         ConversionInfo convInfo = getConversionInfo(*eleCtfTk, gsftk, bFieldAtOrigin);
         //fill the Ref info
@@ -143,8 +140,7 @@ namespace egamma::conv {
         ConversionInfo convInfo = getConversionInfo(*eleGsfTk, gsftk, bFieldAtOrigin);
         //fill the Ref info
 
-        int deltaMissingHits = gsftk.get<MissingInnerHits>() -
-                               eleGsfTk->hitPattern().numberOfLostHits(reco::HitPattern::MISSING_INNER_HITS);
+        int deltaMissingHits = gsftk.get<MissingInnerHits>() - eleGsfTk->missingInnerHits();
 
         v_candidatePartners.push_back(
             {convInfo.dist, convInfo.dcot, convInfo.radiusOfConversion, std::nullopt, gsftk_i, deltaMissingHits, 3});
@@ -181,7 +177,9 @@ namespace egamma::conv {
 
     float d = sqrt(pow(xEl - xCand, 2) + pow(yEl - yCand, 2));
     float dist = d - (rEl + rCand);
-    float dcot = 1.f / tan(ele.theta()) - 1.f / (track.get<Pt>() / track.get<Pz>());
+
+    // this is equivalent to `1/tan(theta_1) - 1/tan(theta_2)` but requires less trigonometry
+    float dcot = ele.pz() / ele.pt() - track.get<Pz>() / track.get<Pt>();
 
     //get the point of conversion
     float xa1 = xEl + (xCand - xEl) * rEl / d;

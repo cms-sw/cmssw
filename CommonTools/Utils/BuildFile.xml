@@ -1,4 +1,3 @@
-<use name="DataFormats/TrackReco"/>
 <use name="FWCore/Utilities"/>
 <use name="FWCore/MessageLogger"/>
 <use name="boost"/>
