@@ -100,8 +100,8 @@ namespace ecal {
 
       void allocate(ConfigurationParameters const& configParameters, cudaStream_t cudaStream) {
         auto const sizeEB = configParameters.maxNumberHitsEB;
-        recHitsEB.amplitudesAll =
-            cms::cuda::make_device_unique<reco::ComputationScalarType[]>(sizeEB * EcalDataFrame::MAXSAMPLES, cudaStream);
+        recHitsEB.amplitudesAll = cms::cuda::make_device_unique<reco::ComputationScalarType[]>(
+            sizeEB * EcalDataFrame::MAXSAMPLES, cudaStream);
         recHitsEB.amplitude = cms::cuda::make_device_unique<reco::StorageScalarType[]>(sizeEB, cudaStream);
         recHitsEB.chi2 = cms::cuda::make_device_unique<reco::StorageScalarType[]>(sizeEB, cudaStream);
         recHitsEB.pedestal = cms::cuda::make_device_unique<reco::StorageScalarType[]>(sizeEB, cudaStream);
@@ -115,8 +115,8 @@ namespace ecal {
         recHitsEB.flags = cms::cuda::make_device_unique<uint32_t[]>(sizeEB, cudaStream);
 
         auto const sizeEE = configParameters.maxNumberHitsEE;
-        recHitsEE.amplitudesAll =
-            cms::cuda::make_device_unique<reco::ComputationScalarType[]>(sizeEE * EcalDataFrame::MAXSAMPLES, cudaStream);
+        recHitsEE.amplitudesAll = cms::cuda::make_device_unique<reco::ComputationScalarType[]>(
+            sizeEE * EcalDataFrame::MAXSAMPLES, cudaStream);
         recHitsEE.amplitude = cms::cuda::make_device_unique<reco::StorageScalarType[]>(sizeEE, cudaStream);
         recHitsEE.chi2 = cms::cuda::make_device_unique<reco::StorageScalarType[]>(sizeEE, cudaStream);
         recHitsEE.pedestal = cms::cuda::make_device_unique<reco::StorageScalarType[]>(sizeEE, cudaStream);
@@ -278,7 +278,7 @@ namespace ecal {
       uint32_t flagmask;
       uint32_t maxNumberHitsEB;
       uint32_t maxNumberHitsEE;
-      
+
       //
       //       bool shouldRunTimingComputation;
     };
