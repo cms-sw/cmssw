@@ -38,7 +38,7 @@ TritonData<IO>::TritonData(const std::string& name, std::shared_ptr<IO> data)
 //io accessors
 template <>
 template <typename DT>
-void TritonInputData::toServer(std::shared_ptr<std::vector<std::vector<DT>>> ptr) {
+void TritonInputData::toServer(std::shared_ptr<TritonInput<DT>> ptr) {
   const auto& data_in = *ptr;
 
   //check batch size
@@ -74,7 +74,7 @@ void TritonInputData::toServer(std::shared_ptr<std::vector<std::vector<DT>>> ptr
 
 template <>
 template <typename DT>
-std::vector<edm::Span<const DT*>> TritonOutputData::fromServer() const {
+TritonOutput<DT> TritonOutputData::fromServer() const {
   if (!result_) {
     throw cms::Exception("TritonDataError") << name_ << " output(): missing result";
   }
@@ -94,7 +94,7 @@ std::vector<edm::Span<const DT*>> TritonOutputData::fromServer() const {
   }
 
   uint64_t nOutput = sizeShape();
-  std::vector<edm::Span<const DT*>> dataOut;
+  TritonOutput<DT> dataOut;
   dataOut.reserve(batchSize_);
   for (unsigned i0 = 0; i0 < batchSize_; ++i0) {
     const uint8_t* r0;
@@ -129,8 +129,8 @@ void TritonOutputData::reset() {
 template class TritonData<nic::InferContext::Input>;
 template class TritonData<nic::InferContext::Output>;
 
-template void TritonInputData::toServer(std::shared_ptr<std::vector<std::vector<float>>> data_in);
-template void TritonInputData::toServer(std::shared_ptr<std::vector<std::vector<int64_t>>> data_in);
+template void TritonInputData::toServer(std::shared_ptr<TritonInput<float>> data_in);
+template void TritonInputData::toServer(std::shared_ptr<TritonInput<int64_t>> data_in);
 
-template std::vector<edm::Span<const float*>> TritonOutputData::fromServer() const;
+template TritonOutput<float> TritonOutputData::fromServer() const;
 

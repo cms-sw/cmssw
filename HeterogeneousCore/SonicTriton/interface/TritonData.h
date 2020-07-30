@@ -14,6 +14,12 @@
 
 #include "request_grpc.h"
 
+//aliases for local input and output types
+template <typename DT>
+using TritonInput = std::vector<std::vector<DT>>;
+template <typename DT>
+using TritonOutput = std::vector<edm::Span<const DT*>>;
+
 //store all the info needed for triton input and output
 template <typename IO>
 class TritonData {
@@ -31,9 +37,9 @@ public:
 
   //io accessors
   template <typename DT>
-  void toServer(std::shared_ptr<std::vector<std::vector<DT>>> ptr);
+  void toServer(std::shared_ptr<TritonInput<DT>> ptr);
   template <typename DT>
-  std::vector<edm::Span<const DT*>> fromServer() const;
+  TritonOutput<DT> fromServer() const;
 
   //const accessors
   const std::vector<int64_t>& dims() const { return dims_; }
@@ -80,10 +86,10 @@ using TritonOutputMap = std::unordered_map<std::string, TritonOutputData>;
 //avoid "explicit specialization after instantiation" error
 template <>
 template <typename DT>
-void TritonInputData::toServer(std::shared_ptr<std::vector<std::vector<DT>>> ptr);
+void TritonInputData::toServer(std::shared_ptr<TritonInput<DT>> ptr);
 template <>
 template <typename DT>
-std::vector<edm::Span<const DT*>> TritonOutputData::fromServer() const;
+TritonOutput<DT> TritonOutputData::fromServer() const;
 template <>
 void TritonInputData::reset();
 template <>
