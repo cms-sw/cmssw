@@ -32,7 +32,7 @@ process.source = cms.Source("PoolSource",
 )
 process.RECOoutput = cms.OutputModule("PoolOutputModule",
     outputCommands = cms.untracked.vstring("keep *_JetPlusTrackZSPCorJetAntiKt4PAT_*_*"),
-    fileName = cms.untracked.string('file:/tmp/kodolova/jptreco.root')
+    fileName = cms.untracked.string('file:jptreco.root')
 )
 
 ##########
