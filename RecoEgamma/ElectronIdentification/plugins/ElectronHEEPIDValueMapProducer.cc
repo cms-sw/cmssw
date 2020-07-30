@@ -6,6 +6,7 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Utilities/interface/ESGetToken.h"
 
 #include "DataFormats/Common/interface/ValueMap.h"
 #include "DataFormats/Common/interface/View.h"
@@ -169,6 +170,7 @@ private:
   DualToken<edm::View<reco::GsfElectron>> eleToken_;
   std::vector<DualToken<pat::PackedCandidateCollection>> candTokens_;
   edm::EDGetTokenT<reco::BeamSpot> beamSpotToken_;
+  edm::ESGetToken<CaloTopology, CaloTopologyRecord> caloTopoToken_;
 
   EleTkIsolFromCands::Configuration trkIsoCalcCfg_;
   EleTkIsolFromCands::Configuration trkIso04CalcCfg_;
@@ -196,6 +198,7 @@ ElectronHEEPIDValueMapProducer::ElectronHEEPIDValueMapProducer(const edm::Parame
   setToken(eleToken_, iConfig, "elesAOD", "elesMiniAOD", dataFormat_);
   setToken(candTokens_, iConfig, "candsAOD", "candsMiniAOD", dataFormat_);
   setToken(beamSpotToken_, iConfig, "beamSpot");
+  caloTopoToken_ = esConsumes<CaloTopology, CaloTopologyRecord>();
 
   auto fillVetos = [](const auto& in, auto& out) {
     std::transform(in.begin(), in.end(), std::back_inserter(out), EleTkIsolFromCands::pidVetoFromStr);
@@ -246,8 +249,7 @@ void ElectronHEEPIDValueMapProducer::produce(edm::Event& iEvent, const edm::Even
     }
   }
 
-  edm::ESHandle<CaloTopology> caloTopoHandle;
-  iSetup.get<CaloTopologyRecord>().get(caloTopoHandle);
+  edm::ESHandle<CaloTopology> caloTopoHandle = iSetup.getHandle(caloTopoToken_);
 
   std::vector<float> eleTrkPtIso;
   std::vector<float> eleTrkPtIso04;
