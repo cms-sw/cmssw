@@ -2,10 +2,8 @@
 #define DataFormats_ParticleFlowReco_PFRecTrack_h
 
 #include "DataFormats/ParticleFlowReco/interface/PFTrack.h"
-/* #include "DataFormats/Common/interface/RefToBase.h" */
+#include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
-
-#include <iostream>
 
 namespace reco {
 
@@ -51,6 +49,12 @@ namespace reco {
 
     /// \return the significance of the signed transverse impact parameter
     const float STIP() const { return STIP_; }
+
+    /// \return eta
+    inline auto eta() const { return trackRef_->eta(); }
+
+    /// \return phi
+    inline auto phi() const { return trackRef_->phi(); }
 
   private:
     /// type of fitting algorithm used to reconstruct the track
