@@ -4,7 +4,7 @@
 #include "Geometry/MuonNumbering/interface/MuonGeometryConstants.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-//#define LOCAL_DEBUG
+//#define EDM_ML_DEBUG
 
 DTNumberingScheme::DTNumberingScheme(const MuonGeometryConstants& muonConstants) { initMe(muonConstants); }
 
@@ -16,7 +16,7 @@ void DTNumberingScheme::initMe(const MuonGeometryConstants& muonConstants) {
   theSuperLayerLevel = muonConstants.getValue("mb_superlayer") / theLevelPart;
   theLayerLevel = muonConstants.getValue("mb_layer") / theLevelPart;
   theWireLevel = muonConstants.getValue("mb_wire") / theLevelPart;
-#ifdef LOCAL_DEBUG
+#ifdef EDM_ML_DEBUG
   edm::LogVerbatim("DTNumberingScheme") << "Initialize DTNumberingScheme"
                                         << "\ntheRegionLevel " << theRegionLevel << "\ntheWheelLevel " << theWheelLevel
                                         << "\ntheStationLevel " << theStationLevel << "\ntheSuperLayerLevel "
@@ -25,8 +25,8 @@ void DTNumberingScheme::initMe(const MuonGeometryConstants& muonConstants) {
 #endif
 }
 
-int DTNumberingScheme::baseNumberToUnitNumber(const MuonBaseNumber& num) {
-#ifdef LOCAL_DEBUG
+int DTNumberingScheme::baseNumberToUnitNumber(const MuonBaseNumber& num) const {
+#ifdef EDM_ML_DEBUG
   edm::LogVerbatim("DTNumberingScheme") << "DTNumbering " << num.getLevels();
   for (int level = 1; level <= num.getLevels(); level++) {
     edm::LogVerbatim("DTNumberingScheme") << level << " " << num.getSuperNo(level) << " " << num.getBaseNo(level);
@@ -94,7 +94,7 @@ int DTNumberingScheme::getDetId(const MuonBaseNumber& num) const {
 
   DTWireId id(wheel_id, station_id, sector_id, superlayer_id, layer_id, wire_id);
 
-#ifdef LOCAL_DEBUG
+#ifdef EDM_ML_DEBUG
   edm::LogVerbatim("DTNumberingScheme") << "DTNumberingScheme: " << id;
 #endif
 

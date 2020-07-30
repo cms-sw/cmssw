@@ -23,7 +23,7 @@ void GEMNumberingScheme::initMe(const MuonGeometryConstants& muonConstants) {
 #endif
 }
 
-int GEMNumberingScheme::baseNumberToUnitNumber(const MuonBaseNumber& num) {
+int GEMNumberingScheme::baseNumberToUnitNumber(const MuonBaseNumber& num) const {
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("GEMNumberingScheme") << "GEMNumbering " << num.getLevels();
   for (int level = 1; level <= num.getLevels(); level++) {

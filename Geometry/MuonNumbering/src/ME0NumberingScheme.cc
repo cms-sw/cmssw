@@ -5,7 +5,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/Exception.h"
 
-//#define LOCAL_DEBUG
+//#define EDM_ML_DEBUG
 
 ME0NumberingScheme::ME0NumberingScheme(const MuonGeometryConstants& muonConstants) { initMe(muonConstants); }
 
@@ -17,8 +17,8 @@ void ME0NumberingScheme::initMe(const MuonGeometryConstants& muonConstants) {
   theRollLevel = muonConstants.getValue("m0_roll") / theLevelPart;
   theNEtaPart = muonConstants.getValue("m0_nroll");
 
-  // Debug using LOCAL_DEBUG
-#ifdef LOCAL_DEBUG
+  // Debug using EDM_ML_DEBUG
+#ifdef EDM_ML_DEBUG
   edm::LogVerbatim("ME0NumberingScheme") << "Initialize ME0NumberingScheme"
                                          << "\ntheRegionLevel " << theRegionLevel << "\ntheLayerLevel " << theLayerLevel
                                          << "\ntheSectorLevel " << theSectorLevel << "\ntheRollLevel " << theRollLevel
@@ -27,10 +27,10 @@ void ME0NumberingScheme::initMe(const MuonGeometryConstants& muonConstants) {
   // -----------------------
 }
 
-int ME0NumberingScheme::baseNumberToUnitNumber(const MuonBaseNumber& num) {
+int ME0NumberingScheme::baseNumberToUnitNumber(const MuonBaseNumber& num) const {
   edm::LogVerbatim("ME0NumberingScheme") << "ME0NumberingScheme::baseNumberToUnitNumber BEGIN ";
-  // Debug using LOCAL_DEBUG
-#ifdef LOCAL_DEBUG
+  // Debug using EDM_ML_DEBUG
+#ifdef EDM_ML_DEBUG
   edm::LogVerbatim("ME0NumberingScheme") << "ME0Numbering " << num.getLevels();
   for (int level = 1; level <= num.getLevels(); level++) {
     edm::LogVerbatim("ME0NumberingScheme")
@@ -61,8 +61,8 @@ int ME0NumberingScheme::baseNumberToUnitNumber(const MuonBaseNumber& num) {
 
   // collect all info
 
-  // Debug using LOCAL_DEBUG
-#ifdef LOCAL_DEBUG
+  // Debug using EDM_ML_DEBUG
+#ifdef EDM_ML_DEBUG
   edm::LogVerbatim("ME0NumberingScheme") << "ME0NumberingScheme: Region " << region << " Layer " << layer << " Chamber "
                                          << chamber << " Roll " << roll;
 #endif
@@ -71,8 +71,8 @@ int ME0NumberingScheme::baseNumberToUnitNumber(const MuonBaseNumber& num) {
   // Build the actual numbering
   ME0DetId id(region, layer, chamber, roll);
 
-  // Debug using LOCAL_DEBUG
-#ifdef LOCAL_DEBUG
+  // Debug using EDM_ML_DEBUG
+#ifdef EDM_ML_DEBUG
   edm::LogVerbatim("ME0NumberingScheme") << " DetId " << id;
 #endif
   // ---------------------

@@ -10,9 +10,9 @@ class GEMNumberingScheme : public MuonNumberingScheme {
 public:
   GEMNumberingScheme(const MuonGeometryConstants& muonConstants);
 
-  ~GEMNumberingScheme() override{};
+  ~GEMNumberingScheme() override {};
 
-  int baseNumberToUnitNumber(const MuonBaseNumber&) override;
+  int baseNumberToUnitNumber(const MuonBaseNumber&) const override;
 
 private:
   void initMe(const MuonGeometryConstants& muonConstants);
