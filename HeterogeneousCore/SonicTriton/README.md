@@ -40,16 +40,22 @@ Useful `TritonData` accessors include:
 * `byteSize()`: return # bytes for data type
 * `dname()`: return name of data type
 
+There are specific local input and output containers that should be used in producers.
+Here, `T` is a primitive type, and the two aliases listed below are passed to `TritonInputData::toServer()`
+and returned by `TritonOutputData::fromServer()`, respectively:
+* `TritonInput<T> = std::vector<std::vector<T>>`
+* `TritonOutput<T> = std::vector<edm::Span<const T*>>`
+
 In a SONIC Triton producer, the basic flow should follow this pattern:
 1. `acquire()`:  
     a. access input object(s) from `TritonInputMap`  
-    b. allocate input data using `std::make_shared<std::vector<std::vector<T>>>()`  
+    b. allocate input data using `std::make_shared<TritonInput<T>>()`  
     c. fill input data  
     d. set input shape(s) (optional, only if any variable dimensions)  
     e. convert using `toServer()` function of input object(s)  
 2. `produce()`:  
     a. access output object(s) from `TritonOutputMap`  
-    b. obtain output data as `std::vector<edm::Span<T>>` using `fromServer()` function of output object(s) (sets output shape(s) if variable dimensions exist)  
+    b. obtain output data as `TritonOutput<T>` using `fromServer()` function of output object(s) (sets output shape(s) if variable dimensions exist)  
     c. fill output products  
 
 Several example producers (running ResNet50 or Graph Attention Network), along with instructions to run a local server,
