@@ -41,7 +41,8 @@ DaqFakeReader::DaqFakeReader(const edm::ParameterSet& pset)
                                                              : 0xffffffff) {
   // mean = pset.getParameter<float>("mean");
   if (tcdsFEDID_ < FEDNumbering::MINTCDSuTCAFEDID)
-      throw cms::Exception("DaqFakeReader::DaqFakeReader") << " TCDS FED ID lower than " << FEDNumbering::MINTCDSuTCAFEDID;
+    throw cms::Exception("DaqFakeReader::DaqFakeReader")
+        << " TCDS FED ID lower than " << FEDNumbering::MINTCDSuTCAFEDID;
   produces<FEDRawDataCollection>();
 }
 
@@ -120,7 +121,6 @@ void DaqFakeReader::fillFEDs(
   }
 }
 
-
 void DaqFakeReader::fillTCDSFED(EventID& eID, FEDRawDataCollection& data, uint32_t ls, timeval* now) {
   uint32_t fedId = tcdsFEDID_;
   FEDRawData& feddata = data.FEDData(fedId);
@@ -133,7 +133,7 @@ void DaqFakeReader::fillTCDSFED(EventID& eID, FEDRawDataCollection& data, uint32
   FEDHeader::set(feddata.data(),
                  1,            // Trigger type
                  eID.event(),  // LV1_id (24 bits)
-                 bxid,            // BX_id
+                 bxid,         // BX_id
                  fedId);       // source_id
 
   tcds::Raw_v1* tcds = reinterpret_cast<tcds::Raw_v1*>(feddata.data() + FEDHeader::length);
@@ -159,7 +159,6 @@ void DaqFakeReader::fillTCDSFED(EventID& eID, FEDRawDataCollection& data, uint32
                   0,   // Evt_stat
                   0);  // TTS bits
 }
-
 
 void DaqFakeReader::beginLuminosityBlock(LuminosityBlock const& iL, EventSetup const& iE) {
   std::cout << "DaqFakeReader begin Lumi " << iL.luminosityBlock() << std::endl;
