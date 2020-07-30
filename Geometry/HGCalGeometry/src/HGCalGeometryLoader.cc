@@ -26,13 +26,14 @@ HGCalGeometry* HGCalGeometryLoader::build(const HGCalTopology& topology) {
   unsigned int numberOfCells = topology.totalGeomModules();  // both sides
   unsigned int numberExpected = topology.allGeomModules();
   parametersPerShape_ = (topology.tileTrapezoid() ? (int)HGCalGeometry::k_NumberOfParametersPerTrd
-  			                          : (int)HGCalGeometry::k_NumberOfParametersPerHex);
-  uint32_t numberOfShapes = (topology.tileTrapezoid() ? HGCalGeometry::k_NumberOfShapesTrd : HGCalGeometry::k_NumberOfShapes);
+                                                  : (int)HGCalGeometry::k_NumberOfParametersPerHex);
+  uint32_t numberOfShapes =
+      (topology.tileTrapezoid() ? HGCalGeometry::k_NumberOfShapesTrd : HGCalGeometry::k_NumberOfShapes);
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HGCalGeom") << "Number of Cells " << numberOfCells << ":" << numberExpected << " for sub-detector "
                                 << topology.subDetector() << " Shapes " << numberOfShapes << ":" << parametersPerShape_
                                 << " mode " << topology.geomMode();
-;
+  ;
 #endif
   geom->allocateCorners(numberOfCells);
   geom->allocatePar(numberOfShapes, parametersPerShape_);
