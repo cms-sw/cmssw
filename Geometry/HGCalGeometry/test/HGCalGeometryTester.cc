@@ -45,7 +45,7 @@ void HGCalGeometryTester::analyze(const edm::Event&, const edm::EventSetup& iSet
   const auto& geomR = iSetup.getData(geomToken_);
   const HGCalGeometry* geom = &geomR;
   HGCalGeometryMode::GeometryMode mode = geom->topology().dddConstants().geomMode();
-  if ((mode == HGCalGeometryMode::Hexagon) || (mode == HGCalGeometryMode::HexagonFull)) {
+  if (geom->topology().waferHexagon6()) {
     ForwardSubdetector subdet;
     if (name == "HGCalHESiliconSensitive")
       subdet = HGCHEF;
