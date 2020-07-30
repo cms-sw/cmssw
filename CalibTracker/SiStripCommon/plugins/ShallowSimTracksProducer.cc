@@ -30,7 +30,7 @@ ShallowSimTracksProducer::ShallowSimTracksProducer(const edm::ParameterSet& conf
   produces<std::vector<double>>(Prefix + "vz" + Suffix);
 }
 
-void ShallowSimTracksProducer::produce(edm::Event& event, const edm::EventSetup& setup) {
+void ShallowSimTracksProducer::produce(edm::Event& event, const edm::EventSetup& iSetup) {
   edm::Handle<edm::View<reco::Track>> tracks;
   event.getByToken(tracks_token_, tracks);
   edm::Handle<TrackingParticleCollection> trackingParticles;
