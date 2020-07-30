@@ -5,60 +5,60 @@ import csv
 options = opts.VarParsing ('standard')
 
 options.register('MagField',
-    			 3.8,
-    			 opts.VarParsing.multiplicity.singleton,
-    			 opts.VarParsing.varType.float,
-    			 'Magnetic field value in Tesla')
+					 None,
+					 opts.VarParsing.multiplicity.singleton,
+					 opts.VarParsing.varType.float,
+					 'Magnetic field value in Tesla')
 options.register('Year',
-    			 None,
-    			 opts.VarParsing.multiplicity.singleton,
-    			 opts.VarParsing.varType.string,
-    			 'Current year for versioning')
+					 None,
+					 opts.VarParsing.multiplicity.singleton,
+					 opts.VarParsing.varType.string,
+					 'Current year for versioning')
 options.register('Version',
-    			 None,
-    			 opts.VarParsing.multiplicity.singleton,
-    			 opts.VarParsing.varType.string,
-    			 'Template DB object version')
+					 None,
+					 opts.VarParsing.multiplicity.singleton,
+					 opts.VarParsing.varType.string,
+					 'Template DB object version')
 options.register('Append',
-    			 None,
-    			 opts.VarParsing.multiplicity.singleton,
-    			 opts.VarParsing.varType.string,
-    			 'Any additional string to add to the filename, i.e. "bugfix", etc.')
-options.register('Fullname',
-    			 None,
-    			 opts.VarParsing.multiplicity.singleton,
-    			 opts.VarParsing.varType.string,
-    			 'The entire filename in case the options above are insufficient, i.e. "SiPixelTemplateDBObject_phase1_EoR3_HV600_Tr2000", etc.')
+					 None,
+					 opts.VarParsing.multiplicity.singleton,
+					 opts.VarParsing.varType.string,
+					 'Any additional string to add to the filename, i.e. "bugfix", etc.')
 options.register('Map',
-    			 '../data/template1D_IOV0_preMC/IOV0_phase1_preMC_map.csv',
-    			 opts.VarParsing.multiplicity.singleton,
-    			 opts.VarParsing.varType.string,
-    			 'Path to map file')
+					 '../data/template1D_IOV0_phase1_MC/IOV0_phase1_MC_map.csv',
+					 opts.VarParsing.multiplicity.singleton,
+					 opts.VarParsing.varType.string,
+					 'Path to map file')
 options.register('Delimiter',
-    			 ',',
-    			 opts.VarParsing.multiplicity.singleton,
-    			 opts.VarParsing.varType.string,
-    			 'Delimiter in csv file')
+					 ',',
+					 opts.VarParsing.multiplicity.singleton,
+					 opts.VarParsing.varType.string,
+					 'Delimiter in csv file')
 options.register('Quotechar',
-    			 '"',
-    			 opts.VarParsing.multiplicity.singleton,
-    			 opts.VarParsing.varType.string,
-    			 'Quotechar in csv file')
-options.register('TemplateFilePath',
-    			 'CondTools/SiPixel/data/template1D_IOV0_preMC',
-    			 opts.VarParsing.multiplicity.singleton,
-    			 opts.VarParsing.varType.string,
-    			 'Location of template files')
+					 '"',
+					 opts.VarParsing.multiplicity.singleton,
+					 opts.VarParsing.varType.string,
+					 'Quotechar in csv file')
+options.register('GenErrFilePath',
+					 'CondTools/SiPixel/data/template1D_IOV0_phase1_MC',
+					 opts.VarParsing.multiplicity.singleton,
+					 opts.VarParsing.varType.string,
+					 'Location of generr files')
 options.register('GlobalTag',
-    			 'auto:phase1_2017_realistic',
-    			 opts.VarParsing.multiplicity.singleton,
-    			 opts.VarParsing.varType.string,
-    			 'Global tag for this run')
+					 'auto:phase2_realistic',
+					 opts.VarParsing.multiplicity.singleton,
+					 opts.VarParsing.varType.string,
+					 'Global tag for this run')
 options.register('useVectorIndices',
-    			 False,
-    			 opts.VarParsing.multiplicity.singleton,
-    			 opts.VarParsing.varType.bool,
-    			 'Switch on in case Morris uses vector indices in csv file, eg. [0,(N-1)] instead of [1,N]')
+					 False,
+					 opts.VarParsing.multiplicity.singleton,
+					 opts.VarParsing.varType.bool,
+					 'Switch on in case Morris uses vector indices in csv file, eg. [0,(N-1)] instead of [1,N]')
+options.register('geometry',
+                 'T5',
+                 opts.VarParsing.multiplicity.singleton,
+                 opts.VarParsing.varType.string,
+                 'Tracker Geometry Default = T5')
 options.parseArguments()
 
 MagFieldValue = 10.*options.MagField #code needs it in deciTesla
@@ -97,11 +97,11 @@ for i in range(len(sections)) :
 #print 'barrel rules = %s\nendcap rules = %s\nbarrel exceptions = %s\nendcap exceptions = %s'%(barrel_rule_lines,endcap_rule_lines,barrel_exception_lines,endcap_exception_lines) #DEBUG
 #Make the lists of location strings and template IDs
 barrel_locations = []
-barrel_template_IDs = []
+barrel_generr_IDs = []
 endcap_locations = []
-endcap_template_IDs = []
+endcap_generr_IDs = []
 template_filenames = []
-prefix = options.TemplateFilePath+'/template_summary_zp'
+prefix = options.GenErrFilePath+'/generror_summary_zp'
 suffix = '.out'
 for s in range(len(sections)) :
 	for line in sections[s] :
@@ -129,13 +129,13 @@ for s in range(len(sections)) :
 						if s==0 :
 	#						print '	Adding with location string "%s" and template ID %d'%(location_string,template_ID) #DEBUG
 							barrel_locations.append(location_string)
-							barrel_template_IDs.append(template_ID)
+							barrel_generr_IDs.append(template_ID)
 						else :
 							location_index = barrel_locations.index(location_string)
-							barrel_template_IDs[location_index]=template_ID
+							barrel_generr_IDs[location_index]=template_ID
 		else : 
 			disk, blade, side, panel = line[1], line[2], line[3], line[4]
-			#endcap ID strings are "disk_blade_side_panel"
+			#endcap ID strings are "disk_blade_side_panel_plaquette"
 			disksplit = disk.split('-'); firstdisk=int(disksplit[0]); lastdisk = int(disksplit[1])+1 if len(disksplit)>1 else firstdisk+1
 			for i in range(firstdisk,lastdisk) :
 				disk_string = str(i)+'_'
@@ -150,76 +150,102 @@ for s in range(len(sections)) :
 							location_string = side_string+str(m)
 							if s==1 :
 								endcap_locations.append(location_string)
-								endcap_template_IDs.append(template_ID)
+								endcap_generr_IDs.append(template_ID)
 							else :
 								location_index = endcap_locations.index(location_string)
-								endcap_template_IDs[location_index]=template_ID
+								endcap_generr_IDs[location_index]=template_ID
 #Debug print out assignments
 #print 'BARREL ASSIGNMENTS:' #DEBUG
 #for i in range(len(barrel_locations)) : #DEBUG
-#	tempid = barrel_template_IDs[i] #DEBUG
+#	tempid = barrel_generr_IDs[i] #DEBUG
 #	lay, lad, mod = barrel_locations[i].split('_')[0], barrel_locations[i].split('_')[1], barrel_locations[i].split('_')[2] #DEBUG
 #	print '	layer %s, ladder %s, module %s will have template ID %d assigned to it'%(lay,lad,mod,tempid) #DEBUG
 #print 'ENDCAP ASSIGNMENTS:' #DEBUG
 #for i in range(len(endcap_locations)) : #DEBUG
-#	tempid = endcap_template_IDs[i] #DEBUG
-#	disk, blade, side, panel = endcap_locations[i].split('_')[0], endcap_locations[i].split('_')[1], endcap_locations[i].split('_')[2], endcap_locations[i].split('_')[3] #DEBUG
+#	tempid = endcap_generr_IDs[i] #DEBUG
+#	disk, blade, side = endcap_locations[i].split('_')[0], endcap_locations[i].split('_')[1], endcap_locations[i].split('_')[2], endcap_locations[i].split('_')[3] #DEBUG
 #	print '	disk %s, blade %s, side %s, panel %s will have template ID %d assigned to it'%(disk,blade,side,panel,tempid) #DEBUG
 
 from Configuration.StandardSequences.Eras import eras
 
-process = cms.Process("SiPixelTemplateDBUpload",eras.Run2_2017)
+process = cms.Process("SiPixelGenErrorDBUpload",eras.Phase2)#C2)
 process.load("CondCore.CondDB.CondDB_cfi")
 process.load("FWCore.MessageService.MessageLogger_cfi")
-process.load('Configuration.Geometry.GeometryExtended2017Reco_cff')
-process.load('Configuration.Geometry.GeometryExtended2017_cff')
+
+geometry_cff = ''
+recoGeometry_cff = ''
+tGeometry = options.geometry
+if tGeometry == 'T5':
+    geometry_cff = 'GeometryExtended2026D17_cff'
+    recoGeometry_cff = 'GeometryExtended2026D17Reco_cff'
+    LA_value = 0.106
+    tag = 'SiPixelLorentzAngle_Phase2_T5'
+elif tGeometry == 'T6':
+    geometry_cff = 'GeometryExtended2026D35_cff'
+    recoGeometry_cff = 'GeometryExtended2026D35Reco_cff'
+elif tGeometry == 'T14':
+    geometry_cff = 'GeometryExtended2026D43_cff'
+    recoGeometry_cff = 'GeometryExtended2026D43Reco_cff'
+elif tGeometry == 'T15':
+    geometry_cff = 'GeometryExtended2026D49_cff'
+    recoGeometry_cff = 'GeometryExtended2026D49Reco_cff'
+elif tGeometry == 'T16':
+    geometry_cff = 'GeometryExtended2026D48_cff'
+    recoGeometry_cff = 'GeometryExtended2026D48Reco_cff'
+else:
+    print "Unknown tracker geometry"
+    print "What are you doing ?!?!?!?!"
+    exit(1)
+geometry_cff = 'Configuration.Geometry.' + geometry_cff
+recoGeometry_cff = 'Configuration.Geometry.' + recoGeometry_cff
+process.load(geometry_cff)
+process.load(recoGeometry_cff)
+
+global_tag_name = options.GlobalTag+'_'+tGeometry
+#global_tag_name = options.GlobalTag+'_T15'
+
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 from Configuration.AlCa.GlobalTag import GlobalTag
-process.GlobalTag = GlobalTag(process.GlobalTag, options.GlobalTag, '')
+process.GlobalTag = GlobalTag(process.GlobalTag, global_tag_name, '')
 
-template_base=''
-if options.Fullname!=None :
-	template_base=options.Fullname
-else :
-	template_base = 'SiPixelTemplateDBObject_phase1_'+MagFieldString+'T_'+options.Year+'_v'+version
-	if options.Append!=None :
-		template_base+='_'+options.Append
+generror_base = 'SiPixelGenErrorDBObject_phase2_'+tGeometry+'_v'+version
+if options.Append!=None :
+	generror_base+='_'+options.Append
 #output SQLite filename
-sqlitefilename = 'sqlite_file:'+template_base+'.db'
+sqlitefilename = 'sqlite_file:'+generror_base+'.db'
 
-print '\nUploading %s with record SiPixelTemplateDBObjectRcd in file %s\n' % (template_base,sqlitefilename)
+print '\nUploading %s with record SiPixelGenErrorDBObjectRcd in file %s\n' % (generror_base,sqlitefilename)
 
 process.source = cms.Source("EmptyIOVSource",
-                            timetype = cms.string('runnumber'),
-                            firstValue = cms.uint64(1),
-                            lastValue = cms.uint64(1),
-                            interval = cms.uint64(1)
-                            )
+							timetype = cms.string('runnumber'),
+							firstValue = cms.uint64(1),
+							lastValue = cms.uint64(1),
+							interval = cms.uint64(1)
+							)
 process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(1))
 process.PoolDBOutputService = cms.Service("PoolDBOutputService",
-                                DBParameters = cms.PSet(
-                                    messageLevel = cms.untracked.int32(0),
-                                    authenticationPath = cms.untracked.string('.')
-                                ),
-                                timetype = cms.untracked.string('runnumber'),
-                                connect = cms.string(sqlitefilename),
-                                toPut = cms.VPSet(cms.PSet(
-                                        record = cms.string('SiPixelTemplateDBObjectRcd'),
-                                        tag = cms.string(template_base)
-                                    )
-                                )
-                            )
-process.uploader = cms.EDAnalyzer("SiPixelTemplateDBObjectUploader",
-                                  siPixelTemplateCalibrations = cms.vstring(template_filenames),
-                                  theTemplateBaseString = cms.string(template_base),
-                                  Version = cms.double(3.0),
-                                  detIds = cms.vuint32(1,2), #0 is for all, 1 is Barrel, 2 is EndCap
-                                  barrelLocations = cms.vstring(barrel_locations),
-                                  endcapLocations = cms.vstring(endcap_locations),
-                                  barrelTemplateIds = cms.vuint32(barrel_template_IDs),
-                                  endcapTemplateIds = cms.vuint32(endcap_template_IDs),
-                                  useVectorIndices  = cms.untracked.bool(options.useVectorIndices),
-								 )
+										  DBParameters = cms.PSet(messageLevel = cms.untracked.int32(0),
+																  authenticationPath = cms.untracked.string('.')
+																),
+										  timetype = cms.untracked.string('runnumber'),
+										  connect = cms.string(sqlitefilename),
+										  toPut = cms.VPSet(cms.PSet(record = cms.string('SiPixelGenErrorDBObjectRcd'),
+																	 tag = cms.string(generror_base)
+																	)
+															)
+										)
+process.uploader = cms.EDAnalyzer("SiPixelGenErrorDBObjectUploader",
+								  siPixelGenErrorCalibrations = cms.vstring(template_filenames),
+								  theGenErrorBaseString = cms.string(generror_base),
+								  Version = cms.double(3.0),
+								  MagField = cms.double(MagFieldValue),
+								  detIds = cms.vuint32(1,2), #0 is for all, 1 is Barrel, 2 is EndCap
+								  barrelLocations = cms.vstring(barrel_locations),
+								  endcapLocations = cms.vstring(endcap_locations),
+								  barrelGenErrIds = cms.vuint32(barrel_generr_IDs),
+								  endcapGenErrIds = cms.vuint32(endcap_generr_IDs),
+								  useVectorIndices  = cms.untracked.bool(options.useVectorIndices),
+								)
 process.myprint = cms.OutputModule("AsciiOutputModule")
 process.p = cms.Path(process.uploader)
 process.CondDB.connect = sqlitefilename

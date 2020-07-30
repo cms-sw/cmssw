@@ -5,61 +5,73 @@ import csv
 options = opts.VarParsing ('standard')
 
 options.register('MagField',
-    			 3.8,
-    			 opts.VarParsing.multiplicity.singleton,
-    			 opts.VarParsing.varType.float,
-    			 'Magnetic field value in Tesla')
+				 None,
+				 opts.VarParsing.multiplicity.singleton,
+				 opts.VarParsing.varType.float,
+				 'Magnetic field value in Tesla')
 options.register('Year',
-    			 None,
-    			 opts.VarParsing.multiplicity.singleton,
-    			 opts.VarParsing.varType.string,
-    			 'Current year for versioning')
+				 None,
+				 opts.VarParsing.multiplicity.singleton,
+				 opts.VarParsing.varType.string,
+				 'Current year for versioning')
 options.register('Version',
-    			 None,
-    			 opts.VarParsing.multiplicity.singleton,
-    			 opts.VarParsing.varType.string,
-    			 'Template DB object version')
+				 None,
+				 opts.VarParsing.multiplicity.singleton,
+				 opts.VarParsing.varType.string,
+				 'Template DB object version')
 options.register('Append',
-    			 None,
-    			 opts.VarParsing.multiplicity.singleton,
-    			 opts.VarParsing.varType.string,
-    			 'Any additional string to add to the filename, i.e. "bugfix", etc.')
-options.register('Fullname',
-    			 None,
-    			 opts.VarParsing.multiplicity.singleton,
-    			 opts.VarParsing.varType.string,
-    			 'The entire filename in case the options above are insufficient, i.e. "SiPixelTemplateDBObject_phase1_EoR3_HV600_Tr2000", etc.')
+				 None,
+				 opts.VarParsing.multiplicity.singleton,
+				 opts.VarParsing.varType.string,
+				 'Any additional string to add to the filename, i.e. "bugfix", etc.')
 options.register('Map',
-    			 '../data/template1D_IOV0_preMC/IOV0_phase1_preMC_map.csv',
-    			 opts.VarParsing.multiplicity.singleton,
-    			 opts.VarParsing.varType.string,
-    			 'Path to map file')
+				 '../data/template2D_phase1_2017_IOV1/IOV1_phase1_map.csv',
+				 opts.VarParsing.multiplicity.singleton,
+				 opts.VarParsing.varType.string,
+				 'Path to map file')
 options.register('Delimiter',
-    			 ',',
-    			 opts.VarParsing.multiplicity.singleton,
-    			 opts.VarParsing.varType.string,
-    			 'Delimiter in csv file')
+				 ',',
+				 opts.VarParsing.multiplicity.singleton,
+				 opts.VarParsing.varType.string,
+				 'Delimiter in csv file')
 options.register('Quotechar',
-    			 '"',
-    			 opts.VarParsing.multiplicity.singleton,
-    			 opts.VarParsing.varType.string,
-    			 'Quotechar in csv file')
+				 '"',
+				 opts.VarParsing.multiplicity.singleton,
+				 opts.VarParsing.varType.string,
+				 'Quotechar in csv file')
 options.register('TemplateFilePath',
-    			 'CondTools/SiPixel/data/template1D_IOV0_preMC',
-    			 opts.VarParsing.multiplicity.singleton,
-    			 opts.VarParsing.varType.string,
-    			 'Location of template files')
+				 'CondTools/SiPixel/data/template2D_phase1_2017_IOV1',
+				 opts.VarParsing.multiplicity.singleton,
+				 opts.VarParsing.varType.string,
+				 'Location of template files')
 options.register('GlobalTag',
-    			 'auto:phase1_2017_realistic',
-    			 opts.VarParsing.multiplicity.singleton,
-    			 opts.VarParsing.varType.string,
-    			 'Global tag for this run')
+				 'auto:phase2_realistic',
+				 opts.VarParsing.multiplicity.singleton,
+				 opts.VarParsing.varType.string,
+				 'Global tag for this run')
+options.register('numerator',
+				 False,
+				 opts.VarParsing.multiplicity.singleton,
+				 opts.VarParsing.varType.bool,
+				 'Switch on to produce the DB object for the numerators of the reweighting factors')
+options.register('denominator',
+				 False,
+				 opts.VarParsing.multiplicity.singleton,
+				 opts.VarParsing.varType.bool,
+				 'Switch on to produce the DB object for the denominators of the reweighting factors')
 options.register('useVectorIndices',
-    			 False,
-    			 opts.VarParsing.multiplicity.singleton,
-    			 opts.VarParsing.varType.bool,
-    			 'Switch on in case Morris uses vector indices in csv file, eg. [0,(N-1)] instead of [1,N]')
+				 False,
+				 opts.VarParsing.multiplicity.singleton,
+				 opts.VarParsing.varType.bool,
+				 'Switch on in case Morris uses vector indices in csv file, eg. [0,(N-1)] instead of [1,N]')
 options.parseArguments()
+
+if options.numerator==False and options.denominator==False :
+	print 'ERROR: Neither numerator nor denominator option was selected. Please rerun with numerator/denominator=True options.'
+	quit()
+if options.numerator==True and options.denominator==True :
+	print 'ERROR: Both numerator and denominator options are true. Please rerun with only one of numerator/denominator=True.'
+	quit()
 
 MagFieldValue = 10.*options.MagField #code needs it in deciTesla
 print '\nMagField = %f deciTesla \n'%(MagFieldValue)
@@ -80,14 +92,17 @@ barrel_exception_lines = []; endcap_exception_lines = []
 sections = [barrel_rule_lines, endcap_rule_lines, barrel_exception_lines, endcap_exception_lines]
 i=0; line = mapfilereader.next()
 for i in range(len(sections)) :
-	while line[0].find('TEMPLATE ID')==-1 : #skip to just before the section of info
+	#print 'line = %s (length=%d)'%(line,len(line)) #DEBUG
+	while len(line)==0 or line[0].find('NUMERATOR TEMPLATE ID')==-1 : #skip to just before the section of info
 		line=mapfilereader.next()
+	#	print 'line = %s (length=%d)'%(line,len(line)) #DEBUG
 	try :
 		line=mapfilereader.next()
 	except StopIteration :
-		print 'Done reading input file'
+		print 'Done reading input file' #DEBUG
 		break
-	while line[1]!='' : #add the lines that are the barrel rules
+	#print 'line2 = %s'%(line) #DEBUG
+	while len(line)>0 and line[1]!='' : #add the relevant lines to the section
 		sections[i].append(line) 
 		try :
 			line=mapfilereader.next()
@@ -101,12 +116,12 @@ barrel_template_IDs = []
 endcap_locations = []
 endcap_template_IDs = []
 template_filenames = []
-prefix = options.TemplateFilePath+'/template_summary_zp'
+prefix = options.TemplateFilePath+'/template_summary2D_zp'
 suffix = '.out'
 for s in range(len(sections)) :
 	for line in sections[s] :
 	#	print 'reading line: %s'%(line) #DEBUG
-		template_ID_s = line[0]
+		template_ID_s = line[0] if options.numerator==True else line[1]
 		while len(template_ID_s)<4 :
 			template_ID_s='0'+template_ID_s
 		newtemplatefilename = prefix+template_ID_s+suffix
@@ -114,7 +129,7 @@ for s in range(len(sections)) :
 		if not newtemplatefilename in template_filenames :
 			template_filenames.append(newtemplatefilename)
 		if s%2==0 :
-			lay, lad, mod = line[1], line[2], line[3]
+			lay, lad, mod = line[2], line[3], line[4]
 	#		print '	lay = %s, lad = %s, mod = %s'%(lay, lad, mod) #DEBUG
 			#barrel ID strings are "layer_ladder_module"
 			laysplit = lay.split('-'); firstlay=int(laysplit[0]); lastlay= int(laysplit[1])+1 if len(laysplit)>1 else firstlay+1
@@ -134,7 +149,7 @@ for s in range(len(sections)) :
 							location_index = barrel_locations.index(location_string)
 							barrel_template_IDs[location_index]=template_ID
 		else : 
-			disk, blade, side, panel = line[1], line[2], line[3], line[4]
+			disk, blade, side, panel = line[2], line[3], line[4], line[5]
 			#endcap ID strings are "disk_blade_side_panel"
 			disksplit = disk.split('-'); firstdisk=int(disksplit[0]); lastdisk = int(disksplit[1])+1 if len(disksplit)>1 else firstdisk+1
 			for i in range(firstdisk,lastdisk) :
@@ -168,57 +183,70 @@ for s in range(len(sections)) :
 
 from Configuration.StandardSequences.Eras import eras
 
-process = cms.Process("SiPixelTemplateDBUpload",eras.Run2_2017)
+process = cms.Process("SiPixel2DTemplateDBUpload",eras.Phase2)#C2)
 process.load("CondCore.CondDB.CondDB_cfi")
 process.load("FWCore.MessageService.MessageLogger_cfi")
-process.load('Configuration.Geometry.GeometryExtended2017Reco_cff')
-process.load('Configuration.Geometry.GeometryExtended2017_cff')
+process.load('Configuration.Geometry.GeometryExtended2023D17Reco_cff')
+process.load('Configuration.Geometry.GeometryExtended2023D17_cff')
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 from Configuration.AlCa.GlobalTag import GlobalTag
 process.GlobalTag = GlobalTag(process.GlobalTag, options.GlobalTag, '')
 
-template_base=''
-if options.Fullname!=None :
-	template_base=options.Fullname
-else :
-	template_base = 'SiPixelTemplateDBObject_phase1_'+MagFieldString+'T_'+options.Year+'_v'+version
-	if options.Append!=None :
-		template_base+='_'+options.Append
+template_base = 'SiPixel2DTemplateDBObject_phase2_'+MagFieldString+'T_'+options.Year+'_v'+version
+if options.numerator==True :
+	template_base+='_num'
+elif options.denominator==True :
+	template_base+='_den'
+if options.Append!=None :
+	template_base+='_'+options.Append
 #output SQLite filename
 sqlitefilename = 'sqlite_file:'+template_base+'.db'
 
-print '\nUploading %s with record SiPixelTemplateDBObjectRcd in file %s\n' % (template_base,sqlitefilename)
+print '\nUploading %s with record SiPixel2DTemplateDBObjectRcd in file %s\n' % (template_base,sqlitefilename)
 
 process.source = cms.Source("EmptyIOVSource",
-                            timetype = cms.string('runnumber'),
-                            firstValue = cms.uint64(1),
-                            lastValue = cms.uint64(1),
-                            interval = cms.uint64(1)
-                            )
+							timetype = cms.string('runnumber'),
+							firstValue = cms.uint64(1),
+							lastValue = cms.uint64(1),
+							interval = cms.uint64(1)
+							)
 process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(1))
-process.PoolDBOutputService = cms.Service("PoolDBOutputService",
-                                DBParameters = cms.PSet(
-                                    messageLevel = cms.untracked.int32(0),
-                                    authenticationPath = cms.untracked.string('.')
-                                ),
-                                timetype = cms.untracked.string('runnumber'),
-                                connect = cms.string(sqlitefilename),
-                                toPut = cms.VPSet(cms.PSet(
-                                        record = cms.string('SiPixelTemplateDBObjectRcd'),
-                                        tag = cms.string(template_base)
-                                    )
-                                )
-                            )
-process.uploader = cms.EDAnalyzer("SiPixelTemplateDBObjectUploader",
-                                  siPixelTemplateCalibrations = cms.vstring(template_filenames),
-                                  theTemplateBaseString = cms.string(template_base),
-                                  Version = cms.double(3.0),
-                                  detIds = cms.vuint32(1,2), #0 is for all, 1 is Barrel, 2 is EndCap
-                                  barrelLocations = cms.vstring(barrel_locations),
-                                  endcapLocations = cms.vstring(endcap_locations),
-                                  barrelTemplateIds = cms.vuint32(barrel_template_IDs),
-                                  endcapTemplateIds = cms.vuint32(endcap_template_IDs),
-                                  useVectorIndices  = cms.untracked.bool(options.useVectorIndices),
+if options.numerator==True :
+	process.PoolDBOutputService = cms.Service("PoolDBOutputService",
+											  DBParameters = cms.PSet(messageLevel = cms.untracked.int32(0),
+																	  authenticationPath = cms.untracked.string('.')
+																	  ),
+											  timetype = cms.untracked.string('runnumber'),
+											  connect = cms.string(sqlitefilename),
+											  toPut = cms.VPSet(cms.PSet(record = cms.string('SiPixel2DTemplateDBObjectRcd'),
+																		 tag = cms.string(template_base)
+																		 )
+																)
+											  )
+elif options.denominator==True :
+	process.PoolDBOutputService = cms.Service("PoolDBOutputService",
+											  DBParameters = cms.PSet(messageLevel = cms.untracked.int32(0),
+																	  authenticationPath = cms.untracked.string('.')
+																	  ),
+											  timetype = cms.untracked.string('runnumber'),
+											  connect = cms.string(sqlitefilename),
+											  toPut = cms.VPSet(cms.PSet(record = cms.string('SiPixel2DTemplateDBObjectRcd'),
+											  							 label=cms.string('unirradiated'),
+																		 tag = cms.string(template_base)
+																		 )
+																)
+											  )
+process.uploader = cms.EDAnalyzer("SiPixel2DTemplateDBObjectUploader",
+								  siPixelTemplateCalibrations = cms.vstring(template_filenames),
+								  theTemplateBaseString = cms.string(template_base),
+								  Version = cms.double(3.0),
+								  MagField = cms.double(MagFieldValue),
+								  detIds = cms.vuint32(1,2), #0 is for all, 1 is Barrel, 2 is EndCap
+								  barrelLocations = cms.vstring(barrel_locations),
+								  endcapLocations = cms.vstring(endcap_locations),
+								  barrelTemplateIds = cms.vuint32(barrel_template_IDs),
+								  endcapTemplateIds = cms.vuint32(endcap_template_IDs),
+								  useVectorIndices  = cms.untracked.bool(options.useVectorIndices),
 								 )
 process.myprint = cms.OutputModule("AsciiOutputModule")
 process.p = cms.Path(process.uploader)
