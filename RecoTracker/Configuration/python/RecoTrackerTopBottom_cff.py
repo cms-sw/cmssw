@@ -1,5 +1,4 @@
 import FWCore.ParameterSet.Config as cms
-import copy
 
 from RecoLocalTracker.SubCollectionProducers.ClusterSelectorTopBottom_cfi import *
 from RecoLocalTracker.SiStripRecHitConverter.SiStripRecHitConverter_cfi import *
@@ -81,22 +80,14 @@ combinatorialcosmicseedfinderP5Top = combinatorialcosmicseedfinderP5.clone(
     SeedsFromPositiveY      = True,
     SeedsFromNegativeY      = False,
     ClusterCollectionLabel  = 'siStripClustersTop',
-    OrderedHitsFactoryPSets = cms.VPSet(
-	cms.PSet(
-	   LayerSrc = cms.InputTag('combinatorialcosmicseedingtripletsP5Top')),
-	cms.PSet(
-	   LayerSrc = cms.InputTag('combinatorialcosmicseedingpairsTOBP5Top')),
-	cms.PSet(
-	   LayerSrc = cms.InputTag('combinatorialcosmicseedingpairsTECposP5Top')),
-	cms.PSet(
-	   LayerSrc = cms.InputTag('combinatorialcosmicseedingpairsTECposP5Top')),
-	cms.PSet(
-	   LayerSrc = cms.InputTag('combinatorialcosmicseedingpairsTECnegP5Top')),
-	cms.PSet(
-	   LayerSrc = cms.InputTag('combinatorialcosmicseedingpairsTECnegP5Top'))
-    ),
     MaxNumberOfCosmicClusters = 150,
 )
+combinatorialcosmicseedfinderP5Top.OrderedHitsFactoryPSets[0].LayerSrc = "combinatorialcosmicseedingtripletsP5Top"
+combinatorialcosmicseedfinderP5Top.OrderedHitsFactoryPSets[1].LayerSrc = "combinatorialcosmicseedingpairsTOBP5Top"
+combinatorialcosmicseedfinderP5Top.OrderedHitsFactoryPSets[2].LayerSrc = "combinatorialcosmicseedingpairsTECposP5Top"
+combinatorialcosmicseedfinderP5Top.OrderedHitsFactoryPSets[3].LayerSrc = "combinatorialcosmicseedingpairsTECposP5Top"
+combinatorialcosmicseedfinderP5Top.OrderedHitsFactoryPSets[4].LayerSrc = "combinatorialcosmicseedingpairsTECnegP5Top"
+combinatorialcosmicseedfinderP5Top.OrderedHitsFactoryPSets[5].LayerSrc = "combinatorialcosmicseedingpairsTECnegP5Top"
 
 simpleCosmicBONSeedingLayersTop = simpleCosmicBONSeedingLayers.clone(
     TIB   = dict(matchedRecHits = 'siStripMatchedRecHitsTop:matchedRecHit'),
@@ -134,7 +125,6 @@ ckfTrackCandidatesP5Top = ckfTrackCandidatesP5.clone(
     TrajectoryBuilderPSet = dict(refToPSet_ = 'GroupedCkfTrajectoryBuilderP5Top'),
     NavigationSchool      = 'CosmicNavigationSchool',
     src                   = 'combinedP5SeedsForCTFTop', #ok for 32X
-    #SeedProducer          = 'combinedP5SeedsForCTFTop', #ok for 22X
     useHitsSplitting      = True
 )
 
@@ -188,29 +178,21 @@ combinatorialcosmicseedingpairsTECnegP5Bottom = combinatorialcosmicseedingpairsT
 combinatorialcosmicseedfinderP5Bottom = combinatorialcosmicseedfinderP5.clone(
     SeedsFromPositiveY      = False,
     SeedsFromNegativeY      = True,
-    OrderedHitsFactoryPSets = cms.VPSet(
-	cms.PSet(
-            LayerSrc = cms.InputTag('combinatorialcosmicseedingtripletsP5Bottom'),
-	    PropagationDirection = cms.string('oppositeToMomentum')),
-	cms.PSet(
-            LayerSrc = cms.InputTag('combinatorialcosmicseedingpairsTOBP5Bottom'),
-	    PropagationDirection = cms.string('oppositeToMomentum')),
-	cms.PSet(
-            LayerSrc = cms.InputTag('combinatorialcosmicseedingpairsTECposP5Bottom'),
-	    PropagationDirection = cms.string('oppositeToMomentum')),
-	cms.PSet(
-            LayerSrc = cms.InputTag('combinatorialcosmicseedingpairsTECposP5Bottom'),
-	    PropagationDirection = cms.string('oppositeToMomentum')),
-	cms.PSet(
-            LayerSrc = cms.InputTag('combinatorialcosmicseedingpairsTECnegP5Bottom'),
-	    PropagationDirection = cms.string('oppositeToMomentum')),
-	cms.PSet(
-            LayerSrc = cms.InputTag('combinatorialcosmicseedingpairsTECnegP5Bottom'),
-	    PropagationDirection = cms.string('oppositeToMomentum')),
-    ),
     ClusterCollectionLabel    = 'siStripClustersBottom',
     MaxNumberOfCosmicClusters = 150
 )
+combinatorialcosmicseedfinderP5Bottom.OrderedHitsFactoryPSets[0].PropagationDirection = cms.string('oppositeToMomentum')
+combinatorialcosmicseedfinderP5Bottom.OrderedHitsFactoryPSets[1].PropagationDirection = cms.string('oppositeToMomentum')
+combinatorialcosmicseedfinderP5Bottom.OrderedHitsFactoryPSets[2].PropagationDirection = cms.string('oppositeToMomentum')
+combinatorialcosmicseedfinderP5Bottom.OrderedHitsFactoryPSets[3].PropagationDirection = cms.string('oppositeToMomentum')
+combinatorialcosmicseedfinderP5Bottom.OrderedHitsFactoryPSets[4].PropagationDirection = cms.string('oppositeToMomentum')
+combinatorialcosmicseedfinderP5Bottom.OrderedHitsFactoryPSets[5].PropagationDirection = cms.string('oppositeToMomentum')
+combinatorialcosmicseedfinderP5Bottom.OrderedHitsFactoryPSets[0].LayerSrc = "combinatorialcosmicseedingtripletsP5Bottom"
+combinatorialcosmicseedfinderP5Bottom.OrderedHitsFactoryPSets[1].LayerSrc = "combinatorialcosmicseedingpairsTOBP5Bottom"
+combinatorialcosmicseedfinderP5Bottom.OrderedHitsFactoryPSets[2].LayerSrc = "combinatorialcosmicseedingpairsTECposP5Bottom"
+combinatorialcosmicseedfinderP5Bottom.OrderedHitsFactoryPSets[3].LayerSrc = "combinatorialcosmicseedingpairsTECposP5Bottom"
+combinatorialcosmicseedfinderP5Bottom.OrderedHitsFactoryPSets[4].LayerSrc = "combinatorialcosmicseedingpairsTECnegP5Bottom"
+combinatorialcosmicseedfinderP5Bottom.OrderedHitsFactoryPSets[5].LayerSrc = "combinatorialcosmicseedingpairsTECnegP5Bottom"
 
 simpleCosmicBONSeedingLayersBottom = simpleCosmicBONSeedingLayers.clone(
     TIB  = dict(matchedRecHits = 'siStripMatchedRecHitsBottom:matchedRecHit'),
@@ -248,7 +230,6 @@ ckfTrackCandidatesP5Bottom = ckfTrackCandidatesP5.clone(
     TrajectoryBuilderPSet = dict(refToPSet_ = 'GroupedCkfTrajectoryBuilderP5Bottom'),
     NavigationSchool      = 'CosmicNavigationSchool',
     src                   = 'combinedP5SeedsForCTFBottom', #ok for 32X
-    #SeedProducer          = 'combinedP5SeedsForCTFBottom', #ok for 22X
     useHitsSplitting = True
 )
 

@@ -29,7 +29,6 @@ combinedP5SeedsForCTF = RecoTracker.TkSeedGenerator.GlobalCombinedSeeds_cfi.glob
 from RecoTracker.CkfPattern.CkfTrackCandidatesP5_cff import *
 ckfTrackCandidatesP5.src = 'combinedP5SeedsForCTF'
 #backward compatibility 2.2/3.1
-#ckfTrackCandidatesP5.SeedProducer = 'combinedP5SeedsForCTF'
 
 #import RecoTracker.TrackProducer.CTFFinalFitWithMaterial_cfi
 from RecoTracker.TrackProducer.CTFFinalFitWithMaterialP5_cff import *
@@ -41,7 +40,6 @@ from RecoTracker.FinalTrackSelectors.CTFFinalTrackSelectorP5_cff import *
 #from RecoTracker.FinalTrackSelectors.RSFinalTrackSelectorP5_cff import *
 
 # TRACK INFO
-#include "AnalysisAlgos/TrackInfoProducer/data/TrackInfoProducerP5.cff"
 
 ckfTrackCandidatesP5LHCNavigation    = ckfTrackCandidatesP5.clone(NavigationSchool = 'SimpleNavigationSchool')
 ctfWithMaterialTracksP5LHCNavigation = ctfWithMaterialTracksCosmics.clone(src = "ckfTrackCandidatesP5LHCNavigation")
