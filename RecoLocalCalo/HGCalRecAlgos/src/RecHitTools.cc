@@ -65,13 +65,13 @@ namespace {
 
 }  // namespace
 
-void RecHitTools::getEvent(const edm::Event& ev) {}
+//void RecHitTools::getEvent(const edm::Event& ev) {}
 
-void RecHitTools::getEventSetup(const edm::EventSetup& es) {
-  edm::ESHandle<CaloGeometry> geom;
-  es.get<CaloGeometryRecord>().get(geom);
+void RecHitTools::setGeometry(const CaloGeometry& geom) {
+  //edm::ESHandle<CaloGeometry> geom;
+  //es.get<CaloGeometryRecord>().get(geom);
 
-  geom_ = geom.product();
+  geom_ = &geom;
   unsigned int wmaxEE(0), wmaxFH(0);
   auto geomEE = static_cast<const HGCalGeometry*>(
       geom_->getSubdetectorGeometry(DetId::HGCalEE, ForwardSubdetector::ForwardEmpty));

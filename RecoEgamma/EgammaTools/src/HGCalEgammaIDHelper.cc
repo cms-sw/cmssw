@@ -30,7 +30,9 @@ void HGCalEgammaIDHelper::eventInit(const edm::Event& iEvent, const edm::EventSe
   edm::Handle<std::unordered_map<DetId, const HGCRecHit*>> hitMapHandle;
   iEvent.getByToken(hitMap_, hitMapHandle);
 
-  recHitTools_.getEventSetup(iSetup);
+  edm::ESHandle<CaloGeometry> geom;
+  iSetup.get<CaloGeometryRecord>().get(geom);
+  recHitTools_.setGeometry(*geom);
   pcaHelper_.setRecHitTools(&recHitTools_);
   isoHelper_.setRecHitTools(&recHitTools_);
   pcaHelper_.setHitMap(hitMapHandle.product());

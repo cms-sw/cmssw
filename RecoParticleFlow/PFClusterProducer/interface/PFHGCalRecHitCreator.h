@@ -36,7 +36,11 @@ public:
                      const edm::Event& iEvent,
                      const edm::EventSetup& iSetup) override {
     // Setup RecHitTools to properly compute the position of the HGCAL Cells vie their DetIds
-    recHitTools_.getEventSetup(iSetup);
+    {
+      edm::ESHandle<CaloGeometry> geom;
+      iSetup.get<CaloGeometryRecord>().get(geom);
+      recHitTools_.setGeometry(*geom);
+    }
 
     for (unsigned int i = 0; i < qualityTests_.size(); ++i) {
       qualityTests_.at(i)->beginEvent(iEvent, iSetup);

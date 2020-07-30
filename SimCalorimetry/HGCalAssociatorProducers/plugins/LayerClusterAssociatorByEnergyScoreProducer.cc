@@ -41,7 +41,9 @@ LayerClusterAssociatorByEnergyScoreProducer::~LayerClusterAssociatorByEnergyScor
 void LayerClusterAssociatorByEnergyScoreProducer::produce(edm::StreamID,
                                                           edm::Event &iEvent,
                                                           const edm::EventSetup &es) const {
-  rhtools_->getEventSetup(es);
+    edm::ESHandle<CaloGeometry> geom;
+    es.get<CaloGeometryRecord>().get(geom);
+    rhtools_->setGeometry(*geom);
 
   const std::unordered_map<DetId, const HGCRecHit *> *hitMap = &iEvent.get(hitMap_);
 
