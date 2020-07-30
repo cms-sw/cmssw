@@ -222,7 +222,7 @@ double ECalSD::EnergyCorrected(const G4Step& step, const G4Track* track) {
     auto ite = xtalLMap.find(lv);
     crystalLength = (ite == xtalLMap.end()) ? 230.0 : std::abs(ite->second);
     crystalDepth = (ite == xtalLMap.end()) ? 0.0 : (std::abs(0.5 * (ite->second) + currentLocalPoint.z()));
-    edep *= curve_LY(lv)*getResponseWt(track);
+    edep *= curve_LY(lv) * getResponseWt(track);
   }
   return edep;
 }
