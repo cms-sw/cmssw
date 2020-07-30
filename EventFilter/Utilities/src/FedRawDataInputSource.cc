@@ -16,7 +16,6 @@
 #include <boost/algorithm/string.hpp>
 #include <boost/filesystem/fstream.hpp>
 
-#include "DataFormats/FEDRawData/interface/FEDNumbering.h"
 #include "DataFormats/FEDRawData/interface/FEDHeader.h"
 #include "DataFormats/FEDRawData/interface/FEDTrailer.h"
 #include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"

@@ -20,6 +20,7 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "IOPool/Streamer/interface/FRDEventMessage.h"
 
+#include "DataFormats/FEDRawData/interface/FEDNumbering.h"
 #include "DataFormats/Provenance/interface/LuminosityBlockAuxiliary.h"
 
 class FEDRawDataCollection;
