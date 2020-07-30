@@ -77,7 +77,7 @@ FedRawDataInputSource::FedRawDataInputSource(edm::ParameterSet const& pset, edm:
   edm::LogInfo("FedRawDataInputSource") << "Construction. read-ahead chunk size -: " << std::endl
                                         << (eventChunkSize_ / 1048576) << " MB on host " << thishost;
 
-  if (testTCDSFEDRange_.size()) {
+  if (!testTCDSFEDRange_.empty()) {
     if (testTCDSFEDRange_.size() != 2) {
       throw cms::Exception("FedRawDataInputSource::fillFEDRawDataCollection")
           << "Invalid TCDS Test FED range parameter";
