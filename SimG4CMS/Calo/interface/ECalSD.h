@@ -16,7 +16,6 @@
 #include "DataFormats/DetId/interface/DetId.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-//#include "G4String.hh"
 #ifdef plotDebug
 #include <TH2F.h>
 #endif
@@ -42,7 +41,7 @@ protected:
   double getEnergyDeposit(const G4Step *) override;
   int getTrackID(const G4Track *) override;
   uint16_t getDepth(const G4Step *) override;
-  double EnergyCorrected(const G4Step&, const G4Track*) override;
+  double EnergyCorrected(const G4Step &, const G4Track *) override;
 
 private:
   void initMap();
