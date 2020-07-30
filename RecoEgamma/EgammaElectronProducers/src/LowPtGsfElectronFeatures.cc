@@ -207,7 +207,7 @@ namespace lowptgsfeleid {
 	eid_sc_eta  = sc->eta();                 
 	eid_sc_etaWidth = sc->etaWidth();        
 	eid_sc_phiWidth = sc->phiWidth();        
-	sc_Nclus = sc->clustersSize();          
+	sc_Nclus = (float)sc->clustersSize();          
       }
     }
 
@@ -231,7 +231,7 @@ namespace lowptgsfeleid {
 
     if ( ele.isNonnull() ) {                          
       eid_brem_frac = ele->fbrem();
-      core_shFracHits = ele->shFracInnerHits();
+      core_shFracHits = (float)ele->shFracInnerHits();
     }
     
     // Unbiased BDT from ElectronSeed   
@@ -291,7 +291,7 @@ namespace lowptgsfeleid {
 	  }
 
 	  // Initializations
-	  sc_clus1_nxtal  = -999;
+	  sc_clus1_nxtal  = -999.;
 	  sc_clus1_dphi   = -999.;
 	  sc_clus2_dphi   = -999.;
 	  sc_clus1_deta   = -999.;
@@ -316,7 +316,7 @@ namespace lowptgsfeleid {
 		if (clusNum==i1) {
 		  sc_clus1_E = cluster->energy();
 		  if(gsf->pMode()>0) sc_clus1_E_ov_p = cluster->energy()/gsf->pMode();
-		  sc_clus1_nxtal = (int)cluster->size();
+		  sc_clus1_nxtal = (float)cluster->size();
 		  if (reach_ECAL>0){
 		    sc_clus1_deta = deta;
 		    sc_clus1_dphi = dphi;
@@ -364,9 +364,8 @@ namespace lowptgsfeleid {
     if (eid_gsf_nhits>50) eid_gsf_nhits=50;
     if (eid_match_SC_EoverP<0)   eid_match_SC_EoverP=0;
     if (eid_match_SC_EoverP>100) eid_match_SC_EoverP=100;
-    if (eid_match_eclu_EoverP<-0.001) eid_match_eclu_EoverP=-0.001;
-    if (eid_match_eclu_EoverP>0.001)  eid_match_eclu_EoverP=0.001;
-    eid_match_eclu_EoverP=eid_match_eclu_EoverP*1.E7;
+    if (eid_match_eclu_EoverP<-1.) eid_match_eclu_EoverP=-1.;
+    if (eid_match_eclu_EoverP>1.)  eid_match_eclu_EoverP=1.;
     if (eid_match_SC_dEta<-10) eid_match_SC_dEta=-10;
     if (eid_match_SC_dEta>10)  eid_match_SC_dEta=10;
     if (eid_match_SC_dPhi<-3.14) eid_match_SC_dPhi=-3.14;
