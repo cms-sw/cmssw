@@ -120,6 +120,9 @@ private:
   unsigned int eventsThisLumi_;
   unsigned long eventsThisRun_ = 0;
 
+  uint16_t MINTCDSuTCAFEDID_ = FEDNumbering::MINTCDSuTCAFEDID;
+  uint16_t MAXTCDSuTCAFEDID_ = FEDNumbering::MAXTCDSuTCAFEDID;
+
   /*
    *
    * Multithreaded file reader

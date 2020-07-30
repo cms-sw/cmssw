@@ -78,6 +78,15 @@ FedRawDataInputSource::FedRawDataInputSource(edm::ParameterSet const& pset, edm:
   edm::LogInfo("FedRawDataInputSource") << "Construction. read-ahead chunk size -: " << std::endl
                                         << (eventChunkSize_ / 1048576) << " MB on host " << thishost;
 
+  if (testTCDSFEDRange_.size()) {
+    if (testTCDSFEDRange_.size() != 2) {
+      throw cms::Exception("FedRawDataInputSource::fillFEDRawDataCollection")
+          << "Invalid TCDS Test FED range parameter";
+    }
+    MINTCDSuTCAFEDID_ = testTCDSFEDRange_[0];
+    MAXTCDSuTCAFEDID_ = testTCDSFEDRange_[1];
+  }
+
   long autoRunNumber = -1;
   if (fileListMode_) {
     autoRunNumber = initFileList();
@@ -706,20 +715,7 @@ edm::Timestamp FedRawDataInputSource::fillFEDRawDataCollection(FEDRawDataCollect
     const uint16_t fedId = fedHeader.sourceID();
     if (fedId > FEDNumbering::MAXFEDID) {
       throw cms::Exception("FedRawDataInputSource::fillFEDRawDataCollection") << "Out of range FED ID : " << fedId;
-    } else if (UNLIKELY(testTCDSFEDRange_.size())) {
-      if (testTCDSFEDRange_.size() != 2) {
-        throw cms::Exception("FedRawDataInputSource::fillFEDRawDataCollection")
-            << "Invalid TCDS Test FED range parameter";
-      }
-      if (fedId >= testTCDSFEDRange_[0] && fedId <= testTCDSFEDRange_[1]) {
-        if (!selectedTCDSFed) {
-          selectedTCDSFed = fedId;
-          tcds_pointer_ = event + eventSize;
-        } else
-          throw cms::Exception("FedRawDataInputSource::fillFEDRawDataCollection")
-              << "Second TCDS FED ID " << fedId << " found. First ID: " << selectedTCDSFed;
-      }
-    } else if (fedId >= FEDNumbering::MINTCDSuTCAFEDID && fedId <= FEDNumbering::MAXTCDSuTCAFEDID) {
+    } else if (fedId >= MINTCDSuTCAFEDID_ && fedId <= MAXTCDSuTCAFEDID_) {
       if (!selectedTCDSFed) {
         selectedTCDSFed = fedId;
         tcds_pointer_ = event + eventSize;
