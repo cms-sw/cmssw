@@ -11,7 +11,6 @@
 <use name="DataFormats/SiStripCluster"/>
 <use name="DataFormats/SiStripDetId"/>
 <use name="DataFormats/TrackCandidate"/>
-<use name="DataFormats/TrackReco"/>
 <use name="DataFormats/TrackerCommon"/>
 <use name="DataFormats/TrackingRecHit"/>
 <use name="DataFormats/TrajectorySeed"/>
