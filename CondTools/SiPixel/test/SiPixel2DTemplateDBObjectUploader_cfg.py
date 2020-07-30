@@ -215,49 +215,52 @@ sqlitefilename = 'sqlite_file:'+template_base+'.db'
 print '\nUploading %s with record SiPixel2DTemplateDBObjectRcd in file %s\n' % (template_base,sqlitefilename)
 
 process.source = cms.Source("EmptyIOVSource",
-							timetype = cms.string('runnumber'),
-							firstValue = cms.uint64(1),
-							lastValue = cms.uint64(1),
-							interval = cms.uint64(1)
-							)
+				timetype = cms.string('runnumber'),
+				firstValue = cms.uint64(1),
+				lastValue = cms.uint64(1),
+				interval = cms.uint64(1)
+				)
 process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(1))
 if options.numerator==True :
 	process.PoolDBOutputService = cms.Service("PoolDBOutputService",
-											  DBParameters = cms.PSet(messageLevel = cms.untracked.int32(0),
-																	  authenticationPath = cms.untracked.string('.')
-																	  ),
-											  timetype = cms.untracked.string('runnumber'),
-											  connect = cms.string(sqlitefilename),
-											  toPut = cms.VPSet(cms.PSet(record = cms.string('SiPixel2DTemplateDBObjectRcd'),
-																		 tag = cms.string(template_base)
-																		 )
-																)
-											  )
+				DBParameters = cms.PSet(messageLevel = cms.untracked.int32(0),
+				authenticationPath = cms.untracked.string('.')
+				),
+				timetype = cms.untracked.string('runnumber'),
+				connect = cms.string(sqlitefilename),
+				toPut = cms.VPSet(
+                                    cms.PSet(
+                                        record = cms.string('SiPixel2DTemplateDBObjectRcd'),
+                                        tag = cms.string(template_base)
+                                        )
+                                    )
+				)
 elif options.denominator==True :
 	process.PoolDBOutputService = cms.Service("PoolDBOutputService",
-											  DBParameters = cms.PSet(messageLevel = cms.untracked.int32(0),
-																	  authenticationPath = cms.untracked.string('.')
-																	  ),
-											  timetype = cms.untracked.string('runnumber'),
-											  connect = cms.string(sqlitefilename),
-											  toPut = cms.VPSet(cms.PSet(record = cms.string('SiPixel2DTemplateDBObjectRcd'),
-											  							 label=cms.string('unirradiated'),
-																		 tag = cms.string(template_base)
-																		 )
-																)
-											  )
+				DBParameters = cms.PSet(messageLevel = cms.untracked.int32(0),
+				authenticationPath = cms.untracked.string('.')
+				),
+				timetype = cms.untracked.string('runnumber'),
+				connect = cms.string(sqlitefilename),
+				toPut = cms.VPSet(
+                                    cms.PSet(
+                                        record = cms.string('SiPixel2DTemplateDBObjectRcd'),
+                                        label=cms.string('unirradiated'),
+                                        tag = cms.string(template_base)
+                                        )
+                                    )
+				)
 process.uploader = cms.EDAnalyzer("SiPixel2DTemplateDBObjectUploader",
-								  siPixelTemplateCalibrations = cms.vstring(template_filenames),
-								  theTemplateBaseString = cms.string(template_base),
-								  Version = cms.double(3.0),
-								  MagField = cms.double(MagFieldValue),
-								  detIds = cms.vuint32(1,2), #0 is for all, 1 is Barrel, 2 is EndCap
-								  barrelLocations = cms.vstring(barrel_locations),
-								  endcapLocations = cms.vstring(endcap_locations),
-								  barrelTemplateIds = cms.vuint32(barrel_template_IDs),
-								  endcapTemplateIds = cms.vuint32(endcap_template_IDs),
-								  useVectorIndices  = cms.untracked.bool(options.useVectorIndices),
-								 )
+				siPixelTemplateCalibrations = cms.vstring(template_filenames),
+				theTemplateBaseString = cms.string(template_base),
+				Version = cms.double(3.0),
+				detIds = cms.vuint32(1,2), #0 is for all, 1 is Barrel, 2 is EndCap
+				barrelLocations = cms.vstring(barrel_locations),
+				endcapLocations = cms.vstring(endcap_locations),
+				barrelTemplateIds = cms.vuint32(barrel_template_IDs),
+				endcapTemplateIds = cms.vuint32(endcap_template_IDs),
+				useVectorIndices  = cms.untracked.bool(options.useVectorIndices),
+				)
 process.myprint = cms.OutputModule("AsciiOutputModule")
 process.p = cms.Path(process.uploader)
 process.CondDB.connect = sqlitefilename

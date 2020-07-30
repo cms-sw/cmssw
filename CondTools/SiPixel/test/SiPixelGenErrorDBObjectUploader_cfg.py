@@ -5,60 +5,60 @@ import csv
 options = opts.VarParsing ('standard')
 
 options.register('MagField',
-					 3.8,
-					 opts.VarParsing.multiplicity.singleton,
-					 opts.VarParsing.varType.float,
-					 'Magnetic field value in Tesla')
+			3.8,
+			opts.VarParsing.multiplicity.singleton,
+			opts.VarParsing.varType.float,
+			'Magnetic field value in Tesla')
 options.register('Year',
-					 None,
-					 opts.VarParsing.multiplicity.singleton,
-					 opts.VarParsing.varType.string,
-					 'Current year for versioning')
+			None,
+			opts.VarParsing.multiplicity.singleton,
+			opts.VarParsing.varType.string,
+			'Current year for versioning')
 options.register('Version',
-					 None,
-					 opts.VarParsing.multiplicity.singleton,
-					 opts.VarParsing.varType.string,
-					 'Template DB object version')
+			None,
+			opts.VarParsing.multiplicity.singleton,
+			opts.VarParsing.varType.string,
+			'Template DB object version')
 options.register('Append',
-					 None,
-					 opts.VarParsing.multiplicity.singleton,
-					 opts.VarParsing.varType.string,
-					 'Any additional string to add to the filename, i.e. "bugfix", etc.')
+			None,
+			opts.VarParsing.multiplicity.singleton,
+			opts.VarParsing.varType.string,
+			'Any additional string to add to the filename, i.e. "bugfix", etc.')
 options.register('Fullname',
     			 None,
     			 opts.VarParsing.multiplicity.singleton,
     			 opts.VarParsing.varType.string,
     			 'The entire filename in case the options above are insufficient, i.e. "SiPixelGenErrorDBObject_phase1_EoR3_HV600_Tr2000", etc.')
 options.register('Map',
-					 '../data/template1D_IOV0_phase1_MC/IOV0_phase1_MC_map.csv',
-					 opts.VarParsing.multiplicity.singleton,
-					 opts.VarParsing.varType.string,
-					 'Path to map file')
+			'../data/template1D_IOV0_phase1_MC/IOV0_phase1_MC_map.csv',
+			opts.VarParsing.multiplicity.singleton,
+			opts.VarParsing.varType.string,
+			'Path to map file')
 options.register('Delimiter',
-					 ',',
-					 opts.VarParsing.multiplicity.singleton,
-					 opts.VarParsing.varType.string,
-					 'Delimiter in csv file')
+			',',
+			opts.VarParsing.multiplicity.singleton,
+			opts.VarParsing.varType.string,
+			'Delimiter in csv file')
 options.register('Quotechar',
-					 '"',
-					 opts.VarParsing.multiplicity.singleton,
-					 opts.VarParsing.varType.string,
-					 'Quotechar in csv file')
+			'"',
+			opts.VarParsing.multiplicity.singleton,
+			opts.VarParsing.varType.string,
+			'Quotechar in csv file')
 options.register('GenErrFilePath',
-					 'CondTools/SiPixel/data/template1D_IOV0_phase1_MC',
-					 opts.VarParsing.multiplicity.singleton,
-					 opts.VarParsing.varType.string,
-					 'Location of generr files')
+			'CondTools/SiPixel/data/template1D_IOV0_phase1_MC',
+			opts.VarParsing.multiplicity.singleton,
+			opts.VarParsing.varType.string,
+			'Location of generr files')
 options.register('GlobalTag',
-					 'auto:phase1_2017_realistic',
-					 opts.VarParsing.multiplicity.singleton,
-					 opts.VarParsing.varType.string,
-					 'Global tag for this run')
+			'auto:phase1_2017_realistic',
+			opts.VarParsing.multiplicity.singleton,
+			opts.VarParsing.varType.string,
+			'Global tag for this run')
 options.register('useVectorIndices',
-					 False,
-					 opts.VarParsing.multiplicity.singleton,
-					 opts.VarParsing.varType.bool,
-					 'Switch on in case Morris uses vector indices in csv file, eg. [0,(N-1)] instead of [1,N]')
+			False,
+			opts.VarParsing.multiplicity.singleton,
+			opts.VarParsing.varType.bool,
+			'Switch on in case Morris uses vector indices in csv file, eg. [0,(N-1)] instead of [1,N]')
 options.parseArguments()
 
 MagFieldValue = 10.*options.MagField #code needs it in deciTesla
@@ -190,35 +190,37 @@ sqlitefilename = 'sqlite_file:'+generror_base+'.db'
 print '\nUploading %s with record SiPixelGenErrorDBObjectRcd in file %s\n' % (generror_base,sqlitefilename)
 
 process.source = cms.Source("EmptyIOVSource",
-														timetype = cms.string('runnumber'),
-														firstValue = cms.uint64(1),
-														lastValue = cms.uint64(1),
-														interval = cms.uint64(1)
-														)
+	timetype = cms.string('runnumber'),
+	firstValue = cms.uint64(1),
+	lastValue = cms.uint64(1),
+	interval = cms.uint64(1)
+	)
 process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(1))
 process.PoolDBOutputService = cms.Service("PoolDBOutputService",
-																					DBParameters = cms.PSet(messageLevel = cms.untracked.int32(0),
-																		authenticationPath = cms.untracked.string('.')
-																		),
-																					timetype = cms.untracked.string('runnumber'),
-																					connect = cms.string(sqlitefilename),
-																					toPut = cms.VPSet(cms.PSet(record = cms.string('SiPixelGenErrorDBObjectRcd'),
-																		 tag = cms.string(generror_base)
-																		 )
-																										)
-																					)
+	DBParameters = cms.PSet(messageLevel = cms.untracked.int32(0),
+	authenticationPath = cms.untracked.string('.')
+	),
+	timetype = cms.untracked.string('runnumber'),
+	connect = cms.string(sqlitefilename),
+	toPut = cms.VPSet(
+            cms.PSet(
+                record = cms.string('SiPixelGenErrorDBObjectRcd'),
+                tag = cms.string(generror_base)
+                )
+            )
+	)
 process.uploader = cms.EDAnalyzer("SiPixelGenErrorDBObjectUploader",
-																	siPixelGenErrorCalibrations = cms.vstring(template_filenames),
-																	theGenErrorBaseString = cms.string(generror_base),
-																	Version = cms.double(3.0),
-																	MagField = cms.double(MagFieldValue),
-																	detIds = cms.vuint32(1,2), #0 is for all, 1 is Barrel, 2 is EndCap
-																	barrelLocations = cms.vstring(barrel_locations),
-																	endcapLocations = cms.vstring(endcap_locations),
-																	barrelGenErrIds = cms.vuint32(barrel_generr_IDs),
-																	endcapGenErrIds = cms.vuint32(endcap_generr_IDs),
-																	useVectorIndices  = cms.untracked.bool(options.useVectorIndices),
-									)
+	siPixelGenErrorCalibrations = cms.vstring(template_filenames),
+	theGenErrorBaseString = cms.string(generror_base),
+	Version = cms.double(3.0),
+	detIds = cms.vuint32(1,2), #0 is for all, 1 is Barrel, 2 is EndCap
+	barrelLocations = cms.vstring(barrel_locations),
+	endcapLocations = cms.vstring(endcap_locations),
+	barrelGenErrIds = cms.vuint32(barrel_generr_IDs),
+	endcapGenErrIds = cms.vuint32(endcap_generr_IDs),
+	useVectorIndices  = cms.untracked.bool(options.useVectorIndices),
+	)
+
 process.myprint = cms.OutputModule("AsciiOutputModule")
 process.p = cms.Path(process.uploader)
 process.CondDB.connect = sqlitefilename
