@@ -124,7 +124,7 @@ EcalRecHitProducerGPU::EcalRecHitProducerGPU(const edm::ParameterSet& ps) {
   // max number of digis to allocate for
   configParameters_.maxNumberHitsEB = ps.getParameter<uint32_t>("maxNumberHitsEB");
   configParameters_.maxNumberHitsEE = ps.getParameter<uint32_t>("maxNumberHitsEE");
-  
+
   flagmask_ = 0;
   flagmask_ |= 0x1 << EcalRecHit::kNeighboursRecovered;
   flagmask_ |= 0x1 << EcalRecHit::kTowerRecovered;
@@ -166,7 +166,8 @@ void EcalRecHitProducerGPU::acquire(edm::Event const& event,
   // std::cout << " [EcalRecHitProducerGPU::acquire]  neb_:nee_ = " << neb_ << " : " << nee_ << std::endl;
 
   if ((neb_ > configParameters_.maxNumberHitsEB) || (nee_ > configParameters_.maxNumberHitsEE)) {
-    edm::LogError("EcalRecHitProducerGPU") << "max number of channels exceeded. See options 'maxNumberHitsEB and maxNumberHitsEE' ";
+    edm::LogError("EcalRecHitProducerGPU")
+        << "max number of channels exceeded. See options 'maxNumberHitsEB and maxNumberHitsEE' ";
   }
 
   int nchannelsEB = ebUncalibRecHits.size;  // --> offsetForInput, first EB and then EE
