@@ -19,7 +19,7 @@ They are stored by name in the input and output maps.
 The consistency of dimension and type information (received from server vs. provided by user) is checked at runtime.
 The model information from the server can be printed by enabling `verbose` output in the `TritonClient` configuration.
 
-`TritonClient` requires several parameters:
+`TritonClient` takes several parameters:
 * `modelName`: name of model with which to perform inference
 * `modelVersion`: version number of model (default: -1, use latest available version on server)
 * `batchSize`: number of objects sent per request
@@ -29,6 +29,7 @@ The model information from the server can be printed by enabling `verbose` outpu
 * `port`: server port
 * `timeout`: maximum time a request is allowed to take
   * currently not used, will be supported in next Triton version
+* `outputs`: optional, specify which output(s) the server should send
 
 Useful `TritonData` accessors include:
 * `dims()`: return dimensions (provided by server)

@@ -50,8 +50,8 @@ void TritonInputData::toServer(std::shared_ptr<TritonInput<DT>> ptr) {
   if (variableDims_) {
     if (shape_.size() != dims_.size()) {
       throw cms::Exception("TritonDataError")
-          << name_ << " input(): incorrect or missing shape (" << triton_utils::printVec(shape_)
-          << ") for model with variable dimensions (" << triton_utils::printVec(dims_) << ")";
+          << name_ << " input(): incorrect or missing shape (" << triton_utils::printColl(shape_)
+          << ") for model with variable dimensions (" << triton_utils::printColl(dims_) << ")";
     } else {
       triton_utils::throwIfError(data_->SetShape(shape_), name_ + " input(): unable to set input shape");
     }
@@ -83,8 +83,8 @@ TritonOutput<DT> TritonOutputData::fromServer() const {
   if (variableDims_) {
     if (shape_.size() != dims_.size()) {
       throw cms::Exception("TritonDataError")
-          << name_ << " output(): incorrect or missing shape (" << triton_utils::printVec(shape_)
-          << ") for model with variable dimensions (" << triton_utils::printVec(dims_) << ")";
+          << name_ << " output(): incorrect or missing shape (" << triton_utils::printColl(shape_)
+          << ") for model with variable dimensions (" << triton_utils::printColl(dims_) << ")";
     }
   }
 

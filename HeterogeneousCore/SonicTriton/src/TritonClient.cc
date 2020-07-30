@@ -70,9 +70,13 @@ TritonClient::TritonClient(const edm::ParameterSet& params)
     if (verbose_) {
       const auto& curr_input = curr_itr.first->second;
       io_msg << "  " << iname << " (" << curr_input.dname() << ", " << curr_input.byteSize()
-             << " b) : " << triton_utils::printVec(curr_input.dims()) << "\n";
+             << " b) : " << triton_utils::printColl(curr_input.dims()) << "\n";
     }
   }
+
+  //allow selecting only some outputs from server
+  const auto& v_outputs = params.getUntrackedParameter<std::vector<std::string>>("outputs");
+  std::unordered_set s_outputs(v_outputs.begin(),v_outputs.end());
 
   //setup output map
   if (verbose_)
@@ -80,6 +84,8 @@ TritonClient::TritonClient(const edm::ParameterSet& params)
            << "\n";
   for (const auto& nicOutput : nicOutputs) {
     const auto& oname = nicOutput->Name();
+    if (!s_outputs.empty() and s_outputs.find(oname)==s_outputs.end())
+      continue;
     const auto& curr_itr = output_.emplace(
         std::piecewise_construct, std::forward_as_tuple(oname), std::forward_as_tuple(oname, nicOutput));
     const auto& curr_output = curr_itr.first->second;
@@ -87,9 +93,15 @@ TritonClient::TritonClient(const edm::ParameterSet& params)
                                "TritonClient(): unable to add raw result " + curr_itr.first->first);
     if (verbose_) {
       io_msg << "  " << oname << " (" << curr_output.dname() << ", " << curr_output.byteSize()
-             << " b) : " << triton_utils::printVec(curr_output.dims()) << "\n";
+             << " b) : " << triton_utils::printColl(curr_output.dims()) << "\n";
     }
+    if (!s_outputs.empty())
+      s_outputs.erase(oname);
   }
+
+  //check if any requested outputs were not available
+  if (!s_outputs.empty())
+    throw cms::Exception("MissingOutput") << "Some requested outputs were not available on the server: " << triton_utils::printColl(s_outputs);
 
   //check batch size limitations (after i/o setup)
   //triton uses max batch size = 0 to denote a model that does not support batching
@@ -357,5 +369,6 @@ void TritonClient::fillPSetDescription(edm::ParameterSetDescription& iDesc) {
   descClient.addUntracked<unsigned>("port");
   descClient.addUntracked<unsigned>("timeout");
   descClient.addUntracked<bool>("verbose", false);
+  descClient.addUntracked<std::vector<std::string>>("outputs", {});
   iDesc.add<edm::ParameterSetDescription>("Client", descClient);
 }
