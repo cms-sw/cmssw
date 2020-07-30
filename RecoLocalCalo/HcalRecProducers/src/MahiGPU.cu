@@ -1,6 +1,7 @@
 #include <Eigen/Dense>
 
 #include "DataFormats/HcalRecHit/interface/HcalSpecialTimes.h"
+#include "DataFormats/Math/interface/EigenComputations.h"
 
 // nvcc not able to parse this guy (whatever is inlcuded from it)....
 //#include "RecoLocalCalo/HcalRecAlgos/interface/PulseShapeFunctor.h"
@@ -13,159 +14,6 @@
 
 namespace hcal {
   namespace mahi {
-
-    template <int NROWS, int NCOLS>
-    using ColMajorMatrix = Eigen::Matrix<float, NROWS, NCOLS, Eigen::ColMajor>;
-
-    template <int NROWS, int NCOLS>
-    using RowMajorMatrix = Eigen::Matrix<float, NROWS, NCOLS, Eigen::RowMajor>;
-
-    template <int SIZE, typename T = float>
-    using ColumnVector = Eigen::Matrix<T, SIZE, 1>;
-
-    template <int SIZE, typename T = float>
-    using RowVector = Eigen::Matrix<T, 1, SIZE>;
-
-    // FIXME remove duplication...
-    // this is from PulesFunctor. nvcc was complaining... if included that header...
-    //constexpr int maxSamples = 10;
-    constexpr int maxPSshapeBin = 256;
-    constexpr int nsPerBX = 25;
-    constexpr float iniTimeShift = 92.5f;
-
-    // this is from HcalTimeSlew.
-    // HcalTimeSlew are values that come in from ESProducer that takes them
-    // from a python config. see DeclsForKernels for more explanation
-    __forceinline__ __device__ float compute_time_slew_delay(float const fC,
-                                                             float const tzero,
-                                                             float const slope,
-                                                             float const tmax) {
-      auto const rawDelay = tzero + slope * std::log(fC);
-      return rawDelay < 0 ? 0 : (rawDelay > tmax ? tmax : rawDelay);
-    }
-
-    // HcalQIEShapes are hardcoded in HcalQIEData.cc basically
-    // + some logic to generate 128 and 256 value arrays...
-    __constant__ float const qie8shape[129] = {
-        -1,   0,    1,    2,    3,    4,    5,    6,    7,    8,    9,    10,   11,   12,   13,   14,   16,
-        18,   20,   22,   24,   26,   28,   31,   34,   37,   40,   44,   48,   52,   57,   62,   57,   62,
-        67,   72,   77,   82,   87,   92,   97,   102,  107,  112,  117,  122,  127,  132,  142,  152,  162,
-        172,  182,  192,  202,  217,  232,  247,  262,  282,  302,  322,  347,  372,  347,  372,  397,  422,
-        447,  472,  497,  522,  547,  572,  597,  622,  647,  672,  697,  722,  772,  822,  872,  922,  972,
-        1022, 1072, 1147, 1222, 1297, 1372, 1472, 1572, 1672, 1797, 1922, 1797, 1922, 2047, 2172, 2297, 2422,
-        2547, 2672, 2797, 2922, 3047, 3172, 3297, 3422, 3547, 3672, 3922, 4172, 4422, 4672, 4922, 5172, 5422,
-        5797, 6172, 6547, 6922, 7422, 7922, 8422, 9047, 9672, 10297};
-
-    __constant__ float const qie11shape[257] = {
-        -0.5,    0.5,     1.5,     2.5,     3.5,     4.5,     5.5,     6.5,     7.5,     8.5,     9.5,     10.5,
-        11.5,    12.5,    13.5,    14.5,    15.5,    17.5,    19.5,    21.5,    23.5,    25.5,    27.5,    29.5,
-        31.5,    33.5,    35.5,    37.5,    39.5,    41.5,    43.5,    45.5,    47.5,    49.5,    51.5,    53.5,
-        55.5,    59.5,    63.5,    67.5,    71.5,    75.5,    79.5,    83.5,    87.5,    91.5,    95.5,    99.5,
-        103.5,   107.5,   111.5,   115.5,   119.5,   123.5,   127.5,   131.5,   135.5,   139.5,   147.5,   155.5,
-        163.5,   171.5,   179.5,   187.5,   171.5,   179.5,   187.5,   195.5,   203.5,   211.5,   219.5,   227.5,
-        235.5,   243.5,   251.5,   259.5,   267.5,   275.5,   283.5,   291.5,   299.5,   315.5,   331.5,   347.5,
-        363.5,   379.5,   395.5,   411.5,   427.5,   443.5,   459.5,   475.5,   491.5,   507.5,   523.5,   539.5,
-        555.5,   571.5,   587.5,   603.5,   619.5,   651.5,   683.5,   715.5,   747.5,   779.5,   811.5,   843.5,
-        875.5,   907.5,   939.5,   971.5,   1003.5,  1035.5,  1067.5,  1099.5,  1131.5,  1163.5,  1195.5,  1227.5,
-        1259.5,  1291.5,  1355.5,  1419.5,  1483.5,  1547.5,  1611.5,  1675.5,  1547.5,  1611.5,  1675.5,  1739.5,
-        1803.5,  1867.5,  1931.5,  1995.5,  2059.5,  2123.5,  2187.5,  2251.5,  2315.5,  2379.5,  2443.5,  2507.5,
-        2571.5,  2699.5,  2827.5,  2955.5,  3083.5,  3211.5,  3339.5,  3467.5,  3595.5,  3723.5,  3851.5,  3979.5,
-        4107.5,  4235.5,  4363.5,  4491.5,  4619.5,  4747.5,  4875.5,  5003.5,  5131.5,  5387.5,  5643.5,  5899.5,
-        6155.5,  6411.5,  6667.5,  6923.5,  7179.5,  7435.5,  7691.5,  7947.5,  8203.5,  8459.5,  8715.5,  8971.5,
-        9227.5,  9483.5,  9739.5,  9995.5,  10251.5, 10507.5, 11019.5, 11531.5, 12043.5, 12555.5, 13067.5, 13579.5,
-        12555.5, 13067.5, 13579.5, 14091.5, 14603.5, 15115.5, 15627.5, 16139.5, 16651.5, 17163.5, 17675.5, 18187.5,
-        18699.5, 19211.5, 19723.5, 20235.5, 20747.5, 21771.5, 22795.5, 23819.5, 24843.5, 25867.5, 26891.5, 27915.5,
-        28939.5, 29963.5, 30987.5, 32011.5, 33035.5, 34059.5, 35083.5, 36107.5, 37131.5, 38155.5, 39179.5, 40203.5,
-        41227.5, 43275.5, 45323.5, 47371.5, 49419.5, 51467.5, 53515.5, 55563.5, 57611.5, 59659.5, 61707.5, 63755.5,
-        65803.5, 67851.5, 69899.5, 71947.5, 73995.5, 76043.5, 78091.5, 80139.5, 82187.5, 84235.5, 88331.5, 92427.5,
-        96523.5, 100620,  104716,  108812,  112908};
-
-    // Conditions are transferred once per IOV
-    // Access is performed based on the det id which is converted to a linear index
-    // 2 funcs below are taken from HcalTopology (reimplemented here).
-    // Inputs are constants that are also taken from HcalTopology
-    // but passed to the kernel as arguments using the HclaTopology itself
-    constexpr int32_t IPHI_MAX = 72;
-
-    __forceinline__ __device__ uint32_t did2linearIndexHB(
-        uint32_t const didraw, int const maxDepthHB, int const firstHBRing, int const lastHBRing, int const nEtaHB) {
-      HcalDetId did{didraw};
-      uint32_t const value = (did.depth() - 1) + maxDepthHB * (did.iphi() - 1);
-      return did.ieta() > 0 ? value + maxDepthHB * IPHI_MAX * (did.ieta() - firstHBRing)
-                            : value + maxDepthHB * IPHI_MAX * (did.ieta() + lastHBRing + nEtaHB);
-    }
-
-    __forceinline__ __device__ uint32_t did2linearIndexHE(uint32_t const didraw,
-                                                          int const maxDepthHE,
-                                                          int const maxPhiHE,
-                                                          int const firstHERing,
-                                                          int const lastHERing,
-                                                          int const nEtaHE) {
-      HcalDetId did{didraw};
-      uint32_t const value = (did.depth() - 1) + maxDepthHE * (did.iphi() - 1);
-      return did.ieta() > 0 ? value + maxDepthHE * maxPhiHE * (did.ieta() - firstHERing)
-                            : value + maxDepthHE * maxPhiHE * (did.ieta() + lastHERing + nEtaHE);
-    }
-
-    __forceinline__ __device__ uint32_t get_qiecoder_index(uint32_t const capid, uint32_t const range) {
-      return capid * 4 + range;
-    }
-
-    __forceinline__ __device__ float compute_reco_correction_factor(float const par1,
-                                                                    float const par2,
-                                                                    float const par3,
-                                                                    float const x) {
-      return par3 * x * x + par2 * x + par1;
-    }
-
-    // compute the charge using the adc, qie type and the appropriate qie shape array
-    __forceinline__ __device__ float compute_coder_charge(
-        int const qieType, uint8_t const adc, uint8_t const capid, float const* qieOffsets, float const* qieSlopes) {
-      auto const range = qieType == 0 ? (adc >> 5) & 0x3 : (adc >> 6) & 0x3;
-      auto const* qieShapeToUse = qieType == 0 ? qie8shape : qie11shape;
-      auto const nbins = qieType == 0 ? 32 : 64;
-      auto const center = adc % nbins == nbins - 1 ? 0.5 * (3 * qieShapeToUse[adc] - qieShapeToUse[adc - 1])
-                                                   : 0.5 * (qieShapeToUse[adc] + qieShapeToUse[adc + 1]);
-      auto const index = get_qiecoder_index(capid, range);
-      return (center - qieOffsets[index]) / qieSlopes[index];
-    }
-
-    __forceinline__ __device__ float compute_diff_charge_gain(int const qieType,
-                                                              uint8_t adc,
-                                                              uint8_t const capid,
-                                                              float const* qieOffsets,
-                                                              float const* qieSlopes,
-                                                              bool const isqie11) {
-      constexpr uint32_t mantissaMaskQIE8 = 0x1fu;
-      constexpr uint32_t mantissaMaskQIE11 = 0x3f;
-      auto const mantissaMask = isqie11 ? mantissaMaskQIE11 : mantissaMaskQIE8;
-      auto const q = compute_coder_charge(qieType, adc, capid, qieOffsets, qieSlopes);
-      auto const mantissa = adc & mantissaMask;
-
-      if (mantissa == 0u || mantissa == mantissaMask - 1u)
-        return compute_coder_charge(qieType, adc + 1u, capid, qieOffsets, qieSlopes) - q;
-      else if (mantissa == 1u || mantissa == mantissaMask)
-        return q - compute_coder_charge(qieType, adc - 1u, capid, qieOffsets, qieSlopes);
-      else {
-        auto const qup = compute_coder_charge(qieType, adc + 1u, capid, qieOffsets, qieSlopes);
-        auto const qdown = compute_coder_charge(qieType, adc - 1u, capid, qieOffsets, qieSlopes);
-        auto const upgain = qup - q;
-        auto const downgain = q - qdown;
-        auto const averagegain = (qup - qdown) / 2.f;
-        if (std::abs(upgain - downgain) < 0.01f * averagegain)
-          return averagegain;
-        else {
-          auto const q2up = compute_coder_charge(qieType, adc + 2u, capid, qieOffsets, qieSlopes);
-          auto const q2down = compute_coder_charge(qieType, adc - 2u, capid, qieOffsets, qieSlopes);
-          auto const upgain2 = q2up - qup;
-          auto const downgain2 = qdown - q2down;
-          if (std::abs(upgain2 - upgain) < std::abs(downgain2 - downgain))
-            return upgain;
-          else
-            return downgain;
-        }
-      }
-    }
 
     // Assume: same number of samples for HB and HE
     // TODO: add/validate restrict (will increase #registers in use by the kernel)
@@ -303,8 +151,8 @@ namespace hcal {
       // compute hash for this did
       auto const hashedId =
           did.subdetId() == HcalBarrel
-              ? did2linearIndexHB(id, maxDepthHB, firstHBRing, lastHBRing, nEtaHB)
-              : did2linearIndexHE(id, maxDepthHE, maxPhiHE, firstHERing, lastHERing, nEtaHE) + offsetForHashes;
+	? hcal::reconstruction::did2linearIndexHB(id, maxDepthHB, firstHBRing, lastHBRing, nEtaHB)
+	: hcal::reconstruction::did2linearIndexHE(id, maxDepthHE, maxPhiHE, firstHERing, lastHERing, nEtaHE) + offsetForHashes;
 
       // conditions based on the hash
       // FIXME: remove hardcoded values
@@ -340,7 +188,7 @@ namespace hcal {
 #endif
 
       // compute charge
-      auto const charge = compute_coder_charge(qieType, adc, capid, qieOffsets, qieSlopes);
+      auto const charge = hcal::reconstruction::compute_coder_charge(qieType, adc, capid, qieOffsets, qieSlopes);
 
       shrChargeMinusPedestal[linearThPerBlock] = charge - pedestal;
       if (gch < nchannelsf01HE) {
@@ -375,7 +223,7 @@ namespace hcal {
 #ifdef COMPUTE_TDC_TIME
       float tdcTime;
 #endif  // COMPUTE_TDC_TIME
-      auto const dfc = compute_diff_charge_gain(
+      auto const dfc = hcal::reconstruction::compute_diff_charge_gain(
           qieType, adc, capid, qieOffsets, qieSlopes, gch < nchannelsf01HE || gch >= nchannelsf015);
       if (gch >= nchannelsf01HE && gch < nchannelsf015) {
         // flavor 5
@@ -396,7 +244,7 @@ namespace hcal {
         for (auto ts = first; ts < last; ts++)
           sipmq += shrChargeMinusPedestal[threadIdx.y * nsamplesExpected + ts];
         auto const effectivePixelsFired = sipmq / fcByPE;
-        auto const factor = compute_reco_correction_factor(parLin1, parLin2, parLin3, effectivePixelsFired);
+        auto const factor = hcal::reconstruction::compute_reco_correction_factor(parLin1, parLin2, parLin3, effectivePixelsFired);
         rawCharge = (charge - pedestal) * factor + pedestal;
 #ifdef COMPUTE_TDC_TIME
         if (gch < nchannelsf01HE)
@@ -543,76 +391,6 @@ namespace hcal {
       noiseTermsForChannel[sample] = noiseTerm;
     }
 
-    // TODO: remove what's not needed
-    __forceinline__ __device__ float compute_pulse_shape_value(float const pulse_time,
-                                                               int const sample,
-                                                               int const shift,
-                                                               float const* acc25nsVec,
-                                                               float const* diff25nsItvlVec,
-                                                               float const* accVarLenIdxMinusOneVec,
-                                                               float const* diffVarItvlIdxMinusOneVec,
-                                                               float const* accVarLenIdxZeroVec,
-                                                               float const* diffVarItvlIdxZeroVec) {
-      // constants
-      constexpr float pulse_height = 1.0f;
-      constexpr float slew = 0.f;
-      constexpr auto ns_per_bx = nsPerBX;
-      //constexpr auto num_ns = nsPerBX * maxSamples;
-      //constexpr auto num_bx = num_ns / ns_per_bx;
-
-      // FIXME: clean up all the rounding... this is coming from original cpu version
-      float const i_start_float =
-          -iniTimeShift - pulse_time - slew > 0.f ? 0.f : std::abs(-iniTimeShift - pulse_time - slew) + 1.f;
-      int i_start = static_cast<int>(i_start_float);
-      float offset_start = static_cast<float>(i_start) - iniTimeShift - pulse_time - slew;
-      // FIXME: do we need a check for nan???
-#ifdef HCAL_MAHI_GPUDEBUG
-      if (shift == 0)
-        printf("i_start_float = %f i_start = %d offset_start = %f\n", i_start_float, i_start, offset_start);
-#endif
-
-      // boundary
-      if (offset_start == 1.0f) {
-        offset_start = 0.f;
-        i_start -= 1;
-      }
-
-#ifdef HCAL_MAHI_GPUDEBUG
-      if (shift == 0)
-        printf("i_start_float = %f i_start = %d offset_start = %f\n", i_start_float, i_start, offset_start);
-#endif
-
-      int const bin_start = static_cast<int>(offset_start);
-      auto const bin_start_up = static_cast<float>(bin_start) + 0.5f;
-      int const bin_0_start = offset_start < bin_start_up ? bin_start - 1 : bin_start;
-      int const its_start = i_start / ns_per_bx;
-      int const distTo25ns_start = nsPerBX - 1 - i_start % ns_per_bx;
-      auto const factor = offset_start - static_cast<float>(bin_0_start) - 0.5;
-
-#ifdef HCAL_MAHI_GPUDEBUG
-      if (shift == 0) {
-        printf("bin_start = %d bin_0_start = %d its_start = %d distTo25ns_start = %d factor = %f\n",
-               bin_start,
-               bin_0_start,
-               its_start,
-               distTo25ns_start,
-               factor);
-      }
-#endif
-
-      auto const sample_over10ts = sample + shift;
-      float value = 0.0f;
-      if (sample_over10ts == its_start) {
-        value = bin_0_start == -1
-                    ? accVarLenIdxMinusOneVec[distTo25ns_start] + factor * diffVarItvlIdxMinusOneVec[distTo25ns_start]
-                    : accVarLenIdxZeroVec[distTo25ns_start] + factor * diffVarItvlIdxZeroVec[distTo25ns_start];
-      } else if (sample_over10ts > its_start) {
-        int const bin_idx = distTo25ns_start + 1 + (sample_over10ts - its_start - 1) * ns_per_bx + bin_0_start;
-        value = acc25nsVec[bin_idx] + factor * diff25nsItvlVec[bin_idx];
-      }
-      value *= pulse_height;
-      return value;
-    }
 
     // TODO: need to add an array of offsets for pulses (a la activeBXs...)
     // Assume for now 8 pulses
@@ -675,15 +453,15 @@ namespace hcal {
       auto const did = DetId{id};
       auto const hashedId =
           did.subdetId() == HcalBarrel
-              ? did2linearIndexHB(id, maxDepthHB, firstHBRing, lastHBRing, nEtaHB)
-              : did2linearIndexHE(id, maxDepthHE, maxPhiHE, firstHERing, lastHERing, nEtaHE) + offsetForHashes;
+							 ? hcal::reconstruction::did2linearIndexHB(id, maxDepthHB, firstHBRing, lastHBRing, nEtaHB)
+							 : hcal::reconstruction::did2linearIndexHE(id, maxDepthHE, maxPhiHE, firstHERing, lastHERing, nEtaHE) + offsetForHashes;
       auto const recoPulseShapeId = recoPulseShapeIds[hashedId];
-      auto const* acc25nsVec = acc25nsVecValues + recoPulseShapeId * maxPSshapeBin;
-      auto const* diff25nsItvlVec = diff25nsItvlVecValues + recoPulseShapeId * maxPSshapeBin;
-      auto const* accVarLenIdxMinusOneVec = accVarLenIdxMinusOneVecValues + recoPulseShapeId * nsPerBX;
-      auto const* diffVarItvlIdxMinusOneVec = diffVarItvlIdxMinusOneVecValues + recoPulseShapeId * nsPerBX;
-      auto const* accVarLenIdxZeroVec = accVarLenIdxZeroVecValues + recoPulseShapeId * nsPerBX;
-      auto const* diffVarItvlIdxZeroVec = diffVarItvlIdxZeroVecValues + recoPulseShapeId * nsPerBX;
+      auto const* acc25nsVec = acc25nsVecValues + recoPulseShapeId * hcal::reconstruction::maxPSshapeBin;
+      auto const* diff25nsItvlVec = diff25nsItvlVecValues + recoPulseShapeId * hcal::reconstruction::maxPSshapeBin;
+      auto const* accVarLenIdxMinusOneVec = accVarLenIdxMinusOneVecValues + recoPulseShapeId * hcal::reconstruction::nsPerBX;
+      auto const* diffVarItvlIdxMinusOneVec = diffVarItvlIdxMinusOneVecValues + recoPulseShapeId * hcal::reconstruction::nsPerBX;
+      auto const* accVarLenIdxZeroVec = accVarLenIdxZeroVecValues + recoPulseShapeId * hcal::reconstruction::nsPerBX;
+      auto const* diffVarItvlIdxZeroVec = diffVarItvlIdxZeroVecValues + recoPulseShapeId * hcal::reconstruction::nsPerBX;
 
       // offset output arrays
       auto* pulseMatrix = pulseMatrices + nsamples * npulses * gch;
@@ -732,9 +510,9 @@ namespace hcal {
       auto t0 = meanTime;
       if (applyTimeSlew) {
         if (amplitude <= 1.0f)
-          t0 += compute_time_slew_delay(1.0, tzeroTimeSlew, slopeTimeSlew, tmaxTimeSlew);
+          t0 += hcal::reconstruction::compute_time_slew_delay(1.0, tzeroTimeSlew, slopeTimeSlew, tmaxTimeSlew);
         else
-          t0 += compute_time_slew_delay(amplitude, tzeroTimeSlew, slopeTimeSlew, tmaxTimeSlew);
+          t0 += hcal::reconstruction::compute_time_slew_delay(amplitude, tzeroTimeSlew, slopeTimeSlew, tmaxTimeSlew);
       }
       auto const t0m = -deltaT + t0;
       auto const t0p = deltaT + t0;
@@ -746,7 +524,7 @@ namespace hcal {
 
       if (sample == 0 && ipulse == 0) {
         for (int i = 0; i < 10; i++) {
-          auto const value = compute_pulse_shape_value(t0,
+          auto const value = hcal::reconstruction::compute_pulse_shape_value(t0,
                                                        i,
                                                        0,
                                                        acc25nsVec,
@@ -759,7 +537,7 @@ namespace hcal {
         }
         printf("\n");
         for (int i = 0; i < 10; i++) {
-          auto const value = compute_pulse_shape_value(t0p,
+          auto const value = hcal::reconstruction::compute_pulse_shape_value(t0p,
                                                        i,
                                                        0,
                                                        acc25nsVec,
@@ -772,7 +550,7 @@ namespace hcal {
         }
         printf("\n");
         for (int i = 0; i < 10; i++) {
-          auto const value = compute_pulse_shape_value(t0m,
+          auto const value = hcal::reconstruction::compute_pulse_shape_value(t0m,
                                                        i,
                                                        0,
                                                        acc25nsVec,
@@ -793,7 +571,7 @@ namespace hcal {
       // auto const offset = ipulse - soi;
       // auto const idx = sample - offset;
       int32_t const idx = sample - pulseOffset;
-      auto const value = idx >= 0 && idx < nsamples ? compute_pulse_shape_value(t0,
+      auto const value = idx >= 0 && idx < nsamples ? hcal::reconstruction::compute_pulse_shape_value(t0,
                                                                                 idx,
                                                                                 shift,
                                                                                 acc25nsVec,
@@ -803,7 +581,7 @@ namespace hcal {
                                                                                 accVarLenIdxZeroVec,
                                                                                 diffVarItvlIdxZeroVec)
                                                     : 0;
-      auto const value_t0m = idx >= 0 && idx < nsamples ? compute_pulse_shape_value(t0m,
+      auto const value_t0m = idx >= 0 && idx < nsamples ? hcal::reconstruction::compute_pulse_shape_value(t0m,
                                                                                     idx,
                                                                                     shift,
                                                                                     acc25nsVec,
@@ -813,7 +591,7 @@ namespace hcal {
                                                                                     accVarLenIdxZeroVec,
                                                                                     diffVarItvlIdxZeroVec)
                                                         : 0;
-      auto const value_t0p = idx >= 0 && idx < nsamples ? compute_pulse_shape_value(t0p,
+      auto const value_t0p = idx >= 0 && idx < nsamples ? hcal::reconstruction::compute_pulse_shape_value(t0p,
                                                                                     idx,
                                                                                     shift,
                                                                                     acc25nsVec,
@@ -831,242 +609,6 @@ namespace hcal {
       pulseMatrixP[ipulse * nsamples + sample] = value_t0p;
     }
 
-    // FIXME: provide specialization for Row Major layout
-    template <typename T, int Stride, int Order = Eigen::ColMajor>
-    struct MapSymM {
-      using type = T;
-      using base_type = typename std::remove_const<type>::type;
-
-      static constexpr int total = Stride * (Stride + 1) / 2;
-      static constexpr int stride = Stride;
-      T* data;
-
-      __forceinline__ __device__ MapSymM(T* data) : data{data} {}
-
-      __forceinline__ __device__ T const& operator()(int const row, int const col) const {
-        auto const tmp = (Stride - col) * (Stride - col + 1) / 2;
-        auto const index = total - tmp + row - col;
-        return data[index];
-      }
-
-      template <typename U = T>
-      __forceinline__ __device__ typename std::enable_if<std::is_same<base_type, U>::value, base_type>::type&
-      operator()(int const row, int const col) {
-        auto const tmp = (Stride - col) * (Stride - col + 1) / 2;
-        auto const index = total - tmp + row - col;
-        return data[index];
-      }
-    };
-
-    // simple/trivial cholesky decomposition impl
-    template <typename MatrixType1, typename MatrixType2>
-    __forceinline__ __device__ void compute_decomposition_unrolled(MatrixType1& L, MatrixType2 const& M) {
-      auto const sqrtm_0_0 = std::sqrt(M(0, 0));
-      L(0, 0) = sqrtm_0_0;
-      using T = typename MatrixType1::base_type;
-
-#pragma unroll
-      for (int i = 1; i < MatrixType1::stride; i++) {
-        T sumsq{0};
-        for (int j = 0; j < i; j++) {
-          T sumsq2{0};
-          auto const m_i_j = M(i, j);
-          for (int k = 0; k < j; ++k)
-            sumsq2 += L(i, k) * L(j, k);
-
-          auto const value_i_j = (m_i_j - sumsq2) / L(j, j);
-          L(i, j) = value_i_j;
-
-          sumsq += value_i_j * value_i_j;
-        }
-
-        auto const l_i_i = std::sqrt(M(i, i) - sumsq);
-        L(i, i) = l_i_i;
-      }
-    }
-
-    template <typename MatrixType1, typename MatrixType2>
-    __forceinline__ __device__ void compute_decomposition(MatrixType1& L, MatrixType2 const& M, int const N) {
-      auto const sqrtm_0_0 = std::sqrt(M(0, 0));
-      L(0, 0) = sqrtm_0_0;
-      using T = typename MatrixType1::base_type;
-
-      for (int i = 1; i < N; i++) {
-        T sumsq{0};
-        for (int j = 0; j < i; j++) {
-          T sumsq2{0};
-          auto const m_i_j = M(i, j);
-          for (int k = 0; k < j; ++k)
-            sumsq2 += L(i, k) * L(j, k);
-
-          auto const value_i_j = (m_i_j - sumsq2) / L(j, j);
-          L(i, j) = value_i_j;
-
-          sumsq += value_i_j * value_i_j;
-        }
-
-        auto const l_i_i = std::sqrt(M(i, i) - sumsq);
-        L(i, i) = l_i_i;
-      }
-    }
-
-    template <typename MatrixType1, typename MatrixType2, typename VectorType>
-    __forceinline__ __device__ void compute_decomposition_forwardsubst_with_offsets(
-        MatrixType1& L,
-        MatrixType2 const& M,
-        float b[MatrixType1::stride],
-        VectorType const& Atb,
-        int const N,
-        ColumnVector<MatrixType1::stride, int> const& pulseOffsets) {
-      auto const real_0 = pulseOffsets(0);
-      auto const sqrtm_0_0 = std::sqrt(M(real_0, real_0));
-      L(0, 0) = sqrtm_0_0;
-      using T = typename MatrixType1::base_type;
-      b[0] = Atb(real_0) / sqrtm_0_0;
-
-      for (int i = 1; i < N; i++) {
-        auto const i_real = pulseOffsets(i);
-        T sumsq{0};
-        T total = 0;
-        auto const atb = Atb(i_real);
-        for (int j = 0; j < i; j++) {
-          auto const j_real = pulseOffsets(j);
-          T sumsq2{0};
-          auto const m_i_j = M(std::max(i_real, j_real), std::min(i_real, j_real));
-          for (int k = 0; k < j; ++k)
-            sumsq2 += L(i, k) * L(j, k);
-
-          auto const value_i_j = (m_i_j - sumsq2) / L(j, j);
-          L(i, j) = value_i_j;
-
-          sumsq += value_i_j * value_i_j;
-          total += value_i_j * b[j];
-        }
-
-        auto const l_i_i = std::sqrt(M(i_real, i_real) - sumsq);
-        L(i, i) = l_i_i;
-        b[i] = (atb - total) / l_i_i;
-      }
-    }
-
-    template <typename MatrixType1, typename MatrixType2, typename VectorType>
-    __forceinline__ __device__ void update_decomposition_forwardsubst_with_offsets(
-        MatrixType1& L,
-        MatrixType2 const& M,
-        float b[MatrixType1::stride],
-        VectorType const& Atb,
-        int const N,
-        ColumnVector<MatrixType1::stride, int> const& pulseOffsets) {
-      using T = typename MatrixType1::base_type;
-      auto const i = N - 1;
-      auto const i_real = pulseOffsets(i);
-      T sumsq{0};
-      T total = 0;
-      for (int j = 0; j < i; j++) {
-        auto const j_real = pulseOffsets(j);
-        T sumsq2{0};
-        auto const m_i_j = M(std::max(i_real, j_real), std::min(i_real, j_real));
-        for (int k = 0; k < j; ++k)
-          sumsq2 += L(i, k) * L(j, k);
-
-        auto const value_i_j = (m_i_j - sumsq2) / L(j, j);
-        L(i, j) = value_i_j;
-        sumsq += value_i_j * value_i_j;
-
-        total += value_i_j * b[j];
-      }
-
-      auto const l_i_i = std::sqrt(M(i_real, i_real) - sumsq);
-      L(i, i) = l_i_i;
-      b[i] = (Atb(i_real) - total) / l_i_i;
-    }
-
-    template <typename MatrixType1, typename MatrixType2, typename MatrixType3>
-    __device__ void solve_forward_subst_matrix(MatrixType1& A,
-                                               MatrixType2 const& pulseMatrixView,
-                                               MatrixType3 const& matrixL) {
-      // FIXME: this assumes pulses are on columns and samples on rows
-      constexpr auto NPULSES = MatrixType2::ColsAtCompileTime;
-      constexpr auto NSAMPLES = MatrixType2::RowsAtCompileTime;
-
-#pragma unroll
-      for (int icol = 0; icol < NPULSES; icol++) {
-        float reg_b[NSAMPLES];
-        float reg_L[NSAMPLES];
-
-// preload a column and load column 0 of cholesky
-#pragma unroll
-        for (int i = 0; i < NSAMPLES; i++) {
-          reg_b[i] = __ldg(&pulseMatrixView.coeffRef(i, icol));
-          reg_L[i] = matrixL(i, 0);
-        }
-
-        // compute x0 and store it
-        auto x_prev = reg_b[0] / reg_L[0];
-        A(0, icol) = x_prev;
-
-// iterate
-#pragma unroll
-        for (int iL = 1; iL < NSAMPLES; iL++) {
-// update accum
-#pragma unroll
-          for (int counter = iL; counter < NSAMPLES; counter++)
-            reg_b[counter] -= x_prev * reg_L[counter];
-
-// load the next column of cholesky
-#pragma unroll
-          for (int counter = iL; counter < NSAMPLES; counter++)
-            reg_L[counter] = matrixL(counter, iL);
-
-          // compute the next x for M(iL, icol)
-          x_prev = reg_b[iL] / reg_L[iL];
-
-          // store the result value
-          A(iL, icol) = x_prev;
-        }
-      }
-    }
-
-    template <typename MatrixType1, typename MatrixType2>
-    __device__ void solve_forward_subst_vector(float reg_b[MatrixType1::RowsAtCompileTime],
-                                               MatrixType1 inputAmplitudesView,
-                                               MatrixType2 matrixL) {
-      constexpr auto NSAMPLES = MatrixType1::RowsAtCompileTime;
-
-      float reg_b_tmp[NSAMPLES];
-      float reg_L[NSAMPLES];
-
-// preload a column and load column 0 of cholesky
-#pragma unroll
-      for (int i = 0; i < NSAMPLES; i++) {
-        reg_b_tmp[i] = inputAmplitudesView(i);
-        reg_L[i] = matrixL(i, 0);
-      }
-
-      // compute x0 and store it
-      auto x_prev = reg_b_tmp[0] / reg_L[0];
-      reg_b[0] = x_prev;
-
-// iterate
-#pragma unroll
-      for (int iL = 1; iL < NSAMPLES; iL++) {
-// update accum
-#pragma unroll
-        for (int counter = iL; counter < NSAMPLES; counter++)
-          reg_b_tmp[counter] -= x_prev * reg_L[counter];
-
-// load the next column of cholesky
-#pragma unroll
-        for (int counter = iL; counter < NSAMPLES; counter++)
-          reg_L[counter] = matrixL(counter, iL);
-
-        // compute the next x for M(iL, icol)
-        x_prev = reg_b_tmp[iL] / reg_L[iL];
-
-        // store the result value
-        reg_b[iL] = x_prev;
-      }
-    }
 
     // TODO: add active bxs
     template <typename MatrixType, typename VectorType>
@@ -1074,8 +616,8 @@ namespace hcal {
                           VectorType const& Atb,
                           VectorType& solution,
                           int& npassive,
-                          ColumnVector<VectorType::RowsAtCompileTime, int>& pulseOffsets,
-                          MapSymM<float, VectorType::RowsAtCompileTime>& matrixL,
+                          calo::multifit::ColumnVector<VectorType::RowsAtCompileTime, int>& pulseOffsets,
+                          calo::multifit::MapSymM<float, VectorType::RowsAtCompileTime>& matrixL,
                           double const eps,
                           int const maxIterations) {
       // constants
@@ -1103,7 +645,7 @@ namespace hcal {
 
           // compute the gradient
           //w.tail(nactive) = Atb.tail(nactive) - (AtA * solution).tail(nactive);
-          Eigen::Index w_max_idx;
+	  Eigen::Index w_max_idx;
           float w_max = -std::numeric_limits<float>::max();
           for (int icol = npassive; icol < NPULSES; icol++) {
             auto const icol_real = pulseOffsets(icol);
@@ -1112,7 +654,7 @@ namespace hcal {
 #pragma unroll
             for (int counter = 0; counter < NPULSES; counter++)
               sum += counter > icol_real ? AtA(counter, icol_real) * solution(counter)
-                                         : AtA(icol_real, counter) * solution(counter);
+		: AtA(icol_real, counter) * solution(counter);
 
             auto const w = atb - sum;
             if (w > w_max) {
@@ -1134,7 +676,7 @@ namespace hcal {
           // move index to the right part of the vector
           w_max_idx += npassive;
 
-          Eigen::numext::swap(pulseOffsets.coeffRef(npassive), pulseOffsets.coeffRef(w_max_idx));
+	  Eigen::numext::swap(pulseOffsets.coeffRef(npassive), pulseOffsets.coeffRef(w_max_idx));
           ++npassive;
         }
 
@@ -1149,9 +691,9 @@ namespace hcal {
           //        .llt().matrixL();
           //.solve(Atb.head(npassive));
           if (recompute || iter == 0)
-            compute_decomposition_forwardsubst_with_offsets(matrixL, AtA, reg_b, Atb, npassive, pulseOffsets);
+	    calo::multifit::compute_decomposition_forwardsubst_with_offsets(matrixL, AtA, reg_b, Atb, npassive, pulseOffsets);
           else
-            update_decomposition_forwardsubst_with_offsets(matrixL, AtA, reg_b, Atb, npassive, pulseOffsets);
+	    calo::multifit::update_decomposition_forwardsubst_with_offsets(matrixL, AtA, reg_b, Atb, npassive, pulseOffsets);
 
           // run backward substituion
           s(npassive - 1) = reg_b[npassive - 1] / matrixL(npassive - 1, npassive - 1);
@@ -1178,7 +720,7 @@ namespace hcal {
           recompute = true;
 
           auto alpha = std::numeric_limits<float>::max();
-          Eigen::Index alpha_idx = 0, alpha_idx_real = 0;
+	  Eigen::Index alpha_idx = 0, alpha_idx_real = 0;
           for (int i = 0; i < npassive; i++) {
             if (s[i] <= 0.) {
               auto const i_real = pulseOffsets(i);
@@ -1201,7 +743,7 @@ namespace hcal {
           solution[alpha_idx_real] = 0;
           --npassive;
 
-          Eigen::numext::swap(pulseOffsets.coeffRef(npassive), pulseOffsets.coeffRef(alpha_idx));
+	  Eigen::numext::swap(pulseOffsets.coeffRef(npassive), pulseOffsets.coeffRef(alpha_idx));
         }
 
         // as in cpu
@@ -1213,11 +755,11 @@ namespace hcal {
 
     template <int NSAMPLES, int NPULSES>
     __forceinline__ __device__ void update_covariance(
-        ColumnVector<NPULSES> const& resultAmplitudesVector,
-        MapSymM<float, NSAMPLES>& covarianceMatrix,
-        Eigen::Map<const ColMajorMatrix<NSAMPLES, NPULSES>> const& pulseMatrix,
-        Eigen::Map<const ColMajorMatrix<NSAMPLES, NPULSES>> const& pulseMatrixM,
-        Eigen::Map<const ColMajorMatrix<NSAMPLES, NPULSES>> const& pulseMatrixP) {
+        calo::multifit::ColumnVector<NPULSES> const& resultAmplitudesVector,
+        calo::multifit::MapSymM<float, NSAMPLES>& covarianceMatrix,
+        Eigen::Map<const calo::multifit::ColMajorMatrix<NSAMPLES, NPULSES>> const& pulseMatrix,
+        Eigen::Map<const calo::multifit::ColMajorMatrix<NSAMPLES, NPULSES>> const& pulseMatrixM,
+        Eigen::Map<const calo::multifit::ColMajorMatrix<NSAMPLES, NPULSES>> const& pulseMatrixP) {
 #pragma unroll
       for (int ipulse = 0; ipulse < NPULSES; ipulse++) {
         auto const resultAmplitude = resultAmplitudesVector(ipulse);
@@ -1314,9 +856,9 @@ namespace hcal {
 
       // configure shared mem
       extern __shared__ char shrmem[];
-      float* shrMatrixLFnnlsStorage = reinterpret_cast<float*>(shrmem) + MapSymM<float, NPULSES>::total * threadIdx.x;
+      float* shrMatrixLFnnlsStorage = reinterpret_cast<float*>(shrmem) + calo::multifit::MapSymM<float, NPULSES>::total * threadIdx.x;
       float* shrAtAStorage =
-          reinterpret_cast<float*>(shrmem) + MapSymM<float, NPULSES>::total * (threadIdx.x + blockDim.x);
+	reinterpret_cast<float*>(shrmem) + calo::multifit::MapSymM<float, NPULSES>::total * (threadIdx.x + blockDim.x);
 
       // conditions for pedestal widths
       auto const id = gch < nchannelsf01HE
@@ -1328,8 +870,8 @@ namespace hcal {
       auto const did = DetId{id};
       auto const hashedId =
           did.subdetId() == HcalBarrel
-              ? did2linearIndexHB(id, maxDepthHB, firstHBRing, lastHBRing, nEtaHB)
-              : did2linearIndexHE(id, maxDepthHE, maxPhiHE, firstHERing, lastHERing, nEtaHE) + offsetForHashes;
+	? hcal::reconstruction::did2linearIndexHB(id, maxDepthHB, firstHBRing, lastHBRing, nEtaHB)
+	: hcal::reconstruction::did2linearIndexHE(id, maxDepthHE, maxPhiHE, firstHERing, lastHERing, nEtaHE) + offsetForHashes;
 
       auto const* pedestalWidthsForChannel = useEffectivePedestals && (gch < nchannelsf01HE || gch >= nchannelsf015)
                                                  ? effectivePedestalWidths + hashedId * 4
@@ -1356,23 +898,23 @@ namespace hcal {
       */
       constexpr float deltaChi2Threashold = 1e-3;
 
-      ColumnVector<NPULSES, int> pulseOffsets;
+      calo::multifit::ColumnVector<NPULSES, int> pulseOffsets;
 #pragma unroll
       for (int i = 0; i < NPULSES; ++i)
         pulseOffsets(i) = i;
       //        pulseOffsets(i) = pulseOffsetValues[i] - pulseOffsetValues[0];
 
       // output amplitudes/weights
-      ColumnVector<NPULSES> resultAmplitudesVector = ColumnVector<NPULSES>::Zero();
+      calo::multifit::ColumnVector<NPULSES> resultAmplitudesVector = calo::multifit::ColumnVector<NPULSES>::Zero();
 
       // map views
-      Eigen::Map<const ColumnVector<NSAMPLES>> inputAmplitudesView{inputAmplitudes + gch * NSAMPLES};
-      Eigen::Map<const ColumnVector<NSAMPLES>> noiseTermsView{noiseTerms + gch * NSAMPLES};
-      Eigen::Map<const ColMajorMatrix<NSAMPLES, NPULSES>> glbPulseMatrixMView{pulseMatricesM +
+      Eigen::Map<const calo::multifit::ColumnVector<NSAMPLES>> inputAmplitudesView{inputAmplitudes + gch * NSAMPLES};
+      Eigen::Map<const calo::multifit::ColumnVector<NSAMPLES>> noiseTermsView{noiseTerms + gch * NSAMPLES};
+      Eigen::Map<const calo::multifit::ColMajorMatrix<NSAMPLES, NPULSES>> glbPulseMatrixMView{pulseMatricesM +
                                                                               gch * NSAMPLES * NPULSES};
-      Eigen::Map<const ColMajorMatrix<NSAMPLES, NPULSES>> glbPulseMatrixPView{pulseMatricesP +
+      Eigen::Map<const calo::multifit::ColMajorMatrix<NSAMPLES, NPULSES>> glbPulseMatrixPView{pulseMatricesP +
                                                                               gch * NSAMPLES * NPULSES};
-      Eigen::Map<const ColMajorMatrix<NSAMPLES, NPULSES>> glbPulseMatrixView{pulseMatrices + gch * NSAMPLES * NPULSES};
+      Eigen::Map<const calo::multifit::ColMajorMatrix<NSAMPLES, NPULSES>> glbPulseMatrixView{pulseMatrices + gch * NSAMPLES * NPULSES};
 
 #ifdef HCAL_MAHI_GPUDEBUG
       for (int i = 0; i < NSAMPLES; i++)
@@ -1405,12 +947,12 @@ namespace hcal {
         // if does not hold -> slightly rearrange shared mem to still reuse
         // shared memory
         float* covarianceMatrixStorage = shrMatrixLFnnlsStorage;
-        MapSymM<float, NSAMPLES> covarianceMatrix{covarianceMatrixStorage};
+	calo::multifit::MapSymM<float, NSAMPLES> covarianceMatrix{covarianceMatrixStorage};
 #pragma unroll
-        for (int counter = 0; counter < MapSymM<float, NSAMPLES>::total; counter++)
+        for (int counter = 0; counter < calo::multifit::MapSymM<float, NSAMPLES>::total; counter++)
           covarianceMatrixStorage[counter] = averagePedestalWidth2;
 #pragma unroll
-        for (int counter = 0; counter < MapSymM<float, NSAMPLES>::stride; counter++)
+        for (int counter = 0; counter < calo::multifit::MapSymM<float, NSAMPLES>::stride; counter++)
           covarianceMatrix(counter, counter) += __ldg(&noiseTermsView.coeffRef(counter));
 
         // update covariance matrix
@@ -1429,9 +971,9 @@ namespace hcal {
         // compute Cholesky Decomposition L matrix
         //matrixDecomposition.compute(covarianceMatrix);
         //auto const& matrixL = matrixDecomposition.matrixL();
-        float matrixLStorage[MapSymM<float, NSAMPLES>::total];
-        MapSymM<float, NSAMPLES> matrixL{matrixLStorage};
-        compute_decomposition_unrolled(matrixL, covarianceMatrix);
+        float matrixLStorage[calo::multifit::MapSymM<float, NSAMPLES>::total];
+	calo::multifit::MapSymM<float, NSAMPLES> matrixL{matrixLStorage};
+	calo::multifit::compute_decomposition_unrolled(matrixL, covarianceMatrix);
 
         //
         // replace eigen
@@ -1439,8 +981,8 @@ namespace hcal {
         //auto const& A = matrixDecomposition
         //    .matrixL()
         //    .solve(pulseMatrixView);
-        ColMajorMatrix<NSAMPLES, NPULSES> A;
-        solve_forward_subst_matrix(A, glbPulseMatrixView, matrixL);
+	calo::multifit::ColMajorMatrix<NSAMPLES, NPULSES> A;
+	calo::multifit::solve_forward_subst_matrix(A, glbPulseMatrixView, matrixL);
 
         //
         // remove eigen
@@ -1449,7 +991,7 @@ namespace hcal {
         //   .solve(inputAmplitudesView);
         //
         float reg_b[NSAMPLES];
-        solve_forward_subst_vector(reg_b, inputAmplitudesView, matrixL);
+	calo::multifit::solve_forward_subst_vector(reg_b, inputAmplitudesView, matrixL);
 
         // TODO: we do not really need to change these matrcies
         // will be fixed in the optimized version
@@ -1457,8 +999,8 @@ namespace hcal {
         //ColumnVector<NPULSES> Atb = A.transpose() * b;
         //ColMajorMatrix<NPULSES, NPULSES> AtA;
         //float AtAStorage[MapSymM<float, NPULSES>::total];
-        MapSymM<float, NPULSES> AtA{shrAtAStorage};
-        ColumnVector<NPULSES> Atb;
+	calo::multifit::MapSymM<float, NPULSES> AtA{shrAtAStorage};
+	calo::multifit::ColumnVector<NPULSES> Atb;
 #pragma unroll
         for (int icol = 0; icol < NPULSES; icol++) {
           float reg_ai[NSAMPLES];
@@ -1525,11 +1067,11 @@ namespace hcal {
 #endif
 
         // for fnnls
-        MapSymM<float, NPULSES> matrixLForFnnls{shrMatrixLFnnlsStorage};
+	calo::multifit::MapSymM<float, NPULSES> matrixLForFnnls{shrMatrixLFnnlsStorage};
 
         // run fast nnls
         // FIXME: provide values from config
-        fnnls(AtA, Atb, resultAmplitudesVector, npassive, pulseOffsets, matrixLForFnnls, 1e-11, 500);
+	fnnls(AtA, Atb, resultAmplitudesVector, npassive, pulseOffsets, matrixLForFnnls, 1e-11, 500);
 
 #ifdef HCAL_MAHI_GPUDEBUG
         printf("result Amplitudes\n");
@@ -1540,7 +1082,7 @@ namespace hcal {
         // replace pulseMatrixView * result - inputs
         // NOTE:
         float accum[NSAMPLES];
-        Eigen::Map<ColumnVector<NSAMPLES>> mapAccum{accum};
+        Eigen::Map<calo::multifit::ColumnVector<NSAMPLES>> mapAccum{accum};
         {
           float results[NPULSES];
 
@@ -1716,7 +1258,7 @@ namespace hcal {
           conditions.respCorrs.values,
           conditions.topology->maxDepthHB(),
           conditions.topology->maxDepthHE(),
-          conditions.recConstants->getNPhi(1) > IPHI_MAX ? conditions.recConstants->getNPhi(1) : IPHI_MAX,
+          conditions.recConstants->getNPhi(1) > hcal::reconstruction::IPHI_MAX ? conditions.recConstants->getNPhi(1) : hcal::reconstruction::IPHI_MAX,
           conditions.topology->firstHBRing(),
           conditions.topology->lastHBRing(),
           conditions.topology->firstHERing(),
@@ -1770,7 +1312,7 @@ namespace hcal {
           configParameters.timeSigmaHPD,
           conditions.topology->maxDepthHB(),
           conditions.topology->maxDepthHE(),
-          conditions.recConstants->getNPhi(1) > IPHI_MAX ? conditions.recConstants->getNPhi(1) : IPHI_MAX,
+          conditions.recConstants->getNPhi(1) > hcal::reconstruction::IPHI_MAX ? conditions.recConstants->getNPhi(1) : hcal::reconstruction::IPHI_MAX,
           conditions.topology->firstHBRing(),
           conditions.topology->lastHBRing(),
           conditions.topology->firstHERing(),
@@ -1790,7 +1332,7 @@ namespace hcal {
         // FIXME: provide constants from configuration
         uint32_t threadsPerBlock = configParameters.kernelMinimizeThreads[0];
         uint32_t blocks = threadsPerBlock > totalChannels ? 1 : (totalChannels + threadsPerBlock - 1) / threadsPerBlock;
-        auto const nbytesShared = 2 * threadsPerBlock * MapSymM<float, 8>::total * sizeof(float);
+        auto const nbytesShared = 2 * threadsPerBlock * calo::multifit::MapSymM<float, 8>::total * sizeof(float);
         kernel_minimize<8, 8><<<blocks, threadsPerBlock, nbytesShared, cudaStream>>>(
             outputGPU.recHits.energy.get(),
             outputGPU.recHits.chi2.get(),
@@ -1815,7 +1357,7 @@ namespace hcal {
             conditions.offsetForHashes,
             conditions.topology->maxDepthHB(),
             conditions.topology->maxDepthHE(),
-            conditions.recConstants->getNPhi(1) > IPHI_MAX ? conditions.recConstants->getNPhi(1) : IPHI_MAX,
+            conditions.recConstants->getNPhi(1) > hcal::reconstruction::IPHI_MAX ? conditions.recConstants->getNPhi(1) : hcal::reconstruction::IPHI_MAX,
             conditions.topology->firstHBRing(),
             conditions.topology->lastHBRing(),
             conditions.topology->firstHERing(),
