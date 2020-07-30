@@ -10,9 +10,9 @@
 #include "DataFormats/Math/interface/approx_exp.h"
 #include "DataFormats/Math/interface/approx_log.h"
 
-#include "KernelHelpers.h"
-#include "AmplitudeComputationKernels.h"
 #include "AmplitudeComputationCommonKernels.h"
+#include "AmplitudeComputationKernels.h"
+#include "KernelHelpers.h"
 
 namespace ecal {
   namespace multifit {
@@ -143,9 +143,9 @@ namespace ecal {
 
       extern __shared__ char shrmem[];
       DataType* shrMatrixLForFnnlsStorage =
-          reinterpret_cast<DataType*>(shrmem) + MapSymM<DataType, NPULSES>::total * threadIdx.x;
-      DataType* shrAtAStorage =
-          reinterpret_cast<DataType*>(shrmem) + MapSymM<DataType, NPULSES>::total * (threadIdx.x + blockDim.x);
+          reinterpret_cast<DataType*>(shrmem) + calo::multifit::MapSymM<DataType, NPULSES>::total * threadIdx.x;
+      DataType* shrAtAStorage = reinterpret_cast<DataType*>(shrmem) +
+                                calo::multifit::MapSymM<DataType, NPULSES>::total * (threadIdx.x + blockDim.x);
 
       // FIXME: remove eitehr idx or ch -> they are teh same thing
       int idx = threadIdx.x + blockDim.x * blockIdx.x;
@@ -174,12 +174,12 @@ namespace ecal {
         int iter = 0;
         int npassive = 0;
 
-        ColumnVector<NPULSES, int> pulseOffsets;
+        calo::multifit::ColumnVector<NPULSES, int> pulseOffsets;
 #pragma unroll
         for (int i = 0; i < NPULSES; ++i)
           pulseOffsets(i) = i;
 
-        ColumnVector<NPULSES, DataType> resultAmplitudes;
+        calo::multifit::ColumnVector<NPULSES, DataType> resultAmplitudes;
 #pragma unroll
         for (int counter = 0; counter < NPULSES; counter++)
           resultAmplitudes(counter) = 0;
@@ -197,7 +197,7 @@ namespace ecal {
           //inverse_cov = noisecov[idx];
           //DataType covMatrixStorage[MapSymM<DataType, NSAMPLES>::total];
           DataType* covMatrixStorage = shrMatrixLForFnnlsStorage;
-          MapSymM<DataType, NSAMPLES> covMatrix{covMatrixStorage};
+          calo::multifit::MapSymM<DataType, NSAMPLES> covMatrix{covMatrixStorage};
           int counter = 0;
 #pragma unroll
           for (int col = 0; col < NSAMPLES; col++)
@@ -210,21 +210,21 @@ namespace ecal {
           // compute actual covariance decomposition
           //covariance_decomposition.compute(inverse_cov);
           //auto const& matrixL = covariance_decomposition.matrixL();
-          DataType matrixLStorage[MapSymM<DataType, NSAMPLES>::total];
-          MapSymM<DataType, NSAMPLES> matrixL{matrixLStorage};
-          compute_decomposition_unrolled(matrixL, covMatrix);
+          DataType matrixLStorage[calo::multifit::MapSymM<DataType, NSAMPLES>::total];
+          calo::multifit::MapSymM<DataType, NSAMPLES> matrixL{matrixLStorage};
+          calo::multifit::compute_decomposition_unrolled(matrixL, covMatrix);
 
           // L * A = P
-          ColMajorMatrix<NSAMPLES, NPULSES> A;
-          solve_forward_subst_matrix(A, pulse_matrix[idx], matrixL);
+          calo::multifit::ColMajorMatrix<NSAMPLES, NPULSES> A;
+          calo::multifit::solve_forward_subst_matrix(A, pulse_matrix[idx], matrixL);
 
           // L b = s
           float reg_b[NSAMPLES];
-          solve_forward_subst_vector(reg_b, samples[idx], matrixL);
+          calo::multifit::solve_forward_subst_vector(reg_b, samples[idx], matrixL);
 
           // FIXME: shared mem
           //DataType AtAStorage[MapSymM<DataType, NPULSES>::total];
-          MapSymM<DataType, NPULSES> AtA{shrAtAStorage};
+          calo::multifit::MapSymM<DataType, NPULSES> AtA{shrAtAStorage};
           //SampleMatrix AtA;
           SampleVector Atb;
 #pragma unroll
@@ -277,7 +277,7 @@ namespace ecal {
 
           // FIXME: shared mem
           //DataType matrixLForFnnlsStorage[MapSymM<DataType, NPULSES>::total];
-          MapSymM<DataType, NPULSES> matrixLForFnnls{shrMatrixLForFnnlsStorage};
+          calo::multifit::MapSymM<DataType, NPULSES> matrixLForFnnls{shrMatrixLForFnnlsStorage};
 
           fnnls(AtA,
                 Atb,
@@ -384,8 +384,9 @@ namespace ecal {
         unsigned int blocks_min = threads_min > totalChannels ? 1 : (totalChannels + threads_min - 1) / threads_min;
         uint32_t const offsetForHashes = conditions.offsetForHashes;
         uint32_t const offsetForInputs = eventInputGPU.ebDigis.size;
-        auto const nbytesShared =
-            2 * threads_min * MapSymM<DataType, SampleVector::RowsAtCompileTime>::total * sizeof(DataType);
+        auto const nbytesShared = 2 * threads_min *
+                                  calo::multifit::MapSymM<DataType, SampleVector::RowsAtCompileTime>::total *
+                                  sizeof(DataType);
         kernel_minimize<<<blocks_min, threads_min, nbytesShared, cudaStream>>>(
             eventInputGPU.ebDigis.ids.get(),
             eventInputGPU.eeDigis.ids.get(),

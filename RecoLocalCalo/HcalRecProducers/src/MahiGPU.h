@@ -2,6 +2,7 @@
 #define RecoLocalCalo_HcalRecProducers_src_MahiGPU_h
 
 #include "DeclsForKernels.h"
+#include "KernelHelpers.h"
 
 namespace hcal {
   namespace mahi {
