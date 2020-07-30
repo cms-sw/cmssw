@@ -20,7 +20,6 @@
 #include "Geometry/CommonDetUnit/interface/GeomDet.h"
 
 #include "RecoTracker/MeasurementDet/interface/MeasurementTrackerEvent.h"
-#include "RecoTracker/Record/interface/TrackerRecoGeometryRecord.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 
 #include "TrackingTools/GeomPropagators/interface/Propagator.h"
