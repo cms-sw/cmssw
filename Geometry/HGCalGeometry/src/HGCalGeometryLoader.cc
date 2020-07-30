@@ -33,7 +33,6 @@ HGCalGeometry* HGCalGeometryLoader::build(const HGCalTopology& topology) {
   edm::LogVerbatim("HGCalGeom") << "Number of Cells " << numberOfCells << ":" << numberExpected << " for sub-detector "
                                 << topology.subDetector() << " Shapes " << numberOfShapes << ":" << parametersPerShape_
                                 << " mode " << topology.geomMode();
-  ;
 #endif
   geom->allocateCorners(numberOfCells);
   geom->allocatePar(numberOfShapes, parametersPerShape_);
