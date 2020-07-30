@@ -60,14 +60,13 @@ public:
   void produce(edm::Event& iEvent, edm::EventSetup const& iSetup, Output const& iOutput) override {
     //check the results
     const auto& output1 = iOutput.begin()->second;
-    std::vector<float> tmp;
     // convert from server format
-    output1.fromServer(tmp);
+    const auto& tmp = output1.fromServer<float>();
     std::stringstream msg;
     for (int i = 0; i < output1.shape()[0]; ++i) {
       msg << "output " << i << ": ";
       for (int j = 0; j < output1.shape()[1]; ++j) {
-        msg << tmp[output1.shape()[1] * i + j] << " ";
+        msg << tmp[0][output1.shape()[1] * i + j] << " ";
       }
       msg << "\n";
     }

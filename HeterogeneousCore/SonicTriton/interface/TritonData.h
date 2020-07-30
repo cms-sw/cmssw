@@ -2,6 +2,7 @@
 #define HeterogeneousCore_SonicTriton_TritonData
 
 #include "FWCore/Utilities/interface/Exception.h"
+#include "FWCore/Utilities/interface/Span.h"
 
 #include <vector>
 #include <string>
@@ -32,7 +33,7 @@ public:
   template <typename DT>
   void toServer(std::shared_ptr<std::vector<DT>> ptr);
   template <typename DT>
-  void fromServer(std::vector<DT>& data_out) const;
+  std::vector<edm::Span<const DT*>> fromServer() const;
 
   //const accessors
   const std::vector<int64_t>& dims() const { return dims_; }
@@ -82,7 +83,7 @@ template <typename DT>
 void TritonInputData::toServer(std::shared_ptr<std::vector<DT>> ptr);
 template <>
 template <typename DT>
-void TritonOutputData::fromServer(std::vector<DT>& dataOut) const;
+std::vector<edm::Span<const DT*>> TritonOutputData::fromServer() const;
 template <>
 void TritonInputData::reset();
 template <>
