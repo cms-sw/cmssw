@@ -33,7 +33,8 @@ public:
     // create an npix x npix x ncol image w/ arbitrary color value
     // model only has one input, so just pick begin()
     auto& input1 = iInput.begin()->second;
-    auto data1 = std::make_shared<std::vector<float>>(input1.sizeDims() * input1.batchSize(), 0.5f);
+    auto data1 = std::make_shared<std::vector<std::vector<float>>>();
+    data1->resize(input1.batchSize(),std::vector<float>(input1.sizeDims(), 0.5f));
     // convert to server format
     input1.toServer(data1);
   }

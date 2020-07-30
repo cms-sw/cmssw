@@ -43,7 +43,7 @@ Useful `TritonData` accessors include:
 In a SONIC Triton producer, the basic flow should follow this pattern:
 1. `acquire()`:  
     a. access input object(s) from `TritonInputMap`  
-    b. allocate input data using `std::make_shared<std::vector<T>>()`  
+    b. allocate input data using `std::make_shared<std::vector<std::vector<T>>>()`  
     c. fill input data  
     d. set input shape(s) (optional, only if any variable dimensions)  
     e. convert using `toServer()` function of input object(s)  

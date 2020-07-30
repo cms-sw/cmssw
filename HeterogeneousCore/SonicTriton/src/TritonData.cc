@@ -38,8 +38,13 @@ TritonData<IO>::TritonData(const std::string& name, std::shared_ptr<IO> data)
 //io accessors
 template <>
 template <typename DT>
-void TritonInputData::toServer(std::shared_ptr<std::vector<DT>> ptr) {
+void TritonInputData::toServer(std::shared_ptr<std::vector<std::vector<DT>>> ptr) {
   const auto& data_in = *ptr;
+
+  //check batch size
+  if (data_in.size() != batchSize_) {
+    throw cms::Exception("TritonDataError") << name_ << " input(): input vector has size " << data_in.size() << " but specified batch size is " << batchSize_;
+  }
 
   //shape must be specified for variable dims
   if (variableDims_) {
@@ -58,7 +63,7 @@ void TritonInputData::toServer(std::shared_ptr<std::vector<DT>> ptr) {
 
   int64_t nInput = sizeShape();
   for (unsigned i0 = 0; i0 < batchSize_; ++i0) {
-    const DT* arr = &(data_in[i0 * nInput]);
+    const DT* arr = data_in[i0].data();
     triton_utils::throwIfError(data_->SetRaw(reinterpret_cast<const uint8_t*>(arr), nInput * byteSize_),
                                name_ + " input(): unable to set data for batch entry " + std::to_string(i0));
   }
@@ -124,8 +129,8 @@ void TritonOutputData::reset() {
 template class TritonData<nic::InferContext::Input>;
 template class TritonData<nic::InferContext::Output>;
 
-template void TritonInputData::toServer(std::shared_ptr<std::vector<float>> data_in);
-template void TritonInputData::toServer(std::shared_ptr<std::vector<int64_t>> data_in);
+template void TritonInputData::toServer(std::shared_ptr<std::vector<std::vector<float>>> data_in);
+template void TritonInputData::toServer(std::shared_ptr<std::vector<std::vector<int64_t>>> data_in);
 
 template std::vector<edm::Span<const float*>> TritonOutputData::fromServer() const;
 
