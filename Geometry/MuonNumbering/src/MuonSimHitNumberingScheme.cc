@@ -25,7 +25,7 @@ MuonSimHitNumberingScheme::MuonSimHitNumberingScheme(MuonSubDetector* d, const M
 
 MuonSimHitNumberingScheme::~MuonSimHitNumberingScheme() { delete theNumbering; }
 
-int MuonSimHitNumberingScheme::baseNumberToUnitNumber(const MuonBaseNumber& num) {
+int MuonSimHitNumberingScheme::baseNumberToUnitNumber(const MuonBaseNumber& num) const {
   if (theNumbering) {
     return theNumbering->baseNumberToUnitNumber(num);
   } else {

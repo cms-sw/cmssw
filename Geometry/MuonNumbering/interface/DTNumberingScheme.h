@@ -21,7 +21,7 @@ public:
   DTNumberingScheme(const MuonGeometryConstants& muonConstants);
   ~DTNumberingScheme() override {}
 
-  int baseNumberToUnitNumber(const MuonBaseNumber& num) override;
+  int baseNumberToUnitNumber(const MuonBaseNumber& num) const override;
 
   int getDetId(const MuonBaseNumber& num) const;
 

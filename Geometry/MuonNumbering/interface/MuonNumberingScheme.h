@@ -16,10 +16,10 @@ class MuonDDDConstants;
 
 class MuonNumberingScheme {
 public:
-  MuonNumberingScheme(){};
-  virtual ~MuonNumberingScheme(){};
+  MuonNumberingScheme() {};
+  virtual ~MuonNumberingScheme() {};
 
-  virtual int baseNumberToUnitNumber(const MuonBaseNumber&);
+  virtual int baseNumberToUnitNumber(const MuonBaseNumber&) const;
 
 private:
 };
