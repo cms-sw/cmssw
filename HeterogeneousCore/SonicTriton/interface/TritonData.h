@@ -31,7 +31,7 @@ public:
 
   //io accessors
   template <typename DT>
-  void toServer(std::shared_ptr<std::vector<DT>> ptr);
+  void toServer(std::shared_ptr<std::vector<std::vector<DT>>> ptr);
   template <typename DT>
   std::vector<edm::Span<const DT*>> fromServer() const;
 
@@ -80,7 +80,7 @@ using TritonOutputMap = std::unordered_map<std::string, TritonOutputData>;
 //avoid "explicit specialization after instantiation" error
 template <>
 template <typename DT>
-void TritonInputData::toServer(std::shared_ptr<std::vector<DT>> ptr);
+void TritonInputData::toServer(std::shared_ptr<std::vector<std::vector<DT>>> ptr);
 template <>
 template <typename DT>
 std::vector<edm::Span<const DT*>> TritonOutputData::fromServer() const;

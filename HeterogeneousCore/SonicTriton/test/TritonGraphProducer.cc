@@ -34,23 +34,25 @@ public:
     //set shapes
     auto& input1 = iInput.at("x__0");
     input1.shape() = {nnodes, input1.dims()[1]};
-    auto data1 = std::make_shared<std::vector<float>>();
-    data1->reserve(input1.sizeShape());
+    auto data1 = std::make_shared<std::vector<std::vector<float>>>(1);
+    auto& vdata1 = (*data1)[0];
+    vdata1.reserve(input1.sizeShape());
 
     auto& input2 = iInput.at("edgeindex__1");
     input2.shape() = {input2.dims()[0], nedges};
-    auto data2 = std::make_shared<std::vector<int64_t>>();
-    data2->reserve(input2.sizeShape());
+    auto data2 = std::make_shared<std::vector<std::vector<int64_t>>>(1);
+    auto& vdata2 = (*data2)[0];
+    vdata2.reserve(input2.sizeShape());
 
     //fill
     std::normal_distribution<float> randx(-10, 4);
     for (unsigned i = 0; i < input1.sizeShape(); ++i) {
-      data1->push_back(randx(rng));
+      vdata1.push_back(randx(rng));
     }
 
     std::uniform_int_distribution<int> randedge(0, nnodes - 1);
     for (unsigned i = 0; i < input2.sizeShape(); ++i) {
-      data2->push_back(randedge(rng));
+      vdata2.push_back(randedge(rng));
     }
 
     // convert to server format
