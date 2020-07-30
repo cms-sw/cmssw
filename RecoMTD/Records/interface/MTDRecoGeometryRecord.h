@@ -17,6 +17,7 @@
 
 class MTDRecoGeometryRecord
     : public edm::eventsetup::DependentRecordImplementation<MTDRecoGeometryRecord,
-                                                            edm::mpl::Vector<MTDTopologyRcd, MTDDigiGeometryRecord> > {};
+                                                            edm::mpl::Vector<MTDTopologyRcd, MTDDigiGeometryRecord> > {
+};
 
 #endif
