@@ -115,8 +115,8 @@ deepMetResolutionTuneTable = cms.EDProducer("SimpleCandidateFlatTableProducer",
     singleton = cms.bool(True), # there's always exactly one MET per event
     extension = cms.bool(False), # this is the main table for the MET
     variables = cms.PSet(#NOTA BENE: we don't copy PTVars here!
-        pt = Var("corPt('RawDeepResolutionTune')", float, doc="raw DeepResolutionTune pt"),
-        phi = Var("corPhi('RawDeepResolutionTune')", float, doc="raw DeepResolutionTune phi"),
+        pt = Var("corPt('RawDeepResolutionTune')", float, doc="DeepMET ResolutionTune pt",precision=-1),
+        phi = Var("corPhi('RawDeepResolutionTune')", float, doc="DeepmET ResolutionTune phi",precision=12),
     ),
 )
 
@@ -127,8 +127,8 @@ deepMetResponseTuneTable = cms.EDProducer("SimpleCandidateFlatTableProducer",
     singleton = cms.bool(True), # there's always exactly one MET per event
     extension = cms.bool(False), # this is the main table for the MET
     variables = cms.PSet(#NOTA BENE: we don't copy PTVars here!
-        pt = Var("corPt('RawDeepResponseTune')", float, doc="raw DeepResponseTune pt"),
-        phi = Var("corPhi('RawDeepResponseTune')", float, doc="raw DeepResponseTune phi"),
+        pt = Var("corPt('RawDeepResponseTune')", float, doc="DeepMET ResponseTune pt",precision=-1),
+        phi = Var("corPhi('RawDeepResponseTune')", float, doc="DeepMET ResponseTune phi",precision=12),
     ),
 )
 
