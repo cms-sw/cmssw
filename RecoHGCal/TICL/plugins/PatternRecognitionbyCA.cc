@@ -10,6 +10,9 @@
 #include "RecoLocalCalo/HGCalRecProducers/interface/ComputeClusterTime.h"
 
 #include "TrackstersPCA.h"
+#include "Geometry/CaloGeometry/interface/CaloGeometry.h"
+#include "Geometry/Records/interface/CaloGeometryRecord.h"
+#include "FWCore/Framework/interface/EventSetup.h"
 
 using namespace ticl;
 
@@ -55,7 +58,10 @@ void PatternRecognitionbyCA<TILES>::makeTracksters(
   if (input.regions.empty())
     return;
 
-  rhtools_.getEventSetup(input.es);
+  edm::ESHandle<CaloGeometry> geom;
+  edm::EventSetup const &es = input.es;
+  es.get<CaloGeometryRecord>().get(geom);
+  rhtools_.setGeometry(*geom);
 
   theGraph_->setVerbosity(PatternRecognitionAlgoBaseT<TILES>::algo_verbosity_);
   theGraph_->clear();

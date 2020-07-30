@@ -166,7 +166,9 @@ void HGCalShowerSeparation::bookHistograms(DQMStore::IBooker& ibooker,
 void HGCalShowerSeparation::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
   using namespace edm;
 
-  recHitTools_.getEventSetup(iSetup);
+  edm::ESHandle<CaloGeometry> geom;
+  iSetup.get<CaloGeometryRecord>().get(geom);
+  recHitTools_.setGeometry(*geom);
 
   Handle<HGCRecHitCollection> recHitHandleEE;
   Handle<HGCRecHitCollection> recHitHandleFH;
