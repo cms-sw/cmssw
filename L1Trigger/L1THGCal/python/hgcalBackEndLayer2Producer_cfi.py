@@ -146,20 +146,20 @@ histoMax_C3d_params = cms.PSet(
 
 energy_interpretations_em = cms.PSet(type = cms.string('HGCalTriggerClusterInterpretationEM'),
                                      layer_containment_corrs = cms.vdouble(0., 0.0, 1.38, 0.97, 1.11, 0.92, 1.06, 1.01, 1.06, 0.89, 1.0, 1.06, 0.89, 1.62, 1.83),
-                                     scale_correction_coeff = cms.vdouble(-27.15, 53.94),
+                                     scale_correction_coeff = cms.vdouble(53.94, -27.15),
                                      dr_bylayer = cms.vdouble([0.015]*15)
                                      )
 
 phase2_hgcalV10.toModify(
         energy_interpretations_em,
         layer_containment_corrs=cms.vdouble(0., 0.0, 1.73, 0.97, 1.08, 1.1, 1.01, 0.96, 1.18, 0.98, 1.05, 0.99, 0.89, 1.75, 2.0),
-        scale_correction_coeff=cms.vdouble(-27.53, 53.92),
+        scale_correction_coeff=cms.vdouble(53.92, -27.53),
         )
 
 phase2_hgcalV11.toModify(
         energy_interpretations_em,
         layer_containment_corrs=cms.vdouble(0., 0.0, 1.28, 1.09, 1.0, 1.07, 1.09, 1.04, 1.0, 1.09, 1.07, 1.03, 0.93, 1.4, 1.89),
-        scale_correction_coeff=cms.vdouble(-24.96, 52.99),
+        scale_correction_coeff=cms.vdouble(52.99, -24.96),
         )
 
 
