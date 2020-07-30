@@ -7,6 +7,8 @@
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/ForwardDetId/interface/ForwardSubdetector.h"
 #include "DataFormats/ForwardDetId/interface/HFNoseDetId.h"
+#include "Geometry/CaloGeometry/interface/CaloGeometry.h"
+#include "Geometry/Records/interface/CaloGeometryRecord.h"
 
 class CaloGeometry;
 class CaloSubdetectorGeometry;
@@ -23,8 +25,9 @@ namespace hgcal {
     RecHitTools() : geom_(nullptr), fhOffset_(0), bhOffset_(0), fhLastLayer_(0), noseLastLayer_(0), geometryType_(0) {}
     ~RecHitTools() {}
 
-    void getEvent(const edm::Event&);
-    void getEventSetup(const edm::EventSetup&);
+    //void getEvent(const edm::Event&);
+    //void getEventSetup(const edm::EventSetup&);
+    void setGeometry(CaloGeometry const&);
     const CaloSubdetectorGeometry* getSubdetectorGeometry(const DetId& id) const;
 
     GlobalPoint getPosition(const DetId& id) const;

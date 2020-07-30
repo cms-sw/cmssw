@@ -36,7 +36,9 @@ public:
   void getEvent(const edm::Event& ev) { clusterTools->getEvent(ev); }
   void getEventSetup(const edm::EventSetup& es) {
     clusterTools->getEventSetup(es);
-    rhtools_.getEventSetup(es);
+    edm::ESHandle<CaloGeometry> geom;
+    es.get<CaloGeometryRecord>().get(geom);
+    rhtools_.setGeometry(*geom);
     maxlayer = rhtools_.lastLayerBH();
     points.clear();
     minpos.clear();

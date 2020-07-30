@@ -47,7 +47,11 @@ FilteredLayerClustersProducer::FilteredLayerClustersProducer(const edm::Paramete
   produces<std::vector<float>>(iteration_label_);
 }
 
-void FilteredLayerClustersProducer::beginRun(edm::Run const&, edm::EventSetup const& es) { rhtools_.getEventSetup(es); }
+void FilteredLayerClustersProducer::beginRun(edm::Run const&, edm::EventSetup const& es) { 
+    edm::ESHandle<CaloGeometry> geom;
+    es.get<CaloGeometryRecord>().get(geom);
+    rhtools_.setGeometry(*geom);
+}
 
 void FilteredLayerClustersProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   // hgcalMultiClusters

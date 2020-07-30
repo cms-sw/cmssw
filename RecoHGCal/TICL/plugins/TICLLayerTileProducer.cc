@@ -43,7 +43,11 @@ TICLLayerTileProducer::TICLLayerTileProducer(const edm::ParameterSet &ps)
     produces<TICLLayerTiles>();
 }
 
-void TICLLayerTileProducer::beginRun(edm::Run const &, edm::EventSetup const &es) { rhtools_.getEventSetup(es); }
+void TICLLayerTileProducer::beginRun(edm::Run const &, edm::EventSetup const &es) { 
+     edm::ESHandle<CaloGeometry> geom;
+     es.get<CaloGeometryRecord>().get(geom);
+    rhtools_.setGeometry(*geom); 
+}
 
 void TICLLayerTileProducer::produce(edm::Event &evt, const edm::EventSetup &) {
   auto result = std::make_unique<TICLLayerTiles>();

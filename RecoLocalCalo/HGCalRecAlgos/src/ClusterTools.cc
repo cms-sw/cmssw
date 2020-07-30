@@ -5,6 +5,7 @@
 #include "DataFormats/HcalDetId/interface/HcalSubdetector.h"
 #include "Geometry/HGCalGeometry/interface/HGCalGeometry.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
+#include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 
 #include "FWCore/Framework/interface/ESHandle.h"
 
@@ -25,7 +26,6 @@ ClusterTools::ClusterTools(const edm::ParameterSet& conf, edm::ConsumesCollector
       bhtok(sumes.consumes<HGCRecHitCollection>(conf.getParameter<edm::InputTag>("HGCBHInput"))) {}
 
 void ClusterTools::getEvent(const edm::Event& ev) {
-  rhtools_.getEvent(ev);
   edm::Handle<HGCRecHitCollection> temp;
   ev.getByToken(eetok, temp);
   eerh_ = temp.product();
@@ -35,7 +35,10 @@ void ClusterTools::getEvent(const edm::Event& ev) {
   bhrh_ = temp.product();
 }
 
-void ClusterTools::getEventSetup(const edm::EventSetup& es) { rhtools_.getEventSetup(es); }
+void ClusterTools::getEventSetup(const edm::EventSetup& es) {
+  edm::ESHandle<CaloGeometry> geom;
+  es.get<CaloGeometryRecord>().get(geom);
+  rhtools_.setGeometry(*geom); }
 
 float ClusterTools::getClusterHadronFraction(const reco::CaloCluster& clus) const {
   float energy = 0.f, energyHad = 0.f;
