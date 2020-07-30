@@ -21,7 +21,6 @@ from RecoLocalTracker.SiPixelRecHits.PixelCPEParmError_cfi import *
 #TransientTrackingBuilder
 from RecoTracker.TransientTrackingRecHit.TransientTrackingRecHitBuilder_cfi import *
 from RecoTracker.TransientTrackingRecHit.TransientTrackingRecHitBuilderWithoutRefit_cfi import *
-import copy
 from RecoTracker.SpecialSeedGenerators.CombinatorialSeedGeneratorForCosmics_cfi import *
 # seeding layers
 combinatorialcosmicseedingtripletsP5 = cms.EDProducer("SeedingLayersEDProducer",
@@ -82,7 +81,6 @@ combinatorialcosmicseedinglayersP5Task = cms.Task(combinatorialcosmicseedingtrip
                                                   combinatorialcosmicseedingpairsTECnegP5)
 combinatorialcosmicseedinglayersP5 = cms.Sequence(combinatorialcosmicseedinglayersP5Task)
 #recHitMatcher
-#include "RecoLocalTracker/SiStripRecHitConverter/data/SiStripRecHitMatcher.cfi"
 #seeding module
 combinatorialcosmicseedfinderP5 = combinatorialcosmicseedfinder.clone(
 #replace combinatorialcosmicseedfinderP5.SetMomentum = false

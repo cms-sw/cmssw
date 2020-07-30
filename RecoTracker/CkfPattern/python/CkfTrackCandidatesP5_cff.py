@@ -12,7 +12,6 @@ from RecoTracker.CkfPattern.GroupedCkfTrajectoryBuilderP5_cff import *
 from TrackingTools.TrajectoryCleaning.TrajectoryCleanerBySharedHits_cfi import *
 # Navigation School
 from RecoTracker.TkNavigation.NavigationSchoolESProducer_cff import *
-import copy
 from RecoTracker.CkfPattern.CkfTrackCandidates_cfi import *
 # generate CTF track candidates ############
 ckfTrackCandidatesP5 = ckfTrackCandidates.clone(
