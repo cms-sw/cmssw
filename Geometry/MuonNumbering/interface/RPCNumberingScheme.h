@@ -19,7 +19,7 @@ class RPCNumberingScheme : public MuonNumberingScheme {
 public:
   RPCNumberingScheme(const MuonGeometryConstants& muonConstants);
 
-  ~RPCNumberingScheme() override {};
+  ~RPCNumberingScheme() override{};
 
   int baseNumberToUnitNumber(const MuonBaseNumber&) const override;
 

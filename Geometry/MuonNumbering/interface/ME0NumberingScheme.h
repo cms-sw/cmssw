@@ -10,7 +10,7 @@ class ME0NumberingScheme : public MuonNumberingScheme {
 public:
   ME0NumberingScheme(const MuonGeometryConstants& muonConstants);
 
-  ~ME0NumberingScheme() override {};
+  ~ME0NumberingScheme() override{};
 
   int baseNumberToUnitNumber(const MuonBaseNumber&) const override;
 
