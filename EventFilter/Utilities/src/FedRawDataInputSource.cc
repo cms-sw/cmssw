@@ -61,7 +61,8 @@ FedRawDataInputSource::FedRawDataInputSource(edm::ParameterSet const& pset, edm:
       alwaysStartFromFirstLS_(pset.getUntrackedParameter<bool>("alwaysStartFromFirstLS", false)),
       verifyChecksum_(pset.getUntrackedParameter<bool>("verifyChecksum", true)),
       useL1EventID_(pset.getUntrackedParameter<bool>("useL1EventID", false)),
-      testTCDSFEDRange_(pset.getUntrackedParameter<std::vector<unsigned int>>("testTCDSFEDRange", std::vector<unsigned int>())),
+      testTCDSFEDRange_(
+          pset.getUntrackedParameter<std::vector<unsigned int>>("testTCDSFEDRange", std::vector<unsigned int>())),
       fileNames_(pset.getUntrackedParameter<std::vector<std::string>>("fileNames", std::vector<std::string>())),
       fileListMode_(pset.getUntrackedParameter<bool>("fileListMode", false)),
       fileListLoopMode_(pset.getUntrackedParameter<bool>("fileListLoopMode", false)),
@@ -618,7 +619,8 @@ void FedRawDataInputSource::read(edm::EventPrincipal& eventPrincipal) {
     makeEvent(eventPrincipal, aux);
   } else if (tcds_pointer_ == nullptr) {
     if (!GTPEventID_) {
-      throw cms::Exception("FedRawDataInputSource::read") << "No TCDS or GTP FED in event with FEDHeader EID -: " << L1EventID_;
+      throw cms::Exception("FedRawDataInputSource::read")
+          << "No TCDS or GTP FED in event with FEDHeader EID -: " << L1EventID_;
     }
     eventID_ = edm::EventID(eventRunNumber_, currentLumiSection_, GTPEventID_);
     edm::EventAuxiliary aux(eventID_, processGUID(), tstamp, true, edm::EventAuxiliary::PhysicsTrigger);
@@ -704,25 +706,26 @@ edm::Timestamp FedRawDataInputSource::fillFEDRawDataCollection(FEDRawDataCollect
     const uint16_t fedId = fedHeader.sourceID();
     if (fedId > FEDNumbering::MAXFEDID) {
       throw cms::Exception("FedRawDataInputSource::fillFEDRawDataCollection") << "Out of range FED ID : " << fedId;
-    }
-    else if (UNLIKELY(testTCDSFEDRange_.size())) {
-      if (testTCDSFEDRange_.size()!=2) {
-        throw cms::Exception("FedRawDataInputSource::fillFEDRawDataCollection") << "Invalid TCDS Test FED range parameter";
+    } else if (UNLIKELY(testTCDSFEDRange_.size())) {
+      if (testTCDSFEDRange_.size() != 2) {
+        throw cms::Exception("FedRawDataInputSource::fillFEDRawDataCollection")
+            << "Invalid TCDS Test FED range parameter";
       }
       if (fedId >= testTCDSFEDRange_[0] && fedId <= testTCDSFEDRange_[1]) {
         if (!selectedTCDSFed) {
           selectedTCDSFed = fedId;
           tcds_pointer_ = event + eventSize;
-        }
-        else throw cms::Exception("FedRawDataInputSource::fillFEDRawDataCollection") << "Second TCDS FED ID " << fedId << " found. First ID: " << selectedTCDSFed;
+        } else
+          throw cms::Exception("FedRawDataInputSource::fillFEDRawDataCollection")
+              << "Second TCDS FED ID " << fedId << " found. First ID: " << selectedTCDSFed;
       }
-    }
-    else if (fedId >= FEDNumbering::MINTCDSuTCAFEDID && fedId <= FEDNumbering::MAXTCDSuTCAFEDID) {
+    } else if (fedId >= FEDNumbering::MINTCDSuTCAFEDID && fedId <= FEDNumbering::MAXTCDSuTCAFEDID) {
       if (!selectedTCDSFed) {
         selectedTCDSFed = fedId;
         tcds_pointer_ = event + eventSize;
-      }
-        else throw cms::Exception("FedRawDataInputSource::fillFEDRawDataCollection") << "Second TCDS FED ID " << fedId << " found. First ID: " << selectedTCDSFed;
+      } else
+        throw cms::Exception("FedRawDataInputSource::fillFEDRawDataCollection")
+            << "Second TCDS FED ID " << fedId << " found. First ID: " << selectedTCDSFed;
     }
     if (fedId == FEDNumbering::MINTriggerGTPFEDID) {
       if (evf::evtn::evm_board_sense(event + eventSize, fedSize))
@@ -1536,7 +1539,7 @@ long FedRawDataInputSource::initFileList() {
     else if (fileStem.find("file:") == 0)
       fileStem = fileStem.substr(5);
     auto end = fileStem.find('_');
-    
+
     if (fileStem.find("run") == 0) {
       std::string runStr = fileStem.substr(3, end - 3);
       try {
