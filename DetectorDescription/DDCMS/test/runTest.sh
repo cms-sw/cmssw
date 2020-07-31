@@ -13,3 +13,4 @@ do
   echo "===== Test \"cmsRun $entry \" ===="
   (cmsRun $entry) || die "Failure using cmsRun $entry" $?
 done
+
