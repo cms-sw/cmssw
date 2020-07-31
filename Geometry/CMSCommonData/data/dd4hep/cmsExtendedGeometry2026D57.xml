@@ -7,10 +7,14 @@
     <Include ref='Geometry/CMSCommonData/data/materials/2021/v1/materials.xml'/>
     <Include ref='Geometry/CMSCommonData/data/rotations.xml'/>
     <Include ref='Geometry/CMSCommonData/data/extend/v2/cmsextent.xml'/>
+    <Include ref='Geometry/CMSCommonData/data/cavernData/2021/v1/cavernData.xml'/>
+    <Include ref='Geometry/CMSCommonData/data/cms/2026/v4/cms.xml'/>
     <Include ref='Geometry/CMSCommonData/data/cmsMother.xml'/>
     <Include ref='Geometry/CMSCommonData/data/eta3/etaMax.xml'/>
     <Include ref='Geometry/CMSCommonData/data/cmsTracker.xml'/>
+    <Include ref='Geometry/CMSCommonData/data/caloBase/2026/v3/caloBase.xml'/>
     <Include ref='Geometry/CMSCommonData/data/cmsCalo.xml'/>
+    <Include ref='Geometry/CMSCommonData/data/muonBase/2026/v4/muonBase.xml'/>
     <Include ref='Geometry/CMSCommonData/data/cmsMuon.xml'/>
     <Include ref='Geometry/CMSCommonData/data/mgnt.xml'/>
     <Include ref='Geometry/CMSCommonData/data/beampipe/2026/v2/beampipe.xml'/>
@@ -18,11 +22,7 @@
     <Include ref='Geometry/CMSCommonData/data/muonMB.xml'/>
     <Include ref='Geometry/CMSCommonData/data/muonMagnet.xml'/>
     <Include ref='Geometry/CMSCommonData/data/cavern/2021/v1/cavern.xml'/>
-    <Include ref='Geometry/CMSCommonData/data/cavernData/2021/v1/cavernData.xml'/>
     <Include ref='Geometry/CMSCommonData/data/cavernFloor/2017/v1/cavernFloor.xml'/>
-    <Include ref='Geometry/CMSCommonData/data/cms/2026/v4/cms.xml'/>
-    <Include ref='Geometry/CMSCommonData/data/caloBase/2026/v3/caloBase.xml'/>
-    <Include ref='Geometry/CMSCommonData/data/muonBase/2026/v4/muonBase.xml'/>
     <Include ref='Geometry/TrackerCommonData/data/PhaseII/trackerParameters.xml'/>
     <Include ref='Geometry/TrackerCommonData/data/pixfwdCommon.xml'/>
     <Include ref='Geometry/TrackerCommonData/data/PhaseII/TiltedTracker613_MB_2019_04/pixfwd.xml'/>
