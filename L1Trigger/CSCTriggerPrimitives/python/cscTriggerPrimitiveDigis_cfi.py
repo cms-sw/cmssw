@@ -392,7 +392,7 @@ me11tmbSLHCGEM = cms.PSet(
 
     ## matching to pads
     maxDeltaBXPad = cms.int32(1),
-    maxDeltaBXCoPad = cms.int32(1),
+    maxDeltaBXCoPad = cms.int32(0),
     maxDeltaPadL1Even = cms.int32(12),
     maxDeltaPadL1Odd = cms.int32(24),
     maxDeltaPadL2Even = cms.int32(12),
@@ -445,7 +445,7 @@ me21tmbSLHCGEM = cms.PSet(
 
     ## matching to pads
     maxDeltaBXPad = cms.int32(1),
-    maxDeltaBXCoPad = cms.int32(1),
+    maxDeltaBXCoPad = cms.int32(0),
     maxDeltaPadL1Even = cms.int32(12),
     maxDeltaPadL1Odd = cms.int32(24),
     maxDeltaPadL2Even = cms.int32(12),
