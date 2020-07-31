@@ -1,4 +1,5 @@
 #include "PhysicsTools/NanoAOD/plugins/TriggerOutputBranches.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/Registry.h"
 
@@ -21,7 +22,7 @@ TriggerOutputBranches::updateTriggerNames(TTree & tree, const edm::TriggerNames 
        for(unsigned int j=0;j<newNames.size();j++) {
 	 std::string name=newNames[j]; // no const & as it will be modified below!
 	 std::size_t vfound = name.rfind("_v");
-	 if (vfound!=std::string::npos){
+	 if (vfound!=std::string::npos && (name.compare(0, 3, "HLT") == 0 || name.compare(0, 2, "L1") == 0)){
            name.replace(vfound,name.size()-vfound,"");
 	 }
 	 if(name==existing.name) existing.idx=j;
@@ -31,16 +32,20 @@ TriggerOutputBranches::updateTriggerNames(TTree & tree, const edm::TriggerNames 
    for(unsigned int j=0;j<newNames.size();j++) {
        std::string name=newNames[j]; // no const & as it will be modified below!
        std::size_t vfound = name.rfind("_v");
-       if (vfound!=std::string::npos){
+       if (vfound!=std::string::npos && (name.compare(0, 3, "HLT") == 0 || name.compare(0, 2, "L1") == 0)){
            name.replace(vfound,name.size()-vfound,"");
        }
        bool found=false;
        if(name.compare(0,3,"HLT")==0 || name.compare(0,4,"Flag")==0 || name.compare(0,2,"L1")==0 ){
            for(auto & existing : m_triggerBranches) {if(name==existing.name) found=true;}
            if(!found){
-                NamedBranchPtr nb(name,"Trigger/flag bit"); //FIXME: If the title can be updated we can use it to list the versions _v* that were seen in this file
+	        NamedBranchPtr nb(name,
+				  std::string("Trigger/flag bit (process: ") + m_processName +
+				  ")");  //FIXME: If the title can be updated we can use it to list the versions _v* that were seen in this file
                 uint8_t backFillValue=0;
-                nb.branch= tree.Branch(nb.name.c_str(), &backFillValue, (name + "/O").c_str()); 
+		bool found_duplicate = verifyBranchUniqueName(tree, nb.name);
+		std::string brname = nb.name + (found_duplicate ? (std::string("_p") + m_processName) : "");
+		nb.branch = tree.Branch(brname.c_str(), &backFillValue, (brname + "/O").c_str());
                 nb.branch->SetTitle(nb.title.c_str());
                 nb.idx=j;
                 m_triggerBranches.push_back(nb);
@@ -88,5 +93,16 @@ void TriggerOutputBranches::fill(const edm::EventForOutput &iEvent,TTree & tree)
     m_fills++; 
 }
 
-
-
+bool TriggerOutputBranches::verifyBranchUniqueName(TTree& tree, std::string name) const {
+  auto const branches = tree.GetListOfBranches();
+  for (int i = 0; i < branches->GetEntries(); i++) {
+    if (name == std::string(branches->At(i)->GetName())) {
+      edm::LogWarning("TriggerOutputBranches")
+          << "Found a branch with name " << std::string(branches->At(i)->GetName()) << " already present with title "
+          << std::string(branches->At(i)->GetTitle()) << ": will add suffix _p" << m_processName
+          << " to the new branch.\n";
+      return true;
+    }
+  }
+  return false;
+}

@@ -196,7 +196,6 @@ jetTable = cms.EDProducer("SimpleCandidateFlatTableProducer",
     singleton = cms.bool(False), # the number of entries is variable
     extension = cms.bool(False), # this is the main table for the jets
     externalVariables = cms.PSet(
-        #bRegOld = ExtVar(cms.InputTag("bjetMVA"),float, doc="pt corrected with b-jet regression",precision=14),
         bRegCorr = ExtVar(cms.InputTag("bjetNN:corr"),float, doc="pt correction for b-jet energy regression",precision=10),
         bRegRes = ExtVar(cms.InputTag("bjetNN:res"),float, doc="res on pt corrected with b-jet regression",precision=6),
         cRegCorr = ExtVar(cms.InputTag("cjetNN:corr"),float, doc="pt correction for c-jet energy regression",precision=10),
@@ -240,36 +239,6 @@ jetTable.variables.pt.precision=10
 ### Era dependent customization
 run2_jme_2016.toModify( jetTable.variables, jetId = Var("userInt('tightIdLepVeto')*4+userInt('tightId')*2+userInt('looseId')",int,doc="Jet ID flags bit1 is loose, bit2 is tight, bit3 is tightLepVeto"))
 
-bjetMVA= cms.EDProducer("BJetEnergyRegressionMVA",
-    backend = cms.string("TMVA"),
-    src = cms.InputTag("linkedObjects","jets"),
-    pvsrc = cms.InputTag("offlineSlimmedPrimaryVertices"),
-    svsrc = cms.InputTag("slimmedSecondaryVertices"),
-    rhosrc = cms.InputTag("fixedGridRhoFastjetAll"),
-    weightFile =  cms.FileInPath("PhysicsTools/NanoAOD/data/bjet-regression.xml"),
-    name = cms.string("JetReg"),
-    isClassifier = cms.bool(False),
-    variablesOrder = cms.vstring(["Jet_pt","nPVs","Jet_eta","Jet_mt","Jet_leadTrackPt","Jet_leptonPtRel","Jet_leptonPt","Jet_leptonDeltaR","Jet_neHEF","Jet_neEmEF","Jet_vtxPt","Jet_vtxMass","Jet_vtx3dL","Jet_vtxNtrk","Jet_vtx3deL"]),
-    variables = cms.PSet(
-    Jet_pt = cms.string("pt"),
-    Jet_eta = cms.string("eta"),
-    Jet_mt = cms.string("mt"),
-    Jet_leadTrackPt = cms.string("userFloat('leadTrackPt')"),
-    Jet_vtxNtrk = cms.string("userInt('vtxNtrk')"),
-    Jet_vtxMass = cms.string("userFloat('vtxMass')"),
-    Jet_vtx3dL = cms.string("userFloat('vtx3dL')"),
-    Jet_vtx3deL = cms.string("userFloat('vtx3deL')"),
-    Jet_vtxPt = cms.string("userFloat('vtxPt')"),
-    Jet_leptonPtRel = cms.string("userFloat('leptonPtRelv0')"),
-    Jet_leptonPt = cms.string("?overlaps('muons').size()>0?overlaps('muons')[0].pt():(?overlaps('electrons').size()>0?overlaps('electrons')[0].pt():0)"),
-    Jet_neHEF = cms.string("neutralHadronEnergy()/energy()"),
-    Jet_neEmEF = cms.string("neutralEmEnergy()/energy()"),
-    Jet_leptonDeltaR = cms.string('''?overlaps('muons').size()>0?deltaR(eta,phi,overlaps('muons')[0].eta,overlaps('muons')[0].phi):
-				(?overlaps('electrons').size()>0?deltaR(eta,phi,overlaps('electrons')[0].eta,overlaps('electrons')[0].phi):
-				0)'''),
-    )
-
-)
 
 bjetNN= cms.EDProducer("BJetEnergyRegressionMVA",
     backend = cms.string("TF"),
@@ -672,7 +641,7 @@ _jetSequence_2016.insert(_jetSequence_2016.index(tightJetIdAK8), looseJetIdAK8)
 run2_jme_2016.toReplaceWith(jetSequence, _jetSequence_2016)
 
 #after cross linkining
-jetTables = cms.Sequence(bjetMVA+bjetNN+cjetNN+jetTable+fatJetTable+subJetTable+saJetTable+saTable)
+jetTables = cms.Sequence(bjetNN+cjetNN+jetTable+fatJetTable+subJetTable+saJetTable+saTable)
 
 #MC only producers and tables
 jetMC = cms.Sequence(jetMCTable+genJetTable+patJetPartons+genJetFlavourTable+genJetAK8Table+genJetAK8FlavourAssociation+genJetAK8FlavourTable+fatJetMCTable+genSubJetAK8Table+subjetMCTable)
