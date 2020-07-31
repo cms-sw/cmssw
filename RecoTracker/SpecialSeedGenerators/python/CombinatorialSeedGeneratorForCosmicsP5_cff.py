@@ -80,7 +80,6 @@ combinatorialcosmicseedinglayersP5Task = cms.Task(combinatorialcosmicseedingtrip
                                                   combinatorialcosmicseedingpairsTECposP5,
                                                   combinatorialcosmicseedingpairsTECnegP5)
 combinatorialcosmicseedinglayersP5 = cms.Sequence(combinatorialcosmicseedinglayersP5Task)
-#recHitMatcher
 #seeding module
 combinatorialcosmicseedfinderP5 = combinatorialcosmicseedfinder.clone(
 #replace combinatorialcosmicseedfinderP5.SetMomentum = false
