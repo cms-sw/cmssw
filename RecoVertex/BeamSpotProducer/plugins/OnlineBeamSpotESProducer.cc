@@ -26,13 +26,12 @@ using namespace edm;
 class OnlineBeamSpotESProducer : public edm::ESProducer {
 public:
   OnlineBeamSpotESProducer(const edm::ParameterSet& p);
-  ~OnlineBeamSpotESProducer() override;
   std::shared_ptr<const BeamSpotObjects> produce(const BeamSpotTransientObjectsRcd&);
   static void fillDescriptions(edm::ConfigurationDescriptions& desc);
 
 private:
   const BeamSpotOnlineObjects* compareBS(const BeamSpotOnlineObjects* bs1, const BeamSpotOnlineObjects* bs2);
-  BeamSpotObjects* fakeBS_;
+  std::shared_ptr<BeamSpotObjects> fakeBS_;
 
   edm::ESGetToken<BeamSpotObjects, BeamSpotTransientObjectsRcd> const bsToken_;
   edm::ESGetToken<BeamSpotOnlineObjects, BeamSpotOnlineHLTObjectsRcd> bsHLTToken_;
@@ -41,7 +40,7 @@ private:
 OnlineBeamSpotESProducer::OnlineBeamSpotESProducer(const edm::ParameterSet& p) {
   auto cc = setWhatProduced(this);
 
-  fakeBS_ = new BeamSpotOnlineObjects;
+  fakeBS_ = std::make_shared<BeamSpotOnlineObjects>();
   fakeBS_->SetBeamWidthX(0.1);
   fakeBS_->SetBeamWidthY(0.1);
   fakeBS_->SetSigmaZ(15.);
@@ -74,9 +73,6 @@ const BeamSpotOnlineObjects* OnlineBeamSpotESProducer::compareBS(const BeamSpotO
       return bs1;
     }
   }
-}
-OnlineBeamSpotESProducer::~OnlineBeamSpotESProducer() {
-  //delete fakeBS_;
 }
 
 std::shared_ptr<const BeamSpotObjects> OnlineBeamSpotESProducer::produce(const BeamSpotTransientObjectsRcd& iRecord) {

@@ -31,7 +31,6 @@ ________________________________________________________________**/
 class OnlineBeamSpotFromDB : public edm::one::EDAnalyzer<> {
 public:
   explicit OnlineBeamSpotFromDB(const edm::ParameterSet& iConfig);
-  ~OnlineBeamSpotFromDB() override;
   static void fillDescriptions(edm::ConfigurationDescriptions& desc);
   edm::ESGetToken<BeamSpotObjects, BeamSpotTransientObjectsRcd> bsToken_;
 
@@ -42,20 +41,11 @@ private:
 OnlineBeamSpotFromDB::OnlineBeamSpotFromDB(const edm::ParameterSet& iConfig)
     : bsToken_(esConsumes<BeamSpotObjects, BeamSpotTransientObjectsRcd>()) {}
 
-OnlineBeamSpotFromDB::~OnlineBeamSpotFromDB() {}
-
 void OnlineBeamSpotFromDB::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
-  //edm::ESHandle<BeamSpotObjects> beamGThandle;
-
   auto const& mybeamspot = iSetup.getData(bsToken_);
-  //iSetup.get<BeamSpotTransientObjectsRcd>().get(beamhandle);
-  //const BeamSpotObjects* mybeamspot = beamhandle.product();
-  //iSetup.get<BeamSpotObjectsRcd>().get(beamGThandle);
-  //const BeamSpotObjects* myGTbeamspot = beamGThandle.product();
 
   edm::LogInfo("Run numver: ") << iEvent.id().run();
   edm::LogInfo("beamspot from HLT ") << mybeamspot;
-  //edm::LogInfo("beamspot from GT ")<<*myGTbeamspot;
 }
 void OnlineBeamSpotFromDB::fillDescriptions(edm::ConfigurationDescriptions& desc) {
   edm::ParameterSetDescription dsc;
