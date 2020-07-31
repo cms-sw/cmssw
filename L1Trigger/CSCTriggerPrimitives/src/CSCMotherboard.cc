@@ -1,4 +1,5 @@
 #include "L1Trigger/CSCTriggerPrimitives/interface/CSCMotherboard.h"
+#include "L1Trigger/CSCTriggerPrimitives/interface/CSCLCTTools.h"
 #include <iostream>
 
 // Default values of configuration parameters.
@@ -36,6 +37,8 @@ CSCMotherboard::CSCMotherboard(unsigned endcap,
   drop_used_clcts = tmbParams_.getParameter<bool>("tmbDropUsedClcts");
 
   clct_to_alct = tmbParams_.getParameter<bool>("clctToAlct");
+
+  use_run3_patterns_ = clctParams_.getParameter<bool>("useRun3Patterns");
 
   // special tmb bits
   useHighMultiplicityBits_ = tmbParams_.getParameter<bool>("useHighMultiplicityBits");
@@ -130,8 +133,7 @@ void CSCMotherboard::run(const CSCWireDigiCollection* wiredc, const CSCComparato
 
   // Check for existing processors
   if (!(alctProc && clctProc)) {
-    if (infoV >= 0)
-      edm::LogError("CSCMotherboard|SetupError") << "+++ run() called for non-existing ALCT/CLCT processor! +++ \n";
+    edm::LogError("CSCMotherboard|SetupError") << "+++ run() called for non-existing ALCT/CLCT processor! +++ \n";
     return;
   }
 
@@ -399,6 +401,12 @@ std::vector<CSCCorrelatedLCTDigi> CSCMotherboard::readoutLCTs() const {
     else
       tmpV.push_back(*plct);
   }
+
+  // do a final check on the LCTs in readout
+  for (const auto& lct : tmpV) {
+    checkValid(lct);
+  }
+
   return tmpV;
 }
 
@@ -409,10 +417,10 @@ std::vector<CSCCorrelatedLCTDigi> CSCMotherboard::getLCTs() const {
   // Do not report LCTs found in ME1/A if mpc_block_me1/a is set.
   for (int bx = 0; bx < CSCConstants::MAX_LCT_TBINS; bx++) {
     if (firstLCT[bx].isValid())
-      if (!mpc_block_me1a || (!isME11_ || firstLCT[bx].getStrip() <= 127))
+      if (!mpc_block_me1a || (!isME11_ || firstLCT[bx].getStrip() <= CSCConstants::MAX_HALF_STRIP_ME1B))
         tmpV.push_back(firstLCT[bx]);
     if (secondLCT[bx].isValid())
-      if (!mpc_block_me1a || (!isME11_ || secondLCT[bx].getStrip() <= 127))
+      if (!mpc_block_me1a || (!isME11_ || secondLCT[bx].getStrip() <= CSCConstants::MAX_HALF_STRIP_ME1B))
         tmpV.push_back(secondLCT[bx]);
   }
   return tmpV;
@@ -634,4 +642,124 @@ void CSCMotherboard::encodeHighMultiplicityBits(unsigned alctBits) {
   // future versions may involve also bits from the CLCT processor
   // this depends on memory constraints in the TMB FPGA
   highMultiplicityBits_ = alctBits;
+}
+
+void CSCMotherboard::checkValid(const CSCCorrelatedLCTDigi& lct) const {
+  const unsigned max_strip = csctp::get_csc_max_halfstrip(theStation, theRing);
+  const unsigned max_quartstrip = csctp::get_csc_max_quartstrip(theStation, theRing);
+  const unsigned max_eightstrip = csctp::get_csc_max_eightstrip(theStation, theRing);
+  const unsigned max_wire = csctp::get_csc_max_wire(theStation, theRing);
+  const auto& [min_pattern, max_pattern] = csctp::get_csc_min_max_pattern(use_run3_patterns_);
+  const unsigned max_quality = csctp::get_csc_lct_max_quality();
+
+  unsigned errors = 0;
+
+  // LCT must be valid
+  if (!lct.isValid()) {
+    edm::LogError("CSCMotherboard") << "CSCCorrelatedLCTDigi with invalid bit set: " << lct.isValid();
+    errors++;
+  }
+
+  // LCT number is 1 or 2
+  if (lct.getTrknmb() < 1 or lct.getTrknmb() > 2) {
+    edm::LogError("CSCMotherboard") << "CSCCorrelatedLCTDigi with invalid track number: " << lct.getTrknmb()
+                                    << "; allowed [1,2]";
+    errors++;
+  }
+
+  // LCT quality must be valid
+  if (lct.getQuality() > max_quality) {
+    edm::LogError("CSCMotherboard") << "CSCCorrelatedLCTDigi with invalid quality: " << lct.getQuality()
+                                    << "; allowed [0,15]";
+    errors++;
+  }
+
+  // LCT key half-strip must be within bounds
+  if (lct.getStrip() > max_strip) {
+    edm::LogError("CSCMotherboard") << "CSCCorrelatedLCTDigi with invalid half-strip: " << lct.getStrip()
+                                    << "; allowed [0, " << max_strip << "]";
+    errors++;
+  }
+
+  // LCT key half-strip must be within bounds
+  if (lct.getStrip(4) >= max_quartstrip) {
+    edm::LogError("CSCMotherboard") << "CSCCorrelatedLCTDigi with invalid key quart-strip: " << lct.getStrip(4)
+                                    << "; allowed [0, " << max_quartstrip - 1 << "]";
+    errors++;
+  }
+
+  // LCT key half-strip must be within bounds
+  if (lct.getStrip(8) >= max_eightstrip) {
+    edm::LogError("CSCMotherboard") << "CSCCorrelatedLCTDigi with invalid key eight-strip: " << lct.getStrip(8)
+                                    << "; allowed [0, " << max_eightstrip - 1 << "]";
+    errors++;
+  }
+
+  // LCT key wire-group must be within bounds
+  if (lct.getKeyWG() > max_wire) {
+    edm::LogError("CSCMotherboard") << "CSCCorrelatedLCTDigi with invalid wire-group: " << lct.getKeyWG()
+                                    << "; allowed [0, " << max_wire << "]";
+    errors++;
+  }
+
+  // LCT with out-of-time BX
+  if (lct.getBX() > CSCConstants::MAX_LCT_TBINS - 1) {
+    edm::LogError("CSCMotherboard") << "CSCCorrelatedLCTDigi with invalid BX: " << lct.getBX() << "; allowed [0, "
+                                    << CSCConstants::MAX_LCT_TBINS - 1 << "]";
+    errors++;
+  }
+
+  // LCT with neither left nor right bending
+  if (lct.getBend() > 1) {
+    edm::LogError("CSCMotherboard") << "CSCCorrelatedLCTDigi with invalid bending: " << lct.getBend()
+                                    << "; allowed [0,1";
+    errors++;
+  }
+
+  // LCT with invalid CSCID
+  if (lct.getCSCID() < CSCTriggerNumbering::minTriggerCscId() or
+      lct.getCSCID() > CSCTriggerNumbering::maxTriggerCscId()) {
+    edm::LogError("CSCMotherboard") << "CSCCorrelatedLCTDigi with invalid CSCID: " << lct.getBend() << "; allowed ["
+                                    << CSCTriggerNumbering::minTriggerCscId() << ", "
+                                    << CSCTriggerNumbering::maxTriggerCscId() << "]";
+    errors++;
+  }
+
+  // LCT with an invalid pattern ID
+  if (lct.getPattern() < min_pattern or lct.getPattern() > max_pattern) {
+    edm::LogError("CSCMotherboard") << "CSCCorrelatedLCTDigi with invalid pattern ID: " << lct.getPattern()
+                                    << "; allowed [" << min_pattern << ", " << max_pattern << "]";
+    errors++;
+  }
+
+  // simulated LCT type must be valid
+  if (lct.getType() == CSCCorrelatedLCTDigi::CLCTALCT or lct.getType() == CSCCorrelatedLCTDigi::CLCTONLY or
+      lct.getType() == CSCCorrelatedLCTDigi::ALCTONLY) {
+    edm::LogError("CSCMotherboard") << "CSCCorrelatedLCTDigi with invalid type (SIM): " << lct.getType()
+                                    << "; allowed [" << CSCCorrelatedLCTDigi::ALCTCLCT << ", "
+                                    << CSCCorrelatedLCTDigi::CLCT2GEM << "]";
+    errors++;
+  }
+
+  // non-GEM-CSC stations ALWAYS send out ALCTCLCT type LCTs
+  if (!(theRing == 1 and (theStation == 1 or theStation == 2))) {
+    if (lct.getType() != CSCCorrelatedLCTDigi::ALCTCLCT) {
+      edm::LogError("CSCMotherboard") << "CSCCorrelatedLCTDigi with invalid type (SIM) in this station: "
+                                      << lct.getType() << "; allowed [" << CSCCorrelatedLCTDigi::ALCTCLCT << "]";
+      errors++;
+    }
+  }
+
+  // GEM-CSC stations can send out GEM-type LCTs ONLY when the ILT is turned on!
+  if (theRing == 1 and lct.getType() != CSCCorrelatedLCTDigi::ALCTCLCT) {
+    if ((theStation == 1 and !runME11ILT_) or (theStation == 2 and !runME21ILT_)) {
+      edm::LogError("CSCMotherboard") << "CSCCorrelatedLCTDigi with invalid type (SIM) with GEM-CSC trigger not on: "
+                                      << lct.getType() << "; allowed [" << CSCCorrelatedLCTDigi::ALCTCLCT << "]";
+      errors++;
+    }
+  }
+
+  if (errors > 0) {
+    edm::LogError("CSCMotherboard") << "Faulty LCT: " << cscId_ << " " << lct << "\n errors " << errors;
+  }
 }

@@ -75,7 +75,7 @@ public:
   std::vector<CSCALCTDigi> readoutALCTs(int nMaxALCTs = CSCConstants::MAX_ALCTS_READOUT) const;
 
   /** Returns vector of all found ALCTs, if any. */
-  std::vector<CSCALCTDigi> getALCTs(int nMaxALCTs = CSCConstants::MAX_ALCTS_READOUT) const;
+  std::vector<CSCALCTDigi> getALCTs(unsigned nMaxALCTs = CSCConstants::MAX_ALCTS_READOUT) const;
 
   /** read out pre-ALCTs */
   std::vector<CSCALCTPreTriggerDigi> preTriggerDigis() const { return thePreTriggerDigis; }
@@ -99,7 +99,7 @@ protected:
   CSCALCTDigi secondALCT[CSCConstants::MAX_ALCT_TBINS];
 
   /** LCTs in this chamber, as found by the processor. */
-  CSCALCTDigi ALCTContainer_[CSCConstants::MAX_ALCT_TBINS][CSCConstants::MAX_ALCTS_PER_PROCESSOR];
+  std::vector<std::vector<CSCALCTDigi> > ALCTContainer_;
 
   /** Access routines to wire digis. */
   bool getDigis(const CSCWireDigiCollection* wiredc);
@@ -230,6 +230,10 @@ protected:
 
   /** Dump digis on wire groups. */
   void dumpDigis(const std::vector<int> wire[CSCConstants::NUM_LAYERS][CSCConstants::MAX_NUM_WIRES]) const;
+
+  // Check if the ALCT is valid
+  void checkValidReadout(const CSCALCTDigi& alct) const;
+  void checkValid(const CSCALCTDigi& alct, unsigned max_stubs = CSCConstants::MAX_ALCTS_PER_PROCESSOR) const;
 
   void showPatterns(const int key_wire);
 };

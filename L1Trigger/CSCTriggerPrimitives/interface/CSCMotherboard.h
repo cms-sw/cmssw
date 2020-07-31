@@ -118,6 +118,9 @@ protected:
   unsigned int highMultiplicityBits_;
   bool useHighMultiplicityBits_;
 
+  // Use the new patterns according to the comparator code format
+  bool use_run3_patterns_;
+
   /** Default values of configuration parameters. */
   static const unsigned int def_mpc_block_me1a;
   static const unsigned int def_alct_trig_enable, def_clct_trig_enable;
@@ -164,6 +167,9 @@ protected:
 
   /** Dump TMB/MPC configuration parameters. */
   void dumpConfigParams() const;
+
+  // Check if the LCT is valid
+  void checkValid(const CSCCorrelatedLCTDigi& lct) const;
 
   /* encode high multiplicity bits for Run-3 exotic triggers */
   void encodeHighMultiplicityBits(unsigned alctBits);

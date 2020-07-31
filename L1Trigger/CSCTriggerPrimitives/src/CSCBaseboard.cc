@@ -91,11 +91,10 @@ void CSCBaseboard::checkConfigParameters(unsigned int& var,
                                          const std::string& var_str) {
   // Make sure that the parameter values are within the allowed range.
   if (var >= var_max) {
-    if (infoV >= 0)
-      edm::LogError("CSCConfigError") << "+++ Value of " + var_str + ", " << var << ", exceeds max allowed, " << var - 1
-                                      << " +++\n"
-                                      << "+++ Try to proceed with the default value, " + var_str + "=" << var_def
-                                      << " +++\n";
+    edm::LogError("CSCConfigError") << "+++ Value of " + var_str + ", " << var << ", exceeds max allowed, " << var - 1
+                                    << " +++\n"
+                                    << "+++ Try to proceed with the default value, " + var_str + "=" << var_def
+                                    << " +++\n";
     var = var_def;
   }
 }
