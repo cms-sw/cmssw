@@ -22,13 +22,10 @@ using namespace edm;
 class OfflineToTransientBeamSpotESProducer : public edm::ESProducer {
 public:
   OfflineToTransientBeamSpotESProducer(const edm::ParameterSet& p);
-  //  ~OfflineToTransientBeamSpotESProducer() override;
   std::shared_ptr<const BeamSpotObjects> produce(const BeamSpotTransientObjectsRcd&);
   static void fillDescriptions(edm::ConfigurationDescriptions& desc);
 
 private:
-  //const BeamSpotObjects* theOfflineBS_;
-  //const BeamSpotObjects *transientBS_ = nullptr;
   const BeamSpotObjects dummyBS_;
   edm::ESGetToken<BeamSpotObjects, BeamSpotTransientObjectsRcd> const bsToken_;
   edm::ESGetToken<BeamSpotObjects, BeamSpotObjectsRcd> bsOfflineToken_;
@@ -40,9 +37,6 @@ OfflineToTransientBeamSpotESProducer::OfflineToTransientBeamSpotESProducer(const
   bsOfflineToken_ = cc.consumesFrom<BeamSpotObjects, BeamSpotObjectsRcd>();
 }
 
-//OfflineToTransientBeamSpotESProducer::~OfflineToTransientBeamSpotESProducer() {
-//delete theOfflineBS_;
-//}
 void OfflineToTransientBeamSpotESProducer::fillDescriptions(edm::ConfigurationDescriptions& desc) {
   edm::ParameterSetDescription dsc;
   desc.addWithDefaultLabel(dsc);
