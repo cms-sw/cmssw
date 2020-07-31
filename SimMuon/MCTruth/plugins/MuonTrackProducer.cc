@@ -27,7 +27,6 @@
 class MuonTrackProducer : public edm::global::EDProducer<> {
 public:
   explicit MuonTrackProducer(const edm::ParameterSet &);
-  ~MuonTrackProducer() override;
 
 private:
   void produce(edm::StreamID, edm::Event &, const edm::EventSetup &) const override;
@@ -57,8 +56,6 @@ MuonTrackProducer::MuonTrackProducer(const edm::ParameterSet &parset)
   produces<reco::TrackExtraCollection>();
   produces<TrackingRecHitCollection>();
 }
-
-MuonTrackProducer::~MuonTrackProducer() {}
 
 void MuonTrackProducer::produce(edm::StreamID, edm::Event &iEvent, const edm::EventSetup &iSetup) const {
   edm::Handle<reco::MuonCollection> muonCollectionH = iEvent.getHandle(muonsToken);
