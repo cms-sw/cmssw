@@ -8,8 +8,9 @@
     <version ClassVersion="4" checksum="3132515293"/>
   </class>
 
-  <class name="TCDSRecord" ClassVersion="3">
-    <version ClassVersion="3" checksum="850266115"/>
+  <class name="TCDSRecord" ClassVersion="4">
+    <version ClassVersion="4" checksum="850266115"/>
+    <version ClassVersion="3" checksum="1408516613"/>
   </class>
 
   <class name="edm::RefProd<TCDSRecord>"/>
