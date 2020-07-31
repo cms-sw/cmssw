@@ -13,6 +13,7 @@
 #include "FWCore/ServiceRegistry/interface/ServiceMaker.h"
 #include "HeterogeneousCore/CUDAServices/interface/CUDAService.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/cudaCheck.h"
+#include "HeterogeneousCore/CUDAUtilities/interface/deviceAllocatorStatus.h"
 
 namespace edm {
   class StreamContext;
@@ -27,6 +28,7 @@ public:
 
   void postModuleConstruction(edm::ModuleDescription const& desc);
   void postModuleBeginStream(edm::StreamContext const&, edm::ModuleCallingContext const& mcc);
+  void postModuleEvent(edm::StreamContext const& sc, edm::ModuleCallingContext const& mcc);
   void postEvent(edm::StreamContext const& sc);
 
 private:
@@ -46,6 +48,9 @@ CUDAMonitoringService::CUDAMonitoringService(edm::ParameterSet const& config, ed
   if (config.getUntrackedParameter<bool>("memoryBeginStream")) {
     registry.watchPostModuleBeginStream(this, &CUDAMonitoringService::postModuleBeginStream);
   }
+  if (config.getUntrackedParameter<bool>("memoryPerModule")) {
+    registry.watchPostModuleEvent(this, &CUDAMonitoringService::postModuleEvent);
+  }
   if (config.getUntrackedParameter<bool>("memoryPerEvent")) {
     registry.watchPostEvent(this, &CUDAMonitoringService::postEvent);
   }
@@ -58,6 +63,8 @@ void CUDAMonitoringService::fillDescriptions(edm::ConfigurationDescriptions& des
       ->setComment("Print memory information for each device after the construction of each module");
   desc.addUntracked<bool>("memoryBeginStream", true)
       ->setComment("Print memory information for each device after the beginStream() of each module");
+  desc.addUntracked<bool>("memoryPerModule", true)
+      ->setComment("Print memory information for each device after the event of each module");
   desc.addUntracked<bool>("memoryPerEvent", true)
       ->setComment("Print memory information for each device after each event");
 
@@ -71,15 +78,23 @@ void CUDAMonitoringService::fillDescriptions(edm::ConfigurationDescriptions& des
 namespace {
   template <typename T>
   void dumpUsedMemory(T& log, int num) {
+    auto const cachingDeviceAllocatorStatus = cms::cuda::deviceAllocatorStatus();
     int old = 0;
     cudaCheck(cudaGetDevice(&old));
+    constexpr auto mbytes = 1 << 20;
     for (int i = 0; i < num; ++i) {
       size_t freeMemory, totalMemory;
       cudaCheck(cudaSetDevice(i));
       cudaCheck(cudaMemGetInfo(&freeMemory, &totalMemory));
       log << "\n"
-          << i << ": " << (totalMemory - freeMemory) / (1 << 20) << " MB used / " << totalMemory / (1 << 20)
-          << " MB total";
+          << i << ": " << (totalMemory - freeMemory) / mbytes << " MB used / " << totalMemory / mbytes << " MB total";
+      auto found = cachingDeviceAllocatorStatus.find(i);
+      if (found != cachingDeviceAllocatorStatus.end()) {
+        auto const& cached = found->second;
+        log << "; CachingDeviceAllocator " << cached.live / mbytes << " MB live "
+            << "(" << cached.liveRequested / mbytes << " MB requested) " << cached.free / mbytes << " MB free "
+            << (cached.live + cached.free) / mbytes << " MB total cached";
+      }
     }
     cudaCheck(cudaSetDevice(old));
   }
@@ -94,6 +109,13 @@ void CUDAMonitoringService::postModuleConstruction(edm::ModuleDescription const&
 void CUDAMonitoringService::postModuleBeginStream(edm::StreamContext const&, edm::ModuleCallingContext const& mcc) {
   auto log = edm::LogPrint("CUDAMonitoringService");
   log << "CUDA device memory after beginStream() of " << mcc.moduleDescription()->moduleLabel() << " ("
+      << mcc.moduleDescription()->moduleName() << ")";
+  dumpUsedMemory(log, numberOfDevices_);
+}
+
+void CUDAMonitoringService::postModuleEvent(edm::StreamContext const&, edm::ModuleCallingContext const& mcc) {
+  auto log = edm::LogPrint("CUDAMonitoringService");
+  log << "CUDA device memory after processing an event by " << mcc.moduleDescription()->moduleLabel() << " ("
       << mcc.moduleDescription()->moduleName() << ")";
   dumpUsedMemory(log, numberOfDevices_);
 }
