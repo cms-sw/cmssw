@@ -26,7 +26,6 @@ typedef std::vector<float> ParmVec;
 HGCalGeometry::HGCalGeometry(const HGCalTopology& topology_)
     : m_topology(topology_),
       m_validGeomIds(topology_.totalGeomModules()),
-      mode_(topology_.geomMode()),
       m_det(topology_.detector()),
       m_subdet(topology_.subDetector()),
       twoBysqrt3_(2.0 / std::sqrt(3.0)) {
