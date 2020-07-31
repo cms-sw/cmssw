@@ -361,6 +361,7 @@ nanoDQM = DQMEDAnalyzer("NanoAODDQM",
                 Plot1D('pt', 'pt', 20, 0, 400, 'pt'),
                 Plot1D('significance', 'significance', 20, 0, 200, 'MET significance'),
                 Plot1D('sumEt', 'sumEt', 20, 600, 5000, 'scalar sum of Et'),
+                Plot1D('sumPtUnclustered', 'sumPtUnclustered', 20, 0, 3000, 'sumPt used for MET significance'),
             )
         ),
         Muon = cms.PSet(
