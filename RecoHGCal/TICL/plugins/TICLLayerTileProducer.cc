@@ -7,6 +7,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/Utilities/interface/ESGetToken.h"
 
 #include "DataFormats/CaloRecHit/interface/CaloCluster.h"
 #include "DataFormats/HGCalReco/interface/TICLLayerTile.h"
@@ -24,6 +25,7 @@ public:
 private:
   edm::EDGetTokenT<std::vector<reco::CaloCluster>> clusters_token_;
   edm::EDGetTokenT<std::vector<reco::CaloCluster>> clusters_HFNose_token_;
+  edm::ESGetToken<CaloGeometry, CaloGeometryRecord> geometry_token_;
   hgcal::RecHitTools rhtools_;
   std::string detector_;
   bool doNose_;
@@ -34,6 +36,7 @@ TICLLayerTileProducer::TICLLayerTileProducer(const edm::ParameterSet &ps)
   clusters_HFNose_token_ =
       consumes<std::vector<reco::CaloCluster>>(ps.getParameter<edm::InputTag>("layer_HFNose_clusters"));
   clusters_token_ = consumes<std::vector<reco::CaloCluster>>(ps.getParameter<edm::InputTag>("layer_clusters"));
+  geometry_token_ = esConsumes<CaloGeometry, CaloGeometryRecord, edm::Transition::BeginRun>();
 
   doNose_ = (detector_ == "HFNose");
 
@@ -43,10 +46,9 @@ TICLLayerTileProducer::TICLLayerTileProducer(const edm::ParameterSet &ps)
     produces<TICLLayerTiles>();
 }
 
-void TICLLayerTileProducer::beginRun(edm::Run const &, edm::EventSetup const &es) { 
-     edm::ESHandle<CaloGeometry> geom;
-     es.get<CaloGeometryRecord>().get(geom);
-    rhtools_.setGeometry(*geom); 
+void TICLLayerTileProducer::beginRun(edm::Run const &, edm::EventSetup const &es) {
+  edm::ESHandle<CaloGeometry> geom = es.getHandle(geometry_token_);
+  rhtools_.setGeometry(*geom);
 }
 
 void TICLLayerTileProducer::produce(edm::Event &evt, const edm::EventSetup &) {

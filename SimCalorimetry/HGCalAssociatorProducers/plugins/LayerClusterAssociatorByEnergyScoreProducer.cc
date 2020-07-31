@@ -9,6 +9,7 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/EDGetToken.h"
+#include "FWCore/Utilities/interface/ESGetToken.h"
 
 #include "SimDataFormats/Associations/interface/LayerClusterToCaloParticleAssociator.h"
 #include "LayerClusterAssociatorByEnergyScoreImpl.h"
@@ -23,12 +24,14 @@ public:
 private:
   void produce(edm::StreamID, edm::Event &, const edm::EventSetup &) const override;
   edm::EDGetTokenT<std::unordered_map<DetId, const HGCRecHit *>> hitMap_;
+  edm::ESGetToken<CaloGeometry, CaloGeometryRecord> caloGeometry_;
   const bool hardScatterOnly_;
   std::shared_ptr<hgcal::RecHitTools> rhtools_;
 };
 
 LayerClusterAssociatorByEnergyScoreProducer::LayerClusterAssociatorByEnergyScoreProducer(const edm::ParameterSet &ps)
     : hitMap_(consumes<std::unordered_map<DetId, const HGCRecHit *>>(ps.getParameter<edm::InputTag>("hitMapTag"))),
+      caloGeometry_(esConsumes<CaloGeometry, CaloGeometryRecord>()),
       hardScatterOnly_(ps.getParameter<bool>("hardScatterOnly")) {
   rhtools_.reset(new hgcal::RecHitTools());
 
@@ -41,9 +44,8 @@ LayerClusterAssociatorByEnergyScoreProducer::~LayerClusterAssociatorByEnergyScor
 void LayerClusterAssociatorByEnergyScoreProducer::produce(edm::StreamID,
                                                           edm::Event &iEvent,
                                                           const edm::EventSetup &es) const {
-    edm::ESHandle<CaloGeometry> geom;
-    es.get<CaloGeometryRecord>().get(geom);
-    rhtools_->setGeometry(*geom);
+  edm::ESHandle<CaloGeometry> geom = es.getHandle(caloGeometry_);
+  rhtools_->setGeometry(*geom);
 
   const std::unordered_map<DetId, const HGCRecHit *> *hitMap = &iEvent.get(hitMap_);
 
