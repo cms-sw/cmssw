@@ -138,6 +138,9 @@ protected:
   void dumpDigis(const std::vector<int> strip[CSCConstants::NUM_LAYERS][CSCConstants::NUM_HALF_STRIPS_7CFEBS],
                  const int nStrips) const;
 
+  // Check if the CLCT is valid
+  void checkValid(const CSCCLCTDigi& lct, unsigned max_stubs = CSCConstants::MAX_CLCTS_PER_PROCESSOR) const;
+
   //--------------------------- Member variables -----------------------------
 
   /* best pattern Id for a given half-strip */

@@ -165,6 +165,9 @@ protected:
   /** Dump TMB/MPC configuration parameters. */
   void dumpConfigParams() const;
 
+  // Check if the LCT is valid
+  void checkValid(const CSCCorrelatedLCTDigi& lct) const;
+
   /* encode high multiplicity bits for Run-3 exotic triggers */
   void encodeHighMultiplicityBits(unsigned alctBits);
 };

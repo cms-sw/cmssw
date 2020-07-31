@@ -19,9 +19,13 @@ CSCGEMMotherboardME11::CSCGEMMotherboardME11(unsigned endcap,
       buildLCTfromCLCTandGEM_ME1b_(tmbParams_.getParameter<bool>("buildLCTfromCLCTandGEM_ME1b")),
       promoteCLCTGEMquality_ME1a_(tmbParams_.getParameter<bool>("promoteCLCTGEMquality_ME1a")),
       promoteCLCTGEMquality_ME1b_(tmbParams_.getParameter<bool>("promoteCLCTGEMquality_ME1b")) {
-  if (!isSLHC_)
-    edm::LogError("CSCGEMMotherboardME11|ConfigError")
-        << "+++ Upgrade CSCGEMMotherboardME11 constructed while isSLHC is not set! +++\n";
+  if (!isSLHC_) {
+    edm::LogError("CSCGEMMotherboardME11|SetupError") << "+++ TMB constructed while isSLHC is not set! +++\n";
+  }
+
+  if (!runME11ILT_) {
+    edm::LogError("CSCGEMMotherboardME11|SetupError") << "+++ TMB constructed while runME11ILT_ is not set! +++\n";
+  };
 
   // set LUTs
   tmbLUT_.reset(new CSCGEMMotherboardLUTME11());
@@ -30,9 +34,13 @@ CSCGEMMotherboardME11::CSCGEMMotherboardME11(unsigned endcap,
 
 CSCGEMMotherboardME11::CSCGEMMotherboardME11() : CSCGEMMotherboard() {
   // Constructor used only for testing.
-  if (!isSLHC_)
-    edm::LogError("CSCGEMMotherboardME11|ConfigError")
-        << "+++ Upgrade CSCGEMMotherboardME11 constructed while isSLHC is not set! +++\n";
+  if (!isSLHC_) {
+    edm::LogError("CSCGEMMotherboardME11|SetupError") << "+++ TMB constructed while isSLHC is not set! +++\n";
+  }
+
+  if (!runME11ILT_) {
+    edm::LogError("CSCGEMMotherboardME11|SetupError") << "+++ TMB constructed while runME11ILT_ is not set! +++\n";
+  }
 }
 
 CSCGEMMotherboardME11::~CSCGEMMotherboardME11() {}
@@ -71,17 +79,15 @@ void CSCGEMMotherboardME11::run(const CSCWireDigiCollection* wiredc,
 
   // check for GEM geometry
   if (not gemGeometryAvailable) {
-    if (infoV >= 0)
-      edm::LogError("CSCGEMMotherboardME11|SetupError")
-          << "+++ run() called for GEM-CSC integrated trigger without valid GEM geometry! +++ \n";
+    edm::LogError("CSCGEMMotherboardME11|SetupError")
+        << "+++ run() called for GEM-CSC integrated trigger without valid GEM geometry! +++ \n";
     return;
   }
   gemCoPadV = coPadProcessor->run(gemPads);  // run copad processor in GE1/1
 
-  if (!(alctProc and clctProc and isSLHC_)) {
-    if (infoV >= 0)
-      edm::LogError("CSCGEMMotherboardME11|SetupError")
-          << "+++ run() called for non-existing ALCT/CLCT processor! +++ \n";
+  if (!(alctProc and clctProc)) {
+    edm::LogError("CSCGEMMotherboardME11|SetupError")
+        << "+++ run() called for non-existing ALCT/CLCT processor! +++ \n";
     return;
   }
 
@@ -478,6 +484,12 @@ std::vector<CSCCorrelatedLCTDigi> CSCGEMMotherboardME11::readoutLCTsME11(enum CS
     } else
       tmpV.push_back(lct);
   }
+
+  // do a final check on the LCTs in readout
+  for (const auto& lct : tmpV) {
+    checkValid(lct);
+  }
+
   return tmpV;
 }
 

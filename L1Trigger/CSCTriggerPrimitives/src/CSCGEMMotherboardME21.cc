@@ -11,18 +11,26 @@ CSCGEMMotherboardME21::CSCGEMMotherboardME21(unsigned endcap,
       dropLowQualityALCTsNoGEMs_(tmbParams_.getParameter<bool>("dropLowQualityALCTsNoGEMs")),
       buildLCTfromALCTandGEM_(tmbParams_.getParameter<bool>("buildLCTfromALCTandGEM")),
       buildLCTfromCLCTandGEM_(tmbParams_.getParameter<bool>("buildLCTfromCLCTandGEM")) {
-  if (!isSLHC_ or !runME21ILT_)
-    edm::LogError("CSCGEMMotherboardME21|ConfigError")
-        << "+++ Upgrade CSCGEMMotherboardME21 constructed while isSLHC is not set! +++\n";
+  if (!isSLHC_) {
+    edm::LogError("CSCGEMMotherboardME21|SetupError") << "+++ TMB constructed while isSLHC is not set! +++\n";
+  }
+
+  if (!runME21ILT_) {
+    edm::LogError("CSCGEMMotherboardME21|SetupError") << "+++ TMB constructed while runME21ILT_ is not set! +++\n";
+  }
 
   // set LUTs
   tmbLUT_.reset(new CSCGEMMotherboardLUTME21());
 }
 
 CSCGEMMotherboardME21::CSCGEMMotherboardME21() : CSCGEMMotherboard() {
-  if (!isSLHC_ or !runME21ILT_)
-    edm::LogError("CSCGEMMotherboardME21|ConfigError")
-        << "+++ Upgrade CSCGEMMotherboardME21 constructed while isSLHC is not set! +++\n";
+  if (!isSLHC_) {
+    edm::LogError("CSCGEMMotherboardME21|SetupError") << "+++ TMB constructed while isSLHC is not set! +++\n";
+  }
+
+  if (!runME21ILT_) {
+    edm::LogError("CSCGEMMotherboardME21|SetupError") << "+++ TMB constructed while runME21ILT_ is not set! +++\n";
+  }
 }
 
 CSCGEMMotherboardME21::~CSCGEMMotherboardME21() {}
@@ -54,17 +62,15 @@ void CSCGEMMotherboardME21::run(const CSCWireDigiCollection* wiredc,
 
   // check for GEM geometry
   if (not gemGeometryAvailable) {
-    if (infoV >= 0)
-      edm::LogError("CSCGEMMotherboardME21|SetupError")
-          << "+++ run() called for GEM-CSC integrated trigger without valid GEM geometry! +++ \n";
+    edm::LogError("CSCGEMMotherboardME21|SetupError")
+        << "+++ run() called for GEM-CSC integrated trigger without valid GEM geometry! +++ \n";
     return;
   }
   gemCoPadV = coPadProcessor->run(gemPads);  // run copad processor in GE1/1
 
   if (!(alctProc and clctProc)) {
-    if (infoV >= 0)
-      edm::LogError("CSCGEMMotherboardME21|SetupError")
-          << "+++ run() called for non-existing ALCT/CLCT processor! +++ \n";
+    edm::LogError("CSCGEMMotherboardME21|SetupError")
+        << "+++ run() called for non-existing ALCT/CLCT processor! +++ \n";
     return;
   }
 
@@ -436,6 +442,12 @@ std::vector<CSCCorrelatedLCTDigi> CSCGEMMotherboardME21::readoutLCTs() const {
     CSCUpgradeMotherboard::sortLCTs(result, CSCUpgradeMotherboard::sortLCTsByQuality);
   if (tmb_cross_bx_algo == 3)
     CSCUpgradeMotherboard::sortLCTs(result, CSCUpgradeMotherboard::sortLCTsByGEMDphi);
+
+  // do a final check on the LCTs in readout
+  for (const auto& lct : result) {
+    checkValid(lct);
+  }
+
   return result;
 }
 
