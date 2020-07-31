@@ -86,7 +86,7 @@ public:
 
 protected:
   /** LCTs in this chamber, as found by the processor. */
-  CSCCLCTDigi CLCTContainer_[CSCConstants::MAX_CLCT_TBINS][CSCConstants::MAX_CLCTS_PER_PROCESSOR];
+  std::vector<std::vector<CSCCLCTDigi> > CLCTContainer_;
 
   /** Access routines to comparator digis. */
   bool getDigis(const CSCComparatorDigiCollection* compdc);

@@ -186,11 +186,8 @@ void CSCCathodeLCTProcessor::checkConfigParameters() {
 void CSCCathodeLCTProcessor::clear() {
   thePreTriggerDigis.clear();
   thePreTriggerBXs.clear();
-  for (int bx = 0; bx < CSCConstants::MAX_CLCT_TBINS; bx++) {
-    for (int iCLCT = 0; iCLCT < CSCConstants::MAX_CLCTS_PER_PROCESSOR; iCLCT++) {
-      CLCTContainer_[bx][iCLCT].clear();
-    }
-  }
+  CLCTContainer_.clear();
+  CLCTContainer_.resize(CSCConstants::MAX_CLCT_TBINS);
 }
 
 std::vector<CSCCLCTDigi> CSCCathodeLCTProcessor::run(const CSCComparatorDigiCollection* compdc) {
@@ -333,9 +330,6 @@ void CSCCathodeLCTProcessor::run(
   if (CLCTlist.size() > 1)
     sort(CLCTlist.begin(), CLCTlist.end(), std::greater<CSCCLCTDigi>());
 
-  // Take the best MAX_CLCTS_PER_PROCESSOR candidates per bx.
-  int CLCTIndex_[CSCConstants::MAX_CLCT_TBINS] = {};
-
   for (const auto& p : CLCTlist) {
     // only consider valid CLCTs
     if (!p.isValid())
@@ -350,18 +344,21 @@ void CSCCathodeLCTProcessor::run(
       continue;
     }
 
-    CLCTContainer_[bx][CLCTIndex_[bx]] = p;
-    CLCTIndex_[bx]++;
+    CLCTContainer_.at(bx).push_back(p);
   }
 
   for (int bx = 0; bx < CSCConstants::MAX_CLCT_TBINS; bx++) {
-    for (int iCLCT = 0; iCLCT < CSCConstants::MAX_CLCTS_PER_PROCESSOR; iCLCT++) {
-      if (CLCTContainer_[bx][iCLCT].isValid()) {
-        CLCTContainer_[bx][iCLCT].setTrknmb(iCLCT + 1);
+    for (unsigned iCLCT = 0; iCLCT < CLCTContainer_.at(bx).size(); iCLCT++) {
+      // only consider valid CLCTs
+      if (CLCTContainer_.at(bx).at(iCLCT).isValid()) {
+        CLCTContainer_.at(bx).at(iCLCT).setTrknmb(iCLCT + 1);
+
+        // check if the LCT is valid
+        checkValid(CLCTContainer_.at(bx).at(iCLCT));
+
         if (infoV > 0) {
           LogDebug("CSCCathodeLCTProcessor")
-              << CLCTContainer_[bx][iCLCT] << " found in "
-              << CSCDetId::chamberName(theEndcap, theStation, theRing, theChamber) << " (sector " << theSector
+              << CLCTContainer_.at(bx).at(iCLCT) << " found in " << theCSCName_ << " (sector " << theSector
               << " subsector " << theSubsector << " trig id. " << theTrigChamber << ")"
               << "\n";
         }
@@ -1306,12 +1303,12 @@ std::vector<CSCCLCTPreTriggerDigi> CSCCathodeLCTProcessor::preTriggerDigisME1b()
 }
 
 // Returns vector of all found CLCTs, if any.  Used for ALCT-CLCT matching.
-std::vector<CSCCLCTDigi> CSCCathodeLCTProcessor::getCLCTs() const {
+std::vector<CSCCLCTDigi> CSCCathodeLCTProcessor::getCLCTs(unsigned nMaxCLCTs) const {
   std::vector<CSCCLCTDigi> tmpV;
   for (int bx = 0; bx < CSCConstants::MAX_CLCT_TBINS; bx++) {
-    for (int iCLCT = 0; iCLCT < CSCConstants::MAX_CLCTS_PER_PROCESSOR; iCLCT++) {
-      if (CLCTContainer_[bx][iCLCT].isValid()) {
-        tmpV.push_back(CLCTContainer_[bx][iCLCT]);
+    for (unsigned iCLCT = 0; iCLCT < CLCTContainer_.at(bx).size(); iCLCT++) {
+      if (iCLCT < nMaxCLCTs and CLCTContainer_.at(bx).at(iCLCT).isValid()) {
+        tmpV.push_back(CLCTContainer_.at(bx).at(iCLCT));
       }
     }
   }
@@ -1324,13 +1321,21 @@ std::vector<CSCCLCTDigi> CSCCathodeLCTProcessor::getCLCTs() const {
 // to make a proper comparison with ALCTs we need
 // CLCT and ALCT to have the central BX in the same bin
 CSCCLCTDigi CSCCathodeLCTProcessor::getBestCLCT(int bx) const {
-  CSCCLCTDigi lct = CLCTContainer_[bx][0];
-  lct.setBX(lct.getBX() + alctClctOffset_);
+  CSCCLCTDigi lct;
+  // check that the container has at least one entry
+  if (!CLCTContainer_.at(bx).empty()) {
+    lct = CLCTContainer_.at(bx).at(0);
+    lct.setBX(lct.getBX() + alctClctOffset_);
+  }
   return lct;
 }
 
 CSCCLCTDigi CSCCathodeLCTProcessor::getSecondCLCT(int bx) const {
-  CSCCLCTDigi lct = CLCTContainer_[bx][1];
-  lct.setBX(lct.getBX() + alctClctOffset_);
+  CSCCLCTDigi lct;
+  // check that the container has at least two entries
+  if (CLCTContainer_.at(bx).size() >= 2) {
+    lct = CLCTContainer_.at(bx).at(1);
+    lct.setBX(lct.getBX() + alctClctOffset_);
+  }
   return lct;
 }

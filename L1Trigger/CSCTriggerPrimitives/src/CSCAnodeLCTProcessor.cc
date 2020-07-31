@@ -193,12 +193,11 @@ void CSCAnodeLCTProcessor::checkConfigParameters() {
 }
 
 void CSCAnodeLCTProcessor::clear() {
+  ALCTContainer_.clear();
+  ALCTContainer_.resize(CSCConstants::MAX_ALCT_TBINS);
   for (int bx = 0; bx < CSCConstants::MAX_ALCT_TBINS; bx++) {
     bestALCT[bx].clear();
     secondALCT[bx].clear();
-    for (int iALCT = 0; iALCT < CSCConstants::MAX_ALCTS_PER_PROCESSOR; iALCT++) {
-      ALCTContainer_[bx][iALCT].clear();
-    }
   }
   lct_list.clear();
 }
@@ -292,9 +291,6 @@ void CSCAnodeLCTProcessor::run(const std::vector<int> wire[CSCConstants::NUM_LAY
   // Check if there are any in-time hits and do the pulse extension.
   bool chamber_empty = pulseExtension(wire);
 
-  // Take the best MAX_CLCTS_PER_PROCESSOR candidates per bx.
-  int ALCTIndex_[CSCConstants::MAX_ALCT_TBINS] = {};
-
   // Only do the rest of the processing if chamber is not empty.
   // Stop drift_delay bx's short of fifo_tbins since at later bx's we will
   // not have a full set of hits to start pattern search anyway.
@@ -325,10 +321,11 @@ void CSCAnodeLCTProcessor::run(const std::vector<int> wire[CSCConstants::NUM_LAY
             //acceleration mode
             if (quality[i_wire][0] > 0 and bx < CSCConstants::MAX_ALCT_TBINS) {
               int valid = (ghost_cleared[0] == 0) ? 1 : 0;  //cancelled, valid=0, otherwise it is 1
-              const auto& newALCT(CSCALCTDigi(valid, quality[i_wire][0], 1, 0, i_wire, bx));
-              lct_list.push_back(newALCT);
-              ALCTContainer_[bx][ALCTIndex_[bx]] = newALCT;
-              ALCTIndex_[bx]++;
+              CSCALCTDigi newALCT(valid, quality[i_wire][0], 1, 0, i_wire, bx);
+
+              lct_list.emplace_back(newALCT);
+              if (valid)
+                ALCTContainer_.at(bx).push_back(newALCT);
               if (infoV > 1)
                 LogTrace("CSCAnodeLCTProcessor") << "Add one ALCT to list " << lct_list.back();
             }
@@ -336,10 +333,12 @@ void CSCAnodeLCTProcessor::run(const std::vector<int> wire[CSCConstants::NUM_LAY
             //collision mode
             if (quality[i_wire][1] > 0 and bx < CSCConstants::MAX_ALCT_TBINS) {
               int valid = (ghost_cleared[1] == 0) ? 1 : 0;  //cancelled, valid=0, otherwise it is 1
-              const auto& newALCT(CSCALCTDigi(valid, quality[i_wire][1], 0, quality[i_wire][2], i_wire, bx));
-              lct_list.push_back(newALCT);
-              ALCTContainer_[bx][ALCTIndex_[bx]] = newALCT;
-              ALCTIndex_[bx]++;
+
+              CSCALCTDigi newALCT(valid, quality[i_wire][1], 0, quality[i_wire][2], i_wire, bx);
+
+              lct_list.emplace_back(newALCT);
+              if (valid)
+                ALCTContainer_.at(bx).push_back(newALCT);
               if (infoV > 1)
                 LogTrace("CSCAnodeLCTProcessor") << "Add one ALCT to list " << lct_list.back();
             }
@@ -936,9 +935,13 @@ void CSCAnodeLCTProcessor::lctSearch() {
 
   // set track number for the other ALCTs
   for (int bx = 0; bx < CSCConstants::MAX_ALCT_TBINS; bx++) {
-    for (int iALCT = 0; iALCT < CSCConstants::MAX_ALCTS_PER_PROCESSOR; iALCT++) {
-      if (ALCTContainer_[bx][iALCT].isValid()) {
-        ALCTContainer_[bx][iALCT].setTrknmb(iALCT + 1);
+    for (unsigned iALCT = 0; iALCT < ALCTContainer_.at(bx).size(); iALCT++) {
+      if (ALCTContainer_.at(bx).at(iALCT).isValid()) {
+        ALCTContainer_.at(bx).at(iALCT).setTrknmb(iALCT + 1);
+
+        // check if ALCT is valid
+        checkValid(ALCTContainer_.at(bx).at(iALCT));
+
         if (infoV > 0) {
           LogDebug("CSCAnodeLCTProcessor")
               << ALCTContainer_[bx][iALCT] << " found in " << theCSCName_ << " (sector " << theSector << " subsector "
@@ -1372,9 +1375,9 @@ std::vector<CSCALCTDigi> CSCAnodeLCTProcessor::getALCTs(int nMaxALCTs) const {
       if (secondALCT[bx].isValid())
         tmpV.push_back(secondALCT[bx]);
     } else {
-      for (int iALCT = 0; iALCT < CSCConstants::MAX_ALCTS_PER_PROCESSOR; iALCT++) {
-        if (ALCTContainer_[bx][iALCT].isValid()) {
-          tmpV.push_back(ALCTContainer_[bx][iALCT]);
+      for (unsigned iALCT = 0; iALCT < ALCTContainer_.at(bx).size(); iALCT++) {
+        if (iALCT < nMaxALCTs and ALCTContainer_.at(bx).at(iALCT).isValid()) {
+          tmpV.push_back(ALCTContainer_.at(bx).at(iALCT));
         }
       }
     }
