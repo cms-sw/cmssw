@@ -63,7 +63,7 @@ void SonicClientBase::finish(bool success, std::exception_ptr eptr) {
 void SonicClientBase::fillBasePSetDescription(edm::ParameterSetDescription& desc, bool allowRetry) {
   //restrict allowed values
   desc.ifValue(edm::ParameterDescription<std::string>("mode", "PseudoAsync", true),
-               edm::allowedValues<std::string>("Sync","Async","PseudoAsync"));
+               edm::allowedValues<std::string>("Sync", "Async", "PseudoAsync"));
   if (allowRetry)
     desc.addUntracked<unsigned>("allowedTries", 0);
 }

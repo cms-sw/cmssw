@@ -76,7 +76,7 @@ TritonClient::TritonClient(const edm::ParameterSet& params)
 
   //allow selecting only some outputs from server
   const auto& v_outputs = params.getUntrackedParameter<std::vector<std::string>>("outputs");
-  std::unordered_set s_outputs(v_outputs.begin(),v_outputs.end());
+  std::unordered_set s_outputs(v_outputs.begin(), v_outputs.end());
 
   //setup output map
   if (verbose_)
@@ -84,7 +84,7 @@ TritonClient::TritonClient(const edm::ParameterSet& params)
            << "\n";
   for (const auto& nicOutput : nicOutputs) {
     const auto& oname = nicOutput->Name();
-    if (!s_outputs.empty() and s_outputs.find(oname)==s_outputs.end())
+    if (!s_outputs.empty() and s_outputs.find(oname) == s_outputs.end())
       continue;
     const auto& curr_itr = output_.emplace(
         std::piecewise_construct, std::forward_as_tuple(oname), std::forward_as_tuple(oname, nicOutput));
@@ -101,7 +101,8 @@ TritonClient::TritonClient(const edm::ParameterSet& params)
 
   //check if any requested outputs were not available
   if (!s_outputs.empty())
-    throw cms::Exception("MissingOutput") << "Some requested outputs were not available on the server: " << triton_utils::printColl(s_outputs);
+    throw cms::Exception("MissingOutput")
+        << "Some requested outputs were not available on the server: " << triton_utils::printColl(s_outputs);
 
   //check batch size limitations (after i/o setup)
   //triton uses max batch size = 0 to denote a model that does not support batching

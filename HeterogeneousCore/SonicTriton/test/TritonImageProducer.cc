@@ -35,7 +35,7 @@ public:
     auto& input1 = iInput.begin()->second;
     auto data1 = std::make_shared<TritonInput<float>>();
     data1->reserve(input1.batchSize());
-    for(unsigned i = 0; i < input1.batchSize(); ++i){
+    for (unsigned i = 0; i < input1.batchSize(); ++i) {
       data1->emplace_back(input1.sizeDims(), 0.5f);
     }
     // convert to server format

@@ -43,7 +43,8 @@ void TritonInputData::toServer(std::shared_ptr<TritonInput<DT>> ptr) {
 
   //check batch size
   if (data_in.size() != batchSize_) {
-    throw cms::Exception("TritonDataError") << name_ << " input(): input vector has size " << data_in.size() << " but specified batch size is " << batchSize_;
+    throw cms::Exception("TritonDataError") << name_ << " input(): input vector has size " << data_in.size()
+                                            << " but specified batch size is " << batchSize_;
   }
 
   //shape must be specified for variable dims
@@ -133,4 +134,3 @@ template void TritonInputData::toServer(std::shared_ptr<TritonInput<float>> data
 template void TritonInputData::toServer(std::shared_ptr<TritonInput<int64_t>> data_in);
 
 template TritonOutput<float> TritonOutputData::fromServer() const;
-
