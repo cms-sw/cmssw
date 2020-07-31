@@ -69,6 +69,7 @@ public:
 
 protected:
   virtual double getEnergyDeposit(const G4Step* step);
+  virtual double EnergyCorrected(const G4Step& step, const G4Track*);
   virtual bool getFromLibrary(const G4Step* step);
 
   G4ThreeVector setToLocal(const G4ThreeVector&, const G4VTouchable*) const;
