@@ -1105,7 +1105,6 @@ void CSCCathodeLCTProcessor::checkValid(const CSCCLCTDigi& clct, unsigned max_st
   if (clct.getQuality() < nplanes_hit_pattern or clct.getQuality() > max_quality) {
     edm::LogError("CSCCathodeLCTProcessor")
         << "CSCLCTDigi with invalid quality: " << clct.getQuality() << "; allowed [0," << max_quality << "]";
-    ;
     errors++;
   }
 
