@@ -31,7 +31,7 @@ public:
 
 private:
   const BeamSpotOnlineObjects* compareBS(const BeamSpotOnlineObjects* bs1, const BeamSpotOnlineObjects* bs2);
-  std::shared_ptr<BeamSpotObjects> fakeBS_;
+  BeamSpotObjects fakeBS_;
 
   edm::ESGetToken<BeamSpotObjects, BeamSpotTransientObjectsRcd> const bsToken_;
   edm::ESGetToken<BeamSpotOnlineObjects, BeamSpotOnlineHLTObjectsRcd> bsHLTToken_;
@@ -40,12 +40,11 @@ private:
 OnlineBeamSpotESProducer::OnlineBeamSpotESProducer(const edm::ParameterSet& p) {
   auto cc = setWhatProduced(this);
 
-  fakeBS_ = std::make_shared<BeamSpotOnlineObjects>();
-  fakeBS_->SetBeamWidthX(0.1);
-  fakeBS_->SetBeamWidthY(0.1);
-  fakeBS_->SetSigmaZ(15.);
-  fakeBS_->SetPosition(0., 0., 0.);
-  fakeBS_->SetType(-1);
+  fakeBS_.SetBeamWidthX(0.1);
+  fakeBS_.SetBeamWidthY(0.1);
+  fakeBS_.SetSigmaZ(15.);
+  fakeBS_.SetPosition(0., 0., 0.);
+  fakeBS_.SetType(-1);
 
   bsHLTToken_ = cc.consumesFrom<BeamSpotOnlineObjects, BeamSpotOnlineHLTObjectsRcd>();
   bsLegacyToken_ = cc.consumesFrom<BeamSpotOnlineObjects, BeamSpotOnlineLegacyObjectsRcd>();
@@ -79,7 +78,8 @@ std::shared_ptr<const BeamSpotObjects> OnlineBeamSpotESProducer::produce(const B
   auto legacyRec = iRecord.tryToGetRecord<BeamSpotOnlineLegacyObjectsRcd>();
   auto hltRec = iRecord.tryToGetRecord<BeamSpotOnlineHLTObjectsRcd>();
   if (not legacyRec and not hltRec) {
-    return std::shared_ptr<const BeamSpotObjects>(&(*fakeBS_), edm::do_nothing_deleter());
+    return std::shared_ptr<const BeamSpotObjects>(&fakeBS_, edm::do_nothing_deleter());
+    //return fakeBS_;
     // or copy in case 'const BeamSpotObjects fakeBS_' member would not be preferred
     //return std::make_shared<BeamSpotObjects>(fakeBS_);
   }
