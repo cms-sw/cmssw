@@ -862,7 +862,7 @@ upgradeProperties[2026] = {
         'Era' : 'Phase2C11',
         'ScenToRun' : ['GenSimHLBeamSpotFull','DigiFullTrigger','RecoFullGlobal', 'HARVESTFullGlobal'],
     },
-    '2026D63' : {
+'2026D63' : {
         'Geom' : 'Extended2026D63',
         'HLTmenu': '@fake2',
         'GT' : 'auto:phase2_realistic_T21',

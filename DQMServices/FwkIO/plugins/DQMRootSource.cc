@@ -658,6 +658,10 @@ void DQMRootSource::readElements() {
   if (metadata.m_type != kNoTypesStored) {
     std::shared_ptr<TreeReaderBase> reader = m_treeReaders[metadata.m_type];
     TTree* tree = dynamic_cast<TTree*>(metadata.m_file->Get(kTypeNames[metadata.m_type]));
+    // The Reset() below screws up the tree, so we need to re-read it from file
+    // before use here.
+    tree->Refresh();
+
     reader->setTree(tree);
 
     ULong64_t index = metadata.m_firstIndex;
@@ -666,6 +670,9 @@ void DQMRootSource::readElements() {
     for (; index != endIndex; ++index) {
       reader->read(index, edm::Service<DQMStore>().operator->(), metadata.m_run, metadata.m_lumi);
     }
+    // Drop buffers in the TTree. This reduces memory consuption while the tree
+    // just sits there and waits for the next block to be read.
+    tree->Reset();
   }
 }
 
