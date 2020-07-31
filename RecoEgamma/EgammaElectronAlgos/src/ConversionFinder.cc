@@ -1,7 +1,6 @@
 #include "RecoEgamma/EgammaElectronAlgos/interface/ConversionFinder.h"
 #include "DataFormats/Math/interface/deltaR.h"
 #include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 namespace egamma::conv {
 
@@ -10,6 +9,19 @@ namespace egamma::conv {
     constexpr float square(float x) { return x * x; };
 
   }  // namespace
+
+  // configuration parameters
+  constexpr float maxRefPtErrorForKfConv = 0.05f;
+  constexpr float maxRelGsfPtErrorForKfConv = 0.25;
+  constexpr float maxRelPtDiffForKfConv = 0.2f;
+  constexpr float maxRelPtDiffForGsfConv = 0.25f;
+  constexpr float dR2Max = square(0.5f);
+  constexpr int minNumberOfValidHits = 5;
+  constexpr float maxDist2Dcot2 = square(0.05f);
+  constexpr int maxDeltaMissingHits = 2;
+  constexpr float maxRelGsfPtError = 0.5f;
+  constexpr int maxDeltaMissingHitsForKFtoKF = 3;
+  constexpr float maxDistOrCotForKFtoKF = 0.02f;
 
   ConversionInfo getConversionInfo(reco::Track const& el_track, TrackRowView const& track, float bFieldAtOrigin);
 
@@ -23,8 +35,6 @@ namespace egamma::conv {
     using namespace std;
     using namespace edm;
     using namespace edm::soa::col;
-
-    constexpr float dR2Max = 0.5 * 0.5;
 
     //get the references to the gsf and ctf tracks that are made
     //by the electron
@@ -67,10 +77,11 @@ namespace egamma::conv {
       auto ctftk = *ctftkItr;
 
       //apply quality cuts to remove bad tracks
-      if (ctftk.get<PtError>() > 0.05 * ctftk.get<Pt>() || ctftk.get<NumberOfValidHits>() < 5)
+      if (ctftk.get<PtError>() > maxRefPtErrorForKfConv * ctftk.get<Pt>() ||
+          ctftk.get<NumberOfValidHits>() < minNumberOfValidHits)
         continue;
 
-      if (useEleCtfTrack && std::abs(ctftk.get<Pt>() - eleCtfPt.value()) < 0.2 * eleCtfPt.value())
+      if (useEleCtfTrack && std::abs(ctftk.get<Pt>() - eleCtfPt.value()) < maxRelPtDiffForKfConv * eleCtfPt.value())
         continue;
 
       //use the electron's CTF track, if not null, to search for the partner track
@@ -91,7 +102,7 @@ namespace egamma::conv {
       //now we check using the electron's gsf track
       if (eleGsfTk->charge() + ctftk.get<Charge>() == 0 &&
           deltaR2(eleGsfEta, eleGsfPhi, ctftk.get<Eta>(), ctftk.get<Phi>()) < dR2Max &&
-          eleGsfTk->ptError() < 0.25 * eleGsfPt) {
+          eleGsfTk->ptError() < maxRelGsfPtErrorForKfConv * eleGsfPt) {
         int deltaMissingHits = ctftk.get<MissingInnerHits>() - eleGsfTk->missingInnerHits();
 
         ConversionInfo convInfo = getConversionInfo(*eleGsfTk, ctftk, bFieldAtOrigin);
@@ -111,10 +122,11 @@ namespace egamma::conv {
       auto gsftk = *gsftkItr;
 
       //apply quality cuts to remove bad tracks
-      if (gsftk.get<PtError>() > 0.5 * gsftk.get<Pt>() || gsftk.get<NumberOfValidHits>() < 5)
+      if (gsftk.get<PtError>() > maxRelGsfPtError * gsftk.get<Pt>() ||
+          gsftk.get<NumberOfValidHits>() < minNumberOfValidHits)
         continue;
 
-      if (std::abs(gsftk.get<Pt>() - eleGsfPt) < 0.25 * eleGsfPt)
+      if (std::abs(gsftk.get<Pt>() - eleGsfPt) < maxRelPtDiffForGsfConv * eleGsfPt)
         continue;
 
       //try using the electron's CTF track first if it exists
@@ -133,7 +145,7 @@ namespace egamma::conv {
       //use the electron's gsf track
       if (eleGsfTk->charge() + gsftk.get<Charge>() == 0 &&
           deltaR2(eleGsfEta, eleGsfPhi, gsftk.get<Eta>(), gsftk.get<Phi>()) < dR2Max &&
-          (eleGsfTk->ptError() / eleGsfPt < 0.5)) {
+          (eleGsfTk->ptError() < maxRelGsfPtError * eleGsfPt)) {
         ConversionInfo convInfo = getConversionInfo(*eleGsfTk, gsftk, bFieldAtOrigin);
         //fill the Ref info
 
@@ -152,15 +164,15 @@ namespace egamma::conv {
     using namespace edm::soa::col;
 
     //now calculate the conversion related information
-    float elCurvature = -0.3f * bFieldAtOrigin * (ele.charge() / ele.pt()) / 100.f;
-    float rEl = std::abs(1.f / elCurvature);
-    float xEl = -1.f * (1.f / elCurvature - ele.d0()) * sin(ele.phi());
-    float yEl = (1.f / elCurvature - ele.d0()) * cos(ele.phi());
+    float rEl = 100.f * ele.pt() / (-0.3f * bFieldAtOrigin * ele.charge());
+    float xEl = -1.f * (rEl - ele.d0()) * sin(ele.phi());
+    float yEl = (rEl - ele.d0()) * cos(ele.phi());
+    rEl = std::abs(rEl);
 
-    float candCurvature = -0.3f * bFieldAtOrigin * (track.get<Charge>() / track.get<Pt>()) / 100.f;
-    float rCand = std::abs(1.f / candCurvature);
-    float xCand = -1.f * (1.f / candCurvature - track.get<D0>()) * sin(track.get<Phi>());
-    float yCand = (1.f / candCurvature - track.get<D0>()) * cos(track.get<Phi>());
+    float rCand = 100.f * track.get<Pt>() / (-0.3f * bFieldAtOrigin * track.get<Charge>());
+    float xCand = -1.f * (rCand - track.get<D0>()) * sin(track.get<Phi>());
+    float yCand = (rCand - track.get<D0>()) * cos(track.get<Phi>());
+    rCand = std::abs(rCand);
 
     float d = sqrt(pow(xEl - xCand, 2) + pow(yEl - yCand, 2));
     float dist = d - (rEl + rCand);
@@ -186,7 +198,7 @@ namespace egamma::conv {
     rconv = tempsign * rconv;
 
     //return an instance of ConversionInfo, but with a NULL track refs
-    return {dist, dcot, rconv, std::nullopt, std::nullopt, -9999, -9999};
+    return {dist, dcot, rconv};
   }
 
   //------------------------------------------------------------------------------------
@@ -218,7 +230,7 @@ namespace egamma::conv {
     using namespace std;
 
     if (v_convCandidates.empty())
-      return ConversionInfo{-9999., -9999., -9999., std::nullopt, std::nullopt, -9999, -9999};
+      return {};
 
     if (v_convCandidates.size() == 1)
       return v_convCandidates.at(0);
@@ -228,35 +240,28 @@ namespace egamma::conv {
     vector<ConversionInfo> v_2;
     vector<ConversionInfo> v_3;
     //loop over the candidates
-    for (unsigned int i = 1; i < v_convCandidates.size(); i++) {
-      ConversionInfo temp = v_convCandidates.at(i);
+    for (auto const& temp : v_convCandidates) {
+      if (temp.radiusOfConversion <= -2)
+        continue;
 
       if (temp.flag == 0) {
-        bool isConv = false;
-        if (std::abs(temp.dist) < 0.02 && std::abs(temp.dcot) < 0.02 && temp.deltaMissingHits < 3 &&
-            temp.radiusOfConversion > -2)
-          isConv = true;
-        else if (pow(temp.dist, 2) + pow(temp.dcot, 2) < square(0.05f) && temp.deltaMissingHits < 2 &&
-                 temp.radiusOfConversion > -2)
-          isConv = true;
-
-        if (isConv)
+        if ((std::abs(temp.dist) < maxDistOrCotForKFtoKF && std::abs(temp.dcot) < maxDistOrCotForKFtoKF &&
+             temp.deltaMissingHits < maxDeltaMissingHitsForKFtoKF) ||
+            (pow(temp.dist, 2) + pow(temp.dcot, 2) < maxDist2Dcot2 && temp.deltaMissingHits < maxDeltaMissingHits))
           v_0.push_back(temp);
       }
 
       if (temp.flag == 1) {
-        if (pow(temp.dist, 2) + pow(temp.dcot, 2) < square(0.05f) && temp.deltaMissingHits < 2 &&
-            temp.radiusOfConversion > -2)
+        if (square(temp.dist) + square(temp.dcot) < maxDist2Dcot2 && temp.deltaMissingHits < maxDeltaMissingHits)
           v_1.push_back(temp);
       }
       if (temp.flag == 2) {
-        if (pow(temp.dist, 2) + pow(temp.dcot * temp.dcot, 2) < square(0.05f) && temp.deltaMissingHits < 2 &&
-            temp.radiusOfConversion > -2)
+        if (square(temp.dist) + square(temp.dcot * temp.dcot) < maxDist2Dcot2 &&
+            temp.deltaMissingHits < maxDeltaMissingHits)
           v_2.push_back(temp);
       }
       if (temp.flag == 3) {
-        if (temp.dist * temp.dist + temp.dcot * temp.dcot < square(0.05f) && temp.deltaMissingHits < 2 &&
-            temp.radiusOfConversion > -2)
+        if (square(temp.dist) + square(temp.dcot) < maxDist2Dcot2 && temp.deltaMissingHits < maxDeltaMissingHits)
           v_3.push_back(temp);
       }
 

@@ -1,5 +1,5 @@
-#ifndef RecoEgamma_EgammaElectronAlgos__h
-#define RecoEgamma_EgammaElectronAlgos__h
+#ifndef RecoEgamma_EgammaElectronAlgos_ConversionFinder_h
+#define RecoEgamma_EgammaElectronAlgos_ConversionFinder_h
 
 /** \class reco:: .h RecoEgamma/EgammaElectronAlgos/interface/.h
   *
@@ -11,18 +11,7 @@
   *
   */
 
-#include "DataFormats/TrackReco/interface/Track.h"
-#include "DataFormats/TrackReco/interface/TrackExtra.h"
-#include "DataFormats/TrackReco/interface/TrackFwd.h"
-#include "DataFormats/Math/interface/Point3D.h"
-#include "MagneticField/Engine/interface/MagneticField.h"
-#include "DataFormats/GsfTrackReco/interface/GsfTrackFwd.h"
-#include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
-#include "DataFormats/Math/interface/LorentzVector.h"
-#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
-#include "DataFormats/TrackReco/interface/TrackFwd.h"
-#include "DataFormats/GsfTrackReco/interface/GsfTrackFwd.h"
-#include "DataFormats/Math/interface/Point3D.h"
+#include "DataFormats/EgammaCandidates/interface/GsfElectronCore.h"
 #include "CommonTools/Utils/interface/KinematicTables.h"
 #include "CommonTools/Utils/interface/TrackSpecificColumns.h"
 
@@ -40,17 +29,17 @@
 namespace egamma::conv {
 
   struct ConversionInfo {
-    const float dist;
-    const float dcot;
-    const float radiusOfConversion;
+    const float dist = -9999.;
+    const float dcot = -9999.;
+    const float radiusOfConversion = -9999.;
     // if the partner track is found in the  GSF track collection,
     // this is a ref to the GSF partner track
-    const std::optional<int> conversionPartnerCtfTkIdx;
+    const std::optional<int> conversionPartnerCtfTkIdx = std::nullopt;
     // if the partner track is found in the  CTF track collection,
     // this is a ref to the CTF partner track
-    const std::optional<int> conversionPartnerGsfTkIdx;
-    const int deltaMissingHits;
-    const int flag;
+    const std::optional<int> conversionPartnerGsfTkIdx = std::nullopt;
+    const int deltaMissingHits = -9999.;
+    const int flag = -9999.;
 
     // flag 0: Partner track found in the CTF collection using the electron's CTF track
     // flag 1: Partner track found in the CTF collection using the electron's GSF track
