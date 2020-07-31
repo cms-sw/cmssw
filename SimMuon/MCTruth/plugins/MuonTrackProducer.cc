@@ -23,9 +23,8 @@ MuonTrackProducer::MuonTrackProducer(const edm::ParameterSet &parset)
       ttopoToken_(esConsumes<TrackerTopology, TrackerTopologyRcd>()),
       selectionTags(parset.getParameter<std::vector<std::string>>("selectionTags")),
       trackType(parset.getParameter<std::string>("trackType")),
-      ignoreMissingMuonCollection(parset.getUntrackedParameter<bool>("ignoreMissingMuonCollection", false)),
-      parset_(parset) {
-  edm::LogVerbatim("MuonTrackProducer") << "constructing  MuonTrackProducer" << parset_.dump();
+      ignoreMissingMuonCollection(parset.getUntrackedParameter<bool>("ignoreMissingMuonCollection", false)) {
+  edm::LogVerbatim("MuonTrackProducer") << "constructing  MuonTrackProducer" << parset.dump();
   produces<reco::TrackCollection>();
   produces<reco::TrackExtraCollection>();
   produces<TrackingRecHitCollection>();
