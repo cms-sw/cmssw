@@ -127,7 +127,7 @@ l1bits=cms.EDProducer("L1TriggerResultsConverter", src=cms.InputTag("gtStage2Dig
 
 nanoSequenceCommon = cms.Sequence(
         nanoMetadata + jetSequence + muonSequence + tauSequence + electronSequence+photonSequence+vertexSequence+
-        isoTrackSequence + # must be after all the leptons 
+        isoTrackSequence + jetLepSequence + # must be after all the leptons 
         linkedObjects  +
         jetTables + muonTables + tauTables + electronTables + photonTables +  globalTables +vertexTables+ metTables+simpleCleanerTable + isoTrackTables
         )

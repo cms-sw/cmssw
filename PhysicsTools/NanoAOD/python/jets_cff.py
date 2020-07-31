@@ -120,7 +120,6 @@ jercVars = cms.EDProducer("BetaStarPackedCandidateVarProducer",
     maxDR = cms.double(0.4)
 )
 
-
 updatedJetsWithUserData = cms.EDProducer("PATJetUserDataEmbedder",
      src = cms.InputTag("updatedJets"),
      userFloats = cms.PSet(
@@ -159,11 +158,10 @@ run2_jme_2016.toModify(updatedJetsWithUserData.userInts,
 
 updatedJetsAK8WithUserData = cms.EDProducer("PATJetUserDataEmbedder",
      src = cms.InputTag("updatedJetsAK8"),
-     userFloats = cms.PSet(),
-     userInts = cms.PSet(
+      userInts = cms.PSet(
         tightId = cms.InputTag("tightJetIdAK8"),
         tightIdLepVeto = cms.InputTag("tightJetIdLepVetoAK8"),
-     ),
+      ),
 )
 run2_jme_2016.toModify(updatedJetsAK8WithUserData.userInts,
     looseId = cms.InputTag("looseJetIdAK8"),
@@ -180,7 +178,11 @@ finalJetsAK8 = cms.EDFilter("PATJetRefSelector",
     cut = cms.string("pt > 170")
 )
 
-
+lepInJetVars = cms.EDProducer("LepInJetProducer",
+    src = cms.InputTag("updatedJetsAK8WithUserData"),
+    srcEle = cms.InputTag("finalElectrons"),
+    srcMu = cms.InputTag("finalMuons")
+)
 
 
 
@@ -434,6 +436,11 @@ fatJetTable = cms.EDProducer("SimpleCandidateFlatTableProducer",
 #puIdDisc = Var("userFloat('pileupJetId:fullDiscriminant')",float,doc="Pilup ID discriminant",precision=10),
 #        nConstituents = Var("numberOfDaughters()",int,doc="Number of particles in the jet"),
 #        rawFactor = Var("1.-jecFactor('Uncorrected')",float,doc="1 - Factor to get back to raw pT",precision=6),
+    ),
+    externalVariables = cms.PSet(
+        lsf3 = ExtVar(cms.InputTag("lepInJetVars:lsf3"),float, doc="Lepton Subjet Fraction (3 subjets)",precision=10),
+        muonIdx3SJ = ExtVar(cms.InputTag("lepInJetVars:muIdx3SJ"),int, doc="index of muon matched to jet"),
+        electronIdx3SJ = ExtVar(cms.InputTag("lepInJetVars:eleIdx3SJ"),int,doc="index of electron matched to jet"),
     )
 )
 ### Era dependent customization
@@ -639,6 +646,9 @@ _jetSequence_2016 = jetSequence.copy()
 _jetSequence_2016.insert(_jetSequence_2016.index(tightJetId), looseJetId)
 _jetSequence_2016.insert(_jetSequence_2016.index(tightJetIdAK8), looseJetIdAK8)
 run2_jme_2016.toReplaceWith(jetSequence, _jetSequence_2016)
+
+#after lepton collections have been run
+jetLepSequence = cms.Sequence(lepInJetVars)
 
 #after cross linkining
 jetTables = cms.Sequence(bjetNN+cjetNN+jetTable+fatJetTable+subJetTable+saJetTable+saTable)
