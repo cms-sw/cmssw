@@ -3,16 +3,44 @@
 // from code by Arun Luthra:
 // UserCode/luthra/MuonTrackSelector/src/MuonTrackSelector.cc
 //
+#include "DataFormats/CSCRecHit/interface/CSCSegmentCollection.h"
+#include "DataFormats/DTRecHit/interface/DTRecSegment4DCollection.h"
 #include "DataFormats/MuonDetId/interface/CSCDetId.h"
 #include "DataFormats/MuonDetId/interface/DTChamberId.h"
 #include "DataFormats/MuonDetId/interface/MuonSubdetId.h"
+#include "DataFormats/MuonReco/interface/Muon.h"
+#include "DataFormats/MuonReco/interface/MuonFwd.h"
 #include "DataFormats/MuonReco/interface/MuonSelectors.h"
+#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
+#include "Geometry/Records/interface/TrackerTopologyRcd.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "SimMuon/MCTruth/plugins/MuonTrackProducer.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+
 #include <algorithm>
 #include <sstream>
+#include <memory>
+
+class MuonTrackProducer : public edm::stream::EDProducer<> {
+public:
+  explicit MuonTrackProducer(const edm::ParameterSet &);
+  ~MuonTrackProducer() override;
+
+private:
+  void produce(edm::Event &, const edm::EventSetup &) override;
+
+  edm::EDGetTokenT<reco::MuonCollection> muonsToken;
+  edm::EDGetTokenT<DTRecSegment4DCollection> inputDTRecSegment4DToken_;
+  edm::EDGetTokenT<CSCSegmentCollection> inputCSCSegmentToken_;
+  edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> ttopoToken_;
+
+  std::vector<std::string> selectionTags;
+  std::string trackType;
+  bool ignoreMissingMuonCollection;
+};
 
 MuonTrackProducer::MuonTrackProducer(const edm::ParameterSet &parset)
     : muonsToken(consumes<reco::MuonCollection>(parset.getParameter<edm::InputTag>("muonsTag"))),
@@ -466,3 +494,7 @@ void MuonTrackProducer::produce(edm::Event &iEvent, const edm::EventSetup &iSetu
     iEvent.put(std::move(selectedTrackHits));
   }
 }
+
+#include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/PluginManager/interface/ModuleDef.h"
+DEFINE_FWK_MODULE(MuonTrackProducer);
