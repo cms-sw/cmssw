@@ -16,7 +16,7 @@
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "Geometry/Records/interface/TrackerTopologyRcd.h"
 #include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/stream/EDProducer.h"
+#include "FWCore/Framework/interface/global/EDProducer.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
@@ -24,13 +24,13 @@
 #include <sstream>
 #include <memory>
 
-class MuonTrackProducer : public edm::stream::EDProducer<> {
+class MuonTrackProducer : public edm::global::EDProducer<> {
 public:
   explicit MuonTrackProducer(const edm::ParameterSet &);
   ~MuonTrackProducer() override;
 
 private:
-  void produce(edm::Event &, const edm::EventSetup &) override;
+  void produce(edm::StreamID, edm::Event &, const edm::EventSetup &) const override;
 
   edm::EDGetTokenT<reco::MuonCollection> muonsToken;
   edm::EDGetTokenT<DTRecSegment4DCollection> inputDTRecSegment4DToken_;
@@ -60,7 +60,7 @@ MuonTrackProducer::MuonTrackProducer(const edm::ParameterSet &parset)
 
 MuonTrackProducer::~MuonTrackProducer() {}
 
-void MuonTrackProducer::produce(edm::Event &iEvent, const edm::EventSetup &iSetup) {
+void MuonTrackProducer::produce(edm::StreamID, edm::Event &iEvent, const edm::EventSetup &iSetup) const {
   edm::Handle<reco::MuonCollection> muonCollectionH = iEvent.getHandle(muonsToken);
   if (ignoreMissingMuonCollection && !muonCollectionH.isValid())
     edm::LogVerbatim("MuonTrackProducer") << "\n ignoring missing muon collection.";
