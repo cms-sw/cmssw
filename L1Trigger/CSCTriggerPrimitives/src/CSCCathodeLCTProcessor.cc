@@ -1203,7 +1203,7 @@ std::vector<CSCCLCTDigi> CSCCathodeLCTProcessor::readoutCLCTs(int nMaxCLCTs) con
   // Start from the vector of all found CLCTs and select those within
   // the CLCT*L1A coincidence window.
   int bx_readout = -1;
-  const std::vector<CSCCLCTDigi>& all_lcts = getCLCTs();
+  const std::vector<CSCCLCTDigi>& all_lcts = getCLCTs(nMaxCLCTs);
   for (const auto& p : all_lcts) {
     // only consider valid CLCTs
     if (!p.isValid())

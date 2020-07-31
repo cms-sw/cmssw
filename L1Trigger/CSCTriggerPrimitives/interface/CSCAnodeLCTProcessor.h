@@ -75,7 +75,7 @@ public:
   std::vector<CSCALCTDigi> readoutALCTs(int nMaxALCTs = CSCConstants::MAX_ALCTS_READOUT) const;
 
   /** Returns vector of all found ALCTs, if any. */
-  std::vector<CSCALCTDigi> getALCTs(int nMaxALCTs = CSCConstants::MAX_ALCTS_READOUT) const;
+  std::vector<CSCALCTDigi> getALCTs(unsigned nMaxALCTs = CSCConstants::MAX_ALCTS_READOUT) const;
 
   /** read out pre-ALCTs */
   std::vector<CSCALCTPreTriggerDigi> preTriggerDigis() const { return thePreTriggerDigis; }
