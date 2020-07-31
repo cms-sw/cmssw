@@ -95,7 +95,7 @@ namespace edm {
                             ThinnedAssociationsHelper const& thinnedAssociationsHelper,
                             F1&& pidToBid,
                             F2&& getThinnedAssociation,
-                            F3&& getProductByID,
+                            F3&& getByProductID,
                             std::vector<WrapperBase const*>& foundContainers,
                             std::vector<unsigned int>& keys) {
       BranchID parent = pidToBid(pid);
@@ -137,7 +137,7 @@ namespace edm {
         // Get the thinned container and set the pointers and indexes into
         // it (if we can find it)
         ProductID thinnedCollectionPID = thinnedAssociation->thinnedCollectionID();
-        WrapperBase const* thinnedCollection = getProductByID(thinnedCollectionPID);
+        WrapperBase const* thinnedCollection = getByProductID(thinnedCollectionPID);
         if (thinnedCollection == nullptr) {
           // Thinned container is not found, try looking recursively in thinned containers
           // which were made by selecting elements from this thinned container.
@@ -145,7 +145,7 @@ namespace edm {
                              thinnedAssociationsHelper,
                              std::forward<F1>(pidToBid),
                              std::forward<F2>(getThinnedAssociation),
-                             std::forward<F3>(getProductByID),
+                             std::forward<F3>(getByProductID),
                              foundContainers,
                              thinnedIndexes);
           for (unsigned k = 0; k < nKeys; ++k) {
