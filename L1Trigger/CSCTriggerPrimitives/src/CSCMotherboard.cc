@@ -39,6 +39,8 @@ CSCMotherboard::CSCMotherboard(unsigned endcap,
 
   clct_to_alct = tmbParams_.getParameter<bool>("clctToAlct");
 
+  use_run3_patterns_ = clctParams_.getParameter<bool>("useRun3Patterns");
+
   // special tmb bits
   useHighMultiplicityBits_ = tmbParams_.getParameter<bool>("useHighMultiplicityBits");
   highMultiplicityBits_ = 0;
