@@ -11,6 +11,7 @@
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "SimMuon/MCTruth/plugins/MuonTrackProducer.h"
+#include <algorithm>
 #include <sstream>
 
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
@@ -131,18 +132,11 @@ void MuonTrackProducer::produce(edm::Event &iEvent, const edm::EventSetup &iSetu
          ++muon, muon_index++) {
       edm::LogVerbatim("MuonTrackProducer") << "\n******* muon index : " << muon_index;
 
-      std::vector<bool> isGood;
-      for (unsigned int index = 0; index < selectionTags.size(); ++index) {
-        isGood.push_back(false);
-
-        muon::SelectionType muonType = muon::selectionTypeFromString(selectionTags[index]);
-        isGood[index] = muon::isGoodMuon(*muon, muonType);
-      }
-
-      bool isGoodResult = true;
-      for (unsigned int index = 0; index < isGood.size(); ++index) {
-        isGoodResult *= isGood[index];
-      }
+      const bool isGoodResult =
+          std::all_of(selectionTags.begin(), selectionTags.end(), [&muon](const std::string &name) {
+            muon::SelectionType muonType = muon::selectionTypeFromString(name);
+            return muon::isGoodMuon(*muon, muonType);
+          });
 
       if (isGoodResult) {
         // new copy of Track
