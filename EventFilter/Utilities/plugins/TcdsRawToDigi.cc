@@ -72,7 +72,7 @@ void TcdsRawToDigi::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   TCDSRecord tcdsRecord;
   if (rawdata.isValid()) {
     uint16_t selectedId = 0;
-    for (uint16_t fedId = FEDNumbering::MINTCDSuTCAFEDID; fedId <= FEDNumbering::MINTCDSuTCAFEDID; fedId++) {
+    for (uint16_t fedId = FEDNumbering::MINTCDSuTCAFEDID; fedId <= FEDNumbering::MAXTCDSuTCAFEDID; fedId++) {
       const FEDRawData& tcdsData = rawdata->FEDData(fedId);
       if (tcdsData.size() > 0) {
         if (selectedId)
