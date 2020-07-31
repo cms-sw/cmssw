@@ -4,6 +4,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/Utilities/interface/ESGetToken.h"
 
 #include "DataFormats/CaloRecHit/interface/CaloCluster.h"
 #include "DataFormats/HGCalReco/interface/Common.h"
@@ -45,6 +46,7 @@ private:
   const edm::EDGetTokenT<std::vector<TICLSeedingRegion>> seedingTrk_token_;
   const edm::EDGetTokenT<std::vector<reco::CaloCluster>> clusters_token_;
   const edm::EDGetTokenT<std::vector<reco::Track>> tracks_token_;
+  const edm::ESGetToken<CaloGeometry, CaloGeometryRecord> geometry_token_;
   const bool optimiseAcrossTracksters_;
   const int eta_bin_window_;
   const int phi_bin_window_;
@@ -76,6 +78,7 @@ TrackstersMergeProducer::TrackstersMergeProducer(const edm::ParameterSet &ps, co
       seedingTrk_token_(consumes<std::vector<TICLSeedingRegion>>(ps.getParameter<edm::InputTag>("seedingTrk"))),
       clusters_token_(consumes<std::vector<reco::CaloCluster>>(ps.getParameter<edm::InputTag>("layer_clusters"))),
       tracks_token_(consumes<std::vector<reco::Track>>(ps.getParameter<edm::InputTag>("tracks"))),
+      geometry_token_(esConsumes<CaloGeometry, CaloGeometryRecord>()),
       optimiseAcrossTracksters_(ps.getParameter<bool>("optimiseAcrossTracksters")),
       eta_bin_window_(ps.getParameter<int>("eta_bin_window")),
       phi_bin_window_(ps.getParameter<int>("phi_bin_window")),
@@ -143,8 +146,7 @@ void TrackstersMergeProducer::dumpTrackster(const Trackster &t) const {
 }
 
 void TrackstersMergeProducer::produce(edm::Event &evt, const edm::EventSetup &es) {
-  edm::ESHandle<CaloGeometry> geom;
-  es.get<CaloGeometryRecord>().get(geom);
+  edm::ESHandle<CaloGeometry> geom = es.getHandle(geometry_token_);
   rhtools_.setGeometry(*geom);
   auto result = std::make_unique<std::vector<Trackster>>();
   auto mergedTrackstersTRK = std::make_unique<std::vector<Trackster>>();
