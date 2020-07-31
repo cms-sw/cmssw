@@ -225,7 +225,7 @@ void CSCGEMMotherboardME21::run(const CSCWireDigiCollection* wiredc,
       // ALCT-to-GEM matching
       int nGoodGEMMatches = 0;
       // only use high-quality stubs
-      if (nGoodMatches == 0 and buildLCTfromALCTandGEM_ and quality >=1) {
+      if (nGoodMatches == 0 and buildLCTfromALCTandGEM_ and quality >= 1) {
         if (debug_matching)
           LogTrace("CSCGEMMotherboardME21") << "++No valid ALCT-CLCT matches in ME21" << std::endl;
         for (int bx_gem = bx_copad_start; bx_gem <= bx_copad_stop; bx_gem++) {
