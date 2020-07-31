@@ -46,12 +46,12 @@ namespace edm {
           continue;
         }
 
-        unsigned int thinnedIndex = 0;
         // Does this thinned container have the element referenced by key?
-        // If yes, thinnedIndex is set to point to it in the thinned container
-        if (!thinnedAssociation->hasParentIndex(key, thinnedIndex)) {
+        auto thinnedIndex = thinnedAssociation->getThinnedIndex(key);
+        if (not thinnedIndex.has_value()) {
           continue;
         }
+
         // Get the thinned container and return a pointer if we can find it
         ProductID const& thinnedCollectionPID = thinnedAssociation->thinnedCollectionID();
         WrapperBase const* thinnedCollection = getByProductID(thinnedCollectionPID);
@@ -59,7 +59,7 @@ namespace edm {
           // Thinned container is not found, try looking recursively in thinned containers
           // which were made by selecting elements from this thinned container.
           auto thinnedCollectionKey = getThinnedProduct(thinnedCollectionPID,
-                                                        thinnedIndex,
+                                                        *thinnedIndex,
                                                         thinnedAssociationsHelper,
                                                         pidToBid,
                                                         getThinnedAssociation,
@@ -70,7 +70,7 @@ namespace edm {
             continue;
           }
         }
-        return std::tuple(thinnedCollection, thinnedIndex);
+        return std::tuple(thinnedCollection, *thinnedIndex);
       }
       return std::nullopt;
     }
@@ -125,9 +125,8 @@ namespace edm {
           if (keys[k] == doNotLookForThisIndex)
             continue;
           // Does the thinned container hold the entry of interest?
-          // Modifies thinnedIndexes[k] only if it returns true and
-          // sets it to the index in the thinned collection.
-          if (thinnedAssociation->hasParentIndex(keys[k], thinnedIndexes[k])) {
+          if (auto thinnedIndex = thinnedAssociation->getThinnedIndex(keys[k]); thinnedIndex.has_value()) {
+            thinnedIndexes[k] = *thinnedIndex;
             hasAny = true;
           }
         }
