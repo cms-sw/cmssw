@@ -41,7 +41,8 @@ void HGCalGeomLocaterTester::analyze(const edm::Event&, const edm::EventSetup& i
       det = DetId::HGCalHSi;
     else
       det = DetId::HGCalEE;
-    std::cout << "Perform test for " << name_ << " Detector " << det << " Mode " << geom->topology().dddConstants().geomMode() << std::endl;
+    std::cout << "Perform test for " << name_ << " Detector " << det << " Mode "
+              << geom->topology().dddConstants().geomMode() << std::endl;
     doTest(geom, det);
   }
 }
