@@ -901,7 +901,7 @@ bool CSCCathodeLCTProcessor::patternFinding(
                 hit_layer[this_layer] = true;
                 layers_hit++;  // determines number of layers hit
                 // add this strip in this layer to the pattern we are currently considering
-                hits_single_pattern[this_layer][strip_num] = this_strip;
+                hits_single_pattern[this_layer][strip_num] = this_strip - stagger[this_layer];
               }
 
               // find at what bx did pulse on this halsfstrip & layer have started
