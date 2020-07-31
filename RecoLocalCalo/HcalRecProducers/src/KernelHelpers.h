@@ -10,9 +10,7 @@
 namespace hcal {
   namespace reconstruction {
 
-
     constexpr int32_t IPHI_MAX = 72;
-
 
     // this is from HcalTimeSlew.
     // HcalTimeSlew are values that come in from ESProducer that takes them
@@ -73,7 +71,7 @@ namespace hcal {
       HcalDetId did{didraw};
       uint32_t const value = (did.depth() - 1) + maxDepthHB * (did.iphi() - 1);
       return did.ieta() > 0 ? value + maxDepthHB * hcal::reconstruction::IPHI_MAX * (did.ieta() - firstHBRing)
-	: value + maxDepthHB * hcal::reconstruction::IPHI_MAX * (did.ieta() + lastHBRing + nEtaHB);
+                            : value + maxDepthHB * hcal::reconstruction::IPHI_MAX * (did.ieta() + lastHBRing + nEtaHB);
     }
 
     __forceinline__ __device__ uint32_t did2linearIndexHE(uint32_t const didraw,
@@ -150,11 +148,10 @@ namespace hcal {
 
     // FIXME remove duplication...
     // this is from PulesFunctor. nvcc was complaining... if included that header...
-    //constexpr int maxSamples = 10;                                                                                                                                                
+    //constexpr int maxSamples = 10;
     constexpr int maxPSshapeBin = 256;
     constexpr int nsPerBX = 25;
     constexpr float iniTimeShift = 92.5f;
-
 
     // TODO: remove what's not needed
     __forceinline__ __device__ float compute_pulse_shape_value(float const pulse_time,
@@ -175,7 +172,7 @@ namespace hcal {
 
       // FIXME: clean up all the rounding... this is coming from original cpu version
       float const i_start_float =
-	-iniTimeShift - pulse_time - slew > 0.f ? 0.f : std::abs(-iniTimeShift - pulse_time - slew) + 1.f;
+          -iniTimeShift - pulse_time - slew > 0.f ? 0.f : std::abs(-iniTimeShift - pulse_time - slew) + 1.f;
       int i_start = static_cast<int>(i_start_float);
       float offset_start = static_cast<float>(i_start) - iniTimeShift - pulse_time - slew;
       // FIXME: do we need a check for nan???
@@ -218,7 +215,7 @@ namespace hcal {
       if (sample_over10ts == its_start) {
         value = bin_0_start == -1
                     ? accVarLenIdxMinusOneVec[distTo25ns_start] + factor * diffVarItvlIdxMinusOneVec[distTo25ns_start]
-	  : accVarLenIdxZeroVec[distTo25ns_start] + factor * diffVarItvlIdxZeroVec[distTo25ns_start];
+                    : accVarLenIdxZeroVec[distTo25ns_start] + factor * diffVarItvlIdxZeroVec[distTo25ns_start];
       } else if (sample_over10ts > its_start) {
         int const bin_idx = distTo25ns_start + 1 + (sample_over10ts - its_start - 1) * ns_per_bx + bin_0_start;
         value = acc25nsVec[bin_idx] + factor * diff25nsItvlVec[bin_idx];
@@ -227,10 +224,7 @@ namespace hcal {
       return value;
     }
 
-
-
   }  // namespace reconstruction
 }  // namespace hcal
-
 
 #endif  // RecoLocalCalo_HcalRecProducers_src_KernelHelpers_h

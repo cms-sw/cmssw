@@ -151,8 +151,9 @@ namespace hcal {
       // compute hash for this did
       auto const hashedId =
           did.subdetId() == HcalBarrel
-	? hcal::reconstruction::did2linearIndexHB(id, maxDepthHB, firstHBRing, lastHBRing, nEtaHB)
-	: hcal::reconstruction::did2linearIndexHE(id, maxDepthHE, maxPhiHE, firstHERing, lastHERing, nEtaHE) + offsetForHashes;
+              ? hcal::reconstruction::did2linearIndexHB(id, maxDepthHB, firstHBRing, lastHBRing, nEtaHB)
+              : hcal::reconstruction::did2linearIndexHE(id, maxDepthHE, maxPhiHE, firstHERing, lastHERing, nEtaHE) +
+                    offsetForHashes;
 
       // conditions based on the hash
       // FIXME: remove hardcoded values
@@ -244,7 +245,8 @@ namespace hcal {
         for (auto ts = first; ts < last; ts++)
           sipmq += shrChargeMinusPedestal[threadIdx.y * nsamplesExpected + ts];
         auto const effectivePixelsFired = sipmq / fcByPE;
-        auto const factor = hcal::reconstruction::compute_reco_correction_factor(parLin1, parLin2, parLin3, effectivePixelsFired);
+        auto const factor =
+            hcal::reconstruction::compute_reco_correction_factor(parLin1, parLin2, parLin3, effectivePixelsFired);
         rawCharge = (charge - pedestal) * factor + pedestal;
 #ifdef COMPUTE_TDC_TIME
         if (gch < nchannelsf01HE)
@@ -391,7 +393,6 @@ namespace hcal {
       noiseTermsForChannel[sample] = noiseTerm;
     }
 
-
     // TODO: need to add an array of offsets for pulses (a la activeBXs...)
     // Assume for now 8 pulses
     __global__ void kernel_prep_pulseMatrices_sameNumberOfSamples(float* pulseMatrices,
@@ -453,15 +454,19 @@ namespace hcal {
       auto const did = DetId{id};
       auto const hashedId =
           did.subdetId() == HcalBarrel
-							 ? hcal::reconstruction::did2linearIndexHB(id, maxDepthHB, firstHBRing, lastHBRing, nEtaHB)
-							 : hcal::reconstruction::did2linearIndexHE(id, maxDepthHE, maxPhiHE, firstHERing, lastHERing, nEtaHE) + offsetForHashes;
+              ? hcal::reconstruction::did2linearIndexHB(id, maxDepthHB, firstHBRing, lastHBRing, nEtaHB)
+              : hcal::reconstruction::did2linearIndexHE(id, maxDepthHE, maxPhiHE, firstHERing, lastHERing, nEtaHE) +
+                    offsetForHashes;
       auto const recoPulseShapeId = recoPulseShapeIds[hashedId];
       auto const* acc25nsVec = acc25nsVecValues + recoPulseShapeId * hcal::reconstruction::maxPSshapeBin;
       auto const* diff25nsItvlVec = diff25nsItvlVecValues + recoPulseShapeId * hcal::reconstruction::maxPSshapeBin;
-      auto const* accVarLenIdxMinusOneVec = accVarLenIdxMinusOneVecValues + recoPulseShapeId * hcal::reconstruction::nsPerBX;
-      auto const* diffVarItvlIdxMinusOneVec = diffVarItvlIdxMinusOneVecValues + recoPulseShapeId * hcal::reconstruction::nsPerBX;
+      auto const* accVarLenIdxMinusOneVec =
+          accVarLenIdxMinusOneVecValues + recoPulseShapeId * hcal::reconstruction::nsPerBX;
+      auto const* diffVarItvlIdxMinusOneVec =
+          diffVarItvlIdxMinusOneVecValues + recoPulseShapeId * hcal::reconstruction::nsPerBX;
       auto const* accVarLenIdxZeroVec = accVarLenIdxZeroVecValues + recoPulseShapeId * hcal::reconstruction::nsPerBX;
-      auto const* diffVarItvlIdxZeroVec = diffVarItvlIdxZeroVecValues + recoPulseShapeId * hcal::reconstruction::nsPerBX;
+      auto const* diffVarItvlIdxZeroVec =
+          diffVarItvlIdxZeroVecValues + recoPulseShapeId * hcal::reconstruction::nsPerBX;
 
       // offset output arrays
       auto* pulseMatrix = pulseMatrices + nsamples * npulses * gch;
@@ -525,40 +530,40 @@ namespace hcal {
       if (sample == 0 && ipulse == 0) {
         for (int i = 0; i < 10; i++) {
           auto const value = hcal::reconstruction::compute_pulse_shape_value(t0,
-                                                       i,
-                                                       0,
-                                                       acc25nsVec,
-                                                       diff25nsItvlVec,
-                                                       accVarLenIdxMinusOneVec,
-                                                       diffVarItvlIdxMinusOneVec,
-                                                       accVarLenIdxZeroVec,
-                                                       diffVarItvlIdxZeroVec);
+                                                                             i,
+                                                                             0,
+                                                                             acc25nsVec,
+                                                                             diff25nsItvlVec,
+                                                                             accVarLenIdxMinusOneVec,
+                                                                             diffVarItvlIdxMinusOneVec,
+                                                                             accVarLenIdxZeroVec,
+                                                                             diffVarItvlIdxZeroVec);
           printf("pulse(%d) = %f\n", i, value);
         }
         printf("\n");
         for (int i = 0; i < 10; i++) {
           auto const value = hcal::reconstruction::compute_pulse_shape_value(t0p,
-                                                       i,
-                                                       0,
-                                                       acc25nsVec,
-                                                       diff25nsItvlVec,
-                                                       accVarLenIdxMinusOneVec,
-                                                       diffVarItvlIdxMinusOneVec,
-                                                       accVarLenIdxZeroVec,
-                                                       diffVarItvlIdxZeroVec);
+                                                                             i,
+                                                                             0,
+                                                                             acc25nsVec,
+                                                                             diff25nsItvlVec,
+                                                                             accVarLenIdxMinusOneVec,
+                                                                             diffVarItvlIdxMinusOneVec,
+                                                                             accVarLenIdxZeroVec,
+                                                                             diffVarItvlIdxZeroVec);
           printf("pulseP(%d) = %f\n", i, value);
         }
         printf("\n");
         for (int i = 0; i < 10; i++) {
           auto const value = hcal::reconstruction::compute_pulse_shape_value(t0m,
-                                                       i,
-                                                       0,
-                                                       acc25nsVec,
-                                                       diff25nsItvlVec,
-                                                       accVarLenIdxMinusOneVec,
-                                                       diffVarItvlIdxMinusOneVec,
-                                                       accVarLenIdxZeroVec,
-                                                       diffVarItvlIdxZeroVec);
+                                                                             i,
+                                                                             0,
+                                                                             acc25nsVec,
+                                                                             diff25nsItvlVec,
+                                                                             accVarLenIdxMinusOneVec,
+                                                                             diffVarItvlIdxMinusOneVec,
+                                                                             accVarLenIdxZeroVec,
+                                                                             diffVarItvlIdxZeroVec);
           printf("pulseM(%d) = %f\n", i, value);
         }
       }
@@ -571,36 +576,39 @@ namespace hcal {
       // auto const offset = ipulse - soi;
       // auto const idx = sample - offset;
       int32_t const idx = sample - pulseOffset;
-      auto const value = idx >= 0 && idx < nsamples ? hcal::reconstruction::compute_pulse_shape_value(t0,
-                                                                                idx,
-                                                                                shift,
-                                                                                acc25nsVec,
-                                                                                diff25nsItvlVec,
-                                                                                accVarLenIdxMinusOneVec,
-                                                                                diffVarItvlIdxMinusOneVec,
-                                                                                accVarLenIdxZeroVec,
-                                                                                diffVarItvlIdxZeroVec)
-                                                    : 0;
-      auto const value_t0m = idx >= 0 && idx < nsamples ? hcal::reconstruction::compute_pulse_shape_value(t0m,
-                                                                                    idx,
-                                                                                    shift,
-                                                                                    acc25nsVec,
-                                                                                    diff25nsItvlVec,
-                                                                                    accVarLenIdxMinusOneVec,
-                                                                                    diffVarItvlIdxMinusOneVec,
-                                                                                    accVarLenIdxZeroVec,
-                                                                                    diffVarItvlIdxZeroVec)
-                                                        : 0;
-      auto const value_t0p = idx >= 0 && idx < nsamples ? hcal::reconstruction::compute_pulse_shape_value(t0p,
-                                                                                    idx,
-                                                                                    shift,
-                                                                                    acc25nsVec,
-                                                                                    diff25nsItvlVec,
-                                                                                    accVarLenIdxMinusOneVec,
-                                                                                    diffVarItvlIdxMinusOneVec,
-                                                                                    accVarLenIdxZeroVec,
-                                                                                    diffVarItvlIdxZeroVec)
-                                                        : 0;
+      auto const value = idx >= 0 && idx < nsamples
+                             ? hcal::reconstruction::compute_pulse_shape_value(t0,
+                                                                               idx,
+                                                                               shift,
+                                                                               acc25nsVec,
+                                                                               diff25nsItvlVec,
+                                                                               accVarLenIdxMinusOneVec,
+                                                                               diffVarItvlIdxMinusOneVec,
+                                                                               accVarLenIdxZeroVec,
+                                                                               diffVarItvlIdxZeroVec)
+                             : 0;
+      auto const value_t0m = idx >= 0 && idx < nsamples
+                                 ? hcal::reconstruction::compute_pulse_shape_value(t0m,
+                                                                                   idx,
+                                                                                   shift,
+                                                                                   acc25nsVec,
+                                                                                   diff25nsItvlVec,
+                                                                                   accVarLenIdxMinusOneVec,
+                                                                                   diffVarItvlIdxMinusOneVec,
+                                                                                   accVarLenIdxZeroVec,
+                                                                                   diffVarItvlIdxZeroVec)
+                                 : 0;
+      auto const value_t0p = idx >= 0 && idx < nsamples
+                                 ? hcal::reconstruction::compute_pulse_shape_value(t0p,
+                                                                                   idx,
+                                                                                   shift,
+                                                                                   acc25nsVec,
+                                                                                   diff25nsItvlVec,
+                                                                                   accVarLenIdxMinusOneVec,
+                                                                                   diffVarItvlIdxMinusOneVec,
+                                                                                   accVarLenIdxZeroVec,
+                                                                                   diffVarItvlIdxZeroVec)
+                                 : 0;
 
       // store to global
       pulseMatrix[ipulse * nsamples + sample] = value;
@@ -608,7 +616,6 @@ namespace hcal {
       pulseMatrixM[ipulse * nsamples + sample] = value_t0m;
       pulseMatrixP[ipulse * nsamples + sample] = value_t0p;
     }
-
 
     // TODO: add active bxs
     template <typename MatrixType, typename VectorType>
@@ -645,7 +652,7 @@ namespace hcal {
 
           // compute the gradient
           //w.tail(nactive) = Atb.tail(nactive) - (AtA * solution).tail(nactive);
-	  Eigen::Index w_max_idx;
+          Eigen::Index w_max_idx;
           float w_max = -std::numeric_limits<float>::max();
           for (int icol = npassive; icol < NPULSES; icol++) {
             auto const icol_real = pulseOffsets(icol);
@@ -654,7 +661,7 @@ namespace hcal {
 #pragma unroll
             for (int counter = 0; counter < NPULSES; counter++)
               sum += counter > icol_real ? AtA(counter, icol_real) * solution(counter)
-		: AtA(icol_real, counter) * solution(counter);
+                                         : AtA(icol_real, counter) * solution(counter);
 
             auto const w = atb - sum;
             if (w > w_max) {
@@ -676,7 +683,7 @@ namespace hcal {
           // move index to the right part of the vector
           w_max_idx += npassive;
 
-	  Eigen::numext::swap(pulseOffsets.coeffRef(npassive), pulseOffsets.coeffRef(w_max_idx));
+          Eigen::numext::swap(pulseOffsets.coeffRef(npassive), pulseOffsets.coeffRef(w_max_idx));
           ++npassive;
         }
 
@@ -691,9 +698,11 @@ namespace hcal {
           //        .llt().matrixL();
           //.solve(Atb.head(npassive));
           if (recompute || iter == 0)
-	    calo::multifit::compute_decomposition_forwardsubst_with_offsets(matrixL, AtA, reg_b, Atb, npassive, pulseOffsets);
+            calo::multifit::compute_decomposition_forwardsubst_with_offsets(
+                matrixL, AtA, reg_b, Atb, npassive, pulseOffsets);
           else
-	    calo::multifit::update_decomposition_forwardsubst_with_offsets(matrixL, AtA, reg_b, Atb, npassive, pulseOffsets);
+            calo::multifit::update_decomposition_forwardsubst_with_offsets(
+                matrixL, AtA, reg_b, Atb, npassive, pulseOffsets);
 
           // run backward substituion
           s(npassive - 1) = reg_b[npassive - 1] / matrixL(npassive - 1, npassive - 1);
@@ -720,7 +729,7 @@ namespace hcal {
           recompute = true;
 
           auto alpha = std::numeric_limits<float>::max();
-	  Eigen::Index alpha_idx = 0, alpha_idx_real = 0;
+          Eigen::Index alpha_idx = 0, alpha_idx_real = 0;
           for (int i = 0; i < npassive; i++) {
             if (s[i] <= 0.) {
               auto const i_real = pulseOffsets(i);
@@ -743,7 +752,7 @@ namespace hcal {
           solution[alpha_idx_real] = 0;
           --npassive;
 
-	  Eigen::numext::swap(pulseOffsets.coeffRef(npassive), pulseOffsets.coeffRef(alpha_idx));
+          Eigen::numext::swap(pulseOffsets.coeffRef(npassive), pulseOffsets.coeffRef(alpha_idx));
         }
 
         // as in cpu
@@ -856,9 +865,10 @@ namespace hcal {
 
       // configure shared mem
       extern __shared__ char shrmem[];
-      float* shrMatrixLFnnlsStorage = reinterpret_cast<float*>(shrmem) + calo::multifit::MapSymM<float, NPULSES>::total * threadIdx.x;
-      float* shrAtAStorage =
-	reinterpret_cast<float*>(shrmem) + calo::multifit::MapSymM<float, NPULSES>::total * (threadIdx.x + blockDim.x);
+      float* shrMatrixLFnnlsStorage =
+          reinterpret_cast<float*>(shrmem) + calo::multifit::MapSymM<float, NPULSES>::total * threadIdx.x;
+      float* shrAtAStorage = reinterpret_cast<float*>(shrmem) +
+                             calo::multifit::MapSymM<float, NPULSES>::total * (threadIdx.x + blockDim.x);
 
       // conditions for pedestal widths
       auto const id = gch < nchannelsf01HE
@@ -870,8 +880,9 @@ namespace hcal {
       auto const did = DetId{id};
       auto const hashedId =
           did.subdetId() == HcalBarrel
-	? hcal::reconstruction::did2linearIndexHB(id, maxDepthHB, firstHBRing, lastHBRing, nEtaHB)
-	: hcal::reconstruction::did2linearIndexHE(id, maxDepthHE, maxPhiHE, firstHERing, lastHERing, nEtaHE) + offsetForHashes;
+              ? hcal::reconstruction::did2linearIndexHB(id, maxDepthHB, firstHBRing, lastHBRing, nEtaHB)
+              : hcal::reconstruction::did2linearIndexHE(id, maxDepthHE, maxPhiHE, firstHERing, lastHERing, nEtaHE) +
+                    offsetForHashes;
 
       auto const* pedestalWidthsForChannel = useEffectivePedestals && (gch < nchannelsf01HE || gch >= nchannelsf015)
                                                  ? effectivePedestalWidths + hashedId * 4
@@ -911,10 +922,11 @@ namespace hcal {
       Eigen::Map<const calo::multifit::ColumnVector<NSAMPLES>> inputAmplitudesView{inputAmplitudes + gch * NSAMPLES};
       Eigen::Map<const calo::multifit::ColumnVector<NSAMPLES>> noiseTermsView{noiseTerms + gch * NSAMPLES};
       Eigen::Map<const calo::multifit::ColMajorMatrix<NSAMPLES, NPULSES>> glbPulseMatrixMView{pulseMatricesM +
-                                                                              gch * NSAMPLES * NPULSES};
+                                                                                              gch * NSAMPLES * NPULSES};
       Eigen::Map<const calo::multifit::ColMajorMatrix<NSAMPLES, NPULSES>> glbPulseMatrixPView{pulseMatricesP +
-                                                                              gch * NSAMPLES * NPULSES};
-      Eigen::Map<const calo::multifit::ColMajorMatrix<NSAMPLES, NPULSES>> glbPulseMatrixView{pulseMatrices + gch * NSAMPLES * NPULSES};
+                                                                                              gch * NSAMPLES * NPULSES};
+      Eigen::Map<const calo::multifit::ColMajorMatrix<NSAMPLES, NPULSES>> glbPulseMatrixView{pulseMatrices +
+                                                                                             gch * NSAMPLES * NPULSES};
 
 #ifdef HCAL_MAHI_GPUDEBUG
       for (int i = 0; i < NSAMPLES; i++)
@@ -947,7 +959,7 @@ namespace hcal {
         // if does not hold -> slightly rearrange shared mem to still reuse
         // shared memory
         float* covarianceMatrixStorage = shrMatrixLFnnlsStorage;
-	calo::multifit::MapSymM<float, NSAMPLES> covarianceMatrix{covarianceMatrixStorage};
+        calo::multifit::MapSymM<float, NSAMPLES> covarianceMatrix{covarianceMatrixStorage};
 #pragma unroll
         for (int counter = 0; counter < calo::multifit::MapSymM<float, NSAMPLES>::total; counter++)
           covarianceMatrixStorage[counter] = averagePedestalWidth2;
@@ -972,8 +984,8 @@ namespace hcal {
         //matrixDecomposition.compute(covarianceMatrix);
         //auto const& matrixL = matrixDecomposition.matrixL();
         float matrixLStorage[calo::multifit::MapSymM<float, NSAMPLES>::total];
-	calo::multifit::MapSymM<float, NSAMPLES> matrixL{matrixLStorage};
-	calo::multifit::compute_decomposition_unrolled(matrixL, covarianceMatrix);
+        calo::multifit::MapSymM<float, NSAMPLES> matrixL{matrixLStorage};
+        calo::multifit::compute_decomposition_unrolled(matrixL, covarianceMatrix);
 
         //
         // replace eigen
@@ -981,8 +993,8 @@ namespace hcal {
         //auto const& A = matrixDecomposition
         //    .matrixL()
         //    .solve(pulseMatrixView);
-	calo::multifit::ColMajorMatrix<NSAMPLES, NPULSES> A;
-	calo::multifit::solve_forward_subst_matrix(A, glbPulseMatrixView, matrixL);
+        calo::multifit::ColMajorMatrix<NSAMPLES, NPULSES> A;
+        calo::multifit::solve_forward_subst_matrix(A, glbPulseMatrixView, matrixL);
 
         //
         // remove eigen
@@ -991,7 +1003,7 @@ namespace hcal {
         //   .solve(inputAmplitudesView);
         //
         float reg_b[NSAMPLES];
-	calo::multifit::solve_forward_subst_vector(reg_b, inputAmplitudesView, matrixL);
+        calo::multifit::solve_forward_subst_vector(reg_b, inputAmplitudesView, matrixL);
 
         // TODO: we do not really need to change these matrcies
         // will be fixed in the optimized version
@@ -999,8 +1011,8 @@ namespace hcal {
         //ColumnVector<NPULSES> Atb = A.transpose() * b;
         //ColMajorMatrix<NPULSES, NPULSES> AtA;
         //float AtAStorage[MapSymM<float, NPULSES>::total];
-	calo::multifit::MapSymM<float, NPULSES> AtA{shrAtAStorage};
-	calo::multifit::ColumnVector<NPULSES> Atb;
+        calo::multifit::MapSymM<float, NPULSES> AtA{shrAtAStorage};
+        calo::multifit::ColumnVector<NPULSES> Atb;
 #pragma unroll
         for (int icol = 0; icol < NPULSES; icol++) {
           float reg_ai[NSAMPLES];
@@ -1067,11 +1079,11 @@ namespace hcal {
 #endif
 
         // for fnnls
-	calo::multifit::MapSymM<float, NPULSES> matrixLForFnnls{shrMatrixLFnnlsStorage};
+        calo::multifit::MapSymM<float, NPULSES> matrixLForFnnls{shrMatrixLFnnlsStorage};
 
         // run fast nnls
         // FIXME: provide values from config
-	fnnls(AtA, Atb, resultAmplitudesVector, npassive, pulseOffsets, matrixLForFnnls, 1e-11, 500);
+        fnnls(AtA, Atb, resultAmplitudesVector, npassive, pulseOffsets, matrixLForFnnls, 1e-11, 500);
 
 #ifdef HCAL_MAHI_GPUDEBUG
         printf("result Amplitudes\n");
@@ -1258,7 +1270,8 @@ namespace hcal {
           conditions.respCorrs.values,
           conditions.topology->maxDepthHB(),
           conditions.topology->maxDepthHE(),
-          conditions.recConstants->getNPhi(1) > hcal::reconstruction::IPHI_MAX ? conditions.recConstants->getNPhi(1) : hcal::reconstruction::IPHI_MAX,
+          conditions.recConstants->getNPhi(1) > hcal::reconstruction::IPHI_MAX ? conditions.recConstants->getNPhi(1)
+                                                                               : hcal::reconstruction::IPHI_MAX,
           conditions.topology->firstHBRing(),
           conditions.topology->lastHBRing(),
           conditions.topology->firstHERing(),
@@ -1312,7 +1325,8 @@ namespace hcal {
           configParameters.timeSigmaHPD,
           conditions.topology->maxDepthHB(),
           conditions.topology->maxDepthHE(),
-          conditions.recConstants->getNPhi(1) > hcal::reconstruction::IPHI_MAX ? conditions.recConstants->getNPhi(1) : hcal::reconstruction::IPHI_MAX,
+          conditions.recConstants->getNPhi(1) > hcal::reconstruction::IPHI_MAX ? conditions.recConstants->getNPhi(1)
+                                                                               : hcal::reconstruction::IPHI_MAX,
           conditions.topology->firstHBRing(),
           conditions.topology->lastHBRing(),
           conditions.topology->firstHERing(),
@@ -1357,7 +1371,8 @@ namespace hcal {
             conditions.offsetForHashes,
             conditions.topology->maxDepthHB(),
             conditions.topology->maxDepthHE(),
-            conditions.recConstants->getNPhi(1) > hcal::reconstruction::IPHI_MAX ? conditions.recConstants->getNPhi(1) : hcal::reconstruction::IPHI_MAX,
+            conditions.recConstants->getNPhi(1) > hcal::reconstruction::IPHI_MAX ? conditions.recConstants->getNPhi(1)
+                                                                                 : hcal::reconstruction::IPHI_MAX,
             conditions.topology->firstHBRing(),
             conditions.topology->lastHBRing(),
             conditions.topology->firstHERing(),
