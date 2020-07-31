@@ -28,9 +28,9 @@ namespace edm {
         ProductID const& pid,
         unsigned int key,
         ThinnedAssociationsHelper const& thinnedAssociationsHelper,
-        F1&& pidToBid,
-        F2&& getThinnedAssociation,
-        F3&& getByProductID) {
+        F1 pidToBid,
+        F2 getThinnedAssociation,
+        F3 getByProductID) {
       BranchID parent = pidToBid(pid);
 
       // Loop over thinned containers which were made by selecting elements from the parent container
@@ -61,9 +61,9 @@ namespace edm {
           auto thinnedCollectionKey = getThinnedProduct(thinnedCollectionPID,
                                                         thinnedIndex,
                                                         thinnedAssociationsHelper,
-                                                        std::forward<F1>(pidToBid),
-                                                        std::forward<F2>(getThinnedAssociation),
-                                                        std::forward<F3>(getByProductID));
+                                                        pidToBid,
+                                                        getThinnedAssociation,
+                                                        getByProductID);
           if (thinnedCollectionKey.has_value()) {
             return thinnedCollectionKey;
           } else {
@@ -93,9 +93,9 @@ namespace edm {
     template <typename F1, typename F2, typename F3>
     void getThinnedProducts(ProductID const& pid,
                             ThinnedAssociationsHelper const& thinnedAssociationsHelper,
-                            F1&& pidToBid,
-                            F2&& getThinnedAssociation,
-                            F3&& getByProductID,
+                            F1 pidToBid,
+                            F2 getThinnedAssociation,
+                            F3 getByProductID,
                             std::vector<WrapperBase const*>& foundContainers,
                             std::vector<unsigned int>& keys) {
       BranchID parent = pidToBid(pid);
@@ -143,9 +143,9 @@ namespace edm {
           // which were made by selecting elements from this thinned container.
           getThinnedProducts(thinnedCollectionPID,
                              thinnedAssociationsHelper,
-                             std::forward<F1>(pidToBid),
-                             std::forward<F2>(getThinnedAssociation),
-                             std::forward<F3>(getByProductID),
+                             pidToBid,
+                             getThinnedAssociation,
+                             getByProductID,
                              foundContainers,
                              thinnedIndexes);
           for (unsigned k = 0; k < nKeys; ++k) {
