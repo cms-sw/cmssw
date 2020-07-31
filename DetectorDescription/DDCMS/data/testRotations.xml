@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../Schema/DDLSchema.xsd">
+<DDDefinition>
 
   <RotationSection label="testRotations.xml">
     <RotationByAxis name="z30" axis="z" angle="30*deg"/>
@@ -25,7 +25,7 @@
     </RotationSequence>
     <RotationByAxis name="x90" axis="x" angle="90*deg"/>
     <Rotation name="cmsimIdentity" phiX="0" thetaX="90*deg" phiY="90*deg" thetaY="90*deg" phiZ="0" thetaZ="0"/>
-    <RotationByAxis name="newrotIdentity" axis="z" angle="0*deg"/> <!-- This seems silly -->
+    <RotationByAxis name="newrotIdentity" axis="z" angle="0*deg"/>
     <ReflectionRotation name="180R" thetaX="90*deg" phiX="0*deg" thetaY="90*deg" phiY="90*deg" thetaZ="180*deg" phiZ="0*deg" />
     <ReflectionRotation name="ReflectionY" phiY="270.*deg" thetaY="90.*deg" phiX=" 0.*deg" thetaX="90.*deg" phiZ="0.*deg" thetaZ="0.*deg"/>
   </RotationSection>
