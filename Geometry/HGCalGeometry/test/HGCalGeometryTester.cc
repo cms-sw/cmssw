@@ -11,7 +11,6 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
-#include "Geometry/HGCalCommonData/interface/HGCalGeometryMode.h"
 #include "Geometry/HGCalGeometry/interface/HGCalGeometry.h"
 #include "DataFormats/ForwardDetId/interface/ForwardSubdetector.h"
 #include "DataFormats/ForwardDetId/interface/HGCalDetId.h"
@@ -44,7 +43,6 @@ HGCalGeometryTester::~HGCalGeometryTester() {}
 void HGCalGeometryTester::analyze(const edm::Event&, const edm::EventSetup& iSetup) {
   const auto& geomR = iSetup.getData(geomToken_);
   const HGCalGeometry* geom = &geomR;
-  HGCalGeometryMode::GeometryMode mode = geom->topology().dddConstants().geomMode();
   if (geom->topology().waferHexagon6()) {
     ForwardSubdetector subdet;
     if (name == "HGCalHESiliconSensitive")
@@ -54,7 +52,7 @@ void HGCalGeometryTester::analyze(const edm::Event&, const edm::EventSetup& iSet
     else
       subdet = HGCEE;
     std::cout << "Perform test for " << name << " Detector:Subdetector " << DetId::Forward << ":" << subdet << " Mode "
-              << mode << std::endl;
+              << geom->topology().dddConstants().geomMode() << std::endl;
     doTest(geom, subdet);
   } else {
     DetId::Detector det;
@@ -64,7 +62,7 @@ void HGCalGeometryTester::analyze(const edm::Event&, const edm::EventSetup& iSet
       det = DetId::HGCalHSc;
     else
       det = DetId::HGCalEE;
-    std::cout << "Perform test for " << name << " Detector " << det << " Mode " << mode << std::endl;
+    std::cout << "Perform test for " << name << " Detector " << det << " Mode " << geom->topology().dddConstants().geomMode() << std::endl;
     if (name == "HGCalHEScintillatorSensitive") {
       doTestScint(geom, det);
     } else {
