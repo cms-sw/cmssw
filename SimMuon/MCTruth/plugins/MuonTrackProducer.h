@@ -25,10 +25,6 @@ public:
 private:
   void produce(edm::Event &, const edm::EventSetup &) override;
 
-  edm::Handle<reco::MuonCollection> muonCollectionH;
-  edm::Handle<DTRecSegment4DCollection> dtSegmentCollectionH_;
-  edm::Handle<CSCSegmentCollection> cscSegmentCollectionH_;
-
   edm::EDGetTokenT<reco::MuonCollection> muonsToken;
   edm::EDGetTokenT<DTRecSegment4DCollection> inputDTRecSegment4DToken_;
   edm::EDGetTokenT<CSCSegmentCollection> inputCSCSegmentToken_;

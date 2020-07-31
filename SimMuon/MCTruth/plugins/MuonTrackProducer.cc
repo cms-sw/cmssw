@@ -33,13 +33,13 @@ MuonTrackProducer::MuonTrackProducer(const edm::ParameterSet &parset)
 MuonTrackProducer::~MuonTrackProducer() {}
 
 void MuonTrackProducer::produce(edm::Event &iEvent, const edm::EventSetup &iSetup) {
-  bool muonAvailable = iEvent.getByToken(muonsToken, muonCollectionH);
-  if (ignoreMissingMuonCollection && !muonAvailable)
+  edm::Handle<reco::MuonCollection> muonCollectionH = iEvent.getHandle(muonsToken);
+  if (ignoreMissingMuonCollection && !muonCollectionH.isValid())
     edm::LogVerbatim("MuonTrackProducer") << "\n ignoring missing muon collection.";
 
   else {
-    iEvent.getByToken(inputDTRecSegment4DToken_, dtSegmentCollectionH_);
-    iEvent.getByToken(inputCSCSegmentToken_, cscSegmentCollectionH_);
+    const DTRecSegment4DCollection &dtSegmentCollection = iEvent.get(inputDTRecSegment4DToken_);
+    const CSCSegmentCollection &cscSegmentCollection = iEvent.get(inputCSCSegmentToken_);
 
     const TrackerTopology &ttopo = iSetup.getData(ttopoToken_);
 
@@ -54,10 +54,10 @@ void MuonTrackProducer::produce(edm::Event &iEvent, const edm::EventSetup &iSetu
     edm::Ref<reco::TrackExtraCollection>::key_type idx = 0;
     edm::Ref<reco::TrackExtraCollection>::key_type hidx = 0;
 
-    edm::LogVerbatim("MuonTrackProducer") << "\nThere are " << dtSegmentCollectionH_->size() << " DT segments.";
+    edm::LogVerbatim("MuonTrackProducer") << "\nThere are " << dtSegmentCollection.size() << " DT segments.";
     unsigned int index_dt_segment = 0;
-    for (DTRecSegment4DCollection::const_iterator segment = dtSegmentCollectionH_->begin();
-         segment != dtSegmentCollectionH_->end();
+    for (DTRecSegment4DCollection::const_iterator segment = dtSegmentCollection.begin();
+         segment != dtSegmentCollection.end();
          ++segment, index_dt_segment++) {
       LocalPoint segmentLocalPosition = segment->localPosition();
       LocalVector segmentLocalDirection = segment->localDirection();
@@ -86,10 +86,10 @@ void MuonTrackProducer::produce(edm::Event &iEvent, const edm::EventSetup &iSetu
           << segmentdYdZerr << ")";
     }
 
-    edm::LogVerbatim("MuonTrackProducer") << "\nThere are " << cscSegmentCollectionH_->size() << " CSC segments.";
+    edm::LogVerbatim("MuonTrackProducer") << "\nThere are " << cscSegmentCollection.size() << " CSC segments.";
     unsigned int index_csc_segment = 0;
-    for (CSCSegmentCollection::const_iterator segment = cscSegmentCollectionH_->begin();
-         segment != cscSegmentCollectionH_->end();
+    for (CSCSegmentCollection::const_iterator segment = cscSegmentCollection.begin();
+         segment != cscSegmentCollection.end();
          ++segment, index_csc_segment++) {
       LocalPoint segmentLocalPosition = segment->localPosition();
       LocalVector segmentLocalDirection = segment->localDirection();
