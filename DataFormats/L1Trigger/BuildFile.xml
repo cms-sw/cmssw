@@ -3,6 +3,7 @@
 <use name="DataFormats/L1GlobalCaloTrigger"/>
 <use name="DataFormats/L1GlobalMuonTrigger"/>
 <use name="DataFormats/HcalDetId"/>
+<use name="FWCore/Concurrency"/>
 <export>
   <lib name="1"/>
 </export>

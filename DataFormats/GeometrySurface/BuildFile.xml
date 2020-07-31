@@ -1,4 +1,7 @@
 <use name="DataFormats/GeometryVector"/>
+<use name="DataFormats/GeometryCommonDetAlgo"/>
+<use name="DataFormats/Math"/>
+<use name="FWCore/Utilities"/>
 <use name="boost"/>
 <export>
   <lib name="1"/>

@@ -9,6 +9,7 @@
 <use name="DataFormats/METReco"/>
 <use name="DataFormats/HcalIsolatedTrack"/>
 <use name="DataFormats/TauReco"/>
+<use name="FWCore/MessageLogger"/>
 <export>
   <lib name="1"/>
 </export>

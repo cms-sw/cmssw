@@ -1,6 +1,11 @@
 <use name="CondFormats/Serialization"/>
 <use name="DataFormats/EcalDetId"/>
 <use name="FWCore/Utilities"/>
+<use name="CondCore/CondDB"/>
+<use name="CondFormats/External"/>
+<use name="DataFormats/DetId"/>
+<use name="DataFormats/Math"/>
+<use name="FWCore/MessageLogger"/>
 <use name="boost"/>
 <use name="boost_serialization"/>
 <export>

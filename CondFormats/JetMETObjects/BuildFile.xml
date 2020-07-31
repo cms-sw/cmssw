@@ -6,6 +6,7 @@
 <use name="rootmath"/>
 <use name="clhep"/>
 <use name="CondFormats/PhysicsToolsObjects"/>
+<use name="FWCore/MessageLogger"/>
 <export>
   <lib name="1"/>
 </export>

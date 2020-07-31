@@ -2,6 +2,7 @@
 <use name="DataFormats/HcalDetId"/>
 <use name="FWCore/Utilities"/>
 <use name="CondFormats/Serialization"/>
+<use name="FWCore/MessageLogger"/>
 <use name="boost_serialization"/>
 <export>
   <lib name="1"/>
