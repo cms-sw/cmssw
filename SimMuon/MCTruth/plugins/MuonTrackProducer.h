@@ -10,6 +10,8 @@
 #include "DataFormats/DTRecHit/interface/DTRecSegment4DCollection.h"
 #include "DataFormats/MuonReco/interface/Muon.h"
 #include "DataFormats/MuonReco/interface/MuonFwd.h"
+#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
+#include "Geometry/Records/interface/TrackerTopologyRcd.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -30,6 +32,7 @@ private:
   edm::EDGetTokenT<reco::MuonCollection> muonsToken;
   edm::EDGetTokenT<DTRecSegment4DCollection> inputDTRecSegment4DToken_;
   edm::EDGetTokenT<CSCSegmentCollection> inputCSCSegmentToken_;
+  edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> ttopoToken_;
 
   std::vector<std::string> selectionTags;
   std::string trackType;

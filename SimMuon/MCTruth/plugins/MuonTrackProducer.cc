@@ -14,16 +14,13 @@
 #include <algorithm>
 #include <sstream>
 
-#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
-#include "FWCore/Framework/interface/ESHandle.h"
-#include "Geometry/Records/interface/TrackerTopologyRcd.h"
-
 MuonTrackProducer::MuonTrackProducer(const edm::ParameterSet &parset)
     : muonsToken(consumes<reco::MuonCollection>(parset.getParameter<edm::InputTag>("muonsTag"))),
       inputDTRecSegment4DToken_(
           consumes<DTRecSegment4DCollection>(parset.getParameter<edm::InputTag>("inputDTRecSegment4DCollection"))),
       inputCSCSegmentToken_(
           consumes<CSCSegmentCollection>(parset.getParameter<edm::InputTag>("inputCSCSegmentCollection"))),
+      ttopoToken_(esConsumes<TrackerTopology, TrackerTopologyRcd>()),
       selectionTags(parset.getParameter<std::vector<std::string>>("selectionTags")),
       trackType(parset.getParameter<std::string>("trackType")),
       ignoreMissingMuonCollection(parset.getUntrackedParameter<bool>("ignoreMissingMuonCollection", false)),
@@ -45,9 +42,7 @@ void MuonTrackProducer::produce(edm::Event &iEvent, const edm::EventSetup &iSetu
     iEvent.getByToken(inputDTRecSegment4DToken_, dtSegmentCollectionH_);
     iEvent.getByToken(inputCSCSegmentToken_, cscSegmentCollectionH_);
 
-    edm::ESHandle<TrackerTopology> httopo;
-    iSetup.get<TrackerTopologyRcd>().get(httopo);
-    const TrackerTopology &ttopo = *httopo;
+    const TrackerTopology &ttopo = iSetup.getData(ttopoToken_);
 
     std::unique_ptr<reco::TrackCollection> selectedTracks(new reco::TrackCollection);
     std::unique_ptr<reco::TrackExtraCollection> selectedTrackExtras(new reco::TrackExtraCollection());
