@@ -60,21 +60,21 @@ CSCTriggerPrimitivesBuilder::CSCTriggerPrimitivesBuilder(const edm::ParameterSet
             // go through all possible cases
             if (isSLHC_ and ring == 1 and stat == 1 and runME11Up_ and !runME11ILT_)
               tmb_[endc - 1][stat - 1][sect - 1][subs - 1][cham - 1] =
-                std::make_unique<CSCMotherboardME11>(endc, stat, sect, subs, cham, conf);
+                  std::make_unique<CSCMotherboardME11>(endc, stat, sect, subs, cham, conf);
             else if (isSLHC_ and ring == 1 and stat == 1 and runME11Up_ and runME11ILT_)
               tmb_[endc - 1][stat - 1][sect - 1][subs - 1][cham - 1] =
-                std::make_unique<CSCGEMMotherboardME11>(endc, stat, sect, subs, cham, conf);
+                  std::make_unique<CSCGEMMotherboardME11>(endc, stat, sect, subs, cham, conf);
             else if (isSLHC_ and ring == 1 and stat == 2 and runME21Up_ and runME21ILT_)
               tmb_[endc - 1][stat - 1][sect - 1][subs - 1][cham - 1] =
-                std::make_unique<CSCGEMMotherboardME21>(endc, stat, sect, subs, cham, conf);
+                  std::make_unique<CSCGEMMotherboardME21>(endc, stat, sect, subs, cham, conf);
             else if (isSLHC_ and ring == 1 and
                      ((stat == 2 and runME21Up_ and !runME21ILT_) || (stat == 3 and runME31Up_) ||
                       (stat == 4 and runME41Up_)))
               tmb_[endc - 1][stat - 1][sect - 1][subs - 1][cham - 1] =
-                std::make_unique<CSCUpgradeMotherboard>(endc, stat, sect, subs, cham, conf);
+                  std::make_unique<CSCUpgradeMotherboard>(endc, stat, sect, subs, cham, conf);
             else
               tmb_[endc - 1][stat - 1][sect - 1][subs - 1][cham - 1] =
-                std::make_unique<CSCMotherboard>(endc, stat, sect, subs, cham, conf);
+                  std::make_unique<CSCMotherboard>(endc, stat, sect, subs, cham, conf);
           }
         }
       }
