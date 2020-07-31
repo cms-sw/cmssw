@@ -241,6 +241,10 @@ protected:
   /** Dump digis on wire groups. */
   void dumpDigis(const std::vector<int> wire[CSCConstants::NUM_LAYERS][CSCConstants::MAX_NUM_WIRES]) const;
 
+  // Check if the ALCT is valid
+  void checkValidReadout(const CSCALCTDigi& alct) const;
+  void checkValid(const CSCALCTDigi& alct, unsigned max_stubs = CSCConstants::MAX_ALCTS_PER_PROCESSOR) const;
+
   void showPatterns(const int key_wire);
 };
 
