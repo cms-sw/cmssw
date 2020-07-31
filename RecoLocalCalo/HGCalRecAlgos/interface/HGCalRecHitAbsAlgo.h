@@ -14,7 +14,6 @@
 #include "DataFormats/HGCRecHit/interface/HGCUncalibratedRecHit.h"
 #include "RecoLocalCalo/HGCalRecAlgos/interface/RecHitTools.h"
 
-
 class HGCalRecHitAbsAlgo {
 public:
   /// Constructor
@@ -23,8 +22,7 @@ public:
   /// Destructor
   virtual ~HGCalRecHitAbsAlgo(){};
 
-  inline void set(const edm::EventSetup& es) {  edm::ESHandle<CaloGeometry> geom;
-    es.get<CaloGeometryRecord>().get(geom); rhtools_.setGeometry(*geom); }
+  inline void set(const CaloGeometry& geom) { rhtools_.setGeometry(geom); }
 
   /// make rechits from dataframes
   virtual void setLayerWeights(const std::vector<float>& weights){};
