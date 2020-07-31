@@ -12,8 +12,18 @@ CSCUpgradeMotherboard::CSCUpgradeMotherboard(unsigned endcap,
       CSCMotherboard(endcap, station, sector, subsector, chamber, conf),
       allLCTs(match_trig_window_size) {
   if (!isSLHC_)
-    edm::LogError("CSCUpgradeMotherboard|ConfigError")
-        << "+++ Upgrade CSCUpgradeMotherboard constructed while isSLHC_ is not set! +++\n";
+    edm::LogError("CSCUpgradeMotherboard|SetupError") << "+++ TMB constructed while isSLHC_ is not set! +++\n";
+
+  if (theRing == 1) {
+    if (theStation == 1 and !runME11Up_)
+      edm::LogError("CSCUpgradeMotherboard|SetupError") << "+++ TMB constructed while runME11Up_ is not set! +++\n";
+    if (theStation == 2 and !runME21Up_)
+      edm::LogError("CSCUpgradeMotherboard|SetupError") << "+++ TMB constructed while runME21Up_ is not set! +++\n";
+    if (theStation == 3 and !runME31Up_)
+      edm::LogError("CSCUpgradeMotherboard|SetupError") << "+++ TMB constructed while runME31Up_ is not set! +++\n";
+    if (theStation == 4 and !runME41Up_)
+      edm::LogError("CSCUpgradeMotherboard|SetupError") << "+++ TMB constructed while runME41Up_ is not set! +++\n";
+  }
 
   theParity = theChamber % 2 == 0 ? Parity::Even : Parity::Odd;
 
@@ -42,8 +52,18 @@ CSCUpgradeMotherboard::CSCUpgradeMotherboard(unsigned endcap,
 
 CSCUpgradeMotherboard::CSCUpgradeMotherboard() : CSCMotherboard(), allLCTs(match_trig_window_size) {
   if (!isSLHC_)
-    edm::LogError("CSCUpgradeMotherboard|ConfigError")
-        << "+++ Upgrade CSCUpgradeMotherboard constructed while isSLHC_ is not set! +++\n";
+    edm::LogError("CSCUpgradeMotherboard|SetupError") << "+++ TMB constructed while isSLHC_ is not set! +++\n";
+
+  if (theRing == 1) {
+    if (theStation == 1 and !runME11Up_)
+      edm::LogError("CSCUpgradeMotherboard|SetupError") << "+++ TMB constructed while runME11Up_ is not set! +++\n";
+    if (theStation == 2 and !runME21Up_)
+      edm::LogError("CSCUpgradeMotherboard|SetupError") << "+++ TMB constructed while runME21Up_ is not set! +++\n";
+    if (theStation == 3 and !runME31Up_)
+      edm::LogError("CSCUpgradeMotherboard|SetupError") << "+++ TMB constructed while runME31Up_ is not set! +++\n";
+    if (theStation == 4 and !runME41Up_)
+      edm::LogError("CSCUpgradeMotherboard|SetupError") << "+++ TMB constructed while runME41Up_ is not set! +++\n";
+  }
 
   setPrefIndex();
 }
@@ -52,9 +72,8 @@ void CSCUpgradeMotherboard::run(const CSCWireDigiCollection* wiredc, const CSCCo
   clear();
 
   if (!(alctProc and clctProc)) {
-    if (infoV >= 0)
-      edm::LogError("CSCUpgradeMotherboard|SetupError")
-          << "+++ run() called for non-existing ALCT/CLCT processor! +++ \n";
+    edm::LogError("CSCUpgradeMotherboard|SetupError")
+        << "+++ run() called for non-existing ALCT/CLCT processor! +++ \n";
     return;
   }
 
@@ -245,6 +264,12 @@ std::vector<CSCCorrelatedLCTDigi> CSCUpgradeMotherboard::readoutLCTs() const {
   allLCTs.getMatched(result);
   if (tmb_cross_bx_algo == 2)
     CSCUpgradeMotherboard::sortLCTs(result, CSCUpgradeMotherboard::sortLCTsByQuality);
+
+  // do a final check on the LCTs in readout
+  for (const auto& lct : result) {
+    checkValid(lct);
+  }
+
   return result;
 }
 
