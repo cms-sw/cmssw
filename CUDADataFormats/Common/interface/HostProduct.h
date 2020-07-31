@@ -19,7 +19,7 @@ public:
 
   auto const& operator*() const { return *get(); }
 
-  auto const* operator-> () const { return get(); }
+  auto const* operator->() const { return get(); }
 
 private:
   cms::cuda::host::unique_ptr<T> hm_ptr;  //!

@@ -27,13 +27,13 @@ public:
 
   auto const &operator*() const { return *get(); }
 
-  auto const *operator-> () const { return get(); }
+  auto const *operator->() const { return get(); }
 
   auto *get() { return dm_ptr ? dm_ptr.get() : (hm_ptr ? hm_ptr.get() : std_ptr.get()); }
 
   auto &operator*() { return *get(); }
 
-  auto *operator-> () { return get(); }
+  auto *operator->() { return get(); }
 
   // in reality valid only for GPU version...
   cms::cuda::host::unique_ptr<T> toHostAsync(cudaStream_t stream) const {
