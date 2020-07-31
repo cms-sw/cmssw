@@ -99,7 +99,7 @@ protected:
   CSCALCTDigi secondALCT[CSCConstants::MAX_ALCT_TBINS];
 
   /** LCTs in this chamber, as found by the processor. */
-  CSCALCTDigi ALCTContainer_[CSCConstants::MAX_ALCT_TBINS][CSCConstants::MAX_ALCTS_PER_PROCESSOR];
+  std::vector<std::vector<CSCALCTDigi> > ALCTContainer_;
 
   /** Access routines to wire digis. */
   bool getDigis(const CSCWireDigiCollection* wiredc);
