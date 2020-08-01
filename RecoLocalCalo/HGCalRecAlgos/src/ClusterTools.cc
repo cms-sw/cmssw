@@ -38,7 +38,8 @@ void ClusterTools::getEvent(const edm::Event& ev) {
 void ClusterTools::getEventSetup(const edm::EventSetup& es) {
   edm::ESHandle<CaloGeometry> geom;
   es.get<CaloGeometryRecord>().get(geom);
-  rhtools_.setGeometry(*geom); }
+  rhtools_.setGeometry(*geom);
+}
 
 float ClusterTools::getClusterHadronFraction(const reco::CaloCluster& clus) const {
   float energy = 0.f, energyHad = 0.f;
