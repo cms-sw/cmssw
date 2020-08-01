@@ -47,7 +47,7 @@ for year in upgradeKeys:
                         elif specialType == 'ProdLike' and 'RecoFull' in step:
                             stepList[specialType].append(stepMaker(key,frag[:-4],step.replace('RecoFull','MiniAODFullGlobal'),specialWF.suffix))
                         # similar hacks for premixing
-                        elif 'premix' in specialType:
+                        elif 'PMX' in specialType:
                             if 'GenSim' in step:
                                 s = step.replace('GenSim','Premix')+'PU' # later processing requires to have PU here
                                 if step in specialWF.PU:
@@ -61,7 +61,7 @@ for year in upgradeKeys:
 
             for specialType,specialWF in six.iteritems(upgradeWFs):
                 # remove other steps for premixS1
-                if specialType=="premixS1":
+                if specialType=="PMXS1":
                     stepList[specialType] = stepList[specialType][:1]
                 specialWF.workflow(workflows, numWF, info.dataset, stepList[specialType], key, hasHarvest)
 
