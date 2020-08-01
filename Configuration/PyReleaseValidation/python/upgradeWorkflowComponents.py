@@ -711,7 +711,7 @@ class UpgradeWorkflowPremix(UpgradeWorkflow):
                             "--procModifiers": "premix_stage2"},
                            d])
                 # for combined stage1+stage2
-                if "_premixS1S2" in self.suffix:
+                if "_PMXS1S2" in self.suffix:
                     d = merge([digiPremixLocalPileup, d])
             elif "Reco" in step:
                 if "--procModifiers" in d:
@@ -744,7 +744,7 @@ class UpgradeWorkflowPremix(UpgradeWorkflow):
         else:
             super(UpgradeWorkflowPremix,self).workflow_(workflows, num, fragment, stepList, key)
 # Premix stage1
-upgradeWFs['premixS1'] = UpgradeWorkflowPremix(
+upgradeWFs['PMXS1'] = UpgradeWorkflowPremix(
     steps = [
     ],
     PU = [
@@ -752,11 +752,11 @@ upgradeWFs['premixS1'] = UpgradeWorkflowPremix(
         'GenSimHLBeamSpotFull',
         'GenSimHLBeamSpotFull14',
     ],
-    suffix = '_premixS1',
+    suffix = '_PMXS1',
     offset = 0.97,
 )
 # Premix stage2
-upgradeWFs['premixS2'] = UpgradeWorkflowPremix(
+upgradeWFs['PMXS2'] = UpgradeWorkflowPremix(
     steps = [],
     PU = [
         'DigiFull',
@@ -766,11 +766,11 @@ upgradeWFs['premixS2'] = UpgradeWorkflowPremix(
         'RecoFullGlobal',
         'NanoFull',
     ],
-    suffix = '_premixS2',
+    suffix = '_PMXS2',
     offset = 0.98,
 )
 # Premix combined stage1+stage2
-upgradeWFs['premixS1S2'] = UpgradeWorkflowPremix(
+upgradeWFs['PMXS1S2'] = UpgradeWorkflowPremix(
     steps = [],
     PU = [
         'GenSimFull',
@@ -783,7 +783,7 @@ upgradeWFs['premixS1S2'] = UpgradeWorkflowPremix(
         'RecoFullGlobal',
         'NanoFull',
     ],
-    suffix = '_premixS1S2',
+    suffix = '_PMXS1S2',
     offset = 0.99,
 )
 # Alternative version of above w/ less PU for PR tests
@@ -793,7 +793,7 @@ class UpgradeWorkflowAdjustPU(UpgradeWorkflowPremix):
         if '--pileup' in stepDict[stepName][k]:
             stepDict[stepName][k]['--pileup'] = 'AVE_50_BX_25ns_m3p3'
         super(UpgradeWorkflowAdjustPU,self).setupPU_(step, stepName, stepDict, k, properties)
-upgradeWFs['premixS1S2PR'] = UpgradeWorkflowAdjustPU(
+upgradeWFs['PMXS1S2PR'] = UpgradeWorkflowAdjustPU(
     steps = [],
     PU = [
         'GenSimFull',
@@ -808,7 +808,7 @@ upgradeWFs['premixS1S2PR'] = UpgradeWorkflowAdjustPU(
         'HARVESTFull',
         'HARVESTFullGlobal',
     ],
-    suffix = '_premixS1S2PR',
+    suffix = '_PMXS1S2PR',
     offset = 0.999,
 )
 
