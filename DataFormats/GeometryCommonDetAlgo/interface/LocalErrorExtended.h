@@ -1,7 +1,7 @@
-#ifndef _TRACKER_LOCAL_ERROR_H_
-#define _TRACKER_LOCAL_ERROR_H_
+#ifndef DataFormats_GeometryCommonDetAlgo_LocalErrorExtended_h
+#define DataFormats_GeometryCommonDetAlgo_LocalErrorExtended_h
 
-#include "DataFormats/GeometrySurface/interface/LocalErrorBaseExtended.h"
+#include "DataFormats/GeometryCommonDetAlgo/interface/LocalErrorBaseExtended.h"
 #include "DataFormats/GeometryCommonDetAlgo/interface/ErrorMatrixTag.h"
 
 /**
