@@ -40,7 +40,7 @@ public:
   static void printMuonProperties(const reco::MuonRef& muonRef);
 
   ////POST CLEANING AND MOMEMNTUM ASSIGNMENT
-  bool hasValidTrack(const reco::MuonRef& muonRef, bool loose = false);
+  static bool hasValidTrack(const reco::MuonRef& muonRef, bool loose, double maxDPtOPt);
 
   //Make a PF Muon : Basic method
   bool reconstructMuon(reco::PFCandidate&, const reco::MuonRef&, bool allowLoose = false);
@@ -76,16 +76,13 @@ public:
     return std::move(pfAddedMuonCandidates_);
   }
 
+  static std::vector<reco::Muon::MuonTrackTypePair> muonTracks(const reco::MuonRef& muon,
+                                                               double maxDPtOPt = 1e+9,
+                                                               bool includeSA = false);
+
 private:
-  //Gives the track with the smallest Dpt/Pt
+  //Give the track with the smallest Dpt/Pt
   MuonTrackTypePair getTrackWithSmallestError(const std::vector<MuonTrackTypePair>&);
-
-  std::vector<reco::Muon::MuonTrackTypePair> muonTracks(const reco::MuonRef& muon,
-                                                        bool includeSA = false,
-                                                        double dpt = 1e+9);
-
-  //Gets the good tracks
-  std::vector<reco::Muon::MuonTrackTypePair> goodMuonTracks(const reco::MuonRef& muon, bool includeSA = false);
 
   //Estimate MET and SUmET for post cleaning
   void estimateEventQuantities(const reco::PFCandidateCollection*);
