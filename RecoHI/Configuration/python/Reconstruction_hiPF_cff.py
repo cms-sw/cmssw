@@ -56,10 +56,13 @@ particleFlowBlock.elementImporters = cms.VPSet(
     cms.PSet( importerName = cms.string("GeneralTracksImporter"),
               source = cms.InputTag("pfTrack"),
               muonSrc = cms.InputTag("hiMuons1stStep"),
+              trackQuality = cms.string("highPurity"),
+              cleanBadConvertedBrems = cms.bool(False),
               useIterativeTracking = cms.bool(False),
               DPtOverPtCuts_byTrackAlgo = cms.vdouble(-1.0,-1.0,-1.0,
                                                        1.0,1.0),
-              NHitCuts_byTrackAlgo = cms.vuint32(3,3,3,3,3)
+              NHitCuts_byTrackAlgo = cms.vuint32(3,3,3,3,3),
+              muonMaxDPtOPt = cms.double(1)
               ),
     # to properly set SC based links you need to run ECAL importer
     # after you've imported all SCs to the block
