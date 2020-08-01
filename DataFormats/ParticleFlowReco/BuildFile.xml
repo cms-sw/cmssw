@@ -10,7 +10,6 @@
 <use name="FWCore/Utilities"/>
 <use name="Geometry/CaloGeometry"/>
 <use name="DataFormats/DetId"/>
-<use name="DataFormats/EgammaCandidates"/>
 <use name="DataFormats/GeometryVector"/>
 <use name="DataFormats/GsfTrackReco"/>
 <use name="DataFormats/Math"/>
