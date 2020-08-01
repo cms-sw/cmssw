@@ -793,6 +793,9 @@ class UpgradeWorkflowAdjustPU(UpgradeWorkflowPremix):
         if '--pileup' in stepDict[stepName][k]:
             stepDict[stepName][k]['--pileup'] = 'AVE_50_BX_25ns_m3p3'
         super(UpgradeWorkflowAdjustPU,self).setupPU_(step, stepName, stepDict, k, properties)
+    def condition(self, fragment, stepList, key, hasHarvest):
+        # restrict to phase2
+        return super(UpgradeWorkflowAdjustPU,self).condition(fragment, stepList, key, hasHarvest) and '2026' in key
 upgradeWFs['PMXS1S2PR'] = UpgradeWorkflowAdjustPU(
     steps = [],
     PU = [
