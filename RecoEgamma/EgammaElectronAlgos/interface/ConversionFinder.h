@@ -26,6 +26,7 @@
 #include "CommonTools/Utils/interface/KinematicTables.h"
 #include "CommonTools/Utils/interface/TrackSpecificColumns.h"
 
+#include <iostream>
 #include <optional>
 
 /*
@@ -67,13 +68,24 @@ namespace egamma::conv {
   using TrackTableView = edm::soa::ViewFromTable_t<TrackTable>;
   using TrackRowView = TrackTable::const_iterator::value_type;
 
+  std::vector<ConversionInfo> findConversions(const reco::GsfElectronCore& gsfElectron,
+                                              TrackTableView ctfTable,
+                                              TrackTableView gsfTable,
+                                              float bFieldAtOrigin,
+                                              float minFracSharedHits);
+
+  //places different cuts on dist, dcot, delmissing hits and arbitration based on R = sqrt(dist*dist + dcot*dcot)
+  ConversionInfo findBestConversionMatch(const std::vector<ConversionInfo>& v_convCandidates);
+
   // returns the "best" conversion,
   // bField has to be supplied in Tesla
-  ConversionInfo findConversion(const reco::GsfElectronCore&,
-                                TrackTableView ctfTable,
-                                TrackTableView gsfTable,
-                                float bFieldAtOrigin,
-                                float minFracSharedHits = 0.45);
+  inline ConversionInfo findConversion(const reco::GsfElectronCore& gsfElectron,
+                                       TrackTableView ctfTable,
+                                       TrackTableView gsfTable,
+                                       float bFieldAtOrigin,
+                                       float minFracSharedHits = 0.45f) {
+    return findBestConversionMatch(findConversions(gsfElectron, ctfTable, gsfTable, bFieldAtOrigin, minFracSharedHits));
+  }
 
 }  // namespace egamma::conv
 
