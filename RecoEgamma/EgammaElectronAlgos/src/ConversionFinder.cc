@@ -11,17 +11,14 @@ namespace egamma::conv {
 
   }  // namespace
 
-  //places different cuts on dist, dcot, delmissing hits and arbitration based on R = sqrt(dist*dist + dcot*dcot)
-  ConversionInfo findBestConversionMatch(const std::vector<ConversionInfo>& v_convCandidates);
-
   ConversionInfo getConversionInfo(reco::Track const& el_track, TrackRowView const& track, float bFieldAtOrigin);
 
   //-----------------------------------------------------------------------------
-  std::vector<ConversionInfo> getConversionInfos(const reco::GsfElectronCore& gsfElectron,
-                                                 TrackTableView ctfTable,
-                                                 TrackTableView gsfTable,
-                                                 float bFieldAtOrigin,
-                                                 float minFracSharedHits) {
+  std::vector<ConversionInfo> findConversions(const reco::GsfElectronCore& gsfElectron,
+                                              TrackTableView ctfTable,
+                                              TrackTableView gsfTable,
+                                              float bFieldAtOrigin,
+                                              float minFracSharedHits) {
     using namespace reco;
     using namespace std;
     using namespace edm;
@@ -148,16 +145,6 @@ namespace egamma::conv {
     }  //loop over the gsf track collection
 
     return v_candidatePartners;
-  }
-
-  //-----------------------------------------------------------------------------
-  ConversionInfo findConversion(const reco::GsfElectronCore& gsfElectron,
-                                TrackTableView ctfTable,
-                                TrackTableView gsfTable,
-                                float bFieldAtOrigin,
-                                float minFracSharedHits) {
-    return findBestConversionMatch(
-        getConversionInfos(gsfElectron, ctfTable, gsfTable, bFieldAtOrigin, minFracSharedHits));
   }
 
   //-------------------------------------------------------------------------------------
