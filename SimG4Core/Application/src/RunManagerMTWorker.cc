@@ -243,6 +243,8 @@ void RunManagerMTWorker::initializeTLS() {
 void RunManagerMTWorker::initializeG4(RunManagerMT* runManagerMaster, const edm::EventSetup& es) {
   // I guess everything initialized here should be in thread_local storage
   initializeTLS();
+  if( m_tls->threadInitialized ) return;
+
 
   int thisID = getThreadIndex();
   edm::LogVerbatim("SimG4CoreApplication") << "RunManagerMTWorker::initializeThread " << thisID << " is started";
@@ -359,6 +361,7 @@ void RunManagerMTWorker::initializeG4(RunManagerMT* runManagerMaster, const edm:
   edm::LogVerbatim("SimG4CoreApplication") << "RunManagerMTWorker::initializeThread done for the thread " << thisID;
 
   G4StateManager::GetStateManager()->SetNewState(G4State_Idle);
+  m_tls->threadInitialized = true;
 }
 
 void RunManagerMTWorker::initializeUserActions() {
@@ -467,8 +470,9 @@ std::unique_ptr<G4SimEvent> RunManagerMTWorker::produce(const edm::Event& inpevt
   // per-run initialization here by ourselves.
 
   if (!(m_tls && m_tls->threadInitialized)) {
-    edm::LogVerbatim("SimG4CoreApplication") << "RunManagerMTWorker::produce(): stream " << inpevt.streamID()
-                                             << " thread " << getThreadIndex() << " initializing";
+    edm::LogWarning("SimG4CoreApplication") << "RunManagerMTWorker::produce(): stream " << inpevt.streamID()
+                                            << " thread " << getThreadIndex() 
+                                            << " initializing in the produce(..) method - there is a problem";
     initializeG4(&runManagerMaster, es);
     m_tls->threadInitialized = true;
   }
