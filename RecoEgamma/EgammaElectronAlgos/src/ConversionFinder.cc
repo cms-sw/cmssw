@@ -240,7 +240,10 @@ namespace egamma::conv {
     vector<ConversionInfo> v_2;
     vector<ConversionInfo> v_3;
     //loop over the candidates
-    for (auto const& temp : v_convCandidates) {
+
+    for (unsigned int i = 1; i < v_convCandidates.size(); i++) {
+      auto const& temp = v_convCandidates[i];
+
       if (temp.radiusOfConversion <= -2)
         continue;
 
