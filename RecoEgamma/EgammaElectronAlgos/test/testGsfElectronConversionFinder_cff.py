@@ -11,7 +11,7 @@ process.maxEvents = cms.untracked.PSet(input=cms.untracked.int32(1000))
 process.source = cms.Source(
     "PoolSource",
     fileNames=cms.untracked.vstring(
-        "file:/data_CMS/cms/rembser/store/mc/RunIISummer17DRPremix/DYJetsToLL_M-50_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/AODSIM/92X_upgrade2017_realistic_v10_ext1-v1/110000/001907F5-C185-E711-B1DD-02163E014A5B.root"
+        "/store/mc/RunIISummer17DRPremix/DYJetsToLL_M-50_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/AODSIM/92X_upgrade2017_realistic_v10_ext1-v1/110000/001907F5-C185-E711-B1DD-02163E014A5B.root"
     ),
 )
 
