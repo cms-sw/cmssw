@@ -88,8 +88,11 @@ public:
   std::vector<CSCCLCTPreTriggerDigi> preTriggerDigisME1b() const;
 
 protected:
-  /** LCTs in this chamber, as found by the processor. */
-  std::vector<std::vector<CSCCLCTDigi> > CLCTContainer_;
+  /** Best LCT in this chamber, as found by the processor. */
+  CSCCLCTDigi bestCLCT[CSCConstants::MAX_CLCT_TBINS];
+
+  /** Second best LCT in this chamber, as found by the processor. */
+  CSCCLCTDigi secondCLCT[CSCConstants::MAX_CLCT_TBINS];
 
   // unique pointers to the luts
   std::array<std::unique_ptr<CSCComparatorCodeLUT>, 5> lutpos_;

@@ -191,8 +191,6 @@ void CSCAnodeLCTProcessor::checkConfigParameters() {
 }
 
 void CSCAnodeLCTProcessor::clear() {
-  ALCTContainer_.clear();
-  ALCTContainer_.resize(CSCConstants::MAX_ALCT_TBINS);
   for (int bx = 0; bx < CSCConstants::MAX_ALCT_TBINS; bx++) {
     bestALCT[bx].clear();
     secondALCT[bx].clear();
@@ -330,8 +328,6 @@ void CSCAnodeLCTProcessor::run(const std::vector<int> wire[CSCConstants::NUM_LAY
               setWireContainer(newALCT, hits_in_patterns[i_wire][0]);
 
               lct_list.emplace_back(newALCT);
-              if (valid)
-                ALCTContainer_.at(bx).push_back(newALCT);
               if (infoV > 1)
                 LogTrace("CSCAnodeLCTProcessor") << "Add one ALCT to list " << lct_list.back();
             }
@@ -346,8 +342,6 @@ void CSCAnodeLCTProcessor::run(const std::vector<int> wire[CSCConstants::NUM_LAY
               setWireContainer(newALCT, hits_in_patterns[i_wire][1]);
 
               lct_list.emplace_back(newALCT);
-              if (valid)
-                ALCTContainer_.at(bx).push_back(newALCT);
               if (infoV > 1)
                 LogTrace("CSCAnodeLCTProcessor") << "Add one ALCT to list " << lct_list.back();
             }
@@ -963,25 +957,6 @@ void CSCAnodeLCTProcessor::lctSearch() {
       }
     }
   }
-
-  // set track number for the other ALCTs
-  for (int bx = 0; bx < CSCConstants::MAX_ALCT_TBINS; bx++) {
-    for (unsigned iALCT = 0; iALCT < ALCTContainer_.at(bx).size(); iALCT++) {
-      if (ALCTContainer_.at(bx).at(iALCT).isValid()) {
-        ALCTContainer_.at(bx).at(iALCT).setTrknmb(iALCT + 1);
-
-        // check if ALCT is valid
-        checkValid(ALCTContainer_.at(bx).at(iALCT));
-
-        if (infoV > 0) {
-          LogDebug("CSCAnodeLCTProcessor")
-              << ALCTContainer_[bx][iALCT] << " found in " << theCSCName_ << " (sector " << theSector << " subsector "
-              << theSubsector << " trig id. " << theTrigChamber << ")"
-              << "\n";
-        }
-      }
-    }
-  }
 }
 
 std::vector<CSCALCTDigi> CSCAnodeLCTProcessor::bestTrackSelector(const std::vector<CSCALCTDigi>& all_alcts) {
@@ -1400,18 +1375,10 @@ std::vector<CSCALCTDigi> CSCAnodeLCTProcessor::readoutALCTs(int nMaxALCTs) const
 std::vector<CSCALCTDigi> CSCAnodeLCTProcessor::getALCTs(unsigned nMaxALCTs) const {
   std::vector<CSCALCTDigi> tmpV;
   for (int bx = 0; bx < CSCConstants::MAX_ALCT_TBINS; bx++) {
-    if (nMaxALCTs == CSCConstants::MAX_ALCTS_READOUT) {
-      if (bestALCT[bx].isValid())
-        tmpV.push_back(bestALCT[bx]);
-      if (secondALCT[bx].isValid())
-        tmpV.push_back(secondALCT[bx]);
-    } else {
-      for (unsigned iALCT = 0; iALCT < ALCTContainer_.at(bx).size(); iALCT++) {
-        if (iALCT < nMaxALCTs and ALCTContainer_.at(bx).at(iALCT).isValid()) {
-          tmpV.push_back(ALCTContainer_.at(bx).at(iALCT));
-        }
-      }
-    }
+    if (bestALCT[bx].isValid())
+      tmpV.push_back(bestALCT[bx]);
+    if (secondALCT[bx].isValid())
+      tmpV.push_back(secondALCT[bx]);
   }
   return tmpV;
 }
