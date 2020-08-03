@@ -12,7 +12,7 @@ namespace egamma::conv {
 
   // configuration parameters
   constexpr float maxRefPtErrorForKfConv = 0.05f;
-  constexpr float maxRelGsfPtErrorForKfConv = 0.25;
+  constexpr float maxRelGsfPtErrorForKfConv = 0.25f;
   constexpr float maxRelPtDiffForKfConv = 0.2f;
   constexpr float maxRelPtDiffForGsfConv = 0.25f;
   constexpr float dR2Max = square(0.5f);
@@ -241,9 +241,7 @@ namespace egamma::conv {
     vector<ConversionInfo> v_3;
     //loop over the candidates
 
-    for (unsigned int i = 1; i < v_convCandidates.size(); i++) {
-      auto const& temp = v_convCandidates[i];
-
+    for (auto const& temp : v_convCandidates) {
       if (temp.radiusOfConversion <= -2)
         continue;
 
@@ -259,8 +257,7 @@ namespace egamma::conv {
           v_1.push_back(temp);
       }
       if (temp.flag == 2) {
-        if (square(temp.dist) + square(temp.dcot * temp.dcot) < maxDist2Dcot2 &&
-            temp.deltaMissingHits < maxDeltaMissingHits)
+        if (square(temp.dist) + square(temp.dcot) < maxDist2Dcot2 && temp.deltaMissingHits < maxDeltaMissingHits)
           v_2.push_back(temp);
       }
       if (temp.flag == 3) {

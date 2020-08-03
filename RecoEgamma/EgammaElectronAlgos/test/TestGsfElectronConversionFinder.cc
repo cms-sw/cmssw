@@ -75,6 +75,8 @@ void TestGsfElectronConversionFinder::analyze(const edm::Event& event, const edm
     }
 
     // run the converion finder
+    // Taking an empty CTF track table if it was not possible to obtain the
+    // track collection from the electron is a hack for testing purposes.
     auto conversions = egamma::conv::findConversions(*gsfElectron.core(),
                                                      ctfTrackTable.value_or(egamma::conv::TrackTable{}),
                                                      gsfTrackTable.value(),
