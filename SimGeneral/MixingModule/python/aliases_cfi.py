@@ -1,5 +1,4 @@
 import FWCore.ParameterSet.Config as cms
-
 simCastorDigis = cms.EDAlias(
     mix = cms.VPSet(
       cms.PSet(type = cms.string('CastorDataFramesSorted'))
@@ -7,11 +6,20 @@ simCastorDigis = cms.EDAlias(
 )
 simEcalUnsuppressedDigis = cms.EDAlias(
     mix = cms.VPSet(
-      cms.PSet(type = cms.string('EBDigiCollection')),
-      cms.PSet(type = cms.string('EEDigiCollection')),
-      cms.PSet(type = cms.string('ESDigiCollection'))
+        cms.PSet(type = cms.string('EBDigiCollection')),
+        cms.PSet(type = cms.string('EEDigiCollection')),
+        cms.PSet(type = cms.string('ESDigiCollection'))
     )
 )
+
+from Configuration.Eras.Modifier_phase2_ecal_cff import phase2_ecal
+
+phase2_ecal.toModify(simEcalUnsuppressedDigis,
+    mix = cms.VPSet(
+        cms.PSet(type = cms.string('EBDigiCollectionPh2'))
+    )                 
+)
+
 simHcalUnsuppressedDigis = cms.EDAlias(
     mix = cms.VPSet(
       cms.PSet(type = cms.string('HBHEDataFramesSorted')),
@@ -22,13 +30,16 @@ simHcalUnsuppressedDigis = cms.EDAlias(
       cms.PSet(type = cms.string('QIE11DataFrameHcalDataFrameContainer'))
     )
 )
+
 _pixelCommon = cms.VPSet(
     cms.PSet(type = cms.string('PixelDigiedmDetSetVector')),
     cms.PSet(type = cms.string('PixelDigiSimLinkedmDetSetVector'))
 )
+
 simSiPixelDigis = cms.EDAlias(
     mix = _pixelCommon
 ) 
+
 simSiStripDigis = cms.EDAlias(
     mix = cms.VPSet(
       cms.PSet(type = cms.string('SiStripDigiedmDetSetVector')),
@@ -36,6 +47,7 @@ simSiStripDigis = cms.EDAlias(
       cms.PSet(type = cms.string('StripDigiSimLinkedmDetSetVector'))
     )
 )
+
 simHGCalUnsuppressedDigis = cms.EDAlias(
     mix = cms.VPSet(
         cms.PSet(
@@ -55,6 +67,7 @@ simHGCalUnsuppressedDigis = cms.EDAlias(
         ),
     )
 )
+
 simHFNoseUnsuppressedDigis = cms.EDAlias(
     mix = cms.VPSet(
         cms.PSet(
@@ -66,9 +79,9 @@ simHFNoseUnsuppressedDigis = cms.EDAlias(
 )
 
 simAPVsaturation = cms.EDAlias(
-    mix = cms.VPSet(
-        cms.PSet(type = cms.string('bool'))
-    )
+   mix = cms.VPSet(
+       cms.PSet(type = cms.string('bool'))
+   )
 )
 
 from Configuration.Eras.Modifier_run3_common_cff import run3_common

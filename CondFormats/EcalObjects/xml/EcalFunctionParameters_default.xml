@@ -1,9 +1,0 @@
-<?xml version='1.0' encoding="UTF-8"?>
-<!DOCTYPE PoolDatabase SYSTEM "InMemory">
- <PoolDatabase >
-  <PoolContainer name="EcalFunctionParameters" >
-   <Class name="EcalFunctionParameters"  mapping_version="EcalFunctionParameters_automatic_default" >
-   </Class >
-  </PoolContainer >
- </PoolDatabase >
-

@@ -1,9 +1,0 @@
-<?xml version='1.0' encoding="UTF-8"?>
-<!DOCTYPE PoolDatabase SYSTEM "InMemory">
- <PoolDatabase >
-  <PoolContainer name="EcalMappingElectronics" >
-   <Class name="EcalMappingElectronics"  mapping_version="EcalMappingElectronics_automatic_default" >
-   </Class >
-  </PoolContainer >
- </PoolDatabase >
-
