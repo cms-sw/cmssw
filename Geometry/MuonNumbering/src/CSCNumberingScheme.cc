@@ -4,7 +4,7 @@
 #include "Geometry/MuonNumbering/interface/MuonGeometryConstants.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-//#define LOCAL_DEBUG
+//#define EDM_ML_DEBUG
 
 CSCNumberingScheme::CSCNumberingScheme(const MuonGeometryConstants& muonConstants) { initMe(muonConstants); }
 
@@ -16,7 +16,7 @@ void CSCNumberingScheme::initMe(const MuonGeometryConstants& muonConstants) {
   theSectorLevel = muonConstants.getValue("me_sector") / theLevelPart;
   theRingLevel = muonConstants.getValue("me_ring") / theLevelPart;
   theLayerLevel = muonConstants.getValue("me_layer") / theLevelPart;
-#ifdef LOCAL_DEBUG
+#ifdef EDM_ML_DEBUG
   edm::LogVerbatim("CSCNumbering") << "Initialize CSCNumberingScheme"
                                    << "\ntheRegionLevel " << theRegionLevel << "\ntheStationLevel " << theStationLevel
                                    << "\ntheSubringLevel " << theSubringLevel << "\ntheSectorLevel " << theSectorLevel
@@ -24,8 +24,8 @@ void CSCNumberingScheme::initMe(const MuonGeometryConstants& muonConstants) {
 #endif
 }
 
-int CSCNumberingScheme::baseNumberToUnitNumber(const MuonBaseNumber& num) {
-#ifdef LOCAL_DEBUG
+int CSCNumberingScheme::baseNumberToUnitNumber(const MuonBaseNumber& num) const {
+#ifdef EDM_ML_DEBUG
   edm::LogVerbatim("CSCNumbering") << "CSCNumbering " << num.getLevels();
   for (int level = 1; level <= num.getLevels(); level++) {
     edm::LogVerbatim("CSCNumbering") << level << " " << num.getSuperNo(level) << " " << num.getBaseNo(level);
@@ -111,7 +111,7 @@ int CSCNumberingScheme::baseNumberToUnitNumber(const MuonBaseNumber& num) {
 
   int intIndex = CSCDetId::rawIdMaker(fwbw_id, station_id, ring_id, chamber_id, layer_id);
 
-#ifdef LOCAL_DEBUG
+#ifdef EDM_ML_DEBUG
   edm::LogVerbatim("CSCNumbering") << "CSCNumberingScheme :  fw/bw " << fwbw_id << " station " << station_id << " ring "
                                    << ring_id << " subring " << subring_id << " chamber " << chamber_id << " sector "
                                    << sector_id << " layer " << layer_id;

@@ -3,7 +3,7 @@
 #include "Geometry/MuonNumbering/interface/MuonGeometryConstants.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-//#define LOCAL_DEBUG
+//#define EDM_ML_DEBUG
 
 MuonGeometryNumbering::MuonGeometryNumbering(const MuonGeometryConstants &muonConstants) {
   //  Get constant values from muonConstants
@@ -28,7 +28,7 @@ MuonGeometryNumbering::MuonGeometryNumbering(const MuonGeometryConstants &muonCo
                                 << theStartCopyNo;
   }
 
-#ifdef LOCAL_DEBUG
+#ifdef EDM_ML_DEBUG
   edm::LogVerbatim("Geometry") << "MuonGeometryNumbering configured with"
                                << " Level = " << theLevelPart << " Super = " << theSuperPart
                                << " Base = " << theBasePart << " StartCopyNo = " << theStartCopyNo;
@@ -38,7 +38,7 @@ MuonGeometryNumbering::MuonGeometryNumbering(const MuonGeometryConstants &muonCo
 MuonBaseNumber MuonGeometryNumbering::geoHistoryToBaseNumber(const DDGeoHistory &history) const {
   MuonBaseNumber num;
 
-#ifdef LOCAL_DEBUG
+#ifdef EDM_ML_DEBUG
   edm::LogVerbatim("Geometry") << "MuonGeometryNumbering create MuonBaseNumber for " << history;
 #endif
 
@@ -57,7 +57,7 @@ MuonBaseNumber MuonGeometryNumbering::geoHistoryToBaseNumber(const DDGeoHistory 
     cur++;
   }
 
-#ifdef LOCAL_DEBUG
+#ifdef EDM_ML_DEBUG
   edm::LogVerbatim("Geometry") << "MuonGeometryNumbering::" << num.getLevels();
   for (int i = 1; i <= num.getLevels(); i++) {
     edm::LogVerbatim("Geometry") << "[" << i << "] " << num.getSuperNo(i) << " " << num.getBaseNo(i);
