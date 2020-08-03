@@ -143,7 +143,7 @@ MTDSectorForwardDoubleLayer* ETLDetLayerGeometryBuilder::buildLayerNew(int endca
 
   for (unsigned sector : sectors) {
     std::vector<const GeomDet*> frontGeomDets, backGeomDets;
-    LogTrace("MTDDetLayers") << "endcap = " << endcap << " layer = " << layer << " sector = " << sector;
+    LogDebug("MTDDetLayers") << "endcap = " << endcap << " layer = " << layer << " sector = " << sector;
 #ifdef EDM_ML_DEBUG
     unsigned int nfront(0), nback(0);
 #endif
@@ -183,6 +183,12 @@ MTDSectorForwardDoubleLayer* ETLDetLayerGeometryBuilder::buildLayerNew(int endca
       assert(fabs(frontz) < fabs(backz));
     }
   }
+
+  result = new MTDSectorForwardDoubleLayer(frontSectors, backSectors);
+  LogTrace("MTDDetLayers") << "New MTDSectorForwardDoubleLayer with " << frontSectors.size() << " and "
+                           << backSectors.size() << " rings, at Z " << result->position().z()
+                           << " R1: " << result->specificSurface().innerRadius()
+                           << " R2: " << result->specificSurface().outerRadius();
 
   return result;
 }

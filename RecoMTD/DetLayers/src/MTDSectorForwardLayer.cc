@@ -96,7 +96,7 @@ vector<GeometricSearchDet::DetWithState> MTDSectorForwardLayer::compatibleDets(
     }
     if (inside) {
 #ifdef EDM_ML_DEBUG
-      LogTrace("MTDDetLayers") << "     MTDSectorForwardLayer::fastCompatibleDets:NextSector" << idet << " R1 "
+      LogTrace("MTDDetLayers") << "     MTDSectorForwardLayer::fastCompatibleDets:NextSector " << idet << " R1 "
                                << theSectors[idet]->specificSurface().innerRadius()
                                << " R2: " << theSectors[idet]->specificSurface().outerRadius() << " PhiMin: "
                                << theSectors[idet]->specificSurface().position().phi() -
