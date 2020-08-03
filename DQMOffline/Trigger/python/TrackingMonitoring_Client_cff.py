@@ -35,10 +35,8 @@ trackingForElectronsMonitorClientHLT = cms.Sequence(
 
 TrackToTrackEfficiencies = DQMEDHarvester("DQMGenericClient",
     subDirs        = cms.untracked.vstring(
-        "HLT/Tracking/ValidationWRTOffline/hltMerged",
         "HLT/Tracking/ValidationWRTOffline/hltMergedWrtHighPurity",
-        "HLT/Tracking/ValidationWRTOffline/hltMergedForBTagWrtHighPurity",
-        "HLT/Tracking/ValidationWRTOffline/sanity",
+        "HLT/Tracking/ValidationWRTOffline/hltMergedWrtHighPurityPV",
     ),
     verbose        = cms.untracked.uint32(0),
     resolution     = cms.vstring(),
