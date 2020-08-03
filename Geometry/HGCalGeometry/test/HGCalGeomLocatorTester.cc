@@ -11,7 +11,6 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
-#include "Geometry/HGCalCommonData/interface/HGCalGeometryMode.h"
 #include "Geometry/HGCalGeometry/interface/HGCalGeometry.h"
 #include "DataFormats/ForwardDetId/interface/HGCSiliconDetId.h"
 #include "CoralBase/Exception.h"
@@ -36,15 +35,14 @@ HGCalGeomLocaterTester::HGCalGeomLocaterTester(const edm::ParameterSet& iC)
 void HGCalGeomLocaterTester::analyze(const edm::Event&, const edm::EventSetup& iSetup) {
   const auto& geomR = iSetup.getData(geomToken_);
   const HGCalGeometry* geom = &geomR;
-  HGCalGeometryMode::GeometryMode mode = geom->topology().dddConstants().geomMode();
-  if ((mode == HGCalGeometryMode::Hexagon8) || (mode == HGCalGeometryMode::Hexagon8Full) ||
-      (mode == HGCalGeometryMode::Hexagon8File)) {
+  if (geom->topology().waferHexagon8()) {
     DetId::Detector det;
     if (name_ == "HGCalHESiliconSensitive")
       det = DetId::HGCalHSi;
     else
       det = DetId::HGCalEE;
-    std::cout << "Perform test for " << name_ << " Detector " << det << " Mode " << mode << std::endl;
+    std::cout << "Perform test for " << name_ << " Detector " << det << " Mode "
+              << geom->topology().dddConstants().geomMode() << std::endl;
     doTest(geom, det);
   }
 }
