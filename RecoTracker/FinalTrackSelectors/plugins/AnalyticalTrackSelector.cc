@@ -261,12 +261,13 @@ void AnalyticalTrackSelector::run(edm::Event& evt, const edm::EventSetup& es) co
   vertexBeamSpot = *hBsp;
 
   // Select good primary vertices for use in subsequent track selection
-  edm::Handle<reco::VertexCollection> hVtx;
+  const reco::VertexCollection dummyVtx;
+  const reco::VertexCollection* vtxPtr = &dummyVtx;
   std::vector<Point> points;
   std::vector<float> vterr, vzerr;
   if (useVertices_) {
-    evt.getByToken(vertices_, hVtx);
-    selectVertices(0, *hVtx, points, vterr, vzerr);
+    vtxPtr = &evt.get(vertices_);
+    selectVertices(0, *vtxPtr, points, vterr, vzerr);
     // Debug
     LogDebug("SelectVertex") << points.size() << " good pixel vertices";
   }
@@ -291,7 +292,7 @@ void AnalyticalTrackSelector::run(edm::Event& evt, const edm::EventSetup& es) co
     trackRefs_.resize(hSrcTrack->size());
 
   std::vector<float> mvaVals_(hSrcTrack->size(), -99.f);
-  processMVA(evt, es, vertexBeamSpot, *(hVtx.product()), 0, mvaVals_, true);
+  processMVA(evt, es, vertexBeamSpot, *vtxPtr, 0, mvaVals_, true);
 
   // Loop over tracks
   size_t current = 0;
