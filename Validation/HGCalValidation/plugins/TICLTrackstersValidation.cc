@@ -63,6 +63,7 @@ void TICLTrackstersValidation::dqmAnalyze(edm::Event const& iEvent,
     edm::Handle<std::vector<Trackster>> trackster_h;
     iEvent.getByToken(trackster_token, trackster_h);
     auto numberOfTracksters = trackster_h->size();
+
     for (size_t i = 0; i < numberOfTracksters; ++i) {
       auto const& trackster = (*trackster_h)[i];
     }
@@ -78,13 +79,14 @@ void TICLTrackstersValidation::bookHistograms(DQMStore::IBooker& ibook,
 
 void TICLTrackstersValidation::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
-  std::vector<edm::InputTag> source_vector{edm::InputTag("trackstersTrk"),
-                                           edm::InputTag("trackstersMIP"),
-                                           edm::InputTag("trackstersEM"),
-                                           edm::InputTag("trackstersHAD")};
+  std::vector<edm::InputTag> source_vector{edm::InputTag("ticlTrackstersTrk"),
+                                           edm::InputTag("ticlTrackstersMIP"),
+                                           edm::InputTag("ticlTrackstersEM"),
+                                           edm::InputTag("ticlTrackstersHAD"),
+                                           edm::InputTag("ticlTrackstersMerge")};
   desc.add<std::vector<edm::InputTag>>("tracksterCollections", source_vector);
   desc.add<std::string>("folder", "HGCAL/");  
-  descriptions.add("TICLTrackstersValidationDefault", desc);
+  descriptions.add("ticlTrackstersValidationDefault", desc);
 }
 
 DEFINE_FWK_MODULE(TICLTrackstersValidation);
