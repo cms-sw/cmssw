@@ -22,6 +22,7 @@ SiPixelGenErrorDBObjectUploader::SiPixelGenErrorDBObjectUploader(const edm::Para
     : theGenErrorCalibrations(iConfig.getParameter<vstring>("siPixelGenErrorCalibrations")),
       theGenErrorBaseString(iConfig.getParameter<std::string>("theGenErrorBaseString")),
       theVersion(iConfig.getParameter<double>("Version")),
+      theMagField(iConfig.getParameter<double>("MagField")),
       theBarrelLocations(iConfig.getParameter<std::vector<std::string> >("barrelLocations")),
       theEndcapLocations(iConfig.getParameter<std::vector<std::string> >("endcapLocations")),
       theBarrelGenErrIds(iConfig.getParameter<std::vector<uint32_t> >("barrelGenErrIds")),
@@ -58,7 +59,7 @@ void SiPixelGenErrorDBObjectUploader::analyze(const edm::Event& iEvent, const ed
       char title_char[80], c;
       SiPixelGenErrorDBObject::char2float temp;
       float tempstore;
-      int iter, j;
+      int iter, j, k;
 
       // GenErrors contain a header char - we must be clever about storing this
       for (iter = 0; (c = in_file.get()) != '\n'; ++iter) {
@@ -78,6 +79,18 @@ void SiPixelGenErrorDBObjectUploader::analyze(const edm::Event& iEvent, const ed
         temp.c[3] = title_char[j + 3];
         obj->push_back(temp.f);
         obj->setMaxIndex(obj->maxIndex() + 1);
+      }
+
+      // Check if the magnetic field is the same as in the header of the input files
+      for (k = 0; k < 80; k++) {
+        if ((title_char[k] == '@') && (title_char[k - 1] == 'T')) {
+          double localMagField = (((int)title_char[k - 4]) - 48) * 10 + ((int)title_char[k - 2]) - 48;
+          if (theMagField != localMagField) {
+            std::cout << "\n -------- WARNING -------- \n Magnetic field in the cfg is " << theMagField
+                      << "T while it is " << title_char[k - 4] << title_char[k - 2] << title_char[k - 1]
+                      << " in the header \n ------------------------- \n " << std::endl;
+          }
+        }
       }
 
       // Fill the dbobject

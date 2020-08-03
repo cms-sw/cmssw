@@ -23,6 +23,7 @@ SiPixel2DTemplateDBObjectUploader::SiPixel2DTemplateDBObjectUploader(const edm::
     : theTemplateCalibrations(iConfig.getParameter<vstring>("siPixelTemplateCalibrations")),
       theTemplateBaseString(iConfig.getParameter<std::string>("theTemplateBaseString")),
       theVersion(iConfig.getParameter<double>("Version")),
+      theMagField(iConfig.getParameter<double>("MagField")),
       theBarrelLocations(iConfig.getParameter<std::vector<std::string> >("barrelLocations")),
       theEndcapLocations(iConfig.getParameter<std::vector<std::string> >("endcapLocations")),
       theBarrelTemplateIds(iConfig.getParameter<std::vector<uint32_t> >("barrelTemplateIds")),

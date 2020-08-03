@@ -213,6 +213,7 @@ process.uploader = cms.EDAnalyzer("SiPixelGenErrorDBObjectUploader",
 	siPixelGenErrorCalibrations = cms.vstring(template_filenames),
 	theGenErrorBaseString = cms.string(generror_base),
 	Version = cms.double(3.0),
+	MagField = cms.double(MagFieldValue),
 	detIds = cms.vuint32(1,2), #0 is for all, 1 is Barrel, 2 is EndCap
 	barrelLocations = cms.vstring(barrel_locations),
 	endcapLocations = cms.vstring(endcap_locations),
