@@ -30,6 +30,7 @@
 #include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
 #include "CalibFormats/SiStripObjects/interface/SiStripQuality.h"
 #include "CalibTracker/Records/interface/SiStripDependentRecords.h"
+#include "CondFormats/RunInfo/interface/RunInfo.h"
 
 namespace {
   class ProductAdder {
