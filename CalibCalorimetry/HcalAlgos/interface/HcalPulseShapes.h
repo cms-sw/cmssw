@@ -106,8 +106,9 @@ private:
   const HcalPulseShape& computeSiPMShapeHE206();
   void computeSiPMShapeData2017();
   void computeSiPMShapeData2018();
+  void computeSiPMShapeMCRecoRun3();
   Shape hpdShape_, hfShape_, siPMShapeHO_;
-  Shape siPMShapeData2017_, siPMShapeData2018_;
+  Shape siPMShapeData2017_, siPMShapeData2018_, siPMShapeMCRecoRun3_;
   Shape hpdShape_v2, hpdShapeMC_v2;
   Shape hpdShape_v3, hpdShapeMC_v3;
   Shape hpdBV30Shape_v2, hpdBV30ShapeMC_v2;
