@@ -2,13 +2,10 @@
 
 #include "DataFormats/Provenance/interface/ProductProvenance.h"
 #include "FWCore/Common/interface/Provenance.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/Registry.h"
 #include "HeavyFlavorAnalysis/Onia2MuMu/interface/OniaVtxReProducer.h"
-#include "TrackingTools/Records/interface/TransientTrackRecord.h"
 #include "TrackingTools/TransientTrack/interface/TransientTrack.h"
-#include "TrackingTools/TransientTrack/interface/TransientTrackBuilder.h"
 
 OniaVtxReProducer::OniaVtxReProducer(const edm::Handle<reco::VertexCollection> &handle, const edm::Event &iEvent) {
   const edm::Provenance *prov = handle.provenance();
@@ -73,14 +70,11 @@ void OniaVtxReProducer::configure(const edm::ParameterSet &iConfig) {
 
 std::vector<TransientVertex> OniaVtxReProducer::makeVertices(const reco::TrackCollection &tracks,
                                                              const reco::BeamSpot &bs,
-                                                             const edm::EventSetup &iSetup) const {
-  edm::ESHandle<TransientTrackBuilder> theB;
-  iSetup.get<TransientTrackRecord>().get("TransientTrackBuilder", theB);
-
+                                                             const TransientTrackBuilder &theB) const {
   std::vector<reco::TransientTrack> t_tks;
   t_tks.reserve(tracks.size());
   for (reco::TrackCollection::const_iterator it = tracks.begin(), ed = tracks.end(); it != ed; ++it) {
-    t_tks.push_back((*theB).build(*it));
+    t_tks.push_back(theB.build(*it));
     t_tks.back().setBeamSpot(bs);
   }
 
