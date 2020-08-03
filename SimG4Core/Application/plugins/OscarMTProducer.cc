@@ -4,7 +4,8 @@
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include "SimG4Core/Application/interface/OscarMTProducer.h"
+#include "OscarMTProducer.h"
+
 #include "SimG4Core/Application/interface/RunManagerMT.h"
 #include "SimG4Core/Application/interface/RunManagerMTWorker.h"
 #include "SimG4Core/Notification/interface/G4SimEvent.h"
@@ -62,11 +63,12 @@ namespace {
   };
 }  // namespace
 
-OscarMTProducer::OscarMTProducer(edm::ParameterSet const& p, const OscarMTMasterThread*) {
+OscarMTProducer::OscarMTProducer(edm::ParameterSet const& p, const OscarMTMasterThread* ms) {
   // Random number generation not allowed here
   StaticRandomEngineSetUnset random(nullptr);
 
   m_runManagerWorker = std::make_unique<RunManagerMTWorker>(p, consumesCollector());
+  m_masterThread = ms;
 
   produces<edm::SimTrackContainer>().setBranchAlias("SimTracks");
   produces<edm::SimVertexContainer>().setBranchAlias("SimVertices");
@@ -164,12 +166,18 @@ void OscarMTProducer::globalEndJob(OscarMTMasterThread* masterThread) {
   masterThread->stopThread();
 }
 
+void OscarMTProducer::beginRun(const edm::Run&, const edm::EventSetup& es) {
+  edm::LogVerbatim("SimG4CoreApplication") << "OscarMTProducer::beginRun";
+  m_runManagerWorker->initializeG4(m_masterThread->runManagerMasterPtr(), es);
+  edm::LogVerbatim("SimG4CoreApplication") << "OscarMTProducer::beginRun done";
+}
+
 void OscarMTProducer::endRun(const edm::Run&, const edm::EventSetup&) {
   // Random number generation not allowed here
   StaticRandomEngineSetUnset random(nullptr);
-  edm::LogVerbatim("SimG4CoreApplication") << "OscarMTProducer::EndRun";
+  edm::LogVerbatim("SimG4CoreApplication") << "OscarMTProducer::endRun";
   m_runManagerWorker->endRun();
-  edm::LogVerbatim("SimG4CoreApplication") << "OscarMTProducer::EndRun done";
+  edm::LogVerbatim("SimG4CoreApplication") << "OscarMTProducer::endRun done";
 }
 
 void OscarMTProducer::produce(edm::Event& e, const edm::EventSetup& es) {
