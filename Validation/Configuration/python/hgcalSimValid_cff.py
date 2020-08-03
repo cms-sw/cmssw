@@ -17,6 +17,9 @@ from Validation.RecoParticleFlow.PFJetValidation_cff import pfJetValidation1 as 
 from Validation.HGCalValidation.ticlPFValidation_cfi import ticlPFValidation
 hgcalTiclPFValidation = cms.Sequence(ticlPFValidation)
 
+from Validation.HGCalValidation.ticlTrackstersValidation_cfi import ticlTrackstersValidation
+hgcalTiclTrackstersValidationSequence = cms.Sequence(ticlTrackstersValidation)
+
 hgcalValidatorSequence = cms.Sequence(hgcalValidator)
 hgcalPFJetValidation = _hgcalPFJetValidation.clone(BenchmarkLabel = 'PFJetValidation/HGCAlCompWithGenJet',
     VariablePtBins=[10., 30., 80., 120., 250., 600.],
@@ -38,6 +41,7 @@ hgcalValidation = cms.Sequence(hgcalSimHitValidationEE
                                + hgcalHitValidationSequence
                                + hgcalValidatorSequence
                                + hgcalTiclPFValidation
+                               + hgcalTiclTrackstersValidationSequence
                                + hgcalPFJetValidation)
 
 _hfnose_hgcalAssociatorsTask = hgcalAssociators.copy()
