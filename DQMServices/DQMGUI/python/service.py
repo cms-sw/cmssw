@@ -226,8 +226,8 @@ class GUIService:
     @classmethod
     @alru_cache_timed(maxsize=10, cache_exceptions=False)
     @logged
-    async def get_latest_runs(cls, notOlderThan=None):
-        return await cls.store.get_latest_runs()
+    async def get_latest_runs(cls, search, notOlderThan=None):
+        return await cls.store.get_latest_runs(search)
 
 
     @classmethod

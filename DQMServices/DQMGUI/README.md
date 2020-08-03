@@ -310,6 +310,14 @@ Supports `notOlderThan` parameter to bypass the cache.
 
 `/api/v1/latest_runs`
 
+Run numbers are returned in a descending order.
+
+`Search` parameter is supported:
+
+`/api/v1/latest_runs?search=123`
+
+When `search` parameter is provided, at most 100 latest runs will be returned where the search term is a substring of a run number.
+
 Supports `notOlderThan` parameter to bypass the cache.
 
 ## Getting DQMIO files

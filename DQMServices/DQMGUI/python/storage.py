@@ -259,11 +259,29 @@ class GUIDataStore:
 
 
     @classmethod
-    async def get_latest_runs(cls):
+    async def search_runs(cls, search):
+        """Returns at most 100 run numbers matching the search term."""
+
+        search = '%%%s%%' % search
+        sql = 'SELECT DISTINCT run FROM samples LIMIT 100;'
+        cursor = await cls.__db.execute(sql)
+        rows = await cursor.fetchall()
+        await cursor.close()
+        return [x[0] for x in rows]
+
+
+    @classmethod
+    async def get_latest_runs(cls, search):
         """Returns at most 100 latest run numbers."""
 
         sql = 'SELECT DISTINCT run FROM samples ORDER BY run DESC LIMIT 100;'
-        cursor = await cls.__db.execute(sql)
+        args = ()
+        if search != None and search != '':
+            search = '%%%s%%' % search
+            sql = 'SELECT DISTINCT run FROM samples WHERE run LIKE ? ORDER BY run DESC LIMIT 100;'
+            args = (search,)
+
+        cursor = await cls.__db.execute(sql, args)
         rows = await cursor.fetchall()
         await cursor.close()
         return [x[0] for x in rows]

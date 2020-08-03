@@ -355,18 +355,24 @@ async def register(request):
     return web.HTTPCreated()
 
 
-async def dataset_search(request):
+@getNotOlderThanFromUrl
+async def dataset_search(request, notOlderThan):
     """Returns at most 100 dataset names matching the search term."""
 
     search = request.rel_url.query.get('search', '')
-    data = await service.search_dataset_names(search)
+    data = await service.search_dataset_names(search, notOlderThan)
     return web.json_response({'datasets': data})
 
 
-async def latest_runs(request):
-    """Returns at most 100 latest run numbers."""
+@getNotOlderThanFromUrl
+async def latest_runs(request, notOlderThan):
+    """
+    Returns at most 100 latest run numbers.
+    If search argument is provided, returns at most 100 latest runs matching the search term.
+    """
 
-    data = await service.get_latest_runs()
+    search = request.rel_url.query.get('search', '')
+    data = await service.get_latest_runs(search, notOlderThan)
     return web.json_response({'runs': data})
 
 
