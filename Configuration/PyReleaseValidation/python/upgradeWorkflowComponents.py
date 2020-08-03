@@ -90,6 +90,7 @@ class UpgradeWorkflow(object):
                 self.steps.append(step)
 
         self.suffix = suffix
+        if len(self.suffix)>0 and self.suffix[0]!='_': self.suffix = '_'+self.suffix
         self.offset = offset
         if self.offset < 0.0 or self.offset > 1.0:
             raise ValueError("Special workflow offset must be between 0.0 and 1.0")
@@ -118,7 +119,9 @@ class UpgradeWorkflow(object):
         if self.condition(fragment, stepList, key, hasHarvest):
             self.workflow_(workflows, num, fragment, stepList, key)
     def workflow_(self, workflows, num, fragment, stepList, key):
-        workflows[num+self.offset] = [ fragment, stepList ]
+        fragmentTmp = fragment
+        if len(self.suffix)>0: fragmentTmp = [fragment, self.suffix]
+        workflows[num+self.offset] = [ fragmentTmp, stepList ]
     def condition(self, fragment, stepList, key, hasHarvest):
         return False
 upgradeWFs = OrderedDict()
@@ -738,11 +741,10 @@ class UpgradeWorkflowPremix(UpgradeWorkflow):
             return "NuGun" in fragment
         return True
     def workflow_(self, workflows, num, fragment, stepList, key):
+        fragmentTmp = fragment
         if self.suffix.endswith("S1"):
-            datasetName = 'PREMIXUP' + key[2:].replace("PU", "").replace("Design", "") + '_PU25'
-            workflows[num+self.offset] = [ datasetName, stepList ]
-        else:
-            super(UpgradeWorkflowPremix,self).workflow_(workflows, num, fragment, stepList, key)
+            fragmentTmp = 'PREMIXUP' + key[2:].replace("PU", "").replace("Design", "") + '_PU25'
+        super(UpgradeWorkflowPremix,self).workflow_(workflows, num, fragmentTmp, stepList, key)
 # Premix stage1
 upgradeWFs['PMXS1'] = UpgradeWorkflowPremix(
     steps = [
