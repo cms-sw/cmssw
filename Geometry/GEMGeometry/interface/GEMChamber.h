@@ -34,7 +34,7 @@ public:
   bool operator==(const GEMChamber& ch) const;
 
   /// Add EtaPartition to the chamber which takes ownership
-  void add(GEMEtaPartition* roll);
+  void add(const GEMEtaPartition* roll);
 
   /// Return the rolls in the chamber
   std::vector<const GeomDet*> components() const override;
