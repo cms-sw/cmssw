@@ -32,7 +32,7 @@
 //      the same meanings as those of *etaPhiPlot*
 //
 // etaSlicePlot(fileName, plot, ifirst, ilast, ietaRange, drawLeg, tag, debug);
-//      Plot phi distributions of integrated interaction/radiation/step 
+//      Plot phi distributions of integrated interaction/radiation/step
 //      length for a given ietaRange (0 -> 28; 1 --> 29; 2 --> 9)
 //
 // printTable(fileName, outputFileName, inputFileName)
@@ -111,13 +111,13 @@ void etaPhi2DPlot(TString fileName = "matbdg_HCAL.root",
                   int drawLeg = 1,
                   std::string tag = "Run");
 void etaSlicePlot(TString fileName = "matbdg_HCAL.root",
-		  TString plot = "IntLen",
-		  int ifirst = 0,
-		  int ilast = 19,
-		  int ietaRange = 0,
-		  int drawLeg = 1,
-		  std::string tag = "Run",
-		  bool debug = false);
+                  TString plot = "IntLen",
+                  int ifirst = 0,
+                  int ilast = 19,
+                  int ietaRange = 0,
+                  int drawLeg = 1,
+                  std::string tag = "Run",
+                  bool debug = false);
 void etaPhi2DPlot(int nslice,
                   int kslice,
                   TString fileName = "matbdg_HCAL.root",
@@ -785,14 +785,8 @@ void etaPhi2DPlot(
   }
 }
 
-void etaSlicePlot(TString fileName,
-		  TString plot,
-		  int ifirst,
-		  int ilast,
-		  int ietaRange,
-		  int drawLeg,
-		  std::string tag,
-		  bool debug) {
+void etaSlicePlot(
+    TString fileName, TString plot, int ifirst, int ilast, int ietaRange, int drawLeg, std::string tag, bool debug) {
   TFile *hcalFile = new TFile(fileName);
   hcalFile->cd("g4SimHits");
   setStyle();
