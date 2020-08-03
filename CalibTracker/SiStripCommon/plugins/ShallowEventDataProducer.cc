@@ -7,36 +7,34 @@
 // #include <bitset>
 
 ShallowEventDataProducer::ShallowEventDataProducer(const edm::ParameterSet& iConfig) {
-  produces<unsigned int>("run");
-  produces<unsigned int>("event");
-  produces<unsigned int>("bx");
-  produces<unsigned int>("lumi");
-  produces<float>("instLumi");
-  produces<float>("PU");
+  runPut_ = produces<unsigned int>("run");
+  eventPut_ = produces<unsigned int>("event");
+  bxPut_ = produces<unsigned int>("bx");
+  lumiPut_ = produces<unsigned int>("lumi");
+  instLumiPut_ = produces<float>("instLumi");
+  puPut_ = produces<float>("PU");
 #ifdef ExtendedCALIBTree
-  produces<std::vector<bool>>("TrigTech");
-  produces<std::vector<bool>>("TrigPh");
+  trigTechPut_ = produces<std::vector<bool>>("TrigTech");
+  trigPhPut_ = produces<std::vector<bool>>("TrigPh");
+  trig_token_ = consumes<L1GlobalTriggerReadoutRecord>(iConfig.getParameter<edm::InputTag>("trigRecord"));
 #endif
 
-  trig_token_ = consumes<L1GlobalTriggerReadoutRecord>(iConfig.getParameter<edm::InputTag>("trigRecord"));
   scalerToken_ = consumes<LumiScalersCollection>(iConfig.getParameter<edm::InputTag>("lumiScalers"));
 }
 
-void ShallowEventDataProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
-  auto run = std::make_unique<unsigned int>(iEvent.id().run());
-  auto event = std::make_unique<unsigned int>(iEvent.id().event());
-  auto bx = std::make_unique<unsigned int>(iEvent.bunchCrossing());
-  auto lumi = std::make_unique<unsigned int>(iEvent.luminosityBlock());
+void ShallowEventDataProducer::produce(edm::StreamID, edm::Event& iEvent, const edm::EventSetup& iSetup) const {
+  iEvent.emplace(runPut_, iEvent.id().run());
+  iEvent.emplace(eventPut_, iEvent.id().event());
+  iEvent.emplace(bxPut_, iEvent.bunchCrossing());
+  iEvent.emplace(lumiPut_, iEvent.luminosityBlock());
 
+#ifdef ExtendedCALIBTree
   edm::Handle<L1GlobalTriggerReadoutRecord> gtRecord;
   iEvent.getByToken(trig_token_, gtRecord);
 
-#ifdef ExtendedCALIBTree
   std::vector<bool> TrigTech_(64, false);
   std::vector<bool> TrigPh_(128, false);
-#endif
 
-#ifdef ExtendedCALIBTree
   // Get dWord after masking disabled bits
   DecisionWord dWord = gtRecord->decisionWord();
   if (!dWord.empty()) {  // if board not there this is zero
@@ -54,8 +52,8 @@ void ShallowEventDataProducer::produce(edm::Event& iEvent, const edm::EventSetup
     }
   }
 
-  auto TrigTech = std::make_unique<std::vector<bool>>(TrigTech_);
-  auto TrigPh = std::make_unique<std::vector<bool>>(TrigPh_);
+  iEvent.emplace(trigTechPut_, std::move(TrigTech_));
+  iEvent.emplace(trigPhPut_, std::move(TrigPh_));
 #endif
 
   // Luminosity informations
@@ -73,17 +71,6 @@ void ShallowEventDataProducer::produce(edm::Event& iEvent, const edm::EventSetup
         << "LumiScalers collection not found in the event; will write dummy values";
   }
 
-  auto instLumi = std::make_unique<float>(instLumi_);
-  auto PU = std::make_unique<float>(PU_);
-
-  iEvent.put(std::move(run), "run");
-  iEvent.put(std::move(event), "event");
-  iEvent.put(std::move(bx), "bx");
-  iEvent.put(std::move(lumi), "lumi");
-#ifdef ExtendedCALIBTree
-  iEvent.put(std::move(TrigTech), "TrigTech");
-  iEvent.put(std::move(TrigPh), "TrigPh");
-#endif
-  iEvent.put(std::move(instLumi), "instLumi");
-  iEvent.put(std::move(PU), "PU");
+  iEvent.emplace(instLumiPut_, instLumi_);
+  iEvent.emplace(puPut_, PU_);
 }
