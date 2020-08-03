@@ -83,6 +83,7 @@ allTags["Template"] = {
 ## Outer Tracker records
 ##
 
+'''
 tempConnectionString="frontier://FrontierPrep/CMS_CONDITIONS"
 
 allTags["OTLA"] = {
@@ -98,7 +99,7 @@ allTags["SimOTLA"] = {
     'T19' : ( ','.join( [ 'SiPhase2OuterTrackerLorentzAngle_T15_v0' ,TrackerSimLARecord,tempConnectionString, "", "2020-07-19 17:00:00.000"] ), ),  #uH = 0.07/T
     'T20' : ( ','.join( [ 'SiPhase2OuterTrackerLorentzAngle_T15_v0' ,TrackerSimLARecord,tempConnectionString, "", "2020-07-19 17:00:00.000"] ), ),  #uH = 0.07/T
 }
-
+'''
 ##
 ## All of the following conditions are not yet in active use, but will be activated in GT along the way
 ##
@@ -112,7 +113,7 @@ allTags["Template2Dden"] = {
 }
 
 # list of active tags to be replaced
-activeKeys = ["LA","LAWidth","SimLA","LAfromAlignment","GenError","Template","SimOTLA","OTLA"]
+activeKeys = ["LA","LAWidth","SimLA","LAfromAlignment","GenError","Template"]#,"SimOTLA","OTLA"]
 
 # list of geometries supported
 activeDets = ["T15","T17","T19","T20","T21","T22","T23"]

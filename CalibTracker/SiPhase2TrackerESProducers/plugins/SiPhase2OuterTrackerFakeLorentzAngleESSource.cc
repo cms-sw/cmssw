@@ -25,36 +25,55 @@
 //
 SiPhase2OuterTrackerFakeLorentzAngleESSource::SiPhase2OuterTrackerFakeLorentzAngleESSource(
     const edm::ParameterSet& conf_)
-    : LAvalue_(conf_.getParameter<double>("LAValue")) {
+    : LAvalue_(conf_.getParameter<double>("LAValue")), recordName_(conf_.getParameter<std::string>("recordName")) {
   edm::LogInfo("SiPhase2OuterTrackerFakeLorentzAngleESSource::SiPhase2OuterTrackerFakeLorentzAngleESSource");
   // the following line is needed to tell the framework what
   // data is being produced
-  setWhatProduced(this).setConsumes(m_tTopoToken).setConsumes(m_geomDetToken);
-  findingRecord<SiPhase2OuterTrackerLorentzAngleRcd>();
+  if (recordName_ == "LorentzAngle") {
+    setWhatProduced(this, &SiPhase2OuterTrackerFakeLorentzAngleESSource::produceOTLA)
+        .setConsumes(m_tTopoToken)
+        .setConsumes(m_geomDetToken);
+    findingRecord<SiPhase2OuterTrackerLorentzAngleRcd>();
+  } else if (recordName_ == "SimLorentzAngle") {
+    setWhatProduced(this, &SiPhase2OuterTrackerFakeLorentzAngleESSource::produceOTSimLA)
+        .setConsumes(m_tTopoToken)
+        .setConsumes(m_geomDetToken);
+    findingRecord<SiPhase2OuterTrackerLorentzAngleSimRcd>();
+  }
 }
 
 SiPhase2OuterTrackerFakeLorentzAngleESSource::~SiPhase2OuterTrackerFakeLorentzAngleESSource() {}
 
-std::unique_ptr<SiPhase2OuterTrackerLorentzAngle> SiPhase2OuterTrackerFakeLorentzAngleESSource::produce(
-    const SiPhase2OuterTrackerLorentzAngleRcd& iRecord) {
-  using namespace edm::es;
-  SiPhase2OuterTrackerLorentzAngle* obj = new SiPhase2OuterTrackerLorentzAngle();
+namespace fakeOTLA {
+  template <class T>
+  std::unique_ptr<T> produceRecord(const float value, const GeometricDet& geomDet) {
+    using namespace edm::es;
+    T* obj = new T();
+    for (const auto detId : TrackerGeometryUtils::getSiStripDetIds(geomDet)) {
+      const DetId detectorId = DetId(detId);
+      const int subDet = detectorId.subdetId();
+      if (detectorId.det() == DetId::Detector::Tracker) {
+        if (subDet == StripSubdetector::TOB || subDet == StripSubdetector::TID) {
+          if (!obj->putLorentzAngle(detId, value))
+            edm::LogError("SiPhase2OuterTrackerFakeLorentzAngleESSource")
+                << "[SiPhase2OuterTrackerFakeLorentzAngleESSource::produce] detid already exists" << std::endl;
+        }  // if it's a OT DetId
+      }    // check if Tracker
+    }      // loop on DetIds
+    return std::unique_ptr<T>(obj);
+  }
+}  // namespace fakeOTLA
 
-  const auto& geomDet = iRecord.getRecord<TrackerTopologyRcd>().get(m_geomDetToken);
-  for (const auto detId : TrackerGeometryUtils::getSiStripDetIds(geomDet)) {
-    const DetId detectorId = DetId(detId);
-    const int subDet = detectorId.subdetId();
-    if (detectorId.det() == DetId::Detector::Tracker) {
-      if (subDet == StripSubdetector::TOB || subDet == StripSubdetector::TID) {
-        if (!obj->putLorentzAngle(detId, LAvalue_))
-          edm::LogError("SiPhase2OuterTrackerFakeLorentzAngleESSource")
-              << "[SiPhase2OuterTrackerFakeLorentzAngleESSource::produce] detid already exists" << std::endl;
+std::unique_ptr<SiPhase2OuterTrackerLorentzAngle> SiPhase2OuterTrackerFakeLorentzAngleESSource::produceOTLA(
+    const SiPhase2OuterTrackerLorentzAngleRcd& rcd) {
+  const auto& geomDet = rcd.getRecord<TrackerTopologyRcd>().get(m_geomDetToken);
+  return fakeOTLA::produceRecord<SiPhase2OuterTrackerLorentzAngle>(LAvalue_, geomDet);
+}
 
-      }  // if it's a OT DetId
-    }    // check if Tracker
-  }      // loop on DetIds
-
-  return std::unique_ptr<SiPhase2OuterTrackerLorentzAngle>(obj);
+std::unique_ptr<SiPhase2OuterTrackerLorentzAngle> SiPhase2OuterTrackerFakeLorentzAngleESSource::produceOTSimLA(
+    const SiPhase2OuterTrackerLorentzAngleSimRcd& rcd) {
+  const auto& geomDet = rcd.getRecord<TrackerTopologyRcd>().get(m_geomDetToken);
+  return fakeOTLA::produceRecord<SiPhase2OuterTrackerLorentzAngle>(LAvalue_, geomDet);
 }
 
 void SiPhase2OuterTrackerFakeLorentzAngleESSource::setIntervalFor(const edm::eventsetup::EventSetupRecordKey&,
@@ -67,6 +86,7 @@ void SiPhase2OuterTrackerFakeLorentzAngleESSource::setIntervalFor(const edm::eve
 void SiPhase2OuterTrackerFakeLorentzAngleESSource::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
   desc.add<double>("LAValue", 0.07);
+  desc.add<std::string>("recordName", "LorenzAngle");
   descriptions.add("siPhase2OTFakeLorentzAngleESSource", desc);
 }
 

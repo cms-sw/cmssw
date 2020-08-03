@@ -10,6 +10,6 @@ class SiPhase2OuterTrackerLorentzAngleRcd
     : public edm::eventsetup::DependentRecordImplementation<SiPhase2OuterTrackerLorentzAngleRcd,
                                                             edm::mpl::Vector<TrackerTopologyRcd> > {};
 class SiPhase2OuterTrackerLorentzAngleSimRcd
-    : public edm::eventsetup::EventSetupRecordImplementation<SiPhase2OuterTrackerLorentzAngleSimRcd> {};
-
+    : public edm::eventsetup::DependentRecordImplementation<SiPhase2OuterTrackerLorentzAngleSimRcd,
+                                                            edm::mpl::Vector<TrackerTopologyRcd> > {};
 #endif
