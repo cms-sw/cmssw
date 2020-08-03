@@ -40,7 +40,7 @@ public:
   SiPhase2OuterTrackerFakeLorentzAngleESSource(const edm::ParameterSet &);
   ~SiPhase2OuterTrackerFakeLorentzAngleESSource() override;
 
-  virtual std::unique_ptr<SiPhase2OuterTrackerLorentzAngle> produce(const SiPhase2OuterTrackerLorentzAngleRcd &);
+  void produce(){};
   static void fillDescriptions(edm::ConfigurationDescriptions &);
 
 protected:
@@ -48,9 +48,14 @@ protected:
                       const edm::IOVSyncValue &,
                       edm::ValidityInterval &) override;
 
+  virtual std::unique_ptr<SiPhase2OuterTrackerLorentzAngle> produceOTLA(const SiPhase2OuterTrackerLorentzAngleRcd &);
+  virtual std::unique_ptr<SiPhase2OuterTrackerLorentzAngle> produceOTSimLA(
+      const SiPhase2OuterTrackerLorentzAngleSimRcd &);
+
 private:
   edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> m_tTopoToken;
   edm::ESGetToken<GeometricDet, IdealGeometryRecord> m_geomDetToken;
   const float LAvalue_;
+  const std::string recordName_;
 };
 #endif
