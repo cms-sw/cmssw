@@ -1,7 +1,7 @@
 #ifndef RecoEgamma_EgammaElectronAlgos_ConversionFinder_h
 #define RecoEgamma_EgammaElectronAlgos_ConversionFinder_h
 
-/** \class reco:: .h RecoEgamma/EgammaElectronAlgos/interface/.h
+/** \class reco:: ConversionFinder.h RecoEgamma/EgammaElectronAlgos/interface/ConversionFinder.h
   *
   * Conversion finding and rejection code
   * Uses simple geometric methods to determine whether or not the
@@ -38,8 +38,8 @@ namespace egamma::conv {
     // if the partner track is found in the  CTF track collection,
     // this is a ref to the CTF partner track
     const std::optional<int> conversionPartnerGsfTkIdx = std::nullopt;
-    const int deltaMissingHits = -9999.;
-    const int flag = -9999.;
+    const int deltaMissingHits = -9999;
+    const int flag = -9999;
 
     // flag 0: Partner track found in the CTF collection using the electron's CTF track
     // flag 1: Partner track found in the CTF collection using the electron's GSF track
