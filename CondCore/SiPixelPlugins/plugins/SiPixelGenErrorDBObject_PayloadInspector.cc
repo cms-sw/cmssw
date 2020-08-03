@@ -59,6 +59,8 @@ namespace {
               "SiPixelGenErrorDBObject Header summary") {}
 
     bool fill() override {
+      gStyle->SetHistMinimumZero();  // will display zero as zero in the text map
+
       auto tag = PlotBase::getTag<0>();
       auto iov = tag.iovs.front();
       auto tagname = tag.name;
@@ -93,7 +95,10 @@ namespace {
         for (const auto& theTemp : thePixelTemp_ | boost::adaptors::indexed(1)) {
           auto tempValue = theTemp.value();
           auto tempIndex = theTemp.index();
-          float uH = roundoff(tempValue.head.lorxwidth / tempValue.head.zsize / tempValue.head.Bfield, 4);
+          float uH = -99.;
+          if (tempValue.head.Bfield != 0.) {
+            uH = roundoff(tempValue.head.lorxwidth / tempValue.head.zsize / tempValue.head.Bfield, 4);
+          }
           h2_GenErrorHeaders->SetBinContent(tempIndex, 6, tempValue.head.ID);
           h2_GenErrorHeaders->SetBinContent(tempIndex, 5, tempValue.head.Bfield);
           h2_GenErrorHeaders->SetBinContent(tempIndex, 4, uH);
