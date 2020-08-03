@@ -359,6 +359,7 @@ void Sector::executeTCD() {
 }
 
 void Sector::executePR() {
+  
   for (auto& i : PR_) {
     i->execute();
   }

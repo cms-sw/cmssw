@@ -25,6 +25,9 @@ TrackletProcessor::TrackletProcessor(string name, Settings const& settings, Glob
     phimin_ -= 2 * M_PI;
   phioffset_ = phimin_;
 
+
+
+
   for (unsigned int ilayer = 0; ilayer < N_LAYER; ilayer++) {
     vector<TrackletProjectionsMemory*> tmp(settings_.nallstubs(ilayer), nullptr);
     trackletprojlayers_.push_back(tmp);
@@ -375,7 +378,12 @@ void TrackletProcessor::execute() {
               FPGAWord iphiinnerbin = innervmstub.finephi();
               FPGAWord iphiouterbin = outervmstub.finephi();
 
-              int index = (iphiinnerbin.value() << outerphibits_) + iphiouterbin.value();
+	      FPGAWord z=innervmstub.stub()->z();
+              int znbits=z.nbits();
+              int iz=abs(z.value());
+              int izbin=iz*8/(1<<(znbits-1));
+
+              int index = (izbin<<(outerphibits_+innerphibits_))+(iphiinnerbin.value()<<outerphibits_)+iphiouterbin.value(); 
 
               assert(index < (int)phitable_[phiindex].size());
 
@@ -584,6 +592,9 @@ void TrackletProcessor::execute() {
 }
 
 void TrackletProcessor::setVMPhiBin() {
+  double bendcutbarrelTE=1.5;
+  double bendcutdiskTE=2.0;
+
   if (innervmstubs_.size() != outervmstubs_.size())
     return;
 
@@ -633,43 +644,45 @@ void TrackletProcessor::setVMPhiBin() {
       for (unsigned int i = 0; i < nbins2; i++) {
         vmbendouter.push_back(false);
       }
+      for (unsigned int izinner =0;izinner<8; izinner++){
+	double zinner = 0+ izinner*15;
+	for (int iphiinnerbin=0; iphiinnerbin<innerphibins;iphiinnerbin++){
+	  phiinner[0]=innerphimin+iphiinnerbin*(innerphimax-innerphimin)/innerphibins;
+	  phiinner[1]=innerphimin+(iphiinnerbin+1)*(innerphimax-innerphimin)/innerphibins;
+	  for (int iphiouterbin=0; iphiouterbin<outerphibins; iphiouterbin++){
+	    phiouter[0]=outerphimin+iphiouterbin*(outerphimax-outerphimin)/outerphibins;
+ 	    phiouter[1]=outerphimin+(iphiouterbin+1)*(outerphimax-outerphimin)/outerphibins;
 
-      for (int iphiinnerbin = 0; iphiinnerbin < innerphibins; iphiinnerbin++) {
-        phiinner[0] = innerphimin + iphiinnerbin * (innerphimax - innerphimin) / innerphibins;
-        phiinner[1] = innerphimin + (iphiinnerbin + 1) * (innerphimax - innerphimin) / innerphibins;
-        for (int iphiouterbin = 0; iphiouterbin < outerphibins; iphiouterbin++) {
-          phiouter[0] = outerphimin + iphiouterbin * (outerphimax - outerphimin) / outerphibins;
-          phiouter[1] = outerphimin + (iphiouterbin + 1) * (outerphimax - outerphimin) / outerphibins;
-
-          double bendinnermin = 20.0;
-          double bendinnermax = -20.0;
-          double bendoutermin = 20.0;
-          double bendoutermax = -20.0;
-          double rinvmin = 1.0;
-          for (int i1 = 0; i1 < 2; i1++) {
-            for (int i2 = 0; i2 < 2; i2++) {
-              double rinv1 = rinv(phiinner[i1], phiouter[i2], rinner, router);
-              double pitchinner =
+	    double bendinnermin=20.0;
+	    double bendinnermax=-20.0;
+	    double bendoutermin = 20.0;
+	    double bendoutermax = -20.0;
+	    double rinvmin=1.0;
+	    for (int i1=0;i1<2;i1++){
+		for(int i2=0;i2<2;i2++){
+		  double zouter=zinner*router/rinner;
+		  double rinv1=rinv(phiinner[i1],phiouter[i2],rinner,router);
+		 double pitchinner =
                   (rinner < settings_.rcrit()) ? settings_.stripPitch(true) : settings_.stripPitch(false);
               double pitchouter =
                   (router < settings_.rcrit()) ? settings_.stripPitch(true) : settings_.stripPitch(false);
-              double abendinner = -bend(rinner, rinv1, pitchinner);
-              double abendouter = -bend(router, rinv1, pitchouter);
-              if (abendinner < bendinnermin)
-                bendinnermin = abendinner;
-              if (abendinner > bendinnermax)
-                bendinnermax = abendinner;
-              if (abendouter < bendoutermin)
-                bendoutermin = abendouter;
-              if (abendouter > bendoutermax)
-                bendoutermax = abendouter;
-              if (std::abs(rinv1) < rinvmin) {
-                rinvmin = std::abs(rinv1);
-              }
+	          double abendinner=bendBarrel_TE(zinner,layer_,rinv1, pitchinner);
+	          double abendouter=bendBarrel_TE(zouter,layer_+1,rinv1, pitchouter);
+		  if (abendinner<bendinnermin) bendinnermin=abendinner;
+		  if (abendinner>bendinnermax) bendinnermax=abendinner;
+		  if (abendouter<bendoutermin) bendoutermin=abendouter;
+		  if (abendouter>bendoutermax) bendoutermax=abendouter;
+	   	  if (fabs(rinv1)<rinvmin){
+		    rinvmin = fabs(rinv1);
+		  }
             }
           }
 
+
           phitable_[phiindex].push_back(rinvmin < settings_.rinvcutte());
+
+	 
+	  
 
           int nbins1 = 8;
           if (layer_ >= 4)
@@ -677,28 +690,28 @@ void TrackletProcessor::setVMPhiBin() {
           for (int ibend = 0; ibend < nbins1; ibend++) {
             double bend = benddecode(ibend, layer_ <= 3);
 
-            bool passinner = bend - bendinnermin > -settings_.bendcutte(0, iSeed_) &&
-                             bend - bendinnermax < settings_.bendcutte(0, iSeed_);
+            bool passinner = bend - bendinnermin > -bendcutbarrelTE &&
+                             bend - bendinnermax < bendcutbarrelTE;
             if (passinner)
               vmbendinner[ibend] = true;
             pttableinner_[phiindex].push_back(passinner);
           }
 
           int nbins2 = 8;
-          if (layer_ >= 3)
+          if (layer_+1 >= 3)
             nbins2 = 16;
           for (int ibend = 0; ibend < nbins2; ibend++) {
-            double bend = benddecode(ibend, layer_ <= 2);
+            double bend = benddecode(ibend, layer_+1 <= 2);
 
-            bool passouter = bend - bendoutermin > -settings_.bendcutte(1, iSeed_) &&
-                             bend - bendoutermax < settings_.bendcutte(1, iSeed_);
+            bool passouter = bend - bendoutermin > -bendcutbarrelTE &&
+                             bend - bendoutermax < bendcutbarrelTE;
             if (passouter)
               vmbendouter[ibend] = true;
             pttableouter_[phiindex].push_back(passouter);
           }
         }
       }
-
+    }
       innervmstubs_[ivmmem]->setbendtable(vmbendinner);
       outervmstubs_[ivmmem]->setbendtable(vmbendouter);
 
@@ -731,9 +744,8 @@ void TrackletProcessor::setVMPhiBin() {
 
       for (unsigned int i = 0; i < 8; i++) {
         vmbendinner.push_back(false);
-        vmbendouter.push_back(false);
-      }
-
+        vmbendouter.push_back(false);  
+	}   
       for (int irouterbin = 0; irouterbin < outerrbins; irouterbin++) {
         router[0] =
             settings_.rmindiskvm() + irouterbin * (settings_.rmaxdiskvm() - settings_.rmindiskvm()) / outerrbins;
@@ -761,8 +773,8 @@ void TrackletProcessor::setVMPhiBin() {
                       (rinner < settings_.rcrit()) ? settings_.stripPitch(true) : settings_.stripPitch(false);
                   double pitchouter =
                       (router[i3] < settings_.rcrit()) ? settings_.stripPitch(true) : settings_.stripPitch(false);
-                  double abendinner = bend(rinner, rinv1, pitchinner);
-                  double abendouter = bend(router[i3], rinv1, pitchouter);
+                  double abendinner = bendDisk_TE(rinner, disk_, rinv1, pitchinner);
+                  double abendouter = bendDisk_TE(router[i3],disk_+1,rinv1, pitchouter);
                   if (abendinner < bendinnermin)
                     bendinnermin = abendinner;
                   if (abendinner > bendinnermax)
@@ -774,20 +786,21 @@ void TrackletProcessor::setVMPhiBin() {
                   if (std::abs(rinv1) < rinvmin) {
                     rinvmin = std::abs(rinv1);
                   }
-                  if (std::abs(rinv1) > rinvmax) {
-                    rinvmax = std::abs(rinv1);
+                  if (fabs(rinv1) > rinvmax) {
+                    rinvmax = fabs(rinv1);
                   }
                 }
               }
             }
 
             phitable_[phiindex].push_back(rinvmin < settings_.rinvcutte());
+            
 
             for (int ibend = 0; ibend < 8; ibend++) {
               double bend = benddecode(ibend, true);
 
-              bool passinner = bend - bendinnermin > -settings_.bendcutte(0, iSeed_) &&
-                               bend - bendinnermax < settings_.bendcutte(0, iSeed_);
+              bool passinner = bend - bendinnermin > -bendcutdiskTE && 
+                               bend - bendinnermax < bendcutdiskTE;
               if (passinner)
                 vmbendinner[ibend] = true;
               pttableinner_[phiindex].push_back(passinner);
@@ -796,8 +809,8 @@ void TrackletProcessor::setVMPhiBin() {
             for (int ibend = 0; ibend < 8; ibend++) {
               double bend = benddecode(ibend, true);
 
-              bool passouter = bend - bendoutermin > -settings_.bendcutte(1, iSeed_) &&
-                               bend - bendoutermax < settings_.bendcutte(1, iSeed_);
+              bool passouter = bend - bendoutermin > -bendcutdiskTE &&
+                               bend - bendoutermax < bendcutdiskTE;
               if (passouter)
                 vmbendouter[ibend] = true;
               pttableouter_[phiindex].push_back(passouter);
@@ -809,13 +822,12 @@ void TrackletProcessor::setVMPhiBin() {
       innervmstubs_[ivmmem]->setbendtable(vmbendinner);
       outervmstubs_[ivmmem]->setbendtable(vmbendouter);
 
-      if (iSector_ == 0 && settings_.writeTable())
-        writeTETable();
+
 
     } else if (disk_ == 1 && (layer_ == 1 || layer_ == 2)) {
       innerphibits_ = settings_.nfinephi(0, iSeed_);
       outerphibits_ = settings_.nfinephi(1, iSeed_);
-      unsigned int nrbits = 5;
+   
 
       int innerphibins = (1 << innerphibits_);
       int outerphibins = (1 << outerphibits_);
@@ -828,7 +840,7 @@ void TrackletProcessor::setVMPhiBin() {
 
       double phiinner[2];
       double phiouter[2];
-      double router[2];
+     
 
       std::vector<bool> vmbendinner;
       std::vector<bool> vmbendouter;
@@ -838,7 +850,7 @@ void TrackletProcessor::setVMPhiBin() {
         vmbendouter.push_back(false);
       }
 
-      double dr = (settings_.rmaxdiskvm() - settings_.rmindiskvm()) / (1 << nrbits);
+     
 
       for (int iphiinnerbin = 0; iphiinnerbin < innerphibins; iphiinnerbin++) {
         phiinner[0] = innerphimin + iphiinnerbin * (innerphimax - innerphimin) / innerphibins;
@@ -846,9 +858,11 @@ void TrackletProcessor::setVMPhiBin() {
         for (int iphiouterbin = 0; iphiouterbin < outerphibins; iphiouterbin++) {
           phiouter[0] = outerphimin + iphiouterbin * (outerphimax - outerphimin) / outerphibins;
           phiouter[1] = outerphimin + (iphiouterbin + 1) * (outerphimax - outerphimin) / outerphibins;
-          for (int irbin = 0; irbin < (1 << nrbits); irbin++) {
-            router[0] = settings_.rmindiskvm() + dr * irbin;
-            router[1] = router[0] + dr;
+ //         for (int irbin = 0; irbin < (1 << nrbits); irbin++) {
+ //          router[0] = settings_.rmindiskvm() + dr * irbin;
+ //           router[1] = router[0] + dr;
+  	    for (unsigned int izinner =0; izinner<8; izinner++){
+		double zinner = 0+izinner*15;
             double bendinnermin = 20.0;
             double bendinnermax = -20.0;
             double bendoutermin = 20.0;
@@ -858,13 +872,15 @@ void TrackletProcessor::setVMPhiBin() {
               for (int i2 = 0; i2 < 2; i2++) {
                 for (int i3 = 0; i3 < 2; i3++) {
                   double rinner = settings_.rmean(layer_ - 1);
-                  double rinv1 = rinv(phiinner[i1], phiouter[i2], rinner, router[i3]);
+		  double zouter = settings_.zmean(disk_-1);
+                  double router = zouter*rinner/zinner;
+		  double rinv1 = rinv(phiinner[i1], phiouter[i2], rinner, router);
                   double pitchinner =
-                      (rinner < settings_.rcrit()) ? settings_.stripPitch(true) : settings_.stripPitch(false);
+                     (rinner < settings_.rcrit()) ? settings_.stripPitch(true) : settings_.stripPitch(false);
                   double pitchouter =
-                      (router[i3] < settings_.rcrit()) ? settings_.stripPitch(true) : settings_.stripPitch(false);
-                  double abendinner = bend(rinner, rinv1, pitchinner);
-                  double abendouter = bend(router[i3], rinv1, pitchouter);
+                      (router < settings_.rcrit()) ? settings_.stripPitch(true) : settings_.stripPitch(false);
+                  double abendinner = bendBarrel_TE(zinner,layer_,rinv1, pitchinner);
+                  double abendouter = bendDisk_TE(router, disk_, rinv1, pitchouter);
                   if (abendinner < bendinnermin)
                     bendinnermin = abendinner;
                   if (abendinner > bendinnermax)
@@ -873,20 +889,20 @@ void TrackletProcessor::setVMPhiBin() {
                     bendoutermin = abendouter;
                   if (abendouter > bendoutermax)
                     bendoutermax = abendouter;
-                  if (std::abs(rinv1) < rinvmin) {
-                    rinvmin = std::abs(rinv1);
+                  if (fabs(rinv1) < rinvmin) {
+                    rinvmin = fabs(rinv1);
                   }
                 }
               }
             }
 
-            phitable_[phiindex].push_back(rinvmin < settings_.rinvcutte());
+            (izinner!=0)? phitable_[phiindex].push_back(rinvmin < settings_.rinvcutte()):phitable_[phiindex].push_back(false);
 
             for (int ibend = 0; ibend < 8; ibend++) {
               double bend = benddecode(ibend, true);
 
-              bool passinner = bend - bendinnermin > -settings_.bendcutte(0, iSeed_) &&
-                               bend - bendinnermax < settings_.bendcutte(0, iSeed_);
+              bool passinner = (izinner!=0)? bend - bendinnermin > -bendcutbarrelTE &&
+                               bend - bendinnermax < bendcutbarrelTE:false;
               if (passinner)
                 vmbendinner[ibend] = true;
               pttableinner_[phiindex].push_back(passinner);
@@ -895,8 +911,8 @@ void TrackletProcessor::setVMPhiBin() {
             for (int ibend = 0; ibend < 8; ibend++) {
               double bend = benddecode(ibend, true);
 
-              bool passouter = bend - bendoutermin > -settings_.bendcutte(1, iSeed_) &&
-                               bend - bendoutermax < settings_.bendcutte(1, iSeed_);
+              bool passouter = (izinner!=0)? bend - bendoutermin > -bendcutdiskTE &&
+                               bend - bendoutermax < bendcutdiskTE:false;
               if (passouter)
                 vmbendouter[ibend] = true;
               pttableouter_[phiindex].push_back(passouter);

@@ -31,18 +31,21 @@ MatchEngine::MatchEngine(string name, Settings const& settings, Globals* global,
     if (layer_ >= 4)
       nbits = 4;
 
-    for (unsigned int irinv = 0; irinv < 32; irinv++) {
-      double rinv = (irinv - 15.5) * (1 << (settings_.nbitsrinv() - 5)) * settings_.krinvpars();
-
-      double stripPitch =
+   for (unsigned int iz = 0; iz < 8; iz++) {
+      double z=0+iz*15;
+      for(unsigned int irinv=0;irinv<32;irinv++){
+        double rinv = (irinv - 15.5) * (1 << (settings_.nbitsrinv() - 5)) * settings_.krinvpars();
+        double bendcutbarrelME=2.0;
+        double stripPitch =
           (settings_.rmean(layer_ - 1) < settings_.rcrit()) ? settings_.stripPitch(true) : settings_.stripPitch(false);
-      double projbend = bend(settings_.rmean(layer_ - 1), rinv, stripPitch);
-      for (unsigned int ibend = 0; ibend < (unsigned int)(1 << nbits); ibend++) {
-        double stubbend = benddecode(ibend, layer_ <= 3);
-        bool pass = std::abs(stubbend - projbend) < settings_.bendcutme(layer_ - 1);
-        table_.push_back(pass);
-      }
+        double projbend = bendBarrel_ME(z,layer_,rinv,stripPitch); 
+        for (unsigned int ibend = 0; ibend < (unsigned int)(1 << nbits); ibend++) {
+          double stubbend = benddecode(ibend, layer_ <= 3);
+          bool pass = std::abs(stubbend - projbend) < bendcutbarrelME;
+          table_.push_back(pass);
+       }
     }
+  }
 
     if (settings_.writeTable()) {
       ofstream out;
@@ -64,16 +67,18 @@ MatchEngine::MatchEngine(string name, Settings const& settings, Globals* global,
   }
 
   if (disk_ > 0) {
+
+
     for (unsigned int iprojbend = 0; iprojbend < 32; iprojbend++) {
       double projbend = 0.5 * (iprojbend - 15.0);
       for (unsigned int ibend = 0; ibend < 8; ibend++) {
         double stubbend = benddecode(ibend, true);
-        bool pass = std::abs(stubbend - projbend) < settings_.bendcutme(disk_ + 5);
+        bool pass = std::abs(stubbend - projbend) < settings_.bendcutPSdiskME;
         tablePS_.push_back(pass);
       }
       for (unsigned int ibend = 0; ibend < 16; ibend++) {
         double stubbend = benddecode(ibend, false);
-        bool pass = std::abs(stubbend - projbend) < settings_.bendcutme(disk_ + 5);
+        bool pass = std::abs(stubbend - projbend) < settings_.bendcut2SdiskME;
         table2S_.push_back(pass);
       }
     }
@@ -277,7 +282,13 @@ void MatchEngine::execute() {
 
       //TODO - should use finephi information to reduce combinatorics
 
-      unsigned int index = (projrinv << nbits) + vmstub.bend().value();
+      int izbits=settings_.nbitszL123;
+      if (layer_>=4) izbits=settings_.nbitszL456;
+
+      int iz=vmstub.stub()->z().value();
+      int izbin= (iz>>(izbits-4))&7;
+
+      unsigned int index=barrel?(izbin<<(nbits+5))+(projrinv<<nbits)+vmstub.bend().value(): (projrinv<<nbits)+vmstub.bend().value(); 
 
       //Check if stub z position consistent
       int idrz = stubfinerz - projfinerzadj;

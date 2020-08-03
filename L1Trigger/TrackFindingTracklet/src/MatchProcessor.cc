@@ -86,18 +86,22 @@ MatchProcessor::MatchProcessor(string name, Settings const& settings, Globals* g
     unsigned int nbits = 3;
     if (layer_ >= 4)
       nbits = 4;
-
-    for (unsigned int irinv = 0; irinv < 32; irinv++) {
-      double rinv = (irinv - 15.5) * (1 << (settings_.nbitsrinv() - 5)) * settings_.krinvpars();
+    for (unsigned int iz = 0; iz < 8; iz++) {
+      double z=0+iz*15;
+      for(unsigned int irinv=0;irinv<32;irinv++){
+        double rinv = (irinv - 15.5) * (1 << (settings_.nbitsrinv() - 5)) * settings_.krinvpars();
+        double bendcutbarrelME=2.0;
       double stripPitch =
-          (settings_.rmean(layer_ - 1) < settings_.rcrit()) ? settings_.stripPitch(true) : settings_.stripPitch(false);
-      double projbend = bend(settings_.rmean(layer_ - 1), rinv, stripPitch);
-      for (unsigned int ibend = 0; ibend < (unsigned int)(1 << nbits); ibend++) {
-        double stubbend = benddecode(ibend, layer_ <= (int)N_PSLAYER);
-        bool pass = std::abs(stubbend - projbend) < settings_.bendcutme(layer_ - 1);
-        table_.push_back(pass);
+         (settings_.rmean(layer_ - 1) < settings_.rcrit()) ? settings_.stripPitch(true) : settings_.stripPitch(false);
+        double projbend = bendBarrel_ME(z,layer_,rinv, stripPitch);
+        for (unsigned int ibend = 0; ibend < (unsigned int)(1 << nbits); ibend++) {
+          double stubbend = benddecode(ibend, layer_ <= 3);
+          bool pass = std::abs(stubbend - projbend) < bendcutbarrelME;
+          table_.push_back(pass);
       }
     }
+  }
+
 
     if (settings_.writeTable()) {
       ofstream out;

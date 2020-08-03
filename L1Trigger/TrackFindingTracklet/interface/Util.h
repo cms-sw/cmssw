@@ -4,11 +4,13 @@
 #include <sstream>
 #include <cassert>
 #include <cmath>
-
+#include <array>
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/Exception.h"
+#include "L1Trigger/TrackFindingTracklet/interface/Settings.h"
 
-namespace trklet {
+namespace trklet {       
+
 
   //Converts string in binary to hex (used in writing out memory content)
   inline std::string hexFormat(const std::string& binary) {
@@ -28,7 +30,22 @@ namespace trklet {
 
     return ss.str();
   }
+ inline std::array<unsigned int, N_LAYER> irmean1_{{851, 1269, 1784, 2347, 2936, 3697}};
+ inline std::array<unsigned int, N_DISK> izmean1_{{2239, 2645, 3163, 3782, 4523}};
+ inline double zlength1_ = 120.0;
+ inline  double rmaxdisk1_ = 120.0;
+ inline double rmean1(unsigned int iLayer)  { return irmean1_[iLayer] * rmaxdisk1_ / 4096; }
+ inline double zmean1(unsigned int iDisk)  { return izmean1_[iDisk] * zlength1_ / 2048; }
 
+
+ 
+
+
+
+
+
+
+ 
   //Should be optimized by layer - now first implementation to make sure it works OK
   inline int bendencode(double bend, bool isPS) {
     int ibend = 2.0 * bend;
@@ -157,12 +174,100 @@ namespace trklet {
                                       << " Unknown benddecode for 2S module for ibend = " << ibend;
   }
 
-  inline double bend(double r, double rinv, double stripPitch) {
-    constexpr double dr = 0.18;
-    double delta = r * dr * 0.5 * rinv;
-    double bend = -delta / stripPitch;
+  inline double cosModuleTilt = 0.886454;
+  inline double sinModuleTilt = 0.504148;
+
+  inline double bendDisk_PR(double r, int disk, double rinv, double stripPitch){
+    double dr = 0.18;
+    double z = zmean1(disk - 1);
+    if (((disk ==1 || disk ==2) && r<=Settings::diskSpacingCut[0]) || ((disk==3 || disk ==4) && r<=Settings::diskSpacingCut[1]) || (disk==5 && r<=Settings::diskSpacingCut[2])){
+      dr = 0.4;
+    }
+    double CF = r/z;
+    double delta=r*dr*0.5*rinv*CF;
+    double bend = -delta/stripPitch;
+
+
+
+
     return bend;
   }
+
+ inline  double bendDisk_TE(double r, int disk, double rinv, double stripPitch){
+    double dr = 0.18;
+    double z = zmean1(disk -1);
+    if (((disk==1 || disk==2) && r<=Settings::diskSpacingCut[0]) || ((disk==3 || disk==4) && r<=Settings::diskSpacingCut[1]) || (disk==5 && r<=Settings::diskSpacingCut[2])){
+      dr = 0.4;
+    }
+   double CF = r/z;
+   double delta=r*dr*0.5*rinv*CF;
+   double bend = delta/stripPitch;
+
+
+
+
+   return bend;
+  }
+
+  inline double bendBarrel_TE(double z, int layer, double rinv, double stripPitch){
+   
+    double dr = 0.18;
+    double CF =1;
+  
+    double r=rmean1(layer-1);
+ 
+    if ((layer ==1 && z<=Settings::barrelSpacingCut[3]) || (layer==2 && Settings::barrelSpacingCut[1] <=z && z<=Settings::barrelSpacingCut[4]) || (layer==3  && Settings::barrelSpacingCut[3] <=z && z<=Settings::barrelSpacingCut[5])){
+      dr = 0.26;
+    }
+    else if ((layer==1 && Settings::barrelSpacingCut[2]<=z && z<=Settings::barrelSpacingCut[5]) || (layer==2 && Settings::barrelSpacingCut[4]<=z && z<=Settings::barrelSpacingCut[5])){
+      dr = 0.4;
+    }
+    else if ((layer==2 && z<=Settings::barrelSpacingCut[1]) || (layer==3 && z<=Settings::barrelSpacingCut[3])){
+      dr =0.16;
+    }
+    if ((layer==1 && Settings::barrelSpacingCut[0]<=z && z<=Settings::barrelSpacingCut[5]) || (layer==2 && Settings::barrelSpacingCut[1] <=z && z<=Settings::barrelSpacingCut[5]) || (layer==3 && Settings::barrelSpacingCut[3]<=z && z<=Settings::barrelSpacingCut[5])){
+      CF = cosModuleTilt*(z/r) + sinModuleTilt;
+    }
+    double delta = r*dr*0.5*rinv;
+    double bend = delta/(stripPitch*CF);
+
+
+
+
+
+    return bend;
+  
+}
+
+  inline double bendBarrel_ME(double z, int layer, double rinv, double stripPitch){
+    double dr = 0.18;
+    double CF=1;
+    double r = rmean1(layer-1);
+    if ((layer==1 && z<=Settings::barrelSpacingCut[3]) || (layer==2 && Settings::barrelSpacingCut[1]<=z && z<=Settings::barrelSpacingCut[4]) || (layer==3 && Settings::barrelSpacingCut[3]<=z && z<=Settings::barrelSpacingCut[5])){
+      dr = 0.26;
+    }
+    else if ((layer==1 && Settings::barrelSpacingCut[2]<=z && z<=Settings::barrelSpacingCut[5]) || (layer==2 && Settings::barrelSpacingCut[4]<=z && z<=Settings::barrelSpacingCut[5])){
+      dr = 0.4;
+    }
+    else if ((layer==2 && z<=Settings::barrelSpacingCut[1]) || (layer==3 && z<=Settings::barrelSpacingCut[3])){
+      dr = 0.16;
+    }
+    if ((layer==1 && Settings::barrelSpacingCut[0]<=z && z<=Settings::barrelSpacingCut[5]) || (layer==2 && Settings::barrelSpacingCut[1] <=z && z<=Settings::barrelSpacingCut[5]) || (layer==3 && Settings::barrelSpacingCut[3]<=z && z<=Settings::barrelSpacingCut[5])){
+      CF = cosModuleTilt*(z/r) + sinModuleTilt;
+    }
+    double delta = r*dr*0.5*rinv;
+    double bend = -delta/(stripPitch*CF);
+
+
+
+
+    return bend;
+  }
+
+
+
+
+ 
 
   inline double rinv(double phi1, double phi2, double r1, double r2) {
     if (r2 <= r1) {  //can not form tracklet
