@@ -119,8 +119,8 @@ class UpgradeWorkflow(object):
         if self.condition(fragment, stepList, key, hasHarvest):
             self.workflow_(workflows, num, fragment, stepList, key)
     def workflow_(self, workflows, num, fragment, stepList, key):
-        fragmentTmp = fragment
-        if len(self.suffix)>0: fragmentTmp = [fragment, self.suffix]
+        fragmentTmp = [fragment, key]
+        if len(self.suffix)>0: fragmentTmp.append(self.suffix)
         workflows[num+self.offset] = [ fragmentTmp, stepList ]
     def condition(self, fragment, stepList, key, hasHarvest):
         return False
