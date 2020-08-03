@@ -23,6 +23,7 @@ SiPixelTemplateDBObjectUploader::SiPixelTemplateDBObjectUploader(const edm::Para
     : theTemplateCalibrations(iConfig.getParameter<vstring>("siPixelTemplateCalibrations")),
       theTemplateBaseString(iConfig.getParameter<std::string>("theTemplateBaseString")),
       theVersion(iConfig.getParameter<double>("Version")),
+      theMagField(iConfig.getParameter<double>("MagField")),
       theBarrelLocations(iConfig.getParameter<std::vector<std::string> >("barrelLocations")),
       theEndcapLocations(iConfig.getParameter<std::vector<std::string> >("endcapLocations")),
       theBarrelTemplateIds(iConfig.getParameter<std::vector<uint32_t> >("barrelTemplateIds")),
@@ -59,7 +60,7 @@ void SiPixelTemplateDBObjectUploader::analyze(const edm::Event& iEvent, const ed
       char title_char[80], c;
       SiPixelTemplateDBObject::char2float temp;
       float tempstore;
-      int iter, j;
+      int iter, j, k;
 
       // Templates contain a header char - we must be clever about storing this
       for (iter = 0; (c = in_file.get()) != '\n'; ++iter) {
@@ -78,6 +79,18 @@ void SiPixelTemplateDBObjectUploader::analyze(const edm::Event& iEvent, const ed
         temp.c[3] = title_char[j + 3];
         obj->push_back(temp.f);
         obj->setMaxIndex(obj->maxIndex() + 1);
+      }
+
+      // Check if the magnetic field is the same as in the header of the input files
+      for (k = 0; k < 80; k++) {
+        if ((title_char[k] == '@') && (title_char[k - 1] == 'T')) {
+          double localMagField = (((int)title_char[k - 4]) - 48) * 10 + ((int)title_char[k - 2]) - 48;
+          if (theMagField != localMagField) {
+            std::cout << "\n -------- WARNING -------- \n Magnetic field in the cfg is " << theMagField
+                      << "T while it is " << title_char[k - 4] << title_char[k - 2] << title_char[k - 1]
+                      << " in the header \n ------------------------- \n " << std::endl;
+          }
+        }
       }
 
       // Fill the dbobject
@@ -112,7 +125,7 @@ void SiPixelTemplateDBObjectUploader::analyze(const edm::Event& iEvent, const ed
   } else if (pDD->isThere(GeomDetEnumerators::P2PXB) && pDD->isThere(GeomDetEnumerators::P2PXEC) == true) {
     phase = 2;
   }
-  std::cout << "Phase-" << phase << " geometry is used" << std::endl;
+  std::cout << "Phase-" << phase << " geometry is used \n" << std::endl;
 
   //Loop over the detector elements and put template IDs in place
   for (const auto& it : pDD->detUnits()) {
