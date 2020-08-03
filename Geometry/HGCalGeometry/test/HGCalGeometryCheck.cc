@@ -103,7 +103,6 @@ void HGCalGeometryCheck::beginRun(const edm::Run&, const edm::EventSetup& iSetup
     sprintf(name, "RZ_%s", nameDetectors_[ih].c_str());
     sprintf(title, "R vs Z for %s", nameDetectors_[ih].c_str());
     h_RZ_.emplace_back(fs->make<TH2D>(name, title, nbinZ_, zmin_, zmax_, nbinR_, rmin_, rmax_));
-    HGCalGeometryMode::GeometryMode mode = geom->topology().dddConstants().geomMode();
     unsigned int k(0);
     for (int lay = layerF; lay <= layerL; ++lay, ++k) {
       sprintf(name, "Mod_%s_L%d", nameDetectors_[ih].c_str(), lay);
@@ -127,12 +126,12 @@ void HGCalGeometryCheck::beginRun(const edm::Run&, const edm::EventSetup& iSetup
             h_Mod_.back()->Fill(detId.waferV());
             if (verbose_)
               edm::LogVerbatim("HGCalGeom") << "R: " << r << " ID " << detId;
-          } else if ((mode == HGCalGeometryMode::Hexagon) || (mode == HGCalGeometryMode::HexagonFull)) {
+          } else if (geom->topology().waferHexagon6()) {
             HGCalDetId detId = HGCalDetId(id);
             h_Mod_.back()->Fill(detId.wafer());
             if (verbose_)
               edm::LogVerbatim("HGCalGeom") << "R: " << r << " ID " << detId;
-          } else if (mode == HGCalGeometryMode::Trapezoid) {
+          } else if (geom->topology().tileTrapezoid()) {
             HGCScintillatorDetId detId = HGCScintillatorDetId(id);
             h_Mod_.back()->Fill(detId.ieta());
             if (verbose_)
