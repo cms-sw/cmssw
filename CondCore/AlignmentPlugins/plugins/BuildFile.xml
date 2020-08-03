@@ -2,7 +2,6 @@
 <library file="TrackerAlignmentErrorExtended_PayloadInspector.cc" name="TrackerAlignmentErrorExtended_PayloadInspector">
   <use name="CondCore/Utilities"/>
   <use name="CondCore/CondDB"/>
-  <use name="CondFormats/Common"/>
   <use name="CondFormats/Alignment"/>
   <use name="CommonTools/TrackerMap"/>
   <use name="CalibTracker/StandaloneTrackerTopology"/>
@@ -11,7 +10,6 @@
 <library file="TrackerAlignment_PayloadInspector.cc" name="TrackerAlignment_PayloadInspector">
   <use name="CondCore/Utilities"/>
   <use name="CondCore/CondDB"/>
-  <use name="CondFormats/Common"/>
   <use name="CondFormats/Alignment"/>
   <use name="CommonTools/TrackerMap"/>
   <use name="Alignment/CommonAlignment"/>
@@ -21,7 +19,6 @@
 <library file="TrackerSurfaceDeformations_PayloadInspector.cc" name="TrackerSurfaceDeformations_PayloadInspector">
   <use name="CondCore/Utilities"/>
   <use name="CondCore/CondDB"/>
-  <use name="CondFormats/Common"/>
   <use name="CondFormats/Alignment"/>
   <use name="CommonTools/TrackerMap"/>
   <use name="Alignment/CommonAlignment"/>
