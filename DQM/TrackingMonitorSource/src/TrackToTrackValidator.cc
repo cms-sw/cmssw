@@ -18,6 +18,9 @@ TrackToTrackValidator::TrackToTrackValidator(const edm::ParameterSet& iConfig)
   , referenceTrackInputTag_ ( iConfig.getParameter<edm::InputTag>("referenceTrack")       )
   , topDirName_       ( iConfig.getParameter<std::string>  ("topDirName")     )
   , dRmin_            ( iConfig.getParameter<double>("dRmin")                 )
+  , pTCutForPlateau_     ( iConfig.getParameter<double>("pTCutForPlateau")                 )
+  , dxyCutForPlateau_    ( iConfig.getParameter<double>("dxyCutForPlateau")                 )
+  , dzWRTPvCut_          ( iConfig.getParameter<double>("dzWRTPvCut")                 )
   , requireValidHLTPaths_( iConfig.getParameter<bool>("requireValidHLTPaths") )
   , genTriggerEventFlag_(new GenericTriggerEventFlag(iConfig.getParameter<edm::ParameterSet>("genericTriggerEventPSet"), consumesCollector(), *this))
 							 
@@ -55,14 +58,14 @@ TrackToTrackValidator::beginJob(const edm::EventSetup& iSetup) {
 void
 TrackToTrackValidator::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
-  edm::LogInfo("TrackToTrackValidator") << " requireValidHLTPaths_ " << requireValidHLTPaths_  << " hltPathsAreValid_  " << hltPathsAreValid_ << "\n";
+  LogDebug("TrackToTrackValidator") << " requireValidHLTPaths_ " << requireValidHLTPaths_  << " hltPathsAreValid_  " << hltPathsAreValid_ << "\n";
   // if valid HLT paths are required,
   // analyze event only if paths are valid
   if (requireValidHLTPaths_ and (not hltPathsAreValid_)) {
     return;
   }
 
-  edm::LogInfo("TrackToTrackValidator") << " genTriggerEventFlag_->on() " << genTriggerEventFlag_->on()  << "   " << genTriggerEventFlag_->accept(iEvent, iSetup) << "\n";
+  LogDebug("TrackToTrackValidator") << " genTriggerEventFlag_->on() " << genTriggerEventFlag_->on()  << "  accept:  " << genTriggerEventFlag_->accept(iEvent, iSetup) << "\n";
   // Filter out events if Trigger Filtering is requested
   if (genTriggerEventFlag_->on() && !genTriggerEventFlag_->accept(iEvent, iSetup)) {
     return;
@@ -127,12 +130,15 @@ TrackToTrackValidator::analyze(const edm::Event& iEvent, const edm::EventSetup& 
   //
   // loop over reference tracks
   //
-  edm::LogInfo("TrackToTrackValidator") << "\n# of tracks (reference): " << referenceTracks.size() << "\n";
+  LogDebug("TrackToTrackValidator") << "\n# of tracks (reference): " << referenceTracks.size() << "\n";
   for (idx2idxByDoubleColl::const_iterator pItr = reference2monitoredColl.begin(), eItr = reference2monitoredColl.end(); pItr != eItr; ++pItr) {
     
     nReferenceTracks++;       
     int trackIdx = pItr->first;
     reco::Track track = referenceTracks.at(trackIdx);
+
+    float dzWRTpv  = track.dz(referencePV.position());
+    if(fabs(dzWRTpv) > dzWRTPvCut_) continue;
 
     fill_generic_tracks_histos(*&referenceTracksMEs_,&track,&referenceBS,&referencePV);
     
@@ -166,12 +172,15 @@ TrackToTrackValidator::analyze(const edm::Event& iEvent, const edm::EventSetup& 
   //
   // loop over monitoed tracks
   //
-  edm::LogInfo("TrackToTrackValidator") << "\n# of tracks (monitored): " << monitoredTracks.size() << "\n";
+  LogDebug("TrackToTrackValidator") << "\n# of tracks (monitored): " << monitoredTracks.size() << "\n";
   for (idx2idxByDoubleColl::const_iterator pItr = monitored2referenceColl.begin(), eItr = monitored2referenceColl.end(); pItr != eItr; ++pItr) {
     
     nMonitoredTracks++;   
     int trackIdx = pItr->first;
     reco::Track track = monitoredTracks.at(trackIdx);
+
+    float dzWRTpv  = track.dz(monitoredPV.position());
+    if(fabs(dzWRTpv) > dzWRTPvCut_) continue;
 
     fill_generic_tracks_histos(*&monitoredTracksMEs_,&track,&monitoredBS,&monitoredPV);
 
@@ -255,6 +264,10 @@ TrackToTrackValidator::fillDescriptions(edm::ConfigurationDescriptions& descript
 
   desc.add<std::string>("topDirName",               "HLT/Tracking/ValidationWRTOffline");
   desc.add<double>("dRmin", 0.002);
+
+  desc.add<double>("pTCutForPlateau",  0.9);
+  desc.add<double>("dxyCutForPlateau", 2.5);
+  desc.add<double>("dzWRTPvCut",       1e6);
 
   edm::ParameterSetDescription genericTriggerEventPSet;
   genericTriggerEventPSet.add<bool>("andOr", false);
@@ -372,7 +385,7 @@ TrackToTrackValidator::book_matching_tracks_histos(DQMStore::IBooker & ibooker, 
 
 
 void
-TrackToTrackValidator::fill_generic_tracks_histos(generalME& mes, reco::Track* trk, reco::BeamSpot* bs, reco::Vertex* pv) {
+TrackToTrackValidator::fill_generic_tracks_histos(generalME& mes, reco::Track* trk, reco::BeamSpot* bs, reco::Vertex* pv, bool requirePlateau) {
 
   float pt       = trk->pt();
   float eta      = trk->eta();
@@ -384,18 +397,28 @@ TrackToTrackValidator::fill_generic_tracks_histos(generalME& mes, reco::Track* t
   float charge   = trk->charge();
   float nhits    = trk->hitPattern().numberOfValidHits();
 
-  (mes.h_pt      ) -> Fill(pt);
-  (mes.h_eta     ) -> Fill(eta);
-  (mes.h_phi     ) -> Fill(phi);
-  (mes.h_dxy     ) -> Fill(dxy);
-  (mes.h_dz      ) -> Fill(dz);
-  (mes.h_dxyWRTpv) -> Fill(dxyWRTpv);
-  (mes.h_dzWRTpv ) -> Fill(dzWRTpv);
-  (mes.h_charge  ) -> Fill(charge);
-  (mes.h_hits    ) -> Fill(nhits);
+  bool dxyOnPlateau = (fabs(dxyWRTpv) < dxyCutForPlateau_);
+  bool pTOnPlateau  = (pt > pTCutForPlateau_);
+
+  if(dxyOnPlateau || !requirePlateau){
+    (mes.h_pt      ) -> Fill(pt);
+  }
+
+  if( (pTOnPlateau && dxyOnPlateau) || !requirePlateau){
+    (mes.h_eta     ) -> Fill(eta);
+    (mes.h_phi     ) -> Fill(phi);
+    (mes.h_dz      ) -> Fill(dz);
+    (mes.h_dzWRTpv ) -> Fill(dzWRTpv);
+    (mes.h_charge  ) -> Fill(charge);
+    (mes.h_hits    ) -> Fill(nhits);
+  }
+
+  if(pTOnPlateau || !requirePlateau){
+    (mes.h_dxy     ) -> Fill(dxy);
+    (mes.h_dxyWRTpv) -> Fill(dxyWRTpv);
+  }
 
   (mes.h_pt_vs_eta) -> Fill(eta,pt);
-  
 }
 
 void
