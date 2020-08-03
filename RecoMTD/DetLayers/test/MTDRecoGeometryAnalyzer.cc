@@ -211,10 +211,14 @@ void MTDRecoGeometryAnalyzer::testETLLayers(const MTDDetLayerGeometry* geo, cons
 void MTDRecoGeometryAnalyzer::testETLLayersNew(const MTDDetLayerGeometry* geo, const MagneticField* field) {
   const vector<const DetLayer*>& layers = geo->allETLLayers();
 
+  // dump of ETL layers structure
+
   for (auto ilay = layers.begin(); ilay != layers.end(); ++ilay) {
     const MTDSectorForwardDoubleLayer* layer = (const MTDSectorForwardDoubleLayer*)(*ilay);
 
-    LogVerbatim("MTDLayerDump") << "\nETL layer " << layer->subDetector() << " sectors = " << layer->sectors().size()
+    LogVerbatim("MTDLayerDump") << "\nETL layer " << layer->subDetector()
+                                << " at z = " << layer->surface().position().z()
+                                << " sectors = " << layer->sectors().size()
                                 << " dets = " << layer->basicComponents().size()
                                 << " front dets = " << layer->frontLayer()->basicComponents().size()
                                 << " back dets = " << layer->backLayer()->basicComponents().size();
@@ -222,17 +226,23 @@ void MTDRecoGeometryAnalyzer::testETLLayersNew(const MTDDetLayerGeometry* geo, c
     unsigned int isectInd(0);
     for (const auto& isector : layer->sectors()) {
       isectInd++;
-      LogVerbatim("MTDLayerDump") << "Sector " << isectInd << " pos = " << isector->specificSurface().position()
+      LogVerbatim("MTDLayerDump") << "\nSector " << isectInd << " pos = " << isector->specificSurface().position()
                                   << " rmin = " << isector->specificSurface().innerRadius()
                                   << " rmax = " << isector->specificSurface().outerRadius()
                                   << " phi/2 = " << isector->specificSurface().phiHalfExtension();
       for (const auto& imod : isector->basicComponents()) {
         ETLDetId modId(imod->geographicalId().rawId());
-        LogVerbatim("MTDLayerDump") << modId << " side = " << modId.mtdSide() << " Disc/Side/Sector = " << modId.nDisc()
-                                    << " " << modId.discSide() << " " << modId.sector()
-                                    << " mod/type = " << modId.module() << " " << modId.modType();
+        LogVerbatim("MTDLayerDump") << "ETLDetId " << modId.rawId() << " side = " << modId.mtdSide()
+                                    << " Disc/Side/Sector = " << modId.nDisc() << " " << modId.discSide() << " "
+                                    << modId.sector() << " mod/type = " << modId.module() << " " << modId.modType();
       }
     }
+  }
+
+  // test propagation through layers
+
+  for (auto ilay = layers.begin(); ilay != layers.end(); ++ilay) {
+    const MTDSectorForwardDoubleLayer* layer = (const MTDSectorForwardDoubleLayer*)(*ilay);
 
     const BoundDisk& disk = layer->specificSurface();
 
@@ -249,32 +259,30 @@ void MTDRecoGeometryAnalyzer::testETLLayersNew(const MTDDetLayerGeometry* geo, c
 
     GlobalTrajectoryParameters gtp(gp, gv, charge, field);
     TrajectoryStateOnSurface tsos(gtp, disk);
-    LogVerbatim("MTDLayerDump") << "\ntestETLLayers: at " << tsos.globalPosition()
-                                << " R=" << tsos.globalPosition().perp() << " phi=" << tsos.globalPosition().phi()
-                                << " Z=" << tsos.globalPosition().z() << " p = " << tsos.globalMomentum();
+    LogInfo("MTDLayerDump") << "\ntestETLLayers: at " << tsos.globalPosition() << " R=" << tsos.globalPosition().perp()
+                            << " phi=" << tsos.globalPosition().phi() << " Z=" << tsos.globalPosition().z()
+                            << " p = " << tsos.globalMomentum();
 
     SteppingHelixPropagator prop(field, anyDirection);
 
     pair<bool, TrajectoryStateOnSurface> comp = layer->compatible(tsos, prop, *theEstimator);
-    LogVerbatim("MTDLayerDump") << "is compatible: " << comp.first << " at: R=" << comp.second.globalPosition().perp()
-                                << " phi=" << comp.second.globalPosition().phi()
-                                << " Z=" << comp.second.globalPosition().z();
+    LogInfo("MTDLayerDump") << "is compatible: " << comp.first << " at: R=" << comp.second.globalPosition().perp()
+                            << " phi=" << comp.second.globalPosition().phi()
+                            << " Z=" << comp.second.globalPosition().z();
 
     vector<DetLayer::DetWithState> compDets = layer->compatibleDets(tsos, prop, *theEstimator);
     if (compDets.size()) {
-      LogVerbatim("MTDLayerDump") << "compatibleDets: " << compDets.size() << "\n"
-                                  << "  final state pos: " << compDets.front().second.globalPosition() << "\n"
-                                  << "  det         pos: " << compDets.front().first->position() << " id: " << std::hex
-                                  << ETLDetId(compDets.front().first->geographicalId().rawId()).rawId() << std::dec
-                                  << "\n"
-                                  << "  distance "
-                                  << (tsos.globalPosition() - compDets.front().first->position()).mag();
+      LogInfo("MTDLayerDump") << "compatibleDets: " << compDets.size() << "\n"
+                              << "  final state pos: " << compDets.front().second.globalPosition() << "\n"
+                              << "  det         pos: " << compDets.front().first->position() << " id: " << std::hex
+                              << ETLDetId(compDets.front().first->geographicalId().rawId()).rawId() << std::dec << "\n"
+                              << "  distance " << (tsos.globalPosition() - compDets.front().first->position()).mag();
     } else {
       if (layer->isCrack(gp)) {
-        LogVerbatim("MTDLayerDump") << " MTD crack found ";
+        LogInfo("MTDLayerDump") << " MTD crack found ";
       } else {
-        LogVerbatim("MTDLayerDump") << " ERROR : no compatible det found in MTD"
-                                    << " at: R=" << gp.perp() << " phi= " << gp.phi().degrees() << " Z= " << gp.z();
+        LogInfo("MTDLayerDump") << " ERROR : no compatible det found in MTD"
+                                << " at: R=" << gp.perp() << " phi= " << gp.phi().degrees() << " Z= " << gp.z();
       }
     }
   }
