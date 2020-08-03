@@ -10,7 +10,7 @@
  Description: Convenience Functions to Combine Hash Values
 
  Based on http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n3876.pdf
- Combimation algorithm is the same as boost::hash_combine
+ Combination algorithm is the same as boost::hash_combine
 
  Usage:
     <usage>
