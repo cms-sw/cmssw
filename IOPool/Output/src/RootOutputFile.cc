@@ -671,6 +671,7 @@ namespace edm {
         // Fill EventAuxiliary branch
         b->Fill();
       }
+      eventTree_.setEntries();
     }
   }
 
