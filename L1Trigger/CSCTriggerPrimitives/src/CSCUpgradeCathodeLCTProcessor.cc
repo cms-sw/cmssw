@@ -283,9 +283,9 @@ std::vector<CSCCLCTDigi> CSCUpgradeCathodeLCTProcessor::findLCTs(
             best_quality[1] = quality[hstrip];
             if (infoV > 1) {
               LogTrace("CSCUpgradeCathodeLCTProcessor")
-                << " 2nd CLCT: halfstrip = " << std::setw(3) << hstrip << " quality = " << std::setw(3)
-                << quality[hstrip] << " best halfstrip = " << std::setw(3) << best_halfstrip[1]
-                << " best quality = " << std::setw(3) << best_quality[1];
+                  << " 2nd CLCT: halfstrip = " << std::setw(3) << hstrip << " quality = " << std::setw(3)
+                  << quality[hstrip] << " best halfstrip = " << std::setw(3) << best_halfstrip[1]
+                  << " best quality = " << std::setw(3) << best_quality[1];
             }
           }
         }
