@@ -186,8 +186,10 @@ void CSCCathodeLCTProcessor::checkConfigParameters() {
 void CSCCathodeLCTProcessor::clear() {
   thePreTriggerDigis.clear();
   thePreTriggerBXs.clear();
-  CLCTContainer_.clear();
-  CLCTContainer_.resize(CSCConstants::MAX_CLCT_TBINS);
+  for (int bx = 0; bx < CSCConstants::MAX_CLCT_TBINS; bx++) {
+    bestCLCT[bx].clear();
+    secondCLCT[bx].clear();
+  }
 }
 
 std::vector<CSCCLCTDigi> CSCCathodeLCTProcessor::run(const CSCComparatorDigiCollection* compdc) {
@@ -331,10 +333,6 @@ void CSCCathodeLCTProcessor::run(
     sort(CLCTlist.begin(), CLCTlist.end(), std::greater<CSCCLCTDigi>());
 
   for (const auto& p : CLCTlist) {
-    // only consider valid CLCTs
-    if (!p.isValid())
-      continue;
-
     const int bx = p.getBX();
     if (bx >= CSCConstants::MAX_CLCT_TBINS) {
       if (infoV > 0)
@@ -344,25 +342,37 @@ void CSCCathodeLCTProcessor::run(
       continue;
     }
 
-    CLCTContainer_.at(bx).push_back(p);
+    if (!bestCLCT[bx].isValid()) {
+      bestCLCT[bx] = p;
+    } else if (!secondCLCT[bx].isValid()) {
+      secondCLCT[bx] = p;
+    }
   }
 
   for (int bx = 0; bx < CSCConstants::MAX_CLCT_TBINS; bx++) {
-    for (unsigned iCLCT = 0; iCLCT < CLCTContainer_.at(bx).size(); iCLCT++) {
-      // only consider valid CLCTs
-      if (CLCTContainer_.at(bx).at(iCLCT).isValid()) {
-        CLCTContainer_.at(bx).at(iCLCT).setTrknmb(iCLCT + 1);
+    if (bestCLCT[bx].isValid()) {
+      bestCLCT[bx].setTrknmb(1);
 
-        // check if the LCT is valid
-        checkValid(CLCTContainer_.at(bx).at(iCLCT));
+      // check if the LCT is valid
+      checkValid(bestCLCT[bx]);
 
-        if (infoV > 0) {
-          LogDebug("CSCCathodeLCTProcessor")
-              << CLCTContainer_.at(bx).at(iCLCT) << " found in " << theCSCName_ << " (sector " << theSector
-              << " subsector " << theSubsector << " trig id. " << theTrigChamber << ")"
-              << "\n";
-        }
-      }
+      if (infoV > 0)
+        LogDebug("CSCCathodeLCTProcessor")
+            << bestCLCT[bx] << " found in " << CSCDetId::chamberName(theEndcap, theStation, theRing, theChamber)
+            << " (sector " << theSector << " subsector " << theSubsector << " trig id. " << theTrigChamber << ")"
+            << "\n";
+    }
+    if (secondCLCT[bx].isValid()) {
+      secondCLCT[bx].setTrknmb(2);
+
+      // check if the LCT is valid
+      checkValid(secondCLCT[bx]);
+
+      if (infoV > 0)
+        LogDebug("CSCCathodeLCTProcessor")
+            << secondCLCT[bx] << " found in " << CSCDetId::chamberName(theEndcap, theStation, theRing, theChamber)
+            << " (sector " << theSector << " subsector " << theSubsector << " trig id. " << theTrigChamber << ")"
+            << "\n";
     }
   }
   // Now that we have our best CLCTs, they get correlated with the best
@@ -610,24 +620,23 @@ std::vector<CSCCLCTDigi> CSCCathodeLCTProcessor::findLCTs(
         }
       }
 
-      // If 1st best CLCT is found, look for other CLCTs!
+      // If 1st best CLCT is found, look for the 2nd best.
       if (best_halfstrip[0] >= 0) {
-        for (int ilct = 1; ilct < CSCConstants::MAX_CLCTS_PER_PROCESSOR; ilct++) {
-          // Mark keys near best CLCT as busy by setting their quality to zero, and repeat the search.
-          markBusyKeys(best_halfstrip[ilct - 1], best_pid[best_halfstrip[ilct - 1]], quality);
+        // Mark keys near best CLCT as busy by setting their quality to
+        // zero, and repeat the search.
+        markBusyKeys(best_halfstrip[0], best_pid[best_halfstrip[0]], quality);
 
-          for (int hstrip = stagger[CSCConstants::KEY_CLCT_LAYER - 1]; hstrip < maxHalfStrips; hstrip++) {
-            if (quality[hstrip] > best_quality[ilct]) {
-              best_halfstrip[ilct] = hstrip;
-              best_quality[ilct] = quality[hstrip];
-            }
-            if (infoV > 1 && quality[hstrip] > 0) {
-              LogTrace("CSCCathodeLCTProcessor")
-                  << "CLCT " << ilct + 1 << ": halfstrip = " << std::setw(3) << hstrip << " quality = " << std::setw(3)
-                  << quality[hstrip] << " nhits = " << std::setw(3) << nhits[hstrip] << " pid = " << std::setw(3)
-                  << best_pid[hstrip] << " best halfstrip = " << std::setw(3) << best_halfstrip[1]
-                  << " best quality = " << std::setw(3) << best_quality[1];
-            }
+        for (int hstrip = stagger[CSCConstants::KEY_CLCT_LAYER - 1]; hstrip < maxHalfStrips; hstrip++) {
+          if (quality[hstrip] > best_quality[1]) {
+            best_halfstrip[1] = hstrip;
+            best_quality[1] = quality[hstrip];
+          }
+          if (infoV > 1 && quality[hstrip] > 0) {
+            LogTrace("CSCCathodeLCTProcessor")
+                << " 2nd CLCT: halfstrip = " << std::setw(3) << hstrip << " quality = " << std::setw(3)
+                << quality[hstrip] << " nhits = " << std::setw(3) << nhits[hstrip] << " pid = " << std::setw(3)
+                << best_pid[hstrip] << " best halfstrip = " << std::setw(3) << best_halfstrip[1]
+                << " best quality = " << std::setw(3) << best_quality[1];
           }
         }
 
@@ -644,8 +653,14 @@ std::vector<CSCCLCTDigi> CSCCathodeLCTProcessor::findLCTs(
             keystrip_data[ilct][CLCT_STRIP_TYPE] = 1;  // obsolete
             keystrip_data[ilct][CLCT_QUALITY] = nhits[best_hs];
             keystrip_data[ilct][CLCT_CFEB] = keystrip_data[ilct][CLCT_STRIP] / CSCConstants::NUM_HALF_STRIPS_PER_CFEB;
-            const uint16_t halfstrip_in_cfeb = keystrip_data[ilct][CLCT_STRIP] -
-                                               CSCConstants::NUM_HALF_STRIPS_PER_CFEB * keystrip_data[ilct][CLCT_CFEB];
+            int halfstrip_in_cfeb = keystrip_data[ilct][CLCT_STRIP] -
+                                    CSCConstants::NUM_HALF_STRIPS_PER_CFEB * keystrip_data[ilct][CLCT_CFEB];
+
+            if (infoV > 1)
+              LogTrace("CSCCathodeLCTProcessor")
+                  << " Final selection: ilct " << ilct << " key halfstrip " << keystrip_data[ilct][CLCT_STRIP]
+                  << " quality " << keystrip_data[ilct][CLCT_QUALITY] << " pattern "
+                  << keystrip_data[ilct][CLCT_PATTERN] << " bx " << keystrip_data[ilct][CLCT_BX];
 
             CSCCLCTDigi thisLCT(1,
                                 keystrip_data[ilct][CLCT_QUALITY],
@@ -1241,11 +1256,6 @@ std::vector<CSCCLCTDigi> CSCCathodeLCTProcessor::readoutCLCTs(int nMaxCLCTs) con
       tmpV.push_back(p);
   }
 
-  // remove the CLCTs with an index larger than nMaxCLCTs
-  if (tmpV.size() > unsigned(nMaxCLCTs)) {
-    tmpV.erase(tmpV.begin() + nMaxCLCTs, tmpV.end());
-  }
-
   // do a final check on the CLCTs in readout
   for (const auto& clct : tmpV) {
     checkValid(clct, nMaxCLCTs);
@@ -1306,11 +1316,10 @@ std::vector<CSCCLCTPreTriggerDigi> CSCCathodeLCTProcessor::preTriggerDigisME1b()
 std::vector<CSCCLCTDigi> CSCCathodeLCTProcessor::getCLCTs(unsigned nMaxCLCTs) const {
   std::vector<CSCCLCTDigi> tmpV;
   for (int bx = 0; bx < CSCConstants::MAX_CLCT_TBINS; bx++) {
-    for (unsigned iCLCT = 0; iCLCT < CLCTContainer_.at(bx).size(); iCLCT++) {
-      if (iCLCT < nMaxCLCTs and CLCTContainer_.at(bx).at(iCLCT).isValid()) {
-        tmpV.push_back(CLCTContainer_.at(bx).at(iCLCT));
-      }
-    }
+    if (bestCLCT[bx].isValid())
+      tmpV.push_back(bestCLCT[bx]);
+    if (secondCLCT[bx].isValid())
+      tmpV.push_back(secondCLCT[bx]);
   }
   return tmpV;
 }
@@ -1321,21 +1330,13 @@ std::vector<CSCCLCTDigi> CSCCathodeLCTProcessor::getCLCTs(unsigned nMaxCLCTs) co
 // to make a proper comparison with ALCTs we need
 // CLCT and ALCT to have the central BX in the same bin
 CSCCLCTDigi CSCCathodeLCTProcessor::getBestCLCT(int bx) const {
-  CSCCLCTDigi lct;
-  // check that the container has at least one entry
-  if (!CLCTContainer_.at(bx).empty()) {
-    lct = CLCTContainer_.at(bx).at(0);
-    lct.setBX(lct.getBX() + alctClctOffset_);
-  }
+  CSCCLCTDigi lct = bestCLCT[bx];
+  lct.setBX(lct.getBX() + alctClctOffset_);
   return lct;
 }
 
 CSCCLCTDigi CSCCathodeLCTProcessor::getSecondCLCT(int bx) const {
-  CSCCLCTDigi lct;
-  // check that the container has at least two entries
-  if (CLCTContainer_.at(bx).size() >= 2) {
-    lct = CLCTContainer_.at(bx).at(1);
-    lct.setBX(lct.getBX() + alctClctOffset_);
-  }
+  CSCCLCTDigi lct = secondCLCT[bx];
+  lct.setBX(lct.getBX() + alctClctOffset_);
   return lct;
 }
