@@ -17,13 +17,12 @@
 #include "RecoLocalCalo/HGCalRecAlgos/interface/RecHitTools.h"
 
 using namespace ticl;
-using namespace edm;
 
 struct Histogram_TICLTrackstersValidation {
   dqm::reco::MonitorElement* energy_;
 };
 
-using Histograms_TICLTrackstersValidation = std::unordered_map<int, Histogram_TICLTrackstersValidation>;
+using Histograms_TICLTrackstersValidation = std::unordered_map<unsigned int, Histogram_TICLTrackstersValidation>;
 
 class TICLTrackstersValidation : public DQMGlobalEDAnalyzer<Histograms_TICLTrackstersValidation> {
 public:
@@ -42,6 +41,7 @@ private:
   void dqmBeginRun(edm::Run const&, edm::EventSetup const&, Histograms_TICLTrackstersValidation&);
 
   std::string folder_;
+  std::vector<std::string> trackstersCollectionsNames_;
   std::vector<edm::EDGetTokenT<std::vector<Trackster>>> tracksterTokens_;
   edm::EDGetTokenT<std::vector<reco::CaloCluster>> layerClustersToken_;
   hgcal::RecHitTools rhtools_;
@@ -49,9 +49,12 @@ private:
 
 TICLTrackstersValidation::TICLTrackstersValidation(const edm::ParameterSet& iConfig)
     : folder_(iConfig.getParameter<std::string>("folder")) {
-  tracksterTokens_ =
-      edm::vector_transform(iConfig.getParameter<std::vector<edm::InputTag>>("tracksterCollections"),
-                            [this](edm::InputTag const& tag) { return consumes<std::vector<Trackster>>(tag); });
+  tracksterTokens_ = edm::vector_transform(iConfig.getParameter<std::vector<edm::InputTag>>("tracksterCollections"),
+                                           [this](edm::InputTag const& tag) {
+                                             trackstersCollectionsNames_.emplace_back(tag.label());
+                                             return consumes<std::vector<Trackster>>(tag);
+                                           });
+
   layerClustersToken_ = consumes<std::vector<reco::CaloCluster>>(iConfig.getParameter<edm::InputTag>("layerClusters"));
 }
 
@@ -63,13 +66,15 @@ void TICLTrackstersValidation::dqmAnalyze(edm::Event const& iEvent,
   edm::Handle<std::vector<reco::CaloCluster>> layerClustersH;
   iEvent.getByToken(layerClustersToken_, layerClustersH);
   auto const& layerClusters = *layerClustersH.product();
-  for (auto& trackster_token : tracksterTokens_) {
+  for (const auto& trackster_token : tracksterTokens_) {
     edm::Handle<std::vector<Trackster>> trackster_h;
     iEvent.getByToken(trackster_token, trackster_h);
     auto numberOfTracksters = trackster_h->size();
-
-    for (size_t i = 0; i < numberOfTracksters; ++i) {
-      auto const& trackster = (*trackster_h)[i];
+    //using .at() as [] is not const
+    const auto& histo = histos.at(trackster_token.index());
+    for (unsigned int i = 0; i < numberOfTracksters; ++i) {
+      const auto& thisTrackster = trackster_h->at(i);
+      histo.energy_->Fill(thisTrackster.regressed_energy());
     }
   }
 }
@@ -78,7 +83,14 @@ void TICLTrackstersValidation::bookHistograms(DQMStore::IBooker& ibook,
                                               edm::Run const& run,
                                               edm::EventSetup const& iSetup,
                                               Histograms_TICLTrackstersValidation& histos) const {
-  ibook.setCurrentFolder(folder_ + "TICLTracksters/");
+  int labelIndex = 0;
+  for (const auto& trackster_token : tracksterTokens_) {
+    auto& histo = histos[trackster_token.index()];
+    ibook.setCurrentFolder(folder_ + "TICLTracksters/" + trackstersCollectionsNames_[labelIndex]);
+    histo.energy_ = ibook.book1D("Regressed Energy", "Energy", 250, 0., 250.);
+
+    labelIndex++;
+  }
 }
 
 void TICLTrackstersValidation::dqmBeginRun(edm::Run const& run,
@@ -95,6 +107,7 @@ void TICLTrackstersValidation::fillDescriptions(edm::ConfigurationDescriptions& 
                                            edm::InputTag("ticlTrackstersHAD"),
                                            edm::InputTag("ticlTrackstersMerge")};
   desc.add<std::vector<edm::InputTag>>("tracksterCollections", source_vector);
+  desc.add<edm::InputTag>("layerClusters", edm::InputTag("hgcalLayerClusters"));
   desc.add<std::string>("folder", "HGCAL/");
   descriptions.add("ticlTrackstersValidationDefault", desc);
 }
