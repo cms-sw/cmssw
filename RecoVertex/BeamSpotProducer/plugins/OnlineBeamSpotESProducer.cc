@@ -6,7 +6,6 @@
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
 #include "CondFormats/DataRecord/interface/BeamSpotObjectsRcd.h"
-//#include "CondFormats/BeamSpotObjects/interface/BeamSpotObjects.h"
 #include "CondFormats/BeamSpotObjects/interface/BeamSpotOnlineObjects.h"
 #include "CondFormats/DataRecord/interface/BeamSpotOnlineLegacyObjectsRcd.h"
 #include "CondFormats/DataRecord/interface/BeamSpotOnlineHLTObjectsRcd.h"
@@ -79,9 +78,6 @@ std::shared_ptr<const BeamSpotObjects> OnlineBeamSpotESProducer::produce(const B
   auto hltRec = iRecord.tryToGetRecord<BeamSpotOnlineHLTObjectsRcd>();
   if (not legacyRec and not hltRec) {
     return std::shared_ptr<const BeamSpotObjects>(&fakeBS_, edm::do_nothing_deleter());
-    //return fakeBS_;
-    // or copy in case 'const BeamSpotObjects fakeBS_' member would not be preferred
-    //return std::make_shared<BeamSpotObjects>(fakeBS_);
   }
 
   const BeamSpotOnlineObjects* best;
