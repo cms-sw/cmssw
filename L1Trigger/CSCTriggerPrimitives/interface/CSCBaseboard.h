@@ -50,6 +50,7 @@ protected:
 
   // is this an ME11 chamber?
   bool isME11_;
+  bool isME21_;
 
   // CSCDetId for this chamber
   CSCDetId cscId_;
