@@ -86,21 +86,21 @@ private:
 
 AlCaGammaJetProducer::AlCaGammaJetProducer(const edm::ParameterSet& iConfig) {
   // Take input
-  auto labelPhoton_ = iConfig.getParameter<edm::InputTag>("PhoInput");
-  auto labelPFJet_ = iConfig.getParameter<edm::InputTag>("PFjetInput");
-  auto labelHBHE_ = iConfig.getParameter<edm::InputTag>("HBHEInput");
-  auto labelHF_ = iConfig.getParameter<edm::InputTag>("HFInput");
-  auto labelHO_ = iConfig.getParameter<edm::InputTag>("HOInput");
-  auto labelTrigger_ = iConfig.getParameter<edm::InputTag>("TriggerResults");
-  auto labelPFCandidate_ = iConfig.getParameter<edm::InputTag>("particleFlowInput");
-  auto labelVertex_ = iConfig.getParameter<edm::InputTag>("VertexInput");
-  auto labelPFMET_ = iConfig.getParameter<edm::InputTag>("METInput");
-  auto labelGsfEle_ = iConfig.getParameter<edm::InputTag>("gsfeleInput");
-  auto labelRho_ = iConfig.getParameter<edm::InputTag>("rhoInput");
-  auto labelConv_ = iConfig.getParameter<edm::InputTag>("ConversionsInput");
-  auto labelBeamSpot_ = iConfig.getParameter<edm::InputTag>("BeamSpotInput");
-  auto labelLoosePhot_ = iConfig.getParameter<edm::InputTag>("PhoLoose");
-  auto labelTightPhot_ = iConfig.getParameter<edm::InputTag>("PhoTight");
+  labelPhoton_ = iConfig.getParameter<edm::InputTag>("PhoInput");
+  labelPFJet_ = iConfig.getParameter<edm::InputTag>("PFjetInput");
+  labelHBHE_ = iConfig.getParameter<edm::InputTag>("HBHEInput");
+  labelHF_ = iConfig.getParameter<edm::InputTag>("HFInput");
+  labelHO_ = iConfig.getParameter<edm::InputTag>("HOInput");
+  labelTrigger_ = iConfig.getParameter<edm::InputTag>("TriggerResults");
+  labelPFCandidate_ = iConfig.getParameter<edm::InputTag>("particleFlowInput");
+  labelVertex_ = iConfig.getParameter<edm::InputTag>("VertexInput");
+  labelPFMET_ = iConfig.getParameter<edm::InputTag>("METInput");
+  labelGsfEle_ = iConfig.getParameter<edm::InputTag>("gsfeleInput");
+  labelRho_ = iConfig.getParameter<edm::InputTag>("rhoInput");
+  labelConv_ = iConfig.getParameter<edm::InputTag>("ConversionsInput");
+  labelBeamSpot_ = iConfig.getParameter<edm::InputTag>("BeamSpotInput");
+  labelLoosePhot_ = iConfig.getParameter<edm::InputTag>("PhoLoose");
+  labelTightPhot_ = iConfig.getParameter<edm::InputTag>("PhoTight");
   minPtJet_ = iConfig.getParameter<double>("MinPtJet");
   minPtPhoton_ = iConfig.getParameter<double>("MinPtPhoton");
 
