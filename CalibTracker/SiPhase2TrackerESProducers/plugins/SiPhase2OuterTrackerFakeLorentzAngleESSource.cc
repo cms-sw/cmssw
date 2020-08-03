@@ -49,7 +49,7 @@ namespace fakeOTLA {
   std::unique_ptr<T> produceRecord(const float value, const GeometricDet& geomDet) {
     using namespace edm::es;
     T* obj = new T();
-    for (const auto detId : TrackerGeometryUtils::getSiStripDetIds(geomDet)) {
+    for (const auto detId : TrackerGeometryUtils::getOuterTrackerDetIds(geomDet)) {
       const DetId detectorId = DetId(detId);
       const int subDet = detectorId.subdetId();
       if (detectorId.det() == DetId::Detector::Tracker) {
