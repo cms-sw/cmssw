@@ -183,6 +183,11 @@ class MatrixReader(object):
             wfName = wfInfo[0]
             stepList = wfInfo[1]
             stepOverrides=wfInfo.overrides
+            # upgrade case: special workflow has basic name and then suffix
+            wfSuffix = ""
+            if isinstance(wfName, list) and len(wfName)>1:
+                wfSuffix = wfName[1]
+                wfName = wfName[0]
             # if no explicit name given for the workflow, use the name of step1
             if wfName.strip() == '': wfName = stepList[0]
             # option to specialize the wf as the third item in the WF list
@@ -199,6 +204,8 @@ class MatrixReader(object):
                         addTo.append(0)
 
             name=wfName
+            # separate suffix by + because show() excludes first part of name
+            if len(wfSuffix)>0: name = name+'+'+wfSuffix[1:]
             stepIndex=0
             ranStepList=[]
 
@@ -249,8 +256,10 @@ class MatrixReader(object):
                         stepName = step+"INPUT"
                         stepList.remove(step)
                         stepList.insert(stepIndex,stepName)
-                """    
-                name += stepName
+                """
+                stepNameTmp = stepName
+                if len(wfSuffix)>0: stepNameTmp = stepName.replace(wfSuffix,"")
+                name += stepNameTmp
                 if addCom and (not addTo or addTo[stepIndex]==1):
                     from Configuration.PyReleaseValidation.relval_steps import merge
                     copyStep=merge(addCom+[self.makeStep(self.relvalModule.steps[stepName],stepOverrides)])
