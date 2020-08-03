@@ -36,6 +36,7 @@
 #include "DataFormats/HcalDetId/interface/HcalGenericDetId.h"
 #include "DataFormats/HcalDigi/interface/HcalDigiCollections.h"
 #include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"
+#include "DataFormats/HcalRecHit/interface/CaloRecHitAuxSetter.h"
 #include "DataFormats/METReco/interface/HcalPhase1FlagLabels.h"
 
 #include "CalibFormats/HcalObjects/interface/HcalDbService.h"
@@ -242,6 +243,39 @@ namespace {
         psPulseShape.getParameter<bool>("TriangleIgnoreSlow"),
         setLegacyFlags);
   }
+
+  // Determine array index shift so that a partial copy
+  // of an array maps index "soi" into index "soiWanted"
+  // under the constraint that there must be no out of
+  // bounds access.
+  const int determineIndexShift(const int soi, const int nRead, const int soiWanted, const int nReadWanted) {
+    assert(nReadWanted <= nRead);
+    if (soi < 0 || soi >= nRead)
+      return 0;
+    else
+      return std::clamp(soi - soiWanted, 0, nRead - nReadWanted);
+  }
+
+  // Function for packing TDC data from the QIE11 data frame.
+  // We want to pack five 6-bit TDC counts so that the soi
+  // falls on index 3.
+  uint32_t packTDCData(const QIE11DataFrame& frame, const int soi) {
+    using namespace CaloRecHitAuxSetter;
+
+    const unsigned six_bits_mask = 0x3f;
+    const int soiWanted = 3;
+    const int nRead = frame.size();
+    const int nTSToCopy = std::min(5, nRead);
+    const int tsShift = determineIndexShift(soi, nRead, soiWanted, nTSToCopy);
+
+    uint32_t packed = 0;
+    for (int ts = 0; ts < nTSToCopy; ++ts)
+      setField(&packed, six_bits_mask, ts * 6, frame[ts + tsShift].tdc());
+
+    // Set bit 30 indicating presence of TDC values
+    setBit(&packed, 30, true);
+    return packed;
+  }
 }  // namespace
 
 //
@@ -319,11 +353,13 @@ private:
                            const HcalCoder& coder,
                            const HBHEChannelInfo& info,
                            const HcalCalibrations& calib,
+                           int soi,
                            HBHERecHit* rh);
   void setAsicSpecificBits(const QIE11DataFrame& frame,
                            const HcalCoder& coder,
                            const HBHEChannelInfo& info,
                            const HcalCalibrations& calib,
+                           int soi,
                            HBHERecHit* rh);
   void setCommonStatusBits(const HBHEChannelInfo& info, const HcalCalibrations& calib, HBHERecHit* rh);
 
@@ -494,17 +530,7 @@ void HBHEPhase1Reconstructor::processData(const Collection& coll,
       // and configure the TS shift for filling
       // HBHEChannelInfo from the data frame.
       nTSToCopy = 8;
-      tsShift = soi - soiWanted;
-
-      // Check that the shift will not result in
-      // accessing time slices out of bounds
-      if (tsShift < 0)
-        tsShift = 0;
-      else {
-        const int nExcessTS = nRead - nTSToCopy;
-        if (tsShift > nExcessTS)
-          tsShift = nExcessTS;
-      }
+      tsShift = determineIndexShift(soi, nRead, soiWanted, nTSToCopy);
     }
 
     // Go over time slices and fill the samples
@@ -561,7 +587,7 @@ void HBHEPhase1Reconstructor::processData(const Collection& coll,
         pptr = properties.paramTs;
       HBHERecHit rh = reco_->reconstruct(*channelInfo, pptr, *properties.calib, isRealData);
       if (rh.id().rawId()) {
-        setAsicSpecificBits(frame, coder, *channelInfo, *properties.calib, &rh);
+        setAsicSpecificBits(frame, coder, *channelInfo, *properties.calib, soi, &rh);
         setCommonStatusBits(*channelInfo, *properties.calib, &rh);
         rechits->push_back(rh);
       }
@@ -577,6 +603,7 @@ void HBHEPhase1Reconstructor::setAsicSpecificBits(const HBHEDataFrame& frame,
                                                   const HcalCoder& coder,
                                                   const HBHEChannelInfo& info,
                                                   const HcalCalibrations& calib,
+                                                  int /* soi */,
                                                   HBHERecHit* rh) {
   if (setNoiseFlagsQIE8_)
     hbheFlagSetterQIE8_->rememberHit(*rh);
@@ -586,12 +613,15 @@ void HBHEPhase1Reconstructor::setAsicSpecificBits(const HBHEDataFrame& frame,
 
   if (setNegativeFlagsQIE8_)
     runHBHENegativeEFilter(info, rh);
+
+  rh->setAuxTDC(0U);
 }
 
 void HBHEPhase1Reconstructor::setAsicSpecificBits(const QIE11DataFrame& frame,
                                                   const HcalCoder& coder,
                                                   const HBHEChannelInfo& info,
                                                   const HcalCalibrations& calib,
+                                                  const int soi,
                                                   HBHERecHit* rh) {
   if (setNoiseFlagsQIE11_)
     hbheFlagSetterQIE11_->rememberHit(*rh);
@@ -601,6 +631,8 @@ void HBHEPhase1Reconstructor::setAsicSpecificBits(const QIE11DataFrame& frame,
 
   if (setNegativeFlagsQIE11_)
     runHBHENegativeEFilter(info, rh);
+
+  rh->setAuxTDC(packTDCData(frame, soi));
 }
 
 void HBHEPhase1Reconstructor::runHBHENegativeEFilter(const HBHEChannelInfo& info, HBHERecHit* rh) {
