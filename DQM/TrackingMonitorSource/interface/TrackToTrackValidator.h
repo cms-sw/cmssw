@@ -81,7 +81,7 @@ class TrackToTrackValidator : public DQMEDAnalyzer {
   void book_generic_tracks_histos(DQMStore::IBooker & ibooker, generalME& mes, TString label, std::string & dir);
   void book_matching_tracks_histos(DQMStore::IBooker & ibooker, matchingME& mes, TString label, std::string & dir);
 
-  void fill_generic_tracks_histos(generalME& mes, reco::Track* trk, reco::BeamSpot* bs, reco::Vertex* pv);
+  void fill_generic_tracks_histos(generalME& mes, reco::Track* trk, reco::BeamSpot* bs, reco::Vertex* pv, bool requirePlateau = true);
   void fill_matching_tracks_histos(matchingME& mes, reco::Track* mon, reco::Track* ref, reco::BeamSpot* bs, reco::Vertex* pv);
 
   DQMStore* dqmStore_;
@@ -101,7 +101,10 @@ class TrackToTrackValidator : public DQMEDAnalyzer {
   
   //  edm::ParameterSet conf_;
   std::string topDirName_;
-  double dRmin_;
+  double dRmin_; 
+  double pTCutForPlateau_; 
+  double dxyCutForPlateau_; 
+  double dzWRTPvCut_; 
   bool requireValidHLTPaths_;
   bool hltPathsAreValid_ = false;
   std::unique_ptr<GenericTriggerEventFlag> genTriggerEventFlag_;
