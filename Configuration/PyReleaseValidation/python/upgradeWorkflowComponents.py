@@ -138,32 +138,32 @@ class UpgradeWorkflow_baseline(UpgradeWorkflow):
         return True
 upgradeWFs['baseline'] = UpgradeWorkflow_baseline(
     steps =  [
-        'GenSimFull',
-        'GenSimHLBeamSpotFull',
-        'GenSimHLBeamSpotFull14',
-        'DigiFull',
-        'DigiFullTrigger',
-        'RecoFullLocal',
-        'RecoFull',
-        'RecoFullGlobal',
-        'HARVESTFull',
+        'GenSim',
+        'GenSimHLBeamSpot',
+        'GenSimHLBeamSpot14',
+        'Digi',
+        'DigiTrigger',
+        'RecoLocal',
+        'Reco',
+        'RecoGlobal',
+        'HARVEST',
         'FastSim',
         'HARVESTFast',
-        'HARVESTFullGlobal',
-        'ALCAFull',
-        'NanoFull',
-        'MiniAODFullGlobal',
+        'HARVESTGlobal',
+        'ALCA',
+        'Nano',
+        'MiniAOD',
     ],
     PU =  [
-        'DigiFullTrigger',
-        'RecoFullLocal',
-        'RecoFullGlobal',
-        'DigiFull',
-        'RecoFull',
-        'HARVESTFull',
-        'HARVESTFullGlobal',
-        'MiniAODFullGlobal',
-        'NanoFull',
+        'DigiTrigger',
+        'RecoLocal',
+        'RecoGlobal',
+        'Digi',
+        'Reco',
+        'HARVEST',
+        'HARVESTGlobal',
+        'MiniAOD',
+        'Nano',
     ],
     suffix = '',
     offset = 0.0,
@@ -188,10 +188,10 @@ class UpgradeWorkflow_trackingOnly(UpgradeWorkflowTracking):
         elif 'HARVEST' in step: stepDict[stepName][k] = merge([{'-s': 'HARVESTING:@trackingOnlyValidation+@trackingOnlyDQM'}, stepDict[step][k]])
 upgradeWFs['trackingOnly'] = UpgradeWorkflow_trackingOnly(
     steps = [
-        'RecoFull',
-        'HARVESTFull',
-        'RecoFullGlobal',
-        'HARVESTFullGlobal',
+        'Reco',
+        'HARVEST',
+        'RecoGlobal',
+        'HARVESTGlobal',
     ],
     PU = [],
     suffix = '_trackingOnly',
@@ -213,7 +213,7 @@ class UpgradeWorkflow_trackingRun2(UpgradeWorkflowTracking):
         return '2017' in key
 upgradeWFs['trackingRun2'] = UpgradeWorkflow_trackingRun2(
     steps = [
-        'RecoFull',
+        'Reco',
     ],
     PU = [],
     suffix = '_trackingRun2',
@@ -229,8 +229,8 @@ class UpgradeWorkflow_trackingOnlyRun2(UpgradeWorkflowTracking):
         return '2017' in key
 upgradeWFs['trackingOnlyRun2'] = UpgradeWorkflow_trackingOnlyRun2(
     steps = [
-        'RecoFull',
-        'HARVESTFull',
+        'Reco',
+        'HARVEST',
     ],
     PU = [],
     suffix = '_trackingOnlyRun2',
@@ -246,7 +246,7 @@ class UpgradeWorkflow_trackingLowPU(UpgradeWorkflowTracking):
         return '2017' in key
 upgradeWFs['trackingLowPU'] = UpgradeWorkflow_trackingLowPU(
     steps = [
-        'RecoFull',
+        'Reco',
     ],
     PU = [],
     suffix = '_trackingLowPU',
@@ -261,10 +261,10 @@ class UpgradeWorkflow_pixelTrackingOnly(UpgradeWorkflowTracking):
         return '2017' in key or '2018' in key or '2021' in key
 upgradeWFs['pixelTrackingOnly'] = UpgradeWorkflow_pixelTrackingOnly(
     steps = [
-        'RecoFull',
-        'HARVESTFull',
-        'RecoFullGlobal',
-        'HARVESTFullGlobal',
+        'Reco',
+        'HARVEST',
+        'RecoGlobal',
+        'HARVESTGlobal',
     ],
     PU = [],
     suffix = '_pixelTrackingOnly',
@@ -283,8 +283,8 @@ class UpgradeWorkflow_trackingMkFit(UpgradeWorkflowTracking):
         return '2017' in key or '2021' in key
 upgradeWFs['trackingMkFit'] = UpgradeWorkflow_trackingMkFit(
     steps = [
-        'RecoFull',
-        'RecoFullGlobal',
+        'Reco',
+        'RecoGlobal',
     ],
     PU = [],
     suffix = '_trackingMkFit',
@@ -323,10 +323,10 @@ class UpgradeWorkflowPatatrack_PixelOnlyCPU(UpgradeWorkflowPatatrack):
 
 upgradeWFs['PatatrackPixelOnlyCPU'] = UpgradeWorkflowPatatrack_PixelOnlyCPU(
     steps = [
-        'RecoFull',
-        'HARVESTFull',
-        'RecoFullGlobal',
-        'HARVESTFullGlobal',
+        'Reco',
+        'HARVEST',
+        'RecoGlobal',
+        'HARVESTGlobal',
     ],
     PU = [],
     suffix = 'Patatrack_PixelOnlyCPU',
@@ -352,10 +352,10 @@ class UpgradeWorkflowPatatrack_PixelOnlyGPU(UpgradeWorkflowPatatrack):
 
 upgradeWFs['PatatrackPixelOnlyGPU'] = UpgradeWorkflowPatatrack_PixelOnlyGPU(
     steps = [
-        'RecoFull',
-        'HARVESTFull',
-        'RecoFullGlobal',
-        'HARVESTFullGlobal',
+        'Reco',
+        'HARVEST',
+        'RecoGlobal',
+        'HARVESTGlobal',
     ],
     PU = [],
     suffix = 'Patatrack_PixelOnlyGPU',
@@ -381,10 +381,10 @@ class UpgradeWorkflowPatatrack_ECALOnlyCPU(UpgradeWorkflowPatatrack):
 
 upgradeWFs['PatatrackECALOnlyCPU'] = UpgradeWorkflowPatatrack_ECALOnlyCPU(
     steps = [
-        'RecoFull',
-        'HARVESTFull',
-        'RecoFullGlobal',
-        'HARVESTFullGlobal',
+        'Reco',
+        'HARVEST',
+        'RecoGlobal',
+        'HARVESTGlobal',
     ],
     PU = [],
     suffix = 'Patatrack_ECALOnlyCPU',
@@ -409,10 +409,10 @@ class UpgradeWorkflowPatatrack_ECALOnlyGPU(UpgradeWorkflowPatatrack):
 
 upgradeWFs['PatatrackECALOnlyGPU'] = UpgradeWorkflowPatatrack_ECALOnlyGPU(
     steps = [
-        'RecoFull',
-        'HARVESTFull',
-        'RecoFullGlobal',
-        'HARVESTFullGlobal',
+        'Reco',
+        'HARVEST',
+        'RecoGlobal',
+        'HARVESTGlobal',
     ],
     PU = [],
     suffix = 'Patatrack_ECALOnlyGPU',
@@ -438,10 +438,10 @@ class UpgradeWorkflowPatatrack_HCALOnlyCPU(UpgradeWorkflowPatatrack):
 
 upgradeWFs['PatatrackHCALOnlyCPU'] = UpgradeWorkflowPatatrack_HCALOnlyCPU(
     steps = [
-        'RecoFull',
-        'HARVESTFull',
-        'RecoFullGlobal',
-        'HARVESTFullGlobal',
+        'Reco',
+        'HARVEST',
+        'RecoGlobal',
+        'HARVESTGlobal',
     ],
     PU = [],
     suffix = 'Patatrack_HCALOnlyCPU',
@@ -466,10 +466,10 @@ class UpgradeWorkflowPatatrack_HCALOnlyGPU(UpgradeWorkflowPatatrack):
 
 upgradeWFs['PatatrackHCALOnlyGPU'] = UpgradeWorkflowPatatrack_HCALOnlyGPU(
     steps = [
-        'RecoFull',
-        'HARVESTFull',
-        'RecoFullGlobal',
-        'HARVESTFullGlobal',
+        'Reco',
+        'HARVEST',
+        'RecoGlobal',
+        'HARVESTGlobal',
     ],
     PU = [],
     suffix = 'Patatrack_HCALOnlyGPU',
@@ -503,24 +503,24 @@ class UpgradeWorkflow_ProdLike(UpgradeWorkflow):
         return fragment=="TTbar_14TeV" and ('2026' in key or '2021' in key)
 upgradeWFs['ProdLike'] = UpgradeWorkflow_ProdLike(
     steps = [
-        'DigiFull',
-        'RecoFull',
-        'RecoFullGlobal',
-        'HARVESTFull',
-        'HARVESTFullGlobal',
-        'MiniAODFullGlobal',
-        'ALCAFull',
-        'NanoFull',
+        'Digi',
+        'Reco',
+        'RecoGlobal',
+        'HARVEST',
+        'HARVESTGlobal',
+        'MiniAOD',
+        'ALCA',
+        'Nano',
     ],
     PU = [
-        'DigiFull',
-        'RecoFull',
-        'RecoFullGlobal',
-        'HARVESTFull',
-        'HARVESTFullGlobal',
-        'MiniAODFullGlobal',
-        'ALCAFull',
-        'NanoFull',
+        'Digi',
+        'Reco',
+        'RecoGlobal',
+        'HARVEST',
+        'HARVESTGlobal',
+        'MiniAOD',
+        'ALCA',
+        'Nano',
     ],
     suffix = '_ProdLike',
     offset = 0.21,
@@ -541,15 +541,15 @@ class UpgradeWorkflow_Neutron(UpgradeWorkflow):
         return any(fragment==nfrag for nfrag in self.neutronFrags) and any(nkey in key for nkey in self.neutronKeys)
 upgradeWFs['Neutron'] = UpgradeWorkflow_Neutron(
     steps = [
-        'GenSimFull',
-        'GenSimHLBeamSpotFull',
-        'GenSimHLBeamSpotFull14',
-        'DigiFull',
-        'DigiFullTrigger',
+        'GenSim',
+        'GenSimHLBeamSpot',
+        'GenSimHLBeamSpot14',
+        'Digi',
+        'DigiTrigger',
     ],
     PU = [
-        'DigiFull',
-        'DigiFullTrigger',
+        'Digi',
+        'DigiTrigger',
     ],
     suffix = '_Neutron',
     offset = 0.12,
@@ -565,16 +565,16 @@ class UpgradeWorkflow_heCollapse(UpgradeWorkflow):
         return fragment=="TTbar_13" and '2018' in key
 upgradeWFs['heCollapse'] = UpgradeWorkflow_heCollapse(
     steps = [
-        'GenSimFull',
-        'DigiFull',
-        'RecoFull',
-        'HARVESTFull',
-        'ALCAFull',
+        'GenSim',
+        'Digi',
+        'Reco',
+        'HARVEST',
+        'ALCA',
     ],
     PU = [
-        'DigiFull',
-        'RecoFull',
-        'HARVESTFull',
+        'Digi',
+        'Reco',
+        'HARVEST',
     ],
     suffix = '_heCollapse',
     offset = 0.6,
@@ -589,16 +589,16 @@ class UpgradeWorkflow_0T(UpgradeWorkflow):
         return (fragment=="TTbar_13" or fragment=="TTbar_14TeV") and ('2017' in key or '2018' in key or '2021' in key)
 upgradeWFs['0T'] = UpgradeWorkflow_0T(
     steps = [
-        'GenSimFull',
-        'DigiFull',
-        'RecoFull',
-        'HARVESTFull',
-        'ALCAFull',
+        'GenSim',
+        'Digi',
+        'Reco',
+        'HARVEST',
+        'ALCA',
     ],
     PU = [
-        'DigiFull',
-        'RecoFull',
-        'HARVESTFull',
+        'Digi',
+        'Reco',
+        'HARVEST',
     ],
     suffix = '_0T',
     offset = 0.24,
@@ -612,7 +612,7 @@ class UpgradeWorkflow_ParkingBPH(UpgradeWorkflow):
         return fragment=="TTbar_13" and '2018' in key
 upgradeWFs['ParkingBPH'] = UpgradeWorkflow_ParkingBPH(
     steps = [
-        'RecoFull',
+        'Reco',
     ],
     PU = [],
     suffix = '_ParkingBPH',
@@ -627,7 +627,7 @@ class UpgradeWorkflow_JMENano(UpgradeWorkflow):
         return fragment=="TTbar_13" and ('2017' in key or '2018' in key)
 upgradeWFs['JMENano'] = UpgradeWorkflow_JMENano(
     steps = [
-        'NanoFull',
+        'Nano',
     ],
     PU = [],
     suffix = '_JMENano',
@@ -645,18 +645,18 @@ class UpgradeWorkflowAging(UpgradeWorkflow):
 # define several of them
 upgradeWFs['Aging1000'] = UpgradeWorkflowAging(
     steps =  [
-        'DigiFull',
-        'DigiFullTrigger',
-        'RecoFullLocal',
-        'RecoFull',
-        'RecoFullGlobal',
+        'Digi',
+        'DigiTrigger',
+        'RecoLocal',
+        'Reco',
+        'RecoGlobal',
     ],
     PU =  [
-        'DigiFull',
-        'DigiFullTrigger',
-        'RecoFullLocal',
-        'RecoFull',
-        'RecoFullGlobal',
+        'Digi',
+        'DigiTrigger',
+        'RecoLocal',
+        'Reco',
+        'RecoGlobal',
     ],
     suffix = 'Aging1000',
     offset = 0.101,
@@ -750,9 +750,9 @@ upgradeWFs['PMXS1'] = UpgradeWorkflowPremix(
     steps = [
     ],
     PU = [
-        'GenSimFull',
-        'GenSimHLBeamSpotFull',
-        'GenSimHLBeamSpotFull14',
+        'GenSim',
+        'GenSimHLBeamSpot',
+        'GenSimHLBeamSpot14',
     ],
     suffix = '_PMXS1',
     offset = 0.97,
@@ -761,12 +761,12 @@ upgradeWFs['PMXS1'] = UpgradeWorkflowPremix(
 upgradeWFs['PMXS2'] = UpgradeWorkflowPremix(
     steps = [],
     PU = [
-        'DigiFull',
-        'DigiFullTrigger',
-        'RecoFullLocal',
-        'RecoFull',
-        'RecoFullGlobal',
-        'NanoFull',
+        'Digi',
+        'DigiTrigger',
+        'RecoLocal',
+        'Reco',
+        'RecoGlobal',
+        'Nano',
     ],
     suffix = '_PMXS2',
     offset = 0.98,
@@ -775,15 +775,15 @@ upgradeWFs['PMXS2'] = UpgradeWorkflowPremix(
 upgradeWFs['PMXS1S2'] = UpgradeWorkflowPremix(
     steps = [],
     PU = [
-        'GenSimFull',
-        'GenSimHLBeamSpotFull',
-        'GenSimHLBeamSpotFull14',
-        'DigiFull',
-        'DigiFullTrigger',
-        'RecoFullLocal',
-        'RecoFull',
-        'RecoFullGlobal',
-        'NanoFull',
+        'GenSim',
+        'GenSimHLBeamSpot',
+        'GenSimHLBeamSpot14',
+        'Digi',
+        'DigiTrigger',
+        'RecoLocal',
+        'Reco',
+        'RecoGlobal',
+        'Nano',
     ],
     suffix = '_PMXS1S2',
     offset = 0.99,
@@ -801,17 +801,17 @@ class UpgradeWorkflowAdjustPU(UpgradeWorkflowPremix):
 upgradeWFs['PMXS1S2PR'] = UpgradeWorkflowAdjustPU(
     steps = [],
     PU = [
-        'GenSimFull',
-        'GenSimHLBeamSpotFull',
-        'GenSimHLBeamSpotFull14',
-        'DigiFull',
-        'DigiFullTrigger',
-        'RecoFullLocal',
-        'RecoFull',
-        'RecoFullGlobal',
-        'NanoFull',
-        'HARVESTFull',
-        'HARVESTFullGlobal',
+        'GenSim',
+        'GenSimHLBeamSpot',
+        'GenSimHLBeamSpot14',
+        'Digi',
+        'DigiTrigger',
+        'RecoLocal',
+        'Reco',
+        'RecoGlobal',
+        'Nano',
+        'HARVEST',
+        'HARVESTGlobal',
     ],
     suffix = '_PMXS1S2PR',
     offset = 0.999,
@@ -824,11 +824,11 @@ class UpgradeWorkflow_DD4hep(UpgradeWorkflow):
         return (fragment=='TTbar_13' or fragment=='ZMM_13' or fragment=='SingleMuPt10') and '2021' in key
 upgradeWFs['DD4hep'] = UpgradeWorkflow_DD4hep(
     steps = [
-        'GenSimFull',
-        'DigiFull',
-        'RecoFull',
-        'HARVESTFull',
-        'ALCAFull',
+        'GenSim',
+        'Digi',
+        'Reco',
+        'HARVEST',
+        'ALCA',
     ],
     PU = [],
     suffix = '_DD4hep',
@@ -850,7 +850,7 @@ upgradeProperties[2017] = {
         'GT' : 'auto:phase1_2017_realistic',
         'HLTmenu': '@relval2017',
         'Era' : 'Run2_2017',
-        'ScenToRun' : ['GenSimFull','DigiFull','RecoFull','HARVESTFull','ALCAFull','NanoFull'],
+        'ScenToRun' : ['GenSim','Digi','Reco','HARVEST','ALCA','Nano'],
     },
     '2017Design' : {
         'Geom' : 'DB:Extended',
@@ -858,7 +858,7 @@ upgradeProperties[2017] = {
         'HLTmenu': '@relval2017',
         'Era' : 'Run2_2017',
         'BeamSpot': 'GaussSigmaZ4cm',
-        'ScenToRun' : ['GenSimFull','DigiFull','RecoFull','HARVESTFull'],
+        'ScenToRun' : ['GenSim','Digi','Reco','HARVEST'],
     },
     '2018' : {
         'Geom' : 'DB:Extended',
@@ -866,7 +866,7 @@ upgradeProperties[2017] = {
         'HLTmenu': '@relval2018',
         'Era' : 'Run2_2018',
         'BeamSpot': 'Realistic25ns13TeVEarly2018Collision',
-        'ScenToRun' : ['GenSimFull','DigiFull','RecoFull','HARVESTFull','ALCAFull','NanoFull'],
+        'ScenToRun' : ['GenSim','Digi','Reco','HARVEST','ALCA','Nano'],
     },
     '2018Design' : {
         'Geom' : 'DB:Extended',
@@ -874,7 +874,7 @@ upgradeProperties[2017] = {
         'HLTmenu': '@relval2018',
         'Era' : 'Run2_2018',
         'BeamSpot': 'GaussSigmaZ4cm',
-        'ScenToRun' : ['GenSimFull','DigiFull','RecoFull','HARVESTFull'],
+        'ScenToRun' : ['GenSim','Digi','Reco','HARVEST'],
     },
     '2021' : {
         'Geom' : 'DB:Extended',
@@ -882,7 +882,7 @@ upgradeProperties[2017] = {
         'HLTmenu': '@relval2021',
         'Era' : 'Run3',
         'BeamSpot': 'Run3RoundOptics25ns13TeVLowSigmaZ',
-        'ScenToRun' : ['GenSimFull','DigiFull','RecoFull','HARVESTFull','ALCAFull'],
+        'ScenToRun' : ['GenSim','Digi','Reco','HARVEST','ALCA'],
     },
     '2021Design' : {
         'Geom' : 'DB:Extended',
@@ -890,7 +890,7 @@ upgradeProperties[2017] = {
         'HLTmenu': '@relval2021',
         'Era' : 'Run3',
         'BeamSpot': 'GaussSigmaZ4cm',
-        'ScenToRun' : ['GenSimFull','DigiFull','RecoFull','HARVESTFull'],
+        'ScenToRun' : ['GenSim','Digi','Reco','HARVEST'],
     },
     '2023' : {
         'Geom' : 'DB:Extended',
@@ -898,7 +898,7 @@ upgradeProperties[2017] = {
         'HLTmenu': '@relval2021',
         'Era' : 'Run3',
         'BeamSpot': 'Run3RoundOptics25ns13TeVLowSigmaZ',
-        'ScenToRun' : ['GenSimFull','DigiFull','RecoFull','HARVESTFull','ALCAFull'],
+        'ScenToRun' : ['GenSim','Digi','Reco','HARVEST','ALCA'],
     },
     '2024' : {
         'Geom' : 'DB:Extended',
@@ -906,15 +906,15 @@ upgradeProperties[2017] = {
         'HLTmenu': '@relval2021',
         'Era' : 'Run3',
         'BeamSpot': 'Run3RoundOptics25ns13TeVLowSigmaZ',
-        'ScenToRun' : ['GenSimFull','DigiFull','RecoFull','HARVESTFull','ALCAFull'],
+        'ScenToRun' : ['GenSim','Digi','Reco','HARVEST','ALCA'],
     },
 }
 
 # standard PU sequences
 for key in list(upgradeProperties[2017].keys()):
     upgradeProperties[2017][key+'PU'] = deepcopy(upgradeProperties[2017][key])
-    upgradeProperties[2017][key+'PU']['ScenToRun'] = ['GenSimFull','DigiFullPU','RecoFullPU','HARVESTFullPU'] + \
-                                                     (['NanoFull'] if 'Design' not in key else [])
+    upgradeProperties[2017][key+'PU']['ScenToRun'] = ['GenSim','DigiPU','RecoPU','HARVESTPU'] + \
+                                                     (['Nano'] if 'Design' not in key else [])
 
 upgradeProperties[2026] = {
     '2026D49' : {
@@ -922,21 +922,21 @@ upgradeProperties[2026] = {
         'HLTmenu': '@fake2',
         'GT' : 'auto:phase2_realistic_T15',
         'Era' : 'Phase2C9',
-        'ScenToRun' : ['GenSimHLBeamSpotFull','DigiFullTrigger','RecoFullGlobal', 'HARVESTFullGlobal'],
+        'ScenToRun' : ['GenSimHLBeamSpot','DigiTrigger','RecoGlobal', 'HARVESTGlobal'],
     },
     '2026D51' : {
         'Geom' : 'Extended2026D51',
         'HLTmenu': '@fake2',
         'GT' : 'auto:phase2_realistic_T15',
         'Era' : 'Phase2C9',
-        'ScenToRun' : ['GenSimHLBeamSpotFull','DigiFullTrigger','RecoFullGlobal', 'HARVESTFullGlobal'],
+        'ScenToRun' : ['GenSimHLBeamSpot','DigiTrigger','RecoGlobal', 'HARVESTGlobal'],
     },
     '2026D53' : {
         'Geom' : 'Extended2026D53',
         'HLTmenu': '@fake2',
         'GT' : 'auto:phase2_realistic_T15',
         'Era' : 'Phase2C9',
-        'ScenToRun' : ['GenSimHLBeamSpotFull','DigiFullTrigger','RecoFullGlobal', 'HARVESTFullGlobal'],
+        'ScenToRun' : ['GenSimHLBeamSpot','DigiTrigger','RecoGlobal', 'HARVESTGlobal'],
     },
     '2026D54' : {
         'Geom' : 'Extended2026D54',
@@ -944,42 +944,42 @@ upgradeProperties[2026] = {
         'GT' : 'auto:phase2_realistic_T19',
         'ProcessModifier': 'phase2_PixelCPEGeneric',
         'Era' : 'Phase2C9',
-        'ScenToRun' : ['GenSimHLBeamSpotFull','DigiFullTrigger','RecoFullGlobal', 'HARVESTFullGlobal'],
+        'ScenToRun' : ['GenSimHLBeamSpot','DigiTrigger','RecoGlobal', 'HARVESTGlobal'],
     },
     '2026D56' : {
         'Geom' : 'Extended2026D56',
         'HLTmenu': '@fake2',
         'GT' : 'auto:phase2_realistic_T20',
         'Era' : 'Phase2C9',
-        'ScenToRun' : ['GenSimHLBeamSpotFull','DigiFullTrigger','RecoFullGlobal', 'HARVESTFullGlobal'],
+        'ScenToRun' : ['GenSimHLBeamSpot','DigiTrigger','RecoGlobal', 'HARVESTGlobal'],
     },
     '2026D57' : {
         'Geom' : 'Extended2026D57',
         'HLTmenu': '@fake2',
         'GT' : 'auto:phase2_realistic_T17',
         'Era' : 'Phase2C11',
-        'ScenToRun' : ['GenSimHLBeamSpotFull','DigiFullTrigger','RecoFullGlobal', 'HARVESTFullGlobal'],
+        'ScenToRun' : ['GenSimHLBeamSpot','DigiTrigger','RecoGlobal', 'HARVESTGlobal'],
     },
     '2026D58' : {
         'Geom' : 'Extended2026D58',
         'HLTmenu': '@fake2',
         'GT' : 'auto:phase2_realistic_T17',
         'Era' : 'Phase2C12',
-        'ScenToRun' : ['GenSimHLBeamSpotFull','DigiFullTrigger','RecoFullGlobal', 'HARVESTFullGlobal'],
+        'ScenToRun' : ['GenSimHLBeamSpot','DigiTrigger','RecoGlobal', 'HARVESTGlobal'],
     },
     '2026D59' : {
         'Geom' : 'Extended2026D59',
         'HLTmenu': '@fake2',
         'GT' : 'auto:phase2_realistic_T17',
         'Era' : 'Phase2C11',
-        'ScenToRun' : ['GenSimHLBeamSpotFull','DigiFullTrigger','RecoFullGlobal', 'HARVESTFullGlobal'],
+        'ScenToRun' : ['GenSimHLBeamSpot','DigiTrigger','RecoGlobal', 'HARVESTGlobal'],
     },
     '2026D60' : {
         'Geom' : 'Extended2026D60',
         'HLTmenu': '@fake2',
         'GT' : 'auto:phase2_realistic_T15',
         'Era' : 'Phase2C10',
-        'ScenToRun' : ['GenSimHLBeamSpotFull','DigiFullTrigger','RecoFullGlobal', 'HARVESTFullGlobal'],
+        'ScenToRun' : ['GenSimHLBeamSpot','DigiTrigger','RecoGlobal', 'HARVESTGlobal'],
     },
     '2026D61' : {
         'Geom' : 'Extended2026D61',
@@ -987,21 +987,21 @@ upgradeProperties[2026] = {
         'GT' : 'auto:phase2_realistic_T17',
         'ProcessModifier': 'phase2_PixelCPEGeneric',
         'Era' : 'Phase2C9',
-        'ScenToRun' : ['GenSimHLBeamSpotFull','DigiFullTrigger','RecoFullGlobal', 'HARVESTFullGlobal'],
+        'ScenToRun' : ['GenSimHLBeamSpot','DigiTrigger','RecoGlobal', 'HARVESTGlobal'],
     },
     '2026D62' : {
         'Geom' : 'Extended2026D62',
         'HLTmenu': '@fake2',
         'GT' : 'auto:phase2_realistic_T17',
         'Era' : 'Phase2C11',
-        'ScenToRun' : ['GenSimHLBeamSpotFull','DigiFullTrigger','RecoFullGlobal', 'HARVESTFullGlobal'],
+        'ScenToRun' : ['GenSimHLBeamSpot','DigiTrigger','RecoGlobal', 'HARVESTGlobal'],
     },
 }
 
 # standard PU sequences
 for key in list(upgradeProperties[2026].keys()):
     upgradeProperties[2026][key+'PU'] = deepcopy(upgradeProperties[2026][key])
-    upgradeProperties[2026][key+'PU']['ScenToRun'] = ['GenSimHLBeamSpotFull','DigiFullTriggerPU','RecoFullGlobalPU', 'HARVESTFullGlobalPU']
+    upgradeProperties[2026][key+'PU']['ScenToRun'] = ['GenSimHLBeamSpot','DigiTriggerPU','RecoGlobalPU', 'HARVESTGlobalPU']
 
 # for relvals
 defaultDataSets = {}

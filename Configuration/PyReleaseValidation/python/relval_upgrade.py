@@ -32,8 +32,8 @@ for year in upgradeKeys:
             for step in upgradeProperties[year][key]['ScenToRun']:                    
                 stepMaker = makeStepName
                 if 'Sim' in step:
-                    if 'HLBeamSpotFull' in step and '14TeV' in frag:
-                        step = 'GenSimHLBeamSpotFull14'
+                    if 'HLBeamSpot' in step and '14TeV' in frag:
+                        step = 'GenSimHLBeamSpot14'
                     stepMaker = makeStepNameSim
                 
                 if 'HARVEST' in step: hasHarvest = True
@@ -42,10 +42,10 @@ for year in upgradeKeys:
                     if (specialType is not 'baseline') and ( ('PU' in step and step.replace('PU','') in specialWF.PU) or (step in specialWF.steps) ):
                         stepList[specialType].append(stepMaker(key,frag[:-4],step,specialWF.suffix))
                         # hack to add an extra step
-                        if (specialType == 'ProdLike' or specialType == 'TestOldDigiProdLike') and 'RecoFullGlobal' in step:
-                            stepList[specialType].append(stepMaker(key,frag[:-4],step.replace('RecoFullGlobal','MiniAODFullGlobal'),specialWF.suffix))
-                        elif specialType == 'ProdLike' and 'RecoFull' in step:
-                            stepList[specialType].append(stepMaker(key,frag[:-4],step.replace('RecoFull','MiniAODFullGlobal'),specialWF.suffix))
+                        if (specialType == 'ProdLike' or specialType == 'TestOldDigiProdLike') and 'RecoGlobal' in step:
+                            stepList[specialType].append(stepMaker(key,frag[:-4],step.replace('RecoGlobal','MiniAOD'),specialWF.suffix))
+                        elif specialType == 'ProdLike' and 'Reco' in step:
+                            stepList[specialType].append(stepMaker(key,frag[:-4],step.replace('Reco','MiniAOD'),specialWF.suffix))
                         # similar hacks for premixing
                         elif 'PMX' in specialType:
                             if 'GenSim' in step:
