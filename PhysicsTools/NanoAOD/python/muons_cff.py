@@ -13,6 +13,7 @@ slimmedMuonsUpdated = cms.EDProducer("PATMuonUpdater",
     src = cms.InputTag("slimmedMuons"),
     vertices = cms.InputTag("offlineSlimmedPrimaryVertices"),
     computeMiniIso = cms.bool(False),
+    fixDxySign = cms.bool(True),
     pfCandsForMiniIso = cms.InputTag("packedPFCandidates"),
     miniIsoParams = PhysicsTools.PatAlgos.producersLayer1.muonProducer_cfi.patMuons.miniIsoParams, # so they're in sync
     recomputeMuonBasicSelectors = cms.bool(False),
@@ -20,24 +21,22 @@ slimmedMuonsUpdated = cms.EDProducer("PATMuonUpdater",
 run2_miniAOD_80XLegacy.toModify( slimmedMuonsUpdated, computeMiniIso = True, recomputeMuonBasicSelectors = True )
 
 isoForMu = cms.EDProducer("MuonIsoValueMapProducer",
-    src = cms.InputTag("slimmedMuons"),
+    src = cms.InputTag("slimmedMuonsUpdated"),
     relative = cms.bool(False),
     rho_MiniIso = cms.InputTag("fixedGridRhoFastjetAll"),
     EAFile_MiniIso = cms.FileInPath("PhysicsTools/NanoAOD/data/effAreaMuons_cone03_pfNeuHadronsAndPhotons_94X.txt"),
 )
-run2_miniAOD_80XLegacy.toModify(isoForMu, src = "slimmedMuonsUpdated", EAFile_MiniIso = "PhysicsTools/NanoAOD/data/effAreaMuons_cone03_pfNeuHadronsAndPhotons_80X.txt")
+run2_miniAOD_80XLegacy.toModify(isoForMu, EAFile_MiniIso = "PhysicsTools/NanoAOD/data/effAreaMuons_cone03_pfNeuHadronsAndPhotons_80X.txt")
 run2_nanoAOD_94X2016.toModify(isoForMu, EAFile_MiniIso = "PhysicsTools/NanoAOD/data/effAreaMuons_cone03_pfNeuHadronsAndPhotons_80X.txt")
 
 ptRatioRelForMu = cms.EDProducer("MuonJetVarProducer",
     srcJet = cms.InputTag("updatedJets"),
-    srcLep = cms.InputTag("slimmedMuons"),
+    srcLep = cms.InputTag("slimmedMuonsUpdated"),
     srcVtx = cms.InputTag("offlineSlimmedPrimaryVertices"),
 )
-run2_miniAOD_80XLegacy.toModify(ptRatioRelForMu, srcLep = "slimmedMuonsUpdated")
-
 
 slimmedMuonsWithUserData = cms.EDProducer("PATMuonUserDataEmbedder",
-     src = cms.InputTag("slimmedMuons"),
+     src = cms.InputTag("slimmedMuonsUpdated"),
      userFloats = cms.PSet(
         miniIsoChg = cms.InputTag("isoForMu:miniIsoChg"),
         miniIsoAll = cms.InputTag("isoForMu:miniIsoAll"),
@@ -49,7 +48,6 @@ slimmedMuonsWithUserData = cms.EDProducer("PATMuonUserDataEmbedder",
         jetForLepJetVar = cms.InputTag("ptRatioRelForMu:jetForLepJetVar") # warning: Ptr is null if no match is found
      ),
 )
-run2_miniAOD_80XLegacy.toModify(slimmedMuonsWithUserData, src = "slimmedMuonsUpdated")
 
 finalMuons = cms.EDFilter("PATMuonRefSelector",
     src = cms.InputTag("slimmedMuonsWithUserData"),
@@ -131,6 +129,7 @@ muonTable = cms.EDProducer("SimpleCandidateFlatTableProducer",
         tunepRelPt = Var("tunePMuonBestTrack().pt/pt",float,doc="TuneP relative pt, tunePpt/pt",precision=6),
         dz = Var("dB('PVDZ')",float,doc="dz (with sign) wrt first PV, in cm",precision=10),
         dzErr = Var("abs(edB('PVDZ'))",float,doc="dz uncertainty, in cm",precision=6),
+        dxybs = Var("dB('BS2D')",float,doc="dxy (with sign) wrt the beam spot, in cm",precision=10),
         dxy = Var("dB('PV2D')",float,doc="dxy (with sign) wrt first PV, in cm",precision=10),
         dxyErr = Var("edB('PV2D')",float,doc="dxy uncertainty, in cm",precision=6),
         ip3d = Var("abs(dB('PV3D'))",float,doc="3D impact parameter wrt first PV, in cm",precision=10),
@@ -138,6 +137,7 @@ muonTable = cms.EDProducer("SimpleCandidateFlatTableProducer",
         segmentComp   = Var("segmentCompatibility()", float, doc = "muon segment compatibility", precision=14), # keep higher precision since people have cuts with 3 digits on this
         nStations = Var("numberOfMatchedStations", int, doc = "number of matched stations with default arbitration (segment & track)"),
         nTrackerLayers = Var("?track.isNonnull?innerTrack().hitPattern().trackerLayersWithMeasurement():0", int, doc = "number of layers in the tracker"),
+        highPurity = Var("?track.isNonnull?innerTrack().quality('highPurity'):0", bool, doc = "inner track is high purity"),
         jetIdx = Var("?hasUserCand('jet')?userCand('jet').key():-1", int, doc="index of the associated jet (-1 if none)"),
         tkRelIso = Var("isolationR03().sumPt/tunePMuonBestTrack().pt",float,doc="Tracker-based relative isolation dR=0.3 for highPt, trkIso/tunePpt",precision=6),
         miniPFRelIso_chg = Var("userFloat('miniIsoChg')/pt",float,doc="mini PF relative isolation, charged component"),
@@ -204,11 +204,7 @@ muonMCTable = cms.EDProducer("CandMCMatchTableProducer",
     docString = cms.string("MC matching to status==1 muons"),
 )
 
-muonSequence = cms.Sequence(isoForMu + ptRatioRelForMu + slimmedMuonsWithUserData + finalMuons + finalLooseMuons )
+muonSequence = cms.Sequence(slimmedMuonsUpdated+isoForMu + ptRatioRelForMu + slimmedMuonsWithUserData + finalMuons + finalLooseMuons )
 muonMC = cms.Sequence(muonsMCMatchForTable + muonMCTable)
 muonTables = cms.Sequence(muonFSRphotons + muonFSRassociation + muonMVATTH + muonMVALowPt + muonTable + fsrTable)
-
-_withUpdate_sequence = muonSequence.copy()
-_withUpdate_sequence.replace(isoForMu, slimmedMuonsUpdated+isoForMu)
-run2_miniAOD_80XLegacy.toReplaceWith(muonSequence, _withUpdate_sequence)
 

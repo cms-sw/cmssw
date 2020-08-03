@@ -11,6 +11,7 @@
 //
 
 // system include files
+#include <algorithm>
 #include <string>
 #include "TFile.h"
 #include "TTree.h"
@@ -116,6 +117,7 @@ private:
 
   std::vector<TableOutputBranches> m_tables;
   std::vector<TriggerOutputBranches> m_triggers;
+  bool m_triggers_areSorted = false;
   std::vector<EventStringOutputBranches> m_evstrings;
 
   std::vector<SummaryTableOutputBranches> m_runTables;
@@ -198,6 +200,16 @@ NanoAODOutputModule::write(edm::EventForOutput const& iEvent) {
   for (unsigned int extensions = 0; extensions <= 1; ++extensions) {
       for (auto & t : m_tables) t.fill(iEvent,*m_tree,extensions);
   }
+  if (!m_triggers_areSorted) {  // sort triggers/flags in inverse processHistory order, to save without any special label the most recent ones
+    std::vector<std::string> pnames;
+    for (auto& p : iEvent.processHistory())
+      pnames.push_back(p.processName());
+    std::sort(m_triggers.begin(), m_triggers.end(), [pnames](TriggerOutputBranches& a, TriggerOutputBranches& b) {
+      return ((std::find(pnames.begin(), pnames.end(), a.processName()) - pnames.begin()) >
+              (std::find(pnames.begin(), pnames.end(), b.processName()) - pnames.begin()));
+    });
+    m_triggers_areSorted = true;
+  }
   // fill triggers
   for (auto & t : m_triggers) t.fill(iEvent,*m_tree);
   // fill event branches
@@ -276,6 +288,7 @@ NanoAODOutputModule::openFile(edm::FileBlock const&) {
   /* Setup file structure here */
   m_tables.clear();
   m_triggers.clear();
+  m_triggers_areSorted = false;
   m_evstrings.clear();
   m_runTables.clear();
   const auto & keeps = keptProducts();

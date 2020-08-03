@@ -13,13 +13,14 @@
 class TriggerOutputBranches {
  public:
     TriggerOutputBranches(const edm::BranchDescription *desc, const edm::EDGetToken & token ) :
-        m_token(token), m_lastRun(-1),m_fills(0)
+  m_token(token), m_lastRun(-1), m_fills(0), m_processName(desc->processName())
     {
         if (desc->className() != "edm::TriggerResults") throw cms::Exception("Configuration", "NanoAODOutputModule/TriggerOutputBranches can only write out edm::TriggerResults objects");
     }
 
     void updateTriggerNames(TTree &tree,const edm::TriggerNames & names, const edm::TriggerResults & ta);
     void fill(const edm::EventForOutput &iEvent,TTree & tree) ;
+    std::string processName() { return m_processName; }
 
  private:
     edm::TriggerNames triggerNames(const edm::TriggerResults triggerResults); //FIXME: if we have to keep it local we may use PsetID check per event instead of run boundary
@@ -39,6 +40,8 @@ class TriggerOutputBranches {
     std::vector<NamedBranchPtr> m_triggerBranches;
     long m_lastRun;
     unsigned long m_fills;
+    std::string m_processName;
+    bool verifyBranchUniqueName(TTree &, std::string) const;
 
     template<typename T>
     void fillColumn(NamedBranchPtr & nb, const edm::TriggerResults & triggers) {

@@ -32,6 +32,7 @@ triggerObjectTable = cms.EDProducer("TriggerObjectTableProducer",
             sel = cms.string("type(92) && pt > 7 && coll('hltEgammaCandidates') && filter('*PixelMatchFilter')"), 
             l1seed = cms.string("type(-98)"),  l1deltaR = cms.double(0.3),
             #l2seed = cms.string("type(92) && coll('')"),  l2deltaR = cms.double(0.5),
+            skipObjectsNotPassingQualityBits = cms.bool(True),
             qualityBits = cms.string(
                             "filter('*CaloIdLTrackIdLIsoVL*TrackIso*Filter') + " \
                             "2*filter('hltEle*WPTight*TrackIsoFilter*') + " \
@@ -44,7 +45,7 @@ triggerObjectTable = cms.EDProducer("TriggerObjectTableProducer",
                             "256*max(filter('hltL3fL1Mu*DoubleEG*Filtered*'),filter('hltMu*DiEle*CaloIdLTrackIdLElectronleg*Filter')) + " \
                             "512*max(filter('hltL3fL1DoubleMu*EG*Filter*'),filter('hltDiMu*Ele*CaloIdLTrackIdLElectronleg*Filter')) + " \
                             "1024*min(filter('hltEle32L1DoubleEGWPTightGsfTrackIsoFilter'),filter('hltEGL1SingleEGOrFilter')) + " \
-                            "2048*filter('hltEle*CaloIdVTGsfTrkIdTGsf*Filter') + " \
+                            "2048*filter('hltEle*CaloIdVTGsfTrkIdTGsfDphiFilter') + " \
                             "4096*path('HLT_Ele*PFJet*') + " \
                             "8192*max(filter('hltEG175HEFilter'),filter('hltEG200HEFilter'))"),
             qualityBitsDoc = cms.string("1 = CaloIdL_TrackIdL_IsoVL, 2 = 1e (WPTight), 4 = 1e (WPLoose), 8 = OverlapFilter PFTau, 16 = 2e, 32 = 1e-1mu, 64 = 1e-1tau, 128 = 3e, 256 = 2e-1mu, 512 = 1e-2mu, 1024 = 1e (32_L1DoubleEG_AND_L1SingleEGOr), 2048 = 1e (CaloIdVT_GsfTrkIdT), 4096 = 1e (PFJet), 8192 = 1e (Photon175_OR_Photon200)"),
@@ -55,6 +56,7 @@ triggerObjectTable = cms.EDProducer("TriggerObjectTableProducer",
             sel = cms.string("type(92) && pt > 20 && coll('hltEgammaCandidates') && !filter('*PixelMatchFilter')"), 
             l1seed = cms.string("type(-98)"),  l1deltaR = cms.double(0.3),
             #l2seed = cms.string("type(92) && coll('')"),  l2deltaR = cms.double(0.5),
+            skipObjectsNotPassingQualityBits = cms.bool(True),
             qualityBits = cms.string("0"), qualityBitsDoc = cms.string(""),
         ),
         cms.PSet(
@@ -63,6 +65,7 @@ triggerObjectTable = cms.EDProducer("TriggerObjectTableProducer",
             sel = cms.string("type(83) && pt > 5 && (coll('hltIterL3MuonCandidates') || (pt > 45 && coll('hltHighPtTkMuonCands')) || (pt > 95 && coll('hltOldL3MuonCandidates')))"),
             l1seed = cms.string("type(-81)"), l1deltaR = cms.double(0.5),
             l2seed = cms.string("type(83) && coll('hltL2MuonCandidates')"),  l2deltaR = cms.double(0.3),
+            skipObjectsNotPassingQualityBits = cms.bool(True),
             qualityBits = cms.string(
                             "filter('*RelTrkIsoVVLFiltered0p4') + " \
                             "2*filter('hltL3crIso*Filtered0p07') + " \
@@ -84,6 +87,7 @@ triggerObjectTable = cms.EDProducer("TriggerObjectTableProducer",
             sel = cms.string("type(84) && pt > 5 && coll('*Tau*') && ( filter('*LooseChargedIso*') || filter('*MediumChargedIso*') || filter('*TightChargedIso*') || filter('*TightOOSCPhotons*') || filter('hltL2TauIsoFilter') || filter('*OverlapFilterIsoMu*') || filter('*OverlapFilterIsoEle*') || filter('*L1HLTMatched*') || filter('*Dz02*') )"), #All trigger objects from a Tau collection + passing at least one filter
             l1seed = cms.string("type(-100)"), l1deltaR = cms.double(0.3),
             l2seed = cms.string("type(84) && coll('hltL2TauJetsL1IsoTauSeeded')"),  l2deltaR = cms.double(0.3),
+            skipObjectsNotPassingQualityBits = cms.bool(True),
             qualityBits = cms.string(
                             "filter('*LooseChargedIso*') + " \
                             "2*filter('*MediumChargedIso*') + " \
@@ -96,14 +100,43 @@ triggerObjectTable = cms.EDProducer("TriggerObjectTableProducer",
                             "256*filter('hltOverlapFilterIsoMu*PFTau*') + " \
                             "512*filter('hltDoublePFTau*TrackPt1*ChargedIsolation*')"),
             qualityBitsDoc = cms.string("1 = LooseChargedIso, 2 = MediumChargedIso, 4 = TightChargedIso, 8 = TightID OOSC photons, 16 = HPS, 32 = single-tau + tau+MET, 64 = di-tau, 128 = e-tau, 256 = mu-tau, 512 = VBF+di-tau"),            
-        ),   
+        ),
         cms.PSet(
             name = cms.string("Jet"),
             id = cms.int32(1),
-            sel = cms.string("type(85) && pt > 30 && (coll('hltAK4PFJetsCorrected') || coll('hltMatchedVBF*PFJets*PFTau*OverlapRemoval'))"), 
+            sel = cms.string("( type(0) || type(85) || type(86) || type(-99) )"), 
             l1seed = cms.string("type(-99)"), l1deltaR = cms.double(0.3),
-            l2seed = cms.string("type(85)  && coll('hltAK4CaloJetsCorrectedIDPassed')"),  l2deltaR = cms.double(0.3),
-            qualityBits = cms.string("filter('*CrossCleaned*LooseChargedIsoPFTau*')"), qualityBitsDoc = cms.string("1 = VBF cross-cleaned from loose iso PFTau"),
+            l2seed = cms.string("type(85) || type(86) || type(-99)"),  l2deltaR = cms.double(0.3),
+            skipObjectsNotPassingQualityBits = cms.bool(True),
+            qualityBits = cms.string(
+                "1         * filter('*CrossCleaned*LooseChargedIsoPFTau*') + " \
+                "2         * filter('hltBTagCaloCSVp087Triple') + " \
+                "4         * filter('hltDoubleCentralJet90') + " \
+                "8         * filter('hltDoublePFCentralJetLooseID90') + " \
+                "16        * filter('hltL1sTripleJetVBFIorHTTIorDoubleJetCIorSingleJet') + " \
+                "32        * filter('hltQuadCentralJet30') + " \
+                "64        * filter('hltQuadPFCentralJetLooseID30') + " \
+                "128       * max(filter('hltL1sQuadJetC50IorQuadJetC60IorHTT280IorHTT300IorHTT320IorTripleJet846848VBFIorTripleJet887256VBFIorTripleJet927664VBF'), filter('hltL1sQuadJetCIorTripleJetVBFIorHTT')) + " \
+                "256       * filter('hltQuadCentralJet45') + " \
+                "512       * filter('hltQuadPFCentralJetLooseID45') + " \
+                "1024      * max(filter('hltL1sQuadJetC60IorHTT380IorHTT280QuadJetIorHTT300QuadJet'), filter('hltL1sQuadJetC50to60IorHTT280to500IorHTT250to340QuadJet')) + " \
+                "2048      * max(filter('hltBTagCaloCSVp05Double'), filter('hltBTagCaloDeepCSVp17Double')) + " \
+                "4096      * filter('hltPFCentralJetLooseIDQuad30') + " \
+                "8192      * filter('hlt1PFCentralJetLooseID75') + " \
+                "16384     * filter('hlt2PFCentralJetLooseID60') + " \
+                "32768     * filter('hlt3PFCentralJetLooseID45') + " \
+                "65536     * filter('hlt4PFCentralJetLooseID40') + " \
+                "131072    * max(filter('hltBTagPFCSVp070Triple'), max(filter('hltBTagPFDeepCSVp24Triple'), filter('hltBTagPFDeepCSV4p5Triple')) )"
+                ), 
+            qualityBitsDoc = cms.string(
+                "Jet bits: bit 0 for VBF cross-cleaned from loose iso PFTau, bit 1 for hltBTagCaloCSVp087Triple, bit 2 for hltDoubleCentralJet90, bit 3 for hltDoublePFCentralJetLooseID90," \
+                " bit 4 for hltL1sTripleJetVBFIorHTTIorDoubleJetCIorSingleJet, bit 5 for hltQuadCentralJet30, bit 6 for hltQuadPFCentralJetLooseID30," \
+                " bit 7 for hltL1sQuadJetC50IorQuadJetC60IorHTT280IorHTT300IorHTT320IorTripleJet846848VBFIorTripleJet887256VBFIorTripleJet927664VBF or hltL1sQuadJetCIorTripleJetVBFIorHTT," \
+                " bit 8 for hltQuadCentralJet45, bit 9 for hltQuadPFCentralJetLooseID45," \
+                " bit 10  for hltL1sQuadJetC60IorHTT380IorHTT280QuadJetIorHTT300QuadJet or hltL1sQuadJetC50to60IorHTT280to500IorHTT250to340QuadJet" \
+                " bit 11 for hltBTagCaloCSVp05Double or hltBTagCaloDeepCSVp17Double, bit 12 for hltPFCentralJetLooseIDQuad30, bit 13 for hlt1PFCentralJetLooseID75," \
+                " bit 14 for hlt2PFCentralJetLooseID60, bit 15 for hlt3PFCentralJetLooseID45, bit 16 for hlt4PFCentralJetLooseID40," \
+                " bit 17 for hltBTagPFCSVp070Triple or hltBTagPFDeepCSVp24Triple or hltBTagPFDeepCSV4p5Triple "),
         ),
         cms.PSet(
             name = cms.string("FatJet"),
@@ -111,6 +144,7 @@ triggerObjectTable = cms.EDProducer("TriggerObjectTableProducer",
             sel = cms.string("type(85) && pt > 120 && coll('hltAK8PFJetsCorrected')"), 
             l1seed = cms.string("type(-99)"), l1deltaR = cms.double(0.3),
             l2seed = cms.string("type(85)  && coll('hltAK8CaloJetsCorrectedIDPassed')"),  l2deltaR = cms.double(0.3),
+            skipObjectsNotPassingQualityBits = cms.bool(True),
             qualityBits = cms.string("0"), qualityBitsDoc = cms.string(""),
         ),
         cms.PSet(
@@ -120,25 +154,46 @@ triggerObjectTable = cms.EDProducer("TriggerObjectTableProducer",
             l1seed = cms.string("type(-87) && coll('L1ETM')"), l1deltaR = cms.double(9999),
             l1seed_2 = cms.string("type(-87) && coll('L1ETMHF')"), l1deltaR_2 = cms.double(9999),
             l2seed = cms.string("type( 87) && coll('hltMetClean')"),  l2deltaR = cms.double(9999),
+            skipObjectsNotPassingQualityBits = cms.bool(True),
             qualityBits = cms.string("0"), qualityBitsDoc = cms.string(""),
         ),
         cms.PSet(
             name = cms.string("HT"),
             id = cms.int32(3),
-            sel = cms.string("type(89) && pt > 100 && coll('hltPFHTJet30')"), 
+            sel = cms.string("type(89) || type(-89)"), 
             l1seed = cms.string("type(-89) && coll('L1HTT')"), l1deltaR = cms.double(9999),
             l1seed_2 = cms.string("type(-89) && coll('L1HTTHF')"), l1deltaR_2 = cms.double(9999),
-            #l2seed = cms.string("type(89) && coll('hltHtMhtJet30')"),  l2deltaR = cms.double(9999),
-            qualityBits = cms.string("0"), qualityBitsDoc = cms.string(""),
+            l2seed = cms.string("type(89) && coll('hltHtMhtJet30')"),  l2deltaR = cms.double(9999),
+            skipObjectsNotPassingQualityBits = cms.bool(True),
+            qualityBits = cms.string(
+                "1        * filter('hltL1sTripleJetVBFIorHTTIorDoubleJetCIorSingleJet') + " \
+                "2        * max(filter('hltL1sQuadJetC50IorQuadJetC60IorHTT280IorHTT300IorHTT320IorTripleJet846848VBFIorTripleJet887256VBFIorTripleJet927664VBF'), filter('hltL1sQuadJetCIorTripleJetVBFIorHTT')) + " \
+                "4        * max(filter('hltL1sQuadJetC60IorHTT380IorHTT280QuadJetIorHTT300QuadJet'), filter('hltL1sQuadJetC50to60IorHTT280to500IorHTT250to340QuadJet')) + " \
+                "8        * max(filter('hltCaloQuadJet30HT300'), filter('hltCaloQuadJet30HT320')) + " \
+                "16       * max(filter('hltPFCentralJetsLooseIDQuad30HT300'), filter('hltPFCentralJetsLooseIDQuad30HT330'))"
+                ), 
+            qualityBitsDoc = cms.string(
+                "HT bits: bit 0 for hltL1sTripleJetVBFIorHTTIorDoubleJetCIorSingleJet, bit 1 for hltL1sQuadJetC50IorQuadJetC60IorHTT280IorHTT300IorHTT320IorTripleJet846848VBFIorTripleJet887256VBFIorTripleJet927664VBF or hltL1sQuadJetCIorTripleJetVBFIorHTT, " \
+                "bit 2 for hltL1sQuadJetC60IorHTT380IorHTT280QuadJetIorHTT300QuadJet or hltL1sQuadJetC50to60IorHTT280to500IorHTT250to340QuadJet, " \
+                "bit 3 for hltCaloQuadJet30HT300 or hltCaloQuadJet30HT320, bit 4 for hltPFCentralJetsLooseIDQuad30HT300 or hltPFCentralJetsLooseIDQuad30HT330"
+            ),
         ),
         cms.PSet(
             name = cms.string("MHT"),
             id = cms.int32(4),
-            sel = cms.string("type(90) && pt > 30 && coll('hltPFMHTTightID')"), 
+            sel = cms.string("type(90)"), 
             l1seed = cms.string("type(-90) && coll('L1HTM')"), l1deltaR = cms.double(9999),
             l1seed_2 = cms.string("type(-90) && coll('L1HTMHF')"), l1deltaR_2 = cms.double(9999),
-            #l2seed = cms.string("type(90) && coll('hltHtMhtJet30')"),  l2deltaR = cms.double(9999),
-            qualityBits = cms.string("0"), qualityBitsDoc = cms.string(""),
+            l2seed = cms.string("type(90) && coll('hltHtMhtJet30')"),  l2deltaR = cms.double(9999),
+            skipObjectsNotPassingQualityBits = cms.bool(True),
+            qualityBits = cms.string(
+                "1       * max(filter('hltCaloQuadJet30HT300'), filter('hltCaloQuadJet30HT320')) + " \
+                "2       * max(filter('hltPFCentralJetsLooseIDQuad30HT300'), filter('hltPFCentralJetsLooseIDQuad30HT330'))"
+                ), 
+                qualityBitsDoc = cms.string
+                (
+                "MHT bits: bit 0 for hltCaloQuadJet30HT300 or hltCaloQuadJet30HT320, bit 1 for hltPFCentralJetsLooseIDQuad30HT300 or hltPFCentralJetsLooseIDQuad30HT330"
+            ),
         ),
 
     ),
