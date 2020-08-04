@@ -11,7 +11,7 @@
  */
 
 #include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "HLTrigger/HLTcore/interface/HLTPrescaleProvider.h"
 #include "DataFormats/Common/interface/TriggerResults.h"
@@ -20,27 +20,22 @@
 //
 // class declaration
 //
-class CandidateTriggerObjectProducer : public edm::EDProducer {
+class CandidateTriggerObjectProducer : public edm::stream::EDProducer<> {
 public:
   explicit CandidateTriggerObjectProducer(const edm::ParameterSet&);
   ~CandidateTriggerObjectProducer() override;
 
 private:
   void beginRun(const edm::Run& iRun, edm::EventSetup const& iSetup) override;
-  void beginJob() override{};
   void produce(edm::Event&, const edm::EventSetup&) override;
-  void endJob() override{};
 
   /// module config parameters
-  edm::InputTag triggerResultsTag_;
-  edm::EDGetTokenT<edm::TriggerResults> triggerResultsToken_;
-  edm::InputTag triggerEventTag_;
-  edm::EDGetTokenT<trigger::TriggerEvent> triggerEventToken_;
-  std::string triggerName_;
+  const edm::EDGetTokenT<edm::TriggerResults> triggerResultsToken_;
+  const edm::EDGetTokenT<trigger::TriggerEvent> triggerEventToken_;
+  const std::string processName_;
+  const std::string triggerName_;
 
   /// additional class data memebers
-  edm::Handle<edm::TriggerResults> triggerResultsHandle_;
-  edm::Handle<trigger::TriggerEvent> triggerEventHandle_;
   HLTPrescaleProvider hltPrescaleProvider_;
 };
 #endif
