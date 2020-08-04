@@ -14,6 +14,6 @@ class L1TUtmConditionRcd : public edm::eventsetup::EventSetupRecordImplementatio
 //#include "FWCore/Framework/interface/DependentRecordImplementation.h"
 //#include "CondFormats/DataRecord/interface/L1TriggerKeyListRcd.h"
 //#include "CondFormats/DataRecord/interface/L1TriggerKeyRcd.h"
-//class L1TUtmConditionRcd : public edm::eventsetup::DependentRecordImplementation<L1TUtmConditionRcd, boost::mpl::vector<L1TriggerKeyListRcd,L1TriggerKeyRcd> > {};
+//class L1TUtmConditionRcd : public edm::eventsetup::DependentRecordImplementation<L1TUtmConditionRcd, edm::mpl::Vector<L1TriggerKeyListRcd,L1TriggerKeyRcd> > {};
 
 #endif

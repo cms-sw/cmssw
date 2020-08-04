@@ -7,12 +7,6 @@
 
 #include "RecoLocalCalo/EcalRecProducers/plugins/EcalRecalibRecHitProducer.h"
 #include "RecoLocalCalo/EcalRecAlgos/interface/EcalRecHitSimpleAlgo.h"
-#include "CondFormats/EcalObjects/interface/EcalIntercalibConstants.h"
-#include "CondFormats/DataRecord/interface/EcalIntercalibConstantsRcd.h"
-#include "CondFormats/EcalObjects/interface/EcalADCToGeVConstant.h"
-#include "CondFormats/DataRecord/interface/EcalADCToGeVConstantRcd.h"
-#include "CalibCalorimetry/EcalLaserCorrection/interface/EcalLaserDbService.h"
-#include "CalibCalorimetry/EcalLaserCorrection/interface/EcalLaserDbRecord.h"
 
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -43,7 +37,14 @@ EcalRecalibRecHitProducer::EcalRecalibRecHitProducer(const edm::ParameterSet& ps
 
       doEnergyScaleInverse_(ps.getParameter<bool>("doEnergyScaleInverse")),
       doIntercalibInverse_(ps.getParameter<bool>("doIntercalibInverse")),
-      doLaserCorrectionsInverse_(ps.getParameter<bool>("doLaserCorrectionsInverse")) {
+      doLaserCorrectionsInverse_(ps.getParameter<bool>("doLaserCorrectionsInverse")),
+      ecalLaserDBServiceToken_(esConsumes<EcalLaserDbService, EcalLaserDbRecord>()) {
+  if (doEnergyScale_) {
+    ecalADCToGeVConstantToken_ = esConsumes<EcalADCToGeVConstant, EcalADCToGeVConstantRcd>();
+  }
+  if (doIntercalib_) {
+    ecalIntercalibConstantsToken_ = esConsumes<EcalIntercalibConstants, EcalIntercalibConstantsRcd>();
+  }
   produces<EBRecHitCollection>(EBRecalibRecHitCollection_);
   produces<EERecHitCollection>(EERecalibRecHitCollection_);
 }
@@ -76,7 +77,7 @@ void EcalRecalibRecHitProducer::produce(edm::StreamID sid, edm::Event& evt, cons
   float agc_eb = 1.;
   float agc_ee = 1.;
   if (doEnergyScale_) {
-    es.get<EcalADCToGeVConstantRcd>().get(pAgc);
+    pAgc = es.getHandle(ecalADCToGeVConstantToken_);
     agc = pAgc.product();
     // use this value in the algorithm
     agc_eb = float(agc->getEBValue());
@@ -86,12 +87,11 @@ void EcalRecalibRecHitProducer::produce(edm::StreamID sid, edm::Event& evt, cons
   edm::ESHandle<EcalIntercalibConstants> pIcal;
   const EcalIntercalibConstants* ical = nullptr;
   if (doIntercalib_) {
-    es.get<EcalIntercalibConstantsRcd>().get(pIcal);
+    pIcal = es.getHandle(ecalIntercalibConstantsToken_);
     ical = pIcal.product();
   }
   // Laser corrections
-  edm::ESHandle<EcalLaserDbService> pLaser;
-  es.get<EcalLaserDbRecord>().get(pLaser);
+  edm::ESHandle<EcalLaserDbService> pLaser = es.getHandle(ecalLaserDBServiceToken_);
 
   if (doEnergyScaleInverse_) {
     agc_eb = 1.0 / agc_eb;

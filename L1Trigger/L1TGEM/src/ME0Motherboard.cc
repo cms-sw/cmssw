@@ -30,6 +30,7 @@ std::vector<ME0TriggerDigi> ME0Motherboard::readoutTriggers() {
   std::vector<ME0TriggerDigi> tmpV;
 
   std::vector<ME0TriggerDigi> all_trigs = getTriggers();
+  tmpV.reserve(all_trigs.size());
   for (const auto& ptrig : all_trigs) {
     // in the future, add a selection on the BX
     tmpV.push_back(ptrig);

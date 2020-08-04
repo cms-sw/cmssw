@@ -1,11 +1,11 @@
+#include <filesystem>
+
 #include <fmt/printf.h>
-#include <boost/filesystem.hpp>
 #include <boost/property_tree/json_parser.hpp>
 #include <boost/property_tree/ptree.hpp>
 
 #include "DQMServices/Components/interface/fillJson.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
-
 #include "JsonWritingTimeoutPoolOutputModule.h"
 
 namespace dqmservices {
@@ -24,7 +24,7 @@ namespace dqmservices {
 
     std::string base = fmt::sprintf("run%06d_ls%04d_%s", runNumber_, sequence_, streamLabel_);
 
-    boost::filesystem::path p(outputPath_);
+    std::filesystem::path p(outputPath_);
 
     currentFileName_ = (p / base).string() + ".root";
     currentJsonName_ = (p / base).string() + ".jsn";

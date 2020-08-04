@@ -269,6 +269,7 @@ std::vector<L1GctInternEtSum> L1GctJetLeafCard::getInternalEtSums() const {
 
 std::vector<L1GctInternHtMiss> L1GctJetLeafCard::getInternalHtMiss() const {
   std::vector<L1GctInternHtMiss> result;
+  result.reserve(numOfBx());
   for (int bx = 0; bx < numOfBx(); bx++) {
     result.push_back(L1GctInternHtMiss::emulatorMissHtxHty(m_hxSumPipe.contents.at(bx).value(),
                                                            m_hySumPipe.contents.at(bx).value(),

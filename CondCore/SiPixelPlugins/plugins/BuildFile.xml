@@ -43,3 +43,12 @@
   <use name="CalibTracker/SiPixelESProducers"/>
   <use name="boost_python"/>
 </library>
+
+<library file="SiPixelVCal_PayloadInspector.cc" name="SiPixelVCal_PayloadInspector">
+  <use name="CondCore/Utilities"/>
+  <use name="CondCore/CondDB"/>
+  <use name="CondFormats/Common"/>
+  <use name="CalibTracker/StandaloneTrackerTopology"/>
+  <use name="CalibTracker/SiPixelESProducers"/>
+  <use name="boost_python"/>
+</library>

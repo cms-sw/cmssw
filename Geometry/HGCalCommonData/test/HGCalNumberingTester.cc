@@ -200,7 +200,7 @@ void HGCalNumberingTester::analyze(const edm::Event& iEvent, const edm::EventSet
   }
 
   // For scintillators
-  if (hgdc.geomMode() == HGCalGeometryMode::Trapezoid) {
+  if (hgdc.tileTrapezoid()) {
     unsigned int kk(0);
     for (auto const& lay : hgdc.getParameter()->layer_) {
       auto rRange = hgdc.getREtaRange(lay);

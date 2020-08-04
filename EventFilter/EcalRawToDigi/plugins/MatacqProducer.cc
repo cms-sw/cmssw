@@ -1,32 +1,30 @@
-#include "EventFilter/EcalRawToDigi/interface/MatacqProducer.h"
-#include "EventFilter/EcalRawToDigi/src/Majority.h"
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/EventSetup.h"
-#include "Geometry/Records/interface/IdealGeometryRecord.h"
-#include "FWCore/Framework/interface/ESHandle.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "DataFormats/FEDRawData/interface/FEDRawData.h"
-#include "DataFormats/FEDRawData/interface/FEDNumbering.h"
-#include "DataFormats/EcalDigi/interface/EcalMatacqDigi.h"
-#include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
-#include <boost/algorithm/string.hpp>
-#include <boost/format.hpp>
-
+#include <csignal>
+#include <cstdio>
+#include <fstream>
+#include <iomanip>
 #include <iostream>
 #include <memory>
 
-#include <cstdio>
-
-#include <fstream>
-#include <iomanip>
-
-#include "DataFormats/EcalDigi/interface/EcalMatacqDigi.h"
-
+#include <glob.h>
+#include <sys/stat.h>
 #include <sys/types.h>
 #include <unistd.h>
-#include <csignal>
-#include <sys/stat.h>
-#include <glob.h>
+
+#include <fmt/printf.h>
+#include <boost/algorithm/string.hpp>
+
+#include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
+#include "DataFormats/EcalDigi/interface/EcalMatacqDigi.h"
+#include "DataFormats/EcalDigi/interface/EcalMatacqDigi.h"
+#include "DataFormats/FEDRawData/interface/FEDNumbering.h"
+#include "DataFormats/FEDRawData/interface/FEDRawData.h"
+#include "EventFilter/EcalRawToDigi/interface/MatacqProducer.h"
+#include "EventFilter/EcalRawToDigi/src/Majority.h"
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "Geometry/Records/interface/IdealGeometryRecord.h"
 
 using namespace std;
 using namespace boost;
@@ -540,7 +538,7 @@ bool MatacqProducer::getMatacqFile(uint32_t runNumber, uint32_t orbitId, bool* f
     return false;
 
   const string runNumberFormat = "%08d{,_*}";
-  string sRunNumber = str(boost::format(runNumberFormat) % runNumber);
+  string sRunNumber = fmt::sprintf(runNumberFormat, runNumber);
   //cout << "Run number string: " << sRunNumber << "\n";
   bool found = false;
   string fname;
@@ -1107,7 +1105,7 @@ std::string MatacqProducer::runSubDir(uint32_t runNumber) {
   int millions = runNumber / (1000 * 1000);
   int thousands = (runNumber - millions * 1000 * 1000) / 1000;
   int units = runNumber - millions * 1000 * 1000 - thousands * 1000;
-  return str(boost::format("%03d/%03d/%03d") % millions % thousands % units);
+  return fmt::sprintf("%03d/%03d/%03d", millions, thousands, units);
 }
 
 void MatacqProducer::newRun(int prevRun, int newRun) {

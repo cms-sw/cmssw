@@ -6,5 +6,5 @@
 
 class HcalSiPMParametersRcd : public edm::eventsetup::DependentRecordImplementation<
                                   HcalSiPMParametersRcd,
-                                  boost::mpl::vector<HcalRecNumberingRecord, IdealGeometryRecord> > {};
+                                  edm::mpl::Vector<HcalRecNumberingRecord, IdealGeometryRecord> > {};
 #endif

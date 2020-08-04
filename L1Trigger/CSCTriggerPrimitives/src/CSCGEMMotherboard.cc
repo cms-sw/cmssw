@@ -1,4 +1,7 @@
+#include <memory>
+
 #include "L1Trigger/CSCTriggerPrimitives/interface/CSCGEMMotherboard.h"
+#include "L1Trigger/CSCTriggerPrimitives/interface/CSCLCTTools.h"
 
 CSCGEMMotherboard::CSCGEMMotherboard(unsigned endcap,
                                      unsigned station,
@@ -18,7 +21,7 @@ CSCGEMMotherboard::CSCGEMMotherboard(unsigned endcap,
 
   const edm::ParameterSet coPadParams(station == 1 ? conf.getParameter<edm::ParameterSet>("copadParamGE11")
                                                    : conf.getParameter<edm::ParameterSet>("copadParamGE21"));
-  coPadProcessor.reset(new GEMCoPadProcessor(theRegion, theStation, theChamber, coPadParams));
+  coPadProcessor = std::make_unique<GEMCoPadProcessor>(theRegion, theStation, theChamber, coPadParams);
 
   maxDeltaPadL1_ = (theParity ? tmbParams_.getParameter<int>("maxDeltaPadL1Even")
                               : tmbParams_.getParameter<int>("maxDeltaPadL1Odd"));
@@ -44,6 +47,10 @@ void CSCGEMMotherboard::retrieveGEMPads(const GEMPadDigiCollection* gemPads, uns
       GEMDetId roll_id(roll->id());
       auto pads_in_det = gemPads->get(roll_id);
       for (auto pad = pads_in_det.first; pad != pads_in_det.second; ++pad) {
+        // ignore invalid pads
+        if (!pad->isValid())
+          continue;
+
         const int bx_shifted(CSCConstants::LCT_CENTRAL_BX + pad->bx());
         // consider matches with BX difference +1/0/-1
         for (int bx = bx_shifted - maxDeltaBXPad_; bx <= bx_shifted + maxDeltaBXPad_; ++bx) {
@@ -98,8 +105,8 @@ CSCCorrelatedLCTDigi CSCGEMMotherboard::constructLCTsGEM(const CSCALCTDigi& alct
 
   // make a new LCT
   CSCCorrelatedLCTDigi thisLCT;
-  if (not alct.isValid() and not clct.isValid()) {
-    LogTrace("CSCGEMCMotherboard") << "Warning!!! either ALCT or CLCT not valid, return invalid LCT \n";
+  if (!alct.isValid() and !clct.isValid()) {
+    edm::LogError("CSCGEMCMotherboard") << "Warning!!! neither ALCT nor CLCT valid, return invalid LCT";
     return thisLCT;
   }
 

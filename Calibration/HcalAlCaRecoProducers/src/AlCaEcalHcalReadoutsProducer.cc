@@ -7,15 +7,13 @@ AlCaEcalHcalReadoutsProducer::AlCaEcalHcalReadoutsProducer(const edm::ParameterS
   tok_hbhe_ = consumes<HBHERecHitCollection>(iConfig.getParameter<edm::InputTag>("hbheInput"));
 
   //register your products
-  produces<HBHERecHitCollection>("HBHERecHitCollection");
-  produces<HORecHitCollection>("HORecHitCollection");
-  produces<HFRecHitCollection>("HFRecHitCollection");
+  put_hbhe_ = produces<HBHERecHitCollection>("HBHERecHitCollection");
+  put_ho_ = produces<HORecHitCollection>("HORecHitCollection");
+  put_hf_ = produces<HFRecHitCollection>("HFRecHitCollection");
 }
 
-AlCaEcalHcalReadoutsProducer::~AlCaEcalHcalReadoutsProducer() {}
-
 // ------------ method called to produce the data  ------------
-void AlCaEcalHcalReadoutsProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
+void AlCaEcalHcalReadoutsProducer::produce(edm::StreamID, edm::Event& iEvent, const edm::EventSetup& iSetup) const {
   using namespace edm;
   using namespace std;
 
@@ -38,28 +36,9 @@ void AlCaEcalHcalReadoutsProducer::produce(edm::Event& iEvent, const edm::EventS
   if (!hf.isValid()) {
     LogDebug("") << "AlCaEcalHcalReadoutProducer: Error! can't get hf product!" << std::endl;
   }
-  //Create empty output collections
-
-  auto miniHBHERecHitCollection = std::make_unique<HBHERecHitCollection>();
-  auto miniHORecHitCollection = std::make_unique<HORecHitCollection>();
-  auto miniHFRecHitCollection = std::make_unique<HFRecHitCollection>();
-
-  const HBHERecHitCollection Hithbhe = *(hbhe.product());
-  for (HBHERecHitCollection::const_iterator hbheItr = Hithbhe.begin(); hbheItr != Hithbhe.end(); hbheItr++) {
-    miniHBHERecHitCollection->push_back(*hbheItr);
-  }
-  const HORecHitCollection Hitho = *(ho.product());
-  for (HORecHitCollection::const_iterator hoItr = Hitho.begin(); hoItr != Hitho.end(); hoItr++) {
-    miniHORecHitCollection->push_back(*hoItr);
-  }
-
-  const HFRecHitCollection Hithf = *(hf.product());
-  for (HFRecHitCollection::const_iterator hfItr = Hithf.begin(); hfItr != Hithf.end(); hfItr++) {
-    miniHFRecHitCollection->push_back(*hfItr);
-  }
 
   //Put selected information in the event
-  iEvent.put(std::move(miniHBHERecHitCollection), "HBHERecHitCollection");
-  iEvent.put(std::move(miniHORecHitCollection), "HORecHitCollection");
-  iEvent.put(std::move(miniHFRecHitCollection), "HFRecHitCollection");
+  iEvent.emplace(put_hbhe_, *hbhe);
+  iEvent.emplace(put_ho_, *ho);
+  iEvent.emplace(put_hf_, *hf);
 }

@@ -73,7 +73,7 @@ public:
   std::vector<CSCCLCTDigi> readoutCLCTsME1b(int nMaxCLCTs = CSCConstants::MAX_CLCTS_READOUT) const;
 
   /** Returns vector of all found CLCTs, if any. */
-  std::vector<CSCCLCTDigi> getCLCTs() const;
+  std::vector<CSCCLCTDigi> getCLCTs(unsigned nMaxCLCTs = CSCConstants::MAX_CLCTS_PER_PROCESSOR) const;
 
   /** get best/second best CLCT
    * Note: CLCT has BX shifted */
@@ -88,8 +88,11 @@ public:
   std::vector<CSCCLCTPreTriggerDigi> preTriggerDigisME1b() const;
 
 protected:
-  /** LCTs in this chamber, as found by the processor. */
-  CSCCLCTDigi CLCTContainer_[CSCConstants::MAX_CLCT_TBINS][CSCConstants::MAX_CLCTS_PER_PROCESSOR];
+  /** Best LCT in this chamber, as found by the processor. */
+  CSCCLCTDigi bestCLCT[CSCConstants::MAX_CLCT_TBINS];
+
+  /** Second best LCT in this chamber, as found by the processor. */
+  CSCCLCTDigi secondCLCT[CSCConstants::MAX_CLCT_TBINS];
 
   // unique pointers to the luts
   std::array<std::unique_ptr<CSCComparatorCodeLUT>, 5> lutpos_;
@@ -144,6 +147,9 @@ protected:
   /** Dump half-strip digis */
   void dumpDigis(const std::vector<int> strip[CSCConstants::NUM_LAYERS][CSCConstants::NUM_HALF_STRIPS_7CFEBS],
                  const int nStrips) const;
+
+  // Check if the CLCT is valid
+  void checkValid(const CSCCLCTDigi& lct, unsigned max_stubs = CSCConstants::MAX_CLCTS_PER_PROCESSOR) const;
 
   // --------Functions for the comparator code algorith for Run-3 ---------//
   //calculates the id based on location of hits

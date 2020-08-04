@@ -7,5 +7,5 @@
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 class HcalPedestalWidthsRcd : public edm::eventsetup::DependentRecordImplementation<
                                   HcalPedestalWidthsRcd,
-                                  boost::mpl::vector<HcalRecNumberingRecord, IdealGeometryRecord> > {};
+                                  edm::mpl::Vector<HcalRecNumberingRecord, IdealGeometryRecord> > {};
 #endif

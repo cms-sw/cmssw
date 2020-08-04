@@ -1,6 +1,4 @@
 #include "RecoEcal/EgammaClusterAlgos/interface/SCEnergyCorrectorSemiParm.h"
-
-#include "CondFormats/DataRecord/interface/GBRDWrapperRcd.h"
 #include "RecoEcal/EgammaCoreTools/interface/EcalClusterTools.h"
 #include "DataFormats/EcalDetId/interface/EcalSubdetector.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
@@ -37,6 +35,17 @@ void SCEnergyCorrectorSemiParm::setTokens(const edm::ParameterSet &iConfig, edm:
   regressionKeyEE_ = iConfig.getParameter<std::string>("regressionKeyEE");
   uncertaintyKeyEE_ = iConfig.getParameter<std::string>("uncertaintyKeyEE");
 
+  tokenCaloTopo_ = cc.esConsumes<CaloTopology, CaloTopologyRecord, edm::Transition::BeginLuminosityBlock>();
+  tokenCaloGeom_ = cc.esConsumes<CaloGeometry, CaloGeometryRecord, edm::Transition::BeginLuminosityBlock>();
+  tokenRegressionKeyEB_ = cc.esConsumes<GBRForestD, GBRDWrapperRcd, edm::Transition::BeginLuminosityBlock>(
+      edm::ESInputTag("", regressionKeyEB_));
+  tokenUncertaintyKeyEB_ = cc.esConsumes<GBRForestD, GBRDWrapperRcd, edm::Transition::BeginLuminosityBlock>(
+      edm::ESInputTag("", uncertaintyKeyEB_));
+  tokenRegressionKeyEE_ = cc.esConsumes<GBRForestD, GBRDWrapperRcd, edm::Transition::BeginLuminosityBlock>(
+      edm::ESInputTag("", regressionKeyEE_));
+  tokenUncertaintyKeyEE_ = cc.esConsumes<GBRForestD, GBRDWrapperRcd, edm::Transition::BeginLuminosityBlock>(
+      edm::ESInputTag("", uncertaintyKeyEE_));
+
   if (not isHLT_) {
     tokenVertices_ = cc.consumes<reco::VertexCollection>(iConfig.getParameter<edm::InputTag>("vertexCollection"));
   } else {
@@ -46,18 +55,13 @@ void SCEnergyCorrectorSemiParm::setTokens(const edm::ParameterSet &iConfig, edm:
 
 //--------------------------------------------------------------------------------------------------
 void SCEnergyCorrectorSemiParm::setEventSetup(const edm::EventSetup &es) {
-  es.get<CaloTopologyRecord>().get(calotopo_);
-  es.get<CaloGeometryRecord>().get(calogeom_);
+  calotopo_ = es.getHandle(tokenCaloTopo_);
+  calogeom_ = es.getHandle(tokenCaloGeom_);
 
-  edm::ESHandle<GBRForestD> readereb;
-  edm::ESHandle<GBRForestD> readerebvar;
-  edm::ESHandle<GBRForestD> readeree;
-  edm::ESHandle<GBRForestD> readereevar;
-
-  es.get<GBRDWrapperRcd>().get(regressionKeyEB_, readereb);
-  es.get<GBRDWrapperRcd>().get(uncertaintyKeyEB_, readerebvar);
-  es.get<GBRDWrapperRcd>().get(regressionKeyEE_, readeree);
-  es.get<GBRDWrapperRcd>().get(uncertaintyKeyEE_, readereevar);
+  edm::ESHandle<GBRForestD> readereb = es.getHandle(tokenRegressionKeyEB_);
+  edm::ESHandle<GBRForestD> readerebvar = es.getHandle(tokenUncertaintyKeyEB_);
+  edm::ESHandle<GBRForestD> readeree = es.getHandle(tokenRegressionKeyEE_);
+  edm::ESHandle<GBRForestD> readereevar = es.getHandle(tokenUncertaintyKeyEE_);
 
   foresteb_ = readereb.product();
   forestsigmaeb_ = readerebvar.product();

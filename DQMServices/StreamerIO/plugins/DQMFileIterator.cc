@@ -1,8 +1,8 @@
+#include <filesystem>
 #include <iterator>
 #include <memory>
 #include <string>
 
-#include <fmt/printf.h>
 #include <boost/algorithm/string.hpp>
 #include <boost/algorithm/string/predicate.hpp>
 #include <boost/filesystem.hpp>
@@ -10,10 +10,10 @@
 #include <boost/property_tree/ptree.hpp>
 #include <boost/range.hpp>
 #include <boost/regex.hpp>
+#include <fmt/printf.h>
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/TimeOfDay.h"
-
 #include "DQMFileIterator.h"
 
 namespace dqmservices {
@@ -46,7 +46,7 @@ namespace dqmservices {
     if (boost::starts_with(datafn, "/"))
       return datafn;
 
-    boost::filesystem::path p(run_path);
+    std::filesystem::path p(run_path);
     p /= datafn;
     return p.string();
   }
@@ -180,14 +180,16 @@ namespace dqmservices {
     mon_->outputUpdate(doc);
   }
 
-  std::time_t DQMFileIterator::mtimeHash() const {
-    std::time_t mtime_now = 0;
+  unsigned DQMFileIterator::mtimeHash() const {
+    unsigned mtime_now = 0;
 
     for (auto path : runPath_) {
-      if (!boost::filesystem::exists(path))
+      if (!std::filesystem::exists(path))
         continue;
 
-      mtime_now = mtime_now ^ boost::filesystem::last_write_time(path);
+      auto write_time = std::filesystem::last_write_time(path);
+      mtime_now =
+          mtime_now ^ std::chrono::duration_cast<std::chrono::microseconds>(write_time.time_since_epoch()).count();
     }
 
     return mtime_now;
@@ -206,7 +208,7 @@ namespace dqmservices {
     }
 
     // check if directory changed
-    std::time_t mtime_now = mtimeHash();
+    auto mtime_now = mtimeHash();
 
     if ((!ignoreTimers) && (last_ms < forceFileCheckTimeoutMillis_) && (mtime_now == runPathMTime_)) {
       // logFileAction("Directory hasn't changed.");
@@ -218,13 +220,13 @@ namespace dqmservices {
     runPathMTime_ = mtime_now;
     runPathLastCollect_ = now;
 
-    using boost::filesystem::directory_entry;
-    using boost::filesystem::directory_iterator;
+    using std::filesystem::directory_entry;
+    using std::filesystem::directory_iterator;
 
     std::string fn_eor;
 
     for (auto runPath : runPath_) {
-      if (!boost::filesystem::exists(runPath)) {
+      if (!std::filesystem::exists(runPath)) {
         logFileAction("Directory does not exist: ", runPath);
 
         continue;
