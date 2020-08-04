@@ -38,8 +38,13 @@ namespace edm {
 
   class RunForOutput : public OccurrenceForOutput {
   public:
-    RunForOutput(RunPrincipal const& rp,
-                 ModuleDescription const& md,
+    RunForOutput(RunTransitionInfo const&,
+                 ModuleDescription const&,
+                 ModuleCallingContext const*,
+                 bool isAtEnd,
+                 MergeableRunProductMetadata const* = nullptr);
+    RunForOutput(RunPrincipal const&,
+                 ModuleDescription const&,
                  ModuleCallingContext const*,
                  bool isAtEnd,
                  MergeableRunProductMetadata const* = nullptr);
