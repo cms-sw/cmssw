@@ -69,7 +69,7 @@ vector<GeometricSearchDet::DetWithState> MTDDetSector::compatibleDets(const Traj
                            << " PhiMin: " << specificSurface().position().phi() - specificSurface().phiHalfExtension()
                            << " PhiMax: " << specificSurface().position().phi() + specificSurface().phiHalfExtension()
                            << " TS at Z,R: " << startingState.globalPosition().z() << ","
-                           << startingState.globalPosition().perp() << "     DetRing pos." << position();
+                           << startingState.globalPosition().perp() << "     DetSector pos." << position();
 
   vector<DetWithState> result;
 

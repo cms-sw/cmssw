@@ -85,32 +85,33 @@ vector<GeometricSearchDet::DetWithState> MTDSectorForwardLayer::compatibleDets(
   // However in this case additional propagation will be done when calling
   // compatibleDets.
   GlobalPoint startPos = tsos.globalPosition();
-  LocalPoint nextPos(surface().toLocal(startPos));
 
-  for (unsigned int idet = 0; idet < theSectors.size(); idet++) {
+  for (unsigned int isect = 0; isect < theSectors.size(); isect++) {
+    LocalPoint nextPos(theSectors[isect]->specificSurface().toLocal(startPos));
+    LogDebug("MTDDetLayers") << "Global point = " << startPos << " local point = " << nextPos;
     bool inside = false;
     if (tsos.hasError()) {
-      inside = theSectors[idet]->specificSurface().bounds().inside(nextPos, tsos.localError().positionError(), 1.);
+      inside = theSectors[isect]->specificSurface().bounds().inside(nextPos, tsos.localError().positionError(), 1.);
     } else {
-      inside = theSectors[idet]->specificSurface().bounds().inside(nextPos);
+      inside = theSectors[isect]->specificSurface().bounds().inside(nextPos);
     }
     if (inside) {
 #ifdef EDM_ML_DEBUG
-      LogTrace("MTDDetLayers") << "     MTDSectorForwardLayer::fastCompatibleDets:NextSector " << idet << " R1 "
-                               << theSectors[idet]->specificSurface().innerRadius()
-                               << " R2: " << theSectors[idet]->specificSurface().outerRadius() << " PhiMin: "
-                               << theSectors[idet]->specificSurface().position().phi() -
-                                      theSectors[idet]->specificSurface().phiHalfExtension()
+      LogTrace("MTDDetLayers") << "     MTDSectorForwardLayer::fastCompatibleDets:NextSector " << isect << " R1 "
+                               << theSectors[isect]->specificSurface().innerRadius()
+                               << " R2: " << theSectors[isect]->specificSurface().outerRadius() << " PhiMin: "
+                               << theSectors[isect]->specificSurface().position().phi() -
+                                      theSectors[isect]->specificSurface().phiHalfExtension()
                                << " PhiMax: "
-                               << theSectors[idet]->specificSurface().position().phi() +
-                                      theSectors[idet]->specificSurface().phiHalfExtension()
-                               << " FTS R: " << tsos.globalPosition().perp();
+                               << theSectors[isect]->specificSurface().position().phi() +
+                                      theSectors[isect]->specificSurface().phiHalfExtension()
+                               << " FTS R,phi: " << tsos.globalPosition().perp() << "," << tsos.globalPosition().phi();
       if (tsos.hasError()) {
         LogTrace("MTDDetLayers") << " sR: " << sqrt(tsos.localError().positionError().yy())
                                  << " sX: " << sqrt(tsos.localError().positionError().xx());
       }
 #endif
-      vector<DetWithState> nextRodDets = theSectors[idet]->compatibleDets(tsos, prop, est);
+      vector<DetWithState> nextRodDets = theSectors[isect]->compatibleDets(tsos, prop, est);
       if (!nextRodDets.empty()) {
         result.insert(result.end(), nextRodDets.begin(), nextRodDets.end());
       } else {
