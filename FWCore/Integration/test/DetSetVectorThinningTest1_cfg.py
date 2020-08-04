@@ -36,7 +36,6 @@ process.trackOfThingsProducerA = cms.EDProducer("TrackOfDSVThingsProducer",
 process.thinningThingProducerA = cms.EDProducer("ThinningDSVThingProducer",
     inputTag = cms.InputTag('thingProducer'),
     trackTag = cms.InputTag('trackOfThingsProducerA'),
-    offsetToThinnedKey = cms.uint32(0),
     expectedDetSets = cms.uint32(3),
     expectedDetSetSize = cms.uint32(50),
 )
