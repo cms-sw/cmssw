@@ -5,7 +5,7 @@ import csv
 options = opts.VarParsing ('standard')
 
 options.register('MagField',
-				 3.8,
+				 None,
 				 opts.VarParsing.multiplicity.singleton,
 				 opts.VarParsing.varType.float,
 				 'Magnetic field value in Tesla')
@@ -24,11 +24,6 @@ options.register('Append',
 				 opts.VarParsing.multiplicity.singleton,
 				 opts.VarParsing.varType.string,
 				 'Any additional string to add to the filename, i.e. "bugfix", etc.')
-options.register('Fullname',
-    			 None,
-    			 opts.VarParsing.multiplicity.singleton,
-    			 opts.VarParsing.varType.string,
-    			 'The entire filename in case the options above are insufficient, i.e. "SiPixel2DTemplateDBObject_phase1_EoR3_HV600_Tr2000", etc.')
 options.register('Map',
 				 '../data/template2D_phase1_2017_IOV1/IOV1_phase1_map.csv',
 				 opts.VarParsing.multiplicity.singleton,
@@ -50,7 +45,7 @@ options.register('TemplateFilePath',
 				 opts.VarParsing.varType.string,
 				 'Location of template files')
 options.register('GlobalTag',
-				 'auto:phase1_2017_realistic',
+				 'auto:phase2_realistic',
 				 opts.VarParsing.multiplicity.singleton,
 				 opts.VarParsing.varType.string,
 				 'Global tag for this run')
@@ -188,26 +183,21 @@ for s in range(len(sections)) :
 
 from Configuration.StandardSequences.Eras import eras
 
-process = cms.Process("SiPixel2DTemplateDBUpload",eras.Run2_2017)
+process = cms.Process("SiPixel2DTemplateDBUpload",eras.Phase2)#C2)
 process.load("CondCore.CondDB.CondDB_cfi")
 process.load("FWCore.MessageService.MessageLogger_cfi")
-process.load('Configuration.Geometry.GeometryExtended2017Reco_cff')
-process.load('Configuration.Geometry.GeometryExtended2017_cff')
+process.load('Configuration.Geometry.GeometryExtended2023D17Reco_cff')
+process.load('Configuration.Geometry.GeometryExtended2023D17_cff')
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 from Configuration.AlCa.GlobalTag import GlobalTag
 process.GlobalTag = GlobalTag(process.GlobalTag, options.GlobalTag, '')
 
-
-template_base=''
-if options.Fullname!=None :
-	template_base=options.Fullname
-else :
-	template_base = 'SiPixel2DTemplateDBObject_phase1_'+MagFieldString+'T_'+options.Year+'_v'+version
+template_base = 'SiPixel2DTemplateDBObject_phase2_'+MagFieldString+'T_'+options.Year+'_v'+version
 if options.numerator==True :
 	template_base+='_num'
 elif options.denominator==True :
 	template_base+='_den'
-if options.Append!=None and options.Fullname==None :
+if options.Append!=None :
 	template_base+='_'+options.Append
 #output SQLite filename
 sqlitefilename = 'sqlite_file:'+template_base+'.db'
@@ -215,53 +205,49 @@ sqlitefilename = 'sqlite_file:'+template_base+'.db'
 print '\nUploading %s with record SiPixel2DTemplateDBObjectRcd in file %s\n' % (template_base,sqlitefilename)
 
 process.source = cms.Source("EmptyIOVSource",
-				timetype = cms.string('runnumber'),
-				firstValue = cms.uint64(1),
-				lastValue = cms.uint64(1),
-				interval = cms.uint64(1)
-				)
+							timetype = cms.string('runnumber'),
+							firstValue = cms.uint64(1),
+							lastValue = cms.uint64(1),
+							interval = cms.uint64(1)
+							)
 process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(1))
 if options.numerator==True :
 	process.PoolDBOutputService = cms.Service("PoolDBOutputService",
-				DBParameters = cms.PSet(messageLevel = cms.untracked.int32(0),
-				authenticationPath = cms.untracked.string('.')
-				),
-				timetype = cms.untracked.string('runnumber'),
-				connect = cms.string(sqlitefilename),
-				toPut = cms.VPSet(
-                                    cms.PSet(
-                                        record = cms.string('SiPixel2DTemplateDBObjectRcd'),
-                                        tag = cms.string(template_base)
-                                        )
-                                    )
-				)
+											  DBParameters = cms.PSet(messageLevel = cms.untracked.int32(0),
+																	  authenticationPath = cms.untracked.string('.')
+																	  ),
+											  timetype = cms.untracked.string('runnumber'),
+											  connect = cms.string(sqlitefilename),
+											  toPut = cms.VPSet(cms.PSet(record = cms.string('SiPixel2DTemplateDBObjectRcd'),
+																		 tag = cms.string(template_base)
+																		 )
+																)
+											  )
 elif options.denominator==True :
 	process.PoolDBOutputService = cms.Service("PoolDBOutputService",
-				DBParameters = cms.PSet(messageLevel = cms.untracked.int32(0),
-				authenticationPath = cms.untracked.string('.')
-				),
-				timetype = cms.untracked.string('runnumber'),
-				connect = cms.string(sqlitefilename),
-				toPut = cms.VPSet(
-                                    cms.PSet(
-                                        record = cms.string('SiPixel2DTemplateDBObjectRcd'),
-                                        label=cms.string('unirradiated'),
-                                        tag = cms.string(template_base)
-                                        )
-                                    )
-				)
+											  DBParameters = cms.PSet(messageLevel = cms.untracked.int32(0),
+																	  authenticationPath = cms.untracked.string('.')
+																	  ),
+											  timetype = cms.untracked.string('runnumber'),
+											  connect = cms.string(sqlitefilename),
+											  toPut = cms.VPSet(cms.PSet(record = cms.string('SiPixel2DTemplateDBObjectRcd'),
+											  							 label=cms.string('unirradiated'),
+																		 tag = cms.string(template_base)
+																		 )
+																)
+											  )
 process.uploader = cms.EDAnalyzer("SiPixel2DTemplateDBObjectUploader",
-				siPixelTemplateCalibrations = cms.vstring(template_filenames),
-				theTemplateBaseString = cms.string(template_base),
-				Version = cms.double(3.0),
-				MagField = cms.double(MagFieldValue),
-				detIds = cms.vuint32(1,2), #0 is for all, 1 is Barrel, 2 is EndCap
-				barrelLocations = cms.vstring(barrel_locations),
-				endcapLocations = cms.vstring(endcap_locations),
-				barrelTemplateIds = cms.vuint32(barrel_template_IDs),
-				endcapTemplateIds = cms.vuint32(endcap_template_IDs),
-				useVectorIndices  = cms.untracked.bool(options.useVectorIndices),
-				)
+								  siPixelTemplateCalibrations = cms.vstring(template_filenames),
+								  theTemplateBaseString = cms.string(template_base),
+								  Version = cms.double(3.0),
+								  MagField = cms.double(MagFieldValue),
+								  detIds = cms.vuint32(1,2), #0 is for all, 1 is Barrel, 2 is EndCap
+								  barrelLocations = cms.vstring(barrel_locations),
+								  endcapLocations = cms.vstring(endcap_locations),
+								  barrelTemplateIds = cms.vuint32(barrel_template_IDs),
+								  endcapTemplateIds = cms.vuint32(endcap_template_IDs),
+								  useVectorIndices  = cms.untracked.bool(options.useVectorIndices),
+								 )
 process.myprint = cms.OutputModule("AsciiOutputModule")
 process.p = cms.Path(process.uploader)
 process.CondDB.connect = sqlitefilename
