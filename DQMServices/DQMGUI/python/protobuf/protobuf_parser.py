@@ -123,6 +123,8 @@ class ProtobufParser:
     async def read_histo_message(cls, buffer, message_size, read_histogram_bytes=False, uncompress_histogram_bytes=True):
         """Read Histo message and parse its fields"""
 
+        # TODO: for importing we need to zlip uncompress only strings
+
         # Values that will be returned in HistoMessage tuple
         full_pathname = ''
         size = 0

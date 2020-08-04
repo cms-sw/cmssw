@@ -471,3 +471,4 @@ Backend related task list.
 * Hanging/aborted requests don't get logged?
 * Add the alternative of /data/browse to view raw ROOT files if Rucio is not there
 * Fix CMSSW warnings/errors
+* Make sure to zlib uncompress only strings when importing PB files
