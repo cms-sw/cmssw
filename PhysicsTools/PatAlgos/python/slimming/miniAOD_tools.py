@@ -303,10 +303,22 @@ def miniAOD_customizeCommon(process):
                     'RecoEgamma.ElectronIdentification.Identification.mvaElectronID_Spring16_HZZ_V1_cff',
                     ]
     switchOnVIDElectronIdProducer(process,DataFormat.MiniAOD, task)
-    process.egmGsfElectronIDs.physicsObjectSrc = \
-        cms.InputTag("reducedEgamma","reducedGedGsfElectrons")
-    process.electronMVAValueMapProducer.src = \
-        cms.InputTag('reducedEgamma','reducedGedGsfElectrons')
+    process.egmGsfElectronIDs.physicsObjectSrc = cms.InputTag("reducedEgamma","reducedGedGsfElectrons")
+    process.electronMVAValueMapProducer.src = cms.InputTag('reducedEgamma','reducedGedGsfElectrons')
+
+    # To use older DataFormats, the electronMVAValueMapProducer MUST take a updated electron collection
+    # such that the conversion variables are filled correctly.
+    process.load("RecoEgamma.EgammaTools.gedGsfElectronsTo106X_cff")
+    run2_miniAOD_80XLegacy.toModify(task, func=lambda t: t.add(process.gedGsfElectronsFrom80XTo106XTask))
+    run2_miniAOD_80XLegacy.toModify(process.electronMVAValueMapProducer,
+                                     keysForValueMaps = cms.InputTag('reducedEgamma','reducedGedGsfElectrons'),
+                                     src = cms.InputTag("gedGsfElectronsFrom80XTo106X"))
+
+    run2_miniAOD_94XFall17.toModify(task, func=lambda t: t.add(process.gedGsfElectronsFrom94XTo106XTask))
+    run2_miniAOD_94XFall17.toModify(process.electronMVAValueMapProducer,
+                                     keysForValueMaps = cms.InputTag('reducedEgamma','reducedGedGsfElectrons'),
+                                     src = cms.InputTag("gedGsfElectronsFrom94XTo106X"))
+
     for idmod in electron_ids:
         setupAllVIDIdsInModule(process,idmod,setupVIDElectronSelection,None,False,task)
 
@@ -319,10 +331,8 @@ def miniAOD_customizeCommon(process):
                   'RecoEgamma.PhotonIdentification.Identification.cutBasedPhotonID_Spring16_V2p2_cff',
                   'RecoEgamma.PhotonIdentification.Identification.mvaPhotonID_Spring16_nonTrig_V1_cff']
     switchOnVIDPhotonIdProducer(process,DataFormat.AOD, task) 
-    process.egmPhotonIDs.physicsObjectSrc = \
-        cms.InputTag("reducedEgamma","reducedGedPhotons")
-    process.photonMVAValueMapProducer.src = \
-        cms.InputTag('reducedEgamma','reducedGedPhotons')
+    process.egmPhotonIDs.physicsObjectSrc = cms.InputTag("reducedEgamma","reducedGedPhotons")
+    process.photonMVAValueMapProducer.src = cms.InputTag('reducedEgamma','reducedGedPhotons')
     for idmod in photon_ids:
         setupAllVIDIdsInModule(process,idmod,setupVIDPhotonSelection,None,False,task)
  
