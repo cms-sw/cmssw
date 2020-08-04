@@ -22,7 +22,7 @@ CSCStubMatcher::CSCStubMatcher(const edm::ParameterSet& pSet, edm::ConsumesColle
   maxBXLCT_ = cscLCT.getParameter<int>("maxBX");
   verboseLCT_ = cscLCT.getParameter<int>("verbose");
   minNHitsChamberLCT_ = cscLCT.getParameter<int>("minNHitsChamber");
-  hsFromSimHitMean_ = cscLCT.getParameter<bool>("hsFromSimHitMean");
+  addGhostLCTs_ = cscLCT.getParameter<bool>("addGhostLCTs");
 
   const auto& cscMPLCT = pSet.getParameter<edm::ParameterSet>("cscMPLCT");
   minBXMPLCT_ = cscMPLCT.getParameter<int>("minBX");
@@ -263,10 +263,42 @@ void CSCStubMatcher::matchLCTsToSimTrack(const CSCCorrelatedLCTDigiCollection& l
 
     const auto& lcts_in_det = lcts.get(ch_id2);
 
-    // collect all LCTs in a handy container
+    std::map<int, CSCCorrelatedLCTDigiContainer> bx_to_lcts;
+
+    // collect all valid LCTs in a handy container
     CSCCorrelatedLCTDigiContainer lcts_tmp;
     for (auto lct = lcts_in_det.first; lct != lcts_in_det.second; ++lct) {
+      if (!lct->isValid())
+        continue;
       lcts_tmp.push_back(*lct);
+      int bx = lct->getBX();
+      bx_to_lcts[bx].push_back(*lct);
+
+      // Add ghost LCTs when there are two in bx
+      // and the two don't share half-strip or wiregroup
+      if (bx_to_lcts[bx].size() == 2 and addGhostLCTs_) {
+        // don't do this in station ME1/1 or ME2/1
+        if (!(ch_id.ring() == 1 and (ch_id.station() == 1 or ch_id.station() == 2))) {
+          auto lct11 = bx_to_lcts[bx][0];
+          auto lct22 = bx_to_lcts[bx][1];
+          int wg1 = lct11.getKeyWG();
+          int wg2 = lct22.getKeyWG();
+          int hs1 = lct11.getStrip();
+          int hs2 = lct22.getStrip();
+
+          if (!(wg1 == wg2 || hs1 == hs2) and lct11.getType() == CSCCorrelatedLCTDigi::ALCTCLCT and lct22.getType() == CSCCorrelatedLCTDigi::ALCTCLCT) {
+            CSCCorrelatedLCTDigi lct12 = lct11;
+            lct12.setWireGroup(wg2);
+            lct12.setALCT(lct22.getALCT());
+            lcts_tmp.push_back(lct12);
+
+            CSCCorrelatedLCTDigi lct21 = lct22;
+            lct21.setWireGroup(wg1);
+            lct21.setALCT(lct11.getALCT());
+            lcts_tmp.push_back(lct21);
+          }
+        }
+      }
     }
 
     for (const auto& lct : lcts_tmp) {
