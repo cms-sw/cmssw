@@ -64,7 +64,10 @@ def create_autoencoder(process, inputs,
                        bitsPerLink = autoEncoder_conc_proc.bitsPerLink,
                        modelFiles = autoEncoder_conc_proc.modelFiles,
                        linkToGraphMap = autoEncoder_conc_proc.linkToGraphMap,
-                       preserveModuleSum = autoEncoder_conc_proc.preserveModuleSum
+                       zeroSuppresionThreshold = autoEncoder_conc_proc.zeroSuppresionThreshold,
+                       saveEncodedValues = autoEncoder_conc_proc.saveEncodedValues,
+                       preserveModuleSum = autoEncoder_conc_proc.preserveModuleSum,
+                       scintillatorMethod = 'thresholdSelect',
                      ):
     producer = process.hgcalConcentratorProducer.clone(
             InputTriggerCells = cms.InputTag('{}:HGCalVFEProcessorSums'.format(inputs)),
@@ -77,7 +80,10 @@ def create_autoencoder(process, inputs,
             bitsPerLink = bitsPerLink,
             modelFiles = modelFiles,
             linkToGraphMap = linkToGraphMap,
-            preserveModuleSum = preserveModuleSum
+            zeroSuppresionThreshold = zeroSuppresionThreshold,
+            saveEncodedValues = saveEncodedValues,
+            preserveModuleSum = preserveModuleSum,
+            Method = cms.vstring(['autoEncoder','autoEncoder', scintillatorMethod]),
             )
     return producer
 
