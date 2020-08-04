@@ -143,7 +143,7 @@ TrackToTrackValidator::analyze(const edm::Event& iEvent, const edm::EventSetup& 
     fill_generic_tracks_histos(*&referenceTracksMEs_,&track,&referenceBS,&referencePV);
     
     std::map<double,int> trackDRmap = pItr->second;
-    if (trackDRmap.size() == 0) {
+    if (trackDRmap.empty()) {
       (matchedReferenceTracksMEs_.h_dRmin)->Fill(-1.);
       (matchedReferenceTracksMEs_.h_dRmin_l)->Fill(-1.);
       continue;
@@ -185,7 +185,7 @@ TrackToTrackValidator::analyze(const edm::Event& iEvent, const edm::EventSetup& 
     fill_generic_tracks_histos(*&monitoredTracksMEs_,&track,&monitoredBS,&monitoredPV);
 
     std::map<double,int> trackDRmap = pItr->second;
-    if (trackDRmap.size() == 0) {
+    if (trackDRmap.empty()) {
       (unMatchedMonitoredTracksMEs_.h_dRmin)->Fill(-1.);
       (unMatchedMonitoredTracksMEs_.h_dRmin_l)->Fill(-1.);
       continue;
@@ -325,7 +325,7 @@ TrackToTrackValidator::fillMap(reco::TrackCollection tracks1, reco::TrackCollect
     //
     // If there are no tracks that pass the dR store the smallest (for debugging/validating matching)
     //
-    if(!tmp.size())
+    if(tmp.empty())
       tmp[smallest_dR] = smallest_dR_j;
     
     map.push_back(std::make_pair(i,tmp));
