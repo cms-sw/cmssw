@@ -282,7 +282,8 @@ void CSCStubMatcher::matchLCTsToSimTrack(const CSCCorrelatedLCTDigiCollection& l
           int hs1 = lct11.getStrip();
           int hs2 = lct22.getStrip();
 
-          if (!(wg1 == wg2 || hs1 == hs2) and lct11.getType() == CSCCorrelatedLCTDigi::ALCTCLCT and lct22.getType() == CSCCorrelatedLCTDigi::ALCTCLCT) {
+          if (!(wg1 == wg2 || hs1 == hs2) and lct11.getType() == CSCCorrelatedLCTDigi::ALCTCLCT and
+              lct22.getType() == CSCCorrelatedLCTDigi::ALCTCLCT) {
             CSCCorrelatedLCTDigi lct12 = lct11;
             lct12.setWireGroup(wg2);
             lct12.setALCT(lct22.getALCT());
