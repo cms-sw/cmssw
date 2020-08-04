@@ -499,6 +499,8 @@ namespace SiPixelPI {
     }
   }
 
+  enum DetType { t_barrel = 0, t_forward = 1 };
+
   enum regions {
     BPixL1o,        //0  Barrel Pixel Layer 1 outer
     BPixL1i,        //1  Barrel Pixel Layer 1 inner
