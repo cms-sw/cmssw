@@ -1,4 +1,5 @@
 #include "OuterTrackerMCHarvester.h"
+#include "TFitResult.h"
 
 OuterTrackerMCHarvester::OuterTrackerMCHarvester(const edm::ParameterSet &iConfig) {}
 
@@ -294,30 +295,33 @@ void OuterTrackerMCHarvester::dqmEndJob(DQMStore::IBooker &ibooker, DQMStore::IG
       resPt1->SetMinimum(0.0);
       resPt1->SetStats(false);
 
-      //int testNumEntries1 = resPt1a->GetEntries();
       if (resPt1a->GetEntries() > 0 && resPt2a->GetEntries() > 0 && resPt3a->GetEntries() > 0 &&
           resPt4a->GetEntries() > 0 && resPt5a->GetEntries() > 0 && resPt6a->GetEntries() > 0) {
-        //if (testNumEntries1 > 0) {
         // Fit the histograms with a gaussian curve - take sigma and the error
         // from the fit
-        resPt1a->Fit(fit2, "Q", "R");
-        resPt2a->Fit(fit2, "Q", "R");
-        resPt3a->Fit(fit2, "Q", "R");
-        resPt4a->Fit(fit2, "Q", "R");
-        resPt5a->Fit(fit2, "Q", "R");
-        resPt6a->Fit(fit2, "Q", "R");
-        sigma_pt1.push_back(resPt1a->GetFunction("fit2")->GetParameter(2));
-        sigma_pt1.push_back(resPt2a->GetFunction("fit2")->GetParameter(2));
-        sigma_pt1.push_back(resPt3a->GetFunction("fit2")->GetParameter(2));
-        sigma_pt1.push_back(resPt4a->GetFunction("fit2")->GetParameter(2));
-        sigma_pt1.push_back(resPt5a->GetFunction("fit2")->GetParameter(2));
-        sigma_pt1.push_back(resPt6a->GetFunction("fit2")->GetParameter(2));
-        error_pt1.push_back(resPt1a->GetFunction("fit2")->GetParError(2));
-        error_pt1.push_back(resPt2a->GetFunction("fit2")->GetParError(2));
-        error_pt1.push_back(resPt3a->GetFunction("fit2")->GetParError(2));
-        error_pt1.push_back(resPt4a->GetFunction("fit2")->GetParError(2));
-        error_pt1.push_back(resPt5a->GetFunction("fit2")->GetParError(2));
-        error_pt1.push_back(resPt6a->GetFunction("fit2")->GetParError(2));
+        TFitResultPtr r_pt1a = resPt1a->Fit(fit2, "Q", "RS");
+        TFitResultPtr r_pt2a = resPt2a->Fit(fit2, "Q", "RS");
+        TFitResultPtr r_pt3a = resPt3a->Fit(fit2, "Q", "RS");
+        TFitResultPtr r_pt4a = resPt4a->Fit(fit2, "Q", "RS");
+        TFitResultPtr r_pt5a = resPt5a->Fit(fit2, "Q", "RS");
+        TFitResultPtr r_pt6a = resPt6a->Fit(fit2, "Q", "RS");
+
+        //Check fit status before extracting parameters
+        Int_t fs_pt1a = r_pt1a; Int_t fs_pt2a = r_pt2a; Int_t fs_pt3a = r_pt3a;
+        Int_t fs_pt4a = r_pt4a; Int_t fs_pt5a = r_pt5a; Int_t fs_pt6a = r_pt6a;
+
+        if (fs_pt1a==0) {sigma_pt1.push_back(r_pt1a->Parameter(2)); error_pt1.push_back(r_pt1a->ParError(2));}
+        else {sigma_pt1.push_back(-1); error_pt1.push_back(-1);}
+        if (fs_pt2a==0) {sigma_pt1.push_back(r_pt2a->Parameter(2)); error_pt1.push_back(r_pt2a->ParError(2));}
+        else {sigma_pt1.push_back(-1); error_pt1.push_back(-1);}
+        if (fs_pt3a==0) {sigma_pt1.push_back(r_pt3a->Parameter(2)); error_pt1.push_back(r_pt3a->ParError(2));}
+        else {sigma_pt1.push_back(-1); error_pt1.push_back(-1);}
+        if (fs_pt4a==0) {sigma_pt1.push_back(r_pt4a->Parameter(2)); error_pt1.push_back(r_pt4a->ParError(2));}
+        else {sigma_pt1.push_back(-1); error_pt1.push_back(-1);}
+        if (fs_pt5a==0) {sigma_pt1.push_back(r_pt5a->Parameter(2)); error_pt1.push_back(r_pt5a->ParError(2));}
+        else {sigma_pt1.push_back(-1); error_pt1.push_back(-1);}
+        if (fs_pt6a==0) {sigma_pt1.push_back(r_pt6a->Parameter(2)); error_pt1.push_back(r_pt6a->ParError(2));}
+        else {sigma_pt1.push_back(-1); error_pt1.push_back(-1);}
 
         // Fill the new histogram to create resolution plot
         for (int i = 0; i < 6; i++) {
@@ -358,30 +362,33 @@ void OuterTrackerMCHarvester::dqmEndJob(DQMStore::IBooker &ibooker, DQMStore::IG
       resPt2->SetMinimum(0.0);
       resPt2->SetStats(false);
 
-      //int testNumEntries2 = resPt1b->GetEntries();
-      // if (testNumEntries2 > 0) {
       if (resPt1b->GetEntries() > 0 && resPt2b->GetEntries() > 0 && resPt3b->GetEntries() > 0 &&
           resPt4b->GetEntries() > 0 && resPt5b->GetEntries() > 0 && resPt6b->GetEntries() > 0) {
         // Fit the histograms with a gaussian curve - take sigma and the error
         // from the fit
-        resPt1b->Fit(fit2, "Q", "R");
-        resPt2b->Fit(fit2, "Q", "R");
-        resPt3b->Fit(fit2, "Q", "R");
-        resPt4b->Fit(fit2, "Q", "R");
-        resPt5b->Fit(fit2, "Q", "R");
-        resPt6b->Fit(fit2, "Q", "R");
-        sigma_pt2.push_back(resPt1b->GetFunction("fit2")->GetParameter(2));
-        sigma_pt2.push_back(resPt2b->GetFunction("fit2")->GetParameter(2));
-        sigma_pt2.push_back(resPt3b->GetFunction("fit2")->GetParameter(2));
-        sigma_pt2.push_back(resPt4b->GetFunction("fit2")->GetParameter(2));
-        sigma_pt2.push_back(resPt5b->GetFunction("fit2")->GetParameter(2));
-        sigma_pt2.push_back(resPt6b->GetFunction("fit2")->GetParameter(2));
-        error_pt2.push_back(resPt1b->GetFunction("fit2")->GetParError(2));
-        error_pt2.push_back(resPt2b->GetFunction("fit2")->GetParError(2));
-        error_pt2.push_back(resPt3b->GetFunction("fit2")->GetParError(2));
-        error_pt2.push_back(resPt4b->GetFunction("fit2")->GetParError(2));
-        error_pt2.push_back(resPt5b->GetFunction("fit2")->GetParError(2));
-        error_pt2.push_back(resPt6b->GetFunction("fit2")->GetParError(2));
+        TFitResultPtr r_pt1b = resPt1b->Fit(fit2, "Q", "RS");
+        TFitResultPtr r_pt2b = resPt2b->Fit(fit2, "Q", "RS");
+        TFitResultPtr r_pt3b = resPt3b->Fit(fit2, "Q", "RS");
+        TFitResultPtr r_pt4b = resPt4b->Fit(fit2, "Q", "RS");
+        TFitResultPtr r_pt5b = resPt5b->Fit(fit2, "Q", "RS");
+        TFitResultPtr r_pt6b = resPt6b->Fit(fit2, "Q", "RS");
+
+        //Check fit status before extracting parameters
+        Int_t fs_pt1b = r_pt1b; Int_t fs_pt2b = r_pt2b; Int_t fs_pt3b = r_pt3b;
+        Int_t fs_pt4b = r_pt4b; Int_t fs_pt5b = r_pt5b; Int_t fs_pt6b = r_pt6b;
+
+        if (fs_pt1b==0) {sigma_pt2.push_back(r_pt1b->Parameter(2)); error_pt2.push_back(r_pt1b->ParError(2));}
+        else {sigma_pt2.push_back(-1); error_pt2.push_back(-1);}
+        if (fs_pt2b==0) {sigma_pt2.push_back(r_pt2b->Parameter(2)); error_pt2.push_back(r_pt2b->ParError(2));}
+        else {sigma_pt2.push_back(-1); error_pt2.push_back(-1);}
+        if (fs_pt3b==0) {sigma_pt2.push_back(r_pt3b->Parameter(2)); error_pt2.push_back(r_pt3b->ParError(2));}
+        else {sigma_pt2.push_back(-1); error_pt2.push_back(-1);}
+        if (fs_pt4b==0) {sigma_pt2.push_back(r_pt4b->Parameter(2)); error_pt2.push_back(r_pt4b->ParError(2));}
+        else {sigma_pt2.push_back(-1); error_pt2.push_back(-1);}
+        if (fs_pt5b==0) {sigma_pt2.push_back(r_pt5b->Parameter(2)); error_pt2.push_back(r_pt5b->ParError(2));}
+        else {sigma_pt2.push_back(-1); error_pt2.push_back(-1);}
+        if (fs_pt6b==0) {sigma_pt2.push_back(r_pt6b->Parameter(2)); error_pt2.push_back(r_pt6b->ParError(2));}
+        else {sigma_pt2.push_back(-1); error_pt2.push_back(-1);}
 
         // Fill the new histogram to create resolution plot
         for (int i = 0; i < 6; i++) {
@@ -422,30 +429,33 @@ void OuterTrackerMCHarvester::dqmEndJob(DQMStore::IBooker &ibooker, DQMStore::IG
       resPt3->SetMinimum(0.0);
       resPt3->SetStats(false);
 
-      //int testNumEntries3 = resPt1c->GetEntries();
       if (resPt1c->GetEntries() > 0 && resPt2c->GetEntries() > 0 && resPt3c->GetEntries() > 0 &&
           resPt4c->GetEntries() > 0 && resPt5c->GetEntries() > 0 && resPt6c->GetEntries() > 0) {
-        //        if (testNumEntries3 > 0) {
         // Fit the histograms with a gaussian curve - take sigma and the error
         // from the fit
-        resPt1c->Fit(fit2, "Q", "R");
-        resPt2c->Fit(fit2, "Q", "R");
-        resPt3c->Fit(fit2, "Q", "R");
-        resPt4c->Fit(fit2, "Q", "R");
-        resPt5c->Fit(fit2, "Q", "R");
-        resPt6c->Fit(fit2, "Q", "R");
-        sigma_pt3.push_back(resPt1c->GetFunction("fit2")->GetParameter(2));
-        sigma_pt3.push_back(resPt2c->GetFunction("fit2")->GetParameter(2));
-        sigma_pt3.push_back(resPt3c->GetFunction("fit2")->GetParameter(2));
-        sigma_pt3.push_back(resPt4c->GetFunction("fit2")->GetParameter(2));
-        sigma_pt3.push_back(resPt5c->GetFunction("fit2")->GetParameter(2));
-        sigma_pt3.push_back(resPt6c->GetFunction("fit2")->GetParameter(2));
-        error_pt3.push_back(resPt1c->GetFunction("fit2")->GetParError(2));
-        error_pt3.push_back(resPt2c->GetFunction("fit2")->GetParError(2));
-        error_pt3.push_back(resPt3c->GetFunction("fit2")->GetParError(2));
-        error_pt3.push_back(resPt4c->GetFunction("fit2")->GetParError(2));
-        error_pt3.push_back(resPt5c->GetFunction("fit2")->GetParError(2));
-        error_pt3.push_back(resPt6c->GetFunction("fit2")->GetParError(2));
+        TFitResultPtr r_pt1c = resPt1c->Fit(fit2, "Q", "RS");
+        TFitResultPtr r_pt2c = resPt2c->Fit(fit2, "Q", "RS");
+        TFitResultPtr r_pt3c = resPt3c->Fit(fit2, "Q", "RS");
+        TFitResultPtr r_pt4c = resPt4c->Fit(fit2, "Q", "RS");
+        TFitResultPtr r_pt5c = resPt5c->Fit(fit2, "Q", "RS");
+        TFitResultPtr r_pt6c = resPt6c->Fit(fit2, "Q", "RS");
+
+        //Check fit status before extracting parameters
+        Int_t fs_pt1c = r_pt1c; Int_t fs_pt2c = r_pt2c; Int_t fs_pt3c = r_pt3c;
+        Int_t fs_pt4c = r_pt4c; Int_t fs_pt5c = r_pt5c; Int_t fs_pt6c = r_pt6c;
+
+        if (fs_pt1c==0) {sigma_pt3.push_back(r_pt1c->Parameter(2)); error_pt3.push_back(r_pt1c->ParError(2));}
+        else {sigma_pt3.push_back(-1); error_pt3.push_back(-1);}
+        if (fs_pt2c==0) {sigma_pt3.push_back(r_pt2c->Parameter(2)); error_pt3.push_back(r_pt2c->ParError(2));}
+        else {sigma_pt3.push_back(-1); error_pt3.push_back(-1);}
+        if (fs_pt3c==0) {sigma_pt3.push_back(r_pt3c->Parameter(2)); error_pt3.push_back(r_pt3c->ParError(2));}
+        else {sigma_pt3.push_back(-1); error_pt3.push_back(-1);}
+        if (fs_pt4c==0) {sigma_pt3.push_back(r_pt4c->Parameter(2)); error_pt3.push_back(r_pt4c->ParError(2));}
+        else {sigma_pt3.push_back(-1); error_pt3.push_back(-1);}
+        if (fs_pt5c==0) {sigma_pt3.push_back(r_pt5c->Parameter(2)); error_pt3.push_back(r_pt5c->ParError(2));}
+        else {sigma_pt3.push_back(-1); error_pt3.push_back(-1);}
+        if (fs_pt6c==0) {sigma_pt3.push_back(r_pt6c->Parameter(2)); error_pt3.push_back(r_pt6c->ParError(2));}
+        else {sigma_pt3.push_back(-1); error_pt3.push_back(-1);}
 
         // Fill the new histogram to create resolution plot
         for (int i = 0; i < 6; i++) {
@@ -485,29 +495,33 @@ void OuterTrackerMCHarvester::dqmEndJob(DQMStore::IBooker &ibooker, DQMStore::IG
       resEta->SetMinimum(0.0);
       resEta->SetStats(false);
 
-      //int testNumEntries4 = resEta1->GetEntries();
       if (resEta1->GetEntries() > 0 && resEta2->GetEntries() > 0 && resEta3->GetEntries() > 0 &&
           resEta4->GetEntries() > 0 && resEta5->GetEntries() > 0 && resEta6->GetEntries() > 0) {
         // Fit the histograms with a gaussian curve - take sigma and the error
         // from the fit
-        resEta1->Fit(fit, "Q", "R");
-        resEta2->Fit(fit, "Q", "R");
-        resEta3->Fit(fit, "Q", "R");
-        resEta4->Fit(fit, "Q", "R");
-        resEta5->Fit(fit, "Q", "R");
-        resEta6->Fit(fit, "Q", "R");
-        sigma_eta.push_back(resEta1->GetFunction("fit")->GetParameter(2));
-        sigma_eta.push_back(resEta2->GetFunction("fit")->GetParameter(2));
-        sigma_eta.push_back(resEta3->GetFunction("fit")->GetParameter(2));
-        sigma_eta.push_back(resEta4->GetFunction("fit")->GetParameter(2));
-        sigma_eta.push_back(resEta5->GetFunction("fit")->GetParameter(2));
-        sigma_eta.push_back(resEta6->GetFunction("fit")->GetParameter(2));
-        error_eta.push_back(resEta1->GetFunction("fit")->GetParError(2));
-        error_eta.push_back(resEta2->GetFunction("fit")->GetParError(2));
-        error_eta.push_back(resEta3->GetFunction("fit")->GetParError(2));
-        error_eta.push_back(resEta4->GetFunction("fit")->GetParError(2));
-        error_eta.push_back(resEta5->GetFunction("fit")->GetParError(2));
-        error_eta.push_back(resEta6->GetFunction("fit")->GetParError(2));
+        TFitResultPtr r_eta1 = resEta1->Fit(fit, "Q", "RS");
+        TFitResultPtr r_eta2 = resEta2->Fit(fit, "Q", "RS");
+        TFitResultPtr r_eta3 = resEta3->Fit(fit, "Q", "RS");
+        TFitResultPtr r_eta4 = resEta4->Fit(fit, "Q", "RS");
+        TFitResultPtr r_eta5 = resEta5->Fit(fit, "Q", "RS");
+        TFitResultPtr r_eta6 = resEta6->Fit(fit, "Q", "RS");
+
+        //Check fit status before extracting parameters
+        Int_t fs_eta1 = r_eta1; Int_t fs_eta2 = r_eta2; Int_t fs_eta3 = r_eta3;
+        Int_t fs_eta4 = r_eta4; Int_t fs_eta5 = r_eta5; Int_t fs_eta6 = r_eta6;
+
+        if (fs_eta1==0) {sigma_eta.push_back(r_eta1->Parameter(2)); error_eta.push_back(r_eta1->ParError(2));}
+        else {sigma_eta.push_back(-1); error_eta.push_back(-1);}
+        if (fs_eta2==0) {sigma_eta.push_back(r_eta2->Parameter(2)); error_eta.push_back(r_eta2->ParError(2));}
+        else {sigma_eta.push_back(-1); error_eta.push_back(-1);}
+        if (fs_eta3==0) {sigma_eta.push_back(r_eta3->Parameter(2)); error_eta.push_back(r_eta3->ParError(2));}
+        else {sigma_eta.push_back(-1); error_eta.push_back(-1);}
+        if (fs_eta4==0) {sigma_eta.push_back(r_eta4->Parameter(2)); error_eta.push_back(r_eta4->ParError(2));}
+        else {sigma_eta.push_back(-1); error_eta.push_back(-1);}
+        if (fs_eta5==0) {sigma_eta.push_back(r_eta5->Parameter(2)); error_eta.push_back(r_eta5->ParError(2));}
+        else {sigma_eta.push_back(-1); error_eta.push_back(-1);}
+        if (fs_eta6==0) {sigma_eta.push_back(r_eta6->Parameter(2)); error_eta.push_back(r_eta6->ParError(2));}
+        else {sigma_eta.push_back(-1); error_eta.push_back(-1);}
 
         // Fill the new histogram to create resolution plot
         for (int i = 0; i < 6; i++) {
@@ -547,29 +561,33 @@ void OuterTrackerMCHarvester::dqmEndJob(DQMStore::IBooker &ibooker, DQMStore::IG
       resPhi->SetMinimum(0.0);
       resPhi->SetStats(false);
 
-      //int testNumEntries5 = resPhi1->GetEntries();
       if (resPhi1->GetEntries() > 0 && resPhi2->GetEntries() > 0 && resPhi3->GetEntries() > 0 &&
           resPhi4->GetEntries() > 0 && resPhi5->GetEntries() > 0 && resPhi6->GetEntries() > 0) {
         // Fit the histograms with a gaussian curve - take sigma and the error
         // from the fit
-        resPhi1->Fit(fit, "Q", "R");
-        resPhi2->Fit(fit, "Q", "R");
-        resPhi3->Fit(fit, "Q", "R");
-        resPhi4->Fit(fit, "Q", "R");
-        resPhi5->Fit(fit, "Q", "R");
-        resPhi6->Fit(fit, "Q", "R");
-        sigma_phi.push_back(resPhi1->GetFunction("fit")->GetParameter(2));
-        sigma_phi.push_back(resPhi2->GetFunction("fit")->GetParameter(2));
-        sigma_phi.push_back(resPhi3->GetFunction("fit")->GetParameter(2));
-        sigma_phi.push_back(resPhi4->GetFunction("fit")->GetParameter(2));
-        sigma_phi.push_back(resPhi5->GetFunction("fit")->GetParameter(2));
-        sigma_phi.push_back(resPhi6->GetFunction("fit")->GetParameter(2));
-        error_phi.push_back(resPhi1->GetFunction("fit")->GetParError(2));
-        error_phi.push_back(resPhi2->GetFunction("fit")->GetParError(2));
-        error_phi.push_back(resPhi3->GetFunction("fit")->GetParError(2));
-        error_phi.push_back(resPhi4->GetFunction("fit")->GetParError(2));
-        error_phi.push_back(resPhi5->GetFunction("fit")->GetParError(2));
-        error_phi.push_back(resPhi6->GetFunction("fit")->GetParError(2));
+        TFitResultPtr r_phi1 = resPhi1->Fit(fit, "Q", "RS");
+        TFitResultPtr r_phi2 = resPhi2->Fit(fit, "Q", "RS");
+        TFitResultPtr r_phi3 = resPhi3->Fit(fit, "Q", "RS");
+        TFitResultPtr r_phi4 = resPhi4->Fit(fit, "Q", "RS");
+        TFitResultPtr r_phi5 = resPhi5->Fit(fit, "Q", "RS");
+        TFitResultPtr r_phi6 = resPhi6->Fit(fit, "Q", "RS");
+
+        //Check fit status before extracting parameters
+        Int_t fs_phi1 = r_phi1; Int_t fs_phi2 = r_phi2; Int_t fs_phi3 = r_phi3;
+        Int_t fs_phi4 = r_phi4; Int_t fs_phi5 = r_phi5; Int_t fs_phi6 = r_phi6;
+
+        if (fs_phi1==0) {sigma_phi.push_back(r_phi1->Parameter(2)); error_phi.push_back(r_phi1->ParError(2));}
+        else {sigma_phi.push_back(-1); error_phi.push_back(-1);}
+        if (fs_phi2==0) {sigma_phi.push_back(r_phi2->Parameter(2)); error_phi.push_back(r_phi2->ParError(2));}
+        else {sigma_phi.push_back(-1); error_phi.push_back(-1);}
+        if (fs_phi3==0) {sigma_phi.push_back(r_phi3->Parameter(2)); error_phi.push_back(r_phi3->ParError(2));}
+        else {sigma_phi.push_back(-1); error_phi.push_back(-1);}
+        if (fs_phi4==0) {sigma_phi.push_back(r_phi4->Parameter(2)); error_phi.push_back(r_phi4->ParError(2));}
+        else {sigma_phi.push_back(-1); error_phi.push_back(-1);}
+        if (fs_phi5==0) {sigma_phi.push_back(r_phi5->Parameter(2)); error_phi.push_back(r_phi5->ParError(2));}
+        else {sigma_phi.push_back(-1); error_phi.push_back(-1);}
+        if (fs_phi6==0) {sigma_phi.push_back(r_phi6->Parameter(2)); error_phi.push_back(r_phi6->ParError(2));}
+        else {sigma_phi.push_back(-1); error_phi.push_back(-1);}
 
         // Fill the new histogram to create resolution plot
         for (int i = 0; i < 6; i++) {
@@ -609,29 +627,33 @@ void OuterTrackerMCHarvester::dqmEndJob(DQMStore::IBooker &ibooker, DQMStore::IG
       resVtxZ->SetMinimum(0.0);
       resVtxZ->SetStats(false);
 
-      //int testNumEntries6 = resVtxZ_1->GetEntries();
       if (resVtxZ_1->GetEntries() > 0 && resVtxZ_2->GetEntries() > 0 && resVtxZ_3->GetEntries() > 0 &&
           resVtxZ_4->GetEntries() > 0 && resVtxZ_5->GetEntries() > 0 && resVtxZ_6->GetEntries() > 0) {
         // Fit the histograms with a gaussian curve - take sigma and the error
         // from the fit
-        resVtxZ_1->Fit(fit3, "Q", "R");
-        resVtxZ_2->Fit(fit3, "Q", "R");
-        resVtxZ_3->Fit(fit3, "Q", "R");
-        resVtxZ_4->Fit(fit3, "Q", "R");
-        resVtxZ_5->Fit(fit3, "Q", "R");
-        resVtxZ_6->Fit(fit3, "Q", "R");
-        sigma_VtxZ.push_back(resVtxZ_1->GetFunction("fit3")->GetParameter(2));
-        sigma_VtxZ.push_back(resVtxZ_2->GetFunction("fit3")->GetParameter(2));
-        sigma_VtxZ.push_back(resVtxZ_3->GetFunction("fit3")->GetParameter(2));
-        sigma_VtxZ.push_back(resVtxZ_4->GetFunction("fit3")->GetParameter(2));
-        sigma_VtxZ.push_back(resVtxZ_5->GetFunction("fit3")->GetParameter(2));
-        sigma_VtxZ.push_back(resVtxZ_6->GetFunction("fit3")->GetParameter(2));
-        error_VtxZ.push_back(resVtxZ_1->GetFunction("fit3")->GetParError(2));
-        error_VtxZ.push_back(resVtxZ_2->GetFunction("fit3")->GetParError(2));
-        error_VtxZ.push_back(resVtxZ_3->GetFunction("fit3")->GetParError(2));
-        error_VtxZ.push_back(resVtxZ_4->GetFunction("fit3")->GetParError(2));
-        error_VtxZ.push_back(resVtxZ_5->GetFunction("fit3")->GetParError(2));
-        error_VtxZ.push_back(resVtxZ_6->GetFunction("fit3")->GetParError(2));
+        TFitResultPtr r_vtxz1 = resVtxZ_1->Fit(fit3, "Q", "RS");
+        TFitResultPtr r_vtxz2 = resVtxZ_2->Fit(fit3, "Q", "RS");
+        TFitResultPtr r_vtxz3 = resVtxZ_3->Fit(fit3, "Q", "RS");
+        TFitResultPtr r_vtxz4 = resVtxZ_4->Fit(fit3, "Q", "RS");
+        TFitResultPtr r_vtxz5 = resVtxZ_5->Fit(fit3, "Q", "RS");
+        TFitResultPtr r_vtxz6 = resVtxZ_6->Fit(fit3, "Q", "RS");
+
+        //Check fit status before extracting parameters
+        Int_t fs_vtxz1 = r_vtxz1; Int_t fs_vtxz2 = r_vtxz2; Int_t fs_vtxz3 = r_vtxz3;
+        Int_t fs_vtxz4 = r_vtxz4; Int_t fs_vtxz5 = r_vtxz5; Int_t fs_vtxz6 = r_vtxz6;
+
+        if (fs_vtxz1==0) {sigma_VtxZ.push_back(r_vtxz1->Parameter(2)); error_VtxZ.push_back(r_vtxz1->ParError(2));}
+        else {sigma_VtxZ.push_back(-1); error_VtxZ.push_back(-1);}
+        if (fs_vtxz2==0) {sigma_VtxZ.push_back(r_vtxz2->Parameter(2)); error_VtxZ.push_back(r_vtxz2->ParError(2));}
+        else {sigma_VtxZ.push_back(-1); error_VtxZ.push_back(-1);}
+        if (fs_vtxz3==0) {sigma_VtxZ.push_back(r_vtxz3->Parameter(2)); error_VtxZ.push_back(r_vtxz3->ParError(2));}
+        else {sigma_VtxZ.push_back(-1); error_VtxZ.push_back(-1);}
+        if (fs_vtxz4==0) {sigma_VtxZ.push_back(r_vtxz4->Parameter(2)); error_VtxZ.push_back(r_vtxz4->ParError(2));}
+        else {sigma_VtxZ.push_back(-1); error_VtxZ.push_back(-1);}
+        if (fs_vtxz5==0) {sigma_VtxZ.push_back(r_vtxz5->Parameter(2)); error_VtxZ.push_back(r_vtxz5->ParError(2));}
+        else {sigma_VtxZ.push_back(-1); error_VtxZ.push_back(-1);}
+        if (fs_vtxz6==0) {sigma_VtxZ.push_back(r_vtxz6->Parameter(2)); error_VtxZ.push_back(r_vtxz6->ParError(2));}
+        else {sigma_VtxZ.push_back(-1); error_VtxZ.push_back(-1);}
 
         // Fill the new histogram to create resolution plot
         for (int i = 0; i < 6; i++) {
@@ -671,29 +693,33 @@ void OuterTrackerMCHarvester::dqmEndJob(DQMStore::IBooker &ibooker, DQMStore::IG
       resd0->SetMinimum(0.0);
       resd0->SetStats(false);
 
-      //int testNumEntries7 = resd0_1->GetEntries();
       if (resd0_1->GetEntries() > 0 && resd0_2->GetEntries() > 0 && resd0_3->GetEntries() > 0 &&
           resd0_4->GetEntries() > 0 && resd0_5->GetEntries() > 0 && resd0_6->GetEntries() > 0) {
         // Fit the histograms with a gaussian curve - take sigma and the error
         // from the fit
-        resd0_1->Fit(fit, "Q", "R");
-        resd0_2->Fit(fit, "Q", "R");
-        resd0_3->Fit(fit, "Q", "R");
-        resd0_4->Fit(fit, "Q", "R");
-        resd0_5->Fit(fit, "Q", "R");
-        resd0_6->Fit(fit, "Q", "R");
-        sigma_d0.push_back(resd0_1->GetFunction("fit")->GetParameter(2));
-        sigma_d0.push_back(resd0_2->GetFunction("fit")->GetParameter(2));
-        sigma_d0.push_back(resd0_3->GetFunction("fit")->GetParameter(2));
-        sigma_d0.push_back(resd0_4->GetFunction("fit")->GetParameter(2));
-        sigma_d0.push_back(resd0_5->GetFunction("fit")->GetParameter(2));
-        sigma_d0.push_back(resd0_6->GetFunction("fit")->GetParameter(2));
-        error_d0.push_back(resd0_1->GetFunction("fit")->GetParError(2));
-        error_d0.push_back(resd0_2->GetFunction("fit")->GetParError(2));
-        error_d0.push_back(resd0_3->GetFunction("fit")->GetParError(2));
-        error_d0.push_back(resd0_4->GetFunction("fit")->GetParError(2));
-        error_d0.push_back(resd0_5->GetFunction("fit")->GetParError(2));
-        error_d0.push_back(resd0_6->GetFunction("fit")->GetParError(2));
+        TFitResultPtr r_d01 = resd0_1->Fit(fit, "Q", "RS");
+        TFitResultPtr r_d02 = resd0_2->Fit(fit, "Q", "RS");
+        TFitResultPtr r_d03 = resd0_3->Fit(fit, "Q", "RS");
+        TFitResultPtr r_d04 = resd0_4->Fit(fit, "Q", "RS");
+        TFitResultPtr r_d05 = resd0_5->Fit(fit, "Q", "RS");
+        TFitResultPtr r_d06 = resd0_6->Fit(fit, "Q", "RS");
+
+        //Check fit status before extracting parameters
+        Int_t fs_d01 = r_d01; Int_t fs_d02 = r_d02; Int_t fs_d03 = r_d03;
+        Int_t fs_d04 = r_d04; Int_t fs_d05 = r_d05; Int_t fs_d06 = r_d06;
+
+        if (fs_d01==0) {sigma_d0.push_back(r_d01->Parameter(2)); error_d0.push_back(r_d01->ParError(2));}
+        else {sigma_d0.push_back(-1); error_d0.push_back(-1);}
+        if (fs_d02==0) {sigma_d0.push_back(r_d02->Parameter(2)); error_d0.push_back(r_d02->ParError(2));}
+        else {sigma_d0.push_back(-1); error_d0.push_back(-1);}
+        if (fs_d03==0) {sigma_d0.push_back(r_d03->Parameter(2)); error_d0.push_back(r_d03->ParError(2));}
+        else {sigma_d0.push_back(-1); error_d0.push_back(-1);}
+        if (fs_d04==0) {sigma_d0.push_back(r_d04->Parameter(2)); error_d0.push_back(r_d04->ParError(2));}
+        else {sigma_d0.push_back(-1); error_d0.push_back(-1);}
+        if (fs_d05==0) {sigma_d0.push_back(r_d05->Parameter(2)); error_d0.push_back(r_d05->ParError(2));}
+        else {sigma_d0.push_back(-1); error_d0.push_back(-1);}
+        if (fs_d06==0) {sigma_d0.push_back(r_d06->Parameter(2)); error_d0.push_back(r_d06->ParError(2));}
+        else {sigma_d0.push_back(-1); error_d0.push_back(-1);}
 
         // Fill the new histogram to create resolution plot
         for (int i = 0; i < 6; i++) {
