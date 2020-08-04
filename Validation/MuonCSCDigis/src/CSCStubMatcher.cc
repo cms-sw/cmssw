@@ -52,7 +52,7 @@ void CSCStubMatcher::init(const edm::Event& iEvent, const edm::EventSetup& iSetu
   if (csc_geom_.isValid()) {
     cscGeometry_ = &*csc_geom_;
   } else {
-    std::cout << "+++ Info: CSC geometry is unavailable. +++\n";
+    edm::LogError("CSCStubMatcher") << "+++ Info: CSC geometry is unavailable.";
   }
 }
 
@@ -82,7 +82,7 @@ void CSCStubMatcher::matchCLCTsToSimTrack(const CSCCLCTDigiCollection& clcts) {
   for (const auto& id : cathode_ids) {
     CSCDetId ch_id(id);
     if (verboseCLCT_) {
-      cout << "To check CSC chamber " << ch_id << endl;
+      edm::LogInfo("CSCStubMatcher") << "To check CSC chamber " << ch_id;
     }
 
     int ring = ch_id.ring();
@@ -100,14 +100,13 @@ void CSCStubMatcher::matchCLCTsToSimTrack(const CSCCLCTDigiCollection& clcts) {
 
     // print out the digis
     if (verboseCLCT_) {
-      cout << "clct: comparators " << ch_id << endl;
+      edm::LogInfo("CSCStubMatcher") << "clct: comparators " << ch_id;
       int layer = 0;
       for (const auto& p : comps) {
         layer++;
         for (const auto& q : p) {
-          cout << "L" << layer << " " << q << " " << q.getHalfStrip() << " ";
+          edm::LogInfo("CSCStubMatcher") << "L" << layer << " " << q << " " << q.getHalfStrip() << " ";
         }
-        cout << endl;
       }
     }
 
@@ -121,7 +120,7 @@ void CSCStubMatcher::matchCLCTsToSimTrack(const CSCCLCTDigiCollection& clcts) {
 
     for (auto c = clcts_in_det.first; c != clcts_in_det.second; ++c) {
       if (verboseCLCT_)
-        cout << "clct " << ch_id2 << " " << *c << endl;
+        edm::LogInfo("CSCStubMatcher") << "clct " << ch_id2 << " " << *c;
 
       if (!c->isValid())
         continue;
@@ -140,23 +139,20 @@ void CSCStubMatcher::matchCLCTsToSimTrack(const CSCCLCTDigiCollection& clcts) {
         layer++;
         for (const auto& q : p) {
           if (verboseCLCT_)
-            cout << "L" << layer << " " << q << " " << q.getHalfStrip() << " " << std::endl;
+            edm::LogInfo("CSCStubMatcher") << "L" << layer << " " << q << " " << q.getHalfStrip() << " " << std::endl;
           for (const auto& clctComp : (*c).getHits()[layer - 1]) {
             if (clctComp == 65535)
               continue;
             if (verboseCLCT_) {
-              std::cout << "\t" << clctComp << " " << endl;
+              edm::LogInfo("CSCStubMatcher") << "\t" << clctComp << " ";
             }
             if (q.getHalfStrip() == clctComp or (isME1a and q.getHalfStrip() + 128 == clctComp)) {
               nMatches++;
               if (verboseCLCT_) {
-                cout << "\t\tnMatches " << nMatches << std::endl;
+                edm::LogInfo("CSCStubMatcher") << "\t\tnMatches " << nMatches << std::endl;
               }
             }
           }
-        }
-        if (verboseCLCT_) {
-          cout << endl;
         }
       }
 
@@ -165,7 +161,7 @@ void CSCStubMatcher::matchCLCTsToSimTrack(const CSCCLCTDigiCollection& clcts) {
         continue;
 
       if (verboseCLCT_)
-        cout << "clctGOOD" << endl;
+        edm::LogInfo("CSCStubMatcher") << "clctGOOD";
 
       // store matching CLCTs in this chamber
       if (std::find(chamber_to_clcts_[id].begin(), chamber_to_clcts_[id].end(), *c) == chamber_to_clcts_[id].end()) {
@@ -173,9 +169,9 @@ void CSCStubMatcher::matchCLCTsToSimTrack(const CSCCLCTDigiCollection& clcts) {
       }
     }
     if (chamber_to_clcts_[id].size() > 2) {
-      cout << "WARNING!!! too many CLCTs " << chamber_to_clcts_[id].size() << " in " << ch_id << endl;
+      edm::LogInfo("CSCStubMatcher") << "WARNING!!! too many CLCTs " << chamber_to_clcts_[id].size() << " in " << ch_id;
       for (auto& c : chamber_to_clcts_[id])
-        cout << "  " << c << endl;
+        edm::LogInfo("CSCStubMatcher") << "  " << c;
     }
   }
 }
@@ -207,7 +203,7 @@ void CSCStubMatcher::matchALCTsToSimTrack(const CSCALCTDigiCollection& alcts) {
         continue;
 
       if (verboseALCT_)
-        cout << "alct " << ch_id << " " << *a << endl;
+        edm::LogInfo("CSCStubMatcher") << "alct " << ch_id << " " << *a;
 
       // check that the BX for stub wasn't too early or too late
       if (a->getBX() < minBXALCT_ || a->getBX() > maxBXALCT_)
@@ -223,7 +219,7 @@ void CSCStubMatcher::matchALCTsToSimTrack(const CSCALCTDigiCollection& alcts) {
         continue;
       }
       if (verboseALCT_)
-        cout << "alctGOOD" << endl;
+        edm::LogInfo("CSCStubMatcher") << "alctGOOD";
 
       // store matching ALCTs in this chamber
       if (std::find(chamber_to_alcts_[id].begin(), chamber_to_alcts_[id].end(), *a) == chamber_to_alcts_[id].end()) {
@@ -231,9 +227,9 @@ void CSCStubMatcher::matchALCTsToSimTrack(const CSCALCTDigiCollection& alcts) {
       }
     }
     if (chamber_to_alcts_[id].size() > 2) {
-      cout << "WARNING!!! too many ALCTs " << chamber_to_alcts_[id].size() << " in " << ch_id << endl;
+      edm::LogInfo("CSCStubMatcher") << "WARNING!!! too many ALCTs " << chamber_to_alcts_[id].size() << " in " << ch_id;
       for (auto& a : chamber_to_alcts_[id])
-        cout << "  " << a << endl;
+        edm::LogInfo("CSCStubMatcher") << "  " << a;
     }
   }
 }
@@ -310,17 +306,17 @@ void CSCStubMatcher::matchLCTsToSimTrack(const CSCCorrelatedLCTDigiCollection& l
       bool lct_gem2_match(false);
 
       if (verboseLCT_) {
-        cout << ch_id << " " << ch_id2 << endl;
-        cout << lct << endl;
-        cout << "getCLCT " << lct.getCLCT() << "\ngetALCT " << lct.getALCT() << "\ngetGEM1 " << lct.getGEM1()
-             << "\ngetGEM2 " << lct.getGEM2() << endl;
+        edm::LogInfo("CSCStubMatcher") << ch_id << " " << ch_id2;
+        edm::LogInfo("CSCStubMatcher") << lct;
+        edm::LogInfo("CSCStubMatcher") << "getCLCT " << lct.getCLCT() << "\ngetALCT " << lct.getALCT() << "\ngetGEM1 "
+                                       << lct.getGEM1() << "\ngetGEM2 " << lct.getGEM2();
       }
       // Check if matched to an CLCT
       for (const auto& p : clctsInChamber(id)) {
         if (p == lct.getCLCT()) {
           lct_clct_match = true;
           if (verboseLCT_)
-            cout << "\t...lct_clct_match" << endl;
+            edm::LogInfo("CSCStubMatcher") << "\t...lct_clct_match";
           break;
         }
       }
@@ -330,7 +326,7 @@ void CSCStubMatcher::matchLCTsToSimTrack(const CSCCorrelatedLCTDigiCollection& l
         if (p == lct.getALCT()) {
           lct_alct_match = true;
           if (verboseLCT_)
-            cout << "\t...lct_alct_match" << endl;
+            edm::LogInfo("CSCStubMatcher") << "\t...lct_alct_match";
           break;
         }
       }
@@ -343,7 +339,7 @@ void CSCStubMatcher::matchLCTsToSimTrack(const CSCCorrelatedLCTDigiCollection& l
           if (p == lct.getGEM1()) {
             lct_gem1_match = true;
             if (verboseLCT_)
-              cout << "\t...lct_gem1_match" << endl;
+              edm::LogInfo("CSCStubMatcher") << "\t...lct_gem1_match";
             break;
           }
         }
@@ -354,7 +350,7 @@ void CSCStubMatcher::matchLCTsToSimTrack(const CSCCorrelatedLCTDigiCollection& l
           if (p == lct.getGEM2()) {
             lct_gem2_match = true;
             if (verboseLCT_)
-              cout << "\t...lct_gem2_match" << endl;
+              edm::LogInfo("CSCStubMatcher") << "\t...lct_gem2_match";
             break;
           }
         }
@@ -370,7 +366,7 @@ void CSCStubMatcher::matchLCTsToSimTrack(const CSCCorrelatedLCTDigiCollection& l
 
       if (lct_matched) {
         if (verboseLCT_)
-          cout << "...was matched" << endl;
+          edm::LogInfo("CSCStubMatcher") << "...was matched";
         if (std::find(chamber_to_lcts_[id].begin(), chamber_to_lcts_[id].end(), lct) == chamber_to_lcts_[id].end()) {
           chamber_to_lcts_[id].emplace_back(lct);
         }
