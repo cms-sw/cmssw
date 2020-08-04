@@ -1,5 +1,6 @@
 #include "DataFormats/Common/interface/DetSetVectorNew.h"
 #include "DataFormats/Common/interface/Handle.h"
+#include "DataFormats/Common/interface/ThinnedRefSet.h"
 #include "DataFormats/TestObjects/interface/Thing.h"
 #include "DataFormats/TestObjects/interface/TrackOfDSVThings.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
@@ -13,7 +14,6 @@
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
-#include <set>
 #include <string>
 
 namespace edmtest {
@@ -30,8 +30,7 @@ namespace edmtest {
 
   private:
     edm::EDGetTokenT<TrackOfDSVThingsCollection> const trackToken_;
-    std::set<unsigned int> keysToSave_;
-    unsigned int const offsetToThinnedKey_;
+    edm::ThinnedRefSet<edmNew::DetSetVector<Thing>> keysToSave_;
     unsigned int const offsetToValue_;
     unsigned int const expectedDetSets_;
     unsigned int const expectedDetSetSize_;
@@ -40,7 +39,6 @@ namespace edmtest {
 
   ThinningDSVThingSelector::ThinningDSVThingSelector(edm::ParameterSet const& pset, edm::ConsumesCollector&& cc)
       : trackToken_(cc.consumes<TrackOfDSVThingsCollection>(pset.getParameter<edm::InputTag>("trackTag"))),
-        offsetToThinnedKey_(pset.getParameter<unsigned int>("offsetToThinnedKey")),
         offsetToValue_(pset.getParameter<unsigned int>("offsetToValue")),
         expectedDetSets_(pset.getParameter<unsigned int>("expectedDetSets")),
         expectedDetSetSize_(pset.getParameter<unsigned int>("expectedDetSetSize")),
@@ -48,7 +46,6 @@ namespace edmtest {
 
   void ThinningDSVThingSelector::fillPSetDescription(edm::ParameterSetDescription& desc) {
     desc.add<edm::InputTag>("trackTag");
-    desc.add<unsigned int>("offsetToThinnedKey");
     desc.add<unsigned int>("offsetToValue", 0);
     desc.add<unsigned int>("expectedDetSets");
     desc.add<unsigned int>("expectedDetSetSize");
@@ -58,9 +55,10 @@ namespace edmtest {
   void ThinningDSVThingSelector::preChoose(edm::Handle<edmNew::DetSetVector<Thing>> tc,
                                            edm::Event const& event,
                                            edm::EventSetup const& es) {
+    auto filler = keysToSave_.fill(edm::RefProd(tc), event.productGetter());
     for (auto const& track : event.get(trackToken_)) {
-      keysToSave_.insert(track.ref1.key() - offsetToThinnedKey_);
-      keysToSave_.insert(track.ref2.key() - offsetToThinnedKey_);
+      filler.insert(track.ref1);
+      filler.insert(track.ref2);
     }
 
     // Just checking to see if the collection got passed in. Not really using it for anything.
@@ -87,9 +85,7 @@ namespace edmtest {
     }
 
     // Save the Things referenced by the Tracks
-    if (keysToSave_.find(iIndex) == keysToSave_.end())
-      return false;
-    return true;
+    return keysToSave_.contains(iIndex);
   }
 }  // namespace edmtest
 
