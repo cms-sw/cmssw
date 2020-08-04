@@ -44,8 +44,8 @@ void HcalAmplifier::amplify(CaloSamples& frame, CLHEP::HepRandomEngine* engine) 
   }
   pe2fC(frame);
 
-  if (frame.id() == DetId::Hcal && ((frame.id().subdetId() == HcalGenericDetId::HcalGenBarrel) ||
-                                    (frame.id().subdetId() == HcalGenericDetId::HcalGenEndcap))) {
+  if (frame.id().det() == DetId::Hcal && ((frame.id().subdetId() == HcalGenericDetId::HcalGenBarrel) ||
+                                          (frame.id().subdetId() == HcalGenericDetId::HcalGenEndcap))) {
     const HcalSimParameters& params = static_cast<const HcalSimParameters&>(theParameterMap->simParameters(frame.id()));
     if (params.delayQIE() > 0)
       applyQIEdelay(frame, params.delayQIE());
