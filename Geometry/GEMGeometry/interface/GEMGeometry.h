@@ -109,6 +109,11 @@ public:
   /// Add a GEMEtaPartition  to the Geometry
   void add(const GEMEtaPartition* etaPartition);
 
+  // check if a certain station exists
+  bool hasGE11() const;
+  bool hasGE21() const;
+  bool hasME0() const;
+
 private:
   DetContainer theEtaPartitions;
   DetContainer theDets;
