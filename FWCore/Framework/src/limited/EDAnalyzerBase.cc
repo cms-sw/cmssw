@@ -22,6 +22,7 @@
 #include "FWCore/Framework/src/edmodule_mightGet_config.h"
 #include "FWCore/Framework/src/PreallocationConfiguration.h"
 #include "FWCore/Framework/src/EventSignalsSentry.h"
+#include "FWCore/Framework/src/TransitionInfoTypes.h"
 
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
@@ -48,14 +49,14 @@ namespace edm {
 
     EDAnalyzerBase::~EDAnalyzerBase() {}
 
-    bool EDAnalyzerBase::doEvent(EventPrincipal const& ep,
-                                 EventSetupImpl const& ci,
+    bool EDAnalyzerBase::doEvent(EventTransitionInfo const& info,
                                  ActivityRegistry* act,
                                  ModuleCallingContext const* mcc) {
-      Event e(ep, moduleDescription_, mcc);
+      Event e(info, moduleDescription_, mcc);
       e.setConsumer(this);
       EventSignalsSentry sentry(act, mcc);
-      const EventSetup c{ci, static_cast<unsigned int>(Transition::Event), esGetTokenIndices(Transition::Event), false};
+      const EventSetup c{
+          info, static_cast<unsigned int>(Transition::Event), esGetTokenIndices(Transition::Event), false};
       this->analyze(e.streamID(), e, c);
       return true;
     }
@@ -92,33 +93,31 @@ namespace edm {
       this->doEndProcessBlock_(constProcessBlock);
     }
 
-    void EDAnalyzerBase::doBeginRun(RunPrincipal const& rp, EventSetupImpl const& ci, ModuleCallingContext const* mcc) {
-      Run r(rp, moduleDescription_, mcc, false);
+    void EDAnalyzerBase::doBeginRun(RunTransitionInfo const& info, ModuleCallingContext const* mcc) {
+      Run r(info, moduleDescription_, mcc, false);
       r.setConsumer(this);
       Run const& cnstR = r;
       const EventSetup c{
-          ci, static_cast<unsigned int>(Transition::BeginRun), esGetTokenIndices(Transition::BeginRun), false};
+          info, static_cast<unsigned int>(Transition::BeginRun), esGetTokenIndices(Transition::BeginRun), false};
       this->doBeginRun_(cnstR, c);
       this->doBeginRunSummary_(cnstR, c);
     }
 
-    void EDAnalyzerBase::doEndRun(RunPrincipal const& rp, EventSetupImpl const& ci, ModuleCallingContext const* mcc) {
-      Run r(rp, moduleDescription_, mcc, true);
+    void EDAnalyzerBase::doEndRun(RunTransitionInfo const& info, ModuleCallingContext const* mcc) {
+      Run r(info, moduleDescription_, mcc, true);
       r.setConsumer(this);
       Run const& cnstR = r;
       const EventSetup c{
-          ci, static_cast<unsigned int>(Transition::EndRun), esGetTokenIndices(Transition::EndRun), false};
+          info, static_cast<unsigned int>(Transition::EndRun), esGetTokenIndices(Transition::EndRun), false};
       this->doEndRunSummary_(r, c);
       this->doEndRun_(cnstR, c);
     }
 
-    void EDAnalyzerBase::doBeginLuminosityBlock(LuminosityBlockPrincipal const& lbp,
-                                                EventSetupImpl const& ci,
-                                                ModuleCallingContext const* mcc) {
-      LuminosityBlock lb(lbp, moduleDescription_, mcc, false);
+    void EDAnalyzerBase::doBeginLuminosityBlock(LumiTransitionInfo const& info, ModuleCallingContext const* mcc) {
+      LuminosityBlock lb(info, moduleDescription_, mcc, false);
       lb.setConsumer(this);
       LuminosityBlock const& cnstLb = lb;
-      const EventSetup c{ci,
+      const EventSetup c{info,
                          static_cast<unsigned int>(Transition::BeginLuminosityBlock),
                          esGetTokenIndices(Transition::BeginLuminosityBlock),
                          false};
@@ -126,13 +125,11 @@ namespace edm {
       this->doBeginLuminosityBlockSummary_(cnstLb, c);
     }
 
-    void EDAnalyzerBase::doEndLuminosityBlock(LuminosityBlockPrincipal const& lbp,
-                                              EventSetupImpl const& ci,
-                                              ModuleCallingContext const* mcc) {
-      LuminosityBlock lb(lbp, moduleDescription_, mcc, true);
+    void EDAnalyzerBase::doEndLuminosityBlock(LumiTransitionInfo const& info, ModuleCallingContext const* mcc) {
+      LuminosityBlock lb(info, moduleDescription_, mcc, true);
       lb.setConsumer(this);
       LuminosityBlock const& cnstLb = lb;
-      const EventSetup c{ci,
+      const EventSetup c{info,
                          static_cast<unsigned int>(Transition::EndLuminosityBlock),
                          esGetTokenIndices(Transition::EndLuminosityBlock),
                          false};
@@ -142,34 +139,27 @@ namespace edm {
 
     void EDAnalyzerBase::doBeginStream(StreamID id) { doBeginStream_(id); }
     void EDAnalyzerBase::doEndStream(StreamID id) { doEndStream_(id); }
-    void EDAnalyzerBase::doStreamBeginRun(StreamID id,
-                                          RunPrincipal const& rp,
-                                          EventSetupImpl const& ci,
-                                          ModuleCallingContext const* mcc) {
-      Run r(rp, moduleDescription_, mcc, false);
+    void EDAnalyzerBase::doStreamBeginRun(StreamID id, RunTransitionInfo const& info, ModuleCallingContext const* mcc) {
+      Run r(info, moduleDescription_, mcc, false);
       r.setConsumer(this);
       const EventSetup c{
-          ci, static_cast<unsigned int>(Transition::BeginRun), esGetTokenIndices(Transition::BeginRun), false};
+          info, static_cast<unsigned int>(Transition::BeginRun), esGetTokenIndices(Transition::BeginRun), false};
       this->doStreamBeginRun_(id, r, c);
     }
-    void EDAnalyzerBase::doStreamEndRun(StreamID id,
-                                        RunPrincipal const& rp,
-                                        EventSetupImpl const& ci,
-                                        ModuleCallingContext const* mcc) {
-      Run r(rp, moduleDescription_, mcc, true);
+    void EDAnalyzerBase::doStreamEndRun(StreamID id, RunTransitionInfo const& info, ModuleCallingContext const* mcc) {
+      Run r(info, moduleDescription_, mcc, true);
       r.setConsumer(this);
       const EventSetup c{
-          ci, static_cast<unsigned int>(Transition::EndRun), esGetTokenIndices(Transition::EndRun), false};
+          info, static_cast<unsigned int>(Transition::EndRun), esGetTokenIndices(Transition::EndRun), false};
       this->doStreamEndRun_(id, r, c);
       this->doStreamEndRunSummary_(id, r, c);
     }
     void EDAnalyzerBase::doStreamBeginLuminosityBlock(StreamID id,
-                                                      LuminosityBlockPrincipal const& lbp,
-                                                      EventSetupImpl const& ci,
+                                                      LumiTransitionInfo const& info,
                                                       ModuleCallingContext const* mcc) {
-      LuminosityBlock lb(lbp, moduleDescription_, mcc, false);
+      LuminosityBlock lb(info, moduleDescription_, mcc, false);
       lb.setConsumer(this);
-      const EventSetup c{ci,
+      const EventSetup c{info,
                          static_cast<unsigned int>(Transition::BeginLuminosityBlock),
                          esGetTokenIndices(Transition::BeginLuminosityBlock),
                          false};
@@ -177,12 +167,11 @@ namespace edm {
     }
 
     void EDAnalyzerBase::doStreamEndLuminosityBlock(StreamID id,
-                                                    LuminosityBlockPrincipal const& lbp,
-                                                    EventSetupImpl const& ci,
+                                                    LumiTransitionInfo const& info,
                                                     ModuleCallingContext const* mcc) {
-      LuminosityBlock lb(lbp, moduleDescription_, mcc, true);
+      LuminosityBlock lb(info, moduleDescription_, mcc, true);
       lb.setConsumer(this);
-      const EventSetup c{ci,
+      const EventSetup c{info,
                          static_cast<unsigned int>(Transition::EndLuminosityBlock),
                          esGetTokenIndices(Transition::EndLuminosityBlock),
                          false};

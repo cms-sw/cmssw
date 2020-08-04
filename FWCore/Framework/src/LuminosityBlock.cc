@@ -2,12 +2,19 @@
 
 #include "FWCore/Framework/interface/LuminosityBlockPrincipal.h"
 #include "FWCore/Framework/interface/Run.h"
+#include "FWCore/Framework/src/TransitionInfoTypes.h"
 #include "FWCore/Utilities/interface/Algorithms.h"
 #include "FWCore/Utilities/interface/get_underlying_safe.h"
 
 namespace edm {
 
   std::string const LuminosityBlock::emptyString_;
+
+  LuminosityBlock::LuminosityBlock(LumiTransitionInfo const& info,
+                                   ModuleDescription const& md,
+                                   ModuleCallingContext const* mcc,
+                                   bool isAtEnd)
+      : LuminosityBlock(info.principal(), md, mcc, isAtEnd) {}
 
   LuminosityBlock::LuminosityBlock(LuminosityBlockPrincipal const& lbp,
                                    ModuleDescription const& md,
