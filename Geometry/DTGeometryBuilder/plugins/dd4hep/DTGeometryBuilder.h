@@ -1,6 +1,26 @@
 #ifndef GEOMETRY_RECO_GEOMETRY_DT_GEOMETRY_BUILDER_H
 #define GEOMETRY_RECO_GEOMETRY_DT_GEOMETRY_BUILDER_H
 
+// -*- C++ -*-
+//
+// Package:    DetectorDescription/DTGeometryBuilder
+// Class:      DTGeometryBuilder
+//
+/**\class DTGeometryBuilder
+
+ Description: DT Geometry builder from DD4hep
+
+ Implementation:
+     DT Geometry Builder iterates over a Detector Tree and
+     retrvieves DT chambers, super layers, layers and wires.
+*/
+//
+// Original Author:  Ianna Osborne
+//         Created:  Wed, 16 Jan 2019 10:19:37 GMT
+//         Modified by Sergio Lo Meo (sergio.lo.meo@cern.ch) Tue, 03 August 2020
+//
+//
+
 #include "DataFormats/GeometrySurface/interface/ReferenceCounted.h"
 #include "DataFormats/GeometrySurface/interface/Plane.h"
 #include "Geometry/MuonNumbering/interface/DTNumberingScheme.h"
