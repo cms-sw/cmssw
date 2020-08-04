@@ -758,6 +758,26 @@ namespace edm {
   };
 }  // namespace edm
 
+// Thinning support
+#include "DataFormats/Common/interface/fillCollectionForThinning.h"
+namespace edmNew {
+  template <typename T, typename Selector>
+  void fillCollectionForThinning(edmNew::DetSet<T> const& detset,
+                                 Selector& selector,
+                                 unsigned int& iIndex,
+                                 edmNew::DetSetVector<T>& output,
+                                 edm::ThinnedAssociation& association) {
+    typename edmNew::DetSetVector<T>::FastFiller ff(output, detset.detId());
+    for (auto iter = detset.begin(), end = detset.end(); iter != end; ++iter, ++iIndex) {
+      edm::detail::fillCollectionForThinning(*iter, selector, iIndex, ff, association);
+    }
+    if (detset.begin() != detset.end()) {
+      // need to decrease the global index by one because the outer loop will increase it
+      --iIndex;
+    }
+  }
+}  // namespace edmNew
+
 #ifdef DSVN_USE_ATOMIC
 #undef DSVN_USE_ATOMIC
 #endif
