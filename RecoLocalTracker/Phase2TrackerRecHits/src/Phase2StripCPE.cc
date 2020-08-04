@@ -29,12 +29,8 @@ Phase2StripCPE::LocalValues Phase2StripCPE::localParameters(const Phase2TrackerC
 LocalVector Phase2StripCPE::driftDirection(const Phase2TrackerGeomDetUnit& det) const {
   LocalVector lbfield = (det.surface()).toLocal(magfield_.inTesla(det.surface().position()));
 
-  float langle = 0.;
-  if (use_LorentzAngle_DB_) {
-    langle = LorentzAngleMap_.getLorentzAngle(det.geographicalId().rawId());
-  } else {
-    langle = tanLorentzAnglePerTesla_;
-  }
+  float langle =
+      use_LorentzAngle_DB_ ? LorentzAngleMap_.getLorentzAngle(det.geographicalId().rawId()) : tanLorentzAnglePerTesla_;
 
   float dir_x = -langle * lbfield.y();
   float dir_y = langle * lbfield.x();
