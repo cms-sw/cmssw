@@ -1,10 +1,11 @@
 #include "DataFormats/GEMDigi/interface/GEMPadDigi.h"
 #include <iostream>
 
-GEMPadDigi::GEMPadDigi(uint16_t pad, int16_t bx, enum GEMSubDetId::Station station)
-    : pad_(pad), bx_(bx), station_(station) {}
+GEMPadDigi::GEMPadDigi(uint16_t pad, int16_t bx, enum GEMSubDetId::Station station, enum NumberPartitions nPart)
+    : pad_(pad), bx_(bx), station_(station), part_(nPart) {}
 
-GEMPadDigi::GEMPadDigi() : pad_(GE11InValid), bx_(-99), station_(GEMSubDetId::Station::GE11) {}
+GEMPadDigi::GEMPadDigi()
+    : pad_(GE11InValid), bx_(-99), station_(GEMSubDetId::Station::GE11), part_(NumberPartitions::GE11) {}
 
 // Comparison
 bool GEMPadDigi::operator==(const GEMPadDigi& digi) const {

@@ -19,9 +19,6 @@
 
 #include <set>
 
-/// \class GEMPadDigiProducer
-/// producer for GEM trigger pads
-
 class GEMPadDigiProducer : public edm::stream::EDProducer<> {
 public:
   explicit GEMPadDigiProducer(const edm::ParameterSet& ps);
@@ -35,8 +32,12 @@ public:
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
+  // build trigger pads from adjacent strips
   void buildPads(const GEMDigiCollection& digis, GEMPadDigiCollection& out_pads) const;
+  // Split strips and change pairing for GE2/1 pads in the trigger
+  // to reduce capacitance thus lowering noise
   void buildPads16GE21(const GEMDigiCollection& digis, GEMPadDigiCollection& out_pads) const;
+  // check that the pad number is valid
   void checkValid(const GEMPadDigi& pad, const GEMDetId& id) const;
 
   /// Name of input digi Collection
@@ -95,31 +96,55 @@ void GEMPadDigiProducer::buildPads(const GEMDigiCollection& det_digis, GEMPadDig
   for (const auto& p : geometry_->etaPartitions()) {
     // when using the GE2/1 geometry with 16 eta partitions
     // ->ignore GE2/1
-    if (use16GE21_ and p->id().station() == 2)
+    if (use16GE21_ and p->isGE21())
       continue;
 
-    // set of <pad, bx> pairs, sorted first by pad then by bx
-    std::set<std::pair<int, int> > proto_pads;
+    // check that ME0 has 8-eta partitions
+    if (geometry_->stations().size() == 3) {
+      if (geometry_->station(1, 0)->superChamber(1)->chamber(1)->nEtaPartitions() !=
+          GEMPadDigi::NumberPartitions::ME0) {
+        edm::LogError("GEMPadDigiProducer") << "ME0 geometry appears corrupted";
+      }
+    }
+
+    // check that GE1/1 has 8-eta partitions
+    if (geometry_->station(1, 1)->superChamber(1)->chamber(1)->nEtaPartitions() != GEMPadDigi::NumberPartitions::GE11) {
+      edm::LogError("GEMPadDigiProducer") << "GE1/1 geometry appears corrupted";
+    }
+
+    // check that GE2/1 has 8-eta partitions
+    if (geometry_->stations().size() == 2) {
+      if (geometry_->station(1, 2)->superChamber(1)->chamber(1)->nEtaPartitions() !=
+          GEMPadDigi::NumberPartitions::GE21) {
+        edm::LogError("GEMPadDigiProducer") << "GE2/1 geometry (8 partition) appears corrupted";
+      }
+    }
+
+    // set of <pad, bx, part> pairs, sorted first by pad then by bx
+    std::set<std::tuple<int, int, enum GEMPadDigi::NumberPartitions> > proto_pads;
 
     // walk over digis in this partition,
     // and stuff them into a set of unique pads (equivalent of OR operation)
     auto digis = det_digis.get(p->id());
     for (auto d = digis.first; d != digis.second; ++d) {
       unsigned pad_num = static_cast<int>(p->padOfStrip(d->strip()));
-
+      GEMPadDigi::NumberPartitions nPart = GEMPadDigi::NumberPartitions::GE11;
+      if (p->isME0()) {
+        nPart = GEMPadDigi::NumberPartitions::ME0;
+      } else if (p->isGE21()) {
+        nPart = GEMPadDigi::NumberPartitions::GE21;
+      }
       // check that the input digi is valid
-      if ((GEMSubDetId::station(p->id().station()) == GEMSubDetId::Station::GE11 and
-           pad_num == GEMPadDigi::GE11InValid) or
-          (GEMSubDetId::station(p->id().station()) == GEMSubDetId::Station::GE21 and
-           pad_num == GEMPadDigi::GE21InValid)) {
+      if ((p->isGE11() and pad_num == GEMPadDigi::GE11InValid) or
+          (p->isGE21() and pad_num == GEMPadDigi::GE21InValid)) {
         edm::LogWarning("GEMPadDigiProducer") << "Invalid " << pad_num << " from  " << *d << " in " << p->id();
       }
-      proto_pads.emplace(pad_num, d->bx());
+      proto_pads.emplace(pad_num, d->bx(), nPart);
     }
 
     // fill the output collections
     for (const auto& d : proto_pads) {
-      GEMPadDigi pad_digi(d.first, d.second, GEMSubDetId::station(p->id().station()));
+      GEMPadDigi pad_digi(std::get<0>(d), std::get<1>(d), GEMSubDetId::station(p->id().station()), std::get<2>(d));
       checkValid(pad_digi, p->id());
       out_pads.insertDigi(p->id(), pad_digi);
     }
@@ -129,14 +154,23 @@ void GEMPadDigiProducer::buildPads(const GEMDigiCollection& det_digis, GEMPadDig
 void GEMPadDigiProducer::buildPads16GE21(const GEMDigiCollection& det_digis, GEMPadDigiCollection& out_pads) const {
   for (const auto& p : geometry_->etaPartitions()) {
     // when using the GE2/1 geometry with 16 eta partitions
-    // ->ignore GE1/1
-    if (p->id().station() == 1)
+
+    // ->ignore non-GE2/1
+    if (!p->isGE21())
       continue;
 
     // ignore eta partition with even numbers
     // these are included in the odd numbered pads
     if (p->id().roll() % 2 == 0)
       continue;
+
+    // check that GE2/1 has 16-eta partitions
+    if (geometry_->stations().size() == 2) {
+      if (geometry_->station(1, 2)->superChamber(1)->chamber(1)->nEtaPartitions() !=
+          GEMPadDigi::NumberPartitions::GE21SplitStrip) {
+        edm::LogError("GEMPadDigiProducer") << "GE2/1 geometry (16 partition) appears corrupted";
+      }
+    }
 
     // set of <pad, bx> pairs, sorted first by pad then by bx
     std::set<std::pair<int, int> > proto_pads;
@@ -160,7 +194,7 @@ void GEMPadDigiProducer::buildPads16GE21(const GEMDigiCollection& det_digis, GEM
 
     // fill the output collections
     for (const auto& d : proto_pads) {
-      GEMPadDigi pad_digi(d.first, d.second);
+      GEMPadDigi pad_digi(d.first, d.second, GEMSubDetId::Station::GE21, GEMPadDigi::NumberPartitions::GE21SplitStrip);
       checkValid(pad_digi, p->id());
       out_pads.insertDigi(p->id(), pad_digi);
     }

@@ -1,10 +1,14 @@
 #include "DataFormats/GEMDigi/interface/GEMPadDigiCluster.h"
 #include <iostream>
 
-GEMPadDigiCluster::GEMPadDigiCluster(std::vector<uint16_t> pads, int16_t bx, enum GEMSubDetId::Station station)
-    : v_(pads), bx_(bx), station_(station) {}
+GEMPadDigiCluster::GEMPadDigiCluster(std::vector<uint16_t> pads,
+                                     int16_t bx,
+                                     enum GEMSubDetId::Station station,
+                                     enum NumberPartitions nPart)
+    : v_(pads), bx_(bx), station_(station), part_(nPart) {}
 
-GEMPadDigiCluster::GEMPadDigiCluster() : v_(std::vector<uint16_t>()), bx_(-99), station_(GEMSubDetId::Station::GE11) {}
+GEMPadDigiCluster::GEMPadDigiCluster()
+    : v_(std::vector<uint16_t>()), bx_(-99), station_(GEMSubDetId::Station::GE11), part_(NumberPartitions::GE11) {}
 
 // Comparison
 bool GEMPadDigiCluster::operator==(const GEMPadDigiCluster& digi) const {
