@@ -93,11 +93,9 @@ void GEMPadDigiProducer::produce(edm::Event& e, const edm::EventSetup& eventSetu
 }
 
 void GEMPadDigiProducer::buildPads(const GEMDigiCollection& det_digis, GEMPadDigiCollection& out_pads) const {
-
   // check that ME0 has 8-eta partitions
   if (geometry_->hasME0()) {
-    if (geometry_->station(1, 0)->superChamber(1)->chamber(1)->nEtaPartitions() !=
-        GEMPadDigi::NumberPartitions::ME0) {
+    if (geometry_->station(1, 0)->superChamber(1)->chamber(1)->nEtaPartitions() != GEMPadDigi::NumberPartitions::ME0) {
       edm::LogError("GEMPadDigiProducer") << "ME0 geometry appears corrupted";
     }
   }
@@ -109,8 +107,7 @@ void GEMPadDigiProducer::buildPads(const GEMDigiCollection& det_digis, GEMPadDig
 
   // check that GE2/1 has 8-eta partitions
   if (geometry_->hasGE21()) {
-    if (geometry_->station(1, 2)->superChamber(1)->chamber(1)->nEtaPartitions() !=
-        GEMPadDigi::NumberPartitions::GE21) {
+    if (geometry_->station(1, 2)->superChamber(1)->chamber(1)->nEtaPartitions() != GEMPadDigi::NumberPartitions::GE21) {
       edm::LogError("GEMPadDigiProducer") << "GE2/1 geometry (8 partition) appears corrupted";
     }
   }
@@ -136,8 +133,7 @@ void GEMPadDigiProducer::buildPads(const GEMDigiCollection& det_digis, GEMPadDig
         nPart = GEMPadDigi::NumberPartitions::GE21;
       }
       // check that the input digi is valid
-      if ((p->isME0() and pad_num == GEMPadDigi::ME0InValid) or
-          (p->isGE11() and pad_num == GEMPadDigi::GE11InValid) or
+      if ((p->isME0() and pad_num == GEMPadDigi::ME0InValid) or (p->isGE11() and pad_num == GEMPadDigi::GE11InValid) or
           (p->isGE21() and pad_num == GEMPadDigi::GE21InValid)) {
         edm::LogWarning("GEMPadDigiProducer") << "Invalid " << pad_num << " from  " << *d << " in " << p->id();
       }
