@@ -150,7 +150,10 @@ MTDSectorForwardDoubleLayer* ETLDetLayerGeometryBuilder::buildLayerNew(int endca
     for (auto det : geo.detsETL()) {
       ETLDetId theMod(det->geographicalId().rawId());
       if (theMod.mtdSide() == endcap && theMod.nDisc() == layer && theMod.sector() == static_cast<int>(sector)) {
-        LogDebug("MTDDetLayers") << theMod;
+        LogDebug("MTDDetLayers") << "ETLDetId " << theMod.rawId() << " side = " << theMod.mtdSide()
+                                 << " Disc/Side/Sector = " << theMod.nDisc() << " " << theMod.discSide() << " "
+                                 << theMod.sector() << " mod/type = " << theMod.module() << " " << theMod.modType()
+                                 << " pos = " << det->position();
         // front layer face
         if (theMod.discSide() == 0) {
 #ifdef EDM_ML_DEBUG
@@ -194,13 +197,14 @@ MTDSectorForwardDoubleLayer* ETLDetLayerGeometryBuilder::buildLayerNew(int endca
 }
 
 MTDDetSector* ETLDetLayerGeometryBuilder::makeDetSector(vector<const GeomDet*>& geomDets) {
-  LogTrace("MTDDetLayers") << "ETLDetLayerGeometryBuilder: new MTDDetSector with " << geomDets.size();
+  LogTrace("MTDDetLayers") << "ETLDetLayerGeometryBuilder: new MTDDetSector with " << geomDets.size() << " modules";
 
   MTDDetSector* result = new MTDDetSector(geomDets);
-  LogTrace("MTDDetLayers") << "ETLDetLayerGeometryBuilder: new MTDDetSector with " << geomDets.size()
-                           << " chambers at z=" << result->position().z()
-                           << " R1: " << result->specificSurface().innerRadius()
-                           << " R2: " << result->specificSurface().outerRadius();
+  LogTrace("MTDDetLayers") << "ETLDetLayerGeometryBuilder: pos = " << result->position()
+                           << " rmin = " << result->specificSurface().innerRadius()
+                           << " rmax = " << result->specificSurface().outerRadius()
+                           << " phi ref = " << result->specificSurface().position().phi()
+                           << " phi/2 = " << result->specificSurface().phiHalfExtension();
 
   return result;
 }

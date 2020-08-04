@@ -229,12 +229,14 @@ void MTDRecoGeometryAnalyzer::testETLLayersNew(const MTDDetLayerGeometry* geo, c
       LogVerbatim("MTDLayerDump") << "\nSector " << isectInd << " pos = " << isector->specificSurface().position()
                                   << " rmin = " << isector->specificSurface().innerRadius()
                                   << " rmax = " << isector->specificSurface().outerRadius()
+                                  << " phi ref = " << isector->specificSurface().position().phi()
                                   << " phi/2 = " << isector->specificSurface().phiHalfExtension();
       for (const auto& imod : isector->basicComponents()) {
         ETLDetId modId(imod->geographicalId().rawId());
         LogVerbatim("MTDLayerDump") << "ETLDetId " << modId.rawId() << " side = " << modId.mtdSide()
                                     << " Disc/Side/Sector = " << modId.nDisc() << " " << modId.discSide() << " "
-                                    << modId.sector() << " mod/type = " << modId.module() << " " << modId.modType();
+                                    << modId.sector() << " mod/type = " << modId.module() << " " << modId.modType()
+                                    << " pos = " << imod->position();
       }
     }
   }

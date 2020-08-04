@@ -1,3 +1,5 @@
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+
 #include "DataFormats/GeometrySurface/interface/DiskSectorBounds.h"
 
 using namespace std;
@@ -6,6 +8,8 @@ bool DiskSectorBounds::inside(const Local3DPoint& p) const {
   // transform to system with local frame situated at disk center
   // and rotated  x/y axis
   Local3DPoint tmp(p.y() + theOffset, -p.x(), p.z());
+
+  edm::LogWarning("DiskSectorBounds") << tmp;
 
   return ((tmp.z() >= theZmin) & (tmp.z() <= theZmax) & (tmp.perp2() >= theRmin * theRmin) &
           (tmp.perp2() <= theRmax * theRmax)) &&
