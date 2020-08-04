@@ -375,6 +375,28 @@ def miniAOD_customizeCommon(process):
         process.rerunDiscriminationByIsolationMVADBnewDMwLTPhase2.PATTauProducer=_noUpdatedTauName
         task.add(process.rerunIsolationMVADBnewDMwLTPhase2Task)
 
+    #-- Rerun tauID against dead ECal towers to taus for the run2_miniAOD_UL era
+    # to enable default behoviour with leading track extrapolation to ECAL
+    _makePatTausTaskWithDeadECalVeto = process.makePatTausTask.copy()
+    _makePatTausTaskWithDeadECalVeto.add(
+        process.hpsPFTauDiscriminationByDeadECALElectronRejection
+    )
+    run2_miniAOD_UL.toReplaceWith(
+        process.makePatTausTask, _makePatTausTaskWithDeadECalVeto
+    )
+    #... and remove this tauID for other eras from list of sources to preserve
+    #    an original setup
+    _withoutDeadEcalTauIDPs = process.patTaus.tauIDSources.clone()
+    del _withoutDeadEcalTauIDPs.againstElectronDeadECAL
+    (run2_miniAOD_80XLegacy | run2_miniAOD_94XFall17).toModify(
+        process.patTaus, tauIDSources = _withoutDeadEcalTauIDPs
+        )
+    _withoutDeadEcalTauIDBoostedPs = process.patTausBoosted.tauIDSources.clone()
+    del _withoutDeadEcalTauIDBoostedPs.againstElectronDeadECAL
+    (run2_miniAOD_80XLegacy | run2_miniAOD_94XFall17).toModify(
+        process.patTausBoosted, tauIDSources = _withoutDeadEcalTauIDBoostedPs
+        )
+
     #-- Adding customization for 80X 2016 legacy reMiniAOD and 2018 heavy ions
     _makePatTausTaskWithTauReReco = process.makePatTausTask.copy()
     _makePatTausTaskWithTauReReco.add(process.PFTauTask)
