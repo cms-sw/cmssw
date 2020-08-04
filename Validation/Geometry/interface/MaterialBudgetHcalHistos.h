@@ -48,8 +48,8 @@ private:
   std::vector<int> hfLevels_;
   bool fillHistos_, printSum_;
   int binEta_, binPhi_;
-  double maxEta_, etaLow_, etaHigh_, etaMin0_, etaMax0_, etaMin1_, etaMax1_;
-  double etaMin2_, etaMax2_, etaMinP_, etaMaxP_;
+  double maxEta_, etaLow_, etaHigh_, etaLowMin_, etaLowMax_, etaMidMin_;
+  double etaMidMax_, etaHighMin_, etaHighMax_, etaMinP_, etaMaxP_;
   std::vector<std::string> matList_;
   std::vector<double> stepLength_, radLength_, intLength_;
   TH1F *me400[maxSet_], *me800[maxSet_], *me1300[maxSet2_];

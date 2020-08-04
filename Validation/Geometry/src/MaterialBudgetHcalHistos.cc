@@ -25,18 +25,18 @@ MaterialBudgetHcalHistos::MaterialBudgetHcalHistos(const edm::ParameterSet& p) {
   printSum_ = p.getUntrackedParameter<bool>("PrintSummary", false);
   etaMinP_ = p.getUntrackedParameter<double>("EtaMinP", 5.2);
   etaMaxP_ = p.getUntrackedParameter<double>("EtaMaxP", 0.0);
-  etaMin0_ = p.getUntrackedParameter<double>("EtaMin0", 2.650);
-  etaMax0_ = p.getUntrackedParameter<double>("EtaMax0", 2.868);
-  etaMin1_ = p.getUntrackedParameter<double>("EtaMin1", 2.868);
-  etaMax1_ = p.getUntrackedParameter<double>("EtaMax1", 3.000);
-  etaMin2_ = p.getUntrackedParameter<double>("EtaMin2", 0.783);
-  etaMax2_ = p.getUntrackedParameter<double>("EtaMax2", 0.870);
+  etaLowMin_ = p.getUntrackedParameter<double>("EtaLowMin", 0.783);
+  etaLowMax_ = p.getUntrackedParameter<double>("EtaLowMax", 0.870);
+  etaMidMin_ = p.getUntrackedParameter<double>("EtaMidMin", 2.650);
+  etaMidMax_ = p.getUntrackedParameter<double>("EtaMidMax", 2.868);
+  etaHighMin_ = p.getUntrackedParameter<double>("EtaHighMin", 2.868);
+  etaHighMax_ = p.getUntrackedParameter<double>("EtaHighMax", 3.000);
   edm::LogVerbatim("MaterialBudget") << "MaterialBudgetHcalHistos: FillHisto : " << fillHistos_ << " PrintSummary "
                                      << printSum_ << " == Eta plot: NX " << binEta_ << " Range " << -maxEta_ << ":"
                                      << maxEta_ << " Phi plot: NX " << binPhi_ << " Range " << -1._pi << ":" << 1._pi
                                      << " (Eta limit " << etaLow_ << ":" << etaHigh_ << ")"
-                                     << " Eta range (" << etaMin0_ << ":" << etaMax0_ << "), (" << etaMin1_ << ":"
-                                     << etaMax1_ << "), (" << etaMin2_ << ":" << etaMax2_ << ") Debug for eta range "
+                                     << " Eta range (" << etaLowMin_ << ":" << etaLowMax_ << "), (" << etaMidMin_ << ":"
+                                     << etaMidMax_ << "), (" << etaHighMin_ << ":" << etaHighMax_ << ") Debug for eta range "
                                      << etaMinP_ << ":" << etaMaxP_;
   if (fillHistos_)
     book();
@@ -313,9 +313,9 @@ void MaterialBudgetHcalHistos::book() {
                                          << " bins in phi from " << -maxPhi << " to " << maxPhi;
 
   std::string iter;
-  std::string range0 = "(" + std::to_string(etaMin0_) + ":" + std::to_string(etaMax0_) + ") ";
-  std::string range1 = "(" + std::to_string(etaMin1_) + ":" + std::to_string(etaMax1_) + ") ";
-  std::string range2 = "(" + std::to_string(etaMin2_) + ":" + std::to_string(etaMax2_) + ") ";
+  std::string range0 = "(" + std::to_string(etaMidMin_) + ":" + std::to_string(etaMidMax_) + ") ";
+  std::string range1 = "(" + std::to_string(etaHighMin_) + ":" + std::to_string(etaHighMax_) + ") ";
+  std::string range2 = "(" + std::to_string(etaLowMin_) + ":" + std::to_string(etaLowMax_) + ") ";
   // total X0
   for (int i = 0; i < maxSet_; i++) {
     iter = std::to_string(i);
@@ -461,19 +461,19 @@ void MaterialBudgetHcalHistos::fillHisto(int ii) {
     me1100[ii]->Fill(eta_, phi_, stepLen_);
     me1200[ii]->Fill(eta_, phi_);
 
-    if ((std::abs(eta_) >= etaMin0_) && (std::abs(eta_) <= etaMax0_)) {
+    if ((std::abs(eta_) >= etaMidMin_) && (std::abs(eta_) <= etaMidMax_)) {
       me1600[ii]->Fill(phi_, radLen_);
       me1700[ii]->Fill(phi_, intLen_);
       me1800[ii]->Fill(phi_, stepLen_);
     }
 
-    if ((std::abs(eta_) >= etaMin1_) && (std::abs(eta_) <= etaMax1_)) {
+    if ((std::abs(eta_) >= etaHighMin_) && (std::abs(eta_) <= etaHighMax_)) {
       me1900[ii]->Fill(phi_, radLen_);
       me2000[ii]->Fill(phi_, intLen_);
       me2100[ii]->Fill(phi_, stepLen_);
     }
 
-    if ((std::abs(eta_) >= etaMin2_) && (std::abs(eta_) <= etaMax2_)) {
+    if ((std::abs(eta_) >= etaLowMin_) && (std::abs(eta_) <= etaLowMax_)) {
       me2200[ii]->Fill(phi_, radLen_);
       me2300[ii]->Fill(phi_, intLen_);
       me2400[ii]->Fill(phi_, stepLen_);
