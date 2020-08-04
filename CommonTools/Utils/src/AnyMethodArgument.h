@@ -6,13 +6,10 @@
 #include "CommonTools/Utils/interface/Exception.h"
 
 #include <algorithm>
-#include <string>
 #include <cstdint>
-
-#include <boost/variant.hpp>
-#include <boost/type_traits/is_same.hpp>
-#include <boost/mpl/if.hpp>
+#include <string>
 #include <type_traits>
+#include <variant>
 
 namespace reco {
   namespace parser {
@@ -21,34 +18,33 @@ namespace reco {
     // AnyMethodArgument variant
     template <typename T>
     struct matches_another_integral_type {
-      static bool const value = boost::is_same<T, int8_t>::value || boost::is_same<T, uint8_t>::value ||
-                                boost::is_same<T, int16_t>::value || boost::is_same<T, uint16_t>::value ||
-                                boost::is_same<T, int32_t>::value || boost::is_same<T, uint32_t>::value ||
-                                boost::is_same<T, int64_t>::value || boost::is_same<T, uint64_t>::value;
+      static bool const value = std::is_same<T, int8_t>::value || std::is_same<T, uint8_t>::value ||
+                                std::is_same<T, int16_t>::value || std::is_same<T, uint16_t>::value ||
+                                std::is_same<T, int32_t>::value || std::is_same<T, uint32_t>::value ||
+                                std::is_same<T, int64_t>::value || std::is_same<T, uint64_t>::value;
     };
 
     // size_t on 32-bit Os X is type unsigned long, which doesn't match uint32_t,
     // so add unsigned long if it doesn't match any of the other integral types.
     // Use "unsigned long" rather than size_t as PtrVector has unsigned long as
     // size_type
-    typedef boost::mpl::if_<
-        matches_another_integral_type<unsigned long>,
-        boost::
-            variant<int8_t, uint8_t, int16_t, uint16_t, int32_t, uint32_t, int64_t, uint64_t, double, float, std::string>,
-        boost::variant<int8_t,
-                       uint8_t,
-                       int16_t,
-                       uint16_t,
-                       int32_t,
-                       uint32_t,
-                       int64_t,
-                       uint64_t,
-                       unsigned long,
-                       double,
-                       float,
-                       std::string> >::type AnyMethodArgument;
+    typedef std::conditional<
+        matches_another_integral_type<unsigned long>::value,
+        std::variant<int8_t, uint8_t, int16_t, uint16_t, int32_t, uint32_t, int64_t, uint64_t, double, float, std::string>,
+        std::variant<int8_t,
+                     uint8_t,
+                     int16_t,
+                     uint16_t,
+                     int32_t,
+                     uint32_t,
+                     int64_t,
+                     uint64_t,
+                     unsigned long,
+                     double,
+                     float,
+                     std::string> >::type AnyMethodArgument;
 
-    class AnyMethodArgumentFixup : public boost::static_visitor<std::pair<AnyMethodArgument, int> > {
+    class AnyMethodArgumentFixup {
     private:
       edm::TypeWithDict dataType_;
       template <typename From, typename To>
@@ -133,7 +129,7 @@ namespace reco {
       }
     };
 
-    class AnyMethodArgument2VoidPtr : public boost::static_visitor<void *> {
+    class AnyMethodArgument2VoidPtr {
     public:
       template <typename T>
       void *operator()(const T &t) const {
