@@ -5,6 +5,7 @@
 #include "CondCore/SiPixelPlugins/plugins/SiPixelQuality_PayloadInspector.cc"
 #include "CondCore/SiPixelPlugins/plugins/SiPixelGainCalibrationOffline_PayloadInspector.cc"
 #include "CondCore/SiPixelPlugins/plugins/SiPixelTemplateDBObject_PayloadInspector.cc"
+#include "CondCore/SiPixelPlugins/plugins/SiPixelGenErrorDBObject_PayloadInspector.cc"
 #include "CondCore/SiPixelPlugins/plugins/SiPixelVCal_PayloadInspector.cc"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/PluginManager/interface/PluginManager.h"
@@ -163,6 +164,22 @@ int main(int argc, char** argv) {
   SiPixelVCalOffsetValuesEndcap histo22;
   histo22.process("frontier://FrontierPrep/CMS_CONDITIONS", PI::mk_input(tag, 1, 1));
   edm::LogPrint("testSiPixelPayloadInspector") << histo22.data() << std::endl;
+
+  // SiPixelGenErrors
+
+  tag = "SiPixelGenErrorDBObject_phase1_BoR3_HV350_Tr2000";
+  start = boost::lexical_cast<unsigned long long>(1);
+  end = boost::lexical_cast<unsigned long long>(1);
+
+  edm::LogPrint("testSiPixelPayloadInspector") << "## Exercising SiPixelGenErrors plots " << std::endl;
+
+  SiPixelGenErrorHeaderTable histo23;
+  histo23.process(connectionString, PI::mk_input(tag, end, end));
+  edm::LogPrint("testSiPixelPayloadInspector") << histo23.data() << std::endl;
+
+  SiPixelGenErrorIDsBPixMap histo24;
+  histo24.process(connectionString, PI::mk_input(tag, end, end));
+  edm::LogPrint("testSiPixelPayloadInspector") << histo24.data() << std::endl;
 
   inputs.clear();
 #if PY_MAJOR_VERSION >= 3
