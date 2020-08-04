@@ -5,6 +5,7 @@
 #include <numeric>
 #include <fstream>  // std::ifstream
 #include <string>
+#include <bitset>
 
 #include "TGraph.h"
 #include "TH1.h"
