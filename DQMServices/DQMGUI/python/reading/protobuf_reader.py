@@ -24,7 +24,7 @@ class ProtobufReader:
 
         buffer = await cls.ioservice.open_url(filename, True)
         buffer.seek(me_info.offset, os.SEEK_CUR)
-        histo_message = await cls.protobuf_parser.read_histo_message(buffer, me_info.size, read_histogram_bytes=True)
+        histo_message = await cls.protobuf_parser.read_histo_message(buffer, me_info.size, read_histogram_bytes=True, uncompress_histogram_bytes=True)
 
         if me_info.type == b'String':
             string_value = cls.get_tobjstring_content(histo_message.full_pathname, histo_message.streamed_histo)

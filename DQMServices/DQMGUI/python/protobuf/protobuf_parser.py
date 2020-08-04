@@ -1,5 +1,6 @@
 
 import os
+import zlib
 from ..ioservice import IOService
 from collections import namedtuple
 
@@ -89,10 +90,11 @@ class ProtobufParser:
 
 
     @classmethod
-    async def deserialize_file(cls, filename, read_histogram_bytes=False):
+    async def deserialize_file(cls, filename, read_histogram_bytes=False, uncompress_histogram_bytes=True):
         """
         Parses non-gzipped protobuf file and returns a list of HistoMessage tuples.
-        If read_histogram_bytes is true, binary data of actual histograms will be read, otherwise it won't.
+        If read_histogram_bytes is True, binary data of actual histograms will be read, otherwise it won't.
+        If uncompress_histogram_bytes is True, binary data of the histograms will be zlib uncompressed.
         If you need only metadata, set read_histogram_bytes to False.
         """
 
@@ -105,7 +107,7 @@ class ProtobufParser:
             if field_number == 1 and wire_type == 2:
                 # Found a value of the repeated Histo field, parse it!
                 message_size = await cls.read_variant_value(buffer)
-                histo = await cls.read_histo_message(buffer, message_size, read_histogram_bytes)
+                histo = await cls.read_histo_message(buffer, message_size, read_histogram_bytes, uncompress_histogram_bytes)
                 histos.append(histo)
             else:
                 await cls.consume_unknown_field(buffer, wire_type)
@@ -118,7 +120,7 @@ class ProtobufParser:
 
 
     @classmethod
-    async def read_histo_message(cls, buffer, message_size, read_histogram_bytes=False):
+    async def read_histo_message(cls, buffer, message_size, read_histogram_bytes=False, uncompress_histogram_bytes=True):
         """Read Histo message and parse its fields"""
 
         # Values that will be returned in HistoMessage tuple
@@ -141,6 +143,8 @@ class ProtobufParser:
             elif field_number == 3 and wire_type == 2:
                 if read_histogram_bytes:
                     streamed_histo = await cls.read_length_delimited_value(buffer)
+                    if uncompress_histogram_bytes:
+                        streamed_histo = zlib.decompress(streamed_histo)
                 else: 
                     # If we don't need the histogram, just seek through it
                     await cls.consume_unknown_field(buffer, wire_type)
