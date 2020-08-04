@@ -22,6 +22,8 @@ pushd ${LOCAL_TMP_DIR}
 
   cmsRun -p ${LOCAL_TEST_DIR}/ThinningTest4Slimming_cfg.py || die "cmsRun ThinningTest4Slimming_cfg.py" $?
 
+  cmsRun -p ${LOCAL_TEST_DIR}/DetSetVectorThinningTest1_cfg.py || die "cmsRun DetSetVectorThinningTest1_cfg.py" $?
+  cmsRun -p ${LOCAL_TEST_DIR}/DetSetVectorThinningTest2_cfg.py || die "cmsRun DetSetVectorThinningTest2_cfg.py" $?
 
   cmsRun -p ${LOCAL_TEST_DIR}/SlimmingTestSiblings_cfg.py && die "cmsRun SlimmingTestSiblings_cfg.py" $?
 

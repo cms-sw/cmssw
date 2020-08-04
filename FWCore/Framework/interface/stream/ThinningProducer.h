@@ -10,6 +10,7 @@
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/Common/interface/OrphanHandle.h"
 #include "DataFormats/Common/interface/ThinnedAssociation.h"
+#include "DataFormats/Common/interface/fillCollectionForThinning.h"
 #include "DataFormats/Provenance/interface/ProductRegistry.h"
 #include "DataFormats/Provenance/interface/ThinnedAssociationsHelper.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -37,6 +38,41 @@ namespace edm {
     struct IsStdOptional<std::optional<T>> {
       static constexpr bool value = true;
     };
+
+    // by default a linear container
+    template <typename Collection, typename = std::void_t<>>
+    struct ElementType {
+      using type = typename std::remove_reference<decltype(*std::declval<Collection>().begin())>::type;
+    };
+    // specialization for a nested container (mainly edmNew::DetSetVector)
+    template <typename Collection>
+    struct ElementType<Collection, std::void_t<decltype(std::declval<Collection>().begin()->begin())>> {
+      using type = typename std::remove_reference<decltype(*(std::declval<Collection>().begin()->begin()))>::type;
+    };
+
+    template <typename Item, typename Selector, typename Collection>
+    void fillCollectionForThinning(Item const& item,
+                                   Selector& selector,
+                                   unsigned int iIndex,
+                                   Collection& output,
+                                   ThinnedAssociation& association) {
+      using SelectorChooseReturnType = decltype(selector.choose(0U, std::declval<Item const&>()));
+      constexpr bool isSlimming = detail::IsStdOptional<SelectorChooseReturnType>::value;
+      if constexpr (isSlimming) {
+        std::optional<typename SelectorChooseReturnType::value_type> obj = selector.choose(iIndex, item);
+        if (obj.has_value()) {
+          // move to support std::unique_ptr<T> with edm::OwnVector<T> or std::vector<unique_ptr<T>>
+          output.push_back(std::move(*obj));
+          association.push_back(iIndex);
+        }
+      } else {
+        if (selector.choose(iIndex, item)) {
+          output.push_back(item);
+          association.push_back(iIndex);
+        }
+      }
+    }
+
   }  // namespace detail
 
   template <typename Collection, typename Selector>
@@ -59,8 +95,8 @@ namespace edm {
     edm::EDPutTokenT<Collection> outputToken_;
     edm::EDPutTokenT<ThinnedAssociation> thinnedOutToken_;
 
-    //using SelectorChooseReturnType = decltype(Selector(edm::ParameterSet(), edm::Consumes).choose(0U, *Collection().begin()));
-    using SelectorChooseReturnType = decltype(selector_->choose(0U, *Collection().begin()));
+    using SelectorChooseReturnType =
+        decltype(selector_->choose(0U, std::declval<typename detail::ElementType<Collection>::type const>()));
     static constexpr bool isSlimming = detail::IsStdOptional<SelectorChooseReturnType>::value;
     static_assert(
         std::is_same_v<SelectorChooseReturnType, bool> || isSlimming,
@@ -101,20 +137,10 @@ namespace edm {
 
     unsigned int iIndex = 0;
     for (auto iter = inputCollection->begin(), iterEnd = inputCollection->end(); iter != iterEnd; ++iter, ++iIndex) {
-      if constexpr (isSlimming) {
-        std::optional<typename SelectorChooseReturnType::value_type> obj = selector_->choose(iIndex, *iter);
-        if (obj.has_value()) {
-          // move to support std::unique_ptr<T> with edm::OwnVector<T> or std::vector<unique_ptr<T>>
-          thinnedCollection.push_back(std::move(*obj));
-          thinnedAssociation.push_back(iIndex);
-        }
-      } else {
-        if (selector_->choose(iIndex, *iter)) {
-          thinnedCollection.push_back(*iter);
-          thinnedAssociation.push_back(iIndex);
-        }
-      }
+      using namespace detail;
+      fillCollectionForThinning(*iter, *selector_, iIndex, thinnedCollection, thinnedAssociation);
     }
+
     OrphanHandle<Collection> orphanHandle = event.emplace(outputToken_, std::move(thinnedCollection));
 
     thinnedAssociation.setParentCollectionID(inputCollection.id());
