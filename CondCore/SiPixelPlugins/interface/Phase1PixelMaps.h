@@ -15,7 +15,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "CalibTracker/StandaloneTrackerTopology/interface/StandaloneTrackerTopology.h"
 
-#define COUT edm::LogVerbatim("")
+#define MYOUT LogDebug("Phase1PixelMaps")
 
 using indexedCorners = std::map<unsigned int, std::pair<std::vector<float>, std::vector<float>>>;
 
@@ -28,9 +28,8 @@ public:
       : m_option{option},
         m_trackerTopo{StandaloneTrackerTopology::fromTrackerParametersXMLFile(
             edm::FileInPath("Geometry/TrackerCommonData/data/PhaseI/trackerParameters.xml").fullPath())} {
-
     // set the rescale to true by default
-    m_autorescale=true;
+    m_autorescale = true;
 
     // store the file in path for the corners (BPIX)
     for (unsigned int i = 1; i <= 4; i++) {
@@ -46,9 +45,7 @@ public:
   ~Phase1PixelMaps() {}
 
   // set of no rescale
-  void setNoRescale(){
-    m_autorescale=false;
-  }
+  void setNoRescale() { m_autorescale = false; }
 
   /*--------------------------------------------------------------------*/
   const indexedCorners retrieveCorners(const std::vector<edm::FileInPath>& cornerFiles, const unsigned int reads)
@@ -76,11 +73,11 @@ public:
             iss >> corners.at(i);
           }
 
-          COUT << id << " : ";
+          MYOUT << id << " : ";
           for (unsigned int i = 0; i < reads; i++) {
             // remove the leading and trailing " signs in the corners list
             (corners[i]).erase(std::remove(corners[i].begin(), corners[i].end(), '"'), corners[i].end());
-            COUT << corners.at(i) << " ";
+            MYOUT << corners.at(i) << " ";
             typedef boost::tokenizer<boost::char_separator<char>> tokenizer;
             boost::char_separator<char> sep{","};
             tokenizer tok{corners.at(i), sep};
@@ -94,16 +91,15 @@ public:
               }
             }
           }
-          COUT << std::endl;
+          MYOUT << std::endl;
 
           xP.push_back(xP.front());
           yP.push_back(yP.front());
 
-          
           for (unsigned int i = 0; i < xP.size(); i++) {
-            COUT << "x[" << i << "]=" << xP[i] << " y[" << i << "]" << yP[i] << std::endl;
+            MYOUT << "x[" << i << "]=" << xP[i] << " y[" << i << "]" << yP[i] << std::endl;
           }
-	 
+
           theOutMap[id] = std::make_pair(xP, yP);
 
         }  // if line is empty
@@ -138,7 +134,6 @@ public:
       hist->GetZaxis()->SetLabelSize(.05);
     }
   }
-
 
   /*--------------------------------------------------------------------*/
   void adjustCanvasMargins(TVirtualPad* pad, float top, float bottom, float left, float right)
@@ -188,7 +183,6 @@ public:
     th2p->SetStats(false);
     th2p->SetOption(m_option);
     pxbTh2PolyBarrelSummary[currentHistoName] = th2p;
-   
   }
 
   //============================================================================
@@ -213,7 +207,7 @@ public:
         th2p->GetZaxis()->CenterTitle();
         th2p->SetStats(false);
         th2p->SetOption(m_option);
-	pxfTh2PolyForward[currentHistoName].push_back(th2p);
+        pxfTh2PolyForward[currentHistoName].push_back(th2p);
       }
     }
 
@@ -258,16 +252,16 @@ public:
       binsSummary[id] = std::make_shared<TGraph>(5, vertX, vertY);
       binsSummary[id]->SetName(TString::Format("%u", id));
 
-      if(pxbTh2PolyBarrel.find(currentHistoName)!= pxbTh2PolyBarrel.end()){
-	pxbTh2PolyBarrel[currentHistoName][layer - 1]->AddBin(bins[id]->Clone());
+      if (pxbTh2PolyBarrel.find(currentHistoName) != pxbTh2PolyBarrel.end()) {
+        pxbTh2PolyBarrel[currentHistoName][layer - 1]->AddBin(bins[id]->Clone());
       } else {
-	throw cms::Exception("LogicError")  << currentHistoName << " is not found in the Barrel map! Aborting.";
+        throw cms::Exception("LogicError") << currentHistoName << " is not found in the Barrel map! Aborting.";
       }
 
       if (pxbTh2PolyBarrelSummary.find(currentHistoName) != pxbTh2PolyBarrelSummary.end()) {
-	pxbTh2PolyBarrelSummary[currentHistoName]->AddBin(binsSummary[id]->Clone());
-      }  else {
-	throw cms::Exception("LocalError") << currentHistoName << " is not found in the Barrel Summary map! Aborting.";
+        pxbTh2PolyBarrelSummary[currentHistoName]->AddBin(binsSummary[id]->Clone());
+      } else {
+        throw cms::Exception("LocalError") << currentHistoName << " is not found in the Barrel Summary map! Aborting.";
       }
     }
   }
@@ -305,16 +299,16 @@ public:
       binsSummary[id] = std::make_shared<TGraph>(4, vertX, vertY);
       binsSummary[id]->SetName(TString::Format("%u", id));
 
-      if( pxfTh2PolyForward.find(currentHistoName) !=  pxfTh2PolyForward.end()){
-	pxfTh2PolyForward[currentHistoName][mapIdx]->AddBin(bins[id]->Clone());
+      if (pxfTh2PolyForward.find(currentHistoName) != pxfTh2PolyForward.end()) {
+        pxfTh2PolyForward[currentHistoName][mapIdx]->AddBin(bins[id]->Clone());
       } else {
-	throw cms::Exception("LogicError")  << currentHistoName << " is not found in the Forward map! Aborting.";
+        throw cms::Exception("LogicError") << currentHistoName << " is not found in the Forward map! Aborting.";
       }
 
-      if( pxfTh2PolyForwardSummary.find(currentHistoName) !=  pxfTh2PolyForwardSummary.end() ){
-	pxfTh2PolyForwardSummary[currentHistoName]->AddBin(binsSummary[id]->Clone());
+      if (pxfTh2PolyForwardSummary.find(currentHistoName) != pxfTh2PolyForwardSummary.end()) {
+        pxfTh2PolyForwardSummary[currentHistoName]->AddBin(binsSummary[id]->Clone());
       } else {
-	throw cms::Exception("LogicError")  << currentHistoName << " is not found in the Forward Summary map! Aborting.";   
+        throw cms::Exception("LogicError") << currentHistoName << " is not found in the Forward Summary map! Aborting.";
       }
     }
   }
@@ -361,7 +355,7 @@ public:
 
     for (const auto& vec : pxfTh2PolyForward) {
       for (const auto& plot : vec.second) {
-	this->makeNicePlotStyle(plot.get());
+        this->makeNicePlotStyle(plot.get());
         plot->GetXaxis()->SetTitleOffset(0.9);
         plot->GetYaxis()->SetTitleOffset(0.9);
         plot->GetZaxis()->SetTitleOffset(1.2);
@@ -413,19 +407,18 @@ public:
   }
 
   //============================================================================
-  void setBarrelScale(const std::string& currentHistoName, std::pair<float,float> extrema){
+  void setBarrelScale(const std::string& currentHistoName, std::pair<float, float> extrema) {
     for (auto& histo : pxbTh2PolyBarrel[currentHistoName]) {
-      histo->GetZaxis()->SetRangeUser(extrema.first,extrema.second);
+      histo->GetZaxis()->SetRangeUser(extrema.first, extrema.second);
     }
   }
 
   //============================================================================
-  void setForwardScale(const std::string& currentHistoName, std::pair<float,float> extrema){
+  void setForwardScale(const std::string& currentHistoName, std::pair<float, float> extrema) {
     for (auto& histo : pxfTh2PolyForward[currentHistoName]) {
       histo->GetZaxis()->SetRangeUser(extrema.first, extrema.second);
-    }  
+    }
   }
-
 
   //============================================================================
   void DrawBarrelMaps(const std::string& currentHistoName, TCanvas& canvas) {
@@ -436,8 +429,9 @@ public:
         canvas.cd(i)->SetRightMargin(0.02);
         pxbTh2PolyBarrel[currentHistoName].at(i - 1)->SetMarkerColor(kRed);
       } else {
-        if(m_autorescale) rescaleAllBarrel(currentHistoName);
-	adjustCanvasMargins(canvas.cd(i), 0.07, 0.12, 0.10, 0.18);
+        if (m_autorescale)
+          rescaleAllBarrel(currentHistoName);
+        adjustCanvasMargins(canvas.cd(i), 0.07, 0.12, 0.10, 0.18);
       }
       pxbTh2PolyBarrel[currentHistoName].at(i - 1)->Draw();
     }
@@ -452,7 +446,8 @@ public:
         canvas.cd(i)->SetRightMargin(0.02);
         pxfTh2PolyForward[currentHistoName].at(i - 1)->SetMarkerColor(kRed);
       } else {
-        if(m_autorescale) rescaleAllForward(currentHistoName);
+        if (m_autorescale)
+          rescaleAllForward(currentHistoName);
         adjustCanvasMargins(canvas.cd(i), 0.07, 0.12, 0.10, 0.18);
       }
       pxfTh2PolyForward[currentHistoName].at(i - 1)->Draw();
