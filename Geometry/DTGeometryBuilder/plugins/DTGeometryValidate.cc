@@ -86,7 +86,7 @@ DTGeometryValidate::DTGeometryValidate(const edm::ParameterSet& iConfig)
       outfileName_(iConfig.getUntrackedParameter<string>("outfileName", "validateDTGeometry.root")),
       tolerance_(iConfig.getUntrackedParameter<int>("tolerance", 6)) {
   fwGeometry_.loadMap(infileName_.c_str());
-  outFile_ = new TFile(outfileName_.c_str(), "RECREATE");
+  outFile_ = TFile::Open(outfileName_.c_str(), "RECREATE");
 }
 
 void DTGeometryValidate::analyze(const edm::Event& event, const edm::EventSetup& eventSetup) {
