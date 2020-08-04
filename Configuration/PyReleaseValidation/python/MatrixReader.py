@@ -229,7 +229,7 @@ class MatrixReader(object):
                     else:
                         testName=step+'INPUT'
                     #print "JR",stepI,stepIr,testName,stepList
-                    if testName in self.relvalModule.steps.keys():
+                    if testName in self.relvalModule.steps:
                         #print "JR",stepI,stepIr
                         stepList[stepI]=testName
                         #pop the rest in the list
