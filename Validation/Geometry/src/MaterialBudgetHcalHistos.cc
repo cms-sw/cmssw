@@ -36,8 +36,8 @@ MaterialBudgetHcalHistos::MaterialBudgetHcalHistos(const edm::ParameterSet& p) {
                                      << maxEta_ << " Phi plot: NX " << binPhi_ << " Range " << -1._pi << ":" << 1._pi
                                      << " (Eta limit " << etaLow_ << ":" << etaHigh_ << ")"
                                      << " Eta range (" << etaLowMin_ << ":" << etaLowMax_ << "), (" << etaMidMin_ << ":"
-                                     << etaMidMax_ << "), (" << etaHighMin_ << ":" << etaHighMax_ << ") Debug for eta range "
-                                     << etaMinP_ << ":" << etaMaxP_;
+                                     << etaMidMax_ << "), (" << etaHighMin_ << ":" << etaHighMax_
+                                     << ") Debug for eta range " << etaMinP_ << ":" << etaMaxP_;
   if (fillHistos_)
     book();
 }
