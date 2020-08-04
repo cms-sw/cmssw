@@ -3,7 +3,7 @@
   <flags EDM_PLUGIN="1"/>
   <use name="FWCore/Framework"/>
   <use name="SimDataFormats/JetMatching"/>
-  <use name="SimGeneral/HepPDTRecord"/>
+  <use name="DataFormats/Candidate"/>
   <use name="DataFormats/JetReco"/>
 </library>
 
@@ -11,7 +11,7 @@
   <flags EDM_PLUGIN="1"/>
   <use name="FWCore/Framework"/>
   <use name="SimDataFormats/JetMatching"/>
-  <use name="SimGeneral/HepPDTRecord"/>
+  <use name="DataFormats/Candidate"/>
   <use name="DataFormats/JetReco"/>
 </library>
 
@@ -19,7 +19,7 @@
   <flags EDM_PLUGIN="1"/>
   <use name="FWCore/Framework"/>
   <use name="SimDataFormats/JetMatching"/>
-  <use name="SimGeneral/HepPDTRecord"/>
+  <use name="DataFormats/Candidate"/>
   <use name="DataFormats/JetReco"/>
 </library>
 
@@ -31,9 +31,8 @@
 
 <library file="printTrackJet.cc">
   <flags EDM_PLUGIN="1"/>
+  <use name="DataFormats/Candidate"/>
   <use name="FWCore/Framework"/>
-  <use name="SimGeneral/HepPDTRecord"/>
-  <use name="PhysicsTools/JetMCUtils"/>
   <use name="rootmath"/>
   <use name="root"/>
 </library>

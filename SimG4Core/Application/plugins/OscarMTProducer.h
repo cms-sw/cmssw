@@ -31,11 +31,13 @@ public:
   static void globalEndRun(const edm::Run& iRun, const edm::EventSetup& iSetup, const RunContext* iContext);
   static void globalEndJob(OscarMTMasterThread* masterThread);
 
+  void beginRun(const edm::Run& r, const edm::EventSetup& c) override;
   void endRun(const edm::Run& r, const edm::EventSetup& c) override;
   void produce(edm::Event& e, const edm::EventSetup& c) override;
 
 private:
   std::unique_ptr<RunManagerMTWorker> m_runManagerWorker;
+  const OscarMTMasterThread* m_masterThread = nullptr;
 };
 
 #endif

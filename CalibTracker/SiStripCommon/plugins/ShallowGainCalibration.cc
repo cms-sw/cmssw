@@ -1,6 +1,4 @@
 #include "CalibTracker/SiStripCommon/interface/ShallowGainCalibration.h"
-#include "CalibFormats/SiStripObjects/interface/SiStripGain.h"
-#include "CalibTracker/Records/interface/SiStripGainRcd.h"
 
 using namespace edm;
 using namespace reco;
@@ -9,6 +7,9 @@ using namespace std;
 ShallowGainCalibration::ShallowGainCalibration(const edm::ParameterSet& iConfig)
     : tracks_token_(consumes<edm::View<reco::Track>>(iConfig.getParameter<edm::InputTag>("Tracks"))),
       association_token_(consumes<TrajTrackAssociationCollection>(iConfig.getParameter<edm::InputTag>("Tracks"))),
+      trackerGeometry_token_(esConsumes<TrackerGeometry, TrackerDigiGeometryRecord>()),
+      gain_token_(esConsumes<SiStripGain, SiStripGainRcd>()),
+      tkGeom_token_(esConsumes<TrackerGeometry, TrackerDigiGeometryRecord>()),
       Suffix(iConfig.getParameter<std::string>("Suffix")),
       Prefix(iConfig.getParameter<std::string>("Prefix")) {
   produces<std::vector<int>>(Prefix + "trackindex" + Suffix);
@@ -51,11 +52,8 @@ void ShallowGainCalibration::produce(edm::Event& iEvent, const edm::EventSetup& 
   auto gainused = std::make_unique<std::vector<double>>();
   auto gainusedTick = std::make_unique<std::vector<double>>();
 
-  edm::ESHandle<TrackerGeometry> theTrackerGeometry;
-  iSetup.get<TrackerDigiGeometryRecord>().get(theTrackerGeometry);
-  m_tracker = &(*theTrackerGeometry);
-  edm::ESHandle<SiStripGain> gainHandle;
-  iSetup.get<SiStripGainRcd>().get(gainHandle);
+  m_tracker = &iSetup.getData(trackerGeometry_token_);
+  edm::ESHandle<SiStripGain> gainHandle = iSetup.getHandle(gain_token_);
   edm::Handle<edm::View<reco::Track>> tracks;
   iEvent.getByToken(tracks_token_, tracks);
   edm::Handle<TrajTrackAssociationCollection> associations;
@@ -291,8 +289,7 @@ void ShallowGainCalibration::beginRun(edm::Run &, const edm::EventSetup &iSetup)
 bool ShallowGainCalibration::IsFarFromBorder(TrajectoryStateOnSurface* trajState,
                                              const uint32_t detid,
                                              const edm::EventSetup* iSetup) {
-  edm::ESHandle<TrackerGeometry> tkGeom;
-  iSetup->get<TrackerDigiGeometryRecord>().get(tkGeom);
+  edm::ESHandle<TrackerGeometry> tkGeom = iSetup->getHandle(tkGeom_token_);
 
   LocalPoint HitLocalPos = trajState->localPosition();
   LocalError HitLocalError = trajState->localError().positionError();

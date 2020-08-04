@@ -31,15 +31,28 @@ public:
     acquire(iEvent, iSetup, client_.input());
     auto t1 = std::chrono::high_resolution_clock::now();
     if (!client_.debugName().empty())
-      edm::LogInfo(client_.debugName()) << "Load time: "
+      edm::LogInfo(client_.debugName()) << "acquire() time: "
                                         << std::chrono::duration_cast<std::chrono::microseconds>(t1 - t0).count();
+    t_dispatch_ = std::chrono::high_resolution_clock::now();
     client_.dispatch(holder);
   }
   virtual void acquire(edm::Event const& iEvent, edm::EventSetup const& iSetup, Input& iInput) = 0;
   //derived classes use a dedicated produce() interface that incorporates client_.output()
   void produce(edm::Event& iEvent, edm::EventSetup const& iSetup) final {
-    //todo: measure time between acquire and produce
+    //measure time between acquire and produce
+    auto t_finish = std::chrono::high_resolution_clock::now();
+    if (!client_.debugName().empty())
+      edm::LogInfo(client_.debugName())
+          << "dispatch() time: "
+          << std::chrono::duration_cast<std::chrono::microseconds>(t_finish - t_dispatch_).count();
+    auto t0 = std::chrono::high_resolution_clock::now();
     produce(iEvent, iSetup, client_.output());
+    auto t1 = std::chrono::high_resolution_clock::now();
+    if (!client_.debugName().empty())
+      edm::LogInfo(client_.debugName()) << "produce() time: "
+                                        << std::chrono::duration_cast<std::chrono::microseconds>(t1 - t0).count();
+    //reset client data
+    client_.reset();
   }
   virtual void produce(edm::Event& iEvent, edm::EventSetup const& iSetup, Output const& iOutput) = 0;
 
@@ -48,6 +61,7 @@ protected:
   void setDebugName(const std::string& debugName) { client_.setDebugName(debugName); }
   //members
   Client client_;
+  std::chrono::time_point<std::chrono::high_resolution_clock> t_dispatch_;
 };
 
 #endif

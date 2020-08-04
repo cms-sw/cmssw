@@ -10,6 +10,8 @@
 //
 //-----------------------------------------------------------------------------
 
+#include <memory>
+
 #include "L1Trigger/CSCTriggerPrimitives/interface/CSCMotherboardME11.h"
 
 CSCMotherboardME11::CSCMotherboardME11(unsigned endcap,
@@ -20,10 +22,12 @@ CSCMotherboardME11::CSCMotherboardME11(unsigned endcap,
                                        const edm::ParameterSet& conf)
     : CSCUpgradeMotherboard(endcap, station, sector, subsector, chamber, conf) {
   if (!isSLHC_)
-    edm::LogError("CSCMotherboardME11|ConfigError")
-        << "+++ Upgrade CSCMotherboardME11 constructed while isSLHC_ is not set! +++\n";
+    edm::LogError("CSCMotherboardME11|SetupError") << "+++ TMB constructed while isSLHC_ is not set! +++\n";
 
-  cscTmbLUT_.reset(new CSCMotherboardLUTME11());
+  if (!runME11Up_)
+    edm::LogError("CSCMotherboardME11|SetupError") << "+++ TMB constructed while runME11Up_ is not set! +++\n";
+
+  cscTmbLUT_ = std::make_unique<CSCMotherboardLUTME11>();
 
   // ignore unphysical ALCT-CLCT matches
   ignoreAlctCrossClct = tmbParams_.getParameter<bool>("ignoreAlctCrossClct");
@@ -31,8 +35,10 @@ CSCMotherboardME11::CSCMotherboardME11(unsigned endcap,
 
 CSCMotherboardME11::CSCMotherboardME11() : CSCUpgradeMotherboard() {
   if (!isSLHC_)
-    edm::LogError("CSCMotherboardME11|ConfigError")
-        << "+++ Upgrade CSCMotherboardME11 constructed while isSLHC_ is not set! +++\n";
+    edm::LogError("CSCMotherboardME11|SetupError") << "+++ TMB constructed while isSLHC_ is not set! +++\n";
+
+  if (!runME11Up_)
+    edm::LogError("CSCMotherboardME11|SetupError") << "+++ TMB constructed while runME11Up_ is not set! +++\n";
 }
 
 CSCMotherboardME11::~CSCMotherboardME11() {}
@@ -50,9 +56,8 @@ void CSCMotherboardME11::run(const CSCWireDigiCollection* wiredc, const CSCCompa
   clear();
 
   // Check for existing processors
-  if (!(alctProc && clctProc && isSLHC_)) {
-    if (infoV >= 0)
-      edm::LogError("CSCMotherboardME11|SetupError") << "+++ run() called for non-existing ALCT/CLCT processor! +++ \n";
+  if (!(alctProc && clctProc)) {
+    edm::LogError("CSCMotherboardME11|SetupError") << "+++ run() called for non-existing ALCT/CLCT processor! +++ \n";
     return;
   }
 
@@ -273,6 +278,12 @@ std::vector<CSCCorrelatedLCTDigi> CSCMotherboardME11::readoutLCTs(int me1ab) con
     } else
       tmpV.push_back(*plct);
   }
+
+  // do a final check on the LCTs in readout
+  for (const auto& lct : tmpV) {
+    checkValid(lct);
+  }
+
   return tmpV;
 }
 

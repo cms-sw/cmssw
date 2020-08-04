@@ -65,6 +65,9 @@ private:
   GEMChamber* buildChamber(cms::DDFilteredView& fv, GEMDetId detId) const;
 
   GEMEtaPartition* buildEtaPartition(cms::DDFilteredView& fv, GEMDetId detId) const;
+
+  // Common
+  void buildRegions(GEMGeometry&, const std::vector<GEMSuperChamber*>&);
 };
 
 #endif

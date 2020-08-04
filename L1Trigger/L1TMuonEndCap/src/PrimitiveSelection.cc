@@ -50,44 +50,19 @@ void PrimitiveSelection::process(emtf::CSCTag tag,
   TriggerPrimitiveCollection::const_iterator tp_end = muon_primitives.end();
 
   for (; tp_it != tp_end; ++tp_it) {
-    TriggerPrimitive new_tp = *tp_it;  // make a copy and apply patches to this copy
-
-    // Patch the CLCT pattern number
-    // It should be 0-10, see: L1Trigger/CSCTriggerPrimitives/src/CSCMotherboard.cc
-    bool patchPattern = true;
-    if (patchPattern && new_tp.subsystem() == TriggerPrimitive::kCSC) {
-      if (new_tp.getCSCData().pattern == 11 || new_tp.getCSCData().pattern == 12 || new_tp.getCSCData().pattern == 13 ||
-          new_tp.getCSCData().pattern == 14) {  // 11, 12, 13, 14 -> 10
-        edm::LogWarning("L1T") << "EMTF patching corrupt CSC LCT pattern: changing " << new_tp.getCSCData().pattern
-                               << " to 10";
-        new_tp.accessCSCData().pattern = 10;
-      }
-    }
-
-    // Patch the LCT quality number
-    // It should be 1-15, see: L1Trigger/CSCTriggerPrimitives/src/CSCMotherboard.cc
-    bool patchQuality = true;
-    if (patchQuality && new_tp.subsystem() == TriggerPrimitive::kCSC) {
-      if (new_tp.getCSCData().quality == 0) {  // 0 -> 1
-        edm::LogWarning("L1T") << "EMTF patching corrupt CSC LCT quality: changing " << new_tp.getCSCData().quality
-                               << " to 1";
-        new_tp.accessCSCData().quality = 1;
-      }
-    }
-
-    int selected_csc = select_csc(new_tp);  // Returns CSC "link" index (0 - 53)
+    int selected_csc = select_csc(*tp_it);  // Returns CSC "link" index (0 - 53)
 
     if (selected_csc >= 0) {
       emtf_assert(selected_csc < NUM_CSC_CHAMBERS);
 
       //FIXME
       if (selected_csc_map[selected_csc].size() < 2) {
-        selected_csc_map[selected_csc].push_back(new_tp);
+        selected_csc_map[selected_csc].push_back(*tp_it);
       } else {
         edm::LogWarning("L1T") << "\n******************* EMTF EMULATOR: SUPER-BIZZARE CASE *******************";
         edm::LogWarning("L1T") << "Found 3 CSC trigger primitives in the same chamber";
         for (int ii = 0; ii < 3; ii++) {
-          TriggerPrimitive tp_err = (ii < 2 ? selected_csc_map[selected_csc].at(ii) : new_tp);
+          TriggerPrimitive tp_err = (ii < 2 ? selected_csc_map[selected_csc].at(ii) : *tp_it);
           edm::LogWarning("L1T") << "LCT #" << ii + 1 << ": BX " << tp_err.getBX() << ", endcap "
                                  << tp_err.detId<CSCDetId>().endcap() << ", sector "
                                  << tp_err.detId<CSCDetId>().triggerSector() << ", station "
@@ -623,9 +598,8 @@ int PrimitiveSelection::select_csc(const TriggerPrimitive& muon_primitive) const
     int tp_bx = tp_data.bx;
     int tp_csc_ID = tp_data.cscID;
 
-    int max_strip = 0;  // halfstrip
-    int max_wire = 0;   // wiregroup
-    emtf::get_csc_max_strip_and_wire(tp_station, tp_ring, max_strip, max_wire);
+    const auto& [max_strip, max_wire] = emtf::get_csc_max_strip_and_wire(tp_station, tp_ring);
+    const auto& [max_pattern, max_quality] = emtf::get_csc_max_pattern_and_quality(tp_station, tp_ring);
 
     if (endcap_ == 1 && sector_ == 1 && bx_ == -3) {  // do assertion checks only once
       emtf_assert(emtf::MIN_ENDCAP <= tp_endcap && tp_endcap <= emtf::MAX_ENDCAP);
@@ -635,21 +609,62 @@ int PrimitiveSelection::select_csc(const TriggerPrimitive& muon_primitive) const
       emtf_assert(tp_data.strip < max_strip);
       emtf_assert(tp_data.keywire < max_wire);
       emtf_assert(tp_data.valid == true);
-      emtf_assert(tp_data.pattern <= 10);
-      //emtf_assert(tp_data.quality > 0);
+      emtf_assert(tp_data.pattern < max_pattern);
+      emtf_assert(0 < tp_data.quality && tp_data.quality < max_quality);
     }
 
-    // LogWarning
-    if (!(tp_data.strip < max_strip)) {
-      edm::LogWarning("L1T") << "EMTF CSC format error in station " << tp_station << ", ring " << tp_ring
-                             << ": tp_data.strip = " << tp_data.strip << " (max = " << max_strip - 1 << ")";
-      return selected;
-    }
-    if (!(tp_data.keywire < max_wire)) {
-      edm::LogWarning("L1T") << "EMTF CSC format error in station " << tp_station << ", ring " << tp_ring
-                             << ": tp_data.keywire = " << tp_data.keywire << " (max = " << max_wire - 1 << ")";
-      return selected;
-    }
+    // Check for corrupted LCT data. Data corruption could occur due to software or hardware issues, If corrupted, reject the LCT.
+    // Note that the checks are performed in every sector processor for every BX. As a result, the same LCT may be reported multiple times by all 12 sector processors from BX=-3 to BX=+3.
+    {
+      if (!(tp_data.strip < max_strip)) {
+        edm::LogWarning("L1T") << "Found error in LCT strip: " << tp_data.strip << " (allowed range: 0-"
+                               << max_strip - 1 << ").";
+        edm::LogWarning("L1T")
+            << "From endcap " << tp_endcap << ", sector " << tp_sector << ", station " << tp_station << ", ring "
+            << tp_ring << ", cscid " << tp_csc_ID
+            << ". (Note that this LCT may be reported multiple times. See source code for explanations.)";
+        return selected;
+      }
+
+      if (!(tp_data.keywire < max_wire)) {
+        edm::LogWarning("L1T") << "Found error in LCT wire: " << tp_data.keywire << " (allowed range: 0-"
+                               << max_wire - 1 << ").";
+        edm::LogWarning("L1T")
+            << "From endcap " << tp_endcap << ", sector " << tp_sector << ", station " << tp_station << ", ring "
+            << tp_ring << ", cscid " << tp_csc_ID
+            << ". (Note that this LCT may be reported multiple times. See source code for explanations.)";
+        return selected;
+      }
+
+      if (!(tp_data.valid == true)) {
+        edm::LogWarning("L1T") << "Found error in LCT valid: " << tp_data.valid << " (allowed value: 1).";
+        edm::LogWarning("L1T")
+            << "From endcap " << tp_endcap << ", sector " << tp_sector << ", station " << tp_station << ", ring "
+            << tp_ring << ", cscid " << tp_csc_ID
+            << ". (Note that this LCT may be reported multiple times. See source code for explanations.)";
+        return selected;
+      }
+
+      if (!(tp_data.pattern < max_pattern)) {
+        edm::LogWarning("L1T") << "Found error in LCT pattern: " << tp_data.pattern << " (allowed range: 0-"
+                               << max_pattern - 1 << ").";
+        edm::LogWarning("L1T")
+            << "From endcap " << tp_endcap << ", sector " << tp_sector << ", station " << tp_station << ", ring "
+            << tp_ring << ", cscid " << tp_csc_ID
+            << ". (Note that this LCT may be reported multiple times. See source code for explanations.)";
+        return selected;
+      }
+
+      if (!(0 < tp_data.quality && tp_data.quality < max_quality)) {
+        edm::LogWarning("L1T") << "Found error in LCT quality: " << tp_data.quality << " (allowed range: 1-"
+                               << max_quality - 1 << ").";
+        edm::LogWarning("L1T")
+            << "From endcap " << tp_endcap << ", sector " << tp_sector << ", station " << tp_station << ", ring "
+            << tp_ring << ", cscid " << tp_csc_ID
+            << ". (Note that this LCT may be reported multiple times. See source code for explanations.)";
+        return selected;
+      }
+    }  // end check for corrupted LCT data
 
     // station 1 --> subsector 1 or 2
     // station 2,3,4 --> subsector 0

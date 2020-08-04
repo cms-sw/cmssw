@@ -77,7 +77,7 @@ AlgoMuon OMTFSorter::sortRefHitResults(const OMTFProcessor::resultsMap& aResults
   Key bestKey;
 
   //  std::cout <<" ====== sortRefHitResults: " << std::endl;
-  for (auto itKey : aResultsMap) {
+  for (const auto& itKey : aResultsMap) {
     if (charge != 0 && itKey.first.theCharge != charge)
       continue;  //charge==0 means ignore charge
     AlgoMuon val = sortSingleResult(itKey.second);
@@ -159,7 +159,7 @@ std::vector<l1t::RegionalMuonCand> OMTFSorter::candidates(unsigned int iProcesso
                                                           const std::vector<AlgoMuon>& algoCands) {
   std::vector<l1t::RegionalMuonCand> result;
 
-  for (auto myCand : algoCands) {
+  for (const auto& myCand : algoCands) {
     l1t::RegionalMuonCand candidate;
     candidate.setHwPt(myCand.getPt());
     candidate.setHwEta(myCand.getEta());

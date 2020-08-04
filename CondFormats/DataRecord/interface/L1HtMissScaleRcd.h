@@ -19,7 +19,7 @@
 // $Id:
 //
 
-#include "boost/mpl/vector.hpp"
+#include "FWCore/Utilities/interface/mplVector.h"
 
 //#include "FWCore/Framework/interface/EventSetupRecordImplementation.h"
 #include "FWCore/Framework/interface/DependentRecordImplementation.h"
@@ -29,7 +29,6 @@
 //class L1HtMissScaleRcd : public edm::eventsetup::EventSetupRecordImplementation<L1HtMissScaleRcd> {};
 class L1HtMissScaleRcd
     : public edm::eventsetup::DependentRecordImplementation<L1HtMissScaleRcd,
-                                                            boost::mpl::vector<L1TriggerKeyListRcd, L1TriggerKeyRcd> > {
-};
+                                                            edm::mpl::Vector<L1TriggerKeyListRcd, L1TriggerKeyRcd> > {};
 
 #endif

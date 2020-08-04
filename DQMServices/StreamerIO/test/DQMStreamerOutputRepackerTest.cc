@@ -1,12 +1,11 @@
 #include <iomanip>
+#include <filesystem>
 #include <memory>
 #include <sstream>
 
 #include <zlib.h>
 #include <fmt/printf.h>
 #include <boost/algorithm/string.hpp>
-#include <boost/filesystem.hpp>
-#include <boost/filesystem.hpp>
 #include <boost/property_tree/json_parser.hpp>
 #include <boost/property_tree/ptree.hpp>
 
@@ -84,10 +83,10 @@ namespace dqmservices {
 
     currentFileBase_ = fmt::sprintf("run%06d_ls%04d_stream%s_local", run, lumi, streamLabel_);
 
-    boost::filesystem::path p = outputPath_;
+    std::filesystem::path p = outputPath_;
     p /= fmt::sprintf("run%06d", run);
 
-    boost::filesystem::create_directories(p);
+    std::filesystem::create_directories(p);
 
     currentFilePath_ = (p / currentFileBase_).string() + ".dat";
     currentJsonPath_ = (p / currentFileBase_).string() + ".jsn";
@@ -108,7 +107,7 @@ namespace dqmservices {
 
   void DQMStreamerOutputRepackerTest::closeFile() {
     edm::LogAbsolute("DQMStreamerOutputRepackerTest") << "Writing json: " << currentJsonPath_;
-    size_t fsize = boost::filesystem::file_size(currentFilePath_);
+    size_t fsize = std::filesystem::file_size(currentFilePath_);
 
     using namespace boost::property_tree;
     ptree pt;

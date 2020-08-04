@@ -19,6 +19,6 @@ class L1TCaloConfigRcd : public edm::eventsetup::EventSetupRecordImplementation<
 //#include "FWCore/Framework/interface/DependentRecordImplementation.h"
 //#include "CondFormats/DataRecord/interface/L1TriggerKeyListRcd.h"
 //#include "CondFormats/DataRecord/interface/L1TriggerKeyRcd.h"
-//class L1TCaloConfigRcd : public edm::eventsetup::DependentRecordImplementation<L1TCaloConfigRcd, boost::mpl::vector<L1TriggerKeyListRcd,L1TriggerKeyRcd> > {};
+//class L1TCaloConfigRcd : public edm::eventsetup::DependentRecordImplementation<L1TCaloConfigRcd, edm::mpl::Vector<L1TriggerKeyListRcd,L1TriggerKeyRcd> > {};
 
 #endif

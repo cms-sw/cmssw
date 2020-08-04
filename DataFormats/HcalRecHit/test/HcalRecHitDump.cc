@@ -12,6 +12,7 @@
 
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"
+#include "DataFormats/HcalRecHit/interface/CaloRecHitAuxSetter.h"
 
 namespace {
   std::ostream& operator<<(std::ostream& s, const HFQIE10Info& i) {
@@ -74,6 +75,17 @@ namespace {
       allbits[3] = i.auxPhase1();
       s << "; bits: ";
       printBits(s, allbits, bits);
+    }
+
+    // Dump TDC data
+    s << "; tdc:";
+    const uint32_t auxTDC = i.auxTDC();
+    if (auxTDC) {
+      const unsigned six_bits_mask = 0x3f;
+      for (unsigned ts = 0; ts < 5; ++ts)
+        s << ' ' << CaloRecHitAuxSetter::getField(auxTDC, six_bits_mask, ts * 6);
+    } else {
+      s << " none";
     }
   }
 

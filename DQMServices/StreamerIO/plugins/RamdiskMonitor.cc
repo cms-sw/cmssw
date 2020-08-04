@@ -1,3 +1,4 @@
+#include <filesystem>
 #include <map>
 #include <vector>
 #include <sys/stat.h>
@@ -173,8 +174,8 @@ namespace dqm {
   std::shared_ptr<dqm::rdm::Empty> RamdiskMonitor::globalBeginLuminosityBlock(edm::LuminosityBlock const &,
                                                                               edm::EventSetup const &eSetup) const {
     // search filesystem to find available lumi section files
-    using boost::filesystem::directory_entry;
-    using boost::filesystem::directory_iterator;
+    using std::filesystem::directory_entry;
+    using std::filesystem::directory_iterator;
 
     directory_iterator dend;
     for (directory_iterator di(runPath_); di != dend; ++di) {
