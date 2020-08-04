@@ -395,26 +395,23 @@ def miniAOD_customizeCommon(process):
                           deepTauIDTaskNew_)
 
     #-- Adding tauID against dead ECal towers to taus
-    process.hpsPFTauDiscriminationByDeadECALElectronRejectionForMiniAOD = \
-        process.hpsPFTauDiscriminationByDeadECALElectronRejection.clone(
-            extrapolateToECalEntrance = True
-        )
+    # note: default (AOD) behoviour of the tauID modified (leading track
+    #       extrapolation to ECAL enabled) in the HPS PFTau master
+    #       configuration for this era.
     _makePatTausTaskWithDeadECalVeto = process.makePatTausTask.copy()
     _makePatTausTaskWithDeadECalVeto.add(
-        process.hpsPFTauDiscriminationByDeadECALElectronRejectionForMiniAOD
+        process.hpsPFTauDiscriminationByDeadECALElectronRejection
     )
     run2_miniAOD_UL.toReplaceWith(
         process.makePatTausTask, _makePatTausTaskWithDeadECalVeto
     )
     _withDeadEcalTauIDPs = cms.PSet(
         process.patTaus.tauIDSources,
-        againstElectronDeadECAL = cms.InputTag("hpsPFTauDiscriminationByDeadECALElectronRejectionForMiniAOD")
+        againstElectronDeadECAL = cms.InputTag("hpsPFTauDiscriminationByDeadECALElectronRejection")
     )
     run2_miniAOD_UL.toModify(process.patTaus,
                              tauIDSources = _withDeadEcalTauIDPs)
     #... and to boosted taus
-    run2_miniAOD_UL.toModify(process.hpsPFTauDiscriminationByDeadECALElectronRejectionBoosted,
-                             extrapolateToECalEntrance = True)
     _withDeadEcalTauIDBoostedPs = cms.PSet(
         process.patTausBoosted.tauIDSources,
         againstElectronDeadECAL = cms.InputTag("hpsPFTauDiscriminationByDeadECALElectronRejectionBoosted")
