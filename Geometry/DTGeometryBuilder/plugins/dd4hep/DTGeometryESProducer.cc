@@ -13,7 +13,7 @@
 //
 // Original Author:  Ianna Osborne
 //         Created:  Wed, 16 Jan 2019 10:19:37 GMT
-//         Modified by Sergio Lo Meo (sergio.lo.meo@cern.ch) Tue, 03 August 2020
+//         Modified by Sergio Lo Meo (sergio.lo.meo@cern.ch) Tue, 04 August 2020
 //
 //
 #include "CondFormats/GeometryObjects/interface/RecoIdealGeometry.h"
