@@ -4,6 +4,7 @@
 <use   name="FWCore/Utilities"/>
 <use   name="SimDataFormats/GeneratorProducts"/>
 <use   name="GeneratorInterface/Core"/>
+<use   name="FWCore/SharedMemory"/>
 
 <library   name="GeneratorInterfaceCore_plugins" file="*.cc" >
   <flags   EDM_PLUGIN="1"/>

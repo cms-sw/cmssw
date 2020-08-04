@@ -2289,6 +2289,14 @@ class ConfigBuilder(object):
         from Configuration.StandardSequences.earlyDeleteSettings_cff import customiseEarlyDelete
         self.process = customiseEarlyDelete(self.process)
 
+        imports = cms.specialImportRegistry.getSpecialImports()
+        if len(imports) > 0:
+            #need to inject this at the top
+            index = self.pythonCfgCode.find("import FWCore.ParameterSet.Config")
+            #now find the end of line
+            index = self.pythonCfgCode.find("\n",index)
+            self.pythonCfgCode = self.pythonCfgCode[:index]+ "\n" + "\n".join(imports)+"\n" +self.pythonCfgCode[index:]
+
 
         # make the .io file
 

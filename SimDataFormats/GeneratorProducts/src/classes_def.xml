@@ -235,4 +235,11 @@
    ]]>
  </ioread>        
 
+<class name="ExternalGeneratorLumiInfo" ClassVersion="3">
+  <version ClassVersion="3" checksum="2760887354"/>
+</class>
+<class name="ExternalGeneratorEventInfo" ClassVersion="3">
+  <version ClassVersion="3" checksum="2860722409"/>
+</class>
+
 </lcgdict>

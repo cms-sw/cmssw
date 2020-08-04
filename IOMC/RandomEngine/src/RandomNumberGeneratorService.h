@@ -87,6 +87,8 @@ namespace edm {
 
       void preBeginLumi(LuminosityBlock const& lumi) override;
       void postEventRead(Event const& event) override;
+      void setLumiCache(LuminosityBlockIndex, std::vector<RandomEngineState> const& iStates) override;
+      void setEventCache(StreamID, std::vector<RandomEngineState> const& iStates) override;
 
       /// These next 12 functions are only used to check that random numbers are not
       /// being generated in these methods when enable checking is configured on.
