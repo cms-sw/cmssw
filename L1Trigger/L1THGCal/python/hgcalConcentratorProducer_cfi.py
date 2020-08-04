@@ -189,9 +189,6 @@ autoEncoder_conc_proc = cms.PSet(ProcessorName  = cms.string('HGCalConcentratorP
                                  nBitsPerInput = cms.int32(8),
                                  maxBitsPerOutput = cms.int32(9),
                                  bitsPerLink = autoEncoder_bitsPerOutputLink,
-                                 coarsenTriggerCells = cms.vuint32(0,0,0),
-                                 fixedDataSizePerHGCROC = cms.bool(False),
-                                 ctcSize = cms.vuint32(CTC_SIZE),
                                  modelFiles = cms.VPSet([autoEncoder_training_2eLinks, autoEncoder_training_3eLinks, autoEncoder_training_4eLinks, autoEncoder_training_5eLinks]),
                                  linkToGraphMap = cms.vuint32(linkToGraphMapping),
                                  zeroSuppresionThreshold = cms.double(0.1),
@@ -199,6 +196,14 @@ autoEncoder_conc_proc = cms.PSet(ProcessorName  = cms.string('HGCalConcentratorP
                                  preserveModuleSum = cms.bool(True),
                                  threshold_silicon = cms.double(2.), # MipT
                                  threshold_scintillator = cms.double(2.), # MipT
+                                 type_energy_division = supertc_conc_proc.type_energy_division,
+                                 stcSize = supertc_conc_proc.stcSize,
+                                 ctcSize = supertc_conc_proc.ctcSize,
+                                 fixedDataSizePerHGCROC = supertc_conc_proc.fixedDataSizePerHGCROC,
+                                 coarsenTriggerCells = supertc_conc_proc.coarsenTriggerCells,
+                                 superTCCompression = superTCCompression_proc.clone(),
+                                 coarseTCCompression = coarseTCCompression_proc.clone(),
+                                 superTCCalibration = vfe_proc.clone(),
 )
 
 
