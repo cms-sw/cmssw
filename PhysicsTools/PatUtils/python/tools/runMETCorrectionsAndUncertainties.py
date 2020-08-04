@@ -91,6 +91,8 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
                           "Exclude jets and PF candidates with EE noise characteristics (fix for 2017 run)", Type=bool)
         self.addParameter(self._defaultParameters,'fixEE2017Params', {'userawPt': True, 'ptThreshold': 50.0, 'minEtaThreshold': 2.65, 'maxEtaThreshold': 3.139},
                           "Parameters dict for fixEE2017: userawPt, ptThreshold, minEtaThreshold, maxEtaThreshold", Type=dict)
+        self.addParameter(self._defaultParameters, 'extractDeepMETs', False,
+                          "Extract DeepMETs from miniAOD, instead of recomputing them.", Type=bool)
 
         #private parameters
         self.addParameter(self._defaultParameters, 'Puppi', False,
@@ -136,6 +138,7 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
                  onMiniAOD               =None,
                  fixEE2017               =None,
                  fixEE2017Params         =None,
+                 extractDeepMETs         =None,
                  postfix                 =None):
         electronCollection = self.initializeInputTag(electronCollection, 'electronCollection')
         photonCollection = self.initializeInputTag(photonCollection, 'photonCollection')
@@ -209,6 +212,8 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
             fixEE2017 = self._defaultParameters['fixEE2017'].value
         if fixEE2017Params is None :
             fixEE2017Params = self._defaultParameters['fixEE2017Params'].value
+        if extractDeepMETs is None :
+            extractDeepMETs = self._defaultParameters['extractDeepMETs'].value
 
         self.setParameter('metType',metType),
         self.setParameter('correctionLevel',correctionLevel),
@@ -242,6 +247,7 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
         self.setParameter('postfix',postfix),
         self.setParameter('fixEE2017',fixEE2017),
         self.setParameter('fixEE2017Params',fixEE2017Params),
+        self.setParameter('extractDeepMETs',extractDeepMETs),
 
         #if mva/puppi MET, autoswitch to std jets
         if metType == "MVA" or metType == "Puppi":
@@ -305,6 +311,7 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
         postfix                 = self._parameters['postfix'].value
         fixEE2017               = self._parameters['fixEE2017'].value
         fixEE2017Params         = self._parameters['fixEE2017Params'].value
+        extractDeepMETs         = self._parameters['extractDeepMETs'].value
         
         #prepare jet configuration
         jetUncInfos = { "jCorrPayload":jetFlavor, "jCorLabelUpToL3":jetCorLabelUpToL3,
@@ -464,6 +471,11 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
         #adding the slimmed MET
         if hasattr(process, "patCaloMet"):
             fullPatMetSequence +=getattr(process, "patCaloMet")
+        # include deepMETsResolutionTune and deepMETsResponseTune into fullPatMetSequence
+        if hasattr(process, "deepMETsResolutionTune"):
+            fullPatMetSequence +=getattr(process, "deepMETsResolutionTune")
+        if hasattr(process, "deepMETsResponseTune"):
+            fullPatMetSequence += getattr(process, "deepMETsResponseTune")
         if hasattr(process, "slimmedMETs"+postfix):
             fullPatMetSequence +=getattr(process, "slimmedMETs"+postfix)
 
@@ -1674,6 +1686,26 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
                          )
         getattr(process,"patCaloMet").addGenMET = False
 
+        # extract DeepMETs (ResponseTune and ResolutionTune) from miniAOD
+        if self._parameters["extractDeepMETs"].value:
+            self.extractMET(process, "rawDeepResponseTune", patMetModuleSequence, postfix)
+            deepMetResponseTuneName = "metrawDeepResponseTune" if hasattr(process, "metrawDeepResponseTune") else "metrawDeepResponseTune"+postfix
+            addMETCollection(process,
+                             labelName = "deepMETsResponseTune",
+                             metSource = deepMetResponseTuneName
+                            )
+            getattr(process, "deepMETsResponseTune").addGenMET = False
+            getattr(process, "deepMETsResponseTune").computeMETSignificance = cms.bool(False)
+
+            self.extractMET(process, "rawDeepResolutionTune", patMetModuleSequence, postfix)
+            deepMetResolutionTuneName = "metrawDeepResolutionTune" if hasattr(process, "metrawDeepResolutionTune") else "metrawDeepResolutionTune"+postfix
+            addMETCollection(process,
+                             labelName = "deepMETsResolutionTune",
+                             metSource = deepMetResolutionTuneName
+                            )
+            getattr(process, "deepMETsResolutionTune").addGenMET = False
+            getattr(process, "deepMETsResolutionTune").computeMETSignificance = cms.bool(False)
+
         ##adding the necessary chs and track met configuration
         task = getPatAlgosToolsTask(process)
 
@@ -1759,6 +1791,10 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
             getattr(process,"slimmedMETs"+postfix).runningOnMiniAOD = True
             getattr(process,"slimmedMETs"+postfix).t01Variation = cms.InputTag("slimmedMETs" if not self._parameters["Puppi"].value else "slimmedMETsPuppi",processName=cms.InputTag.skipCurrentProcess())
 
+            if hasattr(process, "deepMETsResolutionTune") and hasattr(process, "deepMETsResponseTune"):
+                # process includes producing/extracting deepMETsResolutionTune and deepMETsResponseTune
+                # add them to the slimmedMETs
+                getattr(process,"slimmedMETs"+postfix).addDeepMETs = True
 
             #smearing and type0 variations not yet supported in reprocessing
             #del getattr(process,"slimmedMETs"+postfix).t1SmearedVarsAndUncs
@@ -2030,6 +2066,7 @@ def runMetCorAndUncFromMiniAOD(process, metType="PF",
                                computeMETSignificance=True,
                                fixEE2017=False,
                                fixEE2017Params=None,
+                               extractDeepMETs=False,
                                postfix=""):
 
     runMETCorrectionsAndUncertainties = RunMETCorrectionsAndUncertainties()
@@ -2063,6 +2100,7 @@ def runMetCorAndUncFromMiniAOD(process, metType="PF",
                                       postfix=postfix,
                                       fixEE2017=fixEE2017,
                                       fixEE2017Params=fixEE2017Params,
+                                      extractDeepMETs=extractDeepMETs,
                                       )
 
     #MET T1+Txy / Smear
@@ -2094,6 +2132,7 @@ def runMetCorAndUncFromMiniAOD(process, metType="PF",
                                       postfix=postfix,
                                       fixEE2017=fixEE2017,
                                       fixEE2017Params=fixEE2017Params,
+                                      extractDeepMETs=extractDeepMETs,
                                       )
     #MET T1+Smear + uncertainties
     runMETCorrectionsAndUncertainties(process, metType=metType,
@@ -2124,4 +2163,5 @@ def runMetCorAndUncFromMiniAOD(process, metType="PF",
                                       postfix=postfix,
                                       fixEE2017=fixEE2017,
                                       fixEE2017Params=fixEE2017Params,
+                                      extractDeepMETs=extractDeepMETs,
                                       )

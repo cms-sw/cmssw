@@ -106,6 +106,32 @@ chsMetTable = cms.EDProducer("SimpleCandidateFlatTableProducer",
     ),
 )
 
+deepMetResolutionTuneTable = cms.EDProducer("SimpleCandidateFlatTableProducer",
+    # current deepMets are saved in slimmedMETs in MiniAOD,
+    # in the same way as chsMet/TkMET
+    src = metTable.src,
+    name = cms.string("DeepMETResolutionTune"),
+    doc = cms.string("Deep MET trained with resolution tune"),
+    singleton = cms.bool(True), # there's always exactly one MET per event
+    extension = cms.bool(False), # this is the main table for the MET
+    variables = cms.PSet(#NOTA BENE: we don't copy PTVars here!
+        pt = Var("corPt('RawDeepResolutionTune')", float, doc="DeepMET ResolutionTune pt",precision=-1),
+        phi = Var("corPhi('RawDeepResolutionTune')", float, doc="DeepmET ResolutionTune phi",precision=12),
+    ),
+)
+
+deepMetResponseTuneTable = cms.EDProducer("SimpleCandidateFlatTableProducer",
+    src = metTable.src,
+    name = cms.string("DeepMETResponseTune"),
+    doc = cms.string("Deep MET trained with extra response tune"),
+    singleton = cms.bool(True), # there's always exactly one MET per event
+    extension = cms.bool(False), # this is the main table for the MET
+    variables = cms.PSet(#NOTA BENE: we don't copy PTVars here!
+        pt = Var("corPt('RawDeepResponseTune')", float, doc="DeepMET ResponseTune pt",precision=-1),
+        phi = Var("corPhi('RawDeepResponseTune')", float, doc="DeepMET ResponseTune phi",precision=12),
+    ),
+)
+
 metFixEE2017Table = metTable.clone()
 metFixEE2017Table.src = cms.InputTag("slimmedMETsFixEE2017")
 metFixEE2017Table.name = cms.string("METFixEE2017")
@@ -127,6 +153,7 @@ metMCTable = cms.EDProducer("SimpleCandidateFlatTableProducer",
 
 
 metTables = cms.Sequence( metTable + rawMetTable + caloMetTable + puppiMetTable + rawPuppiMetTable+ tkMetTable + chsMetTable)
+deepMetTables = cms.Sequence( deepMetResolutionTuneTable + deepMetResponseTuneTable )
 _withFixEE2017_sequence = cms.Sequence(metTables.copy() + metFixEE2017Table)
 for modifier in run2_nanoAOD_94XMiniAODv1, run2_nanoAOD_94XMiniAODv2:
     modifier.toReplaceWith(metTables,_withFixEE2017_sequence) # only in old miniAOD, the new ones will come from the UL rereco

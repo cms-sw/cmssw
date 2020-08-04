@@ -32,6 +32,20 @@ nanoDQM = DQMEDAnalyzer("NanoAODDQM",
                 Plot1D('rawPt', 'rawPt', 20, 5, 25, "pt()*jecFactor('Uncorrected')"),
             )
         ),
+        DeepMETResolutionTune = cms.PSet(
+            sels = cms.PSet(),
+            plots = cms.VPSet(
+                Plot1D('phi', 'phi', 20, -3.14159, 3.14159, 'Deep MET Resolution Tune phi'),
+                Plot1D('pt', 'pt', 20, 0, 400, 'Deep MET Response Tune pt'),
+            )
+        ),
+        DeepMETResponseTune = cms.PSet(
+            sels = cms.PSet(),
+            plots = cms.VPSet(
+                Plot1D('phi', 'phi', 20, -3.14159, 3.14159, 'Deep MET Response Tune phi'),
+                Plot1D('pt', 'pt', 20, 0, 400, 'Deep MET Response Tune pt'),
+            )
+        ),
         Electron = cms.PSet(
             sels = cms.PSet(
                 Good = cms.string('pt > 15 && abs(dxy) < 0.2 && abs(dz) < 0.5 && cutBased >= 3 && miniPFRelIso_all < 0.4')
