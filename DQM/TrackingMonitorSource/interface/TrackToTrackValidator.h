@@ -63,7 +63,7 @@ class TrackToTrackValidator : public DQMEDAnalyzer {
   typedef std::vector<std::pair<int, std::map<double, int> > > idx2idxByDoubleColl;
 
   explicit TrackToTrackValidator(const edm::ParameterSet&);
-  ~TrackToTrackValidator();
+  ~TrackToTrackValidator() override;
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
   static void fillHistoPSetDescription(edm::ParameterSetDescription& pset);
@@ -71,7 +71,7 @@ class TrackToTrackValidator : public DQMEDAnalyzer {
  protected:
 
   void beginJob(const edm::EventSetup& iSetup);
-  void analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup);
+  void analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) override;
   void bookHistograms(DQMStore::IBooker & iBooker, edm::Run const & iRun, edm::EventSetup const & iSetup) override;
 
   void fillMap(reco::TrackCollection tracks1, reco::TrackCollection tracks2, idx2idxByDoubleColl& map, float dRMin);
