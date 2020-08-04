@@ -1752,16 +1752,8 @@ digiPremixUp2015Defaults25ns = {
     '--procModifiers': 'premix_stage2',
     '--era'          : 'Run2_2016'
     }
-# Specifying explicitly the --filein is not nice but that was the
-# easiest way to "skip" the output of step2 (=premixing stage1) for
-# filein (as it goes to pileup_input). It works (a bit accidentally
-# though) also for "-i all" because in that case the --filein for DAS
-# input is after this one in the list of command line arguments to
-# cmsDriver, and gets then used in practice.
-digiPremixLocalPileup = {
-    "--filein": "file:step1.root",
-    "--pileup_input": "file:step2.root"
-}
+
+from .upgradeWorkflowComponents import digiPremixLocalPileup
 digiPremixLocalPileupUp2015Defaults25ns = merge([digiPremixLocalPileup,
                                                  digiPremixUp2015Defaults25ns])
 digiPremixUp2015Defaults50ns=merge([{'-s':'DIGI:pdigi_valid,DATAMIX,L1,DIGI2RAW,HLT:@relval50ns'},
@@ -3261,7 +3253,7 @@ for year,k in [(year,k) for year in upgradeKeys for k in upgradeKeys[year]]:
     beamspot=upgradeProperties[year][k].get('BeamSpot', None)
 
     # setup baseline steps
-    upgradeStepDict['GenSimFull'][k]= {'-s' : 'GEN,SIM',
+    upgradeStepDict['GenSim'][k]= {'-s' : 'GEN,SIM',
                                        '-n' : 10,
                                        '--conditions' : gt,
                                        '--beamspot' : 'Realistic25ns13TeVEarly2017Collision',
@@ -3269,9 +3261,9 @@ for year,k in [(year,k) for year in upgradeKeys for k in upgradeKeys[year]]:
                                        '--eventcontent': 'FEVTDEBUG',
                                        '--geometry' : geom
                                        }
-    if beamspot is not None: upgradeStepDict['GenSimFull'][k]['--beamspot']=beamspot
+    if beamspot is not None: upgradeStepDict['GenSim'][k]['--beamspot']=beamspot
 
-    upgradeStepDict['GenSimHLBeamSpotFull'][k]= {'-s' : 'GEN,SIM',
+    upgradeStepDict['GenSimHLBeamSpot'][k]= {'-s' : 'GEN,SIM',
                                        '-n' : 10,
                                        '--conditions' : gt,
                                        '--beamspot' : 'HLLHC',
@@ -3280,7 +3272,7 @@ for year,k in [(year,k) for year in upgradeKeys for k in upgradeKeys[year]]:
                                        '--geometry' : geom
                                        }
 
-    upgradeStepDict['GenSimHLBeamSpotFull14'][k]= {'-s' : 'GEN,SIM',
+    upgradeStepDict['GenSimHLBeamSpot14'][k]= {'-s' : 'GEN,SIM',
                                        '-n' : 10,
                                        '--conditions' : gt,
                                        '--beamspot' : 'HLLHC14TeV',
@@ -3289,7 +3281,7 @@ for year,k in [(year,k) for year in upgradeKeys for k in upgradeKeys[year]]:
                                        '--geometry' : geom
                                        }
 
-    upgradeStepDict['DigiFull'][k] = {'-s':'DIGI:pdigi_valid,L1,DIGI2RAW,HLT:%s'%(hltversion),
+    upgradeStepDict['Digi'][k] = {'-s':'DIGI:pdigi_valid,L1,DIGI2RAW,HLT:%s'%(hltversion),
                                       '--conditions':gt,
                                       '--datatier':'GEN-SIM-DIGI-RAW',
                                       '-n':'10',
@@ -3298,7 +3290,7 @@ for year,k in [(year,k) for year in upgradeKeys for k in upgradeKeys[year]]:
                                       }
 
     # Adding Track trigger step in step2
-    upgradeStepDict['DigiFullTrigger'][k] = {'-s':'DIGI:pdigi_valid,L1TrackTrigger,L1,DIGI2RAW,HLT:%s'%(hltversion),
+    upgradeStepDict['DigiTrigger'][k] = {'-s':'DIGI:pdigi_valid,L1TrackTrigger,L1,DIGI2RAW,HLT:%s'%(hltversion),
                                       '--conditions':gt,
                                       '--datatier':'GEN-SIM-DIGI-RAW',
                                       '-n':'10',
@@ -3306,7 +3298,7 @@ for year,k in [(year,k) for year in upgradeKeys for k in upgradeKeys[year]]:
                                       '--geometry' : geom
                                       }
 
-    upgradeStepDict['RecoFull'][k] = {'-s':'RAW2DIGI,L1Reco,RECO,RECOSIM,EI,PAT,VALIDATION:@standardValidation+@miniAODValidation,DQM:@standardDQM+@ExtraHLT+@miniAODDQM',
+    upgradeStepDict['Reco'][k] = {'-s':'RAW2DIGI,L1Reco,RECO,RECOSIM,EI,PAT,VALIDATION:@standardValidation+@miniAODValidation,DQM:@standardDQM+@ExtraHLT+@miniAODDQM',
                                       '--conditions':gt,
                                       '--datatier':'GEN-SIM-RECO,MINIAODSIM,DQMIO',
                                       '-n':'10',
@@ -3314,7 +3306,7 @@ for year,k in [(year,k) for year in upgradeKeys for k in upgradeKeys[year]]:
                                       '--geometry' : geom
                                       }
 
-    upgradeStepDict['RecoFullGlobal'][k] = {'-s':'RAW2DIGI,L1Reco,RECO,RECOSIM,PAT,VALIDATION:@phase2Validation+@miniAODValidation,DQM:@phase2+@miniAODDQM',
+    upgradeStepDict['RecoGlobal'][k] = {'-s':'RAW2DIGI,L1Reco,RECO,RECOSIM,PAT,VALIDATION:@phase2Validation+@miniAODValidation,DQM:@phase2+@miniAODDQM',
                                       '--conditions':gt,
                                       '--datatier':'GEN-SIM-RECO,MINIAODSIM,DQMIO',
                                       '-n':'10',
@@ -3322,7 +3314,7 @@ for year,k in [(year,k) for year in upgradeKeys for k in upgradeKeys[year]]:
                                       '--geometry' : geom
                                       }
 
-    upgradeStepDict['RecoFullLocal'][k] = {'-s':'RAW2DIGI,L1Reco,RECO:localreco',
+    upgradeStepDict['RecoLocal'][k] = {'-s':'RAW2DIGI,L1Reco,RECO:localreco',
                                       '--conditions':gt,
                                       '--datatier':'GEN-SIM-RECO',
                                       '-n':'10',
@@ -3330,7 +3322,7 @@ for year,k in [(year,k) for year in upgradeKeys for k in upgradeKeys[year]]:
                                       '--geometry' : geom
                                       }
 
-    upgradeStepDict['MiniAODFullGlobal'][k] = {'-s':'PAT',
+    upgradeStepDict['MiniAOD'][k] = {'-s':'PAT',
                                       '--conditions':gt,
                                       '--datatier':'MINIAODSIM',
                                       '-n':'10',
@@ -3338,7 +3330,7 @@ for year,k in [(year,k) for year in upgradeKeys for k in upgradeKeys[year]]:
                                       '--geometry' : geom
                                       }
 
-    upgradeStepDict['HARVESTFull'][k]={'-s':'HARVESTING:@standardValidation+@standardDQM+@ExtraHLT+@miniAODValidation+@miniAODDQM',
+    upgradeStepDict['HARVEST'][k]={'-s':'HARVESTING:@standardValidation+@standardDQM+@ExtraHLT+@miniAODValidation+@miniAODDQM',
                                     '--conditions':gt,
                                     '--mc':'',
                                     '--geometry' : geom,
@@ -3346,9 +3338,9 @@ for year,k in [(year,k) for year in upgradeKeys for k in upgradeKeys[year]]:
                                     '--filetype':'DQM',
                                     }
 
-    upgradeStepDict['HARVESTFullGlobal'][k] = merge([{'-s': 'HARVESTING:@phase2Validation+@phase2+@miniAODValidation+@miniAODDQM'}, upgradeStepDict['HARVESTFull'][k]])
+    upgradeStepDict['HARVESTGlobal'][k] = merge([{'-s': 'HARVESTING:@phase2Validation+@phase2+@miniAODValidation+@miniAODDQM'}, upgradeStepDict['HARVEST'][k]])
 
-    upgradeStepDict['ALCAFull'][k] = {'-s':'ALCA:SiPixelCalSingleMuon+TkAlMuonIsolated+TkAlMinBias+MuAlOverlaps+EcalESAlign+TkAlZMuMu+HcalCalHBHEMuonFilter+TkAlUpsilonMuMu+TkAlJpsiMuMu+SiStripCalMinBias',
+    upgradeStepDict['ALCA'][k] = {'-s':'ALCA:SiPixelCalSingleMuon+TkAlMuonIsolated+TkAlMinBias+MuAlOverlaps+EcalESAlign+TkAlZMuMu+HcalCalHBHEMuonFilter+TkAlUpsilonMuMu+TkAlJpsiMuMu+SiStripCalMinBias',
                                       '--conditions':gt,
                                       '--datatier':'ALCARECO',
                                       '-n':'10',
@@ -3372,7 +3364,7 @@ for year,k in [(year,k) for year in upgradeKeys for k in upgradeKeys[year]]:
                                     '--scenario' : 'pp'
                                     }
 
-    upgradeStepDict['NanoFull'][k] = {'-s':'NANO',
+    upgradeStepDict['Nano'][k] = {'-s':'NANO',
                                       '--conditions':gt,
                                       '--datatier':'NANOAODSIM',
                                       '-n':'10',
@@ -3387,73 +3379,18 @@ for year,k in [(year,k) for year in upgradeKeys for k in upgradeKeys[year]]:
 
     # setup PU
     if k2 in PUDataSets:
-        # Setup premixing stage1
-        #
-        # Has to be done before the overall PU definition in order to benefit from that
-        #
-        # It is a complete overkill to define premixing step for
-        # each generator fragment, but let's worry about
-        # simplification later
-        for step in upgradeWFs['baseline'].steps:
-            if "GenSim" in step:
-                stepNamePmx = step.replace('GenSim', 'Premix') + 'PU' + upgradeWFs['Premix'].suffix
-                d = merge([{'-s'            : 'GEN,SIM,DIGI:pdigi_valid',
-                            '--datatier'    : 'PREMIX',
-                            '--eventcontent': 'PREMIX',
-                            '--procModifiers': 'premix_stage1',
-                           },
-                           PUDataSets[k2],upgradeStepDict[step][k]])
-                upgradeStepDict[stepNamePmx][k] = d
-
         for specialType,specialWF in six.iteritems(upgradeWFs):
-            if "Premix" in specialType:
-                # Premix stage1 is already set above, and there are no non-PU steps so has to be ignored here
-                continue
             for step in specialWF.PU:
-                stepName = step + specialWF.suffix
-                stepNamePU = step + 'PU' + specialWF.suffix
-                stepNamePUpmx = step + 'PUPRMX' + specialWF.suffix
+                stepName = specialWF.getStepName(step)
+                stepNamePU = specialWF.getStepNamePU(step)
                 if k not in upgradeStepDict[stepName] or upgradeStepDict[stepName][k] is None:
                     upgradeStepDict[stepNamePU][k] = None
-                elif stepNamePU in upgradeStepDict and k in upgradeStepDict[stepNamePU]:
-                    # in case special WF had PU-specific changes
-                    upgradeStepDict[stepNamePU][k]=merge([PUDataSets[k2],upgradeStepDict[stepNamePU][k]])
                 else:
                     upgradeStepDict[stepNamePU][k]=merge([PUDataSets[k2],upgradeStepDict[stepName][k]])
 
-                # Setup premixing stage2
-                if "Digi" in step or "Reco" in step:
-                    d = merge([upgradeStepDict[stepName][k]])
-                    if d is None: continue
-                    if "Digi" in step:
-                        tmpsteps = []
-                        for s in d["-s"].split(","):
-                            if s == "DIGI" or "DIGI:" in s:
-                                tmpsteps.extend([s, "DATAMIX"])
-                            else:
-                                tmpsteps.append(s)
-                        d = merge([{"-s"             : ",".join(tmpsteps),
-                                    "--datamix"      : "PreMix",
-                                    "--procModifiers": "premix_stage2"},
-                                   d])
-                    elif "Reco" in step:
-                        if "--procModifiers" in d:
-                            d["--procModifiers"] += ",premix_stage2"
-                        else:
-                            d["--procModifiers"] = "premix_stage2"
-                    upgradeStepDict[stepNamePUpmx][k] = d
-                    # For combined stage1+stage2
-                    if "Digi" in step:
-                        upgradeStepDict[stepNamePUpmx+"Combined"][k] = merge([digiPremixLocalPileup, d])
-                # Increase the input file step number by one for Nano in combined stage1+stage2
-                if "Nano" in step:
-                    d = merge([upgradeStepDict[stepName][k]])
-                    if "--filein" in d:
-                        filein = d["--filein"]
-                        m = re.search("step(?P<ind>\d+)_", filein)
-                        if m:
-                            d["--filein"] = filein.replace(m.group(), "step%d_"%(int(m.group("ind"))+1))
-                    upgradeStepDict[stepNamePUpmx+"Combined"][k] = d
+            # in case special WF has PU-specific changes: apply *after* basic PU step is created
+            specialWF.setupPU(upgradeStepDict, k, upgradeProperties[year][k])
+
 for step in upgradeStepDict.keys():
     # we need to do this for each fragment
    if 'Sim' in step or 'Premix' in step:
@@ -3461,7 +3398,7 @@ for step in upgradeStepDict.keys():
             howMuch=info.howMuch
             for key in [key for year in upgradeKeys for key in upgradeKeys[year]]:
                 k=frag[:-4]+'_'+key+'_'+step
-                if (step in upgradeStepDict or step.replace("PUPRMX", "PU")) and key in upgradeStepDict[step]:
+                if step in upgradeStepDict and key in upgradeStepDict[step]:
                     if upgradeStepDict[step][key] is None:
                         steps[k]=None
                     elif 'Premix' in step:
