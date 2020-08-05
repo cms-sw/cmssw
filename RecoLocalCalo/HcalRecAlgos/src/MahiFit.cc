@@ -78,7 +78,7 @@ void MahiFit::phase1Apply(const HBHEChannelInfo& channelData,
     if (iTS == nnlsWork_.tsOffset)
       tstrig += amplitude;
   }
-  double noisecorr = channelData.noisecorr();
+  const double noisecorr = channelData.noisecorr();
   tsTOT *= channelData.tsGain(0);
   tstrig *= channelData.tsGain(0);
 
