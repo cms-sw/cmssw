@@ -82,7 +82,7 @@ private:
 
 DTGeometryValidate::DTGeometryValidate(const edm::ParameterSet& iConfig)
     : dtGeometryToken_{esConsumes<DTGeometry, MuonGeometryRecord>(edm::ESInputTag{})},
-      infileName_(iConfig.getUntrackedParameter<string>("infileName", "cmsGeom10.root")),
+      infileName_(iConfig.getUntrackedParameter<string>("infileName", "cmsRecoGeom-2021.root")),
       outfileName_(iConfig.getUntrackedParameter<string>("outfileName", "validateDTGeometry.root")),
       tolerance_(iConfig.getUntrackedParameter<int>("tolerance", 6)) {
   fwGeometry_.loadMap(infileName_.c_str());
