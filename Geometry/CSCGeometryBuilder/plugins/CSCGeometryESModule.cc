@@ -83,7 +83,7 @@ private:
   bool useCentreTIOffsets_;
   bool debugV_;
   bool applyAlignment_;  // Switch to apply alignment corrections
-  bool fromDDD_;          // whether to build from DDD or DB
+  bool fromDDD_;         // whether to build from DDD or DB
   bool fromDD4hep_;
   const std::string alignmentsLabel_;
   const std::string myLabel_;
