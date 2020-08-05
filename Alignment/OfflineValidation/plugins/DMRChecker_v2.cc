@@ -1,3 +1,5 @@
+//## User includes
+
 #include "Alignment/CommonAlignment/interface/Alignable.h"
 #include "Alignment/CommonAlignment/interface/AlignableExtras.h"
 #include "Alignment/CommonAlignment/interface/AlignableNavigator.h"
@@ -10,8 +12,10 @@
 #include "Alignment/HIPAlignmentAlgorithm/interface/HIPUserVariablesIORoot.h"
 #include "Alignment/MuonAlignment/interface/AlignableMuon.h"
 #include "Alignment/TrackerAlignment/interface/AlignableTracker.h"
+#include "CommonTools/TrackerMap/interface/TrackerMap.h"
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
 #include "CondCore/SiPixelPlugins/interface/Phase1PixelMaps.h"
+#include "CondCore/SiPixelPlugins/interface/PixelRegionContainers.h"
 #include "CondCore/SiPixelPlugins/interface/SiPixelPayloadInspectorHelper.h"
 #include "CondFormats/AlignmentRecord/interface/GlobalPositionRcd.h"
 #include "CondFormats/Common/interface/Time.h"
@@ -41,8 +45,9 @@
 #include "DataFormats/TrackingRecHit/interface/TrackingRecHit.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
+#include "DataFormats/GeometrySurface/interface/LocalError.h"
 #include "FWCore/Common/interface/TriggerNames.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/ESTransientHandle.h"
 #include "FWCore/Framework/interface/ESWatcher.h"
@@ -61,6 +66,11 @@
 #include "IOMC/RandomEngine/src/RandomEngineStateProducer.h"
 #include "MagneticField/Engine/interface/MagneticField.h"
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
+#include "TrackingTools/PatternTools/interface/Trajectory.h"
+#include "TrackingTools/TrackFitters/interface/TrajectoryStateCombiner.h"
+
+// ## ROOT includes
+
 #include "TBranch.h"
 #include "TFile.h"
 #include "TH1D.h"
@@ -69,9 +79,9 @@
 #include "TLorentzVector.h"
 #include "TProfile.h"
 #include "TTree.h"
-#include "TrackingTools/PatternTools/interface/Trajectory.h"
-#include "TrackingTools/TrackFitters/interface/TrajectoryStateCombiner.h"
-#include <DataFormats/GeometrySurface/interface/LocalError.h>
+
+// ## STL includes
+
 #include <cmath>
 #include <ctime>
 #include <fstream>
@@ -79,8 +89,6 @@
 #include <map>
 #include <string>
 #include <vector>
-
-#include "CommonTools/TrackerMap/interface/TrackerMap.h"
 
 class MagneticField;
 
@@ -104,22 +112,25 @@ namespace running {
   };
 }  // namespace running
 
-class DMRChecker_v2 : public edm::EDAnalyzer {
+class DMRChecker_v2 : public edm::one::EDAnalyzer<edm::one::SharedResources> {
 public:
-  DMRChecker_v2(const edm::ParameterSet &pset) {
-    TkTag_ = pset.getParameter<string>("TkTag");
+  DMRChecker_v2(const edm::ParameterSet &pset)
+      : isPhase1_(pset.getParameter<bool>("isPhase1")), isCosmics_(pset.getParameter<bool>("isCosmics")) {
+    usesResource(TFileService::kSharedResource);
+
+    TkTag_ = pset.getParameter<edm::InputTag>("TkTag");
     theTrackCollectionToken = consumes<reco::TrackCollection>(TkTag_);
 
-    InputTag tag("TriggerResults", "", "HLT");
-    hltresultsToken = consumes<edm::TriggerResults>(tag);
+    TriggerResultsTag_ = pset.getParameter<edm::InputTag>("TriggerResultsTag");
+    hltresultsToken = consumes<edm::TriggerResults>(TriggerResultsTag_);
 
-    InputTag beamSpotTag("offlineBeamSpot");
-    beamspotToken = consumes<reco::BeamSpot>(beamSpotTag);
+    BeamSpotTag_ = pset.getParameter<edm::InputTag>("BeamSpotTag");
+    beamspotToken = consumes<reco::BeamSpot>(BeamSpotTag_);
 
-    InputTag vertexTag("offlinePrimaryVertices");
-    vertexToken = consumes<reco::VertexCollection>(vertexTag);
+    VerticesTag_ = pset.getParameter<edm::InputTag>("VerticesTag");
+    vertexToken = consumes<reco::VertexCollection>(VerticesTag_);
 
-    isCosmics_ = pset.getParameter<bool>("isCosmics");
+    // initialize conventional Tracker maps
 
     pmap = new TrackerMap("Pixel");
     pmap->onlyPixel(true);
@@ -129,6 +140,8 @@ public:
     tmap = new TrackerMap("Strip");
     tmap->setTitle("Strip Hit entries");
     tmap->setPalette(1);
+
+    // initialize Phase1 Pixel Maps
 
     pixelmap = std::make_unique<Phase1PixelMaps>("COLZ L");
     pixelmap->bookBarrelHistograms("DMRsX", "Median Residuals x-direction", "Median Residuals");
@@ -143,7 +156,33 @@ public:
 
     // set no rescale
     pixelmap->setNoRescale();
+
+    // initialize PixelRegionContainers
+
+    // initialize the topology first
+    /*
+    const char *path_toTopologyXML = isPhase1_ ? 
+      "Geometry/TrackerCommonData/data/PhaseI/trackerParameters.xml" :
+      "Geometry/TrackerCommonData/data/trackerParameters.xml";
+ 
+    const TrackerTopology m_standaloneTopo = StandaloneTrackerTopology::fromTrackerParametersXMLFile(edm::FileInPath(path_toTopologyXML).fullPath());
+    */
+
+    PixelDMRsbyLayer = std::make_unique<PixelRegions::PixelRegionContainers>(nullptr, isPhase1_);
+
+    // book PixelRegionContainers
+    PixelDMRsbyLayer->bookAll("Barrel Pixel DMRs", "median(x'_{pred}-x'_{hit}) [#mum]", "#modules", 100, -50, 50);
+
+    /*
+    auto dets = PixelRegions::attachedDets(PixelRegions::PixelId::L1,&m_standaloneTopo,isPhase1_);
+    for(const auto& det : dets){
+      auto myLocalTopo = PixelDMRsbyLayer->getTheTTopo();
+      std::cout << myLocalTopo->print(det) << std::endl;
+    }
+    */
   }
+
+  static void fillDescriptions(edm::ConfigurationDescriptions &);
 
   ~DMRChecker_v2() override {}
 
@@ -160,9 +199,11 @@ public:
     return -1;
   }
 
+private:
   edm::Service<TFileService> fs;
 
   std::unique_ptr<Phase1PixelMaps> pixelmap;
+  std::unique_ptr<PixelRegions::PixelRegionContainers> PixelDMRsbyLayer;
 
   TrackerMap *tmap;
   TrackerMap *pmap;
@@ -376,8 +417,14 @@ public:
   bool firstEvent_;
   const TrackerGeometry *trackerGeometry_;
 
-  std::string TkTag_;
-  bool isCosmics_;
+  const bool isPhase1_;
+  const bool isCosmics_;
+
+  edm::InputTag TkTag_;
+  edm::InputTag TriggerResultsTag_;
+  edm::InputTag BeamSpotTag_;
+  edm::InputTag VerticesTag_;
+
   edm::EDGetTokenT<reco::TrackCollection> theTrackCollectionToken;
   edm::EDGetTokenT<edm::TriggerResults> hltresultsToken;
   edm::EDGetTokenT<reco::BeamSpot> beamspotToken;
@@ -458,6 +505,10 @@ public:
     edm::ESHandle<TrackerTopology> tTopoHandle;
     setup.get<TrackerTopologyRcd>().get(tTopoHandle);
     const TrackerTopology *const tTopo = tTopoHandle.product();
+
+    if (!PixelDMRsbyLayer->getTheTopo()) {
+      PixelDMRsbyLayer->setTheTopo(tTopo);
+    }
 
     edm::ESHandle<SiStripLatency> apvlat;
     setup.get<SiStripLatencyRcd>().get(apvlat);
@@ -1613,6 +1664,11 @@ public:
       DMRBPixX_->Fill(bpixid.second.runningMeanOfRes_);
       pixelmap->fillBarrelBin("DMRsX", bpixid.first, bpixid.second.runningMeanOfRes_);
 
+      //auto myLocalTopo = PixelDMRsbyLayer->getTheTopo();
+      //std::cout << myLocalTopo->print(bpixid.first) << std::endl;
+
+      PixelDMRsbyLayer->fill(bpixid.first, bpixid.second.runningMeanOfRes_);
+
       if (bpixid.second.hitCount < 2)
         DRnRBPixX_->Fill(-1);
       else
@@ -1632,6 +1688,7 @@ public:
     for (auto &fpixid : resDetailsFPixX_) {
       DMRFPixX_->Fill(fpixid.second.runningMeanOfRes_);
       pixelmap->fillForwardBin("DMRsX", fpixid.first, fpixid.second.runningMeanOfRes_);
+      PixelDMRsbyLayer->fill(fpixid.first, fpixid.second.runningMeanOfRes_);
 
       if (fpixid.second.hitCount < 2)
         DRnRFPixX_->Fill(-1);
@@ -1714,6 +1771,51 @@ public:
     TCanvas cFY("CanvXForward", "CanvXForward", 1600, 1000);
     pixelmap->DrawForwardMaps("DMRsY", cFY);
     cFY.SaveAs("pixelForwardDMR_y.png");
+
+    // take care now of the 1D histograms
+    gStyle->SetOptStat("emr");
+    PixelDMRsbyLayer->beautify(1, 2);
+    TCanvas DMRxBarrel("DMRxBarrelCanv", "DMRxBarrelCanv", 1400, 1200);
+    DMRxBarrel.Divide(2, 2);
+    PixelDMRsbyLayer->draw(DMRxBarrel, true, "HISTS");
+    adjustCanvases(DMRxBarrel, true);
+    for (unsigned int c = 1; c <= 4; c++) {
+      DMRxBarrel.cd(c)->Update();
+    }
+    PixelDMRsbyLayer->stats();
+
+    TCanvas DMRxForward("DMRxForwardCanv", "DMRxForwardCanv", 1400, 1200);
+    DMRxForward.Divide(4, 3);
+    PixelDMRsbyLayer->draw(DMRxForward, false, "HISTS");
+    adjustCanvases(DMRxForward, false);
+    for (unsigned int c = 1; c <= 12; c++) {
+      DMRxForward.cd(c)->Update();
+    }
+    PixelDMRsbyLayer->stats();
+
+    DMRxBarrel.SaveAs("DMR_x_Barrel_ByLayer.png");
+    DMRxForward.SaveAs("DMR_x_Forward_ByRing.png");
+  }
+
+  void adjustCanvases(TCanvas &canvas, bool isBarrel) {
+    unsigned int maxPads = isBarrel ? 4 : 12;
+    for (unsigned int c = 1; c <= maxPads; c++) {
+      canvas.cd(c);
+      SiPixelPI::adjustCanvasMargins(canvas.cd(c), 0.06, 0.12, 0.12, 0.05);
+    }
+
+    auto ltx = TLatex();
+    ltx.SetTextFont(62);
+    ltx.SetTextSize(0.05);
+    ltx.SetTextAlign(11);
+
+    for (unsigned int c = 1; c <= maxPads; c++) {
+      auto index = isBarrel ? c - 1 : c + 3;
+
+      canvas.cd(c);
+      ltx.DrawLatexNDC(
+          gPad->GetLeftMargin(), 1 - gPad->GetTopMargin() + 0.01, (PixelRegions::IDlabels.at(index)).c_str());
+    }
   }
 
   bool isHit2D(const TrackingRecHit &hit) {
@@ -1866,5 +1968,20 @@ public:
     myDetails[theID].runningNormVarOfRes_ += n_delta * n_delta2;
   }
 };
+
+//*************************************************************
+void DMRChecker_v2::fillDescriptions(edm::ConfigurationDescriptions &descriptions)
+//*************************************************************
+{
+  edm::ParameterSetDescription desc;
+  desc.setComment("Generic track analyzer to check ALCARECO sample quantities / compute fast DMRs");
+  desc.add<edm::InputTag>("TkTag", edm::InputTag("generalTracks"));
+  desc.add<edm::InputTag>("TriggerResultsTag", edm::InputTag("TriggerResults", "", "HLT"));
+  desc.add<edm::InputTag>("BeamSpotTag", edm::InputTag("offlineBeamSpot"));
+  desc.add<edm::InputTag>("VerticesTag", edm::InputTag("offlinePrimaryVertices"));
+  desc.add<bool>("isCosmics", false);
+  desc.add<bool>("isPhase1", true);
+  descriptions.add("DMRChecker_v2", desc);
+}
 
 DEFINE_FWK_MODULE(DMRChecker_v2);

@@ -18,6 +18,7 @@
 <use name="CommonTools/Utils"/>
 <use name="RecoMuon/TrackingTools"/>
 <use name="CalibTracker/StandaloneTrackerTopology"/>
+<use name="CalibTracker/SiPixelESProducers"/>
 <use name="TrackingTools/TransientTrack"/>
 <use name="SimDataFormats/Track"/>
 <use name="SimDataFormats/GeneratorProducts"/>
