@@ -1,5 +1,5 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "DQM/TrackingMonitorSource/interface/TrackToTrackValidator.h"
+#include "DQM/TrackingMonitorSource/interface/TrackToTrackComparisonHists.h"
 
 #include "DQMServices/Core/interface/DQMStore.h"
 
@@ -13,7 +13,7 @@
 //
 // constructors and destructor
 //
-TrackToTrackValidator::TrackToTrackValidator(const edm::ParameterSet& iConfig)
+TrackToTrackComparisonHists::TrackToTrackComparisonHists(const edm::ParameterSet& iConfig)
     : monitoredTrackInputTag_(iConfig.getParameter<edm::InputTag>("monitoredTrack")),
       referenceTrackInputTag_(iConfig.getParameter<edm::InputTag>("referenceTrack")),
       topDirName_(iConfig.getParameter<std::string>("topDirName")),
@@ -45,15 +45,15 @@ TrackToTrackValidator::TrackToTrackValidator(const edm::ParameterSet& iConfig)
   matchTracksMEs_.label = "matches";
 }
 
-TrackToTrackValidator::~TrackToTrackValidator() {
+TrackToTrackComparisonHists::~TrackToTrackComparisonHists() {
   if (genTriggerEventFlag_)
     genTriggerEventFlag_.reset();
 }
 
-void TrackToTrackValidator::beginJob(const edm::EventSetup& iSetup) {}
+void TrackToTrackComparisonHists::beginJob(const edm::EventSetup& iSetup) {}
 
-void TrackToTrackValidator::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
-  LogDebug("TrackToTrackValidator") << " requireValidHLTPaths_ " << requireValidHLTPaths_ << " hltPathsAreValid_  "
+void TrackToTrackComparisonHists::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
+  LogDebug("TrackToTrackComparisonHists") << " requireValidHLTPaths_ " << requireValidHLTPaths_ << " hltPathsAreValid_  "
                                     << hltPathsAreValid_ << "\n";
   // if valid HLT paths are required,
   // analyze event only if paths are valid
@@ -61,7 +61,7 @@ void TrackToTrackValidator::analyze(const edm::Event& iEvent, const edm::EventSe
     return;
   }
 
-  LogDebug("TrackToTrackValidator") << " genTriggerEventFlag_->on() " << genTriggerEventFlag_->on()
+  LogDebug("TrackToTrackComparisonHists") << " genTriggerEventFlag_->on() " << genTriggerEventFlag_->on()
                                     << "  accept:  " << genTriggerEventFlag_->accept(iEvent, iSetup) << "\n";
   // Filter out events if Trigger Filtering is requested
   if (genTriggerEventFlag_->on() && !genTriggerEventFlag_->accept(iEvent, iSetup)) {
@@ -73,14 +73,26 @@ void TrackToTrackValidator::analyze(const edm::Event& iEvent, const edm::EventSe
   //
   edm::Handle<reco::TrackCollection> referenceTracksHandle;
   iEvent.getByToken(referenceTrackToken_, referenceTracksHandle);
+  if (!referenceTracksHandle.isValid()) {
+    edm::LogError("TrackToTrackComparisonHists") << "referenceTracksHandle not found, skipping event";
+    return;
+  }
   reco::TrackCollection referenceTracks = *referenceTracksHandle;
 
   edm::Handle<reco::BeamSpot> referenceBSHandle;
   iEvent.getByToken(referenceBSToken_, referenceBSHandle);
+  if (!referenceBSHandle.isValid()) {
+    edm::LogError("TrackToTrackComparisonHists") << "referenceBSHandle not found, skipping event";
+    return;
+  }
   reco::BeamSpot referenceBS = *referenceBSHandle;
 
   edm::Handle<reco::VertexCollection> referencePVHandle;
   iEvent.getByToken(referencePVToken_, referencePVHandle);
+  if (!referencePVHandle.isValid()) {
+    edm::LogError("TrackToTrackComparisonHists") << "referencePVHandle not found, skipping event";
+    return;
+  }
   reco::Vertex referencePV = referencePVHandle->at(0);
 
   //
@@ -88,17 +100,29 @@ void TrackToTrackValidator::analyze(const edm::Event& iEvent, const edm::EventSe
   //
   edm::Handle<reco::TrackCollection> monitoredTracksHandle;
   iEvent.getByToken(monitoredTrackToken_, monitoredTracksHandle);
+  if (!monitoredTracksHandle.isValid()) {
+    edm::LogError("TrackToTrackComparisonHists") << "monitoredTracksHandle not found, skipping event";
+    return;
+  }
   reco::TrackCollection monitoredTracks = *monitoredTracksHandle;
 
   edm::Handle<reco::BeamSpot> monitoredBSHandle;
   iEvent.getByToken(monitoredBSToken_, monitoredBSHandle);
+  if (!monitoredTracksHandle.isValid()) {
+    edm::LogError("TrackToTrackComparisonHists") << "monitoredBSHandle not found, skipping event";
+    return;
+  }
   reco::BeamSpot monitoredBS = *monitoredBSHandle;
 
   edm::Handle<reco::VertexCollection> monitoredPVHandle;
   iEvent.getByToken(monitoredPVToken_, monitoredPVHandle);
+  if (!monitoredTracksHandle.isValid()) {
+    edm::LogError("TrackToTrackComparisonHists") << "monitoredPVHandle not found, skipping event";
+    return;
+  }
   reco::Vertex monitoredPV = monitoredPVHandle->at(0);
 
-  edm::LogInfo("TrackToTrackValidator") << "analyzing " << monitoredTrackInputTag_.process() << ":"
+  edm::LogInfo("TrackToTrackComparisonHists") << "analyzing " << monitoredTrackInputTag_.process() << ":"
                                         << monitoredTrackInputTag_.label() << ":" << monitoredTrackInputTag_.instance()
                                         << " w.r.t. " << referenceTrackInputTag_.process() << ":"
                                         << referenceTrackInputTag_.label() << ":" << referenceTrackInputTag_.instance()
@@ -121,7 +145,7 @@ void TrackToTrackValidator::analyze(const edm::Event& iEvent, const edm::EventSe
   //
   // loop over reference tracks
   //
-  LogDebug("TrackToTrackValidator") << "\n# of tracks (reference): " << referenceTracks.size() << "\n";
+  LogDebug("TrackToTrackComparisonHists") << "\n# of tracks (reference): " << referenceTracks.size() << "\n";
   for (idx2idxByDoubleColl::const_iterator pItr = reference2monitoredColl.begin(), eItr = reference2monitoredColl.end();
        pItr != eItr;
        ++pItr) {
@@ -166,7 +190,7 @@ void TrackToTrackValidator::analyze(const edm::Event& iEvent, const edm::EventSe
   //
   // loop over monitoed tracks
   //
-  LogDebug("TrackToTrackValidator") << "\n# of tracks (monitored): " << monitoredTracks.size() << "\n";
+  LogDebug("TrackToTrackComparisonHists") << "\n# of tracks (monitored): " << monitoredTracks.size() << "\n";
   for (idx2idxByDoubleColl::const_iterator pItr = monitored2referenceColl.begin(), eItr = monitored2referenceColl.end();
        pItr != eItr;
        ++pItr) {
@@ -204,13 +228,13 @@ void TrackToTrackValidator::analyze(const edm::Event& iEvent, const edm::EventSe
 
   }  // over monitoed tracks
 
-  edm::LogInfo("TrackToTrackValidator") << "Total reference tracks: " << nReferenceTracks << "\n"
+  edm::LogInfo("TrackToTrackComparisonHists") << "Total reference tracks: " << nReferenceTracks << "\n"
                                         << "Total matched reference tracks: " << nMatchedReferenceTracks << "\n"
                                         << "Total monitored tracks: " << nMonitoredTracks << "\n"
                                         << "Total unMatched monitored tracks: " << nUnmatchedMonitoredTracks << "\n";
 }
 
-void TrackToTrackValidator::bookHistograms(DQMStore::IBooker& ibooker,
+void TrackToTrackComparisonHists::bookHistograms(DQMStore::IBooker& ibooker,
                                            edm::Run const& iRun,
                                            edm::EventSetup const& iSetup) {
   if (genTriggerEventFlag_ && genTriggerEventFlag_->on())
@@ -238,7 +262,7 @@ void TrackToTrackValidator::bookHistograms(DQMStore::IBooker& ibooker,
 }
 
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
-void TrackToTrackValidator::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+void TrackToTrackComparisonHists::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
 
   desc.add<bool>("requireValidHLTPaths", true);
@@ -277,10 +301,10 @@ void TrackToTrackValidator::fillDescriptions(edm::ConfigurationDescriptions& des
   fillHistoPSetDescription(histoPSet);
   desc.add<edm::ParameterSetDescription>("histoPSet", histoPSet);
 
-  descriptions.add("trackToTrackValidator", desc);
+  descriptions.add("trackToTrackComparisonHists", desc);
 }
 
-void TrackToTrackValidator::fillMap(reco::TrackCollection tracks1,
+void TrackToTrackComparisonHists::fillMap(reco::TrackCollection tracks1,
                                     reco::TrackCollection tracks2,
                                     idx2idxByDoubleColl& map,
                                     float dRMin) {
@@ -323,11 +347,11 @@ void TrackToTrackValidator::fillMap(reco::TrackCollection tracks1,
   }
 }
 
-void TrackToTrackValidator::bookHistos(DQMStore::IBooker& ibooker, generalME& mes, TString label, std::string& dir) {
+void TrackToTrackComparisonHists::bookHistos(DQMStore::IBooker& ibooker, generalME& mes, TString label, std::string& dir) {
   book_generic_tracks_histos(ibooker, mes, label, dir);
 }
 
-void TrackToTrackValidator::book_generic_tracks_histos(DQMStore::IBooker& ibooker,
+void TrackToTrackComparisonHists::book_generic_tracks_histos(DQMStore::IBooker& ibooker,
                                                        generalME& mes,
                                                        TString label,
                                                        std::string& dir) {
@@ -358,7 +382,7 @@ void TrackToTrackValidator::book_generic_tracks_histos(DQMStore::IBooker& ibooke
                                      Pt_rangeMax);
 }
 
-void TrackToTrackValidator::book_matching_tracks_histos(DQMStore::IBooker& ibooker,
+void TrackToTrackComparisonHists::book_matching_tracks_histos(DQMStore::IBooker& ibooker,
                                                         matchingME& mes,
                                                         TString label,
                                                         std::string& dir) {
@@ -413,7 +437,7 @@ void TrackToTrackValidator::book_matching_tracks_histos(DQMStore::IBooker& ibook
   (mes.h_dHits) = ibooker.book1D(label + "_dHits", "#Delta track number of hits", 39, -19.5, 19.5);
 }
 
-void TrackToTrackValidator::fill_generic_tracks_histos(
+void TrackToTrackComparisonHists::fill_generic_tracks_histos(
     generalME& mes, reco::Track* trk, reco::BeamSpot* bs, reco::Vertex* pv, bool requirePlateau) {
   float pt = trk->pt();
   float eta = trk->eta();
@@ -449,7 +473,7 @@ void TrackToTrackValidator::fill_generic_tracks_histos(
   (mes.h_pt_vs_eta)->Fill(eta, pt);
 }
 
-void TrackToTrackValidator::fill_matching_tracks_histos(
+void TrackToTrackComparisonHists::fill_matching_tracks_histos(
     matchingME& mes, reco::Track* mon, reco::Track* ref, reco::BeamSpot* bs, reco::Vertex* pv) {
   float mon_pt = mon->pt();
   float mon_eta = mon->eta();
@@ -487,7 +511,7 @@ void TrackToTrackValidator::fill_matching_tracks_histos(
   (mes.h_dHits)->Fill(ref_nhits - mon_nhits);
 }
 
-void TrackToTrackValidator::initialize_parameter(const edm::ParameterSet& iConfig) {
+void TrackToTrackComparisonHists::initialize_parameter(const edm::ParameterSet& iConfig) {
   const edm::ParameterSet& pset = iConfig.getParameter<edm::ParameterSet>("histoPSet");
 
   Eta_rangeMin = pset.getParameter<double>("Eta_rangeMin");
@@ -531,7 +555,7 @@ void TrackToTrackValidator::initialize_parameter(const edm::ParameterSet& iConfi
   dzRes_nbin = pset.getParameter<unsigned int>("dzRes_nbin");
 }
 
-void TrackToTrackValidator::fillHistoPSetDescription(edm::ParameterSetDescription& pset) {
+void TrackToTrackComparisonHists::fillHistoPSetDescription(edm::ParameterSetDescription& pset) {
   pset.add<double>("Eta_rangeMin", -2.5);
   pset.add<double>("Eta_rangeMax", 2.5);
   pset.add<unsigned int>("Eta_nbin", 50);

@@ -41,7 +41,7 @@ namespace reco {
 class DQMStore;
 class GenericTriggerEventFlag;
 
-class TrackToTrackValidator : public DQMEDAnalyzer {
+class TrackToTrackComparisonHists : public DQMEDAnalyzer {
 public:
   struct generalME {
     std::string label;
@@ -58,8 +58,8 @@ public:
 
   typedef std::vector<std::pair<int, std::map<double, int> > > idx2idxByDoubleColl;
 
-  explicit TrackToTrackValidator(const edm::ParameterSet&);
-  ~TrackToTrackValidator() override;
+  explicit TrackToTrackComparisonHists(const edm::ParameterSet&);
+  ~TrackToTrackComparisonHists() override;
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
   static void fillHistoPSetDescription(edm::ParameterSetDescription& pset);
