@@ -48,8 +48,8 @@ private:
   std::vector<int> hfLevels_;
   bool fillHistos_, printSum_;
   int binEta_, binPhi_;
-  double maxEta_, etaLow_, etaHigh_;
-  double etaMinP_, etaMaxP_;
+  double maxEta_, etaLow_, etaHigh_, etaLowMin_, etaLowMax_, etaMidMin_;
+  double etaMidMax_, etaHighMin_, etaHighMax_, etaMinP_, etaMaxP_;
   std::vector<std::string> matList_;
   std::vector<double> stepLength_, radLength_, intLength_;
   TH1F *me400[maxSet_], *me800[maxSet_], *me1300[maxSet2_];
@@ -57,6 +57,9 @@ private:
   TProfile *me100[maxSet_], *me200[maxSet_], *me300[maxSet_];
   TProfile *me500[maxSet_], *me600[maxSet_], *me700[maxSet_];
   TProfile *me1500[maxSet2_];
+  TProfile *me1600[maxSet_], *me1700[maxSet_], *me1800[maxSet_];
+  TProfile *me1900[maxSet_], *me2000[maxSet_], *me2100[maxSet_];
+  TProfile *me2200[maxSet_], *me2300[maxSet_], *me2400[maxSet_];
   TProfile2D *me900[maxSet_], *me1000[maxSet_], *me1100[maxSet_];
   int id_, layer_, steps_;
   double radLen_, intLen_, stepLen_;
