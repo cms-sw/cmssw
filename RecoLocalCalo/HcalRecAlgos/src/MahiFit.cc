@@ -82,8 +82,6 @@ void MahiFit::phase1Apply(const HBHEChannelInfo& channelData,
   tsTOT *= channelData.tsGain(0);
   tstrig *= channelData.tsGain(0);
 
-  std::cout << noisecorr << std::endl;
-
   useTriple = false;
   if (tstrig >= ts4Thresh_ && tsTOT > 0) {
     //Average pedestal width (for covariance matrix constraint)
