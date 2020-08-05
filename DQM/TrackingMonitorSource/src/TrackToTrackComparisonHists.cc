@@ -53,8 +53,8 @@ TrackToTrackComparisonHists::~TrackToTrackComparisonHists() {
 void TrackToTrackComparisonHists::beginJob(const edm::EventSetup& iSetup) {}
 
 void TrackToTrackComparisonHists::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
-  LogDebug("TrackToTrackComparisonHists") << " requireValidHLTPaths_ " << requireValidHLTPaths_ << " hltPathsAreValid_  "
-                                    << hltPathsAreValid_ << "\n";
+  LogDebug("TrackToTrackComparisonHists")
+      << " requireValidHLTPaths_ " << requireValidHLTPaths_ << " hltPathsAreValid_  " << hltPathsAreValid_ << "\n";
   // if valid HLT paths are required,
   // analyze event only if paths are valid
   if (requireValidHLTPaths_ and (not hltPathsAreValid_)) {
@@ -62,7 +62,7 @@ void TrackToTrackComparisonHists::analyze(const edm::Event& iEvent, const edm::E
   }
 
   LogDebug("TrackToTrackComparisonHists") << " genTriggerEventFlag_->on() " << genTriggerEventFlag_->on()
-                                    << "  accept:  " << genTriggerEventFlag_->accept(iEvent, iSetup) << "\n";
+                                          << "  accept:  " << genTriggerEventFlag_->accept(iEvent, iSetup) << "\n";
   // Filter out events if Trigger Filtering is requested
   if (genTriggerEventFlag_->on() && !genTriggerEventFlag_->accept(iEvent, iSetup)) {
     return;
@@ -122,11 +122,10 @@ void TrackToTrackComparisonHists::analyze(const edm::Event& iEvent, const edm::E
   }
   reco::Vertex monitoredPV = monitoredPVHandle->at(0);
 
-  edm::LogInfo("TrackToTrackComparisonHists") << "analyzing " << monitoredTrackInputTag_.process() << ":"
-                                        << monitoredTrackInputTag_.label() << ":" << monitoredTrackInputTag_.instance()
-                                        << " w.r.t. " << referenceTrackInputTag_.process() << ":"
-                                        << referenceTrackInputTag_.label() << ":" << referenceTrackInputTag_.instance()
-                                        << " \n";
+  edm::LogInfo("TrackToTrackComparisonHists")
+      << "analyzing " << monitoredTrackInputTag_.process() << ":" << monitoredTrackInputTag_.label() << ":"
+      << monitoredTrackInputTag_.instance() << " w.r.t. " << referenceTrackInputTag_.process() << ":"
+      << referenceTrackInputTag_.label() << ":" << referenceTrackInputTag_.instance() << " \n";
 
   //
   // Build the dR maps
@@ -228,15 +227,16 @@ void TrackToTrackComparisonHists::analyze(const edm::Event& iEvent, const edm::E
 
   }  // over monitoed tracks
 
-  edm::LogInfo("TrackToTrackComparisonHists") << "Total reference tracks: " << nReferenceTracks << "\n"
-                                        << "Total matched reference tracks: " << nMatchedReferenceTracks << "\n"
-                                        << "Total monitored tracks: " << nMonitoredTracks << "\n"
-                                        << "Total unMatched monitored tracks: " << nUnmatchedMonitoredTracks << "\n";
+  edm::LogInfo("TrackToTrackComparisonHists")
+      << "Total reference tracks: " << nReferenceTracks << "\n"
+      << "Total matched reference tracks: " << nMatchedReferenceTracks << "\n"
+      << "Total monitored tracks: " << nMonitoredTracks << "\n"
+      << "Total unMatched monitored tracks: " << nUnmatchedMonitoredTracks << "\n";
 }
 
 void TrackToTrackComparisonHists::bookHistograms(DQMStore::IBooker& ibooker,
-                                           edm::Run const& iRun,
-                                           edm::EventSetup const& iSetup) {
+                                                 edm::Run const& iRun,
+                                                 edm::EventSetup const& iSetup) {
   if (genTriggerEventFlag_ && genTriggerEventFlag_->on())
     genTriggerEventFlag_->initRun(iRun, iSetup);
 
@@ -305,9 +305,9 @@ void TrackToTrackComparisonHists::fillDescriptions(edm::ConfigurationDescription
 }
 
 void TrackToTrackComparisonHists::fillMap(reco::TrackCollection tracks1,
-                                    reco::TrackCollection tracks2,
-                                    idx2idxByDoubleColl& map,
-                                    float dRMin) {
+                                          reco::TrackCollection tracks2,
+                                          idx2idxByDoubleColl& map,
+                                          float dRMin) {
   //
   // loop on tracks1
   //
@@ -347,14 +347,17 @@ void TrackToTrackComparisonHists::fillMap(reco::TrackCollection tracks1,
   }
 }
 
-void TrackToTrackComparisonHists::bookHistos(DQMStore::IBooker& ibooker, generalME& mes, TString label, std::string& dir) {
+void TrackToTrackComparisonHists::bookHistos(DQMStore::IBooker& ibooker,
+                                             generalME& mes,
+                                             TString label,
+                                             std::string& dir) {
   book_generic_tracks_histos(ibooker, mes, label, dir);
 }
 
 void TrackToTrackComparisonHists::book_generic_tracks_histos(DQMStore::IBooker& ibooker,
-                                                       generalME& mes,
-                                                       TString label,
-                                                       std::string& dir) {
+                                                             generalME& mes,
+                                                             TString label,
+                                                             std::string& dir) {
   ibooker.cd();
   ibooker.setCurrentFolder(dir);
   (mes.h_pt) = ibooker.book1D(label + "_pt", "track p_{T}", Pt_nbin, Pt_rangeMin, Pt_rangeMax);
@@ -383,9 +386,9 @@ void TrackToTrackComparisonHists::book_generic_tracks_histos(DQMStore::IBooker& 
 }
 
 void TrackToTrackComparisonHists::book_matching_tracks_histos(DQMStore::IBooker& ibooker,
-                                                        matchingME& mes,
-                                                        TString label,
-                                                        std::string& dir) {
+                                                              matchingME& mes,
+                                                              TString label,
+                                                              std::string& dir) {
   ibooker.cd();
   ibooker.setCurrentFolder(dir);
 

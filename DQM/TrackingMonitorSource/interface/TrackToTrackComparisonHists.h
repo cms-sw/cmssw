@@ -138,29 +138,4 @@ private:
   double dzRes_rangeMin, dzRes_rangeMax;
   unsigned int dzRes_nbin;
 
-  //std::vector<int> totSIMeta,totRECeta,totASSeta,totASS2eta,totloopeta,totmisideta,totASS2etaSig;
-  //std::vector<int> totSIMpT,totRECpT,totASSpT,totASS2pT,totlooppT,totmisidpT;
-  //std::vector<int> totSIM_hit,totREC_hit,totASS_hit,totASS2_hit,totloop_hit,totmisid_hit;
-  //std::vector<int> totSIM_phi,totREC_phi,totASS_phi,totASS2_phi,totloop_phi,totmisid_phi;
-  //std::vector<int> totSIM_dxy,totREC_dxy,totASS_dxy,totASS2_dxy,totloop_dxy,totmisid_dxy;
-  //std::vector<int> totSIM_dz,totREC_dz,totASS_dz,totASS2_dz,totloop_dz,totmisid_dz;
-
-  //std::vector<int> totSIM_vertpos,totASS_vertpos,totSIM_zpos,totASS_zpos;
-  //std::vector<int> totSIM_vertcount_entire,totASS_vertcount_entire,totREC_vertcount_entire,totASS2_vertcount_entire,totASS2_vertcount_entire_signal;
-  //std::vector<int> totSIM_vertcount_barrel,totASS_vertcount_barrel,totREC_vertcount_barrel,totASS2_vertcount_barrel;
-  //std::vector<int> totSIM_vertcount_fwdpos,totASS_vertcount_fwdpos,totREC_vertcount_fwdpos,totASS2_vertcount_fwdpos;
-  //std::vector<int> totSIM_vertcount_fwdneg,totASS_vertcount_fwdneg,totREC_vertcount_fwdneg,totASS2_vertcount_fwdneg;
-  //std::vector<int> totSIM_vertz_entire,totASS_vertz_entire;
-  //std::vector<int> totSIM_vertz_barrel,totASS_vertz_barrel;
-  //std::vector<int> totSIM_vertz_fwdpos,totASS_vertz_fwdpos;
-  //std::vector<int> totSIM_vertz_fwdneg,totASS_vertz_fwdneg;
-  //std::vector<int> totREC_algo;
-  //std::vector<int> totREC_ootpu_entire, totASS2_ootpu_entire;
-  //std::vector<int> totREC_ootpu_barrel, totASS2_ootpu_barrel;
-  //std::vector<int> totREC_ootpu_fwdpos, totASS2_ootpu_fwdpos;
-  //std::vector<int> totREC_ootpu_fwdneg, totASS2_ootpu_fwdneg;
-  //std::vector<int> totREC_ootpu_eta_entire, totASS2_ootpu_eta_entire;
-  //std::vector<int> totASS2_itpu_eta_entire, totASS2_itpu_eta_entire_signal, totASS2_itpu_vertcount_entire, totASS2_itpu_vertcount_entire_signal;
-  //std::vector<int> totFOMT_eta, totFOMT_vertcount;
-  //std::vector<int> totCONeta, totCONvertcount, totCONzpos;
 };
