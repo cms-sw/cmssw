@@ -44,7 +44,7 @@ int DTNumberingScheme::baseNumberToUnitNumber(const MuonBaseNumber& num) const {
 #endif
   if (num.getLevels() < theStationLevel) {  // it was  if (num.getLevels() != theWireLevel) {
     edm::LogWarning("DTNumberingScheme") << "DTNumberingScheme::BNToUN: BaseNumber has " << num.getLevels()
-                                         << " levels, need " << theWireLevel;  //it was theWireLevel;
+                                         << " levels, need " << theStationLevel;  //it was theWireLevel;
     return 0;
   }
 
