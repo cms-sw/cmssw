@@ -1,31 +1,29 @@
-#include "FWCore/Framework/interface/LuminosityBlockForOutput.h"
-#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
-#include "IOPool/Streamer/interface/StreamerOutputModuleBase.h"
-
-#include <zlib.h>
-#include <boost/algorithm/string.hpp>
-#include <filesystem>
-#include <boost/format.hpp>
-#include <boost/property_tree/json_parser.hpp>
-#include <boost/property_tree/ptree.hpp>
-
 #include <iomanip>
+#include <filesystem>
 #include <memory>
 #include <sstream>
+
+#include <zlib.h>
+#include <fmt/printf.h>
+#include <boost/algorithm/string.hpp>
+#include <boost/property_tree/json_parser.hpp>
+#include <boost/property_tree/ptree.hpp>
 
 #include "EventFilter/Utilities/interface/FastMonitor.h"
 #include "EventFilter/Utilities/interface/FastMonitoringService.h"
 #include "EventFilter/Utilities/interface/FileIO.h"
 #include "EventFilter/Utilities/interface/JSONSerializer.h"
 #include "EventFilter/Utilities/interface/JsonMonitorable.h"
+#include "FWCore/Framework/interface/LuminosityBlockForOutput.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/Utilities/interface/Adler32Calculator.h"
-
 #include "IOPool/Streamer/interface/EventMessage.h"
 #include "IOPool/Streamer/interface/EventMsgBuilder.h"
 #include "IOPool/Streamer/interface/InitMessage.h"
 #include "IOPool/Streamer/interface/InitMsgBuilder.h"
 #include "IOPool/Streamer/interface/MsgTools.h"
 #include "IOPool/Streamer/interface/StreamerOutputFile.h"
+#include "IOPool/Streamer/interface/StreamerOutputModuleBase.h"
 
 namespace dqmservices {
 
@@ -83,10 +81,10 @@ namespace dqmservices {
 
     eventsProcessedFile_ = 0;
 
-    currentFileBase_ = str(boost::format("run%06d_ls%04d_stream%s_local") % run % lumi % streamLabel_);
+    currentFileBase_ = fmt::sprintf("run%06d_ls%04d_stream%s_local", run, lumi, streamLabel_);
 
     std::filesystem::path p = outputPath_;
-    p /= str(boost::format("run%06d") % run);
+    p /= fmt::sprintf("run%06d", run);
 
     std::filesystem::create_directories(p);
 
