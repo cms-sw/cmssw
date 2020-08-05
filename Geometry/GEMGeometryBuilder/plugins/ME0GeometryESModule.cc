@@ -45,17 +45,17 @@ private:
   edm::ESGetToken<cms::DDCompactView, IdealGeometryRecord> dd4hepcpvToken_;
   edm::ESGetToken<RecoIdealGeometry, ME0RecoGeometryRcd> rigme0Token_;
   // use the DDD or DD4hep as Geometry source
-  bool useDDD_;
-  bool useDD4hep_;
+  bool fromDDD_;
+  bool fromDD4hep_;
 };
 
 ME0GeometryESModule::ME0GeometryESModule(const edm::ParameterSet& p) {
-  useDDD_ = p.getParameter<bool>("useDDD");
-  useDD4hep_ = p.getUntrackedParameter<bool>("useDD4hep", false);
+  fromDDD_ = p.getParameter<bool>("fromDDD");
+  fromDD4hep_ = p.getParameter<bool>("fromDD4hep");
   auto cc = setWhatProduced(this);
-  if (useDDD_) {
+  if (fromDDD_) {
     cc.setConsumes(cpvToken_).setConsumes(mdcToken_);
-  } else if (useDD4hep_) {
+  } else if (fromDD4hep_) {
     cc.setConsumes(dd4hepcpvToken_).setConsumes(mdcToken_);
   } else {
     cc.setConsumes(rigme0Token_);
@@ -64,27 +64,27 @@ ME0GeometryESModule::ME0GeometryESModule(const edm::ParameterSet& p) {
 
 void ME0GeometryESModule::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
-  desc.add<bool>("useDDD", true);
-  desc.add<bool>("useDD4Hep", false);
+  desc.add<bool>("fromDDD", true);
+  desc.add<bool>("fromDD4hep", false);
   descriptions.add("me0Geometry", desc);
 }
 
 std::unique_ptr<ME0Geometry> ME0GeometryESModule::produce(const MuonGeometryRecord& record) {
-  edm::LogVerbatim("ME0GeometryESModule") << "ME0GeometryESModule::produce with useDDD = " << useDDD_;
-  if (useDDD_) {
-    edm::LogVerbatim("ME0GeometryESModule") << "ME0GeometryESModule::produce :: ME0GeometryBuilder builder";
+  edm::LogVerbatim("ME0Geometry") << "ME0GeometryESModule::produce with fromDDD = " << fromDDD_ << " fromDD4hep " << fromDD4hep_;
+  if (fromDDD_) {
+    edm::LogVerbatim("ME0Geometry") << "ME0GeometryESModule::produce :: ME0GeometryBuilder builder";
     auto cpv = record.getTransientHandle(cpvToken_);
     const auto& mdc = record.get(mdcToken_);
     ME0GeometryBuilder builder;
     return std::unique_ptr<ME0Geometry>(builder.build(cpv.product(), mdc));
-  } else if (useDD4hep_) {
-    edm::LogVerbatim("ME0GeometryESModule") << "ME0GeometryESModule::produce :: ME0GeometryBuilder builder DD4hep";
+  } else if (fromDD4hep_) {
+    edm::LogVerbatim("ME0Geometry") << "ME0GeometryESModule::produce :: ME0GeometryBuilder builder DD4hep";
     auto cpv = record.getTransientHandle(dd4hepcpvToken_);
     const auto& mdc = record.get(mdcToken_);
     ME0GeometryBuilder builder;
     return std::unique_ptr<ME0Geometry>(builder.build(cpv.product(), mdc));
   } else {
-    edm::LogVerbatim("ME0GeometryESModule") << "ME0GeometryESModule::produce :: ME0GeometryBuilderFromCondDB builder";
+    edm::LogVerbatim("ME0Geometry") << "ME0GeometryESModule::produce :: ME0GeometryBuilderFromCondDB builder";
     const auto& rigme0 = record.get(rigme0Token_);
     ME0GeometryBuilderFromCondDB builder;
     return std::unique_ptr<ME0Geometry>(builder.build(rigme0));

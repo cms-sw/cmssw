@@ -28,9 +28,9 @@ void ME0NumberingScheme::initMe(const MuonGeometryConstants& muonConstants) {
 }
 
 int ME0NumberingScheme::baseNumberToUnitNumber(const MuonBaseNumber& num) const {
-  edm::LogVerbatim("ME0NumberingScheme") << "ME0NumberingScheme::baseNumberToUnitNumber BEGIN ";
   // Debug using EDM_ML_DEBUG
 #ifdef EDM_ML_DEBUG
+  edm::LogVerbatim("ME0NumberingScheme") << "ME0NumberingScheme::baseNumberToUnitNumber BEGIN ";
   edm::LogVerbatim("ME0NumberingScheme") << "ME0Numbering " << num.getLevels();
   for (int level = 1; level <= num.getLevels(); level++) {
     edm::LogVerbatim("ME0NumberingScheme")
@@ -39,15 +39,13 @@ int ME0NumberingScheme::baseNumberToUnitNumber(const MuonBaseNumber& num) const 
 #endif
   // -----------------------
 
-  int maxLevel = theRollLevel;
-  if (num.getLevels() != maxLevel) {
-    throw cms::Exception("MuonNumbering") << "MuonME0NS::BNToUN "
-                                          << "BaseNumber has " << num.getLevels() << " levels,"
-                                          << "need " << maxLevel << std::endl;
-    return 0;
-  }
+#ifdef EDM_ML_DEBUG
+  if (num.getLevels() != theRollLevel)
+    edm::LogVerbatim("ME0NumberingScheme") << "MuonME0NS::BNToUN BaseNumber has " << num.getLevels() << " levels which is less than " << theRollLevel;
+#endif
 
-  int region(0), layer(0), chamber(0), roll(0);
+  int region(ME0DetId::minRegionId), layer(ME0DetId::minLayerId);
+  int chamber(ME0DetId::minChamberId), roll(ME0DetId::minRollId);
 
   //decode significant ME0 levels
 
@@ -55,9 +53,12 @@ int ME0NumberingScheme::baseNumberToUnitNumber(const MuonBaseNumber& num) const 
     region = 1;
   else
     region = -1;
-  layer = num.getBaseNo(theLayerLevel) + 1;
-  chamber = num.getBaseNo(theSectorLevel) + 1;
-  roll = num.getBaseNo(theRollLevel) + 1;
+  if (num.getLevels() >= theLayerLevel)
+    layer = num.getBaseNo(theLayerLevel) + 1;
+  if (num.getLevels() >= theSectorLevel)
+    chamber = num.getBaseNo(theSectorLevel) + 1;
+  if (num.getLevels() >= theRollLevel)
+    roll = num.getBaseNo(theRollLevel) + 1;
 
   // collect all info
 
