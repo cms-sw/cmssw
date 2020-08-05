@@ -150,10 +150,11 @@ MTDSectorForwardDoubleLayer* ETLDetLayerGeometryBuilder::buildLayerNew(int endca
     for (auto det : geo.detsETL()) {
       ETLDetId theMod(det->geographicalId().rawId());
       if (theMod.mtdSide() == endcap && theMod.nDisc() == layer && theMod.sector() == static_cast<int>(sector)) {
-        LogDebug("MTDDetLayers") << "ETLDetId " << theMod.rawId() << " side = " << theMod.mtdSide()
-                                 << " Disc/Side/Sector = " << theMod.nDisc() << " " << theMod.discSide() << " "
-                                 << theMod.sector() << " mod/type = " << theMod.module() << " " << theMod.modType()
-                                 << " pos = " << det->position();
+        LogTrace("MTDLayerDump") << std::fixed << "ETLDetId " << theMod.rawId() << " side = " << std::setw(4)
+                                 << theMod.mtdSide() << " Disc/Side/Sector = " << std::setw(4) << theMod.nDisc() << " "
+                                 << std::setw(4) << theMod.discSide() << " " << std::setw(4) << theMod.sector()
+                                 << " mod/type = " << std::setw(4) << theMod.module() << " " << std::setw(4)
+                                 << theMod.modType() << " pos = " << std::setw(14) << det->position();
         // front layer face
         if (theMod.discSide() == 0) {
 #ifdef EDM_ML_DEBUG
@@ -188,23 +189,20 @@ MTDSectorForwardDoubleLayer* ETLDetLayerGeometryBuilder::buildLayerNew(int endca
   }
 
   result = new MTDSectorForwardDoubleLayer(frontSectors, backSectors);
-  LogTrace("MTDDetLayers") << "New MTDSectorForwardDoubleLayer with " << frontSectors.size() << " and "
-                           << backSectors.size() << " rings, at Z " << result->position().z()
-                           << " R1: " << result->specificSurface().innerRadius()
-                           << " R2: " << result->specificSurface().outerRadius();
+  LogTrace("MTDDetLayers") << "New MTDSectorForwardDoubleLayer with " << std::fixed << std::setw(14)
+                           << frontSectors.size() << " and " << std::setw(14) << backSectors.size() << " rings, at Z "
+                           << std::setw(14) << result->specificSurface().position().z() << " R1: " << std::setw(14)
+                           << result->specificSurface().innerRadius() << " R2: " << std::setw(14)
+                           << result->specificSurface().outerRadius();
 
   return result;
 }
 
 MTDDetSector* ETLDetLayerGeometryBuilder::makeDetSector(vector<const GeomDet*>& geomDets) {
-  LogTrace("MTDDetLayers") << "ETLDetLayerGeometryBuilder: new MTDDetSector with " << geomDets.size() << " modules";
-
   MTDDetSector* result = new MTDDetSector(geomDets);
-  LogTrace("MTDDetLayers") << "ETLDetLayerGeometryBuilder: pos = " << result->position()
-                           << " rmin = " << result->specificSurface().innerRadius()
-                           << " rmax = " << result->specificSurface().outerRadius()
-                           << " phi ref = " << result->specificSurface().position().phi()
-                           << " phi/2 = " << result->specificSurface().phiHalfExtension();
+  LogTrace("MTDDetLayers") << "ETLDetLayerGeometryBuilder::makeDetSector new MTDDetSector with " << std::fixed
+                           << std::setw(14) << geomDets.size() << " modules \n"
+                           << (*result);
 
   return result;
 }

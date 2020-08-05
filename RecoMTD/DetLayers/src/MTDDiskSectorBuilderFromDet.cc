@@ -68,12 +68,22 @@ namespace {
 
     LocalVector localPos(rmed * cos(phiPos), rmed * sin(phiPos), zPos);
 
-    LogDebug("MTDDetLayers") << "localPos in computeBounds: " << localPos << "\n"
-                             << "rmin:   " << rmin << "\n"
-                             << "rmax:   " << rmax << "\n"
-                             << "zmin:   " << zmin << "\n"
-                             << "zmax:   " << zmax << "\n"
-                             << "phiWin: " << phiWin;
+#ifdef EDM_ML_DEBUG
+    LogDebug("MTDDetLayers") << "localPos in computeBounds: " << std::fixed << std::setw(14) << localPos << "\n"
+                             << "rmin:   " << std::setw(14) << rmin << "\n"
+                             << "rmax:   " << std::setw(14) << rmax << "\n"
+                             << "zmin:   " << std::setw(14) << zmin << "\n"
+                             << "zmax:   " << std::setw(14) << zmax << "\n"
+                             << "phiWin: " << std::setw(14) << phiWin;
+
+    LocalVector lX(1, 0, 0);
+    LocalVector lY(0, 1, 0);
+    LocalVector lZ(0, 0, 1);
+    LogDebug("MTDDetLayers") << "Local versors transformations: \n"
+                             << std::fixed << "x = " << std::setw(14) << plane.toGlobal(lX) << "\n"
+                             << "y = " << std::setw(14) << plane.toGlobal(lY) << "\n"
+                             << "z = " << std::setw(14) << plane.toGlobal(lZ);
+#endif
 
     return make_pair(new DiskSectorBounds(rmin, rmax, zmin, zmax, phiWin), plane.toGlobal(localPos));
   }
@@ -123,6 +133,6 @@ BoundDiskSector* MTDDiskSectorBuilderFromDet::operator()(const vector<const Geom
 
   auto bo = computeBounds(dets, tmpPlane);
   GlobalPoint pos = meanPos + bo.second;
-  LogDebug("MTDDetLayers") << "global pos in operator: " << pos;
+  LogDebug("MTDDetLayers") << "global pos in operator: " << std::fixed << std::setw(14) << pos;
   return new BoundDiskSector(pos, rotation, bo.first);
 }

@@ -34,10 +34,11 @@ MTDSectorForwardDoubleLayer::MTDSectorForwardDoubleLayer(const vector<const MTDD
 
   setSurface(computeSurface());
 
-  LogTrace("MTDDetLayers") << "Constructing MTDSectorForwardDoubleLayer: " << basicComponents().size() << " Dets "
-                           << theSectors.size() << " Sectors "
-                           << " Z: " << specificSurface().position().z() << " R1: " << specificSurface().innerRadius()
-                           << " R2: " << specificSurface().outerRadius();
+  LogTrace("MTDDetLayers") << "Constructing MTDSectorForwardDoubleLayer: " << std::fixed << std::setw(14)
+                           << basicComponents().size() << " Dets " << std::setw(14) << theSectors.size() << " Sectors "
+                           << " Z: " << std::setw(14) << specificSurface().position().z() << " R1: " << std::setw(14)
+                           << specificSurface().innerRadius() << " R2: " << std::setw(14)
+                           << specificSurface().outerRadius();
 
   selfTest();
 }
