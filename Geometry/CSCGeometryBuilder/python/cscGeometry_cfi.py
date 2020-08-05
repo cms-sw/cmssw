@@ -20,4 +20,4 @@ run2_common.toModify( CSCGeometryESModule, useGangedStripsInME1a = False )
 #
 from Configuration.ProcessModifiers.dd4hep_cff import dd4hep
 
-dd4hep.toModify( CSCGeometryESModule, useDDD = False, useDD4hep = True )
+dd4hep.toModify( CSCGeometryESModule, fromDDD = False, fromDD4hep = True )
