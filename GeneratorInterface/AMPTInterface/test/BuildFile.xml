@@ -5,7 +5,6 @@
 <use name="FWCore/Framework"/>
 <use name="SimDataFormats/Vertex"/>
 <use name="SimDataFormats/GeneratorProducts"/>
-<use name="SimDataFormats/HiGenData"/>
 <use name="SimGeneral/HepPDTRecord"/>
 <use name="CommonTools/UtilAlgos"/>
 <use name="FWCore/ServiceRegistry"/>
