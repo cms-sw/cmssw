@@ -168,16 +168,18 @@ public:
     const TrackerTopology m_standaloneTopo = StandaloneTrackerTopology::fromTrackerParametersXMLFile(edm::FileInPath(path_toTopologyXML).fullPath());
     */
 
-    PixelDMRsbyLayer = std::make_unique<PixelRegions::PixelRegionContainers>(nullptr, isPhase1_);
+    PixelDMRS_x_ByLayer = std::make_unique<PixelRegions::PixelRegionContainers>(nullptr, isPhase1_);
+    PixelDMRS_y_ByLayer = std::make_unique<PixelRegions::PixelRegionContainers>(nullptr, isPhase1_);
 
     // book PixelRegionContainers
-    PixelDMRsbyLayer->bookAll("Barrel Pixel DMRs", "median(x'_{pred}-x'_{hit}) [#mum]", "#modules", 100, -50, 50);
+    PixelDMRS_x_ByLayer->bookAll("Barrel Pixel DMRs", "median(x'_{pred}-x'_{hit}) [#mum]", "# modules", 100, -50, 50);
+    PixelDMRS_y_ByLayer->bookAll("Barrel Pixel DMRs", "median(y'_{pred}-y'_{hit}) [#mum]", "# modules", 100, -50, 50);
 
     /*
     auto dets = PixelRegions::attachedDets(PixelRegions::PixelId::L1,&m_standaloneTopo,isPhase1_);
     for(const auto& det : dets){
-      auto myLocalTopo = PixelDMRsbyLayer->getTheTTopo();
-      std::cout << myLocalTopo->print(det) << std::endl;
+      auto myLocalTopo = PixelDMRS_x_ByLayer->getTheTTopo();
+      edm::LogVerbatim("DMRChecker_v2") << myLocalTopo->print(det) << std::endl;
     }
     */
   }
@@ -203,7 +205,8 @@ private:
   edm::Service<TFileService> fs;
 
   std::unique_ptr<Phase1PixelMaps> pixelmap;
-  std::unique_ptr<PixelRegions::PixelRegionContainers> PixelDMRsbyLayer;
+  std::unique_ptr<PixelRegions::PixelRegionContainers> PixelDMRS_x_ByLayer;
+  std::unique_ptr<PixelRegions::PixelRegionContainers> PixelDMRS_y_ByLayer;
 
   TrackerMap *tmap;
   TrackerMap *pmap;
@@ -455,7 +458,7 @@ private:
     //typedef cond::Time_t Time_t;
     // const unsigned int MAX_VAL(std::numeric_limits<unsigned int>::max());
 
-    // std::cout<<"====> MAXVAL: "<<MAX_VAL<<std::endl;
+    // edm::LogVerbatim("DMRChecker_v2")<<"====> MAXVAL: "<<MAX_VAL<<std::endl;
 
     // edm::ESHandle<Alignments> globalPositionRcd;
     // edm::ValidityInterval iov(setup.get<GlobalPositionRcd>().validityInterval() );
@@ -492,12 +495,12 @@ private:
     ctime(&end_time);
 
     /*
-      std::cout<< " start_time " << start_time << "( " << summary->m_start_time_str <<" )" 
+      edm::LogVerbatim("DMRChecker_v2")<< " start_time " << start_time << "( " << summary->m_start_time_str <<" )" 
       << " end_time "   << end_time   << "( " << summary->m_stop_time_str  <<" )" << std::endl;
     */
 
     double seconds = difftime(end_time, start_time) / 1.0e+6;
-    //std::cout<<" diff: "<< seconds << "s" << std::endl;
+    //edm::LogVerbatim("DMRChecker_v2")<<" diff: "<< seconds << "s" << std::endl;
 
     timeMap_[event.run()] = seconds;
 
@@ -506,8 +509,9 @@ private:
     setup.get<TrackerTopologyRcd>().get(tTopoHandle);
     const TrackerTopology *const tTopo = tTopoHandle.product();
 
-    if (!PixelDMRsbyLayer->getTheTopo()) {
-      PixelDMRsbyLayer->setTheTopo(tTopo);
+    if (!PixelDMRS_x_ByLayer->getTheTopo()) {
+      PixelDMRS_x_ByLayer->setTheTopo(tTopo);
+      PixelDMRS_y_ByLayer->setTheTopo(tTopo);
     }
 
     edm::ESHandle<SiStripLatency> apvlat;
@@ -526,7 +530,7 @@ private:
     const TrackerGeometry *theGeometry = &(*geometry);
 
     GlobalPoint zeroPoint(0, 0, 0);
-    //std::cout << "event#" << ievt << " Event ID = "<< event.id()
+    //edm::LogVerbatim("DMRChecker_v2") << "event#" << ievt << " Event ID = "<< event.id()
     /// << " magnetic field: " << magneticField_->inTesla(zeroPoint) << std::endl ;
 
     const reco::TrackCollection tC = *(trackCollection.product());
@@ -535,7 +539,7 @@ private:
     runInfoMap_[event.run()].first += 1;
     runInfoMap_[event.run()].second += tC.size();
 
-    //std::cout << "Reconstructed "<< tC.size() << " tracks" << std::endl ;
+    //edm::LogVerbatim("DMRChecker_v2") << "Reconstructed "<< tC.size() << " tracks" << std::endl ;
     TLorentzVector mother(0., 0., 0., 0.);
 
     //int iCounter=0;
@@ -716,7 +720,7 @@ private:
                 hBPixResXPull->Fill(resErrX);
                 hBPixResYPull->Fill(resErrY);
 
-                //std::cout<<"layer: "<<layer_num<<std::endl;
+                //edm::LogVerbatim("DMRChecker_v2")<<"layer: "<<layer_num<<std::endl;
 
                 // update residuals X
                 this->updateOnlineMomenta(resDetailsBPixX_, detId.rawId(), uOrientation * resX * 10000., resErrX);
@@ -738,7 +742,7 @@ private:
 
                 int packedTopo = disk_num + 3 * (side_num - 1);
 
-                //std::cout<<"side: "<< side_num <<" disk: " << disk_num << " packedTopo: " << packedTopo <<" GP.z(): "<<GP.z()<<std::endl;
+                //edm::LogVerbatim("DMRChecker_v2")<<"side: "<< side_num <<" disk: " << disk_num << " packedTopo: " << packedTopo <<" GP.z(): "<<GP.z()<<std::endl;
 
                 hHitCountVsThetaFPix->Fill(GP.theta());
                 hHitCountVsPhiFPix->Fill(GP.phi());
@@ -807,7 +811,7 @@ private:
 
       hHit2D->Fill(nHit2D);
 
-      // std::cout << "nHit2D: "<<nHit2D<<std::endl;
+      // edm::LogVerbatim("DMRChecker_v2") << "nHit2D: "<<nHit2D<<std::endl;
 
       hHit->Fill(track->numberOfValidHits());
       hnhpxb->Fill(track->hitPattern().numberOfValidPixelBarrelHits());
@@ -857,7 +861,7 @@ private:
       hEta->Fill(track->eta());
       hPhi->Fill(track->phi());
 
-      //std::cout << "nHit2D: "<<nHit2D<<std::endl;
+      //edm::LogVerbatim("DMRChecker_v2") << "nHit2D: "<<nHit2D<<std::endl;
 
       if (fabs(track->eta()) < 0.8)
         hPhiBarrel->Fill(track->phi());
@@ -877,7 +881,7 @@ private:
       hvy->Fill(track->vy());
       hvz->Fill(track->vz());
 
-      //std::cout << "nHit2D: "<<nHit2D<<std::endl;
+      //edm::LogVerbatim("DMRChecker_v2") << "nHit2D: "<<nHit2D<<std::endl;
 
       // int myalgo=-88;
       // if(track->algo()==reco::TrackBase::undefAlgorithm)myalgo=0;
@@ -1034,7 +1038,7 @@ private:
       static const int normchi2kappa_2d = this->GetIndex(vTrack2DHistos_, "h2_normchi2_vs_kappa");
       vTrack2DHistos_[normchi2kappa_2d]->Fill(normchi2, kappa);
 
-      //std::cout << "filling histos"<<std::endl;
+      //edm::LogVerbatim("DMRChecker_v2") << "filling histos"<<std::endl;
 
       //dxy with respect to the beamspot
       reco::BeamSpot beamSpot;
@@ -1063,7 +1067,7 @@ private:
           if (abs(mindxy) > abs(track->dxy(mypoint))) {
             mindxy = track->dxy(mypoint);
             dz = track->dz(mypoint);
-            //std::cout<<"dxy: "<<mindxy<<"dz: "<<dz<<std::endl;
+            //edm::LogVerbatim("DMRChecker_v2")<<"dxy: "<<mindxy<<"dz: "<<dz<<std::endl;
           }
         }
 
@@ -1081,16 +1085,16 @@ private:
         hdzPV->Fill(100);
       }
 
-      // std::cout<<"end of track loop"<<std::endl;
+      // edm::LogVerbatim("DMRChecker_v2")<<"end of track loop"<<std::endl;
     }
 
-    // std::cout<<"end of analysis"<<std::endl;
+    // edm::LogVerbatim("DMRChecker_v2")<<"end of analysis"<<std::endl;
 
     hNtrk->Fill(tC.size());
     hNtrkZoom->Fill(tC.size());
     hNhighPurity->Fill(nHighPurityTracks);
 
-    // std::cout<<"end of analysis"<<std::endl;
+    // edm::LogVerbatim("DMRChecker_v2")<<"end of analysis"<<std::endl;
   }
 
   void beginJob() override {
@@ -1494,14 +1498,14 @@ private:
   }  //beginJob
 
   void endJob() override {
-    std::cout << "*******************************" << std::endl;
-    std::cout << "Events run in total: " << ievt << std::endl;
-    std::cout << "n. tracks: " << itrks << std::endl;
-    std::cout << "*******************************" << std::endl;
+    edm::LogPrint("DMRChecker_v2") << "*******************************" << std::endl;
+    edm::LogPrint("DMRChecker_v2") << "Events run in total: " << ievt << std::endl;
+    edm::LogPrint("DMRChecker_v2") << "n. tracks: " << itrks << std::endl;
+    edm::LogPrint("DMRChecker_v2") << "*******************************" << std::endl;
 
     Int_t nFiringTriggers = triggerMap_.size();
-    std::cout << "firing triggers: " << nFiringTriggers << std::endl;
-    std::cout << "*******************************" << std::endl;
+    edm::LogPrint("DMRChecker_v2") << "firing triggers: " << nFiringTriggers << std::endl;
+    edm::LogPrint("DMRChecker_v2") << "*******************************" << std::endl;
 
     tksByTrigger_ = fs->make<TH1D>(
         "tksByTrigger", "tracks by HLT path;;% of # traks", nFiringTriggers, -0.5, nFiringTriggers - 0.5);
@@ -1519,10 +1523,11 @@ private:
 
       std::cout.precision(4);
 
-      std::cout << "HLT path: " << std::setw(60) << left << it->first << " | events firing: " << right << std::setw(8)
-                << (it->second).first << " (" << setw(8) << fixed << evtpercent << "%)"
-                << " | tracks collected: " << std::setw(10) << (it->second).second << " (" << setw(8) << fixed
-                << trkpercent << "%)" << '\n';
+      edm::LogPrint("DMRChecker_v2") << "HLT path: " << std::setw(60) << left << it->first
+                                     << " | events firing: " << right << std::setw(8) << (it->second).first << " ("
+                                     << setw(8) << fixed << evtpercent << "%)"
+                                     << " | tracks collected: " << std::setw(10) << (it->second).second << " ("
+                                     << setw(8) << fixed << trkpercent << "%)";
 
       tksByTrigger_->SetBinContent(i, trkpercent);
       tksByTrigger_->GetXaxis()->SetBinLabel(i, (it->first).c_str());
@@ -1541,11 +1546,11 @@ private:
     sort(theRuns_.begin(), theRuns_.end());
     Int_t runRange = theRuns_[theRuns_.size() - 1] - theRuns_[0] + 1;
 
-    std::cout << "*******************************" << std::endl;
-    std::cout << "first run: " << theRuns_[0] << std::endl;
-    std::cout << "last run:  " << theRuns_[theRuns_.size() - 1] << std::endl;
-    std::cout << "considered runs: " << nRuns << std::endl;
-    std::cout << "*******************************" << std::endl;
+    edm::LogPrint("DMRChecker_v2") << "*******************************" << std::endl;
+    edm::LogPrint("DMRChecker_v2") << "first run: " << theRuns_[0] << std::endl;
+    edm::LogPrint("DMRChecker_v2") << "last run:  " << theRuns_[theRuns_.size() - 1] << std::endl;
+    edm::LogPrint("DMRChecker_v2") << "considered runs: " << nRuns << std::endl;
+    edm::LogPrint("DMRChecker_v2") << "*******************************" << std::endl;
 
     /*
       // all runs on display
@@ -1584,12 +1589,15 @@ private:
         indexing++;
         double runTime = timeMap_.find(the_r)->second;
 
-        std::cout << "run:" << the_r << " | isPeak: " << std::setw(4) << conditionsMap_.find(the_r)->second.first
-                  << "| B-field: " << conditionsMap_.find(the_r)->second.second << " [T]"
-                  << "| events: " << setw(10) << runInfoMap_.find(the_r)->second.first << "(rate: " << setw(10)
-                  << (runInfoMap_.find(the_r)->second.first) / runTime << " ev/s)"
-                  << ", tracks " << setw(10) << runInfoMap_.find(the_r)->second.second << "(rate: " << setw(10)
-                  << (runInfoMap_.find(the_r)->second.second) / runTime << " trk/s)" << std::endl;
+        edm::LogPrint("DMRChecker_v2") << "run:" << the_r << " | isPeak: " << std::setw(4)
+                                       << conditionsMap_.find(the_r)->second.first
+                                       << "| B-field: " << conditionsMap_.find(the_r)->second.second << " [T]"
+                                       << "| events: " << setw(10) << runInfoMap_.find(the_r)->second.first
+                                       << "(rate: " << setw(10) << (runInfoMap_.find(the_r)->second.first) / runTime
+                                       << " ev/s)"
+                                       << ", tracks " << setw(10) << runInfoMap_.find(the_r)->second.second
+                                       << "(rate: " << setw(10) << (runInfoMap_.find(the_r)->second.second) / runTime
+                                       << " trk/s)" << std::endl;
 
         // int the_bin = modeByRun_->GetXaxis()->FindBin(the_r);
         modeByRun_->SetBinContent(indexing, conditionsMap_.find(the_r)->second.first);
@@ -1614,14 +1622,14 @@ private:
 
         constexpr const char *subdets[]{"BPix", "FPix", "TIB", "TID", "TOB", "TEC"};
 
-        std::cout << "*******************************" << std::endl;
-        std::cout << "Hits by Sub-det" << std::endl;
+        edm::LogPrint("DMRChecker_v2") << "*******************************" << std::endl;
+        edm::LogPrint("DMRChecker_v2") << "Hits by Sub-det" << std::endl;
         int si = 0;
         for (const auto &entry : runHitsMap_.find(the_r)->second) {
-          std::cout << subdets[si] << " " << entry << std::endl;
+          edm::LogPrint("DMRChecker_v2") << subdets[si] << " " << entry << std::endl;
           si++;
         }
-        std::cout << "*******************************" << std::endl;
+        edm::LogPrint("DMRChecker_v2") << "*******************************" << std::endl;
       }
 
       // modeByRun_->GetXaxis()->SetBinLabel(the_r-theRuns_[0]+1,(const char*)the_r);
@@ -1664,10 +1672,10 @@ private:
       DMRBPixX_->Fill(bpixid.second.runningMeanOfRes_);
       pixelmap->fillBarrelBin("DMRsX", bpixid.first, bpixid.second.runningMeanOfRes_);
 
-      //auto myLocalTopo = PixelDMRsbyLayer->getTheTopo();
-      //std::cout << myLocalTopo->print(bpixid.first) << std::endl;
+      //auto myLocalTopo = PixelDMRS_x_ByLayer->getTheTopo();
+      //edm::LogPrint("DMRChecker_v2") << myLocalTopo->print(bpixid.first) << std::endl;
 
-      PixelDMRsbyLayer->fill(bpixid.first, bpixid.second.runningMeanOfRes_);
+      PixelDMRS_x_ByLayer->fill(bpixid.first, bpixid.second.runningMeanOfRes_);
 
       if (bpixid.second.hitCount < 2)
         DRnRBPixX_->Fill(-1);
@@ -1678,6 +1686,7 @@ private:
     for (auto &bpixid : resDetailsBPixY_) {
       DMRBPixY_->Fill(bpixid.second.runningMeanOfRes_);
       pixelmap->fillBarrelBin("DMRsY", bpixid.first, bpixid.second.runningMeanOfRes_);
+      PixelDMRS_y_ByLayer->fill(bpixid.first, bpixid.second.runningMeanOfRes_);
 
       if (bpixid.second.hitCount < 2)
         DRnRBPixY_->Fill(-1);
@@ -1688,7 +1697,7 @@ private:
     for (auto &fpixid : resDetailsFPixX_) {
       DMRFPixX_->Fill(fpixid.second.runningMeanOfRes_);
       pixelmap->fillForwardBin("DMRsX", fpixid.first, fpixid.second.runningMeanOfRes_);
-      PixelDMRsbyLayer->fill(fpixid.first, fpixid.second.runningMeanOfRes_);
+      PixelDMRS_x_ByLayer->fill(fpixid.first, fpixid.second.runningMeanOfRes_);
 
       if (fpixid.second.hitCount < 2)
         DRnRFPixX_->Fill(-1);
@@ -1699,6 +1708,7 @@ private:
     for (auto &fpixid : resDetailsFPixY_) {
       DMRFPixY_->Fill(fpixid.second.runningMeanOfRes_);
       pixelmap->fillForwardBin("DMRsY", fpixid.first, fpixid.second.runningMeanOfRes_);
+      PixelDMRS_y_ByLayer->fill(fpixid.first, fpixid.second.runningMeanOfRes_);
 
       if (fpixid.second.hitCount < 2)
         DRnRFPixY_->Fill(-1);
@@ -1744,8 +1754,8 @@ private:
         DRnRTEC_->Fill(sqrt(tecid.second.runningNormVarOfRes_ / (tecid.second.hitCount - 1)));
     }
 
-    std::cout << "n. of bpix modules " << resDetailsBPixX_.size() << std::endl;
-    std::cout << "n. of fpix modules " << resDetailsFPixX_.size() << std::endl;
+    edm::LogPrint("DMRChecker_v2") << "n. of bpix modules " << resDetailsBPixX_.size() << std::endl;
+    edm::LogPrint("DMRChecker_v2") << "n. of fpix modules " << resDetailsFPixX_.size() << std::endl;
 
     pmap->save(true, 0, 0, "pixelmap.pdf", 600, 800);
     pmap->save(true, 0, 0, "pixelmap.png", 500, 750);
@@ -1774,29 +1784,55 @@ private:
 
     // take care now of the 1D histograms
     gStyle->SetOptStat("emr");
-    PixelDMRsbyLayer->beautify(1, 2);
-    TCanvas DMRxBarrel("DMRxBarrelCanv", "DMRxBarrelCanv", 1400, 1200);
+    PixelDMRS_x_ByLayer->beautify(2, 0);
+    PixelDMRS_y_ByLayer->beautify(2, 0);
+
+    TCanvas DMRxBarrel("DMRxBarrelCanv", "x-coordinate", 1400, 1200);
     DMRxBarrel.Divide(2, 2);
-    PixelDMRsbyLayer->draw(DMRxBarrel, true, "HISTS");
+    PixelDMRS_x_ByLayer->draw(DMRxBarrel, true, "HISTS");
     adjustCanvases(DMRxBarrel, true);
     for (unsigned int c = 1; c <= 4; c++) {
       DMRxBarrel.cd(c)->Update();
     }
-    PixelDMRsbyLayer->stats();
+    PixelDMRS_x_ByLayer->stats();
 
-    TCanvas DMRxForward("DMRxForwardCanv", "DMRxForwardCanv", 1400, 1200);
+    TCanvas DMRxForward("DMRxForwardCanv", "x-coordinate", 1400, 1200);
     DMRxForward.Divide(4, 3);
-    PixelDMRsbyLayer->draw(DMRxForward, false, "HISTS");
+    PixelDMRS_x_ByLayer->draw(DMRxForward, false, "HISTS");
     adjustCanvases(DMRxForward, false);
     for (unsigned int c = 1; c <= 12; c++) {
       DMRxForward.cd(c)->Update();
     }
-    PixelDMRsbyLayer->stats();
+    PixelDMRS_x_ByLayer->stats();
 
     DMRxBarrel.SaveAs("DMR_x_Barrel_ByLayer.png");
     DMRxForward.SaveAs("DMR_x_Forward_ByRing.png");
+
+    TCanvas DMRyBarrel("DMRyBarrelCanv", "y-coordinate", 1400, 1200);
+    DMRyBarrel.Divide(2, 2);
+    PixelDMRS_y_ByLayer->draw(DMRyBarrel, true, "HISTS");
+    adjustCanvases(DMRyBarrel, true);
+    for (unsigned int c = 1; c <= 4; c++) {
+      DMRyBarrel.cd(c)->Update();
+    }
+    PixelDMRS_y_ByLayer->stats();
+
+    TCanvas DMRyForward("DMRyForwardCanv", "y-coordinate", 1400, 1200);
+    DMRyForward.Divide(4, 3);
+    PixelDMRS_y_ByLayer->draw(DMRyForward, false, "HISTS");
+    adjustCanvases(DMRyForward, false);
+    for (unsigned int c = 1; c <= 12; c++) {
+      DMRyForward.cd(c)->Update();
+    }
+    PixelDMRS_y_ByLayer->stats();
+
+    DMRyBarrel.SaveAs("DMR_y_Barrel_ByLayer.png");
+    DMRyForward.SaveAs("DMR_y_Forward_ByRing.png");
   }
 
+  //*************************************************************
+  // Adjust canvas for DMRs
+  //*************************************************************
   void adjustCanvases(TCanvas &canvas, bool isBarrel) {
     unsigned int maxPads = isBarrel ? 4 : 12;
     for (unsigned int c = 1; c <= maxPads; c++) {
@@ -1809,15 +1845,20 @@ private:
     ltx.SetTextSize(0.05);
     ltx.SetTextAlign(11);
 
+    std::string toAppend = canvas.GetTitle();
+
     for (unsigned int c = 1; c <= maxPads; c++) {
       auto index = isBarrel ? c - 1 : c + 3;
-
       canvas.cd(c);
-      ltx.DrawLatexNDC(
-          gPad->GetLeftMargin(), 1 - gPad->GetTopMargin() + 0.01, (PixelRegions::IDlabels.at(index)).c_str());
+      ltx.DrawLatexNDC(gPad->GetLeftMargin(),
+                       1 - gPad->GetTopMargin() + 0.01,
+                       (PixelRegions::IDlabels.at(index) + " " + toAppend).c_str());
     }
   }
 
+  //*************************************************************
+  // check if the hit is 2D
+  //*************************************************************
   bool isHit2D(const TrackingRecHit &hit) {
     bool countStereoHitAs2D_ = true;
     // we count SiStrip stereo modules as 2D if selected via countStereoHitAs2D_
@@ -1913,7 +1954,7 @@ private:
         title_ =
             Form("%s (layer %i) track %s-%s;%s;hits", detType.Data(), i, resType.Data(), varType.Data(), xAxisTitle_);
 
-        //std::cout<<"bookResidualsHistogram(): "<<i<<" layer:"<<i<<std::endl;
+        //edm::LogPrint("DMRChecker_v2")<<"bookResidualsHistogram(): "<<i<<" layer:"<<i<<std::endl;
       }
 
       h[i] = dir.make<TH1D>(name_, title_, 100, limits.first, limits.second);
@@ -1928,7 +1969,7 @@ private:
   void fillByIndex(std::map<unsigned int, TH1D *> &h, unsigned int index, double x) {
     if (h.count(index) != 0) {
       //if(TString(h[index]->GetName()).Contains("BPix"))
-      //std::cout<<"fillByIndex() index: "<< index << " filling histogram: "<< h[index]->GetName() << std::endl;
+      //edm::LogPrint("DMRChecker_v2")<<"fillByIndex() index: "<< index << " filling histogram: "<< h[index]->GetName() << std::endl;
 
       double min = h[index]->GetXaxis()->GetXmin();
       double max = h[index]->GetXaxis()->GetXmax();
