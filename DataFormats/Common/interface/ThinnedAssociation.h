@@ -21,7 +21,7 @@ namespace edm {
     std::vector<unsigned int> const& indexesIntoParent() const { return indexesIntoParent_; }
 
     // If this association contains the parent index, return the
-    // corresponding index into the thinned colleciton. Otherwise
+    // corresponding index into the thinned collection. Otherwise
     // return null std::optional.
     std::optional<unsigned int> getThinnedIndex(unsigned int parentIndex) const;
 
