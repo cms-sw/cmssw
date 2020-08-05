@@ -492,6 +492,7 @@ void HBHEPhase1Reconstructor::processData(const Collection& coll,
     const double fcByPE = properties.siPMParameter->getFCByPE();
     double darkCurrent = 0.;
     double lambda = 0.;
+    const double noisecorr = properties.siPMParameter->getauxi2();
     if (!saveEffectivePeds || saveInfos_) {
       // needed for the dark current in the M2 in alternative of the effectivePed
       darkCurrent = properties.siPMParameter->getDarkCurrent();
@@ -571,6 +572,7 @@ void HBHEPhase1Reconstructor::processData(const Collection& coll,
                                 darkCurrent,
                                 fcByPE,
                                 lambda,
+                                noisecorr,
                                 hwerr.first,
                                 hwerr.second,
                                 properties.taggedBadByDb || dropByZS);

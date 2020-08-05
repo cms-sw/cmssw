@@ -23,7 +23,7 @@ __global__ void kernel_test_hcal_hfqie10info() { HFQIE10Info info; }
 
 __global__ void kernel_test_hcal_hbhechinfo(HBHEChannelInfo *other) {
   HBHEChannelInfo info{true, true};
-  info.setChannelInfo(HcalDetId{0}, 10, 10, 10, 1, 2.0, 2.0, 2.0, false, false, false);
+  info.setChannelInfo(HcalDetId{0}, 10, 10, 10, 1, 2.0, 2.0, 2.0, 0.0, false, false, false);
   other->setChannelInfo(info.id(),
                         info.recoShape(),
                         info.nSamples(),
@@ -32,6 +32,7 @@ __global__ void kernel_test_hcal_hbhechinfo(HBHEChannelInfo *other) {
                         info.darkCurrent(),
                         info.fcByPE(),
                         info.lambda(),
+                        info.noisecorr(),
                         info.hasLinkError(),
                         info.hasCapidError(),
                         info.isDropped());
@@ -85,7 +86,7 @@ void test_hcal_hbhechinfo() {
   };
 
   HBHEChannelInfo h_info, h_info_test{true, true};
-  h_info_test.setChannelInfo(HcalDetId{0}, 10, 10, 10, 1, 2.0, 2.0, 2.0, false, false, false);
+  h_info_test.setChannelInfo(HcalDetId{0}, 10, 10, 10, 1, 2.0, 2.0, 2.0, 0.0, false, false, false);
   HBHEChannelInfo *d_info;
 
   cudaMalloc((void **)&d_info, sizeof(HBHEChannelInfo));
@@ -103,6 +104,7 @@ void test_hcal_hbhechinfo() {
   assert(h_info.darkCurrent() == h_info_test.darkCurrent());
   assert(h_info.fcByPE() == h_info_test.fcByPE());
   assert(h_info.lambda() == h_info_test.lambda());
+  assert(h_info.noisecorr() == h_info_test.noisecorr());
   assert(h_info.hasLinkError() == h_info_test.hasLinkError());
   assert(h_info.hasCapidError() == h_info_test.hasCapidError());
 
