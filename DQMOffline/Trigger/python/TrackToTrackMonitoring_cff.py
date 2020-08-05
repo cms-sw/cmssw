@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 from DQMServices.Core.DQM_cfg import *
 DQMStore.collateHistograms =cms.untracked.bool(True)
-from DQM.TrackingMonitorSource.trackToTrackValidator_cfi import trackToTrackValidator
+from DQM.TrackingMonitorSource.trackToTrackComparisonHists_cfi import trackToTrackComparisonHists
 
 trackSelector = cms.EDFilter('TrackSelector',
     src = cms.InputTag('generalTracks'),
@@ -12,7 +12,7 @@ highPurityTracks = trackSelector.clone()
 highPurityTracks.cut = cms.string("quality('highPurity')")
 
 
-hltMerged2highPurity = trackToTrackValidator.clone()
+hltMerged2highPurity = trackToTrackComparisonHists.clone()
 hltMerged2highPurity.monitoredTrack           = cms.InputTag("hltMergedTracks")
 hltMerged2highPurity.referenceTrack           = cms.InputTag("highPurityTracks")
 hltMerged2highPurity.monitoredBeamSpot        = cms.InputTag("hltOnlineBeamSpot")
@@ -22,7 +22,7 @@ hltMerged2highPurity.referencePrimaryVertices = cms.InputTag("offlinePrimaryVert
 hltMerged2highPurity.monitoredPrimaryVertices = cms.InputTag("hltVerticesPFSelector")
 
 
-hltMerged2highPurityPV = trackToTrackValidator.clone()
+hltMerged2highPurityPV = trackToTrackComparisonHists.clone()
 hltMerged2highPurityPV.dzWRTPvCut               = cms.double(0.1)
 hltMerged2highPurityPV.monitoredTrack           = cms.InputTag("hltMergedTracks")
 hltMerged2highPurityPV.referenceTrack           = cms.InputTag("highPurityTracks")
