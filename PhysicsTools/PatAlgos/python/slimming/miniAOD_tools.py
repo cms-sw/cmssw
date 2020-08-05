@@ -398,9 +398,12 @@ def miniAOD_customizeCommon(process):
     # note: default (AOD) behoviour of the tauID modified (leading track
     #       extrapolation to ECAL enabled) in the HPS PFTau master
     #       configuration for this era.
+    # and running retrained anti-e MVA6 discriminants as setup in the HPS
+    # PFTau master configuration
     _makePatTausTaskWithDeadECalVeto = process.makePatTausTask.copy()
     _makePatTausTaskWithDeadECalVeto.add(
-        process.hpsPFTauDiscriminationByDeadECALElectronRejection
+        process.hpsPFTauDiscriminationByDeadECALElectronRejection,
+        process.hpsPFTauDiscriminationByMVA6ElectronRejectionTask
     )
     run2_miniAOD_UL.toReplaceWith(
         process.makePatTausTask, _makePatTausTaskWithDeadECalVeto
