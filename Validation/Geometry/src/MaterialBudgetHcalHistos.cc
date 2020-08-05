@@ -25,11 +25,19 @@ MaterialBudgetHcalHistos::MaterialBudgetHcalHistos(const edm::ParameterSet& p) {
   printSum_ = p.getUntrackedParameter<bool>("PrintSummary", false);
   etaMinP_ = p.getUntrackedParameter<double>("EtaMinP", 5.2);
   etaMaxP_ = p.getUntrackedParameter<double>("EtaMaxP", 0.0);
+  etaLowMin_ = p.getUntrackedParameter<double>("EtaLowMin", 0.783);
+  etaLowMax_ = p.getUntrackedParameter<double>("EtaLowMax", 0.870);
+  etaMidMin_ = p.getUntrackedParameter<double>("EtaMidMin", 2.650);
+  etaMidMax_ = p.getUntrackedParameter<double>("EtaMidMax", 2.868);
+  etaHighMin_ = p.getUntrackedParameter<double>("EtaHighMin", 2.868);
+  etaHighMax_ = p.getUntrackedParameter<double>("EtaHighMax", 3.000);
   edm::LogVerbatim("MaterialBudget") << "MaterialBudgetHcalHistos: FillHisto : " << fillHistos_ << " PrintSummary "
                                      << printSum_ << " == Eta plot: NX " << binEta_ << " Range " << -maxEta_ << ":"
                                      << maxEta_ << " Phi plot: NX " << binPhi_ << " Range " << -1._pi << ":" << 1._pi
                                      << " (Eta limit " << etaLow_ << ":" << etaHigh_ << ")"
-                                     << " Debug for eta range " << etaMinP_ << ":" << etaMaxP_;
+                                     << " Eta range (" << etaLowMin_ << ":" << etaLowMax_ << "), (" << etaMidMin_ << ":"
+                                     << etaMidMax_ << "), (" << etaHighMin_ << ":" << etaHighMax_
+                                     << ") Debug for eta range " << etaMinP_ << ":" << etaMaxP_;
   if (fillHistos_)
     book();
 }
@@ -305,6 +313,9 @@ void MaterialBudgetHcalHistos::book() {
                                          << " bins in phi from " << -maxPhi << " to " << maxPhi;
 
   std::string iter;
+  std::string range0 = "(" + std::to_string(etaMidMin_) + ":" + std::to_string(etaMidMax_) + ") ";
+  std::string range1 = "(" + std::to_string(etaHighMin_) + ":" + std::to_string(etaHighMax_) + ") ";
+  std::string range2 = "(" + std::to_string(etaLowMin_) + ":" + std::to_string(etaLowMax_) + ") ";
   // total X0
   for (int i = 0; i < maxSet_; i++) {
     iter = std::to_string(i);
@@ -356,6 +367,51 @@ void MaterialBudgetHcalHistos::book() {
                                   binPhi_ / 2,
                                   -maxPhi,
                                   maxPhi);
+    me1600[i] = tfile->make<TProfile>(std::to_string(i + 1600).c_str(),
+                                      ("MB(X0) prof Ph in region " + range0 + iter).c_str(),
+                                      binPhi_,
+                                      -maxPhi,
+                                      maxPhi);
+    me1700[i] = tfile->make<TProfile>(std::to_string(i + 1700).c_str(),
+                                      ("MB(L0) prof Ph in region " + range0 + iter).c_str(),
+                                      binPhi_,
+                                      -maxPhi,
+                                      maxPhi);
+    me1800[i] = tfile->make<TProfile>(std::to_string(i + 1800).c_str(),
+                                      ("MB(Step) prof Ph in region " + range0 + iter).c_str(),
+                                      binPhi_,
+                                      -maxPhi,
+                                      maxPhi);
+    me1900[i] = tfile->make<TProfile>(std::to_string(i + 1900).c_str(),
+                                      ("MB(X0) prof Ph in region " + range1 + iter).c_str(),
+                                      binPhi_,
+                                      -maxPhi,
+                                      maxPhi);
+    me2000[i] = tfile->make<TProfile>(std::to_string(i + 2000).c_str(),
+                                      ("MB(L0) prof Ph in region " + range1 + iter).c_str(),
+                                      binPhi_,
+                                      -maxPhi,
+                                      maxPhi);
+    me2100[i] = tfile->make<TProfile>(std::to_string(i + 2100).c_str(),
+                                      ("MB(Step) prof Ph in region " + range1 + iter).c_str(),
+                                      binPhi_,
+                                      -maxPhi,
+                                      maxPhi);
+    me2200[i] = tfile->make<TProfile>(std::to_string(i + 2200).c_str(),
+                                      ("MB(X0) prof Ph in region " + range2 + iter).c_str(),
+                                      binPhi_,
+                                      -maxPhi,
+                                      maxPhi);
+    me2300[i] = tfile->make<TProfile>(std::to_string(i + 2300).c_str(),
+                                      ("MB(L0) prof Ph in region " + range2 + iter).c_str(),
+                                      binPhi_,
+                                      -maxPhi,
+                                      maxPhi);
+    me2400[i] = tfile->make<TProfile>(std::to_string(i + 2400).c_str(),
+                                      ("MB(Step) prof Ph in region " + range2 + iter).c_str(),
+                                      binPhi_,
+                                      -maxPhi,
+                                      maxPhi);
   }
   for (int i = 0; i < maxSet2_; i++) {
     iter = std::to_string(i);
@@ -404,6 +460,24 @@ void MaterialBudgetHcalHistos::fillHisto(int ii) {
     me1000[ii]->Fill(eta_, phi_, intLen_);
     me1100[ii]->Fill(eta_, phi_, stepLen_);
     me1200[ii]->Fill(eta_, phi_);
+
+    if ((std::abs(eta_) >= etaMidMin_) && (std::abs(eta_) <= etaMidMax_)) {
+      me1600[ii]->Fill(phi_, radLen_);
+      me1700[ii]->Fill(phi_, intLen_);
+      me1800[ii]->Fill(phi_, stepLen_);
+    }
+
+    if ((std::abs(eta_) >= etaHighMin_) && (std::abs(eta_) <= etaHighMax_)) {
+      me1900[ii]->Fill(phi_, radLen_);
+      me2000[ii]->Fill(phi_, intLen_);
+      me2100[ii]->Fill(phi_, stepLen_);
+    }
+
+    if ((std::abs(eta_) >= etaLowMin_) && (std::abs(eta_) <= etaLowMax_)) {
+      me2200[ii]->Fill(phi_, radLen_);
+      me2300[ii]->Fill(phi_, intLen_);
+      me2400[ii]->Fill(phi_, stepLen_);
+    }
   }
 }
 
