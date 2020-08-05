@@ -114,7 +114,7 @@ namespace edm {
         }
 
         unsigned nKeys = keys.size();
-        unsigned int doNotLookForThisIndex = std::numeric_limits<unsigned int>::max();
+        constexpr unsigned int doNotLookForThisIndex = std::numeric_limits<unsigned int>::max();
         std::vector<unsigned int> thinnedIndexes(nKeys, doNotLookForThisIndex);
         bool hasAny = false;
         for (unsigned k = 0; k < nKeys; ++k) {
