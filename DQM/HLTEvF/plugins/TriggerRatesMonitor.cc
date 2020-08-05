@@ -6,9 +6,10 @@
 #include <string>
 #include <cstring>
 
+#include <fmt/printf.h>
+
 // boost headers
 #include <boost/regex.hpp>
-#include <boost/format.hpp>
 
 // Root headers
 #include <TH1F.h>
@@ -230,7 +231,7 @@ void TriggerRatesMonitor::bookHistograms(DQMStore::IBooker &booker,
   booker.setCurrentFolder(m_dqm_path + "/TCDS");
   for (unsigned int i = 0; i < sizeof(s_tcds_trigger_types) / sizeof(const char *); ++i)
     if (s_tcds_trigger_types[i]) {
-      std::string const &title = (boost::format("%s events vs. lumisection") % s_tcds_trigger_types[i]).str();
+      std::string const &title = fmt::sprintf("%s events vs. lumisection", s_tcds_trigger_types[i]);
       histograms.tcds_counts[i] =
           booker.book1D(s_tcds_trigger_types[i], title, m_lumisections_range + 1, -0.5, m_lumisections_range + 0.5);
     }
@@ -241,9 +242,9 @@ void TriggerRatesMonitor::bookHistograms(DQMStore::IBooker &booker,
   for (auto const &keyval : l1tMenu.getAlgorithmMap()) {
     unsigned int bit = keyval.second.getIndex();
     bool masked = false;  // FIXME read L1 masks once they will be avaiable in the EventSetup
-    std::string const &name = (boost::format("%s (bit %d)") % keyval.first % bit).str();
+    std::string const &name = fmt::sprintf("%s (bit %d)", keyval.first, bit);
     std::string const &title =
-        (boost::format("%s (bit %d)%s vs. lumisection") % keyval.first % bit % (masked ? " (masked)" : "")).str();
+        fmt::sprintf("%s (bit %d)%s vs. lumisection", keyval.first, bit, (masked ? " (masked)" : ""));
     histograms.l1t_counts.at(bit) =
         booker.book1D(name, title, m_lumisections_range + 1, -0.5, m_lumisections_range + 0.5);
   }
