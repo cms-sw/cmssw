@@ -58,6 +58,7 @@
 </class>
 <class name="std::vector<gem::AMCdata>"/>
 <class name="std::map<uint16_t,std::vector<gem::AMCdata> >"/>
+<class name="std::pair<uint16_t,std::vector<gem::AMCdata> >"/>
 <class name="MuonDigiCollection<uint16_t,gem::AMCdata>"/>
 <class name="edm::Wrapper<MuonDigiCollection<uint16_t,gem::AMCdata> >" splitLevel="0"/>
 
@@ -66,6 +67,7 @@
 </class>
 <class name="std::vector<gem::AMC13Event>"/>
 <class name="std::map<uint16_t,std::vector<gem::AMC13Event> >"/>
+<class name="std::pair<uint16_t,std::vector<gem::AMC13Event> >"/>
 <class name="MuonDigiCollection<uint16_t,gem::AMC13Event>"/>
 <class name="edm::Wrapper<MuonDigiCollection<uint16_t,gem::AMC13Event> >" splitLevel="0"/>
 
