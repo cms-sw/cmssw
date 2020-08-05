@@ -137,5 +137,4 @@ private:
   unsigned int dxyRes_nbin;
   double dzRes_rangeMin, dzRes_rangeMax;
   unsigned int dzRes_nbin;
-
 };
