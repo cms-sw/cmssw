@@ -64,6 +64,8 @@
 #include "CalibTracker/Records/interface/SiStripQualityRcd.h"
 #include "CalibFormats/SiStripObjects/interface/SiStripQuality.h"
 
+#include "DQM/SiStripCommon/interface/TkHistoMap.h"
+
 #include "CalibTracker/SiStripHitEfficiency/interface/TrajectoryAtInvalidHit.h"
 
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
@@ -86,9 +88,12 @@ private:
                    const DetIdCollection& fedErrorIds,
                    const edm::Handle<edm::DetSetVector<SiStripRawDigi>>& commonModeDigis,
                    const edmNew::DetSetVector<SiStripCluster>& theClusters,
+                   int bunchCrossing,
                    float instLumi,
                    float PU,
                    bool highPurity);
+
+  TString layerName(unsigned int k) const;
 
   // ----------member data ---------------------------
 
@@ -103,6 +108,17 @@ private:
   bool useLastMeas_;
   bool useAllHitsFromTracksWithMissingHits_;
 
+  unsigned int _clusterMatchingMethod;
+  float _ResXSig;
+  float _clusterTrajDist;
+  float _stripsApvEdge;
+  bool _useOnlyHighPurityTracks;
+  int _bunchx;
+  bool _showRings;
+  bool _showTOB6TEC9;
+
+  std::set<uint32_t> badModules_;
+
   const edm::EDGetTokenT<reco::TrackCollection> combinatorialTracks_token_;
   const edm::EDGetTokenT<std::vector<Trajectory>> trajectories_token_;
   const edm::EDGetTokenT<TrajTrackAssociationCollection> trajTrackAsso_token_;
@@ -116,6 +132,47 @@ private:
 
   unsigned int layers;
   bool DEBUG;
+
+  struct EffME1 {
+    EffME1() : hTotal(nullptr), hFound(nullptr) {}
+    EffME1(MonitorElement* total, MonitorElement* found) : hTotal(total), hFound(found) {}
+
+    void fill(double x, bool found, float weight=1.) {
+      hTotal->Fill(x, weight);
+      if (found) {
+        hFound->Fill(x, weight);
+      }
+    }
+
+    MonitorElement *hTotal, *hFound;
+  };
+  struct EffTkMap {
+    EffTkMap() : hTotal(nullptr), hFound(nullptr) {}
+    EffTkMap(std::unique_ptr<TkHistoMap>&& total, std::unique_ptr<TkHistoMap>&& found) : hTotal(std::move(total)), hFound(std::move(found)) {}
+
+    void fill(uint32_t id, bool found, float weight=1.) {
+      hTotal->fill(id, weight);
+      if (found) {
+        hFound->fill(id, weight);
+      }
+    }
+
+    std::unique_ptr<TkHistoMap> hTotal, hFound;
+  };
+
+  MonitorElement *h_bx, *h_instLumi, *h_PU;
+  EffME1 h_goodLayer;
+  EffME1 h_allLayer;
+  EffME1 h_layer;
+  std::vector<MonitorElement*> h_resolution;
+  std::vector<EffME1> h_layer_vsLumi;
+  std::vector<EffME1> h_layer_vsBx;
+  std::vector<EffME1> h_layer_vsPU;
+  std::vector<EffME1> h_layer_vsCM;
+  std::vector<MonitorElement*> h_hotcold;
+
+  std::unique_ptr<TkDetMap> m_tkDetMap;
+  EffTkMap h_module;
 };
 
 //
@@ -144,6 +201,41 @@ SiStripHitEfficiencyWorker::SiStripHitEfficiencyWorker(const edm::ParameterSet& 
   useLastMeas_ = conf_.getUntrackedParameter<bool>("useLastMeas", false);
   useAllHitsFromTracksWithMissingHits_ =
       conf_.getUntrackedParameter<bool>("useAllHitsFromTracksWithMissingHits", false);
+
+  // TODO make consistent
+
+  const std::string badModulesFile = conf.getUntrackedParameter<std::string>("BadModulesFile", "");
+  _clusterMatchingMethod = conf.getUntrackedParameter<int>("ClusterMatchingMethod", 0);
+  _ResXSig = conf.getUntrackedParameter<double>("ResXSig", -1);
+  _clusterTrajDist = conf.getUntrackedParameter<double>("ClusterTrajDist", 64.0);
+  _stripsApvEdge = conf.getUntrackedParameter<double>("StripsApvEdge", 10.0);
+  _useOnlyHighPurityTracks = conf.getUntrackedParameter<bool>("UseOnlyHighPurityTracks", true);
+  _bunchx = conf.getUntrackedParameter<int>("BunchCrossing", 0);
+  _showRings = conf.getUntrackedParameter<bool>("ShowRings", false);
+  _showTOB6TEC9 = conf.getUntrackedParameter<bool>("ShowTOB6TEC9", false);
+
+  if (!badModulesFile.empty()) {
+    std::ifstream badModules_file(badModulesFile);
+    uint32_t badmodule_detid;
+    int mods, fiber1, fiber2, fiber3;
+    if (badModules_file.is_open()) {
+      std::string line;
+      while (getline(badModules_file, line)) {
+        if (badModules_file.eof())
+          continue;
+        std::stringstream ss(line);
+        ss >> badmodule_detid >> mods >> fiber1 >> fiber2 >> fiber3;
+        if (badmodule_detid != 0 && mods == 1 && (fiber1 == 1 || fiber2 == 1 || fiber3 == 1))
+          badModules_.insert(badmodule_detid);
+      }
+      badModules_file.close();
+    }
+  }
+  if (!badModules_.empty())
+    std::cout << "Remove additionnal bad modules from the analysis: " << std::endl;
+  for ( const auto badMod : badModules_ ) {
+    std::cout << " " << badMod << std::endl;
+  }
 }
 
 // Virtual destructor needed.
@@ -154,10 +246,6 @@ void SiStripHitEfficiencyWorker::beginJob() {
   events = 0;
   EventTrackCKF = 0;
 }
-
-void SiStripHitEfficiencyWorker::bookHistograms(DQMStore::IBooker& booker,
-                                                const edm::Run& run,
-                                                const edm::EventSetup& setup) {}
 
 namespace {
 
@@ -278,7 +366,104 @@ namespace {
     ClusterInfo(float xRes, float xResPull, float xLoc) : xResidual(xRes), xResidualPull(xResPull), xLocal(xLoc) {}
   };
 
+  float calcPhi(float x, float y) {
+    float phi = 0;
+    float Pi = 3.14159;
+    if ((x >= 0) && (y >= 0))
+      phi = std::atan(y / x);
+    else if ((x >= 0) && (y <= 0))
+      phi = std::atan(y / x) + 2 * Pi;
+    else if ((x <= 0) && (y >= 0))
+      phi = std::atan(y / x) + Pi;
+    else
+      phi = std::atan(y / x) + Pi;
+    phi = phi * 180.0 / Pi;
+
+    return phi;
+  }
 }  // anonymous namespace
+
+void SiStripHitEfficiencyWorker::bookHistograms(DQMStore::IBooker& booker,
+                                                const edm::Run& run,
+                                                const edm::EventSetup& setup) {
+  const std::string path = "SiStrip/HitEfficiency"; // TODO make this configurable
+  booker.setCurrentFolder(path);
+  h_bx = booker.book1D("bx", "bx", 3600, 0, 3600);
+  h_instLumi = booker.book1D("instLumi", "inst. lumi.", 250, 0, 25000);
+  h_PU = booker.book1D("PU", "PU", 200, 0, 200);
+
+  h_goodLayer = EffME1(
+      booker.book1D("goodlayer_total", "goodlayer_total", 35, 0., 35.),
+      booker.book1D("goodlayer_found", "goodlayer_found", 35, 0., 35.));
+  h_allLayer = EffME1(
+      booker.book1D("alllayer_total", "alllayer_total", 35, 0., 35.),
+      booker.book1D("alllayer_found", "alllayer_found", 35, 0., 35.));
+
+  h_layer = EffME1(
+      booker.book1D("layer_found", "layer_found", 23, 0., 23.),
+      booker.book1D("layer_total", "layer_total", 23, 0., 23.));
+  for ( int iLayer = 0; iLayer != 23; ++iLayer ) {
+    const auto lyrName = layerName(iLayer); // TODO change to std::string and {fmt}
+    auto ihres = booker.book1D(Form("resol_layer_%i", iLayer), lyrName, 125, -125., 125.);
+    ihres->setAxisTitle("trajX-clusX [strip unit]");
+    h_resolution.push_back(ihres);
+    h_layer_vsLumi.push_back(EffME1(
+          booker.book1D(Form("layerfound_vsLumi_%i", iLayer), lyrName, 100, 0, 25000),
+          booker.book1D(Form("layertotal_vsLumi_%i", iLayer), lyrName, 100, 0, 25000)));
+    h_layer_vsPU.push_back(EffME1(
+          booker.book1D(Form("layerfound_vsPU_%i", iLayer), lyrName, 45, 0, 90),
+          booker.book1D(Form("layertotal_vsPU_%i", iLayer), lyrName, 45, 0, 90)));
+    if (addCommonMode_) {
+      h_layer_vsCM.push_back(EffME1(
+            booker.book1D(Form("layerfound_vsCM_%i", iLayer), lyrName, 20, 0, 400),
+            booker.book1D(Form("layertotal_vsCM_%i", iLayer), lyrName, 20, 0, 400)));
+    }
+    h_layer_vsBx.push_back(EffME1(
+          booker.book1D(Form("totalVsBx_layer%i", iLayer), Form("layer %i", iLayer), 3565, 0, 3565),
+          booker.book1D(Form("foundVsBx_layer%i", iLayer), Form("layer %i", iLayer), 3565, 0, 3565)));
+    if ( iLayer < 10 ) {
+      const bool isTIB = iLayer < 4;
+      const auto partition = (isTIB ? "TIB" : "TOB");
+      const auto yMax = (isTIB ? 100 : 120);
+      auto ihhotcold = booker.book2D(
+          Form("%s%i", partition, (isTIB ? iLayer+1 : iLayer-3)),
+          partition, 100, -1, 361, 100, -yMax, yMax);
+      ihhotcold->setAxisTitle("Phi", 1);
+      ihhotcold->setBinLabel(1, "360", 1);
+      ihhotcold->setBinLabel(50, "180", 1);
+      ihhotcold->setBinLabel(100, "0", 1);
+      ihhotcold->setAxisTitle("Global Z", 2);
+      ihhotcold->setOption("colz");
+      h_hotcold.push_back(ihhotcold);
+    } else {
+      const bool isTID = iLayer < 13;
+      const auto partitions = (isTID ? std::vector<std::string>{"TID-", "TID+"} : std::vector<std::string>{"TEC-", "TEC+"});
+      const auto axMax = (isTID ? 100 : 120);
+      for ( const auto part : partitions ) {
+        auto ihhotcold = booker.book2D(
+            Form("%s%i", part.c_str(), (isTID ? iLayer-9 : iLayer-12)),
+            part, 100, -axMax, axMax, 100, -axMax, axMax);
+        ihhotcold->setAxisTitle("Global Y", 1);
+        ihhotcold->setBinLabel(1, "+Y", 1);
+        ihhotcold->setBinLabel(50, "0", 1);
+        ihhotcold->setBinLabel(100, "-Y", 1);
+        ihhotcold->setAxisTitle("Global X", 2);
+        ihhotcold->setBinLabel(1, "-X", 2);
+        ihhotcold->setBinLabel(50, "0", 2);
+        ihhotcold->setBinLabel(100, "+X", 2);
+        ihhotcold->setOption("colz");
+        h_hotcold.push_back(ihhotcold);
+      }
+    }
+  }
+
+  edm::ESHandle<TrackerTopology> tTopoHandle;
+  setup.get<TrackerTopologyRcd>().get(tTopoHandle);
+  m_tkDetMap = std::make_unique<TkDetMap>(tTopoHandle.product());
+  h_module = EffTkMap(
+      std::make_unique<TkHistoMap>(m_tkDetMap.get(), booker, path, "perModule_total"),
+      std::make_unique<TkHistoMap>(m_tkDetMap.get(), booker, path, "perModule_found"));
+}
 
 void SiStripHitEfficiencyWorker::analyze(const edm::Event& e, const edm::EventSetup& es) {
   //Retrieve tracker topology from geometry
@@ -303,6 +488,10 @@ void SiStripHitEfficiencyWorker::analyze(const edm::Event& e, const edm::EventSe
       PU = lumiScalers->begin()->pileup();
     }
   }
+  h_bx->Fill(e.bunchCrossing());
+  h_instLumi->Fill(instLumi);
+  h_PU->Fill(PU);
+
 
   edm::Handle<edm::DetSetVector<SiStripRawDigi>> commonModeDigis;
   if (addCommonMode_)
@@ -403,7 +592,7 @@ void SiStripHitEfficiencyWorker::analyze(const edm::Event& e, const edm::EventSe
 
         std::vector<TrajectoryAtInvalidHit> TMs;
 
-        // Make AnalyticalPropagator to use in TAVH constructor
+        // Make AnalyticalPropagat // TODO where to save these?or to use in TAVH constructor
         AnalyticalPropagator propagator(magField.product(), anyDirection);
 
         // for double sided layers check both sensors--if no hit was found on either sensor surface,
@@ -512,6 +701,7 @@ void SiStripHitEfficiencyWorker::analyze(const edm::Event& e, const edm::EventSe
                       *fedErrorIds,
                       commonModeDigis,
                       *theClusters,
+                      e.bunchCrossing(),
                       instLumi,
                       PU,
                       highPurity);
@@ -524,6 +714,20 @@ void SiStripHitEfficiencyWorker::analyze(const edm::Event& e, const edm::EventSe
   }
 }
 
+TString SiStripHitEfficiencyWorker::layerName(unsigned int k) const {
+  auto ringlabel = _showRings ? TString("R") : TString("D");
+  if (k > 0 && k < 5) {
+    return TString("TIB L") + k;
+  } else if (k > 4 && k < 11) {
+    return TString("TOB L") + (k - 4);
+  } else if (k > 10 && k < 14) {
+    return TString("TID ") + ringlabel + (k - 10);
+  } else if (k > 13 && k < 14 + (_showRings ? 7 : 9)) {
+    return TString("TEC ") + ringlabel + (k - 13);
+  }
+  return "";
+}
+
 void SiStripHitEfficiencyWorker::fillForTraj(const TrajectoryAtInvalidHit& tm,
                                              const TrackerTopology* tTopo,
                                              const TrackerGeometry* tkgeom,
@@ -532,6 +736,7 @@ void SiStripHitEfficiencyWorker::fillForTraj(const TrajectoryAtInvalidHit& tm,
                                              const DetIdCollection& fedErrorIds,
                                              const edm::Handle<edm::DetSetVector<SiStripRawDigi>>& commonModeDigis,
                                              const edmNew::DetSetVector<SiStripCluster>& theClusters,
+                                             int bunchCrossing,
                                              float instLumi,
                                              float PU,
                                              bool highPurity
@@ -596,7 +801,7 @@ void SiStripHitEfficiencyWorker::fillForTraj(const TrajectoryAtInvalidHit& tm,
           TrajStrip = xloc / pitch + nstrips / 2.0;
           // Need additionnal corrections for endcap
           if (TKlayers >= 11) {
-            float TrajLocXMid = xloc / (1 + (htedge - hbedge) * yloc / (htedge + hbedge) /
+            const float TrajLocXMid = xloc / (1 + (htedge - hbedge) * yloc / (htedge + hbedge) /
                                                 hapoth);  // radialy extrapolated x loc position at middle
             TrajStrip = TrajLocXMid / pitch + nstrips / 2.0;
           }
@@ -703,6 +908,134 @@ void SiStripHitEfficiencyWorker::fillForTraj(const TrajectoryAtInvalidHit& tm,
       }
 
       LogDebug("SiStripHitEfficiency:HitEff") << "To avoid them staying unused: ModIsBad=" << ModIsBad << ", SiStripQualBad=" << SiStripQualBad << ", commonMode=" << commonMode << ", highPurity=" << highPurity << ", withinAcceptance=" << withinAcceptance;
+
+      unsigned int layer = TKlayers;
+      if (_showRings && layer > 10) { // use rings instead of wheels
+        if (layer < 14) { // TID
+          layer = 10 + ((iidd >> 9) & 0x3); // 3 disks and also 3 rings -> use the same container
+        } else { // TEC
+          layer = 13 + ((iidd >> 5) & 0x7);
+        }
+      }
+      unsigned int layerWithSide = layer;
+      if ( layer > 10 && layer < 14 ) {
+        const auto side = (iidd>>13)&0x3; // TID
+        if ( side == 2 )
+          layerWithSide = layer + 3;
+      } else if ( layer > 13 ) {
+        const auto side = (iidd>>18)&0x3; // TEC
+        if ( side == 1 ) {
+          layerWithSide = layer + 3;
+        } else if ( side == 2 ) {
+          layerWithSide = layer + 3 + (_showRings ? 7 : 9);
+        }
+      }
+
+      if ( (_bunchx > 0 && _bunchx != bunchCrossing) ||
+           (!withinAcceptance) ||
+           (_useOnlyHighPurityTracks && !highPurity) ||
+           (!_showTOB6TEC9 && (TKlayers == 10 || TKlayers == 22)) ||
+           ( badModules_.end() != badModules_.find(iidd) ) )
+        return;
+
+      const bool badquality = (SiStripQualBad == 1);
+
+      //Now that we have a good event, we need to look at if we expected it or not, and the location
+      //if we didn't
+      //Fill the missing hit information first
+      bool badflag = false; // true for hits that are expected but not found
+      if (_ResXSig < 0) {
+        if (ModIsBad == 1)
+          badflag = true;  // isBad set to false in the tree when resxsig<999.0
+      } else {
+        if (ModIsBad == 1 || finalCluster.xResidualPull > _ResXSig)
+          badflag = true;
+      }
+
+      // Conversion of positions in strip unit
+      int nstrips = -9;
+      float Pitch = -9.0;
+      const StripGeomDetUnit* stripdet = nullptr;
+      if (finalCluster.xResidualPull == 1000.0) {  // special treatment, no GeomDetUnit associated in some cases when no cluster found
+        Pitch = 0.0205;         // maximum
+        nstrips = 768;          // maximum
+      } else {
+        stripdet = dynamic_cast<const StripGeomDetUnit*>(tkgeom->idToDetUnit(iidd));
+        const StripTopology& Topo = stripdet->specificTopology();
+        nstrips = Topo.nstrips();
+        Pitch = stripdet->surface().bounds().width() / Topo.nstrips();
+      }
+      double stripTrajMid = xloc / Pitch + nstrips / 2.0;
+      double stripCluster = finalCluster.xLocal / Pitch + nstrips / 2.0;
+      // For trapezoidal modules: extrapolation of x trajectory position to the y middle of the module
+      //  for correct comparison with cluster position
+      if (stripdet && layer >= 11) {
+        const auto& trapezoidalBounds = dynamic_cast<const TrapezoidalPlaneBounds&>(stripdet->surface().bounds());
+        std::array<const float, 4> const& parameters = trapezoidalBounds.parameters();
+        const float hbedge = parameters[0];
+        const float htedge = parameters[1];
+        const float hapoth = parameters[3];
+        const float TrajLocXMid = xloc / (1 + (htedge - hbedge) * yloc / (htedge + hbedge) /
+                                          hapoth);  // radialy extrapolated x loc position at middle
+        stripTrajMid = TrajLocXMid / Pitch + nstrips / 2.0;
+      }
+
+      if ( (!badquality) && (layer < h_resolution.size())) {
+        h_resolution[layer]->Fill(finalCluster.xResidualPull != 1000.0 ?
+            stripTrajMid-stripCluster : 1000);
+      }
+
+      // New matching methods
+      if (_clusterMatchingMethod >= 1) {
+        badflag = false;
+        if ( finalCluster.xResidualPull == 1000.0 ) {
+          badflag = true;
+        } else {
+          if (_clusterMatchingMethod == 2 || _clusterMatchingMethod == 4) {
+            // check the distance between cluster and trajectory position
+            if (std::abs(stripCluster - stripTrajMid) > _clusterTrajDist)
+              badflag = true;
+          }
+          if (_clusterMatchingMethod == 3 || _clusterMatchingMethod == 4) {
+            // cluster and traj have to be in the same APV (don't take edges into accounts)
+            const int tapv = (int)stripTrajMid / 128;
+            const int capv = (int)stripTrajMid / 128;
+            float stripInAPV = stripTrajMid - tapv * 128;
+            if (stripInAPV < _stripsApvEdge || stripInAPV > 128 - _stripsApvEdge)
+              return;
+            if (tapv != capv)
+              badflag = true;
+          }
+        }
+      }
+      if (!badquality) {
+        // hot/cold maps of hits that are expected but not found
+        if (badflag) {
+          if ( layer > 0 && layer <= 10 ) {
+            // 1-4: TIB, 4-10: TOB
+            h_hotcold[layer-1]->Fill(360.-calcPhi(tm.globalX(), tm.globalY()), tm.globalZ(), 1.);
+          } else if ( layer > 10 && layer <= 13 ) {
+            // 11-13: TID, above: TEC
+            const int side = layer > 13 ? (iidd>>13)&0x3 : (iidd>>18)&0x3;
+            h_hotcold[2*layer-13+side]->Fill(-tm.globalY(), tm.globalX(), 1.);
+          }
+        }
+
+        // efficiency with bad modules excluded
+        h_module.fill(iidd, !badflag);
+        h_layer_vsBx[layer].fill(bunchCrossing, !badflag);
+        if (addLumi_) {
+          h_layer_vsLumi[layer].fill(instLumi, !badflag);
+          h_layer_vsPU[layer].fill(PU, !badflag);
+        }
+        if (addCommonMode_) {
+          h_layer_vsCM[layer].fill(commonMode, !badflag);
+        }
+        h_goodLayer.fill(layerWithSide, !badflag);
+      }
+      // efficiency without bad modules excluded
+      h_allLayer.fill(layerWithSide, !badflag);
+
       /* Used in SiStripHitEffFromCalibTree:
 * run              -> "run"              -> run              // e.id().run()
 * event            -> "event"            -> evt              // e.id().event()
@@ -724,7 +1057,6 @@ void SiStripHitEfficiencyWorker::fillForTraj(const TrajectoryAtInvalidHit& tm,
 * PU               -> "PU"               -> PU               ## if addLumi_
 * commonMode       -> "commonMode"       -> CM               ## if addCommonMode_ / _useCM
 */
-      // traj->Fill(); // TODO - here is one entry for the calibtree -> histograms
       LogDebug("SiStripHitEfficiency:HitEff") << "after good location check" << std::endl;
     }
     LogDebug("SiStripHitEfficiency:HitEff") << "after list of clusters" << std::endl;
@@ -739,3 +1071,5 @@ void SiStripHitEfficiencyWorker::endJob() {
 
 #include "FWCore/Framework/interface/MakerMacros.h"
 DEFINE_FWK_MODULE(SiStripHitEfficiencyWorker);
+
+// TODO next: try to run this
