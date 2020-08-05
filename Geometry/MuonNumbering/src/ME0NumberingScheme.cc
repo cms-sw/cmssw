@@ -41,7 +41,8 @@ int ME0NumberingScheme::baseNumberToUnitNumber(const MuonBaseNumber& num) const 
 
 #ifdef EDM_ML_DEBUG
   if (num.getLevels() != theRollLevel)
-    edm::LogVerbatim("ME0NumberingScheme") << "MuonME0NS::BNToUN BaseNumber has " << num.getLevels() << " levels which is less than " << theRollLevel;
+    edm::LogVerbatim("ME0NumberingScheme")
+        << "MuonME0NS::BNToUN BaseNumber has " << num.getLevels() << " levels which is less than " << theRollLevel;
 #endif
 
   int region(ME0DetId::minRegionId), layer(ME0DetId::minLayerId);
@@ -60,9 +61,9 @@ int ME0NumberingScheme::baseNumberToUnitNumber(const MuonBaseNumber& num) const 
   if (num.getLevels() >= theRollLevel)
     roll = num.getBaseNo(theRollLevel) + 1;
 
-  // collect all info
+    // collect all info
 
-  // Debug using EDM_ML_DEBUG
+    // Debug using EDM_ML_DEBUG
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("ME0NumberingScheme") << "ME0NumberingScheme: Region " << region << " Layer " << layer << " Chamber "
                                          << chamber << " Roll " << roll;

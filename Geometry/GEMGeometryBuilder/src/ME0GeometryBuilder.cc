@@ -65,7 +65,7 @@ ME0Geometry* ME0GeometryBuilder::buildGeometry(DDFilteredView& fv, const MuonGeo
 
   LogTrace("ME0Geometry") << "Building the geometry service";
   LogTrace("ME0Geometry") << "About to run through the ME0 structure\n"
-			  << "Top level logical part: " << fv.logicalPart().name().name();
+                          << "Top level logical part: " << fv.logicalPart().name().name();
 
 // ==========================================
 // ===  Test to understand the structure  ===
@@ -86,7 +86,7 @@ ME0Geometry* ME0GeometryBuilder::buildGeometry(DDFilteredView& fv, const MuonGeo
     LogTrace("ME0Geometry") << "back to chamb " << fv.parent();
 
     LogTrace("ME0Geometry") << "In DoChambers Loop :: ME0DetId " << detId << " = " << detId.rawId()
-                                   << " (which belongs to ME0Chamber " << detIdCh << " = " << detIdCh.rawId() << ")";
+                            << " (which belongs to ME0Chamber " << detIdCh << " = " << detIdCh.rawId() << ")";
     LogTrace("ME0Geometry") << "Second level logical part: " << fv.logicalPart().name().name();
     DDBooleanSolid solid2 = (DDBooleanSolid)(fv.logicalPart().solid());
     std::vector<double> dpar2 = solid2.parameters();
@@ -95,7 +95,7 @@ ME0Geometry* ME0GeometryBuilder::buildGeometry(DDFilteredView& fv, const MuonGeo
       parameters2 << " dpar[" << i << "]=" << convertMmToCm(dpar2[i]) << "cm ";
     }
     LogTrace("ME0Geometry") << "Second level parameters: vector with size = " << dpar2.size() << " and elements "
-                                   << parameters2.str();
+                            << parameters2.str();
 
     bool doLayers = fv.firstChild();
 
@@ -109,7 +109,7 @@ ME0Geometry* ME0GeometryBuilder::buildGeometry(DDFilteredView& fv, const MuonGeo
       // back to layers
       LogTrace("ME0Geometry") << "back to layer " << fv.parent();
       LogTrace("ME0Geometry") << "In DoLayers Loop :: ME0DetId " << detId << " = " << detId.rawId()
-                                     << " (which belongs to ME0Layer " << detIdLa << " = " << detIdLa.rawId() << ")";
+                              << " (which belongs to ME0Layer " << detIdLa << " = " << detIdLa.rawId() << ")";
       LogTrace("ME0Geometry") << "Third level logical part: " << fv.logicalPart().name().name();
       DDBooleanSolid solid3 = (DDBooleanSolid)(fv.logicalPart().solid());
       std::vector<double> dpar3 = solid3.parameters();
@@ -117,8 +117,8 @@ ME0Geometry* ME0GeometryBuilder::buildGeometry(DDFilteredView& fv, const MuonGeo
       for (unsigned int i = 0; i < dpar3.size(); ++i) {
         parameters3 << " dpar[" << i << "]=" << convertMmToCm(dpar3[i]) << "cm ";
       }
-      LogTrace("ME0Geometry") << "Third level parameters: vector with size = " << dpar3.size()
-                                     << " and elements " << parameters3.str();
+      LogTrace("ME0Geometry") << "Third level parameters: vector with size = " << dpar3.size() << " and elements "
+                              << parameters3.str();
       bool doEtaParts = fv.firstChild();
 
       LogTrace("ME0Geometry") << "doEtaPart = fv.firstChild() = " << doEtaParts;
@@ -131,21 +131,21 @@ ME0Geometry* ME0GeometryBuilder::buildGeometry(DDFilteredView& fv, const MuonGeo
         for (unsigned int i = 0; i < dpar4.size(); ++i) {
           parameters4 << " dpar[" << i << "]=" << convertMmToCm(dpar4[i]) << "cm ";
         }
-        LogTrace("ME0Geometry") << "Fourth level parameters: vector with size = " << dpar4.size()
-                                       << " and elements " << parameters4.str();
+        LogTrace("ME0Geometry") << "Fourth level parameters: vector with size = " << dpar4.size() << " and elements "
+                                << parameters4.str();
 
         doEtaParts = fv.nextSibling();
         LogTrace("ME0Geometry") << "doEtaPart = fv.nextSibling() = " << doEtaParts;
       }
       fv.parent();
       LogTrace("ME0Geometry") << "went back to parent :: name = " << fv.logicalPart().name().name()
-                                     << " will now ask for nextSibling";
+                              << " will now ask for nextSibling";
       doLayers = fv.nextSibling();
       LogTrace("ME0Geometry") << "doLayer = fv.nextSibling() = " << doLayers;
     }
     fv.parent();
     LogTrace("ME0Geometry") << "went back to parent :: name = " << fv.logicalPart().name().name()
-                                   << " will now ask for nextSibling";
+                            << " will now ask for nextSibling";
     testChambers = fv.nextSibling();
     LogTrace("ME0Geometry") << "doChamber = fv.nextSibling() = " << testChambers;
   }
@@ -163,7 +163,8 @@ ME0Geometry* ME0GeometryBuilder::buildGeometry(DDFilteredView& fv, const MuonGeo
     fv.firstChild();
 
 #ifdef EDM_ML_DEBUG
-    edm::LogVerbatim("Geometry") << "MuonGeometry 1 " << fv.geoHistory() << " Levels " << mdddnum.geoHistoryToBaseNumber(fv.geoHistory()).getLevels();
+    edm::LogVerbatim("Geometry") << "MuonGeometry 1 " << fv.geoHistory() << " Levels "
+                                 << mdddnum.geoHistoryToBaseNumber(fv.geoHistory()).getLevels();
 #endif
     int rawId = me0Num.baseNumberToUnitNumber(mdddnum.geoHistoryToBaseNumber(fv.geoHistory()));
     ME0DetId detId = ME0DetId(rawId);
@@ -172,7 +173,8 @@ ME0Geometry* ME0GeometryBuilder::buildGeometry(DDFilteredView& fv, const MuonGeo
     fv.parent();
     fv.parent();
 #ifdef EDM_ML_DEBUG
-    edm::LogVerbatim("Geometry") << "MuonGeometry 2 " << fv.geoHistory() << " Levels " << mdddnum.geoHistoryToBaseNumber(fv.geoHistory()).getLevels();
+    edm::LogVerbatim("Geometry") << "MuonGeometry 2 " << fv.geoHistory() << " Levels "
+                                 << mdddnum.geoHistoryToBaseNumber(fv.geoHistory()).getLevels();
 #endif
     // build chamber
     ME0Chamber* me0Chamber = buildChamber(fv, detIdCh);
@@ -189,7 +191,8 @@ ME0Geometry* ME0GeometryBuilder::buildGeometry(DDFilteredView& fv, const MuonGeo
       ME0DetId detIdLa = detId.layerId();
       fv.parent();
 #ifdef EDM_ML_DEBUG
-      edm::LogVerbatim("Geometry") << "MuonGeometry 3 " << fv.geoHistory() << " Levels " << mdddnum.geoHistoryToBaseNumber(fv.geoHistory()).getLevels();
+      edm::LogVerbatim("Geometry") << "MuonGeometry 3 " << fv.geoHistory() << " Levels "
+                                   << mdddnum.geoHistoryToBaseNumber(fv.geoHistory()).getLevels();
 #endif
       // build layer
       ME0Layer* me0Layer = buildLayer(fv, detIdLa);
@@ -202,7 +205,8 @@ ME0Geometry* ME0GeometryBuilder::buildGeometry(DDFilteredView& fv, const MuonGeo
       while (doEtaParts) {
         // pick up DetId
 #ifdef EDM_ML_DEBUG
-	edm::LogVerbatim("Geometry") << "MuonGeometry 4 " << fv.geoHistory() << " Levels " << mdddnum.geoHistoryToBaseNumber(fv.geoHistory()).getLevels();
+        edm::LogVerbatim("Geometry") << "MuonGeometry 4 " << fv.geoHistory() << " Levels "
+                                     << mdddnum.geoHistoryToBaseNumber(fv.geoHistory()).getLevels();
 #endif
         int rawId = me0Num.baseNumberToUnitNumber(mdddnum.geoHistoryToBaseNumber(fv.geoHistory()));
         ME0DetId detId = ME0DetId(rawId);
@@ -243,7 +247,7 @@ ME0Chamber* ME0GeometryBuilder::buildChamber(DDFilteredView& fv, ME0DetId detId)
     LogTrace("ME0Geometry") << " dpar [" << i << "] = " << convertMmToCm(dpar[i]) << " cm " << std::endl;
   }
   LogTrace("ME0Geometry") << "size  b: " << b << "cm, B: " << B << "cm,  L: " << L << "cm, T: " << T << "cm "
-                                 << std::endl;
+                          << std::endl;
 #endif
 
   bool isOdd = false;  // detId.chamber()%2;
@@ -270,7 +274,7 @@ ME0Layer* ME0GeometryBuilder::buildLayer(DDFilteredView& fv, ME0DetId detId) con
     LogTrace("ME0Geometry") << " dpar [" << i << "] = " << convertMmToCm(dpar[i]) << " cm " << std::endl;
   }
   LogTrace("ME0Geometry") << "size  b: " << b << "cm, B: " << B << "cm,  L: " << L << "cm, t: " << t << "cm "
-                                 << std::endl;
+                          << std::endl;
 #endif
 
   bool isOdd = false;  // detId.chamber()%2;
@@ -295,9 +299,8 @@ ME0EtaPartition* ME0GeometryBuilder::buildEtaPartition(DDFilteredView& fv, ME0De
   }
 
   LogTrace("ME0Geometry") << ((nStrips == 0.) ? ("No nStrips found!!")
-                                                     : ("Number of strips: " + std::to_string(nStrips)));
-  LogTrace("ME0Geometry") << ((nPads == 0.) ? ("No nPads found!!")
-                                                   : ("Number of pads: " + std::to_string(nPads)));
+                                              : ("Number of strips: " + std::to_string(nStrips)));
+  LogTrace("ME0Geometry") << ((nPads == 0.) ? ("No nPads found!!") : ("Number of pads: " + std::to_string(nPads)));
 
   // EtaPartition specific parameter (size)
   std::vector<double> dpar = fv.logicalPart().solid().parameters();
@@ -313,7 +316,7 @@ ME0EtaPartition* ME0GeometryBuilder::buildEtaPartition(DDFilteredView& fv, ME0De
     LogTrace("ME0Geometry") << " dpar [" << i << "] = " << convertMmToCm(dpar[i]) << " cm " << std::endl;
   }
   LogTrace("ME0Geometry") << "size  b: " << b << "cm, B: " << B << "cm,  L: " << L << "cm, t: " << t << "cm "
-                                 << std::endl;
+                          << std::endl;
 #endif
 
   std::vector<float> pars;
@@ -386,7 +389,11 @@ ME0Geometry* ME0GeometryBuilder::buildGeometry(cms::DDFilteredView& fv, const Mu
     MuonBaseNumber num(mdddnum.geoHistoryToBaseNumber(history));
     ME0DetId detId(me0Num.baseNumberToUnitNumber(num));
 #ifdef EDM_ML_DEBUG
-    edm::LogVerbatim("Geometry") << fv.name() << " with " << history.tags.size() << " Levels and ID " << detId << " Mask " << std::hex << chamberIdMask << ":" << layerIdMask << std::dec << " and " << ME0DetId(((detId.rawId()) & chamberIdMask)) << ":" << ME0DetId(((detId.rawId()) & layerIdMask)) << " Sector Level " << ":" << theSectorLevel << ":" << history.tags.size() << ":" << fv.copyNos().size();
+    edm::LogVerbatim("Geometry") << fv.name() << " with " << history.tags.size() << " Levels and ID " << detId
+                                 << " Mask " << std::hex << chamberIdMask << ":" << layerIdMask << std::dec << " and "
+                                 << ME0DetId(((detId.rawId()) & chamberIdMask)) << ":"
+                                 << ME0DetId(((detId.rawId()) & layerIdMask)) << " Sector Level "
+                                 << ":" << theSectorLevel << ":" << history.tags.size() << ":" << fv.copyNos().size();
     for (unsigned int k = 0; k < history.tags.size(); ++k)
       edm::LogVerbatim("Geometry") << "[" << k << "] Tag " << history.tags[k] << " Offset " << history.offsets[k]
                                    << " copy " << history.copyNos[k];

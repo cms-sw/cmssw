@@ -70,7 +70,8 @@ void ME0GeometryESModule::fillDescriptions(edm::ConfigurationDescriptions& descr
 }
 
 std::unique_ptr<ME0Geometry> ME0GeometryESModule::produce(const MuonGeometryRecord& record) {
-  edm::LogVerbatim("ME0Geometry") << "ME0GeometryESModule::produce with fromDDD = " << fromDDD_ << " fromDD4hep " << fromDD4hep_;
+  edm::LogVerbatim("ME0Geometry") << "ME0GeometryESModule::produce with fromDDD = " << fromDDD_ << " fromDD4hep "
+                                  << fromDD4hep_;
   if (fromDDD_) {
     edm::LogVerbatim("ME0Geometry") << "ME0GeometryESModule::produce :: ME0GeometryBuilder builder";
     auto cpv = record.getTransientHandle(cpvToken_);
