@@ -312,7 +312,7 @@ void TrackToTrackComparisonHists::fillMap(reco::TrackCollection tracks1,
   // loop on tracks1
   //
   int i = 0;
-  for (auto track1 : tracks1) {
+  for (const auto& track1 : tracks1) {
     std::map<double, int> tmp;
     int j = 0;
     float smallest_dR = 1e9;
@@ -321,7 +321,7 @@ void TrackToTrackComparisonHists::fillMap(reco::TrackCollection tracks1,
     //
     // loop on tracks2
     //
-    for (auto track2 : tracks2) {
+    for (const auto& track2 : tracks2) {
       double dR = reco::deltaR(track1.eta(), track1.phi(), track2.eta(), track2.phi());
 
       if (dR < smallest_dR) {
