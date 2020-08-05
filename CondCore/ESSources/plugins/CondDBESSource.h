@@ -11,25 +11,51 @@
 // Author:      Zhen Xie
 //
 
-// Some comments on concurrency. There are 3 relevant things the Framework is
-// doing that prevent concurrency issues. This happens automatically and
-// CondDBESSource can rely on the Framework taking care of this.
+// Some comments on concurrency. Several things are working together
+// to prevent concurrency issues when this module is executing.
+// Some of these things are in this module and some are in the Framework.
+// Here is a list of these things:
 //
-//   1. There is a recursive global mutex which is locked while calls to
-//   DataProxy::make and setIntervalFor are executing that allows only
-//   1 thread to be running one of those functions at a time. (There
-//   is some discussion about replacing this mutex with lockfree concurrency
-//   mechanisms someday in the future, although this would be done in such
-//   a way as to provide similar protection against data races.)
+//   1. There is a single mutex that is a data member of CondDBESSource.
+//   This is locked near the beginning of setIntervalFor and also
+//   near the beginning of ::DataProxy::prefetch so that these functions
+//   will never run concurrently. All the ::DataProxy objects have a
+//   pointer to this mutex stored in their ESSourceDataProxyTemplate
+//   base class.
 //
-//   2. Calls are sequenced that a call to setIntervalFor is made, then
-//   all related calls to DataProxy::initializeForNewIOV are made before
-//   another call to setIntervalFor is made.  It is configurable how many
+//   2. CondDBESSource contains a single SerialTaskQueue. The tasks
+//   that run the prefetch function are placed this SerialTaskQueue.
+//   This allows only one ::DataProxy::prefetch function to run at a
+//   time. All the ::DataProxy objects have a pointer to this SerialTaskQueue
+//   stored in their ESSourceDataProxyTemplate base class. Note that
+//   locking the mutex is inside the task that runs prefetch.
+//   Since these tasks are serialized by the SerialTaskQueue,
+//   the mutex will never be locked by another prefetch call
+//   when prefetch is called. The mutex is really only protecting
+//   setIntervalFor calls from each other and from prefetch calls.
+//
+//   3. An ESSource is not allowed to get data from the EventSetup
+//   while its DataProxy prefetch function runs, preventing deadlocks
+//   and ensuring the mutex does not need to be recursive.
+//
+//   4. The WaitingTaskList in ESSourceDataProxyBase (a base class of
+//   ::DataProxy) is used to notify other tasks waiting for prefetch
+//   to complete that the data is available (other tasks created and
+//   managed by the Framework).
+//
+//   5. There is an atomic<bool> in ESSourceDataProxyBase which
+//   prevents the prefetch function being run more than once for the
+//   same IOV and DataProxy.
+//
+//   6. The Framework ensures calls are sequenced such that a call to
+//   setIntervalFor is made and completes, then all related calls to
+//   DataProxy::initializeForNewIOV are made before another call to
+//   setIntervalFor is made.  It is configurable how many
 //   IOVs can be running concurrently. The Framework will not call
 //   initializeForNewIOV or start running a new IOV unless the
 //   number of active IOVs is less than that configured number.
 //
-//   3. Independent of the above two items, after a call is made to
+//   7. The Framework guarantees that after a call is made to
 //   DataProxy::initializeForNewIOV for a particular
 //   EventSetupRecordKey and iovIndex, all calls to DataProxy::make
 //   associated with that whose data is requested will be completed
