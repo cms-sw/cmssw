@@ -32,7 +32,7 @@ trackFromPackedCandidate = trackFromPackedCandidateProducer.clone(PFCandidates =
 
 
 from RecoJets.JetPlusTracks.jetPlusTrackAddonSeedProducer_cfi import *
-JetPlusTrackAddonSeedRecoPAT = jetPlusTrackAddonSeedProducer.clone(
+JetPlusTrackAddonSeedPAT = jetPlusTrackAddonSeedProducer.clone(
     srcCaloJets = "slimmedCaloJets",
     srcTrackJets = "ak4TrackJetsJPTPAT",
     srcPVs = 'offlineSlimmedPrimaryVertices',
@@ -60,31 +60,15 @@ ak4TrackJetsJPTPAT = ak4TrackJets.clone(
 # ---------- Module definition
 
 from RecoJets.JetPlusTracks.JetPlusTrackCorrections_cfi import *
+JetPlusTrackZSPCorJetAntiKt4PAT = JetPlusTrackZSPCorJetAntiKt4.clone(
+    JetTracksAssociationAtVertex = 'ak4JetTracksAssociatorAtVertexJPTPAT',
+    JetTracksAssociationAtCaloFace = 'ak4JetTracksAssociatorAtCaloFaceJPTPAT',
+    Muons = 'slimmedMuons',
+    Electrons = 'slimmedElectrons',
+    JetSplitMerge = 2,
+    UsePAT = True
+)
 
-JetPlusTrackZSPCorJetAntiKt4PAT = cms.EDProducer(
-    "JetPlusTrackProducer",
-    cms.PSet(JPTZSPCorrectorAntiKt4),
-    src = cms.InputTag("slimmedCaloJets"),
-    srcTrackJets = cms.InputTag("ak4TrackJetsJPTPAT"), 
-    srcAddCaloJets = cms.InputTag('JetPlusTrackAddonSeedRecoPAT'),
-    extrapolations = cms.InputTag("trackExtrapolatorJPTPAT"),
-    tagName = cms.vstring('ZSP_CMSSW390_Akt_05_PU0'),
-    tagNameOffset = cms.vstring(),
-    PU = cms.int32(-1),
-    FixedPU = cms.int32(0),
-    UseZSP = cms.bool(False),
-    srcPVs = cms.InputTag('offlineSlimmedPrimaryVertices'),    
-    alias = cms.untracked.string('JetPlusTrackZSPCorJetAntiKt4'),
-    ptCUT = cms.double(15.),
-    dRcone = cms.double(0.4)
-    )
-
-JetPlusTrackZSPCorJetAntiKt4PAT.JetTracksAssociationAtVertex = "ak4JetTracksAssociatorAtVertexJPTPAT"
-JetPlusTrackZSPCorJetAntiKt4PAT.JetTracksAssociationAtCaloFace = "ak4JetTracksAssociatorAtCaloFaceJPTPAT"
-JetPlusTrackZSPCorJetAntiKt4PAT.Muons = "slimmedMuons"
-JetPlusTrackZSPCorJetAntiKt4PAT.Electrons = "slimmedElectrons"
-JetPlusTrackZSPCorJetAntiKt4PAT.JetSplitMerge = 2
-JetPlusTrackZSPCorJetAntiKt4PAT.UsePAT = True
 ### ---------- Sequences
 
 # Task
@@ -93,7 +77,7 @@ PATJetPlusTrackCorrectionsAntiKt4Task = cms.Task(
     trackWithVertexRefSelectorJPTPAT,
     trackRefsForJetsJPTPAT,
     ak4TrackJetsJPTPAT,
-    JetPlusTrackAddonSeedRecoPAT,
+    JetPlusTrackAddonSeedPAT,
     trackExtrapolatorJPTPAT,
     ak4JetTracksAssociatorAtVertexJPTPAT,
     ak4JetTracksAssociatorAtCaloFaceJPTPAT,
