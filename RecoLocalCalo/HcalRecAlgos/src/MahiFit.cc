@@ -78,9 +78,11 @@ void MahiFit::phase1Apply(const HBHEChannelInfo& channelData,
     if (iTS == nnlsWork_.tsOffset)
       tstrig += amplitude;
   }
-
+  double noisecorr = channelData.noisecorr();
   tsTOT *= channelData.tsGain(0);
   tstrig *= channelData.tsGain(0);
+
+  std::cout << noisecorr << std::endl;
 
   useTriple = false;
   if (tstrig >= ts4Thresh_ && tsTOT > 0) {
@@ -92,13 +94,13 @@ void MahiFit::phase1Apply(const HBHEChannelInfo& channelData,
 
     // only do pre-fit with 1 pulse if chiSq threshold is positive
     if (chiSqSwitch_ > 0) {
-      doFit(reconstructedVals, 1);
+      doFit(reconstructedVals, 1, noisecorr);
       if (reconstructedVals[2] > chiSqSwitch_) {
-        doFit(reconstructedVals, 0);  //nbx=0 means use configured BXs
+        doFit(reconstructedVals, 0, noisecorr);  //nbx=0 means use configured BXs
         useTriple = true;
       }
     } else {
-      doFit(reconstructedVals, 0);
+      doFit(reconstructedVals, 0, noisecorr);
       useTriple = true;
     }
   } else {
@@ -112,7 +114,7 @@ void MahiFit::phase1Apply(const HBHEChannelInfo& channelData,
   chi2 = reconstructedVals[2];
 }
 
-void MahiFit::doFit(std::array<float, 3>& correctedOutput, int nbx) const {
+void MahiFit::doFit(std::array<float, 3>& correctedOutput, int nbx, const double noisecorr) const {
   unsigned int bxSize = 1;
 
   if (nbx == 1) {
@@ -175,7 +177,7 @@ void MahiFit::doFit(std::array<float, 3>& correctedOutput, int nbx) const {
     }
   }
 
-  const float chiSq = minimize();
+  const float chiSq = minimize(noisecorr);
 
   bool foundintime = false;
   unsigned int ipulseintime = 0;
@@ -203,13 +205,19 @@ void MahiFit::doFit(std::array<float, 3>& correctedOutput, int nbx) const {
   }
 }
 
-const float MahiFit::minimize() const {
+const float MahiFit::minimize(const double noisecorr) const {
   nnlsWork_.invcovp.setZero(nnlsWork_.tsSize, nnlsWork_.nPulseTot);
   nnlsWork_.ampVec.setZero(nnlsWork_.nPulseTot);
 
   SampleMatrix invCovMat;
   invCovMat.setConstant(nnlsWork_.tsSize, nnlsWork_.tsSize, nnlsWork_.pedVal);
   invCovMat += nnlsWork_.noiseTerms.asDiagonal();
+
+  //Add off-Diagonal components up to first order
+  for (unsigned int i = 1; i < nnlsWork_.tsSize; ++i) {
+    invCovMat(i - 1, i) += noisecorr * sqrt(nnlsWork_.noiseTerms.coeff(i - 1) * nnlsWork_.noiseTerms.coeff(i));
+    invCovMat(i, i - 1) += noisecorr * sqrt(nnlsWork_.noiseTerms.coeff(i) * nnlsWork_.noiseTerms.coeff(i - 1));
+  }
 
   float oldChiSq = 9999;
   float chiSq = oldChiSq;
