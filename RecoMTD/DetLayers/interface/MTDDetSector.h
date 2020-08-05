@@ -4,6 +4,8 @@
 #include "TrackingTools/DetLayers/interface/GeometricSearchDet.h"
 #include "DataFormats/GeometrySurface/interface/BoundDiskSector.h"
 
+#include <ostream>
+
 class GeomDet;
 
 class MTDDetSector : public GeometricSearchDet {
@@ -62,4 +64,7 @@ private:
 
   void init();
 };
+
+std::ostream& operator<<(std::ostream&, const MTDDetSector&);
+
 #endif

@@ -42,14 +42,14 @@ pair<bool, TrajectoryStateOnSurface> MTDDetSector::compatible(const TrajectorySt
   TrajectoryStateOnSurface ms = prop.propagate(ts, specificSurface());
 
 #ifdef EDM_ML_DEBUG
-  LogTrace("MTDDetLayers") << "MTDDetSector::compatible, Surface at Z: " << specificSurface().position().z()
-                           << " R1: " << specificSurface().innerRadius() << " R2: " << specificSurface().outerRadius()
-                           << " PhiMin: " << specificSurface().position().phi() - specificSurface().phiHalfExtension()
-                           << " PhiMax: " << specificSurface().position().phi() + specificSurface().phiHalfExtension()
-                           << " TS   at Z,R: " << ts.globalPosition().z() << "," << ts.globalPosition().perp();
+  LogTrace("MTDDetLayers") << "MTDDetSector::compatible, sector: \n"
+                           << (*this) << "\n  TS at Z,R,phi: " << std::fixed << std::setw(14) << ts.globalPosition().z()
+                           << " , " << std::setw(14) << ts.globalPosition().perp() << " , " << std::setw(14)
+                           << ts.globalPosition().phi();
   if (ms.isValid()) {
-    LogTrace("MTDDetLayers") << " DEST at Z,R: " << ms.globalPosition().z() << "," << ms.globalPosition().perp()
-                             << " local Z: " << ms.localPosition().z();
+    LogTrace("MTDDetLayers") << " DEST at Z,R,phi: " << std::fixed << std::setw(14) << ms.globalPosition().z() << " , "
+                             << std::setw(14) << ms.globalPosition().perp() << " , " << std::setw(14)
+                             << ms.globalPosition().phi() << " local Z: " << std::setw(14) << ms.localPosition().z();
   } else {
     LogTrace("MTDDetLayers") << " DEST: not valid";
   }
@@ -64,12 +64,11 @@ pair<bool, TrajectoryStateOnSurface> MTDDetSector::compatible(const TrajectorySt
 vector<GeometricSearchDet::DetWithState> MTDDetSector::compatibleDets(const TrajectoryStateOnSurface& startingState,
                                                                       const Propagator& prop,
                                                                       const MeasurementEstimator& est) const {
-  LogTrace("MTDDetLayers") << "MTDDetSector::compatibleDets, Surface at Z: " << surface().position().z()
-                           << " R1: " << specificSurface().innerRadius() << " R2: " << specificSurface().outerRadius()
-                           << " PhiMin: " << specificSurface().position().phi() - specificSurface().phiHalfExtension()
-                           << " PhiMax: " << specificSurface().position().phi() + specificSurface().phiHalfExtension()
-                           << " TS at Z,R: " << startingState.globalPosition().z() << ","
-                           << startingState.globalPosition().perp() << "     DetSector pos." << position();
+  LogTrace("MTDDetLayers") << "MTDDetSector::compatibleDets, sector: \n"
+                           << (*this) << "\n  TS at Z,R,phi: " << std::fixed << std::setw(14)
+                           << startingState.globalPosition().z() << " , " << std::setw(14)
+                           << startingState.globalPosition().perp() << " , " << std::setw(14)
+                           << startingState.globalPosition().phi();
 
   vector<DetWithState> result;
 
@@ -90,8 +89,9 @@ vector<GeometricSearchDet::DetWithState> MTDDetSector::compatibleDets(const Traj
   for (size_t idet = 0; idet < basicComponents().size(); idet++) {
     double dist2 = (startPos - theDets[idet]->position()).mag2();
 #ifdef EDM_ML_DEBUG
-    LogTrace("MTDDetLayers") << "MTDDetSector compatible dets list: " << idet << " " << startPos << " "
-                             << theDets[idet]->position() << " " << dist2;
+    LogTrace("MTDDetLayers") << "MTDDetSector::compatibleDets " << std::fixed << std::setw(14) << idet << " "
+                             << std::setw(14) << startPos << " " << std::setw(14) << theDets[idet]->position() << " "
+                             << std::setw(14) << dist2;
 #endif
     tmpDets.emplace_back(make_pair(dist2, idet));
   }
@@ -101,15 +101,20 @@ vector<GeometricSearchDet::DetWithState> MTDDetSector::compatibleDets(const Traj
 
   for (const auto& thisDet : tmpDets) {
 #ifdef EDM_ML_DEBUG
-    LogTrace("MTDDetLayers") << "MTDDetSector compatible dets trial: " << thisDet.first << " " << thisDet.second;
+    LogTrace("MTDDetLayers") << "MTDDetSector::compatibleDets trial: " << std::setw(14) << thisDet.first << " "
+                             << std::setw(14) << thisDet.second;
 #endif
     if (!add(static_cast<int>(thisDet.second), result, tsos, prop, est)) {
       break;
     }
   }
+#ifdef EDM_ML_DEBUG
   if (result.empty()) {
-    LogTrace("MTDDetLayers") << "     MTDDetSector::compatibleDets, closest not compatible!";
+    LogTrace("MTDDetLayers") << "MTDDetSector::compatibleDets, closest not compatible!";
+  } else {
+    LogTrace("MTDDetLayers") << "MTDDetSector::compatibleDets, found " << result.size() << " compatible dets";
   }
+#endif
 
   return result;
 }
@@ -143,4 +148,18 @@ bool MTDDetSector::add(int idet,
   }
 
   return compat.first;
+}
+
+#include <iomanip>
+
+std::ostream& operator<<(std::ostream& os, const MTDDetSector& id) {
+  os << " MTDDetSector at " << std::fixed << std::setw(14) << id.specificSurface().position() << std::endl
+     << " L/W/T   : " << std::setw(14) << id.specificSurface().bounds().length() << " / " << std::setw(14)
+     << id.specificSurface().bounds().width() << " / " << std::setw(14) << id.specificSurface().bounds().thickness()
+     << std::endl
+     << " rmin    : " << std::setw(14) << id.specificSurface().innerRadius() << std::endl
+     << " rmax    : " << std::setw(14) << id.specificSurface().outerRadius() << std::endl
+     << " phi ref : " << std::setw(14) << id.specificSurface().position().phi() << std::endl
+     << " phi win : " << std::setw(14) << id.specificSurface().phiHalfExtension() << std::endl;
+  return os;
 }

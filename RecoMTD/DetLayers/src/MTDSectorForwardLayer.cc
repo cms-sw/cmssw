@@ -45,10 +45,12 @@ MTDSectorForwardLayer::MTDSectorForwardLayer(const vector<const MTDDetSector*>& 
 
   setSurface(new BoundDisk(pos, rot, new SimpleDiskBounds(theRmin, theRmax, theZmin - zPos, theZmax - zPos)));
 
-  LogTrace("MTDDetLayers") << "Constructing MTDSectorForwardLayer: " << basicComponents().size() << " Dets "
-                           << theSectors.size() << " Sectors "
-                           << " Z: " << specificSurface().position().z() << " R1: " << specificSurface().innerRadius()
-                           << " R2: " << specificSurface().outerRadius();
+  LogTrace("MTDDetLayers") << "Constructing MTDSectorForwardLayer: " << std::fixed << std::setw(14)
+                           << basicComponents().size() << " Dets, " << std::setw(14) << theSectors.size()
+                           << " Sectors, "
+                           << " Z: " << std::setw(14) << specificSurface().position().z() << " R1: " << std::setw(14)
+                           << specificSurface().innerRadius() << " R2: " << std::setw(14)
+                           << specificSurface().outerRadius();
 }
 
 MTDSectorForwardLayer::~MTDSectorForwardLayer() {
@@ -62,8 +64,9 @@ vector<GeometricSearchDet::DetWithState> MTDSectorForwardLayer::compatibleDets(
   vector<DetWithState> result;
 
   LogTrace("MTDDetLayers") << "MTDSectorForwardLayer::compatibleDets,"
-                           << " R1 " << specificSurface().innerRadius() << " R2: " << specificSurface().outerRadius()
-                           << " FTS at R: " << startingState.globalPosition().perp();
+                           << " R1 " << std::fixed << std::setw(14) << specificSurface().innerRadius()
+                           << " R2: " << std::setw(14) << specificSurface().outerRadius()
+                           << " FTS at R: " << std::setw(14) << startingState.globalPosition().perp();
 
   pair<bool, TrajectoryStateOnSurface> compat = compatible(startingState, prop, est);
 
@@ -88,7 +91,8 @@ vector<GeometricSearchDet::DetWithState> MTDSectorForwardLayer::compatibleDets(
 
   for (unsigned int isect = 0; isect < theSectors.size(); isect++) {
     LocalPoint nextPos(theSectors[isect]->specificSurface().toLocal(startPos));
-    LogDebug("MTDDetLayers") << "Global point = " << startPos << " local point = " << nextPos;
+    LogDebug("MTDDetLayers") << "Global point = " << std::fixed << std::setw(14) << startPos
+                             << " local point = " << std::setw(14) << nextPos;
     bool inside = false;
     if (tsos.hasError()) {
       inside = theSectors[isect]->specificSurface().bounds().inside(nextPos, tsos.localError().positionError(), 1.);
@@ -97,15 +101,11 @@ vector<GeometricSearchDet::DetWithState> MTDSectorForwardLayer::compatibleDets(
     }
     if (inside) {
 #ifdef EDM_ML_DEBUG
-      LogTrace("MTDDetLayers") << "     MTDSectorForwardLayer::fastCompatibleDets:NextSector " << isect << " R1 "
-                               << theSectors[isect]->specificSurface().innerRadius()
-                               << " R2: " << theSectors[isect]->specificSurface().outerRadius() << " PhiMin: "
-                               << theSectors[isect]->specificSurface().position().phi() -
-                                      theSectors[isect]->specificSurface().phiHalfExtension()
-                               << " PhiMax: "
-                               << theSectors[isect]->specificSurface().position().phi() +
-                                      theSectors[isect]->specificSurface().phiHalfExtension()
-                               << " FTS R,phi: " << tsos.globalPosition().perp() << "," << tsos.globalPosition().phi();
+      LogTrace("MTDDetLayers") << "     MTDSectorForwardLayer::fastCompatibleDets:NextSector " << std::fixed
+                               << std::setw(14) << isect << "\n"
+                               << (*theSectors[isect]) << "\n FTS at Z,R,phi: " << std::setw(14)
+                               << tsos.globalPosition().z() << " , " << std::setw(14) << tsos.globalPosition().perp()
+                               << "," << std::setw(14) << tsos.globalPosition().phi();
       if (tsos.hasError()) {
         LogTrace("MTDDetLayers") << " sR: " << sqrt(tsos.localError().positionError().yy())
                                  << " sX: " << sqrt(tsos.localError().positionError().xx());
