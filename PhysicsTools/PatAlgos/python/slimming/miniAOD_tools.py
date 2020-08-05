@@ -55,7 +55,7 @@ def miniAOD_customizeCommon(process):
     process.patElectrons.usePfCandidateMultiMap = True
     process.patElectrons.pfCandidateMultiMap    = cms.InputTag("reducedEgamma","reducedGsfElectronPfCandMap")
     process.patElectrons.electronIDSources = cms.PSet()
-    run2_miniAOD_devel.toModify( process.patElectrons, getdBFromTrack = True) 
+    run2_miniAOD_UL.toModify( process.patElectrons, getdBFromTrack = True)
     from Configuration.Eras.Modifier_run2_miniAOD_80XLegacy_cff import run2_miniAOD_80XLegacy
     run2_miniAOD_80XLegacy.toModify(process.patElectrons,
                                     addPFClusterIso = cms.bool(True),
