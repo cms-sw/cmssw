@@ -6,7 +6,7 @@ L1TkElectrons = cms.EDProducer("L1TkElectronTrackProducer",
     L1EGammaInputTag = cms.InputTag("simCaloStage2Digis",""),
     # Only the L1EG objects that have ET > ETmin in GeV
     # are considered. ETmin < 0 means that no cut is applied.
-    ETmin = cms.double( -1.0 ),             
+    ETmin = cms.double( -1.0 ),
     L1TrackInputTag = cms.InputTag("TTTracksFromTrackletEmulation", "Level1TTTracks"),
     # Quality cuts on Track and Track L1EG matching criteria
     TrackChi2           = cms.double(1e10), # minimum Chi2 to select tracks
@@ -25,7 +25,7 @@ L1TkElectrons = cms.EDProducer("L1TkElectronTrackProducer",
     # the output collection. When RelIsoCut < 0, no cut is applied.
 		# When RelativeIsolation = False, IsoCut is in GeV.
     # Determination of the isolation w.r.t. L1Tracks :
-    IsoCut = cms.double( -0.10 ), 		
+    IsoCut = cms.double( -0.10 ),
     PTMINTRA = cms.double( 2. ),	# in GeV
 	  DRmin = cms.double( 0.03),
 	  DRmax = cms.double( 0.2 ),
@@ -80,10 +80,10 @@ L1TkElectronsHGC=L1TkElectrons.clone(
 
 L1TkElectronsEllipticMatchHGC = L1TkElectronsHGC.clone(
     # L1TrackInputTag = cms.InputTag("TTTracksFromTrackletEmulation", "Level1TTTracks")
-    TrackEGammaMatchType = cms.string("EllipticalCut")
-    TrackEGammaDeltaEta = cms.vdouble(0.01, 0.01,1e10)
-    maxChi2IsoTracks = cms.double(100)
-    minNStubsIsoTracks = cms.int32(4)
+    TrackEGammaMatchType = cms.string("EllipticalCut"),
+    TrackEGammaDeltaEta = cms.vdouble(0.01, 0.01,1e10),
+    maxChi2IsoTracks = cms.double(100),
+    minNStubsIsoTracks = cms.int32(4),
 )
 
 
