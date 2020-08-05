@@ -1,7 +1,6 @@
-#ifndef LocalErrorType_H
-#define LocalErrorType_H
+#ifndef DataFormats_GeometryCommonDetAlgo_LocalErrorBaseExtended_h
+#define DataFormats_GeometryCommonDetAlgo_LocalErrorBaseExtended_h
 
-#include "DataFormats/GeometryCommonDetAlgo/interface/DeepCopyPointer.h"
 #include "DataFormats/GeometrySurface/interface/TrivialError.h"
 #include "DataFormats/Math/interface/AlgebraicROOTObjects.h"
 //

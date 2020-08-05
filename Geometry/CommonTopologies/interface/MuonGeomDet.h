@@ -2,8 +2,7 @@
 #define CommonDet_MuonGeomDet_H
 
 #include "Geometry/CommonTopologies/interface/GeomDet.h"
-#include "DataFormats/GeometrySurface/interface/LocalError.h"
-#include "DataFormats/GeometrySurface/interface/LocalErrorExtended.h"
+#include "DataFormats/GeometryCommonDetAlgo/interface/LocalErrorExtended.h"
 
 class MuonGeomDet : public GeomDet {
 protected:
