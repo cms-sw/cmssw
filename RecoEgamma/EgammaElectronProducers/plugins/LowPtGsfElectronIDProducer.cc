@@ -33,9 +33,9 @@ public:
 private:
   double eval(const std::string& name, const edm::Ptr<reco::GsfElectron>, double rho, float unbiased) const;
 
-  const edm::EDGetTokenT< edm::View<reco::GsfElectron> > gsfElectrons_;
+  const edm::EDGetTokenT<edm::View<reco::GsfElectron> > gsfElectrons_;
   const edm::EDGetTokenT<double> rho_;
-  const edm::EDGetTokenT< edm::ValueMap<float> > unbiased_;
+  const edm::EDGetTokenT<edm::ValueMap<float> > unbiased_;
   const std::vector<std::string> names_;
   const bool passThrough_;
   const double minPtThreshold_;
@@ -47,9 +47,9 @@ private:
 ////////////////////////////////////////////////////////////////////////////////
 //
 LowPtGsfElectronIDProducer::LowPtGsfElectronIDProducer(const edm::ParameterSet& conf)
-  : gsfElectrons_(consumes< edm::View<reco::GsfElectron> >(conf.getParameter<edm::InputTag>("electrons"))),
+    : gsfElectrons_(consumes<edm::View<reco::GsfElectron> >(conf.getParameter<edm::InputTag>("electrons"))),
       rho_(consumes<double>(conf.getParameter<edm::InputTag>("rho"))),
-      unbiased_(consumes< edm::ValueMap<float> >(conf.getParameter<edm::InputTag>("unbiased"))),
+      unbiased_(consumes<edm::ValueMap<float> >(conf.getParameter<edm::InputTag>("unbiased"))),
       names_(conf.getParameter<std::vector<std::string> >("ModelNames")),
       passThrough_(conf.getParameter<bool>("PassThrough")),
       minPtThreshold_(conf.getParameter<double>("MinPtThreshold")),
@@ -74,7 +74,6 @@ LowPtGsfElectronIDProducer::LowPtGsfElectronIDProducer(const edm::ParameterSet& 
 ////////////////////////////////////////////////////////////////////////////////
 //
 void LowPtGsfElectronIDProducer::produce(edm::StreamID, edm::Event& event, const edm::EventSetup& setup) const {
-
   // Pileup
   edm::Handle<double> rho;
   event.getByToken(rho_, rho);
@@ -83,17 +82,17 @@ void LowPtGsfElectronIDProducer::produce(edm::StreamID, edm::Event& event, const
   }
 
   // Retrieve GsfElectrons from Event
-  edm::Handle< edm::View<reco::GsfElectron> > gsfElectrons;
+  edm::Handle<edm::View<reco::GsfElectron> > gsfElectrons;
   event.getByToken(gsfElectrons_, gsfElectrons);
   if (!gsfElectrons.isValid()) {
     edm::LogError("Problem with gsfElectrons handle");
   }
 
-  // ElectronSeed unbiased BDT          
-  edm::Handle< edm::ValueMap<float> > unbiasedH;
-  event.getByToken(unbiased_,unbiasedH);
-  if (!unbiasedH.isValid()) { 
-    edm::LogError("Problem with unbiased handle"); 
+  // ElectronSeed unbiased BDT
+  edm::Handle<edm::ValueMap<float> > unbiasedH;
+  event.getByToken(unbiased_, unbiasedH);
+  if (!unbiasedH.isValid()) {
+    edm::LogError("Problem with unbiased handle");
   }
 
   // Iterate through Electrons, evaluate BDT, and store result
@@ -104,10 +103,14 @@ void LowPtGsfElectronIDProducer::produce(edm::StreamID, edm::Event& event, const
   for (unsigned int iele = 0; iele < gsfElectrons->size(); iele++) {
     edm::Ptr<reco::GsfElectron> ele(gsfElectrons, iele);
 
-    if ( ele->core().isNull() ) { continue; }
+    if (ele->core().isNull()) {
+      continue;
+    }
     reco::GsfTrackRef gsf = ele->core()->gsfTrack();
-    if ( gsf.isNull() ) { continue; }
-    float unbiased = (*unbiasedH)[gsf];  
+    if (gsf.isNull()) {
+      continue;
+    }
+    float unbiased = (*unbiasedH)[gsf];
 
     //if ( !passThrough_ && ( ele->pt() < minPtThreshold_ ) ) { continue; }
     for (unsigned int iname = 0; iname < names_.size(); ++iname) {
@@ -126,7 +129,10 @@ void LowPtGsfElectronIDProducer::produce(edm::StreamID, edm::Event& event, const
   }
 }
 
-double LowPtGsfElectronIDProducer::eval(const std::string& name, const edm::Ptr<reco::GsfElectron> ele, double rho, float unbiased) const {
+double LowPtGsfElectronIDProducer::eval(const std::string& name,
+                                        const edm::Ptr<reco::GsfElectron> ele,
+                                        double rho,
+                                        float unbiased) const {
   auto iter = std::find(names_.begin(), names_.end(), name);
   if (iter != names_.end()) {
     int index = std::distance(names_.begin(), iter);
@@ -143,7 +149,7 @@ double LowPtGsfElectronIDProducer::eval(const std::string& name, const edm::Ptr<
 void LowPtGsfElectronIDProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
   desc.add<edm::InputTag>("electrons", edm::InputTag("lowPtGsfElectrons"));
-  desc.add<edm::InputTag>("unbiased",edm::InputTag("lowPtGsfElectronSeedValueMaps:unbiased"));  
+  desc.add<edm::InputTag>("unbiased", edm::InputTag("lowPtGsfElectronSeedValueMaps:unbiased"));
   desc.add<edm::InputTag>("rho", edm::InputTag("fixedGridRhoFastjetAllTmp"));
   desc.add<std::vector<std::string> >("ModelNames", {""});
   desc.add<std::vector<std::string> >(
