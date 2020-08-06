@@ -6,7 +6,8 @@ const PrescalesVetosFractHelper* PrescalesVetosFractHelper::readFromEventSetup(c
   return new PrescalesVetosFractHelper(es);
 }
 
-PrescalesVetosFractHelper* PrescalesVetosFractHelper::readAndWriteFromEventSetup(const L1TGlobalPrescalesVetosFract* es) {
+PrescalesVetosFractHelper* PrescalesVetosFractHelper::readAndWriteFromEventSetup(
+    const L1TGlobalPrescalesVetosFract* es) {
   PrescalesVetosFractHelper* x = new PrescalesVetosFractHelper(es);
   x->useCopy();
   return x;
