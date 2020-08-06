@@ -738,6 +738,8 @@ class UpgradeWorkflowPremix(UpgradeWorkflow):
                 if m:
                     d["--filein"] = filein.replace(m.group(), "step%d_"%(int(m.group("ind"))+1))
             stepDict[stepName][k] = d
+            # run2/3 WFs use Nano (not NanoPU) in PU WF
+            stepDict[self.getStepName(step)][k] = merge([d])
     def condition(self, fragment, stepList, key, hasHarvest):
         if not 'PU' in key:
             return False
