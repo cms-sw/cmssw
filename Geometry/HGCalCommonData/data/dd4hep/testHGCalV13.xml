@@ -62,6 +62,7 @@
     <Include ref="Geometry/MuonCommonData/data/gem21/TDR_Dev/gem21.xml"/>
     <Include ref="Geometry/MuonCommonData/data/mfshield/2026/v4/mfshield.xml"/>
     <Include ref="Geometry/MuonCommonData/data/me0/TDR_Dev/v3/me0.xml"/>
+    <Include ref="Geometry/MuonCommonData/data/muonNumbering/TDR_DeV/v1/muonNumbering.xml"/>
     <Include ref="Geometry/EcalSimData/data/PhaseII/ecalsens.xml"/>
     <Include ref="Geometry/HcalCommonData/data/hcalsens/NoHE/hcalsenspmf.xml"/>
     <Include ref="Geometry/HcalSimData/data/hf.xml"/>
@@ -69,11 +70,6 @@
     <Include ref="Geometry/HcalSimData/data/hffibrebundle.xml"/>
     <Include ref="Geometry/HcalSimData/data/CaloUtil.xml"/>
     <Include ref="Geometry/HGCalSimData/data/hgcsensv9.xml"/>
-    <Include ref="Geometry/HcalSimData/data/HcalProdCuts.xml"/>
-    <Include ref="Geometry/EcalSimData/data/EcalProdCuts.xml"/>
-    <Include ref="Geometry/HGCalSimData/data/hgcProdCutsv9.xml"/>
-<!--
-    <Include ref="Geometry/MuonCommonData/data/muonNumbering/TDR_DeV/v1/muonNumbering.xml"/>
     <Include ref="Geometry/MuonSimData/data/PhaseII/ME0EtaPart/muonSens.xml"/>
     <Include ref="Geometry/DTGeometryBuilder/data/dtSpecsFilter.xml"/>
     <Include ref="Geometry/CSCGeometryBuilder/data/cscSpecsFilter.xml"/>
@@ -81,8 +77,11 @@
     <Include ref="Geometry/RPCGeometryBuilder/data/2026/v1/RPCSpecs.xml"/>
     <Include ref="Geometry/GEMGeometryBuilder/data/v7/GEMSpecsFilter.xml"/>
     <Include ref="Geometry/GEMGeometryBuilder/data/v7/GEMSpecs.xml"/>
-    <Include ref="Geometry/MuonSimData/data/PhaseII/muonProdCuts.xml"/> -->
+    <Include ref="Geometry/HcalSimData/data/HcalProdCuts.xml"/>
+    <Include ref="Geometry/EcalSimData/data/EcalProdCuts.xml"/>
+    <Include ref="Geometry/HGCalSimData/data/hgcProdCutsv9.xml"/>
     <Include ref="Geometry/CMSCommonData/data/FieldParameters.xml"/>
+    <Include ref="Geometry/MuonSimData/data/PhaseII/muonProdCuts.xml"/>
   </IncludeSection>
   
 </DDDefinition>
