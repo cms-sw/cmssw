@@ -33,7 +33,7 @@ process.valid = cms.EDAnalyzer("GEMGeometryValidate",
                                )
 
 process.muonGeometryConstants.fromDD4Hep = True
-process.gemGeometry.useDDD = False
-process.gemGeometry.useDD4Hep = True
+process.gemGeometry.fromDDD = False
+process.gemGeometry.fromDD4Hep = True
 
 process.p = cms.Path(process.valid)
