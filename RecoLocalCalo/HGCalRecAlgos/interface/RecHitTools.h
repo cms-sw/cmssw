@@ -25,8 +25,6 @@ namespace hgcal {
     RecHitTools() : geom_(nullptr), fhOffset_(0), bhOffset_(0), fhLastLayer_(0), noseLastLayer_(0), geometryType_(0) {}
     ~RecHitTools() {}
 
-    //void getEvent(const edm::Event&);
-    //void getEventSetup(const edm::EventSetup&);
     void setGeometry(CaloGeometry const&);
     const CaloSubdetectorGeometry* getSubdetectorGeometry(const DetId& id) const;
 

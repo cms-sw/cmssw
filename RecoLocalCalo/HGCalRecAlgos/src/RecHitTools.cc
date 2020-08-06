@@ -65,12 +65,7 @@ namespace {
 
 }  // namespace
 
-//void RecHitTools::getEvent(const edm::Event& ev) {}
-
 void RecHitTools::setGeometry(const CaloGeometry& geom) {
-  //edm::ESHandle<CaloGeometry> geom;
-  //es.get<CaloGeometryRecord>().get(geom);
-
   geom_ = &geom;
   unsigned int wmaxEE(0), wmaxFH(0);
   auto geomEE = static_cast<const HGCalGeometry*>(
