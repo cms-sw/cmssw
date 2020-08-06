@@ -154,7 +154,7 @@ MTDSectorForwardDoubleLayer* ETLDetLayerGeometryBuilder::buildLayerNew(int endca
                                  << theMod.mtdSide() << " Disc/Side/Sector = " << std::setw(4) << theMod.nDisc() << " "
                                  << std::setw(4) << theMod.discSide() << " " << std::setw(4) << theMod.sector()
                                  << " mod/type = " << std::setw(4) << theMod.module() << " " << std::setw(4)
-                                 << theMod.modType() << " pos = " << std::setw(14) << det->position();
+                                 << theMod.modType() << " pos = " << det->position();
         // front layer face
         if (theMod.discSide() == 0) {
 #ifdef EDM_ML_DEBUG

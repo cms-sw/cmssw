@@ -88,11 +88,9 @@ vector<GeometricSearchDet::DetWithState> MTDDetSector::compatibleDets(const Traj
   std::vector<std::pair<double, size_t> > tmpDets;
   for (size_t idet = 0; idet < basicComponents().size(); idet++) {
     double dist2 = (startPos - theDets[idet]->position()).mag2();
-#ifdef EDM_ML_DEBUG
     LogTrace("MTDDetLayers") << "MTDDetSector::compatibleDets " << std::fixed << std::setw(14) << idet << " "
                              << std::setw(14) << startPos << " " << std::setw(14) << theDets[idet]->position() << " "
                              << std::setw(14) << dist2;
-#endif
     tmpDets.emplace_back(make_pair(dist2, idet));
   }
   sort(tmpDets.begin(), tmpDets.end());
@@ -100,10 +98,8 @@ vector<GeometricSearchDet::DetWithState> MTDDetSector::compatibleDets(const Traj
   // start from the closest det, loop until no compatibility is seen
 
   for (const auto& thisDet : tmpDets) {
-#ifdef EDM_ML_DEBUG
     LogTrace("MTDDetLayers") << "MTDDetSector::compatibleDets trial: " << std::setw(14) << thisDet.first << " "
                              << std::setw(14) << thisDet.second;
-#endif
     if (!add(static_cast<int>(thisDet.second), result, tsos, prop, est)) {
       break;
     }
@@ -153,13 +149,13 @@ bool MTDDetSector::add(int idet,
 #include <iomanip>
 
 std::ostream& operator<<(std::ostream& os, const MTDDetSector& id) {
-  os << " MTDDetSector at " << std::fixed << std::setw(14) << id.specificSurface().position() << std::endl
+  os << " MTDDetSector at " << std::fixed << id.specificSurface().position() << std::endl
      << " L/W/T   : " << std::setw(14) << id.specificSurface().bounds().length() << " / " << std::setw(14)
      << id.specificSurface().bounds().width() << " / " << std::setw(14) << id.specificSurface().bounds().thickness()
      << std::endl
      << " rmin    : " << std::setw(14) << id.specificSurface().innerRadius() << std::endl
      << " rmax    : " << std::setw(14) << id.specificSurface().outerRadius() << std::endl
      << " phi ref : " << std::setw(14) << id.specificSurface().position().phi() << std::endl
-     << " phi win : " << std::setw(14) << id.specificSurface().phiHalfExtension() << std::endl;
+     << " phi w/2 : " << std::setw(14) << id.specificSurface().phiHalfExtension() << std::endl;
   return os;
 }

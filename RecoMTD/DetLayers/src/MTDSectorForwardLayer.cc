@@ -91,8 +91,8 @@ vector<GeometricSearchDet::DetWithState> MTDSectorForwardLayer::compatibleDets(
 
   for (unsigned int isect = 0; isect < theSectors.size(); isect++) {
     LocalPoint nextPos(theSectors[isect]->specificSurface().toLocal(startPos));
-    LogDebug("MTDDetLayers") << "Global point = " << std::fixed << std::setw(14) << startPos
-                             << " local point = " << std::setw(14) << nextPos;
+    LogDebug("MTDDetLayers") << "Global point = " << std::fixed << startPos << " local point = " << nextPos
+                             << " global pos = " << theSectors[isect]->specificSurface().position();
     bool inside = false;
     if (tsos.hasError()) {
       inside = theSectors[isect]->specificSurface().bounds().inside(nextPos, tsos.localError().positionError(), 1.);
@@ -120,9 +120,7 @@ vector<GeometricSearchDet::DetWithState> MTDSectorForwardLayer::compatibleDets(
     }
   }
 
-#ifdef EDM_ML_DEBUG
   LogTrace("MTDDetLayers") << "     MTDSectorForwardLayer::fastCompatibleDets: found: " << result.size();
-#endif
 
   return result;
 }
