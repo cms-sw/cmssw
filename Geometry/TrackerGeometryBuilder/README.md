@@ -99,8 +99,10 @@ Following types are used
 | TrackerGeometry::W7     | W7                   |
 | TrackerGeometry::Ph1PXB | Phase 1 Pixel Barrel |
 | TrackerGeometry::Ph1PXF | Phase 1 Pixel Endcap |
-| TrackerGeometry::Ph2PXB | Phase 2 Pixel Barrel |
-| TrackerGeometry::Ph2PXF | Phase 2 Pixel Barrel |
-| TrackerGeometry::Ph2PSP | Phase 2 MacroPixel,PS|
-| TrackerGeometry::Ph2PSS | Phase 2 Strip, PS    |
+| TrackerGeometry::Ph2PXB | Phase 2 Pixel Barrel, planar sensor |
+| TrackerGeometry::Ph2PXF | Phase 2 Pixel Barrel, planar sensor |
+| TrackerGeometry::Ph2PXB3D | Phase 2 Pixel Barrel, 3D sensor |
+| TrackerGeometry::Ph2PXF3D | Phase 2 Pixel Barrel, 3D sensor |
+| TrackerGeometry::Ph2PSP | Phase 2 PS, p-sensor |
+| TrackerGeometry::Ph2PSS | Phase 2 PS, s-sensor |
 | TrackerGeometry::Ph2SS  | Phase2 2S            |
