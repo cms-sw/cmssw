@@ -28,6 +28,8 @@ namespace edmtest {
 
     std::optional<edmtest::Thing> choose(unsigned int iIndex, edmtest::Thing const& iItem) const;
 
+    void reset() { keysToSave_.clear(); }
+
   private:
     edm::EDGetTokenT<TrackOfDSVThingsCollection> const trackToken_;
     std::set<unsigned int> keysToSave_;
