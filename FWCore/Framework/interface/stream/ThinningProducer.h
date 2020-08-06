@@ -140,6 +140,7 @@ namespace edm {
       using namespace detail;
       fillCollectionForThinning(*iter, *selector_, iIndex, thinnedCollection, thinnedAssociation);
     }
+    selector_->reset();
 
     OrphanHandle<Collection> orphanHandle = event.emplace(outputToken_, std::move(thinnedCollection));
 

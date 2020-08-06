@@ -28,6 +28,8 @@ namespace edmtest {
 
     bool choose(unsigned int iIndex, edmtest::Thing const& iItem) const;
 
+    void reset() { keysToSave_.clear(); }
+
   private:
     edm::EDGetTokenT<TrackOfDSVThingsCollection> const trackToken_;
     edm::ThinnedRefSet<edmNew::DetSetVector<Thing>> keysToSave_;
