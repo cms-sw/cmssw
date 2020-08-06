@@ -72,10 +72,10 @@ int GEMEtaPartition::lastStripInPad(int pad) const {
   return static_cast<int>(strip(lp));
 }
 
-GEMSubDetId::Station GEMEtaPartition::station() const { return GEMSubDetId::station(id().station()); }
+GEMSubDetId::Station GEMEtaPartition::subsystem() const { return id_.subsystem(); }
 
-bool GEMEtaPartition::isME0() const { return station() == GEMSubDetId::Station::ME0; }
+bool GEMEtaPartition::isGE11() const { return id_.isGE11(); }
 
-bool GEMEtaPartition::isGE11() const { return station() == GEMSubDetId::Station::GE11; }
+bool GEMEtaPartition::isGE21() const { return id_.isGE21(); }
 
-bool GEMEtaPartition::isGE21() const { return station() == GEMSubDetId::Station::GE21; }
+bool GEMEtaPartition::isME0() const { return id_.isME0(); }

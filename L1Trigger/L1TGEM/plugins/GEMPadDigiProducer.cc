@@ -95,7 +95,7 @@ void GEMPadDigiProducer::buildPads(const GEMDigiCollection& det_digis, GEMPadDig
   for (const auto& p : geometry_->etaPartitions()) {
     // when using the GE2/1 geometry with 16 eta partitions
     // ->ignore GE2/1
-    if (use16GE21_ and p->id().station() == 2)
+    if (use16GE21_ and p->isGE21())
       continue;
 
     // set of <pad, bx> pairs, sorted first by pad then by bx
@@ -108,10 +108,8 @@ void GEMPadDigiProducer::buildPads(const GEMDigiCollection& det_digis, GEMPadDig
       unsigned pad_num = static_cast<int>(p->padOfStrip(d->strip()));
 
       // check that the input digi is valid
-      if ((GEMSubDetId::station(p->id().station()) == GEMSubDetId::Station::GE11 and
-           pad_num == GEMPadDigi::GE11InValid) or
-          (GEMSubDetId::station(p->id().station()) == GEMSubDetId::Station::GE21 and
-           pad_num == GEMPadDigi::GE21InValid)) {
+      if ((p->isGE11() and pad_num == GEMPadDigi::GE11InValid) or
+          (p->isGE21() and pad_num == GEMPadDigi::GE21InValid) or (p->isME0() and pad_num == GEMPadDigi::ME0InValid)) {
         edm::LogWarning("GEMPadDigiProducer") << "Invalid " << pad_num << " from  " << *d << " in " << p->id();
       }
       proto_pads.emplace(pad_num, d->bx());
@@ -119,7 +117,7 @@ void GEMPadDigiProducer::buildPads(const GEMDigiCollection& det_digis, GEMPadDig
 
     // fill the output collections
     for (const auto& d : proto_pads) {
-      GEMPadDigi pad_digi(d.first, d.second, GEMSubDetId::station(p->id().station()));
+      GEMPadDigi pad_digi(d.first, d.second, p->subsystem());
       checkValid(pad_digi, p->id());
       out_pads.insertDigi(p->id(), pad_digi);
     }
@@ -130,7 +128,7 @@ void GEMPadDigiProducer::buildPads16GE21(const GEMDigiCollection& det_digis, GEM
   for (const auto& p : geometry_->etaPartitions()) {
     // when using the GE2/1 geometry with 16 eta partitions
     // ->ignore GE1/1
-    if (p->id().station() == 1)
+    if (!p->isGE21())
       continue;
 
     // ignore eta partition with even numbers
@@ -160,7 +158,7 @@ void GEMPadDigiProducer::buildPads16GE21(const GEMDigiCollection& det_digis, GEM
 
     // fill the output collections
     for (const auto& d : proto_pads) {
-      GEMPadDigi pad_digi(d.first, d.second);
+      GEMPadDigi pad_digi(d.first, d.second, p->subsystem());
       checkValid(pad_digi, p->id());
       out_pads.insertDigi(p->id(), pad_digi);
     }

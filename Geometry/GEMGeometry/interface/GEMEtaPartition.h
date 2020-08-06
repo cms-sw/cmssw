@@ -79,7 +79,7 @@ public:
   int lastStripInPad(int pad) const;
 
   // subsystem
-  GEMSubDetId::Station station() const;
+  GEMSubDetId::Station subsystem() const;
   bool isME0() const;
   bool isGE11() const;
   bool isGE21() const;

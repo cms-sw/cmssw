@@ -227,6 +227,12 @@ public:
     return rawid;
   }
 
+  // subsystem
+  GEMSubDetId::Station subsystem() const;
+  bool isGE11() const;
+  bool isGE21() const;
+  bool isME0() const;
+
 private:
   constexpr void v12FromV11(const uint32_t& rawid) { id_ = v12Form(rawid); }
 
