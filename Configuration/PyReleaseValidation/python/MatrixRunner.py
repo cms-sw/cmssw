@@ -43,7 +43,7 @@ class MatrixRunner(object):
             self.maxThreads=4
             print('resetting to default number of process threads = %s' %  self.maxThreads)
 
-        print('Running %s %s, each with %s thread%s per process' % (self.maxThreads, 'concurrent jobs' if self.maxThreads > 1 else 'job', self.nThreads, 's' if self.nThreads > 1 else ''))
+        print('Running %s %s %s, each with %s thread%s per process' % ('up to' if self.maxThreads > 1 else '', self.maxThreads, 'concurrent jobs' if self.maxThreads > 1 else 'job', self.nThreads, 's' if self.nThreads > 1 else ''))
 
 
         for wf in self.workFlows:
