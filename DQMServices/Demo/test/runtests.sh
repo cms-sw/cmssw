@@ -125,7 +125,9 @@ cmsRun $LOCAL_TEST_DIR/run_analyzers_cfg.py numberEventsInRun=300 numberEventsIn
 # 10. Try running some harvesting modules and check if their output makes it out.
 # Note that we pass the files out-of order here; the DQMIO input should sort them.
 cmsRun $LOCAL_TEST_DIR/run_harvesters_cfg.py inputFiles=part1.root inputFiles=part3.root inputFiles=part2.root legacyoutput=True
-[ 2 = $(rootlist DQM_V0001_R000000001__Harvesting__DQMTests__DQMIO.root | grep  -c '<harvestingsummary>s=beginRun(1) endLumi(1,1) endLumi(1,2) endLumi(1,3) endRun(1) endJob() </harvestingsummary>') ]
+[ 1 = $(rootlist DQM_V0001_R000000001__Harvesting__DQMTests__DQMIO.root | grep  -c '<harvestingsummary>s=beginRun(1) endLumi(1,1) endLumi(1,2) endLumi(1,3) endRun(1) endJob() </harvestingsummary>') ]
+# The legacy harvester can only do per-run harvesting.
+[ 2 = $(rootlist DQM_V0001_R000000001__Harvesting__DQMTests__DQMIO.root | grep  -c '<runsummary>s=beginRun(1) endLumi(1,1) endLumi(1,2) endLumi(1,3) endRun(1) </runsummary>') ]
 
 # 11. Try MEtoEDM and EDMtoME.
 cmsRun $LOCAL_TEST_DIR/run_analyzers_cfg.py outfile=metoedm.root numberEventsInRun=100 numberEventsInLuminosityBlock=20 nEvents=100 metoedmoutput=True

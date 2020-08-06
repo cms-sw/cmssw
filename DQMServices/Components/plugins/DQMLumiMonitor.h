@@ -40,7 +40,6 @@ protected:
   void analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup) override;
   void endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& eSetup) override;
   void endRun(edm::Run const& iRun, edm::EventSetup const& iSetup) override;
-  void endJob() override;
 
 private:
   void bookHistograms();

@@ -137,6 +137,4 @@ void DQMDaqInfo::beginJob() {
   NumberOfFeds[L1T] = L1TRange.second - L1TRange.first + 1;
 }
 
-void DQMDaqInfo::endJob() {}
-
 void DQMDaqInfo::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {}

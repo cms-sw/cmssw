@@ -161,10 +161,11 @@ To clarify how (per-lumi) saving and merging of histograms happens, we introduce
     - When harvesting, `reScope` is set to `RUN` (or `JOB`). Now, MEs saved with scope `LUMI` will be switched to scope `RUN` (or `JOB`) and merged. The harvesting modules can observe increasing statistics in the histogram as a run is processed (like in online DQM).
     - For multi-run harvesting, `reScope` is set to `JOB`. Now, even `RUN` histograms are merged. This is the default, since it also works for today's single-run harvesting jobs.
 - Currently, EDM does not allow `JOB` products, and therefore output modules cannot save at the end of the `JOB` scope. The only file format where `JOB` scope is supported is the legacy `TDirectory` `DQMFileSaver`.
-    - This means that harvesting jobs can _only_ save in legacy format, since most harvesting logic runs at `endJob`.
+    - We use `ProcessBlock` products to model the dataflow that traditionally happened at `endJob`.
+    - Legacy modules cannot do `JOB` level harvesting: their code in `endJob` only runs after the output file is saved. Some code remains there, and it can still work if output is saved by a different means than `DQMFileSaver`.
+    - This means that harvesting jobs can _only_ save in legacy format, since most harvesting logic runs at `dqmEndJob` (a.k.a. `endProcessBlock`. Output modules don't support `ProcessBlock`s yet.
     - For the same reason, _all_ harvesting jobs use `reScope = JOB` today. However, for single-run harvesting jobs, some logic in the `DQMFileSaver` still attaches the run number of the (only) run processed to the output file (this can and will go wrong if there is more than one run in a "normal" harvesting job).
     - This also means that apart from the run number on the output file, "normal" and multi-run harvesting jobs are identical.
-    - Once EDM gains the ability to handle units of data that are more than one run, it would make sense to revise the harvesting setup to run all harvesting code outside of `endJob`, in the new transition, and harvesting could switch to outputting DQMIO instead of legacy output files (the DQMIO file format would need to be extended as well).
 
 Harvesting jobs are always processed sequentially, like the data was taken: runs and lumisections are processed in increasing order. This is implemented in `DQMRootSource`.
 
@@ -174,7 +175,7 @@ DQM promises that all data dependencies across the `DQMStore` are visible to EDM
 - `DQMGenerationReco` is produced by `DQMEDAnalyzer`s, which consume only "normal" (non-DQM) products.
 - `DQMGenerationHarvesting` is produced by `DQMEDHarvester`s, which consume (by default) all `DQMGenerationReco` tokens. This allows all old code to work without explicitly declaring dependencies. `DQMEDHarvester`s provide a mechanism to consume more specific tokens, including `DQMGenerationHarvesting` tokens from other harvesters.
 - `DQMGenerationQTest` is produced only by the `QualityTester` module (of which we typically have many instances). The `QualityTester` has fully configurable dependencies to allow the more complicated setups sometimes required in harvesting, but typically consumes `DQMGenerationHarvesting`.
-- There is a hidden dependency between end run and end job in harvesting: Many harvesters effectively depend on `DQMGenerationQTest` products (the QTest results) and do not specify that, but things still work because they do their work in `endJob`.
+- There is a hidden dependency between end run and end process block in harvesting: Many harvesters effectively depend on `DQMGenerationQTest` products (the QTest results) and do not specify that, but things still work because they do their work in `dqmEndJob` (a.k.a. `endProcessBlock`).
 
 #### Local `MonitorElement`s vs. global `MonitorElement`s
 
