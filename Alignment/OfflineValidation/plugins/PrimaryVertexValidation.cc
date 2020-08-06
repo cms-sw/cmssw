@@ -40,7 +40,6 @@
 #include "TVectorD.h"
 
 // CMSSW includes
-#include "CondFormats/RunInfo/interface/RunInfo.h"
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
 #include "DataFormats/GeometryCommonDetAlgo/interface/Measurement1D.h"
 #include "DataFormats/TrackReco/interface/Track.h"
@@ -50,18 +49,13 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "Geometry/CommonDetUnit/interface/GeomDet.h"
-#include "Geometry/CommonDetUnit/interface/GlobalTrackingGeometry.h"
-#include "Geometry/Records/interface/GlobalTrackingGeometryRecord.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/Records/interface/TrackerTopologyRcd.h"
-#include "MagneticField/Engine/interface/MagneticField.h"
-#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 #include "RecoVertex/PrimaryVertexProducer/interface/DAClusterizerInZ_vect.h"
 #include "RecoVertex/PrimaryVertexProducer/interface/DAClusterizerInZ.h"
 #include "RecoVertex/PrimaryVertexProducer/interface/GapClusterizerInZ.h"
 #include "RecoVertex/VertexPrimitives/interface/TransientVertex.h"
-#include "TrackingTools/Records/interface/TransientTrackRecord.h"
 #include "TrackingTools/TransientTrack/interface/TransientTrack.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateClosestToPoint.h"
 
@@ -69,7 +63,13 @@ const int PrimaryVertexValidation::nMaxtracks_;
 
 // Constructor
 PrimaryVertexValidation::PrimaryVertexValidation(const edm::ParameterSet& iConfig)
-    : storeNtuple_(iConfig.getParameter<bool>("storeNtuple")),
+    : magFieldToken_(esConsumes<MagneticField, IdealMagneticFieldRecord>()),
+      trackingGeomToken_(esConsumes<GlobalTrackingGeometry, GlobalTrackingGeometryRecord>()),
+      geomToken_(esConsumes<TrackerGeometry, TrackerDigiGeometryRecord>()),
+      ttkToken_(esConsumes<TransientTrackBuilder, TransientTrackRecord>(edm::ESInputTag("", "TransientTrackBuilder"))),
+      topoToken_(esConsumes<TrackerTopology, TrackerTopologyRcd>()),
+      runInfoToken_(esConsumes<RunInfo, RunInfoRcd>()),
+      storeNtuple_(iConfig.getParameter<bool>("storeNtuple")),
       lightNtupleSwitch_(iConfig.getParameter<bool>("isLightNtuple")),
       useTracksFromRecoVtx_(iConfig.getParameter<bool>("useTracksFromRecoVtx")),
       vertexZMax_(iConfig.getUntrackedParameter<double>("vertexZMax", 99.)),
@@ -255,23 +255,20 @@ void PrimaryVertexValidation::analyze(const edm::Event& iEvent, const edm::Event
   // Retrieve the Magnetic Field information
   //=======================================================
 
-  edm::ESHandle<MagneticField> theMGField;
-  iSetup.get<IdealMagneticFieldRecord>().get(theMGField);
+  edm::ESHandle<MagneticField> theMGField = iSetup.getHandle(magFieldToken_);
 
   //=======================================================
   // Retrieve the Tracking Geometry information
   //=======================================================
 
-  edm::ESHandle<GlobalTrackingGeometry> theTrackingGeometry;
-  iSetup.get<GlobalTrackingGeometryRecord>().get(theTrackingGeometry);
+  edm::ESHandle<GlobalTrackingGeometry> theTrackingGeometry = iSetup.getHandle(trackingGeomToken_);
 
   //=======================================================
   // Retrieve geometry information
   //=======================================================
 
   edm::LogInfo("read tracker geometry...");
-  edm::ESHandle<TrackerGeometry> pDD;
-  iSetup.get<TrackerDigiGeometryRecord>().get(pDD);
+  edm::ESHandle<TrackerGeometry> pDD = iSetup.getHandle(geomToken_);
   edm::LogInfo("tracker geometry read") << "There are: " << pDD->dets().size() << " detectors";
 
   // switch on the phase1
@@ -323,8 +320,7 @@ void PrimaryVertexValidation::analyze(const edm::Event& iEvent, const edm::Event
   // Retrieve the Transient Track Builder information
   //=======================================================
 
-  edm::ESHandle<TransientTrackBuilder> theB_;
-  iSetup.get<TransientTrackRecord>().get("TransientTrackBuilder", theB_);
+  edm::ESHandle<TransientTrackBuilder> theB_ = iSetup.getHandle(ttkToken_);
   double fBfield_ = ((*theB_).field()->inTesla(GlobalPoint(0., 0., 0.))).z();
 
   //=======================================================
@@ -341,8 +337,7 @@ void PrimaryVertexValidation::analyze(const edm::Event& iEvent, const edm::Event
   // Retrieve tracker topology from geometry
   //=======================================================
 
-  edm::ESHandle<TrackerTopology> tTopoHandle;
-  iSetup.get<TrackerTopologyRcd>().get(tTopoHandle);
+  edm::ESHandle<TrackerTopology> tTopoHandle = iSetup.getHandle(topoToken_);
   const TrackerTopology* const tTopo = tTopoHandle.product();
 
   //=======================================================
@@ -2959,8 +2954,7 @@ void PrimaryVertexValidation::endJob() {
 std::pair<long long, long long> PrimaryVertexValidation::getRunTime(const edm::EventSetup& iSetup) const
 //*************************************************************
 {
-  edm::ESHandle<RunInfo> runInfo;
-  iSetup.get<RunInfoRcd>().get(runInfo);
+  edm::ESHandle<RunInfo> runInfo = iSetup.getHandle(runInfoToken_);
   if (debug_) {
     edm::LogInfo("PrimaryVertexValidation")
         << runInfo.product()->m_start_time_str << " " << runInfo.product()->m_stop_time_str << std::endl;
@@ -2972,9 +2966,7 @@ std::pair<long long, long long> PrimaryVertexValidation::getRunTime(const edm::E
 bool PrimaryVertexValidation::isBFieldConsistentWithMode(const edm::EventSetup& iSetup) const
 //*************************************************************
 {
-  edm::ESHandle<RunInfo> runInfo;
-  iSetup.get<RunInfoRcd>().get(runInfo);
-
+  edm::ESHandle<RunInfo> runInfo = iSetup.getHandle(runInfoToken_);
   double average_current = runInfo.product()->m_avg_current;
   bool isOn = (average_current > 2000.);
   bool is0T = (ptOfProbe_ == 0.);

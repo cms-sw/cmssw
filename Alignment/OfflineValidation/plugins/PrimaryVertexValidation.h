@@ -55,6 +55,12 @@
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateClosestToPoint.h"
 #include "TrackingTools/TransientTrack/interface/TransientTrackBuilder.h"
 #include "Alignment/OfflineValidation/interface/PVValidationHelpers.h"
+#include "MagneticField/Engine/interface/MagneticField.h"
+#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
+#include "Geometry/CommonDetUnit/interface/GlobalTrackingGeometry.h"
+#include "Geometry/Records/interface/GlobalTrackingGeometryRecord.h"
+#include "CondFormats/RunInfo/interface/RunInfo.h"
+#include "TrackingTools/Records/interface/TransientTrackRecord.h"
 
 //
 // ancyllary enum for
@@ -140,6 +146,15 @@ private:
   static const int nMaxBins_ = 100;  // maximum number of bookable histograms
 
   // Output
+
+  // tokens form the EventSetup
+  const edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> magFieldToken_;
+  const edm::ESGetToken<GlobalTrackingGeometry, GlobalTrackingGeometryRecord> trackingGeomToken_;
+  const edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> geomToken_;
+  const edm::ESGetToken<TransientTrackBuilder, TransientTrackRecord> ttkToken_;
+  const edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> topoToken_;
+  const edm::ESGetToken<RunInfo, RunInfoRcd> runInfoToken_;
+
   bool storeNtuple_;
   bool lightNtupleSwitch_;  // switch to keep only info for daily validation
   bool useTracksFromRecoVtx_;
