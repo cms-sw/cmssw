@@ -71,3 +71,20 @@ int GEMEtaPartition::lastStripInPad(int pad) const {
   LocalPoint lp = specificPadTopology().localPosition(p);
   return static_cast<int>(strip(lp));
 }
+
+GEMSubDetId::Station GEMEtaPartition::station() const
+{
+  return GEMSubDetId::station(id().station());
+}
+
+bool GEMEtaPartition::isME0() const {
+  return station() == GEMSubDetId::Station::ME0;
+}
+
+bool GEMEtaPartition::isGE11() const {
+  return station() == GEMSubDetId::Station::GE11;
+}
+
+bool GEMEtaPartition::isGE21() const {
+  return station() == GEMSubDetId::Station::GE21;
+}
