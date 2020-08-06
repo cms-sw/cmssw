@@ -43,8 +43,7 @@ class MatrixRunner(object):
             self.maxThreads=4
             print('resetting to default number of process threads = %s' %  self.maxThreads)
 
-        print('Running in %s process thread(s)' % self.maxThreads)
-        print('Running in %s thread(s) per process thread' % self.nThreads)
+        print('Running %s %s, each with %s thread%s per process' % (self.maxThreads, 'concurrent jobs' if self.maxThreads > 1 else 'job', self.nThreads, 's' if self.nThreads > 1 else ''))
 
 
         for wf in self.workFlows:
@@ -105,4 +104,3 @@ class MatrixRunner(object):
         anyFail=sum(totfailed)
 
         return anyFail
-
