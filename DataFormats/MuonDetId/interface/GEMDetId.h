@@ -63,6 +63,8 @@ private:
   static constexpr uint32_t FormatMask = 0x1;
   static constexpr uint32_t kGEMIdFormat = 0x1000000;
   static constexpr uint32_t kMuonIdMask = 0xF0000000;
+
+public:
   static constexpr uint32_t chamberIdMask = ~(RollMask << RollStartBit);
   static constexpr uint32_t superChamberIdMask = chamberIdMask + ~(LayerMask << LayerStartBit);
 
