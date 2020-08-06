@@ -22,10 +22,11 @@
 #include "FWCore/Framework/interface/DependentRecordImplementation.h"
 #include "CondFormats/DataRecord/interface/BeamSpotOnlineHLTObjectsRcd.h"
 #include "CondFormats/DataRecord/interface/BeamSpotOnlineLegacyObjectsRcd.h"
+#include "CondFormats/DataRecord/interface/BeamSpotObjectsRcd.h"
 
 class BeamSpotTransientObjectsRcd
     : public edm::eventsetup::DependentRecordImplementation<
           BeamSpotTransientObjectsRcd,
-          boost::mpl::vector<BeamSpotOnlineHLTObjectsRcd, BeamSpotOnlineLegacyObjectsRcd> > {};
+          boost::mpl::vector<BeamSpotOnlineHLTObjectsRcd, BeamSpotOnlineLegacyObjectsRcd, BeamSpotObjectsRcd> > {};
 
 #endif

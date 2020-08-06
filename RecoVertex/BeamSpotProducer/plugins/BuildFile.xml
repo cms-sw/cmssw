@@ -5,31 +5,39 @@
 <use name="CondFormats/BeamSpotObjects"/>
 <use name="CondFormats/DataRecord"/>
 <use name="CondCore/DBOutputService"/>
+
 <use name="root"/>
 <use name="rootminuit"/>
 <use name="RecoVertex/BeamSpotProducer"/>
+
 <library file="BeamSpotProducer.cc" name="BeamSpotProducer">
   <flags EDM_PLUGIN="1"/>
 </library>
-
 <library file="BeamSpotOnlineProducer.cc" name="BeamSpotOnlineProducer">
   <flags EDM_PLUGIN="1"/>
   <use name="DataFormats/L1GlobalTrigger"/>
+  <use name="DataFormats/Scalers"/>
 </library>
-
 <library file="BeamSpotAnalyzer.cc" name="BeamSpotAnalyzer">
   <use name="clhep"/>
   <flags EDM_PLUGIN="1"/>
 </library>
-
 <library file="BeamSpotWrite2DB.cc" name="BeamSpotWrite2DB">
   <flags EDM_PLUGIN="1"/>
 </library>
-
 <library file="BeamSpotFakeConditions.cc" name="BeamSpotFakeConditions">
   <flags EDM_PLUGIN="1"/>
 </library>
-
 <library file="BeamSpotFromDB.cc" name="BeamSpotFromDB">
   <flags EDM_PLUGIN="1"/>
 </library>
+<library file="OnlineBeamSpotFromDB.cc" name="OnlineBeamSpotFromDB">
+  <flags EDM_PLUGIN="1"/>
+</library>
+<library file="OnlineBeamSpotESProducer.cc" name="OnlineBeamSpotESProducer">
+  <flags EDM_PLUGIN="1"/>
+</library>
+<library file="OfflineToTransientBeamSpotESProducer.cc" name="OfflineToTransientBeamSpotESProducer">
+  <flags EDM_PLUGIN="1"/>
+</library>
+
