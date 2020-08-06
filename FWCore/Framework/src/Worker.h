@@ -856,7 +856,7 @@ namespace edm {
         ModuleSignalSentry<Arg> cpp(actReg, context, mcc);
         return iWorker->implDoBeginProcessBlock(info.principal(), mcc);
       }
-      static void esPrefetch(Worker*, WaitingTask*, ServiceToken const&, ProcessBlockTransitionInfo const&, Transition) {
+      static constexpr void esPrefetch(Worker*, WaitingTask*, ServiceToken const&, ProcessBlockTransitionInfo const&, Transition) {
       }
       static bool wantsTransition(Worker const* iWorker) { return iWorker->wantsProcessBlocks(); }
       static bool needToRunSelection(Worker const* iWorker) { return false; }
@@ -876,7 +876,7 @@ namespace edm {
         ModuleSignalSentry<Arg> cpp(actReg, context, mcc);
         return iWorker->implDoAccessInputProcessBlock(info.principal(), mcc);
       }
-      static void esPrefetch(Worker*, WaitingTask*, ServiceToken const&, ProcessBlockTransitionInfo const&, Transition) {
+      static constexpr void esPrefetch(Worker*, WaitingTask*, ServiceToken const&, ProcessBlockTransitionInfo const&, Transition) {
       }
       static bool wantsTransition(Worker const* iWorker) { return iWorker->wantsInputProcessBlocks(); }
       static bool needToRunSelection(Worker const* iWorker) { return false; }
@@ -896,7 +896,7 @@ namespace edm {
         ModuleSignalSentry<Arg> cpp(actReg, context, mcc);
         return iWorker->implDoEndProcessBlock(info.principal(), mcc);
       }
-      static void esPrefetch(Worker*, WaitingTask*, ServiceToken const&, ProcessBlockTransitionInfo const&, Transition) {
+      static constexpr void esPrefetch(Worker*, WaitingTask*, ServiceToken const&, ProcessBlockTransitionInfo const&, Transition) {
       }
       static bool wantsTransition(Worker const* iWorker) { return iWorker->wantsProcessBlocks(); }
       static bool needToRunSelection(Worker const* iWorker) { return false; }
