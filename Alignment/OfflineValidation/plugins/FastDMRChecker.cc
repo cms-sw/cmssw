@@ -112,10 +112,16 @@ namespace running {
   };
 }  // namespace running
 
-class DMRChecker_v2 : public edm::one::EDAnalyzer<edm::one::SharedResources> {
+class FastDMRChecker : public edm::one::EDAnalyzer<edm::one::SharedResources> {
 public:
-  DMRChecker_v2(const edm::ParameterSet &pset)
-      : isPhase1_(pset.getParameter<bool>("isPhase1")), isCosmics_(pset.getParameter<bool>("isCosmics")) {
+  FastDMRChecker(const edm::ParameterSet &pset)
+      : geomToken_(esConsumes<TrackerGeometry, TrackerDigiGeometryRecord>()),
+        runInfoToken_(esConsumes<RunInfo, RunInfoRcd>()),
+        magFieldToken_(esConsumes<MagneticField, IdealMagneticFieldRecord>()),
+        topoToken_(esConsumes<TrackerTopology, TrackerTopologyRcd>()),
+        latencyToken_(esConsumes<SiStripLatency, SiStripLatencyRcd>()),
+        isPhase1_(pset.getParameter<bool>("isPhase1")),
+        isCosmics_(pset.getParameter<bool>("isCosmics")) {
     usesResource(TFileService::kSharedResource);
 
     TkTag_ = pset.getParameter<edm::InputTag>("TkTag");
@@ -179,14 +185,14 @@ public:
     auto dets = PixelRegions::attachedDets(PixelRegions::PixelId::L1,&m_standaloneTopo,isPhase1_);
     for(const auto& det : dets){
       auto myLocalTopo = PixelDMRS_x_ByLayer->getTheTTopo();
-      edm::LogVerbatim("DMRChecker_v2") << myLocalTopo->print(det) << std::endl;
+      edm::LogVerbatim("FastDMRChecker") << myLocalTopo->print(det) << std::endl;
     }
     */
   }
 
   static void fillDescriptions(edm::ConfigurationDescriptions &);
 
-  ~DMRChecker_v2() override {}
+  ~FastDMRChecker() override {}
 
   template <class OBJECT_TYPE>
   int GetIndex(const std::vector<OBJECT_TYPE *> &vec, const TString &name) {
@@ -196,12 +202,20 @@ public:
       if (*iter && (*iter)->GetName() == name)
         return result;
     }
-    edm::LogError("Alignment") << "@SUB=TrackerOfflineValidation::GetIndex"
+    edm::LogError("Alignment") << "@SUB=FastDMRChecker::GetIndex"
                                << " could not find " << name;
     return -1;
   }
 
 private:
+  // tokens for the event setup
+
+  const edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> geomToken_;
+  const edm::ESGetToken<RunInfo, RunInfoRcd> runInfoToken_;
+  const edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> magFieldToken_;
+  const edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> topoToken_;
+  const edm::ESGetToken<SiStripLatency, SiStripLatencyRcd> latencyToken_;
+
   edm::Service<TFileService> fs;
 
   std::unique_ptr<Phase1PixelMaps> pixelmap;
@@ -413,12 +427,8 @@ private:
   int trigCount;
   int ievt;
   int itrks;
-  int mol;
   int mode;
-  float InvMass;
-  double invMass;
   bool firstEvent_;
-  const TrackerGeometry *trackerGeometry_;
 
   const bool isPhase1_;
   const bool isCosmics_;
@@ -455,58 +465,37 @@ private:
   std::map<int, running::Estimators> resDetailsTEC_;
 
   void analyze(const edm::Event &event, const edm::EventSetup &setup) override {
-    //typedef cond::Time_t Time_t;
-    // const unsigned int MAX_VAL(std::numeric_limits<unsigned int>::max());
-
-    // edm::LogVerbatim("DMRChecker_v2")<<"====> MAXVAL: "<<MAX_VAL<<std::endl;
-
-    // edm::ESHandle<Alignments> globalPositionRcd;
-    // edm::ValidityInterval iov(setup.get<GlobalPositionRcd>().validityInterval() );
-    // if (iov.first().eventID().run()!=1 || iov.last().eventID().run()!=MAX_VAL) {
-    //   throw cms::Exception("DatabaseError")
-    // 	<< "@SUB=AlignmentProducer::applyDB"
-    // 	<< "\nTrying to apply "<< setup.get<GlobalPositionRcd>().key().name()
-    // 	<< " with multiple IOVs in tag.\n"
-    // 	<< "Validity range is "
-    // 	<< iov.first().eventID().run() << " - " << iov.last().eventID().run();
-    // }
-
     ievt++;
 
     edm::Handle<reco::TrackCollection> trackCollection;
     event.getByToken(theTrackCollectionToken, trackCollection);
 
     // magnetic field setup
-    edm::ESHandle<MagneticField> magneticField_;
-    setup.get<IdealMagneticFieldRecord>().get(magneticField_);
+    edm::ESHandle<MagneticField> magneticField_ = setup.getHandle(magFieldToken_);
     float B_ = magneticField_.product()->inTesla(GlobalPoint(0, 0, 0)).mag();
 
-    // edm::ESHandle<RunInfo> runInfo;
-    // setup.get<RunInfoRcd>().get(runInfo);
-    // //float average_current = runInfo.product()->m_avg_current;
-    // //float uptimeInSeconds = runInfo.product()->m_run_intervall_micros;
-
-    edm::ESHandle<RunInfo> sum;
-    setup.get<RunInfoRcd>().get(sum);
-    const RunInfo *summary = sum.product();
+    edm::ESHandle<RunInfo> runInfo = setup.getHandle(runInfoToken_);
+    const RunInfo *summary = runInfo.product();
     time_t start_time = summary->m_start_time_ll;
     ctime(&start_time);
     time_t end_time = summary->m_stop_time_ll;
     ctime(&end_time);
 
+    //float average_current = runInfo.product()->m_avg_current;
+    //float uptimeInSeconds = runInfo.product()->m_run_intervall_micros;
+
     /*
-      edm::LogVerbatim("DMRChecker_v2")<< " start_time " << start_time << "( " << summary->m_start_time_str <<" )" 
+      edm::LogVerbatim("FastDMRChecker")<< " start_time " << start_time << "( " << summary->m_start_time_str <<" )" 
       << " end_time "   << end_time   << "( " << summary->m_stop_time_str  <<" )" << std::endl;
     */
 
     double seconds = difftime(end_time, start_time) / 1.0e+6;
-    //edm::LogVerbatim("DMRChecker_v2")<<" diff: "<< seconds << "s" << std::endl;
+    //edm::LogVerbatim("FastDMRChecker")<<" diff: "<< seconds << "s" << std::endl;
 
     timeMap_[event.run()] = seconds;
 
     // topology setup
-    edm::ESHandle<TrackerTopology> tTopoHandle;
-    setup.get<TrackerTopologyRcd>().get(tTopoHandle);
+    edm::ESHandle<TrackerTopology> tTopoHandle = setup.getHandle(topoToken_);
     const TrackerTopology *const tTopo = tTopoHandle.product();
 
     if (!PixelDMRS_x_ByLayer->getTheTopo()) {
@@ -514,23 +503,22 @@ private:
       PixelDMRS_y_ByLayer->setTheTopo(tTopo);
     }
 
-    edm::ESHandle<SiStripLatency> apvlat;
-    setup.get<SiStripLatencyRcd>().get(apvlat);
-    if (apvlat->singleReadOutMode() == 1)
+    edm::ESHandle<SiStripLatency> apvlat = setup.getHandle(latencyToken_);
+    if (apvlat->singleReadOutMode() == 1) {
       mode = 1;  // peak mode
-    if (apvlat->singleReadOutMode() == 0)
+    } else if (apvlat->singleReadOutMode() == 0) {
       mode = -1;  // deco mode
+    }
 
     conditionsMap_[event.run()].first = mode;
     conditionsMap_[event.run()].second = B_;
 
     // geometry setup
-    edm::ESHandle<TrackerGeometry> geometry;
-    setup.get<TrackerDigiGeometryRecord>().get(geometry);
+    edm::ESHandle<TrackerGeometry> geometry = setup.getHandle(geomToken_);
     const TrackerGeometry *theGeometry = &(*geometry);
 
     GlobalPoint zeroPoint(0, 0, 0);
-    //edm::LogVerbatim("DMRChecker_v2") << "event#" << ievt << " Event ID = "<< event.id()
+    //edm::LogVerbatim("FastDMRChecker") << "event#" << ievt << " Event ID = "<< event.id()
     /// << " magnetic field: " << magneticField_->inTesla(zeroPoint) << std::endl ;
 
     const reco::TrackCollection tC = *(trackCollection.product());
@@ -539,10 +527,7 @@ private:
     runInfoMap_[event.run()].first += 1;
     runInfoMap_[event.run()].second += tC.size();
 
-    //edm::LogVerbatim("DMRChecker_v2") << "Reconstructed "<< tC.size() << " tracks" << std::endl ;
-    TLorentzVector mother(0., 0., 0., 0.);
-
-    //int iCounter=0;
+    //edm::LogVerbatim("FastDMRChecker") << "Reconstructed "<< tC.size() << " tracks" << std::endl ;
 
     edm::Handle<edm::TriggerResults> hltresults;
     event.getByToken(hltresultsToken, hltresults);
@@ -672,9 +657,9 @@ private:
             unsigned int subid = detId.subdetId();
             int detid_db = detId.rawId();
 
-            // not yet available for phase-I
-            // pmap->fill(detid_db,1);
-
+            if (!isPhase1_) {
+              pmap->fill(detid_db, 1);
+            }
             // float uOrientation(-999.F), vOrientation(-999.F);
             // LocalPoint lUDirection(1.,0.,0.), lVDirection(0.,1.,0.);
 
@@ -720,7 +705,7 @@ private:
                 hBPixResXPull->Fill(resErrX);
                 hBPixResYPull->Fill(resErrY);
 
-                //edm::LogVerbatim("DMRChecker_v2")<<"layer: "<<layer_num<<std::endl;
+                //edm::LogVerbatim("FastDMRChecker")<<"layer: "<<layer_num<<std::endl;
 
                 // update residuals X
                 this->updateOnlineMomenta(resDetailsBPixX_, detId.rawId(), uOrientation * resX * 10000., resErrX);
@@ -742,7 +727,7 @@ private:
 
                 int packedTopo = disk_num + 3 * (side_num - 1);
 
-                //edm::LogVerbatim("DMRChecker_v2")<<"side: "<< side_num <<" disk: " << disk_num << " packedTopo: " << packedTopo <<" GP.z(): "<<GP.z()<<std::endl;
+                //edm::LogVerbatim("FastDMRChecker")<<"side: "<< side_num <<" disk: " << disk_num << " packedTopo: " << packedTopo <<" GP.z(): "<<GP.z()<<std::endl;
 
                 hHitCountVsThetaFPix->Fill(GP.theta());
                 hHitCountVsPhiFPix->Fill(GP.phi());
@@ -811,7 +796,7 @@ private:
 
       hHit2D->Fill(nHit2D);
 
-      // edm::LogVerbatim("DMRChecker_v2") << "nHit2D: "<<nHit2D<<std::endl;
+      // edm::LogVerbatim("FastDMRChecker") << "nHit2D: "<<nHit2D<<std::endl;
 
       hHit->Fill(track->numberOfValidHits());
       hnhpxb->Fill(track->hitPattern().numberOfValidPixelBarrelHits());
@@ -861,7 +846,7 @@ private:
       hEta->Fill(track->eta());
       hPhi->Fill(track->phi());
 
-      //edm::LogVerbatim("DMRChecker_v2") << "nHit2D: "<<nHit2D<<std::endl;
+      //edm::LogVerbatim("FastDMRChecker") << "nHit2D: "<<nHit2D<<std::endl;
 
       if (fabs(track->eta()) < 0.8)
         hPhiBarrel->Fill(track->phi());
@@ -881,7 +866,7 @@ private:
       hvy->Fill(track->vy());
       hvz->Fill(track->vz());
 
-      //edm::LogVerbatim("DMRChecker_v2") << "nHit2D: "<<nHit2D<<std::endl;
+      //edm::LogVerbatim("FastDMRChecker") << "nHit2D: "<<nHit2D<<std::endl;
 
       // int myalgo=-88;
       // if(track->algo()==reco::TrackBase::undefAlgorithm)myalgo=0;
@@ -1038,7 +1023,7 @@ private:
       static const int normchi2kappa_2d = this->GetIndex(vTrack2DHistos_, "h2_normchi2_vs_kappa");
       vTrack2DHistos_[normchi2kappa_2d]->Fill(normchi2, kappa);
 
-      //edm::LogVerbatim("DMRChecker_v2") << "filling histos"<<std::endl;
+      //edm::LogVerbatim("FastDMRChecker") << "filling histos"<<std::endl;
 
       //dxy with respect to the beamspot
       reco::BeamSpot beamSpot;
@@ -1067,7 +1052,7 @@ private:
           if (abs(mindxy) > abs(track->dxy(mypoint))) {
             mindxy = track->dxy(mypoint);
             dz = track->dz(mypoint);
-            //edm::LogVerbatim("DMRChecker_v2")<<"dxy: "<<mindxy<<"dz: "<<dz<<std::endl;
+            //edm::LogVerbatim("FastDMRChecker")<<"dxy: "<<mindxy<<"dz: "<<dz<<std::endl;
           }
         }
 
@@ -1085,16 +1070,16 @@ private:
         hdzPV->Fill(100);
       }
 
-      // edm::LogVerbatim("DMRChecker_v2")<<"end of track loop"<<std::endl;
+      // edm::LogVerbatim("FastDMRChecker")<<"end of track loop"<<std::endl;
     }
 
-    // edm::LogVerbatim("DMRChecker_v2")<<"end of analysis"<<std::endl;
+    // edm::LogVerbatim("FastDMRChecker")<<"end of analysis"<<std::endl;
 
     hNtrk->Fill(tC.size());
     hNtrkZoom->Fill(tC.size());
     hNhighPurity->Fill(nHighPurityTracks);
 
-    // edm::LogVerbatim("DMRChecker_v2")<<"end of analysis"<<std::endl;
+    // edm::LogVerbatim("FastDMRChecker")<<"end of analysis"<<std::endl;
   }
 
   void beginJob() override {
@@ -1498,14 +1483,14 @@ private:
   }  //beginJob
 
   void endJob() override {
-    edm::LogPrint("DMRChecker_v2") << "*******************************" << std::endl;
-    edm::LogPrint("DMRChecker_v2") << "Events run in total: " << ievt << std::endl;
-    edm::LogPrint("DMRChecker_v2") << "n. tracks: " << itrks << std::endl;
-    edm::LogPrint("DMRChecker_v2") << "*******************************" << std::endl;
+    edm::LogPrint("FastDMRChecker") << "*******************************" << std::endl;
+    edm::LogPrint("FastDMRChecker") << "Events run in total: " << ievt << std::endl;
+    edm::LogPrint("FastDMRChecker") << "n. tracks: " << itrks << std::endl;
+    edm::LogPrint("FastDMRChecker") << "*******************************" << std::endl;
 
     Int_t nFiringTriggers = triggerMap_.size();
-    edm::LogPrint("DMRChecker_v2") << "firing triggers: " << nFiringTriggers << std::endl;
-    edm::LogPrint("DMRChecker_v2") << "*******************************" << std::endl;
+    edm::LogPrint("FastDMRChecker") << "firing triggers: " << nFiringTriggers << std::endl;
+    edm::LogPrint("FastDMRChecker") << "*******************************" << std::endl;
 
     tksByTrigger_ = fs->make<TH1D>(
         "tksByTrigger", "tracks by HLT path;;% of # traks", nFiringTriggers, -0.5, nFiringTriggers - 0.5);
@@ -1523,11 +1508,11 @@ private:
 
       std::cout.precision(4);
 
-      edm::LogPrint("DMRChecker_v2") << "HLT path: " << std::setw(60) << left << it->first
-                                     << " | events firing: " << right << std::setw(8) << (it->second).first << " ("
-                                     << setw(8) << fixed << evtpercent << "%)"
-                                     << " | tracks collected: " << std::setw(10) << (it->second).second << " ("
-                                     << setw(8) << fixed << trkpercent << "%)";
+      edm::LogPrint("FastDMRChecker") << "HLT path: " << std::setw(60) << left << it->first
+                                      << " | events firing: " << right << std::setw(8) << (it->second).first << " ("
+                                      << setw(8) << fixed << evtpercent << "%)"
+                                      << " | tracks collected: " << std::setw(10) << (it->second).second << " ("
+                                      << setw(8) << fixed << trkpercent << "%)";
 
       tksByTrigger_->SetBinContent(i, trkpercent);
       tksByTrigger_->GetXaxis()->SetBinLabel(i, (it->first).c_str());
@@ -1546,23 +1531,11 @@ private:
     sort(theRuns_.begin(), theRuns_.end());
     Int_t runRange = theRuns_[theRuns_.size() - 1] - theRuns_[0] + 1;
 
-    edm::LogPrint("DMRChecker_v2") << "*******************************" << std::endl;
-    edm::LogPrint("DMRChecker_v2") << "first run: " << theRuns_[0] << std::endl;
-    edm::LogPrint("DMRChecker_v2") << "last run:  " << theRuns_[theRuns_.size() - 1] << std::endl;
-    edm::LogPrint("DMRChecker_v2") << "considered runs: " << nRuns << std::endl;
-    edm::LogPrint("DMRChecker_v2") << "*******************************" << std::endl;
-
-    /*
-      // all runs on display
-      modeByRun_ = fs->make<TH1D>("modeByRun","Strip APV mode by run number;;APV mode (-1=deco,+1=peak)",runRange,theRuns_[0]-0.5,theRuns_[theRuns_.size()-1]+0.5);
-      fieldByRun_= fs->make<TH1D>("fieldByRun","CMS B-field intensity by run number;;B-field intensity [T]",runRange,theRuns_[0]-0.5,theRuns_[theRuns_.size()-1]+0.5);
-    
-      tracksByRun_ =  fs->make<TH1D>("tracksByRun","n. AlCaReco Tracks by run number;;n. of tracks",runRange,theRuns_[0]-0.5,theRuns_[theRuns_.size()-1]+0.5);
-      hitsByRun_   =  fs->make<TH1D>("histByRun","n. of hits by run number;;n. of hits",runRange,theRuns_[0]-0.5,theRuns_[theRuns_.size()-1]+0.5);
-      
-      hitsinBPixByRun_ =  fs->make<TH1D>("histinBPixByRun","n. of hits in BPix by run number;;n. of BPix hits",runRange,theRuns_[0]-0.5,theRuns_[theRuns_.size()-1]+0.5);
-      hitsinFPixByRun_ =  fs->make<TH1D>("histinFPixByRun","n. of hits in FPIx by run number;;n. of FPix hits",runRange,theRuns_[0]-0.5,theRuns_[theRuns_.size()-1]+0.5);
-    */
+    edm::LogPrint("FastDMRChecker") << "*******************************" << std::endl;
+    edm::LogPrint("FastDMRChecker") << "first run: " << theRuns_[0] << std::endl;
+    edm::LogPrint("FastDMRChecker") << "last run:  " << theRuns_[theRuns_.size() - 1] << std::endl;
+    edm::LogPrint("FastDMRChecker") << "considered runs: " << nRuns << std::endl;
+    edm::LogPrint("FastDMRChecker") << "*******************************" << std::endl;
 
     modeByRun_ = fs->make<TH1D>(
         "modeByRun", "Strip APV mode by run number;;APV mode (-1=deco,+1=peak)", nRuns, -0.5, nRuns - 0.5);
@@ -1589,15 +1562,15 @@ private:
         indexing++;
         double runTime = timeMap_.find(the_r)->second;
 
-        edm::LogPrint("DMRChecker_v2") << "run:" << the_r << " | isPeak: " << std::setw(4)
-                                       << conditionsMap_.find(the_r)->second.first
-                                       << "| B-field: " << conditionsMap_.find(the_r)->second.second << " [T]"
-                                       << "| events: " << setw(10) << runInfoMap_.find(the_r)->second.first
-                                       << "(rate: " << setw(10) << (runInfoMap_.find(the_r)->second.first) / runTime
-                                       << " ev/s)"
-                                       << ", tracks " << setw(10) << runInfoMap_.find(the_r)->second.second
-                                       << "(rate: " << setw(10) << (runInfoMap_.find(the_r)->second.second) / runTime
-                                       << " trk/s)" << std::endl;
+        edm::LogPrint("FastDMRChecker") << "run:" << the_r << " | isPeak: " << std::setw(4)
+                                        << conditionsMap_.find(the_r)->second.first
+                                        << "| B-field: " << conditionsMap_.find(the_r)->second.second << " [T]"
+                                        << "| events: " << setw(10) << runInfoMap_.find(the_r)->second.first
+                                        << "(rate: " << setw(10) << (runInfoMap_.find(the_r)->second.first) / runTime
+                                        << " ev/s)"
+                                        << ", tracks " << setw(10) << runInfoMap_.find(the_r)->second.second
+                                        << "(rate: " << setw(10) << (runInfoMap_.find(the_r)->second.second) / runTime
+                                        << " trk/s)" << std::endl;
 
         // int the_bin = modeByRun_->GetXaxis()->FindBin(the_r);
         modeByRun_->SetBinContent(indexing, conditionsMap_.find(the_r)->second.first);
@@ -1622,14 +1595,14 @@ private:
 
         constexpr const char *subdets[]{"BPix", "FPix", "TIB", "TID", "TOB", "TEC"};
 
-        edm::LogPrint("DMRChecker_v2") << "*******************************" << std::endl;
-        edm::LogPrint("DMRChecker_v2") << "Hits by Sub-det" << std::endl;
+        edm::LogPrint("FastDMRChecker") << "*******************************" << std::endl;
+        edm::LogPrint("FastDMRChecker") << "Hits by Sub-det" << std::endl;
         int si = 0;
         for (const auto &entry : runHitsMap_.find(the_r)->second) {
-          edm::LogPrint("DMRChecker_v2") << subdets[si] << " " << entry << std::endl;
+          edm::LogPrint("FastDMRChecker") << subdets[si] << " " << entry << std::endl;
           si++;
         }
-        edm::LogPrint("DMRChecker_v2") << "*******************************" << std::endl;
+        edm::LogPrint("FastDMRChecker") << "*******************************" << std::endl;
       }
 
       // modeByRun_->GetXaxis()->SetBinLabel(the_r-theRuns_[0]+1,(const char*)the_r);
@@ -1673,7 +1646,7 @@ private:
       pixelmap->fillBarrelBin("DMRsX", bpixid.first, bpixid.second.runningMeanOfRes_);
 
       //auto myLocalTopo = PixelDMRS_x_ByLayer->getTheTopo();
-      //edm::LogPrint("DMRChecker_v2") << myLocalTopo->print(bpixid.first) << std::endl;
+      //edm::LogPrint("FastDMRChecker") << myLocalTopo->print(bpixid.first) << std::endl;
 
       PixelDMRS_x_ByLayer->fill(bpixid.first, bpixid.second.runningMeanOfRes_);
 
@@ -1754,8 +1727,8 @@ private:
         DRnRTEC_->Fill(sqrt(tecid.second.runningNormVarOfRes_ / (tecid.second.hitCount - 1)));
     }
 
-    edm::LogPrint("DMRChecker_v2") << "n. of bpix modules " << resDetailsBPixX_.size() << std::endl;
-    edm::LogPrint("DMRChecker_v2") << "n. of fpix modules " << resDetailsFPixX_.size() << std::endl;
+    edm::LogPrint("FastDMRChecker") << "n. of bpix modules " << resDetailsBPixX_.size() << std::endl;
+    edm::LogPrint("FastDMRChecker") << "n. of fpix modules " << resDetailsFPixX_.size() << std::endl;
 
     pmap->save(true, 0, 0, "pixelmap.pdf", 600, 800);
     pmap->save(true, 0, 0, "pixelmap.png", 500, 750);
@@ -1954,7 +1927,7 @@ private:
         title_ =
             Form("%s (layer %i) track %s-%s;%s;hits", detType.Data(), i, resType.Data(), varType.Data(), xAxisTitle_);
 
-        //edm::LogPrint("DMRChecker_v2")<<"bookResidualsHistogram(): "<<i<<" layer:"<<i<<std::endl;
+        //edm::LogPrint("FastDMRChecker")<<"bookResidualsHistogram(): "<<i<<" layer:"<<i<<std::endl;
       }
 
       h[i] = dir.make<TH1D>(name_, title_, 100, limits.first, limits.second);
@@ -1969,7 +1942,7 @@ private:
   void fillByIndex(std::map<unsigned int, TH1D *> &h, unsigned int index, double x) {
     if (h.count(index) != 0) {
       //if(TString(h[index]->GetName()).Contains("BPix"))
-      //edm::LogPrint("DMRChecker_v2")<<"fillByIndex() index: "<< index << " filling histogram: "<< h[index]->GetName() << std::endl;
+      //edm::LogPrint("FastDMRChecker")<<"fillByIndex() index: "<< index << " filling histogram: "<< h[index]->GetName() << std::endl;
 
       double min = h[index]->GetXaxis()->GetXmin();
       double max = h[index]->GetXaxis()->GetXmax();
@@ -2011,7 +1984,7 @@ private:
 };
 
 //*************************************************************
-void DMRChecker_v2::fillDescriptions(edm::ConfigurationDescriptions &descriptions)
+void FastDMRChecker::fillDescriptions(edm::ConfigurationDescriptions &descriptions)
 //*************************************************************
 {
   edm::ParameterSetDescription desc;
@@ -2022,7 +1995,7 @@ void DMRChecker_v2::fillDescriptions(edm::ConfigurationDescriptions &description
   desc.add<edm::InputTag>("VerticesTag", edm::InputTag("offlinePrimaryVertices"));
   desc.add<bool>("isCosmics", false);
   desc.add<bool>("isPhase1", true);
-  descriptions.add("DMRChecker_v2", desc);
+  descriptions.add("FastDMRChecker", desc);
 }
 
-DEFINE_FWK_MODULE(DMRChecker_v2);
+DEFINE_FWK_MODULE(FastDMRChecker);
