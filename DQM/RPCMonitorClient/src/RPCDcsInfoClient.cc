@@ -34,7 +34,7 @@ void RPCDcsInfoClient::dqmEndJob(DQMStore::IBooker& ibooker, DQMStore::IGetter& 
 
     for (int ybin = 0; ybin < h2->GetNbinsY(); ++ybin) {
       if (strcmp(h2->GetYaxis()->GetBinLabel(ybin + 1), label_name) == 0)
-        rpc_num = ybin + 1;  
+        rpc_num = ybin + 1;
     }
 
     for (unsigned int nlumi = 0; nlumi < nlsmax; ++nlumi) {
@@ -43,7 +43,7 @@ void RPCDcsInfoClient::dqmEndJob(DQMStore::IBooker& ibooker, DQMStore::IGetter& 
         hvStatus = 1;  // set to 1 because HV was on (!)
       } else {
         hvStatus = 0;  // set to 0 because HV was off (!)
-      } 
+      }
       DCS[nlumi + 1] = hvStatus;
     }
   }
