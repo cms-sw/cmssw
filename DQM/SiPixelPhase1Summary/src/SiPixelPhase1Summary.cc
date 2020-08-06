@@ -46,7 +46,8 @@
 using namespace std;
 using namespace edm;
 
-SiPixelPhase1Summary::SiPixelPhase1Summary(const edm::ParameterSet& iConfig) : conf_(iConfig), firstLumi(true) {
+SiPixelPhase1Summary::SiPixelPhase1Summary(const edm::ParameterSet& iConfig)
+    : DQMEDHarvester(iConfig), conf_(iConfig), firstLumi(true) {
   LogInfo("PixelDQM") << "SiPixelPhase1Summary::SiPixelPhase1Summary: Got DQM BackEnd interface" << endl;
   topFolderName_ = conf_.getParameter<std::string>("TopFolderName");
   runOnEndLumi_ = conf_.getParameter<bool>("RunOnEndLumi");

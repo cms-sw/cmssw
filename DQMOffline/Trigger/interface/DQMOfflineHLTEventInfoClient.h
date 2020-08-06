@@ -41,9 +41,6 @@ protected:
   /// EndRun
   void endRun(const edm::Run& r, const edm::EventSetup& c) override;
 
-  /// Endjob
-  void endJob() override;
-
 private:
   void initialize();
   edm::ParameterSet parameters_;
