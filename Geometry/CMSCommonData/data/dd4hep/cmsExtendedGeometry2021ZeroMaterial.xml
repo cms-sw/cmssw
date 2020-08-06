@@ -4,8 +4,8 @@
   <close_geometry/>
 
   <IncludeSection>
-    <Include ref='Geometry/CMSCommonData/data/materials/2021/v1/materials.xml'/>
-    <Include ref='Geometry/TrackerCommonData/data/Run2/trackermaterial.xml'/>
+    <Include ref='Geometry/CMSCommonData/data/materials/2021ZeroMaterial/v1/materials.xml'/>
+    <Include ref='Geometry/TrackerCommonData/data/trackermaterial/2017ZeroMaterial/v1/trackermaterial.xml'/>
     <Include ref='Geometry/CMSCommonData/data/rotations.xml'/>
     <Include ref='Geometry/CMSCommonData/data/extend/v2/cmsextent.xml'/>
     <Include ref='Geometry/CMSCommonData/data/cavernData/2021/v1/cavernData.xml'/>
@@ -39,7 +39,7 @@
     <Include ref='Geometry/TrackerCommonData/data/PhaseI/pixfwdbladeInnerZminus.xml'/>
     <Include ref='Geometry/TrackerCommonData/data/PhaseI/pixfwdbladeOuterZplus.xml'/>
     <Include ref='Geometry/TrackerCommonData/data/PhaseI/pixfwdbladeOuterZminus.xml'/>
-    <Include ref='Geometry/TrackerCommonData/data/ixbarmaterial/2017ZeroMaterial/pixbarmaterial.xml'/>
+    <Include ref='Geometry/TrackerCommonData/data/pixbarmaterial/2017ZeroMaterial/v1/pixbarmaterial.xml'/>
     <Include ref='Geometry/TrackerCommonData/data/PhaseI/pixbarladder.xml'/>
     <Include ref='Geometry/TrackerCommonData/data/PhaseI/pixbarladderfull0.xml'/>
     <Include ref='Geometry/TrackerCommonData/data/PhaseI/pixbarladderfull1.xml'/>
