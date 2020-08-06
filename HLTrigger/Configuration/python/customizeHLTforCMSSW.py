@@ -211,8 +211,8 @@ def customiseFor31070(process):
     if hasattr(process,'RPCGeometryESModule'):
         process.RPCGeometryESModule = cms.ESProducer( "RPCGeometryESModule",
             appendToDataLabel = cms.string( "" ),
-            fromDDD = cms.bool( False ),
-            fromDD4hep = cms.bool( False ),
+            fromDDD = cms.untracked.bool( False ),
+            fromDD4hep = cms.untracked.bool( False ),
         )
 
     return process
