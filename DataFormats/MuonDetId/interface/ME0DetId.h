@@ -89,6 +89,7 @@ private:
   static const int RollStartBit_ = LayerStartBit_ + LayerNumBits_;
   static const unsigned int RollMask_ = 0X1F;
 
+public:
   static const uint32_t chamberIdMask_ = ~((LayerMask_ << LayerStartBit_) | (RollMask_ << RollStartBit_));
   static const uint32_t layerIdMask_ = ~(RollMask_ << RollStartBit_);
 
