@@ -8,8 +8,8 @@
 
 #include "FWCore/Framework/interface/EventSetupRecordImplementation.h"
 
-class L1TGlobalPrescalesVetosFractRcd : public edm::eventsetup::EventSetupRecordImplementation<L1TGlobalPrescalesVetosFractRcd> {
-};
+class L1TGlobalPrescalesVetosFractRcd
+    : public edm::eventsetup::EventSetupRecordImplementation<L1TGlobalPrescalesVetosFractRcd> {};
 
 // Dependent record implmentation:
 //#include "FWCore/Framework/interface/DependentRecordImplementation.h"
