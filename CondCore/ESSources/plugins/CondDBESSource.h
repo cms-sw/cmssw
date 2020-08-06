@@ -24,7 +24,7 @@
 //   base class.
 //
 //   2. CondDBESSource contains a single SerialTaskQueue. The tasks
-//   that run the prefetch function are placed this SerialTaskQueue.
+//   that run the prefetch function are placed in this SerialTaskQueue.
 //   This allows only one ::DataProxy::prefetch function to run at a
 //   time. All the ::DataProxy objects have a pointer to this SerialTaskQueue
 //   stored in their ESSourceDataProxyTemplate base class. Note that
