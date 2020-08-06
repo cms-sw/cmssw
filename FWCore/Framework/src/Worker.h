@@ -346,7 +346,6 @@ namespace edm {
     void prefetchAsync(
         WaitingTask*, ServiceToken const&, ParentContext const&, typename T::TransitionInfoType const&, Transition);
 
-    void prepareToPrefetch(WaitingTask*, ParentContext const&, Principal const&);
     void esPrefetchAsync(WaitingTask*, EventSetupImpl const&, Transition, ServiceToken const&);
     void edPrefetchAsync(WaitingTask*, ServiceToken const&, Principal const&) const;
 
@@ -913,9 +912,27 @@ namespace edm {
                              typename T::TransitionInfoType const& transitionInfo,
                              Transition iTransition) {
     Principal const& principal = transitionInfo.principal();
-    prepareToPrefetch(iTask, parentContext, principal);
+
+    moduleCallingContext_.setContext(ModuleCallingContext::State::kPrefetching, parentContext, nullptr);
+
+    if (principal.branchType() == InEvent) {
+      actReg_->preModuleEventPrefetchingSignal_.emit(*moduleCallingContext_.getStreamContext(), moduleCallingContext_);
+    }
+
+    //Need to be sure the ref count isn't set to 0 immediately
+    iTask->increment_ref_count();
+
     workerhelper::CallImpl<T>::esPrefetch(this, iTask, token, transitionInfo, iTransition);
     edPrefetchAsync(iTask, token, principal);
+
+    if (principal.branchType() == InEvent) {
+      preActionBeforeRunEventAsync(iTask, moduleCallingContext_, principal);
+    }
+
+    if (0 == iTask->decrement_ref_count()) {
+      //if everything finishes before we leave this routine, we need to launch the task
+      tbb::task::spawn(*iTask);
+    }
   }
 
   template <typename T>
