@@ -76,11 +76,7 @@ _tauVarsBase = cms.PSet(P4Vars,
        puCorr = Var( "tauID('puCorrPtSum')", float, doc = "pileup correction", precision=10),
        photonsOutsideSignalCone = Var( "tauID('photonPtSumOutsideSignalCone')", float, doc = "sum of photons outside signal cone", precision=10),
 
-       rawAntiEle = Var("tauID('againstElectronMVA6Raw')", float, doc= "Anti-electron MVA discriminator V6 raw output discriminator", precision=10),
-       rawAntiEleCat = Var("tauID('againstElectronMVA6category')", int, doc="Anti-electron MVA discriminator V6 category"),
-
        idAntiMu = _tauId2WPMask("againstMuon%s3", doc= "Anti-muon discriminator V3: "),
-       idAntiEle = _tauId5WPMask("againstElectron%sMVA6", doc= "Anti-electron MVA discriminator V6"),
        idAntiEleDeadECal = Var("tauID('againstElectronDeadECAL')", bool, doc = "Anti-electron dead-ECal discriminator"),
 
 #   isoCI3hit = Var(  "tauID("byCombinedIsolationDeltaBetaCorrRaw3Hits")" doc="byCombinedIsolationDeltaBetaCorrRaw3Hits raw output discriminator"),
@@ -112,10 +108,18 @@ _mvaIsoVars2017v2 = cms.PSet(
     idMVAoldDM2017v2 = _tauId7WPMask( "by%sIsolationMVArun2v1DBoldDMwLT2017v2", doc="IsolationMVArun2v1DBoldDMwLT ID working point (2017v2)"),
     idMVAoldDMdR032017v2 = _tauId7WPMask( "by%sIsolationMVArun2v1DBdR03oldDMwLT2017v2", doc="IsolationMVArun2v1DBoldDMdR0p3wLT ID working point (2017v2)")
 )
-_mvaAntiEVars2018 = cms.PSet(
+_mvaAntiEVars = cms.PSet(
        rawAntiEle2018 = Var("tauID('againstElectronMVA6Raw2018')", float, doc= "Anti-electron MVA discriminator V6 raw output discriminator (2018)", precision=10),
        rawAntiEleCat2018 = Var("tauID('againstElectronMVA6category2018')", int, doc="Anti-electron MVA discriminator V6 category (2018)"),
        idAntiEle2018 = _tauId5WPMask("againstElectron%sMVA62018", doc= "Anti-electron MVA discriminator V6 (2018)"),
+       rawAntiEle = Var("tauID('againstElectronMVA6Raw')", float, doc= "Anti-electron MVA discriminator V6 raw output discriminator (2015)", precision=10),
+       rawAntiEleCat = Var("tauID('againstElectronMVA6category')", int, doc="Anti-electron MVA discriminator V6 category (2015)"),
+       idAntiEle = _tauId5WPMask("againstElectron%sMVA6", doc= "Anti-electron MVA discriminator V6 (2015)"),
+)
+_mvaAntiEVars2015 = cms.PSet(
+       rawAntiEle = Var("tauID('againstElectronMVA6Raw')", float, doc= "Anti-electron MVA discriminator V6 raw output discriminator (2015)", precision=10),
+       rawAntiEleCat = Var("tauID('againstElectronMVA6category')", int, doc="Anti-electron MVA discriminator V6 category (2015)"),
+       idAntiEle = _tauId5WPMask("againstElectron%sMVA6", doc= "Anti-electron MVA discriminator V6 (2015)")
 )
 _deepTauVars2017v2 = cms.PSet(
     rawDeepTau2017v2VSe = Var("tauID('byDeepTau2017v2VSeraw')", float, doc="byDeepTau2017v2VSe raw output discriminator (deepTau2017v2)", precision=10),
@@ -136,7 +140,7 @@ _deepTauVars2017v2p1 = cms.PSet(
 
 _variablesMiniV2 = cms.PSet(
     _tauVarsBase,
-    _mvaAntiEVars2018,
+    _mvaAntiEVars,
     _mvaIsoVars2015Reduced,
     _mvaIsoVars2017v1,
     _mvaIsoVars2017v2,
@@ -149,6 +153,7 @@ _variablesMiniV1.idMVAoldDM = _tauId6WPMask( "by%sIsolationMVArun2v1DBoldDMwLT",
 _variablesMiniV1.idMVAoldDM2017v1 = _tauId7WPMask( "by%sIsolationMVArun2v1DBoldDMwLT2017v1", doc="IsolationMVArun2v1DBoldDMwLT ID working point (2017v1)")
 _variables80X =  cms.PSet(
     _tauVarsBase,
+    _mvaAntiEVars2015,
     _mvaIsoVars2015
 )
 
@@ -161,20 +166,18 @@ for era in [run2_nanoAOD_94XMiniAODv1,]:
 run2_miniAOD_80XLegacy.toModify(tauTable,
                                 variables = _variables80X
 )
+(~run2_miniAOD_devel).toModify(tauTable.variables,
+                               idAntiEleDeadECal = None
+)
 
-
-
-from Configuration.Eras.Modifier_run2_nanoAOD_92X_cff import run2_nanoAOD_92X
-from Configuration.Eras.Modifier_run2_nanoAOD_94XMiniAODv2_cff import run2_nanoAOD_94XMiniAODv2
-from Configuration.Eras.Modifier_run2_nanoAOD_94X2016_cff import run2_nanoAOD_94X2016
-from Configuration.Eras.Modifier_run2_nanoAOD_102Xv1_cff import run2_nanoAOD_102Xv1
-from Configuration.Eras.Modifier_run2_nanoAOD_106Xv1_cff import run2_nanoAOD_106Xv1
-for era in [run2_miniAOD_80XLegacy, run2_nanoAOD_92X, run2_nanoAOD_94XMiniAODv1, \
-            run2_nanoAOD_94XMiniAODv2, run2_nanoAOD_94X2016, run2_nanoAOD_102Xv1, \
-            run2_nanoAOD_106Xv1]:
-    era.toModify(tauTable.variables,
-                 idAntiEleDeadECal = None
-    )
+run2_miniAOD_devel.toModify(tauTable.variables,
+                            rawAntiEle2018 = Var("tauID('againstElectronMVA6Raw')", float, doc= "Anti-electron MVA discriminator V6 raw output discriminator (2018)", precision=10),
+                            rawAntiEleCat2018 = Var("tauID('againstElectronMVA6category')", int, doc="Anti-electron MVA discriminator V6 category (2018)"),
+                            idAntiEle2018 = _tauId5WPMask("againstElectron%sMVA6", doc= "Anti-electron MVA discriminator V6 (2018)"),
+                            rawAntiEle = Var("tauID('againstElectronMVA6Raw2015')", float, doc= "Anti-electron MVA discriminator V6 raw output discriminator (2015)", precision=10),
+                            rawAntiEleCat = Var("tauID('againstElectronMVA6category2015')", int, doc="Anti-electron MVA discriminator V6 category (2015"),
+                            idAntiEle = _tauId5WPMask("againstElectron%sMVA62015", doc= "Anti-electron MVA discriminator V6 (2015)")
+)
 
 tauGenJets.GenParticles = cms.InputTag("prunedGenParticles")
 tauGenJets.includeNeutrinos = cms.bool(False)
