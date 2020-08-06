@@ -311,6 +311,7 @@ namespace cond {
       FETCH_PAYLOAD_CASE(EcalCondObjectContainer<float>)
       FETCH_PAYLOAD_CASE(MagFieldConfig)
       FETCH_PAYLOAD_CASE(L1TGlobalPrescalesVetos)
+      FETCH_PAYLOAD_CASE(L1TGlobalPrescalesVetosFract)
 
       //
       if (payloadTypeName == "PhysicsTools::Calibration::Histogram3D<double,double,double,double>") {
