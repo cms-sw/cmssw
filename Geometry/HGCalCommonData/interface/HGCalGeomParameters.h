@@ -107,24 +107,24 @@ private:
                             HGCalParameters& php);
   void loadSpecParsHexagon(const HGCalParameters& php);
   void loadSpecParsHexagon8(HGCalParameters& php);
-  void loadSpecParsHexagon8(HGCalParameters& php, 
-			    const std::vector<int>& waferIndex, 
-			    const std::vector<int>& waferTypes, 
-			    const std::vector<int>& waferParts, 
-			    const std::vector<int>& waferOrien);
+  void loadSpecParsHexagon8(HGCalParameters& php,
+                            const std::vector<int>& waferIndex,
+                            const std::vector<int>& waferTypes,
+                            const std::vector<int>& waferParts,
+                            const std::vector<int>& waferOrien);
   void loadSpecParsTrapezoid(HGCalParameters& php);
-  void loadSpecParsTrapezoid(HGCalParameters& php, 
-			     const std::vector<int>& tileIndx,
-			     const std::vector<int>& tileType,
-			     const std::vector<int>& tileSiPM,
-			     const std::vector<int>& tileHEX1,
-			     const std::vector<int>& tileHEX2,
-			     const std::vector<int>& tileHEX3,
-			     const std::vector<int>& tileHEX4,
-			     const std::vector<double>& tileRMin,
-			     const std::vector<double>& tileRMax,
-			     const std::vector<int>& tileRingMin,
-			     const std::vector<int>& tileRingMax);
+  void loadSpecParsTrapezoid(HGCalParameters& php,
+                             const std::vector<int>& tileIndx,
+                             const std::vector<int>& tileType,
+                             const std::vector<int>& tileSiPM,
+                             const std::vector<int>& tileHEX1,
+                             const std::vector<int>& tileHEX2,
+                             const std::vector<int>& tileHEX3,
+                             const std::vector<int>& tileHEX4,
+                             const std::vector<double>& tileRMin,
+                             const std::vector<double>& tileRMax,
+                             const std::vector<int>& tileRingMin,
+                             const std::vector<int>& tileRingMax);
   std::vector<double> getDDDArray(const std::string& str, const DDsvalues_type& sv, const int nmin);
   std::pair<double, double> cellPosition(const std::vector<cellParameters>& wafers,
                                          std::vector<cellParameters>::const_iterator& itrf,
