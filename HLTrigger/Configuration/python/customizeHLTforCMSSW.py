@@ -209,7 +209,7 @@ def customiseFor31070(process):
         )
 
     if hasattr(process,'RPCGeometryESModule'):
-        process.CSCGeometryESModule = cms.ESProducer( "RPCGeometryESModule",
+        process.RPCGeometryESModule = cms.ESProducer( "RPCGeometryESModule",
             appendToDataLabel = cms.string( "" ),
             fromDDD = cms.bool( False ),
             fromDD4hep = cms.bool( False ),
