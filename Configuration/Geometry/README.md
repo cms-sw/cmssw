@@ -1,6 +1,34 @@
+# Run 3 Geometries
+
 The Run 3 geometry is automatically created using the script [generate2021Geometry.py](./scripts/generate2021Geometry.py).
 
-The Phase2 geometries are automatically created using the script [generate2026Geometry.py](./scripts/generate2026Geometry.py).
+Different versions of various subdetectors can be combined. The available versions are:
+
+Tracker:
+* T1: 2021 baseline
+* T2: as T1, but with zero material
+
+Calorimeters:
+* C1: 2021 baseline
+
+Muon system:
+* M1: 2021 baseline
+
+PPS:
+* P1: 2021 baseline
+
+The script also handles the common and forward elements of the geometry:
+* O1: 2021 baseline
+* O2: as O1, but with zero material
+* F1: 2021 baseline
+
+Several detector combinations have been generated:
+* 2021 = T1+C1+M1+P1+O1+F1
+* 2021ZeroMaterial = T2+C1+M1+P1+O2+F1
+
+# Phase 2 Geometries
+
+The Phase 2 geometries are automatically created using the script [generate2026Geometry.py](./scripts/generate2026Geometry.py).
 
 Different versions of various subdetectors can be combined. The available versions are:
 
