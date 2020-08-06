@@ -40,10 +40,11 @@ class MatrixRunner(object):
         noRun=(self.maxThreads==0)
         if noRun:
             print('Not running the wf, only creating cfgs and logs')
-            print('resetting to default number of threads')
             self.maxThreads=4
+            print('resetting to default number of process threads = %s' %  self.maxThreads)
 
-        print('Running in %s thread(s)' % self.maxThreads)
+        print('Running in %s process thread(s)' % self.maxThreads)
+        print('Running in %s thread(s) per process thread' % self.nThreads)
 
 
         for wf in self.workFlows:
