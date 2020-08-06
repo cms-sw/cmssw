@@ -35,7 +35,7 @@ commonDict = {
     "O2" : {
         1 : [
             'Geometry/CMSCommonData/data/materials/2021ZeroMaterial/v1/materials.xml',
-            'Geometry/TrackerCommonData/data/2017ZeroMaterial/v1/trackermaterial.xml',
+            'Geometry/TrackerCommonData/data/trackermaterial/2017ZeroMaterial/v1/trackermaterial.xml',
             'Geometry/CMSCommonData/data/rotations.xml',
             'Geometry/CMSCommonData/data/extend/v2/cmsextent.xml',
             'Geometry/CMSCommonData/data/cavernData/2021/v1/cavernData.xml',
@@ -83,7 +83,7 @@ trackerDict = {
             'Geometry/TrackerCommonData/data/PhaseI/pixfwdbladeInnerZminus.xml',
             'Geometry/TrackerCommonData/data/PhaseI/pixfwdbladeOuterZplus.xml',
             'Geometry/TrackerCommonData/data/PhaseI/pixfwdbladeOuterZminus.xml',
-            'Geometry/TrackerCommonData/data/ixbarmaterial/2017ZeroMaterial/pixbarmaterial.xml', 
+            'Geometry/TrackerCommonData/data/pixbarmaterial/2017ZeroMaterial/v1/pixbarmaterial.xml', 
             'Geometry/TrackerCommonData/data/PhaseI/pixbarladder.xml', 
             'Geometry/TrackerCommonData/data/PhaseI/pixbarladderfull0.xml', 
             'Geometry/TrackerCommonData/data/PhaseI/pixbarladderfull1.xml', 
