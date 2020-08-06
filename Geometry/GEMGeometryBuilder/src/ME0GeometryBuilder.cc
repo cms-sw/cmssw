@@ -164,7 +164,7 @@ ME0Geometry* ME0GeometryBuilder::buildGeometry(DDFilteredView& fv, const MuonGeo
 
 #ifdef EDM_ML_DEBUG
     edm::LogVerbatim("ME0Geometry") << "MuonGeometry 1 " << fv.geoHistory() << " Levels "
-                                 << mdddnum.geoHistoryToBaseNumber(fv.geoHistory()).getLevels();
+                                    << mdddnum.geoHistoryToBaseNumber(fv.geoHistory()).getLevels();
 #endif
     int rawId = me0Num.baseNumberToUnitNumber(mdddnum.geoHistoryToBaseNumber(fv.geoHistory()));
     ME0DetId detId = ME0DetId(rawId);
@@ -174,7 +174,7 @@ ME0Geometry* ME0GeometryBuilder::buildGeometry(DDFilteredView& fv, const MuonGeo
     fv.parent();
 #ifdef EDM_ML_DEBUG
     edm::LogVerbatim("ME0Geometry") << "MuonGeometry 2 " << fv.geoHistory() << " Levels "
-                                 << mdddnum.geoHistoryToBaseNumber(fv.geoHistory()).getLevels();
+                                    << mdddnum.geoHistoryToBaseNumber(fv.geoHistory()).getLevels();
 #endif
     // build chamber
     ME0Chamber* me0Chamber = buildChamber(fv, detIdCh);
@@ -192,7 +192,7 @@ ME0Geometry* ME0GeometryBuilder::buildGeometry(DDFilteredView& fv, const MuonGeo
       fv.parent();
 #ifdef EDM_ML_DEBUG
       edm::LogVerbatim("ME0Geometry") << "MuonGeometry 3 " << fv.geoHistory() << " Levels "
-                                   << mdddnum.geoHistoryToBaseNumber(fv.geoHistory()).getLevels();
+                                      << mdddnum.geoHistoryToBaseNumber(fv.geoHistory()).getLevels();
 #endif
       // build layer
       ME0Layer* me0Layer = buildLayer(fv, detIdLa);
@@ -206,7 +206,7 @@ ME0Geometry* ME0GeometryBuilder::buildGeometry(DDFilteredView& fv, const MuonGeo
         // pick up DetId
 #ifdef EDM_ML_DEBUG
         edm::LogVerbatim("ME0Geometry") << "MuonGeometry 4 " << fv.geoHistory() << " Levels "
-                                     << mdddnum.geoHistoryToBaseNumber(fv.geoHistory()).getLevels();
+                                        << mdddnum.geoHistoryToBaseNumber(fv.geoHistory()).getLevels();
 #endif
         int rawId = me0Num.baseNumberToUnitNumber(mdddnum.geoHistoryToBaseNumber(fv.geoHistory()));
         ME0DetId detId = ME0DetId(rawId);
@@ -390,13 +390,14 @@ ME0Geometry* ME0GeometryBuilder::buildGeometry(cms::DDFilteredView& fv, const Mu
     ME0DetId detId(me0Num.baseNumberToUnitNumber(num));
 #ifdef EDM_ML_DEBUG
     edm::LogVerbatim("ME0Geometry") << fv.name() << " with " << history.tags.size() << " Levels and ID " << detId
-                                 << " Mask " << std::hex << chamberIdMask << ":" << layerIdMask << std::dec << " and "
-                                 << ME0DetId(((detId.rawId()) & chamberIdMask)) << ":"
-                                 << ME0DetId(((detId.rawId()) & layerIdMask)) << " Sector Level "
-                                 << ":" << theSectorLevel << ":" << history.tags.size() << ":" << fv.copyNos().size();
+                                    << " Mask " << std::hex << chamberIdMask << ":" << layerIdMask << std::dec
+                                    << " and " << ME0DetId(((detId.rawId()) & chamberIdMask)) << ":"
+                                    << ME0DetId(((detId.rawId()) & layerIdMask)) << " Sector Level "
+                                    << ":" << theSectorLevel << ":" << history.tags.size() << ":"
+                                    << fv.copyNos().size();
     for (unsigned int k = 0; k < history.tags.size(); ++k)
       edm::LogVerbatim("ME0Geometry") << "[" << k << "] Tag " << history.tags[k] << " Offset " << history.offsets[k]
-                                   << " copy " << history.copyNos[k];
+                                      << " copy " << history.copyNos[k];
 #endif
 
     if (fv.copyNos().size() == levelChamber) {
