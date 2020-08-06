@@ -12,23 +12,21 @@ using namespace std;
 
 namespace {
 
-  pair<DiskSectorBounds*, GlobalVector> computeBounds(const vector<const GeomDet*>& dets, const Plane& plane) {
-    Surface::PositionType tmpPos = dets.front()->surface().position();
+  pair<DiskSectorBounds*, GlobalVector> computeBounds(const vector<const GeomDet*>& dets) {
+    // go over all corners and compute maximum deviations
+    float rmin(dets.front()->surface().position().perp());
+    float rmax(rmin);
+    float zmin(dets.front()->surface().position().z());
+    float zmax(zmin);
+    float phimin(dets.front()->surface().position().phi());
+    float phimax(phimin);
 
-    float rmin(plane.toLocal(tmpPos).perp());
-    float rmax(plane.toLocal(tmpPos).perp());
-    float zmin(plane.toLocal(tmpPos).z());
-    float zmax(plane.toLocal(tmpPos).z());
-    float phimin(plane.toLocal(tmpPos).phi());
-    float phimax(plane.toLocal(tmpPos).phi());
-
-    for (vector<const GeomDet*>::const_iterator it = dets.begin(); it != dets.end(); it++) {
-      vector<GlobalPoint> corners = BoundingBox().corners((*it)->specificSurface());
-
-      for (vector<GlobalPoint>::const_iterator i = corners.begin(); i != corners.end(); i++) {
-        float r = plane.toLocal(*i).perp();
-        float z = plane.toLocal(*i).z();
-        float phi = plane.toLocal(*i).phi();
+    for (auto const& idet : dets) {
+      vector<GlobalPoint> corners = BoundingBox().corners(idet->specificSurface());
+      for (auto const& i : corners) {
+        float r = i.perp();
+        float z = i.z();
+        float phi = i.phi();
         rmin = min(rmin, r);
         rmax = max(rmax, r);
         zmin = min(zmin, z);
@@ -38,14 +36,6 @@ namespace {
         if (Geom::phiLess(phimax, phi))
           phimax = phi;
       }
-      // in addition to the corners we have to check the middle of the
-      // det +/- length/2, since the min (max) radius for typical fw
-      // dets is reached there
-
-      float rdet = (*it)->position().perp();
-      float height = (*it)->surface().bounds().width();
-      rmin = min(rmin, rdet - height / 2.F);
-      rmax = max(rmax, rdet + height / 2.F);
     }
 
     if (!Geom::phiLess(phimin, phimax))
@@ -60,58 +50,28 @@ namespace {
         edm::LogError("MTDDetLayers") << " something strange going on, please check " << phimin << " " << phimax << " "
                                       << phiWin;
       }
-      //edm::LogInfo(MTDDetLayers) << " Wedge at pi: phi " << phimin << " " << phimax << " " << phiWin
-      //	 << " " << 2.*Geom::pi()+phiWin << " " ;
       phiWin += 2. * Geom::pi();
       phiPos += Geom::pi();
     }
 
-    LocalVector localPos(rmed * cos(phiPos), rmed * sin(phiPos), zPos);
+    GlobalVector pos(rmed * cos(phiPos), rmed * sin(phiPos), zPos);
 
-#ifdef EDM_ML_DEBUG
-    LogDebug("MTDDetLayers") << "localPos in computeBounds: " << std::fixed << std::setw(14) << localPos << "\n"
-                             << "rmin:   " << std::setw(14) << rmin << "\n"
-                             << "rmax:   " << std::setw(14) << rmax << "\n"
-                             << "zmin:   " << std::setw(14) << zmin << "\n"
-                             << "zmax:   " << std::setw(14) << zmax << "\n"
-                             << "phiWin: " << std::setw(14) << phiWin;
+    LogDebug("MTDDetLayers") << "MTDDiskSectorBuilderFromDet::computeBounds sector at: " << std::fixed << pos << "\n"
+                             << "zmin    : " << std::setw(14) << zmin << "\n"
+                             << "zmax    : " << std::setw(14) << zmax << "\n"
+                             << "rmin    : " << std::setw(14) << rmin << "\n"
+                             << "rmax    : " << std::setw(14) << rmax << "\n"
+                             << "phi ref : " << std::setw(14) << phiPos << "\n"
+                             << "phi win : " << std::setw(14) << phiWin;
 
-    LocalVector lX(1, 0, 0);
-    LocalVector lY(0, 1, 0);
-    LocalVector lZ(0, 0, 1);
-    LogDebug("MTDDetLayers") << "Local versors transformations: \n"
-                             << std::fixed << "x = " << std::setw(14) << plane.toGlobal(lX) << "\n"
-                             << "y = " << std::setw(14) << plane.toGlobal(lY) << "\n"
-                             << "z = " << std::setw(14) << plane.toGlobal(lZ);
-#endif
-
-    return make_pair(new DiskSectorBounds(rmin, rmax, zmin, zmax, phiWin), plane.toGlobal(localPos));
+    return make_pair(new DiskSectorBounds(rmin, rmax, zmin - zPos, zmax - zPos, phiWin), pos);
   }
 
-  Surface::RotationType computeRotation(const vector<const GeomDet*>& dets, const Surface::PositionType& meanPos) {
-    const Plane& plane = dets.front()->surface();
+  Surface::RotationType computeRotation(const vector<const GeomDet*>& dets, const Surface::PositionType pos) {
+    GlobalVector yAxis = (GlobalVector(pos.x(), pos.y(), 0.)).unit();
 
-    GlobalVector xAxis;
-    GlobalVector yAxis;
-    GlobalVector zAxis;
-
-    GlobalVector planeXAxis = plane.toGlobal(LocalVector(1, 0, 0));
-    const GlobalPoint& planePosition = plane.position();
-
-    if (planePosition.x() * planeXAxis.x() + planePosition.y() * planeXAxis.y() > 0.) {
-      yAxis = planeXAxis;
-    } else {
-      yAxis = -planeXAxis;
-    }
-
-    GlobalVector planeZAxis = plane.toGlobal(LocalVector(0, 0, 1));
-    if (planeZAxis.z() * planePosition.z() > 0.) {
-      zAxis = planeZAxis;
-    } else {
-      zAxis = -planeZAxis;
-    }
-
-    xAxis = yAxis.cross(zAxis);
+    GlobalVector zAxis(0., 0., 1.);
+    GlobalVector xAxis = yAxis.cross(zAxis);
 
     return Surface::RotationType(xAxis, yAxis);
   }
@@ -119,20 +79,19 @@ namespace {
 }  // namespace
 
 BoundDiskSector* MTDDiskSectorBuilderFromDet::operator()(const vector<const GeomDet*>& dets) const {
-  // find mean position
-  typedef Surface::PositionType::BasicVectorType Vector;
-  Vector posSum(0, 0, 0);
+  // check that the dets are all at about the same z
+  float zcheck = dets.front()->surface().position().z();
   for (vector<const GeomDet*>::const_iterator i = dets.begin(); i != dets.end(); i++) {
-    posSum += (**i).surface().position().basicVector();
+    float zdiff = zcheck - (**i).surface().position().z();
+    if (std::abs(zdiff) > 0.5)  // distance between modules on opposite faces of disk is about 1 cm
+      edm::LogError("MTDDetLayers")
+          << " MTDDiskSectorBuilderFromDet: Trying to build sector from Dets at different z positions !! Delta_z = "
+          << zdiff;
   }
-  Surface::PositionType meanPos(0., 0., posSum.z() / float(dets.size()));
 
-  // temporary plane - for the computation of bounds
-  Surface::RotationType rotation = computeRotation(dets, meanPos);
-  Plane tmpPlane(meanPos, rotation);
+  auto bo = computeBounds(dets);
 
-  auto bo = computeBounds(dets, tmpPlane);
-  GlobalPoint pos = meanPos + bo.second;
-  LogDebug("MTDDetLayers") << "global pos in operator: " << std::fixed << std::setw(14) << pos;
-  return new BoundDiskSector(pos, rotation, bo.first);
+  Surface::PositionType pos(bo.second.x(), bo.second.y(), bo.second.z());
+  Surface::RotationType rot = computeRotation(dets, pos);
+  return new BoundDiskSector(pos, rot, bo.first);
 }
