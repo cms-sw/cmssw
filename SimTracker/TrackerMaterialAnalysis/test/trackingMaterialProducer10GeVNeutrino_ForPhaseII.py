@@ -1,15 +1,11 @@
 #!/usr/bin/env cmsRun
 
-# cmsRun trackingMaterialProducer.py nEvents=1000
+# cmsRun trackingMaterialProducer.py nEvents=1000 fromDB=False
 
 import FWCore.ParameterSet.Config as cms
 from FWCore.ParameterSet.VarParsing import VarParsing
 
 process = cms.Process("Geometry")
-
-readGeometryFromDB = False
-
-process.load('Configuration.Geometry.GeometryExtended2026D49_cff')
 
 process.load('FWCore.MessageService.MessageLogger_cfi')
 process.MessageLogger.destinations.extend(["debugTrackingMaterialProducer"])
@@ -42,7 +38,21 @@ options.register('nEvents',
                  "Maximum number of events"
 )
 
+options.register('fromDB',
+                 False,
+                 VarParsing.multiplicity.singleton,
+                 VarParsing.varType.bool,
+                 "Read from Geometry DB?",
+)
+
 options.parseArguments()
+
+if options.fromDB :
+   process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_condDBv2_cff")
+   from Configuration.AlCa.GlobalTag_condDBv2 import GlobalTag
+   process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase2_realistic', '')
+else:
+   process.load('Configuration.Geometry.GeometryExtended2026D49_cff')
 
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(options.nEvents)

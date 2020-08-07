@@ -1,10 +1,27 @@
 #! /usr/bin/env cmsRun
+# cmsRun listIds_PhaseII.py fromDB=False
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("MaterialAnalyser")
 
-process.load('Configuration.Geometry.GeometryExtended2026D49Reco_cff')
+options = VarParsing('analysis')
+
+options.register('fromDB',
+                 False,
+                 VarParsing.multiplicity.singleton,
+                 VarParsing.varType.bool,
+                 'Read Geometry from DB?',
+)
+
+options.parseArguments()
+
+if options.fromDB :
+   process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
+   from Configuration.AlCa.GlobalTag import GlobalTag
+   process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase2_realistic', '')
+else:
+   process.load('Configuration.Geometry.GeometryExtended2026D49_cff')
 
 process.load('FWCore.MessageService.MessageLogger_cfi')
 
