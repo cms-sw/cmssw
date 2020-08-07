@@ -325,7 +325,10 @@ void GEMGeometryBuilder::build(GEMGeometry& theGeometry,
     MuonBaseNumber num(mdddnum.geoHistoryToBaseNumber(history));
     GEMDetId detId(gemNum.baseNumberToUnitNumber(num));
 #ifdef EDM_ML_DEBUG
-    edm::LogVerbatim("Geometry") << fv.name() << " with " << history.tags.size() << " Levels and ID " << detId << " Mask " << std::hex << GEMDetId::chamberIdMask << std::dec << " and " << GEMDetId(((detId.rawId()) & GEMDetId::chamberIdMask)) << " Levels " << theRingLevel << ":" << theSectorLevel << ":" << history.tags.size() << ":" << fv.copyNos().size();
+    edm::LogVerbatim("Geometry") << fv.name() << " with " << history.tags.size() << " Levels and ID " << detId
+                                 << " Mask " << std::hex << GEMDetId::chamberIdMask << std::dec << " and "
+                                 << GEMDetId(((detId.rawId()) & GEMDetId::chamberIdMask)) << " Levels " << theRingLevel
+                                 << ":" << theSectorLevel << ":" << history.tags.size() << ":" << fv.copyNos().size();
     for (unsigned int k = 0; k < history.tags.size(); ++k)
       edm::LogVerbatim("Geometry") << "[" << k << "] Tag " << history.tags[k] << " Offset " << history.offsets[k]
                                    << " copy " << history.copyNos[k];
