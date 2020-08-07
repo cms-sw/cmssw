@@ -34,7 +34,6 @@ ZSPJPTJetCorrector::ZSPJPTJetCorrector(const edm::ParameterSet& fConfig) {
     edm::FileInPath f1(file);
     mSimpleCorrector.push_back(new SimpleZSPJPTJetCorrector(f1.fullPath()));
   }
-  //   cout<<" Size of correctors "<<mSimpleCorrector.size()<<" "<<mSimpleCorrectorOffset.size()<<endl;
 }
 
 ZSPJPTJetCorrector::~ZSPJPTJetCorrector() {}
@@ -45,9 +44,6 @@ double ZSPJPTJetCorrector::correction(const reco::Jet& fJet,
   double b = 1.;
   int nPU = 0;
   if (iPU > 0) {
-    // Look for the Lumi section
-    //     LuminosityBlock lbID = iEvent.getLuminosityBlock();
-    //       cout<<" Not implemented yet "<<iEvent.run()<<endl;
     nPU = setPU();
   } else {
     if (iPU == 0)

@@ -23,8 +23,6 @@ SimpleZSPJPTJetCorrector::SimpleZSPJPTJetCorrector(const std::string& fDataFile)
   debug_ = false;
   mParameters = new JetCorrectorParameters(fDataFile, "");
 
-  //std::cout<<" Formula "<<((mParameters->definitions()).formula()).c_str()<<std::endl;
-
   mFunc = new TFormula("function", ((mParameters->definitions()).formula()).c_str());
 
   // Read parameters
