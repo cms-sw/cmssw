@@ -5,4 +5,4 @@
 #include "CUDADataFormats/BeamSpot/interface/BeamSpotCUDA.h"
 #include "DataFormats/Common/interface/Wrapper.h"
 
-#endif
+#endif  // CUDADataFormats_BeamSpot_classes_h
