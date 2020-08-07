@@ -33,7 +33,8 @@ namespace fwlite {
 
       edm::WrapperBase const* getIt(edm::ProductID const& iID) const override { return event_->getByProductID(iID); }
 
-      edm::WrapperBase const* getThinnedProduct(edm::ProductID const& pid, unsigned int& key) const override {
+      std::optional<std::tuple<edm::WrapperBase const*, unsigned int>> getThinnedProduct(
+          edm::ProductID const& pid, unsigned int key) const override {
         return event_->getThinnedProduct(pid, key);
       }
 
@@ -319,11 +320,12 @@ namespace fwlite {
     return edp;
   }
 
-  edm::WrapperBase const* MultiChainEvent::getThinnedProduct(edm::ProductID const& pid, unsigned int& key) const {
+  std::optional<std::tuple<edm::WrapperBase const*, unsigned int>> MultiChainEvent::getThinnedProduct(
+      edm::ProductID const& pid, unsigned int key) const {
     // First try the first file
-    edm::WrapperBase const* edp = event1_->getThinnedProduct(pid, key);
+    auto edp = event1_->getThinnedProduct(pid, key);
     // Did not find the product, try secondary file
-    if (edp == nullptr) {
+    if (not edp.has_value()) {
       (const_cast<MultiChainEvent*>(this))->toSec(event1_->id());
       edp = event2_->getThinnedProduct(pid, key);
     }
