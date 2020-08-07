@@ -1780,8 +1780,8 @@ void HGCalGeomParameters::loadCellTrapezoid(HGCalParameters& php) {
       php.radiusLayer_[k].emplace_back(rv);
 #ifdef EDM_ML_DEBUG
       double eta = -(std::log(std::tan(0.5 * std::atan(rv / zv))));
-      edm::LogVerbatim("HGCalGeom") << "Old [" << k << "] rmax " << rmax << " Z = " << zv << " dEta = " << php.cellSize_[k]
-                                    << "\nOld[0] new R = " << rv << " Eta = " << eta;
+      edm::LogVerbatim("HGCalGeom") << "Old [" << k << "] rmax " << rmax << " Z = " << zv
+                                    << " dEta = " << php.cellSize_[k] << "\nOld[0] new R = " << rv << " Eta = " << eta;
       int kount(1);
 #endif
       while (rv < rmax) {
