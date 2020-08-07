@@ -3,9 +3,9 @@
 
  Description: GEM Geometry builder from DD and DD4HEP
               DD4hep part added to the original old file (DD version) made by M. Maggi (INFN Bari)
-//
-// Author:  Sergio Lo Meo (sergio.lo.meo@cern.ch) following what Ianna Osburne made for DTs (DD4HEP migration)
-//          Created:  27 Jan 2020 
+              Sergio Lo Meo (sergio.lo.meo@cern.ch) following what Ianna Osburne made for DTs (DD4HEP migration)
+              Updated by Sunanda Banerjee (Fermilab) to make it working for dd4hep
+              Updated:  7 August 2020 
 */
 #include "Geometry/GEMGeometryBuilder/src/GEMGeometryBuilder.h"
 #include "Geometry/GEMGeometry/interface/GEMGeometry.h"
@@ -62,6 +62,9 @@ void GEMGeometryBuilder::build(GEMGeometry& theGeometry,
 #endif
   bool doSuper = fv.firstChild();
 
+  MuonGeometryNumbering mdddnum(muonConstants);
+  GEMNumberingScheme gemNum(muonConstants);
+
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("Geometry") << "doSuperChamber = " << doSuper << " with " << fv.geoHistory() << " Levels "
                                << mdddnum.geoHistoryToBaseNumber(fv.geoHistory()).getLevels();
@@ -69,9 +72,6 @@ void GEMGeometryBuilder::build(GEMGeometry& theGeometry,
 #endif
   // loop over superchambers
   std::vector<GEMSuperChamber*> superChambers;
-
-  MuonGeometryNumbering mdddnum(muonConstants);
-  GEMNumberingScheme gemNum(muonConstants);
   while (doSuper) {
     // getting chamber id from eta partitions
     fv.firstChild();
@@ -312,7 +312,6 @@ void GEMGeometryBuilder::build(GEMGeometry& theGeometry,
 
   MuonGeometryNumbering mdddnum(muonConstants);
   GEMNumberingScheme gemNum(muonConstants);
-  static constexpr uint32_t chamberIdMask = ~(31 << 19);
   static constexpr uint32_t levelChamb = 7;
   int chamb(0), region(0);
   int theLevelPart = muonConstants.getValue("level");
@@ -326,10 +325,7 @@ void GEMGeometryBuilder::build(GEMGeometry& theGeometry,
     MuonBaseNumber num(mdddnum.geoHistoryToBaseNumber(history));
     GEMDetId detId(gemNum.baseNumberToUnitNumber(num));
 #ifdef EDM_ML_DEBUG
-    edm::LogVerbatim("Geometry") << fv.name() << " with " << history.tags.size() << " Levels and ID " << detId
-                                 << " Mask " << std::hex << chamberIdMask << ":" << chamberIdMask1 << std::dec
-                                 << " and " << GEMDetId(((detId.rawId()) & chamberIdMask)) << " Levels " << theRingLevel
-                                 << ":" << theSectorLevel << ":" << history.tags.size() << ":" << fv.copyNos().size();
+    edm::LogVerbatim("Geometry") << fv.name() << " with " << history.tags.size() << " Levels and ID " << detId << " Mask " << std::hex << GEMDetId::chamberIdMask << std::dec << " and " << GEMDetId(((detId.rawId()) & GEMDetId::chamberIdMask)) << " Levels " << theRingLevel << ":" << theSectorLevel << ":" << history.tags.size() << ":" << fv.copyNos().size();
     for (unsigned int k = 0; k < history.tags.size(); ++k)
       edm::LogVerbatim("Geometry") << "[" << k << "] Tag " << history.tags[k] << " Offset " << history.offsets[k]
                                    << " copy " << history.copyNos[k];
@@ -369,9 +365,9 @@ void GEMGeometryBuilder::build(GEMGeometry& theGeometry,
 
   auto& partitions = theGeometry.etaPartitions();
   for (auto& gemChamber : chambers) {
-    uint32_t id0 = ((gemChamber->id().rawId()) & chamberIdMask);
+    uint32_t id0 = ((gemChamber->id().rawId()) & GEMDetId::chamberIdMask);
     for (auto& etaPart : partitions) {
-      if (((etaPart->id().rawId()) & chamberIdMask) == id0) {
+      if (((etaPart->id().rawId()) & GEMDetId::chamberIdMask) == id0) {
         gemChamber->add(etaPart);
       }
     }
