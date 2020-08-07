@@ -128,11 +128,22 @@ void TiclDebugger::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
     // Sort edges in ascending order
     std::vector<int> sorted_edges_idx(trackster.edges().size());
     iota(begin(sorted_edges_idx), end(sorted_edges_idx), 0);
-    sort(begin(sorted_edges_idx), end(sorted_edges_idx), [&trackster](int i, int j) {
-        if (trackster.edges()[i][0] != trackster.edges()[j][0])
-          return trackster.edges()[i][0] < trackster.edges()[j][0];
+    sort(begin(sorted_edges_idx), end(sorted_edges_idx), [&](int i, int j) {
+        int layers = rhtools_.lastLayer();
+        auto const & ed_i = trackster.edges()[i];
+        auto const & ed_j = trackster.edges()[j];
+        auto const & cl_i_in = layerClusters[ed_i[0]].hitsAndFractions()[0].first;
+        auto const & cl_i_out = layerClusters[ed_i[1]].hitsAndFractions()[0].first;
+        auto const & cl_j_in = layerClusters[ed_j[0]].hitsAndFractions()[0].first;
+        auto const & cl_j_out = layerClusters[ed_j[1]].hitsAndFractions()[0].first;
+        auto const layer_i_in = rhtools_.getLayerWithOffset(cl_i_in) + layers * ((rhtools_.zside(cl_i_in) + 1) >> 1) - 1;
+        auto const layer_i_out = rhtools_.getLayerWithOffset(cl_i_out) + layers * ((rhtools_.zside(cl_i_out) + 1) >> 1) - 1;
+        auto const layer_j_in = rhtools_.getLayerWithOffset(cl_j_in) + layers * ((rhtools_.zside(cl_j_in) + 1) >> 1) - 1;
+        auto const layer_j_out = rhtools_.getLayerWithOffset(cl_j_out) + layers * ((rhtools_.zside(cl_j_out) + 1) >> 1) - 1;
+        if (layer_i_in != layer_j_in)
+          return layer_i_in < layer_j_in;
         else
-          return trackster.edges()[i][1] < trackster.edges()[j][1];
+          return layer_i_out < layer_j_out;
     });
 
     std::cout << "\nTrksIdx: " << t << "\n bary: " << trackster.barycenter()
@@ -144,7 +155,7 @@ void TiclDebugger::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
       std::cout << "(" << particle_kind[p_idx] << "):" << probs[p_idx] << " ";
     }
     std::cout << "\n time: " << trackster.time() << "+/-" << trackster.timeError() << std::endl
-              << " cells: " << trackster.vertices().size() << " average usage: "
+              << " vertices: " << trackster.vertices().size() << " average usage: "
               << std::accumulate(
                      std::begin(trackster.vertex_multiplicity()), std::end(trackster.vertex_multiplicity()), 0.) /
                      trackster.vertex_multiplicity().size()
