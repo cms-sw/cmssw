@@ -15,7 +15,7 @@ HTAGS=""
 
 for i in $FILES
 do
-  HTAGS+="<hr/>$i<hr/><br/><img src=$i/><br/>"
+  HTAGS+="<hr/>$i<hr/><br/><img src=\"$i\"/><br/>"
 done
 
 echo $HTAGS>index.html
