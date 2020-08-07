@@ -68,6 +68,7 @@
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 #include "TrackingTools/PatternTools/interface/Trajectory.h"
 #include "TrackingTools/TrackFitters/interface/TrajectoryStateCombiner.h"
+#include "DataFormats/TrackReco/interface/TrackBase.h"
 
 // ## ROOT includes
 
@@ -99,6 +100,7 @@ using namespace edm;
 
 const int kBPIX = PixelSubdetector::PixelBarrel;
 const int kFPIX = PixelSubdetector::PixelEndcap;
+const float cmToUm = 10000.;
 
 namespace running {
   struct Estimators {
@@ -481,17 +483,15 @@ private:
     time_t end_time = summary->m_stop_time_ll;
     ctime(&end_time);
 
-    //float average_current = runInfo.product()->m_avg_current;
-    //float uptimeInSeconds = runInfo.product()->m_run_intervall_micros;
-
     /*
+      float average_current = runInfo.product()->m_avg_current;
+      float uptimeInSeconds = runInfo.product()->m_run_intervall_micros;
       edm::LogVerbatim("FastDMRChecker")<< " start_time " << start_time << "( " << summary->m_start_time_str <<" )" 
       << " end_time "   << end_time   << "( " << summary->m_stop_time_str  <<" )" << std::endl;
     */
 
     double seconds = difftime(end_time, start_time) / 1.0e+6;
     //edm::LogVerbatim("FastDMRChecker")<<" diff: "<< seconds << "s" << std::endl;
-
     timeMap_[event.run()] = seconds;
 
     // topology setup
@@ -534,53 +534,52 @@ private:
 
     const edm::TriggerNames &triggerNames_ = event.triggerNames(*hltresults);
     int ntrigs = hltresults->size();
-    const vector<string> &triggernames = triggerNames_.triggerNames();
 
     for (int itrig = 0; itrig != ntrigs; ++itrig) {
       const string &trigName = triggerNames_.triggerName(itrig);
       bool accept = hltresults->accept(itrig);
       if (accept == 1) {
-        // cout << trigName << " " << accept << " ,track size: " << tC.size() << endl;
+        // emd::LogVerbatim("FastDMRChecker") << trigName << " " << accept << " ,track size: " << tC.size() << endl;
         triggerMap_[trigName].first += 1;
         triggerMap_[trigName].second += tC.size();
-        // triggerInfo.push_back(pair <string, int> (trigName, accept));
       }
     }
 
     hrun->Fill(event.run());
     hlumi->Fill(event.luminosityBlock());
 
-    Int_t nHighPurityTracks = 0;
+    int nHighPurityTracks = 0;
 
-    for (reco::TrackCollection::const_iterator track = tC.begin(); track != tC.end(); track++) {
-      auto const &residuals = track->extra()->residuals();
+    for (const auto &track : tC) {
+      auto const &residuals = track.extra()->residuals();
 
       unsigned int nHit2D = 0;
       int h_index = 0;
-      for (trackingRecHit_iterator iHit = track->recHitsBegin(); iHit != track->recHitsEnd(); ++iHit, ++h_index) {
+      for (trackingRecHit_iterator iHit = track.recHitsBegin(); iHit != track.recHitsEnd(); ++iHit, ++h_index) {
         if (this->isHit2D(**iHit))
           ++nHit2D;
 
         double resX = residuals.residualX(h_index);
         double resY = residuals.residualY(h_index);
-        double resErrX = residuals.pullX(h_index);
-        double resErrY = residuals.pullY(h_index);
+        double pullX = residuals.pullX(h_index);
+        double pullY = residuals.pullY(h_index);
 
-        TrackingRecHit *hit = (*iHit)->clone();
-        const DetId &detId = hit->geographicalId();
+        const DetId &detId = (*iHit)->geographicalId();
 
         unsigned int subid = detId.subdetId();
+        uint32_t detid_db = detId.rawId();
 
         const GeomDet *geomDet(theGeometry->idToDet(detId));
 
         float uOrientation(-999.F), vOrientation(-999.F);
         LocalPoint lPModule(0., 0., 0.), lUDirection(1., 0., 0.), lVDirection(0., 1., 0.), lWDirection(0., 0., 1.);
 
-        if (!hit->detUnit())
+        if (!(*iHit)->detUnit())
           continue;  // is it a single physical module?
 
-        if (hit->isValid() && (subid != PixelSubdetector::PixelBarrel) && (subid != PixelSubdetector::PixelEndcap)) {
-          tmap->fill(detId.rawId(), 1);
+        if ((*iHit)->isValid() && (subid != PixelSubdetector::PixelBarrel) &&
+            (subid != PixelSubdetector::PixelEndcap)) {
+          tmap->fill(detid_db, 1);
 
           //float uOrientation(-999.F), vOrientation(-999.F);
           //LocalPoint lUDirection(1.,0.,0.), lVDirection(0.,1.,0.);
@@ -601,62 +600,59 @@ private:
             vOrientation = gVDirection.z() - gPModule.z() >= 0 ? +1.F : -1.F;
 
             // if the detid has never occcurred yet, set the local orientations
-            if (resDetailsTIB_.find(detId.rawId()) == resDetailsTIB_.end()) {
-              resDetailsTIB_[detId.rawId()].rDirection = gWDirection.perp() - gPModule.perp() >= 0 ? +1 : -1;
-              resDetailsTIB_[detId.rawId()].zDirection = gVDirection.z() - gPModule.z() >= 0 ? +1 : -1;
+            if (resDetailsTIB_.find(detid_db) == resDetailsTIB_.end()) {
+              resDetailsTIB_[detid_db].rDirection = gWDirection.perp() - gPModule.perp() >= 0 ? +1 : -1;
+              resDetailsTIB_[detid_db].zDirection = gVDirection.z() - gPModule.z() >= 0 ? +1 : -1;
             }
 
             hTIBResXPrime->Fill(uOrientation * resX * 10000);
-            hTIBResXPull->Fill(resErrX);
+            hTIBResXPull->Fill(pullX);
 
             // update residuals
-            this->updateOnlineMomenta(resDetailsTIB_, detId.rawId(), uOrientation * resX * 10000., resErrX);
+            this->updateOnlineMomenta(resDetailsTIB_, detid_db, uOrientation * resX * cmToUm, pullX);
 
           } else if (subid == StripSubdetector::TOB) {
             uOrientation = deltaPhi(gUDirection.barePhi(), gPModule.barePhi()) >= 0. ? +1.F : -1.F;
             vOrientation = gVDirection.z() - gPModule.z() >= 0 ? +1.F : -1.F;
 
             hTOBResXPrime->Fill(uOrientation * resX * 10000);
-            hTOBResXPull->Fill(resErrX);
+            hTOBResXPull->Fill(pullX);
 
             // if the detid has never occcurred yet, set the local orientations
-            if (resDetailsTOB_.find(detId.rawId()) == resDetailsTOB_.end()) {
-              resDetailsTOB_[detId.rawId()].rDirection = gWDirection.perp() - gPModule.perp() >= 0 ? +1 : -1;
-              resDetailsTOB_[detId.rawId()].zDirection = gVDirection.z() - gPModule.z() >= 0 ? +1 : -1;
+            if (resDetailsTOB_.find(detid_db) == resDetailsTOB_.end()) {
+              resDetailsTOB_[detid_db].rDirection = gWDirection.perp() - gPModule.perp() >= 0 ? +1 : -1;
+              resDetailsTOB_[detid_db].zDirection = gVDirection.z() - gPModule.z() >= 0 ? +1 : -1;
             }
 
             // update residuals
-            this->updateOnlineMomenta(resDetailsTOB_, detId.rawId(), uOrientation * resX * 10000., resErrX);
+            this->updateOnlineMomenta(resDetailsTOB_, detid_db, uOrientation * resX * cmToUm, pullX);
 
           } else if (subid == StripSubdetector::TID) {
             uOrientation = deltaPhi(gUDirection.barePhi(), gPModule.barePhi()) >= 0. ? +1.F : -1.F;
             vOrientation = gVDirection.perp() - gPModule.perp() >= 0. ? +1.F : -1.F;
 
             hTIDResXPrime->Fill(uOrientation * resX * 10000);
-            hTIDResXPull->Fill(resErrX);
+            hTIDResXPull->Fill(pullX);
 
             // update residuals
-            this->updateOnlineMomenta(resDetailsTID_, detId.rawId(), uOrientation * resX * 10000., resErrX);
+            this->updateOnlineMomenta(resDetailsTID_, detid_db, uOrientation * resX * cmToUm, pullX);
 
           } else if (subid == StripSubdetector::TEC) {
             uOrientation = deltaPhi(gUDirection.barePhi(), gPModule.barePhi()) >= 0. ? +1.F : -1.F;
             vOrientation = gVDirection.perp() - gPModule.perp() >= 0. ? +1.F : -1.F;
 
             hTECResXPrime->Fill(uOrientation * resX * 10000);
-            hTECResXPull->Fill(resErrX);
+            hTECResXPull->Fill(pullX);
 
             // update residuals
-            this->updateOnlineMomenta(resDetailsTEC_, detId.rawId(), uOrientation * resX * 10000., resErrX);
+            this->updateOnlineMomenta(resDetailsTEC_, detid_db, uOrientation * resX * cmToUm, pullX);
           }
         }
 
-        const SiPixelRecHit *pixhit = dynamic_cast<const SiPixelRecHit *>(hit);
+        const SiPixelRecHit *pixhit = dynamic_cast<const SiPixelRecHit *>(*iHit);
 
         if (pixhit) {
           if (pixhit->isValid()) {
-            unsigned int subid = detId.subdetId();
-            int detid_db = detId.rawId();
-
             if (!isPhase1_) {
               pmap->fill(detid_db, 1);
             }
@@ -682,15 +678,15 @@ private:
                 vOrientation = gVDirection.z() - gPModule.z() >= 0 ? +1.F : -1.F;
 
                 // if the detid has never occcurred yet, set the local orientations
-                if (resDetailsBPixX_.find(detId.rawId()) == resDetailsBPixX_.end()) {
-                  resDetailsBPixX_[detId.rawId()].rDirection = gWDirection.perp() - gPModule.perp() >= 0 ? +1 : -1;
-                  resDetailsBPixX_[detId.rawId()].zDirection = gVDirection.z() - gPModule.z() >= 0 ? +1 : -1;
+                if (resDetailsBPixX_.find(detid_db) == resDetailsBPixX_.end()) {
+                  resDetailsBPixX_[detid_db].rDirection = gWDirection.perp() - gPModule.perp() >= 0 ? +1 : -1;
+                  resDetailsBPixX_[detid_db].zDirection = gVDirection.z() - gPModule.z() >= 0 ? +1 : -1;
                 }
 
                 // if the detid has never occcurred yet, set the local orientations
-                if (resDetailsBPixY_.find(detId.rawId()) == resDetailsBPixY_.end()) {
-                  resDetailsBPixY_[detId.rawId()].rDirection = gWDirection.perp() - gPModule.perp() >= 0 ? +1 : -1;
-                  resDetailsBPixY_[detId.rawId()].zDirection = gVDirection.z() - gPModule.z() >= 0 ? +1 : -1;
+                if (resDetailsBPixY_.find(detid_db) == resDetailsBPixY_.end()) {
+                  resDetailsBPixY_[detid_db].rDirection = gWDirection.perp() - gPModule.perp() >= 0 ? +1 : -1;
+                  resDetailsBPixY_[detid_db].zDirection = gVDirection.z() - gPModule.z() >= 0 ? +1 : -1;
                 }
 
                 hHitCountVsThetaBPix->Fill(GP.theta());
@@ -700,23 +696,23 @@ private:
                 hHitCountVsXBPix->Fill(GP.x());
                 hHitCountVsYBPix->Fill(GP.y());
 
-                hBPixResXPrime->Fill(uOrientation * resX * 10000.);
-                hBPixResYPrime->Fill(vOrientation * resY * 10000.);
-                hBPixResXPull->Fill(resErrX);
-                hBPixResYPull->Fill(resErrY);
+                hBPixResXPrime->Fill(uOrientation * resX * cmToUm);
+                hBPixResYPrime->Fill(vOrientation * resY * cmToUm);
+                hBPixResXPull->Fill(pullX);
+                hBPixResYPull->Fill(pullY);
 
                 //edm::LogVerbatim("FastDMRChecker")<<"layer: "<<layer_num<<std::endl;
 
                 // update residuals X
-                this->updateOnlineMomenta(resDetailsBPixX_, detId.rawId(), uOrientation * resX * 10000., resErrX);
+                this->updateOnlineMomenta(resDetailsBPixX_, detid_db, uOrientation * resX * cmToUm, pullX);
 
                 // update residuals Y
-                this->updateOnlineMomenta(resDetailsBPixY_, detId.rawId(), vOrientation * resY * 10000., resErrY);
+                this->updateOnlineMomenta(resDetailsBPixY_, detid_db, vOrientation * resY * cmToUm, pullY);
 
-                fillByIndex(barrelLayersResidualsX, layer_num, uOrientation * resX * 10000.);
-                fillByIndex(barrelLayersPullsX, layer_num, resErrX);
-                fillByIndex(barrelLayersResidualsY, layer_num, vOrientation * resY * 10000.);
-                fillByIndex(barrelLayersPullsY, layer_num, resErrY);
+                fillByIndex(barrelLayersResidualsX, layer_num, uOrientation * resX * cmToUm);
+                fillByIndex(barrelLayersPullsX, layer_num, pullX);
+                fillByIndex(barrelLayersResidualsY, layer_num, vOrientation * resY * cmToUm);
+                fillByIndex(barrelLayersPullsY, layer_num, pullY);
 
               } else if (subid == PixelSubdetector::PixelEndcap) {
                 uOrientation = gUDirection.perp() - gPModule.perp() >= 0 ? +1.F : -1.F;
@@ -736,33 +732,33 @@ private:
                 hHitCountVsXFPix->Fill(GP.x());
                 hHitCountVsYFPix->Fill(GP.y());
 
-                hFPixResXPrime->Fill(uOrientation * resX * 10000.);
-                hFPixResYPrime->Fill(vOrientation * resY * 10000.);
-                hFPixResXPull->Fill(resErrX);
-                hFPixResYPull->Fill(resErrY);
+                hFPixResXPrime->Fill(uOrientation * resX * cmToUm);
+                hFPixResYPrime->Fill(vOrientation * resY * cmToUm);
+                hFPixResXPull->Fill(pullX);
+                hFPixResYPull->Fill(pullY);
 
-                fillByIndex(endcapDisksResidualsX, packedTopo, uOrientation * resX * 10000.);
-                fillByIndex(endcapDisksPullsX, packedTopo, resErrX);
-                fillByIndex(endcapDisksResidualsY, packedTopo, vOrientation * resY * 10000.);
-                fillByIndex(endcapDisksPullsY, packedTopo, resErrY);
+                fillByIndex(endcapDisksResidualsX, packedTopo, uOrientation * resX * cmToUm);
+                fillByIndex(endcapDisksPullsX, packedTopo, pullX);
+                fillByIndex(endcapDisksResidualsY, packedTopo, vOrientation * resY * cmToUm);
+                fillByIndex(endcapDisksPullsY, packedTopo, pullY);
 
                 // if the detid has never occcurred yet, set the local orientations
-                if (resDetailsFPixX_.find(detId.rawId()) == resDetailsFPixX_.end()) {
-                  resDetailsFPixX_[detId.rawId()].rDirection = gUDirection.perp() - gPModule.perp() >= 0 ? +1 : -1;
-                  resDetailsFPixX_[detId.rawId()].zDirection = gWDirection.z() - gPModule.z() >= 0 ? +1 : -1;
+                if (resDetailsFPixX_.find(detid_db) == resDetailsFPixX_.end()) {
+                  resDetailsFPixX_[detid_db].rDirection = gUDirection.perp() - gPModule.perp() >= 0 ? +1 : -1;
+                  resDetailsFPixX_[detid_db].zDirection = gWDirection.z() - gPModule.z() >= 0 ? +1 : -1;
                 }
 
                 // if the detid has never occcurred yet, set the local orientations
-                if (resDetailsFPixY_.find(detId.rawId()) == resDetailsFPixY_.end()) {
-                  resDetailsFPixY_[detId.rawId()].rDirection = gUDirection.perp() - gPModule.perp() >= 0 ? +1 : -1;
-                  resDetailsFPixY_[detId.rawId()].zDirection = gWDirection.z() - gPModule.z() >= 0 ? +1 : -1;
+                if (resDetailsFPixY_.find(detid_db) == resDetailsFPixY_.end()) {
+                  resDetailsFPixY_[detid_db].rDirection = gUDirection.perp() - gPModule.perp() >= 0 ? +1 : -1;
+                  resDetailsFPixY_[detid_db].zDirection = gWDirection.z() - gPModule.z() >= 0 ? +1 : -1;
                 }
 
                 // update residuals X
-                this->updateOnlineMomenta(resDetailsFPixX_, detId.rawId(), uOrientation * resX * 10000., resErrX);
+                this->updateOnlineMomenta(resDetailsFPixX_, detid_db, uOrientation * resX * cmToUm, pullX);
 
                 // update residuals Y
-                this->updateOnlineMomenta(resDetailsFPixY_, detId.rawId(), vOrientation * resY * 10000., resErrY);
+                this->updateOnlineMomenta(resDetailsFPixY_, detid_db, vOrientation * resY * cmToUm, pullY);
 
                 if (side_num == 1) {
                   hHitCountVsXFPixMinus->Fill(GP.x());
@@ -771,10 +767,10 @@ private:
                   hHitCountVsThetaFPixMinus->Fill(GP.theta());
                   hHitCountVsPhiFPixMinus->Fill(GP.phi());
 
-                  hFPixZMinusResXPrime->Fill(uOrientation * resX * 10000.);
-                  hFPixZMinusResYPrime->Fill(vOrientation * resY * 10000.);
-                  hFPixZMinusResXPull->Fill(resErrX);
-                  hFPixZMinusResYPull->Fill(resErrY);
+                  hFPixZMinusResXPrime->Fill(uOrientation * resX * cmToUm);
+                  hFPixZMinusResYPrime->Fill(vOrientation * resY * cmToUm);
+                  hFPixZMinusResXPull->Fill(pullX);
+                  hFPixZMinusResYPull->Fill(pullY);
 
                 } else {
                   hHitCountVsXFPixPlus->Fill(GP.x());
@@ -783,10 +779,10 @@ private:
                   hHitCountVsThetaFPixPlus->Fill(GP.theta());
                   hHitCountVsPhiFPixPlus->Fill(GP.phi());
 
-                  hFPixZPlusResXPrime->Fill(uOrientation * resX * 10000.);
-                  hFPixZPlusResYPrime->Fill(vOrientation * resY * 10000.);
-                  hFPixZPlusResXPull->Fill(resErrX);
-                  hFPixZPlusResYPull->Fill(resErrY);
+                  hFPixZPlusResXPrime->Fill(uOrientation * resX * cmToUm);
+                  hFPixZPlusResYPrime->Fill(vOrientation * resY * cmToUm);
+                  hFPixZPlusResXPull->Fill(pullX);
+                  hFPixZPlusResYPull->Fill(pullY);
                 }
               }
             }
@@ -795,231 +791,213 @@ private:
       }
 
       hHit2D->Fill(nHit2D);
+      hHit->Fill(track.numberOfValidHits());
+      hnhpxb->Fill(track.hitPattern().numberOfValidPixelBarrelHits());
+      hnhpxe->Fill(track.hitPattern().numberOfValidPixelEndcapHits());
+      hnhTIB->Fill(track.hitPattern().numberOfValidStripTIBHits());
+      hnhTID->Fill(track.hitPattern().numberOfValidStripTIDHits());
+      hnhTOB->Fill(track.hitPattern().numberOfValidStripTOBHits());
+      hnhTEC->Fill(track.hitPattern().numberOfValidStripTECHits());
 
-      // edm::LogVerbatim("FastDMRChecker") << "nHit2D: "<<nHit2D<<std::endl;
-
-      hHit->Fill(track->numberOfValidHits());
-      hnhpxb->Fill(track->hitPattern().numberOfValidPixelBarrelHits());
-      hnhpxe->Fill(track->hitPattern().numberOfValidPixelEndcapHits());
-      hnhTIB->Fill(track->hitPattern().numberOfValidStripTIBHits());
-      hnhTID->Fill(track->hitPattern().numberOfValidStripTIDHits());
-      hnhTOB->Fill(track->hitPattern().numberOfValidStripTOBHits());
-      hnhTEC->Fill(track->hitPattern().numberOfValidStripTECHits());
-
-      runHitsMap_[event.run()][0] += track->hitPattern().numberOfValidPixelBarrelHits();
-      runHitsMap_[event.run()][1] += track->hitPattern().numberOfValidPixelEndcapHits();
-      runHitsMap_[event.run()][2] += track->hitPattern().numberOfValidStripTIBHits();
-      runHitsMap_[event.run()][3] += track->hitPattern().numberOfValidStripTIDHits();
-      runHitsMap_[event.run()][4] += track->hitPattern().numberOfValidStripTOBHits();
-      runHitsMap_[event.run()][5] += track->hitPattern().numberOfValidStripTECHits();
+      runHitsMap_[event.run()][0] += track.hitPattern().numberOfValidPixelBarrelHits();
+      runHitsMap_[event.run()][1] += track.hitPattern().numberOfValidPixelEndcapHits();
+      runHitsMap_[event.run()][2] += track.hitPattern().numberOfValidStripTIBHits();
+      runHitsMap_[event.run()][3] += track.hitPattern().numberOfValidStripTIDHits();
+      runHitsMap_[event.run()][4] += track.hitPattern().numberOfValidStripTOBHits();
+      runHitsMap_[event.run()][5] += track.hitPattern().numberOfValidStripTECHits();
 
       // fill hit composition histogram
-      if (track->hitPattern().numberOfValidPixelBarrelHits() != 0) {
-        hHitComposition->Fill(0., track->hitPattern().numberOfValidPixelBarrelHits());
+      if (track.hitPattern().numberOfValidPixelBarrelHits() != 0) {
+        hHitComposition->Fill(0., track.hitPattern().numberOfValidPixelBarrelHits());
 
-        pNBpixHitsVsVx->Fill(track->vx(), track->hitPattern().numberOfValidPixelBarrelHits());
-        pNBpixHitsVsVy->Fill(track->vy(), track->hitPattern().numberOfValidPixelBarrelHits());
-        pNBpixHitsVsVz->Fill(track->vz(), track->hitPattern().numberOfValidPixelBarrelHits());
+        pNBpixHitsVsVx->Fill(track.vx(), track.hitPattern().numberOfValidPixelBarrelHits());
+        pNBpixHitsVsVy->Fill(track.vy(), track.hitPattern().numberOfValidPixelBarrelHits());
+        pNBpixHitsVsVz->Fill(track.vz(), track.hitPattern().numberOfValidPixelBarrelHits());
       }
-      if (track->hitPattern().numberOfValidPixelEndcapHits() != 0) {
-        hHitComposition->Fill(1., track->hitPattern().numberOfValidPixelEndcapHits());
+      if (track.hitPattern().numberOfValidPixelEndcapHits() != 0) {
+        hHitComposition->Fill(1., track.hitPattern().numberOfValidPixelEndcapHits());
       }
-      if (track->hitPattern().numberOfValidStripTIBHits() != 0) {
-        hHitComposition->Fill(2., track->hitPattern().numberOfValidStripTIBHits());
+      if (track.hitPattern().numberOfValidStripTIBHits() != 0) {
+        hHitComposition->Fill(2., track.hitPattern().numberOfValidStripTIBHits());
       }
-      if (track->hitPattern().numberOfValidStripTIDHits() != 0) {
-        hHitComposition->Fill(3., track->hitPattern().numberOfValidStripTIDHits());
+      if (track.hitPattern().numberOfValidStripTIDHits() != 0) {
+        hHitComposition->Fill(3., track.hitPattern().numberOfValidStripTIDHits());
       }
-      if (track->hitPattern().numberOfValidStripTOBHits() != 0) {
-        hHitComposition->Fill(4., track->hitPattern().numberOfValidStripTOBHits());
+      if (track.hitPattern().numberOfValidStripTOBHits() != 0) {
+        hHitComposition->Fill(4., track.hitPattern().numberOfValidStripTOBHits());
       }
-      if (track->hitPattern().numberOfValidStripTECHits() != 0) {
-        hHitComposition->Fill(5., track->hitPattern().numberOfValidStripTECHits());
+      if (track.hitPattern().numberOfValidStripTECHits() != 0) {
+        hHitComposition->Fill(5., track.hitPattern().numberOfValidStripTECHits());
       }
 
-      hCharge->Fill(track->charge());
-      hQoverP->Fill(track->qoverp());
-      hQoverPZoom->Fill(track->qoverp());
-      hPt->Fill(track->pt());
-      hP->Fill(track->p());
-      hchi2ndof->Fill(track->normalizedChi2());
-      hEta->Fill(track->eta());
-      hPhi->Fill(track->phi());
+      hCharge->Fill(track.charge());
+      hQoverP->Fill(track.qoverp());
+      hQoverPZoom->Fill(track.qoverp());
+      hPt->Fill(track.pt());
+      hP->Fill(track.p());
+      hchi2ndof->Fill(track.normalizedChi2());
+      hEta->Fill(track.eta());
+      hPhi->Fill(track.phi());
 
-      //edm::LogVerbatim("FastDMRChecker") << "nHit2D: "<<nHit2D<<std::endl;
+      if (fabs(track.eta()) < 0.8)
+        hPhiBarrel->Fill(track.phi());
+      if (track.eta() > 0.8 && track.eta() < 1.4)
+        hPhiOverlapPlus->Fill(track.phi());
+      if (track.eta() < -0.8 && track.eta() > -1.4)
+        hPhiOverlapMinus->Fill(track.phi());
+      if (track.eta() > 1.4)
+        hPhiEndcapPlus->Fill(track.phi());
+      if (track.eta() < -1.4)
+        hPhiEndcapMinus->Fill(track.phi());
 
-      if (fabs(track->eta()) < 0.8)
-        hPhiBarrel->Fill(track->phi());
-      if (track->eta() > 0.8 && track->eta() < 1.4)
-        hPhiOverlapPlus->Fill(track->phi());
-      if (track->eta() < -0.8 && track->eta() > -1.4)
-        hPhiOverlapMinus->Fill(track->phi());
-      if (track->eta() > 1.4)
-        hPhiEndcapPlus->Fill(track->phi());
-      if (track->eta() < -1.4)
-        hPhiEndcapMinus->Fill(track->phi());
+      hd0->Fill(track.d0());
+      hdz->Fill(track.dz());
+      hdxy->Fill(track.dxy());
+      hvx->Fill(track.vx());
+      hvy->Fill(track.vy());
+      hvz->Fill(track.vz());
 
-      hd0->Fill(track->d0());
-      hdz->Fill(track->dz());
-      hdxy->Fill(track->dxy());
-      hvx->Fill(track->vx());
-      hvy->Fill(track->vy());
-      hvz->Fill(track->vz());
-
-      //edm::LogVerbatim("FastDMRChecker") << "nHit2D: "<<nHit2D<<std::endl;
-
-      // int myalgo=-88;
-      // if(track->algo()==reco::TrackBase::undefAlgorithm)myalgo=0;
-      // if(track->algo()==reco::TrackBase::ctf)myalgo=1;
-      // if(track->algo()==reco::TrackBase::iter0)myalgo=4;
-      // if(track->algo()==reco::TrackBase::iter1)myalgo=5;
-      // if(track->algo()==reco::TrackBase::iter2)myalgo=6;
-      // if(track->algo()==reco::TrackBase::iter3)myalgo=7;
-      // if(track->algo()==reco::TrackBase::iter4)myalgo=8;
-      // if(track->algo()==reco::TrackBase::iter5)myalgo=9;
-      // if(track->algo()==reco::TrackBase::iter6)myalgo=10;
-      // if(track->algo()==reco::TrackBase::iter7)myalgo=11;
-      // htrkAlgo->Fill(myalgo);
+      htrkAlgo->Fill(track.algo());
 
       int myquality = -99;
-      if (track->quality(reco::TrackBase::undefQuality)) {
+      if (track.quality(reco::TrackBase::undefQuality)) {
         myquality = -1;
         htrkQuality->Fill(myquality);
       }
-      if (track->quality(reco::TrackBase::loose)) {
+      if (track.quality(reco::TrackBase::loose)) {
         myquality = 0;
         htrkQuality->Fill(myquality);
       }
-      if (track->quality(reco::TrackBase::tight)) {
+      if (track.quality(reco::TrackBase::tight)) {
         myquality = 1;
         htrkQuality->Fill(myquality);
       }
-      if (track->quality(reco::TrackBase::highPurity) && (!isCosmics_)) {
+      if (track.quality(reco::TrackBase::highPurity) && (!isCosmics_)) {
         myquality = 2;
         htrkQuality->Fill(myquality);
-        hPhp->Fill(track->p());
-        hPthp->Fill(track->pt());
-        hHithp->Fill(track->numberOfValidHits());
-        hEtahp->Fill(track->eta());
-        hPhihp->Fill(track->phi());
-        hchi2ndofhp->Fill(track->normalizedChi2());
-        hchi2Probhp->Fill(TMath::Prob(track->chi2(), track->ndof()));
+        hPhp->Fill(track.p());
+        hPthp->Fill(track.pt());
+        hHithp->Fill(track.numberOfValidHits());
+        hEtahp->Fill(track.eta());
+        hPhihp->Fill(track.phi());
+        hchi2ndofhp->Fill(track.normalizedChi2());
+        hchi2Probhp->Fill(TMath::Prob(track.chi2(), track.ndof()));
         nHighPurityTracks++;
       }
-      if (track->quality(reco::TrackBase::confirmed)) {
+      if (track.quality(reco::TrackBase::confirmed)) {
         myquality = 3;
         htrkQuality->Fill(myquality);
       }
-      if (track->quality(reco::TrackBase::goodIterative)) {
+      if (track.quality(reco::TrackBase::goodIterative)) {
         myquality = 4;
         htrkQuality->Fill(myquality);
       }
 
       // Fill 1D track histos
       static const int etaindex = this->GetIndex(vTrackHistos_, "h_tracketa");
-      vTrackHistos_[etaindex]->Fill(track->eta());
+      vTrackHistos_[etaindex]->Fill(track.eta());
       static const int phiindex = this->GetIndex(vTrackHistos_, "h_trackphi");
-      vTrackHistos_[phiindex]->Fill(track->phi());
+      vTrackHistos_[phiindex]->Fill(track.phi());
       static const int numOfValidHitsindex = this->GetIndex(vTrackHistos_, "h_trackNumberOfValidHits");
-      vTrackHistos_[numOfValidHitsindex]->Fill(track->numberOfValidHits());
+      vTrackHistos_[numOfValidHitsindex]->Fill(track.numberOfValidHits());
       static const int numOfLostHitsindex = this->GetIndex(vTrackHistos_, "h_trackNumberOfLostHits");
-      vTrackHistos_[numOfLostHitsindex]->Fill(track->numberOfLostHits());
+      vTrackHistos_[numOfLostHitsindex]->Fill(track.numberOfLostHits());
 
-      GlobalPoint gPoint(track->vx(), track->vy(), track->vz());
+      GlobalPoint gPoint(track.vx(), track.vy(), track.vz());
       double theLocalMagFieldInInverseGeV = magneticField_->inInverseGeV(gPoint).z();
-      double kappa = -track->charge() * theLocalMagFieldInInverseGeV / track->pt();
+      double kappa = -track.charge() * theLocalMagFieldInInverseGeV / track.pt();
 
       static const int kappaindex = this->GetIndex(vTrackHistos_, "h_curvature");
       vTrackHistos_[kappaindex]->Fill(kappa);
       static const int kappaposindex = this->GetIndex(vTrackHistos_, "h_curvature_pos");
-      if (track->charge() > 0)
+      if (track.charge() > 0)
         vTrackHistos_[kappaposindex]->Fill(fabs(kappa));
       static const int kappanegindex = this->GetIndex(vTrackHistos_, "h_curvature_neg");
-      if (track->charge() < 0)
+      if (track.charge() < 0)
         vTrackHistos_[kappanegindex]->Fill(fabs(kappa));
 
-      double chi2Prob = TMath::Prob(track->chi2(), track->ndof());
-      double normchi2 = track->normalizedChi2();
+      double chi2Prob = TMath::Prob(track.chi2(), track.ndof());
+      double normchi2 = track.normalizedChi2();
 
       static const int normchi2index = this->GetIndex(vTrackHistos_, "h_normchi2");
       vTrackHistos_[normchi2index]->Fill(normchi2);
       static const int chi2index = this->GetIndex(vTrackHistos_, "h_chi2");
-      vTrackHistos_[chi2index]->Fill(track->chi2());
+      vTrackHistos_[chi2index]->Fill(track.chi2());
       static const int chi2Probindex = this->GetIndex(vTrackHistos_, "h_chi2Prob");
       vTrackHistos_[chi2Probindex]->Fill(chi2Prob);
       static const int ptindex = this->GetIndex(vTrackHistos_, "h_pt");
       static const int pt2index = this->GetIndex(vTrackHistos_, "h_ptrebin");
-      vTrackHistos_[ptindex]->Fill(track->pt());
-      vTrackHistos_[pt2index]->Fill(track->pt());
-      if (track->ptError() != 0.) {
+      vTrackHistos_[ptindex]->Fill(track.pt());
+      vTrackHistos_[pt2index]->Fill(track.pt());
+      if (track.ptError() != 0.) {
         static const int ptResolutionindex = this->GetIndex(vTrackHistos_, "h_ptResolution");
-        vTrackHistos_[ptResolutionindex]->Fill(track->ptError() / track->pt());
+        vTrackHistos_[ptResolutionindex]->Fill(track.ptError() / track.pt());
       }
       // Fill track profiles
       static const int d0phiindex = this->GetIndex(vTrackProfiles_, "p_d0_vs_phi");
-      vTrackProfiles_[d0phiindex]->Fill(track->phi(), track->d0());
+      vTrackProfiles_[d0phiindex]->Fill(track.phi(), track.d0());
       static const int dzphiindex = this->GetIndex(vTrackProfiles_, "p_dz_vs_phi");
-      vTrackProfiles_[dzphiindex]->Fill(track->phi(), track->dz());
+      vTrackProfiles_[dzphiindex]->Fill(track.phi(), track.dz());
       static const int d0etaindex = this->GetIndex(vTrackProfiles_, "p_d0_vs_eta");
-      vTrackProfiles_[d0etaindex]->Fill(track->eta(), track->d0());
+      vTrackProfiles_[d0etaindex]->Fill(track.eta(), track.d0());
       static const int dzetaindex = this->GetIndex(vTrackProfiles_, "p_dz_vs_eta");
-      vTrackProfiles_[dzetaindex]->Fill(track->eta(), track->dz());
+      vTrackProfiles_[dzetaindex]->Fill(track.eta(), track.dz());
       static const int chiProbphiindex = this->GetIndex(vTrackProfiles_, "p_chi2Prob_vs_phi");
-      vTrackProfiles_[chiProbphiindex]->Fill(track->phi(), chi2Prob);
+      vTrackProfiles_[chiProbphiindex]->Fill(track.phi(), chi2Prob);
       static const int chiProbabsd0index = this->GetIndex(vTrackProfiles_, "p_chi2Prob_vs_d0");
-      vTrackProfiles_[chiProbabsd0index]->Fill(fabs(track->d0()), chi2Prob);
+      vTrackProfiles_[chiProbabsd0index]->Fill(fabs(track.d0()), chi2Prob);
       static const int chiProbabsdzindex = this->GetIndex(vTrackProfiles_, "p_chi2Prob_vs_dz");
-      vTrackProfiles_[chiProbabsdzindex]->Fill(track->dz(), chi2Prob);
+      vTrackProfiles_[chiProbabsdzindex]->Fill(track.dz(), chi2Prob);
       static const int chiphiindex = this->GetIndex(vTrackProfiles_, "p_chi2_vs_phi");
-      vTrackProfiles_[chiphiindex]->Fill(track->phi(), track->chi2());
+      vTrackProfiles_[chiphiindex]->Fill(track.phi(), track.chi2());
       static const int normchiphiindex = this->GetIndex(vTrackProfiles_, "p_normchi2_vs_phi");
-      vTrackProfiles_[normchiphiindex]->Fill(track->phi(), normchi2);
+      vTrackProfiles_[normchiphiindex]->Fill(track.phi(), normchi2);
       static const int chietaindex = this->GetIndex(vTrackProfiles_, "p_chi2_vs_eta");
-      vTrackProfiles_[chietaindex]->Fill(track->eta(), track->chi2());
+      vTrackProfiles_[chietaindex]->Fill(track.eta(), track.chi2());
       static const int normchiptindex = this->GetIndex(vTrackProfiles_, "p_normchi2_vs_pt");
-      vTrackProfiles_[normchiptindex]->Fill(track->pt(), normchi2);
+      vTrackProfiles_[normchiptindex]->Fill(track.pt(), normchi2);
       static const int normchipindex = this->GetIndex(vTrackProfiles_, "p_normchi2_vs_p");
-      vTrackProfiles_[normchipindex]->Fill(track->p(), normchi2);
+      vTrackProfiles_[normchipindex]->Fill(track.p(), normchi2);
       static const int chiProbetaindex = this->GetIndex(vTrackProfiles_, "p_chi2Prob_vs_eta");
-      vTrackProfiles_[chiProbetaindex]->Fill(track->eta(), chi2Prob);
+      vTrackProfiles_[chiProbetaindex]->Fill(track.eta(), chi2Prob);
       static const int normchietaindex = this->GetIndex(vTrackProfiles_, "p_normchi2_vs_eta");
-      vTrackProfiles_[normchietaindex]->Fill(track->eta(), normchi2);
+      vTrackProfiles_[normchietaindex]->Fill(track.eta(), normchi2);
       static const int kappaphiindex = this->GetIndex(vTrackProfiles_, "p_kappa_vs_phi");
-      vTrackProfiles_[kappaphiindex]->Fill(track->phi(), kappa);
+      vTrackProfiles_[kappaphiindex]->Fill(track.phi(), kappa);
       static const int kappaetaindex = this->GetIndex(vTrackProfiles_, "p_kappa_vs_eta");
-      vTrackProfiles_[kappaetaindex]->Fill(track->eta(), kappa);
+      vTrackProfiles_[kappaetaindex]->Fill(track.eta(), kappa);
       static const int ptResphiindex = this->GetIndex(vTrackProfiles_, "p_ptResolution_vs_phi");
-      vTrackProfiles_[ptResphiindex]->Fill(track->phi(), track->ptError() / track->pt());
+      vTrackProfiles_[ptResphiindex]->Fill(track.phi(), track.ptError() / track.pt());
       static const int ptResetaindex = this->GetIndex(vTrackProfiles_, "p_ptResolution_vs_eta");
-      vTrackProfiles_[ptResetaindex]->Fill(track->eta(), track->ptError() / track->pt());
+      vTrackProfiles_[ptResetaindex]->Fill(track.eta(), track.ptError() / track.pt());
 
       // Fill 2D track histos
       static const int d0phiindex_2d = this->GetIndex(vTrack2DHistos_, "h2_d0_vs_phi");
-      vTrack2DHistos_[d0phiindex_2d]->Fill(track->phi(), track->d0());
+      vTrack2DHistos_[d0phiindex_2d]->Fill(track.phi(), track.d0());
       static const int dzphiindex_2d = this->GetIndex(vTrack2DHistos_, "h2_dz_vs_phi");
-      vTrack2DHistos_[dzphiindex_2d]->Fill(track->phi(), track->dz());
+      vTrack2DHistos_[dzphiindex_2d]->Fill(track.phi(), track.dz());
       static const int d0etaindex_2d = this->GetIndex(vTrack2DHistos_, "h2_d0_vs_eta");
-      vTrack2DHistos_[d0etaindex_2d]->Fill(track->eta(), track->d0());
+      vTrack2DHistos_[d0etaindex_2d]->Fill(track.eta(), track.d0());
       static const int dzetaindex_2d = this->GetIndex(vTrack2DHistos_, "h2_dz_vs_eta");
-      vTrack2DHistos_[dzetaindex_2d]->Fill(track->eta(), track->dz());
+      vTrack2DHistos_[dzetaindex_2d]->Fill(track.eta(), track.dz());
       static const int chiphiindex_2d = this->GetIndex(vTrack2DHistos_, "h2_chi2_vs_phi");
-      vTrack2DHistos_[chiphiindex_2d]->Fill(track->phi(), track->chi2());
+      vTrack2DHistos_[chiphiindex_2d]->Fill(track.phi(), track.chi2());
       static const int chiProbphiindex_2d = this->GetIndex(vTrack2DHistos_, "h2_chi2Prob_vs_phi");
-      vTrack2DHistos_[chiProbphiindex_2d]->Fill(track->phi(), chi2Prob);
+      vTrack2DHistos_[chiProbphiindex_2d]->Fill(track.phi(), chi2Prob);
       static const int chiProbabsd0index_2d = this->GetIndex(vTrack2DHistos_, "h2_chi2Prob_vs_d0");
-      vTrack2DHistos_[chiProbabsd0index_2d]->Fill(fabs(track->d0()), chi2Prob);
+      vTrack2DHistos_[chiProbabsd0index_2d]->Fill(fabs(track.d0()), chi2Prob);
       static const int normchiphiindex_2d = this->GetIndex(vTrack2DHistos_, "h2_normchi2_vs_phi");
-      vTrack2DHistos_[normchiphiindex_2d]->Fill(track->phi(), normchi2);
+      vTrack2DHistos_[normchiphiindex_2d]->Fill(track.phi(), normchi2);
       static const int chietaindex_2d = this->GetIndex(vTrack2DHistos_, "h2_chi2_vs_eta");
-      vTrack2DHistos_[chietaindex_2d]->Fill(track->eta(), track->chi2());
+      vTrack2DHistos_[chietaindex_2d]->Fill(track.eta(), track.chi2());
       static const int chiProbetaindex_2d = this->GetIndex(vTrack2DHistos_, "h2_chi2Prob_vs_eta");
-      vTrack2DHistos_[chiProbetaindex_2d]->Fill(track->eta(), chi2Prob);
+      vTrack2DHistos_[chiProbetaindex_2d]->Fill(track.eta(), chi2Prob);
       static const int normchietaindex_2d = this->GetIndex(vTrack2DHistos_, "h2_normchi2_vs_eta");
-      vTrack2DHistos_[normchietaindex_2d]->Fill(track->eta(), normchi2);
+      vTrack2DHistos_[normchietaindex_2d]->Fill(track.eta(), normchi2);
       static const int kappaphiindex_2d = this->GetIndex(vTrack2DHistos_, "h2_kappa_vs_phi");
-      vTrack2DHistos_[kappaphiindex_2d]->Fill(track->phi(), kappa);
+      vTrack2DHistos_[kappaphiindex_2d]->Fill(track.phi(), kappa);
       static const int kappaetaindex_2d = this->GetIndex(vTrack2DHistos_, "h2_kappa_vs_eta");
-      vTrack2DHistos_[kappaetaindex_2d]->Fill(track->eta(), kappa);
+      vTrack2DHistos_[kappaetaindex_2d]->Fill(track.eta(), kappa);
       static const int normchi2kappa_2d = this->GetIndex(vTrack2DHistos_, "h2_normchi2_vs_kappa");
       vTrack2DHistos_[normchi2kappa_2d]->Fill(normchi2, kappa);
 
@@ -1032,8 +1010,8 @@ private:
       if (beamSpotHandle.isValid()) {
         beamSpot = *beamSpotHandle;
         math::XYZPoint point(beamSpot.x0(), beamSpot.y0(), beamSpot.z0());
-        double dxy = track->dxy(point);
-        double dz = track->dz(point);
+        double dxy = track.dxy(point);
+        double dz = track.dz(point);
         hdxyBS->Fill(dxy);
         hd0BS->Fill(-dxy);
         hdzBS->Fill(dz);
@@ -1049,9 +1027,9 @@ private:
       if (vertexHandle.isValid()) {
         for (reco::VertexCollection::const_iterator pvtx = vertexHandle->begin(); pvtx != vertexHandle->end(); ++pvtx) {
           math::XYZPoint mypoint(pvtx->x(), pvtx->y(), pvtx->z());
-          if (abs(mindxy) > abs(track->dxy(mypoint))) {
-            mindxy = track->dxy(mypoint);
-            dz = track->dz(mypoint);
+          if (abs(mindxy) > abs(track.dxy(mypoint))) {
+            mindxy = track.dxy(mypoint);
+            dz = track.dz(mypoint);
             //edm::LogVerbatim("FastDMRChecker")<<"dxy: "<<mindxy<<"dz: "<<dz<<std::endl;
           }
         }
@@ -1060,9 +1038,9 @@ private:
         hd0PV->Fill(-mindxy);
         hdzPV->Fill(dz);
 
-        hd0PVvsphi->Fill(track->phi(), -mindxy);
-        hd0PVvseta->Fill(track->eta(), -mindxy);
-        hd0PVvspt->Fill(track->pt(), -mindxy);
+        hd0PVvsphi->Fill(track.phi(), -mindxy);
+        hd0PVvseta->Fill(track.eta(), -mindxy);
+        hd0PVvspt->Fill(track.pt(), -mindxy);
 
       } else {
         hdxyPV->Fill(100);
@@ -1101,11 +1079,11 @@ private:
     hNhighPurity =
         fs->make<TH1D>("h_NhighPurity", "n. high purity tracks;Number of high purity tracks;events", 200, 0., 200.);
 
-    htrkAlgo = fs->make<TH1I>("h_trkAlgo", "tracking step;iterative tracking step;tracks", 12, -0.5, 11.5);
-    TString algos[12] = {
-        "undef", "ctf", "rs", "cosmic", "iter0", "iter1", "iter2", "iter3", "iter4", "iter5", "iter6", "iter7"};
+
+    int nAlgos = reco::TrackBase::algoSize;
+    htrkAlgo = fs->make<TH1I>("h_trkAlgo", "tracking step;iterative tracking step;tracks", nAlgos, -0.5, nAlgos-0.5);
     for (int nbin = 1; nbin <= htrkAlgo->GetNbinsX(); nbin++) {
-      htrkAlgo->GetXaxis()->SetBinLabel(nbin, algos[nbin - 1]);
+      htrkAlgo->GetXaxis()->SetBinLabel(nbin,reco::TrackBase::algoNames[nbin-1].c_str());
     }
 
     htrkQuality = fs->make<TH1I>("h_trkQuality", "track quality;track quality;tracks", 6, -1, 5);
@@ -1333,7 +1311,7 @@ private:
 
     TString dets[6] = {"PXB", "PXF", "TIB", "TID", "TOB", "TEC"};
 
-    for (Int_t i = 1; i <= hHitComposition->GetNbinsX(); i++) {
+    for (int i = 1; i <= hHitComposition->GetNbinsX(); i++) {
       hHitComposition->GetXaxis()->SetBinLabel(i, dets[i - 1]);
     }
 
@@ -1488,7 +1466,7 @@ private:
     edm::LogPrint("FastDMRChecker") << "n. tracks: " << itrks << std::endl;
     edm::LogPrint("FastDMRChecker") << "*******************************" << std::endl;
 
-    Int_t nFiringTriggers = triggerMap_.size();
+    int nFiringTriggers = triggerMap_.size();
     edm::LogPrint("FastDMRChecker") << "firing triggers: " << nFiringTriggers << std::endl;
     edm::LogPrint("FastDMRChecker") << "*******************************" << std::endl;
 
@@ -1497,14 +1475,14 @@ private:
     evtsByTrigger_ = fs->make<TH1D>(
         "evtsByTrigger", "events by HLT path;;% of # events", nFiringTriggers, -0.5, nFiringTriggers - 0.5);
 
-    Int_t i = 0;
+    int i = 0;
 
     for (std::map<std::string, std::pair<int, int> >::iterator it = triggerMap_.begin(); it != triggerMap_.end();
          ++it) {
       i++;
 
-      Double_t trkpercent = ((it->second).second) * 100. / Double_t(itrks);
-      Double_t evtpercent = ((it->second).first) * 100. / Double_t(ievt);
+      double trkpercent = ((it->second).second) * 100. / double(itrks);
+      double evtpercent = ((it->second).first) * 100. / double(ievt);
 
       std::cout.precision(4);
 
@@ -1521,7 +1499,7 @@ private:
       evtsByTrigger_->GetXaxis()->SetBinLabel(i, (it->first).c_str());
     }
 
-    Int_t nRuns = conditionsMap_.size();
+    int nRuns = conditionsMap_.size();
 
     vector<int> theRuns_;
     for (map<int, std::pair<int, float> >::iterator it = conditionsMap_.begin(); it != conditionsMap_.end(); ++it) {
@@ -1529,8 +1507,6 @@ private:
     }
 
     sort(theRuns_.begin(), theRuns_.end());
-    Int_t runRange = theRuns_[theRuns_.size() - 1] - theRuns_[0] + 1;
-
     edm::LogPrint("FastDMRChecker") << "*******************************" << std::endl;
     edm::LogPrint("FastDMRChecker") << "first run: " << theRuns_[0] << std::endl;
     edm::LogPrint("FastDMRChecker") << "last run:  " << theRuns_[theRuns_.size() - 1] << std::endl;
@@ -1556,8 +1532,8 @@ private:
     hitsinFPixByRun_ = fs->make<TH1D>(
         "histinFPixByRun", "n. of hits in FPix by run number;;n. of FPix hits", nRuns, -0.5, nRuns - 0.5);
 
-    Int_t indexing(0);
-    for (Int_t the_r = theRuns_[0]; the_r <= theRuns_[theRuns_.size() - 1]; the_r++) {
+    int indexing(0);
+    for (int the_r = theRuns_[0]; the_r <= theRuns_[theRuns_.size() - 1]; the_r++) {
       if (conditionsMap_.find(the_r)->second.first != 0) {
         indexing++;
         double runTime = timeMap_.find(the_r)->second;
@@ -1857,14 +1833,14 @@ private:
             const ProjectedSiStripRecHit2D *pH = static_cast<const ProjectedSiStripRecHit2D *>(&hit);
             return (countStereoHitAs2D_ && this->isHit2D(pH->originalHit()));  // depends on original...
           } else {
-            edm::LogError("UnkownType") << "@SUB=AlignmentTrackSelector::isHit2D"
+            edm::LogError("UnkownType") << "@SUB=FastDMRChecker::isHit2D"
                                         << "Tracker hit not in pixel, neither SiStripRecHit[12]D nor "
                                         << "SiStripMatchedRecHit2D nor ProjectedSiStripRecHit2D.";
             return false;
           }
         }
       } else {  // not tracker??
-        edm::LogWarning("DetectorMismatch") << "@SUB=AlignmentTrackSelector::isHit2D"
+        edm::LogWarning("DetectorMismatch") << "@SUB=FastDMRChecker::isHit2D"
                                             << "Hit not in tracker with 'official' dimension >=2.";
         return true;  // dimension() >= 2 so accept that...
       }
@@ -1879,7 +1855,7 @@ private:
       TFileDirectory dir, unsigned int theNLayers, TString resType, TString varType, TString detType) {
     TH1F::SetDefaultSumw2(kTRUE);
 
-    std::pair<Double_t, Double_t> limits;
+    std::pair<double, double> limits;
 
     if (varType.Contains("Res")) {
       limits = std::make_pair(-1000., 1000);
