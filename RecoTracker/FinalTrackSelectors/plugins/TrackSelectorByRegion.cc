@@ -40,42 +40,48 @@ private:
   using MaskCollection = std::vector<bool>;
 
   void produce(edm::StreamID, edm::Event& iEvent, const edm::EventSetup&) const override {
-    if (not produce_collection)
-      if (not produce_mask)
-        return;
-    // products
-    auto mask = std::make_unique<MaskCollection>();                  // mask w/ the same size of the input collection
-    auto output_tracks = std::make_unique<reco::TrackCollection>();  // selected output collection
+    if (not produce_collection and not produce_mask)
+      return;
 
     auto regionsHandle = iEvent.getHandle(inputTrkRegionToken_);
     auto tracksHandle = iEvent.getHandle(tracksToken_);
 
     const auto& tracks = *tracksHandle;
-    mask->assign(tracks.size(), false);
+    auto mask = std::make_unique<MaskCollection>(tracks.size(), false);
     const auto& regions = *regionsHandle;
 
-    for (const auto& region : regions)
-      if (const auto* roi = dynamic_cast<const TrackingRegion*>(&region)) {
-        auto amask = roi->checkTracks(tracks);
-        for (size_t it = 0; it < amask.size(); it++) {
-          mask->at(it) = mask->at(it) or amask.at(it);
-        }
+    for (auto const& region: regions) {
+      auto const& region_mask = region.checkTracks(tracks);
+      for (size_t i = 0; i < region_mask.size(); ++i) {
+        mask->at(i) = mask->at(i) or region_mask[i];
       }
+    }
 
-    if (produce_collection)
-      for (size_t it = 0; it < mask->size(); it++)
-        if (mask->at(it))
-          output_tracks->push_back(tracks[it]);
-
-    if (produce_mask)
+    if (produce_mask) {
       iEvent.put(std::move(mask));
-    if (produce_collection)
+    }
+
+    if (produce_collection) {
+      auto output_tracks = std::make_unique<reco::TrackCollection>();  // selected output collection
+      size_t size = 0;
+      for (size_t i = 0; i < mask->size(); i++) {
+        if (mask[i])
+          ++size;
+      }
+      output_tracks->reserve(size);
+
+      for (size_t i = 0; i < mask->size(); i++) {
+        if (mask[i])
+          output_tracks->push_back(tracks[i]);
+      }
       iEvent.put(std::move(output_tracks));
+    }
   }
-  bool produce_collection;
-  bool produce_mask;
-  edm::EDGetTokenT<reco::TrackCollection> tracksToken_;
-  edm::EDGetTokenT<edm::OwnVector<TrackingRegion>> inputTrkRegionToken_;
+
+  const bool produce_collection;
+  const bool produce_mask;
+  const edm::EDGetTokenT<reco::TrackCollection> tracksToken_;
+  const edm::EDGetTokenT<edm::OwnVector<TrackingRegion>> inputTrkRegionToken_;
 };
 
 #include "FWCore/PluginManager/interface/ModuleDef.h"
