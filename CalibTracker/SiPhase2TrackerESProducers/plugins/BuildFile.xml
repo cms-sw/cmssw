@@ -4,6 +4,6 @@
 <use name="CondFormats/SiPhase2TrackerObjects"/>
 <use name="Geometry/Records"/>
 <use name="Geometry/TrackerGeometryBuilder"/>
-<library file="*.cc" name="CalibTrackerSiPixelESProducersPlugins">
+<library file="*.cc" name="CalibTrackerSiPhase2TrackerESProducersPlugins">
   <flags EDM_PLUGIN="1"/>
 </library>
