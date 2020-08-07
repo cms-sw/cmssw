@@ -387,7 +387,11 @@ ME0Geometry* ME0GeometryBuilder::buildGeometry(cms::DDFilteredView& fv, const Mu
     MuonBaseNumber num(mdddnum.geoHistoryToBaseNumber(history));
     ME0DetId detId(me0Num.baseNumberToUnitNumber(num));
 #ifdef EDM_ML_DEBUG
-    edm::LogVerbatim("ME0Geometry") << fv.name() << " with " << history.tags.size() << " Levels and ID " << detId << " Mask " << std::hex << ME0DetId::chamberIdMask_ << ":" << ME0DetId::layerIdMask_ << std::dec << " and " << ME0DetId(((detId.rawId()) & ME0DetId::chamberIdMask_)) << ":" << ME0DetId(((detId.rawId()) & ME0DetId::layerIdMask_)) << " Sector Level " << theSectorLevel << ":" << history.tags.size() << ":" << fv.copyNos().size();
+    edm::LogVerbatim("ME0Geometry") << fv.name() << " with " << history.tags.size() << " Levels and ID " << detId
+                                    << " Mask " << std::hex << ME0DetId::chamberIdMask_ << ":" << ME0DetId::layerIdMask_
+                                    << std::dec << " and " << ME0DetId(((detId.rawId()) & ME0DetId::chamberIdMask_))
+                                    << ":" << ME0DetId(((detId.rawId()) & ME0DetId::layerIdMask_)) << " Sector Level "
+                                    << theSectorLevel << ":" << history.tags.size() << ":" << fv.copyNos().size();
     for (unsigned int k = 0; k < history.tags.size(); ++k)
       edm::LogVerbatim("ME0Geometry") << "[" << k << "] Tag " << history.tags[k] << " Offset " << history.offsets[k]
                                       << " copy " << history.copyNos[k];
