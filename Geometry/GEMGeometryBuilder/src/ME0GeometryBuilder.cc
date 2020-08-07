@@ -3,9 +3,9 @@
 
  Description: ME0 Geometry builder from DD & DD4hep
               DD4hep part added to the original old file (DD version) made by M. Maggi (INFN Bari)
-//
-// Author:  Sergio Lo Meo (sergio.lo.meo@cern.ch) following what Ianna Osborne made for DTs (DD4HEP migration)
-//          Created:  29 Apr 2019 
+              Sergio Lo Meo (sergio.lo.meo@cern.ch) following what Ianna Osborne made for DTs (DD4HEP migration)
+              Updated by Sunanda Banerjee (Fermilab) to make it work for DDD/DD4Hep
+            Updated:  7 August 2020
 */
 #include "Geometry/GEMGeometryBuilder/src/ME0GeometryBuilder.h"
 #include "Geometry/GEMGeometry/interface/ME0Geometry.h"
@@ -375,8 +375,6 @@ ME0Geometry* ME0GeometryBuilder::buildGeometry(cms::DDFilteredView& fv, const Mu
   MuonGeometryNumbering mdddnum(muonConstants);
   ME0NumberingScheme me0Num(muonConstants);
 
-  static constexpr uint32_t layerIdMask = ~(31 << 13);
-  static constexpr uint32_t chamberIdMask = ~((31 << 8) | (31 << 13));
   static constexpr uint32_t levelChamber = 7;
   static constexpr uint32_t levelLayer = 8;
   uint32_t theLevelPart = muonConstants.getValue("level");
@@ -389,12 +387,7 @@ ME0Geometry* ME0GeometryBuilder::buildGeometry(cms::DDFilteredView& fv, const Mu
     MuonBaseNumber num(mdddnum.geoHistoryToBaseNumber(history));
     ME0DetId detId(me0Num.baseNumberToUnitNumber(num));
 #ifdef EDM_ML_DEBUG
-    edm::LogVerbatim("ME0Geometry") << fv.name() << " with " << history.tags.size() << " Levels and ID " << detId
-                                    << " Mask " << std::hex << chamberIdMask << ":" << layerIdMask << std::dec
-                                    << " and " << ME0DetId(((detId.rawId()) & chamberIdMask)) << ":"
-                                    << ME0DetId(((detId.rawId()) & layerIdMask)) << " Sector Level "
-                                    << ":" << theSectorLevel << ":" << history.tags.size() << ":"
-                                    << fv.copyNos().size();
+    edm::LogVerbatim("ME0Geometry") << fv.name() << " with " << history.tags.size() << " Levels and ID " << detId << " Mask " << std::hex << ME0DetId::chamberIdMask_ << ":" << ME0DetId::layerIdMask_ << std::dec << " and " << ME0DetId(((detId.rawId()) & ME0DetId::chamberIdMask_)) << ":" << ME0DetId(((detId.rawId()) & ME0DetId::layerIdMask_)) << " Sector Level " << theSectorLevel << ":" << history.tags.size() << ":" << fv.copyNos().size();
     for (unsigned int k = 0; k < history.tags.size(); ++k)
       edm::LogVerbatim("ME0Geometry") << "[" << k << "] Tag " << history.tags[k] << " Offset " << history.offsets[k]
                                       << " copy " << history.copyNos[k];
@@ -417,18 +410,18 @@ ME0Geometry* ME0GeometryBuilder::buildGeometry(cms::DDFilteredView& fv, const Mu
 
   auto const& partitions = geometry->etaPartitions();
   for (auto& layer : layers) {
-    uint32_t id0 = ((layer->id().rawId()) & layerIdMask);
+    uint32_t id0 = ((layer->id().rawId()) & ME0DetId::layerIdMask_);
     for (auto& etaPart : partitions) {
-      if (((etaPart->id().rawId()) & layerIdMask) == id0) {
+      if (((etaPart->id().rawId()) & ME0DetId::layerIdMask_) == id0) {
         layer->add(etaPart);
       }
     }
     geometry->add(layer);
   }
   for (auto& chamber : chambers) {
-    uint32_t id0 = ((chamber->id().rawId()) & chamberIdMask);
+    uint32_t id0 = ((chamber->id().rawId()) & ME0DetId::chamberIdMask_);
     for (auto& layer : layers) {
-      if (((layer->id().rawId()) & chamberIdMask) == id0) {
+      if (((layer->id().rawId()) & ME0DetId::chamberIdMask_) == id0) {
         chamber->add(layer);
       }
     }
