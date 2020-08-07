@@ -32,6 +32,7 @@
 #include "DataFormats/GeometrySurface/interface/BoundPlane.h"
 #include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHit.h"
 #include "TrackingTools/KalmanUpdators/interface/EtaPhiMeasurementEstimator.h"
+#include "DataFormats/Math/interface/normalizedPhi.h"
 
 #include <iostream>
 #include <algorithm>
@@ -51,6 +52,9 @@ std::vector<bool> RectangularEtaPhiTrackingRegion::checkTracks(reco::TrackCollec
   std::vector<bool> mask(InputCollection.size(), false);
   int it = -1;
   math::XYZPoint regOrigin(origin().x(), origin().y(), origin().z());
+  auto phi0 = phiDirection() + 0.5 * (phiMargin().right() - phiMargin().left());
+  auto dphi = 0.5 * (phiMargin().right() + phiMargin().left());
+
   for (auto const& track : InputCollection) {
     it++;
     if (track.pt() < ptMin()) {
@@ -60,7 +64,7 @@ std::vector<bool> RectangularEtaPhiTrackingRegion::checkTracks(reco::TrackCollec
     if (!etaRange().inside(track.eta())) {
       continue;
     }
-    if (std::abs(reco::deltaPhi(track.phi(), phiDirection())) > phiMargin().right()) {
+    if (std::abs(proxim(track.phi(), phi0) - phi0) > dphi) {
       continue;
     }
     if (std::abs(track.dxy(regOrigin)) > originRBound()) {
