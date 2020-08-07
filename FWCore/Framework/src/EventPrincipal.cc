@@ -4,6 +4,7 @@
 #include "DataFormats/Common/interface/FunctorHandleExceptionFactory.h"
 #include "DataFormats/Common/interface/ThinnedAssociation.h"
 #include "DataFormats/Common/interface/Wrapper.h"
+#include "DataFormats/Common/interface/getThinned_implementation.h"
 #include "DataFormats/Provenance/interface/BranchIDList.h"
 #include "DataFormats/Provenance/interface/BranchIDListHelper.h"
 #include "DataFormats/Provenance/interface/BranchListIndex.h"
@@ -300,111 +301,28 @@ namespace edm {
 
   WrapperBase const* EventPrincipal::getIt(ProductID const& pid) const { return getByProductID(pid).wrapper(); }
 
-  WrapperBase const* EventPrincipal::getThinnedProduct(ProductID const& pid, unsigned int& key) const {
-    BranchID parent = pidToBid(pid);
-
-    // Loop over thinned containers which were made by selecting elements from the parent container
-    for (auto associatedBranches = thinnedAssociationsHelper_->parentBegin(parent),
-              iEnd = thinnedAssociationsHelper_->parentEnd(parent);
-         associatedBranches != iEnd;
-         ++associatedBranches) {
-      ThinnedAssociation const* thinnedAssociation = getThinnedAssociation(associatedBranches->association());
-      if (thinnedAssociation == nullptr)
-        continue;
-
-      if (associatedBranches->parent() != pidToBid(thinnedAssociation->parentCollectionID())) {
-        continue;
-      }
-
-      unsigned int thinnedIndex = 0;
-      // Does this thinned container have the element referenced by key?
-      // If yes, thinnedIndex is set to point to it in the thinned container
-      if (!thinnedAssociation->hasParentIndex(key, thinnedIndex)) {
-        continue;
-      }
-      // Get the thinned container and return a pointer if we can find it
-      ProductID const& thinnedCollectionPID = thinnedAssociation->thinnedCollectionID();
-      BasicHandle bhThinned = getByProductID(thinnedCollectionPID);
-      if (!bhThinned.isValid()) {
-        // Thinned container is not found, try looking recursively in thinned containers
-        // which were made by selecting elements from this thinned container.
-        WrapperBase const* wrapperBase = getThinnedProduct(thinnedCollectionPID, thinnedIndex);
-        if (wrapperBase != nullptr) {
-          key = thinnedIndex;
-          return wrapperBase;
-        } else {
-          continue;
-        }
-      }
-      key = thinnedIndex;
-      return bhThinned.wrapper();
-    }
-    return nullptr;
+  std::optional<std::tuple<WrapperBase const*, unsigned int>> EventPrincipal::getThinnedProduct(
+      ProductID const& pid, unsigned int key) const {
+    return detail::getThinnedProduct(
+        pid,
+        key,
+        *thinnedAssociationsHelper_,
+        [this](ProductID const& p) { return pidToBid(p); },
+        [this](BranchID const& b) { return getThinnedAssociation(b); },
+        [this](ProductID const& p) { return getIt(p); });
   }
 
   void EventPrincipal::getThinnedProducts(ProductID const& pid,
                                           std::vector<WrapperBase const*>& foundContainers,
                                           std::vector<unsigned int>& keys) const {
-    BranchID parent = pidToBid(pid);
-
-    // Loop over thinned containers which were made by selecting elements from the parent container
-    for (auto associatedBranches = thinnedAssociationsHelper_->parentBegin(parent),
-              iEnd = thinnedAssociationsHelper_->parentEnd(parent);
-         associatedBranches != iEnd;
-         ++associatedBranches) {
-      ThinnedAssociation const* thinnedAssociation = getThinnedAssociation(associatedBranches->association());
-      if (thinnedAssociation == nullptr)
-        continue;
-
-      if (associatedBranches->parent() != pidToBid(thinnedAssociation->parentCollectionID())) {
-        continue;
-      }
-
-      unsigned nKeys = keys.size();
-      unsigned int doNotLookForThisIndex = std::numeric_limits<unsigned int>::max();
-      std::vector<unsigned int> thinnedIndexes(nKeys, doNotLookForThisIndex);
-      bool hasAny = false;
-      for (unsigned k = 0; k < nKeys; ++k) {
-        // Already found this one
-        if (foundContainers[k] != nullptr)
-          continue;
-        // Already know this one is not in this thinned container
-        if (keys[k] == doNotLookForThisIndex)
-          continue;
-        // Does the thinned container hold the entry of interest?
-        // Modifies thinnedIndexes[k] only if it returns true and
-        // sets it to the index in the thinned collection.
-        if (thinnedAssociation->hasParentIndex(keys[k], thinnedIndexes[k])) {
-          hasAny = true;
-        }
-      }
-      if (!hasAny) {
-        continue;
-      }
-      // Get the thinned container and set the pointers and indexes into
-      // it (if we can find it)
-      ProductID thinnedCollectionPID = thinnedAssociation->thinnedCollectionID();
-      BasicHandle bhThinned = getByProductID(thinnedCollectionPID);
-      if (!bhThinned.isValid()) {
-        // Thinned container is not found, try looking recursively in thinned containers
-        // which were made by selecting elements from this thinned container.
-        getThinnedProducts(thinnedCollectionPID, foundContainers, thinnedIndexes);
-        for (unsigned k = 0; k < nKeys; ++k) {
-          if (foundContainers[k] == nullptr)
-            continue;
-          if (thinnedIndexes[k] == doNotLookForThisIndex)
-            continue;
-          keys[k] = thinnedIndexes[k];
-        }
-      } else {
-        for (unsigned k = 0; k < nKeys; ++k) {
-          if (thinnedIndexes[k] == doNotLookForThisIndex)
-            continue;
-          keys[k] = thinnedIndexes[k];
-          foundContainers[k] = bhThinned.wrapper();
-        }
-      }
-    }
+    detail::getThinnedProducts(
+        pid,
+        *thinnedAssociationsHelper_,
+        [this](ProductID const& p) { return pidToBid(p); },
+        [this](BranchID const& b) { return getThinnedAssociation(b); },
+        [this](ProductID const& p) { return getIt(p); },
+        foundContainers,
+        keys);
   }
 
   Provenance EventPrincipal::getProvenance(ProductID const& pid, ModuleCallingContext const* mcc) const {

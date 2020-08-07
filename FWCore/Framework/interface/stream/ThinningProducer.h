@@ -65,8 +65,8 @@ namespace edm {
     ParameterSetDescription desc;
     desc.setComment("Produces thinned collections and associations to them");
     desc.add<edm::InputTag>("inputTag");
-    Selector::fillDescription(desc);
-    descriptions.addDefault(desc);
+    Selector::fillPSetDescription(desc);
+    descriptions.addWithDefaultLabel(desc);
   }
 
   template <typename Collection, typename Selector>

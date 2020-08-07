@@ -161,7 +161,7 @@ void testRef::comparisonTest() {
     CPPUNIT_ASSERT(dummyRef21 < dummyRef22);
     CPPUNIT_ASSERT(!(dummyRef22 < dummyRef21));
 
-    typedef std::map<int, double, std::greater<int> > DummyCollection3;
+    typedef std::map<int, double, std::greater<int>> DummyCollection3;
     ProductID const pid3(1, 3);
     DummyCollection3 dummyCollection3;
     dummyCollection3.insert(std::make_pair(1, 1.0));
@@ -178,15 +178,18 @@ void testRef::comparisonTest() {
 namespace {
   struct TestGetter : public edm::EDProductGetter {
     WrapperBase const* hold_;
-    virtual WrapperBase const* getIt(ProductID const&) const override { return hold_; }
+    WrapperBase const* getIt(ProductID const&) const override { return hold_; }
 
-    virtual WrapperBase const* getThinnedProduct(ProductID const&, unsigned int&) const override { return nullptr; }
+    std::optional<std::tuple<edm::WrapperBase const*, unsigned int>> getThinnedProduct(ProductID const&,
+                                                                                       unsigned int) const override {
+      return std::nullopt;
+    }
 
-    virtual void getThinnedProducts(ProductID const& pid,
-                                    std::vector<WrapperBase const*>& wrappers,
-                                    std::vector<unsigned int>& keys) const override {}
+    void getThinnedProducts(ProductID const& pid,
+                            std::vector<WrapperBase const*>& wrappers,
+                            std::vector<unsigned int>& keys) const override {}
 
-    virtual unsigned int transitionIndex_() const override { return 0U; }
+    unsigned int transitionIndex_() const override { return 0U; }
     TestGetter() : hold_(nullptr) {}
   };
 
