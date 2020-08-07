@@ -21,7 +21,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -66,7 +66,7 @@
 using namespace susybsm;
 using namespace edm;
 
-class ProduceIsolationMap : public edm::EDProducer {
+class ProduceIsolationMap : public edm::stream::EDProducer<> {
 public:
   explicit ProduceIsolationMap(const edm::ParameterSet&);
   ~ProduceIsolationMap() override;

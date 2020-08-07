@@ -1,7 +1,7 @@
 #include <memory>
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/global/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -16,17 +16,15 @@
 //
 // class declaration
 //
-class UpdatedMuonInnerTrackRef : public edm::EDProducer {
+class UpdatedMuonInnerTrackRef : public edm::global::EDProducer<> {
 public:
   explicit UpdatedMuonInnerTrackRef(const edm::ParameterSet&);
-  ~UpdatedMuonInnerTrackRef() override;
 
 private:
-  void beginJob() override;
-  void produce(edm::Event&, const edm::EventSetup&) override;
-  void endJob() override;
+  void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
 
-  reco::TrackRef findNewRef(reco::TrackRef oldTrackRef, edm::Handle<reco::TrackCollection>& newTrackCollection);
+  reco::TrackRef findNewRef(reco::TrackRef const& oldTrackRef,
+                            edm::Handle<reco::TrackCollection> const& newTrackCollection) const;
 
   edm::EDGetTokenT<edm::View<reco::Muon> > muonToken_;
   edm::EDGetTokenT<reco::TrackCollection> oldTrackToken_;
@@ -55,16 +53,7 @@ UpdatedMuonInnerTrackRef::UpdatedMuonInnerTrackRef(const edm::ParameterSet& pset
 }
 
 /////////////////////////////////////////////////////////////////////////////////////
-UpdatedMuonInnerTrackRef::~UpdatedMuonInnerTrackRef() {}
-
-/////////////////////////////////////////////////////////////////////////////////////
-void UpdatedMuonInnerTrackRef::beginJob() {}
-
-/////////////////////////////////////////////////////////////////////////////////////
-void UpdatedMuonInnerTrackRef::endJob() {}
-
-/////////////////////////////////////////////////////////////////////////////////////
-void UpdatedMuonInnerTrackRef::produce(edm::Event& ev, const edm::EventSetup& iSetup) {
+void UpdatedMuonInnerTrackRef::produce(edm::StreamID, edm::Event& ev, const edm::EventSetup& iSetup) const {
   // Muon collection
   edm::Handle<edm::View<reco::Muon> > muonCollectionHandle;
   if (!ev.getByToken(muonToken_, muonCollectionHandle)) {
@@ -89,7 +78,7 @@ void UpdatedMuonInnerTrackRef::produce(edm::Event& ev, const edm::EventSetup& iS
 
   for (unsigned int i = 0; i < muonCollectionSize; i++) {
     edm::RefToBase<reco::Muon> mu = muonCollectionHandle->refAt(i);
-    reco::Muon* newmu = mu->clone();
+    std::unique_ptr<reco::Muon> newmu{mu->clone()};
 
     if (mu->innerTrack().isNonnull()) {
       reco::TrackRef newTrackRef = findNewRef(mu->innerTrack(), newTrackCollection);
@@ -109,8 +98,8 @@ void UpdatedMuonInnerTrackRef::produce(edm::Event& ev, const edm::EventSetup& iS
   ev.put(std::move(newmuons));
 }
 
-reco::TrackRef UpdatedMuonInnerTrackRef::findNewRef(reco::TrackRef oldTrackRef,
-                                                    edm::Handle<reco::TrackCollection>& newTrackCollection) {
+reco::TrackRef UpdatedMuonInnerTrackRef::findNewRef(
+    reco::TrackRef const& oldTrackRef, edm::Handle<reco::TrackCollection> const& newTrackCollection) const {
   float dRMin = 1000;
   int found = -1;
   for (unsigned int i = 0; i < newTrackCollection->size(); i++) {
