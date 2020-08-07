@@ -1,41 +1,55 @@
-#include "CUDADataFormats/Common/interface/Product.h"
+#include <cuda_runtime.h>
+
 #include "CUDADataFormats/BeamSpot/interface/BeamSpotCUDA.h"
+#include "CUDADataFormats/Common/interface/Product.h"
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/global/EDProducer.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
-#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "HeterogeneousCore/CUDACore/interface/ScopedContext.h"
 #include "HeterogeneousCore/CUDAServices/interface/CUDAService.h"
+#include "HeterogeneousCore/CUDAUtilities/interface/copyAsync.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/host_noncached_unique_ptr.h"
 
-#include <cuda_runtime.h>
-
 namespace {
-  class BSHost {
+
+  class BeamSpotHost {
   public:
-    BSHost() : bs{cms::cuda::make_host_noncached_unique<BeamSpotCUDA::Data>(cudaHostAllocWriteCombined)} {}
-    BeamSpotCUDA::Data* get() { return bs.get(); }
+    BeamSpotHost() : data_h_{cms::cuda::make_host_noncached_unique<BeamSpotCUDA::Data>(cudaHostAllocWriteCombined)} {}
+
+    BeamSpotHost(BeamSpotHost const&) = delete;
+    BeamSpotHost(BeamSpotHost&&) = default;
+
+    BeamSpotHost& operator=(BeamSpotHost const&) = delete;
+    BeamSpotHost& operator=(BeamSpotHost&&) = default;
+
+    BeamSpotCUDA::Data* data() { return data_h_.get(); }
+    BeamSpotCUDA::Data const* data() const { return data_h_.get(); }
+
+    cms::cuda::host::noncached::unique_ptr<BeamSpotCUDA::Data>& ptr() { return data_h_; }
+    cms::cuda::host::noncached::unique_ptr<BeamSpotCUDA::Data> const& ptr() const { return data_h_; }
 
   private:
-    cms::cuda::host::noncached::unique_ptr<BeamSpotCUDA::Data> bs;
+    cms::cuda::host::noncached::unique_ptr<BeamSpotCUDA::BeamSpotCUDA::Data> data_h_;
   };
+
 }  // namespace
 
-class BeamSpotToCUDA : public edm::global::EDProducer<edm::StreamCache<BSHost>> {
+class BeamSpotToCUDA : public edm::global::EDProducer<edm::StreamCache<BeamSpotHost>> {
 public:
   explicit BeamSpotToCUDA(const edm::ParameterSet& iConfig);
   ~BeamSpotToCUDA() override = default;
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
-  std::unique_ptr<BSHost> beginStream(edm::StreamID) const override {
+  std::unique_ptr<BeamSpotHost> beginStream(edm::StreamID) const override {
     edm::Service<CUDAService> cs;
     if (cs->enabled()) {
-      return std::make_unique<BSHost>();
+      return std::make_unique<BeamSpotHost>();
     } else {
       return nullptr;
     }
@@ -43,8 +57,8 @@ public:
   void produce(edm::StreamID streamID, edm::Event& iEvent, const edm::EventSetup& iSetup) const override;
 
 private:
-  edm::EDGetTokenT<reco::BeamSpot> bsGetToken_;
-  edm::EDPutTokenT<cms::cuda::Product<BeamSpotCUDA>> bsPutToken_;
+  const edm::EDGetTokenT<reco::BeamSpot> bsGetToken_;
+  const edm::EDPutTokenT<cms::cuda::Product<BeamSpotCUDA>> bsPutToken_;
 };
 
 BeamSpotToCUDA::BeamSpotToCUDA(const edm::ParameterSet& iConfig)
@@ -62,7 +76,7 @@ void BeamSpotToCUDA::produce(edm::StreamID streamID, edm::Event& iEvent, const e
 
   const reco::BeamSpot& bs = iEvent.get(bsGetToken_);
 
-  BeamSpotCUDA::Data* bsHost = streamCache(streamID)->get();
+  auto& bsHost = streamCache(streamID)->ptr();
 
   bsHost->x = bs.x0();
   bsHost->y = bs.y0();
@@ -77,7 +91,10 @@ void BeamSpotToCUDA::produce(edm::StreamID streamID, edm::Event& iEvent, const e
   bsHost->emittanceY = bs.emittanceY();
   bsHost->betaStar = bs.betaStar();
 
-  ctx.emplace(iEvent, bsPutToken_, bsHost, ctx.stream());
+  BeamSpotCUDA bsDevice(ctx.stream());
+  cms::cuda::copyAsync(bsDevice.ptr(), bsHost, ctx.stream());
+
+  ctx.emplace(iEvent, bsPutToken_, std::move(bsDevice));
 }
 
 DEFINE_FWK_MODULE(BeamSpotToCUDA);
