@@ -88,9 +88,9 @@ vector<GeometricSearchDet::DetWithState> MTDDetSector::compatibleDets(const Traj
   std::vector<std::pair<double, size_t> > tmpDets;
   for (size_t idet = 0; idet < basicComponents().size(); idet++) {
     double dist2 = (startPos - theDets[idet]->position()).mag2();
-    LogTrace("MTDDetLayers") << "MTDDetSector::compatibleDets " << std::fixed << std::setw(14) << idet << " "
-                             << std::setw(14) << startPos << " " << std::setw(14) << theDets[idet]->position() << " "
-                             << std::setw(14) << dist2;
+    //LogTrace("MTDDetLayers") << "MTDDetSector::compatibleDets " << std::fixed << std::setw(14) << idet << " "
+    //<< std::setw(14) << startPos << " " << std::setw(14) << theDets[idet]->position() << " "
+    //<< std::setw(14) << dist2;
     tmpDets.emplace_back(make_pair(dist2, idet));
   }
   sort(tmpDets.begin(), tmpDets.end());
@@ -98,11 +98,18 @@ vector<GeometricSearchDet::DetWithState> MTDDetSector::compatibleDets(const Traj
   // start from the closest det, loop until no compatibility is seen
 
   for (const auto& thisDet : tmpDets) {
-    LogTrace("MTDDetLayers") << "MTDDetSector::compatibleDets trial: " << std::setw(14) << thisDet.first << " "
-                             << std::setw(14) << thisDet.second;
+    //LogTrace("MTDDetLayers") << "MTDDetSector::compatibleDets trial: " << std::setw(14) << thisDet.second << " "
+    //<< std::setw(14) << thisDet.first:q;
     if (!add(static_cast<int>(thisDet.second), result, tsos, prop, est)) {
       break;
     }
+#ifdef EDM_ML_DEBUG
+    else {
+      LogTrace("MTDDetLayers") << "MTDDetSector::compatibleDets found compatible det "
+                               << theDets[thisDet.second]->geographicalId().rawId() << " at "
+                               << theDets[thisDet.second]->position() << " dist = " << std::sqrt(thisDet.first);
+    }
+#endif
   }
 #ifdef EDM_ML_DEBUG
   if (result.empty()) {

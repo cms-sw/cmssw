@@ -1,4 +1,4 @@
-#define EDM_ML_DEBUG
+//#define EDM_ML_DEBUG
 
 #include <RecoMTD/DetLayers/interface/MTDSectorForwardLayer.h>
 #include <RecoMTD/DetLayers/interface/MTDDetSector.h>
@@ -92,7 +92,7 @@ vector<GeometricSearchDet::DetWithState> MTDSectorForwardLayer::compatibleDets(
   for (unsigned int isect = 0; isect < theSectors.size(); isect++) {
     LocalPoint nextPos(theSectors[isect]->specificSurface().toLocal(startPos));
     LogDebug("MTDDetLayers") << "Global point = " << std::fixed << startPos << " local point = " << nextPos
-                             << " global pos = " << theSectors[isect]->specificSurface().position();
+                             << " global sector ref pos = " << theSectors[isect]->specificSurface().position();
     bool inside = false;
     if (tsos.hasError()) {
       inside = theSectors[isect]->specificSurface().bounds().inside(nextPos, tsos.localError().positionError(), 1.);

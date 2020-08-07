@@ -1,4 +1,4 @@
-#define EDM_ML_DEBUG
+//#define EDM_ML_DEBUG
 
 #include "MTDDiskSectorBuilderFromDet.h"
 
@@ -56,7 +56,7 @@ namespace {
 
     GlobalVector pos(rmed * cos(phiPos), rmed * sin(phiPos), zPos);
 
-    LogDebug("MTDDetLayers") << "MTDDiskSectorBuilderFromDet::computeBounds sector at: " << std::fixed << pos << "\n"
+    LogTrace("MTDDetLayers") << "MTDDiskSectorBuilderFromDet::computeBounds sector at: " << std::fixed << pos << "\n"
                              << "zmin    : " << std::setw(14) << zmin << "\n"
                              << "zmax    : " << std::setw(14) << zmax << "\n"
                              << "rmin    : " << std::setw(14) << rmin << "\n"

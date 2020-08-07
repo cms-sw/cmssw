@@ -269,33 +269,35 @@ void MTDRecoGeometryAnalyzer::testETLLayersNew(const MTDDetLayerGeometry* geo, c
 
     GlobalTrajectoryParameters gtp(gp, gv, charge, field);
     TrajectoryStateOnSurface tsos(gtp, disk);
-    LogVerbatim("MTDLayerDump") << "\ntestETLLayers: at " << std::fixed << tsos.globalPosition() << " R=" << std::setw(14)
-                            << tsos.globalPosition().perp() << " phi=" << std::setw(14) << tsos.globalPosition().phi()
-                            << " Z=" << std::setw(14) << tsos.globalPosition().z() << " p = " << tsos.globalMomentum();
+    LogVerbatim("MTDLayerDump") << "\ntestETLLayers: at " << std::fixed << tsos.globalPosition()
+                                << " R=" << std::setw(14) << tsos.globalPosition().perp() << " phi=" << std::setw(14)
+                                << tsos.globalPosition().phi() << " Z=" << std::setw(14) << tsos.globalPosition().z()
+                                << " p = " << tsos.globalMomentum();
 
     SteppingHelixPropagator prop(field, anyDirection);
 
     pair<bool, TrajectoryStateOnSurface> comp = layer->compatible(tsos, prop, *theEstimator);
     LogVerbatim("MTDLayerDump") << std::fixed << "is compatible: " << comp.first << " at: R=" << std::setw(14)
-                            << comp.second.globalPosition().perp() << " phi=" << std::setw(14)
-                            << comp.second.globalPosition().phi() << " Z=" << std::setw(14)
-                            << comp.second.globalPosition().z();
+                                << comp.second.globalPosition().perp() << " phi=" << std::setw(14)
+                                << comp.second.globalPosition().phi() << " Z=" << std::setw(14)
+                                << comp.second.globalPosition().z();
 
     vector<DetLayer::DetWithState> compDets = layer->compatibleDets(tsos, prop, *theEstimator);
     if (compDets.size()) {
       LogVerbatim("MTDLayerDump") << std::fixed << "compatibleDets: " << std::setw(14) << compDets.size() << "\n"
-                              << "  final state pos: " << compDets.front().second.globalPosition() << "\n"
-                              << "  det         pos: " << compDets.front().first->position() << " id: " << std::hex
-                              << ETLDetId(compDets.front().first->geographicalId().rawId()).rawId() << std::dec << "\n"
-                              << "  distance " << std::setw(14)
-                              << (tsos.globalPosition() - compDets.front().first->position()).mag();
+                                  << "  final state pos: " << compDets.front().second.globalPosition() << "\n"
+                                  << "  det         pos: " << compDets.front().first->position() << " id: " << std::hex
+                                  << ETLDetId(compDets.front().first->geographicalId().rawId()).rawId() << std::dec
+                                  << "\n"
+                                  << "  distance " << std::setw(14)
+                                  << (compDets.front().second.globalPosition() - compDets.front().first->position()).mag();
     } else {
       if (layer->isCrack(gp)) {
         LogVerbatim("MTDLayerDump") << " MTD crack found ";
       } else {
         LogVerbatim("MTDLayerDump") << " ERROR : no compatible det found in MTD"
-                                << " at: R=" << std::setw(14) << gp.perp() << " phi= " << std::setw(14)
-                                << gp.phi().degrees() << " Z= " << std::setw(14) << gp.z();
+                                    << " at: R=" << std::setw(14) << gp.perp() << " phi= " << std::setw(14)
+                                    << gp.phi().degrees() << " Z= " << std::setw(14) << gp.z();
       }
     }
   }
