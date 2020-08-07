@@ -116,8 +116,8 @@ phase2_common.toModify(
     )
 )
 
-from Configuration.Eras.Modifier_run2_miniAOD_devel_cff import run2_miniAOD_devel
-run2_miniAOD_devel.toModify(
+from Configuration.ProcessModifiers.run2_miniAOD_UL_cff import run2_miniAOD_UL
+run2_miniAOD_UL.toModify(
     puppi,
     EtaMinUseDeltaZ = 2.4,
     PtMaxCharged = 20.,
