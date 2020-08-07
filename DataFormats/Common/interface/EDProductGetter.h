@@ -19,7 +19,9 @@
 // user include files
 
 // system include files
+#include <optional>
 #include <string>
+#include <tuple>
 #include <vector>
 
 // forward declarations
@@ -44,11 +46,11 @@ namespace edm {
     // getThinnedProduct assumes getIt was already called and failed to find
     // the product. The input key is the index of the desired element in the
     // container identified by ProductID (which cannot be found).
-    // If the return value is not null, then the desired element was found
-    // in a thinned container and key is modified to be the index into
-    // that thinned container. If the desired element is not found, then
-    // nullptr is returned.
-    virtual WrapperBase const* getThinnedProduct(ProductID const&, unsigned int& key) const = 0;
+    // If the return value is not null, then the desired element was
+    // found in a thinned container. If the desired element is not
+    // found, then an optional without a value is returned.
+    virtual std::optional<std::tuple<WrapperBase const*, unsigned int>> getThinnedProduct(ProductID const&,
+                                                                                          unsigned int key) const = 0;
 
     // getThinnedProducts assumes getIt was already called and failed to find
     // the product. The input keys are the indexes into the container identified

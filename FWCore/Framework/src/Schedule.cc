@@ -722,7 +722,6 @@ namespace edm {
     for (auto const& worker : streamSchedules_[0]->allWorkers()) {
       worker->registerThinnedAssociations(preg, thinnedAssociationsHelper);
     }
-    thinnedAssociationsHelper.sort();
 
     // The output modules consume products in kept branches.
     // So we must set this up before freezing.

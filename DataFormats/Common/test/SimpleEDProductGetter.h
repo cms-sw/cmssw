@@ -21,7 +21,7 @@ public:
 
   size_t size() const { return database.size(); }
 
-  virtual edm::WrapperBase const* getIt(edm::ProductID const& id) const override {
+  edm::WrapperBase const* getIt(edm::ProductID const& id) const override {
     map_t::const_iterator i = database.find(id);
     if (i == database.end()) {
       edm::Exception e(edm::errors::ProductNotFound, "InvalidID");
@@ -31,16 +31,17 @@ public:
     return i->second.get();
   }
 
-  virtual edm::WrapperBase const* getThinnedProduct(edm::ProductID const&, unsigned int&) const override {
-    return nullptr;
+  std::optional<std::tuple<edm::WrapperBase const*, unsigned int>> getThinnedProduct(edm::ProductID const&,
+                                                                                     unsigned int) const override {
+    return std::nullopt;
   }
 
-  virtual void getThinnedProducts(edm::ProductID const& pid,
-                                  std::vector<edm::WrapperBase const*>& wrappers,
-                                  std::vector<unsigned int>& keys) const override {}
+  void getThinnedProducts(edm::ProductID const& pid,
+                          std::vector<edm::WrapperBase const*>& wrappers,
+                          std::vector<unsigned int>& keys) const override {}
 
 private:
-  virtual unsigned int transitionIndex_() const override { return 0U; }
+  unsigned int transitionIndex_() const override { return 0U; }
 
   map_t database;
 };

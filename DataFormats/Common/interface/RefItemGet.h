@@ -71,8 +71,8 @@ namespace edm {
           product.setProductPtr(item);
           return item;
         }
-        unsigned int thinnedKey = key;
-        prod = edm::template getThinnedProduct<C>(product, thinnedKey, getter);
+        unsigned int thinnedKey;
+        std::tie(prod, thinnedKey) = edm::template getThinnedProduct<C>(product, key, getter);
         F func;
         item = func(*prod, thinnedKey);
         product.setProductPtr(item);
