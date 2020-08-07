@@ -136,7 +136,7 @@ namespace edm {
     template <typename T>
     bool doWork(typename T::TransitionInfoType const&, StreamID, ParentContext const&, typename T::Context const*);
 
-    void prePrefetchSelectionAsync(WaitingTask* task, ServiceToken const&, StreamID stream, EventPrincipal const*);
+    void prePrefetchSelectionAsync(WaitingTask* task, ServiceToken const&, StreamID stream, EventTransitionInfo const*);
 
     void prePrefetchSelectionAsync(WaitingTask* task, ServiceToken const&, StreamID stream, void const*) {
       assert(false);
@@ -347,7 +347,6 @@ namespace edm {
         WaitingTask*, ServiceToken const&, ParentContext const&, typename T::TransitionInfoType const&, Transition);
 
     void esPrefetchAsync(WaitingTask*, EventSetupImpl const&, Transition, ServiceToken const&);
-    void edPrefetchAsync(WaitingTask*, ServiceToken const&, Principal const&) const;
 
     bool needsESPrefetching(Transition iTrans) const noexcept {
       return iTrans < edm::Transition::NumberOfEventSetupTransitions ? not esItemsToGetFrom(iTrans).empty() : false;
@@ -923,7 +922,18 @@ namespace edm {
     iTask->increment_ref_count();
 
     workerhelper::CallImpl<T>::esPrefetch(this, iTask, token, transitionInfo, iTransition);
-    edPrefetchAsync(iTask, token, principal);
+
+    // Prefetch products the module declares it consumes
+    std::vector<ProductResolverIndexAndSkipBit> const& items = itemsToGetFrom(principal.branchType());
+
+    for (auto const& item : items) {
+      ProductResolverIndex productResolverIndex = item.productResolverIndex();
+      bool skipCurrentProcess = item.skipCurrentProcess();
+      if (productResolverIndex != ProductResolverIndexAmbiguous) {
+        principal.prefetchAsync(
+            iTask, productResolverIndex, skipCurrentProcess, token, &moduleCallingContext_, transitionInfo);
+      }
+    }
 
     if (principal.branchType() == InEvent) {
       preActionBeforeRunEventAsync(iTask, moduleCallingContext_, principal);
@@ -992,7 +1002,7 @@ namespace edm {
               ServiceRegistry::Operate guard(token);
               prefetchAsync<T>(ownRunTask->release(), token, parentContext, info, T::transition_);
             });
-        prePrefetchSelectionAsync(selectionTask, token, streamID, &transitionInfo.principal());
+        prePrefetchSelectionAsync(selectionTask, token, streamID, &transitionInfo);
       } else {
         WaitingTask* moduleTask = new (tbb::task::allocate_root())
             RunModuleTask<T>(this, transitionInfo, token, streamID, parentContext, context);
@@ -1151,7 +1161,7 @@ namespace edm {
         auto waitTask = edm::make_empty_waiting_task();
         waitTask->set_ref_count(2);
         prePrefetchSelectionAsync(
-            waitTask.get(), ServiceRegistry::instance().presentToken(), streamID, &transitionInfo.principal());
+            waitTask.get(), ServiceRegistry::instance().presentToken(), streamID, &transitionInfo);
         waitTask->decrement_ref_count();
         waitTask->wait_for_all();
 

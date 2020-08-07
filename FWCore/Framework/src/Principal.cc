@@ -11,9 +11,9 @@
 #include "FWCore/Framework/interface/HistoryAppender.h"
 #include "FWCore/Framework/interface/ProductDeletedException.h"
 #include "FWCore/Framework/interface/EDConsumerBase.h"
+#include "FWCore/Framework/src/TransitionInfoTypes.h"
 #include "ProductResolvers.h"
 #include "FWCore/Utilities/interface/EDMException.h"
-#include "FWCore/Utilities/interface/ProductResolverIndex.h"
 #include "FWCore/Utilities/interface/TypeID.h"
 #include "FWCore/Utilities/interface/WrappedClassName.h"
 #include "FWCore/Utilities/interface/Likely.h"
@@ -366,7 +366,15 @@ namespace edm {
   }
 
   void Principal::addParentProcessProduct(std::shared_ptr<BranchDescription const> bd) {
-    addProductOrThrow(std::make_unique<ParentProcessProductResolver>(std::move(bd)));
+    if (bd->branchType() == InEvent) {
+      addProductOrThrow(std::make_unique<ParentProcessProductResolver<EventTransitionInfo>>(std::move(bd)));
+    } else if (bd->branchType() == InLumi) {
+      addProductOrThrow(std::make_unique<ParentProcessProductResolver<LumiTransitionInfo>>(std::move(bd)));
+    } else if (bd->branchType() == InRun) {
+      addProductOrThrow(std::make_unique<ParentProcessProductResolver<RunTransitionInfo>>(std::move(bd)));
+    } else if (bd->branchType() == InProcess) {
+      addProductOrThrow(std::make_unique<ParentProcessProductResolver<ProcessBlockTransitionInfo>>(std::move(bd)));
+    }
   }
 
   // "Zero" the principal so it can be reused for another Event.
@@ -621,16 +629,6 @@ namespace edm {
       return BasicHandle::makeInvalid();
     }
     return BasicHandle(productData->wrapper(), &(productData->provenance()));
-  }
-
-  void Principal::prefetchAsync(WaitingTask* task,
-                                ProductResolverIndex index,
-                                bool skipCurrentProcess,
-                                ServiceToken const& token,
-                                ModuleCallingContext const* mcc) const {
-    auto const& productResolver = productResolvers_.at(index);
-    assert(nullptr != productResolver.get());
-    productResolver->prefetchAsync(task, *this, skipCurrentProcess, token, nullptr, mcc);
   }
 
   void Principal::getManyByType(TypeID const& typeID,

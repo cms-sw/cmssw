@@ -5,9 +5,12 @@
 #include "UnscheduledAuxiliary.h"
 #include "UnscheduledConfigurator.h"
 #include "FWCore/Framework/interface/EventPrincipal.h"
+#include "FWCore/Framework/interface/LuminosityBlockPrincipal.h"
 #include "FWCore/Framework/interface/MergeableRunProductMetadata.h"
 #include "FWCore/Framework/interface/Principal.h"
+#include "FWCore/Framework/interface/ProcessBlockPrincipal.h"
 #include "FWCore/Framework/interface/ProductDeletedException.h"
+#include "FWCore/Framework/interface/RunPrincipal.h"
 #include "FWCore/Framework/interface/SharedResourcesAcquirer.h"
 #include "FWCore/Framework/interface/DelayedReader.h"
 #include "FWCore/Framework/src/TransitionInfoTypes.h"
@@ -17,6 +20,9 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Concurrency/interface/SerialTaskQueue.h"
 #include "FWCore/Concurrency/interface/FunctorTask.h"
+#include "FWCore/ServiceRegistry/interface/ModuleCallingContext.h"
+#include "FWCore/ServiceRegistry/interface/ServiceRegistry.h"
+#include "FWCore/ServiceRegistry/interface/ServiceToken.h"
 #include "FWCore/Utilities/interface/TypeID.h"
 #include "FWCore/Utilities/interface/make_sentry.h"
 #include "FWCore/Utilities/interface/Transition.h"
@@ -243,12 +249,24 @@ namespace edm {
     setMergeableRunProductMetadataInProductData(mrpm);
   }
 
-  void InputProductResolver::prefetchAsync_(WaitingTask* waitTask,
-                                            Principal const& principal,
-                                            bool skipCurrentProcess,
-                                            ServiceToken const& token,
-                                            SharedResourcesAcquirer* sra,
-                                            ModuleCallingContext const* mcc) const {
+  void InputProductResolver::prefetchAsync_(PrefetchArguments& pa, EventTransitionInfo const& info) const {
+    prefetchAsyncImpl(pa, info.principal());
+  }
+  void InputProductResolver::prefetchAsync_(PrefetchArguments& pa, LumiTransitionInfo const& info) const {
+    prefetchAsyncImpl(pa, info.principal());
+  }
+  void InputProductResolver::prefetchAsync_(PrefetchArguments& pa, RunTransitionInfo const& info) const {
+    prefetchAsyncImpl(pa, info.principal());
+  }
+  void InputProductResolver::prefetchAsync_(PrefetchArguments& pa, ProcessBlockTransitionInfo const& info) const {
+    prefetchAsyncImpl(pa, info.principal());
+  }
+
+  void InputProductResolver::prefetchAsyncImpl(PrefetchArguments& pa, Principal const& principal) const {
+    WaitingTask* waitTask = pa.waitTask;
+    ServiceToken const& token = pa.token;
+    ModuleCallingContext const* mcc = pa.mcc;
+
     //need to try changing m_prefetchRequested before adding to m_waitingTasks
     bool expected = false;
     bool prefetchRequested = m_prefetchRequested.compare_exchange_strong(expected, true);
@@ -323,12 +341,24 @@ namespace edm {
     return Resolution(nullptr);
   }
 
-  void PuttableProductResolver::prefetchAsync_(WaitingTask* waitTask,
-                                               Principal const& principal,
-                                               bool skipCurrentProcess,
-                                               ServiceToken const& token,
-                                               SharedResourcesAcquirer* sra,
-                                               ModuleCallingContext const* mcc) const {
+  void PuttableProductResolver::prefetchAsync_(PrefetchArguments& pa, EventTransitionInfo const&) const {
+    prefetchAsyncImpl(pa);
+  }
+  void PuttableProductResolver::prefetchAsync_(PrefetchArguments& pa, LumiTransitionInfo const&) const {
+    prefetchAsyncImpl(pa);
+  }
+  void PuttableProductResolver::prefetchAsync_(PrefetchArguments& pa, RunTransitionInfo const&) const {
+    prefetchAsyncImpl(pa);
+  }
+  void PuttableProductResolver::prefetchAsync_(PrefetchArguments& pa, ProcessBlockTransitionInfo const&) const {
+    prefetchAsyncImpl(pa);
+  }
+
+  void PuttableProductResolver::prefetchAsyncImpl(PrefetchArguments& pa) const {
+    WaitingTask* waitTask = pa.waitTask;
+    bool skipCurrentProcess = pa.skipCurrentProcess;
+    ModuleCallingContext const* mcc = pa.mcc;
+
     if (not skipCurrentProcess) {
       if (branchDescription().availableOnlyAtEndTransition() and mcc) {
         if (not mcc->parent().isAtEndTransition()) {
@@ -423,12 +453,12 @@ namespace edm {
     return Resolution(nullptr);
   }
 
-  void UnscheduledProductResolver::prefetchAsync_(WaitingTask* waitTask,
-                                                  Principal const& principal,
-                                                  bool skipCurrentProcess,
-                                                  ServiceToken const& token,
-                                                  SharedResourcesAcquirer* sra,
-                                                  ModuleCallingContext const* mcc) const {
+  void UnscheduledProductResolver::prefetchAsync_(PrefetchArguments& pa, EventTransitionInfo const& info) const {
+    WaitingTask* waitTask = pa.waitTask;
+    bool skipCurrentProcess = pa.skipCurrentProcess;
+    ServiceToken const& token = pa.token;
+    ModuleCallingContext const* mcc = pa.mcc;
+
     if (skipCurrentProcess) {
       return;
     }
@@ -455,13 +485,19 @@ namespace edm {
         }
         waitingTasks_.doneWaiting(nullptr);
       });
-      auto const& event = static_cast<EventPrincipal const&>(principal);
       ParentContext parentContext(mcc);
 
-      const EventTransitionInfo info(const_cast<EventPrincipal&>(event), *(aux_->eventSetup()));
       worker_->doWorkAsync<OccurrenceTraits<EventPrincipal, BranchActionStreamBegin> >(
-          t, info, token, event.streamID(), parentContext, mcc->getStreamContext());
+          t, info, token, info.principal().streamID(), parentContext, mcc->getStreamContext());
     }
+  }
+
+  void UnscheduledProductResolver::prefetchAsync_(PrefetchArguments&, LumiTransitionInfo const&) const {
+    assert(false);
+  }
+  void UnscheduledProductResolver::prefetchAsync_(PrefetchArguments&, RunTransitionInfo const&) const { assert(false); }
+  void UnscheduledProductResolver::prefetchAsync_(PrefetchArguments&, ProcessBlockTransitionInfo const&) const {
+    assert(false);
   }
 
   void UnscheduledProductResolver::resetProductData_(bool deleteEarly) {
@@ -489,8 +525,6 @@ namespace edm {
   }
 
   bool ProducedProductResolver::isFromCurrentProcess() const { return true; }
-
-  void DataManagingProductResolver::connectTo(ProductResolverBase const& iOther, Principal const*) { assert(false); }
 
   void DataManagingProductResolver::putOrMergeProduct_(
       std::unique_ptr<WrapperBase> prod, MergeableRunProductMetadata const* mergeableRunProductMetadata) const {
@@ -585,6 +619,19 @@ namespace edm {
 
   bool DataManagingProductResolver::singleProduct_() const { return true; }
 
+  void AliasProductResolver::prefetchAsync_(PrefetchArguments& pa, EventTransitionInfo const& info) const {
+    realProduct_.prefetchAsync(pa, info);
+  }
+  void AliasProductResolver::prefetchAsync_(PrefetchArguments& pa, LumiTransitionInfo const& info) const {
+    realProduct_.prefetchAsync(pa, info);
+  }
+  void AliasProductResolver::prefetchAsync_(PrefetchArguments& pa, RunTransitionInfo const& info) const {
+    realProduct_.prefetchAsync(pa, info);
+  }
+  void AliasProductResolver::prefetchAsync_(PrefetchArguments& pa, ProcessBlockTransitionInfo const& info) const {
+    realProduct_.prefetchAsync(pa, info);
+  }
+
   void AliasProductResolver::setProductProvenanceRetriever_(ProductProvenanceRetriever const* provRetriever) {
     realProduct_.setProductProvenanceRetriever(provRetriever);
   }
@@ -621,12 +668,6 @@ namespace edm {
     p.setParents(std::vector<BranchID>{realProduct.branchDescription().originalBranchID()});
     parentageID_ = p.id();
     ParentageRegistry::instance()->insertMapped(p);
-  }
-
-  void SwitchBaseProductResolver::connectTo(ProductResolverBase const& iOther, Principal const* iParentPrincipal) {
-    throw Exception(errors::LogicError)
-        << "SwitchBaseProductResolver::connectTo() not implemented and should never be called.\n"
-        << "Contact a Framework developer\n";
   }
 
   void SwitchBaseProductResolver::setupUnscheduled(UnscheduledConfigurator const& iConfigure) {
@@ -694,12 +735,11 @@ namespace edm {
     return Resolution(nullptr);
   }
 
-  void SwitchProducerProductResolver::prefetchAsync_(WaitingTask* waitTask,
-                                                     Principal const& principal,
-                                                     bool skipCurrentProcess,
-                                                     ServiceToken const& token,
-                                                     SharedResourcesAcquirer* sra,
-                                                     ModuleCallingContext const* mcc) const {
+  void SwitchProducerProductResolver::prefetchAsyncImpl(PrefetchArguments& pa) const {
+    WaitingTask* waitTask = pa.waitTask;
+    bool skipCurrentProcess = pa.skipCurrentProcess;
+    ModuleCallingContext const* mcc = pa.mcc;
+
     if (skipCurrentProcess) {
       return;
     }
@@ -727,6 +767,19 @@ namespace edm {
       });
       worker()->callWhenDoneAsync(waiting);
     }
+  }
+
+  void SwitchProducerProductResolver::prefetchAsync_(PrefetchArguments& pa, EventTransitionInfo const&) const {
+    prefetchAsyncImpl(pa);
+  }
+  void SwitchProducerProductResolver::prefetchAsync_(PrefetchArguments& pa, LumiTransitionInfo const&) const {
+    prefetchAsyncImpl(pa);
+  }
+  void SwitchProducerProductResolver::prefetchAsync_(PrefetchArguments& pa, RunTransitionInfo const&) const {
+    prefetchAsyncImpl(pa);
+  }
+  void SwitchProducerProductResolver::prefetchAsync_(PrefetchArguments& pa, ProcessBlockTransitionInfo const&) const {
+    prefetchAsyncImpl(pa);
   }
 
   void SwitchProducerProductResolver::putProduct_(std::unique_ptr<WrapperBase> edp) const {
@@ -767,12 +820,24 @@ namespace edm {
     return resolveProductImpl(realProduct().resolveProduct(principal, skipCurrentProcess, sra, mcc));
   }
 
-  void SwitchAliasProductResolver::prefetchAsync_(WaitingTask* waitTask,
-                                                  Principal const& principal,
-                                                  bool skipCurrentProcess,
-                                                  ServiceToken const& token,
-                                                  SharedResourcesAcquirer* sra,
-                                                  ModuleCallingContext const* mcc) const {
+  void SwitchAliasProductResolver::prefetchAsync_(PrefetchArguments& pa, EventTransitionInfo const& info) const {
+    prefetchAsyncTemplate(pa, info);
+  }
+  void SwitchAliasProductResolver::prefetchAsync_(PrefetchArguments& pa, LumiTransitionInfo const& info) const {
+    prefetchAsyncTemplate(pa, info);
+  }
+  void SwitchAliasProductResolver::prefetchAsync_(PrefetchArguments& pa, RunTransitionInfo const& info) const {
+    prefetchAsyncTemplate(pa, info);
+  }
+  void SwitchAliasProductResolver::prefetchAsync_(PrefetchArguments& pa, ProcessBlockTransitionInfo const& info) const {
+    prefetchAsyncTemplate(pa, info);
+  }
+
+  template <typename INFOTYPE>
+  void SwitchAliasProductResolver::prefetchAsyncTemplate(PrefetchArguments& pa, INFOTYPE const& info) const {
+    WaitingTask* waitTask = pa.waitTask;
+    bool skipCurrentProcess = pa.skipCurrentProcess;
+
     if (skipCurrentProcess) {
       return;
     }
@@ -795,7 +860,8 @@ namespace edm {
           waitingTasks().doneWaiting(std::exception_ptr());
         }
       });
-      realProduct().prefetchAsync(waiting, principal, skipCurrentProcess, token, sra, mcc);
+      pa.waitTask = waiting;
+      realProduct().prefetchAsync(pa, info);
     }
   }
 
@@ -805,35 +871,62 @@ namespace edm {
         << "Contact a Framework developer\n";
   }
 
-  void ParentProcessProductResolver::setProductProvenanceRetriever_(ProductProvenanceRetriever const* provRetriever) {
+  template <typename INFOTYPE>
+  typename ParentProcessProductResolver<INFOTYPE>::Resolution ParentProcessProductResolver<INFOTYPE>::resolveProduct_(
+      Principal const& principal,
+      bool skipCurrentProcess,
+      SharedResourcesAcquirer* sra,
+      ModuleCallingContext const* mcc) const {
+    skipCurrentProcess = false;
+    return realProduct_->resolveProduct(parentInfo_.principal(), skipCurrentProcess, sra, mcc);
+  }
+
+  template <typename INFOTYPE>
+  void ParentProcessProductResolver<INFOTYPE>::prefetchAsync_(PrefetchArguments& pa, INFOTYPE const&) const {
+    pa.skipCurrentProcess = false;
+    realProduct_->prefetchAsync(pa, parentInfo_);
+  }
+
+  template <typename INFOTYPE>
+  void ParentProcessProductResolver<INFOTYPE>::setProductProvenanceRetriever_(
+      ProductProvenanceRetriever const* provRetriever) {
     provRetriever_ = provRetriever;
   }
 
-  void ParentProcessProductResolver::setProductID_(ProductID const&) {}
+  template <typename INFOTYPE>
+  void ParentProcessProductResolver<INFOTYPE>::setProductID_(ProductID const&) {}
 
-  ProductProvenance const* ParentProcessProductResolver::productProvenancePtr_() const {
+  template <typename INFOTYPE>
+  ProductProvenance const* ParentProcessProductResolver<INFOTYPE>::productProvenancePtr_() const {
     return provRetriever_ ? provRetriever_->branchIDToProvenance(bd_->originalBranchID()) : nullptr;
   }
 
-  void ParentProcessProductResolver::resetProductData_(bool deleteEarly) {}
+  template <typename INFOTYPE>
+  void ParentProcessProductResolver<INFOTYPE>::resetProductData_(bool deleteEarly) {}
 
-  bool ParentProcessProductResolver::singleProduct_() const { return true; }
+  template <typename INFOTYPE>
+  bool ParentProcessProductResolver<INFOTYPE>::singleProduct_() const {
+    return true;
+  }
 
-  void ParentProcessProductResolver::putProduct_(std::unique_ptr<WrapperBase>) const {
+  template <typename INFOTYPE>
+  void ParentProcessProductResolver<INFOTYPE>::putProduct_(std::unique_ptr<WrapperBase>) const {
     throw Exception(errors::LogicError)
         << "ParentProcessProductResolver::putProduct_() not implemented and should never be called.\n"
         << "Contact a Framework developer\n";
   }
 
-  void ParentProcessProductResolver::putOrMergeProduct_(std::unique_ptr<WrapperBase> edp,
-                                                        MergeableRunProductMetadata const*) const {
+  template <typename INFOTYPE>
+  void ParentProcessProductResolver<INFOTYPE>::putOrMergeProduct_(std::unique_ptr<WrapperBase> edp,
+                                                                  MergeableRunProductMetadata const*) const {
     throw Exception(errors::LogicError)
         << "ParentProcessProductResolver::putOrMergeProduct_(std::unique_ptr<WrapperBase> edp, "
            "MergeableRunProductMetadata const*) not implemented and should never be called.\n"
         << "Contact a Framework developer\n";
   }
 
-  void ParentProcessProductResolver::throwNullRealProduct() const {
+  template <typename INFOTYPE>
+  void ParentProcessProductResolver<INFOTYPE>::throwNullRealProduct() const {
     // In principle, this ought to be fixed. I noticed one hits this error
     // when in a SubProcess and calling the Event::getProvenance function
     // with a BranchID to a branch from an earlier SubProcess or the top
@@ -853,6 +946,11 @@ namespace edm {
         << "ParentProcessProductResolver::throwNullRealProduct RealProduct pointer not set in this context.\n"
         << "Contact a Framework developer\n";
   }
+
+  template class ParentProcessProductResolver<EventTransitionInfo>;
+  template class ParentProcessProductResolver<LumiTransitionInfo>;
+  template class ParentProcessProductResolver<RunTransitionInfo>;
+  template class ParentProcessProductResolver<ProcessBlockTransitionInfo>;
 
   NoProcessProductResolver::NoProcessProductResolver(std::vector<ProductResolverIndex> const& matchingHolders,
                                                      std::vector<bool> const& ambiguous,
@@ -923,12 +1021,15 @@ namespace edm {
     return Resolution(nullptr);
   }
 
-  void NoProcessProductResolver::prefetchAsync_(WaitingTask* waitTask,
-                                                Principal const& principal,
-                                                bool skipCurrentProcess,
-                                                ServiceToken const& token,
-                                                SharedResourcesAcquirer* sra,
-                                                ModuleCallingContext const* mcc) const {
+  template <typename INFOTYPE>
+  void NoProcessProductResolver::prefetchAsyncTemplate(PrefetchArguments& pa, INFOTYPE const& info) const {
+    WaitingTask* waitTask = pa.waitTask;
+    bool skipCurrentProcess = pa.skipCurrentProcess;
+    ServiceToken const& token = pa.token;
+    SharedResourcesAcquirer* sra = pa.sra;
+    ModuleCallingContext const* mcc = pa.mcc;
+    Principal const& principal = info.principal();
+
     bool timeToMakeAtEnd = true;
     if (madeAtEnd_ and mcc) {
       timeToMakeAtEnd = mcc->parent().isAtEndTransition();
@@ -943,16 +1044,29 @@ namespace edm {
 
       if (prefetchRequested) {
         //we are the first thread to request
-        tryPrefetchResolverAsync(0, principal, false, sra, mcc, token);
+        tryPrefetchResolverAsync<INFOTYPE>(0, principal, false, sra, mcc, token, info);
       }
     } else {
       skippingWaitingTasks_.add(waitTask);
       bool expected = false;
       if (skippingPrefetchRequested_.compare_exchange_strong(expected, true)) {
         //we are the first thread to request
-        tryPrefetchResolverAsync(0, principal, true, sra, mcc, token);
+        tryPrefetchResolverAsync<INFOTYPE>(0, principal, true, sra, mcc, token, info);
       }
     }
+  }
+
+  void NoProcessProductResolver::prefetchAsync_(PrefetchArguments& pa, EventTransitionInfo const& info) const {
+    prefetchAsyncTemplate(pa, info);
+  }
+  void NoProcessProductResolver::prefetchAsync_(PrefetchArguments& pa, LumiTransitionInfo const& info) const {
+    prefetchAsyncTemplate(pa, info);
+  }
+  void NoProcessProductResolver::prefetchAsync_(PrefetchArguments& pa, RunTransitionInfo const& info) const {
+    prefetchAsyncTemplate(pa, info);
+  }
+  void NoProcessProductResolver::prefetchAsync_(PrefetchArguments& pa, ProcessBlockTransitionInfo const& info) const {
+    prefetchAsyncTemplate(pa, info);
   }
 
   void NoProcessProductResolver::setCache(bool iSkipCurrentProcess,
@@ -968,6 +1082,7 @@ namespace edm {
   }
 
   namespace {
+    template <typename INFOTYPE>
     class TryNextResolverWaitingTask : public edm::WaitingTask {
     public:
       TryNextResolverWaitingTask(NoProcessProductResolver const* iResolver,
@@ -976,14 +1091,16 @@ namespace edm {
                                  SharedResourcesAcquirer* iSRA,
                                  ModuleCallingContext const* iMCC,
                                  bool iSkipCurrentProcess,
-                                 ServiceToken iToken)
+                                 ServiceToken const& iToken,
+                                 INFOTYPE const& iInfo)
           : resolver_(iResolver),
             principal_(iPrincipal),
             sra_(iSRA),
             mcc_(iMCC),
             serviceToken_(iToken),
             index_(iResolverIndex),
-            skipCurrentProcess_(iSkipCurrentProcess) {}
+            skipCurrentProcess_(iSkipCurrentProcess),
+            info_(iInfo) {}
 
       tbb::task* execute() override {
         auto exceptPtr = exceptionPtr();
@@ -992,7 +1109,7 @@ namespace edm {
         } else {
           if (not resolver_->dataValidFromResolver(index_, *principal_, skipCurrentProcess_)) {
             resolver_->tryPrefetchResolverAsync(
-                index_ + 1, *principal_, skipCurrentProcess_, sra_, mcc_, serviceToken_);
+                index_ + 1, *principal_, skipCurrentProcess_, sra_, mcc_, serviceToken_, info_);
           }
         }
         return nullptr;
@@ -1006,6 +1123,7 @@ namespace edm {
       ServiceToken serviceToken_;
       unsigned int index_;
       bool skipCurrentProcess_;
+      INFOTYPE info_;
     };
   }  // namespace
 
@@ -1033,12 +1151,14 @@ namespace edm {
     return false;
   }
 
+  template <typename INFOTYPE>
   void NoProcessProductResolver::tryPrefetchResolverAsync(unsigned int iProcessingIndex,
                                                           Principal const& principal,
                                                           bool skipCurrentProcess,
                                                           SharedResourcesAcquirer* sra,
                                                           ModuleCallingContext const* mcc,
-                                                          ServiceToken token) const {
+                                                          ServiceToken const& token,
+                                                          INFOTYPE const& info) const {
     std::vector<unsigned int> const& lookupProcessOrder = principal.lookupProcessOrder();
     auto index = iProcessingIndex;
 
@@ -1058,14 +1178,14 @@ namespace edm {
         //make new task
 
         auto task = new (tbb::task::allocate_root())
-            TryNextResolverWaitingTask(this, index, &principal, sra, mcc, skipCurrentProcess, token);
+            TryNextResolverWaitingTask<INFOTYPE>(this, index, &principal, sra, mcc, skipCurrentProcess, token, info);
         task->increment_ref_count();
         ProductResolverBase const* productResolver = principal.getProductResolverByIndex(matchingHolders_[k]);
 
         //Make sure the Services are available on this thread
         ServiceRegistry::Operate guard(token);
 
-        productResolver->prefetchAsync(task, principal, skipCurrentProcess, token, sra, mcc);
+        productResolver->prefetchAsync<INFOTYPE>(task, skipCurrentProcess, token, sra, mcc, info);
         if (0 == task->decrement_ref_count()) {
           tbb::task::spawn(*task);
         }
@@ -1162,12 +1282,6 @@ namespace edm {
         << "Contact a Framework developer\n";
   }
 
-  void NoProcessProductResolver::connectTo(ProductResolverBase const&, Principal const*) {
-    throw Exception(errors::LogicError)
-        << "NoProcessProductResolver::connectTo() not implemented and should never be called.\n"
-        << "Contact a Framework developer\n";
-  }
-
   //---- SingleChoiceNoProcessProductResolver ----------------
   ProductResolverBase::Resolution SingleChoiceNoProcessProductResolver::resolveProduct_(
       Principal const& principal,
@@ -1180,14 +1294,24 @@ namespace edm {
         ->resolveProduct(principal, skipCurrentProcess, sra, mcc);
   }
 
-  void SingleChoiceNoProcessProductResolver::prefetchAsync_(WaitingTask* waitTask,
-                                                            Principal const& principal,
-                                                            bool skipCurrentProcess,
-                                                            ServiceToken const& token,
-                                                            SharedResourcesAcquirer* sra,
-                                                            ModuleCallingContext const* mcc) const {
-    principal.getProductResolverByIndex(realResolverIndex_)
-        ->prefetchAsync(waitTask, principal, skipCurrentProcess, token, sra, mcc);
+  void SingleChoiceNoProcessProductResolver::prefetchAsync_(PrefetchArguments& pa,
+                                                            EventTransitionInfo const& info) const {
+    info.principal().getProductResolverByIndex(realResolverIndex_)->prefetchAsync(pa, info);
+  }
+
+  void SingleChoiceNoProcessProductResolver::prefetchAsync_(PrefetchArguments& pa,
+                                                            LumiTransitionInfo const& info) const {
+    info.principal().getProductResolverByIndex(realResolverIndex_)->prefetchAsync(pa, info);
+  }
+
+  void SingleChoiceNoProcessProductResolver::prefetchAsync_(PrefetchArguments& pa,
+                                                            RunTransitionInfo const& info) const {
+    info.principal().getProductResolverByIndex(realResolverIndex_)->prefetchAsync(pa, info);
+  }
+
+  void SingleChoiceNoProcessProductResolver::prefetchAsync_(PrefetchArguments& pa,
+                                                            ProcessBlockTransitionInfo const& info) const {
+    info.principal().getProductResolverByIndex(realResolverIndex_)->prefetchAsync(pa, info);
   }
 
   void SingleChoiceNoProcessProductResolver::setProductProvenanceRetriever_(ProductProvenanceRetriever const*) {}
@@ -1259,12 +1383,6 @@ namespace edm {
   Provenance const* SingleChoiceNoProcessProductResolver::provenance_() const {
     throw Exception(errors::LogicError)
         << "SingleChoiceNoProcessProductResolver::provenance_() not implemented and should never be called.\n"
-        << "Contact a Framework developer\n";
-  }
-
-  void SingleChoiceNoProcessProductResolver::connectTo(ProductResolverBase const&, Principal const*) {
-    throw Exception(errors::LogicError)
-        << "SingleChoiceNoProcessProductResolver::connectTo() not implemented and should never be called.\n"
         << "Contact a Framework developer\n";
   }
 

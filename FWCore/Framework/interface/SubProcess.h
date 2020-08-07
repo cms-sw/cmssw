@@ -80,28 +80,22 @@ namespace edm {
     void doBeginJob();
     void doEndJob();
 
-    void doEventAsync(WaitingTaskHolder iHolder,
-                      EventPrincipal const& principal,
+    void doEventAsync(WaitingTaskHolder,
+                      EventTransitionInfo const&,
                       std::vector<std::shared_ptr<const EventSetupImpl>> const*);
 
     template <typename Traits>
-    void doBeginProcessBlockAsync(WaitingTaskHolder iHolder, ProcessBlockTransitionInfo const& iTransitionInfo);
+    void doBeginProcessBlockAsync(WaitingTaskHolder, ProcessBlockTransitionInfo const&);
 
-    void doEndProcessBlockAsync(WaitingTaskHolder iHolder,
-                                ProcessBlockTransitionInfo const& iTransitionInfo,
-                                bool cleaningUpAfterException);
+    void doEndProcessBlockAsync(WaitingTaskHolder, ProcessBlockTransitionInfo const&, bool cleaningUpAfterException);
 
-    void doBeginRunAsync(WaitingTaskHolder iHolder, RunTransitionInfo const& iTransitionInfo);
+    void doBeginRunAsync(WaitingTaskHolder, RunTransitionInfo const&);
 
-    void doEndRunAsync(WaitingTaskHolder iHolder,
-                       RunTransitionInfo const& iTransitionInfo,
-                       bool cleaningUpAfterException);
+    void doEndRunAsync(WaitingTaskHolder, RunTransitionInfo const&, bool cleaningUpAfterException);
 
-    void doBeginLuminosityBlockAsync(WaitingTaskHolder iHolder, LumiTransitionInfo const& iTransitionInfo);
+    void doBeginLuminosityBlockAsync(WaitingTaskHolder, LumiTransitionInfo const&);
 
-    void doEndLuminosityBlockAsync(WaitingTaskHolder iHolder,
-                                   LumiTransitionInfo const& iTransitionInfo,
-                                   bool cleaningUpAfterException);
+    void doEndLuminosityBlockAsync(WaitingTaskHolder, LumiTransitionInfo const&, bool cleaningUpAfterException);
 
     void doBeginStream(unsigned int);
     void doEndStream(unsigned int);
@@ -246,11 +240,12 @@ namespace edm {
   private:
     void beginJob();
     void endJob();
-    void processAsync(WaitingTaskHolder iHolder,
-                      EventPrincipal const& e,
+    void processAsync(WaitingTaskHolder,
+                      EventTransitionInfo const&,
                       std::vector<std::shared_ptr<const EventSetupImpl>> const*);
 
-    void propagateProducts(BranchType type, Principal const& parentPrincipal, Principal& principal) const;
+    template <typename INFOTYPE>
+    void propagateProducts(BranchType type, INFOTYPE const& parentInfo, Principal& principal) const;
     void fixBranchIDListsForEDAliases(
         std::map<BranchID::value_type, BranchID::value_type> const& droppedBranchIDToKeptBranchID);
     void keepThisBranch(BranchDescription const& desc,

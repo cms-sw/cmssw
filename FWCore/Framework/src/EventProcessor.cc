@@ -1823,6 +1823,10 @@ namespace edm {
           }
         }));
     WaitingTaskHolder afterProcessTask;
+
+    EventSetupImpl const& es = streamLumiStatus_[iStreamIndex]->eventSetupImpl(esp_->subProcessIndex());
+    EventTransitionInfo info(*pep, es);
+
     if (subProcesses_.empty()) {
       afterProcessTask = std::move(finalizeEventTask);
     } else {
@@ -1830,22 +1834,20 @@ namespace edm {
       // with the event
       afterProcessTask = WaitingTaskHolder(make_waiting_task(
           tbb::task::allocate_root(),
-          [this, pep, finalizeEventTask, iStreamIndex](std::exception_ptr const* iPtr) mutable {
+          [this, transitionInfo = info, finalizeEventTask, iStreamIndex](std::exception_ptr const* iPtr) mutable {
             if (not iPtr) {
               //when run with 1 thread, we want to the order to be what
               // it was before. This requires reversing the order since
               // tasks are run last one in first one out
               for (auto& subProcess : boost::adaptors::reverse(subProcesses_)) {
-                subProcess.doEventAsync(finalizeEventTask, *pep, &streamLumiStatus_[iStreamIndex]->eventSetupImpls());
+                subProcess.doEventAsync(
+                    finalizeEventTask, transitionInfo, &streamLumiStatus_[iStreamIndex]->eventSetupImpls());
               }
             } else {
               finalizeEventTask.doneWaiting(*iPtr);
             }
           }));
     }
-
-    EventSetupImpl const& es = streamLumiStatus_[iStreamIndex]->eventSetupImpl(esp_->subProcessIndex());
-    EventTransitionInfo info(*pep, es);
     schedule_->processOneEventAsync(std::move(afterProcessTask), iStreamIndex, info, serviceToken_);
   }
 

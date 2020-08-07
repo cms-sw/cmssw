@@ -28,10 +28,12 @@ pointer to a ProductResolver, when queried.
 #include "FWCore/Framework/interface/ProductResolverBase.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/Utilities/interface/ProductKindOfType.h"
+#include "FWCore/Utilities/interface/ProductResolverIndex.h"
 #include "FWCore/Utilities/interface/propagate_const.h"
 
 #include "boost/iterator/filter_iterator.hpp"
 
+#include <cassert>
 #include <map>
 #include <memory>
 #include <set>
@@ -45,6 +47,7 @@ namespace edm {
   class ModuleCallingContext;
   class ProductResolverIndexHelper;
   class EDConsumerBase;
+  class ServiceToken;
   class SharedResourcesAcquirer;
   class InputProductResolver;
   class WaitingTask;
@@ -126,11 +129,17 @@ namespace edm {
                            SharedResourcesAcquirer* sra,
                            ModuleCallingContext const* mcc) const;
 
-    void prefetchAsync(WaitingTask* waitTask,
+    template <typename INFOTYPE>
+    void prefetchAsync(WaitingTask* task,
                        ProductResolverIndex index,
                        bool skipCurrentProcess,
                        ServiceToken const& token,
-                       ModuleCallingContext const* mcc) const;
+                       ModuleCallingContext const* mcc,
+                       INFOTYPE const& info) const {
+      auto const& productResolver = productResolvers_.at(index);
+      assert(nullptr != productResolver.get());
+      productResolver->prefetchAsync(task, skipCurrentProcess, token, nullptr, mcc, info);
+    }
 
     void getManyByType(TypeID const& typeID,
                        BasicHandleVec& results,

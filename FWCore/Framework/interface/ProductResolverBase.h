@@ -17,7 +17,6 @@ ProductResolver: Class to handle access to a WrapperBase and its related informa
 #include "FWCore/Utilities/interface/TypeID.h"
 
 #include <memory>
-
 #include <string>
 
 namespace edm {
@@ -30,6 +29,10 @@ namespace edm {
   class UnscheduledConfigurator;
   class WaitingTask;
   class ServiceToken;
+  class EventTransitionInfo;
+  class LumiTransitionInfo;
+  class ProcessBlockTransitionInfo;
+  class RunTransitionInfo;
 
   class ProductResolverBase {
   public:
@@ -64,15 +67,28 @@ namespace edm {
       return resolveProduct_(principal, skipCurrentProcess, sra, mcc);
     }
 
-    /** oDataFetchedIsValid is allowed to be nullptr in which case no value will be assigned
-     */
+    struct PrefetchArguments {
+      WaitingTask* waitTask;
+      bool skipCurrentProcess;
+      ServiceToken const& token;
+      SharedResourcesAcquirer* sra;
+      ModuleCallingContext const* mcc;
+    };
+
+    template <typename INFOTYPE>
+    void prefetchAsync(PrefetchArguments& pa, INFOTYPE const& info) const {
+      prefetchAsync_(pa, info);
+    }
+
+    template <typename INFOTYPE>
     void prefetchAsync(WaitingTask* waitTask,
-                       Principal const& principal,
                        bool skipCurrentProcess,
                        ServiceToken const& token,
                        SharedResourcesAcquirer* sra,
-                       ModuleCallingContext const* mcc) const {
-      return prefetchAsync_(waitTask, principal, skipCurrentProcess, token, sra, mcc);
+                       ModuleCallingContext const* mcc,
+                       INFOTYPE const& info) const {
+      PrefetchArguments pa = {waitTask, skipCurrentProcess, token, sra, mcc};
+      prefetchAsync_(pa, info);
     }
 
     void retrieveAndMerge(Principal const& principal,
@@ -168,7 +184,11 @@ namespace edm {
       putOrMergeProduct_(std::move(edp), mergeableRunProductMetadata);
     }
 
-    virtual void connectTo(ProductResolverBase const&, Principal const*) = 0;
+    virtual void connectTo(ProductResolverBase const&, EventTransitionInfo const&);
+    virtual void connectTo(ProductResolverBase const&, LumiTransitionInfo const&);
+    virtual void connectTo(ProductResolverBase const&, RunTransitionInfo const&);
+    virtual void connectTo(ProductResolverBase const&, ProcessBlockTransitionInfo const&);
+
     virtual void setupUnscheduled(UnscheduledConfigurator const&);
 
   private:
@@ -176,12 +196,11 @@ namespace edm {
                                        bool skipCurrentProcess,
                                        SharedResourcesAcquirer* sra,
                                        ModuleCallingContext const* mcc) const = 0;
-    virtual void prefetchAsync_(WaitingTask* waitTask,
-                                Principal const& principal,
-                                bool skipCurrentProcess,
-                                ServiceToken const& token,
-                                SharedResourcesAcquirer* sra,
-                                ModuleCallingContext const* mcc) const = 0;
+
+    virtual void prefetchAsync_(PrefetchArguments&, EventTransitionInfo const&) const;
+    virtual void prefetchAsync_(PrefetchArguments&, LumiTransitionInfo const&) const;
+    virtual void prefetchAsync_(PrefetchArguments&, RunTransitionInfo const&) const;
+    virtual void prefetchAsync_(PrefetchArguments&, ProcessBlockTransitionInfo const&) const;
 
     virtual void retrieveAndMerge_(Principal const& principal,
                                    MergeableRunProductMetadata const* mergeableRunProductMetadata) const;

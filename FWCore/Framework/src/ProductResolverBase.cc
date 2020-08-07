@@ -30,6 +30,18 @@ namespace edm {
 
   Provenance const* ProductResolverBase::provenance() const { return provenance_(); }
 
+  void ProductResolverBase::connectTo(ProductResolverBase const&, EventTransitionInfo const&) { assert(false); }
+  void ProductResolverBase::connectTo(ProductResolverBase const&, LumiTransitionInfo const&) { assert(false); }
+  void ProductResolverBase::connectTo(ProductResolverBase const&, RunTransitionInfo const&) { assert(false); }
+  void ProductResolverBase::connectTo(ProductResolverBase const&, ProcessBlockTransitionInfo const&) { assert(false); }
+
+  void ProductResolverBase::prefetchAsync_(PrefetchArguments&, EventTransitionInfo const&) const { assert(false); }
+  void ProductResolverBase::prefetchAsync_(PrefetchArguments&, LumiTransitionInfo const&) const { assert(false); }
+  void ProductResolverBase::prefetchAsync_(PrefetchArguments&, RunTransitionInfo const&) const { assert(false); }
+  void ProductResolverBase::prefetchAsync_(PrefetchArguments&, ProcessBlockTransitionInfo const&) const {
+    assert(false);
+  }
+
   void ProductResolverBase::retrieveAndMerge_(Principal const&, MergeableRunProductMetadata const*) const {}
 
   void ProductResolverBase::setMergeableRunProductMetadata_(MergeableRunProductMetadata const*) {}

@@ -203,7 +203,8 @@ namespace edm {
   void Worker::prePrefetchSelectionAsync(WaitingTask* successTask,
                                          ServiceToken const& token,
                                          StreamID id,
-                                         EventPrincipal const* iPrincipal) {
+                                         EventTransitionInfo const* iInfo) {
+    EventPrincipal const* iPrincipal = &iInfo->principal();
     successTask->increment_ref_count();
 
     auto choiceTask = edm::make_waiting_task(
@@ -237,7 +238,8 @@ namespace edm {
       ProductResolverIndex productResolverIndex = item.productResolverIndex();
       bool skipCurrentProcess = item.skipCurrentProcess();
       if (productResolverIndex != ProductResolverIndexAmbiguous) {
-        iPrincipal->prefetchAsync(choiceTask, productResolverIndex, skipCurrentProcess, token, &moduleCallingContext_);
+        iPrincipal->prefetchAsync(
+            choiceTask, productResolverIndex, skipCurrentProcess, token, &moduleCallingContext_, *iInfo);
       }
     }
     choiceHolder.doneWaiting(std::exception_ptr{});
@@ -315,19 +317,6 @@ namespace edm {
           }
         }
       });
-    }
-  }
-
-  void Worker::edPrefetchAsync(WaitingTask* iTask, ServiceToken const& token, Principal const& iPrincipal) const {
-    // Prefetch products the module declares it consumes
-    std::vector<ProductResolverIndexAndSkipBit> const& items = itemsToGetFrom(iPrincipal.branchType());
-
-    for (auto const& item : items) {
-      ProductResolverIndex productResolverIndex = item.productResolverIndex();
-      bool skipCurrentProcess = item.skipCurrentProcess();
-      if (productResolverIndex != ProductResolverIndexAmbiguous) {
-        iPrincipal.prefetchAsync(iTask, productResolverIndex, skipCurrentProcess, token, &moduleCallingContext_);
-      }
     }
   }
 
