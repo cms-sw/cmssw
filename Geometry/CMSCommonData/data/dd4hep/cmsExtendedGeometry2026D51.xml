@@ -94,7 +94,7 @@
     <Include ref='Geometry/MTDCommonData/data/CrystalBarPhiFlat/v3/mtd.xml'/>
     <Include ref='Geometry/MTDCommonData/data/CrystalBarPhiFlat/mtdStructureTopology.xml'/>
     <Include ref='Geometry/MTDCommonData/data/CrystalBarPhiFlat/mtdParameters.xml'/>
-    <Include ref='Geometry/MuonCommonData/data/muonNumbering/TDR_DeV/v1/muonNumbering.xml'/>
+    <Include ref='Geometry/MuonCommonData/data/muonNumbering/TDR_DeV/muonNumbering.xml'/>
     <Include ref='Geometry/EcalSimData/data/PhaseII/ecalsens.xml'/>
     <Include ref='Geometry/HcalCommonData/data/hcalsens/NoHE/hcalsenspmf.xml'/>
     <Include ref='Geometry/HcalSimData/data/hf.xml'/>
