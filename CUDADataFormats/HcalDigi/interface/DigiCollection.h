@@ -136,7 +136,7 @@ namespace hcal {
 
     typename StoragePolicy::template StorageSelector<uint32_t>::type ids;
     typename StoragePolicy::template StorageSelector<uint16_t>::type data;
-    uint32_t stride;
+    uint32_t stride{0};
   };
 
   template <typename Flavor, typename StoragePolicy>
