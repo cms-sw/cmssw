@@ -10,13 +10,14 @@ DTSimHitMatcher::DTSimHitMatcher(const edm::ParameterSet& ps, edm::ConsumesColle
   discardEleHits_ = simHitPSet_.getParameter<bool>("discardEleHits");
 
   simHitInput_ = iC.consumes<edm::PSimHitContainer>(simHitPSet_.getParameter<edm::InputTag>("inputTag"));
+  geomToken_ = iC.esConsumes<DTGeometry, MuonGeometryRecord>();
 }
 
 /// initialize the event
 void DTSimHitMatcher::init(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
-  iSetup.get<MuonGeometryRecord>().get(dt_geom_);
-  if (dt_geom_.isValid()) {
-    geometry_ = &*dt_geom_;
+  edm::ESHandle<DTGeometry> hGeom = iSetup.getHandle(geomToken_);
+  if (hGeom.isValid()) {
+    geometry_ = hGeom.product();
   } else {
     hasGeometry_ = false;
     edm::LogWarning("DTSimHitMatcher") << "+++ Info: DT geometry is unavailable. +++\n";

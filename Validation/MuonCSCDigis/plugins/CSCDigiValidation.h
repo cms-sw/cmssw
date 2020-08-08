@@ -5,11 +5,13 @@
 
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Utilities/interface/ESGetToken.h"
 
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 
 #include "Geometry/CSCGeometry/interface/CSCGeometry.h"
+#include "Geometry/Records/interface/MuonGeometryRecord.h"
 #include "SimMuon/MCTruth/interface/PSimHitMap.h"
 
 class CSCStripDigiValidation;
@@ -35,6 +37,8 @@ private:
   std::unique_ptr<CSCComparatorDigiValidation> theComparatorDigiValidation;
   std::unique_ptr<CSCALCTDigiValidation> theALCTDigiValidation;
   std::unique_ptr<CSCCLCTDigiValidation> theCLCTDigiValidation;
+
+  edm::ESGetToken<CSCGeometry, MuonGeometryRecord> geomToken_;
 };
 
 #endif

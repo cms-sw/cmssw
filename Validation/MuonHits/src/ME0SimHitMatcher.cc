@@ -10,13 +10,14 @@ ME0SimHitMatcher::ME0SimHitMatcher(const edm::ParameterSet& ps, edm::ConsumesCol
   discardEleHits_ = simHitPSet_.getParameter<bool>("discardEleHits");
 
   simHitInput_ = iC.consumes<edm::PSimHitContainer>(simHitPSet_.getParameter<edm::InputTag>("inputTag"));
+  geomToken_ = iC.esConsumes<ME0Geometry, MuonGeometryRecord>();
 }
 
 /// initialize the event
 void ME0SimHitMatcher::init(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
-  iSetup.get<MuonGeometryRecord>().get(me0_geom_);
-  if (me0_geom_.isValid()) {
-    geometry_ = &*me0_geom_;
+  edm::ESHandle<ME0Geometry> hGeom = iSetup.getHandle(geomToken_);
+  if (hGeom.isValid()) {
+    geometry_ = hGeom.product();
   } else {
     hasGeometry_ = false;
     edm::LogWarning("ME0SimHitMatcher") << "+++ Info: ME0 geometry is unavailable. +++\n";

@@ -11,13 +11,14 @@ RPCSimHitMatcher::RPCSimHitMatcher(const edm::ParameterSet& ps, edm::ConsumesCol
   discardEleHits_ = simHitPSet_.getParameter<bool>("discardEleHits");
 
   simHitInput_ = iC.consumes<edm::PSimHitContainer>(simHitPSet_.getParameter<edm::InputTag>("inputTag"));
+  geomToken_ = iC.esConsumes<RPCGeometry, MuonGeometryRecord>();
 }
 
 /// initialize the event
 void RPCSimHitMatcher::init(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
-  iSetup.get<MuonGeometryRecord>().get(rpc_geom_);
-  if (rpc_geom_.isValid()) {
-    geometry_ = &*rpc_geom_;
+  edm::ESHandle<RPCGeometry> hGeom = iSetup.getHandle(geomToken_);
+  if (hGeom.isValid()) {
+    geometry_ = hGeom.product();
   } else {
     hasGeometry_ = false;
     edm::LogWarning("RPCSimHitMatcher") << "+++ Info: RPC geometry is unavailable. +++\n";

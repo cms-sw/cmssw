@@ -10,13 +10,14 @@ CSCSimHitMatcher::CSCSimHitMatcher(const edm::ParameterSet& ps, edm::ConsumesCol
   discardEleHits_ = simHitPSet_.getParameter<bool>("discardEleHits");
 
   simHitInput_ = iC.consumes<edm::PSimHitContainer>(simHitPSet_.getParameter<edm::InputTag>("inputTag"));
+  geomToken_ = iC.esConsumes<CSCGeometry, MuonGeometryRecord>();
 }
 
 /// initialize the event
 void CSCSimHitMatcher::init(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
-  iSetup.get<MuonGeometryRecord>().get(csc_geom_);
-  if (csc_geom_.isValid()) {
-    geometry_ = &*csc_geom_;
+  edm::ESHandle<CSCGeometry> hGeom = iSetup.getHandle(geomToken_);
+  if (hGeom.isValid()) {
+    geometry_ = hGeom.product();
   } else {
     hasGeometry_ = false;
     edm::LogWarning("CSCSimHitMatcher") << "+++ Info: CSC geometry is unavailable. +++\n";
