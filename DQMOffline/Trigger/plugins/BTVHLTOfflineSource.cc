@@ -326,6 +326,12 @@ void BTVHLTOfflineSource::analyze(const edm::Event& iEvent, const edm::EventSetu
   for (auto& v : hltPathsAll_) {
     unsigned index = triggerNames.triggerIndex(v.getPath());
     if (!(index < triggerNames.size())) {
+      edm::LogInfo("BTVHLTOfflineSource") << "Path " << v.getPath() << " not in menu, skipping event";
+      continue;
+    }
+
+    if(!triggerResults->accept(index)){
+      edm::LogInfo("BTVHLTOfflineSource") << "Path " << v.getPath() << " not accepted, skipping event";
       continue;
     }
 
