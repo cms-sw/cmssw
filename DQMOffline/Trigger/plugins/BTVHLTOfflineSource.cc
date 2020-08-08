@@ -330,7 +330,7 @@ void BTVHLTOfflineSource::analyze(const edm::Event& iEvent, const edm::EventSetu
       continue;
     }
 
-    if(!triggerResults->accept(index)){
+    if (!triggerResults->accept(index)) {
       edm::LogInfo("BTVHLTOfflineSource") << "Path " << v.getPath() << " not accepted, skipping event";
       continue;
     }
