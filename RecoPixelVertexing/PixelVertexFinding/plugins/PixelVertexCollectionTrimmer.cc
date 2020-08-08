@@ -3,7 +3,7 @@
 // Package: RecoPixelVertexing/PixelVertexFinding
 // Class: PixelVertexCollectionTrimmer
 //
-/**\class PixelVertexCollectionTrimmer PixelVertexCollectionTrimmer.cc RecoPixelVertexing/PixelVertexFinding/src/PixelVertexCollectionTrimmer.cc
+/**\class PixelVertexCollectionTrimmer PixelVertexCollectionTrimmer.cc RecoPixelVertexing/PixelVertexFinding/plugins/PixelVertexCollectionTrimmer.cc
 
 Description: [one line class summary]
 
