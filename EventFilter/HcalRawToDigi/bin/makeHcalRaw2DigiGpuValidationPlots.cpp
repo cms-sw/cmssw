@@ -130,15 +130,15 @@ int main(int argc, char* argv[]) {
   rt->SetBranchAddress("QIE11DataFrameHcalDataFrameContainer_hcalDigis__RECO.", &wcpuf01he);
   rt->SetBranchAddress("HBHEDataFramesSorted_hcalDigis__RECO.", &wcpuf5hb);
   rt->SetBranchAddress(
-      "hcalFlavor5hcalCUDAHostAllocatorAliashcalcommonVecStoragePolicyhcalDigiCollection_hcalCPUDigisProducer_"
+      "hcalFlavor5calocommonCUDAHostAllocatorAliascalocommonVecStoragePolicyhcalDigiCollection_hcalCPUDigisProducer_"
       "f5HBDigis_RECO.",
       &wgpuf5hb);
   rt->SetBranchAddress(
-      "hcalFlavor01hcalCUDAHostAllocatorAliashcalcommonVecStoragePolicyhcalDigiCollection_hcalCPUDigisProducer_"
+      "hcalFlavor01calocommonCUDAHostAllocatorAliascalocommonVecStoragePolicyhcalDigiCollection_hcalCPUDigisProducer_"
       "f01HEDigis_RECO.",
       &wgpuf01he);
   rt->SetBranchAddress(
-      "hcalFlavor3hcalCUDAHostAllocatorAliashcalcommonVecStoragePolicyhcalDigiCollection_hcalCPUDigisProducer_"
+      "hcalFlavor3calocommonCUDAHostAllocatorAliascalocommonVecStoragePolicyhcalDigiCollection_hcalCPUDigisProducer_"
       "f3HBDigis_RECO.",
       &wgpuf3hb);
 

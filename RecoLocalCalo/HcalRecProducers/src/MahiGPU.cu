@@ -220,10 +220,12 @@ namespace hcal {
                                                       int const sipmQNTStoSum,
                                                       int const firstSampleShift,
                                                       uint32_t const offsetForHashes,
-                                                      float const ts4Thresh) {
+                                                      float const ts4Thresh,
+                                                      int const startingSample) {
       // indices + runtime constants
-      auto const sample = threadIdx.x;
-      int32_t const nsamplesExpected = blockDim.x;
+      auto const sample = threadIdx.x + startingSample;
+      auto const sampleWithinWindow = threadIdx.x;
+      int32_t const nsamplesForCompute = blockDim.x;
       auto const lch = threadIdx.y;
       auto const gch = lch + blockDim.y * blockIdx.x;
       auto const nchannels_per_block = blockDim.y;
@@ -234,7 +236,7 @@ namespace hcal {
         return;
 
       // initialize all output buffers
-      if (sample == 0) {
+      if (sampleWithinWindow == 0) {
         outputdid[gch] = 0;
         method0Energy[gch] = 0;
         method0Time[gch] = 0;
@@ -252,20 +254,20 @@ namespace hcal {
       // configure shared mem
       extern __shared__ char smem[];
       float* shrEnergyM0PerTS = reinterpret_cast<float*>(smem);
-      float* shrChargeMinusPedestal = shrEnergyM0PerTS + nsamplesExpected * nchannels_per_block;
-      float* shrMethod0EnergyAccum = shrChargeMinusPedestal + nsamplesExpected * nchannels_per_block;
+      float* shrChargeMinusPedestal = shrEnergyM0PerTS + nsamplesForCompute * nchannels_per_block;
+      float* shrMethod0EnergyAccum = shrChargeMinusPedestal + nsamplesForCompute * nchannels_per_block;
       float* shrEnergyM0TotalAccum = shrMethod0EnergyAccum + nchannels_per_block;
       unsigned long long int* shrMethod0EnergySamplePair =
           reinterpret_cast<unsigned long long int*>(shrEnergyM0TotalAccum + nchannels_per_block);
-      if (sample == 0) {
+      if (sampleWithinWindow == 0) {
         shrMethod0EnergyAccum[lch] = 0;
         shrMethod0EnergySamplePair[lch] = __float_as_uint(std::numeric_limits<float>::min());
         shrEnergyM0TotalAccum[lch] = 0;
       }
 
       // offset output
-      auto* amplitudesForChannel = amplitudes + nsamplesExpected * gch;
-      auto* noiseTermsForChannel = noiseTerms + nsamplesExpected * gch;
+      auto* amplitudesForChannel = amplitudes + nsamplesForCompute * gch;
+      auto* noiseTermsForChannel = noiseTerms + nsamplesForCompute * gch;
       auto const nchannelsf015 = nchannelsf01HE + nchannelsf5HB;
 
       // get event input quantities
@@ -275,7 +277,7 @@ namespace hcal {
                                                                         : compute_nsamples<Flavor3>(stride));
 
 #ifdef HCAL_MAHI_GPUDEBUG
-      assert(nsamples == nsamplesExpected);
+      assert(nsamples == nsamplesForCompute || nsamples-startingSample==nsampelsForCompute);
 #endif
 
       auto const id = gch < nchannelsf01HE
@@ -349,11 +351,11 @@ namespace hcal {
         //   if that is not the case, we will see that with cuda mmecheck
         auto const soibit = soibit_for_sample<Flavor01>(dataf01HE + stride * gch, sample);
         if (soibit == 1)
-          soiSamples[gch] = sample;
+          soiSamples[gch] = sampleWithinWindow;
       } else if (gch >= nchannelsf015) {
         auto const soibit = soibit_for_sample<Flavor3>(dataf3HB + stride * (gch - nchannelsf015), sample);
         if (soibit == 1)
-          soiSamples[gch] = sample;
+          soiSamples[gch] = sampleWithinWindow;
       }
       __syncthreads();
       int32_t const soi = gch < nchannelsf01HE
@@ -363,7 +365,7 @@ namespace hcal {
       //    ? npresamplesf5HB[gch - nchannelsf01HE]
       //    : soiSamples[gch];
       // this is here just to make things uniform...
-      if (gch >= nchannelsf01HE && gch < nchannelsf015 && sample == 0)
+      if (gch >= nchannelsf01HE && gch < nchannelsf015 && sampleWithinWindow == 0)
         soiSamples[gch] = npresamplesf5HB[gch - nchannelsf01HE];
 
       //
@@ -391,10 +393,10 @@ namespace hcal {
         auto const parLin3 = parLin3Values[sipmType - 1];
 
         int const first = std::max(soi + sipmQTSShift, 0);
-        int const last = std::min(soi + sipmQNTStoSum, nsamplesExpected);
+        int const last = std::min(soi + sipmQNTStoSum, nsamplesForCompute);
         float sipmq = 0.0f;
         for (auto ts = first; ts < last; ts++)
-          sipmq += shrChargeMinusPedestal[threadIdx.y * nsamplesExpected + ts];
+          sipmq += shrChargeMinusPedestal[threadIdx.y * nsamplesForCompute + ts];
         auto const effectivePixelsFired = sipmq / fcByPE;
         auto const factor = compute_reco_correction_factor(parLin1, parLin2, parLin3, effectivePixelsFired);
         rawCharge = (charge - pedestal) * factor + pedestal;
@@ -418,12 +420,12 @@ namespace hcal {
       auto const nsamplesToAdd = recoParam1 < 10 ? recoParam2 : (recoParam1 >> 14) & 0xF;
       auto const startSampleTmp = soi + firstSampleShift;
       auto const startSample = startSampleTmp < 0 ? 0 : startSampleTmp;
-      auto const endSample = startSample + nsamplesToAdd < nsamples ? startSample + nsamplesToAdd : nsamples;
+      auto const endSample = startSample + nsamplesToAdd < nsamplesForCompute ? startSample + nsamplesToAdd : nsamplesForCompute;
       // NOTE: gain is a small number < 10^-3, multiply it last
       auto const energym0_per_ts = gain * ((rawCharge - pedestalToUseForMethod0) * respCorrection);
       auto const energym0_per_ts_gain0 = gain0 * ((rawCharge - pedestalToUseForMethod0) * respCorrection);
       // store to shared mem
-      shrEnergyM0PerTS[lch * nsamplesExpected + sample] = energym0_per_ts;
+      shrEnergyM0PerTS[lch * nsamplesForCompute + sampleWithinWindow] = energym0_per_ts;
       atomicAdd(&shrEnergyM0TotalAccum[lch], energym0_per_ts_gain0);
 
 #ifdef HCAL_MAHI_GPUDEBUG
@@ -448,12 +450,12 @@ namespace hcal {
           "startSample = %d endSample = %d param1 = %u param2 = %u\n", startSample, endSample, recoParam1, recoParam2);
 #endif
 
-      if (sample >= startSample && sample < endSample) {
+      if (sampleWithinWindow >= startSample && sampleWithinWindow < endSample) {
         atomicAdd(&shrMethod0EnergyAccum[lch], energym0_per_ts);
         // pack sample, energy as 64 bit value
         unsigned long long int old = shrMethod0EnergySamplePair[lch], assumed;
         unsigned long long int val =
-            (static_cast<unsigned long long int>(sample) << 32) + __float_as_uint(energym0_per_ts);
+            (static_cast<unsigned long long int>(sampleWithinWindow) << 32) + __float_as_uint(energym0_per_ts);
         do {
           assumed = old;
           // decode energy, sample values
@@ -468,14 +470,14 @@ namespace hcal {
       __syncthreads();
 
       // NOTE: must take soi, as values for that thread are used...
-      if (sample == soi) {
+      if (sampleWithinWindow == soi) {
         auto const method0_energy = shrMethod0EnergyAccum[lch];
         auto const val = shrMethod0EnergySamplePair[lch];
         int const max_sample = (val >> 32) & 0xffffffff;
         float const max_energy = __uint_as_float(val & 0xffffffff);
         float const max_energy_1 =
-            max_sample < nsamples - 1 ? shrEnergyM0PerTS[lch * nsamplesExpected + max_sample + 1] : 0.f;
-        float const position = nsamplesToAdd < nsamples ? max_sample - soi : max_sample;
+            max_sample < nsamplesForCompute - 1 ? shrEnergyM0PerTS[lch * nsamplesForCompute + max_sample + 1] : 0.f;
+        float const position = nsamplesToAdd < nsamplesForCompute ? max_sample - soi : max_sample;
         auto const sum = max_energy + max_energy_1;
         // FIXME: for full comparison with cpu method 0  timing,
         // need to correct by slew
@@ -539,8 +541,8 @@ namespace hcal {
 #endif
 
       // store to global memory
-      amplitudesForChannel[sample] = amplitude;
-      noiseTermsForChannel[sample] = noiseTerm;
+      amplitudesForChannel[sampleWithinWindow] = amplitude;
+      noiseTermsForChannel[sampleWithinWindow] = noiseTerm;
     }
 
     // TODO: remove what's not needed
@@ -1661,19 +1663,25 @@ namespace hcal {
       outputGPU.recHits.size = totalChannels;
 
       // TODO: this can be lifted by implementing a separate kernel
-      // similar to the default one, but properly handling the diff in #samples
+      // similar to the default one, but properly handling the diff in #sample
       // or modifying existing one
       auto const f01nsamples = compute_nsamples<Flavor01>(inputGPU.f01HEDigis.stride);
       auto const f5nsamples = compute_nsamples<Flavor5>(inputGPU.f5HBDigis.stride);
       auto const f3nsamples = compute_nsamples<Flavor3>(inputGPU.f3HBDigis.stride);
-      assert(f01nsamples == f5nsamples && f01nsamples == f3nsamples);
+      int constexpr windowSize = 8;
+      int const startingSample = f01nsamples - windowSize;
+      assert(startingSample==0 || startingSample==2);
+      if (inputGPU.f01HEDigis.stride > 0 && inputGPU.f5HBDigis.stride> 0)
+          assert(f01nsamples == f5nsamples);
+      if (inputGPU.f01HEDigis.stride > 0 && inputGPU.f3HBDigis.stride > 0)
+          assert(f01nsamples == f3nsamples);
 
-      dim3 threadsPerBlock{f01nsamples, configParameters.kprep1dChannelsPerBlock};
+      dim3 threadsPerBlock{windowSize, configParameters.kprep1dChannelsPerBlock};
       int blocks = static_cast<uint32_t>(threadsPerBlock.y) > totalChannels
                        ? 1
                        : (totalChannels + threadsPerBlock.y - 1) / threadsPerBlock.y;
       int nbytesShared =
-          ((2 * f01nsamples + 2) * sizeof(float) + sizeof(uint64_t)) * configParameters.kprep1dChannelsPerBlock;
+          ((2 * windowSize + 2) * sizeof(float) + sizeof(uint64_t)) * configParameters.kprep1dChannelsPerBlock;
       kernel_prep1d_sameNumberOfSamples<<<blocks, threadsPerBlock, nbytesShared, cudaStream>>>(
           scratch.amplitudes.get(),
           scratch.noiseTerms.get(),
@@ -1729,13 +1737,14 @@ namespace hcal {
           configParameters.sipmQNTStoSum,
           configParameters.firstSampleShift,
           conditions.offsetForHashes,
-          configParameters.ts4Thresh);
+          configParameters.ts4Thresh,
+          startingSample);
       cudaCheck(cudaGetLastError());
 
       // 1024 is the max threads per block for gtx1080
       // FIXME: take this from cuda service or something like that
-      uint32_t const channelsPerBlock = 1024 / (f01nsamples * conditions.pulseOffsetsHost.size());
-      dim3 threadsPerBlock2{f01nsamples, static_cast<uint32_t>(conditions.pulseOffsetsHost.size()), channelsPerBlock};
+      uint32_t const channelsPerBlock = 1024 / (windowSize * conditions.pulseOffsetsHost.size());
+      dim3 threadsPerBlock2{windowSize, static_cast<uint32_t>(conditions.pulseOffsetsHost.size()), channelsPerBlock};
       int blocks2 =
           threadsPerBlock2.z > totalChannels ? 1 : (totalChannels + threadsPerBlock2.z - 1) / threadsPerBlock2.z;
 
@@ -1786,7 +1795,8 @@ namespace hcal {
           configParameters.tmaxTimeSlew);
       cudaCheck(cudaGetLastError());
 
-      if (f01nsamples == 8 && conditions.pulseOffsetsHost.size() == 8u) {
+      // number of samples is checked in above assert
+      if (conditions.pulseOffsetsHost.size() == 8u) {
         // FIXME: provide constants from configuration
         uint32_t threadsPerBlock = configParameters.kernelMinimizeThreads[0];
         uint32_t blocks = threadsPerBlock > totalChannels ? 1 : (totalChannels + threadsPerBlock - 1) / threadsPerBlock;
