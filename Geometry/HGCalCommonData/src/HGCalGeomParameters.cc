@@ -1761,7 +1761,7 @@ void HGCalGeomParameters::loadCellTrapezoid(HGCalParameters& php) {
     }
     // Minimum and maximum radius index for each layer
     for (unsigned k = 0; k < php.zLayerHex_.size(); ++k) {
-      php.iradMinBH_.emplace_back(php.tileRingRange_[k].first);
+      php.iradMinBH_.emplace_back(1 + php.tileRingRange_[k].first);
       php.iradMaxBH_.emplace_back(php.tileRingRange_[k].second);
 #ifdef EDM_ML_DEBUG
       int kk = php.scintType(php.firstLayer_ + (int)(k));
@@ -1854,16 +1854,17 @@ void HGCalGeomParameters::loadCellTrapezoid(HGCalParameters& php) {
     if (php.iradMaxBH_[k] > php.waferUVMax_)
       php.waferUVMax_ = php.iradMaxBH_[k];
     int kk = ((php.firstLayer_ + (int)(k)) < php.layerFrontBH_[1]) ? 0 : 1;
+    int irm = php.radiusLayer_[kk].size() - 1;
 #ifdef EDM_ML_DEBUG
     double rmin = php.radiusLayer_[kk][std::max((php.iradMinBH_[k] - 1), 0)];
-    double rmax = php.radiusLayer_[kk][php.iradMaxBH_[k]];
+    double rmax = php.radiusLayer_[kk][std::min(php.iradMaxBH_[k], irm)];
     edm::LogVerbatim("HGCalGeom") << "Layer " << php.firstLayer_ + k << ":" << kk << " Radius range "
                                   << php.iradMinBH_[k] << ":" << php.iradMaxBH_[k] << ":" << rmin << ":" << rmax;
 #endif
     mytr.lay = php.firstLayer_ + k;
     for (int irad = php.iradMinBH_[k]; irad <= php.iradMaxBH_[k]; ++irad) {
       double rmin = php.radiusLayer_[kk][std::max((irad - 1), 0)];
-      double rmax = php.radiusLayer_[kk][irad];
+      double rmax = php.radiusLayer_[kk][std::min(irad, irm)];
       mytr.bl = 0.5 * rmin * php.scintCellSize(mytr.lay);
       mytr.tl = 0.5 * rmax * php.scintCellSize(mytr.lay);
       mytr.h = 0.5 * (rmax - rmin);
