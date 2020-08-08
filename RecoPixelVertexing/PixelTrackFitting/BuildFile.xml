@@ -1,3 +1,5 @@
+<use name="cuda"/>
+<use name="eigen"/>
 <use name="root"/>
 <use name="CommonTools/Statistics"/>
 <use name="CommonTools/Utils"/>

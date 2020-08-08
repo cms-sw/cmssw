@@ -34,3 +34,11 @@
 <library file="BeamSpotFromDB.cc" name="BeamSpotFromDB">
   <flags EDM_PLUGIN="1"/>
 </library>
+
+<library file="BeamSpotToCUDA.cc" name="BeamSpotToCUDA">
+  <use name="cuda"/>
+  <use name="CUDADataFormats/BeamSpot"/>
+  <use name="HeterogeneousCore/CUDACore"/>
+  <use name="HeterogeneousCore/CUDAServices"/>
+  <flags EDM_PLUGIN="1"/>
+</library>

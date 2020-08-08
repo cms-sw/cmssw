@@ -16,3 +16,14 @@
 <bin file="PixelTriplets_InvPrbl_prec.cpp">
   <use name="RecoPixelVertexing/PixelTriplets"/>
 </bin>
+
+<bin file="fastDPHI_t.cpp">
+</bin>
+
+<bin file="CircleEq_t.cpp">
+</bin>
+
+<bin file="CAsizes_t.cpp">
+  <use name="cuda"/>
+  <use name="eigen"/>
+</bin>
