@@ -82,6 +82,20 @@ pfParticleNetDiscriminatorsJetTags = cms.EDProducer(
             ),
          ),
       cms.PSet(
+         name = cms.string('HccvsQCD'),
+         numerator = cms.VInputTag(
+            cms.InputTag('pfParticleNetJetTags', 'probHcc'),
+            ),
+         denominator = cms.VInputTag(
+            cms.InputTag('pfParticleNetJetTags', 'probHcc'),
+            cms.InputTag('pfParticleNetJetTags', 'probQCDbb'),
+            cms.InputTag('pfParticleNetJetTags', 'probQCDcc'),
+            cms.InputTag('pfParticleNetJetTags', 'probQCDb'),
+            cms.InputTag('pfParticleNetJetTags', 'probQCDc'),
+            cms.InputTag('pfParticleNetJetTags', 'probQCDothers'),
+            ),
+         ),
+      cms.PSet(
          name = cms.string('H4qvsQCD'),
          numerator = cms.VInputTag(
             cms.InputTag('pfParticleNetJetTags', 'probHqqqq'),
