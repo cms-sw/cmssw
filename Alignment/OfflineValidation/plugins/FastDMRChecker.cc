@@ -90,6 +90,7 @@
 #include <map>
 #include <string>
 #include <vector>
+#include <fmt/printf.h>
 
 class MagneticField;
 
@@ -100,7 +101,7 @@ using namespace edm;
 
 const int kBPIX = PixelSubdetector::PixelBarrel;
 const int kFPIX = PixelSubdetector::PixelEndcap;
-const float cmToUm = 10000.;
+constexpr float cmToUm = 10000.;
 
 namespace running {
   struct Estimators {
@@ -415,6 +416,19 @@ private:
   TH1D *DRnRTID_;
   TH1D *DRnRTEC_;
 
+  // Split DMRs
+
+  std::array<TH1D *, 2> DMRBPixXSplit_;
+  std::array<TH1D *, 2> DMRBPixYSplit_;
+
+  std::array<TH1D *, 2> DMRFPixXSplit_;
+  std::array<TH1D *, 2> DMRFPixYSplit_;
+
+  std::array<TH1D *, 2> DMRTIBSplit_;
+  std::array<TH1D *, 2> DMRTOBSplit_;
+
+  // residuals
+
   std::map<unsigned int, TH1D *> barrelLayersResidualsX;
   std::map<unsigned int, TH1D *> barrelLayersPullsX;
   std::map<unsigned int, TH1D *> barrelLayersResidualsY;
@@ -574,25 +588,20 @@ private:
         float uOrientation(-999.F), vOrientation(-999.F);
         LocalPoint lPModule(0., 0., 0.), lUDirection(1., 0., 0.), lVDirection(0., 1., 0.), lWDirection(0., 0., 1.);
 
+        // do all the transformations here
+        GlobalPoint gUDirection = geomDet->surface().toGlobal(lUDirection);
+        GlobalPoint gVDirection = geomDet->surface().toGlobal(lVDirection);
+        GlobalPoint gWDirection = geomDet->surface().toGlobal(lWDirection);
+        GlobalPoint gPModule = geomDet->surface().toGlobal(lPModule);
+
         if (!(*iHit)->detUnit())
           continue;  // is it a single physical module?
 
-        if ((*iHit)->isValid() && (subid != PixelSubdetector::PixelBarrel) &&
-            (subid != PixelSubdetector::PixelEndcap)) {
+        if ((*iHit)->isValid() && (subid > PixelSubdetector::PixelEndcap)) {
           tmap->fill(detid_db, 1);
-
-          //float uOrientation(-999.F), vOrientation(-999.F);
-          //LocalPoint lUDirection(1.,0.,0.), lVDirection(0.,1.,0.);
 
           //LocalPoint lp = (*iHit)->localPosition();
           //LocalError le = (*iHit)->localPositionError();
-
-          GlobalPoint gUDirection = geomDet->surface().toGlobal(lUDirection);
-          GlobalPoint gVDirection = geomDet->surface().toGlobal(lVDirection);
-          GlobalPoint gWDirection = geomDet->surface().toGlobal(lWDirection);
-
-          //GlobalPoint GP = geomDet->surface().toGlobal(lp);
-          GlobalPoint gPModule = geomDet->surface().toGlobal(lPModule);
 
           // fill DMRs and DrNRs
           if (subid == StripSubdetector::TIB) {
@@ -656,18 +665,10 @@ private:
             if (!isPhase1_) {
               pmap->fill(detid_db, 1);
             }
-            // float uOrientation(-999.F), vOrientation(-999.F);
-            // LocalPoint lUDirection(1.,0.,0.), lVDirection(0.,1.,0.);
 
             LocalPoint lp = (*iHit)->localPosition();
             //LocalError le = (*iHit)->localPositionError();
-
-            GlobalPoint gUDirection = geomDet->surface().toGlobal(lUDirection);
-            GlobalPoint gVDirection = geomDet->surface().toGlobal(lVDirection);
-            GlobalPoint gWDirection = geomDet->surface().toGlobal(lWDirection);
-
             GlobalPoint GP = geomDet->surface().toGlobal(lp);
-            GlobalPoint gPModule = geomDet->surface().toGlobal(lPModule);
 
             if ((subid == PixelSubdetector::PixelBarrel) || (subid == PixelSubdetector::PixelEndcap)) {
               // 1 = PXB, 2 = PXF
@@ -1079,11 +1080,10 @@ private:
     hNhighPurity =
         fs->make<TH1D>("h_NhighPurity", "n. high purity tracks;Number of high purity tracks;events", 200, 0., 200.);
 
-
     int nAlgos = reco::TrackBase::algoSize;
-    htrkAlgo = fs->make<TH1I>("h_trkAlgo", "tracking step;iterative tracking step;tracks", nAlgos, -0.5, nAlgos-0.5);
+    htrkAlgo = fs->make<TH1I>("h_trkAlgo", "tracking step;iterative tracking step;tracks", nAlgos, -0.5, nAlgos - 0.5);
     for (int nbin = 1; nbin <= htrkAlgo->GetNbinsX(); nbin++) {
-      htrkAlgo->GetXaxis()->SetBinLabel(nbin,reco::TrackBase::algoNames[nbin-1].c_str());
+      htrkAlgo->GetXaxis()->SetBinLabel(nbin, reco::TrackBase::algoNames[nbin - 1].c_str());
     }
 
     htrkQuality = fs->make<TH1I>("h_trkQuality", "track quality;track quality;tracks", 6, -1, 5);
@@ -1315,6 +1315,7 @@ private:
       hHitComposition->GetXaxis()->SetBinLabel(i, dets[i - 1]);
     }
 
+    // clang-format off
     vTrackHistos_.push_back(fs->make<TH1F>("h_tracketa", "Track #eta;#eta_{Track};Number of Tracks", 90, -3., 3.));
     vTrackHistos_.push_back(fs->make<TH1F>("h_trackphi", "Track #phi;#phi_{Track};Number of Tracks", 90, -3.15, 3.15));
     vTrackHistos_.push_back(fs->make<TH1F>(
@@ -1330,9 +1331,8 @@ private:
     vTrackHistos_.push_back(
         fs->make<TH1F>("h_diff_curvature",
                        "Curvature |#kappa| Tracks Difference;|#kappa_{Track}|;# Pos Tracks - # Neg Tracks",
-                       100,
-                       .0,
-                       .05));
+                       100,.0,.05));
+
     vTrackHistos_.push_back(
         fs->make<TH1F>("h_chi2", "Track #chi^{2};#chi^{2}_{Track};Number of Tracks", 500, -0.01, 500.));
     vTrackHistos_.push_back(
@@ -1455,6 +1455,8 @@ private:
         fs->make<TH2F>("h2_kappa_vs_eta", "#kappa vs. #eta;#eta_{Track};#kappa", 100, -3.15, 3.15, 100, .0, .05));
     vTrack2DHistos_.push_back(fs->make<TH2F>(
         "h2_normchi2_vs_kappa", "#kappa vs. #chi^{2}/ndof;#chi^{2}/ndof;#kappa", 100, 0., 10, 100, -.03, .03));
+
+    // clang-format on
 
     firstEvent_ = true;
 
@@ -1600,6 +1602,17 @@ private:
     DMRTID_ = DMeanR.make<TH1D>("DMRTID", "DMR of TID;mean of X-residuals;modules", 100., -200, 200);
     DMRTEC_ = DMeanR.make<TH1D>("DMRTEC", "DMR of TEC;mean of X-residuals;modules", 100., -200, 200);
 
+    TFileDirectory DMeanRSplit = fs->mkdir("SplitDMRs");
+
+    DMRBPixXSplit_ = bookSplitDMRHistograms(DMeanRSplit, "BPix", "X", true);
+    DMRBPixYSplit_ = bookSplitDMRHistograms(DMeanRSplit, "BPix", "Y", true);
+
+    DMRFPixXSplit_ = bookSplitDMRHistograms(DMeanRSplit, "FPix", "X", false);
+    DMRFPixYSplit_ = bookSplitDMRHistograms(DMeanRSplit, "FPix", "Y", false);
+
+    DMRTIBSplit_ = bookSplitDMRHistograms(DMeanRSplit, "TIB", "X", true);
+    DMRTOBSplit_ = bookSplitDMRHistograms(DMeanRSplit, "TOB", "X", true);
+
     // DRnRs
     TFileDirectory DRnRs = fs->mkdir("DRnRs");
 
@@ -1626,6 +1639,13 @@ private:
 
       PixelDMRS_x_ByLayer->fill(bpixid.first, bpixid.second.runningMeanOfRes_);
 
+      // split DMR
+      if (bpixid.second.rDirection > 0) {
+        DMRBPixXSplit_[0]->Fill(bpixid.second.runningMeanOfRes_);
+      } else {
+        DMRBPixXSplit_[1]->Fill(bpixid.second.runningMeanOfRes_);
+      }
+
       if (bpixid.second.hitCount < 2)
         DRnRBPixX_->Fill(-1);
       else
@@ -1636,6 +1656,13 @@ private:
       DMRBPixY_->Fill(bpixid.second.runningMeanOfRes_);
       pixelmap->fillBarrelBin("DMRsY", bpixid.first, bpixid.second.runningMeanOfRes_);
       PixelDMRS_y_ByLayer->fill(bpixid.first, bpixid.second.runningMeanOfRes_);
+
+      // split DMR
+      if (bpixid.second.rDirection > 0) {
+        DMRBPixYSplit_[0]->Fill(bpixid.second.runningMeanOfRes_);
+      } else {
+        DMRBPixYSplit_[1]->Fill(bpixid.second.runningMeanOfRes_);
+      }
 
       if (bpixid.second.hitCount < 2)
         DRnRBPixY_->Fill(-1);
@@ -1648,6 +1675,13 @@ private:
       pixelmap->fillForwardBin("DMRsX", fpixid.first, fpixid.second.runningMeanOfRes_);
       PixelDMRS_x_ByLayer->fill(fpixid.first, fpixid.second.runningMeanOfRes_);
 
+      // split DMR
+      if (fpixid.second.zDirection > 0) {
+        DMRFPixXSplit_[0]->Fill(fpixid.second.runningMeanOfRes_);
+      } else {
+        DMRFPixXSplit_[1]->Fill(fpixid.second.runningMeanOfRes_);
+      }
+
       if (fpixid.second.hitCount < 2)
         DRnRFPixX_->Fill(-1);
       else
@@ -1658,6 +1692,13 @@ private:
       DMRFPixY_->Fill(fpixid.second.runningMeanOfRes_);
       pixelmap->fillForwardBin("DMRsY", fpixid.first, fpixid.second.runningMeanOfRes_);
       PixelDMRS_y_ByLayer->fill(fpixid.first, fpixid.second.runningMeanOfRes_);
+
+      // split DMR
+      if (fpixid.second.zDirection > 0) {
+        DMRFPixYSplit_[0]->Fill(fpixid.second.runningMeanOfRes_);
+      } else {
+        DMRFPixYSplit_[1]->Fill(fpixid.second.runningMeanOfRes_);
+      }
 
       if (fpixid.second.hitCount < 2)
         DRnRFPixY_->Fill(-1);
@@ -1670,6 +1711,13 @@ private:
     for (auto &tibid : resDetailsTIB_) {
       DMRTIB_->Fill(tibid.second.runningMeanOfRes_);
 
+      // split DMR
+      if (tibid.second.rDirection > 0) {
+        DMRTIBSplit_[0]->Fill(tibid.second.runningMeanOfRes_);
+      } else {
+        DMRTIBSplit_[1]->Fill(tibid.second.runningMeanOfRes_);
+      }
+
       if (tibid.second.hitCount < 2)
         DRnRTIB_->Fill(-1);
       else
@@ -1678,6 +1726,13 @@ private:
 
     for (auto &tobid : resDetailsTOB_) {
       DMRTOB_->Fill(tobid.second.runningMeanOfRes_);
+
+      // split DMR
+      if (tobid.second.rDirection > 0) {
+        DMRTOBSplit_[0]->Fill(tobid.second.runningMeanOfRes_);
+      } else {
+        DMRTOBSplit_[1]->Fill(tobid.second.runningMeanOfRes_);
+      }
 
       if (tobid.second.hitCount < 2)
         DRnRTOB_->Fill(-1);
@@ -1846,6 +1901,38 @@ private:
       }
     }
     // never reached...
+  }
+
+  //*************************************************************
+  // Generic booker of split DMRs
+  //*************************************************************
+  std::array<TH1D *, 2> bookSplitDMRHistograms(TFileDirectory dir,
+                                               std::string subdet,
+                                               std::string vartype,
+                                               bool isBarrel) {
+    TH1F::SetDefaultSumw2(kTRUE);
+
+    std::array<TH1D *, 2> out;
+    std::array<std::string, 2> sign_name = {{"plus", "minus"}};
+    std::array<std::string, 2> sign = {{">0", "<0"}};
+    for (unsigned int i = 0; i < 2; i++) {
+      const char *name_;
+      const char *title_;
+      const char *axisTitle_;
+
+      if (isBarrel) {
+        name_ = Form("DMR%s_%s_rDir%s", subdet.c_str(), vartype.c_str(), sign_name[i].c_str());
+        title_ = Form("Split DMR of %s-%s (rDir%s)", subdet.c_str(), vartype.c_str(), sign[i].c_str());
+        axisTitle_ = Form("mean of %s-residuals (rDir%s);modules", vartype.c_str(), sign[i].c_str());
+      } else {
+        name_ = Form("DMR%s_%s_zDir%s", subdet.c_str(), vartype.c_str(), sign_name[i].c_str());
+        title_ = Form("Split DMR of %s-%s (zDir%s)", subdet.c_str(), vartype.c_str(), sign[i].c_str());
+        axisTitle_ = Form("mean of %s-residuals (zDir%s);modules", vartype.c_str(), sign[i].c_str());
+      }
+
+      out[i] = dir.make<TH1D>(name_, fmt::sprintf("%s;%s", title_, axisTitle_).c_str(), 100., -200, 200);
+    }
+    return out;
   }
 
   //*************************************************************
