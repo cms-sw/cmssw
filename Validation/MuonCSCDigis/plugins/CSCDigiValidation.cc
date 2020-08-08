@@ -1,7 +1,5 @@
 #include "Validation/MuonCSCDigis/plugins/CSCDigiValidation.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
-#include "Geometry/CSCGeometry/interface/CSCGeometry.h"
-#include "Geometry/Records/interface/MuonGeometryRecord.h"
 #include "Validation/MuonCSCDigis/interface/CSCALCTDigiValidation.h"
 #include "Validation/MuonCSCDigis/interface/CSCCLCTDigiValidation.h"
 #include "Validation/MuonCSCDigis/interface/CSCComparatorDigiValidation.h"
@@ -37,6 +35,7 @@ CSCDigiValidation::CSCDigiValidation(const edm::ParameterSet &ps)
     theWireDigiValidation->setSimHitMap(&theSimHitMap);
     theComparatorDigiValidation->setSimHitMap(&theSimHitMap);
   }
+  geomToken_ = esConsumes<CSCGeometry, MuonGeometryRecord>();
 }
 
 CSCDigiValidation::~CSCDigiValidation() {}
@@ -56,8 +55,7 @@ void CSCDigiValidation::analyze(const edm::Event &e, const edm::EventSetup &even
   theSimHitMap.fill(e);
 
   // find the geometry & conditions for this event
-  edm::ESHandle<CSCGeometry> hGeom;
-  eventSetup.get<MuonGeometryRecord>().get(hGeom);
+  edm::ESHandle<CSCGeometry> hGeom = eventSetup.getHandle(geomToken_);
   const CSCGeometry *pGeom = &*hGeom;
 
   theStripDigiValidation->setGeometry(pGeom);

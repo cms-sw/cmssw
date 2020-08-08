@@ -10,13 +10,14 @@ GEMSimHitMatcher::GEMSimHitMatcher(const edm::ParameterSet& ps, edm::ConsumesCol
   discardEleHits_ = simHitPSet_.getParameter<bool>("discardEleHits");
 
   simHitInput_ = iC.consumes<edm::PSimHitContainer>(simHitPSet_.getParameter<edm::InputTag>("inputTag"));
+  geomToken_ = iC.esConsumes<GEMGeometry, MuonGeometryRecord>();
 }
 
 /// initialize the event
 void GEMSimHitMatcher::init(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
-  iSetup.get<MuonGeometryRecord>().get(gem_geom_);
-  if (gem_geom_.isValid()) {
-    geometry_ = dynamic_cast<const GEMGeometry*>(&*gem_geom_);
+  edm::ESHandle<GEMGeometry> hGeom = iSetup.getHandle(geomToken_);
+  if (hGeom.isValid()) {
+    geometry_ = hGeom.product();
   } else {
     hasGeometry_ = false;
     edm::LogWarning("GEMSimHitMatcher") << "+++ Info: GEM geometry is unavailable. +++\n";
