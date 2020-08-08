@@ -5,7 +5,7 @@
 
 template <typename... Sources>
 class HcalCombinedRecord : public edm::eventsetup::DependentRecordImplementation<HcalCombinedRecord<Sources...>,
-                                                                                 boost::mpl::vector<Sources...>> {
+                                                                                 edm::mpl::Vector<Sources...>> {
 public:
   using DependencyRecords = std::tuple<Sources...>;
 };
