@@ -22,6 +22,10 @@
 #include "TrackingTools/Records/interface/TrackingComponentsRecord.h"
 #include "Geometry/CommonDetUnit/interface/GeomDet.h"
 #include "CommonTools/Utils/interface/StringCutObjectSelector.h"
+#include "FWCore/Utilities/interface/ESGetToken.h"
+#include "Geometry/Records/interface/IdealGeometryRecord.h"
+#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
+#include "TrackingTools/Records/interface/TrackingComponentsRecord.h"
 
 namespace ticl {
   class SeedingRegionByTracks final : public SeedingRegionAlgoBase {
@@ -45,6 +49,9 @@ namespace ticl {
     const std::string propName_;
     edm::ESHandle<MagneticField> bfield_;
     std::unique_ptr<GeomDet> firstDisk_[2];
+    edm::ESGetToken<HGCalDDDConstants, IdealGeometryRecord> hdc_token_;
+    edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> bfield_token_;
+    edm::ESGetToken<Propagator, TrackingComponentsRecord> propagator_token_;
   };
 }  // namespace ticl
 #endif

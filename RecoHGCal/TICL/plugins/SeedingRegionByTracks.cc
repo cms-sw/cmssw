@@ -17,19 +17,23 @@ SeedingRegionByTracks::SeedingRegionByTracks(const edm::ParameterSet &conf, edm:
     : SeedingRegionAlgoBase(conf, sumes),
       tracks_token_(sumes.consumes<reco::TrackCollection>(conf.getParameter<edm::InputTag>("tracks"))),
       cutTk_(conf.getParameter<std::string>("cutTk")),
-      propName_(conf.getParameter<std::string>("propagator")) {}
+      propName_(conf.getParameter<std::string>("propagator")),
+      hdc_token_(sumes.esConsumes<HGCalDDDConstants, IdealGeometryRecord, edm::Transition::BeginRun>(
+          edm::ESInputTag("", detectorName_))),
+      bfield_token_(sumes.esConsumes<MagneticField, IdealMagneticFieldRecord, edm::Transition::BeginRun>()),
+      propagator_token_(sumes.esConsumes<Propagator, TrackingComponentsRecord, edm::Transition::BeginRun>(
+          edm::ESInputTag("", propName_))) {}
 
 SeedingRegionByTracks::~SeedingRegionByTracks() {}
 
 void SeedingRegionByTracks::initialize(const edm::EventSetup &es) {
-  edm::ESHandle<HGCalDDDConstants> hdc;
-  es.get<IdealGeometryRecord>().get(detectorName_, hdc);
+  edm::ESHandle<HGCalDDDConstants> hdc = es.getHandle(hdc_token_);
   hgcons_ = hdc.product();
 
   buildFirstLayers();
 
-  es.get<IdealMagneticFieldRecord>().get(bfield_);
-  es.get<TrackingComponentsRecord>().get(propName_, propagator_);
+  bfield_ = es.getHandle(bfield_token_);
+  propagator_ = es.getHandle(propagator_token_);
 }
 
 void SeedingRegionByTracks::makeRegions(const edm::Event &ev,
