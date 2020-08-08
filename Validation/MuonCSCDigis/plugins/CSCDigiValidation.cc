@@ -55,8 +55,7 @@ void CSCDigiValidation::analyze(const edm::Event &e, const edm::EventSetup &even
   theSimHitMap.fill(e);
 
   // find the geometry & conditions for this event
-  edm::ESHandle<CSCGeometry> hGeom = eventSetup.getHandle(geomToken_);
-  const CSCGeometry *pGeom = &*hGeom;
+  const CSCGeometry *pGeom = &eventSetup.getData(geomToken_);
 
   theStripDigiValidation->setGeometry(pGeom);
   theWireDigiValidation->setGeometry(pGeom);
