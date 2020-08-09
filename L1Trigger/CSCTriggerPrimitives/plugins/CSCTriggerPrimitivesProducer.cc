@@ -16,7 +16,6 @@
 #include "L1Trigger/CSCTriggerPrimitives/interface/CSCTriggerPrimitivesBuilder.h"
 
 #include "DataFormats/Common/interface/Handle.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "DataFormats/CSCDigi/interface/CSCALCTDigiCollection.h"
@@ -89,8 +88,7 @@ CSCTriggerPrimitivesProducer::~CSCTriggerPrimitivesProducer() {}
 
 void CSCTriggerPrimitivesProducer::produce(edm::Event& ev, const edm::EventSetup& setup) {
   // get the csc geometry
-  edm::ESHandle<CSCGeometry> h = setup.getHandle(cscToken_);
-  builder_->setCSCGeometry(&*h);
+  builder_->setCSCGeometry(&setup.getData(cscToken_));
 
   // get the gem geometry if it's there
   edm::ESHandle<GEMGeometry> h_gem = setup.getHandle(gemToken_);

@@ -7,7 +7,6 @@
 #include "Geometry/GEMGeometry/interface/GEMGeometry.h"
 #include "Geometry/Records/interface/MuonGeometryRecord.h"
 #include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Utilities/interface/EDGetToken.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -92,6 +91,7 @@ protected:
   // NOTE Constants
   const Int_t kMuonPDGId_ = 13;
   const std::string kLogCategory_;  // see member initializer list
+  edm::ESGetToken<GEMGeometry, MuonGeometryRecord> geomToken_;
 };
 
 template <typename T>

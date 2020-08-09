@@ -50,12 +50,7 @@ void CSCStubMatcher::init(const edm::Event& iEvent, const edm::EventSetup& iSetu
   iEvent.getByToken(lctToken_, lctsH_);
   iEvent.getByToken(mplctToken_, mplctsH_);
 
-  edm::ESHandle<CSCGeometry> hGeom = iSetup.getHandle(geomToken_);
-  if (hGeom.isValid()) {
-    cscGeometry_ = hGeom.product();
-  } else {
-    edm::LogError("CSCStubMatcher") << "+++ Info: CSC geometry is unavailable.";
-  }
+  cscGeometry_ = &iSetup.getData(geomToken_);
 }
 
 // do the matching
