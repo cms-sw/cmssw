@@ -14,7 +14,6 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "DataFormats/GEMRecHit/interface/GEMRecHitCollection.h"
 #include "SimDataFormats/Track/interface/SimTrackContainer.h"
@@ -91,7 +90,7 @@ private:
   edm::EDGetTokenT<GEMRecHitCollection> gemRecHitToken_;
   edm::Handle<GEMRecHitCollection> gemRecHitH_;
 
-  edm::ESHandle<GEMGeometry> gem_geom_;
+  edm::ESGetToken<GEMGeometry, MuonGeometryRecord> geomToken_;
   const GEMGeometry* gemGeometry_;
 
   int minBX_, maxBX_;

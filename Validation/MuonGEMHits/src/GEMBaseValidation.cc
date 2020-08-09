@@ -16,16 +16,12 @@ GEMBaseValidation::GEMBaseValidation(const edm::ParameterSet& ps, std::string lo
   eta_range_ = ps.getUntrackedParameter<std::vector<Double_t> >("EtaOccRange");
 
   detail_plot_ = ps.getParameter<Bool_t>("detailPlot");
+  geomToken_ = esConsumes<GEMGeometry, MuonGeometryRecord>();
 }
 
 GEMBaseValidation::~GEMBaseValidation() {}
 
-const GEMGeometry* GEMBaseValidation::initGeometry(edm::EventSetup const& setup) {
-  edm::ESHandle<GEMGeometry> geom_handle;
-  setup.get<MuonGeometryRecord>().get(geom_handle);
-  const GEMGeometry* gem = &*geom_handle;
-  return gem;
-}
+const GEMGeometry* GEMBaseValidation::initGeometry(edm::EventSetup const& setup) { return &setup.getData(geomToken_); }
 
 Int_t GEMBaseValidation::getDetOccBinX(Int_t chamber_id, Int_t layer_id) { return 2 * chamber_id + layer_id - 2; }
 

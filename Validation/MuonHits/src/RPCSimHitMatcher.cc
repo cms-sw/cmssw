@@ -16,13 +16,7 @@ RPCSimHitMatcher::RPCSimHitMatcher(const edm::ParameterSet& ps, edm::ConsumesCol
 
 /// initialize the event
 void RPCSimHitMatcher::init(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
-  edm::ESHandle<RPCGeometry> hGeom = iSetup.getHandle(geomToken_);
-  if (hGeom.isValid()) {
-    geometry_ = hGeom.product();
-  } else {
-    hasGeometry_ = false;
-    edm::LogWarning("RPCSimHitMatcher") << "+++ Info: RPC geometry is unavailable. +++\n";
-  }
+  geometry_ = &iSetup.getData(geomToken_);
   MuonSimHitMatcher::init(iEvent, iSetup);
 }
 
@@ -31,26 +25,24 @@ void RPCSimHitMatcher::match(const SimTrack& track, const SimVertex& vertex) {
   // instantiates the track ids and simhits
   MuonSimHitMatcher::match(track, vertex);
 
-  if (hasGeometry_) {
-    matchSimHitsToSimTrack();
+  matchSimHitsToSimTrack();
 
-    if (verbose_) {
-      edm::LogInfo("RPCSimHitMatcher") << "nSimHits " << simHits_.size() << " nTrackIds " << track_ids_.size() << endl;
-      edm::LogInfo("RPCSimHitMatcher") << "detids RPC " << detIds().size() << endl;
+  if (verbose_) {
+    edm::LogInfo("RPCSimHitMatcher") << "nSimHits " << simHits_.size() << " nTrackIds " << track_ids_.size();
+    edm::LogInfo("RPCSimHitMatcher") << "detids RPC " << detIds().size();
 
-      const auto& ch_ids = chamberIds();
-      for (const auto& id : ch_ids) {
-        const auto& simhits = MuonSimHitMatcher::hitsInChamber(id);
-        const auto& simhits_gp = simHitsMeanPosition(simhits);
-        edm::LogInfo("RPCSimHitMatcher") << "RPCDetId " << RPCDetId(id) << ": nHits " << simhits.size() << " eta "
-                                         << simhits_gp.eta() << " phi " << simhits_gp.phi() << " nCh "
-                                         << chamber_to_hits_[id].size() << endl;
-        const auto& strips = hitStripsInDetId(id);
-        edm::LogInfo("RPCSimHitMatcher") << "nStrips " << strips.size() << endl;
-        edm::LogInfo("RPCSimHitMatcher") << "strips : ";
-        for (const auto& p : strips) {
-          edm::LogInfo("RPCSimHitMatcher") << p;
-        }
+    const auto& ch_ids = chamberIds();
+    for (const auto& id : ch_ids) {
+      const auto& simhits = MuonSimHitMatcher::hitsInChamber(id);
+      const auto& simhits_gp = simHitsMeanPosition(simhits);
+      edm::LogInfo("RPCSimHitMatcher") << "RPCDetId " << RPCDetId(id) << ": nHits " << simhits.size() << " eta "
+                                       << simhits_gp.eta() << " phi " << simhits_gp.phi() << " nCh "
+                                       << chamber_to_hits_[id].size();
+      const auto& strips = hitStripsInDetId(id);
+      edm::LogInfo("RPCSimHitMatcher") << "nStrips " << strips.size();
+      edm::LogInfo("RPCSimHitMatcher") << "strips : ";
+      for (const auto& p : strips) {
+        edm::LogInfo("RPCSimHitMatcher") << p;
       }
     }
   }
