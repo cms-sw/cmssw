@@ -117,39 +117,35 @@ void HcalDigisProducerGPU::acquire(edm::Event const& event,
   event.getByToken(hbheDigiToken_, hbheDigis);
   event.getByToken(qie11DigiToken_, qie11Digis);
 
-
   // init f5 collection
-  if (hbheDigis->size() > 0) {
+  if (not hbheDigis->empty()) {
     auto const nsamples = (*hbheDigis)[0].size();
     auto const stride = hcal::compute_stride<hcal::Flavor5>(nsamples);
     hf5_.stride = stride;
-  
+
     // flavor5 get device blobs
     df5_.stride = stride;
-    df5_.data = cms::cuda::make_device_unique<uint16_t[]>(
-      config_.maxChannelsF5HB * stride, ctx.stream());
+    df5_.data = cms::cuda::make_device_unique<uint16_t[]>(config_.maxChannelsF5HB * stride, ctx.stream());
     df5_.ids = cms::cuda::make_device_unique<uint32_t[]>(config_.maxChannelsF5HB, ctx.stream());
     df5_.npresamples = cms::cuda::make_device_unique<uint8_t[]>(config_.maxChannelsF5HB, ctx.stream());
   }
 
-  if (qie11Digis->size() > 0) {
+  if (not qie11Digis->empty()) {
     auto const nsamples = qie11Digis->samples();
     auto const stride01 = hcal::compute_stride<hcal::Flavor01>(nsamples);
     auto const stride3 = hcal::compute_stride<hcal::Flavor3>(nsamples);
 
     hf01_.stride = stride01;
     hf3_.stride = stride3;
-  
+
     // flavor 0/1 get devie blobs
     df01_.stride = stride01;
-    df01_.data = cms::cuda::make_device_unique<uint16_t[]>(
-      config_.maxChannelsF01HE * stride01, ctx.stream());
+    df01_.data = cms::cuda::make_device_unique<uint16_t[]>(config_.maxChannelsF01HE * stride01, ctx.stream());
     df01_.ids = cms::cuda::make_device_unique<uint32_t[]>(config_.maxChannelsF01HE, ctx.stream());
 
     // flavor3 get device blobs
     df3_.stride = stride3;
-    df3_.data = cms::cuda::make_device_unique<uint16_t[]>(
-      config_.maxChannelsF3HB * stride3, ctx.stream());
+    df3_.data = cms::cuda::make_device_unique<uint16_t[]>(config_.maxChannelsF3HB * stride3, ctx.stream());
     df3_.ids = cms::cuda::make_device_unique<uint32_t[]>(config_.maxChannelsF3HB, ctx.stream());
   }
 
@@ -199,7 +195,8 @@ void HcalDigisProducerGPU::acquire(edm::Event const& event,
   }
 
   auto lambdaToTransfer = [&ctx](auto* dest, auto const& src) {
-    if (src.size() == 0) return;
+    if (src.empty())
+      return;
     using vector_type = typename std::remove_reference<decltype(src)>::type;
     using type = typename vector_type::value_type;
     using dest_data_type = typename std::remove_pointer<decltype(dest)>::type;
