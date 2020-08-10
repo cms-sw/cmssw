@@ -12,3 +12,7 @@ ctppsRPAlignmentCorrectionsDataESSourceXML.RealFiles = [alignmentFile]
 ctppsLocalTrackLiteProducer.includeDiamonds = False
 ctppsDirectProtonSimulation.timeResolutionDiamonds45 = "999"
 ctppsDirectProtonSimulation.timeResolutionDiamonds56 = "999"
+
+# xangle distribution
+def UseCrossingAngleDistribution(process, f):
+  UseCrossingAngleHistgoram(process, f, "h_xangle_2018_preTS1")
