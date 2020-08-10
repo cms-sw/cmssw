@@ -113,12 +113,17 @@ std::unique_ptr<HitRZCompatibility> GlobalTrackingRegion::checkRZ(const DetLayer
   }
 }
 
-std::vector<bool> GlobalTrackingRegion::checkTracks(reco::TrackCollection const& InputCollection) const {
-  std::vector<bool> mask(InputCollection.size(), false);
-  int it = -1;
+void GlobalTrackingRegion::checkTracks(reco::TrackCollection const& InputCollection, std::vector<bool>& mask) const {
   math::XYZPoint regOrigin(origin().x(), origin().y(), origin().z());
+  if (mask.size() < InputCollection.size())
+    mask.resize(InputCollection.size(), false);
+
+  int i = -1;
   for (auto const& track : InputCollection) {
-    it++;
+    i++;
+    if (mask[i])
+      continue;
+
     if (track.pt() < ptMin()) {
       continue;
     }
@@ -129,8 +134,6 @@ std::vector<bool> GlobalTrackingRegion::checkTracks(reco::TrackCollection const&
       continue;
     }
 
-    mask[it] = true;
+    mask[i] = true;
   }
-
-  return mask;
 }

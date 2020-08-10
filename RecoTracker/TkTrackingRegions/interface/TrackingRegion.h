@@ -99,9 +99,14 @@ public:
   /// get hits from layer compatible with region constraints
   virtual Hits hits(const edm::EventSetup& es, const SeedingLayerSetsHits::SeedingLayer& layer) const = 0;
 
-  /// return a mask over a track collection reflecting the compatability to the region
-  virtual std::vector<bool> checkTracks(reco::TrackCollection const& InputCollection) const = 0;
+  /// updates an existing  mask over a track collection reflecting the compatability to the region
+  virtual void checkTracks(reco::TrackCollection const& InputCollection, std::vector<bool>& mask) const = 0;
 
+  std::vector<bool> checkTracks(reco::TrackCollection const& InputCollection) const {
+    std::vector<bool> region_mask(InputCollection.size(), false);
+    checkTracks(InputCollection, region_mask);
+    return region_mask;
+  }
   /// clone region with new vertex position
   std::unique_ptr<TrackingRegion> restrictedRegion(const GlobalPoint& originPos,
                                                    const float& originRBound,

@@ -48,19 +48,24 @@ namespace {
 using namespace PixelRecoUtilities;
 using namespace std;
 
-std::vector<bool> RectangularEtaPhiTrackingRegion::checkTracks(reco::TrackCollection const& InputCollection) const {
-  std::vector<bool> mask(InputCollection.size(), false);
-  int it = -1;
+void RectangularEtaPhiTrackingRegion::checkTracks(reco::TrackCollection const& InputCollection,
+                                                  std::vector<bool>& mask) const {
   math::XYZPoint regOrigin(origin().x(), origin().y(), origin().z());
   auto phi0 = phiDirection() + 0.5 * (phiMargin().right() - phiMargin().left());
   auto dphi = 0.5 * (phiMargin().right() + phiMargin().left());
 
+  if (mask.size() < InputCollection.size())
+    mask.resize(InputCollection.size(), false);
+
+  int i = -1;
   for (auto const& track : InputCollection) {
-    it++;
+    i++;
+    if (mask[i])
+      continue;
+
     if (track.pt() < ptMin()) {
       continue;
     }
-
     if (!etaRange().inside(track.eta())) {
       continue;
     }
@@ -73,10 +78,8 @@ std::vector<bool> RectangularEtaPhiTrackingRegion::checkTracks(reco::TrackCollec
     if (std::abs(track.dz(regOrigin)) > originZBound()) {
       continue;
     }
-    mask[it] = true;
+    mask[i] = true;
   }
-
-  return mask;
 }
 
 RectangularEtaPhiTrackingRegion::UseMeasurementTracker RectangularEtaPhiTrackingRegion::stringToUseMeasurementTracker(
