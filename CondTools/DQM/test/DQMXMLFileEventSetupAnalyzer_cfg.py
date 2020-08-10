@@ -1,9 +1,24 @@
+from __future__ import print_function
 import FWCore.ParameterSet.Config as cms
+from FWCore.ParameterSet.VarParsing import VarParsing
 
 process = cms.Process('XMLFILERETRIEVER')
 
 ####################################################################
-# Get the GlogalTag
+# Set the options
+####################################################################
+options = VarParsing('analysis')
+options.register('unitTest',
+                 False,
+                 VarParsing.multiplicity.singleton,
+                 VarParsing.varType.bool,
+                 'Run the unit test',
+                 )
+
+options.parseArguments()
+
+####################################################################
+# Get the GlobalTag
 ####################################################################
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 from Configuration.AlCa.GlobalTag import GlobalTag
@@ -25,19 +40,29 @@ process.source = cms.Source("EmptyIOVSource",
                             interval = cms.uint64(1)
                             )
 
-# from CondCore.CondDB.CondDB_cfi import *
-# process.XmlRetrieval_1 = cms.ESSource("PoolDBESSource",
-#                                      CondDBSetup,
-#                                      connect = cms.string('sqlite_file:./testXML.db'),
-#                                      BlobStreamerName = cms.untracked.string('TBufferBlobStreamingService'),
-#                                      messageLevel = cms.untracked.int32(1),
-#                                      timetype = cms.string('runnumber'),
-#                                      toGet = cms.VPSet(cms.PSet(record = cms.string('DQMXMLFileRcd'),
-#                                                                 tag = cms.string('XML1'),
-#                                                                 label=cms.untracked.string('XML1_mio')
-#                                                                 )
-#                                                        )
-#                                      )
+if options.unitTest:
+    print("running configuration in UnitTest Mode")
+    process.load("CondCore.CondDB.CondDB_cfi")
+    process.CondDB.connect = "sqlite_file:./testXML.db"
+
+    process.XmlRetrieval_1 = cms.ESSource("PoolDBESSource",
+                                          process.CondDB,
+                                          BlobStreamerName = cms.untracked.string('TBufferBlobStreamingService'),
+                                          messageLevel = cms.untracked.int32(1),
+                                          timetype = cms.string('runnumber'),
+                                          toGet = cms.VPSet(cms.PSet(record = cms.string('DQMXMLFileRcd'),
+                                                                     tag = cms.string('XML_test'),
+                                                                     label=cms.untracked.string('XML_label')
+                                                                 )
+                                                        )
+                                      )
+
+    process.RecordDataGetter = cms.EDAnalyzer("EventSetupRecordDataGetter",
+                                              toGet = cms.VPSet(cms.PSet(record = cms.string('DQMXMLFileRcd'),
+                                                                         data = cms.vstring('FileBlob/XML_label'))),
+                                              verbose = cms.untracked.bool(True)
+                                              )
+
 
 # process.ReferenceRetrieval = cms.ESSource("PoolDBESSource",
 #                                   CondDBSetup,
@@ -61,6 +86,11 @@ process.source = cms.Source("EmptyIOVSource",
 #                                   )
                                       
 process.load('CondTools.DQM.DQMXMLFileEventSetupAnalyzer_cfi')
-process.dqmXMLFileGetter.labelToGet = cms.string('SiPixelDQMQTests')
-process.path = cms.Path(process.dqmXMLFileGetter)
+if(options.unitTest):
+    process.dqmXMLFileGetter.labelToGet = cms.string('XML_label')
+    process.path = cms.Path(process.RecordDataGetter+process.dqmXMLFileGetter)
+
+else:
+    process.dqmXMLFileGetter.labelToGet = cms.string('SiPixelDQMQTests')
+    process.path = cms.Path(process.dqmXMLFileGetter)
 
