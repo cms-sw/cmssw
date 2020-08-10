@@ -17,15 +17,13 @@
 class TrackSelectorByRegion final : public edm::global::EDProducer<> {
 public:
   explicit TrackSelectorByRegion(const edm::ParameterSet& conf)
-      : produce_collection(conf.getParameter<bool>("produceTrackCollection")),
-        produce_mask(conf.getParameter<bool>("produceMask")),
+      : produceCollection_(conf.getParameter<bool>("produceTrackCollection")),
+        produceMask_(conf.getParameter<bool>("produceMask")),
         tracksToken_(consumes<reco::TrackCollection>(conf.getParameter<edm::InputTag>("tracks"))),
-        inputTrkRegionToken_(consumes<edm::OwnVector<TrackingRegion>>(conf.getParameter<edm::InputTag>("regions"))) {
-    if (produce_collection)
-      outputTracksToken_ = produces<reco::TrackCollection>();
-    if (produce_mask)
-      outputMaskToken_ = produces<std::vector<bool>>();
-  }
+        inputTrkRegionToken_(consumes<edm::OwnVector<TrackingRegion>>(conf.getParameter<edm::InputTag>("regions"))),
+        outputTracksToken_(produceCollection_ ? produces<reco::TrackCollection>()
+                                              : edm::EDPutTokenT<reco::TrackCollection>{}),
+        outputMaskToken_(produceMask_ ? produces<std::vector<bool>>() : edm::EDPutTokenT<std::vector<bool>>{}) {}
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
     edm::ParameterSetDescription desc;
@@ -40,7 +38,7 @@ private:
   using MaskCollection = std::vector<bool>;
 
   void produce(edm::StreamID, edm::Event& iEvent, const edm::EventSetup&) const override {
-    if (not produce_collection and not produce_mask)
+    if (not produceCollection_ and not produceMask_)
       return;
 
     auto regionsHandle = iEvent.getHandle(inputTrkRegionToken_);
@@ -54,10 +52,10 @@ private:
       region.checkTracks(tracks, *mask);
     }
 
-    if (produce_collection) {
+    if (produceCollection_) {
       auto output_tracks = std::make_unique<reco::TrackCollection>();  // selected output collection
       size_t size = 0;
-
+      // count the number of selected tracks
       for (size_t i = 0; i < mask->size(); i++) {
         size += (*mask)[i];
       }
@@ -68,17 +66,17 @@ private:
       }
       iEvent.emplace(outputTracksToken_, *output_tracks);
     }
-    if (produce_mask) {
+    if (produceMask_) {
       iEvent.emplace(outputMaskToken_, *mask);
     }
   }
 
-  const bool produce_collection;
-  const bool produce_mask;
+  const bool produceCollection_;
+  const bool produceMask_;
   const edm::EDGetTokenT<reco::TrackCollection> tracksToken_;
   const edm::EDGetTokenT<edm::OwnVector<TrackingRegion>> inputTrkRegionToken_;
-  edm::EDPutTokenT<reco::TrackCollection> outputTracksToken_;
-  edm::EDPutTokenT<std::vector<bool>> outputMaskToken_;
+  const edm::EDPutTokenT<reco::TrackCollection> outputTracksToken_;
+  const edm::EDPutTokenT<std::vector<bool>> outputMaskToken_;
 };
 
 #include "FWCore/PluginManager/interface/ModuleDef.h"
