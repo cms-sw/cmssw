@@ -225,6 +225,7 @@ trackerDict = {
             'Geometry/TrackerCommonData/data/PhaseI/trackerStructureTopology.xml',
             'Geometry/TrackerSimData/data/PhaseI/trackersens.xml',
             'Geometry/TrackerRecoData/data/PhaseI/trackerRecoMaterial.xml',
+            'SimTracker/TrackerMaterialAnalysis/data/trackingMaterialGroups_ForPhaseI.xml',
             'Geometry/TrackerSimData/data/PhaseI/trackerProdCuts.xml',
             'Geometry/TrackerSimData/data/trackerProdCutsBEAM.xml',
         ],
