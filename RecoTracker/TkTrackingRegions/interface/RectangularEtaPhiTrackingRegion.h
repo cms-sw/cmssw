@@ -175,8 +175,9 @@ public:
 
   TrackingRegion::Hits hits(const edm::EventSetup& es, const SeedingLayerSetsHits::SeedingLayer& layer) const override;
 
-  /// updates an existing mask over a track collection reflecting the compatability to the RectangularEtaPhiTrackingRegion
-  void checkTracks(reco::TrackCollection const& InputCollection, std::vector<bool>& mask) const override;
+  /// Set the elements of the mask corresponding to the tracks that are compatable with the region.
+  /// Does not reset the elements corresponding to the tracks that are not compatible.
+  void checkTracks(reco::TrackCollection const& tracks, std::vector<bool>& mask) const override;
 
   std::unique_ptr<HitRZCompatibility> checkRZ(const DetLayer* layer,
                                               const Hit& outerHit,

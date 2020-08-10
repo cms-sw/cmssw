@@ -48,17 +48,14 @@ namespace {
 using namespace PixelRecoUtilities;
 using namespace std;
 
-void RectangularEtaPhiTrackingRegion::checkTracks(reco::TrackCollection const& InputCollection,
-                                                  std::vector<bool>& mask) const {
+void RectangularEtaPhiTrackingRegion::checkTracks(reco::TrackCollection const& tracks, std::vector<bool>& mask) const {
   math::XYZPoint regOrigin(origin().x(), origin().y(), origin().z());
   auto phi0 = phiDirection() + 0.5 * (phiMargin().right() - phiMargin().left());
   auto dphi = 0.5 * (phiMargin().right() + phiMargin().left());
 
-  if (mask.size() < InputCollection.size())
-    mask.resize(InputCollection.size(), false);
-
+  assert(mask.size() == tracks.size());
   int i = -1;
-  for (auto const& track : InputCollection) {
+  for (auto const& track : tracks) {
     i++;
     if (mask[i])
       continue;
