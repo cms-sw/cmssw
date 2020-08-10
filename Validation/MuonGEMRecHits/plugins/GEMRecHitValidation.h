@@ -15,9 +15,10 @@ private:
   Bool_t matchRecHitAgainstSimHit(GEMRecHitCollection::const_iterator, Int_t);
 
   // Parameter
-
   edm::EDGetTokenT<GEMRecHitCollection> rechit_token_;
   edm::EDGetTokenT<edm::PSimHitContainer> simhit_token_;
+  edm::ESGetToken<GEMGeometry, MuonGeometryRecord> geomToken_;
+  edm::ESGetToken<GEMGeometry, MuonGeometryRecord> geomTokenBeginRun_;
 
   // MonitorElement
   MonitorElement* me_cls_;

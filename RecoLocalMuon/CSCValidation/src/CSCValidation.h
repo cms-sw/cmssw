@@ -19,25 +19,18 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
-#include "FWCore/Framework/interface/EDFilter.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/Utilities/interface/ESGetToken.h"
 
-#include "DataFormats/CSCDigi/interface/CSCWireDigi.h"
 #include "DataFormats/CSCDigi/interface/CSCWireDigiCollection.h"
-#include "DataFormats/CSCDigi/interface/CSCStripDigi.h"
 #include "DataFormats/CSCDigi/interface/CSCStripDigiCollection.h"
-#include "DataFormats/CSCDigi/interface/CSCComparatorDigi.h"
 #include "DataFormats/CSCDigi/interface/CSCComparatorDigiCollection.h"
-#include "DataFormats/CSCDigi/interface/CSCALCTDigi.h"
 #include "DataFormats/CSCDigi/interface/CSCALCTDigiCollection.h"
-#include "DataFormats/CSCDigi/interface/CSCCLCTDigi.h"
 #include "DataFormats/CSCDigi/interface/CSCCLCTDigiCollection.h"
-#include "DataFormats/CSCDigi/interface/CSCCorrelatedLCTDigi.h"
 #include "DataFormats/CSCDigi/interface/CSCCorrelatedLCTDigiCollection.h"
 
 #include "EventFilter/CSCRawToDigi/interface/CSCDCCEventData.h"
@@ -64,9 +57,7 @@
 #include "DataFormats/FEDRawData/interface/FEDNumbering.h"
 #include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
 
-#include "DataFormats/MuonDetId/interface/CSCDetId.h"
-#include <DataFormats/CSCRecHit/interface/CSCRecHit2D.h>
-#include <DataFormats/CSCRecHit/interface/CSCSegmentCollection.h>
+#include "DataFormats/CSCRecHit/interface/CSCSegmentCollection.h"
 #include "DataFormats/MuonDetId/interface/RPCDetId.h"
 
 #include "DataFormats/L1GlobalMuonTrigger/interface/L1MuGMTReadoutRecord.h"
@@ -75,9 +66,6 @@
 #include "FWCore/Common/interface/TriggerNames.h"
 
 #include "Geometry/CSCGeometry/interface/CSCGeometry.h"
-#include "Geometry/CSCGeometry/interface/CSCChamber.h"
-#include "Geometry/CSCGeometry/interface/CSCLayer.h"
-#include "Geometry/CSCGeometry/interface/CSCLayerGeometry.h"
 #include "Geometry/Records/interface/MuonGeometryRecord.h"
 
 #include "DataFormats/TrackReco/interface/Track.h"
@@ -258,6 +246,7 @@ private:
   edm::EDGetTokenT<edm::TriggerResults> tr_token;
   edm::EDGetTokenT<reco::TrackCollection> sa_token;
   edm::EDGetTokenT<edm::PSimHitContainer> sh_token;
+  edm::ESGetToken<CSCGeometry, MuonGeometryRecord> geomToken_;
 
   // module on/off switches
   bool makeOccupancyPlots;
