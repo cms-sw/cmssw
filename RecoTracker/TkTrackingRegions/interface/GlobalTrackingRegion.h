@@ -52,8 +52,8 @@ public:
                                               float dr = 0,
                                               float dz = 0) const override;
 
-  /// return a mask over a track collection reflecting the compatability to the GlobalTrackingRegion
-  std::vector<bool> checkTracks(reco::TrackCollection const& InputCollection) const override;
+  /// updates an existing mask over a track collection reflecting the compatability to the GlobalTrackingRegion
+  void checkTracks(reco::TrackCollection const& InputCollection, std::vector<bool>& mask) const override;
 
   std::unique_ptr<TrackingRegion> clone() const override { return std::make_unique<GlobalTrackingRegion>(*this); }
 

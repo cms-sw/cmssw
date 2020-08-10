@@ -51,11 +51,7 @@ private:
     const auto& regions = *regionsHandle;
 
     for (auto const& region : regions) {
-      auto const& region_mask = region.checkTracks(tracks);
-      assert(mask->size() == region_mask.size());
-      for (size_t i = 0; i < region_mask.size(); ++i) {
-        (*mask)[i] = (*mask)[i] or region_mask[i];
-      }
+      region.checkTracks(tracks, *mask);
     }
 
     if (produce_collection) {
