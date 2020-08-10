@@ -618,9 +618,13 @@ workflows[1325.8] = ['', ['TTbar_13_94Xv1NanoAODINPUT','NANOEDMMC2017_94XMiniAOD
 workflows[1325.9] = ['', ['TTbar_13','DIGIUP15APVSimu','RECOUP15','HARVESTUP15','ALCATTUP15']]
 workflows[1325.91] = ['', ['TTbar_13','DIGIUP15APVSimu','RECOUP15_HIPM','HARVESTUP15','ALCATTUP15']]
 
+# nanoaod wf without intermediate EDM,  starting from existing MINIAOD inputs
+workflows[1325.61] = ['', ['TTbar_13_106Xv1NanoAODINPUT','NANOAODMC2017_106XMiniAODv1']]
+# nanoaod wf with intermediate EDM and merge step, starting from existing MINIAOD inputs
+workflows[1325.81] = ['', ['TTbar_13_106Xv1NanoAODINPUT','NANOEDMMC2017_106XMiniAODv1','HARVESTNANOAODMC2017_106XMiniAODv1']]
+
 #using ZEE as I cannot find TT at CERN
 workflows[1329.1] = ['', ['ZEE_13_80XNanoAODINPUT','NANOEDMMC2016_80X','HARVESTNANOAODMC2016_80X']]
-
 
 workflows[1326] = ['', ['WE_13','DIGIUP15','RECOUP15','HARVESTUP15']]
 workflows[1329] = ['', ['ZEE_13','DIGIUP15','RECOUP15_L1TEgDQM','HARVESTUP15_L1TEgDQM','NANOUP15']]
