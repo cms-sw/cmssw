@@ -3,9 +3,9 @@
 // Package:  CondTools/SiPhase2Tracker
 // Class:    SiPhase2OuterTrackerLorentzAngleWriter
 //
-/**\class SiPhase2OuterTrackerLorentzAngleWriter SiPhase2OuterTrackerLorentzAngleWriter.cc Tracker/Tools/plugins/SiPhase2OuterTrackerLorentzAngleWriter.cc
+/**\class SiPhase2OuterTrackerLorentzAngleWriter SiPhase2OuterTrackerLorentzAngleWriter.cc CondTools/SiPhase2Tracker/plugins/SiPhase2OuterTrackerLorentzAngleWriter.cc
 
- Description: Put the values of the Lorentz angle for each strip detId in as database file
+ Description: Put the values of the Lorentz angle for Phase-2 Outer Tracker detId in as database file
 
  Implementation:
      [Notes on implementation]
@@ -59,7 +59,6 @@ private:
   std::string m_record;
   std::string m_tag;
   float m_value;
-  SiPhase2OuterTrackerLorentzAngle* lorentzAngle;
 };
 
 //
@@ -71,7 +70,6 @@ SiPhase2OuterTrackerLorentzAngleWriter::SiPhase2OuterTrackerLorentzAngleWriter(c
       m_value(iConfig.getParameter<double>("value")) {}
 
 SiPhase2OuterTrackerLorentzAngleWriter::~SiPhase2OuterTrackerLorentzAngleWriter() {
-  delete lorentzAngle;
   edm::LogInfo("SiPhase2OuterTrackerLorentzAngleWriter")
       << "SiPhase2OuterTrackerLorentzAngleWriter::~SiPhase2OuterTrackerLorentzAngleWriter" << std::endl;
 }
@@ -133,10 +131,11 @@ void SiPhase2OuterTrackerLorentzAngleWriter::analyze(const edm::Event& iEvent, c
       << " There are " << detsLAtoDB.size() << " OT Lorentz Angle values assigned" << std::endl;
 
   // SiStripLorentzAngle object
-  lorentzAngle = new SiPhase2OuterTrackerLorentzAngle();
-  lorentzAngle->putLorentsAngles(detsLAtoDB);
+
+  auto lorentzAngle = std::make_unique<SiPhase2OuterTrackerLorentzAngle>();
+  lorentzAngle->putLorentzAngles(detsLAtoDB);
   edm::LogInfo("SiPhase2OuterTrackerLorentzAngleWriter") << "currentTime " << mydbservice->currentTime() << std::endl;
-  mydbservice->writeOne(lorentzAngle, mydbservice->currentTime(), m_record);
+  mydbservice->writeOne(lorentzAngle.get(), mydbservice->currentTime(), m_record);
 }
 
 // ------------ method called once each job just before starting event loop  ------------
