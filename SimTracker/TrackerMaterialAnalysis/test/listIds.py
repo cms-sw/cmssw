@@ -3,7 +3,10 @@
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("MaterialAnalyser")
-process.load("Configuration.StandardSequences.Geometry_cff")
+process.load('Configuration.Geometry.GeometryDB_cff')
+process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
+from Configuration.AlCa.GlobalTag import GlobalTag
+process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_mc', '')
 process.load("Configuration.StandardSequences.MagneticField_cff")
 
 process.MessageLogger = cms.Service("MessageLogger",
@@ -15,7 +18,7 @@ process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(1)
 )
 
-process.listIds = cms.EDFilter("ListIds"
+process.listIds = cms.EDAnalyzer("ListIds",
                                 materials = cms.untracked.vstring("materials:Silicon" , "tracker:SenSi"),
                                 printMaterial = cms.untracked.bool(False)
                               )
