@@ -25,8 +25,12 @@ public:
   SiPhase2OuterTrackerLorentzAngle(){};
   ~SiPhase2OuterTrackerLorentzAngle(){};
 
-  inline void putLorentsAngles(std::unordered_map<unsigned int, float>& LA) { m_LA = LA; }
+  inline void putLorentzAngles(std::unordered_map<unsigned int, float>& LA) { m_LA = LA; }
   inline const std::unordered_map<unsigned int, float>& getLorentzAngles() const { return m_LA; }
+
+  void getLorentzAnglesByModuleType(const TrackerGeometry* trackerGeometry,
+                                    const TrackerGeometry::ModuleType& theType,
+                                    std::unordered_map<unsigned int, float>& out) const;
 
   void getLorentzAngles_PSP(const TrackerGeometry*, std::unordered_map<unsigned int, float>&) const;
   void getLorentzAngles_PSS(const TrackerGeometry*, std::unordered_map<unsigned int, float>&) const;
