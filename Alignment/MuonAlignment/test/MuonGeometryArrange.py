@@ -24,7 +24,8 @@ process.CSCGeometryMuonGeometryArrange1 = cms.ESProducer("CSCGeometryESModule",
     useRealWireGeometry = cms.bool(True),
     useCentreTIOffsets = cms.bool(False),
     applyAlignment = cms.bool(False), 
-    useDDD = cms.bool(True)
+    fromDDD = cms.bool(True),
+    fromDD4hep = cms.bool(False)
 )
 
 process.DTGeometryMuonGeometryArrange2 = cms.ESProducer("DTGeometryESModule",
@@ -43,7 +44,8 @@ process.CSCGeometryMuonGeometryArrange2 = cms.ESProducer("CSCGeometryESModule",
     useRealWireGeometry = cms.bool(True),
     useCentreTIOffsets = cms.bool(False),
     applyAlignment = cms.bool(False), 
-    useDDD = cms.bool(True)
+    fromDDD = cms.bool(True),
+    fromDD4hep = cms.bool(False)
 )
 
 process.DTGeometryMuonGeometryArrange2a = cms.ESProducer("DTGeometryESModule",
@@ -62,7 +64,8 @@ process.CSCGeometryMuonGeometryArrange2a = cms.ESProducer("CSCGeometryESModule",
     useRealWireGeometry = cms.bool(True),
     useCentreTIOffsets = cms.bool(False),
     applyAlignment = cms.bool(False), 
-    useDDD = cms.bool(True)
+    fromDDD = cms.bool(True),
+    fromDD4hep = cms.bool(False)
 )
 
 process.MessageLogger = cms.Service("MessageLogger",
