@@ -66,7 +66,12 @@ CTPPSLHCInfoRandomXangleESSource::CTPPSLHCInfoRandomXangleESSource(const edm::Pa
   const auto &xangleHistogramObject = conf.getParameter<std::string>("xangleHistogramObject");
 
   TFile *f_in = TFile::Open(xangleHistogramFile.c_str());
+  if (!f_in)
+    throw cms::Exception("PPS") << "Cannot open input file '" << xangleHistogramFile << "'.";
+
   TH1D *h_xangle = (TH1D *)f_in->Get(xangleHistogramObject.c_str());
+  if (!h_xangle)
+    throw cms::Exception("PPS") << "Cannot load input object '" << xangleHistogramObject << "'.";
 
   double s = 0.;
   for (int bi = 1; bi <= h_xangle->GetNbinsX(); ++bi)
