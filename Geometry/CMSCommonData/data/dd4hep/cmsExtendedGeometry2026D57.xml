@@ -71,8 +71,8 @@
     <Include ref='Geometry/MuonCommonData/data/mb4/2015/v2/mb4.xml'/>
     <Include ref='Geometry/MuonCommonData/data/mb4Shield/2021/v1/mb4Shield.xml'/>
     <Include ref='Geometry/MuonCommonData/data/muonYoke/2026/v1/muonYoke.xml'/>
-    <Include ref='Geometry/MuonCommonData/data/csc/2021/v2/csc.xml'/>
     <Include ref='Geometry/MuonCommonData/data/mf/2026/v5/mf.xml'/>
+    <Include ref='Geometry/MuonCommonData/data/csc/2021/v2/csc.xml'/>
     <Include ref='Geometry/MuonCommonData/data/rpcf/2026/v3/rpcf.xml'/>
     <Include ref='Geometry/MuonCommonData/data/gemf/TDR_BaseLine/gemf.xml'/>
     <Include ref='Geometry/MuonCommonData/data/gem11/TDR_BaseLine/gem11.xml'/>
