@@ -29,7 +29,7 @@ namespace {
 
 void SSDigitizerAlgorithm::init(const edm::EventSetup& es) {
   if (use_LorentzAngle_DB_) {  // Get Lorentz angle from DB record
-    es.get<SiPhase2OuterTrackerLorentzAngleSimRcd>().get(SiPhase2OTLorentzAngle_);
+    es.get<SiPhase2OuterTrackerLorentzAngleSimRcd>().get(siPhase2OTLorentzAngle_);
   }
 
   es.get<TrackerDigiGeometryRecord>().get(geom_);

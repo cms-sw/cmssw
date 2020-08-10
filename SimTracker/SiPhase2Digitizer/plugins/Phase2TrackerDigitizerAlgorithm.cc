@@ -775,7 +775,7 @@ LocalVector Phase2TrackerDigitizerAlgorithm::DriftDirection(const Phase2TrackerG
     bool isPixel = (Sub_detid == PixelSubdetector::PixelBarrel || Sub_detid == PixelSubdetector::PixelEndcap);
 
     float lorentzAngle =
-        isPixel ? SiPixelLorentzAngle_->getLorentzAngle(detId) : SiPhase2OTLorentzAngle_->getLorentzAngle(detId);
+        isPixel ? siPixelLorentzAngle_->getLorentzAngle(detId) : siPhase2OTLorentzAngle_->getLorentzAngle(detId);
     float alpha2 = std::pow(lorentzAngle, 2);
 
     dir_x = -(lorentzAngle * Bfield.y() + alpha2 * Bfield.z() * Bfield.x());
@@ -869,7 +869,7 @@ void Phase2TrackerDigitizerAlgorithm::module_killing_DB(const Phase2TrackerGeomD
   int ncol = pixdet->specificTopology().ncolumns();
   if (ncol < 0)
     return;
-  std::vector<SiPixelQuality::disabledModuleType> disabledModules = SiPixelBadModule_->getBadComponentList();
+  std::vector<SiPixelQuality::disabledModuleType> disabledModules = siPixelBadModule_->getBadComponentList();
 
   SiPixelQuality::disabledModuleType badmodule;
   for (size_t id = 0; id < disabledModules.size(); id++) {
@@ -892,7 +892,7 @@ void Phase2TrackerDigitizerAlgorithm::module_killing_DB(const Phase2TrackerGeomD
     // follow the example of getBadRocPositions in CondFormats/SiPixelObjects/src/SiPixelQuality.cc
     std::vector<GlobalPixel> badrocpositions;
     for (size_t j = 0; j < static_cast<size_t>(ncol); j++) {
-      if (SiPixelBadModule_->IsRocBad(detID, j)) {
+      if (siPixelBadModule_->IsRocBad(detID, j)) {
         std::vector<CablingPathToDetUnit> path = fedCablingMap_.product()->pathToDetUnit(detID);
         for (auto const& p : path) {
           const PixelROC* myroc = fedCablingMap_.product()->findItem(p);
