@@ -6,6 +6,8 @@ GEMCoPadDigiValidation::GEMCoPadDigiValidation(const edm::ParameterSet& pset)
 
   const auto& copad_tag = copad_pset.getParameter<edm::InputTag>("inputTag");
   copad_token_ = consumes<GEMCoPadDigiCollection>(copad_tag);
+  geomToken_ = esConsumes<GEMGeometry, MuonGeometryRecord>();
+  geomTokenBeginRun_ = esConsumes<GEMGeometry, MuonGeometryRecord, edm::Transition::BeginRun>();
 
   gem_bx_min_ = copad_pset.getParameter<int>("minBX");
   gem_bx_max_ = copad_pset.getParameter<int>("maxBX");
@@ -14,7 +16,7 @@ GEMCoPadDigiValidation::GEMCoPadDigiValidation(const edm::ParameterSet& pset)
 void GEMCoPadDigiValidation::bookHistograms(DQMStore::IBooker& booker,
                                             edm::Run const& run,
                                             edm::EventSetup const& setup) {
-  const GEMGeometry* gem = initGeometry(setup);
+  const GEMGeometry* gem = &setup.getData(geomTokenBeginRun_);
 
   // NOTE Occupancy
   booker.setCurrentFolder("MuonGEMDigisV/GEMDigisTask/CoPad/Occupancy");
@@ -92,7 +94,7 @@ void GEMCoPadDigiValidation::bookHistograms(DQMStore::IBooker& booker,
 GEMCoPadDigiValidation::~GEMCoPadDigiValidation() {}
 
 void GEMCoPadDigiValidation::analyze(const edm::Event& event, const edm::EventSetup& setup) {
-  const GEMGeometry* gem = initGeometry(setup);
+  const GEMGeometry* gem = &setup.getData(geomToken_);
 
   edm::Handle<GEMCoPadDigiCollection> copad_collection;
   event.getByToken(copad_token_, copad_collection);

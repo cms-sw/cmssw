@@ -2,11 +2,7 @@
 #define ME0RecHitsValidation_H
 
 #include "Validation/MuonME0Validation/interface/ME0BaseValidation.h"
-
-// Data Format
 #include "DataFormats/GEMRecHit/interface/ME0RecHitCollection.h"
-#include "DataFormats/MuonDetId/interface/GEMDetId.h"
-#include <DataFormats/GEMRecHit/interface/ME0RecHit.h>
 
 class ME0RecHitsValidation : public ME0BaseValidation {
 public:

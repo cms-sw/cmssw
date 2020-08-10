@@ -1,7 +1,7 @@
 /*
- *  Routine to calculate CSC efficiencies 
+ *  Routine to calculate CSC efficiencies
  *  Comments about the program logic are denoted by //----
- * 
+ *
  *  Stoyan Stoynev, Northwestern University.
  */
 
@@ -74,8 +74,7 @@ bool CSCEfficiency::filter(edm::Event &event, const edm::EventSetup &eventSetup)
   //---- Get the CSC Geometry :
   if (printalot)
     printf("\tget the CSC geometry.\n");
-  edm::ESHandle<CSCGeometry> cscGeom;
-  eventSetup.get<MuonGeometryRecord>().get(cscGeom);
+  edm::ESHandle<CSCGeometry> cscGeom = eventSetup.getHandle(geomToken_);
 
   // use theTrackingGeometry instead of cscGeom?
   edm::ESHandle<GlobalTrackingGeometry> theTrackingGeometry;
@@ -1685,6 +1684,8 @@ CSCEfficiency::CSCEfficiency(const edm::ParameterSet &pset) {
   tk_token = consumes<edm::View<reco::Track> >(pset.getParameter<edm::InputTag>("tracksTag"));
   sh_token = consumes<edm::PSimHitContainer>(pset.getParameter<edm::InputTag>("simHitTag"));
 
+  geomToken_ = esConsumes<CSCGeometry, MuonGeometryRecord>();
+
   edm::ParameterSet serviceParameters = pset.getParameter<edm::ParameterSet>("ServiceParameters");
   // maybe use the service for getting magnetic field, propagators, etc. ...
   theService = new MuonServiceProxy(serviceParameters, consumesCollector());
@@ -1942,11 +1943,11 @@ CSCEfficiency::CSCEfficiency(const edm::ParameterSet &pset) {
           //
           /*
 	  sprintf(SpecName,"Sim_Rechits_each_Ch%d",iChamber);
-	  ChHist[ec][st][rg][iChamber-FirstCh].SimRechits_each = 
+	  ChHist[ec][st][rg][iChamber-FirstCh].SimRechits_each =
 	    new TH1F(SpecName,"Existing RecHit (Sim), each;layers (1-6);entries",nLayer_bins,Layer_min,Layer_max);
 	  //
 	  sprintf(SpecName,"Sim_Simhits_each_Ch%d",iChamber);
-	  ChHist[ec][st][rg][iChamber-FirstCh].SimSimhits_each = 
+	  ChHist[ec][st][rg][iChamber-FirstCh].SimSimhits_each =
 	    new TH1F(SpecName,"Existing SimHit (Sim), each;layers (1-6);entries",nLayer_bins,Layer_min,Layer_max);
 	  */
           theFile->cd();

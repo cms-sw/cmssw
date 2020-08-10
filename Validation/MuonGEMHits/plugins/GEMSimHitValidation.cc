@@ -9,12 +9,14 @@ GEMSimHitValidation::GEMSimHitValidation(const edm::ParameterSet& pset)
   simhit_token_ = consumes<edm::PSimHitContainer>(simhit_tag);
 
   tof_range_ = pset.getUntrackedParameter<std::vector<Double_t> >("TOFRange");
+  geomToken_ = esConsumes<GEMGeometry, MuonGeometryRecord>();
+  geomTokenBeginRun_ = esConsumes<GEMGeometry, MuonGeometryRecord, edm::Transition::BeginRun>();
 }
 
 GEMSimHitValidation::~GEMSimHitValidation() {}
 
 void GEMSimHitValidation::bookHistograms(DQMStore::IBooker& booker, edm::Run const& run, edm::EventSetup const& setup) {
-  const GEMGeometry* gem = initGeometry(setup);
+  const GEMGeometry* gem = &setup.getData(geomTokenBeginRun_);
 
   // NOTE Time of flight
   booker.setCurrentFolder("MuonGEMHitsV/GEMHitsTask/TimeOfFlight");
@@ -155,7 +157,7 @@ std::tuple<Double_t, Double_t> GEMSimHitValidation::getTOFRange(Int_t station_id
 }
 
 void GEMSimHitValidation::analyze(const edm::Event& event, const edm::EventSetup& setup) {
-  const GEMGeometry* gem = initGeometry(setup);
+  const GEMGeometry* gem = &setup.getData(geomToken_);
 
   edm::Handle<edm::PSimHitContainer> simhit_container;
   event.getByToken(simhit_token_, simhit_container);

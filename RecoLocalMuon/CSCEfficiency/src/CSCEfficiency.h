@@ -3,58 +3,39 @@
 
 /** \class CSCEfficiency
  *
- * Efficiency calculations 
+ * Efficiency calculations
  * Stoyan Stoynev, Northwestern University
  */
 
 // how many of the headers below are not needed?...
 #include "FWCore/Framework/interface/ConsumesCollector.h"
+#include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDFilter.h"
 #include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include <FWCore/Utilities/interface/InputTag.h>
+#include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 
-#include "DataFormats/CSCDigi/interface/CSCALCTDigi.h"
 #include "DataFormats/CSCDigi/interface/CSCALCTDigiCollection.h"
-#include "DataFormats/CSCDigi/interface/CSCCLCTDigi.h"
 #include "DataFormats/CSCDigi/interface/CSCCLCTDigiCollection.h"
-#include "DataFormats/CSCDigi/interface/CSCCorrelatedLCTDigi.h"
 #include "DataFormats/CSCDigi/interface/CSCCorrelatedLCTDigiCollection.h"
+#include "DataFormats/CSCDigi/interface/CSCWireDigiCollection.h"
+#include "DataFormats/CSCDigi/interface/CSCStripDigiCollection.h"
+#include "DataFormats/CSCDigi/interface/CSCComparatorDigiCollection.h"
 
 #include "DataFormats/CSCRecHit/interface/CSCRecHit2DCollection.h"
+#include "DataFormats/CSCRecHit/interface/CSCSegmentCollection.h"
 #include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
 
-#include "DataFormats/MuonDetId/interface/CSCDetId.h"
-#include <DataFormats/CSCRecHit/interface/CSCSegmentCollection.h>
-
 #include "Geometry/CSCGeometry/interface/CSCGeometry.h"
-#include <Geometry/CSCGeometry/interface/CSCChamber.h>
-#include <Geometry/CSCGeometry/interface/CSCLayer.h>
-#include <Geometry/CSCGeometry/interface/CSCLayerGeometry.h>
-#include <Geometry/Records/interface/MuonGeometryRecord.h>
+#include "Geometry/Records/interface/MuonGeometryRecord.h"
 
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 #include "DataFormats/GeometryVector/interface/GlobalVector.h"
 #include "DataFormats/GeometryVector/interface/LocalPoint.h"
 #include "DataFormats/GeometryVector/interface/LocalVector.h"
-
-#include "DataFormats/CSCDigi/interface/CSCWireDigi.h"
-#include "DataFormats/CSCDigi/interface/CSCWireDigiCollection.h"
-#include "DataFormats/CSCDigi/interface/CSCStripDigi.h"
-#include "DataFormats/CSCDigi/interface/CSCStripDigiCollection.h"
-
-#include "DataFormats/CSCDigi/interface/CSCComparatorDigi.h"
-#include "DataFormats/CSCDigi/interface/CSCComparatorDigiCollection.h"
-
-#include "FWCore/Framework/interface/MakerMacros.h"
-#include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
@@ -68,7 +49,7 @@
 #include "TrackingTools/DetLayers/interface/NavigationDirection.h"
 #include "TrackingTools/GeomPropagators/interface/Propagator.h"
 
-#include <RecoMuon/TrackingTools/interface/MuonServiceProxy.h>
+#include "RecoMuon/TrackingTools/interface/MuonServiceProxy.h"
 #include "RecoMuon/TrackingTools/interface/MuonPatternRecoDumper.h"
 
 #include "DataFormats/Common/interface/TriggerResults.h"
@@ -144,6 +125,8 @@ private:
   edm::EDGetTokenT<edm::PSimHitContainer> sh_token;
 
   edm::EDGetTokenT<edm::TriggerResults> ht_token;
+
+  edm::ESGetToken<CSCGeometry, MuonGeometryRecord> geomToken_;
 
   //
   unsigned int printout_NEvents;

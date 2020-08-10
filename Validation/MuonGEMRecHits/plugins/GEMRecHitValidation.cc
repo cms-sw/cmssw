@@ -12,12 +12,14 @@ GEMRecHitValidation::GEMRecHitValidation(const edm::ParameterSet& pset)
   const auto& simhit_pset = pset.getParameterSet("gemSimHit");
   const auto& simhit_tag = simhit_pset.getParameter<edm::InputTag>("inputTag");
   simhit_token_ = consumes<edm::PSimHitContainer>(simhit_tag);
+  geomToken_ = esConsumes<GEMGeometry, MuonGeometryRecord>();
+  geomTokenBeginRun_ = esConsumes<GEMGeometry, MuonGeometryRecord, edm::Transition::BeginRun>();
 }
 
 GEMRecHitValidation::~GEMRecHitValidation() {}
 
 void GEMRecHitValidation::bookHistograms(DQMStore::IBooker& booker, edm::Run const& run, edm::EventSetup const& setup) {
-  const GEMGeometry* gem = initGeometry(setup);
+  const GEMGeometry* gem = &setup.getData(geomTokenBeginRun_);
 
   // NOTE Cluster Size
   booker.setCurrentFolder("MuonGEMRecHitsV/GEMRecHitsTask/ClusterSize");
@@ -189,7 +191,7 @@ Bool_t GEMRecHitValidation::matchRecHitAgainstSimHit(GEMRecHitCollection::const_
 }
 
 void GEMRecHitValidation::analyze(const edm::Event& event, const edm::EventSetup& setup) {
-  const GEMGeometry* gem = initGeometry(setup);
+  const GEMGeometry* gem = &setup.getData(geomToken_);
 
   edm::Handle<edm::PSimHitContainer> simhit_container;
   event.getByToken(simhit_token_, simhit_container);

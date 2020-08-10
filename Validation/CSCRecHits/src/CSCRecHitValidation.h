@@ -3,14 +3,15 @@
 
 // user include files
 
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Utilities/interface/InputTag.h"
+#include "FWCore/Utilities/interface/EDGetToken.h"
 
-#include <DQMServices/Core/interface/DQMEDAnalyzer.h>
-#include <DQMServices/Core/interface/DQMStore.h>
+#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 
-#include "Geometry/CSCGeometry/interface/CSCGeometry.h"
+#include "Geometry/GEMGeometry/interface/GEMGeometry.h"
+#include "Geometry/Records/interface/MuonGeometryRecord.h"
 #include "SimMuon/MCTruth/interface/PSimHitMap.h"
 #include "Validation/CSCRecHits/src/CSCRecHit2DValidation.h"
 #include "Validation/CSCRecHits/src/CSCSegmentValidation.h"
@@ -24,7 +25,7 @@ public:
 
 private:
   PSimHitMap theSimHitMap;
-  const CSCGeometry *theCSCGeometry;
+  edm::ESGetToken<CSCGeometry, MuonGeometryRecord> geomToken_;
 
   CSCRecHit2DValidation *the2DValidation;
   CSCSegmentValidation *theSegmentValidation;
