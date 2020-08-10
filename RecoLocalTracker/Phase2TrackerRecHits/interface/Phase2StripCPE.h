@@ -38,7 +38,7 @@ private:
 
   const MagneticField& magfield_;
   const TrackerGeometry& geom_;
-  const SiPhase2OuterTrackerLorentzAngle& LorentzAngleMap_;
+  const SiPhase2OuterTrackerLorentzAngle& lorentzAngleMap_;
 
   float tanLorentzAnglePerTesla_;
   unsigned int m_off;

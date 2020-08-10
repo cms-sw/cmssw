@@ -8,7 +8,7 @@ Phase2StripCPE::Phase2StripCPE(edm::ParameterSet& conf,
                                const SiPhase2OuterTrackerLorentzAngle& LorentzAngle)
     : magfield_(magf),
       geom_(geom),
-      LorentzAngleMap_(LorentzAngle),
+      lorentzAngleMap_(LorentzAngle),
       tanLorentzAnglePerTesla_(conf.getParameter<double>("TanLorentzAnglePerTesla")) {
   use_LorentzAngle_DB_ = conf.getParameter<bool>("LorentzAngle_DB");
   fillParam();
@@ -30,7 +30,7 @@ LocalVector Phase2StripCPE::driftDirection(const Phase2TrackerGeomDetUnit& det) 
   LocalVector lbfield = (det.surface()).toLocal(magfield_.inTesla(det.surface().position()));
 
   float langle =
-      use_LorentzAngle_DB_ ? LorentzAngleMap_.getLorentzAngle(det.geographicalId().rawId()) : tanLorentzAnglePerTesla_;
+      use_LorentzAngle_DB_ ? lorentzAngleMap_.getLorentzAngle(det.geographicalId().rawId()) : tanLorentzAnglePerTesla_;
 
   float dir_x = -langle * lbfield.y();
   float dir_y = langle * lbfield.x();
