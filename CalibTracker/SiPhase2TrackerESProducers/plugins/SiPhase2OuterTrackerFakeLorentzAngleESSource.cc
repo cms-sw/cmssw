@@ -86,7 +86,7 @@ void SiPhase2OuterTrackerFakeLorentzAngleESSource::setIntervalFor(const edm::eve
 void SiPhase2OuterTrackerFakeLorentzAngleESSource::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
   desc.add<double>("LAValue", 0.07);
-  desc.add<std::string>("recordName", "LorenzAngle");
+  desc.add<std::string>("recordName", "LorentzAngle");
   descriptions.add("siPhase2OTFakeLorentzAngleESSource", desc);
 }
 
