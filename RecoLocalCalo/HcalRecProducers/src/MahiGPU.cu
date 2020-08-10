@@ -125,7 +125,7 @@ namespace hcal {
                                                                         : compute_nsamples<Flavor3>(stride));
 
 #ifdef HCAL_MAHI_GPUDEBUG
-      assert(nsamples == nsamplesForCompute || nsamples-startingSample==nsampelsForCompute);
+      assert(nsamples == nsamplesForCompute || nsamples - startingSample == nsampelsForCompute);
 #endif
 
       auto const id = gch < nchannelsf01HE
@@ -270,7 +270,8 @@ namespace hcal {
       auto const nsamplesToAdd = recoParam1 < 10 ? recoParam2 : (recoParam1 >> 14) & 0xF;
       auto const startSampleTmp = soi + firstSampleShift;
       auto const startSample = startSampleTmp < 0 ? 0 : startSampleTmp;
-      auto const endSample = startSample + nsamplesToAdd < nsamplesForCompute ? startSample + nsamplesToAdd : nsamplesForCompute;
+      auto const endSample =
+          startSample + nsamplesToAdd < nsamplesForCompute ? startSample + nsamplesToAdd : nsamplesForCompute;
       // NOTE: gain is a small number < 10^-3, multiply it last
       auto const energym0_per_ts = gain * ((rawCharge - pedestalToUseForMethod0) * respCorrection);
       auto const energym0_per_ts_gain0 = gain0 * ((rawCharge - pedestalToUseForMethod0) * respCorrection);
@@ -1224,11 +1225,11 @@ namespace hcal {
       auto const f3nsamples = compute_nsamples<Flavor3>(inputGPU.f3HBDigis.stride);
       int constexpr windowSize = 8;
       int const startingSample = f01nsamples - windowSize;
-      assert(startingSample==0 || startingSample==2);
-      if (inputGPU.f01HEDigis.stride > 0 && inputGPU.f5HBDigis.stride> 0)
-          assert(f01nsamples == f5nsamples);
+      assert(startingSample == 0 || startingSample == 2);
+      if (inputGPU.f01HEDigis.stride > 0 && inputGPU.f5HBDigis.stride > 0)
+        assert(f01nsamples == f5nsamples);
       if (inputGPU.f01HEDigis.stride > 0 && inputGPU.f3HBDigis.stride > 0)
-          assert(f01nsamples == f3nsamples);
+        assert(f01nsamples == f3nsamples);
 
       dim3 threadsPerBlock{windowSize, configParameters.kprep1dChannelsPerBlock};
       int blocks = static_cast<uint32_t>(threadsPerBlock.y) > totalChannels
