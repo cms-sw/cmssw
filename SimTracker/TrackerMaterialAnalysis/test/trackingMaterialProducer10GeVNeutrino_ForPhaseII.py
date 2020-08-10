@@ -1,24 +1,16 @@
 #!/usr/bin/env cmsRun
 
+# cmsRun trackingMaterialProducer.py nEvents=1000 fromDB=False
+
 import FWCore.ParameterSet.Config as cms
+from FWCore.ParameterSet.VarParsing import VarParsing
 
 process = cms.Process("Geometry")
 
-readGeometryFromDB = False
-
-# N.B. for the time being we load the geometry from local
-# XML, whle in future we will have to use the DB. This is
-# only a temporary hack, since the material description has
-# been updated in release via XML and the DB is behind.
-if not readGeometryFromDB:
-  process.load('Configuration.Geometry.GeometryExtended2026D41_cff')
-else:
-# GlobalTag and geometry via GT
-  process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_condDBv2_cff')
-  from Configuration.AlCa.GlobalTag_condDBv2 import GlobalTag
-  process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase2_realistic', '')
-
 process.load('FWCore.MessageService.MessageLogger_cfi')
+process.MessageLogger.destinations.extend(["debugTrackingMaterialProducer"])
+process.MessageLogger.categories.append("TrackingMaterialProducer")
+
 process.load('Configuration.EventContent.EventContent_cff')
 
 ## MC Related stuff
@@ -37,8 +29,33 @@ process.load("SimTracker.TrackerMaterialAnalysis.trackingMaterialProducer_cff")
 #For some reason now neutrino are no longer tracked, so we need to force it.
 process.trackingMaterialProducer.StackingAction.TrackNeutrino = True
 
+options = VarParsing('analysis')
+
+options.register('nEvents',
+                 200000,
+                 VarParsing.multiplicity.singleton,
+                 VarParsing.varType.int,
+                 "Maximum number of events"
+)
+
+options.register('fromDB',
+                 False,
+                 VarParsing.multiplicity.singleton,
+                 VarParsing.varType.bool,
+                 "Read from Geometry DB?",
+)
+
+options.parseArguments()
+
+if options.fromDB :
+   process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_condDBv2_cff")
+   from Configuration.AlCa.GlobalTag_condDBv2 import GlobalTag
+   process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase2_realistic', '')
+else:
+   process.load('Configuration.Geometry.GeometryExtended2026D49_cff')
+
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(200000)
+    input = cms.untracked.int32(options.nEvents)
 )
 
 # Input source
@@ -47,7 +64,7 @@ process.source = cms.Source("EmptySource")
 process.out = cms.OutputModule("PoolOutputModule",
     outputCommands = cms.untracked.vstring(
         'drop *',                                                       # drop all objects
-        'keep MaterialAccountingTracks_trackingMaterialProducer_*_*'),  # but the material accounting informations
+        'keep MaterialAccountingTracks_trackingMaterialProducer_*_*'),  # but the material accounting information
     fileName = cms.untracked.string('file:material.root')
 )
 
@@ -57,31 +74,3 @@ process.path = cms.Path(process.generator
                         * process.trackingMaterialProducer)
 process.outpath = cms.EndPath(process.out)
 
-def customizeMessageLogger(process):
-    ### Easy customisation of MessageLogger ###
-    # 1. Extend MessageLogger to monitor all modules: the * means any
-    #    label for all defined python modules
-    process.MessageLogger.debugModules.extend(['*'])
-    # 2. Define destination and its default logging properties
-    destination = 'debugTrackingMaterialProducer'
-    how_to_debug = cms.untracked.PSet(threshold = cms.untracked.string("DEBUG"),
-                                      DEBUG = cms.untracked.PSet(limit = cms.untracked.int32(0)),
-                                      default = cms.untracked.PSet(limit = cms.untracked.int32(0)),
-                                      )
-    # 3. Attach destination and its logging properties to the main process
-    process.MessageLogger.destinations.extend([destination])
-    process.MessageLogger._Parameterizable__addParameter(destination, how_to_debug)
-    # 4. Define and extend the categories we would like to monitor
-    log_debug_categories = ['TrackingMaterialProducer']
-    process.MessageLogger.categories.extend(log_debug_categories)
-
-    # 5. Extend the configuration of the configured destination so that it
-    #    will trace all messages coming from the list of specified
-    #    categories.
-    unlimit_debug = cms.untracked.PSet(limit = cms.untracked.int32(-1))
-    for val in log_debug_categories:
-        process.MessageLogger.debugTrackingMaterialProducer._Parameterizable__addParameter(val, unlimit_debug)
-
-    return process
-
-#process = customizeMessageLogger(process)
