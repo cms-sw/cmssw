@@ -22,9 +22,9 @@ public:
         tracksToken_(consumes<reco::TrackCollection>(conf.getParameter<edm::InputTag>("tracks"))),
         inputTrkRegionToken_(consumes<edm::OwnVector<TrackingRegion>>(conf.getParameter<edm::InputTag>("regions"))) {
     if (produce_collection)
-      produces<reco::TrackCollection>();
+      outputTracksToken_ = produces<reco::TrackCollection>();
     if (produce_mask)
-      produces<std::vector<bool>>();
+      outputMaskToken_ = produces<std::vector<bool>>();
   }
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
@@ -52,27 +52,28 @@ private:
 
     for (auto const& region : regions) {
       auto const& region_mask = region.checkTracks(tracks);
+      assert(mask->size() == region_mask.size());
       for (size_t i = 0; i < region_mask.size(); ++i) {
-        mask->at(i) = mask->at(i) or region_mask[i];
+        (*mask)[i] = (*mask)[i] or region_mask[i];
       }
     }
 
     if (produce_collection) {
       auto output_tracks = std::make_unique<reco::TrackCollection>();  // selected output collection
       size_t size = 0;
+
       for (size_t i = 0; i < mask->size(); i++) {
-        if (mask->at(i))
-          ++size;
+        size += (*mask)[i];
       }
       output_tracks->reserve(size);
       for (size_t i = 0; i < mask->size(); i++) {
-        if (mask->at(i))
+        if ((*mask)[i])
           output_tracks->push_back(tracks[i]);
       }
-      iEvent.put(std::move(output_tracks));
+      iEvent.emplace(outputTracksToken_, *output_tracks);
     }
     if (produce_mask) {
-      iEvent.put(std::move(mask));
+      iEvent.emplace(outputMaskToken_, *mask);
     }
   }
 
@@ -80,6 +81,8 @@ private:
   const bool produce_mask;
   const edm::EDGetTokenT<reco::TrackCollection> tracksToken_;
   const edm::EDGetTokenT<edm::OwnVector<TrackingRegion>> inputTrkRegionToken_;
+  edm::EDPutTokenT<reco::TrackCollection> outputTracksToken_;
+  edm::EDPutTokenT<std::vector<bool>> outputMaskToken_;
 };
 
 #include "FWCore/PluginManager/interface/ModuleDef.h"
