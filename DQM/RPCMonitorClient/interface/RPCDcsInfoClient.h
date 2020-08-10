@@ -16,6 +16,7 @@ protected:
 
 private:
   std::string dcsinfofolder_;
+  std::string eventinfofolder_;
   std::string dqmprovinfofolder_;
 
   std::vector<int> DCS;

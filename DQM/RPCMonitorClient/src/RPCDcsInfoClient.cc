@@ -3,6 +3,7 @@
 
 RPCDcsInfoClient::RPCDcsInfoClient(const edm::ParameterSet& ps) {
   dcsinfofolder_ = ps.getUntrackedParameter<std::string>("dcsInfoFolder", "RPC/DCSInfo");
+  eventinfofolder_ = ps.getUntrackedParameter<std::string>("eventInfoFolder", "RPC/EventInfo");
   dqmprovinfofolder_ = ps.getUntrackedParameter<std::string>("dqmProvInfoFolder", "Info/EventInfo");
 
   DCS.clear();
@@ -20,12 +21,13 @@ void RPCDcsInfoClient::dqmEndJob(DQMStore::IBooker& ibooker, DQMStore::IGetter& 
 
   unsigned int nlsmax = DCS.size();
   MonitorElement* reportSummaryMap_ = igetter.get(dqmprovinfofolder_ + "/reportSummaryMap");
+  MonitorElement* lumiNumber_= igetter.get(eventinfofolder_ + "/iLumiSection");
 
   if (!reportSummaryMap_)
     return;
 
   if (TH2F* h2 = reportSummaryMap_->getTH2F()) {
-    nlsmax = h2->GetNbinsX();
+    nlsmax = lumiNumber_->getIntValue();
     int hvStatus = 0;
     const char* label_name = "RPC";
     unsigned int rpc_num = 0;
