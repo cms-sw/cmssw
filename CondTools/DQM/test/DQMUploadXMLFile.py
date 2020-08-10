@@ -35,7 +35,7 @@ process.dqmxmlFileTest = cms.EDAnalyzer("DQMXMLFilePopConAnalyzer",
                                         loggingOn = cms.untracked.bool(True), #always True, needs to create the log db
                                         SinceAppendMode = cms.bool(True),
                                         Source = cms.PSet(XMLFile = cms.untracked.string("/cvmfs/cms.cern.ch/slc7_amd64_gcc820/cms/cmssw/CMSSW_11_1_2/src/DQM/SiStripMonitorClient/data/sistrip_qualitytest_config_tier0.xml"),
-                                                          firstSince = cms.untracked.uint64(2), 
+                                                          firstSince = cms.untracked.uint64(1),
                                                           debug = cms.untracked.bool(True),
                                                           zip = cms.untracked.bool(False)
                                                           )
