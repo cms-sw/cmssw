@@ -21,7 +21,7 @@ void RPCDcsInfoClient::dqmEndJob(DQMStore::IBooker& ibooker, DQMStore::IGetter& 
 
   unsigned int nlsmax = DCS.size();
   MonitorElement* reportSummaryMap_ = igetter.get(dqmprovinfofolder_ + "/reportSummaryMap");
-  MonitorElement* lumiNumber_= igetter.get(eventinfofolder_ + "/iLumiSection");
+  MonitorElement* lumiNumber_ = igetter.get(eventinfofolder_ + "/iLumiSection");
 
   if (!reportSummaryMap_)
     return;
