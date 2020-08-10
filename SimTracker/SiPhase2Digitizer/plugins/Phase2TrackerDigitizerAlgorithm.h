@@ -85,13 +85,13 @@ public:
 
 protected:
   // Accessing Inner Tracker Lorentz angle from DB:
-  edm::ESHandle<SiPixelLorentzAngle> SiPixelLorentzAngle_;
+  edm::ESHandle<SiPixelLorentzAngle> siPixelLorentzAngle_;
 
   // Accessing Outer Tracker Lorentz angle from DB:
-  edm::ESHandle<SiPhase2OuterTrackerLorentzAngle> SiPhase2OTLorentzAngle_;
+  edm::ESHandle<SiPhase2OuterTrackerLorentzAngle> siPhase2OTLorentzAngle_;
 
   // Accessing Dead pixel modules from DB:
-  edm::ESHandle<SiPixelQuality> SiPixelBadModule_;
+  edm::ESHandle<SiPixelQuality> siPixelBadModule_;
 
   // Accessing Map and Geom:
   edm::ESHandle<SiPixelFedCablingMap> fedCablingMap_;
