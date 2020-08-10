@@ -1,9 +1,7 @@
 #! /usr/bin/env cmsRun
 # Author: Marco Musich (May 2020)
 from __future__ import print_function
-#import os
 import os, shlex, shutil, getpass
-#import subprocess
 
 import FWCore.ParameterSet.Config as cms
 process = cms.Process("TEST")
