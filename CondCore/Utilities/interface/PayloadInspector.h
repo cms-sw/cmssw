@@ -9,6 +9,7 @@
 #include <string>
 #include <tuple>
 #include <vector>
+#include <type_traits>
 
 #include "FWCore/Utilities/interface/GlobalIdentifier.h"
 
@@ -62,7 +63,13 @@ namespace cond {
     template <typename V>
     std::string serializeValue(const std::string& entryLabel, const V& value) {
       std::stringstream ss;
-      ss << "\"" << entryLabel << "\":" << value;
+      if constexpr (std::is_same_v<V, std::pair<bool, float>>) {
+        if (value.first) {
+          ss << "\"" << entryLabel << "\":" << value.second;
+        }
+      } else {
+        ss << "\"" << entryLabel << "\":" << value;
+      }
       return ss.str();
     }
 
@@ -98,7 +105,7 @@ namespace cond {
       ss << "\"version\": \"" << JSON_FORMAT_VERSION << "\",";
       ss << "\"annotations\": {";
       bool first = true;
-      for (auto a : annotations.m) {
+      for (const auto& a : annotations.m) {
         if (!first)
           ss << ",";
         ss << "\"" << a.first << "\":\"" << a.second << "\"";
@@ -118,10 +125,15 @@ namespace cond {
       ss << "\"data\": [";
       bool first = true;
       for (auto d : data) {
-        if (!first)
-          ss << ",";
-        ss << " { " << serializeValue("x", std::get<0>(d)) << ", " << serializeValue("y", std::get<1>(d)) << " }";
-        first = false;
+        auto serializedX = serializeValue("x", std::get<0>(d));
+        auto serializedY = serializeValue("y", std::get<1>(d));
+        if (!serializedY.empty()) {
+          if (!first) {
+            ss << ",";
+          }
+          ss << " { " << serializedX << ", " << serializedY << " }";
+          first = false;
+        }
       }
       ss << "]";
       ss << "}";
@@ -516,7 +528,6 @@ namespace cond {
         }
         return true;
       }
-
       virtual Y getFromPayload(PayloadType& payload) = 0;
     };
 

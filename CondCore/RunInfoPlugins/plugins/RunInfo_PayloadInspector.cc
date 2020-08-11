@@ -188,29 +188,30 @@ namespace {
   *************************************************/
 
   template <RunInfoPI::parameters param>
-  class RunInfoCurrentHistory : public cond::payloadInspector::HistoryPlot<RunInfo, float> {
+  class RunInfoCurrentHistory : public cond::payloadInspector::HistoryPlot<RunInfo, std::pair<bool, float> > {
   public:
     RunInfoCurrentHistory()
-        : cond::payloadInspector::HistoryPlot<RunInfo, float>(getStringFromTypeEnum(param),
-                                                              getStringFromTypeEnum(param) + " value") {}
+        : cond::payloadInspector::HistoryPlot<RunInfo, std::pair<bool, float> >(
+              getStringFromTypeEnum(param), getStringFromTypeEnum(param) + " value") {}
     ~RunInfoCurrentHistory() override = default;
 
-    float getFromPayload(RunInfo& payload) override {
+    std::pair<bool, float> getFromPayload(RunInfo& payload) override {
+      bool isRealRun = ((payload.m_run) != -1);
       float fieldIntensity = RunInfoPI::theBField(payload.m_avg_current);
 
       switch (param) {
         case RunInfoPI::m_start_current:
-          return payload.m_start_current;
+          return std::make_pair(isRealRun, payload.m_start_current);
         case RunInfoPI::m_stop_current:
-          return payload.m_stop_current;
+          return std::make_pair(isRealRun, payload.m_stop_current);
         case RunInfoPI::m_avg_current:
-          return payload.m_avg_current;
+          return std::make_pair(isRealRun, payload.m_avg_current);
         case RunInfoPI::m_max_current:
-          return payload.m_max_current;
+          return std::make_pair(isRealRun, payload.m_max_current);
         case RunInfoPI::m_min_current:
-          return payload.m_min_current;
+          return std::make_pair(isRealRun, payload.m_min_current);
         case RunInfoPI::m_BField:
-          return fieldIntensity;
+          return std::make_pair(isRealRun, fieldIntensity);
         default:
           edm::LogWarning("LogicError") << "Unknown parameter: " << param;
           break;
