@@ -188,14 +188,28 @@ def customiseFor30936(process):
                         ps.trackQuality = cms.string("highPurity")  # <== to be added
                     if not hasattr(ps,'cleanBadConvertedBrems'):
                         ps.cleanBadConvertedBrems = cms.bool(False) # <== to be added
-        
+
     return process
-            
+
+def customiseFor31115(process):
+    """Make PFCluster from each seed"""
+
+    # for hltParticleFlowClusterHF
+    if hasattr(process,'hltParticleFlowClusterHF'):
+        process.hltParticleFlowClusterHF.initialClusteringStep = cms.PSet( # simplify the entries for HF
+            algoName = cms.string('Basic2DClusterForEachSeed'),
+            thresholdsByDetector = cms.VPSet()
+        )
+        process.hltParticleFlowClusterHF.pfClusterBuilder = cms.PSet() # make it empty
+
+    return process
+
 # CMSSW version specific customizations
 def customizeHLTforCMSSW(process, menuType="GRun"):
 
     # add call to action function in proper order: newest last!
     # process = customiseFor12718(process)
     process = customiseFor30936(process)
+    process = customiseFor31115(process)
 
     return process
