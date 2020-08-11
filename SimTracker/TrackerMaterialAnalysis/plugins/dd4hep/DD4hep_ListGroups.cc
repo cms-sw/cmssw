@@ -15,13 +15,9 @@
 #include "FWCore/ParameterSet/interface/types.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include "DataFormats/DetId/interface/DetId.h"
-#include "DataFormats/Math/interface/Vector3D.h"
 #include "DetectorDescription/DDCMS/interface/DDFilteredView.h"
 #include "DetectorDescription/DDCMS/interface/DDCompactView.h"
-#include "DetectorDescription/DDCMS/interface/DDSpecParRegistry.h"
 #include "DetectorDescription/DDCMS/interface/Filter.h"
-#include "Geometry/Records/interface/DDSpecParRegistryRcd.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 
 #include <TROOT.h>
@@ -59,7 +55,7 @@ private:
   void fillColor();
   void fillGradient();
   void fillMaterialDifferences();
-  void produceAndSaveSummaryPlot(cms::DDCompactView cpv);
+  void produceAndSaveSummaryPlot(const cms::DDCompactView& cpv);
   std::vector<std::pair<std::shared_ptr<TLine>, std::shared_ptr<TText>>> overlayEtaReferences();
   std::map<std::string, std::pair<float, float>> m_diff;
   std::map<std::string, std::pair<float, float>> m_values;
@@ -80,7 +76,7 @@ DD4hep_ListGroups::DD4hep_ListGroups(const edm::ParameterSet &iConfig)
 
 DD4hep_ListGroups::~DD4hep_ListGroups() {}
 
-void DD4hep_ListGroups::produceAndSaveSummaryPlot(cms::DDCompactView cpv) {
+void DD4hep_ListGroups::produceAndSaveSummaryPlot(const cms::DDCompactView& cpv) {
   const double scale = 10.;
 
   static int markerStyles[10] = {kFullCircle,
