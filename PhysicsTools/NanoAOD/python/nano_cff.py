@@ -199,9 +199,8 @@ def nanoAOD_recalibrateMETs(process,isData):
         nanoAOD_produceDeepMET_switch = cms.untracked.bool(False), # decide if DeepMET should be computed on the fly
         ResponseTune_Graph = cms.untracked.string('RecoMET/METPUSubtraction/data/deepmet/deepmet_resp_v1_2018.pb')
     )
-    for modifier in run2_miniAOD_80XLegacy, run2_nanoAOD_94X2016, run2_nanoAOD_94XMiniAODv1, run2_nanoAOD_94XMiniAODv2, run2_nanoAOD_102Xv1, run2_nanoAOD_106Xv1:
-        # compute DeepMETs in these eras (before 111X)
-        modifier.toModify(nanoAOD_DeepMET_switch, nanoAOD_produceDeepMET_switch =  cms.untracked.bool(True))
+    # compute DeepMETs for the eras before UL-ReminiAOD
+    (~run2_miniAOD_devel).toModify(nanoAOD_DeepMET_switch, nanoAOD_produceDeepMET_switch =  cms.untracked.bool(True))
     for modifier in run2_miniAOD_80XLegacy, run2_nanoAOD_94X2016:
         modifier.toModify(nanoAOD_DeepMET_switch, ResponseTune_Graph=cms.untracked.string("RecoMET/METPUSubtraction/data/deepmet/deepmet_resp_v1_2016.pb"))
     if nanoAOD_DeepMET_switch.nanoAOD_addDeepMET_switch:
