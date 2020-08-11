@@ -2,9 +2,9 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 void Basic2DClusterForEachSeed::buildClusters(const edm::Handle<reco::PFRecHitCollection>& input,
-                                                  const std::vector<bool>& rechitMask,
-                                                  const std::vector<bool>& seedable,
-                                                  reco::PFClusterCollection& output) {
+                                              const std::vector<bool>& rechitMask,
+                                              const std::vector<bool>& seedable,
+                                              reco::PFClusterCollection& output) {
   auto const& hits = *input;
   std::vector<bool> used(hits.size(), false);
   std::vector<unsigned int> seeds;
@@ -30,8 +30,7 @@ void Basic2DClusterForEachSeed::buildClusters(const edm::Handle<reco::PFRecHitCo
 
     cluster.addRecHitFraction(rhf);
 
-    if (!cluster.recHitFractions().empty()){
-
+    if (!cluster.recHitFractions().empty()) {
       //
       const auto rh_fraction = rhf.fraction();
       const auto rh_rawenergy = refhit->energy();
@@ -42,7 +41,7 @@ void Basic2DClusterForEachSeed::buildClusters(const edm::Handle<reco::PFRecHitCo
       cluster.setEnergy(rh_energy);
       cluster.setTime(refhit->time());
       cluster.setLayer(refhit->layer());
-      cluster.setPosition(math::XYZPoint(refhit->position().x(),refhit->position().y(),refhit->position().z()));
+      cluster.setPosition(math::XYZPoint(refhit->position().x(), refhit->position().y(), refhit->position().z()));
       cluster.calculatePositionREP();
       cluster.setDepth(refhit->depth());
       cluster.calculatePositionREP();
@@ -50,6 +49,5 @@ void Basic2DClusterForEachSeed::buildClusters(const edm::Handle<reco::PFRecHitCo
       output.push_back(cluster);
     }
 
-  } // looping over seeds ends
-
+  }  // looping over seeds ends
 }

@@ -12,8 +12,7 @@ class Basic2DClusterForEachSeed : public InitialClusteringStepBase {
 
 public:
   Basic2DClusterForEachSeed(const edm::ParameterSet& conf, edm::ConsumesCollector& sumes)
-    : InitialClusteringStepBase(conf, sumes)
-    {}
+      : InitialClusteringStepBase(conf, sumes) {}
   ~Basic2DClusterForEachSeed() override = default;
   Basic2DClusterForEachSeed(const B2DGT&) = delete;
   B2DGT& operator=(const B2DGT&) = delete;
@@ -22,7 +21,6 @@ public:
                      const std::vector<bool>&,
                      const std::vector<bool>&,
                      reco::PFClusterCollection&) override;
-
 };
 
 DEFINE_EDM_PLUGIN(InitialClusteringStepFactory, Basic2DClusterForEachSeed, "Basic2DClusterForEachSeed");
