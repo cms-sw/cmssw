@@ -11,9 +11,12 @@ function checkDiff {
     fi
 }
 
-F1=${LOCAL_TEST_DIR}/python/validateDTGeometry_cfg.py
-F2=${LOCAL_TEST_DIR}/python/testDTGeometry.py
-FILE1=${LOCAL_TEST_DIR}/dtGeometry.log.org
+#F1=${LOCAL_TEST_DIR}/python/validateDTGeometry_cfg.py
+#F2=${LOCAL_TEST_DIR}/python/testDTGeometry.py
+#FILE1=${LOCAL_TEST_DIR}/dtGeometry.log.org
+F1=/build/slomeo/CMSSW_11_2_X_2020-08-11-1100/src/Geometry/DTGeometryBuilder/test/python/validateDTGeometry_cfg.py
+F2=/build/slomeo/CMSSW_11_2_X_2020-08-11-1100/src/Geometry/DTGeometryBuilder/test/python/testDTGeometry.py
+FILE1=/build/slomeo/CMSSW_11_2_X_2020-08-11-1100/src/Geometry/DTGeometryBuilder/test/dtGeometry.log.org
 FILE2=dtGeometry.log
 FILE3=diff.log
 FILE4=dtGeometryFiltered.log
