@@ -151,15 +151,14 @@ def adaptTauToMiniAODReReco(process, reclusterJets=True):
 	# Remove RecoTau producers which are not supported (yet?), i.e. against-e/mu discriminats
 	for moduleName in process.TauReco.moduleNames(): 
 		if 'ElectronRejection' in moduleName or 'MuonRejection' in moduleName:
+			if 'ByDeadECALElectronRejection' in moduleName: continue
 			process.miniAODTausTask.remove(getattr(process, moduleName))
 
 	# Instead add against-mu discriminants which are MiniAOD compatible
-	from RecoTauTag.RecoTau.hpsPFTauDiscriminationByAMuonRejectionSimple_cff import hpsPFTauDiscriminationByLooseMuonRejectionSimple, hpsPFTauDiscriminationByTightMuonRejectionSimple
+	from RecoTauTag.RecoTau.hpsPFTauDiscriminationByMuonRejectionSimple_cff import hpsPFTauDiscriminationByMuonRejectionSimple
 	
-	process.hpsPFTauDiscriminationByLooseMuonRejectionSimple = hpsPFTauDiscriminationByLooseMuonRejectionSimple
-	process.hpsPFTauDiscriminationByTightMuonRejectionSimple = hpsPFTauDiscriminationByTightMuonRejectionSimple
-	process.miniAODTausTask.add(process.hpsPFTauDiscriminationByLooseMuonRejectionSimple)
-	process.miniAODTausTask.add(process.hpsPFTauDiscriminationByTightMuonRejectionSimple)
+	process.hpsPFTauDiscriminationByMuonRejectionSimple = hpsPFTauDiscriminationByMuonRejectionSimple
+	process.miniAODTausTask.add(process.hpsPFTauDiscriminationByMuonRejectionSimple)
 
 	#####
 	# PAT part in the following
@@ -170,22 +169,23 @@ def adaptTauToMiniAODReReco(process, reclusterJets=True):
 	# Remove unsupported tauIDs
 	for name, src in six.iteritems(process.patTaus.tauIDSources.parameters_()):
 		if name.find('againstElectron') > -1 or name.find('againstMuon') > -1:
+			if name.find('againstElectronDeadECAL') > -1: continue
 			delattr(process.patTaus.tauIDSources,name)
 	# Add MiniAOD specific ones
 	setattr(process.patTaus.tauIDSources,'againstMuonLooseSimple',
-                cms.PSet(inputTag = cms.InputTag('hpsPFTauDiscriminationByLooseMuonRejectionSimple'),
-                         provenanceConfigLabel = cms.string(''),
-                         idLabel = cms.string('againstMuonLooseSimple')
+                cms.PSet(inputTag = cms.InputTag('hpsPFTauDiscriminationByMuonRejectionSimple'),
+                         provenanceConfigLabel = cms.string('IDWPdefinitions'),
+                         idLabel = cms.string('ByLooseMuonRejectionSimple')
                  ))
 	setattr(process.patTaus.tauIDSources,'againstMuonTightSimple',
-                cms.PSet(inputTag = cms.InputTag('hpsPFTauDiscriminationByTightMuonRejectionSimple'),
-                         provenanceConfigLabel = cms.string(''),
-                         idLabel = cms.string('againstMuonTightSimple')
+                cms.PSet(inputTag = cms.InputTag('hpsPFTauDiscriminationByMuonRejectionSimple'),
+                         provenanceConfigLabel = cms.string('IDWPdefinitions'),
+                         idLabel = cms.string('ByTightMuonRejectionSimple')
                  ))
 
 	# Run TauIDs (anti-e && deepTau) on top of selectedPatTaus
-        _updatedTauName = 'selectedTausNewIDs'
-        _noUpdatedTauName = 'selectedTausNoNewIDs'
+        _updatedTauName = 'selectedPatTausNewIDs'
+        _noUpdatedTauName = 'selectedPatTausNoNewIDs'
         import RecoTauTag.RecoTau.tools.runTauIdMVA as tauIdConfig
         tauIdEmbedder = tauIdConfig.TauIDEmbedder(
                 process, debug = False,
@@ -232,13 +232,12 @@ def setOutputModule(mode=0):
 	output.outputCommands.append('keep *_selectedPatTaus_*_*')
 	if mode==1:
 		for prod in evtContent.RecoTauTagAOD.outputCommands:
-			if prod.find('ElectronRejection') > -1:
+			if prod.find('ElectronRejection') > -1 and prod.find('DeadECAL') == -1:
 				continue
 			if prod.find('MuonRejection') > -1:
 				continue
 			output.outputCommands.append(prod)
-		output.outputCommands.append('keep *_hpsPFTauDiscriminationByLooseMuonRejectionSimple_*_*')
-		output.outputCommands.append('keep *_hpsPFTauDiscriminationByTightMuonRejectionSimple_*_*')
+		output.outputCommands.append('keep *_hpsPFTauDiscriminationByMuonRejectionSimple_*_*')
 		output.outputCommands.append('keep *_combinatoricReco*_*_*')
 		output.outputCommands.append('keep *_ak4PFJetsRecoTauChargedHadrons_*_*')
 		output.outputCommands.append('keep *_ak4PFJetsLegacyHPSPiZeros_*_*')
