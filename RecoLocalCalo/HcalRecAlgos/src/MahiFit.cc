@@ -212,7 +212,7 @@ const float MahiFit::minimize(const double noisecorr) const {
   invCovMat += nnlsWork_.noiseTerms.asDiagonal();
 
   //Add off-Diagonal components up to first order
-  if (noisecorr > 0.){
+  if (noisecorr > 0.) {
     for (unsigned int i = 1; i < nnlsWork_.tsSize; ++i) {
       auto const noiseCorrTerm = noisecorr * sqrt(nnlsWork_.noiseTerms.coeff(i - 1) * nnlsWork_.noiseTerms.coeff(i));
       invCovMat(i - 1, i) += noiseCorrTerm;
