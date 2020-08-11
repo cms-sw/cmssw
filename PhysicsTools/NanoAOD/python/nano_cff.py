@@ -196,8 +196,6 @@ def nanoAOD_recalibrateMETs(process,isData):
     process.metTables += process.corrT1METJetTable
 #    makePuppiesFromMiniAOD(process,True) # call this before in the global customizer otherwise it would reset photon IDs in VID
     runMetCorAndUncFromMiniAOD(process,isData=isData,metType="Puppi",postfix="Puppi",jetFlavor="AK4PFPuppi")
-    process.puppiNoLep.useExistingWeights = True
-    process.puppi.useExistingWeights = True
     process.nanoSequenceCommon.insert(process.nanoSequenceCommon.index(process.jetSequence),cms.Sequence(process.puppiMETSequence+process.fullPatMetSequencePuppi))
     return process
 
@@ -267,6 +265,11 @@ def nanoAOD_runMETfixEE2017(process,isData):
 
 def nanoAOD_customizeCommon(process):
     makePuppiesFromMiniAOD(process,True) # call this here as it calls switchOnVIDPhotonIdProducer
+    process.puppiNoLep.useExistingWeights = True
+    process.puppi.useExistingWeights = True
+    for modifier in run2_nanoAOD_94XMiniAODv1, run2_nanoAOD_94XMiniAODv2, run2_nanoAOD_94X2016, run2_nanoAOD_102Xv1, run2_nanoAOD_106Xv1:
+        process.puppiNoLep.useExistingWeights = False
+        process.puppi.useExistingWeights = False
     process = nanoAOD_activateVID(process)
     nanoAOD_addDeepInfo_switch = cms.PSet(
         nanoAOD_addDeepBTag_switch = cms.untracked.bool(False),
