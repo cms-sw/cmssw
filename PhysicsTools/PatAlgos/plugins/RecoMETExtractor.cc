@@ -8,10 +8,9 @@
 using namespace pat;
 
 RecoMETExtractor::RecoMETExtractor(const edm::ParameterSet& iConfig) {
-
   edm::InputTag metIT = iConfig.getParameter<edm::InputTag>("metSource");
   metSrcToken_ = consumes<pat::METCollection>(metIT);
-  
+
   std::string corLevel = iConfig.getParameter<std::string>("correctionLevel");
 
   //all possible met flavors
@@ -49,29 +48,23 @@ RecoMETExtractor::RecoMETExtractor(const edm::ParameterSet& iConfig) {
   produces<std::vector<reco::MET> >();
 }
 
+RecoMETExtractor::~RecoMETExtractor() {}
 
-RecoMETExtractor::~RecoMETExtractor() {
-
-}
-
-
-void RecoMETExtractor::produce(edm::StreamID streamID, edm::Event & iEvent,
-			       const edm::EventSetup & iSetup) const {
-
-  edm::Handle<std::vector<pat::MET> >  src;
+void RecoMETExtractor::produce(edm::StreamID streamID, edm::Event& iEvent, const edm::EventSetup& iSetup) const {
+  edm::Handle<std::vector<pat::MET> > src;
   iEvent.getByToken(metSrcToken_, src);
-  if(src->empty()) edm::LogError("RecoMETExtractor::produce") << "input reco MET collection is empty" ;
+  if (src->empty())
+    edm::LogError("RecoMETExtractor::produce") << "input reco MET collection is empty";
 
-  std::vector<reco::MET> *metCol = new std::vector<reco::MET>();
-  
-  reco::MET met(src->front().corSumEt(corLevel_), src->front().corP4(corLevel_), src->front().vertex() );
-  
-  metCol->push_back( met );
-  
+  std::vector<reco::MET>* metCol = new std::vector<reco::MET>();
+
+  reco::MET met(src->front().corSumEt(corLevel_), src->front().corP4(corLevel_), src->front().vertex());
+
+  metCol->push_back(met);
+
   std::unique_ptr<std::vector<reco::MET> > recoMETs(metCol);
   iEvent.put(std::move(recoMETs));
 }
-
 
 #include "FWCore/Framework/interface/MakerMacros.h"
 
