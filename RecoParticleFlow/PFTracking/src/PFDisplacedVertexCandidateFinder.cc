@@ -75,6 +75,7 @@ void PFDisplacedVertexCandidateFinder::setInput(const edm::Handle<TrackCollectio
       eventTrackTrajectories_[i] = getGlobalTrajectoryParameters(trk);
     }
   }
+  el_table_ = edm::soa::makePtEtaPhiTable(*trackh);
 }
 
 // -------- Main function which find vertices -------- //
@@ -120,7 +121,7 @@ PFDisplacedVertexCandidateFinder::IE PFDisplacedVertexCandidateFinder::associate
     double dist = -1;
     GlobalPoint P(0, 0, 0);
     PFDisplacedVertexCandidate::VertexLinkTest linktest;
-    link((*last), (*next), dist, P, linktest);
+    link(*last, *next, dist, P, linktest);
 
     if (dist < -0.5) {
 #ifdef PFLOW_DEBUG
@@ -198,24 +199,34 @@ void PFDisplacedVertexCandidateFinder::link(const TrackBaseRef& el1,
                                             double& dist,
                                             GlobalPoint& P,
                                             PFDisplacedVertexCandidate::VertexLinkTest& vertexLinkTest) {
-  if (fabs(el1->eta() - el2->eta()) > 1) {
+
+  using namespace edm::soa::col;
+  const auto iel1 = el1.key();
+  const auto iel2 = el2.key();
+  const auto pt1 = el_table_.get<Pt>(iel1);
+  const auto pt2 = el_table_.get<Pt>(iel2);
+  const auto eta1 = el_table_.get<Eta>(iel1);
+  const auto eta2 = el_table_.get<Eta>(iel2);
+  const auto phi1 = el_table_.get<Phi>(iel1);
+  const auto phi2 = el_table_.get<Phi>(iel2);
+
+  if (fabs(eta1 - eta2) > 1) {
     dist = -1;
     return;
   }
-  if (el1->pt() > 2 && el2->pt() > 2 && fabs(el1->phi() - el2->phi()) > 1) {
+  if (pt1 > 2 && pt2 > 2 && fabs(phi1 - phi2) > 1) {
     dist = -1;
     return;
   }
 
-  const GlobalTrajectoryParameters& gt1 = eventTrackTrajectories_[el1.key()];
-  const GlobalTrajectoryParameters& gt2 = eventTrackTrajectories_[el2.key()];
+  const GlobalTrajectoryParameters& gt1 = eventTrackTrajectories_[iel1];
+  const GlobalTrajectoryParameters& gt2 = eventTrackTrajectories_[iel2];
 
   // Closest approach
   theMinimum_.calculate(gt1, gt2);
 
   // Fill the parameters
   dist = theMinimum_.distance();
-  P = theMinimum_.crossingPoint();
 
   vertexLinkTest = PFDisplacedVertexCandidate::LINKTEST_DCA;  //rechit by default
 
@@ -224,6 +235,8 @@ void PFDisplacedVertexCandidateFinder::link(const TrackBaseRef& el1,
     dist = -1;
     return;
   }
+
+  P = theMinimum_.crossingPoint();
 
   // Check if the closses approach point is too close to the primary vertex/beam pipe
   double rho2 = P.x() * P.x() + P.y() * P.y();

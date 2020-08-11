@@ -7,6 +7,7 @@
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
+#include "CommonTools/Utils/interface/KinematicTables.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
@@ -150,6 +151,8 @@ private:
 
   // Tracker geometry for extrapolation
   const MagneticField* magField_;
+
+  edm::soa::PtEtaPhiTable el_table_;
 };
 
 #endif
