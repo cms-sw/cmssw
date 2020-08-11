@@ -194,11 +194,11 @@ def customiseFor30936(process):
 def customiseFor31115(process):
     """Make PFCluster from each seed"""
 
-    _initialClusteringStep = cms.PSet( # simplify the entries for HF
+    _initialClusteringStep = cms.PSet( # simplify the entries for HF.
             algoName = cms.string('Basic2DClusterForEachSeed'),
             thresholdsByDetector = cms.VPSet()
         )
-    _pfClusterBuilder = cms.PSet()  # make it empty. it should be pass-through
+    _pfClusterBuilder = cms.PSet()  # make it empty. it should be pass-through.
     
     # for hltParticleFlowClusterHF
     if hasattr(process,'hltParticleFlowClusterHF'):
@@ -211,6 +211,32 @@ def customiseFor31115(process):
         process.hltParticleFlowClusterHFForEgammaUnseeded.pfClusterBuilder = _pfClusterBuilder
 
     return process
+            
+def customiseFor31070(process):
+    """Adapt the HLT to run with new geometry for CSC and RPC"""
+
+    if hasattr(process,'CSCGeometryESModule'):
+        process.CSCGeometryESModule = cms.ESProducer( "CSCGeometryESModule",
+            appendToDataLabel = cms.string( "" ),
+            fromDDD = cms.bool( False ),
+            debugV = cms.untracked.bool( False ),
+            useGangedStripsInME1a = cms.bool( False ),
+            alignmentsLabel = cms.string( "" ),
+            fromDD4hep = cms.bool( False ),
+            useOnlyWiresInME1a = cms.bool( False ),
+            useRealWireGeometry = cms.bool( True ),
+            useCentreTIOffsets = cms.bool( False ),
+            applyAlignment = cms.bool( True )
+        )
+
+    if hasattr(process,'RPCGeometryESModule'):
+        process.RPCGeometryESModule = cms.ESProducer( "RPCGeometryESModule",
+            appendToDataLabel = cms.string( "" ),
+            fromDDD = cms.untracked.bool( False ),
+            fromDD4hep = cms.untracked.bool( False ),
+        )
+
+    return process
 
 # CMSSW version specific customizations
 def customizeHLTforCMSSW(process, menuType="GRun"):
@@ -218,6 +244,7 @@ def customizeHLTforCMSSW(process, menuType="GRun"):
     # add call to action function in proper order: newest last!
     # process = customiseFor12718(process)
     process = customiseFor30936(process)
+    process = customiseFor31070(process)
     process = customiseFor31115(process)
 
     return process

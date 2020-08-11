@@ -44,6 +44,7 @@
 #include <mutex>
 
 #include "HeterogeneousCore/CUDAUtilities/interface/cudaCheck.h"
+#include "HeterogeneousCore/CUDAUtilities/interface/deviceAllocatorStatus.h"
 
 /// CUB namespace
 namespace notcub {
@@ -122,6 +123,7 @@ namespace notcub {
     struct BlockDescriptor {
       void *d_ptr;                     // Device pointer
       size_t bytes;                    // Size of allocation in bytes
+      size_t bytesRequested;           // CMS: requested allocatoin size (for monitoring only)
       unsigned int bin;                // Bin enumeration
       int device;                      // device ordinal
       cudaStream_t associated_stream;  // Associated associated_stream
@@ -129,12 +131,19 @@ namespace notcub {
 
       // Constructor (suitable for searching maps for a specific block, given its pointer and device)
       BlockDescriptor(void *d_ptr, int device)
-          : d_ptr(d_ptr), bytes(0), bin(INVALID_BIN), device(device), associated_stream(nullptr), ready_event(nullptr) {}
+          : d_ptr(d_ptr),
+            bytes(0),
+            bytesRequested(0),  // CMS
+            bin(INVALID_BIN),
+            device(device),
+            associated_stream(nullptr),
+            ready_event(nullptr) {}
 
       // Constructor (suitable for searching maps for a range of suitable blocks, given a device)
       BlockDescriptor(int device)
           : d_ptr(nullptr),
             bytes(0),
+            bytesRequested(0),  // CMS
             bin(INVALID_BIN),
             device(device),
             associated_stream(nullptr),
@@ -160,12 +169,7 @@ namespace notcub {
     /// BlockDescriptor comparator function interface
     typedef bool (*Compare)(const BlockDescriptor &, const BlockDescriptor &);
 
-    class TotalBytes {
-    public:
-      size_t free;
-      size_t live;
-      TotalBytes() { free = live = 0; }
-    };
+    // CMS: Moved TotalBytes to deviceAllocatorStatus.h
 
     /// Set type for cached blocks (ordered by size)
     typedef std::multiset<BlockDescriptor, Compare> CachedBlocks;
@@ -174,7 +178,8 @@ namespace notcub {
     typedef std::multiset<BlockDescriptor, Compare> BusyBlocks;
 
     /// Map type of device ordinals to the number of cached bytes cached by each device
-    typedef std::map<int, TotalBytes> GpuCachedBytes;
+    // CMS: Moved definition to deviceAllocatorStatus.h
+    using GpuCachedBytes = cms::cuda::allocator::GpuCachedBytes;
 
     //---------------------------------------------------------------------
     // Utility functions
@@ -219,8 +224,8 @@ namespace notcub {
     // Fields
     //---------------------------------------------------------------------
 
-    // CMS: use std::mutex instead of cub::Mutex
-    std::mutex mutex;  /// Mutex for thread-safety
+    // CMS: use std::mutex instead of cub::Mutex, declare mutable
+    mutable std::mutex mutex;  /// Mutex for thread-safety
 
     unsigned int bin_growth;  /// Geometric growth factor for bin-sizes
     unsigned int min_bin;     /// Minimum bin enumeration
@@ -344,6 +349,7 @@ namespace notcub {
       // Create a block descriptor for the requested allocation
       bool found = false;
       BlockDescriptor search_key(device);
+      search_key.bytesRequested = bytes;  // CMS
       search_key.associated_stream = active_stream;
       NearestPowerOf(search_key.bin, search_key.bytes, bin_growth, bytes);
 
@@ -381,6 +387,7 @@ namespace notcub {
             // Remove from free blocks
             cached_bytes[device].free -= search_key.bytes;
             cached_bytes[device].live += search_key.bytes;
+            cached_bytes[device].liveRequested += search_key.bytesRequested;  // CMS
 
             if (debug)
               // CMS: improved debug message
@@ -490,6 +497,7 @@ namespace notcub {
         mutex_locker.lock();
         live_blocks.insert(search_key);
         cached_bytes[device].live += search_key.bytes;
+        cached_bytes[device].liveRequested += search_key.bytesRequested;  // CMS
         mutex_locker.unlock();
 
         if (debug)
@@ -569,6 +577,7 @@ namespace notcub {
         search_key = *block_itr;
         live_blocks.erase(block_itr);
         cached_bytes[device].live -= search_key.bytes;
+        cached_bytes[device].liveRequested -= search_key.bytesRequested;  // CMS
 
         // Keep the returned allocation if bin is valid and we won't exceed the max cached threshold
         if ((search_key.bin != INVALID_BIN) && (cached_bytes[device].free + search_key.bytes <= max_cached_bytes)) {
@@ -713,6 +722,12 @@ namespace notcub {
       }
 
       return error;
+    }
+
+    // CMS: give access to cache allocation status
+    GpuCachedBytes CacheStatus() const {
+      std::unique_lock mutex_locker(mutex);
+      return cached_bytes;
     }
 
     /**
