@@ -41,7 +41,7 @@ namespace {
   *************************************************/
   class RunInfoTest : public cond::payloadInspector::Histogram1D<RunInfo> {
   public:
-    RunInfoTest() : cond::payloadInspector::Histogram1D<RunInfo>("Test RunInfo", "Test RunInfo", 10, 0.0, 10.0) {
+    RunInfoTest() : cond::payloadInspector::Histogram1D<RunInfo>("Test RunInfo", "Test RunInfo", 1, 0.0, 1.0) {
       Base::setSingleIov(true);
     }
 
@@ -68,6 +68,9 @@ namespace {
     }
 
     bool fill(const std::vector<std::tuple<cond::Time_t, cond::Hash> >& iovs) override {
+
+      gStyle->SetPaintTextFormat("g");
+
       auto iov = iovs.front();
       std::shared_ptr<RunInfo> payload = fetchPayload(std::get<1>(iov));
 
@@ -76,7 +79,7 @@ namespace {
 
       gStyle->SetHistMinimumZero();
 
-      canvas.SetTopMargin(0.08);
+      canvas.SetTopMargin(0.13);
       canvas.SetBottomMargin(0.06);
       canvas.SetLeftMargin(0.3);
       canvas.SetRightMargin(0.02);
@@ -88,18 +91,15 @@ namespace {
       h2_RunInfoParameters->SetStats(false);
       h2_RunInfoState->SetStats(false);
 
-      float fieldIntensity = RunInfoPI::theBField(payload->m_avg_current);
-
-      std::function<float(RunInfoPI::parameters)> cutFunctor = [&payload,
-                                                                fieldIntensity](RunInfoPI::parameters my_param) {
+      std::function<float(RunInfoPI::parameters)> cutFunctor = [&payload](RunInfoPI::parameters my_param) {
         float ret(-999.);
         switch (my_param) {
           case RunInfoPI::m_run:
             return float(payload->m_run);
           case RunInfoPI::m_start_time_ll:
-            return float(payload->m_start_time_ll);
+            return float(payload->m_start_time_ll*1.0e-6);
           case RunInfoPI::m_stop_time_ll:
-            return float(payload->m_stop_time_ll);
+            return float(payload->m_stop_time_ll*1.0e-6);
           case RunInfoPI::m_start_current:
             return payload->m_start_current;
           case RunInfoPI::m_stop_current:
@@ -110,10 +110,10 @@ namespace {
             return payload->m_max_current;
           case RunInfoPI::m_min_current:
             return payload->m_min_current;
-          case RunInfoPI::m_run_intervall_micros:
-            return payload->m_run_intervall_micros;
+          case RunInfoPI::m_run_interval_seconds:
+            return RunInfoPI::runDuration(payload);
           case RunInfoPI::m_BField:
-            return fieldIntensity;
+            return RunInfoPI::theBField(payload->m_avg_current);  //fieldIntensity;
           case RunInfoPI::m_fedIN:
             return float((payload->m_fed_in).size());
           case RunInfoPI::END_OF_TYPES:
@@ -170,11 +170,15 @@ namespace {
       t1.SetTextSize(0.03);
       t1.DrawLatex(0.1, 0.98, "RunInfo parameters:");
       t1.DrawLatex(0.1, 0.95, "payload:");
+      t1.DrawLatex(0.1, 0.92, "start time:");
+      t1.DrawLatex(0.1, 0.89, "end time:");
 
       t1.SetTextFont(42);
       t1.SetTextColor(4);
       t1.DrawLatex(0.37, 0.982, Form("IOV %s", std::to_string(+std::get<0>(iov)).c_str()));
       t1.DrawLatex(0.21, 0.952, Form(" %s", (std::get<1>(iov)).c_str()));
+      t1.DrawLatex(0.23, 0.922, Form(" %s", (RunInfoPI::runStartTime(payload)).c_str()));
+      t1.DrawLatex(0.23, 0.892, Form(" %s", (RunInfoPI::runEndTime(payload)).c_str()));
 
       std::string fileName(m_imageFileName);
       canvas.SaveAs(fileName.c_str());
