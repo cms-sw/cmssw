@@ -55,17 +55,17 @@ autoCond = {
     # GlobalTag for MC production (cosmics) with realistic alignment and calibrations for Phase1 2017 detector, Strip tracker in PEAK mode
     'phase1_2017_cosmics_peak' :  '111X_mc2017cosmics_realistic_peak_v1',
     # GlobalTag for MC production with perfectly aligned and calibrated detector for full Phase1 2018 (and 0,0,0-centred beamspot)
-    'phase1_2018_design'       :  '111X_upgrade2018_design_v1',
+    'phase1_2018_design'       :  '111X_upgrade2018_design_v2',
     # GlobalTag for MC production with realistic conditions for full Phase1 2018 detector
-    'phase1_2018_realistic'    :  '111X_upgrade2018_realistic_v1',
+    'phase1_2018_realistic'    :  '111X_upgrade2018_realistic_v2',
     # GlobalTag for MC production with realistic conditions for full Phase1 2018 detector for Heavy Ion
-    'phase1_2018_realistic_hi' :  '110X_upgrade2018_realistic_HI_v5',
+    'phase1_2018_realistic_hi' :  '111X_upgrade2018_realistic_HI_v1',
     # GlobalTag for MC production with realistic conditions for full Phase1 2018 detector: HEM-15-16 fail
-    'phase1_2018_realistic_HEfail' :  '111X_upgrade2018_realistic_HEfail_v1',
+    'phase1_2018_realistic_HEfail' :  '111X_upgrade2018_realistic_HEfail_v2',
     # GlobalTag for MC production (cosmics) with realistic conditions for full Phase1 2018 detector,  Strip tracker in DECO mode
-    'phase1_2018_cosmics'      :   '111X_upgrade2018cosmics_realistic_deco_v1',
+    'phase1_2018_cosmics'      :   '111X_upgrade2018cosmics_realistic_deco_v2',
     # GlobalTag for MC production (cosmics) with realistic conditions for full Phase1 2018 detector,  Strip tracker in PEAK mode
-    'phase1_2018_cosmics_peak' :   '111X_upgrade2018cosmics_realistic_peak_v1',
+    'phase1_2018_cosmics_peak' :   '111X_upgrade2018cosmics_realistic_peak_v2',
     # GlobalTag for MC production with perfectly aligned and calibrated detector for Phase1 2021
     'phase1_2021_design'       : '111X_mcRun3_2021_design_v7', # GT containing design conditions for Phase1 2021
     # GlobalTag for MC production with realistic conditions for Phase1 2021
