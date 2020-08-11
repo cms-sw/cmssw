@@ -41,33 +41,30 @@ private:
     if (not produceCollection_ and not produceMask_)
       return;
 
-    auto regionsHandle = iEvent.getHandle(inputTrkRegionToken_);
-    auto tracksHandle = iEvent.getHandle(tracksToken_);
-
-    const auto& tracks = *tracksHandle;
-    auto mask = std::make_unique<MaskCollection>(tracks.size(), false);  // output mask
-    const auto& regions = *regionsHandle;
+    auto const& regions = iEvent.get(inputTrkRegionToken_);
+    auto const& tracks = iEvent.get(tracksToken_);
+    MaskCollection mask(tracks.size(), false);  // output mask
 
     for (auto const& region : regions) {
-      region.checkTracks(tracks, *mask);
+      region.checkTracks(tracks, mask);
     }
 
     if (produceCollection_) {
-      auto output_tracks = std::make_unique<reco::TrackCollection>();  // selected output collection
+      reco::TrackCollection output_tracks;  // output collection with a (shallow) copy of the selected tracks
       size_t size = 0;
       // count the number of selected tracks
-      for (size_t i = 0; i < mask->size(); i++) {
-        size += (*mask)[i];
+      for (size_t i = 0; i < mask.size(); i++) {
+        size += mask[i];
       }
-      output_tracks->reserve(size);
-      for (size_t i = 0; i < mask->size(); i++) {
-        if ((*mask)[i])
-          output_tracks->push_back(tracks[i]);
+      output_tracks.reserve(size);
+      for (size_t i = 0; i < mask.size(); i++) {
+        if (mask[i])
+          output_tracks.push_back(tracks[i]);
       }
-      iEvent.emplace(outputTracksToken_, *output_tracks);
+      iEvent.emplace(outputTracksToken_, std::move(output_tracks));
     }
     if (produceMask_) {
-      iEvent.emplace(outputMaskToken_, *mask);
+      iEvent.emplace(outputMaskToken_, std::move(mask));
     }
   }
 
