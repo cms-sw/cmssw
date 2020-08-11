@@ -390,7 +390,7 @@ for m in hpsPFTauDiscriminationByMVA6TightElectronRejection.mapping:
 hpsPFTauDiscriminationByMVA6VTightElectronRejection = copy.deepcopy(hpsPFTauDiscriminationByMVA6VLooseElectronRejection)
 for m in hpsPFTauDiscriminationByMVA6VTightElectronRejection.mapping:
     m.cut = m.cut.value().replace("WPEff99", "WPEff79")
-run2_miniAOD_devel.toModify(
+run2_miniAOD_UL.toModify(
     hpsPFTauDiscriminationByMVA6rawElectronRejection,
     vetoEcalCracks = False,
     mvaName_NoEleMatch_woGwoGSF_BL = "RecoTauTag_antiElectronMVA6v3_noeveto_gbr_NoEleMatch_woGwoGSF_BL",
@@ -411,35 +411,35 @@ _vLooseElectronRejectionMappingMVA6v3[4].cut = "RecoTauTag_antiElectronMVA6v3_no
 _vLooseElectronRejectionMappingMVA6v3[5].cut = "RecoTauTag_antiElectronMVA6v3_noeveto_gbr_NoEleMatch_wGwoGSF_EC_WPeff98"
 _vLooseElectronRejectionMappingMVA6v3[6].cut = "RecoTauTag_antiElectronMVA6v3_noeveto_gbr_woGwGSF_EC_WPeff98"
 _vLooseElectronRejectionMappingMVA6v3[7].cut = "RecoTauTag_antiElectronMVA6v3_noeveto_gbr_wGwGSF_EC_WPeff98"
-run2_miniAOD_devel.toModify(
+run2_miniAOD_UL.toModify(
     hpsPFTauDiscriminationByMVA6VLooseElectronRejection,
     mapping = _vLooseElectronRejectionMappingMVA6v3
 )
 _looseElectronRejectionMappingMVA6v3 = copy.deepcopy(_vLooseElectronRejectionMappingMVA6v3)
 for m in _looseElectronRejectionMappingMVA6v3:
     m.cut = m.cut.value().replace("WPeff98", "WPeff90")
-run2_miniAOD_devel.toModify(
+run2_miniAOD_UL.toModify(
     hpsPFTauDiscriminationByMVA6LooseElectronRejection,
     mapping = _looseElectronRejectionMappingMVA6v3
 )
 _mediumElectronRejectionMappingMVA6v3 = copy.deepcopy(_vLooseElectronRejectionMappingMVA6v3)
 for m in _mediumElectronRejectionMappingMVA6v3:
     m.cut = m.cut.value().replace("WPeff98", "WPeff80")
-run2_miniAOD_devel.toModify(
+run2_miniAOD_UL.toModify(
     hpsPFTauDiscriminationByMVA6MediumElectronRejection,
     mapping = _mediumElectronRejectionMappingMVA6v3
 )
 _tightElectronRejectionMappingMVA6v3 = copy.deepcopy(_vLooseElectronRejectionMappingMVA6v3)
 for m in _tightElectronRejectionMappingMVA6v3:
     m.cut = m.cut.value().replace("WPeff98", "WPeff70")
-run2_miniAOD_devel.toModify(
+run2_miniAOD_UL.toModify(
     hpsPFTauDiscriminationByMVA6TightElectronRejection,
     mapping = _tightElectronRejectionMappingMVA6v3
 )
 _vTightElectronRejectionMappingMVA6v3 = copy.deepcopy(_vLooseElectronRejectionMappingMVA6v3)
 for m in _vTightElectronRejectionMappingMVA6v3:
     m.cut = m.cut.value().replace("WPeff98", "WPeff60")
-run2_miniAOD_devel.toModify(
+run2_miniAOD_UL.toModify(
     hpsPFTauDiscriminationByMVA6VTightElectronRejection,
     mapping = _vTightElectronRejectionMappingMVA6v3
 )
