@@ -194,13 +194,21 @@ def customiseFor30936(process):
 def customiseFor31115(process):
     """Make PFCluster from each seed"""
 
-    # for hltParticleFlowClusterHF
-    if hasattr(process,'hltParticleFlowClusterHF'):
-        process.hltParticleFlowClusterHF.initialClusteringStep = cms.PSet( # simplify the entries for HF
+    _initialClusteringStep = cms.PSet( # simplify the entries for HF
             algoName = cms.string('Basic2DClusterForEachSeed'),
             thresholdsByDetector = cms.VPSet()
         )
-        process.hltParticleFlowClusterHF.pfClusterBuilder = cms.PSet() # make it empty
+    _pfClusterBuilder = cms.PSet()  # make it empty. it should be pass-through
+    
+    # for hltParticleFlowClusterHF
+    if hasattr(process,'hltParticleFlowClusterHF'):
+        process.hltParticleFlowClusterHF.initialClusteringStep = _initialClusteringStep
+        process.hltParticleFlowClusterHF.pfClusterBuilder = _pfClusterBuilder
+        
+    # for hltParticleFlowClusterHFForEgammaUnseeded
+    if hasattr(process,'hltParticleFlowClusterHFForEgammaUnseeded'):
+        process.hltParticleFlowClusterHFForEgammaUnseeded.initialClusteringStep = _initialClusteringStep
+        process.hltParticleFlowClusterHFForEgammaUnseeded.pfClusterBuilder = _pfClusterBuilder
 
     return process
 
