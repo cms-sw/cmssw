@@ -1,5 +1,4 @@
 #include "Basic2DClusterForEachSeed.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 void Basic2DClusterForEachSeed::buildClusters(const edm::Handle<reco::PFRecHitCollection>& input,
                                               const std::vector<bool>& rechitMask,
