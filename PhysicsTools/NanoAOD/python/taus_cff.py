@@ -165,9 +165,10 @@ run2_miniAOD_80XLegacy.toModify(tauTable,
                  idAntiEle = _tauId5WPMask("againstElectron%sMVA6", doc= "Anti-electron MVA discriminator V6 (2015)")
     )
 
-for era in [run2_miniAOD_80XLegacy, run2_nanoAOD_92X, run2_nanoAOD_94XMiniAODv1, \
-            run2_nanoAOD_94XMiniAODv2, run2_nanoAOD_94X2016, run2_nanoAOD_102Xv1, \
-            run2_nanoAOD_106Xv1]:
+run2_miniAOD_80XLegacy.toModify(tauTable.variables,
+                                idAntiEleDeadECal = None)
+for era in [run2_nanoAOD_92X, run2_nanoAOD_94XMiniAODv1, run2_nanoAOD_94XMiniAODv2, \
+            run2_nanoAOD_94X2016, run2_nanoAOD_102Xv1, run2_nanoAOD_106Xv1]:
     era.toModify(tauTable.variables,
                  idAntiEleDeadECal = Var("tauID('againstElectronDeadECALForNano')", bool, doc = "Anti-electron dead-ECal discriminator"),
     )
