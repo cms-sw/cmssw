@@ -161,6 +161,7 @@ GENEventContent.outputCommands.extend(GeneratorInterfaceLHE.outputCommands)
 GENEventContent.outputCommands.extend(GeneratorInterfaceRAW.outputCommands)
 GENEventContent.outputCommands.extend(RecoGenJetsFEVT.outputCommands)
 GENEventContent.outputCommands.extend(RecoGenMETFEVT.outputCommands)
+GENEventContent.outputCommands.extend(IOMCRAW.outputCommands)
 #
 #
 # RAW Data Tier definition
