@@ -213,8 +213,9 @@ const float MahiFit::minimize(const double noisecorr) const {
 
   //Add off-Diagonal components up to first order
   for (unsigned int i = 1; i < nnlsWork_.tsSize; ++i) {
-    invCovMat(i - 1, i) += noisecorr * sqrt(nnlsWork_.noiseTerms.coeff(i - 1) * nnlsWork_.noiseTerms.coeff(i));
-    invCovMat(i, i - 1) += noisecorr * sqrt(nnlsWork_.noiseTerms.coeff(i) * nnlsWork_.noiseTerms.coeff(i - 1));
+    auto const noiseCorrTerm = noisecorr * sqrt(nnlsWork_.noiseTerms.coeff(i - 1) * nnlsWork_.noiseTerms.coeff(i));
+    invCovMat(i - 1, i) += noiseCorrTerm;
+    invCovMat(i, i - 1) += noiseCorrTerm;
   }
 
   float oldChiSq = 9999;
