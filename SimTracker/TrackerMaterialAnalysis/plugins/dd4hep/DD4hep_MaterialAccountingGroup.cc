@@ -42,7 +42,7 @@ DD4hep_MaterialAccountingGroup::DD4hep_MaterialAccountingGroup(const std::string
         for (auto const& path : children) {
           cms::Translation trans = fv.translation(path);
           GlobalPoint gp = GlobalPoint(trans.x(), trans.y(), trans.z());
-          m_elements.push_back(gp);
+          m_elements.emplace_back(gp);
           edm::LogVerbatim("TrackerMaterialAnalysis")
               << "MaterialAccountingGroup:\t"
               << "Adding element at (r,z) " << gp.perp() << "," << gp.z() << std::endl;
@@ -62,7 +62,6 @@ DD4hep_MaterialAccountingGroup::DD4hep_MaterialAccountingGroup(const std::string
       << "Final BBox r_range: " << m_boundingbox.range_r().first << ", " << m_boundingbox.range_r().second << std::endl
       << "Final BBox z_range: " << m_boundingbox.range_z().first << ", " << m_boundingbox.range_z().second << std::endl;
 
-  // initialize the histograms
   m_dedx_spectrum =
       std::make_shared<TH1F>(TH1F((m_name + "_dedx_spectrum").c_str(), "Energy loss spectrum", 1000, 0., 1.));
   m_radlen_spectrum =
@@ -153,7 +152,7 @@ void DD4hep_MaterialAccountingGroup::endOfTrack(void) {
 }
 
 void DD4hep_MaterialAccountingGroup::savePlots(void) {
-  m_file = new TFile((m_name + ".root").c_str(), "RECREATE");
+  m_file = std::make_unique<TFile>((m_name + ".root").c_str(), "RECREATE");
   savePlot(m_dedx_spectrum, m_name + "_dedx_spectrum");
   savePlot(m_radlen_spectrum, m_name + "_radlen_spectrum");
   savePlot(m_dedx_vs_eta, averageEnergyLoss(), m_name + "_dedx_vs_eta");
@@ -164,7 +163,6 @@ void DD4hep_MaterialAccountingGroup::savePlots(void) {
   savePlot(m_radlen_vs_r, averageRadiationLengths(), m_name + "_radlen_vs_r");
   m_file->Write();
   m_file->Close();
-  delete m_file;
 }
 
 void DD4hep_MaterialAccountingGroup::savePlot(std::shared_ptr<TH1F> plot, const std::string& name) {
@@ -175,7 +173,7 @@ void DD4hep_MaterialAccountingGroup::savePlot(std::shared_ptr<TH1F> plot, const 
   canvas.GetFrame()->SetFillColor(kWhite);
   canvas.Draw();
   canvas.SaveAs((name + ".png").c_str(), "");
-  plot->SetDirectory(m_file);
+  plot->SetDirectory(m_file.get());
 }
 
 void DD4hep_MaterialAccountingGroup::savePlot(std::shared_ptr<TProfile> plot, float average, const std::string& name) {
@@ -195,8 +193,8 @@ void DD4hep_MaterialAccountingGroup::savePlot(std::shared_ptr<TProfile> plot, fl
   canvas.GetFrame()->SetFillColor(kWhite);
   canvas.Draw();
   canvas.SaveAs((name + ".png").c_str(), "");
-  plot->SetDirectory(m_file);
-  line->SetDirectory(m_file);
+  plot->SetDirectory(m_file.get());
+  line->SetDirectory(m_file.get());
   line->Write();
 }
 

@@ -45,7 +45,7 @@ private:
   std::shared_ptr<TProfile> m_radlen_vs_z;
   std::shared_ptr<TProfile> m_radlen_vs_r;
 
-  mutable TFile* m_file;
+  std::unique_ptr<TFile> m_file;
 
   static constexpr double s_tolerance = 0.01;
 
