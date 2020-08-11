@@ -8,6 +8,9 @@ import FWCore.ParameterSet.Config as cms
 #  LHE:
 #    include pure LHE production
 #
+#  GEN:
+#    include GEN only information
+#
 #  RAW , RECO, AOD:
 #    include reconstruction content
 #
@@ -145,6 +148,19 @@ LHEEventContent = cms.PSet(
     splitLevel = cms.untracked.int32(0),
 )
 LHEEventContent.outputCommands.extend(GeneratorInterfaceLHE.outputCommands)
+#
+#
+# GEN Data Tier definition
+# include GeneratorInterfaceLHE in case of pLHEGEN campaign
+#
+GENEventContent = cms.PSet(
+    outputCommands = cms.untracked.vstring('drop *'),
+    splitLevel = cms.untracked.int32(0),
+)
+GENEventContent.outputCommands.extend(GeneratorInterfaceLHE.outputCommands)
+GENEventContent.outputCommands.extend(GeneratorInterfaceRAW.outputCommands)
+GENEventContent.outputCommands.extend(RecoGenJetsFEVT.outputCommands)
+GENEventContent.outputCommands.extend(RecoGenMETFEVT.outputCommands)
 #
 #
 # RAW Data Tier definition
