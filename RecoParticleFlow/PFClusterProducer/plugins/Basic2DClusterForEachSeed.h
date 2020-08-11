@@ -4,9 +4,6 @@
 #include "RecoParticleFlow/PFClusterProducer/interface/InitialClusteringStepBase.h"
 #include "DataFormats/ParticleFlowReco/interface/PFRecHitFraction.h"
 
-#include "RecoParticleFlow/PFClusterProducer/interface/PFCPositionCalculatorBase.h"
-#include "CommonTools/Utils/interface/DynArray.h"
-
 class Basic2DClusterForEachSeed : public InitialClusteringStepBase {
   typedef Basic2DClusterForEachSeed B2DGT;
 
