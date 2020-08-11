@@ -103,7 +103,7 @@ public:
   /// Does not reset the elements corresponding to the tracks that are not compatible.
   virtual void checkTracks(reco::TrackCollection const& tracks, std::vector<bool>& mask) const = 0;
 
-  /// retutns a boolean mask over the TrackCollection reflecting the comapatbility of each track with the region constraints
+  /// return a boolean mask over the TrackCollection reflecting the compatibility of each track with the region constraints
   std::vector<bool> checkTracks(reco::TrackCollection const& tracks) const {
     std::vector<bool> region_mask(tracks.size(), false);
     checkTracks(tracks, region_mask);
