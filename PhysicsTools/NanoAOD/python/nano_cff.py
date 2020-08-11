@@ -196,8 +196,8 @@ def nanoAOD_recalibrateMETs(process,isData):
     process.metTables += process.corrT1METJetTable
 #    makePuppiesFromMiniAOD(process,True) # call this before in the global customizer otherwise it would reset photon IDs in VID
     runMetCorAndUncFromMiniAOD(process,isData=isData,metType="Puppi",postfix="Puppi",jetFlavor="AK4PFPuppi")
-#    process.puppiNoLep.useExistingWeights = False
-#    process.puppi.useExistingWeights = False
+    process.puppiNoLep.useExistingWeights = True
+    process.puppi.useExistingWeights = True
     process.nanoSequenceCommon.insert(process.nanoSequenceCommon.index(process.jetSequence),cms.Sequence(process.puppiMETSequence+process.fullPatMetSequencePuppi))
     return process
 
