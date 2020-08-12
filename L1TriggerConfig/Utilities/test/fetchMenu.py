@@ -20,8 +20,8 @@ process.L1TriggerKeyDummy.objectKeys = cms.VPSet(cms.PSet(
 
 
 ############ this block replaces one of the records in Global Tag ##############
-process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_condDBv2_cff')
-from Configuration.AlCa.GlobalTag_condDBv2 import GlobalTag
+process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
+from Configuration.AlCa.GlobalTag import GlobalTag
 process.GlobalTag = GlobalTag(process.GlobalTag, '80X_mcRun2cosmics_startup_peak_v1', '')
 process.GlobalTag.snapshotTime = cms.string("9999-12-31 23:59:59.000")
 

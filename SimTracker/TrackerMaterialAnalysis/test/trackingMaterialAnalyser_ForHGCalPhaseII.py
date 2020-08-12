@@ -12,8 +12,8 @@ readGeometryFromDB = False
 # geometry using the XMLIdealGeometryRecord.
 if readGeometryFromDB:
 # Global Tag and geometry via it
-  process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_condDBv2_cff")
-  from Configuration.AlCa.GlobalTag_condDBv2 import GlobalTag
+  process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
+  from Configuration.AlCa.GlobalTag import GlobalTag
   process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase2_realistic', '')
 else:
   process.load('Configuration.Geometry.GeometryExtended2026D46Reco_cff')

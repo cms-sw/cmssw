@@ -5,7 +5,7 @@ process = cms.Process('L1TEMULATION')
 process.load('Configuration.StandardSequences.Services_cff')
 process.load('FWCore.MessageService.MessageLogger_cfi')
 ## process.load('Configuration/StandardSequences/FrontierConditions_GlobalTag_cff')
-process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_condDBv2_cff')
+process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 process.load('Configuration.EventContent.EventContent_cff')
 process.load('Configuration.Geometry.GeometryIdeal_cff')
 
@@ -43,7 +43,7 @@ process.options = cms.untracked.PSet()
 # Other statements
 ## from Configuration.AlCa.GlobalTag import GlobalTag
 ## process.GlobalTag.connect = cms.string('frontier://FrontierProd/CMS_COND_31X_GLOBALTAG')
-from Configuration.AlCa.GlobalTag_condDBv2 import GlobalTag
+from Configuration.AlCa.GlobalTag import GlobalTag
 process.GlobalTag.globaltag = cms.string('MCRUN2_75_V1')
 
 process.load('L1Trigger.L1TCalorimeter.caloConfigStage1PP_cfi')

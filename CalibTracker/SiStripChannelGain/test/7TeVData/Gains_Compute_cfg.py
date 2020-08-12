@@ -3,7 +3,7 @@ import FWCore.ParameterSet.Config as cms
 process = cms.Process("APVGAIN")
 
 process.load('Configuration.StandardSequences.GeometryRecoDB_cff')
-process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_condDBv2_cff")
+process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 
 #this block is there to solve issue related to SiStripQualityRcd
 process.load("CalibTracker.SiStripESProducers.SiStripQualityESProducer_cfi")

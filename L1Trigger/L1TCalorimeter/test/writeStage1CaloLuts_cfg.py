@@ -5,8 +5,8 @@ process = cms.Process("TEST")
 # process.load("FWCore.MessageLogger.MessageLogger_cfi")
 process.load("Configuration.StandardSequences.Services_cff")
 
-## process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_condDBv2_cff')
-## from Configuration.AlCa.GlobalTag_condDBv2 import GlobalTag
+## process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
+## from Configuration.AlCa.GlobalTag import GlobalTag
 ## process.GlobalTag.globaltag = cms.string('GR_H_V44')
 
 process.source = cms.Source("EmptySource")

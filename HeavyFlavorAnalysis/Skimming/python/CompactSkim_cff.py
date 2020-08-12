@@ -13,14 +13,14 @@ def CompactSkim(process,inFileNames,outFileName,Global_Tag='auto:run2_mc',MC=Tru
    process.load('Configuration.StandardSequences.MagneticField_AutoFromDBCurrent_cff')
    process.load('Configuration.StandardSequences.EndOfProcess_cff')
    patAlgosToolsTask.add(process.MEtoEDMConverter)
-   process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_condDBv2_cff')
+   process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 
    process.MessageLogger.cerr.FwkReport.reportEvery = 100
    process.options = cms.untracked.PSet( wantSummary = cms.untracked.bool(False) )
    process.source = cms.Source('PoolSource', fileNames = cms.untracked.vstring(inFileNames))
    process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1) )
 
-   from Configuration.AlCa.GlobalTag_condDBv2 import GlobalTag
+   from Configuration.AlCa.GlobalTag import GlobalTag
    process.GlobalTag = GlobalTag(process.GlobalTag, Global_Tag, '')
 
    # make patCandidates, select and clean them

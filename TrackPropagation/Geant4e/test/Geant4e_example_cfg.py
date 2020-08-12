@@ -9,10 +9,10 @@ process.load("Configuration.EventContent.EventContent_cff")
 process.load("Configuration.StandardSequences.Reconstruction_cff")
 process.load('Configuration.StandardSequences.MagneticField_38T_cff')
 process.load('Configuration.StandardSequences.EndOfProcess_cff')
-process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_condDBv2_cff")
+process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 
 
-from Configuration.AlCa.GlobalTag_condDBv2 import GlobalTag
+from Configuration.AlCa.GlobalTag import GlobalTag
 process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_mc', '')
 
 process.load("FWCore.MessageService.MessageLogger_cfi")

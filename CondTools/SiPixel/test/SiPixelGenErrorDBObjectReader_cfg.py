@@ -25,7 +25,7 @@ if testGlobalTag :
 #    process.GlobalTag.globaltag = "START72_V3::All"
 
 #use GTs without ::All with the next line
-    process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_condDBv2_cff")
+    process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
     from Configuration.AlCa.autoCond import autoCond
     #use autocond, see:
     #https://github.com/cms-sw/cmssw/blob/CMSSW_7_3_X/Configuration/AlCa/python/autoCond.py

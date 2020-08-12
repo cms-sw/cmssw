@@ -13,8 +13,8 @@ process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(1) )
 #process.load("L1Trigger.L1TCalorimeter.caloStage2Params_2016_v2_2_cfi")
 
 # Constructing a Global Tag
-process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_condDBv2_cff')
-from Configuration.AlCa.GlobalTag_condDBv2 import GlobalTag
+process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
+from Configuration.AlCa.GlobalTag import GlobalTag
 process.GlobalTag.toGet = cms.VPSet(
  cms.PSet(
            record  = cms.string("L1TUtmTriggerMenuRcd"),

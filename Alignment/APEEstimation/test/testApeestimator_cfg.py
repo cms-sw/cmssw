@@ -144,8 +144,8 @@ process.source.duplicateCheckMode = cms.untracked.string("checkEachRealDataFile"
 ##
 process.load("Alignment.APEEstimation.TrackRefitter_38T_cff")
 
-process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_condDBv2_cff')
-from Configuration.AlCa.GlobalTag_condDBv2 import GlobalTag
+process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
+from Configuration.AlCa.GlobalTag import GlobalTag
 process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_design', '')
 
 

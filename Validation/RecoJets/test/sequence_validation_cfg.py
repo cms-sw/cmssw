@@ -6,7 +6,7 @@ process = cms.Process("METVALIDATION")
 process.load('Configuration.StandardSequences.GeometryRecoDB_cff')
 process.load('Configuration.StandardSequences.MagneticField_38T_PostLS1_cff')
 process.load('Configuration.StandardSequences.Reconstruction_cff')
-process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_condDBv2_cff')
+process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 
 #process.GlobalTag.globaltag = 'START42_V17::All'
 ##process.GlobalTag.globaltag = 'MC_38Y_V14::All'
