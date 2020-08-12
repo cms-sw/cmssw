@@ -113,7 +113,7 @@ bool HLTPPSJetComparisonFilter::filter(edm::StreamID, edm::Event &iEvent, const 
   edm::ESHandle<LHCInfo> hLHCInfo;
   iSetup.get<LHCInfoRcd>().get(lhcInfoLabel_, hLHCInfo);
   float sqs = 2. * hLHCInfo->energy();  // get sqrt(s)
-
+  
   edm::Handle<reco::PFJetCollection> jets;
   iEvent.getByToken(jet_token_, jets);  // get jet collection
 
@@ -144,7 +144,7 @@ bool HLTPPSJetComparisonFilter::filter(edm::StreamID, edm::Event &iEvent, const 
         const auto &xi = proton.xi();  // Get the proton xi
 
         CTPPSDetId rpId(
-            (*proton.contributingLocalTracks().begin())->getRPId());  // get RP ID (rpId.arm() is 0 for 45 and 1 for 56)
+            (*proton.contributingLocalTracks().begin())->rpId());  // get RP ID (rpId.arm() is 0 for 45 and 1 for 56)
 
         if (rpId.arm() == 0 && std::abs(xi - xi45) < min45)
           min45 = std::abs(xi - xi45);
@@ -171,14 +171,14 @@ bool HLTPPSJetComparisonFilter::filter(edm::StreamID, edm::Event &iEvent, const 
     {
       if (proton1.validFit()) {
         CTPPSDetId rpId1(
-            (*proton1.contributingLocalTracks().begin())->getRPId());  // get RP ID (rpId.arm() is 0 for 45 and 1 for 56)
+            (*proton1.contributingLocalTracks().begin())->rpId());  // get RP ID (rpId.arm() is 0 for 45 and 1 for 56)
         if (rpId1.arm() == 0) {
           const auto &xi_45 = proton1.xi();
 
           for (const auto &proton2 : *recoSingleRPProtons)  // cycle over second RP (only arm56)
           {
             if (proton2.validFit()) {
-              CTPPSDetId rpId2((*proton2.contributingLocalTracks().begin())->getRPId());
+              CTPPSDetId rpId2((*proton2.contributingLocalTracks().begin())->rpId());
               if (rpId2.arm() == 1) {
                 const auto &xi_56 = proton2.xi();
 
