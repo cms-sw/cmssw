@@ -226,6 +226,7 @@ void PFDisplacedVertexCandidateFinder::link(const TrackBaseRef& el1,
 
   // Fill the parameters
   dist = theMinimum_.distance();
+  P = theMinimum_.crossingPoint();
 
   vertexLinkTest = PFDisplacedVertexCandidate::LINKTEST_DCA;  //rechit by default
 
@@ -234,8 +235,6 @@ void PFDisplacedVertexCandidateFinder::link(const TrackBaseRef& el1,
     dist = -1;
     return;
   }
-
-  P = theMinimum_.crossingPoint();
 
   // Check if the closses approach point is too close to the primary vertex/beam pipe
   double rho2 = P.x() * P.x() + P.y() * P.y();
