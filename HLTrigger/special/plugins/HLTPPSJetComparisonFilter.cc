@@ -29,11 +29,11 @@ Matching can be done on the xi and/or mass+rapidity variables, using the do_xi a
 //
 class HLTPPSJetComparisonFilter : public edm::global::EDFilter<> {
 public:
-  explicit HLTPPSJetComparisonFilter(const edm::ParameterSet&);
+  explicit HLTPPSJetComparisonFilter(const edm::ParameterSet &);
   ~HLTPPSJetComparisonFilter() override;
 
-  static void fillDescriptions(edm::ConfigurationDescriptions&);
-  bool filter(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
+  static void fillDescriptions(edm::ConfigurationDescriptions &);
+  bool filter(edm::StreamID, edm::Event &, const edm::EventSetup &) const override;
 
 private:
   // ----------member data ---------------------------
@@ -113,7 +113,7 @@ bool HLTPPSJetComparisonFilter::filter(edm::StreamID, edm::Event &iEvent, const 
   edm::ESHandle<LHCInfo> hLHCInfo;
   iSetup.get<LHCInfoRcd>().get(lhcInfoLabel_, hLHCInfo);
   float sqs = 2. * hLHCInfo->energy();  // get sqrt(s)
-  
+
   edm::Handle<reco::PFJetCollection> jets;
   iEvent.getByToken(jet_token_, jets);  // get jet collection
 
