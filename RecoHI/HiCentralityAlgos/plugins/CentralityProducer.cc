@@ -167,21 +167,9 @@ namespace reco {
 
   // ------------ method called to produce the data  ------------
   void CentralityProducer::produce(edm::StreamID sid, edm::Event& iEvent, const edm::EventSetup& iSetup) const {
-    edm::ESHandle<TrackerGeometry> tGeo_;
-    edm::ESHandle<CaloGeometry> cGeo_;
-    edm::ESHandle<TrackerTopology> topo_;
-
-    if (producePixelhits_) {
-      tGeo_ = iSetup.getHandle(trackerGeom_);
-      topo_ = iSetup.getHandle(trackerTopo_);
-    }
-
-    if (produceEcalhits_)
-      cGeo_ = iSetup.getHandle(caloGeom_);
 
     auto creco = std::make_unique<Centrality>();
     Handle<Centrality> inputCentrality;
-
     if (reuseAny_)
       iEvent.getByToken(reuseTag_, inputCentrality);
 
@@ -265,20 +253,20 @@ namespace reco {
 
       Handle<EcalRecHitCollection> ebHits;
       Handle<EcalRecHitCollection> eeHits;
-
       iEvent.getByToken(srcEBhits_, ebHits);
       iEvent.getByToken(srcEEhits_, eeHits);
 
+      edm::ESHandle<CaloGeometry> cGeo = iSetup.getHandle(caloGeom_);
       for (unsigned int i = 0; i < ebHits->size(); ++i) {
         const EcalRecHit& hit = (*ebHits)[i];
-        const GlobalPoint& pos = cGeo_->getPosition(hit.id());
+        const GlobalPoint& pos = cGeo->getPosition(hit.id());
         double et = hit.energy() * (pos.perp() / pos.mag());
         creco->etEBSum_ += et;
       }
 
       for (unsigned int i = 0; i < eeHits->size(); ++i) {
         const EcalRecHit& hit = (*eeHits)[i];
-        const GlobalPoint& pos = cGeo_->getPosition(hit.id());
+        const GlobalPoint& pos = cGeo->getPosition(hit.id());
         double et = hit.energy() * (pos.perp() / pos.mag());
         if (pos.z() > 0) {
           creco->etEESumPlus_ += et;
@@ -295,6 +283,8 @@ namespace reco {
     }
 
     if (producePixelhits_) {
+      edm::ESHandle<TrackerGeometry> tGeo = iSetup.getHandle(trackerGeom_);
+      edm::ESHandle<TrackerTopology> topo = iSetup.getHandle(trackerTopo_);
       creco->pixelMultiplicity_ = 0;
       const SiPixelRecHitCollection* rechits;
       Handle<SiPixelRecHitCollection> rchts;
@@ -314,12 +304,12 @@ namespace reco {
           // add selection if needed, now all hits.
           const SiPixelRecHit* recHit = &(*recHitIterator);
           const PixelGeomDetUnit* pixelLayer =
-              dynamic_cast<const PixelGeomDetUnit*>(tGeo_->idToDet(recHit->geographicalId()));
+              dynamic_cast<const PixelGeomDetUnit*>(tGeo->idToDet(recHit->geographicalId()));
           GlobalPoint gpos = pixelLayer->toGlobal(recHit->localPosition());
           math::XYZVector rechitPos(gpos.x(), gpos.y(), gpos.z());
           double eta = rechitPos.eta();
           int clusterSize = recHit->cluster()->size();
-          unsigned layer = topo_->layer(detId);
+          unsigned layer = topo->layer(detId);
           if (doPixelCut_) {
             if (detId.det() == DetId::Tracker && detId.subdetId() == PixelSubdetector::PixelBarrel) {
               double abeta = std::abs(eta);
