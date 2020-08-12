@@ -23,9 +23,6 @@ process.MessageLogger.debugModules = cms.untracked.vstring('ppsGeometryBuilder')
 process.MessageLogger.cout = cms.untracked.PSet(
     threshold = cms.untracked.string('DEBUG'))
 
-# geometry
-process.load("Geometry.VeryForwardGeometry.geometryIdealPPSFromDD_2017_cfi")
-
 # no events to process
 process.source = cms.Source("EmptySource",
   firstRun = cms.untracked.uint32(123),
@@ -37,6 +34,15 @@ process.source = cms.Source("EmptySource",
 
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(1)
+)
+
+# geometry
+process.load("Geometry.VeryForwardGeometry.geometryIdealPPSFromDD_2017_cfi")
+
+
+# DB writer
+process.ppsGeometryBuilder = cms.EDAnalyzer("PPSGeometryBuilder",
+    compactViewTag = cms.untracked.string('XMLIdealGeometryESSource_CTPPS')
 )
 
 process.p = cms.Path(

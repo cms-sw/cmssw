@@ -8,5 +8,6 @@ XMLIdealGeometryESSource_CTPPS = cms.ESProducer("XMLIdealGeometryESProducer",
 
 ctppsGeometryESModule = cms.ESProducer("PPSGeometryESProducer",
     verbosity = cms.untracked.uint32(1),
-    detectorTag = cms.string("CMS")
+    detectorTag = cms.string("XMLIdealGeometryESSource_CTPPS")
 )
+

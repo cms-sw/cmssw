@@ -78,8 +78,8 @@ process.load('PhysicsTools.HepMCCandAlgos.genParticles_cfi')
 
 # G4 simulation & proton transport
 
-from Geometry.VeryForwardGeometry.geometryPPS_CMSxz_fromDD_2017_cfi import XMLIdealGeometryESSource_CTPPS
-process.XMLIdealGeometryESSource = XMLIdealGeometryESSource_CTPPS.clone()
+from Geometry.VeryForwardGeometry.geometryPPS_CMSxz_fromDD_2017_cfi import DDDetectorESProducer
+process.XMLIdealGeometryESSource = DDDetectorESProducer.clone()
 
 process.load("SimG4Core.Application.g4SimHits_cfi")
 

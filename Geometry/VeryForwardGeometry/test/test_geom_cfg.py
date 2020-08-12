@@ -7,9 +7,9 @@ from FWCore.MessageLogger.MessageLogger_cfi import *
 process.load("Configuration.StandardSequences.GeometryExtended_cff")
 process.load("Configuration.StandardSequences.MagneticField_38T_cff")
 
-from Geometry.VeryForwardGeometry.geometryRPFromDD_2018_cfi import XMLIdealGeometryESSource_CTPPS
+from Geometry.VeryForwardGeometry.geometryRPFromDD_2018_cfi import DDDetectorESProducer
 
-process.XMLIdealGeometryESSource = XMLIdealGeometryESSource_CTPPS.clone()
+process.XMLIdealGeometryESSource = DDDetectorESProducer.clone()
 
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(1)
