@@ -167,7 +167,6 @@ namespace reco {
 
   // ------------ method called to produce the data  ------------
   void CentralityProducer::produce(edm::StreamID sid, edm::Event& iEvent, const edm::EventSetup& iSetup) const {
-
     auto creco = std::make_unique<Centrality>();
     Handle<Centrality> inputCentrality;
     if (reuseAny_)
