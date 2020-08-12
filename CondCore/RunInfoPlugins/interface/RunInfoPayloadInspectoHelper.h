@@ -13,6 +13,8 @@
 
 namespace RunInfoPI {
 
+  enum state { fake = 0, valid = 1, invalid = 2 };
+
   // values are taken from https://github.com/cms-sw/cmssw/blob/master/MagneticField/GeomBuilder/plugins/VolumeBasedMagneticFieldESProducerFromDB.cc#L74-L75
   constexpr std::array<int, 7> nominalCurrents{{-1, 0, 9558, 14416, 16819, 18268, 19262}};
   constexpr std::array<float, 7> nominalFields{{3.8, 0., 2., 3., 3.5, 3.8, 4.}};
