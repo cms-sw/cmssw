@@ -8,7 +8,7 @@ options = VarParsing.VarParsing()
 ###################################################################
 
 options.register('OutFileName',
-                 "test3.root", # default value
+                 "test.root", # default value
                  VarParsing.VarParsing.multiplicity.singleton, # singleton or list
                  VarParsing.VarParsing.varType.string, # string, int, or float
                  "name of the output file (test.root is default)")
@@ -191,10 +191,10 @@ process.myanalysis = cms.EDAnalyzer("GeneralPurposeTrackAnalyzer",
                                     isCosmics = cms.bool(True)
                                     )
 
-process.myanalysis2 = cms.EDAnalyzer("DMRChecker_v2",
-                                    TkTag  = cms.InputTag('TrackRefitter1'),
-                                    isCosmics = cms.bool(True)
-                                    )
+process.fastdmr = cms.EDAnalyzer("FastDMRChecker",
+                                 TkTag  = cms.InputTag('TrackRefitter1'),
+                                 isCosmics = cms.bool(True)
+                                 )
 
 ###################################################################
 # Output name
@@ -210,5 +210,5 @@ process.p1 = cms.Path(process.offlineBeamSpot*
                       #process.AliMomConstraint*
                       process.TrackRefitter1*
                       process.myanalysis*
-                      process.myanalysis2
+                      process.fastdmr
                       )
