@@ -60,14 +60,14 @@ looseJetId = cms.EDProducer("PatJetIDValueMapProducer",
 )
 tightJetId = cms.EDProducer("PatJetIDValueMapProducer",
 			  filterParams=cms.PSet(
-			    version = cms.string('SUMMER18'),
+			    version = cms.string('RUN2ULCHS'),
 			    quality = cms.string('TIGHT'),
 			  ),
                           src = cms.InputTag("updatedJets")
 )
 tightJetIdLepVeto = cms.EDProducer("PatJetIDValueMapProducer",
 			  filterParams=cms.PSet(
-			    version = cms.string('SUMMER18'),
+			    version = cms.string('RUN2ULCHS'),
 			    quality = cms.string('TIGHTLEPVETO'),
 			  ),
                           src = cms.InputTag("updatedJets")
@@ -76,6 +76,8 @@ run2_jme_2016.toModify( tightJetId.filterParams, version = "WINTER16" )
 run2_jme_2016.toModify( tightJetIdLepVeto.filterParams, version = "WINTER16" )
 run2_jme_2017.toModify( tightJetId.filterParams, version = "WINTER17" )
 run2_jme_2017.toModify( tightJetIdLepVeto.filterParams, version = "WINTER17" )
+run2_nanoAOD_102Xv1.toModify( tightJetId.filterParams, version = "SUMMER18" )
+run2_nanoAOD_102Xv1.toModify( tightJetIdLepVeto.filterParams, version = "SUMMER18" )
 
 
 looseJetIdAK8 = cms.EDProducer("PatJetIDValueMapProducer",
@@ -87,14 +89,14 @@ looseJetIdAK8 = cms.EDProducer("PatJetIDValueMapProducer",
 )
 tightJetIdAK8 = cms.EDProducer("PatJetIDValueMapProducer",
 			  filterParams=cms.PSet(
-			    version = cms.string('SUMMER18PUPPI'),
+			    version = cms.string('RUN2ULPUPPI'),
 			    quality = cms.string('TIGHT'),
 			  ),
                           src = cms.InputTag("updatedJetsAK8")
 )
 tightJetIdLepVetoAK8 = cms.EDProducer("PatJetIDValueMapProducer",
 			  filterParams=cms.PSet(
-			    version = cms.string('SUMMER18PUPPI'),
+			    version = cms.string('RUN2ULPUPPI'),
 			    quality = cms.string('TIGHTLEPVETO'),
 			  ),
                           src = cms.InputTag("updatedJetsAK8")
@@ -103,6 +105,8 @@ run2_jme_2016.toModify( tightJetIdAK8.filterParams, version = "WINTER16" )
 run2_jme_2016.toModify( tightJetIdLepVetoAK8.filterParams, version = "WINTER16" )
 run2_jme_2017.toModify( tightJetIdAK8.filterParams, version = "WINTER17PUPPI" )
 run2_jme_2017.toModify( tightJetIdLepVetoAK8.filterParams, version = "WINTER17PUPPI" )
+run2_nanoAOD_102Xv1.toModify( tightJetIdAK8.filterParams, version = "SUMMER18PUPPI" )
+run2_nanoAOD_102Xv1.toModify( tightJetIdLepVetoAK8.filterParams, version = "SUMMER18PUPPI" )
 
 
 bJetVars = cms.EDProducer("JetRegressionVarProducer",
