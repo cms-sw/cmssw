@@ -114,7 +114,7 @@ std::unique_ptr<HitRZCompatibility> GlobalTrackingRegion::checkRZ(const DetLayer
 }
 
 void GlobalTrackingRegion::checkTracks(reco::TrackCollection const& tracks, std::vector<bool>& mask) const {
-  math::XYZPoint regOrigin(origin().x(), origin().y(), origin().z());
+  const math::XYZPoint regOrigin(origin().x(), origin().y(), origin().z());
 
   assert(mask.size() == tracks.size());
   int i = -1;
