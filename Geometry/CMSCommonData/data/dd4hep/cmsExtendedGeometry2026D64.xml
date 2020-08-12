@@ -35,6 +35,7 @@
     <Include ref='Geometry/TrackerCommonData/data/PhaseII/TiltedTracker404/trackerfwd.xml'/>
     <Include ref='Geometry/TrackerCommonData/data/PhaseII/TiltedTracker404/trackerStructureTopology.xml'/>
     <Include ref='Geometry/TrackerCommonData/data/PhaseII/InnerTracker621_50x50_2020_07/pixelStructureTopology.xml'/>
+    <Include ref='SimTracker/TrackerMaterialAnalysis/data/trackingMaterialGroups_ForPhaseII.xml'/>
     <Include ref='Geometry/TrackerSimData/data/PhaseII/TiltedTracker404/trackersens.xml'/>
     <Include ref='Geometry/TrackerSimData/data/PhaseII/TiltedTracker404/pixelsens.xml'/>
     <Include ref='Geometry/TrackerRecoData/data/PhaseII/OuterTracker616_2020_04/trackerRecoMaterial.xml'/>

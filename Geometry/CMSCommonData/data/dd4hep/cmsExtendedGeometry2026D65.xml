@@ -38,6 +38,7 @@
     <Include ref='Geometry/TrackerSimData/data/PhaseII/TiltedTracker404/trackersens.xml'/>
     <Include ref='Geometry/TrackerSimData/data/PhaseII/TiltedTracker700/pixelsens.xml'/>
     <Include ref='Geometry/TrackerRecoData/data/PhaseII/TiltedTracker700/trackerRecoMaterial.xml'/>
+    <Include ref='SimTracker/TrackerMaterialAnalysis/data/trackingMaterialGroups_ForPhaseII.xml'/>
     <Include ref='Geometry/TrackerSimData/data/PhaseII/TiltedTracker404/trackerProdCuts.xml'/>
     <Include ref='Geometry/TrackerSimData/data/PhaseII/TiltedTracker700/pixelProdCuts.xml'/>
     <Include ref='Geometry/TrackerSimData/data/trackerProdCutsBEAM.xml'/>
