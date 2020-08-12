@@ -48,10 +48,6 @@ RPDisplacementGenerator::RPDisplacementGenerator(const edm::ParameterSet &ps,
   rotation_ = R_l.Inverse() * R_m.Inverse() * R_l;
   shift_ = R_l.Inverse() * R_m.Inverse() * S_m;
 
-  std::cout << " shift = " << shift_  << std::endl;
-  std::cout << " rotation = " << rotation_ << std::endl;
-
-
   LogDebug("RPDisplacementGenerator").log([&](auto &log) {
     log << " det id = " << decId << ", isOn = " << isOn_ << "\n";
     if (isOn_) {
