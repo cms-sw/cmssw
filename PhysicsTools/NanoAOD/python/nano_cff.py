@@ -315,18 +315,27 @@ def nanoAOD_customizeCommon(process):
                                   addDeepFlavour=nanoAOD_addDeepInfo_switch.nanoAOD_addDeepFlavourTag_switch)
     nanoAOD_addDeepInfoAK8_switch = cms.PSet(
         nanoAOD_addDeepBTag_switch = cms.untracked.bool(False),
-        nanoAOD_addDeepBoostedJet_switch = cms.untracked.bool(True), # will deactivate this in future miniAOD releases
-        nanoAOD_addDeepDoubleX_switch = cms.untracked.bool(True), 
-        nanoAOD_addParticleNet_switch = cms.untracked.bool(True),
+        nanoAOD_addDeepBoostedJet_switch = cms.untracked.bool(False),
+        nanoAOD_addDeepDoubleX_switch = cms.untracked.bool(False),
+        nanoAOD_addParticleNet_switch = cms.untracked.bool(False),
         jecPayload = cms.untracked.string('AK8PFPuppi')
         )
     # deepAK8 should not run on 80X, that contains ak8PFJetsCHS jets
     run2_miniAOD_80XLegacy.toModify(nanoAOD_addDeepInfoAK8_switch,
-                                    nanoAOD_addDeepBTag_switch = cms.untracked.bool(True),
-                                    nanoAOD_addDeepBoostedJet_switch = cms.untracked.bool(False),
-                                    nanoAOD_addDeepDoubleX_switch = cms.untracked.bool(False),
-                                    nanoAOD_addParticleNet_switch = False,
-                                    jecPayload = cms.untracked.string('AK8PFchs'))
+                                    nanoAOD_addDeepBTag_switch = True,
+                                    jecPayload = 'AK8PFchs')
+    # for 94X and 102X samples: needs to run DeepAK8, DeepDoubleX and ParticleNet
+    (run2_nanoAOD_94X2016 | run2_nanoAOD_94XMiniAODv1 | run2_nanoAOD_94XMiniAODv2 | run2_nanoAOD_102Xv1).toModify(
+        nanoAOD_addDeepInfoAK8_switch,
+        nanoAOD_addDeepBoostedJet_switch = True,
+        nanoAOD_addDeepDoubleX_switch = True,
+        nanoAOD_addParticleNet_switch = True,
+        )
+    # for 106Xv1: only needs to run ParticleNet; DeepAK8, DeepDoubleX are already in MiniAOD
+    run2_nanoAOD_106Xv1.toModify(
+        nanoAOD_addDeepInfoAK8_switch,
+        nanoAOD_addParticleNet_switch = True,
+        )
     process = nanoAOD_addDeepInfoAK8(process,
                                      addDeepBTag=nanoAOD_addDeepInfoAK8_switch.nanoAOD_addDeepBTag_switch,
                                      addDeepBoostedJet=nanoAOD_addDeepInfoAK8_switch.nanoAOD_addDeepBoostedJet_switch,
