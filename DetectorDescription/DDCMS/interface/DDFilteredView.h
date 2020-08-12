@@ -149,47 +149,34 @@ namespace cms {
       return dd4hep::isA<Shape>(solid());
     }
 
-    template <typename... Ts>
-      bool isABox(Ts&&... ts) const {
-      return isA<dd4hep::Box>(std::forward<Ts>(ts)...);
+    bool isABox() const {
+      return isA<dd4hep::Box>();
     }
 
-    template <typename... Ts>
-      bool isAConeSeg(Ts&&... ts) const {
-      return isA<dd4hep::ConeSegment>(std::forward<Ts>(ts)...);
+    bool isAConeSeg() const {
+      return isA<dd4hep::ConeSegment>();
     }
 
-    template <typename... Ts>
-      bool isAPseudoTrap(Ts&&... ts) const {
-      return isA<dd4hep::PseudoTrap>(std::forward<Ts>(ts)...);
+    bool isAPseudoTrap() const {
+      return isA<dd4hep::PseudoTrap>();
     }
 
-    template <typename... Ts>
-      bool isATrapezoid(Ts&&... ts) const {
-      return isA<dd4hep::Trap>(std::forward<Ts>(ts)...);
+    bool isATrapezoid() const {
+      return isA<dd4hep::Trap>();
     }
 
-    template <typename... Ts>
-      bool isATruncTube(Ts&&... ts) const {
-      return isA<dd4hep::TruncatedTube>(std::forward<Ts>(ts)...);
+    bool isATruncTube() const {
+      return isA<dd4hep::TruncatedTube>();
     }
 
-    template <typename... Ts>
-      bool isATubeSeg(Ts&&... ts) const {
-      return isA<dd4hep::Tube>(std::forward<Ts>(ts)...);
+    bool isATubeSeg() const {
+      return isA<dd4hep::Tube>();
     }
 
-    template <typename... Ts>
-      bool isASubtraction(Ts&&... ts) const {
-      return (isA<dd4hep::SubtractionSolid>(std::forward<Ts>(ts)...) and
-	      not isA<dd4hep::TruncatedTube>(std::forward<Ts>(ts)...) and
-              not isA<dd4hep::PseudoTrap>(std::forward<Ts>(ts)...));
-    }
-
-    bool isABoolean() const {
-      return (isA<dd4hep::IntersectionSolid>() 
-	      or isA<dd4hep::SubtractionSolid>() 
-	      or isA<dd4hep::UnionSolid>());
+    bool isASubtraction() const {
+      return (isA<dd4hep::SubtractionSolid>() and
+	      not isA<dd4hep::TruncatedTube>() and
+              not isA<dd4hep::PseudoTrap>());
     }
 
     dd4hep::Solid solid() const;
