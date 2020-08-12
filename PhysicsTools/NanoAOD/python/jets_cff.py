@@ -76,6 +76,8 @@ run2_jme_2016.toModify( tightJetId.filterParams, version = "WINTER16" )
 run2_jme_2016.toModify( tightJetIdLepVeto.filterParams, version = "WINTER16" )
 run2_jme_2017.toModify( tightJetId.filterParams, version = "WINTER17" )
 run2_jme_2017.toModify( tightJetIdLepVeto.filterParams, version = "WINTER17" )
+run2_miniAOD_UL.toModify( tightJetId.filterParams, version = "RUN2ULCHS" )
+run2_miniAOD_UL.toModify( tightJetIdLepVeto.filterParams, version = "RUN2ULCHS" )
 
 
 looseJetIdAK8 = cms.EDProducer("PatJetIDValueMapProducer",
@@ -103,6 +105,8 @@ run2_jme_2016.toModify( tightJetIdAK8.filterParams, version = "WINTER16" )
 run2_jme_2016.toModify( tightJetIdLepVetoAK8.filterParams, version = "WINTER16" )
 run2_jme_2017.toModify( tightJetIdAK8.filterParams, version = "WINTER17PUPPI" )
 run2_jme_2017.toModify( tightJetIdLepVetoAK8.filterParams, version = "WINTER17PUPPI" )
+run2_miniAOD_UL.toModify( tightJetIdAK8.filterParams, version = "RUN2ULPUPPI" )
+run2_miniAOD_UL.toModify( tightJetIdLepVetoAK8.filterParams, version = "RUN2ULPUPPI" )
 
 
 bJetVars = cms.EDProducer("JetRegressionVarProducer",
