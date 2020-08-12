@@ -17,10 +17,8 @@ process.load("Geometry.VeryForwardGeometry.geometryRPFromDD_2018_cfi")
 #process.load("CondFormats.CTPPSReadoutObjects.ctppsRPAlignmentCorrectionsDataESSourceXML_cfi")
 process.load("CalibPPS.ESProducers.ctppsRPAlignmentCorrectionsDataESSourceXML_cfi")
 process.ctppsRPAlignmentCorrectionsDataESSourceXML.RealFiles = cms.vstring(
-    "Geometry/VeryForwardGeometryBuilder/test/alignment_null_file_1.xml",
-    "Geometry/VeryForwardGeometryBuilder/test/alignment_null_file_2.xml",
-#    "Geometry/VeryForwardGeometryBuilder/test/alignment_file_1.xml",
-#    "Geometry/VeryForwardGeometryBuilder/test/alignment_file_2.xml",
+    "Geometry/VeryForwardGeometryBuilder/test/alignment_file_1.xml",
+    "Geometry/VeryForwardGeometryBuilder/test/alignment_file_2.xml",
 )
 process.ctppsRPAlignmentCorrectionsDataESSourceXML.verbosity = 1
 

@@ -31,6 +31,14 @@
 using namespace std;
 using namespace cms_units::operators;
 
+/**
+ * Aug 2020: Migrated to DD4hep
+ *
+ *  PPS software expects mm but DD4hep standard unit of length is cm. A conversion 
+ *  factor (/1._mm) is applied wherever needed. 
+ *
+ **/
+
 DetGeomDesc::DetGeomDesc(DDFilteredView* fv)
   : m_trans(fv->translation()),
     m_rot(fv->rotation()),
@@ -51,7 +59,7 @@ DetGeomDesc::DetGeomDesc(const cms::DDFilteredView& fv, const cms::DDSpecParRegi
   : m_trans(fv.translation() / 1._mm),  // Convert cm (DD4hep) to mm (legacy)
     m_rot(fv.rotation()),
     m_name(fv.name()),
-    m_params(computeParameters(fv)),
+    m_params(copyParameters(fv)),
     m_geographicalID(computeDetID(fv)),
     m_copy(fv.copyNum()),
     m_z(fv.translation().z() / 1._mm),  // Convert cm (DD4hep) to mm (legacy)
@@ -108,101 +116,22 @@ void DetGeomDesc::applyAlignment(const CTPPSRPAlignmentCorrectionData& t) {
   m_trans = t.getTranslation() + m_trans;
 }
 
+//----------------------------------------------------------------------------------------------------
 
-std::vector<double> DetGeomDesc::computeParameters(const cms::DDFilteredView& fv) const {
+std::vector<double> DetGeomDesc::getDiamondWidth() const {
+  // Convert parameters units from cm (DD4hep standard) to mm (expected by PPS reco software).
+  // This implementation is customized for the diamond sensors, which are represented by the 
+  // Box shape parameterized by x, y and z half width.
   std::vector<double> parameters;
+  parameters = { m_params[0] / 1._mm , m_params[1] / 1._mm , m_params[2] / 1._mm };
+  return parameters;
+}
 
-  const cms::DDSolidShape& mySolidShape = cms::dd::getCurrentShape(fv);
+//----------------------------------------------------------------------------------------------------
 
-  if (mySolidShape == cms::DDSolidShape::ddbox) {
-    const cms::dd::DDBox& myShape = cms::dd::DDBox(fv);
-    parameters = { myShape.halfX() / 1._mm,
-		 myShape.halfY() / 1._mm,
-		 myShape.halfZ() / 1._mm
-    }; 
-  }
-  else if (mySolidShape == cms::DDSolidShape::ddcons) {
-    const cms::dd::DDCons& myShape = cms::dd::DDCons(fv);
-    parameters = { myShape.zhalf() / 1._mm,
-		 myShape.rInMinusZ() / 1._mm,
-		 myShape.rOutMinusZ() / 1._mm,
-		 myShape.rInPlusZ() / 1._mm,
-		 myShape.rOutPlusZ() / 1._mm,
-		 myShape.phiFrom(),
-		 myShape.deltaPhi()
-    }; 
-  }
-  else if (mySolidShape == cms::DDSolidShape::ddtrap) {
-    const cms::dd::DDTrap& myShape = cms::dd::DDTrap(fv);
-    parameters = { myShape.halfZ() / 1._mm,
-		 myShape.theta(),
-		 myShape.phi(),
-		 myShape.y1() / 1._mm,
-		 myShape.x1() / 1._mm,
-		 myShape.x2() / 1._mm,
-		 myShape.alpha1(),
-		 myShape.y2() / 1._mm,
-		 myShape.x3() / 1._mm,
-		 myShape.x4() / 1._mm,		 
-		 myShape.alpha2()
-    }; 
-  }
-  else if (mySolidShape == cms::DDSolidShape::ddtubs) {
-    const cms::dd::DDTubs& myShape = cms::dd::DDTubs(fv);
-    parameters = { myShape.zhalf() / 1._mm,
-		 myShape.rIn() / 1._mm,
-		 myShape.rOut() / 1._mm,
-		 myShape.startPhi(),
-		 myShape.deltaPhi()
-    };
-  }
-  else if (mySolidShape == cms::DDSolidShape::ddtrunctubs) {
-    const cms::dd::DDTruncTubs& myShape = cms::dd::DDTruncTubs(fv);
-    parameters = { myShape.zHalf() / 1._mm,
-		 myShape.rIn() / 1._mm,
-		 myShape.rOut() / 1._mm,
-		 myShape.startPhi(),
-		 myShape.deltaPhi(),
-		 myShape.cutAtStart() / 1._mm,
-		 myShape.cutAtDelta() / 1._mm,
-		 static_cast<double>(myShape.cutInside())
-    }; 
-  }
-  else if (mySolidShape == cms::DDSolidShape::dd_not_init) {
-    auto myShape = fv.solid();
-    const std::vector<double>& params = myShape.dimensions();
-    if (fv.isA<dd4hep::Trd1>()) {
-      parameters = { params[3] / 1._mm, // z
-		   0.,
-		   0.,
-		   params[2] / 1._mm, // y
-		   params[0] / 1._mm, // x1
-		   params[0] / 1._mm, // x1
-		   0.,
-		   params[2] / 1._mm, // y
-		   params[1] / 1._mm, // x2
-		   params[1] / 1._mm, // x2
-		   0.  
-      };
-    }
-    else if (fv.isA<dd4hep::Polycone>()) {
-      int counter = 0;
-      for (const auto& para : params) {	
-	if (counter != 2) {
-	  const double factor = (counter >= 2 ? (1. / 1._mm) : 1.);
-	  parameters.emplace_back(para * factor);
-	}
-	++counter;
-      }
-    }
-    else {
-      if (!fv.isABoolean()) {
-	edm::LogError("DetGeomDesc::DetGeomDesc")
-	  << m_name << ", Id = " << m_geographicalID
-	  << ". Shape is neither a supported one, nor a boolean.";
-      }
-    }
-  }
+std::vector<double> DetGeomDesc::copyParameters(const cms::DDFilteredView& fv) const {
+  auto myShape = fv.solid();
+  const std::vector<double>& parameters = myShape.dimensions();
   return parameters;
 }
 

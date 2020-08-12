@@ -33,6 +33,12 @@ class CTPPSRPAlignmentCorrectionData;
  \verbatim
     x_g = rotation * x_l + translation
  \endverbatim
+ *
+ * Aug 2020: Migrated to DD4hep
+ *
+ *  PPS software expects mm but DD4hep standard unit of length is cm. A conversion 
+ *  factor (/1._mm) is applied wherever needed. 
+ *
  **/
 
 class DetGeomDesc {
@@ -73,9 +79,14 @@ public:
   RotationMatrix rotation() const { return m_rot; }
   Translation translation() const { return m_trans; }
   const std::string& name() const { return m_name; }
-  std::vector<double> params() const { return m_params; }
   int copyno() const { return m_copy; }
   const std::string& sensorType() const { return m_sensorType; }
+  std::vector<double> getDiamondWidth() const;
+  
+  // Method params() is left for general access to solid shape parameters but should be used 
+  // only with great care, for two reasons: 1. order of parameters may possibly change from 
+  // a version to another of DD4hep; 2. length parameters unit is cm while PPS uses mm.    
+  std::vector<double> params() const { return m_params; }
 
   /// alignment
   void applyAlignment(const CTPPSRPAlignmentCorrectionData&);
@@ -83,10 +94,10 @@ public:
 private:
 //  DetGeomDesc() {}
   void deleteComponents();      /// deletes just the first daughters
-  void deepDeleteComponents();  /// traverses the treee and deletes all nodes.
+  void deepDeleteComponents();  /// traverses the tree and deletes all nodes.
   void clearComponents() { m_container.resize(0); }
 
-  std::vector<double> computeParameters(const cms::DDFilteredView& fv) const;
+  std::vector<double> copyParameters(const cms::DDFilteredView& fv) const;
   DetId computeDetID(const cms::DDFilteredView& fv) const;
   std::string computeSensorType(const std::string& nodePath, const cms::DDSpecParRegistry& allSpecParSections);
 

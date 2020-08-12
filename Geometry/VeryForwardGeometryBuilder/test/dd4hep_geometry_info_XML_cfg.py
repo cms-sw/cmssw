@@ -12,8 +12,7 @@ process.MessageLogger = cms.Service("MessageLogger",
 )
 
 process.DDDetectorESProducer = cms.ESSource("DDDetectorESProducer",
-                                            confGeomXMLFiles = cms.FileInPath('Geometry/VeryForwardGeometry/data/dd4hep/cms-pps-reco-geometry-2018.xml'),
-#                                            confGeomXMLFiles = cms.FileInPath('DetectorDescription/DDCMS/data/cms-2015-muon-geometry.xml'),
+                                            confGeomXMLFiles = cms.FileInPath('Geometry/VeryForwardGeometry/data/dd4hep/dd4hep_geometryIdealPPS_2018.xml'),
                                             appendToDataLabel = cms.string('CMS')
 )
 
@@ -26,10 +25,8 @@ process.ctppsGeometryESModule = cms.ESProducer("PPSGeometryESProducer",
 #process.load("CondFormats.CTPPSReadoutObjects.ctppsRPAlignmentCorrectionsDataESSourceXML_cfi")
 process.load("CalibPPS.ESProducers.ctppsRPAlignmentCorrectionsDataESSourceXML_cfi")
 process.ctppsRPAlignmentCorrectionsDataESSourceXML.RealFiles = cms.vstring(
-    "Geometry/VeryForwardGeometryBuilder/test/alignment_null_file_1.xml",
-    "Geometry/VeryForwardGeometryBuilder/test/alignment_null_file_2.xml",
-#    "Geometry/VeryForwardGeometryBuilder/test/alignment_file_1.xml",
-#    "Geometry/VeryForwardGeometryBuilder/test/alignment_file_2.xml",
+    "Geometry/VeryForwardGeometryBuilder/test/alignment_file_1.xml",
+    "Geometry/VeryForwardGeometryBuilder/test/alignment_file_2.xml",
 )
 process.ctppsRPAlignmentCorrectionsDataESSourceXML.verbosity = 1
 

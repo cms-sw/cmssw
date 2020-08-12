@@ -6,7 +6,6 @@
   <IncludeSection>
     # common and strip files
     <Include ref="Geometry/CMSCommonData/data/materials.xml"/>
-    <Include ref="Geometry/CMSCommonData/data/materials.xml"/>
     <Include ref="Geometry/CMSCommonData/data/rotations.xml"/>
     <Include ref="Geometry/CMSCommonData/data/extend/cmsextent.xml"/>
     <Include ref="Geometry/CMSCommonData/data/cms/2017/v1/cms.xml"/>
