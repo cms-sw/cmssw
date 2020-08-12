@@ -54,22 +54,24 @@ DetGeomDesc::DetGeomDesc(DDFilteredView* fv)
   }
 }
 
+
 // Constructor from DD4Hep DDFilteredView, also using the SpecPars to access 2x2 wafers info.
 DetGeomDesc::DetGeomDesc(const cms::DDFilteredView& fv, const cms::DDSpecParRegistry& allSpecParSections)
   : m_trans(fv.translation() / 1._mm),  // Convert cm (DD4hep) to mm (legacy)
     m_rot(fv.rotation()),
     m_name(fv.name()),
     m_params(copyParameters(fv)),
+    m_isABox(fv.isABox()),
     m_geographicalID(computeDetID(fv)),
     m_copy(fv.copyNum()),
     m_z(fv.translation().z() / 1._mm),  // Convert cm (DD4hep) to mm (legacy)
     m_sensorType(computeSensorType(fv.path(), allSpecParSections))
 {}
+}
 
-//----------------------------------------------------------------------------------------------------
+
 DetGeomDesc::DetGeomDesc(const DetGeomDesc& ref) { (*this) = ref; }
 
-//----------------------------------------------------------------------------------------------------
 
 DetGeomDesc& DetGeomDesc::operator=(const DetGeomDesc& ref) {
   m_params = ref.m_params;
@@ -83,23 +85,46 @@ DetGeomDesc& DetGeomDesc::operator=(const DetGeomDesc& ref) {
   return (*this);
 }
 
-//----------------------------------------------------------------------------------------------------
 
 DetGeomDesc::~DetGeomDesc() { deepDeleteComponents(); }
 
-//----------------------------------------------------------------------------------------------------
 
 DetGeomDesc::Container DetGeomDesc::components() const { return m_container; }
 
-//----------------------------------------------------------------------------------------------------
 
 void DetGeomDesc::addComponent(DetGeomDesc* det) { m_container.emplace_back(det); }
 
-//----------------------------------------------------------------------------------------------------
+
+DiamondDimensions DetGeomDesc::getDiamondDimensions() const {
+  // Convert parameters units from cm (DD4hep standard) to mm (expected by PPS reco software).
+  // This implementation is customized for the diamond sensors, which are represented by the 
+  // Box shape parameterized by x, y and z half width.
+  DiamondDimensions parameters;
+  if (isABox()) {
+    parameters = { m_params[0] / 1._mm, m_params[1] / 1._mm, m_params[2] / 1._mm };   
+  }
+  else {
+    edm::LogError("DetGeomDesc::getDiamondDimensions is not called on a box, for solid ")
+      << name() << ", Id = " << geographicalID();
+  }
+  
+  return parameters;
+}
+
+
+void DetGeomDesc::applyAlignment(const CTPPSRPAlignmentCorrectionData& t) {
+  m_rot = t.getRotationMatrix() * m_rot;
+  m_trans = t.getTranslation() + m_trans;
+}
+
+
+/*
+ * private
+ */
+
 
 void DetGeomDesc::deleteComponents() { m_container.erase(m_container.begin(), m_container.end()); }
 
-//----------------------------------------------------------------------------------------------------
 
 void DetGeomDesc::deepDeleteComponents() {
   for (auto& it : m_container) {
@@ -109,25 +134,6 @@ void DetGeomDesc::deepDeleteComponents() {
   clearComponents();
 }
 
-//----------------------------------------------------------------------------------------------------
-
-void DetGeomDesc::applyAlignment(const CTPPSRPAlignmentCorrectionData& t) {
-  m_rot = t.getRotationMatrix() * m_rot;
-  m_trans = t.getTranslation() + m_trans;
-}
-
-//----------------------------------------------------------------------------------------------------
-
-std::vector<double> DetGeomDesc::getDiamondWidth() const {
-  // Convert parameters units from cm (DD4hep standard) to mm (expected by PPS reco software).
-  // This implementation is customized for the diamond sensors, which are represented by the 
-  // Box shape parameterized by x, y and z half width.
-  std::vector<double> parameters;
-  parameters = { m_params[0] / 1._mm , m_params[1] / 1._mm , m_params[2] / 1._mm };
-  return parameters;
-}
-
-//----------------------------------------------------------------------------------------------------
 
 std::vector<double> DetGeomDesc::copyParameters(const cms::DDFilteredView& fv) const {
   auto myShape = fv.solid();

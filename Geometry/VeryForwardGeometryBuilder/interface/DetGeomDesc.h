@@ -41,6 +41,12 @@ class CTPPSRPAlignmentCorrectionData;
  *
  **/
 
+struct DiamondDimensions {
+  double xHalfWidth;
+  double yHalfWidth;
+  double zHalfWidth;
+};
+
 class DetGeomDesc {
 public:
   using Container = std::vector<DetGeomDesc*>;
@@ -81,9 +87,10 @@ public:
   const std::string& name() const { return m_name; }
   int copyno() const { return m_copy; }
   const std::string& sensorType() const { return m_sensorType; }
-  std::vector<double> getDiamondWidth() const;
+  bool isABox() const { return m_isABox; }
+  DiamondDimensions getDiamondDimensions() const;
   
-  // Method params() is left for general access to solid shape parameters but should be used 
+  // params() is left for general access to solid shape parameters, but should be used 
   // only with great care, for two reasons: 1. order of parameters may possibly change from 
   // a version to another of DD4hep; 2. length parameters unit is cm while PPS uses mm.    
   std::vector<double> params() const { return m_params; }
@@ -92,7 +99,6 @@ public:
   void applyAlignment(const CTPPSRPAlignmentCorrectionData&);
 
 private:
-//  DetGeomDesc() {}
   void deleteComponents();      /// deletes just the first daughters
   void deepDeleteComponents();  /// traverses the tree and deletes all nodes.
   void clearComponents() { m_container.resize(0); }
@@ -106,6 +112,7 @@ private:
   RotationMatrix m_rot;
   std::string m_name;
   std::vector<double> m_params;
+  bool m_isABox;
   DetId m_geographicalID;
   int m_copy;
   float m_z;

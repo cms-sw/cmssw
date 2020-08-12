@@ -539,9 +539,9 @@ void CTPPSDirectProtonSimulation::processProton(
 
         const auto *dg = geometry.sensor(detIdInt);
 
-        const auto x_half_width = dg->getDiamondWidth().at(0);
-        const auto y_half_width = dg->getDiamondWidth().at(1);
-        const auto z_half_width = dg->getDiamondWidth().at(2);
+        const auto x_half_width = dg->getDiamondDimensions().xHalfWidth;
+        const auto y_half_width = dg->getDiamondDimensions().yHalfWidth;
+        const auto z_half_width = dg->getDiamondDimensions().zHalfWidth;
 
         const double time_resolution = (diamondDetId.arm() == 0) ? timeResolutionDiamonds45_->Eval(h_glo.x())
                                                                  : timeResolutionDiamonds56_->Eval(h_glo.x());
