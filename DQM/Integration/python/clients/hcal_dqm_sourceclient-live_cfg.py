@@ -32,7 +32,7 @@ if 'unitTest=True' in sys.argv:
 #-------------------------------------
 from DQM.Integration.config.online_customizations_cfi import *
 if useOfflineGT:
-	process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_condDBv2_cff")
+	process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 	process.GlobalTag.globaltag = '106X_dataRun3_HLT_Candidate_2019_11_26_14_48_16'
 	#process.GlobalTag.globaltag = '106X_dataRun2_PromptLike_Candidate_2019_05_04_08_47_47'
 	#process.GlobalTag.globaltag = '100X_dataRun2_HLT_Candidate_2018_01_31_16_04_35'

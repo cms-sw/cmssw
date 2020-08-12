@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 from Configuration.Geometry.GeometryRecoDB_cff import *
-from Configuration.AlCa.GlobalTag_condDBv2 import GlobalTag
+from Configuration.AlCa.GlobalTag import GlobalTag
 from Configuration.StandardSequences.MagneticField_cff import *
 from RecoVertex.BeamSpotProducer.BeamSpot_cfi import *
 
