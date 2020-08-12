@@ -41,7 +41,7 @@ process.maxEvents = cms.untracked.PSet(
 
 # GLOBAL TAG
 from Configuration.AlCa.GlobalTag import GlobalTag
-#from Configuration.AlCa.autoCond_condDBv2 import autoCond
+#from Configuration.AlCa.autoCond import autoCond
 #process.GlobalTag.globaltag = "auto:run2_data'" #autoCond['run2_design']
 # In case you of conditions missing, or if you want to test a specific GT
 #process.GlobalTag.globaltag = 'PRE_DES72_V6'

@@ -28,7 +28,7 @@ process.MessageLogger = cms.Service("MessageLogger",
 process.Timing = cms.Service("Timing")
 
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_condDBv2_cff")
-from Configuration.AlCa.autoCond_condDBv2 import autoCond
+from Configuration.AlCa.autoCond import autoCond
 process.GlobalTag.globaltag = autoCond['run2_design']
 #In case you of conditions missing, or if you want to test a specific GT
 #process.GlobalTag.globaltag = 'PRE_DES72_V6'

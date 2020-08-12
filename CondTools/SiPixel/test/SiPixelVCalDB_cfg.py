@@ -31,7 +31,7 @@ process.load("CondCore.CondDB.CondDB_cfi")
 
 # GLOBAL TAG
 from Configuration.AlCa.GlobalTag import GlobalTag
-#from Configuration.AlCa.autoCond_condDBv2 import autoCond
+#from Configuration.AlCa.autoCond import autoCond
 #from Configuration.AlCa.autoCond import autoCond
 #process.GlobalTag.globaltag = "auto:run2_data" 
 #process.GlobalTag.globaltag = autoCond['run2_design']
