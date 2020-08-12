@@ -5,7 +5,7 @@ process = cms.Process("MYITERATIVEPHISYM")
 process.load("Configuration.StandardSequences.GeometryRecoDB_cff")
 process.load("Configuration.StandardSequences.MagneticField_cff")
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
-from Configuration.AlCa.autoCond_condDBv2 import autoCond
+from Configuration.AlCa.autoCond import autoCond
 process.GlobalTag.globaltag=autoCond['run2_mc']
 
 process.options = cms.untracked.PSet(
