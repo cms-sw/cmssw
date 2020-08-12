@@ -9,23 +9,57 @@ Matching can be done on the xi and/or mass+rapidity variables, using the do_xi a
 */
 
 // include files
-#include "PPSKinFilter.h"
-
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/global/EDFilter.h"
 
 #include "DataFormats/CTPPSDetId/interface/CTPPSDetId.h"
 #include "DataFormats/CTPPSReco/interface/CTPPSLocalTrackLite.h"
+#include "DataFormats/JetReco/interface/PFJetCollection.h"
+#include "DataFormats/ProtonReco/interface/ForwardProton.h"
 
 #include "CondFormats/RunInfo/interface/LHCInfo.h"
 #include "CondFormats/DataRecord/interface/LHCInfoRcd.h"
 
 #include "FWCore/Framework/interface/MakerMacros.h"
 
+// class declaration
+//
+class HLTPPSJetComparisonFilter : public edm::global::EDFilter<> {
+public:
+  explicit HLTPPSJetComparisonFilter(const edm::ParameterSet&);
+  ~HLTPPSJetComparisonFilter() override;
+
+  static void fillDescriptions(edm::ConfigurationDescriptions&);
+  bool filter(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
+
+private:
+  // ----------member data ---------------------------
+  edm::ParameterSet param_;
+
+  edm::InputTag jetInputTag_;  // Input tag identifying the jet track
+  edm::EDGetTokenT<reco::PFJetCollection> jet_token_;
+
+  edm::InputTag forwardProtonInputTag_;  // Input tag identifying the forward proton collection
+  edm::EDGetTokenT<std::vector<reco::ForwardProton>> recoProtonSingleRPToken_;
+
+  std::string lhcInfoLabel_;
+
+  double maxDiffxi_;
+  double maxDiffm_;
+  double maxDiffy_;
+
+  unsigned int n_jets_;
+
+  bool do_xi_;
+  bool do_my_;
+};
+
 // fill descriptions
 //
-void PPSKinFilter::fillDescriptions(edm::ConfigurationDescriptions &descriptions) {
+void HLTPPSJetComparisonFilter::fillDescriptions(edm::ConfigurationDescriptions &descriptions) {
   edm::ParameterSetDescription desc;
 
   desc.add<edm::InputTag>("jetInputTag", edm::InputTag("hltAK4PFJetsCorrected"))
@@ -53,9 +87,9 @@ void PPSKinFilter::fillDescriptions(edm::ConfigurationDescriptions &descriptions
 
 // destructor and constructor
 //
-PPSKinFilter::~PPSKinFilter() = default;
+HLTPPSJetComparisonFilter::~HLTPPSJetComparisonFilter() = default;
 
-PPSKinFilter::PPSKinFilter(const edm::ParameterSet &iConfig)
+HLTPPSJetComparisonFilter::HLTPPSJetComparisonFilter(const edm::ParameterSet &iConfig)
     : jetInputTag_(iConfig.getParameter<edm::InputTag>("jetInputTag")),
       jet_token_(consumes<reco::PFJetCollection>(jetInputTag_)),
 
@@ -75,7 +109,7 @@ PPSKinFilter::PPSKinFilter(const edm::ParameterSet &iConfig)
 
 // member functions
 //
-bool PPSKinFilter::filter(edm::StreamID, edm::Event &iEvent, const edm::EventSetup &iSetup) const {
+bool HLTPPSJetComparisonFilter::filter(edm::StreamID, edm::Event &iEvent, const edm::EventSetup &iSetup) const {
   edm::ESHandle<LHCInfo> hLHCInfo;
   iSetup.get<LHCInfoRcd>().get(lhcInfoLabel_, hLHCInfo);
   float sqs = 2. * hLHCInfo->energy();  // get sqrt(s)
@@ -112,10 +146,10 @@ bool PPSKinFilter::filter(edm::StreamID, edm::Event &iEvent, const edm::EventSet
         CTPPSDetId rpId(
             (*proton.contributingLocalTracks().begin())->getRPId());  // get RP ID (rpId.arm() is 0 for 45 and 1 for 56)
 
-        if (rpId.arm() == 0 && abs(xi - xi45) < min45)
-          min45 = abs(xi - xi45);
-        if (rpId.arm() == 1 && abs(xi - xi56) < min56)
-          min56 = abs(xi - xi56);
+        if (rpId.arm() == 0 && std::abs(xi - xi45) < min45)
+          min45 = std::abs(xi - xi45);
+        if (rpId.arm() == 1 && std::abs(xi - xi56) < min56)
+          min56 = std::abs(xi - xi56);
       }
     }
 
@@ -151,8 +185,8 @@ bool PPSKinFilter::filter(edm::StreamID, edm::Event &iEvent, const edm::EventSet
                 // m, y matching tests
                 const auto &m = sqs * sqrt(xi_45 * xi_56);
                 const auto &y = 0.5 * log(xi_45 / xi_56);
-                if ((abs(m - mjet) / mjet < maxDiffm_ || maxDiffm_ <= 0) &&
-                    (abs(y - yjet) < maxDiffy_ || maxDiffy_ <= 0))
+                if ((std::abs(m - mjet) / mjet < maxDiffm_ || maxDiffm_ <= 0) &&
+                    (std::abs(y - yjet) < maxDiffy_ || maxDiffy_ <= 0))
                   return true;  // pass cond, immediately return true
               }
             }
@@ -166,4 +200,4 @@ bool PPSKinFilter::filter(edm::StreamID, edm::Event &iEvent, const edm::EventSet
   return true;  // if none of the fail conds are met, event has passed the trigger
 }
 
-DEFINE_FWK_MODULE(PPSKinFilter);
+DEFINE_FWK_MODULE(HLTPPSJetComparisonFilter);
