@@ -8,11 +8,6 @@
 <use name="FWCore/ServiceRegistry"/>
 
 <library name="GeometryVeryForwardGeometryBuilderPlugins" file="*.cc">
-  <use name="DetectorDescription/Core"/>
-  <flags EDM_PLUGIN="1"/>
-</library>
-
-<library name="DD4hep_GeometryVeryForwardGeometryBuilderPlugins" file="dd4hep/*.cc">
   <use name="DetectorDescription/DDCMS"/>
   <use name="dd4hep"/>
   <lib name="Geom"/>

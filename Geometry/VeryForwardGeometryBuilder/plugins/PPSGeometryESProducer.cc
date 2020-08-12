@@ -11,7 +11,7 @@
 *
 ****************************************************************************/
 
-#include "Geometry/VeryForwardGeometryBuilder/plugins/dd4hep/PPSGeometryESProducer.h"
+#include "Geometry/VeryForwardGeometryBuilder/plugins/PPSGeometryESProducer.h"
 
 #include "DataFormats/CTPPSDetId/interface/TotemRPDetId.h"
 #include "DataFormats/CTPPSDetId/interface/TotemTimingDetId.h"

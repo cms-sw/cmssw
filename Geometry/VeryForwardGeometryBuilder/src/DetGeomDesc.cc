@@ -14,8 +14,6 @@
 #include "CondFormats/GeometryObjects/interface/PDetGeomDesc.h"
 #include "CondFormats/PPSObjects/interface/CTPPSRPAlignmentCorrectionData.h"
 
-#include "DetectorDescription/Core/interface/DDFilteredView.h"
-#include "DetectorDescription/Core/interface/DDSolid.h"
 #include "DataFormats/Math/interface/CMSUnits.h"
 #include "DetectorDescription/DDCMS/interface/DDFilteredView.h"
 #include "DetectorDescription/DDCMS/interface/DDShapes.h"
@@ -31,33 +29,9 @@
 using namespace std;
 using namespace cms_units::operators;
 
-/**
- * Aug 2020: Migrated to DD4hep
- *
- *  PPS software expects mm but DD4hep standard unit of length is cm. A conversion 
- *  factor (/1._mm) is applied wherever needed. 
- *
- **/
-
-DetGeomDesc::DetGeomDesc(DDFilteredView* fv)
-  : m_name(((fv->logicalPart()).ddname()).name()),
-    m_copy(fv->copyno()),
-    m_trans(fv->translation()),
-    m_rot(fv->rotation()),
-    m_params(((fv->logicalPart()).solid()).parameters()),
-    m_isABox(fv->shape() == DDSolidShape::ddbox),
-    m_sensorType(""),
-    m_z(fv->geoHistory().back().absTranslation().z())
-{
-  std::string sensor_name = fv->geoHistory().back().logicalPart().name().fullname();
-  std::size_t found = sensor_name.find(DDD_CTPPS_PIXELS_SENSOR_NAME);
-  if (found != std::string::npos && sensor_name.substr(found - 4, 3) == DDD_CTPPS_PIXELS_SENSOR_TYPE_2x2) {
-    m_sensorType = DDD_CTPPS_PIXELS_SENSOR_TYPE_2x2;
-  }
-}
-
 
 // Constructor from DD4Hep DDFilteredView, also using the SpecPars to access 2x2 wafers info.
+//  A conversion factor (/1._mm) is applied wherever needed.
 DetGeomDesc::DetGeomDesc(const cms::DDFilteredView& fv, const cms::DDSpecParRegistry& allSpecParSections)
   : m_name(fv.name()),
     m_copy(fv.copyNum()),
@@ -103,7 +77,7 @@ DiamondDimensions DetGeomDesc::getDiamondDimensions() const {
   // Box shape parameterized by x, y and z half width.
   DiamondDimensions parameters;
   if (isABox()) {
-    parameters = { m_params[0] / 1._mm, m_params[1] / 1._mm, m_params[2] / 1._mm };   
+    parameters = { m_params.at(0) / 1._mm, m_params.at(1) / 1._mm, m_params.at(2) / 1._mm };
   }
   else {
     edm::LogError("DetGeomDesc::getDiamondDimensions is not called on a box, for solid ")

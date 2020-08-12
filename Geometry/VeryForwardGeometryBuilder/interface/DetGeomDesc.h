@@ -56,9 +56,6 @@ public:
   // Default
   DetGeomDesc() {};
 
-  // Constructor (old DD)
-  DetGeomDesc(DDFilteredView* fv);
-
   // Constructor from DD4Hep DDFilteredView
   DetGeomDesc(const cms::DDFilteredView& fv, const cms::DDSpecParRegistry& allSpecParSections);
 
@@ -86,7 +83,6 @@ public:
   const std::string& sensorType() const { return m_sensorType; }
  
   // ID info
-  void setGeographicalID(DetId id) { m_geographicalID = id; }
   DetId geographicalID() const { return m_geographicalID; }
 
   // components (children) management

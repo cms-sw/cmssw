@@ -24,12 +24,7 @@ process.MessageLogger.cout = cms.untracked.PSet(
     threshold = cms.untracked.string('DEBUG'))
 
 # geometry
-from Geometry.VeryForwardGeometry.geometryIdealPPSFromDD_2017_cfi import allFiles
-
-process.XMLIdealGeometryESSource_CTPPS = cms.ESSource("XMLIdealGeometryESSource",
-    geomXMLFiles = allFiles,
-    rootNodeName = cms.string('cms:CMSE')
-)
+process.load("Geometry.VeryForwardGeometry.geometryIdealPPSFromDD_2017_cfi")
 
 # no events to process
 process.source = cms.Source("EmptySource",
@@ -42,10 +37,6 @@ process.source = cms.Source("EmptySource",
 
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(1)
-)
-
-process.ppsGeometryBuilder = cms.EDAnalyzer("PPSGeometryBuilder",
-    compactViewTag = cms.untracked.string('XMLIdealGeometryESSource_CTPPS')
 )
 
 process.p = cms.Path(
