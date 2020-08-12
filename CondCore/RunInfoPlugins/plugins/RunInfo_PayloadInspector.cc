@@ -68,7 +68,6 @@ namespace {
     }
 
     bool fill(const std::vector<std::tuple<cond::Time_t, cond::Hash> >& iovs) override {
-
       gStyle->SetPaintTextFormat("g");
 
       auto iov = iovs.front();
@@ -97,9 +96,9 @@ namespace {
           case RunInfoPI::m_run:
             return float(payload->m_run);
           case RunInfoPI::m_start_time_ll:
-            return float(payload->m_start_time_ll*1.0e-6);
+            return float(payload->m_start_time_ll * 1.0e-6);
           case RunInfoPI::m_stop_time_ll:
-            return float(payload->m_stop_time_ll*1.0e-6);
+            return float(payload->m_stop_time_ll * 1.0e-6);
           case RunInfoPI::m_start_current:
             return payload->m_start_current;
           case RunInfoPI::m_stop_current:
@@ -126,6 +125,8 @@ namespace {
       h2_RunInfoParameters->GetXaxis()->SetBinLabel(1, "Value");
       h2_RunInfoState->GetXaxis()->SetBinLabel(1, "Value");
 
+      RunInfoPI::state theState;
+
       unsigned int yBin = 11;
       for (int foo = RunInfoPI::m_run; foo != RunInfoPI::END_OF_TYPES; foo++) {
         RunInfoPI::parameters param = static_cast<RunInfoPI::parameters>(foo);
@@ -138,13 +139,16 @@ namespace {
           if ((payload->m_avg_current) <= -1) {
             // go in error state
             h2_RunInfoState->SetBinContent(1, yBin, 0.);
+            theState = RunInfoPI::invalid;
           } else {
             // all is OK
             h2_RunInfoState->SetBinContent(1, yBin, 1.);
+            theState = RunInfoPI::valid;
           }
         } else {
           // this is a fake payload
           h2_RunInfoState->SetBinContent(1, yBin, 0.9);
+          theState = RunInfoPI::fake;
         }
         yBin--;
       }
@@ -180,6 +184,27 @@ namespace {
       t1.DrawLatex(0.23, 0.922, Form(" %s", (RunInfoPI::runStartTime(payload)).c_str()));
       t1.DrawLatex(0.23, 0.892, Form(" %s", (RunInfoPI::runEndTime(payload)).c_str()));
 
+      TPaveText ksPt(0, 0, 0.35, 0.04, "NDC");
+      ksPt.SetBorderSize(0);
+      ksPt.SetFillColor(0);
+      const char* textToAdd;
+      switch (theState) {
+        case RunInfoPI::fake:
+          textToAdd = "This is a fake RunInfoPayload";
+          break;
+        case RunInfoPI::valid:
+          textToAdd = "This is a valid RunInfoPayload";
+          break;
+        case RunInfoPI::invalid:
+          textToAdd = "This is an invalid RunInfoPayload";
+          break;
+        default:
+          throw cms::Exception("PayloadInspector") << "an invalid state has been found";
+      }
+
+      ksPt.AddText(textToAdd);
+      ksPt.Draw();
+
       std::string fileName(m_imageFileName);
       canvas.SaveAs(fileName.c_str());
 
@@ -190,7 +215,6 @@ namespace {
   /************************************************
     time history of Magnet currents from RunInfo
   *************************************************/
-
   template <RunInfoPI::parameters param>
   class RunInfoCurrentHistory : public cond::payloadInspector::HistoryPlot<RunInfo, std::pair<bool, float> > {
   public:
