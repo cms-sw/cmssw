@@ -199,7 +199,6 @@ void PFDisplacedVertexCandidateFinder::link(const TrackBaseRef& el1,
                                             double& dist,
                                             GlobalPoint& P,
                                             PFDisplacedVertexCandidate::VertexLinkTest& vertexLinkTest) {
-
   using namespace edm::soa::col;
   const auto iel1 = el1.key();
   const auto iel2 = el2.key();
