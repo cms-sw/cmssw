@@ -37,6 +37,12 @@ DQMFileSaverPB::DQMFileSaverPB(const edm::ParameterSet& ps) : DQMFileSaverBase(p
 
   transferDestination_ = "";
   mergeType_ = "";
+
+  // If tag is set we're running in a DQM Live mode.
+  // Snapshot files will be saved for every client, then they will be merged and uploaded to the new DQM GUI.
+  if (tag_ != "UNKNOWN") {
+    streamLabel_ = "DQMLive";
+  }
 }
 
 DQMFileSaverPB::~DQMFileSaverPB() = default;
