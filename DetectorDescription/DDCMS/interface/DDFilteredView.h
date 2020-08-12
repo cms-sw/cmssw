@@ -145,45 +145,51 @@ namespace cms {
     // Shape of current node
 
     template <class Shape>
-    bool isA() const {
+      bool isA() const {
       return dd4hep::isA<Shape>(solid());
     }
 
     template <typename... Ts>
-    auto isABox(Ts&&... ts) const -> decltype(isA<dd4hep::Box>(std::forward<Ts>(ts)...)) {
+      bool isABox(Ts&&... ts) const {
       return isA<dd4hep::Box>(std::forward<Ts>(ts)...);
     }
 
     template <typename... Ts>
-    auto isAConeSeg(Ts&&... ts) const -> decltype(isA<dd4hep::ConeSegment>(std::forward<Ts>(ts)...)) {
+      bool isAConeSeg(Ts&&... ts) const {
       return isA<dd4hep::ConeSegment>(std::forward<Ts>(ts)...);
     }
 
     template <typename... Ts>
-    auto isAPseudoTrap(Ts&&... ts) const -> decltype(isA<dd4hep::PseudoTrap>(std::forward<Ts>(ts)...)) {
+      bool isAPseudoTrap(Ts&&... ts) const {
       return isA<dd4hep::PseudoTrap>(std::forward<Ts>(ts)...);
     }
 
     template <typename... Ts>
-    auto isATrapezoid(Ts&&... ts) const -> decltype(isA<dd4hep::Trap>(std::forward<Ts>(ts)...)) {
+      bool isATrapezoid(Ts&&... ts) const {
       return isA<dd4hep::Trap>(std::forward<Ts>(ts)...);
     }
 
     template <typename... Ts>
-    auto isATruncTube(Ts&&... ts) const -> decltype(isA<dd4hep::TruncatedTube>(std::forward<Ts>(ts)...)) {
+      bool isATruncTube(Ts&&... ts) const {
       return isA<dd4hep::TruncatedTube>(std::forward<Ts>(ts)...);
     }
 
     template <typename... Ts>
-    auto isATubeSeg(Ts&&... ts) const -> decltype(isA<dd4hep::Tube>(std::forward<Ts>(ts)...)) {
+      bool isATubeSeg(Ts&&... ts) const {
       return isA<dd4hep::Tube>(std::forward<Ts>(ts)...);
     }
 
     template <typename... Ts>
-    auto isASubtraction(Ts&&... ts) const -> decltype(isA<dd4hep::SubtractionSolid>(std::forward<Ts>(ts)...)) {
+      bool isASubtraction(Ts&&... ts) const {
       return (isA<dd4hep::SubtractionSolid>(std::forward<Ts>(ts)...) and
-              not isA<dd4hep::TruncatedTube>(std::forward<Ts>(ts)...) and
+	      not isA<dd4hep::TruncatedTube>(std::forward<Ts>(ts)...) and
               not isA<dd4hep::PseudoTrap>(std::forward<Ts>(ts)...));
+    }
+
+    bool isABoolean() const {
+      return (isA<dd4hep::IntersectionSolid>() 
+	      or isA<dd4hep::SubtractionSolid>() 
+	      or isA<dd4hep::UnionSolid>());
     }
 
     dd4hep::Solid solid() const;

@@ -44,9 +44,13 @@ RPDisplacementGenerator::RPDisplacementGenerator(const edm::ParameterSet &ps,
   ESHandle<CTPPSGeometry> geom;
   iSetup.get<VeryForwardRealGeometryRecord>().get(geom);
   const DetGeomDesc *g = geom->sensor(detId_);
-  const DDRotationMatrix &R_l = g->rotation();
+  const RotationMatrix &R_l = g->rotation();
   rotation_ = R_l.Inverse() * R_m.Inverse() * R_l;
   shift_ = R_l.Inverse() * R_m.Inverse() * S_m;
+
+  std::cout << " shift = " << shift_  << std::endl;
+  std::cout << " rotation = " << rotation_ << std::endl;
+
 
   LogDebug("RPDisplacementGenerator").log([&](auto &log) {
     log << " det id = " << decId << ", isOn = " << isOn_ << "\n";
@@ -60,7 +64,7 @@ RPDisplacementGenerator::RPDisplacementGenerator(const edm::ParameterSet &ps,
 Local3DPoint RPDisplacementGenerator::displacePoint(const Local3DPoint &p) {
   /// input is in mm, shifts are in mm too
 
-  DDTranslation v(p.x(), p.y(), p.z());
+  Translation v(p.x(), p.y(), p.z());
   v = rotation_ * v - shift_;
 
   return Local3DPoint(v.x(), v.y(), v.z());

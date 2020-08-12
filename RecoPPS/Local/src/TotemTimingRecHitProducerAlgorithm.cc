@@ -51,8 +51,8 @@ void TotemTimingRecHitProducerAlgorithm::build(const CTPPSGeometry& geom,
       y_pos = det->translation().y();
       z_pos = det->parentZPosition();  // retrieve the plane position;
 
-      x_width = 2.0 * det->params()[0],  // parameters stand for half the size
-          y_width = 2.0 * det->params()[1], z_width = 2.0 * det->params()[2];
+      x_width = 2.0 * det->getDiamondWidth()[0],  // parameters stand for half the size
+          y_width = 2.0 * det->getDiamondWidth()[1], z_width = 2.0 * det->getDiamondWidth()[2];
     } else
       throw cms::Exception("TotemTimingRecHitProducerAlgorithm") << "Failed to retrieve a sensor for " << detid;
 
