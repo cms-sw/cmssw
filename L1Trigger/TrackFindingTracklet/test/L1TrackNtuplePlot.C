@@ -2544,6 +2544,7 @@ void L1TrackNtuplePlot(TString type,
 
   h_trk_tracklet_eff->SetMinimum(0);
   h_trk_tracklet_eff->Draw("col text");
+  h_trk_tracklet_eff->Write();
   c.SaveAs(DIR + type + "_trk_tracklet_eff.pdf");
 
   // Remove decimal places for ints in in tracklet hits graphs
