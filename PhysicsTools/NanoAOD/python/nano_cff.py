@@ -267,7 +267,7 @@ def nanoAOD_customizeCommon(process):
     makePuppiesFromMiniAOD(process,True) # call this here as it calls switchOnVIDPhotonIdProducer
     process.puppiNoLep.useExistingWeights = True
     process.puppi.useExistingWeights = True
-    for modifier in run2_nanoAOD_94XMiniAODv1, run2_nanoAOD_94XMiniAODv2, run2_nanoAOD_94X2016, run2_nanoAOD_102Xv1, run2_nanoAOD_106Xv1:
+    for modifier in run2_nanoAOD_106Xv1:
         process.puppiNoLep.useExistingWeights = False
         process.puppi.useExistingWeights = False
     process = nanoAOD_activateVID(process)
