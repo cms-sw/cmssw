@@ -50,11 +50,8 @@ ME0Geometry* ME0GeometryBuilder::build(const DDCompactView* cview, const MuonGeo
 ME0Geometry* ME0GeometryBuilder::build(const cms::DDCompactView* cview, const MuonGeometryConstants& muonConstants) {
   std::string attribute = "MuStructure";
   std::string value = "MuonEndCapME0";
-  cms::DDFilteredView fview(cview->detector(), cview->detector()->worldVolume());
-  cms::DDSpecParRefs refs;
-  const cms::DDSpecParRegistry& mypar = cview->specpars();
-  mypar.filter(refs, attribute, value);
-  fview.mergedSpecifics(refs);
+  const cms::DDFilter filter(attribute, value);
+  cms::DDFilteredView fview(*cview, filter);
   return this->buildGeometry(fview, muonConstants);
 }
 
