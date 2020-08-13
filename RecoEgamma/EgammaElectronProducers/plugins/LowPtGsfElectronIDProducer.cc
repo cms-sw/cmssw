@@ -115,7 +115,7 @@ void LowPtGsfElectronIDProducer::produce(edm::StreamID, edm::Event& event, const
     if (ele->core().isNull()) {
       continue;
     }
-    const auto& gsf = ele->core()->gsfTrack(); // reco::GsfTrackRef
+    const auto& gsf = ele->core()->gsfTrack();  // reco::GsfTrackRef
     if (gsf.isNull()) {
       continue;
     }
