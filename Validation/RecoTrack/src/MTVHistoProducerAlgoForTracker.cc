@@ -11,6 +11,7 @@
 
 #include "TMath.h"
 #include <TF1.h>
+#include <cassert>
 
 using namespace std;
 
@@ -2058,13 +2059,20 @@ void MTVHistoProducerAlgoForTracker::fill_generic_recoTrack_histos(const Histogr
     histograms.h_reco2pu[count]->Fill(numVertices);
   }
 
-  fillMVAHistos(histograms.h_reco_mva[count],
-                histograms.h_reco_mvacut[count],
-                histograms.h_reco_mva_hp[count],
-                histograms.h_reco_mvacut_hp[count],
-                mvas,
-                selectsLoose,
-                selectsHP);
+  if (!mvas.empty()) {
+    assert(histograms.h_reco_mva.size() > static_cast<size_t>(count));
+    assert(histograms.h_reco_mvacut.size() > static_cast<size_t>(count));
+    assert(histograms.h_reco_mva_hp.size() > static_cast<size_t>(count));
+    assert(histograms.h_reco_mvacut_hp.size() > static_cast<size_t>(count));
+
+    fillMVAHistos(histograms.h_reco_mva[count],
+                  histograms.h_reco_mvacut[count],
+                  histograms.h_reco_mva_hp[count],
+                  histograms.h_reco_mvacut_hp[count],
+                  mvas,
+                  selectsLoose,
+                  selectsHP);
+  }
 
   if (isMatched) {
     if (paramsValid) {
@@ -2107,25 +2115,35 @@ void MTVHistoProducerAlgoForTracker::fill_generic_recoTrack_histos(const Histogr
     histograms.h_assoc23Dlayer[count]->Fill(n3DLayers);
     histograms.h_assoc2pu[count]->Fill(numVertices);
 
-    fillMVAHistos(histograms.h_assoc2_mva[count],
-                  histograms.h_assoc2_mvacut[count],
-                  histograms.h_assoc2_mva_hp[count],
-                  histograms.h_assoc2_mvacut_hp[count],
-                  mvas,
-                  selectsLoose,
-                  selectsHP);
-    fillMVAHistos(pt,
-                  histograms.h_assoc2_mva_vs_pt[count],
-                  histograms.h_assoc2_mva_vs_pt_hp[count],
-                  mvas,
-                  selectsLoose,
-                  selectsHP);
-    fillMVAHistos(eta,
-                  histograms.h_assoc2_mva_vs_eta[count],
-                  histograms.h_assoc2_mva_vs_eta_hp[count],
-                  mvas,
-                  selectsLoose,
-                  selectsHP);
+    if (!mvas.empty()) {
+      assert(histograms.h_reco_mva.size() > static_cast<size_t>(count));
+      assert(histograms.h_reco_mvacut.size() > static_cast<size_t>(count));
+      assert(histograms.h_reco_mva_hp.size() > static_cast<size_t>(count));
+      assert(histograms.h_reco_mvacut_hp.size() > static_cast<size_t>(count));
+      fillMVAHistos(histograms.h_assoc2_mva[count],
+                    histograms.h_assoc2_mvacut[count],
+                    histograms.h_assoc2_mva_hp[count],
+                    histograms.h_assoc2_mvacut_hp[count],
+                    mvas,
+                    selectsLoose,
+                    selectsHP);
+      assert(histograms.h_assoc2_mva_vs_pt.size() > static_cast<size_t>(count));
+      assert(histograms.h_assoc2_mva_vs_pt_hp.size() > static_cast<size_t>(count));
+      fillMVAHistos(pt,
+                    histograms.h_assoc2_mva_vs_pt[count],
+                    histograms.h_assoc2_mva_vs_pt_hp[count],
+                    mvas,
+                    selectsLoose,
+                    selectsHP);
+      assert(histograms.h_assoc2_mva_vs_eta.size() > static_cast<size_t>(count));
+      assert(histograms.h_assoc2_mva_vs_eta_hp.size() > static_cast<size_t>(count));
+      fillMVAHistos(eta,
+                    histograms.h_assoc2_mva_vs_eta[count],
+                    histograms.h_assoc2_mva_vs_eta_hp[count],
+                    mvas,
+                    selectsLoose,
+                    selectsHP);
+    }
 
     if (histograms.nrecHit_vs_nsimHit_rec2sim[count])
       histograms.nrecHit_vs_nsimHit_rec2sim[count]->Fill(track.numberOfValidHits(), nSimHits);
@@ -2224,10 +2242,20 @@ void MTVHistoProducerAlgoForTracker::fill_generic_recoTrack_histos(const Histogr
       histograms.h_pileuppu[count]->Fill(numVertices);
     }
   } else {  // !isMatched
-    fillMVAHistos(
-        pt, histograms.h_fake_mva_vs_pt[count], histograms.h_fake_mva_vs_pt_hp[count], mvas, selectsLoose, selectsHP);
-    fillMVAHistos(
-        eta, histograms.h_fake_mva_vs_eta[count], histograms.h_fake_mva_vs_eta_hp[count], mvas, selectsLoose, selectsHP);
+    if (!mvas.empty()) {
+      assert(histograms.h_fake_mva_vs_pt.size() > static_cast<size_t>(count));
+      assert(histograms.h_fake_mva_vs_pt_hp.size() > static_cast<size_t>(count));
+      assert(histograms.h_fake_mva_vs_eta.size() > static_cast<size_t>(count));
+      assert(histograms.h_fake_mva_vs_eta_hp.size() > static_cast<size_t>(count));
+      fillMVAHistos(
+          pt, histograms.h_fake_mva_vs_pt[count], histograms.h_fake_mva_vs_pt_hp[count], mvas, selectsLoose, selectsHP);
+      fillMVAHistos(eta,
+                    histograms.h_fake_mva_vs_eta[count],
+                    histograms.h_fake_mva_vs_eta_hp[count],
+                    mvas,
+                    selectsLoose,
+                    selectsHP);
+    }
   }
 }
 
