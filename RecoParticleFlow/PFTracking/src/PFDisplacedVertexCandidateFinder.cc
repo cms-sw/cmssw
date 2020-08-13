@@ -119,9 +119,9 @@ PFDisplacedVertexCandidateFinder::IE PFDisplacedVertexCandidateFinder::associate
 
   if (last != eventTracks_.end()) {
     double dist = -1;
-    GlobalPoint P(0, 0, 0);
+    GlobalPoint crossing_point(0, 0, 0);
     PFDisplacedVertexCandidate::VertexLinkTest linktest;
-    link(*last, *next, dist, P, linktest);
+    link(*last, *next, dist, crossing_point, linktest);
 
     if (dist < -0.5) {
 #ifdef PFLOW_DEBUG
@@ -137,7 +137,8 @@ PFDisplacedVertexCandidateFinder::IE PFDisplacedVertexCandidateFinder::associate
       if (debug_)
         cout << "link parameters "
              << " *next = " << (*next).key() << " *last = " << (*last).key() << "  dist = " << dist
-             << " P.x = " << P.x() << " P.y = " << P.y() << " P.z = " << P.z() << endl;
+             << " P.x = " << crossing_point.x() << " P.y = " << crossing_point.y() << " P.z = " << crossing_point.z()
+             << endl;
 #endif
     }
   } else {
@@ -197,7 +198,7 @@ PFDisplacedVertexCandidateFinder::IE PFDisplacedVertexCandidateFinder::associate
 void PFDisplacedVertexCandidateFinder::link(const TrackBaseRef& el1,
                                             const TrackBaseRef& el2,
                                             double& dist,
-                                            GlobalPoint& P,
+                                            GlobalPoint& crossing_point,
                                             PFDisplacedVertexCandidate::VertexLinkTest& vertexLinkTest) {
   using namespace edm::soa::col;
   const auto iel1 = el1.key();
@@ -226,7 +227,7 @@ void PFDisplacedVertexCandidateFinder::link(const TrackBaseRef& el1,
 
   // Fill the parameters
   dist = theMinimum_.distance();
-  P = theMinimum_.crossingPoint();
+  crossing_point = theMinimum_.crossingPoint();
 
   vertexLinkTest = PFDisplacedVertexCandidate::LINKTEST_DCA;  //rechit by default
 
@@ -237,7 +238,7 @@ void PFDisplacedVertexCandidateFinder::link(const TrackBaseRef& el1,
   }
 
   // Check if the closses approach point is too close to the primary vertex/beam pipe
-  double rho2 = P.x() * P.x() + P.y() * P.y();
+  double rho2 = crossing_point.x() * crossing_point.x() + crossing_point.y() * crossing_point.y();
 
   if (rho2 < primaryVertexCut2_) {
     dist = -1;
@@ -253,7 +254,7 @@ void PFDisplacedVertexCandidateFinder::link(const TrackBaseRef& el1,
     dist = -1;
     return;
   }
-  if (fabs(P.z()) > tec_z_limit) {
+  if (fabs(crossing_point.z()) > tec_z_limit) {
     dist = -1;
     return;
   }
