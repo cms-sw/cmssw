@@ -108,7 +108,7 @@ protected:
 
     position() : f(0), x(0), y(0) {}
 
-    position(double f_, double x_, double y_) : f(f_), x(x_), y(y_) {}
+    position(const double& f_,const double& x_,const double& y_) : f(f_), x(x_), y(y_) {}
 
     bool operator<(const position& other) const { return f < other.f; }
   };
