@@ -1,13 +1,11 @@
 #include "RecoEgamma/EgammaElectronProducers/interface/LowPtGsfElectronFeatures.h"
 #include "CommonTools/BaseParticlePropagator/interface/BaseParticlePropagator.h"
-#include "DataFormats/BeamSpot/interface/BeamSpot.h"
 #include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
 #include "DataFormats/ParticleFlowReco/interface/PFCluster.h"
 #include "DataFormats/ParticleFlowReco/interface/PFClusterFwd.h"
-#include "DataFormats/ParticleFlowReco/interface/PreId.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
-#include <TVector3.h>
+#include "TVector3.h"
 
 namespace lowptgsfeleseed {
 
@@ -45,7 +43,7 @@ namespace lowptgsfeleseed {
     float trk_dxy_sig_ = -1.;  // must be last (not used by unbiased model)
 
     // Tracks
-    reco::TrackRef trk = ecal.trackRef();
+    const auto& trk = ecal.trackRef(); // reco::TrackRef
     if (trk.isNonnull()) {
       trk_pt_ = trk->pt();
       trk_eta_ = trk->eta();
@@ -64,14 +62,14 @@ namespace lowptgsfeleseed {
     rho_ = static_cast<float>(rho);
 
     // ECAL clusters
-    reco::PFClusterRef ecal_clu = ecal.clusterRef();
+    const auto& ecal_clu = ecal.clusterRef(); // reco::PFClusterRef
     if (ecal_clu.isNonnull()) {
       ktf_ecal_cluster_e_ = ecal_clu->energy();
       ktf_ecal_cluster_deta_ = ecal.geomMatching()[0];
       ktf_ecal_cluster_dphi_ = ecal.geomMatching()[1];
       ktf_ecal_cluster_e3x3_ = tools.e3x3(*ecal_clu);
       ktf_ecal_cluster_e5x5_ = tools.e5x5(*ecal_clu);
-      auto covs = tools.localCovariances(*ecal_clu);
+      const auto& covs = tools.localCovariances(*ecal_clu);
       ktf_ecal_cluster_covEtaEta_ = covs[0];
       ktf_ecal_cluster_covEtaPhi_ = covs[1];
       ktf_ecal_cluster_covPhiPhi_ = covs[2];
@@ -86,7 +84,7 @@ namespace lowptgsfeleseed {
     }
 
     // HCAL clusters
-    reco::PFClusterRef hcal_clu = hcal.clusterRef();
+    const auto& hcal_clu = hcal.clusterRef(); // reco::PFClusterRef
     if (hcal_clu.isNonnull()) {
       ktf_hcal_cluster_e_ = hcal_clu->energy();
       ktf_hcal_cluster_deta_ = hcal.geomMatching()[0];
@@ -168,7 +166,7 @@ namespace lowptgsfeleid {
 
     // KF tracks
     if (ele->core().isNonnull()) {
-      reco::TrackRef trk = ele->closestCtfTrackRef();
+      const auto& trk = ele->closestCtfTrackRef(); // reco::TrackRef 
       if (trk.isNonnull()) {
         eid_trk_p = (float)trk->p();
         eid_trk_nhits = (float)trk->found();
@@ -183,7 +181,7 @@ namespace lowptgsfeleid {
 
     // GSF tracks
     if (ele->core().isNonnull()) {
-      reco::GsfTrackRef gsf = ele->core()->gsfTrack();
+      const auto& gsf = ele->core()->gsfTrack(); // reco::GsfTrackRef
       if (gsf.isNonnull()) {
         gsf_mode_p = gsf->pMode();
         eid_gsf_nhits = (float)gsf->found();
@@ -198,7 +196,7 @@ namespace lowptgsfeleid {
 
     // Super clusters
     if (ele->core().isNonnull()) {
-      reco::SuperClusterRef sc = ele->core()->superCluster();
+      const auto& sc = ele->core()->superCluster(); // reco::SuperClusterRef
       if (sc.isNonnull()) {
         eid_sc_E = sc->energy();
         eid_sc_eta = sc->eta();
@@ -236,9 +234,9 @@ namespace lowptgsfeleid {
 
     // Clusters
     if (ele->core().isNonnull()) {
-      reco::GsfTrackRef gsf = ele->core()->gsfTrack();
+      const auto& gsf = ele->core()->gsfTrack(); // reco::GsfTrackRef
       if (gsf.isNonnull()) {
-        reco::SuperClusterRef sc = ele->core()->superCluster();
+        const auto& sc = ele->core()->superCluster(); // reco::SuperClusterRef
         if (sc.isNonnull()) {
           // Propagate electron track to ECAL surface
           double mass_ = 0.000511 * 0.000511;
@@ -263,7 +261,7 @@ namespace lowptgsfeleid {
           int i2 = -1;
           try {
             if (sc->clustersSize() > 0 && sc->clustersBegin() != sc->clustersEnd()) {
-              for (auto& cluster : sc->clusters()) {
+              for (const auto& cluster : sc->clusters()) {
                 if (cluster->energy() > maxEne1) {
                   maxEne1 = cluster->energy();
                   i1 = clusNum;
@@ -272,7 +270,7 @@ namespace lowptgsfeleid {
               }
               if (sc->clustersSize() > 1) {
                 clusNum = 0;
-                for (auto& cluster : sc->clusters()) {
+                for (const auto& cluster : sc->clusters()) {
                   if (clusNum != i1) {
                     if (cluster->energy() > maxEne2) {
                       maxEne2 = cluster->energy();
@@ -284,8 +282,11 @@ namespace lowptgsfeleid {
               }
             }  // loop over clusters
           } catch (...) {
-            std::cout << "exception caught clusNum=" << clusNum << " clus size" << sc->clustersSize()
-                      << " energy=" << sc->energy() << std::endl;
+            edm::LogError("SuperClusters") << "Problem accessing SC constituent clusters:"
+					   << " clusNum=" << clusNum 
+					   << " clustersSize=" << sc->clustersSize()
+					   << " energy=" << sc->energy() 
+					   << std::endl;
           }
 
           // Initializations
@@ -303,12 +304,11 @@ namespace lowptgsfeleid {
           clusNum = 0;
           try {
             if (sc->clustersSize() > 0 && sc->clustersBegin() != sc->clustersEnd()) {
-              for (auto& cluster : sc->clusters()) {
-                double pi_ = 3.1415926535;
+              for (const auto& cluster : sc->clusters()) {
                 float deta = std::fabs(ecal_pos.eta() - cluster->eta());
                 float dphi = std::fabs(ecal_pos.phi() - cluster->phi());
-                if (dphi > pi_)
-                  dphi -= 2 * pi_;
+                if (dphi > M_PI)
+                  dphi -= 2 * M_PI;
                 if (ecal_pos.phi() - cluster->phi() < 0)
                   dphi = -dphi;
                 if (ecal_pos.eta() - cluster->eta() < 0)
@@ -336,7 +336,7 @@ namespace lowptgsfeleid {
               }
             }
           } catch (...) {
-            std::cout << "caught an exception" << std::endl;
+            edm::LogError("SuperClusters") << "Problem with track-cluster matching" << std::endl;
           }
         }
       }

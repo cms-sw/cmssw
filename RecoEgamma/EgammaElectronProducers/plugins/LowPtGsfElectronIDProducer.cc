@@ -31,7 +31,7 @@ public:
   static void fillDescriptions(edm::ConfigurationDescriptions&);
 
 private:
-  double eval(const std::string& name, const edm::Ptr<reco::GsfElectron>, double rho, float unbiased) const;
+  double eval(const std::string& name, const edm::Ptr<reco::GsfElectron>&, double rho, float unbiased) const;
 
   const edm::EDGetTokenT<edm::View<reco::GsfElectron> > gsfElectrons_;
   const edm::EDGetTokenT<double> rho_;
@@ -78,21 +78,30 @@ void LowPtGsfElectronIDProducer::produce(edm::StreamID, edm::Event& event, const
   edm::Handle<double> rho;
   event.getByToken(rho_, rho);
   if (!rho.isValid()) {
-    edm::LogError("Problem with rho handle");
+    std::ostringstream os;
+    os << "Problem accessing rho collection for low-pT electrons" << std::endl;
+    edm::LogError("InvalidHandle") << os.str();
+    throw cms::Exception("InvalidHandle", os.str());
   }
 
   // Retrieve GsfElectrons from Event
   edm::Handle<edm::View<reco::GsfElectron> > gsfElectrons;
   event.getByToken(gsfElectrons_, gsfElectrons);
   if (!gsfElectrons.isValid()) {
-    edm::LogError("Problem with gsfElectrons handle");
+    std::ostringstream os;
+    os << "Problem accessing low-pT gsfElectrons collection" << std::endl;
+    edm::LogError("InvalidHandle") << os.str();
+    throw cms::Exception("InvalidHandle", os.str());
   }
 
   // ElectronSeed unbiased BDT
   edm::Handle<edm::ValueMap<float> > unbiasedH;
   event.getByToken(unbiased_, unbiasedH);
   if (!unbiasedH.isValid()) {
-    edm::LogError("Problem with unbiased handle");
+    std::ostringstream os;
+    os << "Problem accessing low-pT 'unbiased' ElectronSeed collection" << std::endl;
+    edm::LogError("InvalidHandle") << os.str();
+    throw cms::Exception("InvalidHandle", os.str());
   }
 
   // Iterate through Electrons, evaluate BDT, and store result
@@ -106,7 +115,7 @@ void LowPtGsfElectronIDProducer::produce(edm::StreamID, edm::Event& event, const
     if (ele->core().isNull()) {
       continue;
     }
-    reco::GsfTrackRef gsf = ele->core()->gsfTrack();
+    const auto& gsf = ele->core()->gsfTrack(); // reco::GsfTrackRef
     if (gsf.isNull()) {
       continue;
     }
@@ -124,13 +133,14 @@ void LowPtGsfElectronIDProducer::produce(edm::StreamID, edm::Event& event, const
     edm::ValueMap<float>::Filler filler(*ptr);
     filler.insert(gsfElectrons, output[iname].begin(), output[iname].end());
     filler.fill();
-    //reco::GsfElectronRef ele(gsfElectrons, 0);
     event.put(std::move(ptr), names_[iname]);
   }
 }
 
+//////////////////////////////////////////////////////////////////////////////////////////
+//
 double LowPtGsfElectronIDProducer::eval(const std::string& name,
-                                        const edm::Ptr<reco::GsfElectron> ele,
+                                        const edm::Ptr<reco::GsfElectron>& ele,
                                         double rho,
                                         float unbiased) const {
   auto iter = std::find(names_.begin(), names_.end(), name);
