@@ -81,7 +81,7 @@ private:
   void link(const reco::TrackBaseRef& el1,
             const reco::TrackBaseRef& el2,
             double& dist,
-            GlobalPoint& P,
+            GlobalPoint& crossing_point,
             reco::PFDisplacedVertexCandidate::VertexLinkTest& linktest);
 
   /// Compute missing links in the displacedVertexCandidates
