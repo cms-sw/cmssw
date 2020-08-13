@@ -24,13 +24,13 @@ hiCentrality = cms.EDProducer("CentralityProducer",
                             srcPixelTracks = cms.InputTag("hiPixel3PrimTracks"),
 
                             doPixelCut = cms.bool(True),
-                            UseQuality = cms.bool(True),
-                            TrackQuality = cms.string('highPurity'),
+                            useQuality = cms.bool(True),
+                            trackQuality = cms.string('highPurity'),
                             trackEtaCut = cms.double(2),
                             trackPtCut = cms.double(1),
                             hfEtaCut = cms.double(4), #hf above the absolute value of this cut is used
                             midRapidityRange = cms.double(1),
-                           lowGainZDC = cms.bool(True),
+                            lowGainZDC = cms.bool(True),
 
                             )
 
