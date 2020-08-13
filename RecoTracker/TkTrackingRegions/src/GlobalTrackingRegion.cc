@@ -115,3 +115,27 @@ std::unique_ptr<HitRZCompatibility> GlobalTrackingRegion::checkRZ(const DetLayer
     return std::make_unique<HitRCheck>(rzConstraint, HitRCheck::Margin(corr, corr));
   }
 }
+
+void GlobalTrackingRegion::checkTracks(reco::TrackCollection const& tracks, std::vector<bool>& mask) const {
+  const math::XYZPoint regOrigin(origin().x(), origin().y(), origin().z());
+
+  assert(mask.size() == tracks.size());
+  int i = -1;
+  for (auto const& track : tracks) {
+    i++;
+    if (mask[i])
+      continue;
+
+    if (track.pt() < ptMin()) {
+      continue;
+    }
+    if (std::abs(track.dxy(regOrigin)) > originRBound()) {
+      continue;
+    }
+    if (std::abs(track.dz(regOrigin)) > originZBound()) {
+      continue;
+    }
+
+    mask[i] = true;
+  }
+}
