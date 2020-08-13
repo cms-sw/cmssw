@@ -32,6 +32,7 @@
 #include "DataFormats/GeometrySurface/interface/BoundPlane.h"
 #include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHit.h"
 #include "TrackingTools/KalmanUpdators/interface/EtaPhiMeasurementEstimator.h"
+#include "DataFormats/Math/interface/normalizedPhi.h"
 
 #include <iostream>
 #include <algorithm>
@@ -46,6 +47,37 @@ namespace {
 
 using namespace PixelRecoUtilities;
 using namespace std;
+
+void RectangularEtaPhiTrackingRegion::checkTracks(reco::TrackCollection const& tracks, std::vector<bool>& mask) const {
+  const math::XYZPoint regOrigin(origin().x(), origin().y(), origin().z());
+  auto phi0 = phiDirection() + 0.5 * (phiMargin().right() - phiMargin().left());
+  auto dphi = 0.5 * (phiMargin().right() + phiMargin().left());
+
+  assert(mask.size() == tracks.size());
+  int i = -1;
+  for (auto const& track : tracks) {
+    i++;
+    if (mask[i])
+      continue;
+
+    if (track.pt() < ptMin()) {
+      continue;
+    }
+    if (!etaRange().inside(track.eta())) {
+      continue;
+    }
+    if (std::abs(proxim(track.phi(), phi0) - phi0) > dphi) {
+      continue;
+    }
+    if (std::abs(track.dxy(regOrigin)) > originRBound()) {
+      continue;
+    }
+    if (std::abs(track.dz(regOrigin)) > originZBound()) {
+      continue;
+    }
+    mask[i] = true;
+  }
+}
 
 RectangularEtaPhiTrackingRegion::UseMeasurementTracker RectangularEtaPhiTrackingRegion::stringToUseMeasurementTracker(
     const std::string& name) {
