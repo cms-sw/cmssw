@@ -21,7 +21,8 @@
    <class name="HFPreRecHit" ClassVersion="3">
     <version ClassVersion="3" checksum="224636588"/>
    </class>
-   <class name="HBHEChannelInfo" ClassVersion="7">
+   <class name="HBHEChannelInfo" ClassVersion="8">
+    <version ClassVersion="8" checksum="158975327"/>
     <version ClassVersion="7" checksum="530224705"/>
     <version ClassVersion="3" checksum="184305963"/>
     <version ClassVersion="4" checksum="1052948187"/>
