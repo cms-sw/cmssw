@@ -72,10 +72,12 @@ tightJetIdLepVeto = cms.EDProducer("PatJetIDValueMapProducer",
 			  ),
                           src = cms.InputTag("updatedJets")
 )
-run2_jme_2016.toModify( tightJetId.filterParams, version = "WINTER16" )
-run2_jme_2016.toModify( tightJetIdLepVeto.filterParams, version = "WINTER16" )
-run2_jme_2017.toModify( tightJetId.filterParams, version = "WINTER17" )
-run2_jme_2017.toModify( tightJetIdLepVeto.filterParams, version = "WINTER17" )
+for modifier in run2_miniAOD_80XLegacy, run2_nanoAOD_94X2016:
+  modifier.toModify( tightJetId.filterParams, version = "WINTER16" )
+  modifier.toModify( tightJetIdLepVeto.filterParams, version = "WINTER16" )
+for modifier in run2_nanoAOD_94XMiniAODv1, run2_nanoAOD_94XMiniAODv2:
+  modifier.toModify( tightJetId.filterParams, version = "WINTER17" )
+  modifier.toModify( tightJetIdLepVeto.filterParams, version = "WINTER17" )
 run2_nanoAOD_102Xv1.toModify( tightJetId.filterParams, version = "SUMMER18" )
 run2_nanoAOD_102Xv1.toModify( tightJetIdLepVeto.filterParams, version = "SUMMER18" )
 
@@ -101,10 +103,12 @@ tightJetIdLepVetoAK8 = cms.EDProducer("PatJetIDValueMapProducer",
 			  ),
                           src = cms.InputTag("updatedJetsAK8")
 )
-run2_jme_2016.toModify( tightJetIdAK8.filterParams, version = "WINTER16" )
-run2_jme_2016.toModify( tightJetIdLepVetoAK8.filterParams, version = "WINTER16" )
-run2_jme_2017.toModify( tightJetIdAK8.filterParams, version = "WINTER17PUPPI" )
-run2_jme_2017.toModify( tightJetIdLepVetoAK8.filterParams, version = "WINTER17PUPPI" )
+for modifier in run2_miniAOD_80XLegacy, run2_nanoAOD_94X2016:
+  modifier.toModify( tightJetIdAK8.filterParams, version = "WINTER16" )
+  modifier.toModify( tightJetIdLepVetoAK8.filterParams, version = "WINTER16" )
+for modifier in run2_nanoAOD_94XMiniAODv1, run2_nanoAOD_94XMiniAODv2:
+  modifier.toModify( tightJetIdAK8.filterParams, version = "WINTER17PUPPI" )
+  modifier.toModify( tightJetIdLepVetoAK8.filterParams, version = "WINTER17PUPPI" )
 run2_nanoAOD_102Xv1.toModify( tightJetIdAK8.filterParams, version = "SUMMER18PUPPI" )
 run2_nanoAOD_102Xv1.toModify( tightJetIdLepVetoAK8.filterParams, version = "SUMMER18PUPPI" )
 
