@@ -126,8 +126,6 @@ private:
   const edm::EDGetTokenT<DetIdCollection> digis_token_;
   const edm::EDGetTokenT<MeasurementTrackerEvent> trackerEvent_token_;
 
-  edm::ParameterSet conf_;
-
   int events, EventTrackCKF;
 
   unsigned int layers;
@@ -189,18 +187,17 @@ SiStripHitEfficiencyWorker::SiStripHitEfficiencyWorker(const edm::ParameterSet& 
       clusters_token_(
           consumes<edmNew::DetSetVector<SiStripCluster>>(conf.getParameter<edm::InputTag>("siStripClusters"))),
       digis_token_(consumes<DetIdCollection>(conf.getParameter<edm::InputTag>("siStripDigis"))),
-      trackerEvent_token_(consumes<MeasurementTrackerEvent>(conf.getParameter<edm::InputTag>("trackerEvent"))),
-      conf_(conf) {
-  layers = conf_.getParameter<int>("Layer");
-  DEBUG = conf_.getParameter<bool>("Debug");
-  addLumi_ = conf_.getUntrackedParameter<bool>("addLumi", false);
-  addCommonMode_ = conf_.getUntrackedParameter<bool>("addCommonMode", false);
-  cutOnTracks_ = conf_.getUntrackedParameter<bool>("cutOnTracks", false);
+      trackerEvent_token_(consumes<MeasurementTrackerEvent>(conf.getParameter<edm::InputTag>("trackerEvent"))) {
+  layers = conf.getParameter<int>("Layer");
+  DEBUG = conf.getParameter<bool>("Debug");
+  addLumi_ = conf.getUntrackedParameter<bool>("addLumi", false);
+  addCommonMode_ = conf.getUntrackedParameter<bool>("addCommonMode", false);
+  cutOnTracks_ = conf.getUntrackedParameter<bool>("cutOnTracks", false);
   trackMultiplicityCut_ = conf.getUntrackedParameter<unsigned int>("trackMultiplicity", 100);
-  useFirstMeas_ = conf_.getUntrackedParameter<bool>("useFirstMeas", false);
-  useLastMeas_ = conf_.getUntrackedParameter<bool>("useLastMeas", false);
+  useFirstMeas_ = conf.getUntrackedParameter<bool>("useFirstMeas", false);
+  useLastMeas_ = conf.getUntrackedParameter<bool>("useLastMeas", false);
   useAllHitsFromTracksWithMissingHits_ =
-      conf_.getUntrackedParameter<bool>("useAllHitsFromTracksWithMissingHits", false);
+      conf.getUntrackedParameter<bool>("useAllHitsFromTracksWithMissingHits", false);
 
   // TODO make consistent
 
