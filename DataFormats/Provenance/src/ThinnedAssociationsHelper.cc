@@ -152,6 +152,9 @@ namespace edm {
     BranchID prevParent;
     std::vector<SlimmedCount>::iterator currentCount;
     for (auto iItem = begin(), iEnd = end(); iItem != iEnd; ++iItem) {
+      if (iItem->parent() == BranchID()) {
+        continue;
+      }
       if (iItem->parent() == prevParent) {
         addSlimmingChildrenCount(*this, *iItem, counts, currentCount->slimmedChildrenCount);
       } else {
