@@ -81,7 +81,7 @@ void HLTPPSJetComparisonFilter::fillDescriptions(edm::ConfigurationDescriptions 
   desc.add<bool>("do_xi", true)->setComment("flag to require xi matching");
   desc.add<bool>("do_my", false)->setComment("flag to require m,y matching");
 
-  descriptions.add("hltCTPPSKinematicFilter", desc);
+  descriptions.addWithDefaultLabel(desc);
   return;
 }
 
