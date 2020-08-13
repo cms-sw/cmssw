@@ -110,7 +110,7 @@ public:
     tmap->setTitle("Strip Hit entries");
     tmap->setPalette(1);
 
-    pixelmap = std::make_unique<Phase1PixelMaps>("COLZ L");
+    pixelmap = std::make_unique<Phase1PixelMaps>("COLZ0 L");
     pixelmap->bookBarrelHistograms("entriesBarrel", "# hits", "# pixel hits");
     pixelmap->bookBarrelBins("entriesBarrel");
     pixelmap->bookForwardHistograms("entriesForward", "# hits", "# pixel hits");

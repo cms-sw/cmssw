@@ -45,6 +45,7 @@
 #include <type_traits>
 #include <utility>
 #include <vector>
+#include <boost/range/adaptor/indexed.hpp>
 
 // user system includes
 
@@ -125,16 +126,25 @@ const int kBPIX = PixelSubdetector::PixelBarrel;
 const int kFPIX = PixelSubdetector::PixelEndcap;
 constexpr float cmToUm = 10000.;
 
+/**
+ * Auxilliary POD to store the data for
+ * the running mean algorithm.
+ */
+
 namespace running {
   struct Estimators {
     int rDirection;
     int zDirection;
+    int rOrZDirection;
     int hitCount;
     float runningMeanOfRes_;
     float runningVarOfRes_;
     float runningNormMeanOfRes_;
     float runningNormVarOfRes_;
   };
+
+  using estimatorMap = std::map<uint32_t, running::Estimators>;
+
 }  // namespace running
 
 class DMRChecker : public edm::one::EDAnalyzer<edm::one::SharedResources> {
@@ -174,7 +184,7 @@ public:
 
     // initialize Phase1 Pixel Maps
 
-    pixelmap = std::make_unique<Phase1PixelMaps>("COLZ L");
+    pixelmap = std::make_unique<Phase1PixelMaps>("COLZ0 L");
     pixelmap->bookBarrelHistograms("DMRsX", "Median Residuals x-direction", "Median Residuals");
     pixelmap->bookBarrelBins("DMRsX");
     pixelmap->bookForwardHistograms("DMRsX", "Median Residuals x-direction", "Median Residuals");
@@ -225,11 +235,10 @@ public:
   */
   template <class OBJECT_TYPE>
   int GetIndex(const std::vector<OBJECT_TYPE *> &vec, const std::string &name) {
-    int result = 0;
-    for (typename std::vector<OBJECT_TYPE *>::const_iterator iter = vec.begin(), iterEnd = vec.end(); iter != iterEnd;
-         ++iter, ++result) {
-      if (*iter && (*iter)->GetName() == name)
-        return result;
+    for (const auto &iter : vec | boost::adaptors::indexed(0)) {
+      if (iter.value() && iter.value()->GetName() == name) {
+        return iter.index();
+      }
     }
     edm::LogError("Alignment") << "@SUB=DMRChecker::GetIndex"
                                << " could not find " << name;
@@ -494,17 +503,17 @@ private:
 
   // Pixel
 
-  std::map<uint32_t, running::Estimators> resDetailsBPixX_;
-  std::map<uint32_t, running::Estimators> resDetailsBPixY_;
-  std::map<uint32_t, running::Estimators> resDetailsFPixX_;
-  std::map<uint32_t, running::Estimators> resDetailsFPixY_;
+  running::estimatorMap resDetailsBPixX_;
+  running::estimatorMap resDetailsBPixY_;
+  running::estimatorMap resDetailsFPixX_;
+  running::estimatorMap resDetailsFPixY_;
 
   // Strips
 
-  std::map<uint32_t, running::Estimators> resDetailsTIB_;
-  std::map<uint32_t, running::Estimators> resDetailsTOB_;
-  std::map<uint32_t, running::Estimators> resDetailsTID_;
-  std::map<uint32_t, running::Estimators> resDetailsTEC_;
+  running::estimatorMap resDetailsTIB_;
+  running::estimatorMap resDetailsTOB_;
+  running::estimatorMap resDetailsTID_;
+  running::estimatorMap resDetailsTEC_;
 
   void analyze(const edm::Event &event, const edm::EventSetup &setup) override {
     ievt++;
@@ -638,6 +647,7 @@ private:
             if (resDetailsTIB_.find(detid_db) == resDetailsTIB_.end()) {
               resDetailsTIB_[detid_db].rDirection = gWDirection.perp() - gPModule.perp() >= 0 ? +1 : -1;
               resDetailsTIB_[detid_db].zDirection = gVDirection.z() - gPModule.z() >= 0 ? +1 : -1;
+	      resDetailsTIB_[detid_db].rOrZDirection = resDetailsTIB_[detid_db].rDirection; // barrel (split in r)
             }
 
             hTIBResXPrime->Fill(uOrientation * resX * 10000);
@@ -657,6 +667,7 @@ private:
             if (resDetailsTOB_.find(detid_db) == resDetailsTOB_.end()) {
               resDetailsTOB_[detid_db].rDirection = gWDirection.perp() - gPModule.perp() >= 0 ? +1 : -1;
               resDetailsTOB_[detid_db].zDirection = gVDirection.z() - gPModule.z() >= 0 ? +1 : -1;
+	      resDetailsTOB_[detid_db].rOrZDirection = resDetailsTOB_[detid_db].rDirection; // barrel (split in r)
             }
 
             // update residuals
@@ -708,12 +719,14 @@ private:
                 if (resDetailsBPixX_.find(detid_db) == resDetailsBPixX_.end()) {
                   resDetailsBPixX_[detid_db].rDirection = gWDirection.perp() - gPModule.perp() >= 0 ? +1 : -1;
                   resDetailsBPixX_[detid_db].zDirection = gVDirection.z() - gPModule.z() >= 0 ? +1 : -1;
+		  resDetailsBPixX_[detid_db].rOrZDirection = resDetailsBPixX_[detid_db].rDirection; // barrel (split in r)
                 }
 
                 // if the detid has never occcurred yet, set the local orientations
                 if (resDetailsBPixY_.find(detid_db) == resDetailsBPixY_.end()) {
                   resDetailsBPixY_[detid_db].rDirection = gWDirection.perp() - gPModule.perp() >= 0 ? +1 : -1;
                   resDetailsBPixY_[detid_db].zDirection = gVDirection.z() - gPModule.z() >= 0 ? +1 : -1;
+		  resDetailsBPixY_[detid_db].rOrZDirection = resDetailsBPixY_[detid_db].rDirection; // barrel (split in r)
                 }
 
                 hHitCountVsThetaBPix->Fill(GP.theta());
@@ -773,12 +786,14 @@ private:
                 if (resDetailsFPixX_.find(detid_db) == resDetailsFPixX_.end()) {
                   resDetailsFPixX_[detid_db].rDirection = gUDirection.perp() - gPModule.perp() >= 0 ? +1 : -1;
                   resDetailsFPixX_[detid_db].zDirection = gWDirection.z() - gPModule.z() >= 0 ? +1 : -1;
+		  resDetailsFPixX_[detid_db].rOrZDirection = resDetailsFPixX_[detid_db].zDirection; // endcaps (split in z)
                 }
 
                 // if the detid has never occcurred yet, set the local orientations
                 if (resDetailsFPixY_.find(detid_db) == resDetailsFPixY_.end()) {
                   resDetailsFPixY_[detid_db].rDirection = gUDirection.perp() - gPModule.perp() >= 0 ? +1 : -1;
                   resDetailsFPixY_[detid_db].zDirection = gWDirection.z() - gPModule.z() >= 0 ? +1 : -1;
+		  resDetailsFPixY_[detid_db].rOrZDirection = resDetailsFPixY_[detid_db].zDirection; // endcaps (split in z)
                 }
 
                 // update residuals X
@@ -1369,11 +1384,11 @@ private:
 
       std::cout.precision(4);
 
-      edm::LogPrint("DMRChecker") << "HLT path: " << std::setw(60) << left << it->first
-                                      << " | events firing: " << right << std::setw(8) << (it->second).first << " ("
-                                      << setw(8) << fixed << evtpercent << "%)"
-                                      << " | tracks collected: " << std::setw(10) << (it->second).second << " ("
-                                      << setw(8) << fixed << trkpercent << "%)";
+      edm::LogPrint("DMRChecker") << "HLT path: " << std::setw(60) << left << it->first << " | events firing: " << right
+                                  << std::setw(8) << (it->second).first << " (" << setw(8) << fixed << evtpercent
+                                  << "%)"
+                                  << " | tracks collected: " << std::setw(10) << (it->second).second << " (" << setw(8)
+                                  << fixed << trkpercent << "%)";
 
       tksByTrigger_->SetBinContent(i, trkpercent);
       tksByTrigger_->GetXaxis()->SetBinLabel(i, (it->first).c_str());
@@ -1422,14 +1437,14 @@ private:
         double runTime = timeMap_.find(the_r)->second;
 
         edm::LogPrint("DMRChecker") << "run:" << the_r << " | isPeak: " << std::setw(4)
-                                        << conditionsMap_.find(the_r)->second.first
-                                        << "| B-field: " << conditionsMap_.find(the_r)->second.second << " [T]"
-                                        << "| events: " << setw(10) << runInfoMap_.find(the_r)->second.first
-                                        << "(rate: " << setw(10) << (runInfoMap_.find(the_r)->second.first) / runTime
-                                        << " ev/s)"
-                                        << ", tracks " << setw(10) << runInfoMap_.find(the_r)->second.second
-                                        << "(rate: " << setw(10) << (runInfoMap_.find(the_r)->second.second) / runTime
-                                        << " trk/s)" << std::endl;
+                                    << conditionsMap_.find(the_r)->second.first
+                                    << "| B-field: " << conditionsMap_.find(the_r)->second.second << " [T]"
+                                    << "| events: " << setw(10) << runInfoMap_.find(the_r)->second.first
+                                    << "(rate: " << setw(10) << (runInfoMap_.find(the_r)->second.first) / runTime
+                                    << " ev/s)"
+                                    << ", tracks " << setw(10) << runInfoMap_.find(the_r)->second.second
+                                    << "(rate: " << setw(10) << (runInfoMap_.find(the_r)->second.second) / runTime
+                                    << " trk/s)" << std::endl;
 
         // int the_bin = modeByRun_->GetXaxis()->FindBin(the_r);
         modeByRun_->SetBinContent(indexing, conditionsMap_.find(the_r)->second.first);
@@ -1642,11 +1657,13 @@ private:
     edm::LogPrint("DMRChecker") << "n. of bpix modules " << resDetailsBPixX_.size() << std::endl;
     edm::LogPrint("DMRChecker") << "n. of fpix modules " << resDetailsFPixX_.size() << std::endl;
 
-    pmap->save(true, 0, 0, "pixelmap.pdf", 600, 800);
-    pmap->save(true, 0, 0, "pixelmap.png", 500, 750);
+    if (!isPhase1_) {
+      pmap->save(true, 0, 0, "PixelHitMap.pdf", 600, 800);
+      pmap->save(true, 0, 0, "PixelHitMap.png", 500, 750);
+    }
 
-    tmap->save(true, 0, 0, "trackermap.pdf");
-    tmap->save(true, 0, 0, "trackermap.png");
+    tmap->save(true, 0, 0, "StripHitMap.pdf");
+    tmap->save(true, 0, 0, "StripHitMap.png");
 
     gStyle->SetPalette(kRainBow);
     pixelmap->beautifyAllHistograms();
@@ -1904,10 +1921,7 @@ private:
   // Implementation of the online variance algorithm
   // as in https://en.wikipedia.org/wiki/Algorithms_for_calculating_variance#Online_algorithm
   //*************************************************************
-  void updateOnlineMomenta(std::map<uint32_t, running::Estimators> &myDetails,
-                           uint32_t theID,
-                           float the_data,
-                           float the_pull) {
+  void updateOnlineMomenta(running::estimatorMap &myDetails, uint32_t theID, float the_data, float the_pull) {
     myDetails[theID].hitCount += 1;
 
     float delta = 0;
@@ -1928,6 +1942,39 @@ private:
 
     myDetails[theID].runningVarOfRes_ += delta * delta2;
     myDetails[theID].runningNormVarOfRes_ += n_delta * n_delta2;
+  }
+
+  //*************************************************************
+  // Fill the histograms using the running::estimatorMap
+  //**************************************************************
+  void fillDMRs(const running::estimatorMap &myDetails,
+                TH1D *DMR,
+                TH1D *DRnR,
+                std::array<TH1D *, 2> DMRSplit,
+                std::unique_ptr<PixelRegions::PixelRegionContainers> regionalDMR) {
+    for (const auto &element : myDetails) {
+      // DMR
+      DMR->Fill(element.second.runningMeanOfRes_);
+
+      // DMR by layer
+      if (regionalDMR.get()) {
+        regionalDMR->fill(element.first, element.second.runningMeanOfRes_);
+      }
+
+      // split DMR
+      if (element.second.rOrZDirection > 0) {
+        DMRSplit[0]->Fill(element.second.runningMeanOfRes_);
+      } else {
+        DMRSplit[1]->Fill(element.second.runningMeanOfRes_);
+      }
+
+      // DRnR
+      if (element.second.hitCount < 2) {
+        DRnR->Fill(-1);
+      } else {
+        DRnR->Fill(sqrt(element.second.runningNormVarOfRes_ / (element.second.hitCount - 1)));
+      }
+    }
   }
 };
 
