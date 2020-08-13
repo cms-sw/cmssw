@@ -79,7 +79,6 @@ void RectangularEtaPhiTrackingRegion::checkTracks(reco::TrackCollection const& t
   }
 }
 
-
 RectangularEtaPhiTrackingRegion::UseMeasurementTracker RectangularEtaPhiTrackingRegion::stringToUseMeasurementTracker(
     const std::string& name) {
   std::string tmp = name;

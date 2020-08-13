@@ -48,7 +48,6 @@ void CosmicTrackingRegion::checkTracks(reco::TrackCollection const& tracks, std:
   }
 }
 
-
 TrackingRegion::Hits CosmicTrackingRegion::hits(const edm::EventSetup& es,
                                                 const SeedingLayerSetsHits::SeedingLayer& layer) const {
   TrackingRegion::Hits result;

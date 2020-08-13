@@ -179,7 +179,6 @@ public:
   /// Does not reset the elements corresponding to the tracks that are not compatible.
   void checkTracks(reco::TrackCollection const& tracks, std::vector<bool>& mask) const override;
 
-
   std::unique_ptr<HitRZCompatibility> checkRZ(const DetLayer* layer,
                                               const Hit& outerHit,
                                               const edm::EventSetup& iSetup,
