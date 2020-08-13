@@ -191,7 +191,7 @@ process.myanalysis = cms.EDAnalyzer("GeneralPurposeTrackAnalyzer",
                                     isCosmics = cms.bool(True)
                                     )
 
-process.fastdmr = cms.EDAnalyzer("FastDMRChecker",
+process.fastdmr = cms.EDAnalyzer("DMRChecker",
                                  TkTag  = cms.InputTag('TrackRefitter1'),
                                  isCosmics = cms.bool(True)
                                  )

@@ -1,86 +1,120 @@
-#include "Alignment/CommonAlignment/interface/Alignable.h"
-#include "Alignment/CommonAlignment/interface/AlignableExtras.h"
-#include "Alignment/CommonAlignment/interface/AlignableNavigator.h"
-#include "Alignment/CommonAlignment/interface/AlignableObjectId.h"
-#include "Alignment/CommonAlignment/interface/AlignmentParameters.h"
-#include "Alignment/CommonAlignment/interface/SurveyResidual.h"
-#include "Alignment/CommonAlignmentAlgorithm/interface/AlignmentParameterSelector.h"
-#include "Alignment/CommonAlignmentAlgorithm/interface/AlignmentParameterStore.h"
-#include "Alignment/HIPAlignmentAlgorithm/interface/HIPUserVariables.h"
-#include "Alignment/HIPAlignmentAlgorithm/interface/HIPUserVariablesIORoot.h"
-#include "Alignment/MuonAlignment/interface/AlignableMuon.h"
-#include "Alignment/TrackerAlignment/interface/AlignableTracker.h"
+// -*- C++ -*-
+//
+// Package:    Alignment/OfflineValidation
+// Class:      DMRChecker
+//
+/**\class DMRChecker DMRChecker.cc Alignment/OfflineValidation/plugins/DMRChecker.cc
+
+*/
+//
+// Original Author:  Marco Musich
+//         Created:  Mon, 10 Aug 2020 15:45:00 GMT
+//
+//
+
+// ROOT includes
+
+#include <RtypesCore.h>
+#include <TAxis.h>
+#include <TCanvas.h>
+#include <TColor.h>
+#include <TH1.h>
+#include <TH2.h>
+#include <TLatex.h>
+#include <TMath.h>
+#include <TProfile.h>
+#include <TString.h>
+#include <TStyle.h>
+#include <TVirtualPad.h>
+
+// STL includes
+
+#include <algorithm>
+#include <array>
+#include <cmath>
+#include <cstdint>
+#include <cstdlib>
+#include <ctime>
+#include <ext/alloc_traits.h>
+#include <fmt/printf.h>
+#include <iomanip>
+#include <iostream>
+#include <map>
+#include <memory>
+#include <string>
+#include <type_traits>
+#include <utility>
+#include <vector>
+
+// user system includes
+
+#include "CommonTools/TrackerMap/interface/TrackerMap.h"
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
-#include "CondFormats/AlignmentRecord/interface/GlobalPositionRcd.h"
-#include "CondFormats/Common/interface/Time.h"
-#include "CondFormats/DataRecord/interface/AlCaRecoTriggerBitsRcd.h"
+#include "CommonTools/Utils/interface/TFileDirectory.h"
+#include "CondCore/SiPixelPlugins/interface/Phase1PixelMaps.h"
+#include "CondCore/SiPixelPlugins/interface/PixelRegionContainers.h"
+#include "CondCore/SiPixelPlugins/interface/SiPixelPayloadInspectorHelper.h"
+#include "CondFormats/DataRecord/interface/RunSummaryRcd.h"
 #include "CondFormats/DataRecord/interface/SiStripCondDataRecords.h"
-#include "CondFormats/HLTObjects/interface/AlCaRecoTriggerBits.h"
 #include "CondFormats/RunInfo/interface/RunInfo.h"
 #include "CondFormats/SiStripObjects/interface/SiStripLatency.h"
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
+#include "DataFormats/Common/interface/Handle.h"
+#include "DataFormats/Common/interface/RefTraits.h"
 #include "DataFormats/Common/interface/TriggerResults.h"
 #include "DataFormats/DetId/interface/DetId.h"
+#include "DataFormats/GeometrySurface/interface/Plane.h"
+#include "DataFormats/GeometryVector/interface/GlobalPoint.h"
+#include "DataFormats/GeometryVector/interface/GlobalVector.h"
+#include "DataFormats/GeometryVector/interface/LocalPoint.h"
+#include "DataFormats/GeometryVector/interface/Phi.h"
+#include "DataFormats/GeometryVector/interface/Theta.h"
+#include "DataFormats/Math/interface/Point3D.h"
 #include "DataFormats/Math/interface/deltaPhi.h"
-#include "DataFormats/MuonReco/interface/MuonSelectors.h"
-#include "DataFormats/SiStripCluster/interface/SiStripCluster.h"
+#include "DataFormats/Provenance/interface/RunLumiEventNumber.h"
+#include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
 #include "DataFormats/SiStripDetId/interface/SiStripDetId.h"
+#include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
 #include "DataFormats/TrackReco/interface/HitPattern.h"
 #include "DataFormats/TrackReco/interface/Track.h"
+#include "DataFormats/TrackReco/interface/TrackBase.h"
+#include "DataFormats/TrackReco/interface/TrackExtraFwd.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
+#include "DataFormats/TrackReco/interface/TrackResiduals.h"
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 #include "DataFormats/TrackerRecHit2D/interface/ProjectedSiStripRecHit2D.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHit.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiStripMatchedRecHit2D.h"
-#include "DataFormats/TrackerRecHit2D/interface/SiStripMatchedRecHit2DCollection.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit1D.h"
-#include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2DCollection.h"
-#include "DataFormats/TrackerRecHit2D/interface/SiTrackerMultiRecHit.h"
+#include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2D.h"
 #include "DataFormats/TrackingRecHit/interface/TrackingRecHit.h"
+#include "DataFormats/TrackingRecHit/interface/TrackingRecHitFwd.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 #include "FWCore/Common/interface/TriggerNames.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/ESHandle.h"
-#include "FWCore/Framework/interface/ESTransientHandle.h"
-#include "FWCore/Framework/interface/ESWatcher.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
-#include "FWCore/Framework/interface/ValidityInterval.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
+#include "FWCore/Framework/src/WorkerMaker.h"
+#include "FWCore/MessageLogger/interface/ErrorObj.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescriptionFiller.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
-#include "Geometry/CommonDetUnit/interface/GeomDet.h"
-#include "Geometry/Records/interface/IdealGeometryRecord.h"
+#include "FWCore/Utilities/interface/EDGetToken.h"
+#include "FWCore/Utilities/interface/ESGetToken.h"
+#include "FWCore/Utilities/interface/InputTag.h"
+#include "Geometry/CommonTopologies/interface/GeomDet.h"
+#include "Geometry/CommonTopologies/interface/TrackerGeomDet.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
+#include "Geometry/Records/interface/TrackerTopologyRcd.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
-#include "IOMC/RandomEngine/src/RandomEngineStateProducer.h"
 #include "MagneticField/Engine/interface/MagneticField.h"
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
-#include "TBranch.h"
-#include "TFile.h"
-#include "TH1D.h"
-#include "TH1I.h"
-#include "TH2D.h"
-#include "TLorentzVector.h"
-#include "TProfile.h"
-#include "TTree.h"
-#include "TrackingTools/PatternTools/interface/Trajectory.h"
-#include "TrackingTools/TrackFitters/interface/TrajectoryStateCombiner.h"
-#include <DataFormats/GeometrySurface/interface/LocalError.h>
-#include <cmath>
-#include <ctime>
-#include <fstream>
-#include <iostream>
-#include <map>
-#include <string>
-#include <vector>
-
-#include "CommonTools/TrackerMap/interface/TrackerMap.h"
-
-class MagneticField;
 
 #define DEBUG 0
 
@@ -89,53 +123,136 @@ using namespace edm;
 
 const int kBPIX = PixelSubdetector::PixelBarrel;
 const int kFPIX = PixelSubdetector::PixelEndcap;
+constexpr float cmToUm = 10000.;
 
-class DMRChecker : public edm::EDAnalyzer {
+namespace running {
+  struct Estimators {
+    int rDirection;
+    int zDirection;
+    int hitCount;
+    float runningMeanOfRes_;
+    float runningVarOfRes_;
+    float runningNormMeanOfRes_;
+    float runningNormVarOfRes_;
+  };
+}  // namespace running
+
+class DMRChecker : public edm::one::EDAnalyzer<edm::one::SharedResources> {
 public:
-  DMRChecker(const edm::ParameterSet &pset) {
-    TkTag_ = pset.getParameter<string>("TkTag");
+  DMRChecker(const edm::ParameterSet &pset)
+      : geomToken_(esConsumes<TrackerGeometry, TrackerDigiGeometryRecord>()),
+        runInfoToken_(esConsumes<RunInfo, RunInfoRcd>()),
+        magFieldToken_(esConsumes<MagneticField, IdealMagneticFieldRecord>()),
+        topoToken_(esConsumes<TrackerTopology, TrackerTopologyRcd>()),
+        latencyToken_(esConsumes<SiStripLatency, SiStripLatencyRcd>()),
+        isPhase1_(pset.getParameter<bool>("isPhase1")),
+        isCosmics_(pset.getParameter<bool>("isCosmics")) {
+    usesResource(TFileService::kSharedResource);
+
+    TkTag_ = pset.getParameter<edm::InputTag>("TkTag");
     theTrackCollectionToken = consumes<reco::TrackCollection>(TkTag_);
 
-    InputTag tag("TriggerResults", "", "HLT");
-    hltresultsToken = consumes<edm::TriggerResults>(tag);
+    TriggerResultsTag_ = pset.getParameter<edm::InputTag>("TriggerResultsTag");
+    hltresultsToken = consumes<edm::TriggerResults>(TriggerResultsTag_);
 
-    InputTag beamSpotTag("offlineBeamSpot");
-    beamspotToken = consumes<reco::BeamSpot>(beamSpotTag);
+    BeamSpotTag_ = pset.getParameter<edm::InputTag>("BeamSpotTag");
+    beamspotToken = consumes<reco::BeamSpot>(BeamSpotTag_);
 
-    InputTag vertexTag("offlinePrimaryVertices");
-    vertexToken = consumes<reco::VertexCollection>(vertexTag);
+    VerticesTag_ = pset.getParameter<edm::InputTag>("VerticesTag");
+    vertexToken = consumes<reco::VertexCollection>(VerticesTag_);
 
-    isCosmics_ = pset.getParameter<bool>("isCosmics");
+    // initialize conventional Tracker maps
 
-    pmap = new TrackerMap("Pixel");
+    pmap = std::make_unique<TrackerMap>("Pixel");
     pmap->onlyPixel(true);
     pmap->setTitle("Pixel Hit entries");
     pmap->setPalette(1);
 
-    tmap = new TrackerMap("Strip");
+    tmap = std::make_unique<TrackerMap>("Strip");
     tmap->setTitle("Strip Hit entries");
     tmap->setPalette(1);
+
+    // initialize Phase1 Pixel Maps
+
+    pixelmap = std::make_unique<Phase1PixelMaps>("COLZ L");
+    pixelmap->bookBarrelHistograms("DMRsX", "Median Residuals x-direction", "Median Residuals");
+    pixelmap->bookBarrelBins("DMRsX");
+    pixelmap->bookForwardHistograms("DMRsX", "Median Residuals x-direction", "Median Residuals");
+    pixelmap->bookForwardBins("DMRsX");
+
+    pixelmap->bookBarrelHistograms("DMRsY", "Median Residuals y-direction", "Median Residuals");
+    pixelmap->bookBarrelBins("DMRsY");
+    pixelmap->bookForwardHistograms("DMRsY", "Median Residuals y-direction", "Median Residuals");
+    pixelmap->bookForwardBins("DMRsY");
+
+    // set no rescale
+    pixelmap->setNoRescale();
+
+    // initialize the topology first
+    /*
+    const char *path_toTopologyXML = isPhase1_ ? 
+      "Geometry/TrackerCommonData/data/PhaseI/trackerParameters.xml" :
+      "Geometry/TrackerCommonData/data/trackerParameters.xml";
+ 
+    const TrackerTopology m_standaloneTopo = StandaloneTrackerTopology::fromTrackerParametersXMLFile(edm::FileInPath(path_toTopologyXML).fullPath());
+    */
+
+    // initialize PixelRegionContainers
+    PixelDMRS_x_ByLayer = std::make_unique<PixelRegions::PixelRegionContainers>(nullptr, isPhase1_);
+    PixelDMRS_y_ByLayer = std::make_unique<PixelRegions::PixelRegionContainers>(nullptr, isPhase1_);
+
+    // book PixelRegionContainers
+    PixelDMRS_x_ByLayer->bookAll("Barrel Pixel DMRs", "median(x'_{pred}-x'_{hit}) [#mum]", "# modules", 100, -50, 50);
+    PixelDMRS_y_ByLayer->bookAll("Barrel Pixel DMRs", "median(y'_{pred}-y'_{hit}) [#mum]", "# modules", 100, -50, 50);
+
+    /*
+    auto dets = PixelRegions::attachedDets(PixelRegions::PixelId::L1,&m_standaloneTopo,isPhase1_);
+    for(const auto& det : dets){
+      auto myLocalTopo = PixelDMRS_x_ByLayer->getTheTTopo();
+      edm::LogVerbatim("DMRChecker") << myLocalTopo->print(det) << std::endl;
+    }
+    */
   }
+
+  static void fillDescriptions(edm::ConfigurationDescriptions &);
 
   ~DMRChecker() override {}
 
+  /*_______________________________________________________
+  //
+  // auxilliary method to retrieve certain histogram types
+  //_______________________________________________________
+  */
   template <class OBJECT_TYPE>
-  int GetIndex(const std::vector<OBJECT_TYPE *> &vec, const TString &name) {
+  int GetIndex(const std::vector<OBJECT_TYPE *> &vec, const std::string &name) {
     int result = 0;
     for (typename std::vector<OBJECT_TYPE *>::const_iterator iter = vec.begin(), iterEnd = vec.end(); iter != iterEnd;
          ++iter, ++result) {
       if (*iter && (*iter)->GetName() == name)
         return result;
     }
-    edm::LogError("Alignment") << "@SUB=TrackerOfflineValidation::GetIndex"
+    edm::LogError("Alignment") << "@SUB=DMRChecker::GetIndex"
                                << " could not find " << name;
     return -1;
   }
 
+private:
+  // tokens for the event setup
+
+  const edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> geomToken_;
+  const edm::ESGetToken<RunInfo, RunInfoRcd> runInfoToken_;
+  const edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> magFieldToken_;
+  const edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> topoToken_;
+  const edm::ESGetToken<SiStripLatency, SiStripLatencyRcd> latencyToken_;
+
   edm::Service<TFileService> fs;
 
-  TrackerMap *tmap;
-  TrackerMap *pmap;
+  std::unique_ptr<Phase1PixelMaps> pixelmap;
+  std::unique_ptr<PixelRegions::PixelRegionContainers> PixelDMRS_x_ByLayer;
+  std::unique_ptr<PixelRegions::PixelRegionContainers> PixelDMRS_y_ByLayer;
+
+  std::unique_ptr<TrackerMap> tmap;
+  std::unique_ptr<TrackerMap> pmap;
 
   TH1D *hchi2ndof;
   TH1D *hNtrk;
@@ -325,6 +442,19 @@ public:
   TH1D *DRnRTID_;
   TH1D *DRnRTEC_;
 
+  // Split DMRs
+
+  std::array<TH1D *, 2> DMRBPixXSplit_;
+  std::array<TH1D *, 2> DMRBPixYSplit_;
+
+  std::array<TH1D *, 2> DMRFPixXSplit_;
+  std::array<TH1D *, 2> DMRFPixYSplit_;
+
+  std::array<TH1D *, 2> DMRTIBSplit_;
+  std::array<TH1D *, 2> DMRTOBSplit_;
+
+  // residuals
+
   std::map<unsigned int, TH1D *> barrelLayersResidualsX;
   std::map<unsigned int, TH1D *> barrelLayersPullsX;
   std::map<unsigned int, TH1D *> barrelLayersResidualsY;
@@ -339,15 +469,17 @@ public:
   int trigCount;
   int ievt;
   int itrks;
-  int mol;
   int mode;
-  float InvMass;
-  double invMass;
   bool firstEvent_;
-  const TrackerGeometry *trackerGeometry_;
 
-  std::string TkTag_;
-  bool isCosmics_;
+  const bool isPhase1_;
+  const bool isCosmics_;
+
+  edm::InputTag TkTag_;
+  edm::InputTag TriggerResultsTag_;
+  edm::InputTag BeamSpotTag_;
+  edm::InputTag VerticesTag_;
+
   edm::EDGetTokenT<reco::TrackCollection> theTrackCollectionToken;
   edm::EDGetTokenT<edm::TriggerResults> hltresultsToken;
   edm::EDGetTokenT<reco::BeamSpot> beamspotToken;
@@ -362,120 +494,71 @@ public:
 
   // Pixel
 
-  std::map<int, std::pair<float, int> > runningMeanOfResBPixX_;
-  std::map<int, std::pair<float, int> > runningMeanOfResBPixY_;
-  std::map<int, std::pair<float, int> > runningMeanOfResFPixX_;
-  std::map<int, std::pair<float, int> > runningMeanOfResFPixY_;
-
-  std::map<int, std::pair<float, int> > runningVarOfResBPixX_;
-  std::map<int, std::pair<float, int> > runningVarOfResBPixY_;
-  std::map<int, std::pair<float, int> > runningVarOfResFPixX_;
-  std::map<int, std::pair<float, int> > runningVarOfResFPixY_;
-
-  std::map<int, std::pair<float, int> > runningNormMeanOfResBPixX_;
-  std::map<int, std::pair<float, int> > runningNormMeanOfResBPixY_;
-  std::map<int, std::pair<float, int> > runningNormMeanOfResFPixX_;
-  std::map<int, std::pair<float, int> > runningNormMeanOfResFPixY_;
-
-  std::map<int, std::pair<float, int> > runningNormVarOfResBPixX_;
-  std::map<int, std::pair<float, int> > runningNormVarOfResBPixY_;
-  std::map<int, std::pair<float, int> > runningNormVarOfResFPixX_;
-  std::map<int, std::pair<float, int> > runningNormVarOfResFPixY_;
+  std::map<uint32_t, running::Estimators> resDetailsBPixX_;
+  std::map<uint32_t, running::Estimators> resDetailsBPixY_;
+  std::map<uint32_t, running::Estimators> resDetailsFPixX_;
+  std::map<uint32_t, running::Estimators> resDetailsFPixY_;
 
   // Strips
 
-  std::map<int, std::pair<float, int> > runningMeanOfResTIB_;
-  std::map<int, std::pair<float, int> > runningMeanOfResTOB_;
-  std::map<int, std::pair<float, int> > runningMeanOfResTID_;
-  std::map<int, std::pair<float, int> > runningMeanOfResTEC_;
-
-  std::map<int, std::pair<float, int> > runningVarOfResTIB_;
-  std::map<int, std::pair<float, int> > runningVarOfResTOB_;
-  std::map<int, std::pair<float, int> > runningVarOfResTID_;
-  std::map<int, std::pair<float, int> > runningVarOfResTEC_;
-
-  std::map<int, std::pair<float, int> > runningNormMeanOfResTIB_;
-  std::map<int, std::pair<float, int> > runningNormMeanOfResTOB_;
-  std::map<int, std::pair<float, int> > runningNormMeanOfResTID_;
-  std::map<int, std::pair<float, int> > runningNormMeanOfResTEC_;
-
-  std::map<int, std::pair<float, int> > runningNormVarOfResTIB_;
-  std::map<int, std::pair<float, int> > runningNormVarOfResTOB_;
-  std::map<int, std::pair<float, int> > runningNormVarOfResTID_;
-  std::map<int, std::pair<float, int> > runningNormVarOfResTEC_;
+  std::map<uint32_t, running::Estimators> resDetailsTIB_;
+  std::map<uint32_t, running::Estimators> resDetailsTOB_;
+  std::map<uint32_t, running::Estimators> resDetailsTID_;
+  std::map<uint32_t, running::Estimators> resDetailsTEC_;
 
   void analyze(const edm::Event &event, const edm::EventSetup &setup) override {
-    //typedef cond::Time_t Time_t;
-    // const unsigned int MAX_VAL(std::numeric_limits<unsigned int>::max());
-
-    // std::cout<<"====> MAXVAL: "<<MAX_VAL<<std::endl;
-
-    // edm::ESHandle<Alignments> globalPositionRcd;
-    // edm::ValidityInterval iov(setup.get<GlobalPositionRcd>().validityInterval() );
-    // if (iov.first().eventID().run()!=1 || iov.last().eventID().run()!=MAX_VAL) {
-    //   throw cms::Exception("DatabaseError")
-    // 	<< "@SUB=AlignmentProducer::applyDB"
-    // 	<< "\nTrying to apply "<< setup.get<GlobalPositionRcd>().key().name()
-    // 	<< " with multiple IOVs in tag.\n"
-    // 	<< "Validity range is "
-    // 	<< iov.first().eventID().run() << " - " << iov.last().eventID().run();
-    // }
-
     ievt++;
 
     edm::Handle<reco::TrackCollection> trackCollection;
     event.getByToken(theTrackCollectionToken, trackCollection);
 
     // magnetic field setup
-    edm::ESHandle<MagneticField> magneticField_;
-    setup.get<IdealMagneticFieldRecord>().get(magneticField_);
+    edm::ESHandle<MagneticField> magneticField_ = setup.getHandle(magFieldToken_);
     float B_ = magneticField_.product()->inTesla(GlobalPoint(0, 0, 0)).mag();
 
-    // edm::ESHandle<RunInfo> runInfo;
-    // setup.get<RunInfoRcd>().get(runInfo);
-    // //float average_current = runInfo.product()->m_avg_current;
-    // //float uptimeInSeconds = runInfo.product()->m_run_intervall_micros;
-
-    edm::ESHandle<RunInfo> sum;
-    setup.get<RunInfoRcd>().get(sum);
-    const RunInfo *summary = sum.product();
+    edm::ESHandle<RunInfo> runInfo = setup.getHandle(runInfoToken_);
+    const RunInfo *summary = runInfo.product();
     time_t start_time = summary->m_start_time_ll;
     ctime(&start_time);
     time_t end_time = summary->m_stop_time_ll;
     ctime(&end_time);
 
     /*
-      std::cout<< " start_time " << start_time << "( " << summary->m_start_time_str <<" )" 
+      float average_current = runInfo.product()->m_avg_current;
+      float uptimeInSeconds = runInfo.product()->m_run_intervall_micros;
+      edm::LogVerbatim("DMRChecker")<< " start_time " << start_time << "( " << summary->m_start_time_str <<" )" 
       << " end_time "   << end_time   << "( " << summary->m_stop_time_str  <<" )" << std::endl;
     */
 
     double seconds = difftime(end_time, start_time) / 1.0e+6;
-    //std::cout<<" diff: "<< seconds << "s" << std::endl;
-
+    //edm::LogVerbatim("DMRChecker")<<" diff: "<< seconds << "s" << std::endl;
     timeMap_[event.run()] = seconds;
 
     // topology setup
-    edm::ESHandle<TrackerTopology> tTopoHandle;
-    setup.get<TrackerTopologyRcd>().get(tTopoHandle);
+    edm::ESHandle<TrackerTopology> tTopoHandle = setup.getHandle(topoToken_);
     const TrackerTopology *const tTopo = tTopoHandle.product();
 
-    edm::ESHandle<SiStripLatency> apvlat;
-    setup.get<SiStripLatencyRcd>().get(apvlat);
-    if (apvlat->singleReadOutMode() == 1)
+    if (!PixelDMRS_x_ByLayer->getTheTopo()) {
+      PixelDMRS_x_ByLayer->setTheTopo(tTopo);
+      PixelDMRS_y_ByLayer->setTheTopo(tTopo);
+    }
+
+    edm::ESHandle<SiStripLatency> apvlat = setup.getHandle(latencyToken_);
+    if (apvlat->singleReadOutMode() == 1) {
       mode = 1;  // peak mode
-    if (apvlat->singleReadOutMode() == 0)
+    } else if (apvlat->singleReadOutMode() == 0) {
       mode = -1;  // deco mode
+    }
 
     conditionsMap_[event.run()].first = mode;
     conditionsMap_[event.run()].second = B_;
 
     // geometry setup
-    edm::ESHandle<TrackerGeometry> geometry;
-    setup.get<TrackerDigiGeometryRecord>().get(geometry);
+    edm::ESHandle<TrackerGeometry> geometry = setup.getHandle(geomToken_);
     const TrackerGeometry *theGeometry = &(*geometry);
 
     GlobalPoint zeroPoint(0, 0, 0);
-    //std::cout << "event#" << ievt << " Event ID = "<< event.id()
+    //edm::LogVerbatim("DMRChecker") << "event#" << ievt << " Event ID = "<< event.id()
     /// << " magnetic field: " << magneticField_->inTesla(zeroPoint) << std::endl ;
 
     const reco::TrackCollection tC = *(trackCollection.product());
@@ -484,156 +567,134 @@ public:
     runInfoMap_[event.run()].first += 1;
     runInfoMap_[event.run()].second += tC.size();
 
-    //std::cout << "Reconstructed "<< tC.size() << " tracks" << std::endl ;
-    TLorentzVector mother(0., 0., 0., 0.);
-
-    //int iCounter=0;
+    //edm::LogVerbatim("DMRChecker") << "Reconstructed "<< tC.size() << " tracks" << std::endl ;
 
     edm::Handle<edm::TriggerResults> hltresults;
     event.getByToken(hltresultsToken, hltresults);
 
     const edm::TriggerNames &triggerNames_ = event.triggerNames(*hltresults);
     int ntrigs = hltresults->size();
-    const vector<string> &triggernames = triggerNames_.triggerNames();
 
     for (int itrig = 0; itrig != ntrigs; ++itrig) {
       const string &trigName = triggerNames_.triggerName(itrig);
       bool accept = hltresults->accept(itrig);
       if (accept == 1) {
-        // cout << trigName << " " << accept << " ,track size: " << tC.size() << endl;
+        // emd::LogVerbatim("DMRChecker") << trigName << " " << accept << " ,track size: " << tC.size() << endl;
         triggerMap_[trigName].first += 1;
         triggerMap_[trigName].second += tC.size();
-        // triggerInfo.push_back(pair <string, int> (trigName, accept));
       }
     }
 
     hrun->Fill(event.run());
     hlumi->Fill(event.luminosityBlock());
 
-    Int_t nHighPurityTracks = 0;
+    int nHighPurityTracks = 0;
 
-    for (reco::TrackCollection::const_iterator track = tC.begin(); track != tC.end(); track++) {
-      auto const &residuals = track->extra()->residuals();
+    for (const auto &track : tC) {
+      auto const &residuals = track.extra()->residuals();
 
       unsigned int nHit2D = 0;
       int h_index = 0;
-      for (trackingRecHit_iterator iHit = track->recHitsBegin(); iHit != track->recHitsEnd(); ++iHit, ++h_index) {
+      for (trackingRecHit_iterator iHit = track.recHitsBegin(); iHit != track.recHitsEnd(); ++iHit, ++h_index) {
         if (this->isHit2D(**iHit))
           ++nHit2D;
 
         double resX = residuals.residualX(h_index);
         double resY = residuals.residualY(h_index);
-        double resErrX = residuals.pullX(h_index);
-        double resErrY = residuals.pullY(h_index);
+        double pullX = residuals.pullX(h_index);
+        double pullY = residuals.pullY(h_index);
 
-        TrackingRecHit *hit = (*iHit)->clone();
-        const DetId &detId = hit->geographicalId();
+        const DetId &detId = (*iHit)->geographicalId();
 
         unsigned int subid = detId.subdetId();
+        uint32_t detid_db = detId.rawId();
 
         const GeomDet *geomDet(theGeometry->idToDet(detId));
 
         float uOrientation(-999.F), vOrientation(-999.F);
-        LocalPoint lPModule(0., 0., 0.), lUDirection(1., 0., 0.), lVDirection(0., 1., 0.);
+        LocalPoint lPModule(0., 0., 0.), lUDirection(1., 0., 0.), lVDirection(0., 1., 0.), lWDirection(0., 0., 1.);
 
-        if (!hit->detUnit())
+        // do all the transformations here
+        GlobalPoint gUDirection = geomDet->surface().toGlobal(lUDirection);
+        GlobalPoint gVDirection = geomDet->surface().toGlobal(lVDirection);
+        GlobalPoint gWDirection = geomDet->surface().toGlobal(lWDirection);
+        GlobalPoint gPModule = geomDet->surface().toGlobal(lPModule);
+
+        if (!(*iHit)->detUnit())
           continue;  // is it a single physical module?
 
-        if (hit->isValid() && (subid != PixelSubdetector::PixelBarrel) && (subid != PixelSubdetector::PixelEndcap)) {
-          tmap->fill(detId.rawId(), 1);
-
-          //float uOrientation(-999.F), vOrientation(-999.F);
-          //LocalPoint lUDirection(1.,0.,0.), lVDirection(0.,1.,0.);
+        if ((*iHit)->isValid() && (subid > PixelSubdetector::PixelEndcap)) {
+          tmap->fill(detid_db, 1);
 
           //LocalPoint lp = (*iHit)->localPosition();
           //LocalError le = (*iHit)->localPositionError();
-
-          GlobalPoint gUDirection = geomDet->surface().toGlobal(lUDirection);
-          GlobalPoint gVDirection = geomDet->surface().toGlobal(lVDirection);
-
-          //GlobalPoint GP = geomDet->surface().toGlobal(lp);
-          GlobalPoint gPModule = geomDet->surface().toGlobal(lPModule);
 
           // fill DMRs and DrNRs
           if (subid == StripSubdetector::TIB) {
             uOrientation = deltaPhi(gUDirection.barePhi(), gPModule.barePhi()) >= 0. ? +1.F : -1.F;
             vOrientation = gVDirection.z() - gPModule.z() >= 0 ? +1.F : -1.F;
 
+            // if the detid has never occcurred yet, set the local orientations
+            if (resDetailsTIB_.find(detid_db) == resDetailsTIB_.end()) {
+              resDetailsTIB_[detid_db].rDirection = gWDirection.perp() - gPModule.perp() >= 0 ? +1 : -1;
+              resDetailsTIB_[detid_db].zDirection = gVDirection.z() - gPModule.z() >= 0 ? +1 : -1;
+            }
+
             hTIBResXPrime->Fill(uOrientation * resX * 10000);
-            hTIBResXPull->Fill(resErrX);
+            hTIBResXPull->Fill(pullX);
 
-            // absolute residuals
-            this->updateOnlineMomenta(
-                runningMeanOfResTIB_, runningVarOfResTIB_, detId.rawId(), uOrientation * resX * 10000.);
-
-            // normalized residuals
-            this->updateOnlineMomenta(runningNormMeanOfResTIB_, runningNormVarOfResTIB_, detId.rawId(), resErrX);
+            // update residuals
+            this->updateOnlineMomenta(resDetailsTIB_, detid_db, uOrientation * resX * cmToUm, pullX);
 
           } else if (subid == StripSubdetector::TOB) {
             uOrientation = deltaPhi(gUDirection.barePhi(), gPModule.barePhi()) >= 0. ? +1.F : -1.F;
             vOrientation = gVDirection.z() - gPModule.z() >= 0 ? +1.F : -1.F;
 
             hTOBResXPrime->Fill(uOrientation * resX * 10000);
-            hTOBResXPull->Fill(resErrX);
+            hTOBResXPull->Fill(pullX);
 
-            // absolute residuals
-            this->updateOnlineMomenta(
-                runningMeanOfResTOB_, runningVarOfResTOB_, detId.rawId(), uOrientation * resX * 10000.);
+            // if the detid has never occcurred yet, set the local orientations
+            if (resDetailsTOB_.find(detid_db) == resDetailsTOB_.end()) {
+              resDetailsTOB_[detid_db].rDirection = gWDirection.perp() - gPModule.perp() >= 0 ? +1 : -1;
+              resDetailsTOB_[detid_db].zDirection = gVDirection.z() - gPModule.z() >= 0 ? +1 : -1;
+            }
 
-            // normalized residuals
-            this->updateOnlineMomenta(runningNormMeanOfResTOB_, runningNormVarOfResTOB_, detId.rawId(), resErrX);
+            // update residuals
+            this->updateOnlineMomenta(resDetailsTOB_, detid_db, uOrientation * resX * cmToUm, pullX);
 
           } else if (subid == StripSubdetector::TID) {
             uOrientation = deltaPhi(gUDirection.barePhi(), gPModule.barePhi()) >= 0. ? +1.F : -1.F;
             vOrientation = gVDirection.perp() - gPModule.perp() >= 0. ? +1.F : -1.F;
 
             hTIDResXPrime->Fill(uOrientation * resX * 10000);
-            hTIDResXPull->Fill(resErrX);
+            hTIDResXPull->Fill(pullX);
 
-            // absolute residuals
-            this->updateOnlineMomenta(
-                runningMeanOfResTID_, runningVarOfResTID_, detId.rawId(), uOrientation * resX * 10000.);
-
-            // normalized residuals
-            this->updateOnlineMomenta(runningNormMeanOfResTID_, runningNormVarOfResTID_, detId.rawId(), resErrX);
+            // update residuals
+            this->updateOnlineMomenta(resDetailsTID_, detid_db, uOrientation * resX * cmToUm, pullX);
 
           } else if (subid == StripSubdetector::TEC) {
             uOrientation = deltaPhi(gUDirection.barePhi(), gPModule.barePhi()) >= 0. ? +1.F : -1.F;
             vOrientation = gVDirection.perp() - gPModule.perp() >= 0. ? +1.F : -1.F;
 
             hTECResXPrime->Fill(uOrientation * resX * 10000);
-            hTECResXPull->Fill(resErrX);
+            hTECResXPull->Fill(pullX);
 
-            // absolute residuals
-            this->updateOnlineMomenta(
-                runningMeanOfResTEC_, runningVarOfResTEC_, detId.rawId(), uOrientation * resX * 10000.);
-
-            // normalized residuals
-            this->updateOnlineMomenta(runningNormMeanOfResTEC_, runningNormVarOfResTEC_, detId.rawId(), resErrX);
+            // update residuals
+            this->updateOnlineMomenta(resDetailsTEC_, detid_db, uOrientation * resX * cmToUm, pullX);
           }
         }
 
-        const SiPixelRecHit *pixhit = dynamic_cast<const SiPixelRecHit *>(hit);
+        const SiPixelRecHit *pixhit = dynamic_cast<const SiPixelRecHit *>(*iHit);
 
         if (pixhit) {
           if (pixhit->isValid()) {
-            unsigned int subid = detId.subdetId();
-            int detid_db = detId.rawId();
-
-            // not yet available for phase-I
-            // pmap->fill(detid_db,1);
-
-            // float uOrientation(-999.F), vOrientation(-999.F);
-            //LocalPoint lUDirection(1.,0.,0.), lVDirection(0.,1.,0.);
+            if (!isPhase1_) {
+              pmap->fill(detid_db, 1);
+            }
 
             LocalPoint lp = (*iHit)->localPosition();
             //LocalError le = (*iHit)->localPositionError();
-
-            GlobalPoint gUDirection = geomDet->surface().toGlobal(lUDirection);
-            GlobalPoint gVDirection = geomDet->surface().toGlobal(lVDirection);
-
             GlobalPoint GP = geomDet->surface().toGlobal(lp);
-            GlobalPoint gPModule = geomDet->surface().toGlobal(lPModule);
 
             if ((subid == PixelSubdetector::PixelBarrel) || (subid == PixelSubdetector::PixelEndcap)) {
               // 1 = PXB, 2 = PXF
@@ -643,6 +704,18 @@ public:
                 uOrientation = deltaPhi(gUDirection.barePhi(), gPModule.barePhi()) >= 0. ? +1.F : -1.F;
                 vOrientation = gVDirection.z() - gPModule.z() >= 0 ? +1.F : -1.F;
 
+                // if the detid has never occcurred yet, set the local orientations
+                if (resDetailsBPixX_.find(detid_db) == resDetailsBPixX_.end()) {
+                  resDetailsBPixX_[detid_db].rDirection = gWDirection.perp() - gPModule.perp() >= 0 ? +1 : -1;
+                  resDetailsBPixX_[detid_db].zDirection = gVDirection.z() - gPModule.z() >= 0 ? +1 : -1;
+                }
+
+                // if the detid has never occcurred yet, set the local orientations
+                if (resDetailsBPixY_.find(detid_db) == resDetailsBPixY_.end()) {
+                  resDetailsBPixY_[detid_db].rDirection = gWDirection.perp() - gPModule.perp() >= 0 ? +1 : -1;
+                  resDetailsBPixY_[detid_db].zDirection = gVDirection.z() - gPModule.z() >= 0 ? +1 : -1;
+                }
+
                 hHitCountVsThetaBPix->Fill(GP.theta());
                 hHitCountVsPhiBPix->Fill(GP.phi());
 
@@ -650,41 +723,23 @@ public:
                 hHitCountVsXBPix->Fill(GP.x());
                 hHitCountVsYBPix->Fill(GP.y());
 
-                hBPixResXPrime->Fill(uOrientation * resX * 10000.);
-                hBPixResYPrime->Fill(vOrientation * resY * 10000.);
-                hBPixResXPull->Fill(resErrX);
-                hBPixResYPull->Fill(resErrY);
+                hBPixResXPrime->Fill(uOrientation * resX * cmToUm);
+                hBPixResYPrime->Fill(vOrientation * resY * cmToUm);
+                hBPixResXPull->Fill(pullX);
+                hBPixResYPull->Fill(pullY);
 
-                //std::cout<<"layer: "<<layer_num<<std::endl;
+                //edm::LogVerbatim("DMRChecker")<<"layer: "<<layer_num<<std::endl;
 
-                /*
-		runningMeanOfResBPixX_[detId.rawId()].first = (runningMeanOfResBPixY_[detId.rawId()].first+uOrientation*resX*10000.)/(runningMeanOfResBPixY_[detId.rawId()].second+1);
-		runningMeanOfResBPixX_[detId.rawId()].second+=1;
-		 
-		runningMeanOfResBPixY_[detId.rawId()].first = (runningMeanOfResBPixY_[detId.rawId()].first+vOrientation*resY*10000.)/(runningMeanOfResBPixY_[detId.rawId()].second+1);
-		runningMeanOfResBPixY_[detId.rawId()].second+=1;
-		*/
+                // update residuals X
+                this->updateOnlineMomenta(resDetailsBPixX_, detid_db, uOrientation * resX * cmToUm, pullX);
 
-                // absolute residuals X
-                this->updateOnlineMomenta(
-                    runningMeanOfResBPixX_, runningVarOfResBPixX_, detId.rawId(), uOrientation * resX * 10000.);
+                // update residuals Y
+                this->updateOnlineMomenta(resDetailsBPixY_, detid_db, vOrientation * resY * cmToUm, pullY);
 
-                // normalized residuals X
-                this->updateOnlineMomenta(
-                    runningNormMeanOfResBPixX_, runningNormVarOfResBPixX_, detId.rawId(), resErrX);
-
-                // absolute residuals Y
-                this->updateOnlineMomenta(
-                    runningMeanOfResBPixY_, runningVarOfResBPixY_, detId.rawId(), vOrientation * resY * 10000.);
-
-                // normalized residuals Y
-                this->updateOnlineMomenta(
-                    runningNormMeanOfResBPixY_, runningNormVarOfResBPixY_, detId.rawId(), resErrY);
-
-                fillByIndex(barrelLayersResidualsX, layer_num, uOrientation * resX * 10000.);
-                fillByIndex(barrelLayersPullsX, layer_num, resErrX);
-                fillByIndex(barrelLayersResidualsY, layer_num, vOrientation * resY * 10000.);
-                fillByIndex(barrelLayersPullsY, layer_num, resErrY);
+                fillByIndex(barrelLayersResidualsX, layer_num, uOrientation * resX * cmToUm);
+                fillByIndex(barrelLayersPullsX, layer_num, pullX);
+                fillByIndex(barrelLayersResidualsY, layer_num, vOrientation * resY * cmToUm);
+                fillByIndex(barrelLayersPullsY, layer_num, pullY);
 
               } else if (subid == PixelSubdetector::PixelEndcap) {
                 uOrientation = gUDirection.perp() - gPModule.perp() >= 0 ? +1.F : -1.F;
@@ -695,7 +750,7 @@ public:
 
                 int packedTopo = disk_num + 3 * (side_num - 1);
 
-                //std::cout<<"side: "<< side_num <<" disk: " << disk_num << " packedTopo: " << packedTopo <<" GP.z(): "<<GP.z()<<std::endl;
+                //edm::LogVerbatim("DMRChecker")<<"side: "<< side_num <<" disk: " << disk_num << " packedTopo: " << packedTopo <<" GP.z(): "<<GP.z()<<std::endl;
 
                 hHitCountVsThetaFPix->Fill(GP.theta());
                 hHitCountVsPhiFPix->Fill(GP.phi());
@@ -704,39 +759,33 @@ public:
                 hHitCountVsXFPix->Fill(GP.x());
                 hHitCountVsYFPix->Fill(GP.y());
 
-                hFPixResXPrime->Fill(uOrientation * resX * 10000.);
-                hFPixResYPrime->Fill(vOrientation * resY * 10000.);
-                hFPixResXPull->Fill(resErrX);
-                hFPixResYPull->Fill(resErrY);
+                hFPixResXPrime->Fill(uOrientation * resX * cmToUm);
+                hFPixResYPrime->Fill(vOrientation * resY * cmToUm);
+                hFPixResXPull->Fill(pullX);
+                hFPixResYPull->Fill(pullY);
 
-                fillByIndex(endcapDisksResidualsX, packedTopo, uOrientation * resX * 10000.);
-                fillByIndex(endcapDisksPullsX, packedTopo, resErrX);
-                fillByIndex(endcapDisksResidualsY, packedTopo, vOrientation * resY * 10000.);
-                fillByIndex(endcapDisksPullsY, packedTopo, resErrY);
+                fillByIndex(endcapDisksResidualsX, packedTopo, uOrientation * resX * cmToUm);
+                fillByIndex(endcapDisksPullsX, packedTopo, pullX);
+                fillByIndex(endcapDisksResidualsY, packedTopo, vOrientation * resY * cmToUm);
+                fillByIndex(endcapDisksPullsY, packedTopo, pullY);
 
-                /*
-		  runningMeanOfResFPixX_[detId.rawId()].first = ((runningMeanOfResFPixY_[detId.rawId()].first)+uOrientation*resX*10000.)/((runningMeanOfResFPixY_[detId.rawId()].second)+1);
-		  runningMeanOfResFPixX_[detId.rawId()].second+=1;
-		  
-		  runningMeanOfResFPixY_[detId.rawId()].first = ((runningMeanOfResFPixY_[detId.rawId()].first)+vOrientation*resY*10000.)/((runningMeanOfResFPixY_[detId.rawId()].second)+1);
-		  runningMeanOfResFPixY_[detId.rawId()].second+=1;
-		*/
+                // if the detid has never occcurred yet, set the local orientations
+                if (resDetailsFPixX_.find(detid_db) == resDetailsFPixX_.end()) {
+                  resDetailsFPixX_[detid_db].rDirection = gUDirection.perp() - gPModule.perp() >= 0 ? +1 : -1;
+                  resDetailsFPixX_[detid_db].zDirection = gWDirection.z() - gPModule.z() >= 0 ? +1 : -1;
+                }
 
-                // absolute residuals X
-                this->updateOnlineMomenta(
-                    runningMeanOfResFPixX_, runningVarOfResFPixX_, detId.rawId(), uOrientation * resX * 10000.);
+                // if the detid has never occcurred yet, set the local orientations
+                if (resDetailsFPixY_.find(detid_db) == resDetailsFPixY_.end()) {
+                  resDetailsFPixY_[detid_db].rDirection = gUDirection.perp() - gPModule.perp() >= 0 ? +1 : -1;
+                  resDetailsFPixY_[detid_db].zDirection = gWDirection.z() - gPModule.z() >= 0 ? +1 : -1;
+                }
 
-                // normalized residuals X
-                this->updateOnlineMomenta(
-                    runningNormMeanOfResFPixX_, runningNormVarOfResFPixX_, detId.rawId(), resErrX);
+                // update residuals X
+                this->updateOnlineMomenta(resDetailsFPixX_, detid_db, uOrientation * resX * cmToUm, pullX);
 
-                // absolute residuals Y
-                this->updateOnlineMomenta(
-                    runningMeanOfResFPixY_, runningVarOfResFPixY_, detId.rawId(), vOrientation * resY * 10000.);
-
-                // normalized residuals Y
-                this->updateOnlineMomenta(
-                    runningNormMeanOfResFPixY_, runningNormVarOfResFPixY_, detId.rawId(), resErrY);
+                // update residuals Y
+                this->updateOnlineMomenta(resDetailsFPixY_, detid_db, vOrientation * resY * cmToUm, pullY);
 
                 if (side_num == 1) {
                   hHitCountVsXFPixMinus->Fill(GP.x());
@@ -745,10 +794,10 @@ public:
                   hHitCountVsThetaFPixMinus->Fill(GP.theta());
                   hHitCountVsPhiFPixMinus->Fill(GP.phi());
 
-                  hFPixZMinusResXPrime->Fill(uOrientation * resX * 10000.);
-                  hFPixZMinusResYPrime->Fill(vOrientation * resY * 10000.);
-                  hFPixZMinusResXPull->Fill(resErrX);
-                  hFPixZMinusResYPull->Fill(resErrY);
+                  hFPixZMinusResXPrime->Fill(uOrientation * resX * cmToUm);
+                  hFPixZMinusResYPrime->Fill(vOrientation * resY * cmToUm);
+                  hFPixZMinusResXPull->Fill(pullX);
+                  hFPixZMinusResYPull->Fill(pullY);
 
                 } else {
                   hHitCountVsXFPixPlus->Fill(GP.x());
@@ -757,10 +806,10 @@ public:
                   hHitCountVsThetaFPixPlus->Fill(GP.theta());
                   hHitCountVsPhiFPixPlus->Fill(GP.phi());
 
-                  hFPixZPlusResXPrime->Fill(uOrientation * resX * 10000.);
-                  hFPixZPlusResYPrime->Fill(vOrientation * resY * 10000.);
-                  hFPixZPlusResXPull->Fill(resErrX);
-                  hFPixZPlusResYPull->Fill(resErrY);
+                  hFPixZPlusResXPrime->Fill(uOrientation * resX * cmToUm);
+                  hFPixZPlusResYPrime->Fill(vOrientation * resY * cmToUm);
+                  hFPixZPlusResXPull->Fill(pullX);
+                  hFPixZPlusResYPull->Fill(pullY);
                 }
               }
             }
@@ -769,235 +818,217 @@ public:
       }
 
       hHit2D->Fill(nHit2D);
+      hHit->Fill(track.numberOfValidHits());
+      hnhpxb->Fill(track.hitPattern().numberOfValidPixelBarrelHits());
+      hnhpxe->Fill(track.hitPattern().numberOfValidPixelEndcapHits());
+      hnhTIB->Fill(track.hitPattern().numberOfValidStripTIBHits());
+      hnhTID->Fill(track.hitPattern().numberOfValidStripTIDHits());
+      hnhTOB->Fill(track.hitPattern().numberOfValidStripTOBHits());
+      hnhTEC->Fill(track.hitPattern().numberOfValidStripTECHits());
 
-      // std::cout << "nHit2D: "<<nHit2D<<std::endl;
-
-      hHit->Fill(track->numberOfValidHits());
-      hnhpxb->Fill(track->hitPattern().numberOfValidPixelBarrelHits());
-      hnhpxe->Fill(track->hitPattern().numberOfValidPixelEndcapHits());
-      hnhTIB->Fill(track->hitPattern().numberOfValidStripTIBHits());
-      hnhTID->Fill(track->hitPattern().numberOfValidStripTIDHits());
-      hnhTOB->Fill(track->hitPattern().numberOfValidStripTOBHits());
-      hnhTEC->Fill(track->hitPattern().numberOfValidStripTECHits());
-
-      runHitsMap_[event.run()][0] += track->hitPattern().numberOfValidPixelBarrelHits();
-      runHitsMap_[event.run()][1] += track->hitPattern().numberOfValidPixelEndcapHits();
-      runHitsMap_[event.run()][2] += track->hitPattern().numberOfValidStripTIBHits();
-      runHitsMap_[event.run()][3] += track->hitPattern().numberOfValidStripTIDHits();
-      runHitsMap_[event.run()][4] += track->hitPattern().numberOfValidStripTOBHits();
-      runHitsMap_[event.run()][5] += track->hitPattern().numberOfValidStripTECHits();
+      runHitsMap_[event.run()][0] += track.hitPattern().numberOfValidPixelBarrelHits();
+      runHitsMap_[event.run()][1] += track.hitPattern().numberOfValidPixelEndcapHits();
+      runHitsMap_[event.run()][2] += track.hitPattern().numberOfValidStripTIBHits();
+      runHitsMap_[event.run()][3] += track.hitPattern().numberOfValidStripTIDHits();
+      runHitsMap_[event.run()][4] += track.hitPattern().numberOfValidStripTOBHits();
+      runHitsMap_[event.run()][5] += track.hitPattern().numberOfValidStripTECHits();
 
       // fill hit composition histogram
-      if (track->hitPattern().numberOfValidPixelBarrelHits() != 0) {
-        hHitComposition->Fill(0., track->hitPattern().numberOfValidPixelBarrelHits());
+      if (track.hitPattern().numberOfValidPixelBarrelHits() != 0) {
+        hHitComposition->Fill(0., track.hitPattern().numberOfValidPixelBarrelHits());
 
-        pNBpixHitsVsVx->Fill(track->vx(), track->hitPattern().numberOfValidPixelBarrelHits());
-        pNBpixHitsVsVy->Fill(track->vy(), track->hitPattern().numberOfValidPixelBarrelHits());
-        pNBpixHitsVsVz->Fill(track->vz(), track->hitPattern().numberOfValidPixelBarrelHits());
+        pNBpixHitsVsVx->Fill(track.vx(), track.hitPattern().numberOfValidPixelBarrelHits());
+        pNBpixHitsVsVy->Fill(track.vy(), track.hitPattern().numberOfValidPixelBarrelHits());
+        pNBpixHitsVsVz->Fill(track.vz(), track.hitPattern().numberOfValidPixelBarrelHits());
       }
-      if (track->hitPattern().numberOfValidPixelEndcapHits() != 0) {
-        hHitComposition->Fill(1., track->hitPattern().numberOfValidPixelEndcapHits());
+      if (track.hitPattern().numberOfValidPixelEndcapHits() != 0) {
+        hHitComposition->Fill(1., track.hitPattern().numberOfValidPixelEndcapHits());
       }
-      if (track->hitPattern().numberOfValidStripTIBHits() != 0) {
-        hHitComposition->Fill(2., track->hitPattern().numberOfValidStripTIBHits());
+      if (track.hitPattern().numberOfValidStripTIBHits() != 0) {
+        hHitComposition->Fill(2., track.hitPattern().numberOfValidStripTIBHits());
       }
-      if (track->hitPattern().numberOfValidStripTIDHits() != 0) {
-        hHitComposition->Fill(3., track->hitPattern().numberOfValidStripTIDHits());
+      if (track.hitPattern().numberOfValidStripTIDHits() != 0) {
+        hHitComposition->Fill(3., track.hitPattern().numberOfValidStripTIDHits());
       }
-      if (track->hitPattern().numberOfValidStripTOBHits() != 0) {
-        hHitComposition->Fill(4., track->hitPattern().numberOfValidStripTOBHits());
+      if (track.hitPattern().numberOfValidStripTOBHits() != 0) {
+        hHitComposition->Fill(4., track.hitPattern().numberOfValidStripTOBHits());
       }
-      if (track->hitPattern().numberOfValidStripTECHits() != 0) {
-        hHitComposition->Fill(5., track->hitPattern().numberOfValidStripTECHits());
+      if (track.hitPattern().numberOfValidStripTECHits() != 0) {
+        hHitComposition->Fill(5., track.hitPattern().numberOfValidStripTECHits());
       }
 
-      hCharge->Fill(track->charge());
-      hQoverP->Fill(track->qoverp());
-      hQoverPZoom->Fill(track->qoverp());
-      hPt->Fill(track->pt());
-      hP->Fill(track->p());
-      hchi2ndof->Fill(track->normalizedChi2());
-      hEta->Fill(track->eta());
-      hPhi->Fill(track->phi());
+      hCharge->Fill(track.charge());
+      hQoverP->Fill(track.qoverp());
+      hQoverPZoom->Fill(track.qoverp());
+      hPt->Fill(track.pt());
+      hP->Fill(track.p());
+      hchi2ndof->Fill(track.normalizedChi2());
+      hEta->Fill(track.eta());
+      hPhi->Fill(track.phi());
 
-      //std::cout << "nHit2D: "<<nHit2D<<std::endl;
+      if (fabs(track.eta()) < 0.8)
+        hPhiBarrel->Fill(track.phi());
+      if (track.eta() > 0.8 && track.eta() < 1.4)
+        hPhiOverlapPlus->Fill(track.phi());
+      if (track.eta() < -0.8 && track.eta() > -1.4)
+        hPhiOverlapMinus->Fill(track.phi());
+      if (track.eta() > 1.4)
+        hPhiEndcapPlus->Fill(track.phi());
+      if (track.eta() < -1.4)
+        hPhiEndcapMinus->Fill(track.phi());
 
-      if (fabs(track->eta()) < 0.8)
-        hPhiBarrel->Fill(track->phi());
-      if (track->eta() > 0.8 && track->eta() < 1.4)
-        hPhiOverlapPlus->Fill(track->phi());
-      if (track->eta() < -0.8 && track->eta() > -1.4)
-        hPhiOverlapMinus->Fill(track->phi());
-      if (track->eta() > 1.4)
-        hPhiEndcapPlus->Fill(track->phi());
-      if (track->eta() < -1.4)
-        hPhiEndcapMinus->Fill(track->phi());
+      hd0->Fill(track.d0());
+      hdz->Fill(track.dz());
+      hdxy->Fill(track.dxy());
+      hvx->Fill(track.vx());
+      hvy->Fill(track.vy());
+      hvz->Fill(track.vz());
 
-      hd0->Fill(track->d0());
-      hdz->Fill(track->dz());
-      hdxy->Fill(track->dxy());
-      hvx->Fill(track->vx());
-      hvy->Fill(track->vy());
-      hvz->Fill(track->vz());
-
-      //std::cout << "nHit2D: "<<nHit2D<<std::endl;
-
-      // int myalgo=-88;
-      // if(track->algo()==reco::TrackBase::undefAlgorithm)myalgo=0;
-      // if(track->algo()==reco::TrackBase::ctf)myalgo=1;
-      // if(track->algo()==reco::TrackBase::iter0)myalgo=4;
-      // if(track->algo()==reco::TrackBase::iter1)myalgo=5;
-      // if(track->algo()==reco::TrackBase::iter2)myalgo=6;
-      // if(track->algo()==reco::TrackBase::iter3)myalgo=7;
-      // if(track->algo()==reco::TrackBase::iter4)myalgo=8;
-      // if(track->algo()==reco::TrackBase::iter5)myalgo=9;
-      // if(track->algo()==reco::TrackBase::iter6)myalgo=10;
-      // if(track->algo()==reco::TrackBase::iter7)myalgo=11;
-      // htrkAlgo->Fill(myalgo);
+      htrkAlgo->Fill(track.algo());
 
       int myquality = -99;
-      if (track->quality(reco::TrackBase::undefQuality)) {
+      if (track.quality(reco::TrackBase::undefQuality)) {
         myquality = -1;
         htrkQuality->Fill(myquality);
       }
-      if (track->quality(reco::TrackBase::loose)) {
+      if (track.quality(reco::TrackBase::loose)) {
         myquality = 0;
         htrkQuality->Fill(myquality);
       }
-      if (track->quality(reco::TrackBase::tight)) {
+      if (track.quality(reco::TrackBase::tight)) {
         myquality = 1;
         htrkQuality->Fill(myquality);
       }
-      if (track->quality(reco::TrackBase::highPurity) && (!isCosmics_)) {
+      if (track.quality(reco::TrackBase::highPurity) && (!isCosmics_)) {
         myquality = 2;
         htrkQuality->Fill(myquality);
-        hPhp->Fill(track->p());
-        hPthp->Fill(track->pt());
-        hHithp->Fill(track->numberOfValidHits());
-        hEtahp->Fill(track->eta());
-        hPhihp->Fill(track->phi());
-        hchi2ndofhp->Fill(track->normalizedChi2());
-        hchi2Probhp->Fill(TMath::Prob(track->chi2(), track->ndof()));
+        hPhp->Fill(track.p());
+        hPthp->Fill(track.pt());
+        hHithp->Fill(track.numberOfValidHits());
+        hEtahp->Fill(track.eta());
+        hPhihp->Fill(track.phi());
+        hchi2ndofhp->Fill(track.normalizedChi2());
+        hchi2Probhp->Fill(TMath::Prob(track.chi2(), track.ndof()));
         nHighPurityTracks++;
       }
-      if (track->quality(reco::TrackBase::confirmed)) {
+      if (track.quality(reco::TrackBase::confirmed)) {
         myquality = 3;
         htrkQuality->Fill(myquality);
       }
-      if (track->quality(reco::TrackBase::goodIterative)) {
+      if (track.quality(reco::TrackBase::goodIterative)) {
         myquality = 4;
         htrkQuality->Fill(myquality);
       }
 
       // Fill 1D track histos
       static const int etaindex = this->GetIndex(vTrackHistos_, "h_tracketa");
-      vTrackHistos_[etaindex]->Fill(track->eta());
+      vTrackHistos_[etaindex]->Fill(track.eta());
       static const int phiindex = this->GetIndex(vTrackHistos_, "h_trackphi");
-      vTrackHistos_[phiindex]->Fill(track->phi());
+      vTrackHistos_[phiindex]->Fill(track.phi());
       static const int numOfValidHitsindex = this->GetIndex(vTrackHistos_, "h_trackNumberOfValidHits");
-      vTrackHistos_[numOfValidHitsindex]->Fill(track->numberOfValidHits());
+      vTrackHistos_[numOfValidHitsindex]->Fill(track.numberOfValidHits());
       static const int numOfLostHitsindex = this->GetIndex(vTrackHistos_, "h_trackNumberOfLostHits");
-      vTrackHistos_[numOfLostHitsindex]->Fill(track->numberOfLostHits());
+      vTrackHistos_[numOfLostHitsindex]->Fill(track.numberOfLostHits());
 
-      GlobalPoint gPoint(track->vx(), track->vy(), track->vz());
+      GlobalPoint gPoint(track.vx(), track.vy(), track.vz());
       double theLocalMagFieldInInverseGeV = magneticField_->inInverseGeV(gPoint).z();
-      double kappa = -track->charge() * theLocalMagFieldInInverseGeV / track->pt();
+      double kappa = -track.charge() * theLocalMagFieldInInverseGeV / track.pt();
 
       static const int kappaindex = this->GetIndex(vTrackHistos_, "h_curvature");
       vTrackHistos_[kappaindex]->Fill(kappa);
       static const int kappaposindex = this->GetIndex(vTrackHistos_, "h_curvature_pos");
-      if (track->charge() > 0)
+      if (track.charge() > 0)
         vTrackHistos_[kappaposindex]->Fill(fabs(kappa));
       static const int kappanegindex = this->GetIndex(vTrackHistos_, "h_curvature_neg");
-      if (track->charge() < 0)
+      if (track.charge() < 0)
         vTrackHistos_[kappanegindex]->Fill(fabs(kappa));
 
-      double chi2Prob = TMath::Prob(track->chi2(), track->ndof());
-      double normchi2 = track->normalizedChi2();
+      double chi2Prob = TMath::Prob(track.chi2(), track.ndof());
+      double normchi2 = track.normalizedChi2();
 
       static const int normchi2index = this->GetIndex(vTrackHistos_, "h_normchi2");
       vTrackHistos_[normchi2index]->Fill(normchi2);
       static const int chi2index = this->GetIndex(vTrackHistos_, "h_chi2");
-      vTrackHistos_[chi2index]->Fill(track->chi2());
+      vTrackHistos_[chi2index]->Fill(track.chi2());
       static const int chi2Probindex = this->GetIndex(vTrackHistos_, "h_chi2Prob");
       vTrackHistos_[chi2Probindex]->Fill(chi2Prob);
       static const int ptindex = this->GetIndex(vTrackHistos_, "h_pt");
       static const int pt2index = this->GetIndex(vTrackHistos_, "h_ptrebin");
-      vTrackHistos_[ptindex]->Fill(track->pt());
-      vTrackHistos_[pt2index]->Fill(track->pt());
-      if (track->ptError() != 0.) {
+      vTrackHistos_[ptindex]->Fill(track.pt());
+      vTrackHistos_[pt2index]->Fill(track.pt());
+      if (track.ptError() != 0.) {
         static const int ptResolutionindex = this->GetIndex(vTrackHistos_, "h_ptResolution");
-        vTrackHistos_[ptResolutionindex]->Fill(track->ptError() / track->pt());
+        vTrackHistos_[ptResolutionindex]->Fill(track.ptError() / track.pt());
       }
       // Fill track profiles
       static const int d0phiindex = this->GetIndex(vTrackProfiles_, "p_d0_vs_phi");
-      vTrackProfiles_[d0phiindex]->Fill(track->phi(), track->d0());
+      vTrackProfiles_[d0phiindex]->Fill(track.phi(), track.d0());
       static const int dzphiindex = this->GetIndex(vTrackProfiles_, "p_dz_vs_phi");
-      vTrackProfiles_[dzphiindex]->Fill(track->phi(), track->dz());
+      vTrackProfiles_[dzphiindex]->Fill(track.phi(), track.dz());
       static const int d0etaindex = this->GetIndex(vTrackProfiles_, "p_d0_vs_eta");
-      vTrackProfiles_[d0etaindex]->Fill(track->eta(), track->d0());
+      vTrackProfiles_[d0etaindex]->Fill(track.eta(), track.d0());
       static const int dzetaindex = this->GetIndex(vTrackProfiles_, "p_dz_vs_eta");
-      vTrackProfiles_[dzetaindex]->Fill(track->eta(), track->dz());
+      vTrackProfiles_[dzetaindex]->Fill(track.eta(), track.dz());
       static const int chiProbphiindex = this->GetIndex(vTrackProfiles_, "p_chi2Prob_vs_phi");
-      vTrackProfiles_[chiProbphiindex]->Fill(track->phi(), chi2Prob);
+      vTrackProfiles_[chiProbphiindex]->Fill(track.phi(), chi2Prob);
       static const int chiProbabsd0index = this->GetIndex(vTrackProfiles_, "p_chi2Prob_vs_d0");
-      vTrackProfiles_[chiProbabsd0index]->Fill(fabs(track->d0()), chi2Prob);
+      vTrackProfiles_[chiProbabsd0index]->Fill(fabs(track.d0()), chi2Prob);
       static const int chiProbabsdzindex = this->GetIndex(vTrackProfiles_, "p_chi2Prob_vs_dz");
-      vTrackProfiles_[chiProbabsdzindex]->Fill(track->dz(), chi2Prob);
+      vTrackProfiles_[chiProbabsdzindex]->Fill(track.dz(), chi2Prob);
       static const int chiphiindex = this->GetIndex(vTrackProfiles_, "p_chi2_vs_phi");
-      vTrackProfiles_[chiphiindex]->Fill(track->phi(), track->chi2());
+      vTrackProfiles_[chiphiindex]->Fill(track.phi(), track.chi2());
       static const int normchiphiindex = this->GetIndex(vTrackProfiles_, "p_normchi2_vs_phi");
-      vTrackProfiles_[normchiphiindex]->Fill(track->phi(), normchi2);
+      vTrackProfiles_[normchiphiindex]->Fill(track.phi(), normchi2);
       static const int chietaindex = this->GetIndex(vTrackProfiles_, "p_chi2_vs_eta");
-      vTrackProfiles_[chietaindex]->Fill(track->eta(), track->chi2());
+      vTrackProfiles_[chietaindex]->Fill(track.eta(), track.chi2());
       static const int normchiptindex = this->GetIndex(vTrackProfiles_, "p_normchi2_vs_pt");
-      vTrackProfiles_[normchiptindex]->Fill(track->pt(), normchi2);
+      vTrackProfiles_[normchiptindex]->Fill(track.pt(), normchi2);
       static const int normchipindex = this->GetIndex(vTrackProfiles_, "p_normchi2_vs_p");
-      vTrackProfiles_[normchipindex]->Fill(track->p(), normchi2);
+      vTrackProfiles_[normchipindex]->Fill(track.p(), normchi2);
       static const int chiProbetaindex = this->GetIndex(vTrackProfiles_, "p_chi2Prob_vs_eta");
-      vTrackProfiles_[chiProbetaindex]->Fill(track->eta(), chi2Prob);
+      vTrackProfiles_[chiProbetaindex]->Fill(track.eta(), chi2Prob);
       static const int normchietaindex = this->GetIndex(vTrackProfiles_, "p_normchi2_vs_eta");
-      vTrackProfiles_[normchietaindex]->Fill(track->eta(), normchi2);
+      vTrackProfiles_[normchietaindex]->Fill(track.eta(), normchi2);
       static const int kappaphiindex = this->GetIndex(vTrackProfiles_, "p_kappa_vs_phi");
-      vTrackProfiles_[kappaphiindex]->Fill(track->phi(), kappa);
+      vTrackProfiles_[kappaphiindex]->Fill(track.phi(), kappa);
       static const int kappaetaindex = this->GetIndex(vTrackProfiles_, "p_kappa_vs_eta");
-      vTrackProfiles_[kappaetaindex]->Fill(track->eta(), kappa);
+      vTrackProfiles_[kappaetaindex]->Fill(track.eta(), kappa);
       static const int ptResphiindex = this->GetIndex(vTrackProfiles_, "p_ptResolution_vs_phi");
-      vTrackProfiles_[ptResphiindex]->Fill(track->phi(), track->ptError() / track->pt());
+      vTrackProfiles_[ptResphiindex]->Fill(track.phi(), track.ptError() / track.pt());
       static const int ptResetaindex = this->GetIndex(vTrackProfiles_, "p_ptResolution_vs_eta");
-      vTrackProfiles_[ptResetaindex]->Fill(track->eta(), track->ptError() / track->pt());
+      vTrackProfiles_[ptResetaindex]->Fill(track.eta(), track.ptError() / track.pt());
 
       // Fill 2D track histos
       static const int d0phiindex_2d = this->GetIndex(vTrack2DHistos_, "h2_d0_vs_phi");
-      vTrack2DHistos_[d0phiindex_2d]->Fill(track->phi(), track->d0());
+      vTrack2DHistos_[d0phiindex_2d]->Fill(track.phi(), track.d0());
       static const int dzphiindex_2d = this->GetIndex(vTrack2DHistos_, "h2_dz_vs_phi");
-      vTrack2DHistos_[dzphiindex_2d]->Fill(track->phi(), track->dz());
+      vTrack2DHistos_[dzphiindex_2d]->Fill(track.phi(), track.dz());
       static const int d0etaindex_2d = this->GetIndex(vTrack2DHistos_, "h2_d0_vs_eta");
-      vTrack2DHistos_[d0etaindex_2d]->Fill(track->eta(), track->d0());
+      vTrack2DHistos_[d0etaindex_2d]->Fill(track.eta(), track.d0());
       static const int dzetaindex_2d = this->GetIndex(vTrack2DHistos_, "h2_dz_vs_eta");
-      vTrack2DHistos_[dzetaindex_2d]->Fill(track->eta(), track->dz());
+      vTrack2DHistos_[dzetaindex_2d]->Fill(track.eta(), track.dz());
       static const int chiphiindex_2d = this->GetIndex(vTrack2DHistos_, "h2_chi2_vs_phi");
-      vTrack2DHistos_[chiphiindex_2d]->Fill(track->phi(), track->chi2());
+      vTrack2DHistos_[chiphiindex_2d]->Fill(track.phi(), track.chi2());
       static const int chiProbphiindex_2d = this->GetIndex(vTrack2DHistos_, "h2_chi2Prob_vs_phi");
-      vTrack2DHistos_[chiProbphiindex_2d]->Fill(track->phi(), chi2Prob);
+      vTrack2DHistos_[chiProbphiindex_2d]->Fill(track.phi(), chi2Prob);
       static const int chiProbabsd0index_2d = this->GetIndex(vTrack2DHistos_, "h2_chi2Prob_vs_d0");
-      vTrack2DHistos_[chiProbabsd0index_2d]->Fill(fabs(track->d0()), chi2Prob);
+      vTrack2DHistos_[chiProbabsd0index_2d]->Fill(fabs(track.d0()), chi2Prob);
       static const int normchiphiindex_2d = this->GetIndex(vTrack2DHistos_, "h2_normchi2_vs_phi");
-      vTrack2DHistos_[normchiphiindex_2d]->Fill(track->phi(), normchi2);
+      vTrack2DHistos_[normchiphiindex_2d]->Fill(track.phi(), normchi2);
       static const int chietaindex_2d = this->GetIndex(vTrack2DHistos_, "h2_chi2_vs_eta");
-      vTrack2DHistos_[chietaindex_2d]->Fill(track->eta(), track->chi2());
+      vTrack2DHistos_[chietaindex_2d]->Fill(track.eta(), track.chi2());
       static const int chiProbetaindex_2d = this->GetIndex(vTrack2DHistos_, "h2_chi2Prob_vs_eta");
-      vTrack2DHistos_[chiProbetaindex_2d]->Fill(track->eta(), chi2Prob);
+      vTrack2DHistos_[chiProbetaindex_2d]->Fill(track.eta(), chi2Prob);
       static const int normchietaindex_2d = this->GetIndex(vTrack2DHistos_, "h2_normchi2_vs_eta");
-      vTrack2DHistos_[normchietaindex_2d]->Fill(track->eta(), normchi2);
+      vTrack2DHistos_[normchietaindex_2d]->Fill(track.eta(), normchi2);
       static const int kappaphiindex_2d = this->GetIndex(vTrack2DHistos_, "h2_kappa_vs_phi");
-      vTrack2DHistos_[kappaphiindex_2d]->Fill(track->phi(), kappa);
+      vTrack2DHistos_[kappaphiindex_2d]->Fill(track.phi(), kappa);
       static const int kappaetaindex_2d = this->GetIndex(vTrack2DHistos_, "h2_kappa_vs_eta");
-      vTrack2DHistos_[kappaetaindex_2d]->Fill(track->eta(), kappa);
+      vTrack2DHistos_[kappaetaindex_2d]->Fill(track.eta(), kappa);
       static const int normchi2kappa_2d = this->GetIndex(vTrack2DHistos_, "h2_normchi2_vs_kappa");
       vTrack2DHistos_[normchi2kappa_2d]->Fill(normchi2, kappa);
 
-      //std::cout << "filling histos"<<std::endl;
+      //edm::LogVerbatim("DMRChecker") << "filling histos"<<std::endl;
 
       //dxy with respect to the beamspot
       reco::BeamSpot beamSpot;
@@ -1006,8 +1037,8 @@ public:
       if (beamSpotHandle.isValid()) {
         beamSpot = *beamSpotHandle;
         math::XYZPoint point(beamSpot.x0(), beamSpot.y0(), beamSpot.z0());
-        double dxy = track->dxy(point);
-        double dz = track->dz(point);
+        double dxy = track.dxy(point);
+        double dz = track.dz(point);
         hdxyBS->Fill(dxy);
         hd0BS->Fill(-dxy);
         hdzBS->Fill(dz);
@@ -1023,10 +1054,10 @@ public:
       if (vertexHandle.isValid()) {
         for (reco::VertexCollection::const_iterator pvtx = vertexHandle->begin(); pvtx != vertexHandle->end(); ++pvtx) {
           math::XYZPoint mypoint(pvtx->x(), pvtx->y(), pvtx->z());
-          if (abs(mindxy) > abs(track->dxy(mypoint))) {
-            mindxy = track->dxy(mypoint);
-            dz = track->dz(mypoint);
-            //std::cout<<"dxy: "<<mindxy<<"dz: "<<dz<<std::endl;
+          if (abs(mindxy) > abs(track.dxy(mypoint))) {
+            mindxy = track.dxy(mypoint);
+            dz = track.dz(mypoint);
+            //edm::LogVerbatim("DMRChecker")<<"dxy: "<<mindxy<<"dz: "<<dz<<std::endl;
           }
         }
 
@@ -1034,9 +1065,9 @@ public:
         hd0PV->Fill(-mindxy);
         hdzPV->Fill(dz);
 
-        hd0PVvsphi->Fill(track->phi(), -mindxy);
-        hd0PVvseta->Fill(track->eta(), -mindxy);
-        hd0PVvspt->Fill(track->pt(), -mindxy);
+        hd0PVvsphi->Fill(track.phi(), -mindxy);
+        hd0PVvseta->Fill(track.eta(), -mindxy);
+        hd0PVvspt->Fill(track.pt(), -mindxy);
 
       } else {
         hdxyPV->Fill(100);
@@ -1044,21 +1075,21 @@ public:
         hdzPV->Fill(100);
       }
 
-      // std::cout<<"end of track loop"<<std::endl;
+      // edm::LogVerbatim("DMRChecker")<<"end of track loop"<<std::endl;
     }
 
-    // std::cout<<"end of analysis"<<std::endl;
+    // edm::LogVerbatim("DMRChecker")<<"end of analysis"<<std::endl;
 
     hNtrk->Fill(tC.size());
     hNtrkZoom->Fill(tC.size());
     hNhighPurity->Fill(nHighPurityTracks);
 
-    // std::cout<<"end of analysis"<<std::endl;
+    // edm::LogVerbatim("DMRChecker")<<"end of analysis"<<std::endl;
   }
 
   void beginJob() override {
     if (DEBUG)
-      cout << __LINE__ << endl;
+      edm::LogVerbatim("DMRChecker") << __LINE__ << endl;
 
     TH1D::SetDefaultSumw2(kTRUE);
 
@@ -1068,24 +1099,24 @@ public:
     hrun = fs->make<TH1D>("h_run", "run", 100000, 230000, 240000);
     hlumi = fs->make<TH1D>("h_lumi", "lumi", 1000, 0, 1000);
 
+    // clang-format off
+
     hchi2ndof = fs->make<TH1D>("h_chi2ndof", "chi2/ndf;#chi^{2}/ndf;tracks", 100, 0, 5.);
     hCharge = fs->make<TH1D>("h_charge", "charge;Charge of the track;tracks", 5, -2.5, 2.5);
     hNtrk = fs->make<TH1D>("h_Ntrk", "ntracks;Number of Tracks;events", 200, 0., 200.);
     hNtrkZoom = fs->make<TH1D>("h_NtrkZoom", "Number of tracks; number of tracks;events", 10, 0., 10.);
-    hNhighPurity =
-        fs->make<TH1D>("h_NhighPurity", "n. high purity tracks;Number of high purity tracks;events", 200, 0., 200.);
+    hNhighPurity = fs->make<TH1D>("h_NhighPurity", "n. high purity tracks;Number of high purity tracks;events", 200, 0., 200.);
 
-    htrkAlgo = fs->make<TH1I>("h_trkAlgo", "tracking step;iterative tracking step;tracks", 12, -0.5, 11.5);
-    TString algos[12] = {
-        "undef", "ctf", "rs", "cosmic", "iter0", "iter1", "iter2", "iter3", "iter4", "iter5", "iter6", "iter7"};
+    int nAlgos = reco::TrackBase::algoSize;
+    htrkAlgo = fs->make<TH1I>("h_trkAlgo", "tracking step;iterative tracking step;tracks", nAlgos, -0.5, nAlgos - 0.5);
     for (int nbin = 1; nbin <= htrkAlgo->GetNbinsX(); nbin++) {
-      htrkAlgo->GetXaxis()->SetBinLabel(nbin, algos[nbin - 1]);
+      htrkAlgo->GetXaxis()->SetBinLabel(nbin, reco::TrackBase::algoNames[nbin - 1].c_str());
     }
 
     htrkQuality = fs->make<TH1I>("h_trkQuality", "track quality;track quality;tracks", 6, -1, 5);
-    TString qualities[7] = {"undef", "loose", "tight", "highPurity", "confirmed", "goodIterative"};
+    std::string qualities[7] = {"undef", "loose", "tight", "highPurity", "confirmed", "goodIterative"};
     for (int nbin = 1; nbin <= htrkQuality->GetNbinsX(); nbin++) {
-      htrkQuality->GetXaxis()->SetBinLabel(nbin, qualities[nbin - 1]);
+      htrkQuality->GetXaxis()->SetBinLabel(nbin, qualities[nbin - 1].c_str());
     }
 
     hP = fs->make<TH1D>("h_P", "Momentum;track momentum [GeV];tracks", 100, 0., 100.);
@@ -1097,41 +1128,25 @@ public:
 
     // Pixel
 
-    hBPixResXPrime =
-        fs->make<TH1D>("h_BPixResXPrime", "BPix track X-residuals;res_{X'} [#mum];hits", 100, -1000., 1000.);
-    hFPixResXPrime =
-        fs->make<TH1D>("h_FPixResXPrime", "FPix track X-residuals;res_{X'} [#mum];hits", 100, -1000., 1000.);
-    hFPixZPlusResXPrime =
-        fs->make<TH1D>("h_FPixZPlusResXPrime", "FPix (Z+) track X-residuals;res_{X'} [#mum];hits", 100, -1000., 1000.);
-    hFPixZMinusResXPrime =
-        fs->make<TH1D>("h_FPixZMinusResXPrime", "FPix (Z-) track X-residuals;res_{X'} [#mum];hits", 100, -1000., 1000.);
+    hBPixResXPrime = fs->make<TH1D>("h_BPixResXPrime", "BPix track X-residuals;res_{X'} [#mum];hits", 100, -1000., 1000.);
+    hFPixResXPrime = fs->make<TH1D>("h_FPixResXPrime", "FPix track X-residuals;res_{X'} [#mum];hits", 100, -1000., 1000.);
+    hFPixZPlusResXPrime = fs->make<TH1D>("h_FPixZPlusResXPrime", "FPix (Z+) track X-residuals;res_{X'} [#mum];hits", 100, -1000., 1000.);
+    hFPixZMinusResXPrime = fs->make<TH1D>("h_FPixZMinusResXPrime", "FPix (Z-) track X-residuals;res_{X'} [#mum];hits", 100, -1000., 1000.);
 
-    hBPixResYPrime =
-        fs->make<TH1D>("h_BPixResYPrime", "BPix track Y-residuals;res_{Y'} [#mum];hits", 100, -1000., 1000.);
-    hFPixResYPrime =
-        fs->make<TH1D>("h_FPixResYPrime", "FPix track Y-residuals;res_{Y'} [#mum];hits", 100, -1000., 1000.);
-    hFPixZPlusResYPrime =
-        fs->make<TH1D>("h_FPixZPlusResYPrime", "FPix (Z+) track Y-residuals;res_{Y'} [#mum];hits", 100, -1000., 1000.);
-    hFPixZMinusResYPrime =
-        fs->make<TH1D>("h_FPixZMinusResYPrime", "FPix (Z-) track Y-residuals;res_{Y'} [#mum];hits", 100, -1000., 1000.);
+    hBPixResYPrime = fs->make<TH1D>("h_BPixResYPrime", "BPix track Y-residuals;res_{Y'} [#mum];hits", 100, -1000., 1000.);
+    hFPixResYPrime = fs->make<TH1D>("h_FPixResYPrime", "FPix track Y-residuals;res_{Y'} [#mum];hits", 100, -1000., 1000.);
+    hFPixZPlusResYPrime = fs->make<TH1D>("h_FPixZPlusResYPrime", "FPix (Z+) track Y-residuals;res_{Y'} [#mum];hits", 100, -1000., 1000.);
+    hFPixZMinusResYPrime = fs->make<TH1D>("h_FPixZMinusResYPrime", "FPix (Z-) track Y-residuals;res_{Y'} [#mum];hits", 100, -1000., 1000.);
 
-    hBPixResXPull =
-        fs->make<TH1D>("h_BPixResXPull", "BPix track X-pulls;res_{X'}/#sigma_{res_{X'}};hits", 100, -5., 5.);
-    hFPixResXPull =
-        fs->make<TH1D>("h_FPixResXPull", "FPix track X-pulls;res_{X'}/#sigma_{res_{X'}};hits", 100, -5., 5.);
-    hFPixZPlusResXPull =
-        fs->make<TH1D>("h_FPixZPlusResXPull", "FPix (Z+) track X-pulls;res_{X'}/#sigma_{res_{X'}};hits", 100, -5., 5.);
-    hFPixZMinusResXPull =
-        fs->make<TH1D>("h_FPixZMinusResXPull", "FPix (Z-) track X-pulls;res_{X'}/#sigma_{res_{X'}};hits", 100, -5., 5.);
+    hBPixResXPull = fs->make<TH1D>("h_BPixResXPull", "BPix track X-pulls;res_{X'}/#sigma_{res_{X'}};hits", 100, -5., 5.);
+    hFPixResXPull = fs->make<TH1D>("h_FPixResXPull", "FPix track X-pulls;res_{X'}/#sigma_{res_{X'}};hits", 100, -5., 5.);
+    hFPixZPlusResXPull = fs->make<TH1D>("h_FPixZPlusResXPull", "FPix (Z+) track X-pulls;res_{X'}/#sigma_{res_{X'}};hits", 100, -5., 5.);
+    hFPixZMinusResXPull = fs->make<TH1D>("h_FPixZMinusResXPull", "FPix (Z-) track X-pulls;res_{X'}/#sigma_{res_{X'}};hits", 100, -5., 5.);
 
-    hBPixResYPull =
-        fs->make<TH1D>("h_BPixResYPull", "BPix track Y-pulls;res_{Y'}/#sigma_{res_{Y'}};hits", 100, -5., 5.);
-    hFPixResYPull =
-        fs->make<TH1D>("h_FPixResYPull", "FPix track Y-pulls;res_{Y'}/#sigma_{res_{Y'}};hits", 100, -5., 5.);
-    hFPixZPlusResYPull =
-        fs->make<TH1D>("h_FPixZPlusResYPull", "FPix (Z+) track Y-pulls;res_{Y'}/#sigma_{res_{Y'}};hits", 100, -5., 5.);
-    hFPixZMinusResYPull =
-        fs->make<TH1D>("h_FPixZMinusResYPull", "FPix (Z-) track Y-pulls;res_{Y'}/#sigma_{res_{Y'}};hits", 100, -5., 5.);
+    hBPixResYPull = fs->make<TH1D>("h_BPixResYPull", "BPix track Y-pulls;res_{Y'}/#sigma_{res_{Y'}};hits", 100, -5., 5.);
+    hFPixResYPull = fs->make<TH1D>("h_FPixResYPull", "FPix track Y-pulls;res_{Y'}/#sigma_{res_{Y'}};hits", 100, -5., 5.);
+    hFPixZPlusResYPull = fs->make<TH1D>("h_FPixZPlusResYPull", "FPix (Z+) track Y-pulls;res_{Y'}/#sigma_{res_{Y'}};hits", 100, -5., 5.);
+    hFPixZMinusResYPull = fs->make<TH1D>("h_FPixZMinusResYPull", "FPix (Z-) track Y-pulls;res_{Y'}/#sigma_{res_{Y'}};hits", 100, -5., 5.);
 
     // Strips
 
@@ -1148,8 +1163,7 @@ public:
     // hit counts
 
     hHitCountVsZBPix = fs->make<TH1D>("h_HitCountVsZBpix", "Number of BPix hits vs z;hit global z;hits", 60, -30, 30);
-    hHitCountVsZFPix =
-        fs->make<TH1D>("h_HitCountVsZFpix", "Number of FPix hits vs z;hit global z;hits", 100, -100, 100);
+    hHitCountVsZFPix = fs->make<TH1D>("h_HitCountVsZFpix", "Number of FPix hits vs z;hit global z;hits", 100, -100, 100);
 
     hHitCountVsXBPix = fs->make<TH1D>("h_HitCountVsXBpix", "Number of BPix hits vs x;hit global x;hits", 20, -20, 20);
     hHitCountVsXFPix = fs->make<TH1D>("h_HitCountVsXFpix", "Number of FPix hits vs x;hit global x;hits", 20, -20, 20);
@@ -1157,48 +1171,28 @@ public:
     hHitCountVsYBPix = fs->make<TH1D>("h_HitCountVsYBpix", "Number of BPix hits vs y;hit global y;hits", 20, -20, 20);
     hHitCountVsYFPix = fs->make<TH1D>("h_HitCountVsYFpix", "Number of FPix hits vs y;hit global y;hits", 20, -20, 20);
 
-    hHitCountVsThetaBPix = fs->make<TH1D>(
-        "h_HitCountVsThetaBpix", "Number of BPix hits vs #theta;hit global #theta;hits", 20, 0., TMath::Pi());
-    hHitCountVsPhiBPix = fs->make<TH1D>(
-        "h_HitCountVsPhiBpix", "Number of BPix hits vs #phi;hit global #phi;hits", 20, -TMath::Pi(), TMath::Pi());
+    hHitCountVsThetaBPix = fs->make<TH1D>("h_HitCountVsThetaBpix", "Number of BPix hits vs #theta;hit global #theta;hits", 20, 0., M_PI);
+    hHitCountVsPhiBPix = fs->make<TH1D>("h_HitCountVsPhiBpix", "Number of BPix hits vs #phi;hit global #phi;hits", 20, -M_PI, M_PI);
 
-    hHitCountVsThetaFPix = fs->make<TH1D>(
-        "h_HitCountVsThetaFpix", "Number of FPix hits vs #theta;hit global #theta;hits", 40, 0., TMath::Pi());
-    hHitCountVsPhiFPix = fs->make<TH1D>(
-        "h_HitCountVsPhiFpix", "Number of FPix hits vs #phi;hit global #phi;hits", 20, -TMath::Pi(), TMath::Pi());
+    hHitCountVsThetaFPix = fs->make<TH1D>("h_HitCountVsThetaFpix", "Number of FPix hits vs #theta;hit global #theta;hits", 40, 0., M_PI);
+    hHitCountVsPhiFPix = fs->make<TH1D>("h_HitCountVsPhiFpix", "Number of FPix hits vs #phi;hit global #phi;hits", 20, -M_PI, M_PI);
 
     // two sides of FPix
 
-    hHitCountVsZFPixPlus =
-        fs->make<TH1D>("h_HitCountVsZFPixPlus", "Number of FPix(Z+) hits vs z;hit global z;hits", 60, 15., 60);
-    hHitCountVsZFPixMinus =
-        fs->make<TH1D>("h_HitCountVsZFPixMinus", "Number of FPix(Z-) hits vs z;hit global z;hits", 100, -60., -15.);
+    hHitCountVsZFPixPlus = fs->make<TH1D>("h_HitCountVsZFPixPlus", "Number of FPix(Z+) hits vs z;hit global z;hits", 60, 15., 60);
+    hHitCountVsZFPixMinus = fs->make<TH1D>("h_HitCountVsZFPixMinus", "Number of FPix(Z-) hits vs z;hit global z;hits", 100, -60., -15.);
 
-    hHitCountVsXFPixPlus =
-        fs->make<TH1D>("h_HitCountVsXFPixPlus", "Number of FPix(Z+) hits vs x;hit global x;hits", 20, -20, 20);
-    hHitCountVsXFPixMinus =
-        fs->make<TH1D>("h_HitCountVsXFPixMinus", "Number of FPix(Z-) hits vs x;hit global x;hits", 20, -20, 20);
+    hHitCountVsXFPixPlus = fs->make<TH1D>("h_HitCountVsXFPixPlus", "Number of FPix(Z+) hits vs x;hit global x;hits", 20, -20, 20);
+    hHitCountVsXFPixMinus = fs->make<TH1D>("h_HitCountVsXFPixMinus", "Number of FPix(Z-) hits vs x;hit global x;hits", 20, -20, 20);
 
-    hHitCountVsYFPixPlus =
-        fs->make<TH1D>("h_HitCountVsYFPixPlus", "Number of FPix(Z+) hits vs y;hit global y;hits", 20, -20, 20);
-    hHitCountVsYFPixMinus =
-        fs->make<TH1D>("h_HitCountVsYFPixMinus", "Number of FPix(Z-) hits vs y;hit global y;hits", 20, -20, 20);
+    hHitCountVsYFPixPlus = fs->make<TH1D>("h_HitCountVsYFPixPlus", "Number of FPix(Z+) hits vs y;hit global y;hits", 20, -20, 20);
+    hHitCountVsYFPixMinus = fs->make<TH1D>("h_HitCountVsYFPixMinus", "Number of FPix(Z-) hits vs y;hit global y;hits", 20, -20, 20);
 
-    hHitCountVsThetaFPixPlus = fs->make<TH1D>(
-        "h_HitCountVsThetaFPixPlus", "Number of FPix(Z+) hits vs #theta;hit global #theta;hits", 20, 0., TMath::Pi());
-    hHitCountVsPhiFPixPlus = fs->make<TH1D>("h_HitCountVsPhiFPixPlus",
-                                            "Number of FPix(Z+) hits vs #phi;hit global #phi;hits",
-                                            20,
-                                            -TMath::Pi(),
-                                            TMath::Pi());
+    hHitCountVsThetaFPixPlus = fs->make<TH1D>("h_HitCountVsThetaFPixPlus", "Number of FPix(Z+) hits vs #theta;hit global #theta;hits", 20, 0., M_PI);
+    hHitCountVsPhiFPixPlus = fs->make<TH1D>("h_HitCountVsPhiFPixPlus","Number of FPix(Z+) hits vs #phi;hit global #phi;hits",20,-M_PI,M_PI);
 
-    hHitCountVsThetaFPixMinus = fs->make<TH1D>(
-        "h_HitCountVsThetaFPixMinus", "Number of FPix(Z+) hits vs #theta;hit global #theta;hits", 40, 0., TMath::Pi());
-    hHitCountVsPhiFPixMinus = fs->make<TH1D>("h_HitCountVsPhiFPixMinus",
-                                             "Number of FPix(Z+) hits vs #phi;hit global #phi;hits",
-                                             20,
-                                             -TMath::Pi(),
-                                             TMath::Pi());
+    hHitCountVsThetaFPixMinus = fs->make<TH1D>("h_HitCountVsThetaFPixMinus", "Number of FPix(Z+) hits vs #theta;hit global #theta;hits", 40, 0., M_PI);
+    hHitCountVsPhiFPixMinus = fs->make<TH1D>("h_HitCountVsPhiFPixMinus","Number of FPix(Z+) hits vs #phi;hit global #phi;hits",20,-M_PI,M_PI);
 
     TFileDirectory ByLayerResiduals = fs->mkdir("ByLayerResiduals");
     barrelLayersResidualsX = bookResidualsHistogram(ByLayerResiduals, 4, "X", "Res", "BPix");
@@ -1212,31 +1206,23 @@ public:
     barrelLayersPullsY = bookResidualsHistogram(ByLayerPulls, 4, "Y", "Pull", "BPix");
     endcapDisksPullsY = bookResidualsHistogram(ByLayerPulls, 6, "Y", "Pull", "FPix");
 
-    hEta = fs->make<TH1D>("h_Eta", "Track pseudorapidity; track #eta;tracks", 100, -TMath::Pi(), TMath::Pi());
-    hPhi = fs->make<TH1D>("h_Phi", "Track azimuth; track #phi;tracks", 100, -TMath::Pi(), TMath::Pi());
+    hEta = fs->make<TH1D>("h_Eta", "Track pseudorapidity; track #eta;tracks", 100, -M_PI, M_PI);
+    hPhi = fs->make<TH1D>("h_Phi", "Track azimuth; track #phi;tracks", 100, -M_PI, M_PI);
 
-    hPhiBarrel =
-        fs->make<TH1D>("h_PhiBarrel", "hPhiBarrel (0<|#eta|<0.8);track #Phi;tracks", 100, -TMath::Pi(), TMath::Pi());
-    hPhiOverlapPlus = fs->make<TH1D>(
-        "h_PhiOverlapPlus", "hPhiOverlapPlus (0.8<#eta<1.4);track #phi;tracks", 100, -TMath::Pi(), TMath::Pi());
-    hPhiOverlapMinus = fs->make<TH1D>(
-        "h_PhiOverlapMinus", "hPhiOverlapMinus (-1.4<#eta<-0.8);track #phi;tracks", 100, -TMath::Pi(), TMath::Pi());
-    hPhiEndcapPlus =
-        fs->make<TH1D>("h_PhiEndcapPlus", "hPhiEndcapPlus (#eta>1.4);track #phi;track", 100, -TMath::Pi(), TMath::Pi());
-    hPhiEndcapMinus = fs->make<TH1D>(
-        "h_PhiEndcapMinus", "hPhiEndcapMinus (#eta<1.4);track #phi;tracks", 100, -TMath::Pi(), TMath::Pi());
+    hPhiBarrel = fs->make<TH1D>("h_PhiBarrel", "hPhiBarrel (0<|#eta|<0.8);track #Phi;tracks", 100, -M_PI, M_PI);
+    hPhiOverlapPlus = fs->make<TH1D>("h_PhiOverlapPlus", "hPhiOverlapPlus (0.8<#eta<1.4);track #phi;tracks", 100, -M_PI, M_PI);
+    hPhiOverlapMinus = fs->make<TH1D>("h_PhiOverlapMinus", "hPhiOverlapMinus (-1.4<#eta<-0.8);track #phi;tracks", 100, -M_PI, M_PI);
+    hPhiEndcapPlus = fs->make<TH1D>("h_PhiEndcapPlus", "hPhiEndcapPlus (#eta>1.4);track #phi;track", 100, -M_PI, M_PI);
+    hPhiEndcapMinus = fs->make<TH1D>("h_PhiEndcapMinus", "hPhiEndcapMinus (#eta<1.4);track #phi;tracks", 100, -M_PI, M_PI);
 
     if (!isCosmics_) {
       hPhp = fs->make<TH1D>("h_P_hp", "Momentum (high purity);track momentum [GeV];tracks", 100, 0., 100.);
       hPthp = fs->make<TH1D>("h_Pt_hp", "Transverse Momentum (high purity);track p_{T} [GeV];tracks", 100, 0., 100.);
       hHithp = fs->make<TH1D>("h_nHit_hp", "Number of hits (high purity);track n. hits;tracks", 30, 0, 30);
-      hEtahp = fs->make<TH1D>(
-          "h_Eta_hp", "Track pseudorapidity (high purity); track #eta;tracks", 100, -TMath::Pi(), TMath::Pi());
-      hPhihp =
-          fs->make<TH1D>("h_Phi_hp", "Track azimuth (high purity); track #phi;tracks", 100, -TMath::Pi(), TMath::Pi());
+      hEtahp = fs->make<TH1D>("h_Eta_hp", "Track pseudorapidity (high purity); track #eta;tracks", 100, -M_PI, M_PI);
+      hPhihp = fs->make<TH1D>("h_Phi_hp", "Track azimuth (high purity); track #phi;tracks", 100, -M_PI, M_PI);
       hchi2ndofhp = fs->make<TH1D>("h_chi2ndof_hp", "chi2/ndf (high purity);#chi^{2}/ndf;tracks", 100, 0, 5.);
-      hchi2Probhp = fs->make<TH1D>(
-          "hchi2_Prob_hp", "#chi^{2} probability (high purity);#chi^{2}prob_{Track};Number of Tracks", 100, 0.0, 1.);
+      hchi2Probhp = fs->make<TH1D>("hchi2_Prob_hp", "#chi^{2} probability (high purity);#chi^{2}prob_{Track};Number of Tracks", 100, 0.0, 1.);
 
       hvx = fs->make<TH1D>("h_vx", "Track v_{x} ; track v_{x} [cm];tracks", 100, -1.5, 1.5);
       hvy = fs->make<TH1D>("h_vy", "Track v_{y} ; track v_{y} [cm];tracks", 100, -1.5, 1.5);
@@ -1245,10 +1231,8 @@ public:
       hdxy = fs->make<TH1D>("h_dxy", "Track d_{xy}; track d_{xy} [cm]; tracks", 100, -0.5, 0.5);
       hdz = fs->make<TH1D>("h_dz", "Track d_{z} ; track d_{z} [cm]; tracks", 100, -20, 20);
 
-      hd0PVvsphi = fs->make<TH2D>(
-          "h2_d0PVvsphi", "hd0PVvsphi;track #phi;track d_{0}(PV) [cm]", 160, -TMath::Pi(), TMath::Pi(), 100, -1., 1.);
-      hd0PVvseta =
-          fs->make<TH2D>("h2_d0PVvseta", "hdPV0vseta;track #eta;track d_{0}(PV) [cm]", 160, -2.5, 2.5, 100, -1., 1.);
+      hd0PVvsphi = fs->make<TH2D>("h2_d0PVvsphi", "hd0PVvsphi;track #phi;track d_{0}(PV) [cm]", 160, -M_PI, M_PI, 100, -1., 1.);
+      hd0PVvseta = fs->make<TH2D>("h2_d0PVvseta", "hdPV0vseta;track #eta;track d_{0}(PV) [cm]", 160, -2.5, 2.5, 100, -1., 1.);
       hd0PVvspt = fs->make<TH2D>("h2_d0PVvspt", "hdPV0vspt;track p_{T};d_{0}(PV) [cm]", 50, 0., 100., 100, -1, 1.);
 
       hdxyBS = fs->make<TH1D>("h_dxyBS", "hdxyBS; track d_{xy}(BS) [cm];tracks", 100, -0.1, 0.1);
@@ -1271,12 +1255,9 @@ public:
       hdxy = fs->make<TH1D>("h_dxy", "Track d_{xy};track d_{xy} [cm];tracks", 100, -100, 100);
       hdz = fs->make<TH1D>("h_dz", "Track d_{z};track d_{z} [cm];tracks", 100, -200, 200);
 
-      hd0vsphi = fs->make<TH2D>(
-          "h2_d0vsphi", "Track d_{0} vs #phi; track #phi;track d_{0} [cm]", 160, -3.20, 3.20, 100, -100., 100.);
-      hd0vseta = fs->make<TH2D>(
-          "h2_d0vseta", "Track d_{0} vs #eta; track #eta;track d_{0} [cm]", 160, -3.20, 3.20, 100, -100., 100.);
-      hd0vspt = fs->make<TH2D>(
-          "h2_d0vspt", "Track d_{0} vs p_{T};track p_{T};track d_{0} [cm]", 50, 0., 100., 100, -100, 100);
+      hd0vsphi = fs->make<TH2D>("h2_d0vsphi", "Track d_{0} vs #phi; track #phi;track d_{0} [cm]", 160, -3.20, 3.20, 100, -100., 100.);
+      hd0vseta = fs->make<TH2D>("h2_d0vseta", "Track d_{0} vs #eta; track #eta;track d_{0} [cm]", 160, -3.20, 3.20, 100, -100., 100.);
+      hd0vspt = fs->make<TH2D>("h2_d0vspt", "Track d_{0} vs p_{T};track p_{T};track d_{0} [cm]", 50, 0., 100., 100, -100, 100);
 
       hdxyBS = fs->make<TH1D>("h_dxyBS", "Track d_{xy}(BS);d_{xy}(BS) [cm];tracks", 100, -100., 100.);
       hd0BS = fs->make<TH1D>("h_d0BS", "Track d_{0}(BS);d_{0}(BS) [cm];tracks", 100, -100., 100.);
@@ -1295,197 +1276,104 @@ public:
     hnhpxe = fs->make<TH1D>("h_nHitPXE", "nhpxe;# hits in Pixel Endcap; tracks", 10, 0., 10.);
 
     hHitComposition = fs->make<TH1D>("h_hitcomposition", "track hit composition;;# hits", 6, -0.5, 5.5);
+    pNBpixHitsVsVx = fs->make<TProfile>("p_NpixHits_vs_Vx", "n. Barrel Pixel hits vs. v_{x};v_{x} (cm);n. BPix hits", 20, -20, 20);
+    pNBpixHitsVsVy = fs->make<TProfile>("p_NpixHits_vs_Vy", "n. Barrel Pixel hits vs. v_{y};v_{y} (cm);n. BPix hits", 20, -20, 20);
+    pNBpixHitsVsVz = fs->make<TProfile>("p_NpixHits_vs_Vz", "n. Barrel Pixel hits vs. v_{z};v_{z} (cm);n. BPix hits", 20, -100, 100);
 
-    pNBpixHitsVsVx =
-        fs->make<TProfile>("p_NpixHits_vs_Vx", "n. Barrel Pixel hits vs. v_{x};v_{x} (cm);n. BPix hits", 20, -20, 20);
-
-    pNBpixHitsVsVy =
-        fs->make<TProfile>("p_NpixHits_vs_Vy", "n. Barrel Pixel hits vs. v_{y};v_{y} (cm);n. BPix hits", 20, -20, 20);
-
-    pNBpixHitsVsVz =
-        fs->make<TProfile>("p_NpixHits_vs_Vz", "n. Barrel Pixel hits vs. v_{z};v_{z} (cm);n. BPix hits", 20, -100, 100);
-
-    TString dets[6] = {"PXB", "PXF", "TIB", "TID", "TOB", "TEC"};
-
-    for (Int_t i = 1; i <= hHitComposition->GetNbinsX(); i++) {
-      hHitComposition->GetXaxis()->SetBinLabel(i, dets[i - 1]);
+    std::string dets[6] = {"PXB", "PXF", "TIB", "TID", "TOB", "TEC"};
+    for (int i = 1; i <= hHitComposition->GetNbinsX(); i++) {
+      hHitComposition->GetXaxis()->SetBinLabel(i, dets[i - 1].c_str());
     }
 
     vTrackHistos_.push_back(fs->make<TH1F>("h_tracketa", "Track #eta;#eta_{Track};Number of Tracks", 90, -3., 3.));
-    vTrackHistos_.push_back(fs->make<TH1F>("h_trackphi", "Track #phi;#phi_{Track};Number of Tracks", 90, -3.15, 3.15));
-    vTrackHistos_.push_back(fs->make<TH1F>(
-        "h_trackNumberOfValidHits", "Track # of valid hits;# of valid hits _{Track};Number of Tracks", 40, 0., 40.));
-    vTrackHistos_.push_back(fs->make<TH1F>(
-        "h_trackNumberOfLostHits", "Track # of lost hits;# of lost hits _{Track};Number of Tracks", 10, 0., 10.));
-    vTrackHistos_.push_back(
-        fs->make<TH1F>("h_curvature", "Curvature #kappa;#kappa_{Track};Number of Tracks", 100, -.05, .05));
-    vTrackHistos_.push_back(fs->make<TH1F>(
-        "h_curvature_pos", "Curvature |#kappa| Positive Tracks;|#kappa_{pos Track}|;Number of Tracks", 100, .0, .05));
-    vTrackHistos_.push_back(fs->make<TH1F>(
-        "h_curvature_neg", "Curvature |#kappa| Negative Tracks;|#kappa_{neg Track}|;Number of Tracks", 100, .0, .05));
-    vTrackHistos_.push_back(
-        fs->make<TH1F>("h_diff_curvature",
-                       "Curvature |#kappa| Tracks Difference;|#kappa_{Track}|;# Pos Tracks - # Neg Tracks",
-                       100,
-                       .0,
-                       .05));
-    vTrackHistos_.push_back(
-        fs->make<TH1F>("h_chi2", "Track #chi^{2};#chi^{2}_{Track};Number of Tracks", 500, -0.01, 500.));
-    vTrackHistos_.push_back(
-        fs->make<TH1F>("h_chi2Prob", "#chi^{2} probability;Track Prob(#chi^{2},ndof);Number of Tracks", 100, 0.0, 1.));
-    vTrackHistos_.push_back(
-        fs->make<TH1F>("h_normchi2", "#chi^{2}/ndof;#chi^{2}/ndof;Number of Tracks", 100, -0.01, 10.));
+    vTrackHistos_.push_back(fs->make<TH1F>("h_trackphi", "Track #phi;#phi_{Track};Number of Tracks", 90, -M_PI, M_PI));
+    vTrackHistos_.push_back(fs->make<TH1F>("h_trackNumberOfValidHits", "Track # of valid hits;# of valid hits _{Track};Number of Tracks", 40, 0., 40.));
+    vTrackHistos_.push_back(fs->make<TH1F>("h_trackNumberOfLostHits", "Track # of lost hits;# of lost hits _{Track};Number of Tracks", 10, 0., 10.));
+    vTrackHistos_.push_back(fs->make<TH1F>("h_curvature", "Curvature #kappa;#kappa_{Track};Number of Tracks", 100, -.05, .05));
+    vTrackHistos_.push_back(fs->make<TH1F>("h_curvature_pos", "Curvature |#kappa| Positive Tracks;|#kappa_{pos Track}|;Number of Tracks", 100, .0, .05));
+    vTrackHistos_.push_back(fs->make<TH1F>("h_curvature_neg", "Curvature |#kappa| Negative Tracks;|#kappa_{neg Track}|;Number of Tracks", 100, .0, .05));
+    vTrackHistos_.push_back(fs->make<TH1F>("h_diff_curvature", "Curvature |#kappa| Tracks Difference;|#kappa_{Track}|;# Pos Tracks - # Neg Tracks", 100,.0,.05));
+
+    vTrackHistos_.push_back(fs->make<TH1F>("h_chi2", "Track #chi^{2};#chi^{2}_{Track};Number of Tracks", 500, -0.01, 500.));
+    vTrackHistos_.push_back(fs->make<TH1F>("h_chi2Prob", "#chi^{2} probability;Track Prob(#chi^{2},ndof);Number of Tracks", 100, 0.0, 1.));
+    vTrackHistos_.push_back(fs->make<TH1F>("h_normchi2", "#chi^{2}/ndof;#chi^{2}/ndof;Number of Tracks", 100, -0.01, 10.));
+
     //variable binning for chi2/ndof vs. pT
     double xBins[19] = {0., 0.15, 0.5, 1., 1.5, 2., 2.5, 3., 3.5, 4., 4.5, 5., 7., 10., 15., 25., 40., 100., 200.};
     vTrackHistos_.push_back(fs->make<TH1F>("h_pt", "Track p_{T};p_{T}^{track} [GeV];Number of Tracks", 250, 0., 250));
     vTrackHistos_.push_back(fs->make<TH1F>("h_ptrebin", "Track p_{T};p_{T}^{track} [GeV];Number of Tracks", 18, xBins));
-    vTrackHistos_.push_back(fs->make<TH1F>(
-        "h_ptResolution", "#delta_{p_{T}}/p_{T}^{track};#delta_{p_{T}}/p_{T}^{track};Number of Tracks", 100, 0., 0.5));
-    vTrackProfiles_.push_back(fs->make<TProfile>(
-        "p_d0_vs_phi", "Transverse Impact Parameter vs. #phi;#phi_{Track};#LT d_{0} #GT [cm]", 100, -3.15, 3.15));
-    vTrackProfiles_.push_back(fs->make<TProfile>(
-        "p_dz_vs_phi", "Longitudinal Impact Parameter vs. #phi;#phi_{Track};#LT d_{z} #GT [cm]", 100, -3.15, 3.15));
-    vTrackProfiles_.push_back(fs->make<TProfile>(
-        "p_d0_vs_eta", "Transverse Impact Parameter vs. #eta;#eta_{Track};#LT d_{0} #GT [cm]", 100, -3.15, 3.15));
-    vTrackProfiles_.push_back(fs->make<TProfile>(
-        "p_dz_vs_eta", "Longitudinal Impact Parameter vs. #eta;#eta_{Track};#LT d_{z} #GT [cm]", 100, -3.15, 3.15));
-    vTrackProfiles_.push_back(
-        fs->make<TProfile>("p_chi2_vs_phi", "#chi^{2} vs. #phi;#phi_{Track};#LT #chi^{2} #GT", 100, -3.15, 3.15));
-    vTrackProfiles_.push_back(
-        fs->make<TProfile>("p_chi2Prob_vs_phi",
-                           "#chi^{2} probablility vs. #phi;#phi_{Track};#LT #chi^{2} probability#GT",
-                           100,
-                           -3.15,
-                           3.15));
-    vTrackProfiles_.push_back(fs->make<TProfile>(
-        "p_chi2Prob_vs_d0", "#chi^{2} probablility vs. |d_{0}|;|d_{0}|[cm];#LT #chi^{2} probability#GT", 100, 0, 80));
-    vTrackProfiles_.push_back(fs->make<TProfile>(
-        "p_chi2Prob_vs_dz", "#chi^{2} probablility vs. dz;d_{z} [cm];#LT #chi^{2} probability#GT", 100, -30, 30));
-    vTrackProfiles_.push_back(fs->make<TProfile>(
-        "p_normchi2_vs_phi", "#chi^{2}/ndof vs. #phi;#phi_{Track};#LT #chi^{2}/ndof #GT", 100, -3.15, 3.15));
-    vTrackProfiles_.push_back(
-        fs->make<TProfile>("p_chi2_vs_eta", "#chi^{2} vs. #eta;#eta_{Track};#LT #chi^{2} #GT", 100, -3.15, 3.15));
-    vTrackProfiles_.push_back(fs->make<TProfile>(
-        "p_normchi2_vs_pt", "norm #chi^{2} vs. p_{T}_{Track}; p_{T}_{Track};#LT #chi^{2}/ndof #GT", 18, xBins));
-    vTrackProfiles_.push_back(fs->make<TProfile>(
-        "p_normchi2_vs_p", "#chi^{2}/ndof vs. p_{Track};p_{Track};#LT #chi^{2}/ndof #GT", 18, xBins));
-    vTrackProfiles_.push_back(
-        fs->make<TProfile>("p_chi2Prob_vs_eta",
-                           "#chi^{2} probability vs. #eta;#eta_{Track};#LT #chi^{2} probability #GT",
-                           100,
-                           -3.15,
-                           3.15));
-    vTrackProfiles_.push_back(fs->make<TProfile>(
-        "p_normchi2_vs_eta", "#chi^{2}/ndof vs. #eta;#eta_{Track};#LT #chi^{2}/ndof #GT", 100, -3.15, 3.15));
-    vTrackProfiles_.push_back(
-        fs->make<TProfile>("p_kappa_vs_phi", "#kappa vs. #phi;#phi_{Track};#kappa", 100, -3.15, 3.15));
-    vTrackProfiles_.push_back(
-        fs->make<TProfile>("p_kappa_vs_eta", "#kappa vs. #eta;#eta_{Track};#kappa", 100, -3.15, 3.15));
-    vTrackProfiles_.push_back(
-        fs->make<TProfile>("p_ptResolution_vs_phi",
-                           "#delta_{p_{T}}/p_{T}^{track};#phi^{track};#delta_{p_{T}}/p_{T}^{track}",
-                           100,
-                           -3.15,
-                           3.15));
-    vTrackProfiles_.push_back(
-        fs->make<TProfile>("p_ptResolution_vs_eta",
-                           "#delta_{p_{T}}/p_{T}^{track};#eta^{track};#delta_{p_{T}}/p_{T}^{track}",
-                           100,
-                           -3.15,
-                           3.15));
-    vTrack2DHistos_.push_back(fs->make<TH2F>(
-        "h2_d0_vs_phi", "Transverse Impact Parameter vs. #phi;#phi_{Track};d_{0} [cm]", 100, -3.15, 3.15, 100, -1., 1.));
-    vTrack2DHistos_.push_back(fs->make<TH2F>("h2_dz_vs_phi",
-                                             "Longitudinal Impact Parameter vs. #phi;#phi_{Track};d_{z} [cm]",
-                                             100,
-                                             -3.15,
-                                             3.15,
-                                             100,
-                                             -100.,
-                                             100.));
-    vTrack2DHistos_.push_back(fs->make<TH2F>(
-        "h2_d0_vs_eta", "Transverse Impact Parameter vs. #eta;#eta_{Track};d_{0} [cm]", 100, -3.15, 3.15, 100, -1., 1.));
-    vTrack2DHistos_.push_back(fs->make<TH2F>("h2_dz_vs_eta",
-                                             "Longitudinal Impact Parameter vs. #eta;#eta_{Track};d_{z} [cm]",
-                                             100,
-                                             -3.15,
-                                             3.15,
-                                             100,
-                                             -100.,
-                                             100.));
-    vTrack2DHistos_.push_back(
-        fs->make<TH2F>("h2_chi2_vs_phi", "#chi^{2} vs. #phi;#phi_{Track};#chi^{2}", 100, -3.15, 3.15, 500, 0., 500.));
-    vTrack2DHistos_.push_back(fs->make<TH2F>("h2_chi2Prob_vs_phi",
-                                             "#chi^{2} probability vs. #phi;#phi_{Track};#chi^{2} probability",
-                                             100,
-                                             -3.15,
-                                             3.15,
-                                             100,
-                                             0.,
-                                             1.));
-    vTrack2DHistos_.push_back(fs->make<TH2F>("h2_chi2Prob_vs_d0",
-                                             "#chi^{2} probability vs. |d_{0}|;|d_{0}| [cm];#chi^{2} probability",
-                                             100,
-                                             0,
-                                             80,
-                                             100,
-                                             0.,
-                                             1.));
-    vTrack2DHistos_.push_back(fs->make<TH2F>(
-        "h2_normchi2_vs_phi", "#chi^{2}/ndof vs. #phi;#phi_{Track};#chi^{2}/ndof", 100, -3.15, 3.15, 100, 0., 10.));
-    vTrack2DHistos_.push_back(
-        fs->make<TH2F>("h2_chi2_vs_eta", "#chi^{2} vs. #eta;#eta_{Track};#chi^{2}", 100, -3.15, 3.15, 500, 0., 500.));
-    vTrack2DHistos_.push_back(fs->make<TH2F>("h2_chi2Prob_vs_eta",
-                                             "#chi^{2} probaility vs. #eta;#eta_{Track};#chi^{2} probability",
-                                             100,
-                                             -3.15,
-                                             3.15,
-                                             100,
-                                             0.,
-                                             1.));
-    vTrack2DHistos_.push_back(fs->make<TH2F>(
-        "h2_normchi2_vs_eta", "#chi^{2}/ndof vs. #eta;#eta_{Track};#chi^{2}/ndof", 100, -3.15, 3.15, 100, 0., 10.));
-    vTrack2DHistos_.push_back(
-        fs->make<TH2F>("h2_kappa_vs_phi", "#kappa vs. #phi;#phi_{Track};#kappa", 100, -3.15, 3.15, 100, .0, .05));
-    vTrack2DHistos_.push_back(
-        fs->make<TH2F>("h2_kappa_vs_eta", "#kappa vs. #eta;#eta_{Track};#kappa", 100, -3.15, 3.15, 100, .0, .05));
-    vTrack2DHistos_.push_back(fs->make<TH2F>(
-        "h2_normchi2_vs_kappa", "#kappa vs. #chi^{2}/ndof;#chi^{2}/ndof;#kappa", 100, 0., 10, 100, -.03, .03));
+
+    vTrackHistos_.push_back(fs->make<TH1F>("h_ptResolution", "#delta_{p_{T}}/p_{T}^{track};#delta_{p_{T}}/p_{T}^{track};Number of Tracks", 100, 0., 0.5));
+    vTrackProfiles_.push_back(fs->make<TProfile>("p_d0_vs_phi", "Transverse Impact Parameter vs. #phi;#phi_{Track};#LT d_{0} #GT [cm]", 100, -M_PI, M_PI));
+    vTrackProfiles_.push_back(fs->make<TProfile>("p_dz_vs_phi", "Longitudinal Impact Parameter vs. #phi;#phi_{Track};#LT d_{z} #GT [cm]", 100, -M_PI, M_PI));
+    vTrackProfiles_.push_back(fs->make<TProfile>("p_d0_vs_eta", "Transverse Impact Parameter vs. #eta;#eta_{Track};#LT d_{0} #GT [cm]", 100, -M_PI, M_PI));
+    vTrackProfiles_.push_back(fs->make<TProfile>("p_dz_vs_eta", "Longitudinal Impact Parameter vs. #eta;#eta_{Track};#LT d_{z} #GT [cm]", 100, -M_PI, M_PI));
+    vTrackProfiles_.push_back(fs->make<TProfile>("p_chi2_vs_phi", "#chi^{2} vs. #phi;#phi_{Track};#LT #chi^{2} #GT", 100, -M_PI, M_PI));
+    vTrackProfiles_.push_back(fs->make<TProfile>("p_chi2Prob_vs_phi","#chi^{2} probablility vs. #phi;#phi_{Track};#LT #chi^{2} probability#GT",100,-M_PI,M_PI));
+    vTrackProfiles_.push_back(fs->make<TProfile>("p_chi2Prob_vs_d0", "#chi^{2} probablility vs. |d_{0}|;|d_{0}|[cm];#LT #chi^{2} probability#GT", 100, 0, 80));
+    vTrackProfiles_.push_back(fs->make<TProfile>("p_chi2Prob_vs_dz", "#chi^{2} probablility vs. dz;d_{z} [cm];#LT #chi^{2} probability#GT", 100, -30, 30));
+    vTrackProfiles_.push_back(fs->make<TProfile>("p_normchi2_vs_phi", "#chi^{2}/ndof vs. #phi;#phi_{Track};#LT #chi^{2}/ndof #GT", 100, -M_PI, M_PI));
+    vTrackProfiles_.push_back(fs->make<TProfile>("p_chi2_vs_eta", "#chi^{2} vs. #eta;#eta_{Track};#LT #chi^{2} #GT", 100, -M_PI, M_PI));
+    vTrackProfiles_.push_back(fs->make<TProfile>("p_normchi2_vs_pt", "norm #chi^{2} vs. p_{T}_{Track}; p_{T}_{Track};#LT #chi^{2}/ndof #GT", 18, xBins));
+    vTrackProfiles_.push_back(fs->make<TProfile>("p_normchi2_vs_p", "#chi^{2}/ndof vs. p_{Track};p_{Track};#LT #chi^{2}/ndof #GT", 18, xBins));
+    vTrackProfiles_.push_back(fs->make<TProfile>("p_chi2Prob_vs_eta","#chi^{2} probability vs. #eta;#eta_{Track};#LT #chi^{2} probability #GT",100,-M_PI,M_PI));
+    vTrackProfiles_.push_back(fs->make<TProfile>("p_normchi2_vs_eta", "#chi^{2}/ndof vs. #eta;#eta_{Track};#LT #chi^{2}/ndof #GT", 100, -M_PI, M_PI));
+    vTrackProfiles_.push_back(fs->make<TProfile>("p_kappa_vs_phi", "#kappa vs. #phi;#phi_{Track};#kappa", 100, -M_PI, M_PI));
+    vTrackProfiles_.push_back(fs->make<TProfile>("p_kappa_vs_eta", "#kappa vs. #eta;#eta_{Track};#kappa", 100, -M_PI, M_PI));
+    vTrackProfiles_.push_back(fs->make<TProfile>("p_ptResolution_vs_phi","#delta_{p_{T}}/p_{T}^{track};#phi^{track};#delta_{p_{T}}/p_{T}^{track}",100,-M_PI,M_PI));
+    vTrackProfiles_.push_back(fs->make<TProfile>("p_ptResolution_vs_eta","#delta_{p_{T}}/p_{T}^{track};#eta^{track};#delta_{p_{T}}/p_{T}^{track}",100,-M_PI,M_PI));
+    vTrack2DHistos_.push_back(fs->make<TH2F>("h2_d0_vs_phi","Transverse Impact Parameter vs. #phi;#phi_{Track};d_{0} [cm]", 100, -M_PI, M_PI, 100, -1., 1.));
+    vTrack2DHistos_.push_back(fs->make<TH2F>("h2_dz_vs_phi","Longitudinal Impact Parameter vs. #phi;#phi_{Track};d_{z} [cm]",100,-M_PI,M_PI,100,-100.,100.));
+    vTrack2DHistos_.push_back(fs->make<TH2F>("h2_d0_vs_eta","Transverse Impact Parameter vs. #eta;#eta_{Track};d_{0} [cm]", 100, -M_PI, M_PI, 100, -1., 1.));
+    vTrack2DHistos_.push_back(fs->make<TH2F>("h2_dz_vs_eta","Longitudinal Impact Parameter vs. #eta;#eta_{Track};d_{z} [cm]",100,-M_PI,M_PI, 100,-100.,100.));
+    vTrack2DHistos_.push_back(fs->make<TH2F>("h2_chi2_vs_phi", "#chi^{2} vs. #phi;#phi_{Track};#chi^{2}", 100, -M_PI, M_PI, 500, 0., 500.));
+    vTrack2DHistos_.push_back(fs->make<TH2F>("h2_chi2Prob_vs_phi","#chi^{2} probability vs. #phi;#phi_{Track};#chi^{2} probability",100,-M_PI,M_PI,100,0.,1.));
+    vTrack2DHistos_.push_back(fs->make<TH2F>("h2_chi2Prob_vs_d0","#chi^{2} probability vs. |d_{0}|;|d_{0}| [cm];#chi^{2} probability",100,0,80,100,0.,1.));
+    vTrack2DHistos_.push_back(fs->make<TH2F>("h2_normchi2_vs_phi", "#chi^{2}/ndof vs. #phi;#phi_{Track};#chi^{2}/ndof", 100, -M_PI, M_PI, 100, 0., 10.));
+    vTrack2DHistos_.push_back(fs->make<TH2F>("h2_chi2_vs_eta", "#chi^{2} vs. #eta;#eta_{Track};#chi^{2}", 100, -M_PI, M_PI, 500, 0., 500.));
+    vTrack2DHistos_.push_back(fs->make<TH2F>("h2_chi2Prob_vs_eta","#chi^{2} probaility vs. #eta;#eta_{Track};#chi^{2} probability",100,-M_PI,M_PI,100,0.,1.));
+    vTrack2DHistos_.push_back(fs->make<TH2F>("h2_normchi2_vs_eta", "#chi^{2}/ndof vs. #eta;#eta_{Track};#chi^{2}/ndof", 100, -M_PI, M_PI, 100, 0., 10.));
+    vTrack2DHistos_.push_back(fs->make<TH2F>("h2_kappa_vs_phi", "#kappa vs. #phi;#phi_{Track};#kappa", 100, -M_PI, M_PI, 100, .0, .05));
+    vTrack2DHistos_.push_back(fs->make<TH2F>("h2_kappa_vs_eta", "#kappa vs. #eta;#eta_{Track};#kappa", 100, -M_PI, M_PI, 100, .0, .05));
+    vTrack2DHistos_.push_back(fs->make<TH2F>("h2_normchi2_vs_kappa", "#kappa vs. #chi^{2}/ndof;#chi^{2}/ndof;#kappa", 100, 0., 10, 100, -.03, .03));
+
+    // clang-format on
 
     firstEvent_ = true;
 
   }  //beginJob
 
   void endJob() override {
-    std::cout << "*******************************" << std::endl;
-    std::cout << "Events run in total: " << ievt << std::endl;
-    std::cout << "n. tracks: " << itrks << std::endl;
-    std::cout << "*******************************" << std::endl;
+    edm::LogPrint("DMRChecker") << "*******************************" << std::endl;
+    edm::LogPrint("DMRChecker") << "Events run in total: " << ievt << std::endl;
+    edm::LogPrint("DMRChecker") << "n. tracks: " << itrks << std::endl;
+    edm::LogPrint("DMRChecker") << "*******************************" << std::endl;
 
-    Int_t nFiringTriggers = triggerMap_.size();
-    std::cout << "firing triggers: " << nFiringTriggers << std::endl;
-    std::cout << "*******************************" << std::endl;
+    int nFiringTriggers = triggerMap_.size();
+    edm::LogPrint("DMRChecker") << "firing triggers: " << nFiringTriggers << std::endl;
+    edm::LogPrint("DMRChecker") << "*******************************" << std::endl;
 
     tksByTrigger_ = fs->make<TH1D>(
         "tksByTrigger", "tracks by HLT path;;% of # traks", nFiringTriggers, -0.5, nFiringTriggers - 0.5);
     evtsByTrigger_ = fs->make<TH1D>(
         "evtsByTrigger", "events by HLT path;;% of # events", nFiringTriggers, -0.5, nFiringTriggers - 0.5);
 
-    Int_t i = 0;
+    int i = 0;
 
     for (std::map<std::string, std::pair<int, int> >::iterator it = triggerMap_.begin(); it != triggerMap_.end();
          ++it) {
       i++;
 
-      Double_t trkpercent = ((it->second).second) * 100. / Double_t(itrks);
-      Double_t evtpercent = ((it->second).first) * 100. / Double_t(ievt);
+      double trkpercent = ((it->second).second) * 100. / double(itrks);
+      double evtpercent = ((it->second).first) * 100. / double(ievt);
 
       std::cout.precision(4);
 
-      std::cout << "HLT path: " << std::setw(60) << left << it->first << " | events firing: " << right << std::setw(8)
-                << (it->second).first << " (" << setw(8) << fixed << evtpercent << "%)"
-                << " | tracks collected: " << std::setw(10) << (it->second).second << " (" << setw(8) << fixed
-                << trkpercent << "%)" << '\n';
+      edm::LogPrint("DMRChecker") << "HLT path: " << std::setw(60) << left << it->first
+                                      << " | events firing: " << right << std::setw(8) << (it->second).first << " ("
+                                      << setw(8) << fixed << evtpercent << "%)"
+                                      << " | tracks collected: " << std::setw(10) << (it->second).second << " ("
+                                      << setw(8) << fixed << trkpercent << "%)";
 
       tksByTrigger_->SetBinContent(i, trkpercent);
       tksByTrigger_->GetXaxis()->SetBinLabel(i, (it->first).c_str());
@@ -1494,7 +1382,7 @@ public:
       evtsByTrigger_->GetXaxis()->SetBinLabel(i, (it->first).c_str());
     }
 
-    Int_t nRuns = conditionsMap_.size();
+    int nRuns = conditionsMap_.size();
 
     vector<int> theRuns_;
     for (map<int, std::pair<int, float> >::iterator it = conditionsMap_.begin(); it != conditionsMap_.end(); ++it) {
@@ -1502,25 +1390,11 @@ public:
     }
 
     sort(theRuns_.begin(), theRuns_.end());
-    Int_t runRange = theRuns_[theRuns_.size() - 1] - theRuns_[0] + 1;
-
-    std::cout << "*******************************" << std::endl;
-    std::cout << "first run: " << theRuns_[0] << std::endl;
-    std::cout << "last run:  " << theRuns_[theRuns_.size() - 1] << std::endl;
-    std::cout << "considered runs: " << nRuns << std::endl;
-    std::cout << "*******************************" << std::endl;
-
-    /*
-      // all runs on display
-      modeByRun_ = fs->make<TH1D>("modeByRun","Strip APV mode by run number;;APV mode (-1=deco,+1=peak)",runRange,theRuns_[0]-0.5,theRuns_[theRuns_.size()-1]+0.5);
-      fieldByRun_= fs->make<TH1D>("fieldByRun","CMS B-field intensity by run number;;B-field intensity [T]",runRange,theRuns_[0]-0.5,theRuns_[theRuns_.size()-1]+0.5);
-    
-      tracksByRun_ =  fs->make<TH1D>("tracksByRun","n. AlCaReco Tracks by run number;;n. of tracks",runRange,theRuns_[0]-0.5,theRuns_[theRuns_.size()-1]+0.5);
-      hitsByRun_   =  fs->make<TH1D>("histByRun","n. of hits by run number;;n. of hits",runRange,theRuns_[0]-0.5,theRuns_[theRuns_.size()-1]+0.5);
-      
-      hitsinBPixByRun_ =  fs->make<TH1D>("histinBPixByRun","n. of hits in BPix by run number;;n. of BPix hits",runRange,theRuns_[0]-0.5,theRuns_[theRuns_.size()-1]+0.5);
-      hitsinFPixByRun_ =  fs->make<TH1D>("histinFPixByRun","n. of hits in FPIx by run number;;n. of FPix hits",runRange,theRuns_[0]-0.5,theRuns_[theRuns_.size()-1]+0.5);
-    */
+    edm::LogPrint("DMRChecker") << "*******************************" << std::endl;
+    edm::LogPrint("DMRChecker") << "first run: " << theRuns_[0] << std::endl;
+    edm::LogPrint("DMRChecker") << "last run:  " << theRuns_[theRuns_.size() - 1] << std::endl;
+    edm::LogPrint("DMRChecker") << "considered runs: " << nRuns << std::endl;
+    edm::LogPrint("DMRChecker") << "*******************************" << std::endl;
 
     modeByRun_ = fs->make<TH1D>(
         "modeByRun", "Strip APV mode by run number;;APV mode (-1=deco,+1=peak)", nRuns, -0.5, nRuns - 0.5);
@@ -1541,18 +1415,21 @@ public:
     hitsinFPixByRun_ = fs->make<TH1D>(
         "histinFPixByRun", "n. of hits in FPix by run number;;n. of FPix hits", nRuns, -0.5, nRuns - 0.5);
 
-    Int_t indexing(0);
-    for (Int_t the_r = theRuns_[0]; the_r <= theRuns_[theRuns_.size() - 1]; the_r++) {
+    int indexing(0);
+    for (int the_r = theRuns_[0]; the_r <= theRuns_[theRuns_.size() - 1]; the_r++) {
       if (conditionsMap_.find(the_r)->second.first != 0) {
         indexing++;
         double runTime = timeMap_.find(the_r)->second;
 
-        std::cout << "run:" << the_r << " | isPeak: " << std::setw(4) << conditionsMap_.find(the_r)->second.first
-                  << "| B-field: " << conditionsMap_.find(the_r)->second.second << " [T]"
-                  << "| events: " << setw(10) << runInfoMap_.find(the_r)->second.first << "(rate: " << setw(10)
-                  << (runInfoMap_.find(the_r)->second.first) / runTime << " ev/s)"
-                  << ", tracks " << setw(10) << runInfoMap_.find(the_r)->second.second << "(rate: " << setw(10)
-                  << (runInfoMap_.find(the_r)->second.second) / runTime << " trk/s)" << std::endl;
+        edm::LogPrint("DMRChecker") << "run:" << the_r << " | isPeak: " << std::setw(4)
+                                        << conditionsMap_.find(the_r)->second.first
+                                        << "| B-field: " << conditionsMap_.find(the_r)->second.second << " [T]"
+                                        << "| events: " << setw(10) << runInfoMap_.find(the_r)->second.first
+                                        << "(rate: " << setw(10) << (runInfoMap_.find(the_r)->second.first) / runTime
+                                        << " ev/s)"
+                                        << ", tracks " << setw(10) << runInfoMap_.find(the_r)->second.second
+                                        << "(rate: " << setw(10) << (runInfoMap_.find(the_r)->second.second) / runTime
+                                        << " trk/s)" << std::endl;
 
         // int the_bin = modeByRun_->GetXaxis()->FindBin(the_r);
         modeByRun_->SetBinContent(indexing, conditionsMap_.find(the_r)->second.first);
@@ -1577,14 +1454,14 @@ public:
 
         constexpr const char *subdets[]{"BPix", "FPix", "TIB", "TID", "TOB", "TEC"};
 
-        std::cout << "*******************************" << std::endl;
-        std::cout << "Hits by Sub-det" << std::endl;
+        edm::LogPrint("DMRChecker") << "*******************************" << std::endl;
+        edm::LogPrint("DMRChecker") << "Hits by Sub-det" << std::endl;
         int si = 0;
         for (const auto &entry : runHitsMap_.find(the_r)->second) {
-          std::cout << subdets[si] << " " << entry << std::endl;
+          edm::LogPrint("DMRChecker") << subdets[si] << " " << entry << std::endl;
           si++;
         }
-        std::cout << "*******************************" << std::endl;
+        edm::LogPrint("DMRChecker") << "*******************************" << std::endl;
       }
 
       // modeByRun_->GetXaxis()->SetBinLabel(the_r-theRuns_[0]+1,(const char*)the_r);
@@ -1606,41 +1483,16 @@ public:
     DMRTID_ = DMeanR.make<TH1D>("DMRTID", "DMR of TID;mean of X-residuals;modules", 100., -200, 200);
     DMRTEC_ = DMeanR.make<TH1D>("DMRTEC", "DMR of TEC;mean of X-residuals;modules", 100., -200, 200);
 
-    // pixel
+    TFileDirectory DMeanRSplit = fs->mkdir("SplitDMRs");
 
-    for (auto &bpixid : runningMeanOfResBPixX_) {
-      DMRBPixX_->Fill(bpixid.second.first);
-    }
+    DMRBPixXSplit_ = bookSplitDMRHistograms(DMeanRSplit, "BPix", "X", true);
+    DMRBPixYSplit_ = bookSplitDMRHistograms(DMeanRSplit, "BPix", "Y", true);
 
-    for (auto &bpixid : runningMeanOfResBPixY_) {
-      DMRBPixY_->Fill(bpixid.second.first);
-    }
+    DMRFPixXSplit_ = bookSplitDMRHistograms(DMeanRSplit, "FPix", "X", false);
+    DMRFPixYSplit_ = bookSplitDMRHistograms(DMeanRSplit, "FPix", "Y", false);
 
-    for (auto &fpixid : runningMeanOfResFPixX_) {
-      DMRFPixX_->Fill(fpixid.second.first);
-    }
-
-    for (auto &fpixid : runningMeanOfResFPixY_) {
-      DMRFPixY_->Fill(fpixid.second.first);
-    }
-
-    // strips
-
-    for (auto &tibid : runningMeanOfResTIB_) {
-      DMRTIB_->Fill(tibid.second.first);
-    }
-
-    for (auto &tobid : runningMeanOfResTOB_) {
-      DMRTOB_->Fill(tobid.second.first);
-    }
-
-    for (auto &tidid : runningMeanOfResTID_) {
-      DMRTID_->Fill(tidid.second.first);
-    }
-
-    for (auto &tecid : runningMeanOfResTEC_) {
-      DMRTEC_->Fill(tecid.second.first);
-    }
+    DMRTIBSplit_ = bookSplitDMRHistograms(DMeanRSplit, "TIB", "X", true);
+    DMRTOBSplit_ = bookSplitDMRHistograms(DMeanRSplit, "TOB", "X", true);
 
     // DRnRs
     TFileDirectory DRnRs = fs->mkdir("DRnRs");
@@ -1659,74 +1511,239 @@ public:
 
     // pixel
 
-    for (auto &bpixid : runningNormVarOfResBPixX_) {
-      if (bpixid.second.second < 2)
+    for (auto &bpixid : resDetailsBPixX_) {
+      DMRBPixX_->Fill(bpixid.second.runningMeanOfRes_);
+      pixelmap->fillBarrelBin("DMRsX", bpixid.first, bpixid.second.runningMeanOfRes_);
+
+      //auto myLocalTopo = PixelDMRS_x_ByLayer->getTheTopo();
+      //edm::LogPrint("DMRChecker") << myLocalTopo->print(bpixid.first) << std::endl;
+
+      PixelDMRS_x_ByLayer->fill(bpixid.first, bpixid.second.runningMeanOfRes_);
+
+      // split DMR
+      if (bpixid.second.rDirection > 0) {
+        DMRBPixXSplit_[0]->Fill(bpixid.second.runningMeanOfRes_);
+      } else {
+        DMRBPixXSplit_[1]->Fill(bpixid.second.runningMeanOfRes_);
+      }
+
+      if (bpixid.second.hitCount < 2)
         DRnRBPixX_->Fill(-1);
       else
-        DRnRBPixX_->Fill(sqrt(bpixid.second.first / (bpixid.second.second - 1)));
+        DRnRBPixX_->Fill(sqrt(bpixid.second.runningNormVarOfRes_ / (bpixid.second.hitCount - 1)));
     }
 
-    for (auto &bpixid : runningNormVarOfResBPixY_) {
-      if (bpixid.second.second < 2)
+    for (auto &bpixid : resDetailsBPixY_) {
+      DMRBPixY_->Fill(bpixid.second.runningMeanOfRes_);
+      pixelmap->fillBarrelBin("DMRsY", bpixid.first, bpixid.second.runningMeanOfRes_);
+      PixelDMRS_y_ByLayer->fill(bpixid.first, bpixid.second.runningMeanOfRes_);
+
+      // split DMR
+      if (bpixid.second.rDirection > 0) {
+        DMRBPixYSplit_[0]->Fill(bpixid.second.runningMeanOfRes_);
+      } else {
+        DMRBPixYSplit_[1]->Fill(bpixid.second.runningMeanOfRes_);
+      }
+
+      if (bpixid.second.hitCount < 2)
         DRnRBPixY_->Fill(-1);
       else
-        DRnRBPixY_->Fill(sqrt(bpixid.second.first / (bpixid.second.second - 1)));
+        DRnRBPixY_->Fill(sqrt(bpixid.second.runningNormVarOfRes_ / (bpixid.second.hitCount - 1)));
     }
 
-    for (auto &fpixid : runningNormVarOfResFPixX_) {
-      if (fpixid.second.second < 2)
+    for (auto &fpixid : resDetailsFPixX_) {
+      DMRFPixX_->Fill(fpixid.second.runningMeanOfRes_);
+      pixelmap->fillForwardBin("DMRsX", fpixid.first, fpixid.second.runningMeanOfRes_);
+      PixelDMRS_x_ByLayer->fill(fpixid.first, fpixid.second.runningMeanOfRes_);
+
+      // split DMR
+      if (fpixid.second.zDirection > 0) {
+        DMRFPixXSplit_[0]->Fill(fpixid.second.runningMeanOfRes_);
+      } else {
+        DMRFPixXSplit_[1]->Fill(fpixid.second.runningMeanOfRes_);
+      }
+
+      if (fpixid.second.hitCount < 2)
         DRnRFPixX_->Fill(-1);
       else
-        DRnRFPixX_->Fill(sqrt(fpixid.second.first / (fpixid.second.second - 1)));
+        DRnRFPixX_->Fill(sqrt(fpixid.second.runningNormVarOfRes_ / (fpixid.second.hitCount - 1)));
     }
 
-    for (auto &fpixid : runningNormVarOfResFPixY_) {
-      if (fpixid.second.second < 2)
+    for (auto &fpixid : resDetailsFPixY_) {
+      DMRFPixY_->Fill(fpixid.second.runningMeanOfRes_);
+      pixelmap->fillForwardBin("DMRsY", fpixid.first, fpixid.second.runningMeanOfRes_);
+      PixelDMRS_y_ByLayer->fill(fpixid.first, fpixid.second.runningMeanOfRes_);
+
+      // split DMR
+      if (fpixid.second.zDirection > 0) {
+        DMRFPixYSplit_[0]->Fill(fpixid.second.runningMeanOfRes_);
+      } else {
+        DMRFPixYSplit_[1]->Fill(fpixid.second.runningMeanOfRes_);
+      }
+
+      if (fpixid.second.hitCount < 2)
         DRnRFPixY_->Fill(-1);
       else
-        DRnRFPixY_->Fill(sqrt(fpixid.second.first / (fpixid.second.second - 1)));
+        DRnRFPixY_->Fill(sqrt(fpixid.second.runningNormVarOfRes_ / (fpixid.second.hitCount - 1)));
     }
 
     // strips
 
-    for (auto &tibid : runningNormVarOfResTIB_) {
-      if (tibid.second.second < 2)
+    for (auto &tibid : resDetailsTIB_) {
+      DMRTIB_->Fill(tibid.second.runningMeanOfRes_);
+
+      // split DMR
+      if (tibid.second.rDirection > 0) {
+        DMRTIBSplit_[0]->Fill(tibid.second.runningMeanOfRes_);
+      } else {
+        DMRTIBSplit_[1]->Fill(tibid.second.runningMeanOfRes_);
+      }
+
+      if (tibid.second.hitCount < 2)
         DRnRTIB_->Fill(-1);
       else
-        DRnRTIB_->Fill(sqrt(tibid.second.first / (tibid.second.second - 1)));
+        DRnRTIB_->Fill(sqrt(tibid.second.runningNormVarOfRes_ / (tibid.second.hitCount - 1)));
     }
 
-    for (auto &tobid : runningNormVarOfResTOB_) {
-      if (tobid.second.second < 2)
+    for (auto &tobid : resDetailsTOB_) {
+      DMRTOB_->Fill(tobid.second.runningMeanOfRes_);
+
+      // split DMR
+      if (tobid.second.rDirection > 0) {
+        DMRTOBSplit_[0]->Fill(tobid.second.runningMeanOfRes_);
+      } else {
+        DMRTOBSplit_[1]->Fill(tobid.second.runningMeanOfRes_);
+      }
+
+      if (tobid.second.hitCount < 2)
         DRnRTOB_->Fill(-1);
       else
-        DRnRTOB_->Fill(sqrt(tobid.second.first / (tobid.second.second - 1)));
+        DRnRTOB_->Fill(sqrt(tobid.second.runningNormVarOfRes_ / (tobid.second.hitCount - 1)));
     }
 
-    for (auto &tidid : runningNormVarOfResTID_) {
-      if (tidid.second.second < 2)
+    for (auto &tidid : resDetailsTID_) {
+      DMRTID_->Fill(tidid.second.runningMeanOfRes_);
+
+      if (tidid.second.hitCount < 2)
         DRnRTID_->Fill(-1);
       else
-        DRnRTID_->Fill(sqrt(tidid.second.first / (tidid.second.second - 1)));
+        DRnRTID_->Fill(sqrt(tidid.second.runningNormVarOfRes_ / (tidid.second.hitCount - 1)));
     }
 
-    for (auto &tecid : runningNormVarOfResTEC_) {
-      if (tecid.second.second < 2)
+    for (auto &tecid : resDetailsTEC_) {
+      DMRTEC_->Fill(tecid.second.runningMeanOfRes_);
+
+      if (tecid.second.hitCount < 2)
         DRnRTEC_->Fill(-1);
       else
-        DRnRTEC_->Fill(sqrt(tecid.second.first / (tecid.second.second - 1)));
+        DRnRTEC_->Fill(sqrt(tecid.second.runningNormVarOfRes_ / (tecid.second.hitCount - 1)));
     }
 
-    std::cout << "n. of bpix modules " << runningMeanOfResBPixX_.size() << std::endl;
-    std::cout << "n. of fpix modules " << runningMeanOfResFPixX_.size() << std::endl;
+    edm::LogPrint("DMRChecker") << "n. of bpix modules " << resDetailsBPixX_.size() << std::endl;
+    edm::LogPrint("DMRChecker") << "n. of fpix modules " << resDetailsFPixX_.size() << std::endl;
 
     pmap->save(true, 0, 0, "pixelmap.pdf", 600, 800);
     pmap->save(true, 0, 0, "pixelmap.png", 500, 750);
 
     tmap->save(true, 0, 0, "trackermap.pdf");
     tmap->save(true, 0, 0, "trackermap.png");
+
+    gStyle->SetPalette(kRainBow);
+    pixelmap->beautifyAllHistograms();
+
+    TCanvas cBX("CanvXBarrel", "CanvXBarrel", 1200, 1000);
+    pixelmap->DrawBarrelMaps("DMRsX", cBX);
+    cBX.SaveAs("pixelBarrelDMR_x.png");
+
+    TCanvas cFX("CanvXForward", "CanvXForward", 1600, 1000);
+    pixelmap->DrawForwardMaps("DMRsX", cFX);
+    cFX.SaveAs("pixelForwardDMR_x.png");
+
+    TCanvas cBY("CanvYBarrel", "CanvYBarrel", 1200, 1000);
+    pixelmap->DrawBarrelMaps("DMRsY", cBY);
+    cBY.SaveAs("pixelBarrelDMR_y.png");
+
+    TCanvas cFY("CanvXForward", "CanvXForward", 1600, 1000);
+    pixelmap->DrawForwardMaps("DMRsY", cFY);
+    cFY.SaveAs("pixelForwardDMR_y.png");
+
+    // take care now of the 1D histograms
+    gStyle->SetOptStat("emr");
+    PixelDMRS_x_ByLayer->beautify(2, 0);
+    PixelDMRS_y_ByLayer->beautify(2, 0);
+
+    TCanvas DMRxBarrel("DMRxBarrelCanv", "x-coordinate", 1400, 1200);
+    DMRxBarrel.Divide(2, 2);
+    PixelDMRS_x_ByLayer->draw(DMRxBarrel, true, "HISTS");
+    adjustCanvases(DMRxBarrel, true);
+    for (unsigned int c = 1; c <= 4; c++) {
+      DMRxBarrel.cd(c)->Update();
+    }
+    PixelDMRS_x_ByLayer->stats();
+
+    TCanvas DMRxForward("DMRxForwardCanv", "x-coordinate", 1400, 1200);
+    DMRxForward.Divide(4, 3);
+    PixelDMRS_x_ByLayer->draw(DMRxForward, false, "HISTS");
+    adjustCanvases(DMRxForward, false);
+    for (unsigned int c = 1; c <= 12; c++) {
+      DMRxForward.cd(c)->Update();
+    }
+    PixelDMRS_x_ByLayer->stats();
+
+    DMRxBarrel.SaveAs("DMR_x_Barrel_ByLayer.png");
+    DMRxForward.SaveAs("DMR_x_Forward_ByRing.png");
+
+    TCanvas DMRyBarrel("DMRyBarrelCanv", "y-coordinate", 1400, 1200);
+    DMRyBarrel.Divide(2, 2);
+    PixelDMRS_y_ByLayer->draw(DMRyBarrel, true, "HISTS");
+    adjustCanvases(DMRyBarrel, true);
+    for (unsigned int c = 1; c <= 4; c++) {
+      DMRyBarrel.cd(c)->Update();
+    }
+    PixelDMRS_y_ByLayer->stats();
+
+    TCanvas DMRyForward("DMRyForwardCanv", "y-coordinate", 1400, 1200);
+    DMRyForward.Divide(4, 3);
+    PixelDMRS_y_ByLayer->draw(DMRyForward, false, "HISTS");
+    adjustCanvases(DMRyForward, false);
+    for (unsigned int c = 1; c <= 12; c++) {
+      DMRyForward.cd(c)->Update();
+    }
+    PixelDMRS_y_ByLayer->stats();
+
+    DMRyBarrel.SaveAs("DMR_y_Barrel_ByLayer.png");
+    DMRyForward.SaveAs("DMR_y_Forward_ByRing.png");
   }
 
+  //*************************************************************
+  // Adjust canvas for DMRs
+  //*************************************************************
+  void adjustCanvases(TCanvas &canvas, bool isBarrel) {
+    unsigned int maxPads = isBarrel ? 4 : 12;
+    for (unsigned int c = 1; c <= maxPads; c++) {
+      canvas.cd(c);
+      SiPixelPI::adjustCanvasMargins(canvas.cd(c), 0.06, 0.12, 0.12, 0.05);
+    }
+
+    auto ltx = TLatex();
+    ltx.SetTextFont(62);
+    ltx.SetTextSize(0.05);
+    ltx.SetTextAlign(11);
+
+    std::string toAppend = canvas.GetTitle();
+
+    for (unsigned int c = 1; c <= maxPads; c++) {
+      auto index = isBarrel ? c - 1 : c + 3;
+      canvas.cd(c);
+      ltx.DrawLatexNDC(gPad->GetLeftMargin(),
+                       1 - gPad->GetTopMargin() + 0.01,
+                       (PixelRegions::IDlabels.at(index) + " " + toAppend).c_str());
+    }
+  }
+
+  //*************************************************************
+  // check if the hit is 2D
+  //*************************************************************
   bool isHit2D(const TrackingRecHit &hit) {
     bool countStereoHitAs2D_ = true;
     // we count SiStrip stereo modules as 2D if selected via countStereoHitAs2D_
@@ -1752,14 +1769,14 @@ public:
             const ProjectedSiStripRecHit2D *pH = static_cast<const ProjectedSiStripRecHit2D *>(&hit);
             return (countStereoHitAs2D_ && this->isHit2D(pH->originalHit()));  // depends on original...
           } else {
-            edm::LogError("UnkownType") << "@SUB=AlignmentTrackSelector::isHit2D"
+            edm::LogError("UnkownType") << "@SUB=DMRChecker::isHit2D"
                                         << "Tracker hit not in pixel, neither SiStripRecHit[12]D nor "
                                         << "SiStripMatchedRecHit2D nor ProjectedSiStripRecHit2D.";
             return false;
           }
         }
       } else {  // not tracker??
-        edm::LogWarning("DetectorMismatch") << "@SUB=AlignmentTrackSelector::isHit2D"
+        edm::LogWarning("DetectorMismatch") << "@SUB=DMRChecker::isHit2D"
                                             << "Hit not in tracker with 'official' dimension >=2.";
         return true;  // dimension() >= 2 so accept that...
       }
@@ -1768,15 +1785,47 @@ public:
   }
 
   //*************************************************************
+  // Generic booker of split DMRs
+  //*************************************************************
+  std::array<TH1D *, 2> bookSplitDMRHistograms(TFileDirectory dir,
+                                               std::string subdet,
+                                               std::string vartype,
+                                               bool isBarrel) {
+    TH1F::SetDefaultSumw2(kTRUE);
+
+    std::array<TH1D *, 2> out;
+    std::array<std::string, 2> sign_name = {{"plus", "minus"}};
+    std::array<std::string, 2> sign = {{">0", "<0"}};
+    for (unsigned int i = 0; i < 2; i++) {
+      const char *name_;
+      const char *title_;
+      const char *axisTitle_;
+
+      if (isBarrel) {
+        name_ = Form("DMR%s_%s_rDir%s", subdet.c_str(), vartype.c_str(), sign_name[i].c_str());
+        title_ = Form("Split DMR of %s-%s (rDir%s)", subdet.c_str(), vartype.c_str(), sign[i].c_str());
+        axisTitle_ = Form("mean of %s-residuals (rDir%s);modules", vartype.c_str(), sign[i].c_str());
+      } else {
+        name_ = Form("DMR%s_%s_zDir%s", subdet.c_str(), vartype.c_str(), sign_name[i].c_str());
+        title_ = Form("Split DMR of %s-%s (zDir%s)", subdet.c_str(), vartype.c_str(), sign[i].c_str());
+        axisTitle_ = Form("mean of %s-residuals (zDir%s);modules", vartype.c_str(), sign[i].c_str());
+      }
+
+      out[i] = dir.make<TH1D>(name_, fmt::sprintf("%s;%s", title_, axisTitle_).c_str(), 100., -200, 200);
+    }
+    return out;
+  }
+
+  //*************************************************************
   // Generic booker function
   //*************************************************************
   std::map<unsigned int, TH1D *> bookResidualsHistogram(
-      TFileDirectory dir, unsigned int theNLayers, TString resType, TString varType, TString detType) {
+      TFileDirectory dir, unsigned int theNLayers, std::string resType, std::string varType, std::string detType) {
     TH1F::SetDefaultSumw2(kTRUE);
 
-    std::pair<Double_t, Double_t> limits;
+    std::pair<double, double> limits;
 
-    if (varType.Contains("Res")) {
+    if (varType.find("Res") != std::string::npos) {
       limits = std::make_pair(-1000., 1000);
     } else {
       limits = std::make_pair(-3., 3.);
@@ -1789,40 +1838,41 @@ public:
       const char *title_;
       const char *xAxisTitle_;
 
-      if (varType.Contains("Res")) {
-        xAxisTitle_ = (TString("res_{" + resType + "'} [#mum]")).Data();
+      if (varType.find("Res") != std::string::npos) {
+        xAxisTitle_ = ("res_{" + resType + "'} [#mum]").c_str();
       } else {
-        xAxisTitle_ = (TString("res_{" + resType + "'}/#sigma_{res_{" + resType + "`}}")).Data();
+        xAxisTitle_ = ("res_{" + resType + "'}/#sigma_{res_{" + resType + "`}}").c_str();
       }
 
       unsigned int side = -1;
       unsigned int plane = i;
 
-      if (detType.Contains("FPix")) {
+      if (detType.find("FPix") != std::string::npos) {
         side = (i - 1) / 3 + 1;
         plane = (i - 1) % 3 + 1;
 
-        TString theSide = "";
-        if (side == 1)
+        std::string theSide = "";
+        if (side == 1) {
           theSide = "Z-";
-        else
+        } else {
           theSide = "Z+";
+        }
 
-        name_ = Form("h_%s%s%s_side%i_disk%i", detType.Data(), varType.Data(), resType.Data(), side, plane);
+        name_ = Form("h_%s%s%s_side%i_disk%i", detType.c_str(), varType.c_str(), resType.c_str(), side, plane);
         title_ = Form("%s (%s, disk %i) track %s-%s;%s;hits",
-                      detType.Data(),
-                      theSide.Data(),
+                      detType.c_str(),
+                      theSide.c_str(),
                       plane,
-                      resType.Data(),
-                      varType.Data(),
+                      resType.c_str(),
+                      varType.c_str(),
                       xAxisTitle_);
 
       } else {
-        name_ = Form("h_%s%s%s_layer%i", detType.Data(), varType.Data(), resType.Data(), i);
-        title_ =
-            Form("%s (layer %i) track %s-%s;%s;hits", detType.Data(), i, resType.Data(), varType.Data(), xAxisTitle_);
+        name_ = Form("h_%s%s%s_layer%i", detType.c_str(), varType.c_str(), resType.c_str(), i);
+        title_ = Form(
+            "%s (layer %i) track %s-%s;%s;hits", detType.c_str(), i, resType.c_str(), varType.c_str(), xAxisTitle_);
 
-        //std::cout<<"bookResidualsHistogram(): "<<i<<" layer:"<<i<<std::endl;
+        //edm::LogPrint("DMRChecker")<<"bookResidualsHistogram(): "<<i<<" layer:"<<i<<std::endl;
       }
 
       h[i] = dir.make<TH1D>(name_, title_, 100, limits.first, limits.second);
@@ -1837,7 +1887,7 @@ public:
   void fillByIndex(std::map<unsigned int, TH1D *> &h, unsigned int index, double x) {
     if (h.count(index) != 0) {
       //if(TString(h[index]->GetName()).Contains("BPix"))
-      //std::cout<<"fillByIndex() index: "<< index << " filling histogram: "<< h[index]->GetName() << std::endl;
+      //edm::LogPrint("DMRChecker")<<"fillByIndex() index: "<< index << " filling histogram: "<< h[index]->GetName() << std::endl;
 
       double min = h[index]->GetXaxis()->GetXmin();
       double max = h[index]->GetXaxis()->GetXmax();
@@ -1854,26 +1904,46 @@ public:
   // Implementation of the online variance algorithm
   // as in https://en.wikipedia.org/wiki/Algorithms_for_calculating_variance#Online_algorithm
   //*************************************************************
-  void updateOnlineMomenta(std::map<int, std::pair<float, int> > &mean,
-                           std::map<int, std::pair<float, int> > &var,
-                           int theID,
-                           float data) {
-    mean[theID].second += 1;
-    var[theID].second += 1;
+  void updateOnlineMomenta(std::map<uint32_t, running::Estimators> &myDetails,
+                           uint32_t theID,
+                           float the_data,
+                           float the_pull) {
+    myDetails[theID].hitCount += 1;
 
     float delta = 0;
+    float n_delta = 0;
 
-    if (mean[theID].second != 1) {
-      delta = data - mean[theID].first;
-      mean[theID].first += (delta / mean[theID].second);
+    if (myDetails[theID].hitCount != 1) {
+      delta = the_data - myDetails[theID].runningMeanOfRes_;
+      n_delta = the_pull - myDetails[theID].runningNormMeanOfRes_;
+      myDetails[theID].runningMeanOfRes_ += (delta / myDetails[theID].hitCount);
+      myDetails[theID].runningNormMeanOfRes_ += (n_delta / myDetails[theID].hitCount);
     } else {
-      mean[theID].first = data;
+      myDetails[theID].runningMeanOfRes_ = the_data;
+      myDetails[theID].runningNormMeanOfRes_ = the_pull;
     }
 
-    float delta2 = data - mean[theID].first;
+    float delta2 = the_data - myDetails[theID].runningMeanOfRes_;
+    float n_delta2 = the_pull - myDetails[theID].runningNormMeanOfRes_;
 
-    var[theID].first += delta * delta2;
+    myDetails[theID].runningVarOfRes_ += delta * delta2;
+    myDetails[theID].runningNormVarOfRes_ += n_delta * n_delta2;
   }
 };
+
+//*************************************************************
+void DMRChecker::fillDescriptions(edm::ConfigurationDescriptions &descriptions)
+//*************************************************************
+{
+  edm::ParameterSetDescription desc;
+  desc.setComment("Generic track analyzer to check ALCARECO sample quantities / compute fast DMRs");
+  desc.add<edm::InputTag>("TkTag", edm::InputTag("generalTracks"));
+  desc.add<edm::InputTag>("TriggerResultsTag", edm::InputTag("TriggerResults", "", "HLT"));
+  desc.add<edm::InputTag>("BeamSpotTag", edm::InputTag("offlineBeamSpot"));
+  desc.add<edm::InputTag>("VerticesTag", edm::InputTag("offlinePrimaryVertices"));
+  desc.add<bool>("isCosmics", false);
+  desc.add<bool>("isPhase1", true);
+  descriptions.add("DMRChecker", desc);
+}
 
 DEFINE_FWK_MODULE(DMRChecker);
