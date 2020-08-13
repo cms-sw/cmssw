@@ -129,8 +129,8 @@ public:
 
   static constexpr int minRollId = 0;
   static constexpr int maxRollId = 5;  // used to be 4 ... need 5 for upgrade
-                                   // if we decide to divide the upgrade RE3/1 and RE4/1 up to eta=2.4
-                                   // and we want basically to have 0.10 eta / roll ...
+                                       // if we decide to divide the upgrade RE3/1 and RE4/1 up to eta=2.4
+                                       // and we want basically to have 0.10 eta / roll ...
 
 private:
   static constexpr int RegionNumBits_ = 2;
