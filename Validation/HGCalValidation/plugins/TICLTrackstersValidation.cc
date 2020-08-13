@@ -20,6 +20,9 @@ using namespace ticl;
 
 struct Histogram_TICLTrackstersValidation {
   dqm::reco::MonitorElement* energy_;
+  dqm::reco::MonitorElement* delta_energy_;
+  dqm::reco::MonitorElement* delta_energy_vs_energy_;
+  dqm::reco::MonitorElement* delta_layer_;
 };
 
 using Histograms_TICLTrackstersValidation = std::unordered_map<unsigned int, Histogram_TICLTrackstersValidation>;
@@ -66,6 +69,7 @@ void TICLTrackstersValidation::dqmAnalyze(edm::Event const& iEvent,
   edm::Handle<std::vector<reco::CaloCluster>> layerClustersH;
   iEvent.getByToken(layerClustersToken_, layerClustersH);
   auto const& layerClusters = *layerClustersH.product();
+  int layers = rhtools_.lastLayer();
   for (const auto& trackster_token : tracksterTokens_) {
     edm::Handle<std::vector<Trackster>> trackster_h;
     iEvent.getByToken(trackster_token, trackster_h);
@@ -75,6 +79,17 @@ void TICLTrackstersValidation::dqmAnalyze(edm::Event const& iEvent,
     for (unsigned int i = 0; i < numberOfTracksters; ++i) {
       const auto& thisTrackster = trackster_h->at(i);
       histo.energy_->Fill(thisTrackster.regressed_energy());
+      for (const auto &edge : thisTrackster.edges()) {
+        auto & ic = layerClusters[edge[0]];
+        auto & oc = layerClusters[edge[1]];
+        auto const & cl_in = ic.hitsAndFractions()[0].first;
+        auto const & cl_out = oc.hitsAndFractions()[0].first;
+        auto const layer_in = rhtools_.getLayerWithOffset(cl_in) + layers * ((rhtools_.zside(cl_in) + 1) >> 1) - 1;
+        auto const layer_out = rhtools_.getLayerWithOffset(cl_out) + layers * ((rhtools_.zside(cl_out) + 1) >> 1) - 1;
+        histo.delta_energy_->Fill(oc.energy() - ic.energy());
+        histo.delta_energy_vs_energy_->Fill(ic.energy(), oc.energy() - ic.energy());
+        histo.delta_layer_->Fill(layer_out - layer_in);
+      }
     }
   }
 }
@@ -88,6 +103,9 @@ void TICLTrackstersValidation::bookHistograms(DQMStore::IBooker& ibook,
     auto& histo = histos[trackster_token.index()];
     ibook.setCurrentFolder(folder_ + "TICLTracksters/" + trackstersCollectionsNames_[labelIndex]);
     histo.energy_ = ibook.book1D("Regressed Energy", "Energy", 250, 0., 250.);
+    histo.delta_energy_ = ibook.book1D("Delta energy", "Delta Energy (O-I)", 800, -20., 20.);
+    histo.delta_energy_vs_energy_ = ibook.book2D("Delta Energy vs Energy", "Delta Energy (O-I) vs Energy (I)", 200, 0., 20., 800, -20., 20.);
+    histo.delta_layer_ = ibook.book1D("Delta Layer", "Delta Layer", 10, 0., 10.);
 
     labelIndex++;
   }
