@@ -14,6 +14,7 @@
 #include <string>
 #include <map>
 #include <vector>
+#include "DataFormats/MuonDetId/interface/GEMDetId.h"
 
 class DDCompactView;
 class DDFilteredView;
@@ -25,7 +26,6 @@ namespace cms {
   struct DDSpecParRegistry;
 }  // namespace cms
 class GEMGeometry;
-class GEMDetId;
 class GEMSuperChamber;
 class GEMChamber;
 class GEMEtaPartition;
