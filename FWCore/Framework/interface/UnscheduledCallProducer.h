@@ -30,6 +30,7 @@
 
 namespace edm {
 
+  class EventTransitionInfo;
   class ModuleCallingContext;
 
   class UnscheduledCallProducer {
@@ -49,7 +50,7 @@ namespace edm {
       }
     }
 
-    void setEventSetup(EventSetupImpl const* iSetup) { aux_.setEventSetup(iSetup); }
+    void setEventTransitionInfo(EventTransitionInfo const& info) { aux_.setEventTransitionInfo(info); }
 
     UnscheduledAuxiliary const& auxiliary() const { return aux_; }
 

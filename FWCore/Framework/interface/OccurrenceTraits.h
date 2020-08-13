@@ -30,7 +30,6 @@ OccurrenceTraits:
 namespace edm {
 
   class ProcessContext;
-  class WorkerManager;
 
   template <typename T, BranchActionType B>
   class OccurrenceTraits;
@@ -107,7 +106,6 @@ namespace edm {
       a->postModuleGlobalBeginRunSignal_(*globalContext, *moduleCallingContext);
     }
     static const char* transitionName() { return "global begin Run"; }
-    static void setupOnDemandSystem(WorkerManager& workerManager, RunTransitionInfo& transitionInfo);
   };
 
   template <>
@@ -229,7 +227,6 @@ namespace edm {
       a->postModuleGlobalEndRunSignal_(*globalContext, *moduleCallingContext);
     }
     static const char* transitionName() { return "global end Run"; }
-    static void setupOnDemandSystem(WorkerManager& workerManager, RunTransitionInfo& transitionInfo);
   };
 
   template <>
@@ -271,7 +268,6 @@ namespace edm {
       a->postModuleGlobalBeginLumiSignal_(*globalContext, *moduleCallingContext);
     }
     static const char* transitionName() { return "global begin LuminosityBlock"; }
-    static void setupOnDemandSystem(WorkerManager& workerManager, LumiTransitionInfo& transitionInfo);
   };
 
   template <>
@@ -395,7 +391,6 @@ namespace edm {
       a->postModuleGlobalEndLumiSignal_(*globalContext, *moduleCallingContext);
     }
     static const char* transitionName() { return "end global LuminosityBlock"; }
-    static void setupOnDemandSystem(WorkerManager& workerManager, LumiTransitionInfo& transitionInfo);
   };
 
   template <>
@@ -433,7 +428,6 @@ namespace edm {
       a->postModuleBeginProcessBlockSignal_(*globalContext, *moduleCallingContext);
     }
     static const char* transitionName() { return "begin ProcessBlock"; }
-    static void setupOnDemandSystem(WorkerManager& workerManager, ProcessBlockTransitionInfo& transitionInfo);
   };
 
   template <>
@@ -471,7 +465,6 @@ namespace edm {
       a->postModuleAccessInputProcessBlockSignal_(*globalContext, *moduleCallingContext);
     }
     static const char* transitionName() { return "access input ProcessBlock"; }
-    static void setupOnDemandSystem(WorkerManager& workerManager, ProcessBlockTransitionInfo& transitionInfo);
   };
 
   template <>
@@ -509,7 +502,6 @@ namespace edm {
       a->postModuleEndProcessBlockSignal_(*globalContext, *moduleCallingContext);
     }
     static const char* transitionName() { return "end ProcessBlock"; }
-    static void setupOnDemandSystem(WorkerManager& workerManager, ProcessBlockTransitionInfo& transitionInfo);
   };
 
 }  // namespace edm

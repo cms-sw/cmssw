@@ -564,7 +564,6 @@ namespace edm {
       ServiceToken const& serviceToken,
       std::vector<edm::propagate_const<std::shared_ptr<PathStatusInserter>>>& pathStatusInserters) {
     EventPrincipal& ep = info.principal();
-    EventSetupImpl const& es = info.eventSetupImpl();
 
     // Caught exception is propagated via WaitingTaskHolder
     CMS_SA_ALLOW try {
@@ -600,7 +599,8 @@ namespace edm {
       }
 
       // This call takes care of the unscheduled processing.
-      workerManager_.setupOnDemandSystem(ep, &es);
+      workerManager_.setupOnDemandSystem(ep);
+      workerManager_.setupOnDemandSystem(info);
 
       ++total_events_;
 

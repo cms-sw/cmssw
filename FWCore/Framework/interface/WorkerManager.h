@@ -22,6 +22,7 @@
 #include <vector>
 
 namespace edm {
+  class EventTransitionInfo;
   class ExceptionCollector;
   class StreamID;
   class StreamContext;
@@ -70,7 +71,8 @@ namespace edm {
                                   ParentContext const&,
                                   typename T::Context const*);
 
-    void setupOnDemandSystem(Principal& principal, EventSetupImpl const* es = nullptr);
+    void setupOnDemandSystem(Principal& principal);
+    void setupOnDemandSystem(EventTransitionInfo const&);
 
     void beginJob(ProductRegistry const& iRegistry, eventsetup::ESRecordsToProxyIndices const&);
     void endJob();

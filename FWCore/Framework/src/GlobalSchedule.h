@@ -5,10 +5,14 @@
 */
 
 #include "DataFormats/Provenance/interface/ModuleDescription.h"
+#include "FWCore/Framework/interface/EventPrincipal.h"
 #include "FWCore/Framework/interface/ExceptionActions.h"
 #include "FWCore/Framework/interface/ExceptionHelpers.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Framework/interface/LuminosityBlockPrincipal.h"
 #include "FWCore/Framework/interface/OccurrenceTraits.h"
+#include "FWCore/Framework/interface/ProcessBlockPrincipal.h"
+#include "FWCore/Framework/interface/RunPrincipal.h"
 #include "FWCore/Framework/interface/WorkerManager.h"
 #include "FWCore/Framework/src/Worker.h"
 #include "FWCore/Framework/src/WorkerRegistry.h"
@@ -215,7 +219,7 @@ namespace edm {
       ParentContext parentContext(globalContext.get());
       //make sure the ProductResolvers know about their
       // workers to allow proper data dependency handling
-      T::setupOnDemandSystem(workerManager, transitionInfo);
+      workerManager.setupOnDemandSystem(transitionInfo.principal());
 
       //make sure the task doesn't get run until all workers have beens started
       WaitingTaskHolder holdForLoop(doneTask);
