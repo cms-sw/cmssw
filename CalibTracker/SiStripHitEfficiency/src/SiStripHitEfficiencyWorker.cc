@@ -169,7 +169,6 @@ private:
   std::vector<EffME1> h_layer_vsCM;
   std::vector<MonitorElement*> h_hotcold;
 
-  std::unique_ptr<TkDetMap> m_tkDetMap;
   EffTkMap h_module;
 };
 
@@ -456,10 +455,11 @@ void SiStripHitEfficiencyWorker::bookHistograms(DQMStore::IBooker& booker,
 
   edm::ESHandle<TrackerTopology> tTopoHandle;
   setup.get<TrackerTopologyRcd>().get(tTopoHandle);
-  m_tkDetMap = std::make_unique<TkDetMap>(tTopoHandle.product());
+  edm::ESHandle<TkDetMap> tkDetMapHandle;
+  setup.get<TrackerTopologyRcd>().get(tkDetMapHandle);
   h_module = EffTkMap(
-      std::make_unique<TkHistoMap>(m_tkDetMap.get(), booker, path, "perModule_total"),
-      std::make_unique<TkHistoMap>(m_tkDetMap.get(), booker, path, "perModule_found"));
+      std::make_unique<TkHistoMap>(tkDetMapHandle.product(), booker, path, "perModule_total", 0, false, true),
+      std::make_unique<TkHistoMap>(tkDetMapHandle.product(), booker, path, "perModule_found", 0, false, true));
 }
 
 void SiStripHitEfficiencyWorker::analyze(const edm::Event& e, const edm::EventSetup& es) {
