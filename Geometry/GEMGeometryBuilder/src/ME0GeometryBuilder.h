@@ -11,6 +11,7 @@
 */
 
 #include "DataFormats/GeometrySurface/interface/Plane.h"
+#include "DataFormats/MuonDetId/interface/ME0DetId.h"
 #include <string>
 #include <map>
 #include <vector>
@@ -22,7 +23,6 @@ namespace cms {
   class DDCompactView;
 }  // namespace cms
 class ME0Geometry;
-class ME0DetId;
 class ME0Chamber;
 class ME0Layer;
 class ME0EtaPartition;
