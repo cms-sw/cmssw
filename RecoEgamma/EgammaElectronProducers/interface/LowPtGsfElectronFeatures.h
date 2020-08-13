@@ -1,18 +1,15 @@
 #ifndef RecoEgamma_EgammaElectronProducers_LowPtGsfElectronFeatures_h
 #define RecoEgamma_EgammaElectronProducers_LowPtGsfElectronFeatures_h
 
+#include "DataFormats/BeamSpot/interface/BeamSpot.h"
 #include "DataFormats/Common/interface/Ptr.h"
 #include "DataFormats/Common/interface/Ref.h"
 #include "DataFormats/Common/interface/RefToPtr.h"
 #include "DataFormats/Common/interface/View.h"
 #include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
+#include "DataFormats/ParticleFlowReco/interface/PreId.h"
 #include "RecoEcal/EgammaCoreTools/interface/EcalClusterLazyTools.h"
 #include <vector>
-
-namespace reco {
-  class BeamSpot;
-  class PreId;
-}  // namespace reco
 
 namespace lowptgsfeleseed {
 
