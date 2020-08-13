@@ -43,7 +43,7 @@ namespace lowptgsfeleseed {
     float trk_dxy_sig_ = -1.;  // must be last (not used by unbiased model)
 
     // Tracks
-    const auto& trk = ecal.trackRef(); // reco::TrackRef
+    const auto& trk = ecal.trackRef();  // reco::TrackRef
     if (trk.isNonnull()) {
       trk_pt_ = trk->pt();
       trk_eta_ = trk->eta();
@@ -62,7 +62,7 @@ namespace lowptgsfeleseed {
     rho_ = static_cast<float>(rho);
 
     // ECAL clusters
-    const auto& ecal_clu = ecal.clusterRef(); // reco::PFClusterRef
+    const auto& ecal_clu = ecal.clusterRef();  // reco::PFClusterRef
     if (ecal_clu.isNonnull()) {
       ktf_ecal_cluster_e_ = ecal_clu->energy();
       ktf_ecal_cluster_deta_ = ecal.geomMatching()[0];
@@ -84,7 +84,7 @@ namespace lowptgsfeleseed {
     }
 
     // HCAL clusters
-    const auto& hcal_clu = hcal.clusterRef(); // reco::PFClusterRef
+    const auto& hcal_clu = hcal.clusterRef();  // reco::PFClusterRef
     if (hcal_clu.isNonnull()) {
       ktf_hcal_cluster_e_ = hcal_clu->energy();
       ktf_hcal_cluster_deta_ = hcal.geomMatching()[0];
@@ -166,7 +166,7 @@ namespace lowptgsfeleid {
 
     // KF tracks
     if (ele->core().isNonnull()) {
-      const auto& trk = ele->closestCtfTrackRef(); // reco::TrackRef 
+      const auto& trk = ele->closestCtfTrackRef();  // reco::TrackRef
       if (trk.isNonnull()) {
         eid_trk_p = (float)trk->p();
         eid_trk_nhits = (float)trk->found();
@@ -181,7 +181,7 @@ namespace lowptgsfeleid {
 
     // GSF tracks
     if (ele->core().isNonnull()) {
-      const auto& gsf = ele->core()->gsfTrack(); // reco::GsfTrackRef
+      const auto& gsf = ele->core()->gsfTrack();  // reco::GsfTrackRef
       if (gsf.isNonnull()) {
         gsf_mode_p = gsf->pMode();
         eid_gsf_nhits = (float)gsf->found();
@@ -196,7 +196,7 @@ namespace lowptgsfeleid {
 
     // Super clusters
     if (ele->core().isNonnull()) {
-      const auto& sc = ele->core()->superCluster(); // reco::SuperClusterRef
+      const auto& sc = ele->core()->superCluster();  // reco::SuperClusterRef
       if (sc.isNonnull()) {
         eid_sc_E = sc->energy();
         eid_sc_eta = sc->eta();
@@ -234,9 +234,9 @@ namespace lowptgsfeleid {
 
     // Clusters
     if (ele->core().isNonnull()) {
-      const auto& gsf = ele->core()->gsfTrack(); // reco::GsfTrackRef
+      const auto& gsf = ele->core()->gsfTrack();  // reco::GsfTrackRef
       if (gsf.isNonnull()) {
-        const auto& sc = ele->core()->superCluster(); // reco::SuperClusterRef
+        const auto& sc = ele->core()->superCluster();  // reco::SuperClusterRef
         if (sc.isNonnull()) {
           // Propagate electron track to ECAL surface
           double mass_ = 0.000511 * 0.000511;
@@ -283,10 +283,8 @@ namespace lowptgsfeleid {
             }  // loop over clusters
           } catch (...) {
             edm::LogError("SuperClusters") << "Problem accessing SC constituent clusters:"
-					   << " clusNum=" << clusNum 
-					   << " clustersSize=" << sc->clustersSize()
-					   << " energy=" << sc->energy() 
-					   << std::endl;
+                                           << " clusNum=" << clusNum << " clustersSize=" << sc->clustersSize()
+                                           << " energy=" << sc->energy() << std::endl;
           }
 
           // Initializations
