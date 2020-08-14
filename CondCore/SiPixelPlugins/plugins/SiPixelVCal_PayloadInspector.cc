@@ -228,13 +228,13 @@ namespace {
       canvas.Divide(isBarrel ? 2 : 4, isBarrel ? 2 : 3);
       canvas.cd();
 
-      const char *path_toTopologyXML = (Map_.size() == SiPixelPI::phase0size)
-                                           ? "Geometry/TrackerCommonData/data/trackerParameters.xml"
-                                           : "Geometry/TrackerCommonData/data/PhaseI/trackerParameters.xml";
+      SiPixelPI::PhaseInfo phaseInfo(Map_.size());
+      const char *path_toTopologyXML = phaseInfo.pathToTopoXML();
+
       TrackerTopology tTopo =
           StandaloneTrackerTopology::fromTrackerParametersXMLFile(edm::FileInPath(path_toTopologyXML).fullPath());
 
-      auto myPlots = PixelRegions::PixelRegionContainers(&tTopo, (Map_.size() == SiPixelPI::phase1size));
+      auto myPlots = PixelRegions::PixelRegionContainers(&tTopo, phaseInfo.phase());
       myPlots.bookAll((myType == SiPixelVCalPI::t_slope) ? "SiPixel VCal slope value" : "SiPixel VCal offset value",
                       (myType == SiPixelVCalPI::t_slope) ? "SiPixel VCal slope value [ADC/VCal units]"
                                                          : "SiPixel VCal offset value [ADC]",
@@ -365,16 +365,17 @@ namespace {
       canvas.Divide(isBarrel ? 2 : 4, isBarrel ? 2 : 3);
       canvas.cd();
 
+      SiPixelPI::PhaseInfo l_phaseInfo(l_Map_.size());
+      SiPixelPI::PhaseInfo f_phaseInfo(f_Map_.size());
+
       // deal with last IOV
 
-      const char *path_toTopologyXML = (l_Map_.size() == SiPixelPI::phase0size)
-                                           ? "Geometry/TrackerCommonData/data/trackerParameters.xml"
-                                           : "Geometry/TrackerCommonData/data/PhaseI/trackerParameters.xml";
+      const char *path_toTopologyXML = l_phaseInfo.pathToTopoXML();
 
       auto l_tTopo =
           StandaloneTrackerTopology::fromTrackerParametersXMLFile(edm::FileInPath(path_toTopologyXML).fullPath());
 
-      auto l_myPlots = PixelRegions::PixelRegionContainers(&l_tTopo, (l_Map_.size() == SiPixelPI::phase1size));
+      auto l_myPlots = PixelRegions::PixelRegionContainers(&l_tTopo, l_phaseInfo.phase());
       l_myPlots.bookAll(
           fmt::sprintf("SiPixel VCal %s,last", (myType == SiPixelVCalPI::t_slope ? "slope" : "offset")),
           fmt::sprintf("SiPixel VCal %s", (myType == SiPixelVCalPI::t_slope ? " slope [ADC/VCal]" : " offset [ADC]")),
@@ -392,14 +393,12 @@ namespace {
 
       // deal with first IOV
 
-      path_toTopologyXML = (f_Map_.size() == SiPixelPI::phase0size)
-                               ? "Geometry/TrackerCommonData/data/trackerParameters.xml"
-                               : "Geometry/TrackerCommonData/data/PhaseI/trackerParameters.xml";
+      path_toTopologyXML = f_phaseInfo.pathToTopoXML();
 
       auto f_tTopo =
           StandaloneTrackerTopology::fromTrackerParametersXMLFile(edm::FileInPath(path_toTopologyXML).fullPath());
 
-      auto f_myPlots = PixelRegions::PixelRegionContainers(&f_tTopo, (f_Map_.size() == SiPixelPI::phase1size));
+      auto f_myPlots = PixelRegions::PixelRegionContainers(&f_tTopo, f_phaseInfo.phase());
       f_myPlots.bookAll(
           fmt::sprintf("SiPixel VCal %s,first", (myType == SiPixelVCalPI::t_slope ? "slope" : "offset")),
           fmt::sprintf("SiPixel VCal %s", (myType == SiPixelVCalPI::t_slope ? " slope [ADC/VCal]" : " offset [ADC]")),

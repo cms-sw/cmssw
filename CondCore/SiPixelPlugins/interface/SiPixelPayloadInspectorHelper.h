@@ -36,9 +36,51 @@
 
 namespace SiPixelPI {
 
+  enum phase { zero = 0, one = 1, two = 2 };
+
   // size of the phase-0 pixel detID list
   static const unsigned int phase0size = 1440;
   static const unsigned int phase1size = 1856;
+
+  //============================================================================
+  // struct to store info useful to construct topology based on the detid list
+  struct PhaseInfo {
+    PhaseInfo(unsigned int size) : m_detsize(size) {}
+    virtual ~PhaseInfo() { edm::LogInfo("PhaseInfo") << "PhaseInfo::~PhaseInfo()\n"; }
+    const SiPixelPI::phase phase() const {
+      if (m_detsize == phase0size)
+        return phase::zero;
+      else if (m_detsize == phase1size)
+        return phase::one;
+      else if (m_detsize > phase1size)
+        return phase::two;
+      else {
+        throw cms::Exception("LogicError") << "this detId list size: " << m_detsize << "should not exist!";
+      }
+    }
+
+    const char* pathToTopoXML() {
+      if (m_detsize == phase0size)
+        return "Geometry/TrackerCommonData/data/trackerParameters.xml";
+      else if (m_detsize == phase1size)
+        return "Geometry/TrackerCommonData/data/PhaseI/trackerParameters.xml";
+      else if (m_detsize > phase1size)
+        return "Geometry/TrackerCommonData/data/PhaseII/trackerParameters.xml";
+      else {
+        throw cms::Exception("LogicError") << "this detId list size: " << m_detsize << "should not exist!";
+      }
+    }
+
+    const bool isPhase1Comparison(const PhaseInfo& theOtherPhase) const {
+      if (phase() == phase::one || theOtherPhase.phase() == phase::one)
+        return true;
+      else
+        return false;
+    }
+
+  private:
+    size_t m_detsize;
+  };
 
   //============================================================================
   std::pair<unsigned int, unsigned int> unpack(cond::Time_t since) {
