@@ -247,7 +247,6 @@ public:
 
 private:
   // tokens for the event setup
-
   const edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> geomToken_;
   const edm::ESGetToken<RunInfo, RunInfoRcd> runInfoToken_;
   const edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> magFieldToken_;
@@ -647,7 +646,7 @@ private:
             if (resDetailsTIB_.find(detid_db) == resDetailsTIB_.end()) {
               resDetailsTIB_[detid_db].rDirection = gWDirection.perp() - gPModule.perp() >= 0 ? +1 : -1;
               resDetailsTIB_[detid_db].zDirection = gVDirection.z() - gPModule.z() >= 0 ? +1 : -1;
-	      resDetailsTIB_[detid_db].rOrZDirection = resDetailsTIB_[detid_db].rDirection; // barrel (split in r)
+              resDetailsTIB_[detid_db].rOrZDirection = resDetailsTIB_[detid_db].rDirection;  // barrel (split in r)
             }
 
             hTIBResXPrime->Fill(uOrientation * resX * 10000);
@@ -667,7 +666,7 @@ private:
             if (resDetailsTOB_.find(detid_db) == resDetailsTOB_.end()) {
               resDetailsTOB_[detid_db].rDirection = gWDirection.perp() - gPModule.perp() >= 0 ? +1 : -1;
               resDetailsTOB_[detid_db].zDirection = gVDirection.z() - gPModule.z() >= 0 ? +1 : -1;
-	      resDetailsTOB_[detid_db].rOrZDirection = resDetailsTOB_[detid_db].rDirection; // barrel (split in r)
+              resDetailsTOB_[detid_db].rOrZDirection = resDetailsTOB_[detid_db].rDirection;  // barrel (split in r)
             }
 
             // update residuals
@@ -719,14 +718,16 @@ private:
                 if (resDetailsBPixX_.find(detid_db) == resDetailsBPixX_.end()) {
                   resDetailsBPixX_[detid_db].rDirection = gWDirection.perp() - gPModule.perp() >= 0 ? +1 : -1;
                   resDetailsBPixX_[detid_db].zDirection = gVDirection.z() - gPModule.z() >= 0 ? +1 : -1;
-		  resDetailsBPixX_[detid_db].rOrZDirection = resDetailsBPixX_[detid_db].rDirection; // barrel (split in r)
+                  resDetailsBPixX_[detid_db].rOrZDirection =
+                      resDetailsBPixX_[detid_db].rDirection;  // barrel (split in r)
                 }
 
                 // if the detid has never occcurred yet, set the local orientations
                 if (resDetailsBPixY_.find(detid_db) == resDetailsBPixY_.end()) {
                   resDetailsBPixY_[detid_db].rDirection = gWDirection.perp() - gPModule.perp() >= 0 ? +1 : -1;
                   resDetailsBPixY_[detid_db].zDirection = gVDirection.z() - gPModule.z() >= 0 ? +1 : -1;
-		  resDetailsBPixY_[detid_db].rOrZDirection = resDetailsBPixY_[detid_db].rDirection; // barrel (split in r)
+                  resDetailsBPixY_[detid_db].rOrZDirection =
+                      resDetailsBPixY_[detid_db].rDirection;  // barrel (split in r)
                 }
 
                 hHitCountVsThetaBPix->Fill(GP.theta());
@@ -786,14 +787,16 @@ private:
                 if (resDetailsFPixX_.find(detid_db) == resDetailsFPixX_.end()) {
                   resDetailsFPixX_[detid_db].rDirection = gUDirection.perp() - gPModule.perp() >= 0 ? +1 : -1;
                   resDetailsFPixX_[detid_db].zDirection = gWDirection.z() - gPModule.z() >= 0 ? +1 : -1;
-		  resDetailsFPixX_[detid_db].rOrZDirection = resDetailsFPixX_[detid_db].zDirection; // endcaps (split in z)
+                  resDetailsFPixX_[detid_db].rOrZDirection =
+                      resDetailsFPixX_[detid_db].zDirection;  // endcaps (split in z)
                 }
 
                 // if the detid has never occcurred yet, set the local orientations
                 if (resDetailsFPixY_.find(detid_db) == resDetailsFPixY_.end()) {
                   resDetailsFPixY_[detid_db].rDirection = gUDirection.perp() - gPModule.perp() >= 0 ? +1 : -1;
                   resDetailsFPixY_[detid_db].zDirection = gWDirection.z() - gPModule.z() >= 0 ? +1 : -1;
-		  resDetailsFPixY_[detid_db].rOrZDirection = resDetailsFPixY_[detid_db].zDirection; // endcaps (split in z)
+                  resDetailsFPixY_[detid_db].rOrZDirection =
+                      resDetailsFPixY_[detid_db].zDirection;  // endcaps (split in z)
                 }
 
                 // update residuals X
