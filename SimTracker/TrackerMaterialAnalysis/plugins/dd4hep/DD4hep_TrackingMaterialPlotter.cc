@@ -71,9 +71,9 @@ void DD4hep_TrackingMaterialPlotter::fill_color(void) {
 }
 
 unsigned int DD4hep_TrackingMaterialPlotter::fill_gradient(const TColor& first,
-                                                    const TColor& last,
-                                                    unsigned int steps /*= 100*/,
-                                                    unsigned int index /* = 0*/) {
+                                                           const TColor& last,
+                                                           unsigned int steps /*= 100*/,
+                                                           unsigned int index /* = 0*/) {
   if (index == 0) {
     // if no index was given, find the highest used one and start from that plus one
     index = ((TObjArray*)gROOT->GetListOfColors())->GetLast() + 1;
@@ -96,9 +96,9 @@ unsigned int DD4hep_TrackingMaterialPlotter::fill_gradient(const TColor& first,
 }
 
 unsigned int DD4hep_TrackingMaterialPlotter::fill_gradient(const unsigned int& first,
-                                                    const unsigned int& last,
-                                                    const unsigned int& steps,
-                                                    const unsigned int& index) {
+                                                           const unsigned int& last,
+                                                           const unsigned int& steps,
+                                                           const unsigned int& index) {
   return fill_gradient(
       *(TColor*)gROOT->GetListOfColors()->At(first), *(TColor*)gROOT->GetListOfColors()->At(last), steps, index);
 }
@@ -149,7 +149,8 @@ void DD4hep_TrackingMaterialPlotter::draw(void) {
   std::unique_ptr<TCanvas> canvas;
 
   DD4hep_XHistogram::Histogram* radlen = m_tracker.get(0);
-  canvas = std::make_unique<TCanvas>("radlen_rz", "RadiationLengths - RZ view", (int)(600 * scale * 1.25), (int)(120 * scale * 1.50));
+  canvas = std::make_unique<TCanvas>(
+      "radlen_rz", "RadiationLengths - RZ view", (int)(600 * scale * 1.25), (int)(120 * scale * 1.50));
   gStyle->SetOptStat(0);
   gStyle->SetPalette(m_gradient.size(), &m_gradient.front());
   gStyle->SetNumberContours(m_gradient.size());
@@ -209,5 +210,4 @@ void DD4hep_TrackingMaterialPlotter::draw(void) {
   colormap->Draw("same axis y+");
   colormap->SaveAs("layers.root");
   canvas->SaveAs("layers.png");
-
 }
