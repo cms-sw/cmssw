@@ -6,7 +6,7 @@ process = cms.Process("HLTX")
 process.load("HLTrigger.Configuration.Phase2.hltPhase2Setup_cff")
 
 ### GlobalTag
-process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
+process.load("Configuration.StandardSequences.CondDBESSource_cff")
 process.GlobalTag.globaltag = "111X_mcRun4_realistic_T15_v1"
 
 ### Rerun the module that makes TrackTrigger tracks
@@ -76,7 +76,7 @@ process.hltPhase2GeneralTracks = cms.EDProducer(
     writeOnlyTrkQuals=cms.bool(False),
 )
 
-process.load("HLTrigger.Configuration.Phase2.trackerLocalReco_cff")
+process.load("HLTrigger.Configuration.Phase2.hltPhase2TrackerLocalReco_cff")
 process.load("HLTrigger.Configuration.Phase2.hltPhase2L1TracksSeqPattern_cff")
 process.load("HLTrigger.Configuration.Phase2.hltPhase2PixelTracksSequenceL1_cff")
 # Trimmed vertices are not used?
@@ -86,7 +86,7 @@ process.load("HLTrigger.Configuration.Phase2.hltPhase2HighPtTripletStepSequence_
 
 process.hltPhase2BaselineTrackingSeq = cms.Sequence(
     process.offlineBeamSpot
-    + process.trackerLocalRecoSequence
+    + process.hltPhase2TrackerLocalRecoSequence
     + process.TTTracksFromTrackletEmulation
     + process.hltPhase2L1TracksSeqPattern
     + process.hltPhase2PixelTracksSequenceL1

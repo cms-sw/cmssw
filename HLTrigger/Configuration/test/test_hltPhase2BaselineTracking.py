@@ -45,7 +45,7 @@ process.hltPhase2GeneralTracks = cms.EDProducer(
     writeOnlyTrkQuals=cms.bool(False),
 )
 
-process.load("HLTrigger.Configuration.Phase2.trackerLocalReco_cff")
+process.load("HLTrigger.Configuration.Phase2.hltPhase2TrackerLocalReco_cff")
 process.load("HLTrigger.Configuration.Phase2.hltPhase2L1TracksSeqPattern_cff")
 process.load("HLTrigger.Configuration.Phase2.hltPhase2PixelTracksSequenceL1_cff")
 # Trimmed vertices are not used?
@@ -55,7 +55,7 @@ process.load("HLTrigger.Configuration.Phase2.hltPhase2HighPtTripletStepSequence_
 
 process.hltPhase2BaselineTrackingSeq = cms.Sequence(
     process.offlineBeamSpot
-    + process.trackerLocalRecoSequence
+    + process.hltPhase2TrackerLocalRecoSequence
     + process.hltPhase2L1TracksSeqPattern
     + process.hltPhase2PixelTracksSequenceL1
     + process.hltPhase2PixelVerticesSequence
