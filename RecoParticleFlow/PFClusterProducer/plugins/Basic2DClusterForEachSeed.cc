@@ -9,18 +9,18 @@ void Basic2DClusterForEachSeed::buildClusters(const edm::Handle<reco::PFRecHitCo
   // loop over seeds and make clusters
   reco::PFCluster cluster;
   for (unsigned int hit = 0; hit < hits.size(); ++hit) {
-
-    if (!rechitMask[hit] || !seedable[hit]) continue; // if not seed, ignore.
+    if (!rechitMask[hit] || !seedable[hit])
+      continue;  // if not seed, ignore.
     cluster.reset();
 
     // seed
     auto refhit = makeRefhit(input, hit);
-    auto rhf = reco::PFRecHitFraction(refhit, 1.0); // entire rechit energy should go to a cluster
+    auto rhf = reco::PFRecHitFraction(refhit, 1.0);  // entire rechit energy should go to a cluster
 
     // add the hit to the cluster
     cluster.addRecHitFraction(rhf);
 
-    // extract 
+    // extract
     const auto rh_energy = refhit->energy();
 
     // fill cluster information
