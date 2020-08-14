@@ -422,6 +422,9 @@ steps['RunZeroBias1_hBStarRP']={'INPUT':InputInfo(dataSet='/ZeroBias1/Commission
 #### 2018 NANOAOD from prompt reco  2018 MINIAOD ####
 steps['RunJetHT2018A_nano']={'INPUT':InputInfo(dataSet='/JetHT/Run2018A-PromptReco-v1/MINIAOD',label='2018Anano',events=100000,location='STD', ls=Run2018A)}
 
+#### 2018 NANOAOD from prompt reco  2018 MINIAOD - UL ####
+steps['RunJetHT2018A_nanoUL']={'INPUT':InputInfo(dataSet='/JetHT/Run2018A-12Nov2019_UL2018-v2/MINIAOD',label='2018Anano',events=100000,location='STD', ls=Run2018A)}
+
 #### run2 2018B ####
 Run2018B={317435: [[1, 100]]}
 Run2018B_parkingBPH={317661: [[301, 400]]}
@@ -3149,6 +3152,7 @@ steps['NANOEDM2017_94XMiniAODv2'] = merge([{'--era': 'Run2_2017,run2_nanoAOD_94X
 steps['NANOEDM2016_80X'] = merge([{'--era': 'Run2_2016,run2_miniAOD_80XLegacy'}, steps['NANOEDM2017'] ])
 steps['NANOEDM2018'] = merge([ {'--conditions': 'auto:run2_data', '--era': 'Run2_2018'}, stepNanoEDMData ])
 steps['NANOEDM2018_102Xv1'] = merge([ {'--era': 'Run2_2018,run2_nanoAOD_102Xv1'}, steps['NANOEDM2018'] ])
+steps['NANOEDM2018_106Xv1'] = merge([ {'--era': 'Run2_2018,run2_nanoAOD_106Xv1'}, steps['NANOEDM2018'] ])
 
 steps['HARVESTNANOAODMC2017']=merge([{'-s':'HARVESTING:@nanoAODDQM','--conditions': 'auto:phase1_2017_realistic','--era': 'Run2_2017'},steps['HARVESTUP15']])
 steps['HARVESTNANOAODMC2017_94XMiniAODv1']=merge([{'--era': 'Run2_2017,run2_nanoAOD_94XMiniAODv1'},steps['HARVESTNANOAODMC2017']])
@@ -3163,6 +3167,7 @@ steps['HARVESTNANOAOD2017_94XMiniAODv2']=merge([{'--era': 'Run2_2017,run2_nanoAO
 steps['HARVESTNANOAOD2016_80X']=merge([{'--era': 'Run2_2016,run2_miniAOD_80XLegacy'},steps['HARVESTNANOAOD2017']])
 steps['HARVESTNANOAOD2018']=merge([{'--conditions': 'auto:run2_data', '--era':'Run2_2018'}, steps['HARVESTNANOAOD2017']])
 steps['HARVESTNANOAOD2018_102Xv1']=merge([{'--era':'Run2_2018,run2_nanoAOD_102Xv1'}, steps['HARVESTNANOAOD2018']])
+steps['HARVESTNANOAOD2018_106Xv1']=merge([{'--era':'Run2_2018,run2_nanoAOD_106Xv1'}, steps['HARVESTNANOAOD2018']])
 
 steps['NANOMERGE'] = { '-s': 'ENDJOB', '-n': 1000 , '--eventcontent' : 'NANOAODSIM','--datatier': 'NANOAODSIM', '--conditions': 'auto:run2_mc' }
 
