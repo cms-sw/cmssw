@@ -155,23 +155,25 @@ namespace {
       auto extrema = SiPixelPI::findMinMaxInMap(LAMap_);
 
       TCanvas canvas("Canv", "Canv", isBarrel ? 1400 : 1800, 1200);
+      /*
       if (LAMap_.size() > SiPixelPI::phase1size) {
         SiPixelPI::displayNotSupported(canvas, LAMap_.size());
         std::string fileName(this->m_imageFileName);
         canvas.SaveAs(fileName.c_str());
         return false;
       }
+      */
 
       canvas.Divide(isBarrel ? 2 : 4, isBarrel ? 2 : 3);
       canvas.cd();
 
-      const char *path_toTopologyXML = (LAMap_.size() == SiPixelPI::phase0size)
-                                           ? "Geometry/TrackerCommonData/data/trackerParameters.xml"
-                                           : "Geometry/TrackerCommonData/data/PhaseI/trackerParameters.xml";
+      SiPixelPI::PhaseInfo phaseInfo(LAMap_.size());
+      const char *path_toTopologyXML = phaseInfo.pathToTopoXML();
+
       TrackerTopology tTopo =
           StandaloneTrackerTopology::fromTrackerParametersXMLFile(edm::FileInPath(path_toTopologyXML).fullPath());
 
-      auto myPlots = PixelRegions::PixelRegionContainers(&tTopo, (LAMap_.size() == SiPixelPI::phase1size));
+      auto myPlots = PixelRegions::PixelRegionContainers(&tTopo, phaseInfo.phase());
       myPlots.bookAll("SiPixel LA",
                       "SiPixel LorentzAngle #mu_{H}(tan#theta_{L}/B) [1/T]",
                       "#modules",
@@ -276,28 +278,28 @@ namespace {
       std::string firstIOVsince = std::to_string(std::get<0>(firstiov));
 
       TCanvas canvas("Canv", "Canv", isBarrel ? 1400 : 1800, 1200);
+      /*
       if ((f_LAMap_.size() > SiPixelPI::phase1size) || (l_LAMap_.size() > SiPixelPI::phase1size)) {
         SiPixelPI::displayNotSupported(canvas, std::max(f_LAMap_.size(), l_LAMap_.size()));
         std::string fileName(this->m_imageFileName);
         canvas.SaveAs(fileName.c_str());
         return false;
       }
+      */
 
       canvas.Divide(isBarrel ? 2 : 4, isBarrel ? 2 : 3);
       canvas.cd();
 
-      bool is_l_phase0 = (l_LAMap_.size() == SiPixelPI::phase0size);
-      bool is_f_phase0 = (f_LAMap_.size() == SiPixelPI::phase0size);
+      SiPixelPI::PhaseInfo l_phaseInfo(l_LAMap_.size());
+      SiPixelPI::PhaseInfo f_phaseInfo(f_LAMap_.size());
 
       // deal with last IOV
-
-      const char *path_toTopologyXML = is_l_phase0 ? "Geometry/TrackerCommonData/data/trackerParameters.xml"
-                                                   : "Geometry/TrackerCommonData/data/PhaseI/trackerParameters.xml";
+      const char *path_toTopologyXML = l_phaseInfo.pathToTopoXML();
 
       auto l_tTopo =
           StandaloneTrackerTopology::fromTrackerParametersXMLFile(edm::FileInPath(path_toTopologyXML).fullPath());
 
-      auto l_myPlots = PixelRegions::PixelRegionContainers(&l_tTopo, !is_l_phase0);
+      auto l_myPlots = PixelRegions::PixelRegionContainers(&l_tTopo, l_phaseInfo.phase());
       l_myPlots.bookAll("SiPixel LA,last",
                         "SiPixel LorentzAngle #mu_{H}(tan#theta_{L}/B) [1/T]",
                         "#modules",
@@ -310,17 +312,15 @@ namespace {
       }
 
       l_myPlots.beautify();
-      l_myPlots.draw(canvas, isBarrel, "bar2", (!is_f_phase0 || !is_l_phase0));
+      l_myPlots.draw(canvas, isBarrel, "bar2", f_phaseInfo.isPhase1Comparison(l_phaseInfo));
 
       // deal with first IOV
-
-      path_toTopologyXML = is_f_phase0 ? "Geometry/TrackerCommonData/data/trackerParameters.xml"
-                                       : "Geometry/TrackerCommonData/data/PhaseI/trackerParameters.xml";
+      path_toTopologyXML = f_phaseInfo.pathToTopoXML();
 
       auto f_tTopo =
           StandaloneTrackerTopology::fromTrackerParametersXMLFile(edm::FileInPath(path_toTopologyXML).fullPath());
 
-      auto f_myPlots = PixelRegions::PixelRegionContainers(&f_tTopo, !is_f_phase0);
+      auto f_myPlots = PixelRegions::PixelRegionContainers(&f_tTopo, f_phaseInfo.phase());
       f_myPlots.bookAll("SiPixel LA,first",
                         "SiPixel LorentzAngle #mu_{H}(tan#theta_{L}/B) [1/T]",
                         "#modules",
@@ -333,7 +333,7 @@ namespace {
       }
 
       f_myPlots.beautify(kAzure, kBlue);
-      f_myPlots.draw(canvas, isBarrel, "HISTsames", (!is_f_phase0 || !is_l_phase0));
+      f_myPlots.draw(canvas, isBarrel, "HISTsames", f_phaseInfo.isPhase1Comparison(l_phaseInfo));
 
       // rescale the y-axis ranges in order to fit the canvas
       l_myPlots.rescaleMax(f_myPlots);

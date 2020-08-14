@@ -379,13 +379,13 @@ namespace gainCalibHelper {
       canvas.Divide(isBarrel ? 2 : 4, isBarrel ? 2 : 3);
       canvas.cd();
 
-      const char* path_toTopologyXML = (detids.size() == SiPixelPI::phase0size)
-                                           ? "Geometry/TrackerCommonData/data/trackerParameters.xml"
-                                           : "Geometry/TrackerCommonData/data/PhaseI/trackerParameters.xml";
+      SiPixelPI::PhaseInfo phaseInfo(detids.size());
+      const char* path_toTopologyXML = phaseInfo.pathToTopoXML();
+
       TrackerTopology tTopo =
           StandaloneTrackerTopology::fromTrackerParametersXMLFile(edm::FileInPath(path_toTopologyXML).fullPath());
 
-      auto myPlots = PixelRegions::PixelRegionContainers(&tTopo, (detids.size() == SiPixelPI::phase1size));
+      auto myPlots = PixelRegions::PixelRegionContainers(&tTopo, phaseInfo.phase());
       myPlots.bookAll(Form("SiPixel Gain Calibration %s - %s", (isForHLT_ ? "ForHLT" : "Offline"), TypeName[myType]),
                       Form("per %s %s", (isForHLT_ ? "Column" : "Pixel"), TypeName[myType]),
                       Form("# %ss", (isForHLT_ ? "column" : "pixel")),
@@ -397,7 +397,7 @@ namespace gainCalibHelper {
 
       // fill the histograms
       for (const auto& pixelId : PixelRegions::PixelIDs) {
-        auto wantedDets = PixelRegions::attachedDets(pixelId, &tTopo, (detids.size() == SiPixelPI::phase1size));
+        auto wantedDets = PixelRegions::attachedDets(pixelId, &tTopo, phaseInfo.phase());
         gainCalibPI::fillTheHisto(payload, myPlots.getHistoFromMap(pixelId), myType, wantedDets);
       }
 
@@ -549,15 +549,14 @@ namespace gainCalibHelper {
       canvas.Divide(isBarrel ? 2 : 4, isBarrel ? 2 : 3);
       canvas.cd();
 
-      bool is_l_phase0 = (l_detids.size() == SiPixelPI::phase0size);
-      bool is_f_phase0 = (f_detids.size() == SiPixelPI::phase0size);
+      SiPixelPI::PhaseInfo l_phaseInfo(l_detids.size());
+      SiPixelPI::PhaseInfo f_phaseInfo(f_detids.size());
+      const char* path_toTopologyXML = l_phaseInfo.pathToTopoXML();
 
-      const char* path_toTopologyXML = is_l_phase0 ? "Geometry/TrackerCommonData/data/trackerParameters.xml"
-                                                   : "Geometry/TrackerCommonData/data/PhaseI/trackerParameters.xml";
       auto l_tTopo =
           StandaloneTrackerTopology::fromTrackerParametersXMLFile(edm::FileInPath(path_toTopologyXML).fullPath());
 
-      auto l_myPlots = PixelRegions::PixelRegionContainers(&l_tTopo, !is_l_phase0);
+      auto l_myPlots = PixelRegions::PixelRegionContainers(&l_tTopo, l_phaseInfo.phase());
       l_myPlots.bookAll(
           Form("Last SiPixel Gain Calibration %s - %s", (isForHLT_ ? "ForHLT" : "Offline"), TypeName[myType]),
           Form("per %s %s", (isForHLT_ ? "Column" : "Pixel"), TypeName[myType]),
@@ -566,12 +565,12 @@ namespace gainCalibHelper {
           minimum,
           maximum);
 
-      path_toTopologyXML = is_f_phase0 ? "Geometry/TrackerCommonData/data/trackerParameters.xml"
-                                       : "Geometry/TrackerCommonData/data/PhaseI/trackerParameters.xml";
+      path_toTopologyXML = f_phaseInfo.pathToTopoXML();
+
       auto f_tTopo =
           StandaloneTrackerTopology::fromTrackerParametersXMLFile(edm::FileInPath(path_toTopologyXML).fullPath());
 
-      auto f_myPlots = PixelRegions::PixelRegionContainers(&f_tTopo, !is_f_phase0);
+      auto f_myPlots = PixelRegions::PixelRegionContainers(&f_tTopo, f_phaseInfo.phase());
       f_myPlots.bookAll(
           Form("First SiPixel Gain Calibration %s - %s", (isForHLT_ ? "ForHLT" : "Offline"), TypeName[myType]),
           Form("per %s %s", (isForHLT_ ? "Column" : "Pixel"), TypeName[myType]),
@@ -582,8 +581,8 @@ namespace gainCalibHelper {
 
       // fill the histograms
       for (const auto& pixelId : PixelRegions::PixelIDs) {
-        auto f_wantedDets = PixelRegions::attachedDets(pixelId, &f_tTopo, !is_f_phase0);
-        auto l_wantedDets = PixelRegions::attachedDets(pixelId, &l_tTopo, !is_l_phase0);
+        auto f_wantedDets = PixelRegions::attachedDets(pixelId, &f_tTopo, f_phaseInfo.phase());
+        auto l_wantedDets = PixelRegions::attachedDets(pixelId, &l_tTopo, l_phaseInfo.phase());
         gainCalibPI::fillTheHisto(first_payload, f_myPlots.getHistoFromMap(pixelId), myType, f_wantedDets);
         gainCalibPI::fillTheHisto(last_payload, l_myPlots.getHistoFromMap(pixelId), myType, l_wantedDets);
       }
@@ -596,8 +595,8 @@ namespace gainCalibHelper {
       l_myPlots.beautify(kRed, -1);
       f_myPlots.beautify(kAzure, -1);
 
-      l_myPlots.draw(canvas, isBarrel, "HIST", (!is_f_phase0 || !is_l_phase0));
-      f_myPlots.draw(canvas, isBarrel, "HISTsames", (!is_f_phase0 || !is_l_phase0));
+      l_myPlots.draw(canvas, isBarrel, "HIST", f_phaseInfo.isPhase1Comparison(l_phaseInfo));
+      f_myPlots.draw(canvas, isBarrel, "HISTsames", f_phaseInfo.isPhase1Comparison(l_phaseInfo));
 
       // rescale the y-axis ranges in order to fit the canvas
       l_myPlots.rescaleMax(f_myPlots);
