@@ -5,14 +5,11 @@
 #include "DataFormats/ParticleFlowReco/interface/PFRecHitFraction.h"
 
 class Basic2DClusterForEachSeed : public InitialClusteringStepBase {
-  typedef Basic2DClusterForEachSeed B2DGT;
 
 public:
   Basic2DClusterForEachSeed(const edm::ParameterSet& conf, edm::ConsumesCollector& sumes)
       : InitialClusteringStepBase(conf, sumes) {}
   ~Basic2DClusterForEachSeed() override = default;
-  Basic2DClusterForEachSeed(const B2DGT&) = delete;
-  B2DGT& operator=(const B2DGT&) = delete;
 
   void buildClusters(const edm::Handle<reco::PFRecHitCollection>&,
                      const std::vector<bool>&,

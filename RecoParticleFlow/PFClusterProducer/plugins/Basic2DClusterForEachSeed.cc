@@ -5,48 +5,35 @@ void Basic2DClusterForEachSeed::buildClusters(const edm::Handle<reco::PFRecHitCo
                                               const std::vector<bool>& seedable,
                                               reco::PFClusterCollection& output) {
   auto const& hits = *input;
-  std::vector<bool> used(hits.size(), false);
-  std::vector<unsigned int> seeds;
-
-  // get seeds
-  seeds.reserve(hits.size());
-  for (unsigned int i = 0; i < hits.size(); ++i) {
-    if (!rechitMask[i] || !seedable[i])
-      continue;
-    seeds.emplace_back(i);
-  }
 
   // loop over seeds and make clusters
   reco::PFCluster cluster;
-  for (auto seed : seeds) {
-    if (!rechitMask[seed] || !seedable[seed])
-      continue;
+  for (unsigned int hit = 0; hit < hits.size(); ++hit) {
+
+    if (!rechitMask[hit] || !seedable[hit]) continue; // if not seed, ignore.
     cluster.reset();
 
     // seed
-    auto refhit = makeRefhit(input, seed);
-    auto rhf = reco::PFRecHitFraction(refhit, 1.0);
+    auto refhit = makeRefhit(input, hit);
+    auto rhf = reco::PFRecHitFraction(refhit, 1.0); // entire rechit energy should go to a cluster
 
+    // add the hit to the cluster
     cluster.addRecHitFraction(rhf);
 
-    if (!cluster.recHitFractions().empty()) {
-      //
-      const auto rh_fraction = rhf.fraction();
-      const auto rh_rawenergy = refhit->energy();
-      const auto rh_energy = rh_rawenergy * rh_fraction;
+    // extract 
+    const auto rh_energy = refhit->energy();
 
-      // fill cluster information
-      cluster.setSeed(refhit->detId());
-      cluster.setEnergy(rh_energy);
-      cluster.setTime(refhit->time());
-      cluster.setLayer(refhit->layer());
-      cluster.setPosition(math::XYZPoint(refhit->position().x(), refhit->position().y(), refhit->position().z()));
-      cluster.calculatePositionREP();
-      cluster.setDepth(refhit->depth());
-      cluster.calculatePositionREP();
+    // fill cluster information
+    cluster.setSeed(refhit->detId());
+    cluster.setEnergy(rh_energy);
+    cluster.setTime(refhit->time());
+    cluster.setLayer(refhit->layer());
+    cluster.setPosition(math::XYZPoint(refhit->position().x(), refhit->position().y(), refhit->position().z()));
+    cluster.calculatePositionREP();
+    cluster.setDepth(refhit->depth());
+    cluster.calculatePositionREP();
 
-      output.push_back(cluster);
-    }
+    output.push_back(cluster);
 
   }  // looping over seeds ends
 }
