@@ -51,7 +51,8 @@ void RPCDcsInfoClient::dqmEndJob(DQMStore::IBooker& ibooker, DQMStore::IGetter& 
   }
 
   std::string meName = dcsinfofolder_ + "/rpcHVStatus";
-  MonitorElement* rpcHVStatus = ibooker.book2D("rpcHVStatus", "RPC HV Status", nlsmax, 1., nlsmax + 1, 1, 0.5, 1.5);
+  unsigned int dcssize = DCS.size();
+  MonitorElement* rpcHVStatus = ibooker.book2D("rpcHVStatus", "RPC HV Status", dcssize, 1., dcssize + 1, 1, 0.5, 1.5);
   rpcHVStatus->setAxisTitle("Luminosity Section", 1);
   rpcHVStatus->setBinLabel(1, "", 2);
 
