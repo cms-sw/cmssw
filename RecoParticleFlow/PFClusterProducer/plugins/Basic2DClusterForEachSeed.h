@@ -5,7 +5,6 @@
 #include "DataFormats/ParticleFlowReco/interface/PFRecHitFraction.h"
 
 class Basic2DClusterForEachSeed : public InitialClusteringStepBase {
-
 public:
   Basic2DClusterForEachSeed(const edm::ParameterSet& conf, edm::ConsumesCollector& sumes)
       : InitialClusteringStepBase(conf, sumes) {}
