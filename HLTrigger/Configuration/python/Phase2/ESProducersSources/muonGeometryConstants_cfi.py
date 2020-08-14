@@ -1,6 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
-muonGeometryConstants = cms.ESProducer("MuonGeometryConstantsESModule",
-    appendToDataLabel = cms.string(''),
-    fromDD4Hep = cms.bool(False)
+from Geometry.MuonNumbering.muonGeometryConstants_cfi import (
+    muonGeometryConstants as _muonGeometryConstants,
 )
+
+hltPhase2muonGeometryConstants = _muonGeometryConstants.clone()

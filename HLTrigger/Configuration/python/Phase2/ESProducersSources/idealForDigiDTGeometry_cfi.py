@@ -1,8 +1,11 @@
 import FWCore.ParameterSet.Config as cms
 
-idealForDigiDTGeometry = cms.ESProducer("DTGeometryESModule",
-    alignmentsLabel = cms.string('fakeForIdeal'),
-    appendToDataLabel = cms.string('idealForDigi'),
-    applyAlignment = cms.bool(False),
-    fromDDD = cms.bool(True)
+from Geometry.DTGeometryBuilder.dtGeometry_cfi import (
+    DTGeometryESModule as _DTGeometryESModule,
+)
+
+hltPhase2idealForDigiDTGeometry = _DTGeometryESModule.clone(
+    alignmentsLabel="fakeForIdeal",
+    appendToDataLabel="idealForDigi",
+    applyAlignment=False,
 )

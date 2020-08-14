@@ -20,7 +20,6 @@ from HLTrigger.Configuration.Phase2.ESProducersSources.hltPhase2SeedFromProtoTra
 from HLTrigger.Configuration.Phase2.ESProducersSources.Chi2MeasurementEstimator_cfi import *
 from HLTrigger.Configuration.Phase2.ESProducersSources.ClusterShapeHitFilterESProducer_cfi import *
 from HLTrigger.Configuration.Phase2.ESProducersSources.ClusterShapeTrajectoryFilter_cfi import *
-from HLTrigger.Configuration.Phase2.ESProducersSources.EcalElectronicsMappingBuilder_cfi import *
 from HLTrigger.Configuration.Phase2.ESProducersSources.FlexibleKFFittingSmoother_cfi import *
 from HLTrigger.Configuration.Phase2.ESProducersSources.KFFittingSmootherWithOutliersRejectionAndRK_cfi import *
 from HLTrigger.Configuration.Phase2.ESProducersSources.KFUpdatorESProducer_cfi import *
@@ -40,21 +39,12 @@ from HLTrigger.Configuration.Phase2.ESProducersSources.RKTrajectorySmoother_cfi 
 from HLTrigger.Configuration.Phase2.ESProducersSources.RungeKuttaTrackerPropagator_cfi import *
 from HLTrigger.Configuration.Phase2.ESProducersSources.SiStripClusterChargeCutLoose_cfi import *
 from HLTrigger.Configuration.Phase2.ESProducersSources.SiStripClusterChargeCutNone_cfi import *
-from HLTrigger.Configuration.Phase2.ESProducersSources.SiStripRecHitMatcherESProducer_cfi import *
-from HLTrigger.Configuration.Phase2.ESProducersSources.StripCPEfromTrackAngleESProducer_cfi import *
-from HLTrigger.Configuration.Phase2.ESProducersSources.VolumeBasedMagneticFieldESProducer_cfi import *
 
 from HLTrigger.Configuration.Phase2.ESProducersSources.convStepFitterSmoother_cfi import *
-from HLTrigger.Configuration.Phase2.ESProducersSources.eegeom_cfi import *
 from HLTrigger.Configuration.Phase2.ESProducersSources.essourceSev_cfi import *
 from HLTrigger.Configuration.Phase2.ESProducersSources.hcalRecAlgos_cfi import *
 from HLTrigger.Configuration.Phase2.ESProducersSources.navigationSchoolESProducer_cfi import *
 from HLTrigger.Configuration.Phase2.ESProducersSources.phase2StripCPEESProducer_cfi import *
-from HLTrigger.Configuration.Phase2.ESProducersSources.siPixelQualityESProducer_cfi import *
-from HLTrigger.Configuration.Phase2.ESProducersSources.siStripBackPlaneCorrectionDepESProducer_cfi import *
-from HLTrigger.Configuration.Phase2.ESProducersSources.siStripLorentzAngleDepESProducer_cfi import *
-from HLTrigger.Configuration.Phase2.ESProducersSources.siStripQualityESProducer_cfi import *
-from HLTrigger.Configuration.Phase2.ESProducersSources.sistripconn_cfi import *
 from HLTrigger.Configuration.Phase2.ESProducersSources.trackAlgoPriorityOrder_cfi import *
 from HLTrigger.Configuration.Phase2.ESProducersSources.trajectoryCleanerBySharedHits_cfi import *
 from HLTrigger.Configuration.Phase2.ESProducersSources.ttrhbwr_cfi import *
@@ -62,6 +52,13 @@ from HLTrigger.Configuration.Phase2.ESProducersSources.ttrhbwr_cfi import *
 ### All of this stuff is geometry, surely we can get all this geometry from elsewhere?
 from HLTrigger.Configuration.Phase2.ESProducersSources.XMLIdealGeometryESSource_cfi import *
 from HLTrigger.Configuration.Phase2.ESProducersSources.GlobalDetLayerGeometry_cfi import *
+from HLTrigger.Configuration.Phase2.ESProducersSources.siPixelQualityESProducer_cfi import *
+from HLTrigger.Configuration.Phase2.ESProducersSources.SiStripRecHitMatcherESProducer_cfi import *
+from HLTrigger.Configuration.Phase2.ESProducersSources.StripCPEfromTrackAngleESProducer_cfi import *
+from HLTrigger.Configuration.Phase2.ESProducersSources.siStripBackPlaneCorrectionDepESProducer_cfi import *
+from HLTrigger.Configuration.Phase2.ESProducersSources.siStripLorentzAngleDepESProducer_cfi import *
+from HLTrigger.Configuration.Phase2.ESProducersSources.siStripQualityESProducer_cfi import *
+from HLTrigger.Configuration.Phase2.ESProducersSources.sistripconn_cfi import *
 from HLTrigger.Configuration.Phase2.ESProducersSources.trackerNumberingGeometry_cfi import *
 from HLTrigger.Configuration.Phase2.ESProducersSources.trackerGeometry_cfi import *
 from HLTrigger.Configuration.Phase2.ESProducersSources.trackerTopology_cfi import *
@@ -70,6 +67,11 @@ from HLTrigger.Configuration.Phase2.ESProducersSources.idealForDigiTrackerGeomet
 # MTD
 from HLTrigger.Configuration.Phase2.ESProducersSources.mtdParameters_cfi import *
 from HLTrigger.Configuration.Phase2.ESProducersSources.mtdTopology_cfi import *
+# Ecal
+from HLTrigger.Configuration.Phase2.ESProducersSources.EcalElectronicsMappingBuilder_cfi import *
+from HLTrigger.Configuration.Phase2.ESProducersSources.eegeom_cfi import *
+# Magnet
+from HLTrigger.Configuration.Phase2.ESProducersSources.VolumeBasedMagneticFieldESProducer_cfi import *
 # Muons
 from HLTrigger.Configuration.Phase2.ESProducersSources.MuonDetLayerGeometryESProducer_cfi import *
 from HLTrigger.Configuration.Phase2.ESProducersSources.MuonNumberingInitialization_cfi import *

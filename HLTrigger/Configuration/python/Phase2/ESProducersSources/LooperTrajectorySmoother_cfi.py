@@ -1,12 +1,11 @@
 import FWCore.ParameterSet.Config as cms
 
-LooperTrajectorySmoother = cms.ESProducer("KFTrajectorySmootherESProducer",
-    ComponentName = cms.string('LooperSmoother'),
-    Estimator = cms.string('Chi2'),
-    Propagator = cms.string('PropagatorWithMaterialForLoopers'),
-    RecoGeometry = cms.string('GlobalDetLayerGeometry'),
-    Updator = cms.string('KFUpdator'),
-    appendToDataLabel = cms.string(''),
-    errorRescaling = cms.double(10.0),
-    minHits = cms.int32(3)
+from TrackingTools.TrackFitters.KFTrajectorySmoother_cfi import (
+    KFTrajectorySmoother as _KFTrajectorySmoother,
+)
+
+hltPhase2LooperTrajectorySmoother = _KFTrajectorySmoother.clone(
+    ComponentName="LooperSmoother",
+    Propagator="PropagatorWithMaterialForLoopers",
+    errorRescaling=10.0,
 )

@@ -1,8 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
-FlexibleKFFittingSmoother = cms.ESProducer("FlexibleKFFittingSmootherESProducer",
-    ComponentName = cms.string('FlexibleKFFittingSmoother'),
-    appendToDataLabel = cms.string(''),
-    looperFitter = cms.string('LooperFittingSmoother'),
-    standardFitter = cms.string('KFFittingSmootherWithOutliersRejectionAndRK')
+from TrackingTools.TrackFitters.FlexibleKFFittingSmoother_cfi import (
+    FlexibleKFFittingSmoother as _FlexibleKFFittingSmoother,
 )
+
+hltPhase2FlexibleKFFittingSmoother = _FlexibleKFFittingSmoother.clone()

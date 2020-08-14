@@ -1,5 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
-SiStripClusterChargeCutNone = cms.PSet(
-    value = cms.double(-1.0)
+from RecoLocalTracker.SiStripClusterizer.SiStripClusterChargeCut_cfi import (
+    SiStripClusterChargeCutNone as _SiStripClusterChargeCutNone,
 )
+
+SiStripClusterChargeCutNone = _SiStripClusterChargeCutNone.clone()

@@ -1,10 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
-ttrhbwr = cms.ESProducer("TkTransientTrackingRecHitBuilderESProducer",
-    ComponentName = cms.string('WithTrackAngle'),
-    ComputeCoarseLocalPositionFromDisk = cms.bool(False),
-    Matcher = cms.string('StandardMatcher'),
-    Phase2StripCPE = cms.string('Phase2StripCPE'),
-    PixelCPE = cms.string('PixelCPEGeneric'),
-    StripCPE = cms.string('StripCPEfromTrackAngle')
+from RecoTracker.TransientTrackingRecHit.TransientTrackingRecHitBuilder_cfi import (
+    ttrhbwr as _ttrhbwr,
 )
+
+hltPhase2ttrhbwr = _ttrhbwr.clone(Phase2StripCPE=cms.string("Phase2StripCPE"))

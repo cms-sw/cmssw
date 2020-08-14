@@ -1,18 +1,14 @@
 import FWCore.ParameterSet.Config as cms
 
-KFFittingSmootherWithOutliersRejectionAndRK = cms.ESProducer("KFFittingSmootherESProducer",
-    BreakTrajWith2ConsecutiveMissing = cms.bool(True),
-    ComponentName = cms.string('KFFittingSmootherWithOutliersRejectionAndRK'),
-    EstimateCut = cms.double(20.0),
-    Fitter = cms.string('RKFitter'),
-    LogPixelProbabilityCut = cms.double(0),
-    MaxFractionOutliers = cms.double(0.3),
-    MaxNumberOfOutliers = cms.int32(3),
-    MinDof = cms.int32(2),
-    MinNumberOfHits = cms.int32(3),
-    NoInvalidHitsBeginEnd = cms.bool(True),
-    NoOutliersBeginEnd = cms.bool(False),
-    RejectTracks = cms.bool(True),
-    Smoother = cms.string('RKSmoother'),
-    appendToDataLabel = cms.string('')
+from TrackingTools.TrackFitters.KFFittingSmoother_cfi import (
+    KFFittingSmoother as _KFFittingSmoother,
+)
+
+hltPhase2KFFittingSmootherWithOutliersRejectionAndRK = _KFFittingSmoother.clone(
+    BreakTrajWith2ConsecutiveMissing=True,
+    ComponentName="KFFittingSmootherWithOutliersRejectionAndRK",
+    EstimateCut=20.0,
+    Fitter="RKFitter",
+    MinNumberOfHits=3,
+    Smoother="RKSmoother",
 )

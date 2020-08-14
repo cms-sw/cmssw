@@ -1,3 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
-MuonDetLayerGeometryESProducer = cms.ESProducer("MuonDetLayerGeometryESProducer")
+from RecoMuon.DetLayers.muonDetLayerGeometry_cfi import (
+    MuonDetLayerGeometryESProducer as _MuonDetLayerGeometryESProducer,
+)
+
+hltPhase2MuonDetLayerGeometryESProducer = _MuonDetLayerGeometryESProducer.clone()

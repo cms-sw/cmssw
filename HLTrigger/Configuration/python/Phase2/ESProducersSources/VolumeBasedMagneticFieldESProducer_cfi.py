@@ -1,7 +1,9 @@
 import FWCore.ParameterSet.Config as cms
 
-VolumeBasedMagneticFieldESProducer = cms.ESProducer("VolumeBasedMagneticFieldESProducerFromDB",
-    debugBuilder = cms.untracked.bool(False),
-    label = cms.untracked.string(''),
-    valueOverride = cms.int32(-1)
+from MagneticField.Engine.volumeBasedMagneticFieldFromDB_cfi import (
+    VolumeBasedMagneticFieldESProducer as _VolumeBasedMagneticFieldESProducer,
+)
+
+hltPhase2VolumeBasedMagneticFieldESProducer = (
+    _VolumeBasedMagneticFieldESProducer.clone()
 )

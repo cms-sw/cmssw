@@ -1,6 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
-mtdParameters = cms.ESProducer("MTDParametersESModule",
-    appendToDataLabel = cms.string(''),
-    fromDD4hep = cms.bool(False)
+from Geometry.MTDGeometryBuilder.mtdParameters_cfi import (
+    mtdParameters as _mtdParameters,
 )
+
+hltPhase2mtdParameters = _mtdParameters.clone()

@@ -1,5 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
-trackerTopology = cms.ESProducer("TrackerTopologyEP",
-    appendToDataLabel = cms.string('')
+from Geometry.TrackerNumberingBuilder.trackerTopology_cfi import (
+    trackerTopology as _trackerTopology,
 )
+
+hltPhase2trackerTopology = _trackerTopology.clone()

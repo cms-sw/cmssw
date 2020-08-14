@@ -1,5 +1,5 @@
 import FWCore.ParameterSet.Config as cms
 
-mtdTopology = cms.ESProducer("MTDTopologyEP",
-    appendToDataLabel = cms.string('')
-)
+from Geometry.MTDNumberingBuilder.mtdTopology_cfi import mtdTopology as _mtdTopology
+
+hltPhase2mtdTopology = _mtdTopology.clone()

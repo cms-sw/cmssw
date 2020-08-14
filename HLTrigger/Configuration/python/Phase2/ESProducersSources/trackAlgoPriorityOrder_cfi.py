@@ -1,11 +1,9 @@
 import FWCore.ParameterSet.Config as cms
 
-trackAlgoPriorityOrder = cms.ESProducer("TrackAlgoPriorityOrderESProducer",
-    ComponentName = cms.string('trackAlgoPriorityOrder'),
-    algoOrder = cms.vstring(
-        'hltIter0', 
-        'initialStep', 
-        'highPtTripletStep'
-    ),
-    appendToDataLabel = cms.string('')
+from RecoTracker.FinalTrackSelectors.trackAlgoPriorityOrderDefault_cfi import (
+    trackAlgoPriorityOrderDefault as _trackAlgoPriorityOrderDefault,
+)
+
+hltPhase2trackAlgoPriorityOrder = _trackAlgoPriorityOrderDefault.clone(
+    algoOrder=["hltIter0", "initialStep", "highPtTripletStep"]
 )

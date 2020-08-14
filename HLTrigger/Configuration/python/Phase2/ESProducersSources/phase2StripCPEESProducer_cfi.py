@@ -1,9 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
-phase2StripCPEESProducer = cms.ESProducer("Phase2StripCPEESProducer",
-    ComponentType = cms.string('Phase2StripCPE'),
-    parameters = cms.PSet(
-        LorentzAngle_DB = cms.bool(False),
-        TanLorentzAnglePerTesla = cms.double(0.07)
-    )
+from RecoLocalTracker.Phase2TrackerRecHits.Phase2StripCPEESProducer_cfi import (
+    phase2StripCPEESProducer as _phase2StripCPEESProducer,
 )
+
+hltPhase2StripCPEESProducer = _phase2StripCPEESProducer.clone()

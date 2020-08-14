@@ -6,7 +6,7 @@ process = cms.Process("HLTX")
 process.load("HLTrigger.Configuration.Phase2.hltPhase2Setup_cff")
 
 ### GlobalTag
-process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
+process.load("Configuration.StandardSequences.CondDBESSource_cff")
 process.GlobalTag.globaltag = "111X_mcRun4_realistic_T15_v1"
 
 ### Don't rerun the module that makes TrackTrigger tracks
