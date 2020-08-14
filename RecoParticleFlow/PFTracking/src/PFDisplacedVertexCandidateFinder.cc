@@ -26,7 +26,7 @@ PFDisplacedVertexCandidateFinder::PFDisplacedVertexCandidateFinder()
 
 PFDisplacedVertexCandidateFinder::~PFDisplacedVertexCandidateFinder() {
   LogDebug("PFDisplacedVertexCandidateFinder")
-      << "~PFDisplacedVertexCandidateFinder - number of remaining elements: " << eventTracks_.size() << endl;
+      << "~PFDisplacedVertexCandidateFinder - number of remaining elements: " << eventTracks_.size();
 }
 
 void PFDisplacedVertexCandidateFinder::setPrimaryVertex(edm::Handle<reco::VertexCollection> mainVertexHandle,
@@ -187,11 +187,11 @@ void PFDisplacedVertexCandidateFinder::link(const TrackBaseRef& el1,
   const auto phi1 = el_table_.get<Phi>(iel1);
   const auto phi2 = el_table_.get<Phi>(iel2);
 
-  if (fabs(eta1 - eta2) > 1) {
+  if (std::abs(eta1 - eta2) > 1) {
     dist = -1;
     return;
   }
-  if (pt1 > 2 && pt2 > 2 && fabs(phi1 - phi2) > 1) {
+  if (pt1 > 2 && pt2 > 2 && std::abs(phi1 - phi2) > 1) {
     dist = -1;
     return;
   }
@@ -204,8 +204,9 @@ void PFDisplacedVertexCandidateFinder::link(const TrackBaseRef& el1,
 
   // Fill the parameters
   dist = theMinimum_.distance();
+  LogDebug("PFDisplacedVertexCandidateFinder") << "link iel1=" << iel1 << " iel2=" << iel2 << " dist=" << dist;
   crossingPoint = theMinimum_.crossingPoint();
-  //std::cout << "ie1=" << iel1 << " ie2=" << iel2 << " pt1=" << pt1 << " pt2=" << pt2 << " eta1=" << eta1 << " eta2=" << eta2 << " phi1=" << phi1 << " phi2=" << phi2 << " dist=" << dist << std::endl;
+
   vertexLinkTest = PFDisplacedVertexCandidate::LINKTEST_DCA;  //rechit by default
 
   // Check if the link test fails
@@ -231,7 +232,7 @@ void PFDisplacedVertexCandidateFinder::link(const TrackBaseRef& el1,
     dist = -1;
     return;
   }
-  if (fabs(crossingPoint.z()) > tec_z_limit) {
+  if (std::abs(crossingPoint.z()) > tec_z_limit) {
     dist = -1;
     return;
   }
@@ -268,7 +269,6 @@ void PFDisplacedVertexCandidateFinder::link(const TrackBaseRef& el1,
 // In the Candidate
 void PFDisplacedVertexCandidateFinder::packLinks(PFDisplacedVertexCandidate& vertexCandidate) {
   const vector<TrackBaseRef>& els = vertexCandidate.elements();
-
 
   //First Loop: update all link data
   for (unsigned i1 = 0; i1 < els.size(); i1++) {
@@ -322,7 +322,7 @@ bool PFDisplacedVertexCandidateFinder::goodPtResolution(const TrackBaseRef& trac
     return false;
   }
   //  cout << "dxy = " << dxy << endl;
-  if (fabs(dxy) < dxy_ && pt < pt_min_prim_)
+  if (std::abs(dxy) < dxy_ && pt < pt_min_prim_)
     return false;
   //  if (fabs(dxy) < 0.2 && pt < 0.8) return false;
 
@@ -340,7 +340,7 @@ ostream& operator<<(std::ostream& out, const PFDisplacedVertexCandidateFinder& a
 
   out << " Tracks selection based on " << std::endl;
   out << " pvtx_ = " << a.pvtx_ << std::endl;
-  out << " fabs(dxy) < " << a.dxy_ << " and pt < " << a.pt_min_prim_ << std::endl;
+  out << " std::abs(dxy) < " << a.dxy_ << " and pt < " << a.pt_min_prim_ << std::endl;
   out << " nChi2 < " << a.nChi2_max_ << " and pt < " << a.pt_min_ << std::endl;
 
   out << endl;
