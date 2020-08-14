@@ -54,7 +54,7 @@ private:
   void fillColor();
   void fillGradient();
   void fillMaterialDifferences();
-  void produceAndSaveSummaryPlot(const cms::DDCompactView& cpv);
+  void produceAndSaveSummaryPlot(const cms::DDCompactView &cpv);
   std::vector<std::pair<std::shared_ptr<TLine>, std::shared_ptr<TText>>> overlayEtaReferences();
   std::map<std::string, std::pair<float, float>> m_diff;
   std::map<std::string, std::pair<float, float>> m_values;
@@ -75,7 +75,7 @@ DD4hep_ListGroups::DD4hep_ListGroups(const edm::ParameterSet &iConfig)
 
 DD4hep_ListGroups::~DD4hep_ListGroups() {}
 
-void DD4hep_ListGroups::produceAndSaveSummaryPlot(const cms::DDCompactView& cpv) {
+void DD4hep_ListGroups::produceAndSaveSummaryPlot(const cms::DDCompactView &cpv) {
   const double scale = 10.;
 
   static int markerStyles[10] = {kFullCircle,
@@ -93,8 +93,8 @@ void DD4hep_ListGroups::produceAndSaveSummaryPlot(const cms::DDCompactView& cpv)
     m_groups.emplace_back(new DD4hep_MaterialAccountingGroup(n.data(), cpv));
   }
 
-  auto canvas =
-    std::make_unique<TCanvas>("Grouping_rz", "Grouping - RZ view", (int)(600 * scale * 1.25), (int)(120 * scale * 1.50));
+  auto canvas = std::make_unique<TCanvas>(
+      "Grouping_rz", "Grouping - RZ view", (int)(600 * scale * 1.25), (int)(120 * scale * 1.50));
   canvas->GetFrame()->SetFillColor(kWhite);
   gStyle->SetOptStat(0);
 
@@ -106,9 +106,12 @@ void DD4hep_ListGroups::produceAndSaveSummaryPlot(const cms::DDCompactView& cpv)
   leg->SetTextSize(0.008);
   leg->SetNColumns(3);
   auto radlen = std::make_unique<TProfile2D>("OverallRadLen", "OverallRadLen", 600., -300., 300, 120., 0., 120.);
-  auto eneloss = std::make_unique<TProfile2D>("OverallEnergyLoss", "OverallEnergyLoss", 600., -300., 300, 120., 0., 120.);
-  auto radlen_diff = std::make_unique<TProfile2D>("OverallDifferencesRadLen", "OverallDifferencesRadLen", 600., -300., 300, 120., 0., 120.);
-  auto eneloss_diff = std::make_unique<TProfile2D>("OverallDifferencesEnergyLoss", "OverallDifferencesEnergyLoss", 600., -300., 300, 120., 0., 120.);
+  auto eneloss =
+      std::make_unique<TProfile2D>("OverallEnergyLoss", "OverallEnergyLoss", 600., -300., 300, 120., 0., 120.);
+  auto radlen_diff = std::make_unique<TProfile2D>(
+      "OverallDifferencesRadLen", "OverallDifferencesRadLen", 600., -300., 300, 120., 0., 120.);
+  auto eneloss_diff = std::make_unique<TProfile2D>(
+      "OverallDifferencesEnergyLoss", "OverallDifferencesEnergyLoss", 600., -300., 300, 120., 0., 120.);
 
   for (auto g : m_groups) {
     m_plots.push_back(

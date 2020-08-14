@@ -1,6 +1,6 @@
 #include "BoundingBox.h"
 
-void BoundingBox::grow(const double& r,const double& z) {
+void BoundingBox::grow(const double& r, const double& z) {
   if (r < r_min)
     r_min = r;
   if (r > r_max)
@@ -17,4 +17,3 @@ void BoundingBox::grow(const double& skin) {
   z_min -= skin;
   z_max += skin;
 }
-
