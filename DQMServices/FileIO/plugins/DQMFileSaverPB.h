@@ -40,6 +40,10 @@ namespace dqm {
 
   public:
     static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+
+  private:
+    int getMaxCompressedSize(int bufferSize) const;
+    uLong compressME(const TBufferFile& buffer, int maxOutputSize, char* compression_output) const;
   };
 
 }  // namespace dqm
