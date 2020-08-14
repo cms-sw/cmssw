@@ -19,6 +19,7 @@
 #include <memory>
 
 #include "CommonTools/Utils/interface/KinematicTables.h"
+#include "CommonTools/Utils/interface/LazyConstructed.h"
 #include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
 #include "DataFormats/EgammaReco/interface/ElectronSeed.h"
 #include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
@@ -240,8 +241,8 @@ void PFElecTkProducer::produce(Event& iEvent, const EventSetup& iSetup) {
   iEvent.getByToken(pfTrackLabel_, thePfRecTrackCollection);
 
   // SoA structure for frequently used track information.
-  // Stored in a Lazy result so it is only filled when needed, i.e., when there is an electron in the event.
-  auto trackEtaPhiTable = edm::soa::makeEtaPhiTableLazy(*thePfRecTrackCollection);
+  // LazyConstructed so it is only filled when needed, i.e., when there is an electron in the event.
+  auto trackEtaPhiTable = makeLazy<edm::soa::EtaPhiTable>(*thePfRecTrackCollection);
 
   // PFClusters
   Handle<PFClusterCollection> theECPfClustCollection;
