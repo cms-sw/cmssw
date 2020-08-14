@@ -73,7 +73,7 @@ void PFDisplacedVertexCandidateFinder::setInput(const edm::Handle<TrackCollectio
       eventTrackTrajectories_[i] = getGlobalTrajectoryParameters(trk);
     }
   }
-  track_table_ = edm::soa::makePtEtaPhiTable(*trackh);
+  track_table_ = edm::soa::PtEtaPhiTable{*trackh};
 }
 
 // -------- Main function which find vertices -------- //
