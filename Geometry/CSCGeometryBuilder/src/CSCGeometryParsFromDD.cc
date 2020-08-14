@@ -360,7 +360,7 @@ bool CSCGeometryParsFromDD::build(const cms::DDCompactView* cview,
   const cms::DDSpecParRegistry& mypar = cview->specpars();
   const cms::DDFilter filter(attribute, value);
   cms::DDFilteredView fv(*cview, filter);
- 
+
   int noOfAnonParams = 0;
 
   std::vector<double> uparvals;
