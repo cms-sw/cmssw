@@ -29,6 +29,7 @@
 #include <map>
 #include <string>
 #include <vector>
+#include <boost/range/adaptor/indexed.hpp>
 
 // user include files
 
@@ -84,7 +85,10 @@ const int kFPIX = PixelSubdetector::PixelEndcap;
 
 class GeneralPurposeTrackAnalyzer : public edm::one::EDAnalyzer<edm::one::WatchRuns, edm::one::SharedResources> {
 public:
-  GeneralPurposeTrackAnalyzer(const edm::ParameterSet &pset) {
+  GeneralPurposeTrackAnalyzer(const edm::ParameterSet &pset)
+      : geomToken_(esConsumes<TrackerGeometry, TrackerDigiGeometryRecord>()),
+        magFieldToken_(esConsumes<MagneticField, IdealMagneticFieldRecord, edm::Transition::BeginRun>()),
+        latencyToken_(esConsumes<SiStripLatency, SiStripLatencyRcd, edm::Transition::BeginRun>()) {
     usesResource(TFileService::kSharedResource);
 
     TkTag_ = pset.getParameter<edm::InputTag>("TkTag");
@@ -123,16 +127,23 @@ public:
 
   template <class OBJECT_TYPE>
   int GetIndex(const std::vector<OBJECT_TYPE *> &vec, const TString &name) {
-    int result = 0;
-    for (typename std::vector<OBJECT_TYPE *>::const_iterator iter = vec.begin(), iterEnd = vec.end(); iter != iterEnd;
-         ++iter, ++result) {
-      if (*iter && (*iter)->GetName() == name)
-        return result;
+    for (const auto &iter : vec | boost::adaptors::indexed(0)) {
+      if (iter.value() && iter.value()->GetName() == name) {
+        return iter.index();
+      }
     }
     edm::LogError("GeneralPurposeTrackAnalyzer") << "@SUB=GeneralPurposeTrackAnalyzer::GetIndex"
                                                  << " could not find " << name;
     return -1;
   }
+
+private:
+  // tokens for the event setup
+  const edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> geomToken_;
+  const edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> magFieldToken_;
+  const edm::ESGetToken<SiStripLatency, SiStripLatencyRcd> latencyToken_;
+
+  edm::ESHandle<MagneticField> magneticField_;
 
   edm::Service<TFileService> fs;
 
@@ -284,13 +295,8 @@ public:
     edm::Handle<reco::TrackCollection> trackCollection;
     event.getByToken(theTrackCollectionToken, trackCollection);
 
-    // magnetic field setup
-    edm::ESHandle<MagneticField> magneticField_;
-    setup.get<IdealMagneticFieldRecord>().get(magneticField_);
-
     // geometry setup
-    edm::ESHandle<TrackerGeometry> geometry;
-    setup.get<TrackerDigiGeometryRecord>().get(geometry);
+    edm::ESHandle<TrackerGeometry> geometry = setup.getHandle(geomToken_);
     const TrackerGeometry *theGeometry = &(*geometry);
 
     // switch on the phase1
@@ -667,8 +673,7 @@ public:
   //*************************************************************
   {
     // Magnetic Field setup
-    edm::ESHandle<MagneticField> magneticField_;
-    setup.get<IdealMagneticFieldRecord>().get(magneticField_);
+    magneticField_ = setup.getHandle(magFieldToken_);
     float B_ = magneticField_.product()->inTesla(GlobalPoint(0, 0, 0)).mag();
 
     if (DEBUG) {
@@ -676,14 +681,8 @@ public:
           << "run number:" << run.run() << " magnetic field: " << B_ << " [T]" << std::endl;
     }
 
-    //topology setup
-    //edm::ESHandle<TrackerTopology> tTopoHandle;
-    //setup.get<TrackerTopologyRcd>().get(tTopoHandle);
-    //const TrackerTopology* const tTopo = tTopoHandle.product();
-
     //SiStrip Latency
-    edm::ESHandle<SiStripLatency> apvlat;
-    setup.get<SiStripLatencyRcd>().get(apvlat);
+    edm::ESHandle<SiStripLatency> apvlat = setup.getHandle(latencyToken_);
     if (apvlat->singleReadOutMode() == 1) {
       mode = 1;  // peak mode
     } else if (apvlat->singleReadOutMode() == 0) {
@@ -1120,11 +1119,11 @@ public:
       fieldByRun_->GetXaxis()->SetBinLabel((the_r - theRuns_.front()) + 1, std::to_string(the_r).c_str());
     }
 
-    pmap->save(true, 0, 0, "pixelmap.pdf", 600, 800);
-    pmap->save(true, 0, 0, "pixelmap.png", 500, 750);
+    pmap->save(true, 0, 0, "PixelHitMap.pdf", 600, 800);
+    pmap->save(true, 0, 0, "PixelHitMap.png", 500, 750);
 
-    tmap->save(true, 0, 0, "trackermap.pdf");
-    tmap->save(true, 0, 0, "trackermap.png");
+    tmap->save(true, 0, 0, "StripHitMap.pdf");
+    tmap->save(true, 0, 0, "StripHitMap.png");
 
     gStyle->SetPalette(kRainBow);
     pixelmap->beautifyAllHistograms();
