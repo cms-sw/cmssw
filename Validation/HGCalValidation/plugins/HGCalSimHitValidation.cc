@@ -367,7 +367,8 @@ void HGCalSimHitValidation::fillHitsInfo(std::pair<hitsinfo, energysum> hits, un
 
 bool HGCalSimHitValidation::defineGeometry(edm::ESTransientHandle<DDCompactView>& ddViewH) {
   if (verbosity_ > 0)
-    edm::LogVerbatim("HGCalValidation") << "Initialize HGCalDDDConstants (DDD) for " << nameDetector_ << " : " << hgcons_;
+    edm::LogVerbatim("HGCalValidation") << "Initialize HGCalDDDConstants (DDD) for " << nameDetector_ << " : "
+                                        << hgcons_;
 
   if (hgcons_->geomMode() == HGCalGeometryMode::Square) {
     const DDCompactView& cview = *ddViewH;
@@ -414,7 +415,8 @@ bool HGCalSimHitValidation::defineGeometry(edm::ESTransientHandle<DDCompactView>
 
 bool HGCalSimHitValidation::defineGeometry(edm::ESTransientHandle<cms::DDCompactView>& ddViewH) {
   if (verbosity_ > 0)
-    edm::LogVerbatim("HGCalValidation") << "Initialize HGCalDDDConstants (DD4hep) for " << nameDetector_ << " : " << hgcons_;
+    edm::LogVerbatim("HGCalValidation") << "Initialize HGCalDDDConstants (DD4hep) for " << nameDetector_ << " : "
+                                        << hgcons_;
 
   if (hgcons_->geomMode() == HGCalGeometryMode::Square) {
     const cms::DDCompactView& cview = *ddViewH;
