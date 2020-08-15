@@ -8,12 +8,12 @@ using namespace std;
 
 const unsigned PFTrack::nMaxTrackingLayers_ = 17;
 
-PFTrack::PFTrack() : charge_(0.), indexInnermost_(0), indexOutermost_(0), color_(1) {
+PFTrack::PFTrack() : charge_(0.), indexInnermost_(0), indexOutermost_(0) {
   // prepare vector of trajectory points for propagated positions
   trajectoryPoints_.reserve(PFTrajectoryPoint::NLayers + nMaxTrackingLayers_);
 }
 
-PFTrack::PFTrack(double charge) : charge_(charge), indexInnermost_(0), indexOutermost_(0), color_(1) {
+PFTrack::PFTrack(double charge) : charge_(charge), indexInnermost_(0), indexOutermost_(0) {
   // prepare vector of trajectory points for propagated positions
   trajectoryPoints_.reserve(PFTrajectoryPoint::NLayers + nMaxTrackingLayers_);
 }
@@ -22,8 +22,7 @@ PFTrack::PFTrack(const PFTrack& other)
     : charge_(other.charge_),
       trajectoryPoints_(other.trajectoryPoints_),
       indexInnermost_(other.indexInnermost_),
-      indexOutermost_(other.indexOutermost_),
-      color_(other.color_) {}
+      indexOutermost_(other.indexOutermost_) {}
 
 void PFTrack::addPoint(const PFTrajectoryPoint& trajPt) {
   //   cout<<"adding "<<trajPt<<endl;
