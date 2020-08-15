@@ -1,23 +1,19 @@
 #ifndef DataFormats_ParticleFlowReco_PFCluster_h
 #define DataFormats_ParticleFlowReco_PFCluster_h
 
-#include "DataFormats/CaloRecHit/interface/CaloClusterFwd.h"
-#include "DataFormats/CaloRecHit/interface/CaloCluster.h"
-
-#include "Math/GenVector/PositionVector3D.h"
-#include "DataFormats/Math/interface/Point3D.h"
-#include "Rtypes.h"
-
-#include "DataFormats/ParticleFlowReco/interface/PFRecHitFraction.h"
-#include "DataFormats/ParticleFlowReco/interface/PFRecHit.h"
-#include "DataFormats/ParticleFlowReco/interface/PFLayer.h"
-
 #include <iostream>
 #include <vector>
 #include <algorithm>
-#if !defined(__CINT__) && !defined(__MAKECINT__) && !defined(__REFLEX__)
-#include <atomic>
-#endif
+
+#include <Rtypes.h>
+
+#include "DataFormats/CaloRecHit/interface/CaloCluster.h"
+#include "DataFormats/CaloRecHit/interface/CaloClusterFwd.h"
+#include "DataFormats/Math/interface/Point3D.h"
+#include "DataFormats/ParticleFlowReco/interface/PFLayer.h"
+#include "DataFormats/ParticleFlowReco/interface/PFRecHit.h"
+#include "DataFormats/ParticleFlowReco/interface/PFRecHitFraction.h"
+#include "Math/GenVector/PositionVector3D.h"
 
 class PFClusterAlgo;
 
@@ -45,13 +41,13 @@ namespace reco {
   */
   class PFCluster : public CaloCluster {
   public:
-    typedef std::vector<std::pair<CaloClusterPtr::key_type, edm::Ptr<PFCluster> > > EEtoPSAssociation;
+    typedef std::vector<std::pair<CaloClusterPtr::key_type, edm::Ptr<PFCluster>>> EEtoPSAssociation;
     // Next typedef uses double in ROOT 6 rather than Double32_t due to a bug in ROOT 5,
     // which otherwise would make ROOT5 files unreadable in ROOT6.  This does not increase
     // the size on disk, because due to the bug, double was actually stored on disk in ROOT 5.
-    typedef ROOT::Math::PositionVector3D<ROOT::Math::CylindricalEta3D<double> > REPPoint;
+    typedef ROOT::Math::PositionVector3D<ROOT::Math::CylindricalEta3D<double>> REPPoint;
 
-    PFCluster() : CaloCluster(CaloCluster::particleFlow), time_(-99.0), layer_(PFLayer::NONE), color_(1) {}
+    PFCluster() : CaloCluster(CaloCluster::particleFlow), time_(-99.0), layer_(PFLayer::NONE) {}
 
     /// constructor
     PFCluster(PFLayer::Layer layer, double energy, double x, double y, double z);
@@ -101,22 +97,7 @@ namespace reco {
     /// \todo move to PFClusterTools
     static double getDepthCorrection(double energy, bool isBelowPS = false, bool isHadron = false);
 
-    /// set cluster color (for the PFRootEventManager display)
-    void setColor(int color) { color_ = color; }
-
-    /// \return color
-    int color() const { return color_; }
-
     PFCluster& operator=(const PFCluster&);
-
-    /// \todo move to PFClusterTools
-    static void setDepthCorParameters(int mode, double a, double b, double ap, double bp) {
-      depthCorMode_ = mode;
-      depthCorA_ = a;
-      depthCorB_ = b;
-      depthCorAp_ = ap;
-      depthCorBp_ = bp;
-    }
 
     /// some classes to make this fit into a template footprint
     /// for RecoPFClusterRefCandidate so we can make jets and MET
@@ -164,53 +145,24 @@ namespace reco {
     /// cluster position: rho, eta, phi (transient)
     REPPoint posrep_;
 
-    ///Michalis :Add timing and depth information
+    /// Michalis: add timing and depth information
     float time_, timeError_;
     double depth_;
 
     /// transient layer
     PFLayer::Layer layer_;
 
-#if !defined(__CINT__) && !defined(__MAKECINT__) && !defined(__REFLEX__)
-    /// \todo move to PFClusterTools
-    static std::atomic<int> depthCorMode_;
-
-    /// \todo move to PFClusterTools
-    static std::atomic<double> depthCorA_;
-
-    /// \todo move to PFClusterTools
-    static std::atomic<double> depthCorB_;
-
-    /// \todo move to PFClusterTools
-    static std::atomic<double> depthCorAp_;
-
-    /// \todo move to PFClusterTools
-    static std::atomic<double> depthCorBp_;
-#else
-    /// \todo move to PFClusterTools
-    static int depthCorMode_;
-
-    /// \todo move to PFClusterTools
-    static double depthCorA_;
-
-    /// \todo move to PFClusterTools
-    static double depthCorB_;
-
-    /// \todo move to PFClusterTools
-    static double depthCorAp_;
-
-    /// \todo move to PFClusterTools
-    static double depthCorBp_;
-#endif
+    /// depth corrections
+    static const constexpr double depthCorA_ = 0.89;
+    static const constexpr double depthCorB_ = 7.3;
+    static const constexpr double depthCorAp_ = 0.89;
+    static const constexpr double depthCorBp_ = 4.0;
 
     static const math::XYZPoint dummyVtx_;
-
-    /// color (transient)
-    int color_;
   };
 
   std::ostream& operator<<(std::ostream& out, const PFCluster& cluster);
 
 }  // namespace reco
 
-#endif
+#endif  // DataFormats_ParticleFlowReco_PFCluster_h
