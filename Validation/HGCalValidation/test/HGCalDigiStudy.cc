@@ -27,8 +27,6 @@
 #include "DataFormats/HcalDigi/interface/HBHEDataFrame.h"
 #include "DataFormats/HcalDigi/interface/HcalDigiCollections.h"
 
-#include "DetectorDescription/Core/interface/DDCompactView.h"
-
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/ESTransientHandle.h"
