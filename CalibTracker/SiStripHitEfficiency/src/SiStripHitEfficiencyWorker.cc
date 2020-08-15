@@ -755,7 +755,7 @@ void SiStripHitEfficiencyWorker::fillForTraj(const TrajectoryAtInvalidHit& tm,
 
   const bool withinAcceptance = tm.withinAcceptance() && (!isInBondingExclusionZone(iidd, TKlayers, yloc, yErr, tTopo));
 
-  if ((layers == TKlayers) || (layers == 0)) {  // Look at the layer not used to reconstruct the track
+  if ((TKlayers > 0) && ((layers == TKlayers) || (layers == 0))) {  // Look at the layer not used to reconstruct the track
     LogDebug("SiStripHitEfficiency:HitEff") << "Looking at layer under study" << std::endl;
     unsigned int ModIsBad = 2;
     unsigned int SiStripQualBad = 0;
