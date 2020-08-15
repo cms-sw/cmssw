@@ -13,8 +13,6 @@
 #include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"
 #include "DataFormats/DetId/interface/DetId.h"
 
-#include "DetectorDescription/Core/interface/DDCompactView.h"
-
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 
