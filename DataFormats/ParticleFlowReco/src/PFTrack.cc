@@ -26,7 +26,6 @@ PFTrack::PFTrack(const PFTrack& other)
       indexOutermost_(other.indexOutermost_) {}
 
 void PFTrack::addPoint(const PFTrajectoryPoint& trajPt) {
-
   if (trajPt.isTrackerLayer()) {
     if (!indexOutermost_) {  // first time a measurement is added
       if (trajectoryPoints_.size() < PFTrajectoryPoint::BeamPipeOrEndVertex + 1) {
@@ -34,8 +33,7 @@ void PFTrack::addPoint(const PFTrajectoryPoint& trajPt) {
         for (unsigned iPt = trajectoryPoints_.size(); iPt < PFTrajectoryPoint::BeamPipeOrEndVertex + 1; iPt++)
           trajectoryPoints_.push_back(dummyPt);
       } else if (trajectoryPoints_.size() > PFTrajectoryPoint::BeamPipeOrEndVertex + 1) {
-	edm::LogWarning("PFTrack")<<"trajectoryPoints_.size() is too large = "
-				  <<trajectoryPoints_.size();
+        edm::LogWarning("PFTrack") << "trajectoryPoints_.size() is too large = " << trajectoryPoints_.size();
       }
       indexOutermost_ = indexInnermost_ = PFTrajectoryPoint::BeamPipeOrEndVertex + 1;
     } else
@@ -43,7 +41,6 @@ void PFTrack::addPoint(const PFTrajectoryPoint& trajPt) {
   }
   // Use push_back instead of insert in order to gain time
   trajectoryPoints_.push_back(trajPt);
-
 }
 
 const reco::PFTrajectoryPoint& PFTrack::extrapolatedPoint(unsigned layerid) const {
