@@ -77,10 +77,6 @@ namespace reco {
       trajectoryPoints_[index] = measurement;
     }
 
-    /// calculate posrep_ once and for all for each point
-    /// \todo where is posrep? profile and see if it's necessary.
-    void calculatePositionREP();
-
     /// \return electric charge
     double charge() const { return charge_; }
 
