@@ -24,7 +24,8 @@ enum TrackStatus {
   sOutOfTime = 3,
   sLowEnergy = 4,
   sLowEnergyInVacuum = 5,
-  sEnergyDepNaN = 6
+  sEnergyDepNaN = 6,
+  sVeryForward = 7
 };
 
 class SteppingAction : public G4UserSteppingAction {
@@ -52,6 +53,7 @@ private:
   double theCriticalEnergyForVacuum;
   double theCriticalDensity;
   double maxTrackTime;
+  double maxZCentralCMS;
   std::vector<double> maxTrackTimes, ekinMins;
   std::vector<std::string> maxTimeNames, ekinNames, ekinParticles;
   std::vector<std::string> deadRegionNames;

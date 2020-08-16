@@ -14,13 +14,13 @@ common_heavy_suppression = cms.PSet(
 )
 
 common_maximum_time = cms.PSet(
-    MaxTrackTime  = cms.double(500.0),
-    MaxTimeNames  = cms.vstring('ZDCRegion'),
-    MaxTrackTimes = cms.vdouble(2000.0),
-    #DeadRegions   = cms.vstring('QuadRegion','CastorRegion','InterimRegion'),
+    MaxTrackTime  = cms.double(500.0), # ns
+    MaxTimeNames  = cms.vstring(),
+    MaxTrackTimes = cms.vdouble(),     # ns
+    MaxZCentralCMS = cms.double(50.0), # m
     DeadRegions   = cms.vstring('QuadRegion','InterimRegion'),
-    CriticalEnergyForVacuum = cms.double(2.0),
-    CriticalDensity         = cms.double(1e-15)
+    CriticalEnergyForVacuum = cms.double(2.0),   # MeV
+    CriticalDensity         = cms.double(1e-15)  # g/cm3
 )
 
 common_UsePMT = cms.PSet(
@@ -188,6 +188,7 @@ g4SimHits = cms.EDProducer("OscarMTProducer",
         ThresholdTrials           = cms.untracked.int32(10)
     ),
     Generator = cms.PSet(
+        common_maximum_time,
         HectorEtaCut,
         HepMCProductLabel = cms.InputTag('generatorSmeared'),
         ApplyPCuts = cms.bool(True),
@@ -567,21 +568,34 @@ g4SimHits = cms.EDProducer("OscarMTProducer",
         IgnoreTrackID   = cms.bool(False),
     ),
 )
-
-
 ##
-## Change the HFShowerLibrary file used for Run 2
+## Change the HFShowerLibrary file from Run 2
 ##
 from Configuration.Eras.Modifier_run2_common_cff import run2_common
 run2_common.toModify( g4SimHits.HFShowerLibrary, FileName = 'SimG4CMS/Calo/data/HFShowerLibrary_npmt_noatt_eta4_16en_v4.root' )
 run2_common.toModify( g4SimHits.HFShower, ProbMax = 0.5)
 
+##
+## Change HCAL numbering scheme in 2017
+##
 from Configuration.Eras.Modifier_run2_HCAL_2017_cff import run2_HCAL_2017
 run2_HCAL_2017.toModify( g4SimHits, HCalSD = dict( TestNumberingScheme = True ) )
+
+##
+## Disable Castor from Run 3
+##
+from Configuration.Eras.Modifier_run3_common_cff import run3_common
+run3_common.toModify( g4SimHits, CastorSD = dict( useShowerLibrary = False ) ) 
+
+##
+## Change ECAL time slices
+##
 from Configuration.Eras.Modifier_phase2_timing_cff import phase2_timing
 phase2_timing.toModify( g4SimHits.ECalSD,
                              StoreLayerTimeSim = cms.untracked.bool(True),
                              TimeSliceUnit = cms.double(0.001) )
-
+##
+## DD4Hep migration
+##
 from Configuration.ProcessModifiers.dd4hep_cff import dd4hep
 dd4hep.toModify( g4SimHits, g4GeometryDD4hepSource = True )
