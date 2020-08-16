@@ -340,11 +340,13 @@ cscTriggerPrimitiveDigis = cms.EDProducer("CSCTriggerPrimitivesProducer",
 
     ),
 
-    # MPC sorter config for Run2 and beyond
-    mpcRun2 = cms.PSet(
-        sortStubs = cms.bool(False),
-        dropInvalidStubs = cms.bool(False),
-        dropLowQualityStubs = cms.bool(False),
+    # MPC sorter config
+    mpcParams = cms.PSet(
+        sortStubs = cms.bool(True),
+        dropInvalidStubs = cms.bool(True),
+        dropLowQualityStubs = cms.bool(True),
+        # How many maximum LCTs per MPC
+        maxStubs = cms.uint32(3),
     )
 )
 
@@ -492,12 +494,22 @@ meX1tmbSLHC = cms.PSet(
     useHighMultiplicityBits = cms.bool(False),
 )
 
+
+# MPC sorter config for Run2 and beyond
+mpcParamsRun2 = cms.PSet(
+    sortStubs = cms.bool(False),
+    dropInvalidStubs = cms.bool(False),
+    dropLowQualityStubs = cms.bool(False),
+    maxStubs = cms.uint32(18),
+)
+
 ## unganging in ME1/a
 from Configuration.Eras.Modifier_run2_common_cff import run2_common
 run2_common.toModify( cscTriggerPrimitiveDigis,
                       debugParameters = True,
                       checkBadChambers = False,
                       commonParam = dict(gangedME1a = False),
+                      mpcParams = mpcParamsRun2
                       )
 
 ## GEM-CSC ILT in ME1/1

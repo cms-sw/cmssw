@@ -266,8 +266,9 @@ std::vector<CSCCorrelatedLCTDigi> CSCUpgradeMotherboard::readoutLCTs() const {
     CSCUpgradeMotherboard::sortLCTs(result, CSCUpgradeMotherboard::sortLCTsByQuality);
 
   // do a final check on the LCTs in readout
+  qualityControl_->checkMultiplicityBX(result);
   for (const auto& lct : result) {
-    checkValid(lct);
+    qualityControl_->checkValid(lct);
   }
 
   return result;

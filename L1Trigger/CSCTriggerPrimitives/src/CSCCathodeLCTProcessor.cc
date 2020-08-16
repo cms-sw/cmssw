@@ -1,5 +1,4 @@
 #include "L1Trigger/CSCTriggerPrimitives/interface/CSCCathodeLCTProcessor.h"
-#include "L1Trigger/CSCTriggerPrimitives/interface/CSCLCTTools.h"
 
 #include <iomanip>
 #include <iostream>
@@ -101,6 +100,9 @@ CSCCathodeLCTProcessor::CSCCathodeLCTProcessor(unsigned endcap,
   }
 
   thePreTriggerDigis.clear();
+
+  // quality control of stubs
+  qualityControl_ = std::make_unique<LCTQualityControl>(endcap, station, sector, subsector, chamber, conf);
 }
 
 CSCCathodeLCTProcessor::CSCCathodeLCTProcessor() : CSCBaseboard() {
@@ -278,7 +280,7 @@ std::vector<CSCCLCTDigi> CSCCathodeLCTProcessor::run(const CSCComparatorDigiColl
     }
   }
 
-  if (numStrips <= 0 or 2 * (unsigned)numStrips > csctp::get_csc_max_halfstrip(theStation, theRing)) {
+  if (numStrips <= 0 or 2 * (unsigned)numStrips > qualityControl_->get_csc_max_halfstrip(theStation, theRing)) {
     edm::LogError("CSCCathodeLCTProcessor|ConfigError")
         << " " << theCSCName_ << " (sector " << theSector << " subsector " << theSubsector << " trig id. "
         << theTrigChamber << "):"
@@ -369,7 +371,7 @@ void CSCCathodeLCTProcessor::run(
       bestCLCT[bx].setTrknmb(1);
 
       // check if the LCT is valid
-      checkValid(bestCLCT[bx]);
+      qualityControl_->checkValid(bestCLCT[bx]);
 
       if (infoV > 0)
         LogDebug("CSCCathodeLCTProcessor")
@@ -381,7 +383,7 @@ void CSCCathodeLCTProcessor::run(
       secondCLCT[bx].setTrknmb(2);
 
       // check if the LCT is valid
-      checkValid(secondCLCT[bx]);
+      qualityControl_->checkValid(secondCLCT[bx]);
 
       if (infoV > 0)
         LogDebug("CSCCathodeLCTProcessor")
@@ -670,6 +672,9 @@ std::vector<CSCCLCTDigi> CSCCathodeLCTProcessor::findLCTs(
             keystrip_data[ilct][CLCT_CFEB] = keystrip_data[ilct][CLCT_STRIP] / CSCConstants::NUM_HALF_STRIPS_PER_CFEB;
             int halfstrip_in_cfeb = keystrip_data[ilct][CLCT_STRIP] -
                                     CSCConstants::NUM_HALF_STRIPS_PER_CFEB * keystrip_data[ilct][CLCT_CFEB];
+
+            // this slope value will be overwritten when CCLUT is enabled
+            int slope = qualityControl_->getSlopePhase1(keystrip_data[ilct][CLCT_PATTERN]);
 
             if (infoV > 1)
               LogTrace("CSCCathodeLCTProcessor")
@@ -1092,110 +1097,6 @@ void CSCCathodeLCTProcessor::dumpDigis(
   LogTrace("CSCCathodeLCTProcessor") << strstrm.str();
 }
 
-// Check if the CLCT is valid
-void CSCCathodeLCTProcessor::checkValid(const CSCCLCTDigi& clct, unsigned max_stubs) const {
-  const unsigned max_strip = csctp::get_csc_max_halfstrip(theStation, theRing);
-  const auto& [min_pattern, max_pattern] = csctp::get_csc_min_max_pattern(use_run3_patterns_);
-  const auto& [min_cfeb, max_cfeb] = csctp::get_csc_min_max_cfeb(theStation, theRing);
-  const unsigned max_quality = csctp::get_csc_clct_max_quality();
-  unsigned errors = 0;
-
-  // CLCT must be valid
-  if (!clct.isValid()) {
-    edm::LogError("CSCCathodeLCTProcessor") << "CSCLCTDigi with invalid bit set: " << clct.isValid();
-    errors++;
-  }
-
-  // CLCT number is 1 or max
-  if (clct.getTrknmb() < 1 or clct.getTrknmb() > max_stubs) {
-    edm::LogError("CSCCathodeLCTProcessor")
-        << "CSCLCTDigi with invalid track number: " << clct.getTrknmb() << "; allowed [1," << max_stubs << "]";
-    errors++;
-  }
-
-  // CLCT quality must be valid
-  // CLCTs require at least 4 layers hit
-  // Run-3: ME1/1 CLCTs require only 3 layers
-  // Run-4: ME2/1 CLCTs require only 3 layers
-  if (clct.getQuality() < nplanes_hit_pattern or clct.getQuality() > max_quality) {
-    edm::LogError("CSCCathodeLCTProcessor")
-        << "CSCLCTDigi with invalid quality: " << clct.getQuality() << "; allowed [0," << max_quality << "]";
-    errors++;
-  }
-
-  // CLCT half-strip must be within bounds
-  if (clct.getStrip() >= CSCConstants::NUM_HALF_STRIPS_PER_CFEB) {
-    edm::LogError("CSCCathodeLCTProcessor") << "CSCLCTDigi with invalid half-strip: " << clct.getStrip()
-                                            << "; allowed [0, " << CSCConstants::NUM_HALF_STRIPS_PER_CFEB - 1 << "]";
-    errors++;
-  }
-
-  // CLCT key half-strip must be within bounds
-  if (clct.getKeyStrip() >= max_strip) {
-    edm::LogError("CSCCathodeLCTProcessor")
-        << "CSCLCTDigi with invalid key half-strip: " << clct.getKeyStrip() << "; allowed [0, " << max_strip - 1 << "]";
-    errors++;
-  }
-
-  // CLCT with out-of-time BX
-  if (clct.getBX() >= CSCConstants::MAX_CLCT_TBINS) {
-    edm::LogError("CSCCathodeLCTProcessor") << "CSCLCTDigi with invalid BX: " << clct.getBX() << "; allowed [0, "
-                                            << CSCConstants::MAX_CLCT_TBINS - 1 << "]";
-    errors++;
-  }
-
-  // CLCT with neither left nor right bending
-  if (clct.getBend() > 1) {
-    edm::LogError("CSCCathodeLCTProcessor")
-        << "CSCLCTDigi with invalid bending: " << clct.getBend() << "; allowed [0,1]";
-    errors++;
-  }
-
-  // CLCT with an invalid pattern ID
-  if (clct.getPattern() < min_pattern or clct.getPattern() > max_pattern) {
-    edm::LogError("CSCCathodeLCTProcessor") << "CSCLCTDigi with invalid pattern ID: " << clct.getPattern()
-                                            << "; allowed [" << min_pattern << ", " << max_pattern << "]";
-    errors++;
-  }
-
-  // CLCT with an invalid CFEB ID
-  if (clct.getCFEB() < min_cfeb or clct.getCFEB() > max_cfeb) {
-    edm::LogError("CSCCathodeLCTProcessor") << "CSCLCTDigi with invalid CFEB ID: " << clct.getCFEB() << "; allowed ["
-                                            << min_cfeb << ", " << max_cfeb << "]";
-    errors++;
-  }
-
-  if (use_run3_patterns_) {
-    // CLCT comparator code is invalid
-    if (clct.getCompCode() < 0 or clct.getCompCode() >= std::pow(2, 12)) {
-      edm::LogError("CSCCathodeLCTProcessor") << "CSCLCTDigi with invalid comparator code: " << clct.getCompCode()
-                                              << "; allowed [0, " << std::pow(2, 12) - 1 << "]";
-      errors++;
-    }
-
-    unsigned max_quartstrip = csctp::get_csc_max_quartstrip(theStation, theRing);
-    unsigned max_eightstrip = csctp::get_csc_max_eightstrip(theStation, theRing);
-
-    // CLCT key half-strip must be within bounds
-    if (clct.getKeyStrip(4) >= max_quartstrip) {
-      edm::LogError("CSCCathodeLCTProcessor") << "CSCLCTDigi with invalid key quart-strip: " << clct.getKeyStrip(4)
-                                              << "; allowed [0, " << max_quartstrip - 1 << "]";
-      errors++;
-    }
-
-    // CLCT key half-strip must be within bounds
-    if (clct.getKeyStrip(8) >= max_eightstrip) {
-      edm::LogError("CSCCathodeLCTProcessor") << "CSCLCTDigi with invalid key eight-strip: " << clct.getKeyStrip(8)
-                                              << "; allowed [0, " << max_eightstrip - 1 << "]";
-      errors++;
-    }
-  }
-
-  if (errors > 0) {
-    edm::LogError("CSCCathodeLCTProcessor") << "Faulty CLCT: " << cscId_ << " " << clct << "\n errors " << errors;
-  }
-}
-
 // Returns vector of read-out CLCTs, if any.  Starts with the vector
 // of all found CLCTs and selects the ones in the read-out time window.
 std::vector<CSCCLCTDigi> CSCCathodeLCTProcessor::readoutCLCTs(int nMaxCLCTs) const {
@@ -1277,8 +1178,9 @@ std::vector<CSCCLCTDigi> CSCCathodeLCTProcessor::readoutCLCTs(int nMaxCLCTs) con
   }
 
   // do a final check on the CLCTs in readout
+  qualityControl_->checkMultiplicityBX(tmpV);
   for (const auto& clct : tmpV) {
-    checkValid(clct, nMaxCLCTs);
+    qualityControl_->checkValid(clct, nMaxCLCTs);
   }
 
   return tmpV;

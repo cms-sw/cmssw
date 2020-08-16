@@ -35,6 +35,7 @@
 #include "DataFormats/CSCDigi/interface/CSCCLCTPreTriggerDigi.h"
 #include "L1Trigger/CSCTriggerPrimitives/interface/CSCBaseboard.h"
 #include "L1Trigger/CSCTriggerPrimitives/interface/CSCComparatorCodeLUT.h"
+#include "L1Trigger/CSCTriggerPrimitives/interface/LCTQualityControl.h"
 
 #include <vector>
 #include <array>
@@ -148,9 +149,6 @@ protected:
   void dumpDigis(const std::vector<int> strip[CSCConstants::NUM_LAYERS][CSCConstants::NUM_HALF_STRIPS_7CFEBS],
                  const int nStrips) const;
 
-  // Check if the CLCT is valid
-  void checkValid(const CSCCLCTDigi& lct, unsigned max_stubs = CSCConstants::MAX_CLCTS_PER_PROCESSOR) const;
-
   // --------Functions for the comparator code algorith for Run-3 ---------//
   //calculates the id based on location of hits
   int calculateComparatorCode(const std::array<std::array<int, 3>, 6>& halfStripPattern) const;
@@ -235,6 +233,9 @@ protected:
 
   std::vector<std::string> positionLUTFiles_;
   std::vector<std::string> slopeLUTFiles_;
+
+  /* quality control */
+  std::unique_ptr<LCTQualityControl> qualityControl_;
 };
 
 #endif
