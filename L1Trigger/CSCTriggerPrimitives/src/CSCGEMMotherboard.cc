@@ -112,7 +112,11 @@ CSCCorrelatedLCTDigi CSCGEMMotherboard::constructLCTsGEM(const CSCALCTDigi& alct
   // Determine the case and assign properties depending on the LCT dataformat (old/new)
   if (alct.isValid() and clct.isValid() and gem1.isValid() and not gem2.isValid()) {
     pattern = encodePattern(clct.getPattern());
-    quality = findQualityGEM(alct, clct, 1);
+    if (use_run3_patterns_) {
+      quality = static_cast<unsigned int>(findQualityGEMv2(alct, clct, 1));
+    } else {
+      quality = static_cast<unsigned int>(findQualityGEMv1(alct, clct, 1));
+    }
     bx = alct.getBX();
     keyStrip = clct.getKeyStrip();
     keyWG = alct.getKeyWG();
@@ -124,7 +128,11 @@ CSCCorrelatedLCTDigi CSCGEMMotherboard::constructLCTsGEM(const CSCALCTDigi& alct
     valid = doesWiregroupCrossStrip(keyWG, keyStrip) ? 1 : 0;
   } else if (alct.isValid() and clct.isValid() and not gem1.isValid() and gem2.isValid()) {
     pattern = encodePattern(clct.getPattern());
-    quality = findQualityGEM(alct, clct, 2);
+    if (use_run3_patterns_) {
+      quality = static_cast<unsigned int>(findQualityGEMv2(alct, clct, 2));
+    } else {
+      quality = static_cast<unsigned int>(findQualityGEMv1(alct, clct, 2));
+    }
     bx = alct.getBX();
     keyStrip = clct.getKeyStrip();
     keyWG = alct.getKeyWG();
@@ -331,7 +339,9 @@ void CSCGEMMotherboard::printGEMTriggerCoPads(int bx_start, int bx_stop, enum CS
   }
 }
 
-unsigned int CSCGEMMotherboard::findQualityGEM(const CSCALCTDigi& aLCT, const CSCCLCTDigi& cLCT, int gemlayers) const {
+CSCMotherboard::LCT_Quality CSCGEMMotherboard::findQualityGEMv1(const CSCALCTDigi& aLCT,
+                                                                const CSCCLCTDigi& cLCT,
+                                                                int gemlayers) const {
   // Either ALCT or CLCT is invalid
   if (!(aLCT.isValid()) || !(cLCT.isValid())) {
     // No CLCT
@@ -410,9 +420,8 @@ unsigned int CSCGEMMotherboard::findQualityGEM(const CSCALCTDigi& aLCT, const CS
             return LCT_Quality::HQ_PATTERN_10;
 
           else {
-            if (infoV >= 0)
-              edm::LogWarning("L1CSCTPEmulatorWrongValues")
-                  << "+++ findQuality: Unexpected CLCT pattern id = " << pattern << "+++\n";
+            edm::LogWarning("CSCGEMMotherboard")
+                << "findQualityGEMv1: Unexpected CLCT pattern id = " << pattern << " in " << theCSCName_;
             return LCT_Quality::INVALID;
           }
         }
@@ -420,6 +429,27 @@ unsigned int CSCGEMMotherboard::findQualityGEM(const CSCALCTDigi& aLCT, const CS
     }
   }
   return LCT_Quality::INVALID;
+}
+
+CSCGEMMotherboard::LCT_QualityRun3 CSCGEMMotherboard::findQualityGEMv2(const CSCALCTDigi& aLCT,
+                                                                       const CSCCLCTDigi& cLCT,
+                                                                       int gemlayers) const {
+  // ALCT and CLCT invalid
+  if (!(aLCT.isValid()) and !(cLCT.isValid())) {
+    return LCT_QualityRun3::INVALID;
+  } else if (!aLCT.isValid() && cLCT.isValid() and gemlayers == 2) {
+    return LCT_QualityRun3::CLCT_2GEM;
+  } else if (aLCT.isValid() && !cLCT.isValid() and gemlayers == 2) {
+    return LCT_QualityRun3::ALCT_2GEM;
+  } else if (aLCT.isValid() && cLCT.isValid()) {
+    if (gemlayers == 0)
+      return LCT_QualityRun3::ALCTCLCT;
+    else if (gemlayers == 1)
+      return LCT_QualityRun3::ALCTCLCT_1GEM;
+    else if (gemlayers == 2)
+      return LCT_QualityRun3::ALCTCLCT_2GEM;
+  }
+  return LCT_QualityRun3::INVALID;
 }
 
 template <>
