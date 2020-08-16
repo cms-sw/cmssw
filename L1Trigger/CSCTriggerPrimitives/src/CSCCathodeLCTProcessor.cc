@@ -1326,13 +1326,14 @@ void CSCCathodeLCTProcessor::calculatePositionCC(float offset,
 
   const float delta(std::abs(fhalfstrip - halfstrip));
   if (delta >= 0.125 and delta < 0.375) {
-    quartstrip = false; eightstrip = true;
-  }
-  else if (delta >= 0.375 and delta < 0.625) {
-    quartstrip = true; eightstrip = false;
-  }
-  else if (delta >= 0.625 and delta < 0.875) {
-    quartstrip = true; eightstrip = true;
+    quartstrip = false;
+    eightstrip = true;
+  } else if (delta >= 0.375 and delta < 0.625) {
+    quartstrip = true;
+    eightstrip = false;
+  } else if (delta >= 0.625 and delta < 0.875) {
+    quartstrip = true;
+    eightstrip = true;
   }
 }
 
@@ -1452,8 +1453,7 @@ void CSCCathodeLCTProcessor::runCCLUT(CSCCLCTDigi& digi) const {
   }
 }
 
-unsigned CSCCathodeLCTProcessor::convertSlopeToRun2Pattern(unsigned slope, unsigned bend) const
-{
+unsigned CSCCathodeLCTProcessor::convertSlopeToRun2Pattern(unsigned slope, unsigned bend) const {
   const int pslopeList[16] = {10, 10, 8, 8, 8, 8, 6, 6, 6, 6, 4, 4, 4, 2, 2, 2};
   const int nslopeList[16] = {10, 10, 9, 9, 9, 9, 7, 7, 7, 7, 5, 5, 5, 3, 3, 3};
   if (bend == 0) {
