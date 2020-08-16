@@ -228,9 +228,6 @@ protected:
   int maxDeltaPadL1_;
   int maxDeltaPadL2_;
 
-  // send LCT old dataformat
-  bool useOldLCTDataFormat_;
-
   // promote ALCT-GEM pattern
   bool promoteALCTGEMpattern_;
 

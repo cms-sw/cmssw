@@ -209,11 +209,6 @@ cscTriggerPrimitiveDigis = cms.EDProducer("CSCTriggerPrimitivesProducer",
         # Width (in #HS) of a fixed dead zone around a key HS:
         clctStateMachineZone = cms.uint32(4),
 
-        # Enables the algo which instead of using the fixed dead zone width,
-        # varies it depending on the width of a triggered CLCT pattern
-        # (if True, the clctStateMachineZone is ignored):
-        useDynamicStateMachineZone = cms.bool(False),
-
         # Pretrigger HS +- clctPretriggerTriggerZone sets the trigger matching zone
         # which defines how far from pretrigger HS the TMB may look for a trigger HS
         # (it becomes important to do so with localized dead-time zoning):
@@ -535,7 +530,6 @@ phase2_muon.toModify( cscTriggerPrimitiveDigis,
                                          runME31Up = cms.bool(True),
                                          runME41Up = cms.bool(True)),
                       tmbSLHC = dict(ignoreAlctCrossClct = cms.bool(False)),
-                      clctSLHC = dict(useDynamicStateMachineZone = cms.bool(True)),
                       alctSLHCME21 = cscTriggerPrimitiveDigis.alctSLHC.clone(alctNplanesHitPattern = 3),
                       clctSLHCME21 = cscTriggerPrimitiveDigis.clctSLHC.clone(clctNplanesHitPattern = 3),
                       me21tmbSLHCGEM = me21tmbSLHCGEM,

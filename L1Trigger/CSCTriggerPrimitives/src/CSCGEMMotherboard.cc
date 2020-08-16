@@ -11,7 +11,6 @@ CSCGEMMotherboard::CSCGEMMotherboard(unsigned endcap,
     : CSCUpgradeMotherboard(endcap, station, sector, subsector, chamber, conf),
       maxDeltaBXPad_(tmbParams_.getParameter<int>("maxDeltaBXPad")),
       maxDeltaBXCoPad_(tmbParams_.getParameter<int>("maxDeltaBXCoPad")),
-      useOldLCTDataFormat_(tmbParams_.getParameter<bool>("useOldLCTDataFormat")),
       promoteALCTGEMpattern_(tmbParams_.getParameter<bool>("promoteALCTGEMpattern")),
       promoteALCTGEMquality_(tmbParams_.getParameter<bool>("promoteALCTGEMquality")),
       doLCTGhostBustingWithGEMs_(tmbParams_.getParameter<bool>("doLCTGhostBustingWithGEMs")) {
