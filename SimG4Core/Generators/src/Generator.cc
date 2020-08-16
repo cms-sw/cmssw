@@ -55,6 +55,8 @@ Generator::Generator(const ParameterSet &p)
 
   double theDecLenCut = p.getParameter<double>("LDecLenCut") * CLHEP::cm;
 
+  maxZCentralCMS = p.getParameter<double>("MaxZCentralCMS") * CLHEP::m;
+
   fFiductialCuts = (fPCuts || fPtransCut || fEtaCuts || fPhiCuts);
 
   pdgFilter.resize(0);
@@ -87,7 +89,10 @@ Generator::Generator(const ParameterSet &p)
   edm::LogVerbatim("SimG4CoreGenerator") << "SimG4Core/Generator: Rdecaycut= " << theRDecLenCut / CLHEP::cm
                                          << " cm;  Zdecaycut= " << theDecLenCut / CLHEP::cm
                                          << "Z_min= " << Z_lmin / CLHEP::cm << " cm; Z_max= " << Z_lmax / CLHEP::cm
-                                         << " cm;  Z_hector = " << Z_hector / CLHEP::cm << " cm\n"
+                                         << " cm;\n"
+                                         << "                     MaxZCentralCMS = " << maxZCentralCMS / CLHEP::m
+                                         << " m;"
+                                         << " Z_hector = " << Z_hector / CLHEP::cm << " cm\n"
                                          << "                     ApplyCuts: " << fFiductialCuts
                                          << "  PCuts: " << fPCuts << "  PtransCut: " << fPtransCut
                                          << "  EtaCut: " << fEtaCuts << "  PhiCut: " << fPhiCuts
@@ -149,8 +154,6 @@ void Generator::HepMC2G4(const HepMC::GenEvent *evt_orig, G4Event *g4evt) {
       // For purposes of this function, the status is defined as follows:
       // 1:  particles are not decayed by generator
       // 2:  particles are decayed by generator but need to be propagated by
-      // GEANT 3:  particles are decayed by generator but do not need to be
-      // propagated by GEANT
       int status = (*pitr)->status();
       int pdg = (*pitr)->pdg_id();
       if (status > 3 && isExotic(pdg) && (!(isExoticNonDetectable(pdg)))) {
@@ -206,12 +209,13 @@ void Generator::HepMC2G4(const HepMC::GenEvent *evt_orig, G4Event *g4evt) {
       continue;
     }
 
-    double x1 = (*vitr)->position().x() * mm;
-    double y1 = (*vitr)->position().y() * mm;
-    double z1 = (*vitr)->position().z() * mm;
-    double t1 = (*vitr)->position().t() * mm / c_light;
+    double x1 = (*vitr)->position().x() * CLHEP::mm;
+    double y1 = (*vitr)->position().y() * CLHEP::mm;
+    double z1 = (*vitr)->position().z() * CLHEP::mm;
+    double t1 = (*vitr)->position().t() * CLHEP::mm / CLHEP::c_light;
 
     G4PrimaryVertex *g4vtx = new G4PrimaryVertex(x1, y1, z1, t1);
+    bool veryForward = (std::abs(z1) > maxZCentralCMS);
 
     for (pitr = (*vitr)->particles_begin(HepMC::children); pitr != (*vitr)->particles_end(HepMC::children); ++pitr) {
       int status = (*pitr)->status();
@@ -231,13 +235,14 @@ void Generator::HepMC2G4(const HepMC::GenEvent *evt_orig, G4Event *g4evt) {
         }
       }
 
-      if (0 < verbose)
+      if (0 < verbose) {
         edm::LogVerbatim("SimG4CoreGenerator")
-            << "Generator: pdg= " << pdg << " status= " << status << " hasPreDefinedDecay: " << hasDecayVertex
-            << " isExotic: " << isExotic(pdg) << " isExoticNotDet: " << isExoticNonDetectable(pdg)
-            << " isInTheList: " << IsInTheFilterList(pdg) << "\n         (x,y,z,t): (" << x1 << "," << y1 << "," << z1
+            << "Generator: pdg= " << pdg << " status= " << status << " hasPreDefinedDecay: " << hasDecayVertex << "\n"
+            << "           isExotic: " << isExotic(pdg) << " isExoticNotDet: " << isExoticNonDetectable(pdg)
+            << " isInTheList: " << IsInTheFilterList(pdg) << "\n"
+            << " MaxZCentralCMS = " << maxZCentralCMS / CLHEP::m << " m;  (x,y,z,t): (" << x1 << "," << y1 << "," << z1
             << "," << t1 << ")";
-
+      }
       if (status > 3 && isExotic(pdg) && (!(isExoticNonDetectable(pdg)))) {
         status = hasDecayVertex ? 2 : 1;
       }
@@ -277,7 +282,7 @@ void Generator::HepMC2G4(const HepMC::GenEvent *evt_orig, G4Event *g4evt) {
       // protection against numerical problems for extremely low momenta
       // compute impact point at transition to Hector
       const double minTan = 1.e-20;
-      if (std::abs(z1) < Z_hector && std::abs(pz) >= minTan * ptot) {
+      if (!veryForward && std::abs(z1) < Z_hector && std::abs(pz) >= minTan * ptot) {
         if (pz > 0.0) {
           zimpact = Z_hector;
         } else {
@@ -298,7 +303,7 @@ void Generator::HepMC2G4(const HepMC::GenEvent *evt_orig, G4Event *g4evt) {
 
       // Particles of status 1 trasnported along the beam pipe for forward
       // detectors (HECTOR) always pass to Geant4 without cuts
-      if (1 == status && std::abs(zimpact) >= Z_hector && rimpact2 <= theDecRCut2) {
+      if (veryForward || (1 == status && std::abs(zimpact) >= Z_hector && rimpact2 <= theDecRCut2)) {
         toBeAdded = true;
         status = 3;
         if (verbose > 1)
