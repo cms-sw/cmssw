@@ -218,8 +218,6 @@ protected:
   bool readout_earliest_2;
 
   // Use the new patterns according to the comparator code format
-  bool use_run3_patterns_;
-  bool use_comparator_codes_;
   unsigned int nbits_position_cc_;
   unsigned int nbits_slope_cc_;
 

@@ -106,5 +106,8 @@ protected:
   bool runME21Up_;
   bool runME31Up_;
   bool runME41Up_;
+
+  bool use_run3_patterns_;
+  bool use_comparator_codes_;
 };
 #endif

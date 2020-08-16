@@ -182,7 +182,7 @@ cscTriggerPrimitiveDigis = cms.EDProducer("CSCTriggerPrimitivesProducer",
 
         useComparatorCodes = cms.bool(False),
         nBitsPositionCC = cms.uint32(10),
-        nBitsSlopeCC = cms.uint32(5)
+        nBitsSlopeCC = cms.uint32(4)
     ),
 
     # Parameters for CLCT processors: SLHC studies
@@ -231,7 +231,7 @@ cscTriggerPrimitiveDigis = cms.EDProducer("CSCTriggerPrimitivesProducer",
         useComparatorCodes = cms.bool(False),
 
         nBitsPositionCC = cms.uint32(10),
-        nBitsSlopeCC = cms.uint32(5)
+        nBitsSlopeCC = cms.uint32(4)
     ),
 
     tmbParam = cms.PSet(
