@@ -56,6 +56,9 @@ public:
   /** Default constructor. Used for testing. */
   CSCAnodeLCTProcessor();
 
+  /** Default destructor. */
+  ~CSCAnodeLCTProcessor() override = default;
+
   /** Sets configuration parameters obtained via EventSetup mechanism. */
   void setConfigParameters(const CSCDBL1TPParameters* conf);
 

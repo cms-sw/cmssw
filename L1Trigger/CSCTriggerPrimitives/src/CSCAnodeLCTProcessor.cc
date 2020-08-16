@@ -63,7 +63,6 @@ CSCAnodeLCTProcessor::CSCAnodeLCTProcessor(unsigned endcap,
   // Check and print configuration parameters.
   checkConfigParameters();
   if ((infoV > 0 || (isSLHC_)) && !config_dumped) {
-    //std::cout<<"**** ALCT constructor parameters dump ****"<<std::endl;
     dumpConfigParams();
     config_dumped = true;
   }
@@ -97,7 +96,6 @@ CSCAnodeLCTProcessor::CSCAnodeLCTProcessor() : CSCBaseboard() {
   // Check and print configuration parameters.
   checkConfigParameters();
   if (!config_dumped) {
-    //std::cout<<"**** ALCT default constructor parameters dump ****"<<std::endl;
     dumpConfigParams();
     config_dumped = true;
   }
@@ -150,7 +148,6 @@ void CSCAnodeLCTProcessor::setConfigParameters(const CSCDBL1TPParameters* conf) 
   // Check and print configuration parameters.
   checkConfigParameters();
   if (!config_dumped) {
-    //std::cout<<"**** ALCT setConfigParam parameters dump ****"<<std::endl;
     dumpConfigParams();
     config_dumped = true;
   }
@@ -213,7 +210,6 @@ void CSCAnodeLCTProcessor::clear(const int wire, const int pattern) {
 std::vector<CSCALCTDigi> CSCAnodeLCTProcessor::run(const CSCWireDigiCollection* wiredc) {
   static std::atomic<bool> config_dumped{false};
   if ((infoV > 0 || (isSLHC_)) && !config_dumped) {
-    //std::cout<<"**** ALCT run parameters dump ****"<<std::endl;
     dumpConfigParams();
     config_dumped = true;
   }
@@ -1203,7 +1199,6 @@ void CSCAnodeLCTProcessor::dumpConfigParams() const {
   strm << " l1a_window_width [L1Accept window width, in 25 ns bins] = " << l1a_window_width << "\n";
   strm << "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n";
   LogDebug("CSCAnodeLCTProcessor") << strm.str();
-  //std::cout<<strm.str()<<std::endl;
 }
 
 // Dump of digis on wire groups.
