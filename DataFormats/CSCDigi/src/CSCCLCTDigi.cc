@@ -85,8 +85,7 @@ void CSCCLCTDigi::clear() {
   setSlope(0);
 }
 
-uint16_t CSCCLCTDigi::getPattern() const {
-  return getDataWord(pattern_, kLegacyPatternShift, kLegacyPatternMask); }
+uint16_t CSCCLCTDigi::getPattern() const { return getDataWord(pattern_, kLegacyPatternShift, kLegacyPatternMask); }
 
 void CSCCLCTDigi::setPattern(const uint16_t pattern) {
   setDataWord(pattern, pattern_, kLegacyPatternShift, kLegacyPatternMask);

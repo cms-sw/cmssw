@@ -182,7 +182,10 @@ void CSCCorrelatedLCTDigi::print() const {
   }
 }
 
-void CSCCorrelatedLCTDigi::setDataWord(const uint16_t newWord, uint16_t& word, const unsigned shift, const unsigned mask) {
+void CSCCorrelatedLCTDigi::setDataWord(const uint16_t newWord,
+                                       uint16_t& word,
+                                       const unsigned shift,
+                                       const unsigned mask) {
   // clear the old value
   word &= ~(mask << shift);
 
