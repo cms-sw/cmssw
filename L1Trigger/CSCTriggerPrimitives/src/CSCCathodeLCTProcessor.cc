@@ -702,8 +702,7 @@ std::vector<CSCCLCTDigi> CSCCathodeLCTProcessor::findLCTs(
                                 // comparator code is assigned for Run-3 and Phase-2
                                 -1,
                                 // default version is legacy
-                                CSCCLCTDigi::Version::Legacy,
-                                slope);
+                                CSCCLCTDigi::Version::Legacy);
 
             // get the comparator hits for this pattern
             const auto& compHits = hits_in_patterns[best_hs][keystrip_data[ilct][CLCT_PATTERN]];
@@ -1340,7 +1339,7 @@ void CSCCathodeLCTProcessor::calculatePositionCC(float offset,
 int CSCCathodeLCTProcessor::calculateSlopeCC(float slope, int nBits) const {
   int returnValue;
   double minSlope = 0;
-  double maxSlope = 1.0;
+  double maxSlope = 2.0;
   int range = pow(2, nBits);
   double deltaSlope = (maxSlope - minSlope) / range;
 
@@ -1373,6 +1372,9 @@ void CSCCathodeLCTProcessor::runCCLUT(CSCCLCTDigi& digi) const {
     LogDebug("CSCCathodeLCTProcessor") << strm.str();
   }
 
+  // set Run-3 flag
+  digi.setRun3(true);
+
   // Get the comparator hits
   auto compHits = digi.getHits();
 
@@ -1395,16 +1397,20 @@ void CSCCathodeLCTProcessor::runCCLUT(CSCCLCTDigi& digi) const {
   }
 
   // calculate the comparator code
-  int comparatorCode = calculateComparatorCode(compHitsCC);
+  const int comparatorCode(calculateComparatorCode(compHitsCC));
 
   // store the comparator code
   digi.setCompCode(comparatorCode);
 
   // calculate the slope and position offset
-  int pattern = digi.getPattern();
+  const int pattern(digi.getPattern());
+
+  // set the Run-3 pattern
+  digi.setRun3Pattern(pattern);
+
   // position offset is in strips -> *2 to get to half-strips!
-  float positionCC = 2 * lutpos_[pattern]->lookup(comparatorCode);
-  float slopeCC = lutslope_[pattern]->lookup(comparatorCode);
+  const float positionCC(2 * lutpos_[pattern]->lookup(comparatorCode));
+  const float slopeCC(lutslope_[pattern]->lookup(comparatorCode));
 
   // if the slope is negative, set bending to 1
   if (slopeCC < 0)
@@ -1424,10 +1430,12 @@ void CSCCathodeLCTProcessor::runCCLUT(CSCCLCTDigi& digi) const {
   digi.setEightStrip(eightstrip);
 
   // store the bending angle value in the pattern data member
-  digi.setSlope(calculateSlopeCC(slopeCC, nbits_slope_cc_));
+  const unsigned slope(calculateSlopeCC(slopeCC, nbits_slope_cc_));
+  digi.setSlope(slope);
 
-  // set Run-3 flag
-  digi.setRun3(true);
+  // set the quasi Run-2 pattern - to accommodate integration with EMTF/OMTF
+  const unsigned run2Pattern(convertSlopeToRun2Pattern(slope, digi.getBend()));
+  digi.setPattern(run2Pattern);
 
   // now print out the new CLCT for debugging
   if (infoV > 2) {
@@ -1441,5 +1449,16 @@ void CSCCathodeLCTProcessor::runCCLUT(CSCCLCTDigi& digi) const {
     strm << " 1/4 strip number " << digi.getKeyStrip(4) << " 1/8 strip number " << digi.getKeyStrip(8) << "\n";
     strm << "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n";
     LogDebug("CSCCathodeLCTProcessor") << strm.str();
+  }
+}
+
+unsigned CSCCathodeLCTProcessor::convertSlopeToRun2Pattern(unsigned slope, unsigned bend) const
+{
+  const int pslopeList[16] = {10, 10, 8, 8, 8, 8, 6, 6, 6, 6, 4, 4, 4, 2, 2, 2};
+  const int nslopeList[16] = {10, 10, 9, 9, 9, 9, 7, 7, 7, 7, 5, 5, 5, 3, 3, 3};
+  if (bend == 0) {
+    return pslopeList[slope];
+  } else {
+    return nslopeList[slope];
   }
 }

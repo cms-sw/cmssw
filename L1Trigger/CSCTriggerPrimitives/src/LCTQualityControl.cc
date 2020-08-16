@@ -323,7 +323,7 @@ void LCTQualityControl::checkMultiplicityBX(const std::vector<CSCCorrelatedLCTDi
 }
 
 int LCTQualityControl::getSlopePhase1(int pattern) const {
-  int slopeList[CSCConstants::NUM_CLCT_PATTERNS] = {0, 0, 4, -4, 3, -3, 2, -2, 1, -1, 0};
+  int slopeList[CSCConstants::NUM_CLCT_PATTERNS] = {0, 0, 8, -8, 6, -6, 4, -4, 2, -2, 0};
   return slopeList[pattern];
 }
 
@@ -337,8 +337,8 @@ std::pair<int, int> LCTQualityControl::get_csc_clct_min_max_slope(bool isRun3, b
   // Run-1 or Run-2 case
   // Run-3 case without CCLUT
   else {
-    min_slope = -4;
-    max_slope = 4;
+    min_slope = -10;
+    max_slope = 10;
   }
 
   return std::make_pair(min_slope, max_slope);

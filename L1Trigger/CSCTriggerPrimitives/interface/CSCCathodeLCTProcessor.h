@@ -165,6 +165,7 @@ protected:
   // runs the CCLUT procedure
   void runCCLUT(CSCCLCTDigi& digi) const;
 
+  unsigned convertSlopeToRun2Pattern(unsigned slope, unsigned bend) const;
   //--------------------------- Member variables -----------------------------
 
   /* best pattern Id for a given half-strip */
