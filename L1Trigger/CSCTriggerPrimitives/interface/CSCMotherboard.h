@@ -127,6 +127,9 @@ protected:
   static const unsigned int def_match_trig_enable, def_match_trig_window_size;
   static const unsigned int def_tmb_l1a_window_size;
 
+  /* quality control */
+  std::unique_ptr<LCTQualityControl> qualityControl_;
+
   /** Make sure that the parameter values are within the allowed range. */
   void checkConfigParameters();
 
@@ -167,9 +170,6 @@ protected:
 
   /** Dump TMB/MPC configuration parameters. */
   void dumpConfigParams() const;
-
-  // Check if the LCT is valid
-  void checkValid(const CSCCorrelatedLCTDigi& lct) const;
 
   /* encode high multiplicity bits for Run-3 exotic triggers */
   void encodeHighMultiplicityBits(unsigned alctBits);
