@@ -38,8 +38,6 @@ CSCMotherboard::CSCMotherboard(unsigned endcap,
 
   clct_to_alct = tmbParams_.getParameter<bool>("clctToAlct");
 
-  use_run3_patterns_ = clctParams_.getParameter<bool>("useRun3Patterns");
-
   // special tmb bits
   useHighMultiplicityBits_ = tmbParams_.getParameter<bool>("useHighMultiplicityBits");
   highMultiplicityBits_ = 0;
@@ -490,7 +488,10 @@ CSCCorrelatedLCTDigi CSCMotherboard::constructLCTs(const CSCALCTDigi& aLCT,
                                                    int type,
                                                    int trknmb) const {
   // CLCT pattern number
-  unsigned int pattern = use_run3_patterns_ ? 0 : encodePattern(cLCT.getPattern());
+  unsigned int pattern = encodePattern(cLCT.getPattern());
+  if (use_run3_patterns_ and use_comparator_codes_) {
+    pattern = cLCT.getSlope();
+  }
 
   // LCT quality number
   unsigned int quality;

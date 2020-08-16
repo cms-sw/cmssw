@@ -290,7 +290,7 @@ void CSCAnodeLCTProcessor::run(const std::vector<int> wire[CSCConstants::NUM_LAY
   bool chamber_empty = pulseExtension(wire);
 
   // define a new pattern map
-  // for each key half strip, and for each pattern, store the 2D collection of fired comparator digis
+  // for each key half wire, and for each pattern, store the 2D collection of fired wire digis
   std::map<int, std::map<int, CSCALCTDigi::WireContainer>> hits_in_patterns;
   hits_in_patterns.clear();
 

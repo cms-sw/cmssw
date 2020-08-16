@@ -58,9 +58,10 @@ CSCCathodeLCTProcessor::CSCCathodeLCTProcessor(unsigned endcap,
   // Verbosity level, set to 0 (no print) by default.
   infoV = clctParams_.getParameter<int>("verbosity");
 
-  use_run3_patterns_ = clctParams_.getParameter<bool>("useRun3Patterns");
-
-  use_comparator_codes_ = clctParams_.getParameter<bool>("useComparatorCodes");
+  // Do not exclude pattern 0 and 1 when the Run-3 patterns are enabled.
+  if (use_run3_patterns_) {
+    pid_thresh_pretrig = 0;
+  }
 
   nbits_position_cc_ = clctParams_.getParameter<unsigned int>("nBitsPositionCC");
 
@@ -97,6 +98,11 @@ CSCCathodeLCTProcessor::CSCCathodeLCTProcessor(unsigned endcap,
       lutpos_[i] = std::make_unique<CSCComparatorCodeLUT>(positionLUTFiles_[i]);
       lutslope_[i] = std::make_unique<CSCComparatorCodeLUT>(slopeLUTFiles_[i]);
     }
+  }
+
+  if (use_run3_patterns_ and !use_comparator_codes_) {
+    edm::LogWarning("CSCCathodeLCTProcessor")
+        << "Run-3 patterns enabled without the CCLUT algorithm in " << theCSCName_;
   }
 
   thePreTriggerDigis.clear();
@@ -689,7 +695,15 @@ std::vector<CSCCLCTDigi> CSCCathodeLCTProcessor::findLCTs(
                                 keystrip_data[ilct][CLCT_BEND],
                                 halfstrip_in_cfeb,
                                 keystrip_data[ilct][CLCT_CFEB],
-                                keystrip_data[ilct][CLCT_BX]);
+                                keystrip_data[ilct][CLCT_BX],
+                                0,
+                                // track number is assigned later
+                                0,
+                                // comparator code is assigned for Run-3 and Phase-2
+                                -1,
+                                // default version is legacy
+                                CSCCLCTDigi::Version::Legacy,
+                                slope);
 
             // get the comparator hits for this pattern
             const auto& compHits = hits_in_patterns[best_hs][keystrip_data[ilct][CLCT_PATTERN]];
@@ -1305,69 +1319,42 @@ void CSCCathodeLCTProcessor::calculatePositionCC(float offset,
                                                  bool& quartstrip,
                                                  bool& eightstrip) const {
   // offset is too small, no bits are are set!
-  if (std::abs(offset) < 0.25)
+  if (std::abs(offset) < 0.125)
     return;
 
-  // if the offset is less than -0.25, reduce the halfstrip number by 1
-  float positiveOffset = offset;
-  if (offset <= -0.25 and halfstrip >= 1) {
-    halfstrip = halfstrip - 1;
-    positiveOffset = positiveOffset + 1;
-    // offset by one more halfstrip!
-    if (offset <= -1.25) {
-      halfstrip = halfstrip - 1;
-      positiveOffset = positiveOffset + 1;
-    }
-  }
+  const float fhalfstrip = halfstrip + offset;
+  halfstrip = int(std::floor(fhalfstrip));
 
-  // if the offset is more than 1, increase halfstrip by 1
-  if (offset >= 1 and halfstrip <= numStrips) {
-    halfstrip = halfstrip + 1;
-    positiveOffset = positiveOffset - 1;
-    // offset by one more halfstrip!
-    if (offset >= 2) {
-      halfstrip = halfstrip + 1;
-      positiveOffset = positiveOffset - 1;
-    }
+  const float delta(std::abs(fhalfstrip - halfstrip));
+  if (delta >= 0.125 and delta < 0.375) {
+    quartstrip = false; eightstrip = true;
   }
-
-  // determine the quart and eight strip bits
-  if (0 < positiveOffset and positiveOffset < 0.5) {
-    quartstrip = false;
-    if (positiveOffset < 0.25)
-      eightstrip = false;
-    if (positiveOffset > 0.25)
-      eightstrip = true;
+  else if (delta >= 0.375 and delta < 0.625) {
+    quartstrip = true; eightstrip = false;
   }
-  if (0.5 < positiveOffset and positiveOffset < 1) {
-    quartstrip = true;
-    if (positiveOffset < 0.75)
-      eightstrip = false;
-    if (positiveOffset > 0.75)
-      eightstrip = true;
+  else if (delta >= 0.625 and delta < 0.875) {
+    quartstrip = true; eightstrip = true;
   }
 }
 
 int CSCCathodeLCTProcessor::calculateSlopeCC(float slope, int nBits) const {
   int returnValue;
-  float minSlope = -1.0;
-  float maxSlope = 1.0;
+  double minSlope = 0;
+  double maxSlope = 1.0;
   int range = pow(2, nBits);
-  float deltaSlope = (maxSlope - minSlope) / range;
+  double deltaSlope = (maxSlope - minSlope) / range;
 
-  if (slope <= -1.0)
-    returnValue = 0;
-  else if (slope >= 1.0)
-    returnValue = range - 1;
-  else if (slope == 0) {
-    returnValue = pow(2, nBits - 1);
-  } else {
-    if (slope < 0) {
-      returnValue = std::floor(std::abs(slope) / deltaSlope);
-    } else {
-      returnValue = std::floor(std::abs(slope) / deltaSlope) + pow(2, nBits - 1);
-    }
+  // in what follows we use the absolute value
+
+  // max value is 15
+  if (std::abs(slope) >= 1) {
+    returnValue = pow(2, nBits) - 1;
   }
+  // discretize the slope between 0 and 15
+  else {
+    returnValue = std::min(std::floor(std::abs(slope) / deltaSlope), pow(2, nBits) - 1);
+  }
+
   return returnValue;
 }
 
@@ -1419,19 +1406,25 @@ void CSCCathodeLCTProcessor::runCCLUT(CSCCLCTDigi& digi) const {
   float positionCC = 2 * lutpos_[pattern]->lookup(comparatorCode);
   float slopeCC = lutslope_[pattern]->lookup(comparatorCode);
 
+  // if the slope is negative, set bending to 1
+  if (slopeCC < 0)
+    digi.setBend(1);
+  else
+    digi.setBend(0);
+
   // calculate the new position
-  uint16_t halfstrip = digi.getStrip();
-  bool quartstrip;
-  bool eightstrip;
+  uint16_t halfstrip = digi.getKeyStrip();
+  bool quartstrip = false;
+  bool eightstrip = false;
   calculatePositionCC(positionCC, halfstrip, quartstrip, eightstrip);
 
   // store the new 1/2, 1/4 and 1/8 strip positions
-  digi.setStrip(halfstrip);
+  digi.setStrip(halfstrip - digi.getCFEB() * 32);
   digi.setQuartStrip(quartstrip);
   digi.setEightStrip(eightstrip);
 
-  // store the bending angle value
-  digi.setBend(calculateSlopeCC(slopeCC, nbits_slope_cc_));
+  // store the bending angle value in the pattern data member
+  digi.setSlope(calculateSlopeCC(slopeCC, nbits_slope_cc_));
 
   // set Run-3 flag
   digi.setRun3(true);
