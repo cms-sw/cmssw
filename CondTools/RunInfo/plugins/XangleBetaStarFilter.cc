@@ -31,7 +31,7 @@ private:
   double beta_star_min_;
   double beta_star_max_;
 
-  virtual bool filter(edm::Event &, const edm::EventSetup &) override;
+  bool filter(edm::Event &, const edm::EventSetup &) override;
 };
 
 //----------------------------------------------------------------------------------------------------
