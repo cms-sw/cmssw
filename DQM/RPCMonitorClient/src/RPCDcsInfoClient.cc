@@ -31,8 +31,8 @@ void RPCDcsInfoClient::dqmEndJob(DQMStore::IBooker& ibooker, DQMStore::IGetter& 
     int hvStatus = 0;
     const char* label_name = "RPC";
     unsigned int rpc_num = 0;
-    if (nlsmax + 1 > DCS.size())
-      DCS.resize(nlsmax + 1);
+    if (nlsmax > DCS.size())
+      DCS.resize(nlsmax);
 
     for (int ybin = 0; ybin < h2->GetNbinsY(); ++ybin) {
       if (strcmp(h2->GetYaxis()->GetBinLabel(ybin + 1), label_name) == 0)
@@ -46,7 +46,7 @@ void RPCDcsInfoClient::dqmEndJob(DQMStore::IBooker& ibooker, DQMStore::IGetter& 
       } else {
         hvStatus = 0;  // set to 0 because HV was off (!)
       }
-      DCS[nlumi + 1] = hvStatus;
+      DCS[nlumi] = hvStatus;
     }
   }
 
@@ -59,8 +59,8 @@ void RPCDcsInfoClient::dqmEndJob(DQMStore::IBooker& ibooker, DQMStore::IGetter& 
   int lsCounter = 0;
   // fill
   for (unsigned int i = 0; i < nlsmax; i++) {
-    rpcHVStatus->setBinContent(i + 1, 1, DCS[i + 1]);
-    lsCounter += DCS[i + 1];
+    rpcHVStatus->setBinContent(i + 1, 1, DCS[i]);
+    lsCounter += DCS[i];
   }
 
   meName = dcsinfofolder_ + "/rpcHV";
