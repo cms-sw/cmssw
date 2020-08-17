@@ -1,6 +1,8 @@
 #ifndef DataFormats_Common_getThinned_implementation_h
 #define DataFormats_Common_getThinned_implementation_h
 
+#include <algorithm>
+#include <cassert>
 #include <optional>
 #include <tuple>
 
@@ -8,6 +10,7 @@
 #include "DataFormats/Provenance/interface/BranchID.h"
 #include "DataFormats/Provenance/interface/ProductID.h"
 #include "DataFormats/Provenance/interface/ThinnedAssociationsHelper.h"
+#include "FWCore/Utilities/interface/EDMException.h"
 
 namespace edm {
   class WrapperBase;

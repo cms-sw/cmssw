@@ -7,6 +7,7 @@ RefItemGet: Free function to get pointer to a referenced item.
 
 
 ----------------------------------------------------------------------*/
+#include "DataFormats/Common/interface/EDProductGetter.h"
 #include "DataFormats/Common/interface/RefCore.h"
 #include "DataFormats/Common/interface/RefCoreGet.h"
 
