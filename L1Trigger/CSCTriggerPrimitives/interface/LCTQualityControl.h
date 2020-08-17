@@ -43,6 +43,11 @@ public:
   // Check if the LCT is valid - MPC version
   void checkValid(const CSCCorrelatedLCTDigi& lct, const unsigned station, const unsigned ring) const;
 
+  void checkRange(int parameter, int min_value, int max_value, const std::string& comment, unsigned& errors) const;
+
+  template <class T>
+  void reportErrors(const T& lct, const unsigned errors) const;
+
   // no more than 2 LCTs per BX in the readout
   void checkMultiplicityBX(const std::vector<CSCALCTDigi>& alcts) const;
   void checkMultiplicityBX(const std::vector<CSCCLCTDigi>& clcts) const;

@@ -17,6 +17,21 @@ void LCTQualityControl::checkValidReadout(const CSCALCTDigi& alct) const {
   checkValid(alct, CSCConstants::MAX_ALCTS_READOUT);
 }
 
+void LCTQualityControl::checkRange(
+    int value, int min_value, int max_value, const std::string& comment, unsigned& errors) const {
+  if (value < min_value or value > max_value) {
+    edm::LogError("LCTQualityControl") << comment << value << "; allowed [" << min_value << ", " << max_value << "]";
+    errors++;
+  }
+}
+
+template <class T>
+void LCTQualityControl::reportErrors(const T& lct, const unsigned errors) const {
+  if (errors > 0) {
+    edm::LogError("LCTQualityControl") << "Invalid stub in " << cscId_ << " (" << errors << " errors):\n" << lct;
+  }
+}
+
 // Check if the ALCT is valid
 void LCTQualityControl::checkValid(const CSCALCTDigi& alct, unsigned max_stubs) const {
   const unsigned max_wire = get_csc_max_wire(theStation, theRing);
@@ -25,160 +40,91 @@ void LCTQualityControl::checkValid(const CSCALCTDigi& alct, unsigned max_stubs) 
   unsigned errors = 0;
 
   // stub must be valid
-  if (!alct.isValid()) {
-    edm::LogError("LCTQualityControl") << "CSCALCTDigi with invalid bit set: " << alct.isValid();
-    errors++;
-  }
+  checkRange(alct.isValid(), 1, 1, "CSCALCTDigi with invalid bit set: ", errors);
 
   // ALCT number is 1 or 2
-  if (alct.getTrknmb() < 1 or alct.getTrknmb() > max_stubs) {
-    edm::LogError("LCTQualityControl") << "CSCALCTDigi with invalid track number: " << alct.getTrknmb()
-                                       << "; allowed [1," << max_stubs << "]";
-    errors++;
-  }
+  checkRange(alct.getTrknmb(), 1, max_stubs, "CSCALCTDigi with invalid track number: ", errors);
 
   // ALCT quality must be valid
   // number of layers - 3
-  if (alct.getQuality() <= 0 or alct.getQuality() > max_quality) {
-    edm::LogError("LCTQualityControl") << "CSCALCTDigi with invalid quality: " << alct.getQuality() << "; allowed [0,"
-                                       << max_quality << "]";
-    errors++;
-  }
+  checkRange(alct.getQuality(), 1, max_quality, "CSCALCTDigi with invalid quality: ", errors);
 
   // ALCT key wire-group must be within bounds
-  if (alct.getKeyWG() > max_wire) {
-    edm::LogError("LCTQualityControl") << "CSCALCTDigi with invalid wire-group: " << alct.getKeyWG() << "; allowed [0, "
-                                       << max_wire << "]";
-    errors++;
-  }
+  checkRange(alct.getKeyWG(), 0, max_wire - 1, "CSCALCTDigi with invalid wire-group: ", errors);
 
   // ALCT with out-of-time BX
-  if (alct.getBX() > CSCConstants::MAX_ALCT_TBINS - 1) {
-    edm::LogError("LCTQualityControl") << "CSCALCTDigi with invalid BX: " << alct.getBX() << "; allowed [0, "
-                                       << CSCConstants::MAX_LCT_TBINS - 1 << "]";
-    errors++;
-  }
+  checkRange(alct.getBX(), 0, CSCConstants::MAX_ALCT_TBINS - 1, "CSCALCTDigi with invalid BX: ", errors);
 
   // ALCT is neither accelerator or collision
-  if (alct.getCollisionB() > 1) {
-    edm::LogError("LCTQualityControl") << "CSCALCTDigi with invalid accel/coll bit: " << alct.getCollisionB()
-                                       << "; allowed [0,1]";
-    errors++;
-  }
+  checkRange(alct.getCollisionB(), 0, 1, "CSCALCTDigi with invalid accel/coll biit: ", errors);
 
-  if (errors > 0) {
-    edm::LogError("LCTQualityControl") << "Faulty ALCT: " << cscId_ << " " << alct << "\n errors " << errors;
-  }
+  reportErrors(alct, errors);
 }
 
 // Check if the CLCT is valid
 void LCTQualityControl::checkValid(const CSCCLCTDigi& clct, unsigned max_stubs) const {
   const unsigned max_strip = get_csc_max_halfstrip(theStation, theRing);
-  const auto& [min_pattern, max_pattern] = get_csc_min_max_pattern(use_run3_patterns_);
+  const auto& [min_pattern_run2, max_pattern_run2] = get_csc_min_max_pattern(false);
+  const auto& [min_pattern_run3, max_pattern_run3] = get_csc_min_max_pattern(true);
   const auto& [min_slope, max_slope] = get_csc_clct_min_max_slope(use_run3_patterns_, use_comparator_codes_);
   const auto& [min_cfeb, max_cfeb] = get_csc_min_max_cfeb(theStation, theRing);
   const unsigned max_quality = get_csc_clct_max_quality();
   unsigned errors = 0;
 
   // CLCT must be valid
-  if (!clct.isValid()) {
-    edm::LogError("LCTQualityControl") << "CSCLCTDigi with invalid bit set: " << clct.isValid();
-    errors++;
-  }
+  checkRange(clct.isValid(), 1, 1, "CSCCLCTDigi with invalid bit set: ", errors);
 
   // CLCT number is 1 or max
-  if (clct.getTrknmb() < 1 or clct.getTrknmb() > max_stubs) {
-    edm::LogError("LCTQualityControl") << "CSCLCTDigi with invalid track number: " << clct.getTrknmb()
-                                       << "; allowed [1," << max_stubs << "]";
-    errors++;
-  }
+  checkRange(clct.getTrknmb(), 1, max_stubs, "CSCCLCTDigi with invalid track number: ", errors);
 
   // CLCT quality must be valid
   // CLCTs require at least 4 layers hit
   // Run-3: ME1/1 CLCTs require only 3 layers
   // Run-4: ME2/1 CLCTs require only 3 layers
-  if (clct.getQuality() < nplanes_clct_hit_pattern or clct.getQuality() > max_quality) {
-    edm::LogError("LCTQualityControl") << "CSCLCTDigi with invalid quality: " << clct.getQuality() << "; allowed [0,"
-                                       << max_quality << "]";
-    errors++;
-  }
+  checkRange(clct.getQuality(), nplanes_clct_hit_pattern, max_quality, "CSCCLCTDigi with invalid quality: ", errors);
 
   // CLCT half-strip must be within bounds
-  if (clct.getStrip() >= CSCConstants::NUM_HALF_STRIPS_PER_CFEB) {
-    edm::LogError("LCTQualityControl") << "CSCLCTDigi with invalid half-strip: " << clct.getStrip() << "; allowed [0, "
-                                       << CSCConstants::NUM_HALF_STRIPS_PER_CFEB - 1 << "]";
-    errors++;
-  }
+  checkRange(
+      clct.getStrip(), 0, CSCConstants::NUM_HALF_STRIPS_PER_CFEB - 1, "CSCCLCTDigi with invalid half-strip: ", errors);
 
   // CLCT key half-strip must be within bounds
-  if (clct.getKeyStrip() >= max_strip) {
-    edm::LogError("LCTQualityControl") << "CSCLCTDigi with invalid key half-strip: " << clct.getKeyStrip()
-                                       << "; allowed [0, " << max_strip - 1 << "]";
-    errors++;
-  }
+  checkRange(clct.getKeyStrip(), 0, max_strip - 1, "CSCCLCTDigi with invalid key half-strip: ", errors);
 
   // CLCT with out-of-time BX
-  if (clct.getBX() >= CSCConstants::MAX_CLCT_TBINS) {
-    edm::LogError("LCTQualityControl") << "CSCLCTDigi with invalid BX: " << clct.getBX() << "; allowed [0, "
-                                       << CSCConstants::MAX_CLCT_TBINS - 1 << "]";
-    errors++;
-  }
+  checkRange(clct.getBX(), 0, CSCConstants::MAX_CLCT_TBINS - 1, "CSCCLCTDigi with invalid BX: ", errors);
 
   // CLCT with neither left nor right bending
-  if (clct.getBend() > 1) {
-    edm::LogError("LCTQualityControl") << "CSCLCTDigi with invalid bending: " << clct.getBend() << "; allowed [0,1]";
-    errors++;
-  }
+  checkRange(clct.getBend(), 0, 1, "CSCCLCTDigi with invalid bending: ", errors);
 
   // CLCT with an invalid pattern ID
-  if (clct.getPattern() < min_pattern or clct.getPattern() > max_pattern) {
-    edm::LogError("LCTQualityControl") << "CSCLCTDigi with invalid pattern ID: " << clct.getPattern() << "; allowed ["
-                                       << min_pattern << ", " << max_pattern << "]";
-    errors++;
-  }
+  checkRange(
+      clct.getPattern(), min_pattern_run2, max_pattern_run2, "CSCCLCTDigi with invalid Run-2 pattern ID: ", errors);
 
-  if (clct.getSlope() < min_slope or clct.getSlope() > max_slope) {
-    edm::LogError("LCTQualityControl") << "CSCLCTDigi with invalid slope: " << clct.getSlope() << "; allowed ["
-                                       << min_slope << ", " << max_slope << "]";
-    errors++;
-  }
+  // CLCT with an invalid pattern ID
+  checkRange(
+      clct.getRun3Pattern(), min_pattern_run3, max_pattern_run3, "CSCCLCTDigi with invalid Run-3 pattern ID: ", errors);
+
+  // CLCT with an invalid slope
+  checkRange(clct.getSlope(), min_slope, max_slope, "CSCCLCTDigi with invalid slope: ", errors);
 
   // CLCT with an invalid CFEB ID
-  if (clct.getCFEB() < min_cfeb or clct.getCFEB() > max_cfeb) {
-    edm::LogError("LCTQualityControl") << "CSCLCTDigi with invalid CFEB ID: " << clct.getCFEB() << "; allowed ["
-                                       << min_cfeb << ", " << max_cfeb << "]";
-    errors++;
-  }
+  checkRange(clct.getCFEB(), min_cfeb, max_cfeb, "CSCCLCTDigi with invalid CFEB ID: ", errors);
 
   if (use_comparator_codes_) {
     // CLCT comparator code is invalid
-    if (clct.getCompCode() < 0 or clct.getCompCode() >= std::pow(2, 12)) {
-      edm::LogError("LCTQualityControl") << "CSCLCTDigi with invalid comparator code: " << clct.getCompCode()
-                                         << "; allowed [0, " << std::pow(2, 12) - 1 << "]";
-      errors++;
-    }
+    checkRange(clct.getCompCode(), 0, std::pow(2, 12) - 1, "CSCCLCTDigi with invalid comparator code: ", errors);
 
-    unsigned max_quartstrip = get_csc_max_quartstrip(theStation, theRing);
-    unsigned max_eightstrip = get_csc_max_eightstrip(theStation, theRing);
+    const unsigned max_quartstrip = get_csc_max_quartstrip(theStation, theRing);
+    const unsigned max_eightstrip = get_csc_max_eightstrip(theStation, theRing);
 
     // CLCT key quart-strip must be within bounds
-    if (clct.getKeyStrip(4) >= max_quartstrip) {
-      edm::LogError("LCTQualityControl") << "CSCLCTDigi with invalid key quart-strip: " << clct.getKeyStrip(4)
-                                         << "; allowed [0, " << max_quartstrip - 1 << "]";
-      errors++;
-    }
+    checkRange(clct.getKeyStrip(4), 0, max_quartstrip - 1, "CSCCLCTDigi with invalid key quart-strip: ", errors);
 
     // CLCT key eight-strip must be within bounds
-    if (clct.getKeyStrip(8) >= max_eightstrip) {
-      edm::LogError("LCTQualityControl") << "CSCLCTDigi with invalid key eight-strip: " << clct.getKeyStrip(8)
-                                         << "; allowed [0, " << max_eightstrip - 1 << "]";
-      errors++;
-    }
+    checkRange(clct.getKeyStrip(8), 0, max_eightstrip - 1, "CSCCLCTDigi with invalid key quart-strip: ", errors);
   }
 
-  if (errors > 0) {
-    edm::LogError("LCTQualityControl") << "Faulty CLCT: " << cscId_ << " " << clct << "\n errors " << errors;
-  }
+  reportErrors(clct, errors);
 }
 
 void LCTQualityControl::checkValid(const CSCCorrelatedLCTDigi& lct) const { checkValid(lct, theStation, theRing); }
@@ -194,89 +140,44 @@ void LCTQualityControl::checkValid(const CSCCorrelatedLCTDigi& lct, const unsign
   unsigned errors = 0;
 
   // LCT must be valid
-  if (!lct.isValid()) {
-    edm::LogError("LCTQualityControl") << "CSCCorrelatedLCTDigi with invalid bit set: " << lct.isValid();
-    errors++;
-  }
+  checkRange(lct.isValid(), 1, 1, "CSCCorrelatedLCTDigi with invalid bit set: ", errors);
 
   // LCT number is 1 or 2
-  if (lct.getTrknmb() < 1 or lct.getTrknmb() > 2) {
-    edm::LogError("LCTQualityControl") << "CSCCorrelatedLCTDigi with invalid track number: " << lct.getTrknmb()
-                                       << "; allowed [1,2]";
-    errors++;
-  }
+  checkRange(lct.getTrknmb(), 1, 2, "CSCCorrelatedLCTDigi with invalid track number: ", errors);
 
   // LCT quality must be valid
-  if (lct.getQuality() > max_quality) {
-    edm::LogError("LCTQualityControl") << "CSCCorrelatedLCTDigi with invalid quality: " << lct.getQuality()
-                                       << "; allowed [0,15]";
-    errors++;
-  }
+  checkRange(lct.getQuality(), 0, max_quality, "CSCCorrelatedLCTDigi with invalid quality: ", errors);
 
   // LCT key half-strip must be within bounds
-  if (lct.getStrip() > max_strip) {
-    edm::LogError("LCTQualityControl") << "CSCCorrelatedLCTDigi with invalid half-strip: " << lct.getStrip()
-                                       << "; allowed [0, " << max_strip << "]";
-    errors++;
-  }
+  checkRange(lct.getStrip(), 0, max_strip - 1, "CSCCorrelatedLCTDigi with invalid key half-strip: ", errors);
 
   // LCT key quart-strip must be within bounds
-  if (lct.getStrip(4) >= max_quartstrip) {
-    edm::LogError("LCTQualityControl") << "CSCCorrelatedLCTDigi with invalid key quart-strip: " << lct.getStrip(4)
-                                       << "; allowed [0, " << max_quartstrip - 1 << "]";
-    errors++;
-  }
+  checkRange(lct.getStrip(4), 0, max_quartstrip - 1, "CSCCorrelatedLCTDigi with invalid key quart-strip: ", errors);
 
   // LCT key eight-strip must be within bounds
-  if (lct.getStrip(8) >= max_eightstrip) {
-    edm::LogError("LCTQualityControl") << "CSCCorrelatedLCTDigi with invalid key eight-strip: " << lct.getStrip(8)
-                                       << "; allowed [0, " << max_eightstrip - 1 << "]";
-    errors++;
-  }
+  checkRange(lct.getStrip(8), 0, max_eightstrip - 1, "CSCCorrelatedLCTDigi with invalid key eight-strip: ", errors);
 
   // LCT key wire-group must be within bounds
-  if (lct.getKeyWG() > max_wire) {
-    edm::LogError("LCTQualityControl") << "CSCCorrelatedLCTDigi with invalid wire-group: " << lct.getKeyWG()
-                                       << "; allowed [0, " << max_wire << "]";
-    errors++;
-  }
+  checkRange(lct.getKeyWG(), 0, max_wire - 1, "CSCCorrelatedLCTDigi with invalid wire-group: ", errors);
 
   // LCT with out-of-time BX
-  if (lct.getBX() > CSCConstants::MAX_LCT_TBINS - 1) {
-    edm::LogError("LCTQualityControl") << "CSCCorrelatedLCTDigi with invalid BX: " << lct.getBX() << "; allowed [0, "
-                                       << CSCConstants::MAX_LCT_TBINS - 1 << "]";
-    errors++;
-  }
+  checkRange(lct.getBX(), 0, CSCConstants::MAX_LCT_TBINS - 1, "CSCCorrelatedLCTDigi with invalid BX: ", errors);
 
   // LCT with neither left nor right bending
-  if (lct.getBend() > 1) {
-    edm::LogError("LCTQualityControl") << "CSCCorrelatedLCTDigi with invalid bending: " << lct.getBend()
-                                       << "; allowed [0,1";
-    errors++;
-  }
+  checkRange(lct.getBend(), 0, 1, "CSCCorrelatedLCTDigi with invalid bending: ", errors);
 
   // LCT with invalid MPC link
-  if (lct.getMPCLink() > CSCConstants::MAX_LCTS_PER_MPC) {
-    edm::LogError("LCTQualityControl") << "CSCCorrelatedLCTDigi with invalid MPC link: " << lct.getMPCLink()
-                                       << "; allowed [0," << CSCConstants::MAX_LCTS_PER_MPC << "]";
-    errors++;
-  }
+  checkRange(lct.getMPCLink(), 0, CSCConstants::MAX_LCTS_PER_MPC, "CSCCorrelatedLCTDigi with MPC link: ", errors);
 
   // LCT with invalid CSCID
-  if (lct.getCSCID() < CSCTriggerNumbering::minTriggerCscId() or
-      lct.getCSCID() > CSCTriggerNumbering::maxTriggerCscId()) {
-    edm::LogError("LCTQualityControl") << "CSCCorrelatedLCTDigi with invalid CSCID: " << lct.getBend() << "; allowed ["
-                                       << CSCTriggerNumbering::minTriggerCscId() << ", "
-                                       << CSCTriggerNumbering::maxTriggerCscId() << "]";
-    errors++;
-  }
+  checkRange(lct.getCSCID(),
+             CSCTriggerNumbering::minTriggerCscId(),
+             CSCTriggerNumbering::maxTriggerCscId(),
+             "CSCCorrelatedLCTDigi with invalid CSCID: ",
+             errors);
 
   // LCT with an invalid pattern ID
-  if (lct.getPattern() < min_pattern or lct.getPattern() > max_pattern) {
-    edm::LogError("LCTQualityControl") << "CSCCorrelatedLCTDigi with invalid pattern ID: " << lct.getPattern()
-                                       << "; allowed [" << min_pattern << ", " << max_pattern << "]";
-    errors++;
-  }
+  checkRange(lct.getPattern(), min_pattern, max_pattern, "CSCCorrelatedLCTDigi with invalid pattern ID: ", errors);
 
   // simulated LCT type must be valid
   if (lct.getType() == CSCCorrelatedLCTDigi::CLCTALCT or lct.getType() == CSCCorrelatedLCTDigi::CLCTONLY or
@@ -305,9 +206,7 @@ void LCTQualityControl::checkValid(const CSCCorrelatedLCTDigi& lct, const unsign
     }
   }
 
-  if (errors > 0) {
-    edm::LogError("LCTQualityControl") << "Faulty LCT: " << cscId_ << " " << lct << "\n errors " << errors;
-  }
+  reportErrors(lct, errors);
 }
 
 void LCTQualityControl::checkMultiplicityBX(const std::vector<CSCALCTDigi>& collection) const {
