@@ -7,13 +7,12 @@ from TrackingTools.KalmanUpdators.KFUpdatorESProducer_cfi import *
 # Chi2MeasurementEstimatorESProducer this is used by the fitting-smoother
 from TrackingTools.KalmanUpdators.MRHChi2MeasurementEstimatorESProducer_cfi import *
 
-import copy
 from TrackingTools.MaterialEffects.OppositeMaterialPropagator_cfi import *
 # PropagatorWithMaterialESProducer
-OppositeRungeKuttaTrackerPropagator = copy.deepcopy(OppositeMaterialPropagator)
-OppositeRungeKuttaTrackerPropagator.ComponentName = 'OppositeRungeKuttaTrackerPropagator'
-OppositeRungeKuttaTrackerPropagator.useRungeKutta = True
-
+OppositeRungeKuttaTrackerPropagator = OppositeMaterialPropagator.clone(
+    ComponentName = 'OppositeRungeKuttaTrackerPropagator',
+    useRungeKutta = True
+)
 # KFTrajectoryFitterESProducer
 from TrackingTools.TrackFitters.TrackFitters_cff import *
 
