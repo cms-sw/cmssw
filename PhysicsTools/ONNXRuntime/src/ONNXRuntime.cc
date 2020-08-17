@@ -50,9 +50,6 @@ namespace cms::Ort {
       size_t num_dims = tensor_info.GetDimensionsCount();
       input_node_dims_[input_name].resize(num_dims);
       tensor_info.GetDimensions(input_node_dims_[input_name].data(), num_dims);
-
-      // set the batch size to 1 by default
-      input_node_dims_[input_name].at(0) = 1;
     }
 
     size_t num_output_nodes = session_->GetOutputCount();
@@ -82,9 +79,11 @@ namespace cms::Ort {
 
   FloatArrays ONNXRuntime::run(const std::vector<std::string>& input_names,
                                FloatArrays& input_values,
+                               const std::vector<std::vector<int64_t>>& input_shapes,
                                const std::vector<std::string>& output_names,
                                int64_t batch_size) const {
     assert(input_names.size() == input_values.size());
+    assert(input_shapes.empty() || input_names.size() == input_shapes.size());
     assert(batch_size > 0);
 
     // create input tensor objects from data values
@@ -95,9 +94,16 @@ namespace cms::Ort {
       if (iter == input_names.end()) {
         throw cms::Exception("RuntimeError") << "Input " << name << " is not provided!";
       }
-      auto value = input_values.begin() + (iter - input_names.begin());
-      auto input_dims = input_node_dims_.at(name);
-      input_dims[0] = batch_size;
+      auto input_pos = iter - input_names.begin();
+      auto value = input_values.begin() + input_pos;
+      std::vector<int64_t> input_dims;
+      if (input_shapes.empty()) {
+        input_dims = input_node_dims_.at(name);
+        input_dims[0] = batch_size;
+      } else {
+        input_dims = input_shapes[input_pos];
+        // rely on the given input_shapes to set the batch size
+      }
       auto expected_len = std::accumulate(input_dims.begin(), input_dims.end(), 1, std::multiplies<int64_t>());
       if (expected_len != (int64_t)value->size()) {
         throw cms::Exception("RuntimeError")

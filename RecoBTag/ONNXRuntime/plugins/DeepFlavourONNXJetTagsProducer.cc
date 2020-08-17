@@ -120,7 +120,7 @@ void DeepFlavourONNXJetTagsProducer::produce(edm::Event& iEvent, const edm::Even
     }
 
     // run prediction
-    auto outputs = globalCache()->run(input_names_, data_, output_names_, tag_infos->size())[0];
+    auto outputs = globalCache()->run(input_names_, data_, {}, output_names_, tag_infos->size())[0];
     assert(outputs.size() == flav_names_.size() * tag_infos->size());
 
     // get the outputs
