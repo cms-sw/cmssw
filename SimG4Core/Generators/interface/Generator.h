@@ -55,6 +55,7 @@ private:
   double theDecRCut2;
   double theEtaCutForHector;
   double theDecLenCut;
+  double maxZCentralCMS;
   int verbose;
   LumiMonitorFilter *fLumiFilter;
   HepMC::GenEvent *evt_;
