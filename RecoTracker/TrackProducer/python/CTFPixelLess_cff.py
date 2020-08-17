@@ -15,7 +15,6 @@ from RecoTracker.TransientTrackingRecHit.TransientTrackingRecHitBuilder_cfi impo
 # TrackProducer
 import RecoTracker.TrackProducer.TrackProducer_cfi 
 ctfPixelLess = RecoTracker.TrackProducer.TrackProducer_cfi.TrackProducer.clone(
-    src = cms.InputTag("ckfTrackCandidatesPixelLess"),  
-    Fitter = cms.string('RKFittingSmoother')
+    src    = "ckfTrackCandidatesPixelLess",  
+    Fitter = 'RKFittingSmoother'
 )
-
