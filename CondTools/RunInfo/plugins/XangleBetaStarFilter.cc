@@ -16,36 +16,34 @@
 
 //----------------------------------------------------------------------------------------------------
 
-class XangleBetaStarFilter : public edm::EDFilter
-{
-  public:
-    explicit XangleBetaStarFilter(const edm::ParameterSet&);
+class XangleBetaStarFilter : public edm::EDFilter {
+public:
+  explicit XangleBetaStarFilter(const edm::ParameterSet &);
 
-    static void fillDescriptions(edm::ConfigurationDescriptions &descriptions);
+  static void fillDescriptions(edm::ConfigurationDescriptions &descriptions);
 
-  private:
-    edm::ESGetToken<LHCInfo, LHCInfoRcd> lhcInfoToken_;
+private:
+  edm::ESGetToken<LHCInfo, LHCInfoRcd> lhcInfoToken_;
 
-    double xangle_min_;
-    double xangle_max_;
+  double xangle_min_;
+  double xangle_max_;
 
-    double beta_star_min_;
-    double beta_star_max_;
+  double beta_star_min_;
+  double beta_star_max_;
 
-    virtual bool filter(edm::Event &, const edm::EventSetup &) override;
+  virtual bool filter(edm::Event &, const edm::EventSetup &) override;
 };
 
 //----------------------------------------------------------------------------------------------------
 
-XangleBetaStarFilter::XangleBetaStarFilter(const edm::ParameterSet& iConfig) :
-  lhcInfoToken_(esConsumes<LHCInfo, LHCInfoRcd>(edm::ESInputTag{"", iConfig.getParameter<std::string>("lhcInfoLabel")})),
+XangleBetaStarFilter::XangleBetaStarFilter(const edm::ParameterSet &iConfig)
+    : lhcInfoToken_(
+          esConsumes<LHCInfo, LHCInfoRcd>(edm::ESInputTag{"", iConfig.getParameter<std::string>("lhcInfoLabel")})),
 
-  xangle_min_(iConfig.getParameter<double>("xangle_min")),
-  xangle_max_(iConfig.getParameter<double>("xangle_max")),
-  beta_star_min_(iConfig.getParameter<double>("beta_star_min")),
-  beta_star_max_(iConfig.getParameter<double>("beta_star_max"))
-{
-}
+      xangle_min_(iConfig.getParameter<double>("xangle_min")),
+      xangle_max_(iConfig.getParameter<double>("xangle_max")),
+      beta_star_min_(iConfig.getParameter<double>("beta_star_min")),
+      beta_star_max_(iConfig.getParameter<double>("beta_star_max")) {}
 
 //----------------------------------------------------------------------------------------------------
 
@@ -65,12 +63,11 @@ void XangleBetaStarFilter::fillDescriptions(edm::ConfigurationDescriptions &desc
 
 //----------------------------------------------------------------------------------------------------
 
-bool XangleBetaStarFilter::filter(edm::Event& /*iEvent*/, const edm::EventSetup& iSetup)
-{
+bool XangleBetaStarFilter::filter(edm::Event & /*iEvent*/, const edm::EventSetup &iSetup) {
   const auto &lhcInfo = iSetup.getData(lhcInfoToken_);
 
-  return (xangle_min_ <= lhcInfo.crossingAngle() && lhcInfo.crossingAngle() < xangle_max_)
-    && (beta_star_min_ <= lhcInfo.betaStar() && lhcInfo.betaStar() < beta_star_max_);
+  return (xangle_min_ <= lhcInfo.crossingAngle() && lhcInfo.crossingAngle() < xangle_max_) &&
+         (beta_star_min_ <= lhcInfo.betaStar() && lhcInfo.betaStar() < beta_star_max_);
 }
 
 //----------------------------------------------------------------------------------------------------
