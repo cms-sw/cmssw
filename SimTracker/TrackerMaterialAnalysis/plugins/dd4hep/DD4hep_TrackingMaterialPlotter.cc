@@ -12,68 +12,68 @@
 #include "SimDataFormats/ValidationFormats/interface/MaterialAccountingStep.h"
 
 void DD4hep_TrackingMaterialPlotter::fill_color(void) {
-  m_color.push_back(kBlack);        // unassigned
-  m_color.push_back(kAzure);        // PixelBarrel
-  m_color.push_back(kAzure + 1);    //
-  m_color.push_back(kAzure + 1);    //
-  m_color.push_back(kAzure + 3);    //
-  m_color.push_back(kAzure + 3);    //
-  m_color.push_back(kGreen);        // TIB
-  m_color.push_back(kGreen);        //
-  m_color.push_back(kGreen + 2);    //
-  m_color.push_back(kGreen + 2);    //
-  m_color.push_back(kGreen - 3);    //
-  m_color.push_back(kGreen - 3);    //
-  m_color.push_back(kGreen - 1);    //
-  m_color.push_back(kGreen - 1);    //
-  m_color.push_back(kRed);          // TOB
-  m_color.push_back(kRed);          //
-  m_color.push_back(kRed);          //
-  m_color.push_back(kRed + 3);      //
-  m_color.push_back(kRed + 3);      //
-  m_color.push_back(kRed + 3);      //
-  m_color.push_back(kRed - 3);      //
-  m_color.push_back(kRed - 3);      //
-  m_color.push_back(kRed - 3);      //
-  m_color.push_back(kOrange + 9);   //
-  m_color.push_back(kOrange + 9);   //
-  m_color.push_back(kOrange + 9);   //
-  m_color.push_back(kOrange + 7);   //
-  m_color.push_back(kOrange + 7);   //
-  m_color.push_back(kOrange + 7);   //
-  m_color.push_back(kOrange + 5);   //
-  m_color.push_back(kOrange + 5);   //
-  m_color.push_back(kOrange + 5);   //
-  m_color.push_back(kOrange + 8);   // PixelEndcap Z-
-  m_color.push_back(kOrange + 10);  //
-  m_color.push_back(kOrange - 3);   //
-  m_color.push_back(kOrange - 1);   // PixelEndcap Z+
-  m_color.push_back(kOrange - 8);   //
-  m_color.push_back(kYellow);       // TID Z-
-  m_color.push_back(kYellow);       //
-  m_color.push_back(kYellow + 2);   //
-  m_color.push_back(kYellow + 2);   //
-  m_color.push_back(kYellow + 2);   //
-  m_color.push_back(kYellow + 3);   //
-  m_color.push_back(kMagenta);      //
-  m_color.push_back(kMagenta);      //
-  m_color.push_back(kMagenta);      //
-  m_color.push_back(kMagenta);      //
-  m_color.push_back(kMagenta);      //
-  m_color.push_back(kMagenta + 1);  //
-  m_color.push_back(kMagenta + 2);  //
-  m_color.push_back(kMagenta + 3);  //
-  m_color.push_back(kMagenta + 4);  //
-  m_color.push_back(kMagenta + 5);  //
-  m_color.push_back(kMagenta + 6);  //
-  m_color.push_back(kMagenta + 7);  //
-  m_color.push_back(kMagenta + 8);  //
+  m_color.emplace_back(kBlack);        // unassigned
+  m_color.emplace_back(kAzure);        // PixelBarrel
+  m_color.emplace_back(kAzure + 1);    //
+  m_color.emplace_back(kAzure + 1);    //
+  m_color.emplace_back(kAzure + 3);    //
+  m_color.emplace_back(kAzure + 3);    //
+  m_color.emplace_back(kGreen);        // TIB
+  m_color.emplace_back(kGreen);        //
+  m_color.emplace_back(kGreen + 2);    //
+  m_color.emplace_back(kGreen + 2);    //
+  m_color.emplace_back(kGreen - 3);    //
+  m_color.emplace_back(kGreen - 3);    //
+  m_color.emplace_back(kGreen - 1);    //
+  m_color.emplace_back(kGreen - 1);    //
+  m_color.emplace_back(kRed);          // TOB
+  m_color.emplace_back(kRed);          //
+  m_color.emplace_back(kRed);          //
+  m_color.emplace_back(kRed + 3);      //
+  m_color.emplace_back(kRed + 3);      //
+  m_color.emplace_back(kRed + 3);      //
+  m_color.emplace_back(kRed - 3);      //
+  m_color.emplace_back(kRed - 3);      //
+  m_color.emplace_back(kRed - 3);      //
+  m_color.emplace_back(kOrange + 9);   //
+  m_color.emplace_back(kOrange + 9);   //
+  m_color.emplace_back(kOrange + 9);   //
+  m_color.emplace_back(kOrange + 7);   //
+  m_color.emplace_back(kOrange + 7);   //
+  m_color.emplace_back(kOrange + 7);   //
+  m_color.emplace_back(kOrange + 5);   //
+  m_color.emplace_back(kOrange + 5);   //
+  m_color.emplace_back(kOrange + 5);   //
+  m_color.emplace_back(kOrange + 8);   // PixelEndcap Z-
+  m_color.emplace_back(kOrange + 10);  //
+  m_color.emplace_back(kOrange - 3);   //
+  m_color.emplace_back(kOrange - 1);   // PixelEndcap Z+
+  m_color.emplace_back(kOrange - 8);   //
+  m_color.emplace_back(kYellow);       // TID Z-
+  m_color.emplace_back(kYellow);       //
+  m_color.emplace_back(kYellow + 2);   //
+  m_color.emplace_back(kYellow + 2);   //
+  m_color.emplace_back(kYellow + 2);   //
+  m_color.emplace_back(kYellow + 3);   //
+  m_color.emplace_back(kMagenta);      //
+  m_color.emplace_back(kMagenta);      //
+  m_color.emplace_back(kMagenta);      //
+  m_color.emplace_back(kMagenta);      //
+  m_color.emplace_back(kMagenta);      //
+  m_color.emplace_back(kMagenta + 1);  //
+  m_color.emplace_back(kMagenta + 2);  //
+  m_color.emplace_back(kMagenta + 3);  //
+  m_color.emplace_back(kMagenta + 4);  //
+  m_color.emplace_back(kMagenta + 5);  //
+  m_color.emplace_back(kMagenta + 6);  //
+  m_color.emplace_back(kMagenta + 7);  //
+  m_color.emplace_back(kMagenta + 8);  //
 }
 
 unsigned int DD4hep_TrackingMaterialPlotter::fill_gradient(const TColor& first,
-                                                    const TColor& last,
-                                                    unsigned int steps /*= 100*/,
-                                                    unsigned int index /* = 0*/) {
+                                                           const TColor& last,
+                                                           unsigned int steps /*= 100*/,
+                                                           unsigned int index /* = 0*/) {
   if (index == 0) {
     // if no index was given, find the highest used one and start from that plus one
     index = ((TObjArray*)gROOT->GetListOfColors())->GetLast() + 1;
@@ -95,10 +95,10 @@ unsigned int DD4hep_TrackingMaterialPlotter::fill_gradient(const TColor& first,
   return index;
 }
 
-unsigned int DD4hep_TrackingMaterialPlotter::fill_gradient(unsigned int first,
-                                                    unsigned int last,
-                                                    unsigned int steps /*= 100*/,
-                                                    unsigned int index /* = 0*/) {
+unsigned int DD4hep_TrackingMaterialPlotter::fill_gradient(const unsigned int& first,
+                                                           const unsigned int& last,
+                                                           const unsigned int& steps,
+                                                           const unsigned int& index) {
   return fill_gradient(
       *(TColor*)gROOT->GetListOfColors()->At(first), *(TColor*)gROOT->GetListOfColors()->At(last), steps, index);
 }
@@ -112,8 +112,8 @@ DD4hep_TrackingMaterialPlotter::DD4hep_TrackingMaterialPlotter(float maxZ, float
   const int rzBinsR = (int)(maxR * resolution);
 
   std::vector<double> max;
-  max.push_back(0.08);
-  max.push_back(0.00016);
+  max.emplace_back(0.08);
+  max.emplace_back(0.00016);
   m_tracker = DD4hep_XHistogram(
       2, rzBinsZ, rzBinsR, std::make_pair(rzMinZ, rzMaxZ), std::make_pair(rzMinR, rzMaxR), m_color.size(), max);
 
@@ -146,10 +146,11 @@ void DD4hep_TrackingMaterialPlotter::plotSegmentInLayer(const MaterialAccounting
 
 void DD4hep_TrackingMaterialPlotter::draw(void) {
   const double scale = 10.;
-  TCanvas* canvas;
+  std::unique_ptr<TCanvas> canvas;
 
   DD4hep_XHistogram::Histogram* radlen = m_tracker.get(0);
-  canvas = new TCanvas("radlen_rz", "RadiationLengths - RZ view", (int)(600 * scale * 1.25), (int)(120 * scale * 1.50));
+  canvas = std::make_unique<TCanvas>(
+      "radlen_rz", "RadiationLengths - RZ view", (int)(600 * scale * 1.25), (int)(120 * scale * 1.50));
   gStyle->SetOptStat(0);
   gStyle->SetPalette(m_gradient.size(), &m_gradient.front());
   gStyle->SetNumberContours(m_gradient.size());
@@ -181,14 +182,10 @@ void DD4hep_TrackingMaterialPlotter::draw(void) {
   radlen->Draw("same axis y+");
   canvas->SaveAs("radlenColor.png");
 
-  delete canvas;
-
   DD4hep_XHistogram::Histogram* dedx = m_tracker.get(1);
-  canvas = new TCanvas("dedx_rz", "-dE/dx term - RZ view", (int)(600 * scale * 1.25), (int)(120 * scale * 1.50));
+  canvas->SetName("dedx_rz");
+  canvas->SetTitle("-dE/dx term - RZ view");
   canvas->GetFrame()->SetFillColor(kWhite);
-  gStyle->SetOptStat(0);
-  gStyle->SetPalette(m_gradient.size(), &m_gradient.front());
-  gStyle->SetNumberContours(m_gradient.size());
   dedx->Draw("colz");
   dedx->Draw("same axis y+");
   dedx->SaveAs("dedx.root");
@@ -199,10 +196,10 @@ void DD4hep_TrackingMaterialPlotter::draw(void) {
   dedx->Draw("colz");
   dedx->Draw("same axis y+");
   canvas->SaveAs("dedxColor.png");
-  delete canvas;
 
   DD4hep_XHistogram::ColorMap* colormap = m_tracker.colormap();
-  canvas = new TCanvas("layer_rz", "Layers - RZ view", (int)(600 * scale * 1.25), (int)(120 * scale * 1.50));
+  canvas->SetName("layer_rz");
+  canvas->SetTitle("Layers - RZ view");
   canvas->GetFrame()->SetFillColor(kWhite);
   gStyle->SetOptStat(0);
   gStyle->SetPalette(m_color.size(), &m_color.front());
@@ -213,5 +210,4 @@ void DD4hep_TrackingMaterialPlotter::draw(void) {
   colormap->Draw("same axis y+");
   colormap->SaveAs("layers.root");
   canvas->SaveAs("layers.png");
-  delete canvas;
 }
