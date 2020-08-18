@@ -20,10 +20,12 @@ namespace edm {
 
       template <typename T, typename F>
       void insert(Ref<C, T, F> const& ref) {
-        if (ref.isNull())
-          return;
-        auto thinnedRef = thinnedRefFrom(ref, refProd_, prodGetter_);
-        set_->keys_.insert(thinnedRef.key());
+        if (ref.isNonnull()) {
+          auto thinnedRef = thinnedRefFrom(ref, refProd_, prodGetter_);
+          if (thinnedRef.isNonnull()) {
+            set_->keys_.insert(thinnedRef.key());
+          }
+        }
       }
 
     private:
