@@ -37,12 +37,12 @@ void Pixel3DDigitizerAlgorithm::init(const edm::EventSetup& es) {
   }
 
   if (use_deadmodule_DB_) {
-    es.get<SiPixelQualityRcd>().get(SiPixelBadModule_);
+    es.get<SiPixelQualityRcd>().get(siPixelBadModule_);
   }
 
   if (use_LorentzAngle_DB_) {
     // Get Lorentz angle from DB record
-    es.get<SiPixelLorentzAngleSimRcd>().get(SiPixelLorentzAngle_);
+    es.get<SiPixelLorentzAngleSimRcd>().get(siPixelLorentzAngle_);
   }
 
   // gets the map and geometry from the DB (to kill ROCs)

@@ -298,6 +298,7 @@ namespace cond {
         IMPORT_PAYLOAD_CASE(RPFlatParams)
         IMPORT_PAYLOAD_CASE(RecoIdealGeometry)
         IMPORT_PAYLOAD_CASE(RunInfo)
+        IMPORT_PAYLOAD_CASE(SiPhase2OuterTrackerLorentzAngle)
         IMPORT_PAYLOAD_CASE(SiPixelCalibConfiguration)
         IMPORT_PAYLOAD_CASE(SiPixelCPEGenericErrorParm)
         IMPORT_PAYLOAD_CASE(SiPixelFedCablingMap)

@@ -7,8 +7,8 @@
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
 #include "RecoLocalTracker/Records/interface/TkStripCPERecord.h"
 #include "RecoLocalTracker/Records/interface/TkPixelCPERecord.h"
+#include "RecoLocalTracker/Records/interface/TkPhase2OTCPERecord.h"
 #include "Geometry/Records/interface/GlobalTrackingGeometryRecord.h"
-
 #include "FWCore/Utilities/interface/mplVector.h"
 
 class TransientRecHitRecord
@@ -17,5 +17,6 @@ class TransientRecHitRecord
                                                                              TrackerDigiGeometryRecord,
                                                                              TkStripCPERecord,
                                                                              TkPixelCPERecord,
+                                                                             TkPhase2OTCPERecord,
                                                                              GlobalTrackingGeometryRecord> > {};
 #endif
