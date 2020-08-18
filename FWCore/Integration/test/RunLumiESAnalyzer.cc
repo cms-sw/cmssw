@@ -13,6 +13,7 @@
 //         Created:  18 April 2019
 
 #include "FWCore/Framework/interface/global/EDAnalyzer.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -76,18 +77,20 @@ namespace edmtest {
     edm::ESGetToken<IOVTestInfo, ESTestRecordC> const esToken_;
     edm::ESGetToken<IOVTestInfo, ESTestRecordC> const tokenBeginRun_;
     edm::ESGetToken<IOVTestInfo, ESTestRecordC> const tokenBeginLumi_;
-    edm::ESGetToken<IOVTestInfo, ESTestRecordC> const tokenEndLumi_;
-    edm::ESGetToken<IOVTestInfo, ESTestRecordC> const tokenEndRun_;
+    edm::ESGetToken<IOVTestInfo, ESTestRecordC> tokenEndLumi_;
+    edm::ESGetToken<IOVTestInfo, ESTestRecordC> tokenEndRun_;
   };
 
   RunLumiESAnalyzer::RunLumiESAnalyzer(edm::ParameterSet const&)
       : esToken_{esConsumes<IOVTestInfo, ESTestRecordC>(edm::ESInputTag("", ""))},
         tokenBeginRun_{esConsumes<IOVTestInfo, ESTestRecordC, edm::Transition::BeginRun>(edm::ESInputTag("", ""))},
         tokenBeginLumi_{
-            esConsumes<IOVTestInfo, ESTestRecordC, edm::Transition::BeginLuminosityBlock>(edm::ESInputTag("", ""))},
-        tokenEndLumi_{
-            esConsumes<IOVTestInfo, ESTestRecordC, edm::Transition::EndLuminosityBlock>(edm::ESInputTag("", ""))},
-        tokenEndRun_{esConsumes<IOVTestInfo, ESTestRecordC, edm::Transition::EndRun>(edm::ESInputTag("", ""))} {}
+            esConsumes<IOVTestInfo, ESTestRecordC, edm::Transition::BeginLuminosityBlock>(edm::ESInputTag("", ""))} {
+    // to test setConsumes()
+    setConsumes<edm::Transition::EndLuminosityBlock>(tokenEndLumi_);
+    auto cc = consumesCollector();
+    cc.setConsumes<edm::Transition::EndRun>(tokenEndRun_);
+  }
 
   std::unique_ptr<UnsafeCache> RunLumiESAnalyzer::beginStream(edm::StreamID iID) const {
     return std::make_unique<UnsafeCache>();

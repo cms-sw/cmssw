@@ -48,24 +48,25 @@ namespace edmtest {
   //
   class IntTestAnalyzer : public edm::EDAnalyzer {
   public:
-    IntTestAnalyzer(edm::ParameterSet const& iPSet)
-        : value_(iPSet.getUntrackedParameter<int>("valueMustMatch")),
-          moduleLabel_(iPSet.getUntrackedParameter<std::string>("moduleLabel"), "") {
-      consumes<IntProduct>(moduleLabel_);
+    IntTestAnalyzer(edm::ParameterSet const& iPSet) : value_(iPSet.getUntrackedParameter<int>("valueMustMatch")) {
+      setConsumes(token_, iPSet.getUntrackedParameter<std::string>("moduleLabel", ""));
     }
 
     void analyze(edm::Event const& iEvent, edm::EventSetup const&) {
-      edm::Handle<IntProduct> handle;
-      iEvent.getByLabel(moduleLabel_, handle);
-      if (handle->value != value_) {
-        throw cms::Exception("ValueMissMatch") << "The value for \"" << moduleLabel_ << "\" is " << handle->value
-                                               << " but it was supposed to be " << value_;
+      IntProduct const& prod = iEvent.get(token_);
+      if (prod.value != value_) {
+        edm::ProductLabels labels;
+        labelsForToken(token_, labels);
+        throw cms::Exception("ValueMissMatch")
+            << "The value for \"" << labels.module << ":" << labels.productInstance << ":" << labels.process << "\" is "
+            << prod.value << " but it was supposed to be " << value_;
       }
     }
 
   private:
     int value_;
     edm::InputTag moduleLabel_;
+    edm::EDGetTokenT<IntProduct> token_;
   };
 
   //--------------------------------------------------------------------
@@ -116,7 +117,7 @@ namespace edmtest {
   class IntFromRunConsumingAnalyzer : public edm::global::EDAnalyzer<> {
   public:
     IntFromRunConsumingAnalyzer(edm::ParameterSet const& iPSet) {
-      consumes<IntProduct, edm::InRun>(iPSet.getUntrackedParameter<edm::InputTag>("getFromModule"));
+      setConsumes<edm::InRun>(token_, iPSet.getUntrackedParameter<edm::InputTag>("getFromModule"));
     }
 
     void analyze(edm::StreamID, edm::Event const&, edm::EventSetup const&) const override {}
@@ -126,6 +127,9 @@ namespace edmtest {
       desc.addUntracked<edm::InputTag>("getFromModule");
       descriptions.addDefault(desc);
     }
+
+  private:
+    edm::EDGetTokenT<IntProduct> token_;
   };
   //--------------------------------------------------------------------
   //

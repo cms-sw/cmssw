@@ -85,6 +85,18 @@ namespace {
     std::vector<edm::EDGetTokenT<std::vector<int>>> m_mayTokens;
   };
 
+  class IntsSetConsumer : public edm::EDConsumerBase {
+  public:
+    IntsSetConsumer(std::vector<edm::InputTag> const& iTags) {
+      m_tokens.resize(iTags.size());
+      for (size_t i = 0; i < iTags.size(); ++i) {
+        setConsumes(m_tokens[i], iTags[i]);
+      }
+    }
+
+    std::vector<edm::EDGetTokenT<std::vector<int>>> m_tokens;
+  };
+
   class TypeToGetConsumer : public edm::EDConsumerBase {
   public:
     TypeToGetConsumer(std::vector<std::pair<edm::TypeToGet, edm::InputTag>> const& iTags) {
@@ -110,6 +122,26 @@ namespace {
 
       for (auto const& tag : iTags) {
         m_tokens.push_back(collectorCopy2.consumes<std::vector<int>>(tag));
+      }
+    }
+
+    std::vector<edm::EDGetTokenT<std::vector<int>>> m_tokens;
+  };
+
+  class IntsConsumesCollectorSetConsumer : public edm::EDConsumerBase {
+  public:
+    IntsConsumesCollectorSetConsumer(std::vector<edm::InputTag> const& iTags) {
+      m_tokens.reserve(iTags.size());
+      edm::ConsumesCollector collector{consumesCollector()};
+      edm::ConsumesCollector collectorCopy(collector);
+      edm::ConsumesCollector collectorCopy1(collector);
+      edm::ConsumesCollector collectorCopy2(collector);
+      collectorCopy1 = collectorCopy;
+      collectorCopy2 = std::move(collectorCopy1);
+
+      m_tokens.resize(iTags.size());
+      for (size_t i = 0; i < iTags.size(); ++i) {
+        collectorCopy2.setConsumes(m_tokens[i], iTags[i]);
       }
     }
 
@@ -178,7 +210,59 @@ void TestEDConsumerBase::testRegularType() {
   }
   {
     std::vector<edm::InputTag> vTags = {{"label", "instance", "process"}, {"labelC", "instanceC", "processC"}};
+    IntsSetConsumer intConsumer{vTags};
+    intConsumer.updateLookup(edm::InEvent, helper, false);
+
+    CPPUNIT_ASSERT(intConsumer.m_tokens[0].index() == 0);
+    CPPUNIT_ASSERT(intConsumer.m_tokens[1].index() == 1);
+
+    CPPUNIT_ASSERT(vint_c ==
+                   intConsumer.indexFrom(intConsumer.m_tokens[1], edm::InEvent, typeID_vint).productResolverIndex());
+    CPPUNIT_ASSERT(vint_blank ==
+                   intConsumer.indexFrom(intConsumer.m_tokens[0], edm::InEvent, typeID_vint).productResolverIndex());
+
+    std::vector<edm::ProductResolverIndexAndSkipBit> indices;
+    intConsumer.itemsToGet(edm::InEvent, indices);
+
+    CPPUNIT_ASSERT(2 == indices.size());
+    CPPUNIT_ASSERT(indices.end() !=
+                   std::find(indices.begin(), indices.end(), edm::ProductResolverIndexAndSkipBit(vint_c, false)));
+    CPPUNIT_ASSERT(indices.end() !=
+                   std::find(indices.begin(), indices.end(), edm::ProductResolverIndexAndSkipBit(vint_blank, false)));
+
+    std::vector<edm::ProductResolverIndexAndSkipBit> indicesMay;
+    intConsumer.itemsMayGet(edm::InEvent, indicesMay);
+    CPPUNIT_ASSERT(0 == indicesMay.size());
+  }
+  {
+    std::vector<edm::InputTag> vTags = {{"label", "instance", "process"}, {"labelC", "instanceC", "processC"}};
     IntsConsumesCollectorConsumer intConsumer{vTags};
+    intConsumer.updateLookup(edm::InEvent, helper, false);
+
+    CPPUNIT_ASSERT(intConsumer.m_tokens[0].index() == 0);
+    CPPUNIT_ASSERT(intConsumer.m_tokens[1].index() == 1);
+
+    CPPUNIT_ASSERT(vint_c ==
+                   intConsumer.indexFrom(intConsumer.m_tokens[1], edm::InEvent, typeID_vint).productResolverIndex());
+    CPPUNIT_ASSERT(vint_blank ==
+                   intConsumer.indexFrom(intConsumer.m_tokens[0], edm::InEvent, typeID_vint).productResolverIndex());
+
+    std::vector<edm::ProductResolverIndexAndSkipBit> indices;
+    intConsumer.itemsToGet(edm::InEvent, indices);
+
+    CPPUNIT_ASSERT(2 == indices.size());
+    CPPUNIT_ASSERT(indices.end() !=
+                   std::find(indices.begin(), indices.end(), edm::ProductResolverIndexAndSkipBit(vint_c, false)));
+    CPPUNIT_ASSERT(indices.end() !=
+                   std::find(indices.begin(), indices.end(), edm::ProductResolverIndexAndSkipBit(vint_blank, false)));
+
+    std::vector<edm::ProductResolverIndexAndSkipBit> indicesMay;
+    intConsumer.itemsMayGet(edm::InEvent, indicesMay);
+    CPPUNIT_ASSERT(0 == indicesMay.size());
+  }
+  {
+    std::vector<edm::InputTag> vTags = {{"label", "instance", "process"}, {"labelC", "instanceC", "processC"}};
+    IntsConsumesCollectorSetConsumer intConsumer{vTags};
     intConsumer.updateLookup(edm::InEvent, helper, false);
 
     CPPUNIT_ASSERT(intConsumer.m_tokens[0].index() == 0);
@@ -232,7 +316,61 @@ void TestEDConsumerBase::testRegularType() {
   }
   {
     std::vector<edm::InputTag> vTagsRev = {{"labelC", "instanceC", "processC"}, {"label", "instance", "process"}};
+    IntsSetConsumer intConsumerRev{vTagsRev};
+    intConsumerRev.updateLookup(edm::InEvent, helper, false);
+
+    CPPUNIT_ASSERT(intConsumerRev.m_tokens[0].index() == 0);
+    CPPUNIT_ASSERT(intConsumerRev.m_tokens[1].index() == 1);
+
+    CPPUNIT_ASSERT(
+        vint_c ==
+        intConsumerRev.indexFrom(intConsumerRev.m_tokens[0], edm::InEvent, typeID_vint).productResolverIndex());
+    CPPUNIT_ASSERT(
+        vint_blank ==
+        intConsumerRev.indexFrom(intConsumerRev.m_tokens[1], edm::InEvent, typeID_vint).productResolverIndex());
+
+    std::vector<edm::ProductResolverIndexAndSkipBit> indices;
+    intConsumerRev.itemsToGet(edm::InEvent, indices);
+
+    CPPUNIT_ASSERT(2 == indices.size());
+    CPPUNIT_ASSERT(indices.end() !=
+                   std::find(indices.begin(), indices.end(), edm::ProductResolverIndexAndSkipBit(vint_c, false)));
+    CPPUNIT_ASSERT(indices.end() !=
+                   std::find(indices.begin(), indices.end(), edm::ProductResolverIndexAndSkipBit(vint_blank, false)));
+
+    std::vector<edm::ProductResolverIndexAndSkipBit> indicesMay;
+    intConsumerRev.itemsMayGet(edm::InEvent, indicesMay);
+    CPPUNIT_ASSERT(0 == indicesMay.size());
+  }
+  {
+    std::vector<edm::InputTag> vTagsRev = {{"labelC", "instanceC", "processC"}, {"label", "instance", "process"}};
     IntsConsumesCollectorConsumer intConsumerRev{vTagsRev};
+    intConsumerRev.updateLookup(edm::InEvent, helper, false);
+
+    CPPUNIT_ASSERT(intConsumerRev.m_tokens[0].index() == 0);
+    CPPUNIT_ASSERT(intConsumerRev.m_tokens[1].index() == 1);
+
+    CPPUNIT_ASSERT(edm::ProductResolverIndexAndSkipBit(vint_c, false) ==
+                   intConsumerRev.indexFrom(intConsumerRev.m_tokens[0], edm::InEvent, typeID_vint));
+    CPPUNIT_ASSERT(edm::ProductResolverIndexAndSkipBit(vint_blank, false) ==
+                   intConsumerRev.indexFrom(intConsumerRev.m_tokens[1], edm::InEvent, typeID_vint));
+
+    std::vector<edm::ProductResolverIndexAndSkipBit> indices;
+    intConsumerRev.itemsToGet(edm::InEvent, indices);
+
+    CPPUNIT_ASSERT(2 == indices.size());
+    CPPUNIT_ASSERT(indices.end() !=
+                   std::find(indices.begin(), indices.end(), edm::ProductResolverIndexAndSkipBit(vint_c, false)));
+    CPPUNIT_ASSERT(indices.end() !=
+                   std::find(indices.begin(), indices.end(), edm::ProductResolverIndexAndSkipBit(vint_blank, false)));
+
+    std::vector<edm::ProductResolverIndexAndSkipBit> indicesMay;
+    intConsumerRev.itemsMayGet(edm::InEvent, indicesMay);
+    CPPUNIT_ASSERT(0 == indicesMay.size());
+  }
+  {
+    std::vector<edm::InputTag> vTagsRev = {{"labelC", "instanceC", "processC"}, {"label", "instance", "process"}};
+    IntsConsumesCollectorSetConsumer intConsumerRev{vTagsRev};
     intConsumerRev.updateLookup(edm::InEvent, helper, false);
 
     CPPUNIT_ASSERT(intConsumerRev.m_tokens[0].index() == 0);

@@ -17,6 +17,7 @@
 #include "DataFormats/Provenance/interface/EventID.h"
 #include "DataFormats/Provenance/interface/Timestamp.h"
 #include "FWCore/Framework/interface/ComponentDescription.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/Framework/interface/DataProxyProvider.h"
 #include "FWCore/Framework/interface/EDConsumerBase.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -590,6 +591,57 @@ namespace {
     ESGetToken<edm::eventsetup::test::DummyData, edm::DefaultRecord> m_token;
   };
 
+  struct DummyDataSetConsumer : public EDConsumerBase {
+    explicit DummyDataSetConsumer(ESInputTag const& iTag) { setConsumes(m_token, iTag); }
+
+    void prefetch(edm::EventSetupImpl const& iImpl) const {
+      auto const& recs = this->esGetTokenRecordIndicesVector(edm::Transition::Event);
+      auto const& proxies = this->esGetTokenIndicesVector(edm::Transition::Event);
+      for (size_t i = 0; i != proxies.size(); ++i) {
+        auto rec = iImpl.findImpl(recs[i]);
+        if (rec) {
+          auto waitTask = edm::make_empty_waiting_task();
+          waitTask->set_ref_count(2);
+          rec->prefetchAsync(waitTask.get(), proxies[i], &iImpl, edm::ServiceToken{});
+          waitTask->decrement_ref_count();
+          waitTask->wait_for_all();
+          if (waitTask->exceptionPtr()) {
+            std::rethrow_exception(*waitTask->exceptionPtr());
+          }
+        }
+      }
+    }
+
+    ESGetToken<edm::eventsetup::test::DummyData, edm::DefaultRecord> m_token;
+  };
+
+  struct DummyDataConsumesCollectorSetConsumer : public EDConsumerBase {
+    explicit DummyDataConsumesCollectorSetConsumer(ESInputTag const& iTag) {
+      auto cc = consumesCollector();
+      cc.setConsumes(m_token, iTag);
+    }
+
+    void prefetch(edm::EventSetupImpl const& iImpl) const {
+      auto const& recs = this->esGetTokenRecordIndicesVector(edm::Transition::Event);
+      auto const& proxies = this->esGetTokenIndicesVector(edm::Transition::Event);
+      for (size_t i = 0; i != proxies.size(); ++i) {
+        auto rec = iImpl.findImpl(recs[i]);
+        if (rec) {
+          auto waitTask = edm::make_empty_waiting_task();
+          waitTask->set_ref_count(2);
+          rec->prefetchAsync(waitTask.get(), proxies[i], &iImpl, edm::ServiceToken{});
+          waitTask->decrement_ref_count();
+          waitTask->wait_for_all();
+          if (waitTask->exceptionPtr()) {
+            std::rethrow_exception(*waitTask->exceptionPtr());
+          }
+        }
+      }
+    }
+
+    ESGetToken<edm::eventsetup::test::DummyData, edm::DefaultRecord> m_token;
+  };
+
   class ConsumesProducer : public ESProducer {
   public:
     ConsumesProducer() : token_{setWhatProduced(this, "consumes").consumes<edm::eventsetup::test::DummyData>()} {}
@@ -755,6 +807,28 @@ void testEventsetup::getDataWithESGetTokenTest() {
     controller.eventSetupForInstance(IOVSyncValue(Timestamp(2)));
     {
       DummyDataConsumer consumer{edm::ESInputTag("", "blah")};
+      consumer.updateLookup(provider.recordsToProxyIndices());
+      consumer.prefetch(provider.eventSetupImpl());
+      EventSetup eventSetup{provider.eventSetupImpl(),
+                            static_cast<unsigned int>(edm::Transition::Event),
+                            consumer.esGetTokenIndices(edm::Transition::Event),
+                            true};
+      auto const& data = eventSetup.getData(consumer.m_token);
+      CPPUNIT_ASSERT(kGood.value_ == data.value_);
+    }
+    {
+      DummyDataSetConsumer consumer{edm::ESInputTag("", "blah")};
+      consumer.updateLookup(provider.recordsToProxyIndices());
+      consumer.prefetch(provider.eventSetupImpl());
+      EventSetup eventSetup{provider.eventSetupImpl(),
+                            static_cast<unsigned int>(edm::Transition::Event),
+                            consumer.esGetTokenIndices(edm::Transition::Event),
+                            true};
+      auto const& data = eventSetup.getData(consumer.m_token);
+      CPPUNIT_ASSERT(kGood.value_ == data.value_);
+    }
+    {
+      DummyDataConsumesCollectorSetConsumer consumer{edm::ESInputTag("", "blah")};
       consumer.updateLookup(provider.recordsToProxyIndices());
       consumer.prefetch(provider.eventSetupImpl());
       EventSetup eventSetup{provider.eventSetupImpl(),

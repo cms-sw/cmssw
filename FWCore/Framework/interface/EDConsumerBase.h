@@ -177,6 +177,11 @@ namespace edm {
       recordConsumes(B, id, edm::InputTag{}, true);
     }
 
+    template <BranchType B = InEvent, typename ProductType>
+    void setConsumes(EDGetTokenT<ProductType>& token, edm::InputTag const& tag) {
+      token = consumes<ProductType, B>(tag);
+    }
+
     // For consuming event-setup products
     template <typename ESProduct, typename ESRecord, Transition Tr = Transition::Event>
     auto esConsumes() {
@@ -193,6 +198,16 @@ namespace edm {
                                     eventsetup::heterocontainer::HCTypeTag::make<ESProduct>(),
                                     tag);
       return ESGetToken<ESProduct, ESRecord>{static_cast<unsigned int>(Tr), index, labelFor(index)};
+    }
+
+    template <Transition Tr = Transition::Event, typename ESProduct, typename ESRecord>
+    void setConsumes(ESGetToken<ESProduct, ESRecord>& token) {
+      token = esConsumes<ESProduct, ESRecord, Tr>();
+    }
+
+    template <Transition Tr = Transition::Event, typename ESProduct, typename ESRecord>
+    void setConsumes(ESGetToken<ESProduct, ESRecord>& token, ESInputTag const& tag) {
+      token = esConsumes<ESProduct, ESRecord, Tr>(tag);
     }
 
   private:

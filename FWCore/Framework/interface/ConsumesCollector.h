@@ -81,6 +81,12 @@ namespace edm {
       m_consumer->consumesMany<B>(id);
     }
 
+    template <BranchType B = InEvent, typename ProductType>
+    ConsumesCollector& setConsumes(EDGetTokenT<ProductType>& token, edm::InputTag const& tag) {
+      m_consumer->setConsumes<B>(token, tag);
+      return *this;
+    }
+
     // For consuming event-setup products
     template <typename ESProduct, typename ESRecord, Transition Tr = Transition::Event>
     auto esConsumes() {
@@ -95,6 +101,18 @@ namespace edm {
     template <typename ESProduct, Transition Tr = Transition::Event>
     auto esConsumes(eventsetup::EventSetupRecordKey const& key, ESInputTag const& tag) {
       return m_consumer->esConsumes<ESProduct, Tr>(key, tag);
+    }
+
+    template <Transition Tr = Transition::Event, typename ESProduct, typename ESRecord>
+    ConsumesCollector& setConsumes(ESGetToken<ESProduct, ESRecord>& token) {
+      m_consumer->setConsumes<Tr>(token);
+      return *this;
+    }
+
+    template <Transition Tr = Transition::Event, typename ESProduct, typename ESRecord>
+    ConsumesCollector& setConsumes(ESGetToken<ESProduct, ESRecord>& token, ESInputTag const& tag) {
+      m_consumer->setConsumes<Tr>(token, tag);
+      return *this;
     }
 
   private:
