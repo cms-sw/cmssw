@@ -6,10 +6,12 @@
 #include "DataFormats/SiPixelDetId/interface/PixelBarrelName.h"
 #include "DataFormats/SiPixelDetId/interface/PixelEndcapName.h"
 #include "CalibTracker/SiPixelESProducers/interface/SiPixelDetInfoFileReader.h"
+#include "CondCore/SiPixelPlugins/interface/SiPixelPayloadInspectorHelper.h"
 #include "FWCore/ParameterSet/interface/FileInPath.h"
 #include <boost/range/adaptor/indexed.hpp>
-#include "TH1.h"
 #include <cstdlib>
+#include "TH1.h"
+#include "TLatex.h"
 
 namespace PixelRegions {
 
@@ -163,9 +165,23 @@ namespace PixelRegions {
         : m_trackerTopo(t_topo), m_isPhase1(isPhase1) {
       // set log scale by default to false
       m_isLog = false;
+      if (m_trackerTopo) {
+        m_isTrackerTopologySet = true;
+      } else {
+        m_isTrackerTopologySet = false;
+      }
     }
 
     ~PixelRegionContainers() {}
+
+    //============================================================================
+    void setTheTopo(const TrackerTopology* t_topo) {
+      m_trackerTopo = t_topo;
+      m_isTrackerTopologySet = true;
+    }
+
+    //============================================================================
+    const TrackerTopology* getTheTopo() { return m_trackerTopo; }
 
     //============================================================================
     void bookAll(std::string title_label,
@@ -189,6 +205,9 @@ namespace PixelRegions {
 
     //============================================================================
     void fill(const unsigned int detid, const float value) {
+      // first check that the topology is set
+      assert(m_trackerTopo);
+
       // convert from detid to pixelid
       PixelRegions::PixelId myId = PixelRegions::detIdToPixelId(detid, m_trackerTopo, m_isPhase1);
       if (m_theMap.find(myId) != m_theMap.end()) {
@@ -306,7 +325,8 @@ namespace PixelRegions {
 
   private:
     const TrackerTopology* m_trackerTopo;
-    bool m_isPhase1;
+    const bool m_isPhase1;
+    bool m_isTrackerTopologySet;
 
     std::map<PixelId, std::shared_ptr<TH1F>> m_theMap;
     int m_nbins;

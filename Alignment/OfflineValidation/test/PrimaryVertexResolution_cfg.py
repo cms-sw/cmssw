@@ -157,7 +157,7 @@ process.HLTFilter = triggerResultsFilter.clone(
 # The analysis module
 ###################################################################
 process.myanalysis = cms.EDAnalyzer("GeneralPurposeTrackAnalyzer",
-                                    TkTag  = cms.string('TrackRefitter'),
+                                    TkTag  = cms.InputTag('TrackRefitter'),
                                     isCosmics = cms.bool(False)
                                     )
 
