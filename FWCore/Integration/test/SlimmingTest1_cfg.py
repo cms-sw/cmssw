@@ -52,6 +52,8 @@
 # F: file including ABE
 #   - slim ABE further to ABEF
 #   - then try to merge with B file with BEG, should fail
+# G: file including A
+#    - try to thin from thingProducer, should fail
 
 
 import FWCore.ParameterSet.Config as cms
@@ -307,6 +309,15 @@ process.outF = cms.OutputModule("PoolOutputModule",
     )
 )
 
+process.outG = cms.OutputModule("PoolOutputModule",
+    fileName = cms.untracked.string('testSlimmingTest1G.root'),
+    outputCommands = cms.untracked.vstring(
+        'drop *',
+        'keep *_trackOfThingsProducerB_*_*',
+        'keep *_thinningThingProducerA_*_*',
+    )
+)
+
 
 process.p = cms.Path(
     process.thingProducer
@@ -345,4 +356,5 @@ process.ep = cms.EndPath(
     * process.outD
     * process.outE
     * process.outF
+    * process.outG
 )
