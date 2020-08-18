@@ -35,21 +35,25 @@ namespace PixelRegions {
     // FPix plus
     Rp1l = 2211, Rp1u = 2212, Rp2l = 2221, Rp2u = 2222, Rp3l = 2231, Rp3u = 2232,   // phase1-only
     // Phase-2 endcaps
-    Ph2D1 = 3010, Ph2D2 = 3020, Ph2D3 = 3030, Ph2D4 = 3040,  Ph2D5 = 3050,  Ph2D6 = 3060, // phase-2 only
-    Ph2D7 = 3070, Ph2D8 = 3080, Ph2D9 = 3090, Ph2D10 = 3100, Ph2D11 = 3110, Ph2D12 = 3120,
+    Ph2EmR1 = 3101, Ph2EmR2 = 3102, Ph2EmR3 = 3103, Ph2EmR4 = 3104,  // phase-2 EPix
+    Ph2EpR1 = 3201, Ph2EpR2 = 3202, Ph2EpR3 = 3203, Ph2EpR4 = 3204,
+    Ph2FmR1 = 4101, Ph2FmR2 = 4102, Ph2FmR3 = 4103, Ph2FmR4 = 4104, Ph2FmR5 = 4105, //phase-2 FPix
+    Ph2FpR1 = 4201, Ph2FpR2 = 4202, Ph2FpR3 = 4203, Ph2FpR4 = 4204, Ph2FpR5 = 4205,
     End = 99999
   };
 
   const std::vector<PixelId> PixelIDs = {
     // BPix
     PixelId::L1, PixelId::L2, PixelId::L3, PixelId::L4,
-    // FPix minus
+    // Phase-1 FPix minus
     PixelId::Rm1l, PixelId::Rm1u, PixelId::Rm2l, PixelId::Rm2u, PixelId::Rm3l, PixelId::Rm3u, // phase-1 only
-    // FPix plus
+    // Phase-1 FPix plus
     PixelId::Rp1l, PixelId::Rp1u, PixelId::Rp2l, PixelId::Rp2u, PixelId::Rp3l, PixelId::Rp3u, // phase-1 only
     // Phase-2 endcaps
-    PixelId::Ph2D1, PixelId::Ph2D2, PixelId::Ph2D3, PixelId::Ph2D4,  PixelId::Ph2D5,  PixelId::Ph2D6, // phase-2 only
-    PixelId::Ph2D7, PixelId::Ph2D8, PixelId::Ph2D9, PixelId::Ph2D10, PixelId::Ph2D11, PixelId::Ph2D12,
+    PixelId::Ph2EmR1, PixelId::Ph2EmR2, PixelId::Ph2EmR3, PixelId::Ph2EmR4, // phase-2 EPix
+    PixelId::Ph2EpR1, PixelId::Ph2EpR2, PixelId::Ph2EpR3, PixelId::Ph2EpR4,
+    PixelId::Ph2FmR1, PixelId::Ph2FmR2, PixelId::Ph2FmR3, PixelId::Ph2FmR4, PixelId::Ph2FmR5, // phase-2 FPix
+    PixelId::Ph2FpR1, PixelId::Ph2FpR2, PixelId::Ph2FpR3, PixelId::Ph2FpR4, PixelId::Ph2FpR5,
     PixelId::End
   };
 
@@ -71,19 +75,48 @@ namespace PixelRegions {
                                              "FPIX(+) Disk 2 outer ring",  //14
                                              "FPIX(+) Disk 3 inner ring",  //15
                                              "FPIX(+) Disk 3 outer ring",  //16
-                                             "FPIX Disk 1",                //17
-                                             "FPIX Disk 2",                //18
-                                             "FPIX Disk 3",                //19
-                                             "FPIX Disk 4",                //20
-                                             "FPIX Disk 5",                //21
-                                             "FPIX Disk 6",                //22
-                                             "FPIX Disk 7",                //23
-                                             "FPIX Disk 8",                //24
-                                             "FPIX Disk 9",                //25
-                                             "FPIX Disk 10",               //26
-                                             "FPIX Disk 11",               //27
-                                             "FPIX Disk 12",               //28
-                                             "END"};                       //29
+                                             "EPix(-) Ring 1",             //17
+                                             "EPix(-) Ring 2",             //18
+                                             "EPix(-) Ring 3",             //19
+                                             "EPix(-) Ring 4",             //20
+                                             "EPix(+) Ring 1",             //21
+                                             "EPix(+) Ring 2",             //22
+                                             "EPix(+) Ring 3",             //23
+                                             "EPix(+) Ring 4",             //24
+                                             "FPix(-) Ring 1",             //25
+                                             "FPix(-) Ring 2",             //26
+                                             "FPix(-) Ring 3",             //27
+                                             "FPix(-) Ring 4",             //28
+                                             "FPix(-) Ring 5",             //29
+                                             "FPix(+) Ring 1",             //30
+                                             "FPix(+) Ring 2",             //31
+                                             "FPix(+) Ring 3",             //32
+                                             "FPix(+) Ring 4",             //33
+                                             "FPix(+) Ring 5",             //34
+                                             "END"};                       //35
+
+  //============================================================================
+  [[maybe_unused]] static const std::vector<std::string> getIDLabels(const SiPixelPI::phase& ph, bool isBarrel) {
+    std::vector<std::string> out;
+    for (const auto& label : IDlabels) {
+      if (isBarrel) {
+        if (label.find("Barrel") != std::string::npos) {
+          out.push_back(label);
+        }
+      } else {
+        if (ph == SiPixelPI::phase::two) {
+          if (label.find("Ring") != std::string::npos) {
+            out.push_back(label);
+          }
+        } else {
+          if (label.find("ring") != std::string::npos) {
+            out.push_back(label);
+          }
+        }
+      }
+    }
+    return out;
+  }
 
   //============================================================================
   static const PixelId calculateBPixID(const unsigned int layer) {
@@ -100,10 +133,17 @@ namespace PixelRegions {
     // FPix: 1000*(subdetId=2) + 100*(side=1,2) + 10*(disk=1,2,3) + 1*(ring=1,2)
     using namespace SiPixelPI;
     unsigned int prefix(2000);
+    unsigned int disk_(0);  // if that's phase-2 set the disk n. to zero
     if (ph > phase::one) {
-      prefix += 1000;
+      if (disk < 9) {
+        prefix += 1000;  // if that's EPix id starts with 3k
+      } else {
+        prefix += 2000;  // if that's FPix id starts with 4k
+      }
+    } else {
+      disk_ = disk;  // if that's not phase-2 set the disk to real disk n.
     }
-    PixelId fpixRing = static_cast<PixelId>(prefix + 100 * side + 10 * disk + ring);
+    PixelId fpixRing = static_cast<PixelId>(prefix + 100 * side + 10 * disk_ + ring);
     return fpixRing;
   }
 
@@ -130,8 +170,9 @@ namespace PixelRegions {
           ring = SiPixelPI::ring(detid, *trackTopo, true);  // 1 (lower), 2 (upper)
           break;
         case phase::two:
-          ring = 0;  // we only fill disks in phase2
-          side = 0;
+          // I know, that's funny but go look at:
+          // https://github.com/cms-sw/cmssw/blob/master/Geometry/TrackerNumberingBuilder/README.md
+          ring = trackTopo->pxfBlade(detId);
           break;
         default:
           throw cms::Exception("LogicalError") << " there is not such phase as " << ph;
@@ -227,9 +268,9 @@ namespace PixelRegions {
                  const float xmax) {
       using namespace SiPixelPI;
       for (const auto& pixelId : PixelIDs | boost::adaptors::indexed(0)) {
-        if (m_Phase == phase::two &&          // if that's phase-2
-            pixelId.value() > PixelId::L4 &&  // if it's end-cap
-            pixelId.value() < PixelId::Ph2D1  // it's a phase-1 ring
+        if (m_Phase == phase::two &&            // if that's phase-2
+            pixelId.value() > PixelId::L4 &&    // if it's end-cap
+            pixelId.value() < PixelId::Ph2EmR1  // it's a phase-1 ring
         ) {
           continue;
         }
@@ -264,7 +305,12 @@ namespace PixelRegions {
 
     //============================================================================
     void draw(TCanvas& canv, bool isBarrel, const char* option = "bar2", bool isPhase1Comparison = false) {
+      using namespace SiPixelPI;
       if (isBarrel) {
+        if (canv.GetListOfPrimitives()->GetSize() == 0) {
+          // divide only if it was not already divided
+          canv.Divide(2, 2);
+        }
         for (int j = 1; j <= 4; j++) {
           if (!m_isLog) {
             canv.cd(j);
@@ -285,10 +331,23 @@ namespace PixelRegions {
           }
         }
       } else {  // forward
-        for (int j = 1; j <= 12; j++) {
+        // pattern where to insert the plots in the canvas
+        // clang-format off
+        const std::array<int, 18> phase2Pattern = {{1,  2,  3,  4, /**/
+                                                    6,  7,  8,  9, /**/
+                                                    11, 12, 13, 14, 15,
+                                                    16, 17, 18, 19, 20}};
+        // clang-format on
+
+        if (canv.GetListOfPrimitives()->GetSize() == 0) {
+          canv.Divide(m_Phase == phase::two ? 5 : 4, m_Phase == phase::two ? 4 : 3);
+        }
+        const int maxPads = (m_Phase == phase::two) ? 18 : 12;
+        for (int j = 1; j <= maxPads; j++) {
           unsigned int mapIndex = m_Phase == 2 ? j + 15 : j + 3;
           if (!m_isLog) {
-            canv.cd(j);
+            canv.cd((m_Phase == phase::two) ? phase2Pattern[j - 1] : j);
+            //canv.cd(j);
           } else {
             canv.cd(j)->SetLogy();
           }
@@ -354,7 +413,8 @@ namespace PixelRegions {
       if (it != m_theMap.end()) {
         return it->second;
       } else {
-        throw cms::Exception("PixelRegionContainer") << "No histogram is available for PixelId" << theId << "\n";
+        throw cms::Exception("LogicError")
+            << "PixelRegionContainer::getHistoFromMap(): No histogram is available for PixelId: " << theId << "\n";
       }
     }
 

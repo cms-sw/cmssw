@@ -225,7 +225,6 @@ namespace {
         return false;
       }
 
-      canvas.Divide(isBarrel ? 2 : 4, isBarrel ? 2 : 3);
       canvas.cd();
 
       SiPixelPI::PhaseInfo phaseInfo(Map_.size());
@@ -362,7 +361,6 @@ namespace {
         return false;
       }
 
-      canvas.Divide(isBarrel ? 2 : 4, isBarrel ? 2 : 3);
       canvas.cd();
 
       SiPixelPI::PhaseInfo l_phaseInfo(l_Map_.size());

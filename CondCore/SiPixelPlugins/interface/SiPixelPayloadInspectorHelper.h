@@ -78,6 +78,15 @@ namespace SiPixelPI {
         return false;
     }
 
+    const bool isComparedWithPhase2(const PhaseInfo& theOtherPhase) const {
+      if ((phase() == phase::two && theOtherPhase.phase() != phase::two) ||
+          (phase() != phase::two && theOtherPhase.phase() == phase::two)) {
+        return true;
+      } else {
+        return false;
+      }
+    }
+
   private:
     size_t m_detsize;
   };
