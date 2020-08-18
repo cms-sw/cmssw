@@ -121,7 +121,7 @@ namespace edm {
   //
   // The thinned may point to parent collection, in which case the Ref-to-parent is returned
   //
-  // If there are no thinned collections containing the element of the Ref-to-parent, a Null Ref is returned.
+  // If thinned does not contain the element of the Ref-to-parent, a Null Ref is returned.
   template <typename C, typename T, typename F>
   Ref<C, T, F> thinnedRefFrom(Ref<C, T, F> const& parent,
                               RefProd<C> const& thinned,
