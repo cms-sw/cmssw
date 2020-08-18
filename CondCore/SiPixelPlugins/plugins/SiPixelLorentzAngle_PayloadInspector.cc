@@ -164,7 +164,6 @@ namespace {
       }
       */
 
-      canvas.Divide(isBarrel ? 2 : 4, isBarrel ? 2 : 3);
       canvas.cd();
 
       SiPixelPI::PhaseInfo phaseInfo(LAMap_.size());
@@ -197,8 +196,10 @@ namespace {
       legend.SetTextSize(0.025);
       legend.SetLineColor(10);
 
-      unsigned int maxPads = isBarrel ? 4 : 12;
+      unsigned int maxPads = canvas.GetListOfPrimitives()->GetSize();  //= isBarrel ? 4 : 12;
       for (unsigned int c = 1; c <= maxPads; c++) {
+        if (phaseInfo.phase() == SiPixelPI::phase::two && (c == 5 || c == 10))
+          continue;
         canvas.cd(c);
         SiPixelPI::adjustCanvasMargins(canvas.cd(c), 0.06, 0.12, 0.12, 0.05);
         legend.Draw("same");
@@ -212,13 +213,18 @@ namespace {
       ltx.SetTextSize(0.05);
       ltx.SetTextAlign(11);
 
+      int index = 0;
       for (unsigned int c = 1; c <= maxPads; c++) {
-        auto index = isBarrel ? c - 1 : c + 3;
-
+        if (phaseInfo.phase() == SiPixelPI::phase::two && (c == 5 || c == 10))
+          continue;
         canvas.cd(c);
         ltx.DrawLatexNDC(gPad->GetLeftMargin(),
                          1 - gPad->GetTopMargin() + 0.01,
-                         (PixelRegions::IDlabels.at(index) + ", IOV:" + std::to_string(std::get<0>(iov))).c_str());
+                         (PixelRegions::getIDLabels(phaseInfo.phase(), isBarrel)[index] +
+                          ", IOV:" + std::to_string(std::get<0>(iov)))
+                             .c_str());
+
+        index++;
       }
 
       std::string fileName(m_imageFileName);
@@ -278,20 +284,17 @@ namespace {
       std::string firstIOVsince = std::to_string(std::get<0>(firstiov));
 
       TCanvas canvas("Canv", "Canv", isBarrel ? 1400 : 1800, 1200);
-      /*
-      if ((f_LAMap_.size() > SiPixelPI::phase1size) || (l_LAMap_.size() > SiPixelPI::phase1size)) {
+      canvas.cd();
+
+      SiPixelPI::PhaseInfo l_phaseInfo(l_LAMap_.size());
+      SiPixelPI::PhaseInfo f_phaseInfo(f_LAMap_.size());
+
+      if (l_phaseInfo.isComparedWithPhase2(f_phaseInfo)) {
         SiPixelPI::displayNotSupported(canvas, std::max(f_LAMap_.size(), l_LAMap_.size()));
         std::string fileName(this->m_imageFileName);
         canvas.SaveAs(fileName.c_str());
         return false;
       }
-      */
-
-      canvas.Divide(isBarrel ? 2 : 4, isBarrel ? 2 : 3);
-      canvas.cd();
-
-      SiPixelPI::PhaseInfo l_phaseInfo(l_LAMap_.size());
-      SiPixelPI::PhaseInfo f_phaseInfo(f_LAMap_.size());
 
       // deal with last IOV
       const char *path_toTopologyXML = l_phaseInfo.pathToTopoXML();
@@ -340,7 +343,7 @@ namespace {
 
       // done dealing with IOVs
 
-      auto colorTag = isBarrel ? PixelRegions::L1 : PixelRegions::Rm1l;
+      auto colorTag = PixelRegions::L1;  //: PixelRegions::Rm1l;
       std::unique_ptr<TLegend> legend;
       if (this->m_plotAnnotations.ntags == 2) {
         legend = std::make_unique<TLegend>(0.36, 0.86, 0.94, 0.92);
@@ -355,8 +358,10 @@ namespace {
       }
       legend->SetLineColor(10);
 
-      unsigned int maxPads = isBarrel ? 4 : 12;
+      unsigned int maxPads = canvas.GetListOfPrimitives()->GetSize();  //= isBarrel ? 4 : 12;
       for (unsigned int c = 1; c <= maxPads; c++) {
+        if (l_phaseInfo.phase() == SiPixelPI::phase::two && (c == 5 || c == 10))
+          continue;
         canvas.cd(c);
         SiPixelPI::adjustCanvasMargins(canvas.cd(c), 0.06, 0.12, 0.12, 0.05);
         legend->Draw("same");
@@ -371,14 +376,22 @@ namespace {
       ltx.SetTextSize(0.05);
       ltx.SetTextAlign(11);
 
+      int index = 0;
       for (unsigned int c = 1; c <= maxPads; c++) {
-        auto index = isBarrel ? c - 1 : c + 3;
+        if (l_phaseInfo.phase() == SiPixelPI::phase::two && (c == 5 || c == 10))
+          continue;
         canvas.cd(c);
-        ltx.DrawLatexNDC(gPad->GetLeftMargin(),
-                         1 - gPad->GetTopMargin() + 0.01,
-                         (PixelRegions::IDlabels.at(index) + " : #color[4]{" + std::to_string(std::get<0>(firstiov)) +
-                          "} vs #color[2]{" + std::to_string(std::get<0>(lastiov)) + "}")
-                             .c_str());
+
+        COUT << "c:" << c << " index:" << index << " : "
+             << PixelRegions::getIDLabels(l_phaseInfo.phase(), isBarrel)[index] << "\n";
+
+        ltx.DrawLatexNDC(
+            gPad->GetLeftMargin(),
+            1 - gPad->GetTopMargin() + 0.01,
+            (PixelRegions::getIDLabels(l_phaseInfo.phase(), isBarrel)[index] + " : #color[4]{" +
+             std::to_string(std::get<0>(firstiov)) + "} vs #color[2]{" + std::to_string(std::get<0>(lastiov)) + "}")
+                .c_str());
+        index++;
       }
 
       std::string fileName(this->m_imageFileName);
