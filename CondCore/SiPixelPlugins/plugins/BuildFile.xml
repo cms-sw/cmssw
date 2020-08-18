@@ -54,5 +54,6 @@
 </library>
 
 <library file="plugin.cc" name="CondCoreSiPixelPluginsPlugin">
+  <flags EDM_PLUGIN="1"/>
   <use name="CondCore/SiPixelPlugins"/>
 </library>
