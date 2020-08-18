@@ -53,7 +53,7 @@ private:
   edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> trackerTopologyToken_;
   edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> trackerGeomToken_;
   edm::ESGetToken<GeometricSearchTracker, TrackerRecoGeometryRecord> geometricSearchTrackerToken_;
-  edm::ESGetToken<ClusterParameterEstimator<Phase2TrackerCluster1D>, TkStripCPERecord> phase2TrackerCPEToken_;
+  edm::ESGetToken<ClusterParameterEstimator<Phase2TrackerCluster1D>, TkPhase2OTCPERecord> phase2TrackerCPEToken_;
 
   MeasurementTrackerImpl::BadStripCutsDet badStripCuts_;
 

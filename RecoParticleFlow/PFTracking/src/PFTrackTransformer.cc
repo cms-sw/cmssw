@@ -545,7 +545,6 @@ bool PFTrackTransformer::addPointsAndBrems(reco::GsfPFRecTrack& pftrack,
         brem.addPoint(dummyHOLayer);
       }
     }
-    brem.calculatePositionREP();
     pftrack.addBrem(brem);
     iTrajPos++;
   }
@@ -744,7 +743,6 @@ bool PFTrackTransformer::addPointsAndBrems(reco::GsfPFRecTrack& pftrack,
     }
   }
 
-  brem.calculatePositionREP();
   pftrack.addBrem(brem);
   iTrajPos++;
 
@@ -908,7 +906,6 @@ bool PFTrackTransformer::addPointsAndBrems(reco::GsfPFRecTrack& pftrack,
       }
     }
 
-    brem.calculatePositionREP();
     pftrack.addBrem(brem);
     iTrajPos++;
   }
@@ -1161,7 +1158,6 @@ bool PFTrackTransformer::addPointsAndBrems(reco::GsfPFRecTrack& pftrack,
         brem.addPoint(dummyHOLayer);
       }
     }
-    brem.calculatePositionREP();
     pftrack.addBrem(brem);
     iTrajPos++;
   }

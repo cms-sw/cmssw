@@ -21,7 +21,7 @@ class SiStripDCSStatusRcd : public edm::eventsetup::EventSetupRecordImplementati
 
 class SiStripFedCablingRcd : public edm::eventsetup::EventSetupRecordImplementation<SiStripFedCablingRcd> {};
 
-/*Recod associated to SiStripLorenzaAngle Object: the SimRcd is used in simulation only*/
+/*Record associated to SiStripLorentzAngle Object: the SimRcd is used in simulation only*/
 class SiStripLorentzAngleRcd
     : public edm::eventsetup::DependentRecordImplementation<SiStripLorentzAngleRcd,
                                                             edm::mpl::Vector<TrackerTopologyRcd> > {};

@@ -29,6 +29,7 @@
 #include <map>
 #include <string>
 #include <vector>
+#include <boost/range/adaptor/indexed.hpp>
 
 // user include files
 
@@ -37,6 +38,7 @@
 #include "CondFormats/AlignmentRecord/interface/GlobalPositionRcd.h"
 #include "CondFormats/DataRecord/interface/SiStripCondDataRecords.h"
 #include "CondFormats/SiStripObjects/interface/SiStripLatency.h"
+#include "CondCore/SiPixelPlugins/interface/Phase1PixelMaps.h"
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
 #include "DataFormats/Common/interface/TriggerResults.h"
 #include "DataFormats/DetId/interface/DetId.h"
@@ -83,20 +85,23 @@ const int kFPIX = PixelSubdetector::PixelEndcap;
 
 class GeneralPurposeTrackAnalyzer : public edm::one::EDAnalyzer<edm::one::WatchRuns, edm::one::SharedResources> {
 public:
-  GeneralPurposeTrackAnalyzer(const edm::ParameterSet &pset) {
+  GeneralPurposeTrackAnalyzer(const edm::ParameterSet &pset)
+      : geomToken_(esConsumes<TrackerGeometry, TrackerDigiGeometryRecord>()),
+        magFieldToken_(esConsumes<MagneticField, IdealMagneticFieldRecord, edm::Transition::BeginRun>()),
+        latencyToken_(esConsumes<SiStripLatency, SiStripLatencyRcd, edm::Transition::BeginRun>()) {
     usesResource(TFileService::kSharedResource);
 
-    TkTag_ = pset.getParameter<std::string>("TkTag");
+    TkTag_ = pset.getParameter<edm::InputTag>("TkTag");
     theTrackCollectionToken = consumes<reco::TrackCollection>(TkTag_);
 
-    edm::InputTag tag("TriggerResults", "", "HLT");
-    hltresultsToken = consumes<edm::TriggerResults>(tag);
+    TriggerResultsTag_ = pset.getParameter<edm::InputTag>("TriggerResultsTag");
+    hltresultsToken = consumes<edm::TriggerResults>(TriggerResultsTag_);
 
-    edm::InputTag beamSpotTag("offlineBeamSpot");
-    beamspotToken = consumes<reco::BeamSpot>(beamSpotTag);
+    BeamSpotTag_ = pset.getParameter<edm::InputTag>("BeamSpotTag");
+    beamspotToken = consumes<reco::BeamSpot>(BeamSpotTag_);
 
-    edm::InputTag vertexTag("offlinePrimaryVertices");
-    vertexToken = consumes<reco::VertexCollection>(vertexTag);
+    VerticesTag_ = pset.getParameter<edm::InputTag>("VerticesTag");
+    vertexToken = consumes<reco::VertexCollection>(VerticesTag_);
 
     isCosmics_ = pset.getParameter<bool>("isCosmics");
 
@@ -108,27 +113,44 @@ public:
     tmap = std::make_unique<TrackerMap>("Strip");
     tmap->setTitle("Strip Hit entries");
     tmap->setPalette(1);
+
+    pixelmap = std::make_unique<Phase1PixelMaps>("COLZ0 L");
+    pixelmap->bookBarrelHistograms("entriesBarrel", "# hits", "# pixel hits");
+    pixelmap->bookBarrelBins("entriesBarrel");
+    pixelmap->bookForwardHistograms("entriesForward", "# hits", "# pixel hits");
+    pixelmap->bookForwardBins("entriesForward");
   }
 
   ~GeneralPurposeTrackAnalyzer() override {}
 
+  static void fillDescriptions(edm::ConfigurationDescriptions &);
+
   template <class OBJECT_TYPE>
   int GetIndex(const std::vector<OBJECT_TYPE *> &vec, const TString &name) {
-    int result = 0;
-    for (typename std::vector<OBJECT_TYPE *>::const_iterator iter = vec.begin(), iterEnd = vec.end(); iter != iterEnd;
-         ++iter, ++result) {
-      if (*iter && (*iter)->GetName() == name)
-        return result;
+    for (const auto &iter : vec | boost::adaptors::indexed(0)) {
+      if (iter.value() && iter.value()->GetName() == name) {
+        return iter.index();
+      }
     }
     edm::LogError("GeneralPurposeTrackAnalyzer") << "@SUB=GeneralPurposeTrackAnalyzer::GetIndex"
                                                  << " could not find " << name;
     return -1;
   }
 
+private:
+  // tokens for the event setup
+  const edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> geomToken_;
+  const edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> magFieldToken_;
+  const edm::ESGetToken<SiStripLatency, SiStripLatencyRcd> latencyToken_;
+
+  edm::ESHandle<MagneticField> magneticField_;
+
   edm::Service<TFileService> fs;
 
   std::unique_ptr<TrackerMap> tmap;
   std::unique_ptr<TrackerMap> pmap;
+
+  std::unique_ptr<Phase1PixelMaps> pixelmap;
 
   TH1D *hchi2ndof;
   TH1D *hNtrk;
@@ -248,7 +270,11 @@ public:
 
   const TrackerGeometry *trackerGeometry_;
 
-  std::string TkTag_;
+  edm::InputTag TkTag_;
+  edm::InputTag TriggerResultsTag_;
+  edm::InputTag BeamSpotTag_;
+  edm::InputTag VerticesTag_;
+
   bool isCosmics_;
 
   edm::EDGetTokenT<reco::TrackCollection> theTrackCollectionToken;
@@ -269,13 +295,8 @@ public:
     edm::Handle<reco::TrackCollection> trackCollection;
     event.getByToken(theTrackCollectionToken, trackCollection);
 
-    // magnetic field setup
-    edm::ESHandle<MagneticField> magneticField_;
-    setup.get<IdealMagneticFieldRecord>().get(magneticField_);
-
     // geometry setup
-    edm::ESHandle<TrackerGeometry> geometry;
-    setup.get<TrackerDigiGeometryRecord>().get(geometry);
+    edm::ESHandle<TrackerGeometry> geometry = setup.getHandle(geomToken_);
     const TrackerGeometry *theGeometry = &(*geometry);
 
     // switch on the phase1
@@ -338,8 +359,15 @@ public:
             unsigned int subid = detId.subdetId();
             int detid_db = detId.rawId();
 
-            if (!isPhase1_)
+            if (!isPhase1_) {
               pmap->fill(detid_db, 1);
+            } else {
+              if (subid == PixelSubdetector::PixelBarrel) {
+                pixelmap->fillBarrelBin("entriesBarrel", detid_db, 1);
+              } else {
+                pixelmap->fillForwardBin("entriesForward", detid_db, 1);
+              }
+            }
 
             LocalPoint lp = (*iHit)->localPosition();
             //LocalError le = (*iHit)->localPositionError();
@@ -645,8 +673,7 @@ public:
   //*************************************************************
   {
     // Magnetic Field setup
-    edm::ESHandle<MagneticField> magneticField_;
-    setup.get<IdealMagneticFieldRecord>().get(magneticField_);
+    magneticField_ = setup.getHandle(magFieldToken_);
     float B_ = magneticField_.product()->inTesla(GlobalPoint(0, 0, 0)).mag();
 
     if (DEBUG) {
@@ -654,14 +681,8 @@ public:
           << "run number:" << run.run() << " magnetic field: " << B_ << " [T]" << std::endl;
     }
 
-    //topology setup
-    //edm::ESHandle<TrackerTopology> tTopoHandle;
-    //setup.get<TrackerTopologyRcd>().get(tTopoHandle);
-    //const TrackerTopology* const tTopo = tTopoHandle.product();
-
     //SiStrip Latency
-    edm::ESHandle<SiStripLatency> apvlat;
-    setup.get<SiStripLatencyRcd>().get(apvlat);
+    edm::ESHandle<SiStripLatency> apvlat = setup.getHandle(latencyToken_);
     if (apvlat->singleReadOutMode() == 1) {
       mode = 1;  // peak mode
     } else if (apvlat->singleReadOutMode() == 0) {
@@ -1098,11 +1119,22 @@ public:
       fieldByRun_->GetXaxis()->SetBinLabel((the_r - theRuns_.front()) + 1, std::to_string(the_r).c_str());
     }
 
-    pmap->save(true, 0, 0, "pixelmap.pdf", 600, 800);
-    pmap->save(true, 0, 0, "pixelmap.png", 500, 750);
+    pmap->save(true, 0, 0, "PixelHitMap.pdf", 600, 800);
+    pmap->save(true, 0, 0, "PixelHitMap.png", 500, 750);
 
-    tmap->save(true, 0, 0, "trackermap.pdf");
-    tmap->save(true, 0, 0, "trackermap.png");
+    tmap->save(true, 0, 0, "StripHitMap.pdf");
+    tmap->save(true, 0, 0, "StripHitMap.png");
+
+    gStyle->SetPalette(kRainBow);
+    pixelmap->beautifyAllHistograms();
+
+    TCanvas cB("CanvBarrel", "CanvBarrel", 1200, 1000);
+    pixelmap->DrawBarrelMaps("entriesBarrel", cB);
+    cB.SaveAs("pixelBarrelEntries.png");
+
+    TCanvas cF("CanvForward", "CanvForward", 1600, 1000);
+    pixelmap->DrawForwardMaps("entriesForward", cF);
+    cF.SaveAs("pixelForwardEntries.png");
   }
 
   //*************************************************************
@@ -1148,5 +1180,19 @@ public:
     // never reached...
   }
 };
+
+//*************************************************************
+void GeneralPurposeTrackAnalyzer::fillDescriptions(edm::ConfigurationDescriptions &descriptions)
+//*************************************************************
+{
+  edm::ParameterSetDescription desc;
+  desc.setComment("Generic track analyzer to check ALCARECO sample quantities");
+  desc.add<edm::InputTag>("TkTag", edm::InputTag("generalTracks"));
+  desc.add<edm::InputTag>("TriggerResultsTag", edm::InputTag("TriggerResults", "", "HLT"));
+  desc.add<edm::InputTag>("BeamSpotTag", edm::InputTag("offlineBeamSpot"));
+  desc.add<edm::InputTag>("VerticesTag", edm::InputTag("offlinePrimaryVertices"));
+  desc.add<bool>("isCosmics", false);
+  descriptions.add("GeneralPurposeTrackAnalyzer", desc);
+}
 
 DEFINE_FWK_MODULE(GeneralPurposeTrackAnalyzer);
