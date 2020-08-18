@@ -9,7 +9,8 @@ int main() {
 
   CaloTower cand;
   EgammaTowerIsolationNew<2>::Sum sum;
-  iso.compute(true, sum, cand, nullptr, nullptr);
+  iso.compute(
+      true, sum, cand, static_cast<CaloTowerDetId const*>(nullptr), static_cast<CaloTowerDetId const*>(nullptr));
 
   return 0;
 }
