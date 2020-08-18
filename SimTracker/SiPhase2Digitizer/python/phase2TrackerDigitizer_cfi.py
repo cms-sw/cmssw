@@ -109,7 +109,7 @@ phase2TrackerDigitizer = cms.PSet(
       SigmaZero = cms.double(0.00037),  		#D.B.: 3.7um spread for 300um-thick sensor, renormalized in digitizerAlgo
       SigmaCoeff = cms.double(1.80),  		#D.B.: to be confirmed with simulations in CMSSW_6.X
       ClusterWidth = cms.double(3),		#D.B.: this is used as number of sigmas for charge collection (3=+-3sigmas)
-      LorentzAngle_DB = cms.bool(False),			
+      LorentzAngle_DB = cms.bool(True),			
       TanLorentzAnglePerTesla_Endcap = cms.double(0.07),
       TanLorentzAnglePerTesla_Barrel = cms.double(0.07),
       KillModules = cms.bool(False),
@@ -147,7 +147,7 @@ phase2TrackerDigitizer = cms.PSet(
       SigmaZero = cms.double(0.00037),  		#D.B.: 3.7um spread for 300um-thick sensor, renormalized in digitizerAlgo
       SigmaCoeff = cms.double(1.80),  		#D.B.: to be confirmed with simulations in CMSSW_6.X
       ClusterWidth = cms.double(3),		#D.B.: this is used as number of sigmas for charge collection (3=+-3sigmas)
-      LorentzAngle_DB = cms.bool(False),			
+      LorentzAngle_DB = cms.bool(True),			
       TanLorentzAnglePerTesla_Endcap = cms.double(0.07),
       TanLorentzAnglePerTesla_Barrel = cms.double(0.07),
       KillModules = cms.bool(False),
@@ -185,7 +185,7 @@ phase2TrackerDigitizer = cms.PSet(
       SigmaZero = cms.double(0.00037),  		#D.B.: 3.7um spread for 300um-thick sensor, renormalized in digitizerAlgo
       SigmaCoeff = cms.double(1.80),  		#D.B.: to be confirmed with simulations in CMSSW_6.X
       ClusterWidth = cms.double(3),		#D.B.: this is used as number of sigmas for charge collection (3=+-3sigmas)
-      LorentzAngle_DB = cms.bool(False),			
+      LorentzAngle_DB = cms.bool(True),			
       TanLorentzAnglePerTesla_Endcap = cms.double(0.07),
       TanLorentzAnglePerTesla_Barrel = cms.double(0.07),
       KillModules = cms.bool(False),
