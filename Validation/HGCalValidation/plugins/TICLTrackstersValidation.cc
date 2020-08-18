@@ -105,7 +105,7 @@ void TICLTrackstersValidation::dqmAnalyze(edm::Event const& iEvent,
         auto const layer_in = rhtools_.getLayerWithOffset(cl_in) + layers * ((rhtools_.zside(cl_in) + 1) >> 1) - 1;
         auto const layer_out = rhtools_.getLayerWithOffset(cl_out) + layers * ((rhtools_.zside(cl_out) + 1) >> 1) - 1;
         histo.delta_energy_->Fill(oc.energy() - ic.energy());
-        histo.delta_energy_vs_energy_->Fill(ic.energy(), oc.energy() - ic.energy());
+        histo.delta_energy_vs_energy_->Fill(oc.energy() - ic.energy(), ic.energy());
         histo.delta_layer_->Fill(layer_out - layer_in);
 
         // Alpha angles
@@ -114,8 +114,7 @@ void TICLTrackstersValidation::dqmAnalyze(edm::Event const& iEvent,
         const auto & seed = thisTrackster.seedIndex();
         auto seedGlobalPos = math::XYZPoint(ticlSeedingGlobal[0].origin.x(),
             ticlSeedingGlobal[0].origin.y(), ticlSeedingGlobal[0].origin.z());
-        auto seedDirectionPos = math::XYZPoint(ticlSeedingGlobal[0].directionAtOrigin.x(),
-            ticlSeedingGlobal[0].directionAtOrigin.y(), ticlSeedingGlobal[0].directionAtOrigin.z());
+        auto seedDirectionPos = outer_inner_pos;
         if (thisTrackster.seedID().id() != 0) {
           // Seed to trackster association is, at present, rather convoluted.
           for (auto const &s : ticlSeedingTrk) {
@@ -166,11 +165,11 @@ void TICLTrackstersValidation::bookHistograms(DQMStore::IBooker& ibook,
     ibook.setCurrentFolder(folder_ + "TICLTracksters/" + trackstersCollectionsNames_[labelIndex]);
     histo.energy_ = ibook.book1D("Regressed Energy", "Energy", 250, 0., 250.);
     histo.delta_energy_ = ibook.book1D("Delta energy", "Delta Energy (O-I)", 800, -20., 20.);
-    histo.delta_energy_vs_energy_ = ibook.book2D("Delta Energy vs Energy", "Delta Energy (O-I) vs Energy (I)", 200, 0., 20., 800, -20., 20.);
+    histo.delta_energy_vs_energy_ = ibook.book2D("Energy vs Delta Energy", "Energy (I) vs Delta Energy (O-I)", 800, -20., 20., 200, 0., 20.);
     histo.delta_layer_ = ibook.book1D("Delta Layer", "Delta Layer", 10, 0., 10.);
     histo.angle_alpha_ = ibook.book1D("cosAngle Alpha", "cosAngle Alpha", 200, -1., 1.);
     histo.angle_beta_ = ibook.book1D("cosAngle Beta", "cosAngle Beta", 200, -1., 1.);
-    histo.angle_alpha_alternative_ = ibook.book1D("cosAngle Alpha Alternative", "Angle Alpha Alternative", 200, -1., 1.);
+    histo.angle_alpha_alternative_ = ibook.book1D("cosAngle Alpha Alternative", "Angle Alpha Alternative", 200, 0., 1.);
 
     labelIndex++;
   }
