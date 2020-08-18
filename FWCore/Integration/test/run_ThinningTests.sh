@@ -43,6 +43,7 @@ pushd ${LOCAL_TMP_DIR}
   cmsRun -p ${LOCAL_TEST_DIR}/SlimmingTest3C_cfg.py || die "cmsRun SlimmingTest3C_cfg.py" $?
   cmsRun -p ${LOCAL_TEST_DIR}/SlimmingTest3D_cfg.py || die "cmsRun SlimmingTest3D_cfg.py" $?
   cmsRun -p ${LOCAL_TEST_DIR}/SlimmingTest3E_cfg.py || die "cmsRun SlimmingTest3E_cfg.py" $?
+  cmsRun -p ${LOCAL_TEST_DIR}/SlimmingTest3F_cfg.py || die "cmsRun SlimmingTest3F_cfg.py" $?
 
   cmsRun -p ${LOCAL_TEST_DIR}/SlimmingTest4B_cfg.py || die "cmsRun SlimmingTest4B_cfg.py" $?
   cmsRun -p ${LOCAL_TEST_DIR}/SlimmingTest4F_cfg.py && die "cmsRun SlimmingTest4F_cfg.py" $?
