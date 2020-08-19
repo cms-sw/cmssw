@@ -104,7 +104,7 @@ jetDQMAnalyzerAk4PFUncleaned=jetDQMAnalyzerAk4CaloUncleaned.clone(
        bypassAllPVChecks  = cms.bool(False),
     ),
     #for PFJets: LOOSE,TIGHT
-    JetIDQuality               = cms.string("LOOSE"),
+    JetIDQuality               = cms.string("TIGHT"),
     #options for Calo and JPT: PURE09,DQM09,CRAFT08
     #for PFJets: RUN2ULCHS for 11_1_X onwards
     JetIDVersion               = cms.string("RUN2ULCHS"),
