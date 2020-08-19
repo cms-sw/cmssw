@@ -21,13 +21,11 @@ namespace edm {
     class ThinnedOrSlimmedProduct {
     public:
       ThinnedOrSlimmedProduct() = default;
-      explicit ThinnedOrSlimmedProduct(bool thinnedAvailable) : thinnedAvailable_{thinnedAvailable} {}
       explicit ThinnedOrSlimmedProduct(WrapperBase const* thinned, unsigned int key)
-          : thinnedProduct_{thinned}, thinnedKey_{key}, thinnedAvailable_{true} {}
+          : thinnedProduct_{thinned}, thinnedKey_{key} {}
       explicit ThinnedOrSlimmedProduct(ThinnedAssociation const* slimmed, unsigned int key)
           : slimmedAssociation_{slimmed}, thinnedKey_{key} {}
 
-      bool thinnedAvailable() const { return thinnedAvailable_; }
       bool hasThinned() const { return thinnedProduct_ != nullptr; }
       bool hasSlimmed() const { return slimmedAssociation_ != nullptr; }
 
@@ -43,32 +41,6 @@ namespace edm {
       WrapperBase const* thinnedProduct_ = nullptr;
       ThinnedAssociation const* slimmedAssociation_ = nullptr;
       unsigned int thinnedKey_ = 0;
-      bool thinnedAvailable_ = false;
-    };
-
-    class SlimmedProducts {
-    public:
-      SlimmedProducts() = default;
-      explicit SlimmedProducts(bool thinnedAvailable) : thinnedAvailable_{thinnedAvailable} {}
-      explicit SlimmedProducts(ThinnedAssociation const* slimmed, std::vector<unsigned int> keys)
-          : slimmedAssociation_{slimmed}, slimmedKeys_{std::move(keys)} {}
-
-      SlimmedProducts(SlimmedProducts const&) = delete;
-      SlimmedProducts& operator=(SlimmedProducts const&) = delete;
-      SlimmedProducts(SlimmedProducts&&) = default;
-      SlimmedProducts& operator=(SlimmedProducts&&) = default;
-
-      bool thinnedAvailable() const { return thinnedAvailable_; }
-      bool hasSlimmed() const { return slimmedAssociation_ != nullptr; }
-
-      std::tuple<ThinnedAssociation const*, std::vector<unsigned int>> moveSlimmedAssociation() {
-        return std::tuple(slimmedAssociation_, std::move(slimmedKeys_));
-      }
-
-    private:
-      ThinnedAssociation const* slimmedAssociation_ = nullptr;
-      std::vector<unsigned int> slimmedKeys_;
-      bool thinnedAvailable_ = false;
     };
 
     template <typename F1, typename F2, typename F3>
@@ -80,14 +52,36 @@ namespace edm {
                                                   F3 getByProductID) {
       BranchID parent = pidToBid(pid);
 
+      auto associatedBranches = thinnedAssociationsHelper.parentBegin(parent);
+      auto const iEnd = thinnedAssociationsHelper.parentEnd(parent);
+
+      if (associatedBranches == iEnd) {
+        return ThinnedOrSlimmedProduct();
+      }
+      bool const slimmedAllowed = associatedBranches + 1 == iEnd;
+      if (slimmedAllowed and associatedBranches->isSlimmed()) {
+        // Slimmed container can be considered only if it has no (thinned) siblings
+        ThinnedAssociation const* slimmedAssociation = getThinnedAssociation(associatedBranches->association());
+        if (slimmedAssociation == nullptr or
+            associatedBranches->parent() != pidToBid(slimmedAssociation->parentCollectionID())) {
+          return ThinnedOrSlimmedProduct();
+        }
+
+        // Does this slimmed container have the element referenced by key?
+        auto slimmedIndex = slimmedAssociation->getThinnedIndex(key);
+        if (slimmedIndex.has_value()) {
+          return ThinnedOrSlimmedProduct(slimmedAssociation, *slimmedIndex);
+        } else {
+          return ThinnedOrSlimmedProduct();
+        }
+      }
+
       // Loop over thinned containers which were made by selecting elements from the parent container
-      ThinnedAssociation const* slimmedAssociation = nullptr;
-      unsigned int slimmedIndex = 0;
-      bool thinnedAvailable = false;
-      for (auto associatedBranches = thinnedAssociationsHelper.parentBegin(parent),
-                iEnd = thinnedAssociationsHelper.parentEnd(parent);
-           associatedBranches != iEnd;
-           ++associatedBranches) {
+      for (; associatedBranches != iEnd; ++associatedBranches) {
+        if (associatedBranches->isSlimmed()) {
+          continue;
+        }
+
         ThinnedAssociation const* thinnedAssociation = getThinnedAssociation(associatedBranches->association());
         if (thinnedAssociation == nullptr)
           continue;
@@ -96,31 +90,15 @@ namespace edm {
           continue;
         }
 
-        // Get the thinned container if it exists (need to check
-        // before the key because of constraints on slimmed
-        // containers
-        ProductID const& thinnedCollectionPID = thinnedAssociation->thinnedCollectionID();
-        WrapperBase const* thinnedCollection = getByProductID(thinnedCollectionPID);
-        if (thinnedCollection != nullptr and not associatedBranches->isSlimmed()) {
-          thinnedAvailable = true;
-        }
-
         // Does this thinned container have the element referenced by key?
         auto thinnedIndex = thinnedAssociation->getThinnedIndex(key);
         if (not thinnedIndex.has_value()) {
           continue;
         }
 
-        // if the thinned container is also slimmed, store the
-        // association for possible later use and ignore for now
-        if (associatedBranches->isSlimmed()) {
-          assert(slimmedAssociation == nullptr);
-          slimmedAssociation = thinnedAssociation;
-          slimmedIndex = *thinnedIndex;
-          continue;
-        }
-
         // Return a pointer to thinned container if we can find it
+        ProductID const& thinnedCollectionPID = thinnedAssociation->thinnedCollectionID();
+        WrapperBase const* thinnedCollection = getByProductID(thinnedCollectionPID);
         if (thinnedCollection != nullptr) {
           return ThinnedOrSlimmedProduct(thinnedCollection, *thinnedIndex);
         }
@@ -133,41 +111,80 @@ namespace edm {
                                                       pidToBid,
                                                       getThinnedAssociation,
                                                       getByProductID);
-        if (thinnedOrSlimmed.hasThinned()) {
+        if (thinnedOrSlimmed.hasThinned() or (slimmedAllowed and thinnedOrSlimmed.hasSlimmed())) {
           return thinnedOrSlimmed;
-        } else if (thinnedOrSlimmed.thinnedAvailable()) {
-          thinnedAvailable = true;
-        } else if (thinnedOrSlimmed.hasSlimmed()) {
-          assert(slimmedAssociation == nullptr);
-          std::tie(slimmedAssociation, slimmedIndex) = thinnedOrSlimmed.slimmedAssociation();
         }
       }
 
-      if (not thinnedAvailable and slimmedAssociation != nullptr) {
-        return ThinnedOrSlimmedProduct(slimmedAssociation, slimmedIndex);
+      return ThinnedOrSlimmedProduct();
+    }
+
+    auto makeThinnedIndexes(std::vector<unsigned int> const& keys,
+                            std::vector<WrapperBase const*> const& foundContainers,
+                            ThinnedAssociation const* thinnedAssociation) {
+      unsigned const nKeys = keys.size();
+      std::vector<unsigned int> thinnedIndexes(nKeys, kThinningDoNotLookForThisIndex);
+      bool hasAny = false;
+      for (unsigned k = 0; k < nKeys; ++k) {
+        // Already found this one
+        if (foundContainers[k] != nullptr) {
+          continue;
+        }
+        // Already know this one is not in this thinned container
+        if (keys[k] == kThinningDoNotLookForThisIndex) {
+          continue;
+        }
+        // Does the thinned container hold the entry of interest?
+        if (auto thinnedIndex = thinnedAssociation->getThinnedIndex(keys[k]); thinnedIndex.has_value()) {
+          thinnedIndexes[k] = *thinnedIndex;
+          hasAny = true;
+        }
       }
-      return ThinnedOrSlimmedProduct(thinnedAvailable);
+      return std::tuple(std::move(thinnedIndexes), hasAny);
     }
 
     // the return value is to a slimmed collection in case one is found
     template <typename F1, typename F2, typename F3>
-    SlimmedProducts getThinnedOnlyProducts(ProductID const& pid,
-                                           ThinnedAssociationsHelper const& thinnedAssociationsHelper,
-                                           F1 pidToBid,
-                                           F2 getThinnedAssociation,
-                                           F3 getByProductID,
-                                           std::vector<WrapperBase const*>& foundContainers,
-                                           std::vector<unsigned int>& keys) {
+    std::optional<std::tuple<ThinnedAssociation const*, std::vector<unsigned int>>> getThinnedOnlyProducts(
+        ProductID const& pid,
+        ThinnedAssociationsHelper const& thinnedAssociationsHelper,
+        F1 pidToBid,
+        F2 getThinnedAssociation,
+        F3 getByProductID,
+        std::vector<WrapperBase const*>& foundContainers,
+        std::vector<unsigned int>& keys) {
       BranchID parent = pidToBid(pid);
 
+      auto associatedBranches = thinnedAssociationsHelper.parentBegin(parent);
+      auto const iEnd = thinnedAssociationsHelper.parentEnd(parent);
+
+      if (associatedBranches == iEnd) {
+        return std::nullopt;
+      }
+      bool const slimmedAllowed = associatedBranches + 1 == iEnd;
+      if (slimmedAllowed and associatedBranches->isSlimmed()) {
+        // Slimmed container can be considered only if it has no (thinned) siblings
+        ThinnedAssociation const* slimmedAssociation = getThinnedAssociation(associatedBranches->association());
+        if (slimmedAssociation == nullptr or
+            associatedBranches->parent() != pidToBid(slimmedAssociation->parentCollectionID())) {
+          return std::nullopt;
+        }
+
+        auto [slimmedIndexes, hasAny] = makeThinnedIndexes(keys, foundContainers, slimmedAssociation);
+        // Does this slimmed container have any of the elements referenced by keys?
+        if (hasAny) {
+          return std::tuple(slimmedAssociation, std::move(slimmedIndexes));
+        } else {
+          return std::nullopt;
+        }
+      }
+
       // Loop over thinned containers which were made by selecting elements from the parent container
-      ThinnedAssociation const* slimmedAssociation = nullptr;
-      std::vector<unsigned int> slimmedIndexes;
-      bool thinnedAvailable = false;
-      for (auto associatedBranches = thinnedAssociationsHelper.parentBegin(parent),
-                iEnd = thinnedAssociationsHelper.parentEnd(parent);
-           associatedBranches != iEnd;
-           ++associatedBranches) {
+      for (; associatedBranches != iEnd; ++associatedBranches) {
+        if (associatedBranches->isSlimmed()) {
+          continue;
+        }
+
         ThinnedAssociation const* thinnedAssociation = getThinnedAssociation(associatedBranches->association());
         if (thinnedAssociation == nullptr)
           continue;
@@ -176,48 +193,15 @@ namespace edm {
           continue;
         }
 
-        // Get the thinned container if it exists (need to check
-        // before the key because of constraints on slimmed
-        // containers
-        ProductID thinnedCollectionPID = thinnedAssociation->thinnedCollectionID();
-        WrapperBase const* thinnedCollection = getByProductID(thinnedCollectionPID);
-        if (thinnedCollection != nullptr and not associatedBranches->isSlimmed()) {
-          thinnedAvailable = true;
-        }
-
-        unsigned nKeys = keys.size();
-        std::vector<unsigned int> thinnedIndexes(nKeys, kThinningDoNotLookForThisIndex);
-        bool hasAny = false;
-        for (unsigned k = 0; k < nKeys; ++k) {
-          // Already found this one
-          if (foundContainers[k] != nullptr) {
-            continue;
-          }
-          // Already know this one is not in this thinned container
-          if (keys[k] == kThinningDoNotLookForThisIndex) {
-            continue;
-          }
-          // Does the thinned container hold the entry of interest?
-          if (auto thinnedIndex = thinnedAssociation->getThinnedIndex(keys[k]); thinnedIndex.has_value()) {
-            thinnedIndexes[k] = *thinnedIndex;
-            hasAny = true;
-          }
-        }
+        auto [thinnedIndexes, hasAny] = makeThinnedIndexes(keys, foundContainers, thinnedAssociation);
         if (!hasAny) {
           continue;
         }
 
-        // if the thinned container is also slimmed, store the
-        // association and the keys to thinned for possible later use
-        // and ignore for now
-        if (associatedBranches->isSlimmed()) {
-          assert(slimmedAssociation == nullptr);
-          slimmedAssociation = thinnedAssociation;
-          slimmedIndexes = std::move(thinnedIndexes);
-          continue;
-        }
-
         // Set the pointers and indexes into the thinned container (if we can find it)
+        ProductID thinnedCollectionPID = thinnedAssociation->thinnedCollectionID();
+        WrapperBase const* thinnedCollection = getByProductID(thinnedCollectionPID);
+        unsigned const nKeys = keys.size();
         if (thinnedCollection == nullptr) {
           // Thinned container is not found, try looking recursively in thinned containers
           // which were made by selecting elements from this thinned container.
@@ -228,11 +212,8 @@ namespace edm {
                                                 getByProductID,
                                                 foundContainers,
                                                 thinnedIndexes);
-          if (slimmed.thinnedAvailable()) {
-            thinnedAvailable = true;
-          } else if (slimmed.hasSlimmed()) {
-            assert(slimmedAssociation == nullptr);
-            std::tie(slimmedAssociation, slimmedIndexes) = slimmed.moveSlimmedAssociation();
+          if (slimmedAllowed and slimmed.has_value()) {
+            return slimmed;
           }
           for (unsigned k = 0; k < nKeys; ++k) {
             if (foundContainers[k] == nullptr)
@@ -250,10 +231,7 @@ namespace edm {
           }
         }
       }
-      if (not thinnedAvailable and slimmedAssociation != nullptr) {
-        return SlimmedProducts(slimmedAssociation, std::move(slimmedIndexes));
-      }
-      return SlimmedProducts(thinnedAvailable);
+      return std::nullopt;
     }
 
     // This function provides a common implementation of
@@ -323,9 +301,9 @@ namespace edm {
                             std::vector<unsigned int>& keys) {
       auto slimmed = getThinnedOnlyProducts(
           pid, thinnedAssociationsHelper, pidToBid, getThinnedAssociation, getByProductID, foundContainers, keys);
-      if (not slimmed.thinnedAvailable() and slimmed.hasSlimmed()) {
+      if (slimmed.has_value()) {
         // no thinned procucts found, try out slimmed next if one is available
-        auto [slimmedAssociation, slimmedIndexes] = slimmed.moveSlimmedAssociation();
+        auto [slimmedAssociation, slimmedIndexes] = std::move(*slimmed);
         ProductID const& slimmedCollectionPID = slimmedAssociation->thinnedCollectionID();
         WrapperBase const* slimmedCollection = getByProductID(slimmedCollectionPID);
         unsigned const nKeys = keys.size();
