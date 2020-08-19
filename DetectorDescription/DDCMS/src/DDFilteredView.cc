@@ -15,7 +15,6 @@ using namespace std;
 using namespace cms::dd;
 using namespace dd4hep::dd;
 
-
 dd4hep::Solid DDSolid::solidA() const {
   if (dd4hep::isA<dd4hep::SubtractionSolid>(solid_) or dd4hep::isA<dd4hep::UnionSolid>(solid_) or
       dd4hep::isA<dd4hep::IntersectionSolid>(solid_)) {
