@@ -82,8 +82,8 @@
  */
 /*****************************************************************************/
 
-#ifndef portable_iarchive_hpp
-#define portable_iarchive_hpp
+#ifndef CondFormats_Serialization_portable_iarchive_hpp
+#define CondFormats_Serialization_portable_iarchive_hpp
 
 #include <istream>
 
