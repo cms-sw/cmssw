@@ -14,6 +14,7 @@
 #include <map>
 #include <list>
 #include <memory>
+#include "DataFormats/MuonDetId/interface/RPCDetId.h"
 
 class DDCompactView;
 class DDFilteredView;
@@ -24,7 +25,6 @@ namespace cms {
   struct DDSpecParRegistry;
 }  // namespace cms
 class RPCGeometry;
-class RPCDetId;
 class RPCRoll;
 class MuonGeometryConstants;
 
