@@ -73,7 +73,7 @@ void PFDisplacedVertexCandidateFinder::setInput(const edm::Handle<TrackCollectio
       eventTrackTrajectories_[i] = getGlobalTrajectoryParameters(trk);
     }
   }
-  el_table_ = edm::soa::makePtEtaPhiTable(*trackh);
+  track_table_ = edm::soa::makePtEtaPhiTable(*trackh);
 }
 
 // -------- Main function which find vertices -------- //
@@ -180,12 +180,12 @@ void PFDisplacedVertexCandidateFinder::link(const TrackBaseRef& el1,
   using namespace edm::soa::col;
   const auto iel1 = el1.key();
   const auto iel2 = el2.key();
-  const auto pt1 = el_table_.get<Pt>(iel1);
-  const auto pt2 = el_table_.get<Pt>(iel2);
-  const auto eta1 = el_table_.get<Eta>(iel1);
-  const auto eta2 = el_table_.get<Eta>(iel2);
-  const auto phi1 = el_table_.get<Phi>(iel1);
-  const auto phi2 = el_table_.get<Phi>(iel2);
+  const auto pt1 = track_table_.get<Pt>(iel1);
+  const auto pt2 = track_table_.get<Pt>(iel2);
+  const auto eta1 = track_table_.get<Eta>(iel1);
+  const auto eta2 = track_table_.get<Eta>(iel2);
+  const auto phi1 = track_table_.get<Phi>(iel1);
+  const auto phi2 = track_table_.get<Phi>(iel2);
 
   if (std::abs(eta1 - eta2) > 1) {
     dist = -1;
