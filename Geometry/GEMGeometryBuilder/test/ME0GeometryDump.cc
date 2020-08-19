@@ -55,7 +55,7 @@ void ME0GeometryDump::analyze(const edm::Event& event, const edm::EventSetup& ev
       auto const& layers = chambers[k1]->layers();
 
       for (unsigned int k2 = 0; k2 < layers.size(); ++k2) {
-        edm::LogVerbatim("ME0Geometry") << "\nLayer " << k2 << ":" << chambers[k2]->id() << " with "
+        edm::LogVerbatim("ME0Geometry") << "\nLayer " << k2 << ":" << layers[k2]->id() << " with "
                                         << layers[k2]->nEtaPartitions() << " etaPartitions";
         auto const& etaPartitions = layers[k2]->etaPartitions();
 
