@@ -3,7 +3,7 @@ import FWCore.ParameterSet.Config as cms
 hltPhase2L1TrackSeedsFromL1Tracks = cms.EDProducer(
     "SeedGeneratorFromL1TTracksEDProducer",
     InputCollection=cms.InputTag("TTTracksFromTrackletEmulation", "Level1TTTracks"),
-    MeasurementTrackerEvent=cms.InputTag("MeasurementTrackerEvent"),
+    MeasurementTrackerEvent=cms.InputTag("hltPhase2MeasurementTrackerEvent"),
     errorSFHitless=cms.double(1e-09),
     estimator=cms.string("hltPhase2L1TrackStepChi2Est"),
     maxEtaForTOB=cms.double(1.2),
@@ -13,7 +13,7 @@ hltPhase2L1TrackSeedsFromL1Tracks = cms.EDProducer(
 
 hltPhase2L1TrackCandidates = cms.EDProducer(
     "CkfTrackCandidateMaker",
-    MeasurementTrackerEvent=cms.InputTag("MeasurementTrackerEvent"),
+    MeasurementTrackerEvent=cms.InputTag("hltPhase2MeasurementTrackerEvent"),
     NavigationSchool=cms.string("SimpleNavigationSchool"),
     RedundantSeedCleaner=cms.string("CachingSeedCleanerBySharedInput"),
     SimpleMagneticField=cms.string(""),
@@ -44,7 +44,7 @@ hltPhase2L1CtfTracks = cms.EDProducer(
     Fitter=cms.string("FlexibleKFFittingSmoother"),
     GeometricInnerState=cms.bool(False),
     MeasurementTracker=cms.string(""),
-    MeasurementTrackerEvent=cms.InputTag("MeasurementTrackerEvent"),
+    MeasurementTrackerEvent=cms.InputTag("hltPhase2MeasurementTrackerEvent"),
     NavigationSchool=cms.string("SimpleNavigationSchool"),
     Propagator=cms.string("RungeKuttaTrackerPropagator"),
     SimpleMagneticField=cms.string(""),

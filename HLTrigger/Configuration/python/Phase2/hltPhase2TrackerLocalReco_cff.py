@@ -19,9 +19,9 @@ from RecoTracker.TkSeedGenerator.trackerClusterCheckDefault_cfi import (
     trackerClusterCheckDefault as _trackerClusterCheckDefault,
 )
 
-siPhase2Clusters = _siPhase2Clusters.clone()
+hltPhase2siPhase2Clusters = _siPhase2Clusters.clone()
 
-siPixelClusters = _SiPixelClusterizerDefault.clone(
+hltPhase2siPixelClusters = _SiPixelClusterizerDefault.clone(
     ElectronPerADCGain=600.0,
     MissCalibrate=False,
     Phase2Calibration=True,
@@ -32,24 +32,29 @@ siPixelClusters = _SiPixelClusterizerDefault.clone(
     src=cms.InputTag("simSiPixelDigis", "Pixel"),
 )
 
-siPixelClusterShapeCache = _siPixelClusterShapeCache.clone()
+hltPhase2siPixelClusterShapeCache = _siPixelClusterShapeCache.clone(
+    src=cms.InputTag("hltPhase2siPixelClusters")
+)
 
-siPixelRecHits = _siPixelRecHits.clone()
+hltPhase2siPixelRecHits = _siPixelRecHits.clone(
+    src=cms.InputTag("hltPhase2siPixelClusters")
+)
 
-MeasurementTrackerEvent = _measurementTrackerEventDefault.clone(
-    Phase2TrackerCluster1DProducer="siPhase2Clusters",
+hltPhase2MeasurementTrackerEvent = _measurementTrackerEventDefault.clone(
+    Phase2TrackerCluster1DProducer="hltPhase2siPhase2Clusters",
     badPixelFEDChannelCollectionLabels=cms.VInputTag("siPixelDigis"),
     inactivePixelDetectorLabels=cms.VInputTag(),
+    pixelClusterProducer=cms.string("hltPhase2siPixelClusters"),
     stripClusterProducer="",
 )
 
-trackerClusterCheck = _trackerClusterCheckDefault.clone(doClusterCheck=False)
+hltPhase2trackerClusterCheck = _trackerClusterCheckDefault.clone(doClusterCheck=False)
 
 hltPhase2TrackerLocalRecoSequence = cms.Sequence(
-    siPixelClusters
-    + siPixelClusterShapeCache
-    + siPixelRecHits
-    + siPhase2Clusters
-    + MeasurementTrackerEvent
-    + trackerClusterCheck
+    hltPhase2siPixelClusters
+    + hltPhase2siPixelClusterShapeCache
+    + hltPhase2siPixelRecHits
+    + hltPhase2siPhase2Clusters
+    + hltPhase2MeasurementTrackerEvent
+    + hltPhase2trackerClusterCheck
 )

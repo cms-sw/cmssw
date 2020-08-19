@@ -15,7 +15,7 @@ hltPhase2InitialStepSeeds = cms.EDProducer(
 
 hltPhase2InitialStepTrackCandidates = cms.EDProducer(
     "CkfTrackCandidateMaker",
-    MeasurementTrackerEvent=cms.InputTag("MeasurementTrackerEvent"),
+    MeasurementTrackerEvent=cms.InputTag("hltPhase2MeasurementTrackerEvent"),
     NavigationSchool=cms.string("SimpleNavigationSchool"),
     RedundantSeedCleaner=cms.string("CachingSeedCleanerBySharedInput"),
     SimpleMagneticField=cms.string("ParabolicMf"),
@@ -46,7 +46,7 @@ hltPhase2InitialStepTracks = cms.EDProducer(
     Fitter=cms.string("FlexibleKFFittingSmoother"),
     GeometricInnerState=cms.bool(False),
     MeasurementTracker=cms.string(""),
-    MeasurementTrackerEvent=cms.InputTag("MeasurementTrackerEvent"),
+    MeasurementTrackerEvent=cms.InputTag("hltPhase2MeasurementTrackerEvent"),
     NavigationSchool=cms.string("SimpleNavigationSchool"),
     Propagator=cms.string("RungeKuttaTrackerPropagator"),
     SimpleMagneticField=cms.string(""),

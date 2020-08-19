@@ -8,8 +8,8 @@ hltPhase2HighPtTripletStepClusters = cms.EDProducer(
     minNumberOfLayersWithMeasBeforeFiltering=cms.int32(0),
     oldClusterRemovalInfo=cms.InputTag("hltPhase2PixelTrackClusters"),
     overrideTrkQuals=cms.InputTag(""),
-    phase2OTClusters=cms.InputTag("siPhase2Clusters"),
-    phase2pixelClusters=cms.InputTag("siPixelClusters"),
+    phase2OTClusters=cms.InputTag("hltPhase2siPhase2Clusters"),
+    phase2pixelClusters=cms.InputTag("hltPhase2siPixelClusters"),
     trackClassifier=cms.InputTag("", "QualityMasks"),
     trajectories=cms.InputTag("hltPhase2InitialStepTracks"),
 )
@@ -17,12 +17,12 @@ hltPhase2HighPtTripletStepClusters = cms.EDProducer(
 hltPhase2HighPtTripletStepSeedLayers = cms.EDProducer(
     "SeedingLayersEDProducer",
     BPix=cms.PSet(
-        HitProducer=cms.string("siPixelRecHits"),
+        HitProducer=cms.string("hltPhase2siPixelRecHits"),
         TTRHBuilder=cms.string("WithTrackAngle"),
         skipClusters=cms.InputTag("hltPhase2HighPtTripletStepClusters"),
     ),
     FPix=cms.PSet(
-        HitProducer=cms.string("siPixelRecHits"),
+        HitProducer=cms.string("hltPhase2siPixelRecHits"),
         TTRHBuilder=cms.string("WithTrackAngle"),
         skipClusters=cms.InputTag("hltPhase2HighPtTripletStepClusters"),
     ),
@@ -81,7 +81,7 @@ hltPhase2HighPtTripletStepTrackingRegions = cms.EDProducer(
 
 hltPhase2HighPtTripletStepHitDoublets = cms.EDProducer(
     "HitPairEDProducer",
-    clusterCheck=cms.InputTag("trackerClusterCheck"),
+    clusterCheck=cms.InputTag("hltPhase2trackerClusterCheck"),
     layerPairs=cms.vuint32(0, 1),
     maxElement=cms.uint32(50000000),
     maxElementTotal=cms.uint32(50000000),
@@ -100,7 +100,7 @@ hltPhase2HighPtTripletStepHitTriplets = cms.EDProducer(
     CAThetaCut=cms.double(0.003),
     SeedComparitorPSet=cms.PSet(
         ComponentName=cms.string("LowPtClusterShapeSeedComparitor"),
-        clusterShapeCacheSrc=cms.InputTag("siPixelClusterShapeCache"),
+        clusterShapeCacheSrc=cms.InputTag("hltPhase2siPixelClusterShapeCache"),
         clusterShapeHitFilter=cms.string("ClusterShapeHitFilter"),
     ),
     doublets=cms.InputTag("hltPhase2HighPtTripletStepHitDoublets"),
@@ -138,7 +138,7 @@ hltPhase2HighPtTripletStepSeeds = cms.EDProducer(
 
 hltPhase2HighPtTripletStepTrackCandidates = cms.EDProducer(
     "CkfTrackCandidateMaker",
-    MeasurementTrackerEvent=cms.InputTag("MeasurementTrackerEvent"),
+    MeasurementTrackerEvent=cms.InputTag("hltPhase2MeasurementTrackerEvent"),
     NavigationSchool=cms.string("SimpleNavigationSchool"),
     RedundantSeedCleaner=cms.string("CachingSeedCleanerBySharedInput"),
     SimpleMagneticField=cms.string("ParabolicMf"),
@@ -172,7 +172,7 @@ hltPhase2HighPtTripletStepTracks = cms.EDProducer(
     Fitter=cms.string("FlexibleKFFittingSmoother"),
     GeometricInnerState=cms.bool(False),
     MeasurementTracker=cms.string(""),
-    MeasurementTrackerEvent=cms.InputTag("MeasurementTrackerEvent"),
+    MeasurementTrackerEvent=cms.InputTag("hltPhase2MeasurementTrackerEvent"),
     NavigationSchool=cms.string("SimpleNavigationSchool"),
     Propagator=cms.string("RungeKuttaTrackerPropagator"),
     SimpleMagneticField=cms.string(""),

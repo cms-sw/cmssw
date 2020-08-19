@@ -5,4 +5,6 @@ from RecoPixelVertexing.PixelLowPtUtilities.ClusterShapeTrajectoryFilter_cfi imp
 )
 
 ### This is a PSet, bad idea to change its label.
-ClusterShapeTrajectoryFilter = _ClusterShapeTrajectoryFilter.clone()
+ClusterShapeTrajectoryFilter = _ClusterShapeTrajectoryFilter.clone(
+    cacheSrc = cms.InputTag("hltPhase2siPixelClusterShapeCache")
+)

@@ -8,8 +8,8 @@ hltPhase2PixelTrackClusters = cms.EDProducer(
     minNumberOfLayersWithMeasBeforeFiltering=cms.int32(0),
     oldClusterRemovalInfo=cms.InputTag(""),
     overrideTrkQuals=cms.InputTag(""),
-    phase2OTClusters=cms.InputTag("siPhase2Clusters"),
-    phase2pixelClusters=cms.InputTag("siPixelClusters"),
+    phase2OTClusters=cms.InputTag("hltPhase2siPhase2Clusters"),
+    phase2pixelClusters=cms.InputTag("hltPhase2siPixelClusters"),
     trackClassifier=cms.InputTag("", "QualityMasks"),
     trajectories=cms.InputTag("hltPhase2L1CtfTracks"),
 )
@@ -43,12 +43,12 @@ hltPhase2PixelTracksTrackingRegions = cms.EDProducer(
 hltPhase2PixelTracksSeedLayers = cms.EDProducer(
     "SeedingLayersEDProducer",
     BPix=cms.PSet(
-        HitProducer=cms.string("siPixelRecHits"),
+        HitProducer=cms.string("hltPhase2siPixelRecHits"),
         TTRHBuilder=cms.string("WithTrackAngle"),
         skipClusters=cms.InputTag("hltPhase2PixelTrackClusters"),
     ),
     FPix=cms.PSet(
-        HitProducer=cms.string("siPixelRecHits"),
+        HitProducer=cms.string("hltPhase2siPixelRecHits"),
         TTRHBuilder=cms.string("WithTrackAngle"),
         skipClusters=cms.InputTag("hltPhase2PixelTrackClusters"),
     ),
@@ -101,7 +101,7 @@ hltPhase2PixelTracksHitSeeds = cms.EDProducer(
     CAThetaCut=cms.double(0.0012),
     SeedComparitorPSet=cms.PSet(
         ComponentName=cms.string("LowPtClusterShapeSeedComparitor"),
-        clusterShapeCacheSrc=cms.InputTag("siPixelClusterShapeCache"),
+        clusterShapeCacheSrc=cms.InputTag("hltPhase2siPixelClusterShapeCache"),
         clusterShapeHitFilter=cms.string("ClusterShapeHitFilter"),
     ),
     doublets=cms.InputTag("hltPhase2PixelTracksHitDoublets"),
