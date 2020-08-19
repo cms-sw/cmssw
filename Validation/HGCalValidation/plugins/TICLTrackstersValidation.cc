@@ -24,6 +24,7 @@ struct Histogram_TICLTrackstersValidation {
   dqm::reco::MonitorElement* energy_;
   dqm::reco::MonitorElement* delta_energy_;
   dqm::reco::MonitorElement* delta_energy_vs_energy_;
+  dqm::reco::MonitorElement* delta_energy_vs_layer_;
   dqm::reco::MonitorElement* delta_layer_;
   // For the definition of the angles, read http://hgcal.web.cern.ch/hgcal/Reconstruction/Tutorial/
   dqm::reco::MonitorElement* angle_alpha_;
@@ -75,6 +76,7 @@ TICLTrackstersValidation::~TICLTrackstersValidation() {}
 void TICLTrackstersValidation::dqmAnalyze(edm::Event const& iEvent,
                                           edm::EventSetup const& iSetup,
                                           Histograms_TICLTrackstersValidation const& histos) const {
+
   edm::Handle<std::vector<reco::CaloCluster>> layerClustersH;
   iEvent.getByToken(layerClustersToken_, layerClustersH);
   auto const& layerClusters = *layerClustersH.product();
@@ -87,7 +89,6 @@ void TICLTrackstersValidation::dqmAnalyze(edm::Event const& iEvent,
   iEvent.getByToken(ticlSeedingTrkToken_, ticlSeedingTrkH);
   auto const& ticlSeedingTrk = *ticlSeedingTrkH.product();
 
-  int layers = rhtools_.lastLayer();
   for (const auto& trackster_token : tracksterTokens_) {
     edm::Handle<std::vector<Trackster>> trackster_h;
     iEvent.getByToken(trackster_token, trackster_h);
@@ -102,10 +103,11 @@ void TICLTrackstersValidation::dqmAnalyze(edm::Event const& iEvent,
         auto & oc = layerClusters[edge[1]];
         auto const & cl_in = ic.hitsAndFractions()[0].first;
         auto const & cl_out = oc.hitsAndFractions()[0].first;
-        auto const layer_in = rhtools_.getLayerWithOffset(cl_in) + layers * ((rhtools_.zside(cl_in) + 1) >> 1) - 1;
-        auto const layer_out = rhtools_.getLayerWithOffset(cl_out) + layers * ((rhtools_.zside(cl_out) + 1) >> 1) - 1;
+        auto const layer_in = rhtools_.getLayerWithOffset(cl_in);
+        auto const layer_out = rhtools_.getLayerWithOffset(cl_out);
         histo.delta_energy_->Fill(oc.energy() - ic.energy());
         histo.delta_energy_vs_energy_->Fill(oc.energy() - ic.energy(), ic.energy());
+        histo.delta_energy_vs_layer_->Fill(layer_in, oc.energy() - ic.energy());
         histo.delta_layer_->Fill(layer_out - layer_in);
 
         // Alpha angles
@@ -166,6 +168,7 @@ void TICLTrackstersValidation::bookHistograms(DQMStore::IBooker& ibook,
     histo.energy_ = ibook.book1D("Regressed Energy", "Energy", 250, 0., 250.);
     histo.delta_energy_ = ibook.book1D("Delta energy", "Delta Energy (O-I)", 800, -20., 20.);
     histo.delta_energy_vs_energy_ = ibook.book2D("Energy vs Delta Energy", "Energy (I) vs Delta Energy (O-I)", 800, -20., 20., 200, 0., 20.);
+    histo.delta_energy_vs_layer_ = ibook.book2D("Delta Energy (O-I) vs Layer Number (I)", "Delta Energy (O-I) vs Layer Number (I)", 120, 0., 120., 800, -20., 20.);
     histo.delta_layer_ = ibook.book1D("Delta Layer", "Delta Layer", 10, 0., 10.);
     histo.angle_alpha_ = ibook.book1D("cosAngle Alpha", "cosAngle Alpha", 200, -1., 1.);
     histo.angle_beta_ = ibook.book1D("cosAngle Beta", "cosAngle Beta", 200, -1., 1.);
