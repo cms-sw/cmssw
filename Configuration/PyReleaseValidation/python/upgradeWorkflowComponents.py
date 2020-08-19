@@ -1,7 +1,7 @@
 from copy import deepcopy
 from collections import OrderedDict
 import six
-from .MatrixUtil import merge
+from .MatrixUtil import merge, Kby
 
 # DON'T CHANGE THE ORDER, only append new keys. Otherwise the numbering for the runTheMatrix tests will change.
 
@@ -949,7 +949,6 @@ for year in upgradeKeys:
         if 'PU' in key: continue
         defaultDataSets[key] = ''
 
-from  Configuration.PyReleaseValidation.relval_steps import Kby
 
 class UpgradeFragment(object):
     def __init__(self, howMuch, dataset):
