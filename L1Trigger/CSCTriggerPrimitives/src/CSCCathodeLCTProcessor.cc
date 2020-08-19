@@ -679,9 +679,6 @@ std::vector<CSCCLCTDigi> CSCCathodeLCTProcessor::findLCTs(
             int halfstrip_in_cfeb = keystrip_data[ilct][CLCT_STRIP] -
                                     CSCConstants::NUM_HALF_STRIPS_PER_CFEB * keystrip_data[ilct][CLCT_CFEB];
 
-            // this slope value will be overwritten when CCLUT is enabled
-            int slope = qualityControl_->getSlopePhase1(keystrip_data[ilct][CLCT_PATTERN]);
-
             if (infoV > 1)
               LogTrace("CSCCathodeLCTProcessor")
                   << " Final selection: ilct " << ilct << " key halfstrip " << keystrip_data[ilct][CLCT_STRIP]
