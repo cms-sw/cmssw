@@ -1,4 +1,5 @@
 from copy import deepcopy
+from .MatrixUtil import Kby
 
 # DON'T CHANGE THE ORDER, only append new keys. Otherwise the numbering for the runTheMatrix tests will change.
 
@@ -469,8 +470,6 @@ upgradeProperties[2023]['2023D41PU']['ScenToRun'] = ['GenSimHLBeamSpotFull','Dig
 upgradeProperties[2023]['2023D42PU'] = deepcopy(upgradeProperties[2023]['2023D42'])
 upgradeProperties[2023]['2023D42PU']['ScenToRun'] = ['GenSimHLBeamSpotFull','DigiFullTriggerPU','RecoFullGlobalPU', 'HARVESTFullGlobalPU']
 
-
-from  Configuration.PyReleaseValidation.relval_steps import Kby
 
 upgradeFragments=['FourMuPt_1_200_pythia8_cfi',
                   'SingleElectronPt10_pythia8_cfi',
