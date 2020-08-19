@@ -31,7 +31,9 @@
 # |   |
 # |   \- thinningThingProducerBF (6-8)
 # |
-# \-- thinningThingProducerC (11-19)
+# |\- thinningThingProducerC (11-19)
+# |
+# \-- thinningThingProducerH (0-19), no product because of event filtering
 #
 # cases to be tested
 # A:  everything can be put in one file, when reading thinned are read
@@ -53,8 +55,9 @@
 #   - slim ABE further to ABEF
 #   - then try to merge with B file with BEG, should fail
 # G: file including A
-#    - try to thin from thingProducer, should fail
-
+#   - try to thin from thingProducer, should fail
+# H: file including H, B
+#   - non-existing H is preferred, all Refs are Null
 
 import FWCore.ParameterSet.Config as cms
 
@@ -90,6 +93,7 @@ process.trackOfThingsProducerD = process.trackOfThingsProducerA.clone(keysToRefe
 process.trackOfThingsProducerE = process.trackOfThingsProducerA.clone(keysToReference = range(6,11))
 process.trackOfThingsProducerF = process.trackOfThingsProducerA.clone(keysToReference = range(6,9))
 process.trackOfThingsProducerG = process.trackOfThingsProducerA.clone(keysToReference = range(9,11))
+process.trackOfThingsProducerH = process.trackOfThingsProducerA.clone()
 
 process.thinningThingProducerA = cms.EDProducer("ThinningThingProducer",
     inputTag = cms.InputTag('thingProducer'),
@@ -171,6 +175,15 @@ process.thinningThingProducerC = cms.EDProducer("ThinningThingProducer",
     expectedCollectionSize = cms.uint32(50)
 )
 
+process.thinningThingProducerH = cms.EDProducer("ThinningThingProducer",
+    inputTag = cms.InputTag('thingProducer'),
+    trackTag = cms.InputTag('trackOfThingsProducerH'),
+    offsetToThinnedKey = cms.uint32(0),
+    expectedCollectionSize = cms.uint32(50)
+)
+process.rejectingFilter = cms.EDFilter("TestFilterModule",
+    acceptValue = cms.untracked.int32(-1)
+)
 
 process.testA = cms.EDAnalyzer("ThinningTestAnalyzer",
     parentTag = cms.InputTag('thingProducer'),
@@ -318,6 +331,16 @@ process.outG = cms.OutputModule("PoolOutputModule",
     )
 )
 
+process.outH = cms.OutputModule("PoolOutputModule",
+    fileName = cms.untracked.string('testSlimmingTest1H.root'),
+    outputCommands = cms.untracked.vstring(
+        'drop *',
+        'keep *_thinningThingProducerB_*_*',
+        'keep *_trackOfThingsProducerH_*_*',
+        'keep *_thinningThingProducerH_*_*',
+    )
+)
+
 
 process.p = cms.Path(
     process.thingProducer
@@ -347,7 +370,12 @@ process.p = cms.Path(
     * process.testBE
     * process.testBEG
 )
-
+process.p2 = cms.Path(
+    process.thingProducer
+    * process.trackOfThingsProducerH
+    * process.rejectingFilter
+    * process.thinningThingProducerH
+)
 
 process.ep = cms.EndPath(
     process.outA
@@ -357,4 +385,5 @@ process.ep = cms.EndPath(
     * process.outE
     * process.outF
     * process.outG
+    * process.outH
 )
