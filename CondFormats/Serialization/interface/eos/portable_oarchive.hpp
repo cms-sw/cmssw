@@ -85,8 +85,8 @@
  */
 /*****************************************************************************/
 
-#ifndef portable_oarchive_hpp
-#define portable_oarchive_hpp
+#ifndef CondFormats_Serialization_portable_oarchive_hpp
+#define CondFormats_Serialization_portable_oarchive_hpp
 
 #include <ostream>
 
