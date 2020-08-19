@@ -153,7 +153,7 @@ private:
   // Tracker geometry for extrapolation
   const MagneticField* magField_;
 
-  edm::soa::PtEtaPhiTable el_table_;
+  edm::soa::PtEtaPhiTable track_table_;
 };
 
 #endif
