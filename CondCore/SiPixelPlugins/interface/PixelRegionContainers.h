@@ -430,7 +430,6 @@ namespace PixelRegions {
 
   private:
     const TrackerTopology* m_trackerTopo;
-    const bool m_isPhase1;
     bool m_isTrackerTopologySet;
     SiPixelPI::phase m_Phase;
     std::map<PixelId, std::shared_ptr<TH1F>> m_theMap;

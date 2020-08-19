@@ -41,11 +41,30 @@ namespace SiPixelPI {
   // size of the phase-0 pixel detID list
   static const unsigned int phase0size = 1440;
   static const unsigned int phase1size = 1856;
+  static const unsigned int phase2size = 3892;
 
   //============================================================================
   // struct to store info useful to construct topology based on the detid list
   struct PhaseInfo {
+    // construct with det size
     PhaseInfo(unsigned int size) : m_detsize(size) {}
+    // construct passing the phase
+    PhaseInfo(const phase& thePhase) {
+      switch (thePhase) {
+        case phase::zero:
+          m_detsize = phase0size;
+          break;
+        case phase::one:
+          m_detsize = phase1size;
+          break;
+        case phase::two:
+          m_detsize = phase2size;
+          break;
+        default:
+          m_detsize = 99999;
+          edm::LogError("PhaseInfo") << "undefined phase: " << thePhase;
+      }
+    }
     virtual ~PhaseInfo() { edm::LogInfo("PhaseInfo") << "PhaseInfo::~PhaseInfo()\n"; }
     const SiPixelPI::phase phase() const {
       if (m_detsize == phase0size)
