@@ -23,7 +23,7 @@
 //             7-11:   RBX # to be excluded (maximum 5 bits needed for RBX)
 //               12: 0 varying ranges of p depending on |ieta|
 //                   1 constant p ranges
-//            13-15: 0 no cut on ediff; 1-14 cuts at 5, 10, 15, 20 GeV
+//            13-15: 0 no cut on ediff; 1-4 cuts at 5, 10, 15, 20 GeV
 //      modeLHC (integer) specifies the detector condition
 //              0      Run1   detector (till 2016)
 //              1      Plan36 detector (2018)
@@ -258,7 +258,7 @@ void AnalyzeLepTree::Init(TChain* tree) {
   else if (modeLHC_ == 1)
     std::cout << "This is Plan36 detector (2018)\n";
   else if (modeLHC_ == 2)
-    std::cout << "This is Phase1 detector (after 2020)\n";
+    std::cout << "This is Phase1 detector (after 2021)\n";
   else if (modeLHC_ == 3)
     std::cout << "This is Plan1  detector (2017)\n";
   else

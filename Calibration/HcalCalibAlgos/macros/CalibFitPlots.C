@@ -54,8 +54,9 @@
 //      Defaults: save=false
 //
 //             For plotting correction factors
-//  PlotHistCorrFactor(infile, text, prefixF, scale, nmin, save);
-//      Defaults: nmin=100, save=false
+//  PlotHistCorrFactor(infile, text, prefixF, scale, nmin, dataMC,
+//                    drawStatBox, save);
+//      Defaults: dataMC=true, drwaStatBox=false, nmin=100, save=false
 //
 //             For plotting (fractional) asymmetry in the correction factors
 //
@@ -934,37 +935,28 @@ void PlotHist(const char* infile,
   std::string name1[5] = {"Z0", "Z1", "Z2", "Z3", "Z4"};
   std::string name2[5] = {"L0", "L1", "L2", "L3", "L4"};
   std::string name3[5] = {"V0", "V1", "V2", "V3", "V4"};
-  std::string name4[12] = {"etaB31",
-                           "etaB32",
-                           "etaB33",
-                           "etaB34",
-                           "etaB11",
-                           "etaB12",
-                           "etaB13",
-                           "etaB14",
-                           "etaB01",
-                           "etaB02",
-                           "etaB03",
-                           "etaB04"};
+  std::string name4[12] = {"etaB31", "etaB32", "etaB33", "etaB34",
+			   "etaB11", "etaB12", "etaB13", "etaB14",
+			   "etaB01", "etaB02", "etaB03", "etaB04"};
   std::string name5[5] = {"W0", "W1", "W2", "W3", "W4"};
   std::string title[6] = {"Tracks with p = 10:20 GeV",
-                          "Tracks with p = 20:30 GeV",
+			  "Tracks with p = 20:30 GeV",
                           "Tracks with p = 30:40 GeV",
                           "Tracks with p = 40:60 GeV",
                           "Tracks with p = 60:100 GeV",
                           "Tracks with p = 20:100 GeV"};
   std::string title1[12] = {"Tracks with p = 40:60 GeV (Barrel)",
-                            "Tracks with p = 40:60 GeV (Transition)",
-                            "Tracks with p = 40:60 GeV (Endcap)",
-                            "Tracks with p = 40:60 GeV",
-                            "Tracks with p = 20:30 GeV (Barrel)",
-                            "Tracks with p = 20:30 GeV (Transition)",
-                            "Tracks with p = 20:30 GeV (Endcap)",
-                            "Tracks with p = 20:30 GeV",
-                            "Tracks with p = 10:20 GeV (Barrel)",
-                            "Tracks with p = 10:20 GeV (Transition)",
-                            "Tracks with p = 10:20 GeV (Endcap)",
-                            "Tracks with p = 10:20 GeV"};
+			    "Tracks with p = 40:60 GeV (Transition)",
+			    "Tracks with p = 40:60 GeV (Endcap)",
+			    "Tracks with p = 40:60 GeV",
+			    "Tracks with p = 20:30 GeV (Barrel)",
+			    "Tracks with p = 20:30 GeV (Transition)",
+			    "Tracks with p = 20:30 GeV (Endcap)",
+			    "Tracks with p = 20:30 GeV",
+			    "Tracks with p = 10:20 GeV (Barrel)",
+			    "Tracks with p = 10:20 GeV (Transition)",
+			    "Tracks with p = 10:20 GeV (Endcap)",
+			    "Tracks with p = 10:20 GeV"};
   std::string xtitl[5] = {"E_{HCAL}/(p-E_{ECAL})", "i#eta", "d_{L1}", "# Vertex", "E_{HCAL}/(p-E_{ECAL})"};
   std::string ytitl[5] = {
       "Tracks", "MPV(E_{HCAL}/(p-E_{ECAL}))", "MPV(E_{HCAL}/(p-E_{ECAL}))", "MPV(E_{HCAL}/(p-E_{ECAL}))", "Tracks"};
@@ -1735,8 +1727,14 @@ void PlotHistCorrResults(std::string infile, std::string text, std::string prefi
   }
 }
 
-void PlotHistCorrFactor(
-    char* infile, std::string text, std::string prefixF = "", double scale = 1.0, int nmin = 100, bool save = false) {
+void PlotHistCorrFactor(char* infile, 
+                        std::string text, 
+			std::string prefixF = "", 
+			double scale = 1.0, 
+			int nmin = 100, 
+			bool dataMC = false,
+			bool drawStatBox = true,
+			bool save = false) {
   std::map<int, cfactors> cfacs;
   int etamin(100), etamax(-100), maxdepth(0);
   readCorrFactors(infile, scale, cfacs, etamin, etamax, maxdepth);
@@ -1746,8 +1744,13 @@ void PlotHistCorrFactor(
   gStyle->SetPadColor(kWhite);
   gStyle->SetFillColor(kWhite);
   gStyle->SetOptTitle(0);
-  gStyle->SetOptStat(10);
-  gStyle->SetOptFit(10);
+  if (drawStatBox) {
+    gStyle->SetOptStat(10);
+    gStyle->SetOptFit(10);
+  } else {
+    gStyle->SetOptStat(0);
+    gStyle->SetOptFit(0);
+  }
   int colors[6] = {1, 6, 4, 7, 2, 9};
   int mtype[6] = {20, 21, 22, 23, 24, 33};
   int nbin = etamax - etamin + 1;
@@ -1795,8 +1798,9 @@ void PlotHistCorrFactor(
   pad->SetRightMargin(0.10);
   pad->SetTopMargin(0.10);
   double yh = 0.90;
-  double yl = yh - 0.025 * hists.size() - dy - 0.01;
-  TLegend* legend = new TLegend(0.60, yl, 0.90, yl + 0.025 * hists.size());
+// double yl = yh - 0.025 * hists.size() - dy - 0.01;
+  double yl = 0.15;
+  TLegend* legend = new TLegend(0.35, yl, 0.65, yl + 0.04 * hists.size());
   legend->SetFillColor(kWhite);
   for (unsigned int k = 0; k < hists.size(); ++k) {
     if (k == 0)
@@ -1832,6 +1836,18 @@ void PlotHistCorrFactor(
     pad->Modified();
     pad->Update();
   }
+  char txt1[30];
+  double xmax = (dataMC) ? 0.33 : 0.44;
+  TPaveText* txt2 = new TPaveText(0.11, 0.85, xmax, 0.89, "blNDC");
+  txt2->SetFillColor(0);
+  if (dataMC)
+    sprintf(txt1, "CMS Preliminary");
+  else
+    sprintf(txt1, "CMS Simulation Preliminary");
+  txt2->AddText(txt1);
+  txt2->Draw("same");
+  pad->Modified();
+  pad->Update();
   if (save) {
     sprintf(name, "%s.pdf", pad->GetName());
     pad->Print(name);
