@@ -20,7 +20,7 @@
 class DCSRecord {
 public:
   // Adding new partitions requires to add a new bitset definition with
-  // the correct dimension to DataFormats/StdDictionaries/src/classes_def_others.xml 
+  // the correct dimension to DataFormats/StdDictionaries/src/classes_def_others.xml
   enum Partition {
     EBp,
     EBm,
