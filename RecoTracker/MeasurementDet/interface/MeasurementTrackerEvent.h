@@ -62,7 +62,7 @@ public:
   const std::vector<bool> &phase2OTClustersToSkip() const { return thePhase2OTClustersToSkip; }
 
   // forwarded calls
-  const TrackingGeometry *geomTracker() const { return measurementTracker().geomTracker(); }
+  const TrackerGeometry *geomTracker() const { return measurementTracker().geomTracker(); }
   const GeometricSearchTracker *geometricSearchTracker() const { return measurementTracker().geometricSearchTracker(); }
 
   /// Previous MeasurementDetSystem interface
