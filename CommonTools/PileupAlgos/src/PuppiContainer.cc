@@ -61,10 +61,14 @@ void PuppiContainer::initialize(const std::vector<RecoObj> &iRecoObjects) {
     pCand.id = rParticle.id;
 
     fPFParticles.push_back(pCand);
-    //Take Charged particles associated to PV
+
+    // skip candidates to be ignored in the computation
+    // of PUPPI's alphas (e.g. electrons and muons if puppiNoLep=True)
     if (std::abs(rParticle.id) == 3)
       continue;
+
     fPFParticlesForVar.push_back(pCand);
+    // charged candidates assigned to LV
     if (std::abs(rParticle.id) == 1)
       fPFParticlesForVarChargedPV.push_back(pCand);
     //if(rParticle.id == 3) _chargedNoPV.push_back(pCand);
