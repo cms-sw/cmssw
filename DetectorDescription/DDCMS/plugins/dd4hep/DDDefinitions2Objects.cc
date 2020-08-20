@@ -1853,208 +1853,214 @@ void Converter<print_xml_doc>::operator()(xml_h element) const {
 
 /// Converter for <DDDefinition/> tags
 static long load_dddefinition(Detector& det, xml_h element) {
-  cms::DDParsingContext context(&det);
-  cms::DDNamespace ns(context);
-  ns.addConstantNS("world_x", "101*m", "number");
-  ns.addConstantNS("world_y", "101*m", "number");
-  ns.addConstantNS("world_z", "450*m", "number");
-  ns.addConstantNS("Air", "materials:Air", "string");
-  ns.addConstantNS("Vacuum", "materials:Vacuum", "string");
-  ns.addConstantNS("fm", "1e-12*m", "number");
-  ns.addConstantNS("mum", "1e-6*m", "number");
-
   xml_elt_t dddef(element);
-  string fname = xml::DocumentHandler::system_path(element);
-  bool open_geometry = dddef.hasChild(DD_CMU(open_geometry)) ? dddef.child(DD_CMU(open_geometry)) : true;
-  bool close_geometry = dddef.hasChild(DD_CMU(close_geometry)) ? dddef.hasChild(DD_CMU(close_geometry)) : true;
+  if (dddef) {
+    cms::DDParsingContext context(&det);
+    cms::DDNamespace ns(context);
+    ns.addConstantNS("world_x", "101*m", "number");
+    ns.addConstantNS("world_y", "101*m", "number");
+    ns.addConstantNS("world_z", "450*m", "number");
+    ns.addConstantNS("Air", "materials:Air", "string");
+    ns.addConstantNS("Vacuum", "materials:Vacuum", "string");
+    ns.addConstantNS("fm", "1e-12*m", "number");
+    ns.addConstantNS("mum", "1e-6*m", "number");
 
-  xml_coll_t(dddef, _U(debug)).for_each(Converter<debug>(det, &context));
+    string fname = xml::DocumentHandler::system_path(element);
+    bool open_geometry = dddef.hasChild(DD_CMU(open_geometry)) ? dddef.child(DD_CMU(open_geometry)) : true;
+    bool close_geometry = dddef.hasChild(DD_CMU(close_geometry)) ? dddef.hasChild(DD_CMU(close_geometry)) : true;
 
-  // Here we define the order how XML elements are processed.
-  // Be aware of dependencies. This can only defined once.
-  // At the end it is a limitation of DOM....
-  printout(INFO, "DD4CMS", "+++ Processing the CMS detector description %s", fname.c_str());
+    xml_coll_t(dddef, _U(debug)).for_each(Converter<debug>(det, &context));
 
-  xml::Document doc;
-  Converter<print_xml_doc> print_doc(det, &context);
-  try {
-    DDRegistry res;
-    print_doc((doc = dddef.document()).root());
-    xml_coll_t(dddef, DD_CMU(DisabledAlgo)).for_each(Converter<disabled_algo>(det, &context, &res));
-    xml_coll_t(dddef, DD_CMU(ConstantsSection)).for_each(Converter<ConstantsSection>(det, &context, &res));
-    xml_coll_t(dddef, DD_CMU(VisSection)).for_each(Converter<vissection>(det, &context));
-    xml_coll_t(dddef, DD_CMU(RotationSection)).for_each(Converter<RotationSection>(det, &context));
-    xml_coll_t(dddef, DD_CMU(MaterialSection)).for_each(Converter<MaterialSection>(det, &context));
+    // Here we define the order how XML elements are processed.
+    // Be aware of dependencies. This can only defined once.
+    // At the end it is a limitation of DOM....
+    printout(INFO, "DD4CMS", "+++ Processing the CMS detector description %s", fname.c_str());
 
-    xml_coll_t(dddef, DD_CMU(IncludeSection)).for_each(DD_CMU(Include), Converter<include_load>(det, &context, &res));
+    xml::Document doc;
+    Converter<print_xml_doc> print_doc(det, &context);
+    try {
+      DDRegistry res;
+      print_doc((doc = dddef.document()).root());
+      xml_coll_t(dddef, DD_CMU(DisabledAlgo)).for_each(Converter<disabled_algo>(det, &context, &res));
+      xml_coll_t(dddef, DD_CMU(ConstantsSection)).for_each(Converter<ConstantsSection>(det, &context, &res));
+      xml_coll_t(dddef, DD_CMU(VisSection)).for_each(Converter<vissection>(det, &context));
+      xml_coll_t(dddef, DD_CMU(RotationSection)).for_each(Converter<RotationSection>(det, &context));
+      xml_coll_t(dddef, DD_CMU(MaterialSection)).for_each(Converter<MaterialSection>(det, &context));
 
-    for (xml::Document d : res.includes) {
-      print_doc((doc = d).root());
-      Converter<include_constants>(det, &context, &res)((doc = d).root());
-    }
-    // Before we continue, we have to resolve all constants NOW!
-    Converter<DDRegistry>(det, &context, &res)(dddef);
-    {
-      DDVectorsMap* registry = context.description.load()->extension<DDVectorsMap>();
+      xml_coll_t(dddef, DD_CMU(IncludeSection)).for_each(DD_CMU(Include), Converter<include_load>(det, &context, &res));
 
-      printout(context.debug_constants ? ALWAYS : DEBUG,
-               "DD4CMS",
-               "+++ RESOLVING %ld Vectors.....",
-               context.unresolvedVectors.size());
+      for (xml::Document d : res.includes) {
+        print_doc((doc = d).root());
+        Converter<include_constants>(det, &context, &res)((doc = d).root());
+      }
+      // Before we continue, we have to resolve all constants NOW!
+      Converter<DDRegistry>(det, &context, &res)(dddef);
+      {
+        DDVectorsMap* registry = context.description.load()->extension<DDVectorsMap>();
 
-      while (!context.unresolvedVectors.empty()) {
-        for (auto it = context.unresolvedVectors.begin(); it != context.unresolvedVectors.end();) {
-          auto const& name = it->first;
-          tbb::concurrent_vector<double> result;
-          for (const auto& i : it->second) {
-            result.emplace_back(dd4hep::_toDouble(i));
+        printout(context.debug_constants ? ALWAYS : DEBUG,
+                 "DD4CMS",
+                 "+++ RESOLVING %ld Vectors.....",
+                 context.unresolvedVectors.size());
+
+        while (!context.unresolvedVectors.empty()) {
+          for (auto it = context.unresolvedVectors.begin(); it != context.unresolvedVectors.end();) {
+            auto const& name = it->first;
+            tbb::concurrent_vector<double> result;
+            for (const auto& i : it->second) {
+              result.emplace_back(dd4hep::_toDouble(i));
+            }
+            registry->insert({name, result});
+            // All components are resolved
+            it = context.unresolvedVectors.erase(it);
           }
-          registry->insert({name, result});
-          // All components are resolved
-          it = context.unresolvedVectors.erase(it);
         }
       }
-    }
-    // Now we can process the include files one by one.....
-    for (xml::Document d : res.includes) {
-      print_doc((doc = d).root());
-      xml_coll_t(d.root(), DD_CMU(MaterialSection)).for_each(Converter<MaterialSection>(det, &context));
-    }
-    {
-      printout(context.debug_materials ? ALWAYS : DEBUG,
-               "DD4CMS",
-               "+++ RESOLVING %ld unknown material constituents.....",
-               context.unresolvedMaterials.size());
+      // Now we can process the include files one by one.....
+      for (xml::Document d : res.includes) {
+        print_doc((doc = d).root());
+        xml_coll_t(d.root(), DD_CMU(MaterialSection)).for_each(Converter<MaterialSection>(det, &context));
+      }
+      {
+        printout(context.debug_materials ? ALWAYS : DEBUG,
+                 "DD4CMS",
+                 "+++ RESOLVING %ld unknown material constituents.....",
+                 context.unresolvedMaterials.size());
 
-      // Resolve referenced materials (if any)
+        // Resolve referenced materials (if any)
 
-      while (!context.unresolvedMaterials.empty()) {
-        for (auto it = context.unresolvedMaterials.begin(); it != context.unresolvedMaterials.end();) {
-          auto const& name = it->first;
-          std::vector<bool> valid;
+        while (!context.unresolvedMaterials.empty()) {
+          for (auto it = context.unresolvedMaterials.begin(); it != context.unresolvedMaterials.end();) {
+            auto const& name = it->first;
+            std::vector<bool> valid;
 
-          printout(context.debug_materials ? ALWAYS : DEBUG,
-                   "DD4CMS",
-                   "+++ [%06ld] ----------  %s",
-                   context.unresolvedMaterials.size(),
-                   name.c_str());
-
-          auto mat = ns.material(name);
-          for (auto& mit : it->second) {
             printout(context.debug_materials ? ALWAYS : DEBUG,
                      "DD4CMS",
-                     "+++           component  %-48s Fraction: %.6f",
-                     mit.name.c_str(),
-                     mit.fraction);
-            auto fmat = ns.material(mit.name);
-            if (nullptr != fmat.ptr()) {
-              if (mat.ptr()->GetMaterial()->IsMixture()) {
-                valid.emplace_back(true);
-                static_cast<TGeoMixture*>(mat.ptr()->GetMaterial())->AddElement(fmat.ptr()->GetMaterial(), mit.fraction);
+                     "+++ [%06ld] ----------  %s",
+                     context.unresolvedMaterials.size(),
+                     name.c_str());
+
+            auto mat = ns.material(name);
+            for (auto& mit : it->second) {
+              printout(context.debug_materials ? ALWAYS : DEBUG,
+                       "DD4CMS",
+                       "+++           component  %-48s Fraction: %.6f",
+                       mit.name.c_str(),
+                       mit.fraction);
+              auto fmat = ns.material(mit.name);
+              if (nullptr != fmat.ptr()) {
+                if (mat.ptr()->GetMaterial()->IsMixture()) {
+                  valid.emplace_back(true);
+                  static_cast<TGeoMixture*>(mat.ptr()->GetMaterial())
+                      ->AddElement(fmat.ptr()->GetMaterial(), mit.fraction);
+                }
               }
             }
+            // All components are resolved
+            if (valid.size() == it->second.size())
+              it = context.unresolvedMaterials.erase(it);
+            else
+              ++it;
           }
-          // All components are resolved
-          if (valid.size() == it->second.size())
-            it = context.unresolvedMaterials.erase(it);
-          else
-            ++it;
+          // Do it again if there are unresolved
+          // materials left after this pass
         }
-        // Do it again if there are unresolved
-        // materials left after this pass
       }
-    }
-    if (open_geometry) {
-      context.geo_inited = true;
-      det.init();
-      ns.addVolume(det.worldVolume());
-    }
-    for (xml::Document d : res.includes) {
-      print_doc((doc = d).root());
-      xml_coll_t(d.root(), DD_CMU(RotationSection)).for_each(Converter<RotationSection>(det, &context));
-    }
-    for (xml::Document d : res.includes) {
-      print_doc((doc = d).root());
-      xml_coll_t(d.root(), DD_CMU(SolidSection)).for_each(Converter<SolidSection>(det, &context));
-    }
-    for (xml::Document d : res.includes) {
-      print_doc((doc = d).root());
-      xml_coll_t(d.root(), DD_CMU(LogicalPartSection)).for_each(Converter<LogicalPartSection>(det, &context));
-    }
-    for (xml::Document d : res.includes) {
-      print_doc((doc = d).root());
-      xml_coll_t(d.root(), DD_CMU(Algorithm)).for_each(Converter<DDLAlgorithm>(det, &context));
-    }
-    for (xml::Document d : res.includes) {
-      print_doc((doc = d).root());
-      xml_coll_t(d.root(), DD_CMU(PosPartSection)).for_each(Converter<PosPartSection>(det, &context));
-    }
-    for (xml::Document d : res.includes) {
-      print_doc((doc = d).root());
-      xml_coll_t(d.root(), DD_CMU(SpecParSection)).for_each(Converter<SpecParSection>(det, &context));
-    }
+      if (open_geometry) {
+        context.geo_inited = true;
+        det.init();
+        ns.addVolume(det.worldVolume());
+      }
+      for (xml::Document d : res.includes) {
+        print_doc((doc = d).root());
+        xml_coll_t(d.root(), DD_CMU(RotationSection)).for_each(Converter<RotationSection>(det, &context));
+      }
+      for (xml::Document d : res.includes) {
+        print_doc((doc = d).root());
+        xml_coll_t(d.root(), DD_CMU(SolidSection)).for_each(Converter<SolidSection>(det, &context));
+      }
+      for (xml::Document d : res.includes) {
+        print_doc((doc = d).root());
+        xml_coll_t(d.root(), DD_CMU(LogicalPartSection)).for_each(Converter<LogicalPartSection>(det, &context));
+      }
+      for (xml::Document d : res.includes) {
+        print_doc((doc = d).root());
+        xml_coll_t(d.root(), DD_CMU(Algorithm)).for_each(Converter<DDLAlgorithm>(det, &context));
+      }
+      for (xml::Document d : res.includes) {
+        print_doc((doc = d).root());
+        xml_coll_t(d.root(), DD_CMU(PosPartSection)).for_each(Converter<PosPartSection>(det, &context));
+      }
+      for (xml::Document d : res.includes) {
+        print_doc((doc = d).root());
+        xml_coll_t(d.root(), DD_CMU(SpecParSection)).for_each(Converter<SpecParSection>(det, &context));
+      }
 
-    /// Unload all XML files after processing
-    for (xml::Document d : res.includes)
-      Converter<include_unload>(det, &context, &res)(d.root());
+      /// Unload all XML files after processing
+      for (xml::Document d : res.includes)
+        Converter<include_unload>(det, &context, &res)(d.root());
 
-    print_doc((doc = dddef.document()).root());
-    // Now process the actual geometry items
-    xml_coll_t(dddef, DD_CMU(SolidSection)).for_each(Converter<SolidSection>(det, &context));
-    {
-      // Before we continue, we have to resolve all shapes NOW!
-      // Note: This only happens in a legacy DB payloads where
-      // boolean shapes can be defined before thier
-      // component shapes
+      print_doc((doc = dddef.document()).root());
+      // Now process the actual geometry items
+      xml_coll_t(dddef, DD_CMU(SolidSection)).for_each(Converter<SolidSection>(det, &context));
+      {
+        // Before we continue, we have to resolve all shapes NOW!
+        // Note: This only happens in a legacy DB payloads where
+        // boolean shapes can be defined before thier
+        // component shapes
 
-      while (!context.unresolvedShapes.empty()) {
-        for (auto it = context.unresolvedShapes.begin(); it != context.unresolvedShapes.end();) {
-          auto const& name = it->first;
-          auto const& aname = std::visit([](auto&& arg) -> std::string { return arg.firstSolidName; }, it->second);
-          auto const& bname = std::visit([](auto&& arg) -> std::string { return arg.secondSolidName; }, it->second);
+        while (!context.unresolvedShapes.empty()) {
+          for (auto it = context.unresolvedShapes.begin(); it != context.unresolvedShapes.end();) {
+            auto const& name = it->first;
+            auto const& aname = std::visit([](auto&& arg) -> std::string { return arg.firstSolidName; }, it->second);
+            auto const& bname = std::visit([](auto&& arg) -> std::string { return arg.secondSolidName; }, it->second);
 
-          auto const& ait = context.shapes.find(aname);
-          if (ait->second.isValid()) {
-            auto const& bit = context.shapes.find(bname);
-            if (bit->second.isValid()) {
-              dd4hep::Solid shape = std::visit(
-                  [&ait, &bit](auto&& arg) -> dd4hep::Solid { return arg.make(ait->second, bit->second); }, it->second);
-              context.shapes[name] = shape;
-              it = context.unresolvedShapes.erase(it);
+            auto const& ait = context.shapes.find(aname);
+            if (ait->second.isValid()) {
+              auto const& bit = context.shapes.find(bname);
+              if (bit->second.isValid()) {
+                dd4hep::Solid shape =
+                    std::visit([&ait, &bit](auto&& arg) -> dd4hep::Solid { return arg.make(ait->second, bit->second); },
+                               it->second);
+                context.shapes[name] = shape;
+                it = context.unresolvedShapes.erase(it);
+              } else
+                ++it;
             } else
               ++it;
-          } else
-            ++it;
+          }
         }
       }
+      xml_coll_t(dddef, DD_CMU(LogicalPartSection)).for_each(Converter<LogicalPartSection>(det, &context));
+      xml_coll_t(dddef, DD_CMU(Algorithm)).for_each(Converter<DDLAlgorithm>(det, &context));
+      xml_coll_t(dddef, DD_CMU(PosPartSection)).for_each(Converter<PosPartSection>(det, &context));
+      xml_coll_t(dddef, DD_CMU(SpecParSection)).for_each(Converter<SpecParSection>(det, &context));
+    } catch (const exception& e) {
+      printout(ERROR, "DD4CMS", "Exception while processing xml source:%s", doc.uri().c_str());
+      printout(ERROR, "DD4CMS", "----> %s", e.what());
+      throw;
     }
-    xml_coll_t(dddef, DD_CMU(LogicalPartSection)).for_each(Converter<LogicalPartSection>(det, &context));
-    xml_coll_t(dddef, DD_CMU(Algorithm)).for_each(Converter<DDLAlgorithm>(det, &context));
-    xml_coll_t(dddef, DD_CMU(PosPartSection)).for_each(Converter<PosPartSection>(det, &context));
-    xml_coll_t(dddef, DD_CMU(SpecParSection)).for_each(Converter<SpecParSection>(det, &context));
-  } catch (const exception& e) {
-    printout(ERROR, "DD4CMS", "Exception while processing xml source:%s", doc.uri().c_str());
-    printout(ERROR, "DD4CMS", "----> %s", e.what());
-    throw;
-  }
 
-  /// This should be the end of all processing....close the geometry
-  if (close_geometry) {
-    Volume wv = det.worldVolume();
-    Volume geomv = ns.volume("cms:OCMS", false);
-    if (geomv.isValid())
-      wv.placeVolume(geomv, 1);
-    Volume mfv = ns.volume("cmsMagneticField:MAGF", false);
-    if (mfv.isValid())
-      wv.placeVolume(mfv, 1);
-    Volume mfv1 = ns.volume("MagneticFieldVolumes:MAGF", false);
-    if (mfv1.isValid())
-      wv.placeVolume(mfv1, 1);
+    /// This should be the end of all processing....close the geometry
+    if (close_geometry) {
+      Volume wv = det.worldVolume();
+      Volume geomv = ns.volume("cms:OCMS", false);
+      if (geomv.isValid())
+        wv.placeVolume(geomv, 1);
+      Volume mfv = ns.volume("cmsMagneticField:MAGF", false);
+      if (mfv.isValid())
+        wv.placeVolume(mfv, 1);
+      Volume mfv1 = ns.volume("MagneticFieldVolumes:MAGF", false);
+      if (mfv1.isValid())
+        wv.placeVolume(mfv1, 1);
 
-    det.endDocument();
+      det.endDocument();
+    }
+    printout(INFO, "DDDefinition", "+++ Finished processing %s", fname.c_str());
+    return 1;
   }
-  printout(INFO, "DDDefinition", "+++ Finished processing %s", fname.c_str());
-  return 1;
+  except("DDDefinition", "+++ FAILED to process unknown DOM tree [Invalid Handle]");
+  return 0;
 }
 
 // Now declare the factory entry for the plugin mechanism
