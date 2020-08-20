@@ -23,8 +23,10 @@ using namespace ticl;
 struct Histogram_TICLTrackstersValidation {
   dqm::reco::MonitorElement* energy_;
   dqm::reco::MonitorElement* delta_energy_;
+  dqm::reco::MonitorElement* delta_energy_relative_;
   dqm::reco::MonitorElement* delta_energy_vs_energy_;
   dqm::reco::MonitorElement* delta_energy_vs_layer_;
+  dqm::reco::MonitorElement* delta_energy_relative_vs_layer_;
   dqm::reco::MonitorElement* delta_layer_;
   // For the definition of the angles, read http://hgcal.web.cern.ch/hgcal/Reconstruction/Tutorial/
   dqm::reco::MonitorElement* angle_alpha_;
@@ -106,8 +108,10 @@ void TICLTrackstersValidation::dqmAnalyze(edm::Event const& iEvent,
         auto const layer_in = rhtools_.getLayerWithOffset(cl_in);
         auto const layer_out = rhtools_.getLayerWithOffset(cl_out);
         histo.delta_energy_->Fill(oc.energy() - ic.energy());
+        histo.delta_energy_relative_->Fill((oc.energy() - ic.energy())/ic.energy());
         histo.delta_energy_vs_energy_->Fill(oc.energy() - ic.energy(), ic.energy());
         histo.delta_energy_vs_layer_->Fill(layer_in, oc.energy() - ic.energy());
+        histo.delta_energy_relative_vs_layer_->Fill(layer_in, (oc.energy() - ic.energy())/ic.energy());
         histo.delta_layer_->Fill(layer_out - layer_in);
 
         // Alpha angles
@@ -167,8 +171,10 @@ void TICLTrackstersValidation::bookHistograms(DQMStore::IBooker& ibook,
     ibook.setCurrentFolder(folder_ + "TICLTracksters/" + trackstersCollectionsNames_[labelIndex]);
     histo.energy_ = ibook.book1D("Regressed Energy", "Energy", 250, 0., 250.);
     histo.delta_energy_ = ibook.book1D("Delta energy", "Delta Energy (O-I)", 800, -20., 20.);
+    histo.delta_energy_relative_ = ibook.book1D("Relative Delta energy", "Relative Delta Energy (O-I)/I", 200, -10., 10.);
     histo.delta_energy_vs_energy_ = ibook.book2D("Energy vs Delta Energy", "Energy (I) vs Delta Energy (O-I)", 800, -20., 20., 200, 0., 20.);
-    histo.delta_energy_vs_layer_ = ibook.book2D("Delta Energy (O-I) vs Layer Number (I)", "Delta Energy (O-I) vs Layer Number (I)", 120, 0., 120., 800, -20., 20.);
+    histo.delta_energy_vs_layer_ = ibook.book2D("Delta Energy (O-I) vs Layer Number (I)", "Delta Energy (O-I) vs Layer Number (I)", 50, 0., 50., 800, -20., 20.);
+    histo.delta_energy_relative_vs_layer_ = ibook.book2D("Relative Delta Energy (O-I)_I vs Layer Number (I)", "Relative Delta Energy (O-I)_I vs Layer Number (I)", 50, 0., 50., 200, -10., 10.);
     histo.delta_layer_ = ibook.book1D("Delta Layer", "Delta Layer", 10, 0., 10.);
     histo.angle_alpha_ = ibook.book1D("cosAngle Alpha", "cosAngle Alpha", 200, -1., 1.);
     histo.angle_beta_ = ibook.book1D("cosAngle Beta", "cosAngle Beta", 200, -1., 1.);
