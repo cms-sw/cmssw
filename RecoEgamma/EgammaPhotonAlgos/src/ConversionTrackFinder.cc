@@ -1,7 +1,6 @@
 //
 #include "RecoEgamma/EgammaPhotonAlgos/interface/ConversionTrackFinder.h"
 //
-#include "Geometry/CommonDetUnit/interface/GlobalTrackingGeometry.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "RecoTracker/Record/interface/CkfComponentsRecord.h"
 #include "RecoTracker/CkfPattern/interface/TransientInitialStateEstimator.h"
