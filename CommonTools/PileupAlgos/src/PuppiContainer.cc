@@ -71,7 +71,6 @@ void PuppiContainer::initialize(const std::vector<RecoObj> &iRecoObjects) {
     // charged candidates assigned to LV
     if (std::abs(rParticle.id) == 1)
       fPFParticlesForVarChargedPV.push_back(pCand);
-    //if(rParticle.id == 3) _chargedNoPV.push_back(pCand);
     // if(fNPV < rParticle.vtxId) fNPV = rParticle.vtxId;
   }
 }
@@ -153,7 +152,7 @@ void PuppiContainer::getRMSAvg(int iOpt,
       pVal = goodVar(iConstits[i0], pCharged ? iChargedParticles : iParticles, pAlgo, pCone);
     }
     fVals.push_back(pVal);
-    //if(std::isnan(pVal) || std::isinf(pVal)) cerr << "====> Value is Nan " << pVal << " == " << iConstits[i0].pt << " -- " << iConstits[i0].eta << endl;
+
     if (!edm::isFinite(pVal)) {
       LogDebug("NotFound") << "====> Value is Nan " << pVal << " == " << iConstits[i0].pt << " -- " << iConstits[i0].eta
                            << endl;
