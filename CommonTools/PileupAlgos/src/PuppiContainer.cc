@@ -91,17 +91,17 @@ double PuppiContainer::var_within_R(int iId,
   if (iId == -1)
     return 1.;
 
-  double const r2(R * R);
-  double var(0.);
+  double const r2 = R * R;
+  double var = 0.;
 
   for (auto const &cand : particles) {
     if (std::abs(cand.rapidity - centre.rapidity) < R) {
-      auto const dr2y(reco::deltaR2(cand.rapidity, cand.phi, centre.rapidity, centre.phi));
+      auto const dr2y = reco::deltaR2(cand.rapidity, cand.phi, centre.rapidity, centre.phi);
       if (dr2y < r2) {
-        auto const dr2(reco::deltaR2(cand.eta, cand.phi, centre.eta, centre.phi));
+        auto const dr2 = reco::deltaR2(cand.eta, cand.phi, centre.eta, centre.phi);
         if (dr2 < 0.0001)
           continue;
-        auto const pt(cand.pt);
+        auto const pt = cand.pt;
         if (iId == 5)
           var += (pt * pt / dr2);
         else if (iId == 4)
@@ -166,7 +166,7 @@ void PuppiContainer::getRMSAvg(int iOpt,
               ((iConstits[i0].id == 1) or (iConstits[i0].id == 2))))
         continue;
 
-      auto curVal(pVal);
+      auto curVal = pVal;
       // recompute goodVar if algo has changed
       if (i1 != pPupId) {
         pAlgo = fPuppiAlgo[i1].algoId(iOpt);
