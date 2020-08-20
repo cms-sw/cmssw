@@ -9,6 +9,7 @@
 #include <string>
 
 namespace muon {
+  namespace me0 {
   /// Selector type
   enum SelectionType {
     All = 0,        // dummy options - always true
@@ -36,5 +37,6 @@ namespace muon {
                   double MaxDiffY,
                   double MaxDiffPhiDir);
 
+  } // namespace me0
 }  // namespace muon
 #endif

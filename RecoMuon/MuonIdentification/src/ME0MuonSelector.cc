@@ -12,6 +12,7 @@
 #include "DataFormats/Math/interface/deltaPhi.h"
 
 namespace muon {
+namespace me0 {
   SelectionType selectionTypeFromString(const std::string& label) {
     const static SelectionTypeStringToEnum selectionTypeStringToEnumMap[] = {
         {"All", All}, {"VeryLoose", VeryLoose}, {"Loose", Loose}, {"Tight", Tight}, {nullptr, (SelectionType)-1}};
@@ -29,20 +30,21 @@ namespace muon {
       throw cms::Exception("MuonSelectorError") << label << " is not a recognized SelectionType";
     return value;
   }
+} // namespace me0
 }  // namespace muon
 
-bool muon::isGoodMuon(const reco::ME0Muon& me0muon, SelectionType type) {
+bool muon::me0::isGoodMuon(const reco::ME0Muon& me0muon, SelectionType type) {
   switch (type) {
-    case muon::All:
+  case muon::me0::All:
       return true;
       break;
-    case muon::VeryLoose:
+  case muon::me0::VeryLoose:
       return isGoodMuon(me0muon, 3, 4, 20, 20, 3.14);
       break;
-    case muon::Loose:
+  case muon::me0::Loose:
       return isGoodMuon(me0muon, 3, 2, 3, 2, 0.5);
       break;
-    case muon::Tight:
+  case muon::me0::Tight:
       return isGoodMuon(me0muon, 3, 2, 3, 2, 0.15);
       break;
     default:
@@ -50,7 +52,7 @@ bool muon::isGoodMuon(const reco::ME0Muon& me0muon, SelectionType type) {
   }
 }
 
-bool muon::isGoodMuon(const reco::ME0Muon& me0muon,
+bool muon::me0::isGoodMuon(const reco::ME0Muon& me0muon,
                       double MaxPullX,
                       double MaxDiffX,
                       double MaxPullY,
