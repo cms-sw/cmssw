@@ -121,7 +121,7 @@ void DreamSD::initMap(const std::string &sd, const edm::EventSetup &es) {
     const cms::DDFilter filter("ReadOutName", sd);
     cms::DDFilteredView fv((*cpv), filter);
     while (fv.firstChild()) {
-      std::string name = static_cast<std::string>(cms::dd::noNamespace(fv.name()));
+      std::string name = static_cast<std::string>(dd4hep::dd::noNamespace(fv.name()));
       std::vector<double> paras(fv.parameters());
 #ifdef EDM_ML_DEBUG
       edm::LogVerbatim("EcalSim") << "DreamSD::initMap (for " << sd << "): Solid " << name << " Shape "

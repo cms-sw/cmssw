@@ -49,6 +49,7 @@ namespace cms {
   using DDSpecPar = dd4hep::SpecPar;
   using DDSpecParRefs = dd4hep::SpecParRefs;
   using DDSpecParRegistry = dd4hep::SpecParRegistry;
+  using DDVectorsMap = dd4hep::VectorsMap;
   using Iterator = TGeoIterator;
   using Node = TGeoNode;
   using Translation = ROOT::Math::DisplacementVector3D<ROOT::Math::Cartesian3D<double>>;

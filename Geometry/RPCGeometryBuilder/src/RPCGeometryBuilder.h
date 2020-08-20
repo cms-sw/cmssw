@@ -20,8 +20,6 @@ class DDFilteredView;
 namespace cms {
   class DDFilteredView;
   class DDCompactView;
-  struct DDSpecPar;
-  struct DDSpecParRegistry;
 }  // namespace cms
 class RPCGeometry;
 class RPCDetId;

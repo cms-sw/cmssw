@@ -1072,13 +1072,13 @@ void HGCalGeomParameters::loadSpecParsHexagon8(const cms::DDFilteredView& fv,
   }
 
   for (auto const& it : vmap) {
-    if (cms::dd::compareEqual(cms::dd::noNamespace(it.first), "RadiusMixBoundary")) {
+    if (dd4hep::dd::compareEqual(dd4hep::dd::noNamespace(it.first), "RadiusMixBoundary")) {
       for (const auto& i : it.second)
         php.radiusMixBoundary_.emplace_back(HGCalParameters::k_ScaleFromDD4Hep * i);
-    } else if (cms::dd::compareEqual(cms::dd::noNamespace(it.first), "ZRanges")) {
+    } else if (dd4hep::dd::compareEqual(dd4hep::dd::noNamespace(it.first), "ZRanges")) {
       for (const auto& i : it.second)
         php.zRanges_.emplace_back(HGCalParameters::k_ScaleFromDD4Hep * i);
-    } else if (cms::dd::compareEqual(cms::dd::noNamespace(it.first), "LayerCenter")) {
+    } else if (dd4hep::dd::compareEqual(dd4hep::dd::noNamespace(it.first), "LayerCenter")) {
       for (const auto& i : it.second)
         php.layerCenter_.emplace_back(std::round(i));
     }
@@ -1091,32 +1091,32 @@ void HGCalGeomParameters::loadSpecParsHexagon8(const cms::DDFilteredView& fv,
     std::vector<int> waferIndex, waferTypes, waferParts, waferOrien;
     if (php.waferMaskMode_ == siliconFileEE) {
       for (auto const& it : vmap) {
-        if (cms::dd::compareEqual(cms::dd::noNamespace(it.first), "WaferIndexEE")) {
+        if (dd4hep::dd::compareEqual(dd4hep::dd::noNamespace(it.first), "WaferIndexEE")) {
           for (const auto& i : it.second)
             waferIndex.emplace_back(std::round(i));
-        } else if (cms::dd::compareEqual(cms::dd::noNamespace(it.first), "WaferTypesEE")) {
+        } else if (dd4hep::dd::compareEqual(dd4hep::dd::noNamespace(it.first), "WaferTypesEE")) {
           for (const auto& i : it.second)
             waferTypes.emplace_back(std::round(i));
-        } else if (cms::dd::compareEqual(cms::dd::noNamespace(it.first), "WaferPartialEE")) {
+        } else if (dd4hep::dd::compareEqual(dd4hep::dd::noNamespace(it.first), "WaferPartialEE")) {
           for (const auto& i : it.second)
             waferParts.emplace_back(std::round(i));
-        } else if (cms::dd::compareEqual(cms::dd::noNamespace(it.first), "WaferOrientEE")) {
+        } else if (dd4hep::dd::compareEqual(dd4hep::dd::noNamespace(it.first), "WaferOrientEE")) {
           for (const auto& i : it.second)
             waferOrien.emplace_back(std::round(i));
         }
       }
     } else if (php.waferMaskMode_ == siliconFileHE) {
       for (auto const& it : vmap) {
-        if (cms::dd::compareEqual(cms::dd::noNamespace(it.first), "WaferIndexHE")) {
+        if (dd4hep::dd::compareEqual(dd4hep::dd::noNamespace(it.first), "WaferIndexHE")) {
           for (const auto& i : it.second)
             waferIndex.emplace_back(std::round(i));
-        } else if (cms::dd::compareEqual(cms::dd::noNamespace(it.first), "WaferTypesHE")) {
+        } else if (dd4hep::dd::compareEqual(dd4hep::dd::noNamespace(it.first), "WaferTypesHE")) {
           for (const auto& i : it.second)
             waferTypes.emplace_back(std::round(i));
-        } else if (cms::dd::compareEqual(cms::dd::noNamespace(it.first), "WaferPartialHE")) {
+        } else if (dd4hep::dd::compareEqual(dd4hep::dd::noNamespace(it.first), "WaferPartialHE")) {
           for (const auto& i : it.second)
             waferParts.emplace_back(std::round(i));
-        } else if (cms::dd::compareEqual(cms::dd::noNamespace(it.first), "WaferOrientHE")) {
+        } else if (dd4hep::dd::compareEqual(dd4hep::dd::noNamespace(it.first), "WaferOrientHE")) {
           for (const auto& i : it.second)
             waferOrien.emplace_back(std::round(i));
         }
@@ -1253,13 +1253,13 @@ void HGCalGeomParameters::loadSpecParsTrapezoid(const cms::DDFilteredView& fv,
                                                 HGCalParameters& php,
                                                 const std::string& sdTag1) {
   for (auto const& it : vmap) {
-    if (cms::dd::compareEqual(cms::dd::noNamespace(it.first), "RadiusMixBoundary")) {
+    if (dd4hep::dd::compareEqual(dd4hep::dd::noNamespace(it.first), "RadiusMixBoundary")) {
       for (const auto& i : it.second)
         php.radiusMixBoundary_.emplace_back(HGCalParameters::k_ScaleFromDD4Hep * i);
-    } else if (cms::dd::compareEqual(cms::dd::noNamespace(it.first), "ZRanges")) {
+    } else if (dd4hep::dd::compareEqual(dd4hep::dd::noNamespace(it.first), "ZRanges")) {
       for (const auto& i : it.second)
         php.zRanges_.emplace_back(HGCalParameters::k_ScaleFromDD4Hep * i);
-    } else if (cms::dd::compareEqual(cms::dd::noNamespace(it.first), "LayerCenter")) {
+    } else if (dd4hep::dd::compareEqual(dd4hep::dd::noNamespace(it.first), "LayerCenter")) {
       for (const auto& i : it.second)
         php.layerCenter_.emplace_back(std::round(i));
     }
@@ -1301,37 +1301,37 @@ void HGCalGeomParameters::loadSpecParsTrapezoid(const cms::DDFilteredView& fv,
     std::vector<double> tileRMin, tileRMax;
     std::vector<int> tileRingMin, tileRingMax;
     for (auto const& it : vmap) {
-      if (cms::dd::compareEqual(cms::dd::noNamespace(it.first), "TileIndex")) {
+      if (dd4hep::dd::compareEqual(dd4hep::dd::noNamespace(it.first), "TileIndex")) {
         for (const auto& i : it.second)
           tileIndx.emplace_back(std::round(i));
-      } else if (cms::dd::compareEqual(cms::dd::noNamespace(it.first), "TileType")) {
+      } else if (dd4hep::dd::compareEqual(dd4hep::dd::noNamespace(it.first), "TileType")) {
         for (const auto& i : it.second)
           tileType.emplace_back(std::round(i));
-      } else if (cms::dd::compareEqual(cms::dd::noNamespace(it.first), "TileSiPM")) {
+      } else if (dd4hep::dd::compareEqual(dd4hep::dd::noNamespace(it.first), "TileSiPM")) {
         for (const auto& i : it.second)
           tileSiPM.emplace_back(std::round(i));
-      } else if (cms::dd::compareEqual(cms::dd::noNamespace(it.first), "TileHEX1")) {
+      } else if (dd4hep::dd::compareEqual(dd4hep::dd::noNamespace(it.first), "TileHEX1")) {
         for (const auto& i : it.second)
           tileHEX1.emplace_back(std::round(i));
-      } else if (cms::dd::compareEqual(cms::dd::noNamespace(it.first), "TileHEX2")) {
+      } else if (dd4hep::dd::compareEqual(dd4hep::dd::noNamespace(it.first), "TileHEX2")) {
         for (const auto& i : it.second)
           tileHEX2.emplace_back(std::round(i));
-      } else if (cms::dd::compareEqual(cms::dd::noNamespace(it.first), "TileHEX3")) {
+      } else if (dd4hep::dd::compareEqual(dd4hep::dd::noNamespace(it.first), "TileHEX3")) {
         for (const auto& i : it.second)
           tileHEX3.emplace_back(std::round(i));
-      } else if (cms::dd::compareEqual(cms::dd::noNamespace(it.first), "TileHEX4")) {
+      } else if (dd4hep::dd::compareEqual(dd4hep::dd::noNamespace(it.first), "TileHEX4")) {
         for (const auto& i : it.second)
           tileHEX4.emplace_back(std::round(i));
-      } else if (cms::dd::compareEqual(cms::dd::noNamespace(it.first), "TileRMin")) {
+      } else if (dd4hep::dd::compareEqual(dd4hep::dd::noNamespace(it.first), "TileRMin")) {
         for (const auto& i : it.second)
           tileRMin.emplace_back(HGCalParameters::k_ScaleFromDD4Hep * i);
-      } else if (cms::dd::compareEqual(cms::dd::noNamespace(it.first), "TileRMax")) {
+      } else if (dd4hep::dd::compareEqual(dd4hep::dd::noNamespace(it.first), "TileRMax")) {
         for (const auto& i : it.second)
           tileRMax.emplace_back(HGCalParameters::k_ScaleFromDD4Hep * i);
-      } else if (cms::dd::compareEqual(cms::dd::noNamespace(it.first), "TileRingMin")) {
+      } else if (dd4hep::dd::compareEqual(dd4hep::dd::noNamespace(it.first), "TileRingMin")) {
         for (const auto& i : it.second)
           tileRingMin.emplace_back(std::round(i));
-      } else if (cms::dd::compareEqual(cms::dd::noNamespace(it.first), "TileRingMax")) {
+      } else if (dd4hep::dd::compareEqual(dd4hep::dd::noNamespace(it.first), "TileRingMax")) {
         for (const auto& i : it.second)
           tileRingMax.emplace_back(std::round(i));
       }
@@ -1711,10 +1711,10 @@ void HGCalGeomParameters::loadCellParsHexagon(const DDCompactView* cpv, HGCalPar
 
 void HGCalGeomParameters::loadCellParsHexagon(const cms::DDVectorsMap& vmap, HGCalParameters& php) {
   for (auto const& it : vmap) {
-    if (cms::dd::compareEqual(cms::dd::noNamespace(it.first), "waferFine")) {
+    if (dd4hep::dd::compareEqual(dd4hep::dd::noNamespace(it.first), "waferFine")) {
       for (const auto& i : it.second)
         php.cellFine_.emplace_back(std::round(i));
-    } else if (cms::dd::compareEqual(cms::dd::noNamespace(it.first), "waferCoarse")) {
+    } else if (dd4hep::dd::compareEqual(dd4hep::dd::noNamespace(it.first), "waferCoarse")) {
       for (const auto& i : it.second)
         php.cellCoarse_.emplace_back(std::round(i));
     }

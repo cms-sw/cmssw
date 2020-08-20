@@ -16,7 +16,6 @@
 
 #include "DetectorDescription/DDCMS/interface/DDFilteredView.h"
 #include "DetectorDescription/DDCMS/interface/DDCompactView.h"
-#include "DetectorDescription/DDCMS/interface/Filter.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 
 #include <TROOT.h>
