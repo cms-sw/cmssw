@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../Schema/DDLSchema.xsd">
+<DDDefinition>
   <SolidSection>
     <Box name="MotherOfAllBoxes" dx="10*m" dy="10*m" dz="10*m"/>
     <TruncTubs name="V_1101" rMin="6.9551*m" rMax="9*m" cutAtStart="6.9551*m" cutAtDelta="7.20045*m" cutInside="true"
