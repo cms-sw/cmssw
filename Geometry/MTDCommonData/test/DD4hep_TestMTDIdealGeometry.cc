@@ -195,7 +195,7 @@ void DD4hep_TestMTDIdealGeometry::analyze(const edm::Event& iEvent, const edm::E
 
       for (auto const& t : specs) {
         for (auto const& it : t->paths) {
-          if (dd::compareEqual(fv.name(), dd::realTopName(it))) {
+          if (dd4hep::dd::compareEqual(fv.name(), dd4hep::dd::realTopName(it))) {
             isSens = true;
             break;
           }

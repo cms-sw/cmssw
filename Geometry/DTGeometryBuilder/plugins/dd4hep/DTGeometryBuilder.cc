@@ -167,7 +167,7 @@ DTLayer* DTGeometryBuilder::buildLayer(DDFilteredView& fview,
 void DTGeometryBuilder::build(DTGeometry& geom,
                               const DDDetector* det,
                               const MuonNumbering& num,
-                              const DDSpecParRefs& refs) {
+                              const dd4hep::SpecParRefs& refs) {
   Volume top = det->worldVolume();
   DDFilteredView fview(det, top);
   fview.mergedSpecifics(refs);
