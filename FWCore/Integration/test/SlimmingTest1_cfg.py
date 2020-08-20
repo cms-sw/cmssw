@@ -10,6 +10,8 @@
 # - E: elements 6-10
 # - F: elements 6-8
 # - G: elements 9-10
+# - H: elements 0-19
+# - I: elements 11-15
 #
 # thingProducer (0-49)
 # |\- thinningThingProducerA (0-19)
@@ -32,6 +34,7 @@
 # |   \- thinningThingProducerBF (6-8)
 # |
 # |\- thinningThingProducerC (11-19)
+# |   \- thinnindThingProducerCI (11-15)
 # |
 # \-- thinningThingProducerH (0-19), no product because of event filtering
 #
@@ -58,6 +61,9 @@
 #   - try to thin from thingProducer, should fail
 # H: file including H, B
 #   - non-existing H is preferred, all Refs are Null
+# I: file including B, CI
+#   - CI is preferred over B for elements 0-10 (leading to product not fond)
+#   - drop CU, then B works
 
 import FWCore.ParameterSet.Config as cms
 
@@ -94,6 +100,7 @@ process.trackOfThingsProducerE = process.trackOfThingsProducerA.clone(keysToRefe
 process.trackOfThingsProducerF = process.trackOfThingsProducerA.clone(keysToReference = range(6,9))
 process.trackOfThingsProducerG = process.trackOfThingsProducerA.clone(keysToReference = range(9,11))
 process.trackOfThingsProducerH = process.trackOfThingsProducerA.clone()
+process.trackOfThingsProducerI = process.trackOfThingsProducerA.clone(keysToReference = range(11,16))
 
 process.thinningThingProducerA = cms.EDProducer("ThinningThingProducer",
     inputTag = cms.InputTag('thingProducer'),
@@ -173,6 +180,13 @@ process.thinningThingProducerC = cms.EDProducer("ThinningThingProducer",
     trackTag = cms.InputTag('trackOfThingsProducerC'),
     offsetToThinnedKey = cms.uint32(0),
     expectedCollectionSize = cms.uint32(50)
+)
+process.thinningThingProducerCI = cms.EDProducer("ThinningThingProducer",
+    inputTag = cms.InputTag('thinningThingProducerC'),
+    trackTag = cms.InputTag('trackOfThingsProducerI'),
+    offsetToThinnedKey = cms.uint32(11),
+    offsetToValue = cms.uint32(11),
+    expectedCollectionSize = cms.uint32(9)
 )
 
 process.thinningThingProducerH = cms.EDProducer("ThinningThingProducer",
@@ -341,6 +355,17 @@ process.outH = cms.OutputModule("PoolOutputModule",
     )
 )
 
+process.outI = cms.OutputModule("PoolOutputModule",
+    fileName = cms.untracked.string('testSlimmingTest1I.root'),
+    outputCommands = cms.untracked.vstring(
+        'drop *',
+        'keep *_trackOfThingsProducerB_*_*',
+        'keep *_trackOfThingsProducerI_*_*',
+        'keep *_thinningThingProducerB_*_*',
+        'keep *_thinningThingProducerCI_*_*',
+    )
+)
+
 
 process.p = cms.Path(
     process.thingProducer
@@ -351,6 +376,7 @@ process.p = cms.Path(
     * process.trackOfThingsProducerE
     * process.trackOfThingsProducerF
     * process.trackOfThingsProducerG
+    * process.trackOfThingsProducerI
     * process.thinningThingProducerA
     * process.thinningThingProducerAB
     * process.thinningThingProducerABE
@@ -363,6 +389,7 @@ process.p = cms.Path(
     * process.thinningThingProducerBEG
     * process.thinningThingProducerBF
     * process.thinningThingProducerC
+    * process.thinningThingProducerCI
     * process.testA
     * process.testABF
     * process.testB
@@ -386,4 +413,5 @@ process.ep = cms.EndPath(
     * process.outF
     * process.outG
     * process.outH
+    * process.outI
 )
