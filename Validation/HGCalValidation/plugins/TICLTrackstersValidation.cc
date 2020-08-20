@@ -50,7 +50,7 @@ private:
                       Histograms_TICLTrackstersValidation&) const override;
 
   void dqmAnalyze(edm::Event const&, edm::EventSetup const&, Histograms_TICLTrackstersValidation const&) const override;
-  void dqmBeginRun(edm::Run const&, edm::EventSetup const&, Histograms_TICLTrackstersValidation&);
+  void dqmBeginRun(edm::Run const&, edm::EventSetup const&, Histograms_TICLTrackstersValidation&) const override;
 
   std::string folder_;
   std::vector<std::string> trackstersCollectionsNames_;
@@ -58,7 +58,7 @@ private:
   edm::EDGetTokenT<std::vector<reco::CaloCluster>> layerClustersToken_;
   edm::EDGetTokenT<std::vector<TICLSeedingRegion>> ticlSeedingGlobalToken_;
   edm::EDGetTokenT<std::vector<TICLSeedingRegion>> ticlSeedingTrkToken_;
-  hgcal::RecHitTools rhtools_;
+  mutable hgcal::RecHitTools rhtools_;
 };
 
 TICLTrackstersValidation::TICLTrackstersValidation(const edm::ParameterSet& iConfig)
@@ -186,7 +186,7 @@ void TICLTrackstersValidation::bookHistograms(DQMStore::IBooker& ibook,
 
 void TICLTrackstersValidation::dqmBeginRun(edm::Run const& run,
                                            edm::EventSetup const& iSetup,
-                                           Histograms_TICLTrackstersValidation& histograms) {
+                                           Histograms_TICLTrackstersValidation& histograms) const {
   rhtools_.getEventSetup(iSetup);
 }
 
