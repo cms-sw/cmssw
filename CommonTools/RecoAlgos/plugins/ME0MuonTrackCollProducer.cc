@@ -10,7 +10,7 @@
 #include "DataFormats/MuonReco/interface/Muon.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
-#include "RecoMuon/MuonIdentification/plugins/ME0MuonSelector.cc"
+#include "RecoMuon/MuonIdentification/interface/ME0MuonSelector.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 
 #include <sstream>
@@ -69,7 +69,7 @@ void ME0MuonTrackCollProducer::produce(edm::Event& iEvent, const edm::EventSetup
 
   for (std::vector<reco::ME0Muon>::const_iterator thismuon = OurMuons->begin(); thismuon != OurMuons->end();
        ++thismuon) {
-    if (!muon::isGoodMuon(*thismuon, muon::Tight))
+    if (!muon::me0::isGoodMuon(*thismuon, muon::me0::Tight))
       continue;
     reco::TrackRef trackref;
 
