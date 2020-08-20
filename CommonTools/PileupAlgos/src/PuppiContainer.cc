@@ -142,13 +142,13 @@ void PuppiContainer::getRMSAvg(int iOpt,
     int pAlgo = fPuppiAlgo[pPupId].algoId(iOpt);
     bool pCharged = fPuppiAlgo[pPupId].isCharged(iOpt);
     double pCone = fPuppiAlgo[pPupId].coneSize(iOpt);
-    //Compute the Puppi Metric
+    // compute the Puppi metric:
+    //  - calculate goodVar only for candidates that (1) will not be assigned a predefined weight (e.g 0, 1),
+    //    or (2) are required for computations inside puppi-algos (see call to PuppiAlgo::add below)
     double pVal = -1;
-    // calculate goodVar only for candidates that (1) will not be assigned a predefined weight (e.g 0, 1),
-    // or (2) are required for computations inside puppi-algos (see call to PuppiAlgo::add below)
-    if (((not(fApplyCHS and ((iConstits[i0].id == 1) or (iConstits[i0].id == 2)))) and (iConstits[i0].id != 3)) or
-        ((std::abs(iConstits[i0].eta) < fPuppiAlgo[pPupId].etaMaxExtrap()) and
-         ((iConstits[i0].id == 1) or (iConstits[i0].id == 2)))) {
+    bool const getsDefaultWgtIfApplyCHS = iConstits[i0].id == 1 or iConstits[i0].id == 2;
+    if (not((fApplyCHS and getsDefaultWgtIfApplyCHS) or iConstits[i0].id == 3) or
+        (std::abs(iConstits[i0].eta) < fPuppiAlgo[pPupId].etaMaxExtrap() and getsDefaultWgtIfApplyCHS)) {
       pVal = goodVar(iConstits[i0], pCharged ? iChargedParticles : iParticles, pAlgo, pCone);
     }
     fVals.push_back(pVal);
@@ -162,8 +162,7 @@ void PuppiContainer::getRMSAvg(int iOpt,
     // code added by Nhan: now instead for every algorithm give it all the particles
     for (int i1 = 0; i1 < fNAlgos; i1++) {
       // skip cands outside of algo's etaMaxExtrap, as they would anyway be ignored inside PuppiAlgo::add (see end of the block)
-      if (not((std::abs(iConstits[i0].eta) < fPuppiAlgo[i1].etaMaxExtrap()) and
-              ((iConstits[i0].id == 1) or (iConstits[i0].id == 2))))
+      if (not(std::abs(iConstits[i0].eta) < fPuppiAlgo[i1].etaMaxExtrap() and getsDefaultWgtIfApplyCHS))
         continue;
 
       auto curVal = pVal;
@@ -308,8 +307,8 @@ std::vector<double> const &PuppiContainer::puppiWeights() {
     if (pWeight * fPFParticles[i0].pt < fPuppiAlgo[pPupId].neutralPt(fNPV) && rParticle.id == 0)
       pWeight = 0;  //threshold cut on the neutral Pt
     // Protect high pT photons (important for gamma to hadronic recoil balance)
-    if ((fPtMaxPhotons > 0) && (rParticle.pdgId == 22) && (std::abs(fPFParticles[i0].eta) < fEtaMaxPhotons) &&
-        (fPFParticles[i0].pt > fPtMaxPhotons))
+    if (fPtMaxPhotons > 0 && rParticle.pdgId == 22 && std::abs(fPFParticles[i0].eta) < fEtaMaxPhotons &&
+        fPFParticles[i0].pt > fPtMaxPhotons)
       pWeight = 1.;
     // Protect high pT neutrals
     else if ((fPtMaxNeutrals > 0) && (rParticle.id == 0))
