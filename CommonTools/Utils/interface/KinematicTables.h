@@ -14,6 +14,7 @@ namespace edm {
 
     using EtaPhiTable = edm::soa::Table<col::Eta, col::Phi>;
     using EtaPhiTableView = edm::soa::TableView<col::Eta, col::Phi>;
+    using PtEtaPhiTable = edm::soa::Table<col::Pt, col::Eta, col::Phi>;
 
     template <class Object>
     EtaPhiTable makeEtaPhiTable(std::vector<Object> const& objects) {
@@ -25,6 +26,14 @@ namespace edm {
     template <class Object>
     auto makeEtaPhiTableLazy(std::vector<Object> const& objects) {
       return LazyResult(&makeEtaPhiTable<Object>, objects);
+    }
+
+    template <class Object>
+    PtEtaPhiTable makePtEtaPhiTable(std::vector<Object> const& objects) {
+      return {objects,
+              edm::soa::column_fillers(col::Pt::filler([](Object const& x) { return x.pt(); }),
+                                       col::Eta::filler([](Object const& x) { return x.eta(); }),
+                                       col::Phi::filler([](Object const& x) { return x.phi(); }))};
     }
 
   }  // namespace soa
