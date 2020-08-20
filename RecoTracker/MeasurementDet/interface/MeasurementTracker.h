@@ -4,7 +4,7 @@
 #include "TrackingTools/MeasurementDet/interface/MeasurementDetSystem.h"
 #include "DataFormats/DetId/interface/DetId.h"
 
-#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
+
 #include "RecoTracker/TkDetLayers/interface/GeometricSearchTracker.h"
 
 #include "FWCore/Framework/interface/Event.h"
@@ -17,6 +17,7 @@ class SiStripRecHitMatcher;
 class StMeasurementConditionSet;
 class PxMeasurementConditionSet;
 class Phase2OTMeasurementConditionSet;
+class TrackerGeometry;
 
 class MeasurementTracker : public MeasurementDetSystem {
 public:
@@ -33,7 +34,7 @@ public:
 
   ~MeasurementTracker() override;
 
-  const TrackingGeometry* geomTracker() const { return theTrackerGeom; }
+  const TrackerGeometry* geomTracker() const { return theTrackerGeom; }
 
   const GeometricSearchTracker* geometricSearchTracker() const { return theGeometricSearchTracker; }
 
