@@ -14,11 +14,11 @@
 */
 
 
-class WSelector : public EventSelector {
+class WSelectorFast : public EventSelector {
 
 public:
   /// constructor
-  WSelector(edm::ParameterSet const& params) :
+  WSelectorFast(edm::ParameterSet const& params) :
     muonSrc_(params.getParameter<edm::InputTag>("muonSrc")),
     metSrc_ (params.getParameter<edm::InputTag>("metSrc")) 
   {
@@ -34,7 +34,7 @@ public:
     retInternal_ = getBitTemplate();
   }
   /// destructor
-  virtual ~WSelector() {}
+  virtual ~WSelectorFast() {}
   /// return muon candidate of W boson
   pat::Muon const& wMuon() const { return *wMuon_;}
   /// return MET of W boson
