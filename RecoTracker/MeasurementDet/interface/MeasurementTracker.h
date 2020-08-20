@@ -4,7 +4,6 @@
 #include "TrackingTools/MeasurementDet/interface/MeasurementDetSystem.h"
 #include "DataFormats/DetId/interface/DetId.h"
 
-
 #include "RecoTracker/TkDetLayers/interface/GeometricSearchTracker.h"
 
 #include "FWCore/Framework/interface/Event.h"
