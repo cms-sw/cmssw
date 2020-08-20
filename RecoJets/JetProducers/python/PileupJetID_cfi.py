@@ -36,14 +36,14 @@ pileupJetId = cms.EDProducer('PileupJetIdProducer',
 
 # Calculate variables, but don't run MVAs
 pileupJetIdCalculator = pileupJetId.clone(
-    runMvas = cms.bool(False),
-    algos = cms.VPSet(cutbased),
+    runMvas = False,
+    algos   = cms.VPSet(cutbased),
 )
 
 # Run MVAs on precalculated variables
 pileupJetIdEvaluator = pileupJetId.clone(
-    produceJetIds = cms.bool(False),
-    jetids = cms.InputTag("pileupJetIdCalculator"),
+    produceJetIds = False,
+    jetids        = "pileupJetIdCalculator",
 )
 
 pileUpJetIDTask = cms.Task(pileupJetId,

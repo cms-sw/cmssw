@@ -2,10 +2,10 @@ import FWCore.ParameterSet.Config as cms
 # ---------- Add assigned jet-track association
 
 from RecoJets.JetAssociationProducers.ak4JTA_cff import *
-ak4JetTracksAssociatorAtVertexJPT = ak4JetTracksAssociatorAtVertex.clone()
-ak4JetTracksAssociatorAtVertexJPT.useAssigned = cms.bool(True)
-ak4JetTracksAssociatorAtVertexJPT.pvSrc = cms.InputTag("offlinePrimaryVertices")
-
+ak4JetTracksAssociatorAtVertexJPT = ak4JetTracksAssociatorAtVertex.clone(
+    useAssigned = True,
+    pvSrc       = "offlinePrimaryVertices"
+)
 # ---------- Tight Electron ID
 
 from RecoEgamma.ElectronIdentification.electronIdSequence_cff import eidTight
