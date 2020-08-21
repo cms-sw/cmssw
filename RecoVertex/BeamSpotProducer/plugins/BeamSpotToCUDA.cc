@@ -3,6 +3,7 @@
 #include "CUDADataFormats/BeamSpot/interface/BeamSpotCUDA.h"
 #include "CUDADataFormats/Common/interface/Product.h"
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
+#include "DataFormats/BeamSpot/interface/BeamSpotPOD.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/global/EDProducer.h"
@@ -19,7 +20,7 @@ namespace {
 
   class BeamSpotHost {
   public:
-    BeamSpotHost() : data_h_{cms::cuda::make_host_noncached_unique<BeamSpotCUDA::Data>(cudaHostAllocWriteCombined)} {}
+    BeamSpotHost() : data_h_{cms::cuda::make_host_noncached_unique<BeamSpotPOD>(cudaHostAllocWriteCombined)} {}
 
     BeamSpotHost(BeamSpotHost const&) = delete;
     BeamSpotHost(BeamSpotHost&&) = default;
@@ -27,14 +28,14 @@ namespace {
     BeamSpotHost& operator=(BeamSpotHost const&) = delete;
     BeamSpotHost& operator=(BeamSpotHost&&) = default;
 
-    BeamSpotCUDA::Data* data() { return data_h_.get(); }
-    BeamSpotCUDA::Data const* data() const { return data_h_.get(); }
+    BeamSpotPOD* data() { return data_h_.get(); }
+    BeamSpotPOD const* data() const { return data_h_.get(); }
 
-    cms::cuda::host::noncached::unique_ptr<BeamSpotCUDA::Data>& ptr() { return data_h_; }
-    cms::cuda::host::noncached::unique_ptr<BeamSpotCUDA::Data> const& ptr() const { return data_h_; }
+    cms::cuda::host::noncached::unique_ptr<BeamSpotPOD>& ptr() { return data_h_; }
+    cms::cuda::host::noncached::unique_ptr<BeamSpotPOD> const& ptr() const { return data_h_; }
 
   private:
-    cms::cuda::host::noncached::unique_ptr<BeamSpotCUDA::BeamSpotCUDA::Data> data_h_;
+    cms::cuda::host::noncached::unique_ptr<BeamSpotPOD> data_h_;
   };
 
 }  // namespace
