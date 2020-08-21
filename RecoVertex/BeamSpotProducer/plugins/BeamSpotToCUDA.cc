@@ -68,7 +68,7 @@ BeamSpotToCUDA::BeamSpotToCUDA(const edm::ParameterSet& iConfig)
 void BeamSpotToCUDA::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
   desc.add<edm::InputTag>("src", edm::InputTag("offlineBeamSpot"));
-  descriptions.add("offlineBeamSpotCUDA", desc);
+  descriptions.add("offlineBeamSpotToCUDA", desc);
 }
 
 void BeamSpotToCUDA::produce(edm::StreamID streamID, edm::Event& iEvent, const edm::EventSetup& iSetup) const {
