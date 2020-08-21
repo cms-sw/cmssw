@@ -264,7 +264,7 @@ def nanoAOD_runMETfixEE2017(process,isData):
     process.nanoSequenceCommon.insert(process.nanoSequenceCommon.index(jetSequence),process.fullPatMetSequenceFixEE2017)
 
 def nanoAOD_customizeCommon(process):
-    makePuppiesFromMiniAOD(process,True) # call this here as it calls switchOnVIDPhotonIdProducer
+    makePuppiesFromMiniAOD(process,True) 
     process.puppiNoLep.useExistingWeights = True
     process.puppi.useExistingWeights = True
     process = nanoAOD_activateVID(process)
