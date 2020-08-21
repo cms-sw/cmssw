@@ -159,7 +159,8 @@ void PuppiProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
             pReco.id = 3;
           else if (tmpFromPV == 0) {
             pReco.id = 2;
-            if (fNumOfPUVtxsForCharged > 0 and (pVtxId <= fNumOfPUVtxsForCharged) and (std::abs(pDZ) < fDZCutForChargedFromPUVtxs))
+            if (fNumOfPUVtxsForCharged > 0 and (pVtxId <= fNumOfPUVtxsForCharged) and
+                (std::abs(pDZ) < fDZCutForChargedFromPUVtxs))
               pReco.id = 1;
           } else if (tmpFromPV == 3)
             pReco.id = 1;
@@ -193,7 +194,8 @@ void PuppiProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
           } else if (lPack->fromPV() == 0) {
             pReco.id = 2;
             if ((fNumOfPUVtxsForCharged > 0) and (std::abs(pDZ) < fDZCutForChargedFromPUVtxs)) {
-              for (size_t puVtx_idx = 1; puVtx_idx <= fNumOfPUVtxsForCharged && puVtx_idx < pvCol->size(); ++puVtx_idx) {
+              for (size_t puVtx_idx = 1; puVtx_idx <= fNumOfPUVtxsForCharged && puVtx_idx < pvCol->size();
+                   ++puVtx_idx) {
                 if (lPack->fromPV(puVtx_idx) >= 2) {
                   pReco.id = 1;
                   break;
