@@ -33,16 +33,49 @@ using namespace cms_units::operators;
 // Constructor from DD4Hep DDFilteredView, also using the SpecPars to access 2x2 wafers info.
 //  A conversion factor (/1._mm) is applied wherever needed.
 DetGeomDesc::DetGeomDesc(const cms::DDFilteredView& fv, const cms::DDSpecParRegistry& allSpecParSections)
-  : m_name(fv.name()),
+  : m_name( (fv.name().find(":") != std::string::npos 
+	     ? fv.name().substr(fv.name().find(":") + 1) 
+	     : fv.name()) 
+	    ),
     m_copy(fv.copyNum()),
     m_trans(fv.translation() / 1._mm),  // Convert cm (DD4hep) to mm (legacy)
     m_rot(fv.rotation()),
     m_params(copyParameters(fv)),   
     m_isABox(fv.isABox()),
-    m_sensorType(computeSensorType(fv.path(), allSpecParSections)),
+    m_sensorType(computeSensorType(m_name, fv.path(), allSpecParSections)),
     m_geographicalID(computeDetID(fv)),
     m_z(fv.translation().z() / 1._mm)  // Convert cm (DD4hep) to mm (legacy)
 {}
+
+
+void DetGeomDesc::print() const {
+  std::cout << " " << std::endl;
+  std::cout << " " << std::endl;
+  std::cout << "!!!!!!!!!!!!!!!!    item.name_ = " << m_name << std::endl;
+  //std::cout << "testttt fv.name().name() = " << fv.name().name() << std::endl;
+  std::cout << "item.copy_ = " << m_copy << std::endl;
+  std::cout << "item.translation = " << std::fixed << std::setprecision(7) << m_trans << std::endl;
+  std::cout << "item.rotation = " << std::fixed << std::setprecision(7) << m_rot << std::endl;
+
+  /*
+    if (m_isABox()) {
+    std::cout << "item.getDiamondDimensions() = " << std::fixed << std::setprecision(7) << m_getDiamondDimensions().xHalfWidth << " " << m_getDiamondDimensions().yHalfWidth << " " << m_getDiamondDimensions().zHalfWidth << std::endl;
+    }*/
+  std::cout << "item.sensorType_ = " << m_sensorType << std::endl;
+  //std::cout << "path = " << fv.path() << std::endl;
+
+  std::cout << "item.parentZPosition() = " << std::fixed << std::setprecision(7) << m_z << std::endl;
+  if ((int)m_geographicalID() != 0) {
+    std::cout << "item.geographicalID() = " << m_geographicalID << std::endl;
+  }
+
+}
+
+
+bool DetGeomDesc::operator<(const DetGeomDesc& other) const { 
+  return (name() != other.name() ? name() < other.name() : copyno() < other.copyno()); 
+}
+
 
 
 DetGeomDesc::DetGeomDesc(const DetGeomDesc& ref) { (*this) = ref; }
@@ -120,7 +153,12 @@ std::vector<double> DetGeomDesc::copyParameters(const cms::DDFilteredView& fv) c
 DetId DetGeomDesc::computeDetID(const cms::DDFilteredView& fv) const {
   DetId geoID;
 
-  const std::string name{fv.name()};
+  //const std::string name{fv.name()};
+  const std::string name { (fv.name().find(":") != std::string::npos 
+			    ? fv.name().substr(fv.name().find(":") + 1) 
+			    : fv.name())
+      };
+
 
   // strip sensors
   if (name == DDD_TOTEM_RP_SENSOR_NAME) {
@@ -230,8 +268,18 @@ DetId DetGeomDesc::computeDetID(const cms::DDFilteredView& fv) const {
 /*
  * If nodePath has a 2x2RPixWafer parameter defined in an XML SPecPar section, sensorType is 2x2.
  */
-std::string DetGeomDesc::computeSensorType(const std::string& nodePath, const cms::DDSpecParRegistry& allSpecParSections) {
+std::string DetGeomDesc::computeSensorType(const std::string& name, const std::string& nodePath, const cms::DDSpecParRegistry& allSpecParSections) {
   std::string sensorType;
+
+  //std::size_t found = sensor_name.find(DDD_CTPPS_PIXELS_SENSOR_NAME);
+  //if (found != std::string::npos && sensor_name.substr(found - 4, 3) == DDD_CTPPS_PIXELS_SENSOR_TYPE_2x2) {
+  //m_sensorType = DDD_CTPPS_PIXELS_SENSOR_TYPE_2x2;
+  //}
+  const std::size_t found = name.find(DDD_CTPPS_PIXELS_SENSOR_TYPE_2x2 + ":" + DDD_CTPPS_PIXELS_SENSOR_NAME);
+  if (found != std::string::npos) {
+    sensorType = DDD_CTPPS_PIXELS_SENSOR_TYPE_2x2;
+  }
+
 
   const std::string& parameterName = DDD_CTPPS_2x2_RPIXWAFER_PARAMETER_NAME;
 

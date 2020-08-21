@@ -56,6 +56,9 @@ public:
   // Default
   DetGeomDesc() {};
 
+  void print() const;
+  bool operator<(const DetGeomDesc& other) const;
+
   // Constructor from DD4Hep DDFilteredView
   DetGeomDesc(const cms::DDFilteredView& fv, const cms::DDSpecParRegistry& allSpecParSections);
 
@@ -101,7 +104,7 @@ private:
 
   std::vector<double> copyParameters(const cms::DDFilteredView& fv) const;
   DetId computeDetID(const cms::DDFilteredView& fv) const;
-  std::string computeSensorType(const std::string& nodePath, const cms::DDSpecParRegistry& allSpecParSections);
+  std::string computeSensorType(const std::string& name, const std::string& nodePath, const cms::DDSpecParRegistry& allSpecParSections);
 
   std::string m_name;
   int m_copy;
