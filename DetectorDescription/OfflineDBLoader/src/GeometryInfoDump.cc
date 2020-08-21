@@ -18,6 +18,16 @@
 using Graph = DDCompactView::Graph;
 using adjl_iterator = Graph::const_adj_iterator;
 
+// For output of values to four decimal places, round negative values
+// equivalent to 0 within the precision to 0 to prevent printing "-0".
+template <class valType>
+static constexpr valType roundNeg0(valType value) {
+  if (value < 0. && value > -5.0e-5)
+    return (0.0);
+  else
+    return (value);
+}
+
 GeometryInfoDump::GeometryInfoDump() {}
 
 GeometryInfoDump::~GeometryInfoDump() {}
@@ -52,18 +62,18 @@ void GeometryInfoDump::dumpInfo(
         size_t s = snprintf(buf,
                             256,
                             ",%12.4f,%12.4f,%12.4f,%12.4f,%12.4f,%12.4f,%12.4f,%12.4f,%12.4f,%12.4f,%12.4f,%12.4f",
-                            epv.translation().x(),
-                            epv.translation().y(),
-                            epv.translation().z(),
-                            x.X(),
-                            y.X(),
-                            z.X(),
-                            x.Y(),
-                            y.Y(),
-                            z.Y(),
-                            x.Z(),
-                            y.Z(),
-                            z.Z());
+                            roundNeg0(epv.translation().x()),
+                            roundNeg0(epv.translation().y()),
+                            roundNeg0(epv.translation().z()),
+                            roundNeg0(x.X()),
+                            roundNeg0(y.X()),
+                            roundNeg0(z.X()),
+                            roundNeg0(x.Y()),
+                            roundNeg0(y.Y()),
+                            roundNeg0(z.Y()),
+                            roundNeg0(x.Z()),
+                            roundNeg0(y.Z()),
+                            roundNeg0(z.Z()));
         assert(s < 256);
         dump << buf;
       }

@@ -22,6 +22,8 @@ process.maxEvents = cms.untracked.PSet(
 
 process.source = cms.Source("EmptySource")
 
-process.prod = cms.EDAnalyzer("DTGeometryAnalyzer")
+process.prod = cms.EDAnalyzer("DTGeometryAnalyzer",
+                              tinyDifferences = cms.untracked.bool(True)
+                             )
 
 process.p1 = cms.Path(process.prod)
