@@ -8,7 +8,7 @@ process = cms.Process("CSCGeometryAnalyzer")
 # ====================
 process.load("Geometry.MuonNumbering.muonGeometryConstants_cff")
 process.load("Geometry.MuonNumbering.muonNumberingInitialization_cfi")
-process.load("Geometry.MuonCommonData.muonEndcapIdealGeometryXML_cfi")
+process.load('Configuration.Geometry.GeometryExtended_cff')
 
 # Fake alignment is/should be ideal geometry
 # ==========================================
