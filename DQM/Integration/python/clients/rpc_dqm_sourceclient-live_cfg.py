@@ -101,9 +101,6 @@ process.rpcMergerdigidqm.RecHitLabel = cms.InputTag("rpcMergerRecHits")
 
 #######################################################
 
-################# DCS Info ######################
-process.load("DQM.RPCMonitorDigi.RPCDcsInfo_cfi")
-
 ################# DQM Client Modules ############
 process.load("DQM.RPCMonitorClient.RPCDqmClient_cfi")
 process.rpcdqmclient.RPCDqmClientList = cms.untracked.vstring("RPCMultiplicityTest", "RPCDeadChannelTest", "RPCClusterSizeTest", "RPCOccupancyTest","RPCNoisyStripTest")
@@ -156,7 +153,7 @@ process.rpcSource = cms.Sequence( process.rpcunpacker
                       * (process.rpcRecHits + process.rpcMergerRecHits)
                       * process.scalersRawToDigi
                       * (process.rpcdigidqm + process.rpcMergerdigidqm)
-                      * process.rpcMonitorRaw*process.rpcDcsInfo*process.qTesterRPC
+                      * process.rpcMonitorRaw*process.qTesterRPC
                     )
 process.rpcClient = cms.Sequence(process.rpcdqmclient*process.rpcMergerdqmclient*process.rpcChamberQuality*process.rpcChamberQualityMerger*process.rpcEventSummary*process.rpcEventSummaryMerger*process.dqmEnv*process.dqmSaver)
 process.p = cms.Path(process.hltTriggerTypeFilter*process.rpcSource*process.rpcClient)
