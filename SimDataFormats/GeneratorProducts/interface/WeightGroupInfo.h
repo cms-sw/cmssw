@@ -43,9 +43,9 @@ namespace gen {
   public:
     WeightGroupInfo() : WeightGroupInfo("") {}
     WeightGroupInfo(std::string header, std::string name)
-        : isWellFormed_(true), headerEntry_(header), name_(name), firstId_(-1), lastId_(-1) {}
+        : isWellFormed_(false), headerEntry_(header), name_(name), firstId_(-1), lastId_(-1) {}
     WeightGroupInfo(std::string header)
-        : isWellFormed_(true), headerEntry_(header), name_(header), firstId_(-1), lastId_(-1) {}
+        : isWellFormed_(false), headerEntry_(header), name_(header), firstId_(-1), lastId_(-1) {}
     WeightGroupInfo(const WeightGroupInfo& other) { copy(other); }
     WeightGroupInfo& operator=(const WeightGroupInfo& other) {
       copy(other);
@@ -85,6 +85,7 @@ namespace gen {
     void setIsWellFormed(bool wellFormed) { isWellFormed_ = wellFormed; }
     bool isWellFormed() const { return isWellFormed_; }
     int weightIndexFromLabel(std::string weightLabel) const;
+    std::vector<std::string> weightLabels() const;
 
   protected:
     bool isWellFormed_;

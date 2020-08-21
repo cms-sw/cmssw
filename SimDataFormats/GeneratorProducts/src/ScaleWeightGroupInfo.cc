@@ -26,35 +26,35 @@ namespace gen {
     }
     WeightGroupInfo::addContainedId(globalIndex, id, label);
     setMuRMuFIndex(globalIndex, id, muR, muF);
+    std::cout << hasAllWeights << " " << isWellFormed_ << std::endl;
+    for (int muidx : muIndices_) {
+      std::cout << muidx << " ";
+    }
+    std::cout << std::endl;
   }
 
-  void ScaleWeightGroupInfo::setMuRMuFIndex(
-      int globalIndex, std::string id, float muR, float muF, size_t dynNum, std::string dynName) {
-    auto metaInfo = weightMetaInfoByGlobalIndex(id, globalIndex);
-    if ((int)dynNum == -1)
-      setMuRMuFIndex(metaInfo, muR, muF);
-    else
-      setMuRMuFIndex(metaInfo, muR, muF, dynNum, dynName);
-  }
-
-  void ScaleWeightGroupInfo::setMuRMuFIndex(WeightMetaInfo& info, float muR, float muF) {
-    int index = getIndex(muR, muF);
-    if (index < 0 || index > 8 || !(isValidValue(muR) && isValidValue(muF))) {
+  void ScaleWeightGroupInfo::setMuRMuFIndex(int globalIndex, std::string id, float muR, float muF) {
+    auto info = weightMetaInfoByGlobalIndex(id, globalIndex);
+    int index = indexFromMus(muR, muF);
+    if (!(isValidValue(muR) && isValidValue(muF))) {
       isWellFormed_ = false;
       return;
     }
-    if (index == 4)
+    if (index == Central_idx)
       containsCentral_ = true;
     muIndices_[index] = info.localIndex;
+
+    for (int muidx : muIndices_) {
+      if (muidx == -1)
+        return;
+    }
+    hasAllWeights = true;
   }
 
-  void ScaleWeightGroupInfo::setMuRMuFIndex(
-      WeightMetaInfo& info, float muR, float muF, size_t dynNum, std::string dynName) {
-    int index = getIndex(muR, muF);
-    if (index < 0 || index > 8 || !(isValidValue(muR) && isValidValue(muF))) {
-      isWellFormed_ = false;
-      return;
-    }
+  void ScaleWeightGroupInfo::setDyn(
+      int globalIndex, std::string id, float muR, float muF, size_t dynNum, std::string dynName) {
+    auto info = weightMetaInfoByGlobalIndex(id, globalIndex);
+    int index = indexFromMus(muR, muF);
     // resize if too small
     if (dynVec_.at(index).size() < dynNum + 1) {
       for (auto& dynIt : dynVec_)
@@ -67,39 +67,37 @@ namespace gen {
     dynVec_[index][dynNum] = info.localIndex;
   }
 
-  size_t ScaleWeightGroupInfo::getScaleIndex(float muR, float muF, std::string& dynName) const {
+  size_t ScaleWeightGroupInfo::scaleIndex(float muR, float muF, std::string& dynName) const {
     auto it = std::find(dynNames_.begin(), dynNames_.end(), dynName);
     if (it == dynNames_.end())
       return -1;
     else
-      return getScaleIndex(muR, muF, it - dynNames_.begin());
+      return scaleIndex(muR, muF, it - dynNames_.begin());
   }
-  size_t ScaleWeightGroupInfo::getScaleIndex(int index, std::string& dynName) const {
+
+  size_t ScaleWeightGroupInfo::scaleIndex(int index, std::string& dynName) const {
     auto it = std::find(dynNames_.begin(), dynNames_.end(), dynName);
     if (it == dynNames_.end())
       return -1;
     else
-      return getScaleIndex(index, it - dynNames_.begin());
+      return scaleIndex(index, it - dynNames_.begin());
   }
 
-  size_t ScaleWeightGroupInfo::getScaleIndex(float muR, float muF, size_t dynNum) const {
-    int index = getIndex(muR, muF);
-    if (index < 0 || index > 8 || !(isValidValue(muR) && isValidValue(muF)) || dynNum + 1 > dynNames_.size()) {
-      // Bad access!
+  size_t ScaleWeightGroupInfo::scaleIndex(float muR, float muF, size_t dynNum) const {
+    ;
+    if (!(isValidValue(muR) && isValidValue(muF)) || dynNum + 1 > dynNames_.size())
       return -1;
-    }
-    return getScaleIndex(index, dynNum);
+    else
+      return scaleIndex(indexFromMus(muR, muF), dynNum);
   }
-  size_t ScaleWeightGroupInfo::getScaleIndex(float muR, float muF) const {
-    int index = getIndex(muR, muF);
-    if (index < 0 || index > 8 || !(isValidValue(muR) && isValidValue(muF))) {
-      // Bad access!
+  size_t ScaleWeightGroupInfo::scaleIndex(float muR, float muF) const {
+    if (!(isValidValue(muR) && isValidValue(muF)))
       return -1;
-    }
-    return muIndices_.at(index);
+    else
+      return muIndices_.at(indexFromMus(muR, muF));
   }
 
-  std::vector<std::string> ScaleWeightGroupInfo::getDynNames() const {
+  std::vector<std::string> ScaleWeightGroupInfo::dynNames() const {
     std::vector<std::string> returnVec;
     for (auto item : dynNames_) {
       if (!item.empty())

@@ -6,6 +6,9 @@
 #include "SimDataFormats/GeneratorProducts/interface/WeightGroupInfo.h"
 
 namespace gen {
+  enum class PSVarType { muR, cNS, con, def, red};
+  enum class PSSplittingType { combined, g2gg, x2xg, g2qq };
+
   class PartonShowerWeightGroupInfo : public WeightGroupInfo {
   public:
     PartonShowerWeightGroupInfo() : PartonShowerWeightGroupInfo("") {}
@@ -17,22 +20,13 @@ namespace gen {
     virtual ~PartonShowerWeightGroupInfo() override {}
     void copy(const PartonShowerWeightGroupInfo &other);
     virtual PartonShowerWeightGroupInfo *clone() const override;
-
-    // TODO: replace these general functions with specific ones
-    int upIndex(std::string weightName) { 
-      int index = weightIndexFromLabel(weightName+"Hi");
-      return index >= 0 ? index : weightIndexFromLabel(weightName+"_up"); 
-    }
-    int downIndex(std::string weightName) {
-      int index = weightIndexFromLabel(weightName+"Low");
-      return index >= 0 ? index : weightIndexFromLabel(weightName+"_dn"); 
-    }
-    std::vector<std::string> getWeightNames() const { return weightNames; }
+    void setNameIsPythiaSyntax(bool isPythiaSyntax) { nameIsPythiaSyntax_ = isPythiaSyntax; }
+    bool nameIsPythiaSyntax(bool isPythiaSyntax) const { return nameIsPythiaSyntax_; }
+    int variationIndex(bool isISR, bool isUp, PSVarType variationType, PSSplittingType splittingType) const;
+    int variationIndex(bool isISR, bool isUp, PSVarType variationType) const;
 
   private:
-    std::unordered_map<std::string, std::pair<size_t, size_t>> weightNameToUpDown;
-    std::vector<std::string> weightNames;
-    // Is a variation of the functional form of the dynamic scale
+    bool nameIsPythiaSyntax_ = false;
   };
 }  // namespace gen
 
