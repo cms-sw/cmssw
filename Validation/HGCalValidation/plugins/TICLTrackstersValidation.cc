@@ -28,6 +28,8 @@ struct Histogram_TICLTrackstersValidation {
   dqm::reco::MonitorElement* delta_energy_vs_layer_;
   dqm::reco::MonitorElement* delta_energy_relative_vs_layer_;
   dqm::reco::MonitorElement* delta_layer_;
+  dqm::reco::MonitorElement* ingoing_links_vs_layer_;
+  dqm::reco::MonitorElement* outgoing_links_vs_layer_;
   // For the definition of the angles, read http://hgcal.web.cern.ch/hgcal/Reconstruction/Tutorial/
   dqm::reco::MonitorElement* angle_alpha_;
   dqm::reco::MonitorElement* angle_alpha_alternative_;
@@ -144,11 +146,18 @@ void TICLTrackstersValidation::dqmAnalyze(edm::Event const& iEvent,
         // Beta angle is usually computed using 2 edges. Another inner loop
         // is therefore needed.
         std::vector<std::array<unsigned int, 2>> innerDoublets;
+        std::vector<std::array<unsigned int, 2>> outerDoublets;
         for ( const auto & otherEdge : thisTrackster.edges()) {
           if (otherEdge[1] == edge[0]) {
             innerDoublets.push_back(otherEdge);
           }
+          if (edge[1] == otherEdge[0]) {
+            outerDoublets.push_back(otherEdge);
+          }
         }
+
+        histo.ingoing_links_vs_layer_->Fill(layer_in, innerDoublets.size());
+        histo.outgoing_links_vs_layer_->Fill(layer_out, outerDoublets.size());
         for (const auto & inner : innerDoublets) {
           const auto & inner_ic = layerClusters[inner[0]];
           const auto & inner_inner_pos = inner_ic.position();
@@ -175,6 +184,8 @@ void TICLTrackstersValidation::bookHistograms(DQMStore::IBooker& ibook,
     histo.delta_energy_vs_energy_ = ibook.book2D("Energy vs Delta Energy", "Energy (I) vs Delta Energy (O-I)", 800, -20., 20., 200, 0., 20.);
     histo.delta_energy_vs_layer_ = ibook.book2D("Delta Energy (O-I) vs Layer Number (I)", "Delta Energy (O-I) vs Layer Number (I)", 50, 0., 50., 800, -20., 20.);
     histo.delta_energy_relative_vs_layer_ = ibook.book2D("Relative Delta Energy (O-I)_I vs Layer Number (I)", "Relative Delta Energy (O-I)_I vs Layer Number (I)", 50, 0., 50., 200, -10., 10.);
+    histo.ingoing_links_vs_layer_ = ibook.book2D("Ingoing links Layer Number", "Ingoing links vs Layer Number", 50, 0., 50., 40, 0., 40.);
+    histo.outgoing_links_vs_layer_ = ibook.book2D("Outgoing links vs Layer Number", "Outgoing links vs Layer Number", 50, 0., 50., 40, 0., 40.);
     histo.delta_layer_ = ibook.book1D("Delta Layer", "Delta Layer", 10, 0., 10.);
     histo.angle_alpha_ = ibook.book1D("cosAngle Alpha", "cosAngle Alpha", 200, -1., 1.);
     histo.angle_beta_ = ibook.book1D("cosAngle Beta", "cosAngle Beta", 200, -1., 1.);
