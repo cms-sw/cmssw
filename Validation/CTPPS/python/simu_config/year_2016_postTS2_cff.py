@@ -34,8 +34,13 @@ ctppsInterpolatedOpticalFunctionsESSource.lhcInfoLabel = ""
 
 # aperture cuts
 ctppsDirectProtonSimulation.useEmpiricalApertures = True
-ctppsDirectProtonSimulation.empiricalAperture45="([xi]-(0.104 + [xangle] * 0.000E+00))/(116.4 + [xangle] * -0.000)"
-ctppsDirectProtonSimulation.empiricalAperture56="([xi]-(0.110 + [xangle] * 0.))/(150.0 + [xangle] * 0.)"
+
+#ctppsDirectProtonSimulation.empiricalAperture45="([xi]-(0.104 + [xangle] * 0.000E+00))/(116.4 + [xangle] * -0.000)"
+#ctppsDirectProtonSimulation.empiricalAperture56="([xi]-(0.110 + [xangle] * 0.))/(150.0 + [xangle] * 0.)"
+
+ctppsDirectProtonSimulation.empiricalAperture45="3.13445E-05+(([xi]<0.115758)*0.00975733+([xi]>=0.115758)*0.0228616)*([xi]-0.115758)"
+ctppsDirectProtonSimulation.empiricalAperture56="2.0617E-05+(([xi]<0.14324)*0.00475349+([xi]>=0.14324)*0.00629514)*([xi]-0.14324)"
+
 
 # defaults
 def SetDefaults(process):
