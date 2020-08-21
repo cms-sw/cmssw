@@ -11,6 +11,7 @@ from PhysicsTools.NanoAOD.genparticles_cff import *
 from PhysicsTools.NanoAOD.particlelevel_cff import *
 from PhysicsTools.NanoAOD.lheInfoTable_cfi import *
 from PhysicsTools.NanoAOD.genWeightsTable_cfi import *
+from PhysicsTools.NanoAOD.lheWeightsTable_cfi import *
 
 genWeights = cms.EDProducer("GenWeightProductProducer",
     genInfo = cms.InputTag("generator"),
@@ -21,7 +22,7 @@ lheWeights = cms.EDProducer("LHEWeightProductProducer",
     failIfInvalidXML = cms.untracked.bool(True)
     #lheWeightSourceLabels = cms.vstring(["externalLHEProducer", "source"])
 )
-
+'''
 lheWeightsTable = cms.EDProducer(
     "LHEWeightsTableProducer",
     lheWeights = cms.VInputTag(["externalLHEProducer", "source", "lheWeights"]),
@@ -38,7 +39,7 @@ lheWeightsTable = cms.EDProducer(
     #unknownOnlyIfEmpty = cms.untracked.vstring(['scale', 'PDF']),
     #unknownOnlyIfAllEmpty = cms.untracked.bool(False),
 )
-
+'''
 nanoMetadata = cms.EDProducer("UniqueStringProducer",
     strings = cms.PSet(
         tag = cms.string("untagged"),

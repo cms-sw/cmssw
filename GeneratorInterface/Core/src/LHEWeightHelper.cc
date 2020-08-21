@@ -7,11 +7,9 @@
 using namespace tinyxml2;
 
 namespace gen {
-  void LHEWeightHelper::setHeaderLines(std::vector<std::string> headerLines) { 
-    headerLines_ = headerLines;
-  }
+  void LHEWeightHelper::setHeaderLines(std::vector<std::string> headerLines) { headerLines_ = headerLines; }
 
-  void LHEWeightHelper::parseWeights() {
+  bool LHEWeightHelper::parseLHE(tinyxml2::XMLDocument& xmlDoc) {
     parsedWeights_.clear();
 
     if (!isConsistent() && failIfInvalidXML_) {
@@ -23,7 +21,6 @@ namespace gen {
       swapHeaders();
     }
 
-    tinyxml2::XMLDocument xmlDoc;
     std::string fullHeader = boost::algorithm::join(headerLines_, "");
     if (debug_)
       std::cout << "Full header is \n" << fullHeader << std::endl;
@@ -42,66 +39,76 @@ namespace gen {
       if (failIfInvalidXML_)
         throw std::runtime_error("XML is unreadable because of above error.");
       else
-        return;
+        return false;
     }
 
-    std::vector<std::string> nameAlts_ = {"name", "type"};
+    return true;
+  }
+
+  void LHEWeightHelper::addGroup(tinyxml2::XMLElement* inner, std::string groupName, int groupIndex, int& weightIndex) {
+    if (debug_)
+      std::cout << "  >> Found a weight inside the group. " << std::endl;
+    std::string text = "";
+    if (inner->GetText())
+      text = inner->GetText();
+
+    std::unordered_map<std::string, std::string> attributes;
+    for (auto* att = inner->FirstAttribute(); att != nullptr; att = att->Next())
+      attributes[att->Name()] = att->Value();
+    if (debug_)
+      std::cout << "     " << weightIndex << ": \"" << text << "\"" << std::endl;
+    parsedWeights_.push_back({inner->Attribute("id"), weightIndex++, groupName, text, attributes, groupIndex});
+  }
+
+  void LHEWeightHelper::parseWeights() {
+    tinyxml2::XMLDocument xmlDoc;
+    if (!parseLHE(xmlDoc)) {
+      return;
+    }
 
     int weightIndex = 0;
     int groupIndex = 0;
     for (auto* e = xmlDoc.RootElement(); e != nullptr; e = e->NextSiblingElement()) {
-      if (debug_) 
+      if (debug_)
         std::cout << "XML element is " << e->Name() << std::endl;
       std::string groupName = "";
       if (strcmp(e->Name(), "weight") == 0) {
-        if (debug_) 
-          std::cout << "Found weight unmatched to group\n";
-        // we are here if there is a weight that does not belong to any group
-        // TODO: Recylce code better between here when a weight is found in a group
-        std::string text = "";
-        if (e->GetText()) {
-          text = e->GetText();
-        }
-        std::unordered_map<std::string, std::string> attributes;
-        for (auto* att = e->FirstAttribute(); att != nullptr; att = att->Next())
-          attributes[att->Name()] = att->Value();
-        parsedWeights_.push_back({e->Attribute("id"), weightIndex++, groupName, text, attributes, groupIndex});
-      } else if (strcmp(e->Name(), "weightgroup") == 0) {
         if (debug_)
-          std::cout << "Found a weight group.\n";
-        // to deal wiht files with "id" instead of "name"
-        for (auto nameAtt : nameAlts_) {
-          if (e->Attribute(nameAtt.c_str())) {
-            groupName = e->Attribute(nameAtt.c_str());
-            break;
-          }
-        }
-        if (groupName.empty()) {
-          // TODO: Need a better failure mode
-          throw std::runtime_error("couldn't find groupname");
-        }
-        // May remove this, very specific error
-        if (groupName.find(".") != std::string::npos)
-          groupName.erase(groupName.find("."), groupName.size());
+          std::cout << "Found weight unmatched to group\n";
+        // need to fix
+        addGroup(e, groupName, groupIndex, weightIndex);
+      } else if (strcmp(e->Name(), "weightgroup") == 0) {
+        groupName = parseGroupName(e);
+        if (debug_)
+          std::cout << ">>>> Found a weight group: " << groupName << std::endl;
 
-        for (auto* inner = e->FirstChildElement("weight"); inner != nullptr;
-             inner = inner->NextSiblingElement("weight")) {
-          // we are here if there is a weight in a weightgroup
-          if (debug_)
-            std::cout << "Found a weight inside the group. Content is " << inner->GetText() <<  " group index is " << groupIndex << std::endl;
-          std::string text = "";
-          if (inner->GetText())
-            text = inner->GetText();
-          std::unordered_map<std::string, std::string> attributes;
-          for (auto* att = inner->FirstAttribute(); att != nullptr; att = att->Next())
-            attributes[att->Name()] = att->Value();
-          parsedWeights_.push_back({inner->Attribute("id"), weightIndex++, groupName, text, attributes, groupIndex});
-        }
+        for (auto inner = e->FirstChildElement("weight"); inner != nullptr; inner = inner->NextSiblingElement("weight"))
+          addGroup(inner, groupName, groupIndex, weightIndex);
+
       } else
-          std::cout << "Found an invalid entry\n";
+        std::cout << "Found an invalid entry\n";
       groupIndex++;
     }
     buildGroups();
+    if (debug_)
+      printWeights();
+  }
+
+  std::string LHEWeightHelper::parseGroupName(tinyxml2::XMLElement* el) {
+    std::vector<std::string> nameAlts_ = {"name", "type"};
+    for (auto nameAtt : nameAlts_) {
+      if (el->Attribute(nameAtt.c_str())) {
+        std::string groupName = el->Attribute(nameAtt.c_str());
+        if (groupName.find(".") != std::string::npos)
+          groupName.erase(groupName.find("."), groupName.size());
+        return groupName;
+      }
+    }
+    bool hardFail = true;
+    if (hardFail) {
+      throw std::runtime_error("couldn't find groupname");
+    }
+    return "";
   }
 
   bool LHEWeightHelper::isConsistent() {

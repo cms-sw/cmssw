@@ -89,6 +89,14 @@ namespace gen {
         weightLabelsToIndices_[weight.label] = weight.localIndex;
   }
 
+  std::vector<std::string> WeightGroupInfo::weightLabels() const {
+    std::vector<std::string> labels;
+    labels.reserve(idsContained_.size());
+    for (const auto& weight : idsContained_)
+      labels.push_back(weight.label);
+    return labels;
+  }
+
   int WeightGroupInfo::weightIndexFromLabel(std::string weightLabel) const {
       if (!weightLabelsToIndices_.empty()) {
         if (weightLabelsToIndices_.find(weightLabel) != weightLabelsToIndices_.end())

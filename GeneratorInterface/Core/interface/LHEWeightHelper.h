@@ -28,6 +28,9 @@ namespace gen {
   private:
     std::vector<std::string> headerLines_;
     bool failIfInvalidXML_ = false;
+    std::string parseGroupName(tinyxml2::XMLElement* el);
+    void addGroup(tinyxml2::XMLElement* inner, std::string groupName, int groupIndex, int& weightIndex);
+    bool parseLHE(tinyxml2::XMLDocument& xmlDoc);
   };
 }  // namespace gen
 

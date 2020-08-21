@@ -22,46 +22,48 @@ const edm::OwnVector<gen::WeightGroupInfo>& GenWeightInfoProduct::allWeightGroup
   return weightGroupsInfo_;
 }
 
-const gen::WeightGroupInfo* GenWeightInfoProduct::containingWeightGroupInfo(int index) const {
+const std::unique_ptr<gen::WeightGroupInfo> GenWeightInfoProduct::containingWeightGroupInfo(int index) const {
   for (const auto& weightGroup : weightGroupsInfo_) {
     if (weightGroup.indexInRange(index))
-      return &weightGroup;
+      return std::make_unique<gen::WeightGroupInfo>(weightGroup);
   }
   throw std::domain_error("Failed to find containing weight group");
 }
 
-const gen::WeightGroupInfo* GenWeightInfoProduct::orderedWeightGroupInfo(int weightGroupIndex) const {
+const std::unique_ptr<gen::WeightGroupInfo> GenWeightInfoProduct::orderedWeightGroupInfo(int weightGroupIndex) const {
   if (weightGroupIndex >= static_cast<int>(weightGroupsInfo_.size()))
     throw std::range_error("Weight index out of range!");
-  return &weightGroupsInfo_[weightGroupIndex];
+  return std::make_unique<gen::WeightGroupInfo>(weightGroupsInfo_[weightGroupIndex]);
 }
 
 std::vector<gen::WeightGroupData> GenWeightInfoProduct::weightGroupsAndIndicesByType(gen::WeightType type) const {
   std::vector<gen::WeightGroupData> matchingGroups;
   for (size_t i = 0; i < weightGroupsInfo_.size(); i++) {
     if (weightGroupsInfo_[i].weightType() == type)
-      matchingGroups.push_back({i, weightGroupsInfo_[i].clone()});
+      matchingGroups.push_back({i, std::make_unique<gen::WeightGroupInfo>(weightGroupsInfo_[i])});
   }
   return matchingGroups;
 }
 
-std::vector<gen::WeightGroupInfo*> GenWeightInfoProduct::weightGroupsByType(gen::WeightType type) const {
-  std::vector<gen::WeightGroupInfo*> matchingGroups;
+std::vector<std::unique_ptr<gen::WeightGroupInfo>> GenWeightInfoProduct::weightGroupsByType(gen::WeightType type) const {
+  std::vector<std::unique_ptr<gen::WeightGroupInfo>> matchingGroups;
   for (size_t i = 0; i < weightGroupsInfo_.size(); i++) {
     if (weightGroupsInfo_[i].weightType() == type)
-      matchingGroups.push_back(weightGroupsInfo_[i].clone());
+      matchingGroups.push_back(std::make_unique<gen::WeightGroupInfo>(weightGroupsInfo_[i]));
   }
   return matchingGroups;
 }
 
 std::optional<gen::WeightGroupData> GenWeightInfoProduct::pdfGroupWithIndexByLHAID(int lhaid) const {
-  auto pdfGroups = weightGroupsAndIndicesByType(gen::WeightType::kPdfWeights);
+  std::vector<gen::WeightGroupData> pdfGroups = weightGroupsAndIndicesByType(gen::WeightType::kPdfWeights);
 
   auto matchingPdfSet = std::find_if(pdfGroups.begin(), pdfGroups.end(), [lhaid](gen::WeightGroupData& data) {
-    auto pdfGroup = dynamic_cast<const gen::PdfWeightGroupInfo*>(data.group);
+    auto pdfGroup = std::make_unique<gen::PdfWeightGroupInfo>(*static_cast<gen::PdfWeightGroupInfo*>(data.group.release()));
     return pdfGroup->containsLhapdfId(lhaid);
   });
-  return matchingPdfSet != pdfGroups.end() ? std::optional<gen::WeightGroupData>(*matchingPdfSet) : std::nullopt;
+
+  return matchingPdfSet == pdfGroups.end() ? std::nullopt :
+      std::optional<gen::WeightGroupData>({matchingPdfSet->index, std::move(matchingPdfSet->group)});
 }
 
 std::vector<gen::WeightGroupData> GenWeightInfoProduct::pdfGroupsWithIndicesByLHAIDs(
@@ -71,11 +73,12 @@ std::vector<gen::WeightGroupData> GenWeightInfoProduct::pdfGroupsWithIndicesByLH
 
   for (auto lhaid : lhaids) {
     auto matchingPdfSet = std::find_if(pdfGroups.begin(), pdfGroups.end(), [lhaid](gen::WeightGroupData& data) {
-      auto pdfGroup = dynamic_cast<const gen::PdfWeightGroupInfo*>(data.group);
+      auto pdfGroup = std::make_unique<gen::PdfWeightGroupInfo>(*static_cast<gen::PdfWeightGroupInfo*>(data.group.release()));
       return pdfGroup->containsLhapdfId(lhaid);
     });
-    if (matchingPdfSet != pdfGroups.end())
-      pdfGroups.push_back(*matchingPdfSet);
+    if (matchingPdfSet != pdfGroups.end()) {
+      pdfGroups.push_back({matchingPdfSet->index, std::move(matchingPdfSet->group)});
+    }
   }
 
   return pdfGroups;
@@ -90,4 +93,4 @@ std::vector<int> GenWeightInfoProduct::weightGroupIndicesByType(gen::WeightType 
   return matchingGroupIndices;
 }
 
-void GenWeightInfoProduct::addWeightGroupInfo(gen::WeightGroupInfo* info) { weightGroupsInfo_.push_back(info); }
+void GenWeightInfoProduct::addWeightGroupInfo(std::unique_ptr<gen::WeightGroupInfo> info) { weightGroupsInfo_.push_back(std::move(info)); }
