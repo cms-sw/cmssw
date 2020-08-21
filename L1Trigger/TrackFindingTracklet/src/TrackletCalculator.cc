@@ -14,7 +14,6 @@ using namespace trklet;
 
 TrackletCalculator::TrackletCalculator(string name, Settings const& settings, Globals* globals, unsigned int iSector)
     : TrackletCalculatorBase(name, settings, globals, iSector) {
-  phioffset_ = phimin_;
 
   for (unsigned int ilayer = 0; ilayer < N_LAYER; ilayer++) {
     vector<TrackletProjectionsMemory*> tmp(settings.nallstubs(ilayer), nullptr);
