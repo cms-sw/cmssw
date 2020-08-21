@@ -401,6 +401,11 @@ sudo yum remove hltd-python34.x86_64
 # Install RPM packages from file:
 sudo yum install hltd-libs-python36-2.8.0-0.x86_64.rpm
 sudo yum install hltd-python36-2.8.0-0.x86_64.rpm
+
+# If HLTD is allready installed, there will be a coinflict.
+# In such case remove the existing version first:
+sudo yum remove hltd-python34-2.5.8-1.x86_64
+
 ```
 
 `paramcache`:

@@ -146,7 +146,12 @@ class ProtobufParser:
                 if read_histogram_bytes:
                     streamed_histo = await cls.read_length_delimited_value(buffer)
                     if uncompress_histogram_bytes:
-                        streamed_histo = zlib.decompress(streamed_histo)
+                        try:
+                            streamed_histo = zlib.decompress(streamed_histo)
+                        except:
+                            print('Error zlib decompressing:')
+                            print(streamed_histo)
+                            print(full_pathname)
                 else: 
                     # If we don't need the histogram, just seek through it
                     await cls.consume_unknown_field(buffer, wire_type)

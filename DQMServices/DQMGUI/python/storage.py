@@ -171,7 +171,7 @@ class GUIDataStore:
 
         if not row:
             # Blobs don't exist, we should probably try to import
-            return None
+            return (None, None, None, None)
 
         filename = row[0]
         fileformat = row[1]
