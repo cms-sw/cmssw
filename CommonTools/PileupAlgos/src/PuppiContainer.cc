@@ -7,8 +7,6 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/isFinite.h"
 
-#include "fastjet/PseudoJet.hh"
-
 using namespace std;
 
 PuppiContainer::PuppiContainer(const edm::ParameterSet &iConfig) {
@@ -46,19 +44,21 @@ void PuppiContainer::initialize(const std::vector<RecoObj> &iRecoObjects) {
   fPFParticlesForVar.reserve(iRecoObjects.size());
   fPFParticlesForVarChargedPV.reserve(iRecoObjects.size());
   for (auto const &rParticle : *fRecoParticles) {
-    fastjet::PseudoJet curPseudoJet;
-    if (edm::isFinite(rParticle.rapidity)) {
-      curPseudoJet.reset_PtYPhiM(rParticle.pt, rParticle.rapidity, rParticle.phi, rParticle.m);  //hacked
-    } else {
-      curPseudoJet.reset_PtYPhiM(0, 99., 0, 0);  //skipping may have been a better choice
-    }
     PuppiCandidate pCand;
-    pCand.pt = curPseudoJet.pt();
-    pCand.eta = curPseudoJet.eta();
-    pCand.rapidity = curPseudoJet.rap();
-    pCand.phi = curPseudoJet.phi();
-    pCand.m = curPseudoJet.m();
     pCand.id = rParticle.id;
+    if (edm::isFinite(rParticle.rapidity)) {
+      pCand.pt = rParticle.pt;
+      pCand.eta = rParticle.eta;
+      pCand.rapidity = rParticle.rapidity;
+      pCand.phi = rParticle.phi;
+      pCand.m = rParticle.m;
+    } else {
+      pCand.pt = 0.;
+      pCand.eta = 99.;
+      pCand.rapidity = 99.;
+      pCand.phi = 0.;
+      pCand.m = 0.;
+    }
 
     fPFParticles.push_back(pCand);
 
