@@ -26,6 +26,7 @@ namespace trklet {
               int projrinv,
               int projfinerz,
               int projfinephi,
+              bool usesecond,
               bool isPSseed,
               Tracklet* proj);
 
@@ -54,6 +55,7 @@ namespace trklet {
     int projrinv_;
     int projfinerz_;
     int projfinephi_;
+    bool usesecond_;
     bool isPSseed_;
     Tracklet* proj_;
 

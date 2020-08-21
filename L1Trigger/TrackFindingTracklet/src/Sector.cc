@@ -18,6 +18,7 @@
 #include "L1Trigger/TrackFindingTracklet/interface/TrackFitMemory.h"
 #include "L1Trigger/TrackFindingTracklet/interface/CleanTrackMemory.h"
 
+#include "L1Trigger/TrackFindingTracklet/interface/VMRouterCM.h"
 #include "L1Trigger/TrackFindingTracklet/interface/VMRouter.h"
 #include "L1Trigger/TrackFindingTracklet/interface/TrackletEngine.h"
 #include "L1Trigger/TrackFindingTracklet/interface/TrackletEngineDisplaced.h"
@@ -128,6 +129,8 @@ void Sector::addMem(string memType, string memName) {
 void Sector::addProc(string procType, string procName) {
   if (procType == "VMRouter:") {
     addProcToVec(VMR_, new VMRouter(procName, settings_, globals_, isector_), procName);
+  } else if (procType == "VMRouterCM:") {
+    addProcToVec(VMRCM_, new VMRouterCM(procName, settings_, globals_, isector_), procName);
   } else if (procType == "TrackletEngine:") {
     addProcToVec(TE_, new TrackletEngine(procName, settings_, globals_, isector_), procName);
   } else if (procType == "TrackletEngineDisplaced:") {
@@ -189,7 +192,7 @@ ProcessBase* Sector::getProc(string procName) {
   if (it != Processes_.end()) {
     return it->second.get();
   }
-  throw cms::Exception("BadConfig") << __FILE__ << " " << __LINE__ << " Could not find process : " << procName;
+  throw cms::Exception("BadConfig") << __FILE__ << " " << __LINE__ << " Could not find process : " << procName<<endl;
   return nullptr;
 }
 
@@ -311,6 +314,9 @@ void Sector::executeVMR() {
     }
   }
   for (auto& i : VMR_) {
+    i->execute();
+  }
+  for (auto& i : VMRCM_) {
     i->execute();
   }
 }
