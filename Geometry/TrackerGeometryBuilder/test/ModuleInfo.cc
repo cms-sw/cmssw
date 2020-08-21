@@ -38,6 +38,7 @@
 
 #include "Geometry/CommonDetUnit/interface/PixelGeomDetUnit.h"
 #include "DataFormats/GeometrySurface/interface/BoundSurface.h"
+#include "DataFormats/Math/interface/Rounding.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "Geometry/TrackerNumberingBuilder/interface/CmsTrackerDebugNavigator.h"
@@ -59,6 +60,8 @@
 #include <cmath>
 #include <bitset>
 
+using namespace cms_rounding;
+
 class ModuleInfo : public edm::one::EDAnalyzer<> {
 public:
   explicit ModuleInfo(const edm::ParameterSet&);
@@ -71,14 +74,18 @@ public:
 private:
   bool fromDDD_;
   bool printDDD_;
+  bool tinyDifferences_;
 };
 
 static const double density_units = 6.24151e+18;
 
-ModuleInfo::ModuleInfo(const edm::ParameterSet& ps) {
-  fromDDD_ = ps.getParameter<bool>("fromDDD");
-  printDDD_ = ps.getUntrackedParameter<bool>("printDDD", true);
-}
+ModuleInfo::ModuleInfo(const edm::ParameterSet& ps)
+    : fromDDD_(ps.getParameter<bool>("fromDDD")),
+      printDDD_(ps.getUntrackedParameter<bool>("printDDD", true)),
+      tinyDifferences_(ps.getUntrackedParameter<bool>("tinyDifferences", true))
+// Set tinyDifferences to True to show values as small as |1.e-23|;
+// otherwise values <|1.e-7| will be rounded to 0.
+{}
 
 ModuleInfo::~ModuleInfo() {}
 
@@ -93,6 +100,10 @@ void ModuleInfo::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
   // Numbering Scheme
   std::ofstream NumberingOutput("ModuleNumbering.dat", std::ios::out);
   //
+
+  double tolerance = 1.e-7;
+  if (tinyDifferences_)
+    tolerance = 1.e-23;
 
   //
   // get the GeometricDet
@@ -473,12 +484,12 @@ void ModuleInfo::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
         } else {
           out_module = tTopo->tecModule(id);
         }
-        double out_x = module->translation().X();
-        double out_y = module->translation().Y();
+        double out_x = roundIfNear0(module->translation().X(), tolerance);
+        double out_y = roundIfNear0(module->translation().Y(), tolerance);
         double out_z = module->translation().Z();
         double out_r = sqrt(module->translation().X() * module->translation().X() +
                             module->translation().Y() * module->translation().Y());
-        double out_phi_rad = atan2(module->translation().Y(), module->translation().X());
+        double out_phi_rad = roundIfNear0(atan2(module->translation().Y(), module->translation().X()), tolerance);
         TECOutput << out_side << " " << out_disk << " " << out_sector << " " << out_petal << " " << out_ring << " "
                   << out_module << " " << out_sensor << " " << out_x << " " << out_y << " " << out_z << " " << out_r
                   << " " << out_phi_rad << std::endl;
@@ -526,6 +537,12 @@ void ModuleInfo::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
     // active area versors (rotation matrix)
     DD3Vector x, y, z;
     module->rotation().GetComponents(x, y, z);
+    x = roundVecIfNear0(x, tolerance);
+    y = roundVecIfNear0(y, tolerance);
+    z = roundVecIfNear0(z, tolerance);
+    xGlobal = roundVecIfNear0(xGlobal, tolerance);
+    yGlobal = roundVecIfNear0(yGlobal, tolerance);
+    zGlobal = roundVecIfNear0(zGlobal, tolerance);
     Output << "\tActive Area Rotation Matrix" << std::endl;
     Output << "\t z = n = (" << std::fixed << std::setprecision(4) << z.X() << "," << std::fixed << std::setprecision(4)
            << z.Y() << "," << std::fixed << std::setprecision(4) << z.Z() << ")" << std::endl
