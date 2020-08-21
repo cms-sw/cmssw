@@ -42,8 +42,20 @@ ctppsRPAlignmentCorrectionsDataESSourceXML.RealFiles = [alignmentFile]
 
 # aperture cuts
 ctppsDirectProtonSimulation.useEmpiricalApertures = True
-ctppsDirectProtonSimulation.empiricalAperture45="([xi]-(0.079 + [xangle] * 4.211E-04))/(42.8 + [xangle] * 0.669)"
-ctppsDirectProtonSimulation.empiricalAperture56="([xi]-(0.074 + [xangle] * 6.604E-04))/(-22.7 + [xangle] * 1.600)"
+
+#ctppsDirectProtonSimulation.empiricalAperture45="([xi]-(0.079 + [xangle] * 4.211E-04))/-(-42.8 - [xangle] * 0.669)"
+#ctppsDirectProtonSimulation.empiricalAperture56="([xi]-(0.074 + [xangle] * 6.604E-04))/-(22.7 - [xangle] * 1.600)"
+
+#ctppsDirectProtonSimulation.empiricalAperture45="(7.805E-07*[xangle]-9.157E-05)+(([xi]<(0.000268*[xangle]+0.0986))*-0.00539+([xi]>=(0.000268*[xangle]+0.0986))*(0.000119*[xangle]-0.0278))*([xi]-(0.000268*[xangle]+0.0986))"
+#ctppsDirectProtonSimulation.empiricalAperture56="-5.44646E-05+(([xi]<(0.000853*[xangle]+0.0574))*(3.02996E-05*[xangle]-0.00941)+([xi]>=(0.000853*[xangle]+0.0574))*-0.00494479)*([xi]-(0.000853*[xangle]+0.0574))"
+
+ctppsDirectProtonSimulation.empiricalAperture45="-(8.44219E-07*[xangle]-0.000100957)+(([xi]<(0.000247185*[xangle]+0.101599))*-(1.40289E-05*[xangle]-0.00727237)+([xi]>=(0.000247185*[xangle]+0.101599))*-(0.000107811*[xangle]-0.0261867))*([xi]-(0.000247185*[xangle]+0.101599))"
+
+ctppsDirectProtonSimulation.empiricalAperture56="-(-4.74758E-07*[xangle]+3.0881E-05)+(([xi]<(0.000727859*[xangle]+0.0722653))*-(2.43968E-05*[xangle]-0.0085461)+([xi]>=(0.000727859*[xangle]+0.0722653))*-(7.19216E-05*[xangle]-0.0148267))*([xi]-(0.000727859*[xangle]+0.0722653))"
+
+#efficiency
+ctppsDirectProtonSimulation.useEfficiencyCheck = True
+ctppsDirectProtonSimulation.efficiencyPath = "/eos/user/k/kmisan/TEST/CMSSW_11_1_0_pre8/src/Validation/CTPPS/test/simu/OutputTimingEffHistosRun319488.root"
 
 # local reconstruction
 ctppsLocalTrackLiteProducer.includeStrips = False

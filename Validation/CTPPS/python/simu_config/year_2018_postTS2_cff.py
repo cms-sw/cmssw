@@ -9,5 +9,8 @@ ctppsRPAlignmentCorrectionsDataESSourceXML.MisalignedFiles = [alignmentFile]
 ctppsRPAlignmentCorrectionsDataESSourceXML.RealFiles = [alignmentFile]
 
 # timing resolution
-ctppsDirectProtonSimulation.timeResolutionDiamonds45 = "2 * (-0.0031 * (x - 3) + 0.16)"
-ctppsDirectProtonSimulation.timeResolutionDiamonds56 = "2 * ( (x<10)*(-0.0057*(x-10) + 0.110) + (x>=10)*(-0.0022*(x-10) + 0.110) )"
+#ctppsDirectProtonSimulation.timeResolutionDiamonds45 = "2 * (-0.0031 * (x - 3) + 0.16)"
+#ctppsDirectProtonSimulation.timeResolutionDiamonds56 = "2 * ( (x<10)*(-0.0057*(x-10) + 0.110) + (x>=10)*(-0.0022*(x-10) + 0.110) )"
+
+ctppsDirectProtonSimulation.timeResolutionDiamonds45 = "2*((x<16)*(-0.381504+0.255095*x-0.0415622*x^2+0.00275877*x^3-6.47115E-05*x^4)+(x>=16)*0.118)"
+ctppsDirectProtonSimulation.timeResolutionDiamonds56 = "2*((x<16)*(-0.279298+0.219838*x-0.0384257*x^2+0.00268906*x^3-6.60572E-05*x^4)+(x>=16)*0.099)"
