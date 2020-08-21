@@ -40,6 +40,7 @@ namespace trklet {
 
   //Processing modules
   class VMRouter;
+  class VMRouterCM;
   class TrackletEngine;
   class TrackletEngineDisplaced;
   class TripletEngine;
@@ -153,6 +154,7 @@ namespace trklet {
 
     std::map<std::string, std::unique_ptr<ProcessBase> > Processes_;
     std::vector<VMRouter*> VMR_;
+    std::vector<VMRouterCM*> VMRCM_;
     std::vector<TrackletEngine*> TE_;
     std::vector<TrackletEngineDisplaced*> TED_;
     std::vector<TripletEngine*> TRE_;

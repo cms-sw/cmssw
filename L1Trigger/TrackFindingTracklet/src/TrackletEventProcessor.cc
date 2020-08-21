@@ -357,9 +357,11 @@ void TrackletEventProcessor::event(SLHCEvent& ev) {
   TRETimer_.stop();
 
   // tracklet processor (alternative implementation to TE+TC)
+  TPTimer_.start();
   for (unsigned int k = 0; k < N_SECTOR; k++) {
     sectors_[k]->executeTP();
   }
+  TPTimer_.stop();
 
   for (unsigned int k = 0; k < N_SECTOR; k++) {
     if (settings_->writeMem() && k == settings_->writememsect()) {
@@ -508,33 +510,53 @@ void TrackletEventProcessor::printSummary() {
   }
 
   edm::LogVerbatim("Tracklet")
-      << "Process             Times called   Average time (ms)      Total time (s) \n"
-      << "Cleaning              " << setw(10) << cleanTimer_.ntimes() << setw(20) << setprecision(3)
-      << cleanTimer_.avgtime() * 1000.0 << setw(20) << setprecision(3) << cleanTimer_.tottime() << "\n"
-      << "Add Stubs             " << setw(10) << addStubTimer_.ntimes() << setw(20) << setprecision(3)
-      << addStubTimer_.avgtime() * 1000.0 << setw(20) << setprecision(3) << addStubTimer_.tottime() << "\n"
-      << "VMRouter              " << setw(10) << VMRouterTimer_.ntimes() << setw(20) << setprecision(3)
-      << VMRouterTimer_.avgtime() * 1000.0 << setw(20) << setprecision(3) << VMRouterTimer_.tottime() << "\n"
-      << "TrackletEngine        " << setw(10) << TETimer_.ntimes() << setw(20) << setprecision(3)
-      << TETimer_.avgtime() * 1000.0 << setw(20) << setprecision(3) << TETimer_.tottime() << "\n"
-      << "TrackletEngineDisplaced" << setw(10) << TEDTimer_.ntimes() << setw(20) << setprecision(3)
-      << TEDTimer_.avgtime() * 1000.0 << setw(20) << setprecision(3) << TEDTimer_.tottime() << "\n"
-      << "TripletEngine         " << setw(10) << TRETimer_.ntimes() << setw(20) << setprecision(3)
-      << TRETimer_.avgtime() * 1000.0 << setw(20) << setprecision(3) << TRETimer_.tottime() << "\n"
-      << "TrackletCalculator    " << setw(10) << TCTimer_.ntimes() << setw(20) << setprecision(3)
-      << TCTimer_.avgtime() * 1000.0 << setw(20) << setprecision(3) << TCTimer_.tottime() << "\n"
-      << "TrackletCalculatorDisplaced" << setw(10) << TCDTimer_.ntimes() << setw(20) << setprecision(3)
-      << TCDTimer_.avgtime() * 1000.0 << setw(20) << setprecision(3) << TCDTimer_.tottime() << "\n"
-      << "ProjectionRouter      " << setw(10) << PRTimer_.ntimes() << setw(20) << setprecision(3)
-      << PRTimer_.avgtime() * 1000.0 << setw(20) << setprecision(3) << PRTimer_.tottime() << "\n"
-      << "MatchEngine           " << setw(10) << METimer_.ntimes() << setw(20) << setprecision(3)
-      << METimer_.avgtime() * 1000.0 << setw(20) << setprecision(3) << METimer_.tottime() << "\n"
-      << "MatchCalculator       " << setw(10) << MCTimer_.ntimes() << setw(20) << setprecision(3)
-      << MCTimer_.avgtime() * 1000.0 << setw(20) << setprecision(3) << MCTimer_.tottime() << "\n"
+    << "Process             Times called   Average time (ms)      Total time (s)";
+  edm::LogVerbatim("Tracklet")
+    << "Cleaning              " << setw(10) << cleanTimer_.ntimes() << setw(20) << setprecision(3)
+    << cleanTimer_.avgtime() * 1000.0 << setw(20) << setprecision(3) << cleanTimer_.tottime();
+  edm::LogVerbatim("Tracklet")
+    << "Add Stubs             " << setw(10) << addStubTimer_.ntimes() << setw(20) << setprecision(3)
+    << addStubTimer_.avgtime() * 1000.0 << setw(20) << setprecision(3) << addStubTimer_.tottime();
+  edm::LogVerbatim("Tracklet")
+    << "VMRouter              " << setw(10) << VMRouterTimer_.ntimes() << setw(20) << setprecision(3)
+    << VMRouterTimer_.avgtime() * 1000.0 << setw(20) << setprecision(3) << VMRouterTimer_.tottime();
+  if (settings_->combined()) {
+    edm::LogVerbatim("Tracklet")
+      << "TrackletProcessor     " << setw(10) << TPTimer_.ntimes() << setw(20) << setprecision(3)
+      << TPTimer_.avgtime() * 1000.0 << setw(20) << setprecision(3) << TPTimer_.tottime();
+    edm::LogVerbatim("Tracklet")
       << "MatchProcessor        " << setw(10) << MPTimer_.ntimes() << setw(20) << setprecision(3)
-      << MPTimer_.avgtime() * 1000.0 << setw(20) << setprecision(3) << MPTimer_.tottime() << "\n"
-      << "FitTrack              " << setw(10) << FTTimer_.ntimes() << setw(20) << setprecision(3)
-      << FTTimer_.avgtime() * 1000.0 << setw(20) << setprecision(3) << FTTimer_.tottime() << "\n"
-      << "PurgeDuplicate        " << setw(10) << PDTimer_.ntimes() << setw(20) << setprecision(3)
-      << PDTimer_.avgtime() * 1000.0 << setw(20) << setprecision(3) << PDTimer_.tottime();
+      << MPTimer_.avgtime() * 1000.0 << setw(20) << setprecision(3) << MPTimer_.tottime();
+  } else {
+    edm::LogVerbatim("Tracklet")
+      << "TrackletEngine        " << setw(10) << TETimer_.ntimes() << setw(20) << setprecision(3)
+      << TETimer_.avgtime() * 1000.0 << setw(20) << setprecision(3) << TETimer_.tottime();
+    edm::LogVerbatim("Tracklet")
+      << "TrackletEngineDisplaced" << setw(10) << TEDTimer_.ntimes() << setw(20) << setprecision(3)
+      << TEDTimer_.avgtime() * 1000.0 << setw(20) << setprecision(3) << TEDTimer_.tottime();
+    edm::LogVerbatim("Tracklet")
+      << "TripletEngine         " << setw(10) << TRETimer_.ntimes() << setw(20) << setprecision(3)
+      << TRETimer_.avgtime() * 1000.0 << setw(20) << setprecision(3) << TRETimer_.tottime();
+    edm::LogVerbatim("Tracklet")
+      << "TrackletCalculator    " << setw(10) << TCTimer_.ntimes() << setw(20) << setprecision(3)
+      << TCTimer_.avgtime() * 1000.0 << setw(20) << setprecision(3) << TCTimer_.tottime();
+    edm::LogVerbatim("Tracklet")
+      << "TrackletCalculatorDisplaced" << setw(10) << TCDTimer_.ntimes() << setw(20) << setprecision(3)
+      << TCDTimer_.avgtime() * 1000.0 << setw(20) << setprecision(3) << TCDTimer_.tottime();
+    edm::LogVerbatim("Tracklet")
+      << "ProjectionRouter      " << setw(10) << PRTimer_.ntimes() << setw(20) << setprecision(3)
+      << PRTimer_.avgtime() * 1000.0 << setw(20) << setprecision(3) << PRTimer_.tottime();
+    edm::LogVerbatim("Tracklet")
+      << "MatchEngine           " << setw(10) << METimer_.ntimes() << setw(20) << setprecision(3)
+      << METimer_.avgtime() * 1000.0 << setw(20) << setprecision(3) << METimer_.tottime();
+    edm::LogVerbatim("Tracklet")
+      << "MatchCalculator       " << setw(10) << MCTimer_.ntimes() << setw(20) << setprecision(3)
+      << MCTimer_.avgtime() * 1000.0 << setw(20) << setprecision(3) << MCTimer_.tottime();
+  }
+  edm::LogVerbatim("Tracklet")
+    << "FitTrack              " << setw(10) << FTTimer_.ntimes() << setw(20) << setprecision(3)
+    << FTTimer_.avgtime() * 1000.0 << setw(20) << setprecision(3) << FTTimer_.tottime();
+  edm::LogVerbatim("Tracklet")
+    << "PurgeDuplicate        " << setw(10) << PDTimer_.ntimes() << setw(20) << setprecision(3)
+    << PDTimer_.avgtime() * 1000.0 << setw(20) << setprecision(3) << PDTimer_.tottime();
 }
