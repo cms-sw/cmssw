@@ -343,7 +343,7 @@ int DQMFileSaverPB::getMaxCompressedSize(int bufferSize) const {
   return maxOutputSize;
 }
 
-uLong DQMFileSaverPB::compressME(const TBufferFile& buffer, int maxOutputSize, char* compression_output) const {
+ulong DQMFileSaverPB::compressME(const TBufferFile& buffer, int maxOutputSize, char* compression_output) const {
   z_stream deflateStream;
   deflateStream.zalloc = Z_NULL;
   deflateStream.zfree = Z_NULL;
