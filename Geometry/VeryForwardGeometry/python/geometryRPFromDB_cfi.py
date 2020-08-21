@@ -1,8 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 DDDetectorESProducer = cms.ESSource("DDDetectorESProducer",
-                                            confGeomXMLFiles = cms.FileInPath('Geometry/VeryForwardGeometry/data/dd4hep/geometryIdealPPSFromDD_2018.xml'),
-                                            rootDDName = cms.string('cms:CMSE'),
+                                            confGeomXMLFiles = cms.FileInPath('Geometry/VeryForwardGeometry/data/dd4hep/empty.xml'),
                                             label = cms.string('CTPPS'),
                                             fromDB = cms.bool(True),
                                             appendToDataLabel = cms.string('XMLIdealGeometryESSource_CTPPS')
