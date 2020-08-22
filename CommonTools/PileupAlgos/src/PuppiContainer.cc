@@ -215,7 +215,7 @@ int PuppiContainer::getPuppiId(float iPt, float iEta) {
   for (int i0 = 0; i0 < fNAlgos; i0++) {
     int nEtaBinsPerAlgo = fPuppiAlgo[i0].etaBins();
     for (int i1 = 0; i1 < nEtaBinsPerAlgo; i1++) {
-      if ((std::abs(iEta) > fPuppiAlgo[i0].etaMin(i1)) && (std::abs(iEta) < fPuppiAlgo[i0].etaMax(i1))) {
+      if ((std::abs(iEta) >= fPuppiAlgo[i0].etaMin(i1)) && (std::abs(iEta) < fPuppiAlgo[i0].etaMax(i1))) {
         fPuppiAlgo[i0].fixAlgoEtaBin(i1);
         if (iPt > fPuppiAlgo[i0].ptMin()) {
           lId = i0;
