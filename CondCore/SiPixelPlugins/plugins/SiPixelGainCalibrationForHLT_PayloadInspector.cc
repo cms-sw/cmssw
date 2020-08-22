@@ -144,6 +144,13 @@ namespace {
                                                                     cond::payloadInspector::SINGLE_IOV,
                                                                     2>;
 
+  using SiPixelGainCalibForHLTGainDiffRatioTwoTags =
+      gainCalibHelper::SiPixelGainCalibDiffAndRatioTwoTags<gainCalibHelper::gainCalibPI::t_gain,
+                                                           SiPixelGainCalibrationForHLT>;
+  using SiPixelGainCalibForHLTPedestalDiffRatioTwoTags =
+      gainCalibHelper::SiPixelGainCalibDiffAndRatioTwoTags<gainCalibHelper::gainCalibPI::t_pedestal,
+                                                           SiPixelGainCalibrationForHLT>;
+
 }  // namespace
 
 PAYLOAD_INSPECTOR_MODULE(SiPixelGainCalibrationForHLT) {
@@ -176,4 +183,6 @@ PAYLOAD_INSPECTOR_MODULE(SiPixelGainCalibrationForHLT) {
   PAYLOAD_INSPECTOR_CLASS(SiPixelGainCalibForHLTPedestalByRegionComparisonSingleTag);
   PAYLOAD_INSPECTOR_CLASS(SiPixelGainCalibForHLTGainByRegionComparisonTwoTags);
   PAYLOAD_INSPECTOR_CLASS(SiPixelGainCalibForHLTPedestalByRegionComparisonTwoTags);
+  PAYLOAD_INSPECTOR_CLASS(SiPixelGainCalibForHLTGainDiffRatioTwoTags);
+  PAYLOAD_INSPECTOR_CLASS(SiPixelGainCalibForHLTPedestalDiffRatioTwoTags);
 }
