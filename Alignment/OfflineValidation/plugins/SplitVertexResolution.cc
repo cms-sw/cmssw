@@ -19,6 +19,7 @@
 #include <chrono>
 #include <iostream>
 #include <random>
+#include <boost/range/adaptor/indexed.hpp>
 
 // ROOT include files
 #include "TTree.h"
@@ -295,9 +296,7 @@ void SplitVertexResolution::analyze(const edm::Event& iEvent, const edm::EventSe
   // assigned randomly-enough
   engine_.seed(iEvent.id().event() + (iEvent.id().luminosityBlock() << 10) + (iEvent.id().run() << 20));
 
-  // Fill general info
-  h_runNumber->Fill(iEvent.id().run());
-
+  // first check if the event passes the run control
   bool passesRunControl = false;
 
   if (runControl_) {
@@ -314,6 +313,9 @@ void SplitVertexResolution::analyze(const edm::Event& iEvent, const edm::EventSe
     if (!passesRunControl)
       return;
   }
+
+  // Fill general info
+  h_runNumber->Fill(iEvent.id().run());
 
   ievt++;
   edm::Handle<edm::TriggerResults> hltresults;
@@ -625,7 +627,7 @@ void SplitVertexResolution::beginRun(edm::Run const& run, edm::EventSetup const&
     auto times = getRunTime(iSetup);
 
     if (debug_) {
-      const time_t start_time = times.first / 1000000;
+      const time_t start_time = times.first / 1.0e+6;
       edm::LogInfo("SplitVertexResolution")
           << RunNumber_ << " has start time: " << times.first << " - " << times.second << std::endl;
       edm::LogInfo("SplitVertexResolution")
@@ -651,8 +653,9 @@ void SplitVertexResolution::beginJob() {
                                              runControlNumbers_.size(),
                                              0.,
                                              runControlNumbers_.size());
-  for (const auto r : runControlNumbers_) {
-    h_runFromConfig->SetBinContent(r + 1, r);
+
+  for (const auto& run : runControlNumbers_ | boost::adaptors::indexed(1)) {
+    h_runFromConfig->SetBinContent(run.index(), run.value());
   }
 
   // resolutions
