@@ -93,6 +93,10 @@ void TrackToTrackComparisonHists::analyze(const edm::Event& iEvent, const edm::E
     edm::LogError("TrackToTrackComparisonHists") << "referencePVHandle not found, skipping event";
     return;
   }
+  if (referencePVHandle->empty()) {
+    edm::LogInfo("TrackToTrackComparisonHists") << "referencePVHandle->size is 0 ";
+    return;
+  }
   reco::Vertex referencePV = referencePVHandle->at(0);
 
   //
@@ -118,6 +122,10 @@ void TrackToTrackComparisonHists::analyze(const edm::Event& iEvent, const edm::E
   iEvent.getByToken(monitoredPVToken_, monitoredPVHandle);
   if (!monitoredTracksHandle.isValid()) {
     edm::LogError("TrackToTrackComparisonHists") << "monitoredPVHandle not found, skipping event";
+    return;
+  }
+  if (monitoredPVHandle->empty()) {
+    edm::LogInfo("TrackToTrackComparisonHists") << "monitoredPVHandle->size is 0 ";
     return;
   }
   reco::Vertex monitoredPV = monitoredPVHandle->at(0);
