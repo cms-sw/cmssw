@@ -145,6 +145,14 @@ namespace {
                                                                     SiPixelGainCalibrationOffline,
                                                                     cond::payloadInspector::SINGLE_IOV,
                                                                     2>;
+
+  using SiPixelGainCalibOfflineGainDiffRatioTwoTags =
+      gainCalibHelper::SiPixelGainCalibDiffAndRatioTwoTags<gainCalibHelper::gainCalibPI::t_gain,
+                                                           SiPixelGainCalibrationOffline>;
+  using SiPixelGainCalibOfflinePedestalDiffRatioTwoTags =
+      gainCalibHelper::SiPixelGainCalibDiffAndRatioTwoTags<gainCalibHelper::gainCalibPI::t_pedestal,
+                                                           SiPixelGainCalibrationOffline>;
+
 }  // namespace
 
 PAYLOAD_INSPECTOR_MODULE(SiPixelGainCalibrationOffline) {
@@ -177,4 +185,6 @@ PAYLOAD_INSPECTOR_MODULE(SiPixelGainCalibrationOffline) {
   PAYLOAD_INSPECTOR_CLASS(SiPixelGainCalibOfflinePedestalByRegionComparisonSingleTag);
   PAYLOAD_INSPECTOR_CLASS(SiPixelGainCalibOfflineGainByRegionComparisonTwoTags);
   PAYLOAD_INSPECTOR_CLASS(SiPixelGainCalibOfflinePedestalByRegionComparisonTwoTags);
+  PAYLOAD_INSPECTOR_CLASS(SiPixelGainCalibOfflineGainDiffRatioTwoTags);
+  PAYLOAD_INSPECTOR_CLASS(SiPixelGainCalibOfflinePedestalDiffRatioTwoTags);
 }

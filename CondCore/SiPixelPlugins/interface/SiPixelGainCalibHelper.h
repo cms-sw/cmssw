@@ -36,6 +36,73 @@ namespace gainCalibHelper {
 
     enum type { t_gain = 0, t_pedestal = 1, t_correlation = 2 };
 
+    //===========================================================================
+    // helper method to fill the ratio and diff distributions
+    template <typename PayloadType>
+    static void fillDiffAndRatio(const std::shared_ptr<PayloadType>& payload_A,
+                                 const std::shared_ptr<PayloadType>& payload_B,
+                                 std::array<std::shared_ptr<TH1F>, 2> arr,
+                                 gainCalibPI::type theType) {
+      std::vector<uint32_t> detids_A;
+      payload_A->getDetIds(detids_A);
+      std::vector<uint32_t> detids_B;
+      payload_B->getDetIds(detids_B);
+
+      if (detids_A != detids_B) {
+        edm::LogError("fillDiffAndRatio") << "the list of DetIds for the two payloads are not equal"
+                                          << " cannot make any comparison!" << std::endl;
+      }
+
+      assert(detids_A == detids_B);
+
+      for (const auto& d : detids_A) {
+        auto range = payload_A->getRange(d);
+        int numberOfRowsToAverageOver = payload_A->getNumberOfRowsToAverageOver();
+        int ncols = payload_A->getNCols(d);
+        int nRocsInRow = (range.second - range.first) / ncols / numberOfRowsToAverageOver;
+        unsigned int nRowsForHLT = 1;
+        int nrows = std::max((payload_A->getNumberOfRowsToAverageOver() * nRocsInRow),
+                             nRowsForHLT);  // dirty trick to make it work for the HLT payload
+
+        auto rangeAndCol_A = payload_A->getRangeAndNCols(d);
+        auto rangeAndCol_B = payload_B->getRangeAndNCols(d);
+        bool isDeadColumn;
+        bool isNoisyColumn;
+
+        float ratio(-.1), diff(-1.);
+
+        for (int col = 0; col < ncols; col++) {
+          for (int row = 0; row < nrows; row++) {
+            switch (theType) {
+              case gainCalibPI::t_gain: {
+                auto gainA = payload_A->getGain(
+                    col, row, rangeAndCol_A.first, rangeAndCol_A.second, isDeadColumn, isNoisyColumn);
+                auto gainB = payload_B->getGain(
+                    col, row, rangeAndCol_B.first, rangeAndCol_B.second, isDeadColumn, isNoisyColumn);
+                ratio = gainA / gainB;
+                diff = gainA - gainB;
+                break;
+              }
+              case gainCalibPI::t_pedestal: {
+                auto pedA =
+                    payload_A->getPed(col, row, rangeAndCol_A.first, rangeAndCol_A.second, isDeadColumn, isNoisyColumn);
+                auto pedB =
+                    payload_B->getPed(col, row, rangeAndCol_B.first, rangeAndCol_B.second, isDeadColumn, isNoisyColumn);
+                ratio = pedA / pedB;
+                diff = pedA - pedB;
+                break;
+              }
+              default:
+                edm::LogError("gainCalibPI::fillTheHisto") << "Unrecognized type " << theType << std::endl;
+                break;
+            }
+            arr[0]->Fill(ratio);
+            arr[1]->Fill(diff);
+          }  // loop on rows
+        }    // loop on cols
+      }      // loop on detids
+    }
+
     //============================================================================
     // helper method to fill the gain / pedestals distributions
     template <typename PayloadType>
@@ -1089,6 +1156,188 @@ namespace gainCalibHelper {
       : public SiPixelGainCalibrationValueComparisonBase<myType, PayloadType> {
   public:
     SiPixelGainCalibrationValueComparisonTwoTags() : SiPixelGainCalibrationValueComparisonBase<myType, PayloadType>() {
+      this->setTwoTags(true);
+    }
+  };
+
+  /************************************************
+    Diff and Ratio histograms of 2 IOVs
+  *************************************************/
+  template <gainCalibPI::type myType, class PayloadType>
+  class SiPixelGainCalibDiffAndRatioBase : public cond::payloadInspector::PlotImage<PayloadType> {
+  public:
+    SiPixelGainCalibDiffAndRatioBase()
+        : cond::payloadInspector::PlotImage<PayloadType>(
+              Form("SiPixelGainCalibration %s Diff and Ratio", TypeName[myType])) {
+      if constexpr (std::is_same_v<PayloadType, SiPixelGainCalibrationOffline>) {
+        isForHLT_ = false;
+      } else {
+        isForHLT_ = true;
+      }
+    }
+    bool fill(const std::vector<std::tuple<cond::Time_t, cond::Hash>>& iovs) override {
+      gStyle->SetOptStat("emr");
+      TGaxis::SetExponentOffset(-0.1, 0.01, "y");  // Y offset
+      TH1F::SetDefaultSumw2(true);
+
+      std::vector<std::tuple<cond::Time_t, cond::Hash>> sorted_iovs = iovs;
+      // make absolute sure the IOVs are sortd by since
+      std::sort(begin(sorted_iovs), end(sorted_iovs), [](auto const& t1, auto const& t2) {
+        return std::get<0>(t1) < std::get<0>(t2);
+      });
+      auto firstiov = sorted_iovs.front();
+      auto lastiov = sorted_iovs.back();
+
+      std::shared_ptr<PayloadType> last_payload = this->fetchPayload(std::get<1>(lastiov));
+      std::shared_ptr<PayloadType> first_payload = this->fetchPayload(std::get<1>(firstiov));
+
+      std::string lastIOVsince = std::to_string(std::get<0>(lastiov));
+      std::string firstIOVsince = std::to_string(std::get<0>(firstiov));
+
+      float diffHigh(-9999.);
+      float diffLow(-9999.);
+      float maxRatio(-9999.);
+      float minRatio(-9999.);
+
+      switch (myType) {
+        case gainCalibPI::t_gain:
+          diffHigh = first_payload->getGainHigh() - last_payload->getGainHigh();
+          diffLow = first_payload->getGainLow() - last_payload->getGainLow();
+          maxRatio = first_payload->getGainHigh() / last_payload->getGainHigh();
+          minRatio = first_payload->getGainLow() / last_payload->getGainLow();
+          break;
+        case gainCalibPI::t_pedestal:
+          diffHigh = first_payload->getPedHigh() - last_payload->getPedHigh();
+          diffLow = first_payload->getPedLow() - last_payload->getPedLow();
+          maxRatio = first_payload->getPedHigh() / last_payload->getPedHigh();
+          minRatio = first_payload->getPedLow() / last_payload->getPedLow();
+          break;
+        default:
+          edm::LogError(label_) << "Unrecognized type " << myType << std::endl;
+          break;
+      }
+
+      auto span = std::abs(minRatio - maxRatio);
+
+      TCanvas canvas("Canv", "Canv", 1200, 800);
+      canvas.Divide(2, 1);
+      canvas.cd();
+      auto hratio = std::make_shared<TH1F>("h_Ratio",
+                                           Form("SiPixel Gain Calibration %s - %s;per %s %s ratio;# %ss",
+                                                (isForHLT_ ? "ForHLT" : "Offline"),
+                                                TypeName[myType],
+                                                (isForHLT_ ? "Column" : "Pixel"),
+                                                TypeName[myType],
+                                                (isForHLT_ ? "column" : "pixel")),
+                                           200,
+                                           minRatio - span / 5.,
+                                           maxRatio + span / 5.);
+
+      auto hdiff = std::make_shared<TH1F>("h_Diff",
+                                          Form("SiPixel Gain Calibration %s - %s;per %s %s difference;# %ss",
+                                               (isForHLT_ ? "ForHLT" : "Offline"),
+                                               TypeName[myType],
+                                               (isForHLT_ ? "Column" : "Pixel"),
+                                               TypeName[myType],
+                                               (isForHLT_ ? "column" : "pixel")),
+                                          200,
+                                          (diffHigh < diffLow) ? diffHigh : diffLow,
+                                          (diffHigh < diffLow) ? diffLow : diffHigh);
+
+      SiPixelPI::adjustCanvasMargins(canvas.cd(1), 0.05, 0.12, 0.12, 0.04);
+      SiPixelPI::adjustCanvasMargins(canvas.cd(2), 0.05, 0.12, 0.12, 0.04);
+      canvas.Modified();
+
+      std::array<std::shared_ptr<TH1F>, 2> array = {{hratio, hdiff}};
+      gainCalibPI::fillDiffAndRatio(first_payload, last_payload, array, myType);
+
+      canvas.cd(1)->SetLogy();
+      hratio->SetTitle("");
+      hratio->SetLineColor(kRed);
+      hratio->SetBarWidth(0.95);
+      hratio->Draw("hist");
+      SiPixelPI::makeNicePlotStyle(hratio.get());
+      hratio->SetStats(true);
+
+      canvas.cd(2)->SetLogy();
+      hdiff->SetTitle("");
+      hdiff->SetFillColor(kBlue);
+      hdiff->SetBarWidth(0.95);
+      hdiff->Draw("hist");
+      SiPixelPI::makeNicePlotStyle(hdiff.get());
+      hdiff->SetStats(true);
+
+      canvas.Update();
+
+      /*
+      TLegend legend = TLegend(0.45, 0.86, 0.74, 0.94);
+      //legend.SetHeader("#font[22]{SiPixel Offline Gain Calibration Comparison}", "C");  // option "C" allows to center the header
+      //legend.AddEntry(hfirst.get(), ("IOV: " + std::to_string(std::get<0>(firstiov))).c_str(), "FL");
+      //legend.AddEntry(hlast.get(),  ("IOV: " + std::to_string(std::get<0>(lastiov))).c_str(), "FL");
+      legend.AddEntry(hfirst.get(), ("payload: #color[2]{" + std::get<1>(firstiov) + "}").c_str(), "F");
+      legend.AddEntry(hlast.get(), ("payload: #color[4]{" + std::get<1>(lastiov) + "}").c_str(), "F");
+      legend.SetTextSize(0.022);
+      legend.SetLineColor(10);
+      legend.Draw("same");
+      */
+
+      TPaveStats* st1 = (TPaveStats*)hratio->FindObject("stats");
+      st1->SetTextSize(0.022);
+      st1->SetLineColor(kRed);
+      st1->SetTextColor(kRed);
+      SiPixelPI::adjustStats(st1, 0.13, 0.84, 0.31, 0.94);
+
+      TPaveStats* st2 = (TPaveStats*)hdiff->FindObject("stats");
+      st2->SetTextSize(0.022);
+      st2->SetLineColor(kBlue);
+      st2->SetTextColor(kBlue);
+      SiPixelPI::adjustStats(st2, 0.13, 0.84, 0.31, 0.94);
+
+      auto ltx = TLatex();
+      ltx.SetTextFont(62);
+      //ltx.SetTextColor(kBlue);
+      ltx.SetTextSize(0.040);
+      ltx.SetTextAlign(11);
+      canvas.cd(1);
+      ltx.DrawLatexNDC(gPad->GetLeftMargin(),
+                       1 - gPad->GetTopMargin() + 0.01,
+                       ("SiPixel Gain Calib. Ratio IOV " + std::to_string(std::get<0>(firstiov)) + " / IOV " +
+                        std::to_string(std::get<0>(lastiov)))
+                           .c_str());
+
+      canvas.cd(2);
+      ltx.DrawLatexNDC(gPad->GetLeftMargin(),
+                       1 - gPad->GetTopMargin() + 0.01,
+                       ("SiPixel Gain Calib. Diff IOV " + std::to_string(std::get<0>(firstiov)) + " - IOV " +
+                        std::to_string(std::get<0>(lastiov)))
+                           .c_str());
+
+      std::string fileName(this->m_imageFileName);
+      canvas.SaveAs(fileName.c_str());
+#ifdef MMDEBUG
+      canvas.SaveAs("out.root");
+#endif
+
+      return true;
+    }
+
+  protected:
+    bool isForHLT_;
+    std::string label_;
+  };
+
+  template <gainCalibPI::type myType, class PayloadType>
+  class SiPixelGainCalibDiffAndRatioSingleTag : public SiPixelGainCalibDiffAndRatioBase<myType, PayloadType> {
+  public:
+    SiPixelGainCalibDiffAndRatioSingleTag() : SiPixelGainCalibDiffAndRatioBase<myType, PayloadType>() {
+      this->setSingleIov(false);
+    }
+  };
+
+  template <gainCalibPI::type myType, class PayloadType>
+  class SiPixelGainCalibDiffAndRatioTwoTags : public SiPixelGainCalibDiffAndRatioBase<myType, PayloadType> {
+  public:
+    SiPixelGainCalibDiffAndRatioTwoTags() : SiPixelGainCalibDiffAndRatioBase<myType, PayloadType>() {
       this->setTwoTags(true);
     }
   };
