@@ -7,6 +7,7 @@
 #include "DetectorDescription/Core/interface/DDExpandedNode.h"
 #include "DetectorDescription/Core/interface/DDExpandedView.h"
 #include "DetectorDescription/Core/interface/DDLogicalPart.h"
+#include "DataFormats/Math/interface/Rounding.h"
 #include "FWCore/Utilities/interface/Exception.h"
 
 #include <cassert>
@@ -17,6 +18,7 @@
 
 using Graph = DDCompactView::Graph;
 using adjl_iterator = Graph::const_adj_iterator;
+using namespace cms_rounding;
 
 GeometryInfoDump::GeometryInfoDump() {}
 
@@ -48,13 +50,16 @@ void GeometryInfoDump::dumpInfo(
       dump << " - " << epv.geoHistory();
       DD3Vector x, y, z;
       epv.rotation().GetComponents(x, y, z);
+      x = roundVecIfNear0(x, 1.e-5);
+      y = roundVecIfNear0(y, 1.e-5);
+      z = roundVecIfNear0(z, 1.e-5);
       if (dumpPosInfo) {
         size_t s = snprintf(buf,
                             256,
                             ",%12.4f,%12.4f,%12.4f,%12.4f,%12.4f,%12.4f,%12.4f,%12.4f,%12.4f,%12.4f,%12.4f,%12.4f",
-                            epv.translation().x(),
-                            epv.translation().y(),
-                            epv.translation().z(),
+                            roundIfNear0(epv.translation().x()),
+                            roundIfNear0(epv.translation().y()),
+                            roundIfNear0(epv.translation().z()),
                             x.X(),
                             y.X(),
                             z.X(),
