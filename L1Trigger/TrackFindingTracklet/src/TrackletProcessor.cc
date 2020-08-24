@@ -129,7 +129,7 @@ void TrackletProcessor::addInput(MemoryBase* memory, string input) {
     }
     buildLUT(); //need iAllStub_ set before building the table //FIXME should be in initiall
 
-    TrackletEngineUnit teunit(settings_,nbitsfinephi_,layerdisk2_,iSeed_,nbitsfinephidiff_,iAllStub_,pttableinnernew_,pttableouternew_,outervmstubs_);
+    TrackletEngineUnit teunit(&settings_,nbitsfinephi_,layerdisk2_,iSeed_,nbitsfinephidiff_,iAllStub_,pttableinnernew_,pttableouternew_,outervmstubs_);
     teunits_.resize(6,teunit);
     
     return;
@@ -563,15 +563,15 @@ void TrackletProcessor::buildLUT() {
 
   int nregmax=0;
   
-  for(unsigned int innerfinephi=0;innerfinephi<(1<<nbitsfinephi_);innerfinephi++) {
-    for(unsigned int innerbend=0;innerbend<(1<<nbendbitsinner);innerbend++) {
-      for(unsigned int ir=0;ir<(1<<nirbits);ir++) {
+  for(int innerfinephi=0;innerfinephi<(1<<nbitsfinephi_);innerfinephi++) {
+    for(int innerbend=0;innerbend<(1<<nbendbitsinner);innerbend++) {
+      for(int ir=0;ir<(1<<nirbits);ir++) {
 
 	int nreg=0;
 	vector<bool> usereg;
 	for (unsigned int ireg=0;ireg<settings_.nvmte(1,iSeed_);ireg++) {
 	  bool match=false;
-	  for (unsigned int ifinephiouter=0;ifinephiouter<(1<<settings_.nfinephi(1,iSeed_));ifinephiouter++) {
+	  for (int ifinephiouter=0;ifinephiouter<(1<<settings_.nfinephi(1,iSeed_));ifinephiouter++) {
 	    int outerfinephi=iAllStub_*(1<<(nbitsfinephi_-settings_.nbitsallstubs(layerdisk2_)))+ireg*(1<<settings_.nfinephi(1,iSeed_))+ifinephiouter;
 	    int idphi=outerfinephi-innerfinephi;
 	    bool inrange=(idphi<(1<<(nbitsfinephidiff_-1)))&&(idphi>=-(1<<(nbitsfinephidiff_-1)));
