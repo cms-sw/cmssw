@@ -35,13 +35,13 @@ using namespace cms_units::operators;
 DetGeomDesc::DetGeomDesc(const cms::DDFilteredView& fv, const cms::DDSpecParRegistry& allSpecParSections)
   : m_name(computeNameWithNoNamespace(fv.name())),
     m_copy(fv.copyNum()),
-    m_trans(fv.translation() / 1._mm),  // Convert cm (DD4hep) to mm (legacy)
+    m_trans(fv.translation() / 1._mm),  // convert cm (DD4hep) to mm (legacy)
     m_rot(fv.rotation()),
-    m_params(computeParameters(fv)),   
+    m_params(computeParameters(fv)),    // default unit from DD4hep (cm)
     m_isABox(fv.isABox()),
     m_sensorType(computeSensorType(fv.name(), fv.path(), allSpecParSections)),
     m_geographicalID(computeDetID(m_name, fv.copyNos(), fv.copyNum())),
-    m_z(fv.translation().z() / 1._mm)  // Convert cm (DD4hep) to mm (legacy)
+    m_z(fv.translation().z() / 1._mm)   // convert cm (DD4hep) to mm (legacy)
 {}
 
 
@@ -77,6 +77,7 @@ DiamondDimensions DetGeomDesc::getDiamondDimensions() const {
   // Box shape parameterized by x, y and z half width.
   DiamondDimensions parameters;
   if (isABox()) {
+    // convert cm (DD4hep) to mm (legacy)
     parameters = { m_params.at(0) / 1._mm, m_params.at(1) / 1._mm, m_params.at(2) / 1._mm };
   }
   else {
@@ -154,7 +155,7 @@ std::string DetGeomDesc::computeNameWithNoNamespace(const std::string_view nameF
 
 std::vector<double> DetGeomDesc::computeParameters(const cms::DDFilteredView& fv) const {
   auto myShape = fv.solid();
-  const std::vector<double>& parameters = myShape.dimensions();
+  const std::vector<double>& parameters = myShape.dimensions(); // default unit from DD4hep (cm)
   return parameters;
 }
 
