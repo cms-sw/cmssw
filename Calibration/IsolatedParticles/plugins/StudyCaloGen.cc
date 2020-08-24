@@ -260,7 +260,8 @@ StudyCaloGen::StudyCaloGen(const edm::ParameterSet &iConfig)
   }
   edm::LogVerbatim("IsoTrack") << "Generator Source " << genSrc_ << " Use HepMC " << useHepMC_ << " ptMin " << ptMin_
                                << " etaMax " << etaMax_ << "\n a_coneR " << a_coneR_ << " a_charIsoR " << a_charIsoR_
-                               << " a_neutIsoR " << a_neutIsoR_ << " a_mipR " << a_mipR_ << " debug " << verbosity_ << "\n"
+                               << " a_neutIsoR " << a_neutIsoR_ << " a_mipR " << a_mipR_ << " debug " << verbosity_
+                               << "\n"
                                << " Isolation Flag " << a_Isolation_ << " with cut " << pCutIsolate_ << " GeV";
 }
 
