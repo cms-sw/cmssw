@@ -27,13 +27,13 @@ public:
   MuonReducedTrackExtraProducer(const edm::ParameterSet&);
 
   ~MuonReducedTrackExtraProducer() override {}
-  
+
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
   void produce(edm::Event&, const edm::EventSetup&) override;
 
 private:
-  edm::EDGetTokenT<edm::View<reco::Muon> > muonToken_;
+  edm::EDGetTokenT<edm::View<reco::Muon>> muonToken_;
   std::vector<edm::EDGetTokenT<reco::TrackExtraCollection>> trackExtraTokens_;
   edm::EDGetTokenT<edmNew::DetSetVector<SiPixelCluster>> pixelClusterToken_;
   edm::EDGetTokenT<edmNew::DetSetVector<SiStripCluster>> stripClusterToken_;
