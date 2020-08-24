@@ -600,22 +600,22 @@ def ReclusterAK4CHSJets(proc, recoJA, runOnMC):
   #
   # Setup pileup jet ID with 80X training.
   # 
-  # pileupJetId80X = "pileupJetId80X"
-  # setattr(proc, pileupJetId80X, pileupJetId.clone(
-  #     jets="updatedJets",
-  #     algos=cms.VPSet(_chsalgos_81x),
-  #     inputIsCorrected=True,
-  #     applyJec=False,
-  #     vertexes="offlineSlimmedPrimaryVertices"
-  #   )
-  # )
-  # proc.jetSequence.insert(proc.jetSequence.index(proc.pileupJetId94X), getattr(proc, pileupJetId80X)) 
+  pileupJetId80X = "pileupJetId80X"
+  setattr(proc, pileupJetId80X, pileupJetId.clone(
+      jets="updatedJets",
+      algos=cms.VPSet(_chsalgos_81x),
+      inputIsCorrected=True,
+      applyJec=False,
+      vertexes="offlineSlimmedPrimaryVertices"
+    )
+  )
+  proc.jetSequence.insert(proc.jetSequence.index(proc.pileupJetId94X), getattr(proc, pileupJetId80X)) 
 
-  # proc.updatedJetsWithUserData.userInts.puId80XfullId = cms.InputTag('pileupJetId80X:fullId')
-  # run2_jme_2016.toModify(proc.updatedJetsWithUserData.userFloats, puId80XDisc = cms.InputTag("pileupJetId80X:fullDiscriminant"))
+  proc.updatedJetsWithUserData.userInts.puId80XfullId = cms.InputTag('pileupJetId80X:fullId')
+  run2_jme_2016.toModify(proc.updatedJetsWithUserData.userFloats, puId80XDisc = cms.InputTag("pileupJetId80X:fullDiscriminant"))
 
-  # proc.jetTable.variables.puId = Var("userInt('puId80XfullId')", int, doc="Pilup ID flags with 80X (2016) training")
-  # run2_jme_2016.toModify(proc.jetTable.variables, puIdDisc = Var("userFloat('puId80XDisc')",float,doc="Pilup ID discriminant with 80X (2016) training",precision=10))
+  proc.jetTable.variables.puId = Var("userInt('puId80XfullId')", int, doc="Pilup ID flags with 80X (2016) training")
+  run2_jme_2016.toModify(proc.jetTable.variables, puIdDisc = Var("userFloat('puId80XDisc')",float,doc="Pilup ID discriminant with 80X (2016) training",precision=10))
 
   #
   # Add variables for pileup jet ID studies.
