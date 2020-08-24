@@ -43,13 +43,31 @@ namespace edm {
       unsigned int thinnedKey_ = 0;
     };
 
+    // This is a helper function to recursively search for a thinned
+    // product containing the parent key on the same "slimming depth". That
+    // means that when the recursion encounters a slimmed collection,
+    // the tree travelsal does not proceed onto the children of the
+    // slimmed collection. Instead, the slimmed ThinnedAssociation is
+    // recorded for the case that the entire tree on a given "slimming
+    // depth" does not have any thinned-only collections.
+    //
+    // Returns
+    // - (WrapperBase, unsigned) in case a thinned collection
+    //   containing the parent key was found.
+    // - (ThinnedAssociation, unsigned) in case no thinned collections
+    //   were encountered, but a slimmed collection containing the
+    //   parent key was found
+    // - otherwise "null" (i.e. only thinned collections without the
+    //   parent key, or in absence of thinned collections the slimmed
+    //   collection without the parent key, or no thinned or slimmed
+    //   collections)
     template <typename F1, typename F2, typename F3>
-    ThinnedOrSlimmedProduct getThinnedOnlyProduct(ProductID const& pid,
-                                                  unsigned int key,
-                                                  ThinnedAssociationsHelper const& thinnedAssociationsHelper,
-                                                  F1 pidToBid,
-                                                  F2 getThinnedAssociation,
-                                                  F3 getByProductID) {
+    ThinnedOrSlimmedProduct getThinnedProductOnSlimmingDepth(ProductID const& pid,
+                                                             unsigned int key,
+                                                             ThinnedAssociationsHelper const& thinnedAssociationsHelper,
+                                                             F1 pidToBid,
+                                                             F2 getThinnedAssociation,
+                                                             F3 getByProductID) {
       BranchID parent = pidToBid(pid);
 
       auto associatedBranches = thinnedAssociationsHelper.parentBegin(parent);
@@ -105,12 +123,12 @@ namespace edm {
 
         // Thinned container is not found, try looking recursively in thinned containers
         // which were made by selecting elements from this thinned container.
-        auto thinnedOrSlimmed = getThinnedOnlyProduct(thinnedCollectionPID,
-                                                      *thinnedIndex,
-                                                      thinnedAssociationsHelper,
-                                                      pidToBid,
-                                                      getThinnedAssociation,
-                                                      getByProductID);
+        auto thinnedOrSlimmed = getThinnedProductOnSlimmingDepth(thinnedCollectionPID,
+                                                                 *thinnedIndex,
+                                                                 thinnedAssociationsHelper,
+                                                                 pidToBid,
+                                                                 getThinnedAssociation,
+                                                                 getByProductID);
         if (thinnedOrSlimmed.hasThinned() or (slimmedAllowed and thinnedOrSlimmed.hasSlimmed())) {
           return thinnedOrSlimmed;
         }
@@ -143,9 +161,28 @@ namespace edm {
       return std::tuple(std::move(thinnedIndexes), hasAny);
     }
 
-    // the return value is to a slimmed collection in case one is found
+    // This is a helper function to recursive search ffor thinned
+    // collections that contain some of the parent keys on the same
+    // "slimming depth". That means that when the recursion encounters
+    // a slimmed colleciton, the tree traversal does not proceed onto
+    // the children of the slimmed collection. Instead, the slimmed
+    // ThinnedAssociation is recorded for the case that the entire
+    // tree on a given "slimming depth" does not have any thinned-only
+    // collections.
+    //
+    // Returns a (ThinnedAssociation, vector<unsigned>) in case no
+    // thinned collections were encountered, but a slimmed collection
+    // containing at least one of the parent keys was found. The
+    // returned vector contains keys to the slimmed collection, and
+    // the output arguments foundContainers and keys are not modified
+    // in this case.
+    //
+    // Otherwise returns a null optional (i.e. any thinned collection
+    // was encountered, or in absence of thinned collections the
+    // slimmed collection did not contain any parent keys, or there
+    // were no thinned or slimmed collections)
     template <typename F1, typename F2, typename F3>
-    std::optional<std::tuple<ThinnedAssociation const*, std::vector<unsigned int>>> getThinnedOnlyProducts(
+    std::optional<std::tuple<ThinnedAssociation const*, std::vector<unsigned int>>> getThinnedProductsOnSlimmingDepth(
         ProductID const& pid,
         ThinnedAssociationsHelper const& thinnedAssociationsHelper,
         F1 pidToBid,
@@ -205,13 +242,13 @@ namespace edm {
         if (thinnedCollection == nullptr) {
           // Thinned container is not found, try looking recursively in thinned containers
           // which were made by selecting elements from this thinned container.
-          auto slimmed = getThinnedOnlyProducts(thinnedCollectionPID,
-                                                thinnedAssociationsHelper,
-                                                pidToBid,
-                                                getThinnedAssociation,
-                                                getByProductID,
-                                                foundContainers,
-                                                thinnedIndexes);
+          auto slimmed = getThinnedProductsOnSlimmingDepth(thinnedCollectionPID,
+                                                           thinnedAssociationsHelper,
+                                                           pidToBid,
+                                                           getThinnedAssociation,
+                                                           getByProductID,
+                                                           foundContainers,
+                                                           thinnedIndexes);
           if (slimmedAllowed and slimmed.has_value()) {
             return slimmed;
           }
@@ -252,8 +289,8 @@ namespace edm {
         F1 pidToBid,
         F2 getThinnedAssociation,
         F3 getByProductID) {
-      auto thinnedOrSlimmed =
-          getThinnedOnlyProduct(pid, key, thinnedAssociationsHelper, pidToBid, getThinnedAssociation, getByProductID);
+      auto thinnedOrSlimmed = getThinnedProductOnSlimmingDepth(
+          pid, key, thinnedAssociationsHelper, pidToBid, getThinnedAssociation, getByProductID);
 
       if (thinnedOrSlimmed.hasThinned()) {
         return thinnedOrSlimmed.thinnedProduct();
@@ -299,7 +336,7 @@ namespace edm {
                             F3 getByProductID,
                             std::vector<WrapperBase const*>& foundContainers,
                             std::vector<unsigned int>& keys) {
-      auto slimmed = getThinnedOnlyProducts(
+      auto slimmed = getThinnedProductsOnSlimmingDepth(
           pid, thinnedAssociationsHelper, pidToBid, getThinnedAssociation, getByProductID, foundContainers, keys);
       if (slimmed.has_value()) {
         // no thinned procucts found, try out slimmed next if one is available
