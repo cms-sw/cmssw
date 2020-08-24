@@ -13,7 +13,6 @@
 
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 #include "DataFormats/Math/interface/Vector3D.h"
-#include "DetectorDescription/DDCMS/interface/Filter.h"
 #include "DetectorDescription/DDCMS/interface/DDFilteredView.h"
 #include "SimDataFormats/ValidationFormats/interface/MaterialAccountingStep.h"
 #include "SimDataFormats/ValidationFormats/interface/MaterialAccountingDetector.h"

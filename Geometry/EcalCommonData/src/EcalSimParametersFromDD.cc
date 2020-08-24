@@ -160,8 +160,8 @@ bool EcalSimParametersFromDD::build(const cms::DDCompactView* cpv,
   fv.mergedSpecifics(refs);
   while (fv.firstChild()) {
     const std::string name{fv.name().data(), fv.name().size()};
-    const std::string matName{cms::dd::noNamespace(fv.materialName()).data(),
-                              cms::dd::noNamespace(fv.materialName()).size()};
+    const std::string matName{dd4hep::dd::noNamespace(fv.materialName()).data(),
+                              dd4hep::dd::noNamespace(fv.materialName()).size()};
     if (std::find(php.lvNames_.begin(), php.lvNames_.end(), name) == php.lvNames_.end()) {
       php.matNames_.emplace_back(matName);
       php.lvNames_.emplace_back(name);

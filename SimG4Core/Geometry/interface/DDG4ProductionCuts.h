@@ -2,8 +2,8 @@
 #define SimG4Core_DDG4ProductionCuts_H
 
 #include "SimG4Core/Geometry/interface/G4LogicalVolumeToDDLogicalPartMap.h"
-#include "DetectorDescription/DDCMS/interface/DDSpecParRegistry.h"
-#include "DDG4/Geant4GeometryInfo.h"
+#include <DD4hep/SpecParRegistry.h>
+#include <DDG4/Geant4GeometryInfo.h>
 
 #include <string>
 #include <vector>
@@ -16,14 +16,10 @@ class DDG4ProductionCuts {
 public:
   explicit DDG4ProductionCuts(const G4LogicalVolumeToDDLogicalPartMap*, int, bool);
 
-  // ---------------------------------
-  // DD4hep specific constructor...
-  explicit DDG4ProductionCuts(const cms::DDSpecParRegistry*,
+  explicit DDG4ProductionCuts(const dd4hep::SpecParRegistry*,
                               const dd4hep::sim::Geant4GeometryMaps::VolumeMap*,
                               int,
                               bool);
-
-  ~DDG4ProductionCuts();
 
 private:
   void initialize();
@@ -36,11 +32,11 @@ private:
   // DD4hep specific initialization,
   //   methods, and local variables...
   void dd4hepInitialize();
-  void setProdCuts(const cms::DDSpecPar*, G4Region*);
+  void setProdCuts(const dd4hep::SpecPar*, G4Region*);
 
   const dd4hep::sim::Geant4GeometryMaps::VolumeMap* dd4hepMap_ = nullptr;
-  std::vector<std::pair<G4LogicalVolume*, const cms::DDSpecPar*>> dd4hepVec_;
-  const cms::DDSpecParRegistry* specPars_;
+  std::vector<std::pair<G4LogicalVolume*, const dd4hep::SpecPar*>> dd4hepVec_;
+  const dd4hep::SpecParRegistry* specPars_;
   // ... end here.
   // ---------------------------------
 

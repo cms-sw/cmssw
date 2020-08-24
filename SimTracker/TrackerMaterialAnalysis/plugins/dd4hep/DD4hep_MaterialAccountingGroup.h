@@ -21,9 +21,11 @@ class TProfile;
 class TFile;
 
 class DD4hep_MaterialAccountingGroup {
-private:
+public:
   DD4hep_MaterialAccountingGroup(const DD4hep_MaterialAccountingGroup& layer) = delete;
   DD4hep_MaterialAccountingGroup& operator=(const DD4hep_MaterialAccountingGroup& layer) = delete;
+
+private:
   void savePlot(std::shared_ptr<TH1F>& plot, const std::string& name);
   void savePlot(std::shared_ptr<TProfile>& plot, float average, const std::string& name);
 
