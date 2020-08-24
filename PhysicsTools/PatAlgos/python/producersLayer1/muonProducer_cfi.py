@@ -42,6 +42,9 @@ patMuons = cms.EDProducer("PATMuonProducer",
     embedTpfmsMuon      = cms.bool(True),  ## embed in AOD externally stored TeV-refit TPFMS muon track
     embedDytMuon        = cms.bool(True),  ## embed in AOD externally stored TeV-refit DYT muon track
     embedPFCandidate    = cms.bool(True),  ## embed in AOD externally stored particle flow candidate
+    
+    # track extra associations for rekeying of embedded tracks
+    trackExtraAssocs    = cms.VInputTag([]),
 
     # embedding of muon MET corrections for caloMET
     embedCaloMETMuonCorrs = cms.bool(True),
