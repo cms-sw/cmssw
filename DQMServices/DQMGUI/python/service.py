@@ -68,8 +68,14 @@ class GUIService:
 
         # Prepare binary string in order not to decode every in linear scan
         path_binary = bytes(path, 'utf-8')
-        regex_binary = re.compile(bytes(search, 'utf-8')) if search else None
-        regex = re.compile(search) if search else None
+        try:
+            regex_binary = re.compile(bytes(search, 'utf-8')) if search else None
+        except:
+            regex_binary = None
+        try:
+            regex = re.compile(search) if search else None
+        except:
+            regex = None
 
         for me_name in me_names:
             # Check if ME name starts with requested path
@@ -103,7 +109,9 @@ class GUIService:
                 segment = names[0]
                 is_file = len(names) == 1 # Last item in a path is file
                 
+                print('NAME HERE:', names[-1], regex)
                 if regex and not regex.match(names[-1]):
+                    print('NO MATCH!!!')
                     continue # Regex is provided and ME name doesn't match it
 
                 if is_file:
