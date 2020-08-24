@@ -3,8 +3,9 @@
 
 #include "DataFormats/GeometrySurface/interface/ReferenceCounted.h"
 #include "DataFormats/GeometrySurface/interface/Plane.h"
-#include "DetectorDescription/DDCMS/interface/DDSpecParRegistry.h"
 #include "Geometry/MuonNumbering/interface/DD4hep_DTNumberingScheme.h"
+
+#include <DD4hep/SpecParRegistry.h>
 
 namespace dd4hep {
   class Detector;
@@ -20,17 +21,12 @@ namespace cms {
   class DDDetector;
   class DDFilteredView;
   class MuonNumbering;
-  struct DDSpecPar;
 
   class DTGeometryBuilder {
   public:
     DTGeometryBuilder() {}
-    ~DTGeometryBuilder() {}
 
-    using Detector = dd4hep::Detector;
-    using DDSpecParRefs = std::vector<const DDSpecPar*>;
-
-    void build(DTGeometry&, const DDDetector*, const MuonNumbering&, const DDSpecParRefs&);
+    void build(DTGeometry&, const DDDetector*, const MuonNumbering&, const dd4hep::SpecParRefs&);
 
   private:
     void buildGeometry(DDFilteredView&, DTGeometry&, const MuonNumbering&) const;

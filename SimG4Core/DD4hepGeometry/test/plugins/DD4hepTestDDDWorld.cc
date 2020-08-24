@@ -5,15 +5,15 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DetectorDescription/DDCMS/interface/DDDetector.h"
 #include "DetectorDescription/DDCMS/interface/DDVectorRegistry.h"
-#include "DetectorDescription/DDCMS/interface/DDSpecParRegistry.h"
-#include "DetectorDescription/DDCMS/interface/Filter.h"
 #include "Geometry/Records/interface/DDVectorRegistryRcd.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 #include "Geometry/Records/interface/DDSpecParRegistryRcd.h"
 #include "SimG4Core/DD4hepGeometry/interface/DD4hep_DDDWorld.h"
-#include "DDG4/Geant4Converter.h"
-#include "DD4hep/Detector.h"
-#include "DD4hep/Handle.h"
+#include <DDG4/Geant4Converter.h>
+#include <DD4hep/Detector.h>
+#include <DD4hep/Handle.h>
+#include <DD4hep/Filter.h>
+#include <DD4hep/SpecParRegistry.h>
 #include "G4LogicalVolume.hh"
 #include "G4MTRunManagerKernel.hh"
 #include "G4ProductionCuts.hh"
@@ -29,15 +29,8 @@ using namespace edm;
 using namespace dd4hep;
 
 namespace {
-  string_view noNamespace(string_view input) {
-    string_view v = input;
-    auto first = v.find_first_of(":");
-    v.remove_prefix(min(first + 1, v.size()));
-    return v;
-  }
-
-  bool sortByName(const std::pair<G4LogicalVolume*, const DDSpecPar*>& p1,
-                  const std::pair<G4LogicalVolume*, const DDSpecPar*>& p2) {
+  bool sortByName(const std::pair<G4LogicalVolume*, const dd4hep::SpecPar*>& p1,
+                  const std::pair<G4LogicalVolume*, const dd4hep::SpecPar*>& p2) {
     bool result = false;
     if (p1.first->GetName() > p2.first->GetName()) {
       result = true;
@@ -60,10 +53,10 @@ private:
   G4ProductionCuts* getProductionCuts(G4Region* region);
 
   const ESInputTag tag_;
-  const DDSpecParRegistry* specPars_;
+  const dd4hep::SpecParRegistry* specPars_;
   G4MTRunManagerKernel* kernel_;
-  DDSpecParRefs specs_;
-  vector<pair<G4LogicalVolume*, const DDSpecPar*>> vec_;
+  dd4hep::SpecParRefs specs_;
+  vector<pair<G4LogicalVolume*, const dd4hep::SpecPar*>> vec_;
   const string keywordRegion_;
   unique_ptr<DDDWorld> world_;
   int verbosity_;
@@ -87,7 +80,7 @@ void DD4hepTestDDDWorld::analyze(const Event&, const EventSetup& iEventSetup) {
   ddRecord.get(tag_, ddd);
 
   const DDSpecParRegistryRcd& specParRecord = iEventSetup.get<DDSpecParRegistryRcd>();
-  ESTransientHandle<DDSpecParRegistry> registry;
+  ESTransientHandle<dd4hep::SpecParRegistry> registry;
   specParRecord.get(tag_, registry);
   specPars_ = registry.product();
 
@@ -117,10 +110,10 @@ void DD4hepTestDDDWorld::initialize(const dd4hep::sim::Geant4GeometryMaps::Volum
           log << sit.first << " =  " << sit.second[0] << "\n";
         }
         for (auto const& pit : fit->paths) {
-          log << cms::dd::realTopName(pit) << "\n";
-          log << "   compare equal to " << noNamespace(it.first.name()) << " ... ";
-          if (cms::dd::compareEqual(noNamespace(it.first.name()), cms::dd::realTopName(pit))) {
-            vec_.emplace_back(std::make_pair<G4LogicalVolume*, const cms::DDSpecPar*>(&*it.second, &*fit));
+          log << dd4hep::dd::realTopName(pit) << "\n";
+          log << "   compare equal to " << dd4hep::dd::noNamespace(it.first.name()) << " ... ";
+          if (dd4hep::dd::compareEqual(dd4hep::dd::noNamespace(it.first.name()), dd4hep::dd::realTopName(pit))) {
+            vec_.emplace_back(std::make_pair<G4LogicalVolume*, const dd4hep::SpecPar*>(&*it.second, &*fit));
             log << "   are equal!\n";
           } else
             log << "   nope.\n";

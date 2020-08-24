@@ -22,8 +22,6 @@ namespace cms {
   class DDFilteredView;
   class DDCompactView;
   class MuonNumbering;
-  struct DDSpecPar;
-  struct DDSpecParRegistry;
 }  // namespace cms
 class GEMGeometry;
 class GEMSuperChamber;

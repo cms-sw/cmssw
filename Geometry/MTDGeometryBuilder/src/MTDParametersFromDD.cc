@@ -65,7 +65,7 @@ bool MTDParametersFromDD::build(const cms::DDCompactView* cvp, PMTDParameters& p
   for (const auto& name : mtdSubdet) {
     subdet += 1;
     for (auto const& it : vmap) {
-      if (cms::dd::compareEqual(cms::dd::noNamespace(it.first), name)) {
+      if (dd4hep::dd::compareEqual(dd4hep::dd::noNamespace(it.first), name)) {
         std::vector<int> subdetPars;
         for (const auto& i : it.second)
           subdetPars.emplace_back(std::round(i));
