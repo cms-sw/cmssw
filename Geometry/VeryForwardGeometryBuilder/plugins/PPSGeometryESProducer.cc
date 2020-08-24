@@ -55,7 +55,7 @@ void PPSGeometryESProducer::fillDescriptions(edm::ConfigurationDescriptions& des
   edm::ParameterSetDescription desc;
   desc.addUntracked<unsigned int>("verbosity", 1);
   desc.add<std::string>("detectorTag", std::string());
-  descriptions.add("DoodadESSourceDD4hepFV", desc);
+  descriptions.add("PPSGeometryESProducer", desc);
 }
 
 //----------------------------------------------------------------------------------------------------
