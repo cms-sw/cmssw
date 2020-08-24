@@ -178,12 +178,12 @@ bool SteppingAction::isLowEnergy(const G4Step* aStep) const {
   double ekin = sp->GetKineticEnergy();
   int pCode = aStep->GetTrack()->GetDefinition()->GetPDGEncoding();
 
-  for (auto & vol : ekinVolumes) {
+  for (auto& vol : ekinVolumes) {
     if (lv == vol) {
       for (unsigned int i = 0; i < numberPart; ++i) {
-	if (pCode == ekinPDG[i]) {
-	  return (ekin <= ekinMins[i]);
-	}
+        if (pCode == ekinPDG[i]) {
+          return (ekin <= ekinMins[i]);
+        }
       }
       break;
     }

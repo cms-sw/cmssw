@@ -75,7 +75,7 @@ private:
 
 inline bool SteppingAction::isInsideDeadRegion(const G4Region* reg) const {
   bool res = false;
-  for (auto & region : deadRegions) {
+  for (auto& region : deadRegions) {
     if (reg == region) {
       res = true;
       break;
