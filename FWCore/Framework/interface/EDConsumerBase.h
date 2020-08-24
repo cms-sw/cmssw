@@ -54,9 +54,11 @@ namespace edm {
   class ProductRegistry;
   class ConsumesCollector;
   template <Transition Tr>
-  class EDConsumerBaseAdaptor;
+  class EDConsumerBaseESAdaptor;
   template <Transition Tr>
-  class EDConsumerBaseWithTagAdaptor;
+  class EDConsumerBaseWithTagESAdaptor;
+  template <BranchType B>
+  class EDConsumerBaseAdaptor;
   template <typename T>
   class WillGetIfMatch;
 
@@ -136,9 +138,11 @@ namespace edm {
   protected:
     friend class ConsumesCollector;
     template <Transition Tr>
-    friend class EDConsumerBaseAdaptor;
+    friend class EDConsumerBaseESAdaptor;
     template <Transition Tr>
-    friend class EDConsumerBaseWithTagAdaptor;
+    friend class EDConsumerBaseWithTagESAdaptor;
+    template <BranchType B>
+    friend class EDConsumerBaseAdaptor;
     template <typename T>
     friend class WillGetIfMatch;
     ///Use a ConsumesCollector to gather consumes information from helper functions
@@ -148,6 +152,11 @@ namespace edm {
     EDGetTokenT<ProductType> consumes(edm::InputTag const& tag) {
       TypeToGet tid = TypeToGet::make<ProductType>();
       return EDGetTokenT<ProductType>{recordConsumes(B, tid, checkIfEmpty(tag), true)};
+    }
+
+    template <BranchType B = InEvent>
+    [[nodiscard]] EDConsumerBaseAdaptor<B> consumes(edm::InputTag tag) noexcept {
+      return EDConsumerBaseAdaptor<B>(this, std::move(tag));
     }
 
     EDGetToken consumes(const TypeToGet& id, edm::InputTag const& tag) {
@@ -205,12 +214,12 @@ namespace edm {
 
     template <Transition Tr = Transition::Event>
     [[nodiscard]] constexpr auto esConsumes() noexcept {
-      return EDConsumerBaseAdaptor<Tr>(this);
+      return EDConsumerBaseESAdaptor<Tr>(this);
     }
 
     template <Transition Tr = Transition::Event>
     [[nodiscard]] constexpr auto esConsumes(ESInputTag tag) noexcept {
-      return EDConsumerBaseWithTagAdaptor<Tr>(this, std::move(tag));
+      return EDConsumerBaseWithTagESAdaptor<Tr>(this, std::move(tag));
     }
 
   private:
@@ -287,8 +296,8 @@ namespace edm {
   };
 
   template <Transition TR>
-  struct EDConsumerBaseAdaptor {
-    EDConsumerBaseAdaptor(EDConsumerBase* iBase) : m_consumer(iBase) {}
+  struct EDConsumerBaseESAdaptor {
+    EDConsumerBaseESAdaptor(EDConsumerBase* iBase) : m_consumer(iBase) {}
 
     template <typename TYPE, typename REC>
     ESGetToken<TYPE, REC> consumes() const {
@@ -300,8 +309,9 @@ namespace edm {
   };
 
   template <Transition TR>
-  struct EDConsumerBaseWithTagAdaptor {
-    EDConsumerBaseWithTagAdaptor(EDConsumerBase* iBase, ESInputTag iTag) : m_consumer(iBase), m_tag(std::move(iTag)) {}
+  struct EDConsumerBaseWithTagESAdaptor {
+    EDConsumerBaseWithTagESAdaptor(EDConsumerBase* iBase, ESInputTag iTag) noexcept
+        : m_consumer(iBase), m_tag(std::move(iTag)) {}
 
     template <typename TYPE, typename REC>
     ESGetToken<TYPE, REC> consumes() const {
@@ -311,6 +321,21 @@ namespace edm {
   private:
     EDConsumerBase* m_consumer;
     ESInputTag const m_tag;
+  };
+
+  template <BranchType B>
+  struct EDConsumerBaseAdaptor {
+    EDConsumerBaseAdaptor(EDConsumerBase* iBase, edm::InputTag iTag) noexcept
+        : m_consumer(iBase), m_tag(std::move(iTag)) {}
+
+    template <typename TYPE>
+    EDGetTokenT<TYPE> consumes() const {
+      return m_consumer->template consumes<TYPE, B>(m_tag);
+    }
+
+  private:
+    EDConsumerBase* m_consumer;
+    edm::InputTag const m_tag;
   };
 
 }  // namespace edm
