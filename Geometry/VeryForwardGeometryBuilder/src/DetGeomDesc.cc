@@ -104,8 +104,7 @@ bool DetGeomDesc::operator<(const DetGeomDesc& other) const {
 
 void DetGeomDesc::print() const {
   edm::LogVerbatim("DetGeomDesc::print") << "............................." << std::endl;
-  edm::LogVerbatim("DetGeomDesc::print") << "name = " << m_name << std::endl;
-  //edm::LogVerbatim("DetGeomDesc::print") << "path = " << fv.path() << std::endl;
+  edm::LogVerbatim("DetGeomDesc::print") << "name = " << m_name << std::endl; 
   edm::LogVerbatim("DetGeomDesc::print") << "copy = " << m_copy << std::endl;
   edm::LogVerbatim("DetGeomDesc::print") << "translation = " << std::fixed << std::setprecision(7) << m_trans << std::endl;
   edm::LogVerbatim("DetGeomDesc::print") << "rotation = " << std::fixed << std::setprecision(7) << m_rot << std::endl;

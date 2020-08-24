@@ -45,6 +45,13 @@ void CTPPSGeometry::build(const DetGeomDesc* gD, unsigned int verbosity) {
       buffer.emplace_back(comp);
   }
 
+  // verbosity printout
+  if (verbosity) { 
+    edm::LogVerbatim("CTPPSGeometry::build") << "sensors_map_.size() = " << sensors_map_.size()
+					     << ", rps_map_.size() = " << rps_map_.size()
+					     << std::endl;
+  }
+
   // build sets
   for (const auto& it : sensors_map_) {
     const CTPPSDetId detId(it.first);
