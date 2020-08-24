@@ -5,11 +5,11 @@
 
 #include "DetectorDescription/DDCMS/interface/DDCompactView.h"
 #include "DetectorDescription/DDCMS/interface/DDDetector.h"
-#include "DetectorDescription/DDCMS/interface/Filter.h"
-#include "DDG4/Geant4Converter.h"
-#include "DDG4/Geant4GeometryInfo.h"
-#include "DDG4/Geant4Mapping.h"
-#include "DD4hep/Detector.h"
+#include <DDG4/Geant4Converter.h>
+#include <DDG4/Geant4GeometryInfo.h>
+#include <DDG4/Geant4Mapping.h>
+#include <DD4hep/Detector.h>
+#include <DD4hep/Filter.h>
 
 #include "G4LogicalVolume.hh"
 #include "G4ReflectionFactory.hh"
@@ -35,14 +35,14 @@ G4VPhysicalVolume *DDG4Builder::BuildGeometry(SensitiveDetectorCatalog &catalog)
   Geant4GeometryInfo *geometry = g4Geo.create(world).detach();
   map_ = geometry->g4Volumes;
 
-  std::vector<std::pair<G4LogicalVolume *, const cms::DDSpecPar *>> dd4hepVec;
-  const cms::DDSpecParRegistry &specPars = det->specpars();
-  cms::DDSpecParRefs specs;
+  std::vector<std::pair<G4LogicalVolume *, const dd4hep::SpecPar *>> dd4hepVec;
+  const dd4hep::SpecParRegistry &specPars = det->specpars();
+  dd4hep::SpecParRefs specs;
   specPars.filter(specs, "SensitiveDetector");
   for (auto const &it : map_) {
     for (auto const &fit : specs) {
       for (auto const &pit : fit->paths) {
-        if (cms::dd::compareEqual(cms::dd::noNamespace(it.first.name()), cms::dd::realTopName(pit))) {
+        if (dd4hep::dd::compareEqual(dd4hep::dd::noNamespace(it.first.name()), dd4hep::dd::realTopName(pit))) {
           dd4hepVec.emplace_back(&*it.second, &*fit);
         }
       }

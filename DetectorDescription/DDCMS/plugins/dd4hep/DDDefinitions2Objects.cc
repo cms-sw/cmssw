@@ -97,7 +97,7 @@ namespace dd4hep {
     class DDLVector;
 
     class SpecParSection;
-    class SpecPar;
+    class DDLSpecPar;
     class PartSelector;
     class Parameter;
 
@@ -186,7 +186,7 @@ namespace dd4hep {
   template <>
   void Converter<SpecParSection>::operator()(xml_h element) const;
   template <>
-  void Converter<SpecPar>::operator()(xml_h element) const;
+  void Converter<DDLSpecPar>::operator()(xml_h element) const;
   template <>
   void Converter<PartSelector>::operator()(xml_h element) const;
   template <>
@@ -319,11 +319,11 @@ void Converter<PosPartSection>::operator()(xml_h element) const {
 template <>
 void Converter<SpecParSection>::operator()(xml_h element) const {
   cms::DDNamespace ns(_param<cms::DDParsingContext>(), element);
-  xml_coll_t(element, DD_CMU(SpecPar)).for_each(Converter<SpecPar>(description, ns.context(), optional));
+  xml_coll_t(element, DD_CMU(SpecPar)).for_each(Converter<DDLSpecPar>(description, ns.context(), optional));
 }
 
 template <>
-void Converter<SpecPar>::operator()(xml_h element) const {
+void Converter<DDLSpecPar>::operator()(xml_h element) const {
   cms::DDNamespace ns(_param<cms::DDParsingContext>(), element);
   xml_coll_t(element, DD_CMU(PartSelector)).for_each(Converter<PartSelector>(description, ns.context(), optional));
   xml_coll_t(element, DD_CMU(Parameter)).for_each(Converter<Parameter>(description, ns.context(), optional));
@@ -937,7 +937,7 @@ template <>
 void Converter<PartSelector>::operator()(xml_h element) const {
   cms::DDNamespace ns(_param<cms::DDParsingContext>());
   cms::DDParsingContext* const context = ns.context();
-  DDSpecParRegistry& registry = *context->description.load()->extension<DDSpecParRegistry>();
+  dd4hep::SpecParRegistry& registry = *context->description.load()->extension<dd4hep::SpecParRegistry>();
   xml_dim_t e(element);
   xml_dim_t specPar = e.parent();
   string specParName = specPar.attr<string>(_U(name));
@@ -955,7 +955,7 @@ template <>
 void Converter<Parameter>::operator()(xml_h element) const {
   cms::DDNamespace ns(_param<cms::DDParsingContext>());
   cms::DDParsingContext* const context = ns.context();
-  DDSpecParRegistry& registry = *context->description.load()->extension<DDSpecParRegistry>();
+  dd4hep::SpecParRegistry& registry = *context->description.load()->extension<dd4hep::SpecParRegistry>();
   xml_dim_t e(element);
   xml_dim_t specPar = e.parent();
   xml_dim_t specParSect = specPar.parent();

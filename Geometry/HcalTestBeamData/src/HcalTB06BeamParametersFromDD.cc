@@ -53,7 +53,7 @@ bool HcalTB06BeamParametersFromDD::build(const cms::DDCompactView* cpv,
   std::vector<std::string> matNames;
   std::vector<int> nocc;
   while (fv2.firstChild()) {
-    std::string matName = static_cast<std::string>(cms::dd::noNamespace(fv2.materialName()));
+    std::string matName = static_cast<std::string>(dd4hep::dd::noNamespace(fv2.materialName()));
     ;
     bool notIn = true;
     for (unsigned int i = 0; i < matNames.size(); i++) {
@@ -130,7 +130,7 @@ std::vector<std::string> HcalTB06BeamParametersFromDD::getNames(DDFilteredView& 
 std::vector<std::string> HcalTB06BeamParametersFromDD::getNames(cms::DDFilteredView& fv) {
   std::vector<std::string> tmp;
   while (fv.firstChild()) {
-    std::string name = static_cast<std::string>(cms::dd::noNamespace(fv.name()));
+    std::string name = static_cast<std::string>(dd4hep::dd::noNamespace(fv.name()));
     if (std::find(std::begin(tmp), std::end(tmp), name) == std::end(tmp))
       tmp.emplace_back(name);
   }
