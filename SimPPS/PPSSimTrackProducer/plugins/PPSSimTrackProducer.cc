@@ -28,6 +28,8 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Utilities/interface/EDGetToken.h"
 #include "FWCore/Utilities/interface/InputTag.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+
 #include "SimDataFormats/Forward/interface/LHCTransportLink.h"
 #include "SimDataFormats/Forward/interface/LHCTransportLinkContainer.h"
 
@@ -86,6 +88,7 @@ PPSSimTrackProducer::PPSSimTrackProducer(const edm::ParameterSet& iConfig) {
   m_InTagToken = consumes<edm::HepMCProduct>(m_InTag);
 
   m_verbosity = iConfig.getParameter<bool>("Verbosity");
+  m_eventsAnalysed = 0;
   //m_transportMethod = iConfig.getParameter<std::string>("TransportMethod");
 
   produces<edm::HepMCProduct>();
@@ -136,13 +139,14 @@ void PPSSimTrackProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSe
   if (HepMCEvt.provenance()->moduleLabel() == "LHCTransport") {
     throw cms::Exception("LogicError") << "LHCTrasport HepMCProduce already exists\n";
   }
+  edm::LogVerbatim("ProtonTransportEventProcessing") << "produce begin for event " << m_eventsAnalysed;
 
   evt = new HepMC::GenEvent(*HepMCEvt->GetEvent());
 
   //theTransporter->clear();
   theTransporter->process(evt, iSetup, engine);
 
-  if (m_verbosity)
+  //  if (m_verbosity)
     evt->print();
 
   unique_ptr<HepMCProduct> newProduct(new edm::HepMCProduct());
@@ -155,14 +159,16 @@ void PPSSimTrackProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSe
   (*NewCorrespondenceMap).swap(thisLink);
 
   if (m_verbosity) {
-    for (unsigned int i = 0; i < (*NewCorrespondenceMap).size(); i++)
-      LogDebug("ProtonTransportEventProcessing")
+    for (unsigned int i = 0; i < (*NewCorrespondenceMap).size(); ++i)
+      //edm::LogVerbatim("ProtonTransportEventProcessing")
+       LogDebug("ProtonTransportEventProcessing")
           << "ProtonTransport correspondence table: " << (*NewCorrespondenceMap)[i];
   }
 
   iEvent.put(std::move(NewCorrespondenceMap));
   // There is no need to delete the pointer to the event, since it is deleted in HepMCProduct,
   // in fact, it MUST NOT be delete here, as a protection is missing in above package
+  edm::LogVerbatim("ProtonTransportEventProcessing") << "produce end ";
 }
 // The methods below are pure virtual, so it needs to be implemented even if not used
 //
