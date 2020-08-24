@@ -380,8 +380,8 @@ async def latest_runs(request, notOlderThan):
 # ==================== Server configuration, initialization/destruction of services ==================== #
 # ###################################################################################################### #
 
-async def initialize_services(in_memory, files, workers):
-    await GUIDataStore.initialize(in_memory=in_memory)
+async def initialize_services(directory, in_memory, files, workers):
+    await GUIDataStore.initialize(directory=directory, in_memory=in_memory)
     await GUIImportManager.initialize(files=files)
     await GUIRenderer.initialize(workers=workers)
 
@@ -438,9 +438,12 @@ if __name__ == '__main__':
     parser.add_argument('-r', dest='renderers', type=int, default=2, help='Number of renderer processes.')
     parser.add_argument('--in-memory', dest='in_memory', default=False, action='store_true', help='If set uses an in memory database.')
     parser.add_argument('--stderr', default=False, action='store_true', help='If set log to stdout instead of log files.')
+    parser.add_argument('-d', dest='directory', type=str, default='../data/', 
+        help='''Directory where SQLite file will be placed. If it starts with / the full absolute directory will be used. 
+        If it does not start with /, it will be used as a directory relative to DQMServices/DQMGUI/python/.''')
     args = parser.parse_args()
 
-    # Setup rotating file loggin
+    # Setup rotating file logging
     def log_file_namer(filename):
         parts = filename.split('/')
         parts[-1] = f'access_{parts[-1][11:]}.log'
@@ -457,5 +460,5 @@ if __name__ == '__main__':
     logger.setLevel(logging.INFO)
     logger.addHandler(handler)
 
-    asyncio.get_event_loop().run_until_complete(initialize_services(args.in_memory, args.files, args.renderers))
+    asyncio.get_event_loop().run_until_complete(initialize_services(args.directory, args.in_memory, args.files, args.renderers))
     config_and_start_webserver(args.port)
