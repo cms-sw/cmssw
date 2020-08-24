@@ -5,25 +5,25 @@
 #include "DataFormats/TrackerRecHit2D/interface/SiStripMatchedRecHit2D.h"
 
 MuonReducedTrackExtraProducer::MuonReducedTrackExtraProducer(const edm::ParameterSet& pset)
- :  muonToken_(consumes<edm::View<reco::Muon> >(pset.getParameter<edm::InputTag>("muonTag"))),
-    cut_(pset.getParameter<std::string>("cut")),
-    outputClusters_(pset.getParameter<bool>("outputClusters")),
-    selector_(cut_),
-    trackExtraOutToken_(produces<reco::TrackExtraCollection>()),
-    trackingRecHitsOutToken_(produces<TrackingRecHitCollection>()),
-    associationOutToken_(produces<edm::Association<reco::TrackExtraCollection>>()) {
-      
-  std::vector<edm::InputTag> trackExtraTags =
-      pset.getParameter<std::vector<edm::InputTag> >("trackExtraTags");
-      
+    : muonToken_(consumes<edm::View<reco::Muon>>(pset.getParameter<edm::InputTag>("muonTag"))),
+      cut_(pset.getParameter<std::string>("cut")),
+      outputClusters_(pset.getParameter<bool>("outputClusters")),
+      selector_(cut_),
+      trackExtraOutToken_(produces<reco::TrackExtraCollection>()),
+      trackingRecHitsOutToken_(produces<TrackingRecHitCollection>()),
+      associationOutToken_(produces<edm::Association<reco::TrackExtraCollection>>()) {
+  std::vector<edm::InputTag> trackExtraTags = pset.getParameter<std::vector<edm::InputTag>>("trackExtraTags");
+
   for (edm::InputTag const& tag : trackExtraTags) {
     trackExtraTokens_.push_back(consumes<reco::TrackExtraCollection>(tag));
   }
-  
+
   if (outputClusters_) {
-    pixelClusterToken_ = consumes<edmNew::DetSetVector<SiPixelCluster>>(pset.getParameter<edm::InputTag>("pixelClusterTag"));
-    stripClusterToken_ = consumes<edmNew::DetSetVector<SiStripCluster>>(pset.getParameter<edm::InputTag>("stripClusterTag"));
-    
+    pixelClusterToken_ =
+        consumes<edmNew::DetSetVector<SiPixelCluster>>(pset.getParameter<edm::InputTag>("pixelClusterTag"));
+    stripClusterToken_ =
+        consumes<edmNew::DetSetVector<SiStripCluster>>(pset.getParameter<edm::InputTag>("stripClusterTag"));
+
     pixelClusterOutToken_ = produces<edmNew::DetSetVector<SiPixelCluster>>();
     stripClusterOutToken_ = produces<edmNew::DetSetVector<SiStripCluster>>();
   }
@@ -31,30 +31,33 @@ MuonReducedTrackExtraProducer::MuonReducedTrackExtraProducer(const edm::Paramete
 
 void MuonReducedTrackExtraProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
-  desc.setComment("Produces reduced set of TrackExtras and corresponding TrackingRecHits and (optionally) Pixe/Strip clusters associated to a muon track.");
+  desc.setComment(
+      "Produces reduced set of TrackExtras and corresponding TrackingRecHits and (optionally) Pixe/Strip clusters "
+      "associated to a muon track.");
   desc.add<edm::InputTag>("muonTag", edm::InputTag("muons"));
   desc.add<std::vector<edm::InputTag>>("trackExtraTags",
-                                       {  edm::InputTag("generalTracks"),
-                                          edm::InputTag("globalMuons"),
-                                          edm::InputTag("tevMuons", "firstHit"),
-                                          edm::InputTag("tevMuons", "picky"),
-                                          edm::InputTag("tevMuons", "dyt") } );
+                                       {edm::InputTag("generalTracks"),
+                                        edm::InputTag("globalMuons"),
+                                        edm::InputTag("tevMuons", "firstHit"),
+                                        edm::InputTag("tevMuons", "picky"),
+                                        edm::InputTag("tevMuons", "dyt")});
   desc.add<edm::InputTag>("pixelClusterTag", edm::InputTag("siPixelClusters"));
   desc.add<edm::InputTag>("stripClusterTag", edm::InputTag("siStripClusters"));
-  desc.add<std::string>("cut", "pt > 5 || (pt > 4.5 && (isGlobalMuon || isStandAloneMuon || numberOfMatches > 0 || muonID(\"RPCMuLoose\")))");
+  desc.add<std::string>(
+      "cut",
+      "pt > 5 || (pt > 4.5 && (isGlobalMuon || isStandAloneMuon || numberOfMatches > 0 || muonID(\"RPCMuLoose\")))");
   desc.add<bool>("outputClusters", true);
   descriptions.add("muonReducedTrackExtras", desc);
 }
 
 void MuonReducedTrackExtraProducer::produce(edm::Event& event, const edm::EventSetup& eventSetup) {
-  
   auto muons = event.getHandle(muonToken_);
-  
+
   std::vector<edm::Handle<reco::TrackExtraCollection>> trackExtrasV(trackExtraTokens_.size());
-  for (unsigned int i=0; i<trackExtraTokens_.size(); ++i) {
+  for (unsigned int i = 0; i < trackExtraTokens_.size(); ++i) {
     event.getByToken(trackExtraTokens_[i], trackExtrasV[i]);
   }
-  
+
   std::map<edm::ProductID, std::vector<bool>> idxstokeep;
   for (auto const& trackExtras : trackExtrasV) {
     idxstokeep[trackExtras.id()].resize(trackExtras->size(), false);
@@ -72,67 +75,67 @@ void MuonReducedTrackExtraProducer::produce(edm::Event& event, const edm::EventS
       idxs->second[trackExtra.key()] = true;
     }
   }
-  
+
   //output collections for TrackExtras and TrackingRecHits and the association map
   reco::TrackExtraCollection trackExtrasOut;
   TrackingRecHitCollection trackingRecHitsOut;
   edm::Association<reco::TrackExtraCollection> association;
   edm::Association<reco::TrackExtraCollection>::Filler assocfiller(association);
-  
+
   //refprod for the output TrackExtraCollection
   edm::RefProd<reco::TrackExtraCollection> trackExtraRefProd = event.getRefBeforePut(trackExtraOutToken_);
   //refprod for the output TrackingRecHitCollection
   edm::RefProd<TrackingRecHitCollection> hitRefProd = event.getRefBeforePut(trackingRecHitsOutToken_);
-  
+
   association.setRef(trackExtraRefProd);
-  
+
   edm::Handle<edmNew::DetSetVector<SiPixelCluster>> pixelClusters;
   edm::Handle<edmNew::DetSetVector<SiStripCluster>> stripClusters;
-  
+
   //indexes of pixel/strip clusters to keep
   std::vector<bool> pixelClustersToKeep;
   std::vector<bool> stripClustersToKeep;
-  
+
   if (outputClusters_) {
     event.getByToken(pixelClusterToken_, pixelClusters);
     event.getByToken(stripClusterToken_, stripClusters);
-    
+
     pixelClustersToKeep.resize(pixelClusters->dataSize(), false);
     stripClustersToKeep.resize(stripClusters->dataSize(), false);
   }
-  
+
   using SiPixelClusterRef = edm::Ref<edmNew::DetSetVector<SiPixelCluster>, SiPixelCluster>;
   using SiStripClusterRef = edm::Ref<edmNew::DetSetVector<SiStripCluster>, SiStripCluster>;
-  
+
   //loop over track extras and fill output together with TrackingRechits
   //as well as marking pixel and strip clusters to keep
   for (auto const& trackExtras : trackExtrasV) {
     const std::vector<bool>& idxs = idxstokeep.at(trackExtras.id());
     //indices for association (-1 for null association)
     std::vector<int> associdxs(trackExtras->size(), -1);
-    for (unsigned int i=0; i<trackExtras->size(); ++i) {
+    for (unsigned int i = 0; i < trackExtras->size(); ++i) {
       if (!idxs[i]) {
         continue;
       }
       const reco::TrackExtra& trackExtra = (*trackExtras)[i];
-      
+
       //fill association idx
       associdxs[i] = trackExtrasOut.size();
-      
+
       //fill TrackExtra
       trackExtrasOut.emplace_back(trackExtra.outerPosition(),
-                                 trackExtra.outerMomentum(),
-                                 trackExtra.outerOk(),
-                                 trackExtra.innerPosition(),
-                                 trackExtra.innerMomentum(),
-                                 trackExtra.innerOk(),
-                                 trackExtra.outerStateCovariance(),
-                                 trackExtra.outerDetId(),
-                                 trackExtra.innerStateCovariance(),
-                                 trackExtra.innerDetId(),
-                                 trackExtra.seedDirection(),
-                                 trackExtra.seedRef());
-      
+                                  trackExtra.outerMomentum(),
+                                  trackExtra.outerOk(),
+                                  trackExtra.innerPosition(),
+                                  trackExtra.innerMomentum(),
+                                  trackExtra.innerOk(),
+                                  trackExtra.outerStateCovariance(),
+                                  trackExtra.outerDetId(),
+                                  trackExtra.innerStateCovariance(),
+                                  trackExtra.innerDetId(),
+                                  trackExtra.seedDirection(),
+                                  trackExtra.seedRef());
+
       //rekey refs to TrackingRecHits
       reco::TrackExtra& trackExtraOut = trackExtrasOut.back();
       trackExtraOut.setHits(hitRefProd, trackingRecHitsOut.size(), trackExtra.recHitsSize());
@@ -168,9 +171,8 @@ void MuonReducedTrackExtraProducer::produce(edm::Event& event, const edm::EventS
     }
     assocfiller.insert(trackExtras, associdxs.begin(), associdxs.end());
   }
-  
+
   assocfiller.fill();
-  
 
   if (outputClusters_) {
     //output collections for clusters
@@ -179,7 +181,7 @@ void MuonReducedTrackExtraProducer::produce(edm::Event& event, const edm::EventS
     //mapping of indices from input to output collections
     std::unordered_map<unsigned int, unsigned int> pixelClusterIdxMap;
     std::unordered_map<unsigned int, unsigned int> stripClusterIdxMap;
-    
+
     //fill output clusters
     //this indexes the internal data array of the DetSetVector
     unsigned int iIndex = 0;
@@ -195,7 +197,7 @@ void MuonReducedTrackExtraProducer::produce(edm::Event& event, const edm::EventS
         }
       }
     }
-    
+
     iIndex = 0;
     for (auto setIter = stripClusters->begin(), setIterEnd = stripClusters->end(); setIter != setIterEnd; ++setIter) {
       //fill items from this DetSet
@@ -208,10 +210,11 @@ void MuonReducedTrackExtraProducer::produce(edm::Event& event, const edm::EventS
         }
       }
     }
-    
-    edm::OrphanHandle<edmNew::DetSetVector<SiPixelCluster>> pixelClustersOutH = event.emplace(pixelClusterOutToken_, std::move(pixelClustersOut));
-    edm::OrphanHandle<edmNew::DetSetVector<SiStripCluster>> stripClustersOutH = event.emplace(stripClusterOutToken_, std::move(stripClustersOut));
 
+    edm::OrphanHandle<edmNew::DetSetVector<SiPixelCluster>> pixelClustersOutH =
+        event.emplace(pixelClusterOutToken_, std::move(pixelClustersOut));
+    edm::OrphanHandle<edmNew::DetSetVector<SiStripCluster>> stripClustersOutH =
+        event.emplace(stripClusterOutToken_, std::move(stripClustersOut));
 
     //rekey cluster references in output hit collection
     for (auto& hit : trackingRecHitsOut) {
@@ -240,12 +243,11 @@ void MuonReducedTrackExtraProducer::produce(edm::Event& event, const edm::EventS
             matched2DHit->stereoClusterRef() = OmniClusterRef(stereoRefOut);
           }
         }
-      }    
+      }
     }
   }
-  
+
   event.emplace(trackExtraOutToken_, std::move(trackExtrasOut));
   event.emplace(trackingRecHitsOutToken_, std::move(trackingRecHitsOut));
   event.emplace(associationOutToken_, std::move(association));
-  
 }
