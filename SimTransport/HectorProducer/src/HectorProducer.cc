@@ -102,9 +102,8 @@ void HectorProducer::produce(edm::Event &iEvent, const edm::EventSetup &es) {
     m_Hector->filterD1(rootEngine);
   }
   evt_ = m_Hector->addPartToHepMC(evt_);
-  //if (m_verbosity) {
-  evt_->print();
-  //}
+  if (m_verbosity)
+    evt_->print();
 
   edm::LogVerbatim("SimTransportHectorProducer") << "new HepMC product ";
 
@@ -118,10 +117,10 @@ void HectorProducer::produce(edm::Event &iEvent, const edm::EventSetup &es) {
   edm::LHCTransportLinkContainer thisLink(m_Hector->getCorrespondenceMap());
   (*NewCorrespondenceMap).swap(thisLink);
 
-  //  if (m_verbosity) {
-  for (unsigned int i = 0; i < (*NewCorrespondenceMap).size(); ++i)
-    edm::LogVerbatim("HectorEventProcessing") << "Hector correspondence table: " << (*NewCorrespondenceMap)[i];
-  // }
+  if (m_verbosity) {
+    for (unsigned int i = 0; i < (*NewCorrespondenceMap).size(); ++i)
+      edm::LogVerbatim("HectorEventProcessing") << "Hector correspondence table: " << (*NewCorrespondenceMap)[i];
+  }
 
   iEvent.put(std::move(NewCorrespondenceMap));
   edm::LogVerbatim("SimTransportHectorProducer") << "produce end ";
