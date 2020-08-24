@@ -177,7 +177,7 @@ std::unique_ptr<DetGeomDesc> PPSGeometryESProducer::produceMisalignedGD(
 std::unique_ptr<CTPPSGeometry> PPSGeometryESProducer::produceRealTG(const VeryForwardRealGeometryRecord& iRecord) {
   auto const& gD = iRecord.get(dgdRealToken_);
 
-  return std::make_unique<CTPPSGeometry>(&gD);
+  return std::make_unique<CTPPSGeometry>(&gD, verbosity_);
 }
 
 //----------------------------------------------------------------------------------------------------
@@ -186,7 +186,7 @@ std::unique_ptr<CTPPSGeometry> PPSGeometryESProducer::produceMisalignedTG(
     const VeryForwardMisalignedGeometryRecord& iRecord) {
   auto const& gD = iRecord.get(dgdMisToken_);
 
-  return std::make_unique<CTPPSGeometry>(&gD);
+  return std::make_unique<CTPPSGeometry>(&gD, verbosity_);
 }
 
 DEFINE_FWK_EVENTSETUP_MODULE(PPSGeometryESProducer);

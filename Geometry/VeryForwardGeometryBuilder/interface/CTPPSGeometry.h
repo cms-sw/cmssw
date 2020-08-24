@@ -39,10 +39,10 @@ public:
   ~CTPPSGeometry() {}
 
   /// build up from DetGeomDesc
-  CTPPSGeometry(const DetGeomDesc* gd) { build(gd); }
+  CTPPSGeometry(const DetGeomDesc* gd, unsigned int verbosity) { build(gd, verbosity); }
 
   /// build up from DetGeomDesc structure
-  void build(const DetGeomDesc*);
+  void build(const DetGeomDesc*, unsigned int verbosity);
 
   //----- setters and getters
 
