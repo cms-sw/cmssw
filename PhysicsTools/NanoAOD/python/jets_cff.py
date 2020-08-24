@@ -2,6 +2,7 @@ import FWCore.ParameterSet.Config as cms
 from Configuration.Eras.Modifier_run2_jme_2016_cff import run2_jme_2016
 from Configuration.Eras.Modifier_run2_jme_2017_cff import run2_jme_2017
 from Configuration.Eras.Modifier_run2_miniAOD_80XLegacy_cff import run2_miniAOD_80XLegacy
+from Configuration.ProcessModifiers.run2_miniAOD_UL_cff import run2_miniAOD_UL
 
 from  PhysicsTools.NanoAOD.common_cff import *
 from RecoJets.JetProducers.ak4PFJetsBetaStar_cfi import *
