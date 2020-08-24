@@ -35,6 +35,10 @@ a functor passed to the Framework with a call to callWhenNewProductsRegistered.
 // forward declarations
 namespace edm {
   class EDConsumerBase;
+  template <Transition TR>
+  class ConsumesCollectorAdaptor;
+  template <Transition TR>
+  class ConsumesCollectorWithTagAdaptor;
 
   class ConsumesCollector {
   public:
@@ -97,6 +101,16 @@ namespace edm {
       return m_consumer->esConsumes<ESProduct, Tr>(key, tag);
     }
 
+    template <Transition Tr = Transition::Event>
+    [[nodiscard]] constexpr auto esConsumes() noexcept {
+      return ConsumesCollectorAdaptor<Tr>(*this);
+    }
+
+    template <Transition Tr = Transition::Event>
+    [[nodiscard]] constexpr auto esConsumes(ESInputTag tag) noexcept {
+      return ConsumesCollectorWithTagAdaptor<Tr>(*this, std::move(tag));
+    }
+
   private:
     //only EDConsumerBase is allowed to make an instance of this class
     friend class EDConsumerBase;
@@ -105,6 +119,36 @@ namespace edm {
 
     // ---------- member data --------------------------------
     edm::propagate_const<EDConsumerBase*> m_consumer;
+  };
+
+  template <Transition TR>
+  class ConsumesCollectorAdaptor {
+  public:
+    explicit ConsumesCollectorAdaptor(ConsumesCollector iBase) : m_consumer(std::move(iBase)) {}
+
+    template <typename TYPE, typename REC>
+    ESGetToken<TYPE, REC> consumes() {
+      return m_consumer.template esConsumes<TYPE, REC, TR>();
+    }
+
+  private:
+    ConsumesCollector m_consumer;
+  };
+
+  template <Transition TR>
+  class ConsumesCollectorWithTagAdaptor {
+  public:
+    ConsumesCollectorWithTagAdaptor(ConsumesCollector iBase, ESInputTag iTag)
+        : m_consumer(std::move(iBase)), m_tag(std::move(iTag)) {}
+
+    template <typename TYPE, typename REC>
+    ESGetToken<TYPE, REC> consumes() {
+      return m_consumer.template esConsumes<TYPE, REC, TR>(m_tag);
+    }
+
+  private:
+    ConsumesCollector m_consumer;
+    ESInputTag const& m_tag;
   };
 }  // namespace edm
 

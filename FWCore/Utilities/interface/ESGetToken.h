@@ -48,6 +48,9 @@ namespace edm {
     constexpr ESGetToken<ESProduct, ESRecord>& operator=(ESGetToken<ESProduct, ESRecord>&&) noexcept = default;
     constexpr ESGetToken<ESProduct, ESRecord>& operator=(ESGetToken<ESProduct, ESRecord> const&) noexcept = default;
 
+    template <typename ADAPTER>
+    constexpr explicit ESGetToken(ADAPTER&& iAdapter) : ESGetToken(iAdapter.template consumes<ESProduct, ESRecord>()) {}
+
     constexpr unsigned int transitionID() const noexcept { return m_transitionID; }
     constexpr bool isInitialized() const noexcept { return transitionID() != std::numeric_limits<unsigned int>::max(); }
     constexpr ESTokenIndex index() const noexcept { return m_index; }
