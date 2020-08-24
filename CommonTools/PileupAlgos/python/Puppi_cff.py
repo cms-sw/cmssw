@@ -31,6 +31,8 @@ puppi = cms.EDProducer("PuppiProducer",#cms.PSet(#"PuppiProducer",
                        UseDeltaZCut   = cms.bool(True),
                        EtaMinUseDeltaZ = cms.double(0.),
                        DeltaZCut      = cms.double(0.3),
+                       NumOfPUVtxsForCharged = cms.uint32(0),
+                       DeltaZCutForChargedFromPUVtxs = cms.double(0.2),
 		       PtMaxCharged   = cms.double(0.),
 		       EtaMaxCharged   = cms.double(99999.),
 		       PtMaxNeutrals  = cms.double(200.),
@@ -121,5 +123,30 @@ run2_miniAOD_UL.toModify(
     puppi,
     EtaMinUseDeltaZ = 2.4,
     PtMaxCharged = 20.,
-    PtMaxNeutralsStartSlope = 20.
+    PtMaxNeutralsStartSlope = 20.,
+    NumOfPUVtxsForCharged = 2,
+    algos = cms.VPSet(
+                        cms.PSet(
+                         etaMin = cms.vdouble(-0.01), # include particles with eta==0 (proper fix is in #31174)
+                         etaMax = cms.vdouble(2.5),
+                         ptMin  = cms.vdouble(0.),
+                         MinNeutralPt   = cms.vdouble(0.2),
+                         MinNeutralPtSlope   = cms.vdouble(0.015),
+                         RMSEtaSF = cms.vdouble(1.0),
+                         MedEtaSF = cms.vdouble(1.0),
+                         EtaMaxExtrap = cms.double(2.0),
+                         puppiAlgos = puppiCentral
+                        ),
+                        cms.PSet(
+                         etaMin              = cms.vdouble( 2.5,  3.0),
+                         etaMax              = cms.vdouble( 3.0, 10.0),
+                         ptMin               = cms.vdouble( 0.0,  0.0),
+                         MinNeutralPt        = cms.vdouble( 1.7,  2.0),
+                         MinNeutralPtSlope   = cms.vdouble(0.08, 0.08),
+                         RMSEtaSF            = cms.vdouble(1.20, 0.95),
+                         MedEtaSF            = cms.vdouble(0.90, 0.75),
+                         EtaMaxExtrap        = cms.double( 2.0),
+                         puppiAlgos = puppiForward
+                        )
+     )
 )
