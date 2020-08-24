@@ -8,7 +8,7 @@ ntuple_egammaEE = cms.PSet(
 
 ntuple_egammaEB = cms.PSet(
     NtupleName = cms.string('L1TriggerNtupleEgamma'),
-    Egamma = cms.InputTag("L1EGammaClusterEmuProducer","L1EGammaCollectionBXVEmulator"),
+    Egamma = cms.InputTag("L1EGammaClusterEmuProducer"),
     BranchNamePrefix = cms.untracked.string("egammaEB")
 )
 
@@ -33,13 +33,13 @@ ntuple_tkEleEB = cms.PSet(
 ntuple_tkEleEllEE = cms.PSet(
     NtupleName = cms.string('L1TriggerNtupleTkElectrons'),
     TkElectrons = cms.InputTag("L1TkElectronsEllipticMatchHGC","EG"),
-    BranchNamePrefix = cms.untracked.string("tkEleEllEE")
+    BranchNamePrefix = cms.untracked.string("tkEleEE")
 )
 
 ntuple_tkEleEllEB = cms.PSet(
     NtupleName = cms.string('L1TriggerNtupleTkElectrons'),
     TkElectrons = cms.InputTag("L1TkElectronsEllipticMatchCrystal","EG"),
-    BranchNamePrefix = cms.untracked.string("tkEleEllEB")
+    BranchNamePrefix = cms.untracked.string("tkEleEB")
 )
 
 ntuple_tkIsoEleEE = cms.PSet(
