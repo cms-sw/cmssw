@@ -1,9 +1,12 @@
 import FWCore.ParameterSet.Config as cms
-process = cms.Process("HcalRecNumberingTest")
+from Configuration.Eras.Era_Run3_cff import Run3
 
-process.load('Configuration.Geometry.GeometryExtended2026D41Reco_cff')
-#process.load('Geometry.HcalCommonData.testGeometry17bXML_cfi')
-#process.load('Geometry.HcalCommonData.hcalDDConstants_cff')
+process = cms.Process("HcalSimNumberingTest",Run3)
+
+#process.load('Geometry.HcalCommonData.testPhase2GeometryFine_cff')
+#process.load('Geometry.HcalCommonData.hcalParameters_cff')
+#process.load('Geometry.HcalCommonData.hcalSimulationParameters_cff')
+process.load('Configuration.Geometry.GeometryExtended2021_cff')
 process.load('FWCore.MessageService.MessageLogger_cfi')
 
 if 'MessageLogger' in process.__dict__:
@@ -14,7 +17,7 @@ process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(1)
     )
 
-process.hpa = cms.EDAnalyzer("HcalRecNumberingTester")
+process.hpa = cms.EDAnalyzer("HcalSimNumberingTester")
 
 process.Timing = cms.Service("Timing")
 process.SimpleMemoryCheck = cms.Service("SimpleMemoryCheck")
