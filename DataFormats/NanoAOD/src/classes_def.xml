@@ -25,7 +25,12 @@
     <class name="std::vector<nanoaod::MergeableCounterTable::VFloatColumn>" />
     <class name="std::vector<nanoaod::MergeableCounterTable::IntColumn>" />
     <class name="std::vector<nanoaod::MergeableCounterTable::VIntColumn>" />
-    <class name="nanoaod::MergeableCounterTable" ClassVersion="3">
+    <class name="nanoaod::MergeableCounterTable::FloatWithNormColumn" />
+    <class name="nanoaod::MergeableCounterTable::VFloatWithNormColumn" />
+    <class name="std::vector<nanoaod::MergeableCounterTable::FloatWithNormColumn>" />
+    <class name="std::vector<nanoaod::MergeableCounterTable::VFloatWithNormColumn>" />
+    <class name="nanoaod::MergeableCounterTable" ClassVersion="4">
+     <version ClassVersion="4" checksum="2488205569"/>
         <version ClassVersion="3" checksum="677965884"/>
     </class>
     <class name="edm::Wrapper<nanoaod::MergeableCounterTable>" />

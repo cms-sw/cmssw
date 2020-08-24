@@ -1,6 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 import copy
 from Configuration.Eras.Modifier_phase2_common_cff import phase2_common
+from Configuration.ProcessModifiers.run2_miniAOD_UL_cff import run2_miniAOD_UL
 
 '''
 
@@ -303,6 +304,11 @@ hpsPFTauDiscriminationByDeadECALElectronRejection = pfRecoTauDiscriminationAgain
     Prediscriminants = requireDecayMode.clone(),
     extrapolateToECalEntrance = cms.bool(False)
 )
+run2_miniAOD_UL.toModify(
+    hpsPFTauDiscriminationByDeadECALElectronRejection,
+    extrapolateToECalEntrance = True
+)
+
 ## ByMVA6rawElectronRejection
 hpsPFTauDiscriminationByMVA6rawElectronRejection = pfRecoTauDiscriminationAgainstElectronMVA6.clone(
     PFTauProducer = cms.InputTag('hpsPFTauProducer'),

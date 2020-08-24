@@ -1,20 +1,20 @@
 import FWCore.ParameterSet.Config as cms
 
 from RecoBTag.FeatureTools.pfDeepBoostedJetTagInfos_cfi import pfDeepBoostedJetTagInfos
-from RecoBTag.ONNXRuntime.pfDeepBoostedJetTags_cfi import pfDeepBoostedJetTags as _pfDeepBoostedJetTags
+from RecoBTag.ONNXRuntime.boostedJetONNXJetTagsProducer_cfi import boostedJetONNXJetTagsProducer
 from RecoBTag.ONNXRuntime.Parameters.DeepBoostedJet.V02.pfDeepBoostedJetPreprocessParams_cfi import pfDeepBoostedJetPreprocessParams
 from RecoBTag.ONNXRuntime.Parameters.DeepBoostedJet.V02.pfMassDecorrelatedDeepBoostedJetPreprocessParams_cfi import pfMassDecorrelatedDeepBoostedJetPreprocessParams
 from RecoBTag.ONNXRuntime.pfDeepBoostedDiscriminatorsJetTags_cfi import pfDeepBoostedDiscriminatorsJetTags
 from RecoBTag.ONNXRuntime.pfMassDecorrelatedDeepBoostedDiscriminatorsJetTags_cfi import pfMassDecorrelatedDeepBoostedDiscriminatorsJetTags
 
 # nominal DeepAK8
-pfDeepBoostedJetTags = _pfDeepBoostedJetTags.clone(
+pfDeepBoostedJetTags = boostedJetONNXJetTagsProducer.clone(
     preprocessParams = pfDeepBoostedJetPreprocessParams,
     model_path = 'RecoBTag/Combined/data/DeepBoostedJet/V02/full/resnet.onnx',
 )
 
 # mass-decorrelated DeepAK8
-pfMassDecorrelatedDeepBoostedJetTags = _pfDeepBoostedJetTags.clone(
+pfMassDecorrelatedDeepBoostedJetTags = boostedJetONNXJetTagsProducer.clone(
     preprocessParams = pfMassDecorrelatedDeepBoostedJetPreprocessParams,
     model_path = 'RecoBTag/Combined/data/DeepBoostedJet/V02/decorrelated/resnet.onnx',
 )

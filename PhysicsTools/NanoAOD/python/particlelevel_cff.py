@@ -75,6 +75,17 @@ rivetLeptonTable = cms.EDProducer("SimpleCandidateFlatTableProducer",
     )
 )
 
+rivetPhotonTable = cms.EDProducer("SimpleCandidateFlatTableProducer",
+    src = cms.InputTag("particleLevel:photons"),
+    cut = cms.string(""),
+    name= cms.string("GenIsolatedPhoton"),
+    doc = cms.string("Isolated photons from Rivet-based ParticleLevelProducer"),
+    singleton = cms.bool(False), # the number of entries is variable
+    extension = cms.bool(False), # this is the main table
+    variables = cms.PSet(
+        P4Vars
+    )
+)
 
 tautagger = cms.EDProducer("GenJetTauTaggerProducer",
     src = rivetLeptonTable.src,
@@ -147,6 +158,10 @@ HTXSCategoryTable = cms.EDProducer("SimpleHTXSFlatTableProducer",
         stage1_1_cat_pTjet25GeV = Var("stage1_1_cat_pTjet25GeV",int,doc="HTXS stage-1.1 category(jet pt>25 GeV)"),
         stage1_1_fine_cat_pTjet30GeV = Var("stage1_1_fine_cat_pTjet30GeV",int,doc="HTXS stage-1.1-fine category(jet pt>30 GeV)"),
         stage1_1_fine_cat_pTjet25GeV = Var("stage1_1_fine_cat_pTjet25GeV",int,doc="HTXS stage-1.1-fine category(jet pt>25 GeV)"),
+        stage1_2_cat_pTjet30GeV = Var("stage1_2_cat_pTjet30GeV",int,doc="HTXS stage-1.2 category(jet pt>30 GeV)"),
+        stage1_2_cat_pTjet25GeV = Var("stage1_2_cat_pTjet25GeV",int,doc="HTXS stage-1.2 category(jet pt>25 GeV)"),
+        stage1_2_fine_cat_pTjet30GeV = Var("stage1_2_fine_cat_pTjet30GeV",int,doc="HTXS stage-1.2-fine category(jet pt>30 GeV)"),
+        stage1_2_fine_cat_pTjet25GeV = Var("stage1_2_fine_cat_pTjet25GeV",int,doc="HTXS stage-1.2-fine category(jet pt>25 GeV)"),
         Higgs_pt = Var("higgs.Pt()",float, doc="pt of the Higgs boson as identified in HTXS", precision=14),
         Higgs_y = Var("higgs.Rapidity()",float, doc="rapidity of the Higgs boson as identified in HTXS", precision=12),
         njets30 = Var("jets30.size()","uint8", doc="number of jets with pt>30 GeV as identified in HTXS"),
@@ -156,4 +171,4 @@ HTXSCategoryTable = cms.EDProducer("SimpleHTXSFlatTableProducer",
 
 
 particleLevelSequence = cms.Sequence(mergedGenParticles + genParticles2HepMC + particleLevel + tautagger + genParticles2HepMCHiggsVtx + rivetProducerHTXS)
-particleLevelTables = cms.Sequence(rivetLeptonTable + rivetMetTable + HTXSCategoryTable)
+particleLevelTables = cms.Sequence(rivetLeptonTable + rivetPhotonTable + rivetMetTable + HTXSCategoryTable)

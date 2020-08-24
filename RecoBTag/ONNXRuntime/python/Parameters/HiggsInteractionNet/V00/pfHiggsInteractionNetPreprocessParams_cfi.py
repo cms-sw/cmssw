@@ -220,7 +220,6 @@ pfHiggsInteractionNetPreprocessParams = cms.PSet(
             ),
         ),
         var_length = cms.uint32(60),
-        pad = cms.double(0),
         var_names = cms.vstring(
             'pfcand_ptrel', 
             'pfcand_erel', 
@@ -357,7 +356,6 @@ pfHiggsInteractionNetPreprocessParams = cms.PSet(
             ),
         ),
         var_length = cms.uint32(5),
-        pad = cms.double(0),
         var_names = cms.vstring(
             'sv_ptrel', 
             'sv_erel', 

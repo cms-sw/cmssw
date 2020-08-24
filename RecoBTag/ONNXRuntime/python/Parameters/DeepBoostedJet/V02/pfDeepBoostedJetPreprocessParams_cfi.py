@@ -304,7 +304,6 @@ pfDeepBoostedJetPreprocessParams = cms.PSet(
             )
         ),
         var_length = cms.uint32(100),
-        pad = cms.double(0),
         var_names = cms.vstring(
             'pfcand_pt_log', 
             'pfcand_ptrel_log', 
@@ -460,7 +459,6 @@ pfDeepBoostedJetPreprocessParams = cms.PSet(
             )
         ),
         var_length = cms.uint32(7),
-        pad = cms.double(0),
         var_names = cms.vstring(
             'sv_pt_log', 
             'sv_ptrel_log', 
