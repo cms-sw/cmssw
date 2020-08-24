@@ -147,7 +147,7 @@ void PPSSimTrackProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSe
   theTransporter->process(evt, iSetup, engine);
 
   //  if (m_verbosity)
-    evt->print();
+  evt->print();
 
   unique_ptr<HepMCProduct> newProduct(new edm::HepMCProduct());
   newProduct->addHepMCData(evt);
@@ -161,7 +161,7 @@ void PPSSimTrackProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSe
   if (m_verbosity) {
     for (unsigned int i = 0; i < (*NewCorrespondenceMap).size(); ++i)
       //edm::LogVerbatim("ProtonTransportEventProcessing")
-       LogDebug("ProtonTransportEventProcessing")
+      LogDebug("ProtonTransportEventProcessing")
           << "ProtonTransport correspondence table: " << (*NewCorrespondenceMap)[i];
   }
 

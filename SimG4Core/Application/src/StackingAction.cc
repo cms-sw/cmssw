@@ -195,11 +195,11 @@ G4ClassificationOfNewTrack StackingAction::ClassifyNewTrack(const G4Track* aTrac
 
     } else if (std::abs(aTrack->GetPosition().z()) >= maxZCentralCMS) {
       // very forward secondary
-      if(aTrack->GetGlobalTime() > maxTrackTimeForward) {
+      if (aTrack->GetGlobalTime() > maxTrackTimeForward) {
         classification = fKill;
       } else {
-	const G4Track* mother = trackAction->geant4Track();
-	newTA->secondary(aTrack, *mother, 0);
+        const G4Track* mother = trackAction->geant4Track();
+        newTA->secondary(aTrack, *mother, 0);
       }
 
     } else if (isItOutOfTimeWindow(reg, aTrack)) {

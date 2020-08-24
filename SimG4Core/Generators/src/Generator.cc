@@ -552,12 +552,12 @@ void Generator::nonCentralEvent2G4(const HepMC::GenEvent *evt, G4Event *g4evt) {
     HepMC::GenParticle *gp = (*it);
 
     // storing only particle with status == 1
-    if (gp->status() != 1) continue;
+    if (gp->status() != 1)
+      continue;
 
     int g_id = gp->pdg_id();
-    G4PrimaryParticle *g4p = new G4PrimaryParticle(g_id, gp->momentum().px() * CLHEP::GeV, 
-                                                   gp->momentum().py() * CLHEP::GeV,
-                                                   gp->momentum().pz() * CLHEP::GeV);
+    G4PrimaryParticle *g4p = new G4PrimaryParticle(
+        g_id, gp->momentum().px() * CLHEP::GeV, gp->momentum().py() * CLHEP::GeV, gp->momentum().pz() * CLHEP::GeV);
     if (g4p->GetG4code() != nullptr) {
       g4p->SetMass(g4p->GetG4code()->GetPDGMass());
       g4p->SetCharge(g4p->GetG4code()->GetPDGCharge());
@@ -570,7 +570,8 @@ void Generator::nonCentralEvent2G4(const HepMC::GenEvent *evt, G4Event *g4evt) {
                                                gp->production_vertex()->position().t() * CLHEP::mm / CLHEP::c_light);
       v->SetPrimary(g4p);
       g4evt->AddPrimaryVertex(v);
-      if (verbose > 0) v->Print();
+      if (verbose > 0)
+        v->Print();
     } else {
       delete g4p;
     }
