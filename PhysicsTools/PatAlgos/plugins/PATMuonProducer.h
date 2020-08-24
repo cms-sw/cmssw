@@ -96,7 +96,8 @@ namespace pat {
                   const reco::CandidateBaseRef& baseRef,
                   const GenAssociations& genMatches,
                   const IsoDepositMaps& deposits,
-                  const IsolationValueMaps& isolationValues) const;
+                  const IsolationValueMaps& isolationValues,
+                  std::vector<edm::Handle<edm::Association<reco::TrackExtraCollection>>> const& trackExtraAssocs) const;
     /// fill label vector from the contents of the parameter set,
     /// for the embedding of isoDeposits or userIsolation values
     template <typename T>
@@ -173,6 +174,8 @@ namespace pat {
     bool embedTpfmsMuon_;
     /// embed track from DYT muon fit into the muon
     bool embedDytMuon_;
+    // associations for rekeying of TrackExtra refs in embedded tracks
+    std::vector<edm::EDGetTokenT<edm::Association<reco::TrackExtraCollection>>> trackExtraAssocs_;
     /// add combined inverse beta measurement into the muon
     bool addInverseBeta_;
     /// input tag for reading inverse beta
