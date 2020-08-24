@@ -19,7 +19,7 @@ cleanedGenJetsTask = cms.Task(
 )
 
 from RecoHI.HiJetAlgos.HiRecoPFJets_cff import PFTowers, pfNoPileUpJMEHI, ak4PFJetsForFlow, hiPuRho, hiFJRhoFlowModulation
-from RecoHI.HiTracking.highPurityTracks_cfi import highPurityTracks
+from RecoHI.HiTracking.highPurityGeneralTracks_cfi import highPurityGeneralTracks
 
 recoPFJetsHIpostAODTask = cms.Task(
     PFTowers,
@@ -27,7 +27,7 @@ recoPFJetsHIpostAODTask = cms.Task(
     ak4PFJetsForFlow,
     hiFJRhoFlowModulation,
     hiPuRho,
-    highPurityTracks,
+    highPurityGeneralTracks,
     )
 
 recoJetsHIpostAODTask = cms.Task(

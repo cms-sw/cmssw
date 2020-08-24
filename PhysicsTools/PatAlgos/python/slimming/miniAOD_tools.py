@@ -615,8 +615,7 @@ def miniAOD_customizeHeavyIon(process, data):
         (pp_on_AA_2018 | pp_on_PbPb_run3).toModify(process.slimmedGenJetsAK8SoftDropSubJets, cut = 'pt>9999', nLoose = 0)
 
     (pp_on_AA_2018 | pp_on_PbPb_run3).toModify(process, func = lambda proc: removeL1FastJetJECs(proc))
-    (pp_on_AA_2018 | pp_on_PbPb_run3).toModify(process, func = lambda proc:
-	aliasCsJets(proc, 'akCs4PF'))
+    (pp_on_AA_2018 | pp_on_PbPb_run3).toModify(process, func = lambda proc: aliasCsJets(proc, 'AKCs4PF'))
 
     modifyJECs = addJECsForData if data is True else removeJECsForMC
     (pp_on_AA_2018 | pp_on_PbPb_run3).toModify(process, func = lambda proc: modifyJECs(proc))
