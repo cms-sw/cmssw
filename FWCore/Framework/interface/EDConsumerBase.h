@@ -53,6 +53,10 @@ namespace edm {
   class ProductResolverIndexHelper;
   class ProductRegistry;
   class ConsumesCollector;
+  template <Transition Tr>
+  class EDConsumerBaseAdaptor;
+  template <Transition Tr>
+  class EDConsumerBaseWithTagAdaptor;
   template <typename T>
   class WillGetIfMatch;
 
@@ -131,6 +135,10 @@ namespace edm {
 
   protected:
     friend class ConsumesCollector;
+    template <Transition Tr>
+    friend class EDConsumerBaseAdaptor;
+    template <Transition Tr>
+    friend class EDConsumerBaseWithTagAdaptor;
     template <typename T>
     friend class WillGetIfMatch;
     ///Use a ConsumesCollector to gather consumes information from helper functions
@@ -193,6 +201,16 @@ namespace edm {
                                     eventsetup::heterocontainer::HCTypeTag::make<ESProduct>(),
                                     tag);
       return ESGetToken<ESProduct, ESRecord>{static_cast<unsigned int>(Tr), index, labelFor(index)};
+    }
+
+    template <Transition Tr = Transition::Event>
+    [[nodiscard]] constexpr auto esConsumes() noexcept {
+      return EDConsumerBaseAdaptor<Tr>(this);
+    }
+
+    template <Transition Tr = Transition::Event>
+    [[nodiscard]] constexpr auto esConsumes(ESInputTag tag) noexcept {
+      return EDConsumerBaseWithTagAdaptor<Tr>(this, std::move(tag));
     }
 
   private:
@@ -267,6 +285,34 @@ namespace edm {
     bool frozen_;
     bool containsCurrentProcessAlias_;
   };
+
+  template <Transition TR>
+  struct EDConsumerBaseAdaptor {
+    EDConsumerBaseAdaptor(EDConsumerBase* iBase) : m_consumer(iBase) {}
+
+    template <typename TYPE, typename REC>
+    ESGetToken<TYPE, REC> consumes() const {
+      return m_consumer->template esConsumes<TYPE, REC, TR>();
+    }
+
+  private:
+    EDConsumerBase* m_consumer;
+  };
+
+  template <Transition TR>
+  struct EDConsumerBaseWithTagAdaptor {
+    EDConsumerBaseWithTagAdaptor(EDConsumerBase* iBase, ESInputTag iTag) : m_consumer(iBase), m_tag(std::move(iTag)) {}
+
+    template <typename TYPE, typename REC>
+    ESGetToken<TYPE, REC> consumes() const {
+      return m_consumer->template esConsumes<TYPE, REC, TR>(m_tag);
+    }
+
+  private:
+    EDConsumerBase* m_consumer;
+    ESInputTag const m_tag;
+  };
+
 }  // namespace edm
 
 #endif

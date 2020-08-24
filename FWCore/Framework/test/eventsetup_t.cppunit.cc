@@ -19,6 +19,7 @@
 #include "FWCore/Framework/interface/ComponentDescription.h"
 #include "FWCore/Framework/interface/DataProxyProvider.h"
 #include "FWCore/Framework/interface/EDConsumerBase.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/ESTransientHandle.h"
 #include "FWCore/Framework/interface/ESRecordsToProxyIndices.h"
@@ -566,8 +567,7 @@ void testEventsetup::getDataWithESInputTagTest() {
 
 namespace {
   struct DummyDataConsumer : public EDConsumerBase {
-    explicit DummyDataConsumer(ESInputTag const& iTag)
-        : m_token{esConsumes<edm::eventsetup::test::DummyData, edm::DefaultRecord>(iTag)} {}
+    explicit DummyDataConsumer(ESInputTag const& iTag) : m_token{esConsumes(iTag)} {}
 
     void prefetch(edm::EventSetupImpl const& iImpl) const {
       auto const& recs = this->esGetTokenRecordIndicesVector(edm::Transition::Event);
@@ -588,6 +588,31 @@ namespace {
     }
 
     ESGetToken<edm::eventsetup::test::DummyData, edm::DefaultRecord> m_token;
+  };
+
+  class EDConsumesCollectorConsumer : public edm::EDConsumerBase {
+    EDConsumesCollectorConsumer() {
+      using edm::eventsetup::test::DummyData;
+      {
+        edm::ESGetToken<DummyData, edm::DefaultRecord> token1(
+            consumesCollector().esConsumes<DummyData, edm::DefaultRecord>());
+        edm::ESGetToken<DummyData, edm::DefaultRecord> token2(
+            consumesCollector().esConsumes<DummyData, edm::DefaultRecord>(edm::ESInputTag("Blah")));
+        edm::ESGetToken<DummyData, edm::DefaultRecord> token3(
+            consumesCollector().esConsumes<DummyData, edm::DefaultRecord, edm::Transition::BeginRun>());
+        edm::ESGetToken<DummyData, edm::DefaultRecord> token4(
+            consumesCollector().esConsumes<DummyData, edm::DefaultRecord, edm::Transition::BeginRun>(
+                edm::ESInputTag("Blah")));
+      }
+      {
+        edm::ESGetToken<DummyData, edm::DefaultRecord> token1(consumesCollector().esConsumes());
+        edm::ESGetToken<DummyData, edm::DefaultRecord> token2(consumesCollector().esConsumes(edm::ESInputTag("Blah")));
+        edm::ESGetToken<DummyData, edm::DefaultRecord> token3(
+            consumesCollector().esConsumes<edm::Transition::BeginRun>());
+        edm::ESGetToken<DummyData, edm::DefaultRecord> token4(
+            consumesCollector().esConsumes<edm::Transition::BeginRun>(edm::ESInputTag("Blah")));
+      }
+    }
   };
 
   class ConsumesProducer : public ESProducer {
@@ -625,6 +650,32 @@ namespace {
 
   private:
     edm::ESGetToken<edm::eventsetup::test::DummyData, DummyRecord> token_;
+  };
+
+  class ESConsumesCollectorProducer : public ESProducer {
+  public:
+    struct Helper {
+      Helper(ESConsumesCollector iCollector) {
+        using edm::eventsetup::test::DummyData;
+        {
+          edm::ESGetToken<DummyData, edm::DefaultRecord> token1(
+              iCollector.consumesFrom<DummyData, edm::DefaultRecord>());
+          edm::ESGetToken<DummyData, edm::DefaultRecord> token2(
+              iCollector.consumesFrom<DummyData, edm::DefaultRecord>(edm::ESInputTag("Blah")));
+        }
+        {
+          edm::ESGetToken<DummyData, edm::DefaultRecord> token1(iCollector.consumes());
+          edm::ESGetToken<DummyData, edm::DefaultRecord> token2(iCollector.consumes(edm::ESInputTag("Blah")));
+        }
+      }
+    };
+
+    ESConsumesCollectorProducer() : helper_(setWhatProduced(this, "consumesCollector")) {}
+
+    std::unique_ptr<edm::eventsetup::test::DummyData> produce(const DummyRecord& iRecord);
+
+  private:
+    Helper helper_;
   };
 
   class SetMayConsumeProducer : public ESProducer {
