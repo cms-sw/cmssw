@@ -47,7 +47,7 @@ if __name__ == '__main__':
         It is assumed that input files are not gzipped. If input files are gzipped, pass --gzip option.
         Resulting file is saved not gzipped. Output file gets overwritten if it already exists.''')
     parser.add_argument('files', nargs='+', help='PB files to be concatenated.')
-    parser.add_argument('-o', '--output', default='concatenated_streamDQMHistograms.pb', help='Name of the resulting file.')
+    parser.add_argument('-o', '--output', default='DQMLive_concat.pb', help='Name of the resulting file.')
     parser.add_argument('-g', '--gzip', action='store_true', help='If set, input files will be ungzipped.')
     args = parser.parse_args()
 
