@@ -28,7 +28,7 @@ namespace trklet {
   
   class TrackletEngineUnit {
   public:
-    TrackletEngineUnit(const Settings& settings, unsigned int nbitsfinephi, unsigned int layerdisk2, unsigned int iSeed, unsigned int nbitsfinephiediff, unsigned int iAllStub, std::vector<bool> pttableinner, std::vector<bool> pttableouter, VMStubsTEMemory* outervmstubs);
+    TrackletEngineUnit(const Settings* const settings, unsigned int nbitsfinephi, unsigned int layerdisk2, unsigned int iSeed, unsigned int nbitsfinephiediff, unsigned int iAllStub, std::vector<bool> pttableinner, std::vector<bool> pttableouter, VMStubsTEMemory* outervmstubs);
 
     ~TrackletEngineUnit() = default;
 
@@ -49,7 +49,7 @@ namespace trklet {
   private:
     VMStubsTEMemory* outervmstubs_;
     TEData tedata_;
-    const Settings& settings_;
+    const Settings* settings_;
     unsigned int nbitsfinephi_;
     unsigned int layerdisk2_;
     unsigned int iSeed_;
