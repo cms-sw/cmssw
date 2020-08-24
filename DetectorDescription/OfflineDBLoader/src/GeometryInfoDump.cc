@@ -7,7 +7,6 @@
 #include "DetectorDescription/Core/interface/DDExpandedNode.h"
 #include "DetectorDescription/Core/interface/DDExpandedView.h"
 #include "DetectorDescription/Core/interface/DDLogicalPart.h"
-#include "DataFormats/Math/interface/Rounding.h"
 #include "FWCore/Utilities/interface/Exception.h"
 
 #include <cassert>
@@ -18,7 +17,16 @@
 
 using Graph = DDCompactView::Graph;
 using adjl_iterator = Graph::const_adj_iterator;
-using namespace cms_rounding;
+
+// For output of values to four decimal places, round negative values
+// equivalent to 0 within the precision to 0 to prevent printing "-0".
+template <class valType>
+static constexpr valType roundNeg0(valType value) {
+  if (value < 0. && value > -5.0e-5)
+    return (0.0);
+  else
+    return (value);
+}
 
 GeometryInfoDump::GeometryInfoDump() {}
 
@@ -50,25 +58,22 @@ void GeometryInfoDump::dumpInfo(
       dump << " - " << epv.geoHistory();
       DD3Vector x, y, z;
       epv.rotation().GetComponents(x, y, z);
-      x = roundVecIfNear0(x, 1.e-5);
-      y = roundVecIfNear0(y, 1.e-5);
-      z = roundVecIfNear0(z, 1.e-5);
       if (dumpPosInfo) {
         size_t s = snprintf(buf,
                             256,
                             ",%12.4f,%12.4f,%12.4f,%12.4f,%12.4f,%12.4f,%12.4f,%12.4f,%12.4f,%12.4f,%12.4f,%12.4f",
-                            roundIfNear0(epv.translation().x()),
-                            roundIfNear0(epv.translation().y()),
-                            roundIfNear0(epv.translation().z()),
-                            x.X(),
-                            y.X(),
-                            z.X(),
-                            x.Y(),
-                            y.Y(),
-                            z.Y(),
-                            x.Z(),
-                            y.Z(),
-                            z.Z());
+                            roundNeg0(epv.translation().x()),
+                            roundNeg0(epv.translation().y()),
+                            roundNeg0(epv.translation().z()),
+                            roundNeg0(x.X()),
+                            roundNeg0(y.X()),
+                            roundNeg0(z.X()),
+                            roundNeg0(x.Y()),
+                            roundNeg0(y.Y()),
+                            roundNeg0(z.Y()),
+                            roundNeg0(x.Z()),
+                            roundNeg0(y.Z()),
+                            roundNeg0(z.Z()));
         assert(s < 256);
         dump << buf;
       }
