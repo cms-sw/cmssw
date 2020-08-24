@@ -120,8 +120,7 @@ void HectorProducer::produce(edm::Event &iEvent, const edm::EventSetup &es) {
 
   //  if (m_verbosity) {
   for (unsigned int i = 0; i < (*NewCorrespondenceMap).size(); ++i)
-    LogVerbatim("HectorEventProcessing") << "Hector correspondence table: " << (*NewCorrespondenceMap)[i];
-  //LogDebug("HectorEventProcessing") << "Hector correspondence table: " << (*NewCorrespondenceMap)[i];
+    edm::LogVerbatim("HectorEventProcessing") << "Hector correspondence table: " << (*NewCorrespondenceMap)[i];
   // }
 
   iEvent.put(std::move(NewCorrespondenceMap));
