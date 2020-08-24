@@ -48,6 +48,8 @@ void CandPtrProjector::produce(edm::StreamID, edm::Event& iEvent, edm::EventSetu
     auto const c = cands->ptrAt(i);
     if (vetoedPtrs.find(c) == vetoedPtrs.cend()) {
       bool addcand = true;
+      if (c->numberOfSourceCandidatePtrs() == 1)
+        addcand = (vetoedPtrs.find(c->sourceCandidatePtr(0)) == vetoedPtrs.cend());
       if (useDeltaRforFootprint_)
         for (const auto& it : vetoedPtrs)
           if (it.isNonnull() && it.isAvailable() && reco::deltaR2(*it, *c) < 0.00000025) {
