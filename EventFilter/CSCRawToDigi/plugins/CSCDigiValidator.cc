@@ -34,6 +34,8 @@
 #include "CondFormats/CSCObjects/interface/CSCChamberMap.h"
 #include "CondFormats/DataRecord/interface/CSCChamberMapRcd.h"
 
+#include "DataFormats/L1CSCTrackFinder/interface/L1Track.h"
+
 class CSCWireDigi;
 class CSCStripDigi;
 class CSCComparatorDigi;
