@@ -68,7 +68,7 @@ layout_manager = LayoutManager()
 # ###################################################################################################### #
 
 async def index(request):
-    return web.FileResponse(get_absolute_path('../data/index.html'))
+    return web.FileResponse(get_absolute_path('../frontend/index.html'))
 
 
 @getNotOlderThanFromUrl
@@ -424,7 +424,7 @@ def config_and_start_webserver(port):
                     web.get('/api/v1/latest_runs', latest_runs)])
 
     # Routes for HTML files
-    app.add_routes([web.get('/', index), web.static('/', get_absolute_path('../data/'), show_index=True)])
+    app.add_routes([web.get('/', index), web.static('/', get_absolute_path('../frontend/'), show_index=True)])
 
     app.on_shutdown.append(on_shutdown)
 
@@ -438,19 +438,28 @@ if __name__ == '__main__':
     parser.add_argument('-r', dest='renderers', type=int, default=2, help='Number of renderer processes.')
     parser.add_argument('--in-memory', dest='in_memory', default=False, action='store_true', help='If set uses an in memory database.')
     parser.add_argument('--stderr', default=False, action='store_true', help='If set log to stdout instead of log files.')
-    parser.add_argument('-d', dest='directory', type=str, default='../data/', 
-        help='''Directory where SQLite file will be placed. If it starts with / the full absolute directory will be used. 
+    parser.add_argument('-d', dest='workdir', type=str, default='../data/', 
+        help='''Directory where SQLite file and logs will be placed. If it starts with / the full absolute directory will be used. 
         If it does not start with /, it will be used as a directory relative to DQMServices/DQMGUI/python/.''')
     args = parser.parse_args()
+
+    # Make sure workdir is an absolute path and that it exists
+    if args.workdir.startswith('/'):
+        workdir = args.workdir
+    else:
+        workdir = get_absolute_path(args.workdir)
+    os.makedirs(workdir, exist_ok=True)
 
     # Setup rotating file logging
     def log_file_namer(filename):
         parts = filename.split('/')
-        parts[-1] = f'access_{parts[-1][11:]}.log'
+        parts[-1] = f'dqmgui_{parts[-1][11:]}.log'
         return '/'.join(parts)
     
     if not args.stderr:
-        handler = TimedRotatingFileHandler(get_absolute_path('logs/access.log'), when='midnight', interval=1)
+        log_path = os.path.join(workdir, 'logs', 'dqmgui.log')
+        os.makedirs(os.path.dirname(log_path), exist_ok=True)
+        handler = TimedRotatingFileHandler(log_path, when='midnight', interval=1)
         handler.namer = log_file_namer
     else:
         handler = logging.StreamHandler()
@@ -460,5 +469,5 @@ if __name__ == '__main__':
     logger.setLevel(logging.INFO)
     logger.addHandler(handler)
 
-    asyncio.get_event_loop().run_until_complete(initialize_services(args.directory, args.in_memory, args.files, args.renderers))
+    asyncio.get_event_loop().run_until_complete(initialize_services(workdir, args.in_memory, args.files, args.renderers))
     config_and_start_webserver(args.port)

@@ -109,9 +109,7 @@ class GUIService:
                 segment = names[0]
                 is_file = len(names) == 1 # Last item in a path is file
                 
-                print('NAME HERE:', names[-1], regex)
                 if regex and not regex.match(names[-1]):
-                    print('NO MATCH!!!')
                     continue # Regex is provided and ME name doesn't match it
 
                 if is_file:

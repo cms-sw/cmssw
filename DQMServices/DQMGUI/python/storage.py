@@ -9,7 +9,6 @@ import tempfile
 import aiosqlite
 import subprocess
 
-from .helpers import get_absolute_path
 from .compressing import GUIBlobCompressor
 
 
@@ -33,7 +32,7 @@ class GUIDataStore:
 
 
     @classmethod
-    async def initialize(cls, directory='../data/', in_memory=False):
+    async def initialize(cls, directory, in_memory=False):
         """
         Creates DB from schema if it doesn't exists and open a connection to it.
         If in_memory is set to Trye, an in memory DB will be used.
@@ -42,14 +41,7 @@ class GUIDataStore:
         if in_memory:
             connection_string = ':memory:'
         else:
-            if directory.startswith('/'):
-                # This is an absolute directory, just use it
-                connection_string = os.path.join(directory, 'directory.sqlite')
-            else:
-                # Relative directory, append it to the release path
-                connection_string = os.path.join(get_absolute_path(directory), 'directory.sqlite')
-
-        print('Connection string: %s' % connection_string)
+            connection_string = os.path.join(directory, 'directory.sqlite')
 
         cls.__db = await aiosqlite.connect(connection_string)
         await cls.__db.executescript(cls.__DBSCHEMA)
