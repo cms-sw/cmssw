@@ -15,6 +15,7 @@
 #include <type_traits>
 #include <memory>
 #include <sstream>
+#include <fmt/printf.h>
 
 // include ROOT
 #include "TH2F.h"
@@ -1163,30 +1164,43 @@ namespace gainCalibHelper {
   /************************************************
     Diff and Ratio histograms of 2 IOVs
   *************************************************/
-  template <gainCalibPI::type myType, class PayloadType>
-  class SiPixelGainCalibDiffAndRatioBase : public cond::payloadInspector::PlotImage<PayloadType> {
+  template <gainCalibPI::type myType, cond::payloadInspector::IOVMultiplicity nIOVs, int ntags, class PayloadType>
+  class SiPixelGainCalibDiffAndRatioBase : public cond::payloadInspector::PlotImage<PayloadType, nIOVs, ntags> {
   public:
     SiPixelGainCalibDiffAndRatioBase()
-        : cond::payloadInspector::PlotImage<PayloadType>(
-              Form("SiPixelGainCalibration %s Diff and Ratio", TypeName[myType])) {
+        : cond::payloadInspector::PlotImage<PayloadType, nIOVs, ntags>(
+              Form("SiPixelGainCalibration %s Diff and Ratio %i tag(s)", TypeName[myType], ntags)) {
       if constexpr (std::is_same_v<PayloadType, SiPixelGainCalibrationOffline>) {
         isForHLT_ = false;
       } else {
         isForHLT_ = true;
       }
     }
-    bool fill(const std::vector<std::tuple<cond::Time_t, cond::Hash>>& iovs) override {
+
+    bool fill() override {
       gStyle->SetOptStat("emr");
       TGaxis::SetExponentOffset(-0.1, 0.01, "y");  // Y offset
       TH1F::SetDefaultSumw2(true);
 
-      std::vector<std::tuple<cond::Time_t, cond::Hash>> sorted_iovs = iovs;
-      // make absolute sure the IOVs are sortd by since
-      std::sort(begin(sorted_iovs), end(sorted_iovs), [](auto const& t1, auto const& t2) {
-        return std::get<0>(t1) < std::get<0>(t2);
-      });
-      auto firstiov = sorted_iovs.front();
-      auto lastiov = sorted_iovs.back();
+      COUT << "ntags: " << ntags << " this->m_plotAnnotations.ntags: " << this->m_plotAnnotations.ntags << std::endl;
+
+      // trick to deal with the multi-ioved tag and two tag case at the same time
+      auto theIOVs = cond::payloadInspector::PlotBase::getTag<0>().iovs;
+      auto tagname1 = cond::payloadInspector::PlotBase::getTag<0>().name;
+      std::string tagname2 = "";
+      auto firstiov = theIOVs.front();
+      std::tuple<cond::Time_t, cond::Hash> lastiov;
+
+      // we don't support (yet) comparison with more than 2 tags
+      assert(this->m_plotAnnotations.ntags < 3);
+
+      if (this->m_plotAnnotations.ntags == 2) {
+        auto tag2iovs = cond::payloadInspector::PlotBase::getTag<1>().iovs;
+        tagname2 = cond::payloadInspector::PlotBase::getTag<1>().name;
+        lastiov = tag2iovs.front();
+      } else {
+        lastiov = theIOVs.back();
+      }
 
       std::shared_ptr<PayloadType> last_payload = this->fetchPayload(std::get<1>(lastiov));
       std::shared_ptr<PayloadType> first_payload = this->fetchPayload(std::get<1>(firstiov));
@@ -1217,9 +1231,9 @@ namespace gainCalibHelper {
           break;
       }
 
-      auto span = std::abs(minRatio - maxRatio);
+      auto span = std::abs(maxRatio - minRatio);
 
-      TCanvas canvas("Canv", "Canv", 1200, 800);
+      TCanvas canvas("Canv", "Canv", 1300, 800);
       canvas.Divide(2, 1);
       canvas.cd();
       auto hratio = std::make_shared<TH1F>("h_Ratio",
@@ -1229,9 +1243,9 @@ namespace gainCalibHelper {
                                                 (isForHLT_ ? "Column" : "Pixel"),
                                                 TypeName[myType],
                                                 (isForHLT_ ? "column" : "pixel")),
-                                           200,
-                                           minRatio - span / 5.,
-                                           maxRatio + span / 5.);
+                                           50,
+                                           minRatio - span / 4.,
+                                           maxRatio + span / 4.);
 
       auto hdiff = std::make_shared<TH1F>("h_Diff",
                                           Form("SiPixel Gain Calibration %s - %s;per %s %s difference;# %ss",
@@ -1240,7 +1254,7 @@ namespace gainCalibHelper {
                                                (isForHLT_ ? "Column" : "Pixel"),
                                                TypeName[myType],
                                                (isForHLT_ ? "column" : "pixel")),
-                                          200,
+                                          50,
                                           (diffHigh < diffLow) ? diffHigh : diffLow,
                                           (diffHigh < diffLow) ? diffLow : diffHigh);
 
@@ -1253,45 +1267,61 @@ namespace gainCalibHelper {
 
       canvas.cd(1)->SetLogy();
       hratio->SetTitle("");
-      hratio->SetLineColor(kRed);
+      hratio->SetLineColor(kBlack);
+      hratio->SetFillColor(kRed);
       hratio->SetBarWidth(0.95);
-      hratio->Draw("hist");
+      hratio->SetMaximum(hratio->GetMaximum() * 10);
+      hratio->Draw("bar");
       SiPixelPI::makeNicePlotStyle(hratio.get());
       hratio->SetStats(true);
 
       canvas.cd(2)->SetLogy();
       hdiff->SetTitle("");
+      hdiff->SetLineColor(kBlack);
       hdiff->SetFillColor(kBlue);
       hdiff->SetBarWidth(0.95);
-      hdiff->Draw("hist");
+      hdiff->SetMaximum(hdiff->GetMaximum() * 10);
+      hdiff->Draw("bar");
       SiPixelPI::makeNicePlotStyle(hdiff.get());
       hdiff->SetStats(true);
 
       canvas.Update();
 
-      /*
+      canvas.cd(1);
       TLegend legend = TLegend(0.45, 0.86, 0.74, 0.94);
-      //legend.SetHeader("#font[22]{SiPixel Offline Gain Calibration Comparison}", "C");  // option "C" allows to center the header
-      //legend.AddEntry(hfirst.get(), ("IOV: " + std::to_string(std::get<0>(firstiov))).c_str(), "FL");
-      //legend.AddEntry(hlast.get(),  ("IOV: " + std::to_string(std::get<0>(lastiov))).c_str(), "FL");
-      legend.AddEntry(hfirst.get(), ("payload: #color[2]{" + std::get<1>(firstiov) + "}").c_str(), "F");
-      legend.AddEntry(hlast.get(), ("payload: #color[4]{" + std::get<1>(lastiov) + "}").c_str(), "F");
-      legend.SetTextSize(0.022);
+      legend.SetHeader(fmt::sprintf("#font[22]{SiPixel %s Gain Calibration Ratio}",(isForHLT_ ? "ForHLT" : "Offline")).c_str(),"C");
+      if (this->m_plotAnnotations.ntags == 2) {
+        legend.AddEntry(hratio.get(), ("#splitline{" + tagname1 + "}{ /" + tagname2 +"}").c_str(), "F");
+      } else {
+        legend.AddEntry(hratio.get(), ( firstIOVsince + " / " + lastIOVsince).c_str(), "F");
+      }
+      legend.SetTextSize(0.025);
       legend.SetLineColor(10);
       legend.Draw("same");
-      */
+
+      canvas.cd(2);
+      TLegend legend2 = TLegend(0.45, 0.86, 0.74, 0.94);
+      legend2.SetHeader(fmt::sprintf("#font[22]{SiPixel %s Gain Calibration #Delta}",(isForHLT_ ? "ForHLT" : "Offline")).c_str(),"C");
+      if (this->m_plotAnnotations.ntags == 2) {
+        legend2.AddEntry(hdiff.get(), ("#splitline{" + tagname1 + "}{-" + tagname2 +"}").c_str(), "F");
+      } else {
+        legend2.AddEntry(hdiff.get(), (firstIOVsince + " - " + lastIOVsince).c_str(), "F");
+      }
+      legend2.SetTextSize(0.025);
+      legend2.SetLineColor(10);
+      legend2.Draw("same");
 
       TPaveStats* st1 = (TPaveStats*)hratio->FindObject("stats");
-      st1->SetTextSize(0.022);
+      st1->SetTextSize(0.03);
       st1->SetLineColor(kRed);
       st1->SetTextColor(kRed);
-      SiPixelPI::adjustStats(st1, 0.13, 0.84, 0.31, 0.94);
+      SiPixelPI::adjustStats(st1, 0.13, 0.84, 0.41, 0.94);
 
       TPaveStats* st2 = (TPaveStats*)hdiff->FindObject("stats");
-      st2->SetTextSize(0.022);
+      st2->SetTextSize(0.03);
       st2->SetLineColor(kBlue);
       st2->SetTextColor(kBlue);
-      SiPixelPI::adjustStats(st2, 0.13, 0.84, 0.31, 0.94);
+      SiPixelPI::adjustStats(st2, 0.13, 0.84, 0.41, 0.94);
 
       auto ltx = TLatex();
       ltx.SetTextFont(62);
@@ -1324,22 +1354,6 @@ namespace gainCalibHelper {
   protected:
     bool isForHLT_;
     std::string label_;
-  };
-
-  template <gainCalibPI::type myType, class PayloadType>
-  class SiPixelGainCalibDiffAndRatioSingleTag : public SiPixelGainCalibDiffAndRatioBase<myType, PayloadType> {
-  public:
-    SiPixelGainCalibDiffAndRatioSingleTag() : SiPixelGainCalibDiffAndRatioBase<myType, PayloadType>() {
-      this->setSingleIov(false);
-    }
-  };
-
-  template <gainCalibPI::type myType, class PayloadType>
-  class SiPixelGainCalibDiffAndRatioTwoTags : public SiPixelGainCalibDiffAndRatioBase<myType, PayloadType> {
-  public:
-    SiPixelGainCalibDiffAndRatioTwoTags() : SiPixelGainCalibDiffAndRatioBase<myType, PayloadType>() {
-      this->setTwoTags(true);
-    }
   };
 
   // 2D MAPS
