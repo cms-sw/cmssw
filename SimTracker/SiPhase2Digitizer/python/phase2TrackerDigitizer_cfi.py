@@ -2,17 +2,17 @@
 import FWCore.ParameterSet.Config as cms
 
 PixelDigitizerAlgorithmCommon = cms.PSet(
-    ElectronPerAdc = cms.double(600.0),
+    ElectronPerAdc = cms.double(1500.0),
     ReadoutNoiseInElec = cms.double(0.0),
-    ThresholdInElectrons_Barrel = cms.double(1200.0),
-    ThresholdInElectrons_Endcap = cms.double(1200.0),
+    ThresholdInElectrons_Barrel = cms.double(1000.0),
+    ThresholdInElectrons_Endcap = cms.double(1000.0),
     AddThresholdSmearing = cms.bool(False),
     ThresholdSmearing_Barrel = cms.double(0.0),
     ThresholdSmearing_Endcap = cms.double(0.0),
     HIPThresholdInElectrons_Barrel = cms.double(1.0e10), # very high value to avoid Over threshold bit
     HIPThresholdInElectrons_Endcap = cms.double(1.0e10), # very high value to avoid Over threshold bit
     NoiseInElectrons = cms.double(0.0),
-    Phase2ReadoutMode = cms.int32(-1), # Flag to decide Readout Mode :Digital(0) or Analog (linear TDR (-1), dual slope with slope parameters (+1,+2,+3,+4) with threshold subtraction
+    Phase2ReadoutMode = cms.int32(3), # Flag to decide Readout Mode :Digital(0) or Analog (linear TDR (-1), dual slope with slope parameters (+1,+2,+3,+4) with threshold subtraction
     AdcFullScale = cms.int32(15),
     TofUpperCut = cms.double(12.5),
     TofLowerCut = cms.double(-12.5),
