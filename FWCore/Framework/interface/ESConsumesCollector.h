@@ -179,28 +179,32 @@ namespace edm {
 
   class ESConsumesCollectorAdaptor {
   public:
-    explicit ESConsumesCollectorAdaptor(ESConsumesCollector* iBase) : m_consumer(iBase) {}
-
     template <typename TYPE, typename REC>
     ESGetToken<TYPE, REC> consumes() {
       return m_consumer->template consumesFrom<TYPE, REC>();
     }
 
   private:
+    //only ESConsumesCollector is allowed to make an instance of this class
+    friend class ESConsumesCollector;
+    explicit ESConsumesCollectorAdaptor(ESConsumesCollector* iBase) : m_consumer(iBase) {}
+
     ESConsumesCollector* m_consumer;
   };
 
   class ESConsumesCollectorWithTagAdaptor {
   public:
-    ESConsumesCollectorWithTagAdaptor(ESConsumesCollector* iBase, ESInputTag iTag)
-        : m_consumer(iBase), m_tag(std::move(iTag)) {}
-
     template <typename TYPE, typename REC>
     ESGetToken<TYPE, REC> consumes() {
       return m_consumer->template consumesFrom<TYPE, REC>(m_tag);
     }
 
   private:
+    //only ESConsumesCollector is allowed to make an instance of this class
+    friend class ESConsumesCollector;
+    ESConsumesCollectorWithTagAdaptor(ESConsumesCollector* iBase, ESInputTag iTag)
+        : m_consumer(iBase), m_tag(std::move(iTag)) {}
+
     ESConsumesCollector* m_consumer;
     ESInputTag const m_tag;
   };
