@@ -11,7 +11,6 @@
 
 #include <regex>
 
-
 /**
  * \brief Builds ideal, real and misaligned geometries.
  *
@@ -23,13 +22,12 @@
 
 using RotationMatrix = ROOT::Math::Rotation3D;
 using Translation = ROOT::Math::DisplacementVector3D<ROOT::Math::Cartesian3D<double>>;
-  
 
 PPSGeometryESProducer::PPSGeometryESProducer(const edm::ParameterSet& iConfig)
     : verbosity_(iConfig.getUntrackedParameter<unsigned int>("verbosity")),
       detectorToken_{setWhatProduced(this, &PPSGeometryESProducer::produceIdealGD)
-                            .consumes<cms::DDDetector>(edm::ESInputTag(
-                                "" /*optional module label */, iConfig.getParameter<std::string>("detectorTag")))},
+                         .consumes<cms::DDDetector>(edm::ESInputTag("" /*optional module label */,
+                                                                    iConfig.getParameter<std::string>("detectorTag")))},
       gdRealTokens_{setWhatProduced(this, &PPSGeometryESProducer::produceRealGD)},
       gdMisTokens_{setWhatProduced(this, &PPSGeometryESProducer::produceMisalignedGD)},
       dgdRealToken_{
@@ -103,18 +101,16 @@ void PPSGeometryESProducer::applyAlignments(const DetGeomDesc& idealGD,
   }
 }
 
-
 std::unique_ptr<DetGeomDesc> PPSGeometryESProducer::produceIdealGD(const IdealGeometryRecord& iRecord) {
   // Get the DDDetector from EventSetup
   auto const& det = iRecord.get(detectorToken_);
-  
+
   // Get the DDCompactView
   cms::DDCompactView myCompactView(det);
 
   // Build geo from compact view.
   return DetGeomDescBuilder::buildDetGeomDescFromCompactView(myCompactView);
 }
-
 
 template <typename REC>
 std::unique_ptr<DetGeomDesc> PPSGeometryESProducer::produceGD(IdealGeometryRecord const& iIdealRec,

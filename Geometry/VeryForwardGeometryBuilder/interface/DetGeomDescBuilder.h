@@ -4,7 +4,6 @@
 #include "Geometry/VeryForwardGeometryBuilder/interface/DetGeomDesc.h"
 #include "DetectorDescription/DDCMS/interface/DDCompactView.h"
 
-
 /*
  * Generic function to build geo (tree of DetGeomDesc) from compact view.
  */

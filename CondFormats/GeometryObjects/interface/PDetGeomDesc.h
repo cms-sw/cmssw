@@ -11,7 +11,6 @@
 
 class PDetGeomDesc {
 public:
-
   struct Item {
     Item() = default;
     Item(const DetGeomDesc* const geoInfo) {
@@ -40,14 +39,14 @@ public:
     }
 
     // Translation matrix elements
-    double dx_, dy_, dz_;            // in mm
+    double dx_, dy_, dz_;  // in mm
     // Rotation matrix elements
     double axx_, axy_, axz_, ayx_, ayy_, ayz_, azx_, azy_, azz_;
     std::string name_;
-    std::vector<double> params_;     // default unit from DD4hep (cm)
-    uint32_t geographicalID_;        // to be converted to DetId
+    std::vector<double> params_;  // default unit from DD4hep (cm)
+    uint32_t geographicalID_;     // to be converted to DetId
     int copy_;
-    float z_;                        // in mm
+    float z_;  // in mm
     std::string sensorType_;
 
     COND_SERIALIZABLE;

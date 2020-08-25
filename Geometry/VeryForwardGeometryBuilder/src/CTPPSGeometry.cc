@@ -27,7 +27,9 @@ void CTPPSGeometry::build(const DetGeomDesc* gD, unsigned int verbosity) {
     buffer.pop_front();
 
     // verbosity printout
-    if (verbosity == 2) { d->print(); }
+    if (verbosity == 2) {
+      d->print();
+    }
 
     // check if it is a sensor
     if (d->name() == DDD_TOTEM_RP_SENSOR_NAME ||
@@ -46,10 +48,9 @@ void CTPPSGeometry::build(const DetGeomDesc* gD, unsigned int verbosity) {
   }
 
   // verbosity printout
-  if (verbosity) { 
-    edm::LogVerbatim("CTPPSGeometry::build") << "sensors_map_.size() = " << sensors_map_.size()
-					     << ", rps_map_.size() = " << rps_map_.size()
-					     << std::endl;
+  if (verbosity) {
+    edm::LogVerbatim("CTPPSGeometry::build")
+        << "sensors_map_.size() = " << sensors_map_.size() << ", rps_map_.size() = " << rps_map_.size() << std::endl;
   }
 
   // build sets

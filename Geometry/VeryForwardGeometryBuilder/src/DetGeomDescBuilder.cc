@@ -3,11 +3,11 @@
 #include "DetectorDescription/DDCMS/interface/DDFilteredView.h"
 #include "DetectorDescription/DDCMS/interface/DDDetector.h"
 
-
 /*
  * Generic function to build geo (tree of DetGeomDesc) from compact view.
  */
-std::unique_ptr<DetGeomDesc> DetGeomDescBuilder::buildDetGeomDescFromCompactView(const cms::DDCompactView& myCompactView) {
+std::unique_ptr<DetGeomDesc> DetGeomDescBuilder::buildDetGeomDescFromCompactView(
+    const cms::DDCompactView& myCompactView) {
   // create DDFilteredView (no filter!!)
   const cms::DDDetector* mySystem = myCompactView.detector();
   const dd4hep::Volume& worldVolume = mySystem->worldVolume();
@@ -26,8 +26,9 @@ std::unique_ptr<DetGeomDesc> DetGeomDescBuilder::buildDetGeomDescFromCompactView
     DetGeomDesc* newGD = new DetGeomDesc(fv, allSpecParSections);
     geoInfoSentinel->addComponent(newGD);
   } while (fv.next(0));
-  
-  edm::LogInfo("PPSGeometryESProducer") << "Successfully built geometry, it has " << (geoInfoSentinel->components()).size() << " DetGeomDesc nodes.";
+
+  edm::LogInfo("PPSGeometryESProducer") << "Successfully built geometry, it has "
+                                        << (geoInfoSentinel->components()).size() << " DetGeomDesc nodes.";
 
   return geoInfoSentinel;
 }

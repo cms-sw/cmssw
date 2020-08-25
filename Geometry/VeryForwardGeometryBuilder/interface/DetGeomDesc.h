@@ -54,7 +54,6 @@ public:
   using RotationMatrix = ROOT::Math::Rotation3D;
   using Translation = ROOT::Math::DisplacementVector3D<ROOT::Math::Cartesian3D<double>>;
 
-
   // Constructor from DD4Hep DDFilteredView
   DetGeomDesc(const cms::DDFilteredView& fv, const cms::DDSpecParRegistry& allSpecParSections);
 
@@ -67,26 +66,26 @@ public:
   int copyno() const { return m_copy; }
 
   // placement info
-  Translation translation() const { return m_trans; }        // in mm
+  Translation translation() const { return m_trans; }  // in mm
   RotationMatrix rotation() const { return m_rot; }
 
   // shape info
-  // params() is left for general access to solid shape parameters, but should be used 
-  // only with great care, for two reasons: 1. order of parameters may possibly change from 
-  // a version to another of DD4hep; 2. length parameters unit is cm while PPS uses mm.    
-  std::vector<double> params() const { return m_params; }    // default unit from DD4hep (cm)
+  // params() is left for general access to solid shape parameters, but should be used
+  // only with great care, for two reasons: 1. order of parameters may possibly change from
+  // a version to another of DD4hep; 2. length parameters unit is cm while PPS uses mm.
+  std::vector<double> params() const { return m_params; }  // default unit from DD4hep (cm)
   bool isABox() const { return m_isABox; }
-  DiamondDimensions getDiamondDimensions() const;            // in mm
+  DiamondDimensions getDiamondDimensions() const;  // in mm
 
   // sensor type
   const std::string& sensorType() const { return m_sensorType; }
- 
+
   // ID info
   DetId geographicalID() const { return m_geographicalID; }
 
   // components (children) management
   Container components() const;
-  float parentZPosition() const { return m_z; }              // in mm
+  float parentZPosition() const { return m_z; }  // in mm
   void addComponent(DetGeomDesc*);
   bool isLeaf() const { return m_container.empty(); }
 
@@ -97,26 +96,28 @@ public:
   void print() const;
 
 private:
-  void deleteComponents();        // deletes just the first daughters
-  void deepDeleteComponents();    // traverses the tree and deletes all nodes.
+  void deleteComponents();      // deletes just the first daughters
+  void deepDeleteComponents();  // traverses the tree and deletes all nodes.
   void clearComponents() { m_container.resize(0); }
 
   std::string computeNameWithNoNamespace(const std::string_view nameFromView) const;
   std::vector<double> computeParameters(const cms::DDFilteredView& fv) const;
   DetId computeDetID(const std::string& name, const std::vector<int>& copyNos, unsigned int copyNum) const;
-  std::string computeSensorType(const std::string_view nameFromView, const std::string& nodePath, const cms::DDSpecParRegistry& allSpecParSections);
+  std::string computeSensorType(const std::string_view nameFromView,
+                                const std::string& nodePath,
+                                const cms::DDSpecParRegistry& allSpecParSections);
 
-  std::string m_name;             // with no namespace
+  std::string m_name;  // with no namespace
   int m_copy;
-  Translation m_trans;            // in mm
+  Translation m_trans;  // in mm
   RotationMatrix m_rot;
-  std::vector<double> m_params;   // default unit from DD4hep (cm)
+  std::vector<double> m_params;  // default unit from DD4hep (cm)
   bool m_isABox;
   std::string m_sensorType;
   DetId m_geographicalID;
 
   Container m_container;
-  float m_z;                      // in mm
+  float m_z;  // in mm
 };
 
 #endif

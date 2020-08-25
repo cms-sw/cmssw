@@ -1,7 +1,6 @@
 #ifndef GEOMETRY_VERYFORWARDGEOMETRYBUILDER_PPSGEOMETRYESPRODUCER_H
 #define GEOMETRY_VERYFORWARDGEOMETRYBUILDER_PPSGEOMETRYESPRODUCER_H
 
-
 /****************************************************************************
 *  Based on CTPPSGeometryESModule.cc by:
 *  Jan Kaspar (jan.kaspar@gmail.com)
@@ -30,7 +29,6 @@
 #include "Geometry/Records/interface/VeryForwardMisalignedGeometryRecord.h"
 #include "Geometry/Records/interface/VeryForwardRealGeometryRecord.h"
 
-
 /**
  * \brief Builds ideal, real and misaligned geometries.
  *
@@ -40,9 +38,8 @@
  * Second, it creates CTPPSGeometry from DetGeoDesc tree.
  **/
 
-  
 class PPSGeometryESProducer : public edm::ESProducer {
- public:
+public:
   PPSGeometryESProducer(const edm::ParameterSet&);
   ~PPSGeometryESProducer() override {}
 

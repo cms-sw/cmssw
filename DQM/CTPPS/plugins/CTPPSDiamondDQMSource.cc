@@ -521,7 +521,8 @@ void CTPPSDiamondDQMSource::dqmBeginRun(const edm::Run& iRun, const edm::EventSe
   const CTPPSPixelDetId pixid(0, CTPPS_PIXEL_STATION_ID, CTPPS_FAR_RP_ID, 0);
   if (iRun.run() > 300000) {  //Pixel installed
     det = geom.sensor(pixid);
-    horizontalShiftBwDiamondPixels_ = det->translation().x() - det->getDiamondDimensions().xHalfWidth - horizontalShiftOfDiamond_ - 1;
+    horizontalShiftBwDiamondPixels_ =
+        det->translation().x() - det->getDiamondDimensions().xHalfWidth - horizontalShiftOfDiamond_ - 1;
   }
 }
 
