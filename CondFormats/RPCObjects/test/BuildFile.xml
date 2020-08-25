@@ -1,6 +1,5 @@
 <environment>
   <use name="FWCore/Framework"/>
-  <use name="DataFormats/FEDRawData"/>
   <use name="CondCore/DBOutputService"/>
   <use name="CondFormats/RPCObjects"/>
   <use name="CondFormats/DataRecord"/>

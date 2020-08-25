@@ -1,7 +1,6 @@
 <library file="SiStripDetVOff_PayloadInspector.cc" name="SiStripDetVOff_PayloadInspector">
   <use name="CondCore/Utilities"/>
   <use name="CondCore/CondDB"/>
-  <use name="CondFormats/Common"/>
   <use name="CommonTools/TrackerMap"/>
   <use name="CalibTracker/StandaloneTrackerTopology"/>
 </library>
@@ -9,7 +8,6 @@
 <library file="SiStripApvGain_PayloadInspector.cc" name="SiStripApvGain_PayloadInspector">
   <use name="CondCore/Utilities"/>
   <use name="CondCore/CondDB"/>
-  <use name="CondFormats/Common"/>
   <use name="CondFormats/SiStripObjects"/>
   <use name="CommonTools/TrackerMap"/>
   <use name="CalibTracker/StandaloneTrackerTopology"/>
@@ -18,7 +16,6 @@
 <library file="SiStripBadStrip_PayloadInspector.cc" name="SiStripBadStrip_PayloadInspector">
   <use name="CondCore/Utilities"/>
   <use name="CondCore/CondDB"/>
-  <use name="CondFormats/Common"/>
   <use name="CondFormats/SiStripObjects"/>
   <use name="CommonTools/TrackerMap"/>
   <use name="CalibTracker/StandaloneTrackerTopology"/>
@@ -27,7 +24,6 @@
 <library file="SiStripLorentzAngle_PayloadInspector.cc" name="SiStripLorentzAngle_PayloadInspector">
   <use name="CondCore/Utilities"/>
   <use name="CondCore/CondDB"/>
-  <use name="CondFormats/Common"/>
   <use name="CondFormats/SiStripObjects"/>
   <use name="CommonTools/TrackerMap"/>
   <use name="CalibTracker/StandaloneTrackerTopology"/>
@@ -36,7 +32,6 @@
 <library file="SiStripBackPlaneCorrection_PayloadInspector.cc" name="SiStripBackPlaneCorrection_PayloadInspector">
   <use name="CondCore/Utilities"/>
   <use name="CondCore/CondDB"/>
-  <use name="CondFormats/Common"/>
   <use name="CondFormats/SiStripObjects"/>
   <use name="CommonTools/TrackerMap"/>
   <use name="CalibTracker/StandaloneTrackerTopology"/>
@@ -45,7 +40,6 @@
 <library file="SiStripNoises_PayloadInspector.cc" name="SiStripNoises_PayloadInspector">
   <use name="CondCore/Utilities"/>
   <use name="CondCore/CondDB"/>
-  <use name="CondFormats/Common"/>
   <use name="CondFormats/SiStripObjects"/>
   <use name="CommonTools/TrackerMap"/>
   <use name="CalibTracker/StandaloneTrackerTopology"/>
@@ -54,7 +48,6 @@
 <library file="SiStripPedestals_PayloadInspector.cc" name="SiStripPedestals_PayloadInspector">
   <use name="CondCore/Utilities"/>
   <use name="CondCore/CondDB"/>
-  <use name="CondFormats/Common"/>
   <use name="CondFormats/SiStripObjects"/>
   <use name="CommonTools/TrackerMap"/>
   <use name="CalibTracker/StandaloneTrackerTopology"/>
@@ -63,7 +56,6 @@
 <library file="SiStripConfObject_PayloadInspector.cc" name="SiStripConfObject_PayloadInspector">
   <use name="CondCore/Utilities"/>
   <use name="CondCore/CondDB"/>
-  <use name="CondFormats/Common"/>
   <use name="CondFormats/SiStripObjects"/>
   <use name="CalibFormats/SiStripObjects"/>
   <use name="CalibTracker/StandaloneTrackerTopology"/>
@@ -73,7 +65,6 @@
 <library file="SiStripThreshold_PayloadInspector.cc" name="SiStripThreshold_PayloadInspector">
   <use name="CondCore/Utilities"/>
   <use name="CondCore/CondDB"/>
-  <use name="CondFormats/Common"/>
   <use name="CondFormats/SiStripObjects"/>
   <use name="CommonTools/TrackerMap"/>
   <use name="CalibTracker/StandaloneTrackerTopology"/>
@@ -82,7 +73,6 @@
 <library file="SiStripLatency_PayloadInspector.cc" name="SiStripLatency_PayloadInspector">
   <use name="CondCore/Utilities"/>
   <use name="CondCore/CondDB"/>
-  <use name="CondFormats/Common"/>
   <use name="CondFormats/SiStripObjects"/>
   <use name="CommonTools/TrackerMap"/>
   <use name="CalibTracker/StandaloneTrackerTopology"/>
@@ -91,15 +81,12 @@
 <library file="SiStripFedCabling_PayloadInspector.cc" name="SiStripFedCabling_PayloadInspector">
   <use name="CondCore/Utilities"/>
   <use name="CondCore/CondDB"/>
-  <use name="CondFormats/Common"/>
   <use name="CondFormats/SiStripObjects"/>
   <use name="CommonTools/TrackerMap"/>
   <use name="CalibTracker/StandaloneTrackerTopology"/>
 </library>
 
 <library file="plugin.cc" name="CondCoreSiStripPluginsOthers">
-  <use name="FWCore/Framework"/>
-  <use name="FWCore/PluginManager"/>
   <use name="CondCore/ESSources"/>
   <use name="CondFormats/SiStripObjects"/>
   <use name="CondFormats/DataRecord"/>
