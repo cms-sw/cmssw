@@ -267,7 +267,7 @@ void Generator::HepMC2G4(const HepMC::GenEvent *evt_orig, G4Event *g4evt) {
         decay_length = std::sqrt((x2 - x1) * (x2 - x1) + (y2 - y1) * (y2 - y1) + (z2 - z1) * (z2 - z1));
       }
 
-      bool toBeAdded = (fFiductialCuts) ? false : true;
+      bool toBeAdded = !fFiductialCuts;
 
       double px = (*pitr)->momentum().px();
       double py = (*pitr)->momentum().py();
@@ -304,10 +304,9 @@ void Generator::HepMC2G4(const HepMC::GenEvent *evt_orig, G4Event *g4evt) {
       // Particles of status 1 trasnported along the beam pipe for forward
       // detectors (HECTOR) always pass to Geant4 without cuts
       if (veryForward || (1 == status && std::abs(zimpact) >= Z_hector && rimpact2 <= theDecRCut2)) {
-        toBeAdded = true;
-        status = 3;
+        toBeAdded = false;
         if (verbose > 1)
-          edm::LogVerbatim("SimG4CoreGenerator") << "GenParticle barcode = " << (*pitr)->barcode() << " passed case 3";
+          edm::LogVerbatim("SimG4CoreGenerator") << "GenParticle barcode = " << (*pitr)->barcode() << " very forward";
       } else {
         // Standard case: particles not decayed by the generator
         if (1 == status && (std::abs(zimpact) < Z_hector || rimpact2 > theDecRCut2)) {
@@ -546,36 +545,35 @@ bool Generator::IsInTheFilterList(int pdgcode) const {
   return false;
 }
 
-void Generator::nonBeamEvent2G4(const HepMC::GenEvent *evt, G4Event *g4evt) {
+void Generator::nonCentralEvent2G4(const HepMC::GenEvent *evt, G4Event *g4evt) {
   int i = 0;
   for (HepMC::GenEvent::particle_const_iterator it = evt->particles_begin(); it != evt->particles_end(); ++it) {
     ++i;
     HepMC::GenParticle *gp = (*it);
-    int g_status = gp->status();
-    // storing only particle with status == 1
-    if (g_status == 1) {
-      int g_id = gp->pdg_id();
-      G4PrimaryParticle *g4p =
-          new G4PrimaryParticle(g_id, gp->momentum().px() * GeV, gp->momentum().py() * GeV, gp->momentum().pz() * GeV);
-      if (g4p->GetG4code() != nullptr) {
-        g4p->SetMass(g4p->GetG4code()->GetPDGMass());
-        g4p->SetCharge(g4p->GetG4code()->GetPDGCharge());
-      }
-      setGenId(g4p, i);
-      if (particlePassesPrimaryCuts(g4p->GetMomentum())) {
-        G4PrimaryVertex *v = new G4PrimaryVertex(gp->production_vertex()->position().x() * mm,
-                                                 gp->production_vertex()->position().y() * mm,
-                                                 gp->production_vertex()->position().z() * mm,
-                                                 gp->production_vertex()->position().t() * mm / c_light);
-        v->SetPrimary(g4p);
-        g4evt->AddPrimaryVertex(v);
-        if (verbose > 0) {
-          v->Print();
-        }
 
-      } else {
-        delete g4p;
-      }
+    // storing only particle with status == 1
+    if (gp->status() != 1)
+      continue;
+
+    int g_id = gp->pdg_id();
+    G4PrimaryParticle *g4p = new G4PrimaryParticle(
+        g_id, gp->momentum().px() * CLHEP::GeV, gp->momentum().py() * CLHEP::GeV, gp->momentum().pz() * CLHEP::GeV);
+    if (g4p->GetG4code() != nullptr) {
+      g4p->SetMass(g4p->GetG4code()->GetPDGMass());
+      g4p->SetCharge(g4p->GetG4code()->GetPDGCharge());
+    }
+    setGenId(g4p, i);
+    if (particlePassesPrimaryCuts(g4p->GetMomentum())) {
+      G4PrimaryVertex *v = new G4PrimaryVertex(gp->production_vertex()->position().x() * CLHEP::mm,
+                                               gp->production_vertex()->position().y() * CLHEP::mm,
+                                               gp->production_vertex()->position().z() * CLHEP::mm,
+                                               gp->production_vertex()->position().t() * CLHEP::mm / CLHEP::c_light);
+      v->SetPrimary(g4p);
+      g4evt->AddPrimaryVertex(v);
+      if (verbose > 0)
+        v->Print();
+    } else {
+      delete g4p;
     }
   }  // end loop on HepMC particles
 }

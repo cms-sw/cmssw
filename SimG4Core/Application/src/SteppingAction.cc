@@ -31,6 +31,7 @@ SteppingAction::SteppingAction(EventAction* e, const edm::ParameterSet& p, const
   theCriticalDensity = (p.getParameter<double>("CriticalDensity") * CLHEP::g / CLHEP::cm3);
   maxZCentralCMS = p.getParameter<double>("MaxZCentralCMS") * CLHEP::m;
   maxTrackTime = p.getParameter<double>("MaxTrackTime") * CLHEP::ns;
+  maxTrackTimeForward = p.getParameter<double>("MaxTrackTimeForward") * CLHEP::ns;
   maxTrackTimes = p.getParameter<std::vector<double> >("MaxTrackTimes");
   maxTimeNames = p.getParameter<std::vector<std::string> >("MaxTimeNames");
   deadRegionNames = p.getParameter<std::vector<std::string> >("DeadRegions");
@@ -43,7 +44,8 @@ SteppingAction::SteppingAction(EventAction* e, const edm::ParameterSet& p, const
       << " CriticalDensity = " << theCriticalDensity * CLHEP::cm3 / CLHEP::g << " g/cm3\n"
       << "                 CriticalEnergyForVacuum = " << theCriticalEnergyForVacuum / CLHEP::MeV << " Mev;"
       << " MaxTrackTime = " << maxTrackTime / CLHEP::ns << " ns;"
-      << " MaxZCentralCMS = " << maxZCentralCMS / CLHEP::m << " m";
+      << " MaxZCentralCMS = " << maxZCentralCMS / CLHEP::m << " m"
+      << " MaxTrackTimeForward = " << maxTrackTimeForward / CLHEP::ns << " ns";
 
   numberTimes = maxTrackTimes.size();
   if (numberTimes > 0) {
@@ -113,7 +115,7 @@ void SteppingAction::UserSteppingAction(const G4Step* aStep) {
 
   // check Z-coordinate
   if (sAlive == tstat && std::abs(theTrack->GetPosition().z()) >= maxZCentralCMS) {
-    tstat = sVeryForward;
+    tstat = (theTrack->GetGlobalTime() > maxTrackTimeForward) ? sOutOfTime : sVeryForward;
   }
 
   // check G4Region
@@ -171,22 +173,19 @@ void SteppingAction::UserSteppingAction(const G4Step* aStep) {
 }
 
 bool SteppingAction::isLowEnergy(const G4Step* aStep) const {
-  bool flag = false;
   const G4StepPoint* sp = aStep->GetPostStepPoint();
-  G4LogicalVolume* lv = sp->GetPhysicalVolume()->GetLogicalVolume();
-  for (unsigned int i = 0; i < numberEkins; ++i) {
-    if (lv == ekinVolumes[i]) {
-      flag = true;
-      break;
-    }
-  }
-  if (flag) {
-    double ekin = sp->GetKineticEnergy();
-    int pCode = aStep->GetTrack()->GetDefinition()->GetPDGEncoding();
-    for (unsigned int i = 0; i < numberPart; ++i) {
-      if (pCode == ekinPDG[i]) {
-        return (ekin <= ekinMins[i]) ? true : false;
+  const G4LogicalVolume* lv = sp->GetPhysicalVolume()->GetLogicalVolume();
+  double ekin = sp->GetKineticEnergy();
+  int pCode = aStep->GetTrack()->GetDefinition()->GetPDGEncoding();
+
+  for (auto& vol : ekinVolumes) {
+    if (lv == vol) {
+      for (unsigned int i = 0; i < numberPart; ++i) {
+        if (pCode == ekinPDG[i]) {
+          return (ekin <= ekinMins[i]);
+        }
       }
+      break;
     }
   }
   return false;
@@ -293,6 +292,9 @@ void SteppingAction::PrintKilledTrack(const G4Track* aTrack, const TrackStatus& 
       break;
     case sEnergyDepNaN:
       typ = " energy deposition is NaN ";
+      break;
+    case sVeryForward:
+      typ = " very forward track ";
       break;
     default:
       break;
