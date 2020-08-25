@@ -10,17 +10,12 @@ GEMSimHitMatcher::GEMSimHitMatcher(const edm::ParameterSet& ps, edm::ConsumesCol
   discardEleHits_ = simHitPSet_.getParameter<bool>("discardEleHits");
 
   simHitInput_ = iC.consumes<edm::PSimHitContainer>(simHitPSet_.getParameter<edm::InputTag>("inputTag"));
+  geomToken_ = iC.esConsumes<GEMGeometry, MuonGeometryRecord>();
 }
 
 /// initialize the event
 void GEMSimHitMatcher::init(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
-  iSetup.get<MuonGeometryRecord>().get(gem_geom_);
-  if (gem_geom_.isValid()) {
-    geometry_ = dynamic_cast<const GEMGeometry*>(&*gem_geom_);
-  } else {
-    hasGeometry_ = false;
-    edm::LogWarning("GEMSimHitMatcher") << "+++ Info: GEM geometry is unavailable. +++\n";
-  }
+  geometry_ = &iSetup.getData(geomToken_);
   MuonSimHitMatcher::init(iEvent, iSetup);
 }
 
@@ -35,35 +30,32 @@ void GEMSimHitMatcher::match(const SimTrack& track, const SimVertex& vertex) {
   if (std::abs(track.momentum().eta()) < 1.55)
     return;
 
-  if (hasGeometry_) {
-    matchSimHitsToSimTrack();
+  matchSimHitsToSimTrack();
 
-    if (verbose_) {
-      edm::LogInfo("GEMSimHitMatcher") << "nTrackIds " << track_ids_.size() << " nSelectedGEMSimHits " << hits_.size()
-                                       << endl;
-      edm::LogInfo("GEMSimHitMatcher") << "detids GEM " << detIds(0).size() << endl;
+  if (verbose_) {
+    edm::LogInfo("GEMSimHitMatcher") << "nTrackIds " << track_ids_.size() << " nSelectedGEMSimHits " << hits_.size();
+    edm::LogInfo("GEMSimHitMatcher") << "detids GEM " << detIds(0).size();
 
-      const auto& gem_ch_ids = detIds();
-      for (const auto& id : gem_ch_ids) {
-        const auto& gem_simhits = MuonSimHitMatcher::hitsInDetId(id);
-        const auto& gem_simhits_gp = simHitsMeanPosition(gem_simhits);
-        edm::LogInfo("GEMSimHitMatcher") << "gemchid " << GEMDetId(id) << ": nHits " << gem_simhits.size() << " phi "
-                                         << gem_simhits_gp.phi() << " nCh " << chamber_to_hits_[id].size() << endl;
-        const auto& strips = hitStripsInDetId(id);
-        edm::LogInfo("GEMSimHitMatcher") << "nStrip " << strips.size() << endl;
-        edm::LogInfo("GEMSimHitMatcher") << "strips : ";
-        for (const auto& p : strips) {
-          edm::LogInfo("GEMSimHitMatcher") << p;
-        }
+    const auto& gem_ch_ids = detIds();
+    for (const auto& id : gem_ch_ids) {
+      const auto& gem_simhits = MuonSimHitMatcher::hitsInDetId(id);
+      const auto& gem_simhits_gp = simHitsMeanPosition(gem_simhits);
+      edm::LogInfo("GEMSimHitMatcher") << "gemchid " << GEMDetId(id) << ": nHits " << gem_simhits.size() << " phi "
+                                       << gem_simhits_gp.phi() << " nCh " << chamber_to_hits_[id].size();
+      const auto& strips = hitStripsInDetId(id);
+      edm::LogInfo("GEMSimHitMatcher") << "nStrip " << strips.size();
+      edm::LogInfo("GEMSimHitMatcher") << "strips : ";
+      for (const auto& p : strips) {
+        edm::LogInfo("GEMSimHitMatcher") << p;
       }
-      const auto& gem_sch_ids = superChamberIds();
-      for (const auto& id : gem_sch_ids) {
-        const auto& gem_simhits = hitsInSuperChamber(id);
-        const auto& gem_simhits_gp = simHitsMeanPosition(gem_simhits);
-        edm::LogInfo("GEMSimHitMatcher") << "gemschid " << GEMDetId(id) << ": " << nCoincidencePadsWithHits() << " | "
-                                         << gem_simhits.size() << " " << gem_simhits_gp.phi() << " "
-                                         << superchamber_to_hits_[id].size() << endl;
-      }
+    }
+    const auto& gem_sch_ids = superChamberIds();
+    for (const auto& id : gem_sch_ids) {
+      const auto& gem_simhits = hitsInSuperChamber(id);
+      const auto& gem_simhits_gp = simHitsMeanPosition(gem_simhits);
+      edm::LogInfo("GEMSimHitMatcher") << "gemschid " << GEMDetId(id) << ": " << nCoincidencePadsWithHits() << " | "
+                                       << gem_simhits.size() << " " << gem_simhits_gp.phi() << " "
+                                       << superchamber_to_hits_[id].size();
     }
   }
 }
@@ -76,10 +68,6 @@ void GEMSimHitMatcher::matchSimHitsToSimTrack() {
 
       const GEMDetId& p_id(h.detUnitId());
 
-      if (verbose_)
-        std::cout << "Candidate GEM simhit " << p_id << " " << h << " " << h.particleType() << " " << h.processType()
-                  << std::endl;
-
       int pdgid = h.particleType();
 
       // consider only the muon hits
@@ -89,9 +77,6 @@ void GEMSimHitMatcher::matchSimHitsToSimTrack() {
       // discard electron hits in the GEM chambers
       if (discardEleHits_ && std::abs(pdgid) == 11)
         continue;
-
-      if (verbose_)
-        std::cout << "...was matched" << std::endl;
 
       detid_to_hits_[p_id.rawId()].push_back(h);
       hits_.push_back(h);
