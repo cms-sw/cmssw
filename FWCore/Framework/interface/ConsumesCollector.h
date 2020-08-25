@@ -114,7 +114,7 @@ namespace edm {
     }
 
     template <Transition Tr = Transition::Event>
-    [[nodiscard]] constexpr auto esConsumes(ESInputTag tag) noexcept {
+    [[nodiscard]] auto esConsumes(ESInputTag tag) noexcept {
       return ConsumesCollectorWithTagESAdaptor<Tr>(*this, std::move(tag));
     }
 
@@ -159,7 +159,8 @@ namespace edm {
   };
 
   template <BranchType B>
-  struct ConsumesCollectorAdaptor {
+  class ConsumesCollectorAdaptor {
+  public:
     ConsumesCollectorAdaptor(ConsumesCollector iBase, edm::InputTag iTag) : m_consumer(iBase), m_tag(std::move(iTag)) {}
 
     template <typename TYPE>

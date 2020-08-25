@@ -218,7 +218,7 @@ namespace edm {
     }
 
     template <Transition Tr = Transition::Event>
-    [[nodiscard]] constexpr auto esConsumes(ESInputTag tag) noexcept {
+    [[nodiscard]] auto esConsumes(ESInputTag tag) noexcept {
       return EDConsumerBaseWithTagESAdaptor<Tr>(this, std::move(tag));
     }
 
@@ -296,7 +296,8 @@ namespace edm {
   };
 
   template <Transition TR>
-  struct EDConsumerBaseESAdaptor {
+  class EDConsumerBaseESAdaptor {
+  public:
     EDConsumerBaseESAdaptor(EDConsumerBase* iBase) : m_consumer(iBase) {}
 
     template <typename TYPE, typename REC>
@@ -309,7 +310,8 @@ namespace edm {
   };
 
   template <Transition TR>
-  struct EDConsumerBaseWithTagESAdaptor {
+  class EDConsumerBaseWithTagESAdaptor {
+  public:
     EDConsumerBaseWithTagESAdaptor(EDConsumerBase* iBase, ESInputTag iTag) noexcept
         : m_consumer(iBase), m_tag(std::move(iTag)) {}
 
@@ -324,7 +326,8 @@ namespace edm {
   };
 
   template <BranchType B>
-  struct EDConsumerBaseAdaptor {
+  class EDConsumerBaseAdaptor {
+  public:
     EDConsumerBaseAdaptor(EDConsumerBase* iBase, edm::InputTag iTag) noexcept
         : m_consumer(iBase), m_tag(std::move(iTag)) {}
 
