@@ -298,29 +298,33 @@ namespace edm {
   template <Transition TR>
   class EDConsumerBaseESAdaptor {
   public:
-    EDConsumerBaseESAdaptor(EDConsumerBase* iBase) : m_consumer(iBase) {}
-
     template <typename TYPE, typename REC>
     ESGetToken<TYPE, REC> consumes() const {
       return m_consumer->template esConsumes<TYPE, REC, TR>();
     }
 
   private:
+    //only EDConsumerBase is allowed to make an instance of this class
+    friend class EDConsumerBase;
+    EDConsumerBaseESAdaptor(EDConsumerBase* iBase) : m_consumer(iBase) {}
+
     EDConsumerBase* m_consumer;
   };
 
   template <Transition TR>
   class EDConsumerBaseWithTagESAdaptor {
   public:
-    EDConsumerBaseWithTagESAdaptor(EDConsumerBase* iBase, ESInputTag iTag) noexcept
-        : m_consumer(iBase), m_tag(std::move(iTag)) {}
-
     template <typename TYPE, typename REC>
     ESGetToken<TYPE, REC> consumes() const {
       return m_consumer->template esConsumes<TYPE, REC, TR>(m_tag);
     }
 
   private:
+    //only EDConsumerBase is allowed to make an instance of this class
+    friend class EDConsumerBase;
+    EDConsumerBaseWithTagESAdaptor(EDConsumerBase* iBase, ESInputTag iTag) noexcept
+        : m_consumer(iBase), m_tag(std::move(iTag)) {}
+
     EDConsumerBase* m_consumer;
     ESInputTag const m_tag;
   };
@@ -328,15 +332,17 @@ namespace edm {
   template <BranchType B>
   class EDConsumerBaseAdaptor {
   public:
-    EDConsumerBaseAdaptor(EDConsumerBase* iBase, edm::InputTag iTag) noexcept
-        : m_consumer(iBase), m_tag(std::move(iTag)) {}
-
     template <typename TYPE>
     EDGetTokenT<TYPE> consumes() const {
       return m_consumer->template consumes<TYPE, B>(m_tag);
     }
 
   private:
+    //only EDConsumerBase is allowed to make an instance of this class
+    friend class EDConsumerBase;
+    EDConsumerBaseAdaptor(EDConsumerBase* iBase, edm::InputTag iTag) noexcept
+        : m_consumer(iBase), m_tag(std::move(iTag)) {}
+
     EDConsumerBase* m_consumer;
     edm::InputTag const m_tag;
   };

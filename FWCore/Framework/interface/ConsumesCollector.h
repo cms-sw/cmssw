@@ -131,29 +131,35 @@ namespace edm {
   template <Transition TR>
   class ConsumesCollectorESAdaptor {
   public:
-    explicit ConsumesCollectorESAdaptor(ConsumesCollector iBase) : m_consumer(std::move(iBase)) {}
-
     template <typename TYPE, typename REC>
     ESGetToken<TYPE, REC> consumes() {
       return m_consumer.template esConsumes<TYPE, REC, TR>();
     }
 
   private:
+    //only ConsumesCollector is allowed to make an instance of this class
+    friend class ConsumesCollector;
+
+    explicit ConsumesCollectorESAdaptor(ConsumesCollector iBase) : m_consumer(std::move(iBase)) {}
+
     ConsumesCollector m_consumer;
   };
 
   template <Transition TR>
   class ConsumesCollectorWithTagESAdaptor {
   public:
-    ConsumesCollectorWithTagESAdaptor(ConsumesCollector iBase, ESInputTag iTag)
-        : m_consumer(std::move(iBase)), m_tag(std::move(iTag)) {}
-
     template <typename TYPE, typename REC>
     ESGetToken<TYPE, REC> consumes() {
       return m_consumer.template esConsumes<TYPE, REC, TR>(m_tag);
     }
 
   private:
+    //only ConsumesCollector is allowed to make an instance of this class
+    friend class ConsumesCollector;
+
+    ConsumesCollectorWithTagESAdaptor(ConsumesCollector iBase, ESInputTag iTag)
+        : m_consumer(std::move(iBase)), m_tag(std::move(iTag)) {}
+
     ConsumesCollector m_consumer;
     ESInputTag const& m_tag;
   };
@@ -161,14 +167,17 @@ namespace edm {
   template <BranchType B>
   class ConsumesCollectorAdaptor {
   public:
-    ConsumesCollectorAdaptor(ConsumesCollector iBase, edm::InputTag iTag) : m_consumer(iBase), m_tag(std::move(iTag)) {}
-
     template <typename TYPE>
     EDGetTokenT<TYPE> consumes() {
       return m_consumer.template consumes<TYPE, B>(m_tag);
     }
 
   private:
+    //only ConsumesCollector is allowed to make an instance of this class
+    friend class ConsumesCollector;
+
+    ConsumesCollectorAdaptor(ConsumesCollector iBase, edm::InputTag iTag) : m_consumer(iBase), m_tag(std::move(iTag)) {}
+
     ConsumesCollector m_consumer;
     edm::InputTag const m_tag;
   };
