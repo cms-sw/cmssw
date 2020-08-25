@@ -81,7 +81,7 @@ namespace cond {
     }
 
     template <>
-    std::string serializeValue(const std::string& entryLabel, const std::string& value) {
+    inline std::string serializeValue(const std::string& entryLabel, const std::string& value) {
       std::stringstream ss;
       ss << "\"" << entryLabel << "\":\"" << value << "\"";
       return ss.str();
@@ -107,7 +107,7 @@ namespace cond {
       return ss.str();
     }
 
-    std::string serializeAnnotations(const PlotAnnotations& annotations) {
+    inline std::string serializeAnnotations(const PlotAnnotations& annotations) {
       std::stringstream ss;
       ss << "\"version\": \"" << JSON_FORMAT_VERSION << "\",";
       ss << "\"annotations\": {";
@@ -173,7 +173,7 @@ namespace cond {
       return ss.str();
     }
 
-    std::string serialize(const PlotAnnotations& annotations, const std::string& imageFileName) {
+    inline std::string serialize(const PlotAnnotations& annotations, const std::string& imageFileName) {
       std::stringstream ss;
       ss << "{";
       ss << serializeAnnotations(annotations);
