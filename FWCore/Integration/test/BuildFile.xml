@@ -189,6 +189,7 @@
     <use name="FWCore/TestProcessor"/>
     <use name="DataFormats/Provenance"/>
     <use name="catch2"/>
+    <use name="fmt"/>
   </bin>
 
   <library file="TestPSetAnalyzer.cc" name="TestPSetAnalyzer">
