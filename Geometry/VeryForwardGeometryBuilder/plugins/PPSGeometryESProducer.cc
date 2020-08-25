@@ -1,16 +1,3 @@
-/****************************************************************************
-*
-* Author:
-*
-*  Wagner Carvalho (wcarvalh@cern.ch)
-*
-*  Based on CTPPSGeometryESModule.cc by:
-*
-*  Jan Kaspar (jan.kaspar@gmail.com)
-*  Dominik Mierzejewski <dmierzej@cern.ch>
-*
-****************************************************************************/
-
 #include "Geometry/VeryForwardGeometryBuilder/plugins/PPSGeometryESProducer.h"
 
 #include "DataFormats/CTPPSDetId/interface/TotemRPDetId.h"
@@ -59,7 +46,9 @@ void PPSGeometryESProducer::fillDescriptions(edm::ConfigurationDescriptions& des
 }
 
 //----------------------------------------------------------------------------------------------------
-
+/*
+ * Apply alignments by doing a BFS on idealGD tree.
+ */
 void PPSGeometryESProducer::applyAlignments(const DetGeomDesc& idealGD,
                                             const CTPPSRPAlignmentCorrectionsData* alignments,
                                             DetGeomDesc*& newGD) {

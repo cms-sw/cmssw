@@ -1,10 +1,9 @@
 /****************************************************************************
  *
- * Author:
- *
- *  Wagner Carvalho (wcarvalh@cern.ch)
- *
  *  DB builder for PPS geometry
+ *
+ *  Author: Wagner Carvalho (wcarvalh@cern.ch)
+ *  Rewritten / Moved out common functionalities to DetGeomDesc(Builder) by Gabrielle Hugo.
  *
  ****************************************************************************/
 
@@ -61,7 +60,7 @@ void PPSGeometryBuilder::analyze(const edm::Event& iEvent, const edm::EventSetup
   auto geoInfoSentinel = DetGeomDescBuilder::buildDetGeomDescFromCompactView(*myCompactView);
 
   // Build persistent geometry data from geometry
-  PDetGeomDesc* serializableData = new PDetGeomDesc;
+  PDetGeomDesc* serializableData = new PDetGeomDesc; // cond::service::PoolDBOutputService::writeOne interface requires raw pointer.
   int counter = 0;
   buildSerializableDataFromGeoInfo(serializableData, geoInfoSentinel.get(), counter);
  

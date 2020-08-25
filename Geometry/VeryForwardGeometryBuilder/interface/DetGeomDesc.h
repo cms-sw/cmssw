@@ -4,6 +4,9 @@
 *	Jan Kašpar (jan.kaspar@gmail.com) 
 *	CMSSW developpers (based on class GeometricDet)
 *
+*  Rewritten + Moved out common functionalities to DetGeomDesc(Builder) by Gabrielle Hugo.
+*  Migrated to DD4hep by Gabrielle Hugo and Wagner Carvalho.
+*
 ****************************************************************************/
 
 #ifndef Geometry_VeryForwardGeometryBuilder_DetGeomDesc
@@ -34,10 +37,8 @@ class CTPPSRPAlignmentCorrectionData;
     x_g = rotation * x_l + translation
  \endverbatim
  *
- * Aug 2020: Migrated to DD4hep
- *
- *  PPS software expects mm but DD4hep standard unit of length is cm. A conversion 
- *  factor (/1._mm) is applied wherever needed. 
+ * July 2020: Migrated to DD4hep
+ * To avoid any regression with values from XMLs / Geant4, all lengths are converted from cm (DD4hep) to mm. 
  *
  **/
 

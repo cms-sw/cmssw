@@ -3,15 +3,12 @@
 
 
 /****************************************************************************
-*
-* Author:
-*
-*  Wagner Carvalho (wcarvalh@cern.ch)
-*
 *  Based on CTPPSGeometryESModule.cc by:
-*
 *  Jan Kaspar (jan.kaspar@gmail.com)
 *  Dominik Mierzejewski <dmierzej@cern.ch>
+*
+*  Rewritten + Moved out common functionailities to DetGeomDesc(Builder) by Gabrielle Hugo.
+*  Migrated to DD4hep by Wagner Carvalho and Gabrielle Hugo.
 *
 ****************************************************************************/
 
