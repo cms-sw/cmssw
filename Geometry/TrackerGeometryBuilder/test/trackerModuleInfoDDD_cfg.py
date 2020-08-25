@@ -41,7 +41,8 @@ process.MessageLogger.cout = cms.untracked.PSet(
 
 process.prod = cms.EDAnalyzer("ModuleInfo",
     fromDDD = cms.bool(True),
-    printDDD = cms.untracked.bool(False)
+    printDDD = cms.untracked.bool(False),
+    tinyDifferences = cms.untracked.bool(True)
 )
 
 process.p1 = cms.Path(process.prod)
