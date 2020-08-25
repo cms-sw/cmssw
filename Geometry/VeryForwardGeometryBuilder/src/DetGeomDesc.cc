@@ -25,6 +25,7 @@
 #include "DataFormats/CTPPSDetId/interface/CTPPSPixelDetId.h"
 #include "DataFormats/CTPPSDetId/interface/CTPPSDiamondDetId.h"
 #include "DataFormats/Math/interface/GeantUnits.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 using namespace geant_units::operators;  // Reference system is Geant length unit (mm)
 

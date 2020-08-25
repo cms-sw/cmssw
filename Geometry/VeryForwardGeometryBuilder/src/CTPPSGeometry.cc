@@ -7,6 +7,7 @@
 ****************************************************************************/
 
 #include "Geometry/VeryForwardGeometryBuilder/interface/CTPPSGeometry.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <regex>
 
 //----------------------------------------------------------------------------------------------------
