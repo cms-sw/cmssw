@@ -100,7 +100,7 @@ void ModuleInfo::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
 
   double tolerance = 1.e-7;
   if (tinyDifferences_)
-    tolerance = 1.e-25;
+    tolerance = 1.e-23;
 
   //
   // get the GeometricDet

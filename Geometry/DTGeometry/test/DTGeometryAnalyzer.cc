@@ -56,7 +56,7 @@ void DTGeometryAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup
   iSetup.get<MuonGeometryRecord>().get(pDD);
   double tolerance = 1.e-7;
   if (tinyDifferences_)
-    tolerance = 1.e-25;
+    tolerance = 1.e-23;
 
   cout << myName() << ": Analyzer..." << endl;
   cout << "start " << dashedLine_ << endl;

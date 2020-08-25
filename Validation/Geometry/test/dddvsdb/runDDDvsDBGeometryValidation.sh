@@ -110,6 +110,7 @@ cp $CMSSW_RELEASE_BASE/src/Geometry/TrackerGeometryBuilder/test/trackerModuleInf
 sed -i "{/process.GlobalTag.globaltag/d}" trackerModuleInfoDB_cfg.py >> ../GeometryValidation.log
 sed -i "/FrontierConditions_GlobalTag_cff/ a\from Configuration.AlCa.GlobalTag import GlobalTag\nprocess.GlobalTag = GlobalTag(process.GlobalTag, '${gtag}', '')" trackerModuleInfoDB_cfg.py >> ../GeometryValidation.log 
 sed -i "/FrontierConditions_GlobalTag_cff/ a\process.XMLFromDBSource.label = cms.string('${condlabel}')" trackerModuleInfoDB_cfg.py >> ../GeometryValidation.log 
+sed -i '/tinyDifferences/s/True/False/' trackerModuleInfoDB_cfg.py >> GeometryValidation.log
 cmsRun trackerModuleInfoDB_cfg.py >> ../GeometryValidation.log
 mv trackerModuleInfoDB_cfg.py ../
 if ( -s ModuleInfo.log ) then
@@ -124,6 +125,7 @@ cp $CMSSW_RELEASE_BASE/src/Geometry/TrackerGeometryBuilder/test/trackerModuleInf
 sed -i "{/process.GlobalTag.globaltag/d}" trackerModuleInfoLocalDB_cfg.py >> ../GeometryValidation.log
 sed -i "/FrontierConditions_GlobalTag_cff/ a\from Configuration.AlCa.GlobalTag import GlobalTag\nprocess.GlobalTag = GlobalTag(process.GlobalTag, '${gtag}', '')" trackerModuleInfoLocalDB_cfg.py >> ../GeometryValidation.log 
 sed -i "/FrontierConditions_GlobalTag_cff/ a\process.XMLFromDBSource.label = cms.string('${condlabel}')" trackerModuleInfoLocalDB_cfg.py >> ../GeometryValidation.log 
+sed -i '/tinyDifferences/s/True/False/' trackerModuleInfoLocalDB_cfg.py >> GeometryValidation.log
 cmsRun trackerModuleInfoLocalDB_cfg.py >> ../GeometryValidation.log
 mv trackerModuleInfoLocalDB_cfg.py ../
 if ( -s ModuleInfo.log ) then
@@ -138,6 +140,7 @@ cp $CMSSW_RELEASE_BASE/src/Geometry/TrackerGeometryBuilder/test/trackerModuleInf
 sed -i "{s/GeometryExtended/${geometry}/}" trackerModuleInfoDDD_cfg.py >>  ../GeometryValidation.log
 sed -i "{/process.GlobalTag.globaltag/d}" trackerModuleInfoDDD_cfg.py >> ../GeometryValidation.log
 sed -i "/FrontierConditions_GlobalTag_cff/ a\from Configuration.AlCa.GlobalTag import GlobalTag\nprocess.GlobalTag = GlobalTag(process.GlobalTag, '${gtag}', '')" trackerModuleInfoDDD_cfg.py >> ../GeometryValidation.log 
+sed -i '/tinyDifferences/s/True/False/' trackerModuleInfoDDD_cfg.py >> GeometryValidation.log
 cmsRun trackerModuleInfoDDD_cfg.py >> ../GeometryValidation.log
 mv trackerModuleInfoDDD_cfg.py ../
 if ( -s ModuleInfo.log ) then
@@ -171,7 +174,8 @@ echo "Start DT RECO geometry validation" | tee -a GeometryValidation.log
 cp $CMSSW_RELEASE_BASE/src/Geometry/DTGeometry/test/testDTGeometryFromDB_cfg.py .  
 sed -i "{/process.GlobalTag.globaltag/d}" testDTGeometryFromDB_cfg.py >> GeometryValidation.log
 sed -i "/FrontierConditions_GlobalTag_cff/ a\from Configuration.AlCa.GlobalTag import GlobalTag\nprocess.GlobalTag = GlobalTag(process.GlobalTag, '${gtag}', '')" testDTGeometryFromDB_cfg.py >> GeometryValidation.log 
-sed -i "/FrontierConditions_GlobalTag_cff/ a\process.XMLFromDBSource.label = cms.string('${condlabel}')" testDTGeometryFromDB_cfg.py >> GeometryValidation.log 
+sed -i "/FrontierConditions_GlobalTag_cff/ a\process.XMLFromDBSource.label = cms.string('${condlabel}')" testDTGeometryFromDB_cfg.py >> GeometryValidation.log
+sed -i '/tinyDifferences/s/True/False/' testDTGeometryFromDB_cfg.py >> GeometryValidation.log
 cmsRun testDTGeometryFromDB_cfg.py > outDB_DT.log
 if ( -s outDB_DT.log ) then
     echo "DT test from DB run ok" | tee -a GeometryValidation.log
@@ -184,6 +188,7 @@ cp $CMSSW_RELEASE_BASE/src/Geometry/DTGeometry/test/testDTGeometryFromLocalDB_cf
 sed -i "{/process.GlobalTag.globaltag/d}" testDTGeometryFromLocalDB_cfg.py >> GeometryValidation.log
 sed -i "/FrontierConditions_GlobalTag_cff/ a\from Configuration.AlCa.GlobalTag import GlobalTag\nprocess.GlobalTag = GlobalTag(process.GlobalTag, '${gtag}', '')" testDTGeometryFromLocalDB_cfg.py >> GeometryValidation.log 
 sed -i "/FrontierConditions_GlobalTag_cff/ a\process.XMLFromDBSource.label = cms.string('${condlabel}')" testDTGeometryFromLocalDB_cfg.py >> GeometryValidation.log 
+sed -i '/tinyDifferences/s/True/False/' testDTGeometryFromLocalDB_cfg.py >> GeometryValidation.log
 cmsRun testDTGeometryFromLocalDB_cfg.py > outLocalDB_DT.log
 if ( -s outDB_DT.log ) then
     echo "DT test from Local DB run ok" | tee -a GeometryValidation.log
@@ -196,6 +201,7 @@ cp $CMSSW_RELEASE_BASE/src/Geometry/DTGeometry/test/testDTGeometry_cfg.py .
 sed -i "{s/GeometryExtended/${geometry}/}" testDTGeometry_cfg.py >>  GeometryValidation.log
 sed -i "{/process.GlobalTag.globaltag/d}" testDTGeometry_cfg.py >> GeometryValidation.log
 sed -i "/FrontierConditions_GlobalTag_cff/ a\from Configuration.AlCa.GlobalTag import GlobalTag\nprocess.GlobalTag = GlobalTag(process.GlobalTag, '${gtag}', '')" testDTGeometry_cfg.py >> GeometryValidation.log 
+sed -i '/tinyDifferences/s/True/False/' testDTGeometry_cfg.py >> GeometryValidation.log
 cmsRun testDTGeometry_cfg.py > outDDD_DT.log
 if ( -s outDDD_DT.log ) then
     echo "DT test from DDD run ok" | tee -a GeometryValidation.log
