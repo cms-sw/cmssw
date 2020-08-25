@@ -27,6 +27,7 @@ StackingAction::StackingAction(const TrackingAction* trka, const edm::ParameterS
   killDeltaRay = p.getParameter<bool>("KillDeltaRay");
   limitEnergyForVacuum = p.getParameter<double>("CriticalEnergyForVacuum") * CLHEP::MeV;
   maxTrackTime = p.getParameter<double>("MaxTrackTime") * ns;
+  maxTrackTimeForward = p.getParameter<double>("MaxTrackTimeForward") * ns;
   maxZCentralCMS = p.getParameter<double>("MaxZCentralCMS") * CLHEP::m;
   maxTrackTimes = p.getParameter<std::vector<double> >("MaxTrackTimes");
   maxTimeNames = p.getParameter<std::vector<std::string> >("MaxTimeNames");
@@ -94,7 +95,8 @@ StackingAction::StackingAction(const TrackingAction* trka, const edm::ParameterS
       << " everywhere: " << savePDandCinAll << "\n  saveFirstSecondary"
       << ": " << saveFirstSecondary << " Tracking neutrino flag: " << trackNeutrino
       << " Kill Delta Ray flag: " << killDeltaRay << " Kill hadrons/ions flag: " << killHeavy
-      << " MaxZCentralCMS = " << maxZCentralCMS / CLHEP::m << " m";
+      << " MaxZCentralCMS = " << maxZCentralCMS / CLHEP::m << " m"
+      << " MaxTrackTimeForward = " << maxTrackTimeForward / CLHEP::ns << " ns";
 
   if (killHeavy) {
     edm::LogVerbatim("SimG4CoreApplication") << "StackingAction kill protons below " << kmaxProton / CLHEP::MeV
@@ -193,8 +195,12 @@ G4ClassificationOfNewTrack StackingAction::ClassifyNewTrack(const G4Track* aTrac
 
     } else if (std::abs(aTrack->GetPosition().z()) >= maxZCentralCMS) {
       // very forward secondary
-      const G4Track* mother = trackAction->geant4Track();
-      newTA->secondary(aTrack, *mother, 0);
+      if (aTrack->GetGlobalTime() > maxTrackTimeForward) {
+        classification = fKill;
+      } else {
+        const G4Track* mother = trackAction->geant4Track();
+        newTA->secondary(aTrack, *mother, 0);
+      }
 
     } else if (isItOutOfTimeWindow(reg, aTrack)) {
       // time window check
