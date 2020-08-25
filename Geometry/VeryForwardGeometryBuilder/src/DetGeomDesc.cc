@@ -24,24 +24,24 @@
 #include "DataFormats/CTPPSDetId/interface/TotemTimingDetId.h"
 #include "DataFormats/CTPPSDetId/interface/CTPPSPixelDetId.h"
 #include "DataFormats/CTPPSDetId/interface/CTPPSDiamondDetId.h"
+#include "DataFormats/Math/interface/GeantUnits.h"
+
+using namespace geant_units::operators;  // Reference system is Geant length unit (mm)
 
 
-using namespace std;
-using namespace cms_units::operators;
-
-
-// Constructor from DD4Hep DDFilteredView, also using the SpecPars to access 2x2 wafers info.
-//  A conversion factor (/1._mm) is applied wherever needed.
+/*
+ *  Constructor from DD4Hep DDFilteredView, also using the SpecPars to access 2x2 wafers info.
+ */
 DetGeomDesc::DetGeomDesc(const cms::DDFilteredView& fv, const cms::DDSpecParRegistry& allSpecParSections)
   : m_name(computeNameWithNoNamespace(fv.name())),
     m_copy(fv.copyNum()),
-    m_trans(fv.translation() / 1._mm),  // convert cm (DD4hep) to mm (legacy)
+    m_trans(geant_units::operators::convertCmToMm(fv.translation())),  // convert cm (DD4hep) to mm (legacy)
     m_rot(fv.rotation()),
-    m_params(computeParameters(fv)),    // default unit from DD4hep (cm)
+    m_params(computeParameters(fv)),                                   // default unit from DD4hep (cm)
     m_isABox(fv.isABox()),
     m_sensorType(computeSensorType(fv.name(), fv.path(), allSpecParSections)),
     m_geographicalID(computeDetID(m_name, fv.copyNos(), fv.copyNum())),
-    m_z(fv.translation().z() / 1._mm)   // convert cm (DD4hep) to mm (legacy)
+    m_z(geant_units::operators::convertCmToMm(fv.translation().z()))   // convert cm (DD4hep) to mm (legacy)
 {}
 
 
@@ -78,7 +78,7 @@ DiamondDimensions DetGeomDesc::getDiamondDimensions() const {
   DiamondDimensions parameters;
   if (isABox()) {
     // convert cm (DD4hep) to mm (legacy)
-    parameters = { m_params.at(0) / 1._mm, m_params.at(1) / 1._mm, m_params.at(2) / 1._mm };
+    parameters = { geant_units::operators::convertCmToMm(m_params.at(0)), geant_units::operators::convertCmToMm(m_params.at(1)), geant_units::operators::convertCmToMm(m_params.at(2)) };
   }
   else {
     edm::LogError("DetGeomDesc::getDiamondDimensions is not called on a box, for solid ")
