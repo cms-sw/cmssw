@@ -1,7 +1,6 @@
 <export>
 </export>
 <library name="CommonToolsRecoAlgos_plugins" file="*.cc">
-  <use name="MagneticField/Engine"/>
   <use name="FWCore/Framework"/>
   <use name="FWCore/ParameterSet"/>
   <use name="DataFormats/RecoCandidate"/>
@@ -14,12 +13,8 @@
   <use name="DataFormats/PatCandidates"/>
   <use name="DataFormats/HcalRecHit"/>
   <use name="SimDataFormats/TrackingAnalysis"/>
-  <use name="TrackingTools/PatternTools"/>
   <use name="TrackingTools/Records"/>
   <use name="CommonTools/Utils"/>
   <use name="CommonTools/RecoAlgos"/>
-  <use name="MagneticField/Records"/>
-  <use name="Geometry/Records"/>
-  <use name="Geometry/TrackerGeometryBuilder"/>
   <use name="JetMETCorrections/JetCorrector"/>
 </library>

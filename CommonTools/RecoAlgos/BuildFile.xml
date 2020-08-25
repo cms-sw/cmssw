@@ -12,6 +12,7 @@
 <use name="DataFormats/VertexReco"/>
 <use name="TrackingTools/IPTools"/>
 <use name="TrackingTools/TransientTrack"/>
+<use name="Geometry/TrackerGeometryBuilder"/>
 <use name="fastjet"/>
 <export>
   <lib name="1"/>

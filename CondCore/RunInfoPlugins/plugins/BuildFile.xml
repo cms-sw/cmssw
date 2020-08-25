@@ -2,5 +2,4 @@
 <library file="RunInfo_PayloadInspector.cc" name="RunInfo_PayloadInspector">
   <use name="CondCore/Utilities"/>
   <use name="CondCore/CondDB"/>
-  <use name="CondFormats/Common"/>
 </library>
