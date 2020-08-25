@@ -122,6 +122,8 @@ CSCValidation::CSCValidation(const ParameterSet& pset) {
   // setup trees to hold global position data for rechits and segments
   if (writeTreeToFile)
     histos->setupTrees();
+
+  geomToken_ = esConsumes<CSCGeometry, MuonGeometryRecord>();
 }
 
 //////////////////
@@ -195,8 +197,7 @@ void CSCValidation::analyze(const Event& event, const EventSetup& eventSetup) {
   }
 
   // Get the CSC Geometry :
-  edm::ESHandle<CSCGeometry> cscGeom;
-  eventSetup.get<MuonGeometryRecord>().get(cscGeom);
+  edm::ESHandle<CSCGeometry> cscGeom = eventSetup.getHandle(geomToken_);
 
   // Get the RecHits collection :
   edm::Handle<CSCRecHit2DCollection> recHits;

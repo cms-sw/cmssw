@@ -6,12 +6,14 @@ GEMPadDigiClusterValidation::GEMPadDigiClusterValidation(const edm::ParameterSet
   const auto& pad_cluster_pset = pset.getParameterSet("gemPadCluster");
   const auto& pad_cluster_tag = pad_cluster_pset.getParameter<edm::InputTag>("inputTag");
   pad_cluster_token_ = consumes<GEMPadDigiClusterCollection>(pad_cluster_tag);
+  geomToken_ = esConsumes<GEMGeometry, MuonGeometryRecord>();
+  geomTokenBeginRun_ = esConsumes<GEMGeometry, MuonGeometryRecord, edm::Transition::BeginRun>();
 }
 
 void GEMPadDigiClusterValidation::bookHistograms(DQMStore::IBooker& booker,
                                                  edm::Run const& Run,
                                                  edm::EventSetup const& setup) {
-  const GEMGeometry* gem = initGeometry(setup);
+  const GEMGeometry* gem = &setup.getData(geomTokenBeginRun_);
 
   // NOTE Occupancy
   booker.setCurrentFolder("MuonGEMDigisV/GEMDigisTask/PadCluster/Occupancy");
@@ -109,7 +111,7 @@ void GEMPadDigiClusterValidation::bookHistograms(DQMStore::IBooker& booker,
 GEMPadDigiClusterValidation::~GEMPadDigiClusterValidation() {}
 
 void GEMPadDigiClusterValidation::analyze(const edm::Event& event, const edm::EventSetup& setup) {
-  const GEMGeometry* gem = initGeometry(setup);
+  const GEMGeometry* gem = &setup.getData(geomToken_);
 
   edm::Handle<GEMPadDigiClusterCollection> collection;
   event.getByToken(pad_cluster_token_, collection);

@@ -58,9 +58,7 @@ void ME0HitsValidation::bookHistograms(DQMStore::IBooker &ibooker, edm::Run cons
 ME0HitsValidation::~ME0HitsValidation() {}
 
 void ME0HitsValidation::analyze(const edm::Event &e, const edm::EventSetup &iSetup) {
-  edm::ESHandle<ME0Geometry> hGeom;
-  iSetup.get<MuonGeometryRecord>().get(hGeom);
-  const ME0Geometry *ME0Geometry_ = (&*hGeom);
+  const ME0Geometry *ME0Geometry_ = &iSetup.getData(geomToken_);
 
   edm::Handle<edm::PSimHitContainer> ME0Hits;
   e.getByToken(InputTagToken_, ME0Hits);
@@ -79,7 +77,7 @@ void ME0HitsValidation::analyze(const edm::Event &e, const edm::EventSetup &iSet
 
     // Int_t even_odd = id.chamber()%2;
     if (ME0Geometry_->idToDet(hits->detUnitId()) == nullptr) {
-      std::cout << "simHit did not matched with GEMGeometry." << std::endl;
+      edm::LogInfo("ME0HitsValidation") << "simHit did not matched with GEMGeometry." << std::endl;
       continue;
     }
 

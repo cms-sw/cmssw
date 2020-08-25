@@ -105,7 +105,7 @@ private:
   std::shared_ptr<CSCDigiMatcher> cscDigiMatcher_;
   std::shared_ptr<GEMDigiMatcher> gemDigiMatcher_;
 
-  edm::ESHandle<CSCGeometry> csc_geom_;
+  edm::ESGetToken<CSCGeometry, MuonGeometryRecord> geomToken_;
   const CSCGeometry* cscGeometry_;
 
   // all stubs (not necessarily matching) in crossed chambers with digis
