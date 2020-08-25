@@ -1,72 +1,51 @@
 #include "DataFormats/L1Trigger/interface/EGamma.h"
 #include "L1TCaloTriggerNtupleBase.h"
 
+class L1TriggerNtupleEgamma : public L1TCaloTriggerNtupleBase {
+public:
+  L1TriggerNtupleEgamma(const edm::ParameterSet& conf);
+  ~L1TriggerNtupleEgamma() override{};
+  void initialize(TTree&, const edm::ParameterSet&, edm::ConsumesCollector&&) final;
+  void fill(const edm::Event& e, const edm::EventSetup& es) final;
 
-class L1TriggerNtupleEgamma : public L1TCaloTriggerNtupleBase
-{
+private:
+  void clear() final;
 
-  public:
-    L1TriggerNtupleEgamma(const edm::ParameterSet& conf);
-    ~L1TriggerNtupleEgamma() override{};
-    void initialize(TTree&, const edm::ParameterSet&, edm::ConsumesCollector&&) final;
-    void fill(const edm::Event& e, const edm::EventSetup& es) final;
+  edm::EDGetToken egamma_token_;
 
-  private:
-    void clear() final;
-
-    edm::EDGetToken egamma_token_;
-
-    int egamma_n_ ;
-    std::vector<float> egamma_pt_;
-    std::vector<float> egamma_energy_;
-    std::vector<float> egamma_eta_;
-    std::vector<float> egamma_phi_;
-    std::vector<float> egamma_hwQual_;
-
+  int egamma_n_;
+  std::vector<float> egamma_pt_;
+  std::vector<float> egamma_energy_;
+  std::vector<float> egamma_eta_;
+  std::vector<float> egamma_phi_;
+  std::vector<float> egamma_hwQual_;
 };
 
-DEFINE_EDM_PLUGIN(HGCalTriggerNtupleFactory,
-                  L1TriggerNtupleEgamma,
-                  "L1TriggerNtupleEgamma" );
+DEFINE_EDM_PLUGIN(HGCalTriggerNtupleFactory, L1TriggerNtupleEgamma, "L1TriggerNtupleEgamma");
 
+L1TriggerNtupleEgamma::L1TriggerNtupleEgamma(const edm::ParameterSet& conf) : L1TCaloTriggerNtupleBase(conf) {}
 
-L1TriggerNtupleEgamma::
-L1TriggerNtupleEgamma(const edm::ParameterSet& conf):L1TCaloTriggerNtupleBase(conf)
-{
-}
-
-void
-L1TriggerNtupleEgamma::
-initialize(TTree& tree, const edm::ParameterSet& conf, edm::ConsumesCollector&& collector)
-{
+void L1TriggerNtupleEgamma::initialize(TTree& tree, const edm::ParameterSet& conf, edm::ConsumesCollector&& collector) {
   egamma_token_ = collector.consumes<l1t::EGammaBxCollection>(conf.getParameter<edm::InputTag>("Egamma"));
 
-  tree.Branch(branch_name_w_prefix("n"),     &egamma_n_, branch_name_w_prefix("n/I"));
-  tree.Branch(branch_name_w_prefix("pt"),     &egamma_pt_);
+  tree.Branch(branch_name_w_prefix("n"), &egamma_n_, branch_name_w_prefix("n/I"));
+  tree.Branch(branch_name_w_prefix("pt"), &egamma_pt_);
   tree.Branch(branch_name_w_prefix("energy"), &egamma_energy_);
-  tree.Branch(branch_name_w_prefix("eta"),    &egamma_eta_);
-  tree.Branch(branch_name_w_prefix("phi"),    &egamma_phi_);
+  tree.Branch(branch_name_w_prefix("eta"), &egamma_eta_);
+  tree.Branch(branch_name_w_prefix("phi"), &egamma_phi_);
   tree.Branch(branch_name_w_prefix("hwQual"), &egamma_hwQual_);
-
 }
 
-
-
-void
-L1TriggerNtupleEgamma::
-fill(const edm::Event& e, const edm::EventSetup& es)
-{
-
+void L1TriggerNtupleEgamma::fill(const edm::Event& e, const edm::EventSetup& es) {
   // retrieve towers
   edm::Handle<l1t::EGammaBxCollection> egamma_h;
   e.getByToken(egamma_token_, egamma_h);
   const l1t::EGammaBxCollection& egamma_collection = *egamma_h;
 
-
   // triggerTools_.eventSetup(es);
 
   clear();
-  for(auto egee_itr=egamma_collection.begin(0); egee_itr!=egamma_collection.end(0); egee_itr++) {
+  for (auto egee_itr = egamma_collection.begin(0); egee_itr != egamma_collection.end(0); egee_itr++) {
     egamma_n_++;
     // physical values
     egamma_pt_.emplace_back(egee_itr->pt());
@@ -77,11 +56,7 @@ fill(const edm::Event& e, const edm::EventSetup& es)
   }
 }
 
-
-void
-L1TriggerNtupleEgamma::
-clear()
-{
+void L1TriggerNtupleEgamma::clear() {
   egamma_n_ = 0;
   egamma_pt_.clear();
   egamma_energy_.clear();
