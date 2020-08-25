@@ -20,7 +20,7 @@ process.intprod = cms.EDProducer('IntProducer', ivalue = cms.int32(1))
 process.intalias = cms.EDAlias(intprod = cms.VPSet(cms.PSet(type = cms.string('edmtestIntProduct'))))
 
 # Module to be tested can not be an EDAlias
-process.test = cms.EDProducer('AddIntsProducer', labels = cms.vstring('intalias'))
+process.test = cms.EDProducer('AddIntsProducer', labels = cms.VInputTag('intalias'))
 
 process.moduleToTest(process.test, cms.Task(process.intprod))
 )_"};
@@ -72,7 +72,7 @@ process.intalias = cms.EDAlias(intprod = cms.VPSet(cms.PSet(type = cms.string('e
 )
 
 # Module to be tested can not be an EDAlias
-process.test = cms.EDProducer('AddIntsProducer', labels = cms.vstring('intalias', 'intalias:bar'))
+process.test = cms.EDProducer('AddIntsProducer', labels = cms.VInputTag('intalias', 'intalias:bar'))
 
 process.moduleToTest(process.test, cms.Task(process.intprod))
 )_"};
@@ -102,7 +102,7 @@ process.intalias = cms.EDAlias(intprod = cms.VPSet(cms.PSet(type = cms.string('e
 )
 
 # Module to be tested can not be an EDAlias
-process.test = cms.EDProducer('AddIntsProducer', labels = cms.vstring('intalias'))
+process.test = cms.EDProducer('AddIntsProducer', labels = cms.VInputTag('intalias'))
 
 process.moduleToTest(process.test, cms.Task(process.intprod))
 )_"};

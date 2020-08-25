@@ -353,9 +353,9 @@ namespace edmtest {
         : putToken_{produces<IntProduct>()},
           otherPutToken_{produces<IntProduct>("other")},
           onlyGetOnEvent_(p.getUntrackedParameter<unsigned int>("onlyGetOnEvent", 0u)) {
-      auto const& labels = p.getParameter<std::vector<std::string>>("labels");
+      auto const& labels = p.getParameter<std::vector<edm::InputTag>>("labels");
       for (auto const& label : labels) {
-        tokens_.emplace_back(consumes<IntProduct>(edm::InputTag{label}));
+        tokens_.emplace_back(consumes<IntProduct>(label));
       }
     }
     void produce(edm::StreamID, edm::Event& e, edm::EventSetup const& c) const override;

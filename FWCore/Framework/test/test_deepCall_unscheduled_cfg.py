@@ -44,16 +44,16 @@ process.one = cms.EDProducer("IntProducer",
 )
 
 process.result1 = cms.EDProducer("AddIntsProducer",
-    labels = cms.vstring('one')
+    labels = cms.VInputTag('one')
 )
 
 process.result2 = cms.EDProducer("AddIntsProducer",
-    labels = cms.vstring('result1', 
+    labels = cms.VInputTag('result1',
         'one')
 )
 
 process.result4 = cms.EDProducer("AddIntsProducer",
-    labels = cms.vstring('result2', 
+    labels = cms.VInputTag('result2',
         'result2')
 )
 
