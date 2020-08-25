@@ -15,6 +15,8 @@ private:
   // ParameterSet
   edm::EDGetTokenT<GEMDigiCollection> strip_token_;
   edm::EDGetTokenT<edm::PSimHitContainer> simhit_token_;
+  edm::ESGetToken<GEMGeometry, MuonGeometryRecord> geomToken_;
+  edm::ESGetToken<GEMGeometry, MuonGeometryRecord> geomTokenBeginRun_;
 
   // NOTE Monitor elements
 
