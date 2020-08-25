@@ -613,6 +613,17 @@ namespace {
     [[maybe_unused]] edm::ESGetToken<DummyData, edm::DefaultRecord> token4(
         consumesCollector().esConsumes<edm::Transition::BeginRun>(edm::ESInputTag("Blah")));
   }
+  {
+    [[maybe_unused]] edm::ESGetToken<DummyData, edm::DefaultRecord> token1;
+    token1 = consumesCollector().esConsumes();
+    [[maybe_unused]] edm::ESGetToken<DummyData, edm::DefaultRecord> token2;
+    token2 = consumesCollector().esConsumes(edm::ESInputTag("Blah"));
+    [[maybe_unused]] edm::ESGetToken<DummyData, edm::DefaultRecord> token3;
+    token3 = consumesCollector().esConsumes<edm::Transition::BeginRun>();
+    [[maybe_unused]] edm::ESGetToken<DummyData, edm::DefaultRecord> token4;
+    token4 = consumesCollector().esConsumes<edm::Transition::BeginRun>(edm::ESInputTag("Blah"));
+  }
+
 }  // namespace
 }
 ;
