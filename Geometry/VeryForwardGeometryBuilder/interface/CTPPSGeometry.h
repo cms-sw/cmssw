@@ -35,8 +35,6 @@ public:
 
   using Vector = DetGeomDesc::Translation;
 
-  CTPPSGeometry() {}
-  ~CTPPSGeometry() {}
 
   /// build up from DetGeomDesc
   CTPPSGeometry(const DetGeomDesc* gd, unsigned int verbosity) { build(gd, verbosity); }

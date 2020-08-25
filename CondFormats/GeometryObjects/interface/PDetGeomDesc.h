@@ -11,11 +11,9 @@
 
 class PDetGeomDesc {
 public:
-  PDetGeomDesc(){};
-  ~PDetGeomDesc(){};
 
   struct Item {
-    Item() {}
+    Item() = default;
     Item(const DetGeomDesc* const geoInfo) {
       dx_ = geoInfo->translation().X();
       dy_ = geoInfo->translation().Y();

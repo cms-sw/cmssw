@@ -54,8 +54,6 @@ public:
   using RotationMatrix = ROOT::Math::Rotation3D;
   using Translation = ROOT::Math::DisplacementVector3D<ROOT::Math::Cartesian3D<double>>;
 
-  // Default
-  DetGeomDesc() {};
 
   // Constructor from DD4Hep DDFilteredView
   DetGeomDesc(const cms::DDFilteredView& fv, const cms::DDSpecParRegistry& allSpecParSections);
