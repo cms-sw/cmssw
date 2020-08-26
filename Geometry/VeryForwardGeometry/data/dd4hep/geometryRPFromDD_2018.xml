@@ -4,8 +4,7 @@
   <close_geometry/>
   
   <IncludeSection>
-  
-	# common and strip files
+    # common and strip files
     <Include ref="Geometry/CMSCommonData/data/materials.xml"/>
     <Include ref="Geometry/CMSCommonData/data/rotations.xml"/>
     <Include ref="Geometry/CMSCommonData/data/extend/cmsextent.xml"/>
@@ -77,7 +76,7 @@
     <Include ref="Geometry/VeryForwardData/data/RP_Cuts_Per_Region.xml"/>
     <Include ref="Geometry/VeryForwardData/data/RP_Param_Beam_Region.xml"/>
 
-	# diamond files
+    # diamond files
     <Include ref="Geometry/VeryForwardData/data/CTPPS_Diamond_Materials.xml"/>
     <Include ref="Geometry/VeryForwardData/data/CTPPS_Diamond_Transformations.xml"/>
     <Include ref="Geometry/VeryForwardData/data/CTPPS_Diamond_X_Distance.xml"/>
@@ -105,23 +104,21 @@
     <Include ref="Geometry/VeryForwardData/data/CTPPS_Diamond_2018/CTPPS_Diamond_Planes/CTPPS_Diamond_Plane4.xml"/>
     <Include ref="Geometry/VeryForwardData/data/CTPPS_Diamond_2018/CTPPS_Diamond_Detector_Assembly.xml"/>
 
-	# UFSD files
-    	# UFSDetectors
+    # UFSD files
     <Include ref="Geometry/VeryForwardData/data/CTPPS_UFSD_Segments/CTPPS_UFSD_Pattern1.xml"/>
     <Include ref="Geometry/VeryForwardData/data/CTPPS_UFSD_Segments/CTPPS_UFSD_Pattern2_SegmentA.xml"/>
     <Include ref="Geometry/VeryForwardData/data/CTPPS_UFSD_Segments/CTPPS_UFSD_Pattern2_SegmentB.xml"/>
     <Include ref="Geometry/VeryForwardData/data/CTPPS_UFSD_Planes/CTPPS_UFSD_Plane4.xml"/>
     <Include ref="Geometry/VeryForwardData/data/CTPPS_UFSD_Parameters.xml"/>
 
-	# Totem Timing files
-    	# UFSDetectors
+    # Totem Timing files
     <Include ref="Geometry/VeryForwardData/data/TotemTiming/TotemTiming_Dist_Beam_Cent.xml"/>
     <Include ref="Geometry/VeryForwardData/data/TotemTiming/TotemTiming_DetectorAssembly.xml"/>
     <Include ref="Geometry/VeryForwardData/data/TotemTiming/TotemTiming_Parameters.xml"/>
     <Include ref="Geometry/VeryForwardData/data/TotemTiming/TotemTiming_Plane.xml"/>
     <Include ref="Geometry/VeryForwardData/data/TotemTiming/TotemTiming_Station.xml"/>
 
-	# pixel files
+    # pixel files
     <Include ref="Geometry/VeryForwardData/data/ppstrackerMaterials.xml"/>
     <Include ref="Geometry/VeryForwardData/data/CTPPS_Pixel_Module.xml"/>
     <Include ref="Geometry/VeryForwardData/data/CTPPS_Pixel_Module_2x2.xml"/>
@@ -130,9 +127,9 @@
     <Include ref="Geometry/VeryForwardData/data/CTPPS_Pixel_2018/CTPPS_Pixel_Assembly_Box_Real_003.xml"/>
     <Include ref="Geometry/VeryForwardData/data/CTPPS_Pixel_2018/CTPPS_Pixel_Assembly_Box_Real_103.xml"/>
     <Include ref="Geometry/VeryForwardData/data/CTPPS_Pixel_Sens.xml"/>
-    
-	# position of RPs
-    <Include ref="Geometry/VeryForwardData/data/2016_ctpps_15sigma_margin0/RP_Dist_Beam_Cent.xml"/>
-        
+
+    # RP distance
+    <Include ref="Geometry/VeryForwardData/data/2016_ctpps_15sigma_margin0/RP_Dist_Beam_Cent.xml"/>    
+            
   </IncludeSection>
 </DDDefinition>

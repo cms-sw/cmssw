@@ -37,7 +37,7 @@ process.maxEvents = cms.untracked.PSet(
 )
 
 # geometry
-process.load("Geometry.VeryForwardGeometry.geometryIdealPPSFromDD_2017_cfi")
+process.load("Geometry.VeryForwardGeometry.geometryRPFromDD_2018_cfi")
 
 
 # DB writer
