@@ -96,9 +96,9 @@ namespace fwlite {
       // If the return value is not null, then the desired element was found
       // in a thinned container. If the desired element is not found, then
       // an optional without a value is returned.
-      std::optional<unsigned int> getThinnedKeyFrom(edm::ProductID const& parent,
-                                                    unsigned int key,
-                                                    edm::ProductID const& thinned) const override {
+      edm::OptionalThinnedKey getThinnedKeyFrom(edm::ProductID const& parent,
+                                                unsigned int key,
+                                                edm::ProductID const& thinned) const override {
         return event_->getThinnedKeyFrom(parent, key, thinned);
       }
 
@@ -392,9 +392,9 @@ namespace fwlite {
     return dataHelper_.getThinnedProducts(pid, foundContainers, keys, eventEntry);
   }
 
-  std::optional<unsigned int> Event::getThinnedKeyFrom(edm::ProductID const& parent,
-                                                       unsigned int key,
-                                                       edm::ProductID const& thinned) const {
+  edm::OptionalThinnedKey Event::getThinnedKeyFrom(edm::ProductID const& parent,
+                                                   unsigned int key,
+                                                   edm::ProductID const& thinned) const {
     Long_t eventEntry = branchMap_.getEventEntry();
     return dataHelper_.getThinnedKeyFrom(parent, key, thinned, eventEntry);
   }
