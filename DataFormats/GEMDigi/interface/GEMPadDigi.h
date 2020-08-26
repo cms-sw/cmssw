@@ -17,8 +17,12 @@
 class GEMPadDigi {
 public:
   enum InValid { ME0InValid = 255, GE11InValid = 255, GE21InValid = 511 };
+  enum NumberPartitions { ME0 = 8, GE11 = 8, GE21 = 8, GE21SplitStrip = 16 };
 
-  explicit GEMPadDigi(uint16_t pad, int16_t bx, enum GEMSubDetId::Station station = GEMSubDetId::Station::GE11);
+  explicit GEMPadDigi(uint16_t pad,
+                      int16_t bx,
+                      enum GEMSubDetId::Station station = GEMSubDetId::Station::GE11,
+                      unsigned nPart = NumberPartitions::GE11);
   GEMPadDigi();
 
   bool operator==(const GEMPadDigi& digi) const;
@@ -33,12 +37,18 @@ public:
   int16_t bx() const { return bx_; }
   GEMSubDetId::Station station() const { return station_; }
 
+  // Newer GE2/1 geometries will have 16! eta partitions
+  // instead of the usual 8.
+  void setNPartitions(unsigned nPart) { part_ = nPart; }
+  unsigned nPartitions() const { return part_; }
   void print() const;
 
 private:
   uint16_t pad_;
   int16_t bx_;
   GEMSubDetId::Station station_;
+  // number of eta partitions
+  unsigned part_;
 };
 
 std::ostream& operator<<(std::ostream& o, const GEMPadDigi& digi);
