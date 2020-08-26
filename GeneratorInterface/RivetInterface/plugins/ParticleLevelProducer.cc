@@ -18,8 +18,7 @@ using namespace Rivet;
 
 ParticleLevelProducer::ParticleLevelProducer(const edm::ParameterSet& pset)
     : srcToken_(consumes<edm::HepMCProduct>(pset.getParameter<edm::InputTag>("src"))),
-      pset_(pset),
-      _isFirstEvent(true) {
+      pset_(pset) {
   usesResource("Rivet");
   genVertex_ = reco::Particle::Point(0, 0, 0);
 
@@ -114,16 +113,13 @@ void ParticleLevelProducer::produce(edm::Event& event, const edm::EventSetup& ev
 
   const HepMC::GenEvent* genEvent = srcHandle->GetEvent();
 
-  if (_isFirstEvent || !rivetAnalysis_->hasProjection("FS")) {
+  if (!rivetAnalysis_ || !rivetAnalysis_->hasProjection("FS")) {
     delete rivetAnalysis_;
-    delete analysisHandler_;
     rivetAnalysis_ = new Rivet::RivetAnalysis(pset_);
-    analysisHandler_ = new Rivet::AnalysisHandler();
+    analysisHandler_ = std::unique_ptr<Rivet::AnalysisHandler>(new Rivet::AnalysisHandler());
 
     analysisHandler_->setIgnoreBeams(true);
     analysisHandler_->addAnalysis(rivetAnalysis_);
-
-    _isFirstEvent = false;
   }
 
   analysisHandler_->analyze(*genEvent);
