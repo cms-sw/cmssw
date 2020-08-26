@@ -68,21 +68,21 @@ void L1TriggerNtupleTrackTrigger::initialize(TTree& tree,
   track_token_ =
       collector.consumes<std::vector<TTTrack<Ref_Phase2TrackerDigi_>>>(conf.getParameter<edm::InputTag>("TTTracks"));
 
-  tree.Branch(branch_name_w_prefix("n"), &l1track_n_, branch_name_w_prefix("n/I"));
-  tree.Branch(branch_name_w_prefix("pt"), &l1track_pt_);
-  tree.Branch(branch_name_w_prefix("pt2stubs"), &l1track_pt2stubs_);
+  tree.Branch(branch_name_w_prefix("n").c_str(), &l1track_n_, branch_name_w_prefix("n/I").c_str());
+  tree.Branch(branch_name_w_prefix("pt").c_str(), &l1track_pt_);
+  tree.Branch(branch_name_w_prefix("pt2stubs").c_str(), &l1track_pt2stubs_);
 
   // tree.Branch("l1track_energy", &l1track_energy_);
-  tree.Branch(branch_name_w_prefix("eta"), &l1track_eta_);
-  tree.Branch(branch_name_w_prefix("phi"), &l1track_phi_);
-  tree.Branch(branch_name_w_prefix("curv"), &l1track_curv_);
-  tree.Branch(branch_name_w_prefix("chi2"), &l1track_chi2_);
-  tree.Branch(branch_name_w_prefix("chi2Red"), &l1track_chi2Red_);
-  tree.Branch(branch_name_w_prefix("nStubs"), &l1track_nStubs_);
-  tree.Branch(branch_name_w_prefix("z0"), &l1track_z0_);
-  tree.Branch(branch_name_w_prefix("charge"), &l1track_charge_);
-  tree.Branch(branch_name_w_prefix("caloeta"), &l1track_caloeta_);
-  tree.Branch(branch_name_w_prefix("calophi"), &l1track_calophi_);
+  tree.Branch(branch_name_w_prefix("eta").c_str(), &l1track_eta_);
+  tree.Branch(branch_name_w_prefix("phi").c_str(), &l1track_phi_);
+  tree.Branch(branch_name_w_prefix("curv").c_str(), &l1track_curv_);
+  tree.Branch(branch_name_w_prefix("chi2").c_str(), &l1track_chi2_);
+  tree.Branch(branch_name_w_prefix("chi2Red").c_str(), &l1track_chi2Red_);
+  tree.Branch(branch_name_w_prefix("nStubs").c_str(), &l1track_nStubs_);
+  tree.Branch(branch_name_w_prefix("z0").c_str(), &l1track_z0_);
+  tree.Branch(branch_name_w_prefix("charge").c_str(), &l1track_charge_);
+  tree.Branch(branch_name_w_prefix("caloeta").c_str(), &l1track_caloeta_);
+  tree.Branch(branch_name_w_prefix("calophi").c_str(), &l1track_calophi_);
 }
 
 void L1TriggerNtupleTrackTrigger::fill(const edm::Event& ev, const edm::EventSetup& es) {

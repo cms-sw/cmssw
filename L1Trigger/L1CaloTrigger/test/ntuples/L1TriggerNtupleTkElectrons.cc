@@ -34,13 +34,13 @@ void L1TriggerNtupleTkElectrons::initialize(TTree& tree,
                                             edm::ConsumesCollector&& collector) {
   tkEle_token_ = collector.consumes<l1t::TkElectronCollection>(conf.getParameter<edm::InputTag>("TkElectrons"));
 
-  tree.Branch(branch_name_w_prefix("n"), &tkEle_n_, branch_name_w_prefix("n/I"));
-  tree.Branch(branch_name_w_prefix("pt"), &tkEle_pt_);
-  tree.Branch(branch_name_w_prefix("energy"), &tkEle_energy_);
-  tree.Branch(branch_name_w_prefix("eta"), &tkEle_eta_);
-  tree.Branch(branch_name_w_prefix("phi"), &tkEle_phi_);
-  tree.Branch(branch_name_w_prefix("hwQual"), &tkEle_hwQual_);
-  tree.Branch(branch_name_w_prefix("tkIso"), &tkEle_tkIso_);
+  tree.Branch(branch_name_w_prefix("n").c_str(), &tkEle_n_, branch_name_w_prefix("n/I").c_str());
+  tree.Branch(branch_name_w_prefix("pt").c_str(), &tkEle_pt_);
+  tree.Branch(branch_name_w_prefix("energy").c_str(), &tkEle_energy_);
+  tree.Branch(branch_name_w_prefix("eta").c_str(), &tkEle_eta_);
+  tree.Branch(branch_name_w_prefix("phi").c_str(), &tkEle_phi_);
+  tree.Branch(branch_name_w_prefix("hwQual").c_str(), &tkEle_hwQual_);
+  tree.Branch(branch_name_w_prefix("tkIso").c_str(), &tkEle_tkIso_);
 }
 
 void L1TriggerNtupleTkElectrons::fill(const edm::Event& e, const edm::EventSetup& es) {
