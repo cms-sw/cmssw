@@ -472,6 +472,14 @@ unzip python_packages.zip
 rm python_packages.zip
 ```
 
+Systemd configuration is located here: `/usr/lib/systemd/system/dqmgui.service`
+
+Service can be restarted like so: `sudo systemctl restart dqmgui`
+
+Systemd log can be viewd like so: `sudo journalctl -u dqmgui`
+
+Systemd will run this script: `/data/dqmgui/start.sh` which will do `cmsenv` from whatever WorkingDirectory is, find the `dqmguibackend.sh` whether it's in a release or checked out, and run it with the same arguemnts that were passed in to itself.
+
 # TODO
 
 Backend related task list.
