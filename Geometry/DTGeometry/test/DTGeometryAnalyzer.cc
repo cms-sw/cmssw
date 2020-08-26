@@ -47,7 +47,10 @@ DTGeometryAnalyzer::DTGeometryAnalyzer(const edm::ParameterSet& iConfig)
     : dashedLineWidth_(104),
       dashedLine_(string(dashedLineWidth_, '-')),
       myName_("DTGeometryAnalyzer"),
-      tinyDifferences_(iConfig.getUntrackedParameter<bool>("tinyDifferences", true)) {}
+      tinyDifferences_(iConfig.getUntrackedParameter<bool>("tinyDifferences", true))
+// Set tinyDifferences to True to show values as small as |1.e-23|;
+// otherwise values <|1.e-7| will be rounded to 0.
+{}
 
 DTGeometryAnalyzer::~DTGeometryAnalyzer() {}
 

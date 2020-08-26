@@ -82,7 +82,10 @@ static const double density_units = 6.24151e+18;
 ModuleInfo::ModuleInfo(const edm::ParameterSet& ps)
     : fromDDD_(ps.getParameter<bool>("fromDDD")),
       printDDD_(ps.getUntrackedParameter<bool>("printDDD", true)),
-      tinyDifferences_(ps.getUntrackedParameter<bool>("tinyDifferences", true)) {}
+      tinyDifferences_(ps.getUntrackedParameter<bool>("tinyDifferences", true))
+// Set tinyDifferences to True to show values as small as |1.e-23|;
+// otherwise values <|1.e-7| will be rounded to 0.
+{}
 
 ModuleInfo::~ModuleInfo() {}
 
