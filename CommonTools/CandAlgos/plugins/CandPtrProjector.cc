@@ -19,12 +19,14 @@ private:
   edm::EDGetTokenT<edm::View<reco::Candidate>> candSrcToken_;
   edm::EDGetTokenT<edm::View<reco::Candidate>> vetoSrcToken_;
   bool useDeltaRforFootprint_;
+  bool extendVetoBySingleSourcePtr_;
 };
 
 CandPtrProjector::CandPtrProjector(edm::ParameterSet const& iConfig)
     : candSrcToken_{consumes<edm::View<reco::Candidate>>(iConfig.getParameter<edm::InputTag>("src"))},
       vetoSrcToken_{consumes<edm::View<reco::Candidate>>(iConfig.getParameter<edm::InputTag>("veto"))},
-      useDeltaRforFootprint_(iConfig.getParameter<bool>("useDeltaRforFootprint")) {
+      useDeltaRforFootprint_(iConfig.getParameter<bool>("useDeltaRforFootprint")),
+      extendVetoBySingleSourcePtr_(iConfig.getParameter<bool>("extendVetoBySingleSourcePtr")) {
   produces<edm::PtrVector<reco::Candidate>>();
 }
 
@@ -48,6 +50,8 @@ void CandPtrProjector::produce(edm::StreamID, edm::Event& iEvent, edm::EventSetu
     auto const c = cands->ptrAt(i);
     if (vetoedPtrs.find(c) == vetoedPtrs.cend()) {
       bool addcand = true;
+      if ((extendVetoBySingleSourcePtr_) && (c->numberOfSourceCandidatePtrs() == 1))
+        addcand = (vetoedPtrs.find(c->sourceCandidatePtr(0)) == vetoedPtrs.cend());
       if (useDeltaRforFootprint_)
         for (const auto& it : vetoedPtrs)
           if (it.isNonnull() && it.isAvailable() && reco::deltaR2(*it, *c) < 0.00000025) {
@@ -66,6 +70,7 @@ void CandPtrProjector::fillDescriptions(edm::ConfigurationDescriptions& descript
   desc.add<edm::InputTag>("src");
   desc.add<edm::InputTag>("veto");
   desc.add<bool>("useDeltaRforFootprint", false);
+  desc.add<bool>("extendVetoBySingleSourcePtr", true);
   descriptions.addWithDefaultLabel(desc);
 }
 
