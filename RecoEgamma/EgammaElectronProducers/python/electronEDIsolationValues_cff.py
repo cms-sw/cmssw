@@ -2,35 +2,25 @@ import FWCore.ParameterSet.Config as cms
 
 from RecoEgamma.EgammaElectronProducers.electronPFIsolationValues_cff import *
 
-elEDIsoValueCharged03 = elPFIsoValueCharged03.clone()
-elEDIsoValueCharged03.deposits[0].src ='elEDIsoDepositCharged'
+elEDIsoValueCharged03 = elPFIsoValueCharged03.clone(deposits = {0: dict(src ='elEDIsoDepositCharged')} )
 
-elEDIsoValueChargedAll03 = elPFIsoValueChargedAll03.clone()
-elEDIsoValueChargedAll03.deposits[0].src='elEDIsoDepositChargedAll'
+elEDIsoValueChargedAll03 = elPFIsoValueChargedAll03.clone(deposits = {0: dict(src='elEDIsoDepositChargedAll')} )
 
-elEDIsoValueGamma03 = elPFIsoValueGamma03.clone()
-elEDIsoValueGamma03.deposits[0].src='elEDIsoDepositGamma'
+elEDIsoValueGamma03 = elPFIsoValueGamma03.clone(deposits = {0: dict(src='elEDIsoDepositGamma')} )
 
-elEDIsoValueNeutral03 = elPFIsoValueNeutral03.clone()
-elEDIsoValueNeutral03.deposits[0].src='elEDIsoDepositNeutral'
+elEDIsoValueNeutral03 = elPFIsoValueNeutral03.clone(deposits = {0: dict(src='elEDIsoDepositNeutral')} )
 
-elEDIsoValuePU03  = elPFIsoValuePU03.clone()
-elEDIsoValuePU03.deposits[0].src = 'elEDIsoDepositPU'
+elEDIsoValuePU03  = elPFIsoValuePU03.clone(deposits = {0: dict(src = 'elEDIsoDepositPU')} )
 
-elEDIsoValueCharged04 = elPFIsoValueCharged04.clone()
-elEDIsoValueCharged04.deposits[0].src ='elEDIsoDepositCharged'
+elEDIsoValueCharged04 = elPFIsoValueCharged04.clone(deposits = {0: dict(src ='elEDIsoDepositCharged')} )
 
-elEDIsoValueChargedAll04 = elPFIsoValueChargedAll04.clone()
-elEDIsoValueChargedAll04.deposits[0].src='elEDIsoDepositChargedAll'
+elEDIsoValueChargedAll04 = elPFIsoValueChargedAll04.clone(deposits = {0: dict(src='elEDIsoDepositChargedAll')} )
 
-elEDIsoValueGamma04 = elPFIsoValueGamma04.clone()
-elEDIsoValueGamma04.deposits[0].src='elEDIsoDepositGamma'
+elEDIsoValueGamma04 = elPFIsoValueGamma04.clone(deposits = {0: dict(src='elEDIsoDepositGamma')} )
 
-elEDIsoValueNeutral04 = elPFIsoValueNeutral04.clone()
-elEDIsoValueNeutral04.deposits[0].src='elEDIsoDepositNeutral'
+elEDIsoValueNeutral04 = elPFIsoValueNeutral04.clone(deposits = {0: dict(src='elEDIsoDepositNeutral')} )
 
-elEDIsoValuePU04  = elPFIsoValuePU04.clone()
-elEDIsoValuePU04.deposits[0].src = 'elEDIsoDepositPU'
+elEDIsoValuePU04  = elPFIsoValuePU04.clone(deposits = {0: dict(src = 'elEDIsoDepositPU')} )
 
 electronEDIsolationValuesTask = cms.Task(
     elEDIsoValueCharged03,
