@@ -99,13 +99,13 @@ void GEMPadDigiProducer::buildPads(const GEMDigiCollection& det_digis, GEMPadDig
       continue;
 
     // set of <pad, bx, part> pairs, sorted first by pad then by bx
-    std::set<std::tuple<int, int, enum GEMPadDigi::NumberPartitions> > proto_pads;
+    std::set<std::tuple<int, int, unsigned> > proto_pads;
 
     // walk over digis in this partition,
     // and stuff them into a set of unique pads (equivalent of OR operation)
     auto digis = det_digis.get(p->id());
     for (auto d = digis.first; d != digis.second; ++d) {
-      unsigned pad_num = static_cast<int>(p->padOfStrip(d->strip()));
+      unsigned pad_num = static_cast<unsigned>(p->padOfStrip(d->strip()));
 
       auto nPart = GEMPadDigi::NumberPartitions::GE11;
       if (p->isME0()) {
@@ -123,7 +123,7 @@ void GEMPadDigiProducer::buildPads(const GEMDigiCollection& det_digis, GEMPadDig
 
     // fill the output collections
     for (const auto& d : proto_pads) {
-      GEMPadDigi pad_digi(std::get<0>(d), std::get<1>(d), GEMSubDetId::station(p->id().station()), std::get<2>(d));
+      GEMPadDigi pad_digi(std::get<0>(d), std::get<1>(d), p->subsystem(), std::get<2>(d));
       checkValid(pad_digi, p->id());
       out_pads.insertDigi(p->id(), pad_digi);
     }
@@ -164,7 +164,7 @@ void GEMPadDigiProducer::buildPads16GE21(const GEMDigiCollection& det_digis, GEM
 
     // fill the output collections
     for (const auto& d : proto_pads) {
-      GEMPadDigi pad_digi(d.first, d.second, GEMSubDetId::Station::GE21, GEMPadDigi::NumberPartitions::GE21SplitStrip);
+      GEMPadDigi pad_digi(d.first, d.second, p->subsystem(), GEMPadDigi::NumberPartitions::GE21SplitStrip);
       checkValid(pad_digi, p->id());
       out_pads.insertDigi(p->id(), pad_digi);
     }
