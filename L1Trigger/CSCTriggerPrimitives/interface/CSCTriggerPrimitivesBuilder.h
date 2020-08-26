@@ -133,17 +133,15 @@ private:
   /** SLHC: special switch to use gem clusters */
   bool useClusters_;
 
-  int m_minBX_, m_maxBX_;  // min and max BX to sort.
-
   /** Pointers to TMB processors for all possible chambers. */
   std::unique_ptr<CSCMotherboard> tmb_[MAX_ENDCAPS][MAX_STATIONS][MAX_SECTORS][MAX_SUBSECTORS][MAX_CHAMBERS];
+
+  /** Pointer to MPC processors. */
+  std::unique_ptr<CSCMuonPortCard> mpc_[MAX_ENDCAPS][MAX_STATIONS][MAX_SECTORS];
 
   // pointers to the geometry
   const CSCGeometry* csc_g;
   const GEMGeometry* gem_g;
-
-  /** Pointer to MPC processor. */
-  std::unique_ptr<CSCMuonPortCard> m_muonportcard;
 };
 
 template <class T, class S>
