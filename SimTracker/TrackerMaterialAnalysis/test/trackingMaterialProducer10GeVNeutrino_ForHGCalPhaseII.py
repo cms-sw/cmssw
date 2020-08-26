@@ -14,8 +14,8 @@ if not readGeometryFromDB:
   process.load('Configuration.Geometry.GeometryExtended2026D46_cff')
 else:
 # GlobalTag and geometry via GT
-  process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_condDBv2_cff')
-  from Configuration.AlCa.GlobalTag_condDBv2 import GlobalTag
+  process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
+  from Configuration.AlCa.GlobalTag import GlobalTag
   process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase2_realistic', '')
 
 process.load('FWCore.MessageService.MessageLogger_cfi')

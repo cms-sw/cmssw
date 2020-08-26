@@ -47,8 +47,8 @@ process.maxEvents = cms.untracked.PSet(
 
 # You can get the bad channel records from a GlobalTag or from specific tags using a PoolDBESSource and an ESPrefer
 
-process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_condDBv2_cff")
-from Configuration.AlCa.GlobalTag_condDBv2 import GlobalTag
+process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
+from Configuration.AlCa.GlobalTag import GlobalTag
 process.GlobalTag = GlobalTag(process.GlobalTag, options.globalTag, '')
 
 # process.poolDBESSource = cms.ESSource("PoolDBESSource",

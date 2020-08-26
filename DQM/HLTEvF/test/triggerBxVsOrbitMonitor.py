@@ -10,7 +10,7 @@ process.load("FWCore.MessageLogger.MessageLogger_cfi")
 process.MessageLogger.cerr.FwkReport.reportEvery = 1000
 
 # Global Tag
-from Configuration.AlCa.GlobalTag_condDBv2 import GlobalTag as customiseGlobalTag
+from Configuration.AlCa.GlobalTag import GlobalTag as customiseGlobalTag
 process.GlobalTag = customiseGlobalTag(globaltag = '80X_dataRun2_HLT_v12')
 process.GlobalTag.connect = cms.string('frontier://FrontierProd/CMS_CONDITIONS')
 

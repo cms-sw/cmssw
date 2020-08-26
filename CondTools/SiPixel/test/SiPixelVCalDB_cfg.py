@@ -19,7 +19,7 @@ process = cms.Process("SiPixelVCalDB",era)
 process.load("FWCore.MessageService.MessageLogger_cfi")
 process.load("Configuration.StandardSequences.GeometryDB_cff")
 #process.load("Configuration.StandardSequences.GeometryIdeal_cff")
-#process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_condDBv2_cff")
+#process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 #process.load("CalibTracker.Configuration.TrackerAlignment.TrackerAlignment_Fake_cff")
 #process.load("Geometry.CMSCommonData.cmsIdealGeometryXML_cfi")
@@ -31,7 +31,7 @@ process.load("CondCore.CondDB.CondDB_cfi")
 
 # GLOBAL TAG
 from Configuration.AlCa.GlobalTag import GlobalTag
-#from Configuration.AlCa.autoCond_condDBv2 import autoCond
+#from Configuration.AlCa.autoCond import autoCond
 #from Configuration.AlCa.autoCond import autoCond
 #process.GlobalTag.globaltag = "auto:run2_data" 
 #process.GlobalTag.globaltag = autoCond['run2_design']

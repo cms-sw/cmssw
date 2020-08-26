@@ -14,7 +14,7 @@ process.MessageLogger.cerr =  cms.untracked.PSet(
     resolution = cms.untracked.PSet(limit = cms.untracked.int32(-1))
 )
 
-process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_condDBv2_cff")
+process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 process.GlobalTag.globaltag = ''
 
 process.load("Configuration.StandardSequences.GeometryDB_cff")
