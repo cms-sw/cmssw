@@ -39,6 +39,7 @@
 #include "DataFormats/CSCDigi/interface/CSCALCTPreTriggerDigi.h"
 #include "CondFormats/CSCObjects/interface/CSCDBL1TPParameters.h"
 #include "L1Trigger/CSCTriggerPrimitives/interface/CSCBaseboard.h"
+#include "L1Trigger/CSCTriggerPrimitives/interface/LCTQualityControl.h"
 
 #include <vector>
 
@@ -54,6 +55,9 @@ public:
 
   /** Default constructor. Used for testing. */
   CSCAnodeLCTProcessor();
+
+  /** Default destructor. */
+  ~CSCAnodeLCTProcessor() override = default;
 
   /** Sets configuration parameters obtained via EventSetup mechanism. */
   void setConfigParameters(const CSCDBL1TPParameters* conf);
@@ -159,6 +163,9 @@ protected:
   static const unsigned int def_trig_mode, def_accel_mode;
   static const unsigned int def_l1a_window_width;
 
+  /* quality control */
+  std::unique_ptr<LCTQualityControl> qualityControl_;
+
   /** Chosen pattern mask. */
   CSCPatternBank::LCTPatterns alct_pattern_ = {};
 
@@ -240,10 +247,6 @@ protected:
 
   /** Dump digis on wire groups. */
   void dumpDigis(const std::vector<int> wire[CSCConstants::NUM_LAYERS][CSCConstants::MAX_NUM_WIRES]) const;
-
-  // Check if the ALCT is valid
-  void checkValidReadout(const CSCALCTDigi& alct) const;
-  void checkValid(const CSCALCTDigi& alct, unsigned max_stubs = CSCConstants::MAX_ALCTS_PER_PROCESSOR) const;
 
   void showPatterns(const int key_wire);
 };

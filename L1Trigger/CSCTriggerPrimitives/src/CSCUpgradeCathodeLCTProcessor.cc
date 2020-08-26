@@ -17,7 +17,6 @@ CSCUpgradeCathodeLCTProcessor::CSCUpgradeCathodeLCTProcessor(unsigned endcap,
   // use of localized dead-time zones
   use_dead_time_zoning = clctParams_.getParameter<bool>("useDeadTimeZoning");
   clct_state_machine_zone = clctParams_.getParameter<unsigned int>("clctStateMachineZone");
-  dynamic_state_machine_zone = clctParams_.getParameter<bool>("useDynamicStateMachineZone");
 
   // how far away may trigger happen from pretrigger
   pretrig_trig_zone = clctParams_.getParameter<unsigned int>("clctPretriggerTriggerZone");
