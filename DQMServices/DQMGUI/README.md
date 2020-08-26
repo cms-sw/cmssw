@@ -371,6 +371,11 @@ cd hltd/scripts/
 # Before running the following script add this file to scripts
 # directory and the parameter values will be taken from it
 # Bellow is the contents of the file.
+# VERY IMPORTANT: keep in mind that line 7 of paramcache is
+# a placeholder password to the Oracle database. When
+# building the package it has to be replaced with an actual
+# value that can be found here: fu-c2f11-11-01:/opt/fff/db.jsn
+# (the password field)
 vim paramcache
 
 # Check output to see where .rpm file was generated
@@ -393,7 +398,7 @@ sudo yum install /nfshome0/akirilov/hltd_missing_deps/python36-dateutil-2.4.2-5.
 # If it's missing, defusedxml can be installed from here:
 # http://linuxsoft.cern.ch/epel/7/x86_64/Packages/p/python36-defusedxml-0.5.0-2.el7.noarch.rpm
 
-# You might need to delete the old hltd python3.4 package if it causes errore:
+# You might need to delete the old hltd python3.4 package if it causes errors:
 sudo yum remove hltd-python34.x86_64
 # To get a list of installed packages:
 # yum list installed | grep hltd
@@ -405,7 +410,6 @@ sudo yum install hltd-python36-2.8.0-0.x86_64.rpm
 # If HLTD is allready installed, there will be a coinflict.
 # In such case remove the existing version first:
 sudo yum remove hltd-python34-2.5.8-1.x86_64
-
 ```
 
 `paramcache`:
@@ -416,7 +420,7 @@ es-cdaq.cms
 es-local.cms
 cms_rcms
 CMS_DAQ2_HW_CONF_R
-pwd
+pwd <<CHANGE THIS>>
 latest
 /opt/offline
 daqlocal
@@ -425,6 +429,33 @@ daqlocal
 ERROR
 ERROR
 cmshltdjsonwriter
+```
+
+Upgrading HLTD on the machines:
+
+``` bash
+# Previously installed packages:
+# hltd-libs-python34.x86_64        2.5.2-0                               @centraldaq
+# hltd-python34.x86_64             2.5.8-1                               @centraldaq
+
+sudo systemctl stop hltd
+sudo yum -y install hltd_missing_deps/python36-defusedxml-0.5.0-2.el7.noarch.rpm
+sudo yum -y install hltd_missing_deps/python36-dateutil-2.4.2-5.el7.noarch.rpm
+sudo yum -y remove hltd-python34.x86_64
+sudo yum -y install hltd-libs-python36-2.8.0-0.x86_64.rpm
+sudo yum -y install hltd-python36-2.8.0-0.x86_64.rpm
+sudo systemctl start hltd
+# Done
+```
+
+Downgrading HLTD in case of problems:
+
+``` bash
+sudo systemctl stop hltd
+sudo yum -y remove hltd-python36.x86_64
+sudo yum -y install hltd-python34.x86_64
+sudo systemctl start hltd
+# Done
 ```
 
 # New GUI P5 instalation
