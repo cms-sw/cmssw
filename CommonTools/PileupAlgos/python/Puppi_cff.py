@@ -31,6 +31,8 @@ puppi = cms.EDProducer("PuppiProducer",#cms.PSet(#"PuppiProducer",
                        UseDeltaZCut   = cms.bool(True),
                        EtaMinUseDeltaZ = cms.double(0.),
                        DeltaZCut      = cms.double(0.3),
+                       NumOfPUVtxsForCharged = cms.uint32(0),
+                       DeltaZCutForChargedFromPUVtxs = cms.double(0.2),
 		       PtMaxCharged   = cms.double(0.),
 		       EtaMaxCharged   = cms.double(99999.),
 		       PtMaxNeutrals  = cms.double(200.),
@@ -121,5 +123,7 @@ run2_miniAOD_UL.toModify(
     puppi,
     EtaMinUseDeltaZ = 2.4,
     PtMaxCharged = 20.,
-    PtMaxNeutralsStartSlope = 20.
+    PtMaxNeutralsStartSlope = 20.,
+    NumOfPUVtxsForCharged = 2,
+    algos = { 0 : dict(etaMin = {-0.01}) } # include particles with eta==0 (proper fix is in #31174)
 )
