@@ -43,7 +43,7 @@ namespace gainCalibHelper {
     static void fillDiffAndRatio(const std::shared_ptr<PayloadType>& payload_A,
                                  const std::shared_ptr<PayloadType>& payload_B,
                                  std::array<std::shared_ptr<TH1F>, 2> arr,
-                                 gainCalibPI::type theType) {
+                                 const gainCalibPI::type& theType) {
       std::vector<uint32_t> detids_A;
       payload_A->getDetIds(detids_A);
       std::vector<uint32_t> detids_B;
@@ -1213,18 +1213,28 @@ namespace gainCalibHelper {
       float maxRatio(-9999.);
       float minRatio(-9999.);
 
+      float f_gHi = first_payload->getGainHigh();
+      float f_gLo = first_payload->getGainLow();
+      float f_pHi = first_payload->getPedHigh();
+      float f_pLo = first_payload->getPedLow();
+
+      float l_gHi = last_payload->getGainHigh();
+      float l_gLo = last_payload->getGainLow();
+      float l_pHi = last_payload->getPedHigh();
+      float l_pLo = last_payload->getPedLow();
+
       switch (myType) {
         case gainCalibPI::t_gain:
-          diffHigh = first_payload->getGainHigh() - last_payload->getGainHigh();
-          diffLow = first_payload->getGainLow() - last_payload->getGainLow();
-          maxRatio = first_payload->getGainHigh() / last_payload->getGainHigh();
-          minRatio = first_payload->getGainLow() / last_payload->getGainLow();
+          diffHigh = f_gHi - l_gHi;
+          diffLow = f_gLo - l_gLo;
+          maxRatio = l_gHi != 0 ? f_gHi / l_gHi : 0.;
+          minRatio = l_gLo != 0 ? f_gLo / l_gLo : 0.;
           break;
         case gainCalibPI::t_pedestal:
-          diffHigh = first_payload->getPedHigh() - last_payload->getPedHigh();
-          diffLow = first_payload->getPedLow() - last_payload->getPedLow();
-          maxRatio = first_payload->getPedHigh() / last_payload->getPedHigh();
-          minRatio = first_payload->getPedLow() / last_payload->getPedLow();
+          diffHigh = f_pHi - l_pHi;
+          diffLow = f_pLo - l_pLo;
+          maxRatio = l_pHi != 0 ? f_pHi / l_pHi : 0.;
+          minRatio = l_pLo != 0 ? f_pLo / l_pLo : 0.;
           break;
         default:
           edm::LogError(label_) << "Unrecognized type " << myType << std::endl;
@@ -1269,7 +1279,7 @@ namespace gainCalibHelper {
       hratio->SetTitle("");
       hratio->SetLineColor(kBlack);
       hratio->SetFillColor(kRed);
-      hratio->SetBarWidth(0.95);
+      hratio->SetBarWidth(0.90);
       hratio->SetMaximum(hratio->GetMaximum() * 10);
       hratio->Draw("bar");
       SiPixelPI::makeNicePlotStyle(hratio.get());
@@ -1279,7 +1289,7 @@ namespace gainCalibHelper {
       hdiff->SetTitle("");
       hdiff->SetLineColor(kBlack);
       hdiff->SetFillColor(kBlue);
-      hdiff->SetBarWidth(0.95);
+      hdiff->SetBarWidth(0.90);
       hdiff->SetMaximum(hdiff->GetMaximum() * 10);
       hdiff->Draw("bar");
       SiPixelPI::makeNicePlotStyle(hdiff.get());
@@ -1288,40 +1298,46 @@ namespace gainCalibHelper {
       canvas.Update();
 
       canvas.cd(1);
-      TLegend legend = TLegend(0.45, 0.86, 0.74, 0.94);
-      legend.SetHeader(fmt::sprintf("#font[22]{SiPixel %s Gain Calibration Ratio}",(isForHLT_ ? "ForHLT" : "Offline")).c_str(),"C");
+      TLatex latex;
+      latex.SetTextSize(0.024);
+      latex.SetTextAlign(13);  //align at top
+      latex.DrawLatexNDC(
+          .41,
+          .94,
+          fmt::sprintf("#scale[1.2]{SiPixel %s Gain Calibration Ratio}", (isForHLT_ ? "ForHLT" : "Offline")).c_str());
       if (this->m_plotAnnotations.ntags == 2) {
-        legend.AddEntry(hratio.get(), ("#splitline{" + tagname1 + "}{ /" + tagname2 +"}").c_str(), "F");
+        latex.DrawLatexNDC(
+            .41, .91, ("#splitline{#font[12]{" + tagname1 + "}}{ / #font[12]{" + tagname2 + "}}").c_str());
       } else {
-        legend.AddEntry(hratio.get(), ( firstIOVsince + " / " + lastIOVsince).c_str(), "F");
+        latex.DrawLatexNDC(.41, .91, (firstIOVsince + " / " + lastIOVsince).c_str());
       }
-      legend.SetTextSize(0.025);
-      legend.SetLineColor(10);
-      legend.Draw("same");
 
       canvas.cd(2);
-      TLegend legend2 = TLegend(0.45, 0.86, 0.74, 0.94);
-      legend2.SetHeader(fmt::sprintf("#font[22]{SiPixel %s Gain Calibration #Delta}",(isForHLT_ ? "ForHLT" : "Offline")).c_str(),"C");
+      TLatex latex2;
+      latex2.SetTextSize(0.024);
+      latex2.SetTextAlign(13);  //align at top
+      latex2.DrawLatexNDC(
+          .41,
+          .94,
+          fmt::sprintf("#scale[1.2]{SiPixel %s Gain Calibration Diff}", (isForHLT_ ? "ForHLT" : "Offline")).c_str());
       if (this->m_plotAnnotations.ntags == 2) {
-        legend2.AddEntry(hdiff.get(), ("#splitline{" + tagname1 + "}{-" + tagname2 +"}").c_str(), "F");
+        latex2.DrawLatexNDC(
+            .41, .91, ("#splitline{#font[12]{" + tagname1 + "}}{ - #font[12]{" + tagname2 + "}}").c_str());
       } else {
-        legend2.AddEntry(hdiff.get(), (firstIOVsince + " - " + lastIOVsince).c_str(), "F");
+        latex2.DrawLatexNDC(.41, .91, (firstIOVsince + " - " + lastIOVsince).c_str());
       }
-      legend2.SetTextSize(0.025);
-      legend2.SetLineColor(10);
-      legend2.Draw("same");
 
       TPaveStats* st1 = (TPaveStats*)hratio->FindObject("stats");
-      st1->SetTextSize(0.03);
+      st1->SetTextSize(0.027);
       st1->SetLineColor(kRed);
       st1->SetTextColor(kRed);
-      SiPixelPI::adjustStats(st1, 0.13, 0.84, 0.41, 0.94);
+      SiPixelPI::adjustStats(st1, 0.13, 0.84, 0.40, 0.94);
 
       TPaveStats* st2 = (TPaveStats*)hdiff->FindObject("stats");
-      st2->SetTextSize(0.03);
+      st2->SetTextSize(0.027);
       st2->SetLineColor(kBlue);
       st2->SetTextColor(kBlue);
-      SiPixelPI::adjustStats(st2, 0.13, 0.84, 0.41, 0.94);
+      SiPixelPI::adjustStats(st2, 0.13, 0.84, 0.40, 0.94);
 
       auto ltx = TLatex();
       ltx.SetTextFont(62);
