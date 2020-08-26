@@ -13,8 +13,8 @@ process.load("FWCore.MessageService.MessageLogger_cfi")
 process.load("Configuration.StandardSequences.MagneticField_cff")
 
 #hptopo
-process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_condDBv2_cff")
-from Configuration.AlCa.autoCond_condDBv2 import autoCond
+process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
+from Configuration.AlCa.autoCond import autoCond
 process.GlobalTag.globaltag = autoCond['run2_design']
 print(process.GlobalTag.globaltag)
 process.load("Configuration.StandardSequences.GeometryDB_cff")
