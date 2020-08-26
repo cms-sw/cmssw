@@ -7,7 +7,7 @@
 // 
 /**\class PythiaFilterMotherSister PythiaFilterMotherSister.cc IOMC/PythiaFilterMotherSister/src/PythiaFilterMotherSister.cc
 
- Description: A modified version of PythiaFilter.h, where one can specify the pdg id of a sister particle 
+ Description: A filter to identify a particle with given id and kinematic && give mother id && given id of one among mother's daughters
 
  Implementation:
      <Notes on implementation>
@@ -61,10 +61,10 @@ class PythiaFilterMotherSister : public edm::global::EDFilter<> {
        const double minphicut;
        const double maxphicut;
 
-       const int status; 
+       //const int status; 
        const int motherID;   
        const int sisterID;   
-       const int processID;    
+       //const int processID;    
 
        const double betaBoost;
 };
