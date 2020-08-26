@@ -449,8 +449,9 @@ std::vector<CSCCorrelatedLCTDigi> CSCGEMMotherboardME21::readoutLCTs() const {
     CSCUpgradeMotherboard::sortLCTs(result, CSCUpgradeMotherboard::sortLCTsByGEMDphi);
 
   // do a final check on the LCTs in readout
+  qualityControl_->checkMultiplicityBX(result);
   for (const auto& lct : result) {
-    checkValid(lct);
+    qualityControl_->checkValid(lct);
   }
 
   return result;
