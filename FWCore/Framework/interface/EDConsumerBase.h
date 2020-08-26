@@ -299,7 +299,7 @@ namespace edm {
   class EDConsumerBaseESAdaptor {
   public:
     template <typename TYPE, typename REC>
-    ESGetToken<TYPE, REC> consumes() const {
+    ESGetToken<TYPE, REC> consumes() {
       return m_consumer->template esConsumes<TYPE, REC, TR>();
     }
 
@@ -315,7 +315,7 @@ namespace edm {
   class EDConsumerBaseWithTagESAdaptor {
   public:
     template <typename TYPE, typename REC>
-    ESGetToken<TYPE, REC> consumes() const {
+    ESGetToken<TYPE, REC> consumes() {
       return m_consumer->template esConsumes<TYPE, REC, TR>(m_tag);
     }
 
@@ -333,7 +333,7 @@ namespace edm {
   class EDConsumerBaseAdaptor {
   public:
     template <typename TYPE>
-    EDGetTokenT<TYPE> consumes() const {
+    EDGetTokenT<TYPE> consumes() {
       return m_consumer->template consumes<TYPE, B>(m_tag);
     }
 
