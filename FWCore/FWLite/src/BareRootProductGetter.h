@@ -79,9 +79,9 @@ public:
   // If the return value is not null, then the desired element was found
   // in a thinned container. If the desired element is not found, then
   // an optional without a value is returned.
-  std::optional<unsigned int> getThinnedKeyFrom(edm::ProductID const& parent,
-                                                unsigned int key,
-                                                edm::ProductID const& thinned) const override;
+  edm::OptionalThinnedKey getThinnedKeyFrom(edm::ProductID const& parent,
+                                            unsigned int key,
+                                            edm::ProductID const& thinned) const override;
 
 private:
   // ---------- static member functions --------------------

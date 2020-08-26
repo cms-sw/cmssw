@@ -19,17 +19,24 @@
 // user include files
 
 // system include files
+#include <functional>
 #include <optional>
 #include <string>
 #include <tuple>
+#include <variant>
 #include <vector>
 
 // forward declarations
 
 namespace edm {
 
+  class Exception;
   class ProductID;
   class WrapperBase;
+  namespace detail {
+    using GetThinnedKeyFromExceptionFactory = std::function<edm::Exception()>;
+  }
+  using OptionalThinnedKey = std::variant<unsigned int, detail::GetThinnedKeyFromExceptionFactory, std::monostate>;
 
   class EDProductGetter {
   public:
@@ -74,9 +81,9 @@ namespace edm {
     // If the return value is not null, then the desired element was found
     // in a thinned container. If the desired element is not found, then
     // an optional without a value is returned.
-    virtual std::optional<unsigned int> getThinnedKeyFrom(ProductID const& parent,
-                                                          unsigned int key,
-                                                          ProductID const& thinned) const = 0;
+    virtual OptionalThinnedKey getThinnedKeyFrom(ProductID const& parent,
+                                                 unsigned int key,
+                                                 ProductID const& thinned) const = 0;
 
     unsigned int transitionIndex() const { return transitionIndex_(); }
 

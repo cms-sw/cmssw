@@ -51,10 +51,10 @@ namespace testPtr {
                             std::vector<edm::WrapperBase const*>& wrappers,
                             std::vector<unsigned int>& keys) const override {}
 
-    std::optional<unsigned int> getThinnedKeyFrom(edm::ProductID const&,
-                                                  unsigned int,
-                                                  edm::ProductID const&) const override {
-      return std::nullopt;
+    edm::OptionalThinnedKey getThinnedKeyFrom(edm::ProductID const&,
+                                              unsigned int,
+                                              edm::ProductID const&) const override {
+      return std::monostate{};
     }
 
     unsigned int transitionIndex_() const override { return 0U; }

@@ -80,6 +80,12 @@ namespace edmtest {
     requireExceptionCategory(edm::errors::InvalidReference, [&]() {
       auto invalidParentRef = edm::thinnedRefFrom(edm::Ref(unrelatedHandle, 0), thinnedRefProd, event.productGetter());
     });
+    if (auto invalidParentRef =
+            edm::tryThinnedRefFrom(edm::Ref(unrelatedHandle, 0), thinnedRefProd, event.productGetter());
+        invalidParentRef.isNonnull()) {
+      throw cms::Exception("TestFailure") << "Expected to get Null Ref when passing in a Ref to unrelated parent "
+                                             "collection, got a non-null Ref instead";
+    }
 
     for (auto const& track : trackCollection) {
       auto parentRef1 = edm::thinnedRefFrom(track.ref1, parentRefProd, event.productGetter());
@@ -98,9 +104,14 @@ namespace edmtest {
             << "Ref1-to-thinned ProductID " << thinnedRef1.id() << " expected " << thinnedRefProd.id();
       }
 
-      requireExceptionCategory(edm::errors::ProductNotFound, [&]() {
+      requireExceptionCategory(edm::errors::InvalidReference, [&]() {
         auto invalidThinnedRef = edm::thinnedRefFrom(track.ref1, unrelatedRefProd, event.productGetter());
       });
+      if (auto invalidThinnedRef = edm::tryThinnedRefFrom(track.ref1, unrelatedRefProd, event.productGetter());
+          invalidThinnedRef.isNonnull()) {
+        throw cms::Exception("TestFailure") << "Expected to get Null Ref when passing in a RefProd to unrelated "
+                                               "thinned collection, got a non-null Ref instead";
+      }
     }
   }
 }  // namespace edmtest

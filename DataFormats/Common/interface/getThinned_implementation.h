@@ -3,8 +3,10 @@
 
 #include <algorithm>
 #include <cassert>
+#include <functional>
 #include <optional>
 #include <tuple>
+#include <variant>
 
 #include "DataFormats/Common/interface/ThinnedAssociation.h"
 #include "DataFormats/Provenance/interface/BranchID.h"
@@ -370,6 +372,8 @@ namespace edm {
       }
     }
 
+    using GetThinnedKeyFromExceptionFactory = std::function<edm::Exception()>;
+
     // This function provides a common implementation of
     // EDProductGetter::getThinnedKeyFrom() for EventPrincipal,
     // DataGetterHelper, and BareRootProductGetter.
@@ -381,7 +385,7 @@ namespace edm {
     // If the desired element is not found, then an optional without a
     // value is returned.
     template <typename F>
-    std::optional<unsigned int> getThinnedKeyFrom_implementation(
+    std::variant<unsigned int, GetThinnedKeyFromExceptionFactory, std::monostate> getThinnedKeyFrom_implementation(
         ProductID const& parentID,
         BranchID const& parent,
         unsigned int key,
@@ -390,8 +394,10 @@ namespace edm {
         ThinnedAssociationsHelper const& thinnedAssociationsHelper,
         F&& getThinnedAssociation) {
       if (thinnedAssociationsHelper.parentBegin(parent) == thinnedAssociationsHelper.parentEnd(parent)) {
-        throw Exception(errors::InvalidReference)
-            << "Parent collection with ProductID " << parentID << " has not been thinned";
+        return [parentID]() {
+          return Exception(errors::InvalidReference)
+                 << "Parent collection with ProductID " << parentID << " has not been thinned";
+        };
       }
 
       bool foundParent = false;
@@ -407,9 +413,11 @@ namespace edm {
             throw Exception(errors::ProductNotFound)
                 << "Thinned collection with ProductID " << thinnedID << " not found";
           } else {
-            throw Exception(errors::InvalidReference) << "Requested thinned collection with ProductID " << thinnedID
-                                                      << " is not thinned from the parent collection with ProductID "
-                                                      << parentID << " or from any collection thinned from it.";
+            return [parentID, thinnedID]() {
+              return Exception(errors::InvalidReference) << "Requested thinned collection with ProductID " << thinnedID
+                                                         << " is not thinned from the parent collection with ProductID "
+                                                         << parentID << " or from any collection thinned from it.";
+            };
           }
         }
 
@@ -446,7 +454,7 @@ namespace edm {
         if (optIndex) {
           thinnedIndex = *optIndex;
         } else {
-          return std::nullopt;
+          return std::monostate{};
         }
       }
       return thinnedIndex;
