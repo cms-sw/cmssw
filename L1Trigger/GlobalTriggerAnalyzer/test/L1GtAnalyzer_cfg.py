@@ -42,7 +42,7 @@ process.maxEvents = cms.untracked.PSet(
 # https://twiki.cern.ch/twiki/bin/view/CMS/SWGuideFrontierConditions
 
 process.load('Configuration.StandardSequences.GeometryDB_cff')
-process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_condDBv2_cff')
+process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 
 process.GlobalTag.globaltag = useGlobalTag
 

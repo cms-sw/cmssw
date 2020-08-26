@@ -298,7 +298,7 @@ else:
             print("[INFO] Using GT POSTLS162_V5::All")
             process.GlobalTag.globaltag = 'POSTLS162_V5::All'
         else:
-            from Configuration.AlCa.GlobalTag_condDBv2 import GlobalTag
+            from Configuration.AlCa.GlobalTag import GlobalTag
             process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_data', '')
             if(options.files==""):
                 process.source.fileNames=[ 'root://cms-xrd-global.cern.ch//store/data/Run2012D/DoubleElectron/AOD/15Apr2014-v1/00000/0EA11D35-0CD5-E311-862E-0025905A6070.root' ]

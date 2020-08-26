@@ -11,10 +11,10 @@ process = cms.Process("MaterialAnalyser")
 # geometry using the XMLIdealGeometryRecord.
 process.load('Configuration.Geometry.GeometryExtended2016Reco_cff')
 process.load("Configuration.StandardSequences.MagneticField_38T_cff")
-process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_condDBv2_cff")
+process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 process.load('FWCore.MessageService.MessageLogger_cfi')
 #Global Tag
-from Configuration.AlCa.GlobalTag_condDBv2 import GlobalTag
+from Configuration.AlCa.GlobalTag import GlobalTag
 process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_mc', '')
 
 # Add our custom detector grouping to DDD

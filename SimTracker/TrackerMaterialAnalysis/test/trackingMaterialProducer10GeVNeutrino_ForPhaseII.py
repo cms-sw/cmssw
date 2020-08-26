@@ -48,8 +48,8 @@ options.register('fromDB',
 options.parseArguments()
 
 if options.fromDB :
-   process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_condDBv2_cff")
-   from Configuration.AlCa.GlobalTag_condDBv2 import GlobalTag
+   process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
+   from Configuration.AlCa.GlobalTag import GlobalTag
    process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase2_realistic', '')
 else:
    process.load('Configuration.Geometry.GeometryExtended2026D49_cff')
