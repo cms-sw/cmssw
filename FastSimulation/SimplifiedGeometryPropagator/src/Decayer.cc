@@ -33,7 +33,11 @@ void fastsim::Decayer::decay(const Particle& particle,
 
   // inspired by method Pythia8Hadronizer::residualDecay() in GeneratorInterface/Pythia8Interface/src/Py8GunBase.cc
   int pid = particle.pdgId();
-  if (abs(pid)>1000000) return;/////for now, just taking preset decays for exotic particles
+  // snip decay products of exotic particles or their children. These decay products are preserved from the event record.
+  // limitation: if exotic incurs heavy energy loss during propagation, the saved decay products could be too hard. 
+  if (abs(pid)>1000000) { return; }
+  if (abs(particle.getMotherPdgId())>1000000) { return; }
+
   pythia_->event.reset();
 
   // create a pythia particle which has the same properties as the FastSim particle
