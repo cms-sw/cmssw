@@ -1,3 +1,4 @@
+import os
 import glob
 import asyncio
 
@@ -39,6 +40,12 @@ class GUIImportManager:
             if files == None:
                 files = cls.__EOSPATH
 
+            if isinstance(files, list) and len(files) >= 1:
+                # Make sure that a directory ends in '/*.root' for glob to search for files
+                if os.path.isdir(files[0]):
+                    suffix = '*.root' if files[0].endswith('/') else '/*.root'
+                    files = files[0] + suffix
+
             if isinstance(files, str):
                 print('Listing files for importing, this might take a few minutes...')
                 files = glob.glob(files)
@@ -50,8 +57,11 @@ class GUIImportManager:
 
             # Parse filenames to get the metadata
             for file in files:
-                run, dataset = importer.parse_filename(file)
-                samples.append(SampleFull(dataset=dataset, run=int(run), lumi=0, file=cls.__EOSPREFIX + file, fileformat=FileFormat.DQMCLASSIC))
+                try:
+                    run, dataset = importer.parse_filename(file)
+                    samples.append(SampleFull(dataset=dataset, run=int(run), lumi=0, file=cls.__EOSPREFIX + file, fileformat=FileFormat.DQMCLASSIC))
+                except:
+                    print('Unable to import file: %s' % file)
 
             await cls.register_samples(samples)
 

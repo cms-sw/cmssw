@@ -432,7 +432,8 @@ def config_and_start_webserver(port):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='DQM GUI API')
-    parser.add_argument('-f', dest='files', nargs='*', help='DQM files to be imported.')
+    parser.add_argument('-f', dest='files', nargs='*', 
+        help='DQM files to be imported. You can pass many files or one directory where ROOT files will be taken from.')
     parser.add_argument('-p', dest='port', type=int, default=8889, help='Server port.')
     parser.add_argument('-r', dest='renderers', type=int, default=2, help='Number of renderer processes.')
     parser.add_argument('--in-memory', dest='in_memory', default=False, action='store_true', help='If set uses an in memory database.')
