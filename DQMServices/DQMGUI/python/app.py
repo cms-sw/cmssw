@@ -36,12 +36,11 @@ if __name__ == '__main__':
     multiprocessing.set_start_method('forkserver')
     from concurrent.futures import ProcessPoolExecutor
     # concurrent.futures initializes the actual multiprocessing pool lazily. So we
+    # force the creation of a fork server here.
     with ProcessPoolExecutor(1) as executor:
         fut = executor.submit(print, "Process pool initialized.")
         fut.result()
     # Now we should be safe.
-
-# Now we should be safe.
 
 import asyncio
 import logging
