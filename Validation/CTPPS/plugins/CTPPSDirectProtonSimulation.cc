@@ -135,8 +135,10 @@ CTPPSDirectProtonSimulation::CTPPSDirectProtonSimulation(const edm::ParameterSet
       produceRecHits_(iConfig.getParameter<bool>("produceRecHits")),
 
       useEmpiricalApertures_(iConfig.getParameter<bool>("useEmpiricalApertures")),
-      empiricalAperture45_(new TF2("empiricalAperture45",iConfig.getParameter<std::string>("empiricalAperture45").c_str())),
-      empiricalAperture56_(new TF2("empiricalAperture56",iConfig.getParameter<std::string>("empiricalAperture56").c_str())),
+      empiricalAperture45_(
+          new TF2("empiricalAperture45", iConfig.getParameter<std::string>("empiricalAperture45").c_str())),
+      empiricalAperture56_(
+          new TF2("empiricalAperture56", iConfig.getParameter<std::string>("empiricalAperture56").c_str())),
 
       produceHitsRelativeToBeam_(iConfig.getParameter<bool>("produceHitsRelativeToBeam")),
       roundToPitch_(iConfig.getParameter<bool>("roundToPitch")),
@@ -186,9 +188,9 @@ void CTPPSDirectProtonSimulation::fillDescriptions(edm::ConfigurationDescription
   desc.add<bool>("produceRecHits", true);
 
   desc.add<bool>("useEmpiricalApertures", false);
-  desc.add<std::string>("empiricalAperture45","0")->setComment("2D function of xi and xangle for cutoff on sec 45");
-  desc.add<std::string>("empiricalAperture56","0")->setComment("2D function of xi and xangle for cutoff on sec 56");
-  
+  desc.add<std::string>("empiricalAperture45", "0")->setComment("2D function of xi and xangle for cutoff on sec 45");
+  desc.add<std::string>("empiricalAperture56", "0")->setComment("2D function of xi and xangle for cutoff on sec 56");
+
   desc.add<bool>("produceHitsRelativeToBeam", false);
   desc.add<bool>("roundToPitch", true);
   desc.add<bool>("checkIsHit", true);
@@ -323,20 +325,20 @@ void CTPPSDirectProtonSimulation::processProton(
   double z_sign;
   double beamMomentum = 0.;
   double xangle = 0.;
-  const std::unique_ptr<TF2>* empiricalAperture;
+  const std::unique_ptr<TF2> *empiricalAperture;
   if (mom_lhc.z() < 0)  // sector 45
   {
     arm = 0;
     z_sign = -1;
     beamMomentum = beamParameters.getBeamMom45();
     xangle = beamParameters.getHalfXangleX45();
-    empiricalAperture=&empiricalAperture45_;
+    empiricalAperture = &empiricalAperture45_;
   } else {  // sector 56
     arm = 1;
     z_sign = +1;
     beamMomentum = beamParameters.getBeamMom56();
     xangle = beamParameters.getHalfXangleX56();
-    empiricalAperture=&empiricalAperture56_;
+    empiricalAperture = &empiricalAperture56_;
   }
 
   // calculate effective RP arrival time
@@ -363,8 +365,8 @@ void CTPPSDirectProtonSimulation::processProton(
   // check empirical aperture
   if (useEmpiricalApertures_) {
     const auto &xangle = lhcInfo.crossingAngle();
-    (*empiricalAperture)->SetParameter("xi",xi);
-    (*empiricalAperture)->SetParameter("xangle",xangle);
+    (*empiricalAperture)->SetParameter("xi", xi);
+    (*empiricalAperture)->SetParameter("xangle", xangle);
     const double th_x_th = (*empiricalAperture)->EvalPar(nullptr);
 
     if (th_x_th > th_x_phys) {
