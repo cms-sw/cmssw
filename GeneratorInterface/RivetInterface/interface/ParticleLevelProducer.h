@@ -42,9 +42,8 @@ private:
   reco::Particle::Point genVertex_;
 
   Rivet::RivetAnalysis* rivetAnalysis_ = nullptr;
-  Rivet::AnalysisHandler* analysisHandler_ = nullptr;
+  std::unique_ptr<Rivet::AnalysisHandler> analysisHandler_;
 
-  bool _isFirstEvent;
 };
 
 #endif
