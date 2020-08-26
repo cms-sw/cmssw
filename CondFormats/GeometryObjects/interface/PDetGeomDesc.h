@@ -19,17 +19,7 @@ public:
       dz_ = geoInfo->translation().Z();
 
       const DDRotationMatrix& rot = geoInfo->rotation();
-      double xx, xy, xz, yx, yy, yz, zx, zy, zz;
-      rot.GetComponents(xx, xy, xz, yx, yy, yz, zx, zy, zz);
-      axx_ = xx;
-      axy_ = xy;
-      axz_ = xz;
-      ayx_ = yx;
-      ayy_ = yy;
-      ayz_ = yz;
-      azx_ = zx;
-      azy_ = zy;
-      azz_ = zz;
+      rot.GetComponents(axx_, axy_, axz_, ayx_, ayy_, ayz_, azx_, azy_, azz_);
       name_ = geoInfo->name();
       params_ = geoInfo->params();
       copy_ = geoInfo->copyno();
