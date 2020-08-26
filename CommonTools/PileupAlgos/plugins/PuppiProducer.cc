@@ -18,7 +18,6 @@
 #include "DataFormats/Common/interface/Association.h"
 //Main File
 #include "CommonTools/PileupAlgos/plugins/PuppiProducer.h"
-#include "CommonTools/PileupAlgos/interface/PuppiCandidate.h"
 
 // ------------------------------------------------------------------------------------------
 PuppiProducer::PuppiProducer(const edm::ParameterSet& iConfig) {

@@ -35,6 +35,8 @@ public:
   inline double rms() const { return cur_RMS; }
   inline double median() const { return cur_Med; }
 
+  inline double etaMaxExtrap() const { return fEtaMaxExtrap; }
+
 private:
   unsigned int fNAlgos;
   std::vector<double> fEtaMax;
