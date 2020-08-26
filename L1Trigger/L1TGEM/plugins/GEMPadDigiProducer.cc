@@ -185,7 +185,7 @@ void GEMPadDigiProducer::buildPads16GE21(const GEMDigiCollection& det_digis, GEM
 
     // fill the output collections
     for (const auto& d : proto_pads) {
-      GEMPadDigi pad_digi(d.first, d.second, GEMSubDetId::Station::GE21, GEMPadDigi::NumberPartitions::GE21SplitStrip);
+      GEMPadDigi pad_digi(d.first, d.second, p->subsystem(), GEMPadDigi::NumberPartitions::GE21SplitStrip);
       checkValid(pad_digi, p->id());
       out_pads.insertDigi(p->id(), pad_digi);
     }
