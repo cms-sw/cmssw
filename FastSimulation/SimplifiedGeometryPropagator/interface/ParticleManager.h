@@ -123,6 +123,10 @@ namespace fastsim {
         genParticleIterator_;  //!< Iterator to keep track on which GenParticles where already considered.
     const HepMC::GenEvent::particle_const_iterator genParticleEnd_;  //!< The last particle of the GenEvent.
     int genParticleIndex_;  //!< Index of particle in the GenEvent (if it is a GenParticle)
+
+    HepMC::GenEvent::particle_const_iterator relativesIterator_; // iterator to loop over particle relatives
+    const HepMC::GenEvent::particle_const_iterator relativesIteratorEnd_; // last relative
+
     const HepPDT::ParticleDataTable* const
         particleDataTable_;         //!< Necessary to get information like lifetime and charge of a particle if unknown.
     const double beamPipeRadius2_;  //!< (Radius of the beampipe)^2

@@ -214,7 +214,19 @@ std::unique_ptr<fastsim::Particle> fastsim::ParticleManager::nextGenParticle() {
 
     // particle must be produced within the beampipe
     if (productionVertex->position().perp2() * lengthUnitConversionFactor2_ > beamPipeRadius2_) {
-      continue;
+      std::vector<HepMC::GenParticle*>::const_iterator relativesIterator_ = productionVertex->particles_in_const_begin();
+      std::vector<HepMC::GenParticle*>::const_iterator relativesIteratorEnd_ = productionVertex->particles_in_const_end();
+      bool hasExoticAssociation = false;
+      for ( ; relativesIterator_ != relativesIteratorEnd_ ; ++relativesIterator_ ) 
+	{
+	  const HepMC::GenParticle & genRelative = **relativesIterator_;
+	  if (abs(genRelative.pdg_id())>1000000)
+	    {
+	      hasExoticAssociation = true;
+	      break;
+	    }
+	}
+      if (!hasExoticAssociation) {continue;}
     }
 
     // particle must not decay before it reaches the beam pipe
