@@ -31,12 +31,15 @@ public:
   static void fillDescriptions(edm::ConfigurationDescriptions&);
 
   ReturnType produce(const PTrackerParametersRcd&);
+
+private:
+  edm::ESGetToken<cms::DDCompactView, IdealGeometryRecord> geomToken_;
 };
 
 TrackerParametersESProducer::TrackerParametersESProducer(const edm::ParameterSet&) {
   edm::LogInfo("TRACKER") << "TrackerParametersESProducer::TrackerParametersESProducer";
 
-  setWhatProduced(this);
+  setWhatProduced(this).setConsumes(geomToken_);
 }
 
 TrackerParametersESProducer::~TrackerParametersESProducer() {}
@@ -49,8 +52,7 @@ void TrackerParametersESProducer::fillDescriptions(edm::ConfigurationDescription
 TrackerParametersESProducer::ReturnType TrackerParametersESProducer::produce(const PTrackerParametersRcd& iRecord) {
   edm::LogInfo("TrackerParametersESProducer")
       << "TrackerParametersESProducer::produce(const PTrackerParametersRcd& iRecord)" << std::endl;
-  edm::ESTransientHandle<cms::DDCompactView> cpv;
-  iRecord.getRecord<IdealGeometryRecord>().get(cpv);
+  edm::ESTransientHandle<cms::DDCompactView> cpv = iRecord.getTransientHandle(geomToken_);
 
   auto ptp = std::make_unique<PTrackerParameters>();
   TrackerParametersFromDD builder;
