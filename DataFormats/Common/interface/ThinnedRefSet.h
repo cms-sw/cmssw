@@ -51,18 +51,25 @@ bool ExampleSelector::choose(unsigned int iIndex, Thing const& iItem) const {
 namespace edm {
   class EDProductGetter;
 
+  enum class ThinnedRefSetMode { throwOnInvalidParentRef, ignoreInvalidParentRef };
+
   template <typename C>
   class ThinnedRefSet {
   public:
     class Filler {
     public:
-      Filler(ThinnedRefSet<C>* set, RefProd<C> thinned, edm::EDProductGetter const& prodGetter)
+      explicit Filler(ThinnedRefSet<C>* set, RefProd<C> thinned, edm::EDProductGetter const& prodGetter)
           : set_(set), thinnedRefProd_(thinned), prodGetter_(prodGetter) {}
 
       template <typename T, typename F>
       void insert(Ref<C, T, F> const& ref) {
         if (ref.isNonnull()) {
-          auto thinnedRef = thinnedRefFrom(ref, thinnedRefProd_, prodGetter_);
+          Ref<C, T, F> thinnedRef;
+          if (set_->invalidParentRefMode_ == ThinnedRefSetMode::ignoreInvalidParentRef) {
+            thinnedRef = tryThinnedRefFrom(ref, thinnedRefProd_, prodGetter_);
+          } else {
+            thinnedRef = thinnedRefFrom(ref, thinnedRefProd_, prodGetter_);
+          }
           if (thinnedRef.isNonnull()) {
             set_->keys_.insert(thinnedRef.key());
           }
@@ -75,7 +82,8 @@ namespace edm {
       edm::EDProductGetter const& prodGetter_;
     };
 
-    ThinnedRefSet() = default;
+    explicit ThinnedRefSet(ThinnedRefSetMode mode = ThinnedRefSetMode::throwOnInvalidParentRef)
+        : invalidParentRefMode_(mode) {}
 
     Filler fill(RefProd<C> thinned, edm::EDProductGetter const& prodGetter) {
       return Filler(this, thinned, prodGetter);
@@ -87,6 +95,7 @@ namespace edm {
 
   private:
     std::unordered_set<unsigned int> keys_;
+    ThinnedRefSetMode invalidParentRefMode_;
   };
 }  // namespace edm
 

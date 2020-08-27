@@ -23,6 +23,18 @@ process.thingProducer = cms.EDProducer(
     detSets = cms.vint32(1,2,3)
 )
 
+process.anotherThingProducer = cms.EDProducer("DetSetVectorThingProducer",
+    offsetDelta = cms.int32(100),
+    nThings = cms.int32(50),
+    detSets = cms.vint32(1,2,3)
+)
+
+process.thirdThingProducer = cms.EDProducer("DetSetVectorThingProducer",
+    offsetDelta = cms.int32(100),
+    nThings = cms.int32(50),
+    detSets = cms.vint32(1,2,3)
+)
+
 process.trackOfThingsProducerA = cms.EDProducer("TrackOfDSVThingsProducer",
     inputTag = cms.InputTag('thingProducer'),
     keysToReference = cms.vuint32(
@@ -31,6 +43,26 @@ process.trackOfThingsProducerA = cms.EDProducer("TrackOfDSVThingsProducer",
         list(range(100,109))
     ),
     nTracks = cms.uint32(8*3)
+)
+
+process.trackOfAnotherThingsProducerA = cms.EDProducer("TrackOfDSVThingsProducer",
+    inputTag = cms.InputTag('anotherThingProducer'),
+    keysToReference = cms.vuint32(
+        list(range(0,5)) +
+        list(range(50,55)) +
+        list(range(100,105))
+    ),
+    nTracks = cms.uint32(4*3)
+)
+
+process.trackOfThirdThingsProducerA = cms.EDProducer("TrackOfDSVThingsProducer",
+    inputTag = cms.InputTag('thirdThingProducer'),
+    keysToReference = cms.vuint32(
+        list(range(0,3)) +
+        list(range(50,53)) +
+        list(range(100,103))
+    ),
+    nTracks = cms.uint32(2*3)
 )
 
 process.thinningThingProducerA = cms.EDProducer("ThinningDSVThingProducer",
@@ -46,6 +78,30 @@ process.slimmingThingProducerA = cms.EDProducer("SlimmingDSVThingProducer",
     offsetToThinnedKey = cms.uint32(0),
     expectedDetSets = cms.uint32(3),
     expectedDetSetSize = cms.uint32(50),
+)
+
+process.thinningAnotherThingProducerA = cms.EDProducer("ThinningDSVThingProducer",
+    inputTag = cms.InputTag('anotherThingProducer'),
+    trackTag = cms.InputTag('trackOfThingsProducerA'),
+    expectedDetSets = cms.uint32(3),
+    expectedDetSetSize = cms.uint32(50),
+    thinnedRefSetIgnoreInvalidParentRef = cms.bool(True),
+)
+
+process.thinningAnotherThingProducerA2 = cms.EDProducer("ThinningDSVThingProducer",
+    inputTag = cms.InputTag('thingProducer'),
+    trackTag = cms.InputTag('trackOfAnotherThingsProducerA'),
+    expectedDetSets = cms.uint32(3),
+    expectedDetSetSize = cms.uint32(50),
+    thinnedRefSetIgnoreInvalidParentRef = cms.bool(True),
+)
+
+process.thinningAnotherThingProducerA3 = cms.EDProducer("ThinningDSVThingProducer",
+    inputTag = cms.InputTag('anotherThingProducer'),
+    trackTag = cms.InputTag('trackOfThirdThingsProducerA'),
+    expectedDetSets = cms.uint32(3),
+    expectedDetSetSize = cms.uint32(50),
+    thinnedRefSetIgnoreInvalidParentRef = cms.bool(True),
 )
 
 process.testA = cms.EDAnalyzer("ThinningDSVTestAnalyzer",
@@ -105,6 +161,42 @@ process.slimmingTestA = cms.EDAnalyzer("ThinningDSVTestAnalyzer",
     )
 )
 
+process.anotherTestA = cms.EDAnalyzer("ThinningDSVTestAnalyzer",
+    parentTag = cms.InputTag('anotherThingProducer'),
+    thinnedTag = cms.InputTag('thinningAnotherThingProducerA'),
+    associationTag = cms.InputTag('thinningAnotherThingProducerA'),
+    trackTag = cms.InputTag('trackOfThingsProducerA'),
+    expectedParentContent = cms.VPSet(),
+    expectedThinnedContent = cms.VPSet(),
+    expectedIndexesIntoParent = cms.vuint32(),
+    expectedNumberOfTracks = cms.uint32(8*3),
+    expectedValues = cms.vint32()
+)
+
+process.anotherTestA2 = cms.EDAnalyzer("ThinningDSVTestAnalyzer",
+    parentTag = cms.InputTag('thingProducer'),
+    thinnedTag = cms.InputTag('thinningAnotherThingProducerA2'),
+    associationTag = cms.InputTag('thinningAnotherThingProducerA2'),
+    trackTag = cms.InputTag('trackOfAnotherThingsProducerA'),
+    expectedParentContent = cms.VPSet(),
+    expectedThinnedContent = cms.VPSet(),
+    expectedIndexesIntoParent = cms.vuint32(),
+    expectedNumberOfTracks = cms.uint32(4*3),
+    expectedValues = cms.vint32()
+)
+
+process.anotherTestA3 = cms.EDAnalyzer("ThinningDSVTestAnalyzer",
+    parentTag = cms.InputTag('anotherThingProducer'),
+    thinnedTag = cms.InputTag('thinningAnotherThingProducerA3'),
+    associationTag = cms.InputTag('thinningAnotherThingProducerA3'),
+    trackTag = cms.InputTag('trackOfThirdThingsProducerA'),
+    expectedParentContent = cms.VPSet(),
+    expectedThinnedContent = cms.VPSet(),
+    expectedIndexesIntoParent = cms.vuint32(),
+    expectedNumberOfTracks = cms.uint32(2*3),
+    expectedValues = cms.vint32()
+)
+
 process.out = cms.OutputModule("PoolOutputModule",
     fileName = cms.untracked.string('testDetSetVectorThinningTest1.root'),
     outputCommands = cms.untracked.vstring(
@@ -114,14 +206,23 @@ process.out = cms.OutputModule("PoolOutputModule",
     )
 )
 
-
 process.p = cms.Path(
     process.thingProducer
+    * process.anotherThingProducer
+    * process.thirdThingProducer
     * process.trackOfThingsProducerA
+    * process.trackOfAnotherThingsProducerA
+    * process.trackOfThirdThingsProducerA
     * process.thinningThingProducerA
     * process.slimmingThingProducerA
+    * process.thinningAnotherThingProducerA
+    * process.thinningAnotherThingProducerA2
+    * process.thinningAnotherThingProducerA3
     * process.testA
     * process.slimmingTestA
+    * process.anotherTestA
+    * process.anotherTestA2
+    * process.anotherTestA3
 )
 
 process.ep = cms.EndPath(
