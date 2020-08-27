@@ -1352,11 +1352,12 @@ namespace gainCalibHelper {
   /************************************************
    Summary Comparison per region of SiPixelGainCalibration between 2 IOVs
   *************************************************/
-  template <gainCalibPI::type myType, class PayloadType>
-  class SiPixelGainCalibrationByRegionComparisonBase : public cond::payloadInspector::PlotImage<PayloadType> {
+  template <gainCalibPI::type myType, class PayloadType, cond::payloadInspector::IOVMultiplicity nIOVs, int ntags>
+  class SiPixelGainCalibrationByRegionComparisonBase
+      : public cond::payloadInspector::PlotImage<PayloadType, nIOVs, ntags> {
   public:
     SiPixelGainCalibrationByRegionComparisonBase()
-        : cond::payloadInspector::PlotImage<PayloadType>(
+        : cond::payloadInspector::PlotImage<PayloadType, nIOVs, ntags>(
               Form("SiPixelGainCalibration %s Comparison by Region", TypeName[myType])) {
       if constexpr (std::is_same_v<PayloadType, SiPixelGainCalibrationOffline>) {
         isForHLT_ = false;
@@ -1366,18 +1367,27 @@ namespace gainCalibHelper {
         label_ = "SiPixelGainCalibrationForHLT_PayloadInspector";
       }
     }
-    bool fill(const std::vector<std::tuple<cond::Time_t, cond::Hash>>& iovs) override {
+
+    bool fill() override {
       gStyle->SetPaintTextFormat(".3f");
 
-      std::vector<std::tuple<cond::Time_t, cond::Hash>> sorted_iovs = iovs;
+      // trick to deal with the multi-ioved tag and two tag case at the same time
+      auto theIOVs = cond::payloadInspector::PlotBase::getTag<0>().iovs;
+      auto tagname1 = cond::payloadInspector::PlotBase::getTag<0>().name;
+      std::string tagname2 = "";
+      auto firstiov = theIOVs.front();
+      std::tuple<cond::Time_t, cond::Hash> lastiov;
 
-      // make absolute sure the IOVs are sortd by since
-      std::sort(begin(sorted_iovs), end(sorted_iovs), [](auto const& t1, auto const& t2) {
-        return std::get<0>(t1) < std::get<0>(t2);
-      });
+      // we don't support (yet) comparison with more than 2 tags
+      assert(this->m_plotAnnotations.ntags < 3);
 
-      auto firstiov = sorted_iovs.front();
-      auto lastiov = sorted_iovs.back();
+      if (this->m_plotAnnotations.ntags == 2) {
+        auto tag2iovs = cond::payloadInspector::PlotBase::getTag<1>().iovs;
+        tagname2 = cond::payloadInspector::PlotBase::getTag<1>().name;
+        lastiov = tag2iovs.front();
+      } else {
+        lastiov = theIOVs.back();
+      }
 
       std::shared_ptr<PayloadType> last_payload = this->fetchPayload(std::get<1>(lastiov));
       std::shared_ptr<PayloadType> first_payload = this->fetchPayload(std::get<1>(firstiov));
@@ -1565,16 +1575,26 @@ namespace gainCalibHelper {
       TLegend legend = TLegend(0.52, 0.80, 0.98, 0.9);
       legend.SetHeader(Form("#LT %s #GT value comparison", TypeName[myType]),
                        "C");  // option "C" allows to center the header
+
+      legend.SetHeader("#mu_{H} value comparison", "C");  // option "C" allows to center the header
+      std::string l_tagOrHash, f_tagOrHash;
+      if (this->m_plotAnnotations.ntags == 2) {
+        l_tagOrHash = tagname2;
+        f_tagOrHash = tagname1;
+      } else {
+        l_tagOrHash = std::get<1>(lastiov);
+        f_tagOrHash = std::get<1>(firstiov);
+      }
+
       legend.AddEntry(
           summaryLast.get(),
-          ("IOV: #scale[1.2]{" + std::to_string(std::get<0>(lastiov)) + "} | #color[4]{" + std::get<1>(lastiov) + "}")
-              .c_str(),
+          ("IOV: #scale[1.2]{" + std::to_string(std::get<0>(lastiov)) + "} | #color[4]{" + l_tagOrHash + "}").c_str(),
           "F");
       legend.AddEntry(
           summaryFirst.get(),
-          ("IOV: #scale[1.2]{" + std::to_string(std::get<0>(firstiov)) + "} | #color[2]{" + std::get<1>(firstiov) + "}")
-              .c_str(),
+          ("IOV: #scale[1.2]{" + std::to_string(std::get<0>(firstiov)) + "} | #color[2]{" + f_tagOrHash + "}").c_str(),
           "F");
+
       legend.SetTextSize(0.025);
       legend.Draw("same");
 
@@ -1586,26 +1606,6 @@ namespace gainCalibHelper {
   protected:
     bool isForHLT_;
     std::string label_;
-  };
-
-  template <gainCalibPI::type myType, class PayloadType>
-  class SiPixelGainCalibrationByRegionComparisonSingleTag
-      : public SiPixelGainCalibrationByRegionComparisonBase<myType, PayloadType> {
-  public:
-    SiPixelGainCalibrationByRegionComparisonSingleTag()
-        : SiPixelGainCalibrationByRegionComparisonBase<myType, PayloadType>() {
-      this->setSingleIov(false);
-    }
-  };
-
-  template <gainCalibPI::type myType, class PayloadType>
-  class SiPixelGainCalibrationByRegionComparisonTwoTags
-      : public SiPixelGainCalibrationByRegionComparisonBase<myType, PayloadType> {
-  public:
-    SiPixelGainCalibrationByRegionComparisonTwoTags()
-        : SiPixelGainCalibrationByRegionComparisonBase<myType, PayloadType>() {
-      this->setTwoTags(true);
-    }
   };
 }  // namespace gainCalibHelper
 

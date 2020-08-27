@@ -155,15 +155,6 @@ namespace {
       auto extrema = SiPixelPI::findMinMaxInMap(LAMap_);
 
       TCanvas canvas("Canv", "Canv", isBarrel ? 1400 : 1800, 1200);
-      /*
-      if (LAMap_.size() > SiPixelPI::phase1size) {
-        SiPixelPI::displayNotSupported(canvas, LAMap_.size());
-        std::string fileName(this->m_imageFileName);
-        canvas.SaveAs(fileName.c_str());
-        return false;
-      }
-      */
-
       canvas.cd();
 
       SiPixelPI::PhaseInfo phaseInfo(LAMap_.size());
@@ -246,7 +237,7 @@ namespace {
   public:
     SiPixelLorentzAngleValuesComparisonPerRegion()
         : cond::payloadInspector::PlotImage<SiPixelLorentzAngle, nIOVs, ntags>(
-              Form("SiPixelLorentzAngle Values Comparisons per region %i tags(s)", ntags)) {}
+              Form("SiPixelLorentzAngle Values Comparisons per region %i tag(s)", ntags)) {}
 
     bool fill() override {
       gStyle->SetOptStat("emr");
@@ -534,26 +525,37 @@ namespace {
    Summary Comparison per region of SiPixelLorentzAngle between 2 IOVs
   *************************************************/
   template <cond::payloadInspector::IOVMultiplicity nIOVs, int ntags>
-  class SiPixelLorentzAngleByRegionComparisonBase : public cond::payloadInspector::PlotImage<SiPixelLorentzAngle> {
+  class SiPixelLorentzAngleByRegionComparisonBase
+      : public cond::payloadInspector::PlotImage<SiPixelLorentzAngle, nIOVs, ntags> {
   public:
     SiPixelLorentzAngleByRegionComparisonBase()
-        : cond::payloadInspector::PlotImage<SiPixelLorentzAngle>("SiPixelLorentzAngle Comparison by Region") {}
-    bool fill(const std::vector<std::tuple<cond::Time_t, cond::Hash>> &iovs) override {
+        : cond::payloadInspector::PlotImage<SiPixelLorentzAngle, nIOVs, ntags>(
+              Form("SiPixelLorentzAngle Comparison by Region %i tag(s)", ntags)) {}
+
+    bool fill() override {
       gStyle->SetPaintTextFormat(".3f");
 
-      std::vector<std::tuple<cond::Time_t, cond::Hash>> sorted_iovs = iovs;
+      // trick to deal with the multi-ioved tag and two tag case at the same time
+      auto theIOVs = cond::payloadInspector::PlotBase::getTag<0>().iovs;
+      auto tagname1 = cond::payloadInspector::PlotBase::getTag<0>().name;
+      std::string tagname2 = "";
+      auto firstiov = theIOVs.front();
+      std::tuple<cond::Time_t, cond::Hash> lastiov;
 
-      // make absolute sure the IOVs are sortd by since
-      std::sort(begin(sorted_iovs), end(sorted_iovs), [](auto const &t1, auto const &t2) {
-        return std::get<0>(t1) < std::get<0>(t2);
-      });
+      // we don't support (yet) comparison with more than 2 tags
+      assert(this->m_plotAnnotations.ntags < 3);
 
-      auto firstiov = sorted_iovs.front();
-      auto lastiov = sorted_iovs.back();
+      if (this->m_plotAnnotations.ntags == 2) {
+        auto tag2iovs = cond::payloadInspector::PlotBase::getTag<1>().iovs;
+        tagname2 = cond::payloadInspector::PlotBase::getTag<1>().name;
+        lastiov = tag2iovs.front();
+      } else {
+        lastiov = theIOVs.back();
+      }
 
-      std::shared_ptr<SiPixelLorentzAngle> last_payload = fetchPayload(std::get<1>(lastiov));
+      std::shared_ptr<SiPixelLorentzAngle> last_payload = this->fetchPayload(std::get<1>(lastiov));
       std::map<uint32_t, float> l_LAMap_ = last_payload->getLorentzAngles();
-      std::shared_ptr<SiPixelLorentzAngle> first_payload = fetchPayload(std::get<1>(firstiov));
+      std::shared_ptr<SiPixelLorentzAngle> first_payload = this->fetchPayload(std::get<1>(firstiov));
       std::map<uint32_t, float> f_LAMap_ = first_payload->getLorentzAngles();
 
       std::string lastIOVsince = std::to_string(std::get<0>(lastiov));
@@ -711,36 +713,37 @@ namespace {
 
       TLegend legend = TLegend(0.52, 0.80, 0.98, 0.9);
       legend.SetHeader("#mu_{H} value comparison", "C");  // option "C" allows to center the header
+      std::string l_tagOrHash, f_tagOrHash;
+      if (this->m_plotAnnotations.ntags == 2) {
+        l_tagOrHash = tagname2;
+        f_tagOrHash = tagname1;
+      } else {
+        l_tagOrHash = std::get<1>(lastiov);
+        f_tagOrHash = std::get<1>(firstiov);
+      }
+
       legend.AddEntry(
           summaryLast.get(),
-          ("IOV: #scale[1.2]{" + std::to_string(std::get<0>(lastiov)) + "} | #color[4]{" + std::get<1>(lastiov) + "}")
-              .c_str(),
+          ("IOV: #scale[1.2]{" + std::to_string(std::get<0>(lastiov)) + "} | #color[4]{" + l_tagOrHash + "}").c_str(),
           "F");
       legend.AddEntry(
           summaryFirst.get(),
-          ("IOV: #scale[1.2]{" + std::to_string(std::get<0>(firstiov)) + "} | #color[2]{" + std::get<1>(firstiov) + "}")
-              .c_str(),
+          ("IOV: #scale[1.2]{" + std::to_string(std::get<0>(firstiov)) + "} | #color[2]{" + f_tagOrHash + "}").c_str(),
           "F");
+
       legend.SetTextSize(0.025);
       legend.Draw("same");
 
-      std::string fileName(m_imageFileName);
+      std::string fileName(this->m_imageFileName);
       canvas.SaveAs(fileName.c_str());
       return true;
     }
   };
 
-  class SiPixelLorentzAngleByRegionComparisonSingleTag : public SiPixelLorentzAngleByRegionComparisonBase {
-  public:
-    SiPixelLorentzAngleByRegionComparisonSingleTag() : SiPixelLorentzAngleByRegionComparisonBase() {
-      setSingleIov(false);
-    }
-  };
-
-  class SiPixelLorentzAngleByRegionComparisonTwoTags : public SiPixelLorentzAngleByRegionComparisonBase {
-  public:
-    SiPixelLorentzAngleByRegionComparisonTwoTags() : SiPixelLorentzAngleByRegionComparisonBase() { setTwoTags(true); }
-  };
+  using SiPixelLorentzAngleByRegionComparisonSingleTag =
+      SiPixelLorentzAngleByRegionComparisonBase<cond::payloadInspector::MULTI_IOV, 1>;
+  using SiPixelLorentzAngleByRegionComparisonTwoTags =
+      SiPixelLorentzAngleByRegionComparisonBase<cond::payloadInspector::SINGLE_IOV, 2>;
 
   /************************************************
    occupancy style map BPix
