@@ -1393,6 +1393,9 @@ namespace gainCalibHelper {
 
       TCanvas canvas("Comparison", "Comparison", 1600, 800);
 
+      SiPixelPI::PhaseInfo f_phaseInfo(f_GainsMap_.size());
+      SiPixelPI::PhaseInfo l_phaseInfo(l_GainsMap_.size());
+
       std::map<SiPixelPI::regions, std::shared_ptr<TH1F>> FirstGains_spectraByRegion;
       std::map<SiPixelPI::regions, std::shared_ptr<TH1F>> LastGains_spectraByRegion;
       std::shared_ptr<TH1F> summaryFirst;
@@ -1453,16 +1456,11 @@ namespace gainCalibHelper {
                                            0,
                                            LastGains_spectraByRegion.size());
 
-      const char* path_toTopologyXML = (f_GainsMap_.size() == SiPixelPI::phase0size)
-                                           ? "Geometry/TrackerCommonData/data/trackerParameters.xml"
-                                           : "Geometry/TrackerCommonData/data/PhaseI/trackerParameters.xml";
-      TrackerTopology f_tTopo =
-          StandaloneTrackerTopology::fromTrackerParametersXMLFile(edm::FileInPath(path_toTopologyXML).fullPath());
+      // deal with first IOV
+      const char* path_toTopologyXML = f_phaseInfo.pathToTopoXML();
 
-      bool isPhase0(false);
-      if (f_GainsMap_.size() == SiPixelPI::phase0size) {
-        isPhase0 = true;
-      }
+      auto f_tTopo =
+          StandaloneTrackerTopology::fromTrackerParametersXMLFile(edm::FileInPath(path_toTopologyXML).fullPath());
 
       // -------------------------------------------------------------------
       // loop on the first Gains Map
@@ -1476,21 +1474,17 @@ namespace gainCalibHelper {
         SiPixelPI::topolInfo t_info_fromXML;
         t_info_fromXML.init();
         DetId detid(it.first);
-        t_info_fromXML.fillGeometryInfo(detid, f_tTopo, isPhase0);
+        t_info_fromXML.fillGeometryInfo(detid, f_tTopo, f_phaseInfo.phase());
 
         SiPixelPI::regions thePart = t_info_fromXML.filterThePartition();
         FirstGains_spectraByRegion[thePart]->Fill(it.second);
       }  // ends loop on the vector of error transforms
 
-      path_toTopologyXML = (l_GainsMap_.size() == SiPixelPI::phase0size)
-                               ? "Geometry/TrackerCommonData/data/trackerParameters.xml"
-                               : "Geometry/TrackerCommonData/data/PhaseI/trackerParameters.xml";
-      TrackerTopology l_tTopo =
-          StandaloneTrackerTopology::fromTrackerParametersXMLFile(edm::FileInPath(path_toTopologyXML).fullPath());
+      // deal with last IOV
+      path_toTopologyXML = l_phaseInfo.pathToTopoXML();
 
-      if (l_GainsMap_.size() == SiPixelPI::phase0size) {
-        isPhase0 = true;
-      }
+      auto l_tTopo =
+          StandaloneTrackerTopology::fromTrackerParametersXMLFile(edm::FileInPath(path_toTopologyXML).fullPath());
 
       // -------------------------------------------------------------------
       // loop on the second Gains Map
@@ -1504,7 +1498,7 @@ namespace gainCalibHelper {
         SiPixelPI::topolInfo t_info_fromXML;
         t_info_fromXML.init();
         DetId detid(it.first);
-        t_info_fromXML.fillGeometryInfo(detid, l_tTopo, isPhase0);
+        t_info_fromXML.fillGeometryInfo(detid, l_tTopo, l_phaseInfo.phase());
 
         SiPixelPI::regions thePart = t_info_fromXML.filterThePartition();
         LastGains_spectraByRegion[thePart]->Fill(it.second);
