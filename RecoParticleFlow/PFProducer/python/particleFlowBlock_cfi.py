@@ -93,7 +93,9 @@ particleFlowBlock = cms.EDProducer(
                   linkType   = cms.string("TRACK:HCAL"),
                   useKDTree  = cms.bool(True),
                   trajectoryLayerEntrance = cms.string("HCALEntrance"),
-                  trajectoryLayerExit = cms.string("HCALExit")),
+                  trajectoryLayerExit = cms.string("HCALExit"),
+                  nMaxHcalLinksPerTrack = cms.int32(1) # the max hcal links per track (negative values: no restriction)
+        ),
         cms.PSet( linkerName = cms.string("TrackAndHOLinker"),
                   linkType   = cms.string("TRACK:HO"),
                   useKDTree  = cms.bool(False) ),

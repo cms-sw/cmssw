@@ -29,7 +29,7 @@ public:
   // all closest ecalClusters.
   void searchLinks() override;
 
-  // Here, we will store all PS/ECAL founded links in the PFBlockElement class
+  // Here, we will store all Track/ECAL founded links in the PFBlockElement class
   // of each psCluster in the PFmultilinks field.
   void updatePFBlockEltWithLinks() override;
 
@@ -45,7 +45,7 @@ private:
   RecHitSet rechitsSet_;
 
   // Map of linked Track/ECAL clusters.
-  BlockElt2BlockEltMap target2ClusterLinks_;
+  BlockElt2BlockEltMap cluster2TargetLinks_;
 
   // Map of the ECAL clusters associated to a rechit.
   RecHit2BlockEltMap rechit2ClusterLinks_;
@@ -204,7 +204,7 @@ void KDTreeLinkerTrackEcal::searchLinks() {
 
           // Check if the track and the cluster are linked
           if (deta < (_rhsizeeta / 2.) && dphi < (_rhsizephi / 2.))
-            target2ClusterLinks_[*it].insert(*clusterIt);
+            cluster2TargetLinks_[*clusterIt].insert(*it);
 
         } else {  // ENDCAP
 
@@ -231,7 +231,7 @@ void KDTreeLinkerTrackEcal::searchLinks() {
 
           // Check if the track and the cluster are linked
           if (isinside)
-            target2ClusterLinks_[*it].insert(*clusterIt);
+            cluster2TargetLinks_[*clusterIt].insert(*it);
         }
       }
     }
@@ -241,19 +241,26 @@ void KDTreeLinkerTrackEcal::searchLinks() {
 void KDTreeLinkerTrackEcal::updatePFBlockEltWithLinks() {
   //TODO YG : Check if cluster positionREP() is valid ?
 
-  // Here we save in each track the list of phi/eta values of linked clusters.
-  for (BlockElt2BlockEltMap::iterator it = target2ClusterLinks_.begin(); it != target2ClusterLinks_.end(); ++it) {
+  // Here we save in each ECAL cluster the list of phi/eta values of linked tracks.
+  for (BlockElt2BlockEltMap::iterator it = cluster2TargetLinks_.begin(); it != cluster2TargetLinks_.end(); ++it) {
     reco::PFMultiLinksTC multitracks(true);
 
     for (BlockEltSet::iterator jt = it->second.begin(); jt != it->second.end(); ++jt) {
-      double clusterphi = (*jt)->clusterRef()->positionREP().phi();
-      double clustereta = (*jt)->clusterRef()->positionREP().eta();
+      reco::PFRecTrackRef trackref = (*jt)->trackRefPF();
+      const reco::PFTrajectoryPoint &atECAL = trackref->extrapolatedPoint(reco::PFTrajectoryPoint::ECALShowerMax);
+      double tracketa = atECAL.positionREP().eta();
+      double trackphi = atECAL.positionREP().phi();
 
-      multitracks.linkedClusters.push_back(std::make_pair(clusterphi, clustereta));
+      multitracks.linkedClusters.push_back(std::make_pair(trackphi, tracketa));
     }
 
     it->first->setMultilinks(multitracks);
   }
+
+  // We set the multilinks flag of the track to true. It will allow us to
+  // use in an optimized way our algo results in the recursive linking algo.
+  for (BlockEltSet::iterator it = fieldClusterSet_.begin(); it != fieldClusterSet_.end(); ++it)
+    (*it)->setIsValidMultilinks(true);
 }
 
 void KDTreeLinkerTrackEcal::clear() {
@@ -263,7 +270,7 @@ void KDTreeLinkerTrackEcal::clear() {
   rechitsSet_.clear();
 
   rechit2ClusterLinks_.clear();
-  target2ClusterLinks_.clear();
+  cluster2TargetLinks_.clear();
 
   tree_.clear();
 }
