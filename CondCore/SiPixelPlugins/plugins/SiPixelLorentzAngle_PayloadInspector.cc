@@ -244,8 +244,8 @@ namespace {
 
       // trick to deal with the multi-ioved tag and two tag case at the same time
       auto theIOVs = cond::payloadInspector::PlotBase::getTag<0>().iovs;
-      auto tagname1 = cond::payloadInspector::PlotBase::getTag<0>().name;
-      std::string tagname2 = "";
+      auto f_tagname = cond::payloadInspector::PlotBase::getTag<0>().name;
+      std::string l_tagname = "";
       auto firstiov = theIOVs.front();
       std::tuple<cond::Time_t, cond::Hash> lastiov;
 
@@ -254,7 +254,7 @@ namespace {
 
       if (this->m_plotAnnotations.ntags == 2) {
         auto tag2iovs = cond::payloadInspector::PlotBase::getTag<1>().iovs;
-        tagname2 = cond::payloadInspector::PlotBase::getTag<1>().name;
+        l_tagname = cond::payloadInspector::PlotBase::getTag<1>().name;
         lastiov = tag2iovs.front();
       } else {
         lastiov = theIOVs.back();
@@ -338,8 +338,8 @@ namespace {
       std::unique_ptr<TLegend> legend;
       if (this->m_plotAnnotations.ntags == 2) {
         legend = std::make_unique<TLegend>(0.36, 0.86, 0.94, 0.92);
-        legend->AddEntry(l_myPlots.getHistoFromMap(colorTag).get(), ("#color[2]{" + tagname2 + "}").c_str(), "F");
-        legend->AddEntry(f_myPlots.getHistoFromMap(colorTag).get(), ("#color[4]{" + tagname1 + "}").c_str(), "F");
+        legend->AddEntry(l_myPlots.getHistoFromMap(colorTag).get(), ("#color[2]{" + l_tagname + "}").c_str(), "F");
+        legend->AddEntry(f_myPlots.getHistoFromMap(colorTag).get(), ("#color[4]{" + f_tagname + "}").c_str(), "F");
         legend->SetTextSize(0.024);
       } else {
         legend = std::make_unique<TLegend>(0.58, 0.80, 0.90, 0.92);
@@ -537,8 +537,8 @@ namespace {
 
       // trick to deal with the multi-ioved tag and two tag case at the same time
       auto theIOVs = cond::payloadInspector::PlotBase::getTag<0>().iovs;
-      auto tagname1 = cond::payloadInspector::PlotBase::getTag<0>().name;
-      std::string tagname2 = "";
+      auto f_tagname = cond::payloadInspector::PlotBase::getTag<0>().name;
+      std::string l_tagname = "";
       auto firstiov = theIOVs.front();
       std::tuple<cond::Time_t, cond::Hash> lastiov;
 
@@ -547,7 +547,7 @@ namespace {
 
       if (this->m_plotAnnotations.ntags == 2) {
         auto tag2iovs = cond::payloadInspector::PlotBase::getTag<1>().iovs;
-        tagname2 = cond::payloadInspector::PlotBase::getTag<1>().name;
+        l_tagname = cond::payloadInspector::PlotBase::getTag<1>().name;
         lastiov = tag2iovs.front();
       } else {
         lastiov = theIOVs.back();
@@ -715,8 +715,8 @@ namespace {
       legend.SetHeader("#mu_{H} value comparison", "C");  // option "C" allows to center the header
       std::string l_tagOrHash, f_tagOrHash;
       if (this->m_plotAnnotations.ntags == 2) {
-        l_tagOrHash = tagname2;
-        f_tagOrHash = tagname1;
+        l_tagOrHash = l_tagname;
+        f_tagOrHash = f_tagname;
       } else {
         l_tagOrHash = std::get<1>(lastiov);
         f_tagOrHash = std::get<1>(firstiov);
