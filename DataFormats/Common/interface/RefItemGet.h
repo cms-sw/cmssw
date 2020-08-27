@@ -137,7 +137,9 @@ namespace edm {
     if (std::holds_alternative<unsigned int>(thinnedKey)) {
       return Ref<C, T, F>(thinned, std::get<unsigned int>(thinnedKey));
     } else if (std::holds_alternative<detail::GetThinnedKeyFromExceptionFactory>(thinnedKey)) {
-      throw std::get<detail::GetThinnedKeyFromExceptionFactory>(thinnedKey)();
+      auto ex = std::get<detail::GetThinnedKeyFromExceptionFactory>(thinnedKey)();
+      ex.addContext("Calling edm::thinnedRefFrom()");
+      throw ex;
     }
 
     return Ref<C, T, F>();
