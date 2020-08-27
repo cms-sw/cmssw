@@ -27,8 +27,6 @@
 #include "DataFormats/Math/interface/GeantUnits.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-using namespace geant_units::operators;  // Reference system is Geant length unit (mm)
-
 /*
  *  Constructor from DD4Hep DDFilteredView, also using the SpecPars to access 2x2 wafers info.
  */
@@ -60,8 +58,6 @@ DetGeomDesc& DetGeomDesc::operator=(const DetGeomDesc& ref) {
 }
 
 DetGeomDesc::~DetGeomDesc() { deepDeleteComponents(); }
-
-DetGeomDesc::Container DetGeomDesc::components() const { return m_container; }
 
 void DetGeomDesc::addComponent(DetGeomDesc* det) { m_container.emplace_back(det); }
 

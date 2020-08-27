@@ -7,7 +7,7 @@
 /*
  * Generic function to build geo (tree of DetGeomDesc) from compact view.
  */
-namespace DetGeomDescBuilder {
+namespace detgeomdescbuilder {
   std::unique_ptr<DetGeomDesc> buildDetGeomDescFromCompactView(const cms::DDCompactView& myCompactView);
 }
 

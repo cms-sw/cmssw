@@ -1,15 +1,6 @@
-<use name="CondFormats/DataRecord"/>
-<use name="CondFormats/AlignmentRecord"/>
-<use name="CondFormats/GeometryObjects"/>
-<use name="DataFormats/DetId"/>
-<use name="DataFormats/CTPPSDetId"/>
-<use name="Geometry/TrackerNumberingBuilder"/>
 <use name="Geometry/VeryForwardGeometryBuilder"/>
-<use name="FWCore/ServiceRegistry"/>
 
 <library name="GeometryVeryForwardGeometryBuilderPlugins" file="*.cc">
-  <use name="DetectorDescription/DDCMS"/>
   <use name="dd4hep"/>
-  <lib name="Geom"/>
   <flags EDM_PLUGIN="1"/>
 </library>

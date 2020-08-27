@@ -7,7 +7,7 @@
 /*
  * Generic function to build geo (tree of DetGeomDesc) from compact view.
  */
-std::unique_ptr<DetGeomDesc> DetGeomDescBuilder::buildDetGeomDescFromCompactView(
+std::unique_ptr<DetGeomDesc> detgeomdescbuilder::buildDetGeomDescFromCompactView(
     const cms::DDCompactView& myCompactView) {
   // create DDFilteredView (no filter!!)
   const cms::DDDetector* mySystem = myCompactView.detector();

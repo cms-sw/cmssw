@@ -52,7 +52,7 @@ void PPSGeometryBuilder::analyze(const edm::Event& iEvent, const edm::EventSetup
     iSetup.get<IdealGeometryRecord>().get(compactViewTag_.c_str(), myCompactView);
   }
   // Build geometry
-  auto geoInfoSentinel = DetGeomDescBuilder::buildDetGeomDescFromCompactView(*myCompactView);
+  auto geoInfoSentinel = detgeomdescbuilder::buildDetGeomDescFromCompactView(*myCompactView);
 
   // Build persistent geometry data from geometry
   PDetGeomDesc* serializableData =

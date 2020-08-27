@@ -66,14 +66,14 @@ public:
   int copyno() const { return m_copy; }
 
   // placement info
-  Translation translation() const { return m_trans; }  // in mm
-  RotationMatrix rotation() const { return m_rot; }
+  const Translation& translation() const { return m_trans; }  // in mm
+  const RotationMatrix& rotation() const { return m_rot; }
 
   // shape info
   // params() is left for general access to solid shape parameters, but should be used
   // only with great care, for two reasons: 1. order of parameters may possibly change from
   // a version to another of DD4hep; 2. length parameters unit is cm while PPS uses mm.
-  std::vector<double> params() const { return m_params; }  // default unit from DD4hep (cm)
+  const std::vector<double>& params() const { return m_params; }  // default unit from DD4hep (cm)
   bool isABox() const { return m_isABox; }
   DiamondDimensions getDiamondDimensions() const;  // in mm
 
@@ -84,7 +84,7 @@ public:
   DetId geographicalID() const { return m_geographicalID; }
 
   // components (children) management
-  Container components() const;
+  const Container& components() const { return m_container; }
   float parentZPosition() const { return m_z; }  // in mm
   void addComponent(DetGeomDesc*);
   bool isLeaf() const { return m_container.empty(); }
