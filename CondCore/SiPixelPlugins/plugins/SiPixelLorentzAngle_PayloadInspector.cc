@@ -533,6 +533,7 @@ namespace {
   /************************************************
    Summary Comparison per region of SiPixelLorentzAngle between 2 IOVs
   *************************************************/
+  template <cond::payloadInspector::IOVMultiplicity nIOVs, int ntags>
   class SiPixelLorentzAngleByRegionComparisonBase : public cond::payloadInspector::PlotImage<SiPixelLorentzAngle> {
   public:
     SiPixelLorentzAngleByRegionComparisonBase()
@@ -562,15 +563,6 @@ namespace {
       SiPixelPI::PhaseInfo f_phaseInfo(f_LAMap_.size());
 
       TCanvas canvas("Comparison", "Comparison", 1600, 800);
-      /*
-      if (f_LAMap_.size() > SiPixelPI::phase1size || l_LAMap_.size() > SiPixelPI::phase1size) {
-        SiPixelPI::displayNotSupported(canvas, std::max(f_LAMap_.size(), l_LAMap_.size()));
-        std::string fileName(this->m_imageFileName);
-        canvas.SaveAs(fileName.c_str());
-        return false;
-      }
-      */
-
       std::map<SiPixelPI::regions, std::shared_ptr<TH1F>> FirstLA_spectraByRegion;
       std::map<SiPixelPI::regions, std::shared_ptr<TH1F>> LastLA_spectraByRegion;
       std::shared_ptr<TH1F> summaryFirst;
@@ -607,13 +599,8 @@ namespace {
       // deal with first IOV
       const char *path_toTopologyXML = f_phaseInfo.pathToTopoXML();
 
-      TrackerTopology f_tTopo =
+      auto f_tTopo =
           StandaloneTrackerTopology::fromTrackerParametersXMLFile(edm::FileInPath(path_toTopologyXML).fullPath());
-
-      bool isPhase0(false);
-      if (f_LAMap_.size() == SiPixelPI::phase0size) {
-        isPhase0 = true;
-      }
 
       // -------------------------------------------------------------------
       // loop on the first LA Map
@@ -628,7 +615,7 @@ namespace {
         SiPixelPI::topolInfo t_info_fromXML;
         t_info_fromXML.init();
         DetId detid(it.first);
-        t_info_fromXML.fillGeometryInfo(detid, f_tTopo, isPhase0);
+        t_info_fromXML.fillGeometryInfo(detid, f_tTopo, f_phaseInfo.phase());
 
         SiPixelPI::regions thePart = t_info_fromXML.filterThePartition();
         if (thePart != SiPixelPI::NUM_OF_REGIONS) {
@@ -639,12 +626,8 @@ namespace {
       // deal with last IOV
       path_toTopologyXML = l_phaseInfo.pathToTopoXML();
 
-      TrackerTopology l_tTopo =
+      auto l_tTopo =
           StandaloneTrackerTopology::fromTrackerParametersXMLFile(edm::FileInPath(path_toTopologyXML).fullPath());
-
-      if (l_LAMap_.size() == SiPixelPI::phase0size) {
-        isPhase0 = true;
-      }
 
       // -------------------------------------------------------------------
       // loop on the second LA Map
@@ -659,7 +642,7 @@ namespace {
         SiPixelPI::topolInfo t_info_fromXML;
         t_info_fromXML.init();
         DetId detid(it.first);
-        t_info_fromXML.fillGeometryInfo(detid, l_tTopo, isPhase0);
+        t_info_fromXML.fillGeometryInfo(detid, l_tTopo, l_phaseInfo.phase());
 
         SiPixelPI::regions thePart = t_info_fromXML.filterThePartition();
         if (thePart != SiPixelPI::NUM_OF_REGIONS) {

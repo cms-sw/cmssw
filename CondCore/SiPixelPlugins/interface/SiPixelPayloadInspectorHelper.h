@@ -659,10 +659,11 @@ namespace SiPixelPI {
     int m_side;
     int m_ring;
     bool m_isInternal;
+    SiPixelPI::phase* m_Phase;
 
   public:
     void init();
-    void fillGeometryInfo(const DetId& detId, const TrackerTopology& tTopo, bool isPhase0);
+    void fillGeometryInfo(const DetId& detId, const TrackerTopology& tTopo, const SiPixelPI::phase& ph);
     SiPixelPI::regions filterThePartition();
     bool sanityCheck();
     void printAll();
@@ -700,16 +701,18 @@ namespace SiPixelPI {
     }
   }
   /*--------------------------------------------------------------------*/
-  void topolInfo::fillGeometryInfo(const DetId& detId, const TrackerTopology& tTopo, bool isPhase0)
+  void topolInfo::fillGeometryInfo(const DetId& detId, const TrackerTopology& tTopo, const SiPixelPI::phase& ph)
   /*--------------------------------------------------------------------*/
   {
+    // set the phase
+    m_Phase = const_cast<SiPixelPI::phase*>(&ph);
     unsigned int subdetId = static_cast<unsigned int>(detId.subdetId());
 
     m_rawid = detId.rawId();
     m_subdetid = subdetId;
     if (subdetId == PixelSubdetector::PixelBarrel) {
       m_layer = tTopo.pxbLayer(detId.rawId());
-      m_isInternal = !SiPixelPI::isBPixOuterLadder(detId, tTopo, isPhase0);
+      m_isInternal = !SiPixelPI::isBPixOuterLadder(detId, tTopo, (ph == SiPixelPI::phase::zero));
     } else if (subdetId == PixelSubdetector::PixelEndcap) {
       m_layer = tTopo.pxfDisk(detId.rawId());
       m_side = tTopo.pxfSide(detId.rawId());
@@ -724,6 +727,10 @@ namespace SiPixelPI {
   /*--------------------------------------------------------------------*/
   {
     SiPixelPI::regions ret = SiPixelPI::NUM_OF_REGIONS;
+
+    if (m_Phase == nullptr) {
+      throw cms::Exception("LogicError") << "Cannot call filterThePartition BEFORE filling the geometry info!";
+    }
 
     // BPix
     if (m_subdetid == 1) {
@@ -757,7 +764,10 @@ namespace SiPixelPI {
           m_side > 1 ? ret = SiPixelPI::FPixpL3 : ret = SiPixelPI::FPixmL3;
           break;
         default:
-          edm::LogWarning("LogicError") << "Unknow FPix disk: " << m_layer;
+          if (*m_Phase < SiPixelPI::phase::two) {
+            // warning message only if the phase2 is < 2
+            edm::LogWarning("LogicError") << "Unknow FPix disk: " << m_layer;
+          }
           break;
       }
     }
