@@ -1,6 +1,8 @@
 #include "DataFormats/ParticleFlowReco/interface/PFCluster.h"
+#include "RecoParticleFlow/PFClusterTools/interface/LinkByRecHit.h"
 #include "RecoParticleFlow/PFProducer/interface/KDTreeLinkerBase.h"
 #include "CommonTools/RecoAlgos/interface/KDTreeLinkerAlgo.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 // This class is used to find all links between Tracks and HCAL clusters
 // using a KDTree algorithm.
@@ -27,7 +29,7 @@ public:
   // all closest hcalClusters.
   void searchLinks() override;
 
-  // Here, we will store all PS/HCAL founded links in the PFBlockElement class
+  // Here, we will store all Track/HCAL founded links in the PFBlockElement class
   // of each psCluster in the PFmultilinks field.
   void updatePFBlockEltWithLinks() override;
 
@@ -43,7 +45,7 @@ private:
   RecHitSet rechitsSet_;
 
   // Map of linked Track/HCAL clusters.
-  BlockElt2BlockEltMap cluster2TargetLinks_;
+  BlockElt2BlockEltMap target2ClusterLinks_;
 
   // Map of the HCAL clusters associated to a rechit.
   RecHit2BlockEltMap rechit2ClusterLinks_;
@@ -57,6 +59,18 @@ private:
   reco::PFTrajectoryPoint::LayerType trajectoryLayerEntrance_;
   reco::PFTrajectoryPoint::LayerType trajectoryLayerExit_;
   bool checkExit_;
+
+  // Hcal-track links
+  int nMaxHcalLinksPerTrack_;
+
+  template <typename T>
+  static std::vector<size_t> sort_indexes(const std::vector<T>& v) {
+    std::vector<size_t> idx(v.size());
+    for (size_t i = 0; i != idx.size(); ++i)
+      idx[i] = i;
+    std::sort(idx.begin(), idx.end(), [&v](size_t i1, size_t i2) { return v[i1] < v[i2]; });
+    return idx;
+  }
 };
 
 // the text name is different so that we can easily
@@ -66,7 +80,8 @@ DEFINE_EDM_PLUGIN(KDTreeLinkerFactory, KDTreeLinkerTrackHcal, "KDTreeTrackAndHCA
 KDTreeLinkerTrackHcal::KDTreeLinkerTrackHcal(const edm::ParameterSet& conf)
     : KDTreeLinkerBase(conf),
       trajectoryLayerEntranceString_(conf.getParameter<std::string>("trajectoryLayerEntrance")),
-      trajectoryLayerExitString_(conf.getParameter<std::string>("trajectoryLayerExit")) {
+      trajectoryLayerExitString_(conf.getParameter<std::string>("trajectoryLayerExit")),
+      nMaxHcalLinksPerTrack_(conf.getParameter<int>("nMaxHcalLinksPerTrack")) {
   // Initialization
   cristalPhiEtaMaxSize_ = 0.2;
   phiOffset_ = 0.32;
@@ -230,7 +245,7 @@ void KDTreeLinkerTrackHcal::searchLinks() {
 
         // Check if the track and the cluster are linked
         if (deta < (_rhsizeeta / 2.) && dphi < (_rhsizephi / 2.))
-          cluster2TargetLinks_[*clusterIt].insert(*it);
+          target2ClusterLinks_[*it].insert(*clusterIt);
       }
     }
   }
@@ -239,26 +254,82 @@ void KDTreeLinkerTrackHcal::searchLinks() {
 void KDTreeLinkerTrackHcal::updatePFBlockEltWithLinks() {
   //TODO YG : Check if cluster positionREP() is valid ?
 
-  // Here we save in each HCAL cluster the list of phi/eta values of linked clusters (actually tracks).
-  for (BlockElt2BlockEltMap::iterator it = cluster2TargetLinks_.begin(); it != cluster2TargetLinks_.end(); ++it) {
+  // Here we save in each track the list of phi/eta values of linked clusters.
+  for (BlockElt2BlockEltMap::iterator it = target2ClusterLinks_.begin(); it != target2ClusterLinks_.end(); ++it) {
     reco::PFMultiLinksTC multitracks(true);
 
-    for (BlockEltSet::iterator jt = it->second.begin(); jt != it->second.end(); ++jt) {
-      reco::PFRecTrackRef trackref = (*jt)->trackRefPF();
-      const reco::PFTrajectoryPoint& atHCAL = trackref->extrapolatedPoint(trajectoryLayerEntrance_);
-      double tracketa = atHCAL.positionREP().eta();
-      double trackphi = atHCAL.positionREP().phi();
+    // No restriction on the number of HCAL links per track. Fill all of them.
+    if (nMaxHcalLinksPerTrack_ < 0.) {
+      for (BlockEltSet::iterator jt = it->second.begin(); jt != it->second.end(); ++jt) {
+        double clusterphi = (*jt)->clusterRef()->positionREP().phi();
+        double clustereta = (*jt)->clusterRef()->positionREP().eta();
+        multitracks.linkedClusters.push_back(std::make_pair(clusterphi, clustereta));
+      }
 
-      multitracks.linkedClusters.push_back(std::make_pair(trackphi, tracketa));
+    }
+    // Store only the N closest HCAL links per track.
+    else {
+      // First fill the vector of distance. And then store only N closest HCAL cluster(s).
+
+      reco::PFRecTrackRef trackref = it->first->trackRefPF();
+      const reco::PFTrajectoryPoint& tkAtHCALEnt = trackref->extrapolatedPoint(trajectoryLayerEntrance_);
+      const reco::PFCluster::REPPoint& tkreppos = tkAtHCALEnt.positionREP();
+      // Check exit point
+      double dHEta = 0.;
+      double dHPhi = 0.;
+      double dRHCALEx = 0.;
+      if (checkExit_) {
+        const reco::PFTrajectoryPoint& tkAtHCALEx = trackref->extrapolatedPoint(trajectoryLayerExit_);
+        dHEta = (tkAtHCALEx.positionREP().Eta() - tkAtHCALEnt.positionREP().Eta());
+        dHPhi = reco::deltaPhi(tkAtHCALEx.positionREP().Phi(), tkAtHCALEnt.positionREP().Phi());
+        dRHCALEx = tkAtHCALEx.position().R();
+      }
+
+      std::vector<double> vDist;
+      double dist(-1.0);
+
+      BlockEltSet hcalEltSet = it->second;
+
+      // Fill the vector of distances between HCAL clusters and the track
+      for (BlockEltSet::iterator jt = hcalEltSet.begin(); jt != hcalEltSet.end(); ++jt) {
+        double clusterphi = (*jt)->clusterRef()->positionREP().phi();
+        double clustereta = (*jt)->clusterRef()->positionREP().eta();
+
+        // when checkExit_ is false
+        if (!checkExit_) {
+          dist = LinkByRecHit::computeDist(clustereta, clusterphi, tkreppos.Eta(), tkreppos.Phi());
+        }
+        // when checkExit_ is true
+        else {
+          //special case ! A looper  can exit the barrel inwards and hit the endcap
+          //In this case calculate the distance based on the first crossing since
+          //the looper will probably never make it to the endcap
+          if (dRHCALEx < tkAtHCALEnt.position().R()) {
+            dist = LinkByRecHit::computeDist(clustereta, clusterphi, tkreppos.Eta(), tkreppos.Phi());
+            edm::LogWarning("KDTreeLinkerTrackHcal ")
+                << "Special case of linking with track hitting HCAL and looping back in the tracker ";
+          } else {
+            dist = LinkByRecHit::computeDist(
+                clustereta, clusterphi, tkreppos.Eta() + 0.1 * dHEta, tkreppos.Phi() + 0.1 * dHPhi);
+          }
+        }  // checkExit_
+        vDist.push_back(dist);
+      }  // loop over hcalEltSet
+
+      // Fill multitracks
+      for (auto i : sort_indexes(vDist)) {
+        BlockEltSet::iterator jt = std::next(hcalEltSet.begin(), i);
+        double clusterphi = (*jt)->clusterRef()->positionREP().phi();
+        double clustereta = (*jt)->clusterRef()->positionREP().eta();
+        multitracks.linkedClusters.push_back(std::make_pair(clusterphi, clustereta));
+        if (multitracks.linkedClusters.size() >= (unsigned)nMaxHcalLinksPerTrack_)
+          break;
+      }
     }
 
+    // Store multitracks
     it->first->setMultilinks(multitracks);
   }
-
-  // We set the multilinks flag of the track to true. It will allow us to
-  // use in an optimized way our algo results in the recursive linking algo.
-  for (BlockEltSet::iterator it = fieldClusterSet_.begin(); it != fieldClusterSet_.end(); ++it)
-    (*it)->setIsValidMultilinks(true);
 }
 
 void KDTreeLinkerTrackHcal::clear() {
@@ -268,7 +339,7 @@ void KDTreeLinkerTrackHcal::clear() {
   rechitsSet_.clear();
 
   rechit2ClusterLinks_.clear();
-  cluster2TargetLinks_.clear();
+  target2ClusterLinks_.clear();
 
   tree_.clear();
 }
