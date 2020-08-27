@@ -43,7 +43,6 @@ private:
 
   Rivet::RivetAnalysis* rivetAnalysis_ = nullptr;
   std::unique_ptr<Rivet::AnalysisHandler> analysisHandler_;
-
 };
 
 #endif
