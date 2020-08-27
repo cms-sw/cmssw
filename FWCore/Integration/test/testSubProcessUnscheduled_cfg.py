@@ -21,7 +21,7 @@ process.four = cms.EDProducer("BusyWaitIntProducer", ivalue = cms.int32(4), iter
 # producer
 process.ten = cms.EDProducer("BusyWaitIntProducer", ivalue = cms.int32(10), iterations=cms.uint32(2*1000))
 
-process.adder = cms.EDProducer("AddIntsProducer", labels = cms.vstring('two','ten'))
+process.adder = cms.EDProducer("AddIntsProducer", labels = cms.VInputTag('two','ten'))
 
 process.task = cms.Task(process.two, process.four, process.ten, process.adder)
 
@@ -36,7 +36,7 @@ process.addSubProcess( cms.SubProcess(
 
 subprocess.options = cms.untracked.PSet( wantSummary = cms.untracked.bool(True))
 # module, reads products from 'adder' in the parent process
-subprocess.final = cms.EDProducer("AddIntsProducer", labels = cms.vstring('adder'))
+subprocess.final = cms.EDProducer("AddIntsProducer", labels = cms.VInputTag('adder'))
 
 subprocess.subpath = cms.Path( subprocess.final )
 
