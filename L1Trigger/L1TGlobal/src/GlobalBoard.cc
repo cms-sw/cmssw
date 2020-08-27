@@ -896,9 +896,10 @@ void l1t::GlobalBoard::runFDL(edm::Event& iEvent,
             temp_algPrescaledOr = true;
           }
         }  // require bit in range
-	else if (!alreadyReported) {
+        else if (!alreadyReported) {
           alreadyReported = true;
-          edm::LogWarning("L1TGlobal") << "\nWarning: algoBit >= prescaleFactorsAlgoTrig.size() in bx " << iBxInEvent << std::endl;
+          edm::LogWarning("L1TGlobal") << "\nWarning: algoBit >= prescaleFactorsAlgoTrig.size() in bx " << iBxInEvent
+                                       << std::endl;
         }
       }  //if algo bit is set true
     }    //loop over alg bits
@@ -928,7 +929,8 @@ void l1t::GlobalBoard::runFDL(edm::Event& iEvent,
           isMasked = (triggerMaskAlgoTrig.at(iBit) == 0);
         else if (!alreadyReported) {
           alreadyReported = true;
-          edm::LogWarning("L1TGlobal") << "\nWarning: algoBit >= triggerMaskAlgoTrig.size() in bx " << iBxInEvent << std::endl;
+          edm::LogWarning("L1TGlobal") << "\nWarning: algoBit >= triggerMaskAlgoTrig.size() in bx " << iBxInEvent
+                                       << std::endl;
         }
 
         bool passMask = (bitValue && !isMasked);
