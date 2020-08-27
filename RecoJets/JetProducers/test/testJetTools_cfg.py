@@ -89,6 +89,13 @@ process.load('RecoJets.JetProducers.QGTagger_cfi')
 patJetsAK4.userData.userFloats.src += ['QGTagger:qgLikelihood']
 process.out.outputCommands += ['keep *_QGTagger_*_*']
 
+#HF shower shape variables
+process.load('RecoJets.JetProducers.HFJetShowerShape_cfi')
+patJetsAK4.userData.userFloats.src += ['HFJetShowerShape:sigmaEtaEta','HFJetShowerShape:sigmaPhiPhi']
+patJetsAK4.userData.userInts.src += ['HFJetShowerShape:centralEtaStripSize','HFJetShowerShape:adjacentEtaStripsSize']
+process.out.outputCommands += ['keep *_HFJetShowerShape_*_*']
+
+
 #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 #Njettiness
 
