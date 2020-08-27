@@ -2,15 +2,15 @@
 
 #include "DQM/L1TMonitor/interface/L1TdeCSCTPG.h"
 
-L1TdeCSCTPG::L1TdeCSCTPG(const edm::ParameterSet& ps) :
-  dataALCT_token_(consumes<CSCALCTDigiCollection>(ps.getParameter<edm::InputTag>("dataALCT"))),
-  emulALCT_token_(consumes<CSCALCTDigiCollection>(ps.getParameter<edm::InputTag>("emulALCT"))),
-  dataCLCT_token_(consumes<CSCCLCTDigiCollection>(ps.getParameter<edm::InputTag>("dataCLCT"))),
-  emulCLCT_token_(consumes<CSCCLCTDigiCollection>(ps.getParameter<edm::InputTag>("emulCLCT"))),
-  dataLCT_token_(consumes<CSCCorrelatedLCTDigiCollection>(ps.getParameter<edm::InputTag>("dataLCT"))),
-  emulLCT_token_(consumes<CSCCorrelatedLCTDigiCollection>(ps.getParameter<edm::InputTag>("emulLCT"))),
-  monitorDir_(ps.getParameter<std::string>("monitorDir")),
-  verbose_(ps.getParameter<bool>("verbose")) {}
+L1TdeCSCTPG::L1TdeCSCTPG(const edm::ParameterSet& ps)
+    : dataALCT_token_(consumes<CSCALCTDigiCollection>(ps.getParameter<edm::InputTag>("dataALCT"))),
+      emulALCT_token_(consumes<CSCALCTDigiCollection>(ps.getParameter<edm::InputTag>("emulALCT"))),
+      dataCLCT_token_(consumes<CSCCLCTDigiCollection>(ps.getParameter<edm::InputTag>("dataCLCT"))),
+      emulCLCT_token_(consumes<CSCCLCTDigiCollection>(ps.getParameter<edm::InputTag>("emulCLCT"))),
+      dataLCT_token_(consumes<CSCCorrelatedLCTDigiCollection>(ps.getParameter<edm::InputTag>("dataLCT"))),
+      emulLCT_token_(consumes<CSCCorrelatedLCTDigiCollection>(ps.getParameter<edm::InputTag>("emulLCT"))),
+      monitorDir_(ps.getParameter<std::string>("monitorDir")),
+      verbose_(ps.getParameter<bool>("verbose")) {}
 
 L1TdeCSCTPG::~L1TdeCSCTPG() {}
 
