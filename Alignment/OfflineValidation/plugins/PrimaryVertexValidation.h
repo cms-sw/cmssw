@@ -136,7 +136,6 @@ private:
   inline double square(double x) { return x * x; }
 
   // ----------member data ---------------------------
-  edm::ParameterSet theConfig;
   int Nevt_;
 
   std::unique_ptr<TrackFilterForPVFindingBase> theTrackFilter_;
@@ -155,6 +154,7 @@ private:
   const edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> topoToken_;
   const edm::ESGetToken<RunInfo, RunInfoRcd> runInfoToken_;
 
+  const int compressionSettings_;  // determines the ROOT compression settings in TFileService
   bool storeNtuple_;
   bool lightNtupleSwitch_;  // switch to keep only info for daily validation
   bool useTracksFromRecoVtx_;

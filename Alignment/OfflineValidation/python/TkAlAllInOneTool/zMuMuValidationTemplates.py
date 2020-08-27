@@ -69,7 +69,15 @@ process.looper = cms.Looper(
 
     # Output settings
     # ---------------
+    # Use compressions settings of TFile
+    # see https://root.cern.ch/root/html534/TFile.html#TFile:SetCompressionSettings
+    # settings = 100 * algorithm + level
+    # level is from 1 (small) to 9 (large compression)
+    # algo: 1 (ZLIB), 2 (LMZA)
+    # see more about compression & performance: https://root.cern.ch/root/html534/guides/users-guide/InputOutput.html#compression-and-performance
+
     OutputFileName = cms.untracked.string("zmumuHisto.root"),
+    compressionSettings = cms.untracked.int32(compressionSettings), 
 
     # BiasType=0 means no bias to muon momenta
     # ----------------------------------------
