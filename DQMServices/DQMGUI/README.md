@@ -472,13 +472,37 @@ unzip python_packages.zip
 rm python_packages.zip
 ```
 
-Systemd configuration is located here: `/usr/lib/systemd/system/dqmgui.service`
+## systemd related configuration
 
-Service can be restarted like so: `sudo systemctl restart dqmgui`
+There are two systemd services running: `dqmgui.service` and `dqmgui-cleanup.service`. `dqmgui.service` launches `scripts/dqmbuibackend.sh` while the cleanup service laucnhes `scripts/dqmgui-cleanup.py`. The later process is responsible for two things:
 
-Systemd log can be viewd like so: `sudo journalctl -u dqmgui`
+* Cleaning up PB files of old (non current) runs
+* Detecting when `current_playback`/`current_production` symlinks change and restarting both services when that happens.
+  * The procedure of restarting both services is explained in a section bellow
 
-Systemd will run this script: `/data/dqmgui/start.sh` which will do `cmsenv` from whatever WorkingDirectory is, find the `dqmguibackend.sh` whether it's in a release or checked out, and run it with the same arguemnts that were passed in to itself.
+The scripts that systemd will run, will navigate to appropriate CMSSW release location (`/dqmdata/dqm_cmssw/current_playback/src/` or `/dqmdata/dqm_cmssw/current_production/src/`), do `cmsenv`, find the required script whether it's in a release or checked out, and run it by adding the arguemnts that were passed to itself.
+
+Systemd configuration is located here: 
+``` bash
+/usr/lib/systemd/system/dqmgui.service
+/usr/lib/systemd/system/dqmgui-cleanup.service
+```
+
+Services can be restarted like so: 
+``` bash
+sudo systemctl restart dqmgui 
+sudo systemctl restart dqmgui-cleanup
+```
+
+Systemd log can be viewd like so: 
+``` bash
+sudo journalctl -u dqmgui
+sudo journalctl -u dqmgui-cleanup
+```
+
+### How is GUI restarted when CMSSEW is updated?
+
+`dqmgui.service` uses `Requires` systemd option: `Requires=dqmgui-cleanup.service`. This means that whenever `dqmgui-cleanup.service` is exited, `dqmgui.service` is also exited and starting `dqmgui.service` also starts `dqmgui-cleanup.service`. Both services are configured to restart automatically. `dqmgui-cleanup.service` periodically checks if it's working directory is the same as `current_playback`/`currnet_production`. When it changes, `dqmgui-cleanup.service` just terminates causing `dqmgui.service` to terminate as well. And both services will be restarted by the systemd from an updated CMSSW release. The relationship is not bidirectional! Killing `dqmgui.service` doesn't kill `dqmgui-cleanup.service`!
 
 # TODO
 
