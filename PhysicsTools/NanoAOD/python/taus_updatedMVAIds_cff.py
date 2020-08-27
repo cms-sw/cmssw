@@ -548,6 +548,21 @@ slimmedTausUpdated.tauIDSources = _tauIDSourcesWithAntiE2018
 run2_miniAOD_devel.toModify(slimmedTausUpdated,
                             tauIDSources = _tauIDSourcesWithAntiE2015)
 
+## anti-electron in dead-ECal regions
+from RecoTauTag.RecoTau.patTauDiscriminationAgainstElectronDeadECAL_cfi import patTauDiscriminationAgainstElectronDeadECAL
+patTauDiscriminationAgainstElectronDeadECALForNano = patTauDiscriminationAgainstElectronDeadECAL.clone(
+    PATTauProducer = 'slimmedTaus',
+    Prediscriminants = noPrediscriminants
+)
+_patTauMVAIDsSeqWithAntiEdeadECal = patTauMVAIDsSeq.copy()
+_patTauMVAIDsSeqWithAntiEdeadECal += patTauDiscriminationAgainstElectronDeadECALForNano
+_tauIDSourcesWithAntiEdeadECal = cms.PSet(
+    slimmedTausUpdated.tauIDSources.clone(),
+    againstElectronDeadECALForNano = cms.InputTag("patTauDiscriminationAgainstElectronDeadECALForNano")
+)
+(~run2_miniAOD_devel).toReplaceWith(patTauMVAIDsSeq,_patTauMVAIDsSeqWithAntiEdeadECal)
+(~run2_miniAOD_devel).toModify(slimmedTausUpdated,
+                               tauIDSources = _tauIDSourcesWithAntiEdeadECal)
 
 
 patTauMVAIDsSeq += slimmedTausUpdated
