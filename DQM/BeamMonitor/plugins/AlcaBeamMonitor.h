@@ -4,7 +4,7 @@
 /** \class AlcaBeamMonitor
  * *
  *  \author  Lorenzo Uplegger/FNAL
- *   
+ *   modified by Simone Gennai INFN/Bicocca
  */
 // C++
 #include <map>
@@ -24,7 +24,9 @@
 class BeamFitter;
 class PVFitter;
 
-class AlcaBeamMonitor : public DQMOneLumiEDAnalyzer<> {
+struct NoCache {};
+
+class AlcaBeamMonitor : public DQMOneEDAnalyzer<edm::LuminosityBlockCache<NoCache>> {
 public:
   AlcaBeamMonitor(const edm::ParameterSet&);
   ~AlcaBeamMonitor() override;
@@ -32,9 +34,10 @@ public:
 protected:
   void bookHistograms(DQMStore::IBooker&, edm::Run const&, edm::EventSetup const&) override;
   void analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) override;
-  void dqmBeginLuminosityBlock(const edm::LuminosityBlock& iLumi, const edm::EventSetup& iSetup) override;
-  void dqmEndLuminosityBlock(const edm::LuminosityBlock& iLumi, const edm::EventSetup& iSetup) override;
-
+  std::shared_ptr<NoCache> globalBeginLuminosityBlock(const edm::LuminosityBlock& iLumi, const edm::EventSetup& iSetup) const override;
+  void globalEndLuminosityBlock(const edm::LuminosityBlock& iLumi, const edm::EventSetup& iSetup) override;
+  void dqmEndRun(edm::Run const&, edm::EventSetup const&) override;
+  
 private:
   //Typedefs
   //                BF,BS...
@@ -56,19 +59,21 @@ private:
   int numberOfValuesToSave_;
   BeamFitter* theBeamFitter_;
   PVFitter* thePVFitter_;
+  mutable int numberOfProcessedLumis_;
+  mutable std::vector<int> processedLumis_;
 
   // MonitorElements:
   MonitorElement* hD0Phi0_;
   MonitorElement* hDxyBS_;
-  MonitorElement* theValuesContainer_;
+  //mutable MonitorElement* theValuesContainer_;
 
   //Containers
-  BeamSpotContainer beamSpotsMap_;
+  mutable BeamSpotContainer beamSpotsMap_;
   HistosContainer histosMap_;
   PositionContainer positionsMap_;
   std::vector<std::string> varNamesV_;                            //x,y,z,sigmax(y,z)
   std::multimap<std::string, std::string> histoByCategoryNames_;  //run, lumi
-  std::vector<reco::VertexCollection> vertices_;
+  mutable std::vector<reco::VertexCollection> vertices_;
 };
 
 #endif
