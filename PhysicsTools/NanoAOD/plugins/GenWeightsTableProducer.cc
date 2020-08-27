@@ -251,6 +251,7 @@ public:
         namedWeightLabels_(params.getParameter<std::vector<std::string>>("namedWeightLabels")),
         lheWeightPrecision_(params.getParameter<int32_t>("lheWeightPrecision")),
         maxPdfWeights_(params.getParameter<uint32_t>("maxPdfWeights")),
+        keepAllPSWeights_(params.getParameter<bool>("keepAllPSWeights")),
         debug_(params.getUntrackedParameter<bool>("debug", false)),
         debugRun_(debug_.load()),
         hasIssuedWarning_(false) {
@@ -385,20 +386,30 @@ public:
         wNamed[mNamed - namedWeightIDs_.begin()] = weight.wgt / w0;
     }
 
-    int vectorSize = (genProd.weights().size() == 14 || genProd.weights().size() == 46) ? 4 : 1;
+    std::size_t vectorSize = (genProd.weights().size() > 2) ? (keepAllPSWeights_ ? (genProd.weights().size() - 2) : ((genProd.weights().size() == 14 || genProd.weights().size() == 46) ? 4 : 1)) : 1;
     std::vector<double> wPS(vectorSize, 1);
+    std::string psWeightDocStr;
     if (vectorSize > 1) {
       double nominal = genProd.weights()[1];  // Called 'Baseline' in GenLumiInfoHeader
-      for (unsigned int i = 6; i < 10; i++) {
-        wPS[i - 6] = (genProd.weights()[i]) / nominal;
+      if (keepAllPSWeights_) {
+        for (std::size_t i = 2; i < vectorSize; i++) {
+          wPS[i] = (genProd.weights()[i]) / nominal;
+        }
+        psWeightDocStr = "All PS weights (w_var / w_nominal)";
+      } else {
+        for (std::size_t i = 6; i < 10; i++) {
+          wPS[i - 6] = (genProd.weights()[i]) / nominal;
+        }
+        psWeightDocStr = "PS weights (w_var / w_nominal); [0] is ISR=0.5 FSR=1; [1] is ISR=1 "
+                         "FSR=0.5; [2] is ISR=2 FSR=1; [3] is ISR=1 FSR=2 ";
       }
+    } else {
+      psWeightDocStr = "dummy PS weight (1.0) ";
     }
     outPS.reset(new nanoaod::FlatTable(wPS.size(), "PSWeight", false));
     outPS->addColumn<float>("",
                             wPS,
-                            vectorSize > 1 ? "PS weights (w_var / w_nominal); [0] is ISR=0.5 FSR=1; [1] is ISR=1 "
-                                             "FSR=0.5; [2] is ISR=2 FSR=1; [3] is ISR=1 FSR=2 "
-                                           : "dummy PS weight (1.0) ",
+                            psWeightDocStr,
                             lheWeightPrecision_);
 
     outScale.reset(new nanoaod::FlatTable(wScale.size(), "LHEScaleWeight", false));
@@ -446,10 +457,18 @@ public:
       wPDF.push_back(weights.at(id) / w0);
     }
     if (!psWeightIDs.empty()) {
-      for (auto id : psWeightIDs)
-        wPS.push_back((weights.at(id)) / w0);
+      double psNom = weights.at(psWeightIDs.at(0)); // normalise PS weights by "Baseline", which should be the first entry
+      for (std::size_t i = 1; i < psWeightIDs.size(); i++)
+        wPS.push_back(weights.at(psWeightIDs.at(i)) / psNom);
     } else
       wPS.push_back(1.0);
+    std::string psWeightDocStr;
+    if (keepAllPSWeights_) {
+      psWeightDocStr = "All PS weights (w_var / w_nominal)";
+    } else {
+      psWeightDocStr = "PS weights (w_var / w_nominal); [0] is ISR=0.5 FSR=1; [1] is ISR=1 "
+                       "FSR=0.5; [2] is ISR=2 FSR=1; [3] is ISR=1 FSR=2 ";
+    }
 
     outScale.reset(new nanoaod::FlatTable(wScale.size(), "LHEScaleWeight", false));
     outScale->addColumn<float>("", wScale, weightChoice->scaleWeightsDoc, lheWeightPrecision_);
@@ -460,9 +479,7 @@ public:
     outPS.reset(new nanoaod::FlatTable(wPS.size(), "PSWeight", false));
     outPS->addColumn<float>("",
                             wPS,
-                            wPS.size() > 1 ? "PS weights (w_var / w_nominal); [0] is ISR=0.5 FSR=1; [1] is ISR=1 "
-                                             "FSR=0.5; [2] is ISR=2 FSR=1; [3] is ISR=1 FSR=2 "
-                                           : "dummy PS weight (1.0) ",
+                            wPS.size() > 1 ? psWeightDocStr : "dummy PS weight (1.0) ",
                             lheWeightPrecision_);
 
     outNamed.reset(new nanoaod::FlatTable(1, "LHEWeight", true));
@@ -478,22 +495,30 @@ public:
                              double genWeight,
                              const GenEventInfoProduct& genProd,
                              std::unique_ptr<nanoaod::FlatTable>& outPS) const {
-    int vectorSize = (genProd.weights().size() == 14 || genProd.weights().size() == 46) ? 4 : 1;
-
+    std::size_t vectorSize = (genProd.weights().size() > 2) ? (keepAllPSWeights_ ? (genProd.weights().size() - 2) : ((genProd.weights().size() == 14 || genProd.weights().size() == 46) ? 4 : 1)) : 1;
     std::vector<double> wPS(vectorSize, 1);
+    std::string psWeightDocStr;
     if (vectorSize > 1) {
       double nominal = genProd.weights()[1];  // Called 'Baseline' in GenLumiInfoHeader
-      for (unsigned int i = 6; i < 10; i++) {
-        wPS[i - 6] = (genProd.weights()[i]) / nominal;
+      if (keepAllPSWeights_) {
+        for (std::size_t i = 2; i < vectorSize; i++) {
+          wPS[i] = (genProd.weights()[i]) / nominal;
+        }
+        psWeightDocStr = "All PS weights (w_var / w_nominal)";
+      } else {
+        for (std::size_t i = 6; i < 10; i++) {
+          wPS[i - 6] = (genProd.weights()[i]) / nominal;
+        }
+        psWeightDocStr = "PS weights (w_var / w_nominal); [0] is ISR=0.5 FSR=1; [1] is ISR=1 "
+                         "FSR=0.5; [2] is ISR=2 FSR=1; [3] is ISR=1 FSR=2 ";
       }
+    } else {
+      psWeightDocStr = "dummy PS weight (1.0) ";
     }
-
     outPS.reset(new nanoaod::FlatTable(wPS.size(), "PSWeight", false));
     outPS->addColumn<float>("",
                             wPS,
-                            vectorSize > 1 ? "PS weights (w_var / w_nominal); [0] is ISR=0.5 FSR=1; [1] is ISR=1 "
-                                             "FSR=0.5; [2] is ISR=2 FSR=1; [3] is ISR=1 FSR=2 "
-                                           : "dummy PS weight (1.0) ",
+                            psWeightDocStr,
                             lheWeightPrecision_);
 
     counter->incGenOnly(genWeight);
@@ -899,9 +924,10 @@ public:
             } else
               pdfSetWeightIDs.back().add(id, std::atoi(id.c_str()));
           }
-        } else if (line.find("isrDef") != std::string::npos ||
-                   line.find("fsrDef") != std::string::npos) {  // PS variation
-          weightChoice->psWeightIDs.push_back(weightIter);
+        } else if (line.find("Baseline") != std::string::npos || line.find("isr") != std::string::npos || line.find("fsr") != std::string::npos) {
+          if (keepAllPSWeights_ || line.find("Def") != std::string::npos) {
+            weightChoice->psWeightIDs.push_back(weightIter); // PS variations
+          }
         }
         weightIter++;
       }
@@ -1035,6 +1061,7 @@ public:
         ->setComment("output names for the namedWeightIDs (in the same order)");
     desc.add<int32_t>("lheWeightPrecision")->setComment("Number of bits in the mantissa for LHE weights");
     desc.add<uint32_t>("maxPdfWeights")->setComment("Maximum number of PDF weights to save (to crop NN replicas)");
+    desc.add<bool>("keepAllPSWeights")->setComment("Store all PS weights found");
     desc.addOptionalUntracked<bool>("debug")->setComment("dump out all LHE information for one event");
     descriptions.add("genWeightsTable", desc);
   }
@@ -1052,6 +1079,7 @@ protected:
   std::vector<std::string> namedWeightLabels_;
   int lheWeightPrecision_;
   unsigned int maxPdfWeights_;
+  bool keepAllPSWeights_;
 
   mutable std::atomic<bool> debug_, debugRun_, hasIssuedWarning_;
 };
