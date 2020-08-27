@@ -34,18 +34,19 @@ public:
 protected:
   void bookHistograms(DQMStore::IBooker&, edm::Run const&, edm::EventSetup const&) override;
   void analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) override;
-  std::shared_ptr<NoCache> globalBeginLuminosityBlock(const edm::LuminosityBlock& iLumi, const edm::EventSetup& iSetup) const override;
+  std::shared_ptr<NoCache> globalBeginLuminosityBlock(const edm::LuminosityBlock& iLumi, 
+                                                      const edm::EventSetup& iSetup) const override;
   void globalEndLuminosityBlock(const edm::LuminosityBlock& iLumi, const edm::EventSetup& iSetup) override;
   void dqmEndRun(edm::Run const&, edm::EventSetup const&) override;
-  
+
 private:
   //Typedefs
   //                BF,BS...
   typedef std::map<std::string, reco::BeamSpot> BeamSpotContainer;
   //                x,y,z,sigmax(y,z)... [run,lumi]          Histo name
-  typedef std::map<std::string, std::map<std::string, std::map<std::string, MonitorElement*> > > HistosContainer;
+  typedef std::map<std::string, std::map<std::string, std::map<std::string, MonitorElement*>>> HistosContainer;
   //                x,y,z,sigmax(y,z)... [run,lumi]          Histo name
-  typedef std::map<std::string, std::map<std::string, std::map<std::string, int> > > PositionContainer;
+  typedef std::map<std::string, std::map<std::string, std::map<std::string, int>>> PositionContainer;
 
   //Parameters
   edm::ParameterSet parameters_;
