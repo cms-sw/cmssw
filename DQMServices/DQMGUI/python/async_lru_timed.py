@@ -89,7 +89,7 @@ def alru_cache_timed(
         async def wrapped(*fn_args, **fn_kwargs):
             # If notOlderThan is not provided or None, use default timestamp delta:
             # utcnow() - DEFAULT_NOT_OLDER_THAN_SECONDS_DELTA
-            notOlderThan = fn_kwargs.pop('notOlderThan', None)
+            notOlderThan = fn_kwargs.get('notOlderThan', None)
             notOlderThan = int(notOlderThan) if notOlderThan else None
             if not notOlderThan:
                 notOlderThan = int(datetime.utcnow().timestamp()) - DEFAULT_NOT_OLDER_THAN_SECONDS_DELTA
@@ -128,7 +128,7 @@ def alru_cache_timed(
                     event_result_ex_time[2] = e
                     # Even with cache_exceptions=False, we don't retry for
                     # requests that happened *in parallel* to the first one.
-                    # Only once the initial taks has failed, the next request
+                    # Only once the initial task has failed, the next request
                     # will not hit the cache.
                     if cache_exceptions == False:
                         _cache_invalidate(wrapped, typed, *fn_args, **fn_kwargs)

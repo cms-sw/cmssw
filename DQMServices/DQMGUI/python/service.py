@@ -56,8 +56,8 @@ class GUIService:
             path = path + '/'
         
         # Get a list of all MEs and their infos
-        me_names = await cls.__get_me_names_list(dataset, run, lumi, notOlderThan)
-        me_infos = await cls.__get_me_infos_list(dataset, run, lumi, notOlderThan)
+        me_names = await cls.__get_me_names_list(dataset, run, lumi, notOlderThan=notOlderThan)
+        me_infos = await cls.__get_me_infos_list(dataset, run, lumi, notOlderThan=notOlderThan)
         if not me_names or not me_infos:
             return None
 
@@ -274,14 +274,14 @@ class GUIService:
     async def __get_filename_fileformat_names_infos(cls, dataset, run, lumi=0, notOlderThan=None):
         filename_fileformat_names_infos = await cls.store.get_filename_fileformat_names_infos(dataset, run, lumi)
 
-        if filename_fileformat_names_infos == None:
+        if not all(filename_fileformat_names_infos):
             # Import and retry
             success = await cls.import_manager.import_blobs(dataset, run, lumi)
             if success:
                 # Retry
                 filename_fileformat_names_infos = await cls.store.get_filename_fileformat_names_infos(dataset, run, lumi)
 
-        if filename_fileformat_names_infos:
+        if all(filename_fileformat_names_infos):
             filename, fileformat, names_list, infos_list = filename_fileformat_names_infos
             return (filename, fileformat, names_list, infos_list)
         else:
