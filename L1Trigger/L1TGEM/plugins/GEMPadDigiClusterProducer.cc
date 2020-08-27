@@ -192,12 +192,6 @@ void GEMPadDigiClusterProducer::buildClusters(const GEMPadDigiCollection& det_pa
     if (part->isME0())
       continue;
 
-    // number of eta partitions
-    auto nPart = GEMPadDigiCluster::NumberPartitions::GE11;
-    if (part->isGE21()) {
-      nPart = GEMPadDigiCluster::NumberPartitions::GE21;
-    }
-
     GEMPadDigiClusters all_pad_clusters;
 
     auto pads = det_pads.get(part->id());
