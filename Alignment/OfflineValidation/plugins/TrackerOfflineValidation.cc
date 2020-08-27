@@ -326,6 +326,7 @@ private:
   std::unique_ptr<AlignableTracker> alignableTracker_;
 
   // parameters from cfg to steer
+  const int compressionSettings_;
   const bool lCoorHistOn_;
   const bool moduleLevelHistsTransient_;
   const bool moduleLevelProfiles_;
@@ -470,6 +471,7 @@ TH1* TrackerOfflineValidation::DirectoryWrapper::make<TH2F>(const char* name,
 TrackerOfflineValidation::TrackerOfflineValidation(const edm::ParameterSet& iConfig)
     : parSet_(iConfig),
       bareTkGeomPtr_(nullptr),
+      compressionSettings_(parSet_.getUntrackedParameter<int>("compressionSettings", -1)),
       lCoorHistOn_(parSet_.getParameter<bool>("localCoorHistosOn")),
       moduleLevelHistsTransient_(parSet_.getParameter<bool>("moduleLevelHistsTransient")),
       moduleLevelProfiles_(parSet_.getParameter<bool>("moduleLevelProfiles")),
@@ -1368,6 +1370,10 @@ void TrackerOfflineValidation::endJob() {
   // In dqmMode tree operations are are sourced out to the additional module TrackerOfflineValidationSummary
 
   edm::Service<TFileService> fs;
+  if (compressionSettings_ > 0) {
+    fs->file().SetCompressionSettings(compressionSettings_);
+  }
+
   TTree* tree = fs->make<TTree>("TkOffVal", "TkOffVal");
 
   TkOffTreeVariables* treeMemPtr = new TkOffTreeVariables;
