@@ -258,6 +258,10 @@ namespace edmtest {
           << "unexpected Track size " << trackCollection->size() << " expected " << expectedNumberOfTracks_;
     }
 
+    if (expectedValues_.empty()) {
+      return;
+    }
+
     int eventOffset = (static_cast<int>(event.eventAuxiliary().event()) - 1) * 100;
 
     std::vector<int>::const_iterator expectedValue = expectedValues_.begin();

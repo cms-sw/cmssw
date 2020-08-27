@@ -41,6 +41,9 @@ namespace edmtest {
 
   ThinningDSVThingSelector::ThinningDSVThingSelector(edm::ParameterSet const& pset, edm::ConsumesCollector&& cc)
       : trackToken_(cc.consumes<TrackOfDSVThingsCollection>(pset.getParameter<edm::InputTag>("trackTag"))),
+        keysToSave_(pset.getParameter<bool>("thinnedRefSetIgnoreInvalidParentRef")
+                        ? edm::ThinnedRefSetMode::ignoreInvalidParentRef
+                        : edm::ThinnedRefSetMode::throwOnInvalidParentRef),
         offsetToValue_(pset.getParameter<unsigned int>("offsetToValue")),
         expectedDetSets_(pset.getParameter<unsigned int>("expectedDetSets")),
         expectedDetSetSize_(pset.getParameter<unsigned int>("expectedDetSetSize")),
@@ -52,6 +55,7 @@ namespace edmtest {
     desc.add<unsigned int>("expectedDetSets");
     desc.add<unsigned int>("expectedDetSetSize");
     desc.add<int>("slimmedValueFactor", 1);
+    desc.add<bool>("thinnedRefSetIgnoreInvalidParentRef", false);
   }
 
   void ThinningDSVThingSelector::preChoose(edm::Handle<edmNew::DetSetVector<Thing>> tc,

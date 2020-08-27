@@ -393,7 +393,12 @@ namespace edm {
         BranchID thinned,
         ThinnedAssociationsHelper const& thinnedAssociationsHelper,
         F&& getThinnedAssociation) {
-      if (thinnedAssociationsHelper.parentBegin(parent) == thinnedAssociationsHelper.parentEnd(parent)) {
+      // need to explicitly check for equality of parent BranchID,
+      // because ThinnedAssociationsHelper::parentBegin() uses
+      // std::lower_bound() that returns a valid iterator in case the
+      // parent is not found
+      if (auto iParent = thinnedAssociationsHelper.parentBegin(parent);
+          iParent == thinnedAssociationsHelper.parentEnd(parent) or iParent->parent() != parent) {
         return [parentID]() {
           return Exception(errors::InvalidReference)
                  << "Parent collection with ProductID " << parentID << " has not been thinned";
