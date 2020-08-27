@@ -558,13 +558,18 @@ namespace {
       std::string lastIOVsince = std::to_string(std::get<0>(lastiov));
       std::string firstIOVsince = std::to_string(std::get<0>(firstiov));
 
+      SiPixelPI::PhaseInfo l_phaseInfo(l_LAMap_.size());
+      SiPixelPI::PhaseInfo f_phaseInfo(f_LAMap_.size());
+
       TCanvas canvas("Comparison", "Comparison", 1600, 800);
+      /*
       if (f_LAMap_.size() > SiPixelPI::phase1size || l_LAMap_.size() > SiPixelPI::phase1size) {
         SiPixelPI::displayNotSupported(canvas, std::max(f_LAMap_.size(), l_LAMap_.size()));
         std::string fileName(this->m_imageFileName);
         canvas.SaveAs(fileName.c_str());
         return false;
       }
+      */
 
       std::map<SiPixelPI::regions, std::shared_ptr<TH1F>> FirstLA_spectraByRegion;
       std::map<SiPixelPI::regions, std::shared_ptr<TH1F>> LastLA_spectraByRegion;
@@ -599,9 +604,9 @@ namespace {
                                            0,
                                            LastLA_spectraByRegion.size());
 
-      const char *path_toTopologyXML = (f_LAMap_.size() == SiPixelPI::phase0size)
-                                           ? "Geometry/TrackerCommonData/data/trackerParameters.xml"
-                                           : "Geometry/TrackerCommonData/data/PhaseI/trackerParameters.xml";
+      // deal with first IOV
+      const char *path_toTopologyXML = f_phaseInfo.pathToTopoXML();
+
       TrackerTopology f_tTopo =
           StandaloneTrackerTopology::fromTrackerParametersXMLFile(edm::FileInPath(path_toTopologyXML).fullPath());
 
@@ -626,12 +631,14 @@ namespace {
         t_info_fromXML.fillGeometryInfo(detid, f_tTopo, isPhase0);
 
         SiPixelPI::regions thePart = t_info_fromXML.filterThePartition();
-        FirstLA_spectraByRegion[thePart]->Fill(it.second);
+        if (thePart != SiPixelPI::NUM_OF_REGIONS) {
+          FirstLA_spectraByRegion[thePart]->Fill(it.second);
+        }
       }  // ends loop on the vector of error transforms
 
-      path_toTopologyXML = (l_LAMap_.size() == SiPixelPI::phase0size)
-                               ? "Geometry/TrackerCommonData/data/trackerParameters.xml"
-                               : "Geometry/TrackerCommonData/data/PhaseI/trackerParameters.xml";
+      // deal with last IOV
+      path_toTopologyXML = l_phaseInfo.pathToTopoXML();
+
       TrackerTopology l_tTopo =
           StandaloneTrackerTopology::fromTrackerParametersXMLFile(edm::FileInPath(path_toTopologyXML).fullPath());
 
@@ -655,7 +662,9 @@ namespace {
         t_info_fromXML.fillGeometryInfo(detid, l_tTopo, isPhase0);
 
         SiPixelPI::regions thePart = t_info_fromXML.filterThePartition();
-        LastLA_spectraByRegion[thePart]->Fill(it.second);
+        if (thePart != SiPixelPI::NUM_OF_REGIONS) {
+          LastLA_spectraByRegion[thePart]->Fill(it.second);
+        }
       }  // ends loop on the vector of error transforms
 
       // fill the summary plots
