@@ -19,6 +19,8 @@
 #include "GeneratorInterface/RivetInterface/src/HiggsTemplateCrossSections.cc"
 #include "SimDataFormats/HTXS/interface/HiggsTemplateCrossSections.h"
 
+#include <memory>
+
 #include <vector>
 #include <cstdio>
 #include <cstring>
@@ -107,7 +109,7 @@ void HTXSRivetProducer::produce(edm::Event& iEvent, const edm::EventSetup&) {
     }
 
     if (!_HTXS || !_HTXS->hasProjection("FS")) {
-      _analysisHandler = std::unique_ptr<Rivet::AnalysisHandler>(new Rivet::AnalysisHandler());
+      _analysisHandler = std::make_unique<Rivet::AnalysisHandler>();
       _HTXS = new Rivet::HiggsTemplateCrossSections();
       _analysisHandler->addAnalysis(_HTXS);
 

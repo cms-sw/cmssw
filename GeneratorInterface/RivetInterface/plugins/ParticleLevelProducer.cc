@@ -1,3 +1,5 @@
+#include <memory>
+
 #include "GeneratorInterface/RivetInterface/interface/ParticleLevelProducer.h"
 
 #include "FWCore/Framework/interface/Event.h"
@@ -17,8 +19,7 @@ using namespace reco;
 using namespace Rivet;
 
 ParticleLevelProducer::ParticleLevelProducer(const edm::ParameterSet& pset)
-    : srcToken_(consumes<edm::HepMCProduct>(pset.getParameter<edm::InputTag>("src"))),
-      pset_(pset) {
+    : srcToken_(consumes<edm::HepMCProduct>(pset.getParameter<edm::InputTag>("src"))), pset_(pset) {
   usesResource("Rivet");
   genVertex_ = reco::Particle::Point(0, 0, 0);
 
@@ -115,7 +116,7 @@ void ParticleLevelProducer::produce(edm::Event& event, const edm::EventSetup& ev
 
   if (!rivetAnalysis_ || !rivetAnalysis_->hasProjection("FS")) {
     rivetAnalysis_ = new Rivet::RivetAnalysis(pset_);
-    analysisHandler_ = std::unique_ptr<Rivet::AnalysisHandler>(new Rivet::AnalysisHandler());
+    analysisHandler_ = std::make_unique<Rivet::AnalysisHandler>();
 
     analysisHandler_->setIgnoreBeams(true);
     analysisHandler_->addAnalysis(rivetAnalysis_);
