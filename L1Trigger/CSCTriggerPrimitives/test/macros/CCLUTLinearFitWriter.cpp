@@ -1,0 +1,548 @@
+/*
+ * Authors: William Nash (original), Sven Dildick (adapted)
+ */
+
+#include "L1Trigger/CSCCommonTrigger/interface/CSCConstants.h"
+#include "L1Trigger/CSCTriggerPrimitives/interface/CSCPatternBank.h"
+
+#include <TCanvas.h>
+#include <TGraph.h>
+#include <TGraphErrors.h>
+#include <TF1.h>
+#include <TSystem.h>
+#include <TH1F.h>
+#include <TFile.h>
+#include <TString.h>
+
+//c++
+#include <fstream>
+#include <iostream>
+#include <iomanip>
+#include <math.h>
+#include <memory>
+
+using namespace std;
+
+// uncertainty per layer in half strips 1/sqrt(12)
+const float HALF_STRIP_ERROR = 0.288675;
+const unsigned int N_LAYER_REQUIREMENT = 3;
+const unsigned halfpatternwidth = (CSCConstants::CLCT_PATTERN_WIDTH - 1) / 2;
+
+//labels of all envelopes
+const int DEBUG = 0;
+
+// forward declarations
+class CSCPattern {
+public:
+  CSCPattern(unsigned int id, const CSCPatternBank::LCTPattern& pat);
+  ~CSCPattern() {}
+
+  void printCode(int code) const;
+  int recoverPatternCCCombination(int code,
+                                  int code_hits[CSCConstants::NUM_LAYERS][CSCConstants::CLCT_PATTERN_WIDTH]) const;
+  string getName() const { return name_; }
+  unsigned getId() const { return id_; }
+
+private:
+  const unsigned int id_;
+  string name_;
+  CSCPatternBank::LCTPattern pat_;
+};
+
+CSCPattern::CSCPattern(unsigned int id, const CSCPatternBank::LCTPattern& pat)
+    : id_(id), name_(std::to_string(id)), pat_(pat) {}
+
+//given a code, prints out how it looks within the pattern
+void CSCPattern::printCode(int code) const {
+  printf("Pattern: %i\n", id_);
+  if (code != -1)
+    printf("Code: %i\n", code);
+  if (code >= CSCConstants::NUM_COMPARATOR_CODES) {  //2^12
+    printf("Error: invalid pattern code\n");
+    return;
+  }
+
+  //iterator 1
+  int it = 1;
+
+  for (unsigned int j = 0; j < CSCConstants::NUM_LAYERS; j++) {
+    if (code < 0)
+      for (unsigned int i = 0; i < CSCConstants::CLCT_PATTERN_WIDTH; i++) {
+        pat_[j][i] ? printf("x") : printf("-");
+      }
+    else {
+      //0,1,2 or 3
+      int layerPattern = (code & (it | it << 1)) / it;
+      if (layerPattern < 0 || layerPattern > 3) {
+        printf("Error: invalid code\n");
+        return;
+      }
+      int trueCounter = 0;  //for each layer, should only have 3
+      for (unsigned int i = 0; i < CSCConstants::CLCT_PATTERN_WIDTH; i++) {
+        if (!pat_[j][i]) {
+          printf("-");
+        } else {
+          trueCounter++;
+          if (trueCounter == layerPattern)
+            printf("X");
+          else
+            printf("_");
+        }
+      }
+      it = it << 2;  //bitshift the iterator to look at the next part of the code
+    }
+    printf("\n");
+  }
+  for (unsigned int i = 0; i < CSCConstants::CLCT_PATTERN_WIDTH; i++) {
+    printf("%1x", i);
+  }
+  printf("\n");
+}
+
+//fills "code_hits" with how the code "code" would look inside the pattern
+int CSCPattern::recoverPatternCCCombination(
+    const int code, int code_hits[CSCConstants::NUM_LAYERS][CSCConstants::CLCT_PATTERN_WIDTH]) const {
+  if (code >= CSCConstants::NUM_COMPARATOR_CODES) {  //2^12
+    printf("Error: invalid pattern code\n");
+    return -1;
+  }
+
+  //iterator 1
+  int it = 1;
+
+  for (unsigned int j = 0; j < CSCConstants::NUM_LAYERS; j++) {
+    if (code < 0) {
+      for (unsigned int i = 0; i < CSCConstants::CLCT_PATTERN_WIDTH; i++) {
+        code_hits[j][i] = pat_[j][i];
+      }
+    } else {
+      //0,1,2 or 3
+      int layerPattern = (code & (it | it << 1)) / it;
+      if (layerPattern < 0 || layerPattern > 3) {
+        printf("Error: invalid code\n");
+        return -1;
+      }
+      int trueCounter = 0;  //for each layer, should only have 3
+      for (unsigned int i = 0; i < CSCConstants::CLCT_PATTERN_WIDTH; i++) {
+        if (!pat_[j][i]) {
+          code_hits[j][i] = 0;
+        } else {
+          trueCounter++;
+          if (trueCounter == layerPattern)
+            code_hits[j][i] = 1;
+          else
+            code_hits[j][i] = 0;
+        }
+      }
+      it = it << 2;  //bitshift the iterator to look at the next part of the code
+    }
+  }
+
+  return 0;
+}
+
+int convertToLegacyPattern(const int code_hits[CSCConstants::NUM_LAYERS][CSCConstants::CLCT_PATTERN_WIDTH]);
+void getErrors(const vector<float>& x, const vector<float>& y, float& sigmaM, float& sigmaB);
+void writeHeaderPosOffsetLUT(ofstream& file);
+void writeHeaderSlopeLUT(ofstream& file);
+unsigned firmwareWord(const float position,
+                      const float bending,
+                      const unsigned nBitsPosition,
+                      const unsigned nBitsBending);
+void setDataWord(unsigned& word, const unsigned newWord, const unsigned shift, const unsigned mask);
+
+int CCLUTLinearFitWriter() {
+  //all the patterns we will fit
+  std::unique_ptr<std::vector<CSCPattern>> newPatterns(new std::vector<CSCPattern>());
+  for (unsigned ipat = 0; ipat < 5; ipat++) {
+    newPatterns->emplace_back(ipat, CSCPatternBank::clct_pattern_run3_[ipat]);
+  }
+
+  // output ROOT file with fit results
+  TFile* file = TFile::Open("fitresults.root", "RECREATE");
+
+  TH1D* all_offsets = new TH1D("all_offsets", "All Half-strip offsets", 200, -2.5, 2.5);
+  all_offsets->GetYaxis()->SetTitle("Entries");
+  all_offsets->GetXaxis()->SetTitle("Half-strip offset");
+
+  TH1D* all_slopes = new TH1D("all_slopes", "All slopes", 200, -3, 3);
+  all_slopes->GetYaxis()->SetTitle("Entries");
+  all_slopes->GetXaxis()->SetTitle("Slope [half-strips/layer]");
+
+  std::map<unsigned, TH1D*> offsets;
+  std::map<unsigned, TH1D*> slopes;
+  std::map<unsigned, TH1D*> offsetuncs;
+  std::map<unsigned, TH1D*> slopeuncs;
+  std::map<unsigned, TH1D*> chi2s;
+  std::map<unsigned, TH1D*> chi2ndfs;
+  std::map<unsigned, TH1D*> layers;
+  std::map<unsigned, TH1D*> legacypatterns;
+
+  for (unsigned i = 0; i < 5; ++i) {
+    std::string title("Half-strip offset, PID " + std::to_string(i));
+    std::string name("offset_pat" + std::to_string(i));
+
+    offsets[i] = new TH1D(name.c_str(), title.c_str(), 100, -2.5, 2.5);
+    offsets[i]->GetYaxis()->SetTitle("Entries");
+    offsets[i]->GetXaxis()->SetTitle("Half-strip offset");
+
+    title = "Slope, PID " + std::to_string(i);
+    name = "slope_pat" + std::to_string(i);
+    slopes[i] = new TH1D(name.c_str(), title.c_str(), 100, -3, 3);
+    slopes[i]->GetYaxis()->SetTitle("Entries");
+    slopes[i]->GetXaxis()->SetTitle("Slope [half-strips/layer]");
+
+    title = "Half-strip offset uncertainty, PID " + std::to_string(i);
+    name = "offsetunc_pat" + std::to_string(i);
+    offsetuncs[i] = new TH1D(name.c_str(), title.c_str(), 100, -2, 2);
+    offsetuncs[i]->GetYaxis()->SetTitle("Entries");
+    offsetuncs[i]->GetXaxis()->SetTitle("Half-strip offset uncertainty");
+
+    title = "Slope uncertainty, PID " + std::to_string(i);
+    name = "slopeunc_pat" + std::to_string(i);
+    slopeuncs[i] = new TH1D(name.c_str(), title.c_str(), 100, -2, 2);
+    slopeuncs[i]->GetYaxis()->SetTitle("Entries");
+    slopeuncs[i]->GetXaxis()->SetTitle("Slope uncertainty [half-strips/layer]");
+
+    title = "Chi2, PID " + std::to_string(i);
+    name = "chi2_pat" + std::to_string(i);
+    chi2s[i] = new TH1D(name.c_str(), title.c_str(), 100, 0, 100);
+    chi2s[i]->GetYaxis()->SetTitle("Entries");
+    chi2s[i]->GetXaxis()->SetTitle("#chi^{2}");
+
+    title = "Chi2/ndf, PID " + std::to_string(i);
+    name = "chi2ndf_pat" + std::to_string(i);
+    chi2ndfs[i] = new TH1D(name.c_str(), title.c_str(), 40, 0, 20);
+    chi2ndfs[i]->GetYaxis()->SetTitle("Entries");
+    chi2ndfs[i]->GetXaxis()->SetTitle("#chi^{2}/NDF");
+
+    title = "Number of layers, PID " + std::to_string(i);
+    name = "layers_pat" + std::to_string(i);
+    layers[i] = new TH1D(name.c_str(), title.c_str(), 7, 0, 7);
+    layers[i]->GetYaxis()->SetTitle("Entries");
+    layers[i]->GetXaxis()->SetTitle("Number of layers in pattern");
+
+    title = "Run-1/2 pattern, PID " + std::to_string(i);
+    name = "legacypatterns_pat" + std::to_string(i);
+    legacypatterns[i] = new TH1D(name.c_str(), title.c_str(), 11, 0, 11);
+    legacypatterns[i]->GetYaxis()->SetTitle("Entries");
+    legacypatterns[i]->GetXaxis()->SetTitle("Equivalent Run-1/2 pattern number");
+  }
+
+  for (auto& p : offsets) {
+    (p.second)->GetYaxis()->SetTitle("Entries");
+  }
+
+  //Used to calculate span of position offsets
+  float maxOffset = -1;
+  float maxPatt = -1;
+  float maxCode = -1;
+  float minOffset = -2;
+  float minPatt = 0;
+  float minCode = 1;
+
+  // create output directory
+  const std::string outdir("output/");
+
+  // for each pattern
+  for (auto patt = newPatterns->begin(); patt != newPatterns->end(); ++patt) {
+    std::cout << "Processing pattern " << patt - newPatterns->begin() << std::endl;
+
+    // create 3 output files per pattern: 1) position offset for CMSSW, 2) slope for CMSSW, 3) output for firmware
+    std::cout << "Create output files for pattern " << patt->getName() << std::endl;
+    ofstream outposition_sw;
+    outposition_sw.open(outdir + "CSCComparatorCodePosOffsetLUT_pat" + patt->getName() + "_ideal_v1.txt");
+    writeHeaderPosOffsetLUT(outposition_sw);
+
+    ofstream outslope_sw;
+    outslope_sw.open(outdir + "CSCComparatorCodeSlopeLUT_pat" + patt->getName() + "_v1.txt");
+    writeHeaderSlopeLUT(outslope_sw);
+
+    // format: [8:0] is quality, [13, 9] is bending , [17:14] is offset
+    ofstream outfile_fw;
+    outfile_fw.open(outdir + "rom_pat" + patt->getName() + ".mem");
+
+    // pattern conversions
+    ofstream outpatternconv;
+    outpatternconv.open(outdir + "CSCPatternConversionLUT_pat" + patt->getName() + "_v1.txt");
+
+    // iterate through each possible comparator code
+    for (int code = 0; code < CSCConstants::NUM_COMPARATOR_CODES; code++) {
+      if (DEBUG > 0) {
+        cout << "Evaluating Pattern: " << patt->getName() << " CC: " << code << endl;
+      }
+      int hits[CSCConstants::NUM_LAYERS][CSCConstants::CLCT_PATTERN_WIDTH];
+
+      if (patt->recoverPatternCCCombination(code, hits)) {
+        cout << "Error: CC evaluation has failed" << endl;
+      }
+
+      //put the coordinates in the hits into a vector
+      // x = layer, y = position in that layer
+      vector<float> x;
+      vector<float> y;
+      vector<float> xe;
+      vector<float> ye;
+
+      for (int i = 0; i < CSCConstants::NUM_LAYERS; i++) {
+        for (unsigned j = 0; j < CSCConstants::CLCT_PATTERN_WIDTH; j++) {
+          if (hits[i][j]) {
+            //shift to key half strip layer (layer 3)
+            x.push_back(i - 2);
+            y.push_back(float(j));
+            xe.push_back(float(0));
+            ye.push_back(HALF_STRIP_ERROR);
+            if (DEBUG > 0)
+              cout << "L " << x.back() << " HS " << y.back() << endl;
+          }
+        }
+        if (DEBUG > 0)
+          cout << endl;
+      }
+
+      // fit results
+      float offset = -3;
+      float slope = -3;
+      float offsetunc = -3;
+      float slopeunc = -3;
+      float chi2 = -1;
+      unsigned ndf;
+      unsigned layer = 0;
+      unsigned legacypattern = 0;
+
+      // consider at least patterns with 3 hits
+      if (x.size() >= N_LAYER_REQUIREMENT + 1) {
+        // for each combination fit a straight line
+        std::unique_ptr<TGraphErrors> gr(new TGraphErrors(x.size(), &x[0], &y[0], &xe[0], &ye[0]));
+        std::unique_ptr<TF1> fit(new TF1("fit", "[0]+[1]*x", -3, 4));
+        gr->Fit("fit", "EMQ");
+
+        // fit results
+        // center at the key half-strip
+        offset = fit->GetParameter(0) - halfpatternwidth;
+        slope = fit->GetParameter(1);
+        chi2 = fit->GetChisquare();
+        ndf = fit->GetNDF();
+        layer = ndf + 2;
+        legacypattern = convertToLegacyPattern(hits);
+        // mean half-strip error; slope half-strip error
+        getErrors(x, y, offsetunc, slopeunc);
+
+        // save fit results
+        const unsigned ipat(patt - newPatterns->begin());
+        offsets[ipat]->Fill(offset);
+        slopes[ipat]->Fill(slope);
+        offsetuncs[ipat]->Fill(offsetunc);
+        slopeuncs[ipat]->Fill(slopeunc);
+        chi2s[ipat]->Fill(chi2);
+        chi2ndfs[ipat]->Fill(chi2 / ndf);
+        layers[ipat]->Fill(layer);
+        legacypatterns[ipat]->Fill(legacypattern);
+        // all results
+        all_offsets->Fill(offset);
+        all_slopes->Fill(slope);
+      }
+
+      const unsigned fwword = firmwareWord(offset, slope, 4, 5);
+
+      // write to output files
+      outposition_sw << code << " " << offset << "\n";
+      outslope_sw << code << " " << slope << "\n";
+      outpatternconv << code << " " << legacypattern << "\n";
+      outfile_fw << setfill('0');
+      outfile_fw << setw(5) << std::hex << fwword << "\n";
+
+      // calculate min and max codes
+      if (layer >= N_LAYER_REQUIREMENT) {
+        if (offset < minOffset) {
+          minOffset = offset;
+          minPatt = patt->getId();
+          minCode = code;
+        }
+        if (offset > maxOffset) {
+          maxOffset = offset;
+          maxPatt = patt->getId();
+          maxCode = code;
+        }
+      }
+    }  // end loop on comparator codes
+
+    // write to files
+    outposition_sw.close();
+    outslope_sw.close();
+    outfile_fw.close();
+  }
+
+  cout << "minOffset = " << minOffset << endl;
+  for (auto patt = newPatterns->begin(); patt != newPatterns->end(); ++patt) {
+    if (patt->getId() == minPatt) {
+      patt->printCode(minCode);
+    }
+  }
+  cout << "maxOffset = " << maxOffset << endl;
+  for (auto patt = newPatterns->begin(); patt != newPatterns->end(); ++patt) {
+    if (patt->getId() == maxPatt) {
+      patt->printCode(maxCode);
+    }
+  }
+
+  // plot the figures
+  for (auto& q : {offsets, slopes, offsetuncs, slopeuncs, chi2ndfs, layers, legacypatterns}) {
+    for (auto& p : q) {
+      TCanvas* c = new TCanvas((p.second)->GetName(), (p.second)->GetTitle(), 800, 600);
+      c->cd();
+      gPad->SetLogy(1);
+      (p.second)->Draw();
+      c->SaveAs(TString("figures/") + TString((p.second)->GetName()) + ".pdf");
+    }
+  }
+
+  file->Write();
+  file->Close();
+
+  return 0;
+}
+
+/// helpers
+
+int searchForHits(const int code_hits[CSCConstants::NUM_LAYERS][CSCConstants::CLCT_PATTERN_WIDTH], int delta = 0) {
+  unsigned returnValue = 0;
+  unsigned maxlayers = 0;
+  for (unsigned iPat = 2; iPat < CSCPatternBank::clct_pattern_legacy_.size(); iPat++) {
+    unsigned nlayers = 0;
+    for (int i = 0; i < CSCConstants::NUM_LAYERS; i++) {
+      bool layerhit = false;
+      for (unsigned j = 0; j < CSCConstants::CLCT_PATTERN_WIDTH; j++) {
+        // shifted index
+        int jdelta = j + delta;
+        if (jdelta < 0)
+          jdelta = 0;
+        if (jdelta >= CSCConstants::CLCT_PATTERN_WIDTH)
+          jdelta = CSCConstants::CLCT_PATTERN_WIDTH - 1;
+
+        // do not consider invalid pattern hits
+        if (CSCPatternBank::clct_pattern_legacy_[iPat][i][jdelta]) {
+          // is the new pattern half-strip hit?
+          if (code_hits[i][j]) {
+            layerhit = true;
+          }
+        }
+      }
+      // increase the number of layers hit
+      if (layerhit) {
+        nlayers++;
+      }
+    }
+    if (nlayers > maxlayers and nlayers >= N_LAYER_REQUIREMENT) {
+      maxlayers = nlayers;
+      returnValue = iPat;
+    }
+  }
+  return returnValue;
+}
+
+// function to convert
+int convertToLegacyPattern(const int code_hits[CSCConstants::NUM_LAYERS][CSCConstants::CLCT_PATTERN_WIDTH]) {
+  int returnValue = searchForHits(code_hits, 0);
+  // try the search on a half-strip to the left
+  if (!returnValue)
+    returnValue = searchForHits(code_hits, -1);
+  // try the search on a half-strip to the right
+  if (!returnValue)
+    returnValue = searchForHits(code_hits, 1);
+  return returnValue;
+}
+
+void getErrors(const vector<float>& x, const vector<float>& y, float& sigmaM, float& sigmaB) {
+  int N = x.size();
+  if (!N) {
+    sigmaM = -9;
+    sigmaB = -9;
+    return;
+  }
+
+  float sumx = 0;
+  float sumx2 = 0;
+  for (int i = 0; i < N; i++) {
+    sumx += x[i];
+    sumx2 += x[i] * x[i];
+  }
+
+  float delta = N * sumx2 - sumx * sumx;
+
+  sigmaM = HALF_STRIP_ERROR * sqrt(1. * N / delta);
+  sigmaB = HALF_STRIP_ERROR * sqrt(sumx2 / delta);
+}
+
+void writeHeaderPosOffsetLUT(ofstream& file) {
+  file << "#CSC Position Offset LUT\n"
+       << "#Structure is comparator code (iCC) -> Stub position offset\n"
+       << "#iCC bits: 12\n"
+       << "#<header> v1.0 12 32 </header>\n";
+}
+
+void writeHeaderSlopeLUT(ofstream& file) {
+  file << "#CSC Slope LUT\n"
+       << "#Structure is comparator code (iCC) -> Stub slope\n"
+       << "#iCC bits: 12\n"
+       << "#<header> v1.0 12 32 </header>\n";
+}
+
+unsigned assign(const float fvalue, const float fmin, const float fmax, const unsigned nbits) {
+  bool debug;
+  unsigned value = 0;
+  const unsigned range = pow(2, nbits);
+  const unsigned minValue = 0;
+  const unsigned maxValue = range - 1;
+  const double fdelta = (fmax - fmin) / range;
+
+  if (fvalue >= fmax) {
+    value = maxValue;
+  } else if (fvalue <= fmin) {
+    value = minValue;
+  } else {
+    value = int(std::floor((fvalue - fmin) / fdelta));
+  }
+  if (debug)
+    std::cout << "fvalue " << fvalue << " " << fmin << " " << fmax << " " << nbits << " " << value << std::endl;
+
+  return value;
+}
+
+unsigned firmwareWord(const float foffset, const float fslope, const unsigned nBitsOffset, const unsigned nBitsSlope) {
+  // step 1: convert floating point offset and slope to unsigned
+
+  // everything is in half-strips
+  // somewhat arbitrary numbers...
+  const float fmaxOffset = 2;
+  const float fminOffset = -1.75;
+  const float fmaxSlope = 2.5;
+  const float fminSlope = -2.5;
+
+  unsigned quality = 0;
+  unsigned offset = assign(foffset, fminOffset, fmaxOffset, nBitsOffset);
+  unsigned slope = assign(fslope, fminSlope, fmaxSlope, nBitsSlope);
+
+  /* step 2: construct fw dataword:
+     [8:0] is quality (set all to 0 for now)
+     [13, 9] is slope
+     [17:14] is offset
+  */
+  enum Masks { OffsetMask = 0xf, SlopeMask = 0x1f, QualityMask = 0x1ff };
+  enum Shifts { OffsetShift = 13, SlopeShift = 9, QualityShift = 0 };
+
+  unsigned fwword = 0;
+  setDataWord(fwword, quality, QualityShift, QualityMask);
+  setDataWord(fwword, slope, SlopeShift, SlopeMask);
+  setDataWord(fwword, offset, OffsetShift, OffsetMask);
+
+  return fwword;
+}
+
+void setDataWord(unsigned& word, const unsigned newWord, const unsigned shift, const unsigned mask) {
+  // clear the old value
+  word &= ~(mask << shift);
+
+  // set the new value
+  word |= newWord << shift;
+}
