@@ -114,7 +114,6 @@ void ParticleLevelProducer::produce(edm::Event& event, const edm::EventSetup& ev
   const HepMC::GenEvent* genEvent = srcHandle->GetEvent();
 
   if (!rivetAnalysis_ || !rivetAnalysis_->hasProjection("FS")) {
-    delete rivetAnalysis_;
     rivetAnalysis_ = new Rivet::RivetAnalysis(pset_);
     analysisHandler_ = std::unique_ptr<Rivet::AnalysisHandler>(new Rivet::AnalysisHandler());
 

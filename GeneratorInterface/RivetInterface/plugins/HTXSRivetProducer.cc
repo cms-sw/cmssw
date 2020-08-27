@@ -107,7 +107,6 @@ void HTXSRivetProducer::produce(edm::Event& iEvent, const edm::EventSetup&) {
     }
 
     if (!_HTXS || !_HTXS->hasProjection("FS")) {
-      delete _HTXS;
       _analysisHandler = std::unique_ptr<Rivet::AnalysisHandler>(new Rivet::AnalysisHandler());
       _HTXS = new Rivet::HiggsTemplateCrossSections();
       _analysisHandler->addAnalysis(_HTXS);
