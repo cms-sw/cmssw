@@ -28,27 +28,27 @@ void L1TdeCSCTPG::bookHistograms(DQMStore::IBooker& ibooker, const edm::Run&, co
 
     clct_pattern_emul_[iType] = ibooker.book1D("CSC CLCT hit pattern", "CSC CLCT hit pattern", 16, -0.5, 15.5);
     clct_quality_emul_[iType] = ibooker.book1D("CSC CLCT quality", "CSC CLCT quality", 16, 0.5, 16.5);
-    clct_halfstrip_emul_[iType] = ibooker.book1D("CSC CLCT halfstrip", "CSC CLCT strip", 160, -0.5, 159.5);
+    clct_halfstrip_emul_[iType] = ibooker.book1D("CSC CLCT halfstrip", "CSC CLCT strip", 224, -0.5, 223.5);
     clct_bend_emul_[iType] = ibooker.book1D("CSC CLCT bend", "CSC CLCT bend", 3, 0.5, 2.5);
     clct_bx_emul_[iType] = ibooker.book1D("CSC CLCT bx", "CSC CLCT bx", 20, -0.5, 19.5);
 
     clct_pattern_data_[iType] = ibooker.book1D("CSC CLCT hit pattern", "CSC CLCT hit pattern", 16, -0.5, 15.5);
     clct_quality_data_[iType] = ibooker.book1D("CSC CLCT quality", "CSC CLCT quality", 16, 0.5, 16.5);
-    clct_halfstrip_data_[iType] = ibooker.book1D("CSC CLCT halfstrip", "CSC CLCT strip", 160, -0.5, 159.5);
+    clct_halfstrip_data_[iType] = ibooker.book1D("CSC CLCT halfstrip", "CSC CLCT strip", 224, -0.5, 223.5);
     clct_bend_data_[iType] = ibooker.book1D("CSC CLCT bend", "CSC CLCT bend", 3, 0.5, 2.5);
     clct_bx_data_[iType] = ibooker.book1D("CSC CLCT bx", "CSC CLCT bx", 20, -0.5, 19.5);
 
     lct_pattern_emul_[iType] = ibooker.book1D("CSC LCT hit pattern", "CSC LCT hit pattern", 16, -0.5, 15.5);
     lct_quality_emul_[iType] = ibooker.book1D("CSC LCT quality", "CSC LCT quality", 16, 0.5, 16.5);
     lct_wiregroup_emul_[iType] = ibooker.book1D("CSC LCT wire group", "CSC LCT wire group", 116, -0.5, 115.5);
-    lct_halfstrip_emul_[iType] = ibooker.book1D("CSC LCT halfstrip", "CSC LCT strip", 160, -0.5, 159.5);
+    lct_halfstrip_emul_[iType] = ibooker.book1D("CSC LCT halfstrip", "CSC LCT strip", 224, -0.5, 223.5);
     lct_bend_emul_[iType] = ibooker.book1D("CSC LCT bend", "CSC LCT bend", 3, 0.5, 2.5);
     lct_bx_emul_[iType] = ibooker.book1D("CSC LCT bx", "CSC LCT bx", 20, -0.5, 19.5);
 
     lct_pattern_data_[iType] = ibooker.book1D("CSC LCT hit pattern", "CSC LCT hit pattern", 16, -0.5, 15.5);
     lct_quality_data_[iType] = ibooker.book1D("CSC LCT quality", "CSC LCT quality", 16, 0.5, 16.5);
     lct_wiregroup_data_[iType] = ibooker.book1D("CSC LCT wire group", "CSC LCT wire group", 116, -0.5, 115.5);
-    lct_halfstrip_data_[iType] = ibooker.book1D("CSC LCT halfstrip", "CSC LCT strip", 160, -0.5, 159.5);
+    lct_halfstrip_data_[iType] = ibooker.book1D("CSC LCT halfstrip", "CSC LCT strip", 224, -0.5, 223.5);
     lct_bend_data_[iType] = ibooker.book1D("CSC LCT bend", "CSC LCT bend", 3, 0.5, 2.5);
     lct_bx_data_[iType] = ibooker.book1D("CSC LCT bx", "CSC LCT bx", 20, -0.5, 19.5);
   }
