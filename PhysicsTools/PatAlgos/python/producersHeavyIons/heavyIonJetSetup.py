@@ -46,12 +46,12 @@ def setupHeavyIonJets(process, tag, radius, task):
         getJetMCFlavour = False, # jet flavor disabled
     )
 
-    getattr(process,'patJetsAKCs4PF').addAssociatedTracks = True
-    getattr(process,'patJetsAKCs4PF').addBTagInfo = True
-    getattr(process,'patJetsAKCs4PF').useLegacyJetMCFlavour = True
-    getattr(process,'patJetCorrFactorsAKCs4PF').useNPV = False
-    getattr(process,'patJetCorrFactorsAKCs4PF').useRho = False
-    getattr(process,'patJetPartonMatchAKCs4PF').matched = "cleanedPartons"
+    process.patJetsAKCs4PF.addAssociatedTracks = True
+    process.patJetsAKCs4PF.addBTagInfo = True
+    process.patJetsAKCs4PF.useLegacyJetMCFlavour = True
+    process.patJetCorrFactorsAKCs4PF.useNPV = False
+    process.patJetCorrFactorsAKCs4PF.useRho = False
+    process.patJetPartonMatchAKCs4PF.matched = "cleanedPartons"
 
 
 def aliasCsJets(process, tag):
