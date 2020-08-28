@@ -254,7 +254,7 @@ std::unique_ptr<fastsim::Particle> fastsim::ParticleManager::nextGenParticle() {
           for (; relatives3rdGenIterator_ != relatives3rdGenIteratorEnd_; ++relatives3rdGenIterator_) {
             const HepMC::GenParticle& genRelative3rdGen = **relatives3rdGenIterator_;
             if (std::abs(genRelative3rdGen.pdg_id()) > 1000000) {
-              exoticRelativeId = 0;  
+              exoticRelativeId = 0;
               hasExoticAssociation = true;
               break;
             }
