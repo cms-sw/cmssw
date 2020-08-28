@@ -40,13 +40,13 @@ AlcaBeamMonitor::AlcaBeamMonitor(const ParameterSet& ps)
   if (!monitorName_.empty())
     monitorName_ = monitorName_ + "/";
 
-  theBeamFitter_ = new BeamFitter(parameters_, consumesCollector());
+  theBeamFitter_ = std::unique_ptr<BeamFitter>(new BeamFitter(parameters_, consumesCollector()));
   theBeamFitter_->resetTrkVector();
   theBeamFitter_->resetLSRange();
   theBeamFitter_->resetRefTime();
   theBeamFitter_->resetPVFitter();
 
-  thePVFitter_ = new PVFitter(parameters_, consumesCollector());
+  thePVFitter_ = std::unique_ptr<PVFitter>(new PVFitter(parameters_, consumesCollector()));
 
   processedLumis_.clear();
 
@@ -81,11 +81,6 @@ AlcaBeamMonitor::AlcaBeamMonitor(const ParameterSet& ps)
       histosMap_[*itV][itM->first][itM->second] = nullptr;
     }
   }
-}
-
-AlcaBeamMonitor::~AlcaBeamMonitor() {
-  delete theBeamFitter_;
-  delete thePVFitter_;
 }
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -213,8 +208,8 @@ void AlcaBeamMonitor::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const&
 }
 
 //----------------------------------------------------------------------------------------------------------------------
-std::shared_ptr<NoCache> AlcaBeamMonitor::globalBeginLuminosityBlock(const LuminosityBlock& iLumi,
-                                                                     const EventSetup& iSetup) const {
+std::shared_ptr<alcabeammonitor::NoCache> AlcaBeamMonitor::globalBeginLuminosityBlock(const LuminosityBlock& iLumi,
+                                                                                      const EventSetup& iSetup) const {
   // Always create a beamspot group for each lumi weather we have results or not! Each Beamspot will be of unknown type!
 
   vertices_.clear();

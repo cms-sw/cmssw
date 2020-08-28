@@ -24,18 +24,19 @@
 class BeamFitter;
 class PVFitter;
 
-struct NoCache {};
+namespace alcabeammonitor {
+  struct NoCache {};
+}  // namespace alcabeammonitor
 
-class AlcaBeamMonitor : public DQMOneEDAnalyzer<edm::LuminosityBlockCache<NoCache>> {
+class AlcaBeamMonitor : public DQMOneEDAnalyzer<edm::LuminosityBlockCache<alcabeammonitor::NoCache>> {
 public:
   AlcaBeamMonitor(const edm::ParameterSet&);
-  ~AlcaBeamMonitor() override;
 
 protected:
   void bookHistograms(DQMStore::IBooker&, edm::Run const&, edm::EventSetup const&) override;
   void analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) override;
-  std::shared_ptr<NoCache> globalBeginLuminosityBlock(const edm::LuminosityBlock& iLumi,
-                                                      const edm::EventSetup& iSetup) const override;
+  std::shared_ptr<alcabeammonitor::NoCache> globalBeginLuminosityBlock(const edm::LuminosityBlock& iLumi,
+                                                                       const edm::EventSetup& iSetup) const override;
   void globalEndLuminosityBlock(const edm::LuminosityBlock& iLumi, const edm::EventSetup& iSetup) override;
   void dqmEndRun(edm::Run const&, edm::EventSetup const&) override;
 
@@ -58,8 +59,8 @@ private:
 
   //Service variables
   int numberOfValuesToSave_;
-  BeamFitter* theBeamFitter_;
-  PVFitter* thePVFitter_;
+  std::unique_ptr<BeamFitter> theBeamFitter_;
+  std::unique_ptr<PVFitter> thePVFitter_;
   mutable int numberOfProcessedLumis_;
   mutable std::vector<int> processedLumis_;
 
