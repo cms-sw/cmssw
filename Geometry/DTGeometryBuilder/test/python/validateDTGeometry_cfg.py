@@ -37,7 +37,7 @@ process.muonGeometryConstants.fromDD4Hep = True
 
 process.valid = cms.EDAnalyzer("DTGeometryValidate",
 
-#                               infileName = cms.untracked.string('cmsRecoGeom-2021.root'),
+                               infileName = cms.untracked.string('Geometry/DTGeometryBuilder/data/cmsRecoGeom-2021.root'),
                                outfileName = cms.untracked.string('validateDTGeometry.root'),
                                tolerance = cms.untracked.int32(7)
                                )
