@@ -1,6 +1,5 @@
 import FWCore.ParameterSet.Config as cms
 
-# from L1Trigger.L1CaloTrigger.l1EGammaCrystalsProducer_cfi import *
 from L1Trigger.L1CaloTrigger.l1EGammaEEProducer_cfi import *
 from L1Trigger.L1CaloTrigger.L1EGammaCrystalsEmulatorProducer_cfi import *
 

@@ -29,7 +29,6 @@ public:
 
 private:
   void clear() final;
-  // HGCalTriggerTools triggerTools_;
   std::pair<float, float> propagateToCalo(const math::XYZTLorentzVector& iMom,
                                           const math::XYZTLorentzVector& iVtx,
                                           double iCharge,
@@ -40,8 +39,6 @@ private:
   int l1track_n_;
   std::vector<float> l1track_pt_;
   std::vector<float> l1track_pt2stubs_;
-
-  // std::vector<float> l1track_energy_;
   std::vector<float> l1track_eta_;
   std::vector<float> l1track_phi_;
   std::vector<float> l1track_curv_;
@@ -71,8 +68,6 @@ void L1TriggerNtupleTrackTrigger::initialize(TTree& tree,
   tree.Branch(branch_name_w_prefix("n").c_str(), &l1track_n_, branch_name_w_prefix("n/I").c_str());
   tree.Branch(branch_name_w_prefix("pt").c_str(), &l1track_pt_);
   tree.Branch(branch_name_w_prefix("pt2stubs").c_str(), &l1track_pt2stubs_);
-
-  // tree.Branch("l1track_energy", &l1track_energy_);
   tree.Branch(branch_name_w_prefix("eta").c_str(), &l1track_eta_);
   tree.Branch(branch_name_w_prefix("phi").c_str(), &l1track_phi_);
   tree.Branch(branch_name_w_prefix("curv").c_str(), &l1track_curv_);
@@ -94,7 +89,6 @@ void L1TriggerNtupleTrackTrigger::fill(const edm::Event& ev, const edm::EventSet
   if (magfield_watcher_.check(es)) {
     edm::ESHandle<MagneticField> magfield;
     es.get<IdealMagneticFieldRecord>().get(magfield);
-    // aField_ = &(*magfield);
     fBz = magfield->inTesla(GlobalPoint(0, 0, 0)).z();
   }
 
@@ -110,16 +104,12 @@ void L1TriggerNtupleTrackTrigger::fill(const edm::Event& ev, const edm::EventSet
     l1track_n_++;
     l1track_pt_.emplace_back(trackIter->momentum().perp());
     l1track_pt2stubs_.emplace_back(pTFrom2Stubs::pTFrom2(trackIter, tGeom));
-
-    // l1track_energy_.emplace_back(trackIter->energy());
     l1track_eta_.emplace_back(trackIter->momentum().eta());
     l1track_phi_.emplace_back(trackIter->momentum().phi());
     l1track_curv_.emplace_back(trackIter->rInv());
     l1track_chi2_.emplace_back(trackIter->chi2());
     l1track_chi2Red_.emplace_back(trackIter->chi2Red());
     l1track_nStubs_.emplace_back(trackIter->getStubRefs().size());
-    // FIXME: need to be configuratble?
-    // int nParam_ = 4;
     float z0 = trackIter->POCA().z();  //cm
     int charge = trackIter->rInv() > 0 ? +1 : -1;
 
@@ -141,7 +131,6 @@ void L1TriggerNtupleTrackTrigger::clear() {
   l1track_n_ = 0;
   l1track_pt_.clear();
   l1track_pt2stubs_.clear();
-  // l1track_energy_.clear();
   l1track_eta_.clear();
   l1track_phi_.clear();
   l1track_curv_.clear();
@@ -154,8 +143,6 @@ void L1TriggerNtupleTrackTrigger::clear() {
   l1track_calophi_.clear();
 }
 
-// #include "FastSimulation/Particle/interface/RawParticle.h"
-
 std::pair<float, float> L1TriggerNtupleTrackTrigger::propagateToCalo(const math::XYZTLorentzVector& iMom,
                                                                      const math::XYZTLorentzVector& iVtx,
                                                                      double iCharge,
@@ -166,7 +153,5 @@ std::pair<float, float> L1TriggerNtupleTrackTrigger::propagateToCalo(const math:
   double ecalShowerDepth = reco::PFCluster::getDepthCorrection(prop.particle().momentum().E(), false, false);
   math::XYZVector point = math::XYZVector(prop.particle().vertex()) +
                           math::XYZTLorentzVector(prop.particle().momentum()).Vect().Unit() * ecalShowerDepth;
-  // math::XYZVector point  = particle.vertex();
-  // math::XYZVector point = math::XYZVector(particle.vertex())+math::XYZTLorentzVector(particle.momentum()).Vect().Unit()*ecalShowerDepth;
   return std::make_pair(point.eta(), point.phi());
 }

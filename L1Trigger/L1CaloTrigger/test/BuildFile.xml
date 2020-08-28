@@ -7,18 +7,6 @@
   <use   name="L1Trigger/Phase2L1ParticleFlow"/>
   <use   name="L1Trigger/L1TTrackMatch"/>
   <use   name="Geometry/TrackerGeometryBuilder"/>
-
-  <!-- <use   name="CommonTools/UtilAlgos"/>
-  <use   name="SimDataFormats/CaloTest"/>
-  <use   name="DataFormats/JetReco"/>
-  <use   name="Geometry/HcalTowerAlgo"/>
-  <use   name="SimDataFormats/PileupSummaryInfo"/>
-  <use   name="SimDataFormats/GeneratorProducts"/>
-  <use   name="TrackPropagation/RungeKutta"/>
-  <use   name="FastSimulation/Event"/>
-  <use   name="FastSimulation/CaloGeometryTools"/>
-  <use   name="MagneticField/Engine"/>
-  <use   name="MagneticField/Records"/> -->
   <use name="heppdt"/>
   <flags   EDM_PLUGIN="1"/>
 </library>

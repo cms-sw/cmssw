@@ -6,4 +6,3 @@ l1TkElectronTrackEllipticProducers = cms.Sequence(L1TkElectronsEllipticMatchCrys
 l1TkElectronTrackEllipticProducersEB = cms.Sequence(L1TkElectronsEllipticMatchCrystal)
 l1TkElectronTrackEllipticProducersEE = cms.Sequence(L1TkElectronsEllipticMatchHGC)
 
-# from L1Trigger.L1TTrackMatch.L1TkEmParticleProducer_cfi import *
