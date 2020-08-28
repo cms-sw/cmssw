@@ -7,40 +7,41 @@
 
 #include "FWCore/Framework/interface/ESProducer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "RecoLocalTracker/SiPhase2VectorHitBuilder/interface/VectorHitBuilderEDProducer.h"
+#include "RecoLocalTracker/SiPhase2VectorHitBuilder/interface/VectorHitBuilderAlgorithm.h"
 #include <memory>
 
 class SiPhase2RecHitMatcherESProducer : public edm::ESProducer {
 public:
   SiPhase2RecHitMatcherESProducer(const edm::ParameterSet&);
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
-  std::shared_ptr<VectorHitBuilderEDProducer> produce(const TkPhase2OTCPERecord&);
+  std::shared_ptr<VectorHitBuilderAlgorithm> produce(const TkPhase2OTCPERecord&);
 
 private:
   std::string name_;
-  std::shared_ptr<VectorHitBuilderEDProducer> matcher_;
+  std::shared_ptr<VectorHitBuilderAlgorithm> matcher_;
   edm::ParameterSet pset_;
+  edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> geometryToken_;
+  edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> trackerTopoToken_;
 };
 
 SiPhase2RecHitMatcherESProducer::SiPhase2RecHitMatcherESProducer(const edm::ParameterSet& p) {
   name_ = p.getParameter<std::string>("ComponentName");
   pset_ = p;
-  setWhatProduced(this, name_);
+  auto cc = setWhatProduced(this, name_);
+  geometryToken_ = cc.consumesFrom<TrackerGeometry,TrackerDigiGeometryRecord>();
+  trackerTopoToken_ = cc.consumesFrom<TrackerTopology,TrackerTopologyRcd>();
 }
 
-std::shared_ptr<VectorHitBuilderEDProducer> SiPhase2RecHitMatcherESProducer::produce(
+std::shared_ptr<VectorHitBuilderAlgorithm> SiPhase2RecHitMatcherESProducer::produce(
     const TkPhase2OTCPERecord& iRecord) {
   if (name_ == "SiPhase2VectorHitMatcher") {
-    matcher_ = std::make_shared<VectorHitBuilderEDProducer>(pset_);
+    matcher_ = std::make_shared<VectorHitBuilderAlgorithm>(pset_);
 
-    edm::ESHandle<TrackerGeometry> tGeomHandle;
-    edm::ESHandle<TrackerTopology> tTopoHandle;
-
-    iRecord.getRecord<TrackerDigiGeometryRecord>().get(tGeomHandle);
-    iRecord.getRecord<TrackerTopologyRcd>().get(tTopoHandle);
-
-    matcher_->algo()->initTkGeom(tGeomHandle);
-    matcher_->algo()->initTkTopo(tTopoHandle);
+    edm::ESHandle<TrackerGeometry> tGeomHandle = iRecord.getHandle(geometryToken_);
+    edm::ESHandle<TrackerTopology> tTopoHandle = iRecord.getHandle(trackerTopoToken_);
+  
+    matcher_->initTkGeom(tGeomHandle);
+    matcher_->initTkTopo(tTopoHandle);
   }
   return matcher_;
 }

@@ -9,6 +9,7 @@
 #include "RecoLocalTracker/ClusterParameterEstimator/interface/StripClusterParameterEstimator.h"
 #include "RecoLocalTracker/ClusterParameterEstimator/interface/PixelClusterParameterEstimator.h"
 #include "RecoLocalTracker/Phase2TrackerRecHits/interface/Phase2StripCPE.h"
+#include "RecoLocalTracker/SiPhase2VectorHitBuilder/interface/VectorHitBuilderAlgorithm.h"
 #include "CalibFormats/SiStripObjects/interface/SiStripDetCabling.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -56,7 +57,7 @@ public:
                          const PixelClusterParameterEstimator* pixelCPE,
                          const StripClusterParameterEstimator* stripCPE,
                          const SiStripRecHitMatcher* hitMatcher,
-                         const VectorHitBuilderEDProducer* ph2hitMatcher,
+                         const VectorHitBuilderAlgorithm* ph2hitMatcher,
                          const TrackerTopology* trackerTopology,
                          const TrackerGeometry* trackerGeom,
                          const GeometricSearchTracker* geometricSearchTracker,

@@ -1,12 +1,12 @@
 #include "TkStackMeasurementDet.h"
 
 #include "TrackingTools/MeasurementDet/interface/MeasurementDetException.h"
-#include "RecoLocalTracker/SiPhase2VectorHitBuilder/interface/VectorHitBuilderAlgorithmBase.h"
+#include "RecoLocalTracker/SiPhase2VectorHitBuilder/interface/VectorHitBuilderAlgorithm.h"
 
 using namespace std;
 
 TkStackMeasurementDet::TkStackMeasurementDet(const StackGeomDet* gdet,
-                                             const VectorHitBuilderEDProducer* matcher,
+                                             const VectorHitBuilderAlgorithm* matcher,
                                              const PixelClusterParameterEstimator* cpe)
     : MeasurementDet(gdet), theMatcher(matcher), thePixelCPE(cpe), theLowerDet(nullptr), theUpperDet(nullptr) {}
 
@@ -39,7 +39,7 @@ TkStackMeasurementDet::RecHitContainer TkStackMeasurementDet::recHits(const Traj
     begin = &(data.phase2OTData().handle()->data().front());
   }
 
-  VectorHitBuilderAlgorithmBase* algo = theMatcher->algo();
+  //VectorHitBuilderAlgorithm* algo = theMatcher;
   //VectorHitBuilderAlgorithm* vhalgo = dynamic_cast<VectorHitBuilderAlgorithm *>(algobase);
   LogTrace("MeasurementTracker") << "TkStackMeasurementDet::recHits algo has been set" << std::endl;
 
@@ -72,7 +72,7 @@ TkStackMeasurementDet::RecHitContainer TkStackMeasurementDet::recHits(const Traj
         Phase2TrackerCluster1DRef clusterLower = edmNew::makeRefTo(data.phase2OTData().handle(), cil);
         Phase2TrackerCluster1DRef clusterUpper = edmNew::makeRefTo(data.phase2OTData().handle(), ciu);
         //ERICA:I would have prefer to keep buildVectorHits ...
-        VectorHit vh = algo->buildVectorHit(&specificGeomDet(), clusterLower, clusterUpper);
+        VectorHit vh = theMatcher->buildVectorHit(&specificGeomDet(), clusterLower, clusterUpper);
         LogTrace("MeasurementTracker") << "TkStackMeasurementDet::rechits adding VectorHits!" << std::endl;
         LogTrace("MeasurementTracker") << vh << std::endl;
         result.push_back(std::make_shared<VectorHit>(vh));

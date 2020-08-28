@@ -10,7 +10,7 @@
 #include "RecoLocalTracker/ClusterParameterEstimator/interface/PixelClusterParameterEstimator.h"
 #include "RecoLocalTracker/Phase2TrackerRecHits/interface/Phase2StripCPE.h"
 #include "RecoLocalTracker/SiStripRecHitConverter/interface/SiStripRecHitMatcher.h"
-#include "RecoLocalTracker/SiPhase2VectorHitBuilder/interface/VectorHitBuilderEDProducer.h"
+#include "RecoLocalTracker/SiPhase2VectorHitBuilder/interface/VectorHitBuilderAlgorithm.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "RecoTracker/TkDetLayers/interface/GeometricSearchTracker.h"
 #include "RecoTracker/Record/interface/CkfComponentsRecord.h"
@@ -56,7 +56,7 @@ private:
   edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> trackerGeomToken_;
   edm::ESGetToken<GeometricSearchTracker, TrackerRecoGeometryRecord> geometricSearchTrackerToken_;
   edm::ESGetToken<ClusterParameterEstimator<Phase2TrackerCluster1D>, TkPhase2OTCPERecord> phase2TrackerCPEToken_;
-  edm::ESGetToken<VectorHitBuilderEDProducer, TkPhase2OTCPERecord> phase2matcherToken_;
+  edm::ESGetToken<VectorHitBuilderAlgorithm, TkPhase2OTCPERecord> phase2matcherToken_;
 
   MeasurementTrackerImpl::BadStripCutsDet badStripCuts_;
 
@@ -185,7 +185,7 @@ std::unique_ptr<MeasurementTracker> MeasurementTrackerESProducer::produce(const 
   }
 
   const ClusterParameterEstimator<Phase2TrackerCluster1D> *ptr_phase2TrackerCPE = nullptr;
-  const VectorHitBuilderEDProducer *ptr_phase2Matcher = nullptr;
+  const VectorHitBuilderAlgorithm *ptr_phase2Matcher = nullptr;
   if (usePhase2_) {
     ptr_phase2TrackerCPE = &iRecord.get(phase2TrackerCPEToken_);
     ptr_phase2Matcher = &iRecord.get(phase2matcherToken_);

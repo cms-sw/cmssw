@@ -33,7 +33,7 @@ public:
   bool checkClustersCompatibility(Local3DPoint& posinner,
                                   Local3DPoint& posouter,
                                   LocalError& errinner,
-                                  LocalError& errouter);
+                                  LocalError& errouter) const;
 
   class LocalPositionSort {
   public:
@@ -58,7 +58,7 @@ public:
 
   VectorHit buildVectorHit(const StackGeomDet* stack,
                            Phase2TrackerCluster1DRef lower,
-                           Phase2TrackerCluster1DRef upper) override;
+                           Phase2TrackerCluster1DRef upper) const override;
 
   // Full I/O in DetSet
   //void buildDetUnit( const edm::DetSetVector<Phase2TrackerCluster1D> & input,
@@ -71,7 +71,7 @@ public:
                Local3DPoint& pos,
                Local3DVector& dir,
                AlgebraicSymMatrix22& covMatrix,
-               double& chi2);
+               double& chi2) const;
   void fit2Dzy(const Local3DPoint lpCI,
                const Local3DPoint lpCO,
                const LocalError leCI,
@@ -79,7 +79,7 @@ public:
                Local3DPoint& pos,
                Local3DVector& dir,
                AlgebraicSymMatrix22& covMatrix,
-               double& chi2);
+               double& chi2) const;
 
   void fit(const std::vector<float>& x,
            const std::vector<float>& y,
@@ -87,7 +87,7 @@ public:
            Local3DPoint& pos,
            Local3DVector& dir,
            AlgebraicSymMatrix22& covMatrix,
-           double& chi2);
+           double& chi2) const;
 
   //  void build( const edm::DetSet<Phase2TrackerCluster1D> & input,
   //                     output_t::FastFiller& output);

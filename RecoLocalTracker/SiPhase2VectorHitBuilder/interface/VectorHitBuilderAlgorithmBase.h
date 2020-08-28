@@ -52,7 +52,7 @@ public:
 
   virtual VectorHit buildVectorHit(const StackGeomDet* stack,
                                    Phase2TrackerCluster1DRef lower,
-                                   Phase2TrackerCluster1DRef upper) = 0;
+                                   Phase2TrackerCluster1DRef upper) const = 0;
 
   double computeParallaxCorrection(const PixelGeomDetUnit*&,
                                    const Point3DBase<float, LocalTag>&,

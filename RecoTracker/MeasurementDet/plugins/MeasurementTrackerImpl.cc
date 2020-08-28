@@ -25,6 +25,7 @@
 #include "RecoLocalTracker/Records/interface/TrackerCPERecord.h"
 #include "RecoLocalTracker/SiStripRecHitConverter/interface/SiStripRecHitMatcher.h"
 #include "RecoLocalTracker/SiStripRecHitConverter/interface/StripCPE.h"
+#include "RecoLocalTracker/SiPhase2VectorHitBuilder/interface/VectorHitBuilderAlgorithm.h"
 
 #include "RecoTracker/TkDetLayers/interface/GeometricSearchTracker.h"
 #include "RecoTracker/Record/interface/TrackerRecoGeometryRecord.h"
@@ -77,7 +78,7 @@ MeasurementTrackerImpl::MeasurementTrackerImpl(const BadStripCutsDet& badStripCu
                                                const PixelClusterParameterEstimator* pixelCPE,
                                                const StripClusterParameterEstimator* stripCPE,
                                                const SiStripRecHitMatcher* hitMatcher,
-                                               const VectorHitBuilderEDProducer* ph2hitMatcher,
+                                               const VectorHitBuilderAlgorithm* ph2hitMatcher,
                                                const TrackerTopology* trackerTopology,
                                                const TrackerGeometry* trackerGeom,
                                                const GeometricSearchTracker* geometricSearchTracker,
