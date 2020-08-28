@@ -255,7 +255,7 @@ int CCLUTLinearFitWriter() {
 
     // pattern conversions
     ofstream outpatternconv;
-    outpatternconv.open(outdir + "CSCPatternConversionLUT_pat" + patt->getName() + "_v1.txt");
+    outpatternconv.open(outdir + "CSCComparatorCodePatternConversionLUT_pat" + patt->getName() + "_v1.txt");
 
     // iterate through each possible comparator code
     for (unsigned code = 0; code < CSCConstants::NUM_COMPARATOR_CODES; code++) {
