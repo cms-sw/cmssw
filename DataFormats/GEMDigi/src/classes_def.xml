@@ -6,6 +6,7 @@
 </class>
 <class name="std::vector<GEMDigi>"/>
 <class name="std::map<GEMDetId,std::vector<GEMDigi> >"/>
+<class name="std::pair<GEMDetId,std::vector<GEMDigi> >"/>
 <class name="MuonDigiCollection<GEMDetId,GEMDigi>"/>
 <class name="edm::Wrapper<MuonDigiCollection<GEMDetId,GEMDigi> >" splitLevel="0"/>
 
@@ -16,6 +17,7 @@
 </class>
 <class name="std::vector<GEMPadDigi>"/>
 <class name="std::map<GEMDetId,std::vector<GEMPadDigi> >"/>
+<class name="std::pair<GEMDetId,std::vector<GEMPadDigi> >"/>
 <class name="MuonDigiCollection<GEMDetId,GEMPadDigi>"/>
 <class name="edm::Wrapper<MuonDigiCollection<GEMDetId,GEMPadDigi> >" splitLevel="0"/>
 
@@ -25,6 +27,7 @@
 </class>
 <class name="std::vector<GEMPadDigiCluster>"/>
 <class name="std::map<GEMDetId,std::vector<GEMPadDigiCluster> >"/>
+<class name="std::pair<GEMDetId,std::vector<GEMPadDigiCluster> >"/>
 <class name="MuonDigiCollection<GEMDetId,GEMPadDigiCluster>"/>
 <class name="edm::Wrapper<MuonDigiCollection<GEMDetId,GEMPadDigiCluster> >" splitLevel="0"/>
 
@@ -33,6 +36,7 @@
 </class>
 <class name="std::vector<GEMCoPadDigi>"/>
 <class name="std::map<GEMDetId,std::vector<GEMCoPadDigi> >"/>
+<class name="std::pair<GEMDetId,std::vector<GEMCoPadDigi> >"/>
 <class name="MuonDigiCollection<GEMDetId,GEMCoPadDigi>"/>
 <class name="edm::Wrapper<MuonDigiCollection<GEMDetId,GEMCoPadDigi> >" splitLevel="0"/>
 
@@ -42,6 +46,7 @@
 </class>
 <class name="std::vector<GEMVfatStatusDigi>"/>
 <class name="std::map<GEMDetId,std::vector<GEMVfatStatusDigi> >"/>
+<class name="std::pair<GEMDetId,std::vector<GEMVfatStatusDigi> >"/>
 <class name="MuonDigiCollection<GEMDetId,GEMVfatStatusDigi>"/> 
 <class name="edm::Wrapper<MuonDigiCollection<GEMDetId,GEMVfatStatusDigi> >" splitLevel="0"/> 
 
@@ -50,6 +55,7 @@
 </class>
 <class name="std::vector<gem::GEBdata>"/>
 <class name="std::map<GEMDetId,std::vector<gem::GEBdata> >"/>
+<class name="std::pair<GEMDetId,std::vector<gem::GEBdata> >"/>
 <class name="MuonDigiCollection<GEMDetId, gem::GEBdata>"/>
 <class name="edm::Wrapper<MuonDigiCollection<GEMDetId, gem::GEBdata> >" splitLevel="0"/>
 
@@ -79,9 +85,11 @@
 </class>
 <class name="std::vector<ME0DigiPreReco>"/>
 <class name="std::map<ME0DetId,std::vector<ME0DigiPreReco> >"/>
+<class name="std::pair<ME0DetId,std::vector<ME0DigiPreReco> >"/>
 <class name="MuonDigiCollection<ME0DetId,ME0DigiPreReco>"/>
 <class name="edm::Wrapper<MuonDigiCollection<ME0DetId,ME0DigiPreReco> >" splitLevel="0"/>
 <class name="std::map<ME0DetId,std::vector<int> >"/>
+<class name="std::pair<ME0DetId,std::vector<int> >"/>
 <class name="MuonDigiCollection<ME0DetId,int>"/>
 <class name="edm::Wrapper<MuonDigiCollection<ME0DetId,int> >" splitLevel="0"/>
 
@@ -90,6 +98,7 @@
 </class>
 <class name="std::vector<ME0Digi>"/>
 <class name="std::map<ME0DetId,std::vector<ME0Digi> >"/>
+<class name="std::pair<ME0DetId,std::vector<ME0Digi> >"/>
 <class name="MuonDigiCollection<ME0DetId,ME0Digi>"/>
 <class name="edm::Wrapper<MuonDigiCollection<ME0DetId,ME0Digi> >" splitLevel="0"/>
 
@@ -98,6 +107,7 @@
 </class>
 <class name="std::vector<ME0PadDigi>"/>
 <class name="std::map<ME0DetId,std::vector<ME0PadDigi> >"/>
+<class name="std::pair<ME0DetId,std::vector<ME0PadDigi> >"/>
 <class name="MuonDigiCollection<ME0DetId,ME0PadDigi>"/>
 <class name="edm::Wrapper<MuonDigiCollection<ME0DetId,ME0PadDigi> >" splitLevel="0"/>
 
@@ -106,6 +116,7 @@
 </class>
 <class name="std::vector<ME0PadDigiCluster>"/>
 <class name="std::map<ME0DetId,std::vector<ME0PadDigiCluster> >"/>
+<class name="std::pair<ME0DetId,std::vector<ME0PadDigiCluster> >"/>
 <class name="MuonDigiCollection<ME0DetId,ME0PadDigiCluster>"/>
 <class name="edm::Wrapper<MuonDigiCollection<ME0DetId,ME0PadDigiCluster> >" splitLevel="0"/>
 
@@ -116,6 +127,7 @@
 </class>
 <class name="std::vector<ME0TriggerDigi>"/>
 <class name="std::map<ME0DetId,std::vector<ME0TriggerDigi> >"/>
+<class name="std::pair<ME0DetId,std::vector<ME0TriggerDigi> >"/>
 <class name="MuonDigiCollection<ME0DetId,ME0TriggerDigi>"/>
 <class name="edm::Wrapper<MuonDigiCollection<ME0DetId,ME0TriggerDigi> >" splitLevel="0"/>
 
