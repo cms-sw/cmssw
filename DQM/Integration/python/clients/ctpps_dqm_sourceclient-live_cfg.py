@@ -13,12 +13,15 @@ if 'unitTest=True' in sys.argv:
 # event source
 if unitTest:
   process.load("DQM.Integration.config.unittestinputsource_cfi")
+  from DQM.Integration.config.unittestinputsource_cfi import options
 elif not test:
   # for live online DQM in P5
   process.load("DQM.Integration.config.inputsource_cfi")
+  from DQM.Integration.config.inputsource_cfi import options
 else:
   # for testing in lxplus
   process.load("DQM.Integration.config.fileinputsource_cfi")
+  from DQM.Integration.config.fileinputsource_cfi import options
   process.source.fileNames = cms.untracked.vstring(
     #"root://eoscms.cern.ch//eos/cms/store/group/phys_pps/sw_test_input/001D08EE-C4B1-E711-B92D-02163E013864.root"
     #"/store/express/Run2016H/ExpressPhysics/FEVT/Express-v2/000/283/877/00000/4EE44B0E-2499-E611-A155-02163E011938.root"
@@ -33,9 +36,13 @@ else:
 process.load("DQM.Integration.config.environment_cfi")
 process.dqmEnv.subSystemFolder = 'CTPPS'
 process.dqmSaver.tag = 'CTPPS'
+process.dqmSaver.runNumber = options.runNumber
+process.dqmSaverPB.tag = 'CTPPS'
+process.dqmSaverPB.runNumber = options.runNumber
 
 if test:
   process.dqmSaver.path = "."
+  process.dqmSaverPB.path = "./pb"
 
 process.load("DQMServices.Components.DQMProvInfo_cfi")
 
@@ -87,7 +94,8 @@ process.path = cms.Path(
   #process.dqmModulesCalibration *
 
   process.dqmEnv *
-  process.dqmSaver
+  process.dqmSaver *
+  process.dqmSaverPB
 )
 
 process.schedule = cms.Schedule(process.path)

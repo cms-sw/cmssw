@@ -11,9 +11,11 @@ process.MessageLogger = cms.Service( "MessageLogger",
 #-----------------------------
 # for live online DQM in P5
 #process.load("DQM.Integration.config.inputsource_cfi")
+#from DQM.Integration.config.inputsource_cfi import options
 
 # for testing in lxplus
 process.load("DQM.Integration.config.fileinputsource_cfi")
+from DQM.Integration.config.fileinputsource_cfi import options
 
 process.maxEvents = cms.untracked.PSet(
   input = cms.untracked.int32( -1 )
@@ -36,6 +38,9 @@ process.load("DQM.Integration.config.FrontierCondition_GT_cfi")
 process.load("DQM.Integration.config.environment_cfi")
 process.dqmEnv.subSystemFolder    = "SiStripLAS"
 process.dqmSaver.tag = "SiStripLAS"
+process.dqmSaver.runNumber = options.runNumber
+process.dqmSaverPB.tag = "SiStripLAS"
+process.dqmSaverPB.runNumber = options.runNumber
 #----------------------------
 # DQM Alignment Software
 #----------------------------
@@ -51,7 +56,7 @@ process.LaserAlignmentProducerDQM.FolderName = "SiStripLAS"
 process.LaserAlignmentProducerDQM.UpperAdcThreshold = cms.uint32( 280 )
 
 process.seqDigitization = cms.Path( process.siStripDigis )
-process.DQMCommon   = cms.Sequence(process.dqmEnv*process.dqmSaver)
+process.DQMCommon   = cms.Sequence(process.dqmEnv*process.dqmSaver*process.dqmSaverPB)
 
 process.seqAnalysis = cms.Path( process.LaserAlignmentProducerDQM*process.DQMCommon)
 process.siStripDigis.ProductLabel = cms.InputTag("hltTrackerCalibrationRaw")

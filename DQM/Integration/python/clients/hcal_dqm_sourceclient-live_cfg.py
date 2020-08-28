@@ -40,10 +40,13 @@ else:
 	process.load('DQM.Integration.config.FrontierCondition_GT_cfi')
 if unitTest:
 	process.load("DQM.Integration.config.unittestinputsource_cfi")
+	from DQM.Integration.config.unittestinputsource_cfi import options
 elif useFileInput:
 	process.load("DQM.Integration.config.fileinputsource_cfi")
+	from DQM.Integration.config.fileinputsource_cfi import options
 else:
 	process.load('DQM.Integration.config.inputsource_cfi')
+	from DQM.Integration.config.inputsource_cfi import options
 process.load('DQM.Integration.config.environment_cfi')
 
 #-------------------------------------
@@ -51,6 +54,9 @@ process.load('DQM.Integration.config.environment_cfi')
 #-------------------------------------
 process.dqmEnv.subSystemFolder = subsystem
 process.dqmSaver.tag = subsystem
+process.dqmSaver.runNumber = options.runNumber
+process.dqmSaverPB.tag = subsystem
+process.dqmSaverPB.runNumber = options.runNumber
 process = customise(process)
 process.DQMStore.verbose = 0
 if not useFileInput and not unitTest:
@@ -224,6 +230,7 @@ process.dqmPath = cms.EndPath(
 		process.dqmEnv)
 process.dqmPath1 = cms.EndPath(
 		process.dqmSaver
+		*process.dqmSaverPB
 )
 process.qtPath = cms.Path(process.hcalQualityTests)
 
