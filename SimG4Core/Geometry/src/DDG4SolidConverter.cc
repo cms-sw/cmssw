@@ -383,7 +383,8 @@ G4VSolid *DDG4SolidConverter::pseudotrap(const DDSolid &solid) {
   }
   G4ThreeVector displ(0., 0.,
                       displacement);  // displacement of the tubs w.r.t. trap
-  edm::LogVerbatim("SimG4CoreGeometry") << "DDSolidConverter::pseudotrap(): displacement=" << displacement << " openingAngle=" << openingAngle / deg << " x=" << x << " h=" << h;
+  edm::LogVerbatim("SimG4CoreGeometry") << "DDSolidConverter::pseudotrap(): displacement=" << displacement
+                                        << " openingAngle=" << openingAngle / deg << " x=" << x << " h=" << h;
 
   // Now create two solids (trd & tubs), and a boolean solid out of them
   std::string name = pt.name().name();
@@ -408,7 +409,8 @@ G4VSolid *DDG4SolidConverter::trunctubs(const DDSolid &solid) {
   // truncated tube-section: a boolean subtraction solid:
   //                         from a tube-section a box is subtracted according
   //                         to the given parameters
-  edm::LogVerbatim("SimG4CoreGeometry") << "MantisConverter: solidshape=" << DDSolidShapesName::name(solid.shape()) << " " << solid;
+  edm::LogVerbatim("SimG4CoreGeometry") << "MantisConverter: solidshape=" << DDSolidShapesName::name(solid.shape())
+                                        << " " << solid;
   edm::LogVerbatim("SimG4CoreGeometry") << "before";
   DDTruncTubs tt(solid);
   edm::LogVerbatim("SimG4CoreGeometry") << "after";
@@ -436,7 +438,9 @@ G4VSolid *DDG4SolidConverter::trunctubs(const DDSolid &solid) {
   double r(cutAtStart), R(cutAtDelta);
   G4VSolid *result(nullptr);
   G4VSolid *tubs = new G4Tubs(name, rIn, rOut, zHalf, startPhi, deltaPhi);
-  edm::LogVerbatim("SimG4CoreGeometry") << "G4Tubs: " << rIn / CLHEP::cm << ' ' << rOut / CLHEP::cm << ' ' << zHalf / CLHEP::cm << ' ' << startPhi / CLHEP::deg << ' ' << deltaPhi / CLHEP::deg;
+  edm::LogVerbatim("SimG4CoreGeometry") << "G4Tubs: " << rIn / CLHEP::cm << ' ' << rOut / CLHEP::cm << ' '
+                                        << zHalf / CLHEP::cm << ' ' << startPhi / CLHEP::deg << ' '
+                                        << deltaPhi / CLHEP::deg;
   edm::LogVerbatim("SimG4CoreGeometry") << solid;
   // length & hight of the box
   double boxX(rOut * std::sqrt(2) * 1.1),
@@ -454,7 +458,9 @@ G4VSolid *DDG4SolidConverter::trunctubs(const DDSolid &solid) {
   edm::LogVerbatim("SimG4CoreGeometry") << "cath=" << cath / CLHEP::cm;
   edm::LogVerbatim("SimG4CoreGeometry") << "hypo=" << hypo / CLHEP::cm;
   edm::LogVerbatim("SimG4CoreGeometry") << "al=" << acos(cath / hypo) / CLHEP::deg;
-  edm::LogVerbatim("SimG4CoreGeometry") << "deltaPhi=" << deltaPhi / CLHEP::deg << "\n" << "r=" << r / CLHEP::cm << "\n" << "R=" << R / CLHEP::cm;
+  edm::LogVerbatim("SimG4CoreGeometry") << "deltaPhi=" << deltaPhi / CLHEP::deg << "\n"
+                                        << "r=" << r / CLHEP::cm << "\n"
+                                        << "R=" << R / CLHEP::cm;
 
   edm::LogVerbatim("SimG4CoreGeometry") << "alpha=" << alpha / CLHEP::deg;
 
