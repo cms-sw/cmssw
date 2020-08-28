@@ -1,7 +1,14 @@
+#ifdef CMS_CUDA_AVAILABLE
 #include <cuda_runtime.h>
 
 #include "CUDADataFormats/BeamSpot/interface/BeamSpotCUDA.h"
 #include "CUDADataFormats/Common/interface/Product.h"
+#include "HeterogeneousCore/CUDACore/interface/ScopedContext.h"
+#include "HeterogeneousCore/CUDAServices/interface/CUDAService.h"
+#include "HeterogeneousCore/CUDAUtilities/interface/copyAsync.h"
+#include "HeterogeneousCore/CUDAUtilities/interface/host_noncached_unique_ptr.h"
+#endif
+
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
 #include "DataFormats/BeamSpot/interface/BeamSpotPOD.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -11,11 +18,20 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
-#include "HeterogeneousCore/CUDACore/interface/ScopedContext.h"
-#include "HeterogeneousCore/CUDAServices/interface/CUDAService.h"
-#include "HeterogeneousCore/CUDAUtilities/interface/copyAsync.h"
-#include "HeterogeneousCore/CUDAUtilities/interface/host_noncached_unique_ptr.h"
 
+#ifndef CMS_CUDA_AVAILABLE
+class BeamSpotToCUDA : public edm::global::EDProducer<> {
+public:
+  explicit BeamSpotToCUDA(const edm::ParameterSet& iConfig) {}
+
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+
+  void produce(edm::StreamID streamID, edm::Event& iEvent, const edm::EventSetup& iSetup) const override {
+    throw cms::Exception("UnimplementedFeature") << "BeamSpotToCUDA::produce() is not impelemented without CUDA";
+  }
+};
+#endif
+#ifdef CMS_CUDA_AVAILABLE
 namespace {
 
   class BeamSpotHost {
@@ -40,7 +56,7 @@ namespace {
 
 }  // namespace
 
-class BeamSpotToCUDA : public edm::global::EDProducer<edm::StreamCache<BeamSpotHost>> {
+class BeamSpotToCUDA : public edm::global::EDProducer<edm::StreamCache<BeamSpotHost> > {
 public:
   explicit BeamSpotToCUDA(const edm::ParameterSet& iConfig);
   ~BeamSpotToCUDA() override = default;
@@ -59,12 +75,13 @@ public:
 
 private:
   const edm::EDGetTokenT<reco::BeamSpot> bsGetToken_;
-  const edm::EDPutTokenT<cms::cuda::Product<BeamSpotCUDA>> bsPutToken_;
+  const edm::EDPutTokenT<cms::cuda::Product<BeamSpotCUDA> > bsPutToken_;
 };
 
 BeamSpotToCUDA::BeamSpotToCUDA(const edm::ParameterSet& iConfig)
     : bsGetToken_{consumes<reco::BeamSpot>(iConfig.getParameter<edm::InputTag>("src"))},
-      bsPutToken_{produces<cms::cuda::Product<BeamSpotCUDA>>()} {}
+      bsPutToken_{produces<cms::cuda::Product<BeamSpotCUDA> >()} {}
+#endif  // CMS_CUDA_AVAILABLE
 
 void BeamSpotToCUDA::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
@@ -72,6 +89,7 @@ void BeamSpotToCUDA::fillDescriptions(edm::ConfigurationDescriptions& descriptio
   descriptions.add("offlineBeamSpotToCUDA", desc);
 }
 
+#ifdef CUDA_AVAILABLE
 void BeamSpotToCUDA::produce(edm::StreamID streamID, edm::Event& iEvent, const edm::EventSetup& iSetup) const {
   cms::cuda::ScopedContextProduce ctx{streamID};
 
@@ -97,5 +115,6 @@ void BeamSpotToCUDA::produce(edm::StreamID streamID, edm::Event& iEvent, const e
 
   ctx.emplace(iEvent, bsPutToken_, std::move(bsDevice));
 }
+#endif  // CMS_CUDA_AVAILABLE
 
 DEFINE_FWK_MODULE(BeamSpotToCUDA);
