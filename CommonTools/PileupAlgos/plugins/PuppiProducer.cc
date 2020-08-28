@@ -236,8 +236,16 @@ void PuppiProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
         else{ curpupweight = lPack->puppiWeight();  }
       }
       lWeights.push_back(curpupweight);
-      PuppiCandidate curjet( curpupweight*lPack->px(), curpupweight*lPack->py(), curpupweight*lPack->pz(), curpupweight*lPack->energy());
-      curjet.set_user_index(lPackCtr);
+      PuppiCandidate curjet;
+      curjet.px = curpupweight*lPack->px();
+      curjet.py = curpupweight*lPack->py();
+      curjet.pz = curpupweight*lPack->pz();
+      curjet.e = curpupweight*lPack->energy();
+      curjet.pt = curpupweight*lPack->pt();
+      curjet.eta = lPack->eta();
+      curjet.rapidity = lPack->rapidity();
+      curjet.phi = lPack->phi();
+      curjet.m = curpupweight*lPack->mass();
       lCandidates.push_back(curjet);
       lPackCtr++;
     }
@@ -285,7 +293,7 @@ void PuppiProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
     int iPuppiMatched = fUseExistingWeights ? val : fPuppiContainer->recoToPup()[val];
     if ( iPuppiMatched >= 0 ) {
       auto const& puppiMatched = lCandidates[iPuppiMatched];
-      pVec.SetPxPyPzE(puppiMatched.px(),puppiMatched.py(),puppiMatched.pz(),puppiMatched.E());
+      pVec.SetPxPyPzE(puppiMatched.px,puppiMatched.py,puppiMatched.pz,puppiMatched.e);
       if(fClonePackedCands && (!fUseExistingWeights)) {
         if(fPuppiForLeptons)
           pCand->setPuppiWeight(pCand->puppiWeight(),lWeights[val]);

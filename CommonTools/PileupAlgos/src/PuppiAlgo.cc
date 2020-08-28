@@ -87,12 +87,12 @@ void PuppiAlgo::fixAlgoEtaBin(int i_eta) {
 }
 
 void PuppiAlgo::add(const PuppiCandidate &iParticle,const double &iVal,const unsigned int iAlgo) {
-    if(iParticle.pt() < fRMSPtMin[iAlgo]) return;
+    if(iParticle.pt < fRMSPtMin[iAlgo]) return;
     // Change from SRR : Previously used fastjet::PseudoJet::user_index to decide the particle type.
     // In CMSSW we use the user_index to specify the index in the input collection, so I invented
     // a new mechanism using the fastjet UserInfo functionality. Of course, it's still just an integer
     // but that interface could be changed (or augmented) if desired / needed.
-    int puppi_register = iParticle.puppi_register();
+    int puppi_register = iParticle.puppi_register;
     if ( puppi_register == std::numeric_limits<int>::lowest() ) {
         throw cms::Exception("PuppiRegisterNotSet") << "The puppi register is not set. This must be set before use.\n";
     }
@@ -107,13 +107,13 @@ void PuppiAlgo::add(const PuppiCandidate &iParticle,const double &iVal,const uns
 
     // added by Nhan -- for all eta regions, compute mean/RMS from the central charged PU
     //std::cout << "std::abs(puppi_register) = " << std::abs(puppi_register) << std::endl;
-    if ((std::abs(iParticle.eta()) < fEtaMaxExtrap) && (std::abs(puppi_register) >= 3)){
+    if ((std::abs(iParticle.eta) < fEtaMaxExtrap) && (std::abs(puppi_register) >= 3)){
         fPups.push_back(iVal);
         // fPupsPV.push_back(iVal);        
         fNCount[iAlgo]++;
     }
     // for the low PU case, correction.  for checking that the PU-only median will be below the PV particles
-    if(std::abs(iParticle.eta()) < fEtaMaxExtrap && (std::abs(puppi_register) >=1 && std::abs(puppi_register) <=2)) fPupsPV.push_back(iVal);
+    if(std::abs(iParticle.eta) < fEtaMaxExtrap && (std::abs(puppi_register) >=1 && std::abs(puppi_register) <=2)) fPupsPV.push_back(iVal);
 
 }
 
@@ -162,7 +162,6 @@ void PuppiAlgo::computeMedRMS(const unsigned int &iAlgo,const double &iPVFrac) {
 
     if(fAdjust[iAlgo]){ 
         //Adjust the p-value to correspond to the median
-        std::sort(fPupsPV.begin(),fPupsPV.end());
         int lNPV = 0; 
         for(unsigned int i0 = 0; i0 < fPupsPV.size(); i0++) if(fPupsPV[i0] <= lMed ) lNPV++;
         double lAdjust = double(lNPV)/double(lNPV+0.5*fNCount[iAlgo]);
