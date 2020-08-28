@@ -49,7 +49,6 @@ void L1TriggerNtupleTkElectrons::fill(const edm::Event& e, const edm::EventSetup
   e.getByToken(tkEle_token_, tkEle_h);
   const l1t::TkElectronCollection& tkEle_collection = *tkEle_h;
 
-  // triggerTools_.eventSetup(es);
   clear();
   for (auto tkele_itr : tkEle_collection) {
     tkEle_n_++;
