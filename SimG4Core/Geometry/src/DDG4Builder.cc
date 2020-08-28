@@ -30,7 +30,7 @@ DDG4Builder::DDG4Builder(const DDCompactView *cpv, G4LogicalVolumeToDDLogicalPar
 DDG4Builder::~DDG4Builder() { delete solidConverter_; }
 
 G4LogicalVolume *DDG4Builder::convertLV(const DDLogicalPart &part) {
-  LogDebug("SimG4CoreGeometry") << "DDG4Builder::convertLV(): DDLogicalPart = " << part << "\n";
+  edm::LogVerbatim("SimG4CoreGeometry") << "DDG4Builder::convertLV(): DDLogicalPart = " << part;
   G4LogicalVolume *result = logs_[part];
   if (!result) {
     G4VSolid *g4s = convertSolid(part.solid());
@@ -39,9 +39,7 @@ G4LogicalVolume *DDG4Builder::convertLV(const DDLogicalPart &part) {
     map_.insert(result, part);
     DDG4Dispatchable *disp = new DDG4Dispatchable(&part, result);
     theVectorOfDDG4Dispatchables_->push_back(disp);
-    LogDebug("SimG4CoreGeometry") << "DDG4Builder::convertLV(): new G4LogicalVolume " << part.name().name()
-                                  << "\nDDG4Builder: newEvent: dd=" << part.ddname() << " g4=" << result->GetName()
-                                  << "\n";
+    edm::LogVerbatim("SimG4CoreGeometry") << "DDG4Builder::convertLV(): new G4LogicalVolume " << part.name().name() << "\nDDG4Builder: newEvent: dd=" << part.ddname() << " g4=" << result->GetName();
     logs_[part] = result;  // DDD -> GEANT4
   }
   return result;
@@ -57,40 +55,33 @@ G4VSolid *DDG4Builder::convertSolid(const DDSolid &solid) {
 }
 
 G4Material *DDG4Builder::convertMaterial(const DDMaterial &material) {
-  LogDebug("SimG4CoreGeometry") << "DDDetConstr::ConvertMaterial: material=" << material << "\n";
+  edm::LogVerbatim("SimG4CoreGeometry") << "DDDetConstr::ConvertMaterial: material=" << material;
   G4Material *result = nullptr;
   if (material) {
     // only if it's a valid DDD-material
     if ((result = mats_[material])) {
-      LogDebug("SimG4CoreGeometry") << "  is already converted"
-                                    << "\n";
+      edm::LogVerbatim("SimG4CoreGeometry") << "  is already converted";
       return result;
     }
   } else {
     // only if it's NOT a valid DDD-material
-    edm::LogError("SimG4CoreGeometry") << "DDG4Builder::  material " << material.toString()
-                                       << " is not valid (in the DDD sense!)";
     throw cms::Exception("SimG4CoreGeometry",
                          " material is not valid from the Detector Description: " + material.toString());
   }
   int c = 0;
   if ((c = material.noOfConstituents())) {
     // it's a composite material
-    LogDebug("SimG4CoreGeometry") << "  creating a G4-composite material. c=" << c
-                                  << " d=" << material.density() / g * mole << "\n";
+    edm::LogVerbatim("SimG4CoreGeometry") << "  creating a G4-composite material. c=" << c << " d=" << material.density() / CLHEP::g * CLHEP::mole;
     result = new G4Material(material.name().name(), material.density(), c);
     for (int i = 0; i < c; ++i) {
       // recursive building of constituents
-      LogDebug("SimG4CoreGeometry") << "  adding the composite=" << material.name()
-                                    << " fm=" << material.constituent(i).second << "\n";
+      edm::LogVerbatim("SimG4CoreGeometry") << "  adding the composite=" << material.name() << " fm=" << material.constituent(i).second;
       result->AddMaterial(convertMaterial(material.constituent(i).first),
                           material.constituent(i).second);  // fractionmass
     }
   } else {
     // it's an elementary material
-    LogDebug("SimG4CoreGeometry") << "  building an elementary material"
-                                  << " z=" << material.z() << " a=" << material.a() / g * mole
-                                  << " d=" << material.density() / g * cm3 << "\n";
+    edm::LogVerbatim("SimG4CoreGeometry") << "  building an elementary material" << " z=" << material.z() << " a=" << material.a() / CLHEP::g * CLHEP::mole << " d=" << material.density() / CLHEP::g * CLHEP::cm3;
     result = new G4Material(material.name().name(), material.z(), material.a(), material.density());
   }
   mats_[material] = result;
@@ -111,13 +102,10 @@ G4LogicalVolume *DDG4Builder::BuildGeometry(SensitiveDetectorCatalog &catalog) {
   for (; git != gend; ++git) {
     const DDLogicalPart &ddLP = gra.nodeData(git);
     if (!(ddLP.isDefined().second)) {
-      edm::LogError("SimG4CoreGeometry") << "DDG4Builder::BuildGeometry() has encountered an undefined "
-                                            "DDLogicalPart named "
-                                         << ddLP.toString();
       throw cms::Exception("SimG4CoreGeometry",
                            " DDG4Builder::BuildGeometry() has encountered an "
                            "undefined DDLogicalPart named " +
-                               ddLP.toString());
+			   ddLP.toString());
     }
     G4LogicalVolume *g4LV = convertLV(ddLP);
     ++i;
@@ -132,7 +120,6 @@ G4LogicalVolume *DDG4Builder::BuildGeometry(SensitiveDetectorCatalog &catalog) {
           std::string err = " DDG4Builder::BuildGeometry() in processing \"children\" has ";
           err += "encountered an undefined DDLogicalPart named " + ddcurLP.toString() + " is a child of " +
                  ddLP.toString();
-          edm::LogError("SimG4CoreGeometry") << err;
           throw cms::Exception("SimG4CoreGeometry", err);
         }
         int offset = getInt("CopyNoOffset", ddcurLP);
@@ -141,10 +128,7 @@ G4LogicalVolume *DDG4Builder::BuildGeometry(SensitiveDetectorCatalog &catalog) {
         DD3Vector x, y, z;
         rm.GetComponents(x, y, z);
         if ((x.Cross(y)).Dot(z) < 0)
-          edm::LogVerbatim("SimG4CoreGeometry")
-              << "DDG4Builder: Reflection: " << gra.edgeData(cit->second)->ddrot()
-              << ">>Placement d=" << gra.nodeData(cit->first).ddname() << " m=" << ddLP.ddname()
-              << " cp=" << gra.edgeData(cit->second)->copyno() << " r=" << gra.edgeData(cit->second)->ddrot().ddname();
+          edm::LogVerbatim("SimG4CoreGeometry") << "DDG4Builder: Reflection: " << gra.edgeData(cit->second)->ddrot() << ">>Placement d=" << gra.nodeData(cit->first).ddname() << " m=" << ddLP.ddname() << " cp=" << gra.edgeData(cit->second)->copyno() << " r=" << gra.edgeData(cit->second)->ddrot().ddname();
         G4ThreeVector tempTran(gra.edgeData(cit->second)->trans().X(),
                                gra.edgeData(cit->second)->trans().Y(),
                                gra.edgeData(cit->second)->trans().Z());
@@ -176,8 +160,7 @@ G4LogicalVolume *DDG4Builder::BuildGeometry(SensitiveDetectorCatalog &catalog) {
       map_.insert(reflLogicalVolume, ddlv);
       DDG4Dispatchable *disp = new DDG4Dispatchable(&(ddg4_it->first), reflLogicalVolume);
       theVectorOfDDG4Dispatchables_->push_back(disp);
-      edm::LogVerbatim("SimG4CoreGeometry")
-          << "DDG4Builder: dd=" << ddlv.ddname() << " g4=" << reflLogicalVolume->GetName();
+      edm::LogVerbatim("SimG4CoreGeometry") << "DDG4Builder: dd=" << ddlv.ddname() << " g4=" << reflLogicalVolume->GetName();
     }
   }
 
@@ -204,11 +187,10 @@ int DDG4Builder::getInt(const std::string &ss, const DDLogicalPart &part) {
   if (foundIt) {
     std::vector<double> temp = val.doubles();
     if (temp.size() != 1) {
-      edm::LogError("SimG4CoreGeometry") << " DDG4Builder - ERROR: I need only 1 " << ss;
       throw cms::Exception("SimG4CoreGeometry",
                            " DDG4Builder::getInt() Problem with Region tags - "
                            "one and only one allowed: " +
-                               ss);
+			   ss);
     }
     return int(temp[0]);
   } else
@@ -227,11 +209,10 @@ double DDG4Builder::getDouble(const std::string &ss, const DDLogicalPart &part) 
   if (foundIt) {
     std::vector<std::string> temp = val.strings();
     if (temp.size() != 1) {
-      edm::LogError("SimG4CoreGeometry") << " DDG4Builder - ERROR: I need only 1 " << ss;
       throw cms::Exception("SimG4CoreGeometry",
                            " DDG4Builder::getDouble() Problem with Region tags "
                            "- one and only one allowed: " +
-                               ss);
+			   ss);
     }
     double v;
     std::string unit;
