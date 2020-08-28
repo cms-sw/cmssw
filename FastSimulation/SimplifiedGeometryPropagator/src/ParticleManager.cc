@@ -243,6 +243,21 @@ std::unique_ptr<fastsim::Particle> fastsim::ParticleManager::nextGenParticle() {
 		    hasExoticAssociation = true;
 		    break;
 		  }
+		const HepMC::GenVertex * relVertex2 = genRelative2ndGen.production_vertex();
+		if(!relVertex2) continue;
+		std::vector<HepMC::GenParticle*>::const_iterator relatives3rdGenIterator_ = relVertex2->particles_in_const_begin();
+		std::vector<HepMC::GenParticle*>::const_iterator relatives3rdGenIteratorEnd_ = relVertex2->particles_in_const_end();
+		for ( ; relatives3rdGenIterator_ != relatives3rdGenIteratorEnd_ ; ++relatives3rdGenIterator_ ) 
+		  {
+		    const HepMC::GenParticle & genRelative3rdGen = **relatives3rdGenIterator_;
+		    if (abs(genRelative3rdGen.pdg_id())>1000000)
+		      {
+			exoticRelativeId = 0;//the current particle, if non-stable, will have its decay products remade by fastsim
+			hasExoticAssociation = true;
+			break;
+		      }
+		  }
+		if(hasExoticAssociation) break;
 	      }
 	    if(hasExoticAssociation) break;
 	  }
