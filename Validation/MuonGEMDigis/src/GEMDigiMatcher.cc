@@ -135,6 +135,7 @@ void GEMDigiMatcher::matchDigisToSimTrack(const GEMDigiCollection& digis) {
     const auto& digis_in_det = digis.get(p_id);
 
     for (auto d = digis_in_det.first; d != digis_in_det.second; ++d) {
+
       // check that the digi is within BX range
       if (d->bx() < minBXDigi_ || d->bx() > maxBXDigi_)
         continue;
