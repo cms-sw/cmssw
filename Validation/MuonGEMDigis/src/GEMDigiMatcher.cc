@@ -135,6 +135,7 @@ void GEMDigiMatcher::matchDigisToSimTrack(const GEMDigiCollection& digis) {
     const auto& digis_in_det = digis.get(p_id);
 
     for (auto d = digis_in_det.first; d != digis_in_det.second; ++d) {
+
       // check that the digi is within BX range
       if (d->bx() < minBXDigi_ || d->bx() > maxBXDigi_)
         continue;
@@ -165,6 +166,11 @@ void GEMDigiMatcher::matchPadsToSimTrack(const GEMPadDigiCollection& pads) {
     const auto& pads_in_det = pads.get(p_id);
 
     for (auto pad = pads_in_det.first; pad != pads_in_det.second; ++pad) {
+
+      // ignore 16-partition GE2/1 pads
+      if (p_id.isGE21() and pad->nPartitions() == GEMPadDigi::GE21SplitStrip)
+        continue;
+
       // check that the pad BX is within the range
       if (pad->bx() < minBXPad_ || pad->bx() > maxBXPad_)
         continue;
@@ -196,6 +202,10 @@ void GEMDigiMatcher::matchClustersToSimTrack(const GEMPadDigiClusterCollection& 
 
     for (auto cluster = clusters_in_det.first; cluster != clusters_in_det.second; ++cluster) {
       bool isMatched;
+
+      // ignore 16-partition GE2/1 pads
+      if (p_id.isGE21() and cluster->nPartitions() == GEMPadDigiCluster::GE21SplitStrip)
+        continue;
 
       // check that the cluster BX is within the range
       if (cluster->bx() < minBXCluster_ || cluster->bx() > maxBXCluster_)
