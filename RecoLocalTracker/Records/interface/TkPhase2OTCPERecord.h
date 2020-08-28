@@ -12,7 +12,7 @@
 class TkPhase2OTCPERecord
     : public edm::eventsetup::DependentRecordImplementation<
           TkPhase2OTCPERecord,
-          edm::mpl::Vector<TrackerDigiGeometryRecord, IdealMagneticFieldRecord, SiPhase2OuterTrackerLorentzAngleRcd> > {
+          edm::mpl::Vector<TrackerDigiGeometryRecord, TrackerTopologyRcd, IdealMagneticFieldRecord, SiPhase2OuterTrackerLorentzAngleRcd> > {
 };
 
 #endif

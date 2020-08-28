@@ -121,7 +121,7 @@ bool VectorHitBuilderAlgorithm::checkClustersCompatibilityBeforeBuilding(
 bool VectorHitBuilderAlgorithm::checkClustersCompatibility(Local3DPoint& poslower,
                                                            Local3DPoint& posupper,
                                                            LocalError& errlower,
-                                                           LocalError& errupper) {
+                                                           LocalError& errupper) const{
   return true;
 }
 
@@ -247,9 +247,9 @@ std::vector<std::pair<VectorHit, bool>> VectorHitBuilderAlgorithm::buildVectorHi
   return result;
 }
 
-VectorHit VectorHitBuilderAlgorithm::buildVectorHit(const StackGeomDet* stack,
+  VectorHit VectorHitBuilderAlgorithm::buildVectorHit(const StackGeomDet* stack,
                                                     Phase2TrackerCluster1DRef lower,
-                                                    Phase2TrackerCluster1DRef upper) {
+                                                    Phase2TrackerCluster1DRef upper) const {
   LogTrace("VectorHitBuilderAlgorithm") << "Build VH with: ";
   //printCluster(stack->lowerDet(),&*lower);
   //printCluster(stack->upperDet(),&*upper);
@@ -330,7 +330,7 @@ void VectorHitBuilderAlgorithm::fit2Dzx(const Local3DPoint lpCI,
                                         Local3DPoint& pos,
                                         Local3DVector& dir,
                                         AlgebraicSymMatrix22& covMatrix,
-                                        double& chi2) {
+                                        double& chi2) const{
   std::vector<float> x = {lpCI.z(), lpCO.z()};
   std::vector<float> y = {lpCI.x(), lpCO.x()};
   float sqCI = sqrt(leCI.xx());
@@ -349,7 +349,7 @@ void VectorHitBuilderAlgorithm::fit2Dzy(const Local3DPoint lpCI,
                                         Local3DPoint& pos,
                                         Local3DVector& dir,
                                         AlgebraicSymMatrix22& covMatrix,
-                                        double& chi2) {
+                                        double& chi2) const{
   std::vector<float> x = {lpCI.z(), lpCO.z()};
   std::vector<float> y = {lpCI.y(), lpCO.y()};
   float sqCI = sqrt(leCI.yy());
@@ -367,7 +367,7 @@ void VectorHitBuilderAlgorithm::fit(const std::vector<float>& x,
                                     Local3DPoint& pos,
                                     Local3DVector& dir,
                                     AlgebraicSymMatrix22& covMatrix,
-                                    double& chi2) {
+                                    double& chi2) const{
   if (x.size() != y.size() || x.size() != sigy.size()) {
     edm::LogError("VectorHitBuilderAlgorithm") << "Different size for x,z !! No fit possible.";
     return;
@@ -400,3 +400,5 @@ void VectorHitBuilderAlgorithm::fit(const std::vector<float>& x,
     dir = LocalVector(slope, 0., -1.);
   }
 }
+#include "FWCore/Utilities/interface/typelookup.h"
+TYPELOOKUP_DATA_REG(VectorHitBuilderAlgorithm);

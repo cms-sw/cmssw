@@ -5,7 +5,7 @@
 #include "TkPhase2OTMeasurementDet.h"
 
 #include "Geometry/CommonDetUnit/interface/StackGeomDet.h"
-#include "RecoLocalTracker/SiPhase2VectorHitBuilder/interface/VectorHitBuilderEDProducer.h"
+#include "RecoLocalTracker/SiPhase2VectorHitBuilder/interface/VectorHitBuilderAlgorithm.h"
 #include "RecoLocalTracker/ClusterParameterEstimator/interface/PixelClusterParameterEstimator.h"
 
 #include "FWCore/Utilities/interface/Visibility.h"
@@ -15,7 +15,7 @@
 class TkStackMeasurementDet final : public MeasurementDet {
 public:
   TkStackMeasurementDet(const StackGeomDet* gdet,
-                        const VectorHitBuilderEDProducer* matcher,
+                        const VectorHitBuilderAlgorithm* matcher,
                         const PixelClusterParameterEstimator* cpe);
   void init(const MeasurementDet* lowerDet, const MeasurementDet* upperDet);
 
@@ -49,7 +49,7 @@ public:
   }
 
 private:
-  const VectorHitBuilderEDProducer* theMatcher;
+  const VectorHitBuilderAlgorithm* theMatcher;
   const PixelClusterParameterEstimator* thePixelCPE;
   const TkPhase2OTMeasurementDet* theLowerDet;
   const TkPhase2OTMeasurementDet* theUpperDet;
