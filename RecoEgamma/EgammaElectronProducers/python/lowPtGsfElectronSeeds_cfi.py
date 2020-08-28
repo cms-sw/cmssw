@@ -34,13 +34,14 @@ lowPtGsfElectronSeeds = cms.EDProducer(
 
 # Modifiers for FastSim
 from Configuration.Eras.Modifier_fastSim_cff import fastSim
-lowPtGsfElectronSeedsTmp = lowPtGsfElectronSeeds.clone(tracks = cms.InputTag("generalTracksBeforeMixing"))
+lowPtGsfElectronSeedsTmp = lowPtGsfElectronSeeds.clone(tracks = "generalTracksBeforeMixing")
 import FastSimulation.Tracking.ElectronSeedTrackRefFix_cfi
-_fastSim_lowPtGsfElectronSeeds = FastSimulation.Tracking.ElectronSeedTrackRefFix_cfi.fixedTrackerDrivenElectronSeeds.clone()
-_fastSim_lowPtGsfElectronSeeds.seedCollection = cms.InputTag("lowPtGsfElectronSeedsTmp","")
-_fastSim_lowPtGsfElectronSeeds.idCollection = cms.VInputTag("lowPtGsfElectronSeedsTmp","lowPtGsfElectronSeedsTmp:HCAL")
-_fastSim_lowPtGsfElectronSeeds.PreIdLabel = cms.vstring("","HCAL")
-_fastSim_lowPtGsfElectronSeeds.PreGsfLabel = cms.string("")
+_fastSim_lowPtGsfElectronSeeds = FastSimulation.Tracking.ElectronSeedTrackRefFix_cfi.fixedTrackerDrivenElectronSeeds.clone(
+    seedCollection = "lowPtGsfElectronSeedsTmp:",
+    idCollection   = ["lowPtGsfElectronSeedsTmp","lowPtGsfElectronSeedsTmp:HCAL"],
+    PreIdLabel     = ["","HCAL"],
+    PreGsfLabel    = ""
+)
 fastSim.toReplaceWith(lowPtGsfElectronSeeds,_fastSim_lowPtGsfElectronSeeds)
 
 # Modifiers for BParking
