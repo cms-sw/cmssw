@@ -1,18 +1,22 @@
-<use name="CalibCalorimetry/EcalTPGTools"/>
-<use name="RecoLocalCalo/EcalDeadChannelRecoveryAlgos"/>
-<use name="Geometry/CaloGeometry"/>
-<use name="RecoLocalCalo/EcalRecProducers"/>
-<use name="FWCore/Framework"/>
-<use name="FWCore/ParameterSet"/>
+<use name="cuda"/>
+<use name="CUDADataFormats/EcalRecHitSoA"/>
 <use name="CalibCalorimetry/EcalLaserCorrection"/>
+<use name="CalibCalorimetry/EcalTPGTools"/>
+<use name="CondFormats/DataRecord"/>
+<use name="CondFormats/ESObjects"/>
+<use name="CondFormats/EcalObjects"/>
 <use name="DataFormats/EcalDigi"/>
 <use name="DataFormats/EcalRecHit"/>
-<use name="CondFormats/EcalObjects"/>
-<use name="CondFormats/ESObjects"/>
-<use name="CondFormats/DataRecord"/>
+<use name="FWCore/Framework"/>
+<use name="FWCore/ParameterSet"/>
+<use name="Geometry/CaloGeometry"/>
+<use name="HeterogeneousCore/CUDACore"/>
+<use name="HeterogeneousCore/CUDAUtilities"/>
+<use name="RecoLocalCalo/EcalDeadChannelRecoveryAlgos"/>
 <use name="RecoLocalCalo/EcalRecAlgos"/>
-<use name="FWCore/MessageLogger"/>
+<use name="RecoLocalCalo/EcalRecProducers"/>
 <use name="SimCalorimetry/EcalSimAlgos"/>
-<library file="*.cc" name="RecoLocalCaloEcalRecProducersPlugins">
+
+<library file="*.cc *.cu" name="RecoLocalCaloEcalRecProducersPlugins">
   <flags EDM_PLUGIN="1"/>
 </library>

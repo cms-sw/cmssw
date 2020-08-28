@@ -21,7 +21,10 @@ def _layers(suffix, quant, histoPostfix):
     ]
 
 pixelTrackingEffFromHitPattern = DQMEDHarvester("DQMGenericClient",
-    subDirs = cms.untracked.vstring("Tracking/PixelTrackParameters/HitEffFromHitPattern*"),
+    subDirs = cms.untracked.vstring("Tracking/PixelTrackParameters/pixelTracks/HitEffFromHitPattern*",
+                                    "Tracking/PixelTrackParameters/dzPV0p1/HitEffFromHitPattern*",
+                                    "Tracking/PixelTrackParameters/pt_0to1/HitEffFromHitPattern*",
+                                    "Tracking/PixelTrackParameters/pt_1/HitEffFromHitPattern*"),
     efficiency = cms.vstring(
         _layers("PU", "GoodNumVertices", "") +
         _layers("BX", "BX", "VsBX") +

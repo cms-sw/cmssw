@@ -1,0 +1,8 @@
+<bin name="makeHcalRaw2DigiGpuValidationPlots" file="makeHcalRaw2DigiGpuValidationPlots.cpp">
+    <use name="root"/>
+    <use name="rootgraphics"/>
+    <use name="DataFormats/Common"/>
+    <use name="DataFormats/HcalDigi"/>
+    <use name="DataFormats/HcalDetId"/>
+    <use name="cuda"/>
+</bin>

@@ -1,16 +1,27 @@
-<use name="DataFormats/HcalDetId"/>
-<use name="DataFormats/HcalDigi"/>
-<use name="DataFormats/FEDRawData"/>
-<use name="CondFormats/HcalObjects"/>
-<use name="CalibFormats/HcalObjects"/>
-<use name="FWCore/Framework"/>
-<use name="FWCore/MessageLogger"/>
 <use name="boost"/>
 <use name="zlib"/>
+<use name="CalibFormats/HcalObjects"/>
+<use name="CondFormats/HcalObjects"/>
+<use name="DataFormats/FEDRawData"/>
+<use name="DataFormats/HcalDetId"/>
+<use name="DataFormats/HcalDigi"/>
 <use name="EventFilter/HcalRawToDigi"/>
+<use name="FWCore/Framework"/>
+<use name="FWCore/MessageLogger"/>
 <flags EDM_PLUGIN="1"/>
+
 <library file="HcalCalibFEDSelector.cc,HcalCalibTypeFilter.cc,HcalDigiToRaw.cc,HcalEmptyEventFilter.cc,HcalHistogramRawToDigi.cc,HcalRawToDigi.cc,modules.cc,HcalDigiToRawuHTR.cc,HcalRawToDigiFake.cc" name="EventFilterHcalRawToDigiPlugins">
 </library>
 
 <library file="HcalLaserEventFiltProducer2012.cc, HcalLaserEventFilter2012.cc,HcalLaserHFFilter2012.cc,HcalLaserHBHEFilter2012.cc,HcalLaserHBHEHFFilter2012.cc" name="EventFilterHcalRawToDigiFiltersPlugins">
+</library>
+
+<library file="HcalRawToDigiGPU.cc,DecodeGPU.cu,HcalESProducerGPUDefs.cc,ElectronicsMappingGPU.cc,HcalCPUDigisProducer.cc,HcalDigisProducerGPU.cc" name="EventFilterHcalRawToDigiGPUPlugins">
+  <use name="cuda" />
+  <use name="CUDADataFormats/Common" />
+  <use name="CUDADataFormats/CaloCommon"/>
+  <use name="CUDADataFormats/HcalDigi" />
+  <use name="HeterogeneousCore/CUDACore"/>
+  <use name="HeterogeneousCore/CUDAServices"/>
+  <use name="HeterogeneousCore/CUDAUtilities"/>
 </library>

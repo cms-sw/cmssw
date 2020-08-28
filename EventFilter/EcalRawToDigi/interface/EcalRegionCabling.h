@@ -1,14 +1,11 @@
-#ifndef EcalRegionCabling_H
-#define EcalRegionCabling_H
+#ifndef EventFilter_EcalRawToDigi_interface_EcalRegionCabling_h
+#define EventFilter_EcalRawToDigi_interface_EcalRegionCabling_h
 
-#include "Geometry/EcalMapping/interface/EcalElectronicsMapping.h"
-#include "Geometry/EcalMapping/interface/ESElectronicsMapper.h"
-
-#include "DataFormats/EcalRecHit/interface/EcalRecHit.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/FEDRawData/interface/FEDNumbering.h"
-
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "Geometry/EcalMapping/interface/ESElectronicsMapper.h"
+#include "Geometry/EcalMapping/interface/EcalElectronicsMapping.h"
 
 class EcalRegionCabling {
 public:
@@ -73,4 +70,4 @@ private:
   const ESElectronicsMapper* es_mapping_;
 };
 
-#endif
+#endif  // EventFilter_EcalRawToDigi_interface_EcalRegionCabling_h

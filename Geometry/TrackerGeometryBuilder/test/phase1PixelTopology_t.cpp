@@ -142,5 +142,19 @@ int main() {
     assert(std::get<1>(ori) == bp);
   }
 
+  for (auto i = 0U; i < phase1PixelTopology::numberOfLayers; ++i) {
+    std::cout << "layer " << i << ", \"" << phase1PixelTopology::layerName[i] << "\", ["
+              << phase1PixelTopology::layerStart[i] << ", " << phase1PixelTopology::layerStart[i + 1] << ")"
+              << std::endl;
+  }
+
+  for (auto i = 0U; i < phase1PixelTopology::numberOfModules; ++i) {
+    int layer = phase1PixelTopology::layer[i / phase1PixelTopology::maxModuleStride];
+    //std::cout << "module " << i << ": " << "layer " << layer << ", \"" << phase1PixelTopology::layerName[layer] << "\", [" << phase1PixelTopology::layerStart[layer] << ", " << phase1PixelTopology::layerStart[layer+1] << ")" << std::endl;
+    assert(layer < 10);
+    assert(i >= phase1PixelTopology::layerStart[layer]);
+    assert(i < phase1PixelTopology::layerStart[layer + 1]);
+  }
+
   return 0;
 }
