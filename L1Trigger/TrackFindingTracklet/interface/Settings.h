@@ -598,15 +598,15 @@ namespace trklet {
 
     //Default number of processing steps for one event
     std::unordered_map<std::string, unsigned int> maxstep_{{"Link", 108},
-	                                                   {"VMR", 108},
-                                                           {"TE", 108},
-                                                           {"TC", 108},
-                                                           {"TP", 108},
-                                                           {"PR", 108},
+                                                           {"MC", 107},
                                                            {"ME", 108},
-                                                           {"MC", 108},
                                                            {"MP", 108},
-                                                           {"TRE", 108}};
+                                                           {"PR", 103},
+                                                           {"TC", 107},
+                                                           {"TE", 101},
+                                                           {"TP", 108},
+                                                           {"TRE", 108},
+                                                           {"VMR", 101}};
 
     // If set to true this will generate debub printout in text files
     std::unordered_map<std::string, bool> writeMonitorData_{{"IL", false},
