@@ -247,7 +247,7 @@ void testEventsetupRecord::getTest() {
 
 namespace {
   struct DummyDataConsumer : public EDConsumerBase {
-    explicit DummyDataConsumer(ESInputTag const& iTag) : m_token{esConsumes<Dummy, DummyRecord>(iTag)} {}
+    explicit DummyDataConsumer(ESInputTag const& iTag) : m_token{esConsumes(iTag)} {}
 
     void prefetch(eventsetup::EventSetupRecordImpl const& iRec) const {
       auto const& proxies = this->esGetTokenIndicesVector(edm::Transition::Event);
