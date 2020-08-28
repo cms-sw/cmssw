@@ -143,6 +143,10 @@ void GEMPadDigiClusterValidation::analyze(const edm::Event& event, const edm::Ev
     ME3IdsKey key3(region_id, station_id, layer_id);
 
     for (auto digi = range.first; digi != range.second; ++digi) {
+      // ignore 16-partition GE2/1 pads
+      if (gemid.isGE21() and digi->nPartitions() == GEMPadDigiCluster::GE21SplitStrip)
+        continue;
+
       const auto& padsVec = digi->pads();
       if (padsVec.empty()) {
         edm::LogError(kLogCategory_) << "Pads missing for digi from GEM ID = " << gemid;
