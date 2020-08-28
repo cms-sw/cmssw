@@ -12,15 +12,17 @@
 #include "CondFormats/BeamSpotObjects/interface/BeamSpotObjects.h"
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
 //#include "DataFormats/Scalers/interface/BeamSpotOnline.h"
-#include "DataFormats/Common/interface/View.h"
+#include "DQM/BeamMonitor/plugins/AlcaBeamMonitor.h"
 #include "DataFormats/Common/interface/Handle.h"
+#include "DataFormats/Common/interface/View.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/LuminosityBlock.h"
+#include "FWCore/Framework/interface/Run.h"
 #include "RecoVertex/BeamSpotProducer/interface/BeamFitter.h"
 #include "RecoVertex/BeamSpotProducer/interface/PVFitter.h"
-#include "DQM/BeamMonitor/plugins/AlcaBeamMonitor.h"
-#include "FWCore/Framework/interface/Run.h"
-#include "FWCore/Framework/interface/LuminosityBlock.h"
-#include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/ConsumesCollector.h"
+#include <memory>
+
 #include <numeric>
 
 using namespace std;
@@ -40,13 +42,13 @@ AlcaBeamMonitor::AlcaBeamMonitor(const ParameterSet& ps)
   if (!monitorName_.empty())
     monitorName_ = monitorName_ + "/";
 
-  theBeamFitter_ = std::unique_ptr<BeamFitter>(new BeamFitter(parameters_, consumesCollector()));
+  theBeamFitter_ = std::make_unique<BeamFitter>(parameters_, consumesCollector());
   theBeamFitter_->resetTrkVector();
   theBeamFitter_->resetLSRange();
   theBeamFitter_->resetRefTime();
   theBeamFitter_->resetPVFitter();
 
-  thePVFitter_ = std::unique_ptr<PVFitter>(new PVFitter(parameters_, consumesCollector()));
+  thePVFitter_ = std::make_unique<PVFitter>(parameters_, consumesCollector());
 
   processedLumis_.clear();
 
