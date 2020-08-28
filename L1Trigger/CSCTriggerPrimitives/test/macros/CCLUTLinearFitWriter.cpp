@@ -20,6 +20,7 @@
 #include <iomanip>
 #include <math.h>
 #include <memory>
+#include <bitset>
 
 using namespace std;
 
@@ -37,8 +38,9 @@ public:
   CSCPattern(unsigned int id, const CSCPatternBank::LCTPattern& pat);
   ~CSCPattern() {}
 
-  void printCode(int code) const;
-  int recoverPatternCCCombination(int code,
+  void printCode(const unsigned code) const;
+  void getLayerPattern(const unsigned code, unsigned layerPattern[CSCConstants::NUM_LAYERS]) const;
+  int recoverPatternCCCombination(const unsigned code,
                                   int code_hits[CSCConstants::NUM_LAYERS][CSCConstants::CLCT_PATTERN_WIDTH]) const;
   string getName() const { return name_; }
   unsigned getId() const { return id_; }
@@ -53,91 +55,71 @@ CSCPattern::CSCPattern(unsigned int id, const CSCPatternBank::LCTPattern& pat)
     : id_(id), name_(std::to_string(id)), pat_(pat) {}
 
 //given a code, prints out how it looks within the pattern
-void CSCPattern::printCode(int code) const {
-  printf("Pattern: %i\n", id_);
-  if (code != -1)
-    printf("Code: %i\n", code);
-  if (code >= CSCConstants::NUM_COMPARATOR_CODES) {  //2^12
-    printf("Error: invalid pattern code\n");
-    return;
-  }
+void CSCPattern::printCode(const unsigned code) const {
+  // comparator code per layer
+  unsigned layerPattern[CSCConstants::NUM_LAYERS];
+  getLayerPattern(code, layerPattern);
 
-  //iterator 1
-  int it = 1;
-
+  std::cout << "Pattern " << id_ << ", Code " << code << " " << std::bitset<12>(code) << std::endl;
   for (unsigned int j = 0; j < CSCConstants::NUM_LAYERS; j++) {
-    if (code < 0)
-      for (unsigned int i = 0; i < CSCConstants::CLCT_PATTERN_WIDTH; i++) {
-        pat_[j][i] ? printf("x") : printf("-");
+    int trueCounter = 0;  //for each layer, should only have 3
+    std::cout << "L" << j + 1 << ": ";
+    for (unsigned int i = 0; i < CSCConstants::CLCT_PATTERN_WIDTH; i++) {
+      if (!pat_[j][i]) {
+        printf("-");
+      } else {
+        trueCounter++;
+        if (trueCounter == layerPattern[j])
+          printf("X");
+        else
+          printf("_");
       }
-    else {
-      //0,1,2 or 3
-      int layerPattern = (code & (it | it << 1)) / it;
-      if (layerPattern < 0 || layerPattern > 3) {
-        printf("Error: invalid code\n");
-        return;
-      }
-      int trueCounter = 0;  //for each layer, should only have 3
-      for (unsigned int i = 0; i < CSCConstants::CLCT_PATTERN_WIDTH; i++) {
-        if (!pat_[j][i]) {
-          printf("-");
-        } else {
-          trueCounter++;
-          if (trueCounter == layerPattern)
-            printf("X");
-          else
-            printf("_");
-        }
-      }
-      it = it << 2;  //bitshift the iterator to look at the next part of the code
     }
-    printf("\n");
+    std::cout << " -> " << std::bitset<2>(layerPattern[j]) << std::endl;
   }
+
+  printf("    ");
   for (unsigned int i = 0; i < CSCConstants::CLCT_PATTERN_WIDTH; i++) {
     printf("%1x", i);
   }
   printf("\n");
 }
 
+void CSCPattern::getLayerPattern(const unsigned code, unsigned layerPattern[CSCConstants::NUM_LAYERS]) const {
+  // 12-bit comparator code
+  std::bitset<12> cc(code);
+
+  for (unsigned ilayer = 0; ilayer < CSCConstants::NUM_LAYERS; ilayer++) {
+    std::bitset<2> cclayer;
+    cclayer[1] = cc[2 * ilayer + 1];
+    cclayer[0] = cc[2 * ilayer];
+    layerPattern[ilayer] = cclayer.to_ulong();
+  }
+}
+
 //fills "code_hits" with how the code "code" would look inside the pattern
 int CSCPattern::recoverPatternCCCombination(
-    const int code, int code_hits[CSCConstants::NUM_LAYERS][CSCConstants::CLCT_PATTERN_WIDTH]) const {
-  if (code >= CSCConstants::NUM_COMPARATOR_CODES) {  //2^12
-    printf("Error: invalid pattern code\n");
-    return -1;
-  }
+    const unsigned code, int code_hits[CSCConstants::NUM_LAYERS][CSCConstants::CLCT_PATTERN_WIDTH]) const {
+  // comparator code per layer
+  unsigned layerPattern[CSCConstants::NUM_LAYERS];
+  getLayerPattern(code, layerPattern);
 
-  //iterator 1
-  int it = 1;
-
+  // now set the bits in the pattern
   for (unsigned int j = 0; j < CSCConstants::NUM_LAYERS; j++) {
-    if (code < 0) {
-      for (unsigned int i = 0; i < CSCConstants::CLCT_PATTERN_WIDTH; i++) {
-        code_hits[j][i] = pat_[j][i];
+    int trueCounter = 0;  //for each layer, should only have 3
+    for (unsigned int i = 0; i < CSCConstants::CLCT_PATTERN_WIDTH; i++) {
+      // zeros in the pattern envelope, or CC0
+      if (!pat_[j][i] or !layerPattern[j]) {
+        code_hits[j][i] = 0;
       }
-    } else {
-      //0,1,2 or 3
-      int layerPattern = (code & (it | it << 1)) / it;
-      if (layerPattern < 0 || layerPattern > 3) {
-        printf("Error: invalid code\n");
-        return -1;
+      // ones in the pattern envelope
+      else {
+        trueCounter++;
+        if (trueCounter == layerPattern[j])
+          code_hits[j][i] = 1;
       }
-      int trueCounter = 0;  //for each layer, should only have 3
-      for (unsigned int i = 0; i < CSCConstants::CLCT_PATTERN_WIDTH; i++) {
-        if (!pat_[j][i]) {
-          code_hits[j][i] = 0;
-        } else {
-          trueCounter++;
-          if (trueCounter == layerPattern)
-            code_hits[j][i] = 1;
-          else
-            code_hits[j][i] = 0;
-        }
-      }
-      it = it << 2;  //bitshift the iterator to look at the next part of the code
     }
   }
-
   return 0;
 }
 
@@ -267,7 +249,7 @@ int CCLUTLinearFitWriter() {
     outpatternconv.open(outdir + "CSCPatternConversionLUT_pat" + patt->getName() + "_v1.txt");
 
     // iterate through each possible comparator code
-    for (int code = 0; code < CSCConstants::NUM_COMPARATOR_CODES; code++) {
+    for (unsigned code = 0; code < CSCConstants::NUM_COMPARATOR_CODES; code++) {
       if (DEBUG > 0) {
         cout << "Evaluating Pattern: " << patt->getName() << " CC: " << code << endl;
       }
@@ -301,10 +283,10 @@ int CCLUTLinearFitWriter() {
       }
 
       // fit results
-      float offset = -3;
-      float slope = -3;
-      float offsetunc = -3;
-      float slopeunc = -3;
+      float offset = 0;
+      float slope = 0;
+      float offsetunc = 0;
+      float slopeunc = 0;
       float chi2 = -1;
       unsigned ndf;
       unsigned layer = 0;
@@ -314,7 +296,7 @@ int CCLUTLinearFitWriter() {
       if (x.size() >= N_LAYER_REQUIREMENT + 1) {
         // for each combination fit a straight line
         std::unique_ptr<TGraphErrors> gr(new TGraphErrors(x.size(), &x[0], &y[0], &xe[0], &ye[0]));
-        std::unique_ptr<TF1> fit(new TF1("fit", "[0]+[1]*x", -3, 4));
+        std::unique_ptr<TF1> fit(new TF1("fit", "pol1", -3, 4));
         gr->Fit("fit", "EMQ");
 
         // fit results
