@@ -47,8 +47,8 @@ public:
   std::vector<MaterialAccountingStep>& steps() { return m_steps; }
 
 private:
-  MaterialAccountingStep m_total;             // cache position along track (length and material)
-  MaterialAccountingDetector m_detector;      // keep track of current detector
+  MaterialAccountingStep m_total;         // cache position along track (length and material)
+  MaterialAccountingDetector m_detector;  // keep track of current detector
   std::vector<MaterialAccountingStep> m_steps;
   std::vector<MaterialAccountingDetector> m_detectors;
 };
