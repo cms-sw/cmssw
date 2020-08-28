@@ -284,8 +284,9 @@ void TrackingMaterialProducer::update(const G4Step* step) {
 
   // update track accounting
   if (enter_sensitive) {
-    if ( m_track_volume != nullptr ) {
-      edm::LogWarning("TrackingMaterialProducer") << "Entering volume " << sensitive << "while inside volume " << m_track_volume << ". Something is inconsistent";
+    if (m_track_volume != nullptr) {
+      edm::LogWarning("TrackingMaterialProducer") << "Entering volume " << sensitive << "while inside volume "
+                                                  << m_track_volume << ". Something is inconsistent";
       m_track.reset();
     }
     m_track_volume = sensitive;
@@ -293,13 +294,12 @@ void TrackingMaterialProducer::update(const G4Step* step) {
   }
   m_track.step(MaterialAccountingStep(length, radiationLengths, energyLoss, globalPositionIn, globalPositionOut));
   if (leave_sensitive) {
-    if ( m_track_volume != sensitive ) {
-      edm::LogWarning("TrackingMaterialProducer") << "Leaving volume " << sensitive << "while inside volume " << m_track_volume << ". Something is inconsistent";
+    if (m_track_volume != sensitive) {
+      edm::LogWarning("TrackingMaterialProducer") << "Leaving volume " << sensitive << "while inside volume "
+                                                  << m_track_volume << ". Something is inconsistent";
       m_track.reset();
-    }
-    else 
+    } else
       m_track.leaveDetector(cosThetaPost);
-    
   }
   if (sensitive)
     LogInfo("TrackingMaterialProducer") << "Track was near sensitive     volume " << sensitive->GetName() << std::endl;
