@@ -1313,7 +1313,6 @@ void CSCCathodeLCTProcessor::assignPositionCC(const unsigned offset,
                                               uint16_t& halfstrip,
                                               bool& quartstrip,
                                               bool& eightstrip) const {
-
   /*
     | Value | Half-Strip Offset  | Delta Half-Strip  | Quarter-Strip Bit  | Eighth-Strip Bit |
     |-------|--------------------|-------------------|--------------------|------------------|
@@ -1334,12 +1333,16 @@ void CSCCathodeLCTProcessor::assignPositionCC(const unsigned offset,
     |   14  |   7/4              |   1               |   1                |   1              |
     |   15  |   2                |   2               |   0                |   0              |
    */
-  if (offset <= 2) halfstrip -= 2;
-  else if (offset > 2 and offset <= 6) halfstrip--;
-  else if (offset > 10 and offset <= 14) halfstrip += 1;
-  else if (offset == 15) halfstrip += 2;
+  if (offset <= 2)
+    halfstrip -= 2;
+  else if (offset > 2 and offset <= 6)
+    halfstrip--;
+  else if (offset > 10 and offset <= 14)
+    halfstrip += 1;
+  else if (offset == 15)
+    halfstrip += 2;
 
-  quartstrip = std::bitset<4>(offset+1)[1];
+  quartstrip = std::bitset<4>(offset + 1)[1];
   eightstrip = !std::bitset<4>(offset)[0];
 }
 
@@ -1442,14 +1445,7 @@ void CSCCathodeLCTProcessor::runCCLUT(CSCCLCTDigi& digi) const {
 
 unsigned CSCCathodeLCTProcessor::convertSlopeToRun2Pattern(const unsigned slope) const {
   // interesting: the "right-bending" patterns have a negative slope
-  const unsigned slopeList[32] = {2, 2, 2,
-                                  4, 4, 4,
-                                  6, 6, 6, 6,
-                                  8, 8, 8, 8,
-                                  10, 10, 10, 10,
-                                  9, 9, 9, 9,
-                                  7, 7, 7, 7,
-                                  5, 5, 5,
-                                  3, 3, 3};
+  const unsigned slopeList[32] = {2,  2,  2, 4, 4, 4, 6, 6, 6, 6, 8, 8, 8, 8, 10, 10,
+                                  10, 10, 9, 9, 9, 9, 7, 7, 7, 7, 5, 5, 5, 3, 3,  3};
   return slopeList[slope];
 }
