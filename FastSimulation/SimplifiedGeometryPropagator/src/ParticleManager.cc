@@ -215,55 +215,62 @@ std::unique_ptr<fastsim::Particle> fastsim::ParticleManager::nextGenParticle() {
     // previously: particle must be produced within the beampipe
     // now: particles which do not descend from exotics must be produced within the beampipe
     int exoticRelativeId = 0;
-    if(productionVertex->position().perp2()*lengthUnitConversionFactor2_ > beamPipeRadius2_)//
-      {
-	std::vector<HepMC::GenParticle*>::const_iterator relativesIterator_ = productionVertex->particles_in_const_begin();
-	std::vector<HepMC::GenParticle*>::const_iterator relativesIteratorEnd_ = productionVertex->particles_in_const_end();
-	bool hasExoticAssociation = false;
-	for ( ; relativesIterator_ != relativesIteratorEnd_ ; ++relativesIterator_ ) 
-	  {
-	    const HepMC::GenParticle & genRelative = **relativesIterator_;
-	    if (abs(genRelative.pdg_id())>1000000)
-	      {
-		exoticRelativeId = genRelative.pdg_id();
-		hasExoticAssociation = true;
-		break;
-	      }
-	    const HepMC::GenVertex * relVertex = genRelative.production_vertex();
-	    if(!relVertex) continue;
+    if (productionVertex->position().perp2() * lengthUnitConversionFactor2_ > beamPipeRadius2_)  //
+    {
+      std::vector<HepMC::GenParticle*>::const_iterator relativesIterator_ =
+          productionVertex->particles_in_const_begin();
+      std::vector<HepMC::GenParticle*>::const_iterator relativesIteratorEnd_ =
+          productionVertex->particles_in_const_end();
+      bool hasExoticAssociation = false;
+      for (; relativesIterator_ != relativesIteratorEnd_; ++relativesIterator_) {
+        const HepMC::GenParticle& genRelative = **relativesIterator_;
+        if (abs(genRelative.pdg_id()) > 1000000) {
+          exoticRelativeId = genRelative.pdg_id();
+          hasExoticAssociation = true;
+          break;
+        }
+        const HepMC::GenVertex* relVertex = genRelative.production_vertex();
+        if (!relVertex)
+          continue;
 
-	    std::vector<HepMC::GenParticle*>::const_iterator relatives2ndGenIterator_ = relVertex->particles_in_const_begin();
-	    std::vector<HepMC::GenParticle*>::const_iterator relatives2ndGenIteratorEnd_ = relVertex->particles_in_const_end();
-	    for ( ; relatives2ndGenIterator_ != relatives2ndGenIteratorEnd_ ; ++relatives2ndGenIterator_ ) 
-	      {
-		const HepMC::GenParticle & genRelative2ndGen = **relatives2ndGenIterator_;
-		if (abs(genRelative2ndGen.pdg_id())>1000000)
-		  {
-		    exoticRelativeId = genRelative2ndGen.pdg_id();
-		    hasExoticAssociation = true;
-		    break;
-		  }
-		const HepMC::GenVertex * relVertex2 = genRelative2ndGen.production_vertex();
-		if(!relVertex2) continue;
-		std::vector<HepMC::GenParticle*>::const_iterator relatives3rdGenIterator_ = relVertex2->particles_in_const_begin();
-		std::vector<HepMC::GenParticle*>::const_iterator relatives3rdGenIteratorEnd_ = relVertex2->particles_in_const_end();
-		for ( ; relatives3rdGenIterator_ != relatives3rdGenIteratorEnd_ ; ++relatives3rdGenIterator_ ) 
-		  {
-		    const HepMC::GenParticle & genRelative3rdGen = **relatives3rdGenIterator_;
-		    if (abs(genRelative3rdGen.pdg_id())>1000000)
-		      {
-			exoticRelativeId = 0;//the current particle, if non-stable, will have its decay products remade by fastsim
-			hasExoticAssociation = true;
-			break;
-		      }
-		  }
-		if(hasExoticAssociation) break;
-	      }
-	    if(hasExoticAssociation) break;
-	  }
-	if (!hasExoticAssociation) {continue;}
+        std::vector<HepMC::GenParticle*>::const_iterator relatives2ndGenIterator_ =
+            relVertex->particles_in_const_begin();
+        std::vector<HepMC::GenParticle*>::const_iterator relatives2ndGenIteratorEnd_ =
+            relVertex->particles_in_const_end();
+        for (; relatives2ndGenIterator_ != relatives2ndGenIteratorEnd_; ++relatives2ndGenIterator_) {
+          const HepMC::GenParticle& genRelative2ndGen = **relatives2ndGenIterator_;
+          if (abs(genRelative2ndGen.pdg_id()) > 1000000) {
+            exoticRelativeId = genRelative2ndGen.pdg_id();
+            hasExoticAssociation = true;
+            break;
+          }
+          const HepMC::GenVertex* relVertex2 = genRelative2ndGen.production_vertex();
+          if (!relVertex2)
+            continue;
+          std::vector<HepMC::GenParticle*>::const_iterator relatives3rdGenIterator_ =
+              relVertex2->particles_in_const_begin();
+          std::vector<HepMC::GenParticle*>::const_iterator relatives3rdGenIteratorEnd_ =
+              relVertex2->particles_in_const_end();
+          for (; relatives3rdGenIterator_ != relatives3rdGenIteratorEnd_; ++relatives3rdGenIterator_) {
+            const HepMC::GenParticle& genRelative3rdGen = **relatives3rdGenIterator_;
+            if (abs(genRelative3rdGen.pdg_id()) > 1000000) {
+              exoticRelativeId =
+                  0;  //the current particle, if non-stable, will have its decay products remade by fastsim
+              hasExoticAssociation = true;
+              break;
+            }
+          }
+          if (hasExoticAssociation)
+            break;
+        }
+        if (hasExoticAssociation)
+          break;
       }
-    
+      if (!hasExoticAssociation) {
+        continue;
+      }
+    }
+
     // particle must not decay before it reaches the beam pipe
     if (endVertex && endVertex->position().perp2() * lengthUnitConversionFactor2_ < beamPipeRadius2_) {
       continue;
@@ -281,7 +288,9 @@ std::unique_ptr<fastsim::Particle> fastsim::ParticleManager::nextGenParticle() {
                                              particle.momentum().z() * momentumUnitConversionFactor_,
                                              particle.momentum().e() * momentumUnitConversionFactor_)));
     newParticle->setGenParticleIndex(genParticleIndex_);
-    if (abs(exoticRelativeId)>1000000) {newParticle->setMotherPdgId(exoticRelativeId);}
+    if (abs(exoticRelativeId) > 1000000) {
+      newParticle->setMotherPdgId(exoticRelativeId);
+    }
 
     // try to get the life time of the particle from the genEvent
     if (endVertex) {
