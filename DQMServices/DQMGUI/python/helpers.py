@@ -155,6 +155,7 @@ def binary_search_qtests(me_names, me_path):
     while index + potential_index < len(me_names):
         if me_names[index + potential_index][:len(target)] == target:
             result += (index + potential_index,)
+            potential_index += 1
         else:
             break
 
@@ -162,6 +163,7 @@ def binary_search_qtests(me_names, me_path):
     while index - potential_index >= 0:
         if me_names[index - potential_index][:len(target)] == target:
             result += (index - potential_index,)
+            potential_index += 1
         else:
             break
 
