@@ -66,6 +66,14 @@ namespace FitterFuncs {
 
     void getPulseShape(std::array<double, HcalConst::maxSamples> &fillPulseShape) { fillPulseShape = pulse_shape_; }
 
+    // getters
+    inline std::vector<float> const &get_acc25nsVec() const { return acc25nsVec; }
+    inline std::vector<float> const &get_diff25nsItvlVec() const { return diff25nsItvlVec; }
+    inline std::vector<float> const &get_accVarLenIdxZEROVec() const { return accVarLenIdxZEROVec; }
+    inline std::vector<float> const &get_diffVarItvlIdxZEROVec() const { return diffVarItvlIdxZEROVec; }
+    inline std::vector<float> const &get_accVarLenIdxMinusOneVec() const { return accVarLenIdxMinusOneVec; }
+    inline std::vector<float> const &get_diffVarItvlIdxMinusOneVec() const { return diffVarItvlIdxMinusOneVec; }
+
   private:
     std::array<float, HcalConst::maxPSshapeBin> pulse_hist;
 

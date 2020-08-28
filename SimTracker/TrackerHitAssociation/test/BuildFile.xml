@@ -2,12 +2,14 @@
 <use name="FWCore/Framework"/>
 <use name="FWCore/ParameterSet"/>
 <use name="FWCore/Utilities"/>
+<use name="HeterogeneousCore/CUDACore"/>
 <use name="SimTracker/TrackerHitAssociation"/>
 <use name="SimDataFormats/Track"/>
 <use name="SimDataFormats/Vertex"/>
 <use name="Geometry/TrackerGeometryBuilder"/>
 <use name="Geometry/Records"/>
 <use name="boost"/>
+<use name="cuda"/>
 <use name="root"/>
 <library file="*.cc" name="SimTrackerTrackerHitAssociationTestModules">
   <flags EDM_PLUGIN="1"/>

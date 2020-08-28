@@ -1,51 +1,42 @@
-#ifndef PFClusterValidation_h
-#define PFClusterValidation_h
+#ifndef Validation_RecoParticleFlow_plugins_PFClusterValidation_h
+#define Validation_RecoParticleFlow_plugins_PFClusterValidation_h
 
-#include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/ESHandle.h"
-#include "FWCore/PluginManager/interface/ModuleDef.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "FWCore/ServiceRegistry/interface/Service.h"
-
-#include "DataFormats/DetId/interface/DetId.h"
-#include "DataFormats/CaloTowers/interface/CaloTowerDetId.h"
-#include "DataFormats/Math/interface/Vector3D.h"
-
-#include "DataFormats/CaloTowers/interface/CaloTowerCollection.h"
-#include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
-
-// including PFCluster
-#include "DataFormats/ParticleFlowReco/interface/PFBlock.h"
-#include "DataFormats/ParticleFlowReco/interface/PFBlockElementTrack.h"
-#include "DataFormats/ParticleFlowReco/interface/PFBlockElementCluster.h"
-#include "DataFormats/ParticleFlowReco/interface/PFCluster.h"
-
-#include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
-
-#include "DataFormats/PatCandidates/interface/PackedCandidate.h"
-
-#include "DataFormats/CaloRecHit/interface/CaloCluster.h"
-#include "DataFormats/CaloRecHit/interface/CaloClusterFwd.h"
-#include "DataFormats/ParticleFlowReco/interface/PFCluster.h"
-#include "DataFormats/ParticleFlowReco/interface/PFClusterFwd.h"
-#include "DataFormats/ParticleFlowReco/interface/PFRecHitFraction.h"
-#include "DataFormats/ParticleFlowReco/interface/PFRecHit.h"
-#include "DataFormats/ParticleFlowReco/interface/PFLayer.h"
-
-// end include PFCluster
-#include <vector>
-#include <utility>
-#include <iostream>
-#include <string>
 #include <algorithm>
 #include <cmath>
-#include "DQMServices/Core/interface/DQMStore.h"
+#include <iostream>
+#include <string>
+#include <utility>
+#include <vector>
+
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
+#include "DQMServices/Core/interface/DQMStore.h"
+#include "DataFormats/CaloRecHit/interface/CaloCluster.h"
+#include "DataFormats/CaloRecHit/interface/CaloClusterFwd.h"
+#include "DataFormats/CaloTowers/interface/CaloTowerCollection.h"
+#include "DataFormats/CaloTowers/interface/CaloTowerDetId.h"
+#include "DataFormats/DetId/interface/DetId.h"
+#include "DataFormats/Math/interface/Vector3D.h"
+#include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
+#include "DataFormats/ParticleFlowReco/interface/PFBlock.h"
+#include "DataFormats/ParticleFlowReco/interface/PFBlockElementCluster.h"
+#include "DataFormats/ParticleFlowReco/interface/PFBlockElementTrack.h"
+#include "DataFormats/ParticleFlowReco/interface/PFCluster.h"
+#include "DataFormats/ParticleFlowReco/interface/PFClusterFwd.h"
+#include "DataFormats/ParticleFlowReco/interface/PFLayer.h"
+#include "DataFormats/ParticleFlowReco/interface/PFRecHit.h"
+#include "DataFormats/ParticleFlowReco/interface/PFRecHitFraction.h"
+#include "DataFormats/PatCandidates/interface/PackedCandidate.h"
+#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/PluginManager/interface/ModuleDef.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
+#include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 
 class PFClusterValidation : public DQMEDAnalyzer {
 public:
@@ -55,73 +46,59 @@ public:
   void bookHistograms(DQMStore::IBooker&, edm::Run const&, edm::EventSetup const&) override;
 
 private:
-  double dR(double eta1, double phi1, double eta2, double phi2);
-  double sumEnergy(edm::Handle<reco::PFClusterCollection> pfCluster1);
-  std::string outputFile_;
-  //std::string mc_;
-  bool mc_;
+  static constexpr double partR2 = 0.3 * 0.3;  // dr cutoff (squared)
+  static double sumEnergy(edm::Handle<reco::PFClusterCollection> const& pfClusters, double eta, double phi);
 
-  typedef math::RhoEtaPhiVector Vector;
+  edm::EDGetTokenT<edm::HepMCProduct> hepMCTok_;
+  edm::EDGetTokenT<reco::PFClusterCollection> pfClusterECALTok_;
+  edm::EDGetTokenT<reco::PFClusterCollection> pfClusterHCALTok_;
+  edm::EDGetTokenT<reco::PFClusterCollection> pfClusterHOTok_;
+  edm::EDGetTokenT<reco::PFClusterCollection> pfClusterHFTok_;
 
-  edm::EDGetTokenT<edm::HepMCProduct> tok_evt_;
-  edm::EDGetTokenT<reco::PFClusterCollection> PFClusterECALTok_;
-  edm::EDGetTokenT<reco::PFClusterCollection> PFClusterHCALTok_;
-  edm::EDGetTokenT<reco::PFClusterCollection> PFClusterHOTok_;
-  edm::EDGetTokenT<reco::PFClusterCollection> PFClusterHFTok_;
+  MonitorElement* emean_vs_eta_E_;
+  MonitorElement* emean_vs_eta_H_;
+  MonitorElement* emean_vs_eta_EH_;
 
-  int imc;
+  MonitorElement* emean_vs_eta_HF_;
+  MonitorElement* emean_vs_eta_HO_;
+  MonitorElement* emean_vs_eta_EHF_;
+  MonitorElement* emean_vs_eta_EHFO_;
 
-  // this acts throught the entire class
-  // no reinitialization required
-  const double partR = 0.3;  // dr cutoff
-  double eta_MC, phi_MC, energy_MC = 9999.;
+  MonitorElement* ratio_Esummed_ECAL_0_;
+  MonitorElement* ratio_Esummed_HCAL_0_;
+  MonitorElement* ratio_Esummed_HO_0_;
 
-  //************Modules
+  MonitorElement* ratio_Esummed_ECAL_1_;
+  MonitorElement* ratio_Esummed_HCAL_1_;
+  MonitorElement* ratio_Esummed_HO_1_;
 
-  MonitorElement* emean_vs_eta_E;
-  MonitorElement* emean_vs_eta_H;
-  MonitorElement* emean_vs_eta_EH;
+  MonitorElement* ratio_Esummed_ECAL_2_;
+  MonitorElement* ratio_Esummed_HCAL_2_;
+  MonitorElement* ratio_Esummed_HO_2_;
 
-  MonitorElement* emean_vs_eta_HF;
-  MonitorElement* emean_vs_eta_HO;
-  MonitorElement* emean_vs_eta_EHF;
-  MonitorElement* emean_vs_eta_EHFO;
+  MonitorElement* ratio_Esummed_ECAL_3_;
+  MonitorElement* ratio_Esummed_HCAL_3_;
+  MonitorElement* ratio_Esummed_HO_3_;
 
-  MonitorElement* Ratio_Esummed_ECAL_0;
-  MonitorElement* Ratio_Esummed_HCAL_0;
-  MonitorElement* Ratio_Esummed_HO_0;
+  MonitorElement* ratio_Esummed_ECAL_4_;
+  MonitorElement* ratio_Esummed_HCAL_4_;
+  MonitorElement* ratio_Esummed_HO_4_;
 
-  MonitorElement* Ratio_Esummed_ECAL_1;
-  MonitorElement* Ratio_Esummed_HCAL_1;
-  MonitorElement* Ratio_Esummed_HO_1;
+  MonitorElement* ratio_Esummed_HF_5_;
+  MonitorElement* ratio_Esummed_HF_6_;
 
-  MonitorElement* Ratio_Esummed_ECAL_2;
-  MonitorElement* Ratio_Esummed_HCAL_2;
-  MonitorElement* Ratio_Esummed_HO_2;
+  MonitorElement* ratio_Esummed_ECAL_HCAL_0_;
+  MonitorElement* ratio_Esummed_ECAL_HCAL_HO_0_;
+  MonitorElement* ratio_Esummed_ECAL_HCAL_1_;
+  MonitorElement* ratio_Esummed_ECAL_HCAL_HO_1_;
+  MonitorElement* ratio_Esummed_ECAL_HCAL_2_;
+  MonitorElement* ratio_Esummed_ECAL_HCAL_HO_2_;
+  MonitorElement* ratio_Esummed_ECAL_HCAL_3_;
+  MonitorElement* ratio_Esummed_ECAL_HCAL_HO_3_;
+  MonitorElement* ratio_Esummed_ECAL_HCAL_4_;
+  MonitorElement* ratio_Esummed_ECAL_HCAL_HO_4_;
 
-  MonitorElement* Ratio_Esummed_ECAL_3;
-  MonitorElement* Ratio_Esummed_HCAL_3;
-  MonitorElement* Ratio_Esummed_HO_3;
-
-  MonitorElement* Ratio_Esummed_ECAL_4;
-  MonitorElement* Ratio_Esummed_HCAL_4;
-  MonitorElement* Ratio_Esummed_HO_4;
-
-  MonitorElement* Ratio_Esummed_HF_5;
-  MonitorElement* Ratio_Esummed_HF_6;
-
-  MonitorElement* Ratio_Esummed_ECAL_HCAL_0;
-  MonitorElement* Ratio_Esummed_ECAL_HCAL_HO_0;
-  MonitorElement* Ratio_Esummed_ECAL_HCAL_1;
-  MonitorElement* Ratio_Esummed_ECAL_HCAL_HO_1;
-  MonitorElement* Ratio_Esummed_ECAL_HCAL_2;
-  MonitorElement* Ratio_Esummed_ECAL_HCAL_HO_2;
-  MonitorElement* Ratio_Esummed_ECAL_HCAL_3;
-  MonitorElement* Ratio_Esummed_ECAL_HCAL_HO_3;
-  MonitorElement* Ratio_Esummed_ECAL_HCAL_4;
-  MonitorElement* Ratio_Esummed_ECAL_HCAL_HO_4;
-
-  MonitorElement* Egen_MC;
+  MonitorElement* egen_MC_;
 };
 
-#endif
+#endif  // Validation_RecoParticleFlow_plugins_PFClusterValidation_h

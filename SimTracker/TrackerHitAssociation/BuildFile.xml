@@ -5,11 +5,13 @@
 <use name="SimDataFormats/TrackingHit"/>
 <use name="SimDataFormats/TrackerDigiSimLink"/>
 <use name="DataFormats/TrackerRecHit2D"/>
+<use name="CUDADataFormats/Common"/>
 <use name="TrackingTools/TransientTrackingRecHit"/>
 <use name="DataFormats/SiPixelDetId"/>
 <use name="clhep"/>
 <use name="boost"/>
 <use name="root"/>
+<use name="cuda"/>
 <export>
   <lib name="1"/>
 </export>

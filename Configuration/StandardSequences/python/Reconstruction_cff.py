@@ -106,7 +106,7 @@ fastSim.toReplaceWith(localrecoTask, _fastSim_localrecoTask)
 from RecoLocalCalo.Castor.Castor_cff import *
 from RecoLocalCalo.Configuration.hcalGlobalReco_cff import *
 
-globalreco_trackingTask = cms.Task(offlineBeamSpot,
+globalreco_trackingTask = cms.Task(offlineBeamSpotTask,
                           MeasurementTrackerEventPreSplitting, # unclear where to put this
                           siPixelClusterShapeCachePreSplitting, # unclear where to put this
                           standalonemuontrackingTask,
@@ -120,7 +120,7 @@ trackingLowPU.toReplaceWith(globalreco_trackingTask, _globalreco_tracking_LowPUT
 ##########################################
 # offlineBeamSpot is reconstructed before mixing in fastSim
 ##########################################
-_fastSim_globalreco_trackingTask = globalreco_trackingTask.copyAndExclude([offlineBeamSpot,MeasurementTrackerEventPreSplitting,siPixelClusterShapeCachePreSplitting])
+_fastSim_globalreco_trackingTask = globalreco_trackingTask.copyAndExclude([offlineBeamSpotTask,MeasurementTrackerEventPreSplitting,siPixelClusterShapeCachePreSplitting])
 fastSim.toReplaceWith(globalreco_trackingTask,_fastSim_globalreco_trackingTask)
 
 _phase2_timing_layer_globalreco_trackingTask = globalreco_trackingTask.copy()
@@ -211,7 +211,7 @@ reconstruction_trackingOnlyTask = cms.Task(localrecoTask,globalreco_trackingTask
 reconstruction_trackingOnly = cms.Sequence(reconstruction_trackingOnlyTask)
 reconstruction_pixelTrackingOnlyTask = cms.Task(
     pixeltrackerlocalrecoTask,
-    offlineBeamSpot,
+    offlineBeamSpotTask,
     siPixelClusterShapeCachePreSplitting,
     recopixelvertexingTask
 )

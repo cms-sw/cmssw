@@ -1,9 +1,13 @@
 <use name="clhep"/>
+<use name="cuda"/>
+<use name="CUDADataFormats/EcalRecHitSoA"/>
 <use name="DataFormats/EcalRecHit"/>
 <use name="DataFormats/EcalDigi"/>
 <use name="FWCore/MessageLogger"/>
 <use name="FWCore/ParameterSet"/>
 <use name="FWCore/Framework"/>
+<use name="HeterogeneousCore/CUDACore"/>
+<use name="HeterogeneousCore/CUDAUtilities"/>
 <use name="CondFormats/ESObjects"/>
 <use name="CondFormats/EcalObjects"/>
 <use name="CondFormats/DataRecord"/>
@@ -11,6 +15,7 @@
 <use name="root"/>
 <use name="rootminuit"/>
 <use name="eigen"/>
+
 <export>
   <lib name="1"/>
 </export>
