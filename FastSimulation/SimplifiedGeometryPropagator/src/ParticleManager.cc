@@ -224,7 +224,7 @@ std::unique_ptr<fastsim::Particle> fastsim::ParticleManager::nextGenParticle() {
       bool hasExoticAssociation = false;
       for (; relativesIterator_ != relativesIteratorEnd_; ++relativesIterator_) {
         const HepMC::GenParticle& genRelative = **relativesIterator_;
-        if (abs(genRelative.pdg_id()) > 1000000) {
+        if (std::abs(genRelative.pdg_id()) > 1000000) {
           exoticRelativeId = genRelative.pdg_id();
           hasExoticAssociation = true;
           break;
@@ -239,7 +239,7 @@ std::unique_ptr<fastsim::Particle> fastsim::ParticleManager::nextGenParticle() {
             relVertex->particles_in_const_end();
         for (; relatives2ndGenIterator_ != relatives2ndGenIteratorEnd_; ++relatives2ndGenIterator_) {
           const HepMC::GenParticle& genRelative2ndGen = **relatives2ndGenIterator_;
-          if (abs(genRelative2ndGen.pdg_id()) > 1000000) {
+          if (std::abs(genRelative2ndGen.pdg_id()) > 1000000) {
             exoticRelativeId = genRelative2ndGen.pdg_id();
             hasExoticAssociation = true;
             break;
@@ -253,7 +253,7 @@ std::unique_ptr<fastsim::Particle> fastsim::ParticleManager::nextGenParticle() {
               relVertex2->particles_in_const_end();
           for (; relatives3rdGenIterator_ != relatives3rdGenIteratorEnd_; ++relatives3rdGenIterator_) {
             const HepMC::GenParticle& genRelative3rdGen = **relatives3rdGenIterator_;
-            if (abs(genRelative3rdGen.pdg_id()) > 1000000) {
+            if (std::abs(genRelative3rdGen.pdg_id()) > 1000000) {
               //the current particle, if non-stable, will have its decay products remade by fastsim
               exoticRelativeId = 0;  
               hasExoticAssociation = true;
@@ -288,7 +288,7 @@ std::unique_ptr<fastsim::Particle> fastsim::ParticleManager::nextGenParticle() {
                                              particle.momentum().z() * momentumUnitConversionFactor_,
                                              particle.momentum().e() * momentumUnitConversionFactor_)));
     newParticle->setGenParticleIndex(genParticleIndex_);
-    if (abs(exoticRelativeId) > 1000000) {
+    if (std::abs(exoticRelativeId) > 1000000) {
       newParticle->setMotherPdgId(exoticRelativeId);
     }
 
