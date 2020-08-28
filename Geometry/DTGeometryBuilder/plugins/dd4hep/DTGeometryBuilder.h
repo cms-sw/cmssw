@@ -44,7 +44,6 @@ namespace cms {
   class DDFilteredView;
 
   class DTGeometryBuilder {
-
   public:
     DTGeometryBuilder() {}
 
