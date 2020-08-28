@@ -92,45 +92,80 @@ NANOAODGENoutput = cms.OutputModule("NanoAODOutputModule",
     )
 )
 
-def customizeNanoGENFromMini(process):
+def nanoGenCommonCustomize(process):
     process.lheInfoTable.storeLHEParticles = True
     process.lheInfoTable.precision = 14
+    process.genJetFlavourAssociation.jets = process.genJetTable.src
+    process.genJetFlavourTable.src = process.genJetTable.src
+    process.genJetAK8FlavourAssociation.jets = process.genJetAK8Table.src
+    process.genJetAK8FlavourTable.src = process.genJetAK8Table.src
+    process.particleLevel.particleMaxEta = 999.
+    process.particleLevel.lepMinPt = 0.
+    process.particleLevel.lepMaxEta = 999.
+    process.genJetFlavourTable.jetFlavourInfos = "genJetFlavourAssociation"
+
+def customizeNanoGENFromMini(process):
+    process.rivetProducerHTXS.HepMCCollection = "genParticles2HepMCHiggsVtx:unsmeared"
     process.genParticleTable.src = "prunedGenParticles"
     process.patJetPartons.particles = "prunedGenParticles"
     process.particleLevel.src = "genParticles2HepMC:unsmeared"
-    process.rivetProducerHTXS.HepMCCollection = "genParticles2HepMCHiggsVtx:unsmeared"
 
     process.genJetTable.src = "slimmedGenJets"
-    process.genJetFlavourAssociation.jets = process.genJetTable.src
-    process.genJetFlavourTable.src = process.genJetTable.src
-    process.genJetFlavourTable.jetFlavourInfos = "genJetFlavourAssociation"
     process.genJetAK8Table.src = "slimmedGenJetsAK8"
-    process.genJetAK8FlavourAssociation.jets = process.genJetAK8Table.src
-    process.genJetAK8FlavourTable.src = process.genJetAK8Table.src
     process.tauGenJets.GenParticles = "prunedGenParticles"
     process.genVisTaus.srcGenParticles = "prunedGenParticles"
+    nanoGenCommonCustomize(process)
 
     return process
 
 def customizeNanoGEN(process):
-    process.lheInfoTable.storeLHEParticles = True
-    process.lheInfoTable.precision = 14
+    process.rivetProducerHTXS.HepMCCollection = "generatorSmeared"
     process.genParticleTable.src = "genParticles"
     process.patJetPartons.particles = "genParticles"
     process.particleLevel.src = "generatorSmeared"
-    process.particleLevel.particleMaxEta = 999.
-    process.particleLevel.lepMinPt = 0.
-    process.particleLevel.lepMaxEta = 999.
-    process.rivetProducerHTXS.HepMCCollection = "generatorSmeared"
 
     process.genJetTable.src = "ak4GenJets"
-    process.genJetFlavourAssociation.jets = process.genJetTable.src
-    process.genJetFlavourTable.src = process.genJetTable.src
-    process.genJetFlavourTable.jetFlavourInfos = "genJetFlavourAssociation"
     process.genJetAK8Table.src = "ak8GenJets"
-    process.genJetAK8FlavourAssociation.jets = process.genJetAK8Table.src
-    process.genJetAK8FlavourTable.src = process.genJetAK8Table.src
     process.tauGenJets.GenParticles = "genParticles"
     process.genVisTaus.srcGenParticles = "genParticles"
+    nanoGenCommonCustomize(process)
+    return process
 
+# Prune gen particles with tight conditions applied in usual NanoAOD
+def pruneGenParticlesNano(process):
+    process.finalGenParticles = finalGenParticles.clone()
+    process.genParticleTable.src = "prunedGenParticles"
+    process.patJetPartons.particles = "prunedGenParticles"
+    process.nanoAOD_step.insert(0, process.finalGenParticles)
+    return process
+
+# Prune gen particles with conditions applied in usual MiniAOD
+def pruneGenParticlesMini(process):
+    from PhysicsTools.PatAlgos.slimming.prunedGenParticles_cfi import prunedGenParticles
+    process.prunedGenParticles = prunedGenParticles.clone()
+    if process.nanoAOD_step.contains(process.nanogenMiniSequence):
+        raise ValueError("Applying the MiniAOD genParticle pruner to MiniAOD is redunant. " \
+            "Use a different customization.")
+    process.genParticleTable.src = "prunedGenParticles"
+    process.patJetPartons.particles = "prunedGenParticles"
+    process.nanoAOD_step.insert(0, process.prunedGenParticles)
+    return process
+
+def setGenFullPrecision(process):
+    process.genParticleTable.variables.pt.precision = 23
+    process.genParticleTable.variables.eta.precision = 23
+    process.genParticleTable.variables.phi.precision = 23
+    process.genJetTable.variables.pt.precision = 23
+    process.genJetTable.variables.eta.precision = 23
+    process.genJetTable.variables.phi.precision = 23
+    process.metGenTable.variables.pt.precision = 23
+    process.metGenTable.variables.phi.precision = 23
+    return process
+
+def setLHEFullPrecision(process):
+    process.lheInfoTable.precision = 23
+    return process
+
+def setGenWeightsFullPrecision(process):
+    process.genWeightsTable.lheWeightPrecision = 23
     return process
