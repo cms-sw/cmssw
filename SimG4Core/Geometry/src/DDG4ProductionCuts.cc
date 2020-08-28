@@ -139,9 +139,12 @@ void DDG4ProductionCuts::dd4hepInitialize() {
   }
 
   if (verbosity_ > 0) {
-    edm::LogVerbatim("SimG4CoreGeometry") << " DDG4ProductionCuts (New) : starting\n" << " DDG4ProductionCuts : Got " << dd4hepVec_.size() << " region roots.\n" << " DDG4ProductionCuts : List of all roots:";
+    edm::LogVerbatim("SimG4CoreGeometry") << " DDG4ProductionCuts (New) : starting\n"
+                                          << " DDG4ProductionCuts : Got " << dd4hepVec_.size() << " region roots.\n"
+                                          << " DDG4ProductionCuts : List of all roots:";
     for (size_t jj = 0; jj < dd4hepVec_.size(); ++jj)
-      edm::LogVerbatim("SimG4CoreGeometry") << "   DDG4ProductionCuts : root=" << dd4hepVec_[jj].first << " , " << dd4hepVec_[jj].second;
+      edm::LogVerbatim("SimG4CoreGeometry")
+          << "   DDG4ProductionCuts : root=" << dd4hepVec_[jj].first << " , " << dd4hepVec_[jj].second;
   }
 }
 

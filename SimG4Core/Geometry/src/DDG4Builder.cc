@@ -39,7 +39,9 @@ G4LogicalVolume *DDG4Builder::convertLV(const DDLogicalPart &part) {
     map_.insert(result, part);
     DDG4Dispatchable *disp = new DDG4Dispatchable(&part, result);
     theVectorOfDDG4Dispatchables_->push_back(disp);
-    edm::LogVerbatim("SimG4CoreGeometry") << "DDG4Builder::convertLV(): new G4LogicalVolume " << part.name().name() << "\nDDG4Builder: newEvent: dd=" << part.ddname() << " g4=" << result->GetName();
+    edm::LogVerbatim("SimG4CoreGeometry")
+        << "DDG4Builder::convertLV(): new G4LogicalVolume " << part.name().name()
+        << "\nDDG4Builder: newEvent: dd=" << part.ddname() << " g4=" << result->GetName();
     logs_[part] = result;  // DDD -> GEANT4
   }
   return result;
@@ -71,17 +73,21 @@ G4Material *DDG4Builder::convertMaterial(const DDMaterial &material) {
   int c = 0;
   if ((c = material.noOfConstituents())) {
     // it's a composite material
-    edm::LogVerbatim("SimG4CoreGeometry") << "  creating a G4-composite material. c=" << c << " d=" << material.density() / CLHEP::g * CLHEP::mole;
+    edm::LogVerbatim("SimG4CoreGeometry")
+        << "  creating a G4-composite material. c=" << c << " d=" << material.density() / CLHEP::g * CLHEP::mole;
     result = new G4Material(material.name().name(), material.density(), c);
     for (int i = 0; i < c; ++i) {
       // recursive building of constituents
-      edm::LogVerbatim("SimG4CoreGeometry") << "  adding the composite=" << material.name() << " fm=" << material.constituent(i).second;
+      edm::LogVerbatim("SimG4CoreGeometry")
+          << "  adding the composite=" << material.name() << " fm=" << material.constituent(i).second;
       result->AddMaterial(convertMaterial(material.constituent(i).first),
                           material.constituent(i).second);  // fractionmass
     }
   } else {
     // it's an elementary material
-    edm::LogVerbatim("SimG4CoreGeometry") << "  building an elementary material" << " z=" << material.z() << " a=" << material.a() / CLHEP::g * CLHEP::mole << " d=" << material.density() / CLHEP::g * CLHEP::cm3;
+    edm::LogVerbatim("SimG4CoreGeometry") << "  building an elementary material"
+                                          << " z=" << material.z() << " a=" << material.a() / CLHEP::g * CLHEP::mole
+                                          << " d=" << material.density() / CLHEP::g * CLHEP::cm3;
     result = new G4Material(material.name().name(), material.z(), material.a(), material.density());
   }
   mats_[material] = result;
@@ -105,7 +111,7 @@ G4LogicalVolume *DDG4Builder::BuildGeometry(SensitiveDetectorCatalog &catalog) {
       throw cms::Exception("SimG4CoreGeometry",
                            " DDG4Builder::BuildGeometry() has encountered an "
                            "undefined DDLogicalPart named " +
-			   ddLP.toString());
+                               ddLP.toString());
     }
     G4LogicalVolume *g4LV = convertLV(ddLP);
     ++i;
@@ -128,7 +134,10 @@ G4LogicalVolume *DDG4Builder::BuildGeometry(SensitiveDetectorCatalog &catalog) {
         DD3Vector x, y, z;
         rm.GetComponents(x, y, z);
         if ((x.Cross(y)).Dot(z) < 0)
-          edm::LogVerbatim("SimG4CoreGeometry") << "DDG4Builder: Reflection: " << gra.edgeData(cit->second)->ddrot() << ">>Placement d=" << gra.nodeData(cit->first).ddname() << " m=" << ddLP.ddname() << " cp=" << gra.edgeData(cit->second)->copyno() << " r=" << gra.edgeData(cit->second)->ddrot().ddname();
+          edm::LogVerbatim("SimG4CoreGeometry")
+              << "DDG4Builder: Reflection: " << gra.edgeData(cit->second)->ddrot()
+              << ">>Placement d=" << gra.nodeData(cit->first).ddname() << " m=" << ddLP.ddname()
+              << " cp=" << gra.edgeData(cit->second)->copyno() << " r=" << gra.edgeData(cit->second)->ddrot().ddname();
         G4ThreeVector tempTran(gra.edgeData(cit->second)->trans().X(),
                                gra.edgeData(cit->second)->trans().Y(),
                                gra.edgeData(cit->second)->trans().Z());
@@ -160,7 +169,8 @@ G4LogicalVolume *DDG4Builder::BuildGeometry(SensitiveDetectorCatalog &catalog) {
       map_.insert(reflLogicalVolume, ddlv);
       DDG4Dispatchable *disp = new DDG4Dispatchable(&(ddg4_it->first), reflLogicalVolume);
       theVectorOfDDG4Dispatchables_->push_back(disp);
-      edm::LogVerbatim("SimG4CoreGeometry") << "DDG4Builder: dd=" << ddlv.ddname() << " g4=" << reflLogicalVolume->GetName();
+      edm::LogVerbatim("SimG4CoreGeometry")
+          << "DDG4Builder: dd=" << ddlv.ddname() << " g4=" << reflLogicalVolume->GetName();
     }
   }
 
@@ -190,7 +200,7 @@ int DDG4Builder::getInt(const std::string &ss, const DDLogicalPart &part) {
       throw cms::Exception("SimG4CoreGeometry",
                            " DDG4Builder::getInt() Problem with Region tags - "
                            "one and only one allowed: " +
-			   ss);
+                               ss);
     }
     return int(temp[0]);
   } else
@@ -212,7 +222,7 @@ double DDG4Builder::getDouble(const std::string &ss, const DDLogicalPart &part) 
       throw cms::Exception("SimG4CoreGeometry",
                            " DDG4Builder::getDouble() Problem with Region tags "
                            "- one and only one allowed: " +
-			   ss);
+                               ss);
     }
     double v;
     std::string unit;

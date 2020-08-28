@@ -23,7 +23,8 @@ void DDG4SensitiveConverter::upDate(const DDG4DispContainer &ddg4s, SensitiveDet
     std::string sROUName = getString("ReadOutName", part);
     std::string fff = result->GetName();
     if (sClassName != "NotFound") {
-      edm::LogVerbatim("SimG4CoreGeometry") << " DDG4SensitiveConverter: Sensitive " << fff << " Class Name " << sClassName << " ROU Name " << sROUName;
+      edm::LogVerbatim("SimG4CoreGeometry")
+          << " DDG4SensitiveConverter: Sensitive " << fff << " Class Name " << sClassName << " ROU Name " << sROUName;
       fff = result->GetName();
       catalog.insert(sClassName, sROUName, fff);
     }
