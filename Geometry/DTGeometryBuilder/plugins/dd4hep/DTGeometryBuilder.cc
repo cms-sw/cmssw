@@ -168,7 +168,6 @@ void DTGeometryBuilder::build(DTGeometry& geom,
                               const DDDetector* det,
                               const MuonGeometryConstants& num,
                               const dd4hep::SpecParRefs& refs) {
-
   Volume top = det->worldVolume();
   DDFilteredView fview(det, top);
   fview.mergedSpecifics(refs);
