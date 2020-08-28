@@ -75,7 +75,7 @@ namespace edmtest {
     MultipleIntsAnalyzer(edm::ParameterSet const& iPSet) {
       auto const& tags = iPSet.getUntrackedParameter<std::vector<edm::InputTag>>("getFromModules");
       for (auto const& tag : tags) {
-        m_tokens.emplace_back(consumes<IntProduct>(tag));
+        m_tokens.emplace_back(consumes(tag));
       }
     }
 
