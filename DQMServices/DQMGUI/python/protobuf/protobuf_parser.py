@@ -90,12 +90,14 @@ class ProtobufParser:
 
 
     @classmethod
-    async def deserialize_file(cls, filename, read_histogram_bytes=False, uncompress_histogram_bytes=True):
+    async def deserialize_file(cls, filename, uncompress_only_scalars=False):
         """
         Parses non-gzipped protobuf file and returns a list of HistoMessage tuples.
-        If read_histogram_bytes is True, binary data of actual histograms will be read, otherwise it won't.
-        If uncompress_histogram_bytes is True, binary data of the histograms will be zlib uncompressed.
-        If you need only metadata, set read_histogram_bytes to False.
+        If uncompress_only_scalars is True, binary data of actual histograms will be uncompressed
+        only if a histogram is a scalar. A scalar is identified by the last byte of flags value. It
+        has to be 1, 2 or 3 for a histogram to be a scalar value. This is done in order to not waste
+        time uncompressing histograms during importing when regular histogram cointent is never looked
+        at except when a histogram is a scalar. This cuts down the time of importing by a factor of 3.
         """
 
         histos = []
@@ -107,7 +109,7 @@ class ProtobufParser:
             if field_number == 1 and wire_type == 2:
                 # Found a value of the repeated Histo field, parse it!
                 message_size = await cls.read_variant_value(buffer)
-                histo = await cls.read_histo_message(buffer, message_size, read_histogram_bytes, uncompress_histogram_bytes)
+                histo = await cls.read_histo_message(buffer, message_size, uncompress_only_scalars)
                 histos.append(histo)
             else:
                 await cls.consume_unknown_field(buffer, wire_type)
@@ -120,10 +122,8 @@ class ProtobufParser:
 
 
     @classmethod
-    async def read_histo_message(cls, buffer, message_size, read_histogram_bytes=False, uncompress_histogram_bytes=True):
+    async def read_histo_message(cls, buffer, message_size, uncompress_only_scalars=False):
         """Read Histo message and parse its fields"""
-
-        # TODO: for importing we need to zlip uncompress only strings
 
         # Values that will be returned in HistoMessage tuple
         full_pathname = ''
@@ -143,18 +143,7 @@ class ProtobufParser:
             elif field_number == 2 and wire_type == 0:
                 size = await cls.read_variant_value(buffer)
             elif field_number == 3 and wire_type == 2:
-                if read_histogram_bytes:
-                    streamed_histo = await cls.read_length_delimited_value(buffer)
-                    if uncompress_histogram_bytes:
-                        try:
-                            streamed_histo = zlib.decompress(streamed_histo)
-                        except:
-                            print('Error zlib decompressing:')
-                            print(streamed_histo)
-                            print(full_pathname)
-                else: 
-                    # If we don't need the histogram, just seek through it
-                    await cls.consume_unknown_field(buffer, wire_type)
+                streamed_histo = await cls.read_length_delimited_value(buffer)
             elif field_number == 4 and wire_type == 0:
                 flags = await cls.read_variant_value(buffer)
             else:
@@ -162,6 +151,16 @@ class ProtobufParser:
 
             if await buffer.peek(1) == b'':
                 break
+
+        type_byte = flags & 255
+        is_scalar = type_byte in (1, 2, 3)
+        if (uncompress_only_scalars and is_scalar) or not uncompress_only_scalars:
+            try:
+                streamed_histo = zlib.decompress(streamed_histo)
+            except:
+                print('Error zlib decompressing:')
+                print(streamed_histo)
+                print(full_pathname)
 
         return cls.HistoMessage(full_pathname, size, streamed_histo, flags, offset, message_size)
 
