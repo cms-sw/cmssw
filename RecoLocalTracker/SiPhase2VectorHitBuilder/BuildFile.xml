@@ -11,6 +11,7 @@
 <use   name="RecoLocalTracker/Phase2TrackerRecHits"/>
 <use   name="RecoLocalTracker/ClusterParameterEstimator"/>
 <use   name="RecoLocalTracker/Records"/>
+<use   name="RecoTracker/Record"/>
 <export>
   <lib   name="1"/>
 </export>
