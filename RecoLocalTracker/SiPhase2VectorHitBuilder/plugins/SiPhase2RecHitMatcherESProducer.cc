@@ -4,6 +4,7 @@
 #include "FWCore/Framework/interface/ModuleFactory.h"
 #include "FWCore/Framework/interface/ESProducer.h"
 #include "RecoLocalTracker/Records/interface/TkPhase2OTCPERecord.h"
+#include "RecoTracker/Record/interface/CkfComponentsRecord.h"
 
 #include "FWCore/Framework/interface/ESProducer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -22,6 +23,7 @@ private:
   edm::ParameterSet pset_;
   edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> geometryToken_;
   edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> trackerTopoToken_;
+  edm::ESGetToken<ClusterParameterEstimator<Phase2TrackerCluster1D>, TkPhase2OTCPERecord> cpeToken_;
 };
 
 SiPhase2RecHitMatcherESProducer::SiPhase2RecHitMatcherESProducer(const edm::ParameterSet& p) {
@@ -30,6 +32,7 @@ SiPhase2RecHitMatcherESProducer::SiPhase2RecHitMatcherESProducer(const edm::Para
   auto cc = setWhatProduced(this, name_);
   geometryToken_ = cc.consumesFrom<TrackerGeometry,TrackerDigiGeometryRecord>();
   trackerTopoToken_ = cc.consumesFrom<TrackerTopology,TrackerTopologyRcd>();
+  cpeToken_ = cc.consumesFrom<ClusterParameterEstimator<Phase2TrackerCluster1D>, TkPhase2OTCPERecord>();
 }
 
 std::shared_ptr<VectorHitBuilderAlgorithm> SiPhase2RecHitMatcherESProducer::produce(
@@ -39,9 +42,12 @@ std::shared_ptr<VectorHitBuilderAlgorithm> SiPhase2RecHitMatcherESProducer::prod
 
     edm::ESHandle<TrackerGeometry> tGeomHandle = iRecord.getHandle(geometryToken_);
     edm::ESHandle<TrackerTopology> tTopoHandle = iRecord.getHandle(trackerTopoToken_);
-  
+ 
+    edm::ESHandle<ClusterParameterEstimator<Phase2TrackerCluster1D> > cpeHandle= iRecord.getHandle(cpeToken_);
+ 
     matcher_->initTkGeom(tGeomHandle);
     matcher_->initTkTopo(tTopoHandle);
+    matcher_->initCpe(cpeHandle.product());
   }
   return matcher_;
 }
