@@ -35,10 +35,10 @@ void fastsim::Decayer::decay(const Particle& particle,
   int pid = particle.pdgId();
   // snip decay products of exotic particles or their children. These decay products are preserved from the event record.
   // limitation: if exotic incurs heavy energy loss during propagation, the saved decay products could be too hard.
-  if (abs(pid) > 1000000) {
+  if (std::abs(pid) > 1000000) {
     return;
   }
-  if (abs(particle.getMotherPdgId()) > 1000000) {
+  if (std::abs(particle.getMotherPdgId()) > 1000000) {
     return;
   }
 
