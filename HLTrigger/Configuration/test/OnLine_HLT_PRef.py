@@ -1,13 +1,13 @@
 # hltGetConfiguration --full --data /dev/CMSSW_11_2_0/PRef --type PRef --unprescale --process HLTPRef --globaltag auto:run3_hlt_PRef --input file:RelVal_Raw_PRef_DATA.root
 
-# /dev/CMSSW_11_2_0/PRef/V8 (CMSSW_11_2_0_pre5)
+# /dev/CMSSW_11_2_0/PRef/V9 (CMSSW_11_2_0_pre5)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLTPRef" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_11_2_0/PRef/V8')
+  tableName = cms.string('/dev/CMSSW_11_2_0/PRef/V9')
 )
 
 process.transferSystem = cms.PSet( 
@@ -3799,7 +3799,7 @@ process.CSCGeometryESModule = cms.ESProducer( "CSCGeometryESModule",
   useRealWireGeometry = cms.bool( True ),
   useCentreTIOffsets = cms.bool( False ),
   fromDD4hep = cms.bool( False ),
-  fromDDD = cms.bool( True ),
+  fromDDD = cms.bool( False ),
   applyAlignment = cms.bool( True )
 )
 process.CSCIndexerESProducer = cms.ESProducer( "CSCIndexerESProducer",
@@ -3987,7 +3987,7 @@ process.PropagatorWithMaterialForMixedStep = cms.ESProducer( "PropagatorWithMate
 process.RPCGeometryESModule = cms.ESProducer( "RPCGeometryESModule",
   fromDD4hep = cms.untracked.bool( False ),
   appendToDataLabel = cms.string( "" ),
-  fromDDD = cms.untracked.bool( True )
+  fromDDD = cms.untracked.bool( False )
 )
 process.SiStripClusterizerConditionsESProducer = cms.ESProducer( "SiStripClusterizerConditionsESProducer",
   appendToDataLabel = cms.string( "" ),
