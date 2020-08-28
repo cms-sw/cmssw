@@ -42,8 +42,6 @@ void L1TriggerNtupleEgamma::fill(const edm::Event& e, const edm::EventSetup& es)
   e.getByToken(egamma_token_, egamma_h);
   const l1t::EGammaBxCollection& egamma_collection = *egamma_h;
 
-  // triggerTools_.eventSetup(es);
-
   clear();
   for (auto egee_itr = egamma_collection.begin(0); egee_itr != egamma_collection.end(0); egee_itr++) {
     egamma_n_++;

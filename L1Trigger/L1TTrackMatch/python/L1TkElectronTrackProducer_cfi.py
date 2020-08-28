@@ -64,7 +64,6 @@ L1TkElectronsLooseCrystal = L1TkElectronsCrystal.clone(
 )
 
 L1TkElectronsEllipticMatchCrystal = L1TkElectronsCrystal.clone(
-#     L1TrackInputTag = cms.InputTag("TTTracksFromTrackletEmulation", "Level1TTTracks"),
     TrackEGammaMatchType = cms.string("EllipticalCut"),
     TrackEGammaDeltaEta = cms.vdouble(0.015, 0.025,1e10)
 )
@@ -79,7 +78,6 @@ L1TkElectronsHGC=L1TkElectrons.clone(
 
 
 L1TkElectronsEllipticMatchHGC = L1TkElectronsHGC.clone(
-    # L1TrackInputTag = cms.InputTag("TTTracksFromTrackletEmulation", "Level1TTTracks")
     TrackEGammaMatchType = cms.string("EllipticalCut"),
     TrackEGammaDeltaEta = cms.vdouble(0.01, 0.01,1e10),
     maxChi2IsoTracks = cms.double(100),
