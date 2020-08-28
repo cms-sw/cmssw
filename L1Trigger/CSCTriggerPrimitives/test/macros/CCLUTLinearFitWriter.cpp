@@ -127,11 +127,9 @@ int convertToLegacyPattern(const int code_hits[CSCConstants::NUM_LAYERS][CSCCons
 void getErrors(const vector<float>& x, const vector<float>& y, float& sigmaM, float& sigmaB);
 void writeHeaderPosOffsetLUT(ofstream& file);
 void writeHeaderSlopeLUT(ofstream& file);
-unsigned firmwareWord(const float position,
-                      const float bending,
-                      const unsigned nBitsPosition,
-                      const unsigned nBitsBending);
+unsigned firmwareWord(const unsigned quality, const unsigned slope, const unsigned offset);
 void setDataWord(unsigned& word, const unsigned newWord, const unsigned shift, const unsigned mask);
+unsigned assign(const float fvalue, const float fmin, const float fmax, const unsigned nbits);
 
 int CCLUTLinearFitWriter() {
   //all the patterns we will fit
@@ -232,13 +230,24 @@ int CCLUTLinearFitWriter() {
 
     // create 3 output files per pattern: 1) position offset for CMSSW, 2) slope for CMSSW, 3) output for firmware
     std::cout << "Create output files for pattern " << patt->getName() << std::endl;
-    ofstream outposition_sw;
-    outposition_sw.open(outdir + "CSCComparatorCodePosOffsetLUT_pat" + patt->getName() + "_ideal_v1.txt");
-    writeHeaderPosOffsetLUT(outposition_sw);
+
+    // floating point
+    ofstream outoffset_sw;
+    outoffset_sw.open(outdir + "CSCComparatorCodePosOffsetLUT_pat" + patt->getName() + "_float_v1.txt");
+    writeHeaderPosOffsetLUT(outoffset_sw);
 
     ofstream outslope_sw;
-    outslope_sw.open(outdir + "CSCComparatorCodeSlopeLUT_pat" + patt->getName() + "_v1.txt");
+    outslope_sw.open(outdir + "CSCComparatorCodeSlopeLUT_pat" + patt->getName() + "_float_v1.txt");
     writeHeaderSlopeLUT(outslope_sw);
+
+    // unsigned
+    ofstream outoffset_sw_bin;
+    outoffset_sw_bin.open(outdir + "CSCComparatorCodePosOffsetLUT_pat" + patt->getName() + "_v1.txt");
+    writeHeaderPosOffsetLUT(outoffset_sw_bin);
+
+    ofstream outslope_sw_bin;
+    outslope_sw_bin.open(outdir + "CSCComparatorCodeSlopeLUT_pat" + patt->getName() + "_v1.txt");
+    writeHeaderSlopeLUT(outslope_sw_bin);
 
     // format: [8:0] is quality, [13, 9] is bending , [17:14] is offset
     ofstream outfile_fw;
@@ -325,11 +334,21 @@ int CCLUTLinearFitWriter() {
         all_slopes->Fill(slope);
       }
 
-      const unsigned fwword = firmwareWord(offset, slope, 4, 5);
+      // everything is in half-strips
+      const float fmaxOffset = 2;
+      const float fminOffset = -1.75;
+      const float fmaxSlope = 2.5;
+      const float fminSlope = -2.5;
+
+      const unsigned offset_bin = assign(offset, fminOffset, fmaxOffset, 4);
+      const unsigned slope_bin = assign(slope, fminSlope, fmaxSlope, 5);
+      const unsigned fwword = firmwareWord(0, slope_bin, offset_bin);
 
       // write to output files
-      outposition_sw << code << " " << offset << "\n";
+      outoffset_sw << code << " " << offset << "\n";
       outslope_sw << code << " " << slope << "\n";
+      outoffset_sw_bin << code << " " << offset_bin << "\n";
+      outslope_sw_bin << code << " " << slope_bin << "\n";
       outpatternconv << code << " " << legacypattern << "\n";
       outfile_fw << setfill('0');
       outfile_fw << setw(5) << std::hex << fwword << "\n";
@@ -350,8 +369,10 @@ int CCLUTLinearFitWriter() {
     }  // end loop on comparator codes
 
     // write to files
-    outposition_sw.close();
+    outoffset_sw.close();
     outslope_sw.close();
+    outoffset_sw_bin.close();
+    outslope_sw_bin.close();
     outfile_fw.close();
   }
 
@@ -491,21 +512,8 @@ unsigned assign(const float fvalue, const float fmin, const float fmax, const un
   return value;
 }
 
-unsigned firmwareWord(const float foffset, const float fslope, const unsigned nBitsOffset, const unsigned nBitsSlope) {
-  // step 1: convert floating point offset and slope to unsigned
-
-  // everything is in half-strips
-  // somewhat arbitrary numbers...
-  const float fmaxOffset = 2;
-  const float fminOffset = -1.75;
-  const float fmaxSlope = 2.5;
-  const float fminSlope = -2.5;
-
-  unsigned quality = 0;
-  unsigned offset = assign(foffset, fminOffset, fmaxOffset, nBitsOffset);
-  unsigned slope = assign(fslope, fminSlope, fmaxSlope, nBitsSlope);
-
-  /* step 2: construct fw dataword:
+unsigned firmwareWord(const unsigned quality, const unsigned slope, const unsigned offset) {
+  /* construct fw dataword:
      [8:0] is quality (set all to 0 for now)
      [13, 9] is slope
      [17:14] is offset
