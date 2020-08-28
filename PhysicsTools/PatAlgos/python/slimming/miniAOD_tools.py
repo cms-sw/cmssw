@@ -528,40 +528,6 @@ def miniAOD_customizeCommon(process):
     stage2L1Trigger_2017.toModify(process.prefiringweight, DataEra = "2017BtoF")
     run2_L1prefiring.toModify(task, func=lambda t: t.add(process.prefiringweight))
 
-    from PhysicsTools.PatAlgos.producersHeavyIons.heavyIonJetSetup import removeL1FastJetJECs
-    from Configuration.Eras.Modifier_pp_on_AA_2018_cff import pp_on_AA_2018
-    from Configuration.Eras.Modifier_pp_on_PbPb_run3_cff import pp_on_PbPb_run3
-    (pp_on_AA_2018 | pp_on_PbPb_run3).toModify(process.slimmedJets, src = 'selectedPatJets')
-    (pp_on_AA_2018 | pp_on_PbPb_run3).toModify(process.slimmedCaloJets, src = 'akPu4CaloJets')
-
-    (pp_on_AA_2018 | pp_on_PbPb_run3).toModify(process.ak8PFJetsPuppi, src = 'pfNoPileUpJMEHI')
-    (pp_on_AA_2018 | pp_on_PbPb_run3).toModify(process.patJetsAK8Puppi, jetSource = 'ak8PFJetsPuppi')
-    (pp_on_AA_2018 | pp_on_PbPb_run3).toModify(process.slimmedJetsAK8, src = 'patJetsAK8Puppi')
-
-    (pp_on_AA_2018 | pp_on_PbPb_run3).toModify(process.ak4PFJetsPuppi, src = 'pfNoPileUpJMEHI')
-    (pp_on_AA_2018 | pp_on_PbPb_run3).toModify(process.patJetsPuppi, jetSource = 'ak4PFJetsPuppi')
-    (pp_on_AA_2018 | pp_on_PbPb_run3).toModify(process.slimmedJetsPuppi, src = 'patJetsPuppi')
-
-    (pp_on_AA_2018 | pp_on_PbPb_run3).toModify(process.slimmedJetsAK8PFPuppiSoftDropPacked, jetSrc = 'patJetsAK8Puppi', subjetSrc = 'patJetsAK8Puppi')
-    (pp_on_AA_2018 | pp_on_PbPb_run3).toModify(process.ak4PFJetsPuppi, jetPtMin = 9999.)
-
-    (pp_on_AA_2018 | pp_on_PbPb_run3).toModify(process, func = lambda proc: removeL1FastJetJECs(proc))
-
-    (pp_on_AA_2018 | pp_on_PbPb_run3).toModify(process.pfMetPuppi, src = 'pfNoPileUpJMEHI')
-    (pp_on_AA_2018 | pp_on_PbPb_run3).toModify(process.patMETsPuppi, computeMETSignificance = False, metSource = 'pfMetPuppi')
-    (pp_on_AA_2018 | pp_on_PbPb_run3).toModify(process.slimmedMETsPuppi,
-        chsMET = 'patMETsPuppi',
-        rawVariation = 'patMETsPuppi',
-        t01Variation = 'patMETsPuppi',
-        t1SmearedVarsAndUncs = 'patMETsPuppi',
-        t1Uncertainties = 'patMETsPuppi',
-        tXYUncForRaw = 'patMETsPuppi',
-        tXYUncForT01 = 'patMETsPuppi',
-        tXYUncForT01Smear = 'patMETsPuppi',
-        tXYUncForT1 = 'patMETsPuppi',
-        tXYUncForT1Smear = 'patMETsPuppi',
-        trkMET = 'patMETsPuppi')
-
 def miniAOD_customizeMC(process):
     task = getPatAlgosToolsTask(process)
     #GenJetFlavourInfos
@@ -610,9 +576,11 @@ def miniAOD_customizeMC(process):
     from Configuration.Eras.Modifier_pp_on_PbPb_run3_cff import pp_on_PbPb_run3
     (pp_on_AA_2018 | pp_on_PbPb_run3).toModify(process.slimmedGenJetsAK8, cut = 'pt>9999', nLoose = 0)
     (pp_on_AA_2018 | pp_on_PbPb_run3).toModify(process.slimmedGenJetsAK8SoftDropSubJets, cut = 'pt>9999', nLoose = 0)
-    from PhysicsTools.PatAlgos.producersHeavyIons.heavyIonJetSetup import aliasCsJets, removeJECsForMC
+    from PhysicsTools.PatAlgos.producersHeavyIons.heavyIonJetSetup import aliasCsJets, removeJECsForMC, removeL1FastJetJECs
     (pp_on_AA_2018 | pp_on_PbPb_run3).toModify(process, func = lambda proc: aliasCsJets(proc, 'AKCs4PF'))
     (pp_on_AA_2018 | pp_on_PbPb_run3).toModify(process, func = lambda proc: removeJECsForMC(proc))
+    (pp_on_AA_2018 | pp_on_PbPb_run3).toModify(process, func = lambda proc: removeL1FastJetJECs(proc))
+
 
 def miniAOD_customizeOutput(out):
     from PhysicsTools.PatAlgos.slimming.MicroEventContent_cff import MiniAODOverrideBranchesSplitLevel
@@ -636,9 +604,10 @@ def miniAOD_customizeData(process):
 
     from Configuration.Eras.Modifier_pp_on_AA_2018_cff import pp_on_AA_2018
     from Configuration.Eras.Modifier_pp_on_PbPb_run3_cff import pp_on_PbPb_run3
-    from PhysicsTools.PatAlgos.producersHeavyIons.heavyIonJetSetup import aliasCsJets, addJECsForData
+    from PhysicsTools.PatAlgos.producersHeavyIons.heavyIonJetSetup import aliasCsJets, addJECsForData, removeL1FastJetJECs
     (pp_on_AA_2018 | pp_on_PbPb_run3).toModify(process, func = lambda proc: aliasCsJets(proc, 'AKCs4PF'))
     (pp_on_AA_2018 | pp_on_PbPb_run3).toModify(process, func = lambda proc: addJECsForData(proc))
+    (pp_on_AA_2018 | pp_on_PbPb_run3).toModify(process, func = lambda proc: removeL1FastJetJECs(proc))
 
 def miniAOD_customizeAllData(process):
     miniAOD_customizeCommon(process)
