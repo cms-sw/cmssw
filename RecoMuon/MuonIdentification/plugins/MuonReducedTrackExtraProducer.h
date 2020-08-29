@@ -33,17 +33,16 @@ public:
   void produce(edm::Event&, const edm::EventSetup&) override;
 
 private:
-  edm::EDGetTokenT<edm::View<reco::Muon>> muonToken_;
+  const edm::EDGetTokenT<edm::View<reco::Muon>> muonToken_;
   std::vector<edm::EDGetTokenT<reco::TrackExtraCollection>> trackExtraTokens_;
   edm::EDGetTokenT<edmNew::DetSetVector<SiPixelCluster>> pixelClusterToken_;
   edm::EDGetTokenT<edmNew::DetSetVector<SiStripCluster>> stripClusterToken_;
-  std::string cut_;
-  bool outputClusters_;
-  StringCutObjectSelector<pat::Muon> selector_;
-  edm::EDPutTokenT<reco::TrackExtraCollection> trackExtraOutToken_;
-  edm::EDPutTokenT<TrackingRecHitCollection> trackingRecHitsOutToken_;
+  const bool outputClusters_;
+  const StringCutObjectSelector<pat::Muon> selector_;
+  const edm::EDPutTokenT<reco::TrackExtraCollection> trackExtraOutToken_;
+  const edm::EDPutTokenT<TrackingRecHitCollection> trackingRecHitsOutToken_;
   edm::EDPutTokenT<edmNew::DetSetVector<SiPixelCluster>> pixelClusterOutToken_;
   edm::EDPutTokenT<edmNew::DetSetVector<SiStripCluster>> stripClusterOutToken_;
-  edm::EDPutTokenT<edm::Association<reco::TrackExtraCollection>> associationOutToken_;
+  const edm::EDPutTokenT<edm::Association<reco::TrackExtraCollection>> associationOutToken_;
 };
 #endif
