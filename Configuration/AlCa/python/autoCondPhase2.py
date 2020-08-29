@@ -80,24 +80,28 @@ allTags["Template"] = {
 }
 
 ##
-## Outer Tracker records
+## Outer Tracker records (to be filled if necessary)
 ##
 
 '''
-tempConnectionString="frontier://FrontierPrep/CMS_CONDITIONS"
-
 allTags["OTLA"] = {
-    'T15' : ( ','.join( [ 'SiPhase2OuterTrackerLorentzAngle_T15_v0' ,TrackerLARecord,tempConnectionString, "", "2020-07-19 17:00:00.000"] ), ),  #uH = 0.07/T
-    'T17' : ( ','.join( [ 'SiPhase2OuterTrackerLorentzAngle_T15_v0' ,TrackerLARecord,tempConnectionString, "", "2020-07-19 17:00:00.000"] ), ),  #uH = 0.07/T
-    'T19' : ( ','.join( [ 'SiPhase2OuterTrackerLorentzAngle_T15_v0' ,TrackerLARecord,tempConnectionString, "", "2020-07-19 17:00:00.000"] ), ),  #uH = 0.07/T
-    'T20' : ( ','.join( [ 'SiPhase2OuterTrackerLorentzAngle_T15_v0' ,TrackerLARecord,tempConnectionString, "", "2020-07-19 17:00:00.000"] ), ),  #uH = 0.07/T
+    'T15' : ( ','.join( [ 'SiPhase2OuterTrackerLorentzAngle_v0_mc' ,TrackerLARecord,connectionString, "", "2020-07-19 17:00:00.000"] ), ),  #uH = 0.07/T
+    'T17' : ( ','.join( [ 'SiPhase2OuterTrackerLorentzAngle_v0_mc' ,TrackerLARecord,connectionString, "", "2020-07-19 17:00:00.000"] ), ),  #uH = 0.07/T
+    'T19' : ( ','.join( [ 'SiPhase2OuterTrackerLorentzAngle_v0_mc' ,TrackerLARecord,connectionString, "", "2020-07-19 17:00:00.000"] ), ),  #uH = 0.07/T
+    'T20' : ( ','.join( [ 'SiPhase2OuterTrackerLorentzAngle_v0_mc' ,TrackerLARecord,connectionString, "", "2020-07-19 17:00:00.000"] ), ),  #uH = 0.07/T
+    'T21' : ( ','.join( [ 'SiPhase2OuterTrackerLorentzAngle_v0_mc' ,TrackerLARecord,connectionString, "", "2020-07-19 17:00:00.000"] ), ),  #uH = 0.07/T
+    'T22' : ( ','.join( [ 'SiPhase2OuterTrackerLorentzAngle_v0_mc' ,TrackerLARecord,connectionString, "", "2020-07-19 17:00:00.000"] ), ),  #uH = 0.07/T
+    'T23' : ( ','.join( [ 'SiPhase2OuterTrackerLorentzAngle_v0_mc' ,TrackerLARecord,connectionString, "", "2020-07-19 17:00:00.000"] ), ),  #uH = 0.07/T
 }
 
 allTags["SimOTLA"] = {
-    'T15' : ( ','.join( [ 'SiPhase2OuterTrackerLorentzAngle_T15_v0' ,TrackerSimLARecord,tempConnectionString, "", "2020-07-19 17:00:00.000"] ), ),  #uH = 0.07/T
-    'T17' : ( ','.join( [ 'SiPhase2OuterTrackerLorentzAngle_T15_v0' ,TrackerSimLARecord,tempConnectionString, "", "2020-07-19 17:00:00.000"] ), ),  #uH = 0.07/T
-    'T19' : ( ','.join( [ 'SiPhase2OuterTrackerLorentzAngle_T15_v0' ,TrackerSimLARecord,tempConnectionString, "", "2020-07-19 17:00:00.000"] ), ),  #uH = 0.07/T
-    'T20' : ( ','.join( [ 'SiPhase2OuterTrackerLorentzAngle_T15_v0' ,TrackerSimLARecord,tempConnectionString, "", "2020-07-19 17:00:00.000"] ), ),  #uH = 0.07/T
+    'T15' : ( ','.join( [ 'SiPhase2OuterTrackerLorentzAngleSim_v0_mc' ,TrackerSimLARecord,connectionString, "", "2020-07-19 17:00:00.000"] ), ),  #uH = 0.07/T
+    'T17' : ( ','.join( [ 'SiPhase2OuterTrackerLorentzAngleSim_v0_mc' ,TrackerSimLARecord,connectionString, "", "2020-07-19 17:00:00.000"] ), ),  #uH = 0.07/T
+    'T19' : ( ','.join( [ 'SiPhase2OuterTrackerLorentzAngleSim_v0_mc' ,TrackerSimLARecord,connectionString, "", "2020-07-19 17:00:00.000"] ), ),  #uH = 0.07/T
+    'T20' : ( ','.join( [ 'SiPhase2OuterTrackerLorentzAngleSim_v0_mc' ,TrackerSimLARecord,connectionString, "", "2020-07-19 17:00:00.000"] ), ),  #uH = 0.07/T
+    'T21' : ( ','.join( [ 'SiPhase2OuterTrackerLorentzAngleSim_v0_mc' ,TrackerSimLARecord,connectionString, "", "2020-07-19 17:00:00.000"] ), ),  #uH = 0.07/T
+    'T22' : ( ','.join( [ 'SiPhase2OuterTrackerLorentzAngleSim_v0_mc' ,TrackerSimLARecord,connectionString, "", "2020-07-19 17:00:00.000"] ), ),  #uH = 0.07/T
+    'T23' : ( ','.join( [ 'SiPhase2OuterTrackerLorentzAngleSim_v0_mc' ,TrackerSimLARecord,connectionString, "", "2020-07-19 17:00:00.000"] ), ),  #uH = 0.07/T
 }
 '''
 ##
