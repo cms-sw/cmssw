@@ -2,6 +2,8 @@ import FWCore.ParameterSet.Config as cms
 from Configuration.Eras.Modifier_run2_jme_2016_cff import run2_jme_2016
 from Configuration.Eras.Modifier_run2_jme_2017_cff import run2_jme_2017
 from Configuration.Eras.Modifier_run2_miniAOD_80XLegacy_cff import run2_miniAOD_80XLegacy
+from Configuration.Eras.Modifier_run2_miniAOD_devel_cff import run2_miniAOD_devel
+from Configuration.Eras.Modifier_run2_nanoAOD_106Xv1_cff import run2_nanoAOD_106Xv1
 
 from  PhysicsTools.NanoAOD.common_cff import *
 from RecoJets.JetProducers.ak4PFJetsBetaStar_cfi import *
@@ -76,6 +78,9 @@ run2_jme_2016.toModify( tightJetId.filterParams, version = "WINTER16" )
 run2_jme_2016.toModify( tightJetIdLepVeto.filterParams, version = "WINTER16" )
 run2_jme_2017.toModify( tightJetId.filterParams, version = "WINTER17" )
 run2_jme_2017.toModify( tightJetIdLepVeto.filterParams, version = "WINTER17" )
+for modifier in run2_nanoAOD_106Xv1, run2_miniAOD_devel:
+  modifier.toModify( tightJetId.filterParams, version = "RUN2ULCHS" )
+  modifier.toModify( tightJetIdLepVeto.filterParams, version = "RUN2ULCHS" )
 
 
 looseJetIdAK8 = cms.EDProducer("PatJetIDValueMapProducer",
@@ -103,6 +108,9 @@ run2_jme_2016.toModify( tightJetIdAK8.filterParams, version = "WINTER16" )
 run2_jme_2016.toModify( tightJetIdLepVetoAK8.filterParams, version = "WINTER16" )
 run2_jme_2017.toModify( tightJetIdAK8.filterParams, version = "WINTER17PUPPI" )
 run2_jme_2017.toModify( tightJetIdLepVetoAK8.filterParams, version = "WINTER17PUPPI" )
+for modifier in run2_nanoAOD_106Xv1, run2_miniAOD_devel:
+  modifier.toModify( tightJetIdAK8.filterParams, version = "RUN2ULPUPPI" )
+  modifier.toModify( tightJetIdLepVetoAK8.filterParams, version = "RUN2ULPUPPI" )
 
 
 bJetVars = cms.EDProducer("JetRegressionVarProducer",
