@@ -1,13 +1,13 @@
 # hltGetConfiguration --full --data /dev/CMSSW_11_2_0/PIon --type PIon --unprescale --process HLTPIon --globaltag auto:run3_hlt_PIon --input file:RelVal_Raw_PIon_DATA.root
 
-# /dev/CMSSW_11_2_0/PIon/V5 (CMSSW_11_2_0_pre2)
+# /dev/CMSSW_11_2_0/PIon/V9 (CMSSW_11_2_0_pre5)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLTPIon" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_11_2_0/PIon/V5')
+  tableName = cms.string('/dev/CMSSW_11_2_0/PIon/V9')
 )
 
 process.transferSystem = cms.PSet( 
@@ -3713,14 +3713,14 @@ process.CSCChannelMapperESProducer = cms.ESProducer( "CSCChannelMapperESProducer
 )
 process.CSCGeometryESModule = cms.ESProducer( "CSCGeometryESModule",
   appendToDataLabel = cms.string( "" ),
-  useDDD = cms.bool( False ),
   debugV = cms.untracked.bool( False ),
   useGangedStripsInME1a = cms.bool( False ),
   alignmentsLabel = cms.string( "" ),
-  useDD4hep = cms.bool( False ),
   useOnlyWiresInME1a = cms.bool( False ),
   useRealWireGeometry = cms.bool( True ),
   useCentreTIOffsets = cms.bool( False ),
+  fromDD4hep = cms.bool( False ),
+  fromDDD = cms.bool( False ),
   applyAlignment = cms.bool( True )
 )
 process.CSCIndexerESProducer = cms.ESProducer( "CSCIndexerESProducer",
@@ -3906,9 +3906,9 @@ process.PropagatorWithMaterialForMixedStep = cms.ESProducer( "PropagatorWithMate
   useRungeKutta = cms.bool( False )
 )
 process.RPCGeometryESModule = cms.ESProducer( "RPCGeometryESModule",
-  useDDD = cms.untracked.bool( False ),
+  fromDD4hep = cms.untracked.bool( False ),
   appendToDataLabel = cms.string( "" ),
-  useDD4hep = cms.untracked.bool( False )
+  fromDDD = cms.untracked.bool( False )
 )
 process.SiStripClusterizerConditionsESProducer = cms.ESProducer( "SiStripClusterizerConditionsESProducer",
   appendToDataLabel = cms.string( "" ),
