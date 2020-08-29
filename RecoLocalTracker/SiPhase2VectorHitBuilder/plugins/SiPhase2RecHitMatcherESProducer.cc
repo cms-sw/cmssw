@@ -32,7 +32,8 @@ SiPhase2RecHitMatcherESProducer::SiPhase2RecHitMatcherESProducer(const edm::Para
   auto cc = setWhatProduced(this, name_);
   geometryToken_ = cc.consumesFrom<TrackerGeometry,TrackerDigiGeometryRecord>();
   trackerTopoToken_ = cc.consumesFrom<TrackerTopology,TrackerTopologyRcd>();
-  cpeToken_ = cc.consumesFrom<ClusterParameterEstimator<Phase2TrackerCluster1D>, TkPhase2OTCPERecord>();
+  auto const P2otname = p.getParameter<edm::ESInputTag>("CPE");
+  cpeToken_ = cc.consumesFrom<ClusterParameterEstimator<Phase2TrackerCluster1D>, TkPhase2OTCPERecord>(P2otname);
 }
 
 std::shared_ptr<VectorHitBuilderAlgorithm> SiPhase2RecHitMatcherESProducer::produce(
@@ -42,12 +43,12 @@ std::shared_ptr<VectorHitBuilderAlgorithm> SiPhase2RecHitMatcherESProducer::prod
 
     edm::ESHandle<TrackerGeometry> tGeomHandle = iRecord.getHandle(geometryToken_);
     edm::ESHandle<TrackerTopology> tTopoHandle = iRecord.getHandle(trackerTopoToken_);
- 
-    edm::ESHandle<ClusterParameterEstimator<Phase2TrackerCluster1D> > cpeHandle= iRecord.getHandle(cpeToken_);
+
+    auto ptr_phase2TrackerCPE = &iRecord.get(cpeToken_);  
  
     matcher_->initTkGeom(tGeomHandle);
     matcher_->initTkTopo(tTopoHandle);
-    matcher_->initCpe(cpeHandle.product());
+    matcher_->initCpe(ptr_phase2TrackerCPE);
   }
   return matcher_;
 }
@@ -58,7 +59,7 @@ void SiPhase2RecHitMatcherESProducer::fillDescriptions(edm::ConfigurationDescrip
   desc.add<int>("maxVectorHits", 999999999);
   desc.add<std::string>("Algorithm", "VectorHitBuilderAlgorithm");
   desc.add<std::string>("ComponentName", "SiPhase2VectorHitMatcher");
-  desc.add<edm::ESInputTag>("CPE", edm::ESInputTag("phase2StripCPEESProducer", "Phase2StripCPE"));
+  desc.add<edm::ESInputTag>("CPE", edm::ESInputTag("", "Phase2StripCPE"));
   desc.add<std::vector<double>>("BarrelCut",
                                 {
                                     0.0,
