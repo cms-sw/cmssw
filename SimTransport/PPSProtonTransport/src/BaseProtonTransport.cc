@@ -52,7 +52,7 @@ void BaseProtonTransport::ApplyBeamCorrection(TLorentzVector& p_out) {
   p_out.SetPz((double)p * (cos(s_theta)) * direction);
   p_out.SetE(energy);
 }
-void BaseProtonTransport::addPartToHepMC(const HepMC::GenEvent* in_evt,HepMC::GenEvent* evt) {
+void BaseProtonTransport::addPartToHepMC(const HepMC::GenEvent* in_evt, HepMC::GenEvent* evt) {
   NEvent++;
   m_CorrespondenceMap.clear();
 
@@ -96,7 +96,7 @@ void BaseProtonTransport::addPartToHepMC(const HepMC::GenEvent* in_evt,HepMC::Ge
         HepMC::FourVector(p_out.Px(), p_out.Py(), p_out.Pz(), p_out.E()), gpart->pdg_id(), 1, gpart->flow()));
     evt->add_vertex(vert);
 
-    int ingoing = 0;//do not attach the incoming proton to this vertex to avoid duplicating data
+    int ingoing = 0;  //do not attach the incoming proton to this vertex to avoid duplicating data
     int outgoing = (*vert->particles_out_const_begin())->barcode();
 
     LHCTransportLink theLink(ingoing, outgoing);
