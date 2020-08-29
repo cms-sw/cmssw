@@ -19,8 +19,9 @@ public:
 
   std::vector<LHCTransportLink>& getCorrespondenceMap() { return instance_->getCorrespondenceMap(); }
   void process(const HepMC::GenEvent* ev, const edm::EventSetup& es, CLHEP::HepRandomEngine* engine) {
-    instance_->process(ev, es, engine);}
-  void addPartToHepMC(const HepMC::GenEvent* iev, HepMC::GenEvent* ev) { instance_->addPartToHepMC(iev,ev);}
+    instance_->process(ev, es, engine);
+  }
+  void addPartToHepMC(const HepMC::GenEvent* iev, HepMC::GenEvent* ev) { instance_->addPartToHepMC(iev, ev); }
 
 private:
   BaseProtonTransport* instance_;
