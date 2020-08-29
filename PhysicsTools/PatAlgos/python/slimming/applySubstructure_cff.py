@@ -110,27 +110,6 @@ def applySubstructure( process, postfix="" ) :
         e.toModify(getattr(process,'nb1AK8PuppiSoftDropSubjets'+postfix), cuts = ['pt > 999999', 'pt > 999999', 'pt > 999999'] )
         e.toModify(getattr(process,'nb2AK8PuppiSoftDropSubjets'+postfix), cuts = ['pt > 999999', 'pt > 999999', 'pt > 999999'] )
 
-    # rekey the groomed ECF value maps to the ungroomed reco jets, which will then be picked
-    # up by PAT in the user floats. 
-    addToProcessAndTask("ak8PFJetsPuppiSoftDropValueMap"+postfix, 
-                        cms.EDProducer("RecoJetToPatJetDeltaRValueMapProducer",
-                                       src = cms.InputTag("ak8PFJetsPuppi"+postfix),
-                                       matched = cms.InputTag("patJetsAK8PFPuppiSoftDrop"+postfix),
-                                       distMax = cms.double(0.8),
-                                       values = cms.vstring([
-                    'userFloat("nb1AK8PuppiSoftDrop'+postfix+':ecfN2")',
-                    'userFloat("nb1AK8PuppiSoftDrop'+postfix+':ecfN3")',
-                    'userFloat("nb2AK8PuppiSoftDrop'+postfix+':ecfN2")',
-                    'userFloat("nb2AK8PuppiSoftDrop'+postfix+':ecfN3")',
-                    ]),
-                                       valueLabels = cms.vstring( [
-                    'nb1AK8PuppiSoftDropN2',
-                    'nb1AK8PuppiSoftDropN3',
-                    'nb2AK8PuppiSoftDropN2',
-                    'nb2AK8PuppiSoftDropN3',
-                    ]) ),
-                    process, task)
-
         
     # Patify AK8 PF PUPPI
     addJetCollection(process, postfix=postfix, labelName = 'AK8Puppi',
@@ -167,12 +146,6 @@ def applySubstructure( process, postfix="" ) :
     ## now add AK8 groomed masses and ECF
     getattr(process,"patJetsAK8Puppi"+postfix).userData.userFloats.src += ['ak8PFJetsPuppiSoftDropMass'+postfix]
     getattr(process,"patJetsAK8Puppi"+postfix).addTagInfos = cms.bool(False)
-    getattr(process,"patJetsAK8Puppi"+postfix).userData.userFloats.src += [
-        cms.InputTag('ak8PFJetsPuppiSoftDropValueMap'+postfix,'nb1AK8PuppiSoftDropN2'),
-        cms.InputTag('ak8PFJetsPuppiSoftDropValueMap'+postfix,'nb1AK8PuppiSoftDropN3'),
-        cms.InputTag('ak8PFJetsPuppiSoftDropValueMap'+postfix,'nb2AK8PuppiSoftDropN2'),
-        cms.InputTag('ak8PFJetsPuppiSoftDropValueMap'+postfix,'nb2AK8PuppiSoftDropN3'),
-        ]
 
 
     # add PUPPI Njetiness    
