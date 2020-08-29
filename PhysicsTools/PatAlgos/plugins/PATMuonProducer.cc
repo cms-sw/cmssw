@@ -108,11 +108,6 @@ PATMuonProducer::PATMuonProducer(const edm::ParameterSet& iConfig, PATMuonHeavyO
   embedPickyMuon_ = iConfig.getParameter<bool>("embedPickyMuon");
   embedTpfmsMuon_ = iConfig.getParameter<bool>("embedTpfmsMuon");
   embedDytMuon_ = iConfig.getParameter<bool>("embedDytMuon");
-  //associations for rekeying of TrackExtra refs in embedded tracks
-  std::vector<edm::InputTag> trackExtraAssocTags = iConfig.getParameter<std::vector<edm::InputTag>>("trackExtraAssocs");
-  for (edm::InputTag const& tag : trackExtraAssocTags) {
-    trackExtraAssocs_.push_back(consumes<edm::Association<reco::TrackExtraCollection>>(tag));
-  }
   // embedding of inverse beta variable information
   addInverseBeta_ = iConfig.getParameter<bool>("addInverseBeta");
   if (addInverseBeta_) {
@@ -332,11 +327,6 @@ void PATMuonProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   if (computeMiniIso_ || computePuppiCombinedIso_)
     iEvent.getByToken(pcToken_, pc);
 
-  std::vector<edm::Handle<edm::Association<reco::TrackExtraCollection>>> trackExtraAssocs(trackExtraAssocs_.size());
-  for (unsigned int i = 0; i < trackExtraAssocs_.size(); ++i) {
-    iEvent.getByToken(trackExtraAssocs_[i], trackExtraAssocs[i]);
-  }
-
   // get the ESHandle for the transient track builder,
   // if needed for high level selection embedding
   edm::ESHandle<TransientTrackBuilder> trackBuilder;
@@ -484,7 +474,7 @@ void PATMuonProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
       aMuon.setPFCandidateRef(pfRef);
       if (embedPFCandidate_)
         aMuon.embedPFCandidate();
-      fillMuon(aMuon, muonBaseRef, pfBaseRef, genMatches, deposits, isolationValues, trackExtraAssocs);
+      fillMuon(aMuon, muonBaseRef, pfBaseRef, genMatches, deposits, isolationValues);
 
       if (computeMiniIso_)
         setMuonMiniIso(aMuon, pc.product());
@@ -544,7 +534,7 @@ void PATMuonProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
       reco::CandidateBaseRef muonBaseRef(muonRef);
 
       Muon aMuon(muonRef);
-      fillMuon(aMuon, muonRef, muonBaseRef, genMatches, deposits, isolationValues, trackExtraAssocs);
+      fillMuon(aMuon, muonRef, muonBaseRef, genMatches, deposits, isolationValues);
       if (computeMiniIso_)
         setMuonMiniIso(aMuon, pc.product());
       if (addPuppiIsolation_) {
@@ -800,14 +790,12 @@ void PATMuonProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     isolator_.endEvent();
 }
 
-void PATMuonProducer::fillMuon(
-    Muon& aMuon,
-    const MuonBaseRef& muonRef,
-    const reco::CandidateBaseRef& baseRef,
-    const GenAssociations& genMatches,
-    const IsoDepositMaps& deposits,
-    const IsolationValueMaps& isolationValues,
-    std::vector<edm::Handle<edm::Association<reco::TrackExtraCollection>>> const& trackExtraAssocs) const {
+void PATMuonProducer::fillMuon(Muon& aMuon,
+                               const MuonBaseRef& muonRef,
+                               const reco::CandidateBaseRef& baseRef,
+                               const GenAssociations& genMatches,
+                               const IsoDepositMaps& deposits,
+                               const IsolationValueMaps& isolationValues) const {
   // in the particle flow algorithm,
   // the muon momentum is recomputed.
   // the new value is stored as the momentum of the
@@ -837,9 +825,6 @@ void PATMuonProducer::fillMuon(
     aMuon.embedMuonBestTrack(forceEmbedBestTrack_);
   if (embedTunePBestTrack_)
     aMuon.embedTunePMuonBestTrack(forceEmbedBestTrack_);
-
-  // rekey TrackExtra references in embedded tracks
-  aMuon.rekeyEmbeddedTracks(trackExtraAssocs);
 
   // store the match to the generated final state muons
   if (addGenMatch_) {
@@ -987,8 +972,6 @@ void PATMuonProducer::fillDescriptions(edm::ConfigurationDescriptions& descripti
   iDesc.add<bool>("embedPickyMuon", false)->setComment("embed external picky track");
   iDesc.add<bool>("embedTpfmsMuon", false)->setComment("embed external tpfms track");
   iDesc.add<bool>("embedDytMuon", false)->setComment("embed external dyt track ");
-  iDesc.add<std::vector<edm::InputTag>>("trackExtraAssocs", {})
-      ->setComment("associations for rekeying of TrackExtra refs in embedded tracks");
 
   // embedding of MET muon corrections
   iDesc.add<bool>("embedCaloMETMuonCorrs", true)->setComment("whether to add MET muon correction for caloMET or not");

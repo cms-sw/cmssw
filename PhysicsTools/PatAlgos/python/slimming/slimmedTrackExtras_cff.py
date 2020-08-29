@@ -2,7 +2,9 @@ from RecoMuon.MuonIdentification.muonReducedTrackExtras_cfi import muonReducedTr
 
 import FWCore.ParameterSet.Config as cms
 
-standAloneMuonReducedTrackExtras = muonReducedTrackExtras.clone(trackExtraTags = ["standAloneMuons"],
+standAloneMuonReducedTrackExtras = muonReducedTrackExtras.clone(muonTag = "selectedPatMuons",
+                                                                trackExtraTags = ["standAloneMuons"],
+                                                                cut = "pt > 4.5",
                                                                 outputClusters = False)
 
 slimmedTrackExtrasTask = cms.Task(standAloneMuonReducedTrackExtras)
