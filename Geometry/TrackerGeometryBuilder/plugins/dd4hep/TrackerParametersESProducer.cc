@@ -33,13 +33,12 @@ public:
   ReturnType produce(const PTrackerParametersRcd&);
 
 private:
-  edm::ESGetToken<cms::DDCompactView, IdealGeometryRecord> geomToken_;
+  const edm::ESGetToken<cms::DDCompactView, IdealGeometryRecord> geomToken_;
 };
 
-TrackerParametersESProducer::TrackerParametersESProducer(const edm::ParameterSet&) {
+TrackerParametersESProducer::TrackerParametersESProducer(const edm::ParameterSet&)
+    : geomToken_(setWhatProduced(this).consumes()) {
   edm::LogInfo("TRACKER") << "TrackerParametersESProducer::TrackerParametersESProducer";
-
-  setWhatProduced(this).setConsumes(geomToken_);
 }
 
 TrackerParametersESProducer::~TrackerParametersESProducer() {}

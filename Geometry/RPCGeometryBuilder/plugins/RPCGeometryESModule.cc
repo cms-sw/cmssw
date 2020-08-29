@@ -55,11 +55,13 @@ RPCGeometryESModule::RPCGeometryESModule(const edm::ParameterSet& p)
   auto cc = setWhatProduced(this);
 
   if (fromDDD_) {
-    cc.setConsumes(idealGeomToken_).setConsumes(dddConstantsToken_);
+    idealGeomToken_ = cc.consumes();
+    dddConstantsToken_ = cc.consumes();
   } else if (fromDD4hep_) {
-    cc.setConsumes(idealDD4hepGeomToken_).setConsumes(dddConstantsToken_);
+    idealDD4hepGeomToken_ = cc.consumes();
+    dddConstantsToken_ = cc.consumes();
   } else {
-    cc.setConsumes(recoIdealToken_);
+    recoIdealToken_ = cc.consumes();
   }
 }
 
