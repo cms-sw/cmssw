@@ -235,7 +235,9 @@ namespace edm {
       // Auxiliary search structure to support wildcard for friendlyClassName
       std::multimap<std::string, BranchKey> moduleLabelToBranches;
       for (auto const& prod : preg.productList()) {
-        moduleLabelToBranches.emplace(prod.first.moduleLabel(), prod.first);
+        if (processName == prod.second.processName()) {
+          moduleLabelToBranches.emplace(prod.first.moduleLabel(), prod.first);
+        }
       }
 
       // Now, loop over the alias information and store it in aliasMap.
@@ -255,9 +257,6 @@ namespace edm {
               for (auto it = moduleLabelToBranches.lower_bound(moduleLabel);
                    it != moduleLabelToBranches.end() && it->first == moduleLabel;
                    ++it) {
-                if (processName != it->second.processName()) {
-                  continue;
-                }
                 if (productInstanceName != star and productInstanceName != it->second.productInstanceName()) {
                   continue;
                 }
