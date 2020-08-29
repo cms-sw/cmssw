@@ -54,11 +54,13 @@ ME0GeometryESModule::ME0GeometryESModule(const edm::ParameterSet& p) {
   fromDD4hep_ = p.getParameter<bool>("fromDD4hep");
   auto cc = setWhatProduced(this);
   if (fromDDD_) {
-    cc.setConsumes(cpvToken_).setConsumes(mdcToken_);
+    cpvToken_ = cc.consumes();
+    mdcToken_ = cc.consumes();
   } else if (fromDD4hep_) {
-    cc.setConsumes(dd4hepcpvToken_).setConsumes(mdcToken_);
+    dd4hepcpvToken_ = cc.consumes();
+    mdcToken_ = cc.consumes();
   } else {
-    cc.setConsumes(rigme0Token_);
+    rigme0Token_ = cc.consumes();
   }
 }
 
