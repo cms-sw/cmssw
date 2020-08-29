@@ -46,7 +46,7 @@ slimmingTask = cms.Task(
     slimmedElectrons,
     slimmedLowPtElectrons,
     lowPtGsfLinks,
-    slimmedTrackExtrasTask,
+    slimmedMuonTrackExtras,
     slimmedMuons,
     slimmedPhotons,
     slimmedOOTPhotons,
