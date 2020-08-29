@@ -26,24 +26,6 @@ process.load('Configuration.StandardSequences.GeometryDB_cff')
 #process.load("Geometry.VeryForwardGeometry.geometryPPS_CMSxz_fromDD_2021_cfi")
 process.load("Geometry.VeryForwardGeometry.geometryRPFromDB_cfi")
 
-process.GlobalTag.toGet = cms.VPSet(
-    cms.PSet(
-        record = cms.string('CTPPSPixelGainCalibrationsRcd'),
-        tag = cms.string("CTPPSPixelGainCalibrations_v1_mc"),
-        connect = cms.string('frontier://FrontierProd/CMS_CONDITIONS')
-        ),
-    cms.PSet(
-        record = cms.string('CTPPSPixelAnalysisMaskRcd'),
-        tag = cms.string("CTPPSPixelAnalysisMask_v1_mc"),
-        label = cms.untracked.string(""),
-        connect = cms.string('frontier://FrontierProd/CMS_CONDITIONS')
-        ),
-    cms.PSet(
-        record = cms.string('CTPPSPixelDAQMappingRcd'),
-        tag = cms.string("CTPPSPixelDAQMapping_v1_mc"),
-        connect = cms.string('frontier://FrontierProd/CMS_CONDITIONS')
-        )
-)
 # Input source
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1))
 process.source = cms.Source("PoolSource",

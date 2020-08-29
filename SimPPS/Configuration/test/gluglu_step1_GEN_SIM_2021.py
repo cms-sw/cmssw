@@ -24,7 +24,10 @@ process.load('Configuration.Geometry.GeometryExtended2021_cff')
 
 process.RandomNumberGeneratorService.generator.initialSeed = cms.untracked.uint32(random.randint(0,900000000))
 
-nEvent_ = 1000
+process.load('SimG4Core.Application.g4SimHits_cfi')
+process.g4SimHits.LHCTransport = cms.bool(True)
+
+nEvent_ = 100
 process.maxEvents = cms.untracked.PSet(
         input = cms.untracked.int32(nEvent_)
         )

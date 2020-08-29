@@ -141,10 +141,10 @@ void PPSSimTrackProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSe
   }
   edm::LogVerbatim("ProtonTransportEventProcessing") << "produce begin for event " << m_eventsAnalysed;
 
-  evt = new HepMC::GenEvent(*HepMCEvt->GetEvent());
+  evt = new HepMC::GenEvent(HepMCEvt->GetEvent()->signal_process_id(),HepMCEvt->GetEvent()->event_number());
 
-  //theTransporter->clear();
-  theTransporter->process(evt, iSetup, engine);
+  theTransporter->process(HepMCEvt->GetEvent(), iSetup, engine);
+  theTransporter->addPartToHepMC(HepMCEvt->GetEvent(),evt);
 
   if (m_verbosity)
     evt->print();

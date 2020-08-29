@@ -54,25 +54,7 @@ process.output = cms.OutputModule("PoolOutputModule",
 # Other statements
 from Configuration.AlCa.GlobalTag import GlobalTag
 process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase1_2021_realistic', '')
-process.GlobalTag.toGet = cms.VPSet(
-    cms.PSet(
-        record = cms.string('CTPPSPixelGainCalibrationsRcd'),
-        #tag = cms.string("CTPPSPixelGainCalibrations_mc"),
-        tag = cms.string("CTPPSPixelGainCalibrations_v1_mc"),
-        connect = cms.string('frontier://FrontierProd/CMS_CONDITIONS')
-        ),
-    cms.PSet(
-        record = cms.string('CTPPSPixelAnalysisMaskRcd'),
-        tag = cms.string("CTPPSPixelAnalysisMask_v1_mc"),
-        label = cms.untracked.string(""),
-        connect = cms.string('frontier://FrontierProd/CMS_CONDITIONS')
-        ),
-    cms.PSet(
-        record = cms.string('CTPPSPixelDAQMappingRcd'),
-        tag = cms.string("CTPPSPixelDAQMapping_v1_mc"),
-        connect = cms.string('frontier://FrontierProd/CMS_CONDITIONS')
-        )
-)
+
 # modify CTPPS 2018 raw-to-digi modules ONLY FOR PARTICLE GUN, TO AVOID RUN THIS FOR THE WHOLE CMS
 process.load('Configuration.StandardSequences.RawToDigi_cff')
              
