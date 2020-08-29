@@ -2,6 +2,7 @@
   <lib name="1"/>
 </export>
 <use name="Alignment/CommonAlignment"/>
+<use name="DataFormats/GeometryCommonDetAlgo"/>
 <use name="Geometry/DTGeometry"/>
 <use name="Geometry/CSCGeometry"/>
 <use name="Geometry/CommonTopologies"/>
@@ -11,5 +12,4 @@
 <use name="CondCore/DBOutputService"/>
 <use name="CondFormats/Alignment"/>
 <use name="DataFormats/MuonDetId"/>
-<use name="DataFormats/TrackingRecHit"/>
 <use name="xerces-c"/>

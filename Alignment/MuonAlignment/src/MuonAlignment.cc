@@ -23,7 +23,7 @@
 
 #include "Alignment/CommonAlignment/interface/Alignable.h"
 #include "Alignment/CommonAlignment/interface/SurveyDet.h"
-#include "DataFormats/TrackingRecHit/interface/AlignmentPositionError.h"
+#include "DataFormats/GeometryCommonDetAlgo/interface/AlignmentPositionError.h"
 #include "DataFormats/GeometryCommonDetAlgo/interface/GlobalError.h"
 
 //____________________________________________________________________________________

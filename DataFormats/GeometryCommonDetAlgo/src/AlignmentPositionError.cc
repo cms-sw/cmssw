@@ -1,4 +1,4 @@
-#include "DataFormats/TrackingRecHit/interface/AlignmentPositionError.h"
+#include "DataFormats/GeometryCommonDetAlgo/interface/AlignmentPositionError.h"
 
 AlignmentPositionError::AlignmentPositionError(
     float xx, float yy, float zz, float phixphix, float phiyphiy, float phizphiz) {

@@ -41,7 +41,7 @@
 #include <string>
 #include <set>
 
-#include "DataFormats/TrackingRecHit/interface/AlignmentPositionError.h"
+#include "DataFormats/GeometryCommonDetAlgo/interface/AlignmentPositionError.h"
 #include "Alignment/CommonAlignmentAlgorithm/interface/AlignmentParameterStore.h"
 
 #include "Alignment/CommonAlignment/interface/AlignableNavigator.h"
