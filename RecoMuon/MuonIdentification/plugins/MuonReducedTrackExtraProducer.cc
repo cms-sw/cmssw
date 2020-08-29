@@ -6,9 +6,8 @@
 
 MuonReducedTrackExtraProducer::MuonReducedTrackExtraProducer(const edm::ParameterSet& pset)
     : muonToken_(consumes<edm::View<reco::Muon>>(pset.getParameter<edm::InputTag>("muonTag"))),
-      cut_(pset.getParameter<std::string>("cut")),
       outputClusters_(pset.getParameter<bool>("outputClusters")),
-      selector_(cut_),
+      selector_(pset.getParameter<std::string>("cut")),
       trackExtraOutToken_(produces<reco::TrackExtraCollection>()),
       trackingRecHitsOutToken_(produces<TrackingRecHitCollection>()),
       associationOutToken_(produces<edm::Association<reco::TrackExtraCollection>>()) {
