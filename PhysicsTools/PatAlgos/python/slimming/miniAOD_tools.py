@@ -17,7 +17,6 @@ def miniAOD_customizeCommon(process):
     process.patMuons.embedPickyMuon = False   # no, use best track
     process.patMuons.embedTpfmsMuon = False   # no, use best track
     process.patMuons.embedDytMuon   = False   # no, use best track
-    process.patMuons.trackExtraAssocs = cms.VInputTag(["muonReducedTrackExtras","standAloneMuonReducedTrackExtras"])
     process.patMuons.addPuppiIsolation = cms.bool(True)
     process.patMuons.puppiIsolationChargedHadrons = cms.InputTag("muonPUPPIIsolation","h+-DR040-ThresholdVeto000-ConeVeto000")
     process.patMuons.puppiIsolationNeutralHadrons = cms.InputTag("muonPUPPIIsolation","h0-DR040-ThresholdVeto000-ConeVeto001")
@@ -34,23 +33,12 @@ def miniAOD_customizeCommon(process):
     from Configuration.Eras.Modifier_run2_muon_2016_cff import run2_muon_2016
     from Configuration.Eras.Modifier_run2_muon_2017_cff import run2_muon_2017
     from Configuration.Eras.Modifier_run2_muon_2018_cff import run2_muon_2018
-    from Configuration.Eras.Modifier_run2_miniAOD_80XLegacy_cff import run2_miniAOD_80XLegacy
-    from Configuration.Eras.Modifier_run2_miniAOD_94XFall17_cff import run2_miniAOD_94XFall17
-    from Configuration.ProcessModifiers.run2_miniAOD_UL_cff import run2_miniAOD_UL
-    from Configuration.Eras.Modifier_pp_on_AA_2018_cff import pp_on_AA_2018
-
     run2_muon_2016.toModify( process.patMuons, effectiveAreaVec = [0.0735,0.0619,0.0465,0.0433,0.0577])
     run2_muon_2017.toModify( process.patMuons, effectiveAreaVec = [0.0566, 0.0562, 0.0363, 0.0119, 0.0064])
     run2_muon_2018.toModify( process.patMuons, effectiveAreaVec = [0.0566, 0.0562, 0.0363, 0.0119, 0.0064])
     run2_muon_2016.toModify( process.patMuons, mvaTrainingFile = "RecoMuon/MuonIdentification/data/mu_2016_BDTG.weights.xml")
 
     process.patMuons.computePuppiCombinedIso = True
-    
-    run2_miniAOD_80XLegacy.toModify(process.patMuons, trackExtraAssocs = cms.VInputTag(["standAloneMuonReducedTrackExtras"]))
-    run2_miniAOD_94XFall17.toModify(process.patMuons, trackExtraAssocs = cms.VInputTag(["standAloneMuonReducedTrackExtras"]))
-    run2_miniAOD_UL.toModify(process.patMuons, trackExtraAssocs = cms.VInputTag(["standAloneMuonReducedTrackExtras"]))
-    pp_on_AA_2018.toModify(process.patMuons, trackExtraAssocs = cms.VInputTag(["standAloneMuonReducedTrackExtras"]))
-    
     #
     # disable embedding of electron and photon associated objects already stored by the ReducedEGProducer
     process.patElectrons.embedGsfElectronCore = False  ## process.patElectrons.embed in AOD externally stored gsf electron core
@@ -67,6 +55,8 @@ def miniAOD_customizeCommon(process):
     process.patElectrons.pfCandidateMultiMap    = cms.InputTag("reducedEgamma","reducedGsfElectronPfCandMap")
     process.patElectrons.electronIDSources = cms.PSet()
 
+    from Configuration.Eras.Modifier_run2_miniAOD_80XLegacy_cff import run2_miniAOD_80XLegacy
+    from Configuration.Eras.Modifier_run2_miniAOD_94XFall17_cff import run2_miniAOD_94XFall17
     (run2_miniAOD_80XLegacy | run2_miniAOD_94XFall17).toModify(process.patElectrons,
                                                                addPFClusterIso = True,
                                                                ecalPFClusterIsoMap = "reducedEgamma:eleEcalPFClusIso",
@@ -130,6 +120,7 @@ def miniAOD_customizeCommon(process):
     from Configuration.Eras.Modifier_phase2_muon_cff import phase2_muon
     phase2_muon.toModify(process.selectedPatMuons, cut = "pt > 5 || isPFMuon || (pt > 3 && (isGlobalMuon || isStandAloneMuon || numberOfMatches > 0 || muonID('RPCMuLoose') || muonID('ME0MuonArbitrated') || muonID('GEMMuonArbitrated')) )")
     
+    from Configuration.Eras.Modifier_pp_on_AA_2018_cff import pp_on_AA_2018
     from Configuration.Eras.Modifier_pp_on_PbPb_run3_cff import pp_on_PbPb_run3
     (pp_on_AA_2018 | pp_on_PbPb_run3).toModify(process.selectedPatMuons, cut = "pt > 5 || isPFMuon || (pt > 1.2 && (isGlobalMuon || isStandAloneMuon) )")
 
@@ -354,6 +345,7 @@ def miniAOD_customizeCommon(process):
                                               process.hpsPFTauDiscriminationByMVA6rawElectronRejection,
                                               process.hpsPFTauDiscriminationByMVA6ElectronRejection,
                                               process.hpsPFTauDiscriminationByMuonRejection3)
+    from Configuration.ProcessModifiers.run2_miniAOD_UL_cff import run2_miniAOD_UL
     (run2_miniAOD_94XFall17 | run2_miniAOD_UL).toReplaceWith(
         process.makePatTausTask, _makePatTausTaskWithRetrainedMVATauID
         )
