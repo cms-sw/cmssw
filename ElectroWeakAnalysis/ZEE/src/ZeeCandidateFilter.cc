@@ -81,15 +81,13 @@
 #include "DataFormats/PatCandidates/interface/TriggerObject.h"
 
 // For conversion finder
-#include "RecoEgamma/EgammaTools/interface/ConversionFinder.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "MagneticField/Engine/interface/MagneticField.h"
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
-//
+
 #include "DataFormats/Scalers/interface/DcsStatus.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
-//#include "RecoLocalCalo/EcalRecAlgos/interface/EcalSeverityLevelAlgo.h"
 #include "RecoEcal/EgammaCoreTools/interface/EcalTools.h"
 #include "CondFormats/DataRecord/interface/EcalChannelStatusRcd.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
@@ -898,37 +896,11 @@ Bool_t ZeeCandidateFilter::filter(edm::Event &iEvent, const edm::EventSetup &iSe
   }
 
   if (useConversionRejection1_ || calculateConversionRejection1_) {
-    // use of conversion rejection as it is implemented in egamma
-    // you have to get the general track collection to do that
-    // WARNING! you have to supply the correct B-field in Tesla
-    // the magnetic field
-
-    Double_t bfield;
-
-    if (dataMagneticFieldSetUp_) {
-      edm::Handle<DcsStatusCollection> dcsHandle;
-      iEvent.getByToken(dcsToken_, dcsHandle);
-      // scale factor = 3.801/18166.0 which are
-      // average values taken over a stable two
-      // week period
-      Double_t currentToBFieldScaleFactor = 2.09237036221512717e-04;
-      Double_t current = (*dcsHandle)[0].magnetCurrent();
-      bfield = current * currentToBFieldScaleFactor;
-
-    } else {
-      edm::ESHandle<MagneticField> magneticField;
-      iSetup.get<IdealMagneticFieldRecord>().get(magneticField);
-      const MagneticField *mField = magneticField.product();
-      bfield = mField->inTesla(GlobalPoint(0.0, 0.0, 0.0)).z();
-    }
-
     edm::Handle<reco::TrackCollection> ctfTracks;
 
     if (iEvent.getByToken(tracksToken_, ctfTracks)) {
-      ConversionInfo convInfo = egammaTools::getConversionInfo(maxETelec1, ctfTracks, bfield);
-
-      Float_t dist = convInfo.dist;
-      Float_t dcot = convInfo.dcot;
+      Float_t dist = maxETelec1.convDist();
+      Float_t dcot = maxETelec1.convDcot();
 
       Bool_t isConv = ((TMath::Abs(dist) < dist1_) && (TMath::Abs(dcot) < dcot1_));
 
@@ -959,39 +931,11 @@ Bool_t ZeeCandidateFilter::filter(edm::Event &iEvent, const edm::EventSetup &iSe
   }
 
   if (useConversionRejection2_ || calculateConversionRejection2_) {
-    // use of conversion rejection as it is implemented in egamma
-    // you have to get the general track collection to do that
-    // WARNING! you have to supply the correct B-field in Tesla
-    // the magnetic field
-
-    Double_t bfield;
-
-    if (dataMagneticFieldSetUp_) {
-      edm::Handle<DcsStatusCollection> dcsHandle;
-      iEvent.getByToken(dcsToken_, dcsHandle);
-
-      // scale factor = 3.801/18166.0 which are
-      // average values taken over a stable two
-      // week period
-
-      Double_t currentToBFieldScaleFactor = 2.09237036221512717e-04;
-      Double_t current = (*dcsHandle)[0].magnetCurrent();
-      bfield = current * currentToBFieldScaleFactor;
-
-    } else {
-      edm::ESHandle<MagneticField> magneticField;
-      iSetup.get<IdealMagneticFieldRecord>().get(magneticField);
-      const MagneticField *mField = magneticField.product();
-      bfield = mField->inTesla(GlobalPoint(0.0, 0.0, 0.0)).z();
-    }
-
     edm::Handle<reco::TrackCollection> ctfTracks;
 
     if (iEvent.getByToken(tracksToken_, ctfTracks)) {
-      ConversionInfo convInfo = egammaTools::getConversionInfo(maxETelec2, ctfTracks, bfield);
-
-      Float_t dist = convInfo.dist;
-      Float_t dcot = convInfo.dcot;
+      Float_t dist = maxETelec2.convDist();
+      Float_t dcot = maxETelec2.convDcot();
 
       Bool_t isConv = ((TMath::Abs(dist) < dist2_) && (TMath::Abs(dcot) < dcot2_));
 
