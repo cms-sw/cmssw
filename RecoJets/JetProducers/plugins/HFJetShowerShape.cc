@@ -75,24 +75,22 @@ private:
 //
 // constructors and destructor
 //
-HFJetShowerShape::HFJetShowerShape(const edm::ParameterSet& iConfig) :
-  jets_token_(consumes<edm::View<reco::Jet>>(iConfig.getParameter<edm::InputTag>("theJets"))),
-  vertices_token_(consumes<std::vector<reco::Vertex>>(iConfig.getParameter<edm::InputTag>("theVertices"))),
-  jetPtThreshold_(iConfig.getParameter<double>("jetPtThreshold")),
-  jetEtaThreshold_(iConfig.getParameter<double>("jetEtaThreshold")),
-  hfTowerEtaWidth_(iConfig.getParameter<double>("hfTowerEtaWidth")),
-  hfTowerPhiWidth_(iConfig.getParameter<double>("hfTowerPhiWidth")),
-  vertexRecoEffcy_(iConfig.getParameter<double>("vertexRecoEffcy")),
-  offsetPerPU_(iConfig.getParameter<double>("offsetPerPU")),
-  jetReferenceRadius_(iConfig.getParameter<double>("jetReferenceRadius")),
-  stripPtThreshold_(iConfig.getParameter<double>("stripPtThreshold")),
-  widthPtThreshold_(iConfig.getParameter<double>("widthPtThreshold"))
-{
+HFJetShowerShape::HFJetShowerShape(const edm::ParameterSet& iConfig)
+    : jets_token_(consumes<edm::View<reco::Jet>>(iConfig.getParameter<edm::InputTag>("theJets"))),
+      vertices_token_(consumes<std::vector<reco::Vertex>>(iConfig.getParameter<edm::InputTag>("theVertices"))),
+      jetPtThreshold_(iConfig.getParameter<double>("jetPtThreshold")),
+      jetEtaThreshold_(iConfig.getParameter<double>("jetEtaThreshold")),
+      hfTowerEtaWidth_(iConfig.getParameter<double>("hfTowerEtaWidth")),
+      hfTowerPhiWidth_(iConfig.getParameter<double>("hfTowerPhiWidth")),
+      vertexRecoEffcy_(iConfig.getParameter<double>("vertexRecoEffcy")),
+      offsetPerPU_(iConfig.getParameter<double>("offsetPerPU")),
+      jetReferenceRadius_(iConfig.getParameter<double>("jetReferenceRadius")),
+      stripPtThreshold_(iConfig.getParameter<double>("stripPtThreshold")),
+      widthPtThreshold_(iConfig.getParameter<double>("widthPtThreshold")) {
   produces<edm::ValueMap<float>>("sigmaEtaEta");
   produces<edm::ValueMap<float>>("sigmaPhiPhi");
   produces<edm::ValueMap<int>>("centralEtaStripSize");
   produces<edm::ValueMap<int>>("adjacentEtaStripsSize");
-  
 }
 
 //
@@ -111,15 +109,17 @@ void HFJetShowerShape::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
 
   //Products
   std::vector<float> v_sigmaEtaEta, v_sigmaPhiPhi;
-  v_sigmaEtaEta.reserve(theJets->size());   v_sigmaPhiPhi.reserve(theJets->size()); 
+  v_sigmaEtaEta.reserve(theJets->size());
+  v_sigmaPhiPhi.reserve(theJets->size());
   std::vector<int> v_size_CentralEtaStrip, v_size_AdjacentEtaStrips;
-  v_size_CentralEtaStrip.reserve(theJets->size()); v_size_AdjacentEtaStrips.reserve(theJets->size());
+  v_size_CentralEtaStrip.reserve(theJets->size());
+  v_size_AdjacentEtaStrips.reserve(theJets->size());
 
   //Et offset for HF PF candidates
   double puoffset = offsetPerPU_ / (M_PI * jetReferenceRadius_ * jetReferenceRadius_) * nPV / vertexRecoEffcy_ *
                     (hfTowerEtaWidth_ * hfTowerPhiWidth_);
 
-  for (auto const& jet : *theJets ) {
+  for (auto const& jet : *theJets) {
     double pt_jet = jet.pt();
     double eta_jet = jet.eta();
 
@@ -134,7 +134,7 @@ void HFJetShowerShape::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
       double sumptPFcands = 0.;
 
       for (unsigned i = 0; i < jet.numberOfSourceCandidatePtrs(); ++i) {
-	const reco::Candidate* icand = jet.sourceCandidatePtr(i).get();
+        const reco::Candidate* icand = jet.sourceCandidatePtr(i).get();
         //Only look at pdgId =1,2 (HF PF cands)
         if (std::abs(icand->pdgId()) > 2)
           continue;
@@ -149,7 +149,7 @@ void HFJetShowerShape::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
       double sigmaEtaEtaSq(0.), sigmaPhiPhiSq(0.);
       double sumweightsPFcands = 0;
       for (unsigned i = 0; i < jet.numberOfSourceCandidatePtrs(); ++i) {
-	const reco::Candidate* icand = jet.sourceCandidatePtr(i).get();
+        const reco::Candidate* icand = jet.sourceCandidatePtr(i).get();
         //Only look at pdgId =1,2 (HF PF cands)
         if (std::abs(icand->pdgId()) > 2)
           continue;
