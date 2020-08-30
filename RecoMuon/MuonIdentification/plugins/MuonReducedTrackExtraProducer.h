@@ -29,6 +29,7 @@ public:
 private:
   const edm::EDGetTokenT<edm::View<reco::Muon>> muonToken_;
   std::vector<edm::EDGetTokenT<reco::TrackExtraCollection>> trackExtraTokens_;
+  std::vector<edm::EDGetTokenT<edm::Association<reco::TrackExtraCollection>>> trackExtraAssocs_;
   edm::EDGetTokenT<edmNew::DetSetVector<SiPixelCluster>> pixelClusterToken_;
   edm::EDGetTokenT<edmNew::DetSetVector<SiStripCluster>> stripClusterToken_;
   const bool outputClusters_;
