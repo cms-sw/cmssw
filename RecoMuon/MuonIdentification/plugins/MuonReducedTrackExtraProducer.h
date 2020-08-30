@@ -26,8 +26,6 @@ class MuonReducedTrackExtraProducer : public edm::stream::EDProducer<> {
 public:
   MuonReducedTrackExtraProducer(const edm::ParameterSet&);
 
-  ~MuonReducedTrackExtraProducer() override {}
-
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
   void produce(edm::Event&, const edm::EventSetup&) override;
