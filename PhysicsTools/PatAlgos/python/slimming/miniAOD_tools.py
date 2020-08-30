@@ -239,13 +239,13 @@ def miniAOD_customizeCommon(process):
     process.load('RecoJets.JetProducers.QGTagger_cfi')
     task.add(process.QGTaggerTask)
 
-    process.patJets.userData.userFloats.src += [ cms.InputTag('QGTagger:qgLikelihood'), ]
+    process.patJets.userData.userFloats.src += [ 'QGTagger:qgLikelihood', ]
 
     #HF jet shower shape
     process.load('RecoJets.JetProducers.HFJetShowerShape_cfi')
-    task.add(process.HFJetShowerShapeTask)
-    process.patJets.userData.userFloats.src += [ cms.InputTag('HFJetShowerShape:sigmaEtaEta'),cms.InputTag('HFJetShowerShape:sigmaPhiPhi'), ]
-    process.patJets.userData.userInts.src += [ cms.InputTag('HFJetShowerShape:centralEtaStripSize'),cms.InputTag('HFJetShowerShape:adjacentEtaStripsSize'), ]
+    task.add(process.HFJetShowerShape)
+    process.patJets.userData.userFloats.src += [ 'HFJetShowerShape:sigmaEtaEta', 'HFJetShowerShape:sigmaPhiPhi', ]
+    process.patJets.userData.userInts.src += [ 'HFJetShowerShape:centralEtaStripSize', 'HFJetShowerShape:adjacentEtaStripsSize', ]
 
     ## DeepCSV meta discriminators (simple arithmethic on output probabilities)
     process.load('RecoBTag.Combined.deepFlavour_cff')
@@ -265,7 +265,7 @@ def miniAOD_customizeCommon(process):
 	 valueLabels = cms.vstring('pt','emEnergyFraction'),
 	 lazyParser = cms.bool(True) )
     task.add(process.caloJetMap)
-    process.patJets.userData.userFloats.src += [ cms.InputTag("caloJetMap:pt"), cms.InputTag("caloJetMap:emEnergyFraction") ]
+    process.patJets.userData.userFloats.src += [ 'caloJetMap:pt', 'caloJetMap:emEnergyFraction' ]
 
     #Muon object modifications 
     from PhysicsTools.PatAlgos.slimming.muonIsolationsPUPPI_cfi import makeInputForPUPPIIsolationMuon

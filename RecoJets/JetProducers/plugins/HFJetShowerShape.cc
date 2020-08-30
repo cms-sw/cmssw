@@ -33,7 +33,7 @@
 #include "DataFormats/VertexReco/interface/Vertex.h"
 
 #include "DataFormats/Math/interface/deltaPhi.h"
-#include "TMath.h"
+
 #include <iostream>
 
 //
@@ -43,26 +43,25 @@
 class HFJetShowerShape : public edm::stream::EDProducer<> {
 public:
   explicit HFJetShowerShape(const edm::ParameterSet&);
-  ~HFJetShowerShape() override;
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
   void produce(edm::Event&, const edm::EventSetup&) override;
   template <typename T>
-  void putInEvent(const std::string&, const edm::Handle<edm::View<reco::Jet>>&, std::vector<T>*, edm::Event&) const;
+  void putInEvent(const std::string&, const edm::Handle<edm::View<reco::Jet>>&, std::vector<T>, edm::Event&) const;
 
-  edm::EDGetTokenT<edm::View<reco::Jet>> jets_token_;
-  edm::EDGetTokenT<std::vector<reco::Vertex>> vertices_token_;
+  const edm::EDGetTokenT<edm::View<reco::Jet>> jets_token_;
+  const edm::EDGetTokenT<std::vector<reco::Vertex>> vertices_token_;
 
   //Jet pt/eta thresholds
-  double jetPtThreshold_, jetEtaThreshold_;
+  const double jetPtThreshold_, jetEtaThreshold_;
   //HF geometry
-  double hfTowerEtaWidth_, hfTowerPhiWidth_;
+  const double hfTowerEtaWidth_, hfTowerPhiWidth_;
   //Variables for PU subtraction
-  double vertexRecoEffcy_, offsetPerPU_, jetReferenceRadius_;
+  const double vertexRecoEffcy_, offsetPerPU_, jetReferenceRadius_;
   //Pt thresholds for showershape variable calculation
-  double stripPtThreshold_, widthPtThreshold_;
+  const double stripPtThreshold_, widthPtThreshold_;
 };
 
 //
@@ -76,28 +75,24 @@ private:
 //
 // constructors and destructor
 //
-HFJetShowerShape::HFJetShowerShape(const edm::ParameterSet& iConfig) {
-  jets_token_ = consumes<edm::View<reco::Jet>>(iConfig.getParameter<edm::InputTag>("theJets"));
-  vertices_token_ = consumes<std::vector<reco::Vertex>>(iConfig.getParameter<edm::InputTag>("theVertices"));
-  jetPtThreshold_ = iConfig.getParameter<double>("jetPtThreshold");
-  jetEtaThreshold_ = iConfig.getParameter<double>("jetEtaThreshold");
-  hfTowerEtaWidth_ = iConfig.getParameter<double>("hfTowerEtaWidth");
-  hfTowerPhiWidth_ = iConfig.getParameter<double>("hfTowerPhiWidth");
-  vertexRecoEffcy_ = iConfig.getParameter<double>("vertexRecoEffcy");
-  offsetPerPU_ = iConfig.getParameter<double>("offsetPerPU");
-  jetReferenceRadius_ = iConfig.getParameter<double>("jetReferenceRadius");
-  stripPtThreshold_ = iConfig.getParameter<double>("stripPtThreshold");
-  widthPtThreshold_ = iConfig.getParameter<double>("widthPtThreshold");
-
+HFJetShowerShape::HFJetShowerShape(const edm::ParameterSet& iConfig) :
+  jets_token_(consumes<edm::View<reco::Jet>>(iConfig.getParameter<edm::InputTag>("theJets"))),
+  vertices_token_(consumes<std::vector<reco::Vertex>>(iConfig.getParameter<edm::InputTag>("theVertices"))),
+  jetPtThreshold_(iConfig.getParameter<double>("jetPtThreshold")),
+  jetEtaThreshold_(iConfig.getParameter<double>("jetEtaThreshold")),
+  hfTowerEtaWidth_(iConfig.getParameter<double>("hfTowerEtaWidth")),
+  hfTowerPhiWidth_(iConfig.getParameter<double>("hfTowerPhiWidth")),
+  vertexRecoEffcy_(iConfig.getParameter<double>("vertexRecoEffcy")),
+  offsetPerPU_(iConfig.getParameter<double>("offsetPerPU")),
+  jetReferenceRadius_(iConfig.getParameter<double>("jetReferenceRadius")),
+  stripPtThreshold_(iConfig.getParameter<double>("stripPtThreshold")),
+  widthPtThreshold_(iConfig.getParameter<double>("widthPtThreshold"))
+{
   produces<edm::ValueMap<float>>("sigmaEtaEta");
   produces<edm::ValueMap<float>>("sigmaPhiPhi");
   produces<edm::ValueMap<int>>("centralEtaStripSize");
   produces<edm::ValueMap<int>>("adjacentEtaStripsSize");
-}
-
-HFJetShowerShape::~HFJetShowerShape() {
-  // do anything here that needs to be done at destruction time
-  // (e.g. close files, deallocate resources etc.)
+  
 }
 
 //
@@ -109,45 +104,41 @@ void HFJetShowerShape::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
   using namespace edm;
 
   //Jets
-  edm::Handle<edm::View<reco::Jet>> theJets;
-  iEvent.getByToken(jets_token_, theJets);
+  auto theJets = iEvent.getHandle(jets_token_);
 
   //Vertices
-  edm::Handle<std::vector<reco::Vertex>> theVertices;
-  iEvent.getByToken(vertices_token_, theVertices);
-  int nPV = theVertices->size();
+  int nPV = iEvent.get(vertices_token_).size();
 
   //Products
-  std::vector<float>* v_sigmaEtaEta = new std::vector<float>;
-  std::vector<float>* v_sigmaPhiPhi = new std::vector<float>;
-  std::vector<int>* v_size_CentralEtaStrip = new std::vector<int>;
-  std::vector<int>* v_size_AdjacentEtaStrips = new std::vector<int>;
+  std::vector<float> v_sigmaEtaEta, v_sigmaPhiPhi;
+  v_sigmaEtaEta.reserve(theJets->size());   v_sigmaPhiPhi.reserve(theJets->size()); 
+  std::vector<int> v_size_CentralEtaStrip, v_size_AdjacentEtaStrips;
+  v_size_CentralEtaStrip.reserve(theJets->size()); v_size_AdjacentEtaStrips.reserve(theJets->size());
 
   //Et offset for HF PF candidates
-  double PUoffset = offsetPerPU_ / (TMath::Pi() * jetReferenceRadius_ * jetReferenceRadius_) * nPV / vertexRecoEffcy_ *
+  double puoffset = offsetPerPU_ / (M_PI * jetReferenceRadius_ * jetReferenceRadius_) * nPV / vertexRecoEffcy_ *
                     (hfTowerEtaWidth_ * hfTowerPhiWidth_);
 
-  for (auto jet = theJets->begin(); jet != theJets->end(); ++jet) {
-    double pt_jet = jet->pt();
-    double eta_jet = jet->eta();
+  for (auto const& jet : *theJets ) {
+    double pt_jet = jet.pt();
+    double eta_jet = jet.eta();
 
     //If central or low pt jets, fill with dummy variables
-    if (pt_jet <= jetPtThreshold_ || fabs(eta_jet) <= jetEtaThreshold_) {
-      v_sigmaEtaEta->push_back(-1.);
-      v_sigmaPhiPhi->push_back(-1.);
-      v_size_CentralEtaStrip->push_back(0);
-      v_size_AdjacentEtaStrips->push_back(0);
+    if (pt_jet <= jetPtThreshold_ || std::abs(eta_jet) <= jetEtaThreshold_) {
+      v_sigmaEtaEta.push_back(-1.);
+      v_sigmaPhiPhi.push_back(-1.);
+      v_size_CentralEtaStrip.push_back(0);
+      v_size_AdjacentEtaStrips.push_back(0);
     } else {
       //First loop over PF candidates to compute some global variables needed for shower shape calculations
       double sumptPFcands = 0.;
 
-      for (unsigned i = 0; i < jet->numberOfSourceCandidatePtrs(); ++i) {
-        reco::CandidatePtr pfJetConstituent = jet->sourceCandidatePtr(i);
-        const reco::Candidate* icand = pfJetConstituent.get();
+      for (unsigned i = 0; i < jet.numberOfSourceCandidatePtrs(); ++i) {
+	const reco::Candidate* icand = jet.sourceCandidatePtr(i).get();
         //Only look at pdgId =1,2 (HF PF cands)
-        if (fabs(icand->pdgId()) > 2)
+        if (std::abs(icand->pdgId()) > 2)
           continue;
-        double pt_PUsub = icand->pt() - PUoffset;
+        double pt_PUsub = icand->pt() - puoffset;
         if (pt_PUsub < widthPtThreshold_)
           continue;
         sumptPFcands += pt_PUsub;
@@ -157,16 +148,15 @@ void HFJetShowerShape::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
       int size_CentralEtaStrip(0.), size_AdjacentEtaStrips(0.);
       double sigmaEtaEtaSq(0.), sigmaPhiPhiSq(0.);
       double sumweightsPFcands = 0;
-      for (unsigned i = 0; i < jet->numberOfSourceCandidatePtrs(); ++i) {
-        reco::CandidatePtr pfJetConstituent = jet->sourceCandidatePtr(i);
-        const reco::Candidate* icand = pfJetConstituent.get();
+      for (unsigned i = 0; i < jet.numberOfSourceCandidatePtrs(); ++i) {
+	const reco::Candidate* icand = jet.sourceCandidatePtr(i).get();
         //Only look at pdgId =1,2 (HF PF cands)
-        if (fabs(icand->pdgId()) > 2)
+        if (std::abs(icand->pdgId()) > 2)
           continue;
 
-        double deta = fabs(icand->eta() - jet->eta());
-        double dphi = fabs(deltaPhi(icand->phi(), jet->phi()));
-        double pt_PUsub = icand->pt() - PUoffset;
+        double deta = std::abs(icand->eta() - jet.eta());
+        double dphi = std::abs(deltaPhi(icand->phi(), jet.phi()));
+        double pt_PUsub = icand->pt() - puoffset;
 
         //This is simply the size of the central eta strip and the adjacent strips
         if (pt_PUsub >= stripPtThreshold_) {
@@ -185,15 +175,15 @@ void HFJetShowerShape::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
         }
       }
 
-      v_size_CentralEtaStrip->push_back(size_CentralEtaStrip);
-      v_size_AdjacentEtaStrips->push_back(size_AdjacentEtaStrips);
+      v_size_CentralEtaStrip.push_back(size_CentralEtaStrip);
+      v_size_AdjacentEtaStrips.push_back(size_AdjacentEtaStrips);
 
       if (sumweightsPFcands > 0 && sigmaEtaEtaSq > 0 && sigmaPhiPhiSq > 0) {
-        v_sigmaEtaEta->push_back(sqrt(sigmaEtaEtaSq / sumweightsPFcands));
-        v_sigmaPhiPhi->push_back(sqrt(sigmaPhiPhiSq / sumweightsPFcands));
+        v_sigmaEtaEta.push_back(sqrt(sigmaEtaEtaSq / sumweightsPFcands));
+        v_sigmaPhiPhi.push_back(sqrt(sigmaPhiPhiSq / sumweightsPFcands));
       } else {
-        v_sigmaEtaEta->push_back(-1.);
-        v_sigmaPhiPhi->push_back(-1.);
+        v_sigmaEtaEta.push_back(-1.);
+        v_sigmaPhiPhi.push_back(-1.);
       }
 
     }  //End loop over jets
@@ -209,14 +199,13 @@ void HFJetShowerShape::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
 template <typename T>
 void HFJetShowerShape::putInEvent(const std::string& name,
                                   const edm::Handle<edm::View<reco::Jet>>& jets,
-                                  std::vector<T>* product,
+                                  std::vector<T> product,
                                   edm::Event& iEvent) const {
   auto out = std::make_unique<edm::ValueMap<T>>();
   typename edm::ValueMap<T>::Filler filler(*out);
-  filler.insert(jets, product->begin(), product->end());
+  filler.insert(jets, product.begin(), product.end());
   filler.fill();
   iEvent.put(std::move(out), name);
-  delete product;
 }
 
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
