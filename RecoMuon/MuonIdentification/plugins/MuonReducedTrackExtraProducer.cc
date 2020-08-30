@@ -11,9 +11,13 @@ MuonReducedTrackExtraProducer::MuonReducedTrackExtraProducer(const edm::Paramete
       trackingRecHitsOutToken_(produces<TrackingRecHitCollection>()),
       associationOutToken_(produces<edm::Association<reco::TrackExtraCollection>>()) {
   std::vector<edm::InputTag> trackExtraTags = pset.getParameter<std::vector<edm::InputTag>>("trackExtraTags");
-
   for (edm::InputTag const& tag : trackExtraTags) {
     trackExtraTokens_.push_back(consumes<reco::TrackExtraCollection>(tag));
+  }
+
+  std::vector<edm::InputTag> trackExtraAssocTags = pset.getParameter<std::vector<edm::InputTag>>("trackExtraAssocs");
+  for (edm::InputTag const& tag : trackExtraAssocTags) {
+    trackExtraAssocs_.push_back(consumes<edm::Association<reco::TrackExtraCollection>>(tag));
   }
 
   if (outputClusters_) {
@@ -39,6 +43,7 @@ void MuonReducedTrackExtraProducer::fillDescriptions(edm::ConfigurationDescripti
                                         edm::InputTag("tevMuons", "firstHit"),
                                         edm::InputTag("tevMuons", "picky"),
                                         edm::InputTag("tevMuons", "dyt")});
+  desc.add<std::vector<edm::InputTag>>("trackExtraAssocs", {});
   desc.add<edm::InputTag>("pixelClusterTag", edm::InputTag("siPixelClusters"));
   desc.add<edm::InputTag>("stripClusterTag", edm::InputTag("siStripClusters"));
   desc.add<std::string>("cut", "pt > 4.5");
@@ -54,6 +59,11 @@ void MuonReducedTrackExtraProducer::produce(edm::Event& event, const edm::EventS
     event.getByToken(trackExtraTokens_[i], trackExtrasV[i]);
   }
 
+  std::vector<edm::Handle<edm::Association<reco::TrackExtraCollection>>> trackExtraAssocs(trackExtraAssocs_.size());
+  for (unsigned int i = 0; i < trackExtraAssocs_.size(); ++i) {
+    event.getByToken(trackExtraAssocs_[i], trackExtraAssocs[i]);
+  }
+
   std::map<edm::ProductID, std::vector<bool>> idxstokeep;
   for (auto const& trackExtras : trackExtrasV) {
     idxstokeep[trackExtras.id()].resize(trackExtras->size(), false);
@@ -64,7 +74,17 @@ void MuonReducedTrackExtraProducer::produce(edm::Event& event, const edm::EventS
     if (!selector_(muon)) {
       continue;
     }
-    const reco::TrackExtraRef& trackExtra = muon.bestTrack()->extra();
+    reco::TrackExtraRef trackExtra = muon.bestTrack()->extra();
+    // check recursively through association maps if present
+    for (auto const& assoc : trackExtraAssocs) {
+      if (!assoc->contains(trackExtra.id())) {
+        continue;
+      }
+      reco::TrackExtraRef const& trackExtraOut = (*assoc)[trackExtra];
+      if (trackExtraOut.isNonnull()) {
+        trackExtra = trackExtraOut;
+      }
+    }
     auto idxs = idxstokeep.find(trackExtra.id());
     if (idxs != idxstokeep.end()) {
       idxs->second[trackExtra.key()] = true;
