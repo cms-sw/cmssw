@@ -1,6 +1,5 @@
 #include "RecoMuon/MuonIdentification/plugins/MuonReducedTrackExtraProducer.h"
 #include "DataFormats/MuonReco/interface/Muon.h"
-#include "DataFormats/PatCandidates/interface/Muon.h"
 #include "DataFormats/TrackerRecHit2D/interface/TrackerSingleRecHit.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiStripMatchedRecHit2D.h"
 
@@ -42,9 +41,7 @@ void MuonReducedTrackExtraProducer::fillDescriptions(edm::ConfigurationDescripti
                                         edm::InputTag("tevMuons", "dyt")});
   desc.add<edm::InputTag>("pixelClusterTag", edm::InputTag("siPixelClusters"));
   desc.add<edm::InputTag>("stripClusterTag", edm::InputTag("siStripClusters"));
-  desc.add<std::string>(
-      "cut",
-      "pt > 5 || (pt > 4.5 && (isGlobalMuon || isStandAloneMuon || numberOfMatches > 0 || muonID(\"RPCMuLoose\")))");
+  desc.add<std::string>("cut", "pt > 4.5");
   desc.add<bool>("outputClusters", true);
   descriptions.add("muonReducedTrackExtras", desc);
 }
@@ -64,8 +61,7 @@ void MuonReducedTrackExtraProducer::produce(edm::Event& event, const edm::EventS
 
   //loop over muons and mark track extras to keep
   for (auto const& muon : *muons) {
-    const pat::Muon patMuon(muon);
-    if (!selector_(patMuon)) {
+    if (!selector_(muon)) {
       continue;
     }
     const reco::TrackExtraRef& trackExtra = muon.bestTrack()->extra();
