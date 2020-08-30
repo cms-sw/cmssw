@@ -18,10 +18,6 @@
 class SiPixelCluster;
 class SiStripCluster;
 
-namespace pat {
-  class Muon;
-}
-
 class MuonReducedTrackExtraProducer : public edm::stream::EDProducer<> {
 public:
   MuonReducedTrackExtraProducer(const edm::ParameterSet&);
@@ -36,7 +32,7 @@ private:
   edm::EDGetTokenT<edmNew::DetSetVector<SiPixelCluster>> pixelClusterToken_;
   edm::EDGetTokenT<edmNew::DetSetVector<SiStripCluster>> stripClusterToken_;
   const bool outputClusters_;
-  const StringCutObjectSelector<pat::Muon> selector_;
+  const StringCutObjectSelector<reco::Muon> selector_;
   const edm::EDPutTokenT<reco::TrackExtraCollection> trackExtraOutToken_;
   const edm::EDPutTokenT<TrackingRecHitCollection> trackingRecHitsOutToken_;
   edm::EDPutTokenT<edmNew::DetSetVector<SiPixelCluster>> pixelClusterOutToken_;
