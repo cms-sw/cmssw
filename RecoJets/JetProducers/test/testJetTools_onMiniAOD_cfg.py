@@ -62,13 +62,13 @@ process.out.outputCommands += ['keep *_QGTagger_*_*']
 
 
 #HF shower shape variables
-process.load('RecoJets.JetProducers.HFJetShowerShape_cfi')
-patAlgosToolsTask.add(process.HFJetShowerShape)
-process.HFJetShowerShape.theJets=cms.InputTag("slimmedJets")
-process.HFJetShowerShape.theVertices=cms.InputTag("offlineSlimmedPrimaryVertices")
-patJetsAK4.userData.userFloats.src += ['HFJetShowerShape:sigmaEtaEta','HFJetShowerShape:sigmaPhiPhi']
-patJetsAK4.userData.userInts.src += ['HFJetShowerShape:centralEtaStripSize','HFJetShowerShape:adjacentEtaStripsSize']
-process.out.outputCommands += ['keep *_HFJetShowerShape_*_*']
+process.load('RecoJets.JetProducers.hfJetShowerShape_cfi')
+patAlgosToolsTask.add(process.hfJetShowerShape)
+process.hfJetShowerShape.theJets=cms.InputTag("slimmedJets")
+process.hfJetShowerShape.theVertices=cms.InputTag("offlineSlimmedPrimaryVertices")
+patJetsAK4.userData.userFloats.src += ['hfJetShowerShape:sigmaEtaEta','hfJetShowerShape:sigmaPhiPhi']
+patJetsAK4.userData.userInts.src += ['hfJetShowerShape:centralEtaStripSize','hfJetShowerShape:adjacentEtaStripsSize']
+process.out.outputCommands += ['keep *_hfJetShowerShape_*_*']
 
 
 #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
