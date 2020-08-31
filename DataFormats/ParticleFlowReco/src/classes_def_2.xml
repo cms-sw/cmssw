@@ -102,8 +102,6 @@
    <version ClassVersion="12" checksum="2850643502"/>
    <version ClassVersion="11" checksum="2924298092"/>
    <version ClassVersion="10" checksum="2979491836"/>
-    <!-- <field name="doPropagation_" transient="true"/> -->
-    <!-- <field name="color_" transient="true"/> -->
   </class>
   <class name="std::vector<reco::PFRecTrack>"/>
   <class name="edm::Wrapper<std::vector<reco::PFRecTrack> >"/>
@@ -113,8 +111,6 @@
    <version ClassVersion="12" checksum="2203231294"/>
    <version ClassVersion="11" checksum="2592328732"/>
    <version ClassVersion="10" checksum="3411096264"/>
-    <!-- <field name="doPropagation_" transient="true"/> -->
-    <!-- <field name="color_" transient="true"/> -->
   </class>
   <class name="std::vector<reco::GsfPFRecTrack>"/>
   <class name="edm::Wrapper<std::vector<reco::GsfPFRecTrack> >"/>
