@@ -23,6 +23,8 @@ private:
 
   // Parameters
   edm::EDGetTokenT<GEMCoPadDigiCollection> copad_token_;
+  edm::ESGetToken<GEMGeometry, MuonGeometryRecord> geomToken_;
+  edm::ESGetToken<GEMGeometry, MuonGeometryRecord> geomTokenBeginRun_;
 
   //
   int gem_bx_min_, gem_bx_max_;

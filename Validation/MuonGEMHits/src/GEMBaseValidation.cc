@@ -20,13 +20,6 @@ GEMBaseValidation::GEMBaseValidation(const edm::ParameterSet& ps, std::string lo
 
 GEMBaseValidation::~GEMBaseValidation() {}
 
-const GEMGeometry* GEMBaseValidation::initGeometry(edm::EventSetup const& setup) {
-  edm::ESHandle<GEMGeometry> geom_handle;
-  setup.get<MuonGeometryRecord>().get(geom_handle);
-  const GEMGeometry* gem = &*geom_handle;
-  return gem;
-}
-
 Int_t GEMBaseValidation::getDetOccBinX(Int_t chamber_id, Int_t layer_id) { return 2 * chamber_id + layer_id - 2; }
 
 Bool_t GEMBaseValidation::isMuonSimHit(const PSimHit& simhit) { return std::abs(simhit.particleType()) == kMuonPDGId_; }

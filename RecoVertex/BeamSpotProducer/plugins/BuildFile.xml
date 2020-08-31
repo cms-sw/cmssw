@@ -1,13 +1,12 @@
-<use name="FWCore/Framework"/>
-<use name="FWCore/ParameterSet"/>
-<use name="FWCore/Utilities"/>
-<use name="FWCore/ServiceRegistry"/>
-<use name="CondFormats/BeamSpotObjects"/>
-<use name="CondFormats/DataRecord"/>
-<use name="CondCore/DBOutputService"/>
-
 <use name="root"/>
 <use name="rootminuit"/>
+<use name="CondCore/DBOutputService"/>
+<use name="CondFormats/BeamSpotObjects"/>
+<use name="CondFormats/DataRecord"/>
+<use name="FWCore/Framework"/>
+<use name="FWCore/ParameterSet"/>
+<use name="FWCore/ServiceRegistry"/>
+<use name="FWCore/Utilities"/>
 <use name="RecoVertex/BeamSpotProducer"/>
 
 <library file="BeamSpotProducer.cc" name="BeamSpotProducer">
@@ -40,4 +39,10 @@
 <library file="OfflineToTransientBeamSpotESProducer.cc" name="OfflineToTransientBeamSpotESProducer">
   <flags EDM_PLUGIN="1"/>
 </library>
-
+<library file="BeamSpotToCUDA.cc" name="BeamSpotToCUDA">
+  <use name="cuda"/>
+  <use name="CUDADataFormats/BeamSpot"/>
+  <use name="HeterogeneousCore/CUDACore"/>
+  <use name="HeterogeneousCore/CUDAServices"/>
+  <flags EDM_PLUGIN="1"/>
+</library>

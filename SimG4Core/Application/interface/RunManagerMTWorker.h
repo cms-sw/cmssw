@@ -82,11 +82,13 @@ private:
 
   Generator m_generator;
   edm::EDGetTokenT<edm::HepMCProduct> m_InToken;
+  edm::EDGetTokenT<edm::HepMCProduct> m_LHCToken;
   edm::EDGetTokenT<edm::LHCTransportLinkContainer> m_theLHCTlinkToken;
 
   bool m_nonBeam;
   bool m_pUseMagneticField;
   bool m_hasWatchers;
+  bool m_LHCTransport;
   int m_EvtMgrVerbosity;
 
   edm::ParameterSet m_pField;

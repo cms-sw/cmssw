@@ -35,6 +35,7 @@
 #include "DataFormats/CSCDigi/interface/CSCCLCTPreTriggerDigi.h"
 #include "L1Trigger/CSCTriggerPrimitives/interface/CSCBaseboard.h"
 #include "L1Trigger/CSCTriggerPrimitives/interface/CSCComparatorCodeLUT.h"
+#include "L1Trigger/CSCTriggerPrimitives/interface/LCTQualityControl.h"
 
 #include <vector>
 #include <array>
@@ -52,6 +53,9 @@ public:
 
   /** Default constructor. Used for testing. */
   CSCCathodeLCTProcessor();
+
+  /** Default destructor. */
+  ~CSCCathodeLCTProcessor() override = default;
 
   /** Sets configuration parameters obtained via EventSetup mechanism. */
   void setConfigParameters(const CSCDBL1TPParameters* conf);
@@ -148,9 +152,6 @@ protected:
   void dumpDigis(const std::vector<int> strip[CSCConstants::NUM_LAYERS][CSCConstants::NUM_HALF_STRIPS_7CFEBS],
                  const int nStrips) const;
 
-  // Check if the CLCT is valid
-  void checkValid(const CSCCLCTDigi& lct, unsigned max_stubs = CSCConstants::MAX_CLCTS_PER_PROCESSOR) const;
-
   // --------Functions for the comparator code algorith for Run-3 ---------//
   //calculates the id based on location of hits
   int calculateComparatorCode(const std::array<std::array<int, 3>, 6>& halfStripPattern) const;
@@ -164,6 +165,7 @@ protected:
   // runs the CCLUT procedure
   void runCCLUT(CSCCLCTDigi& digi) const;
 
+  unsigned convertSlopeToRun2Pattern(unsigned slope, unsigned bend) const;
   //--------------------------- Member variables -----------------------------
 
   /* best pattern Id for a given half-strip */
@@ -220,8 +222,6 @@ protected:
   bool readout_earliest_2;
 
   // Use the new patterns according to the comparator code format
-  bool use_run3_patterns_;
-  bool use_comparator_codes_;
   unsigned int nbits_position_cc_;
   unsigned int nbits_slope_cc_;
 
@@ -235,6 +235,9 @@ protected:
 
   std::vector<std::string> positionLUTFiles_;
   std::vector<std::string> slopeLUTFiles_;
+
+  /* quality control */
+  std::unique_ptr<LCTQualityControl> qualityControl_;
 };
 
 #endif

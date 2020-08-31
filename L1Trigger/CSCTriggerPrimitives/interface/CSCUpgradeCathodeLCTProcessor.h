@@ -42,7 +42,6 @@ private:
   /** VK: use of localized dead-time zones */
   bool use_dead_time_zoning;
   unsigned int clct_state_machine_zone;  // +- around a keystrip
-  bool dynamic_state_machine_zone;       //use a pattern dependent zone
 
   /** VK: allow triggers only in +-pretrig_trig_zone around pretriggers */
   unsigned int pretrig_trig_zone;

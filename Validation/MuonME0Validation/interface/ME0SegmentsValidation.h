@@ -2,16 +2,9 @@
 #define ME0SegmentsValidation_H
 
 #include "Validation/MuonME0Validation/interface/ME0BaseValidation.h"
-
-#include <DataFormats/GEMRecHit/interface/ME0Segment.h>
-#include <DataFormats/GEMRecHit/interface/ME0SegmentCollection.h>
-
-#include "DataFormats/GEMDigi/interface/ME0DigiPreReco.h"
 #include "DataFormats/GEMDigi/interface/ME0DigiPreRecoCollection.h"
+#include "DataFormats/GEMRecHit/interface/ME0SegmentCollection.h"
 #include "DataFormats/GEMRecHit/interface/ME0RecHitCollection.h"
-#include "SimDataFormats/Track/interface/SimTrackContainer.h"
-#include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
-#include <DataFormats/GEMRecHit/interface/ME0RecHit.h>
 
 class ME0SegmentsValidation : public ME0BaseValidation {
 public:

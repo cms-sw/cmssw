@@ -71,6 +71,9 @@ CSCBaseboard::CSCBaseboard(unsigned endcap,
     alctParams_ = conf.getParameter<edm::ParameterSet>("alctParam07");
     clctParams_ = conf.getParameter<edm::ParameterSet>("clctParam07");
   }
+
+  use_run3_patterns_ = clctParams_.getParameter<bool>("useRun3Patterns");
+  use_comparator_codes_ = clctParams_.getParameter<bool>("useComparatorCodes");
 }
 
 CSCBaseboard::CSCBaseboard() : theEndcap(1), theStation(1), theSector(1), theSubsector(1), theTrigChamber(1) {

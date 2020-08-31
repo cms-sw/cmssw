@@ -20,5 +20,4 @@
 </library>
 
 <bin file="testSerializationCommon.cpp">
-  <use name="CondFormats/External"/>
 </bin>

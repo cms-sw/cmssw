@@ -20,6 +20,8 @@ private:
 
   // Parameters
   edm::EDGetTokenT<edm::PSimHitContainer> simhit_token_;
+  edm::ESGetToken<GEMGeometry, MuonGeometryRecord> geomToken_;
+  edm::ESGetToken<GEMGeometry, MuonGeometryRecord> geomTokenBeginRun_;
   std::vector<Double_t> tof_range_;
 
   // Monitor elemnts
