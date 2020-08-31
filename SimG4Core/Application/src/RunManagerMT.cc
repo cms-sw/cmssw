@@ -55,6 +55,8 @@
 #include "G4RegionStore.hh"
 
 #include <iostream>
+#include <memory>
+
 #include <sstream>
 #include <fstream>
 #include <memory>
@@ -109,7 +111,7 @@ void RunManagerMT::initG4(const DDCompactView* pDD,
       << "              cutsPerRegion: " << cuts << " cutForProton: " << protonCut << "\n"
       << "              G4 verbosity: " << verb;
 
-  m_world.reset(new DDDWorld(pDD, pDD4hep, m_catalog, verb, cuts, protonCut));
+  m_world = std::make_unique<DDDWorld>(pDD, pDD4hep, m_catalog, verb, cuts, protonCut);
   G4VPhysicalVolume* world = m_world.get()->GetWorldVolume();
 
   m_kernel->SetVerboseLevel(verb);
@@ -239,7 +241,7 @@ void RunManagerMT::initG4(const DDCompactView* pDD,
 }
 
 void RunManagerMT::initializeUserActions() {
-  m_runInterface.reset(new SimRunInterface(this, true));
+  m_runInterface = std::make_unique<SimRunInterface>(this, true);
   m_userRunAction = new RunAction(m_pRunAction, m_runInterface.get(), true);
   Connect(m_userRunAction);
 }
