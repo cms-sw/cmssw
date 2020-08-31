@@ -13,7 +13,7 @@
 //
 // Original Author:  Ianna Osborne
 //         Created:  Wed, 16 Jan 2019 10:19:37 GMT
-//         Modified by Sergio Lo Meo (sergio.lo.meo@cern.ch) Tue, 04 August 2020
+//         Modified by Sergio Lo Meo (sergio.lo.meo@cern.ch) Mon, 31 August 2020
 //
 //
 #include "CondFormats/GeometryObjects/interface/RecoIdealGeometry.h"
@@ -134,9 +134,7 @@ std::shared_ptr<DTGeometry> DTGeometryESProducer::produce(const MuonGeometryReco
       host->ifRecordChanges<DTRecoGeometryRcd>(record, [this, &host](auto const& rec) { setupDBGeometry(rec, host); });
     }
   }
-  //
-  // Called whenever the alignments or alignment errors change
-  //
+
   if (m_applyAlignment) {
     edm::ESHandle<Alignments> globalPosition;
     record.getRecord<GlobalPositionRcd>().get(m_alignmentsLabel, globalPosition);
@@ -144,7 +142,7 @@ std::shared_ptr<DTGeometry> DTGeometryESProducer::produce(const MuonGeometryReco
     record.getRecord<DTAlignmentRcd>().get(m_alignmentsLabel, alignments);
     edm::ESHandle<AlignmentErrorsExtended> alignmentErrors;
     record.getRecord<DTAlignmentErrorExtendedRcd>().get(m_alignmentsLabel, alignmentErrors);
-    // Only apply alignment if values exist
+
     if (alignments->empty() && alignmentErrors->empty() && globalPosition->empty()) {
       edm::LogInfo("Config") << "@SUB=DTGeometryRecord::produce"
                              << "Alignment(Error)s and global position (label '" << m_alignmentsLabel
@@ -159,7 +157,7 @@ std::shared_ptr<DTGeometry> DTGeometryESProducer::produce(const MuonGeometryReco
     }
   }
 
-  return host;  // automatically converts to std::shared_ptr<DTGeometry>
+  return host;
 }
 
 void DTGeometryESProducer::setupGeometry(const MuonNumberingRecord& record, shared_ptr<HostType>& host) {
@@ -183,10 +181,8 @@ void DTGeometryESProducer::setupGeometry(const MuonNumberingRecord& record, shar
 
 void DTGeometryESProducer::setupDBGeometry(const DTRecoGeometryRcd& record, std::shared_ptr<HostType>& host) {
   // host->clear();
-
   // edm::ESHandle<RecoIdealGeometry> rig;
   // record.get(rig);
-
   // DTGeometryBuilderFromCondDB builder;
   // builder.build(host, *rig);
 }
