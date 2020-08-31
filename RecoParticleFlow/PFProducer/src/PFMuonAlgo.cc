@@ -600,16 +600,7 @@ void PFMuonAlgo::changeTrack(reco::PFCandidate& candidate, const MuonTrackTypePa
   candidate.setParticleType(reco::PFCandidate::mu);
   //    candidate.setTrackRef( bestTrack );
   candidate.setMuonTrackType(trackType);
-  if (trackType == reco::Muon::InnerTrack)
-    candidate.setVertexSource(PFCandidate::kTrkMuonVertex);
-  else if (trackType == reco::Muon::CombinedTrack)
-    candidate.setVertexSource(PFCandidate::kComMuonVertex);
-  else if (trackType == reco::Muon::TPFMS)
-    candidate.setVertexSource(PFCandidate::kTPFMSMuonVertex);
-  else if (trackType == reco::Muon::Picky)
-    candidate.setVertexSource(PFCandidate::kPickyMuonVertex);
-  else if (trackType == reco::Muon::DYT)
-    candidate.setVertexSource(PFCandidate::kDYTMuonVertex);
+  candidate.setVertex(bestTrack->vertex());
 }
 
 reco::Muon::MuonTrackTypePair PFMuonAlgo::getTrackWithSmallestError(

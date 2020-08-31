@@ -71,18 +71,6 @@ namespace reco {
       GAMMA_TO_GAMMACONV
     };
 
-    enum PFVertexType {
-      kCandVertex = 0,
-      kTrkVertex = 1,
-      kComMuonVertex = 2,
-      kSAMuonVertex = 3,
-      kTrkMuonVertex = 4,
-      kGSFVertex = 5,
-      kTPFMSMuonVertex = 6,
-      kPickyMuonVertex = 7,
-      kDYTMuonVertex = 8
-    };
-
     /// default constructor
     PFCandidate();
 
@@ -386,30 +374,6 @@ namespace reco {
 
     friend std::ostream& operator<<(std::ostream& out, const PFCandidate& c);
 
-    //Tips on setting the vertex efficiently
-    //There are two choices: a) use the vertex_ data member, or b) point to the vertex
-    //of one of the refs stored by this class. The PFVertexType enum gives the current list
-    //of possible references. For these references, use the setVeretxSource method and NOT
-    //the setVertex method. If none of the available refs have the vertex that you want for this
-    //PFCandidate, use the setVertex method. If you find that you are using frequently two store a
-    // vertex that is the same as one of the refs in this class, you should just extend the enum
-    // and modify the vertex() method accordingly.
-    void setVertexSource(PFVertexType vt) {
-      vertexType_ = vt;
-      if (vertexType_ != kCandVertex)
-        LeafCandidate::setVertex(Point(0., 0., 0.));
-    }
-
-    void setVertex(const math::XYZPoint& p) override {
-      LeafCandidate::setVertex(p);
-      vertexType_ = kCandVertex;
-    }
-
-    const Point& vertex() const override;
-    double vx() const override { return vertex().x(); }
-    double vy() const override { return vertex().y(); }
-    double vz() const override { return vertex().z(); }
-
     /// do we have a valid time information
     bool isTimeValid() const { return timeError_ >= 0.f; }
     /// \return the timing
@@ -482,8 +446,6 @@ namespace reco {
 
     /// uncertainty on 3-momentum
     float deltaP_;
-
-    PFVertexType vertexType_;
 
     // mva for isolated electrons
     float mva_Isolated_;
