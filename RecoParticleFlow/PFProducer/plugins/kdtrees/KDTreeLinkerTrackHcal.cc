@@ -62,15 +62,6 @@ private:
 
   // Hcal-track links
   int nMaxHcalLinksPerTrack_;
-
-  template <typename T>
-  static std::vector<size_t> sort_indexes(const std::vector<T>& v) {
-    std::vector<size_t> idx(v.size());
-    for (size_t i = 0; i != idx.size(); ++i)
-      idx[i] = i;
-    std::sort(idx.begin(), idx.end(), [&v](size_t i1, size_t i2) { return v[i1] < v[i2]; });
-    return idx;
-  }
 };
 
 // the text name is different so that we can easily
@@ -258,8 +249,12 @@ void KDTreeLinkerTrackHcal::updatePFBlockEltWithLinks() {
   for (BlockElt2BlockEltMap::iterator it = target2ClusterLinks_.begin(); it != target2ClusterLinks_.end(); ++it) {
     reco::PFMultiLinksTC multitracks(true);
 
-    // No restriction on the number of HCAL links per track. Fill all of them.
-    if (nMaxHcalLinksPerTrack_ < 0.) {
+    //
+    // No restriction on the number of HCAL links per track or T_TO/FROM_DISP or T_FROM_V0/GAMMACON, then fill all links.
+    if (nMaxHcalLinksPerTrack_ < 0. || it->first->trackType(reco::PFBlockElement::T_TO_DISP) ||
+        it->first->trackType(reco::PFBlockElement::T_FROM_DISP) ||
+        it->first->trackType(reco::PFBlockElement::T_FROM_V0) ||
+        it->first->trackType(reco::PFBlockElement::T_FROM_GAMMACONV)) {
       for (BlockEltSet::iterator jt = it->second.begin(); jt != it->second.end(); ++jt) {
         double clusterphi = (*jt)->clusterRef()->positionREP().phi();
         double clustereta = (*jt)->clusterRef()->positionREP().eta();
@@ -267,10 +262,9 @@ void KDTreeLinkerTrackHcal::updatePFBlockEltWithLinks() {
       }
 
     }
+    //
     // Store only the N closest HCAL links per track.
     else {
-      // First fill the vector of distance. And then store only N closest HCAL cluster(s).
-
       reco::PFRecTrackRef trackref = it->first->trackRefPF();
       const reco::PFTrajectoryPoint& tkAtHCALEnt = trackref->extrapolatedPoint(trajectoryLayerEntrance_);
       const reco::PFCluster::REPPoint& tkreppos = tkAtHCALEnt.positionREP();
