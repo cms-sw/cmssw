@@ -39,9 +39,10 @@ void CTPPSDiamondRecHitProducerAlgorithm::build(const CTPPSGeometry& geom,
     z_pos = det->parentZPosition();  // retrieve the plane position;
 
     // parameters stand for half the size
-    const float x_width = 2.0 * det->getDiamondDimensions().xHalfWidth;
-    const float y_width = 2.0 * det->getDiamondDimensions().yHalfWidth;
-    const float z_width = 2.0 * det->getDiamondDimensions().zHalfWidth;
+    const auto& diamondDimensions = det->getDiamondDimensions();
+    const float x_width = 2.0 * diamondDimensions.xHalfWidth;
+    const float y_width = 2.0 * diamondDimensions.yHalfWidth;
+    const float z_width = 2.0 * diamondDimensions.zHalfWidth;
 
     // retrieve the timing calibration part for this channel
     const int sector = detid.arm(), station = detid.station(), plane = detid.plane(), channel = detid.channel();
