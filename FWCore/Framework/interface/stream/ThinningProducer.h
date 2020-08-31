@@ -39,17 +39,6 @@ namespace edm {
       static constexpr bool value = true;
     };
 
-    // by default a linear container
-    template <typename Collection, typename = std::void_t<>>
-    struct ElementType {
-      using type = typename std::remove_reference<decltype(*std::declval<Collection>().begin())>::type;
-    };
-    // specialization for a nested container (mainly edmNew::DetSetVector)
-    template <typename Collection>
-    struct ElementType<Collection, std::void_t<decltype(std::declval<Collection>().begin()->begin())>> {
-      using type = typename std::remove_reference<decltype(*(std::declval<Collection>().begin()->begin()))>::type;
-    };
-
     template <typename Item, typename Selector, typename Collection>
     void fillCollectionForThinning(Item const& item,
                                    Selector& selector,
