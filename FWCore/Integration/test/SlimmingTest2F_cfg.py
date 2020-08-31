@@ -2,13 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("TEST2F")
 
-process.options = cms.untracked.PSet(
-    numberOfStreams = cms.untracked.uint32(1)
-)
-
-process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(3)
-)
+process.maxEvents.input = 3
 
 process.WhatsItESProducer = cms.ESProducer("WhatsItESProducer")
 

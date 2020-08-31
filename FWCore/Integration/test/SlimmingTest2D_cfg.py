@@ -2,13 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("TEST2D")
 
-process.options = cms.untracked.PSet(
-    numberOfStreams = cms.untracked.uint32(1)
-)
-
-process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(3)
-)
+process.maxEvents.input = 3
 
 process.source = cms.Source("PoolSource",
   fileNames = cms.untracked.vstring('file:testSlimmingTest1D.root')
