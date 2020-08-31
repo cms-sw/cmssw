@@ -171,7 +171,7 @@ def customiseFor2017DtUnpacking(process):
     return process
 
 def customiseFor31295(process):
-    """Make PFCluster from each seed"""
+    """Reorganization of kdtrees for PFBlockAlgo and optimize track-hcal links"""
 
     # for PFBlockProducer
     for producer in producers_by_type(process, "PFBlockProducer"):

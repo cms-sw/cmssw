@@ -250,14 +250,11 @@ void KDTreeLinkerTrackHcal::updatePFBlockEltWithLinks() {
     reco::PFMultiLinksTC multitracks(true);
 
     //
-    // No restriction on the number of HCAL links per track or T_TO/FROM_DISP or T_FROM_V0/GAMMACON, then fill all links.
-    if (nMaxHcalLinksPerTrack_ < 0. || it->first->trackType(reco::PFBlockElement::T_TO_DISP) ||
-        it->first->trackType(reco::PFBlockElement::T_FROM_DISP) ||
-        it->first->trackType(reco::PFBlockElement::T_FROM_V0) ||
-        it->first->trackType(reco::PFBlockElement::T_FROM_GAMMACONV)) {
-      for (BlockEltSet::iterator jt = it->second.begin(); jt != it->second.end(); ++jt) {
-        double clusterphi = (*jt)->clusterRef()->positionREP().phi();
-        double clustereta = (*jt)->clusterRef()->positionREP().eta();
+    // No restriction on the number of HCAL links per track or isLinkedToDisplacedVertex
+    if (nMaxHcalLinksPerTrack_ < 0. || it->first->isLinkedToDisplacedVertex()) {
+      for (const auto& hcalElt : it->second) {
+        double clusterphi = hcalElt->clusterRef()->positionREP().phi();
+        double clustereta = hcalElt->clusterRef()->positionREP().eta();
         multitracks.linkedClusters.push_back(std::make_pair(clusterphi, clustereta));
       }
 
@@ -285,9 +282,9 @@ void KDTreeLinkerTrackHcal::updatePFBlockEltWithLinks() {
       BlockEltSet hcalEltSet = it->second;
 
       // Fill the vector of distances between HCAL clusters and the track
-      for (BlockEltSet::iterator jt = hcalEltSet.begin(); jt != hcalEltSet.end(); ++jt) {
-        double clusterphi = (*jt)->clusterRef()->positionREP().phi();
-        double clustereta = (*jt)->clusterRef()->positionREP().eta();
+      for (const auto& hcalElt : hcalEltSet) {
+        double clusterphi = hcalElt->clusterRef()->positionREP().phi();
+        double clustereta = hcalElt->clusterRef()->positionREP().eta();
 
         // when checkExit_ is false
         if (!checkExit_) {
