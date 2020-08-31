@@ -10,10 +10,10 @@ import FWCore.ParameterSet.Config as cms
 #process.load('Configuration.Geometry.GeometryExtended2026D41_cff')
 #process.load('Configuration.Geometry.GeometryExtended2026D41Reco_cff')
 
-from Configuration.Eras.Era_Phase2C9_cff import Phase2C9
-process = cms.Process('HGCGeomAnalysis',Phase2C9)
-process.load('Configuration.Geometry.GeometryExtended2026D49_cff')
-process.load('Configuration.Geometry.GeometryExtended2026D49Reco_cff')
+#from Configuration.Eras.Era_Phase2C9_cff import Phase2C9
+#process = cms.Process('HGCGeomAnalysis',Phase2C9)
+#process.load('Configuration.Geometry.GeometryExtended2026D49_cff')
+#process.load('Configuration.Geometry.GeometryExtended2026D49Reco_cff')
 
 #from Configuration.Eras.Era_Phase2C12_cff import Phase2C12
 #process = cms.Process('HGCGeomAnalysis',Phase2C12)
@@ -25,10 +25,10 @@ process.load('Configuration.Geometry.GeometryExtended2026D49Reco_cff')
 #process.load('Configuration.Geometry.GeometryExtended2026D59_cff')
 #process.load('Configuration.Geometry.GeometryExtended2026D59Reco_cff')
 
-#from Configuration.Eras.Era_Phase2C11_cff import Phase2C11
-#process = cms.Process('HGCGeomAnalysis',Phase2C11)
-#process.load('Configuration.Geometry.GeometryExtended2026D62_cff')
-#process.load('Configuration.Geometry.GeometryExtended2026D62Reco_cff')
+from Configuration.Eras.Era_Phase2C11_cff import Phase2C11
+process = cms.Process('HGCGeomAnalysis',Phase2C11)
+process.load('Configuration.Geometry.GeometryExtended2026D62_cff')
+process.load('Configuration.Geometry.GeometryExtended2026D62Reco_cff')
 
 process.load("SimGeneral.HepPDTESSource.pythiapdt_cfi")
 process.load("Configuration.StandardSequences.MagneticField_cff")
@@ -53,13 +53,13 @@ process.maxEvents = cms.untracked.PSet(
 )
 
 process.TFileService = cms.Service("TFileService",
-                                   fileName = cms.string('hgcWaferD49.root'),
+                                   fileName = cms.string('hgcWaferD62.root'),
                                    closeFileFast = cms.untracked.bool(True)
                                    )
 
 process.raw2digi_step = cms.Path(process.RawToDigi)
 process.analysis_step = cms.Path(process.hgcalWaferStudy)
-process.hgcalWaferStudy.verbosity = 11
+process.hgcalWaferStudy.verbosity = 0
 process.hgcalWaferStudy.nBinHit   = 100
 process.hgcalWaferStudy.nBinDig   = 100
 process.hgcalWaferStudy.layerMinSim = cms.untracked.vint32(1,1)
