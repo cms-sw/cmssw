@@ -100,7 +100,7 @@ namespace trklet {
         throw cms::Exception("BadConfig")
             << __FILE__ << " " << __LINE__ << " maxStep module = " << module << " not known";
       }
-      return maxstep_.at(module);
+      return maxstep_.at(module) + maxstepoffset_;
     }
 
     double zlength() const { return zlength_; }
@@ -359,8 +359,8 @@ namespace trklet {
     std::string processingModulesFile_;
     std::string memoryModulesFile_;
     std::string wiresFile_;
-    std::string tableTEDFile_{"../data/table_TED/table_TED_Dummy.tx"};
-    std::string tableTREFile_{"../data/table_TRE/table_TRE_Dummy.tx"};
+    std::string tableTEDFile_;
+    std::string tableTREFile_;
 
     double rcrit_{55.0};  // critical radius for the hourglass configuration
 
@@ -596,6 +596,10 @@ namespace trklet {
          {{3.6, 3.8, 0.0, 0.0, 3.6, 0.0, 3.5, 3.8, 0.0, 0.0, 3.0, 3.0}},    //disk 4
          {{0.0, 0.0, 0.0, 0.0, 3.6, 3.4, 3.7, 0.0, 0.0, 0.0, 0.0, 3.0}}}};  //disk 5
 
+    //Offset to the maximum number of steps in each processing step. Set to 0 for standard
+    //trunction. Set to large value, e.g. 10000 to remove truncation
+    unsigned int maxstepoffset_{10000};
+    
     //Default number of processing steps for one event
     std::unordered_map<std::string, unsigned int> maxstep_{{"Link", 108},
                                                            {"MC", 107},
@@ -610,7 +614,7 @@ namespace trklet {
 
     // If set to true this will generate debub printout in text files
     std::unordered_map<std::string, bool> writeMonitorData_{{"IL", false},
-                                                            {"TE", true},
+                                                            {"TE", false},
                                                             {"CT", false},
                                                             {"HitPattern", false},
                                                             {"ChiSq", false},
