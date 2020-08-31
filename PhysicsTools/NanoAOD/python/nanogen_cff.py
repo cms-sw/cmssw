@@ -48,33 +48,6 @@ nanogenSequence = cms.Sequence(
     lheInfoTable
 )
 
-nanogenMiniSequence = cms.Sequence(
-    nanoMetadata+
-    mergedGenParticles+
-    genParticles2HepMC+
-    particleLevel+
-    genJetTable+
-    patJetPartons+
-    genJetFlavourAssociation+
-    genJetFlavourTable+
-    genJetAK8Table+
-    genJetAK8FlavourAssociation+
-    genJetAK8FlavourTable+
-    tauGenJets+
-    tauGenJetsSelectorAllHadrons+
-    genVisTaus+
-    genVisTauTable+
-    genTable+
-    genParticleTables+
-    tautagger+
-    genParticles2HepMCHiggsVtx+
-    rivetProducerHTXS+
-    particleLevelTables+
-    metGenTable+
-    genWeightsTable+
-    lheInfoTable
-)
-
 NANOAODGENoutput = cms.OutputModule("NanoAODOutputModule",
     compressionAlgorithm = cms.untracked.string('LZMA'),
     compressionLevel = cms.untracked.int32(9),
@@ -105,6 +78,10 @@ def nanoGenCommonCustomize(process):
     process.genJetFlavourTable.jetFlavourInfos = "genJetFlavourAssociation"
 
 def customizeNanoGENFromMini(process):
+    process.nanoAOD_step.insert(0, process.genParticles2HepMCHiggsVtx)
+    process.nanoAOD_step.insert(0, process.genParticles2HepMC)
+    process.nanoAOD_step.insert(0, process.mergedGenParticles)
+
     process.rivetProducerHTXS.HepMCCollection = "genParticles2HepMCHiggsVtx:unsmeared"
     process.genParticleTable.src = "prunedGenParticles"
     process.patJetPartons.particles = "prunedGenParticles"

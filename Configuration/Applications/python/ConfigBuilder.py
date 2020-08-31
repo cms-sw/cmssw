@@ -988,7 +988,7 @@ class ConfigBuilder(object):
         self.PATDefaultSeq='miniAOD'
         self.PATGENDefaultSeq='miniGEN'
         #TODO: Check based of file input
-        self.NANOGENDefaultSeq='nanogenSequence' if any([x in self.stepMap for x in ['LHE', 'GEN', 'AOD']]) else 'nanogenMiniSequence' 
+        self.NANOGENDefaultSeq='nanogenSequence'
         self.NANODefaultSeq='nanoSequence'
 
         self.EVTCONTDefaultCFF="Configuration/EventContent/EventContent_cff"
