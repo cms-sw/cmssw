@@ -73,7 +73,7 @@ public:
                           std::vector<unsigned int>& keys) const override;
 
   // This overload is allowed to be called also without getIt()
-  // being called first, but he thinned ProductID must come from an
+  // being called first, but the thinned ProductID must come from an
   // existing RefCore. The input key is the index of the desired
   // element in the container identified by the parent ProductID.
   // If the return value is not null, then the desired element was found
