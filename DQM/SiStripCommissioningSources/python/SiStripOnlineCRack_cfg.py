@@ -74,7 +74,6 @@ process.load('RecoVertex.BeamSpotProducer.BeamSpotFakeConditionsNominalCollision
 process.load('RecoLocalTracker.SiStripRecHitConverter.SiStripRecHitMatcher_cfi')
 # CPEs
 process.load('RecoLocalTracker.SiStripRecHitConverter.StripCPEfromTrackAngle_cfi')
-process.load('RecoLocalTracker.SiPixelRecHits.PixelCPEParmError_cfi')
 # TransientTrackingBuilder
 process.load('RecoTracker.TransientTrackingRecHit.TransientTrackingRecHitBuilder_cfi')
 process.ttrhbwr.PixelCPE = cms.string('PixelCPEfromTrackAngle')
