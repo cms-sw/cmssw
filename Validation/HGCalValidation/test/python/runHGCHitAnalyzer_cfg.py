@@ -15,20 +15,20 @@ import FWCore.ParameterSet.Config as cms
 #process.load('Configuration.Geometry.GeometryExtended2026D49_cff')
 #process.load('Configuration.Geometry.GeometryExtended2026D49Reco_cff')
 
-from Configuration.Eras.Era_Phase2C12_cff import Phase2C12
-process = cms.Process('HGCGeomAnalysis',Phase2C12)
-process.load('Configuration.Geometry.GeometryExtended2026D58_cff')
-process.load('Configuration.Geometry.GeometryExtended2026D58Reco_cff')
+#from Configuration.Eras.Era_Phase2C12_cff import Phase2C12
+#process = cms.Process('HGCGeomAnalysis',Phase2C12)
+#process.load('Configuration.Geometry.GeometryExtended2026D58_cff')
+#process.load('Configuration.Geometry.GeometryExtended2026D58Reco_cff')
 
 #from Configuration.Eras.Era_Phase2C11_cff import Phase2C11
 #process = cms.Process('HGCGeomAnalysis',Phase2C11)
 #process.load('Configuration.Geometry.GeometryExtended2026D59_cff')
 #process.load('Configuration.Geometry.GeometryExtended2026D59Reco_cff')
 
-#from Configuration.Eras.Era_Phase2C11_cff import Phase2C11
-#process = cms.Process('HGCGeomAnalysis',Phase2C11)
-#process.load('Configuration.Geometry.GeometryExtended2026D62_cff')
-#process.load('Configuration.Geometry.GeometryExtended2026D62Reco_cff')
+from Configuration.Eras.Era_Phase2C11_cff import Phase2C11
+process = cms.Process('HGCGeomAnalysis',Phase2C11)
+process.load('Configuration.Geometry.GeometryExtended2026D62_cff')
+process.load('Configuration.Geometry.GeometryExtended2026D62Reco_cff')
 
 process.load('Configuration.StandardSequences.Services_cff')
 process.load('SimGeneral.HepPDTESSource.pythiapdt_cfi')    
@@ -56,7 +56,7 @@ process.source = cms.Source("PoolSource",
 process.load('Validation.HGCalValidation.hgcHitValidation_cfi')
 
 process.TFileService = cms.Service("TFileService",
-                                   fileName = cms.string('relValTTbarD58.root'),
+                                   fileName = cms.string('relValTTbarD62.root'),
                                    closeFileFast = cms.untracked.bool(True)
                                    )
 
