@@ -88,6 +88,16 @@ protected:
 
   // Debug boolean. Not used until now.
   bool debug_ = false;
+
+  // Sorted indexes
+  template <typename T>
+  static std::vector<size_t> sort_indexes(const std::vector<T> &v) {
+    std::vector<size_t> idx(v.size());
+    for (size_t i = 0; i != idx.size(); ++i)
+      idx[i] = i;
+    std::sort(idx.begin(), idx.end(), [&v](size_t i1, size_t i2) { return v[i1] < v[i2]; });
+    return idx;
+  }
 };
 
 #include "FWCore/PluginManager/interface/PluginFactory.h"
