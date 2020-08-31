@@ -43,8 +43,8 @@ namespace {
     return iDesc;
   }
 
-  //TBB only allows 1 task_scheduler_init active on a thread.
-  CMS_THREAD_SAFE std::unique_ptr<tbb::task_scheduler_init> tsiPtr;
+  //Only one ThreadsController can be active at a time
+  CMS_THREAD_SAFE std::unique_ptr<edm::ThreadsController> tsiPtr;
 
   std::shared_ptr<edm::ProcessDesc> setupThreading(std::shared_ptr<edm::ProcessDesc> iDesc) {
     // check the "options" ParameterSet
