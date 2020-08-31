@@ -43,6 +43,7 @@
 #include "G4CascadeInterface.hh"
 #include "G4EmParameters.hh"
 #include "G4HadronicParameters.hh"
+#include "G4NuclearLevelData.hh"
 
 #include "G4GDMLParser.hh"
 #include "G4SystemOfUnits.hh"
@@ -187,14 +188,6 @@ void RunManagerMT::initG4(const DDCompactView* pDD,
   m_kernel->InitializePhysics();
   m_kernel->SetUpDecayChannels();
 
-  // The following line was with the following comment in
-  // G4MTRunManager::InitializePhysics() in 10.00.p01; in practice
-  // needed to initialize certain singletons during the master thread
-  // initialization in order to avoid races later...
-  //
-  //BERTINI, this is needed to create pseudo-particles, to be removed
-  G4CascadeInterface::Initialize();
-
   if (m_kernel->RunInitialization()) {
     m_managerInitialized = true;
   } else {
@@ -209,6 +202,7 @@ void RunManagerMT::initG4(const DDCompactView* pDD,
       G4UImanager::GetUIpointer()->ApplyCommand(cmd);
     m_physicsList->StorePhysicsTable(m_PhysicsTablesDir);
   }
+  G4NuclearLevelData::GetInstance()->UploadNuclearLevelData(84);
 
   if (verb > 1) {
     m_physicsList->DumpCutValuesTable();
