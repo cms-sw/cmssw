@@ -193,8 +193,8 @@ void EgammaHLTGsfTrackVarProducer::produce(edm::StreamID, edm::Event& iEvent, co
           }
         }
 
-        if (gsfTracks[trkNr]->hitPattern().numberOfLostHits(reco::HitPattern::MISSING_INNER_HITS) < missingHitsValue) {
-          missingHitsValue = gsfTracks[trkNr]->hitPattern().numberOfLostHits(reco::HitPattern::MISSING_INNER_HITS);
+        if (gsfTracks[trkNr]->missingInnerHits() < missingHitsValue) {
+          missingHitsValue = gsfTracks[trkNr]->missingInnerHits();
         }
 
         if (gsfTracks[trkNr]->numberOfValidHits() < validHitsValue) {

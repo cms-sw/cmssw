@@ -37,6 +37,8 @@ CSCStubMatcher::CSCStubMatcher(const edm::ParameterSet& pSet, edm::ConsumesColle
   alctToken_ = iC.consumes<CSCALCTDigiCollection>(cscALCT.getParameter<edm::InputTag>("inputTag"));
   lctToken_ = iC.consumes<CSCCorrelatedLCTDigiCollection>(cscLCT.getParameter<edm::InputTag>("inputTag"));
   mplctToken_ = iC.consumes<CSCCorrelatedLCTDigiCollection>(cscMPLCT.getParameter<edm::InputTag>("inputTag"));
+
+  geomToken_ = iC.esConsumes<CSCGeometry, MuonGeometryRecord>();
 }
 
 void CSCStubMatcher::init(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
@@ -48,12 +50,7 @@ void CSCStubMatcher::init(const edm::Event& iEvent, const edm::EventSetup& iSetu
   iEvent.getByToken(lctToken_, lctsH_);
   iEvent.getByToken(mplctToken_, mplctsH_);
 
-  iSetup.get<MuonGeometryRecord>().get(csc_geom_);
-  if (csc_geom_.isValid()) {
-    cscGeometry_ = &*csc_geom_;
-  } else {
-    edm::LogError("CSCStubMatcher") << "+++ Info: CSC geometry is unavailable.";
-  }
+  cscGeometry_ = &iSetup.getData(geomToken_);
 }
 
 // do the matching

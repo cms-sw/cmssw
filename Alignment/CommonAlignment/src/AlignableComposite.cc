@@ -6,7 +6,7 @@
 
 #include "CondFormats/Alignment/interface/Alignments.h"
 #include "CondFormats/Alignment/interface/AlignmentErrorsExtended.h"
-#include "DataFormats/TrackingRecHit/interface/AlignmentPositionError.h"
+#include "DataFormats/GeometryCommonDetAlgo/interface/AlignmentPositionError.h"
 #include "Geometry/CommonDetUnit/interface/GeomDet.h"
 
 #include "Alignment/CommonAlignment/interface/AlignableComposite.h"

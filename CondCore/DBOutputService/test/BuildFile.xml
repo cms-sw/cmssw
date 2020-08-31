@@ -38,6 +38,5 @@
 </library>
 
 <library file="stubs/writeInt.cc" name="writeInt">
-  <use name="CondFormats/Common"/>
   <flags EDM_PLUGIN="1"/>
 </library>

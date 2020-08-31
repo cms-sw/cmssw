@@ -54,6 +54,7 @@ private:
   double kmaxIon, kmaxNeutron, kmaxProton;
   double kmaxGamma;
   double maxTrackTime;
+  double maxTrackTimeForward;
   double maxZCentralCMS;
   unsigned int numberTimes;
   std::vector<double> maxTrackTimes;

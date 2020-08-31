@@ -8,6 +8,8 @@
    Author: Sven Dildick (TAMU), Tao Huang (TAMU)
 */
 
+#include "FWCore/Utilities/interface/ESGetToken.h"
+#include "Geometry/Records/interface/MuonGeometryRecord.h"
 #include "Geometry/GEMGeometry/interface/ME0Geometry.h"
 #include "Validation/MuonHits/interface/MuonSimHitMatcher.h"
 
@@ -62,7 +64,7 @@ public:
 private:
   void matchSimHitsToSimTrack();
 
-  edm::ESHandle<ME0Geometry> me0_geom_;
+  edm::ESGetToken<ME0Geometry, MuonGeometryRecord> geomToken_;
 
   // detids with hits in pads
   std::map<unsigned int, std::set<int> > detids_to_pads_;

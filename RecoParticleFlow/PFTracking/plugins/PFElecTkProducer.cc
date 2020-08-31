@@ -19,6 +19,7 @@
 #include <memory>
 
 #include "CommonTools/Utils/interface/KinematicTables.h"
+#include "CommonTools/Utils/interface/LazyConstructed.h"
 #include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
 #include "DataFormats/EgammaReco/interface/ElectronSeed.h"
 #include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
@@ -240,8 +241,8 @@ void PFElecTkProducer::produce(Event& iEvent, const EventSetup& iSetup) {
   iEvent.getByToken(pfTrackLabel_, thePfRecTrackCollection);
 
   // SoA structure for frequently used track information.
-  // Stored in a Lazy result so it is only filled when needed, i.e., when there is an electron in the event.
-  auto trackEtaPhiTable = edm::soa::makeEtaPhiTableLazy(*thePfRecTrackCollection);
+  // LazyConstructed so it is only filled when needed, i.e., when there is an electron in the event.
+  auto trackEtaPhiTable = makeLazy<edm::soa::EtaPhiTable>(*thePfRecTrackCollection);
 
   // PFClusters
   Handle<PFClusterCollection> theECPfClustCollection;
@@ -767,9 +768,8 @@ bool PFElecTkProducer::resolveGsfTracks(const vector<reco::GsfPFRecTrack>& GsfPF
             if (debugCleaning)
               cout << " Close Tracks "
                    << " feta " << feta << " fabs(fphi) " << fabs(fphi) << " minBremDphi " << minBremDphi << " nETot "
-                   << nETot << " iETot " << iETot << " nLostHits "
-                   << nGsfTrack->hitPattern().numberOfLostHits(HitPattern::MISSING_INNER_HITS) << " iLostHits "
-                   << iGsfTrack->hitPattern().numberOfLostHits(HitPattern::MISSING_INNER_HITS) << endl;
+                   << nETot << " iETot " << iETot << " nLostHits " << nGsfTrack->missingInnerHits() << " iLostHits "
+                   << iGsfTrack->missingInnerHits() << endl;
 
             // apply selection only if one track has lost hits
             if (applyAngularGsfClean_) {
@@ -787,9 +787,8 @@ bool PFElecTkProducer::resolveGsfTracks(const vector<reco::GsfPFRecTrack>& GsfPF
             if (debugCleaning)
               cout << " Close Tracks and failed all the conditions "
                    << " feta " << feta << " fabs(fphi) " << fabs(fphi) << " minBremDphi " << minBremDphi << " nETot "
-                   << nETot << " iETot " << iETot << " nLostHits "
-                   << nGsfTrack->hitPattern().numberOfLostHits(HitPattern::MISSING_INNER_HITS) << " iLostHits "
-                   << iGsfTrack->hitPattern().numberOfLostHits(HitPattern::MISSING_INNER_HITS) << endl;
+                   << nETot << " iETot " << iETot << " nLostHits " << nGsfTrack->missingInnerHits() << " iLostHits "
+                   << iGsfTrack->missingInnerHits() << endl;
 
             if (nEcalDriven == false && nETot == 0.) {
               n_keepGsf = false;
@@ -1092,8 +1091,8 @@ bool PFElecTkProducer::isInnerMostWithLostHits(const reco::GsfTrackRef& nGsfTrac
                                                const reco::GsfTrackRef& iGsfTrack,
                                                bool& sameLayer) {
   // define closest using the lost hits on the expectedhitsineer
-  unsigned int nLostHits = nGsfTrack->hitPattern().numberOfLostHits(HitPattern::MISSING_INNER_HITS);
-  unsigned int iLostHits = iGsfTrack->hitPattern().numberOfLostHits(HitPattern::MISSING_INNER_HITS);
+  unsigned int nLostHits = nGsfTrack->missingInnerHits();
+  unsigned int iLostHits = iGsfTrack->missingInnerHits();
 
   if (nLostHits != iLostHits) {
     return (nLostHits > iLostHits);

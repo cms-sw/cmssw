@@ -26,7 +26,7 @@ public:
     return;
   }
   void HepMC2G4(const HepMC::GenEvent *g, G4Event *e);
-  void nonBeamEvent2G4(const HepMC::GenEvent *g, G4Event *e);
+  void nonCentralEvent2G4(const HepMC::GenEvent *g, G4Event *e);
   virtual const HepMC::GenEvent *genEvent() const { return evt_; }
   virtual const math::XYZTLorentzVector *genVertex() const { return vtx_; }
   virtual const double eventWeight() const { return weight_; }

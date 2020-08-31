@@ -31,7 +31,7 @@ XERCES_CPP_NAMESPACE_USE
 #include "DataFormats/MuonDetId/interface/CSCDetId.h"
 #include "DataFormats/MuonDetId/interface/DTLayerId.h"
 #include "Alignment/CommonAlignment/interface/SurveyDet.h"
-#include "DataFormats/TrackingRecHit/interface/AlignmentPositionError.h"
+#include "DataFormats/GeometryCommonDetAlgo/interface/AlignmentPositionError.h"
 #include "Geometry/Records/interface/MuonGeometryRecord.h"
 
 //

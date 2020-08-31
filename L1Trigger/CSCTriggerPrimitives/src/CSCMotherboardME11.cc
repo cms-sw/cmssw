@@ -280,8 +280,9 @@ std::vector<CSCCorrelatedLCTDigi> CSCMotherboardME11::readoutLCTs(int me1ab) con
   }
 
   // do a final check on the LCTs in readout
+  qualityControl_->checkMultiplicityBX(tmpV);
   for (const auto& lct : tmpV) {
-    checkValid(lct);
+    qualityControl_->checkValid(lct);
   }
 
   return tmpV;

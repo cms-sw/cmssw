@@ -15,6 +15,7 @@ common_heavy_suppression = cms.PSet(
 
 common_maximum_time = cms.PSet(
     MaxTrackTime  = cms.double(500.0), # ns
+    MaxTrackTimeForward = cms.double(2000.0), # ns
     MaxTimeNames  = cms.vstring(),
     MaxTrackTimes = cms.vdouble(),     # ns
     MaxZCentralCMS = cms.double(50.0), # m
@@ -82,6 +83,7 @@ g4SimHits = cms.EDProducer("OscarMTProducer",
     Watchers = cms.VPSet(),
     HepMCProductLabel = cms.InputTag("generatorSmeared"),
     theLHCTlinkTag = cms.InputTag("LHCTransport"),
+    LHCTransport = cms.bool(False),
     CustomUIsession = cms.untracked.PSet(
         Type = cms.untracked.string("MessageLogger"), # alternatives: MessageLoggerThreadPrefix, FilePerThread
         ThreadPrefix = cms.untracked.string("W"),     # for MessageLoggerThreadPrefix
@@ -190,6 +192,7 @@ g4SimHits = cms.EDProducer("OscarMTProducer",
     Generator = cms.PSet(
         common_maximum_time,
         HectorEtaCut,
+#        HepMCProductLabel = cms.InputTag('LHCTransport'),
         HepMCProductLabel = cms.InputTag('generatorSmeared'),
         ApplyPCuts = cms.bool(True),
         ApplyPtransCut = cms.bool(False),

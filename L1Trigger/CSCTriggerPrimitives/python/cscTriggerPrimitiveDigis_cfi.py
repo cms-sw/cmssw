@@ -182,7 +182,7 @@ cscTriggerPrimitiveDigis = cms.EDProducer("CSCTriggerPrimitivesProducer",
 
         useComparatorCodes = cms.bool(False),
         nBitsPositionCC = cms.uint32(10),
-        nBitsSlopeCC = cms.uint32(5)
+        nBitsSlopeCC = cms.uint32(4)
     ),
 
     # Parameters for CLCT processors: SLHC studies
@@ -209,11 +209,6 @@ cscTriggerPrimitiveDigis = cms.EDProducer("CSCTriggerPrimitivesProducer",
         # Width (in #HS) of a fixed dead zone around a key HS:
         clctStateMachineZone = cms.uint32(4),
 
-        # Enables the algo which instead of using the fixed dead zone width,
-        # varies it depending on the width of a triggered CLCT pattern
-        # (if True, the clctStateMachineZone is ignored):
-        useDynamicStateMachineZone = cms.bool(False),
-
         # Pretrigger HS +- clctPretriggerTriggerZone sets the trigger matching zone
         # which defines how far from pretrigger HS the TMB may look for a trigger HS
         # (it becomes important to do so with localized dead-time zoning):
@@ -231,7 +226,7 @@ cscTriggerPrimitiveDigis = cms.EDProducer("CSCTriggerPrimitivesProducer",
         useComparatorCodes = cms.bool(False),
 
         nBitsPositionCC = cms.uint32(10),
-        nBitsSlopeCC = cms.uint32(5)
+        nBitsSlopeCC = cms.uint32(4)
     ),
 
     tmbParam = cms.PSet(
@@ -340,11 +335,13 @@ cscTriggerPrimitiveDigis = cms.EDProducer("CSCTriggerPrimitivesProducer",
 
     ),
 
-    # MPC sorter config for Run2 and beyond
-    mpcRun2 = cms.PSet(
-        sortStubs = cms.bool(False),
-        dropInvalidStubs = cms.bool(False),
-        dropLowQualityStubs = cms.bool(False),
+    # MPC sorter config
+    mpcParams = cms.PSet(
+        sortStubs = cms.bool(True),
+        dropInvalidStubs = cms.bool(True),
+        dropLowQualityStubs = cms.bool(True),
+        # How many maximum LCTs per MPC
+        maxStubs = cms.uint32(3),
     )
 )
 
@@ -492,12 +489,22 @@ meX1tmbSLHC = cms.PSet(
     useHighMultiplicityBits = cms.bool(False),
 )
 
+
+# MPC sorter config for Run2 and beyond
+mpcParamsRun2 = cms.PSet(
+    sortStubs = cms.bool(False),
+    dropInvalidStubs = cms.bool(False),
+    dropLowQualityStubs = cms.bool(False),
+    maxStubs = cms.uint32(18),
+)
+
 ## unganging in ME1/a
 from Configuration.Eras.Modifier_run2_common_cff import run2_common
 run2_common.toModify( cscTriggerPrimitiveDigis,
                       debugParameters = True,
                       checkBadChambers = False,
                       commonParam = dict(gangedME1a = False),
+                      mpcParams = mpcParamsRun2
                       )
 
 ## GEM-CSC ILT in ME1/1
@@ -523,7 +530,6 @@ phase2_muon.toModify( cscTriggerPrimitiveDigis,
                                          runME31Up = cms.bool(True),
                                          runME41Up = cms.bool(True)),
                       tmbSLHC = dict(ignoreAlctCrossClct = cms.bool(False)),
-                      clctSLHC = dict(useDynamicStateMachineZone = cms.bool(True)),
                       alctSLHCME21 = cscTriggerPrimitiveDigis.alctSLHC.clone(alctNplanesHitPattern = 3),
                       clctSLHCME21 = cscTriggerPrimitiveDigis.clctSLHC.clone(clctNplanesHitPattern = 3),
                       me21tmbSLHCGEM = me21tmbSLHCGEM,
