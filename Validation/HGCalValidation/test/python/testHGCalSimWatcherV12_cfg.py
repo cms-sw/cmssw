@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
-from Configuration.Eras.Era_Phase2C9_cff import Phase2C9
-process = cms.Process('testHGCalRecoLocal',Phase2C9)
+from Configuration.Eras.Era_Phase2C12_cff import Phase2C12
+process = cms.Process('testHGCalRecoLocal',Phase2C12)
 
 # import of standard configurations
 process.load('Configuration.StandardSequences.Services_cff')
@@ -9,8 +9,8 @@ process.load('SimGeneral.HepPDTESSource.pythiapdt_cfi')
 process.load('FWCore.MessageService.MessageLogger_cfi')
 process.load('Configuration.EventContent.EventContent_cff')
 process.load('SimGeneral.MixingModule.mixNoPU_cfi')
-process.load('Configuration.Geometry.GeometryExtended2026D49Reco_cff')
-process.load('Configuration.Geometry.GeometryExtended2026D49_cff')
+process.load('Configuration.Geometry.GeometryExtended2026D58Reco_cff')
+process.load('Configuration.Geometry.GeometryExtended2026D58_cff')
 process.load('Configuration.StandardSequences.MagneticField_cff')
 process.load('Configuration.StandardSequences.Generator_cff')
 process.load('IOMC.EventVertexGenerators.VtxSmearedRealistic50ns13TeVCollision_cfi')
@@ -61,7 +61,7 @@ process.output = cms.OutputModule("PoolOutputModule",
 #       'keep *_mix_*_*',
 	'keep *_*HGC*_*_*',
         ),
-    fileName = cms.untracked.string('file:testHGCalSimWatcherV11.root'),
+    fileName = cms.untracked.string('file:testHGCalSimWatcherV12.root'),
     dataset = cms.untracked.PSet(
         filterName = cms.untracked.string(''),
         dataTier = cms.untracked.string('GEN-SIM-DIGI-RAW-RECO')
