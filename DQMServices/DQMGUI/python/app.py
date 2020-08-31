@@ -184,7 +184,8 @@ async def layouts_v1(request):
     return web.json_response(result)
 
 
-async def render_legacy(request):
+@getNotOlderThanFromUrl
+async def render_legacy(request, notOlderThan):
     """Returns a PNG image for provided run:lumi/dataset/path combination"""
 
     run, lumi = parse_run_lumi(request.match_info['run'])
@@ -198,7 +199,7 @@ async def render_legacy(request):
 
     me_description = MEDescription(dataset, path, run, lumi)
 
-    data, error = await service.get_rendered_image([me_description], options)
+    data, error = await service.get_rendered_image([me_description], options, notOlderThan=notOlderThan)
 
     if data == b'crashed':
         return web.HTTPInternalServerError()
@@ -207,7 +208,8 @@ async def render_legacy(request):
     return web.Response(body=data, content_type='image/png', status = 200 if error == 0 else 500)
 
 
-async def render_v1(request):
+@getNotOlderThanFromUrl
+async def render_v1(request, notOlderThan):
     """Returns a PNG image for provided run:lumi/dataset/path combination"""
 
     run, lumi = parse_run_lumi(request.match_info['run'])
@@ -221,7 +223,7 @@ async def render_v1(request):
 
     me_description = MEDescription(dataset, path, run, lumi)
 
-    data, error = await service.get_rendered_image([me_description], options)
+    data, error = await service.get_rendered_image([me_description], options, notOlderThan=notOlderThan)
 
     if data == b'crashed':
         return web.HTTPInternalServerError()
@@ -230,7 +232,8 @@ async def render_v1(request):
     return web.Response(body=data, content_type='image/png', status = 200 if error == 0 else 500)
 
 
-async def render_overlay_legacy(request):
+@getNotOlderThanFromUrl
+async def render_overlay_legacy(request, notOlderThan):
     """Returns a PNG image for provided run:lumi/dataset/path combination"""
 
     options = RenderingOptions.from_dict_legacy(request.rel_url.query)
@@ -245,7 +248,7 @@ async def render_overlay_legacy(request):
         me_description = MEDescription(dataset, path, run, lumi)
         me_descriptions.append(me_description)
 
-    data, error = await service.get_rendered_image(me_descriptions, options)
+    data, error = await service.get_rendered_image(me_descriptions, options, notOlderThan=notOlderThan)
 
     if data == b'crashed':
         return web.HTTPInternalServerError()
@@ -254,7 +257,8 @@ async def render_overlay_legacy(request):
     return web.Response(body=data, content_type='image/png', status = 200 if error == 0 else 500)
 
 
-async def render_overlay_v1(request):
+@getNotOlderThanFromUrl
+async def render_overlay_v1(request, notOlderThan):
     """Returns a PNG image for provided run:lumi/dataset/path combination"""
 
     options = RenderingOptions.from_dict(request.rel_url.query)
@@ -269,7 +273,7 @@ async def render_overlay_v1(request):
         me_description = MEDescription(dataset, path, run, lumi)
         me_descriptions.append(me_description)
 
-    data, error = await service.get_rendered_image(me_descriptions, options)
+    data, error = await service.get_rendered_image(me_descriptions, options, notOlderThan=notOlderThan)
 
     if data == b'crashed':
         return web.HTTPInternalServerError()
@@ -278,7 +282,8 @@ async def render_overlay_v1(request):
     return web.Response(body=data, content_type='image/png', status= 200 if error == 0 else 500)
 
 
-async def jsroot_legacy(request):
+@getNotOlderThanFromUrl
+async def jsroot_legacy(request, notOlderThan):
     """Returns a JSON representation of a ROOT histogram for provided run:lumi/dataset/path combination"""
 
     run, lumi = parse_run_lumi(request.match_info['run'])
@@ -296,7 +301,7 @@ async def jsroot_legacy(request):
     me_description = MEDescription(dataset, path, run, lumi)
     options = RenderingOptions(json=True)
 
-    data, error = await service.get_rendered_json([me_description], options)
+    data, error = await service.get_rendered_json([me_description], options, notOlderThan=notOlderThan)
 
     if data == b'crashed':
         return web.HTTPInternalServerError()
@@ -305,7 +310,8 @@ async def jsroot_legacy(request):
     return web.json_response(data, status = 200 if error == 0 else 500)
 
 
-async def jsroot_overlay(request):
+@getNotOlderThanFromUrl
+async def jsroot_overlay(request, notOlderThan):
     """Returns a list of JSON representations of ROOT histograms for provided run:lumi/dataset/path combinations"""
 
     me_descriptions = []
@@ -320,7 +326,7 @@ async def jsroot_overlay(request):
 
     options = RenderingOptions(json=True)
 
-    data, error = await service.get_rendered_json(me_descriptions, options)
+    data, error = await service.get_rendered_json(me_descriptions, options, notOlderThan=notOlderThan)
 
     if data == b'crashed':
         return web.HTTPInternalServerError()

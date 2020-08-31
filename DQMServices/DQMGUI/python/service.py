@@ -128,14 +128,14 @@ class GUIService:
 
     @classmethod
     @logged
-    async def get_rendered_image(cls, me_descriptions, options):
+    async def get_rendered_image(cls, me_descriptions, options, notOlderThan=None):
         """options are defined here: data_types.RenderingOptions"""
 
         options.efficiency = False
         rendering_infos = []
 
         for me in me_descriptions:
-            filename, fileformat, names_list, infos_list = await cls.__get_filename_fileformat_names_infos(me.dataset, me.run, me.lumi)
+            filename, fileformat, names_list, infos_list = await cls.__get_filename_fileformat_names_infos(me.dataset, me.run, me.lumi, notOlderThan=notOlderThan)
 
             if not filename:
                 continue
@@ -158,7 +158,7 @@ class GUIService:
 
         if not rendering_infos: # No MEs were found
             if options.json:
-                return None
+                return (None, None)
             else:
                 return await cls.renderer.render_string('ME not found', width=options.width, height=options.height)
 
@@ -167,13 +167,13 @@ class GUIService:
 
     @classmethod
     @logged
-    async def get_rendered_json(cls, me_descriptions, options):
+    async def get_rendered_json(cls, me_descriptions, options, notOlderThan=None):
         """
         Uses out of process renderer to get JSON representation of a ROOT object.
         Adds additional property to the resulting JSON called dqmProperties
         """
 
-        data, error = await cls.get_rendered_image(me_descriptions, options)
+        data, error = await cls.get_rendered_image(me_descriptions, options, notOlderThan=notOlderThan)
         if data:
             data = data.decode('utf-8')
             obj = json.loads(data)

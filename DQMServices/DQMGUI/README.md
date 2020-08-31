@@ -237,11 +237,15 @@ Renders a PNG of a histogram.
 
 `http://localhost:8889/api/v1/render/316142:lumi/StreamExpress/Run2018A-Express-v1/DQMIO/PixelPhase1/EventInfo/reportSummaryMap?w=266&h=200&stats=false&norm=false&errors=true`
 
+Supports `notOlderThan` parameter to bypass the cache.
+
 #### Overlay rendering endpoint
 
 Overlays multiple (or one) histograms and renders an overlay to a PNG.
 
 `http://localhost:8889/api/v1/render_overlay?obj=archive/316142/StreamExpress/Run2018A-Express-v1/DQMIO/PixelPhase1/EventInfo/reportSummary&obj=archive/316144/StreamExpress/Run2018A-Express-v1/DQMIO/PixelPhase1/EventInfo/reportSummary&w=266&h=200&stats=false&norm=false&errors=true`
+
+Supports `notOlderThan` parameter to bypass the cache.
 
 #### New file registering endpoint
 
@@ -277,17 +281,25 @@ Supports `notOlderThan` parameter to bypass the cache.
 
 `/api/v1/render/run:lumi/dataset/me_path`
 
+Supports `notOlderThan` parameter to bypass the cache.
+
 #### Render overlay endpoint
 
 `/api/v1/render_overlay?obj=archive/run:lumi/dataset/me_path`
+
+Supports `notOlderThan` parameter to bypass the cache.
 
 #### JSRoot render endpoint
 
 `/api/v1/json/run:lumi/dataset/me_path`
 
+Supports `notOlderThan` parameter to bypass the cache.
+
 #### JSRoot overlay render endpoint
 
 `/api/v1/json_overlay?obj=archive/run:lumi/dataset/me_path`
+
+Supports `notOlderThan` parameter to bypass the cache.
 
 #### List of lumisection available in dataset/run combination
 
@@ -500,7 +512,7 @@ sudo journalctl -u dqmgui
 sudo journalctl -u dqmgui-cleanup
 ```
 
-### How is GUI restarted when CMSSEW is updated?
+### How is GUI restarted when CMSSW is updated?
 
 `dqmgui.service` uses `Requires` systemd option: `Requires=dqmgui-cleanup.service`. This means that whenever `dqmgui-cleanup.service` is exited, `dqmgui.service` is also exited and starting `dqmgui.service` also starts `dqmgui-cleanup.service`. Both services are configured to restart automatically. `dqmgui-cleanup.service` periodically checks if it's working directory is the same as `current_playback`/`currnet_production`. When it changes, `dqmgui-cleanup.service` just terminates causing `dqmgui.service` to terminate as well. And both services will be restarted by the systemd from an updated CMSSW release. The relationship is not bidirectional! Killing `dqmgui.service` doesn't kill `dqmgui-cleanup.service`!
 
