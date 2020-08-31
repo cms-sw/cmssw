@@ -73,6 +73,10 @@ ResourceEnforcer::ResourceEnforcer(edm::ParameterSet const& iConfig, ActivityReg
     //We do not want the frequency of checking to be dependent on
     // how many parallel streams are running
     m_nEventsToSkip = iBounds.maxNumberOfStreams() - 1;
+#ifdef __aarch64__
+    m_maxVSize = m_maxVSize * 1.5;
+    m_maxRSS = m_maxRSS * 1.5;
+#endif
   });
   m_timer.start();
 }
