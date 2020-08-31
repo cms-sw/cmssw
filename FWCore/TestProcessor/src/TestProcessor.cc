@@ -42,9 +42,9 @@
 
 #include "FWCore/Utilities/interface/ExceptionCollector.h"
 
-#include "DataFormats/Provenance/interface/ParentageRegistry.h"
+#include "FWCore/Concurrency/interface/ThreadsController.h"
 
-#include "tbb/task_scheduler_init.h"
+#include "DataFormats/Provenance/interface/ParentageRegistry.h"
 
 #define xstr(s) str(s)
 #define str(s) #s
@@ -64,7 +64,7 @@ namespace edm {
       bool oneTimeInitializationImpl() {
         edmplugin::PluginManager::configure(edmplugin::standard::config());
 
-        static std::unique_ptr<tbb::task_scheduler_init> tsiPtr = std::make_unique<tbb::task_scheduler_init>(1);
+        static std::unique_ptr<edm::ThreadsController> tsiPtr = std::make_unique<edm::ThreadsController>(1);
 
         // register the empty parentage vector , once and for all
         ParentageRegistry::instance()->insertMapped(Parentage());

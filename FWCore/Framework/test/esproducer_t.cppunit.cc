@@ -26,8 +26,7 @@
 #include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
 #include "FWCore/Utilities/interface/do_nothing_deleter.h"
 #include "FWCore/Utilities/interface/Exception.h"
-
-#include "tbb/task_scheduler_init.h"
+#include "FWCore/Concurrency/interface/ThreadsController.h"
 
 #include <memory>
 #include <optional>
@@ -67,7 +66,7 @@ class testEsproducer : public CppUnit::TestFixture {
   CPPUNIT_TEST_SUITE_END();
 
 public:
-  void setUp() { m_scheduler = std::make_unique<tbb::task_scheduler_init>(1); }
+  void setUp() { m_scheduler = std::make_unique<edm::ThreadsController>(1); }
   void tearDown() {}
 
   void registerTest();
@@ -83,7 +82,7 @@ public:
   void dataProxyProviderTest();
 
 private:
-  edm::propagate_const<std::unique_ptr<tbb::task_scheduler_init>> m_scheduler;
+  edm::propagate_const<std::unique_ptr<edm::ThreadsController>> m_scheduler;
 
   class Test1Producer : public ESProducer {
   public:
