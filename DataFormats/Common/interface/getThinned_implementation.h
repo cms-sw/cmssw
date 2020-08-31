@@ -380,10 +380,16 @@ namespace edm {
     //
     // The thinned ProductID must come from an existing RefCore. The
     // input key is the index of the desired element in the container
-    // identified by the parent ProductID. If the return value is not
-    // null, then the desired element was found in a thinned container.
-    // If the desired element is not found, then an optional without a
-    // value is returned.
+    // identified by the parent ProductID. Returns an std::variant
+    // whose contents can be
+    // - unsigned int for the index in the thinned collection if the
+    //   desired element was found in the thinned collection
+    // - function creating an edm::Exception if parent is not a parent
+    //   of any thinned collection, thinned is not really a thinned
+    //   collection, or parent and thinned have no thinning
+    //   relationship
+    // - std::monostate if thinned is thinned from parent, but the key
+    //   is not found in the thinned collection
     template <typename F>
     std::variant<unsigned int, GetThinnedKeyFromExceptionFactory, std::monostate> getThinnedKeyFrom_implementation(
         ProductID const& parentID,

@@ -78,9 +78,15 @@ namespace edm {
     // being called first, but the thinned ProductID must come from an
     // existing RefCore. The input key is the index of the desired
     // element in the container identified by the parent ProductID.
-    // If the return value is not null, then the desired element was found
-    // in a thinned container. If the desired element is not found, then
-    // an optional without a value is returned.
+    // Returns an std::variant whose contents can be
+    // - unsigned int for the index in the thinned collection if the
+    //   desired element was found in the thinned collection
+    // - function creating an edm::Exception if parent is not a parent
+    //   of any thinned collection, thinned is not really a thinned
+    //   collection, or parent and thinned have no thinning
+    //   relationship
+    // - std::monostate if thinned is thinned from parent, but the key
+    //   is not found in the thinned collection
     virtual OptionalThinnedKey getThinnedKeyFrom(ProductID const& parent,
                                                  unsigned int key,
                                                  ProductID const& thinned) const = 0;
