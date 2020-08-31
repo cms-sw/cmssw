@@ -755,7 +755,7 @@ int HcalTopology::incAIEta(const HcalDetId& id, HcalDetId neighbors[2]) const {
         HcalDetId(id.subdet(), (aieta + 1) * id.zside(), ((id.iphi() == 1) ? (71) : (id.iphi() - 2)), id.depth());
   else if (aieta == lastHBRing())
     neighbors[0] = HcalDetId(HcalEndcap, (aieta + 1) * id.zside(), id.iphi(), 1);
-  else if (aieta == lastHERing())
+  else if (aieta == lastHERing() && id.subdet()==HcalEndcap)
     neighbors[0] = HcalDetId(HcalForward, etaHE2HF_ * id.zside(), id.iphi(), 1);
   else
     neighbors[0] = HcalDetId(id.subdet(), (aieta + 1) * id.zside(), id.iphi(), id.depth());
@@ -792,7 +792,7 @@ int HcalTopology::decAIEta(const HcalDetId& id, HcalDetId neighbors[2]) const {
     neighbors[0] = HcalDetId(id.subdet(), -aieta * id.zside(), id.iphi(), id.depth());
   } else if (aieta == firstHERing()) {
     neighbors[0] = HcalDetId(HcalBarrel, (aieta - 1) * id.zside(), id.iphi(), 1);
-  } else if (aieta == firstHFRing()) {
+  } else if (aieta == firstHFRing() && id.subdet()==HcalForward) {
     neighbors[0] = HcalDetId(HcalEndcap, etaHF2HE_ * id.zside(), id.iphi(), 1);
   } else
     neighbors[0] = HcalDetId(id.subdet(), (aieta - 1) * id.zside(), id.iphi(), id.depth());
