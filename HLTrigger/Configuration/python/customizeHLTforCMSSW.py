@@ -191,6 +191,22 @@ def customiseFor30936(process):
 
     return process
 
+def customiseFor31295(process):
+    """Make PFCluster from each seed"""
+
+    # for PFBlockProducer
+    for producer in producers_by_type(process, "PFBlockProducer"):
+        if hasattr(producer,'linkDefinitions'):
+            for ps in producer.linkDefinitions.value():
+                if hasattr(ps,'linkerName') and (ps.linkerName == 'TrackAndHCALLinker'):
+                    if not hasattr(ps,'nMaxHcalLinksPerTrack'):
+                        ps.nMaxHcalLinksPerTrack = cms.int32(1)
+                if hasattr(ps,'linkerName') and (ps.linkerName == 'ECALAndHCALLinker'):
+                    if not hasattr(ps,'minAbsEtaEcal'):
+                        ps.minAbsEtaEcal = cms.double(2.5)
+
+    return process
+
 def customiseFor31115(process):
     """Make PFCluster from each seed"""
 
@@ -199,19 +215,19 @@ def customiseFor31115(process):
             thresholdsByDetector = cms.VPSet()
         )
     _pfClusterBuilder = cms.PSet()  # make it empty. it should be pass-through.
-    
+
     # for hltParticleFlowClusterHF
     if hasattr(process,'hltParticleFlowClusterHF'):
         process.hltParticleFlowClusterHF.initialClusteringStep = _initialClusteringStep
         process.hltParticleFlowClusterHF.pfClusterBuilder = _pfClusterBuilder
-        
+
     # for hltParticleFlowClusterHFForEgammaUnseeded
     if hasattr(process,'hltParticleFlowClusterHFForEgammaUnseeded'):
         process.hltParticleFlowClusterHFForEgammaUnseeded.initialClusteringStep = _initialClusteringStep
         process.hltParticleFlowClusterHFForEgammaUnseeded.pfClusterBuilder = _pfClusterBuilder
 
     return process
-            
+
 def customiseFor31070(process):
     """Adapt the HLT to run with new geometry for CSC and RPC"""
 
@@ -246,5 +262,6 @@ def customizeHLTforCMSSW(process, menuType="GRun"):
     process = customiseFor30936(process)
     process = customiseFor31070(process)
     process = customiseFor31115(process)
+    process = customiseFor31295(process)
 
     return process
