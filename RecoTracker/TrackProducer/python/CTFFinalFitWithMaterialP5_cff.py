@@ -6,7 +6,6 @@ from TrackingTools.MaterialEffects.Propagators_cff import *
 from TrackingTools.TrackFitters.TrackFitters_cff import *
 from RecoLocalTracker.SiStripRecHitConverter.StripCPEfromTrackAngle_cfi import *
 from RecoLocalTracker.SiStripRecHitConverter.SiStripRecHitMatcher_cfi import *
-from RecoLocalTracker.SiPixelRecHits.PixelCPEParmError_cfi import *
 from RecoTracker.TransientTrackingRecHit.TransientTrackingRecHitBuilder_cfi import *
 
 

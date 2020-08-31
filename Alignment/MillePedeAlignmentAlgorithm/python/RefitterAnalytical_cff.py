@@ -16,7 +16,6 @@ from TrackingTools.KalmanUpdators.Chi2MeasurementEstimator_cfi import *
 #    replace Chi2MeasurementEstimator.MaxChi2 = 50. # untested, default 30
 from RecoLocalTracker.SiStripRecHitConverter.StripCPEfromTrackAngle_cfi import *
 from RecoLocalTracker.SiStripRecHitConverter.SiStripRecHitMatcher_cfi import *
-from RecoLocalTracker.SiPixelRecHits.PixelCPEParmError_cfi import *
 from RecoTracker.TransientTrackingRecHit.TransientTrackingRecHitBuilder_cfi import *
 # Take care to avoid interferences with other things 
 # using KFTrajectoryFitter and KFTrajectorySmoother...
