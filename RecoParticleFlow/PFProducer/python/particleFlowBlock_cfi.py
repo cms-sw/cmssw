@@ -198,14 +198,18 @@ _addTrackHFLinks.append(
             linkType   = cms.string("TRACK:HFEM"),
             useKDTree  = cms.bool(True),
             trajectoryLayerEntrance = cms.string("VFcalEntrance"),
-            trajectoryLayerExit = cms.string(""))
-  )
+            trajectoryLayerExit = cms.string(""),
+            nMaxHcalLinksPerTrack = cms.int32(-1) # Keep all track-HFEM links
+          )
+)
 _addTrackHFLinks.append(
   cms.PSet( linkerName = cms.string("TrackAndHCALLinker"),
             linkType   = cms.string("TRACK:HFHAD"),
             useKDTree  = cms.bool(True),
             trajectoryLayerEntrance = cms.string("VFcalEntrance"),
-            trajectoryLayerExit = cms.string(""))
+            trajectoryLayerExit = cms.string(""),
+            nMaxHcalLinksPerTrack = cms.int32(1)
+          )
 )
 phase2_tracker.toModify(
     particleFlowBlock,
