@@ -48,7 +48,7 @@ namespace edm {
     // This is a helper function to recursively search for a thinned
     // product containing the parent key on the same "slimming depth". That
     // means that when the recursion encounters a slimmed collection,
-    // the tree travelsal does not proceed onto the children of the
+    // the tree traversal does not proceed onto the children of the
     // slimmed collection. Instead, the slimmed ThinnedAssociation is
     // recorded for the case that the entire tree on a given "slimming
     // depth" does not have any thinned-only collections.
@@ -78,7 +78,7 @@ namespace edm {
       if (associatedBranches == iEnd) {
         return ThinnedOrSlimmedProduct();
       }
-      bool const slimmedAllowed = associatedBranches + 1 == iEnd;
+      bool const slimmedAllowed = (associatedBranches + 1 == iEnd);
       if (slimmedAllowed and associatedBranches->isSlimmed()) {
         // Slimmed container can be considered only if it has no (thinned) siblings
         ThinnedAssociation const* slimmedAssociation = getThinnedAssociation(associatedBranches->association());

@@ -93,7 +93,7 @@ namespace {
                                 std::vector<SlimmedCount> const& counts,
                                 int& slimmedCount) {
     int slimmingChildren = countSlimmingChildren(helper, branches.thinned(), counts);
-    if (slimmingChildren >= 2) {
+    if (slimmingChildren > 1) {
       throw edm::Exception(edm::errors::LogicError)
           << "Encountered a parent collection with BranchID " << branches.thinned().id()
           << " that has more than one thinned children that are either themselves slimmed, or have further thinned "
@@ -106,7 +106,7 @@ namespace {
     }
 
     slimmedCount += slimmingChildren;
-    if (slimmedCount >= 2) {
+    if (slimmedCount > 1) {
       throw edm::Exception(edm::errors::LogicError)
           << "Encountered a parent collection with BranchID " << branches.parent().id()
           << " that has more than one thinned children that are either themselves slimmed, or have further thinned "
