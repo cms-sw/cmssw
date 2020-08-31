@@ -1,8 +1,8 @@
 import os
+import sys
 import time
 import logging
 import contextvars
-from aiohttp import web
 from collections import namedtuple
 from inspect import getframeinfo, stack
 from concurrent.futures import ProcessPoolExecutor
@@ -204,6 +204,7 @@ def getNotOlderThanFromUrl(function):
     def wrap_function(*args, **kwargs):
         notOlderThan = args[0].rel_url.query.get('notOlderThan', None)
         if notOlderThan and not notOlderThan.isnumeric():
+            from aiohttp import web
             return web.json_response(get_api_error('notOlderThan is a numeric timestamp in seconds, in UTC time zone.'))
 
         notOlderThan = int(notOlderThan) if notOlderThan else None
