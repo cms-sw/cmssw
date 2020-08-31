@@ -14,7 +14,7 @@
 //
 // Original Author:  Ianna Osborne
 //         Created:  Wed, 16 Jan 2019 10:19:37 GMT
-//         Modified by Sergio Lo Meo (sergio.lo.meo@cern.ch) Tue, 04 August 2020
+//         Modified by Sergio Lo Meo (sergio.lo.meo@cern.ch) Mon, 31 August 2020
 //
 //
 #include "CondFormats/GeometryObjects/interface/RecoIdealGeometry.h"
@@ -55,29 +55,26 @@ void DTGeometryBuilder::buildGeometry(DDFilteredView& fview, DTGeometry& geom, c
   while (doChamber) {
     DTChamber* chamber = buildChamber(fview, num);
 
-    // Loop on SLs
     bool doSL = fview.nextSibling();
     while (doSL) {
       DTSuperLayer* sl = buildSuperLayer(fview, chamber, num);
 
-      // Loop on Layers
       fview.down();
       bool doLayers = fview.sibling();
       while (doLayers) {
         DTLayer* l = buildLayer(fview, sl, num);
         geom.add(l);
 
-        doLayers = fview.sibling();  // go to next Layer
+        doLayers = fview.sibling();
       }
-      // Done with layers
 
       geom.add(sl);
-      doSL = fview.nextSibling();  // go to next SL
+      doSL = fview.nextSibling();
     }
     geom.add(chamber);
 
-    fview.parent();                  // stop iterating current branch
-    doChamber = fview.firstChild();  // go to next chamber
+    fview.parent();
+    doChamber = fview.firstChild();
   }
 }
 
@@ -121,7 +118,6 @@ DTSuperLayer* DTGeometryBuilder::buildSuperLayer(DDFilteredView& fview,
 
   DTSuperLayer* slayer = new DTSuperLayer(slId, surf, chamber);
 
-  // add to the chamber
   chamber->add(slayer);
 
   return slayer;
@@ -140,7 +136,6 @@ DTLayer* DTGeometryBuilder::buildLayer(DDFilteredView& fview,
 
   RCPPlane surf(plane(fview, new RectangularPlaneBounds(par[0], par[1], par[2])));
 
-  // Loop on wires
   fview.down();
   bool doWire = fview.sibling();
   int firstWire = fview.volume()->GetNumber();

@@ -86,10 +86,8 @@ DTGeometryValidate::DTGeometryValidate(const edm::ParameterSet& iConfig)
           iConfig.getUntrackedParameter<string>("infileName", "Geometry/DTGeometryBuilder/data/cmsRecoGeom-2021.root")),
       outfileName_(iConfig.getUntrackedParameter<string>("outfileName", "validateDTGeometry.root")),
       tolerance_(iConfig.getUntrackedParameter<int>("tolerance", 6)) {
-  //edm::FileInPath fp("Geometry/DTGeometryBuilder/data/cmsRecoGeom-2021.root");
   edm::FileInPath fp(infileName_.c_str());
   fwGeometry_.loadMap(fp.fullPath().c_str());
-  //fwGeometry_.loadMap(infileName_.c_str());
   outFile_ = TFile::Open(outfileName_.c_str(), "RECREATE");
 }
 
@@ -99,7 +97,6 @@ void DTGeometryValidate::analyze(const edm::Event& event, const edm::EventSetup&
   if (dtGeometry_.isValid()) {
     LogVerbatim("DTGeometry") << "Validating DT chamber geometry";
     validateDTChamberGeometry();
-
     LogVerbatim("DTGeometry") << "Validating DT layer geometry";
     validateDTLayerGeometry();
   } else
