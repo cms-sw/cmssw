@@ -664,8 +664,8 @@ run2_miniAOD_80XLegacy.toModify( genJetFlavourTable, jetFlavourInfos = cms.Input
 from RecoJets.JetProducers.QGTagger_cfi import  QGTagger
 qgtagger=QGTagger.clone(srcJets="updatedJets",srcVertexCollection="offlineSlimmedPrimaryVertices")
 
-from RecoJets.JetProducers.HFJetShowerShape_cfi import  HFJetShowerShape
-hfjetshowershape=HFJetShowerShape.clone(theJets="updatedJets",theVertices="offlineSlimmedPrimaryVertices")
+from RecoJets.JetProducers.hfJetShowerShape_cfi import  hfJetShowerShape
+hfjetshowershape=hfJetShowerShape.clone(theJets="updatedJets",theVertices="offlineSlimmedPrimaryVertices")
 
 from RecoJets.JetProducers.PileupJetID_cfi import pileupJetId, _chsalgos_94x, _chsalgos_102x
 pileupJetId94X=pileupJetId.clone(jets="updatedJets",algos = cms.VPSet(_chsalgos_94x),inputIsCorrected=True,applyJec=False,vertexes="offlineSlimmedPrimaryVertices")
