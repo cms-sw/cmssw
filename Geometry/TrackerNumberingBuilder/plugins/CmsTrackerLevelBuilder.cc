@@ -151,20 +151,16 @@ void CmsTrackerLevelBuilder<FilteredView>::build(FilteredView& fv,
     buildComponent(fv, tracker, attribute);
     doLayers = fv.nextSibling();  // go to next layer
     if constexpr (std::is_same_v<FilteredView, DDFilteredView>) {
-
-      edm::LogVerbatim("TrackerGeometryBuilder")
-        << "CmsTrackerLevelbuilder<DDFilteredView>::build" << fv.geoHistory();
+      edm::LogVerbatim("TrackerGeometryBuilder") << "CmsTrackerLevelbuilder<DDFilteredView>::build" << fv.geoHistory();
 
     } else if constexpr (std::is_same_v<FilteredView, cms::DDFilteredView>) {
-
-        edm::LogVerbatim("TrackerGeometryBuilder")
-          << "CmsTrackerLevelbuilder<cms::DDFilteredView>::build";
-        std::vector<const cms::Node*> hst = fv.geoHistory();
-        std::string path;
-        for(auto nd = hst.rbegin(); nd!= hst.rend(); ++nd){
-          path += "/" + std::string((*nd)->GetName());
-        }
-        edm::LogVerbatim("TrackerGeometryBuilder") << path;
+      edm::LogVerbatim("TrackerGeometryBuilder") << "CmsTrackerLevelbuilder<cms::DDFilteredView>::build";
+      std::vector<const cms::Node*> hst = fv.geoHistory();
+      std::string path;
+      for (auto nd = hst.rbegin(); nd != hst.rend(); ++nd) {
+        path += "/" + std::string((*nd)->GetName());
+      }
+      edm::LogVerbatim("TrackerGeometryBuilder") << path;
     }
   }
 
