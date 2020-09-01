@@ -60,7 +60,7 @@ public:
 
   // Parameters of the segment, for the track fit
   // For a 4D segment: (dx/dz,dy/dz,x,y)
-  bool hasPositionAndError() const {
+  bool hasPositionAndError() const override {
     //bool hasPositionAndError() const {
     return true;
     //      return (err_.xx() != 0) || (err_.yy() != 0) || (err_.xy() != 0) ||
@@ -72,10 +72,10 @@ public:
   void getKfComponents4D(KfComponentsHolder& holder) const;
 
   // returning methods
-  LocalPoint localPosition() const { return thePosition; }
+  LocalPoint localPosition() const override { return thePosition; }
   virtual LocalVector localDirection() const { return theDirection; }
   AlgebraicSymMatrix parametersError() const override;
-  LocalError localPositionError() const;
+  LocalError localPositionError() const override;
   virtual LocalError localDirectionError() const;
   Global3DVector globalDirection() const;
 
@@ -102,7 +102,7 @@ public:
   bool isPhase2() const override { return true; }
 
   //FIXME: I have always two clusters in a VH
-  OmniClusterRef const& firstClusterRef() const { return theLowerCluster; }
+  OmniClusterRef const& firstClusterRef() const override { return theLowerCluster; }
   ClusterRef cluster() const { return theLowerCluster.cluster_phase2OT(); }
 
   //This method returns the delta in global coordinates

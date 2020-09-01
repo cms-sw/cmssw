@@ -63,7 +63,7 @@ void VectorHitBuilderAlgorithm::run(edm::Handle<edmNew::DetSetVector<Phase2Track
       const auto vhsInStack_AccRej = buildVectorHits(stackDet, clusters, *it_detLower, *it_detUpper);
 
       //storing accepted and rejected VHs
-      for (auto vh : vhsInStack_AccRej) {
+      for (const auto& vh : vhsInStack_AccRej) {
         if (vh.second == true) {
           vhsInStack_Acc.push_back(vh.first);
         } else if (vh.second == false) {
@@ -80,12 +80,12 @@ void VectorHitBuilderAlgorithm::run(edm::Handle<edmNew::DetSetVector<Phase2Track
 
       LogTrace("VectorHitBuilderAlgorithm")
           << "For detId #" << detIdStack.rawId() << " the following VHits have been accepted:";
-      for (auto vhIt : vhsInStack_Acc) {
+      for (const auto& vhIt : vhsInStack_Acc) {
         LogTrace("VectorHitBuilderAlgorithm") << "accepted VH: " << vhIt;
       }
       LogTrace("VectorHitBuilderAlgorithm")
           << "For detId #" << detIdStack.rawId() << " the following VHits have been rejected:";
-      for (auto vhIt : vhsInStack_Rej) {
+      for (const auto& vhIt : vhsInStack_Rej) {
         LogTrace("VectorHitBuilderAlgorithm") << "rejected VH: " << vhIt;
       }
     }
@@ -121,7 +121,7 @@ bool VectorHitBuilderAlgorithm::checkClustersCompatibilityBeforeBuilding(
 bool VectorHitBuilderAlgorithm::checkClustersCompatibility(Local3DPoint& poslower,
                                                            Local3DPoint& posupper,
                                                            LocalError& errlower,
-                                                           LocalError& errupper) const{
+                                                           LocalError& errupper) const {
   return true;
 }
 
@@ -154,12 +154,12 @@ std::vector<std::pair<VectorHit, bool>> VectorHitBuilderAlgorithm::buildVectorHi
   std::sort(lowerClusters.begin(), lowerClusters.end(), LocalPositionSort(&*theTkGeom, &*cpe, &*stack->lowerDet()));
   std::sort(upperClusters.begin(), upperClusters.end(), LocalPositionSort(&*theTkGeom, &*cpe, &*stack->upperDet()));
 
-  for (auto cluL : lowerClusters) {
+  for (const auto& cluL : lowerClusters) {
     LogDebug("VectorHitBuilderAlgorithm") << " lower clusters " << std::endl;
     printCluster(stack->lowerDet(), &*cluL);
     const PixelGeomDetUnit* gduLow = dynamic_cast<const PixelGeomDetUnit*>(stack->lowerDet());
     auto&& lparamsLow = cpe->localParameters(*cluL, *gduLow);
-    for (auto cluU : upperClusters) {
+    for (const auto& cluU : upperClusters) {
       LogDebug("VectorHitBuilderAlgorithm") << "\t upper clusters " << std::endl;
       printCluster(stack->upperDet(), &*cluU);
       const PixelGeomDetUnit* gduUpp = dynamic_cast<const PixelGeomDetUnit*>(stack->upperDet());
@@ -247,7 +247,7 @@ std::vector<std::pair<VectorHit, bool>> VectorHitBuilderAlgorithm::buildVectorHi
   return result;
 }
 
-  VectorHit VectorHitBuilderAlgorithm::buildVectorHit(const StackGeomDet* stack,
+VectorHit VectorHitBuilderAlgorithm::buildVectorHit(const StackGeomDet* stack,
                                                     Phase2TrackerCluster1DRef lower,
                                                     Phase2TrackerCluster1DRef upper) const {
   LogTrace("VectorHitBuilderAlgorithm") << "Build VH with: ";
@@ -330,7 +330,7 @@ void VectorHitBuilderAlgorithm::fit2Dzx(const Local3DPoint lpCI,
                                         Local3DPoint& pos,
                                         Local3DVector& dir,
                                         AlgebraicSymMatrix22& covMatrix,
-                                        double& chi2) const{
+                                        double& chi2) const {
   std::vector<float> x = {lpCI.z(), lpCO.z()};
   std::vector<float> y = {lpCI.x(), lpCO.x()};
   float sqCI = sqrt(leCI.xx());
@@ -349,7 +349,7 @@ void VectorHitBuilderAlgorithm::fit2Dzy(const Local3DPoint lpCI,
                                         Local3DPoint& pos,
                                         Local3DVector& dir,
                                         AlgebraicSymMatrix22& covMatrix,
-                                        double& chi2) const{
+                                        double& chi2) const {
   std::vector<float> x = {lpCI.z(), lpCO.z()};
   std::vector<float> y = {lpCI.y(), lpCO.y()};
   float sqCI = sqrt(leCI.yy());
@@ -367,7 +367,7 @@ void VectorHitBuilderAlgorithm::fit(const std::vector<float>& x,
                                     Local3DPoint& pos,
                                     Local3DVector& dir,
                                     AlgebraicSymMatrix22& covMatrix,
-                                    double& chi2) const{
+                                    double& chi2) const {
   if (x.size() != y.size() || x.size() != sigy.size()) {
     edm::LogError("VectorHitBuilderAlgorithm") << "Different size for x,z !! No fit possible.";
     return;

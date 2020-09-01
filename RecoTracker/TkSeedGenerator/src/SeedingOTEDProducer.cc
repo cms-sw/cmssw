@@ -138,7 +138,7 @@ TrajectorySeedCollection SeedingOTEDProducer::run(edm::Handle<VectorHitCollectio
       //not sure if building it everytime takes time/memory
       const DetLayer* barrelOTLayer1 = measurementTracker->geometricSearchTracker()->tobLayers().at(0);
 
-      for (auto mL2 : measurementsL2) {
+      for (const auto& mL2 : measurementsL2) {
         const TrackingRecHit* hitL2 = mL2.recHit().get();
 
         //propagate to the L2 and update the TSOS
@@ -155,7 +155,7 @@ TrajectorySeedCollection SeedingOTEDProducer::run(edm::Handle<VectorHitCollectio
         measurementsL1.erase(measurementsL1end, measurementsL1.end());
 
         if (!measurementsL1.empty()) {
-          for (auto mL1 : measurementsL1) {
+          for (const auto& mL1 : measurementsL1) {
             const TrackingRecHit* hitL1 = mL1.recHit().get();
 
             //propagate to the L1 and update the TSOS
@@ -179,8 +179,8 @@ TrajectorySeedCollection SeedingOTEDProducer::run(edm::Handle<VectorHitCollectio
             updatedTSOSL1.second.rescaleError(100);
 
             TrajectoryStateOnSurface updatedTSOSL1_final = theUpdator->update(updatedTSOSL1.second, *hitL1);
-            if
-              UNLIKELY(!updatedTSOSL1_final.isValid()) continue;
+            if UNLIKELY (!updatedTSOSL1_final.isValid())
+              continue;
             std::pair<bool, TrajectoryStateOnSurface> updatedTSOSL2_final =
                 propagateAndUpdate(updatedTSOSL1_final, *buildingPropagator, *hitL2);
             std::pair<bool, TrajectoryStateOnSurface> updatedTSOSL3_final =
@@ -213,7 +213,7 @@ std::vector<VectorHit> SeedingOTEDProducer::collectVHsOnLayer(edm::Handle<Vector
   if (!input.empty()) {
     for (auto DSViter : input) {
       if (checkLayer(DSViter.id()) == layerNumber) {
-        for (auto vh : DSViter) {
+        for (const auto& vh : DSViter) {
           VHsOnLayer.push_back(vh);
         }
       }
@@ -227,7 +227,7 @@ void SeedingOTEDProducer::printVHsOnLayer(edm::Handle<VectorHitCollectionNew> VH
   const VectorHitCollectionNew& input = *VHs;
   if (!input.empty()) {
     for (auto DSViter : input) {
-      for (auto vh : DSViter) {
+      for (const auto& vh : DSViter) {
         if (checkLayer(DSViter.id()) == layerNumber)
           std::cout << " VH in layer " << layerNumber << " >> " << vh << std::endl;
       }
@@ -285,8 +285,8 @@ std::pair<bool, TrajectoryStateOnSurface> SeedingOTEDProducer::propagateAndUpdat
     const TrajectoryStateOnSurface initialTSOS, const Propagator& prop, const TrackingRecHit& hit) {
   TrajectoryStateOnSurface propTSOS = prop.propagate(initialTSOS, hit.det()->surface());
   TrajectoryStateOnSurface updatedTSOS = theUpdator->update(propTSOS, hit);
-  if
-    UNLIKELY(!updatedTSOS.isValid()) return std::make_pair(false, updatedTSOS);
+  if UNLIKELY (!updatedTSOS.isValid())
+    return std::make_pair(false, updatedTSOS);
   return std::make_pair(true, updatedTSOS);
 }
 
