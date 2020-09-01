@@ -13,20 +13,6 @@ def setupHeavyIonJets(process, tag, radius, task):
         process,
         task)
 
-    genjetcollection = 'ak' + str(radius) + 'HiGenJets'
-
-    addToProcessAndTask(
-        genjetcollection,
-        ak5HiGenJets.clone(rParam = radius / 10),
-        process,
-        task)
-
-    addToProcessAndTask(
-        'ak' + str(radius) + 'HiCleanedGenJets',
-        heavyIonCleanedGenJets.clone(src = genjetcollection),
-        process,
-        task)
-
     from PhysicsTools.PatAlgos.tools.jetTools import addJetCollection
 
     addJetCollection(
@@ -45,20 +31,30 @@ def setupHeavyIonJets(process, tag, radius, task):
         jetCorrections = ('AK4PF', ['L2Relative'], 'None'),
         getJetMCFlavour = False, # jet flavor disabled
     )
-
-    process.patJetsAKCs4PF.addAssociatedTracks = True
-    process.patJetsAKCs4PF.addBTagInfo = True
     process.patJetsAKCs4PF.useLegacyJetMCFlavour = True
     process.patJetCorrFactorsAKCs4PF.useNPV = False
     process.patJetCorrFactorsAKCs4PF.useRho = False
+
+def setupHeavyIonGenJets(process, tag, radius, task):
+    genjetcollection = 'ak' + str(radius) + 'HiGenJets'
+
+    addToProcessAndTask(
+        genjetcollection,
+        ak5HiGenJets.clone(rParam = radius / 10),
+        process,
+        task)
+
+    addToProcessAndTask(
+        'ak' + str(radius) + 'HiCleanedGenJets',
+        heavyIonCleanedGenJets.clone(src = genjetcollection),
+        process,
+        task)
+
     process.patJetPartonMatchAKCs4PF.matched = "cleanedPartons"
 
 
-def aliasCsJets(process, tag):
-    delattr(process, 'patJets')
-
-    source = cms.VPSet(cms.PSet(type = cms.string('patJets')))
-    process.patJets = cms.EDAlias(**{ 'patJets' + tag: source })
+def useCsJetsForPat(process):
+    process.patJets = process.patJetsAKCs4PF.clone()
 
 def removeL1FastJetJECs(process):
     for label in process.producerNames().split():

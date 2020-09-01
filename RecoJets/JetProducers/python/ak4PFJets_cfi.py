@@ -37,6 +37,6 @@ ak4PFJetsCS = ak4PFJets.clone(
 )
 from Configuration.Eras.Modifier_pp_on_AA_2018_cff import pp_on_AA_2018
 from Configuration.Eras.Modifier_pp_on_PbPb_run3_cff import pp_on_PbPb_run3
-(pp_on_AA_2018 | pp_on_PbPb_run3).toModify(ak4PFJets, src = "pfEmptyCollection", inputEtMin = 9999)
-(pp_on_AA_2018 | pp_on_PbPb_run3).toModify(ak4PFJetsCHS, src = "pfEmptyCollection", inputEtMin = 9999)
-(pp_on_AA_2018 | pp_on_PbPb_run3).toModify(ak4PFJetsPuppi, src = "pfEmptyCollection", jetPtMin = 9999.) 
+(pp_on_AA_2018 | pp_on_PbPb_run3).toModify(ak4PFJets, src = "pfEmptyCollection")
+(pp_on_AA_2018 | pp_on_PbPb_run3).toModify(ak4PFJetsCHS, src = "pfEmptyCollection")
+(pp_on_AA_2018 | pp_on_PbPb_run3).toModify(ak4PFJetsPuppi, src = "pfEmptyCollection") 
