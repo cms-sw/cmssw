@@ -345,7 +345,7 @@ def miniAOD_customizeCommon(process):
     addBoostedTaus(process)
     process.load("RecoTauTag.Configuration.RecoPFTauTag_cff")
     process.load("RecoTauTag.Configuration.HPSPFTaus_cff")
-    #-- Adding customization for 94X 2017 legacy reMniAOD
+    #-- Adding customization for 94X 2017 legacy reMiniAOD
     from Configuration.Eras.Modifier_run2_miniAOD_94XFall17_cff import run2_miniAOD_94XFall17
     _makePatTausTaskWithRetrainedMVATauID = process.makePatTausTask.copy()
     _makePatTausTaskWithRetrainedMVATauID.add(process.hpsPFTauDiscriminationByIsolationMVArun2v1DBoldDMwLTTask,
@@ -355,6 +355,16 @@ def miniAOD_customizeCommon(process):
     run2_miniAOD_94XFall17.toReplaceWith(
         process.makePatTausTask, _makePatTausTaskWithRetrainedMVATauID
         )
+    #-- Adding customization for UL reMiniAOD:
+    # running retrained anti-e MVA6 discriminants as setup in the HPS PFTau
+    # master configuration for this era.
+    _makePatTausTaskWithMVA6ElectronRejection = process.makePatTausTask.copy()
+    _makePatTausTaskWithMVA6ElectronRejection.add(
+        process.hpsPFTauDiscriminationByMVA6ElectronRejectionTask
+    )
+    run2_miniAOD_UL.toReplaceWith(
+        process.makePatTausTask, _makePatTausTaskWithMVA6ElectronRejection
+    )
     #-- Adding DeepTauID
     # deepTau v2
     _updatedTauName = 'slimmedTausDeepIDsv2'
