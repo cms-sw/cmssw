@@ -18,25 +18,11 @@ phase2_tracker.toModify(slimmedMuonTrackExtras, outputClusters = False)
 
 # full set of track extras not available in existing AOD
 from Configuration.Eras.Modifier_run2_miniAOD_80XLegacy_cff import run2_miniAOD_80XLegacy
-run2_miniAOD_80XLegacy.toModify(slimmedMuonTrackExtras,
-                                trackExtraTags = ["standAloneMuons"],
-                                trackExtraAssocs = [],
-                                outputClusters = False)
-
 from Configuration.Eras.Modifier_run2_miniAOD_94XFall17_cff import run2_miniAOD_94XFall17
-run2_miniAOD_94XFall17.toModify(slimmedMuonTrackExtras,
-                                trackExtraTags = ["standAloneMuons"],
-                                trackExtraAssocs = [],
-                                outputClusters = False)
-
 from Configuration.Eras.Modifier_pp_on_AA_2018_cff import pp_on_AA_2018
-pp_on_AA_2018.toModify(slimmedMuonTrackExtras,
-                                trackExtraTags = ["standAloneMuons"],
-                                trackExtraAssocs = [],
-                                outputClusters = False)
+from Configuration.ProcessModifiers.miniAOD_skip_trackExtras_cff import miniAOD_skip_trackExtras
 
-from Configuration.ProcessModifiers.run2_miniAOD_UL_cff import run2_miniAOD_UL
-run2_miniAOD_UL.toModify(slimmedMuonTrackExtras,
+(run2_miniAOD_80XLegacy | run2_miniAOD_94XFall17 | pp_on_AA_2018 | miniAOD_skip_trackExtras).toModify(slimmedMuonTrackExtras,
                                 trackExtraTags = ["standAloneMuons"],
                                 trackExtraAssocs = [],
                                 outputClusters = False)
