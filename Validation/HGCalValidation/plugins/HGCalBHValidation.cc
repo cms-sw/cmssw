@@ -144,8 +144,8 @@ void HGCalBHValidation::analyze(const edm::Event& e, const edm::EventSetup&) {
       double energy = it->energy();
       double time = it->time();
       unsigned int id = it->id();
-      int subdet, z, depth, eta, phi, lay;
-      bool hbhe, bh;
+      int subdet(0), z(0), depth(0), eta(0), phi(0), lay(0);
+      bool hbhe(false), bh(false);
       if (geomType_ == 0) {
         HcalTestNumbering::unpackHcalIndex(id, subdet, z, depth, eta, phi, lay);
         if (z == 0)
