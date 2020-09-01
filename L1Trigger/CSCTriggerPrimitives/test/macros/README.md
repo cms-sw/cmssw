@@ -1,11 +1,14 @@
 The macro CCLUTLinearFitWriter.cpp produces look-up tables for the Run-3 CSC trigger.
 
-* 10 LUTs will be created for CMSSW (5 for position offset, 5 for slope). 5 LUTs will be created for the Verilog firmware. These  files are similar to the ones found here: https://github.com/cms-data/L1Trigger-CSCTriggerPrimitives. 5 additional LUTs will be created that convert the Run-3 comparator code & pattern ID to a Run-1/2 pattern ID.
+* 10 LUTs will be created for CMSSW (5 for position offset, 5 for slope). 5 LUTs will be created for the Verilog firmware. These  files are similar to the ones found here: https://github.com/cms-data/L1Trigger-CSCTriggerPrimitives. 5 additional LUTs will be created that convert the Run-3 comparator code & pattern ID to a Run-1/2 pattern ID. The LUTs used in the simulation require at least 3 layers. For reference the macro also produces fits with at least four layers.
 
 <PRE>
-mkdir output
-mkdir figures
-root -l -q -b CCLUTLinearFitWriter.cpp++
+mkdir output_3layers
+mkdir output_4layers
+mkdir figures_3layers
+mkdir figures_4layers
+root -l -q -b CCLUTLinearFitWriter.cpp++(3)
+root -l -q -b CCLUTLinearFitWriter.cpp++(4)
 </PRE>
 
 * Convention for 4-bit position offset word:
