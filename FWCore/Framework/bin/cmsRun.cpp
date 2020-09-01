@@ -31,6 +31,7 @@ PSet script.   See notes in EventProcessor.cpp for details about it.
 #include "TError.h"
 
 #include "boost/program_options.hpp"
+#include "tbb/task_arena.h"
 
 #include <cstring>
 #include <exception>
@@ -263,6 +264,7 @@ int main(int argc, char* argv[]) {
       //
       // Finally, reflect the values being used in the "options" top level ParameterSet.
       context = "Setting up number of threads";
+      unsigned int nThreads = 0;
       {
         // check the "options" ParameterSet
         std::shared_ptr<edm::ParameterSet> pset = processDesc->getProcessPSet();
@@ -281,6 +283,7 @@ int main(int argc, char* argv[]) {
             threadsInfo.stackSize_ != edm::s_defaultSizeOfStackForThreadsInKB) {
           threadsInfo.nThreads_ = edm::setNThreads(threadsInfo.nThreads_, threadsInfo.stackSize_, tsiPtr);
         }
+        nThreads = threadsInfo.nThreads_;
 
         // update the numberOfThreads and sizeOfStackForThreadsInKB in the "options" ParameterSet
         setThreadOptions(threadsInfo, *pset);
@@ -299,27 +302,30 @@ int main(int argc, char* argv[]) {
         edm::MessageDrop::instance()->jobMode = jobMode;
       }
 
-      context = "Constructing the EventProcessor";
-      EventProcessorWithSentry procTmp(
-          std::make_unique<edm::EventProcessor>(processDesc, jobReportToken, edm::serviceregistry::kTokenOverrides));
-      proc = std::move(procTmp);
+      tbb::task_arena arena(nThreads);
+      arena.execute([&]() {
+        context = "Constructing the EventProcessor";
+        EventProcessorWithSentry procTmp(
+            std::make_unique<edm::EventProcessor>(processDesc, jobReportToken, edm::serviceregistry::kTokenOverrides));
+        proc = std::move(procTmp);
 
-      alwaysAddContext = false;
-      context = "Calling beginJob";
-      proc->beginJob();
+        alwaysAddContext = false;
+        context = "Calling beginJob";
+        proc->beginJob();
 
-      alwaysAddContext = false;
-      context =
-          "Calling EventProcessor::runToCompletion (which does almost everything after beginJob and before endJob)";
-      proc.on();
-      auto status = proc->runToCompletion();
-      if (status == edm::EventProcessor::epSignal) {
-        returnCode = edm::errors::CaughtSignal;
-      }
-      proc.off();
+        alwaysAddContext = false;
+        context =
+            "Calling EventProcessor::runToCompletion (which does almost everything after beginJob and before endJob)";
+        proc.on();
+        auto status = proc->runToCompletion();
+        if (status == edm::EventProcessor::epSignal) {
+          returnCode = edm::errors::CaughtSignal;
+        }
+        proc.off();
 
-      context = "Calling endJob";
-      proc->endJob();
+        context = "Calling endJob";
+        proc->endJob();
+      });
       return returnCode;
     });
   }
