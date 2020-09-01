@@ -1,22 +1,52 @@
-/** \packer for gem
+/** \class GEMDigiToRawModule
+ *  \packer for gem
+ *  \based on CSCDigiToRawModule
  *  \author J. Lee - UoS
  */
+
+#include "CondFormats/DataRecord/interface/GEMeMapRcd.h"
+#include "CondFormats/GEMObjects/interface/GEMeMap.h"
+#include "CondFormats/GEMObjects/interface/GEMROMapping.h"
+#include "DataFormats/Common/interface/Handle.h"
+#include "DataFormats/FEDRawData/interface/FEDHeader.h"
+#include "DataFormats/FEDRawData/interface/FEDNumbering.h"
+#include "DataFormats/FEDRawData/interface/FEDRawData.h"
+#include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
+#include "DataFormats/FEDRawData/interface/FEDTrailer.h"
+#include "DataFormats/GEMDigi/interface/AMC13Event.h"
+#include "DataFormats/GEMDigi/interface/GEMDigiCollection.h"
 #include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/Run.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Utilities/interface/InputTag.h"
+#include "FWCore/Framework/interface/Run.h"
+#include "FWCore/Framework/interface/global/EDProducer.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+#include "FWCore/Utilities/interface/ESGetToken.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 
-#include "DataFormats/Common/interface/Handle.h"
-#include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
-#include "DataFormats/FEDRawData/interface/FEDHeader.h"
-#include "DataFormats/FEDRawData/interface/FEDTrailer.h"
-#include "DataFormats/FEDRawData/interface/FEDRawData.h"
-#include "DataFormats/FEDRawData/interface/FEDNumbering.h"
+class GEMDigiToRawModule : public edm::global::EDProducer<edm::RunCache<GEMROMapping>> {
+public:
+  /// Constructor
+  GEMDigiToRawModule(const edm::ParameterSet& pset);
 
-#include "EventFilter/GEMRawToDigi/plugins/GEMDigiToRawModule.h"
+  // global::EDProducer
+  std::shared_ptr<GEMROMapping> globalBeginRun(edm::Run const&, edm::EventSetup const&) const override;
+  void produce(edm::StreamID, edm::Event&, edm::EventSetup const&) const override;
+  void globalEndRun(edm::Run const&, edm::EventSetup const&) const override{};
+
+  // Fill parameters descriptions
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+
+private:
+  int event_type_;
+  edm::EDGetTokenT<GEMDigiCollection> digi_token;
+  edm::ESGetToken<GEMeMap, GEMeMapRcd> gemEMapToken_;
+  bool useDBEMap_;
+};
+
+#include "FWCore/Framework/interface/MakerMacros.h"
+DEFINE_FWK_MODULE(GEMDigiToRawModule);
 
 using namespace gem;
 
