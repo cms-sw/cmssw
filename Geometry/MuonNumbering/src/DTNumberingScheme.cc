@@ -1,3 +1,13 @@
+/** \class DTNumberingScheme
+ *
+ * implementation of MuonNumberingScheme for muon barrel,
+ * converts the MuonBaseNumber to a unit id
+ *  
+ * Original \author Arno Straessner, CERN <arno.straessner@cern.ch>
+ *         Modified by Sunanda B. in different PRs (the last one is #30971)
+ *
+ */
+
 #include "Geometry/MuonNumbering/interface/DTNumberingScheme.h"
 #include "DataFormats/MuonDetId/interface/DTWireId.h"
 #include "Geometry/MuonNumbering/interface/MuonBaseNumber.h"
@@ -32,9 +42,9 @@ int DTNumberingScheme::baseNumberToUnitNumber(const MuonBaseNumber& num) const {
     edm::LogVerbatim("DTNumberingScheme") << level << " " << num.getSuperNo(level) << " " << num.getBaseNo(level);
   }
 #endif
-  if (num.getLevels() != theWireLevel) {
+  if (num.getLevels() < theStationLevel) {  // it was  if (num.getLevels() != theWireLevel) {
     edm::LogWarning("DTNumberingScheme") << "DTNumberingScheme::BNToUN: BaseNumber has " << num.getLevels()
-                                         << " levels, need " << theWireLevel;
+                                         << " levels, need " << theStationLevel;  //it was theWireLevel;
     return 0;
   }
 
