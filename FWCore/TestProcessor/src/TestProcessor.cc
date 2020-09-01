@@ -259,7 +259,10 @@ namespace edm {
     }
 
     edm::test::LuminosityBlock TestProcessor::testEndLuminosityBlockImpl() {
-      auto lumi = arena_.execute([this]() {
+      //using a return value from arena_.execute lead to double delete of shared_ptr
+      // based on valgrind output when exception occurred. Use lambda capture instead.
+      std::shared_ptr<edm::LuminosityBlockPrincipal> lumi;
+      arena_.execute([this, &lumi]() {
         if (not beginJobCalled_) {
           beginJob();
         }
@@ -272,7 +275,7 @@ namespace edm {
         if (not beginLumiCalled_) {
           beginLuminosityBlock();
         }
-        return endLuminosityBlock();
+        lumi = endLuminosityBlock();
       });
       if (esHelper_) {
         //We want each test to have its own ES data products
@@ -306,7 +309,10 @@ namespace edm {
           principalCache_.runPrincipalPtr(), labelOfTestModule_, processConfiguration_->processName());
     }
     edm::test::Run TestProcessor::testEndRunImpl() {
-      auto rp = arena_.execute([this]() {
+      //using a return value from arena_.execute lead to double delete of shared_ptr
+      // based on valgrind output when exception occurred. Use lambda capture instead.
+      std::shared_ptr<edm::RunPrincipal> rp;
+      arena_.execute([this, &rp]() {
         if (not beginJobCalled_) {
           beginJob();
         }
@@ -316,7 +322,7 @@ namespace edm {
         if (not beginRunCalled_) {
           beginRun();
         }
-        return endRun();
+        rp = endRun();
       });
       if (esHelper_) {
         //We want each test to have its own ES data products
