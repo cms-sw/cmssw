@@ -575,11 +575,11 @@ def miniAOD_customizeMC(process):
     from Configuration.Eras.Modifier_pp_on_AA_2018_cff import pp_on_AA_2018
     from Configuration.Eras.Modifier_pp_on_PbPb_run3_cff import pp_on_PbPb_run3
     (pp_on_AA_2018 | pp_on_PbPb_run3).toModify(process.slimmedGenJetsAK8, cut = 'pt>9999', nLoose = 0)
-    (pp_on_AA_2018 | pp_on_PbPb_run3).toModify(process.slimmedGenJetsAK8SoftDropSubJets, cut = 'pt>9999', nLoose = 0)
-    from PhysicsTools.PatAlgos.producersHeavyIons.heavyIonJetSetup import aliasCsJets, removeJECsForMC, removeL1FastJetJECs
-    (pp_on_AA_2018 | pp_on_PbPb_run3).toModify(process, func = lambda proc: aliasCsJets(proc, 'AKCs4PF'))
+    from PhysicsTools.PatAlgos.producersHeavyIons.heavyIonJetSetup import useCsJetsForPat, removeJECsForMC, removeL1FastJetJECs, setupHeavyIonGenJets
+    (pp_on_AA_2018 | pp_on_PbPb_run3).toModify(process, func = lambda proc: useCsJetsForPat(proc))
     (pp_on_AA_2018 | pp_on_PbPb_run3).toModify(process, func = lambda proc: removeJECsForMC(proc))
     (pp_on_AA_2018 | pp_on_PbPb_run3).toModify(process, func = lambda proc: removeL1FastJetJECs(proc))
+    (pp_on_AA_2018 | pp_on_PbPb_run3).toModify(process, func = lambda proc: setupHeavyIonGenJets(proc, 'akCs4PF', 4, task))
 
 
 def miniAOD_customizeOutput(out):
@@ -604,8 +604,8 @@ def miniAOD_customizeData(process):
 
     from Configuration.Eras.Modifier_pp_on_AA_2018_cff import pp_on_AA_2018
     from Configuration.Eras.Modifier_pp_on_PbPb_run3_cff import pp_on_PbPb_run3
-    from PhysicsTools.PatAlgos.producersHeavyIons.heavyIonJetSetup import aliasCsJets, addJECsForData, removeL1FastJetJECs
-    (pp_on_AA_2018 | pp_on_PbPb_run3).toModify(process, func = lambda proc: aliasCsJets(proc, 'AKCs4PF'))
+    from PhysicsTools.PatAlgos.producersHeavyIons.heavyIonJetSetup import useCsJetsForPat, addJECsForData, removeL1FastJetJECs
+    (pp_on_AA_2018 | pp_on_PbPb_run3).toModify(process, func = lambda proc: useCsJetsForPat(proc))
     (pp_on_AA_2018 | pp_on_PbPb_run3).toModify(process, func = lambda proc: addJECsForData(proc))
     (pp_on_AA_2018 | pp_on_PbPb_run3).toModify(process, func = lambda proc: removeL1FastJetJECs(proc))
 

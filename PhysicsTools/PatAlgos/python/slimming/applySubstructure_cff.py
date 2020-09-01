@@ -91,8 +91,6 @@ def applySubstructure( process, postfix="" ) :
     addToProcessAndTask('nb2AK8PuppiSoftDrop'+postfix, process.ecfNbeta2.clone(src = cms.InputTag("ak8PFJetsPuppiSoftDrop"+postfix), cuts = cms.vstring('', '', 'pt > 250')), process, task)
 
     #too slow now ==> disable
-    from Configuration.Eras.Modifier_pp_on_PbPb_run3_cff import pp_on_PbPb_run3
-    from Configuration.Eras.Modifier_pp_on_AA_2018_cff import pp_on_AA_2018
     from Configuration.Eras.Modifier_pp_on_XeXe_2017_cff import pp_on_XeXe_2017
     from Configuration.Eras.Modifier_phase2_common_cff import phase2_common
     for e in [pp_on_XeXe_2017, pp_on_AA_2018, pp_on_PbPb_run3, phase2_common]:
