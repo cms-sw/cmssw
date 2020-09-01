@@ -12,6 +12,7 @@
 
 // system include files
 #include <mutex>
+#include "tbb/task_arena.h"
 
 // user include files
 #include "FWCore/PythonFramework/interface/PythonEventProcessor.h"
@@ -45,6 +46,7 @@ namespace {
 
   //Only one ThreadsController can be active at a time
   CMS_THREAD_SAFE std::unique_ptr<edm::ThreadsController> tsiPtr;
+  CMS_THREAD_SAFE int nThreads;
 
   std::shared_ptr<edm::ProcessDesc> setupThreading(std::shared_ptr<edm::ProcessDesc> iDesc) {
     // check the "options" ParameterSet
@@ -94,7 +96,7 @@ PythonEventProcessor::~PythonEventProcessor() {
 void PythonEventProcessor::run() {
   auto gil = PyEval_SaveThread();
   try {
-    (void)processor_.runToCompletion();
+    tbb::task_arena{nThreads}.execute([this]() { (void)processor_.runToCompletion(); });
   } catch (...) {
   }
   PyEval_RestoreThread(gil);

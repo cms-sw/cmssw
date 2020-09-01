@@ -19,7 +19,8 @@
 //
 
 // system include files
-#include <tbb/global_control.h>
+#include "tbb/global_control.h"
+#include "tbb/task_arena.h"
 #include <memory>
 
 // user include files
@@ -30,30 +31,20 @@ namespace edm {
   class ThreadsController {
   public:
     ThreadsController() = delete;
-    explicit ThreadsController(size_t iNThreads)
-        : m_nThreads{tbb::global_control::max_allowed_parallelism, iNThreads},
-          m_oversubscriber{makeOversubscriber(iNThreads)} {}
-    ThreadsController(size_t iNThreads, size_t iStackSize)
-        : m_nThreads{tbb::global_control::max_allowed_parallelism, iNThreads},
-          m_oversubscriber{makeOversubscriber(iNThreads)} {
-      setStackSize(iStackSize);
-    }
+    explicit ThreadsController(unsigned int iNThreads)
+        : m_nThreads{tbb::global_control::max_allowed_parallelism, iNThreads}, m_stackSize{} {}
+    ThreadsController(unsigned int iNThreads, size_t iStackSize)
+        : m_nThreads{tbb::global_control::max_allowed_parallelism, iNThreads}, m_stackSize{makeStackSize(iStackSize)} {}
 
     // ---------- member functions ---------------------------
-    void setStackSize(size_t iStackSize) {
-      m_stackSize = std::make_unique<tbb::global_control>(tbb::global_control::thread_stack_size, iStackSize);
-    }
+    void setStackSize(size_t iStackSize) { m_stackSize = makeStackSize(iStackSize); }
 
   private:
-    struct Destructor {
-      void operator()(void*) const;
-    };
-    static std::unique_ptr<void, ThreadsController::Destructor> makeOversubscriber(size_t iNThreads);
-    friend class std::unique_ptr<void, ThreadsController::Destructor>;
+    static std::unique_ptr<tbb::global_control> makeStackSize(size_t iStackSize);
+
     // ---------- member data --------------------------------
     tbb::global_control m_nThreads;
     std::unique_ptr<tbb::global_control> m_stackSize;
-    std::unique_ptr<void, ThreadsController::Destructor> m_oversubscriber;
   };
 }  // namespace edm
 
