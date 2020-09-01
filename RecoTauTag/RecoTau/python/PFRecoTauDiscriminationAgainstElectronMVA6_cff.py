@@ -3,9 +3,12 @@ import FWCore.ParameterSet.Config as cms
 # HGCal electron stuff
 from RecoEgamma.EgammaTools.cleanedEcalDrivenGsfElectronsFromMultiCl_cfi import cleanedEcalDrivenGsfElectronsFromMultiCl
 from RecoEgamma.EgammaTools.hgcalElectronIDValueMap_cff import hgcalElectronIDValueMap
-# HGCal electrons cleaned against duplicates and electrons in barrel
-cleanedEcalDrivenGsfElectronsFromMultiClNoEB = cleanedEcalDrivenGsfElectronsFromMultiCl.clone(
-    cleanBarrel = True
+# HGCal electrons cleaned against duplicates and electrons in barrel (pt>10GeV)
+# TauValElectronSelector defined Validation/RecoTau/plugins/Selectors.cc;
+# is there a more intuitive place where such a selector is defined?
+cleanedEcalDrivenGsfElectronsFromMultiClNoEB = cms.EDFilter('TauValElectronSelector',
+    cut = cms.string('!isEB && pt >= 10.'),
+    src = cms.InputTag('cleanedEcalDrivenGsfElectronsFromMultiCl')
 )
 # Electron collection merger
 mergedGsfElectronsForTauId = cms.EDProducer('GsfElectronCollectionMerger',
@@ -37,6 +40,7 @@ pfRecoTauDiscriminationAgainstElectronMVA6Phase2 = pfRecoTauDiscriminationAgains
 )
 
 electronsForTauDiscriminationAgainstElectronMVA6Phase2Task = cms.Task(
+    cleanedEcalDrivenGsfElectronsFromMultiCl,
     cleanedEcalDrivenGsfElectronsFromMultiClNoEB,
     mergedGsfElectronsForTauId,
     hgcElectronIdForTauId
