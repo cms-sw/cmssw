@@ -124,7 +124,8 @@ int CSCPattern::recoverPatternCCCombination(
   return 0;
 }
 
-int convertToLegacyPattern(const int code_hits[CSCConstants::NUM_LAYERS][CSCConstants::CLCT_PATTERN_WIDTH], unsigned N_LAYER_REQUIREMENT);
+int convertToLegacyPattern(const int code_hits[CSCConstants::NUM_LAYERS][CSCConstants::CLCT_PATTERN_WIDTH],
+                           unsigned N_LAYER_REQUIREMENT);
 void getErrors(const vector<float>& x, const vector<float>& y, float& sigmaM, float& sigmaB);
 void writeHeaderPosOffsetLUT(ofstream& file);
 void writeHeaderSlopeLUT(ofstream& file);
@@ -410,7 +411,9 @@ int CCLUTLinearFitWriter(unsigned N_LAYER_REQUIREMENT = 3) {
 
 /// helpers
 
-int searchForHits(const int code_hits[CSCConstants::NUM_LAYERS][CSCConstants::CLCT_PATTERN_WIDTH], int delta, unsigned N_LAYER_REQUIREMENT) {
+int searchForHits(const int code_hits[CSCConstants::NUM_LAYERS][CSCConstants::CLCT_PATTERN_WIDTH],
+                  int delta,
+                  unsigned N_LAYER_REQUIREMENT) {
   unsigned returnValue = 0;
   unsigned maxlayers = 0;
   for (unsigned iPat = 2; iPat < CSCPatternBank::clct_pattern_legacy_.size(); iPat++) {
@@ -447,7 +450,8 @@ int searchForHits(const int code_hits[CSCConstants::NUM_LAYERS][CSCConstants::CL
 }
 
 // function to convert
-int convertToLegacyPattern(const int code_hits[CSCConstants::NUM_LAYERS][CSCConstants::CLCT_PATTERN_WIDTH], unsigned N_LAYER_REQUIREMENT) {
+int convertToLegacyPattern(const int code_hits[CSCConstants::NUM_LAYERS][CSCConstants::CLCT_PATTERN_WIDTH],
+                           unsigned N_LAYER_REQUIREMENT) {
   int returnValue = searchForHits(code_hits, 0, N_LAYER_REQUIREMENT);
   // try the search on a half-strip to the left
   if (!returnValue)
