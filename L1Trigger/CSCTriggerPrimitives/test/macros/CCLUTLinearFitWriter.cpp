@@ -26,7 +26,6 @@ using namespace std;
 
 // uncertainty per layer in half strips 1/sqrt(12)
 const float HALF_STRIP_ERROR = 0.288675;
-const unsigned int N_LAYER_REQUIREMENT = 3;
 const unsigned halfpatternwidth = (CSCConstants::CLCT_PATTERN_WIDTH - 1) / 2;
 
 //labels of all envelopes
@@ -109,7 +108,7 @@ int CSCPattern::recoverPatternCCCombination(
     int trueCounter = 0;  //for each layer, should only have 3
     for (unsigned int i = 0; i < CSCConstants::CLCT_PATTERN_WIDTH; i++) {
       // zeros in the pattern envelope, or CC0
-      if (!pat_[j][i] or !layerPattern[j]) {
+      if (!pat_[j][i]) {
         code_hits[j][i] = 0;
       }
       // ones in the pattern envelope
@@ -117,13 +116,15 @@ int CSCPattern::recoverPatternCCCombination(
         trueCounter++;
         if (trueCounter == layerPattern[j])
           code_hits[j][i] = 1;
+        else
+          code_hits[j][i] = 0;
       }
     }
   }
   return 0;
 }
 
-int convertToLegacyPattern(const int code_hits[CSCConstants::NUM_LAYERS][CSCConstants::CLCT_PATTERN_WIDTH]);
+int convertToLegacyPattern(const int code_hits[CSCConstants::NUM_LAYERS][CSCConstants::CLCT_PATTERN_WIDTH], unsigned N_LAYER_REQUIREMENT);
 void getErrors(const vector<float>& x, const vector<float>& y, float& sigmaM, float& sigmaB);
 void writeHeaderPosOffsetLUT(ofstream& file);
 void writeHeaderSlopeLUT(ofstream& file);
@@ -131,15 +132,18 @@ unsigned firmwareWord(const unsigned quality, const unsigned slope, const unsign
 void setDataWord(unsigned& word, const unsigned newWord, const unsigned shift, const unsigned mask);
 unsigned assign(const float fvalue, const float fmin, const float fmax, const unsigned nbits);
 
-int CCLUTLinearFitWriter() {
+int CCLUTLinearFitWriter(unsigned N_LAYER_REQUIREMENT = 3) {
   //all the patterns we will fit
   std::unique_ptr<std::vector<CSCPattern>> newPatterns(new std::vector<CSCPattern>());
   for (unsigned ipat = 0; ipat < 5; ipat++) {
     newPatterns->emplace_back(ipat, CSCPatternBank::clct_pattern_run3_[ipat]);
   }
 
+  // create output directory
+  const std::string outdir("output_" + std::to_string(N_LAYER_REQUIREMENT) + "layers/");
+
   // output ROOT file with fit results
-  TFile* file = TFile::Open("fitresults.root", "RECREATE");
+  TFile* file = TFile::Open(TString::Format("figures_%dlayers/fitresults.root", N_LAYER_REQUIREMENT), "RECREATE");
 
   TH1D* all_offsets = new TH1D("all_offsets", "All Half-strip offsets", 200, -2.5, 2.5);
   all_offsets->GetYaxis()->SetTitle("Entries");
@@ -221,9 +225,6 @@ int CCLUTLinearFitWriter() {
   float minPatt = 0;
   float minCode = 1;
 
-  // create output directory
-  const std::string outdir("output/");
-
   // for each pattern
   for (auto patt = newPatterns->begin(); patt != newPatterns->end(); ++patt) {
     std::cout << "Processing pattern " << patt - newPatterns->begin() << std::endl;
@@ -260,7 +261,8 @@ int CCLUTLinearFitWriter() {
     // iterate through each possible comparator code
     for (unsigned code = 0; code < CSCConstants::NUM_COMPARATOR_CODES; code++) {
       if (DEBUG > 0) {
-        cout << "Evaluating Pattern: " << patt->getName() << " CC: " << code << endl;
+        cout << "Evaluating..." << endl;
+        patt->printCode(code);
       }
       int hits[CSCConstants::NUM_LAYERS][CSCConstants::CLCT_PATTERN_WIDTH];
 
@@ -302,7 +304,7 @@ int CCLUTLinearFitWriter() {
       unsigned legacypattern = 0;
 
       // consider at least patterns with 3 hits
-      if (x.size() >= N_LAYER_REQUIREMENT + 1) {
+      if (x.size() >= N_LAYER_REQUIREMENT) {
         // for each combination fit a straight line
         std::unique_ptr<TGraphErrors> gr(new TGraphErrors(x.size(), &x[0], &y[0], &xe[0], &ye[0]));
         std::unique_ptr<TF1> fit(new TF1("fit", "pol1", -3, 4));
@@ -315,7 +317,7 @@ int CCLUTLinearFitWriter() {
         chi2 = fit->GetChisquare();
         ndf = fit->GetNDF();
         layer = ndf + 2;
-        legacypattern = convertToLegacyPattern(hits);
+        legacypattern = convertToLegacyPattern(hits, N_LAYER_REQUIREMENT);
         // mean half-strip error; slope half-strip error
         getErrors(x, y, offsetunc, slopeunc);
 
@@ -396,7 +398,7 @@ int CCLUTLinearFitWriter() {
       c->cd();
       gPad->SetLogy(1);
       (p.second)->Draw();
-      c->SaveAs(TString("figures/") + TString((p.second)->GetName()) + ".pdf");
+      c->SaveAs(TString::Format("figures_%dlayers/", N_LAYER_REQUIREMENT) + TString((p.second)->GetName()) + ".pdf");
     }
   }
 
@@ -408,7 +410,7 @@ int CCLUTLinearFitWriter() {
 
 /// helpers
 
-int searchForHits(const int code_hits[CSCConstants::NUM_LAYERS][CSCConstants::CLCT_PATTERN_WIDTH], int delta = 0) {
+int searchForHits(const int code_hits[CSCConstants::NUM_LAYERS][CSCConstants::CLCT_PATTERN_WIDTH], int delta, unsigned N_LAYER_REQUIREMENT) {
   unsigned returnValue = 0;
   unsigned maxlayers = 0;
   for (unsigned iPat = 2; iPat < CSCPatternBank::clct_pattern_legacy_.size(); iPat++) {
@@ -445,14 +447,14 @@ int searchForHits(const int code_hits[CSCConstants::NUM_LAYERS][CSCConstants::CL
 }
 
 // function to convert
-int convertToLegacyPattern(const int code_hits[CSCConstants::NUM_LAYERS][CSCConstants::CLCT_PATTERN_WIDTH]) {
-  int returnValue = searchForHits(code_hits, 0);
+int convertToLegacyPattern(const int code_hits[CSCConstants::NUM_LAYERS][CSCConstants::CLCT_PATTERN_WIDTH], unsigned N_LAYER_REQUIREMENT) {
+  int returnValue = searchForHits(code_hits, 0, N_LAYER_REQUIREMENT);
   // try the search on a half-strip to the left
   if (!returnValue)
-    returnValue = searchForHits(code_hits, -1);
+    returnValue = searchForHits(code_hits, -1, N_LAYER_REQUIREMENT);
   // try the search on a half-strip to the right
   if (!returnValue)
-    returnValue = searchForHits(code_hits, 1);
+    returnValue = searchForHits(code_hits, 1, N_LAYER_REQUIREMENT);
   return returnValue;
 }
 
