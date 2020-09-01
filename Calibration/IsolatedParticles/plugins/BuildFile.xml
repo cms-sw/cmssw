@@ -49,6 +49,9 @@
 <library name="CalibrationElectronStudy" file="ElectronStudy.cc">
 </library>
 
+<library name="CalibrationStudyCaloGen" file="StudyCaloGen.cc">
+</library>
+
 <library name="CalibrationStudyCaloResponse" file="StudyCaloResponse.cc">
 </library>
 

@@ -61,6 +61,7 @@
 #include "DataFormats/Common/interface/TriggerResults.h"
 #include "DataFormats/HLTReco/interface/TriggerEvent.h"
 #include "DataFormats/HLTReco/interface/TriggerTypeDefs.h"
+#include "DataFormats/Math/interface/deltaPhi.h"
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/one/EDAnalyzer.h"
@@ -130,9 +131,6 @@ private:
   //   void BookHistograms();
   void buildTree();
   void clearTrackVectors();
-
-  double deltaPhi(double v1, double v2);
-  double deltaR(double eta1, double phi1, double eta2, double phi2);
 
   static constexpr int nEtaBins_ = 4;
   static constexpr int nPBins_ = 21;
@@ -724,7 +722,7 @@ void IsolatedTracksCone::analyze(const edm::Event& iEvent, const edm::EventSetup
 
     double drFromLeadJet = 999.0;
     if (useJetTrigger_) {
-      double dphi = deltaPhi(phi1, leadL1JetPhi);
+      double dphi = reco::deltaPhi(phi1, leadL1JetPhi);
       double deta = eta1 - leadL1JetEta;
       drFromLeadJet = sqrt(dphi * dphi + deta * deta);
     }
@@ -1739,20 +1737,6 @@ void IsolatedTracksCone::printTrack(const reco::Track* pTrack) {
       p.printHitPattern(reco::HitPattern::TRACK_HITS, i, std::cout);
     }
   }
-}
-
-double IsolatedTracksCone::deltaPhi(double v1, double v2) {
-  // Computes the correctly normalized phi difference
-  // v1, v2 = phi of object 1 and 2
-  double diff = std::abs(v2 - v1);
-  double corr = 2.0 * M_PI - diff;
-  return ((diff < M_PI) ? diff : corr);
-}
-
-double IsolatedTracksCone::deltaR(double eta1, double phi1, double eta2, double phi2) {
-  double deta = eta1 - eta2;
-  double dphi = deltaPhi(phi1, phi2);
-  return std::sqrt(deta * deta + dphi * dphi);
 }
 
 //define this as a plug-in

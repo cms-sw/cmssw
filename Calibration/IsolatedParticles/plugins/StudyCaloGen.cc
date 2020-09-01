@@ -1,48 +1,12 @@
-// -*- C++ -*-
-//
-// Package:    IsolatedGenParticles
-// Class:      IsolatedGenParticles
-//
-/**\class IsolatedGenParticles IsolatedGenParticles.cc Calibration/IsolatedParticles/plugins/IsolatedGenParticles.cc
-
- Description: <one line class summary>
-
- Implementation:
-     <Notes on implementation>
-*/
-//
-// Original Author:  Seema Sharma
-//         Created:  Tue Oct 27 09:46:41 CDT 2009
-//
-//
-
 #include "Calibration/IsolatedParticles/interface/CaloPropagateTrack.h"
 #include "Calibration/IsolatedParticles/interface/ChargeIsolation.h"
 #include "Calibration/IsolatedParticles/interface/GenSimInfo.h"
-
-#include "CondFormats/L1TObjects/interface/L1GtTriggerMenu.h"
-#include "CondFormats/DataRecord/interface/L1GtTriggerMenuRcd.h"
 
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/EcalDetId/interface/EBDetId.h"
 #include "DataFormats/EcalDetId/interface/EEDetId.h"
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
-#include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
-#include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"
 #include "DataFormats/GeometrySurface/interface/GloballyPositioned.h"
-//L1 objects
-#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutSetupFwd.h"
-#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutSetup.h"
-#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutRecord.h"
-#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerObjectMapRecord.h"
-#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerObjectMapFwd.h"
-#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerObjectMap.h"
-#include "DataFormats/L1Trigger/interface/L1JetParticle.h"
-#include "DataFormats/L1Trigger/interface/L1JetParticleFwd.h"
-#include "DataFormats/L1Trigger/interface/L1EmParticle.h"
-#include "DataFormats/L1Trigger/interface/L1EmParticleFwd.h"
-#include "DataFormats/L1Trigger/interface/L1MuonParticle.h"
-#include "DataFormats/L1Trigger/interface/L1MuonParticleFwd.h"
 
 #include "DataFormats/Math/interface/deltaPhi.h"
 #include "DataFormats/Math/interface/LorentzVector.h"
@@ -82,8 +46,6 @@
 #include "TFile.h"
 #include "TH1I.h"
 #include "TH2D.h"
-#include "TProfile.h"
-#include "TDirectory.h"
 #include "TTree.h"
 
 #include <cmath>
@@ -92,26 +54,9 @@
 #include <list>
 #include <vector>
 
-namespace {
-  class ParticlePtGreater {
-  public:
-    int operator()(const HepMC::GenParticle *p1, const HepMC::GenParticle *p2) const {
-      return p1->momentum().perp() > p2->momentum().perp();
-    }
-  };
-
-  class ParticlePGreater {
-  public:
-    int operator()(const HepMC::GenParticle *p1, const HepMC::GenParticle *p2) const {
-      return p1->momentum().rho() > p2->momentum().rho();
-    }
-  };
-}  // namespace
-
-class IsolatedGenParticles : public edm::one::EDAnalyzer<edm::one::SharedResources> {
+class StudyCaloGen : public edm::one::EDAnalyzer<edm::one::SharedResources> {
 public:
-  explicit IsolatedGenParticles(const edm::ParameterSet &);
-  ~IsolatedGenParticles() override {}
+  explicit StudyCaloGen(const edm::ParameterSet &);
 
   static void fillDescriptions(edm::ConfigurationDescriptions &descriptions);
 
@@ -139,26 +84,12 @@ private:
   edm::EDGetTokenT<edm::HepMCProduct> tok_hepmc_;
   edm::EDGetTokenT<reco::GenParticleCollection> tok_genParticles_;
 
-  bool initL1, useHepMC_;
-  static const size_t nL1BitsMax_ = 128;
-  std::string algoBitToName_[nL1BitsMax_];
+  bool useHepMC_;
   double a_coneR_, a_charIsoR_, a_neutIsoR_, a_mipR_;
-  bool debugL1Info_;
   int verbosity_;
 
-  edm::EDGetTokenT<L1GlobalTriggerReadoutRecord> tok_L1GTrorsrc_;
-  edm::EDGetTokenT<L1GlobalTriggerObjectMapRecord> tok_L1GTobjmap_;
-  edm::EDGetTokenT<l1extra::L1MuonParticleCollection> tok_L1extMusrc_;
-  edm::EDGetTokenT<l1extra::L1EmParticleCollection> tok_L1Em_;
-  edm::EDGetTokenT<l1extra::L1EmParticleCollection> tok_L1extNonIsoEm_;
-  edm::EDGetTokenT<l1extra::L1JetParticleCollection> tok_L1extTauJet_;
-  edm::EDGetTokenT<l1extra::L1JetParticleCollection> tok_L1extCenJet_;
-  edm::EDGetTokenT<l1extra::L1JetParticleCollection> tok_L1extFwdJet_;
-
-  TH1I *h_L1AlgoNames;
   TH1I *h_NEventProc;
   TH2D *h_pEta[Particles];
-
   TTree *tree_;
 
   std::vector<double> *t_isoTrkPAll;
@@ -297,22 +228,13 @@ private:
   std::vector<double> *t_eleEneIsoHCR;
   std::vector<double> *t_muEneIsoHCR;
 
-  std::vector<int> *t_L1Decision;
-  std::vector<double> *t_L1CenJetPt, *t_L1CenJetEta, *t_L1CenJetPhi;
-  std::vector<double> *t_L1FwdJetPt, *t_L1FwdJetEta, *t_L1FwdJetPhi;
-  std::vector<double> *t_L1TauJetPt, *t_L1TauJetEta, *t_L1TauJetPhi;
-  std::vector<double> *t_L1MuonPt, *t_L1MuonEta, *t_L1MuonPhi;
-  std::vector<double> *t_L1IsoEMPt, *t_L1IsoEMEta, *t_L1IsoEMPhi;
-  std::vector<double> *t_L1NonIsoEMPt, *t_L1NonIsoEMEta, *t_L1NonIsoEMPhi;
-  std::vector<double> *t_L1METPt, *t_L1METEta, *t_L1METPhi;
-
   spr::genSimInfo isoinfo1x1, isoinfo3x3, isoinfo7x7, isoinfo9x9, isoinfo11x11;
   spr::genSimInfo isoinfo15x15, isoinfo21x21, isoinfo25x25, isoinfo31x31;
   spr::genSimInfo isoinfoHC1x1, isoinfoHC3x3, isoinfoHC5x5, isoinfoHC7x7;
   spr::genSimInfo isoinfoR, isoinfoIsoR, isoinfoHCR, isoinfoIsoHCR;
 };
 
-IsolatedGenParticles::IsolatedGenParticles(const edm::ParameterSet &iConfig)
+StudyCaloGen::StudyCaloGen(const edm::ParameterSet &iConfig)
     : ptMin_(iConfig.getUntrackedParameter<double>("PTMin", 1.0)),
       etaMax_(iConfig.getUntrackedParameter<double>("MaxChargedHadronEta", 2.5)),
       pCutIsolate_(iConfig.getUntrackedParameter<double>("PMaxIsolation", 20.0)),
@@ -321,7 +243,6 @@ IsolatedGenParticles::IsolatedGenParticles(const edm::ParameterSet &iConfig)
       useHepMC_(iConfig.getUntrackedParameter<bool>("UseHepMC", false)),
       a_coneR_(iConfig.getUntrackedParameter<double>("ConeRadius", 34.98)),
       a_mipR_(iConfig.getUntrackedParameter<double>("ConeRadiusMIP", 14.0)),
-      debugL1Info_(iConfig.getUntrackedParameter<bool>("DebugL1Info", false)),
       verbosity_(iConfig.getUntrackedParameter<int>("Verbosity", 0)) {
   usesResource(TFileService::kSharedResource);
 
@@ -330,23 +251,6 @@ IsolatedGenParticles::IsolatedGenParticles(const edm::ParameterSet &iConfig)
 
   tok_hepmc_ = consumes<edm::HepMCProduct>(edm::InputTag(genSrc_));
   tok_genParticles_ = consumes<reco::GenParticleCollection>(edm::InputTag(genSrc_));
-
-  edm::InputTag L1extraTauJetSource_ = iConfig.getParameter<edm::InputTag>("L1extraTauJetSource");
-  edm::InputTag L1extraCenJetSource_ = iConfig.getParameter<edm::InputTag>("L1extraCenJetSource");
-  edm::InputTag L1extraFwdJetSource_ = iConfig.getParameter<edm::InputTag>("L1extraFwdJetSource");
-  edm::InputTag L1extraMuonSource_ = iConfig.getParameter<edm::InputTag>("L1extraMuonSource");
-  edm::InputTag L1extraIsoEmSource_ = iConfig.getParameter<edm::InputTag>("L1extraIsoEmSource");
-  edm::InputTag L1extraNonIsoEmSource_ = iConfig.getParameter<edm::InputTag>("L1extraNonIsoEmSource");
-  edm::InputTag L1GTReadoutRcdSource_ = iConfig.getParameter<edm::InputTag>("L1GTReadoutRcdSource");
-  edm::InputTag L1GTObjectMapRcdSource_ = iConfig.getParameter<edm::InputTag>("L1GTObjectMapRcdSource");
-  tok_L1GTrorsrc_ = consumes<L1GlobalTriggerReadoutRecord>(L1GTReadoutRcdSource_);
-  tok_L1GTobjmap_ = consumes<L1GlobalTriggerObjectMapRecord>(L1GTObjectMapRcdSource_);
-  tok_L1extMusrc_ = consumes<l1extra::L1MuonParticleCollection>(L1extraMuonSource_);
-  tok_L1Em_ = consumes<l1extra::L1EmParticleCollection>(L1extraIsoEmSource_);
-  tok_L1extNonIsoEm_ = consumes<l1extra::L1EmParticleCollection>(L1extraNonIsoEmSource_);
-  tok_L1extTauJet_ = consumes<l1extra::L1JetParticleCollection>(L1extraTauJetSource_);
-  tok_L1extCenJet_ = consumes<l1extra::L1JetParticleCollection>(L1extraCenJetSource_);
-  tok_L1extFwdJet_ = consumes<l1extra::L1JetParticleCollection>(L1extraFwdJetSource_);
 
   if (!strcmp("Dummy", genSrc_.c_str())) {
     if (useHepMC_)
@@ -357,11 +261,10 @@ IsolatedGenParticles::IsolatedGenParticles(const edm::ParameterSet &iConfig)
   edm::LogVerbatim("IsoTrack") << "Generator Source " << genSrc_ << " Use HepMC " << useHepMC_ << " ptMin " << ptMin_
                                << " etaMax " << etaMax_ << "\n a_coneR " << a_coneR_ << " a_charIsoR " << a_charIsoR_
                                << " a_neutIsoR " << a_neutIsoR_ << " a_mipR " << a_mipR_ << " debug " << verbosity_
-                               << " debugL1Info " << debugL1Info_ << "\n"
-                               << " Isolation Flag " << a_Isolation_ << " with cut " << pCutIsolate_ << " GeV";
+                               << "\nIsolation Flag " << a_Isolation_ << " with cut " << pCutIsolate_ << " GeV";
 }
 
-void IsolatedGenParticles::fillDescriptions(edm::ConfigurationDescriptions &descriptions) {
+void StudyCaloGen::fillDescriptions(edm::ConfigurationDescriptions &descriptions) {
   edm::ParameterSetDescription desc;
   desc.addUntracked<std::string>("GenSrc", "genParticles");
   desc.addUntracked<bool>("UseHepMC", false);
@@ -373,19 +276,10 @@ void IsolatedGenParticles::fillDescriptions(edm::ConfigurationDescriptions &desc
   desc.addUntracked<bool>("UseConeIsolation", true);
   desc.addUntracked<double>("PMaxIsolation", 5.0);
   desc.addUntracked<int>("Verbosity", 0);
-  desc.addUntracked<bool>("DebugL1Info", false);
-  desc.addUntracked<edm::InputTag>("L1extraTauJetSource", edm::InputTag("l1extraParticles", "Tau"));
-  desc.addUntracked<edm::InputTag>("L1extraCenJetSource", edm::InputTag("l1extraParticles", "Central"));
-  desc.addUntracked<edm::InputTag>("L1extraFwdJetSource", edm::InputTag("l1extraParticles", "Forward"));
-  desc.addUntracked<edm::InputTag>("L1extraMuonSource", edm::InputTag("l1extraParticles"));
-  desc.addUntracked<edm::InputTag>("L1extraIsoEmSource", edm::InputTag("l1extraParticles", "Isolated"));
-  desc.addUntracked<edm::InputTag>("L1extraNonIsoEmSource", edm::InputTag("l1extraParticles", "NonIsolated"));
-  desc.addUntracked<edm::InputTag>("L1GTReadoutRcdSource", edm::InputTag("gtDigis"));
-  desc.addUntracked<edm::InputTag>("L1GTObjectMapRcdSource", edm::InputTag("hltL1GtObjectMap"));
-  descriptions.add("isolatedGenParticles", desc);
+  descriptions.add("studyCaloGen", desc);
 }
 
-void IsolatedGenParticles::analyze(const edm::Event &iEvent, const edm::EventSetup &iSetup) {
+void StudyCaloGen::analyze(const edm::Event &iEvent, const edm::EventSetup &iSetup) {
   clearTreeVectors();
 
   nEventProc++;
@@ -417,146 +311,6 @@ void IsolatedGenParticles::analyze(const edm::Event &iEvent, const edm::EventSet
   edm::ESHandle<HcalTopology> htopo;
   iSetup.get<HcalRecNumberingRecord>().get(htopo);
   const HcalTopology *theHBHETopology = htopo.product();
-
-  //===================== save L1 Trigger information =======================
-  // get L1TriggerReadout records
-  edm::Handle<L1GlobalTriggerReadoutRecord> gtRecord;
-  iEvent.getByToken(tok_L1GTrorsrc_, gtRecord);
-
-  edm::Handle<L1GlobalTriggerObjectMapRecord> gtOMRec;
-  iEvent.getByToken(tok_L1GTobjmap_, gtOMRec);
-
-  // sanity check on L1 Trigger Records
-  if (!gtRecord.isValid()) {
-    edm::LogVerbatim("IsoTrack") << "\nL1GlobalTriggerReadoutRecord with \n\n"
-                                 << "not found\n  --> returning false by "
-                                 << "default!\n";
-  }
-  if (!gtOMRec.isValid()) {
-    edm::LogVerbatim("IsoTrack") << "\nL1GlobalTriggerObjectMapRecord with \n\n"
-                                 << "not found\n  --> returning false by "
-                                 << "default!\n";
-  }
-
-  // L1 decision word
-  const DecisionWord dWord = gtRecord->decisionWord();
-  unsigned int numberTriggerBits = dWord.size();
-
-  // just print the L1Bit number and AlgoName in first event
-  if (!initL1) {
-    initL1 = true;
-    edm::LogVerbatim("IsoTrack") << "\nNumber of Trigger bits " << numberTriggerBits << "\n";
-    edm::LogVerbatim("IsoTrack") << "\tBit \t L1 Algorithm ";
-
-    // get ObjectMaps from ObjectMapRecord
-    const std::vector<L1GlobalTriggerObjectMap> &objMapVec = gtOMRec->gtObjectMap();
-    for (std::vector<L1GlobalTriggerObjectMap>::const_iterator itMap = objMapVec.begin(); itMap != objMapVec.end();
-         ++itMap) {
-      // Get trigger bits
-      int itrig = (*itMap).algoBitNumber();
-
-      // Get trigger names
-      algoBitToName_[itrig] = (*itMap).algoName();
-
-      edm::LogVerbatim("IsoTrack") << "\t" << itrig << "\t" << algoBitToName_[itrig];
-
-      // store the algoNames as bin labels of a histogram
-      h_L1AlgoNames->GetXaxis()->SetBinLabel(itrig + 1, algoBitToName_[itrig].c_str());
-
-    }  // end of for loop
-  }    // end of initL1
-
-  // save L1 decision for each event
-  for (unsigned int iBit = 0; iBit < numberTriggerBits; ++iBit) {
-    bool accept = dWord[iBit];
-    t_L1Decision->push_back(accept);
-    // fill the trigger map
-    if (debugL1Info_)
-      edm::LogVerbatim("IsoTrack") << "Bit " << iBit << " " << algoBitToName_[iBit] << " " << accept;
-
-    if (accept)
-      h_L1AlgoNames->Fill(iBit);
-  }
-
-  //===================
-  // L1Taus
-  edm::Handle<l1extra::L1JetParticleCollection> l1TauHandle;
-  iEvent.getByToken(tok_L1extTauJet_, l1TauHandle);
-  l1extra::L1JetParticleCollection::const_iterator itr;
-  for (itr = l1TauHandle->begin(); itr != l1TauHandle->end(); ++itr) {
-    t_L1TauJetPt->push_back(itr->pt());
-    t_L1TauJetEta->push_back(itr->eta());
-    t_L1TauJetPhi->push_back(itr->phi());
-    if (debugL1Info_) {
-      edm::LogVerbatim("IsoTrack") << "tauJ p/pt  " << itr->momentum() << " " << itr->pt() << "  eta/phi " << itr->eta()
-                                   << " " << itr->phi();
-    }
-  }
-
-  // L1 Central Jets
-  edm::Handle<l1extra::L1JetParticleCollection> l1CenJetHandle;
-  iEvent.getByToken(tok_L1extCenJet_, l1CenJetHandle);
-  for (itr = l1CenJetHandle->begin(); itr != l1CenJetHandle->end(); ++itr) {
-    t_L1CenJetPt->push_back(itr->pt());
-    t_L1CenJetEta->push_back(itr->eta());
-    t_L1CenJetPhi->push_back(itr->phi());
-    if (debugL1Info_) {
-      edm::LogVerbatim("IsoTrack") << "cenJ p/pt     " << itr->momentum() << " " << itr->pt() << "  eta/phi "
-                                   << itr->eta() << " " << itr->phi();
-    }
-  }
-  // L1 Forward Jets
-  edm::Handle<l1extra::L1JetParticleCollection> l1FwdJetHandle;
-  iEvent.getByToken(tok_L1extFwdJet_, l1FwdJetHandle);
-  for (itr = l1FwdJetHandle->begin(); itr != l1FwdJetHandle->end(); ++itr) {
-    t_L1FwdJetPt->push_back(itr->pt());
-    t_L1FwdJetEta->push_back(itr->eta());
-    t_L1FwdJetPhi->push_back(itr->phi());
-    if (debugL1Info_) {
-      edm::LogVerbatim("IsoTrack") << "fwdJ p/pt     " << itr->momentum() << " " << itr->pt() << "  eta/phi "
-                                   << itr->eta() << " " << itr->phi();
-    }
-  }
-  // L1 Isolated EM onjects
-  l1extra::L1EmParticleCollection::const_iterator itrEm;
-  edm::Handle<l1extra::L1EmParticleCollection> l1IsoEmHandle;
-  iEvent.getByToken(tok_L1Em_, l1IsoEmHandle);
-  for (itrEm = l1IsoEmHandle->begin(); itrEm != l1IsoEmHandle->end(); ++itrEm) {
-    t_L1IsoEMPt->push_back(itrEm->pt());
-    t_L1IsoEMEta->push_back(itrEm->eta());
-    t_L1IsoEMPhi->push_back(itrEm->phi());
-    if (debugL1Info_) {
-      edm::LogVerbatim("IsoTrack") << "isoEm p/pt    " << itrEm->momentum() << " " << itrEm->pt() << "  eta/phi "
-                                   << itrEm->eta() << " " << itrEm->phi();
-    }
-  }
-  // L1 Non-Isolated EM onjects
-  edm::Handle<l1extra::L1EmParticleCollection> l1NonIsoEmHandle;
-  iEvent.getByToken(tok_L1extNonIsoEm_, l1NonIsoEmHandle);
-  for (itrEm = l1NonIsoEmHandle->begin(); itrEm != l1NonIsoEmHandle->end(); ++itrEm) {
-    t_L1NonIsoEMPt->push_back(itrEm->pt());
-    t_L1NonIsoEMEta->push_back(itrEm->eta());
-    t_L1NonIsoEMPhi->push_back(itrEm->phi());
-    if (debugL1Info_) {
-      edm::LogVerbatim("IsoTrack") << "nonIsoEm p/pt " << itrEm->momentum() << " " << itrEm->pt() << "  eta/phi "
-                                   << itrEm->eta() << " " << itrEm->phi();
-    }
-  }
-
-  // L1 Muons
-  l1extra::L1MuonParticleCollection::const_iterator itrMu;
-  edm::Handle<l1extra::L1MuonParticleCollection> l1MuHandle;
-  iEvent.getByToken(tok_L1extMusrc_, l1MuHandle);
-  for (itrMu = l1MuHandle->begin(); itrMu != l1MuHandle->end(); ++itrMu) {
-    t_L1MuonPt->push_back(itrMu->pt());
-    t_L1MuonEta->push_back(itrMu->eta());
-    t_L1MuonPhi->push_back(itrMu->phi());
-    if (debugL1Info_) {
-      edm::LogVerbatim("IsoTrack") << "l1muon p/pt   " << itrMu->momentum() << " " << itrMu->pt() << "  eta/phi "
-                                   << itrMu->eta() << " " << itrMu->phi();
-    }
-  }
-  //=====================================================================
 
   GlobalPoint posVec, posECAL;
   math::XYZTLorentzVector momVec;
@@ -790,10 +544,8 @@ void IsolatedGenParticles::analyze(const edm::Event &iEvent, const edm::EventSet
   tree_->Fill();
 }
 
-void IsolatedGenParticles::beginJob() {
+void StudyCaloGen::beginJob() {
   nEventProc = 0;
-
-  initL1 = false;
 
   double tempgen_TH[NPBins_ + 1] = {0.0, 5.0, 12.0, 300.0};
   for (int i = 0; i <= NPBins_; i++)
@@ -806,7 +558,7 @@ void IsolatedGenParticles::beginJob() {
   bookHistograms();
 }
 
-void IsolatedGenParticles::fillTrack(
+void StudyCaloGen::fillTrack(
     GlobalPoint &posVec, math::XYZTLorentzVector &momVec, GlobalPoint &posECAL, int pdgId, bool okECAL, bool accept) {
   if (accept) {
     t_isoTrkPAll->push_back(momVec.P());
@@ -831,7 +583,7 @@ void IsolatedGenParticles::fillTrack(
   }
 }
 
-void IsolatedGenParticles::fillIsolatedTrack(math::XYZTLorentzVector &momVec, GlobalPoint &posECAL, int pdgId) {
+void StudyCaloGen::fillIsolatedTrack(math::XYZTLorentzVector &momVec, GlobalPoint &posECAL, int pdgId) {
   t_isoTrkP->push_back(momVec.P());
   t_isoTrkPt->push_back(momVec.Pt());
   t_isoTrkEne->push_back(momVec.E());
@@ -1012,12 +764,11 @@ void IsolatedGenParticles::fillIsolatedTrack(math::XYZTLorentzVector &momVec, Gl
   t_muEneIsoHCR->push_back(isoinfoIsoHCR.muEne);
 }
 
-void IsolatedGenParticles::bookHistograms() {
+void StudyCaloGen::bookHistograms() {
   edm::Service<TFileService> fs;
   //char hname[100], htit[100];
 
   h_NEventProc = fs->make<TH1I>("h_NEventProc", "h_NEventProc", 2, -0.5, 0.5);
-  h_L1AlgoNames = fs->make<TH1I>("h_L1AlgoNames", "h_L1AlgoNames:Bin Labels", 128, -0.5, 127.5);
 
   double pBin[PBins_ + 1] = {0.0,   2.0,   4.0,   6.0,   8.0,   10.0,  20.0,  30.0,  40.0,  50.0,  60.0,
                              70.0,  80.0,  90.0,  100.0, 150.0, 200.0, 250.0, 300.0, 350.0, 400.0, 450.0,
@@ -1038,7 +789,7 @@ void IsolatedGenParticles::bookHistograms() {
   }
 
   // build the tree
-  tree_ = fs->make<TTree>("tree_", "tree");
+  tree_ = fs->make<TTree>("StudyCaloGen", "StudyCaloGen");
 
   t_isoTrkPAll = new std::vector<double>();
   t_isoTrkPtAll = new std::vector<double>();
@@ -1227,32 +978,6 @@ void IsolatedGenParticles::bookHistograms() {
   t_eleEneIsoHCR = new std::vector<double>();
   t_muEneIsoHCR = new std::vector<double>();
 
-  //----- L1Trigger
-  t_L1Decision = new std::vector<int>();
-  t_L1CenJetPt = new std::vector<double>();
-  t_L1CenJetEta = new std::vector<double>();
-  t_L1CenJetPhi = new std::vector<double>();
-  t_L1FwdJetPt = new std::vector<double>();
-  t_L1FwdJetEta = new std::vector<double>();
-  t_L1FwdJetPhi = new std::vector<double>();
-  t_L1TauJetPt = new std::vector<double>();
-  t_L1TauJetEta = new std::vector<double>();
-  t_L1TauJetPhi = new std::vector<double>();
-  t_L1MuonPt = new std::vector<double>();
-  t_L1MuonEta = new std::vector<double>();
-  t_L1MuonPhi = new std::vector<double>();
-  t_L1IsoEMPt = new std::vector<double>();
-  t_L1IsoEMEta = new std::vector<double>();
-  t_L1IsoEMPhi = new std::vector<double>();
-  t_L1NonIsoEMPt = new std::vector<double>();
-  t_L1NonIsoEMEta = new std::vector<double>();
-  t_L1NonIsoEMPhi = new std::vector<double>();
-  t_L1METPt = new std::vector<double>();
-  t_L1METEta = new std::vector<double>();
-  t_L1METPhi = new std::vector<double>();
-
-  //tree_->Branch("t_nEvtProc",          "std::vector<int>",    &t_nEvtProc);
-
   tree_->Branch("t_isoTrkPAll", "std::vector<double>", &t_isoTrkPAll);
   tree_->Branch("t_isoTrkPtAll", "std::vector<double>", &t_isoTrkPtAll);
   tree_->Branch("t_isoTrkPhiAll", "std::vector<double>", &t_isoTrkPhiAll);
@@ -1439,32 +1164,9 @@ void IsolatedGenParticles::bookHistograms() {
   tree_->Branch("t_photonEneIsoHCR", "std::vector<double>", &t_photonEneIsoHCR);
   tree_->Branch("t_eleEneIsoHCR", "std::vector<double>", &t_eleEneIsoHCR);
   tree_->Branch("t_muEneIsoHCR", "std::vector<double>", &t_muEneIsoHCR);
-
-  tree_->Branch("t_L1Decision", "std::vector<int>", &t_L1Decision);
-  tree_->Branch("t_L1CenJetPt", "std::vector<double>", &t_L1CenJetPt);
-  tree_->Branch("t_L1CenJetEta", "std::vector<double>", &t_L1CenJetEta);
-  tree_->Branch("t_L1CenJetPhi", "std::vector<double>", &t_L1CenJetPhi);
-  tree_->Branch("t_L1FwdJetPt", "std::vector<double>", &t_L1FwdJetPt);
-  tree_->Branch("t_L1FwdJetEta", "std::vector<double>", &t_L1FwdJetEta);
-  tree_->Branch("t_L1FwdJetPhi", "std::vector<double>", &t_L1FwdJetPhi);
-  tree_->Branch("t_L1TauJetPt", "std::vector<double>", &t_L1TauJetPt);
-  tree_->Branch("t_L1TauJetEta", "std::vector<double>", &t_L1TauJetEta);
-  tree_->Branch("t_L1TauJetPhi", "std::vector<double>", &t_L1TauJetPhi);
-  tree_->Branch("t_L1MuonPt", "std::vector<double>", &t_L1MuonPt);
-  tree_->Branch("t_L1MuonEta", "std::vector<double>", &t_L1MuonEta);
-  tree_->Branch("t_L1MuonPhi", "std::vector<double>", &t_L1MuonPhi);
-  tree_->Branch("t_L1IsoEMPt", "std::vector<double>", &t_L1IsoEMPt);
-  tree_->Branch("t_L1IsoEMEta", "std::vector<double>", &t_L1IsoEMEta);
-  tree_->Branch("t_L1IsoEMPhi", "std::vector<double>", &t_L1IsoEMPhi);
-  tree_->Branch("t_L1NonIsoEMPt", "std::vector<double>", &t_L1NonIsoEMPt);
-  tree_->Branch("t_L1NonIsoEMEta", "std::vector<double>", &t_L1NonIsoEMEta);
-  tree_->Branch("t_L1NonIsoEMPhi", "std::vector<double>", &t_L1NonIsoEMPhi);
-  tree_->Branch("t_L1METPt", "std::vector<double>", &t_L1METPt);
-  tree_->Branch("t_L1METEta", "std::vector<double>", &t_L1METEta);
-  tree_->Branch("t_L1METPhi", "std::vector<double>", &t_L1METPhi);
 }
 
-void IsolatedGenParticles::clearTreeVectors() {
+void StudyCaloGen::clearTreeVectors() {
   // t_maxNearP31x31     ->clear();
   // t_nEvtProc          ->clear();
 
@@ -1654,32 +1356,9 @@ void IsolatedGenParticles::clearTreeVectors() {
   t_photonEneIsoHCR->clear();
   t_eleEneIsoHCR->clear();
   t_muEneIsoHCR->clear();
-
-  t_L1Decision->clear();
-  t_L1CenJetPt->clear();
-  t_L1CenJetEta->clear();
-  t_L1CenJetPhi->clear();
-  t_L1FwdJetPt->clear();
-  t_L1FwdJetEta->clear();
-  t_L1FwdJetPhi->clear();
-  t_L1TauJetPt->clear();
-  t_L1TauJetEta->clear();
-  t_L1TauJetPhi->clear();
-  t_L1MuonPt->clear();
-  t_L1MuonEta->clear();
-  t_L1MuonPhi->clear();
-  t_L1IsoEMPt->clear();
-  t_L1IsoEMEta->clear();
-  t_L1IsoEMPhi->clear();
-  t_L1NonIsoEMPt->clear();
-  t_L1NonIsoEMEta->clear();
-  t_L1NonIsoEMPhi->clear();
-  t_L1METPt->clear();
-  t_L1METEta->clear();
-  t_L1METPhi->clear();
 }
 
-int IsolatedGenParticles::particleCode(int pdgId) {
+int StudyCaloGen::particleCode(int pdgId) {
   int partID[Particles] = {11, -11, 21, 211, -211, 321, -321, 2212, 2112, -2212, -2112, 130};
   int ix = -1;
   for (int ik = 0; ik < Particles; ++ik) {
@@ -1692,4 +1371,4 @@ int IsolatedGenParticles::particleCode(int pdgId) {
 }
 
 //define this as a plug-in
-DEFINE_FWK_MODULE(IsolatedGenParticles);
+DEFINE_FWK_MODULE(StudyCaloGen);
