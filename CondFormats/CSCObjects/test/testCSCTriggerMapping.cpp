@@ -6,7 +6,6 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 #include <FWCore/Utilities/interface/Exception.h>
-#include <FWCore/Framework/interface/EventProcessor.h>
 #include "FWCore/PluginManager/interface/ProblemTracker.h"
 #include <CondFormats/CSCObjects/interface/CSCTriggerMappingFromFile.h>
 #include <DataFormats/MuonDetId/interface/CSCDetId.h>
@@ -42,26 +41,11 @@ public:
 
   void testRead();
 
-  int runIt(const std::string& config);
-
 private:
   const std::string myName_;
   const int dashedLineWidth;
   std::string dashedLine;
 };
-
-int testCSCTriggerMapping::runIt(const std::string& config) {
-  edm::AssertHandler ah;
-  int rc = 0;
-  try {
-    edm::EventProcessor proc(edm::getPSetFromConfig(config));
-    proc.run();
-  } catch (cms::Exception& e) {
-    std::cerr << "Exception caught:  " << e.what() << std::endl;
-    rc = 1;
-  }
-  return rc;
-}
 
 void testCSCTriggerMapping::testRead() {
   std::cout << myName_ << ": --- t e s t C S C T r i g g e r M a p p i n g  ---" << std::endl;
