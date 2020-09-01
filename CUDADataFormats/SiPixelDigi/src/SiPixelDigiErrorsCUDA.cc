@@ -38,5 +38,5 @@ SiPixelDigiErrorsCUDA::HostDataError SiPixelDigiErrorsCUDA::dataErrorToHostAsync
   }
   auto err = *error_h;
   err.set_data(data.get());
-  return HostDataError(std::move(err), std::move(data));
+  return HostDataError(err, std::move(data));
 }
