@@ -516,6 +516,16 @@ sudo journalctl -u dqmgui-cleanup
 
 `dqmgui.service` uses `Requires` systemd option: `Requires=dqmgui-cleanup.service`. This means that whenever `dqmgui-cleanup.service` is exited, `dqmgui.service` is also exited and starting `dqmgui.service` also starts `dqmgui-cleanup.service`. Both services are configured to restart automatically. `dqmgui-cleanup.service` periodically checks if it's working directory is the same as `current_playback`/`currnet_production`. When it changes, `dqmgui-cleanup.service` just terminates causing `dqmgui.service` to terminate as well. And both services will be restarted by the systemd from an updated CMSSW release. The relationship is not bidirectional! Killing `dqmgui.service` doesn't kill `dqmgui-cleanup.service`!
 
+## Create required directories
+
+``` bash
+sudo -u dqmpro -H bash
+mkdir -p /data/dqmgui/files/root/
+mkdir -p /data/dqmgui/files/pb/
+mkdir -p /data/dqmgui/scripts
+mkdir -p /data/dqmgui/state
+```
+
 # TODO
 
 Backend related task list.
