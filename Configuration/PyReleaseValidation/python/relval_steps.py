@@ -2577,7 +2577,7 @@ steps['HARVESTDCRUN2']=merge([{'--conditions':'auto:run2_data','--era':'Run2_201
 
 steps['HARVESTDR2_REMINIAOD_data2016']=merge([{'--data':'', '-s':'HARVESTING:@miniAODDQM','--era':'Run2_2016,run2_miniAOD_80XLegacy'},steps['HARVESTDR2']])
 steps['HARVESTDR2_REMINIAOD_data2016_HIPM']=merge([{'--era':'Run2_2016_HIPM,run2_miniAOD_80XLegacy'},steps['HARVESTDR2_REMINIAOD_data2016']])
-steps['HARVESTDR2_REMINIAOD_data2016UL']=merge([{'--era':'Run2_2016', '--procModifiers':'run2_miniAOD_UL'},steps['HARVESTDR2_REMINIAOD_data2016']])
+steps['HARVESTDR2_REMINIAOD_data2016UL']=merge([{'--era':'Run2_2016', '--procModifiers':'run2_miniAOD_UL_preSummer20'},steps['HARVESTDR2_REMINIAOD_data2016']])
 steps['HARVESTDR2_REMINIAOD_data2016UL_HIPM']=merge([{'--era':'Run2_2016_HIPM'},steps['HARVESTDR2_REMINIAOD_data2016UL']])
 
 steps['HARVEST2017_REMINIAOD_data2017']=merge([{'--era':'Run2_2017,run2_miniAOD_94XFall17'},steps['HARVESTDR2_REMINIAOD_data2016']])
@@ -2741,10 +2741,10 @@ steps['HARVESTUP18_PU25_L1TMuDQM']=steps['HARVESTUP18_L1TMuDQM']
 steps['HARVESTDR2_REMINIAOD_mc2016']=merge([{'-s':'HARVESTING:@miniAODValidation+@miniAODDQM','--era':'Run2_2016,run2_miniAOD_80XLegacy'},steps['HARVESTUP15']])
 steps['HARVESTUP17_REMINIAOD_mc2017']=merge([{'-s':'HARVESTING:@miniAODValidation+@miniAODDQM','--era':'Run2_2017,run2_miniAOD_94XFall17'},steps['HARVESTUP17']])
 # UL setup uses proc modifiers
-steps['HARVESTDR2_REMINIAOD_mc2016UL_preVFP']=merge([{'--conditions':'auto:run2_mc_pre_vfp','--era':'Run2_2016_HIPM','--procModifiers':'run2_miniAOD_UL'},
+steps['HARVESTDR2_REMINIAOD_mc2016UL_preVFP']=merge([{'--conditions':'auto:run2_mc_pre_vfp','--era':'Run2_2016_HIPM','--procModifiers':'run2_miniAOD_UL_preSummer20'},
                                                      steps['HARVESTDR2_REMINIAOD_mc2016']])
 steps['HARVESTDR2_REMINIAOD_mc2016UL_postVFP']=merge([{'--conditions':'auto:run2_mc','--era':'Run2_2016'},steps['HARVESTDR2_REMINIAOD_mc2016UL_preVFP']])
-steps['HARVESTUP17_REMINIAOD_mc2017UL']=merge([{'--era':'Run2_2017','--procModifiers':'run2_miniAOD_UL'},steps['HARVESTUP17_REMINIAOD_mc2017']])
+steps['HARVESTUP17_REMINIAOD_mc2017UL']=merge([{'--era':'Run2_2017','--procModifiers':'run2_miniAOD_UL_preSummer20'},steps['HARVESTUP17_REMINIAOD_mc2017']])
 steps['HARVESTUP18_REMINIAOD_mc2018UL']=merge([{'--conditions':'auto:phase1_2018_realistic','--era':'Run2_2018'},steps['HARVESTUP17_REMINIAOD_mc2017UL']])
 
 # for Run1 PPb data workflow
@@ -2843,7 +2843,7 @@ steps['REMINIAOD_data2016'] = merge([{'-s' : 'PAT,DQM:@miniAODDQM',
                                       },stepMiniAODDefaults])
 
 steps['REMINIAOD_data2016_HIPM'] = merge([{'--era' : 'Run2_2016_HIPM,run2_miniAOD_80XLegacy'},steps['REMINIAOD_data2016']])
-steps['REMINIAOD_data2016UL'] = merge([{'--era' : 'Run2_2016', '--procModifiers' : 'run2_miniAOD_UL'},steps['REMINIAOD_data2016']])
+steps['REMINIAOD_data2016UL'] = merge([{'--era' : 'Run2_2016', '--procModifiers' : 'run2_miniAOD_UL_preSummer20'},steps['REMINIAOD_data2016']])
 steps['REMINIAOD_data2016UL_HIPM'] = merge([{'--era' : 'Run2_2016_HIPM'},steps['REMINIAOD_data2016UL']])
 
 stepReMiniAODData17 = merge([{'--era' : 'Run2_2017,run2_miniAOD_94XFall17'},steps['REMINIAOD_data2016']])
@@ -2876,10 +2876,10 @@ steps['REMINIAOD_mc2016'] = merge([{'-s' : 'PAT,VALIDATION:@miniAODValidation,DQ
 
 steps['REMINIAOD_mc2017'] =merge([{'--conditions':'auto:phase1_2017_realistic','--era':'Run2_2017,run2_miniAOD_94XFall17'},steps['REMINIAOD_mc2016']])
 # UL uses procModifiers:
-steps['REMINIAOD_mc2016UL_preVFP']=merge([{'--conditions':'auto:run2_mc_pre_vfp','--era':'Run2_2016_HIPM','--procModifiers':'run2_miniAOD_UL'},steps['REMINIAOD_mc2016']])
+steps['REMINIAOD_mc2016UL_preVFP']=merge([{'--conditions':'auto:run2_mc_pre_vfp','--era':'Run2_2016_HIPM','--procModifiers':'run2_miniAOD_UL_preSummer20'},steps['REMINIAOD_mc2016']])
 steps['REMINIAOD_mc2016UL_postVFP']=merge([{'--conditions':'auto:run2_mc','--era':'Run2_2016'},steps['REMINIAOD_mc2016UL_preVFP']])
-steps['REMINIAOD_mc2017UL']=merge([{'--era':'Run2_2017','--procModifiers':'run2_miniAOD_UL'},steps['REMINIAOD_mc2017']])
-steps['REMINIAOD_mc2018UL']=merge([{'--conditions':'auto:phase1_2018_realistic','--era':'Run2_2018','--procModifiers':'run2_miniAOD_UL'},steps['REMINIAOD_mc2017']])
+steps['REMINIAOD_mc2017UL']=merge([{'--era':'Run2_2017','--procModifiers':'run2_miniAOD_UL_preSummer20'},steps['REMINIAOD_mc2017']])
+steps['REMINIAOD_mc2018UL']=merge([{'--conditions':'auto:phase1_2018_realistic','--era':'Run2_2018','--procModifiers':'run2_miniAOD_UL_preSummer20'},steps['REMINIAOD_mc2017']])
 
 #steps['MINIAODDATA']       =merge([stepMiniAODData])
 #steps['MINIAODDreHLT']     =merge([{'--conditions':'auto:run1_data_%s'%menu},stepMiniAODData])
