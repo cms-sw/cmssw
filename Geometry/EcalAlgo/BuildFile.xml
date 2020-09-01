@@ -8,3 +8,8 @@
 <use name="CondFormats/Alignment"/>
 <use name="CondFormats/AlignmentRecord"/>
 <use name="Geometry/Records"/>
+<use name="CondCore/CondDB"/>
+<use name="FWCore/Framework"/>
+<use name="FWCore/ServiceRegistry"/>
+<use name="FWCore/Utilities"/>
+<use name="Geometry/EcalCommonData"/>
