@@ -253,10 +253,12 @@ namespace edm {
             std::string instanceAlias = pset.getParameter<std::string>("toProductInstance");
 
             if (friendlyClassName == star) {
+              bool processHasLabel = false;
               bool match = false;
               for (auto it = moduleLabelToBranches.lower_bound(moduleLabel);
                    it != moduleLabelToBranches.end() && it->first == moduleLabel;
                    ++it) {
+                processHasLabel = true;
                 if (productInstanceName != star and productInstanceName != it->second.productInstanceName()) {
                   continue;
                 }
@@ -272,28 +274,14 @@ namespace edm {
                                     aliasMap,
                                     aliasKeys);
               }
-              if (not match) {
+              if (not match and processHasLabel) {
                 // No product was found matching the alias.
                 // We throw an exception only if a module with the specified module label was created in this process.
-                for (auto const& product : preg.productList()) {
-                  if (moduleLabel == product.first.moduleLabel() && processName == product.first.processName()) {
-                    if (productInstanceName == star) {
-                      // This one doesn't really throw currently,
-                      // because there is no way a module would
-                      // produce something but would not be found with
-                      // wildcards for both the type and the instance
-                      // name. I'm leaving the exception here though
-                      // in case the condition above to throw an
-                      // exception gets changed.
-                      throw Exception(errors::Configuration, "EDAlias parameter set mismatch\n")
-                          << "There are no products with module label '" << moduleLabel << "'.\n";
-                    } else {
-                      throw Exception(errors::Configuration, "EDAlias parameter set mismatch\n")
-                          << "There are no products with module label '" << moduleLabel
-                          << "' and product instance name '" << productInstanceName << "'.\n";
-                    }
-                  }
-                }
+                // Note that if that condition is ever relatex, it  might be best to throw an exception with different
+                // message (omitting productInstanceName) in case 'productInstanceName == start'
+                throw Exception(errors::Configuration, "EDAlias parameter set mismatch\n")
+                    << "There are no products with module label '" << moduleLabel << "' and product instance name '"
+                    << productInstanceName << "'.\n";
               }
             } else if (productInstanceName == star) {
               bool match = false;
