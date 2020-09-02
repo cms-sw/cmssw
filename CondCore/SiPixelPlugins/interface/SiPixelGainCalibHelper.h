@@ -1204,8 +1204,8 @@ namespace gainCalibHelper {
 
       // trick to deal with the multi-ioved tag and two tag case at the same time
       auto theIOVs = cond::payloadInspector::PlotBase::getTag<0>().iovs;
-      auto tagname1 = cond::payloadInspector::PlotBase::getTag<0>().name;
-      std::string tagname2 = "";
+      auto f_tagname = cond::payloadInspector::PlotBase::getTag<0>().name;
+      std::string l_tagname = "";
       auto firstiov = theIOVs.front();
       std::tuple<cond::Time_t, cond::Hash> lastiov;
 
@@ -1214,7 +1214,7 @@ namespace gainCalibHelper {
 
       if (this->m_plotAnnotations.ntags == 2) {
         auto tag2iovs = cond::payloadInspector::PlotBase::getTag<1>().iovs;
-        tagname2 = cond::payloadInspector::PlotBase::getTag<1>().name;
+        l_tagname = cond::payloadInspector::PlotBase::getTag<1>().name;
         lastiov = tag2iovs.front();
       } else {
         lastiov = theIOVs.back();
@@ -1282,7 +1282,7 @@ namespace gainCalibHelper {
           fmt::sprintf("#scale[1.2]{SiPixelGainCalibration%s Ratio}", (isForHLT_ ? "ForHLT" : "Offline")).c_str());
       if (this->m_plotAnnotations.ntags == 2) {
         latex.DrawLatexNDC(
-            .41, .91, ("#splitline{#font[12]{" + tagname1 + "}}{ / #font[12]{" + tagname2 + "}}").c_str());
+            .41, .91, ("#splitline{#font[12]{" + f_tagname + "}}{ / #font[12]{" + l_tagname + "}}").c_str());
       } else {
         latex.DrawLatexNDC(.41, .91, (firstIOVsince + " / " + lastIOVsince).c_str());
       }
@@ -1297,7 +1297,7 @@ namespace gainCalibHelper {
           fmt::sprintf("#scale[1.2]{SiPixelGainCalibration%s Diff}", (isForHLT_ ? "ForHLT" : "Offline")).c_str());
       if (this->m_plotAnnotations.ntags == 2) {
         latex2.DrawLatexNDC(
-            .41, .91, ("#splitline{#font[12]{" + tagname1 + "}}{ - #font[12]{" + tagname2 + "}}").c_str());
+            .41, .91, ("#splitline{#font[12]{" + f_tagname + "}}{ - #font[12]{" + l_tagname + "}}").c_str());
       } else {
         latex2.DrawLatexNDC(.41, .91, (firstIOVsince + " - " + lastIOVsince).c_str());
       }
