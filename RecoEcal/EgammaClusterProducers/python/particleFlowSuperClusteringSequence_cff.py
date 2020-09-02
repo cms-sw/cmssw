@@ -28,7 +28,6 @@ phase2_hgcal.toModify(
 particleFlowSuperClusterHGCalFromMultiCl = particleFlowSuperClusterHGCal.clone()
 phase2_hgcal.toModify(
     particleFlowSuperClusterHGCalFromMultiCl,
-    #PFClusters = cms.InputTag('particleFlowClusterHGCalFromMultiCl')
     PFClusters = 'particleFlowClusterHGCalFromMultiCl'
 )
 _phase2_hgcal_particleFlowSuperClusteringTask = particleFlowSuperClusteringTask.copy()
