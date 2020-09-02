@@ -169,6 +169,10 @@ namespace {
                             std::vector<WrapperBase const*>& wrappers,
                             std::vector<unsigned int>& keys) const override {}
 
+    edm::OptionalThinnedKey getThinnedKeyFrom(ProductID const&, unsigned int, ProductID const&) const override {
+      return std::monostate{};
+    }
+
     unsigned int transitionIndex_() const override { return 0U; }
 
     edm::Wrapper<T> const* prod_;

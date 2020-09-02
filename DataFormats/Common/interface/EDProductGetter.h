@@ -19,17 +19,24 @@
 // user include files
 
 // system include files
+#include <functional>
 #include <optional>
 #include <string>
 #include <tuple>
+#include <variant>
 #include <vector>
 
 // forward declarations
 
 namespace edm {
 
+  class Exception;
   class ProductID;
   class WrapperBase;
+  namespace detail {
+    using GetThinnedKeyFromExceptionFactory = std::function<edm::Exception()>;
+  }
+  using OptionalThinnedKey = std::variant<unsigned int, detail::GetThinnedKeyFromExceptionFactory, std::monostate>;
 
   class EDProductGetter {
   public:
@@ -66,6 +73,23 @@ namespace edm {
     virtual void getThinnedProducts(ProductID const& pid,
                                     std::vector<WrapperBase const*>& foundContainers,
                                     std::vector<unsigned int>& keys) const = 0;
+
+    // This overload is allowed to be called also without getIt()
+    // being called first, but the thinned ProductID must come from an
+    // existing RefCore. The input key is the index of the desired
+    // element in the container identified by the parent ProductID.
+    // Returns an std::variant whose contents can be
+    // - unsigned int for the index in the thinned collection if the
+    //   desired element was found in the thinned collection
+    // - function creating an edm::Exception if parent is not a parent
+    //   of any thinned collection, thinned is not really a thinned
+    //   collection, or parent and thinned have no thinning
+    //   relationship
+    // - std::monostate if thinned is thinned from parent, but the key
+    //   is not found in the thinned collection
+    virtual OptionalThinnedKey getThinnedKeyFrom(ProductID const& parent,
+                                                 unsigned int key,
+                                                 ProductID const& thinned) const = 0;
 
     unsigned int transitionIndex() const { return transitionIndex_(); }
 
