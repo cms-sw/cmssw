@@ -13,7 +13,7 @@ This example creates a histogram of Electron Pt, using Electrons with Pt above 3
 
 #if !defined(__CINT__) && !defined(__MAKECINT__)
 #include "DataFormats/PatCandidates/interface/Electron.h"
-#include "PhysicsTools/PatUtils/interface/ElectronVPlusJetsIDSelectionFunctor.h"
+#include "PhysicsTools/SelectorUtils/interface/ElectronVPlusJetsIDSelectionFunctor.h"
 #endif
 
 #include <iostream>

@@ -13,7 +13,7 @@ This example creates a histogram of Jet Pt, using Jets with Pt above 30 and ETA 
 
 #if !defined(__CINT__) && !defined(__MAKECINT__)
 #include "DataFormats/PatCandidates/interface/Jet.h"
-#include "PhysicsTools/PatUtils/interface/JetIDSelectionFunctor.h"
+#include "PhysicsTools/SelectorUtils/interface/JetIDSelectionFunctor.h"
 #endif
 
 #include <iostream>
