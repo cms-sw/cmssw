@@ -15,11 +15,11 @@ static long algorithm(dd4hep::Detector& /* description */,
   cms::DDAlgoArguments args(ctxt, e);
 
   // Header section of original DDGEMAngular.h
-  float startAngle = args.value<float>("startAngle");
-  float stepAngle = args.value<float>("stepAngle");
+  double startAngle = args.value<double>("startAngle");
+  double stepAngle = args.value<double>("stepAngle");
   int invert = args.value<int>("invert");
-  float rPos = args.value<float>("rPosition");
-  float zoffset = args.value<float>("zoffset");
+  double rPos = args.value<double>("rPosition");
+  double zoffset = args.value<double>("zoffset");
   int n = args.value<int>("n");
   int startCopyNo = args.value<int>("startCopyNo");
   int incrCopyNo = args.value<int>("incrCopyNo");
@@ -42,16 +42,16 @@ static long algorithm(dd4hep::Detector& /* description */,
 #endif
 
   // Now position child in mother *n* times
-  float phi = startAngle;
+  double phi = startAngle;
   int copyNo = startCopyNo;
   for (int ii = 0; ii < n; ii++) {
-    float phitmp = phi;
+    double phitmp = phi;
     if (phitmp >= 2._pi)
       phitmp -= 2._pi;
-    float thetax = 90.0_deg;
-    float phix = invert == 0 ? (90.0_deg + phitmp) : (-90.0_deg + phitmp);
-    float thetay = invert == 0 ? 0.0 : 180.0_deg;
-    float phiz = phitmp;
+    double thetax = 90.0_deg;
+    double phix = invert == 0 ? (90.0_deg + phitmp) : (-90.0_deg + phitmp);
+    double thetay = invert == 0 ? 0.0 : 180.0_deg;
+    double phiz = phitmp;
 #ifdef EDM_ML_DEBUG
     edm::LogVerbatim("MuonGeom") << "DDGEMAngular: Creating a rotation " << convertRadToDeg(thetax) << ", "
                                  << convertRadToDeg(phix) << ", " << convertRadToDeg(thetay) << ", 0, "
