@@ -46,7 +46,7 @@ void MuonReducedTrackExtraProducer::fillDescriptions(edm::ConfigurationDescripti
   desc.add<std::vector<edm::InputTag>>("trackExtraAssocs", {});
   desc.add<edm::InputTag>("pixelClusterTag", edm::InputTag("siPixelClusters"));
   desc.add<edm::InputTag>("stripClusterTag", edm::InputTag("siStripClusters"));
-  desc.add<std::string>("cut", "pt > 4.5");
+  desc.add<std::string>("cut", "pt > 3.0");
   desc.add<bool>("outputClusters", true);
   descriptions.add("muonReducedTrackExtras", desc);
 }
