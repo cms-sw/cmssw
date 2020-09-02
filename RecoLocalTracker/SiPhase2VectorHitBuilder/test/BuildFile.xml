@@ -17,7 +17,6 @@
 <use   name="DQMServices/Core"/>
 <use   name="DataFormats/Common"/>
 <use   name="FWCore/PluginManager"/>
-<use   name="SimTracker/SiPhase2Digitizer"/>
 <use   name="DataFormats/TrackerRecHit2D"/>
 <use   name="DataFormats/Phase2TrackerCluster"/>
 <use   name="DataFormats/ParticleFlowCandidate"/>
