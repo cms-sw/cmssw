@@ -110,6 +110,7 @@ namespace fastsim {
             \return Index of that simTrack.
         */
     unsigned addSimTrack(const Particle* particle);
+    void exoticRelativesChecker(const HepMC::GenVertex* originVertex, int& hasExoticAssociation, int ngendepth);
 
     //! Returns next particle from the GenEvent that has to be propagated.
     /*!
