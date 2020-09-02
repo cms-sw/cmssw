@@ -44,13 +44,13 @@ static long algorithm(dd4hep::Detector& /* description */,
   // Now position child in mother *n* times
   double phi = startAngle;
   int copyNo = startCopyNo;
+  double thetax = 90.0_deg;
+  double thetay = invert == 0 ? 0.0 : 180.0_deg;
   for (int ii = 0; ii < n; ii++) {
     double phiz = phi;
     if (phiz >= 2._pi)
       phiz -= 2._pi;
-    double thetax = 90.0_deg;
     double phix = invert == 0 ? (90.0_deg + phiz) : (-90.0_deg + phiz);
-    double thetay = invert == 0 ? 0.0 : 180.0_deg;
 #ifdef EDM_ML_DEBUG
     edm::LogVerbatim("MuonGeom") << "DDGEMAngular: Creating a rotation " << convertRadToDeg(thetax) << ", "
                                  << convertRadToDeg(phix) << ", " << convertRadToDeg(thetay) << ", 0, "
