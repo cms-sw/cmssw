@@ -48,7 +48,7 @@ public:
 
 private:
   bool filter(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
-  std::vector<int> getNoiseBits(std::vector<std::string> noiseList) const;
+  std::vector<int> getNoiseBits() const;
   const edm::EDGetTokenT<HFRecHitCollection> hfhits_token_;
   const double rechitPtThreshold_;
   const std::vector<std::string> listOfNoises_;
@@ -85,7 +85,7 @@ bool HFNoisyHitsFilter::filter(edm::StreamID, edm::Event& iEvent, const edm::Eve
   edm::Handle<HFRecHitCollection> theHFhits;
   iEvent.getByToken(hfhits_token_, theHFhits);
 
-  std::vector<int> noiseBits = getNoiseBits(listOfNoises_);
+  std::vector<int> noiseBits = getNoiseBits();
 
   //Loop over the HF rechits. If one of them has Et>X and fires one the noise bits, declare the event as bad
   for (HFRecHitCollection::const_iterator hfhit = theHFhits->begin(); hfhit != theHFhits->end(); hfhit++) {
@@ -113,21 +113,22 @@ bool HFNoisyHitsFilter::filter(edm::StreamID, edm::Event& iEvent, const edm::Eve
   return taggingMode_ || pass;
 }
 
-std::vector<int> HFNoisyHitsFilter::getNoiseBits(std::vector<std::string> noiseList) const {
+std::vector<int> HFNoisyHitsFilter::getNoiseBits() const {
   std::vector<int> result;
-  for (unsigned int i = 0; i < noiseList.size(); i++) {
-    if (noiseList[i] == "HFLongShort")
+  for (unsigned int i = 0; i < listOfNoises_.size(); i++) {
+    if (listOfNoises_[i] == "HFLongShort")
       result.push_back(HcalPhase1FlagLabels::HFLongShort);
-    else if (noiseList[i] == "HFS8S1Ratio")
+    else if (listOfNoises_[i] == "HFS8S1Ratio")
       result.push_back(HcalPhase1FlagLabels::HFS8S1Ratio);
-    else if (noiseList[i] == "HFPET")
+    else if (listOfNoises_[i] == "HFPET")
       result.push_back(HcalPhase1FlagLabels::HFPET);
-    else if (noiseList[i] == "HFSignalAsymmetry")
+    else if (listOfNoises_[i] == "HFSignalAsymmetry")
       result.push_back(HcalPhase1FlagLabels::HFSignalAsymmetry);
-    else if (noiseList[i] == "HFAnomalousHit")
+    else if (listOfNoises_[i] == "HFAnomalousHit")
       result.push_back(HcalPhase1FlagLabels::HFAnomalousHit);
     else if (debug_)
-      edm::LogWarning("HFNoisyHitsFilter") << "Couldn't find the bit index associated to this string: " << noiseList[i];
+      edm::LogWarning("HFNoisyHitsFilter")
+          << "Couldn't find the bit index associated to this string: " << listOfNoises_[i];
   }
 
   return result;
