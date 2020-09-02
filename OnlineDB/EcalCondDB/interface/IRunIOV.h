@@ -11,13 +11,13 @@ typedef int run_t;
 class IIOV;
 
 class IRunIOV {
- public:
+public:
   virtual ~IRunIOV() {}
 
-  virtual void fetchAt(IIOV* fillIOV, const run_t run, ITag* tag) const noexcept(false) =0;
+  virtual void fetchAt(IIOV* fillIOV, const run_t run, ITag* tag) const noexcept(false) = 0;
 
-  virtual void fetchWithin(std::vector<IIOV>* fillVec, const run_t beginRun, const run_t endRun, ITag* tag) const noexcept(false) =0;
-  
+  virtual void fetchWithin(std::vector<IIOV>* fillVec, const run_t beginRun, const run_t endRun, ITag* tag) const
+      noexcept(false) = 0;
 };
 
 #endif
