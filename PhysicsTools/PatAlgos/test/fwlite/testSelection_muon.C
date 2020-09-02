@@ -13,7 +13,7 @@ This example creates a histogram of Muon Pt, using Muons with Pt above 30 and ET
 
 #if !defined(__CINT__) && !defined(__MAKECINT__)
 #include "DataFormats/PatCandidates/interface/Muon.h"
-#include "PhysicsTools/PatUtils/interface/MuonVPlusJetsIDSelectionFunctor.h"
+#include "PhysicsTools/SelectorUtils/interface/MuonVPlusJetsIDSelectionFunctor.h"
 #endif
 
 #include <iostream>
