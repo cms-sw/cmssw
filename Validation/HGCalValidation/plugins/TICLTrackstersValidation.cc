@@ -21,6 +21,7 @@
 using namespace ticl;
 
 struct Histogram_TICLTrackstersValidation {
+  dqm::reco::MonitorElement* number_;
   dqm::reco::MonitorElement* energy_;
   dqm::reco::MonitorElement* delta_energy_;
   dqm::reco::MonitorElement* delta_energy_relative_;
@@ -99,6 +100,7 @@ void TICLTrackstersValidation::dqmAnalyze(edm::Event const& iEvent,
     auto numberOfTracksters = trackster_h->size();
     //using .at() as [] is not const
     const auto& histo = histos.at(trackster_token.index());
+    histo.number_->Fill(numberOfTracksters);
     for (unsigned int i = 0; i < numberOfTracksters; ++i) {
       const auto& thisTrackster = trackster_h->at(i);
       histo.energy_->Fill(thisTrackster.regressed_energy());
@@ -178,6 +180,7 @@ void TICLTrackstersValidation::bookHistograms(DQMStore::IBooker& ibook,
   for (const auto& trackster_token : tracksterTokens_) {
     auto& histo = histos[trackster_token.index()];
     ibook.setCurrentFolder(folder_ + "TICLTracksters/" + trackstersCollectionsNames_[labelIndex]);
+    histo.number_ = ibook.book1D("Number of Trackster per Event", "Number of Trackster per Event", 250, 0., 250.);
     histo.energy_ = ibook.book1D("Regressed Energy", "Energy", 250, 0., 250.);
     histo.delta_energy_ = ibook.book1D("Delta energy", "Delta Energy (O-I)", 800, -20., 20.);
     histo.delta_energy_relative_ = ibook.book1D("Relative Delta energy", "Relative Delta Energy (O-I)/I", 200, -10., 10.);
