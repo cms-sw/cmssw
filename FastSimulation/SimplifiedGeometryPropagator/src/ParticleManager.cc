@@ -218,7 +218,9 @@ std::unique_ptr<fastsim::Particle> fastsim::ParticleManager::nextGenParticle() {
     if (productionVertex->position().perp2() * lengthUnitConversionFactor2_ > beamPipeRadius2_)  //
     {
       exoticRelativesChecker(productionVertex, exoticRelativeId, 0);
-      bool hasExoticAssociation = bool(std::abs(exoticRelativeId) > 1000000);
+      int relpid = std::abs(exoticRelativeId);
+      bool hasExoticAssociation =
+          (relpid >= 1000000 && relpid < 4000000 && relpid != 3000022) || relpid == 17 || relpid == 34 || relpid == 37;
       if (!hasExoticAssociation) {
         continue;
       }
@@ -281,20 +283,28 @@ std::unique_ptr<fastsim::Particle> fastsim::ParticleManager::nextGenParticle() {
 void fastsim::ParticleManager::exoticRelativesChecker(const HepMC::GenVertex* originVertex,
                                                       int& exoticRelativeId_,
                                                       int ngendepth = 0) {
-  if (ngendepth > 3 || exoticRelativeId_ == -1 || std::abs(exoticRelativeId_) > 1000000)
+  int relpid = std::abs(exoticRelativeId_);
+  bool relIsExotic =
+      (relpid >= 1000000 && relpid < 4000000 && relpid != 3000022) || relpid == 17 || relpid == 34 || relpid == 37;
+  if (ngendepth > 99 || exoticRelativeId_ == -1 || relIsExotic)
     return;
   ngendepth += 1;
   std::vector<HepMC::GenParticle*>::const_iterator relativesIterator_ = originVertex->particles_in_const_begin();
   std::vector<HepMC::GenParticle*>::const_iterator relativesIteratorEnd_ = originVertex->particles_in_const_end();
   for (; relativesIterator_ != relativesIteratorEnd_; ++relativesIterator_) {
     const HepMC::GenParticle& genRelative = **relativesIterator_;
-    if (std::abs(genRelative.pdg_id()) > 1000000) {
+    relpid = std::abs(genRelative.pdg_id());
+    relIsExotic =
+        (relpid >= 1000000 && relpid < 4000000 && relpid != 3000022) || relpid == 17 || relpid == 34 || relpid == 37;
+    if (relIsExotic) {
       exoticRelativeId_ = genRelative.pdg_id();
-      if (ngendepth == 4)
+      if (ngendepth == 100)
         exoticRelativeId_ = -1;
       return;
     }
     const HepMC::GenVertex* vertex_ = genRelative.production_vertex();
+    if (!vertex_)
+      return;
     exoticRelativesChecker(vertex_, exoticRelativeId_, ngendepth);
   }
   return;
