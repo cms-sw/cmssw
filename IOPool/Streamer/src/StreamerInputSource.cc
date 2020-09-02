@@ -494,6 +494,15 @@ namespace edm {
       eventPrincipal_->getThinnedProducts(pid, wrappers, keys);
   }
 
+  edm::OptionalThinnedKey StreamerInputSource::EventPrincipalHolder::getThinnedKeyFrom(
+      edm::ProductID const& parent, unsigned int index, edm::ProductID const& thinned) const {
+    if (eventPrincipal_) {
+      return eventPrincipal_->getThinnedKeyFrom(parent, index, thinned);
+    } else {
+      return std::monostate{};
+    }
+  }
+
   unsigned int StreamerInputSource::EventPrincipalHolder::transitionIndex_() const {
     assert(eventPrincipal_ != nullptr);
     return eventPrincipal_->transitionIndex();

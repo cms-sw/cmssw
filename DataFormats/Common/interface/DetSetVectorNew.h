@@ -438,7 +438,7 @@ namespace edmNew {
 
     explicit DetSetVector(int isubdet = 0) : m_subdetId(isubdet) {}
 
-    DetSetVector(std::shared_ptr<dslv::LazyGetter<T> > iGetter, const std::vector<det_id_type>& iDets, int isubdet = 0);
+    DetSetVector(std::shared_ptr<dslv::LazyGetter<T>> iGetter, const std::vector<det_id_type>& iDets, int isubdet = 0);
 
     ~DetSetVector() {
       // delete content if T is pointer...
@@ -670,7 +670,7 @@ namespace edmNew {
       assert(item.initializing());
       {
         TSFastFiller ff(*this, item);
-        (*boost::any_cast<std::shared_ptr<Getter> >(&m_getter))->fill(ff);
+        (*boost::any_cast<std::shared_ptr<Getter>>(&m_getter))->fill(ff);
       }
       assert(item.isValid());
     }
@@ -721,7 +721,7 @@ namespace edm {
     };
 
     template <typename T>
-    struct FindTrait<edmNew::DetSetVector<T>, edmNew::DetSet<T> > {
+    struct FindTrait<edmNew::DetSetVector<T>, edmNew::DetSet<T>> {
       typedef FindSetForNewDetSetVector<T> value;
     };
   }  // namespace refhelper
@@ -735,7 +735,7 @@ namespace edmNew {
   edm::Ref<typename HandleT::element_type, typename HandleT::element_type::value_type::value_type> makeRefTo(
       const HandleT& iHandle, typename HandleT::element_type::value_type::const_iterator itIter) {
     static_assert(std::is_same<typename HandleT::element_type,
-                               DetSetVector<typename HandleT::element_type::value_type::value_type> >::value,
+                               DetSetVector<typename HandleT::element_type::value_type::value_type>>::value,
                   "Handle and DetSetVector do not have compatible types.");
     auto index = itIter - &iHandle->data().front();
     return edm::Ref<typename HandleT::element_type, typename HandleT::element_type::value_type::value_type>(
@@ -747,7 +747,7 @@ namespace edmNew {
 
 namespace edm {
   template <typename T>
-  class ContainerMaskTraits<edmNew::DetSetVector<T> > {
+  class ContainerMaskTraits<edmNew::DetSetVector<T>> {
   public:
     typedef T value_type;
 
@@ -757,6 +757,32 @@ namespace edm {
     }
   };
 }  // namespace edm
+
+// Thinning support
+#include "DataFormats/Common/interface/fillCollectionForThinning.h"
+namespace edm::detail {
+  template <typename T>
+  struct ElementType<edmNew::DetSetVector<T>> {
+    using type = typename edmNew::DetSetVector<T>::data_type;
+  };
+}  // namespace edm::detail
+namespace edmNew {
+  template <typename T, typename Selector>
+  void fillCollectionForThinning(edmNew::DetSet<T> const& detset,
+                                 Selector& selector,
+                                 unsigned int& iIndex,
+                                 edmNew::DetSetVector<T>& output,
+                                 edm::ThinnedAssociation& association) {
+    typename edmNew::DetSetVector<T>::FastFiller ff(output, detset.detId());
+    for (auto iter = detset.begin(), end = detset.end(); iter != end; ++iter, ++iIndex) {
+      edm::detail::fillCollectionForThinning(*iter, selector, iIndex, ff, association);
+    }
+    if (detset.begin() != detset.end()) {
+      // need to decrease the global index by one because the outer loop will increase it
+      --iIndex;
+    }
+  }
+}  // namespace edmNew
 
 #ifdef DSVN_USE_ATOMIC
 #undef DSVN_USE_ATOMIC
