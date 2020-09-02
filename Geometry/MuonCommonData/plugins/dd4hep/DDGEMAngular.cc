@@ -15,8 +15,8 @@ static long algorithm(dd4hep::Detector& /* description */,
   cms::DDAlgoArguments args(ctxt, e);
 
   // Header section of original DDGEMAngular.h
-  double startAngle = args.value<double>("startAngle");
-  double stepAngle = args.value<double>("stepAngle");
+  float startAngle = args.value<float>("startAngle");
+  float stepAngle = args.value<float>("stepAngle");
   int invert = args.value<int>("invert");
   double rPos = args.value<double>("rPosition");
   double zoffset = args.value<double>("zoffset");
@@ -45,20 +45,19 @@ static long algorithm(dd4hep::Detector& /* description */,
   double phi = startAngle;
   int copyNo = startCopyNo;
   for (int ii = 0; ii < n; ii++) {
-    double phitmp = phi;
-    if (phitmp >= 2._pi)
-      phitmp -= 2._pi;
+    double phiz = phi;
+    if (phiz >= 2._pi)
+      phiz -= 2._pi;
     double thetax = 90.0_deg;
-    double phix = invert == 0 ? (90.0_deg + phitmp) : (-90.0_deg + phitmp);
+    double phix = invert == 0 ? (90.0_deg + phiz) : (-90.0_deg + phiz);
     double thetay = invert == 0 ? 0.0 : 180.0_deg;
-    double phiz = phitmp;
 #ifdef EDM_ML_DEBUG
     edm::LogVerbatim("MuonGeom") << "DDGEMAngular: Creating a rotation " << convertRadToDeg(thetax) << ", "
                                  << convertRadToDeg(phix) << ", " << convertRadToDeg(thetay) << ", 0, "
                                  << convertRadToDeg(thetax) << ", " << convertRadToDeg(phiz);
 #endif
     dd4hep::Rotation3D rotation = cms::makeRotation3D(thetax, phix, thetay, 0., thetax, phiz);
-    dd4hep::Position tran(rPos * cos(phitmp), rPos * sin(phitmp), zoffset);
+    dd4hep::Position tran(rPos * cos(phiz), rPos * sin(phiz), zoffset);
     parent.placeVolume(child, copyNo, dd4hep::Transform3D(rotation, tran));
 #ifdef EDM_ML_DEBUG
     edm::LogVerbatim("MuonGeom") << "DDGEMAngular: " << child.name() << " number " << copyNo << " positioned in "
