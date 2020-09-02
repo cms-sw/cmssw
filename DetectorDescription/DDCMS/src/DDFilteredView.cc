@@ -614,6 +614,7 @@ unsigned short DDFilteredView::copyNum() const { return (volume().copyNumber());
 std::string_view DDFilteredView::materialName() const { return (volume().material().name()); }
 
 std::ostream& operator<<(std::ostream& os, const std::vector<const cms::Node*>& hst) {
-  for (auto nd = hst.rbegin(); nd != hst.rend(); ++nd) os << "/" << (*nd)->GetName();
+  for (auto nd = hst.rbegin(); nd != hst.rend(); ++nd)
+    os << "/" << (*nd)->GetName();
   return os;
 }

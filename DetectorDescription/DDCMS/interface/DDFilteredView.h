@@ -253,6 +253,6 @@ namespace cms {
 }  // namespace cms
 
 //stream geoHistory
-std::ostream &operator<<(std::ostream& os, const std::vector<const cms::Node*>& hst);
+std::ostream& operator<<(std::ostream& os, const std::vector<const cms::Node*>& hst);
 
 #endif
