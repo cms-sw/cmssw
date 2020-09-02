@@ -43,8 +43,8 @@ public:
   float computeGlobalThetaError(const VectorHit& vh, const double sigmaZ_beamSpot);
   float computeInverseMomentumError(VectorHit& vh,
                                     const float globalTheta,
-                                    const MagneticField* magField,
-                                    const double sigmaZ_beamSpot);
+                                    const double sigmaZ_beamSpot,
+				    const double transverseMomentum);
 
   TrajectorySeed createSeed(const TrajectoryStateOnSurface& tsos,
                             const edm::OwnVector<TrackingRecHit>& container,

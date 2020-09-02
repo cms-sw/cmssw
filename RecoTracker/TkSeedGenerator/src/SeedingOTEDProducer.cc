@@ -16,6 +16,8 @@
 #include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
+#include "RecoLocalTracker/SiPhase2VectorHitBuilder/interface/VectorHitMomentumHelper.h"
+
 SeedingOTEDProducer::SeedingOTEDProducer(edm::ParameterSet const& conf)
     : theUpdator(nullptr),
       tkMeasEventToken(consumes<MeasurementTrackerEvent>(conf.getParameter<edm::InputTag>("trackerEvent"))) {
@@ -244,9 +246,13 @@ const TrajectoryStateOnSurface SeedingOTEDProducer::buildInitialTSOS(VectorHit& 
   // gv transform to local (lv)
   const Local3DVector lv(vHit.det()->surface().toLocal(gv));
 
+  //Helper class to access momentum of VH
+  VectorHitMomentumHelper* vhMomHelper;
+
+
   //FIXME::charge is fine 1 every two times!!
   int charge = 1;
-  float p = vHit.momentum(magField);
+  float p = vhMomHelper->momentum(vHit,magField);
   float x = vHit.localPosition().x();
   float y = vHit.localPosition().y();
   float dx = vHit.localDirection().x();
@@ -259,7 +265,7 @@ const TrajectoryStateOnSurface SeedingOTEDProducer::buildInitialTSOS(VectorHit& 
   LocalTrajectoryParameters ltpar2(charge / p, dx, dy, x, y, signPz);
   AlgebraicSymMatrix mat = assign44To55(vHit.parametersError());
   // set the error on 1/p
-  mat[0][0] = pow(computeInverseMomentumError(vHit, theta, magField, beamSpot->sigmaZ()), 2);
+  mat[0][0] = pow(computeInverseMomentumError(vHit, theta, beamSpot->sigmaZ(),vhMomHelper->transverseMomentum(vHit,magField)), 2);
 
   //building tsos
   LocalTrajectoryError lterr(asSMatrix<5>(mat));
@@ -299,11 +305,11 @@ float SeedingOTEDProducer::computeGlobalThetaError(const VectorHit& vh, const do
 
 float SeedingOTEDProducer::computeInverseMomentumError(VectorHit& vh,
                                                        const float globalTheta,
-                                                       const MagneticField* magField,
-                                                       const double sigmaZ_beamSpot) {
+                                                       const double sigmaZ_beamSpot,
+						       const double transverseMomentum) {
   //for pT > 2GeV, 1/pT has sigma = 1/sqrt(12)
   float varianceInverseTransvMomentum = 1. / 12;
-  double derivativeTheta2 = pow(cos(globalTheta) / vh.transverseMomentum(magField), 2);
+  double derivativeTheta2 = pow(cos(globalTheta) / transverseMomentum, 2);
   double derivativeInverseTransvMomentum2 = pow(sin(globalTheta), 2);
   float thetaError = computeGlobalThetaError(vh, sigmaZ_beamSpot);
   return pow(derivativeTheta2 * pow(thetaError, 2) + derivativeInverseTransvMomentum2 * varianceInverseTransvMomentum,

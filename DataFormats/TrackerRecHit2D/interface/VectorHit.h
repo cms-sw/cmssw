@@ -20,7 +20,6 @@
 #include "DataFormats/Phase2TrackerCluster/interface/Phase2TrackerCluster1D.h"
 #include "DataFormats/GeometryVector/interface/LocalVector.h"
 #include "Geometry/CommonDetUnit/interface/PixelGeomDetUnit.h"
-#include "MagneticField/Engine/interface/MagneticField.h"
 
 #include "DataFormats/TrackingRecHit/interface/KfComponentsHolder.h"
 
@@ -83,8 +82,6 @@ public:
   int dimension() const override { return theDimension; }
 
   std::pair<double, double> curvatureORphi(std::string curvORphi = "curvature") const;
-  float transverseMomentum(const MagneticField* magField);
-  float momentum(const MagneticField* magField);
 
   ClusterRef lowerCluster() const { return theLowerCluster.cluster_phase2OT(); }
   ClusterRef upperCluster() const { return theUpperCluster.cluster_phase2OT(); }

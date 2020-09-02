@@ -7,6 +7,7 @@
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 #include "RecoLocalTracker/Records/interface/TkPhase2OTCPERecord.h"
 #include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
+#include "RecoLocalTracker/SiPhase2VectorHitBuilder/interface/VectorHitMomentumHelper.h"
 
 VectorHitsBuilderValidation::VectorHitsBuilderValidation(const edm::ParameterSet& conf)
     : cpeTag_(conf.getParameter<edm::ESInputTag>("CPE")) {
@@ -623,10 +624,11 @@ void VectorHitsBuilderValidation::analyze(const edm::Event& event, const edm::Ev
         }
 
         //curvature
+        VectorHitMomentumHelper* vhMomHelper;
         curvature = vh.curvatureORphi("curvature").first;
         phi = vh.curvatureORphi("phi").first;
-        QOverPT = vh.transverseMomentum(magField);
-        QOverP = vh.momentum(magField);
+        QOverPT = vhMomHelper->transverseMomentum(vh,magField);
+        QOverP = vhMomHelper->momentum(vh,magField);
         histogramLayer->second.curvature->Fill(curvature);
 
         //stub width
