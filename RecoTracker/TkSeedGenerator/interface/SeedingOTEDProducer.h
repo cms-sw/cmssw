@@ -44,7 +44,7 @@ public:
   float computeInverseMomentumError(VectorHit& vh,
                                     const float globalTheta,
                                     const double sigmaZ_beamSpot,
-				    const double transverseMomentum);
+                                    const double transverseMomentum);
 
   TrajectorySeed createSeed(const TrajectoryStateOnSurface& tsos,
                             const edm::OwnVector<TrackingRecHit>& container,

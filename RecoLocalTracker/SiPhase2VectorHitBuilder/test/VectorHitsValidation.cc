@@ -627,8 +627,8 @@ void VectorHitsBuilderValidation::analyze(const edm::Event& event, const edm::Ev
         VectorHitMomentumHelper* vhMomHelper;
         curvature = vh.curvatureORphi("curvature").first;
         phi = vh.curvatureORphi("phi").first;
-        QOverPT = vhMomHelper->transverseMomentum(vh,magField);
-        QOverP = vhMomHelper->momentum(vh,magField);
+        QOverPT = vhMomHelper->transverseMomentum(vh, magField);
+        QOverP = vhMomHelper->momentum(vh, magField);
         histogramLayer->second.curvature->Fill(curvature);
 
         //stub width

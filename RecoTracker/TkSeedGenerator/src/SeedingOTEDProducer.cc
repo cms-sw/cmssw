@@ -249,10 +249,9 @@ const TrajectoryStateOnSurface SeedingOTEDProducer::buildInitialTSOS(VectorHit& 
   //Helper class to access momentum of VH
   VectorHitMomentumHelper* vhMomHelper;
 
-
   //FIXME::charge is fine 1 every two times!!
   int charge = 1;
-  float p = vhMomHelper->momentum(vHit,magField);
+  float p = vhMomHelper->momentum(vHit, magField);
   float x = vHit.localPosition().x();
   float y = vHit.localPosition().y();
   float dx = vHit.localDirection().x();
@@ -265,7 +264,8 @@ const TrajectoryStateOnSurface SeedingOTEDProducer::buildInitialTSOS(VectorHit& 
   LocalTrajectoryParameters ltpar2(charge / p, dx, dy, x, y, signPz);
   AlgebraicSymMatrix mat = assign44To55(vHit.parametersError());
   // set the error on 1/p
-  mat[0][0] = pow(computeInverseMomentumError(vHit, theta, beamSpot->sigmaZ(),vhMomHelper->transverseMomentum(vHit,magField)), 2);
+  mat[0][0] = pow(
+      computeInverseMomentumError(vHit, theta, beamSpot->sigmaZ(), vhMomHelper->transverseMomentum(vHit, magField)), 2);
 
   //building tsos
   LocalTrajectoryError lterr(asSMatrix<5>(mat));
@@ -306,7 +306,7 @@ float SeedingOTEDProducer::computeGlobalThetaError(const VectorHit& vh, const do
 float SeedingOTEDProducer::computeInverseMomentumError(VectorHit& vh,
                                                        const float globalTheta,
                                                        const double sigmaZ_beamSpot,
-						       const double transverseMomentum) {
+                                                       const double transverseMomentum) {
   //for pT > 2GeV, 1/pT has sigma = 1/sqrt(12)
   float varianceInverseTransvMomentum = 1. / 12;
   double derivativeTheta2 = pow(cos(globalTheta) / transverseMomentum, 2);
