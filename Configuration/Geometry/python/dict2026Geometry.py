@@ -1020,6 +1020,52 @@ muonDict = {
         ],
         "era" : "phase2_muon, phase2_GEM",
     },
+    "M8" : {
+        1 : [
+            'Geometry/MuonCommonData/data/mbCommon/2021/v1/mbCommon.xml',
+            'Geometry/MuonCommonData/data/mb1/2015/v2/mb1.xml',
+            'Geometry/MuonCommonData/data/mb2/2015/v2/mb2.xml',
+            'Geometry/MuonCommonData/data/mb3/2015/v2/mb3.xml',
+            'Geometry/MuonCommonData/data/mb4/2015/v2/mb4.xml',
+            'Geometry/MuonCommonData/data/mb4Shield/2021/v1/mb4Shield.xml',
+            'Geometry/MuonCommonData/data/muonYoke/2026/v1/muonYoke.xml',
+            'Geometry/MuonCommonData/data/mf/2026/v6/mf.xml',
+            'Geometry/MuonCommonData/data/csc/2021/v2/csc.xml',
+            'Geometry/MuonCommonData/data/rpcf/2026/v3/rpcf.xml',
+            'Geometry/MuonCommonData/data/gemf/TDR_BaseLine/gemf.xml',
+            'Geometry/MuonCommonData/data/gem11/TDR_BaseLine/gem11.xml',
+            'Geometry/MuonCommonData/data/gem21/TDR_Dev/gem21.xml',
+            'Geometry/MuonCommonData/data/mfshield/2026/v4/mfshield.xml',
+            'Geometry/MuonCommonData/data/me0/TDR_Dev/v3/me0.xml',
+        ],
+        2 : [
+            'Geometry/MuonCommonData/data/muonNumbering/TDR_DeV/v1/muonNumbering.xml',
+        ],
+        3 : [
+            'Geometry/MuonSimData/data/PhaseII/ME0EtaPart/muonSens.xml',
+            'Geometry/DTGeometryBuilder/data/dtSpecsFilter.xml',
+            'Geometry/CSCGeometryBuilder/data/cscSpecsFilter.xml',
+            'Geometry/CSCGeometryBuilder/data/cscSpecs.xml',
+            'Geometry/RPCGeometryBuilder/data/2026/v1/RPCSpecs.xml',
+            'Geometry/GEMGeometryBuilder/data/v11/GEMSpecsFilter.xml',
+            'Geometry/GEMGeometryBuilder/data/v11/GEMSpecs.xml',
+        ],
+        4 : [
+            'Geometry/MuonSimData/data/PhaseII/muonProdCuts.xml',
+        ],
+        "sim" : [
+            'from Geometry.MuonNumbering.muonGeometryConstants_cff import *',
+        ],
+        "reco" : [
+            'from Geometry.MuonNumbering.muonNumberingInitialization_cfi import *',
+            'from RecoMuon.DetLayers.muonDetLayerGeometry_cfi import *',
+            'from Geometry.GEMGeometryBuilder.gemGeometry_cfi import *',
+            'from Geometry.GEMGeometryBuilder.me0Geometry_cfi import *',
+            'from Geometry.CSCGeometryBuilder.idealForDigiCscGeometry_cff import *',
+            'from Geometry.DTGeometryBuilder.idealForDigiDtGeometry_cff import *',
+        ],
+        "era" : "phase2_muon, phase2_GEM",
+    },
 }
 
 forwardDict = {
