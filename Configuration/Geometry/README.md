@@ -54,6 +54,7 @@ Muon system:
 * M5: same as M4 but with: the right value for YE3 size, no "hidden" overlaps inside the Muon System and iRPC updated.
 * M6: same as M5 but with adjustment of ME0 in view of updated boundaries
 * M7: same as M6 with further ajustment of ME0 for boundaries
+* M8: same as M7 with changed number of strips for GE21
 
 Fast Timing system:
 * I10: Fast Timing detector (LYSO barrel (bars along phi flat), silicon endcap), w/ passive materials, ETL in position defined in O4, material adjustments
