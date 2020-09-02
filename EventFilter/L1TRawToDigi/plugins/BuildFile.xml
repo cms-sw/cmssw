@@ -9,6 +9,7 @@
 <use name="DataFormats/L1TGlobal"/>
 <use name="DataFormats/TCDS"/>
 <use name="DataFormats/EcalDigi"/>
+<use name="DataFormats/GEMDigi"/>
 <use name="DataFormats/HcalDigi"/>
 <use name="DataFormats/L1CaloTrigger"/>
 <use name="L1Trigger/L1TCalorimeter"/>

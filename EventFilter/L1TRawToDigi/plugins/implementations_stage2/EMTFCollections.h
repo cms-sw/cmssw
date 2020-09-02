@@ -11,6 +11,7 @@
 #include "DataFormats/L1TMuon/interface/EMTFTrack.h"
 #include "DataFormats/L1TMuon/interface/CPPFDigi.h"
 #include "DataFormats/CSCDigi/interface/CSCCorrelatedLCTDigiCollection.h"
+#include "DataFormats/GEMDigi/interface/GEMPadDigiClusterCollection.h"
 
 #include "EventFilter/L1TRawToDigi/interface/UnpackerCollections.h"
 
@@ -32,12 +33,13 @@ namespace l1t {
             EMTFTracks_(new EMTFTrackCollection()),
             EMTFLCTs_(new CSCCorrelatedLCTDigiCollection()),
             EMTFCPPFs_(new CPPFDigiCollection()),
-            EMTFCPPFs_ZS_(new CPPFDigiCollection()){};
+            EMTFCPPFs_ZS_(new CPPFDigiCollection()),
+            EMTFGEMPadClusters_(std::make_unique<GEMPadDigiClusterCollection>()),
+            EMTFGEMPadClusters_ZS_(std::make_unique<GEMPadDigiClusterCollection>()){};
 
       ~EMTFCollections() override;
 
       inline RegionalMuonCandBxCollection* getRegionalMuonCands() { return regionalMuonCands_.get(); }
-      // How does this work?  I haven't even defined a "get()" function for the EMTFDaqOutCollection. - AWB 28.01.16
       inline EMTFDaqOutCollection* getEMTFDaqOuts() { return EMTFDaqOuts_.get(); }
       inline EMTFHitCollection* getEMTFHits() { return EMTFHits_.get(); }
       inline EMTFHitCollection* getEMTFHits_ZS() { return EMTFHits_ZS_.get(); }
@@ -45,6 +47,8 @@ namespace l1t {
       inline CSCCorrelatedLCTDigiCollection* getEMTFLCTs() { return EMTFLCTs_.get(); }
       inline CPPFDigiCollection* getEMTFCPPFs() { return EMTFCPPFs_.get(); }
       inline CPPFDigiCollection* getEMTFCPPFs_ZS() { return EMTFCPPFs_ZS_.get(); }
+      inline GEMPadDigiClusterCollection* getEMTFGEMPadClusters() { return EMTFGEMPadClusters_.get(); }
+      inline GEMPadDigiClusterCollection* getEMTFGEMPadClusters_ZS() { return EMTFGEMPadClusters_ZS_.get(); }
 
     private:
       std::unique_ptr<RegionalMuonCandBxCollection> regionalMuonCands_;
@@ -55,6 +59,8 @@ namespace l1t {
       std::unique_ptr<CSCCorrelatedLCTDigiCollection> EMTFLCTs_;
       std::unique_ptr<CPPFDigiCollection> EMTFCPPFs_;
       std::unique_ptr<CPPFDigiCollection> EMTFCPPFs_ZS_;
+      std::unique_ptr<GEMPadDigiClusterCollection> EMTFGEMPadClusters_;
+      std::unique_ptr<GEMPadDigiClusterCollection> EMTFGEMPadClusters_ZS_;
     };
   }  // namespace stage2
 }  // namespace l1t
