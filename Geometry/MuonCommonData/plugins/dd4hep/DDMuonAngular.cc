@@ -24,8 +24,11 @@ static long algorithm(dd4hep::Detector& /* description */,
   childName = ns.prepend(childName);
   dd4hep::Volume child = ns.volume(childName);
 
-  edm::LogVerbatim("MuonGeom") << "debug: Parameters for positioning:: n " << n << " Start, Step " << convertRadToDeg(startAngle) << ", " << convertRadToDeg(stepAngle) << ", zoffset " << zoffset << ", RotNameSpace " << rotns;
-  edm::LogVerbatim("MuonGeom") << "debug: Parent " << mother.name() << "\tChild " << child.name() << " NameSpace " << ns.name();
+  edm::LogVerbatim("MuonGeom") << "debug: Parameters for positioning:: n " << n << " Start, Step "
+                               << convertRadToDeg(startAngle) << ", " << convertRadToDeg(stepAngle) << ", zoffset "
+                               << zoffset << ", RotNameSpace " << rotns;
+  edm::LogVerbatim("MuonGeom") << "debug: Parent " << mother.name() << "\tChild " << child.name() << " NameSpace "
+                               << ns.name();
 
   double phi = startAngle;
   int copyNo = startCopyNo;
@@ -42,7 +45,8 @@ static long algorithm(dd4hep::Detector& /* description */,
     }
     dd4hep::Position tran(0., 0., zoffset);
     mother.placeVolume(child, copyNo, dd4hep::Transform3D(rotation, tran));
-    edm::LogVerbatim("MuonGeom") << "test " << child.name() << " number " << copyNo << " positioned in " << mother.name() << " at " << tran << " with " << rotstr << ": " << rotation;
+    edm::LogVerbatim("MuonGeom") << "test " << child.name() << " number " << copyNo << " positioned in "
+                                 << mother.name() << " at " << tran << " with " << rotstr << ": " << rotation;
     phi += stepAngle;
     copyNo += incrCopyNo;
   }
