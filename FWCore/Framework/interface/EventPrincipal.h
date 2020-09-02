@@ -137,6 +137,9 @@ namespace edm {
     void getThinnedProducts(ProductID const& pid,
                             std::vector<WrapperBase const*>& foundContainers,
                             std::vector<unsigned int>& keys) const override;
+    OptionalThinnedKey getThinnedKeyFrom(ProductID const& parent,
+                                         unsigned int key,
+                                         ProductID const& thinned) const override;
 
     ProductID branchIDToProductID(BranchID const& bid) const;
 
