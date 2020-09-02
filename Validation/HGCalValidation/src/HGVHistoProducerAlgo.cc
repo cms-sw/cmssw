@@ -1030,6 +1030,12 @@ void HGVHistoProducerAlgo::bookMultiClusterHistos(DQMStore::IBooker& ibook,
                    nintSharedEneFrac_,
                    minMCLSharedEneFrac_,
                    maxMCLSharedEneFrac_));
+  histograms.h_sharedenergy_caloparticle2multicl_assoc.push_back(
+      ibook.book1D("SharedEnergy_caloparticle2multicl_assoc",
+                   "Shared Energy of Associated CaloParticle per Multi Cluster",
+                   nintSharedEneFrac_,
+                   minMCLSharedEneFrac_,
+                   maxMCLSharedEneFrac_));
   histograms.h_sharedenergy_caloparticle2multicl_vs_eta.push_back(
       ibook.bookProfile("SharedEnergy_caloparticle2multicl_vs_eta",
                         "Shared Energy of CaloParticle vs #eta per best Multi Cluster",
@@ -2817,6 +2823,7 @@ void HGVHistoProducerAlgo::multiClusters_to_CaloParticles(const Histograms& hist
                                                                          multiClusters[bestmclId].energy() / CPenergy);
       histograms.h_sharedenergy_caloparticle2multicl_vs_phi[count]->Fill(cP[cpId].g4Tracks()[0].momentum().phi(),
                                                                          multiClusters[bestmclId].energy() / CPenergy);
+      histograms.h_sharedenergy_caloparticle2multicl_assoc[count]->Fill(mclsharedenergyfrac[cpId][bestmclId]);
     }
     if (assocDup >= 2) {
       auto match = std::find_if(std::begin(score3d[cpId]), std::end(score3d[cpId]), is_assoc);
