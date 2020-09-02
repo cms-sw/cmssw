@@ -311,7 +311,7 @@ void TrackAnalyzer::bookHistosForEfficiencyFromHitPatter(DQMStore::IBooker& iboo
   }
 }
 
-#include "DataFormats/TrackReco/interface/TrajectoryStopReasons.h"
+#include "DataFormats/TrackCandidate/interface/TrajectoryStopReasons.h"
 void TrackAnalyzer::bookHistosForHitProperties(DQMStore::IBooker& ibooker) {
   // parameters from the configuration
   std::string QualName = conf_->getParameter<std::string>("Quality");

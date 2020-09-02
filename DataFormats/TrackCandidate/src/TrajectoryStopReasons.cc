@@ -1,4 +1,4 @@
-#include "DataFormats/TrackReco/interface/TrajectoryStopReasons.h"
+#include "DataFormats/TrackCandidate/interface/TrajectoryStopReasons.h"
 
 static_assert(sizeof(StopReasonName::StopReasonName) / sizeof(std::string) ==
                   static_cast<unsigned int>(StopReason::SIZE),

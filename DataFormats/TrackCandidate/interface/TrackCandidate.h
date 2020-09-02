@@ -3,7 +3,7 @@
 
 #include "DataFormats/Common/interface/RefToBase.h"
 #include "DataFormats/Common/interface/OwnVector.h"
-#include "DataFormats/TrackReco/interface/TrajectoryStopReasons.h"
+#include "DataFormats/TrackCandidate/interface/TrajectoryStopReasons.h"
 #include "DataFormats/TrackingRecHit/interface/TrackingRecHit.h"
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeed.h"
 #include "FWCore/Utilities/interface/Range.h"
