@@ -9,17 +9,15 @@
 namespace l1t {
 
   const std::vector<unsigned int> MTF7Payload::block_patterns_ = {
-      // The "0b" prefix indicates binary; the block header id is stored in decimal.
-      // Bits are the left-most bit (D15) of every 16-bit word in the format document.
-      // Bottom-to-top in the document maps to left-to-right in each of the block_patterns_
-      0b000111111111,  // Event Record Header   : block->header().getID() = 511
-      // Left-most bits of 0xA and 0x9 are both 1 in binary
-      0b0010,      // Block of Counters     : block->header().getID() = 2
-      0b0011,      // ME Data Record        : block->header().getID() = 3
-      0b0100,      // RPC Data Record       : block->header().getID() = 4
-      0b01100101,  // SP Output Data Record : block->header().getID() = 101
-      0b11111111   // Event Record Trailer  : block->header().getID() = 255
-                   // Left-most bits of 0xF and 0xE are both 1 in binary
+      // from l1t::mtf7::mtf7_block_t enum definition
+      mtf7::EvHd,   // Event Record Header
+      mtf7::CnBlk,  // Block of Counters
+      mtf7::ME,     // ME Data Record
+      mtf7::RPC,    // RPC Data Record
+      mtf7::GEM,    // GEM Data Record
+      mtf7::ME0,    // ME0 Data Record
+      mtf7::SPOut,  // SP Output Data Record
+      mtf7::EvTr    // Event Record Trailer
   };
 
   uint32_t BlockHeader::raw() const {
@@ -132,8 +130,10 @@ namespace l1t {
     }
 
     // Check bits for EMTF Event Record Trailer, get firmware version
-    algo_ = 0;                        // Firmware version
-    for (int i = 4; i < 1590; i++) {  // Start after Counters block, up to 108 ME / 84 RPC / 3 SP blocks per BX, 8 BX
+    algo_ = 0;  // Firmware version
+
+    // Start after always present Counters block
+    for (unsigned i = DAQ_PAYLOAD_OFFSET; i < PAYLOAD_MAX_SIZE; i++) {
       if (((data16[4 * i + 0] >> 12) == 0xF) && ((data16[4 * i + 1] >> 12) == 0xF) &&
           ((data16[4 * i + 2] >> 12) == 0xF) && ((data16[4 * i + 3] >> 12) == 0xF) &&
           ((data16[4 * i + 4] >> 12) == 0xE) && ((data16[4 * i + 5] >> 12) == 0xE) &&
