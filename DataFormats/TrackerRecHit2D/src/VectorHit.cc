@@ -347,16 +347,6 @@ std::pair<double, double> VectorHit::curvatureORphi(std::string curvORphi) const
     return std::make_pair(0.0, 0.0);
 }
 
-float VectorHit::transverseMomentum(const MagneticField* magField) {
-  GlobalPoint center(0.0, 0.0, 0.0);
-  float magnT = magField->inTesla(center).mag();
-  double rho = 1. / curvatureORphi("curvature").first;
-  //0.003 is because the curvature (rho) is in cm and not in m
-  return (0.003 * magnT * rho);
-}
-
-float VectorHit::momentum(const MagneticField* magField) { return transverseMomentum(magField) / (1. * sin(theta())); }
-
 float VectorHit::theta() { return globalDirection().theta(); }
 
 AlgebraicMatrix VectorHit::projectionMatrix() const {
