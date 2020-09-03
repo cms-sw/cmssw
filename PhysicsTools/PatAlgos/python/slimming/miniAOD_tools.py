@@ -531,7 +531,7 @@ def miniAOD_customizeCommon(process):
     from Configuration.Eras.Modifier_pp_on_AA_2018_cff import pp_on_AA_2018
     from Configuration.Eras.Modifier_pp_on_PbPb_run3_cff import pp_on_PbPb_run3
     from PhysicsTools.PatAlgos.producersHeavyIons.heavyIonJetSetup import useCsJetsForPat, removeL1FastJetJECs
-    (pp_on_AA_2018 | pp_on_PbPb_run3).toModify(process, func = lambda proc: useCsJetsForPat(proc))
+    (pp_on_AA_2018 | pp_on_PbPb_run3).toModify(process, func = lambda proc: useCsJetsForPat(proc,"akCs4PF"))
     (pp_on_AA_2018 | pp_on_PbPb_run3).toModify(process, func = lambda proc: removeL1FastJetJECs(proc))
 
 def miniAOD_customizeMC(process):
