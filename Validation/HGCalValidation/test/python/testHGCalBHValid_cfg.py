@@ -1,30 +1,5 @@
 import FWCore.ParameterSet.Config as cms
 
-#from Configuration.Eras.Era_Phase2C4_cff import Phase2C4
-#process = cms.Process('HGCGeomAnalysis',Phase2C4)
-#process.load('Configuration.Geometry.GeometryExtended2026D35_cff')
-#process.load('Configuration.Geometry.GeometryExtended2026D35Reco_cff')
-
-#from Configuration.Eras.Era_Phase2C8_cff import Phase2C8
-#process = cms.Process('HGCGeomAnalysis',Phase2C8)
-#process.load('Configuration.Geometry.GeometryExtended2026D41_cff')
-#process.load('Configuration.Geometry.GeometryExtended2026D41Reco_cff')
-
-#from Configuration.Eras.Era_Phase2C9_cff import Phase2C9
-#process = cms.Process('HGCGeomAnalysis',Phase2C9)
-#process.load('Configuration.Geometry.GeometryExtended2026D49_cff')
-#process.load('Configuration.Geometry.GeometryExtended2026D49Reco_cff')
-
-#from Configuration.Eras.Era_Phase2C12_cff import Phase2C12
-#process = cms.Process('HGCGeomAnalysis',Phase2C12)
-#process.load('Configuration.Geometry.GeometryExtended2026D58_cff')
-#process.load('Configuration.Geometry.GeometryExtended2026D58Reco_cff')
-
-#from Configuration.Eras.Era_Phase2C11_cff import Phase2C11
-#process = cms.Process('HGCGeomAnalysis',Phase2C11)
-#process.load('Configuration.Geometry.GeometryExtended2026D59_cff')
-#process.load('Configuration.Geometry.GeometryExtended2026D59Reco_cff')
-
 from Configuration.Eras.Era_Phase2C11_cff import Phase2C11
 process = cms.Process('HGCGeomAnalysis',Phase2C11)
 process.load('Configuration.Geometry.GeometryExtended2026D62_cff')
@@ -71,23 +46,6 @@ process.configurationMetadata = cms.untracked.PSet(
     version = cms.untracked.string(''),
     annotation = cms.untracked.string(''),
     name = cms.untracked.string('Applications')
-)
-
-
-# Output definitiond
-process.output = cms.OutputModule("PoolOutputModule",
-    splitLevel = cms.untracked.int32(0),
-    eventAutoFlushCompressedSize = cms.untracked.int32(5242880),
-    outputCommands = process.FEVTDEBUGHLTEventContent.outputCommands,
-#    outputCommands = cms.untracked.vstring('keep *'),
-    fileName = cms.untracked.string('file:testHGCalBHValidD62.root'),
-    dataset = cms.untracked.PSet(
-        filterName = cms.untracked.string(''),
-        dataTier = cms.untracked.string('GEN-SIM-DIGI-RAW-RECO')
-    ),
-    SelectEvents = cms.untracked.PSet(
-        SelectEvents = cms.vstring('generation_step')
-    )
 )
 
 if hasattr(process,'MessageLogger'):
@@ -147,7 +105,6 @@ process.L1Reco_step = cms.Path(process.L1Reco)
 process.reconstruction_step = cms.Path(process.localreco)
 process.recosim_step = cms.Path(process.recosim)
 process.analysis_step = cms.Path(process.hgcalBHAnalysis)
-process.out_step = cms.EndPath(process.output)
 
 # Schedule definition
 process.schedule = cms.Schedule(process.generation_step,
