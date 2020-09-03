@@ -479,6 +479,10 @@ void AlcaBeamMonitor::globalEndLuminosityBlock(const LuminosityBlock& iLumi, con
 }
 
 void AlcaBeamMonitor::dqmEndRun(edm::Run const&, edm::EventSetup const&) {
+  if (processedLumis_.empty()) {
+    return;
+  }
+
   const double bigNumber = 1000000.;
   std::sort(processedLumis_.begin(), processedLumis_.end());
   int firstLumi = *processedLumis_.begin();
