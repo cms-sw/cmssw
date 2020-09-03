@@ -56,7 +56,6 @@ namespace L1TMuon {
 
   class TriggerPrimitive {
   public:
-
     // define the data we save locally from each subsystem type
     // variables in these structs keep their colloquial meaning
     // within a subsystem

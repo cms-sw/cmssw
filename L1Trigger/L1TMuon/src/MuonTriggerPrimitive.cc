@@ -143,8 +143,7 @@ TriggerPrimitive::TriggerPrimitive(const CSCDetId& detid, const CSCCorrelatedLCT
 
 // _____________________________________________________________________________
 // Constructors from RPC data
-TriggerPrimitive::TriggerPrimitive(const RPCDetId& detid, const RPCDigi& digi)
-    : _id(detid), _subsystem(L1TMuon::kRPC) {
+TriggerPrimitive::TriggerPrimitive(const RPCDetId& detid, const RPCDigi& digi) : _id(detid), _subsystem(L1TMuon::kRPC) {
   calculateGlobalSector(detid, _globalsector, _subsector);
   _eta = 0.;
   _phi = 0.;
