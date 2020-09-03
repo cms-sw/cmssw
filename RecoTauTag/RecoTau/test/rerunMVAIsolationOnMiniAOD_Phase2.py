@@ -5,7 +5,7 @@ process = cms.Process("rerunMVAIsolationOnMiniAODPhase2")
 process.load('Configuration.Geometry.GeometryExtended2026D49Reco_cff')
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 from Configuration.AlCa.GlobalTag import GlobalTag
-process.GlobalTag = GlobalTag(process.GlobalTag, '106X_upgrade2023_realistic_v2')
+process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase2_realistic_T15')
 process.load("Configuration.StandardSequences.MagneticField_cff")
 
 #process.Tracer = cms.Service("Tracer")
