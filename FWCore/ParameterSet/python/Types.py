@@ -1362,6 +1362,15 @@ class EDAlias(_ConfigureComponent,_Labelable,_Parameterizable):
     def __init__(self,*arg,**kargs):
         super(EDAlias,self).__init__(**kargs)
 
+    @staticmethod
+    def allProducts():
+        """A helper to specify that all products of a module are to be aliased for. Example usage:
+        process.someAlias = cms.EDAlias(
+            aliasForModuleLabel = cms.EDAlias.allProducts()
+        )
+        """
+        return VPSet(PSet(type = string('*')))
+
     def clone(self, *args, **params):
         returnValue = EDAlias.__new__(type(self))
         myparams = self.parameters_()
@@ -1973,6 +1982,22 @@ if __name__ == "__main__":
             self.assertFalse(hasattr(aliasfoo4, "foo2"))
             self.assertTrue(hasattr(aliasfoo4, "foo3"))
             self.assertEqual(aliasfoo4.foo3[0].type, "Foo3")
+
+            aliasfoo5 = EDAlias(foo5 = EDAlias.allProducts())
+            self.assertEqual(len(aliasfoo5.foo5), 1)
+            self.assertEqual(aliasfoo5.foo5[0].type.value(), "*")
+            self.assertFalse(hasattr(aliasfoo5.foo5[0], "fromProductInstance"))
+            self.assertFalse(hasattr(aliasfoo5.foo5[0], "toProductInstance"))
+
+            aliasfoo6 = aliasfoo5.clone(foo5 = None, foo6 = EDAlias.allProducts())
+            self.assertFalse(hasattr(aliasfoo6, "foo5"))
+            self.assertTrue(hasattr(aliasfoo6, "foo6"))
+            self.assertEqual(len(aliasfoo6.foo6), 1)
+            self.assertEqual(aliasfoo6.foo6[0].type.value(), "*")
+
+            aliasfoo7 = EDAlias(foo5 = EDAlias.allProducts(), foo6 = EDAlias.allProducts())
+            self.assertEqual(len(aliasfoo7.foo5), 1)
+            self.assertEqual(len(aliasfoo7.foo6), 1)
 
         def testFileInPath(self):
             f = FileInPath("FWCore/ParameterSet/python/Types.py")
