@@ -6,7 +6,7 @@
 
 class VectorHitMomentumHelper {
 public:
-  VectorHitMomentumHelper();
+  VectorHitMomentumHelper() {}
   ~VectorHitMomentumHelper() {}
 
   float transverseMomentum(VectorHit& vh, const MagneticField* magField) {

@@ -624,7 +624,7 @@ void VectorHitsBuilderValidation::analyze(const edm::Event& event, const edm::Ev
         }
 
         //curvature
-        VectorHitMomentumHelper* vhMomHelper;
+        VectorHitMomentumHelper* vhMomHelper = new VectorHitMomentumHelper;
         curvature = vh.curvatureORphi("curvature").first;
         phi = vh.curvatureORphi("phi").first;
         QOverPT = vhMomHelper->transverseMomentum(vh, magField);

@@ -247,7 +247,7 @@ const TrajectoryStateOnSurface SeedingOTEDProducer::buildInitialTSOS(VectorHit& 
   const Local3DVector lv(vHit.det()->surface().toLocal(gv));
 
   //Helper class to access momentum of VH
-  VectorHitMomentumHelper* vhMomHelper;
+  VectorHitMomentumHelper* vhMomHelper = new VectorHitMomentumHelper;
 
   //FIXME::charge is fine 1 every two times!!
   int charge = 1;
