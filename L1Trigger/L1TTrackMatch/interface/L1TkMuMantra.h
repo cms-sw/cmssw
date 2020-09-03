@@ -82,7 +82,7 @@ public:
   static std::vector<double> prepare_corr_bounds(std::string fname, std::string hname);
 
   // converters
-  static double deg_to_rad(double x) { return (x * angle_units::degPerRad); }
+  static double deg_to_rad(double x) { return (x / angle_units::degPerRad); }
 
   static double eta_to_theta(double x) {
     //  give theta in rad
