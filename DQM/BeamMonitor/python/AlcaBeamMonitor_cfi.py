@@ -33,8 +33,7 @@ AlcaBeamMonitor = DQMEDAnalyzer('AlcaBeamMonitor',
                                    TrackQuality = cms.untracked.vstring(), ## loose, tight, highPurity...; for all qualities, leave it blank
                                    InputBeamWidth = cms.untracked.double(0.0060), ## beam width used for Trk fitter, used only when result from PV is not available
                                    FractionOfFittedTrks = cms.untracked.double(0.9),
-                                   MinimumInputTracks = cms.untracked.int32(150),
-                                   deltaSignificanceCut = cms.untracked.double(10)
+                                   MinimumInputTracks = cms.untracked.int32(150)
                                    ),
                                  PVFitter = cms.PSet(
                                    Debug = cms.untracked.bool(False),
