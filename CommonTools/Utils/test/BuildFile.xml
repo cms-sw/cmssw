@@ -4,8 +4,6 @@
   <use name="DataFormats/TrackerRecHit2D"/>
   <use name="DataFormats/Candidate"/>
   <use name="DataFormats/PatCandidates"/>
-  <use name="DataFormats/GeometryVector"/>
-  <use name="DataFormats/SiStripCluster"/>
   <use name="CommonTools/Utils"/>
   <use name="cppunit"/>
   <use name="rootmath"/>
@@ -22,8 +20,6 @@
   <use name="DataFormats/TrackerRecHit2D"/>
   <use name="DataFormats/Candidate"/>
   <use name="DataFormats/PatCandidates"/>
-  <use name="DataFormats/GeometryVector"/>
-  <use name="DataFormats/SiStripCluster"/>
   <use name="CommonTools/Utils"/>
   <use name="cppunit"/>
 </bin>

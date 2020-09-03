@@ -88,6 +88,8 @@ from RecoMET.METFilters.BadChargedCandidateFilter_cfi import *
 ## The muon bad track filter (2016) ________________________________________________||
 from RecoMET.METFilters.BadPFMuonFilter_cfi import *
 
+## The muon bad track filter with Dz cut (2020) _____________________________________||
+from RecoMET.METFilters.BadPFMuonDzFilter_cfi import *
 
 metFilters = cms.Sequence(
    HBHENoiseFilterResultProducer *
@@ -113,6 +115,7 @@ metFilters = cms.Sequence(
    chargedHadronTrackResolutionFilter *
    BadChargedCandidateFilter*
    BadPFMuonFilter *
+   BadPFMuonDzFilter *
    BadChargedCandidateSummer16Filter*
    BadPFMuonSummer16Filter *
    muonBadTrackFilter

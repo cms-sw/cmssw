@@ -3,7 +3,6 @@
 
 #include "DD4hep/VolumeProcessor.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "DetectorDescription/DDCMS/interface/DDSpecParRegistry.h"
 
 #include <string>
 #include <string_view>

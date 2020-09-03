@@ -6,10 +6,6 @@
 #include "DataFormats/EcalDetId/interface/ESDetId.h"
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
 #include "RecoEcal/EgammaCoreTools/interface/Mustache.h"
-#include "CondFormats/DataRecord/interface/ESEEIntercalibConstantsRcd.h"
-#include "CondFormats/DataRecord/interface/ESChannelStatusRcd.h"
-#include "CondFormats/ESObjects/interface/ESEEIntercalibConstants.h"
-#include "CondFormats/ESObjects/interface/ESChannelStatus.h"
 #include "Math/GenVector/VectorUtil.h"
 #include "TVector2.h"
 
@@ -120,6 +116,10 @@ void PFECALSuperClusterAlgo::setTokens(const edm::ParameterSet& iConfig, edm::Co
       cc.consumes<reco::PFCluster::EEtoPSAssociation>(iConfig.getParameter<edm::InputTag>("ESAssociation"));
   inputTagBeamSpot_ = cc.consumes<reco::BeamSpot>(iConfig.getParameter<edm::InputTag>("BeamSpot"));
 
+  esEEInterCalibToken_ =
+      cc.esConsumes<ESEEIntercalibConstants, ESEEIntercalibConstantsRcd, edm::Transition::BeginLuminosityBlock>();
+  esChannelStatusToken_ = cc.esConsumes<ESChannelStatus, ESChannelStatusRcd, edm::Transition::BeginLuminosityBlock>();
+
   if (useRegression_) {
     const edm::ParameterSet& regconf = iConfig.getParameter<edm::ParameterSet>("regressionConfig");
 
@@ -138,12 +138,10 @@ void PFECALSuperClusterAlgo::update(const edm::EventSetup& setup) {
     regr_->setEventSetup(setup);
   }
 
-  edm::ESHandle<ESEEIntercalibConstants> esEEInterCalibHandle_;
-  setup.get<ESEEIntercalibConstantsRcd>().get(esEEInterCalibHandle_);
+  edm::ESHandle<ESEEIntercalibConstants> esEEInterCalibHandle_ = setup.getHandle(esEEInterCalibToken_);
   _pfEnergyCalibration->initAlphaGamma_ESplanes_fromDB(esEEInterCalibHandle_.product());
 
-  edm::ESHandle<ESChannelStatus> esChannelStatusHandle_;
-  setup.get<ESChannelStatusRcd>().get(esChannelStatusHandle_);
+  edm::ESHandle<ESChannelStatus> esChannelStatusHandle_ = setup.getHandle(esChannelStatusToken_);
   channelStatus_ = esChannelStatusHandle_.product();
 }
 

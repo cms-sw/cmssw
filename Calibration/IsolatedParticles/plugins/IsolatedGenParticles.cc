@@ -44,6 +44,7 @@
 #include "DataFormats/L1Trigger/interface/L1MuonParticle.h"
 #include "DataFormats/L1Trigger/interface/L1MuonParticleFwd.h"
 
+#include "DataFormats/Math/interface/deltaPhi.h"
 #include "DataFormats/Math/interface/LorentzVector.h"
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -118,10 +119,6 @@ private:
   void beginJob() override;
   void analyze(const edm::Event &, const edm::EventSetup &) override;
   void endJob() override {}
-
-  double deltaPhi(double v1, double v2);
-  double deltaR(double eta1, double phi1, double eta2, double phi2);
-  double deltaR2(double eta1, double phi1, double eta2, double phi2);
 
   void fillTrack(
       GlobalPoint &posVec, math::XYZTLorentzVector &momVec, GlobalPoint &posECAL, int pdgId, bool okECAL, bool accpet);
@@ -809,27 +806,6 @@ void IsolatedGenParticles::beginJob() {
   bookHistograms();
 }
 
-double IsolatedGenParticles::deltaPhi(double v1, double v2) {
-  // Computes the correctly normalized phi difference
-  // v1, v2 = phi of object 1 and 2
-
-  double diff = std::abs(v2 - v1);
-  double corr = 2 * M_PI - diff;
-  return ((diff < M_PI) ? diff : corr);
-}
-
-double IsolatedGenParticles::deltaR(double eta1, double phi1, double eta2, double phi2) {
-  double deta = eta1 - eta2;
-  double dphi = deltaPhi(phi1, phi2);
-  return std::sqrt(deta * deta + dphi * dphi);
-}
-
-double IsolatedGenParticles::deltaR2(double eta1, double phi1, double eta2, double phi2) {
-  double deta = eta1 - eta2;
-  double dphi = deltaPhi(phi1, phi2);
-  return deta * deta + dphi * dphi;
-}
-
 void IsolatedGenParticles::fillTrack(
     GlobalPoint &posVec, math::XYZTLorentzVector &momVec, GlobalPoint &posECAL, int pdgId, bool okECAL, bool accept) {
   if (accept) {
@@ -841,7 +817,7 @@ void IsolatedGenParticles::fillTrack(
     if (okECAL) {
       double phi1 = momVec.phi();
       double phi2 = (posECAL - posVec).phi();
-      double dphi = deltaPhi(phi1, phi2);
+      double dphi = reco::deltaPhi(phi1, phi2);
       double deta = momVec.eta() - (posECAL - posVec).eta();
       t_isoTrkDPhiAll->push_back(dphi);
       t_isoTrkDEtaAll->push_back(deta);

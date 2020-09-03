@@ -44,7 +44,7 @@ namespace popcon {
       edm::LogInfo("DQMXMLFileSourceHandler") << ss.str();
     }
     edm::LogInfo("DQMXMLFileSourceHandler") << "runnumber/first since = " << m_since << std::endl;
-    if (m_since <= this->tagInfo().lastInterval.since) {
+    if (this->tagInfo().size > 0 && m_since <= this->tagInfo().lastInterval.since) {
       edm::LogInfo("DQMXMLFileSourceHandler")
           << "[DQMXMLFileSourceHandler::getNewObjects] \nthe current starting iov " << m_since
           << "\nis not compatible with the last iov (" << this->tagInfo().lastInterval.since << ") open for the object "

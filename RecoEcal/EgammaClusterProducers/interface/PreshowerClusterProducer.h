@@ -8,6 +8,7 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Utilities/interface/ESGetToken.h"
 #include "DataFormats/EcalDetId/interface/ESDetId.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 #include "DataFormats/EgammaReco/interface/PreshowerCluster.h"
@@ -20,6 +21,13 @@
 #include "CondFormats/ESObjects/interface/ESEEIntercalibConstants.h"
 #include "CondFormats/ESObjects/interface/ESMissingEnergyCalibration.h"
 #include "CondFormats/ESObjects/interface/ESChannelStatus.h"
+#include "CondFormats/DataRecord/interface/ESGainRcd.h"
+#include "CondFormats/DataRecord/interface/ESMIPToGeVConstantRcd.h"
+#include "CondFormats/DataRecord/interface/ESEEIntercalibConstantsRcd.h"
+#include "CondFormats/DataRecord/interface/ESMissingEnergyCalibrationRcd.h"
+#include "CondFormats/DataRecord/interface/ESChannelStatusRcd.h"
+#include "Geometry/Records/interface/CaloGeometryRecord.h"
+#include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 
 class PreshowerClusterProducer : public edm::stream::EDProducer<> {
 public:
@@ -55,6 +63,13 @@ private:
   edm::ESHandle<ESEEIntercalibConstants> esEEInterCalib_;
   edm::ESHandle<ESMissingEnergyCalibration> esMissingECalib_;
   edm::ESHandle<ESChannelStatus> esChannelStatus_;
+  edm::ESGetToken<ESGain, ESGainRcd> esGainToken_;
+  edm::ESGetToken<ESMIPToGeVConstant, ESMIPToGeVConstantRcd> esMIPToGeVToken_;
+  edm::ESGetToken<ESEEIntercalibConstants, ESEEIntercalibConstantsRcd> esEEInterCalibToken_;
+  edm::ESGetToken<ESMissingEnergyCalibration, ESMissingEnergyCalibrationRcd> esMissingECalibToken_;
+  edm::ESGetToken<ESChannelStatus, ESChannelStatusRcd> esChannelStatusToken_;
+  edm::ESGetToken<CaloGeometry, CaloGeometryRecord> caloGeometryToken_;
+
   double mip_;
   double gamma0_;
   double gamma1_;

@@ -8,6 +8,7 @@
 #include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Utilities/interface/ESGetToken.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
@@ -20,6 +21,8 @@
 
 #include "DataFormats/EgammaReco/interface/BasicClusterFwd.h"
 #include "DataFormats/CaloRecHit/interface/CaloClusterFwd.h"
+#include "Geometry/CaloGeometry/interface/CaloGeometry.h"
+#include "Geometry/Records/interface/CaloGeometryRecord.h"
 
 //
 
@@ -39,6 +42,7 @@ private:
 
   edm::EDGetTokenT<EcalRecHitCollection> barrelRecHits_;
   edm::EDGetTokenT<EcalRecHitCollection> endcapRecHits_;
+  edm::ESGetToken<CaloGeometry, CaloGeometryRecord> caloGeometryToken_;
 
   std::string barrelClusterCollection_;
   std::string endcapClusterCollection_;

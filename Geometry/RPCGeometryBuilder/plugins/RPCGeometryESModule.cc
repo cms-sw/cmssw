@@ -45,18 +45,18 @@ private:
   // Reco
   edm::ESGetToken<RecoIdealGeometry, RPCRecoGeometryRcd> recoIdealToken_;
 
-  const bool useDDD_;
-  const bool useDD4hep_;
+  const bool fromDDD_;
+  const bool fromDD4hep_;
 };
 
 RPCGeometryESModule::RPCGeometryESModule(const edm::ParameterSet& p)
-    : useDDD_{p.getUntrackedParameter<bool>("useDDD", true)},
-      useDD4hep_{p.getUntrackedParameter<bool>("useDD4hep", false)} {
+    : fromDDD_{p.getUntrackedParameter<bool>("fromDDD", true)},
+      fromDD4hep_{p.getUntrackedParameter<bool>("fromDD4hep", false)} {
   auto cc = setWhatProduced(this);
 
-  if (useDDD_) {
+  if (fromDDD_) {
     cc.setConsumes(idealGeomToken_).setConsumes(dddConstantsToken_);
-  } else if (useDD4hep_) {
+  } else if (fromDD4hep_) {
     cc.setConsumes(idealDD4hepGeomToken_).setConsumes(dddConstantsToken_);
   } else {
     cc.setConsumes(recoIdealToken_);
@@ -65,18 +65,18 @@ RPCGeometryESModule::RPCGeometryESModule(const edm::ParameterSet& p)
 
 void RPCGeometryESModule::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
-  desc.addUntracked<bool>("useDDD", true);
-  desc.addUntracked<bool>("useDD4hep", false);
+  desc.addUntracked<bool>("fromDDD", true);
+  desc.addUntracked<bool>("fromDD4hep", false);
   descriptions.add("RPCGeometryESModule", desc);
 }
 
 std::unique_ptr<RPCGeometry> RPCGeometryESModule::produce(const MuonGeometryRecord& record) {
-  if (useDDD_) {
+  if (fromDDD_) {
     edm::ESTransientHandle<DDCompactView> cpv = record.getTransientHandle(idealGeomToken_);
     auto const& mdc = record.get(dddConstantsToken_);
     RPCGeometryBuilder builder;
     return std::unique_ptr<RPCGeometry>(builder.build(&(*cpv), mdc));
-  } else if (useDD4hep_) {
+  } else if (fromDD4hep_) {
     edm::ESTransientHandle<cms::DDCompactView> cpv = record.getTransientHandle(idealDD4hepGeomToken_);
     auto const& mdc = record.get(dddConstantsToken_);
     RPCGeometryBuilder builder;

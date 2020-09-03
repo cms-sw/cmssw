@@ -882,15 +882,21 @@ namespace edm {
     return nullptr;
   }
 
-  WrapperBase const* Principal::getThinnedProduct(ProductID const&, unsigned int&) const {
+  std::optional<std::tuple<WrapperBase const*, unsigned int>> Principal::getThinnedProduct(ProductID const&,
+                                                                                           unsigned int) const {
     assert(false);
-    return nullptr;
+    return std::nullopt;
   }
 
   void Principal::getThinnedProducts(ProductID const&,
                                      std::vector<WrapperBase const*>&,
                                      std::vector<unsigned int>&) const {
     assert(false);
+  }
+
+  OptionalThinnedKey Principal::getThinnedKeyFrom(ProductID const&, unsigned int, ProductID const&) const {
+    assert(false);
+    return std::monostate{};
   }
 
   void Principal::putOrMerge(std::unique_ptr<WrapperBase> prod, ProductResolverBase const* phb) const {

@@ -21,10 +21,11 @@
 //
 //
 
-#include "DetectorDescription/DDCMS/interface/DDSpecParRegistry.h"
 #include "DetectorDescription/DDCMS/interface/DDDetector.h"
+#include <DD4hep/SpecParRegistry.h>
 
 namespace cms {
+  using DDSpecParRegistry = dd4hep::SpecParRegistry;
 
   class DDCompactView {
   public:

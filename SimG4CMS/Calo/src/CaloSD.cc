@@ -185,14 +185,12 @@ G4bool CaloSD::ProcessHits(G4Step* aStep, G4TouchableHistory*) {
 bool CaloSD::ProcessHits(G4GFlashSpot* aSpot, G4TouchableHistory*) {
   edepositEM = edepositHAD = 0.f;
   const G4Track* track = aSpot->GetOriginatorTrack()->GetPrimaryTrack();
-  if (!G4TrackToParticleID::isGammaElectronPositron(track)) {
-    return false;
-  }
+
   double edep = aSpot->GetEnergySpot()->GetEnergy();
   if (edep <= 0.0) {
     return false;
   }
-  edepositEM = edep;
+
   G4Step fFakeStep;
   G4StepPoint* fFakePreStepPoint = fFakeStep.GetPreStepPoint();
   G4StepPoint* fFakePostStepPoint = fFakeStep.GetPostStepPoint();
@@ -202,6 +200,16 @@ bool CaloSD::ProcessHits(G4GFlashSpot* aSpot, G4TouchableHistory*) {
   G4TouchableHandle fTouchableHandle = aSpot->GetTouchableHandle();
   fFakePreStepPoint->SetTouchableHandle(fTouchableHandle);
   fFakeStep.SetTotalEnergyDeposit(edep);
+  edep = EnergyCorrected(fFakeStep, track);
+  if (edep <= 0.0) {
+    return false;
+  }
+
+  if (G4TrackToParticleID::isGammaElectronPositron(track)) {
+    edepositEM = edep;
+  } else {
+    edepositHAD = edep;
+  }
 
   unsigned int unitID = setDetUnitId(&fFakeStep);
 
@@ -240,6 +248,8 @@ bool CaloSD::ProcessHits(G4GFlashSpot* aSpot, G4TouchableHistory*) {
 }
 
 double CaloSD::getEnergyDeposit(const G4Step* aStep) { return aStep->GetTotalEnergyDeposit(); }
+
+double CaloSD::EnergyCorrected(const G4Step& aStep, const G4Track*) { return aStep.GetTotalEnergyDeposit(); }
 
 bool CaloSD::getFromLibrary(const G4Step*) { return false; }
 

@@ -18,7 +18,7 @@
  */
 
 // system include files
-#include "boost/mpl/vector.hpp"
+#include "FWCore/Utilities/interface/mplVector.h"
 
 // user include files
 #include "FWCore/Framework/interface/DependentRecordImplementation.h"
@@ -32,7 +32,7 @@
 class L1TGlobalTriggerMenuRcd
     : public edm::eventsetup::DependentRecordImplementation<
           L1TGlobalTriggerMenuRcd,
-          boost::mpl::vector<L1TGlobalStableParametersRcd, L1TriggerKeyListRcd, L1TriggerKeyRcd> > {
+          edm::mpl::Vector<L1TGlobalStableParametersRcd, L1TriggerKeyListRcd, L1TriggerKeyRcd> > {
   // empty
 };
 

@@ -14,6 +14,7 @@
 //
 // Original Author:  Ianna Osborne
 //         Created:  Wed, 16 Jan 2019 10:19:37 GMT
+//         Modified by Sergio Lo Meo (sergio.lo.meo@cern.ch) Mon, 31 August 2020
 //
 //
 #include "CondFormats/GeometryObjects/interface/RecoIdealGeometry.h"
@@ -28,15 +29,15 @@
 #include "DataFormats/GeometrySurface/interface/Plane.h"
 #include "DataFormats/GeometrySurface/interface/Bounds.h"
 #include "DataFormats/GeometrySurface/interface/RectangularPlaneBounds.h"
-
-#include "Geometry/MuonNumbering/interface/DD4hep_MuonNumbering.h"
+#include "Geometry/MuonNumbering/interface/MuonGeometryNumbering.h"
 #include "Geometry/Records/interface/MuonNumberingRecord.h"
 #include "Geometry/Records/interface/MuonGeometryRecord.h"
 #include "Geometry/Records/interface/GeometryFileRcd.h"
 #include "DetectorDescription/DDCMS/interface/DDDetector.h"
 #include "DetectorDescription/DDCMS/interface/DDFilteredView.h"
 #include "Geometry/DTGeometry/interface/DTGeometry.h"
-#include "Geometry/MuonNumbering/interface/DD4hep_DTNumberingScheme.h"
+#include "Geometry/MuonNumbering/interface/MuonBaseNumber.h"
+#include "Geometry/MuonNumbering/interface/DTNumberingScheme.h"
 #include "DTGeometryBuilder.h"
 #include "DD4hep/Detector.h"
 
@@ -48,35 +49,32 @@ using namespace edm;
 using namespace std;
 using namespace cms;
 
-void DTGeometryBuilder::buildGeometry(DDFilteredView& fview, DTGeometry& geom, const MuonNumbering& num) const {
+void DTGeometryBuilder::buildGeometry(DDFilteredView& fview, DTGeometry& geom, const MuonGeometryConstants& num) const {
   bool doChamber = fview.firstChild();
 
   while (doChamber) {
     DTChamber* chamber = buildChamber(fview, num);
 
-    // Loop on SLs
     bool doSL = fview.nextSibling();
     while (doSL) {
       DTSuperLayer* sl = buildSuperLayer(fview, chamber, num);
 
-      // Loop on Layers
       fview.down();
       bool doLayers = fview.sibling();
       while (doLayers) {
         DTLayer* l = buildLayer(fview, sl, num);
         geom.add(l);
 
-        doLayers = fview.sibling();  // go to next Layer
+        doLayers = fview.sibling();
       }
-      // Done with layers
 
       geom.add(sl);
-      doSL = fview.nextSibling();  // go to next SL
+      doSL = fview.nextSibling();
     }
     geom.add(chamber);
 
-    fview.parent();                  // stop iterating current branch
-    doChamber = fview.firstChild();  // go to next chamber
+    fview.parent();
+    doChamber = fview.firstChild();
   }
 }
 
@@ -90,13 +88,13 @@ DTGeometryBuilder::RCPPlane DTGeometryBuilder::plane(const DDFilteredView& fview
                 bounds));
 }
 
-DTChamber* DTGeometryBuilder::buildChamber(DDFilteredView& fview, const MuonNumbering& muonConstants) const {
-  int rawid = dtnum_->getDetId(muonConstants.geoHistoryToBaseNumber(fview.history()));
+DTChamber* DTGeometryBuilder::buildChamber(DDFilteredView& fview, const MuonGeometryConstants& muonConstants) const {
+  MuonGeometryNumbering mdddnum(muonConstants);
+  DTNumberingScheme dtnum(muonConstants);
+  int rawid = dtnum.baseNumberToUnitNumber(mdddnum.geoHistoryToBaseNumber(fview.history()));
+
   DTChamberId detId(rawid);
   auto const& par = fview.parameters();
-  // par[0] r-phi  dimension - different in different chambers
-  // par[1] z      dimension - constant 125.55 cm
-  // par[2] radial thickness - almost constant about 18 cm
 
   RCPPlane surf(plane(fview, new RectangularPlaneBounds(par[0], par[1], par[2])));
 
@@ -107,21 +105,19 @@ DTChamber* DTGeometryBuilder::buildChamber(DDFilteredView& fview, const MuonNumb
 
 DTSuperLayer* DTGeometryBuilder::buildSuperLayer(DDFilteredView& fview,
                                                  DTChamber* chamber,
-                                                 const MuonNumbering& muonConstants) const {
-  int rawid = dtnum_->getDetId(muonConstants.geoHistoryToBaseNumber(fview.history()));
+                                                 const MuonGeometryConstants& muonConstants) const {
+  MuonGeometryNumbering mdddnum(muonConstants);
+  DTNumberingScheme dtnum(muonConstants);
+  int rawid = dtnum.baseNumberToUnitNumber(mdddnum.geoHistoryToBaseNumber(fview.history()));
+
   DTSuperLayerId slId(rawid);
 
   auto const& par = fview.parameters();
-  // par[0] r-phi  dimension - changes in different chambers
-  // par[1] z      dimension - constant 126.8 cm
-  // par[2] radial thickness - almost constant about 20 cm
 
-  // Ok this is the slayer position...
   RCPPlane surf(plane(fview, new RectangularPlaneBounds(par[0], par[1], par[2])));
 
   DTSuperLayer* slayer = new DTSuperLayer(slId, surf, chamber);
 
-  // add to the chamber
   chamber->add(slayer);
 
   return slayer;
@@ -129,21 +125,20 @@ DTSuperLayer* DTGeometryBuilder::buildSuperLayer(DDFilteredView& fview,
 
 DTLayer* DTGeometryBuilder::buildLayer(DDFilteredView& fview,
                                        DTSuperLayer* sl,
-                                       const MuonNumbering& muonConstants) const {
-  int rawid = dtnum_->getDetId(muonConstants.geoHistoryToBaseNumber(fview.history()));
+                                       const MuonGeometryConstants& muonConstants) const {
+  MuonGeometryNumbering mdddnum(muonConstants);
+  DTNumberingScheme dtnum(muonConstants);
+  int rawid = dtnum.baseNumberToUnitNumber(mdddnum.geoHistoryToBaseNumber(fview.history()));
+
   DTLayerId layId(rawid);
 
   auto const& par = fview.parameters();
-  // Layer specific parameter (size)
-  // par[0] r-phi  dimension - changes in different chambers
-  // par[1] z      dimension - constant 126.8 cm
-  // par[2] radial thickness - almost constant about 20 cm
+
   RCPPlane surf(plane(fview, new RectangularPlaneBounds(par[0], par[1], par[2])));
 
-  // Loop on wires
   fview.down();
   bool doWire = fview.sibling();
-  int firstWire = fview.volume()->GetNumber();  // copy no
+  int firstWire = fview.volume()->GetNumber();
   auto const& wpar = fview.parameters();
   float wireLength = wpar[1];
 
@@ -166,11 +161,10 @@ DTLayer* DTGeometryBuilder::buildLayer(DDFilteredView& fview,
 
 void DTGeometryBuilder::build(DTGeometry& geom,
                               const DDDetector* det,
-                              const MuonNumbering& num,
-                              const DDSpecParRefs& refs) {
+                              const MuonGeometryConstants& num,
+                              const dd4hep::SpecParRefs& refs) {
   Volume top = det->worldVolume();
   DDFilteredView fview(det, top);
   fview.mergedSpecifics(refs);
-  dtnum_ = make_unique<DTNumberingScheme>(num.values());
   buildGeometry(fview, geom, num);
 }

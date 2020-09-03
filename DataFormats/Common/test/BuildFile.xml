@@ -27,6 +27,10 @@
 <bin file="Ref_t.cpp">
 </bin>
 
+<bin file="ThinnedRefSet_t.cpp">
+  <use name="catch2"/>
+</bin>
+
 <bin file="RefVector_t.cpp">
 </bin>
 

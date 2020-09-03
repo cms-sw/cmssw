@@ -38,10 +38,6 @@ redoPuppi=True # rebuild puppiMET
 
 ### External JECs =====================================================================================================
 
-#from Configuration.StandardSequences.FrontierConditions_GlobalTag_condDBv2_cff import *
-#process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_condDBv2_cff')
-process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
-#from Configuration.AlCa.GlobalTag_condDBv2 import GlobalTag
 from Configuration.AlCa.autoCond import autoCond
 if runOnData:
   process.GlobalTag.globaltag = autoCond['run2_data']

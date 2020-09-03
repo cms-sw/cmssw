@@ -36,6 +36,8 @@ GEMDigiMatcher::GEMDigiMatcher(const edm::ParameterSet& pset, edm::ConsumesColle
   gemPadToken_ = iC.consumes<GEMPadDigiCollection>(gemPad.getParameter<edm::InputTag>("inputTag"));
   gemClusterToken_ = iC.consumes<GEMPadDigiClusterCollection>(gemCluster.getParameter<edm::InputTag>("inputTag"));
   gemCoPadToken_ = iC.consumes<GEMCoPadDigiCollection>(gemCoPad.getParameter<edm::InputTag>("inputTag"));
+
+  geomToken_ = iC.esConsumes<GEMGeometry, MuonGeometryRecord>();
 }
 
 void GEMDigiMatcher::init(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
@@ -47,12 +49,7 @@ void GEMDigiMatcher::init(const edm::Event& iEvent, const edm::EventSetup& iSetu
   iEvent.getByToken(gemClusterToken_, gemClustersH_);
   iEvent.getByToken(gemCoPadToken_, gemCoPadsH_);
 
-  iSetup.get<MuonGeometryRecord>().get(gem_geom_);
-  if (gem_geom_.isValid()) {
-    gemGeometry_ = &*gem_geom_;
-  } else {
-    std::cout << "+++ Info: GEM geometry is unavailable. +++\n";
-  }
+  gemGeometry_ = &iSetup.getData(geomToken_);
 }
 
 /// do the matching
@@ -83,7 +80,7 @@ void GEMDigiMatcher::match(const SimTrack& t, const SimVertex& v) {
 
 void GEMDigiMatcher::matchDigisSLToSimTrack(const edm::DetSetVector<GEMDigiSimLink>& digisSL) {
   if (verboseSimLink_)
-    cout << "Matching simtrack to GEM simlinks" << endl;
+    edm::LogInfo("GEMDigiMatcher") << "Matching simtrack to GEM simlinks" << endl;
 
   // loop on the simlinks
   for (auto itsimlink = digisSL.begin(); itsimlink != digisSL.end(); itsimlink++) {
@@ -100,8 +97,9 @@ void GEMDigiMatcher::matchDigisSLToSimTrack(const edm::DetSetVector<GEMDigiSimLi
         continue;
 
       if (verboseSimLink_)
-        std::cout << "GEMDigiSimLink " << p_id << " " << sl->getStrip() << " " << sl->getBx() << " "
-                  << sl->getEnergyLoss() << " " << sl->getTimeOfFlight() << " " << sl->getParticleType() << std::endl;
+        edm::LogInfo("GEMDigiMatcher") << "GEMDigiSimLink " << p_id << " " << sl->getStrip() << " " << sl->getBx()
+                                       << " " << sl->getEnergyLoss() << " " << sl->getTimeOfFlight() << " "
+                                       << sl->getParticleType() << std::endl;
 
       // consider only the muon hits
       if (simMuOnly_ && std::abs(sl->getParticleType()) != 13)
@@ -120,7 +118,7 @@ void GEMDigiMatcher::matchDigisSLToSimTrack(const edm::DetSetVector<GEMDigiSimLi
             simhit.entryPoint() == sl->getEntryPoint() and simhit.momentumAtEntry() == sl->getMomentumAtEntry()) {
           detid_to_simLinks_[p_id.rawId()].push_back(*sl);
           if (verboseSimLink_)
-            cout << "...was matched!" << endl;
+            edm::LogInfo("GEMDigiMatcher") << "...was matched!" << endl;
           break;
         }
       }
@@ -130,7 +128,7 @@ void GEMDigiMatcher::matchDigisSLToSimTrack(const edm::DetSetVector<GEMDigiSimLi
 
 void GEMDigiMatcher::matchDigisToSimTrack(const GEMDigiCollection& digis) {
   if (verboseDigi_)
-    cout << "Matching simtrack to GEM digis" << endl;
+    edm::LogInfo("GEMDigiMatcher") << "Matching simtrack to GEM digis" << endl;
   for (auto id : muonSimHitMatcher_->detIds()) {
     GEMDetId p_id(id);
 
@@ -142,7 +140,7 @@ void GEMDigiMatcher::matchDigisToSimTrack(const GEMDigiCollection& digis) {
         continue;
 
       if (verboseDigi_)
-        cout << "GEMDigi " << p_id << " " << *d << endl;
+        edm::LogInfo("GEMDigiMatcher") << "GEMDigi " << p_id << " " << *d << endl;
 
       // check that the digi matches to at least one GEMDigiSimLink
       for (const auto& sl : detid_to_simLinks_[p_id.rawId()]) {
@@ -151,7 +149,7 @@ void GEMDigiMatcher::matchDigisToSimTrack(const GEMDigiCollection& digis) {
           chamber_to_digis_[p_id.chamberId().rawId()].push_back(*d);
           superchamber_to_digis_[p_id.superChamberId().rawId()].push_back(*d);
           if (verboseDigi_)
-            cout << "...was matched!" << endl;
+            edm::LogInfo("GEMDigiMatcher") << "...was matched!" << endl;
           break;
         }
       }
@@ -172,7 +170,7 @@ void GEMDigiMatcher::matchPadsToSimTrack(const GEMPadDigiCollection& pads) {
         continue;
 
       if (verbosePad_)
-        cout << "GEMPad " << p_id << " " << *pad << endl;
+        edm::LogInfo("GEMDigiMatcher") << "GEMPad " << p_id << " " << *pad << endl;
 
       // check that it matches a pad that was hit by SimHits from our track
       for (auto digi : detid_to_digis_[p_id.rawId()]) {
@@ -181,7 +179,7 @@ void GEMDigiMatcher::matchPadsToSimTrack(const GEMPadDigiCollection& pads) {
           chamber_to_pads_[p_id.chamberId().rawId()].push_back(*pad);
           superchamber_to_pads_[p_id.superChamberId().rawId()].push_back(*pad);
           if (verbosePad_)
-            cout << "...was matched!" << endl;
+            edm::LogInfo("GEMDigiMatcher") << "...was matched!" << endl;
           break;
         }
       }
@@ -204,7 +202,7 @@ void GEMDigiMatcher::matchClustersToSimTrack(const GEMPadDigiClusterCollection& 
         continue;
 
       if (verboseCluster_)
-        cout << "GEMCluster " << p_id << " " << *cluster << endl;
+        edm::LogInfo("GEMDigiMatcher") << "GEMCluster " << p_id << " " << *cluster << endl;
 
       // check that at least one pad was hit by the track
       for (const auto& p : cluster->pads()) {
@@ -219,7 +217,7 @@ void GEMDigiMatcher::matchClustersToSimTrack(const GEMPadDigiClusterCollection& 
         chamber_to_clusters_[p_id.chamberId().rawId()].push_back(*cluster);
         superchamber_to_clusters_[p_id.superChamberId().rawId()].push_back(*cluster);
         if (verboseCluster_)
-          cout << "...was matched!" << endl;
+          edm::LogInfo("GEMDigiMatcher") << "...was matched!" << endl;
       }
     }
   }
@@ -237,7 +235,7 @@ void GEMDigiMatcher::matchCoPadsToSimTrack(const GEMCoPadDigiCollection& co_pads
         continue;
 
       if (verboseCoPad_)
-        cout << "GEMCoPadDigi: " << id << " " << *copad << endl;
+        edm::LogInfo("GEMDigiMatcher") << "GEMCoPadDigi: " << id << " " << *copad << endl;
 
       bool isMatchedL1 = false;
       bool isMatchedL2 = false;
@@ -260,7 +258,7 @@ void GEMDigiMatcher::matchCoPadsToSimTrack(const GEMCoPadDigiCollection& co_pads
       if (isMatchedL1 and isMatchedL2) {
         superchamber_to_copads_[id.rawId()].push_back(*copad);
         if (verboseCoPad_)
-          cout << "...was matched! " << endl;
+          edm::LogInfo("GEMDigiMatcher") << "...was matched! " << endl;
       }
     }
   }

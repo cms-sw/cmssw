@@ -1,7 +1,7 @@
 #ifndef SHALLOW_GAINCALIBRATION_PRODUCER
 #define SHALLOW_GAINCALIBRATION_PRODUCER
 
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 
 #include "CalibTracker/SiStripCommon/interface/ShallowTools.h"
@@ -37,6 +37,9 @@
 #include "Geometry/TrackerNumberingBuilder/interface/GeometricDet.h"
 #include "Geometry/CommonDetUnit/interface/TrackingGeometry.h"
 
+#include "CalibFormats/SiStripObjects/interface/SiStripGain.h"
+#include "CalibTracker/Records/interface/SiStripGainRcd.h"
+
 #include "DataFormats/FEDRawData/interface/FEDNumbering.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
@@ -50,13 +53,17 @@
 
 #include <ext/hash_map>
 
-class ShallowGainCalibration : public edm::EDProducer {
+class ShallowGainCalibration : public edm::stream::EDProducer<> {
 public:
   explicit ShallowGainCalibration(const edm::ParameterSet&);
 
 private:
   const edm::EDGetTokenT<edm::View<reco::Track> > tracks_token_;
   const edm::EDGetTokenT<TrajTrackAssociationCollection> association_token_;
+
+  const edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> trackerGeometry_token_;
+  const edm::ESGetToken<SiStripGain, SiStripGainRcd> gain_token_;
+  const edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> tkGeom_token_;
 
   std::string Suffix;
   std::string Prefix;

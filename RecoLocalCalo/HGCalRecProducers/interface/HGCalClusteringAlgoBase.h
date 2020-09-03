@@ -59,7 +59,9 @@ public:
   virtual void getEventSetupPerAlgorithm(const edm::EventSetup &es) {}
 
   inline void getEventSetup(const edm::EventSetup &es) {
-    rhtools_.getEventSetup(es);
+    edm::ESHandle<CaloGeometry> geom;
+    es.get<CaloGeometryRecord>().get(geom);
+    rhtools_.setGeometry(*geom);
     maxlayer_ = rhtools_.lastLayer(isNose_);
     lastLayerEE_ = rhtools_.lastLayerEE(isNose_);
     lastLayerFH_ = rhtools_.lastLayerFH();

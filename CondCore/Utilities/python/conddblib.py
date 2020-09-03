@@ -18,13 +18,16 @@ import sqlalchemy.ext.declarative
 import enum
 from sqlalchemy import Enum
 
-authPathEnvVar = 'COND_AUTH_PATH'
 schema_name = 'CMS_CONDITIONS'
 dbuser_name = 'cms_conditions'
 dbreader_user_name = 'cms_cond_general_r'
 dbwriter_user_name = 'cms_cond_general_w'
-devdbwriter_user_name = 'cms_cond_general_w'
 logger = logging.getLogger(__name__)
+
+#authentication/authorization params
+authPathEnvVar = 'COND_AUTH_PATH'
+dbkey_filename = 'db.key'
+dbkey_folder = os.path.join('.cms_cond',dbkey_filename)
 
 # frontier services
 PRO ='PromptProd'
@@ -132,6 +135,9 @@ database_help = '''
        relative/path/to/file.db  ===  sqlite:///relative/path/to/file.db
       /absolute/path/to/file.db  ===  sqlite:////absolute/path/to/file.db
 '''
+
+def oracle_connection_string(db_service, db_schema ):
+    return 'oracle://%s/%s'%(db_service,db_schema)
 
 class Synchronization(enum.Enum):
     any        = 'any'
@@ -339,7 +345,6 @@ class Connection(object):
         self._url = url
         self._backendName = ('sqlite' if self._is_sqlite else 'oracle' ) 
         self._schemaName = ( None if self._is_sqlite else schema_name )
-        logging.debug(' ... using db "%s", schema "%s"' % (url, self._schemaName) )
         logging.debug('Loading db types...')
         self.get_dbtype(Tag).__name__
         self.get_dbtype(Payload)
@@ -482,7 +487,7 @@ def make_url(database='pro',read_only = True):
         'oraint':       ('oracle',         'cms_orcoff_int',  { 'R': dbreader_user_name,
                                                                 'W': dbwriter_user_name }, ),
         'oradev':       ('oracle',         'cms_orcoff_prep', { 'R': dbreader_user_name,
-                                                                'W': devdbwriter_user_name }, ),
+                                                                'W': dbwriter_user_name }, ),
         'onlineorapro': ('oracle',         'cms_orcon_prod',  { 'R': dbreader_user_name,
                                                                 'W': dbwriter_user_name }, ),
         'onlineoraint': ('oracle',         'cmsintr_lb',      { 'R': dbreader_user_name,
@@ -528,20 +533,33 @@ def connect(url, authPath=None, verbose=0):
             if authPath is None:
                 if authPathEnvVar in os.environ:
                     authPath = os.environ[authPathEnvVar]
-            authFile = None
+            explicit_auth = False
             if authPath is not None:
-                authFile = os.path.join(authPath,'.netrc')
-            if authFile is not None:
-                entryKey = url.host.lower()+"/"+url.username.lower()
-                logging.debug('Looking up credentials for %s in file %s ' %(entryKey,authFile) )
-                import netrc
-                params = netrc.netrc( authFile ).authenticators(entryKey)
-                if params is not None:
-                    (username, account, password) = params
-                    url.password = password
+                dbkey_path = os.path.join(authPath,dbkey_folder)
+                if not os.path.exists(dbkey_path):
+                    authFile = os.path.join(authPath,'.netrc')
+                    if os.path.exists(authFile):
+                        entryKey = url.host.lower()+"/"+url.username.lower()
+                        logging.debug('Looking up credentials for %s in file %s ' %(entryKey,authFile) )
+                        import netrc
+                        params = netrc.netrc( authFile ).authenticators(entryKey)
+                        if params is not None:
+                            (username, account, password) = params
+                            url.username = username
+                            url.password = password
+                        else:
+                            msg = 'The entry %s has not been found in the .netrc file.' %entryKey
+                            raise TypeError(msg)
+                    else:
+                        explicit_auth =True
                 else:
-                    msg = 'The entry %s has not been found in the .netrc file.' %entryKey
-                    raise TypeError(msg)
+                    import pluginCondDBPyBind11Interface as credential_store
+                    connect_for_update = ( url.username == dbwriter_user_name )
+                    connection_string = oracle_connection_string(url.host.lower(),schema_name)
+                    logging.debug('Using db key to get credentials for %s' %connection_string )
+                    (username,password) = credential_store.get_db_credentials(connection_string,connect_for_update,authPath)
+                    url.username = username
+                    url.password = password
             else:
                 import getpass
                 pwd = getpass.getpass('Password for %s: ' % str(url))

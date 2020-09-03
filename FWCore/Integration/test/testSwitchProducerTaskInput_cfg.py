@@ -50,31 +50,31 @@ else:
     process.intProducer3.throw = cms.untracked.bool(True)
 
 process.intProducer = SwitchProducerTest(
-    test1 = cms.EDProducer("AddIntsProducer", labels = cms.vstring("intProducer1")),
-    test2 = cms.EDProducer("AddIntsProducer", labels = cms.vstring("intProducer2"))
+    test1 = cms.EDProducer("AddIntsProducer", labels = cms.VInputTag("intProducer1")),
+    test2 = cms.EDProducer("AddIntsProducer", labels = cms.VInputTag("intProducer2"))
 )
 # Test also existence of another SwitchProducer here
 process.intProducerOther = SwitchProducerTest(
-    test1 = cms.EDProducer("AddIntsProducer", labels = cms.vstring("intProducer1")),
-    test2 = cms.EDProducer("AddIntsProducer", labels = cms.vstring("intProducer2"))
+    test1 = cms.EDProducer("AddIntsProducer", labels = cms.VInputTag("intProducer1")),
+    test2 = cms.EDProducer("AddIntsProducer", labels = cms.VInputTag("intProducer2"))
 )
 # SwitchProducer with an alias
 process.intProducerAlias = SwitchProducerTest(
-    test1 = cms.EDProducer("AddIntsProducer", labels = cms.vstring("intProducer1")),
+    test1 = cms.EDProducer("AddIntsProducer", labels = cms.VInputTag("intProducer1")),
     test2 = cms.EDAlias(intProducer3 = cms.VPSet(cms.PSet(type = cms.string("edmtestIntProduct"), fromProductInstance = cms.string(""), toProductInstance = cms.string("")),
                                                  cms.PSet(type = cms.string("edmtestIntProduct"), fromProductInstance = cms.string("foo"), toProductInstance = cms.string("other"))))
 )
 
 process.intProducerAlias2 = SwitchProducerTest(
-    test1 = cms.EDProducer("AddIntsProducer", labels = cms.vstring("intProducer1")),
+    test1 = cms.EDProducer("AddIntsProducer", labels = cms.VInputTag("intProducer1")),
     test2 = cms.EDAlias(intProducer4 = cms.VPSet(cms.PSet(type = cms.string("edmtestIntProduct"), fromProductInstance = cms.string(""), toProductInstance = cms.string(""))),
                         intProducer3 = cms.VPSet(cms.PSet(type = cms.string("edmtestIntProduct"), fromProductInstance = cms.string("foo"), toProductInstance = cms.string("other"))))
 )
 
 # Test multiple consumers of a SwitchProducer
-process.intProducerDep1 = cms.EDProducer("AddIntsProducer", labels = cms.vstring("intProducer"))
-process.intProducerDep2 = cms.EDProducer("AddIntsProducer", labels = cms.vstring("intProducer"))
-process.intProducerDep3 = cms.EDProducer("AddIntsProducer", labels = cms.vstring("intProducer"))
+process.intProducerDep1 = cms.EDProducer("AddIntsProducer", labels = cms.VInputTag("intProducer"))
+process.intProducerDep2 = cms.EDProducer("AddIntsProducer", labels = cms.VInputTag("intProducer"))
+process.intProducerDep3 = cms.EDProducer("AddIntsProducer", labels = cms.VInputTag("intProducer"))
 
 process.t = cms.Task(process.intProducer, process.intProducerOther, process.intProducerAlias, process.intProducerAlias2,
                      process.intProducerDep1, process.intProducerDep2, process.intProducerDep3,

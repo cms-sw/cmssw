@@ -22,7 +22,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDFilter.h"
+#include "FWCore/Framework/interface/one/EDFilter.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -43,15 +43,12 @@
 
 using namespace edm;
 
-class PrescalerFHN : public edm::EDFilter {
+class PrescalerFHN : public edm::one::EDFilter<> {
 public:
   explicit PrescalerFHN(const edm::ParameterSet&);
-  ~PrescalerFHN() override;
 
 private:
-  void beginJob() override;
   bool filter(edm::Event&, const edm::EventSetup&) override;
-  void endJob() override;
   // ----------member data ---------------------------
 
   void init(const edm::TriggerResults&, const edm::TriggerNames& triggerNames);
@@ -93,11 +90,6 @@ PrescalerFHN::PrescalerFHN(const edm::ParameterSet& iConfig) {
   }
 }
 
-PrescalerFHN::~PrescalerFHN() {
-  // do anything here that needs to be done at desctruction time
-  // (e.g. close files, deallocate resources etc.)
-}
-
 //
 // member functions
 //
@@ -106,12 +98,12 @@ void PrescalerFHN::init(const edm::TriggerResults& result, const edm::TriggerNam
   trigger_indices.clear();
 
   for (std::map<std::string, unsigned int>::const_iterator cit = prescales.begin(); cit != prescales.end(); cit++) {
-    trigger_indices[cit->first] = triggerNames.triggerIndex(cit->first);
-
-    if (trigger_indices[cit->first] >= result.size()) {
+    auto index = triggerNames.triggerIndex(cit->first);
+    if (index < result.size()) {
+      trigger_indices[cit->first] = index;
+    } else {
       // trigger path not found
       LogDebug("") << "requested HLT path does not exist: " << cit->first;
-      trigger_indices.erase(cit->first);
     }
   }
 }
@@ -161,12 +153,6 @@ bool PrescalerFHN::filter(edm::Event& iEvent, const edm::EventSetup& iSetup) {
 
   return accept_event;
 }
-
-// ------------ method called once each job just before starting event loop  ------------
-void PrescalerFHN::beginJob() {}
-
-// ------------ method called once each job just after ending the event loop  ------------
-void PrescalerFHN::endJob() {}
 
 //define this as a plug-in
 DEFINE_FWK_MODULE(PrescalerFHN);

@@ -1,6 +1,5 @@
 #include "DataFormats/Provenance/interface/StableProvenance.h"
 #include "DataFormats/Provenance/interface/ProcessConfiguration.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include <algorithm>
 #include <cassert>

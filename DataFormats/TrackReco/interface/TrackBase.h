@@ -356,6 +356,12 @@ namespace reco {
     /// number of cases where track crossed a layer without getting a hit.
     unsigned short numberOfLostHits() const;
 
+    /// number of hits expected from inner track extrapolation but missing
+    int missingInnerHits() const;
+
+    /// number of hits expected from outer track extrapolation but missing
+    int missingOuterHits() const;
+
     /// fraction of valid hits on the track
     double validFraction() const;
 
@@ -753,6 +759,16 @@ namespace reco {
   // number of cases where track crossed a layer without getting a hit.
   inline unsigned short TrackBase::numberOfLostHits() const {
     return hitPattern_.numberOfLostHits(HitPattern::TRACK_HITS);
+  }
+
+  // number of hits expected from inner track extrapolation but missing
+  inline int TrackBase::missingInnerHits() const {
+    return hitPattern_.numberOfLostHits(HitPattern::MISSING_INNER_HITS);
+  }
+
+  // number of hits expected from outer track extrapolation but missing
+  inline int TrackBase::missingOuterHits() const {
+    return hitPattern_.numberOfLostHits(HitPattern::MISSING_OUTER_HITS);
   }
 
   // fraction of valid hits on the track

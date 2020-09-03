@@ -1,31 +1,31 @@
+#include <filesystem>
+#include <fstream>
+#include <iostream>
+#include <string>
+#include <utility>
+#include <vector>
+#include <sys/stat.h>
+#include <sys/types.h>
+#include <unistd.h>
+#include <boost/property_tree/json_parser.hpp>
+#include <openssl/md5.h>
+#include <fmt/printf.h>
+
+#include <google/protobuf/io/coded_stream.h>
+#include <google/protobuf/io/gzip_stream.h>
+#include <google/protobuf/io/zero_copy_stream_impl.h>
+
+#include <TString.h>
+#include <TSystem.h>
+#include <TBufferFile.h>
+
 #include "DQMServices/Core/interface/DQMStore.h"
+#include "DQMServices/Core/src/ROOTFilePB.pb.h"
 #include "FWCore/Framework/interface/LuminosityBlock.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
 #include "DQMFileSaverPB.h"
-
-#include <sys/stat.h>
-#include <sys/types.h>
-#include <unistd.h>
-#include <iostream>
-#include <vector>
-#include <string>
-#include <fstream>
-#include <utility>
-#include "TString.h"
-#include "TSystem.h"
-#include "TBufferFile.h"
-
-#include <openssl/md5.h>
-#include <boost/property_tree/json_parser.hpp>
-#include <filesystem>
-#include <boost/format.hpp>
-
-#include <google/protobuf/io/coded_stream.h>
-#include <google/protobuf/io/gzip_stream.h>
-#include <google/protobuf/io/zero_copy_stream_impl.h>
-#include "DQMServices/Core/src/ROOTFilePB.pb.h"
 
 using namespace dqm;
 
@@ -67,8 +67,8 @@ void DQMFileSaverPB::saveLumi(const FileParameters& fp) const {
 
   // create the files names
   if (fakeFilterUnitMode_) {
-    std::string runDir = str(boost::format("%s/run%06d") % fp.path_ % fp.run_);
-    std::string baseName = str(boost::format("%s/run%06d_ls%04d_%s") % runDir % fp.run_ % fp.lumi_ % streamLabel_);
+    std::string runDir = fmt::sprintf("%s/run%06d", fp.path_, fp.run_);
+    std::string baseName = fmt::sprintf("%s/run%06d_ls%04d_%s", runDir, fp.run_, fp.lumi_, streamLabel_);
 
     std::filesystem::create_directories(runDir);
 

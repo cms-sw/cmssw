@@ -1,3 +1,4 @@
+#include "CommonTools/Utils/interface/LazyConstructed.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
@@ -53,7 +54,7 @@ void GsfElectronCoreEcalDrivenProducer::produce(edm::StreamID, edm::Event& event
   auto gsfTracksHandle = event.getHandle(gsfTracksToken_);
   auto ctfTracksHandle = event.getHandle(ctfTracksToken_);
 
-  auto ctfTrackVariables = edm::soa::makeEtaPhiTableLazy(*ctfTracksHandle);
+  auto ctfTrackVariables = makeLazy<edm::soa::EtaPhiTable>(*ctfTracksHandle);
 
   // output
   reco::GsfElectronCoreCollection electrons;

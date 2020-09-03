@@ -1,9 +1,10 @@
 #include "SimG4Core/Geometry/interface/DDG4ProductionCuts.h"
 #include "DetectorDescription/Core/interface/DDLogicalPart.h"
-#include "DetectorDescription/DDCMS/interface/Filter.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/Exception.h"
+
+#include <DD4hep/Filter.h>
 
 #include "G4ProductionCuts.hh"
 #include "G4RegionStore.hh"
@@ -37,8 +38,8 @@ namespace {
     return result;
   }
 
-  bool sortByName(const std::pair<G4LogicalVolume*, const cms::DDSpecPar*>& p1,
-                  const std::pair<G4LogicalVolume*, const cms::DDSpecPar*>& p2) {
+  bool sortByName(const std::pair<G4LogicalVolume*, const dd4hep::SpecPar*>& p1,
+                  const std::pair<G4LogicalVolume*, const dd4hep::SpecPar*>& p2) {
     bool result = false;
     if (p1.first->GetName() > p2.first->GetName()) {
       result = true;
@@ -52,15 +53,13 @@ DDG4ProductionCuts::DDG4ProductionCuts(const G4LogicalVolumeToDDLogicalPartMap* 
   initialize();
 }
 
-DDG4ProductionCuts::DDG4ProductionCuts(const cms::DDSpecParRegistry* specPars,
+DDG4ProductionCuts::DDG4ProductionCuts(const dd4hep::SpecParRegistry* specPars,
                                        const dd4hep::sim::Geant4GeometryMaps::VolumeMap* map,
                                        int verb,
                                        bool pcut)
     : dd4hepMap_(map), specPars_(specPars), keywordRegion_("CMSCutsRegion"), verbosity_(verb), protonCut_(pcut) {
   dd4hepInitialize();
 }
-
-DDG4ProductionCuts::~DDG4ProductionCuts() {}
 
 void DDG4ProductionCuts::initialize() {
   vec_ = map_->all(keywordRegion_);
@@ -109,14 +108,14 @@ void DDG4ProductionCuts::initialize() {
 }
 
 void DDG4ProductionCuts::dd4hepInitialize() {
-  cms::DDSpecParRefs specs;
+  dd4hep::SpecParRefs specs;
   specPars_->filter(specs, keywordRegion_);
 
   for (auto const& it : *dd4hepMap_) {
     for (auto const& fit : specs) {
       for (auto const& pit : fit->paths) {
-        if (cms::dd::compareEqual(cms::dd::noNamespace(it.first.name()), cms::dd::realTopName(pit))) {
-          dd4hepVec_.emplace_back(std::make_pair<G4LogicalVolume*, const cms::DDSpecPar*>(&*it.second, &*fit));
+        if (dd4hep::dd::compareEqual(dd4hep::dd::noNamespace(it.first.name()), dd4hep::dd::realTopName(pit))) {
+          dd4hepVec_.emplace_back(std::make_pair<G4LogicalVolume*, const dd4hep::SpecPar*>(&*it.second, &*fit));
         }
       }
     }
@@ -140,11 +139,12 @@ void DDG4ProductionCuts::dd4hepInitialize() {
   }
 
   if (verbosity_ > 0) {
-    LogDebug("Geometry") << " DDG4ProductionCuts (New) : starting\n"
-                         << " DDG4ProductionCuts : Got " << dd4hepVec_.size() << " region roots.\n"
-                         << " DDG4ProductionCuts : List of all roots:";
+    edm::LogVerbatim("SimG4CoreGeometry") << " DDG4ProductionCuts (New) : starting\n"
+                                          << " DDG4ProductionCuts : Got " << dd4hepVec_.size() << " region roots.\n"
+                                          << " DDG4ProductionCuts : List of all roots:";
     for (size_t jj = 0; jj < dd4hepVec_.size(); ++jj)
-      LogDebug("Geometry") << "   DDG4ProductionCuts : root=" << dd4hepVec_[jj].first << " , " << dd4hepVec_[jj].second;
+      edm::LogVerbatim("SimG4CoreGeometry")
+          << "   DDG4ProductionCuts : root=" << dd4hepVec_[jj].first << " , " << dd4hepVec_[jj].second;
   }
 }
 
@@ -209,7 +209,7 @@ void DDG4ProductionCuts::setProdCuts(const DDLogicalPart lpart, G4Region* region
   }
 }
 
-void DDG4ProductionCuts::setProdCuts(const cms::DDSpecPar* spec, G4Region* region) {
+void DDG4ProductionCuts::setProdCuts(const dd4hep::SpecPar* spec, G4Region* region) {
   //
   // Create and fill production cuts
   //

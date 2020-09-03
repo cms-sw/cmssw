@@ -2,6 +2,7 @@
 #define CondCore_CondDB_Auth_h
 
 #include <string>
+#include <set>
 
 namespace cond {
 
@@ -16,6 +17,11 @@ namespace cond {
     static constexpr const char* const COND_WRITER_ROLE = "COND_WRITER_ROLE";
     static constexpr const char* const COND_READER_ROLE = "COND_READER_ROLE";
     static constexpr const char* const COND_ADMIN_ROLE = "COND_ADMIN_ROLE";
+
+    static const std::set<std::string> ROLES = {std::string(COND_DEFAULT_ROLE),
+                                                std::string(COND_READER_ROLE),
+                                                std::string(COND_WRITER_ROLE),
+                                                std::string(COND_ADMIN_ROLE)};
 
     static constexpr const char* const COND_DEFAULT_PRINCIPAL = "COND_DEFAULT_PRINCIPAL";
 

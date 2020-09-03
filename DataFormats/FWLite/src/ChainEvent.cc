@@ -218,7 +218,8 @@ namespace fwlite {
     return event_->getByProductID(iID);
   }
 
-  edm::WrapperBase const* ChainEvent::getThinnedProduct(edm::ProductID const& pid, unsigned int& key) const {
+  std::optional<std::tuple<edm::WrapperBase const*, unsigned int>> ChainEvent::getThinnedProduct(
+      edm::ProductID const& pid, unsigned int key) const {
     return event_->getThinnedProduct(pid, key);
   }
 
@@ -226,6 +227,12 @@ namespace fwlite {
                                       std::vector<edm::WrapperBase const*>& foundContainers,
                                       std::vector<unsigned int>& keys) const {
     event_->getThinnedProducts(pid, foundContainers, keys);
+  }
+
+  edm::OptionalThinnedKey ChainEvent::getThinnedKeyFrom(edm::ProductID const& parent,
+                                                        unsigned int key,
+                                                        edm::ProductID const& thinned) const {
+    return event_->getThinnedKeyFrom(parent, key, thinned);
   }
 
   bool ChainEvent::isValid() const { return event_->isValid(); }

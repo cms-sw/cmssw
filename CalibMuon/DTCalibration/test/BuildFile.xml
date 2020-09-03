@@ -1,10 +1,12 @@
 <library file="stubs/*.cc" name="testDTCalibration">
   <use name="rootgraphics"/>
+  <use name="CalibMuon/DTCalibration"/>
 </library>
 
 <library file="DBTools/*.cc" name="testDTCalibrationDBTools">
   <flags EDM_PLUGIN="1"/>
   <use name="root"/>
+  <use name="CalibMuon/DTCalibration"/>
   <use name="Geometry/Records"/>
   <use name="Geometry/DTGeometry"/>
   <use name="DataFormats/MuonDetId"/>
@@ -12,5 +14,4 @@
   <use name="CondFormats/DTObjects"/>
   <use name="FWCore/Framework"/>
   <use name="CondFormats/DataRecord"/>
-  <use name="CondCore/DBOutputService"/>
 </library>

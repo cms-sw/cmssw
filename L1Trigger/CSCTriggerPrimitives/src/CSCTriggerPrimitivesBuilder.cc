@@ -66,13 +66,12 @@ CSCTriggerPrimitivesBuilder::CSCTriggerPrimitivesBuilder(const edm::ParameterSet
             else if (isSLHC_ and ring == 1 and stat == 1 and runME11Up_ and runME11ILT_)
               tmb_[endc - 1][stat - 1][sect - 1][subs - 1][cham - 1] =
                   std::make_unique<CSCGEMMotherboardME11>(endc, stat, sect, subs, cham, conf);
-            else if (isSLHC_ and ring == 1 and stat == 2 and runME21Up_ and !runME21ILT_)
-              tmb_[endc - 1][stat - 1][sect - 1][subs - 1][cham - 1] =
-                  std::make_unique<CSCUpgradeMotherboard>(endc, stat, sect, subs, cham, conf);
             else if (isSLHC_ and ring == 1 and stat == 2 and runME21Up_ and runME21ILT_)
               tmb_[endc - 1][stat - 1][sect - 1][subs - 1][cham - 1] =
                   std::make_unique<CSCGEMMotherboardME21>(endc, stat, sect, subs, cham, conf);
-            else if (isSLHC_ and ring == 1 and ((stat == 3 and runME31Up_) || (stat == 4 and runME41Up_)))
+            else if (isSLHC_ and ring == 1 and
+                     ((stat == 2 and runME21Up_ and !runME21ILT_) || (stat == 3 and runME31Up_) ||
+                      (stat == 4 and runME41Up_)))
               tmb_[endc - 1][stat - 1][sect - 1][subs - 1][cham - 1] =
                   std::make_unique<CSCUpgradeMotherboard>(endc, stat, sect, subs, cham, conf);
             else
@@ -80,16 +79,11 @@ CSCTriggerPrimitivesBuilder::CSCTriggerPrimitivesBuilder(const edm::ParameterSet
                   std::make_unique<CSCMotherboard>(endc, stat, sect, subs, cham, conf);
           }
         }
+        // Init MPC
+        mpc_[endc - 1][stat - 1][sect - 1] = std::make_unique<CSCMuonPortCard>(endc, stat, sect, conf);
       }
     }
   }
-
-  // Get min and max BX to sort LCTs in MPC.
-  m_minBX_ = conf.getParameter<int>("MinBX");
-  m_maxBX_ = conf.getParameter<int>("MaxBX");
-
-  // Init MPC
-  m_muonportcard = std::make_unique<CSCMuonPortCard>(conf);
 }
 
 //------------
@@ -337,7 +331,9 @@ void CSCTriggerPrimitivesBuilder::build(const CSCBadChambers* badChambers,
               put(alctpretriggerV, oc_alctpretrigger, detid, " ME21 ALCT pre-trigger digi");
             }
             // running upgraded ME2/1-ME3/1-ME4/1 TMBs (without GEMs or RPCs)
-            else if ((stat == 2 or stat == 3 or stat == 4) && ring == 1 && isSLHC_) {
+            else if (isSLHC_ and ring == 1 and
+                     ((stat == 2 and runME21Up_ and !runME21ILT_) || (stat == 3 and runME31Up_) ||
+                      (stat == 4 and runME41Up_))) {
               // run the TMB
               CSCUpgradeMotherboard* utmb = static_cast<CSCUpgradeMotherboard*>(tmb);
               utmb->setCSCGeometry(csc_g);
@@ -408,38 +404,33 @@ void CSCTriggerPrimitivesBuilder::build(const CSCBadChambers* badChambers,
   }
 
   // run MPC simulation
-  m_muonportcard->loadDigis(oc_lct);
+  // there are 2 x 4 x 6 MPC VME cards
+  for (int endc = min_endcap; endc <= max_endcap; endc++) {
+    for (int stat = min_station; stat <= max_station; stat++) {
+      for (int sect = min_sector; sect <= max_sector; sect++) {
+        auto mpc = mpc_[endc - 1][stat - 1][sect - 1].get();
 
-  // sort the LCTs per sector
-  // insert them into the result vector
-  std::vector<csctf::TrackStub> result;
-  for (int bx = m_minBX_; bx <= m_maxBX_; ++bx)
-    for (int e = min_endcap; e <= max_endcap; ++e)
-      for (int st = min_station; st <= max_station; ++st)
-        for (int se = min_sector; se <= max_sector; ++se) {
-          if (st == 1) {
-            std::vector<csctf::TrackStub> subs1, subs2;
-            subs1 = m_muonportcard->sort(e, st, se, 1, bx);
-            subs2 = m_muonportcard->sort(e, st, se, 2, bx);
-            result.insert(result.end(), subs1.begin(), subs1.end());
-            result.insert(result.end(), subs2.begin(), subs2.end());
-          } else {
-            std::vector<csctf::TrackStub> sector;
-            sector = m_muonportcard->sort(e, st, se, 0, bx);
-            result.insert(result.end(), sector.begin(), sector.end());
-          }
+        // load the LCTs relevant for this MPC
+        mpc->loadLCTs(oc_lct);
+
+        // sort and select the LCTs (if applicable)
+        mpc->sortLCTs();
+
+        // get sorted+selected LCTs
+        const auto& result = mpc->getLCTs();
+
+        // now convert csctf::TrackStub back into CSCCorrelatedLCTDigi
+        // put MPC stubs into the event
+        for (const auto& lct : result) {
+          oc_sorted_lct.insertDigi(CSCDetId(lct.getDetId().rawId()), *(lct.getDigi()));
+          if (infoV > 1)
+            LogDebug("CSCTriggerPrimitivesBuilder")
+                << "MPC " << *(lct.getDigi()) << " found in ME" << ((lct.endcap() == 1) ? "+" : "-") << lct.station()
+                << "/" << CSCDetId(lct.getDetId().rawId()).ring() << "/" << CSCDetId(lct.getDetId().rawId()).chamber()
+                << " (sector " << lct.sector() << " trig id. " << lct.cscid() << ")"
+                << "\n";
         }
-
-  // now convert csctf::TrackStub back into CSCCorrelatedLCTDigi
-  // put MPC stubs into the event
-  std::vector<csctf::TrackStub>::const_iterator itr = result.begin();
-  for (; itr != result.end(); itr++) {
-    oc_sorted_lct.insertDigi(CSCDetId(itr->getDetId().rawId()), *(itr->getDigi()));
-    if (infoV > 1)
-      LogDebug("L1CSCTrigger") << "MPC " << *(itr->getDigi()) << " found in ME" << ((itr->endcap() == 1) ? "+" : "-")
-                               << itr->station() << "/" << CSCDetId(itr->getDetId().rawId()).ring() << "/"
-                               << CSCDetId(itr->getDetId().rawId()).chamber() << " (sector " << itr->sector()
-                               << " trig id. " << itr->cscid() << ")"
-                               << "\n";
+      }
+    }
   }
 }

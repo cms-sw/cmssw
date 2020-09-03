@@ -3,3 +3,4 @@
 <use name="FWCore/Utilities"/>
 <use name="DQMServices/Core"/>
 <use name="SimDataFormats/CrossingFrame"/>
+<use name="fmt"/>

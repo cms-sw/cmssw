@@ -21,6 +21,8 @@ private:
   MEMap3Ids me_detail_bx_;
 
   edm::EDGetTokenT<GEMPadDigiClusterCollection> pad_cluster_token_;
+  edm::ESGetToken<GEMGeometry, MuonGeometryRecord> geomToken_;
+  edm::ESGetToken<GEMGeometry, MuonGeometryRecord> geomTokenBeginRun_;
 };
 
 #endif  // Validation_MuonGEMDigis_GEMPadDigiClusterValidation_h

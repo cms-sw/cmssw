@@ -13,5 +13,4 @@
   <use name="Geometry/Records"/>
   <use name="Geometry/VeryForwardGeometryBuilder"/>
   <use name="Geometry/VeryForwardRPTopology"/>
-  <use name="DQM/CTPPS"/>
 </library>

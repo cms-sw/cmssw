@@ -1,5 +1,3 @@
-<use name="FWCore/Concurrency"/>
-<use name="SimDataFormats/GeneratorProducts"/>
 <use name="GeneratorInterface/Core"/>
 <use name="tauola"/>
 <use name="boost"/>

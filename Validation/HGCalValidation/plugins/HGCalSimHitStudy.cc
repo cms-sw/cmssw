@@ -27,7 +27,6 @@
 #include "FWCore/Utilities/interface/InputTag.h"
 
 #include "Geometry/HcalCommonData/interface/HcalHitRelabeller.h"
-#include "Geometry/HGCalCommonData/interface/HGCalGeometryMode.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 #include "Geometry/HGCalCommonData/interface/HGCalDDDConstants.h"
 #include "Geometry/HcalCommonData/interface/HcalDDDRecConstants.h"
@@ -216,8 +215,7 @@ void HGCalSimHitStudy::analyzeHits(int ih, std::string const& name, std::vector<
         h_W2_[ih]->Fill(sector2);
         h_C2_[ih]->Fill(cell2);
 
-      } else if ((hgcons_[ih]->geomMode() == HGCalGeometryMode::Hexagon8) ||
-                 (hgcons_[ih]->geomMode() == HGCalGeometryMode::Hexagon8Full)) {
+      } else if (hgcons_[ih]->waferHexagon8()) {
         HGCSiliconDetId detId = HGCSiliconDetId(id);
         subdet = static_cast<int>(detId.det());
         cell = detId.cellU();
@@ -230,7 +228,7 @@ void HGCalSimHitStudy::analyzeHits(int ih, std::string const& name, std::vector<
         xy = hgcons_[ih]->locateCell(layer, sector, sector2, cell, cell2, false, true);
         h_W2_[ih]->Fill(sector2);
         h_C2_[ih]->Fill(cell2);
-      } else if (hgcons_[ih]->geomMode() == HGCalGeometryMode::Trapezoid) {
+      } else if (hgcons_[ih]->tileTrapezoid()) {
         HGCScintillatorDetId detId = HGCScintillatorDetId(id);
         subdet = static_cast<int>(detId.det());
         sector = detId.ieta();

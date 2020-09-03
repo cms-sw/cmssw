@@ -33,12 +33,8 @@ HLTPhase2TDR = cms.PSet(
         'drop Phase2TrackerDigiedmDetSetVectorPhase2TrackerDigiPhase2TrackerDigiedmrefhelperFindForDetSetVectoredmRefTTClusterAssociationMap_TTClusterAssociatorFromPixelDigis_ClusterAccepted_HLT',
         'drop recoHGCalMultiClusters_ticlMultiClustersFromTrackstersHAD__*',
         'drop recoTrackExtras_electronGsfTracksFromMultiCl__*',
-        'drop recoGsfElectrons_ecalDrivenGsfElectronsFromMultiCl__*',
-        'drop l1tHGCalMulticlusterBXVector_hgcalBackEndLayer2Producer_HGCalBackendLayer2Processor3DClustering_*',
         'drop Phase2TrackerDigiedmDetSetVectorPhase2TrackerDigiPhase2TrackerDigiedmrefhelperFindForDetSetVectoredmRefTTStubAssociationMap_TTStubAssociatorFromPixelDigis_StubAccepted_HLT',
-        'drop recoGsfTracks_electronGsfTracks__*',
         'drop CaloTowersSorted_towerMaker__*',
-        'drop recoGsfTracks_electronGsfTracksFromMultiCl__*',
         'drop l1tHGCalTowerBXVector_hgcalTowerProducer_HGCalTowerProcessor_*',
         'drop TrackingRecHitsOwned_electronGsfTracks__*',
         'drop recoHGCalMultiClusters_ticlMultiClustersFromTrackstersEM__*',
@@ -50,7 +46,27 @@ HLTPhase2TDR = cms.PSet(
         'drop *_simGmtStage2Digis_*_HLT',
         'drop *_simGtStage2Digis_*_HLT',
         'drop *_simOmtfDigis_*_HLT',
-        
+        'keep *_TTClusterAssociatorFromPixelDigis_ClusterAccepted_*',
+        'drop *_TTClusterAssociatorFromPixelDigis_*_HLT',
+        'keep *_particleFlowTmpBarrel_*_*',
+        'keep *_muons_muons1stStep2muonsMap_*',
+        'drop recoElectronSeeds_electronMergedSeeds__*',
+        #low pt GsfElectrons which are pointless for HLT TDR
+        'drop recoCaloClusters_lowPtGsfElectronSuperClusters__*',
+        'drop recoGsfElectrons_lowPtGsfElectrons__*',
+        'drop recoGsfTracks_lowPtGsfEleGsfTracks__*',
+        'drop recoSuperClusters_lowPtGsfElectronSuperClusters__*',
+        'drop recoGsfElectronCores_lowPtGsfElectronCores__*',
+        'drop floatedmValueMap_lowPtGsfElectronSeedValueMaps_unbiased_*',
+        'drop floatedmValueMap_lowPtGsfElectronSeedValueMaps_ptbiased_*',
+        'drop recoTracksedmAssociation_lowPtGsfToTrackLinks__*',
+        'drop floatedmValueMap_lowPtGsfElectronID__*',
+        'drop *_gsfTracksOpenConversions_*_*',
+        #e/gamma for ecal debugging, out of scope for tdr
+        'drop recoGsfElectrons_uncleanedOnlyGsfElectrons__*',
+        'drop recoGsfElectronCores_uncleanedOnlyGsfElectronCores__*',
+        #tracking debugging not needed
+        'drop TrackingRecHitsOwned_electronGsfTracksFromMultiCl__*',
     ) )
 )
 

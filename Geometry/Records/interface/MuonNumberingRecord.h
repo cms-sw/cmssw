@@ -18,7 +18,7 @@
 // Created:     Thu Sep 28 16:41:02 PDT 2006
 //
 
-#include <boost/mpl/vector.hpp>
+#include <FWCore/Utilities/interface/mplVector.h>
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 #include "Geometry/Records/interface/GeometryFileRcd.h"
 #include "Geometry/Records/interface/DDSpecParRegistryRcd.h"
@@ -29,11 +29,11 @@
 
 class MuonNumberingRecord
     : public edm::eventsetup::DependentRecordImplementation<MuonNumberingRecord,
-                                                            boost::mpl::vector<IdealGeometryRecord,
-                                                                               CSCRecoDigiParametersRcd,
-                                                                               CSCRecoGeometryRcd,
-                                                                               DTRecoGeometryRcd,
-                                                                               DDSpecParRegistryRcd,
-                                                                               GeometryFileRcd> > {};
+                                                            edm::mpl::Vector<IdealGeometryRecord,
+                                                                             CSCRecoDigiParametersRcd,
+                                                                             CSCRecoGeometryRcd,
+                                                                             DTRecoGeometryRcd,
+                                                                             DDSpecParRegistryRcd,
+                                                                             GeometryFileRcd> > {};
 
 #endif

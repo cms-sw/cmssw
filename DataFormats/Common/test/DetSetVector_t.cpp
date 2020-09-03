@@ -158,15 +158,22 @@ namespace {
   template <typename T>
   struct DSVGetter : edm::EDProductGetter {
     DSVGetter() : edm::EDProductGetter(), prod_(nullptr) {}
-    virtual WrapperBase const* getIt(ProductID const&) const override { return prod_; }
+    WrapperBase const* getIt(ProductID const&) const override { return prod_; }
 
-    virtual WrapperBase const* getThinnedProduct(ProductID const&, unsigned int&) const override { return nullptr; }
+    std::optional<std::tuple<edm::WrapperBase const*, unsigned int>> getThinnedProduct(ProductID const&,
+                                                                                       unsigned int) const override {
+      return std::nullopt;
+    }
 
-    virtual void getThinnedProducts(ProductID const& pid,
-                                    std::vector<WrapperBase const*>& wrappers,
-                                    std::vector<unsigned int>& keys) const override {}
+    void getThinnedProducts(ProductID const& pid,
+                            std::vector<WrapperBase const*>& wrappers,
+                            std::vector<unsigned int>& keys) const override {}
 
-    virtual unsigned int transitionIndex_() const override { return 0U; }
+    edm::OptionalThinnedKey getThinnedKeyFrom(ProductID const&, unsigned int, ProductID const&) const override {
+      return std::monostate{};
+    }
+
+    unsigned int transitionIndex_() const override { return 0U; }
 
     edm::Wrapper<T> const* prod_;
   };

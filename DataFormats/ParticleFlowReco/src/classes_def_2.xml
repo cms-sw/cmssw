@@ -11,7 +11,6 @@
    <version ClassVersion="11" checksum="1793013291"/>
    <version ClassVersion="10" checksum="1793013291"/>
     <field name="posrep_" transient="true"/>
-    <field name="color_" transient="true"/>
     <field name="layer_" transient="true"/> 
   </class>
   <class name="std::vector<reco::PFCluster>"/>
@@ -75,7 +74,8 @@
 
   
 
-  <class name="reco::PFTrack" ClassVersion="10">
+  <class name="reco::PFTrack" ClassVersion="11">
+   <version ClassVersion="11" checksum="1666908047"/>
    <version ClassVersion="10" checksum="496926148"/>
   </class>
 <!--    <class name="edm::RefToBase<reco::Track>"/>
@@ -97,7 +97,8 @@
   <class name="edm::Wrapper<std::vector<reco::PFTrajectoryPoint> >"/>
 
   <class name="edm::RefVector<std::vector<reco::PFBlock>,reco::PFBlock,edm::refhelper::FindUsingAdvance<std::vector<reco::PFBlock>,reco::PFBlock> >"/>
-  <class name="reco::PFRecTrack" ClassVersion="12">
+  <class name="reco::PFRecTrack" ClassVersion="13">
+   <version ClassVersion="13" checksum="2549841209"/>
    <version ClassVersion="12" checksum="2850643502"/>
    <version ClassVersion="11" checksum="2924298092"/>
    <version ClassVersion="10" checksum="2979491836"/>
@@ -107,7 +108,8 @@
   <class name="std::vector<reco::PFRecTrack>"/>
   <class name="edm::Wrapper<std::vector<reco::PFRecTrack> >"/>
 
-  <class name="reco::GsfPFRecTrack" ClassVersion="12">
+  <class name="reco::GsfPFRecTrack" ClassVersion="13">
+   <version ClassVersion="13" checksum="974620889"/>
    <version ClassVersion="12" checksum="2203231294"/>
    <version ClassVersion="11" checksum="2592328732"/>
    <version ClassVersion="10" checksum="3411096264"/>
@@ -117,7 +119,8 @@
   <class name="std::vector<reco::GsfPFRecTrack>"/>
   <class name="edm::Wrapper<std::vector<reco::GsfPFRecTrack> >"/>
 
-  <class name="reco::PFBrem" ClassVersion="12">
+  <class name="reco::PFBrem" ClassVersion="13">
+   <version ClassVersion="13" checksum="1718201023"/>
    <version ClassVersion="12" checksum="3001582852"/>
    <version ClassVersion="11" checksum="1785919010"/>
    <version ClassVersion="10" checksum="3922569476"/>
@@ -125,7 +128,8 @@
   <class name="std::vector<reco::PFBrem>"/>
 
 
-  <class name="reco::PFSimParticle" ClassVersion="11">
+  <class name="reco::PFSimParticle" ClassVersion="12">
+   <version ClassVersion="12" checksum="3693440976"/>
    <version ClassVersion="11" checksum="3190131965"/>
    <version ClassVersion="10" checksum="545237333"/>
   </class>

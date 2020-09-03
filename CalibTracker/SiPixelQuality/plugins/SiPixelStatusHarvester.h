@@ -43,7 +43,6 @@ public:
 
   // Operations
   void beginJob() override;
-  void endJob() override;
   void bookHistograms(DQMStore::IBooker& iBooker, edm::Run const&, const edm::EventSetup&) final;
   void dqmEndRun(const edm::Run&, const edm::EventSetup&) final;
   void analyze(const edm::Event& iEvent, const edm::EventSetup&) final;

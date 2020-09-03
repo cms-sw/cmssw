@@ -19,6 +19,8 @@
 
 class DCSRecord {
 public:
+  // Adding new partitions requires to add a new bitset definition with
+  // the correct dimension to DataFormats/StdDictionaries/src/classes_def_others.xml
   enum Partition {
     EBp,
     EBm,
@@ -45,6 +47,8 @@ public:
     FPIX,
     ESp,
     ESm,
+    GEMp,
+    GEMm,
     Last
   };
 
@@ -67,6 +71,10 @@ public:
 
   /// Return the current of the CMS magnet in A
   float magnetCurrent() const { return magnetCurrent_; }
+
+  /// Return the magnetic field of the CMS magnet in T
+  /// The precision is 0.6 to 1.8 mT in the range of a current from 9500 to 18164 A (from Vyacheslav.Klyukhin@cern.ch)
+  float magneticField() const { return (0.0002067 * magnetCurrent_ + 0.0557973); }
 
 private:
   edm::Timestamp timestamp_;

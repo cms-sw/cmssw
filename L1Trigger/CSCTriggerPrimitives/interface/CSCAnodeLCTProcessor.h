@@ -39,6 +39,7 @@
 #include "DataFormats/CSCDigi/interface/CSCALCTPreTriggerDigi.h"
 #include "CondFormats/CSCObjects/interface/CSCDBL1TPParameters.h"
 #include "L1Trigger/CSCTriggerPrimitives/interface/CSCBaseboard.h"
+#include "L1Trigger/CSCTriggerPrimitives/interface/LCTQualityControl.h"
 
 #include <vector>
 
@@ -54,6 +55,9 @@ public:
 
   /** Default constructor. Used for testing. */
   CSCAnodeLCTProcessor();
+
+  /** Default destructor. */
+  ~CSCAnodeLCTProcessor() override = default;
 
   /** Sets configuration parameters obtained via EventSetup mechanism. */
   void setConfigParameters(const CSCDBL1TPParameters* conf);
@@ -75,7 +79,7 @@ public:
   std::vector<CSCALCTDigi> readoutALCTs(int nMaxALCTs = CSCConstants::MAX_ALCTS_READOUT) const;
 
   /** Returns vector of all found ALCTs, if any. */
-  std::vector<CSCALCTDigi> getALCTs(int nMaxALCTs = CSCConstants::MAX_ALCTS_READOUT) const;
+  std::vector<CSCALCTDigi> getALCTs(unsigned nMaxALCTs = CSCConstants::MAX_ALCTS_READOUT) const;
 
   /** read out pre-ALCTs */
   std::vector<CSCALCTPreTriggerDigi> preTriggerDigis() const { return thePreTriggerDigis; }
@@ -99,7 +103,7 @@ protected:
   CSCALCTDigi secondALCT[CSCConstants::MAX_ALCT_TBINS];
 
   /** LCTs in this chamber, as found by the processor. */
-  CSCALCTDigi ALCTContainer_[CSCConstants::MAX_ALCT_TBINS][CSCConstants::MAX_ALCTS_PER_PROCESSOR];
+  std::vector<std::vector<CSCALCTDigi> > ALCTContainer_;
 
   /** Access routines to wire digis. */
   bool getDigis(const CSCWireDigiCollection* wiredc);
@@ -158,6 +162,9 @@ protected:
   static const unsigned int def_nplanes_hit_accel_pattern;
   static const unsigned int def_trig_mode, def_accel_mode;
   static const unsigned int def_l1a_window_width;
+
+  /* quality control */
+  std::unique_ptr<LCTQualityControl> qualityControl_;
 
   /** Chosen pattern mask. */
   CSCPatternBank::LCTPatterns alct_pattern_ = {};

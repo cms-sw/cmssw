@@ -116,7 +116,7 @@ public:
 
   void phase1Debug(const HBHEChannelInfo& channelData, MahiDebugInfo& mdi) const;
 
-  void doFit(std::array<float, 3>& correctedOutput, const int nbx) const;
+  void doFit(std::array<float, 3>& correctedOutput, const int nbx, const double noisecorr) const;
 
   void setPulseShapeTemplate(int pulseShapeId,
                              const HcalPulseShapes& ps,
@@ -130,7 +130,7 @@ public:
 private:
   typedef std::pair<int, std::shared_ptr<FitterFuncs::PulseShapeFunctor> > ShapeWithId;
 
-  const float minimize() const;
+  const float minimize(const double noisecorr) const;
   void onePulseMinimize() const;
   void updateCov(const SampleMatrix& invCovMat) const;
   void resetPulseShapeTemplate(int pulseShapeId, const HcalPulseShapes& ps, unsigned int nSamples);

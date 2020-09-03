@@ -178,7 +178,9 @@ void HGCalValidator::dqmAnalyze(const edm::Event& event,
   event.getByToken(label_cp_effic, caloParticleHandle);
   std::vector<CaloParticle> const& caloParticles = *caloParticleHandle;
 
-  tools_->getEventSetup(setup);
+  edm::ESHandle<CaloGeometry> geom;
+  setup.get<CaloGeometryRecord>().get(geom);
+  tools_->setGeometry(*geom);
   histoProducerAlgo_->setRecHitTools(tools_);
 
   edm::Handle<hgcal::LayerClusterToCaloParticleAssociator> LCAssocByEnergyScoreHandle;

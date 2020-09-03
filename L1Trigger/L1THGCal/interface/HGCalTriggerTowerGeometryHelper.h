@@ -13,6 +13,8 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/L1THGCal/interface/HGCalTowerID.h"
 #include "L1Trigger/L1THGCal/interface/HGCalTriggerTools.h"
+#include "DataFormats/L1THGCal/interface/HGCalTriggerCell.h"
+#include "DataFormats/L1THGCal/interface/HGCalTriggerSums.h"
 
 #include <vector>
 #include <unordered_map>
@@ -32,7 +34,9 @@ public:
 
   const std::vector<l1t::HGCalTowerCoord>& getTowerCoordinates() const;
 
-  unsigned short getTriggerTowerFromTriggerCell(const unsigned tcId, const float& eta, const float& phi) const;
+  unsigned short getTriggerTowerFromEtaPhi(const float& eta, const float& phi) const;
+  unsigned short getTriggerTower(const l1t::HGCalTriggerCell&) const;
+  unsigned short getTriggerTower(const l1t::HGCalTriggerSums&) const;
 
 private:
   std::vector<l1t::HGCalTowerCoord> tower_coords_;

@@ -38,15 +38,21 @@ TritonData<IO>::TritonData(const std::string& name, std::shared_ptr<IO> data)
 //io accessors
 template <>
 template <typename DT>
-void TritonInputData::toServer(std::shared_ptr<std::vector<DT>> ptr) {
+void TritonInputData::toServer(std::shared_ptr<TritonInput<DT>> ptr) {
   const auto& data_in = *ptr;
+
+  //check batch size
+  if (data_in.size() != batchSize_) {
+    throw cms::Exception("TritonDataError") << name_ << " input(): input vector has size " << data_in.size()
+                                            << " but specified batch size is " << batchSize_;
+  }
 
   //shape must be specified for variable dims
   if (variableDims_) {
     if (shape_.size() != dims_.size()) {
       throw cms::Exception("TritonDataError")
-          << name_ << " input(): incorrect or missing shape (" << triton_utils::printVec(shape_)
-          << ") for model with variable dimensions (" << triton_utils::printVec(dims_) << ")";
+          << name_ << " input(): incorrect or missing shape (" << triton_utils::printColl(shape_)
+          << ") for model with variable dimensions (" << triton_utils::printColl(dims_) << ")";
     } else {
       triton_utils::throwIfError(data_->SetShape(shape_), name_ + " input(): unable to set input shape");
     }
@@ -58,7 +64,7 @@ void TritonInputData::toServer(std::shared_ptr<std::vector<DT>> ptr) {
 
   int64_t nInput = sizeShape();
   for (unsigned i0 = 0; i0 < batchSize_; ++i0) {
-    const DT* arr = &(data_in[i0 * nInput]);
+    const DT* arr = data_in[i0].data();
     triton_utils::throwIfError(data_->SetRaw(reinterpret_cast<const uint8_t*>(arr), nInput * byteSize_),
                                name_ + " input(): unable to set data for batch entry " + std::to_string(i0));
   }
@@ -69,7 +75,7 @@ void TritonInputData::toServer(std::shared_ptr<std::vector<DT>> ptr) {
 
 template <>
 template <typename DT>
-void TritonOutputData::fromServer(std::vector<DT>& dataOut) const {
+TritonOutput<DT> TritonOutputData::fromServer() const {
   if (!result_) {
     throw cms::Exception("TritonDataError") << name_ << " output(): missing result";
   }
@@ -78,8 +84,8 @@ void TritonOutputData::fromServer(std::vector<DT>& dataOut) const {
   if (variableDims_) {
     if (shape_.size() != dims_.size()) {
       throw cms::Exception("TritonDataError")
-          << name_ << " output(): incorrect or missing shape (" << triton_utils::printVec(shape_)
-          << ") for model with variable dimensions (" << triton_utils::printVec(dims_) << ")";
+          << name_ << " output(): incorrect or missing shape (" << triton_utils::printColl(shape_)
+          << ") for model with variable dimensions (" << triton_utils::printColl(dims_) << ")";
     }
   }
 
@@ -89,7 +95,8 @@ void TritonOutputData::fromServer(std::vector<DT>& dataOut) const {
   }
 
   uint64_t nOutput = sizeShape();
-  dataOut.resize(nOutput * batchSize_, 0);
+  TritonOutput<DT> dataOut;
+  dataOut.reserve(batchSize_);
   for (unsigned i0 = 0; i0 < batchSize_; ++i0) {
     const uint8_t* r0;
     size_t contentByteSize;
@@ -99,8 +106,11 @@ void TritonOutputData::fromServer(std::vector<DT>& dataOut) const {
       throw cms::Exception("TritonDataError") << name_ << " output(): unexpected content byte size " << contentByteSize
                                               << " (expected " << nOutput * byteSize_ << ")";
     }
-    std::memcpy(&(dataOut[i0 * nOutput]), r0, contentByteSize);
+    const DT* r1 = reinterpret_cast<const DT*>(r0);
+    dataOut.emplace_back(r1, r1 + nOutput);
   }
+
+  return dataOut;
 }
 
 template <>
@@ -120,7 +130,7 @@ void TritonOutputData::reset() {
 template class TritonData<nic::InferContext::Input>;
 template class TritonData<nic::InferContext::Output>;
 
-template void TritonInputData::toServer(std::shared_ptr<std::vector<float>> data_in);
-template void TritonInputData::toServer(std::shared_ptr<std::vector<int64_t>> data_in);
+template void TritonInputData::toServer(std::shared_ptr<TritonInput<float>> data_in);
+template void TritonInputData::toServer(std::shared_ptr<TritonInput<int64_t>> data_in);
 
-template void TritonOutputData::fromServer(std::vector<float>& data_out) const;
+template TritonOutput<float> TritonOutputData::fromServer() const;

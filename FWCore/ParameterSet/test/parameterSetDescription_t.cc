@@ -10,6 +10,7 @@
 #include "FWCore/ParameterSet/interface/ParameterDescriptionBase.h"
 #include "FWCore/ParameterSet/interface/ParameterDescriptionNode.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+#include "FWCore/ParameterSet/interface/allowedValues.h"
 #include "FWCore/ParameterSet/interface/PluginDescription.h"
 #include "FWCore/ParameterSet/interface/ValidatedPluginMacros.h"
 #include "FWCore/ParameterSet/interface/ValidatedPluginFactoryMacros.h"
@@ -296,6 +297,13 @@ namespace testParameterSetDescription {
   }
 
   // ---------------------------------------------------------------------------------
+
+  void testAllowedValues() {
+    // Duplicate case values not allowed
+    edm::ParameterSetDescription psetDesc;
+    psetDesc.ifValue(edm::ParameterDescription<std::string>("sswitch", "a", true),
+                     edm::allowedValues<std::string>("a", "h", "z"));
+  }
 
   void testSwitch() {
     // Duplicate case values not allowed
@@ -1716,6 +1724,7 @@ int main(int, char**) try {
 
   testParameterSetDescription::testWildcards();
   testParameterSetDescription::testSwitch();
+  testParameterSetDescription::testAllowedValues();
   testParameterSetDescription::testXor();
   testParameterSetDescription::testOr();
   testParameterSetDescription::testAnd();

@@ -81,8 +81,8 @@ process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(options.max)
 process.load('Configuration.Geometry.GeometryExtended2015Reco_cff')
 process.load('Configuration.Geometry.GeometryExtended2015_cff')
 ############################
-process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_condDBv2_cff')
-from Configuration.AlCa.GlobalTag_condDBv2 import GlobalTag
+process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
+from Configuration.AlCa.GlobalTag import GlobalTag
 
 #   For stage-1, we are re-emulating L1T based on the conditions in the GT, so
 #   best for now to use MC GT, even when running over a data file, and just

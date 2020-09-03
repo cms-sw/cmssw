@@ -14,6 +14,7 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
+#include "FWCore/Utilities/interface/ESGetToken.h"
 
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackExtra.h"
@@ -45,6 +46,9 @@ public:
 private:
   /// Labels for input collections
   edm::EDGetTokenT<std::vector<T>> src_;
+  edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> geometryToken_;
+  edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> magFieldToken_;
+  edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> trackerTopoToken_;
 
   /// Muon selection
   //StringCutObjectSelector<T> selector_;
@@ -55,7 +59,10 @@ private:
 
 template <typename T>
 FakeTrackProducer<T>::FakeTrackProducer(const edm::ParameterSet &iConfig)
-    : src_(consumes<std::vector<T>>(iConfig.getParameter<edm::InputTag>("src")))
+    : src_(consumes<std::vector<T>>(iConfig.getParameter<edm::InputTag>("src"))),
+      geometryToken_(esConsumes<TrackerGeometry, TrackerDigiGeometryRecord>()),
+      magFieldToken_(esConsumes<MagneticField, IdealMagneticFieldRecord>()),
+      trackerTopoToken_(esConsumes<TrackerTopology, TrackerTopologyRcd>())
 //,selector_(iConfig.existsAs<std::string>("cut") ? iConfig.getParameter<std::string>("cut") : "", true)
 {
   produces<std::vector<reco::Track>>();
@@ -68,12 +75,9 @@ void FakeTrackProducer<T>::produce(edm::Event &iEvent, const edm::EventSetup &iS
   using namespace edm;
   using namespace std;
 
-  edm::ESHandle<TrackerGeometry> theGeometry;
-  iSetup.get<TrackerDigiGeometryRecord>().get(theGeometry);
-  edm::ESHandle<MagneticField> theMagField;
-  iSetup.get<IdealMagneticFieldRecord>().get(theMagField);
-  edm::ESHandle<TrackerTopology> httopo;
-  iSetup.get<TrackerTopologyRcd>().get(httopo);
+  edm::ESHandle<TrackerGeometry> theGeometry = iSetup.getHandle(geometryToken_);
+  edm::ESHandle<MagneticField> theMagField = iSetup.getHandle(magFieldToken_);
+  edm::ESHandle<TrackerTopology> httopo = iSetup.getHandle(trackerTopoToken_);
   const TrackerTopology &ttopo = *httopo;
 
   Handle<vector<T>> src;

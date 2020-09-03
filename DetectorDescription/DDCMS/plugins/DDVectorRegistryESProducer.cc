@@ -63,7 +63,7 @@ void DDVectorRegistryESProducer::fillDescriptions(edm::ConfigurationDescriptions
 
 DDVectorRegistryESProducer::ReturnType DDVectorRegistryESProducer::produce(const DDVectorRegistryRcd& iRecord) {
   LogDebug("Geometry") << "DDVectorRegistryESProducer::produce\n";
-  const DDVectorsMap& registry = iRecord.get(m_token).vectors();
+  const dd4hep::VectorsMap& registry = iRecord.get(m_token).vectors();
 
   auto product = std::make_unique<DDVectorRegistry>();
   product->vectors.insert(registry.begin(), registry.end());

@@ -19,7 +19,6 @@
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
-#include "Geometry/HGCalCommonData/interface/HGCalGeometryMode.h"
 #include "Geometry/HGCalGeometry/interface/HGCalGeometry.h"
 #include "MagneticField/Engine/interface/MagneticField.h"
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
@@ -72,8 +71,7 @@ void HGCalTestNeighbor::analyze(const edm::Event&, const edm::EventSetup& iSetup
 
   const auto& geomR = iSetup.getData(geomToken_);
   const HGCalGeometry* geom = &geomR;
-  HGCalGeometryMode::GeometryMode mode = geom->topology().dddConstants().geomMode();
-  if ((mode == HGCalGeometryMode::Hexagon) || (mode == HGCalGeometryMode::HexagonFull)) {
+  if (geom->topology().waferHexagon6()) {
     ForwardSubdetector subdet;
     if (name_ == "HGCalHESiliconSensitive")
       subdet = HGCHEF;

@@ -153,7 +153,7 @@ bool HcalSimParametersFromDD::build(const cms::DDCompactView& cpv, HcalSimulatio
       // idet = 3 for HB and 4 for HE (convention in the ddalgo code for HB/HE)
       int idet = (copy.size() > 1) ? (copy[1] / 1000) : 0;
       if ((idet == 3) || (idet == 4)) {
-        std::string_view matName = cms::dd::noNamespace(fv.materialName());
+        std::string_view matName = dd4hep::dd::noNamespace(fv.materialName());
         if (std::find(std::begin(php.hcalMaterialNames_), std::end(php.hcalMaterialNames_), matName) ==
             std::end(php.hcalMaterialNames_)) {
           php.hcalMaterialNames_.emplace_back(matName);

@@ -7,7 +7,7 @@ process.load("CondCore.DBCommon.CondDBCommon_cfi")
 process.load("Configuration.StandardSequences.GeometryDB_cff")
 
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-from Configuration.AlCa.autoCond_condDBv2 import autoCond
+from Configuration.AlCa.autoCond import autoCond
 process.GlobalTag.globaltag = autoCond['run2_data']
 
 process.source = cms.Source("EmptyIOVSource",

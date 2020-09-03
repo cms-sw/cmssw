@@ -14,7 +14,7 @@ from RecoJets.JetProducers.ak8PFJetsPuppi_groomingValueMaps_cfi import ak8PFJets
 
 
 fixedGridRhoFastjetCentral = fixedGridRhoFastjetAll.clone(
-    maxRapidity = cms.double(2.5)
+    maxRapidity = 2.5
     )
 
 fixedGridRhoFastjetCentralChargedPileUp = fixedGridRhoFastjetAll.clone(

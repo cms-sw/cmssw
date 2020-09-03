@@ -232,10 +232,14 @@ namespace edm {
     void addParentProcessProduct(std::shared_ptr<BranchDescription const> bd);
 
     WrapperBase const* getIt(ProductID const&) const override;
-    WrapperBase const* getThinnedProduct(ProductID const&, unsigned int&) const override;
+    std::optional<std::tuple<WrapperBase const*, unsigned int>> getThinnedProduct(ProductID const&,
+                                                                                  unsigned int) const override;
     void getThinnedProducts(ProductID const&,
                             std::vector<WrapperBase const*>&,
                             std::vector<unsigned int>&) const override;
+    OptionalThinnedKey getThinnedKeyFrom(ProductID const& parent,
+                                         unsigned int key,
+                                         ProductID const& thinned) const override;
 
     void findProducts(std::vector<ProductResolverBase const*> const& holders,
                       TypeID const& typeID,

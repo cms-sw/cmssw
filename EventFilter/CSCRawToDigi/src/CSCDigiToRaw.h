@@ -6,7 +6,7 @@
  *  \author A. Tumanov - Rice
  */
 
-#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "DataFormats/Provenance/interface/EventID.h"
 #include "DataFormats/CSCDigi/interface/CSCStripDigiCollection.h"
 #include "DataFormats/CSCDigi/interface/CSCWireDigiCollection.h"
 #include "DataFormats/CSCDigi/interface/CSCComparatorDigiCollection.h"
@@ -16,6 +16,7 @@
 #include "DataFormats/CSCDigi/interface/CSCCorrelatedLCTDigiCollection.h"
 #include "DataFormats/GEMDigi/interface/GEMPadDigiClusterCollection.h"
 #include "EventFilter/CSCRawToDigi/interface/CSCEventData.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 class FEDRawDataCollection;
 class CSCReadoutMappingFromFile;
@@ -32,15 +33,13 @@ public:
                         const CSCComparatorDigiCollection& comparatorDigis,
                         const CSCALCTDigiCollection& alctDigis,
                         const CSCCLCTDigiCollection& clctDigis,
-                        const CSCCLCTPreTriggerCollection& preTriggers,
+                        const CSCCLCTPreTriggerCollection* preTriggers,
                         const CSCCorrelatedLCTDigiCollection& correlatedLCTDigis,
-                        const GEMPadDigiClusterCollection& padDigiClusters,
+                        const GEMPadDigiClusterCollection* padDigiClusters,
                         FEDRawDataCollection& fed_buffers,
                         const CSCChamberMap* theMapping,
-                        edm::Event& e,
+                        const edm::EventID& eid,
                         uint16_t theFormatVersion = 2005,
-                        bool usePreTriggers = true,
-                        bool useGEMs = false,
                         bool packEverything = false) const;
 
 private:
@@ -55,9 +54,8 @@ private:
 
   // specialized because it reverses strip direction
   void add(const CSCStripDigiCollection& stripDigis,
-           const CSCCLCTPreTriggerCollection& preTriggers,
+           const CSCCLCTPreTriggerCollection* preTriggers,
            FindEventDataInfo&,
-           bool usePreTriggers,
            bool packEverything) const;
   void add(const CSCWireDigiCollection& wireDigis,
            const CSCALCTDigiCollection& alctDigis,

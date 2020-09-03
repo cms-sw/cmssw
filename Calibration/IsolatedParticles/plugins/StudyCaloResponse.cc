@@ -538,10 +538,10 @@ void StudyCaloResponse::analyze(edm::Event const& iEvent, edm::EventSetup const&
               goodGlob = (recMuon->isGlobalMuon() && chiGlobal < 3 &&
                           recMuon->combinedQuality().chi2LocalPosition < 12 && recMuon->combinedQuality().trkKink < 20);
               if (muon::segmentCompatibility(*recMuon) > (goodGlob ? 0.303 : 0.451)) {
-                dr = deltaR(pTrack->momentum().eta(),
-                            pTrack->momentum().phi(),
-                            recMuon->momentum().eta(),
-                            recMuon->momentum().phi());
+                dr = reco::deltaR(pTrack->momentum().eta(),
+                                  pTrack->momentum().phi(),
+                                  recMuon->momentum().eta(),
+                                  recMuon->momentum().phi());
                 if (dr < cutMuon_) {
                   vetoMuon = true;
                   break;

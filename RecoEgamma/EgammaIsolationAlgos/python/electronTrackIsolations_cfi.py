@@ -28,8 +28,8 @@ trkIsol04CfgV1 = cms.PSet(
 
 #V2, used by HEEP ID in 2016
 trkIsol03CfgV2 = cms.PSet(
-    barrelCuts=_defaultCuts.clone(algosToReject = cms.vstring()),
-    endcapCuts=_defaultCuts.clone(algosToReject = cms.vstring(),maxDZ=0.5)
+    barrelCuts=_defaultCuts.clone(algosToReject = []),
+    endcapCuts=_defaultCuts.clone(algosToReject = [],maxDZ=0.5)
 )
 trkIsol04CfgV2 = cms.PSet(
     barrelCuts=trkIsol03CfgV2.barrelCuts.clone(maxDR=0.4),

@@ -18,8 +18,8 @@
 //
 CandidateTriggerObjectProducer::CandidateTriggerObjectProducer(const edm::ParameterSet& ps)
     : triggerResultsToken_(consumes<edm::TriggerResults>(ps.getParameter<edm::InputTag>("triggerResults"))),
-      triggerEventTag_(ps.getParameter<edm::InputTag>("triggerEvent")),
-      triggerEventToken_(consumes<trigger::TriggerEvent>(triggerEventTag_)),
+      triggerEventToken_(consumes<trigger::TriggerEvent>(ps.getParameter<edm::InputTag>("triggerEvent"))),
+      processName_(ps.getParameter<edm::InputTag>("triggerEvent").process()),
       triggerName_(ps.getParameter<std::string>("triggerName")),
       hltPrescaleProvider_(ps, consumesCollector(), *this) {
   //   cout << "Trigger Object Producer:" << endl
@@ -38,7 +38,7 @@ void CandidateTriggerObjectProducer::beginRun(const edm::Run& iRun, edm::EventSe
   using namespace edm;
 
   bool changed(false);
-  if (!hltPrescaleProvider_.init(iRun, iSetup, triggerEventTag_.process(), changed)) {
+  if (!hltPrescaleProvider_.init(iRun, iSetup, processName_, changed)) {
     edm::LogError("CandidateTriggerObjectProducer") << "Error! Can't initialize HLTConfigProvider";
     throw cms::Exception("HLTConfigProvider::init() returned non 0");
   }
@@ -55,14 +55,16 @@ void CandidateTriggerObjectProducer::produce(edm::Event& iEvent, const edm::Even
   std::unique_ptr<reco::CandidateCollection> coll(new reco::CandidateCollection);
 
   // get event products
-  iEvent.getByToken(triggerResultsToken_, triggerResultsHandle_);
-  if (!triggerResultsHandle_.isValid()) {
+  edm::Handle<edm::TriggerResults> triggerResultsHandle;
+  iEvent.getByToken(triggerResultsToken_, triggerResultsHandle);
+  if (!triggerResultsHandle.isValid()) {
     edm::LogError("CandidateTriggerObjectProducer")
         << "CandidateTriggerObjectProducer::analyze: Error in getting TriggerResults product from Event!";
     return;
   }
-  iEvent.getByToken(triggerEventToken_, triggerEventHandle_);
-  if (!triggerEventHandle_.isValid()) {
+  edm::Handle<trigger::TriggerEvent> triggerEventHandle;
+  iEvent.getByToken(triggerEventToken_, triggerEventHandle);
+  if (!triggerEventHandle.isValid()) {
     edm::LogError("CandidateTriggerObjectProducer")
         << "CandidateTriggerObjectProducer::analyze: Error in getting TriggerEvent product from Event!";
     return;
@@ -72,8 +74,8 @@ void CandidateTriggerObjectProducer::produce(edm::Event& iEvent, const edm::Even
 
   // sanity check
   //   std::cout << hltConfig.size() << std::endl;
-  //   std::cout << triggerResultsHandle_->size() << std::endl;
-  assert(triggerResultsHandle_->size() == hltConfig.size());
+  //   std::cout << triggerResultsHandle->size() << std::endl;
+  assert(triggerResultsHandle->size() == hltConfig.size());
 
   const unsigned int n(hltConfig.size());
   std::vector<std::string> activeHLTPathsInThisEvent = hltConfig.triggerNames();
@@ -99,7 +101,7 @@ void CandidateTriggerObjectProducer::produce(edm::Event& iEvent, const edm::Even
       continue;
     const unsigned int triggerIndex(hltConfig.triggerIndex(iMyHLT->first));
 
-    assert(triggerIndex == iEvent.triggerNames(*triggerResultsHandle_).triggerIndex(iMyHLT->first));
+    assert(triggerIndex == iEvent.triggerNames(*triggerResultsHandle).triggerIndex(iMyHLT->first));
 
     // abort on invalid trigger name
     if (triggerIndex >= n) {
@@ -113,12 +115,12 @@ void CandidateTriggerObjectProducer::produce(edm::Event& iEvent, const edm::Even
     const std::vector<std::string>& moduleLabels(hltConfig.saveTagsModules(triggerIndex));
 
     // Results from TriggerResults product
-    if (!(triggerResultsHandle_->wasrun(triggerIndex)) || !(triggerResultsHandle_->accept(triggerIndex)) ||
-        (triggerResultsHandle_->error(triggerIndex))) {
+    if (!(triggerResultsHandle->wasrun(triggerIndex)) || !(triggerResultsHandle->accept(triggerIndex)) ||
+        (triggerResultsHandle->error(triggerIndex))) {
       continue;
     }
 
-    //       const unsigned int moduleIndex(triggerResultsHandle_->index(triggerIndex));
+    //       const unsigned int moduleIndex(triggerResultsHandle->index(triggerIndex));
 
     //       assert (moduleIndex<m);
 
@@ -130,19 +132,18 @@ void CandidateTriggerObjectProducer::produce(edm::Event& iEvent, const edm::Even
       if (moduleType.find("Level1GTSeed") != std::string::npos)
         continue;
       // check whether the module is packed up in TriggerEvent product
-      const unsigned int filterIndex(
-          triggerEventHandle_->filterIndex(InputTag(moduleLabel, "", triggerEventTag_.process())));
-      if (filterIndex < triggerEventHandle_->sizeFilters()) {
+      const unsigned int filterIndex(triggerEventHandle->filterIndex(InputTag(moduleLabel, "", processName_)));
+      if (filterIndex < triggerEventHandle->sizeFilters()) {
         //	    std::cout << " 'L3' filter in slot " << imodule
         //	              << " - label/type " << moduleLabel << "/" << moduleType << std::endl;
-        const Vids& VIDS(triggerEventHandle_->filterIds(filterIndex));
-        const Keys& KEYS(triggerEventHandle_->filterKeys(filterIndex));
+        const Vids& VIDS(triggerEventHandle->filterIds(filterIndex));
+        const Keys& KEYS(triggerEventHandle->filterKeys(filterIndex));
         const size_type nI(VIDS.size());
         const size_type nK(KEYS.size());
         assert(nI == nK);
         const size_type n(std::max(nI, nK));
         //	    std::cout << "   " << n  << " accepted 'L3' objects found: " << std::endl;
-        const TriggerObjectCollection& TOC(triggerEventHandle_->getObjects());
+        const TriggerObjectCollection& TOC(triggerEventHandle->getObjects());
         for (size_type i = 0; i != n; ++i) {
           const TriggerObject& TO(TOC[KEYS[i]]);
           coll->push_back(reco::LeafCandidate(0, TO.particle().p4(), reco::Particle::Point(0., 0., 0.), TO.id()));

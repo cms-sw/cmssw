@@ -22,6 +22,8 @@
   <class name="l1t::emtf::MECollection"/>
   <class name="l1t::emtf::RPC"/>
   <class name="l1t::emtf::RPCCollection"/>
+  <class name="l1t::emtf::GEM"/>
+  <class name="l1t::emtf::GEMCollection"/>
   <class name="l1t::emtf::SP"/>
   <class name="l1t::emtf::SPCollection"/>
   <class name="l1t::emtf::EventTrailer"/>

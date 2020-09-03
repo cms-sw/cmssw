@@ -96,7 +96,11 @@ _phase2_siml1emulator.add(l1EGammaEEProducer)
 
 # Tk + StandaloneObj, including L1TkPrimaryVertex
 # ########################################################################
-from L1Trigger.L1TTrackMatch.L1TkObjectProducers_cff import *
+
+from L1Trigger.L1TTrackMatch.L1TkPrimaryVertexProducer_cfi import L1TkPrimaryVertex
+from L1Trigger.L1TTrackMatch.L1TkElectronTrackProducer_cfi import L1TkElectronsCrystal, L1TkElectronsLooseCrystal, L1TkElectronsEllipticMatchCrystal, L1TkIsoElectronsCrystal, L1TkElectronsHGC, L1TkElectronsEllipticMatchHGC, L1TkIsoElectronsHGC
+from L1Trigger.L1TTrackMatch.L1TkEmParticleProducer_cfi import L1TkPhotonsCrystal, L1TkPhotonsHGC
+from L1Trigger.L1TTrackMatch.L1TkMuonProducer_cfi import L1TkMuons
 
 _phase2_siml1emulator.add(L1TkPrimaryVertex)
 
