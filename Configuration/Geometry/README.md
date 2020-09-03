@@ -5,8 +5,6 @@ The Run 3 geometry is automatically created using the script [generate2021Geomet
 Different versions of various subdetectors can be combined. The available versions are:
 
 Tracker:
-* T1: 2021 baseline (old)
-* T2: as T1, but with zero material
 * T3: 2021 baseline after separating tracker specific material
 * T4: as T3, but with zero material
 
@@ -17,7 +15,6 @@ Muon system:
 * M1: 2021 baseline
 
 PPS:
-* P1: 2021 baseline (old)
 * P2: 2021 baseline (after using its own material files for pixel)
 
 The script also handles the common and forward elements of the geometry:
