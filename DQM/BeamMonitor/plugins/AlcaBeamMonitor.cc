@@ -33,7 +33,7 @@ AlcaBeamMonitor::AlcaBeamMonitor(const ParameterSet& ps)
       primaryVertexLabel_(consumes<VertexCollection>(ps.getUntrackedParameter<InputTag>("PrimaryVertexLabel"))),
       trackLabel_(consumes<reco::TrackCollection>(ps.getUntrackedParameter<InputTag>("TrackLabel"))),
       scalerLabel_(consumes<BeamSpot>(ps.getUntrackedParameter<InputTag>("ScalerLabel"))),
-      beamSpotToken_(esConsumes()),
+      beamSpotToken_(esConsumes<edm::Transition::BeginLuminosityBlock>()),
       numberOfValuesToSave_(0) {
   if (!monitorName_.empty())
     monitorName_ = monitorName_ + "/";
@@ -232,7 +232,7 @@ std::shared_ptr<alcabeammonitor::NoCache> AlcaBeamMonitor::globalBeginLuminosity
   try {
     bsDBHandle = iSetup.getHandle(beamSpotToken_);
   } catch (cms::Exception& exception) {
-    LogInfo("AlcaBeamMonitor") << exception.what();
+    LogError("AlcaBeamMonitor") << exception.what();
     return nullptr;
   }
   if (bsDBHandle.isValid()) {  // check the product
