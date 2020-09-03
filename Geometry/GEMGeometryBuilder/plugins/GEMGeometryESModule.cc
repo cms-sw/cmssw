@@ -71,16 +71,18 @@ GEMGeometryESModule::GEMGeometryESModule(const edm::ParameterSet& p)
       alignmentsLabel_(p.getParameter<std::string>("alignmentsLabel")) {
   auto cc = setWhatProduced(this);
   if (fromDDD_) {
-    cc.setConsumes(cpvToken_).setConsumes(mdcToken_);
+    cpvToken_ = cc.consumes();
+    mdcToken_ = cc.consumes();
   } else if (fromDD4hep_) {
-    cc.setConsumes(dd4hepcpvToken_).setConsumes(mdcToken_);
+    dd4hepcpvToken_ = cc.consumes();
+    mdcToken_ = cc.consumes();
   } else {
-    cc.setConsumes(riggemToken_);
+    riggemToken_ = cc.consumes();
   }
   if (applyAlignment_) {
-    cc.setConsumes(globalPositionToken_, edm::ESInputTag{"", alignmentsLabel_})
-        .setConsumes(alignmentsToken_, edm::ESInputTag{"", alignmentsLabel_})
-        .setConsumes(alignmentErrorsToken_, edm::ESInputTag{"", alignmentsLabel_});
+    globalPositionToken_ = cc.consumes(edm::ESInputTag{"", alignmentsLabel_});
+    alignmentsToken_ = cc.consumes(edm::ESInputTag{"", alignmentsLabel_});
+    alignmentErrorsToken_ = cc.consumes(edm::ESInputTag{"", alignmentsLabel_});
   }
 }
 
