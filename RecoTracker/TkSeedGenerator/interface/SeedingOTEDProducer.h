@@ -16,6 +16,7 @@
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
 #include "RecoTracker/MeasurementDet/interface/MeasurementTracker.h"
 #include "TrackingTools/MeasurementDet/interface/LayerMeasurements.h"
+#include "RecoLocalTracker/SiPhase2VectorHitBuilder/interface/VectorHitMomentumHelper.h"
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -71,6 +72,10 @@ private:
   edm::EDGetTokenT<reco::BeamSpot> beamSpotToken;
   const reco::BeamSpot* beamSpot;
   std::string updatorName;
+  //Helper class to access momentum of VH
+  const VectorHitMomentumHelper* vhMomHelper;
+
+
 };
 
 #endif

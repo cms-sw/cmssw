@@ -16,7 +16,6 @@
 #include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include "RecoLocalTracker/SiPhase2VectorHitBuilder/interface/VectorHitMomentumHelper.h"
 
 SeedingOTEDProducer::SeedingOTEDProducer(edm::ParameterSet const& conf)
     : theUpdator(nullptr),
@@ -24,10 +23,13 @@ SeedingOTEDProducer::SeedingOTEDProducer(edm::ParameterSet const& conf)
   vhProducerToken = consumes<VectorHitCollectionNew>(edm::InputTag(conf.getParameter<edm::InputTag>("src")));
   beamSpotToken = consumes<reco::BeamSpot>(conf.getParameter<edm::InputTag>("beamSpotLabel"));
   updatorName = conf.getParameter<std::string>("updator");
+  vhMomHelper = new VectorHitMomentumHelper(); 
   produces<TrajectorySeedCollection>();
 }
 
-SeedingOTEDProducer::~SeedingOTEDProducer() {}
+SeedingOTEDProducer::~SeedingOTEDProducer() {
+	delete vhMomHelper;
+}
 
 void SeedingOTEDProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
@@ -245,9 +247,6 @@ const TrajectoryStateOnSurface SeedingOTEDProducer::buildInitialTSOS(VectorHit& 
   float theta = gv.theta();
   // gv transform to local (lv)
   const Local3DVector lv(vHit.det()->surface().toLocal(gv));
-
-  //Helper class to access momentum of VH
-  VectorHitMomentumHelper* vhMomHelper = new VectorHitMomentumHelper;
 
   //FIXME::charge is fine 1 every two times!!
   int charge = 1;

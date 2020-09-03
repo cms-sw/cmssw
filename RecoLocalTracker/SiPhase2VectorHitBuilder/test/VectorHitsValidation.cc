@@ -7,7 +7,6 @@
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 #include "RecoLocalTracker/Records/interface/TkPhase2OTCPERecord.h"
 #include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
-#include "RecoLocalTracker/SiPhase2VectorHitBuilder/interface/VectorHitMomentumHelper.h"
 
 VectorHitsBuilderValidation::VectorHitsBuilderValidation(const edm::ParameterSet& conf)
     : cpeTag_(conf.getParameter<edm::ESInputTag>("CPE")) {
@@ -21,9 +20,12 @@ VectorHitsBuilderValidation::VectorHitsBuilderValidation(const edm::ParameterSet
   simVerticesToken_ = consumes<edm::SimVertexContainer>(edm::InputTag("g4SimHits"));
   trackingParticleToken_ =
       consumes<TrackingParticleCollection>(conf.getParameter<edm::InputTag>("trackingParticleSrc"));
+  vhMomHelper = new VectorHitMomentumHelper();
 }
 
-VectorHitsBuilderValidation::~VectorHitsBuilderValidation() {}
+VectorHitsBuilderValidation::~VectorHitsBuilderValidation() {
+	delete vhMomHelper;
+}
 
 void VectorHitsBuilderValidation::beginJob() {
   edm::Service<TFileService> fs;
@@ -624,7 +626,6 @@ void VectorHitsBuilderValidation::analyze(const edm::Event& event, const edm::Ev
         }
 
         //curvature
-        VectorHitMomentumHelper* vhMomHelper = new VectorHitMomentumHelper;
         curvature = vh.curvatureORphi("curvature").first;
         phi = vh.curvatureORphi("phi").first;
         QOverPT = vhMomHelper->transverseMomentum(vh, magField);
