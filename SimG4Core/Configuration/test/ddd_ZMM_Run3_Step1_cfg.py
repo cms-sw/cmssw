@@ -20,6 +20,7 @@ process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 process.load('Configuration.Geometry.GeometryExtended2021_cff') # there w
 
 process.MessageLogger.categories.append("TrackerGeometryBuilder");
+process.MessageLogger.categories.append("TrackerSimInfoNumbering");
 
 
 process.maxEvents = cms.untracked.PSet(
