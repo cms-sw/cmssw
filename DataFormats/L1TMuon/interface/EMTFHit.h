@@ -16,10 +16,7 @@
 #include "DataFormats/CSCDigi/interface/CSCCorrelatedLCTDigi.h"
 #include "DataFormats/GEMDigi/interface/GEMPadDigiCluster.h"
 #include "DataFormats/L1TMuon/interface/CPPFDigi.h"
-
-// Included *only* for TrigerPrimitive::subsystem_type enum...
-// surely there's a better way/place for such common definitions
-#include "L1Trigger/L1TMuon/interface/MuonTriggerPrimitive.h"
+#include "DataFormats/L1TMuon/interface/L1TMuonSubsystems.h"
 
 namespace l1t {
 
@@ -267,12 +264,11 @@ namespace l1t {
     int ALCT_quality() const { return alct_quality; }
     int CLCT_quality() const { return clct_quality; }
 
-    // See L1Trigger/L1TMuon/interface/MuonTriggerPrimitive.h
-    bool Is_DT() const { return subsystem == l1tmu::TriggerPrimitive::kDT; }
-    bool Is_CSC() const { return subsystem == l1tmu::TriggerPrimitive::kCSC; }
-    bool Is_RPC() const { return subsystem == l1tmu::TriggerPrimitive::kRPC; }
-    bool Is_GEM() const { return subsystem == l1tmu::TriggerPrimitive::kGEM; }
-    bool Is_ME0() const { return subsystem == l1tmu::TriggerPrimitive::kME0; }
+    bool Is_DT() const { return subsystem == l1tmu::kDT; }
+    bool Is_CSC() const { return subsystem == l1tmu::kCSC; }
+    bool Is_RPC() const { return subsystem == l1tmu::kRPC; }
+    bool Is_GEM() const { return subsystem == l1tmu::kGEM; }
+    bool Is_ME0() const { return subsystem == l1tmu::kME0; }
 
   private:
     //CSCDetId csc_DetId;
