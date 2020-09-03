@@ -426,7 +426,7 @@ bool Pythia8Hadronizer::initializeForInternalPartons() {
   if (biasedTauDecayer) {
     if (!fBiasedTauDecayer.get()) {
       Pythia8::Info localInfo = fMasterGen->info;
-      fBiasedTauDecayer.reset(new BiasedTauDecayer(&localInfo,&(fMasterGen->settings)));
+      fBiasedTauDecayer.reset(new BiasedTauDecayer(&localInfo, &(fMasterGen->settings)));
     }
     std::vector<int> handledParticles;
     handledParticles.push_back(15);
@@ -569,7 +569,7 @@ bool Pythia8Hadronizer::initializeForExternalPartons() {
   if (biasedTauDecayer) {
     if (!fBiasedTauDecayer.get()) {
       Pythia8::Info localInfo = fMasterGen->info;
-      fBiasedTauDecayer.reset(new BiasedTauDecayer(&localInfo,&(fMasterGen->settings)));
+      fBiasedTauDecayer.reset(new BiasedTauDecayer(&localInfo, &(fMasterGen->settings)));
     }
     std::vector<int> handledParticles;
     handledParticles.push_back(15);

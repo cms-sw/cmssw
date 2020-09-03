@@ -10,7 +10,7 @@ using namespace Pythia8;
 
 BiasedTauDecayer::BiasedTauDecayer(Info* infoPtr, Settings* settingsPtr) {
   decayer = TauDecays();
-  decayer.initInfoPtr( *infoPtr );
+  decayer.initInfoPtr(*infoPtr);
   decayer.init();
   filter_ = settingsPtr->flag("BiasedTauDecayer:filter");
   eDecays_ = settingsPtr->flag("BiasedTauDecayer:eDecays");
