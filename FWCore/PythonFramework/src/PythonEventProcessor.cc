@@ -54,6 +54,7 @@ namespace {
     auto threadsInfo = threadOptions(*pset);
 
     threadsInfo.nThreads_ = edm::setNThreads(threadsInfo.nThreads_, threadsInfo.stackSize_, tsiPtr);
+    nThreads = threadsInfo.nThreads_;
 
     // update the numberOfThreads and sizeOfStackForThreadsInKB in the "options" ParameterSet
     setThreadOptions(threadsInfo, *pset);
