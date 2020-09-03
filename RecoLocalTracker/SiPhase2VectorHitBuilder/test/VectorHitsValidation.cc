@@ -23,9 +23,7 @@ VectorHitsBuilderValidation::VectorHitsBuilderValidation(const edm::ParameterSet
   vhMomHelper = new VectorHitMomentumHelper();
 }
 
-VectorHitsBuilderValidation::~VectorHitsBuilderValidation() {
-	delete vhMomHelper;
-}
+VectorHitsBuilderValidation::~VectorHitsBuilderValidation() { delete vhMomHelper; }
 
 void VectorHitsBuilderValidation::beginJob() {
   edm::Service<TFileService> fs;

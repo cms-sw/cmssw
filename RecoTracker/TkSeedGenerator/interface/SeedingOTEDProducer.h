@@ -74,8 +74,6 @@ private:
   std::string updatorName;
   //Helper class to access momentum of VH
   const VectorHitMomentumHelper* vhMomHelper;
-
-
 };
 
 #endif
