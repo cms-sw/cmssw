@@ -16,20 +16,17 @@
 #include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-
 SeedingOTEDProducer::SeedingOTEDProducer(edm::ParameterSet const& conf)
     : theUpdator(nullptr),
       tkMeasEventToken(consumes<MeasurementTrackerEvent>(conf.getParameter<edm::InputTag>("trackerEvent"))) {
   vhProducerToken = consumes<VectorHitCollectionNew>(edm::InputTag(conf.getParameter<edm::InputTag>("src")));
   beamSpotToken = consumes<reco::BeamSpot>(conf.getParameter<edm::InputTag>("beamSpotLabel"));
   updatorName = conf.getParameter<std::string>("updator");
-  vhMomHelper = new VectorHitMomentumHelper(); 
+  vhMomHelper = new VectorHitMomentumHelper();
   produces<TrajectorySeedCollection>();
 }
 
-SeedingOTEDProducer::~SeedingOTEDProducer() {
-	delete vhMomHelper;
-}
+SeedingOTEDProducer::~SeedingOTEDProducer() { delete vhMomHelper; }
 
 void SeedingOTEDProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
