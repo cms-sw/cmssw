@@ -128,9 +128,11 @@ CSCGeometryESModule::CSCGeometryESModule(const edm::ParameterSet& p)
   debugV_ = p.getUntrackedParameter<bool>("debugV", false);
 
   if (fromDDD_) {
-    cc.setConsumes(cpvToken_).setConsumes(mdcToken_);
+    cpvToken_ = cc.consumes();
+    mdcToken_ = cc.consumes();
   } else if (fromDD4hep_) {
-    cc.setConsumes(cpvTokendd4hep_).setConsumes(mdcToken_);
+    cpvTokendd4hep_ = cc.consumes();
+    mdcToken_ = cc.consumes();
   } else {
     rigToken_ = cc.consumesFrom<RecoIdealGeometry, CSCRecoGeometryRcd>(edm::ESInputTag{});
     rdpToken_ = cc.consumesFrom<CSCRecoDigiParameters, CSCRecoDigiParametersRcd>(edm::ESInputTag{});
