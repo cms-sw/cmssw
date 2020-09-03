@@ -9,7 +9,7 @@
  * This was factored out of the Sector Receiver since it is used in
  * parts of the trigger primitive generator (I think).
  */
-#include <L1Trigger/CSCCommonTrigger/interface/CSCConstants.h>
+#include <DataFormats/L1TMuon/interface/CSCConstants.h>
 
 class CSCPatternLUT {
 public:

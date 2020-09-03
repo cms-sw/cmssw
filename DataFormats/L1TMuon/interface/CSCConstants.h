@@ -1,5 +1,5 @@
-#ifndef CSCCommonTrigger_CSCConstants_h
-#define CSCCommonTrigger_CSCConstants_h
+#ifndef DataFormats_L1TMuon_CSCConstants_h
+#define DataFormats_L1TMuon_CSCConstants_h
 
 /**
  * \class CSCConstants

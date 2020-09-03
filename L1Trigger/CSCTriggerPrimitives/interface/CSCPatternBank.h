@@ -1,7 +1,7 @@
 #ifndef L1Trigger_CSCTriggerPrimitives_CSCPatternBank_h
 #define L1Trigger_CSCTriggerPrimitives_CSCPatternBank_h
 
-#include "L1Trigger/CSCCommonTrigger/interface/CSCConstants.h"
+#include "DataFormats/L1TMuon/interface/CSCConstants.h"
 #include <vector>
 
 //
