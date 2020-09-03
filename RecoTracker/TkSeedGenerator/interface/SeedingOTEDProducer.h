@@ -18,6 +18,16 @@
 #include "TrackingTools/MeasurementDet/interface/LayerMeasurements.h"
 #include "RecoLocalTracker/SiPhase2VectorHitBuilder/interface/VectorHitMomentumHelper.h"
 
+#include "RecoTracker/Record/interface/CkfComponentsRecord.h"
+#include "RecoTracker/MeasurementDet/interface/MeasurementTracker.h"
+#include "RecoTracker/MeasurementDet/interface/MeasurementTrackerEvent.h"
+#include "TrackingTools/KalmanUpdators/interface/Chi2MeasurementEstimator.h"
+#include "TrackingTools/PatternTools/interface/TrajectoryStateUpdator.h"
+
+#include "Geometry/Records/interface/TrackerTopologyRcd.h"
+
+#include "FWCore/Utilities/interface/ESGetToken.h"
+
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -74,6 +84,14 @@ private:
   std::string updatorName;
   //Helper class to access momentum of VH
   const VectorHitMomentumHelper* vhMomHelper;
+
+  edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> topoToken_;
+  edm::ESGetToken<Propagator, TrackingComponentsRecord> propagatorToken_;
+  edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> magFieldToken_;
+  edm::ESGetToken<TrajectoryStateUpdator, TrackingComponentsRecord> updatorToken_;
+  edm::ESGetToken<MeasurementTracker, CkfComponentsRecord> measurementTrackerToken_;
+  edm::ESGetToken<Chi2MeasurementEstimatorBase, TrackingComponentsRecord> estToken_;
+
 };
 
 #endif
