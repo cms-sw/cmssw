@@ -2,6 +2,10 @@
 <use name="DataFormats/HcalDetId"/>
 <use name="DataFormats/CaloTowers"/>
 <use name="DataFormats/GeometryVector"/>
+<use name="DataFormats/DetId"/>
+<use name="DataFormats/Math"/>
+<use name="FWCore/MessageLogger"/>
+<use name="FWCore/Utilities"/>
 <use name="clhep"/>
 <export>
   <lib name="1"/>
