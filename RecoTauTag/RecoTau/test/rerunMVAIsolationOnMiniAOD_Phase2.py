@@ -10,9 +10,9 @@ process.load("Configuration.StandardSequences.MagneticField_cff")
 
 #process.Tracer = cms.Service("Tracer")
 process.load("FWCore.MessageService.MessageLogger_cfi")
-process.MessageLogger.cerr.FwkReport.reportEvery = 1000
+process.MessageLogger.cerr.FwkReport.reportEvery = 10
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(10000)
+    input = cms.untracked.int32(100)
 )
 
 process.source = cms.Source("PoolSource",
@@ -103,4 +103,3 @@ process.p = cms.Path(
     * process.newTauIDsEmbedded
     * process.rerunMVAIsolationOnMiniAOD_Phase2
 )
-
