@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("rerunMVAIsolationOnMiniAODPhase2")
 
-process.load('Configuration.Geometry.GeometryExtended2026D41Reco_cff')
+process.load('Configuration.Geometry.GeometryExtended2026D49Reco_cff')
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 from Configuration.AlCa.GlobalTag import GlobalTag
 process.GlobalTag = GlobalTag(process.GlobalTag, '106X_upgrade2023_realistic_v2')
