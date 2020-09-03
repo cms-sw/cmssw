@@ -82,8 +82,6 @@ private:
   edm::EDGetTokenT<reco::BeamSpot> beamSpotToken;
   const reco::BeamSpot* beamSpot;
   std::string updatorName;
-  //Helper class to access momentum of VH
-  const VectorHitMomentumHelper* vhMomHelper;
 
   edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> topoToken_;
   edm::ESGetToken<Propagator, TrackingComponentsRecord> propagatorToken_;

@@ -20,10 +20,9 @@ VectorHitsBuilderValidation::VectorHitsBuilderValidation(const edm::ParameterSet
   simVerticesToken_ = consumes<edm::SimVertexContainer>(edm::InputTag("g4SimHits"));
   trackingParticleToken_ =
       consumes<TrackingParticleCollection>(conf.getParameter<edm::InputTag>("trackingParticleSrc"));
-  vhMomHelper = new VectorHitMomentumHelper();
 }
 
-VectorHitsBuilderValidation::~VectorHitsBuilderValidation() { delete vhMomHelper; }
+VectorHitsBuilderValidation::~VectorHitsBuilderValidation() { }
 
 void VectorHitsBuilderValidation::beginJob() {
   edm::Service<TFileService> fs;
@@ -623,11 +622,12 @@ void VectorHitsBuilderValidation::analyze(const edm::Event& event, const edm::Ev
           continue;
         }
 
+        VectorHitMomentumHelper vhMomHelper(magField);
         //curvature
-        curvature = vh.curvatureORphi("curvature").first;
-        phi = vh.curvatureORphi("phi").first;
-        QOverPT = vhMomHelper->transverseMomentum(vh, magField);
-        QOverP = vhMomHelper->momentum(vh, magField);
+        curvature = vh.curvatureORphi(VectorHit::curvatureMode).first;
+        phi = vh.curvatureORphi(VectorHit::phiMode).first;
+        QOverPT = vhMomHelper.transverseMomentum(vh);
+        QOverP = vhMomHelper.momentum(vh);
         histogramLayer->second.curvature->Fill(curvature);
 
         //stub width

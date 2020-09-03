@@ -145,5 +145,4 @@ private:
 
   std::map<unsigned int, VHHistos> histograms_;
 
-  const VectorHitMomentumHelper* vhMomHelper;
 };

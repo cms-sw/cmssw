@@ -15,14 +15,14 @@ VectorHit::VectorHit(const GeomDet& idet,
                      const LocalPoint& posLower,
                      const LocalVector& dir,
                      const AlgebraicSymMatrix& covMatrix,
-                     const double& Chi2,
+                     const float chi2,
                      OmniClusterRef const& lower,
                      OmniClusterRef const& upper)
     : BaseTrackerRecHit(idet, trackerHitRTTI::vector),
       thePosition(posLower),
       theDirection(dir),
       theCovMatrix(covMatrix),
-      theChi2(Chi2),
+      theChi2(chi2),
       theDimension(4),
       theLowerCluster(lower),
       theUpperCluster(upper) {}
@@ -33,13 +33,13 @@ VectorHit::VectorHit(const GeomDet& idet,
                      OmniClusterRef const& lower,
                      OmniClusterRef const& upper)
     : BaseTrackerRecHit(idet, trackerHitRTTI::vector), theDimension(4), theLowerCluster(lower), theUpperCluster(upper) {
-  thePosition = LocalPoint(vh2Dzx.localPosition().x(), vh2Dzy.localPosition().x(), 0.);
+  thePosition = LocalPoint(vh2Dzx.localPosition()->x(), vh2Dzy.localPosition()->x(), 0.);
 
-  theDirection = LocalVector(vh2Dzx.localDirection().x(), vh2Dzy.localDirection().x(), 1.);
+  theDirection = LocalVector(vh2Dzx.localDirection()->x(), vh2Dzy.localDirection()->x(), 1.);
 
   //building the cov matrix 4x4 starting from the 2x2
-  AlgebraicSymMatrix22 covMatZX = vh2Dzx.covMatrix();
-  AlgebraicSymMatrix22 covMatZY = vh2Dzy.covMatrix();
+  const AlgebraicSymMatrix22  covMatZX = *vh2Dzx.covMatrix();
+  const AlgebraicSymMatrix22  covMatZY = *vh2Dzy.covMatrix();
 
   theCovMatrix = AlgebraicSymMatrix(4);
   theCovMatrix[0][0] = covMatZX[0][0];  // var(dx/dz)
@@ -167,10 +167,10 @@ Global3DVector VectorHit::globalDelta() const {
 
 Global3DVector VectorHit::globalDirection() const { return (det()->surface().toGlobal(localDirection())); }
 
-std::pair<double, double> VectorHit::curvatureORphi(std::string curvORphi) const {
-  double curvature = -999.;
-  double errorCurvature = -999.;
-  double phi = -999.;
+std::pair<float, float> VectorHit::curvatureORphi(curvatureOrPhi curvORphi) const {
+  float curvature = -999.;
+  float errorCurvature = -999.;
+  float phi = -999.;
 
   //global pos and errors
   Global3DPoint gPositionLower = lowerGlobalPos();
@@ -187,7 +187,7 @@ std::pair<double, double> VectorHit::curvatureORphi(std::string curvORphi) const
     gErrorUpper = lowerGlobalPosErr();
   }
 
-  double h1 = gPositionLower.x() * gPositionUpper.y() - gPositionUpper.x() * gPositionLower.y();
+  float h1 = gPositionLower.x() * gPositionUpper.y() - gPositionUpper.x() * gPositionLower.y();
 
   //determine sign of curvature
   AlgebraicVector2 n1;
@@ -338,16 +338,14 @@ std::pair<double, double> VectorHit::curvatureORphi(std::string curvORphi) const
   } else {
     return std::make_pair(0.0, 0.0);
   }
-
-  if (curvORphi == "curvature")
-    return std::make_pair(curvature, errorCurvature);
-  else if (curvORphi == "phi")
-    return std::make_pair(phi, 0.0);
-  else
-    return std::make_pair(0.0, 0.0);
+  switch(curvORphi){
+  	case curvatureMode : return std::make_pair(curvature, errorCurvature);
+  	case phiMode :  return std::make_pair(phi, 0.0);
+  }
+  return std::make_pair(0.0, 0.0);
 }
 
-float VectorHit::theta() { return globalDirection().theta(); }
+float VectorHit::theta() const { return globalDirection().theta(); }
 
 AlgebraicMatrix VectorHit::projectionMatrix() const {
   // obsolete (for what tracker is concerned...) interface

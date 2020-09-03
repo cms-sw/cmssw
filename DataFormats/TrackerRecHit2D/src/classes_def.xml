@@ -189,11 +189,11 @@
   <class name="edm::Wrapper< MTDTrackingDetSetVector >"/>
   <class name="MTDTrackingOwnVector"/>
   <class name="edm::Wrapper< MTDTrackingOwnVector >"/>
-  <class name="VectorHit" ClassVersion="3">
-   <version ClassVersion="3" checksum="546506376"/>
+  <class name="VectorHit" ClassVersion="4">
+   <version ClassVersion="4" checksum="3655344937"/>
   </class>
-  <class name="VectorHit2D" ClassVersion="3">
-   <version ClassVersion="3" checksum="333065919"/>
+  <class name="VectorHit2D" ClassVersion="5">
+   <version ClassVersion="5" checksum="1341481267"/>
   </class>
 
   <class name="edmNew::DetSetVector<edm::Ref<edmNew::DetSetVector<Phase2TrackerCluster1D>,Phase2TrackerCluster1D,edmNew::DetSetVector<Phase2TrackerCluster1D>::FindForDetSetVector> >"/>

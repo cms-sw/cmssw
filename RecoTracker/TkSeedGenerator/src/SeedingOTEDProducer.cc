@@ -21,11 +21,10 @@ SeedingOTEDProducer::SeedingOTEDProducer(edm::ParameterSet const& conf)
   vhProducerToken = consumes<VectorHitCollectionNew>(edm::InputTag(conf.getParameter<edm::InputTag>("src")));
   beamSpotToken = consumes<reco::BeamSpot>(conf.getParameter<edm::InputTag>("beamSpotLabel"));
   updatorName = conf.getParameter<std::string>("updator");
-  vhMomHelper = new VectorHitMomentumHelper();
   produces<TrajectorySeedCollection>();
 }
 
-SeedingOTEDProducer::~SeedingOTEDProducer() { delete vhMomHelper; }
+SeedingOTEDProducer::~SeedingOTEDProducer() { }
 
 void SeedingOTEDProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
@@ -49,7 +48,8 @@ void SeedingOTEDProducer::produce(edm::Event& event, const edm::EventSetup& es) 
   edm::Handle<MeasurementTrackerEvent> measurementTrackerEvent;
   event.getByToken(tkMeasEventToken, measurementTrackerEvent);
 
-  layerMeasurements = new LayerMeasurements(*measurementTrackerHandle, *measurementTrackerEvent);
+  //layerMeasurements = new LayerMeasurements(*measurementTrackerHandle, *measurementTrackerEvent);
+  LayerMeasurements layerMeasurements(*measurementTrackerHandle, *measurementTrackerEvent);
 
   estimator = &es.getData(estToken_);
 
@@ -236,9 +236,14 @@ const TrajectoryStateOnSurface SeedingOTEDProducer::buildInitialTSOS(VectorHit& 
   // gv transform to local (lv)
   const Local3DVector lv(vHit.det()->surface().toLocal(gv));
 
+  //Helper class to access momentum of VH
+  VectorHitMomentumHelper vhMomHelper(magField);
+
+
+
   //FIXME::charge is fine 1 every two times!!
   int charge = 1;
-  float p = vhMomHelper->momentum(vHit, magField);
+  float p = vhMomHelper.momentum(vHit);
   float x = vHit.localPosition().x();
   float y = vHit.localPosition().y();
   float dx = vHit.localDirection().x();
@@ -252,7 +257,7 @@ const TrajectoryStateOnSurface SeedingOTEDProducer::buildInitialTSOS(VectorHit& 
   AlgebraicSymMatrix mat = assign44To55(vHit.parametersError());
   // set the error on 1/p
   mat[0][0] = pow(
-      computeInverseMomentumError(vHit, theta, beamSpot->sigmaZ(), vhMomHelper->transverseMomentum(vHit, magField)), 2);
+      computeInverseMomentumError(vHit, theta, beamSpot->sigmaZ(), vhMomHelper.transverseMomentum(vHit)), 2);
 
   //building tsos
   LocalTrajectoryError lterr(asSMatrix<5>(mat));

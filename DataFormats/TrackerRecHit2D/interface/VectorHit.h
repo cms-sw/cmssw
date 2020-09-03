@@ -1,5 +1,5 @@
-#ifndef TrackerRecHit2D_VectorHit_h
-#define TrackerRecHit2D_VectorHit_h
+#ifndef DataFormats_TrackerRecHit2D_VectorHit_h
+#define DataFormats_TrackerRecHit2D_VectorHit_h
 
 /** \class VectorHit
  *
@@ -23,9 +23,9 @@
 
 #include "DataFormats/TrackingRecHit/interface/KfComponentsHolder.h"
 
-#include "TkCloner.h"
+#include "DataFormats/TrackerRecHit2D/interface/TkCloner.h"
 
-class VectorHit : public BaseTrackerRecHit {
+class VectorHit final : public BaseTrackerRecHit {
 public:
   typedef OmniClusterRef::Phase2Cluster1DRef ClusterRef;
 
@@ -37,7 +37,7 @@ public:
             const LocalPoint& posInner,
             const LocalVector& dir,
             const AlgebraicSymMatrix& covMatrix,
-            const double& Chi2,
+            const float chi2,
             OmniClusterRef const& lower,
             OmniClusterRef const& upper);
 
@@ -50,9 +50,7 @@ public:
   ~VectorHit() override;
 
   VectorHit* clone() const override { return new VectorHit(*this); }
-#ifndef __GCCXML__
   RecHitPointer cloneSH() const override { return std::make_shared<VectorHit>(*this); }
-#endif
 
   bool sharesInput(const TrackingRecHit* other, SharedInputType what) const override;
   bool sharesClusters(VectorHit const& h1, VectorHit const& h2, SharedInputType what) const;
@@ -78,11 +76,15 @@ public:
   virtual LocalError localDirectionError() const;
   Global3DVector globalDirection() const;
 
-  virtual double chi2() const { return theChi2; }
+  virtual float chi2() const { return theChi2; }
   int dimension() const override { return theDimension; }
 
-  std::pair<double, double> curvatureORphi(std::string curvORphi = "curvature") const;
+  
+  enum curvatureOrPhi { curvatureMode, phiMode }; 
 
+  std::pair<float, float> curvatureORphi(curvatureOrPhi curvatureMode) const;
+
+  /// "lower" is logical, not geometrically lower; in pixel-strip modules the "lower" is always a pixel
   ClusterRef lowerCluster() const { return theLowerCluster.cluster_phase2OT(); }
   ClusterRef upperCluster() const { return theUpperCluster.cluster_phase2OT(); }
   OmniClusterRef const lowerClusterRef() const { return theLowerCluster; }
@@ -104,7 +106,7 @@ public:
 
   //This method returns the delta in global coordinates
   Global3DVector globalDelta() const;
-  float theta();
+  float theta() const;
 
   /// The projection matrix relates the trajectory state parameters to the segment parameters().
   AlgebraicMatrix projectionMatrix() const override;
@@ -138,18 +140,14 @@ private:
   // mat[0][2]=cov(dx/dz,x)
   // mat[1][3]=cov(dy/dz,y)
   AlgebraicSymMatrix theCovMatrix;
-  double theChi2;
+  float theChi2;
   int theDimension;
   OmniClusterRef theLowerCluster;
   OmniClusterRef theUpperCluster;
 };
 
 inline bool operator<(const VectorHit& one, const VectorHit& other) {
-  if (one.chi2() < other.chi2()) {
-    return true;
-  }
-
-  return false;
+  return (one.chi2() < other.chi2());
 }
 
 std::ostream& operator<<(std::ostream& os, const VectorHit& vh);
