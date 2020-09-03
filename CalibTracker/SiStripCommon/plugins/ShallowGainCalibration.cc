@@ -1,4 +1,4 @@
-#include "CalibTracker/SiStripCommon/interface/ShallowGainCalibration.h"
+#include "ShallowGainCalibration.h"
 
 using namespace edm;
 using namespace reco;
