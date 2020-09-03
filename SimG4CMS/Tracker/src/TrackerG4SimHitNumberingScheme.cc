@@ -30,16 +30,15 @@ void TrackerG4SimHitNumberingScheme::buildAll() {
 
   for (auto& theSD : allSensitiveDets) {
     auto const& t = theSD->translation();
-    edm::LogVerbatim("TrackerSimInfoNumbering")
-      << "::buildAll" << theSD->geographicalID().rawId() << "\t" << t;
+    edm::LogVerbatim("TrackerSimInfoNumbering") << "::buildAll" << theSD->geographicalID().rawId() << "\t" << t;
     theNavigator.LocateGlobalPointAndSetup(G4ThreeVector(t.x(), t.y(), t.z()));
     G4TouchableHistory* hist = theNavigator.CreateTouchableHistory();
     assert(!!hist);
     TrackerG4SimHitNumberingScheme::Nav_Story st;
     touchToNavStory(hist, st);
 
-    for(const std::pair<int,std::string>& p: st)
-      edm::LogVerbatim("TrackerSimInfoNumbering") <<  "Nav_Story\t" << p.first << "\t" << p.second;
+    for (const std::pair<int, std::string>& p : st)
+      edm::LogVerbatim("TrackerSimInfoNumbering") << "Nav_Story\t" << p.first << "\t" << p.second;
 
     directMap_[st] = theSD->geographicalID();
 
@@ -61,7 +60,6 @@ void TrackerG4SimHitNumberingScheme::buildAll() {
 
 void TrackerG4SimHitNumberingScheme::touchToNavStory(const G4VTouchable* v,
                                                      TrackerG4SimHitNumberingScheme::Nav_Story& st) {
-
   std::vector<int> debugint;
   std::vector<std::string> debugstring;
 
@@ -76,11 +74,10 @@ void TrackerG4SimHitNumberingScheme::touchToNavStory(const G4VTouchable* v,
     }
   }
 
-  for (const int& i: debugint)
+  for (const int& i : debugint)
     edm::LogVerbatim("TrackerSimInfoNumbering") << " G4 TrackerG4SimHitNumberingScheme " << i;
-  for (const std::string& s: debugstring)
+  for (const std::string& s : debugstring)
     edm::LogVerbatim("TrackerSimInfoNumbering") << " " << s;
-
 }
 
 unsigned int TrackerG4SimHitNumberingScheme::g4ToNumberingScheme(const G4VTouchable* v) {
@@ -101,7 +98,7 @@ void TrackerG4SimHitNumberingScheme::dumpG4VPV(const G4VTouchable* v) {
 
   edm::LogVerbatim("TrackerSimInfoNumbering") << " NAME : " << v->GetVolume()->GetLogicalVolume()->GetName();
   for (int k = 0; k <= levels; k++) {
-  edm::LogVerbatim("TrackerSimInfoNumbering") << " Hist: " << v->GetVolume(k)->GetLogicalVolume()->GetName() << " Copy "
-                                        << v->GetVolume(k)->GetCopyNo();
+    edm::LogVerbatim("TrackerSimInfoNumbering")
+        << " Hist: " << v->GetVolume(k)->GetLogicalVolume()->GetName() << " Copy " << v->GetVolume(k)->GetCopyNo();
   }
 }

@@ -66,7 +66,7 @@ void CmsDetConstruction<FilteredView>::buildComponent(FilteredView& fv,
     while (dodets) {
       buildSmallDetsforGlued(fv, det, attribute);
       dodets = setNext(fv);
-                                  /*
+      /*
 	Add algo to sort the merged DET
 	*/
     }
