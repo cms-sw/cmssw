@@ -6,21 +6,25 @@
 
 class VectorHitMomentumHelper {
 public:
-  VectorHitMomentumHelper() {}
+  VectorHitMomentumHelper(const MagneticField* magField) {
+	GlobalPoint center(0.0, 0.0, 0.0);
+	intermediate = magField->inTesla(center).mag() * 0.003;
+    	//0.003 is because the curvature (rho) is in cm and not in m
+}
   ~VectorHitMomentumHelper() {}
 
-  float transverseMomentum(VectorHit& vh, const MagneticField* magField) const {
-    GlobalPoint center(0.0, 0.0, 0.0);
-    float magnT = magField->inTesla(center).mag();
-    double rho = 1. / vh.curvatureORphi("curvature").first;
-    //0.003 is because the curvature (rho) is in cm and not in m
-    return (0.003 * magnT * rho);
+  float transverseMomentum(VectorHit& vh) const {
+    float rho = 1. / vh.curvatureORphi(VectorHit::curvatureMode).first;
+    return (intermediate * rho);
   }
-  float momentum(VectorHit& vh, const MagneticField* magField) const {
-    return transverseMomentum(vh, magField) / (1. * sin(vh.theta()));
+  float momentum(VectorHit& vh) const {
+    return transverseMomentum(vh) / (1. * sin(vh.theta()));
   }
 
 private:
+
+  float intermediate;
+
 };
 
 #endif
