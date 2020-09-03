@@ -141,8 +141,8 @@ void PuppiContainer::getRMSAvg(int iOpt,std::vector<PuppiCandidate> const &iCons
         //  - calculate goodVar only for candidates that (1) will not be assigned a predefined weight (e.g 0, 1),
         //    or (2) are required for computations inside puppi-algos (see call to PuppiAlgo::add below)
         double pVal = -1;
-        bool const getsDefaultWgtIfApplyCHS = iConstits[i0].id == 1 or iConstits[i0].id == 2;
-        if (not(fApplyCHS and getsDefaultWgtIfApplyCHS) or (std::abs(iConstits[i0].eta) < fPuppiAlgo[pPupId].etaMaxExtrap() and iConstits[i0].puppi_register != 0)) {
+        if (not(fApplyCHS and (iConstits[i0].id == 1 or iConstits[i0].id == 2))
+            or (std::abs(iConstits[i0].eta) < fPuppiAlgo[pPupId].etaMaxExtrap() and iConstits[i0].puppi_register != 0)) {
           pVal = goodVar(iConstits[i0],pCharged ? iChargedParticles : iParticles,pAlgo,pCone);
         }
         fVals.push_back(pVal);
