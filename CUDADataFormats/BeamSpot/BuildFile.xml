@@ -1,4 +1,4 @@
-<iftool name="cuda"/>
+<iftool name="cuda">
   <use name="rootcore"/>
   <use name="CUDADataFormats/Common"/>
   <use name="DataFormats/Common"/>
