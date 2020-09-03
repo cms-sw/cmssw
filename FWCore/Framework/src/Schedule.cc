@@ -232,6 +232,14 @@ namespace edm {
 
       std::map<BranchKey, BranchKey> aliasKeys;  // Used to search for duplicates or clashes.
 
+      // Auxiliary search structure to support wildcard for friendlyClassName
+      std::multimap<std::string, BranchKey> moduleLabelToBranches;
+      for (auto const& prod : preg.productList()) {
+        if (processName == prod.second.processName()) {
+          moduleLabelToBranches.emplace(prod.first.moduleLabel(), prod.first);
+        }
+      }
+
       // Now, loop over the alias information and store it in aliasMap.
       for (std::string const& alias : aliases) {
         ParameterSet const& aliasPSet = proc_pset.getParameterSet(alias);
@@ -243,7 +251,39 @@ namespace edm {
             std::string friendlyClassName = pset.getParameter<std::string>("type");
             std::string productInstanceName = pset.getParameter<std::string>("fromProductInstance");
             std::string instanceAlias = pset.getParameter<std::string>("toProductInstance");
-            if (productInstanceName == star) {
+
+            if (friendlyClassName == star) {
+              bool processHasLabel = false;
+              bool match = false;
+              for (auto it = moduleLabelToBranches.lower_bound(moduleLabel);
+                   it != moduleLabelToBranches.end() && it->first == moduleLabel;
+                   ++it) {
+                processHasLabel = true;
+                if (productInstanceName != star and productInstanceName != it->second.productInstanceName()) {
+                  continue;
+                }
+                match = true;
+
+                checkAndInsertAlias(it->second.friendlyClassName(),
+                                    moduleLabel,
+                                    it->second.productInstanceName(),
+                                    processName,
+                                    alias,
+                                    instanceAlias,
+                                    preg,
+                                    aliasMap,
+                                    aliasKeys);
+              }
+              if (not match and processHasLabel) {
+                // No product was found matching the alias.
+                // We throw an exception only if a module with the specified module label was created in this process.
+                // Note that if that condition is ever relatex, it  might be best to throw an exception with different
+                // message (omitting productInstanceName) in case 'productInstanceName == start'
+                throw Exception(errors::Configuration, "EDAlias parameter set mismatch\n")
+                    << "There are no products with module label '" << moduleLabel << "' and product instance name '"
+                    << productInstanceName << "'.\n";
+              }
+            } else if (productInstanceName == star) {
               bool match = false;
               BranchKey lowerBound(friendlyClassName, moduleLabel, empty, empty);
               for (ProductRegistry::ProductList::const_iterator it = preg.productList().lower_bound(lowerBound);
