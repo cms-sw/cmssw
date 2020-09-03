@@ -14,12 +14,15 @@
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Utilities/interface/ESGetToken.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/DQMOneEDAnalyzer.h"
 #include "DataFormats/Provenance/interface/LuminosityBlockID.h"
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
+#include "CondFormats/DataRecord/interface/BeamSpotObjectsRcd.h"
+#include "CondFormats/BeamSpotObjects/interface/BeamSpotObjects.h"
 
 class BeamFitter;
 class PVFitter;
@@ -52,10 +55,10 @@ private:
 
   //Parameters
   std::string monitorName_;
-  edm::EDGetTokenT<reco::VertexCollection> primaryVertexLabel_;
-  edm::EDGetTokenT<reco::TrackCollection> trackLabel_;
-  edm::EDGetTokenT<reco::BeamSpot> scalerLabel_;
-  edm::InputTag beamSpotLabel_;
+  const edm::EDGetTokenT<reco::VertexCollection> primaryVertexLabel_;
+  const edm::EDGetTokenT<reco::TrackCollection> trackLabel_;
+  const edm::EDGetTokenT<reco::BeamSpot> scalerLabel_;
+  const edm::ESGetToken<BeamSpotObjects, BeamSpotObjectsRcd> beamSpotToken_;
 
   //Service variables
   int numberOfValuesToSave_;
