@@ -8,8 +8,6 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
-#include "CondFormats/DataRecord/interface/BeamSpotObjectsRcd.h"
-#include "CondFormats/BeamSpotObjects/interface/BeamSpotObjects.h"
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
 //#include "DataFormats/Scalers/interface/BeamSpotOnline.h"
 #include "DQM/BeamMonitor/plugins/AlcaBeamMonitor.h"
@@ -35,7 +33,7 @@ AlcaBeamMonitor::AlcaBeamMonitor(const ParameterSet& ps)
       primaryVertexLabel_(consumes<VertexCollection>(ps.getUntrackedParameter<InputTag>("PrimaryVertexLabel"))),
       trackLabel_(consumes<reco::TrackCollection>(ps.getUntrackedParameter<InputTag>("TrackLabel"))),
       scalerLabel_(consumes<BeamSpot>(ps.getUntrackedParameter<InputTag>("ScalerLabel"))),
-      beamSpotLabel_(ps.getUntrackedParameter<InputTag>("BeamSpotLabel")),
+      beamSpotToken_(esConsumes()),
       numberOfValuesToSave_(0) {
   if (!monitorName_.empty())
     monitorName_ = monitorName_ + "/";
@@ -90,7 +88,6 @@ void AlcaBeamMonitor::fillDescriptions(edm::ConfigurationDescriptions& iDesc) {
   ps.addUntracked<edm::InputTag>("PrimaryVertexLabel");
   ps.addUntracked<edm::InputTag>("TrackLabel");
   ps.addUntracked<edm::InputTag>("ScalerLabel");
-  ps.addUntracked<edm::InputTag>("BeamSpotLabel");
 
   BeamFitter::fillDescription(ps);
   PVFitter::fillDescription(ps);
@@ -233,7 +230,7 @@ std::shared_ptr<alcabeammonitor::NoCache> AlcaBeamMonitor::globalBeginLuminosity
   //Read BeamSpot from DB
   ESHandle<BeamSpotObjects> bsDBHandle;
   try {
-    iSetup.get<BeamSpotObjectsRcd>().get(bsDBHandle);
+    bsDBHandle = iSetup.getHandle(beamSpotToken_);
   } catch (cms::Exception& exception) {
     LogInfo("AlcaBeamMonitor") << exception.what();
     return nullptr;
