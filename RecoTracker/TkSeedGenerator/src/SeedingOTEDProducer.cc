@@ -1,13 +1,6 @@
 #include "RecoTracker/TkSeedGenerator/interface/SeedingOTEDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 
-#include "Geometry/Records/interface/TrackerTopologyRcd.h"
-
-#include "RecoTracker/Record/interface/CkfComponentsRecord.h"
-#include "RecoTracker/MeasurementDet/interface/MeasurementTracker.h"
-#include "RecoTracker/MeasurementDet/interface/MeasurementTrackerEvent.h"
-#include "TrackingTools/KalmanUpdators/interface/Chi2MeasurementEstimator.h"
-#include "TrackingTools/PatternTools/interface/TrajectoryStateUpdator.h"
 
 #include "DataFormats/TrajectoryState/interface/LocalTrajectoryParameters.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateTransform.h"
@@ -18,7 +11,13 @@
 
 SeedingOTEDProducer::SeedingOTEDProducer(edm::ParameterSet const& conf)
     : theUpdator(nullptr),
-      tkMeasEventToken(consumes<MeasurementTrackerEvent>(conf.getParameter<edm::InputTag>("trackerEvent"))) {
+      tkMeasEventToken(consumes<MeasurementTrackerEvent>(conf.getParameter<edm::InputTag>("trackerEvent"))),
+      topoToken_(esConsumes()),
+      propagatorToken_(esConsumes(edm::ESInputTag("", "PropagatorWithMaterial" ))),
+      magFieldToken_(esConsumes()),
+      updatorToken_(esConsumes()),
+      measurementTrackerToken_(esConsumes()),
+      estToken_(esConsumes(edm::ESInputTag("","Chi2"))) {
   vhProducerToken = consumes<VectorHitCollectionNew>(edm::InputTag(conf.getParameter<edm::InputTag>("src")));
   beamSpotToken = consumes<reco::BeamSpot>(conf.getParameter<edm::InputTag>("beamSpotLabel"));
   updatorName = conf.getParameter<std::string>("updator");
@@ -40,33 +39,25 @@ void SeedingOTEDProducer::fillDescriptions(edm::ConfigurationDescriptions& descr
 void SeedingOTEDProducer::produce(edm::Event& event, const edm::EventSetup& es) {
   std::unique_ptr<TrajectorySeedCollection> seedsWithVHs(new TrajectorySeedCollection());
 
-  edm::ESHandle<TrackerTopology> tTopoHandle;
-  es.get<TrackerTopologyRcd>().get(tTopoHandle);
-  tkTopo = tTopoHandle.product();
+
+  tkTopo = &es.getData(topoToken_);
 
   edm::ESHandle<MeasurementTracker> measurementTrackerHandle;
-  es.get<CkfComponentsRecord>().get(measurementTrackerHandle);
+  measurementTrackerHandle = es.getHandle(measurementTrackerToken_);
   measurementTracker = measurementTrackerHandle.product();
+
   edm::Handle<MeasurementTrackerEvent> measurementTrackerEvent;
   event.getByToken(tkMeasEventToken, measurementTrackerEvent);
 
   layerMeasurements = new LayerMeasurements(*measurementTrackerHandle, *measurementTrackerEvent);
 
-  edm::ESHandle<Chi2MeasurementEstimatorBase> est;
-  es.get<TrackingComponentsRecord>().get("Chi2", est);
-  estimator = est.product();
+  estimator = &es.getData(estToken_);
 
-  edm::ESHandle<Propagator> prop;
-  es.get<TrackingComponentsRecord>().get("PropagatorWithMaterial", prop);
-  propagator = prop.product();
+  propagator = &es.getData(propagatorToken_);
 
-  edm::ESHandle<MagneticField> magFieldHandle;
-  es.get<IdealMagneticFieldRecord>().get(magFieldHandle);
-  magField = magFieldHandle.product();
+  magField = &es.getData(magFieldToken_);
 
-  edm::ESHandle<TrajectoryStateUpdator> updatorHandle;
-  es.get<TrackingComponentsRecord>().get(updatorName, updatorHandle);
-  theUpdator = updatorHandle.product();
+  theUpdator = &es.getData(updatorToken_);
 
   edm::Handle<reco::BeamSpot> beamSpotH;
   event.getByToken(beamSpotToken, beamSpotH);
