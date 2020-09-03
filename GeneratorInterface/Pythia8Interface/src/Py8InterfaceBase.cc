@@ -82,7 +82,8 @@ namespace gen {
 
     //add settings for resonance decay filter
     fMasterGen->settings.addFlag("BiasedTauDecayer:filter", false);
-    fMasterGen->settings.addFlag("BiasedTauDecayer:eMuDecays", true);
+    fMasterGen->settings.addFlag("BiasedTauDecayer:eDecays", true);
+    fMasterGen->settings.addFlag("BiasedTauDecayer:muDecays", true);
 
     //add settings for resonance decay filter
     fMasterGen->settings.addFlag("ResonanceDecayFilter:filter", false);

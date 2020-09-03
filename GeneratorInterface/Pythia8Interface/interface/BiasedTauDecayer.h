@@ -23,7 +23,8 @@ public:
 private:
   Pythia8::TauDecays decayer;
   bool filter_;
-  bool eMuDecays_;
+  bool eDecays_;
+  bool muDecays_;
   std::vector<int> idProdSave;
   std::vector<double> mProdSave;
   std::vector<Pythia8::Vec4> pProdSave;
