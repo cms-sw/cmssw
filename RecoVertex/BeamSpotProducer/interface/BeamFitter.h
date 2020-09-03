@@ -16,6 +16,7 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "DataFormats/Provenance/interface/Timestamp.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
 #include "DataFormats/TrackReco/interface/TrackBase.h"
 #include "DataFormats/TrackReco/interface/Track.h"
@@ -42,6 +43,8 @@ public:
   BeamFitter() {}
   BeamFitter(const edm::ParameterSet &iConfig, edm::ConsumesCollector &&iColl);
   virtual ~BeamFitter();
+
+  static void fillDescription(edm::ParameterSetDescription &);
 
   void readEvent(const edm::Event &iEvent);
 

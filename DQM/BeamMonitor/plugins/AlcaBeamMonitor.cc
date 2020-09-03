@@ -31,24 +31,22 @@ using namespace reco;
 
 //----------------------------------------------------------------------------------------------------------------------
 AlcaBeamMonitor::AlcaBeamMonitor(const ParameterSet& ps)
-    : parameters_(ps),
-      monitorName_(parameters_.getUntrackedParameter<string>("MonitorName", "YourSubsystemName")),
-      primaryVertexLabel_(
-          consumes<VertexCollection>(parameters_.getUntrackedParameter<InputTag>("PrimaryVertexLabel"))),
-      trackLabel_(consumes<reco::TrackCollection>(parameters_.getUntrackedParameter<InputTag>("TrackLabel"))),
-      scalerLabel_(consumes<BeamSpot>(parameters_.getUntrackedParameter<InputTag>("ScalerLabel"))),
-      beamSpotLabel_(parameters_.getUntrackedParameter<InputTag>("BeamSpotLabel")),
+    : monitorName_(ps.getUntrackedParameter<string>("MonitorName")),
+      primaryVertexLabel_(consumes<VertexCollection>(ps.getUntrackedParameter<InputTag>("PrimaryVertexLabel"))),
+      trackLabel_(consumes<reco::TrackCollection>(ps.getUntrackedParameter<InputTag>("TrackLabel"))),
+      scalerLabel_(consumes<BeamSpot>(ps.getUntrackedParameter<InputTag>("ScalerLabel"))),
+      beamSpotLabel_(ps.getUntrackedParameter<InputTag>("BeamSpotLabel")),
       numberOfValuesToSave_(0) {
   if (!monitorName_.empty())
     monitorName_ = monitorName_ + "/";
 
-  theBeamFitter_ = std::make_unique<BeamFitter>(parameters_, consumesCollector());
+  theBeamFitter_ = std::make_unique<BeamFitter>(ps, consumesCollector());
   theBeamFitter_->resetTrkVector();
   theBeamFitter_->resetLSRange();
   theBeamFitter_->resetRefTime();
   theBeamFitter_->resetPVFitter();
 
-  thePVFitter_ = std::make_unique<PVFitter>(parameters_, consumesCollector());
+  thePVFitter_ = std::make_unique<PVFitter>(ps, consumesCollector());
 
   processedLumis_.clear();
 
@@ -83,6 +81,21 @@ AlcaBeamMonitor::AlcaBeamMonitor(const ParameterSet& ps)
       histosMap_[*itV][itM->first][itM->second] = nullptr;
     }
   }
+}
+
+void AlcaBeamMonitor::fillDescriptions(edm::ConfigurationDescriptions& iDesc) {
+  edm::ParameterSetDescription ps;
+
+  ps.addUntracked<std::string>("MonitorName", "YourSubsystemName");
+  ps.addUntracked<edm::InputTag>("PrimaryVertexLabel");
+  ps.addUntracked<edm::InputTag>("TrackLabel");
+  ps.addUntracked<edm::InputTag>("ScalerLabel");
+  ps.addUntracked<edm::InputTag>("BeamSpotLabel");
+
+  BeamFitter::fillDescription(ps);
+  PVFitter::fillDescription(ps);
+
+  iDesc.addDefault(ps);
 }
 
 //----------------------------------------------------------------------------------------------------------------------

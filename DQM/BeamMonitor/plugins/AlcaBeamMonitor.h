@@ -31,6 +31,7 @@ namespace alcabeammonitor {
 class AlcaBeamMonitor : public DQMOneEDAnalyzer<edm::LuminosityBlockCache<alcabeammonitor::NoCache>> {
 public:
   AlcaBeamMonitor(const edm::ParameterSet&);
+  static void fillDescriptions(edm::ConfigurationDescriptions&);
 
 protected:
   void bookHistograms(DQMStore::IBooker&, edm::Run const&, edm::EventSetup const&) override;
@@ -50,7 +51,6 @@ private:
   typedef std::map<std::string, std::map<std::string, std::map<std::string, int>>> PositionContainer;
 
   //Parameters
-  edm::ParameterSet parameters_;
   std::string monitorName_;
   edm::EDGetTokenT<reco::VertexCollection> primaryVertexLabel_;
   edm::EDGetTokenT<reco::TrackCollection> trackLabel_;
