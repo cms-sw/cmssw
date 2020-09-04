@@ -47,8 +47,7 @@ DTGeometryAnalyzer::DTGeometryAnalyzer(const edm::ParameterSet& iConfig)
     : dashedLineWidth_(104),
       dashedLine_(string(dashedLineWidth_, '-')),
       myName_("DTGeometryAnalyzer"),
-      tolerance_(iConfig.getUntrackedParameter<double>("tolerance", 1.e-23))
-{}
+      tolerance_(iConfig.getUntrackedParameter<double>("tolerance", 1.e-23)) {}
 
 DTGeometryAnalyzer::~DTGeometryAnalyzer() {}
 
