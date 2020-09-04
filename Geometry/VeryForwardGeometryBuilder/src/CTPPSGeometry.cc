@@ -7,12 +7,11 @@
 ****************************************************************************/
 
 #include "Geometry/VeryForwardGeometryBuilder/interface/CTPPSGeometry.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <regex>
 
 //----------------------------------------------------------------------------------------------------
 
-void CTPPSGeometry::build(const DetGeomDesc* gD, unsigned int verbosity) {
+void CTPPSGeometry::build(const DetGeomDesc* gD) {
   // reset
   sensors_map_.clear();
   rps_map_.clear();
@@ -26,11 +25,6 @@ void CTPPSGeometry::build(const DetGeomDesc* gD, unsigned int verbosity) {
   while (!buffer.empty()) {
     const DetGeomDesc* d = buffer.front();
     buffer.pop_front();
-
-    // verbosity printout
-    if (verbosity == 2) {
-      d->print();
-    }
 
     // check if it is a sensor
     if (d->name() == DDD_TOTEM_RP_SENSOR_NAME ||
@@ -46,12 +40,6 @@ void CTPPSGeometry::build(const DetGeomDesc* gD, unsigned int verbosity) {
 
     for (const auto& comp : d->components())
       buffer.emplace_back(comp);
-  }
-
-  // verbosity printout
-  if (verbosity) {
-    edm::LogVerbatim("CTPPSGeometry::build")
-        << "sensors_map_.size() = " << sensors_map_.size() << ", rps_map_.size() = " << rps_map_.size() << std::endl;
   }
 
   // build sets

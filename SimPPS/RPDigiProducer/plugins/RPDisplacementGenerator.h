@@ -2,6 +2,8 @@
 #define SimPPS_RPDigiProducer_RP_DISPLACEMENT_GENERATOR_H
 
 #include "SimPPS/RPDigiProducer/interface/RPSimTypes.h"
+#include "DetectorDescription/Core/interface/DDRotationMatrix.h"
+#include "DetectorDescription/Core/interface/DDTranslation.h"
 #include "DataFormats/CTPPSDetId/interface/TotemRPDetId.h"
 #include <Math/Rotation3D.h>
 #include <map>
@@ -25,8 +27,7 @@ class PSimHit;
 
 class RPDisplacementGenerator {
 public:
-  using RotationMatrix = ROOT::Math::Rotation3D;
-  using Translation = ROOT::Math::DisplacementVector3D<ROOT::Math::Cartesian3D<double>>;
+  typedef ROOT::Math::Rotation3D RotationMatrix;
 
   RPDisplacementGenerator(const edm::ParameterSet &, RPDetId, const edm::EventSetup &);
 
@@ -40,8 +41,8 @@ private:
   RPDetId detId_;
 
   /// displacement
-  Translation shift_;
-  RotationMatrix rotation_;
+  DDTranslation shift_;
+  DDRotationMatrix rotation_;
 
   /// set to false to bypass displacements
   bool isOn_;

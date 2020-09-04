@@ -1,20 +1,12 @@
 import FWCore.ParameterSet.Config as cms
 
-DDDetectorESProducer = cms.ESSource("DDDetectorESProducer",
-                                            confGeomXMLFiles = cms.FileInPath('Geometry/VeryForwardGeometry/data/dd4hep/empty.xml'),
-                                            label = cms.string('CTPPS'),
-                                            fromDB = cms.bool(True),
-                                            appendToDataLabel = cms.string('XMLIdealGeometryESSource_CTPPS')
-)
+XMLIdealGeometryESSource_CTPPS = cms.ESProducer("XMLIdealGeometryESProducer",
+                                                rootDDName = cms.string('cms:CMSE'),
+                                                label = cms.string('CTPPS'),
+                                                appendToDataLabel = cms.string('XMLIdealGeometryESSource_CTPPS')
+                                                )
 
-
-DDCompactViewESProducer = cms.ESProducer("DDCompactViewESProducer",
-                                            appendToDataLabel = cms.string('XMLIdealGeometryESSource_CTPPS')
-)                                
-
-
-ctppsGeometryESModule = cms.ESProducer("PPSGeometryESProducer",
+ctppsGeometryESModule = cms.ESProducer("CTPPSGeometryESModule",
     verbosity = cms.untracked.uint32(1),
-    detectorTag = cms.string("XMLIdealGeometryESSource_CTPPS")
+    compactViewTag = cms.string('XMLIdealGeometryESSource_CTPPS')
 )
-
