@@ -193,21 +193,24 @@ std::unique_ptr<DetGeomDesc> PPSGeometryESProducer::produceGD(IdealGeometryRecor
   auto const& idealGD = iIdealRec.get(iTokens.idealGDToken_);
 
   // load alignments
-  edm::ESHandle<CTPPSRPAlignmentCorrectionsData> alignments;
+  CTPPSRPAlignmentCorrectionsData const* alignments = nullptr;
   if (iAlignRec) {
-    alignments = iAlignRec->getHandle(iTokens.alignmentToken_);
+    auto alignmentsHandle = iAlignRec->getHandle(iTokens.alignmentToken_);
+    if (alignmentsHandle.isValid()) {
+      alignments = alignmentsHandle.product();
+    }
   }
 
-  if (alignments.isValid()) {
-    if (verbosity_)
+  if (verbosity_) {
+    if (alignments) {
       edm::LogVerbatim(name) << ">> " << name << " > Real geometry: " << alignments->getRPMap().size() << " RP and "
                              << alignments->getSensorMap().size() << " sensor alignments applied.";
-  } else {
-    if (verbosity_)
-      edm::LogVerbatim(name) << ">> " << name << " > Real geometry: No alignments applied.";
+    } else {
+      edm::LogVerbatim(name) << ">> " << name << " > Real geometry: No alignment applied.";
+    }
   }
 
-  return applyAlignments(idealGD, alignments.product());
+  return applyAlignments(idealGD, alignments);
 }
 
 std::unique_ptr<DetGeomDesc> PPSGeometryESProducer::produceRealGD(const VeryForwardRealGeometryRecord& iRecord) {
