@@ -20,7 +20,6 @@
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "CalibCalorimetry/CaloTPG/src/CaloTPGTranscoderULUT.h"
 #include "CondFormats/HcalObjects/interface/HcalL1TriggerObjects.h"
 #include "CondFormats/HcalObjects/interface/HcalL1TriggerObject.h"
 #include "CalibCalorimetry/HcalAlgos/interface/HcalDbASCIIIO.h"
