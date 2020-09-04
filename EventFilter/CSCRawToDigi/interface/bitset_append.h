@@ -1,5 +1,5 @@
-#ifndef BITSET_APPEND_H
-#define BITSET_APPEND_H
+#ifndef EventFilter_CSCRawToDigi_BITSET_APPEND_H
+#define EventFilter_CSCRawToDigi_BITSET_APPEND_H
 #include <boost/dynamic_bitset.hpp>
 
 namespace bitset_utilities {

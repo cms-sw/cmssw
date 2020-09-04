@@ -1,3 +1,6 @@
+#ifndef EventFilter_CSCRawToDigi_CSCPACKERCOMPARE_H
+#define EventFilter_CSCRawToDigi_CSCPACKERCOMPARE_H
+
 #include <iostream>
 #include <typeinfo>
 #include "EventFilter/CSCRawToDigi/src/bitset_append.h"
@@ -39,3 +42,5 @@ bool cscClassPackerCompare(T &t) {
   }
   return true;
 }
+
+#endif
