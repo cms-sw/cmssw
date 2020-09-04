@@ -3,9 +3,7 @@
 
 #include "Alignment/MillePedeAlignmentAlgorithm/plugins/MillePedeFileConverter.h"
 #include "FWCore/Framework/interface/LuminosityBlock.h"
-
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "CondFormats/Common/interface/FileBlobCollection.h"
 
 #include <memory>
 #include <fstream>
@@ -13,18 +11,19 @@
 MillePedeFileConverter::MillePedeFileConverter(const edm::ParameterSet& iConfig)
     : inputDir_(iConfig.getParameter<std::string>("fileDir")),
       inputFileName_(iConfig.getParameter<std::string>("inputBinaryFile")),
-      fileBlobLabel_(iConfig.getParameter<std::string>("fileBlobLabel")) {
-  // We define what this producer produces: A FileBlobCollection
-  produces<FileBlobCollection, edm::Transition::EndLuminosityBlock>(fileBlobLabel_);
-}
+      fileBlobLabel_(iConfig.getParameter<std::string>("fileBlobLabel")),
+      putToken_{produces<FileBlobCollection, edm::Transition::EndLuminosityBlock>(fileBlobLabel_)} {}
 
 MillePedeFileConverter::~MillePedeFileConverter() {}
 
-void MillePedeFileConverter::endLuminosityBlockProduce(edm::LuminosityBlock& iLumi, const edm::EventSetup& iSetup) {
+void MillePedeFileConverter::produce(edm::StreamID, edm::Event& iEvent, const edm::EventSetup& iSetup) const {}
+
+void MillePedeFileConverter::globalEndLuminosityBlockProduce(edm::LuminosityBlock& iLumi,
+                                                             const edm::EventSetup& iSetup) const {
   edm::LogInfo("MillePedeFileActions") << "Inserting all data from file " << inputDir_ + inputFileName_
                                        << " as a FileBlob to the lumi, using label \"" << fileBlobLabel_ << "\".";
   // Preparing the FileBlobCollection:
-  auto fileBlobCollection = std::make_unique<FileBlobCollection>();
+  FileBlobCollection fileBlobCollection;
 
   // Creating the FileBlob:
   // (The FileBlob will signal problems with the file itself.)
@@ -32,9 +31,9 @@ void MillePedeFileConverter::endLuminosityBlockProduce(edm::LuminosityBlock& iLu
 
   if (fileBlob.size() > 0) {  // skip if no data or FileBlob file not found
     // Adding the FileBlob to the lumi:
-    fileBlobCollection->addFileBlob(fileBlob);
+    fileBlobCollection.addFileBlob(fileBlob);
   }
-  iLumi.put(std::move(fileBlobCollection), fileBlobLabel_);
+  iLumi.emplace(putToken_, std::move(fileBlobCollection));
 }
 
 // Manage the parameters for the module:

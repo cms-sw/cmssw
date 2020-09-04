@@ -20,24 +20,26 @@
  */
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/one/EDProducer.h"
+#include "FWCore/Framework/interface/global/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "CondFormats/Common/interface/FileBlobCollection.h"
 
-class MillePedeFileConverter : public edm::one::EDProducer<edm::EndLuminosityBlockProducer> {
+class MillePedeFileConverter : public edm::global::EDProducer<edm::EndLuminosityBlockProducer> {
 public:
   explicit MillePedeFileConverter(const edm::ParameterSet&);
   ~MillePedeFileConverter() override;
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
-  void produce(edm::Event&, const edm::EventSetup&) override {}
-  void endLuminosityBlockProduce(edm::LuminosityBlock&, const edm::EventSetup&) final;
+  void produce(edm::StreamID, edm::Event& iEvent, const edm::EventSetup& iSetup) const final;
+  void globalEndLuminosityBlockProduce(edm::LuminosityBlock& iLumi, const edm::EventSetup& iSetup) const final;
 
   const std::string inputDir_;
   const std::string inputFileName_;
   const std::string fileBlobLabel_;
+  const edm::EDPutTokenT<FileBlobCollection> putToken_;
 };
 
 // define this as a plug-in
