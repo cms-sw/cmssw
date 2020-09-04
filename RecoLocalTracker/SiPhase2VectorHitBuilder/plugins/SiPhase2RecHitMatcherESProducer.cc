@@ -3,6 +3,7 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/ModuleFactory.h"
 #include "FWCore/Framework/interface/ESProducer.h"
+#include "FWCore/Utilities/interface/EDMException.h"
 #include "RecoLocalTracker/Records/interface/TkPhase2OTCPERecord.h"
 #include "RecoTracker/Record/interface/CkfComponentsRecord.h"
 
@@ -15,11 +16,10 @@ class SiPhase2RecHitMatcherESProducer : public edm::ESProducer {
 public:
   SiPhase2RecHitMatcherESProducer(const edm::ParameterSet&);
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
-  std::shared_ptr<VectorHitBuilderAlgorithm> produce(const TkPhase2OTCPERecord&);
+  std::unique_ptr<VectorHitBuilderAlgorithm> produce(const TkPhase2OTCPERecord&);
 
 private:
   std::string name_;
-  std::shared_ptr<VectorHitBuilderAlgorithm> matcher_;
   edm::ParameterSet pset_;
   edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> geometryToken_;
   edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> trackerTopoToken_;
@@ -28,28 +28,31 @@ private:
 
 SiPhase2RecHitMatcherESProducer::SiPhase2RecHitMatcherESProducer(const edm::ParameterSet& p) {
   name_ = p.getParameter<std::string>("ComponentName");
+  if (!(name_ == "SiPhase2VectorHitMatcher")){
+	throw cms::Exception("ConfigurationError")
+         << "Configuration specifies unknown ComponentName .\n"
+         << "Currently only 'SiPhase2VectorHitMatcher' is supported\n";
+  }
   pset_ = p;
   auto cc = setWhatProduced(this, name_);
-  geometryToken_ = cc.consumesFrom<TrackerGeometry, TrackerDigiGeometryRecord>();
-  trackerTopoToken_ = cc.consumesFrom<TrackerTopology, TrackerTopologyRcd>();
-  auto const P2otname = p.getParameter<edm::ESInputTag>("CPE");
-  cpeToken_ = cc.consumesFrom<ClusterParameterEstimator<Phase2TrackerCluster1D>, TkPhase2OTCPERecord>(P2otname);
+  geometryToken_ = cc.consumes();
+  trackerTopoToken_ = cc.consumes();
+  cpeToken_ = cc.consumes(p.getParameter<edm::ESInputTag>("CPE"));
 }
 
-std::shared_ptr<VectorHitBuilderAlgorithm> SiPhase2RecHitMatcherESProducer::produce(const TkPhase2OTCPERecord& iRecord) {
-  if (name_ == "SiPhase2VectorHitMatcher") {
-    matcher_ = std::make_shared<VectorHitBuilderAlgorithm>(pset_);
+std::unique_ptr<VectorHitBuilderAlgorithm> SiPhase2RecHitMatcherESProducer::produce(const TkPhase2OTCPERecord& iRecord) {
+  std::unique_ptr<VectorHitBuilderAlgorithm> matcher = std::make_unique<VectorHitBuilderAlgorithm>(pset_);
 
-    edm::ESHandle<TrackerGeometry> tGeomHandle = iRecord.getHandle(geometryToken_);
-    edm::ESHandle<TrackerTopology> tTopoHandle = iRecord.getRecord<TrackerDigiGeometryRecord>().getHandle(trackerTopoToken_);
+  edm::ESHandle<TrackerGeometry> tGeomHandle = iRecord.getHandle(geometryToken_);
+  edm::ESHandle<TrackerTopology> tTopoHandle = iRecord.getRecord<TrackerDigiGeometryRecord>().getHandle(trackerTopoToken_);
 
-    auto ptr_phase2TrackerCPE = &iRecord.get(cpeToken_);
+  auto ptr_phase2TrackerCPE = &iRecord.get(cpeToken_);
 
-    matcher_->initTkGeom(tGeomHandle);
-    matcher_->initTkTopo(tTopoHandle);
-    matcher_->initCpe(ptr_phase2TrackerCPE);
-  }
-  return matcher_;
+  matcher->initTkGeom(tGeomHandle);
+  matcher->initTkTopo(tTopoHandle);
+  matcher->initCpe(ptr_phase2TrackerCPE);
+
+  return matcher;
 }
 
 void SiPhase2RecHitMatcherESProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
