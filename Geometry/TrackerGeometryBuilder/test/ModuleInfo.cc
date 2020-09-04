@@ -82,8 +82,7 @@ static const double density_units = 6.24151e+18;
 ModuleInfo::ModuleInfo(const edm::ParameterSet& ps)
     : fromDDD_(ps.getParameter<bool>("fromDDD")),
       printDDD_(ps.getUntrackedParameter<bool>("printDDD", true)),
-      tolerance_(ps.getUntrackedParameter<double>("tolerance", 1.e-23))
-{}
+      tolerance_(ps.getUntrackedParameter<double>("tolerance", 1.e-23)) {}
 
 ModuleInfo::~ModuleInfo() {}
 
