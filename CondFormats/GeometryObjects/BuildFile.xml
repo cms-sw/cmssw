@@ -1,7 +1,6 @@
 <use name="DataFormats/DetId"/>
 <use name="CondFormats/Serialization"/>
 <use name="boost_serialization"/>
-<use name="Geometry/VeryForwardGeometryBuilder"/>
 <export>
   <lib name="1"/>
 </export>

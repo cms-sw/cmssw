@@ -25,6 +25,7 @@
 #include "CondFormats/GeometryObjects/interface/PDetGeomDesc.h"
 #include "Geometry/VeryForwardGeometryBuilder/interface/DetGeomDescBuilder.h"
 
+
 class PPSGeometryBuilderDD4hep : public edm::one::EDAnalyzer<> {
 public:
   explicit PPSGeometryBuilderDD4hep(const edm::ParameterSet&);
@@ -56,7 +57,7 @@ void PPSGeometryBuilderDD4hep::analyze(const edm::Event& iEvent, const edm::Even
 
   // Build persistent geometry data from geometry
   PDetGeomDesc* serializableData =
-      new PDetGeomDesc;  // cond::service::PoolDBOutputService::writeOne interface requires raw pointer.
+    new PDetGeomDesc();  // cond::service::PoolDBOutputService::writeOne interface requires raw pointer.
   int counter = 0;
   buildSerializableDataFromGeoInfo(serializableData, geoInfoSentinel.get(), counter);
 
@@ -79,9 +80,23 @@ void PPSGeometryBuilderDD4hep::analyze(const edm::Event& iEvent, const edm::Even
  * Recursive, depth-first search.
  */
 void PPSGeometryBuilderDD4hep::buildSerializableDataFromGeoInfo(PDetGeomDesc* serializableData,
-                                                          const DetGeomDesc* geoInfo,
-                                                          int& counter) {
-  PDetGeomDesc::Item serializableItem(geoInfo);
+								const DetGeomDesc* geoInfo,
+								int& counter) {
+  PDetGeomDesc::Item serializableItem;
+  serializableItem.dx_ = geoInfo->translation().X();
+  serializableItem.dy_ = geoInfo->translation().Y();
+  serializableItem.dz_ = geoInfo->translation().Z();
+
+  const DDRotationMatrix& rot = geoInfo->rotation();
+  rot.GetComponents(serializableItem.axx_, serializableItem.axy_, serializableItem.axz_, 
+		    serializableItem.ayx_, serializableItem.ayy_, serializableItem.ayz_, 
+		    serializableItem.azx_, serializableItem.azy_, serializableItem.azz_);
+  serializableItem.name_ = geoInfo->name();
+  serializableItem.params_ = geoInfo->params();
+  serializableItem.copy_ = geoInfo->copyno();
+  serializableItem.z_ = geoInfo->parentZPosition();
+  serializableItem.sensorType_ = geoInfo->sensorType();
+  serializableItem.geographicalID_ = geoInfo->geographicalID();
   counter++;
 
   if (counter >= 4) {  // Skip sentinel + OCMS + CMSE
