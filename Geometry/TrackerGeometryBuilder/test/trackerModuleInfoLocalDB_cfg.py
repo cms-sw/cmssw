@@ -47,7 +47,7 @@ process.out = cms.OutputModule("AsciiOutputModule")
 
 process.prod = cms.EDAnalyzer("ModuleInfo",
     fromDDD = cms.bool(False),
-    tinyDifferences = cms.untracked.bool(True)
+    tolerance = cms.untracked.double(1.0e-23)
 )
 
 process.p1 = cms.Path(process.prod)

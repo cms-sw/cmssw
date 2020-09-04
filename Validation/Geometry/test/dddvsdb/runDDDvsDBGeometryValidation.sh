@@ -28,6 +28,9 @@ echo GlobalTag = ${gtag}
 echo geometry = ${geometry}
 echo roundFlag = ${roundFlag}
 
+set tolerance = '1.0e-7'
+# If rounding enabled, tolerance for numerical comparisons. Absolute values less than this are set to 0.
+
 #global tag gtag is assumed to be of the form GeometryWORD such as GeometryExtended or GeometryIdeal
 #as of 3.4.X loaded objects in the DB, these correspond to condlabels Extended, Ideal, etc...
 # Run 2 Extended condlabel corresponds to GeometryExtended2015 scenario. 
@@ -120,7 +123,7 @@ sed -i "{/process.GlobalTag.globaltag/d}" trackerModuleInfoDB_cfg.py >> ../Geome
 sed -i "/FrontierConditions_GlobalTag_cff/ a\from Configuration.AlCa.GlobalTag import GlobalTag\nprocess.GlobalTag = GlobalTag(process.GlobalTag, '${gtag}', '')" trackerModuleInfoDB_cfg.py >> ../GeometryValidation.log 
 sed -i "/FrontierConditions_GlobalTag_cff/ a\process.XMLFromDBSource.label = cms.string('${condlabel}')" trackerModuleInfoDB_cfg.py >> ../GeometryValidation.log 
 if ( "${roundFlag}" == round ) then                                                               
-  sed -i '/tinyDifferences/s/True/False/' trackerModuleInfoDB_cfg.py >> GeometryValidation.log
+  sed -i "/tolerance/s/1.0e-23/${tolerance}/" trackerModuleInfoDB_cfg.py >> GeometryValidation.log
 endif
 cmsRun trackerModuleInfoDB_cfg.py >> ../GeometryValidation.log
 mv trackerModuleInfoDB_cfg.py ../
@@ -138,7 +141,7 @@ sed -i "{/process.GlobalTag.globaltag/d}" trackerModuleInfoLocalDB_cfg.py >> ../
 sed -i "/FrontierConditions_GlobalTag_cff/ a\from Configuration.AlCa.GlobalTag import GlobalTag\nprocess.GlobalTag = GlobalTag(process.GlobalTag, '${gtag}', '')" trackerModuleInfoLocalDB_cfg.py >> ../GeometryValidation.log 
 sed -i "/FrontierConditions_GlobalTag_cff/ a\process.XMLFromDBSource.label = cms.string('${condlabel}')" trackerModuleInfoLocalDB_cfg.py >> ../GeometryValidation.log 
 if ( "${roundFlag}" == round ) then                                                               
-  sed -i '/tinyDifferences/s/True/False/' trackerModuleInfoLocalDB_cfg.py >> GeometryValidation.log
+  sed -i "/tolerance/s/1.0e-23/${tolerance}/" trackerModuleInfoLocalDB_cfg.py >> GeometryValidation.log
 endif
 cmsRun trackerModuleInfoLocalDB_cfg.py >> ../GeometryValidation.log
 mv trackerModuleInfoLocalDB_cfg.py ../
@@ -156,7 +159,7 @@ sed -i "{s/GeometryExtended/${geometry}/}" trackerModuleInfoDDD_cfg.py >>  ../Ge
 sed -i "{/process.GlobalTag.globaltag/d}" trackerModuleInfoDDD_cfg.py >> ../GeometryValidation.log
 sed -i "/FrontierConditions_GlobalTag_cff/ a\from Configuration.AlCa.GlobalTag import GlobalTag\nprocess.GlobalTag = GlobalTag(process.GlobalTag, '${gtag}', '')" trackerModuleInfoDDD_cfg.py >> ../GeometryValidation.log 
 if ( "${roundFlag}" == round ) then                                                               
-  sed -i '/tinyDifferences/s/True/False/' trackerModuleInfoDDD_cfg.py >> GeometryValidation.log
+  sed -i "/tolerance/s/1.0e-23/${tolerance}/" trackerModuleInfoDDD_cfg.py >> GeometryValidation.log
 endif
 cmsRun trackerModuleInfoDDD_cfg.py >> ../GeometryValidation.log
 mv trackerModuleInfoDDD_cfg.py ../
@@ -194,7 +197,7 @@ sed -i "{/process.GlobalTag.globaltag/d}" testDTGeometryFromDB_cfg.py >> Geometr
 sed -i "/FrontierConditions_GlobalTag_cff/ a\from Configuration.AlCa.GlobalTag import GlobalTag\nprocess.GlobalTag = GlobalTag(process.GlobalTag, '${gtag}', '')" testDTGeometryFromDB_cfg.py >> GeometryValidation.log 
 sed -i "/FrontierConditions_GlobalTag_cff/ a\process.XMLFromDBSource.label = cms.string('${condlabel}')" testDTGeometryFromDB_cfg.py >> GeometryValidation.log
 if ( "${roundFlag}" == round ) then                                                               
-  sed -i '/tinyDifferences/s/True/False/' testDTGeometryFromDB_cfg.py >> GeometryValidation.log
+  sed -i "/tolerance/s/1.0e-23/${tolerance}/" testDTGeometryFromDB_cfg.py >> GeometryValidation.log
 endif
 cmsRun testDTGeometryFromDB_cfg.py > outDB_DT.log
 if ( -s outDB_DT.log ) then
@@ -210,7 +213,7 @@ sed -i "{/process.GlobalTag.globaltag/d}" testDTGeometryFromLocalDB_cfg.py >> Ge
 sed -i "/FrontierConditions_GlobalTag_cff/ a\from Configuration.AlCa.GlobalTag import GlobalTag\nprocess.GlobalTag = GlobalTag(process.GlobalTag, '${gtag}', '')" testDTGeometryFromLocalDB_cfg.py >> GeometryValidation.log 
 sed -i "/FrontierConditions_GlobalTag_cff/ a\process.XMLFromDBSource.label = cms.string('${condlabel}')" testDTGeometryFromLocalDB_cfg.py >> GeometryValidation.log 
 if ( "${roundFlag}" == round ) then                                                               
-  sed -i '/tinyDifferences/s/True/False/' testDTGeometryFromLocalDB_cfg.py >> GeometryValidation.log
+  sed -i "/tolerance/s/1.0e-23/${tolerance}/" testDTGeometryFromLocalDB_cfg.py >> GeometryValidation.log
 endif
 cmsRun testDTGeometryFromLocalDB_cfg.py > outLocalDB_DT.log
 if ( -s outDB_DT.log ) then
@@ -226,7 +229,7 @@ sed -i "{s/GeometryExtended/${geometry}/}" testDTGeometry_cfg.py >>  GeometryVal
 sed -i "{/process.GlobalTag.globaltag/d}" testDTGeometry_cfg.py >> GeometryValidation.log
 sed -i "/FrontierConditions_GlobalTag_cff/ a\from Configuration.AlCa.GlobalTag import GlobalTag\nprocess.GlobalTag = GlobalTag(process.GlobalTag, '${gtag}', '')" testDTGeometry_cfg.py >> GeometryValidation.log 
 if ( "${roundFlag}" == round ) then                                                               
-  sed -i '/tinyDifferences/s/True/False/' testDTGeometry_cfg.py >> GeometryValidation.log
+  sed -i "/tolerance/s/1.0e-23/${tolerance}/" testDTGeometry_cfg.py >> GeometryValidation.log
 endif
 cmsRun testDTGeometry_cfg.py > outDDD_DT.log
 if ( -s outDDD_DT.log ) then
