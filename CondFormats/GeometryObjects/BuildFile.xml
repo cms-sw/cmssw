@@ -1,5 +1,9 @@
 <use name="DataFormats/DetId"/>
 <use name="CondFormats/Serialization"/>
+<use name="CondFormats/External"/>
+<use name="DetectorDescription/DDCMS"/>
+<use name="FWCore/Utilities"/>
+<use name="Geometry/VeryForwardGeometryBuilder"/>
 <use name="boost_serialization"/>
 <use name="dd4hep"/>
 <export>
