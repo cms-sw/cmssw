@@ -12,6 +12,9 @@
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/CommonDetUnit/interface/GeomDet.h"
@@ -86,6 +89,7 @@ public:
   void endJob();
   void analyze(const edm::Event&, const edm::EventSetup&);
 
+  static void fillDescriptions(edm::ConfigurationDescriptions&);
 private:
   std::map<unsigned int, VHHistos>::iterator createLayerHistograms(unsigned int);
   void CreateVHsXYGraph(const std::vector<Global3DPoint>, const std::vector<Global3DVector>);
