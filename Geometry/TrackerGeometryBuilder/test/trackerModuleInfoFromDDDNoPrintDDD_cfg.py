@@ -29,7 +29,7 @@ process.maxEvents = cms.untracked.PSet(
 process.prod = cms.EDAnalyzer("ModuleInfo",
     fromDDD = cms.bool(True),
     printDDD = cms.untracked.bool(False),
-    tinyDifferences = cms.untracked.bool(True)
+    tolerance = cms.untracked.double(1.0e-23)
 )
 
 process.p1 = cms.Path(process.prod)
