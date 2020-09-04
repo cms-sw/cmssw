@@ -12,6 +12,9 @@
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/CommonDetUnit/interface/GeomDet.h"
@@ -74,13 +77,13 @@ public:
   void beginJob();
   void endJob();
   void analyze(const edm::Event&, const edm::EventSetup&);
+  static void fillDescriptions(edm::ConfigurationDescriptions&);
 
 private:
   std::map<unsigned int, ClusterHistos>::iterator createLayerHistograms(unsigned int);
   unsigned int getLayerNumber(const DetId&, const TrackerTopology*);
   unsigned int getModuleNumber(const DetId&, const TrackerTopology*);
   unsigned int getSimTrackId(const edm::Handle<edm::DetSetVector<PixelDigiSimLink> >&, const DetId&, unsigned int);
-
   edm::EDGetTokenT<edmNew::DetSetVector<Phase2TrackerCluster1D> > srcClu_;
   edm::EDGetTokenT<edm::DetSetVector<PixelDigiSimLink> > siphase2OTSimLinksToken_;
   edm::EDGetTokenT<edm::PSimHitContainer> simHitsToken_;
@@ -614,5 +617,14 @@ unsigned int Phase2TrackerClusterizerValidationTGraph::getSimTrackId(
   }
   return 0;
 }
+
+void Phase2TrackerClusterizerValidationTGraph::fillDescriptions(edm::ConfigurationDescriptions & descriptions){
+
+	edm::ParameterSetDescription desc;
+	desc.add<std::string>("src","siPhase2Clusters");
+	desc.add<edm::InputTag>("links",edm::InputTag("simSiPixelDigis", "Tracker"));
+	descriptions.add("phase2TrackerClusterizerValidationTGraph",desc);
+}
+
 
 DEFINE_FWK_MODULE(Phase2TrackerClusterizerValidationTGraph);

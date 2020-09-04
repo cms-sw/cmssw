@@ -254,7 +254,7 @@ VectorHit VectorHitBuilderAlgorithm::buildVectorHit(const StackGeomDet* stack,
   //printCluster(stack->lowerDet(),&*lower);
   //printCluster(stack->upperDet(),&*upper);
 
-  const PixelGeomDetUnit* geomDetLower = dynamic_cast<const PixelGeomDetUnit*>(stack->lowerDet());
+  const PixelGeomDetUnit* geomDetLower = static_cast<const PixelGeomDetUnit*>(stack->lowerDet());
   const PixelGeomDetUnit* geomDetUpper = dynamic_cast<const PixelGeomDetUnit*>(stack->upperDet());
 
   auto&& lparamsLower = cpe->localParameters(*lower, *geomDetLower);  // x, y, z, e2_xx, e2_xy, e2_yy
@@ -400,5 +400,3 @@ void VectorHitBuilderAlgorithm::fit(const std::vector<float>& x,
     dir = LocalVector(slope, 0., -1.);
   }
 }
-#include "FWCore/Utilities/interface/typelookup.h"
-TYPELOOKUP_DATA_REG(VectorHitBuilderAlgorithm);
