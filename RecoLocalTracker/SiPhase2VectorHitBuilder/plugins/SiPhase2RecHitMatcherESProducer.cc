@@ -41,7 +41,7 @@ std::shared_ptr<VectorHitBuilderAlgorithm> SiPhase2RecHitMatcherESProducer::prod
     matcher_ = std::make_shared<VectorHitBuilderAlgorithm>(pset_);
 
     edm::ESHandle<TrackerGeometry> tGeomHandle = iRecord.getHandle(geometryToken_);
-    edm::ESHandle<TrackerTopology> tTopoHandle = iRecord.getHandle(trackerTopoToken_);
+    edm::ESHandle<TrackerTopology> tTopoHandle = iRecord.getRecord<TrackerDigiGeometryRecord>().getHandle(trackerTopoToken_);
 
     auto ptr_phase2TrackerCPE = &iRecord.get(cpeToken_);
 
