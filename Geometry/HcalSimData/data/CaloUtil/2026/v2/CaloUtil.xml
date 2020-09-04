@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<!-- Defines HGCal, ECAL, HCAL, VCAL as fine detector regions  -->
+<!-- Defines HGCal from V10 onward as fine detector regions  -->
 <DDDefinition>
  <SpecParSection label="caloutil.xml" eval="true">
   <SpecPar name="calo">
@@ -72,13 +72,7 @@
    <Parameter name="InsideLevel" value="3" eval="true"/>
    <Parameter name="InsideLevel" value="3" eval="true"/>
    <Parameter name="FineCalorimeter" value="HGCal" eval="false"/>
-   <Parameter name="FineCalorimeter" value="ECAL" eval="false"/>
-   <Parameter name="FineCalorimeter" value="HCAL" eval="false"/>
-   <Parameter name="FineCalorimeter" value="VCAL" eval="false"/>
-   <Parameter name="FineLevels" value="8" eval="true"/> 
-   <Parameter name="FineLevels" value="4" eval="true"/>
-   <Parameter name="FineLevels" value="4" eval="true"/>
-   <Parameter name="FineLevels" value="3" eval="true"/>
- </SpecPar>
+   <Parameter name="FineLevels" value="8" eval="true"/>
+  </SpecPar>
  </SpecParSection>
 </DDDefinition>
