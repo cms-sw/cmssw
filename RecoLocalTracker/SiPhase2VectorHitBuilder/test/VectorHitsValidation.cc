@@ -22,7 +22,7 @@ VectorHitsBuilderValidation::VectorHitsBuilderValidation(const edm::ParameterSet
       consumes<TrackingParticleCollection>(conf.getParameter<edm::InputTag>("trackingParticleSrc"));
 }
 
-VectorHitsBuilderValidation::~VectorHitsBuilderValidation() { }
+VectorHitsBuilderValidation::~VectorHitsBuilderValidation() {}
 
 void VectorHitsBuilderValidation::beginJob() {
   edm::Service<TFileService> fs;
@@ -1212,19 +1212,15 @@ void VectorHitsBuilderValidation::printCluster(const GeomDetUnit* geomDetUnit, c
   return;
 }
 
-void VectorHitsBuilderValidation::fillDescriptions(edm::ConfigurationDescriptions & descriptions){
-
-        edm::ParameterSetDescription desc;
-        desc.add<std::string>("src","siPhase2Clusters");
-        desc.add<edm::InputTag>("links",edm::InputTag("simSiPixelDigis", "Tracker"));
-        desc.add<edm::InputTag>("VH_acc",edm::InputTag("siPhase2VectorHits", "vectorHitsAccepted"));
-        desc.add<edm::InputTag>("VH_rej",edm::InputTag("siPhase2VectorHits", "vectorHitsRejected"));
-        desc.add<edm::ESInputTag>("CPE",edm::ESInputTag("phase2StripCPEESProducer", "Phase2StripCPE"));
-        desc.add<edm::InputTag>("trackingParticleSrc",edm::InputTag("mix", "MergedTrackTruth"));
-        descriptions.add("vectorHitsBuilderValidation",desc);
+void VectorHitsBuilderValidation::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+  desc.add<std::string>("src", "siPhase2Clusters");
+  desc.add<edm::InputTag>("links", edm::InputTag("simSiPixelDigis", "Tracker"));
+  desc.add<edm::InputTag>("VH_acc", edm::InputTag("siPhase2VectorHits", "vectorHitsAccepted"));
+  desc.add<edm::InputTag>("VH_rej", edm::InputTag("siPhase2VectorHits", "vectorHitsRejected"));
+  desc.add<edm::ESInputTag>("CPE", edm::ESInputTag("phase2StripCPEESProducer", "Phase2StripCPE"));
+  desc.add<edm::InputTag>("trackingParticleSrc", edm::InputTag("mix", "MergedTrackTruth"));
+  descriptions.add("vectorHitsBuilderValidation", desc);
 }
-
-
-
 
 DEFINE_FWK_MODULE(VectorHitsBuilderValidation);

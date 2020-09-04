@@ -7,19 +7,18 @@
 #include "Geometry/CommonDetUnit/interface/GeomDet.h"
 #include "Geometry/CommonDetUnit/interface/PixelGeomDetUnit.h"
 
-VectorHitBuilderAlgorithmBase::VectorHitBuilderAlgorithmBase(const edm::ParameterSet& conf,
-                            				     const TrackerGeometry* tkGeomProd,
-			                                     const TrackerTopology* tkTopoProd,
-							     const ClusterParameterEstimator<Phase2TrackerCluster1D>* cpeProd)
+VectorHitBuilderAlgorithmBase::VectorHitBuilderAlgorithmBase(
+    const edm::ParameterSet& conf,
+    const TrackerGeometry* tkGeomProd,
+    const TrackerTopology* tkTopoProd,
+    const ClusterParameterEstimator<Phase2TrackerCluster1D>* cpeProd)
     : nMaxVHforeachStack(conf.getParameter<int>("maxVectorHitsInAStack")),
       barrelCut(conf.getParameter<std::vector<double> >("BarrelCut")),
       endcapCut(conf.getParameter<std::vector<double> >("EndcapCut")),
       cpeTag_(conf.getParameter<edm::ESInputTag>("CPE")) {
-
-      initTkGeom(tkGeomProd);
-      initTkTopo(tkTopoProd);
-      initCpe(cpeProd);
-			
+  initTkGeom(tkGeomProd);
+  initTkTopo(tkTopoProd);
+  initCpe(cpeProd);
 }
 
 /*void VectorHitBuilderAlgorithmBase::initialize(const edm::EventSetup& es) {
@@ -38,12 +37,8 @@ VectorHitBuilderAlgorithmBase::VectorHitBuilderAlgorithmBase(const edm::Paramete
   initCpe(cpeHandle.product());
 }
 */
-void VectorHitBuilderAlgorithmBase::initTkGeom(const TrackerGeometry* tkGeomProd) {
-  theTkGeom = tkGeomProd;
-}
-void VectorHitBuilderAlgorithmBase::initTkTopo(const TrackerTopology* tkTopoProd) {
-  theTkTopo = tkTopoProd;
-}
+void VectorHitBuilderAlgorithmBase::initTkGeom(const TrackerGeometry* tkGeomProd) { theTkGeom = tkGeomProd; }
+void VectorHitBuilderAlgorithmBase::initTkTopo(const TrackerTopology* tkTopoProd) { theTkTopo = tkTopoProd; }
 void VectorHitBuilderAlgorithmBase::initCpe(const ClusterParameterEstimator<Phase2TrackerCluster1D>* cpeProd) {
   cpe = cpeProd;
 }
@@ -70,7 +65,7 @@ double VectorHitBuilderAlgorithmBase::computeParallaxCorrection(const PixelGeomD
   return parallCorr;
 }
 
-void VectorHitBuilderAlgorithmBase::printClusters (const edmNew::DetSetVector<Phase2TrackerCluster1D>& clusters) const {
+void VectorHitBuilderAlgorithmBase::printClusters(const edmNew::DetSetVector<Phase2TrackerCluster1D>& clusters) const {
   int nCluster = 0;
   int numberOfDSV = 0;
   edmNew::DetSetVector<Phase2TrackerCluster1D>::const_iterator DSViter;
@@ -93,7 +88,8 @@ void VectorHitBuilderAlgorithmBase::printClusters (const edmNew::DetSetVector<Ph
   LogDebug("VectorHitBuilder") << " Number of input clusters: " << nCluster << std::endl;
 }
 
-void VectorHitBuilderAlgorithmBase::printCluster (const GeomDet* geomDetUnit, const Phase2TrackerCluster1D* clustIt) const {
+void VectorHitBuilderAlgorithmBase::printCluster(const GeomDet* geomDetUnit,
+                                                 const Phase2TrackerCluster1D* clustIt) const {
   if (!geomDetUnit)
     return;
   const PixelGeomDetUnit* pixelGeomDetUnit = dynamic_cast<const PixelGeomDetUnit*>(geomDetUnit);

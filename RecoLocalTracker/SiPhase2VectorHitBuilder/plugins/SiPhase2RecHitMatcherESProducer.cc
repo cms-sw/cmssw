@@ -28,10 +28,9 @@ private:
 
 SiPhase2RecHitMatcherESProducer::SiPhase2RecHitMatcherESProducer(const edm::ParameterSet& p) {
   name_ = p.getParameter<std::string>("ComponentName");
-  if (!(name_ == "SiPhase2VectorHitMatcher")){
-	throw cms::Exception("ConfigurationError")
-         << "Configuration specifies unknown ComponentName .\n"
-         << "Currently only 'SiPhase2VectorHitMatcher' is supported\n";
+  if (!(name_ == "SiPhase2VectorHitMatcher")) {
+    throw cms::Exception("ConfigurationError") << "Configuration specifies unknown ComponentName .\n"
+                                               << "Currently only 'SiPhase2VectorHitMatcher' is supported\n";
   }
   pset_ = p;
   auto cc = setWhatProduced(this, name_);
@@ -41,12 +40,13 @@ SiPhase2RecHitMatcherESProducer::SiPhase2RecHitMatcherESProducer(const edm::Para
 }
 
 std::unique_ptr<VectorHitBuilderAlgorithm> SiPhase2RecHitMatcherESProducer::produce(const TkPhase2OTCPERecord& iRecord) {
-  std::unique_ptr<VectorHitBuilderAlgorithm> matcher = std::make_unique<VectorHitBuilderAlgorithm>(pset_,
-                                                     						   &iRecord.get(geometryToken_),
-                                                                                                   &iRecord.getRecord<TrackerDigiGeometryRecord>().get(trackerTopoToken_),
-                                                                                                   &iRecord.get(cpeToken_));
+  std::unique_ptr<VectorHitBuilderAlgorithm> matcher = std::make_unique<VectorHitBuilderAlgorithm>(
+      pset_,
+      &iRecord.get(geometryToken_),
+      &iRecord.getRecord<TrackerDigiGeometryRecord>().get(trackerTopoToken_),
+      &iRecord.get(cpeToken_));
 
-/*  edm::ESHandle<TrackerGeometry> tGeomHandle = iRecord.getHandle(geometryToken_);
+  /*  edm::ESHandle<TrackerGeometry> tGeomHandle = iRecord.getHandle(geometryToken_);
   edm::ESHandle<TrackerTopology> tTopoHandle = iRecord.getRecord<TrackerDigiGeometryRecord>().getHandle(trackerTopoToken_);
 
   auto ptr_phase2TrackerCPE = &iRecord.get(cpeToken_);

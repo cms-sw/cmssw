@@ -24,11 +24,11 @@ public:
   typedef std::pair<StackGeomDet, std::vector<Phase2TrackerCluster1D>> StackClusters;
 
   VectorHitBuilderAlgorithmBase(const edm::ParameterSet&,
-				const TrackerGeometry*,
-				const TrackerTopology*,
-				const ClusterParameterEstimator<Phase2TrackerCluster1D>*);
+                                const TrackerGeometry*,
+                                const TrackerTopology*,
+                                const ClusterParameterEstimator<Phase2TrackerCluster1D>*);
   virtual ~VectorHitBuilderAlgorithmBase() {}
-//  void initialize(const edm::EventSetup&);
+  //  void initialize(const edm::EventSetup&);
   void initTkGeom(const TrackerGeometry* tkGeomProd);
   void initTkTopo(const TrackerTopology* tkTopoProd);
   void initCpe(const ClusterParameterEstimator<Phase2TrackerCluster1D>* cpeProd);

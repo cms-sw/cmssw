@@ -16,8 +16,11 @@
 
 class VectorHitBuilderAlgorithm : public VectorHitBuilderAlgorithmBase {
 public:
-  VectorHitBuilderAlgorithm(const edm::ParameterSet& conf, const TrackerGeometry* tkGeomProd, const TrackerTopology* tkTopoProd, const ClusterParameterEstimator<Phase2TrackerCluster1D>* cpeProd)
-      : VectorHitBuilderAlgorithmBase(conf, tkGeomProd, tkTopoProd, cpeProd ), theFitter(new LinearFit()){};
+  VectorHitBuilderAlgorithm(const edm::ParameterSet& conf,
+                            const TrackerGeometry* tkGeomProd,
+                            const TrackerTopology* tkTopoProd,
+                            const ClusterParameterEstimator<Phase2TrackerCluster1D>* cpeProd)
+      : VectorHitBuilderAlgorithmBase(conf, tkGeomProd, tkTopoProd, cpeProd), theFitter(new LinearFit()){};
   ~VectorHitBuilderAlgorithm() override { delete theFitter; };
 
   void run(edm::Handle<edmNew::DetSetVector<Phase2TrackerCluster1D>> clusters,

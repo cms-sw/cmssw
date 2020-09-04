@@ -90,6 +90,7 @@ public:
   void analyze(const edm::Event&, const edm::EventSetup&);
 
   static void fillDescriptions(edm::ConfigurationDescriptions&);
+
 private:
   std::map<unsigned int, VHHistos>::iterator createLayerHistograms(unsigned int);
   void CreateVHsXYGraph(const std::vector<Global3DPoint>, const std::vector<Global3DVector>);
@@ -148,5 +149,4 @@ private:
   TH1F* VHrejTrueLayer_ratio;
 
   std::map<unsigned int, VHHistos> histograms_;
-
 };
