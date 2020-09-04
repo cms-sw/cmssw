@@ -145,6 +145,14 @@
         <rMaterial name="materials:Hydrogen" />
       </MaterialFraction>
     </CompositeMaterial>
+    <CompositeMaterial name="Tpatch_PN" density="2.35e-05*g/cm3" symbol=" " method="mixture by weight">
+      <MaterialFraction fraction="0.47">
+        <rMaterial name="materials:Inconel600"/>
+      </MaterialFraction>
+      <MaterialFraction fraction="0.53">
+        <rMaterial name="trackermaterial:T_Kapton"/>
+      </MaterialFraction>
+    </CompositeMaterial>
     <CompositeMaterial name="TS_Cooling" density="1.62562e-05*g/cm3" method="mixture by weight" pork="true" symbol=" ">
       <MaterialFraction fraction="0.82993">
         <rMaterial name="trackermaterial:T_Aluminium" />

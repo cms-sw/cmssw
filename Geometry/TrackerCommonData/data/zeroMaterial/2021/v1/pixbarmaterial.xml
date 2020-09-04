@@ -36,21 +36,21 @@
         <rMaterial name="trackermaterial:micro_twisted_boundle" />
       </MaterialFraction>
       <MaterialFraction fraction="0.360">
-        <rMaterial name="materials:CFK" />
+        <rMaterial name="pixbarmaterial:CFK" />
       </MaterialFraction>
     </CompositeMaterial>
     <CompositeMaterial name="SupplyTubeConn3" density="1.70599616340055e-08*g/cm3" method="mixture by weight" pork="true" symbol=" ">
       <MaterialFraction fraction="5.79362498699793e-09">
-        <rMaterial name="materials:Bpix_Pipe_Steel" />
+        <rMaterial name="pixbarmaterial:Bpix_Pipe_Steel" />
       </MaterialFraction>
       <MaterialFraction fraction="0.0318060527708586">
-        <rMaterial name="materials:Bpix_CO2_-20C" />
+        <rMaterial name="pixbarmaterial:Bpix_CO2_-20C" />
       </MaterialFraction>
       <MaterialFraction fraction="0.196961154783739">
         <rMaterial name="Polyurethane" />
       </MaterialFraction>
       <MaterialFraction fraction="0.533930640373977">
-        <rMaterial name="materials:CFK" />
+        <rMaterial name="pixbarmaterial:CFK" />
       </MaterialFraction>
       <MaterialFraction fraction="0.237302043630065">
         <rMaterial name="SupplyTubeEpoxy" />
@@ -62,7 +62,7 @@
         <rMaterial name="trackermaterial:T_Copper" />
       </MaterialFraction>
       <MaterialFraction fraction="1.49662913362633e-08">
-        <rMaterial name="materials:T_Kapton" />
+        <rMaterial name="trackermaterial:T_Kapton" />
       </MaterialFraction>
     </CompositeMaterial>
     <CompositeMaterial name="SupplyTubeConn3_3Disks" density="2.22892524610769e-08*g/cm3" method="mixture by weight" pork="true" symbol=" ">
@@ -91,10 +91,10 @@
     </CompositeMaterial>
     <CompositeMaterial name="CoolPipesDaisyChain" density="2.12520038748e-07*g/cm3" method="mixture by weight" pork="true" symbol=" ">
       <MaterialFraction fraction="1.82326336039992e-07">
-        <rMaterial name="materials:Bpix_Pipe_Steel" />
+        <rMaterial name="pixbarmaterial:Bpix_Pipe_Steel" />
       </MaterialFraction>
       <MaterialFraction fraction="0.999999817673664">
-        <rMaterial name="materials:Bpix_CO2_-20C" />
+        <rMaterial name="pixbarmaterial:Bpix_CO2_-20C" />
       </MaterialFraction>
     </CompositeMaterial>
     <CompositeMaterial name="Polyurethane" density="4.94e-09*g/cm3" method="mixture by weight" pork="true" symbol=" ">
@@ -133,22 +133,22 @@
     </CompositeMaterial>
     <CompositeMaterial name="Flange1_CFK" density="8.6e-08*g/cm3" method="mixture by weight" pork="true" symbol=" ">
       <MaterialFraction fraction="1.00000000">
-        <rMaterial name="materials:CFK" />
+        <rMaterial name="pixbarmaterial:CFK" />
       </MaterialFraction>
     </CompositeMaterial>
     <CompositeMaterial name="Flange2_CFK" density="8.6e-08*g/cm3" method="mixture by weight" pork="true" symbol=" ">
       <MaterialFraction fraction="1.00000000">
-        <rMaterial name="materials:CFK" />
+        <rMaterial name="pixbarmaterial:CFK" />
       </MaterialFraction>
     </CompositeMaterial>
     <CompositeMaterial name="Flange3_CFK" density="8.6e-08*g/cm3" method="mixture by weight" pork="true" symbol=" ">
       <MaterialFraction fraction="1.00000000">
-        <rMaterial name="materials:CFK" />
+        <rMaterial name="pixbarmaterial:CFK" />
       </MaterialFraction>
     </CompositeMaterial>
     <CompositeMaterial name="Flange4_CFK" density="1.575e-07*g/cm3" method="mixture by weight" pork="true" symbol=" ">
       <MaterialFraction fraction="1.00000000">
-        <rMaterial name="materials:CFK" />
+        <rMaterial name="pixbarmaterial:CFK" />
       </MaterialFraction>
     </CompositeMaterial>
     <CompositeMaterial name="Polyoxymethylene" density="1.4e-07*g/cm3" method="mixture by weight" pork="true" symbol=" ">
@@ -251,7 +251,7 @@
         <rMaterial name="materials:Nickel" />
       </MaterialFraction>
       <MaterialFraction fraction="0.32169678303217">
-        <rMaterial name="materials:T_Kapton" />
+        <rMaterial name="trackermaterial:T_Kapton" />
       </MaterialFraction>
       <MaterialFraction fraction="0.024049759502405">
         <rMaterial name="materials:Gold" />
@@ -286,7 +286,7 @@
         <rMaterial name="materials:Nickel" />
       </MaterialFraction>
       <MaterialFraction fraction="0.24865">
-        <rMaterial name="materials:T_Kapton" />
+        <rMaterial name="trackermaterial:T_Kapton" />
       </MaterialFraction>
       <MaterialFraction fraction="0.0185">
         <rMaterial name="materials:Gold" />
@@ -325,17 +325,17 @@
     </CompositeMaterial>
     <CompositeMaterial name="Bpix_CO2_-20C_Half" density="2.0654e-07*g/cm3" method="mixture by weight" pork="true" symbol=" ">
       <MaterialFraction fraction="1">
-        <rMaterial name="materials:Bpix_CO2_-20C" />
+        <rMaterial name="pixbarmaterial:Bpix_CO2_-20C" />
       </MaterialFraction>
     </CompositeMaterial>
     <CompositeMaterial name="Bpix_Pipe_Steel_Half" density="1.604e-06*g/cm3" method="mixture by weight" pork="true" symbol=" ">
       <MaterialFraction fraction="1">
-        <rMaterial name="materials:Bpix_Pipe_Steel" />
+        <rMaterial name="pixbarmaterial:Bpix_Pipe_Steel" />
       </MaterialFraction>
     </CompositeMaterial>
     <CompositeMaterial name="Pix_Bar_Cable" density="1.67629e-07*g/cm3" method="mixture by weight" pork="true" symbol=" ">
       <MaterialFraction fraction="0.43796">
-        <rMaterial name="materials:T_Kapton" />
+        <rMaterial name="trackermaterial:T_Kapton" />
       </MaterialFraction>
       <MaterialFraction fraction="0.02339">
         <rMaterial name="materials:Gold" />
@@ -354,7 +354,7 @@
     </CompositeMaterial>
     <CompositeMaterial name="Pix_Bar_CableSignal_Upgrade" density="9.24999999999998e-08*g/cm3" method="mixture by weight" pork="true" symbol=" ">
       <MaterialFraction fraction="0.249079">
-        <rMaterial name="materials:T_Kapton" />
+        <rMaterial name="trackermaterial:T_Kapton" />
       </MaterialFraction>
       <MaterialFraction fraction="0.476682">
         <rMaterial name="trackermaterial:T_Aluminium" />
@@ -365,7 +365,7 @@
     </CompositeMaterial>
     <CompositeMaterial name="Pix_Bar_CablePower_Upgrade" density="9.25000000000005e-08*g/cm3" method="mixture by weight" pork="true" symbol=" ">
       <MaterialFraction fraction="0.110505">
-        <rMaterial name="materials:T_Kapton" />
+        <rMaterial name="trackermaterial:T_Kapton" />
       </MaterialFraction>
       <MaterialFraction fraction="0.751012">
         <rMaterial name="trackermaterial:T_Aluminium" />
@@ -392,22 +392,22 @@
     </CompositeMaterial>
     <CompositeMaterial name="CFK_Layer1" density="1.575*1.196e-07*g/cm3" symbol=" " method="mixture by weight">
       <MaterialFraction fraction="1.000">
-	<rMaterial name="materials:CFK"/>
+	<rMaterial name="pixbarmaterial:CFK"/>
       </MaterialFraction>
     </CompositeMaterial>
     <CompositeMaterial name="CFK_Layer2" density="1.575*1.108e-07*g/cm3" symbol=" " method="mixture by weight">
       <MaterialFraction fraction="1.000">
-	<rMaterial name="materials:CFK"/>
+	<rMaterial name="pixbarmaterial:CFK"/>
       </MaterialFraction>
     </CompositeMaterial>
     <CompositeMaterial name="CFK_Layer3" density="1.575*1.122e-07*g/cm3" symbol=" " method="mixture by weight">
       <MaterialFraction fraction="1.000">
-	<rMaterial name="materials:CFK"/>
+	<rMaterial name="pixbarmaterial:CFK"/>
       </MaterialFraction>
     </CompositeMaterial>
     <CompositeMaterial name="CFK_Layer4" density="1.575*1.234e-07*g/cm3" symbol=" " method="mixture by weight">
       <MaterialFraction fraction="1.000">
-	<rMaterial name="materials:CFK"/>
+	<rMaterial name="pixbarmaterial:CFK"/>
       </MaterialFraction>
     </CompositeMaterial>
     <CompositeMaterial name="Flange_with_Manifold_Layer1" density="5.00098000929998e-07*g/cm3" method="mixture by weight" pork="true" symbol=" ">
@@ -510,7 +510,7 @@
     </CompositeMaterial>
     <CompositeMaterial name="cable_endring_to_tube" density="1.9430094299e-07*g/cm3" method="mixture by weight" pork="true" symbol=" ">
       <MaterialFraction fraction="0.103008969910301">
-        <rMaterial name="materials:T_Kapton" />
+        <rMaterial name="trackermaterial:T_Kapton" />
       </MaterialFraction>
       <MaterialFraction fraction="0.159218407815922">
         <rMaterial name="pixfwdMaterials:FPix_Silicone" />
@@ -652,7 +652,7 @@
     </CompositeMaterial>
     <CompositeMaterial name="SectorC" density="7.92799999999996e-08*g/cm3" method="mixture by weight" pork="true" symbol=" ">
       <MaterialFraction fraction="0.14778">
-        <rMaterial name="materials:Bpix_CO2_-20C" />
+        <rMaterial name="pixbarmaterial:Bpix_CO2_-20C" />
       </MaterialFraction>
       <MaterialFraction fraction="0.0139">
         <rMaterial name="pixbarmaterial:Polyoxymethylene" />
@@ -722,7 +722,7 @@
     </CompositeMaterial>
     <CompositeMaterial name="PixelBarrelSupTubCables" density="6.51e-08*g/cm3" method="mixture by weight" pork="true" symbol=" ">
       <MaterialFraction fraction="0.09162">
-        <rMaterial name="materials:Bpix_CO2_-20C" />
+        <rMaterial name="pixbarmaterial:Bpix_CO2_-20C" />
       </MaterialFraction>
       <MaterialFraction fraction="0.14907">
         <rMaterial name="materials:Steel-008" />
@@ -736,7 +736,7 @@
     </CompositeMaterial>
     <CompositeMaterial name="PixelBarrelSupTubCables2" density="4.152e-08*g/cm3" method="mixture by weight" pork="true" symbol=" ">
       <MaterialFraction fraction="0.09162">
-        <rMaterial name="materials:Bpix_CO2_-20C" />
+        <rMaterial name="pixbarmaterial:Bpix_CO2_-20C" />
       </MaterialFraction>
       <MaterialFraction fraction="0.14907">
         <rMaterial name="materials:Steel-008" />
