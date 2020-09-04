@@ -41,16 +41,19 @@ SiPhase2RecHitMatcherESProducer::SiPhase2RecHitMatcherESProducer(const edm::Para
 }
 
 std::unique_ptr<VectorHitBuilderAlgorithm> SiPhase2RecHitMatcherESProducer::produce(const TkPhase2OTCPERecord& iRecord) {
-  std::unique_ptr<VectorHitBuilderAlgorithm> matcher = std::make_unique<VectorHitBuilderAlgorithm>(pset_);
+  std::unique_ptr<VectorHitBuilderAlgorithm> matcher = std::make_unique<VectorHitBuilderAlgorithm>(pset_,
+                                                     						   &iRecord.get(geometryToken_),
+                                                                                                   &iRecord.getRecord<TrackerDigiGeometryRecord>().get(trackerTopoToken_),
+                                                                                                   &iRecord.get(cpeToken_));
 
-  edm::ESHandle<TrackerGeometry> tGeomHandle = iRecord.getHandle(geometryToken_);
+/*  edm::ESHandle<TrackerGeometry> tGeomHandle = iRecord.getHandle(geometryToken_);
   edm::ESHandle<TrackerTopology> tTopoHandle = iRecord.getRecord<TrackerDigiGeometryRecord>().getHandle(trackerTopoToken_);
 
   auto ptr_phase2TrackerCPE = &iRecord.get(cpeToken_);
 
   matcher->initTkGeom(tGeomHandle);
   matcher->initTkTopo(tTopoHandle);
-  matcher->initCpe(ptr_phase2TrackerCPE);
+  matcher->initCpe(ptr_phase2TrackerCPE); */
 
   return matcher;
 }
