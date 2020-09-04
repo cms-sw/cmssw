@@ -23,11 +23,14 @@ public:
   typedef edmNew::DetSetVector<VectorHit> output_t;
   typedef std::pair<StackGeomDet, std::vector<Phase2TrackerCluster1D>> StackClusters;
 
-  VectorHitBuilderAlgorithmBase(const edm::ParameterSet&);
+  VectorHitBuilderAlgorithmBase(const edm::ParameterSet&,
+				const TrackerGeometry*,
+				const TrackerTopology*,
+				const ClusterParameterEstimator<Phase2TrackerCluster1D>*);
   virtual ~VectorHitBuilderAlgorithmBase() {}
-  void initialize(const edm::EventSetup&);
-  void initTkGeom(edm::ESHandle<TrackerGeometry> tkGeomHandle);
-  void initTkTopo(edm::ESHandle<TrackerTopology> tkTopoHandle);
+//  void initialize(const edm::EventSetup&);
+  void initTkGeom(const TrackerGeometry* tkGeomProd);
+  void initTkTopo(const TrackerTopology* tkTopoProd);
   void initCpe(const ClusterParameterEstimator<Phase2TrackerCluster1D>* cpeProd);
 
   //FIXME::ERICA::this should be template, return different collection for different algo used!!
@@ -35,14 +38,14 @@ public:
                    VectorHitCollectionNew& vhAcc,
                    VectorHitCollectionNew& vhRej,
                    edmNew::DetSetVector<Phase2TrackerCluster1D>& clustersAcc,
-                   edmNew::DetSetVector<Phase2TrackerCluster1D>& clustersRej) = 0;
+                   edmNew::DetSetVector<Phase2TrackerCluster1D>& clustersRej) const = 0;
 
   virtual std::vector<std::pair<VectorHit, bool>> buildVectorHits(
       const StackGeomDet* stack,
       edm::Handle<edmNew::DetSetVector<Phase2TrackerCluster1D>> clusters,
       const detset& DSVinner,
       const detset& DSVouter,
-      const std::vector<bool>& phase2OTClustersToSkip = std::vector<bool>()) = 0;
+      const std::vector<bool>& phase2OTClustersToSkip = std::vector<bool>()) const = 0;
 
   virtual VectorHit buildVectorHit(const StackGeomDet* stack,
                                    Phase2TrackerCluster1DRef lower,
@@ -51,10 +54,10 @@ public:
   double computeParallaxCorrection(const PixelGeomDetUnit*&,
                                    const Point3DBase<float, LocalTag>&,
                                    const PixelGeomDetUnit*&,
-                                   const Point3DBase<float, LocalTag>&);
+                                   const Point3DBase<float, LocalTag>&) const;
 
-  void printClusters(const edmNew::DetSetVector<Phase2TrackerCluster1D>& clusters);
-  void printCluster(const GeomDet* geomDetUnit, const Phase2TrackerCluster1D* cluster);
+  void printClusters(const edmNew::DetSetVector<Phase2TrackerCluster1D>& clusters) const;
+  void printCluster(const GeomDet* geomDetUnit, const Phase2TrackerCluster1D* cluster) const;
 
   void loadDetSetVector(std::map<DetId, std::vector<VectorHit>>& theMap,
                         edmNew::DetSetVector<VectorHit>& theCollection) const;

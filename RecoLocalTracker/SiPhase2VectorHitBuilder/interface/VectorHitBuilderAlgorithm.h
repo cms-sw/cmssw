@@ -16,20 +16,20 @@
 
 class VectorHitBuilderAlgorithm : public VectorHitBuilderAlgorithmBase {
 public:
-  VectorHitBuilderAlgorithm(const edm::ParameterSet& conf)
-      : VectorHitBuilderAlgorithmBase(conf), theFitter(new LinearFit()){};
+  VectorHitBuilderAlgorithm(const edm::ParameterSet& conf, const TrackerGeometry* tkGeomProd, const TrackerTopology* tkTopoProd, const ClusterParameterEstimator<Phase2TrackerCluster1D>* cpeProd)
+      : VectorHitBuilderAlgorithmBase(conf, tkGeomProd, tkTopoProd, cpeProd ), theFitter(new LinearFit()){};
   ~VectorHitBuilderAlgorithm() override { delete theFitter; };
 
   void run(edm::Handle<edmNew::DetSetVector<Phase2TrackerCluster1D>> clusters,
            VectorHitCollectionNew& vhAcc,
            VectorHitCollectionNew& vhRej,
            edmNew::DetSetVector<Phase2TrackerCluster1D>& clustersAcc,
-           edmNew::DetSetVector<Phase2TrackerCluster1D>& clustersRej) override;
+           edmNew::DetSetVector<Phase2TrackerCluster1D>& clustersRej) const override;
 
   //not implemented yet
   bool checkClustersCompatibilityBeforeBuilding(edm::Handle<edmNew::DetSetVector<Phase2TrackerCluster1D>> clusters,
                                                 const detset& theLowerDetSet,
-                                                const detset& theUpperDetSet);
+                                                const detset& theUpperDetSet) const;
   bool checkClustersCompatibility(Local3DPoint& posinner,
                                   Local3DPoint& posouter,
                                   LocalError& errinner,
@@ -54,7 +54,7 @@ public:
       edm::Handle<edmNew::DetSetVector<Phase2TrackerCluster1D>> clusters,
       const detset& DSVinner,
       const detset& DSVouter,
-      const std::vector<bool>& phase2OTClustersToSkip = std::vector<bool>()) override;
+      const std::vector<bool>& phase2OTClustersToSkip = std::vector<bool>()) const override;
 
   VectorHit buildVectorHit(const StackGeomDet* stack,
                            Phase2TrackerCluster1DRef lower,

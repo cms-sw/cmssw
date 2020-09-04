@@ -1,14 +1,11 @@
 #include "RecoLocalTracker/SiPhase2VectorHitBuilder/interface/VectorHitBuilderEDProducer.h"
-#include "RecoLocalTracker/SiPhase2VectorHitBuilder/interface/VectorHitBuilderAlgorithm.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 VectorHitBuilderEDProducer::VectorHitBuilderEDProducer(edm::ParameterSet const& conf)
     : offlinestubsTag_(conf.getParameter<std::string>("offlinestubs")),
       maxOfflinestubs_(conf.getParameter<int>("maxVectorHits")),
-      algoTag_(conf.getParameter<std::string>("Algorithm")),
-      //_clusterProducer(conf.getParameter<edm::InputTag>("Clusters")),
-      readytobuild_(false) {
+      stubsBuilderToken_(esConsumes(conf.getParameter<edm::ESInputTag>("Algorithm"))){
   clusterProducer_ =
       consumes<edmNew::DetSetVector<Phase2TrackerCluster1D>>(edm::InputTag(conf.getParameter<std::string>("Clusters")));
 
@@ -16,7 +13,8 @@ VectorHitBuilderEDProducer::VectorHitBuilderEDProducer(edm::ParameterSet const& 
   produces<edmNew::DetSetVector<Phase2TrackerCluster1D>>("ClustersRejected");
   produces<VectorHitCollectionNew>(offlinestubsTag_ + "Accepted");
   produces<VectorHitCollectionNew>(offlinestubsTag_ + "Rejected");
-  setupAlgorithm(conf);
+
+
 }
 
 VectorHitBuilderEDProducer::~VectorHitBuilderEDProducer() { delete stubsBuilder_; }
@@ -36,11 +34,8 @@ void VectorHitBuilderEDProducer::produce(edm::Event& event, const edm::EventSetu
   std::unique_ptr<VectorHitCollectionNew> outputVHAccepted(new VectorHitCollectionNew());
   std::unique_ptr<VectorHitCollectionNew> outputVHRejected(new VectorHitCollectionNew());
 
-  if (readytobuild_)
-    stubsBuilder_->initialize(es);
-  else
-    edm::LogError("VectorHitBuilderEDProducer") << "Impossible initialization of builder!!";
 
+  stubsBuilder_ = &es.getData(stubsBuilderToken_);
   // check on the input clusters
   stubsBuilder_->printClusters(*clustersHandle);
 
@@ -57,31 +52,13 @@ void VectorHitBuilderEDProducer::produce(edm::Event& event, const edm::EventSetu
       LogDebug("VectorHitBuilderEDProducer") << "\t vectorhit in output " << *vh << std::endl;
     }
   }
-  /*
-  if(numberOfVectorHits > _maxOfflinestubs) {
-    edm::LogError("VectorHitBuilderEDProducer") <<  "Limit on the number of stubs exceeded. An empty output collection will be produced instead.\n";
-    VectorHitCollectionNew empty;
-    empty.swap(outputAcc);
-  }
-*/
   // write output to file
   event.put(std::move(outputClustersAccepted), "ClustersAccepted");
   event.put(std::move(outputClustersRejected), "ClustersRejected");
   event.put(std::move(outputVHAccepted), offlinestubsTag_ + "Accepted");
   event.put(std::move(outputVHRejected), offlinestubsTag_ + "Rejected");
 
-  //  LogDebug("VectorHitBuilderEDProducer") << " Executing " << _algoTag << " resulted in " << numberOfVectorHits << ".";
   LogDebug("VectorHitBuilderEDProducer") << "found\n" << numberOfVectorHits << " .\n";
-}
-
-void VectorHitBuilderEDProducer::setupAlgorithm(edm::ParameterSet const& conf) {
-  if (algoTag_ == "VectorHitBuilderAlgorithm") {
-    stubsBuilder_ = new VectorHitBuilderAlgorithm(conf);
-    readytobuild_ = true;
-  } else {
-    edm::LogError("VectorHitBuilderEDProducer") << " Choice " << algoTag_ << " is invalid.\n";
-    readytobuild_ = false;
-  }
 }
 
 void VectorHitBuilderEDProducer::run(edm::Handle<edmNew::DetSetVector<Phase2TrackerCluster1D>> clusters,
@@ -89,10 +66,6 @@ void VectorHitBuilderEDProducer::run(edm::Handle<edmNew::DetSetVector<Phase2Trac
                                      edmNew::DetSetVector<Phase2TrackerCluster1D>& clustersRej,
                                      VectorHitCollectionNew& outputAcc,
                                      VectorHitCollectionNew& outputRej) {
-  if (!readytobuild_) {
-    edm::LogError("VectorHitBuilderEDProducer") << " No stub builder algorithm was found - cannot run!";
-    return;
-  }
 
   stubsBuilder_->run(clusters, outputAcc, outputRej, clustersAcc, clustersRej);
 }
@@ -100,7 +73,7 @@ void VectorHitBuilderEDProducer::fillDescriptions(edm::ConfigurationDescriptions
   edm::ParameterSetDescription desc;
   desc.add<std::string>("offlinestubs", "vectorHits");
   desc.add<int>("maxVectorHits", 999999999);
-  desc.add<std::string>("Algorithm", "VectorHitBuilderAlgorithm");
+  desc.add<edm::ESInputTag>("Algorithm", edm::ESInputTag("","SiPhase2VectorHitMatcher"));
   desc.add<edm::ESInputTag>("CPE", edm::ESInputTag("phase2StripCPEESProducer", "Phase2StripCPE"));
   desc.add<std::vector<double>>("BarrelCut",
                                 {

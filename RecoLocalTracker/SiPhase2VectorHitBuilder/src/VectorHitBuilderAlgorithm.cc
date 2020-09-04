@@ -15,7 +15,7 @@ void VectorHitBuilderAlgorithm::run(edm::Handle<edmNew::DetSetVector<Phase2Track
                                     VectorHitCollectionNew& vhAcc,
                                     VectorHitCollectionNew& vhRej,
                                     edmNew::DetSetVector<Phase2TrackerCluster1D>& clustersAcc,
-                                    edmNew::DetSetVector<Phase2TrackerCluster1D>& clustersRej) {
+                                    edmNew::DetSetVector<Phase2TrackerCluster1D>& clustersRej) const {
   LogDebug("VectorHitBuilderAlgorithm") << "Run VectorHitBuilderAlgorithm ... \n";
   const edmNew::DetSetVector<Phase2TrackerCluster1D>* ClustersPhase2Collection = clusters.product();
 
@@ -101,7 +101,7 @@ void VectorHitBuilderAlgorithm::run(edm::Handle<edmNew::DetSetVector<Phase2Track
 bool VectorHitBuilderAlgorithm::checkClustersCompatibilityBeforeBuilding(
     edm::Handle<edmNew::DetSetVector<Phase2TrackerCluster1D>> clusters,
     const detset& theLowerDetSet,
-    const detset& theUpperDetSet) {
+    const detset& theUpperDetSet) const {
   if (theLowerDetSet.size() == 1 && theUpperDetSet.size() == 1)
     return true;
 
@@ -132,7 +132,7 @@ std::vector<std::pair<VectorHit, bool>> VectorHitBuilderAlgorithm::buildVectorHi
     edm::Handle<edmNew::DetSetVector<Phase2TrackerCluster1D>> clusters,
     const detset& theLowerDetSet,
     const detset& theUpperDetSet,
-    const std::vector<bool>& phase2OTClustersToSkip) {
+    const std::vector<bool>& phase2OTClustersToSkip) const {
   std::vector<std::pair<VectorHit, bool>> result;
   if (checkClustersCompatibilityBeforeBuilding(clusters, theLowerDetSet, theUpperDetSet)) {
     LogDebug("VectorHitBuilderAlgorithm") << "  compatible -> continue ... " << std::endl;
