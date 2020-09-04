@@ -19,6 +19,8 @@
 class GEMPadDigiCluster {
 public:
   enum InValid { GE11InValid = 255, GE21InValid = 511 };
+  // Newer GE2/1 geometries will have 16 eta partitions
+  // instead of the usual 8.
   enum NumberPartitions { ME0 = 8, GE11 = 8, GE21 = 8, GE21SplitStrip = 16 };
 
   explicit GEMPadDigiCluster(std::vector<uint16_t> pads,
@@ -38,9 +40,6 @@ public:
   int bx() const { return bx_; }
   GEMSubDetId::Station station() const { return station_; }
 
-  // Newer GE2/1 geometries will have 16! eta partitions
-  // instead of the usual 8.
-  void setNPartitions(unsigned nPart) { part_ = nPart; }
   unsigned nPartitions() const { return part_; }
   void print() const;
 
