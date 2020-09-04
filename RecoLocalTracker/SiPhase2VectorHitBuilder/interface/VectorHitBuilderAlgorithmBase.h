@@ -13,13 +13,7 @@
 #include "RecoLocalTracker/Phase2TrackerRecHits/interface/Phase2StripCPE.h"
 #include "DataFormats/TrackerRecHit2D/interface/VectorHit.h"
 #include "Geometry/CommonDetUnit/interface/PixelGeomDetUnit.h"
-
-namespace edm {
-  class ParameterSet;
-  template <typename T>
-  class RefGetter;
-  class EventSetup;
-}  // namespace edm
+#include "FWCore/Framework/interface/FrameworkfwdMostUsed.h"
 
 class VectorHitBuilderAlgorithmBase {
 public:
