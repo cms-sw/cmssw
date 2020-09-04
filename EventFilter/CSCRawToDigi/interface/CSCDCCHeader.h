@@ -2,8 +2,8 @@
  * documented at  http://www.physics.ohio-state.edu/~cms/ddu/ddu2.html
  */
 
-#ifndef CSCDCCHeader_h
-#define CSCDCCHeader_h
+#ifndef EventFilter_CSCRawToDigi_CSCDCCHeader_h
+#define EventFilter_CSCRawToDigi_CSCDCCHeader_h
 
 #include <cstdint>
 #include <cstring>
