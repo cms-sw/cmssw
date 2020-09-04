@@ -78,8 +78,7 @@ public:
   virtual float chi2() const { return theChi2; }
   int dimension() const override { return theDimension; }
 
-  
-  enum curvatureOrPhi { curvatureMode, phiMode }; 
+  enum curvatureOrPhi { curvatureMode, phiMode };
 
   std::pair<float, float> curvatureORphi(curvatureOrPhi curvatureMode) const;
 
@@ -145,9 +144,7 @@ private:
   OmniClusterRef theUpperCluster;
 };
 
-inline bool operator<(const VectorHit& one, const VectorHit& other) {
-  return (one.chi2() < other.chi2());
-}
+inline bool operator<(const VectorHit& one, const VectorHit& other) { return (one.chi2() < other.chi2()); }
 
 std::ostream& operator<<(std::ostream& os, const VectorHit& vh);
 

@@ -38,8 +38,8 @@ VectorHit::VectorHit(const GeomDet& idet,
   theDirection = LocalVector(vh2Dzx.localDirection()->x(), vh2Dzy.localDirection()->x(), 1.);
 
   //building the cov matrix 4x4 starting from the 2x2
-  const AlgebraicSymMatrix22  covMatZX = *vh2Dzx.covMatrix();
-  const AlgebraicSymMatrix22  covMatZY = *vh2Dzy.covMatrix();
+  const AlgebraicSymMatrix22 covMatZX = *vh2Dzx.covMatrix();
+  const AlgebraicSymMatrix22 covMatZY = *vh2Dzy.covMatrix();
 
   theCovMatrix = AlgebraicSymMatrix(4);
   theCovMatrix[0][0] = covMatZX[0][0];  // var(dx/dz)
@@ -338,9 +338,11 @@ std::pair<float, float> VectorHit::curvatureORphi(curvatureOrPhi curvORphi) cons
   } else {
     return std::make_pair(0.0, 0.0);
   }
-  switch(curvORphi){
-  	case curvatureMode : return std::make_pair(curvature, errorCurvature);
-  	case phiMode :  return std::make_pair(phi, 0.0);
+  switch (curvORphi) {
+    case curvatureMode:
+      return std::make_pair(curvature, errorCurvature);
+    case phiMode:
+      return std::make_pair(phi, 0.0);
   }
   return std::make_pair(0.0, 0.0);
 }

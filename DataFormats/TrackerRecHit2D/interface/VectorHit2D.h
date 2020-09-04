@@ -12,7 +12,12 @@ class VectorHit2D {
 public:
   VectorHit2D() : thePosition(), theDirection(), theCovMatrix(), theChi2(), theDimension(2) {}
   VectorHit2D(const LocalPoint& pos, const LocalVector& dir, const AlgebraicSymMatrix22& covMatrix, const double& Chi2)
-      : thePosition(pos), theDirection(dir), theCovMatrix(covMatrix), theLocalError(theCovMatrix[0][0], theCovMatrix[0][1], theCovMatrix[1][1]), theChi2(Chi2), theDimension(2){};
+      : thePosition(pos),
+        theDirection(dir),
+        theCovMatrix(covMatrix),
+        theLocalError(theCovMatrix[0][0], theCovMatrix[0][1], theCovMatrix[1][1]),
+        theChi2(Chi2),
+        theDimension(2){};
   virtual ~VectorHit2D(){};
 
   const LocalPoint* localPosition() const { return &thePosition; }

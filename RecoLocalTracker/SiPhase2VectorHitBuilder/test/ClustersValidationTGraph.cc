@@ -618,13 +618,11 @@ unsigned int Phase2TrackerClusterizerValidationTGraph::getSimTrackId(
   return 0;
 }
 
-void Phase2TrackerClusterizerValidationTGraph::fillDescriptions(edm::ConfigurationDescriptions & descriptions){
-
-	edm::ParameterSetDescription desc;
-	desc.add<std::string>("src","siPhase2Clusters");
-	desc.add<edm::InputTag>("links",edm::InputTag("simSiPixelDigis", "Tracker"));
-	descriptions.add("phase2TrackerClusterizerValidationTGraph",desc);
+void Phase2TrackerClusterizerValidationTGraph::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+  desc.add<std::string>("src", "siPhase2Clusters");
+  desc.add<edm::InputTag>("links", edm::InputTag("simSiPixelDigis", "Tracker"));
+  descriptions.add("phase2TrackerClusterizerValidationTGraph", desc);
 }
-
 
 DEFINE_FWK_MODULE(Phase2TrackerClusterizerValidationTGraph);

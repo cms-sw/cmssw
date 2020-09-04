@@ -25,7 +25,6 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 
-
 #include "DataFormats/TrajectoryState/interface/LocalTrajectoryParameters.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateTransform.h"
 #include "TrackingTools/MeasurementDet/interface/TrajectoryMeasurementGroup.h"
@@ -90,25 +89,24 @@ private:
   edm::ESGetToken<TrajectoryStateUpdator, TrackingComponentsRecord> updatorToken_;
   edm::ESGetToken<MeasurementTracker, CkfComponentsRecord> measurementTrackerToken_;
   edm::ESGetToken<Chi2MeasurementEstimatorBase, TrackingComponentsRecord> estToken_;
-
 };
 
 SeedingOTEDProducer::SeedingOTEDProducer(edm::ParameterSet const& conf)
     : updator_(nullptr),
       tkMeasEventToken_(consumes<MeasurementTrackerEvent>(conf.getParameter<edm::InputTag>("trackerEvent"))),
       topoToken_(esConsumes()),
-      propagatorToken_(esConsumes(edm::ESInputTag("", "PropagatorWithMaterial" ))),
+      propagatorToken_(esConsumes(edm::ESInputTag("", "PropagatorWithMaterial"))),
       magFieldToken_(esConsumes()),
       updatorToken_(esConsumes()),
       measurementTrackerToken_(esConsumes()),
-      estToken_(esConsumes(edm::ESInputTag("","Chi2"))) {
+      estToken_(esConsumes(edm::ESInputTag("", "Chi2"))) {
   vhProducerToken_ = consumes<VectorHitCollectionNew>(edm::InputTag(conf.getParameter<edm::InputTag>("src")));
   beamSpotToken_ = consumes<reco::BeamSpot>(conf.getParameter<edm::InputTag>("beamSpotLabel"));
   updatorName_ = conf.getParameter<std::string>("updator");
   produces<TrajectorySeedCollection>();
 }
 
-SeedingOTEDProducer::~SeedingOTEDProducer() { }
+SeedingOTEDProducer::~SeedingOTEDProducer() {}
 
 void SeedingOTEDProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
@@ -121,7 +119,6 @@ void SeedingOTEDProducer::fillDescriptions(edm::ConfigurationDescriptions& descr
 
 void SeedingOTEDProducer::produce(edm::Event& event, const edm::EventSetup& es) {
   std::unique_ptr<TrajectorySeedCollection> seedsWithVHs(new TrajectorySeedCollection());
-
 
   tkTopo_ = &es.getData(topoToken_);
 
@@ -318,8 +315,6 @@ const TrajectoryStateOnSurface SeedingOTEDProducer::buildInitialTSOS(VectorHit& 
   //Helper class to access momentum of VH
   VectorHitMomentumHelper vhMomHelper(magField_);
 
-
-
   //FIXME::charge is fine 1 every two times!!
   int charge = 1;
   float p = vhMomHelper.momentum(vHit);
@@ -335,8 +330,8 @@ const TrajectoryStateOnSurface SeedingOTEDProducer::buildInitialTSOS(VectorHit& 
   LocalTrajectoryParameters ltpar2(charge / p, dx, dy, x, y, signPz);
   AlgebraicSymMatrix mat = assign44To55(vHit.parametersError());
   // set the error on 1/p
-  mat[0][0] = pow(
-      computeInverseMomentumError(vHit, theta, beamSpot_->sigmaZ(), vhMomHelper.transverseMomentum(vHit)), 2);
+  mat[0][0] =
+      pow(computeInverseMomentumError(vHit, theta, beamSpot_->sigmaZ(), vhMomHelper.transverseMomentum(vHit)), 2);
 
   //building tsos
   LocalTrajectoryError lterr(asSMatrix<5>(mat));

@@ -39,4 +39,3 @@ DEFINE_FWK_MODULE(SeedCreatorFromRegionConsecutiveHitsEDProducer);
 using SeedCreatorFromRegionConsecutiveHitsTripletOnlyEDProducer =
     SeedCreatorFromRegionHitsEDProducerT<SeedFromConsecutiveHitsTripletOnlyCreator>;
 DEFINE_FWK_MODULE(SeedCreatorFromRegionConsecutiveHitsTripletOnlyEDProducer);
-
