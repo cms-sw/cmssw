@@ -15,6 +15,7 @@
 #include <utility>
 #include <vector>
 
+#include "DetectorDescription/Core/interface/DDFilteredView.h"
 #include "DetectorDescription/DDCMS/interface/DDFilteredView.h"
 
 #include "DataFormats/DetId/interface/DetId.h"
@@ -52,8 +53,10 @@ class DetGeomDesc {
 public:
   using Container = std::vector<DetGeomDesc*>;
   using RotationMatrix = ROOT::Math::Rotation3D;
-  using Translation = ROOT::Math::DisplacementVector3D<ROOT::Math::Cartesian3D<double>>;
+using Translation = ROOT::Math::DisplacementVector3D<ROOT::Math::Cartesian3D<double>>;
 
+// Constructor from old DD DDFilteredView
+DetGeomDesc(const DDFilteredView& fv);
   // Constructor from DD4Hep DDFilteredView
   DetGeomDesc(const cms::DDFilteredView& fv, const cms::DDSpecParRegistry& allSpecParSections);
 
@@ -92,22 +95,26 @@ public:
   // alignment
   void applyAlignment(const CTPPSRPAlignmentCorrectionData&);
 
+// is DD4hep
+bool isDD4hep() const { return m_isDD4hep; }
+
   bool operator<(const DetGeomDesc& other) const;
   void print() const;
 
 private:
   void deleteComponents();      // deletes just the first daughters
-  void deepDeleteComponents();  // traverses the tree and deletes all nodes.
-  void clearComponents() { m_container.resize(0); }
+void deepDeleteComponents();  // traverses the tree and deletes all nodes.
+void clearComponents() { m_container.resize(0); }
 
-  std::string computeNameWithNoNamespace(const std::string_view nameFromView) const;
-  std::vector<double> computeParameters(const cms::DDFilteredView& fv) const;
-  DetId computeDetID(const std::string& name, const std::vector<int>& copyNos, unsigned int copyNum) const;
-  std::string computeSensorType(const std::string_view nameFromView,
+std::string computeNameWithNoNamespace(const std::string_view nameFromView) const;
+std::vector<double> computeParameters(const cms::DDFilteredView& fv) const;
+DetId computeDetID(const std::string& name, const std::vector<int>& copyNos, unsigned int copyNum) const;
+std::string computeSensorType(const std::string_view name);
+std::string computeSensorType(const std::string_view nameFromView,
                                 const std::string& nodePath,
                                 const cms::DDSpecParRegistry& allSpecParSections);
 
-  std::string m_name;  // with no namespace
+std::string m_name;  // with no namespace
   int m_copy;
   Translation m_trans;  // in mm
   RotationMatrix m_rot;
@@ -118,6 +125,7 @@ private:
 
   Container m_container;
   float m_z;  // in mm
+bool m_isDD4hep;
 };
 
 #endif
