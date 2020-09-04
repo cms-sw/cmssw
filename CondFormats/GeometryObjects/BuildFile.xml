@@ -1,7 +1,6 @@
 <use name="DataFormats/DetId"/>
 <use name="CondFormats/Serialization"/>
 <use name="boost_serialization"/>
-<use name="dd4hep"/>
 <export>
   <lib name="1"/>
 </export>

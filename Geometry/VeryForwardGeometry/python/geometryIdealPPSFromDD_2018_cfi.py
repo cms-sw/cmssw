@@ -136,15 +136,9 @@ ctppsPixelGeomXMLFiles = cms.vstring(
     'Geometry/VeryForwardData/data/CTPPS_Pixel_Sens.xml'
     )
 
-XMLIdealGeometryESSource_CTPPS = cms.ESSource("XMLIdealGeometryESSource",
-                                              geomXMLFiles = totemGeomXMLFiles + ctppsDiamondGeomXMLFiles + ctppsUFSDGeomXMLFiles + totemTimingGeomXMLFiles + ctppsPixelGeomXMLFiles,
-                                              rootNodeName = cms.string('cms:CMSE')
-                                              )
+# RP distance
+rpDistBeamCent = cms.vstring(
+    'Geometry/VeryForwardData/data/2016_ctpps_15sigma_margin0/RP_Dist_Beam_Cent.xml'
+)
 
-# position of RPs
-XMLIdealGeometryESSource_CTPPS.geomXMLFiles.append("Geometry/VeryForwardData/data/2016_ctpps_15sigma_margin0/RP_Dist_Beam_Cent.xml")
-
-ctppsGeometryESModule = cms.ESProducer("CTPPSGeometryESModule",
-                                       verbosity = cms.untracked.uint32(1),
-                                       compactViewTag = cms.string('XMLIdealGeometryESSource_CTPPS')
-                                       )
+allFiles = totemGeomXMLFiles + ctppsDiamondGeomXMLFiles + ctppsUFSDGeomXMLFiles + totemTimingGeomXMLFiles + ctppsPixelGeomXMLFiles + rpDistBeamCent
