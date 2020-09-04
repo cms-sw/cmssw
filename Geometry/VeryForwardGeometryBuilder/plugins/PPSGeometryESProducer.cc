@@ -81,7 +81,7 @@ private:
                                          GDTokens<REC> const&,
                                          const char* name);
 
-  static void applyAlignments(const DetGeomDesc&, const CTPPSRPAlignmentCorrectionsData*, DetGeomDesc*&);
+  static std::unique_ptr<DetGeomDesc> applyAlignments(const DetGeomDesc&, const CTPPSRPAlignmentCorrectionsData*);
 
   const unsigned int verbosity_;
   const edm::ESGetToken<cms::DDDetector, IdealGeometryRecord> detectorToken_;
@@ -117,10 +117,9 @@ void PPSGeometryESProducer::fillDescriptions(edm::ConfigurationDescriptions& des
 /*
  * Apply alignments by doing a BFS on idealGD tree.
  */
-void PPSGeometryESProducer::applyAlignments(const DetGeomDesc& idealGD,
-                                            const CTPPSRPAlignmentCorrectionsData* alignments,
-                                            DetGeomDesc*& newGD) {
-  newGD = new DetGeomDesc(idealGD);
+std::unique_ptr<DetGeomDesc> PPSGeometryESProducer::applyAlignments(const DetGeomDesc& idealGD,
+                                            const CTPPSRPAlignmentCorrectionsData* alignments) {
+  DetGeomDesc* newGD = new DetGeomDesc(idealGD);
   std::deque<const DetGeomDesc*> buffer;
   std::deque<DetGeomDesc*> bufferNew;
   buffer.emplace_back(&idealGD);
@@ -169,6 +168,7 @@ void PPSGeometryESProducer::applyAlignments(const DetGeomDesc& idealGD,
       bufferNew.emplace_back(cD);
     }
   }
+  return std::unique_ptr<DetGeomDesc>(newGD);
 }
 
 std::unique_ptr<DetGeomDesc> PPSGeometryESProducer::produceIdealGD(const IdealGeometryRecord& iRecord) {
@@ -205,9 +205,7 @@ std::unique_ptr<DetGeomDesc> PPSGeometryESProducer::produceGD(IdealGeometryRecor
       edm::LogVerbatim(name) << ">> " << name << " > Real geometry: No alignments applied.";
   }
 
-  DetGeomDesc* newGD = nullptr;
-  applyAlignments(idealGD, alignments.product(), newGD);
-  return std::unique_ptr<DetGeomDesc>(newGD);
+  return applyAlignments(idealGD, alignments.product());
 }
 
 std::unique_ptr<DetGeomDesc> PPSGeometryESProducer::produceRealGD(const VeryForwardRealGeometryRecord& iRecord) {
