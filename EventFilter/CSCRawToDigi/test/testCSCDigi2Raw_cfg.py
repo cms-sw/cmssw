@@ -11,7 +11,6 @@ options.register ("validate", False, VarParsing.multiplicity.singleton, VarParsi
 options.register ("view", True, VarParsing.multiplicity.singleton, VarParsing.varType.bool)
 options.register ("reconstruct", False, VarParsing.multiplicity.singleton, VarParsing.varType.bool)
 options.register ("mc", False, VarParsing.multiplicity.singleton, VarParsing.varType.bool)
-options.register ("dump", False, VarParsing.multiplicity.singleton, VarParsing.varType.bool)
 options.parseArguments()
 
 ## process def
@@ -106,10 +105,6 @@ process.cscValidation = cms.EDAnalyzer(
 
 process.cscValidation.isSimulation = options.mc
 
-process.dump = cms.EDFilter("CSCFileDumper",
-                            output = cms.untracked.string('out.raw')
-)
-
 process.analyzer = cms.EDAnalyzer("DigiAnalyzer")
 
 ## customizations
@@ -142,7 +137,6 @@ process.p2 = cms.Path(process.muonCSCDigis)
 process.p3 = cms.Path(process.csc2DRecHits * process.cscSegments)
 process.p4 = cms.Path(process.cscValidation)
 process.p5 = cms.Path(process.viewDigi)
-process.p6 = cms.Path(process.dump)
 process.endjob_step = cms.EndPath(process.out * process.endOfProcess)
 
 process.schedule = cms.Schedule()
@@ -154,8 +148,6 @@ if options.reconstruct:
       process.schedule.extend(p3)
 if options.validate:
       process.schedule.extend(p4)
-if options.dump:
-      process.schedule.extend(p6)
 if options.view:
       process.schedule.extend(p5)
 
