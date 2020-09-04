@@ -1014,7 +1014,6 @@ upgradeProperties[2026] = {
         'Geom' : 'Extended2026D64',                   # N.B.: Geometry with square 50x50 um2 pixels in the Inner Tracker.
         'HLTmenu': '@fake2',
         'GT' : 'auto:phase2_realistic_T22',
-        'ProcessModifier': 'phase2_PixelCPEGeneric',  # Pixel Template reconstruction is temporarily inactive (will update once conditions are availalble).
         'Era' : 'Phase2C11',
         'ScenToRun' : ['GenSimHLBeamSpot','DigiTrigger','RecoGlobal', 'HARVESTGlobal'],
     },
