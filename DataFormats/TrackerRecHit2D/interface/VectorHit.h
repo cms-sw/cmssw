@@ -58,10 +58,9 @@ public:
   // Parameters of the segment, for the track fit
   // For a 4D segment: (dx/dz,dy/dz,x,y)
   bool hasPositionAndError() const override {
-    //bool hasPositionAndError() const {
-    return true;
-    //      return (err_.xx() != 0) || (err_.yy() != 0) || (err_.xy() != 0) ||
-    //             (pos_.x()  != 0) || (pos_.y()  != 0) || (pos_.z()  != 0);
+    //if det is present pose&err are available as well.
+    //if det() is not present (null) the hit ihas been read from file and not updated
+    return det();
   };
 
   AlgebraicVector parameters() const override;
