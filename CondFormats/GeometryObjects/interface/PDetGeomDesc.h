@@ -3,8 +3,9 @@
 
 #include "CondFormats/Serialization/interface/Serializable.h"
 #include "Geometry/VeryForwardGeometryBuilder/interface/DetGeomDesc.h"
-#include "DetectorDescription/DDCMS/interface/DDTranslation.h"
-#include "DetectorDescription/DDCMS/interface/DDRotationMatrix.h"
+
+using Translation = ROOT::Math::DisplacementVector3D<ROOT::Math::Cartesian3D<double>>;
+using RotationMatrix = ROOT::Math::Rotation3D;
 
 #include <vector>
 #include <string>
@@ -18,7 +19,7 @@ public:
       dy_ = geoInfo->translation().Y();
       dz_ = geoInfo->translation().Z();
 
-      const DDRotationMatrix& rot = geoInfo->rotation();
+      const RotationMatrix& rot = geoInfo->rotation();
       rot.GetComponents(axx_, axy_, axz_, ayx_, ayy_, ayz_, azx_, azy_, azz_);
       name_ = geoInfo->name();
       params_ = geoInfo->params();

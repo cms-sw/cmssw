@@ -21,7 +21,7 @@
 
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 #include "Geometry/Records/interface/VeryForwardIdealGeometryRecord.h"
-#include "DetectorDescription/DDCMS/interface/DDCompactView.h"
+#include "DetectorDescription/Core/interface/DDCompactView.h"
 #include "CondFormats/GeometryObjects/interface/PDetGeomDesc.h"
 #include "Geometry/VeryForwardGeometryBuilder/interface/DetGeomDescBuilder.h"
 
@@ -45,7 +45,7 @@ PPSGeometryBuilder::PPSGeometryBuilder(const edm::ParameterSet& iConfig)
  * Save PPS geo to DB.
  */
 void PPSGeometryBuilder::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
-  edm::ESHandle<cms::DDCompactView> myCompactView;
+  edm::ESHandle<DDCompactView> myCompactView;
 
   if (watcherIdealGeometry_.check(iSetup)) {
     edm::LogInfo("PPSGeometryBuilder") << "Got IdealGeometryRecord ";
