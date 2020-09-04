@@ -10,17 +10,17 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 SeedingOTEDProducer::SeedingOTEDProducer(edm::ParameterSet const& conf)
-    : theUpdator(nullptr),
-      tkMeasEventToken(consumes<MeasurementTrackerEvent>(conf.getParameter<edm::InputTag>("trackerEvent"))),
+    : updator_(nullptr),
+      tkMeasEventToken_(consumes<MeasurementTrackerEvent>(conf.getParameter<edm::InputTag>("trackerEvent"))),
       topoToken_(esConsumes()),
       propagatorToken_(esConsumes(edm::ESInputTag("", "PropagatorWithMaterial" ))),
       magFieldToken_(esConsumes()),
       updatorToken_(esConsumes()),
       measurementTrackerToken_(esConsumes()),
       estToken_(esConsumes(edm::ESInputTag("","Chi2"))) {
-  vhProducerToken = consumes<VectorHitCollectionNew>(edm::InputTag(conf.getParameter<edm::InputTag>("src")));
-  beamSpotToken = consumes<reco::BeamSpot>(conf.getParameter<edm::InputTag>("beamSpotLabel"));
-  updatorName = conf.getParameter<std::string>("updator");
+  vhProducerToken_ = consumes<VectorHitCollectionNew>(edm::InputTag(conf.getParameter<edm::InputTag>("src")));
+  beamSpotToken_ = consumes<reco::BeamSpot>(conf.getParameter<edm::InputTag>("beamSpotLabel"));
+  updatorName_ = conf.getParameter<std::string>("updator");
   produces<TrajectorySeedCollection>();
 }
 
@@ -39,40 +39,35 @@ void SeedingOTEDProducer::produce(edm::Event& event, const edm::EventSetup& es) 
   std::unique_ptr<TrajectorySeedCollection> seedsWithVHs(new TrajectorySeedCollection());
 
 
-  tkTopo = &es.getData(topoToken_);
+  tkTopo_ = &es.getData(topoToken_);
 
   edm::ESHandle<MeasurementTracker> measurementTrackerHandle;
   measurementTrackerHandle = es.getHandle(measurementTrackerToken_);
-  measurementTracker = measurementTrackerHandle.product();
+  measurementTracker_ = measurementTrackerHandle.product();
 
   edm::Handle<MeasurementTrackerEvent> measurementTrackerEvent;
-  event.getByToken(tkMeasEventToken, measurementTrackerEvent);
+  event.getByToken(tkMeasEventToken_, measurementTrackerEvent);
 
-  //layerMeasurements = new LayerMeasurements(*measurementTrackerHandle, *measurementTrackerEvent);
-  LayerMeasurements layerMeasurements(*measurementTrackerHandle, *measurementTrackerEvent);
+  LayerMeasurements layerMeasurements_(*measurementTrackerHandle, *measurementTrackerEvent);
 
-  estimator = &es.getData(estToken_);
+  estimator_ = &es.getData(estToken_);
 
-  propagator = &es.getData(propagatorToken_);
+  propagator_ = &es.getData(propagatorToken_);
 
-  magField = &es.getData(magFieldToken_);
+  magField_ = &es.getData(magFieldToken_);
 
-  theUpdator = &es.getData(updatorToken_);
+  updator_ = &es.getData(updatorToken_);
 
   edm::Handle<reco::BeamSpot> beamSpotH;
-  event.getByToken(beamSpotToken, beamSpotH);
+  event.getByToken(beamSpotToken_, beamSpotH);
   if (beamSpotH.isValid()) {
-    beamSpot = beamSpotH.product();
+    beamSpot_ = beamSpotH.product();
   }
 
   // Get the vector hits
   edm::Handle<VectorHitCollectionNew> vhs;
-  event.getByToken(vhProducerToken, vhs);
-  /*
-  edm::ESHandle< ClusterParameterEstimator<Phase2TrackerCluster1D> > parameterestimator;
-  es.get<TkStripCPERecord>().get(cpe, parameterestimator); 
-  const Phase2StripCPEGeometric & cpeOT(*parameterestimator);
-*/
+  event.getByToken(vhProducerToken_, vhs);
+
   TrajectorySeedCollection const& tempSeeds = run(vhs);
   for (TrajectorySeedCollection::const_iterator qIt = tempSeeds.begin(); qIt < tempSeeds.end(); ++qIt) {
     seedsWithVHs->push_back(*qIt);
@@ -86,22 +81,22 @@ TrajectorySeedCollection SeedingOTEDProducer::run(edm::Handle<VectorHitCollectio
   TrajectorySeedCollection result;
 
   //check if all the first three layers have VHs
-  std::vector<VectorHit> VHseedsL1 = collectVHsOnLayer(VHs, 1);
-  std::vector<VectorHit> VHseedsL2 = collectVHsOnLayer(VHs, 2);
-  std::vector<VectorHit> VHseedsL3 = collectVHsOnLayer(VHs, 3);
-  if (VHseedsL1.empty() || VHseedsL2.empty() || VHseedsL3.empty()) {
+  std::vector<VectorHit> vhSeedsL1 = collectVHsOnLayer(VHs, 1);
+  std::vector<VectorHit> vhSeedsL2 = collectVHsOnLayer(VHs, 2);
+  std::vector<VectorHit> vhSeedsL3 = collectVHsOnLayer(VHs, 3);
+  if (vhSeedsL1.empty() || vhSeedsL2.empty() || vhSeedsL3.empty()) {
     return result;
   }
 
   //seeds are built in the L3 of the OT
-  const BarrelDetLayer* barrelOTLayer2 = measurementTracker->geometricSearchTracker()->tobLayers().at(1);
+  const BarrelDetLayer* barrelOTLayer2 = measurementTracker_->geometricSearchTracker()->tobLayers().at(1);
 
   //the search propag directiondepend on the sign of signZ*signPz, while the building is always the contrary
-  Propagator* searchingPropagator = &*propagator->clone();
-  Propagator* buildingPropagator = &*propagator->clone();
+  Propagator* searchingPropagator = &*propagator_->clone();
+  Propagator* buildingPropagator = &*propagator_->clone();
   buildingPropagator->setPropagationDirection(alongMomentum);
 
-  for (auto hitL3 : VHseedsL3) {
+  for (auto hitL3 : vhSeedsL3) {
     //building a tsos out of a VectorHit
     const TrajectoryStateOnSurface initialTSOS = buildInitialTSOS(hitL3);
     float signZ = copysign(1.0, initialTSOS.globalPosition().z());
@@ -115,7 +110,7 @@ TrajectorySeedCollection SeedingOTEDProducer::run(edm::Handle<VectorHitCollectio
 
     //find vHits in layer 2
     std::vector<TrajectoryMeasurement> measurementsL2 =
-        layerMeasurements->measurements(*barrelOTLayer2, initialTSOS, *searchingPropagator, *estimator);
+        layerMeasurements_->measurements(*barrelOTLayer2, initialTSOS, *searchingPropagator, *estimator_);
 
     //other options
     //LayerMeasurements::SimpleHitContainer hits;
@@ -128,7 +123,7 @@ TrajectorySeedCollection SeedingOTEDProducer::run(edm::Handle<VectorHitCollectio
 
     if (!measurementsL2.empty()) {
       //not sure if building it everytime takes time/memory
-      const DetLayer* barrelOTLayer1 = measurementTracker->geometricSearchTracker()->tobLayers().at(0);
+      const DetLayer* barrelOTLayer1 = measurementTracker_->geometricSearchTracker()->tobLayers().at(0);
 
       for (const auto& mL2 : measurementsL2) {
         const TrackingRecHit* hitL2 = mL2.recHit().get();
@@ -141,7 +136,7 @@ TrajectorySeedCollection SeedingOTEDProducer::run(edm::Handle<VectorHitCollectio
 
         //searching possible VHs in L1
         std::vector<TrajectoryMeasurement> measurementsL1 =
-            layerMeasurements->measurements(*barrelOTLayer1, updatedTSOS.second, *searchingPropagator, *estimator);
+            layerMeasurements_->measurements(*barrelOTLayer1, updatedTSOS.second, *searchingPropagator, *estimator_);
         std::vector<TrajectoryMeasurement>::iterator measurementsL1end =
             std::remove_if(measurementsL1.begin(), measurementsL1.end(), isInvalid());
         measurementsL1.erase(measurementsL1end, measurementsL1.end());
@@ -170,7 +165,7 @@ TrajectorySeedCollection SeedingOTEDProducer::run(edm::Handle<VectorHitCollectio
 
             updatedTSOSL1.second.rescaleError(100);
 
-            TrajectoryStateOnSurface updatedTSOSL1_final = theUpdator->update(updatedTSOSL1.second, *hitL1);
+            TrajectoryStateOnSurface updatedTSOSL1_final = updator_->update(updatedTSOSL1.second, *hitL1);
             if UNLIKELY (!updatedTSOSL1_final.isValid())
               continue;
             std::pair<bool, TrajectoryStateOnSurface> updatedTSOSL2_final =
@@ -193,7 +188,7 @@ unsigned int SeedingOTEDProducer::checkLayer(unsigned int iidd) {
   StripSubdetector strip = StripSubdetector(iidd);
   unsigned int subid = strip.subdetId();
   if (subid == StripSubdetector::TIB || subid == StripSubdetector::TOB) {
-    return tkTopo->layer(iidd);
+    return tkTopo_->layer(iidd);
   }
   return 0;
 }
@@ -237,7 +232,7 @@ const TrajectoryStateOnSurface SeedingOTEDProducer::buildInitialTSOS(VectorHit& 
   const Local3DVector lv(vHit.det()->surface().toLocal(gv));
 
   //Helper class to access momentum of VH
-  VectorHitMomentumHelper vhMomHelper(magField);
+  VectorHitMomentumHelper vhMomHelper(magField_);
 
 
 
@@ -257,11 +252,11 @@ const TrajectoryStateOnSurface SeedingOTEDProducer::buildInitialTSOS(VectorHit& 
   AlgebraicSymMatrix mat = assign44To55(vHit.parametersError());
   // set the error on 1/p
   mat[0][0] = pow(
-      computeInverseMomentumError(vHit, theta, beamSpot->sigmaZ(), vhMomHelper.transverseMomentum(vHit)), 2);
+      computeInverseMomentumError(vHit, theta, beamSpot_->sigmaZ(), vhMomHelper.transverseMomentum(vHit)), 2);
 
   //building tsos
   LocalTrajectoryError lterr(asSMatrix<5>(mat));
-  const TrajectoryStateOnSurface tsos(ltpar2, lterr, vHit.det()->surface(), magField);
+  const TrajectoryStateOnSurface tsos(ltpar2, lterr, vHit.det()->surface(), magField_);
 
   return tsos;
 }
@@ -282,7 +277,7 @@ AlgebraicSymMatrix SeedingOTEDProducer::assign44To55(AlgebraicSymMatrix mat44) {
 std::pair<bool, TrajectoryStateOnSurface> SeedingOTEDProducer::propagateAndUpdate(
     const TrajectoryStateOnSurface initialTSOS, const Propagator& prop, const TrackingRecHit& hit) {
   TrajectoryStateOnSurface propTSOS = prop.propagate(initialTSOS, hit.det()->surface());
-  TrajectoryStateOnSurface updatedTSOS = theUpdator->update(propTSOS, hit);
+  TrajectoryStateOnSurface updatedTSOS = updator_->update(propTSOS, hit);
   if UNLIKELY (!updatedTSOS.isValid())
     return std::make_pair(false, updatedTSOS);
   return std::make_pair(true, updatedTSOS);
@@ -301,8 +296,8 @@ float SeedingOTEDProducer::computeInverseMomentumError(VectorHit& vh,
                                                        const double transverseMomentum) {
   //for pT > 2GeV, 1/pT has sigma = 1/sqrt(12)
   float varianceInverseTransvMomentum = 1. / 12;
-  double derivativeTheta2 = pow(cos(globalTheta) / transverseMomentum, 2);
-  double derivativeInverseTransvMomentum2 = pow(sin(globalTheta), 2);
+  float derivativeTheta2 = pow(cos(globalTheta) / transverseMomentum, 2);
+  float derivativeInverseTransvMomentum2 = pow(sin(globalTheta), 2);
   float thetaError = computeGlobalThetaError(vh, sigmaZ_beamSpot);
   return pow(derivativeTheta2 * pow(thetaError, 2) + derivativeInverseTransvMomentum2 * varianceInverseTransvMomentum,
              0.5);

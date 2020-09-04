@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 from Configuration.StandardSequences.Eras import eras
 
-process = cms.Process('RECO',eras.Phase2C2)
+process = cms.Process('RECO',eras.Phase2C9)
 
 # import of standard configurations
 process.load('Configuration.StandardSequences.Services_cff')
@@ -10,7 +10,7 @@ process.load('SimGeneral.HepPDTESSource.pythiapdt_cfi')
 process.load('FWCore.MessageService.MessageLogger_cfi')
 process.load('Configuration.EventContent.EventContent_cff')
 process.load('SimGeneral.MixingModule.mixNoPU_cfi')
-process.load('Configuration.Geometry.GeometryExtended2023D4Reco_cff')
+process.load('Configuration.Geometry.GeometryExtended2026D49Reco_cff')
 process.load('Configuration.StandardSequences.MagneticField_cff')
 process.load('Configuration.StandardSequences.RawToDigi_cff')
 process.load('Configuration.StandardSequences.L1Reco_cff')
@@ -33,7 +33,7 @@ process.maxEvents = cms.untracked.PSet(
 
 # Input source
 process.source = cms.Source("PoolSource",
-    fileNames = cms.untracked.vstring('/store/relval/CMSSW_9_1_0_pre1/RelValSingleMuPt10Extended/GEN-SIM-DIGI-RAW/90X_upgrade2023_realistic_v9_D4Timing-v1/00000/161D8583-1719-E711-BA42-0CC47A7C346E.root'),
+    fileNames = cms.untracked.vstring('/store/relval/CMSSW_11_1_0_pre6/RelValSingleMuFlatPt2To100/GEN-SIM-DIGI-RAW/PU25ns_110X_mcRun4_realistic_v3_2026D49PU200-v1/20000/FF928A27-31CB-9C4D-93E0-475E2E73326E.root'),
     secondaryFileNames = cms.untracked.vstring(),
     skipEvents = cms.untracked.uint32(0)
 )
@@ -75,7 +75,12 @@ process.MessageLogger = cms.Service('MessageLogger',
 # Analyzer
 process.analysis = cms.EDAnalyzer('Phase2TrackerClusterizerValidation',
     src = cms.InputTag("siPhase2Clusters"),
-    links = cms.InputTag("simSiPixelDigis", "Tracker")
+    links = cms.InputTag("simSiPixelDigis", "Tracker"),
+    simhitsbarrel = cms.InputTag("g4SimHits", "TrackerHitsPixelBarrelLowTof"),
+    simhitsendcap = cms.InputTag("g4SimHits", "TrackerHitsPixelEndcapLowTof"),
+    simtracks = cms.InputTag("g4SimHits"),
+    ECasRings = cms.bool(True),
+    SimTrackMinPt = cms.double(2.)
 )
 
 #process.analysis = cms.EDAnalyzer('Phase2TrackerClusterizerValidationTGraph',

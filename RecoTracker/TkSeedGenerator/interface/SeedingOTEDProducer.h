@@ -70,18 +70,18 @@ public:
   };
 
 private:
-  edm::EDGetTokenT<VectorHitCollectionNew> vhProducerToken;
-  const TrackerTopology* tkTopo;
-  const MeasurementTracker* measurementTracker;
-  const LayerMeasurements* layerMeasurements;
-  const MeasurementEstimator* estimator;
-  const Propagator* propagator;
-  const MagneticField* magField;
-  const TrajectoryStateUpdator* theUpdator;
-  const edm::EDGetTokenT<MeasurementTrackerEvent> tkMeasEventToken;
-  edm::EDGetTokenT<reco::BeamSpot> beamSpotToken;
-  const reco::BeamSpot* beamSpot;
-  std::string updatorName;
+  edm::EDGetTokenT<VectorHitCollectionNew> vhProducerToken_;
+  const TrackerTopology* tkTopo_;
+  const MeasurementTracker* measurementTracker_;
+  const LayerMeasurements* layerMeasurements_;
+  const MeasurementEstimator* estimator_;
+  const Propagator* propagator_;
+  const MagneticField* magField_;
+  const TrajectoryStateUpdator* updator_;
+  const edm::EDGetTokenT<MeasurementTrackerEvent> tkMeasEventToken_;
+  edm::EDGetTokenT<reco::BeamSpot> beamSpotToken_;
+  const reco::BeamSpot* beamSpot_;
+  std::string updatorName_;
 
   edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> topoToken_;
   edm::ESGetToken<Propagator, TrackingComponentsRecord> propagatorToken_;
