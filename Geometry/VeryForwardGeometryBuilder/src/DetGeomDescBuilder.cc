@@ -9,32 +9,45 @@
 /*
  * Generic function to build geo (tree of DetGeomDesc) from old DD compact view.
  */
-std::unique_ptr<DetGeomDesc> detgeomdescbuilder::buildDetGeomDescFromCompactView(
-const DDCompactView& myCompactView) {
-// create DDFilteredView (no filter!!)
+std::unique_ptr<DetGeomDesc> detgeomdescbuilder::buildDetGeomDescFromCompactView(const DDCompactView& myCompactView) {
+// Create DDFilteredView (no filter!!)
 DDPassAllFilter filter;
 DDFilteredView fv(myCompactView, filter);
-
-if (!fv.firstChild()) {
-edm::LogError("PPSGeometryESProducer") << "Filtered view is empty. Cannot build.";
-}
 
 // Geo info: sentinel node.
 auto geoInfoSentinel = std::make_unique<DetGeomDesc>(fv);
 
 // Construct the tree of children geo info (DetGeomDesc).
+detgeomdescbuilder::buildDetGeomDescDescendants(fv, geoInfoSentinel.get());
+
+edm::LogInfo("PPSGeometryESProducer") << "Successfully built geometry, it has "
+<< (geoInfoSentinel->components()).size() << " DetGeomDesc nodes.";
+
+return geoInfoSentinel;
+}
+
+
+/*
+ * Use in depth-first search recursion.
+ * Construct the tree of children geo info (DetGeomDesc) (old DD navigation).
+ */
+void detgeomdescbuilder::buildDetGeomDescDescendants(DDFilteredView& fv, DetGeomDesc* geoInfoParent) {
+geoInfoParent->print();
+
+// leaf
+if (!fv.firstChild())
+  return;
+
 do {
-// Create node, and add it to the geoInfoSentinel's list.
-DetGeomDesc* newGD = new DetGeomDesc(fv);
-geoInfoSentinel->addComponent(newGD);
-  } while (fv.nextSibling());
+// Create node, and add it to the geoInfoParent's list.
+DetGeomDesc* child = new DetGeomDesc(fv);
+geoInfoParent->addComponent(child);
 
-  fv.parent();
+// recursion
+buildDetGeomDescDescendants(fv, child);
+} while (fv.nextSibling());
 
-  edm::LogInfo("PPSGeometryESProducer") << "Successfully built geometry, it has "
-                                        << (geoInfoSentinel->components()).size() << " DetGeomDesc nodes.";
-
-  return geoInfoSentinel;
+fv.parent();
 }
 
 
@@ -59,6 +72,7 @@ std::unique_ptr<DetGeomDesc> detgeomdescbuilder::buildDetGeomDescFromCompactView
   do {
     // Create node, and add it to the geoInfoSentinel's list.
     DetGeomDesc* newGD = new DetGeomDesc(fv, allSpecParSections);
+newGD->print();
     geoInfoSentinel->addComponent(newGD);
   } while (fv.next(0));
 
