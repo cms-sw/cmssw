@@ -1,5 +1,4 @@
-#include "FWCore/Framework/interface/EDAnalyzer.h"
-
+#include "FWCore/Framework/interface/global/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -19,13 +18,13 @@
 
 namespace edmtest {
 
-  class ThinningTestAnalyzer : public edm::EDAnalyzer {
+  class ThinningTestAnalyzer : public edm::global::EDAnalyzer<> {
   public:
     explicit ThinningTestAnalyzer(edm::ParameterSet const& pset);
 
     static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
-    void analyze(edm::Event const& e, edm::EventSetup const& c) override;
+    void analyze(edm::StreamID, edm::Event const& e, edm::EventSetup const& c) const override;
 
   private:
     edm::Handle<ThingCollection> getParent(edm::Event const& event) const;
@@ -134,7 +133,7 @@ namespace edmtest {
     descriptions.addDefault(desc);
   }
 
-  void ThinningTestAnalyzer::analyze(edm::Event const& event, edm::EventSetup const&) {
+  void ThinningTestAnalyzer::analyze(edm::StreamID, edm::Event const& event, edm::EventSetup const&) const {
     auto parentCollection = getParent(event);
     auto [thinnedCollection, thinnedRefProd] = getThinned(event);
     auto associationCollection = getAssociation(event);
