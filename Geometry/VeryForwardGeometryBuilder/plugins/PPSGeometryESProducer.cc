@@ -117,58 +117,60 @@ void PPSGeometryESProducer::fillDescriptions(edm::ConfigurationDescriptions& des
 /*
  * Apply alignments by doing a BFS on idealGD tree.
  */
-std::unique_ptr<DetGeomDesc> PPSGeometryESProducer::applyAlignments(const DetGeomDesc& idealGD,
+std::unique_ptr<DetGeomDesc> PPSGeometryESProducer::applyAlignments(const DetGeomDesc& idealDetRoot,
                                             const CTPPSRPAlignmentCorrectionsData* alignments) {
-  DetGeomDesc* newGD = new DetGeomDesc(idealGD);
-  std::deque<const DetGeomDesc*> buffer;
-  std::deque<DetGeomDesc*> bufferNew;
-  buffer.emplace_back(&idealGD);
-  bufferNew.emplace_back(newGD);
+  std::deque<const DetGeomDesc*> bufferIdealGeo;
+  bufferIdealGeo.emplace_back(&idealDetRoot);
 
-  while (!buffer.empty()) {
-    const DetGeomDesc* sD = buffer.front();
-    DetGeomDesc* pD = bufferNew.front();
-    buffer.pop_front();
-    bufferNew.pop_front();
+  std::deque<DetGeomDesc*> bufferAlignedGeo;
+  DetGeomDesc* alignedDetRoot = new DetGeomDesc(idealDetRoot);
+  bufferAlignedGeo.emplace_back(alignedDetRoot);
 
-    const std::string name = pD->name();
+  while (!bufferIdealGeo.empty()) {
+    const DetGeomDesc* idealDet = bufferIdealGeo.front();
+    DetGeomDesc* alignedDet = bufferAlignedGeo.front();
+    bufferIdealGeo.pop_front();
+    bufferAlignedGeo.pop_front();
+
+    const std::string name = alignedDet->name();
 
     // Is it sensor? If yes, apply full sensor alignments
     if (name == DDD_TOTEM_RP_SENSOR_NAME || name == DDD_CTPPS_DIAMONDS_SEGMENT_NAME ||
         name == DDD_CTPPS_UFSD_SEGMENT_NAME || name == DDD_CTPPS_PIXELS_SENSOR_NAME ||
         std::regex_match(name, std::regex(DDD_TOTEM_TIMING_SENSOR_TMPL))) {
-      unsigned int plId = pD->geographicalID();
+      unsigned int plId = alignedDet->geographicalID();
 
       if (alignments) {
         const auto& ac = alignments->getFullSensorCorrection(plId);
-        pD->applyAlignment(ac);
+        alignedDet->applyAlignment(ac);
       }
     }
 
     // Is it RP box? If yes, apply RP alignments
     if (name == DDD_TOTEM_RP_RP_NAME || name == DDD_CTPPS_DIAMONDS_RP_NAME || name == DDD_CTPPS_PIXELS_RP_NAME ||
         name == DDD_TOTEM_TIMING_RP_NAME) {
-      unsigned int rpId = pD->geographicalID();
+      unsigned int rpId = alignedDet->geographicalID();
 
       if (alignments) {
         const auto& ac = alignments->getRPCorrection(rpId);
-        pD->applyAlignment(ac);
+        alignedDet->applyAlignment(ac);
       }
     }
 
     // create and add children
-    for (unsigned int i = 0; i < sD->components().size(); i++) {
-      const DetGeomDesc* sDC = sD->components()[i];
-      buffer.emplace_back(sDC);
+    const auto& idealDetChildren = idealDet->components();
+    for (unsigned int i = 0; i < idealDetChildren.size(); i++) {
+      const DetGeomDesc* idealDetChild = idealDetChildren[i];
+      bufferIdealGeo.emplace_back(idealDetChild);
 
-      // create new node with the same information as in sDC and add it as a child of pD
-      DetGeomDesc* cD = new DetGeomDesc(*sDC);
-      pD->addComponent(cD);
+      // create new node with the same information as in idealDetChild and add it as a child of alignedDet
+      DetGeomDesc* alignedDetChild = new DetGeomDesc(*idealDetChild);
+      alignedDet->addComponent(alignedDetChild);
 
-      bufferNew.emplace_back(cD);
+      bufferAlignedGeo.emplace_back(alignedDetChild);
     }
   }
-  return std::unique_ptr<DetGeomDesc>(newGD);
+  return std::unique_ptr<DetGeomDesc>(alignedDetRoot);
 }
 
 std::unique_ptr<DetGeomDesc> PPSGeometryESProducer::produceIdealGD(const IdealGeometryRecord& iRecord) {
