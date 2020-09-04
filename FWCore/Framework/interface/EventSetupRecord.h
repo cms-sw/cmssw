@@ -206,7 +206,7 @@ namespace edm {
       template <template <typename> typename H, typename T, typename R>
       H<T> getHandleImpl(ESGetToken<T, R> const& iToken) const {
         if UNLIKELY (not iToken.isInitialized()) {
-          std::rethrow_exception(makeInvalidTokenException(this->key(), DataKey::makeTypeTag<T>()));
+          std::rethrow_exception(makeUninitializedTokenException(this->key(), DataKey::makeTypeTag<T>()));
         }
         if UNLIKELY (iToken.transitionID() != transitionID()) {
           throwWrongTransitionID();
@@ -255,8 +255,9 @@ namespace edm {
       template <template <typename> typename H, typename T, typename R>
       H<T> invalidTokenHandle(ESGetToken<T, R> const& iToken) const {
         auto const key = this->key();
-        return H<T>{
-            makeESHandleExceptionFactory([key] { return makeInvalidTokenException(key, DataKey::makeTypeTag<T>()); })};
+        return H<T>{makeESHandleExceptionFactory([key, transitionID = iToken.transitionID()] {
+          return makeInvalidTokenException(key, DataKey::makeTypeTag<T>(), transitionID);
+        })};
       }
 
       template <template <typename> typename H, typename T, typename R>
@@ -273,7 +274,8 @@ namespace edm {
                                ComponentDescription const*& iDesc,
                                bool iTransientAccessOnly) const;
 
-      static std::exception_ptr makeInvalidTokenException(EventSetupRecordKey const&, TypeTag const&);
+      static std::exception_ptr makeUninitializedTokenException(EventSetupRecordKey const&, TypeTag const&);
+      static std::exception_ptr makeInvalidTokenException(EventSetupRecordKey const&, TypeTag const&, unsigned int);
       void throwWrongTransitionID() const;
       static void throwCalledGetWithoutToken(const char* iTypeName, const char* iLabel);
       // ---------- member data --------------------------------
