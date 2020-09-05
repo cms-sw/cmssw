@@ -1,4 +1,5 @@
 #include "DataFormats/ParticleFlowReco/interface/PFCluster.h"
+#include "DataFormats/ParticleFlowReco/interface/PFBlockElement.h"
 #include "RecoParticleFlow/PFProducer/interface/KDTreeLinkerBase.h"
 #include "CommonTools/RecoAlgos/interface/KDTreeLinkerAlgo.h"
 
@@ -12,7 +13,7 @@ public:
   KDTreeLinkerTrackEcal(const edm::ParameterSet &conf);
   ~KDTreeLinkerTrackEcal() override;
 
-  // With this method, we create the list of psCluster that we want to link.
+  // With this method, we create the list of track that we want to link.
   void insertTargetElt(reco::PFBlockElement *track) override;
 
   // Here, we create the list of ecalCluster that we want to link. From ecalCluster
@@ -143,7 +144,7 @@ void KDTreeLinkerTrackEcal::searchLinks() {
 
     // We set the multilinks flag of the track to true. It will allow us to
     // use in an optimized way our algo results in the recursive linking algo.
-    (*it)->setIsValidMultilinks(true);
+    (*it)->setIsValidMultilinks(true, reco::PFBlockElement::ECAL);
 
     const reco::PFTrajectoryPoint &atECAL = trackref->extrapolatedPoint(reco::PFTrajectoryPoint::ECALShowerMax);
 
@@ -243,10 +244,12 @@ void KDTreeLinkerTrackEcal::updatePFBlockEltWithLinks() {
 
   // Here we save in each ECAL cluster the list of phi/eta values of linked tracks.
   for (BlockElt2BlockEltMap::iterator it = cluster2TargetLinks_.begin(); it != cluster2TargetLinks_.end(); ++it) {
+    auto ecalElt = it->first;
+    auto trackEltSet = it->second;
     reco::PFMultiLinksTC multitracks(true);
 
-    for (BlockEltSet::iterator jt = it->second.begin(); jt != it->second.end(); ++jt) {
-      reco::PFRecTrackRef trackref = (*jt)->trackRefPF();
+    for (const auto &trackElt : trackEltSet) {
+      const reco::PFRecTrackRef &trackref = trackElt->trackRefPF();
       const reco::PFTrajectoryPoint &atECAL = trackref->extrapolatedPoint(reco::PFTrajectoryPoint::ECALShowerMax);
       double tracketa = atECAL.positionREP().eta();
       double trackphi = atECAL.positionREP().phi();
@@ -254,13 +257,14 @@ void KDTreeLinkerTrackEcal::updatePFBlockEltWithLinks() {
       multitracks.linkedClusters.push_back(std::make_pair(trackphi, tracketa));
     }
 
-    it->first->setMultilinks(multitracks);
+    ecalElt->setMultilinks(multitracks, _targetType);
   }
 
-  // We set the multilinks flag of the track to true. It will allow us to
+  // We set the multilinks flag of the track (for links to ECAL) to true. It will allow us to
   // use in an optimized way our algo results in the recursive linking algo.
+  // KenH: is this really helping?
   for (BlockEltSet::iterator it = fieldClusterSet_.begin(); it != fieldClusterSet_.end(); ++it)
-    (*it)->setIsValidMultilinks(true);
+    (*it)->setIsValidMultilinks(true, _fieldType);
 }
 
 void KDTreeLinkerTrackEcal::clear() {
