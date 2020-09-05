@@ -28,7 +28,6 @@ public:
                                 const TrackerTopology*,
                                 const ClusterParameterEstimator<Phase2TrackerCluster1D>*);
   virtual ~VectorHitBuilderAlgorithmBase() {}
-  //  void initialize(const edm::EventSetup&);
   void initTkGeom(const TrackerGeometry* tkGeomProd);
   void initTkTopo(const TrackerTopology* tkTopoProd);
   void initCpe(const ClusterParameterEstimator<Phase2TrackerCluster1D>* cpeProd);

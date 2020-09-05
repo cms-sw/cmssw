@@ -46,15 +46,6 @@ std::unique_ptr<VectorHitBuilderAlgorithm> SiPhase2RecHitMatcherESProducer::prod
       &iRecord.getRecord<TrackerDigiGeometryRecord>().get(trackerTopoToken_),
       &iRecord.get(cpeToken_));
 
-  /*  edm::ESHandle<TrackerGeometry> tGeomHandle = iRecord.getHandle(geometryToken_);
-  edm::ESHandle<TrackerTopology> tTopoHandle = iRecord.getRecord<TrackerDigiGeometryRecord>().getHandle(trackerTopoToken_);
-
-  auto ptr_phase2TrackerCPE = &iRecord.get(cpeToken_);
-
-  matcher->initTkGeom(tGeomHandle);
-  matcher->initTkTopo(tTopoHandle);
-  matcher->initCpe(ptr_phase2TrackerCPE); */
-
   return matcher;
 }
 
