@@ -290,6 +290,7 @@ void HGCalWaferStudy::beginRun(const edm::Run&, const edm::EventSetup& iSetup) {
       h_XYsi2_[ih].emplace_back(fs->make<TH2D>(
           name.str().c_str(), title.str().c_str(), nBinHit_, xyMinHit_, xyMaxHit_, nBinHit_, xyMinHit_, xyMaxHit_));
     }
+    edm::LogVerbatim("HGCalValidation") << "Complete booking of Sim Plots for " << nameDetectors_[ih];
 
     for (int i = layerMnDig_[ih]; i <= layerMxDig_[ih]; ++i) {
       name.str("");
@@ -309,6 +310,7 @@ void HGCalWaferStudy::beginRun(const edm::Run&, const edm::EventSetup& iSetup) {
       h_XYdi2_[ih].emplace_back(fs->make<TH2D>(
           name.str().c_str(), title.str().c_str(), nBinDig_, xyMinDig_, xyMaxDig_, nBinDig_, xyMinDig_, xyMaxDig_));
     }
+    edm::LogVerbatim("HGCalValidation") << "Complete booking of Digi Plots for " << nameDetectors_[ih];
   }
 }
 
