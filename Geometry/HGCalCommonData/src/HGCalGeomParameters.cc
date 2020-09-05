@@ -1583,13 +1583,13 @@ void HGCalGeomParameters::loadWaferHexagon8(HGCalParameters& php) {
         double ypos0 = ypos + xyoff.second;
         double zpos = php.zLayerHex_[i];
         int kndx = HGCalWaferIndex::waferIndex(lay, u, v);
-	int type(-1);
-	if (php.mode_ == HGCalGeometryMode::Hexagon8File) 
-	  type = wType->getType(kndx, php.waferInfoMap_);
-	if (type < 0)
-	  type = wType->getType(HGCalParameters::k_ScaleToDDD * xpos0,
-				HGCalParameters::k_ScaleToDDD * ypos0,
-				HGCalParameters::k_ScaleToDDD * zpos);
+        int type(-1);
+        if (php.mode_ == HGCalGeometryMode::Hexagon8File)
+          type = wType->getType(kndx, php.waferInfoMap_);
+        if (type < 0)
+          type = wType->getType(HGCalParameters::k_ScaleToDDD * xpos0,
+                                HGCalParameters::k_ScaleToDDD * ypos0,
+                                HGCalParameters::k_ScaleToDDD * zpos);
         php.waferTypeL_.emplace_back(type);
         typesInLayers[kndx] = lpos;
         ++lpos;
