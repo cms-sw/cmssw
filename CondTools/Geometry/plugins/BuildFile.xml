@@ -23,16 +23,9 @@
 <use name="Geometry/MuonNumbering"/>
 <use name="Geometry/HGCalGeometry"/>
 <use name="Geometry/VeryForwardGeometryBuilder"/>
-
+<use name="dd4hep"/>
+<use name="DetectorDescription/Core"/>
+<use name="DetectorDescription/DDCMS"/>
 <library name="CondToolsGeometryPlugins" file="*.cc">
-  <use name="DetectorDescription/Core"/>
-  <use name="dd4hep"/>  <!-- remove-->
-  <use name="DetectorDescription/DDCMS"/> <!-- remove-->
-  <flags EDM_PLUGIN="1"/>
-</library>
-
-<library name="CondToolsGeometryPluginsDD4hep" file="dd4hep/*.cc">
-  <use name="dd4hep"/>
-  <use name="DetectorDescription/DDCMS"/>  
   <flags EDM_PLUGIN="1"/>
 </library>

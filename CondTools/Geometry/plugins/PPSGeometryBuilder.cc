@@ -15,13 +15,14 @@
 #include "FWCore/Framework/interface/ESWatcher.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/Exception.h"
-
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "CondCore/DBOutputService/interface/PoolDBOutputService.h"
 
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 #include "Geometry/Records/interface/VeryForwardIdealGeometryRecord.h"
 #include "DetectorDescription/Core/interface/DDCompactView.h"
+#include "DetectorDescription/DDCMS/interface/DDCompactView.h"
+
 #include "CondFormats/GeometryObjects/interface/PDetGeomDesc.h"
 #include "Geometry/VeryForwardGeometryBuilder/interface/DetGeomDescBuilder.h"
 
@@ -35,26 +36,41 @@ private:
   void buildSerializableDataFromGeoInfo(PDetGeomDesc* serializableData, const DetGeomDesc* geoInfo, int& counter);
   PDetGeomDesc::Item buildItemFromDetGeomDesc(const DetGeomDesc* geoInfo);
 
+  bool fromDD4hep_;
   std::string compactViewTag_;
   edm::ESWatcher<IdealGeometryRecord> watcherIdealGeometry_;
   edm::Service<cond::service::PoolDBOutputService> dbService_;
 };
 
 PPSGeometryBuilder::PPSGeometryBuilder(const edm::ParameterSet& iConfig)
-    : compactViewTag_(iConfig.getUntrackedParameter<std::string>("compactViewTag", "XMLIdealGeometryESSource_CTPPS")) {}
+  : fromDD4hep_(iConfig.getUntrackedParameter<bool>("fromDD4hep", false)),
+    compactViewTag_(iConfig.getUntrackedParameter<std::string>("compactViewTag", "XMLIdealGeometryESSource_CTPPS")) {}
 
 /*
  * Save PPS geo to DB.
  */
 void PPSGeometryBuilder::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
-  edm::ESHandle<DDCompactView> myCompactView;
+  std::unique_ptr<DetGeomDesc> geoInfoRoot = nullptr;
 
-  if (watcherIdealGeometry_.check(iSetup)) {
+  // old DD
+  if (!fromDD4hep_) {
+    edm::ESHandle<DDCompactView> myCompactView;
     edm::LogInfo("PPSGeometryBuilder") << "Got IdealGeometryRecord ";
     iSetup.get<IdealGeometryRecord>().get(compactViewTag_.c_str(), myCompactView);
+
+    // Build geometry
+    geoInfoRoot = detgeomdescbuilder::buildDetGeomDescFromCompactView(*myCompactView);
+  } 
+  // DD4hep
+  else {
+    edm::ESHandle<cms::DDCompactView> myCompactView;
+    edm::LogInfo("PPSGeometryBuilder") << "Got IdealGeometryRecord ";
+    iSetup.get<IdealGeometryRecord>().get(compactViewTag_.c_str(), myCompactView);
+
+    // Build geometry
+    geoInfoRoot = detgeomdescbuilder::buildDetGeomDescFromCompactView(*myCompactView);
   }
-  // Build geometry
-  auto geoInfoRoot = detgeomdescbuilder::buildDetGeomDescFromCompactView(*myCompactView);
+
 
   // Build persistent geometry data from geometry
   PDetGeomDesc* serializableData =
@@ -87,7 +103,8 @@ void PPSGeometryBuilder::buildSerializableDataFromGeoInfo(PDetGeomDesc* serializ
   counter++;
 
   // Store item in serializableData
-  if (counter >= 2) {  // Skip CMSE
+  if ( (!fromDD4hep_ && counter >= 2)         // Old DD: Skip CMSE
+       || (fromDD4hep_ && counter >= 4) ) {   // DD4hep: Skip world + OCMS + CMSE
     serializableData->container_.emplace_back(serializableItem);
   }
 
