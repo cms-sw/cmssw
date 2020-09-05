@@ -81,7 +81,13 @@ DetGeomDesc(const DDFilteredView& fv);
   // a version to another of DD4hep; 2. length parameters unit is cm while PPS uses mm.
   const std::vector<double>& params() const { return m_params; }  // default unit: mm from oldDD, cm from DD4hep
   bool isABox() const { return m_isABox; }
-  const DiamondDimensions& getDiamondDimensions() const { return m_diamondBoxParams; }  // in mm
+  const DiamondDimensions& getDiamondDimensions() const {
+    if (!isABox()) {
+      edm::LogError("DetGeomDesc::getDiamondDimensions is not called on a box, for solid ")
+	<< name() << ", Id = " << geographicalID();
+    }
+    return m_diamondBoxParams; 
+  } // in mm
 
   // sensor type
   const std::string& sensorType() const { return m_sensorType; }

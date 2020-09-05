@@ -150,7 +150,7 @@ std::vector<double> DetGeomDesc::computeParameters(const cms::DDFilteredView& fv
  * DD4hep: convert params from cm (DD4hep) to mm (legacy expected by PPS reco software).
  */
 DiamondDimensions DetGeomDesc::computeDiamondDimensions(const bool isABox, const bool isDD4hep, const std::vector<double>& params) const {
-  DiamondDimensions boxShapeParameters;
+  DiamondDimensions boxShapeParameters{};
   if (isABox) {
     if (!isDD4hep) {
       // mm (legacy)
@@ -163,10 +163,7 @@ DiamondDimensions DetGeomDesc::computeDiamondDimensions(const bool isABox, const
 			    geant_units::operators::convertCmToMm(params.at(1)),
 			    geant_units::operators::convertCmToMm(params.at(2))};
     }
-  } else {
-    edm::LogError("DetGeomDesc::getDiamondDimensions is not called on a box, for solid ")
-      << name() << ", Id = " << geographicalID();
-  }
+  } 
   return boxShapeParameters;
 }
 
