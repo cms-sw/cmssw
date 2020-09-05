@@ -20,8 +20,7 @@ auto geoInfoSentinel = std::make_unique<DetGeomDesc>(fv);
 // Construct the tree of children geo info (DetGeomDesc).
 detgeomdescbuilder::buildDetGeomDescDescendants(fv, geoInfoSentinel.get());
 
-edm::LogInfo("PPSGeometryESProducer") << "Successfully built geometry, it has "
-<< (geoInfoSentinel->components()).size() << " DetGeomDesc nodes.";
+edm::LogInfo("PPSGeometryESProducer") << "Successfully built geometry.";
 
 return geoInfoSentinel;
 }
@@ -32,9 +31,7 @@ return geoInfoSentinel;
  * Construct the tree of children geo info (DetGeomDesc) (old DD navigation).
  */
 void detgeomdescbuilder::buildDetGeomDescDescendants(DDFilteredView& fv, DetGeomDesc* geoInfoParent) {
-geoInfoParent->print();
-
-// leaf
+// Leaf
 if (!fv.firstChild())
   return;
 
@@ -43,7 +40,7 @@ do {
 DetGeomDesc* child = new DetGeomDesc(fv);
 geoInfoParent->addComponent(child);
 
-// recursion
+// Recursion
 buildDetGeomDescDescendants(fv, child);
 } while (fv.nextSibling());
 
@@ -72,7 +69,6 @@ std::unique_ptr<DetGeomDesc> detgeomdescbuilder::buildDetGeomDescFromCompactView
   do {
     // Create node, and add it to the geoInfoSentinel's list.
     DetGeomDesc* newGD = new DetGeomDesc(fv, allSpecParSections);
-newGD->print();
     geoInfoSentinel->addComponent(newGD);
   } while (fv.next(0));
 

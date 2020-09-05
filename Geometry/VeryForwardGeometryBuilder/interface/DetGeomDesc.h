@@ -109,6 +109,7 @@ void clearComponents() { m_container.resize(0); }
 std::string computeNameWithNoNamespace(const std::string_view nameFromView) const;
 std::vector<double> computeParameters(const cms::DDFilteredView& fv) const;
 DetId computeDetID(const std::string& name, const std::vector<int>& copyNos, unsigned int copyNum) const;
+DetId computeDetIDFromDD4hep(const std::string& name, const std::vector<int>& copyNos, unsigned int copyNum) const;
 std::string computeSensorType(const std::string_view name);
 std::string computeSensorType(const std::string_view nameFromView,
                                 const std::string& nodePath,

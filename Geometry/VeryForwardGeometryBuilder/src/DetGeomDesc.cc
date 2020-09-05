@@ -45,26 +45,26 @@ DetGeomDesc::DetGeomDesc(const DDFilteredView& fv)
   m_isDD4hep(false)
 {}
 
-  /*
-   *  Constructor from DD4Hep DDFilteredView, also using the SpecPars to access 2x2 wafers info.
-   */
-  DetGeomDesc::DetGeomDesc(const cms::DDFilteredView& fv, const cms::DDSpecParRegistry& allSpecParSections)
-    : m_name(computeNameWithNoNamespace(fv.name())),
-      m_copy(fv.copyNum()),
-      m_trans(geant_units::operators::convertCmToMm(fv.translation())),  // convert cm (DD4hep) to mm (legacy)
-      m_rot(fv.rotation()),
-      m_params(computeParameters(fv)),  // default unit from DD4hep (cm)
-      m_isABox(fv.isABox()),
-      m_sensorType(computeSensorType(fv.name(), fv.path(), allSpecParSections)),
-      m_geographicalID(computeDetID(m_name, fv.copyNos(), fv.copyNum())),
-      m_z(geant_units::operators::convertCmToMm(fv.translation().z())),  // convert cm (DD4hep) to mm (legacy)
+/*
+ *  Constructor from DD4Hep DDFilteredView, also using the SpecPars to access 2x2 wafers info.
+ */
+DetGeomDesc::DetGeomDesc(const cms::DDFilteredView& fv, const cms::DDSpecParRegistry& allSpecParSections)
+  : m_name(computeNameWithNoNamespace(fv.name())),
+    m_copy(fv.copyNum()),
+    m_trans(geant_units::operators::convertCmToMm(fv.translation())),  // convert cm (DD4hep) to mm (legacy)
+    m_rot(fv.rotation()),
+    m_params(computeParameters(fv)),  // default unit from DD4hep (cm)
+    m_isABox(fv.isABox()),
+    m_sensorType(computeSensorType(fv.name(), fv.path(), allSpecParSections)),
+    m_geographicalID(computeDetIDFromDD4hep(m_name, fv.copyNos(), fv.copyNum())),
+    m_z(geant_units::operators::convertCmToMm(fv.translation().z())),  // convert cm (DD4hep) to mm (legacy)
   m_isDD4hep(true)
-  {}
+{}
 
-    DetGeomDesc::DetGeomDesc(const DetGeomDesc& ref) { (*this) = ref; }
+DetGeomDesc::DetGeomDesc(const DetGeomDesc& ref) { (*this) = ref; }
 
-      DetGeomDesc& DetGeomDesc::operator=(const DetGeomDesc& ref) {
-m_name = ref.m_name;
+DetGeomDesc& DetGeomDesc::operator=(const DetGeomDesc& ref) {
+  m_name = ref.m_name;
 m_copy = ref.m_copy;
 m_trans = ref.m_trans;
 m_rot = ref.m_rot;
@@ -163,22 +163,27 @@ std::vector<double> DetGeomDesc::computeParameters(const cms::DDFilteredView& fv
   return parameters;
 }
 
+
+/*
+ * old DD DetId computation.
+ * Relies on name and volumes copy numbers.
+ */
 DetId DetGeomDesc::computeDetID(const std::string& name, const std::vector<int>& copyNos, unsigned int copyNum) const {
   DetId geoID;
 
   // strip sensors
   if (name == DDD_TOTEM_RP_SENSOR_NAME) {
     // check size of copy numbers array
-    if (copyNos.size() < 4)
+    if (copyNos.size() < 3)
       throw cms::Exception("DDDTotemRPContruction")
-          << "size of copyNumbers for strip sensor is " << copyNos.size() << ". It must be >= 4.";
+          << "size of copyNumbers for strip sensor is " << copyNos.size() << ". It must be >= 3.";
 
     // extract information
-    const unsigned int decRPId = copyNos[2];
+    const unsigned int decRPId = copyNos[copyNos.size() - 3];
     const unsigned int arm = decRPId / 100;
     const unsigned int station = (decRPId % 100) / 10;
     const unsigned int rp = decRPId % 10;
-    const unsigned int detector = copyNos[0];
+    const unsigned int detector = copyNos[copyNos.size() - 1];
     geoID = TotemRPDetId(arm, station, rp, detector);
   }
 
@@ -203,13 +208,13 @@ DetId DetGeomDesc::computeDetID(const std::string& name, const std::vector<int>&
 
   else if (std::regex_match(name, std::regex(DDD_TOTEM_TIMING_SENSOR_TMPL))) {
     // check size of copy numbers array
-    if (copyNos.size() < 5)
+    if (copyNos.size() < 4)
       throw cms::Exception("DDDTotemRPContruction")
-          << "size of copyNumbers for TOTEM timing sensor is " << copyNos.size() << ". It must be >= 5.";
+          << "size of copyNumbers for TOTEM timing sensor is " << copyNos.size() << ". It must be >= 4.";
 
-    const unsigned int decRPId = copyNos[3];
+    const unsigned int decRPId = copyNos[copyNos.size() - 4];
     const unsigned int arm = decRPId / 100, station = (decRPId % 100) / 10, rp = decRPId % 10;
-    const unsigned int plane = copyNos[1], channel = copyNos[0];
+    const unsigned int plane = copyNos[copyNos.size() - 2], channel = copyNos[copyNos.size() - 1];
     geoID = TotemTimingDetId(arm, station, rp, plane, channel);
   }
 
@@ -221,23 +226,23 @@ DetId DetGeomDesc::computeDetID(const std::string& name, const std::vector<int>&
   // pixel sensors
   else if (name == DDD_CTPPS_PIXELS_SENSOR_NAME) {
     // check size of copy numbers array
-    if (copyNos.size() < 5)
+    if (copyNos.size() < 4)
       throw cms::Exception("DDDTotemRPContruction")
-          << "size of copyNumbers for pixel sensor is " << copyNos.size() << ". It must be >= 5.";
+          << "size of copyNumbers for pixel sensor is " << copyNos.size() << ". It must be >= 4.";
 
     // extract information
-    const unsigned int decRPId = copyNos[3] % 10000;
+    const unsigned int decRPId = copyNos[copyNos.size() - 4] % 10000;
     const unsigned int arm = decRPId / 100;
     const unsigned int station = (decRPId % 100) / 10;
     const unsigned int rp = decRPId % 10;
-    const unsigned int detector = copyNos[1] - 1;
+    const unsigned int detector = copyNos[copyNos.size() - 2] - 1;
     geoID = CTPPSPixelDetId(arm, station, rp, detector);
   }
 
   // diamond/UFSD sensors
   else if (name == DDD_CTPPS_DIAMONDS_SEGMENT_NAME || name == DDD_CTPPS_UFSD_SEGMENT_NAME) {
-    const unsigned int id = copyNos[0];
-    const unsigned int arm = copyNos[copyNos.size() - 3] - 1;
+    const unsigned int id = copyNos[copyNos.size() - 1];
+    const unsigned int arm = copyNos[1] - 1;
     const unsigned int station = 1;
     const unsigned int rp = 6;
     const unsigned int plane = (id / 100);
@@ -249,11 +254,11 @@ DetId DetGeomDesc::computeDetID(const std::string& name, const std::vector<int>&
   // diamond/UFSD RPs
   else if (name == DDD_CTPPS_DIAMONDS_RP_NAME) {
     // check size of copy numbers array
-    if (copyNos.size() < 3)
+    if (copyNos.size() < 2)
       throw cms::Exception("DDDTotemRPContruction")
-          << "size of copyNumbers for diamond RP is " << copyNos.size() << ". It must be >= 3.";
+          << "size of copyNumbers for diamond RP is " << copyNos.size() << ". It must be >= 2.";
 
-    const unsigned int arm = copyNos[(copyNos.size() - 3)] - 1;
+    const unsigned int arm = copyNos[1] - 1;
     const unsigned int station = 1;
     const unsigned int rp = 6;
 
@@ -261,6 +266,16 @@ DetId DetGeomDesc::computeDetID(const std::string& name, const std::vector<int>&
   }
 
   return geoID;
+}
+
+
+/*
+ * DD4hep DetId computation.
+ */
+DetId DetGeomDesc::computeDetIDFromDD4hep(const std::string& name, const std::vector<int>& copyNos, unsigned int copyNum) const {
+  std::vector<int> copyNosOldDD = { copyNos.rbegin() + 1, copyNos.rend() };
+
+  return computeDetID(name, copyNosOldDD, copyNum);
 }
 
 
