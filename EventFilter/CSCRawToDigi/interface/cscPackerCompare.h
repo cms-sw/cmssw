@@ -3,7 +3,7 @@
 
 #include <iostream>
 #include <typeinfo>
-#include "EventFilter/CSCRawToDigi/src/bitset_append.h"
+#include "EventFilter/CSCRawToDigi/interface/bitset_append.h"
 
 /** Compares two objects, and prints them out if they differ
  */
