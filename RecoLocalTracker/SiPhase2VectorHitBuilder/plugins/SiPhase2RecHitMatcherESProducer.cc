@@ -78,7 +78,7 @@ void SiPhase2RecHitMatcherESProducer::fillDescriptions(edm::ConfigurationDescrip
                                     0.1,
                                     0.1,
                                 });
-  descriptions.add("SiPhase2RecHitMatcherESProducer", desc);
+  descriptions.add("siPhase2RecHitMatcher", desc);
 }
 
 DEFINE_FWK_EVENTSETUP_MODULE(SiPhase2RecHitMatcherESProducer);

@@ -8,6 +8,7 @@
 #include "DataFormats/TrackerRecHit2D/interface/SiStripMatchedRecHit2D.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit1D.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2D.h"
+#include "DataFormats/TrackerRecHit2D/interface/VectorHit.h"
 #include "DataFormats/TrackingRecHit/interface/TrackingRecHitFwd.h"
 
 namespace track_associator {
@@ -56,6 +57,13 @@ namespace track_associator {
               edm::LogError("TrackAssociator") << ">>> RecHit does not have an associated cluster!"
                                                << " file: " << __FILE__ << " line: " << __LINE__;
             returnValue.push_back(ph2Hit->omniClusterRef());
+          } else if (tid == typeid(VectorHit)) {
+            const VectorHit *vectorHit = dynamic_cast<const VectorHit *>(rhit);
+            if (!vectorHit->cluster().isNonnull())
+              edm::LogError("TrackAssociator") << ">>> RecHit does not have an associated cluster!"
+                                               << " file: " << __FILE__ << " line: " << __LINE__;
+            returnValue.push_back(vectorHit->firstClusterRef());
+
           } else {
             auto const &thit = static_cast<BaseTrackerRecHit const &>(*rhit);
             if (thit.isProjected()) {
