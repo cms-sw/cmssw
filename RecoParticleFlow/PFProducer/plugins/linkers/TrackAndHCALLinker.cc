@@ -50,10 +50,10 @@ bool TrackAndHCALLinker::linkPrefilter(const reco::PFBlockElement* elem1, const 
   // Track-HCAL KDTree multilinks are stored to track's elem
   switch (elem1->type()) {
     case reco::PFBlockElement::TRACK:
-      result = (elem1->isMultilinksValide() && !elem1->getMultilinks().empty());
+      result = (elem1->isMultilinksValide(elem2->type()) && !elem1->getMultilinks(elem2->type()).empty());
       break;
     case reco::PFBlockElement::HCAL:
-      result = (elem2->isMultilinksValide() && !elem2->getMultilinks().empty());
+      result = (elem2->isMultilinksValide(elem1->type()) && !elem2->getMultilinks(elem1->type()).empty());
     default:
       break;
   }
@@ -89,8 +89,8 @@ double TrackAndHCALLinker::testLink(const reco::PFBlockElement* elem1, const rec
 
   // Check if the linking has been done using the KDTree algo
   // Glowinski & Gouzevitch
-  if (useKDTree_ && tkelem->isMultilinksValide()) {  //KDTree Algo
-    const reco::PFMultilinksType& multilinks = tkelem->getMultilinks();
+  if (useKDTree_ && tkelem->isMultilinksValide(hcalelem->type())) {  //KDTree Algo
+    const reco::PFMultilinksType& multilinks = tkelem->getMultilinks(hcalelem->type());
     const double hcalphi = hcalreppos.Phi();
     const double hcaleta = hcalreppos.Eta();
 

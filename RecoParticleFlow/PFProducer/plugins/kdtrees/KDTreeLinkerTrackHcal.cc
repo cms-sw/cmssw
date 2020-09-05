@@ -1,4 +1,5 @@
 #include "DataFormats/ParticleFlowReco/interface/PFCluster.h"
+#include "DataFormats/ParticleFlowReco/interface/PFBlockElement.h"
 #include "RecoParticleFlow/PFClusterTools/interface/LinkByRecHit.h"
 #include "RecoParticleFlow/PFProducer/interface/KDTreeLinkerBase.h"
 #include "CommonTools/RecoAlgos/interface/KDTreeLinkerAlgo.h"
@@ -12,7 +13,7 @@ public:
   KDTreeLinkerTrackHcal(const edm::ParameterSet& conf);
   ~KDTreeLinkerTrackHcal() override;
 
-  // With this method, we create the list of psCluster that we want to link.
+  // With this method, we create the list of track that we want to link.
   void insertTargetElt(reco::PFBlockElement* track) override;
 
   // Here, we create the list of hcalCluster that we want to link. From hcalCluster
@@ -247,12 +248,14 @@ void KDTreeLinkerTrackHcal::updatePFBlockEltWithLinks() {
 
   // Here we save in each track the list of phi/eta values of linked clusters.
   for (BlockElt2BlockEltMap::iterator it = target2ClusterLinks_.begin(); it != target2ClusterLinks_.end(); ++it) {
+    auto trackElt = it->first;
+    auto hcalEltSet = it->second;
     reco::PFMultiLinksTC multitracks(true);
 
     //
     // No restriction on the number of HCAL links per track or isLinkedToDisplacedVertex
-    if (nMaxHcalLinksPerTrack_ < 0. || it->first->isLinkedToDisplacedVertex()) {
-      for (const auto& hcalElt : it->second) {
+    if (nMaxHcalLinksPerTrack_ < 0. || trackElt->isLinkedToDisplacedVertex()) {
+      for (const auto& hcalElt : hcalEltSet) {
         double clusterphi = hcalElt->clusterRef()->positionREP().phi();
         double clustereta = hcalElt->clusterRef()->positionREP().eta();
         multitracks.linkedClusters.push_back(std::make_pair(clusterphi, clustereta));
@@ -262,7 +265,7 @@ void KDTreeLinkerTrackHcal::updatePFBlockEltWithLinks() {
     //
     // Store only the N closest HCAL links per track.
     else {
-      reco::PFRecTrackRef trackref = it->first->trackRefPF();
+      const reco::PFRecTrackRef& trackref = trackElt->trackRefPF();
       const reco::PFTrajectoryPoint& tkAtHCALEnt = trackref->extrapolatedPoint(trajectoryLayerEntrance_);
       const reco::PFCluster::REPPoint& tkreppos = tkAtHCALEnt.positionREP();
       // Check exit point
@@ -278,8 +281,6 @@ void KDTreeLinkerTrackHcal::updatePFBlockEltWithLinks() {
 
       std::vector<double> vDist;
       double dist(-1.0);
-
-      BlockEltSet hcalEltSet = it->second;
 
       // Fill the vector of distances between HCAL clusters and the track
       for (const auto& hcalElt : hcalEltSet) {
@@ -304,6 +305,7 @@ void KDTreeLinkerTrackHcal::updatePFBlockEltWithLinks() {
                 clustereta, clusterphi, tkreppos.Eta() + 0.1 * dHEta, tkreppos.Phi() + 0.1 * dHPhi);
           }
         }  // checkExit_
+
         vDist.push_back(dist);
       }  // loop over hcalEltSet
 
@@ -319,8 +321,8 @@ void KDTreeLinkerTrackHcal::updatePFBlockEltWithLinks() {
     }
 
     // Store multitracks
-    it->first->setMultilinks(multitracks);
-  }
+    trackElt->setMultilinks(multitracks, _fieldType);
+  }  // loop over target2ClusterLinks_
 }
 
 void KDTreeLinkerTrackHcal::clear() {
