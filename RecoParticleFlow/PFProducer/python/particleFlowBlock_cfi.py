@@ -208,7 +208,7 @@ _addTrackHFLinks.append(
             useKDTree  = cms.bool(True),
             trajectoryLayerEntrance = cms.string("VFcalEntrance"),
             trajectoryLayerExit = cms.string(""),
-            nMaxHcalLinksPerTrack = cms.int32(1)
+            nMaxHcalLinksPerTrack = cms.int32(-1) # Keep all track-HFHAD links for now
           )
 )
 phase2_tracker.toModify(
