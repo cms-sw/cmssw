@@ -46,7 +46,8 @@ process.preferFakeAlign = cms.ESPrefer("FakeAlignmentSource")
 process.out = cms.OutputModule("AsciiOutputModule")
 
 process.prod = cms.EDAnalyzer("ModuleInfo",
-    fromDDD = cms.bool(False)
+    fromDDD = cms.bool(False),
+    tolerance = cms.untracked.double(1.0e-23)
 )
 
 process.p1 = cms.Path(process.prod)
