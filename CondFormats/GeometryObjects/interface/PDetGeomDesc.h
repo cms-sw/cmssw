@@ -14,7 +14,7 @@ public:
     // Rotation matrix elements
     double axx_, axy_, axz_, ayx_, ayy_, ayz_, azx_, azy_, azz_;
     std::string name_;
-    std::vector<double> params_;  // default unit from DD4hep (cm)
+    std::vector<double> params_;  // default unit: mm from oldDD, cm from DD4hep
     uint32_t geographicalID_;     // to be converted to DetId
     int copy_;
     float z_;  // in mm
