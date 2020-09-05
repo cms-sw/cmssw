@@ -5,15 +5,30 @@ import FWCore.ParameterSet.Config as cms
 #process.load('Configuration.Geometry.GeometryExtended2026D35_cff')
 #process.load('Configuration.Geometry.GeometryExtended2026D35Reco_cff')
 
-from Configuration.Eras.Era_Phase2C8_cff import Phase2C8
-process = cms.Process('HGCGeomAnalysis',Phase2C8)
-process.load('Configuration.Geometry.GeometryExtended2026D41_cff')
-process.load('Configuration.Geometry.GeometryExtended2026D41Reco_cff')
+#from Configuration.Eras.Era_Phase2C8_cff import Phase2C8
+#process = cms.Process('HGCGeomAnalysis',Phase2C8)
+#process.load('Configuration.Geometry.GeometryExtended2026D41_cff')
+#process.load('Configuration.Geometry.GeometryExtended2026D41Reco_cff')
 
 #from Configuration.Eras.Era_Phase2C9_cff import Phase2C9
 #process = cms.Process('HGCGeomAnalysis',Phase2C9)
-#process.load('Configuration.Geometry.GeometryExtended2026D46_cff')
-#process.load('Configuration.Geometry.GeometryExtended2026D46Reco_cff')
+#process.load('Configuration.Geometry.GeometryExtended2026D49_cff')
+#process.load('Configuration.Geometry.GeometryExtended2026D49Reco_cff')
+
+#from Configuration.Eras.Era_Phase2C12_cff import Phase2C12
+#process = cms.Process('HGCGeomAnalysis',Phase2C12)
+#process.load('Configuration.Geometry.GeometryExtended2026D58_cff')
+#process.load('Configuration.Geometry.GeometryExtended2026D58Reco_cff')
+
+#from Configuration.Eras.Era_Phase2C11_cff import Phase2C11
+#process = cms.Process('HGCGeomAnalysis',Phase2C11)
+#process.load('Configuration.Geometry.GeometryExtended2026D59_cff')
+#process.load('Configuration.Geometry.GeometryExtended2026D59Reco_cff')
+
+from Configuration.Eras.Era_Phase2C11_cff import Phase2C11
+process = cms.Process('HGCGeomAnalysis',Phase2C11)
+process.load('Configuration.Geometry.GeometryExtended2026D62_cff')
+process.load('Configuration.Geometry.GeometryExtended2026D62Reco_cff')
 
 process.load("SimGeneral.HepPDTESSource.pythiapdt_cfi")
 process.load("Configuration.StandardSequences.MagneticField_cff")
@@ -38,7 +53,7 @@ process.maxEvents = cms.untracked.PSet(
 )
 
 process.TFileService = cms.Service("TFileService",
-                                   fileName = cms.string('hgcWafer.root'),
+                                   fileName = cms.string('hgcWaferD62.root'),
                                    closeFileFast = cms.untracked.bool(True)
                                    )
 
