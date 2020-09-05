@@ -68,6 +68,9 @@ DetGeomDesc(const DDFilteredView& fv);
   const std::string& name() const { return m_name; }
   int copyno() const { return m_copy; }
 
+  // is DD4hep
+  bool isDD4hep() const { return m_isDD4hep; }
+
   // placement info
   const Translation& translation() const { return m_trans; }  // in mm
   const RotationMatrix& rotation() const { return m_rot; }
@@ -76,9 +79,9 @@ DetGeomDesc(const DDFilteredView& fv);
   // params() is left for general access to solid shape parameters, but should be used
   // only with great care, for two reasons: 1. order of parameters may possibly change from
   // a version to another of DD4hep; 2. length parameters unit is cm while PPS uses mm.
-  const std::vector<double>& params() const { return m_params; }  // default unit from DD4hep (cm)
+  const std::vector<double>& params() const { return m_params; }  // default unit: mm from oldDD, cm from DD4hep
   bool isABox() const { return m_isABox; }
-  DiamondDimensions getDiamondDimensions() const;  // in mm
+  const DiamondDimensions& getDiamondDimensions() const { return m_diamondBoxParams; }  // in mm
 
   // sensor type
   const std::string& sensorType() const { return m_sensorType; }
@@ -95,38 +98,43 @@ DetGeomDesc(const DDFilteredView& fv);
   // alignment
   void applyAlignment(const CTPPSRPAlignmentCorrectionData&);
 
-// is DD4hep
-bool isDD4hep() const { return m_isDD4hep; }
-
-  bool operator<(const DetGeomDesc& other) const;
   void print() const;
 
-private:
+ private:
   void deleteComponents();      // deletes just the first daughters
-void deepDeleteComponents();  // traverses the tree and deletes all nodes.
-void clearComponents() { m_container.resize(0); }
+  void deepDeleteComponents();  // traverses the tree and deletes all nodes.
+  void clearComponents() { m_container.resize(0); }
 
-std::string computeNameWithNoNamespace(const std::string_view nameFromView) const;
-std::vector<double> computeParameters(const cms::DDFilteredView& fv) const;
-DetId computeDetID(const std::string& name, const std::vector<int>& copyNos, unsigned int copyNum) const;
-DetId computeDetIDFromDD4hep(const std::string& name, const std::vector<int>& copyNos, unsigned int copyNum) const;
-std::string computeSensorType(const std::string_view name);
-std::string computeSensorType(const std::string_view nameFromView,
-                                const std::string& nodePath,
-                                const cms::DDSpecParRegistry& allSpecParSections);
+  std::string computeNameWithNoNamespace(const std::string_view nameFromView) const;
+  std::vector<double> computeParameters(const cms::DDFilteredView& fv) const;
+  DiamondDimensions computeDiamondDimensions(const bool isABox, const bool isDD4hep, const std::vector<double>& params) const;
+  DetId computeDetID(const std::string& name, const std::vector<int>& copyNos, unsigned int copyNum) const;
+  DetId computeDetIDFromDD4hep(const std::string& name, const std::vector<int>& copyNos, unsigned int copyNum) const;
+  std::string computeSensorType(const std::string_view name);
+  std::string computeSensorType(const std::string_view nameFromView,
+				const std::string& nodePath,
+				const cms::DDSpecParRegistry& allSpecParSections);
 
-std::string m_name;  // with no namespace
+  std::string m_name;  // with no namespace
   int m_copy;
+  bool m_isDD4hep;
   Translation m_trans;  // in mm
   RotationMatrix m_rot;
-  std::vector<double> m_params;  // default unit from DD4hep (cm)
+  std::vector<double> m_params;  // default unit: mm from oldDD, cm from DD4hep
   bool m_isABox;
+  DiamondDimensions m_diamondBoxParams;  // in mm
   std::string m_sensorType;
   DetId m_geographicalID;
-
+  
   Container m_container;
   float m_z;  // in mm
-bool m_isDD4hep;
+};
+
+
+struct DetGeomDescCompare {
+  bool operator() (const DetGeomDesc& a, const DetGeomDesc& b) const {
+    return (a.name() != b.name() ? a.name() < b.name() : a.copyno() < b.copyno());
+  }
 };
 
 #endif
