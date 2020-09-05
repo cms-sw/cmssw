@@ -69,7 +69,9 @@ HGCalSiliconValidation::HGCalSiliconValidation(const edm::ParameterSet& ps)
 
   tok_hits_ = consumes<edm::PCaloHitContainer>(edm::InputTag(g4Label_, hgcalHits_));
   tok_digi_ = consumes<HGCalDigiCollection>(hgcalDigis_);
-  edm::LogVerbatim("HGCalValidation") << "HGCalSiliconValidation::Input for SimHit:" << edm::InputTag(g4Label_, hgcalHits_) << "  Digits:" << hgcalDigis_ << "  Sample: " << iSample_;
+  edm::LogVerbatim("HGCalValidation") << "HGCalSiliconValidation::Input for SimHit:"
+                                      << edm::InputTag(g4Label_, hgcalHits_) << "  Digits:" << hgcalDigis_
+                                      << "  Sample: " << iSample_;
 }
 
 void HGCalSiliconValidation::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
@@ -100,7 +102,8 @@ void HGCalSiliconValidation::beginRun(edm::Run const&, edm::EventSetup const& es
 }
 
 void HGCalSiliconValidation::analyze(const edm::Event& e, const edm::EventSetup& iSetup) {
-  edm::LogVerbatim("HGCalValidation") << "HGCalSiliconValidation:Run = " << e.id().run() << " Event = " << e.id().event();
+  edm::LogVerbatim("HGCalValidation") << "HGCalSiliconValidation:Run = " << e.id().run()
+                                      << " Event = " << e.id().event();
 
   edm::ESHandle<HGCalGeometry> geom;
   iSetup.get<IdealGeometryRecord>().get(nameDetector_, geom);
@@ -112,19 +115,20 @@ void HGCalSiliconValidation::analyze(const edm::Event& e, const edm::EventSetup&
     //SimHits
     edm::Handle<edm::PCaloHitContainer> hitsCalo;
     e.getByToken(tok_hits_, hitsCalo);
-    edm::LogVerbatim("HGCalValidation") << "HGCalSiliconValidation.: PCaloHitContainer obtained with flag " << hitsCalo.isValid();
+    edm::LogVerbatim("HGCalValidation") << "HGCalSiliconValidation.: PCaloHitContainer obtained with flag "
+                                        << hitsCalo.isValid();
     if (hitsCalo.isValid()) {
       edm::LogVerbatim("HGCalValidation") << "HGCalSiliconValidation: PCaloHit buffer " << hitsCalo->size();
       unsigned i(0);
       std::map<unsigned int, double> map_try;
       for (edm::PCaloHitContainer::const_iterator it = hitsCalo->begin(); it != hitsCalo->end(); ++it) {
-	double energy = it->energy();
-	double time = it->time();
-	unsigned int id = it->id();
-	GlobalPoint pos = geom0->getPosition(DetId(id));
-	double r = pos.perp();
-	double z = std::abs(pos.z());
-	int lay = HGCSiliconDetId(id).layer();
+        double energy = it->energy();
+        double time = it->time();
+        unsigned int id = it->id();
+        GlobalPoint pos = geom0->getPosition(DetId(id));
+        double r = pos.perp();
+        double z = std::abs(pos.z());
+        int lay = HGCSiliconDetId(id).layer();
         hsimE1_->Fill(energy);
         hsimTm_->Fill(time, energy);
         hsimOc_->Fill(r, lay, energy);
@@ -134,10 +138,11 @@ void HGCalSiliconValidation::analyze(const edm::Event& e, const edm::EventSetup&
         ensum += energy;
         map_try[id] = ensum;
         ++i;
-        edm::LogVerbatim("HGCalValidation") << "HGCalBHHit[" << i << "] ID " << std::hex << " " << id << std::dec << " " << HGCSiliconDetId(id) << " E " << energy << " time " << time;
+        edm::LogVerbatim("HGCalValidation") << "HGCalBHHit[" << i << "] ID " << std::hex << " " << id << std::dec << " "
+                                            << HGCSiliconDetId(id) << " E " << energy << " time " << time;
       }
       for (std::map<unsigned int, double>::iterator itr = map_try.begin(); itr != map_try.end(); ++itr) {
-	hsimE2_->Fill((*itr).second);
+        hsimE2_->Fill((*itr).second);
       }
     }
 
@@ -145,23 +150,24 @@ void HGCalSiliconValidation::analyze(const edm::Event& e, const edm::EventSetup&
     unsigned int kount(0);
     edm::Handle<HGCalDigiCollection> digicoll;
     e.getByToken(tok_digi_, digicoll);
-    edm::LogVerbatim("HGCalValidation") << "HGCalSiliconValidation.: HGCalDigiCollection obtained with flag " << digicoll.isValid();
+    edm::LogVerbatim("HGCalValidation") << "HGCalSiliconValidation.: HGCalDigiCollection obtained with flag "
+                                        << digicoll.isValid();
     if (digicoll.isValid()) {
       edm::LogVerbatim("HGCalValidation") << "HGCalSiliconValidation: HGCalDigi buffer " << digicoll->size();
       for (HGCalDigiCollection::const_iterator it = digicoll->begin(); it != digicoll->end(); ++it) {
         HGCalDataFrame df(*it);
         double energy = df[iSample_].data();
-	HGCSiliconDetId cell(df.id());
-	GlobalPoint pos = geom0->getPosition(cell);
-	double r = pos.perp();
-	double z = std::abs(pos.z());
-	int depth = cell.layer();
-	hdigEn_->Fill(energy);
-	hdigLn_->Fill(depth);
-	hdigOc_->Fill(r, depth);
-	hdi2Oc_->Fill(z, r);
-	++kount;
-	edm::LogVerbatim("HGCalValidation") << "HGCalBHDigit[" << kount << "] ID " << cell << " E " << energy;
+        HGCSiliconDetId cell(df.id());
+        GlobalPoint pos = geom0->getPosition(cell);
+        double r = pos.perp();
+        double z = std::abs(pos.z());
+        int depth = cell.layer();
+        hdigEn_->Fill(energy);
+        hdigLn_->Fill(depth);
+        hdigOc_->Fill(r, depth);
+        hdi2Oc_->Fill(z, r);
+        ++kount;
+        edm::LogVerbatim("HGCalValidation") << "HGCalBHDigit[" << kount << "] ID " << cell << " E " << energy;
       }
     }
   }
