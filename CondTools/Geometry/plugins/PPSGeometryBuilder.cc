@@ -99,7 +99,7 @@ void PPSGeometryBuilder::buildSerializableDataFromGeoInfo(PDetGeomDesc* serializ
   serializableItem.geographicalID_ = geoInfo->geographicalID();
   counter++;
 
-  if (counter >= 4) {  // Skip sentinel + OCMS + CMSE
+  if (counter >= 2) {  // Skip sentinel + OCMS + CMSE
     serializableData->container_.emplace_back(serializableItem);
   }
 
