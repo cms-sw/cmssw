@@ -1,6 +1,6 @@
 #include <stdio.h>
 #include <errno.h>
-#include "EventFilter/CSCRawToDigi/src/CSCDCCExaminer.cc"
+#include "EventFilter/CSCRawToDigi/interface/CSCDCCExaminer.h"
 // To compile: g++ -o examiner examiner.cc -I../../../
 
 int main(int argc, char* argv[]){
