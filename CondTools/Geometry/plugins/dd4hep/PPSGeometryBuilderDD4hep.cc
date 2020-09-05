@@ -33,6 +33,7 @@ public:
 
 private:
   void buildSerializableDataFromGeoInfo(PDetGeomDesc* serializableData, const DetGeomDesc* geoInfo, int& counter);
+  PDetGeomDesc::Item buildItemFromDetGeomDesc(const DetGeomDesc* geoInfo);
 
   std::string compactViewTag_;
   edm::ESWatcher<IdealGeometryRecord> watcherIdealGeometry_;
@@ -53,13 +54,13 @@ void PPSGeometryBuilderDD4hep::analyze(const edm::Event& iEvent, const edm::Even
     iSetup.get<IdealGeometryRecord>().get(compactViewTag_.c_str(), myCompactView);
   }
   // Build geometry
-  auto geoInfoSentinel = detgeomdescbuilder::buildDetGeomDescFromCompactView(*myCompactView);
+  auto geoInfoRoot = detgeomdescbuilder::buildDetGeomDescFromCompactView(*myCompactView);
 
   // Build persistent geometry data from geometry
   PDetGeomDesc* serializableData =
     new PDetGeomDesc();  // cond::service::PoolDBOutputService::writeOne interface requires raw pointer.
   int counter = 0;
-  buildSerializableDataFromGeoInfo(serializableData, geoInfoSentinel.get(), counter);
+  buildSerializableDataFromGeoInfo(serializableData, geoInfoRoot.get(), counter);
 
   // Save geometry in the database
   if (serializableData->container_.empty()) {
@@ -80,32 +81,43 @@ void PPSGeometryBuilderDD4hep::analyze(const edm::Event& iEvent, const edm::Even
  * Recursive, depth-first search.
  */
 void PPSGeometryBuilderDD4hep::buildSerializableDataFromGeoInfo(PDetGeomDesc* serializableData,
-								const DetGeomDesc* geoInfo,
-								int& counter) {
-  PDetGeomDesc::Item serializableItem;
-  serializableItem.dx_ = geoInfo->translation().X();
-  serializableItem.dy_ = geoInfo->translation().Y();
-  serializableItem.dz_ = geoInfo->translation().Z();
-
-  const DDRotationMatrix& rot = geoInfo->rotation();
-  rot.GetComponents(serializableItem.axx_, serializableItem.axy_, serializableItem.axz_, 
-		    serializableItem.ayx_, serializableItem.ayy_, serializableItem.ayz_, 
-		    serializableItem.azx_, serializableItem.azy_, serializableItem.azz_);
-  serializableItem.name_ = geoInfo->name();
-  serializableItem.params_ = geoInfo->params();
-  serializableItem.copy_ = geoInfo->copyno();
-  serializableItem.z_ = geoInfo->parentZPosition();
-  serializableItem.sensorType_ = geoInfo->sensorType();
-  serializableItem.geographicalID_ = geoInfo->geographicalID();
+                                                          const DetGeomDesc* geoInfo,
+                                                          int& counter) {
+  PDetGeomDesc::Item serializableItem = buildItemFromDetGeomDesc(geoInfo);  
   counter++;
 
-  if (counter >= 4) {  // Skip sentinel + OCMS + CMSE
+  // Store item in serializableData
+  if (counter >= 4) {  // Skip world + OCMS + CMSE
     serializableData->container_.emplace_back(serializableItem);
   }
 
+  // Recursive calls on children
   for (auto& child : geoInfo->components()) {
     buildSerializableDataFromGeoInfo(serializableData, child, counter);
   }
+}
+
+/*
+ * Build Item from DetGeomDesc info.
+ */
+PDetGeomDesc::Item PPSGeometryBuilderDD4hep::buildItemFromDetGeomDesc(const DetGeomDesc* geoInfo) {
+  PDetGeomDesc::Item result;
+  result.dx_ = geoInfo->translation().X();
+  result.dy_ = geoInfo->translation().Y();
+  result.dz_ = geoInfo->translation().Z();
+
+  const DDRotationMatrix& rot = geoInfo->rotation();
+  rot.GetComponents(result.axx_, result.axy_, result.axz_, 
+		    result.ayx_, result.ayy_, result.ayz_, 
+		    result.azx_, result.azy_, result.azz_);
+  result.name_ = geoInfo->name();
+  result.params_ = geoInfo->params();
+  result.copy_ = geoInfo->copyno();
+  result.z_ = geoInfo->parentZPosition();
+  result.sensorType_ = geoInfo->sensorType();
+  result.geographicalID_ = geoInfo->geographicalID();
+
+  return result;
 }
 
 DEFINE_FWK_MODULE(PPSGeometryBuilderDD4hep);

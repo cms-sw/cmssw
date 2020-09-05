@@ -14,23 +14,23 @@ std::unique_ptr<DetGeomDesc> detgeomdescbuilder::buildDetGeomDescFromCompactView
 DDPassAllFilter filter;
 DDFilteredView fv(myCompactView, filter);
 
-// Geo info: sentinel node.
-auto geoInfoSentinel = std::make_unique<DetGeomDesc>(fv);
+// Geo info: root node.
+auto geoInfoRoot = std::make_unique<DetGeomDesc>(fv);
 
 // Construct the tree of children geo info (DetGeomDesc).
-detgeomdescbuilder::buildDetGeomDescDescendants(fv, geoInfoSentinel.get());
+detgeomdescbuilder::buildDetGeomDescDescendants(fv, geoInfoRoot.get());
 
 edm::LogInfo("PPSGeometryESProducer") << "Successfully built geometry.";
 
-return geoInfoSentinel;
+return geoInfoRoot;
 }
 
 
 /*
- * Use in depth-first search recursion.
- * Construct the tree of children geo info (DetGeomDesc) (old DD navigation).
+ * Depth-first search recursion.
+ * Construct the tree of children geo info (DetGeomDesc) (old DD).
  */
-void detgeomdescbuilder::buildDetGeomDescDescendants(DDFilteredView& fv, DetGeomDesc* geoInfoParent) {
+void detgeomdescbuilder::buildDetGeomDescDescendants(DDFilteredView& fv, DetGeomDesc* geoInfo) {
 // Leaf
 if (!fv.firstChild())
   return;
@@ -38,7 +38,7 @@ if (!fv.firstChild())
 do {
 // Create node, and add it to the geoInfoParent's list.
 DetGeomDesc* child = new DetGeomDesc(fv);
-geoInfoParent->addComponent(child);
+geoInfo->addComponent(child);
 
 // Recursion
 buildDetGeomDescDescendants(fv, child);
@@ -62,18 +62,18 @@ std::unique_ptr<DetGeomDesc> detgeomdescbuilder::buildDetGeomDescFromCompactView
   }
 
   const cms::DDSpecParRegistry& allSpecParSections = myCompactView.specpars();
-  // Geo info: sentinel node.
-  auto geoInfoSentinel = std::make_unique<DetGeomDesc>(fv, allSpecParSections);
+  // Geo info: root node.
+  auto geoInfoRoot = std::make_unique<DetGeomDesc>(fv, allSpecParSections);
 
   // Construct the tree of children geo info (DetGeomDesc).
   do {
-    // Create node, and add it to the geoInfoSentinel's list.
-    DetGeomDesc* newGD = new DetGeomDesc(fv, allSpecParSections);
-    geoInfoSentinel->addComponent(newGD);
+    // Create node, and add it to the geoInfoRoot's list.
+    DetGeomDesc* child = new DetGeomDesc(fv, allSpecParSections);
+    geoInfoRoot->addComponent(child);
   } while (fv.next(0));
 
   edm::LogInfo("PPSGeometryESProducer") << "Successfully built geometry, it has "
-                                        << (geoInfoSentinel->components()).size() << " DetGeomDesc nodes.";
+                                        << (geoInfoRoot->components()).size() << " DetGeomDesc nodes.";
 
-  return geoInfoSentinel;
+  return geoInfoRoot;
 }
