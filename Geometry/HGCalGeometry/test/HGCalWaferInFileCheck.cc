@@ -98,8 +98,7 @@ void HGCalWaferInFileCheck::analyze(const edm::Event& iEvent, const edm::EventSe
       }
     }
     std::cout << "\n\nFinds " << bad1 << " invalid wafers among " << hgdc.waferFileSize() << " wafers in the list"
-              << std::endl
-              << std::endl;
+              << std::endl << std::endl;
 
     // See if some of the valid wafers are missing
     auto const& ids = geom->getValidGeomDetIds();
@@ -125,8 +124,7 @@ void HGCalWaferInFileCheck::analyze(const edm::Event& iEvent, const edm::EventSe
       }
     }
     std::cout << "\n\nFinds " << bad2 << " missing wafers among " << all << " valid wafers and " << xtra
-              << " extra ones" << std::endl
-              << std::endl;
+              << " extra ones" << std::endl << std::endl;
 
     // Now cross check the content
     int allG(0), badT(0), badP(0), badR(0), badG(0), badT1(0), badT2(0);
@@ -172,8 +170,7 @@ void HGCalWaferInFileCheck::analyze(const edm::Event& iEvent, const edm::EventSe
       }
     }
     std::cout << "\n\nFinds " << badG << " (" << badT << "[" << badT1 << ":" << badT2 << "]:" << badP << ":" << badR
-              << ") mismatch among " << allG << " wafers with the same indices" << std::endl
-              << std::endl;
+              << ") mismatch among " << allG << " wafers with the same indices" << std::endl << std::endl;
   }
 }
 
