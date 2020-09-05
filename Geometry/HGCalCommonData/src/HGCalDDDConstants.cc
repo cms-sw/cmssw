@@ -502,8 +502,8 @@ bool HGCalDDDConstants::isValidHex8(int layer, int modU, int modV, bool fullAndP
   if (fullAndPart_) {
     auto ktr = hgpar_->waferInfoMap_.find(indx);
 #ifdef EDM_ML_DEBUG
-    edm::LogVerbatim("HGCalGeom") << "HGCalDDDConstants::isValidHex8:WaferInfoMap " << layer << ":" << modU << ":" << modV
-				  << ":" << indx << " Test " << (itr != hgpar_->waferInfoMap_.end());
+    edm::LogVerbatim("HGCalGeom") << "HGCalDDDConstants::isValidHex8:WaferInfoMap " << layer << ":" << modU << ":"
+                                  << modV << ":" << indx << " Test " << (itr != hgpar_->waferInfoMap_.end());
 #endif
     if (ktr == hgpar_->waferInfoMap_.end())
       return false;
@@ -1495,14 +1495,19 @@ std::pair<int, float> HGCalDDDConstants::getIndex(int lay, bool reco) const {
 int HGCalDDDConstants::layerFromIndex(int index, bool reco) const {
   int ll(-1);
   if (waferHexagon6() && reco) {
-    ll = static_cast<int>(std::find(hgpar_->depthLayerF_.begin(), hgpar_->depthLayerF_.end(), index) - hgpar_->depthLayerF_.begin());
-      if (ll == static_cast<int>(hgpar_->depthLayerF_.size())) ll = -1;
+    ll = static_cast<int>(std::find(hgpar_->depthLayerF_.begin(), hgpar_->depthLayerF_.end(), index) -
+                          hgpar_->depthLayerF_.begin());
+    if (ll == static_cast<int>(hgpar_->depthLayerF_.size()))
+      ll = -1;
   } else {
-    ll = static_cast<int>(std::find(hgpar_->layerIndex_.begin(), hgpar_->layerIndex_.end(), index) - hgpar_->layerIndex_.begin());
-      if (ll == static_cast<int>(hgpar_->layerIndex_.size())) ll = -1;
+    ll = static_cast<int>(std::find(hgpar_->layerIndex_.begin(), hgpar_->layerIndex_.end(), index) -
+                          hgpar_->layerIndex_.begin());
+    if (ll == static_cast<int>(hgpar_->layerIndex_.size()))
+      ll = -1;
   }
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("HGCalGeom") << "LayerFromIndex for " << index << ":" << reco << ":" << waferHexagon6() << " is" << ll << ":" << (ll + hgpar_->firstLayer_);
+  edm::LogVerbatim("HGCalGeom") << "LayerFromIndex for " << index << ":" << reco << ":" << waferHexagon6() << " is"
+                                << ll << ":" << (ll + hgpar_->firstLayer_);
 #endif
   return ((ll < 0) ? ll : (ll + hgpar_->firstLayer_));
 }
@@ -1578,7 +1583,8 @@ int32_t HGCalDDDConstants::waferIndex(int wafer, int index) const {
   int waferV = HGCalWaferIndex::waferV(hgpar_->waferCopy_[wafer]);
   int indx = HGCalWaferIndex::waferIndex(layer, waferU, waferV);
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("HGCalGeom") << "WaferIndex for " << wafer << ":" << index << " (" << layer << ":" << waferU << ":" << waferV << ") " << indx;
+  edm::LogVerbatim("HGCalGeom") << "WaferIndex for " << wafer << ":" << index << " (" << layer << ":" << waferU << ":"
+                                << waferV << ") " << indx;
 #endif
   return indx;
 }
@@ -1598,7 +1604,10 @@ bool HGCalDDDConstants::waferInLayerTest(int wafer, int lay, bool full) const {
     in = (hgpar_->waferInfoMap_.find(indx) != hgpar_->waferInfoMap_.end());
 #ifdef EDM_ML_DEBUG
     if (in == 0)
-      edm::LogVerbatim("HGCalGeom") << "WaferInLayerTest: Layer " << lay << " wafer " << wafer << " index " << indx << "( " << HGCalWaferIndex::waferLayer(indx) << ", " << HGCalWaferIndex::waferU(indx) << ", " << HGCalWaferIndex::waferV(indx) << ") in " << in;
+      edm::LogVerbatim("HGCalGeom") << "WaferInLayerTest: Layer " << lay << " wafer " << wafer << " index " << indx
+                                    << "( " << HGCalWaferIndex::waferLayer(indx) << ", "
+                                    << HGCalWaferIndex::waferU(indx) << ", " << HGCalWaferIndex::waferV(indx) << ") in "
+                                    << in;
 #endif
   }
 #ifdef EDM_ML_DEBUG
