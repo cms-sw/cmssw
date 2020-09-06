@@ -32,7 +32,6 @@
 
 #include "CalibCalorimetry/HcalTPGAlgos/interface/XMLProcessor.h"
 #include "CalibCalorimetry/HcalTPGAlgos/interface/LutXml.h"
-#include "PhysicsTools/FWLite/interface/CommandLineParser.h"
 #include "DataFormats/HcalDetId/interface/HcalGenericDetId.h"
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
 #include "Geometry/CaloTopology/interface/HcalTopology.h"
