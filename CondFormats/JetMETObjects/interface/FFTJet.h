@@ -1,5 +1,5 @@
-#ifndef CondFormats_External_FFTJET_H
-#define CondFormats_External_FFTJET_H
+#ifndef CondFormats_JetMETObjects_FFTJET_H
+#define CondFormats_JetMETObjects_FFTJET_H
 
 #include <boost/serialization/base_object.hpp>
 #include <boost/serialization/nvp.hpp>
