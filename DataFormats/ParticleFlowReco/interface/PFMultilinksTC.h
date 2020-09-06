@@ -19,7 +19,6 @@ namespace reco {
   public:
     PFMultiLinksTC(bool isvalid = false) : isValid(isvalid) {}
   };
-
 }  // namespace reco
 
 #endif
