@@ -1,5 +1,5 @@
-#ifndef SiStripDetId_SiStripSubStructure_h
-#define SiStripDetId_SiStripSubStructure_h
+#ifndef DataFormats_TrackerCommon_SiStripSubStructure_h
+#define DataFormats_TrackerCommon_SiStripSubStructure_h
 // -*- C++ -*-
 //
 // Package:     SiStripDetId
