@@ -1,4 +1,4 @@
-#include "DataFormats/SiPixelDetId/interface/PixelEndcapName.h"
+#include "DataFormats/TrackerCommon/interface/PixelEndcapName.h"
 
 #include <sstream>
 #include "FWCore/MessageLogger/interface/MessageLogger.h"

@@ -1,5 +1,5 @@
-#ifndef SiPixelDetId_PixelEndcapName_H
-#define SiPixelDetId_PixelEndcapName_H
+#ifndef DataFormats_TrackerCommon_PixelEndcapName_H
+#define DataFormats_TrackerCommon_PixelEndcapName_H
 
 /** \class PixelEndcapName
  * Endcap Module name (as in PixelDatabase) for endcaps
