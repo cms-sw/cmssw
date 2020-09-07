@@ -468,17 +468,17 @@
  <SpecParSection label="muonGE0Numbering" eval="true">
    <SpecPar name="MuonGE0Sector">
    <PartSelector path="//GE0Box"/>
-   <Parameter name="CopyNoTag" value="[m0_sector]"/>
+   <Parameter name="CopyNoTag" value="[mg_sector]"/>
    <Parameter name="CopyNoOffset" value="1*[super]"/>
   </SpecPar>
   <SpecPar name="MuonGE0Layer">
    <PartSelector path="//GE0L.*"/>
-   <Parameter name="CopyNoTag" value="[m0_layer]"/>
-   <Parameter name="CopyNoOffset" value="3*[super]"/>
+   <Parameter name="CopyNoTag" value="[mg_ring]"/>
+   <Parameter name="CopyNoOffset" value="3*[super]+1"/>
   </SpecPar>
   <SpecPar name="MuonGE0Chamber">
    <PartSelector path="//GHA0.*"/>
-   <Parameter name="CopyNoTag" value="[m0_roll]"/>
+   <Parameter name="CopyNoTag" value="[mg_roll]"/>
    <Parameter name="CopyNoOffset" value="4*[super]"/>
   </SpecPar>
  </SpecParSection>
