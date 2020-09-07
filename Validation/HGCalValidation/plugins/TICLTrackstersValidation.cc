@@ -35,6 +35,8 @@ struct Histogram_TICLTrackstersValidation {
   dqm::reco::MonitorElement* angle_alpha_;
   dqm::reco::MonitorElement* angle_alpha_alternative_;
   dqm::reco::MonitorElement* angle_beta_;
+  std::vector<dqm::reco::MonitorElement*> angle_beta_byLayer_;
+  std::vector<dqm::reco::MonitorElement*> angle_beta_w_byLayer_;
 };
 
 using Histograms_TICLTrackstersValidation = std::unordered_map<unsigned int, Histogram_TICLTrackstersValidation>;
@@ -166,6 +168,8 @@ void TICLTrackstersValidation::dqmAnalyze(edm::Event const& iEvent,
           auto beta = (outer_inner_pos-inner_inner_pos).Dot(outer_outer_pos-inner_inner_pos)/
             sqrt((outer_inner_pos-inner_inner_pos).Mag2()*(outer_outer_pos-inner_inner_pos).Mag2());
           histo.angle_beta_->Fill(beta);
+          histo.angle_beta_byLayer_[layer_in]->Fill(beta);
+          histo.angle_beta_w_byLayer_[layer_in]->Fill(beta, ic.energy());
         }
       }
     }
@@ -193,7 +197,15 @@ void TICLTrackstersValidation::bookHistograms(DQMStore::IBooker& ibook,
     histo.angle_alpha_ = ibook.book1D("cosAngle Alpha", "cosAngle Alpha", 200, -1., 1.);
     histo.angle_beta_ = ibook.book1D("cosAngle Beta", "cosAngle Beta", 200, -1., 1.);
     histo.angle_alpha_alternative_ = ibook.book1D("cosAngle Alpha Alternative", "Angle Alpha Alternative", 200, 0., 1.);
-
+    for (int layer = 0; layer < 50; layer++) {
+      auto layerstr = std::to_string(layer+1);
+      if (layerstr.length() < 2)
+        layerstr.insert(0, 2 - layerstr.length(), '0');
+      histo.angle_beta_byLayer_.push_back(ibook.book1D("cosAngle Beta on Layer " + layerstr,
+            "cosAngle Beta on Layer " + layerstr, 200, -1., 1.));
+      histo.angle_beta_w_byLayer_.push_back(ibook.book1D("cosAngle Beta Weighted on Layer " + layerstr,
+            "cosAngle Beta Weighted on Layer " + layerstr, 200, -1., 1.));
+    }
     labelIndex++;
   }
 }
@@ -201,7 +213,7 @@ void TICLTrackstersValidation::bookHistograms(DQMStore::IBooker& ibook,
 void TICLTrackstersValidation::dqmBeginRun(edm::Run const& run,
                                            edm::EventSetup const& iSetup,
                                            Histograms_TICLTrackstersValidation& histograms) const {
-  rhtools_.getEventSetup(iSetup);
+    edm::ESHandle<CaloGeometry> geom; iSetup.get<CaloGeometryRecord>().get(geom); rhtools_.setGeometry(*geom);
 }
 
 void TICLTrackstersValidation::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
