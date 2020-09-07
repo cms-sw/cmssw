@@ -36,10 +36,14 @@ namespace deep_tau {
     }
   }
 
-  double TauWPThreshold::operator()(const pat::Tau& tau) const {
+  double TauWPThreshold::operator()(edm::View<reco::BaseTau>::const_reference& tau, bool is_online) const {
     if (!fn_)
       return value_;
-    fn_->SetParameter(0, tau.decayMode());
+
+    if (!is_online)
+      fn_->SetParameter(0, dynamic_cast<const pat::Tau&>(tau).decayMode());
+    else
+      fn_->SetParameter(0, dynamic_cast<const reco::PFTau&>(tau).decayMode());
     fn_->SetParameter(1, tau.pt());
     fn_->SetParameter(2, tau.eta());
     return fn_->Eval(0);
@@ -47,7 +51,8 @@ namespace deep_tau {
 
   std::unique_ptr<DeepTauBase::TauDiscriminator> DeepTauBase::Output::get_value(const edm::Handle<TauCollection>& taus,
                                                                                 const tensorflow::Tensor& pred,
-                                                                                const WPList& working_points) const {
+                                                                                const WPList& working_points,
+                                                                                bool is_online) const {
     std::vector<reco::SingleTauDiscriminatorContainer> outputbuffer(taus->size());
 
     for (size_t tau_index = 0; tau_index < taus->size(); ++tau_index) {
@@ -62,7 +67,7 @@ namespace deep_tau {
       }
       outputbuffer[tau_index].rawValues.push_back(x);
       for (const auto& wp : working_points) {
-        const bool pass = x > (*wp)(taus->at(tau_index));
+        const bool pass = x > (*wp)(taus->at(tau_index), is_online);
         outputbuffer[tau_index].workingPoints.push_back(pass);
       }
     }
@@ -77,10 +82,13 @@ namespace deep_tau {
                            const OutputCollection& outputCollection,
                            const DeepTauCache* cache)
       : tausToken_(consumes<TauCollection>(cfg.getParameter<edm::InputTag>("taus"))),
-        pfcandToken_(consumes<pat::PackedCandidateCollection>(cfg.getParameter<edm::InputTag>("pfcands"))),
+        pfcandToken_(consumes<CandidateType>(cfg.getParameter<edm::InputTag>("pfcands"))),
         vtxToken_(consumes<reco::VertexCollection>(cfg.getParameter<edm::InputTag>("vertices"))),
+        is_online(cfg.getParameter<bool>("is_online")),
         outputs_(outputCollection),
         cache_(cache) {
+
+
     for (const auto& output_desc : outputs_) {
       produces<TauDiscriminator>(output_desc.first);
       const auto& cut_list = cfg.getParameter<std::vector<std::string>>(output_desc.first + "WP");
@@ -100,7 +108,7 @@ namespace deep_tau {
 
   void DeepTauBase::createOutputs(edm::Event& event, const tensorflow::Tensor& pred, edm::Handle<TauCollection> taus) {
     for (const auto& output_desc : outputs_) {
-      auto result = output_desc.second.get_value(taus, pred, workingPoints_.at(output_desc.first));
+      auto result = output_desc.second.get_value(taus, pred, workingPoints_.at(output_desc.first), is_online);
       event.put(std::move(result), output_desc.first);
     }
   }
