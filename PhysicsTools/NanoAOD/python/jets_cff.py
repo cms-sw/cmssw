@@ -6,6 +6,7 @@ from Configuration.Eras.Modifier_run2_nanoAOD_94X2016_cff import run2_nanoAOD_94
 from Configuration.Eras.Modifier_run2_nanoAOD_94XMiniAODv1_cff import run2_nanoAOD_94XMiniAODv1
 from Configuration.Eras.Modifier_run2_nanoAOD_94XMiniAODv2_cff import run2_nanoAOD_94XMiniAODv2
 from Configuration.Eras.Modifier_run2_nanoAOD_102Xv1_cff import run2_nanoAOD_102Xv1
+from Configuration.Eras.Modifier_run2_nanoAOD_106Xv1_cff import run2_nanoAOD_106Xv1
 
 from  PhysicsTools.NanoAOD.common_cff import *
 from RecoJets.JetProducers.ak4PFJetsBetaStar_cfi import *
@@ -678,7 +679,7 @@ for modifier in run2_miniAOD_80XLegacy, run2_nanoAOD_94X2016:
 #HF shower shape recomputation 
 #Only run if needed (i.e. if default MINIAOD info is missing or outdated because of new JECs...) 
 from RecoJets.JetProducers.hfJetShowerShape_cfi import hfJetShowerShape
-for modifier in run2_miniAOD_80XLegacy, run2_nanoAOD_94X2016, run2_nanoAOD_94XMiniAODv1, run2_nanoAOD_94XMiniAODv2, run2_nanoAOD_102Xv1:
+for modifier in run2_miniAOD_80XLegacy, run2_nanoAOD_94X2016, run2_nanoAOD_94XMiniAODv1, run2_nanoAOD_94XMiniAODv2, run2_nanoAOD_102Xv1, run2_nanoAOD_106Xv1:
   modifier.toModify(hfJetShowerShape,jets="updatedJets",vertices="offlineSlimmedPrimaryVertices")
   modifier.toModify(updatedJetsWithUserData.userFloats,
                     hfsigmaEtaEta = cms.InputTag('hfJetShowerShape:sigmaEtaEta'),

@@ -211,8 +211,8 @@ void HFJetShowerShape::putInEvent(const std::string& name,
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
 void HFJetShowerShape::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
-  desc.add<edm::InputTag>("jets");
-  desc.add<edm::InputTag>("vertices");
+  desc.add<edm::InputTag>("jets", edm::InputTag("ak4PFJetsCHS"));
+  desc.add<edm::InputTag>("vertices", edm::InputTag("offlineSlimmedPrimaryVertices"));
   desc.add<double>("jetPtThreshold", 25.);
   desc.add<double>("jetEtaThreshold", 2.9);
   desc.add<double>("hfTowerEtaWidth", 0.175);
@@ -222,7 +222,7 @@ void HFJetShowerShape::fillDescriptions(edm::ConfigurationDescriptions& descript
   desc.add<double>("jetReferenceRadius", 0.4);
   desc.add<double>("stripPtThreshold", 10.);
   desc.add<double>("widthPtThreshold", 3.);
-  descriptions.add("hfJetShowerShapeDefault", desc);
+  descriptions.add("hfJetShowerShape", desc);
 }
 
 //define this as a plug-in
