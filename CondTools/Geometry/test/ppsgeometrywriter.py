@@ -18,22 +18,10 @@ process.PoolDBOutputService = cms.Service("PoolDBOutputService",
     ))
 )
 
-# minimum of logs
-process.MessageLogger = cms.Service("MessageLogger",
-    statistics = cms.untracked.vstring(),
-    destinations = cms.untracked.vstring('cout'),
-    cout = cms.untracked.PSet(
-        threshold = cms.untracked.string('INFO')
-    )
-)
-
-# geometry
-from Geometry.VeryForwardGeometry.geometryIdealPPSFromDD_2017_cfi import allFiles
-
-process.XMLIdealGeometryESSource_CTPPS = cms.ESSource("XMLIdealGeometryESSource",
-    geomXMLFiles = allFiles,
-    rootNodeName = cms.string('cms:CMSE')
-)
+process.load("FWCore.MessageService.MessageLogger_cfi")
+process.MessageLogger.debugModules = cms.untracked.vstring('ppsGeometryBuilder')
+process.MessageLogger.cout = cms.untracked.PSet(
+    threshold = cms.untracked.string('DEBUG'))
 
 # no events to process
 process.source = cms.Source("EmptySource",
@@ -48,6 +36,11 @@ process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(1)
 )
 
+# geometry
+process.load("Geometry.VeryForwardGeometry.geometryRPFromDD_2018_cfi")
+
+
+# DB writer
 process.ppsGeometryBuilder = cms.EDAnalyzer("PPSGeometryBuilder",
     compactViewTag = cms.untracked.string('XMLIdealGeometryESSource_CTPPS')
 )
