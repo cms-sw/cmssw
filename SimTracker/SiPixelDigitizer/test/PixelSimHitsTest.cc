@@ -45,7 +45,7 @@ New det-id.
 
 // for det id
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
-#include "DataFormats/SiPixelDetId/interface/PixelBarrelName.h"
+#include "DataFormats/TrackerCommon/interface/PixelBarrelName.h"
 
 #include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
 
