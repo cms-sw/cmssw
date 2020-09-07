@@ -15,7 +15,7 @@
 #include "DataFormats/Common/interface/DetSetVectorNew.h"
 #include "DataFormats/Common/interface/DetSetVector.h"
 #include "DataFormats/Common/interface/Handle.h"
-#include "DataFormats/SiStripDetId/interface/SiStripSubStructure.h"
+#include "DataFormats/TrackerCommon/interface/SiStripSubStructure.h"
 #include "DataFormats/SiStripDigi/interface/SiStripDigi.h"
 #include "DQM/SiStripCommon/interface/SiStripFolderOrganizer.h"
 #include "DQM/SiStripCommon/interface/SiStripHistoId.h"

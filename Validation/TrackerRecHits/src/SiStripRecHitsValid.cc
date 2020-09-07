@@ -5,7 +5,7 @@
 #include "CalibFormats/SiStripObjects/interface/SiStripDetCabling.h"
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
-#include "DataFormats/SiStripDetId/interface/SiStripSubStructure.h"
+#include "DataFormats/TrackerCommon/interface/SiStripSubStructure.h"
 #include "DQM/SiStripCommon/interface/SiStripFolderOrganizer.h"
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 #include "DataFormats/GeometryVector/interface/LocalPoint.h"

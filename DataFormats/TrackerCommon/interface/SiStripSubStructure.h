@@ -6,7 +6,7 @@
 // Class  :     SiStripSubStructure
 //
 /**\class SiStripSubStructure SiStripSubStructure.h
- DataFormats/SiStripDetId/interface/SiStripSubStructure.h
+ DataFormats/TrackerCommon/interface/SiStripSubStructure.h
 
  Description: <Assign detector Ids to different substructures of the
  SiStripTracker: TOB, TIB, etc>
