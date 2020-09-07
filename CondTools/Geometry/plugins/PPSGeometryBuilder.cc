@@ -3,7 +3,7 @@
  *  DB builder for PPS geometry
  *
  *  Author: Wagner Carvalho (wcarvalh@cern.ch)
- *  Rewritten / Moved out common functionalities to DetGeomDesc(Builder) by Gabrielle Hugo.
+ *  Moved out common functionalities to DetGeomDesc(Builder) + support both old DD and DD4hep, by Gabrielle Hugo.
  *
  ****************************************************************************/
 
