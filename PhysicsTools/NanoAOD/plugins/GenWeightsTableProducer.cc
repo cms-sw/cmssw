@@ -450,9 +450,8 @@ public:
     const std::vector<unsigned int>& psWeightIDs = weightChoice->psWeightIDs;
 
     auto weights = genProd.weights();
-    double w0 = weights.at(1);
-    double originalXWGTUP = weights.at(1);
-    ;
+    double w0 = (weights.size() > 1) ? weights.at(1) : 1.;
+    double originalXWGTUP = (weights.size() > 1) ? weights.at(1) : 1.;
 
     std::vector<double> wScale, wPDF, wPS;
     for (auto id : scaleWeightIDs)
