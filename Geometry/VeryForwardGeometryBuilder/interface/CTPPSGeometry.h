@@ -35,11 +35,14 @@ public:
 
   using Vector = DetGeomDesc::Translation;
 
+  CTPPSGeometry() {}
+  ~CTPPSGeometry() {}
+
   /// build up from DetGeomDesc
-  CTPPSGeometry(const DetGeomDesc* gd, unsigned int verbosity) { build(gd, verbosity); }
+  CTPPSGeometry(const DetGeomDesc* gd) { build(gd); }
 
   /// build up from DetGeomDesc structure
-  void build(const DetGeomDesc*, unsigned int verbosity);
+  void build(const DetGeomDesc*);
 
   //----- setters and getters
 
