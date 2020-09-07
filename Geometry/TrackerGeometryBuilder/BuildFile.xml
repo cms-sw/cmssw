@@ -7,6 +7,10 @@
 <use name="Geometry/CommonDetUnit"/>
 <use name="Geometry/CommonTopologies"/>
 <use name="Geometry/TrackerNumberingBuilder"/>
+<use name="CondFormats/GeometryObjects"/>
+<use name="DataFormats/DetId"/>
+<use name="DataFormats/SiStripDetId"/>
+<use name="DetectorDescription/DDCMS"/>
 <use name="clhep"/>
 <export>
   <lib name="1"/>
