@@ -83,8 +83,7 @@ void DQMFileSaverPB::saveLumi(const FileParameters& fp) const {
     // If tag is not configured, we don't add it at all to keep the old behaviour unchanged.
     if (tag_ == "UNKNOWN") {
       baseName = fmt::sprintf("%s/run%06d_ls%04d_%s", runDir, fp.run_, fp.lumi_, streamLabel_);
-    }
-    else {
+    } else {
       baseName = fmt::sprintf("%s/run%06d_%s_%s", runDir, fp.run_, tag_, streamLabel_);
     }
 
@@ -253,8 +252,7 @@ void DQMFileSaverPB::savePB(DQMStore* store, std::string const& filename, int ru
 
     if (tag_ == "UNKNOWN") {
       histo.set_streamed_histo((void const*)buffer.Buffer(), buffer.Length());
-    }
-    else {
+    } else {
       // Compress ME blob with zlib
       int maxOutputSize = this->getMaxCompressedSize(buffer.Length());
       char compression_output[maxOutputSize];
@@ -284,8 +282,7 @@ void DQMFileSaverPB::savePB(DQMStore* store, std::string const& filename, int ru
 
       if (tag_ == "UNKNOWN") {
         qr_histo.set_streamed_histo((void const*)qr_buffer.Buffer(), qr_buffer.Length());
-      }
-      else {
+      } else {
         // Compress ME blob with zlib
         int maxOutputSize = this->getMaxCompressedSize(qr_buffer.Length());
         char compression_output[maxOutputSize];
@@ -317,8 +314,7 @@ void DQMFileSaverPB::savePB(DQMStore* store, std::string const& filename, int ru
     // Flush the internal streams
     gzip_stream.Close();
     file_stream.Close();
-  }
-  else {
+  } else {
     // We zlib compressed individual MEs so no need to compress the entire file again.
     dqmstore_message.SerializeToZeroCopyStream(&file_stream);
 
@@ -338,7 +334,7 @@ int DQMFileSaverPB::getMaxCompressedSize(int bufferSize) const {
   // When input data is very badly compressable, zlib will add overhead instead of reducing the size.
   // There is a minor amount of overhead (6 bytes overall and 5 bytes per 16K block) that is taken
   // into consideration here to find out potential absolute maximum size of the output.
-  int n16kBlocks = (bufferSize + 16383) / 16384; // round up any fraction of a block
+  int n16kBlocks = (bufferSize + 16383) / 16384;  // round up any fraction of a block
   int maxOutputSize = bufferSize + 6 + (n16kBlocks * 5);
   return maxOutputSize;
 }
@@ -348,10 +344,10 @@ ulong DQMFileSaverPB::compressME(const TBufferFile& buffer, int maxOutputSize, c
   deflateStream.zalloc = Z_NULL;
   deflateStream.zfree = Z_NULL;
   deflateStream.opaque = Z_NULL;
-  deflateStream.avail_in = (uInt)buffer.Length() + 1; // size of input, string + terminator
-  deflateStream.next_in = (Bytef *)buffer.Buffer(); // input array
-  deflateStream.avail_out = (uInt)maxOutputSize; // size of output
-  deflateStream.next_out = (Bytef *)compression_output; // output array, result will be placed here
+  deflateStream.avail_in = (uInt)buffer.Length() + 1;   // size of input, string + terminator
+  deflateStream.next_in = (Bytef*)buffer.Buffer();      // input array
+  deflateStream.avail_out = (uInt)maxOutputSize;        // size of output
+  deflateStream.next_out = (Bytef*)compression_output;  // output array, result will be placed here
 
   // The actual compression
   deflateInit(&deflateStream, Z_BEST_COMPRESSION);
