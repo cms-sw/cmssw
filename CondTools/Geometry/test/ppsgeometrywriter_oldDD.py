@@ -39,7 +39,6 @@ process.maxEvents = cms.untracked.PSet(
 # geometry
 process.load("Geometry.VeryForwardGeometry.geometryRPFromDD_2018_cfi")
 
-
 # DB writer
 process.ppsGeometryBuilder = cms.EDAnalyzer("PPSGeometryBuilder",
     compactViewTag = cms.untracked.string('XMLIdealGeometryESSource_CTPPS')

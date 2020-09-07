@@ -347,6 +347,7 @@
     <Include ref='Geometry/VeryForwardData/data/ppstrackerMaterials/v1/ppstrackerMaterials.xml'/>
     <Include ref='Geometry/VeryForwardData/data/CTPPS_Pixel_Module/v1/CTPPS_Pixel_Module.xml'/>
     <Include ref='Geometry/VeryForwardData/data/CTPPS_Pixel_Module_2x2/v1/CTPPS_Pixel_Module_2x2.xml'/>
+    <Include ref="Geometry/VeryForwardData/data/dd4hep/SpecPar_for_CTPPS_Pixel_Module_2x2.xml"/>
     <Include ref='Geometry/VeryForwardData/data/CTPPS_Pixel_2018/CTPPS_Pixel_Assembly_Box_Real_003.xml'/>
     <Include ref='Geometry/VeryForwardData/data/CTPPS_Pixel_2018/CTPPS_Pixel_Assembly_Box_Real_023.xml'/>
     <Include ref='Geometry/VeryForwardData/data/CTPPS_Pixel_2018/CTPPS_Pixel_Assembly_Box_Real_103.xml'/>

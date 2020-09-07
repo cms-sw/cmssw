@@ -3,8 +3,8 @@ import FWCore.ParameterSet.Config as cms
 process = cms.Process("GeometryXMLWriter")
 
 process.load('Geometry.VeryForwardGeometry.geometryRPFromDD_2017_cfi')
-from Geometry.VeryForwardGeometry.geometryRPFromDD_2017_cfi import DDDetectorESProducer
-process.XMLIdealGeometryESSource = DDDetectorESProducer.clone()
+from Geometry.VeryForwardGeometry.geometryRPFromDD_2017_cfi import XMLIdealGeometryESSource_CTPPS
+process.XMLIdealGeometryESSource = XMLIdealGeometryESSource_CTPPS.clone()
 
 process.source = cms.Source("EmptyIOVSource",
                             lastValue = cms.uint64(1),
