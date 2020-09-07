@@ -2064,7 +2064,6 @@ private:
     tensorflow::Tensor inputs(tensorflow::DT_FLOAT, {1, dnn_inputs_2017v1::NumberOfInputs});
     const auto& get = [&](int var_index) -> float& { return inputs.matrix<float>()(0, var_index); };
     auto leadChargedHadrCand = dynamic_cast<const CandidateCastType*>(tau.leadChargedHadrCand().get());
-    // const reco::PFTauTransverseImpactParameter impact_param = tau_funcs.getImpactObject(tau, tau_index);
 
     if (check_all_set) {
       for (int var_index = 0; var_index < dnn::NumberOfInputs; ++var_index) {
@@ -2415,7 +2414,6 @@ private:
 
   std::string input_layer_, output_layer_;
   const unsigned version;
-  // const bool is_online;
   const int debug_level;
   const bool disable_dxy_pca_;
   std::unique_ptr<tensorflow::Tensor> tauBlockTensor_;
