@@ -1,4 +1,4 @@
-#include "CalibTracker/SiStripCommon/interface/ShallowTrackClustersProducer.h"
+#include "ShallowTrackClustersProducer.h"
 
 #include "CalibTracker/SiStripCommon/interface/ShallowTools.h"
 
