@@ -26,6 +26,7 @@
 <use name="dd4hep"/>
 <use name="DetectorDescription/Core"/>
 <use name="DetectorDescription/DDCMS"/>
+
 <library name="CondToolsGeometryPlugins" file="*.cc">
   <flags EDM_PLUGIN="1"/>
 </library>

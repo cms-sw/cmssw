@@ -9,7 +9,8 @@ DDCompactViewESProducer = cms.ESProducer("DDCompactViewESProducer",
                                             appendToDataLabel = cms.string('XMLIdealGeometryESSource_CTPPS')
 )
 
-ctppsGeometryESModule = cms.ESProducer("PPSGeometryESProducer",
+ctppsGeometryESModule = cms.ESProducer("CTPPSGeometryESModule",
+    fromDD4hep = cms.untracked.bool(True),
     verbosity = cms.untracked.uint32(1),
-    detectorTag = cms.string("XMLIdealGeometryESSource_CTPPS")
+    compactViewTag = cms.string('XMLIdealGeometryESSource_CTPPS')
 )
