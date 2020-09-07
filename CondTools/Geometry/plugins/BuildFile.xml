@@ -2,8 +2,6 @@
 <use name="CondCore/DBOutputService"/>
 <use name="CondFormats/Common"/>
 <use name="CondFormats/GeometryObjects"/>
-<use name="DataFormats/CTPPSDetId"/>
-<use name="DetectorDescription/Core"/>
 <use name="FWCore/Framework"/>
 <use name="FWCore/ParameterSet"/>
 <use name="FWCore/ServiceRegistry"/>
@@ -25,6 +23,10 @@
 <use name="Geometry/MuonNumbering"/>
 <use name="Geometry/HGCalGeometry"/>
 <use name="Geometry/VeryForwardGeometryBuilder"/>
-<library file="*.cc" name="CondToolsGeometryPlugins">
+<use name="dd4hep"/>
+<use name="DetectorDescription/Core"/>
+<use name="DetectorDescription/DDCMS"/>
+
+<library name="CondToolsGeometryPlugins" file="*.cc">
   <flags EDM_PLUGIN="1"/>
 </library>
