@@ -1,7 +1,7 @@
 #include "CalibTracker/SiPixelConnectivity/interface/PixelToLNKAssociateFromAscii.h"
 
-#include "DataFormats/SiPixelDetId/interface/PixelBarrelName.h"
-#include "DataFormats/SiPixelDetId/interface/PixelEndcapName.h"
+#include "DataFormats/TrackerCommon/interface/PixelBarrelName.h"
+#include "DataFormats/TrackerCommon/interface/PixelEndcapName.h"
 #include "DataFormats/SiPixelDetId/interface/PixelPannelType.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 

@@ -11,7 +11,7 @@
 #include "DataFormats/FEDRawData/interface/FEDTrailer.h"
 
 #include "CondFormats/SiPixelObjects/interface/PixelROC.h"
-#include "DataFormats/SiPixelDetId/interface/PixelBarrelName.h"
+#include "DataFormats/TrackerCommon/interface/PixelBarrelName.h"
 
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
