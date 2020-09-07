@@ -179,11 +179,10 @@ void PixelDataFormatter::interpretRawData(
     LogTrace("") << "DATA: " << print(*word);
 
     auto ww = *word;
-    if
-      UNLIKELY(ww == 0) {
-        theWordCounter--;
-        continue;
-      }
+    if UNLIKELY (ww == 0) {
+      theWordCounter--;
+      continue;
+    }
     int nlink = (ww >> LINK_shift) & LINK_mask;
     int nroc = (ww >> ROC_shift) & ROC_mask;
 
@@ -198,13 +197,12 @@ void PixelDataFormatter::interpretRawData(
       if (skipROC)
         continue;
       rocp = converter.toRoc(link, roc);
-      if
-        UNLIKELY(!rocp) {
-          errorsInEvent = true;
-          errorcheck->conversionError(fedId, &converter, 2, ww, errors);
-          skipROC = true;
-          continue;
-        }
+      if UNLIKELY (!rocp) {
+        errorsInEvent = true;
+        errorcheck->conversionError(fedId, &converter, 2, ww, errors);
+        skipROC = true;
+        continue;
+      }
       auto rawId = rocp->rawId();
       bool barrel = PixelModuleName::isBarrel(rawId);
       if (barrel)
@@ -231,8 +229,8 @@ void PixelDataFormatter::interpretRawData(
     }
 
     // skip is roc to be skipped ot invalid
-    if
-      UNLIKELY(skipROC || !rocp) continue;
+    if UNLIKELY (skipROC || !rocp)
+      continue;
 
     int adc = (ww >> ADC_shift) & ADC_mask;
     std::unique_ptr<LocalPixel> local;
@@ -246,13 +244,12 @@ void PixelDataFormatter::interpretRawData(
 
       LocalPixel::RocRowCol localCR = {row, col};  // build pixel
       //if(DANEK)cout<<localCR.rocCol<<" "<<localCR.rocRow<<endl;
-      if
-        UNLIKELY(!localCR.valid()) {
-          LogDebug("PixelDataFormatter::interpretRawData") << "status #3";
-          errorsInEvent = true;
-          errorcheck->conversionError(fedId, &converter, 3, ww, errors);
-          continue;
-        }
+      if UNLIKELY (!localCR.valid()) {
+        LogDebug("PixelDataFormatter::interpretRawData") << "status #3";
+        errorsInEvent = true;
+        errorcheck->conversionError(fedId, &converter, 3, ww, errors);
+        continue;
+      }
       local = std::make_unique<LocalPixel>(localCR);  // local pixel coordinate
       //if(DANEK) cout<<local->dcol()<<" "<<local->pxid()<<" "<<local->rocCol()<<" "<<local->rocRow()<<endl;
 
@@ -265,13 +262,12 @@ void PixelDataFormatter::interpretRawData(
       LocalPixel::DcolPxid localDP = {dcol, pxid};
       //if(DANEK) cout<<localDP.dcol<<" "<<localDP.pxid<<endl;
 
-      if
-        UNLIKELY(!localDP.valid()) {
-          LogDebug("PixelDataFormatter::interpretRawData") << "status #3";
-          errorsInEvent = true;
-          errorcheck->conversionError(fedId, &converter, 3, ww, errors);
-          continue;
-        }
+      if UNLIKELY (!localDP.valid()) {
+        LogDebug("PixelDataFormatter::interpretRawData") << "status #3";
+        errorsInEvent = true;
+        errorcheck->conversionError(fedId, &converter, 3, ww, errors);
+        continue;
+      }
       local = std::make_unique<LocalPixel>(localDP);  // local pixel coordinate
       //if(DANEK) cout<<local->dcol()<<" "<<local->pxid()<<" "<<local->rocCol()<<" "<<local->rocRow()<<endl;
     }
