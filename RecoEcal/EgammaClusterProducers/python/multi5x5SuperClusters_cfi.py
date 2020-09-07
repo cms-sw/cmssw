@@ -40,7 +40,8 @@ multi5x5SuperClustersCleaned = cms.EDProducer("Multi5x5SuperClusterProducer",
 
 
 multi5x5SuperClustersUncleaned = multi5x5SuperClustersCleaned.clone(
-    endcapClusterProducer = cms.string('multi5x5BasicClustersUncleaned')
+    barrelClusterTag = 'multi5x5BasicClustersUncleaned:multi5x5BarrelBasicClustersCleaned',
+    endcapClusterTag = 'multi5x5BasicClustersUncleaned:multi5x5EndcapBasicClusters'
 )
 
 multi5x5SuperClusters=cms.EDProducer("UnifiedSCCollectionProducer",
