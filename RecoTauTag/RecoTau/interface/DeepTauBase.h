@@ -19,10 +19,15 @@
 #include "DataFormats/PatCandidates/interface/Muon.h"
 #include "DataFormats/PatCandidates/interface/Tau.h"
 #include "DataFormats/TauReco/interface/TauDiscriminatorContainer.h"
+#include "DataFormats/TauReco/interface/PFTauDiscriminator.h"
+#include "DataFormats/TauReco/interface/PFTauTransverseImpactParameterAssociation.h"
+#include "DataFormats/TauReco/interface/PFTauTransverseImpactParameterFwd.h"
+#include "DataFormats/TauReco/interface/PFTauTransverseImpactParameter.h"
 #include "CommonTools/Utils/interface/StringObjectFunction.h"
 #include "RecoTauTag/RecoTau/interface/PFRecoTauClusterVariables.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+#include "DataFormats/Common/interface/View.h"
 #include <TF1.h>
 
 namespace deep_tau {
@@ -30,7 +35,7 @@ namespace deep_tau {
   class TauWPThreshold {
   public:
     explicit TauWPThreshold(const std::string& cut_str);
-    double operator()(const pat::Tau& tau) const;
+    double operator()(edm::View<reco::BaseTau>::const_reference& tau, bool is_online) const;
 
   private:
     std::unique_ptr<TF1> fn_;
@@ -57,9 +62,10 @@ namespace deep_tau {
 
   class DeepTauBase : public edm::stream::EDProducer<edm::GlobalCache<DeepTauCache>> {
   public:
-    using TauType = pat::Tau;
+    using TauType = edm::View<reco::BaseTau>;
     using TauDiscriminator = reco::TauDiscriminatorContainer;
-    using TauCollection = std::vector<TauType>;
+    using TauCollection = TauType;
+    using CandidateType = edm::View<reco::Candidate>;
     using TauRef = edm::Ref<TauCollection>;
     using TauRefProd = edm::RefProd<TauCollection>;
     using ElectronCollection = pat::ElectronCollection;
@@ -76,7 +82,8 @@ namespace deep_tau {
 
       std::unique_ptr<TauDiscriminator> get_value(const edm::Handle<TauCollection>& taus,
                                                   const tensorflow::Tensor& pred,
-                                                  const WPList& working_points) const;
+                                                  const WPList& working_points,
+                                                  bool is_online) const;
     };
 
     using OutputCollection = std::map<std::string, Output>;
@@ -95,9 +102,10 @@ namespace deep_tau {
 
   protected:
     edm::EDGetTokenT<TauCollection> tausToken_;
-    edm::EDGetTokenT<pat::PackedCandidateCollection> pfcandToken_;
+    edm::EDGetTokenT<CandidateType> pfcandToken_;
     edm::EDGetTokenT<reco::VertexCollection> vtxToken_;
     std::map<std::string, WPList> workingPoints_;
+    const bool is_online;
     OutputCollection outputs_;
     const DeepTauCache* cache_;
   };
