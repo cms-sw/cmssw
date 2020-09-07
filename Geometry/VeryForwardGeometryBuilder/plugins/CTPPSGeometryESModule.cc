@@ -15,10 +15,9 @@
 #include "FWCore/Framework/interface/ESProducer.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
+#include "DetectorDescription/Core/interface/DDCompactView.h"
 #include "DetectorDescription/DDCMS/interface/DDCompactView.h"
 #include "CondFormats/PPSObjects/interface/CTPPSRPAlignmentCorrectionsData.h"
-#include "Geometry/VeryForwardGeometryBuilder/interface/DetGeomDesc.h"
-#include "Geometry/VeryForwardGeometryBuilder/interface/CTPPSGeometry.h"
 
 #include "CondFormats/AlignmentRecord/interface/RPRealAlignmentRecord.h"
 #include "CondFormats/AlignmentRecord/interface/RPMisalignedAlignmentRecord.h"
@@ -31,9 +30,10 @@
 #include "DataFormats/CTPPSDetId/interface/CTPPSPixelDetId.h"
 #include "DataFormats/CTPPSDetId/interface/CTPPSDiamondDetId.h"
 
-#include "DetectorDescription/DDCMS/interface/DDCompactView.h"
 #include "Geometry/VeryForwardGeometryBuilder/interface/DetGeomDescBuilder.h"
 #include "Geometry/VeryForwardGeometryBuilder/interface/CTPPSDDDNames.h"
+#include "Geometry/VeryForwardGeometryBuilder/interface/DetGeomDesc.h"
+#include "Geometry/VeryForwardGeometryBuilder/interface/CTPPSGeometry.h"
 
 #include <regex>
 
@@ -49,10 +49,10 @@
 using RotationMatrix = ROOT::Math::Rotation3D;
 using Translation = ROOT::Math::DisplacementVector3D<ROOT::Math::Cartesian3D<double>>;
 
-class PPSGeometryESProducer : public edm::ESProducer {
+class CTPPSGeometryESModule : public edm::ESProducer {
 public:
-  PPSGeometryESProducer(const edm::ParameterSet&);
-  ~PPSGeometryESProducer() override {}
+  CTPPSGeometryESModule(const edm::ParameterSet&);
+  ~CTPPSGeometryESModule() override {}
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
@@ -81,10 +81,13 @@ private:
                                          GDTokens<REC> const&,
                                          const char* name);
 
-  static void applyAlignments(const DetGeomDesc&, const CTPPSRPAlignmentCorrectionsData*, DetGeomDesc*&);
+  static std::unique_ptr<DetGeomDesc> applyAlignments(const DetGeomDesc&, const CTPPSRPAlignmentCorrectionsData*);
 
   const unsigned int verbosity_;
-  const edm::ESGetToken<cms::DDDetector, IdealGeometryRecord> detectorToken_;
+
+  edm::ESGetToken<DDCompactView, IdealGeometryRecord> ddToken_;
+  edm::ESGetToken<cms::DDCompactView, IdealGeometryRecord> dd4hepToken_;
+  const bool fromDD4hep_;
 
   const GDTokens<RPRealAlignmentRecord> gdRealTokens_;
   const GDTokens<RPMisalignedAlignmentRecord> gdMisTokens_;
@@ -93,97 +96,112 @@ private:
   const edm::ESGetToken<DetGeomDesc, VeryForwardMisalignedGeometryRecord> dgdMisToken_;
 };
 
-PPSGeometryESProducer::PPSGeometryESProducer(const edm::ParameterSet& iConfig)
-    : verbosity_(iConfig.getUntrackedParameter<unsigned int>("verbosity")),
-      detectorToken_{setWhatProduced(this, &PPSGeometryESProducer::produceIdealGD)
-                         .consumes<cms::DDDetector>(edm::ESInputTag("" /*optional module label */,
-                                                                    iConfig.getParameter<std::string>("detectorTag")))},
-      gdRealTokens_{setWhatProduced(this, &PPSGeometryESProducer::produceRealGD)},
-      gdMisTokens_{setWhatProduced(this, &PPSGeometryESProducer::produceMisalignedGD)},
-      dgdRealToken_{
-          setWhatProduced(this, &PPSGeometryESProducer::produceRealTG).consumes<DetGeomDesc>(edm::ESInputTag())},
-      dgdMisToken_{
-          setWhatProduced(this, &PPSGeometryESProducer::produceMisalignedTG).consumes<DetGeomDesc>(edm::ESInputTag())} {
-}
+CTPPSGeometryESModule::CTPPSGeometryESModule(const edm::ParameterSet& iConfig)
+  : verbosity_(iConfig.getUntrackedParameter<unsigned int>("verbosity")),
+    fromDD4hep_(iConfig.getUntrackedParameter<bool>("fromDD4hep", false)),  
+    gdRealTokens_{setWhatProduced(this, &CTPPSGeometryESModule::produceRealGD)},
+  gdMisTokens_{setWhatProduced(this, &CTPPSGeometryESModule::produceMisalignedGD)},
+  dgdRealToken_{
+    setWhatProduced(this, &CTPPSGeometryESModule::produceRealTG).consumes<DetGeomDesc>(edm::ESInputTag())},
+  dgdMisToken_{
+    setWhatProduced(this, &CTPPSGeometryESModule::produceMisalignedTG).consumes<DetGeomDesc>(edm::ESInputTag())} {
+    auto c = setWhatProduced(this, &CTPPSGeometryESModule::produceIdealGD);
 
-void PPSGeometryESProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+    if (!fromDD4hep_) {
+      ddToken_ = c.consumes<DDCompactView>(edm::ESInputTag("", iConfig.getParameter<std::string>("compactViewTag")));
+    } else {
+      dd4hepToken_ = c.consumes<cms::DDCompactView>(edm::ESInputTag("", iConfig.getParameter<std::string>("compactViewTag")));
+    }
+  }
+
+void CTPPSGeometryESModule::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
   desc.addUntracked<unsigned int>("verbosity", 1);
-  desc.add<std::string>("detectorTag", std::string());
-  descriptions.add("PPSGeometryESProducer", desc);
+  desc.add<std::string>("compactViewTag", std::string());
+  desc.addUntracked<bool>("fromDD4hep", false);
+  descriptions.add("CTPPSGeometryESModule", desc);
 }
 
 //----------------------------------------------------------------------------------------------------
 /*
  * Apply alignments by doing a BFS on idealGD tree.
  */
-void PPSGeometryESProducer::applyAlignments(const DetGeomDesc& idealGD,
-                                            const CTPPSRPAlignmentCorrectionsData* alignments,
-                                            DetGeomDesc*& newGD) {
-  newGD = new DetGeomDesc(idealGD);
-  std::deque<const DetGeomDesc*> buffer;
-  std::deque<DetGeomDesc*> bufferNew;
-  buffer.emplace_back(&idealGD);
-  bufferNew.emplace_back(newGD);
+std::unique_ptr<DetGeomDesc> CTPPSGeometryESModule::applyAlignments(const DetGeomDesc& idealDetRoot,
+                                            const CTPPSRPAlignmentCorrectionsData* alignments) {
+  std::deque<const DetGeomDesc*> bufferIdealGeo;
+  bufferIdealGeo.emplace_back(&idealDetRoot);
 
-  while (!buffer.empty()) {
-    const DetGeomDesc* sD = buffer.front();
-    DetGeomDesc* pD = bufferNew.front();
-    buffer.pop_front();
-    bufferNew.pop_front();
+  std::deque<DetGeomDesc*> bufferAlignedGeo;
+  DetGeomDesc* alignedDetRoot = new DetGeomDesc(idealDetRoot);
+  bufferAlignedGeo.emplace_back(alignedDetRoot);
 
-    const std::string name = pD->name();
+  while (!bufferIdealGeo.empty()) {
+    const DetGeomDesc* idealDet = bufferIdealGeo.front();
+    DetGeomDesc* alignedDet = bufferAlignedGeo.front();
+    bufferIdealGeo.pop_front();
+    bufferAlignedGeo.pop_front();
+
+    const std::string name = alignedDet->name();
 
     // Is it sensor? If yes, apply full sensor alignments
     if (name == DDD_TOTEM_RP_SENSOR_NAME || name == DDD_CTPPS_DIAMONDS_SEGMENT_NAME ||
         name == DDD_CTPPS_UFSD_SEGMENT_NAME || name == DDD_CTPPS_PIXELS_SENSOR_NAME ||
         std::regex_match(name, std::regex(DDD_TOTEM_TIMING_SENSOR_TMPL))) {
-      unsigned int plId = pD->geographicalID();
+      unsigned int plId = alignedDet->geographicalID();
 
       if (alignments) {
         const auto& ac = alignments->getFullSensorCorrection(plId);
-        pD->applyAlignment(ac);
+        alignedDet->applyAlignment(ac);
       }
     }
 
     // Is it RP box? If yes, apply RP alignments
     if (name == DDD_TOTEM_RP_RP_NAME || name == DDD_CTPPS_DIAMONDS_RP_NAME || name == DDD_CTPPS_PIXELS_RP_NAME ||
         name == DDD_TOTEM_TIMING_RP_NAME) {
-      unsigned int rpId = pD->geographicalID();
+      unsigned int rpId = alignedDet->geographicalID();
 
       if (alignments) {
         const auto& ac = alignments->getRPCorrection(rpId);
-        pD->applyAlignment(ac);
+        alignedDet->applyAlignment(ac);
       }
     }
 
     // create and add children
-    for (unsigned int i = 0; i < sD->components().size(); i++) {
-      const DetGeomDesc* sDC = sD->components()[i];
-      buffer.emplace_back(sDC);
+    const auto& idealDetChildren = idealDet->components();
+    for (unsigned int i = 0; i < idealDetChildren.size(); i++) {
+      const DetGeomDesc* idealDetChild = idealDetChildren[i];
+      bufferIdealGeo.emplace_back(idealDetChild);
 
-      // create new node with the same information as in sDC and add it as a child of pD
-      DetGeomDesc* cD = new DetGeomDesc(*sDC);
-      pD->addComponent(cD);
+      // create new node with the same information as in idealDetChild and add it as a child of alignedDet
+      DetGeomDesc* alignedDetChild = new DetGeomDesc(*idealDetChild);
+      alignedDet->addComponent(alignedDetChild);
 
-      bufferNew.emplace_back(cD);
+      bufferAlignedGeo.emplace_back(alignedDetChild);
     }
+  }
+  return std::unique_ptr<DetGeomDesc>(alignedDetRoot);
+}
+
+std::unique_ptr<DetGeomDesc> CTPPSGeometryESModule::produceIdealGD(const IdealGeometryRecord& iRecord) {
+  if (!fromDD4hep_) {
+    // Get the DDCompactView from EventSetup
+    auto const& myCompactView = iRecord.get(ddToken_);
+
+    // Build geo from compact view.
+    return detgeomdescbuilder::buildDetGeomDescFromCompactView(myCompactView);
+  }
+
+  else {
+    // Get the DDCompactView from EventSetup
+    auto const& myCompactView = iRecord.get(dd4hepToken_);
+
+    // Build geo from compact view.
+    return detgeomdescbuilder::buildDetGeomDescFromCompactView(myCompactView);
   }
 }
 
-std::unique_ptr<DetGeomDesc> PPSGeometryESProducer::produceIdealGD(const IdealGeometryRecord& iRecord) {
-  // Get the DDDetector from EventSetup
-  auto const& det = iRecord.get(detectorToken_);
-
-  // Get the DDCompactView
-  cms::DDCompactView myCompactView(det);
-
-  // Build geo from compact view.
-  return detgeomdescbuilder::buildDetGeomDescFromCompactView(myCompactView);
-}
-
 template <typename REC>
-std::unique_ptr<DetGeomDesc> PPSGeometryESProducer::produceGD(IdealGeometryRecord const& iIdealRec,
+std::unique_ptr<DetGeomDesc> CTPPSGeometryESModule::produceGD(IdealGeometryRecord const& iIdealRec,
                                                               std::optional<REC> const& iAlignRec,
                                                               GDTokens<REC> const& iTokens,
                                                               const char* name) {
@@ -191,45 +209,46 @@ std::unique_ptr<DetGeomDesc> PPSGeometryESProducer::produceGD(IdealGeometryRecor
   auto const& idealGD = iIdealRec.get(iTokens.idealGDToken_);
 
   // load alignments
-  edm::ESHandle<CTPPSRPAlignmentCorrectionsData> alignments;
+  CTPPSRPAlignmentCorrectionsData const* alignments = nullptr;
   if (iAlignRec) {
-    alignments = iAlignRec->getHandle(iTokens.alignmentToken_);
+    auto alignmentsHandle = iAlignRec->getHandle(iTokens.alignmentToken_);
+    if (alignmentsHandle.isValid()) {
+      alignments = alignmentsHandle.product();
+    }
   }
 
-  if (alignments.isValid()) {
-    if (verbosity_)
+  if (verbosity_) {
+    if (alignments) {
       edm::LogVerbatim(name) << ">> " << name << " > Real geometry: " << alignments->getRPMap().size() << " RP and "
                              << alignments->getSensorMap().size() << " sensor alignments applied.";
-  } else {
-    if (verbosity_)
-      edm::LogVerbatim(name) << ">> " << name << " > Real geometry: No alignments applied.";
+    } else {
+      edm::LogVerbatim(name) << ">> " << name << " > Real geometry: No alignment applied.";
+    }
   }
 
-  DetGeomDesc* newGD = nullptr;
-  applyAlignments(idealGD, alignments.product(), newGD);
-  return std::unique_ptr<DetGeomDesc>(newGD);
+  return applyAlignments(idealGD, alignments);
 }
 
-std::unique_ptr<DetGeomDesc> PPSGeometryESProducer::produceRealGD(const VeryForwardRealGeometryRecord& iRecord) {
+std::unique_ptr<DetGeomDesc> CTPPSGeometryESModule::produceRealGD(const VeryForwardRealGeometryRecord& iRecord) {
   return produceGD(iRecord.getRecord<IdealGeometryRecord>(),
                    iRecord.tryToGetRecord<RPRealAlignmentRecord>(),
                    gdRealTokens_,
-                   "PPSGeometryESProducer::produceRealGD");
+                   "CTPPSGeometryESModule::produceRealGD");
 }
 
 //----------------------------------------------------------------------------------------------------
 
-std::unique_ptr<DetGeomDesc> PPSGeometryESProducer::produceMisalignedGD(
+std::unique_ptr<DetGeomDesc> CTPPSGeometryESModule::produceMisalignedGD(
     const VeryForwardMisalignedGeometryRecord& iRecord) {
   return produceGD(iRecord.getRecord<IdealGeometryRecord>(),
                    iRecord.tryToGetRecord<RPMisalignedAlignmentRecord>(),
                    gdMisTokens_,
-                   "PPSGeometryESProducer::produceMisalignedGD");
+                   "CTPPSGeometryESModule::produceMisalignedGD");
 }
 
 //----------------------------------------------------------------------------------------------------
 
-std::unique_ptr<CTPPSGeometry> PPSGeometryESProducer::produceRealTG(const VeryForwardRealGeometryRecord& iRecord) {
+std::unique_ptr<CTPPSGeometry> CTPPSGeometryESModule::produceRealTG(const VeryForwardRealGeometryRecord& iRecord) {
   auto const& gD = iRecord.get(dgdRealToken_);
 
   return std::make_unique<CTPPSGeometry>(&gD, verbosity_);
@@ -237,11 +256,11 @@ std::unique_ptr<CTPPSGeometry> PPSGeometryESProducer::produceRealTG(const VeryFo
 
 //----------------------------------------------------------------------------------------------------
 
-std::unique_ptr<CTPPSGeometry> PPSGeometryESProducer::produceMisalignedTG(
+std::unique_ptr<CTPPSGeometry> CTPPSGeometryESModule::produceMisalignedTG(
     const VeryForwardMisalignedGeometryRecord& iRecord) {
   auto const& gD = iRecord.get(dgdMisToken_);
 
   return std::make_unique<CTPPSGeometry>(&gD, verbosity_);
 }
 
-DEFINE_FWK_EVENTSETUP_MODULE(PPSGeometryESProducer);
+DEFINE_FWK_EVENTSETUP_MODULE(CTPPSGeometryESModule);
