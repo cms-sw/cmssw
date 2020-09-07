@@ -1,4 +1,4 @@
-#include "CalibTracker/SiStripCommon/interface/ShallowRechitClustersProducer.h"
+#include "ShallowRechitClustersProducer.h"
 
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"

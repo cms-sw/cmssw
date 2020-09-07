@@ -1,4 +1,4 @@
-#include "CalibTracker/SiStripCommon/interface/ShallowTree.h"
+#include "ShallowTree.h"
 
 #include "FWCore/Framework/interface/ConstProductRegistry.h"
 #include "FWCore/Framework/interface/ProductSelector.h"
