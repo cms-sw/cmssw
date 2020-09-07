@@ -1,4 +1,4 @@
-#include "CalibTracker/SiStripCommon/interface/ShallowDigisProducer.h"
+#include "ShallowDigisProducer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
