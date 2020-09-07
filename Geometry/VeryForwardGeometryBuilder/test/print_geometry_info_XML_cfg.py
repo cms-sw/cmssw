@@ -11,15 +11,13 @@ process.MessageLogger = cms.Service("MessageLogger",
 )
 
 # geometry
-#process.load("Geometry.VeryForwardGeometry.geometryPPS_CMSxz_fromDD_2018_cfi")
-process.load("Geometry.VeryForwardGeometry.geometryRPFromDD_2018_cfi")
-
+process.load("Geometry.VeryForwardGeometry.geometryRPFromDD_2017_cfi")
 
 # load alignment correction
-process.load("CalibPPS.ESProducers.ctppsRPAlignmentCorrectionsDataESSourceXML_cfi")
+process.load("CondFormats.PPSObjects.ctppsRPAlignmentCorrectionsDataESSourceXML_cfi")
 process.ctppsRPAlignmentCorrectionsDataESSourceXML.RealFiles = cms.vstring(
-    "Geometry/VeryForwardGeometryBuilder/test/alignment_file_1.xml",
-    "Geometry/VeryForwardGeometryBuilder/test/alignment_file_2.xml",
+    "Geometry/VeryForwardGeometryBuilder/test/CTPPSIncludeAlignmentCorrectionsXML/alignment_file_1.xml",
+    "Geometry/VeryForwardGeometryBuilder/test/CTPPSIncludeAlignmentCorrectionsXML/alignment_file_2.xml",
 )
 process.ctppsRPAlignmentCorrectionsDataESSourceXML.verbosity = 1
 
@@ -33,13 +31,13 @@ process.source = cms.Source("EmptySource",
 )
 
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(1)
+    input = cms.untracked.int32(50)
 )
 
 process.ctppsGeometryInfo = cms.EDAnalyzer("CTPPSGeometryInfo",
     geometryType = cms.untracked.string("real"),
-    printRPInfo = cms.untracked.bool(True),
-    printSensorInfo = cms.untracked.bool(True)
+    printRPInfo = cms.untracked.bool(False),
+    printSensorInfo = cms.untracked.bool(False)
 )
 
 process.p = cms.Path(
