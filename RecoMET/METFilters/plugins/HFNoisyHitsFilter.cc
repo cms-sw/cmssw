@@ -28,6 +28,8 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
+#include "FWCore/Utilities/interface/Exception.h"
+
 #include "Geometry/CaloTopology/interface/CaloTopology.h"
 #include "Geometry/CaloEventSetup/interface/CaloTopologyRecord.h"
 
@@ -48,12 +50,14 @@ public:
 
 private:
   bool filter(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
-  std::vector<int> getNoiseBits() const;
+  std::vector<HcalPhase1FlagLabels::HFStatusFlag> getNoiseBits() const;
   const edm::EDGetTokenT<HFRecHitCollection> hfhits_token_;
+  const edm::ESGetToken<CaloGeometry, CaloGeometryRecord> geom_token_;
   const double rechitPtThreshold_;
   const std::vector<std::string> listOfNoises_;
   const bool taggingMode_;
   const bool debug_;
+  std::vector<HcalPhase1FlagLabels::HFStatusFlag> noiseBits_;
 };
 
 //
@@ -61,10 +65,12 @@ private:
 //
 HFNoisyHitsFilter::HFNoisyHitsFilter(const edm::ParameterSet& iConfig)
     : hfhits_token_(consumes<HFRecHitCollection>(iConfig.getParameter<edm::InputTag>("hfrechits"))),
+      geom_token_(esConsumes<CaloGeometry, CaloGeometryRecord>()),
       rechitPtThreshold_(iConfig.getParameter<double>("rechitPtThreshold")),
       listOfNoises_(iConfig.getParameter<std::vector<std::string>>("listOfNoises")),
       taggingMode_(iConfig.getParameter<bool>("taggingMode")),
       debug_(iConfig.getParameter<bool>("debug")) {
+  noiseBits_ = getNoiseBits();
   produces<bool>();
 }
 
@@ -78,30 +84,23 @@ bool HFNoisyHitsFilter::filter(edm::StreamID, edm::Event& iEvent, const edm::Eve
   bool pass = true;
 
   // Calo Geometry - needed for computing E_t
-  ESHandle<CaloGeometry> pG;
-  iSetup.get<CaloGeometryRecord>().get(pG);
-  const CaloGeometry* geo = pG.product();
+  const CaloGeometry& geo = iSetup.getData(geom_token_);
 
-  edm::Handle<HFRecHitCollection> theHFhits;
-  iEvent.getByToken(hfhits_token_, theHFhits);
-
-  std::vector<int> noiseBits = getNoiseBits();
+  auto const& hfHits = iEvent.get(hfhits_token_);
 
   //Loop over the HF rechits. If one of them has Et>X and fires one the noise bits, declare the event as bad
-  for (HFRecHitCollection::const_iterator hfhit = theHFhits->begin(); hfhit != theHFhits->end(); hfhit++) {
-    float ene = hfhit->energy();
+  for (auto const& hfhit : hfHits) {
+    float ene = hfhit.energy();
     float et = 0;
     // compute transverse energy
-    const GlobalPoint& poshf = geo->getPosition(hfhit->detid());
+    const GlobalPoint& poshf = geo.getPosition(hfhit.detid());
     float pf = poshf.perp() / poshf.mag();
     et = ene * pf;
     if (et < rechitPtThreshold_)
       continue;
-    int hitFlags = hfhit->flags();
-    for (unsigned int i = 0; i < noiseBits.size(); i++) {
-      if (noiseBits[i] < 0)
-        continue;
-      if (((hitFlags >> noiseBits[i]) & 1) > 0) {
+    int hitFlags = hfhit.flags();
+    for (auto noiseBit : noiseBits_) {
+      if ((hitFlags >> noiseBit) & 1) {
         pass = false;
         break;
       }
@@ -110,25 +109,26 @@ bool HFNoisyHitsFilter::filter(edm::StreamID, edm::Event& iEvent, const edm::Eve
       break;
   }
   iEvent.put(std::make_unique<bool>(pass));
+  if (debug_)
+    LogDebug("HFNoisyHitsFilter") << "Passing filter? " << pass;
   return taggingMode_ || pass;
 }
 
-std::vector<int> HFNoisyHitsFilter::getNoiseBits() const {
-  std::vector<int> result;
-  for (unsigned int i = 0; i < listOfNoises_.size(); i++) {
-    if (listOfNoises_[i] == "HFLongShort")
+std::vector<HcalPhase1FlagLabels::HFStatusFlag> HFNoisyHitsFilter::getNoiseBits() const {
+  std::vector<HcalPhase1FlagLabels::HFStatusFlag> result;
+  for (auto const& noise : listOfNoises_) {
+    if (noise == "HFLongShort")
       result.push_back(HcalPhase1FlagLabels::HFLongShort);
-    else if (listOfNoises_[i] == "HFS8S1Ratio")
+    else if (noise == "HFS8S1Ratio")
       result.push_back(HcalPhase1FlagLabels::HFS8S1Ratio);
-    else if (listOfNoises_[i] == "HFPET")
+    else if (noise == "HFPET")
       result.push_back(HcalPhase1FlagLabels::HFPET);
-    else if (listOfNoises_[i] == "HFSignalAsymmetry")
+    else if (noise == "HFSignalAsymmetry")
       result.push_back(HcalPhase1FlagLabels::HFSignalAsymmetry);
-    else if (listOfNoises_[i] == "HFAnomalousHit")
+    else if (noise == "HFAnomalousHit")
       result.push_back(HcalPhase1FlagLabels::HFAnomalousHit);
-    else if (debug_)
-      edm::LogWarning("HFNoisyHitsFilter")
-          << "Couldn't find the bit index associated to this string: " << listOfNoises_[i];
+    else
+      throw cms::Exception("Error") << "Couldn't find the bit index associated to this string: " << noise;
   }
 
   return result;
@@ -137,7 +137,7 @@ std::vector<int> HFNoisyHitsFilter::getNoiseBits() const {
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
 void HFNoisyHitsFilter::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
-  desc.add<edm::InputTag>("hfrechits", edm::InputTag("reducedHcalRecHits:hfreco"));
+  desc.add<edm::InputTag>("hfrechits", {"reducedHcalRecHits:hfreco"});
   desc.add<double>("rechitPtThreshold", 20.);
   desc.add<std::vector<std::string>>("listOfNoises", {"HFLongShort", "HFS8S1Ratio", "HFPET", "HFSignalAsymmetry"});
   desc.add<bool>("taggingMode", false);
