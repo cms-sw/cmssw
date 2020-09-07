@@ -16,6 +16,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "DetectorDescription/Core/interface/DDCompactView.h"
+#include "DetectorDescription/DDCMS/interface/DDCompactView.h"
 #include "CondFormats/PPSObjects/interface/CTPPSRPAlignmentCorrectionsData.h"
 
 #include "CondFormats/AlignmentRecord/interface/RPRealAlignmentRecord.h"
@@ -83,7 +84,10 @@ private:
   static std::unique_ptr<DetGeomDesc> applyAlignments(const DetGeomDesc&, const CTPPSRPAlignmentCorrectionsData*);
 
   const unsigned int verbosity_;
-  const edm::ESGetToken<DDCompactView, IdealGeometryRecord> compactViewToken_;
+
+  edm::ESGetToken<DDCompactView, IdealGeometryRecord> ddToken_;
+  edm::ESGetToken<cms::DDCompactView, IdealGeometryRecord> dd4hepToken_;
+  const bool fromDD4hep_;
 
   const GDTokens<RPRealAlignmentRecord> gdRealTokens_;
   const GDTokens<RPMisalignedAlignmentRecord> gdMisTokens_;
@@ -94,21 +98,27 @@ private:
 
 CTPPSGeometryESModule::CTPPSGeometryESModule(const edm::ParameterSet& iConfig)
   : verbosity_(iConfig.getUntrackedParameter<unsigned int>("verbosity")),
-    compactViewToken_{setWhatProduced(this, &CTPPSGeometryESModule::produceIdealGD)
-    .consumes<DDCompactView>(edm::ESInputTag(
-					     "" /*optional module label */, iConfig.getParameter<std::string>("compactViewTag")))},
-  gdRealTokens_{setWhatProduced(this, &CTPPSGeometryESModule::produceRealGD)},
+    fromDD4hep_(iConfig.getUntrackedParameter<bool>("fromDD4hep", false)),  
+    gdRealTokens_{setWhatProduced(this, &CTPPSGeometryESModule::produceRealGD)},
   gdMisTokens_{setWhatProduced(this, &CTPPSGeometryESModule::produceMisalignedGD)},
-      dgdRealToken_{
-          setWhatProduced(this, &CTPPSGeometryESModule::produceRealTG).consumes<DetGeomDesc>(edm::ESInputTag())},
-      dgdMisToken_{
-          setWhatProduced(this, &CTPPSGeometryESModule::produceMisalignedTG).consumes<DetGeomDesc>(edm::ESInputTag())} {
-}
+  dgdRealToken_{
+    setWhatProduced(this, &CTPPSGeometryESModule::produceRealTG).consumes<DetGeomDesc>(edm::ESInputTag())},
+  dgdMisToken_{
+    setWhatProduced(this, &CTPPSGeometryESModule::produceMisalignedTG).consumes<DetGeomDesc>(edm::ESInputTag())} {
+    auto c = setWhatProduced(this, &CTPPSGeometryESModule::produceIdealGD);
+
+    if (!fromDD4hep_) {
+      ddToken_ = c.consumes<DDCompactView>(edm::ESInputTag("", iConfig.getParameter<std::string>("compactViewTag")));
+    } else {
+      dd4hepToken_ = c.consumes<cms::DDCompactView>(edm::ESInputTag("", iConfig.getParameter<std::string>("compactViewTag")));
+    }
+  }
 
 void CTPPSGeometryESModule::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
   desc.addUntracked<unsigned int>("verbosity", 1);
   desc.add<std::string>("compactViewTag", std::string());
+  desc.addUntracked<bool>("fromDD4hep", false);
   descriptions.add("CTPPSGeometryESModule", desc);
 }
 
@@ -173,11 +183,21 @@ std::unique_ptr<DetGeomDesc> CTPPSGeometryESModule::applyAlignments(const DetGeo
 }
 
 std::unique_ptr<DetGeomDesc> CTPPSGeometryESModule::produceIdealGD(const IdealGeometryRecord& iRecord) {
-  // get the DDCompactView from EventSetup
-  auto const& myCompactView = iRecord.get(compactViewToken_);
+  if (!fromDD4hep_) {
+    // Get the DDCompactView from EventSetup
+    auto const& myCompactView = iRecord.get(ddToken_);
 
-  // Build geo from compact view.
-  return detgeomdescbuilder::buildDetGeomDescFromCompactView(myCompactView);
+    // Build geo from compact view.
+    return detgeomdescbuilder::buildDetGeomDescFromCompactView(myCompactView);
+  }
+
+  else {
+    // Get the DDCompactView from EventSetup
+    auto const& myCompactView = iRecord.get(dd4hepToken_);
+
+    // Build geo from compact view.
+    return detgeomdescbuilder::buildDetGeomDescFromCompactView(myCompactView);
+  }
 }
 
 template <typename REC>

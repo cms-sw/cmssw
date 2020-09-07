@@ -8,17 +8,10 @@
 <use name="FWCore/Utilities"/>
 <use name="Geometry/Records"/>
 <use name="Geometry/VeryForwardGeometryBuilder"/>
+<use name="DetectorDescription/Core"/>
+<use name="DetectorDescription/DDCMS"/>
+<use name="dd4hep"/>
 
 <library name="GeometryVeryForwardGeometryBuilderPlugins" file="*.cc">
-  <use name="DetectorDescription/Core"/>
-  <use name="DetectorDescription/DDCMS"/>  <!-- remove-->
-  <use name="dd4hep"/>  <!-- remove-->
   <flags EDM_PLUGIN="1"/>
 </library>
-
-<library name="GeometryVeryForwardGeometryBuilderPluginsDD4hep" file="dd4hep/*.cc">
-  <use name="DetectorDescription/DDCMS"/>
-  <use name="dd4hep"/>
-  <flags EDM_PLUGIN="1"/>
-</library>
-
