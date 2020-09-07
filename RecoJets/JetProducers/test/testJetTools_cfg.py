@@ -91,6 +91,9 @@ process.out.outputCommands += ['keep *_QGTagger_*_*']
 
 #HF shower shape variables
 process.load('RecoJets.JetProducers.hfJetShowerShape_cfi')
+process.hfJetShowerShape.jets = cms.InputTag("ak4PFJetsCHS")
+process.hfJetShowerShape.vertices = cms.InputTag("offlinePrimaryVertices")
+
 patJetsAK4.userData.userFloats.src += ['hfJetShowerShape:sigmaEtaEta','hfJetShowerShape:sigmaPhiPhi']
 patJetsAK4.userData.userInts.src += ['hfJetShowerShape:centralEtaStripSize','hfJetShowerShape:adjacentEtaStripsSize']
 process.out.outputCommands += ['keep *_hfJetShowerShape_*_*']

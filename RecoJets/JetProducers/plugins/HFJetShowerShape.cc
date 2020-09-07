@@ -76,8 +76,8 @@ private:
 // constructors and destructor
 //
 HFJetShowerShape::HFJetShowerShape(const edm::ParameterSet& iConfig)
-    : jets_token_(consumes<edm::View<reco::Jet>>(iConfig.getParameter<edm::InputTag>("theJets"))),
-      vertices_token_(consumes<std::vector<reco::Vertex>>(iConfig.getParameter<edm::InputTag>("theVertices"))),
+    : jets_token_(consumes<edm::View<reco::Jet>>(iConfig.getParameter<edm::InputTag>("jets"))),
+      vertices_token_(consumes<std::vector<reco::Vertex>>(iConfig.getParameter<edm::InputTag>("vertices"))),
       jetPtThreshold_(iConfig.getParameter<double>("jetPtThreshold")),
       jetEtaThreshold_(iConfig.getParameter<double>("jetEtaThreshold")),
       hfTowerEtaWidth_(iConfig.getParameter<double>("hfTowerEtaWidth")),
@@ -211,8 +211,8 @@ void HFJetShowerShape::putInEvent(const std::string& name,
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
 void HFJetShowerShape::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
-  desc.add<edm::InputTag>("theJets", edm::InputTag("ak4PFJetsCHS"));
-  desc.add<edm::InputTag>("theVertices", edm::InputTag("offlinePrimaryVerticesWithBS"));
+  desc.add<edm::InputTag>("jets");
+  desc.add<edm::InputTag>("vertices");
   desc.add<double>("jetPtThreshold", 25.);
   desc.add<double>("jetEtaThreshold", 2.9);
   desc.add<double>("hfTowerEtaWidth", 0.175);
@@ -222,7 +222,7 @@ void HFJetShowerShape::fillDescriptions(edm::ConfigurationDescriptions& descript
   desc.add<double>("jetReferenceRadius", 0.4);
   desc.add<double>("stripPtThreshold", 10.);
   desc.add<double>("widthPtThreshold", 3.);
-  descriptions.add("hfJetShowerShape", desc);
+  descriptions.add("hfJetShowerShapeDefault", desc);
 }
 
 //define this as a plug-in
