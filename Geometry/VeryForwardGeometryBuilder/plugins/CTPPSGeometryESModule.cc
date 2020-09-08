@@ -97,22 +97,23 @@ private:
 };
 
 CTPPSGeometryESModule::CTPPSGeometryESModule(const edm::ParameterSet& iConfig)
-  : verbosity_(iConfig.getUntrackedParameter<unsigned int>("verbosity")),
-    fromDD4hep_(iConfig.getUntrackedParameter<bool>("fromDD4hep", false)),  
-    gdRealTokens_{setWhatProduced(this, &CTPPSGeometryESModule::produceRealGD)},
-  gdMisTokens_{setWhatProduced(this, &CTPPSGeometryESModule::produceMisalignedGD)},
-  dgdRealToken_{
-    setWhatProduced(this, &CTPPSGeometryESModule::produceRealTG).consumes<DetGeomDesc>(edm::ESInputTag())},
-  dgdMisToken_{
-    setWhatProduced(this, &CTPPSGeometryESModule::produceMisalignedTG).consumes<DetGeomDesc>(edm::ESInputTag())} {
-    auto c = setWhatProduced(this, &CTPPSGeometryESModule::produceIdealGD);
+    : verbosity_(iConfig.getUntrackedParameter<unsigned int>("verbosity")),
+      fromDD4hep_(iConfig.getUntrackedParameter<bool>("fromDD4hep", false)),
+      gdRealTokens_{setWhatProduced(this, &CTPPSGeometryESModule::produceRealGD)},
+      gdMisTokens_{setWhatProduced(this, &CTPPSGeometryESModule::produceMisalignedGD)},
+      dgdRealToken_{
+          setWhatProduced(this, &CTPPSGeometryESModule::produceRealTG).consumes<DetGeomDesc>(edm::ESInputTag())},
+      dgdMisToken_{
+          setWhatProduced(this, &CTPPSGeometryESModule::produceMisalignedTG).consumes<DetGeomDesc>(edm::ESInputTag())} {
+  auto c = setWhatProduced(this, &CTPPSGeometryESModule::produceIdealGD);
 
-    if (!fromDD4hep_) {
-      ddToken_ = c.consumes<DDCompactView>(edm::ESInputTag("", iConfig.getParameter<std::string>("compactViewTag")));
-    } else {
-      dd4hepToken_ = c.consumes<cms::DDCompactView>(edm::ESInputTag("", iConfig.getParameter<std::string>("compactViewTag")));
-    }
+  if (!fromDD4hep_) {
+    ddToken_ = c.consumes<DDCompactView>(edm::ESInputTag("", iConfig.getParameter<std::string>("compactViewTag")));
+  } else {
+    dd4hepToken_ =
+        c.consumes<cms::DDCompactView>(edm::ESInputTag("", iConfig.getParameter<std::string>("compactViewTag")));
   }
+}
 
 void CTPPSGeometryESModule::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
@@ -127,7 +128,7 @@ void CTPPSGeometryESModule::fillDescriptions(edm::ConfigurationDescriptions& des
  * Apply alignments by doing a BFS on idealGD tree.
  */
 std::unique_ptr<DetGeomDesc> CTPPSGeometryESModule::applyAlignments(const DetGeomDesc& idealDetRoot,
-                                            const CTPPSRPAlignmentCorrectionsData* alignments) {
+                                                                    const CTPPSRPAlignmentCorrectionsData* alignments) {
   std::deque<const DetGeomDesc*> bufferIdealGeo;
   bufferIdealGeo.emplace_back(&idealDetRoot);
 

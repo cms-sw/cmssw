@@ -26,7 +26,6 @@
 #include "CondFormats/GeometryObjects/interface/PDetGeomDesc.h"
 #include "Geometry/VeryForwardGeometryBuilder/interface/DetGeomDescBuilder.h"
 
-
 class PPSGeometryBuilder : public edm::one::EDAnalyzer<> {
 public:
   explicit PPSGeometryBuilder(const edm::ParameterSet&);
@@ -43,8 +42,8 @@ private:
 };
 
 PPSGeometryBuilder::PPSGeometryBuilder(const edm::ParameterSet& iConfig)
-  : fromDD4hep_(iConfig.getUntrackedParameter<bool>("fromDD4hep", false)),
-    compactViewTag_(iConfig.getUntrackedParameter<std::string>("compactViewTag", "XMLIdealGeometryESSource_CTPPS")) {}
+    : fromDD4hep_(iConfig.getUntrackedParameter<bool>("fromDD4hep", false)),
+      compactViewTag_(iConfig.getUntrackedParameter<std::string>("compactViewTag", "XMLIdealGeometryESSource_CTPPS")) {}
 
 /*
  * Save PPS geo to DB.
@@ -60,7 +59,7 @@ void PPSGeometryBuilder::analyze(const edm::Event& iEvent, const edm::EventSetup
 
     // Build geometry
     geoInfoRoot = detgeomdescbuilder::buildDetGeomDescFromCompactView(*myCompactView);
-  } 
+  }
   // DD4hep
   else {
     edm::ESHandle<cms::DDCompactView> myCompactView;
@@ -71,10 +70,9 @@ void PPSGeometryBuilder::analyze(const edm::Event& iEvent, const edm::EventSetup
     geoInfoRoot = detgeomdescbuilder::buildDetGeomDescFromCompactView(*myCompactView);
   }
 
-
   // Build persistent geometry data from geometry
   PDetGeomDesc* serializableData =
-    new PDetGeomDesc();  // cond::service::PoolDBOutputService::writeOne interface requires raw pointer.
+      new PDetGeomDesc();  // cond::service::PoolDBOutputService::writeOne interface requires raw pointer.
   int counter = 0;
   buildSerializableDataFromGeoInfo(serializableData, geoInfoRoot.get(), counter);
 
@@ -99,12 +97,12 @@ void PPSGeometryBuilder::analyze(const edm::Event& iEvent, const edm::EventSetup
 void PPSGeometryBuilder::buildSerializableDataFromGeoInfo(PDetGeomDesc* serializableData,
                                                           const DetGeomDesc* geoInfo,
                                                           int& counter) {
-  PDetGeomDesc::Item serializableItem = buildItemFromDetGeomDesc(geoInfo);  
+  PDetGeomDesc::Item serializableItem = buildItemFromDetGeomDesc(geoInfo);
   counter++;
 
   // Store item in serializableData
-  if ( (!fromDD4hep_ && counter >= 2)         // Old DD: Skip CMSE
-       || (fromDD4hep_ && counter >= 4) ) {   // DD4hep: Skip world + OCMS + CMSE
+  if ((!fromDD4hep_ && counter >= 2)       // Old DD: Skip CMSE
+      || (fromDD4hep_ && counter >= 4)) {  // DD4hep: Skip world + OCMS + CMSE
     serializableData->container_.emplace_back(serializableItem);
   }
 
@@ -124,9 +122,15 @@ PDetGeomDesc::Item PPSGeometryBuilder::buildItemFromDetGeomDesc(const DetGeomDes
   result.dz_ = geoInfo->translation().Z();
 
   const DDRotationMatrix& rot = geoInfo->rotation();
-  rot.GetComponents(result.axx_, result.axy_, result.axz_, 
-		    result.ayx_, result.ayy_, result.ayz_, 
-		    result.azx_, result.azy_, result.azz_);
+  rot.GetComponents(result.axx_,
+                    result.axy_,
+                    result.axz_,
+                    result.ayx_,
+                    result.ayy_,
+                    result.ayz_,
+                    result.azx_,
+                    result.azy_,
+                    result.azz_);
   result.name_ = geoInfo->name();
   result.params_ = geoInfo->params();
   result.copy_ = geoInfo->copyno();
