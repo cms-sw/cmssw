@@ -15,7 +15,7 @@ reducedHcalRecHits = cms.EDProducer("HcalHitSelection",
 slimmedHcalRecHits = reducedHcalRecHits.clone(
           hbheTag = "reducedHcalRecHits:hbhereco",
           hfTag   = "reducedHcalRecHits:hfreco",
-          hoTag   = "",
+          hoTag   = "reducedHcalRecHits:horeco",
           interestingDetIds = ()
        )
 
