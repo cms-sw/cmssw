@@ -2,7 +2,7 @@
 
 #include "DataFormats/TrackerCommon/interface/PixelBarrelName.h"
 #include "DataFormats/TrackerCommon/interface/PixelEndcapName.h"
-#include "DataFormats/SiPixelDetId/interface/PixelPannelType.h"
+#include "DataFormats/TrackerCommon/interface/PixelPannelType.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include <ostream>
