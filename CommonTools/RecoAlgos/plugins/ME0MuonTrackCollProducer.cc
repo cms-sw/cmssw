@@ -15,7 +15,7 @@
 class ME0MuonTrackCollProducer : public edm::stream::EDProducer<> {
 public:
   explicit ME0MuonTrackCollProducer(const edm::ParameterSet&);
-  ~ME0MuonTrackCollProducer() override;
+  ~ME0MuonTrackCollProducer() override = default;
 
 private:
   void produce(edm::Event&, const edm::EventSetup&) override;
@@ -32,8 +32,6 @@ ME0MuonTrackCollProducer::ME0MuonTrackCollProducer(const edm::ParameterSet& pars
     : parset_(parset), OurMuonsToken_(consumes<ME0MuonCollection>(parset.getParameter<edm::InputTag>("me0MuonTag"))) {
   produces<reco::TrackCollection>();
 }
-
-ME0MuonTrackCollProducer::~ME0MuonTrackCollProducer() {}
 
 void ME0MuonTrackCollProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   using namespace reco;
