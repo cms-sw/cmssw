@@ -22,7 +22,7 @@ process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 process.load('RecoLocalTracker.Configuration.RecoLocalTracker_cff')
 
 # import VectorHitBuilder                                                                                                                                                      
-process.load('RecoLocalTracker.SiPhase2VectorHitBuilder.SiPhase2VectorHitBuilder_cfi')
+process.load('RecoLocalTracker.SiPhase2VectorHitBuilder.siPhase2VectorHits_cfi')
 
 
 process.maxEvents = cms.untracked.PSet(
@@ -31,16 +31,18 @@ process.maxEvents = cms.untracked.PSet(
 
 # Input source
 process.source = cms.Source("PoolSource",
-    fileNames = cms.untracked.vstring('/store/relval/CMSSW_9_1_1/RelValTTbar_14TeV/GEN-SIM-DIGI-RAW/PU25ns_91X_upgrade2023_realistic_v1_D17PU200-v1/10000/02ACC76A-C93F-E711-B711-0CC47A4C8EC8.root', 
-        '/store/relval/CMSSW_9_1_1/RelValTTbar_14TeV/GEN-SIM-DIGI-RAW/PU25ns_91X_upgrade2023_realistic_v1_D17PU200-v1/10000/02FD72C1-D53F-E711-BD00-0CC47A7C3420.root', 
-        '/store/relval/CMSSW_9_1_1/RelValTTbar_14TeV/GEN-SIM-DIGI-RAW/PU25ns_91X_upgrade2023_realistic_v1_D17PU200-v1/10000/04EC6BD2-D53F-E711-B2B7-0025905B858E.root', 
-        '/store/relval/CMSSW_9_1_1/RelValTTbar_14TeV/GEN-SIM-DIGI-RAW/PU25ns_91X_upgrade2023_realistic_v1_D17PU200-v1/10000/061B97AF-C93F-E711-A425-0CC47A4C8F12.root', 
-        '/store/relval/CMSSW_9_1_1/RelValTTbar_14TeV/GEN-SIM-DIGI-RAW/PU25ns_91X_upgrade2023_realistic_v1_D17PU200-v1/10000/081DAA75-C93F-E711-8CAF-0025905B85CA.root', 
-        '/store/relval/CMSSW_9_1_1/RelValTTbar_14TeV/GEN-SIM-DIGI-RAW/PU25ns_91X_upgrade2023_realistic_v1_D17PU200-v1/10000/0A1C6B0E-C93F-E711-9145-0CC47A7C3412.root', 
-        '/store/relval/CMSSW_9_1_1/RelValTTbar_14TeV/GEN-SIM-DIGI-RAW/PU25ns_91X_upgrade2023_realistic_v1_D17PU200-v1/10000/0AE954E1-D53F-E711-AA9C-0CC47A4D7632.root', 
-        '/store/relval/CMSSW_9_1_1/RelValTTbar_14TeV/GEN-SIM-DIGI-RAW/PU25ns_91X_upgrade2023_realistic_v1_D17PU200-v1/10000/0C0660A9-CA3F-E711-8583-0CC47A745298.root', 
-        '/store/relval/CMSSW_9_1_1/RelValTTbar_14TeV/GEN-SIM-DIGI-RAW/PU25ns_91X_upgrade2023_realistic_v1_D17PU200-v1/10000/0C66279B-CA3F-E711-A4B3-0CC47A7AB7A0.root', 
-        '/store/relval/CMSSW_9_1_1/RelValTTbar_14TeV/GEN-SIM-DIGI-RAW/PU25ns_91X_upgrade2023_realistic_v1_D17PU200-v1/10000/0E5BF643-D43F-E711-A64C-0CC47A7C34E6.root'),
+    fileNames = cms.untracked.vstring(
+'/store/relval/CMSSW_11_2_0_pre3/RelValTTbar_14TeV/GEN-SIM-DIGI-RAW/PU25ns_110X_mcRun4_realistic_v3_2026D49PU200_rsb-v1/20000/C7A95D39-8FAB-D746-8C06-B11AECA047DD.root',
+'/store/relval/CMSSW_11_2_0_pre3/RelValTTbar_14TeV/GEN-SIM-DIGI-RAW/PU25ns_110X_mcRun4_realistic_v3_2026D49PU200_rsb-v1/20000/E4D19FDC-9192-2F44-A4FA-21AB5A93344C.root',
+'/store/relval/CMSSW_11_2_0_pre3/RelValTTbar_14TeV/GEN-SIM-DIGI-RAW/PU25ns_110X_mcRun4_realistic_v3_2026D49PU200_rsb-v1/20000/04E557E8-C456-B148-9EC6-2E5E40BD03C6.root',
+'/store/relval/CMSSW_11_2_0_pre3/RelValTTbar_14TeV/GEN-SIM-DIGI-RAW/PU25ns_110X_mcRun4_realistic_v3_2026D49PU200_rsb-v1/20000/284ACE29-A506-CD40-9059-899981D7931C.root',
+'/store/relval/CMSSW_11_2_0_pre3/RelValTTbar_14TeV/GEN-SIM-DIGI-RAW/PU25ns_110X_mcRun4_realistic_v3_2026D49PU200_rsb-v1/20000/5ACFC231-EBF6-2B4F-A88F-D01171F506CE.root',
+'/store/relval/CMSSW_11_2_0_pre3/RelValTTbar_14TeV/GEN-SIM-DIGI-RAW/PU25ns_110X_mcRun4_realistic_v3_2026D49PU200_rsb-v1/20000/8E76FEBA-FF9B-544D-9C17-C5B31777FE39.root',
+'/store/relval/CMSSW_11_2_0_pre3/RelValTTbar_14TeV/GEN-SIM-DIGI-RAW/PU25ns_110X_mcRun4_realistic_v3_2026D49PU200_rsb-v1/20000/2958EE82-39A5-154A-9650-5E97AAD44B3E.root',
+'/store/relval/CMSSW_11_2_0_pre3/RelValTTbar_14TeV/GEN-SIM-DIGI-RAW/PU25ns_110X_mcRun4_realistic_v3_2026D49PU200_rsb-v1/20000/943CFE41-83ED-F04B-AA74-435821572336.root',
+'/store/relval/CMSSW_11_2_0_pre3/RelValTTbar_14TeV/GEN-SIM-DIGI-RAW/PU25ns_110X_mcRun4_realistic_v3_2026D49PU200_rsb-v1/20000/01D965C0-05A4-C543-A676-7C6C67DC2175.root',
+'/store/relval/CMSSW_11_2_0_pre3/RelValTTbar_14TeV/GEN-SIM-DIGI-RAW/PU25ns_110X_mcRun4_realistic_v3_2026D49PU200_rsb-v1/20000/7D171FAD-4E5B-824A-A0DF-07175F0A9550.root',
+),
     #fileNames = cms.untracked.vstring('file:step2.root'),
     secondaryFileNames = cms.untracked.vstring(),
     skipEvents = cms.untracked.uint32(0)
@@ -66,7 +68,8 @@ process.RECOSIMoutput = cms.OutputModule("PoolOutputModule",
     ),
     eventAutoFlushCompressedSize = cms.untracked.int32(5242880),
     fileName = cms.untracked.string('file:step3_PU200.root'),
-    outputCommands = cms.untracked.vstring( ('keep *') ),
+    outputCommands = process.RECOSIMEventContent.outputCommands,
+    #outputCommands = cms.untracked.vstring( ('keep *') ),
     splitLevel = cms.untracked.int32(0)
 )
 
@@ -78,8 +81,6 @@ process.MessageLogger = cms.Service("MessageLogger",
                                     debugVH_PU200 = cms.untracked.PSet(threshold = cms.untracked.string("DEBUG"),
                                                                        DEBUG = cms.untracked.PSet(limit = cms.untracked.int32(0)),
                                                                        default = cms.untracked.PSet(limit = cms.untracked.int32(0)),
-                                                                       #VectorHitBuilderEDProducer = cms.untracked.PSet(limit = cms.untracked.int32(-1)),
-                                                                       #VectorHitBuilderAlgorithm = cms.untracked.PSet(limit = cms.untracked.int32(-1)),
                                                                        VectorHitsBuilderValidation = cms.untracked.PSet(limit = cms.untracked.int32(-1))
                                                                        )
                                     )
@@ -103,7 +104,18 @@ process.mix.input.nbPileupEvents.averageNumber = cms.double(200.000000)
 process.mix.bunchspace = cms.int32(25)
 process.mix.minBunch = cms.int32(-3)
 process.mix.maxBunch = cms.int32(3)
-process.mix.input.fileNames = cms.untracked.vstring(['/store/relval/CMSSW_9_1_1/RelValMinBias_14TeV/GEN-SIM/91X_upgrade2023_realistic_v1_D17-v1/10000/0A883B39-083F-E711-8B09-0CC47A7C357A.root', '/store/relval/CMSSW_9_1_1/RelValMinBias_14TeV/GEN-SIM/91X_upgrade2023_realistic_v1_D17-v1/10000/22E509DA-053F-E711-AA7A-0025905B85BA.root', '/store/relval/CMSSW_9_1_1/RelValMinBias_14TeV/GEN-SIM/91X_upgrade2023_realistic_v1_D17-v1/10000/3E376DB4-043F-E711-985E-0CC47A74524E.root', '/store/relval/CMSSW_9_1_1/RelValMinBias_14TeV/GEN-SIM/91X_upgrade2023_realistic_v1_D17-v1/10000/509E21AC-023F-E711-A9F3-0025905B8604.root', '/store/relval/CMSSW_9_1_1/RelValMinBias_14TeV/GEN-SIM/91X_upgrade2023_realistic_v1_D17-v1/10000/5E53AC15-0A3F-E711-8965-0025905A60E0.root', '/store/relval/CMSSW_9_1_1/RelValMinBias_14TeV/GEN-SIM/91X_upgrade2023_realistic_v1_D17-v1/10000/62EC67CA-0B3F-E711-81AC-0025905A610C.root', '/store/relval/CMSSW_9_1_1/RelValMinBias_14TeV/GEN-SIM/91X_upgrade2023_realistic_v1_D17-v1/10000/6476C3E7-063F-E711-B412-0025905B855A.root', '/store/relval/CMSSW_9_1_1/RelValMinBias_14TeV/GEN-SIM/91X_upgrade2023_realistic_v1_D17-v1/10000/7256251B-0B3F-E711-BBEF-0CC47A78A3B4.root', '/store/relval/CMSSW_9_1_1/RelValMinBias_14TeV/GEN-SIM/91X_upgrade2023_realistic_v1_D17-v1/10000/8C943DC3-0B3F-E711-BA5F-0CC47A7C34B0.root', '/store/relval/CMSSW_9_1_1/RelValMinBias_14TeV/GEN-SIM/91X_upgrade2023_realistic_v1_D17-v1/10000/C092AF3B-083F-E711-A0EC-0025905A6070.root', '/store/relval/CMSSW_9_1_1/RelValMinBias_14TeV/GEN-SIM/91X_upgrade2023_realistic_v1_D17-v1/10000/DE2E5EC5-013F-E711-BE84-0CC47A78A3EC.root', '/store/relval/CMSSW_9_1_1/RelValMinBias_14TeV/GEN-SIM/91X_upgrade2023_realistic_v1_D17-v1/10000/DE80A4D4-093F-E711-8195-0CC47A4D75F6.root'])
+process.mix.input.fileNames = cms.untracked.vstring([
+'/store/relval/CMSSW_11_2_0_pre5/RelValMinBias_14TeV/GEN-SIM-DIGI-RAW/110X_mcRun4_realistic_v3_2026D49noPU-v1/20000/09AA31DF-737A-B142-A82B-6E48B4B965CD.root',
+'/store/relval/CMSSW_11_2_0_pre5/RelValMinBias_14TeV/GEN-SIM-DIGI-RAW/110X_mcRun4_realistic_v3_2026D49noPU-v1/20000/A18897B2-7509-C845-B83A-CEE4AC55FF86.root',
+'/store/relval/CMSSW_11_2_0_pre5/RelValMinBias_14TeV/GEN-SIM-DIGI-RAW/110X_mcRun4_realistic_v3_2026D49noPU-v1/20000/184F91C7-EA57-2B49-9E85-D1F494152CDD.root',
+'/store/relval/CMSSW_11_2_0_pre5/RelValMinBias_14TeV/GEN-SIM-DIGI-RAW/110X_mcRun4_realistic_v3_2026D49noPU-v1/20000/A505AC6C-6DEA-484C-8FFC-1EA4B54892F5.root',
+'/store/relval/CMSSW_11_2_0_pre5/RelValMinBias_14TeV/GEN-SIM-DIGI-RAW/110X_mcRun4_realistic_v3_2026D49noPU-v1/20000/5636AD91-D035-0B44-8D53-2B4FFE6A7722.root',
+'/store/relval/CMSSW_11_2_0_pre5/RelValMinBias_14TeV/GEN-SIM-DIGI-RAW/110X_mcRun4_realistic_v3_2026D49noPU-v1/20000/03D1F17E-33EE-A94C-A869-00071F1F45C7.root',
+'/store/relval/CMSSW_11_2_0_pre5/RelValMinBias_14TeV/GEN-SIM-DIGI-RAW/110X_mcRun4_realistic_v3_2026D49noPU-v1/20000/EB99E4B3-838A-CC4C-B1B2-8A9D1E1EB453.root',
+'/store/relval/CMSSW_11_2_0_pre5/RelValMinBias_14TeV/GEN-SIM-DIGI-RAW/110X_mcRun4_realistic_v3_2026D49noPU-v1/20000/7F44A9B9-38C1-484F-9B4B-DCD0FD7224A8.root',
+'/store/relval/CMSSW_11_2_0_pre5/RelValMinBias_14TeV/GEN-SIM-DIGI-RAW/110X_mcRun4_realistic_v3_2026D49noPU-v1/20000/2A3CCF08-CDD1-6246-827F-27CD0CC42478.root',
+'/store/relval/CMSSW_11_2_0_pre5/RelValMinBias_14TeV/GEN-SIM-DIGI-RAW/110X_mcRun4_realistic_v3_2026D49noPU-v1/20000/0745B823-5DB0-B74F-B0A6-78E24ED39EE5.root',
+])
 process.mix.playback = True
 process.mix.digitizers = cms.PSet()
 for a in process.aliases: delattr(process, a)

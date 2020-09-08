@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 from Configuration.StandardSequences.Eras import eras
 
-process = cms.Process('RECO',eras.Phase2C2)
+process = cms.Process('RECO',eras.Phase2C9)
 
 # import of standard configurations
 process.load('Configuration.StandardSequences.Services_cff')
@@ -10,7 +10,7 @@ process.load('SimGeneral.HepPDTESSource.pythiapdt_cfi')
 process.load('FWCore.MessageService.MessageLogger_cfi')
 process.load('Configuration.EventContent.EventContent_cff')
 process.load('SimGeneral.MixingModule.mixNoPU_cfi')
-process.load('Configuration.Geometry.GeometryExtended2023D17Reco_cff')
+process.load('Configuration.Geometry.GeometryExtended2026D49Reco_cff')
 process.load('Configuration.StandardSequences.MagneticField_cff')
 process.load('Configuration.StandardSequences.RawToDigi_cff')
 process.load('Configuration.StandardSequences.L1Reco_cff')
@@ -21,7 +21,7 @@ process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 process.load('RecoLocalTracker.Configuration.RecoLocalTracker_cff')
 
 # import VectorHitBuilder                                                                                                                                                      
-process.load('RecoLocalTracker.SiPhase2VectorHitBuilder.SiPhase2VectorHitBuilder_cfi')
+process.load('RecoLocalTracker.SiPhase2VectorHitBuilder.siPhase2VectorHits_cfi')
 
 
 process.maxEvents = cms.untracked.PSet(
@@ -30,17 +30,17 @@ process.maxEvents = cms.untracked.PSet(
 
 # Input source
 process.source = cms.Source("PoolSource",
-    fileNames = cms.untracked.vstring('/store/relval/CMSSW_9_1_1/RelValSingleMuPt10Extended/GEN-SIM-DIGI-RAW/91X_upgrade2023_realistic_v1_D17-v1/10000/0A0A27B4-153F-E711-ABC3-0025905A60C6.root', 
-        '/store/relval/CMSSW_9_1_1/RelValSingleMuPt10Extended/GEN-SIM-DIGI-RAW/91X_upgrade2023_realistic_v1_D17-v1/10000/34817EB0-163F-E711-83C8-0CC47A7C340C.root', 
-        '/store/relval/CMSSW_9_1_1/RelValSingleMuPt10Extended/GEN-SIM-DIGI-RAW/91X_upgrade2023_realistic_v1_D17-v1/10000/3CC9FD4E-173F-E711-B4DF-0025905A60D6.root', 
-        '/store/relval/CMSSW_9_1_1/RelValSingleMuPt10Extended/GEN-SIM-DIGI-RAW/91X_upgrade2023_realistic_v1_D17-v1/10000/521169DF-173F-E711-BC3D-0CC47A7C35A4.root', 
-        '/store/relval/CMSSW_9_1_1/RelValSingleMuPt10Extended/GEN-SIM-DIGI-RAW/91X_upgrade2023_realistic_v1_D17-v1/10000/6E767157-163F-E711-B315-0025905B8560.root', 
-        '/store/relval/CMSSW_9_1_1/RelValSingleMuPt10Extended/GEN-SIM-DIGI-RAW/91X_upgrade2023_realistic_v1_D17-v1/10000/7A9BAA32-173F-E711-B7CA-0CC47A78A496.root', 
-        '/store/relval/CMSSW_9_1_1/RelValSingleMuPt10Extended/GEN-SIM-DIGI-RAW/91X_upgrade2023_realistic_v1_D17-v1/10000/BA5F8EE0-173F-E711-97E9-0025905A6122.root', 
-        '/store/relval/CMSSW_9_1_1/RelValSingleMuPt10Extended/GEN-SIM-DIGI-RAW/91X_upgrade2023_realistic_v1_D17-v1/10000/CA0AE5B2-153F-E711-B1CE-0025905B85EE.root', 
-        '/store/relval/CMSSW_9_1_1/RelValSingleMuPt10Extended/GEN-SIM-DIGI-RAW/91X_upgrade2023_realistic_v1_D17-v1/10000/DEFFF299-173F-E711-9A88-0CC47A4C8EE2.root', 
-        '/store/relval/CMSSW_9_1_1/RelValSingleMuPt10Extended/GEN-SIM-DIGI-RAW/91X_upgrade2023_realistic_v1_D17-v1/10000/FA58F15E-163F-E711-B748-0025905A607A.root'),
-    #fileNames = cms.untracked.vstring('file:step2.root'),
+    fileNames = cms.untracked.vstring('/store/relval/CMSSW_11_2_0_pre3/RelValSingleMuFlatPt2To100/GEN-SIM-DIGI-RAW/PU25ns_110X_mcRun4_realistic_v3_2026D49PU200-v1/20000/863B48BB-03ED-0548-AA60-1269291ED1E6.root',
+				      '/store/relval/CMSSW_11_2_0_pre3/RelValSingleMuFlatPt2To100/GEN-SIM-DIGI-RAW/PU25ns_110X_mcRun4_realistic_v3_2026D49PU200-v1/20000/9B6E3A66-B330-8E42-B85E-96A9952A002E.root',
+				      '/store/relval/CMSSW_11_2_0_pre3/RelValSingleMuFlatPt2To100/GEN-SIM-DIGI-RAW/PU25ns_110X_mcRun4_realistic_v3_2026D49PU200-v1/20000/29706FE9-16C9-CE4F-B744-66E07B250D1E.root',
+				      '/store/relval/CMSSW_11_2_0_pre3/RelValSingleMuFlatPt2To100/GEN-SIM-DIGI-RAW/PU25ns_110X_mcRun4_realistic_v3_2026D49PU200-v1/20000/AAB16BEE-B0CE-644A-8E96-35236D793C04.root',
+				      '/store/relval/CMSSW_11_2_0_pre3/RelValSingleMuFlatPt2To100/GEN-SIM-DIGI-RAW/PU25ns_110X_mcRun4_realistic_v3_2026D49PU200-v1/20000/36F89E35-DE2F-174B-95B7-7A9423DED2D8.root',
+				      '/store/relval/CMSSW_11_2_0_pre3/RelValSingleMuFlatPt2To100/GEN-SIM-DIGI-RAW/PU25ns_110X_mcRun4_realistic_v3_2026D49PU200-v1/20000/1BE0A565-4F64-8D42-A5D5-62692F64F0A5.root',
+				      '/store/relval/CMSSW_11_2_0_pre3/RelValSingleMuFlatPt2To100/GEN-SIM-DIGI-RAW/PU25ns_110X_mcRun4_realistic_v3_2026D49PU200-v1/20000/8671B5C9-DE1F-8B4C-8A1C-9C99898FE191.root',
+				      '/store/relval/CMSSW_11_2_0_pre3/RelValSingleMuFlatPt2To100/GEN-SIM-DIGI-RAW/PU25ns_110X_mcRun4_realistic_v3_2026D49PU200-v1/20000/6CA0E490-73F4-1147-906D-050B8B3A3134.root',
+				      '/store/relval/CMSSW_11_2_0_pre3/RelValSingleMuFlatPt2To100/GEN-SIM-DIGI-RAW/PU25ns_110X_mcRun4_realistic_v3_2026D49PU200-v1/20000/AFAB961F-E31F-064D-9031-BEAA10702345.root',
+				      '/store/relval/CMSSW_11_2_0_pre3/RelValSingleMuFlatPt2To100/GEN-SIM-DIGI-RAW/PU25ns_110X_mcRun4_realistic_v3_2026D49PU200-v1/20000/2AB6718E-EEA6-494B-AC25-B59CF36DF941.root',
+    ),
     secondaryFileNames = cms.untracked.vstring(),
     skipEvents = cms.untracked.uint32(0)
 )
@@ -65,7 +65,7 @@ process.RECOSIMoutput = cms.OutputModule("PoolOutputModule",
     ),
     eventAutoFlushCompressedSize = cms.untracked.int32(5242880),
     fileName = cms.untracked.string('file:step3_1event.root'),
-    outputCommands = cms.untracked.vstring( ('keep *') ),
+    outputCommands = process.RECOSIMEventContent.outputCommands,
     splitLevel = cms.untracked.int32(0)
 )
 

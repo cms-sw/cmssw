@@ -24,7 +24,7 @@ process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 process.load('RecoLocalTracker.Configuration.RecoLocalTracker_cff')
 
 # import VectorHitBuilder                                                                                                                                                      
-process.load('RecoLocalTracker.SiPhase2VectorHitBuilder.SiPhase2VectorHitBuilder_cfi')
+process.load('RecoLocalTracker.SiPhase2VectorHitBuilder.siPhase2VectorHits_cfi')
 
 
 process.maxEvents = cms.untracked.PSet(
@@ -33,7 +33,17 @@ process.maxEvents = cms.untracked.PSet(
 
 # Input source
 process.source = cms.Source("PoolSource",
-    fileNames = cms.untracked.vstring('/store/relval/CMSSW_11_1_0_pre6/RelValSingleMuFlatPt2To100/GEN-SIM-DIGI-RAW/PU25ns_110X_mcRun4_realistic_v3_2026D49PU200-v1/20000/FF928A27-31CB-9C4D-93E0-475E2E73326E.root'),
+    fileNames = cms.untracked.vstring('/store/relval/CMSSW_11_2_0_pre3/RelValSingleMuFlatPt2To100/GEN-SIM-DIGI-RAW/PU25ns_110X_mcRun4_realistic_v3_2026D49PU200-v1/20000/863B48BB-03ED-0548-AA60-1269291ED1E6.root',
+				      '/store/relval/CMSSW_11_2_0_pre3/RelValSingleMuFlatPt2To100/GEN-SIM-DIGI-RAW/PU25ns_110X_mcRun4_realistic_v3_2026D49PU200-v1/20000/9B6E3A66-B330-8E42-B85E-96A9952A002E.root',
+				      '/store/relval/CMSSW_11_2_0_pre3/RelValSingleMuFlatPt2To100/GEN-SIM-DIGI-RAW/PU25ns_110X_mcRun4_realistic_v3_2026D49PU200-v1/20000/29706FE9-16C9-CE4F-B744-66E07B250D1E.root',
+				      '/store/relval/CMSSW_11_2_0_pre3/RelValSingleMuFlatPt2To100/GEN-SIM-DIGI-RAW/PU25ns_110X_mcRun4_realistic_v3_2026D49PU200-v1/20000/AAB16BEE-B0CE-644A-8E96-35236D793C04.root',
+				      '/store/relval/CMSSW_11_2_0_pre3/RelValSingleMuFlatPt2To100/GEN-SIM-DIGI-RAW/PU25ns_110X_mcRun4_realistic_v3_2026D49PU200-v1/20000/36F89E35-DE2F-174B-95B7-7A9423DED2D8.root',
+				      '/store/relval/CMSSW_11_2_0_pre3/RelValSingleMuFlatPt2To100/GEN-SIM-DIGI-RAW/PU25ns_110X_mcRun4_realistic_v3_2026D49PU200-v1/20000/1BE0A565-4F64-8D42-A5D5-62692F64F0A5.root',
+				      '/store/relval/CMSSW_11_2_0_pre3/RelValSingleMuFlatPt2To100/GEN-SIM-DIGI-RAW/PU25ns_110X_mcRun4_realistic_v3_2026D49PU200-v1/20000/8671B5C9-DE1F-8B4C-8A1C-9C99898FE191.root',
+				      '/store/relval/CMSSW_11_2_0_pre3/RelValSingleMuFlatPt2To100/GEN-SIM-DIGI-RAW/PU25ns_110X_mcRun4_realistic_v3_2026D49PU200-v1/20000/6CA0E490-73F4-1147-906D-050B8B3A3134.root',
+				      '/store/relval/CMSSW_11_2_0_pre3/RelValSingleMuFlatPt2To100/GEN-SIM-DIGI-RAW/PU25ns_110X_mcRun4_realistic_v3_2026D49PU200-v1/20000/AFAB961F-E31F-064D-9031-BEAA10702345.root',
+				      '/store/relval/CMSSW_11_2_0_pre3/RelValSingleMuFlatPt2To100/GEN-SIM-DIGI-RAW/PU25ns_110X_mcRun4_realistic_v3_2026D49PU200-v1/20000/2AB6718E-EEA6-494B-AC25-B59CF36DF941.root',
+    ),
     secondaryFileNames = cms.untracked.vstring(),
     skipEvents = cms.untracked.uint32(0)
 )
@@ -58,7 +68,8 @@ process.RECOSIMoutput = cms.OutputModule("PoolOutputModule",
     ),
     eventAutoFlushCompressedSize = cms.untracked.int32(5242880),
     fileName = cms.untracked.string('file:step3_1event.root'),
-    outputCommands = cms.untracked.vstring( ('keep *') ),
+    outputCommands = process.RECOSIMEventContent.outputCommands,
+    #outputCommands = cms.untracked.vstring( ('keep *') ),
     splitLevel = cms.untracked.int32(0)
 )
 
