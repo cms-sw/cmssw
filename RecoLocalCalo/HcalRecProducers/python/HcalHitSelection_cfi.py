@@ -13,10 +13,10 @@ reducedHcalRecHits = cms.EDProducer("HcalHitSelection",
                                     )
 
 slimmedHcalRecHits = reducedHcalRecHits.clone(
-          hbheTag = cms.InputTag("reducedHcalRecHits","hbhereco"),
-          hfTag   = cms.InputTag("reducedHcalRecHits","hfreco"),
-          hoTag   = cms.InputTag(""),
-          interestingDetIds = cms.VInputTag()
+          hbheTag = "reducedHcalRecHits:hbhereco",
+          hfTag   = "reducedHcalRecHits:hfreco",
+          hoTag   = "",
+          interestingDetIds = ()
        )
 
 from Configuration.Eras.Modifier_pp_on_AA_2018_cff import pp_on_AA_2018
