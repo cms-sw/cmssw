@@ -19,5 +19,7 @@ dqmSaver = cms.EDAnalyzer("DQMFileSaverOnline",
     backupLumiCount = cms.untracked.int32(-1),
 
     # Set to true to preserve 'lumi backup'.
-    keepBackupLumi = cms.untracked.bool(False)
+    keepBackupLumi = cms.untracked.bool(False),
+
+    runNumber = cms.untracked.int32(111),
 )

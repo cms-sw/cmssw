@@ -18,12 +18,15 @@ process.MessageLogger = cms.Service("MessageLogger",
 #----------------------------
 if unitTest:
     process.load("DQM.Integration.config.unittestinputsource_cfi")
+    from DQM.Integration.config.unittestinputsource_cfi import options
 else:
     # for live online DQM in P5
     process.load("DQM.Integration.config.inputsource_cfi")
+    from DQM.Integration.config.inputsource_cfi import options
 
 # for testing in lxplus
 #process.load("DQM.Integration.config.fileinputsource_cfi")
+#from DQM.Integration.config.fileinputsource_cfi import options
 
 # Global tag - Condition for P5 cluster
 process.load("DQM.Integration.config.FrontierCondition_GT_cfi")
@@ -34,6 +37,9 @@ process.load("DQM.Integration.config.FrontierCondition_GT_cfi")
 process.load("DQM.Integration.config.environment_cfi")
 process.dqmEnv.subSystemFolder = 'Info'
 process.dqmSaver.tag = 'Info'
+process.dqmSaver.runNumber = options.runNumber
+process.dqmSaverPB.tag = 'Info'
+process.dqmSaverPB.runNumber = options.runNumber
 #-----------------------------
 
 # Digitisation: produce the Scalers digis containing DCS bits
@@ -50,7 +56,7 @@ process.onlineMetaDataDigis = cms.EDProducer('OnlineMetaDataRawToDigi')
 process.load("DQMServices.Components.DQMProvInfo_cfi")
 
 # DQM Modules
-process.dqmmodules = cms.Sequence(process.dqmEnv + process.dqmSaver)
+process.dqmmodules = cms.Sequence(process.dqmEnv + process.dqmSaver + process.dqmSaverPB)
 process.evfDQMmodulesPath = cms.Path(
                                      process.scalersRawToDigi*
                                      process.tcdsDigis*
