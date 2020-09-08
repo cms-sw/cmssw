@@ -14,6 +14,7 @@
 const std::string DDD_TOTEM_RP_SENSOR_NAME = "RP_Silicon_Detector";
 const std::string DDD_CTPPS_PIXELS_SENSOR_NAME = "RPixWafer";
 const std::string DDD_CTPPS_PIXELS_SENSOR_TYPE_2x2 = "2x2";
+const std::string DDD_CTPPS_2x2_RPIXWAFER_PARAMETER_NAME = "2x2RPixWafer";
 const std::string DDD_CTPPS_DIAMONDS_SEGMENT_NAME = "CTPPS_Diamond_Segment";
 const std::string DDD_CTPPS_UFSD_SEGMENT_NAME = "CTPPS_UFSD_Segment";
 const std::string DDD_TOTEM_TIMING_SENSOR_TMPL = "UFSD_ch(\\d+)";
