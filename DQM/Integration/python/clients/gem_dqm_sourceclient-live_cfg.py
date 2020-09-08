@@ -1,7 +1,8 @@
 import FWCore.ParameterSet.Config as cms
 import sys
 
-process = cms.Process('GEMDQM')
+from Configuration.StandardSequences.Eras import eras
+process = cms.Process('GEMDQM', eras.Run3)
 
 unitTest = False
 if 'unitTest=True' in sys.argv:
