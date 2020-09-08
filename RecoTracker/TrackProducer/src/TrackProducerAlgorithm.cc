@@ -131,7 +131,7 @@ bool TrackProducerAlgorithm<reco::Track>::buildTrack(const TrajectoryFitter* the
 
   ndof -= 5.f;
   if
-    UNLIKELY(std::abs(theTSOS.magneticField()->nominalValue()) < DBL_MIN)++ ndof;  // same as -4
+    UNLIKELY(theTSOS.magneticField()->nominalValue() == 0)++ ndof;  // same as -4
 
 #if defined(VI_DEBUG) || defined(EDM_ML_DEBUG)
   int chit[7] = {};
@@ -316,7 +316,7 @@ bool TrackProducerAlgorithm<reco::GsfTrack>::buildTrack(const TrajectoryFitter* 
 
   ndof = ndof - 5;
   if
-    UNLIKELY(std::abs(theTSOS.magneticField()->nominalValue()) < DBL_MIN)++ ndof;  // same as -4
+    UNLIKELY(theTSOS.magneticField()->nominalValue() == 0)++ ndof;  // same as -4
 
   //if geometricInnerState_ is false the state for projection to beam line is the state attached to the first hit: to be used for loopers
   //if geometricInnerState_ is true the state for projection to beam line is the one from the (geometrically) closest measurement to the beam line: to be sued for non-collision tracks
