@@ -634,8 +634,6 @@ namespace edm {
 
   bool EventProcessor::endPathsEnabled() const { return schedule_->endPathsEnabled(); }
 
-  void EventProcessor::getTriggerReport(TriggerReport& rep) const { schedule_->getTriggerReport(rep); }
-
   void EventProcessor::clearCounters() { schedule_->clearCounters(); }
 
   namespace {
