@@ -14,12 +14,15 @@ if 'unitTest=True' in sys.argv:
 
 if unitTest:
     process.load("DQM.Integration.config.unittestinputsource_cfi")
+    from DQM.Integration.config.unittestinputsource_cfi import options
 else:
     # for live online DQM in P5
     process.load("DQM.Integration.config.inputsource_cfi")
+    from DQM.Integration.config.inputsource_cfi import options
 
 # for testing in lxplus
 #process.load("DQM.Integration.config.fileinputsource_cfi")
+#from DQM.Integration.config.fileinputsource_cfi import options
 
 #================================
 # DQM Environment
@@ -30,6 +33,9 @@ process.load("Configuration.StandardSequences.GeometryRecoDB_cff")
 process.load("DQM.Integration.config.environment_cfi")
 process.dqmEnv.subSystemFolder = "Castor"
 process.dqmSaver.tag = "Castor"
+process.dqmSaver.runNumber = options.runNumber
+process.dqmSaverPB.tag = "Castor"
+process.dqmSaverPB.runNumber = options.runNumber
 
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
 
@@ -116,9 +122,9 @@ process.options = cms.untracked.PSet(
 # castorreco    -> CastorSimpleReconstructor_cfi
 # castorMonitor -> CastorMonitorModule_cfi
 
-process.p = cms.Path(process.castorDigis*process.castorreco*process.castorMonitor*process.dqmEnv*process.dqmSaver)
-#process.p = cms.Path(process.castorDigis*process.castorMonitor*process.dqmEnv*process.dqmSaver)
-#process.p = cms.Path(process.castorMonitor*process.dqmEnv*process.dqmSaver)
+process.p = cms.Path(process.castorDigis*process.castorreco*process.castorMonitor*process.dqmEnv*process.dqmSaver*process.dqmSaverPB)
+#process.p = cms.Path(process.castorDigis*process.castorMonitor*process.dqmEnv*process.dqmSaver*process.dqmSaverPB)
+#process.p = cms.Path(process.castorMonitor*process.dqmEnv*process.dqmSaver*process.dqmSaverPB)
 
 
 process.castorDigis.InputLabel = cms.InputTag("rawDataCollector")

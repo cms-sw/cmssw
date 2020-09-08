@@ -34,11 +34,16 @@ namespace dqm {
 
     bool fakeFilterUnitMode_;
     std::string streamLabel_;
+    std::string tag_;
     mutable std::string transferDestination_;
     mutable std::string mergeType_;
 
   public:
     static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+
+  private:
+    int getMaxCompressedSize(int bufferSize) const;
+    ulong compressME(const TBufferFile& buffer, int maxOutputSize, char* compression_output) const;
   };
 
 }  // namespace dqm
