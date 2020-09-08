@@ -51,13 +51,13 @@ int merge (int argc, char * argv[]){
     std::string methods = validation.get_child_optional("methods") ? getVecTokenized(validation, "methods", ",") : "median,rmsNorm";
     std::string curves = validation.get_child_optional("curves") ? getVecTokenized(validation, "curves", ",") : "plain";
 
-    int minimum = validation.get_child_optional("minimum") ? validation.get<int>("minimum") : 30;
+    int minimum = validation.get_child_optional("minimum") ? validation.get<int>("minimum") : 15;
 
     bool useFit = validation.get_child_optional("usefit") ? validation.get<bool>("usefit") : false;
     bool bigText = validation.get_child_optional("bigtext") ? validation.get<bool>("bigtext") : false;
 
-    TkAlStyle::legendheader = validation.get_child_optional("legendheader") ? validation.get<std::string>("legendheader") : " ";
-    TkAlStyle::legendoptions = validation.get_child_optional("legendoptions") ? getVecTokenized(validation, "legendoptions", " ") : "mean";
+    TkAlStyle::legendheader = validation.get_child_optional("legendheader") ? validation.get<std::string>("legendheader") : "";
+    TkAlStyle::legendoptions = validation.get_child_optional("legendoptions") ? getVecTokenized(validation, "legendoptions", " ") : "mean rms";
     TkAlStyle::set(INTERNAL, NONE, "", validation.get<std::string>("customrighttitle"));
 
     std::vector<int> moduleids;
@@ -72,10 +72,10 @@ int merge (int argc, char * argv[]){
     TString filesAndLabels;
 
     for(std::pair<std::string, pt::ptree> childTree : alignments){
-        filesAndLabels += childTree.second.get<std::string>("file") + "/DMR.root=" + childTree.second.get<std::string>("title") + "|" + childTree.second.get<std::string>("style") + "|" + childTree.second.get<std::string>("color") + ",";
+        filesAndLabels += childTree.second.get<std::string>("file") + "/DMR.root=" + childTree.second.get<std::string>("title") + "|" + childTree.second.get<std::string>("color") + "|" + childTree.second.get<std::string>("style") + " , ";
     }
 
-    filesAndLabels.Remove(filesAndLabels.Length()-1);
+    filesAndLabels.Remove(filesAndLabels.Length()-3);
 
     //Do file comparisons
     CompareAlignments comparer(main_tree.get<std::string>("output"));
@@ -94,10 +94,10 @@ int merge (int argc, char * argv[]){
 
     plotter.setOutputDir(main_tree.get<std::string>("output"));
     plotter.useFitForDMRplots(useFit);
-    plotter.setTreeBaseDir();
+    plotter.setTreeBaseDir("TrackHitFilter");
     plotter.plotDMR(methods, minimum, curves);
-    plotter.plotSurfaceShapes("TrackerOfflineValidation");
-    plotter.plotChi2((main_tree.get<std::string>("output") + "/result.root").c_str());
+    plotter.plotSurfaceShapes("coarse");
+    plotter.plotChi2((main_tree.get<std::string>("output") + "/" + "result.root").c_str());
 
     for(const int& moduleid : moduleids) {
         plotter.residual_by_moduleID(moduleid);
