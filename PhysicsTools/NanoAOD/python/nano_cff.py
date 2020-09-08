@@ -267,7 +267,7 @@ def nanoAOD_customizeCommon(process):
     makePuppiesFromMiniAOD(process,True) 
     process.puppiNoLep.useExistingWeights = True
     process.puppi.useExistingWeights = True
-    for modifier in run2_nanoAOD_106Xv1:
+    for modifier in run2_nanoAOD_106Xv1, :
         process.puppiNoLep.useExistingWeights = False
         process.puppi.useExistingWeights = False
     process = nanoAOD_activateVID(process)
