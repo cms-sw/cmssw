@@ -33,6 +33,7 @@ namespace edm {
   class LuminosityBlockIndex {
   public:
     LuminosityBlockIndex(const LuminosityBlockIndex&) = default;
+    LuminosityBlockIndex() = delete;
     LuminosityBlockIndex& operator=(const LuminosityBlockIndex&) = default;
     ~LuminosityBlockIndex() = default;
 
@@ -52,8 +53,6 @@ namespace edm {
     friend class LuminosityBlockPrincipal;
 
     explicit LuminosityBlockIndex(unsigned int iValue) : value_{iValue} {}
-
-    LuminosityBlockIndex() = delete;
 
     // ---------- member data --------------------------------
     unsigned int value_;
