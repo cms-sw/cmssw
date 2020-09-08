@@ -48,16 +48,17 @@ const CSCPatternBank::LCTPatterns CSCPatternBank::clct_pattern_legacy_ = {
         {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
         {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, -1, 11},
     },
-    // pid=2: right-bending (large)
+    // pid=2: left-bending (large)
     {
-        {0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1},
-        {0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0},
-        {0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0},
-        {0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0},
-        {0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0},
-        {1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 11},
+        //      0  1  2  3  4  5  6  7  8  9  A
+        /*L1*/ {0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1},
+        /*L2*/ {0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0},
+        /*L3*/ {0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0},
+        /*L4*/ {0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0},
+        /*L5*/ {0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0},
+        /*L6*/ {1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 11},
     },
-    // pid=3: left-bending (large)
+    // pid=3: right-bending (large)
     {
         {1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0},
         {0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0},
@@ -66,7 +67,7 @@ const CSCPatternBank::LCTPatterns CSCPatternBank::clct_pattern_legacy_ = {
         {0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0},
         {0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 11},
     },
-    // pid=4: right-bending (medium)
+    // pid=4: left-bending (medium)
     {
         {0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0},
         {0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0},
@@ -75,7 +76,7 @@ const CSCPatternBank::LCTPatterns CSCPatternBank::clct_pattern_legacy_ = {
         {0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0},
         {0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 9},
     },
-    // pid=5: left-bending (medium)
+    // pid=5: right-bending (medium)
     {
         {0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0},
         {0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0},
@@ -84,7 +85,7 @@ const CSCPatternBank::LCTPatterns CSCPatternBank::clct_pattern_legacy_ = {
         {0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0},
         {0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 1, 9},
     },
-    // pid=6: right-bending (medium)
+    // pid=6: left-bending (medium)
     {
         {0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0},
         {0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0},
@@ -93,7 +94,7 @@ const CSCPatternBank::LCTPatterns CSCPatternBank::clct_pattern_legacy_ = {
         {0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0},
         {0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 7},
     },
-    // pid=7: left-bending (medium)
+    // pid=7: right-bending (medium)
     {
         {0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0},
         {0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0},
@@ -102,7 +103,7 @@ const CSCPatternBank::LCTPatterns CSCPatternBank::clct_pattern_legacy_ = {
         {0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0},
         {0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 1, 7},
     },
-    // pid=8: right-bending (small)
+    // pid=8: left-bending (small)
     {
         {0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0},
         {0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0},
@@ -111,7 +112,7 @@ const CSCPatternBank::LCTPatterns CSCPatternBank::clct_pattern_legacy_ = {
         {0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0},
         {0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 5},
     },
-    // pid=9: left-bending (small)
+    // pid=9: right-bending (small)
     {
         {0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0},
         {0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0},
