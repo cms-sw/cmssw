@@ -46,21 +46,21 @@ public:
   unsigned int checkLayer(unsigned int iidd);
   std::vector<VectorHit> collectVHsOnLayer(edm::Handle<VectorHitCollectionNew>, unsigned int);
   void printVHsOnLayer(edm::Handle<VectorHitCollectionNew>, unsigned int);
-  const TrajectoryStateOnSurface buildInitialTSOS(VectorHit&);
-  AlgebraicSymMatrix assign44To55(AlgebraicSymMatrix);
+  const TrajectoryStateOnSurface buildInitialTSOS(VectorHit&) const;
+  AlgebraicSymMatrix assign44To55(AlgebraicSymMatrix) const;
   std::pair<bool, TrajectoryStateOnSurface> propagateAndUpdate(const TrajectoryStateOnSurface initialTSOS,
                                                                const Propagator&,
-                                                               const TrackingRecHit& hit);
-  float computeGlobalThetaError(const VectorHit& vh, const double sigmaZ_beamSpot);
+                                                               const TrackingRecHit& hit) const;
+  float computeGlobalThetaError(const VectorHit& vh, const double sigmaZ_beamSpot) const;
   float computeInverseMomentumError(VectorHit& vh,
                                     const float globalTheta,
                                     const double sigmaZ_beamSpot,
-                                    const double transverseMomentum);
+                                    const double transverseMomentum) const;
 
   TrajectorySeed createSeed(const TrajectoryStateOnSurface& tsos,
                             const edm::OwnVector<TrackingRecHit>& container,
                             const DetId& id,
-                            const Propagator& prop);
+                            const Propagator& prop) const;
 
   struct isInvalid {
     bool operator()(const TrajectoryMeasurement& measurement) {
@@ -73,7 +73,7 @@ private:
   edm::EDGetTokenT<VectorHitCollectionNew> vhProducerToken_;
   const TrackerTopology* tkTopo_;
   const MeasurementTracker* measurementTracker_;
-  const LayerMeasurements* layerMeasurements_;
+  std::unique_ptr<LayerMeasurements> layerMeasurements_;
   const MeasurementEstimator* estimator_;
   const Propagator* propagator_;
   const MagneticField* magField_;
@@ -132,7 +132,7 @@ void SeedingOTEDProducer::produce(edm::Event& event, const edm::EventSetup& es) 
   event.getByToken(tkMeasEventToken_, measurementTrackerEvent);
 
   //LayerMeasurements layerMeasurements_(*measurementTrackerHandle, *measurementTrackerEvent);
-  layerMeasurements_ = new LayerMeasurements(*measurementTrackerHandle, *measurementTrackerEvent);
+  layerMeasurements_ = std::make_unique<LayerMeasurements>(*measurementTrackerHandle, *measurementTrackerEvent);
 
   estimator_ = &es.getData(estToken_);
 
@@ -312,7 +312,7 @@ void SeedingOTEDProducer::printVHsOnLayer(edm::Handle<VectorHitCollectionNew> VH
   }
 }
 
-const TrajectoryStateOnSurface SeedingOTEDProducer::buildInitialTSOS(VectorHit& vHit) {
+const TrajectoryStateOnSurface SeedingOTEDProducer::buildInitialTSOS(VectorHit& vHit) const {
   // having fun with theta
   Global3DVector gv(vHit.globalPosition().x(), vHit.globalPosition().y(), vHit.globalPosition().z());
   float theta = gv.theta();
@@ -347,7 +347,7 @@ const TrajectoryStateOnSurface SeedingOTEDProducer::buildInitialTSOS(VectorHit& 
   return tsos;
 }
 
-AlgebraicSymMatrix SeedingOTEDProducer::assign44To55(AlgebraicSymMatrix mat44) {
+AlgebraicSymMatrix SeedingOTEDProducer::assign44To55(AlgebraicSymMatrix mat44) const{
   if (mat44.num_row() != 4 || mat44.num_col() != 4)
     assert("Wrong dimension! This should be a 4x4 matrix!");
 
@@ -361,7 +361,7 @@ AlgebraicSymMatrix SeedingOTEDProducer::assign44To55(AlgebraicSymMatrix mat44) {
 }
 
 std::pair<bool, TrajectoryStateOnSurface> SeedingOTEDProducer::propagateAndUpdate(
-    const TrajectoryStateOnSurface initialTSOS, const Propagator& prop, const TrackingRecHit& hit) {
+    const TrajectoryStateOnSurface initialTSOS, const Propagator& prop, const TrackingRecHit& hit) const {
   TrajectoryStateOnSurface propTSOS = prop.propagate(initialTSOS, hit.det()->surface());
   if UNLIKELY (!propTSOS.isValid())
      return std::make_pair(false, propTSOS);
@@ -371,7 +371,7 @@ std::pair<bool, TrajectoryStateOnSurface> SeedingOTEDProducer::propagateAndUpdat
   return std::make_pair(true, updatedTSOS);
 }
 
-float SeedingOTEDProducer::computeGlobalThetaError(const VectorHit& vh, const double sigmaZ_beamSpot) {
+float SeedingOTEDProducer::computeGlobalThetaError(const VectorHit& vh, const double sigmaZ_beamSpot) const {
   double derivative =
       vh.globalPosition().perp() / (pow(vh.globalPosition().z(), 2) + pow(vh.globalPosition().perp(), 2));
   double derivative2 = pow(derivative, 2);
@@ -381,7 +381,7 @@ float SeedingOTEDProducer::computeGlobalThetaError(const VectorHit& vh, const do
 float SeedingOTEDProducer::computeInverseMomentumError(VectorHit& vh,
                                                        const float globalTheta,
                                                        const double sigmaZ_beamSpot,
-                                                       const double transverseMomentum) {
+                                                       const double transverseMomentum) const {
   //for pT > 2GeV, 1/pT has sigma = 1/sqrt(12)
   float varianceInverseTransvMomentum = 1. / 12;
   float derivativeTheta2 = pow(cos(globalTheta) / transverseMomentum, 2);
@@ -394,7 +394,7 @@ float SeedingOTEDProducer::computeInverseMomentumError(VectorHit& vh,
 TrajectorySeed SeedingOTEDProducer::createSeed(const TrajectoryStateOnSurface& tsos,
                                                const edm::OwnVector<TrackingRecHit>& container,
                                                const DetId& id,
-                                               const Propagator& prop) {
+                                               const Propagator& prop) const {
   PTrajectoryStateOnDet seedTSOS = trajectoryStateTransform::persistentState(tsos, id.rawId());
   return TrajectorySeed(seedTSOS, container, prop.propagationDirection());
 }
