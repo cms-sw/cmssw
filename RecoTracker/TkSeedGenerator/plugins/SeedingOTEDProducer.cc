@@ -118,20 +118,16 @@ void SeedingOTEDProducer::fillDescriptions(edm::ConfigurationDescriptions& descr
 }
 
 void SeedingOTEDProducer::produce(edm::Event& event, const edm::EventSetup& es) {
-  std::unique_ptr<TrajectorySeedCollection> seedsWithVHs(new TrajectorySeedCollection());
+  auto seedsWithVHs = std::make_unique<TrajectorySeedCollection>();
 
   tkTopo_ = &es.getData(topoToken_);
 
-/*  edm::ESHandle<MeasurementTracker> measurementTrackerHandle;
-  measurementTrackerHandle = es.getHandle(measurementTrackerToken_);
-  measurementTracker_ = measurementTrackerHandel.product();*/
   edm::ESHandle<MeasurementTracker> measurementTrackerHandle = es.getHandle(measurementTrackerToken_);
   measurementTracker_ = measurementTrackerHandle.product();
 
   edm::Handle<MeasurementTrackerEvent> measurementTrackerEvent;
   event.getByToken(tkMeasEventToken_, measurementTrackerEvent);
 
-  //LayerMeasurements layerMeasurements_(*measurementTrackerHandle, *measurementTrackerEvent);
   layerMeasurements_ = std::make_unique<LayerMeasurements>(*measurementTrackerHandle, *measurementTrackerEvent);
 
   estimator_ = &es.getData(estToken_);
@@ -153,8 +149,8 @@ void SeedingOTEDProducer::produce(edm::Event& event, const edm::EventSetup& es) 
   event.getByToken(vhProducerToken_, vhs);
 
   TrajectorySeedCollection const& tempSeeds = run(vhs);
-  for (TrajectorySeedCollection::const_iterator qIt = tempSeeds.begin(); qIt < tempSeeds.end(); ++qIt) {
-    seedsWithVHs->push_back(*qIt);
+  for (auto& qIt : tempSeeds) {
+    seedsWithVHs->push_back(qIt);
   }
 
   seedsWithVHs->shrink_to_fit();
