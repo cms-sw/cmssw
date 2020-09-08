@@ -11,7 +11,8 @@
 class CSCPatternBank {
 public:
   // typedef used for both ALCT and CLCT
-  typedef std::vector<std::vector<std::vector<int> > > LCTPatterns;
+  typedef std::vector<std::vector<int> > LCTPattern;
+  typedef std::vector<LCTPattern> LCTPatterns;
 
   /** Pre-defined ALCT patterns. */
 
