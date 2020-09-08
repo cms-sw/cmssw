@@ -1,5 +1,5 @@
-#ifndef CSCCommonTrigger_CSCConstants_h
-#define CSCCommonTrigger_CSCConstants_h
+#ifndef L1Trigger_CSCCommonTrigger_CSCConstants_h
+#define L1Trigger_CSCCommonTrigger_CSCConstants_h
 
 /**
  * \class CSCConstants
@@ -53,6 +53,7 @@ public:
     CLCT_PATTERN_WIDTH = 11,
     // Max number of wires participating in a pattern
     MAX_WIRES_IN_PATTERN = 14,
+    NUM_COMPARATOR_CODES = 4096
   };
 
   enum Digis_Info { MAX_DIGIS_PER_ALCT = 10, MAX_DIGIS_PER_CLCT = 8 };
