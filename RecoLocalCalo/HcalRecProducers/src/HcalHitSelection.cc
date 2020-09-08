@@ -192,7 +192,6 @@ void HcalHitSelection::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
 
   if (!iEvent.getByToken(tok_ho_, ho))
     return;
-  iEvent.getByToken(tok_ho_, ho);
   auto ho_out = std::make_unique<HORecHitCollection>();
   skim(ho, *ho_out, hoSeverityLevel);
   iEvent.put(std::move(ho_out), hoTag.label());
