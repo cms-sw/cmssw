@@ -84,6 +84,7 @@ private:
   static std::unique_ptr<DetGeomDesc> applyAlignments(const DetGeomDesc&, const CTPPSRPAlignmentCorrectionsData*);
 
   const unsigned int verbosity_;
+  const bool is2021_;
 
   edm::ESGetToken<DDCompactView, IdealGeometryRecord> ddToken_;
   edm::ESGetToken<cms::DDCompactView, IdealGeometryRecord> dd4hepToken_;
@@ -98,6 +99,7 @@ private:
 
 CTPPSGeometryESModule::CTPPSGeometryESModule(const edm::ParameterSet& iConfig)
     : verbosity_(iConfig.getUntrackedParameter<unsigned int>("verbosity")),
+      is2021_(iConfig.getUntrackedParameter<bool>("is2021", false)),
       fromDD4hep_(iConfig.getUntrackedParameter<bool>("fromDD4hep", false)),
       gdRealTokens_{setWhatProduced(this, &CTPPSGeometryESModule::produceRealGD)},
       gdMisTokens_{setWhatProduced(this, &CTPPSGeometryESModule::produceMisalignedGD)},
@@ -118,6 +120,7 @@ CTPPSGeometryESModule::CTPPSGeometryESModule(const edm::ParameterSet& iConfig)
 void CTPPSGeometryESModule::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
   desc.addUntracked<unsigned int>("verbosity", 1);
+  desc.addUntracked<bool>("is2021", false);
   desc.add<std::string>("compactViewTag", std::string());
   desc.addUntracked<bool>("fromDD4hep", false);
   descriptions.add("CTPPSGeometryESModule", desc);
@@ -189,7 +192,7 @@ std::unique_ptr<DetGeomDesc> CTPPSGeometryESModule::produceIdealGD(const IdealGe
     auto const& myCompactView = iRecord.get(ddToken_);
 
     // Build geo from compact view.
-    return detgeomdescbuilder::buildDetGeomDescFromCompactView(myCompactView);
+    return detgeomdescbuilder::buildDetGeomDescFromCompactView(myCompactView, is2021_);
   }
 
   else {
@@ -197,7 +200,7 @@ std::unique_ptr<DetGeomDesc> CTPPSGeometryESModule::produceIdealGD(const IdealGe
     auto const& myCompactView = iRecord.get(dd4hepToken_);
 
     // Build geo from compact view.
-    return detgeomdescbuilder::buildDetGeomDescFromCompactView(myCompactView);
+    return detgeomdescbuilder::buildDetGeomDescFromCompactView(myCompactView, is2021_);
   }
 }
 
