@@ -9,7 +9,7 @@
 
 class GEMSubDetId {
 public:
-  enum class Station { ME0 = 0, GE11 = 1, GE21 = 2 };
+  enum class Station { GE0 = 0, ME0 = 0, GE11 = 1, GE21 = 2 };
   static Station station(uint16_t st) {
     Station returnValue = Station::GE11;
     if (st == 0) {
