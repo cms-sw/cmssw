@@ -92,12 +92,12 @@ private:
 };
 
 SeedingOTEDProducer::SeedingOTEDProducer(edm::ParameterSet const& conf)
-    : updator_(nullptr),
-      tkMeasEventToken_(consumes<MeasurementTrackerEvent>(conf.getParameter<edm::InputTag>("trackerEvent"))),
+    //: updator_(nullptr),
+    : tkMeasEventToken_(consumes<MeasurementTrackerEvent>(conf.getParameter<edm::InputTag>("trackerEvent"))),
       topoToken_(esConsumes()),
       propagatorToken_(esConsumes(edm::ESInputTag("", "PropagatorWithMaterial"))),
       magFieldToken_(esConsumes()),
-      updatorToken_(esConsumes()),
+      updatorToken_(esConsumes(edm::ESInputTag("","KFUpdator"))),
       measurementTrackerToken_(esConsumes()),
       estToken_(esConsumes(edm::ESInputTag("", "Chi2"))) {
   vhProducerToken_ = consumes<VectorHitCollectionNew>(edm::InputTag(conf.getParameter<edm::InputTag>("src")));
@@ -122,14 +122,17 @@ void SeedingOTEDProducer::produce(edm::Event& event, const edm::EventSetup& es) 
 
   tkTopo_ = &es.getData(topoToken_);
 
-  edm::ESHandle<MeasurementTracker> measurementTrackerHandle;
+/*  edm::ESHandle<MeasurementTracker> measurementTrackerHandle;
   measurementTrackerHandle = es.getHandle(measurementTrackerToken_);
+  measurementTracker_ = measurementTrackerHandel.product();*/
+  edm::ESHandle<MeasurementTracker> measurementTrackerHandle = es.getHandle(measurementTrackerToken_);
   measurementTracker_ = measurementTrackerHandle.product();
 
   edm::Handle<MeasurementTrackerEvent> measurementTrackerEvent;
   event.getByToken(tkMeasEventToken_, measurementTrackerEvent);
 
-  LayerMeasurements layerMeasurements_(*measurementTrackerHandle, *measurementTrackerEvent);
+  //LayerMeasurements layerMeasurements_(*measurementTrackerHandle, *measurementTrackerEvent);
+  layerMeasurements_ = new LayerMeasurements(*measurementTrackerHandle, *measurementTrackerEvent);
 
   estimator_ = &es.getData(estToken_);
 
@@ -251,8 +254,12 @@ TrajectorySeedCollection SeedingOTEDProducer::run(edm::Handle<VectorHitCollectio
               continue;
             std::pair<bool, TrajectoryStateOnSurface> updatedTSOSL2_final =
                 propagateAndUpdate(updatedTSOSL1_final, *buildingPropagator, *hitL2);
-            std::pair<bool, TrajectoryStateOnSurface> updatedTSOSL3_final =
+             if (!updatedTSOSL2_final.first)
+              continue;
+           std::pair<bool, TrajectoryStateOnSurface> updatedTSOSL3_final =
                 propagateAndUpdate(updatedTSOSL2_final.second, *buildingPropagator, hitL3);
+            if (!updatedTSOSL3_final.first)
+              continue;
             TrajectorySeed ts =
                 createSeed(updatedTSOSL3_final.second, container, hitL3.geographicalId(), *buildingPropagator);
             result.push_back(ts);
@@ -356,6 +363,8 @@ AlgebraicSymMatrix SeedingOTEDProducer::assign44To55(AlgebraicSymMatrix mat44) {
 std::pair<bool, TrajectoryStateOnSurface> SeedingOTEDProducer::propagateAndUpdate(
     const TrajectoryStateOnSurface initialTSOS, const Propagator& prop, const TrackingRecHit& hit) {
   TrajectoryStateOnSurface propTSOS = prop.propagate(initialTSOS, hit.det()->surface());
+  if UNLIKELY (!propTSOS.isValid())
+     return std::make_pair(false, propTSOS);
   TrajectoryStateOnSurface updatedTSOS = updator_->update(propTSOS, hit);
   if UNLIKELY (!updatedTSOS.isValid())
     return std::make_pair(false, updatedTSOS);
