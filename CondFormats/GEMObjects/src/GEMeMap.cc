@@ -82,9 +82,9 @@ void GEMeMap::convertDummy(GEMROMapping& romap) {
     for (int st = GEMDetId::minStationId0; st <= GEMDetId::maxStationId; ++st) {
       int maxVFat = maxVFatGE11_;
       int maxLayerId = GEMDetId::maxLayerId;
-      if (st == 2)
+      if (GEMSubDetId::station(st) == GEMSubDetId::Station::GE21)
         maxVFat = maxVFatGE21_;
-      if (st == 0) {
+      if (GEMSubDetId::station(st) == GEMSubDetId::Station::GE0) {
         maxVFat = maxVFatGE0_;
         maxLayerId = GEMDetId::maxLayerId0;
       }
