@@ -401,6 +401,28 @@ namespace edm {
         std::sort(elem.second.chosenBranches.begin(), elem.second.chosenBranches.end());
       }
 
+      auto addProductsToException = [&preg, &processName](auto const& caseLabels, edm::Exception& ex) {
+        std::map<std::string, std::vector<BranchKey>> caseBranches;
+        for (auto const& item : preg.productList()) {
+          if (item.first.processName() != processName)
+            continue;
+
+          if (auto found = std::find(caseLabels.begin(), caseLabels.end(), item.first.moduleLabel());
+              found != caseLabels.end()) {
+            caseBranches[*found].push_back(item.first);
+          }
+        }
+
+        for (auto const& caseLabel : caseLabels) {
+          ex << "Products for case " << caseLabel << " (friendly class name, product instance name):\n";
+          auto& branches = caseBranches[caseLabel];
+          std::sort(branches.begin(), branches.end());
+          for (auto const& branch : branches) {
+            ex << " " << branch.friendlyClassName() << " " << branch.productInstanceName() << "\n";
+          }
+        }
+      };
+
       // Check that non-chosen cases declare exactly the same branches
       // Also set the alias-for branches to transient
       std::vector<bool> foundBranches;
@@ -431,11 +453,16 @@ namespace edm {
                                                       item.first.productInstanceName(),
                                                       item.first.processName()));
               if (range.first == range.second) {
-                throw Exception(errors::Configuration)
-                    << "SwitchProducer " << switchLabel << " has a case " << caseLabel << " with a product "
-                    << item.first << " that is not produced by the chosen case "
-                    << proc_pset.getParameter<edm::ParameterSet>(switchLabel)
-                           .getUntrackedParameter<std::string>("@chosen_case");
+                Exception ex(errors::Configuration);
+                ex << "SwitchProducer " << switchLabel << " has a case " << caseLabel << " with a product "
+                   << item.first << " that is not produced by the chosen case "
+                   << proc_pset.getParameter<edm::ParameterSet>(switchLabel)
+                          .getUntrackedParameter<std::string>("@chosen_case")
+                   << ". If the intention is to produce only a subset of the products listed below, each case with "
+                      "more products needs to be replaced with an EDAlias to only the necessary products, and the "
+                      "EDProducer itself needs to be moved to a Task.\n\n";
+                addProductsToException(caseLabels, ex);
+                throw ex;
               }
               assert(std::distance(range.first, range.second) == 1);
               foundBranches[std::distance(chosenBranches.begin(), range.first)] = true;
@@ -457,11 +484,17 @@ namespace edm {
 
           for (size_t i = 0; i < chosenBranches.size(); i++) {
             if (not foundBranches[i]) {
-              throw Exception(errors::Configuration)
-                  << "SwitchProducer " << switchLabel << " has a case " << caseLabel
-                  << " that does not produce a product " << chosenBranches[i] << " that is produced by the chosen case "
-                  << proc_pset.getParameter<edm::ParameterSet>(switchLabel)
-                         .getUntrackedParameter<std::string>("@chosen_case");
+              auto chosenLabel = proc_pset.getParameter<edm::ParameterSet>(switchLabel)
+                                     .getUntrackedParameter<std::string>("@chosen_case");
+              Exception ex(errors::Configuration);
+              ex << "SwitchProducer " << switchLabel << " has a case " << caseLabel
+                 << " that does not produce a product " << chosenBranches[i] << " that is produced by the chosen case "
+                 << chosenLabel
+                 << ". If the intention is to produce only a subset of the products listed below, each case with more "
+                    "products needs to be replaced with an EDAlias to only the necessary products, and the "
+                    "EDProducer itself needs to be moved to a Task.\n\n";
+              addProductsToException(caseLabels, ex);
+              throw ex;
             }
           }
         }
