@@ -20,7 +20,7 @@
 //
 // ----------------------------------------------------------------------
 
-#include "FWCore/MessageService/interface/ELlimitsTable.h"
+#include "FWCore/MessageService/src/ELlimitsTable.h"
 
 // Posible traces
 //#include <iostream>

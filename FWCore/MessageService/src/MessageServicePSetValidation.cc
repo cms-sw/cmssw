@@ -19,7 +19,7 @@
 
 // user include files
 
-#include "FWCore/MessageService/interface/MessageServicePSetValidation.h"
+#include "FWCore/MessageService/src/MessageServicePSetValidation.h"
 
 using namespace edm;
 using namespace edm::service;

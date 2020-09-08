@@ -6,9 +6,9 @@
 //
 //
 
-#include "FWCore/MessageService/interface/MainThreadMLscribe.h"
-#include "FWCore/MessageService/interface/ThreadQueue.h"
-#include "FWCore/MessageLogger/interface/ConfigurationHandshake.h"
+#include "FWCore/MessageService/src/MainThreadMLscribe.h"
+#include "FWCore/MessageService/src/ThreadQueue.h"
+#include "FWCore/MessageService/src/ConfigurationHandshake.h"
 
 namespace edm {
   namespace service {
