@@ -127,7 +127,7 @@ void DetGeomDesc::deepDeleteComponents() {
   clearComponents();
 }
 
-std::string DetGeomDesc::computeNameWithNoNamespace(const std::string_view nameFromView) const {
+std::string DetGeomDesc::computeNameWithNoNamespace(std::string_view nameFromView) const {
   const auto& semiColonPos = nameFromView.find(":");
   const std::string name{(semiColonPos != std::string::npos ? nameFromView.substr(semiColonPos + 1) : nameFromView)};
   return name;
@@ -285,7 +285,7 @@ DetId DetGeomDesc::computeDetIDFromDD4hep(const std::string& name,
  * old DD sensor type computation.
  * Find out from the namespace, whether a sensor type is 2x2.
  */
-std::string DetGeomDesc::computeSensorType(const std::string_view name) {
+std::string DetGeomDesc::computeSensorType(std::string_view name) {
   std::string sensorType;
 
   // Namespace is present, and allow identification of 2x2 sensor type: just look for "2x2:RPixWafer" in name.
@@ -301,7 +301,7 @@ std::string DetGeomDesc::computeSensorType(const std::string_view name) {
  * DD4hep sensor type computation.
  * Find out from the namespace (from DB) or the nodePath (from XMLs), whether a sensor type is 2x2.
  */
-std::string DetGeomDesc::computeSensorType(const std::string_view name,
+std::string DetGeomDesc::computeSensorType(std::string_view name,
                                            const std::string& nodePath,
                                            const cms::DDSpecParRegistry& allSpecParSections) {
   std::string sensorType;
