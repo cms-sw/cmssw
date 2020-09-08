@@ -27,11 +27,14 @@ public:
                                       reco::SingleTauDiscriminatorContainer,
                                       TauDiscriminator>::TauDiscriminationProducerBase(cfg),
         moduleLabel_(cfg.getParameter<std::string>("@module_label")),
-        mva_(std::make_unique<AntiElectronIDMVA6<TauType, ElectronType> >(cfg)),
+        mva_(std::make_unique<AntiElectronIDMVA6<TauType, ElectronType>>(cfg)),
         Electron_token(edm::EDConsumerBase::consumes<ElectronCollection>(
-            cfg.getParameter<edm::InputTag>("srcElectrons"))),  //MB: full specification with prefix mandatory
+            cfg.getParameter<edm::InputTag>("srcElectrons"))),  // MB: full specification with prefix mandatory
         vetoEcalCracks_(cfg.getParameter<bool>("vetoEcalCracks")),
-        verbosity_(cfg.getParameter<int>("verbosity")) {}
+        isPhase2_(cfg.getParameter<bool>("isPhase2")),
+        verbosity_(cfg.getParameter<int>("verbosity")) {
+    deltaREleTauMax_ = (isPhase2_ ? 0.2 : 0.3);
+  }
 
   void beginEvent(const edm::Event& evt, const edm::EventSetup& es) override {
     mva_->beginEvent(evt, es);
@@ -55,7 +58,7 @@ private:
   std::pair<float, float> getTauEtaAtECalEntrance(const pat::TauRef& theTauRef) const;
 
   std::string moduleLabel_;
-  std::unique_ptr<AntiElectronIDMVA6<TauType, ElectronType> > mva_;
+  std::unique_ptr<AntiElectronIDMVA6<TauType, ElectronType>> mva_;
 
   edm::EDGetTokenT<ElectronCollection> Electron_token;
   edm::Handle<ElectronCollection> electrons_;
@@ -63,7 +66,13 @@ private:
 
   PositionAtECalEntranceComputer positionAtECalEntrance_;
 
+  static constexpr float ecalBarrelEndcapEtaBorder_ = 1.479;
+  static constexpr float ecalEndcapVFEndcapEtaBorder_ = 2.4;
+
   bool vetoEcalCracks_;
+
+  bool isPhase2_;
+  float deltaREleTauMax_;
 
   int verbosity_;
 };
@@ -77,9 +86,7 @@ TauDiscriminationAgainstElectronMVA6<TauType, TauDiscriminator, ElectronType>::d
   double category = -1.;
   bool isGsfElectronMatched = false;
 
-  float deltaRDummy = 9.9;
-
-  const float ECalBarrelEndcapEtaBorder = 1.479;
+  double deltaRDummy = 9.9;
 
   std::pair<float, float> tauEtaAtECalEntrance;
   if (std::is_same<TauType, reco::PFTau>::value || std::is_same<TauType, pat::Tau>::value)
@@ -102,12 +109,17 @@ TauDiscriminationAgainstElectronMVA6<TauType, TauDiscriminator, ElectronType>::d
     bool hasGsfTrack = false;
     const reco::CandidatePtr& leadChCand = theTauRef->leadChargedHadrCand();
     if (leadChCand.isNonnull()) {
-      const pat::PackedCandidate* packedLeadChCand = dynamic_cast<const pat::PackedCandidate*>(leadChCand.get());
-      if (packedLeadChCand != nullptr) {
-        hasGsfTrack = (std::abs(packedLeadChCand->pdgId()) == 11);
+      if (isPhase2_) {
+        //MB: for phase-2 has gsf-track reads lead charged cand is pf-electron
+        hasGsfTrack = (std::abs(leadChCand->pdgId()) == 11);
       } else {
-        const reco::PFCandidate* pfLeadChCand = dynamic_cast<const reco::PFCandidate*>(leadChCand.get());
-        hasGsfTrack = (pfLeadChCand != nullptr && pfLeadChCand->gsfTrackRef().isNonnull());
+        const pat::PackedCandidate* packedLeadChCand = dynamic_cast<const pat::PackedCandidate*>(leadChCand.get());
+        if (packedLeadChCand != nullptr) {
+          hasGsfTrack = (std::abs(packedLeadChCand->pdgId()) == 11);
+        } else {
+          const reco::PFCandidate* pfLeadChCand = dynamic_cast<const reco::PFCandidate*>(leadChCand.get());
+          hasGsfTrack = (pfLeadChCand != nullptr && pfLeadChCand->gsfTrackRef().isNonnull());
+        }
       }
     }
 
@@ -115,8 +127,8 @@ TauDiscriminationAgainstElectronMVA6<TauType, TauDiscriminator, ElectronType>::d
     for (const auto& theElectron : *electrons_) {
       if (theElectron.pt() > 10.) {  // CV: only take electrons above some minimal energy/Pt into account...
         double deltaREleTau = deltaR(theElectron.p4(), theTauRef->p4());
-        deltaRDummy = deltaREleTau;
-        if (deltaREleTau < 0.3) {
+        deltaRDummy = std::min(deltaREleTau, deltaRDummy);
+        if (deltaREleTau < deltaREleTauMax_) {
           double mva_match = mva_->MVAValue(*theTauRef, theElectron);
           if (!hasGsfTrack)
             hasGsfTrack = theElectron.gsfTrack().isNonnull();
@@ -132,23 +144,29 @@ TauDiscriminationAgainstElectronMVA6<TauType, TauDiscriminator, ElectronType>::d
           }
           // veto taus that go to ECal crack
 
-          if (std::abs(tauEtaAtECalEntrance.first) < ECalBarrelEndcapEtaBorder) {  // Barrel
+          if (std::abs(tauEtaAtECalEntrance.first) < ecalBarrelEndcapEtaBorder_) {  // Barrel
             if (numSignalGammaCandsInSigCone == 0 && hasGsfTrack) {
               category = 5.;
             } else if (numSignalGammaCandsInSigCone >= 1 && hasGsfTrack) {
               category = 7.;
             }
-          } else {  // Endcap
+          } else if (!isPhase2_ || (std::abs(tauEtaAtECalEntrance.first) < ecalEndcapVFEndcapEtaBorder_)) {  // Endcap
             if (numSignalGammaCandsInSigCone == 0 && hasGsfTrack) {
               category = 13.;
             } else if (numSignalGammaCandsInSigCone >= 1 && hasGsfTrack) {
               category = 15.;
             }
+          } else {  // VeryForwardEndcap
+            if (numSignalGammaCandsInSigCone == 0 && hasGsfTrack) {
+              category = 14.;
+            } else if (numSignalGammaCandsInSigCone >= 1 && hasGsfTrack) {
+              category = 16.;
+            }
           }
 
           result.rawValues.at(0) = std::min(result.rawValues.at(0), float(mva_match));
           isGsfElectronMatched = true;
-        }  // deltaR < 0.3
+        }  // deltaR < deltaREleTauMax_
       }    // electron pt > 10
     }      // end of loop over electrons
 
@@ -166,17 +184,23 @@ TauDiscriminationAgainstElectronMVA6<TauType, TauDiscriminator, ElectronType>::d
       }
       // veto taus that go to ECal crack
 
-      if (std::abs(tauEtaAtECalEntrance.first) < ECalBarrelEndcapEtaBorder) {  // Barrel
+      if (std::abs(tauEtaAtECalEntrance.first) < ecalBarrelEndcapEtaBorder_) {  // Barrel
         if (numSignalGammaCandsInSigCone == 0 && !hasGsfTrack) {
           category = 0.;
         } else if (numSignalGammaCandsInSigCone >= 1 && !hasGsfTrack) {
           category = 2.;
         }
-      } else {  // Endcap
+      } else if (!isPhase2_ || (std::abs(tauEtaAtECalEntrance.first) < ecalEndcapVFEndcapEtaBorder_)) {  // Endcap
         if (numSignalGammaCandsInSigCone == 0 && !hasGsfTrack) {
           category = 8.;
         } else if (numSignalGammaCandsInSigCone >= 1 && !hasGsfTrack) {
           category = 10.;
+        }
+      } else {  // VeryForwardEndcap
+        if (numSignalGammaCandsInSigCone == 0 && !hasGsfTrack) {
+          category = 9.;
+        } else if (numSignalGammaCandsInSigCone >= 1 && !hasGsfTrack) {
+          category = 11.;
         }
       }
 
@@ -224,7 +248,15 @@ TauDiscriminationAgainstElectronMVA6<TauType, TauDiscriminator, ElectronType>::g
     const reco::Track* track = nullptr;
     const reco::PFCandidate* pfCandidate = dynamic_cast<const reco::PFCandidate*>(candidate.get());
     if (pfCandidate != nullptr) {
-      etaAtECalEntrance = pfCandidate->positionAtECALEntrance().eta();
+      if (!isPhase2_ || std::abs(theTauRef->eta()) < ecalBarrelEndcapEtaBorder_) {  // ECal
+        etaAtECalEntrance = pfCandidate->positionAtECALEntrance().eta();
+      } else {  // HGCal
+        bool success = false;
+        reco::Candidate::Point posAtECal = positionAtECalEntrance_(candidate.get(), success, isPhase2_);
+        if (success) {
+          etaAtECalEntrance = posAtECal.eta();
+        }
+      }
       if (pfCandidate->trackRef().isNonnull())
         track = pfCandidate->trackRef().get();
       else if (pfCandidate->muonRef().isNonnull() && pfCandidate->muonRef()->innerTrack().isNonnull())
@@ -237,7 +269,7 @@ TauDiscriminationAgainstElectronMVA6<TauType, TauDiscriminator, ElectronType>::g
         track = pfCandidate->gsfTrackRef().get();
     } else {
       bool success = false;
-      reco::Candidate::Point posAtECal = positionAtECalEntrance_(candidate.get(), success);
+      reco::Candidate::Point posAtECal = positionAtECalEntrance_(candidate.get(), success, isPhase2_);
       if (success) {
         etaAtECalEntrance = posAtECal.eta();
       }
@@ -262,7 +294,37 @@ template <class TauType, class TauDiscriminator, class ElectronType>
 std::pair<float, float>
 TauDiscriminationAgainstElectronMVA6<TauType, TauDiscriminator, ElectronType>::getTauEtaAtECalEntrance(
     const pat::TauRef& theTauRef) const {
-  return std::pair<float, float>(theTauRef->etaAtEcalEntrance(), theTauRef->etaAtEcalEntranceLeadChargedCand());
+  if (!isPhase2_ || std::abs(theTauRef->eta()) < ecalBarrelEndcapEtaBorder_) {  // ECal
+    return std::pair<float, float>(theTauRef->etaAtEcalEntrance(), theTauRef->etaAtEcalEntranceLeadChargedCand());
+  } else {  // HGCal
+    float tauEtaAtECalEntrance = -99;
+    float leadChargedCandEtaAtECalEntrance = -99;
+    float sumEtaTimesEnergy = 0.;
+    float sumEnergy = 0.;
+
+    bool success = false;
+    reco::Candidate::Point posAtECal =
+        positionAtECalEntrance_(theTauRef->leadChargedHadrCand().get(), success, isPhase2_);
+    if (success) {
+      leadChargedCandEtaAtECalEntrance = posAtECal.eta();
+    } else {
+      leadChargedCandEtaAtECalEntrance = theTauRef->leadChargedHadrCand()->eta();
+    }
+    for (const auto& candidate : theTauRef->signalCands()) {
+      float etaAtECalEntrance = candidate->eta();
+      success = false;
+      posAtECal = positionAtECalEntrance_(candidate.get(), success, isPhase2_);
+      if (success) {
+        etaAtECalEntrance = posAtECal.eta();
+      }
+      sumEtaTimesEnergy += etaAtECalEntrance * candidate->energy();
+      sumEnergy += candidate->energy();
+    }
+    if (sumEnergy > 0.) {
+      tauEtaAtECalEntrance = sumEtaTimesEnergy / sumEnergy;
+    }
+    return std::pair<float, float>(tauEtaAtECalEntrance, leadChargedCandEtaAtECalEntrance);
+  }
 }
 
 template <class TauType, class TauDiscriminator, class ElectronType>
@@ -292,7 +354,26 @@ void TauDiscriminationAgainstElectronMVA6<TauType, TauDiscriminator, ElectronTyp
   desc.add<double>("minMVANoEleMatchWgWOgsfEC", 0.0);
   desc.add<double>("minMVAWOgWgsfEC", 0.0);
   desc.add<double>("minMVAWgWgsfEC", 0.0);
+
+  desc.add<bool>("isPhase2", false);
+  // The following used only for Phase2
+  desc.add<std::string>("mvaName_wGwGSF_VFEC", "gbr_wGwGSF_VFEC")->setComment("Relevant only for Phase-2");
+  desc.add<std::string>("mvaName_woGwGSF_VFEC", "gbr_woGwGSF_VFEC")->setComment("Relevant only for Phase-2");
+  desc.add<std::string>("mvaName_NoEleMatch_wGwoGSF_VFEC", "gbr_NoEleMatch_wGwoGSF_VFEC")
+      ->setComment("Relevant only for Phase-2");
+  desc.add<std::string>("mvaName_NoEleMatch_woGwoGSF_VFEC", "gbr_NoEleMatch_woGwoGSF_VFEC")
+      ->setComment("Relevant only for Phase-2");
+  desc.add<double>("minMVAWOgWgsfVFEC", 0.0)->setComment("Relevant only for Phase-2");
+  desc.add<double>("minMVAWgWgsfVFEC", 0.0)->setComment("Relevant only for Phase-2");
+  desc.add<double>("minMVANoEleMatchWgWOgsfVFEC", 0.0)->setComment("Relevant only for Phase-2");
+  desc.add<double>("minMVANoEleMatchWOgWOgsfVFEC", 0.0)->setComment("Relevant only for Phase-2");
+
   desc.add<edm::InputTag>("srcElectrons", edm::InputTag("fixme"));
+  // Relevant only for gsfElectrons for Phase2
+  if (std::is_same<ElectronType, reco::GsfElectron>::value) {
+    desc.add<std::vector<edm::InputTag>>("hgcalElectronIDs", std::vector<edm::InputTag>())
+        ->setComment("Relevant only for Phase-2");
+  }
   desc.add<bool>("vetoEcalCracks", true);
   desc.add<bool>("usePhiAtEcalEntranceExtrapolation", false);
   desc.add<int>("verbosity", 0);

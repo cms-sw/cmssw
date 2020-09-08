@@ -26,7 +26,13 @@ AntiElectronIDMVA6<TauType, ElectronType>::AntiElectronIDMVA6(const edm::Paramet
       mva_NoEleMatch_woGwoGSF_EC_(nullptr),
       mva_NoEleMatch_wGwoGSF_EC_(nullptr),
       mva_woGwGSF_EC_(nullptr),
-      mva_wGwGSF_EC_(nullptr) {
+      mva_wGwGSF_EC_(nullptr),
+      mva_NoEleMatch_woGwoGSF_VFEC_(nullptr),
+      mva_NoEleMatch_wGwoGSF_VFEC_(nullptr),
+      mva_woGwGSF_VFEC_(nullptr),
+      mva_wGwGSF_VFEC_(nullptr),
+      isPhase2_(cfg.getParameter<bool>("isPhase2")),
+      verbosity_(cfg.getParameter<int>("verbosity")) {
   loadMVAfromDB_ = cfg.exists("loadMVAfromDB") ? cfg.getParameter<bool>("loadMVAfromDB") : false;
   if (!loadMVAfromDB_) {
     if (cfg.exists("inputFileName")) {
@@ -44,19 +50,40 @@ AntiElectronIDMVA6<TauType, ElectronType>::AntiElectronIDMVA6(const edm::Paramet
   mvaName_NoEleMatch_wGwoGSF_EC_ = cfg.getParameter<std::string>("mvaName_NoEleMatch_wGwoGSF_EC");
   mvaName_woGwGSF_EC_ = cfg.getParameter<std::string>("mvaName_woGwGSF_EC");
   mvaName_wGwGSF_EC_ = cfg.getParameter<std::string>("mvaName_wGwGSF_EC");
+  mvaName_NoEleMatch_woGwoGSF_VFEC_ = cfg.getParameter<std::string>("mvaName_NoEleMatch_woGwoGSF_VFEC");
+  mvaName_NoEleMatch_wGwoGSF_VFEC_ = cfg.getParameter<std::string>("mvaName_NoEleMatch_wGwoGSF_VFEC");
+  mvaName_woGwGSF_VFEC_ = cfg.getParameter<std::string>("mvaName_woGwGSF_VFEC");
+  mvaName_wGwGSF_VFEC_ = cfg.getParameter<std::string>("mvaName_wGwGSF_VFEC");
 
   usePhiAtEcalEntranceExtrapolation_ = cfg.getParameter<bool>("usePhiAtEcalEntranceExtrapolation");
 
-  Var_NoEleMatch_woGwoGSF_Barrel_ = new float[10];
-  Var_NoEleMatch_wGwoGSF_Barrel_ = new float[18];
-  Var_woGwGSF_Barrel_ = new float[24];
-  Var_wGwGSF_Barrel_ = new float[32];
-  Var_NoEleMatch_woGwoGSF_Endcap_ = new float[9];
-  Var_NoEleMatch_wGwoGSF_Endcap_ = new float[17];
-  Var_woGwGSF_Endcap_ = new float[23];
-  Var_wGwGSF_Endcap_ = new float[31];
-
-  verbosity_ = 0;
+  if (!isPhase2_) {
+    Var_NoEleMatch_woGwoGSF_Barrel_ = new float[10];
+    Var_NoEleMatch_wGwoGSF_Barrel_ = new float[18];
+    Var_woGwGSF_Barrel_ = new float[24];
+    Var_wGwGSF_Barrel_ = new float[32];
+    Var_NoEleMatch_woGwoGSF_Endcap_ = new float[9];
+    Var_NoEleMatch_wGwoGSF_Endcap_ = new float[17];
+    Var_woGwGSF_Endcap_ = new float[23];
+    Var_wGwGSF_Endcap_ = new float[31];
+    Var_NoEleMatch_woGwoGSF_VFEndcap_ = nullptr;
+    Var_NoEleMatch_wGwoGSF_VFEndcap_ = nullptr;
+    Var_woGwGSF_VFEndcap_ = nullptr;
+    Var_wGwGSF_VFEndcap_ = nullptr;
+  } else {
+    Var_NoEleMatch_woGwoGSF_Barrel_ = new float[9];
+    Var_NoEleMatch_wGwoGSF_Barrel_ = new float[17];
+    Var_woGwGSF_Barrel_ = new float[27];
+    Var_wGwGSF_Barrel_ = new float[36];
+    Var_NoEleMatch_woGwoGSF_Endcap_ = new float[6];
+    Var_NoEleMatch_wGwoGSF_Endcap_ = new float[14];
+    Var_woGwGSF_Endcap_ = new float[31];
+    Var_wGwGSF_Endcap_ = new float[38];
+    Var_NoEleMatch_woGwoGSF_VFEndcap_ = new float[6];
+    Var_NoEleMatch_wGwoGSF_VFEndcap_ = new float[14];
+    Var_woGwGSF_VFEndcap_ = new float[32];
+    Var_wGwGSF_VFEndcap_ = new float[40];
+  }
 }
 
 template <class TauType, class ElectronType>
@@ -69,6 +96,12 @@ AntiElectronIDMVA6<TauType, ElectronType>::~AntiElectronIDMVA6() {
   delete[] Var_NoEleMatch_wGwoGSF_Endcap_;
   delete[] Var_woGwGSF_Endcap_;
   delete[] Var_wGwGSF_Endcap_;
+  if (isPhase2_) {
+    delete[] Var_NoEleMatch_woGwoGSF_VFEndcap_;
+    delete[] Var_NoEleMatch_wGwoGSF_VFEndcap_;
+    delete[] Var_woGwGSF_VFEndcap_;
+    delete[] Var_wGwGSF_VFEndcap_;
+  }
 
   if (!loadMVAfromDB_) {
     delete mva_NoEleMatch_woGwoGSF_BL_;
@@ -79,6 +112,12 @@ AntiElectronIDMVA6<TauType, ElectronType>::~AntiElectronIDMVA6() {
     delete mva_NoEleMatch_wGwoGSF_EC_;
     delete mva_woGwGSF_EC_;
     delete mva_wGwGSF_EC_;
+    if (isPhase2_) {
+      delete mva_NoEleMatch_woGwoGSF_VFEC_;
+      delete mva_NoEleMatch_wGwoGSF_VFEC_;
+      delete mva_woGwGSF_VFEC_;
+      delete mva_wGwGSF_VFEC_;
+    }
   }
 
   for (std::vector<TFile*>::iterator it = inputFilesToDelete_.begin(); it != inputFilesToDelete_.end(); ++it) {
@@ -89,7 +128,7 @@ AntiElectronIDMVA6<TauType, ElectronType>::~AntiElectronIDMVA6() {
 namespace {
   const GBRForest* loadMVAfromFile(TFile* inputFile, const std::string& mvaName) {
     const GBRForest* mva = (GBRForest*)inputFile->Get(mvaName.data());
-    if (!mva)
+    if (mva == nullptr)
       throw cms::Exception("PFRecoTauDiscriminationAgainstElectronMVA6::loadMVA")
           << " Failed to load MVA = " << mvaName.data() << " from file "
           << " !!\n";
@@ -116,6 +155,12 @@ void AntiElectronIDMVA6<TauType, ElectronType>::beginEvent(const edm::Event& evt
       mva_NoEleMatch_wGwoGSF_EC_ = loadMVAfromDB(es, mvaName_NoEleMatch_wGwoGSF_EC_);
       mva_woGwGSF_EC_ = loadMVAfromDB(es, mvaName_woGwGSF_EC_);
       mva_wGwGSF_EC_ = loadMVAfromDB(es, mvaName_wGwGSF_EC_);
+      if (isPhase2_) {
+        mva_NoEleMatch_woGwoGSF_VFEC_ = loadMVAfromDB(es, mvaName_NoEleMatch_woGwoGSF_VFEC_);
+        mva_NoEleMatch_wGwoGSF_VFEC_ = loadMVAfromDB(es, mvaName_NoEleMatch_wGwoGSF_VFEC_);
+        mva_woGwGSF_VFEC_ = loadMVAfromDB(es, mvaName_woGwGSF_VFEC_);
+        mva_wGwGSF_VFEC_ = loadMVAfromDB(es, mvaName_wGwGSF_VFEC_);
+      }
     } else {
       if (inputFileName_.location() == edm::FileInPath::Unknown)
         throw cms::Exception("PFRecoTauDiscriminationAgainstElectronMVA6::loadMVA")
@@ -130,6 +175,12 @@ void AntiElectronIDMVA6<TauType, ElectronType>::beginEvent(const edm::Event& evt
       mva_NoEleMatch_wGwoGSF_EC_ = loadMVAfromFile(inputFile, mvaName_NoEleMatch_wGwoGSF_EC_);
       mva_woGwGSF_EC_ = loadMVAfromFile(inputFile, mvaName_woGwGSF_EC_);
       mva_wGwGSF_EC_ = loadMVAfromFile(inputFile, mvaName_wGwGSF_EC_);
+      if (isPhase2_) {
+        mva_NoEleMatch_woGwoGSF_VFEC_ = loadMVAfromFile(inputFile, mvaName_NoEleMatch_woGwoGSF_VFEC_);
+        mva_NoEleMatch_wGwoGSF_VFEC_ = loadMVAfromFile(inputFile, mvaName_NoEleMatch_wGwoGSF_VFEC_);
+        mva_woGwGSF_VFEC_ = loadMVAfromFile(inputFile, mvaName_woGwGSF_VFEC_);
+        mva_wGwGSF_VFEC_ = loadMVAfromFile(inputFile, mvaName_wGwGSF_VFEC_);
+      }
       inputFilesToDelete_.push_back(inputFile);
     }
     isInitialized_ = true;
@@ -198,7 +249,11 @@ double AntiElectronIDMVA6<TauType, ElectronType>::MVAValue(const TauVars& tauVar
   tauGammaMoms.gammaEtaMomOut = std::sqrt(dEta2 * tauGammaMoms.gammaEnFracOut) * tauVars.pt;
   tauGammaMoms.gammaPhiMomOut = std::sqrt(dPhi2 * tauGammaMoms.gammaEnFracOut) * tauVars.pt;
 
-  return MVAValue(tauVars, tauGammaMoms, elecVars);
+  if (!isPhase2_) {
+    return MVAValue(tauVars, tauGammaMoms, elecVars);
+  } else {
+    return MVAValuePhase2(tauVars, tauGammaMoms, elecVars);
+  }
 }
 
 template <class TauType, class ElectronType>
@@ -211,7 +266,6 @@ double AntiElectronIDMVA6<TauType, ElectronType>::MVAValue(const TauVars& tauVar
 
   double mvaValue = -99.;
 
-  const float ECALBarrelEndcapEtaBorder = 1.479;
   float elecDeltaPinPoutOverPin = (elecVars.pIn > 0.0) ? (std::abs(elecVars.pIn - elecVars.pOut) / elecVars.pIn) : 1.0;
   float elecEecalOverPout = (elecVars.pOut > 0.0) ? (elecVars.eEcal / elecVars.pOut) : 20.0;
   float elecNumHitsDiffOverSum =
@@ -221,7 +275,7 @@ double AntiElectronIDMVA6<TauType, ElectronType>::MVAValue(const TauVars& tauVar
 
   if (deltaR(tauVars.etaAtEcalEntrance, tauVars.phi, elecVars.eta, elecVars.phi) > 0.3 &&
       tauGammaMoms.signalPFGammaCandsIn == 0 && tauVars.hasGsf < 0.5) {
-    if (std::abs(tauVars.etaAtEcalEntrance) < ECALBarrelEndcapEtaBorder) {
+    if (std::abs(tauVars.etaAtEcalEntrance) < ecalBarrelEndcapEtaBorder_) {
       Var_NoEleMatch_woGwoGSF_Barrel_[0] = tauVars.etaAtEcalEntrance;
       Var_NoEleMatch_woGwoGSF_Barrel_[1] = tauVars.leadChargedPFCandEtaAtEcalEntrance;
       Var_NoEleMatch_woGwoGSF_Barrel_[2] = std::min(2.f, tauVars.leadChargedPFCandPt / std::max(1.f, tauVars.pt));
@@ -247,7 +301,7 @@ double AntiElectronIDMVA6<TauType, ElectronType>::MVAValue(const TauVars& tauVar
     }
   } else if (deltaR(tauVars.etaAtEcalEntrance, tauVars.phi, elecVars.eta, elecVars.phi) > 0.3 &&
              tauGammaMoms.signalPFGammaCandsIn > 0 && tauVars.hasGsf < 0.5) {
-    if (std::abs(tauVars.etaAtEcalEntrance) < ECALBarrelEndcapEtaBorder) {
+    if (std::abs(tauVars.etaAtEcalEntrance) < ecalBarrelEndcapEtaBorder_) {
       Var_NoEleMatch_wGwoGSF_Barrel_[0] = tauVars.etaAtEcalEntrance;
       Var_NoEleMatch_wGwoGSF_Barrel_[1] = tauVars.leadChargedPFCandEtaAtEcalEntrance;
       Var_NoEleMatch_wGwoGSF_Barrel_[2] = std::min(2.f, tauVars.leadChargedPFCandPt / std::max(1.f, tauVars.pt));
@@ -288,7 +342,7 @@ double AntiElectronIDMVA6<TauType, ElectronType>::MVAValue(const TauVars& tauVar
       mvaValue = mva_NoEleMatch_wGwoGSF_EC_->GetClassifier(Var_NoEleMatch_wGwoGSF_Endcap_);
     }
   } else if (tauGammaMoms.signalPFGammaCandsIn == 0 && tauVars.hasGsf > 0.5) {
-    if (std::abs(tauVars.etaAtEcalEntrance) < ECALBarrelEndcapEtaBorder) {
+    if (std::abs(tauVars.etaAtEcalEntrance) < ecalBarrelEndcapEtaBorder_) {
       Var_woGwGSF_Barrel_[0] = std::max(-0.1f, elecVars.eTotOverPin);
       Var_woGwGSF_Barrel_[1] = std::log(std::max(0.01f, elecVars.chi2NormGSF));
       Var_woGwGSF_Barrel_[2] = elecVars.gsfNumHits;
@@ -341,7 +395,7 @@ double AntiElectronIDMVA6<TauType, ElectronType>::MVAValue(const TauVars& tauVar
       mvaValue = mva_woGwGSF_EC_->GetClassifier(Var_woGwGSF_Endcap_);
     }
   } else if (tauGammaMoms.signalPFGammaCandsIn > 0 && tauVars.hasGsf > 0.5) {
-    if (std::abs(tauVars.etaAtEcalEntrance) < ECALBarrelEndcapEtaBorder) {
+    if (std::abs(tauVars.etaAtEcalEntrance) < ecalBarrelEndcapEtaBorder_) {
       Var_wGwGSF_Barrel_[0] = std::max(-0.1f, elecVars.eTotOverPin);
       Var_wGwGSF_Barrel_[1] = std::log(std::max(0.01f, elecVars.chi2NormGSF));
       Var_wGwGSF_Barrel_[2] = elecVars.gsfNumHits;
@@ -412,7 +466,335 @@ double AntiElectronIDMVA6<TauType, ElectronType>::MVAValue(const TauVars& tauVar
   }
   return mvaValue;
 }
+////
+template <class TauType, class ElectronType>
+double AntiElectronIDMVA6<TauType, ElectronType>::MVAValuePhase2(const TauVars& tauVars,
+                                                                 const TauGammaMoms& tauGammaMoms,
+                                                                 const ElecVars& elecVars) {
+  if (!isInitialized_) {
+    throw cms::Exception("ClassNotInitialized") << " AntiElectronMVA6 not properly initialized !!\n";
+  }
 
+  double mvaValue = -99.;
+
+  //do not consider tau candidates outside the HGCal border at |eta|=3
+  if (std::abs(tauVars.etaAtEcalEntrance) > 3.0) {
+    return mvaValue;
+  }
+
+  float elecDeltaPinPoutOverPin = (elecVars.pIn > 0.0) ? (std::abs(elecVars.pIn - elecVars.pOut) / elecVars.pIn) : 1.0;
+  float elecEecalOverPout = (elecVars.pOut > 0.0) ? (elecVars.eEcal / elecVars.pOut) : 20.0;
+  float elecNumHitsDiffOverSum =
+      ((elecVars.gsfNumHits + elecVars.kfNumHits) > 0.0)
+          ? ((elecVars.gsfNumHits - elecVars.kfNumHits) / (elecVars.gsfNumHits + elecVars.kfNumHits))
+          : 1.0;
+
+  if (tauGammaMoms.signalPFGammaCandsIn == 0 && tauVars.hasGsf < 0.5) {
+    if (std::abs(tauVars.etaAtEcalEntrance) < ecalBarrelEndcapEtaBorder_) {
+      Var_NoEleMatch_woGwoGSF_Barrel_[0] = std::min(2.f, tauVars.leadChargedPFCandPt / std::max(1.f, tauVars.pt));
+      Var_NoEleMatch_woGwoGSF_Barrel_[1] = std::log(std::max(1.f, tauVars.pt));
+      Var_NoEleMatch_woGwoGSF_Barrel_[2] = tauVars.emFraction;
+      Var_NoEleMatch_woGwoGSF_Barrel_[3] = tauVars.leadPFChargedHadrHoP;
+      Var_NoEleMatch_woGwoGSF_Barrel_[4] = tauVars.leadPFChargedHadrEoP;
+      Var_NoEleMatch_woGwoGSF_Barrel_[5] = tauVars.visMassIn;
+      Var_NoEleMatch_woGwoGSF_Barrel_[6] = tauVars.dCrackEta;
+      Var_NoEleMatch_woGwoGSF_Barrel_[7] = tauVars.etaAtEcalEntrance;
+      Var_NoEleMatch_woGwoGSF_Barrel_[8] = tauVars.leadChargedPFCandEtaAtEcalEntrance;
+      mvaValue = mva_NoEleMatch_woGwoGSF_BL_->GetClassifier(Var_NoEleMatch_woGwoGSF_Barrel_);
+    } else if (std::abs(tauVars.etaAtEcalEntrance) < ecalEndcapVFEndcapEtaBorder_) {
+      Var_NoEleMatch_woGwoGSF_Endcap_[0] = std::min(2.f, tauVars.leadChargedPFCandPt / std::max(1.f, tauVars.pt));
+      Var_NoEleMatch_woGwoGSF_Endcap_[1] = std::log(std::max(1.f, tauVars.pt));
+      Var_NoEleMatch_woGwoGSF_Endcap_[2] = tauVars.visMassIn;
+      Var_NoEleMatch_woGwoGSF_Endcap_[3] = tauVars.dCrackEta;
+      Var_NoEleMatch_woGwoGSF_Endcap_[4] = tauVars.etaAtEcalEntrance;
+      Var_NoEleMatch_woGwoGSF_Endcap_[5] = tauVars.leadChargedPFCandEtaAtEcalEntrance;
+      mvaValue = mva_NoEleMatch_woGwoGSF_EC_->GetClassifier(Var_NoEleMatch_woGwoGSF_Endcap_);
+    } else {
+      Var_NoEleMatch_woGwoGSF_VFEndcap_[0] = std::min(2.f, tauVars.leadChargedPFCandPt / std::max(1.f, tauVars.pt));
+      Var_NoEleMatch_woGwoGSF_VFEndcap_[1] = std::log(std::max(1.f, tauVars.pt));
+      Var_NoEleMatch_woGwoGSF_VFEndcap_[2] = tauVars.visMassIn;
+      Var_NoEleMatch_woGwoGSF_VFEndcap_[3] = tauVars.dCrackEta;
+      Var_NoEleMatch_woGwoGSF_VFEndcap_[4] = tauVars.etaAtEcalEntrance;
+      Var_NoEleMatch_woGwoGSF_VFEndcap_[5] = tauVars.leadChargedPFCandEtaAtEcalEntrance;
+      mvaValue = mva_NoEleMatch_woGwoGSF_VFEC_->GetClassifier(Var_NoEleMatch_woGwoGSF_VFEndcap_);
+    }
+  } else if (tauGammaMoms.signalPFGammaCandsIn > 0 && tauVars.hasGsf < 0.5) {
+    if (std::abs(tauVars.etaAtEcalEntrance) < ecalBarrelEndcapEtaBorder_) {
+      Var_NoEleMatch_wGwoGSF_Barrel_[0] = std::min(2.f, tauVars.leadChargedPFCandPt / std::max(1.f, tauVars.pt));
+      Var_NoEleMatch_wGwoGSF_Barrel_[1] = std::log(std::max(1.f, tauVars.pt));
+      Var_NoEleMatch_wGwoGSF_Barrel_[2] = tauVars.emFraction;
+      Var_NoEleMatch_wGwoGSF_Barrel_[3] = tauGammaMoms.signalPFGammaCandsIn;
+      Var_NoEleMatch_wGwoGSF_Barrel_[4] = tauGammaMoms.signalPFGammaCandsOut;
+      Var_NoEleMatch_wGwoGSF_Barrel_[5] = tauVars.leadPFChargedHadrHoP;
+      Var_NoEleMatch_wGwoGSF_Barrel_[6] = tauVars.leadPFChargedHadrEoP;
+      Var_NoEleMatch_wGwoGSF_Barrel_[7] = tauVars.visMassIn;
+      Var_NoEleMatch_wGwoGSF_Barrel_[7] = tauGammaMoms.gammaEtaMomIn;
+      Var_NoEleMatch_wGwoGSF_Barrel_[9] = tauGammaMoms.gammaEtaMomOut;
+      Var_NoEleMatch_wGwoGSF_Barrel_[10] = tauGammaMoms.gammaPhiMomIn;
+      Var_NoEleMatch_wGwoGSF_Barrel_[11] = tauGammaMoms.gammaPhiMomOut;
+      Var_NoEleMatch_wGwoGSF_Barrel_[12] = tauGammaMoms.gammaEnFracIn;
+      Var_NoEleMatch_wGwoGSF_Barrel_[13] = tauGammaMoms.gammaEnFracOut;
+      Var_NoEleMatch_wGwoGSF_Barrel_[14] = tauVars.dCrackEta;
+      Var_NoEleMatch_wGwoGSF_Barrel_[15] = tauVars.etaAtEcalEntrance;
+      Var_NoEleMatch_wGwoGSF_Barrel_[16] = tauVars.leadChargedPFCandEtaAtEcalEntrance;
+      mvaValue = mva_NoEleMatch_wGwoGSF_BL_->GetClassifier(Var_NoEleMatch_wGwoGSF_Barrel_);
+    } else if (std::abs(tauVars.etaAtEcalEntrance) < ecalEndcapVFEndcapEtaBorder_) {
+      Var_NoEleMatch_wGwoGSF_Endcap_[0] = std::min(2.f, tauVars.leadChargedPFCandPt / std::max(1.f, tauVars.pt));
+      Var_NoEleMatch_wGwoGSF_Endcap_[1] = std::log(std::max(1.f, tauVars.pt));
+      Var_NoEleMatch_wGwoGSF_Endcap_[2] = tauGammaMoms.signalPFGammaCandsIn;
+      Var_NoEleMatch_wGwoGSF_Endcap_[3] = tauGammaMoms.signalPFGammaCandsOut;
+      Var_NoEleMatch_wGwoGSF_Endcap_[4] = tauVars.visMassIn;
+      Var_NoEleMatch_wGwoGSF_Endcap_[5] = tauGammaMoms.gammaEtaMomIn;
+      Var_NoEleMatch_wGwoGSF_Endcap_[6] = tauGammaMoms.gammaEtaMomOut;
+      Var_NoEleMatch_wGwoGSF_Endcap_[7] = tauGammaMoms.gammaPhiMomIn;
+      Var_NoEleMatch_wGwoGSF_Endcap_[8] = tauGammaMoms.gammaPhiMomOut;
+      Var_NoEleMatch_wGwoGSF_Endcap_[9] = tauGammaMoms.gammaEnFracIn;
+      Var_NoEleMatch_wGwoGSF_Endcap_[10] = tauGammaMoms.gammaEnFracOut;
+      Var_NoEleMatch_wGwoGSF_Endcap_[11] = tauVars.dCrackEta;
+      Var_NoEleMatch_wGwoGSF_Endcap_[12] = tauVars.etaAtEcalEntrance;
+      Var_NoEleMatch_wGwoGSF_Endcap_[13] = tauVars.leadChargedPFCandEtaAtEcalEntrance;
+      mvaValue = mva_NoEleMatch_wGwoGSF_EC_->GetClassifier(Var_NoEleMatch_wGwoGSF_Endcap_);
+    } else {
+      Var_NoEleMatch_wGwoGSF_VFEndcap_[0] = std::min(2.f, tauVars.leadChargedPFCandPt / std::max(1.f, tauVars.pt));
+      Var_NoEleMatch_wGwoGSF_VFEndcap_[1] = std::log(std::max(1.f, tauVars.pt));
+      Var_NoEleMatch_wGwoGSF_VFEndcap_[2] = tauGammaMoms.signalPFGammaCandsIn;
+      Var_NoEleMatch_wGwoGSF_VFEndcap_[3] = tauGammaMoms.signalPFGammaCandsOut;
+      Var_NoEleMatch_wGwoGSF_VFEndcap_[4] = tauVars.visMassIn;
+      Var_NoEleMatch_wGwoGSF_VFEndcap_[5] = tauGammaMoms.gammaEtaMomIn;
+      Var_NoEleMatch_wGwoGSF_VFEndcap_[6] = tauGammaMoms.gammaEtaMomOut;
+      Var_NoEleMatch_wGwoGSF_VFEndcap_[7] = tauGammaMoms.gammaPhiMomIn;
+      Var_NoEleMatch_wGwoGSF_VFEndcap_[8] = tauGammaMoms.gammaPhiMomOut;
+      Var_NoEleMatch_wGwoGSF_VFEndcap_[9] = tauGammaMoms.gammaEnFracIn;
+      Var_NoEleMatch_wGwoGSF_VFEndcap_[10] = tauGammaMoms.gammaEnFracOut;
+      Var_NoEleMatch_wGwoGSF_VFEndcap_[11] = tauVars.dCrackEta;
+      Var_NoEleMatch_wGwoGSF_VFEndcap_[12] = tauVars.etaAtEcalEntrance;
+      Var_NoEleMatch_wGwoGSF_VFEndcap_[13] = tauVars.leadChargedPFCandEtaAtEcalEntrance;
+      mvaValue = mva_NoEleMatch_wGwoGSF_VFEC_->GetClassifier(Var_NoEleMatch_wGwoGSF_VFEndcap_);
+    }
+  } else if (tauGammaMoms.signalPFGammaCandsIn == 0 && tauVars.hasGsf > 0.5) {
+    if (std::abs(tauVars.etaAtEcalEntrance) < ecalBarrelEndcapEtaBorder_) {
+      Var_woGwGSF_Barrel_[0] = std::log(std::max(0.1f, elecVars.chi2NormGSF));
+      Var_woGwGSF_Barrel_[1] = elecVars.gsfNumHits;
+      Var_woGwGSF_Barrel_[2] = std::log(std::max(0.1f, elecVars.gsfTrackResol));
+      Var_woGwGSF_Barrel_[3] = elecVars.gsfTracklnPt;
+      Var_woGwGSF_Barrel_[4] = elecNumHitsDiffOverSum;
+      Var_woGwGSF_Barrel_[5] = std::log(std::max(0.1f, elecVars.chi2NormKF));
+      Var_woGwGSF_Barrel_[6] = std::min(elecDeltaPinPoutOverPin, 1.f);
+      Var_woGwGSF_Barrel_[7] = std::min(elecEecalOverPout, 20.f);
+      Var_woGwGSF_Barrel_[8] = std::min(elecVars.mvaInSigmaEtaEta, 0.01f);
+      Var_woGwGSF_Barrel_[9] = std::min(elecVars.mvaInHadEnergy, 20.f);
+      Var_woGwGSF_Barrel_[10] = std::min(elecVars.mvaInDeltaEta, 0.1f);
+      Var_woGwGSF_Barrel_[11] = std::min(2.f, tauVars.leadChargedPFCandPt / std::max(1.f, tauVars.pt));
+      Var_woGwGSF_Barrel_[12] = std::log(std::max(1.f, tauVars.pt));
+      Var_woGwGSF_Barrel_[13] = tauVars.emFraction;
+      Var_woGwGSF_Barrel_[14] = tauVars.leadPFChargedHadrHoP;
+      Var_woGwGSF_Barrel_[15] = tauVars.leadPFChargedHadrEoP;
+      Var_woGwGSF_Barrel_[16] = tauVars.visMassIn;
+      Var_woGwGSF_Barrel_[17] = tauVars.dCrackEta;
+      Var_woGwGSF_Barrel_[18] = tauVars.etaAtEcalEntrance;
+      Var_woGwGSF_Barrel_[19] = tauVars.leadChargedPFCandEtaAtEcalEntrance;
+      Var_woGwGSF_Barrel_[20] = elecVars.deltaEta;
+      Var_woGwGSF_Barrel_[21] = elecVars.deltaPhi;
+      Var_woGwGSF_Barrel_[22] = elecVars.sigmaIEtaIEta5x5;
+      Var_woGwGSF_Barrel_[23] = elecVars.showerCircularity;
+      Var_woGwGSF_Barrel_[24] = elecVars.r9;
+      Var_woGwGSF_Barrel_[25] = elecVars.superClusterEtaWidth;
+      Var_woGwGSF_Barrel_[26] = elecVars.superClusterPhiWidth;
+      mvaValue = mva_woGwGSF_BL_->GetClassifier(Var_woGwGSF_Barrel_);
+    } else if (std::abs(tauVars.etaAtEcalEntrance) < ecalEndcapVFEndcapEtaBorder_) {
+      Var_woGwGSF_Endcap_[0] = std::log(std::max(0.1f, elecVars.chi2NormGSF));
+      Var_woGwGSF_Endcap_[1] = elecVars.gsfNumHits;
+      Var_woGwGSF_Endcap_[2] = std::log(std::max(0.1f, elecVars.gsfTrackResol));
+      Var_woGwGSF_Endcap_[3] = elecVars.gsfTracklnPt;
+      Var_woGwGSF_Endcap_[4] = elecNumHitsDiffOverSum;
+      Var_woGwGSF_Endcap_[5] = std::log(std::max(0.1f, elecVars.chi2NormKF));
+      Var_woGwGSF_Endcap_[6] = elecVars.eEcal;
+      Var_woGwGSF_Endcap_[7] = std::min(2.f, tauVars.leadChargedPFCandPt / std::max(1.f, tauVars.pt));
+      Var_woGwGSF_Endcap_[8] = std::log(std::max(1.f, tauVars.pt));
+      Var_woGwGSF_Endcap_[9] = tauVars.visMassIn;
+      Var_woGwGSF_Endcap_[10] = tauVars.dCrackEta;
+      Var_woGwGSF_Endcap_[11] = tauVars.etaAtEcalEntrance;
+      Var_woGwGSF_Endcap_[12] = tauVars.leadChargedPFCandEtaAtEcalEntrance;
+      Var_woGwGSF_Endcap_[13] = elecVars.hgcalSigmaUU;
+      Var_woGwGSF_Endcap_[14] = elecVars.hgcalSigmaVV;
+      Var_woGwGSF_Endcap_[15] = elecVars.hgcalSigmaEE;
+      Var_woGwGSF_Endcap_[16] = elecVars.hgcalSigmaPP;
+      Var_woGwGSF_Endcap_[17] = elecVars.hgcalNLayers;
+      Var_woGwGSF_Endcap_[18] = elecVars.hgcalLastLayer;
+      Var_woGwGSF_Endcap_[19] = elecVars.hgcalLayerEfrac10;
+      Var_woGwGSF_Endcap_[20] = elecVars.hgcalLayerEfrac90;
+      Var_woGwGSF_Endcap_[21] = elecVars.hgcalEcEnergyEE;
+      Var_woGwGSF_Endcap_[22] = elecVars.hgcalEcEnergyFH;
+      Var_woGwGSF_Endcap_[23] = elecVars.hgcalMeasuredDepth;
+      Var_woGwGSF_Endcap_[24] = elecVars.hgcalExpectedDepth;
+      Var_woGwGSF_Endcap_[25] = elecVars.hgcalDepthCompatibility;
+      Var_woGwGSF_Endcap_[26] = elecVars.deltaEta;
+      Var_woGwGSF_Endcap_[27] = elecVars.deltaPhi;
+      Var_woGwGSF_Endcap_[28] = elecVars.eSeedClusterOverPout;
+      Var_woGwGSF_Endcap_[29] = elecVars.superClusterEtaWidth;
+      Var_woGwGSF_Endcap_[30] = elecVars.superClusterPhiWidth;
+      mvaValue = mva_woGwGSF_EC_->GetClassifier(Var_woGwGSF_Endcap_);
+    } else {
+      Var_woGwGSF_VFEndcap_[0] = std::log(std::max(0.1f, elecVars.chi2NormGSF));
+      Var_woGwGSF_VFEndcap_[1] = elecVars.gsfNumHits;
+      Var_woGwGSF_VFEndcap_[2] = std::log(std::max(0.1f, elecVars.gsfTrackResol));
+      Var_woGwGSF_VFEndcap_[3] = elecVars.gsfTracklnPt;
+      Var_woGwGSF_VFEndcap_[4] = elecNumHitsDiffOverSum;
+      Var_woGwGSF_VFEndcap_[5] = std::log(std::max(0.1f, elecVars.chi2NormKF));
+      Var_woGwGSF_VFEndcap_[6] = elecVars.eEcal;
+      Var_woGwGSF_VFEndcap_[7] = std::min(2.f, tauVars.leadChargedPFCandPt / std::max(1.f, tauVars.pt));
+      Var_woGwGSF_VFEndcap_[8] = std::log(std::max(1.f, tauVars.pt));
+      Var_woGwGSF_VFEndcap_[9] = tauVars.visMassIn;
+      Var_woGwGSF_VFEndcap_[10] = tauVars.dCrackEta;
+      Var_woGwGSF_VFEndcap_[11] = tauVars.etaAtEcalEntrance;
+      Var_woGwGSF_VFEndcap_[12] = tauVars.leadChargedPFCandEtaAtEcalEntrance;
+      Var_woGwGSF_VFEndcap_[13] = elecVars.hgcalSigmaUU;
+      Var_woGwGSF_VFEndcap_[14] = elecVars.hgcalSigmaVV;
+      Var_woGwGSF_VFEndcap_[15] = elecVars.hgcalSigmaEE;
+      Var_woGwGSF_VFEndcap_[16] = elecVars.hgcalSigmaPP;
+      Var_woGwGSF_VFEndcap_[17] = elecVars.hgcalNLayers;
+      Var_woGwGSF_VFEndcap_[18] = elecVars.hgcalLastLayer;
+      Var_woGwGSF_VFEndcap_[19] = elecVars.hgcalLayerEfrac10;
+      Var_woGwGSF_VFEndcap_[20] = elecVars.hgcalLayerEfrac90;
+      Var_woGwGSF_VFEndcap_[21] = elecVars.hgcalEcEnergyEE;
+      Var_woGwGSF_VFEndcap_[22] = elecVars.hgcalEcEnergyFH;
+      Var_woGwGSF_VFEndcap_[23] = elecVars.hgcalMeasuredDepth;
+      Var_woGwGSF_VFEndcap_[24] = elecVars.hgcalExpectedDepth;
+      Var_woGwGSF_VFEndcap_[25] = elecVars.hgcalExpectedSigma;
+      Var_woGwGSF_VFEndcap_[26] = elecVars.hgcalDepthCompatibility;
+      Var_woGwGSF_VFEndcap_[27] = elecVars.deltaEta;
+      Var_woGwGSF_VFEndcap_[28] = elecVars.deltaPhi;
+      Var_woGwGSF_VFEndcap_[29] = elecVars.eSeedClusterOverPout;
+      Var_woGwGSF_VFEndcap_[30] = elecVars.superClusterEtaWidth;
+      Var_woGwGSF_VFEndcap_[31] = elecVars.superClusterPhiWidth;
+      mvaValue = mva_woGwGSF_VFEC_->GetClassifier(Var_woGwGSF_VFEndcap_);
+    }
+  } else if (tauGammaMoms.signalPFGammaCandsIn > 0 && tauVars.hasGsf > 0.5) {
+    if (std::abs(tauVars.etaAtEcalEntrance) < ecalBarrelEndcapEtaBorder_) {
+      Var_wGwGSF_Barrel_[0] = std::log(std::max(0.1f, elecVars.chi2NormGSF));
+      Var_wGwGSF_Barrel_[1] = elecVars.gsfNumHits;
+      Var_wGwGSF_Barrel_[2] = std::log(std::max(0.1f, elecVars.gsfTrackResol));
+      Var_wGwGSF_Barrel_[3] = elecVars.gsfTracklnPt;
+      Var_wGwGSF_Barrel_[4] = elecNumHitsDiffOverSum;
+      Var_wGwGSF_Barrel_[5] = std::log(std::max(0.1f, elecVars.chi2NormKF));
+      Var_wGwGSF_Barrel_[6] = std::min(elecDeltaPinPoutOverPin, 1.f);
+      Var_wGwGSF_Barrel_[7] = std::min(elecEecalOverPout, 20.f);
+      Var_wGwGSF_Barrel_[8] = std::min(elecVars.mvaInSigmaEtaEta, 0.01f);
+      Var_wGwGSF_Barrel_[9] = std::min(elecVars.mvaInHadEnergy, 20.f);
+      Var_wGwGSF_Barrel_[10] = std::min(elecVars.mvaInDeltaEta, 0.1f);
+      Var_wGwGSF_Barrel_[11] = std::min(2.f, tauVars.leadChargedPFCandPt / std::max(1.f, tauVars.pt));
+      Var_wGwGSF_Barrel_[12] = std::log(std::max(1.f, tauVars.pt));
+      Var_wGwGSF_Barrel_[13] = tauVars.emFraction;
+      Var_wGwGSF_Barrel_[14] = tauGammaMoms.signalPFGammaCandsIn;
+      Var_wGwGSF_Barrel_[15] = tauGammaMoms.signalPFGammaCandsOut;
+      Var_wGwGSF_Barrel_[16] = tauVars.leadPFChargedHadrHoP;
+      Var_wGwGSF_Barrel_[17] = tauVars.leadPFChargedHadrEoP;
+      Var_wGwGSF_Barrel_[18] = tauVars.visMassIn;
+      Var_wGwGSF_Barrel_[19] = tauGammaMoms.gammaEtaMomIn;
+      Var_wGwGSF_Barrel_[20] = tauGammaMoms.gammaEtaMomOut;
+      Var_wGwGSF_Barrel_[21] = tauGammaMoms.gammaPhiMomIn;
+      Var_wGwGSF_Barrel_[22] = tauGammaMoms.gammaPhiMomOut;
+      Var_wGwGSF_Barrel_[23] = tauGammaMoms.gammaEnFracIn;
+      Var_wGwGSF_Barrel_[24] = tauGammaMoms.gammaEnFracOut;
+      Var_wGwGSF_Barrel_[25] = tauVars.dCrackEta;
+      Var_wGwGSF_Barrel_[26] = tauVars.etaAtEcalEntrance;
+      Var_wGwGSF_Barrel_[27] = tauVars.leadChargedPFCandEtaAtEcalEntrance;
+      Var_wGwGSF_Barrel_[28] = elecVars.deltaEta;
+      Var_wGwGSF_Barrel_[29] = elecVars.deltaPhi;
+      Var_wGwGSF_Barrel_[30] = elecVars.sigmaIPhiIPhi5x5;
+      Var_wGwGSF_Barrel_[31] = elecVars.sigmaIEtaIEta5x5;
+      Var_wGwGSF_Barrel_[32] = elecVars.showerCircularity;
+      Var_wGwGSF_Barrel_[33] = elecVars.eSeedClusterOverPout;
+      Var_wGwGSF_Barrel_[34] = elecVars.superClusterEtaWidth;
+      Var_wGwGSF_Barrel_[35] = elecVars.superClusterPhiWidth;
+      mvaValue = mva_wGwGSF_BL_->GetClassifier(Var_wGwGSF_Barrel_);
+    } else if (std::abs(tauVars.etaAtEcalEntrance) < ecalEndcapVFEndcapEtaBorder_) {
+      Var_wGwGSF_Endcap_[0] = std::log(std::max(0.1f, elecVars.chi2NormGSF));
+      Var_wGwGSF_Endcap_[1] = elecVars.gsfNumHits;
+      Var_wGwGSF_Endcap_[2] = std::log(std::max(0.1f, elecVars.gsfTrackResol));
+      Var_wGwGSF_Endcap_[3] = elecVars.gsfTracklnPt;
+      Var_wGwGSF_Endcap_[4] = elecNumHitsDiffOverSum;
+      Var_wGwGSF_Endcap_[5] = std::log(std::max(0.1f, elecVars.chi2NormKF));
+      Var_wGwGSF_Endcap_[6] = elecVars.eEcal;
+      Var_wGwGSF_Endcap_[7] = std::min(2.f, tauVars.leadChargedPFCandPt / std::max(1.f, tauVars.pt));
+      Var_wGwGSF_Endcap_[8] = std::log(std::max(1.f, tauVars.pt));
+      Var_wGwGSF_Endcap_[9] = tauGammaMoms.signalPFGammaCandsIn;
+      Var_wGwGSF_Endcap_[10] = tauGammaMoms.signalPFGammaCandsOut;
+      Var_wGwGSF_Endcap_[11] = tauVars.visMassIn;
+      Var_wGwGSF_Endcap_[12] = tauGammaMoms.gammaEtaMomIn;
+      Var_wGwGSF_Endcap_[13] = tauGammaMoms.gammaEtaMomOut;
+      Var_wGwGSF_Endcap_[14] = tauGammaMoms.gammaPhiMomIn;
+      Var_wGwGSF_Endcap_[15] = tauGammaMoms.gammaPhiMomOut;
+      Var_wGwGSF_Endcap_[16] = tauGammaMoms.gammaEnFracIn;
+      Var_wGwGSF_Endcap_[17] = tauGammaMoms.gammaEnFracOut;
+      Var_wGwGSF_Endcap_[18] = tauVars.dCrackEta;
+      Var_wGwGSF_Endcap_[19] = tauVars.etaAtEcalEntrance;
+      Var_wGwGSF_Endcap_[20] = tauVars.leadChargedPFCandEtaAtEcalEntrance;
+      Var_wGwGSF_Endcap_[21] = elecVars.hgcalSigmaVV;
+      Var_wGwGSF_Endcap_[22] = elecVars.hgcalSigmaEE;
+      Var_wGwGSF_Endcap_[23] = elecVars.hgcalSigmaPP;
+      Var_wGwGSF_Endcap_[24] = elecVars.hgcalNLayers;
+      Var_wGwGSF_Endcap_[25] = elecVars.hgcalFirstLayer;
+      Var_wGwGSF_Endcap_[26] = elecVars.hgcalLastLayer;
+      Var_wGwGSF_Endcap_[27] = elecVars.hgcalLayerEfrac10;
+      Var_wGwGSF_Endcap_[28] = elecVars.hgcalLayerEfrac90;
+      Var_wGwGSF_Endcap_[29] = elecVars.hgcalEcEnergyEE;
+      Var_wGwGSF_Endcap_[30] = elecVars.hgcalEcEnergyFH;
+      Var_wGwGSF_Endcap_[31] = elecVars.hgcalMeasuredDepth;
+      Var_wGwGSF_Endcap_[32] = elecVars.hgcalExpectedDepth;
+      Var_wGwGSF_Endcap_[33] = elecVars.deltaEta;
+      Var_wGwGSF_Endcap_[34] = elecVars.deltaPhi;
+      Var_wGwGSF_Endcap_[35] = elecVars.eSeedClusterOverPout;
+      Var_wGwGSF_Endcap_[36] = elecVars.superClusterEtaWidth;
+      Var_wGwGSF_Endcap_[37] = elecVars.superClusterPhiWidth;
+      mvaValue = mva_wGwGSF_EC_->GetClassifier(Var_wGwGSF_Endcap_);
+    } else {
+      Var_wGwGSF_VFEndcap_[0] = std::log(std::max(0.1f, elecVars.chi2NormGSF));
+      Var_wGwGSF_VFEndcap_[1] = elecVars.gsfNumHits;
+      Var_wGwGSF_VFEndcap_[2] = std::log(std::max(0.1f, elecVars.gsfTrackResol));
+      Var_wGwGSF_VFEndcap_[3] = elecVars.gsfTracklnPt;
+      Var_wGwGSF_VFEndcap_[4] = elecNumHitsDiffOverSum;
+      Var_wGwGSF_VFEndcap_[5] = std::log(std::max(0.1f, elecVars.chi2NormKF));
+      Var_wGwGSF_VFEndcap_[6] = elecVars.eEcal;
+      Var_wGwGSF_VFEndcap_[7] = std::min(2.f, tauVars.leadChargedPFCandPt / std::max(1.f, tauVars.pt));
+      Var_wGwGSF_VFEndcap_[8] = std::log(std::max(1.f, tauVars.pt));
+      Var_wGwGSF_VFEndcap_[9] = tauGammaMoms.signalPFGammaCandsIn;
+      Var_wGwGSF_VFEndcap_[10] = tauGammaMoms.signalPFGammaCandsOut;
+      Var_wGwGSF_VFEndcap_[11] = tauVars.visMassIn;
+      Var_wGwGSF_VFEndcap_[12] = tauGammaMoms.gammaEtaMomIn;
+      Var_wGwGSF_VFEndcap_[13] = tauGammaMoms.gammaEtaMomOut;
+      Var_wGwGSF_VFEndcap_[14] = tauGammaMoms.gammaPhiMomIn;
+      Var_wGwGSF_VFEndcap_[15] = tauGammaMoms.gammaPhiMomOut;
+      Var_wGwGSF_VFEndcap_[16] = tauGammaMoms.gammaEnFracIn;
+      Var_wGwGSF_VFEndcap_[17] = tauGammaMoms.gammaEnFracOut;
+      Var_wGwGSF_VFEndcap_[18] = tauVars.dCrackEta;
+      Var_wGwGSF_VFEndcap_[19] = tauVars.etaAtEcalEntrance;
+      Var_wGwGSF_VFEndcap_[20] = tauVars.leadChargedPFCandEtaAtEcalEntrance;
+      Var_wGwGSF_VFEndcap_[21] = elecVars.hgcalSigmaUU;
+      Var_wGwGSF_VFEndcap_[22] = elecVars.hgcalSigmaVV;
+      Var_wGwGSF_VFEndcap_[23] = elecVars.hgcalSigmaEE;
+      Var_wGwGSF_VFEndcap_[24] = elecVars.hgcalSigmaPP;
+      Var_wGwGSF_VFEndcap_[25] = elecVars.hgcalNLayers;
+      Var_wGwGSF_VFEndcap_[26] = elecVars.hgcalLastLayer;
+      Var_wGwGSF_VFEndcap_[27] = elecVars.hgcalLayerEfrac10;
+      Var_wGwGSF_VFEndcap_[28] = elecVars.hgcalLayerEfrac90;
+      Var_wGwGSF_VFEndcap_[29] = elecVars.hgcalEcEnergyEE;
+      Var_wGwGSF_VFEndcap_[30] = elecVars.hgcalEcEnergyFH;
+      Var_wGwGSF_VFEndcap_[31] = elecVars.hgcalMeasuredDepth;
+      Var_wGwGSF_VFEndcap_[32] = elecVars.hgcalExpectedDepth;
+      Var_wGwGSF_VFEndcap_[33] = elecVars.hgcalExpectedSigma;
+      Var_wGwGSF_VFEndcap_[34] = elecVars.hgcalDepthCompatibility;
+      Var_wGwGSF_VFEndcap_[35] = elecVars.deltaEta;
+      Var_wGwGSF_VFEndcap_[36] = elecVars.deltaPhi;
+      Var_wGwGSF_VFEndcap_[37] = elecVars.eSeedClusterOverPout;
+      Var_wGwGSF_VFEndcap_[38] = elecVars.superClusterEtaWidth;
+      Var_wGwGSF_VFEndcap_[39] = elecVars.superClusterPhiWidth;
+      mvaValue = mva_wGwGSF_VFEC_->GetClassifier(Var_wGwGSF_VFEndcap_);
+    }
+  }
+  return mvaValue;
+}
+////
 template <class TauType, class ElectronType>
 double AntiElectronIDMVA6<TauType, ElectronType>::MVAValue(const TauType& theTau, const ElectronType& theEle)
 
@@ -534,14 +916,26 @@ ElecVars AntiElectronIDMVA6<TauType, ElectronType>::getElecVars(const ElectronTy
       else
         elecEgamma += pfClusterEn;
     }
+    elecVars.superClusterEtaWidth = pfSuperCluster->etaWidth();
+    elecVars.superClusterPhiWidth = pfSuperCluster->phiWidth();
   }
+  elecVars.eSeedClusterOverPout = theEle.eSeedClusterOverPout();
+  elecVars.showerCircularity = 1. - theEle.e1x5() / theEle.e5x5();
+  elecVars.r9 = theEle.r9();
+  elecVars.sigmaIEtaIEta5x5 = theEle.full5x5_sigmaIetaIeta();
+  elecVars.sigmaIPhiIPhi5x5 = theEle.full5x5_sigmaIphiIphi();
 
   elecVars.pIn = std::sqrt(theEle.trackMomentumAtVtx().Mag2());
   elecVars.pOut = std::sqrt(theEle.trackMomentumOut().Mag2());
   elecVars.eTotOverPin = (elecVars.pIn > 0.0) ? ((elecEe + elecEgamma) / elecVars.pIn) : -0.1;
   elecVars.eEcal = theEle.ecalEnergy();
-  elecVars.deltaEta = theEle.deltaEtaSeedClusterTrackAtCalo();
-  elecVars.deltaPhi = theEle.deltaPhiSeedClusterTrackAtCalo();
+  if (!isPhase2_) {
+    elecVars.deltaEta = theEle.deltaEtaSeedClusterTrackAtCalo();
+    elecVars.deltaPhi = theEle.deltaPhiSeedClusterTrackAtCalo();
+  } else {
+    elecVars.deltaEta = theEle.deltaEtaEleClusterTrackAtCalo();
+    elecVars.deltaPhi = theEle.deltaPhiEleClusterTrackAtCalo();
+  }
   elecVars.mvaInSigmaEtaEta = theEle.mvaInput().sigmaEtaEta;
   elecVars.mvaInHadEnergy = theEle.mvaInput().hadEnergy;
   elecVars.mvaInDeltaEta = theEle.mvaInput().deltaEta;
@@ -566,6 +960,15 @@ ElecVars AntiElectronIDMVA6<TauType, ElectronType>::getElecVars(const ElectronTy
   if (theEle.closestCtfTrackRef().isNonnull()) {
     elecVars.chi2NormKF = theEle.closestCtfTrackRef()->normalizedChi2();
     elecVars.kfNumHits = theEle.closestCtfTrackRef()->numberOfValidHits();
+  }
+
+  // Variables related to HGCal
+  if (isPhase2_ && !theEle.isEB()) {
+    if (std::is_same<ElectronType, reco::GsfElectron>::value || std::is_same<ElectronType, pat::Electron>::value)
+      getElecVarsHGCalTypeSpecific(theEle, elecVars);
+    else
+      throw cms::Exception("AntiElectronIDMVA6")
+          << "Unsupported ElectronType used. You must use either reco::GsfElectron or pat::Electron.";
   }
 
   return elecVars;
@@ -675,26 +1078,57 @@ TauVars AntiElectronIDMVA6<TauType, ElectronType>::getTauVarsTypeSpecific(const 
   tauVars.leadChargedPFCandEtaAtEcalEntrance = theTau.etaAtEcalEntranceLeadChargedCand();
   tauVars.leadChargedPFCandPt = theTau.ptLeadChargedCand();
   tauVars.phi = theTau.phi();
-  if (!usePhiAtEcalEntranceExtrapolation_) {
-    tauVars.phi = theTau.phiAtEcalEntrance();
-  } else {
-    float sumPhiTimesEnergy = 0.;
-    float sumEnergy = 0.;
-    for (const auto& candidate : theTau.signalCands()) {
-      float phiAtECalEntrance = candidate->phi();
-      bool success = false;
-      reco::Candidate::Point posAtECal = positionAtECalEntrance_(candidate.get(), success);
-      if (success) {
-        phiAtECalEntrance = posAtECal.phi();
+  if (!isPhase2_) {
+    if (!usePhiAtEcalEntranceExtrapolation_) {
+      tauVars.phi = theTau.phiAtEcalEntrance();
+    } else {
+      float sumPhiTimesEnergy = 0.;
+      float sumEnergy = 0.;
+      for (const auto& candidate : theTau.signalCands()) {
+        float phiAtECalEntrance = candidate->phi();
+        bool success = false;
+        reco::Candidate::Point posAtECal = positionAtECalEntrance_(candidate.get(), success, isPhase2_);
+        if (success) {
+          phiAtECalEntrance = posAtECal.phi();
+        }
+        sumPhiTimesEnergy += phiAtECalEntrance * candidate->energy();
+        sumEnergy += candidate->energy();
       }
-      sumPhiTimesEnergy += phiAtECalEntrance * candidate->energy();
-      sumEnergy += candidate->energy();
+      if (sumEnergy > 0.) {
+        tauVars.phi = sumPhiTimesEnergy / sumEnergy;
+      }
     }
-    if (sumEnergy > 0.) {
-      tauVars.phi = sumPhiTimesEnergy / sumEnergy;
+    tauVars.emFraction = std::max(theTau.emFraction_MVA(), 0.f);
+  } else {
+    if (std::abs(theTau.eta()) >= ecalBarrelEndcapEtaBorder_) {  //HGCal
+      tauVars.etaAtEcalEntrance = -99.;
+      tauVars.leadChargedPFCandEtaAtEcalEntrance = -99.;
+      bool success = false;
+      reco::Candidate::Point posAtECal =
+          positionAtECalEntrance_(theTau.leadChargedHadrCand().get(), success, isPhase2_);
+      if (success) {
+        tauVars.leadChargedPFCandEtaAtEcalEntrance = posAtECal.eta();
+      }
+      float sumEtaTimesEnergy = 0.;
+      float sumEnergy = 0.;
+      for (const auto& candidate : theTau.signalCands()) {
+        float etaAtECalEntrance = candidate->eta();
+        success = false;
+        posAtECal = positionAtECalEntrance_(candidate.get(), success, isPhase2_);
+        if (success) {
+          etaAtECalEntrance = posAtECal.eta();
+        }
+        sumEtaTimesEnergy += etaAtECalEntrance * candidate->energy();
+        sumEnergy += candidate->energy();
+      }
+      if (sumEnergy > 0.) {
+        tauVars.etaAtEcalEntrance = sumEtaTimesEnergy / sumEnergy;
+      }
     }
+    tauVars.emFraction = std::max(theTau.ecalEnergyLeadChargedHadrCand() /
+                                      (theTau.ecalEnergyLeadChargedHadrCand() + theTau.hcalEnergyLeadChargedHadrCand()),
+                                  0.f);
   }
-  tauVars.emFraction = std::max(theTau.emFraction_MVA(), (float)0.);
   tauVars.leadPFChargedHadrHoP = 0.;
   tauVars.leadPFChargedHadrEoP = 0.;
   if (theTau.leadChargedHadrCand()->p() > 0.) {
@@ -719,57 +1153,114 @@ TauVars AntiElectronIDMVA6<TauType, ElectronType>::getTauVarsTypeSpecific(const 
   // Check type of candidates building tau to avoid dynamic casts further
   bool isFromPFCands =
       (theTau.leadCand().isNonnull() && dynamic_cast<const reco::PFCandidate*>(theTau.leadCand().get()) != nullptr);
-  for (const auto& candidate : theTau.signalCands()) {
-    float etaAtECalEntrance = candidate->eta();
-    float phiAtECalEntrance = candidate->phi();
-    const reco::Track* track = nullptr;
-    if (isFromPFCands) {
-      const reco::PFCandidate* pfCandidate = static_cast<const reco::PFCandidate*>(candidate.get());
-      etaAtECalEntrance = pfCandidate->positionAtECALEntrance().eta();
-      if (!usePhiAtEcalEntranceExtrapolation_) {
-        phiAtECalEntrance = pfCandidate->positionAtECALEntrance().phi();
+  if (!isPhase2_) {
+    for (const auto& candidate : theTau.signalCands()) {
+      float etaAtECalEntrance = candidate->eta();
+      float phiAtECalEntrance = candidate->phi();
+      const reco::Track* track = nullptr;
+      if (isFromPFCands) {
+        const reco::PFCandidate* pfCandidate = static_cast<const reco::PFCandidate*>(candidate.get());
+        etaAtECalEntrance = pfCandidate->positionAtECALEntrance().eta();
+        if (!usePhiAtEcalEntranceExtrapolation_) {
+          phiAtECalEntrance = pfCandidate->positionAtECALEntrance().phi();
+        } else {
+          bool success = false;
+          reco::Candidate::Point posAtECal = positionAtECalEntrance_(candidate.get(), success, isPhase2_);
+          if (success) {
+            phiAtECalEntrance = posAtECal.phi();
+          }
+        }
+        if (pfCandidate->trackRef().isNonnull())
+          track = pfCandidate->trackRef().get();
+        else if (pfCandidate->muonRef().isNonnull() && pfCandidate->muonRef()->innerTrack().isNonnull())
+          track = pfCandidate->muonRef()->innerTrack().get();
+        else if (pfCandidate->muonRef().isNonnull() && pfCandidate->muonRef()->globalTrack().isNonnull())
+          track = pfCandidate->muonRef()->globalTrack().get();
+        else if (pfCandidate->muonRef().isNonnull() && pfCandidate->muonRef()->outerTrack().isNonnull())
+          track = pfCandidate->muonRef()->outerTrack().get();
+        else if (pfCandidate->gsfTrackRef().isNonnull())
+          track = pfCandidate->gsfTrackRef().get();
       } else {
         bool success = false;
-        reco::Candidate::Point posAtECal = positionAtECalEntrance_(candidate.get(), success);
+        reco::Candidate::Point posAtECal = positionAtECalEntrance_(candidate.get(), success, isPhase2_);
         if (success) {
+          etaAtECalEntrance = posAtECal.eta();
           phiAtECalEntrance = posAtECal.phi();
         }
+        track = candidate->bestTrack();
       }
-      if (pfCandidate->trackRef().isNonnull())
-        track = pfCandidate->trackRef().get();
-      else if (pfCandidate->muonRef().isNonnull() && pfCandidate->muonRef()->innerTrack().isNonnull())
-        track = pfCandidate->muonRef()->innerTrack().get();
-      else if (pfCandidate->muonRef().isNonnull() && pfCandidate->muonRef()->globalTrack().isNonnull())
-        track = pfCandidate->muonRef()->globalTrack().get();
-      else if (pfCandidate->muonRef().isNonnull() && pfCandidate->muonRef()->outerTrack().isNonnull())
-        track = pfCandidate->muonRef()->outerTrack().get();
-      else if (pfCandidate->gsfTrackRef().isNonnull())
-        track = pfCandidate->gsfTrackRef().get();
+      if (track != nullptr) {
+        if (track->pt() > tauVars.leadChargedPFCandPt) {
+          tauVars.leadChargedPFCandEtaAtEcalEntrance = etaAtECalEntrance;
+          tauVars.leadChargedPFCandPt = track->pt();
+        }
+      }
+      sumEtaTimesEnergy += etaAtECalEntrance * candidate->energy();
+      sumPhiTimesEnergy += phiAtECalEntrance * candidate->energy();
+      sumEnergy += candidate->energy();
+    }
+    if (sumEnergy > 0.) {
+      tauVars.etaAtEcalEntrance = sumEtaTimesEnergy / sumEnergy;
+      tauVars.phi = sumPhiTimesEnergy / sumEnergy;
+    }
+    tauVars.emFraction = std::max(theTau.emFraction(), 0.f);
+  } else {  // Phase2
+    for (const auto& candidate : theTau.signalCands()) {
+      float etaAtECalEntrance = candidate->eta();
+      const reco::Track* track = nullptr;
+      if (isFromPFCands) {
+        const reco::PFCandidate* pfCandidate = static_cast<const reco::PFCandidate*>(candidate.get());
+        etaAtECalEntrance = pfCandidate->positionAtECALEntrance().eta();
+        if (std::abs(theTau.eta()) >= ecalBarrelEndcapEtaBorder_) {  //HGCal
+          bool success = false;
+          reco::Candidate::Point posAtECal = positionAtECalEntrance_(candidate.get(), success, isPhase2_);
+          if (success) {
+            etaAtECalEntrance = posAtECal.eta();
+          }
+        }
+        if (pfCandidate->trackRef().isNonnull())
+          track = pfCandidate->trackRef().get();
+        else if (pfCandidate->muonRef().isNonnull() && pfCandidate->muonRef()->innerTrack().isNonnull())
+          track = pfCandidate->muonRef()->innerTrack().get();
+        else if (pfCandidate->muonRef().isNonnull() && pfCandidate->muonRef()->globalTrack().isNonnull())
+          track = pfCandidate->muonRef()->globalTrack().get();
+        else if (pfCandidate->muonRef().isNonnull() && pfCandidate->muonRef()->outerTrack().isNonnull())
+          track = pfCandidate->muonRef()->outerTrack().get();
+        else if (pfCandidate->gsfTrackRef().isNonnull())
+          track = pfCandidate->gsfTrackRef().get();
+      } else {
+        bool success = false;
+        reco::Candidate::Point posAtECal = positionAtECalEntrance_(candidate.get(), success, isPhase2_);
+        if (success) {
+          etaAtECalEntrance = posAtECal.eta();
+        }
+        track = candidate->bestTrack();
+      }
+      if (track != nullptr) {
+        if (track->pt() > tauVars.leadChargedPFCandPt) {
+          tauVars.leadChargedPFCandEtaAtEcalEntrance = etaAtECalEntrance;
+          tauVars.leadChargedPFCandPt = track->pt();
+        }
+      }
+      sumEtaTimesEnergy += etaAtECalEntrance * candidate->energy();
+      sumEnergy += candidate->energy();
+    }
+    if (sumEnergy > 0.) {
+      tauVars.etaAtEcalEntrance = sumEtaTimesEnergy / sumEnergy;
+    }
+    if (isFromPFCands) {
+      const reco::PFCandidate* pfLeadCandidte =
+          static_cast<const reco::PFCandidate*>(theTau.leadChargedHadrCand().get());
+      tauVars.emFraction =
+          std::max(pfLeadCandidte->ecalEnergy() / (pfLeadCandidte->ecalEnergy() + pfLeadCandidte->hcalEnergy()), 0.);
     } else {
-      bool success = false;
-      reco::Candidate::Point posAtECal = positionAtECalEntrance_(candidate.get(), success);
-      if (success) {
-        etaAtECalEntrance = posAtECal.eta();
-        phiAtECalEntrance = posAtECal.phi();
-      }
-      track = candidate->bestTrack();
-    }
-    if (track != nullptr) {
-      if (track->pt() > tauVars.leadChargedPFCandPt) {
-        tauVars.leadChargedPFCandEtaAtEcalEntrance = etaAtECalEntrance;
-        tauVars.leadChargedPFCandPt = track->pt();
+      const pat::PackedCandidate* patLeadCandiate =
+          dynamic_cast<const pat::PackedCandidate*>(theTau.leadChargedHadrCand().get());
+      if (patLeadCandiate != nullptr) {
+        tauVars.emFraction = std::max(1. - patLeadCandiate->hcalFraction(), 0.);
       }
     }
-    sumEtaTimesEnergy += etaAtECalEntrance * candidate->energy();
-    sumPhiTimesEnergy += phiAtECalEntrance * candidate->energy();
-    sumEnergy += candidate->energy();
   }
-  if (sumEnergy > 0.) {
-    tauVars.etaAtEcalEntrance = sumEtaTimesEnergy / sumEnergy;
-    tauVars.phi = sumPhiTimesEnergy / sumEnergy;
-  }
-
-  tauVars.emFraction = std::max(theTau.emFraction(), (float)0.);
   tauVars.leadPFChargedHadrHoP = 0.;
   tauVars.leadPFChargedHadrEoP = 0.;
   if (theTau.leadChargedHadrCand()->p() > 0.) {
@@ -791,6 +1282,41 @@ TauVars AntiElectronIDMVA6<TauType, ElectronType>::getTauVarsTypeSpecific(const 
   }
 
   return tauVars;
+}
+
+// reco::GsfElectron
+template <class TauType, class ElectronType>
+void AntiElectronIDMVA6<TauType, ElectronType>::getElecVarsHGCalTypeSpecific(
+    const reco::GsfElectron& theEle, antiElecIDMVA6_blocks::ElecVars& elecVars) {
+  //FIXME: add logic to it
+  return;
+}
+
+// pat::Electron
+template <class TauType, class ElectronType>
+void AntiElectronIDMVA6<TauType, ElectronType>::getElecVarsHGCalTypeSpecific(
+    const pat::Electron& theEle, antiElecIDMVA6_blocks::ElecVars& elecVars) {
+  //MB: Assumed that presence of one of the HGCal EleID variables guarantee presence of all
+  if (!theEle.hasUserFloat("hgcElectronID:sigmaUU"))
+    return;
+
+  elecVars.hgcalSigmaUU = theEle.userFloat("hgcElectronID:sigmaUU");
+  elecVars.hgcalSigmaVV = theEle.userFloat("hgcElectronID:sigmaVV");
+  elecVars.hgcalSigmaEE = theEle.userFloat("hgcElectronID:sigmaEE");
+  elecVars.hgcalSigmaPP = theEle.userFloat("hgcElectronID:sigmaPP");
+  elecVars.hgcalNLayers = theEle.userFloat("hgcElectronID:nLayers");
+  elecVars.hgcalFirstLayer = theEle.userFloat("hgcElectronID:firstLayer");
+  elecVars.hgcalLastLayer = theEle.userFloat("hgcElectronID:lastLayer");
+  elecVars.hgcalLayerEfrac10 = theEle.userFloat("hgcElectronID:layerEfrac10");
+  elecVars.hgcalLayerEfrac90 = theEle.userFloat("hgcElectronID:layerEfrac90");
+  elecVars.hgcalEcEnergyEE = theEle.userFloat("hgcElectronID:ecEnergyEE");
+  elecVars.hgcalEcEnergyFH = theEle.userFloat("hgcElectronID:ecEnergyFH");
+  elecVars.hgcalMeasuredDepth = theEle.userFloat("hgcElectronID:measuredDepth");
+  elecVars.hgcalExpectedDepth = theEle.userFloat("hgcElectronID:expectedDepth");
+  elecVars.hgcalExpectedSigma = theEle.userFloat("hgcElectronID:expectedSigma");
+  elecVars.hgcalDepthCompatibility = theEle.userFloat("hgcElectronID:depthCompatibility");
+
+  return;
 }
 
 // compile desired types and make available to linker
