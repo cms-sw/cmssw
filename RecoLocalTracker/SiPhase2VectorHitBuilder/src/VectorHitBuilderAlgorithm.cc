@@ -73,7 +73,7 @@ void VectorHitBuilderAlgorithm::run(edm::Handle<edmNew::DetSetVector<Phase2Track
 
       //ERICA:: to be checked with map!
       //sorting vhs for best chi2
-      std::sort(vhsInStack_Acc.begin(), vhsInStack_Acc.end());
+      std::sort_heap(vhsInStack_Acc.begin(), vhsInStack_Acc.end());
 
       tempVHAcc[detIdStack] = vhsInStack_Acc;
       tempVHRej[detIdStack] = vhsInStack_Rej;
@@ -107,6 +107,7 @@ bool VectorHitBuilderAlgorithm::checkClustersCompatibilityBeforeBuilding(
 
   //order lower clusters in u
   std::vector<Phase2TrackerCluster1D> lowerClusters;
+  lowerClusters.reserve(theLowerDetSet.size());
   if (theLowerDetSet.size() > 1)
     LogDebug("VectorHitBuilderAlgorithm") << " more than 1 lower cluster! " << std::endl;
   if (theUpperDetSet.size() > 1)
@@ -151,8 +152,8 @@ std::vector<std::pair<VectorHit, bool>> VectorHitBuilderAlgorithm::buildVectorHi
     upperClusters.push_back(clusterUpper);
   }
 
-  std::sort(lowerClusters.begin(), lowerClusters.end(), LocalPositionSort(&*theTkGeom, &*cpe, &*stack->lowerDet()));
-  std::sort(upperClusters.begin(), upperClusters.end(), LocalPositionSort(&*theTkGeom, &*cpe, &*stack->upperDet()));
+  std::sort_heap(lowerClusters.begin(), lowerClusters.end(), LocalPositionSort(&*theTkGeom, &*cpe, &*stack->lowerDet()));
+  std::sort_heap(upperClusters.begin(), upperClusters.end(), LocalPositionSort(&*theTkGeom, &*cpe, &*stack->upperDet()));
 
   for (const auto& cluL : lowerClusters) {
     LogDebug("VectorHitBuilderAlgorithm") << " lower clusters " << std::endl;
