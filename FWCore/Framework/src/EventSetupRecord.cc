@@ -70,13 +70,24 @@ namespace edm {
       iException.addContext(ost.str());
     }
 
-    std::exception_ptr EventSetupRecord::makeInvalidTokenException(EventSetupRecordKey const& iRecordKey,
-                                                                   TypeTag const& iDataKey) {
+    std::exception_ptr EventSetupRecord::makeUninitializedTokenException(EventSetupRecordKey const& iRecordKey,
+                                                                         TypeTag const& iDataKey) {
       cms::Exception ex("InvalidESGetToken");
       ex << "Attempted to get data using an invalid token of type ESGetToken<" << iDataKey.name() << ","
          << iRecordKey.name()
          << ">.\n"
             "Please call consumes to properly initialize the token.";
+      return std::make_exception_ptr(ex);
+    }
+
+    std::exception_ptr EventSetupRecord::makeInvalidTokenException(EventSetupRecordKey const& iRecordKey,
+                                                                   TypeTag const& iDataKey,
+                                                                   unsigned int iTransitionID) {
+      cms::Exception ex("InvalidESGetToken");
+      ex << "Attempted to get data using an invalid token of type ESGetToken<" << iDataKey.name() << ","
+         << iRecordKey.name() << "> that had transition ID set (" << iTransitionID
+         << ") but not the index.\n"
+            "This should not happen, please contact core framework developers.";
       return std::make_exception_ptr(ex);
     }
 
