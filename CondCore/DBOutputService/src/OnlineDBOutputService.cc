@@ -55,7 +55,6 @@ namespace cond {
 
   cond::Time_t getLastLumiFromOMS(const std::string& omsServiceUrl) {
     cond::Time_t lastLumiProcessed = cond::time::MIN_VAL;
-    unsigned int lastL = 0;
     std::string info("");
     if (!getInfoFromDAQ(omsServiceUrl, info))
       throw Exception("Can't get data from OMS Service.");
@@ -104,7 +103,6 @@ cond::service::OnlineDBOutputService::~OnlineDBOutputService() {}
 
 cond::Time_t cond::service::OnlineDBOutputService::getLastLumiProcessed() {
   cond::Time_t lastLumiProcessed = cond::time::MIN_VAL;
-  unsigned int lastL = 0;
   std::string info("");
   if (!m_omsServiceUrl.empty()) {
     lastLumiProcessed = cond::getLastLumiFromOMS(m_omsServiceUrl);
@@ -113,7 +111,7 @@ cond::Time_t cond::service::OnlineDBOutputService::getLastLumiProcessed() {
       std::string info("");
       if (!getInfoFromDAQ(m_lastLumiUrl, info))
         throw Exception("Can't get last Lumisection from DAQ.");
-      lastL = boost::lexical_cast<unsigned int>(info);
+      unsigned int lastL = boost::lexical_cast<unsigned int>(info);
       lastLumiProcessed = cond::time::lumiTime(m_runNumber, lastL);
       edm::LogInfo(MSGSOURCE) << "Last lumi: " << lastLumiProcessed << " Current run: " << m_runNumber
                               << " lumi id:" << lastL;
