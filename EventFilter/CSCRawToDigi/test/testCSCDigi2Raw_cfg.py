@@ -4,12 +4,12 @@ import FWCore.ParameterSet.Config as cms
 from FWCore.ParameterSet.VarParsing import VarParsing
 from Configuration.Eras.Era_Run3_cff import Run3
 
-options = VarParsing()
+options = VarParsing('analysis')
 options.register ("pack", True, VarParsing.multiplicity.singleton, VarParsing.varType.bool)
 options.register ("unpack", True, VarParsing.multiplicity.singleton, VarParsing.varType.bool)
-options.register ("validate", False, VarParsing.multiplicity.singleton, VarParsing.varType.bool)
-options.register ("view", True, VarParsing.multiplicity.singleton, VarParsing.varType.bool)
 options.register ("reconstruct", False, VarParsing.multiplicity.singleton, VarParsing.varType.bool)
+options.register ("view", True, VarParsing.multiplicity.singleton, VarParsing.varType.bool)
+options.register ("validate", False, VarParsing.multiplicity.singleton, VarParsing.varType.bool)
 options.register ("mc", False, VarParsing.multiplicity.singleton, VarParsing.varType.bool)
 options.parseArguments()
 
@@ -35,23 +35,21 @@ process.options = cms.untracked.PSet(
 
 process.source = cms.Source(
       "PoolSource",
-      fileNames = cms.untracked.vstring(
-            'file:input.root'
-      )
+      fileNames = cms.untracked.vstring(options.inputFiles)
 )
 
 ## global tag
 from Configuration.AlCa.GlobalTag import GlobalTag
 if options.mc:
-      process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run3_data', '')
+      process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase1_2021_realistic', '')
 else:
-      process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run3_mc', '')
+      process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run3_data', '')
 
 process.DQMStore = cms.Service("DQMStore")
 
 # customize messagelogger
 process.MessageLogger.destinations = cms.untracked.vstring('cout')
-process.MessageLogger.debugModules = cms.untracked.vstring('muonCSCDigis'),
+process.MessageLogger.debugModules = cms.untracked.vstring('muonCSCDigis')
 ## categories: 'CSCDCCUnpacker|CSCRawToDigi', 'StatusDigis', 'StatusDigi', 'CSCRawToDigi', 'CSCDCCUnpacker', 'EventInfo',
 process.MessageLogger.categories = cms.untracked.vstring("CSCDDUEventData|CSCRawToDigi", 'badData')
 process.MessageLogger.cout = cms.untracked.PSet(
@@ -108,7 +106,15 @@ process.cscValidation.isSimulation = options.mc
 process.analyzer = cms.EDAnalyzer("DigiAnalyzer")
 
 ## customizations
-if not options.mc:
+if options.mc:
+      val = process.cscValidation
+      val.alctDigiTag = cms.InputTag("simCscTriggerPimitiveDigis")
+      val.clctDigiTag = cms.InputTag("simCscTriggerPimitiveDigis")
+      val.corrlctDigiTag = cms.InputTag("simCscTriggerPimitiveDigis")
+      val.stripDigiTag = cms.InputTag("simMuonCSCDigis","MuonCSCStripDigi")
+      val.wireDigiTag = cms.InputTag("simMuonCSCDigis","MuonCSCWireDigi")
+      val.compDigiTag = cms.InputTag("simMuonCSCDigis","MuonCSCComparatorDigi")
+else:
       pack = process.cscpacker
       pack.wireDigiTag = cms.InputTag("muonCSCDigis","MuonCSCWireDigi")
       pack.stripDigiTag = cms.InputTag("muonCSCDigis","MuonCSCStripDigi")
@@ -117,14 +123,6 @@ if not options.mc:
       pack.clctDigiTag = cms.InputTag("muonCSCDigis","MuonCSCCLCTDigi")
       pack.preTriggerTag = cms.InputTag("simCscTriggerPrimitiveDigis")
       pack.correlatedLCTDigiTag = cms.InputTag("muonCSCDigis","MuonCSCCorrelatedLCTDigi")
-else:
-      val = process.cscValidation
-      val.alctDigiTag = cms.InputTag("simCscTriggerPimitiveDigis")
-      val.clctDigiTag = cms.InputTag("simCscTriggerPimitiveDigis")
-      val.corrlctDigiTag = cms.InputTag("simCscTriggerPimitiveDigis")
-      val.stripDigiTag = cms.InputTag("simMuonCSCDigis","MuonCSCStripDigi")
-      val.wireDigiTag = cms.InputTag("simMuonCSCDigis","MuonCSCWireDigi")
-      val.compDigiTag = cms.InputTag("simMuonCSCDigis","MuonCSCComparatorDigi")
 
 process.out = cms.OutputModule(
       "PoolOutputModule",
@@ -141,14 +139,14 @@ process.endjob_step = cms.EndPath(process.out * process.endOfProcess)
 
 process.schedule = cms.Schedule()
 if options.pack:
-      process.schedule.extend(p1)
+      process.schedule.extend([process.p1])
 if options.unpack:
-      process.schedule.extend(p2)
+      process.schedule.extend([process.p2])
 if options.reconstruct:
-      process.schedule.extend(p3)
+      process.schedule.extend([process.p3])
 if options.validate:
-      process.schedule.extend(p4)
+      process.schedule.extend([process.p4])
 if options.view:
-      process.schedule.extend(p5)
+      process.schedule.extend([process.p5])
 
-process.schedule.extend(process.endjob_step)
+process.schedule.extend([process.endjob_step])
