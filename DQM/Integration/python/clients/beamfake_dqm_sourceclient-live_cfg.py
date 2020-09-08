@@ -57,6 +57,9 @@ process.hltTriggerTypeFilter = cms.EDFilter("HLTTriggerTypeFilter",
 process.load("DQM.Integration.config.environment_cfi")
 process.dqmEnv.subSystemFolder = 'FakeBeamMonitor'
 process.dqmSaver.tag           = 'FakeBeamMonitor'
+process.dqmSaver.runNumber     = options.runNumber
+process.dqmSaverPB.tag         = 'FakeBeamMonitor'
+process.dqmSaverPB.runNumber   = options.runNumber
 
 #process.dqmEnvPixelLess = process.dqmEnv.clone()
 #process.dqmEnvPixelLess.subSystemFolder = 'BeamMonitor_PixelLess'
@@ -229,7 +232,7 @@ process.selectedPixelTracksMonitorSequence = cms.Sequence(
 
 #
 process.dqmcommon = cms.Sequence(process.dqmEnv
-                               * process.dqmSaver)
+                               * process.dqmSaver*process.dqmSaverPB)
 
 #
 process.monitor = cms.Sequence(process.dqmFakeBeamMonitor
