@@ -267,7 +267,8 @@ def nanoAOD_customizeCommon(process):
     makePuppiesFromMiniAOD(process,True) 
     process.puppiNoLep.useExistingWeights = True
     process.puppi.useExistingWeights = True
-    run2_nanoAOD_106Xv1.toModify(process.puppiNoLep.useExistingWeights = False, process.puppi.useExistingWeights = False)
+    run2_nanoAOD_106Xv1.toModify(puppiNoLep, useExistingWeights = False)
+    run2_nanoAOD_106Xv1.toModify(puppi, useExistingWeights = False)
     process = nanoAOD_activateVID(process)
     nanoAOD_addDeepInfo_switch = cms.PSet(
         nanoAOD_addDeepBTag_switch = cms.untracked.bool(False),
