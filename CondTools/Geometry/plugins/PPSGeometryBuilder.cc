@@ -49,32 +49,37 @@ PPSGeometryBuilder::PPSGeometryBuilder(const edm::ParameterSet& iConfig)
  * Save PPS geo to DB.
  */
 void PPSGeometryBuilder::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
+  // Get DetGeomDesc tree
   std::unique_ptr<DetGeomDesc> geoInfoRoot = nullptr;
-
-  // old DD
-  if (!fromDD4hep_) {
-    edm::ESHandle<DDCompactView> myCompactView;
+  if (watcherIdealGeometry_.check(iSetup)) {
     edm::LogInfo("PPSGeometryBuilder") << "Got IdealGeometryRecord ";
-    iSetup.get<IdealGeometryRecord>().get(compactViewTag_.c_str(), myCompactView);
+    // old DD
+    if (!fromDD4hep_) {
+      // Get CompactView from IdealGeometryRecord
+      edm::ESHandle<DDCompactView> myCompactView;
+      iSetup.get<IdealGeometryRecord>().get(compactViewTag_.c_str(), myCompactView);
 
-    // Build geometry
-    geoInfoRoot = detgeomdescbuilder::buildDetGeomDescFromCompactView(*myCompactView);
-  }
-  // DD4hep
-  else {
-    edm::ESHandle<cms::DDCompactView> myCompactView;
-    edm::LogInfo("PPSGeometryBuilder") << "Got IdealGeometryRecord ";
-    iSetup.get<IdealGeometryRecord>().get(compactViewTag_.c_str(), myCompactView);
+      // Build geometry
+      geoInfoRoot = detgeomdescbuilder::buildDetGeomDescFromCompactView(*myCompactView);
+    }
+    // DD4hep
+    else {
+      // Get CompactView from IdealGeometryRecord
+      edm::ESHandle<cms::DDCompactView> myCompactView;
+      iSetup.get<IdealGeometryRecord>().get(compactViewTag_.c_str(), myCompactView);
 
-    // Build geometry
-    geoInfoRoot = detgeomdescbuilder::buildDetGeomDescFromCompactView(*myCompactView);
+      // Build geometry
+      geoInfoRoot = detgeomdescbuilder::buildDetGeomDescFromCompactView(*myCompactView);
+    }
   }
 
   // Build persistent geometry data from geometry
   PDetGeomDesc* serializableData =
       new PDetGeomDesc();  // cond::service::PoolDBOutputService::writeOne interface requires raw pointer.
   int counter = 0;
-  buildSerializableDataFromGeoInfo(serializableData, geoInfoRoot.get(), counter);
+  if (geoInfoRoot) {
+    buildSerializableDataFromGeoInfo(serializableData, geoInfoRoot.get(), counter);
+  }
 
   // Save geometry in the database
   if (serializableData->container_.empty()) {
