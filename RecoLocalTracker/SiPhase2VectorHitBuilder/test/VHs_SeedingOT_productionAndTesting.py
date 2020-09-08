@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 from Configuration.StandardSequences.Eras import eras
 
-process = cms.Process('RECO',eras.Phase2C2)
+process = cms.Process('RECO',eras.Phase2C9)
 
 # import of standard configurations
 process.load('Configuration.StandardSequences.Services_cff')
@@ -10,7 +10,7 @@ process.load('SimGeneral.HepPDTESSource.pythiapdt_cfi')
 process.load('FWCore.MessageService.MessageLogger_cfi')
 process.load('Configuration.EventContent.EventContent_cff')
 process.load('SimGeneral.MixingModule.mixNoPU_cfi')
-process.load('Configuration.Geometry.GeometryExtended2023D4Reco_cff')
+process.load('Configuration.Geometry.GeometryExtended2026D49Reco_cff')
 process.load('Configuration.StandardSequences.MagneticField_cff')
 process.load('Configuration.StandardSequences.RawToDigi_cff')
 process.load('Configuration.StandardSequences.L1Reco_cff')
@@ -21,7 +21,7 @@ process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 process.load('RecoLocalTracker.Configuration.RecoLocalTracker_cff')
 
 # import VectorHitBuilder                                                                                                                                                      
-process.load('RecoLocalTracker.SiPhase2VectorHitBuilder.SiPhase2VectorHitBuilder_cfi')
+process.load('RecoLocalTracker.SiPhase2VectorHitBuilder.siPhase2VectorHits_cfi')
 
 
 process.maxEvents = cms.untracked.PSet(
@@ -30,8 +30,17 @@ process.maxEvents = cms.untracked.PSet(
 
 # Input source
 process.source = cms.Source("PoolSource",
-    fileNames = cms.untracked.vstring('file:21207_10events/step2.root'),
-    #fileNames = cms.untracked.vstring('/store/relval/CMSSW_8_1_0_pre7/RelValSingleMuPt10Extended/GEN-SIM-DIGI-RAW/81X_mcRun2_asymptotic_v0_2023tilted-v1/10000/2E7CB262-1534-E611-BB7A-0CC47A78A496.root'),
+    fileNames = cms.untracked.vstring('/store/relval/CMSSW_11_2_0_pre3/RelValSingleMuFlatPt2To100/GEN-SIM-DIGI-RAW/PU25ns_110X_mcRun4_realistic_v3_2026D49PU200-v1/20000/863B48BB-03ED-0548-AA60-1269291ED1E6.root',
+				      '/store/relval/CMSSW_11_2_0_pre3/RelValSingleMuFlatPt2To100/GEN-SIM-DIGI-RAW/PU25ns_110X_mcRun4_realistic_v3_2026D49PU200-v1/20000/9B6E3A66-B330-8E42-B85E-96A9952A002E.root',
+				      '/store/relval/CMSSW_11_2_0_pre3/RelValSingleMuFlatPt2To100/GEN-SIM-DIGI-RAW/PU25ns_110X_mcRun4_realistic_v3_2026D49PU200-v1/20000/29706FE9-16C9-CE4F-B744-66E07B250D1E.root',
+				      '/store/relval/CMSSW_11_2_0_pre3/RelValSingleMuFlatPt2To100/GEN-SIM-DIGI-RAW/PU25ns_110X_mcRun4_realistic_v3_2026D49PU200-v1/20000/AAB16BEE-B0CE-644A-8E96-35236D793C04.root',
+				      '/store/relval/CMSSW_11_2_0_pre3/RelValSingleMuFlatPt2To100/GEN-SIM-DIGI-RAW/PU25ns_110X_mcRun4_realistic_v3_2026D49PU200-v1/20000/36F89E35-DE2F-174B-95B7-7A9423DED2D8.root',
+				      '/store/relval/CMSSW_11_2_0_pre3/RelValSingleMuFlatPt2To100/GEN-SIM-DIGI-RAW/PU25ns_110X_mcRun4_realistic_v3_2026D49PU200-v1/20000/1BE0A565-4F64-8D42-A5D5-62692F64F0A5.root',
+				      '/store/relval/CMSSW_11_2_0_pre3/RelValSingleMuFlatPt2To100/GEN-SIM-DIGI-RAW/PU25ns_110X_mcRun4_realistic_v3_2026D49PU200-v1/20000/8671B5C9-DE1F-8B4C-8A1C-9C99898FE191.root',
+				      '/store/relval/CMSSW_11_2_0_pre3/RelValSingleMuFlatPt2To100/GEN-SIM-DIGI-RAW/PU25ns_110X_mcRun4_realistic_v3_2026D49PU200-v1/20000/6CA0E490-73F4-1147-906D-050B8B3A3134.root',
+				      '/store/relval/CMSSW_11_2_0_pre3/RelValSingleMuFlatPt2To100/GEN-SIM-DIGI-RAW/PU25ns_110X_mcRun4_realistic_v3_2026D49PU200-v1/20000/AFAB961F-E31F-064D-9031-BEAA10702345.root',
+				      '/store/relval/CMSSW_11_2_0_pre3/RelValSingleMuFlatPt2To100/GEN-SIM-DIGI-RAW/PU25ns_110X_mcRun4_realistic_v3_2026D49PU200-v1/20000/2AB6718E-EEA6-494B-AC25-B59CF36DF941.root',
+    ),
     secondaryFileNames = cms.untracked.vstring(),
     skipEvents = cms.untracked.uint32(0)
 )
@@ -56,14 +65,14 @@ process.RECOSIMoutput = cms.OutputModule("PoolOutputModule",
     ),
     eventAutoFlushCompressedSize = cms.untracked.int32(5242880),
     fileName = cms.untracked.string('file:step3_1event.root'),
-    outputCommands = cms.untracked.vstring( ('keep *') ),
+    outputCommands = process.RECOSIMEventContent.outputCommands,
     splitLevel = cms.untracked.int32(0)
 )
 
 # Analyzer
 process.analysis = cms.EDAnalyzer('VectorHitsBuilderValidation',
     src = cms.string("siPhase2Clusters"),
-    src2 = cms.InputTag("siPhase2VectorHits", "vectorHitsAccepted"),
+    VH_acc = cms.InputTag("siPhase2VectorHits", "vectorHitsAccepted"),
     links = cms.InputTag("simSiPixelDigis", "Tracker")
 )
 process.TFileService = cms.Service('TFileService',
@@ -107,8 +116,6 @@ process.RECOSIMoutput_step = cms.EndPath(process.RECOSIMoutput)
 
 # Schedule definition
 process.schedule = cms.Schedule(process.raw2digi_step,process.L1Reco_step,process.trackerlocalreco_step,process.seedingOT_step,process.RECOSIMoutput_step, process.analysis_step)
-#process.schedule = cms.Schedule(process.raw2digi_step,process.L1Reco_step,process.trackerlocalreco_step,process.RECOSIMoutput_step)
-#process.schedule = cms.Schedule(process.raw2digi_step,process.L1Reco_step,process.reconstruction_step,process.prevalidation_step,process.validation_step,process.dqmoffline_step,process.FEVTDEBUGHLToutput_step,process.DQMoutput_step)
 
 # customisation of the process.
 

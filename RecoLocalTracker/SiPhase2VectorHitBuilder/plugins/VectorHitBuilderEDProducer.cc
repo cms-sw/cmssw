@@ -34,7 +34,8 @@ private:
   edm::EDGetTokenT<edmNew::DetSetVector<Phase2TrackerCluster1D>> clusterProducer_;
 };
 
-VectorHitBuilderEDProducer::~VectorHitBuilderEDProducer() { delete stubsBuilder_; }
+//VectorHitBuilderEDProducer::~VectorHitBuilderEDProducer() { delete stubsBuilder_; }
+VectorHitBuilderEDProducer::~VectorHitBuilderEDProducer() { }
 
 VectorHitBuilderEDProducer::VectorHitBuilderEDProducer(edm::ParameterSet const& conf)
     : offlinestubsTag_(conf.getParameter<std::string>("offlinestubs")),
