@@ -84,6 +84,28 @@ namespace antiElecIDMVA6_blocks {
     float mvaInSigmaEtaEta = 0;
     float mvaInHadEnergy = 0;
     float mvaInDeltaEta = 0;
+    float eSeedClusterOverPout = 0;
+    float superClusterEtaWidth = 0;
+    float superClusterPhiWidth = 0;
+    float sigmaIEtaIEta5x5 = 0;
+    float sigmaIPhiIPhi5x5 = 0;
+    float showerCircularity = 0;
+    float r9 = 0;
+    float hgcalSigmaUU = 0;
+    float hgcalSigmaVV = 0;
+    float hgcalSigmaEE = 0;
+    float hgcalSigmaPP = 0;
+    float hgcalNLayers = 0;
+    float hgcalFirstLayer = 0;
+    float hgcalLastLayer = 0;
+    float hgcalLayerEfrac10 = 0;
+    float hgcalLayerEfrac90 = 0;
+    float hgcalEcEnergyEE = 0;
+    float hgcalEcEnergyFH = 0;
+    float hgcalMeasuredDepth = 0;
+    float hgcalExpectedDepth = 0;
+    float hgcalExpectedSigma = 0;
+    float hgcalDepthCompatibility = 0;
   };
 }  // namespace antiElecIDMVA6_blocks
 
@@ -103,6 +125,10 @@ public:
                   const antiElecIDMVA6_blocks::TauGammaMoms& tauGammaMoms,
                   const antiElecIDMVA6_blocks::ElecVars& elecVars);
 
+  double MVAValuePhase2(const antiElecIDMVA6_blocks::TauVars& tauVars,
+                        const antiElecIDMVA6_blocks::TauGammaMoms& tauGammaMoms,
+                        const antiElecIDMVA6_blocks::ElecVars& elecVars);
+
   // this function can be called for all categories
   double MVAValue(const TauType& theTau, const ElectronType& theEle);
   // this function can be called for category 1 only !!
@@ -114,14 +140,17 @@ public:
   antiElecIDMVA6_blocks::TauVars getTauVars(const TauType& theTau);
   antiElecIDMVA6_blocks::TauGammaVecs getTauGammaVecs(const TauType& theTau);
   antiElecIDMVA6_blocks::ElecVars getElecVars(const ElectronType& theEle);
-
-  // track extrapolation to ECAL entrance (used to re-calculate variables that might not be available on miniAOD)
-  bool atECalEntrance(const reco::Candidate* part, math::XYZPoint& pos);
+  // overloaded method with explicit electron type to avoid partial imlementation of full class
+  void getElecVarsHGCalTypeSpecific(const reco::GsfElectron& theEle, antiElecIDMVA6_blocks::ElecVars& elecVars);
+  void getElecVarsHGCalTypeSpecific(const pat::Electron& theEle, antiElecIDMVA6_blocks::ElecVars& elecVars);
 
 private:
   double dCrackEta(double eta);
   double minimum(double a, double b);
   double dCrackPhi(double phi, double eta);
+
+  static constexpr float ecalBarrelEndcapEtaBorder_ = 1.479;
+  static constexpr float ecalEndcapVFEndcapEtaBorder_ = 2.4;
 
   bool isInitialized_;
   bool loadMVAfromDB_;
@@ -135,6 +164,10 @@ private:
   std::string mvaName_NoEleMatch_wGwoGSF_EC_;
   std::string mvaName_woGwGSF_EC_;
   std::string mvaName_wGwGSF_EC_;
+  std::string mvaName_NoEleMatch_woGwoGSF_VFEC_;
+  std::string mvaName_NoEleMatch_wGwoGSF_VFEC_;
+  std::string mvaName_woGwGSF_VFEC_;
+  std::string mvaName_wGwGSF_VFEC_;
 
   bool usePhiAtEcalEntranceExtrapolation_;
 
@@ -146,6 +179,10 @@ private:
   float* Var_NoEleMatch_wGwoGSF_Endcap_;
   float* Var_woGwGSF_Endcap_;
   float* Var_wGwGSF_Endcap_;
+  float* Var_NoEleMatch_woGwoGSF_VFEndcap_;
+  float* Var_NoEleMatch_wGwoGSF_VFEndcap_;
+  float* Var_woGwGSF_VFEndcap_;
+  float* Var_wGwGSF_VFEndcap_;
 
   const GBRForest* mva_NoEleMatch_woGwoGSF_BL_;
   const GBRForest* mva_NoEleMatch_wGwoGSF_BL_;
@@ -155,12 +192,18 @@ private:
   const GBRForest* mva_NoEleMatch_wGwoGSF_EC_;
   const GBRForest* mva_woGwGSF_EC_;
   const GBRForest* mva_wGwGSF_EC_;
+  const GBRForest* mva_NoEleMatch_woGwoGSF_VFEC_;
+  const GBRForest* mva_NoEleMatch_wGwoGSF_VFEC_;
+  const GBRForest* mva_woGwGSF_VFEC_;
+  const GBRForest* mva_wGwGSF_VFEC_;
 
   std::vector<TFile*> inputFilesToDelete_;
 
   PositionAtECalEntranceComputer positionAtECalEntrance_;
 
-  int verbosity_;
+  const bool isPhase2_;
+
+  const int verbosity_;
 };
 
 #endif
