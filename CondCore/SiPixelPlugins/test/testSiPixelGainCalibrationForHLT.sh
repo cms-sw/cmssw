@@ -225,3 +225,32 @@ getPayloadData.py \
     --test ;
 
 mv *.png  $W_DIR/plots_GainCalibForHLT/SingleTagGainsPedestalsCorrelations.png
+
+## diff and ratio
+
+getPayloadData.py \
+    --plugin pluginSiPixelGainCalibrationForHLT_PayloadInspector \
+    --plot plot_SiPixelGainCalibForHLTGainDiffRatioTwoTags \
+    --tagtwo SiPixelGainCalibrationHLT_2009runs_hlt \
+    --tag SiPixelGainCalibrationHLT_2009runs_ScaledForVCal_hlt \
+    --time_type Run \
+    --iovs '{"start_iov": "310000", "end_iov": "310000"}' \
+    --iovstwo '{"start_iov": "310000", "end_iov": "310000"}'  \
+    --db Prod \
+    --test ;
+
+mv *.png  $W_DIR/plots_GainCalibForHLT/DiffAndRatio.png
+
+## diff and ratio reverse
+getPayloadData.py \
+    --plugin pluginSiPixelGainCalibrationForHLT_PayloadInspector \
+    --plot plot_SiPixelGainCalibForHLTGainDiffRatioTwoTags \
+    --tagtwo SiPixelGainCalibrationHLT_2009runs_ScaledForVCal_hlt \
+    --tag SiPixelGainCalibrationHLT_2009runs_hlt \
+    --time_type Run \
+    --iovs '{"start_iov": "310000", "end_iov": "310000"}' \
+    --iovstwo '{"start_iov": "310000", "end_iov": "310000"}' \
+    --db Prod \
+    --test ;
+
+mv *.png  $W_DIR/plots_GainCalibForHLT/DiffAndRatio_reverse.png
