@@ -83,8 +83,8 @@ private:
   int cBit_ = 9;
   int qVFATBit_ = 5;
   int fVFATBit_ = 4;
-  int eBit_ = 16;
-  int amcStatusBit_ = 6;
+  int eBit_ = 17;
+  int amcStatusBit_ = 7;
 
   int nNEvtPerSec_;
   int nNSecPerBin_;
@@ -540,6 +540,7 @@ void GEMDQMStatusDigi::bookHistogramsStationPart(DQMStore::IBooker &ibooker, GEM
       newbookGEB(ibooker, "geb_OHCRC", "CRC of OH data", "CRC of OH data", lid, la, st, re, 65536, 0, 65536);
 
   unBinPos = 1;
+  listGEBInputStatus_[lid]->setBinLabel(unBinPos++, "Good", 2);
   listGEBInputStatus_[lid]->setBinLabel(unBinPos++, "BX mismatch GLIB OH", 2);
   listGEBInputStatus_[lid]->setBinLabel(unBinPos++, "BX mismatch GLIB VFAT", 2);
   listGEBInputStatus_[lid]->setBinLabel(unBinPos++, "OOS GLIB OH", 2);
@@ -569,6 +570,7 @@ void GEMDQMStatusDigi::bookHistogramsAMCPart(DQMStore::IBooker &ibooker) {
                                 amcStatusBit_);
 
   uint32_t unBinPos = 1;
+  h2AMCStatus_->setBinLabel(unBinPos++, "Good", 2);
   h2AMCStatus_->setBinLabel(unBinPos++, "BC0 not locked", 2);
   h2AMCStatus_->setBinLabel(unBinPos++, "DAQ not ready", 2);
   h2AMCStatus_->setBinLabel(unBinPos++, "DAQ clock not locked", 2);
@@ -863,7 +865,7 @@ void GEMDQMStatusDigi::analyze(edm::Event const &event, edm::EventSetup const &e
     for (auto GEBStatus = range.first; GEBStatus != range.second; ++GEBStatus) {
       bIsNotEmpty = true;
 
-      uint64_t unBit = 0;
+      uint64_t unBit = 1;
       uint64_t unStatus = 0;
 
       unStatus |= (GEBStatus->bxmVvV() << unBit++);
@@ -887,6 +889,8 @@ void GEMDQMStatusDigi::analyze(edm::Event const &event, edm::EventSetup const &e
         Int_t nIdxLayer, nIdxChamber;
         seekIdxSummary(gemid, nIdxLayer, nIdxChamber);
         h3SummaryStatusPre_->setBinContent(nIdxChamber, nIdxLayer, m_nIdxSummaryErr, 1.0);
+      } else {
+        unStatus = 0x01;  // Good
       }
 
       bIsNotEmpty = FillBits(listGEBInputStatus_[lid], unStatus, eBit_, nCh);
@@ -906,7 +910,7 @@ void GEMDQMStatusDigi::analyze(edm::Event const &event, edm::EventSetup const &e
       listGEBecOH_[lid]->Fill(nCh, GEBStatus->ecOH());
       listGEBOHCRC_[lid]->Fill(nCh, GEBStatus->crc());
 
-      fillTimeHisto(listCurr, nStackedBin_, nCh, unStatus != 0);
+      fillTimeHisto(listCurr, nStackedBin_, nCh, unStatus != 0x01);
     }
   }
 
@@ -922,7 +926,7 @@ void GEMDQMStatusDigi::analyze(edm::Event const &event, edm::EventSetup const &e
     auto &listCurr = listTimeStore_[0];
     for (auto amc = range.first; amc != range.second; ++amc) {
       Int_t nIdAMC = findAMCIdx(amc->amcNum());
-      uint64_t unBit = 0;
+      uint64_t unBit = 1;
       uint64_t unStatus = 0;
 
       unStatus |= (!amc->bc0locked() << unBit++);
@@ -932,6 +936,10 @@ void GEMDQMStatusDigi::analyze(edm::Event const &event, edm::EventSetup const &e
       unStatus |= (amc->backPressure() << unBit++);
       unStatus |= (amc->oosGlib() << unBit++);
 
+      if (unStatus == 0) {
+        unStatus = 0x01;  // Good
+      }
+
       FillBits(h2AMCStatus_, unStatus, amcStatusBit_, nIdAMC);
 
       h1_amc_ttsState_->Fill(amc->ttsState());
@@ -940,7 +948,7 @@ void GEMDQMStatusDigi::analyze(edm::Event const &event, edm::EventSetup const &e
       h1_amc_oosGlib_->Fill(amc->oosGlib());
       h1_amc_chTimeOut_->Fill(amc->linkTo());
 
-      fillTimeHisto(listCurr, nStackedBin_, nIdAMC, unStatus != 0);
+      fillTimeHisto(listCurr, nStackedBin_, nIdAMC, unStatus != 0x01);
     }
   }
 
