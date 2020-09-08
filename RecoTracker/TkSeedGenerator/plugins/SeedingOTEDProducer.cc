@@ -44,15 +44,15 @@ public:
 
   TrajectorySeedCollection run(edm::Handle<VectorHitCollectionNew>);
   unsigned int checkLayer(unsigned int iidd);
-  std::vector<VectorHit> collectVHsOnLayer(edm::Handle<VectorHitCollectionNew>, unsigned int);
-  void printVHsOnLayer(edm::Handle<VectorHitCollectionNew>, unsigned int);
-  const TrajectoryStateOnSurface buildInitialTSOS(VectorHit&) const;
+  std::vector<VectorHit> collectVHsOnLayer(const edmNew::DetSetVector<VectorHit>&, unsigned int);
+  void printVHsOnLayer(const edmNew::DetSetVector<VectorHit>&, unsigned int);
+  const TrajectoryStateOnSurface buildInitialTSOS(const VectorHit&) const;
   AlgebraicSymMatrix assign44To55(AlgebraicSymMatrix) const;
   std::pair<bool, TrajectoryStateOnSurface> propagateAndUpdate(const TrajectoryStateOnSurface initialTSOS,
                                                                const Propagator&,
                                                                const TrackingRecHit& hit) const;
   float computeGlobalThetaError(const VectorHit& vh, const double sigmaZ_beamSpot) const;
-  float computeInverseMomentumError(VectorHit& vh,
+  float computeInverseMomentumError(const VectorHit& vh,
                                     const float globalTheta,
                                     const double sigmaZ_beamSpot,
                                     const double transverseMomentum) const;
@@ -165,9 +165,9 @@ TrajectorySeedCollection SeedingOTEDProducer::run(edm::Handle<VectorHitCollectio
   TrajectorySeedCollection result;
 
   //check if all the first three layers have VHs
-  std::vector<VectorHit> vhSeedsL1 = collectVHsOnLayer(VHs, 1);
-  std::vector<VectorHit> vhSeedsL2 = collectVHsOnLayer(VHs, 2);
-  std::vector<VectorHit> vhSeedsL3 = collectVHsOnLayer(VHs, 3);
+  std::vector<VectorHit> vhSeedsL1 = collectVHsOnLayer(*(VHs.product()), 1);
+  std::vector<VectorHit> vhSeedsL2 = collectVHsOnLayer(*(VHs.product()), 2);
+  std::vector<VectorHit> vhSeedsL3 = collectVHsOnLayer(*(VHs.product()), 3);
   if (vhSeedsL1.empty() || vhSeedsL2.empty() || vhSeedsL3.empty()) {
     return result;
   }
@@ -180,7 +180,7 @@ TrajectorySeedCollection SeedingOTEDProducer::run(edm::Handle<VectorHitCollectio
   Propagator* buildingPropagator = &*propagator_->clone();
   buildingPropagator->setPropagationDirection(alongMomentum);
 
-  for (auto hitL3 : vhSeedsL3) {
+  for (const auto& hitL3 : vhSeedsL3) {
     //building a tsos out of a VectorHit
     const TrajectoryStateOnSurface initialTSOS = buildInitialTSOS(hitL3);
     float signZ = copysign(1.0, initialTSOS.globalPosition().z());
@@ -195,11 +195,6 @@ TrajectorySeedCollection SeedingOTEDProducer::run(edm::Handle<VectorHitCollectio
     //find vHits in layer 2
     std::vector<TrajectoryMeasurement> measurementsL2 =
         layerMeasurements_->measurements(*barrelOTLayer2, initialTSOS, *searchingPropagator, *estimator_);
-
-    //other options
-    //LayerMeasurements::SimpleHitContainer hits;
-    //layerMeasurements->recHits(hits, *barrelOTLayer2, initialTSOS, *searchingPropagator, *estimator);
-    //auto && measurementsL2G = layerMeasurements->groupedMeasurements(*barrelOTLayer2, initialTSOS, *searchingPropagator, *estimator);
 
     std::vector<TrajectoryMeasurement>::iterator measurementsL2end =
         std::remove_if(measurementsL2.begin(), measurementsL2.end(), isInvalid());
@@ -281,12 +276,11 @@ unsigned int SeedingOTEDProducer::checkLayer(unsigned int iidd) {
   return 0;
 }
 
-std::vector<VectorHit> SeedingOTEDProducer::collectVHsOnLayer(edm::Handle<VectorHitCollectionNew> VHs,
+std::vector<VectorHit> SeedingOTEDProducer::collectVHsOnLayer(const edmNew::DetSetVector<VectorHit>& input,
                                                               unsigned int layerNumber) {
-  const VectorHitCollectionNew& input = *VHs;
   std::vector<VectorHit> VHsOnLayer;
   if (!input.empty()) {
-    for (auto DSViter : input) {
+    for (const auto& DSViter : input) {
       if (checkLayer(DSViter.id()) == layerNumber) {
         for (const auto& vh : DSViter) {
           VHsOnLayer.push_back(vh);
@@ -298,21 +292,20 @@ std::vector<VectorHit> SeedingOTEDProducer::collectVHsOnLayer(edm::Handle<Vector
   return VHsOnLayer;
 }
 
-void SeedingOTEDProducer::printVHsOnLayer(edm::Handle<VectorHitCollectionNew> VHs, unsigned int layerNumber) {
-  const VectorHitCollectionNew& input = *VHs;
+void SeedingOTEDProducer::printVHsOnLayer(const edmNew::DetSetVector<VectorHit>& input, unsigned int layerNumber) {
   if (!input.empty()) {
-    for (auto DSViter : input) {
+    for (const auto& DSViter : input) {
       for (const auto& vh : DSViter) {
         if (checkLayer(DSViter.id()) == layerNumber)
-          std::cout << " VH in layer " << layerNumber << " >> " << vh << std::endl;
+           LogTrace("SeedingOTEDProducer") << " VH in layer " << layerNumber << " >> " << vh;
       }
     }
   } else {
-    std::cout << " No VHs in layer " << layerNumber << "." << std::endl;
+    LogTrace("SeedingOTEDProducer") << " No VHs in layer " << layerNumber << ".";
   }
 }
 
-const TrajectoryStateOnSurface SeedingOTEDProducer::buildInitialTSOS(VectorHit& vHit) const {
+const TrajectoryStateOnSurface SeedingOTEDProducer::buildInitialTSOS(const VectorHit& vHit) const {
   // having fun with theta
   Global3DVector gv(vHit.globalPosition().x(), vHit.globalPosition().y(), vHit.globalPosition().z());
   float theta = gv.theta();
@@ -378,7 +371,7 @@ float SeedingOTEDProducer::computeGlobalThetaError(const VectorHit& vh, const do
   return pow(derivative2 * vh.lowerGlobalPosErr().czz() + derivative2 * pow(sigmaZ_beamSpot, 2), 0.5);
 }
 
-float SeedingOTEDProducer::computeInverseMomentumError(VectorHit& vh,
+float SeedingOTEDProducer::computeInverseMomentumError(const VectorHit& vh,
                                                        const float globalTheta,
                                                        const double sigmaZ_beamSpot,
                                                        const double transverseMomentum) const {

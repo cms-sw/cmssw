@@ -13,11 +13,11 @@ public:
   }
   ~VectorHitMomentumHelper() {}
 
-  float transverseMomentum(VectorHit& vh) const {
+  float transverseMomentum(const VectorHit& vh) const {
     float rho = 1. / vh.curvatureORphi(VectorHit::curvatureMode).first;
     return (intermediate * rho);
   }
-  float momentum(VectorHit& vh) const { return transverseMomentum(vh) / (1. * sin(vh.theta())); }
+  float momentum(const VectorHit& vh) const { return transverseMomentum(vh) / (1. * sin(vh.theta())); }
 
 private:
   float intermediate;
