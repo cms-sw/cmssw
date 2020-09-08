@@ -45,6 +45,7 @@ else:
 process.source = cms.Source("PoolSource",
                             fileNames = cms.untracked.vstring(readFiles),
                             lumisToProcess = goodLumiSecs,
+                            skipEvents = cms.untracked.uint32(0)
 )
 
 process.maxEvents = cms.untracked.PSet(
@@ -75,7 +76,7 @@ process.seqTrackselRefit = trackselRefit.getSequence(process,
                                                      config["validation"]["trackcollection"],
                                                      isPVValidation = False, 
                                                      TTRHBuilder = config["validation"].get("tthrbuilder", "WithAngleAndTemplate"),
-                                                     usePixelQualityFlag = False,
+                                                     usePixelQualityFlag = True,
                                                      openMassWindow = False,
                                                      cosmicsDecoMode = True,
                                                      cosmicsZeroTesla = False,
@@ -130,7 +131,7 @@ process.TrackerOfflineValidation = cms.EDAnalyzer("TrackerOfflineValidation",
     Tracks                    = cms.InputTag("FinalTrackRefitter"),
     trajectoryInput           = cms.string('FinalTrackRefitter'),  # Only needed in DQM mode
     localCoorHistosOn         = cms.bool(False),
-    moduleLevelHistsTransient = config["validation"].get("moduleLevelHistsTransient", cms.bool(False if valiMode == "DQM" else True)), 
+    moduleLevelHistsTransient = config["validation"].get("moduleLevelHistsTransient", cms.bool(False if valiMode == "DQM" else False)), 
     moduleLevelProfiles       = config["validation"].get("moduleLevelProfiles", cms.bool(False if valiMode == "DQM" else True)),
     localCoorProfilesOn       = cms.bool(False),
     stripYResiduals           = cms.bool(config["validation"].get("stripYResiduals", False)),
@@ -171,7 +172,7 @@ process.TrackerOfflineValidation = cms.EDAnalyzer("TrackerOfflineValidation",
 
     # Normalized X residuals normal local coordinates (Pixel)
     TH1NormXResPixelModules = cms.PSet(
-        Nbinx = cms.int32(120), xmin = cms.double(-3.0), xmax = cms.double(3.0)
+        Nbinx = cms.int32(100), xmin = cms.double(-5.0), xmax = cms.double(5.0)
     ),
     # X residuals normal local coordinates (Pixel)
     TH1XResPixelModules = cms.PSet(
@@ -183,7 +184,7 @@ process.TrackerOfflineValidation = cms.EDAnalyzer("TrackerOfflineValidation",
     ),
     # X residuals native coordinates (Pixel)
     TH1XprimeResPixelModules = cms.PSet(
-        Nbinx = cms.int32(500), xmin = cms.double(-0.05), xmax = cms.double(0.05)
+        Nbinx = cms.int32(5000), xmin = cms.double(-0.05), xmax = cms.double(0.05)
     ),
     # Normalized Y residuals native coordinates (Pixel)
     TH1NormYResPixelModules = cms.PSet(
@@ -269,3 +270,6 @@ if valiMode == "DQM":
 
 ##Let all sequences run
 process.p = cms.Path(process.seqTrackselRefit*seqTrackerOfflineValidation)
+
+for i in str(process.p).split("+"):
+    print(getattr(process, i).dumpPython())

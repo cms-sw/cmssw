@@ -58,6 +58,40 @@ validateAlignments.py $CMSSW_BASE/src/Alignment/OfflineValidation/test/test.yaml
 Enviroment is set up. If you want to submit everything, call 'condor_submit_dag /afs/cern.ch/user/d/dbrunner/ToolDev/CMSSW_10_6_0/src/MyTest/DAG/dagFile'
 ```
 
+## HOWTO implement
+
+To implement a new/or porting an existing validation to the new frame work, two things needs to be provided: executables and a python file providing the information for each job.
+
+#### Executables
+
+In the new frame work standalone executables do the job of the validations. They are designed to run indenpendently from the set up of validateAlignments.py, the executables only need a configuration file with information needed for the validation/plotting. One can implement a C++ or a python executable. 
+
+If a C++ executable is implemented, the source file of the executable needs to be placed in the` Alignment/OfflineValidation/bin` directory and the BuildFile.xml in this directory needs to be modified. For the readout of the configuration file, which is in JSON format, the property tree class from the boost library is used. See `bin/DMRmerge.cc as` an example of a proper C++ implementation.
+
+If a python executable is implemented, the source file needs to be placed in the `Alignment/OfflineValidation/scripts` directory. In the first line of the python script a shebang like `#!/usr/bin/env python` must be written and the script itself must be changed to be executable. In the case of python the configuration file can be both in JSON/YAML, because in python both after read in are just python dictionaries. See `Example of Senne when he finished it` as an example of a proper python implementation.
+
+For the special case of a cmsRun job, one needs to provide only the CMS python configuration. Because it is python again, both JSON/YAML for the configuration file are fine to use. Also for this case the execution via cmsRun is independent from the set up provided by validateAligments.py and only need the proper configuration file. See `python/TkAlAllInOneTool/DMR_cfg.py` as an example of a proper implementation.
+
+#### Python file for configuration
+
+For each validation several jobs can be executed, because there are several steps like nTupling, fitting, plotting or there is categorization like alignments, IOVs. The information will be encoded in a global config provided by the aligner, see `Alignment/OfflineValidation/test/test.yaml` as an example. To figure out from the global config which/how many jobs should be prepared, a python file needs to be implemented which reads the global config, extract the relevant information of the global config and yields smaller config designed to be read from the respective executable. As an example see `python/TkAlAllInOneTool/DMR.py`.
+
+There is a logic which needed to be followed. Each job needs to be directionary with a structure like this:
+
+```
+job = {
+       "name": Job name ##Needs to be unique!
+       "dir": workingDirectory  ##Also needs to be unique!
+       "exe": Name of executable/or cmsRun
+       "cms-config": path to CMS config if exe = cmsRun, else leave this out
+       "dependencies": [name of jobs this jobs needs to wait for] ##Empty list [] if no depedencies
+       "config": Slimmed config from global config only with information needed for this job
+}
+```
+
+The python file returns a list of jobs to the `validateAligments.py` which finally creates the directory structure/configuration files/DAG file. To let` validateAligments.py` know one validation implementation exist, import the respective python file and extend the if statements which starts at line 69. This is the only time one needs to touch `validateAligments.py`!
+ 
+
 ## TODO list 
 
  - improve exceptions handling (filesystem + own)
