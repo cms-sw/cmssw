@@ -56,9 +56,9 @@ public:
   using Translation = ROOT::Math::DisplacementVector3D<ROOT::Math::Cartesian3D<double>>;
 
   // Constructor from old DD DDFilteredView
-  DetGeomDesc(const DDFilteredView& fv);
+  DetGeomDesc(const DDFilteredView& fv, const bool is2021);
   // Constructor from DD4Hep DDFilteredView
-  DetGeomDesc(const cms::DDFilteredView& fv, const cms::DDSpecParRegistry& allSpecParSections);
+  DetGeomDesc(const cms::DDFilteredView& fv, const cms::DDSpecParRegistry& allSpecParSections, const bool is2021);
 
   DetGeomDesc(const DetGeomDesc&);
   DetGeomDesc& operator=(const DetGeomDesc&);
@@ -116,8 +116,8 @@ private:
   DiamondDimensions computeDiamondDimensions(const bool isABox,
                                              const bool isDD4hep,
                                              const std::vector<double>& params) const;
-  DetId computeDetID(const std::string& name, const std::vector<int>& copyNos, unsigned int copyNum) const;
-  DetId computeDetIDFromDD4hep(const std::string& name, const std::vector<int>& copyNos, unsigned int copyNum) const;
+  DetId computeDetID(const std::string& name, const std::vector<int>& copyNos, const unsigned int copyNum, const bool is2021) const;
+  DetId computeDetIDFromDD4hep(const std::string& name, const std::vector<int>& copyNos, const unsigned int copyNum, const bool is2021) const;
   std::string computeSensorType(std::string_view name);
   std::string computeSensorType(std::string_view nameFromView,
                                 const std::string& nodePath,

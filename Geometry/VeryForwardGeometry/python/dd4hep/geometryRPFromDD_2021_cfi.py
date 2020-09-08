@@ -10,6 +10,7 @@ DDCompactViewESProducer = cms.ESProducer("DDCompactViewESProducer",
 )
 
 ctppsGeometryESModule = cms.ESProducer("CTPPSGeometryESModule",
+    is2021 = cms.untracked.bool(True),
     fromDD4hep = cms.untracked.bool(True),
     verbosity = cms.untracked.uint32(1),
     compactViewTag = cms.string('XMLIdealGeometryESSource_CTPPS')
