@@ -21,7 +21,7 @@
 //
 // ----------------------------------------------------------------------
 
-#include "FWCore/MessageService/interface/ELdestination.h"
+#include "FWCore/MessageService/src/ELdestination.h"
 
 #include "FWCore/MessageLogger/interface/ELstring.h"
 #include "FWCore/MessageLogger/interface/ELextendedID.h"

@@ -13,7 +13,7 @@
 // system include files
 
 // user include files
-#include "FWCore/MessageLogger/interface/SilentMLscribe.h"
+#include "FWCore/MessageLogger/src/SilentMLscribe.h"
 #include "FWCore/MessageLogger/interface/ErrorObj.h"
 
 namespace edm {

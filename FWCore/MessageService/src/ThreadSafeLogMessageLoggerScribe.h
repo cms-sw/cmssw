@@ -4,8 +4,8 @@
 #include "FWCore/Utilities/interface/value_ptr.h"
 #include "FWCore/Utilities/interface/propagate_const.h"
 
-#include "FWCore/MessageService/interface/ELdestination.h"
-#include "FWCore/MessageService/interface/MessageLoggerDefaults.h"
+#include "FWCore/MessageService/src/ELdestination.h"
+#include "FWCore/MessageService/src/MessageLoggerDefaults.h"
 #include "FWCore/MessageLogger/interface/MessageLoggerQ.h"
 #include "FWCore/MessageLogger/interface/AbstractMLscribe.h"
 

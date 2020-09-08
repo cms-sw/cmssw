@@ -28,7 +28,7 @@
 //
 // ----------------------------------------------------------------------
 
-#include "FWCore/MessageService/interface/ELlimitsTable.h"
+#include "FWCore/MessageService/src/ELlimitsTable.h"
 
 #include "FWCore/MessageLogger/interface/ELstring.h"
 #include "FWCore/MessageLogger/interface/ErrorObj.h"
