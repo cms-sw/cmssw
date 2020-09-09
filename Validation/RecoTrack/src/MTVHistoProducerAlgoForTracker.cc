@@ -2056,7 +2056,8 @@ void MTVHistoProducerAlgoForTracker::fill_generic_recoTrack_histos(const Histogr
     histograms.h_recozpos[count]->Fill(vertz);
     histograms.h_recodr[count]->Fill(dR);
     histograms.h_recodrj[count]->Fill(dRJet);
-    histograms.chi2_vs_drj[count]->Fill(dRJet, chi2);
+    if (dRJet <= 99999)  //dRJet can be set to numeric_limits max^2, this is a protection
+      histograms.chi2_vs_drj[count]->Fill(dRJet, chi2);
     if (fillSeedingLayerSets)
       histograms.h_reco_seedingLayerSet[count]->Fill(seedingLayerSetBin);
     if (pvPosition) {
@@ -2120,8 +2121,10 @@ void MTVHistoProducerAlgoForTracker::fill_generic_recoTrack_histos(const Histogr
       histograms.assoc_chi2prob_vs_eta[count]->Fill(eta, chi2prob);
       histograms.assoc_chi2_vs_pt[count]->Fill(pt, chi2);
       histograms.assoc_chi2prob_vs_pt[count]->Fill(pt, chi2prob);
-      histograms.assoc_chi2_vs_drj[count]->Fill(dRJet, chi2);
-      histograms.assoc_chi2prob_vs_drj[count]->Fill(dRJet, chi2prob);
+      if (dRJet <= 99999) {  //dRJet can be set to numeric_limits max^2, this is a protection
+        histograms.assoc_chi2_vs_drj[count]->Fill(dRJet, chi2);
+        histograms.assoc_chi2prob_vs_drj[count]->Fill(dRJet, chi2prob);
+      }
       histograms.h_assoc2vertpos[count]->Fill(vertxy);
       histograms.h_assoc2zpos[count]->Fill(vertz);
       histograms.h_assoc2dr[count]->Fill(dR);
