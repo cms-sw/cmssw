@@ -244,11 +244,9 @@ def miniAOD_customizeCommon(process):
     #HF jet shower shape
     process.load('RecoJets.JetProducers.hfJetShowerShape_cfi')
     task.add(process.hfJetShowerShape)
-    process.hfJetShowerShape.jets = cms.InputTag("ak4PFJetsCHS")
-    process.hfJetShowerShape.vertices = cms.InputTag("offlinePrimaryVertices")
 
-    process.patJets.userData.userFloats.src += [ 'hfJetShowerShape:sigmaEtaEta', 'hfJetShowerShape:sigmaPhiPhi', ]
-    process.patJets.userData.userInts.src += [ 'hfJetShowerShape:centralEtaStripSize', 'hfJetShowerShape:adjacentEtaStripsSize', ]
+    process.patJets.userData.userFloats.src += [ 'hfJetShowerShape:sigmaEtaEta', 'hfJetShowerShape:sigmaPhiPhi']
+    process.patJets.userData.userInts.src += [ 'hfJetShowerShape:centralEtaStripSize', 'hfJetShowerShape:adjacentEtaStripsSize']
 
     ## DeepCSV meta discriminators (simple arithmethic on output probabilities)
     process.load('RecoBTag.Combined.deepFlavour_cff')
