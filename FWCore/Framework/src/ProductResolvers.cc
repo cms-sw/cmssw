@@ -6,7 +6,7 @@
 #include "UnscheduledConfigurator.h"
 #include "FWCore/Framework/interface/MergeableRunProductMetadata.h"
 #include "FWCore/Framework/interface/Principal.h"
-#include "FWCore/Framework/interface/ProductDeletedException.h"
+#include "FWCore/Framework/src/ProductDeletedException.h"
 #include "FWCore/Framework/interface/SharedResourcesAcquirer.h"
 #include "FWCore/Framework/interface/DelayedReader.h"
 #include "DataFormats/Provenance/interface/ProductProvenanceRetriever.h"
