@@ -1,12 +1,12 @@
-#ifndef SiStripDetId_SiStripSubStructure_h
-#define SiStripDetId_SiStripSubStructure_h
+#ifndef DataFormats_TrackerCommon_SiStripSubStructure_h
+#define DataFormats_TrackerCommon_SiStripSubStructure_h
 // -*- C++ -*-
 //
 // Package:     SiStripDetId
 // Class  :     SiStripSubStructure
 //
 /**\class SiStripSubStructure SiStripSubStructure.h
- DataFormats/SiStripDetId/interface/SiStripSubStructure.h
+ DataFormats/TrackerCommon/interface/SiStripSubStructure.h
 
  Description: <Assign detector Ids to different substructures of the
  SiStripTracker: TOB, TIB, etc>
