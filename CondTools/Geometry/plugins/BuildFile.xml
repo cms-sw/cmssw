@@ -2,9 +2,12 @@
 <use name="CondCore/DBOutputService"/>
 <use name="CondFormats/Common"/>
 <use name="CondFormats/GeometryObjects"/>
+<use name="DetectorDescription/Core"/>
+<use name="DetectorDescription/DDCMS"/>
 <use name="FWCore/Framework"/>
 <use name="FWCore/ParameterSet"/>
 <use name="FWCore/ServiceRegistry"/>
+<use name="FWCore/Utilities"/>
 <use name="Geometry/Records"/>
 <use name="Geometry/TrackerGeometryBuilder"/>
 <use name="Geometry/TrackerNumberingBuilder"/>
@@ -24,8 +27,6 @@
 <use name="Geometry/HGCalGeometry"/>
 <use name="Geometry/VeryForwardGeometryBuilder"/>
 <use name="dd4hep"/>
-<use name="DetectorDescription/Core"/>
-<use name="DetectorDescription/DDCMS"/>
 
 <library name="CondToolsGeometryPlugins" file="*.cc">
   <flags EDM_PLUGIN="1"/>

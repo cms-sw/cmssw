@@ -1,6 +1,16 @@
+<use name="CondFormats/AlignmentRecord"/>
+<use name="CondFormats/PPSObjects"/>
+<use name="DataFormats/CTPPSDetId"/>
+<use name="DetectorDescription/Core"/>
+<use name="DetectorDescription/DDCMS"/>
+<use name="FWCore/Framework"/>
+<use name="FWCore/MessageLogger"/>
+<use name="FWCore/ParameterSet"/>
+<use name="FWCore/Utilities"/>
+<use name="Geometry/Records"/>
+<use name="Geometry/VeryForwardGeometryBuilder"/>
+<use name="dd4hep"/>
 <library name="GeometryVeryForwardGeometryBuilderPlugins" file="*.cc">
-  <use name="Geometry/VeryForwardGeometryBuilder"/>
-  <use name="Geometry/Records"/>
-  <use name="dd4hep"/>
   <flags EDM_PLUGIN="1"/>
 </library>
+
