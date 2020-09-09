@@ -1,6 +1,7 @@
 <use name="DataFormats/HcalDetId"/>
 <use name="DataFormats/ForwardDetId"/>
 <use name="DataFormats/GeometryVector"/>
+<use name="FWCore/ParameterSet"/>
 <use name="Geometry/HcalTowerAlgo"/>
 <use name="Geometry/HGCalGeometry"/>
 <use name="Geometry/Records"/>

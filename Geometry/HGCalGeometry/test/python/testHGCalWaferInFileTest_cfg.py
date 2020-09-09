@@ -7,7 +7,7 @@ process.load("Geometry.HGCalCommonData.hgcalParametersInitialization_cfi")
 process.load("Geometry.HGCalCommonData.hgcalNumberingInitialization_cfi")
 process.load("Geometry.CaloEventSetup.HGCalV9Topology_cfi")
 process.load("Geometry.HGCalGeometry.HGCalGeometryESProducer_cfi")
-process.load("Geometry.HGCalGeometry.hgcalEEWaferInFileCheck_cfi")
+process.load("Geometry.HGCalGeometry.hgcalEEWaferInFileTest_cfi")
 
 process.load('FWCore.MessageService.MessageLogger_cfi')
 if hasattr(process,'MessageLogger'):
@@ -37,9 +37,9 @@ process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(1)
 )
 
-process.hgcalHEWaferInFileCheck = process.hgcalEEWaferInFileCheck.clone(
+process.hgcalHEWaferInFileTest = process.hgcalEEWaferInFileTest.clone(
     NameSense  = "HGCalHESiliconSensitive",
     NameDevice = "HGCal HE Silicon",
 )
 
-process.p1 = cms.Path(process.generator*process.hgcalEEWaferInFileCheck*process.hgcalHEWaferInFileCheck)
+process.p1 = cms.Path(process.generator*process.hgcalEEWaferInFileTest*process.hgcalHEWaferInFileTest)
