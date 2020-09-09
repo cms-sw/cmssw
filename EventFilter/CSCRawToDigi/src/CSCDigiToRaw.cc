@@ -5,13 +5,13 @@
  */
 
 #include "DataFormats/MuonDetId/interface/CSCDetId.h"
-#include "EventFilter/CSCRawToDigi/src/CSCDigiToRaw.h"
+#include "EventFilter/CSCRawToDigi/interface/CSCDigiToRaw.h"
 #include "EventFilter/CSCRawToDigi/interface/CSCDCCEventData.h"
 #include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
 #include "DataFormats/FEDRawData/interface/FEDRawData.h"
 #include "DataFormats/FEDRawData/interface/FEDNumbering.h"
 #include "boost/dynamic_bitset.hpp"
-#include "EventFilter/CSCRawToDigi/src/bitset_append.h"
+#include "EventFilter/CSCRawToDigi/interface/bitset_append.h"
 #include "DataFormats/FEDRawData/interface/FEDHeader.h"
 #include "DataFormats/FEDRawData/interface/FEDTrailer.h"
 #include "FWCore/Utilities/interface/CRC16.h"
