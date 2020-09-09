@@ -70,19 +70,19 @@ process.RECOSIMoutput = cms.OutputModule("PoolOutputModule",
 )
 
 # debug
-process.MessageLogger = cms.Service("MessageLogger",
-                                    destinations = cms.untracked.vstring("debugVH_tilted"),
-                                    debugModules = cms.untracked.vstring("*"),
-                                    categories = cms.untracked.vstring("VectorHitBuilderEDProducer","VectorHitBuilderAlgorithm","VectorHitsBuilderValidation","VectorHitBuilder"),
-                                    debugVH_tilted = cms.untracked.PSet(threshold = cms.untracked.string("DEBUG"),
-                                                                       DEBUG = cms.untracked.PSet(limit = cms.untracked.int32(0)),
-                                                                       default = cms.untracked.PSet(limit = cms.untracked.int32(0)),
-                                                                       VectorHitBuilder = cms.untracked.PSet(limit = cms.untracked.int32(-1)),
-                                                                       VectorHitBuilderEDProducer = cms.untracked.PSet(limit = cms.untracked.int32(-1)),
-                                                                       VectorHitBuilderAlgorithm = cms.untracked.PSet(limit = cms.untracked.int32(-1)),
-                                                                       VectorHitsBuilderValidation = cms.untracked.PSet(limit = cms.untracked.int32(-1))
-                                                                       )
-                                    )
+#process.MessageLogger = cms.Service("MessageLogger",
+#                                    destinations = cms.untracked.vstring("debugVH_tilted"),
+#                                    debugModules = cms.untracked.vstring("*"),
+#                                    categories = cms.untracked.vstring("VectorHitBuilderEDProducer","VectorHitBuilderAlgorithm","VectorHitsBuilderValidation","VectorHitBuilder"),
+#                                    debugVH_tilted = cms.untracked.PSet(threshold = cms.untracked.string("DEBUG"),
+#                                                                       DEBUG = cms.untracked.PSet(limit = cms.untracked.int32(0)),
+#                                                                       default = cms.untracked.PSet(limit = cms.untracked.int32(0)),
+#                                                                       VectorHitBuilder = cms.untracked.PSet(limit = cms.untracked.int32(-1)),
+#                                                                       VectorHitBuilderEDProducer = cms.untracked.PSet(limit = cms.untracked.int32(-1)),
+#                                                                       VectorHitBuilderAlgorithm = cms.untracked.PSet(limit = cms.untracked.int32(-1)),
+#                                                                       VectorHitsBuilderValidation = cms.untracked.PSet(limit = cms.untracked.int32(-1))
+#                                                                       )
+#                                    )
 
 # Analyzer
 process.analysis = cms.EDAnalyzer('VectorHitsBuilderValidation',

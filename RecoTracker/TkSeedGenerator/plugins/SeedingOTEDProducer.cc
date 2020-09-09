@@ -9,6 +9,7 @@
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
 #include "RecoTracker/MeasurementDet/interface/MeasurementTracker.h"
 #include "TrackingTools/MeasurementDet/interface/LayerMeasurements.h"
+#include "MagneticField/Engine/interface/MagneticField.h"
 
 #include "RecoTracker/Record/interface/CkfComponentsRecord.h"
 #include "RecoTracker/MeasurementDet/interface/MeasurementTracker.h"
@@ -41,7 +42,7 @@ public:
 
   static void fillDescriptions(edm::ConfigurationDescriptions&);
 
-  std::unique_ptr<TrajectorySeedCollection> run(edm::Handle<VectorHitCollectionNew>);
+  TrajectorySeedCollection run(edm::Handle<VectorHitCollectionNew>);
   unsigned int checkLayer(unsigned int iidd);
   std::vector<VectorHit> collectVHsOnLayer(const edmNew::DetSetVector<VectorHit>&, unsigned int);
   void printVHsOnLayer(const edmNew::DetSetVector<VectorHit>&, unsigned int);
@@ -118,7 +119,6 @@ void SeedingOTEDProducer::fillDescriptions(edm::ConfigurationDescriptions& descr
 }
 
 void SeedingOTEDProducer::produce(edm::Event& event, const edm::EventSetup& es) {
-  //auto seedsWithVHs = std::make_unique<TrajectorySeedCollection>();
 
   tkTopo_ = &es.getData(topoToken_);
 
@@ -156,16 +156,15 @@ void SeedingOTEDProducer::produce(edm::Event& event, const edm::EventSetup& es) 
   seedsWithVHs->shrink_to_fit();
   event.put(std::move(seedsWithVHs));*/
   //auto seedsWithVHs = std::make_unique<>
-  event.put(putToken_, run(vhs));
+  event.emplace(putToken_, run(vhs));
 }
 
-std::unique_ptr<TrajectorySeedCollection> SeedingOTEDProducer::run(edm::Handle<VectorHitCollectionNew> VHs) {
-  //TrajectorySeedCollection result;
-  auto result = std::make_unique<TrajectorySeedCollection>();
+TrajectorySeedCollection SeedingOTEDProducer::run(edm::Handle<VectorHitCollectionNew> VHs) {
+  TrajectorySeedCollection result;
   //check if all the first three layers have VHs
-  std::vector<VectorHit> vhSeedsL1 = collectVHsOnLayer(*(VHs.product()), 1);
-  std::vector<VectorHit> vhSeedsL2 = collectVHsOnLayer(*(VHs.product()), 2);
-  std::vector<VectorHit> vhSeedsL3 = collectVHsOnLayer(*(VHs.product()), 3);
+  std::vector<VectorHit> vhSeedsL1 = collectVHsOnLayer(*VHs.product(), 1);
+  std::vector<VectorHit> vhSeedsL2 = collectVHsOnLayer(*VHs.product(), 2);
+  std::vector<VectorHit> vhSeedsL3 = collectVHsOnLayer(*VHs.product(), 3);
   if (vhSeedsL1.empty() || vhSeedsL2.empty() || vhSeedsL3.empty()) {
     return result;
   }
@@ -255,13 +254,13 @@ std::unique_ptr<TrajectorySeedCollection> SeedingOTEDProducer::run(edm::Handle<V
               continue;
             TrajectorySeed ts =
                 createSeed(updatedTSOSL3_final.second, container, hitL3.geographicalId(), *buildingPropagator);
-            result->push_back(ts);
+            result.push_back(ts);
           }
         }
       }
     }
   }
-  result->shrink_to_fit();
+  result.shrink_to_fit();
   return result;
 }
 
@@ -274,7 +273,7 @@ unsigned int SeedingOTEDProducer::checkLayer(unsigned int iidd) {
   return 0;
 }
 
-std::vector<VectorHit> SeedingOTEDProducer::collectVHsOnLayer(const edmNew::DetSetVector<VectorHit>& input,
+std::vector<VectorHit> SeedingOTEDProducer::collectVHsOnLayer(const edmNew::DetSetVector<VectorHit> &input,
                                                               unsigned int layerNumber) {
   std::vector<VectorHit> VHsOnLayer;
   if (!input.empty()) {
@@ -310,7 +309,6 @@ const TrajectoryStateOnSurface SeedingOTEDProducer::buildInitialTSOS(const Vecto
   // gv transform to local (lv)
   const Local3DVector lv(vHit.det()->surface().toLocal(gv));
 
-
   //FIXME::charge is fine 1 every two times!!
   GlobalPoint center(0.0, 0.0, 0.0);
   int charge = 1;
@@ -327,8 +325,9 @@ const TrajectoryStateOnSurface SeedingOTEDProducer::buildInitialTSOS(const Vecto
   LocalTrajectoryParameters ltpar2(charge / p, dx, dy, x, y, signPz);
   AlgebraicSymMatrix mat = assign44To55(vHit.parametersError());
   // set the error on 1/p
-  mat[0][0] =
-      pow(computeInverseMomentumError(vHit, theta, beamSpot_->sigmaZ(), vHit.transverseMomentum(magField_->inTesla(center).z())), 2);
+  mat[0][0] = pow(computeInverseMomentumError(
+                      vHit, theta, beamSpot_->sigmaZ(), vHit.transverseMomentum(magField_->inTesla(center).z())),
+                  2);
 
   //building tsos
   LocalTrajectoryError lterr(asSMatrix<5>(mat));

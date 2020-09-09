@@ -44,7 +44,13 @@ VectorHit::VectorHit(const GeomDet& idet,
                      const float curvature,
                      const float curvatureError,
                      const float phi)
-    : BaseTrackerRecHit(idet, trackerHitRTTI::vector), theDimension(4), theLowerCluster(lower), theUpperCluster(upper), theCurvature(curvature), theCurvatureError(curvatureError), thePhi(phi) {
+    : BaseTrackerRecHit(idet, trackerHitRTTI::vector),
+      theDimension(4),
+      theLowerCluster(lower),
+      theUpperCluster(upper),
+      theCurvature(curvature),
+      theCurvatureError(curvatureError),
+      thePhi(phi) {
   thePosition = LocalPoint(vh2Dzx.localPosition()->x(), vh2Dzy.localPosition()->x(), 0.);
 
   theDirection = LocalVector(vh2Dzx.localDirection()->x(), vh2Dzy.localDirection()->x(), 1.);
@@ -183,8 +189,10 @@ Global3DVector VectorHit::globalDirection() const { return (det()->surface().toG
 
 float VectorHit::theta() const { return globalDirection().theta(); }
 
-float VectorHit::transverseMomentum(float magField) const { return magField * 2.99792458e-3F / theCurvature;} // pT [GeV] ~ 0.3 * B[T] * R [m], curvature is in cms, thus using 2.99792458e-3F (precise value from speed of light)
-float VectorHit::momentum(float magField) const { return transverseMomentum(magField) / (1. * sin(theta()));}
+float VectorHit::transverseMomentum(float magField) const {
+  return magField * 2.99792458e-3F / theCurvature;
+}  // pT [GeV] ~ 0.3 * B[T] * R [m], curvature is in cms, thus using 2.99792458e-3F (precise value from speed of light)
+float VectorHit::momentum(float magField) const { return transverseMomentum(magField) / (1. * sin(theta())); }
 
 AlgebraicMatrix VectorHit::projectionMatrix() const {
   // obsolete (for what tracker is concerned...) interface
