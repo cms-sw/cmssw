@@ -658,19 +658,19 @@ LocalError PixelCPEClusterRepair::localError(DetParam const& theDetParam, Cluste
         yerr = 39.0f * micronsToCm;
       }
     }
-    // Use special edge hit errors for edge hits that we did not run the 2D reco on
+    // Use special edge hit errors (derived from observed RMS's) for edge hits that we did not run the 2D reco on
     //
     else if (!theClusterParamBase.filled_from_2d && (theClusterParam.edgeTypeX_ || theClusterParam.edgeTypeY_)) {
       // for edge pixels assign errors according to observed residual RMS
       if (theClusterParam.edgeTypeX_ && !theClusterParam.edgeTypeY_) {
-        xerr = 23.0f * micronsToCm;
-        yerr = 39.0f * micronsToCm;
+        xerr = xEdgeXError_ * micronsToCm;
+        yerr = xEdgeYError_ * micronsToCm;
       } else if (!theClusterParam.edgeTypeX_ && theClusterParam.edgeTypeY_) {
-        xerr = 24.0f * micronsToCm;
-        yerr = 96.0f * micronsToCm;
+        xerr = yEdgeXError_ * micronsToCm;
+        yerr = yEdgeYError_ * micronsToCm;
       } else if (theClusterParam.edgeTypeX_ && theClusterParam.edgeTypeY_) {
-        xerr = 31.0f * micronsToCm;
-        yerr = 90.0f * micronsToCm;
+        xerr = bothEdgeXError_ * micronsToCm;
+        yerr = bothEdgeYError_ * micronsToCm;
       }
     } else {
       xerr = theClusterParam.templSigmaX_ * micronsToCm;
