@@ -103,8 +103,9 @@ std::string PrintoutHelper::regressionTest(const TrackerGeometry& tracker, std::
   }
   buffer << "=================================================";
   buffer << "=========== Traj in details =====================\n";
-  for (std::vector<Trajectory>::const_iterator it = unsmoothedResult.begin(); it != unsmoothedResult.end(); it++) {
-    for (const auto& hit : it->measurements()) {
+  //for (std::vector<Trajectory>::const_iterator it = unsmoothedResult.begin(); it != unsmoothedResult.end(); it++) {
+  for (const auto& it : unsmoothedResult) {
+    for (const auto& hit : it.measurements()) {
       buffer << "measurement : " << hit.recHit()->geographicalId().rawId() << std::endl;
     }
     buffer << "================\n";

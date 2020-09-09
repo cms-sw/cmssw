@@ -3,7 +3,7 @@
 #include <algorithm>
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -67,7 +67,7 @@ struct ClusterHistos {
   TH1F* otherSimHits;
 };
 
-class Phase2TrackerClusterizerValidationTGraph : public edm::EDAnalyzer {
+class Phase2TrackerClusterizerValidationTGraph : public edm::one::EDAnalyzer<edm::one::SharedResources> {
 public:
   typedef std::map<unsigned int, std::vector<PSimHit> > SimHitsMap;
   typedef std::map<unsigned int, SimTrack> SimTracksMap;
@@ -89,10 +89,10 @@ private:
   edm::EDGetTokenT<edm::PSimHitContainer> simHitsToken_;
   edm::EDGetTokenT<edm::SimTrackContainer> simTracksToken_;
   edm::EDGetTokenT<edm::SimVertexContainer> simVerticesToken_;
-  const TrackerGeometry* tkGeom;
-  const TrackerTopology* tkTopo;
+  const TrackerGeometry* tkGeom_;
+  const TrackerTopology* tkTopo_;
 
-  TTree* tree;
+  TTree* tree_;
   TGraph* trackerLayout_[3];
   TGraph* trackerLayoutXY_[3];
   TGraph* trackerLayoutXYBar_;
@@ -117,26 +117,26 @@ void Phase2TrackerClusterizerValidationTGraph::beginJob() {
   fs->file().cd("/");
   TFileDirectory td = fs->mkdir("Common");
   //Create common ntuple
-  tree = td.make<TTree>("Phase2TrackerClusters", "Phase2TrackerClusters");
+  tree_ = td.make<TTree>("Phase2TrackerClusters", "Phase2TrackerClusters");
   // Create common histograms
-  trackerLayout_[0] = td.make<TGraph>();  //"RVsZ_Mixed", "R vs. z position", 6000, -300.0, 300.0, 1200, 0.0, 120.0);
+  trackerLayout_[0] = td.make<TGraph>();
   trackerLayout_[0]->SetName("RVsZ_Mixed");
-  trackerLayout_[1] = td.make<TGraph>();  //"RVsZ_Pixel", "R vs. z position", 6000, -300.0, 300.0, 1200, 0.0, 120.0);
+  trackerLayout_[1] = td.make<TGraph>();
   trackerLayout_[1]->SetName("RVsZ_Pixel");
-  trackerLayout_[2] = td.make<TGraph>();  //"RVsZ_Strip", "R vs. z position", 6000, -300.0, 300.0, 1200, 0.0, 120.0);
+  trackerLayout_[2] = td.make<TGraph>();
   trackerLayout_[2]->SetName("RVsZ_Strip");
   trackerLayoutXY_[0] =
-      td.make<TGraph>();  //"XVsY_Mixed", "x vs. y position", 2400, -120.0, 120.0, 2400, -120.0, 120.0);
+      td.make<TGraph>();
   trackerLayoutXY_[0]->SetName("YVsX_Mixed");
   trackerLayoutXY_[1] =
-      td.make<TGraph>();  //"XVsY_Pixel", "x vs. y position", 2400, -120.0, 120.0, 2400, -120.0, 120.0);
+      td.make<TGraph>();
   trackerLayoutXY_[1]->SetName("YVsX_Pixel");
   trackerLayoutXY_[2] =
-      td.make<TGraph>();  //"XVsY_Strip", "x vs. y position", 2400, -120.0, 120.0, 2400, -120.0, 120.0);
+      td.make<TGraph>();
   trackerLayoutXY_[2]->SetName("YVsX_Strip");
-  trackerLayoutXYBar_ = td.make<TGraph>();  //"XVsYBar", "x vs. y position", 2400, -120.0, 120.0, 2400, -120.0, 120.0);
+  trackerLayoutXYBar_ = td.make<TGraph>();
   trackerLayoutXYBar_->SetName("YVsXBar");
-  trackerLayoutXYEC_ = td.make<TGraph>();  //"XVsYEC", "x vs. y position", 2400, -120.0, 120.0, 2400, -120.0, 120.0);
+  trackerLayoutXYEC_ = td.make<TGraph>();
   trackerLayoutXYEC_->SetName("YVsXEC");
 }
 
@@ -156,8 +156,6 @@ void Phase2TrackerClusterizerValidationTGraph::analyze(const edm::Event& event, 
   // Get the SimHits
   edm::Handle<edm::PSimHitContainer> simHitsRaw;
   event.getByToken(simHitsToken_, simHitsRaw);
-  //  edm::Handle< edm::PSimHitContainer > simHitsRawEndcap;
-  //  event.getByLabel("g4SimHits", "TrackerHitsPixelEndcapLowTof", simHitsRawEndcap);
 
   // Get the SimTracks
   edm::Handle<edm::SimTrackContainer> simTracksRaw;
@@ -170,77 +168,73 @@ void Phase2TrackerClusterizerValidationTGraph::analyze(const edm::Event& event, 
   // Get the geometry
   edm::ESHandle<TrackerGeometry> geomHandle;
   eventSetup.get<TrackerDigiGeometryRecord>().get(geomHandle);
-  tkGeom = &(*geomHandle);
+  tkGeom_ = &(*geomHandle);
   edm::ESHandle<TrackerTopology> tTopoHandle;
   eventSetup.get<TrackerTopologyRcd>().get(tTopoHandle);
-  tkTopo = tTopoHandle.product();
+  tkTopo_ = tTopoHandle.product();
 
   //set up for tree
   int layer_number;
-  //int track_id;
   int module_id;
   int module_number;
   int module_type;  //1: pixel, 2: strip
   float x_global, y_global, z_global;
   float x_local, y_local, z_local;
 
-  tree->Branch("layer_number", &layer_number, "layer_number/I");
-  //tree -> Branch("track_id",&track_id,"track_id/I");
-  tree->Branch("module_id", &module_id, "module_id/I");
-  tree->Branch("module_type", &module_type, "module_type/I");
-  tree->Branch("module_number", &module_number, "module_number/I");
-  tree->Branch("x_global", &x_global, "x_global/F");
-  tree->Branch("y_global", &y_global, "y_global/F");
-  tree->Branch("z_global", &z_global, "z_global/F");
-  tree->Branch("x_local", &x_local, "x_local/F");
-  tree->Branch("y_local", &y_local, "y_local/F");
-  tree->Branch("z_local", &z_local, "z_local/F");
+  tree_->Branch("layer_number", &layer_number, "layer_number/I");
+  tree_->Branch("module_id", &module_id, "module_id/I");
+  tree_->Branch("module_type", &module_type, "module_type/I");
+  tree_->Branch("module_number", &module_number, "module_number/I");
+  tree_->Branch("x_global", &x_global, "x_global/F");
+  tree_->Branch("y_global", &y_global, "y_global/F");
+  tree_->Branch("z_global", &z_global, "z_global/F");
+  tree_->Branch("x_local", &x_local, "x_local/F");
+  tree_->Branch("y_local", &y_local, "y_local/F");
+  tree_->Branch("z_local", &z_local, "z_local/F");
 
   // Rearrange the simTracks for ease of use <simTrackID, simTrack>
   SimTracksMap simTracks;
-  for (edm::SimTrackContainer::const_iterator simTrackIt(simTracksRaw->begin()); simTrackIt != simTracksRaw->end();
-       ++simTrackIt)
-    simTracks.insert(std::pair<unsigned int, SimTrack>(simTrackIt->trackId(), *simTrackIt));
+  for (const auto& simTrackIt : *simTracksRaw)
+    simTracks.emplace(std::pair<unsigned int, SimTrack>(simTrackIt.trackId(), simTrackIt));
 
   // Rearrange the simHits by detUnit
 
   // Rearrange the simHits for ease of use
   SimHitsMap simHitsDetUnit;
   SimHitsMap simHitsTrackId;
-  for (edm::PSimHitContainer::const_iterator simHitIt(simHitsRaw->begin()); simHitIt != simHitsRaw->end(); ++simHitIt) {
-    SimHitsMap::iterator simHitsDetUnitIt(simHitsDetUnit.find(simHitIt->detUnitId()));
+  for (const auto& simHitIt: *simHitsRaw) {
+    SimHitsMap::iterator simHitsDetUnitIt(simHitsDetUnit.find(simHitIt.detUnitId()));
     if (simHitsDetUnitIt == simHitsDetUnit.end()) {
       std::pair<SimHitsMap::iterator, bool> newIt(simHitsDetUnit.insert(
-          std::pair<unsigned int, std::vector<PSimHit> >(simHitIt->detUnitId(), std::vector<PSimHit>())));
+          std::pair<unsigned int, std::vector<PSimHit> >(simHitIt.detUnitId(), std::vector<PSimHit>())));
       simHitsDetUnitIt = newIt.first;
     }
-    simHitsDetUnitIt->second.push_back(*simHitIt);
-    SimHitsMap::iterator simHitsTrackIdIt(simHitsTrackId.find(simHitIt->trackId()));
+    simHitsDetUnitIt->second.push_back(simHitIt);
+    SimHitsMap::iterator simHitsTrackIdIt(simHitsTrackId.find(simHitIt.trackId()));
     if (simHitsTrackIdIt == simHitsTrackId.end()) {
       std::pair<SimHitsMap::iterator, bool> newIt(simHitsTrackId.insert(
-          std::pair<unsigned int, std::vector<PSimHit> >(simHitIt->trackId(), std::vector<PSimHit>())));
+          std::pair<unsigned int, std::vector<PSimHit> >(simHitIt.trackId(), std::vector<PSimHit>())));
       simHitsTrackIdIt = newIt.first;
     }
-    simHitsTrackIdIt->second.push_back(*simHitIt);
+    simHitsTrackIdIt->second.push_back(simHitIt);
   }
 
   // ValidationTGraph
   unsigned int nClustersTot(0), nClustersPixelTot(0), nClustersStripTot(0);
 
   // Loop over modules
-  for (Phase2TrackerCluster1DCollectionNew::const_iterator DSViter = clusters->begin(); DSViter != clusters->end();
-       ++DSViter) {
+  for (const auto& DSViter : *clusters) {
     // Get the detector unit's id
-    unsigned int rawid(DSViter->detId());
+    unsigned int rawid(DSViter.detId());
     module_id = rawid;
     DetId detId(rawid);
 
-    layer_number = getLayerNumber(detId, tkTopo);
-    module_number = getModuleNumber(detId, tkTopo);
-    unsigned int layer(getLayerNumber(detId, tkTopo));
+    layer_number = getLayerNumber(detId, tkTopo_);
+    module_number = getModuleNumber(detId, tkTopo_);
+    unsigned int layer(getLayerNumber(detId, tkTopo_));
 
     // Get the geometry of the tracker
-    const GeomDetUnit* geomDetUnit(tkGeom->idToDetUnit(detId));
+    const GeomDetUnit* geomDetUnit(tkGeom_->idToDetUnit(detId));
     const PixelGeomDetUnit* theGeomDet = dynamic_cast<const PixelGeomDetUnit*>(geomDetUnit);
     const PixelTopology& topol = theGeomDet->specificTopology();
 
@@ -256,10 +250,9 @@ void Phase2TrackerClusterizerValidationTGraph::analyze(const edm::Event& event, 
     unsigned int nClustersPixel(0), nClustersStrip(0);
 
     // Loop over the clusters in the detector unit
-    for (edmNew::DetSet<Phase2TrackerCluster1D>::const_iterator clustIt = DSViter->begin(); clustIt != DSViter->end();
-         ++clustIt) {
+    for (const auto& clustIt : DSViter) {
       // Cluster related variables
-      MeasurementPoint mpClu(clustIt->center(), clustIt->column() + 0.5);
+      MeasurementPoint mpClu(clustIt.center(), clustIt.column() + 0.5);
       Local3DPoint localPosClu = geomDetUnit->topology().localPosition(mpClu);
       x_local = localPosClu.x();
       y_local = localPosClu.y();
@@ -290,7 +283,7 @@ void Phase2TrackerClusterizerValidationTGraph::analyze(const edm::Event& event, 
 
         histogramLayer->second.localPosXY[1]->SetPoint(nClustersPixelTot, localPosClu.x(), localPosClu.y());
         histogramLayer->second.globalPosXY[1]->SetPoint(nClustersPixelTot, globalPosClu.x(), globalPosClu.y());
-        histogramLayer->second.clusterSizePixel->Fill(clustIt->size());
+        histogramLayer->second.clusterSizePixel->Fill(clustIt.size());
         ++nClustersPixel;
         ++nClustersPixelTot;
       }
@@ -302,7 +295,7 @@ void Phase2TrackerClusterizerValidationTGraph::analyze(const edm::Event& event, 
 
         histogramLayer->second.localPosXY[2]->SetPoint(nClustersStripTot, localPosClu.x(), localPosClu.y());
         histogramLayer->second.globalPosXY[2]->SetPoint(nClustersStripTot, globalPosClu.x(), globalPosClu.y());
-        histogramLayer->second.clusterSizeStrip->Fill(clustIt->size());
+        histogramLayer->second.clusterSizeStrip->Fill(clustIt.size());
         ++nClustersStrip;
         ++nClustersStripTot;
       }
@@ -312,81 +305,22 @@ void Phase2TrackerClusterizerValidationTGraph::analyze(const edm::Event& event, 
       std::vector<unsigned int> clusterSimTrackIds;
 
       // Get all the simTracks that form the cluster
-      for (unsigned int i(0); i < clustIt->size(); ++i) {
+      for (unsigned int i(0); i < clustIt.size(); ++i) {
         unsigned int channel(PixelDigi::pixelToChannel(
-            clustIt->firstRow() + i,
-            clustIt
-                ->column()));  // Here we have to use the old pixelToChannel function (not Phase2TrackerDigi but PixelDigi), change this when using new Digis
+            clustIt.firstRow() + i,
+            clustIt.column()));  // Here we have to use the old pixelToChannel function (not Phase2TrackerDigi but PixelDigi), change this when using new Digis
         unsigned int simTrackId(getSimTrackId(siphase2SimLinks, detId, channel));
         clusterSimTrackIds.push_back(simTrackId);
       }
 
-      /*
-             // SimHits related variables
-
-
-
-            unsigned int primarySimHits(0);
-            unsigned int otherSimHits(0);
-
-            for (edm::PSimHitContainer::const_iterator hitIt(simHitsRaw->begin()); hitIt != simHitsRaw->end(); ++hitIt) {
-                if (rawid == hitIt->detUnitId() and std::find(clusterSimTrackIds.begin(), clusterSimTrackIds.end(), hitIt->trackId()) != clusterSimTrackIds.end()) {
-                    Local3DPoint localPosHit(hitIt->localPosition());
-
-                    histogramLayer->second.deltaXClusterSimHits[0]->Fill(localPosClu.x() - localPosHit.x());
-                    histogramLayer->second.deltaYClusterSimHits[0]->Fill(localPosClu.y() - localPosHit.y());
-
-                    // Pixel module
-                    if (topol.ncolumns() == 32) {
-                        histogramLayer->second.deltaXClusterSimHits[1]->Fill(localPosClu.x() - localPosHit.x());
-                        histogramLayer->second.deltaYClusterSimHits[1]->Fill(localPosClu.y() - localPosHit.y());
-                    }
-                    // Strip module
-                    else if (topol.ncolumns() == 2) {
-                        histogramLayer->second.deltaXClusterSimHits[2]->Fill(localPosClu.x() - localPosHit.x());
-                        histogramLayer->second.deltaYClusterSimHits[2]->Fill(localPosClu.y() - localPosHit.y());
-                    }
-
-                    ++otherSimHits;
-
-                    std::map< unsigned int, SimTrack >::const_iterator simTrackIt(simTracks.find(hitIt->trackId()));
-                    if (simTrackIt == simTracks.end()) continue;
-
-                    // Primary particles only
-                    unsigned int processType(hitIt->processType());
-                    if (simTrackIt->second.vertIndex() == 0 and (processType == 2 || processType == 7 || processType == 9 || processType == 11 || processType == 13 || processType == 15)) {
-                        histogramLayer->second.deltaXClusterSimHits_P[0]->Fill(localPosClu.x() - localPosHit.x());
-                        histogramLayer->second.deltaYClusterSimHits_P[0]->Fill(localPosClu.y() - localPosHit.y());
-
-                        // Pixel module
-                        if (topol.ncolumns() == 32) {
-                            histogramLayer->second.deltaXClusterSimHits_P[1]->Fill(localPosClu.x() - localPosHit.x());
-                            histogramLayer->second.deltaYClusterSimHits_P[1]->Fill(localPosClu.y() - localPosHit.y());
-                        }
-                        // Strip module
-                        else if (topol.ncolumns() == 2) {
-                            histogramLayer->second.deltaXClusterSimHits_P[2]->Fill(localPosClu.x() - localPosHit.x());
-                            histogramLayer->second.deltaYClusterSimHits_P[2]->Fill(localPosClu.y() - localPosHit.y());
-                        }
-
-                        ++primarySimHits;
-                    }
-                }
-            }
-
-            otherSimHits -= primarySimHits;
-
-            histogramLayer->second.primarySimHits->Fill(primarySimHits);
-            histogramLayer->second.otherSimHits->Fill(otherSimHits);
-*/
-    }
+     }
 
     if (nClustersPixel)
       histogramLayer->second.numberClusterPixel->Fill(nClustersPixel);
     if (nClustersStrip)
       histogramLayer->second.numberClusterStrip->Fill(nClustersStrip);
     nClustersTot++;
-    tree->Fill();
+    tree_->Fill();
   }
 }
 
@@ -467,37 +401,37 @@ std::map<unsigned int, ClusterHistos>::iterator Phase2TrackerClusterizerValidati
   histoName.str("");
   histoName << "Local_Position_XY_Mixed" << tag.c_str() << id;
   local_histos.localPosXY[0] =
-      td.make<TGraph>();  //histoName.str().c_str(), histoName.str().c_str(), 2000, 0., 0., 2000, 0., 0.);
+      td.make<TGraph>();
   local_histos.localPosXY[0]->SetName(histoName.str().c_str());
 
   histoName.str("");
   histoName << "Local_Position_XY_Pixel" << tag.c_str() << id;
   local_histos.localPosXY[1] =
-      td.make<TGraph>();  //histoName.str().c_str(), histoName.str().c_str(), 2000, 0., 0., 2000, 0., 0.);
+      td.make<TGraph>();
   local_histos.localPosXY[1]->SetName(histoName.str().c_str());
 
   histoName.str("");
   histoName << "Local_Position_XY_Strip" << tag.c_str() << id;
   local_histos.localPosXY[2] =
-      td.make<TGraph>();  //histoName.str().c_str(), histoName.str().c_str(), 2000, 0., 0., 2000, 0., 0.);
+      td.make<TGraph>();
   local_histos.localPosXY[2]->SetName(histoName.str().c_str());
 
   histoName.str("");
   histoName << "Global_Position_XY_Mixed" << tag.c_str() << id;
   local_histos.globalPosXY[0] =
-      td.make<TGraph>();  //histoName.str().c_str(), histoName.str().c_str(), 2400, -120.0, 120.0, 2400, -120.0, 120.0);
+      td.make<TGraph>();
   local_histos.globalPosXY[0]->SetName(histoName.str().c_str());
 
   histoName.str("");
   histoName << "Global_Position_XY_Pixel" << tag.c_str() << id;
   local_histos.globalPosXY[1] =
-      td.make<TGraph>();  //histoName.str().c_str(), histoName.str().c_str(), 2400, -120.0, 120.0, 2400, -120.0, 120.0);
+      td.make<TGraph>();
   local_histos.globalPosXY[1]->SetName(histoName.str().c_str());
 
   histoName.str("");
   histoName << "Global_Position_XY_Strip" << tag.c_str() << id;
   local_histos.globalPosXY[2] =
-      td.make<TGraph>();  //histoName.str().c_str(), histoName.str().c_str(), 2400, -120.0, 120.0, 2400, -120.0, 120.0);
+      td.make<TGraph>();
   local_histos.globalPosXY[2]->SetName(histoName.str().c_str());
 
   /*
@@ -585,8 +519,6 @@ unsigned int Phase2TrackerClusterizerValidationTGraph::getLayerNumber(const DetI
       return (topo->pxbLayer(detid));
     else if (detid.subdetId() == PixelSubdetector::PixelEndcap)
       return (100 * topo->pxfSide(detid) + topo->pxfDisk(detid));
-    else
-      return 999;
   }
   return 999;
 }
@@ -611,9 +543,9 @@ unsigned int Phase2TrackerClusterizerValidationTGraph::getSimTrackId(
   edm::DetSetVector<PixelDigiSimLink>::const_iterator DSViter(siphase2SimLinks->find(detId));
   if (DSViter == siphase2SimLinks->end())
     return 0;
-  for (edm::DetSet<PixelDigiSimLink>::const_iterator it = DSViter->data.begin(); it != DSViter->data.end(); ++it) {
-    if (channel == it->channel())
-      return it->SimTrackId();
+  for (const auto& it : DSViter->data) {
+    if (channel == it.channel())
+      return it.SimTrackId();
   }
   return 0;
 }
