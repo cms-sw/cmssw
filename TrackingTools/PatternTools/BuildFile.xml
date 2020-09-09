@@ -16,7 +16,6 @@
 <use name="DataFormats/TrajectorySeed"/>
 <use name="DataFormats/Math"/>
 <use name="DataFormats/CLHEP"/>
-<use name="DataFormats/TrackCandidate"/>
 <use name="DataFormats/SiPixelDetId"/>
 <use name="TrackingTools/TransientTrackingRecHit"/>
 <use name="FWCore/Framework"/>
