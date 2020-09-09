@@ -151,23 +151,6 @@ private:
     }
   };
   
-  struct SortBySector {
-    bool operator()( const Seed * a, const Seed * b )
-    {
-      return ((*a).m_sectorId < (*b).m_sectorId );
-    }
-  };
-  
-  struct SortByLayer {
-    bool operator()( const Seed * a, const Seed * b )
-    {
-      return ((*a).m_stationId < (*b).m_stationId );
-      
-    }
-  };
-
-
-
   inline void print( const std::vector<Seed*> & seeds ) 
   {
     std::vector<Seed*>::const_iterator itr;

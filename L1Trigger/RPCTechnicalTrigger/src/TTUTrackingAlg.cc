@@ -256,8 +256,12 @@ void TTUTrackingAlg::ghostBuster( Track * currentTrk )
   
   std::vector<Seed*>::iterator seedItr;
   
-  std::sort( currentTrk->m_seeds.begin(), currentTrk->m_seeds.end(), SortBySector() );
-  std::sort( currentTrk->m_seeds.begin(), currentTrk->m_seeds.end(), SortByLayer() );
+  std::sort( currentTrk->m_seeds.begin(), currentTrk->m_seeds.end(), [](const Seed* a, const Seed* b) {
+      if (a->m_sectorId == b->m_sectorId) {
+        return a->m_stationId < b->m_stationId;
+      }
+      return a->m_sectorId < b->m_sectorId;
+    });
   
   seedItr = std::unique (currentTrk->m_seeds.begin(), currentTrk->m_seeds.end(), CompareSeeds() );
   
