@@ -36,7 +36,7 @@ DetGeomDesc::DetGeomDesc(const DDFilteredView& fv)
       m_params(fv.parameters()),  // default unit from old DD (mm)
       m_isABox(fv.shape() == DDSolidShape::ddbox),
       m_diamondBoxParams(computeDiamondDimensions(m_isABox, m_isDD4hep, m_params)),  // mm (legacy)
-      m_sensorType(computeSensorType(fv.name())),
+      m_sensorType(computeSensorType(fv.logicalPart().name().fullname())),
       m_geographicalID(computeDetID(m_name, fv.copyNumbers(), fv.copyno())),
       m_z(fv.translation().z())  // mm (legacy)
 {}
