@@ -51,7 +51,7 @@ DetGeomDesc::DetGeomDesc(const cms::DDFilteredView& fv, const cms::DDSpecParRegi
       m_trans(geant_units::operators::convertCmToMm(fv.translation())),  // converted from cm (DD4hep) to mm
       m_rot(fv.rotation()),
       m_params(computeParameters(fv)),  // default unit from DD4hep (cm)
-      m_isABox(fv.isABox()),
+      m_isABox(dd4hep::isA<dd4hep::Box>(fv.solid())),
       m_diamondBoxParams(computeDiamondDimensions(m_isABox, m_isDD4hep, m_params)),  // converted from cm (DD4hep) to mm
       m_sensorType(computeSensorType(fv.name(), fv.path(), allSpecParSections)),
       m_geographicalID(computeDetIDFromDD4hep(m_name, fv.copyNos(), fv.copyNum())),
