@@ -141,8 +141,9 @@ std::unique_ptr<DetGeomDesc> CTPPSGeometryESModule::applyAlignments(const DetGeo
 
     // Is it sensor? If yes, apply full sensor alignments
     if (name == DDD_TOTEM_RP_SENSOR_NAME || name == DDD_CTPPS_DIAMONDS_SEGMENT_NAME ||
-        name == DDD_CTPPS_UFSD_SEGMENT_NAME || name == DDD_CTPPS_PIXELS_SENSOR_NAME ||
-        std::regex_match(name, std::regex(DDD_TOTEM_TIMING_SENSOR_TMPL))) {
+        name == DDD_CTPPS_UFSD_SEGMENT_NAME || name == DDD_CTPPS_PIXELS_SENSOR_NAME 
+	|| name == DDD_CTPPS_PIXELS_SENSOR_NAME_2x2 
+	|| std::regex_match(name, std::regex(DDD_TOTEM_TIMING_SENSOR_TMPL))) {
       unsigned int plId = alignedDet->geographicalID();
 
       if (alignments) {

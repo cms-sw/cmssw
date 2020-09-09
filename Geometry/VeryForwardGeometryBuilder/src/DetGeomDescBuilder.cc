@@ -57,14 +57,13 @@ std::unique_ptr<DetGeomDesc> detgeomdescbuilder::buildDetGeomDescFromCompactView
     edm::LogError("PPSGeometryESProducer") << "Filtered view is empty. Cannot build.";
   }
 
-  const cms::DDSpecParRegistry& allSpecParSections = myCompactView.specpars();
   // Geo info: root node.
-  auto geoInfoRoot = std::make_unique<DetGeomDesc>(fv, allSpecParSections);
+  auto geoInfoRoot = std::make_unique<DetGeomDesc>(fv);
 
   // Construct the tree of children geo info (DetGeomDesc).
   do {
     // Create node, and add it to the geoInfoRoot's list.
-    DetGeomDesc* child = new DetGeomDesc(fv, allSpecParSections);
+    DetGeomDesc* child = new DetGeomDesc(fv);
     geoInfoRoot->addComponent(child);
   } while (fv.next(0));
 
