@@ -517,7 +517,7 @@ void VectorHitsBuilderValidation::analyze(const edm::Event& event, const edm::Ev
         unsigned int primarySimHits(0);
         unsigned int otherSimHits(0);
 
-        for (const auto hitIt : *simHitsRaw) {
+        for (const auto& hitIt : *simHitsRaw) {
           if (hitIt.detUnitId() == geomDetLower->geographicalId()) {
             //check clusters track id compatibility
             if (std::find(clusterSimTrackIds.begin(), clusterSimTrackIds.end(), hitIt.trackId()) !=
