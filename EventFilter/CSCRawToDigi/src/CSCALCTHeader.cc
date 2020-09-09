@@ -1,8 +1,8 @@
 #include "EventFilter/CSCRawToDigi/interface/CSCALCTHeader.h"
 #include "EventFilter/CSCRawToDigi/interface/CSCDMBHeader.h"
 #include "DataFormats/MuonDetId/interface/CSCDetId.h"
-#include "EventFilter/CSCRawToDigi/src/bitset_append.h"
-#include "EventFilter/CSCRawToDigi/src/cscPackerCompare.h"
+#include "EventFilter/CSCRawToDigi/interface/bitset_append.h"
+#include "EventFilter/CSCRawToDigi/interface/cscPackerCompare.h"
 #include <iomanip>
 
 #ifdef LOCAL_UNPACK
