@@ -36,7 +36,7 @@ void CTPPSGeometry::build(const DetGeomDesc* gD, unsigned int verbosity) {
     if (d->name() == DDD_TOTEM_RP_SENSOR_NAME ||
         std::regex_match(d->name(), std::regex(DDD_TOTEM_TIMING_SENSOR_TMPL)) ||
         d->name() == DDD_CTPPS_DIAMONDS_SEGMENT_NAME || d->name() == DDD_CTPPS_UFSD_SEGMENT_NAME ||
-        d->name() == DDD_CTPPS_PIXELS_SENSOR_NAME)
+        d->name() == DDD_CTPPS_PIXELS_SENSOR_NAME || d->name() == DDD_CTPPS_PIXELS_SENSOR_NAME_2x2)
       addSensor(d->geographicalID(), d);
 
     // check if it is a RP
