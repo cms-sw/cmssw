@@ -61,6 +61,8 @@ namespace edm {
 
     Path(Path const&);
 
+    Path& operator=(Path const&) = delete;
+
     template <typename T>
     void runAllModulesAsync(WaitingTask*,
                             typename T::MyPrincipal const&,
@@ -99,10 +101,6 @@ namespace edm {
     void setPathStatusInserter(PathStatusInserter* pathStatusInserter, Worker* pathStatusInserterWorker);
 
   private:
-    // If you define this be careful about the pointer in the
-    // PlaceInPathContext object in the contained WorkerInPath objects.
-    Path const& operator=(Path const&) = delete;  // stop default
-
     int timesRun_;
     int timesPassed_;
     int timesFailed_;
