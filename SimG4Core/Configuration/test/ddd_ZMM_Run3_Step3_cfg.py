@@ -33,7 +33,7 @@ process.maxEvents = cms.untracked.PSet(
 
 # Input source
 process.source = cms.Source("PoolSource",
-    fileNames = cms.untracked.vstring('file:step2_ZMM.root'),
+    fileNames = cms.untracked.vstring('file:step2_ZMM_ddd.root'),
     secondaryFileNames = cms.untracked.vstring()
 )
 
@@ -78,7 +78,7 @@ process.RECOSIMoutput = cms.OutputModule("PoolOutputModule",
         dataTier = cms.untracked.string('GEN-SIM-RECO'),
         filterName = cms.untracked.string('')
     ),
-    fileName = cms.untracked.string('file:step3_ZMM.root'),
+    fileName = cms.untracked.string('file:step3_ZMM_ddd.root'),
     outputCommands = process.RECOSIMEventContent.outputCommands,
     splitLevel = cms.untracked.int32(0)
 )
