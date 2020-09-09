@@ -1582,11 +1582,15 @@ void HGCalGeomParameters::loadWaferHexagon8(HGCalParameters& php) {
         double xpos0 = xpos + xyoff.first;
         double ypos0 = ypos + xyoff.second;
         double zpos = php.zLayerHex_[i];
-        int type = wType->getType(HGCalParameters::k_ScaleToDDD * xpos0,
-                                  HGCalParameters::k_ScaleToDDD * ypos0,
-                                  HGCalParameters::k_ScaleToDDD * zpos);
-        php.waferTypeL_.emplace_back(type);
         int kndx = HGCalWaferIndex::waferIndex(lay, u, v);
+        int type(-1);
+        if (php.mode_ == HGCalGeometryMode::Hexagon8File)
+          type = wType->getType(kndx, php.waferInfoMap_);
+        if (type < 0)
+          type = wType->getType(HGCalParameters::k_ScaleToDDD * xpos0,
+                                HGCalParameters::k_ScaleToDDD * ypos0,
+                                HGCalParameters::k_ScaleToDDD * zpos);
+        php.waferTypeL_.emplace_back(type);
         typesInLayers[kndx] = lpos;
         ++lpos;
 #ifdef EDM_ML_DEBUG
