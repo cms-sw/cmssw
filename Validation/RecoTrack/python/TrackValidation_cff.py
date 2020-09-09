@@ -369,6 +369,7 @@ trackingParticlesBHadron = _trackingParticleBHadronRefSelector.clone()
 trackValidator = Validation.RecoTrack.MultiTrackValidator_cfi.multiTrackValidator.clone(
     useLogPt = cms.untracked.bool(True),
     dodEdxPlots = True,
+    # associators=cms.untracked.VInputTag('MTVTrackAssociationByChi2'), #uncomment for byChi2 assoc. for jetcore studies (1/5)
     doPVAssociationPlots = True
     #,minpT = cms.double(-1)
     #,maxpT = cms.double(3)
@@ -539,6 +540,8 @@ trackValidatorBuilding = _trackValidatorSeedingBuilding.clone(
     dirName = "Tracking/TrackBuilding/",
     doMVAPlots = True,
     doResolutionPlotsForLabels = ['jetCoreRegionalStepTracks'],
+    # associators = ["trackAssociatorByChi2"], #uncomment for byChi2 assoc. for jetcore studies (2/5)
+    # UseAssociators = True, #uncomment for byChi2 assoc. for jetcore studies (3/5)
 )
 trackValidatorBuildingPreSplitting = trackValidatorBuilding.clone(
     associators = ["quickTrackAssociatorByHitsPreSplitting"],
@@ -655,8 +658,8 @@ phase2_tracker.toModify(tracksValidationSelectors, lambda x: x.add(tracksEtaGrea
 tracksValidationTruth = cms.Task(
     tpClusterProducer,
     tpClusterProducerPreSplitting,
-    trackAssociatorByChi2,
-    MTVTrackAssociationByChi2,
+    # trackAssociatorByChi2, #uncomment for byChi2 assoc. for jetcore studies (4/5)
+    # MTVTrackAssociationByChi2, #uncomment for byChi2 assoc. for jetcore studies (5/5)
     quickTrackAssociatorByHits,
     quickTrackAssociatorByHitsPreSplitting,
     trackingParticleRecoTrackAsssociation,
