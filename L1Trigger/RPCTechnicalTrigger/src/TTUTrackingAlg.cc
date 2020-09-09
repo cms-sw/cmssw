@@ -231,7 +231,9 @@ void TTUTrackingAlg::ghostBuster(Track* currentTrk) {
     return a->m_sectorId < b->m_sectorId;
   });
 
-  seedItr = std::unique(currentTrk->m_seeds.begin(), currentTrk->m_seeds.end(), CompareSeeds());
+  seedItr = std::unique(currentTrk->m_seeds.begin(), currentTrk->m_seeds.end(), [](const Seed* a, const Seed* b) {
+    return a->m_sectorId == b->m_sectorId and a->m_stationId == b->m_stationId;
+  });
 
   currentTrk->m_seeds.resize(seedItr - currentTrk->m_seeds.begin());
 
