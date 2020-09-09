@@ -41,35 +41,41 @@ CSCBaseboard::CSCBaseboard(unsigned endcap,
 
   if (isSLHC_ and theRing == 1) {
     if (theStation == 1 and runME11Up_) {
-      tmbParams_ = conf.getParameter<edm::ParameterSet>("tmbSLHC");
-      clctParams_ = conf.getParameter<edm::ParameterSet>("clctSLHC");
-      alctParams_ = conf.getParameter<edm::ParameterSet>("alctSLHC");
+      tmbParams_ = conf.getParameter<edm::ParameterSet>("tmbPhase2ME11");
+      clctParams_ = conf.getParameter<edm::ParameterSet>("clctPhase2ME11");
+      alctParams_ = conf.getParameter<edm::ParameterSet>("alctPhase2ME11");
       if (not enableAlctSLHC_) {
-        alctParams_ = conf.getParameter<edm::ParameterSet>("alctParam07");
+        alctParams_ = conf.getParameter<edm::ParameterSet>("alctPhase1");
       }
       if (runME11ILT_) {
-        tmbParams_ = conf.getParameter<edm::ParameterSet>("me11tmbSLHCGEM");
+        tmbParams_ = conf.getParameter<edm::ParameterSet>("tmbPhase2GE11");
+        clctParams_ = conf.getParameter<edm::ParameterSet>("clctPhase2GE11");
       }
     } else if (theStation == 2 and runME21Up_) {
-      tmbParams_ = conf.getParameter<edm::ParameterSet>("meX1tmbSLHC");
-      alctParams_ = conf.getParameter<edm::ParameterSet>("alctSLHCME21");
-      clctParams_ = conf.getParameter<edm::ParameterSet>("clctSLHCME21");
+      tmbParams_ = conf.getParameter<edm::ParameterSet>("tmbPhase2MEX1");
+      alctParams_ = conf.getParameter<edm::ParameterSet>("alctPhase2MEX1");
+      clctParams_ = conf.getParameter<edm::ParameterSet>("clctPhase2MEX1");
       if (runME21ILT_) {
-        tmbParams_ = conf.getParameter<edm::ParameterSet>("me21tmbSLHCGEM");
+        tmbParams_ = conf.getParameter<edm::ParameterSet>("tmbPhase2GE21");
+        clctParams_ = conf.getParameter<edm::ParameterSet>("clctPhase2GE21");
       }
     } else if ((theStation == 3 and runME31Up_) or (theStation == 4 and runME41Up_)) {
-      tmbParams_ = conf.getParameter<edm::ParameterSet>("meX1tmbSLHC");
-      alctParams_ = conf.getParameter<edm::ParameterSet>("alctSLHCME3141");
-      clctParams_ = conf.getParameter<edm::ParameterSet>("clctSLHCME3141");
-    } else {  //SLHC is on but ME21ME31ME41 is not upgraded
-      tmbParams_ = conf.getParameter<edm::ParameterSet>("tmbParam");
-      alctParams_ = conf.getParameter<edm::ParameterSet>("alctParam07");
-      clctParams_ = conf.getParameter<edm::ParameterSet>("clctParam07");
+      tmbParams_ = conf.getParameter<edm::ParameterSet>("tmbPhase2MEX1");
+      alctParams_ = conf.getParameter<edm::ParameterSet>("alctPhase2MEX1");
+      clctParams_ = conf.getParameter<edm::ParameterSet>("clctPhase2MEX1");
     }
-  } else {  //others
-    tmbParams_ = conf.getParameter<edm::ParameterSet>("tmbParam");
-    alctParams_ = conf.getParameter<edm::ParameterSet>("alctParam07");
-    clctParams_ = conf.getParameter<edm::ParameterSet>("clctParam07");
+    //Phase2 is on but ME21, ME31, ME41 is not upgraded
+    else {
+      tmbParams_ = conf.getParameter<edm::ParameterSet>("tmbPhase1");
+      alctParams_ = conf.getParameter<edm::ParameterSet>("alctPhase1");
+      clctParams_ = conf.getParameter<edm::ParameterSet>("clctPhase1");
+    }
+  }
+  //others
+  else {
+    tmbParams_ = conf.getParameter<edm::ParameterSet>("tmbPhase1");
+    alctParams_ = conf.getParameter<edm::ParameterSet>("alctPhase1");
+    clctParams_ = conf.getParameter<edm::ParameterSet>("clctPhase1");
   }
 
   use_run3_patterns_ = clctParams_.getParameter<bool>("useRun3Patterns");
