@@ -22,7 +22,7 @@ from RecoEgamma.EgammaIsolationAlgos.particleBasedIsoProducer_cff import *
 from RecoParticleFlow.PFProducer.chargedHadronPFTrackIsolation_cfi import *
 
 from RecoJets.JetProducers.fixedGridRhoProducerFastjet_cfi import *
-fixedGridRhoFastjetAllTmp = fixedGridRhoFastjetAll.clone(pfCandidatesTag = cms.InputTag("particleFlowTmp"))
+fixedGridRhoFastjetAllTmp = fixedGridRhoFastjetAll.clone(pfCandidatesTag = "particleFlowTmp")
 
 particleFlowTmpTask = cms.Task(particleFlowTmp)
 particleFlowTmpSeq = cms.Sequence(particleFlowTmpTask)
