@@ -129,7 +129,8 @@ struct MTVHistoProducerAlgoForTrackerHistograms {
 
   //chi2 and # lost hits vs eta: to be used with doProfileX
   std::vector<METype> chi2_vs_eta, chi2_vs_pt, chi2_vs_drj, nlosthits_vs_eta;
-  std::vector<METype> assoc_chi2_vs_eta, assoc_chi2_vs_pt, assoc_chi2_vs_drj, assoc_chi2prob_vs_eta, assoc_chi2prob_vs_pt, assoc_chi2prob_vs_drj;
+  std::vector<METype> assoc_chi2_vs_eta, assoc_chi2_vs_pt, assoc_chi2_vs_drj, assoc_chi2prob_vs_eta,
+      assoc_chi2prob_vs_pt, assoc_chi2prob_vs_drj;
 
   //resolution of track params: to be used with fitslicesytool
   std::vector<METype> dxyres_vs_eta, ptres_vs_eta, dzres_vs_eta, phires_vs_eta, cotThetares_vs_eta;
