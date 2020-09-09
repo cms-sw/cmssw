@@ -135,11 +135,10 @@ private:
 
 struct DetGeomDescCompare {
   bool operator()(const DetGeomDesc& a, const DetGeomDesc& b) const {
-    return (a.geographicalID() != b.geographicalID() ? a.geographicalID() < b.geographicalID() // Sort by DetId
-	    // If DetIds are identical (== 0 for non-sensors), sort by name and copy number.
-	    : (a.name() != b.name() ? a.name() < b.name()
-	       : a.copyno() < b.copyno())
-	    );
+    return (a.geographicalID() != b.geographicalID()
+                ? a.geographicalID() < b.geographicalID()  // Sort by DetId
+                // If DetIds are identical (== 0 for non-sensors), sort by name and copy number.
+                : (a.name() != b.name() ? a.name() < b.name() : a.copyno() < b.copyno()));
   }
 };
 
