@@ -8,8 +8,6 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
-#include "CondFormats/DataRecord/interface/BeamSpotObjectsRcd.h"
-#include "CondFormats/BeamSpotObjects/interface/BeamSpotObjects.h"
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
 //#include "DataFormats/Scalers/interface/BeamSpotOnline.h"
 #include "DQM/BeamMonitor/plugins/AlcaBeamMonitor.h"
@@ -31,24 +29,22 @@ using namespace reco;
 
 //----------------------------------------------------------------------------------------------------------------------
 AlcaBeamMonitor::AlcaBeamMonitor(const ParameterSet& ps)
-    : parameters_(ps),
-      monitorName_(parameters_.getUntrackedParameter<string>("MonitorName", "YourSubsystemName")),
-      primaryVertexLabel_(
-          consumes<VertexCollection>(parameters_.getUntrackedParameter<InputTag>("PrimaryVertexLabel"))),
-      trackLabel_(consumes<reco::TrackCollection>(parameters_.getUntrackedParameter<InputTag>("TrackLabel"))),
-      scalerLabel_(consumes<BeamSpot>(parameters_.getUntrackedParameter<InputTag>("ScalerLabel"))),
-      beamSpotLabel_(parameters_.getUntrackedParameter<InputTag>("BeamSpotLabel")),
+    : monitorName_(ps.getUntrackedParameter<string>("MonitorName")),
+      primaryVertexLabel_(consumes<VertexCollection>(ps.getUntrackedParameter<InputTag>("PrimaryVertexLabel"))),
+      trackLabel_(consumes<reco::TrackCollection>(ps.getUntrackedParameter<InputTag>("TrackLabel"))),
+      scalerLabel_(consumes<BeamSpot>(ps.getUntrackedParameter<InputTag>("ScalerLabel"))),
+      beamSpotToken_(esConsumes<edm::Transition::BeginLuminosityBlock>()),
       numberOfValuesToSave_(0) {
   if (!monitorName_.empty())
     monitorName_ = monitorName_ + "/";
 
-  theBeamFitter_ = std::make_unique<BeamFitter>(parameters_, consumesCollector());
+  theBeamFitter_ = std::make_unique<BeamFitter>(ps, consumesCollector());
   theBeamFitter_->resetTrkVector();
   theBeamFitter_->resetLSRange();
   theBeamFitter_->resetRefTime();
   theBeamFitter_->resetPVFitter();
 
-  thePVFitter_ = std::make_unique<PVFitter>(parameters_, consumesCollector());
+  thePVFitter_ = std::make_unique<PVFitter>(ps, consumesCollector());
 
   processedLumis_.clear();
 
@@ -83,6 +79,20 @@ AlcaBeamMonitor::AlcaBeamMonitor(const ParameterSet& ps)
       histosMap_[*itV][itM->first][itM->second] = nullptr;
     }
   }
+}
+
+void AlcaBeamMonitor::fillDescriptions(edm::ConfigurationDescriptions& iDesc) {
+  edm::ParameterSetDescription ps;
+
+  ps.addUntracked<std::string>("MonitorName", "YourSubsystemName");
+  ps.addUntracked<edm::InputTag>("PrimaryVertexLabel");
+  ps.addUntracked<edm::InputTag>("TrackLabel");
+  ps.addUntracked<edm::InputTag>("ScalerLabel");
+
+  BeamFitter::fillDescription(ps);
+  PVFitter::fillDescription(ps);
+
+  iDesc.addDefault(ps);
 }
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -220,9 +230,9 @@ std::shared_ptr<alcabeammonitor::NoCache> AlcaBeamMonitor::globalBeginLuminosity
   //Read BeamSpot from DB
   ESHandle<BeamSpotObjects> bsDBHandle;
   try {
-    iSetup.get<BeamSpotObjectsRcd>().get(bsDBHandle);
+    bsDBHandle = iSetup.getHandle(beamSpotToken_);
   } catch (cms::Exception& exception) {
-    LogInfo("AlcaBeamMonitor") << exception.what();
+    LogError("AlcaBeamMonitor") << exception.what();
     return nullptr;
   }
   if (bsDBHandle.isValid()) {  // check the product
@@ -479,6 +489,10 @@ void AlcaBeamMonitor::globalEndLuminosityBlock(const LuminosityBlock& iLumi, con
 }
 
 void AlcaBeamMonitor::dqmEndRun(edm::Run const&, edm::EventSetup const&) {
+  if (processedLumis_.empty()) {
+    return;
+  }
+
   const double bigNumber = 1000000.;
   std::sort(processedLumis_.begin(), processedLumis_.end());
   int firstLumi = *processedLumis_.begin();
