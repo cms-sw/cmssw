@@ -75,6 +75,7 @@ namespace cond {
                                       << ", because is less or equal to last available since = " << lastSince;
               if (m_autoCommit)
                 doCommitTransaction();
+              scope.close();
               return thePayloadHash;
             }
           }

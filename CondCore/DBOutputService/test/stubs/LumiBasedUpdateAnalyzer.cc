@@ -14,6 +14,7 @@ LumiBasedUpdateAnalyzer::LumiBasedUpdateAnalyzer(const edm::ParameterSet& iConfi
   std::cout << "LumiBasedUpdateAnalyzer::LumiBasedUpdateAnalyzer" << std::endl;
   m_prevLumi = 0;
   m_prevLumiTime = std::chrono::steady_clock::now();
+  m_omsServiceUrl = iConfig.getUntrackedParameter<std::string>("omsServiceUrl", "");
 }
 LumiBasedUpdateAnalyzer::~LumiBasedUpdateAnalyzer() {
   std::cout << "LumiBasedUpdateAnalyzer::~LumiBasedUpdateAnalyzer" << std::endl;
@@ -26,12 +27,17 @@ void LumiBasedUpdateAnalyzer::analyze(const edm::Event& evt, const edm::EventSet
     return;
   }
   unsigned int irun = evt.id().run();
-  cond::Time_t lastLumi = cond::getLatestLumiFromFile(m_lastLumiFile);
-  if (lastLumi == m_prevLumi) {
-    return;
+  cond::Time_t lastLumi = cond::time::MIN_VAL;
+  if (!m_omsServiceUrl.empty()) {
+    lastLumi = cond::getLastLumiFromOMS(m_omsServiceUrl);
+  } else {
+    cond::getLatestLumiFromFile(m_lastLumiFile);
+    if (lastLumi == m_prevLumi) {
+      return;
+    }
+    m_prevLumi = lastLumi;
+    m_prevLumiTime = std::chrono::steady_clock::now();
   }
-  m_prevLumi = lastLumi;
-  m_prevLumiTime = std::chrono::steady_clock::now();
   unsigned int lumiId = cond::time::unpack(lastLumi).second;
   std::cout << "## last lumi: " << lastLumi << " run: " << cond::time::unpack(lastLumi).first << " lumiid:" << lumiId
             << std::endl;
@@ -44,7 +50,11 @@ void LumiBasedUpdateAnalyzer::analyze(const edm::Event& evt, const edm::EventSet
   mybeamspot.SetType(int(lumiId));
   std::cout << mybeamspot.GetBeamType() << std::endl;
 
-  mydbservice->writeForNextLumisection(&mybeamspot, m_record);
+  try {
+    mydbservice->writeForNextLumisection(&mybeamspot, m_record);
+  } catch (const std::exception& e) {
+    std::cout << "Error:" << e.what() << std::endl;
+  }
   //::sleep(13);
 }
 void LumiBasedUpdateAnalyzer::endJob() {}

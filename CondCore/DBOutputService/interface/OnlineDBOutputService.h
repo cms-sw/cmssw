@@ -21,18 +21,16 @@
 
 namespace cond {
 
-  cond::Time_t getLatestLumiFromFile(const std::string& fileName) {
-    cond::Time_t lastLumiProcessed = cond::time::MIN_VAL;
-    std::ifstream lastLumiFile(fileName);
-    if (lastLumiFile) {
-      lastLumiFile >> lastLumiProcessed;
-    }
-    return lastLumiProcessed;
-  }
+  cond::Time_t getLatestLumiFromFile(const std::string& fileName);
+
+  cond::Time_t getLastLumiFromOMS(const std::string& omsServiceUrl);
 
   namespace service {
 
     class OnlineDBOutputService : public PoolDBOutputService {
+    public:
+      static constexpr const char* const MSGSOURCE = "OnlineDBOuputService";
+
     public:
       OnlineDBOutputService(const edm::ParameterSet& iConfig, edm::ActivityRegistry& iAR);
 
@@ -84,12 +82,11 @@ namespace cond {
       cond::persistency::Session getReadOnlyCache(cond::Time_t targetTime);
 
     private:
-      static constexpr const char* const MSGSOURCE = "OnlineDBOuputService";
       cond::Time_t m_runNumber;
       size_t m_latencyInLumisections;
+      std::string m_omsServiceUrl;
       std::string m_lastLumiUrl;
       std::string m_lastLumiFile;
-      //std::chrono::time_point<std::chrono::steady_clock> m_startRunTime;
       std::string m_preLoadConnectionString;
       bool m_debug;
 
