@@ -39,13 +39,19 @@ public:
             const AlgebraicSymMatrix& covMatrix,
             const float chi2,
             OmniClusterRef const& lower,
-            OmniClusterRef const& upper);
+            OmniClusterRef const& upper,
+	    const float curvature,
+            const float curvatureError,
+            const float phi);
 
   VectorHit(const GeomDet& idet,
             const VectorHit2D& vh2Dzx,
             const VectorHit2D& vh2Dzy,
             OmniClusterRef const& lower,
-            OmniClusterRef const& upper);
+            OmniClusterRef const& upper,
+            const float curvature, 
+            const float curvatureError,
+            const float phi);
 
   ~VectorHit() override;
 
@@ -77,10 +83,12 @@ public:
 
   virtual float chi2() const { return theChi2; }
   int dimension() const override { return theDimension; }
+  float curvature() const { return theCurvature; }
+  float curvatureError() const { return theCurvatureError; }
+  float phi() const { return thePhi; }
 
-  enum curvatureOrPhi { curvatureMode, phiMode };
-
-  std::pair<float, float> curvatureORphi(curvatureOrPhi curvatureMode) const;
+  float transverseMomentum(float magField) const;
+  float momentum(float magField) const;
 
   /// "lower" is logical, not geometrically lower; in pixel-strip modules the "lower" is always a pixel
   ClusterRef lowerCluster() const { return theLowerCluster.cluster_phase2OT(); }
@@ -91,10 +99,10 @@ public:
   //FIXME::to update with a proper CPE maybe...
   Global3DPoint lowerGlobalPos() const;
   Global3DPoint upperGlobalPos() const;
-  Global3DPoint phase2clusterGlobalPos(const PixelGeomDetUnit* geomDet, ClusterRef cluster) const;
+  static Global3DPoint phase2clusterGlobalPos(const PixelGeomDetUnit* geomDet, ClusterRef cluster);
   GlobalError lowerGlobalPosErr() const;
   GlobalError upperGlobalPosErr() const;
-  GlobalError phase2clusterGlobalPosErr(const PixelGeomDetUnit* geomDet) const;
+  static GlobalError phase2clusterGlobalPosErr(const PixelGeomDetUnit* geomDet);
 
   bool isPhase2() const override { return true; }
 
@@ -142,6 +150,9 @@ private:
   int theDimension;
   OmniClusterRef theLowerCluster;
   OmniClusterRef theUpperCluster;
+  float theCurvature;
+  float theCurvatureError;
+  float thePhi;
 };
 
 inline bool operator<(const VectorHit& one, const VectorHit& other) { return (one.chi2() < other.chi2()); }

@@ -601,12 +601,12 @@ void VectorHitsBuilderValidation::analyze(const edm::Event& event, const edm::Ev
           continue;
         }
 
-        VectorHitMomentumHelper vhMomHelper(magField_);
         //curvature
-        curvature = vh.curvatureORphi(VectorHit::curvatureMode).first;
-        phi = vh.curvatureORphi(VectorHit::phiMode).first;
-        QOverPT = vhMomHelper.transverseMomentum(vh);
-        QOverP = vhMomHelper.momentum(vh);
+        GlobalPoint center(0.0, 0.0, 0.0);
+        curvature = vh.curvature();
+        phi = vh.phi();
+        QOverPT = vh.transverseMomentum(magField_->inTesla(center).z());
+        QOverP = vh.momentum(magField_->inTesla(center).z());
         histogramLayer->second.curvature->Fill(curvature);
 
         //stub width

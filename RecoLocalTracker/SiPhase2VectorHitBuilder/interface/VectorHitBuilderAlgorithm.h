@@ -38,6 +38,10 @@ public:
                                   LocalError& errinner,
                                   LocalError& errouter) const;
 
+  enum curvatureOrPhi { curvatureMode, phiMode };
+
+  std::pair<float, float> curvatureORphi(curvatureOrPhi curvatureMode, Global3DPoint gPositionLower, Global3DPoint gPositionUpper, GlobalError gErrorLower, GlobalError gErrorUpper ) const;
+
   class LocalPositionSort {
   public:
     LocalPositionSort(const TrackerGeometry* geometry,

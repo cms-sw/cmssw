@@ -9,7 +9,6 @@
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
 #include "RecoTracker/MeasurementDet/interface/MeasurementTracker.h"
 #include "TrackingTools/MeasurementDet/interface/LayerMeasurements.h"
-#include "RecoLocalTracker/SiPhase2VectorHitBuilder/interface/VectorHitMomentumHelper.h"
 
 #include "RecoTracker/Record/interface/CkfComponentsRecord.h"
 #include "RecoTracker/MeasurementDet/interface/MeasurementTracker.h"
@@ -311,12 +310,11 @@ const TrajectoryStateOnSurface SeedingOTEDProducer::buildInitialTSOS(const Vecto
   // gv transform to local (lv)
   const Local3DVector lv(vHit.det()->surface().toLocal(gv));
 
-  //Helper class to access momentum of VH
-  VectorHitMomentumHelper vhMomHelper(magField_);
 
   //FIXME::charge is fine 1 every two times!!
+  GlobalPoint center(0.0, 0.0, 0.0);
   int charge = 1;
-  float p = vhMomHelper.momentum(vHit);
+  float p = vHit.momentum(magField_->inTesla(center).z());
   float x = vHit.localPosition().x();
   float y = vHit.localPosition().y();
   float dx = vHit.localDirection().x();
@@ -330,7 +328,7 @@ const TrajectoryStateOnSurface SeedingOTEDProducer::buildInitialTSOS(const Vecto
   AlgebraicSymMatrix mat = assign44To55(vHit.parametersError());
   // set the error on 1/p
   mat[0][0] =
-      pow(computeInverseMomentumError(vHit, theta, beamSpot_->sigmaZ(), vhMomHelper.transverseMomentum(vHit)), 2);
+      pow(computeInverseMomentumError(vHit, theta, beamSpot_->sigmaZ(), vHit.transverseMomentum(magField_->inTesla(center).z())), 2);
 
   //building tsos
   LocalTrajectoryError lterr(asSMatrix<5>(mat));
