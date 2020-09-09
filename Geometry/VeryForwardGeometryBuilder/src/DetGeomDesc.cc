@@ -276,7 +276,6 @@ DetId DetGeomDesc::computeDetIDFromDD4hep(const std::string& name,
   return computeDetID(name, copyNosOldDD, copyNum);
 }
 
-
 /*
  * Sensor type computation.
  * Find out from the namespace (from DB) or the volume name (from XMLs), whether a sensor type is 2x2.
