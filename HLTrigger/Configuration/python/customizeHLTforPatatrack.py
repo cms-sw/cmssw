@@ -50,7 +50,10 @@ def customiseCommon(process):
         src = cms.InputTag("statusOnGPU")
     )
 
-    process.Status_OnGPU = cms.Path(process.statusOnGPU + process.statusOnGPUFilter)
+    if 'Status_OnGPU' in process.__dict__:
+        replace_with(process.Status_OnGPU, cms.Path(process.statusOnGPU + process.statusOnGPUFilter))
+    else:
+        process.Status_OnGPU = cms.Path(process.statusOnGPU + process.statusOnGPUFilter)
 
 
     # make the ScoutingCaloMuonOutput endpath compatible with using Tasks in the Scouting paths
