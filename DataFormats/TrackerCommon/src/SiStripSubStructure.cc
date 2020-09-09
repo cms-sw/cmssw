@@ -13,7 +13,7 @@
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 #include <algorithm>
 
-#include "DataFormats/SiStripDetId/interface/SiStripSubStructure.h"
+#include "DataFormats/TrackerCommon/interface/SiStripSubStructure.h"
 
 void SiStripSubStructure::getTIBDetectors(const std::vector<uint32_t> &inputDetRawIds,
                                           std::vector<uint32_t> &tibDetRawIds,
