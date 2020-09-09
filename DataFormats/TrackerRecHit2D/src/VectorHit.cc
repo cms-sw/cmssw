@@ -80,27 +80,28 @@ bool VectorHit::sharesClusters(VectorHit const& h1, VectorHit const& h2, SharedI
 }
 
 void VectorHit::getKfComponents4D(KfComponentsHolder& holder) const {
-  AlgebraicVector4& pars = holder.params<4>();
+  constexpr int four = 4;
+  AlgebraicVector4& pars = holder.params<four>();
   pars[0] = theDirection.x();
   pars[1] = theDirection.y();
   pars[2] = thePosition.x();
   pars[3] = thePosition.y();
 
-  AlgebraicSymMatrix44& errs = holder.errors<4>();
-  for (int i = 0; i < 4; i++) {
-    for (int j = 0; j < 4; j++) {
+  AlgebraicSymMatrix44& errs = holder.errors<four>();
+  for (int i = 0; i < four; i++) {
+    for (int j = 0; j < four; j++) {
       errs(i, j) = theCovMatrix[i][j];
     }
   }
 
-  ProjectMatrix<double, 5, 4>& pf = holder.projFunc<4>();
+  ProjectMatrix<double, 5, four>& pf = holder.projFunc<four>();
   pf.index[0] = 1;
   pf.index[1] = 2;
   pf.index[2] = 3;
   pf.index[3] = 4;
 
-  holder.measuredParams<4>() = AlgebraicVector4(&holder.tsosLocalParameters().At(1), 4);
-  holder.measuredErrors<4>() = holder.tsosLocalErrors().Sub<AlgebraicSymMatrix44>(1, 1);
+  holder.measuredParams<four>() = AlgebraicVector4(&holder.tsosLocalParameters().At(1), four);
+  holder.measuredErrors<four>() = holder.tsosLocalErrors().Sub<AlgebraicSymMatrix44>(1, 1);
 }
 
 VectorHit::~VectorHit() {}
@@ -153,7 +154,8 @@ GlobalError VectorHit::phase2clusterGlobalPosErr(const PixelGeomDetUnit* geomDet
   const PixelTopology* topo = &geomDet->specificTopology();
   float pitchX = topo->pitch().first;
   float pitchY = topo->pitch().second;
-  LocalError le(pow(pitchX, 2) / 12., 0, pow(pitchY, 2) / 12.);  // e2_xx, e2_xy, e2_yy
+  constexpr float invTwelve = 1. / 12;
+  LocalError le(pow(pitchX, 2) * invTwelve, 0, pow(pitchY, 2) * invTwelve);  // e2_xx, e2_xy, e2_yy
   GlobalError ge(ErrorFrameTransformer().transform(le, geomDet->surface()));
   return ge;
 }
@@ -203,6 +205,7 @@ std::pair<float, float> VectorHit::curvatureORphi(curvatureOrPhi curvORphi) cons
 
   if (h1 != 0) {
     double h2 = 2 * h1;
+    double h2Inf = 1. / (2 * h1);
     double r12 = pow(gPositionLower.x(), 2) + pow(gPositionLower.y(), 2);
     double r22 = pow(gPositionUpper.x(), 2) + pow(gPositionUpper.y(), 2);
     double h3 =
@@ -229,35 +232,25 @@ std::pair<float, float> VectorHit::curvatureORphi(curvatureOrPhi curvORphi) cons
     phi = atan2(ytg, xtg);
 
     AlgebraicROOTObject<4, 4>::Matrix jacobian;
-    for (int i = 0; i < 4; i++) {
-      for (int j = 0; j < 4; j++) {
-        jacobian[i][j] = 0.0;
-      }
-    }
+
     double denom1 = 1. / sqrt(r12 * r22 * h3);
     double denom2 = 1. / (pow(r12 * r22 * h3, 1.5));
     jacobian[0][0] = 1.0;  // dx1/dx1 dx1/dy1 dx2/dx1 dy2/dx1
     jacobian[1][1] = 1.0;  //dy1/dx1 dy1/dy1 dy2/dx1 dy2/dx1
     jacobian[2][0] =
-        (h1 * (2. * gPositionLower.x() * r22 * h3 + (2. * gPositionLower.x() - 2. * gPositionUpper.x()) * r12 * r22)) *
-            denom2 -
-        (2. * gPositionUpper.y()) * denom1;  // dkappa/dx1
+        -2. * ((h1 * (gPositionLower.x() * r22 * h3 + (gPositionLower.x() - gPositionUpper.x()) * r12 * r22)) * denom2 -
+               (gPositionUpper.y()) * denom1);  // dkappa/dx1
     jacobian[2][1] =
-        (2. * gPositionUpper.x()) * denom1 +
-        (h1 * (2. * gPositionLower.y() * r22 * h3 + r12 * r22 * (2. * gPositionLower.y() - 2. * gPositionUpper.y()))) *
-            denom2;  // dkappa/dy1
+        -2. * ((gPositionUpper.x()) * denom1 +
+               (h1 * (gPositionLower.y() * r22 * h3 + r12 * r22 * (gPositionLower.y() - gPositionUpper.y()))) *
+                   denom2);  // dkappa/dy1
     jacobian[2][2] =
-        (2. * gPositionLower.y()) * denom1 +
-        (h1 * (2. * gPositionUpper.x() * r12 * h3 - 2. * (gPositionLower.x() - gPositionUpper.x()) * r12 * r22)) *
-            denom2;  // dkappa/dx2
+        -2. * ((gPositionLower.y()) * denom1 +
+               (h1 * (gPositionUpper.x() * r12 * h3 - (gPositionLower.x() - gPositionUpper.x()) * r12 * r22)) *
+                   denom2);  // dkappa/dx2
     jacobian[2][3] =
-        (h1 * (2. * gPositionUpper.y() * r12 * h3 - r12 * r22 * 2. * (gPositionLower.y() - gPositionUpper.y()))) *
-            denom2 -
-        (2. * gPositionLower.x()) * denom1;  // dkappa/dy2
-
-    for (int i = 0; i < 4; i++) {
-      jacobian[2][i] = -jacobian[2][i];
-    }
+        -2. * ((h1 * (gPositionUpper.y() * r12 * h3 - r12 * r22 * (gPositionLower.y() - gPositionUpper.y()))) * denom2 -
+               (gPositionLower.x()) * denom1);  // dkappa/dy2
 
     AlgebraicVector2 M;
     //to compute phi at the cluster points
@@ -267,25 +260,25 @@ std::pair<float, float> VectorHit::curvatureORphi(curvatureOrPhi curvORphi) cons
 
     AlgebraicROOTObject<2, 4>::Matrix K;
     K[0][0] =
-        (2. * gPositionLower.x() * gPositionUpper.y()) / h2 - (2. * gPositionUpper.y() * h5) / pow(h2, 2);  // dxm/dx1
+        2. * ((gPositionLower.x() * gPositionUpper.y()) * h2Inf - (gPositionUpper.y() * h5) / pow(h2, 2));  // dxm/dx1
     K[0][1] = (2. * gPositionUpper.x() * h5) / pow(h2, 2) -
-              (pow(gPositionUpper.x(), 2) + pow(gPositionUpper.y(), 2) - 2. * gPositionLower.y() * gPositionUpper.y()) /
-                  h2;  // dxm/dy1
+              (pow(gPositionUpper.x(), 2) + pow(gPositionUpper.y(), 2) - 2. * gPositionLower.y() * gPositionUpper.y()) *
+                  h2Inf;  // dxm/dy1
     K[0][2] =
-        (2. * gPositionLower.y() * h5) / pow(h2, 2) - (2. * gPositionUpper.x() * gPositionLower.y()) / h2;  // dxm/dx2
-    K[0][3] =
-        (pow(gPositionLower.x(), 2) + pow(gPositionLower.y(), 2) - 2. * gPositionUpper.y() * gPositionLower.y()) / h2 -
-        (2. * gPositionLower.x() * h5) / pow(h2, 2);  // dxm/dy2
-    K[1][0] =
-        (pow(gPositionUpper.x(), 2) - 2. * gPositionLower.x() * gPositionUpper.x() + pow(gPositionUpper.y(), 2)) / h2 -
-        (2. * gPositionUpper.y() * h4) / pow(h2, 2);  // dym/dx1
+        2. * ((gPositionLower.y() * h5) / pow(h2, 2) - (gPositionUpper.x() * gPositionLower.y()) * h2Inf);  // dxm/dx2
+    K[0][3] = (pow(gPositionLower.x(), 2) + pow(gPositionLower.y(), 2) - 2. * gPositionUpper.y() * gPositionLower.y()) *
+                  h2Inf -
+              (2. * gPositionLower.x() * h5) / pow(h2, 2);  // dxm/dy2
+    K[1][0] = (pow(gPositionUpper.x(), 2) - 2. * gPositionLower.x() * gPositionUpper.x() + pow(gPositionUpper.y(), 2)) *
+                  h2Inf -
+              (2. * gPositionUpper.y() * h4) / pow(h2, 2);  // dym/dx1
     K[1][1] =
-        (2. * gPositionUpper.x() * h4) / pow(h2, 2) - (2. * gPositionUpper.x() * gPositionLower.y()) / h2;  // dym/dy1
+        2. * ((gPositionUpper.x() * h4) / pow(h2, 2) - (gPositionUpper.x() * gPositionLower.y()) * h2Inf);  // dym/dy1
     K[1][2] = (2. * gPositionLower.y() * h4) / pow(h2, 2) -
-              (pow(gPositionLower.x(), 2) - 2. * gPositionUpper.x() * gPositionLower.x() + pow(gPositionLower.y(), 2)) /
-                  h2;  // dym/dx2
+              (pow(gPositionLower.x(), 2) - 2. * gPositionUpper.x() * gPositionLower.x() + pow(gPositionLower.y(), 2)) *
+                  h2Inf;  // dym/dx2
     K[1][3] =
-        (2. * gPositionLower.x() * gPositionUpper.y()) / h2 - (2. * gPositionLower.x() * h4) / pow(h2, 2);  // dym/dy2
+        2. * (gPositionLower.x() * gPositionUpper.y()) * h2Inf - (gPositionLower.x() * h4) / pow(h2, 2);  // dym/dy2
 
     AlgebraicVector4 N = M * K;
     jacobian[3][0] = N[0];  // dphi/(dx1,dy1,dx2,dy2)
@@ -302,7 +295,7 @@ std::pair<float, float> VectorHit::curvatureORphi(curvatureOrPhi curvORphi) cons
     }
 
     // bring phi in the same quadrant as phi1
-    if (abs(phi - phi1) > M_PI / 2.) {
+    if (deltaPhi(phi, phi1) > M_PI / 2.) {
       phi = phi + M_PI;
       if (phi > M_PI)
         phi = phi - 2. * M_PI;
@@ -315,11 +308,6 @@ std::pair<float, float> VectorHit::curvatureORphi(curvatureOrPhi curvORphi) cons
     }
 
     AlgebraicROOTObject<4, 4>::Matrix gErrors;
-    for (int i = 0; i < 4; i++) {
-      for (int j = 0; j < 4; j++) {
-        gErrors[i][j] = 0.0;
-      }
-    }
 
     gErrors[0][0] = gErrorLower.cxx();
     gErrors[0][1] = gErrorLower.cyx();

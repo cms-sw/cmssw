@@ -19,8 +19,8 @@ void VectorHitBuilderAlgorithm::run(edm::Handle<edmNew::DetSetVector<Phase2Track
   LogDebug("VectorHitBuilderAlgorithm") << "Run VectorHitBuilderAlgorithm ... \n";
   const edmNew::DetSetVector<Phase2TrackerCluster1D>* ClustersPhase2Collection = clusters.product();
 
-  std::map<DetId, std::vector<VectorHit>> tempVHAcc, tempVHRej;
-  std::map<DetId, std::vector<VectorHit>>::iterator it_temporary;
+  std::unordered_map<DetId, std::vector<VectorHit>> tempVHAcc, tempVHRej;
+  std::unordered_map<DetId, std::vector<VectorHit>>::iterator it_temporary;
 
   //loop over the DetSetVector
   LogDebug("VectorHitBuilderAlgorithm") << "with #clusters : " << ClustersPhase2Collection->size() << std::endl;
@@ -50,10 +50,8 @@ void VectorHitBuilderAlgorithm::run(edm::Handle<edmNew::DetSetVector<Phase2Track
 
     const GeomDet* gd;
     const StackGeomDet* stackDet;
-    edmNew::DetSetVector<Phase2TrackerCluster1D>::const_iterator it_detLower =
-        ClustersPhase2Collection->find(lowerDetId);
-    edmNew::DetSetVector<Phase2TrackerCluster1D>::const_iterator it_detUpper =
-        ClustersPhase2Collection->find(upperDetId);
+    const auto& it_detLower = ClustersPhase2Collection->find(lowerDetId);
+    const auto& it_detUpper = ClustersPhase2Collection->find(upperDetId);
 
     if (it_detLower != ClustersPhase2Collection->end() && it_detUpper != ClustersPhase2Collection->end()) {
       gd = theTkGeom->idToDet(detIdStack);
@@ -77,7 +75,7 @@ void VectorHitBuilderAlgorithm::run(edm::Handle<edmNew::DetSetVector<Phase2Track
 
       tempVHAcc[detIdStack] = vhsInStack_Acc;
       tempVHRej[detIdStack] = vhsInStack_Rej;
-
+#ifdef EDM_ML_DEBUG
       LogTrace("VectorHitBuilderAlgorithm")
           << "For detId #" << detIdStack.rawId() << " the following VHits have been accepted:";
       for (const auto& vhIt : vhsInStack_Acc) {
@@ -88,6 +86,7 @@ void VectorHitBuilderAlgorithm::run(edm::Handle<edmNew::DetSetVector<Phase2Track
       for (const auto& vhIt : vhsInStack_Rej) {
         LogTrace("VectorHitBuilderAlgorithm") << "rejected VH: " << vhIt;
       }
+#endif
     }
   }
 
@@ -152,19 +151,21 @@ std::vector<std::pair<VectorHit, bool>> VectorHitBuilderAlgorithm::buildVectorHi
     upperClusters.push_back(clusterUpper);
   }
 
-  std::sort_heap(lowerClusters.begin(), lowerClusters.end(), LocalPositionSort(&*theTkGeom, &*cpe, &*stack->lowerDet()));
-  std::sort_heap(upperClusters.begin(), upperClusters.end(), LocalPositionSort(&*theTkGeom, &*cpe, &*stack->upperDet()));
+  std::sort_heap(
+      lowerClusters.begin(), lowerClusters.end(), LocalPositionSort(&*theTkGeom, &*theCpe, &*stack->lowerDet()));
+  std::sort_heap(
+      upperClusters.begin(), upperClusters.end(), LocalPositionSort(&*theTkGeom, &*theCpe, &*stack->upperDet()));
 
   for (const auto& cluL : lowerClusters) {
     LogDebug("VectorHitBuilderAlgorithm") << " lower clusters " << std::endl;
     printCluster(stack->lowerDet(), &*cluL);
     const PixelGeomDetUnit* gduLow = dynamic_cast<const PixelGeomDetUnit*>(stack->lowerDet());
-    auto&& lparamsLow = cpe->localParameters(*cluL, *gduLow);
+    auto&& lparamsLow = theCpe->localParameters(*cluL, *gduLow);
     for (const auto& cluU : upperClusters) {
       LogDebug("VectorHitBuilderAlgorithm") << "\t upper clusters " << std::endl;
       printCluster(stack->upperDet(), &*cluU);
       const PixelGeomDetUnit* gduUpp = dynamic_cast<const PixelGeomDetUnit*>(stack->upperDet());
-      auto&& lparamsUpp = cpe->localParameters(*cluU, *gduUpp);
+      auto&& lparamsUpp = theCpe->localParameters(*cluU, *gduUpp);
 
       //applying the parallax correction
       double pC = computeParallaxCorrection(gduLow, lparamsLow.first, gduUpp, lparamsUpp.first);
@@ -174,29 +175,26 @@ std::vector<std::pair<VectorHit, bool>> VectorHitBuilderAlgorithm::buildVectorHi
       if (lparamsUpp.first.x() > lparamsLow.first.x()) {
         if (lparamsUpp.first.x() > 0) {
           lpos_low_corr = lparamsLow.first.x();
-          lpos_upp_corr = lparamsUpp.first.x() - fabs(pC);
-        }
-        if (lparamsUpp.first.x() < 0) {
-          lpos_low_corr = lparamsLow.first.x() + fabs(pC);
+          lpos_upp_corr = lparamsUpp.first.x() - std::abs(pC);
+        } else if (lparamsUpp.first.x() < 0) {
+          lpos_low_corr = lparamsLow.first.x() + std::abs(pC);
           lpos_upp_corr = lparamsUpp.first.x();
         }
       } else if (lparamsUpp.first.x() < lparamsLow.first.x()) {
         if (lparamsUpp.first.x() > 0) {
-          lpos_low_corr = lparamsLow.first.x() - fabs(pC);
+          lpos_low_corr = lparamsLow.first.x() - std::abs(pC);
           lpos_upp_corr = lparamsUpp.first.x();
-        }
-        if (lparamsUpp.first.x() < 0) {
+        } else if (lparamsUpp.first.x() < 0) {
           lpos_low_corr = lparamsLow.first.x();
-          lpos_upp_corr = lparamsUpp.first.x() + fabs(pC);
+          lpos_upp_corr = lparamsUpp.first.x() + std::abs(pC);
         }
       } else {
         if (lparamsUpp.first.x() > 0) {
           lpos_low_corr = lparamsLow.first.x();
-          lpos_upp_corr = lparamsUpp.first.x() - fabs(pC);
-        }
-        if (lparamsUpp.first.x() < 0) {
+          lpos_upp_corr = lparamsUpp.first.x() - std::abs(pC);
+        } else if (lparamsUpp.first.x() < 0) {
           lpos_low_corr = lparamsLow.first.x();
-          lpos_upp_corr = lparamsUpp.first.x() + fabs(pC);
+          lpos_upp_corr = lparamsUpp.first.x() + std::abs(pC);
         }
       }
 
@@ -228,19 +226,19 @@ std::vector<std::pair<VectorHit, bool>> VectorHitBuilderAlgorithm::buildVectorHi
       //if( (lpos_upp_corr < lpos_low_corr + delta) &&
       //    (lpos_upp_corr > lpos_low_corr - delta) ){
       //new cut: dependent on layers
-      if (fabs(width) < cut) {
+      if (std::abs(width) < cut) {
         LogDebug("VectorHitBuilderAlgorithm") << " accepting VH! " << std::endl;
         VectorHit vh = buildVectorHit(stack, cluL, cluU);
         //protection: the VH can also be empty!!
         if (vh.isValid()) {
-          result.push_back(std::make_pair(vh, true));
+          result.emplace_back(std::make_pair(vh, true));
         }
 
       } else {
         LogDebug("VectorHitBuilderAlgorithm") << " rejecting VH: " << std::endl;
         //storing vh rejected for combinatiorial studies
         VectorHit vh = buildVectorHit(stack, cluL, cluU);
-        result.push_back(std::make_pair(vh, false));
+        result.emplace_back(std::make_pair(vh, false));
       }
     }
   }
@@ -252,17 +250,16 @@ VectorHit VectorHitBuilderAlgorithm::buildVectorHit(const StackGeomDet* stack,
                                                     Phase2TrackerCluster1DRef lower,
                                                     Phase2TrackerCluster1DRef upper) const {
   LogTrace("VectorHitBuilderAlgorithm") << "Build VH with: ";
-  //printCluster(stack->lowerDet(),&*lower);
   //printCluster(stack->upperDet(),&*upper);
 
   const PixelGeomDetUnit* geomDetLower = static_cast<const PixelGeomDetUnit*>(stack->lowerDet());
   const PixelGeomDetUnit* geomDetUpper = static_cast<const PixelGeomDetUnit*>(stack->upperDet());
 
-  auto&& lparamsLower = cpe->localParameters(*lower, *geomDetLower);  // x, y, z, e2_xx, e2_xy, e2_yy
+  auto&& lparamsLower = theCpe->localParameters(*lower, *geomDetLower);  // x, y, z, e2_xx, e2_xy, e2_yy
   Global3DPoint gparamsLower = geomDetLower->surface().toGlobal(lparamsLower.first);
   LogTrace("VectorHitBuilderAlgorithm") << "\t lower global pos: " << gparamsLower;
 
-  auto&& lparamsUpper = cpe->localParameters(*upper, *geomDetUpper);
+  auto&& lparamsUpper = theCpe->localParameters(*upper, *geomDetUpper);
   Global3DPoint gparamsUpper = geomDetUpper->surface().toGlobal(lparamsUpper.first);
   LogTrace("VectorHitBuilderAlgorithm") << "\t upper global pos: " << gparamsUpper;
 
@@ -332,11 +329,11 @@ void VectorHitBuilderAlgorithm::fit2Dzx(const Local3DPoint lpCI,
                                         Local3DVector& dir,
                                         AlgebraicSymMatrix22& covMatrix,
                                         double& chi2) const {
-  std::vector<float> x = {lpCI.z(), lpCO.z()};
-  std::vector<float> y = {lpCI.x(), lpCO.x()};
+  float x[2] = {lpCI.z(), lpCO.z()};
+  float y[2] = {lpCI.x(), lpCO.x()};
   float sqCI = sqrt(leCI.xx());
   float sqCO = sqrt(leCO.xx());
-  std::vector<float> sigy = {sqCI, sqCO};
+  float sigy[2] = {sqCI, sqCO};
 
   fit(x, y, sigy, pos, dir, covMatrix, chi2);
 
@@ -351,28 +348,28 @@ void VectorHitBuilderAlgorithm::fit2Dzy(const Local3DPoint lpCI,
                                         Local3DVector& dir,
                                         AlgebraicSymMatrix22& covMatrix,
                                         double& chi2) const {
-  std::vector<float> x = {lpCI.z(), lpCO.z()};
-  std::vector<float> y = {lpCI.y(), lpCO.y()};
+  float x[2] = {lpCI.z(), lpCO.z()};
+  float y[2] = {lpCI.y(), lpCO.y()};
   float sqCI = sqrt(leCI.yy());
   float sqCO = sqrt(leCO.yy());
-  std::vector<float> sigy = {sqCI, sqCO};
+  float sigy[2] = {sqCI, sqCO};
 
   fit(x, y, sigy, pos, dir, covMatrix, chi2);
 
   return;
 }
 
-void VectorHitBuilderAlgorithm::fit(const std::vector<float>& x,
-                                    const std::vector<float>& y,
-                                    const std::vector<float>& sigy,
+void VectorHitBuilderAlgorithm::fit(float x[2],
+                                    float y[2],
+                                    float sigy[2],
                                     Local3DPoint& pos,
                                     Local3DVector& dir,
                                     AlgebraicSymMatrix22& covMatrix,
                                     double& chi2) const {
-  if (x.size() != y.size() || x.size() != sigy.size()) {
-    edm::LogError("VectorHitBuilderAlgorithm") << "Different size for x,z !! No fit possible.";
-    return;
-  }
+  //  if (x.size() != y.size() || x.size() != sigy.size()) {
+  //    edm::LogError("VectorHitBuilderAlgorithm") << "Different size for x,z !! No fit possible.";
+  //    return;
+  //  }
 
   float slope = 0.;
   float intercept = 0.;
@@ -380,24 +377,25 @@ void VectorHitBuilderAlgorithm::fit(const std::vector<float>& x,
   float covii = 0.;
   float covsi = 0.;
 
-  theFitter->fit(x, y, x.size(), sigy, slope, intercept, covss, covii, covsi);
+  //theFitter->linearFit(x, y, 2, sigy, slope, intercept, covss, covii, covsi);
+  linearFit(x, y, 2, sigy, slope, intercept, covss, covii, covsi);
 
   covMatrix[0][0] = covss;  // this is var(dy/dz)
   covMatrix[1][1] = covii;  // this is var(y)
   covMatrix[1][0] = covsi;  // this is cov(dy/dz,y)
 
-  for (unsigned int j = 0; j < x.size(); j++) {
+  for (unsigned int j = 0; j < 2; j++) {
     const double ypred = intercept + slope * x[j];
     const double dy = (y[j] - ypred) / sigy[j];
     chi2 += dy * dy;
   }
 
   pos = Local3DPoint(intercept, 0., 0.);
-  if (x.size() == 2) {
-    //difference in z is the difference of the lowermost and the uppermost cluster z pos
-    float slopeZ = x.at(1) - x.at(0);
-    dir = LocalVector(slope, 0., slopeZ);
-  } else {
-    dir = LocalVector(slope, 0., -1.);
-  }
+  //  if (x.size() == 2) {
+  //difference in z is the difference of the lowermost and the uppermost cluster z pos
+  float slopeZ = x[1] - x[0];
+  dir = LocalVector(slope, 0., slopeZ);
+  //  } else {
+  //    dir = LocalVector(slope, 0., -1.);
+  //  }
 }

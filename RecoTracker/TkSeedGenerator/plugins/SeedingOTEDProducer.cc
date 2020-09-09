@@ -42,7 +42,7 @@ public:
 
   static void fillDescriptions(edm::ConfigurationDescriptions&);
 
-  TrajectorySeedCollection run(edm::Handle<VectorHitCollectionNew>);
+  std::unique_ptr<TrajectorySeedCollection> run(edm::Handle<VectorHitCollectionNew>);
   unsigned int checkLayer(unsigned int iidd);
   std::vector<VectorHit> collectVHsOnLayer(const edmNew::DetSetVector<VectorHit>&, unsigned int);
   void printVHsOnLayer(const edmNew::DetSetVector<VectorHit>&, unsigned int);
@@ -89,6 +89,7 @@ private:
   edm::ESGetToken<TrajectoryStateUpdator, TrackingComponentsRecord> updatorToken_;
   edm::ESGetToken<MeasurementTracker, CkfComponentsRecord> measurementTrackerToken_;
   edm::ESGetToken<Chi2MeasurementEstimatorBase, TrackingComponentsRecord> estToken_;
+  edm::EDPutTokenT<TrajectorySeedCollection> putToken_;
 };
 
 SeedingOTEDProducer::SeedingOTEDProducer(edm::ParameterSet const& conf)
@@ -97,13 +98,13 @@ SeedingOTEDProducer::SeedingOTEDProducer(edm::ParameterSet const& conf)
       topoToken_(esConsumes()),
       propagatorToken_(esConsumes(edm::ESInputTag("", "PropagatorWithMaterial"))),
       magFieldToken_(esConsumes()),
-      updatorToken_(esConsumes(edm::ESInputTag("","KFUpdator"))),
+      updatorToken_(esConsumes(edm::ESInputTag("", "KFUpdator"))),
       measurementTrackerToken_(esConsumes()),
       estToken_(esConsumes(edm::ESInputTag("", "Chi2"))) {
   vhProducerToken_ = consumes<VectorHitCollectionNew>(edm::InputTag(conf.getParameter<edm::InputTag>("src")));
   beamSpotToken_ = consumes<reco::BeamSpot>(conf.getParameter<edm::InputTag>("beamSpotLabel"));
   updatorName_ = conf.getParameter<std::string>("updator");
-  produces<TrajectorySeedCollection>();
+  putToken_ = produces<TrajectorySeedCollection>();
 }
 
 SeedingOTEDProducer::~SeedingOTEDProducer() {}
@@ -118,7 +119,7 @@ void SeedingOTEDProducer::fillDescriptions(edm::ConfigurationDescriptions& descr
 }
 
 void SeedingOTEDProducer::produce(edm::Event& event, const edm::EventSetup& es) {
-  auto seedsWithVHs = std::make_unique<TrajectorySeedCollection>();
+  //auto seedsWithVHs = std::make_unique<TrajectorySeedCollection>();
 
   tkTopo_ = &es.getData(topoToken_);
 
@@ -148,18 +149,20 @@ void SeedingOTEDProducer::produce(edm::Event& event, const edm::EventSetup& es) 
   edm::Handle<VectorHitCollectionNew> vhs;
   event.getByToken(vhProducerToken_, vhs);
 
-  TrajectorySeedCollection const& tempSeeds = run(vhs);
+  /*  TrajectorySeedCollection const& tempSeeds = run(vhs);
   for (auto& qIt : tempSeeds) {
     seedsWithVHs->push_back(qIt);
   }
 
   seedsWithVHs->shrink_to_fit();
-  event.put(std::move(seedsWithVHs));
+  event.put(std::move(seedsWithVHs));*/
+  //auto seedsWithVHs = std::make_unique<>
+  event.put(putToken_, run(vhs));
 }
 
-TrajectorySeedCollection SeedingOTEDProducer::run(edm::Handle<VectorHitCollectionNew> VHs) {
-  TrajectorySeedCollection result;
-
+std::unique_ptr<TrajectorySeedCollection> SeedingOTEDProducer::run(edm::Handle<VectorHitCollectionNew> VHs) {
+  //TrajectorySeedCollection result;
+  auto result = std::make_unique<TrajectorySeedCollection>();
   //check if all the first three layers have VHs
   std::vector<VectorHit> vhSeedsL1 = collectVHsOnLayer(*(VHs.product()), 1);
   std::vector<VectorHit> vhSeedsL2 = collectVHsOnLayer(*(VHs.product()), 2);
@@ -245,21 +248,21 @@ TrajectorySeedCollection SeedingOTEDProducer::run(edm::Handle<VectorHitCollectio
               continue;
             std::pair<bool, TrajectoryStateOnSurface> updatedTSOSL2_final =
                 propagateAndUpdate(updatedTSOSL1_final, *buildingPropagator, *hitL2);
-             if (!updatedTSOSL2_final.first)
+            if (!updatedTSOSL2_final.first)
               continue;
-           std::pair<bool, TrajectoryStateOnSurface> updatedTSOSL3_final =
+            std::pair<bool, TrajectoryStateOnSurface> updatedTSOSL3_final =
                 propagateAndUpdate(updatedTSOSL2_final.second, *buildingPropagator, hitL3);
             if (!updatedTSOSL3_final.first)
               continue;
             TrajectorySeed ts =
                 createSeed(updatedTSOSL3_final.second, container, hitL3.geographicalId(), *buildingPropagator);
-            result.push_back(ts);
+            result->push_back(ts);
           }
         }
       }
     }
   }
-
+  result->shrink_to_fit();
   return result;
 }
 
@@ -293,7 +296,7 @@ void SeedingOTEDProducer::printVHsOnLayer(const edmNew::DetSetVector<VectorHit>&
     for (const auto& DSViter : input) {
       for (const auto& vh : DSViter) {
         if (checkLayer(DSViter.id()) == layerNumber)
-           LogTrace("SeedingOTEDProducer") << " VH in layer " << layerNumber << " >> " << vh;
+          LogTrace("SeedingOTEDProducer") << " VH in layer " << layerNumber << " >> " << vh;
       }
     }
   } else {
@@ -336,7 +339,7 @@ const TrajectoryStateOnSurface SeedingOTEDProducer::buildInitialTSOS(const Vecto
   return tsos;
 }
 
-AlgebraicSymMatrix SeedingOTEDProducer::assign44To55(AlgebraicSymMatrix mat44) const{
+AlgebraicSymMatrix SeedingOTEDProducer::assign44To55(AlgebraicSymMatrix mat44) const {
   if (mat44.num_row() != 4 || mat44.num_col() != 4)
     assert("Wrong dimension! This should be a 4x4 matrix!");
 
@@ -353,7 +356,7 @@ std::pair<bool, TrajectoryStateOnSurface> SeedingOTEDProducer::propagateAndUpdat
     const TrajectoryStateOnSurface initialTSOS, const Propagator& prop, const TrackingRecHit& hit) const {
   TrajectoryStateOnSurface propTSOS = prop.propagate(initialTSOS, hit.det()->surface());
   if UNLIKELY (!propTSOS.isValid())
-     return std::make_pair(false, propTSOS);
+    return std::make_pair(false, propTSOS);
   TrajectoryStateOnSurface updatedTSOS = updator_->update(propTSOS, hit);
   if UNLIKELY (!updatedTSOS.isValid())
     return std::make_pair(false, updatedTSOS);
