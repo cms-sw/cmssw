@@ -30,7 +30,6 @@
 #include "DataFormats/Phase2TrackerDigi/interface/Phase2TrackerDigi.h"
 #include "DataFormats/SiPixelDigi/interface/PixelDigi.h"
 #include "RecoLocalTracker/Phase2TrackerRecHits/interface/Phase2StripCPE.h"
-#include "RecoLocalTracker/SiPhase2VectorHitBuilder/interface/VectorHitMomentumHelper.h"
 
 #include "SimDataFormats/TrackerDigiSimLink/interface/PixelDigiSimLink.h"
 #include "SimDataFormats/Track/interface/SimTrackContainer.h"
