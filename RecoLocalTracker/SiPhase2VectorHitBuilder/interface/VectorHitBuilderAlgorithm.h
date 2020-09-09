@@ -20,8 +20,8 @@ public:
                             const TrackerGeometry* tkGeomProd,
                             const TrackerTopology* tkTopoProd,
                             const ClusterParameterEstimator<Phase2TrackerCluster1D>* cpeProd)
-      : VectorHitBuilderAlgorithmBase(conf, tkGeomProd, tkTopoProd, cpeProd), theFitter(new LinearFit()){};
-  ~VectorHitBuilderAlgorithm() override { delete theFitter; };
+      : VectorHitBuilderAlgorithmBase(conf, tkGeomProd, tkTopoProd, cpeProd){};
+  ~VectorHitBuilderAlgorithm() override{};
 
   void run(edm::Handle<edmNew::DetSetVector<Phase2TrackerCluster1D>> clusters,
            VectorHitCollectionNew& vhAcc,
@@ -63,10 +63,6 @@ public:
                            Phase2TrackerCluster1DRef lower,
                            Phase2TrackerCluster1DRef upper) const override;
 
-  // Full I/O in DetSet
-  //void buildDetUnit( const edm::DetSetVector<Phase2TrackerCluster1D> & input,
-  //                   output_t& output);
-
   void fit2Dzx(const Local3DPoint lpCI,
                const Local3DPoint lpCO,
                const LocalError leCI,
@@ -84,19 +80,15 @@ public:
                AlgebraicSymMatrix22& covMatrix,
                double& chi2) const;
 
-  void fit(const std::vector<float>& x,
-           const std::vector<float>& y,
-           const std::vector<float>& sigy,
+  void fit(float x[2],
+           float y[2],
+           float sigy[2],
            Local3DPoint& pos,
            Local3DVector& dir,
            AlgebraicSymMatrix22& covMatrix,
            double& chi2) const;
 
-  //  void build( const edm::DetSet<Phase2TrackerCluster1D> & input,
-  //                     output_t::FastFiller& output);
-
 private:
-  LinearFit* theFitter;
 };
 
 #endif

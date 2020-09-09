@@ -84,7 +84,6 @@ void VectorHitsBuilderValidation::beginJob() {
   VHaccTrue_signal_Layer_->SetName("VHaccepted_true_signal");
   VHrejTrue_signal_Layer_ = tdWid.make<TH1F>("VHrejTrueSignalLayer", "VHrejTrueSignalLayer", 250, 0., 250.);
   VHrejTrue_signal_Layer_->SetName("VHrejected_true_signal");
-
 }
 
 void VectorHitsBuilderValidation::endJob() {}
@@ -288,7 +287,7 @@ void VectorHitsBuilderValidation::analyze(const edm::Event& event, const edm::Ev
     }
   }
   for (const auto& DSViter : *vhsRej) {
-    for (const auto& vhIt :DSViter) {
+    for (const auto& vhIt : DSViter) {
       LogTrace("VectorHitsBuilderValidation") << "rejected VH: " << vhIt;
     }
   }
@@ -519,9 +518,7 @@ void VectorHitsBuilderValidation::analyze(const edm::Event& event, const edm::Ev
         unsigned int otherSimHits(0);
 
         for (const auto hitIt : *simHitsRaw) {
-          if (hitIt.detUnitId() ==
-              geomDetLower->geographicalId()) {
-
+          if (hitIt.detUnitId() == geomDetLower->geographicalId()) {
             //check clusters track id compatibility
             if (std::find(clusterSimTrackIds.begin(), clusterSimTrackIds.end(), hitIt.trackId()) !=
                 clusterSimTrackIds.end()) {
@@ -738,7 +735,6 @@ void VectorHitsBuilderValidation::analyze(const edm::Event& event, const edm::Ev
     }
   }
 
-
   for (const auto& DSViter : *vhsRej) {
     unsigned int rawid(DSViter.detId());
     DetId detId(rawid);
@@ -773,7 +769,6 @@ void VectorHitsBuilderValidation::analyze(const edm::Event& event, const edm::Ev
       }
     }
   }
-
 
   int VHtot = VHacc + VHrej;
   LogTrace("VectorHitsBuilderValidation")
@@ -886,38 +881,32 @@ std::map<unsigned int, VHHistos>::iterator VectorHitsBuilderValidation::createLa
 
   histoName.str("");
   histoName << "Local_Position_XY_Mixed" << tag.c_str() << id;
-  local_histos.localPosXY[0] =
-      td.make<TGraph>();  
+  local_histos.localPosXY[0] = td.make<TGraph>();
   local_histos.localPosXY[0]->SetName(histoName.str().c_str());
 
   histoName.str("");
   histoName << "Local_Position_XY_PS" << tag.c_str() << id;
-  local_histos.localPosXY[1] =
-      td.make<TGraph>();  
+  local_histos.localPosXY[1] = td.make<TGraph>();
   local_histos.localPosXY[1]->SetName(histoName.str().c_str());
 
   histoName.str("");
   histoName << "Local_Position_XY_2S" << tag.c_str() << id;
-  local_histos.localPosXY[2] =
-      td.make<TGraph>();  
+  local_histos.localPosXY[2] = td.make<TGraph>();
   local_histos.localPosXY[2]->SetName(histoName.str().c_str());
 
   histoName.str("");
   histoName << "Global_Position_XY_Mixed" << tag.c_str() << id;
-  local_histos.globalPosXY[0] =
-      td.make<TGraph>();  
+  local_histos.globalPosXY[0] = td.make<TGraph>();
   local_histos.globalPosXY[0]->SetName(histoName.str().c_str());
 
   histoName.str("");
   histoName << "Global_Position_XY_PS" << tag.c_str() << id;
-  local_histos.globalPosXY[1] =
-      td.make<TGraph>(); 
+  local_histos.globalPosXY[1] = td.make<TGraph>();
   local_histos.globalPosXY[1]->SetName(histoName.str().c_str());
 
   histoName.str("");
   histoName << "Global_Position_XY_2S" << tag.c_str() << id;
-  local_histos.globalPosXY[2] =
-      td.make<TGraph>();
+  local_histos.globalPosXY[2] = td.make<TGraph>();
   local_histos.globalPosXY[2]->SetName(histoName.str().c_str());
 
   /*
@@ -1023,12 +1012,12 @@ void VectorHitsBuilderValidation::CreateVHsXYGraph(const std::vector<Global3DPoi
   // opening canvas and drawing XY TGraph
 
   for (unsigned int nVH = 0; nVH < glVHs.size(); nVH++) {
-      //same r
+    //same r
     if ((fabs(dirVHs.at(nVH).x()) < 10e-5) && (fabs(dirVHs.at(nVH).y()) < 10e-5)) {
       continue;
 
     } else {
-         }
+    }
   }
 
   return;

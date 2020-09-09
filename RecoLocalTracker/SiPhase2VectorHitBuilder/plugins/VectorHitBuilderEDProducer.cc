@@ -35,7 +35,7 @@ private:
 };
 
 //VectorHitBuilderEDProducer::~VectorHitBuilderEDProducer() { delete stubsBuilder_; }
-VectorHitBuilderEDProducer::~VectorHitBuilderEDProducer() { }
+VectorHitBuilderEDProducer::~VectorHitBuilderEDProducer() {}
 
 VectorHitBuilderEDProducer::VectorHitBuilderEDProducer(edm::ParameterSet const& conf)
     : offlinestubsTag_(conf.getParameter<std::string>("offlinestubs")),
@@ -74,12 +74,10 @@ void VectorHitBuilderEDProducer::produce(edm::Event& event, const edm::EventSetu
   run(clustersHandle, *outputClustersAccepted, *outputClustersRejected, *outputVHAccepted, *outputVHRejected);
 
   unsigned int numberOfVectorHits = 0;
-  edmNew::DetSetVector<VectorHit>::const_iterator DSViter;
-  for (DSViter = (*outputVHAccepted).begin(); DSViter != (*outputVHAccepted).end(); DSViter++) {
-    edmNew::DetSet<VectorHit>::const_iterator vh;
-    for (vh = DSViter->begin(); vh != DSViter->end(); ++vh) {
+  for (const auto& DSViter : *outputVHAccepted) {
+    for (const auto& vh : DSViter) {
       numberOfVectorHits++;
-      LogDebug("VectorHitBuilderEDProducer") << "\t vectorhit in output " << *vh << std::endl;
+      LogDebug("VectorHitBuilderEDProducer") << "\t vectorhit in output " << vh << std::endl;
     }
   }
   // write output to file

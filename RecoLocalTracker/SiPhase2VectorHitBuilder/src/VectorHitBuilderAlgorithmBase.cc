@@ -14,11 +14,11 @@ VectorHitBuilderAlgorithmBase::VectorHitBuilderAlgorithmBase(
     const ClusterParameterEstimator<Phase2TrackerCluster1D>* cpeProd)
     : theTkGeom(tkGeomProd),
       theTkTopo(tkTopoProd),
-      cpe(cpeProd),
+      theCpe(cpeProd),
       nMaxVHforeachStack(conf.getParameter<int>("maxVectorHitsInAStack")),
       barrelCut(conf.getParameter<std::vector<double> >("BarrelCut")),
       endcapCut(conf.getParameter<std::vector<double> >("EndcapCut")),
-      cpeTag_(conf.getParameter<edm::ESInputTag>("CPE")){ }
+      cpeTag_(conf.getParameter<edm::ESInputTag>("CPE")) {}
 
 double VectorHitBuilderAlgorithmBase::computeParallaxCorrection(const PixelGeomDetUnit*& geomDetUnit_low,
                                                                 const Point3DBase<float, LocalTag>& lPosClu_low,
@@ -45,10 +45,10 @@ double VectorHitBuilderAlgorithmBase::computeParallaxCorrection(const PixelGeomD
 void VectorHitBuilderAlgorithmBase::printClusters(const edmNew::DetSetVector<Phase2TrackerCluster1D>& clusters) const {
   int nCluster = 0;
   int numberOfDSV = 0;
-  for (const auto& DSViter : clusters){
+  for (const auto& DSViter : clusters) {
     ++numberOfDSV;
     // Loop over the clusters in the detector unit
-    for (const auto& clustIt :DSViter) {
+    for (const auto& clustIt : DSViter) {
       nCluster++;
       // get the detector unit's id
       const GeomDetUnit* geomDetUnit(theTkGeom->idToDetUnit(DSViter.detId()));
@@ -84,7 +84,7 @@ void VectorHitBuilderAlgorithmBase::printCluster(const GeomDet* geomDetUnit,
   LogTrace("VectorHitBuilder") << " and width:" << pixelGeomDetUnit->surface().bounds().width()
                                << " , lenght:" << pixelGeomDetUnit->surface().bounds().length() << std::endl;
 
-  auto&& lparams = cpe->localParameters(*clustIt, *pixelGeomDetUnit);
+  auto&& lparams = theCpe->localParameters(*clustIt, *pixelGeomDetUnit);
   Global3DPoint gparams = pixelGeomDetUnit->surface().toGlobal(lparams.first);
 
   LogTrace("VectorHitBuilder") << "\t global pos " << gparams << std::endl;
@@ -94,10 +94,11 @@ void VectorHitBuilderAlgorithmBase::printCluster(const GeomDet* geomDetUnit,
   return;
 }
 
-void VectorHitBuilderAlgorithmBase::loadDetSetVector(std::map<DetId, std::vector<VectorHit> >& theMap,
+void VectorHitBuilderAlgorithmBase::loadDetSetVector(std::unordered_map<DetId, std::vector<VectorHit> >& theMap,
                                                      edmNew::DetSetVector<VectorHit>& theCollection) const {
   for (const auto& it : theMap) {
     edmNew::DetSetVector<VectorHit>::FastFiller vh_col(theCollection, it.first);
-    for (const auto& vh_it: it.second) vh_col.push_back(vh_it);
+    for (const auto& vh_it : it.second)
+      vh_col.push_back(vh_it);
   }
 }

@@ -28,9 +28,6 @@ public:
                                 const TrackerTopology*,
                                 const ClusterParameterEstimator<Phase2TrackerCluster1D>*);
   virtual ~VectorHitBuilderAlgorithmBase() {}
-  void initTkGeom(const TrackerGeometry* tkGeomProd);
-  void initTkTopo(const TrackerTopology* tkTopoProd);
-  void initCpe(const ClusterParameterEstimator<Phase2TrackerCluster1D>* cpeProd);
 
   //FIXME::ERICA::this should be template, return different collection for different algo used!!
   virtual void run(edm::Handle<edmNew::DetSetVector<Phase2TrackerCluster1D>> clusters,
@@ -58,20 +55,18 @@ public:
   void printClusters(const edmNew::DetSetVector<Phase2TrackerCluster1D>& clusters) const;
   void printCluster(const GeomDet* geomDetUnit, const Phase2TrackerCluster1D* cluster) const;
 
-  void loadDetSetVector(std::map<DetId, std::vector<VectorHit>>& theMap,
+  void loadDetSetVector(std::unordered_map<DetId, std::vector<VectorHit>>& theMap,
                         edmNew::DetSetVector<VectorHit>& theCollection) const;
 
   const TrackerGeometry* theTkGeom;
   const TrackerTopology* theTkTopo;
-  const ClusterParameterEstimator<Phase2TrackerCluster1D>* cpe;
+  const ClusterParameterEstimator<Phase2TrackerCluster1D>* theCpe;
   unsigned int nMaxVHforeachStack;
   std::vector<double> barrelCut;
   std::vector<double> endcapCut;
 
 private:
   edm::ESInputTag cpeTag_;
-
-  //  typedef SiStripRecHit2DCollection::FastFiller Collector;
 };
 
 #endif

@@ -129,9 +129,7 @@ void HitExtractorSTRP::cleanedOfClusters(const TkTransientTrackingRecHitBuilder&
       assert(hits[iH]->isValid());
       auto id = hits[iH]->geographicalId();
       if (matched) {
-        bool replace;
-        ProjectedSiStripRecHit2D* replaceMe;
-        std::tie(replace, replaceMe) = skipThis(ttrhBuilder, *hits[iH], stripClusterMask);
+        auto [replace, replaceMe] = skipThis(ttrhBuilder, *hits[iH], stripClusterMask);
         if (replace) {
           if (!replaceMe) {
             LogTrace("HitExtractorSTRP") << "skipping a matched hit on :" << hits[iH]->geographicalId().rawId();
