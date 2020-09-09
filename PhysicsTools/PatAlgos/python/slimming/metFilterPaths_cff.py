@@ -33,9 +33,9 @@ Flag_chargedHadronTrackResolutionFilter = cms.Path(chargedHadronTrackResolutionF
 Flag_muonBadTrackFilter = cms.Path(muonBadTrackFilter)
 Flag_BadChargedCandidateFilter = cms.Path(BadChargedCandidateFilter)
 Flag_BadPFMuonFilter = cms.Path(BadPFMuonFilter)
-Flag_BadPFMuonDzFilter  = cms.Path(BadPFMuonDzFilter) 
 Flag_BadChargedCandidateSummer16Filter = cms.Path(BadChargedCandidateSummer16Filter)
 Flag_BadPFMuonSummer16Filter = cms.Path(BadPFMuonSummer16Filter)
+Flag_BadPFMuonDzFilter  = cms.Path(BadPFMuonDzFilter)
 
 # and the sub-filters
 Flag_trkPOG_manystripclus53X = cms.Path(~manystripclus53X)
@@ -49,7 +49,7 @@ Flag_METFilters = cms.Path(metFilters)
 #add your new path here!!
 allMetFilterPaths=['HBHENoiseFilter','HBHENoiseIsoFilter','CSCTightHaloFilter','CSCTightHaloTrkMuUnvetoFilter','CSCTightHalo2015Filter','globalTightHalo2016Filter','globalSuperTightHalo2016Filter','HcalStripHaloFilter','hcalLaserEventFilter','EcalDeadCellTriggerPrimitiveFilter','EcalDeadCellBoundaryEnergyFilter','ecalBadCalibFilter','goodVertices','eeBadScFilter',
                    'ecalLaserCorrFilter','trkPOGFilters','chargedHadronTrackResolutionFilter','muonBadTrackFilter',
-                   'BadChargedCandidateFilter','BadPFMuonFilter','BadPFMuonDzFilter','BadChargedCandidateSummer16Filter','BadPFMuonSummer16Filter',
+                   'BadChargedCandidateFilter','BadPFMuonFilter', 'BadPFMuonDzFilter','BadChargedCandidateSummer16Filter','BadPFMuonSummer16Filter',
                    'trkPOG_manystripclus53X','trkPOG_toomanystripclus53X','trkPOG_logErrorTooManyClusters','METFilters']
 
        
