@@ -1,4 +1,4 @@
-#include "FWCore/Framework/interface/SubProcess.h"
+#include "FWCore/Framework/src/SubProcess.h"
 
 #include "DataFormats/Common/interface/ThinnedAssociation.h"
 #include "DataFormats/Provenance/interface/BranchIDListHelper.h"
@@ -18,10 +18,11 @@
 #include "FWCore/Framework/interface/LuminosityBlockPrincipal.h"
 #include "FWCore/Framework/interface/ProcessBlockPrincipal.h"
 #include "FWCore/Framework/interface/OccurrenceTraits.h"
-#include "FWCore/Framework/interface/OutputModuleDescription.h"
+#include "FWCore/Framework/src/OutputModuleDescription.h"
 #include "FWCore/Framework/interface/RunPrincipal.h"
 #include "FWCore/Framework/interface/getAllTriggerNames.h"
 #include "FWCore/Framework/interface/TriggerNamesService.h"
+#include "FWCore/Framework/interface/ScheduleItems.h"
 #include "FWCore/Framework/src/EventSetupsController.h"
 #include "FWCore/Framework/src/SignallingProductRegistry.h"
 #include "FWCore/Framework/src/PreallocationConfiguration.h"

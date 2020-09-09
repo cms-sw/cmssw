@@ -6,7 +6,6 @@
 #include "FWCore/Framework/interface/EDConsumerBase.h"
 #include "FWCore/Framework/interface/PathsAndConsumesOfModules.h"
 #include "FWCore/Framework/src/PrincipalCache.h"
-#include "FWCore/Framework/interface/ScheduleItems.h"
 #include "FWCore/Framework/interface/Schedule.h"
 #include "FWCore/Framework/interface/TriggerResultsBasedEventSelector.h"
 #include "FWCore/Framework/interface/ProductSelectorRules.h"

@@ -113,10 +113,6 @@ namespace edm {
     /// *** pointers!
     std::vector<ModuleDescription const*> getAllModuleDescriptions() const;
 
-    /// Return the trigger report information on paths,
-    /// modules-in-path, modules-in-endpath, and modules.
-    void getTriggerReport(TriggerReport& rep) const;
-
     /// Return whether each output module has reached its maximum count.
     bool terminate() const;
 
