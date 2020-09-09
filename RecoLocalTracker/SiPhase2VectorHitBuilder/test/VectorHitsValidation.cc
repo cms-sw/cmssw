@@ -30,7 +30,7 @@ void VectorHitsBuilderValidation::beginJob() {
   TFileDirectory td = fs->mkdir("Common");
 
   //Create common ntuple
-  tree = td.make<TTree>("VectorHits", "VectorHits");
+  tree_ = td.make<TTree>("VectorHits", "VectorHits");
 
   // Create common graphs
   TFileDirectory tdGloPos = td.mkdir("GlobalPositions");
@@ -68,10 +68,6 @@ void VectorHitsBuilderValidation::beginJob() {
   //drawing VHs arrows
   TFileDirectory tdArr = td.mkdir("Directions");
 
-  //VHXY_[0] = tdArr.make< TCanvas >(); VHXY_[0] -> SetName("YVsX_Mixed");
-  //VHXY_[1] = tdArr.make< TCanvas >(); VHXY_[1] -> SetName("YVsX_Pixel");
-  //VHXY_[2] = tdArr.make< TCanvas >(); VHXY_[2] -> SetName("YVsX_Strip");
-
   TFileDirectory tdWid = td.mkdir("CombinatorialStudies");
   ParallaxCorrectionRZ_ =
       tdWid.make<TH2D>("ParallaxCorrectionRZ", "ParallaxCorrectionRZ", 100, 0., 300., 100., 0., 120.);
@@ -89,10 +85,6 @@ void VectorHitsBuilderValidation::beginJob() {
   VHrejTrue_signal_Layer_ = tdWid.make<TH1F>("VHrejTrueSignalLayer", "VHrejTrueSignalLayer", 250, 0., 250.);
   VHrejTrue_signal_Layer_->SetName("VHrejected_true_signal");
 
-  VHaccTrueLayer_ratio = tdWid.make<TH1F>("VHaccTrueLayer_ratio", "VHaccTrueLayer_ratio", 250, 0., 250.);
-  VHaccTrueLayer_ratio->SetName("VHaccepted_true_ratio");
-  VHrejTrueLayer_ratio = tdWid.make<TH1F>("VHrejTrueLayer_ratio", "VHrejTrueLayer_ratio", 250, 0., 250.);
-  VHrejTrueLayer_ratio->SetName("VHrejected_true_ratio");
 }
 
 void VectorHitsBuilderValidation::endJob() {}
@@ -114,7 +106,7 @@ void VectorHitsBuilderValidation::analyze(const edm::Event& event, const edm::Ev
   // load the cpe via the eventsetup
   edm::ESHandle<ClusterParameterEstimator<Phase2TrackerCluster1D> > cpeHandle;
   eventSetup.get<TkPhase2OTCPERecord>().get(cpeTag_, cpeHandle);
-  cpe = cpeHandle.product();
+  cpe_ = cpeHandle.product();
 
   // Get the Phase2 DigiSimLink
   edm::Handle<edm::DetSetVector<PixelDigiSimLink> > siphase2SimLinks;
@@ -123,8 +115,6 @@ void VectorHitsBuilderValidation::analyze(const edm::Event& event, const edm::Ev
   // Get the SimHits
   edm::Handle<edm::PSimHitContainer> simHitsRaw;
   event.getByToken(simHitsToken_, simHitsRaw);
-  //  edm::Handle< edm::PSimHitContainer > simHitsRawEndcap;
-  //  event.getByLabel("g4SimHits", "TrackerHitsPixelEndcapLowTof", simHitsRawEndcap);
 
   // Get the SimTracks
   edm::Handle<edm::SimTrackContainer> simTracksRaw;
@@ -137,16 +127,16 @@ void VectorHitsBuilderValidation::analyze(const edm::Event& event, const edm::Ev
   // Get the geometry
   edm::ESHandle<TrackerGeometry> geomHandle;
   eventSetup.get<TrackerDigiGeometryRecord>().get(geomHandle);
-  tkGeom = &(*geomHandle);
+  tkGeom_ = &(*geomHandle);
 
   // Get the Topology
   edm::ESHandle<TrackerTopology> tTopoHandle;
   eventSetup.get<TrackerTopologyRcd>().get(tTopoHandle);
-  tkTopo = tTopoHandle.product();
+  tkTopo_ = tTopoHandle.product();
 
   edm::ESHandle<MagneticField> magFieldHandle;
   eventSetup.get<IdealMagneticFieldRecord>().get(magFieldHandle);
-  magField = magFieldHandle.product();
+  magField_ = magFieldHandle.product();
 
   //Tracking Particle collection
   edm::Handle<TrackingParticleCollection> TPCollectionH;
@@ -200,109 +190,106 @@ void VectorHitsBuilderValidation::analyze(const edm::Event& event, const edm::Ev
   float width, deltaXlocal;
   unsigned int processType(99);
 
-  tree->Branch("event", &eventNum, "eventNum/I");
-  tree->Branch("accepted", &VHacc, "VHacc/I");
-  tree->Branch("rejected", &VHrej, "VHrej/I");
-  tree->Branch("layer", &layer, "layer/I");
-  tree->Branch("module_id", &module_id, "module_id/I");
-  tree->Branch("module_type", &module_type, "module_type/I");
-  tree->Branch("module_number", &module_number, "module_number/I");
-  tree->Branch("vh_isTrue", &vh_isTrue, "vh_isTrue/I");
-  tree->Branch("x_global", &x_global, "x_global/F");
-  tree->Branch("y_global", &y_global, "y_global/F");
-  tree->Branch("z_global", &z_global, "z_global/F");
-  tree->Branch("vh_x_local", &vh_x_local, "vh_x_local/F");
-  tree->Branch("vh_y_local", &vh_y_local, "vh_y_local/F");
-  tree->Branch("vh_x_lError", &vh_x_le, "vh_x_le/F");
-  tree->Branch("vh_y_lError", &vh_y_le, "vh_y_le/F");
-  tree->Branch("curvature", &curvature, "curvature/F");
-  tree->Branch("chi2", &chi2, "chi2/F");
-  tree->Branch("phi", &phi, "phi/F");
-  tree->Branch("QOverP", &QOverP, "QOverP/F");
-  tree->Branch("QOverPT", &QOverPT, "QOverPT/F");
-  tree->Branch("low_tp_id", &low_tp_id, "low_tp_id/I");
-  tree->Branch("upp_tp_id", &upp_tp_id, "upp_tp_id/I");
-  tree->Branch("vh_sim_trackPt", &vh_sim_trackPt, "vh_sim_trackPt/F");
-  tree->Branch("sim_x_local", &sim_x_local, "sim_x_local/F");
-  tree->Branch("sim_y_local", &sim_y_local, "sim_y_local/F");
-  tree->Branch("sim_x_global", &sim_x_global, "sim_x_global/F");
-  tree->Branch("sim_y_global", &sim_y_global, "sim_y_global/F");
-  tree->Branch("sim_z_global", &sim_z_global, "sim_z_global/F");
-  tree->Branch("low_x_global", &low_x_global, "low_x_global/F");
-  tree->Branch("low_y_global", &low_y_global, "low_y_global/F");
-  tree->Branch("low_z_global", &low_z_global, "low_z_global/F");
-  tree->Branch("low_xx_global_err", &low_xx_global_err, "low_xx_global_err/F");
-  tree->Branch("low_yy_global_err", &low_yy_global_err, "low_yy_global_err/F");
-  tree->Branch("low_zz_global_err", &low_zz_global_err, "low_zz_global_err/F");
-  tree->Branch("low_xy_global_err", &low_xy_global_err, "low_xy_global_err/F");
-  tree->Branch("low_zx_global_err", &low_zx_global_err, "low_zx_global_err/F");
-  tree->Branch("low_zy_global_err", &low_zy_global_err, "low_zy_global_err/F");
-  tree->Branch("upp_x_global", &upp_x_global, "upp_x_global/F");
-  tree->Branch("upp_y_global", &upp_y_global, "upp_y_global/F");
-  tree->Branch("upp_z_global", &upp_z_global, "upp_z_global/F");
-  tree->Branch("upp_xx_global_err", &upp_xx_global_err, "upp_xx_global_err/F");
-  tree->Branch("upp_yy_global_err", &upp_yy_global_err, "upp_yy_global_err/F");
-  tree->Branch("upp_zz_global_err", &upp_zz_global_err, "upp_zz_global_err/F");
-  tree->Branch("upp_xy_global_err", &upp_xy_global_err, "upp_xy_global_err/F");
-  tree->Branch("upp_zx_global_err", &upp_zx_global_err, "upp_zx_global_err/F");
-  tree->Branch("upp_zy_global_err", &upp_zy_global_err, "upp_zy_global_err/F");
-  tree->Branch("deltaXVHSimHits", &deltaXVHSimHits, "deltaXVHSimHits/F");
-  tree->Branch("deltaYVHSimHits", &deltaYVHSimHits, "deltaYVHSimHits/F");
-  tree->Branch("multiplicity", &multiplicity, "multiplicity/I");
-  tree->Branch("width", &width, "width/F");
-  tree->Branch("deltaXlocal", &deltaXlocal, "deltaXlocal/F");
-  tree->Branch("processType", &processType, "processType/i");
+  tree_->Branch("event", &eventNum, "eventNum/I");
+  tree_->Branch("accepted", &VHacc, "VHacc/I");
+  tree_->Branch("rejected", &VHrej, "VHrej/I");
+  tree_->Branch("layer", &layer, "layer/I");
+  tree_->Branch("module_id", &module_id, "module_id/I");
+  tree_->Branch("module_type", &module_type, "module_type/I");
+  tree_->Branch("module_number", &module_number, "module_number/I");
+  tree_->Branch("vh_isTrue", &vh_isTrue, "vh_isTrue/I");
+  tree_->Branch("x_global", &x_global, "x_global/F");
+  tree_->Branch("y_global", &y_global, "y_global/F");
+  tree_->Branch("z_global", &z_global, "z_global/F");
+  tree_->Branch("vh_x_local", &vh_x_local, "vh_x_local/F");
+  tree_->Branch("vh_y_local", &vh_y_local, "vh_y_local/F");
+  tree_->Branch("vh_x_lError", &vh_x_le, "vh_x_le/F");
+  tree_->Branch("vh_y_lError", &vh_y_le, "vh_y_le/F");
+  tree_->Branch("curvature", &curvature, "curvature/F");
+  tree_->Branch("chi2", &chi2, "chi2/F");
+  tree_->Branch("phi", &phi, "phi/F");
+  tree_->Branch("QOverP", &QOverP, "QOverP/F");
+  tree_->Branch("QOverPT", &QOverPT, "QOverPT/F");
+  tree_->Branch("low_tp_id", &low_tp_id, "low_tp_id/I");
+  tree_->Branch("upp_tp_id", &upp_tp_id, "upp_tp_id/I");
+  tree_->Branch("vh_sim_trackPt", &vh_sim_trackPt, "vh_sim_trackPt/F");
+  tree_->Branch("sim_x_local", &sim_x_local, "sim_x_local/F");
+  tree_->Branch("sim_y_local", &sim_y_local, "sim_y_local/F");
+  tree_->Branch("sim_x_global", &sim_x_global, "sim_x_global/F");
+  tree_->Branch("sim_y_global", &sim_y_global, "sim_y_global/F");
+  tree_->Branch("sim_z_global", &sim_z_global, "sim_z_global/F");
+  tree_->Branch("low_x_global", &low_x_global, "low_x_global/F");
+  tree_->Branch("low_y_global", &low_y_global, "low_y_global/F");
+  tree_->Branch("low_z_global", &low_z_global, "low_z_global/F");
+  tree_->Branch("low_xx_global_err", &low_xx_global_err, "low_xx_global_err/F");
+  tree_->Branch("low_yy_global_err", &low_yy_global_err, "low_yy_global_err/F");
+  tree_->Branch("low_zz_global_err", &low_zz_global_err, "low_zz_global_err/F");
+  tree_->Branch("low_xy_global_err", &low_xy_global_err, "low_xy_global_err/F");
+  tree_->Branch("low_zx_global_err", &low_zx_global_err, "low_zx_global_err/F");
+  tree_->Branch("low_zy_global_err", &low_zy_global_err, "low_zy_global_err/F");
+  tree_->Branch("upp_x_global", &upp_x_global, "upp_x_global/F");
+  tree_->Branch("upp_y_global", &upp_y_global, "upp_y_global/F");
+  tree_->Branch("upp_z_global", &upp_z_global, "upp_z_global/F");
+  tree_->Branch("upp_xx_global_err", &upp_xx_global_err, "upp_xx_global_err/F");
+  tree_->Branch("upp_yy_global_err", &upp_yy_global_err, "upp_yy_global_err/F");
+  tree_->Branch("upp_zz_global_err", &upp_zz_global_err, "upp_zz_global_err/F");
+  tree_->Branch("upp_xy_global_err", &upp_xy_global_err, "upp_xy_global_err/F");
+  tree_->Branch("upp_zx_global_err", &upp_zx_global_err, "upp_zx_global_err/F");
+  tree_->Branch("upp_zy_global_err", &upp_zy_global_err, "upp_zy_global_err/F");
+  tree_->Branch("deltaXVHSimHits", &deltaXVHSimHits, "deltaXVHSimHits/F");
+  tree_->Branch("deltaYVHSimHits", &deltaYVHSimHits, "deltaYVHSimHits/F");
+  tree_->Branch("multiplicity", &multiplicity, "multiplicity/I");
+  tree_->Branch("width", &width, "width/F");
+  tree_->Branch("deltaXlocal", &deltaXlocal, "deltaXlocal/F");
+  tree_->Branch("processType", &processType, "processType/i");
 
   // Rearrange the simTracks for ease of use <simTrackID, simTrack>
   SimTracksMap simTracks;
-  for (edm::SimTrackContainer::const_iterator simTrackIt(simTracksRaw->begin()); simTrackIt != simTracksRaw->end();
-       ++simTrackIt)
-    simTracks.insert(std::pair<unsigned int, SimTrack>(simTrackIt->trackId(), *simTrackIt));
+  for (const auto& simTrackIt : *simTracksRaw.product())
+    simTracks.emplace(std::pair<unsigned int, SimTrack>(simTrackIt.trackId(), simTrackIt));
 
   // Rearrange the simHits by detUnit for ease of use
   SimHitsMap simHitsDetUnit;
   SimHitsMap simHitsTrackId;
-  for (edm::PSimHitContainer::const_iterator simHitIt(simHitsRaw->begin()); simHitIt != simHitsRaw->end(); ++simHitIt) {
-    SimHitsMap::iterator simHitsDetUnitIt(simHitsDetUnit.find(simHitIt->detUnitId()));
+  for (const auto& simHitIt : *simHitsRaw.product()) {
+    SimHitsMap::iterator simHitsDetUnitIt(simHitsDetUnit.find(simHitIt.detUnitId()));
     if (simHitsDetUnitIt == simHitsDetUnit.end()) {
       std::pair<SimHitsMap::iterator, bool> newIt(simHitsDetUnit.insert(
-          std::pair<unsigned int, std::vector<PSimHit> >(simHitIt->detUnitId(), std::vector<PSimHit>())));
+          std::pair<unsigned int, std::vector<PSimHit> >(simHitIt.detUnitId(), std::vector<PSimHit>())));
       simHitsDetUnitIt = newIt.first;
     }
-    simHitsDetUnitIt->second.push_back(*simHitIt);
+    simHitsDetUnitIt->second.push_back(simHitIt);
 
-    SimHitsMap::iterator simHitsTrackIdIt(simHitsTrackId.find(simHitIt->trackId()));
+    SimHitsMap::iterator simHitsTrackIdIt(simHitsTrackId.find(simHitIt.trackId()));
     if (simHitsTrackIdIt == simHitsTrackId.end()) {
       std::pair<SimHitsMap::iterator, bool> newIt(simHitsTrackId.insert(
-          std::pair<unsigned int, std::vector<PSimHit> >(simHitIt->trackId(), std::vector<PSimHit>())));
+          std::pair<unsigned int, std::vector<PSimHit> >(simHitIt.trackId(), std::vector<PSimHit>())));
       simHitsTrackIdIt = newIt.first;
     }
-    simHitsTrackIdIt->second.push_back(*simHitIt);
+    simHitsTrackIdIt->second.push_back(simHitIt);
   }
 
   //Printout outer tracker clusters in the event
-  for (Phase2TrackerCluster1DCollectionNew::const_iterator DSViter = clusters->begin(); DSViter != clusters->end();
-       ++DSViter) {
-    unsigned int rawid(DSViter->detId());
+  for (const auto& DSViter : *clusters) {
+    unsigned int rawid(DSViter.detId());
     DetId detId(rawid);
-    const GeomDetUnit* geomDetUnit(tkGeom->idToDetUnit(detId));
+    const GeomDetUnit* geomDetUnit(tkGeom_->idToDetUnit(detId));
     const PixelGeomDetUnit* theGeomDet = dynamic_cast<const PixelGeomDetUnit*>(geomDetUnit);
-    for (edmNew::DetSet<Phase2TrackerCluster1D>::const_iterator clustIt = DSViter->begin(); clustIt != DSViter->end();
-         ++clustIt) {
-      auto&& lparams = cpe->localParameters(*clustIt, *theGeomDet);
+    for (const auto& clustIt : DSViter) {
+      auto&& lparams = cpe_->localParameters(clustIt, *theGeomDet);
       Global3DPoint gparams = theGeomDet->surface().toGlobal(lparams.first);
       LogTrace("VectorHitsBuilderValidation") << "phase2 OT clusters: " << gparams << " DetId: " << rawid;
     }
   }
 
-  for (VectorHitCollectionNew::const_iterator DSViter = vhsAcc->begin(); DSViter != vhsAcc->end(); ++DSViter) {
-    for (edmNew::DetSet<VectorHit>::const_iterator vhIt = DSViter->begin(); vhIt != DSViter->end(); ++vhIt) {
-      LogTrace("VectorHitsBuilderValidation") << "accepted VH: " << *vhIt;
+  for (const auto& DSViter : *vhsAcc) {
+    for (const auto& vhIt : DSViter) {
+      LogTrace("VectorHitsBuilderValidation") << "accepted VH: " << vhIt;
     }
   }
-  for (VectorHitCollectionNew::const_iterator DSViter = vhsRej->begin(); DSViter != vhsRej->end(); ++DSViter) {
-    for (edmNew::DetSet<VectorHit>::const_iterator vhIt = DSViter->begin(); vhIt != DSViter->end(); ++vhIt) {
-      LogTrace("VectorHitsBuilderValidation") << "rejected VH: " << *vhIt;
+  for (const auto& DSViter : *vhsRej) {
+    for (const auto& vhIt :DSViter) {
+      LogTrace("VectorHitsBuilderValidation") << "rejected VH: " << vhIt;
     }
   }
   // Validation
@@ -314,9 +301,9 @@ void VectorHitsBuilderValidation::analyze(const edm::Event& event, const edm::Ev
   std::vector<int> detIds;
 
   // Loop over modules
-  for (VectorHitCollectionNew::const_iterator DSViter = vhsAcc->begin(); DSViter != vhsAcc->end(); ++DSViter) {
+  for (const auto DSViter : *vhsAcc) {
     // Get the detector unit's id
-    unsigned int rawid(DSViter->detId());
+    unsigned int rawid(DSViter.detId());
     module_id = rawid;
     DetId detId(rawid);
 
@@ -326,7 +313,7 @@ void VectorHitsBuilderValidation::analyze(const edm::Event& event, const edm::Ev
     LogDebug("VectorHitsBuilderValidation") << "Layer: " << layer << "  det id" << rawid << std::endl;
 
     // Get the geometry of the tracker
-    const GeomDet* geomDet(tkGeom->idToDet(detId));
+    const GeomDet* geomDet(tkGeom_->idToDet(detId));
     if (!geomDet)
       break;
 
@@ -337,22 +324,22 @@ void VectorHitsBuilderValidation::analyze(const edm::Event& event, const edm::Ev
     // Number of clusters
     unsigned int nVHsPS(0), nVHs2S(0);
 
-    LogDebug("VectorHitsBuilderValidation") << "DSViter size: " << DSViter->size();
+    LogDebug("VectorHitsBuilderValidation") << "DSViter size: " << DSViter.size();
 
     // Loop over the vhs in the detector unit
-    for (edmNew::DetSet<VectorHit>::const_iterator vhIt = DSViter->begin(); vhIt != DSViter->end(); ++vhIt) {
+    for (const auto& vhIt : DSViter) {
       // vh variables
-      if (vhIt->isValid()) {
+      if (vhIt.isValid()) {
         LogDebug("VectorHitsBuilderValidation") << " vh analyzing ...";
-        chi2 = vhIt->chi2();
+        chi2 = vhIt.chi2();
         LogTrace("VectorHitsBuilderValidation") << "VH chi2 " << chi2 << std::endl;
 
-        Local3DPoint localPosVH = vhIt->localPosition();
+        Local3DPoint localPosVH = vhIt.localPosition();
         vh_x_local = localPosVH.x();
         vh_y_local = localPosVH.y();
         LogTrace("VectorHitsBuilderValidation") << "local VH position " << localPosVH << std::endl;
 
-        LocalError localErrVH = vhIt->localPositionError();
+        LocalError localErrVH = vhIt.localPositionError();
         vh_x_le = localErrVH.xx();
         vh_y_le = localErrVH.yy();
         LogTrace("VectorHitsBuilderValidation") << "local VH error " << localErrVH << std::endl;
@@ -364,10 +351,10 @@ void VectorHitsBuilderValidation::analyze(const edm::Event& event, const edm::Ev
         glVHs.push_back(globalPosVH);
         LogTrace("VectorHitsBuilderValidation") << " global VH position " << globalPosVH << std::endl;
 
-        Local3DVector localDirVH = vhIt->localDirection();
+        Local3DVector localDirVH = vhIt.localDirection();
         LogTrace("VectorHitsBuilderValidation") << "local VH direction " << localDirVH << std::endl;
 
-        VectorHit vh = *vhIt;
+        VectorHit vh = vhIt;
         Global3DVector globalDirVH = vh.globalDelta();
         dirVHs.push_back(globalDirVH);
         LogTrace("VectorHitsBuilderValidation") << "global VH direction " << globalDirVH << std::endl;
@@ -393,7 +380,7 @@ void VectorHitsBuilderValidation::analyze(const edm::Event& event, const edm::Ev
         DetId lowerDetId = stackDet->lowerDet()->geographicalId();
         DetId upperDetId = stackDet->upperDet()->geographicalId();
 
-        TrackerGeometry::ModuleType mType = tkGeom->getDetectorType(lowerDetId);
+        TrackerGeometry::ModuleType mType = tkGeom_->getDetectorType(lowerDetId);
         module_type = 0;
         if (mType == TrackerGeometry::ModuleType::Ph2PSP) {
           module_type = 1;
@@ -430,50 +417,50 @@ void VectorHitsBuilderValidation::analyze(const edm::Event& event, const edm::Ev
         LogTrace("VectorHitsBuilderValidation") << "module type " << module_type << std::endl;
 
         // get the geomDetUnit of the clusters
-        low_x_global = vhIt->lowerGlobalPos().x();
-        low_y_global = vhIt->lowerGlobalPos().y();
-        low_z_global = vhIt->lowerGlobalPos().z();
-        upp_x_global = vhIt->upperGlobalPos().x();
-        upp_y_global = vhIt->upperGlobalPos().y();
-        upp_z_global = vhIt->upperGlobalPos().z();
+        low_x_global = vhIt.lowerGlobalPos().x();
+        low_y_global = vhIt.lowerGlobalPos().y();
+        low_z_global = vhIt.lowerGlobalPos().z();
+        upp_x_global = vhIt.upperGlobalPos().x();
+        upp_y_global = vhIt.upperGlobalPos().y();
+        upp_z_global = vhIt.upperGlobalPos().z();
 
-        low_xx_global_err = vhIt->lowerGlobalPosErr().cxx();
-        low_yy_global_err = vhIt->lowerGlobalPosErr().cyy();
-        low_zz_global_err = vhIt->lowerGlobalPosErr().czz();
-        low_xy_global_err = vhIt->lowerGlobalPosErr().cyx();
-        low_zx_global_err = vhIt->lowerGlobalPosErr().czx();
-        low_zy_global_err = vhIt->lowerGlobalPosErr().czy();
+        low_xx_global_err = vhIt.lowerGlobalPosErr().cxx();
+        low_yy_global_err = vhIt.lowerGlobalPosErr().cyy();
+        low_zz_global_err = vhIt.lowerGlobalPosErr().czz();
+        low_xy_global_err = vhIt.lowerGlobalPosErr().cyx();
+        low_zx_global_err = vhIt.lowerGlobalPosErr().czx();
+        low_zy_global_err = vhIt.lowerGlobalPosErr().czy();
 
-        upp_xx_global_err = vhIt->upperGlobalPosErr().cxx();
-        upp_yy_global_err = vhIt->upperGlobalPosErr().cyy();
-        upp_zz_global_err = vhIt->upperGlobalPosErr().czz();
-        upp_xy_global_err = vhIt->upperGlobalPosErr().cyx();
-        upp_zx_global_err = vhIt->upperGlobalPosErr().czx();
-        upp_zy_global_err = vhIt->upperGlobalPosErr().czy();
+        upp_xx_global_err = vhIt.upperGlobalPosErr().cxx();
+        upp_yy_global_err = vhIt.upperGlobalPosErr().cyy();
+        upp_zz_global_err = vhIt.upperGlobalPosErr().czz();
+        upp_xy_global_err = vhIt.upperGlobalPosErr().cyx();
+        upp_zx_global_err = vhIt.upperGlobalPosErr().czx();
+        upp_zy_global_err = vhIt.upperGlobalPosErr().czy();
 
         LogDebug("VectorHitsBuilderValidation") << "print Clusters into the VH:" << std::endl;
-        printCluster(geomDetLower, vhIt->lowerClusterRef());
-        LogTrace("VectorHitsBuilderValidation") << "\t global pos lower " << vhIt->lowerGlobalPos() << std::endl;
+        printCluster(geomDetLower, vhIt.lowerClusterRef());
+        LogTrace("VectorHitsBuilderValidation") << "\t global pos lower " << vhIt.lowerGlobalPos() << std::endl;
         LogTrace("VectorHitsBuilderValidation")
-            << "\t global posErr lower " << vhIt->lowerGlobalPosErr().cxx() << std::endl;
+            << "\t global posErr lower " << vhIt.lowerGlobalPosErr().cxx() << std::endl;
         const GeomDetUnit* geomDetUpper = stackDet->upperDet();
-        printCluster(geomDetUpper, vhIt->upperClusterRef());
-        LogTrace("VectorHitsBuilderValidation") << "\t global pos upper " << vhIt->upperGlobalPos() << std::endl;
+        printCluster(geomDetUpper, vhIt.upperClusterRef());
+        LogTrace("VectorHitsBuilderValidation") << "\t global pos upper " << vhIt.upperGlobalPos() << std::endl;
 
         //comparison with SIM hits
         LogDebug("VectorHitsBuilderValidation") << "comparison Clusters with sim hits ... " << std::endl;
         std::vector<unsigned int> clusterSimTrackIds;
         std::vector<unsigned int> clusterSimTrackIdsUpp;
         std::set<std::pair<uint32_t, EncodedEventId> > simTkIds;
-        const GeomDetUnit* geomDetUnit_low(tkGeom->idToDetUnit(lowerDetId));
+        const GeomDetUnit* geomDetUnit_low(tkGeom_->idToDetUnit(lowerDetId));
         LogTrace("VectorHitsBuilderValidation") << " lowerDetID : " << lowerDetId.rawId();
-        const GeomDetUnit* geomDetUnit_upp(tkGeom->idToDetUnit(upperDetId));
+        const GeomDetUnit* geomDetUnit_upp(tkGeom_->idToDetUnit(upperDetId));
         LogTrace("VectorHitsBuilderValidation") << " upperDetID : " << upperDetId.rawId();
 
-        for (unsigned int istr(0); istr < (*(vhIt->lowerClusterRef().cluster_phase2OT())).size(); ++istr) {
+        for (unsigned int istr(0); istr < (*(vhIt.lowerClusterRef().cluster_phase2OT())).size(); ++istr) {
           uint32_t channel =
-              Phase2TrackerDigi::pixelToChannel((*(vhIt->lowerClusterRef().cluster_phase2OT())).firstRow() + istr,
-                                                (*(vhIt->lowerClusterRef().cluster_phase2OT())).column());
+              Phase2TrackerDigi::pixelToChannel((*(vhIt.lowerClusterRef().cluster_phase2OT())).firstRow() + istr,
+                                                (*(vhIt.lowerClusterRef().cluster_phase2OT())).column());
           unsigned int LowerSimTrackId(getSimTrackId(siphase2SimLinks, lowerDetId, channel));
           std::vector<std::pair<uint32_t, EncodedEventId> > trkid(
               getSimTrackIds(siphase2SimLinks, lowerDetId, channel));
@@ -484,13 +471,11 @@ void VectorHitsBuilderValidation::analyze(const edm::Event& event, const edm::Ev
           LogTrace("VectorHitsBuilderValidation") << "LowerSimTrackId " << LowerSimTrackId << std::endl;
         }
         // In the case of PU, we need the TPs to find the proper SimTrackID
-        for (std::set<std::pair<uint32_t, EncodedEventId> >::const_iterator iset = simTkIds.begin();
-             iset != simTkIds.end();
-             iset++) {
-          auto ipos = mapping.find(*iset);
+        for (const auto& iset : simTkIds) {
+          auto ipos = mapping.find(iset);
           if (ipos != mapping.end()) {
             LogTrace("VectorHitsBuilderValidation") << "lower cluster in detid: " << lowerDetId.rawId()
-                                                    << " from tp: " << ipos->second.key() << " " << iset->first;
+                                                    << " from tp: " << ipos->second.key() << " " << iset.first;
             LogTrace("VectorHitsBuilderValidation") << "with pt(): " << (*ipos->second).pt();
             low_tp_id = ipos->second.key();
             vh_sim_trackPt = (*ipos->second).pt();
@@ -498,10 +483,10 @@ void VectorHitsBuilderValidation::analyze(const edm::Event& event, const edm::Ev
         }
 
         simTkIds.clear();
-        for (unsigned int istr(0); istr < (*(vhIt->upperClusterRef().cluster_phase2OT())).size(); ++istr) {
+        for (unsigned int istr(0); istr < (*(vhIt.upperClusterRef().cluster_phase2OT())).size(); ++istr) {
           uint32_t channel =
-              Phase2TrackerDigi::pixelToChannel((*(vhIt->upperClusterRef().cluster_phase2OT())).firstRow() + istr,
-                                                (*(vhIt->upperClusterRef().cluster_phase2OT())).column());
+              Phase2TrackerDigi::pixelToChannel((*(vhIt.upperClusterRef().cluster_phase2OT())).firstRow() + istr,
+                                                (*(vhIt.upperClusterRef().cluster_phase2OT())).column());
           unsigned int UpperSimTrackId(getSimTrackId(siphase2SimLinks, upperDetId, channel));
           std::vector<std::pair<uint32_t, EncodedEventId> > trkid(
               getSimTrackIds(siphase2SimLinks, upperDetId, channel));
@@ -512,19 +497,17 @@ void VectorHitsBuilderValidation::analyze(const edm::Event& event, const edm::Ev
           LogTrace("VectorHitsBuilderValidation") << "UpperSimTrackId " << UpperSimTrackId << std::endl;
         }
         // In the case of PU, we need the TPs to find the proper SimTrackID
-        for (std::set<std::pair<uint32_t, EncodedEventId> >::const_iterator iset = simTkIds.begin();
-             iset != simTkIds.end();
-             iset++) {
-          auto ipos = mapping.find(*iset);
+        for (const auto& iset : simTkIds) {
+          auto ipos = mapping.find(iset);
           if (ipos != mapping.end()) {
             LogTrace("VectorHitsBuilderValidation")
                 << "upper cluster in detid: " << upperDetId.rawId() << " from tp: " << ipos->second.key() << " "
-                << iset->first << std::endl;
+                << iset.first << std::endl;
             upp_tp_id = ipos->second.key();
           }
         }
         //compute if the vhits is 'true' or 'false' and save sim pT
-        std::pair<bool, uint32_t> istrue = isTrue(*vhIt, siphase2SimLinks, detId);
+        std::pair<bool, uint32_t> istrue = isTrue(vhIt, siphase2SimLinks, detId);
         vh_isTrue = 0;
         if (istrue.first) {
           vh_isTrue = 1;
@@ -535,14 +518,14 @@ void VectorHitsBuilderValidation::analyze(const edm::Event& event, const edm::Ev
         unsigned int primarySimHits(0);
         unsigned int otherSimHits(0);
 
-        for (edm::PSimHitContainer::const_iterator hitIt(simHitsRaw->begin()); hitIt != simHitsRaw->end(); ++hitIt) {
-          if (hitIt->detUnitId() ==
-              geomDetLower->geographicalId()) {  // || hitIt->detUnitId() == geomDetUpper->geographicalId()){
+        for (const auto hitIt : *simHitsRaw) {
+          if (hitIt.detUnitId() ==
+              geomDetLower->geographicalId()) {
 
             //check clusters track id compatibility
-            if (std::find(clusterSimTrackIds.begin(), clusterSimTrackIds.end(), hitIt->trackId()) !=
+            if (std::find(clusterSimTrackIds.begin(), clusterSimTrackIds.end(), hitIt.trackId()) !=
                 clusterSimTrackIds.end()) {
-              Local3DPoint localPosHit(hitIt->localPosition());
+              Local3DPoint localPosHit(hitIt.localPosition());
               sim_x_local = localPosHit.x();
               sim_y_local = localPosHit.y();
 
@@ -570,13 +553,12 @@ void VectorHitsBuilderValidation::analyze(const edm::Event& event, const edm::Ev
 
               ++totalSimHits;
 
-              std::map<unsigned int, SimTrack>::const_iterator simTrackIt(simTracks.find(hitIt->trackId()));
+              std::map<unsigned int, SimTrack>::const_iterator simTrackIt(simTracks.find(hitIt.trackId()));
               if (simTrackIt == simTracks.end())
                 continue;
-              //LogTrace("VectorHitsBuilderValidation") << "--> with hitIt. The SimTrack has p: " << simTrackIt->second.momentum();
 
               // Primary particles only
-              processType = hitIt->processType();
+              processType = hitIt.processType();
 
               if (simTrackIt->second.vertIndex() == 0 and
                   (processType == 2 || processType == 7 || processType == 9 || processType == 11 || processType == 13 ||
@@ -608,21 +590,21 @@ void VectorHitsBuilderValidation::analyze(const edm::Event& event, const edm::Ev
         }  // loop simhits
 
         nVHsTot++;
-        //tree->Fill();
+        //tree_->Fill();
 
         //******************************
         //combinatorial studies : not filling if more than 1 VH has been produced
         //******************************
-        multiplicity = DSViter->size();
-        if (DSViter->size() > 1) {
+        multiplicity = DSViter.size();
+        if (DSViter.size() > 1) {
           LogTrace("VectorHitsBuilderValidation") << " not filling if more than 1 VH has been produced";
           width = -100;
           deltaXlocal = -100;
-          tree->Fill();
+          tree_->Fill();
           continue;
         }
 
-        VectorHitMomentumHelper vhMomHelper(magField);
+        VectorHitMomentumHelper vhMomHelper(magField_);
         //curvature
         curvature = vh.curvatureORphi(VectorHit::curvatureMode).first;
         phi = vh.curvatureORphi(VectorHit::phiMode).first;
@@ -632,18 +614,17 @@ void VectorHitsBuilderValidation::analyze(const edm::Event& event, const edm::Ev
 
         //stub width
 
-        auto&& lparamsUpp = cpe->localParameters(*vhIt->upperClusterRef().cluster_phase2OT(), *geomDetUnit_upp);
+        auto&& lparamsUpp = cpe_->localParameters(*vhIt.upperClusterRef().cluster_phase2OT(), *geomDetUnit_upp);
         LogTrace("VectorHitsBuilderValidation") << " upper local pos (in its sor):" << lparamsUpp.first;
         Global3DPoint gparamsUpp = geomDetUnit_upp->surface().toGlobal(lparamsUpp.first);
         LogTrace("VectorHitsBuilderValidation") << " upper global pos :" << gparamsUpp;
         Local3DPoint lparamsUppInLow = geomDetUnit_low->surface().toLocal(gparamsUpp);
         LogTrace("VectorHitsBuilderValidation") << " upper local pos (in low sor):" << lparamsUppInLow;
-        auto&& lparamsLow = cpe->localParameters(*vhIt->lowerClusterRef().cluster_phase2OT(), *geomDetUnit_low);
+        auto&& lparamsLow = cpe_->localParameters(*vhIt.lowerClusterRef().cluster_phase2OT(), *geomDetUnit_low);
         LogTrace("VectorHitsBuilderValidation") << " lower local pos (in its sor):" << lparamsLow.first;
         Global3DPoint gparamsLow = geomDetUnit_low->surface().toGlobal(lparamsLow.first);
         LogTrace("VectorHitsBuilderValidation") << " lower global pos :" << gparamsLow;
 
-        //width = difference of centroids in precise coordinate (in low sor) corrected with parallax correction
         deltaXlocal = lparamsUppInLow.x() - lparamsLow.first.x();
         histogramLayer->second.deltaXlocal->Fill(deltaXlocal);
         LogTrace("VectorHitsBuilderValidation") << " deltaXlocal : " << deltaXlocal;
@@ -652,11 +633,8 @@ void VectorHitsBuilderValidation::analyze(const edm::Event& event, const edm::Ev
 
         Global3DPoint origin(0, 0, 0);
         GlobalVector gV = gparamsLow - origin;
-        //LogTrace("VectorHitsBuilderValidation") << " global vector passing to the origin:" << gV;
         LocalVector lV = geomDetUnit_low->surface().toLocal(gV);
-        //LogTrace("VectorHitsBuilderValidation") << " local vector passing to the origin (in low sor):" << lV;
         LocalVector lV_norm = lV / lV.z();
-        //LogTrace("VectorHitsBuilderValidation") << " normalized local vector passing to the origin (in low sor):" << lV_norm;
         parallCorr = lV_norm.x() * lparamsUppInLow.z();
         LogTrace("VectorHitsBuilderValidation") << " parallalex correction:" << parallCorr;
 
@@ -698,7 +676,7 @@ void VectorHitsBuilderValidation::analyze(const edm::Event& event, const edm::Ev
         histogramLayer->second.width->Fill(width);
         LogTrace("VectorHitsBuilderValidation") << " width:" << width;
 
-        tree->Fill();
+        tree_->Fill();
 
       }  // vh valid
 
@@ -723,22 +701,21 @@ void VectorHitsBuilderValidation::analyze(const edm::Event& event, const edm::Ev
   int VHrejTrue_signal = 0.0;
 
   // Loop over modules
-  for (VectorHitCollectionNew::const_iterator DSViter = vhsAcc->begin(); DSViter != vhsAcc->end(); ++DSViter) {
-    unsigned int rawid(DSViter->detId());
+  for (const auto& DSViter : *vhsAcc) {
+    unsigned int rawid(DSViter.detId());
     DetId detId(rawid);
     int layerAcc = getLayerNumber(detId);
     LogTrace("VectorHitsBuilderValidation") << "acc Layer: " << layerAcc << "  det id" << rawid << std::endl;
-    for (edmNew::DetSet<VectorHit>::const_iterator vhIt = DSViter->begin(); vhIt != DSViter->end(); ++vhIt) {
-      if (vhIt->isValid()) {
+    for (const auto& vhIt : DSViter) {
+      if (vhIt.isValid()) {
         VHaccLayer_->Fill(layerAcc);
         VHacc++;
 
         //compute if the vhits is 'true' or 'false'
-        std::pair<bool, uint32_t> istrue = isTrue(*vhIt, siphase2SimLinks, detId);
+        std::pair<bool, uint32_t> istrue = isTrue(vhIt, siphase2SimLinks, detId);
         if (istrue.first) {
           LogTrace("VectorHitsBuilderValidation") << "this vectorhit is a 'true' vhit.";
           VHaccTrueLayer_->Fill(layerAcc);
-          //VHaccTrueLayer_ratio->Fill(layerAcc);
           VHaccTrue++;
 
           //saving info of 'signal' track
@@ -761,24 +738,21 @@ void VectorHitsBuilderValidation::analyze(const edm::Event& event, const edm::Ev
     }
   }
 
-  //it is not really working..
-  //VHaccTrueLayer_ratio->Divide(VHaccLayer_);
 
-  for (VectorHitCollectionNew::const_iterator DSViter = vhsRej->begin(); DSViter != vhsRej->end(); ++DSViter) {
-    unsigned int rawid(DSViter->detId());
+  for (const auto& DSViter : *vhsRej) {
+    unsigned int rawid(DSViter.detId());
     DetId detId(rawid);
     int layerRej = getLayerNumber(detId);
     LogTrace("VectorHitsBuilderValidation") << "rej Layer: " << layerRej << "  det id" << rawid << std::endl;
-    for (edmNew::DetSet<VectorHit>::const_iterator vhIt = DSViter->begin(); vhIt != DSViter->end(); ++vhIt) {
+    for (const auto& vhIt : DSViter) {
       VHrejLayer_->Fill(layerRej);
       VHrej++;
 
       //compute if the vhits is 'true' or 'false'
-      std::pair<bool, uint32_t> istrue = isTrue(*vhIt, siphase2SimLinks, detId);
+      std::pair<bool, uint32_t> istrue = isTrue(vhIt, siphase2SimLinks, detId);
       if (istrue.first) {
         LogTrace("VectorHitsBuilderValidation") << "this vectorhit is a 'true' vhit.";
         VHrejTrueLayer_->Fill(layerRej);
-        //VHrejTrueLayer_ratio->Fill(layerRej);
         VHrejTrue++;
 
         //saving info of 'signal' track
@@ -800,8 +774,6 @@ void VectorHitsBuilderValidation::analyze(const edm::Event& event, const edm::Ev
     }
   }
 
-  //it is not really working..
-  //VHrejTrueLayer_ratio->Divide(VHrejLayer_);
 
   int VHtot = VHacc + VHrej;
   LogTrace("VectorHitsBuilderValidation")
@@ -820,13 +792,12 @@ void VectorHitsBuilderValidation::analyze(const edm::Event& event, const edm::Ev
 // Check if the vector hit is true (both clusters are formed from the same SimTrack
 std::pair<bool, uint32_t> VectorHitsBuilderValidation::isTrue(
     const VectorHit vh, const edm::Handle<edm::DetSetVector<PixelDigiSimLink> >& siphase2SimLinks, DetId& detId) const {
-  const GeomDet* geomDet(tkGeom->idToDet(detId));
+  const GeomDet* geomDet(tkGeom_->idToDet(detId));
   const StackGeomDet* stackDet = dynamic_cast<const StackGeomDet*>(geomDet);
   const GeomDetUnit* geomDetLower = stackDet->lowerDet();
   const GeomDetUnit* geomDetUpper = stackDet->upperDet();
 
   std::vector<unsigned int> lowClusterSimTrackIds;
-  //std::set<std::pair<uint32_t, EncodedEventId> > simTkIds;
 
   for (unsigned int istr(0); istr < (*(vh.lowerClusterRef().cluster_phase2OT())).size(); ++istr) {
     uint32_t channel = Phase2TrackerDigi::pixelToChannel((*(vh.lowerClusterRef().cluster_phase2OT())).firstRow() + istr,
@@ -838,7 +809,6 @@ std::pair<bool, uint32_t> VectorHitsBuilderValidation::isTrue(
     if (trkid.size() == 0)
       continue;
     lowClusterSimTrackIds.push_back(simTrackId);
-    //simTkIds.insert(trkid.begin(),trkid.end());
   }
 
   std::vector<unsigned int>::iterator it_simTrackUpper;
@@ -857,8 +827,6 @@ std::pair<bool, uint32_t> VectorHitsBuilderValidation::isTrue(
       LogTrace("VectorHitsBuilderValidation") << " UpperSimTrackId found in lowClusterSimTrackIds ";
       return std::make_pair(true, simTrackId);
     }
-    //clusterSimTrackIds.push_back(UpperSimTrackId);
-    //simTkIds.insert(trkid.begin(),trkid.end());
   }
   return std::make_pair(false, 0);
 }
@@ -919,37 +887,37 @@ std::map<unsigned int, VHHistos>::iterator VectorHitsBuilderValidation::createLa
   histoName.str("");
   histoName << "Local_Position_XY_Mixed" << tag.c_str() << id;
   local_histos.localPosXY[0] =
-      td.make<TGraph>();  //histoName.str().c_str(), histoName.str().c_str(), 2000, 0., 0., 2000, 0., 0.);
+      td.make<TGraph>();  
   local_histos.localPosXY[0]->SetName(histoName.str().c_str());
 
   histoName.str("");
   histoName << "Local_Position_XY_PS" << tag.c_str() << id;
   local_histos.localPosXY[1] =
-      td.make<TGraph>();  //histoName.str().c_str(), histoName.str().c_str(), 2000, 0., 0., 2000, 0., 0.);
+      td.make<TGraph>();  
   local_histos.localPosXY[1]->SetName(histoName.str().c_str());
 
   histoName.str("");
   histoName << "Local_Position_XY_2S" << tag.c_str() << id;
   local_histos.localPosXY[2] =
-      td.make<TGraph>();  //histoName.str().c_str(), histoName.str().c_str(), 2000, 0., 0., 2000, 0., 0.);
+      td.make<TGraph>();  
   local_histos.localPosXY[2]->SetName(histoName.str().c_str());
 
   histoName.str("");
   histoName << "Global_Position_XY_Mixed" << tag.c_str() << id;
   local_histos.globalPosXY[0] =
-      td.make<TGraph>();  //histoName.str().c_str(), histoName.str().c_str(), 2400, -120.0, 120.0, 2400, -120.0, 120.0);
+      td.make<TGraph>();  
   local_histos.globalPosXY[0]->SetName(histoName.str().c_str());
 
   histoName.str("");
   histoName << "Global_Position_XY_PS" << tag.c_str() << id;
   local_histos.globalPosXY[1] =
-      td.make<TGraph>();  //histoName.str().c_str(), histoName.str().c_str(), 2400, -120.0, 120.0, 2400, -120.0, 120.0);
+      td.make<TGraph>(); 
   local_histos.globalPosXY[1]->SetName(histoName.str().c_str());
 
   histoName.str("");
   histoName << "Global_Position_XY_2S" << tag.c_str() << id;
   local_histos.globalPosXY[2] =
-      td.make<TGraph>();  //histoName.str().c_str(), histoName.str().c_str(), 2400, -120.0, 120.0, 2400, -120.0, 120.0);
+      td.make<TGraph>();
   local_histos.globalPosXY[2]->SetName(histoName.str().c_str());
 
   /*
@@ -1054,27 +1022,13 @@ void VectorHitsBuilderValidation::CreateVHsXYGraph(const std::vector<Global3DPoi
 
   // opening canvas and drawing XY TGraph
 
-  //TCanvas * VHXY_ = new TCanvas("RVsY_Mixed","RVsY_Mixed",800,600);
-  //VHXY_->cd();
-  //trackerLayoutXY_[0]->Draw("AP");
-
-  //  float finalposX, finalposY;
-
   for (unsigned int nVH = 0; nVH < glVHs.size(); nVH++) {
-    //    finalposX = glVHs.at(nVH).x() + dirVHs.at(nVH).x();
-    //    finalposY = glVHs.at(nVH).y() + dirVHs.at(nVH).y();
-    //std::cout << glVHs.at(nVH) << " " << " \tr: " << glVHs.at(nVH).perp() << std::endl;
-    //std::cout << dirVHs.at(nVH).x() << "," << dirVHs.at(nVH).y() << std::endl;
-
-    //same r
+      //same r
     if ((fabs(dirVHs.at(nVH).x()) < 10e-5) && (fabs(dirVHs.at(nVH).y()) < 10e-5)) {
-      //std::cout << "same pos!";
       continue;
 
     } else {
-      //    TArrow* vh_arrow = new TArrow(glVHs.at(nVH).x(), glVHs.at(nVH).y(), finalposX, finalposY, 0.05, ">");
-      //    vh_arrow->Draw("same");
-    }
+         }
   }
 
   return;
@@ -1087,31 +1041,6 @@ void VectorHitsBuilderValidation::CreateVHsRZGraph(const std::vector<Global3DPoi
     return;
   }
 
-  // opening canvas and drawing RZ TGraph
-  //
-  //TCanvas* VHRZ_ = new TCanvas("RVsZ_Mixed","RVsZ_Mixed",800,600);
-  //VHRZ_->cd();
-  //trackerLayoutRZ_[0]->Draw("AP");
-
-  //  float finalposX, finalposY, finalposR, finalposZ;
-
-  //  for(unsigned int nVH = 0; nVH < glVHs.size(); nVH++){
-
-  //    finalposX = glVHs.at(nVH).x() + dirVHs.at(nVH).x();
-  //    finalposY = glVHs.at(nVH).y() + dirVHs.at(nVH).y();
-  //    finalposR = sqrt( pow(finalposX,2) + pow(finalposY,2) );
-  //    finalposZ = glVHs.at(nVH).z() + dirVHs.at(nVH).z();
-
-  //std::cout << dirVHs.at(nVH) " " << " \tr: " << dirVHs.at(nVH).perp() << std::endl;
-  //std::cout << finalposX << ", " << finalposY << " " << " \tr: " << finalposR << std::endl;
-  //std::cout << std::endl;
-
-  //    TArrow* vh_arrow = new TArrow(glVHs.at(nVH).z(), glVHs.at(nVH).perp(), finalposZ, finalposR, 0.05, "|>");
-  //    vh_arrow->SetLineWidth(2);
-  //    vh_arrow->Draw("same");
-
-  //  }
-
   return;
 }
 
@@ -1119,16 +1048,13 @@ void VectorHitsBuilderValidation::CreateWindowCorrGraph() {
   //FIXME: This function is not working properly, yet.
 
   //return if we are not using Phase2 OT
-  if (!tkGeom->isThere(GeomDetEnumerators::P2OTB) && !tkGeom->isThere(GeomDetEnumerators::P2OTEC))
+  if (!tkGeom_->isThere(GeomDetEnumerators::P2OTB) && !tkGeom_->isThere(GeomDetEnumerators::P2OTEC))
     return;
 
-  for (auto det : tkGeom->detsTOB()) {
-    //    std::cout << det->geographicalId().rawId() << std::endl;
-    //    std::cout << det->surface().bounds().thickness() << std::endl;
+  for (auto det : tkGeom_->detsTOB()) {
     ParallaxCorrectionRZ_->Fill(det->position().z(), det->position().perp(), 5.);
   }
-  for (auto det : tkGeom->detsTID()) {
-    //std::cout << det->geographicalId().rawId() << std::endl;
+  for (auto det : tkGeom_->detsTID()) {
     ParallaxCorrectionRZ_->Fill(det->position().z(), det->position().perp(), 10.);
   }
   ParallaxCorrectionRZ_->Fill(0., 0., 5.);
@@ -1138,16 +1064,16 @@ void VectorHitsBuilderValidation::CreateWindowCorrGraph() {
 unsigned int VectorHitsBuilderValidation::getLayerNumber(const DetId& detid) {
   if (detid.det() == DetId::Tracker) {
     if (detid.subdetId() == StripSubdetector::TOB)
-      return (tkTopo->layer(detid));
+      return (tkTopo_->layer(detid));
     else if (detid.subdetId() == StripSubdetector::TID)
-      return (100 * tkTopo->side(detid) + tkTopo->layer(detid));
+      return (100 * tkTopo_->side(detid) + tkTopo_->layer(detid));
     else
       return 999;
   }
   return 999;
 }
 
-unsigned int VectorHitsBuilderValidation::getModuleNumber(const DetId& detid) { return (tkTopo->module(detid)); }
+unsigned int VectorHitsBuilderValidation::getModuleNumber(const DetId& detid) { return (tkTopo_->module(detid)); }
 
 std::vector<std::pair<uint32_t, EncodedEventId> > VectorHitsBuilderValidation::getSimTrackIds(
     const edm::Handle<edm::DetSetVector<PixelDigiSimLink> >& simLinks, const DetId& detId, uint32_t channel) const {
@@ -1156,11 +1082,10 @@ std::vector<std::pair<uint32_t, EncodedEventId> > VectorHitsBuilderValidation::g
   if (isearch != simLinks->end()) {
     // Loop over DigiSimLink in this det unit
     edm::DetSet<PixelDigiSimLink> link_detset = (*isearch);
-    for (typename edm::DetSet<PixelDigiSimLink>::const_iterator it = link_detset.data.begin();
-         it != link_detset.data.end();
-         ++it) {
-      if (channel == it->channel())
-        simTrkId.push_back(std::make_pair(it->SimTrackId(), it->eventId()));
+    //for (typename edm::DetSet<PixelDigiSimLink>::const_iterator it = link_detset.data.begin(); it != link_detset.data.end(); ++it) {
+    for (const auto& it : link_detset.data) {
+      if (channel == it.channel())
+        simTrkId.push_back(std::make_pair(it.SimTrackId(), it.eventId()));
     }
   }
   return simTrkId;
@@ -1173,9 +1098,10 @@ unsigned int VectorHitsBuilderValidation::getSimTrackId(
   edm::DetSetVector<PixelDigiSimLink>::const_iterator DSViter(pixelSimLinks->find(detId));
   if (DSViter == pixelSimLinks->end())
     return 0;
-  for (edm::DetSet<PixelDigiSimLink>::const_iterator it = DSViter->data.begin(); it != DSViter->data.end(); ++it) {
-    if (channel == it->channel())
-      return it->SimTrackId();
+  //for (edm::DetSet<PixelDigiSimLink>::const_iterator it = DSViter->data.begin(); it != DSViter->data.end(); ++it) {
+  for (const auto& it : DSViter->data) {
+    if (channel == it.channel())
+      return it.SimTrackId();
   }
   return 0;
 }
@@ -1203,8 +1129,7 @@ void VectorHitsBuilderValidation::printCluster(const GeomDetUnit* geomDetUnit, c
   LogTrace("VectorHitsBuilderValidation") << " and width:" << theGeomDet->surface().bounds().width()
                                           << " , lenght:" << theGeomDet->surface().bounds().length() << std::endl;
 
-  auto&& lparams = cpe->localParameters(*cluster.cluster_phase2OT(), *theGeomDet);
-  //Global3DPoint gparams = theGeomDet->surface().toGlobal(lparams.first);
+  auto&& lparams = cpe_->localParameters(*cluster.cluster_phase2OT(), *theGeomDet);
 
   LogTrace("VectorHitsBuilderValidation")
       << "\t local  pos " << lparams.first << "with err " << lparams.second << std::endl;

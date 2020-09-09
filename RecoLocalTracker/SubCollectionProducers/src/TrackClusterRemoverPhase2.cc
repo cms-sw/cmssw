@@ -205,7 +205,7 @@ namespace {
           if (uppCluster.isPhase2())
             collectedPhase2OTs[uppCluster.key()] = true;
         } else {
-          LogTrace("TrackClusterRemoverPhase2") << "it is not a VHits.";
+          LogTrace("TrackClusterRemoverPhase2") << "it is not a VHit.";
         }
       }
     }

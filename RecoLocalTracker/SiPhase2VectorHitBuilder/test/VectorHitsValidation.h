@@ -3,7 +3,7 @@
 #include <algorithm>
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -76,7 +76,7 @@ struct VHHistos {
   TH1F* deltaXlocal;
 };
 
-class VectorHitsBuilderValidation : public edm::EDAnalyzer {
+class VectorHitsBuilderValidation : public edm::one::EDAnalyzer<edm::one::SharedResources> {
 public:
   typedef edm::Ref<edmNew::DetSetVector<Phase2TrackerCluster1D>, Phase2TrackerCluster1D> Phase2TrackerCluster1DRef;
 
@@ -114,7 +114,7 @@ private:
   edm::EDGetTokenT<VectorHitCollectionNew> VHacc_;
   edm::EDGetTokenT<VectorHitCollectionNew> VHrej_;
   edm::ESInputTag cpeTag_;
-  const ClusterParameterEstimator<Phase2TrackerCluster1D>* cpe;
+  const ClusterParameterEstimator<Phase2TrackerCluster1D>* cpe_;
 
   edm::EDGetTokenT<edm::DetSetVector<PixelDigiSimLink> > siphase2OTSimLinksToken_;
   edm::EDGetTokenT<edm::PSimHitContainer> simHitsToken_;
@@ -123,11 +123,11 @@ private:
   edm::EDGetTokenT<TrackingParticleCollection> trackingParticleToken_;
   //SiPixelVectorHitBuilderAlgorithmBase *algo;
 
-  const TrackerGeometry* tkGeom;
-  const TrackerTopology* tkTopo;
-  const MagneticField* magField;
+  const TrackerGeometry* tkGeom_;
+  const TrackerTopology* tkTopo_;
+  const MagneticField* magField_;
 
-  TTree* tree;
+  TTree* tree_;
   TGraph* trackerLayoutRZ_[3];
   TGraph* trackerLayoutXY_[3];
   TGraph* trackerLayoutXYBar_;
@@ -136,7 +136,7 @@ private:
   TGraph* localPosYvsDeltaY_[3];
   TCanvas* VHXY_;
   TCanvas* VHRZ_;
-  std::vector<TArrow*> arrowVHs;
+  std::vector<TArrow*> arrowVHs_;
 
   TH2D* ParallaxCorrectionRZ_;
   TH1F* VHaccLayer_;
@@ -145,8 +145,6 @@ private:
   TH1F* VHrejTrueLayer_;
   TH1F* VHaccTrue_signal_Layer_;
   TH1F* VHrejTrue_signal_Layer_;
-  TH1F* VHaccTrueLayer_ratio;
-  TH1F* VHrejTrueLayer_ratio;
 
   std::map<unsigned int, VHHistos> histograms_;
 };
