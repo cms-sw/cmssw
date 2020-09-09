@@ -30,7 +30,7 @@ particleBasedIsolationTmp = _particleBasedIsolation.clone(
 #change particleBasedIsolation object to tmp
 IsoConeDefinitionsPhotonsTmp = copy.deepcopy(IsoConeDefinitions)
 for iPSet in IsoConeDefinitionsPhotonsTmp:
-  iPSet.particleBasedIsolation = cms.InputTag("particleBasedIsolationTmp", "gedPhotonsTmp")
+  iPSet.particleBasedIsolation = "particleBasedIsolationTmp:gedPhotonsTmp"
 
 #photon isolation sums
 egmPhotonIsolationCITK = _egmPhotonIsolationAOD.clone(
@@ -46,7 +46,7 @@ egmElectronIsolationCITK = _egmElectronIsolationCITK.clone(
 )
 
 for iPSet in egmElectronIsolationCITK.isolationConeDefinitions:
-  iPSet.particleBasedIsolation = cms.InputTag("particleBasedIsolationTmp", "gedGsfElectronsTmp")
+  iPSet.particleBasedIsolation = "particleBasedIsolationTmp:gedGsfElectronsTmp"
 
 #electrons pileup isolation sum
 egmElectronIsolationPileUpCITK = _egmElectronIsolationCITKPileUp.clone(
@@ -55,7 +55,7 @@ egmElectronIsolationPileUpCITK = _egmElectronIsolationCITKPileUp.clone(
 )
 
 for iPSet in egmElectronIsolationPileUpCITK.isolationConeDefinitions:
-  iPSet.particleBasedIsolation = cms.InputTag("particleBasedIsolationTmp", "gedGsfElectronsTmp")
+  iPSet.particleBasedIsolation = "particleBasedIsolationTmp:gedGsfElectronsTmp"
 
 photonIDValueMaps = cms.EDProducer(
   "PhotonIDValueMapProducer",
