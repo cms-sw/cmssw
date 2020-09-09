@@ -12,36 +12,13 @@ VectorHitBuilderAlgorithmBase::VectorHitBuilderAlgorithmBase(
     const TrackerGeometry* tkGeomProd,
     const TrackerTopology* tkTopoProd,
     const ClusterParameterEstimator<Phase2TrackerCluster1D>* cpeProd)
-    : nMaxVHforeachStack(conf.getParameter<int>("maxVectorHitsInAStack")),
+    : theTkGeom(tkGeomProd),
+      theTkTopo(tkTopoProd),
+      cpe(cpeProd),
+      nMaxVHforeachStack(conf.getParameter<int>("maxVectorHitsInAStack")),
       barrelCut(conf.getParameter<std::vector<double> >("BarrelCut")),
       endcapCut(conf.getParameter<std::vector<double> >("EndcapCut")),
-      cpeTag_(conf.getParameter<edm::ESInputTag>("CPE")) {
-  initTkGeom(tkGeomProd);
-  initTkTopo(tkTopoProd);
-  initCpe(cpeProd);
-}
-
-/*void VectorHitBuilderAlgorithmBase::initialize(const edm::EventSetup& es) {
-  // get the geometry and topology
-  edm::ESHandle<TrackerGeometry> geomHandle;
-  es.get<TrackerDigiGeometryRecord>().get(geomHandle);
-  initTkGeom(geomHandle);
-
-  edm::ESHandle<TrackerTopology> tTopoHandle;
-  es.get<TrackerTopologyRcd>().get(tTopoHandle);
-  initTkTopo(tTopoHandle);
-
-  // load the cpe via the eventsetup
-  edm::ESHandle<ClusterParameterEstimator<Phase2TrackerCluster1D> > cpeHandle;
-  es.get<TkPhase2OTCPERecord>().get(cpeTag_, cpeHandle);
-  initCpe(cpeHandle.product());
-}
-*/
-void VectorHitBuilderAlgorithmBase::initTkGeom(const TrackerGeometry* tkGeomProd) { theTkGeom = tkGeomProd; }
-void VectorHitBuilderAlgorithmBase::initTkTopo(const TrackerTopology* tkTopoProd) { theTkTopo = tkTopoProd; }
-void VectorHitBuilderAlgorithmBase::initCpe(const ClusterParameterEstimator<Phase2TrackerCluster1D>* cpeProd) {
-  cpe = cpeProd;
-}
+      cpeTag_(conf.getParameter<edm::ESInputTag>("CPE")){ }
 
 double VectorHitBuilderAlgorithmBase::computeParallaxCorrection(const PixelGeomDetUnit*& geomDetUnit_low,
                                                                 const Point3DBase<float, LocalTag>& lPosClu_low,
@@ -68,21 +45,16 @@ double VectorHitBuilderAlgorithmBase::computeParallaxCorrection(const PixelGeomD
 void VectorHitBuilderAlgorithmBase::printClusters(const edmNew::DetSetVector<Phase2TrackerCluster1D>& clusters) const {
   int nCluster = 0;
   int numberOfDSV = 0;
-  edmNew::DetSetVector<Phase2TrackerCluster1D>::const_iterator DSViter;
-  for (DSViter = clusters.begin(); DSViter != clusters.end(); DSViter++) {
+  for (const auto& DSViter : clusters){
     ++numberOfDSV;
-
     // Loop over the clusters in the detector unit
-    for (edmNew::DetSet<Phase2TrackerCluster1D>::const_iterator clustIt = DSViter->begin(); clustIt != DSViter->end();
-         ++clustIt) {
+    for (const auto& clustIt :DSViter) {
       nCluster++;
-
       // get the detector unit's id
-      const GeomDetUnit* geomDetUnit(theTkGeom->idToDetUnit(DSViter->detId()));
+      const GeomDetUnit* geomDetUnit(theTkGeom->idToDetUnit(DSViter.detId()));
       if (!geomDetUnit)
         return;
-
-      printCluster(geomDetUnit, clustIt);
+      printCluster(geomDetUnit, &clustIt);
     }
   }
   LogDebug("VectorHitBuilder") << " Number of input clusters: " << nCluster << std::endl;
@@ -124,14 +96,8 @@ void VectorHitBuilderAlgorithmBase::printCluster(const GeomDet* geomDetUnit,
 
 void VectorHitBuilderAlgorithmBase::loadDetSetVector(std::map<DetId, std::vector<VectorHit> >& theMap,
                                                      edmNew::DetSetVector<VectorHit>& theCollection) const {
-  std::map<DetId, std::vector<VectorHit> >::const_iterator it = theMap.begin();
-  std::map<DetId, std::vector<VectorHit> >::const_iterator lastDet = theMap.end();
-  for (; it != lastDet; ++it) {
-    edmNew::DetSetVector<VectorHit>::FastFiller vh_col(theCollection, it->first);
-    std::vector<VectorHit>::const_iterator vh_it = it->second.begin();
-    std::vector<VectorHit>::const_iterator vh_end = it->second.end();
-    for (; vh_it != vh_end; ++vh_it) {
-      vh_col.push_back(*vh_it);
-    }
+  for (const auto& it : theMap) {
+    edmNew::DetSetVector<VectorHit>::FastFiller vh_col(theCollection, it.first);
+    for (const auto& vh_it: it.second) vh_col.push_back(vh_it);
   }
 }
