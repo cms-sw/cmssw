@@ -26,7 +26,7 @@
 #include "FWCore/Framework/interface/EventSetupRecordProvider.h"
 #include "FWCore/Framework/src/EventSetupsController.h"
 #include "FWCore/Framework/interface/NoRecordException.h"
-#include "FWCore/Framework/interface/print_eventsetup_record_dependencies.h"
+#include "FWCore/Framework/test/print_eventsetup_record_dependencies.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
 #include "FWCore/Utilities/interface/propagate_const.h"

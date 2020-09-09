@@ -16,7 +16,7 @@
 #include "FWCore/Concurrency/interface/WaitingTaskList.h"
 #include "FWCore/Framework/interface/DataKey.h"
 #include "FWCore/Framework/interface/DataProxy.h"
-#include "FWCore/Framework/interface/EventSetupProviderMaker.h"
+#include "FWCore/Framework/src/EventSetupProviderMaker.h"
 #include "FWCore/Framework/interface/EventSetupProvider.h"
 #include "FWCore/Framework/interface/EventSetupRecordKey.h"
 #include "FWCore/Framework/interface/ParameterSetIDHolder.h"
