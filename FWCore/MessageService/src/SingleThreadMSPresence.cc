@@ -7,7 +7,7 @@
 //
 
 #include "FWCore/MessageService/interface/SingleThreadMSPresence.h"
-#include "FWCore/MessageService/interface/ThreadSafeLogMessageLoggerScribe.h"
+#include "FWCore/MessageService/src/ThreadSafeLogMessageLoggerScribe.h"
 
 #include "FWCore/MessageLogger/interface/MessageLoggerQ.h"
 #include "FWCore/MessageLogger/interface/MessageDrop.h"

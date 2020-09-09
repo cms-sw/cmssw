@@ -72,7 +72,7 @@
 //
 // ----------------------------------------------------------------------
 
-#include "FWCore/MessageService/interface/ELoutput.h"
+#include "FWCore/MessageService/src/ELoutput.h"
 
 #include "FWCore/MessageLogger/interface/ErrorObj.h"
 

@@ -28,7 +28,7 @@
 #include "FWCore/MessageLogger/interface/ELextendedID.h"
 #include "FWCore/MessageLogger/interface/ELmap.h"
 #include "FWCore/MessageLogger/interface/ELstring.h"
-#include "FWCore/MessageService/interface/ELdestination.h"
+#include "FWCore/MessageService/src/ELdestination.h"
 #include "FWCore/Utilities/interface/thread_safety_macros.h"
 
 #include <set>
