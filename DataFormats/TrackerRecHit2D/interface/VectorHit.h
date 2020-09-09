@@ -40,7 +40,7 @@ public:
             const float chi2,
             OmniClusterRef const& lower,
             OmniClusterRef const& upper,
-	    const float curvature,
+            const float curvature,
             const float curvatureError,
             const float phi);
 
@@ -49,7 +49,7 @@ public:
             const VectorHit2D& vh2Dzy,
             OmniClusterRef const& lower,
             OmniClusterRef const& upper,
-            const float curvature, 
+            const float curvature,
             const float curvatureError,
             const float phi);
 

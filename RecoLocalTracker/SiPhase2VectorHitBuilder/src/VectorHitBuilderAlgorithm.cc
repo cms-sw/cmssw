@@ -320,15 +320,16 @@ VectorHit VectorHitBuilderAlgorithm::buildVectorHit(const StackGeomDet* stack,
     GlobalError gErrorLower = VectorHit::phase2clusterGlobalPosErr(geomDetLower);
     GlobalError gErrorUpper = VectorHit::phase2clusterGlobalPosErr(geomDetUpper);
 
-
     if (gPositionLower.perp() > gPositionUpper.perp()) {
-    	gPositionLower = VectorHit::phase2clusterGlobalPos(geomDetUpper, upper);
-   	gPositionUpper = VectorHit::phase2clusterGlobalPos(geomDetLower, lower);
-    	gErrorLower = VectorHit::phase2clusterGlobalPosErr(geomDetUpper);
-    	gErrorUpper = VectorHit::phase2clusterGlobalPosErr(geomDetLower);
+      gPositionLower = VectorHit::phase2clusterGlobalPos(geomDetUpper, upper);
+      gPositionUpper = VectorHit::phase2clusterGlobalPos(geomDetLower, lower);
+      gErrorLower = VectorHit::phase2clusterGlobalPosErr(geomDetUpper);
+      gErrorUpper = VectorHit::phase2clusterGlobalPosErr(geomDetLower);
     }
-    const float curvature = curvatureORphi(curvatureMode, gPositionLower, gPositionUpper, gErrorLower, gErrorUpper).first;
-    const float curvatureError = curvatureORphi(curvatureMode, gPositionLower, gPositionUpper, gErrorLower, gErrorUpper).second;
+    const float curvature =
+        curvatureORphi(curvatureMode, gPositionLower, gPositionUpper, gErrorLower, gErrorUpper).first;
+    const float curvatureError =
+        curvatureORphi(curvatureMode, gPositionLower, gPositionUpper, gErrorLower, gErrorUpper).second;
     const float phi = curvatureORphi(phiMode, gPositionLower, gPositionUpper, gErrorLower, gErrorUpper).first;
 
     VectorHit vh = VectorHit(*stack, vh2Dzx, vh2Dzy, lowerOmni, upperOmni, curvature, curvatureError, phi);
@@ -383,7 +384,6 @@ void VectorHitBuilderAlgorithm::fit(float x[2],
                                     Local3DVector& dir,
                                     AlgebraicSymMatrix22& covMatrix,
                                     double& chi2) const {
-
   float slope = 0.;
   float intercept = 0.;
   float covss = 0.;
@@ -409,25 +409,14 @@ void VectorHitBuilderAlgorithm::fit(float x[2],
   dir = LocalVector(slope, 0., slopeZ);
 }
 
-std::pair<float, float> VectorHitBuilderAlgorithm::curvatureORphi(curvatureOrPhi curvORphi, Global3DPoint gPositionLower, Global3DPoint gPositionUpper, GlobalError gErrorLower, GlobalError gErrorUpper) const {
+std::pair<float, float> VectorHitBuilderAlgorithm::curvatureORphi(curvatureOrPhi curvORphi,
+                                                                  Global3DPoint gPositionLower,
+                                                                  Global3DPoint gPositionUpper,
+                                                                  GlobalError gErrorLower,
+                                                                  GlobalError gErrorUpper) const {
   float curvature = -999.;
   float errorCurvature = -999.;
   float phi = -999.;
-
-  //global pos and errors
-//  Global3DPoint gPositionLower = lowerGlobalPos();
-//  Global3DPoint gPositionUpper = upperGlobalPos();
-
-//  GlobalError gErrorLower = lowerGlobalPosErr();
-//  GlobalError gErrorUpper = upperGlobalPosErr();
-
-  //insert lower and upper in the global sor
-//  if (gPositionLower.perp() > gPositionUpper.perp()) {
-//    gPositionLower = upperGlobalPos();
-//    gPositionUpper = lowerGlobalPos();
-//    gErrorLower = upperGlobalPosErr();
-//    gErrorUpper = lowerGlobalPosErr();
-//  }
 
   float h1 = gPositionLower.x() * gPositionUpper.y() - gPositionUpper.x() * gPositionLower.y();
 
@@ -443,7 +432,7 @@ std::pair<float, float> VectorHitBuilderAlgorithm::curvatureORphi(curvatureOrPhi
   double signCurv = -copysign(1.0, n3);
   double phi1 = atan2(gPositionUpper.y() - gPositionLower.y(), gPositionUpper.x() - gPositionLower.x());
 
- if (h1 != 0) {
+  if (h1 != 0) {
     double h2 = 2 * h1;
     double h2Inf = 1. / (2 * h1);
     double r12 = pow(gPositionLower.x(), 2) + pow(gPositionLower.y(), 2);
@@ -573,4 +562,3 @@ std::pair<float, float> VectorHitBuilderAlgorithm::curvatureORphi(curvatureOrPhi
   }
   return std::make_pair(0.0, 0.0);
 }
-
