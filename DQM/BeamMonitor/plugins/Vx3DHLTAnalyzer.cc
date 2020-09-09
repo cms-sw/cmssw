@@ -360,12 +360,14 @@ int Vx3DHLTAnalyzer::MyFit(vector<double>* vals) {
             break;
           }
       if (goodData == 0) {
-        covyz = (*vals)[4] * (std::fabs((*vals)[2]) - std::fabs((*vals)[1])) - (*vals)[5] * (*vals)[3];
-        covxz = (*vals)[5] * (std::fabs((*vals)[2]) - std::fabs((*vals)[0])) - (*vals)[4] * (*vals)[3];
+        covyz = Gauss3D->X()[4] * (std::fabs(Gauss3D->X()[2]) - std::fabs(Gauss3D->X()[1])) -
+                Gauss3D->X()[5] * Gauss3D->X()[3];
+        covxz = Gauss3D->X()[5] * (std::fabs(Gauss3D->X()[2]) - std::fabs(Gauss3D->X()[0])) -
+                Gauss3D->X()[4] * Gauss3D->X()[3];
 
-        det = std::fabs((*vals)[0]) * (std::fabs((*vals)[1]) * std::fabs((*vals)[2]) - covyz * covyz) -
-              (*vals)[3] * ((*vals)[3] * std::fabs((*vals)[2]) - covxz * covyz) +
-              covxz * ((*vals)[3] * covyz - covxz * std::fabs((*vals)[1]));
+        det = std::fabs(Gauss3D->X()[0]) * (std::fabs(Gauss3D->X()[1]) * std::fabs(Gauss3D->X()[2]) - covyz * covyz) -
+              Gauss3D->X()[3] * (Gauss3D->X()[3] * std::fabs(Gauss3D->X()[2]) - covxz * covyz) +
+              covxz * (Gauss3D->X()[3] * covyz - covxz * std::fabs(Gauss3D->X()[1]));
         if (det < 0.) {
           goodData = -4;
           if (internalDebug == true)
@@ -403,13 +405,13 @@ int Vx3DHLTAnalyzer::MyFit(vector<double>* vals) {
       Gauss3D->SetVariable(8, "mean z", *(it + 8), parDistanceZ);
 
       // Set the central positions of the centroid for vertex rejection
-      xPos = (*vals)[6];
-      yPos = (*vals)[7];
-      zPos = (*vals)[8];
+      xPos = Gauss3D->X()[6];
+      yPos = Gauss3D->X()[7];
+      zPos = Gauss3D->X()[8];
 
       // Set dimensions of the centroid for vertex rejection
-      maxTransRadius = nSigmaXY * std::sqrt(std::fabs((*vals)[0]) + std::fabs((*vals)[1])) / 2.;
-      maxLongLength = nSigmaZ * std::sqrt(std::fabs((*vals)[2]));
+      maxTransRadius = nSigmaXY * std::sqrt(std::fabs(Gauss3D->X()[0]) + std::fabs(Gauss3D->X()[1])) / 2.;
+      maxLongLength = nSigmaZ * std::sqrt(std::fabs(Gauss3D->X()[2]));
 
       Gauss3D->Minimize();
       goodData = Gauss3D->Status();
@@ -430,12 +432,14 @@ int Vx3DHLTAnalyzer::MyFit(vector<double>* vals) {
             break;
           }
       if (goodData == 0) {
-        covyz = (*vals)[4] * (std::fabs((*vals)[2]) - std::fabs((*vals)[1])) - (*vals)[5] * (*vals)[3];
-        covxz = (*vals)[5] * (std::fabs((*vals)[2]) - std::fabs((*vals)[0])) - (*vals)[4] * (*vals)[3];
+        covyz = Gauss3D->X()[4] * (std::fabs(Gauss3D->X()[2]) - std::fabs(Gauss3D->X()[1])) -
+                Gauss3D->X()[5] * Gauss3D->X()[3];
+        covxz = Gauss3D->X()[5] * (std::fabs(Gauss3D->X()[2]) - std::fabs(Gauss3D->X()[0])) -
+                Gauss3D->X()[4] * Gauss3D->X()[3];
 
-        det = std::fabs((*vals)[0]) * (std::fabs((*vals)[1]) * std::fabs((*vals)[2]) - covyz * covyz) -
-              (*vals)[3] * ((*vals)[3] * std::fabs((*vals)[2]) - covxz * covyz) +
-              covxz * ((*vals)[3] * covyz - covxz * std::fabs((*vals)[1]));
+        det = std::fabs(Gauss3D->X()[0]) * (std::fabs(Gauss3D->X()[1]) * std::fabs(Gauss3D->X()[2]) - covyz * covyz) -
+              Gauss3D->X()[3] * (Gauss3D->X()[3] * std::fabs(Gauss3D->X()[2]) - covxz * covyz) +
+              covxz * (Gauss3D->X()[3] * covyz - covxz * std::fabs(Gauss3D->X()[1]));
         if (det < 0.) {
           goodData = -4;
           if (internalDebug == true)
@@ -474,13 +478,13 @@ int Vx3DHLTAnalyzer::MyFit(vector<double>* vals) {
       Gauss3D->SetVariable(8, "mean z", *(it + 8) + deltaMean, parDistanceZ);
 
       // Set the central positions of the centroid for vertex rejection
-      xPos = (*vals)[6];
-      yPos = (*vals)[7];
-      zPos = (*vals)[8];
+      xPos = Gauss3D->X()[6];
+      yPos = Gauss3D->X()[7];
+      zPos = Gauss3D->X()[8];
 
       // Set dimensions of the centroid for vertex rejection
-      maxTransRadius = nSigmaXY * std::sqrt(std::fabs((*vals)[0]) + std::fabs((*vals)[1])) / 2.;
-      maxLongLength = nSigmaZ * std::sqrt(std::fabs((*vals)[2]));
+      maxTransRadius = nSigmaXY * std::sqrt(std::fabs(Gauss3D->X()[0]) + std::fabs(Gauss3D->X()[1])) / 2.;
+      maxLongLength = nSigmaZ * std::sqrt(std::fabs(Gauss3D->X()[2]));
 
       Gauss3D->Minimize();
       goodData = Gauss3D->Status();
@@ -501,12 +505,14 @@ int Vx3DHLTAnalyzer::MyFit(vector<double>* vals) {
             break;
           }
       if (goodData == 0) {
-        covyz = (*vals)[4] * (std::fabs((*vals)[2]) - std::fabs((*vals)[1])) - (*vals)[5] * (*vals)[3];
-        covxz = (*vals)[5] * (std::fabs((*vals)[2]) - std::fabs((*vals)[0])) - (*vals)[4] * (*vals)[3];
+        covyz = Gauss3D->X()[4] * (std::fabs(Gauss3D->X()[2]) - std::fabs(Gauss3D->X()[1])) -
+                Gauss3D->X()[5] * Gauss3D->X()[3];
+        covxz = Gauss3D->X()[5] * (std::fabs(Gauss3D->X()[2]) - std::fabs(Gauss3D->X()[0])) -
+                Gauss3D->X()[4] * Gauss3D->X()[3];
 
-        det = std::fabs((*vals)[0]) * (std::fabs((*vals)[1]) * std::fabs((*vals)[2]) - covyz * covyz) -
-              (*vals)[3] * ((*vals)[3] * std::fabs((*vals)[2]) - covxz * covyz) +
-              covxz * ((*vals)[3] * covyz - covxz * std::fabs((*vals)[1]));
+        det = std::fabs(Gauss3D->X()[0]) * (std::fabs(Gauss3D->X()[1]) * std::fabs(Gauss3D->X()[2]) - covyz * covyz) -
+              Gauss3D->X()[3] * (Gauss3D->X()[3] * std::fabs(Gauss3D->X()[2]) - covxz * covyz) +
+              covxz * (Gauss3D->X()[3] * covyz - covxz * std::fabs(Gauss3D->X()[1]));
         if (det < 0.) {
           goodData = -4;
           if (internalDebug == true)
@@ -563,12 +569,14 @@ int Vx3DHLTAnalyzer::MyFit(vector<double>* vals) {
           break;
         }
     if (goodData == 0) {
-      covyz = (*vals)[4] * (std::fabs((*vals)[2]) - std::fabs((*vals)[1])) - (*vals)[5] * (*vals)[3];
-      covxz = (*vals)[5] * (std::fabs((*vals)[2]) - std::fabs((*vals)[0])) - (*vals)[4] * (*vals)[3];
+      covyz = Gauss3D->X()[4] * (std::fabs(Gauss3D->X()[2]) - std::fabs(Gauss3D->X()[1])) -
+              Gauss3D->X()[5] * Gauss3D->X()[3];
+      covxz = Gauss3D->X()[5] * (std::fabs(Gauss3D->X()[2]) - std::fabs(Gauss3D->X()[0])) -
+              Gauss3D->X()[4] * Gauss3D->X()[3];
 
-      det = std::fabs((*vals)[0]) * (std::fabs((*vals)[1]) * std::fabs((*vals)[2]) - covyz * covyz) -
-            (*vals)[3] * ((*vals)[3] * std::fabs((*vals)[2]) - covxz * covyz) +
-            covxz * ((*vals)[3] * covyz - covxz * std::fabs((*vals)[1]));
+      det = std::fabs(Gauss3D->X()[0]) * (std::fabs(Gauss3D->X()[1]) * std::fabs(Gauss3D->X()[2]) - covyz * covyz) -
+            Gauss3D->X()[3] * (Gauss3D->X()[3] * std::fabs(Gauss3D->X()[2]) - covxz * covyz) +
+            covxz * (Gauss3D->X()[3] * covyz - covxz * std::fabs(Gauss3D->X()[1]));
       if (det < 0.) {
         goodData = -4;
         if (internalDebug == true)
@@ -602,13 +610,13 @@ int Vx3DHLTAnalyzer::MyFit(vector<double>* vals) {
             8, "mean z", *(it + 8) + (double(bestMovementZ) - 1.) * std::sqrt(*(it + 2)), parDistanceZ * largerDist[i]);
 
         // Set the central positions of the centroid for vertex rejection
-        xPos = (*vals)[6];
-        yPos = (*vals)[7];
-        zPos = (*vals)[8];
+        xPos = Gauss3D->X()[6];
+        yPos = Gauss3D->X()[7];
+        zPos = Gauss3D->X()[8];
 
         // Set dimensions of the centroid for vertex rejection
-        maxTransRadius = nSigmaXY * std::sqrt(std::fabs((*vals)[0]) + std::fabs((*vals)[1])) / 2.;
-        maxLongLength = nSigmaZ * std::sqrt(std::fabs((*vals)[2]));
+        maxTransRadius = nSigmaXY * std::sqrt(std::fabs(Gauss3D->X()[0]) + std::fabs(Gauss3D->X()[1])) / 2.;
+        maxLongLength = nSigmaZ * std::sqrt(std::fabs(Gauss3D->X()[2]));
 
         Gauss3D->Minimize();
         goodData = Gauss3D->Status();
@@ -629,12 +637,14 @@ int Vx3DHLTAnalyzer::MyFit(vector<double>* vals) {
               break;
             }
         if (goodData == 0) {
-          covyz = (*vals)[4] * (std::fabs((*vals)[2]) - std::fabs((*vals)[1])) - (*vals)[5] * (*vals)[3];
-          covxz = (*vals)[5] * (std::fabs((*vals)[2]) - std::fabs((*vals)[0])) - (*vals)[4] * (*vals)[3];
+          covyz = Gauss3D->X()[4] * (std::fabs(Gauss3D->X()[2]) - std::fabs(Gauss3D->X()[1])) -
+                  Gauss3D->X()[5] * Gauss3D->X()[3];
+          covxz = Gauss3D->X()[5] * (std::fabs(Gauss3D->X()[2]) - std::fabs(Gauss3D->X()[0])) -
+                  Gauss3D->X()[4] * Gauss3D->X()[3];
 
-          det = std::fabs((*vals)[0]) * (std::fabs((*vals)[1]) * std::fabs((*vals)[2]) - covyz * covyz) -
-                (*vals)[3] * ((*vals)[3] * std::fabs((*vals)[2]) - covxz * covyz) +
-                covxz * ((*vals)[3] * covyz - covxz * std::fabs((*vals)[1]));
+          det = std::fabs(Gauss3D->X()[0]) * (std::fabs(Gauss3D->X()[1]) * std::fabs(Gauss3D->X()[2]) - covyz * covyz) -
+                Gauss3D->X()[3] * (Gauss3D->X()[3] * std::fabs(Gauss3D->X()[2]) - covxz * covyz) +
+                covxz * (Gauss3D->X()[3] * covyz - covxz * std::fabs(Gauss3D->X()[1]));
           if (det < 0.) {
             goodData = -4;
             if (internalDebug == true)
@@ -647,7 +657,7 @@ int Vx3DHLTAnalyzer::MyFit(vector<double>* vals) {
 
     if (goodData == 0)
       for (unsigned int i = 0; i < nParams; i++) {
-        vals->operator[](i) = (*vals)[i];
+        vals->operator[](i) = Gauss3D->X()[i];
         vals->operator[](i + nParams) = Gauss3D->Errors()[i];
       }
 
