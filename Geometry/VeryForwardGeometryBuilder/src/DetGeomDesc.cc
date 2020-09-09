@@ -11,16 +11,11 @@
 
 #include "Geometry/VeryForwardGeometryBuilder/interface/DetGeomDesc.h"
 #include "Geometry/VeryForwardGeometryBuilder/interface/CTPPSDDDNames.h"
-#include "CondFormats/GeometryObjects/interface/PDetGeomDesc.h"
 #include "CondFormats/PPSObjects/interface/CTPPSRPAlignmentCorrectionData.h"
 
-#include "DataFormats/Math/interface/CMSUnits.h"
-#include "DetectorDescription/Core/interface/DDFilteredView.h"
 #include "DetectorDescription/Core/interface/DDSolid.h"
-#include "DetectorDescription/DDCMS/interface/DDFilteredView.h"
 #include "DetectorDescription/DDCMS/interface/DDShapes.h"
 #include "DetectorDescription/DDCMS/interface/DDSolidShapes.h"
-#include "TGeoMatrix.h"
 
 #include "DataFormats/CTPPSDetId/interface/TotemRPDetId.h"
 #include "DataFormats/CTPPSDetId/interface/TotemTimingDetId.h"

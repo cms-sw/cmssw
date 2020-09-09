@@ -21,8 +21,6 @@
 #include "DataFormats/DetId/interface/DetId.h"
 #include <Math/Rotation3D.h>
 
-class DDFilteredView;
-class PDetGeomDesc;
 class CTPPSRPAlignmentCorrectionData;
 
 /**

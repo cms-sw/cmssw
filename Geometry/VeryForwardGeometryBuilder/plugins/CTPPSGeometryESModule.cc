@@ -25,11 +25,6 @@
 #include "Geometry/Records/interface/VeryForwardMisalignedGeometryRecord.h"
 #include "Geometry/Records/interface/VeryForwardRealGeometryRecord.h"
 
-#include "DataFormats/CTPPSDetId/interface/TotemRPDetId.h"
-#include "DataFormats/CTPPSDetId/interface/TotemTimingDetId.h"
-#include "DataFormats/CTPPSDetId/interface/CTPPSPixelDetId.h"
-#include "DataFormats/CTPPSDetId/interface/CTPPSDiamondDetId.h"
-
 #include "Geometry/VeryForwardGeometryBuilder/interface/DetGeomDescBuilder.h"
 #include "Geometry/VeryForwardGeometryBuilder/interface/CTPPSDDDNames.h"
 #include "Geometry/VeryForwardGeometryBuilder/interface/DetGeomDesc.h"

@@ -1,9 +1,8 @@
 #include "Geometry/VeryForwardGeometryBuilder/interface/DetGeomDescBuilder.h"
 
-#include "DetectorDescription/Core/interface/DDFilteredView.h"
-#include "DetectorDescription/DDCMS/interface/DDFilteredView.h"
 #include "DetectorDescription/DDCMS/interface/DDDetector.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+
 
 /*
  * Generic function to build geo (tree of DetGeomDesc) from old DD compact view.
