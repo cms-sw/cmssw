@@ -360,10 +360,8 @@ int Vx3DHLTAnalyzer::MyFit(vector<double>* vals) {
             break;
           }
       if (goodData == 0) {
-        covyz = (*vals)[4] * (std::fabs((*vals)[2]) - std::fabs((*vals)[1])) -
-                (*vals)[5] * (*vals)[3];
-        covxz = (*vals)[5] * (std::fabs((*vals)[2]) - std::fabs((*vals)[0])) -
-                (*vals)[4] * (*vals)[3];
+        covyz = (*vals)[4] * (std::fabs((*vals)[2]) - std::fabs((*vals)[1])) - (*vals)[5] * (*vals)[3];
+        covxz = (*vals)[5] * (std::fabs((*vals)[2]) - std::fabs((*vals)[0])) - (*vals)[4] * (*vals)[3];
 
         det = std::fabs((*vals)[0]) * (std::fabs((*vals)[1]) * std::fabs((*vals)[2]) - covyz * covyz) -
               (*vals)[3] * ((*vals)[3] * std::fabs((*vals)[2]) - covxz * covyz) +
@@ -432,10 +430,8 @@ int Vx3DHLTAnalyzer::MyFit(vector<double>* vals) {
             break;
           }
       if (goodData == 0) {
-        covyz = (*vals)[4] * (std::fabs((*vals)[2]) - std::fabs((*vals)[1])) -
-                (*vals)[5] * (*vals)[3];
-        covxz = (*vals)[5] * (std::fabs((*vals)[2]) - std::fabs((*vals)[0])) -
-                (*vals)[4] * (*vals)[3];
+        covyz = (*vals)[4] * (std::fabs((*vals)[2]) - std::fabs((*vals)[1])) - (*vals)[5] * (*vals)[3];
+        covxz = (*vals)[5] * (std::fabs((*vals)[2]) - std::fabs((*vals)[0])) - (*vals)[4] * (*vals)[3];
 
         det = std::fabs((*vals)[0]) * (std::fabs((*vals)[1]) * std::fabs((*vals)[2]) - covyz * covyz) -
               (*vals)[3] * ((*vals)[3] * std::fabs((*vals)[2]) - covxz * covyz) +
@@ -505,10 +501,8 @@ int Vx3DHLTAnalyzer::MyFit(vector<double>* vals) {
             break;
           }
       if (goodData == 0) {
-        covyz = (*vals)[4] * (std::fabs((*vals)[2]) - std::fabs((*vals)[1])) -
-                (*vals)[5] * (*vals)[3];
-        covxz = (*vals)[5] * (std::fabs((*vals)[2]) - std::fabs((*vals)[0])) -
-                (*vals)[4] * (*vals)[3];
+        covyz = (*vals)[4] * (std::fabs((*vals)[2]) - std::fabs((*vals)[1])) - (*vals)[5] * (*vals)[3];
+        covxz = (*vals)[5] * (std::fabs((*vals)[2]) - std::fabs((*vals)[0])) - (*vals)[4] * (*vals)[3];
 
         det = std::fabs((*vals)[0]) * (std::fabs((*vals)[1]) * std::fabs((*vals)[2]) - covyz * covyz) -
               (*vals)[3] * ((*vals)[3] * std::fabs((*vals)[2]) - covxz * covyz) +
@@ -569,10 +563,8 @@ int Vx3DHLTAnalyzer::MyFit(vector<double>* vals) {
           break;
         }
     if (goodData == 0) {
-      covyz = (*vals)[4] * (std::fabs((*vals)[2]) - std::fabs((*vals)[1])) -
-              (*vals)[5] * (*vals)[3];
-      covxz = (*vals)[5] * (std::fabs((*vals)[2]) - std::fabs((*vals)[0])) -
-              (*vals)[4] * (*vals)[3];
+      covyz = (*vals)[4] * (std::fabs((*vals)[2]) - std::fabs((*vals)[1])) - (*vals)[5] * (*vals)[3];
+      covxz = (*vals)[5] * (std::fabs((*vals)[2]) - std::fabs((*vals)[0])) - (*vals)[4] * (*vals)[3];
 
       det = std::fabs((*vals)[0]) * (std::fabs((*vals)[1]) * std::fabs((*vals)[2]) - covyz * covyz) -
             (*vals)[3] * ((*vals)[3] * std::fabs((*vals)[2]) - covxz * covyz) +
@@ -637,10 +629,8 @@ int Vx3DHLTAnalyzer::MyFit(vector<double>* vals) {
               break;
             }
         if (goodData == 0) {
-          covyz = (*vals)[4] * (std::fabs((*vals)[2]) - std::fabs((*vals)[1])) -
-                  (*vals)[5] * (*vals)[3];
-          covxz = (*vals)[5] * (std::fabs((*vals)[2]) - std::fabs((*vals)[0])) -
-                  (*vals)[4] * (*vals)[3];
+          covyz = (*vals)[4] * (std::fabs((*vals)[2]) - std::fabs((*vals)[1])) - (*vals)[5] * (*vals)[3];
+          covxz = (*vals)[5] * (std::fabs((*vals)[2]) - std::fabs((*vals)[0])) - (*vals)[4] * (*vals)[3];
 
           det = std::fabs((*vals)[0]) * (std::fabs((*vals)[1]) * std::fabs((*vals)[2]) - covyz * covyz) -
                 (*vals)[3] * ((*vals)[3] * std::fabs((*vals)[2]) - covxz * covyz) +
