@@ -29,6 +29,13 @@
 
 namespace edm {
 
+  namespace pset::exceptions {
+    void throwWrongNumberOfElements(std::string const& iName, size_t iExpected, size_t iGot) {
+      throw Exception(errors::Configuration) << "The parameter '" << iName << "' should have " << iExpected
+                                             << " elements, but has " << iGot << " elements in the configuration.\n";
+    }
+  }  // namespace pset::exceptions
+
   void ParameterSet::invalidateRegistration(std::string const& nameOfTracked) {
     // We have added a new parameter.  Invalidate the ID.
     if (isRegistered()) {
