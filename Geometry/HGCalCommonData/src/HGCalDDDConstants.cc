@@ -493,26 +493,28 @@ bool HGCalDDDConstants::isValidHex8(int layer, int modU, int modV, bool fullAndP
 #endif
   if (itr == hgpar_->typesInLayers_.end())
     return false;
-  auto jtr = waferIn_.find(indx);
-#ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("HGCalGeom") << "HGCalDDDConstants::isValidHex8:WaferIn " << jtr->first << ":" << jtr->second;
-#endif
-  if (!(jtr->second))
-    return false;
+
   if (fullAndPart_) {
     auto ktr = hgpar_->waferInfoMap_.find(indx);
 #ifdef EDM_ML_DEBUG
     edm::LogVerbatim("HGCalGeom") << "HGCalDDDConstants::isValidHex8:WaferInfoMap " << layer << ":" << modU << ":"
-                                  << modV << ":" << indx << " Test " << (itr != hgpar_->waferInfoMap_.end());
+                                  << modV << ":" << indx << " Test " << (ktr != hgpar_->waferInfoMap_.end());
 #endif
     if (ktr == hgpar_->waferInfoMap_.end())
+      return false;
+  } else {
+    auto jtr = waferIn_.find(indx);
+#ifdef EDM_ML_DEBUG
+    edm::LogVerbatim("HGCalGeom") << "HGCalDDDConstants::isValidHex8:WaferIn " << jtr->first << ":" << jtr->second;
+#endif
+    if (!(jtr->second))
       return false;
   }
 
   if (fullAndPart || fullAndPart_) {
     auto ktr = hgpar_->waferTypes_.find(indx);
     if (ktr != hgpar_->waferTypes_.end()) {
-      if (hgpar_->waferMaskMode_ > 0) {
+     if (hgpar_->waferMaskMode_ > 0) {
         if (ktr->second.first == HGCalTypes::WaferOut)
           return false;
       } else {
@@ -1346,6 +1348,9 @@ std::pair<int, int> HGCalDDDConstants::waferTypeRotation(
           type = (itr->second).first;
           rotn = ((itr->second).second - HGCalWaferMask::k_OffsetRotation);
         }
+      } else {
+	type = HGCalTypes::WaferFull;
+	rotn = HGCalTypes::WaferCorner0;
       }
     }
   }
@@ -1591,8 +1596,10 @@ int32_t HGCalDDDConstants::waferIndex(int wafer, int index) const {
 
 bool HGCalDDDConstants::waferInLayerTest(int wafer, int lay, bool full) const {
   bool flag = (waferHexagon6()) ? true : false;
-  std::pair<int, int> corner = HGCalGeomTools::waferCorner(hgpar_->waferPosX_[wafer],
-                                                           hgpar_->waferPosY_[wafer],
+  double xpos = hgpar_->waferPosX_[wafer] + hgpar_->xLayerHex_[lay];
+  double ypos = hgpar_->waferPosY_[wafer] + hgpar_->yLayerHex_[lay];
+  std::pair<int, int> corner = HGCalGeomTools::waferCorner(xpos,
+                                                           ypos,
                                                            rmax_,
                                                            hexside_,
                                                            hgpar_->rMinLayHex_[lay],
@@ -1603,7 +1610,7 @@ bool HGCalDDDConstants::waferInLayerTest(int wafer, int lay, bool full) const {
     int indx = waferIndex(wafer, lay);
     in = (hgpar_->waferInfoMap_.find(indx) != hgpar_->waferInfoMap_.end());
 #ifdef EDM_ML_DEBUG
-    if (in == 0)
+    if (!in)
       edm::LogVerbatim("HGCalGeom") << "WaferInLayerTest: Layer " << lay << " wafer " << wafer << " index " << indx
                                     << "( " << HGCalWaferIndex::waferLayer(indx) << ", "
                                     << HGCalWaferIndex::waferU(indx) << ", " << HGCalWaferIndex::waferV(indx) << ") in "
