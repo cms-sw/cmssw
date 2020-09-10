@@ -40,7 +40,7 @@ def dfs_visit(G, u, discovered, finished):
         if v in discovered:
             print(f"Cycle detected: found a back edge from {u} to {v}. It involves")
             for i,d in enumerate(discovered):
-                if i != len(discovered):
+                if i != len(discovered)-1:
                     print(d,end=', ')
                 else:
                     print(d)
