@@ -37,9 +37,21 @@ void CSCGEMMotherboard::clear() {
   coPads_.clear();
 }
 
-void CSCGEMMotherboard::retrieveGEMPads(const GEMPadDigiCollection* gemPads, unsigned id) {
+void CSCGEMMotherboard::processGEMClusters(const GEMPadDigiClusterCollection* gemClusters) {
+
+  std::unique_ptr<GEMPadDigiCollection> gemPads(new GEMPadDigiCollection());
+  coPadProcessor->declusterize(gemClusters, *gemPads);
+
+  gemCoPadV = coPadProcessor->run(gemPads.get());
+
+  processGEMPads(gemPads.get());
+  processGEMCoPads();
+}
+
+void CSCGEMMotherboard::processGEMPads(const GEMPadDigiCollection* gemPads) {
+
   pads_.clear();
-  const auto& superChamber(gem_g->superChamber(id));
+  const auto& superChamber(gem_g->superChamber(gemId));
   for (const auto& ch : superChamber->chambers()) {
     for (const auto& roll : ch->etaPartitions()) {
       GEMDetId roll_id(roll->id());
@@ -63,7 +75,7 @@ void CSCGEMMotherboard::retrieveGEMPads(const GEMPadDigiCollection* gemPads, uns
   }
 }
 
-void CSCGEMMotherboard::retrieveGEMCoPads() {
+void CSCGEMMotherboard::processGEMCoPads() {
   coPads_.clear();
   for (const auto& copad : gemCoPadV) {
     GEMDetId detId(theRegion, 1, theStation, 0, theChamber, 0);

@@ -37,8 +37,6 @@ CSCTriggerPrimitivesBuilder::CSCTriggerPrimitivesBuilder(const edm::ParameterSet
   runME11ILT_ = commonParams.getParameter<bool>("runME11ILT");
   runME21ILT_ = commonParams.getParameter<bool>("runME21ILT");
 
-  useClusters_ = commonParams.getParameter<bool>("useClusters");
-
   // Initializing boards.
   for (int endc = min_endcap; endc <= max_endcap; endc++) {
     for (int stat = min_station; stat <= max_station; stat++) {
@@ -111,7 +109,6 @@ void CSCTriggerPrimitivesBuilder::setConfigParameters(const CSCDBL1TPParameters*
 void CSCTriggerPrimitivesBuilder::build(const CSCBadChambers* badChambers,
                                         const CSCWireDigiCollection* wiredc,
                                         const CSCComparatorDigiCollection* compdc,
-                                        const GEMPadDigiCollection* gemPads,
                                         const GEMPadDigiClusterCollection* gemClusters,
                                         CSCALCTDigiCollection& oc_alct,
                                         CSCALCTDigiCollection& oc_alct_all,
@@ -229,11 +226,7 @@ void CSCTriggerPrimitivesBuilder::build(const CSCBadChambers* badChambers,
                 LogTrace("CSCTriggerPrimitivesBuilder")
                     << "CSCTriggerPrimitivesBuilder::build in E:" << endc << " S:" << stat << " R:" << ring;
 
-              if (useClusters_) {
-                tmb11GEM->run(wiredc, compdc, gemClusters);
-              } else {
-                tmb11GEM->run(wiredc, compdc, gemPads);
-              }
+              tmb11GEM->run(wiredc, compdc, gemClusters);
 
               // 0th layer means whole chamber.
               GEMDetId gemId(detid.zendcap(), 1, 1, 0, chid, 0);
@@ -293,11 +286,7 @@ void CSCTriggerPrimitivesBuilder::build(const CSCBadChambers* badChambers,
               tmb21GEM->setCSCGeometry(csc_g);
               tmb21GEM->setGEMGeometry(gem_g);
 
-              if (useClusters_) {
-                tmb21GEM->run(wiredc, compdc, gemClusters);
-              } else {
-                tmb21GEM->run(wiredc, compdc, gemPads);
-              }
+              tmb21GEM->run(wiredc, compdc, gemClusters);
 
               // 0th layer means whole chamber.
               GEMDetId gemId(detid.zendcap(), 1, 2, 0, chid, 0);

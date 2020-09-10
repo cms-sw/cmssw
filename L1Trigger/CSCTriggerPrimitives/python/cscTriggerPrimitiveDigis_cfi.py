@@ -83,7 +83,6 @@ cscTriggerPrimitiveDigis = cms.EDProducer("CSCTriggerPrimitivesProducer",
 
         runME11ILT = cms.bool(False),
         runME21ILT = cms.bool(False),
-        useClusters = cms.bool(False),
     ),
 
     # Parameters for ALCT processors: 2007 and later
@@ -518,7 +517,6 @@ run3_GEM.toModify( cscTriggerPrimitiveDigis,
                    commonParam = dict(isSLHC = True,
                                       runME11Up = cms.bool(True),
                                       runME11ILT = cms.bool(True),
-                                      useClusters = cms.bool(False),
                                       enableAlctSLHC = cms.bool(True)),
                    clctSLHC = dict(clctNplanesHitPattern = 3),
                    me11tmbSLHCGEM = me11tmbSLHCGEM,

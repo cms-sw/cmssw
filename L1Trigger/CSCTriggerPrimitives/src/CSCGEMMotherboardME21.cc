@@ -40,14 +40,6 @@ CSCGEMMotherboardME21::~CSCGEMMotherboardME21() {}
 void CSCGEMMotherboardME21::run(const CSCWireDigiCollection* wiredc,
                                 const CSCComparatorDigiCollection* compdc,
                                 const GEMPadDigiClusterCollection* gemClusters) {
-  std::unique_ptr<GEMPadDigiCollection> gemPads(new GEMPadDigiCollection());
-  coPadProcessor->declusterize(gemClusters, *gemPads);
-  run(wiredc, compdc, gemPads.get());
-}
-
-void CSCGEMMotherboardME21::run(const CSCWireDigiCollection* wiredc,
-                                const CSCComparatorDigiCollection* compdc,
-                                const GEMPadDigiCollection* gemPads) {
   CSCGEMMotherboard::clear();
   setupGeometry();
   debugLUTs();
@@ -68,7 +60,6 @@ void CSCGEMMotherboardME21::run(const CSCWireDigiCollection* wiredc,
         << "+++ run() called for GEM-CSC integrated trigger without valid GEM geometry! +++ \n";
     return;
   }
-  gemCoPadV = coPadProcessor->run(gemPads);  // run copad processor in GE1/1
 
   if (!(alctProc and clctProc)) {
     edm::LogError("CSCGEMMotherboardME21|SetupError")
@@ -86,24 +77,12 @@ void CSCGEMMotherboardME21::run(const CSCWireDigiCollection* wiredc,
   if (alctV.empty() and clctV.empty())
     return;
 
-  LogTrace("CSCGEMCMotherboardME21") << "ALL ALCTs from ME21 " << std::endl;
-  for (const auto& alct : alctV)
-    if (alct.isValid())
-      LogTrace("CSCGEMCMotherboardME21") << alct << std::endl;
-
-  LogTrace("CSCGEMCMotherboardME21") << "ALL CLCTs from ME21 " << std::endl;
-  for (const auto& clct : clctV)
-    if (clct.isValid())
-      LogTrace("CSCGEMCMotherboardME21") << clct << std::endl;
-
   int used_clct_mask[20];
   for (int c = 0; c < 20; ++c)
     used_clct_mask[c] = 0;
 
   // retrieve pads and copads in a certain BX window for this CSC
-
-  retrieveGEMPads(gemPads, gemId);
-  retrieveGEMCoPads();
+  processGEMClusters(gemClusters);
 
   const bool hasCoPads(!coPads_.empty());
 

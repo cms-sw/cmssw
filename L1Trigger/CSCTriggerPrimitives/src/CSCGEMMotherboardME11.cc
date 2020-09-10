@@ -57,14 +57,6 @@ CSCGEMMotherboardME11::~CSCGEMMotherboardME11() {}
 void CSCGEMMotherboardME11::run(const CSCWireDigiCollection* wiredc,
                                 const CSCComparatorDigiCollection* compdc,
                                 const GEMPadDigiClusterCollection* gemClusters) {
-  std::unique_ptr<GEMPadDigiCollection> gemPads(new GEMPadDigiCollection());
-  coPadProcessor->declusterize(gemClusters, *gemPads);
-  run(wiredc, compdc, gemPads.get());
-}
-
-void CSCGEMMotherboardME11::run(const CSCWireDigiCollection* wiredc,
-                                const CSCComparatorDigiCollection* compdc,
-                                const GEMPadDigiCollection* gemPads) {
   CSCGEMMotherboard::clear();
   setupGeometry();
   debugLUTs();
@@ -85,7 +77,6 @@ void CSCGEMMotherboardME11::run(const CSCWireDigiCollection* wiredc,
         << "+++ run() called for GEM-CSC integrated trigger without valid GEM geometry! +++ \n";
     return;
   }
-  gemCoPadV = coPadProcessor->run(gemPads);  // run copad processor in GE1/1
 
   if (!(alctProc and clctProc)) {
     edm::LogError("CSCGEMMotherboardME11|SetupError")
@@ -103,28 +94,11 @@ void CSCGEMMotherboardME11::run(const CSCWireDigiCollection* wiredc,
   if (alctV.empty() and clctV.empty())
     return;
 
-  if (debug_matching) {
-    LogTrace("CSCGEMMotherboardME11") << "ALL ALCTs from ME11 " << std::endl;
-    for (const auto& alct : alctV)
-      if (alct.isValid())
-        LogTrace("CSCGEMMotherboardME11") << alct << std::endl;
-
-    LogTrace("CSCGEMMotherboardME11") << "ALL CLCTs from ME11 " << std::endl;
-    for (const auto& clct : clctV)
-      if (clct.isValid())
-        LogTrace("CSCGEMMotherboardME11") << clct << std::endl;
-
-    LogTrace("CSCGEMMotherboardME11") << "ALL GEM copads from GE11-ME11 " << std::endl;
-    for (const auto& g : gemCoPadV)
-      LogTrace("CSCGEMMotherboardME11") << g << std::endl;
-  }
-
   int used_clct_mask[20];
   for (int b = 0; b < 20; b++)
     used_clct_mask[b] = 0;
 
-  retrieveGEMPads(gemPads, gemId);
-  retrieveGEMCoPads();
+  processGEMClusters(gemClusters);
 
   const bool hasPads(!pads_.empty());
   const bool hasCoPads(hasPads and !coPads_.empty());

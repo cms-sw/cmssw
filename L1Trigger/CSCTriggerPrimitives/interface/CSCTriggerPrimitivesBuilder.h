@@ -27,7 +27,6 @@
 #include "DataFormats/CSCDigi/interface/CSCCLCTPreTriggerDigiCollection.h"
 #include "DataFormats/CSCDigi/interface/CSCCorrelatedLCTDigiCollection.h"
 #include "DataFormats/CSCDigi/interface/CSCCLCTPreTriggerCollection.h"
-#include "DataFormats/GEMDigi/interface/GEMPadDigiCollection.h"
 #include "DataFormats/GEMDigi/interface/GEMPadDigiClusterCollection.h"
 #include "DataFormats/GEMDigi/interface/GEMCoPadDigiCollection.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -67,7 +66,6 @@ public:
   void build(const CSCBadChambers* badChambers,
              const CSCWireDigiCollection* wiredc,
              const CSCComparatorDigiCollection* compdc,
-             const GEMPadDigiCollection* gemPads,
              const GEMPadDigiClusterCollection* gemPadClusters,
              CSCALCTDigiCollection& oc_alct,
              CSCALCTDigiCollection& oc_alct_all,
@@ -129,9 +127,6 @@ private:
 
   /** SLHC: special switch for the upgrade ME2/1 TMB */
   bool runME21ILT_;
-
-  /** SLHC: special switch to use gem clusters */
-  bool useClusters_;
 
   /** Pointers to TMB processors for all possible chambers. */
   std::unique_ptr<CSCMotherboard> tmb_[MAX_ENDCAPS][MAX_STATIONS][MAX_SECTORS][MAX_SUBSECTORS][MAX_CHAMBERS];
