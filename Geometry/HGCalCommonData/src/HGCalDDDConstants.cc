@@ -514,7 +514,7 @@ bool HGCalDDDConstants::isValidHex8(int layer, int modU, int modV, bool fullAndP
   if (fullAndPart || fullAndPart_) {
     auto ktr = hgpar_->waferTypes_.find(indx);
     if (ktr != hgpar_->waferTypes_.end()) {
-     if (hgpar_->waferMaskMode_ > 0) {
+      if (hgpar_->waferMaskMode_ > 0) {
         if (ktr->second.first == HGCalTypes::WaferOut)
           return false;
       } else {
@@ -1349,8 +1349,8 @@ std::pair<int, int> HGCalDDDConstants::waferTypeRotation(
           rotn = ((itr->second).second - HGCalWaferMask::k_OffsetRotation);
         }
       } else {
-	type = HGCalTypes::WaferFull;
-	rotn = HGCalTypes::WaferCorner0;
+        type = HGCalTypes::WaferFull;
+        rotn = HGCalTypes::WaferCorner0;
       }
     }
   }
@@ -1598,13 +1598,8 @@ bool HGCalDDDConstants::waferInLayerTest(int wafer, int lay, bool full) const {
   bool flag = (waferHexagon6()) ? true : false;
   double xpos = hgpar_->waferPosX_[wafer] + hgpar_->xLayerHex_[lay];
   double ypos = hgpar_->waferPosY_[wafer] + hgpar_->yLayerHex_[lay];
-  std::pair<int, int> corner = HGCalGeomTools::waferCorner(xpos,
-                                                           ypos,
-                                                           rmax_,
-                                                           hexside_,
-                                                           hgpar_->rMinLayHex_[lay],
-                                                           hgpar_->rMaxLayHex_[lay],
-                                                           flag);
+  std::pair<int, int> corner = HGCalGeomTools::waferCorner(
+      xpos, ypos, rmax_, hexside_, hgpar_->rMinLayHex_[lay], hgpar_->rMaxLayHex_[lay], flag);
   bool in = (full ? (corner.first > 0) : (corner.first == (int)(HGCalParameters::k_CornerSize)));
   if (in && fullAndPart_) {
     int indx = waferIndex(wafer, lay);
