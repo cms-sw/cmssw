@@ -58,7 +58,7 @@ void VectorHitBuilderAlgorithm::run(edm::Handle<edmNew::DetSetVector<Phase2Track
       stackDet = dynamic_cast<const StackGeomDet*>(gd);
       std::vector<VectorHit> vhsInStack_Acc;
       std::vector<VectorHit> vhsInStack_Rej;
-      const auto vhsInStack_AccRej = buildVectorHits(stackDet, clusters, *it_detLower, *it_detUpper);
+      const auto& vhsInStack_AccRej = buildVectorHits(stackDet, clusters, *it_detLower, *it_detUpper);
 
       //storing accepted and rejected VHs
       for (const auto& vh : vhsInStack_AccRej) {

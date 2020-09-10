@@ -119,7 +119,6 @@ void SeedingOTEDProducer::fillDescriptions(edm::ConfigurationDescriptions& descr
 }
 
 void SeedingOTEDProducer::produce(edm::Event& event, const edm::EventSetup& es) {
-
   tkTopo_ = &es.getData(topoToken_);
 
   edm::ESHandle<MeasurementTracker> measurementTrackerHandle = es.getHandle(measurementTrackerToken_);
@@ -273,7 +272,7 @@ unsigned int SeedingOTEDProducer::checkLayer(unsigned int iidd) {
   return 0;
 }
 
-std::vector<VectorHit> SeedingOTEDProducer::collectVHsOnLayer(const edmNew::DetSetVector<VectorHit> &input,
+std::vector<VectorHit> SeedingOTEDProducer::collectVHsOnLayer(const edmNew::DetSetVector<VectorHit>& input,
                                                               unsigned int layerNumber) {
   std::vector<VectorHit> VHsOnLayer;
   if (!input.empty()) {

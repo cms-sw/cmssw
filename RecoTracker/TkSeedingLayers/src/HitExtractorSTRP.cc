@@ -478,7 +478,7 @@ HitExtractor::Hits HitExtractorSTRP::hits(const TkTransientTrackingRecHitBuilder
         if (!ringRange(ring))
           continue;
         for (VectorHitCollection::DetSet::const_iterator hit = it->begin(), end = it->end(); hit != end; ++hit) {
-	  result.emplace_back(*hit);
+          result.emplace_back(*hit);
         }
       }
       if (skipClusters)
