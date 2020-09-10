@@ -23,6 +23,7 @@
 
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
+#include "DataFormats/L1TMuon/interface/L1TMuonSubsystems.h"
 
 // DT digi types
 class DTChamberId;
@@ -55,9 +56,6 @@ namespace L1TMuon {
 
   class TriggerPrimitive {
   public:
-    // define the subsystems that we have available
-    enum subsystem_type { kDT, kCSC, kRPC, kGEM, kME0, kNSubsystems };
-
     // define the data we save locally from each subsystem type
     // variables in these structs keep their colloquial meaning
     // within a subsystem

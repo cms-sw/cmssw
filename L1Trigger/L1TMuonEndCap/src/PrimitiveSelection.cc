@@ -1,4 +1,5 @@
 #include "L1Trigger/L1TMuonEndCap/interface/PrimitiveSelection.h"
+#include "DataFormats/L1TMuon/interface/L1TMuonSubsystems.h"
 
 #include "helper.h"  // merge_map_into_map
 
@@ -585,7 +586,7 @@ void PrimitiveSelection::merge_no_truncate(const std::map<int, TriggerPrimitiveC
 int PrimitiveSelection::select_csc(const TriggerPrimitive& muon_primitive) const {
   int selected = -1;
 
-  if (muon_primitive.subsystem() == TriggerPrimitive::kCSC) {
+  if (muon_primitive.subsystem() == L1TMuon::kCSC) {
     const CSCDetId& tp_detId = muon_primitive.detId<CSCDetId>();
     const CSCData& tp_data = muon_primitive.getCSCData();
 
@@ -744,7 +745,7 @@ int PrimitiveSelection::get_index_csc(
 int PrimitiveSelection::select_rpc(const TriggerPrimitive& muon_primitive) const {
   int selected = -1;
 
-  if (muon_primitive.subsystem() == TriggerPrimitive::kRPC) {
+  if (muon_primitive.subsystem() == L1TMuon::kRPC) {
     const RPCDetId& tp_detId = muon_primitive.detId<RPCDetId>();
     const RPCData& tp_data = muon_primitive.getRPCData();
 
@@ -896,7 +897,7 @@ int PrimitiveSelection::get_index_rpc(
 int PrimitiveSelection::select_gem(const TriggerPrimitive& muon_primitive) const {
   int selected = -1;
 
-  if (muon_primitive.subsystem() == TriggerPrimitive::kGEM) {
+  if (muon_primitive.subsystem() == L1TMuon::kGEM) {
     const GEMDetId& tp_detId = muon_primitive.detId<GEMDetId>();
     const GEMData& tp_data = muon_primitive.getGEMData();
 
@@ -995,7 +996,7 @@ int PrimitiveSelection::get_index_gem(
 int PrimitiveSelection::select_me0(const TriggerPrimitive& muon_primitive) const {
   int selected = -1;
 
-  if (muon_primitive.subsystem() == TriggerPrimitive::kME0) {
+  if (muon_primitive.subsystem() == L1TMuon::kME0) {
     const ME0DetId& tp_detId = muon_primitive.detId<ME0DetId>();
     const ME0Data& tp_data = muon_primitive.getME0Data();
 
@@ -1133,7 +1134,7 @@ int PrimitiveSelection::get_index_me0(
 int PrimitiveSelection::select_dt(const TriggerPrimitive& muon_primitive) const {
   int selected = -1;
 
-  if (muon_primitive.subsystem() == TriggerPrimitive::kDT) {
+  if (muon_primitive.subsystem() == L1TMuon::kDT) {
     const DTChamberId& tp_detId = muon_primitive.detId<DTChamberId>();
     const DTData& tp_data = muon_primitive.getDTData();
 
