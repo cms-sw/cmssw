@@ -11,7 +11,7 @@
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/Registry.h"
-#include "FWCore/ParameterSet/interface/split.h"
+#include "FWCore/ParameterSet/src/split.h"
 #include "FWCore/Utilities/interface/Algorithms.h"
 #include "FWCore/Utilities/interface/Digest.h"
 #include "FWCore/Utilities/interface/EDMException.h"
