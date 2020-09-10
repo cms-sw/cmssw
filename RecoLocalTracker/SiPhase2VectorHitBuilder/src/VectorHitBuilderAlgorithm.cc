@@ -5,10 +5,20 @@
 
 bool VectorHitBuilderAlgorithm::LocalPositionSort::operator()(Phase2TrackerCluster1DRef clus1,
                                                               Phase2TrackerCluster1DRef clus2) const {
+  static std::map<std::pair<Phase2TrackerCluster1DRef, Phase2TrackerCluster1DRef>, bool> cache;
+
+  if (cache.find(std::make_pair(clus1, clus2)) != cache.end())
+    return cache[std::pair(clus1, clus2)];
+  else if (cache.find(std::make_pair(clus2, clus1)) != cache.end())
+    return !cache[std::pair(clus1, clus2)];
+
   const PixelGeomDetUnit* gdu1 = dynamic_cast<const PixelGeomDetUnit*>(geomDet_);
   auto&& lparams1 = cpe_->localParameters(*clus1, *gdu1);  // x, y, z, e2_xx, e2_xy, e2_yy
   auto&& lparams2 = cpe_->localParameters(*clus2, *gdu1);  // x, y, z, e2_xx, e2_xy, e2_yy
+
+  cache[std::make_pair(clus1, clus2)] = lparams1.first.x() < lparams2.first.x();
   return lparams1.first.x() < lparams2.first.x();
+  ;
 }
 
 void VectorHitBuilderAlgorithm::run(edm::Handle<edmNew::DetSetVector<Phase2TrackerCluster1D>> clusters,
