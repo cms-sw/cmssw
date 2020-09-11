@@ -609,14 +609,14 @@ namespace reco {
 
   // dsz parameter (THIS IS NOT the SZ impact parameter to (0,0,0) if refPoint is far from (0,0,0): see parametrization definition above for details)
   inline double TrackBase::dsz() const {
-    const auto thepinv = 1/p();
+    const auto thepinv = 1 / p();
     const auto theptoverp = pt() * thepinv;
     return vz() * theptoverp - (vx() * px() + vy() * py()) / pt() * pz() * thepinv;
   }
 
   // dz parameter (= dsz/cos(lambda)). This is the track z0 w.r.t (0,0,0) only if the refPoint is close to (0,0,0). See also function dz(myBeamSpot) below.
   inline double TrackBase::dz() const {
-    const auto thept2inv = 1  / pt2();
+    const auto thept2inv = 1 / pt2();
     return vz() - (vx() * px() + vy() * py()) * pz() * thept2inv;
   }
 
@@ -687,8 +687,8 @@ namespace reco {
   // (WARNING: this quantity can only be interpreted as the distance in the S-Z plane to the beamSpot, if the beam spot is reasonably close to the refPoint, since linear approximations are involved).
   // This is a good approximation for Tracker tracks.
   inline double TrackBase::dsz(const Point &myBeamSpot) const {
-    const auto theptoverp = sqrt ( pt2() / p2() );
-    const auto thepinv = 1/p();
+    const auto theptoverp = sqrt(pt2() / p2());
+    const auto thepinv = 1 / p();
     return (vz() - myBeamSpot.z()) * theptoverp -
            ((vx() - myBeamSpot.x()) * px() + (vy() - myBeamSpot.y()) * py()) / pt() * pz() * thepinv;
   }
@@ -697,7 +697,7 @@ namespace reco {
   // (WARNING: this quantity can only be interpreted as the track z0, if the beamSpot is reasonably close to the refPoint, since linear approximations are involved).
   // This is a good approximation for Tracker tracks.
   inline double TrackBase::dz(const Point &myBeamSpot) const {
-    const auto theptinv2 = 1/pt2();
+    const auto theptinv2 = 1 / pt2();
     return (vz() - myBeamSpot.z()) -
            ((vx() - myBeamSpot.x()) * px() + (vy() - myBeamSpot.y()) * py()) * pz() * theptinv2;
   }
@@ -731,12 +731,11 @@ namespace reco {
     const auto thecharge = charge();
 
     if (thecharge != 0) {
-
       const auto thept2 = pt2();
       const auto thep2 = p2();
       const auto thepz = pz();
-      const auto ptimespt = sqrt( thep2 * thept2 );
-      const auto oneovercharge = 1/thecharge;
+      const auto ptimespt = sqrt(thep2 * thept2);
+      const auto oneovercharge = 1 / thecharge;
 
       return sqrt(thept2 * thep2 * oneovercharge * oneovercharge * covariance(i_qoverp, i_qoverp) +
                   2 * ptimespt * oneovercharge * thepz * covariance(i_qoverp, i_lambda) +
@@ -744,7 +743,6 @@ namespace reco {
     }
 
     return 1.e6;
-
   }
 
   // error on theta
@@ -754,7 +752,7 @@ namespace reco {
   inline double TrackBase::lambdaError() const { return error(i_lambda); }
 
   // error on eta
-  inline double TrackBase::etaError() const { return error(i_lambda) * sqrt( p2() / pt2() ); }
+  inline double TrackBase::etaError() const { return error(i_lambda) * sqrt(p2() / pt2()); }
 
   // error on phi
   inline double TrackBase::phiError() const { return error(i_phi); }
@@ -769,7 +767,7 @@ namespace reco {
   inline double TrackBase::dszError() const { return error(i_dsz); }
 
   // error on dz
-  inline double TrackBase::dzError() const { return error(i_dsz) * sqrt( p2() / pt2() ); }
+  inline double TrackBase::dzError() const { return error(i_dsz) * sqrt(p2() / pt2()); }
 
   // covariance of t0
   inline double TrackBase::covt0t0() const { return covt0t0_; }
@@ -815,7 +813,7 @@ namespace reco {
 
     const auto tot = valid + lost + lostIn + lostOut;
 
-    if ( tot  == 0) {
+    if (tot == 0) {
       return -1;
     }
 
