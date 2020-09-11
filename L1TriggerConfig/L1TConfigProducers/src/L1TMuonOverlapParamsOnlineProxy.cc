@@ -10,7 +10,7 @@
 
 class L1TMuonOverlapParamsOnlineProxy : public edm::ESProducer {
 private:
-  edm::ESGetToken<L1TMuonOverlapParams, L1TMuonOverlapParamsRcd> baseSettings_token;
+  const edm::ESGetToken<L1TMuonOverlapParams, L1TMuonOverlapParamsRcd> baseSettings_token;
 
 public:
   std::unique_ptr<L1TMuonOverlapParams> produce(const L1TMuonOverlapParamsO2ORcd& record);
@@ -19,9 +19,8 @@ public:
   ~L1TMuonOverlapParamsOnlineProxy(void) override {}
 };
 
-L1TMuonOverlapParamsOnlineProxy::L1TMuonOverlapParamsOnlineProxy(const edm::ParameterSet& iConfig) : edm::ESProducer() {
-  setWhatProduced(this).setConsumes(baseSettings_token);
-}
+L1TMuonOverlapParamsOnlineProxy::L1TMuonOverlapParamsOnlineProxy(const edm::ParameterSet& iConfig)
+    : baseSettings_token(setWhatProduced(this).consumes()) {}
 
 std::unique_ptr<L1TMuonOverlapParams> L1TMuonOverlapParamsOnlineProxy::produce(
     const L1TMuonOverlapParamsO2ORcd& record) {
