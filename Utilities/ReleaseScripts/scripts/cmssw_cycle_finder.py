@@ -95,7 +95,7 @@ def get_headers(pack):
     return ret_val
     
 def get_sources(pack):
-    file_types = [".cc",".cpp"]
+    file_types = [".cc",".cpp",".cxx"]
     src_base = os.environ.get('CMSSW_RELEASE_BASE')
     pack_path = os.path.join(src_base,"src",pack,"src")
     if not os.path.exists(pack_path): return []
@@ -142,13 +142,10 @@ import sys
 if __name__ == "__main__":
     
 
-    include_header_only=True
-    show_status_bar=True
-
     import argparse
     parser=argparse.ArgumentParser(description="CMSSW Cyclic dependency finder")
-    parser.add_argument("--ignore_header_only",dest="include_header_only",
-                        action="store_true", default=False,
+    parser.add_argument("--omit_header_only",dest="omit_header_only",
+                        action="store_false", default=True,
                         help="Ignore cycles due to header only dependencies"
                     )
     parser.add_argument("--status_bar",dest="status_bar",
@@ -157,7 +154,7 @@ if __name__ == "__main__":
                     )
 
     args = parser.parse_args()
-    include_header_only=args.include_header_only
+    omit_header_only=args.omit_header_only
     show_status_bar=args.status_bar
 
     if 'CMSSW_RELEASE_BASE' not in os.environ:
@@ -177,7 +174,7 @@ if __name__ == "__main__":
         header_list = get_headers(lib)
         source_list = get_sources(lib)
         source_incs_packages, self_headers = get_include_packages(source_list,lib)
-        if include_header_only:
+        if not omit_header_only:
             header_incs_packages = get_include_packages(header_list)
         else:
             header_incs_packages = get_include_packages(self_headers)
