@@ -21,8 +21,6 @@
 #include "DataFormats/DetId/interface/DetId.h"
 #include <Math/Rotation3D.h>
 
-class DDFilteredView;
-class PDetGeomDesc;
 class CTPPSRPAlignmentCorrectionData;
 
 /**
@@ -58,7 +56,7 @@ public:
   // Constructor from old DD DDFilteredView
   DetGeomDesc(const DDFilteredView& fv, const bool is2021);
   // Constructor from DD4Hep DDFilteredView
-  DetGeomDesc(const cms::DDFilteredView& fv, const cms::DDSpecParRegistry& allSpecParSections, const bool is2021);
+  DetGeomDesc(const cms::DDFilteredView& fv, const bool is2021);
 
   DetGeomDesc(const DetGeomDesc&);
   DetGeomDesc& operator=(const DetGeomDesc&);
@@ -119,9 +117,6 @@ private:
   DetId computeDetID(const std::string& name, const std::vector<int>& copyNos, const unsigned int copyNum, const bool is2021) const;
   DetId computeDetIDFromDD4hep(const std::string& name, const std::vector<int>& copyNos, const unsigned int copyNum, const bool is2021) const;
   std::string computeSensorType(std::string_view name);
-  std::string computeSensorType(std::string_view nameFromView,
-                                const std::string& nodePath,
-                                const cms::DDSpecParRegistry& allSpecParSections);
 
   std::string m_name;  // with no namespace
   int m_copy;
@@ -140,7 +135,10 @@ private:
 
 struct DetGeomDescCompare {
   bool operator()(const DetGeomDesc& a, const DetGeomDesc& b) const {
-    return (a.name() != b.name() ? a.name() < b.name() : a.copyno() < b.copyno());
+    return (a.geographicalID() != b.geographicalID()
+                ? a.geographicalID() < b.geographicalID()  // Sort by DetId
+                // If DetIds are identical (== 0 for non-sensors), sort by name and copy number.
+                : (a.name() != b.name() ? a.name() < b.name() : a.copyno() < b.copyno()));
   }
 };
 
