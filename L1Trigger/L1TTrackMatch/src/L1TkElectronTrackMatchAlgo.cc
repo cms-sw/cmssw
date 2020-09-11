@@ -33,10 +33,10 @@ namespace L1TkElectronTrackMatchAlgo {
   }
   // ------------ match EGamma and Track
   void doMatchClusterET(l1t::EGammaBxCollection::const_iterator egIter,
-               const edm::Ptr<L1TTTrackType>& pTrk,
-               double& dph,
-               double& dr,
-               double& deta) {
+                        const edm::Ptr<L1TTTrackType>& pTrk,
+                        double& dph,
+                        double& dr,
+                        double& deta) {
     GlobalPoint egPos = L1TkElectronTrackMatchAlgo::calorimeterPosition(egIter->phi(), egIter->eta(), egIter->energy());
     dph = L1TkElectronTrackMatchAlgo::deltaPhiClusterET(egIter, pTrk);
     dr = L1TkElectronTrackMatchAlgo::deltaR(egPos, pTrk);
@@ -66,10 +66,10 @@ namespace L1TkElectronTrackMatchAlgo {
     double et = egIter->et();
     double pt = pTrk->momentum().perp();
     double curv = pTrk->rInv();
-        
+
     double dphi_curv = (asin(er * curv * pt / (2.0 * et)));
     double trk_phi_ecal = reco::deltaPhi(pTrk->momentum().phi(), dphi_curv);
-        
+
     double dphi = reco::deltaPhi(trk_phi_ecal, epos.phi());
     return dphi;
   }

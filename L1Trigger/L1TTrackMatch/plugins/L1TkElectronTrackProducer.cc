@@ -89,7 +89,7 @@ private:
 
   float trkQualityChi2_;
   bool useTwoStubsPT_;
-  bool useClusterET_;  // use cluster et to extrapolate tracks  
+  bool useClusterET_;  // use cluster et to extrapolate tracks
   float trkQualityPtMin_;
   std::vector<double> dPhiCutoff_;
   std::vector<double> dRCutoff_;
