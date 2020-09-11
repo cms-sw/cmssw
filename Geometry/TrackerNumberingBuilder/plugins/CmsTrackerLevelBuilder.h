@@ -3,7 +3,6 @@
 
 #include "FWCore/ParameterSet/interface/types.h"
 #include "Geometry/TrackerNumberingBuilder/interface/CmsTrackerStringToEnum.h"
-#include "Geometry/TrackerNumberingBuilder/plugins/CmsTrackerAbstractConstruction.h"
 #include <string>
 
 class GeometricDet;
@@ -28,10 +27,10 @@ public:
  * Abstract Class to construct a Level in the hierarchy
  */
 template <class FilteredView>
-class CmsTrackerLevelBuilder : public CmsTrackerAbstractConstruction<FilteredView> {
+class CmsTrackerLevelBuilder {
 public:
-  void build(FilteredView&, GeometricDet*, const std::string&) override;
-  ~CmsTrackerLevelBuilder() override {}
+  virtual void build(FilteredView &, GeometricDet *, const std::string &);
+  virtual ~CmsTrackerLevelBuilder() = default;
 
 private:
   virtual void buildComponent(FilteredView&, GeometricDet*, const std::string&) = 0;
