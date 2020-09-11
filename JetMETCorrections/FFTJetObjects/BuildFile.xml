@@ -1,7 +1,6 @@
 <use name="root"/>
 <use name="FWCore/Framework"/>
 <use name="FWCore/ParameterSet"/>
-<use name="DataFormats/Common"/>
 <use name="DataFormats/JetReco"/>
 <use name="CondFormats/DataRecord"/>
 <use name="CondFormats/JetMETObjects"/>
