@@ -682,8 +682,6 @@ _jetSequence_2016.insert(_jetSequence_2016.index(tightJetId), looseJetId)
 _jetSequence_2016.insert(_jetSequence_2016.index(tightJetIdAK8), looseJetIdAK8)
 run2_jme_2016.toReplaceWith(jetSequence, _jetSequence_2016)
 
-
-
 #HF shower shape recomputation 
 #Only run if needed (i.e. if default MINIAOD info is missing or outdated because of new JECs...) 
 from RecoJets.JetProducers.hfJetShowerShape_cfi import hfJetShowerShape

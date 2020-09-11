@@ -261,9 +261,11 @@ def miniAOD_customizeCommon(process):
     process.load('RecoJets.JetProducers.hfJetShowerShape_cfi')
     task.add(process.hfJetShowerShape)
 
-    process.patJets.userData.userFloats.src += [ 'hfJetShowerShape:sigmaEtaEta', 'hfJetShowerShape:sigmaPhiPhi']
-    process.patJets.userData.userInts.src += [ 'hfJetShowerShape:centralEtaStripSize', 'hfJetShowerShape:adjacentEtaStripsSize']
-    
+    run2_miniAOD_UL.toModify(process.patJets.userData.userFloats,
+                             src = process.patJets.userData.userFloats.src + ['hfJetShowerShape:sigmaEtaEta', 'hfJetShowerShape:sigmaPhiPhi'])
+    run2_miniAOD_UL.toModify(process.patJets.userData.userInts,
+                             src = process.patJets.userData.userInts.src + ['hfJetShowerShape:centralEtaStripSize', 'hfJetShowerShape:adjacentEtaStripsSize'])
+
     ## DeepCSV meta discriminators (simple arithmethic on output probabilities)
     process.load('RecoBTag.Combined.deepFlavour_cff')
     task.add(process.pfDeepCSVDiscriminatorsJetTags)
