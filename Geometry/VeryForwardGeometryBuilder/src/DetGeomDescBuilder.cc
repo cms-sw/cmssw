@@ -6,7 +6,8 @@
 /*
  * Generic function to build geo (tree of DetGeomDesc) from old DD compact view.
  */
-std::unique_ptr<DetGeomDesc> detgeomdescbuilder::buildDetGeomDescFromCompactView(const DDCompactView& myCompactView, const bool is2021) {
+std::unique_ptr<DetGeomDesc> detgeomdescbuilder::buildDetGeomDescFromCompactView(const DDCompactView& myCompactView,
+                                                                                 const bool is2021) {
   // Create DDFilteredView (no filter!!)
   DDPassAllFilter filter;
   DDFilteredView fv(myCompactView, filter);

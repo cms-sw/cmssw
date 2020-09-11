@@ -45,11 +45,11 @@ private:
 };
 
 PPSGeometryBuilder::PPSGeometryBuilder(const edm::ParameterSet& iConfig)
-  : fromDD4hep_(iConfig.getUntrackedParameter<bool>("fromDD4hep", false)),
-    compactViewTag_(iConfig.getUntrackedParameter<std::string>("compactViewTag", "XMLIdealGeometryESSource_CTPPS")),
-    is2021_(iConfig.getUntrackedParameter<bool>("is2021", false)),
-    ddToken_(esConsumes(edm::ESInputTag("", compactViewTag_))),
-    dd4hepToken_(esConsumes(edm::ESInputTag("", compactViewTag_))) {}
+    : fromDD4hep_(iConfig.getUntrackedParameter<bool>("fromDD4hep", false)),
+      compactViewTag_(iConfig.getUntrackedParameter<std::string>("compactViewTag", "XMLIdealGeometryESSource_CTPPS")),
+      is2021_(iConfig.getUntrackedParameter<bool>("is2021", false)),
+      ddToken_(esConsumes(edm::ESInputTag("", compactViewTag_))),
+      dd4hepToken_(esConsumes(edm::ESInputTag("", compactViewTag_))) {}
 
 /*
  * Save PPS geo to DB.

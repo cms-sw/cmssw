@@ -165,7 +165,10 @@ DiamondDimensions DetGeomDesc::computeDiamondDimensions(const bool isABox,
  * old DD DetId computation.
  * Relies on name and volumes copy numbers.
  */
-DetId DetGeomDesc::computeDetID(const std::string& name, const std::vector<int>& copyNos, const unsigned int copyNum, const bool is2021) const {
+DetId DetGeomDesc::computeDetID(const std::string& name,
+                                const std::vector<int>& copyNos,
+                                const unsigned int copyNum,
+                                const bool is2021) const {
   DetId geoID;
 
   // strip sensors
@@ -241,7 +244,7 @@ DetId DetGeomDesc::computeDetID(const std::string& name, const std::vector<int>&
     // check size of copy numbers vector
     if (copyNos.size() < 2)
       throw cms::Exception("DDDTotemRPConstruction")
-	<< "size of copyNumbers for diamond segments is " << copyNos.size() << ". It must be >= 2.";
+          << "size of copyNumbers for diamond segments is " << copyNos.size() << ". It must be >= 2.";
     const unsigned int decRPId = copyNos[1];
     unsigned int arm, station, rp;
     if (!is2021) {
@@ -264,7 +267,7 @@ DetId DetGeomDesc::computeDetID(const std::string& name, const std::vector<int>&
     // check size of copy numbers vector
     if (copyNos.size() < 2)
       throw cms::Exception("DDDTotemRPConstruction")
-	<< "size of copyNumbers for diamond RP is " << copyNos.size() << ". It must be >= 2.";
+          << "size of copyNumbers for diamond RP is " << copyNos.size() << ". It must be >= 2.";
 
     const unsigned int decRPId = copyNos[1];
     unsigned int arm, station, rp;
@@ -289,7 +292,7 @@ DetId DetGeomDesc::computeDetID(const std::string& name, const std::vector<int>&
 DetId DetGeomDesc::computeDetIDFromDD4hep(const std::string& name,
                                           const std::vector<int>& copyNos,
                                           const unsigned int copyNum,
-					  const bool is2021) const {
+                                          const bool is2021) const {
   std::vector<int> copyNosOldDD = {copyNos.rbegin() + 1, copyNos.rend()};
 
   return computeDetID(name, copyNosOldDD, copyNum, is2021);
