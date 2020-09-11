@@ -26,10 +26,12 @@ bool TrackAndECALLinker::linkPrefilter(const reco::PFBlockElement* elem1, const 
   // Track-ECAL KDTree multilinks are stored to ecal's elem
   switch (elem1->type()) {
     case reco::PFBlockElement::TRACK:
-      result = (elem2->isMultilinksValide(elem1->type()) && !elem2->getMultilinks(elem1->type()).empty());
+      result = (elem2->isMultilinksValide(elem1->type()) && !elem2->getMultilinks(elem1->type()).empty() &&
+                elem1->isMultilinksValide(elem2->type()));
       break;
     case reco::PFBlockElement::ECAL:
-      result = (elem1->isMultilinksValide(elem2->type()) && !elem1->getMultilinks(elem2->type()).empty());
+      result = (elem1->isMultilinksValide(elem2->type()) && !elem1->getMultilinks(elem2->type()).empty() &&
+                elem2->isMultilinksValide(elem1->type()));
     default:
       break;
   }
