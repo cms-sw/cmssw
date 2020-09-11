@@ -930,7 +930,8 @@ public:
           }
         } else if (line.find("Baseline") != std::string::npos || line.find("isr") != std::string::npos ||
                    line.find("fsr") != std::string::npos) {
-          if (keepAllPSWeights_ || line.find("Baseline") != std::string::npos || line.find("Def") != std::string::npos) {
+          if (keepAllPSWeights_ || line.find("Baseline") != std::string::npos ||
+              line.find("Def") != std::string::npos) {
             weightChoice->psWeightIDs.push_back(weightIter);  // PS variations
           }
         }
