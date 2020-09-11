@@ -53,13 +53,18 @@ private:
                       edm::ValidityInterval&) override;
 
   struct Tokens {
+    Tokens() = default;
+    explicit Tokens(edm::ESConsumesCollector cc, const std::string& label) {
+      voffToken_ = cc.consumes();
+      dbobjectToken_ = cc.consumes(edm::ESInputTag{"", label});
+    }
     edm::ESGetToken<SiStripDetVOff, SiPixelDetVOffRcd> voffToken_;
     edm::ESGetToken<SiPixelQuality, SiPixelQualityFromDbRcd> dbobjectToken_;
   };
 
   std::unique_ptr<SiPixelQuality> get_pointer(const SiPixelQualityRcd& iRecord, const Tokens& tokens);
 
-  Tokens defaultTokens_;
+  const Tokens defaultTokens_;
   Tokens labelTokens_;
 };
 
@@ -67,21 +72,16 @@ private:
 // constructors and destructor
 //
 
-SiPixelQualityESProducer::SiPixelQualityESProducer(const edm::ParameterSet& conf_) {
+SiPixelQualityESProducer::SiPixelQualityESProducer(const edm::ParameterSet& conf_)
+    : defaultTokens_(setWhatProduced(this), "") {
   edm::LogInfo("SiPixelQualityESProducer::SiPixelQualityESProducer");
 
   auto label =
       conf_.exists("siPixelQualityLabel") ? conf_.getParameter<std::string>("siPixelQualityLabel") : std::string{};
-  auto setConsumes = [](edm::ESConsumesCollector&& cc, Tokens& tokens, const std::string& label) {
-    cc.setConsumes(tokens.voffToken_).setConsumes(tokens.dbobjectToken_, edm::ESInputTag{"", label});
-  };
 
-  //the following line is needed to tell the framework what
-  // data is being produced
-  setConsumes(setWhatProduced(this), defaultTokens_, "");
   if (label == "forDigitizer") {
-    setConsumes(
-        setWhatProduced(this, &SiPixelQualityESProducer::produceWithLabel, edm::es::Label(label)), labelTokens_, label);
+    labelTokens_ =
+        Tokens(setWhatProduced(this, &SiPixelQualityESProducer::produceWithLabel, edm::es::Label(label)), label);
   }
   findingRecord<SiPixelQualityRcd>();
 }

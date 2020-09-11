@@ -84,7 +84,8 @@ HcalTPGCoderULUT::HcalTPGCoderULUT(const edm::ParameterSet& iConfig) {
   //the following line is needed to tell the framework what
   // data is being produced
   auto cc = setWhatProduced(this);
-  cc.setConsumes(topoToken_).setConsumes(delayToken_, edm::ESInputTag{"", "HBHE"});
+  topoToken_ = cc.consumes();
+  delayToken_ = cc.consumes(edm::ESInputTag{"", "HBHE"});
 
   if (!(read_Ascii_ || read_XML_)) {
     LUTGenerationMode_ = iConfig.getParameter<bool>("LUTGenerationMode");
@@ -95,7 +96,7 @@ HcalTPGCoderULUT::HcalTPGCoderULUT(const edm::ParameterSet& iConfig) {
     linearLSB_QIE11Overlap_ = scales.getParameter<double>("LSBQIE11Overlap");
     maskBit_ = iConfig.getParameter<int>("MaskBit");
     FG_HF_thresholds_ = iConfig.getParameter<std::vector<uint32_t> >("FG_HF_thresholds");
-    cc.setConsumes(serviceToken_);
+    serviceToken_ = cc.consumes();
   } else {
     ifilename_ = iConfig.getParameter<edm::FileInPath>("inputLUTs");
   }
