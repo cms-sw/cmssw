@@ -50,10 +50,12 @@ bool TrackAndHCALLinker::linkPrefilter(const reco::PFBlockElement* elem1, const 
   // Track-HCAL KDTree multilinks are stored to track's elem
   switch (elem1->type()) {
     case reco::PFBlockElement::TRACK:
-      result = (elem1->isMultilinksValide(elem2->type()) && !elem1->getMultilinks(elem2->type()).empty());
+      result = (elem1->isMultilinksValide(elem2->type()) && !elem1->getMultilinks(elem2->type()).empty() &&
+                elem2->isMultilinksValide(elem1->type()));
       break;
     case reco::PFBlockElement::HCAL:
-      result = (elem2->isMultilinksValide(elem1->type()) && !elem2->getMultilinks(elem1->type()).empty());
+      result = (elem2->isMultilinksValide(elem1->type()) && !elem2->getMultilinks(elem1->type()).empty() &&
+                elem1->isMultilinksValide(elem2->type()));
     default:
       break;
   }

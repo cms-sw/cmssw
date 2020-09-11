@@ -248,8 +248,8 @@ void KDTreeLinkerTrackHcal::updatePFBlockEltWithLinks() {
 
   // Here we save in each track the list of phi/eta values of linked clusters.
   for (BlockElt2BlockEltMap::iterator it = target2ClusterLinks_.begin(); it != target2ClusterLinks_.end(); ++it) {
-    auto trackElt = it->first;
-    auto hcalEltSet = it->second;
+    const auto& trackElt = it->first;
+    const auto& hcalEltSet = it->second;
     reco::PFMultiLinksTC multitracks(true);
 
     //
@@ -259,6 +259,10 @@ void KDTreeLinkerTrackHcal::updatePFBlockEltWithLinks() {
         double clusterphi = hcalElt->clusterRef()->positionREP().phi();
         double clustereta = hcalElt->clusterRef()->positionREP().eta();
         multitracks.linkedClusters.push_back(std::make_pair(clusterphi, clustereta));
+
+        // We set the multilinks flag of the track (for links to ECAL) to true. It will allow us to
+        // use it in an optimized way in prefilter
+        hcalElt->setIsValidMultilinks(true, _targetType);
       }
 
     }
@@ -311,10 +315,15 @@ void KDTreeLinkerTrackHcal::updatePFBlockEltWithLinks() {
 
       // Fill multitracks
       for (auto i : sort_indexes(vDist)) {
-        BlockEltSet::iterator jt = std::next(hcalEltSet.begin(), i);
-        double clusterphi = (*jt)->clusterRef()->positionREP().phi();
-        double clustereta = (*jt)->clusterRef()->positionREP().eta();
+        const BlockEltSet::iterator hcalEltIt = std::next(hcalEltSet.begin(), i);
+        double clusterphi = (*hcalEltIt)->clusterRef()->positionREP().phi();
+        double clustereta = (*hcalEltIt)->clusterRef()->positionREP().eta();
         multitracks.linkedClusters.push_back(std::make_pair(clusterphi, clustereta));
+
+        // We set the multilinks flag of the track (for links to ECAL) to true. It will allow us to
+        // use it in an optimized way in prefilter
+        (*hcalEltIt)->setIsValidMultilinks(true, _targetType);
+
         if (multitracks.linkedClusters.size() >= (unsigned)nMaxHcalLinksPerTrack_)
           break;
       }

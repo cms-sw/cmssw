@@ -142,10 +142,6 @@ void KDTreeLinkerTrackEcal::searchLinks() {
   for (BlockEltSet::iterator it = targetSet_.begin(); it != targetSet_.end(); it++) {
     reco::PFRecTrackRef trackref = (*it)->trackRefPF();
 
-    // We set the multilinks flag of the track to true. It will allow us to
-    // use in an optimized way our algo results in the recursive linking algo.
-    (*it)->setIsValidMultilinks(true, reco::PFBlockElement::ECAL);
-
     const reco::PFTrajectoryPoint &atECAL = trackref->extrapolatedPoint(reco::PFTrajectoryPoint::ECALShowerMax);
 
     // The track didn't reach ecal
@@ -244,8 +240,8 @@ void KDTreeLinkerTrackEcal::updatePFBlockEltWithLinks() {
 
   // Here we save in each ECAL cluster the list of phi/eta values of linked tracks.
   for (BlockElt2BlockEltMap::iterator it = cluster2TargetLinks_.begin(); it != cluster2TargetLinks_.end(); ++it) {
-    auto ecalElt = it->first;
-    auto trackEltSet = it->second;
+    const auto &ecalElt = it->first;
+    const auto &trackEltSet = it->second;
     reco::PFMultiLinksTC multitracks(true);
 
     for (const auto &trackElt : trackEltSet) {
@@ -255,16 +251,15 @@ void KDTreeLinkerTrackEcal::updatePFBlockEltWithLinks() {
       double trackphi = atECAL.positionREP().phi();
 
       multitracks.linkedClusters.push_back(std::make_pair(trackphi, tracketa));
+
+      // We set the multilinks flag of the track (for links to ECAL) to true. It will allow us to
+      // use it in an optimized way in prefilter
+      trackElt->setIsValidMultilinks(true, _fieldType);
     }
 
+    // We set multilinks of the ECAL element (for links to tracks)
     ecalElt->setMultilinks(multitracks, _targetType);
   }
-
-  // We set the multilinks flag of the track (for links to ECAL) to true. It will allow us to
-  // use in an optimized way our algo results in the recursive linking algo.
-  // KenH: is this really helping?
-  for (BlockEltSet::iterator it = fieldClusterSet_.begin(); it != fieldClusterSet_.end(); ++it)
-    (*it)->setIsValidMultilinks(true, _fieldType);
 }
 
 void KDTreeLinkerTrackEcal::clear() {

@@ -115,21 +115,13 @@ namespace reco {
     void setIsValidMultilinks(bool isVal, Type type) { multilinks_[type].isValid = isVal; }
 
     bool isMultilinksValide(Type type) const {
-      auto it = multilinks_.find(type);
+      const auto& it = multilinks_.find(type);
       if (it != multilinks_.end())
         return it->second.isValid;
       else
         return false;  // no multilinks_ for the specified type
     }
-    const PFMultilinksType& getMultilinks(Type type) const {
-      auto it = multilinks_.find(type);
-      if (it != multilinks_.end())
-        return it->second.linkedClusters;
-      else {
-        const static reco::PFMultilinksType nullPFMultiLinksTC;
-        return nullPFMultiLinksTC;  // no multilinks_ for the specified type, so return null
-      }
-    }
+    const PFMultilinksType& getMultilinks(Type type) const { return multilinks_.at(type).linkedClusters; }
     // ! Glowinski & Gouzevitch
 
     /// do we have a valid time information
