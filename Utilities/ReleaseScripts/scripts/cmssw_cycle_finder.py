@@ -80,24 +80,9 @@ def get_pack_list():
 
     return ret_val
 
-def get_headers(pack):
-    file_types = [".h",".hpp"]
+def get_files(pack,subdir,file_types):
     src_base = os.environ.get('CMSSW_RELEASE_BASE')
-    pack_path = os.path.join(src_base,"src",pack,"interface")
-    if not os.path.exists(pack_path): return []
-    ret_val=[]
-    for root, dirs, files in os.walk(pack_path, topdown=False):
-        for name in files:
-            for t in file_types:
-                if name.endswith(t):
-                    ret_val.append(os.path.join(root,name))
-
-    return ret_val
-    
-def get_sources(pack):
-    file_types = [".cc",".cpp",".cxx"]
-    src_base = os.environ.get('CMSSW_RELEASE_BASE')
-    pack_path = os.path.join(src_base,"src",pack,"src")
+    pack_path = os.path.join(src_base,"src",pack,subdir)
     if not os.path.exists(pack_path): return []
     ret_val=[]
     for root, dirs, files in os.walk(pack_path, topdown=False):
@@ -118,10 +103,13 @@ def get_lib_deps(lib_info):
         ret_val.append( (lib.split('/')[-1],lib))
     return ret_val
 
-def get_include_packages(file_list,package=None):
+def get_include_packages(file_list,package=None,is_cuda=False):
     incs={}
     pack_incs={}
-    comm= "gcc -fpreprocessed -dD -E "
+    if is_cuda:
+        comm= "gcc -fpreprocessed -dD -E "
+    else:
+        comm= "nvcc --compiler-options  -fpreprocessed -dD -E "
     for f in file_list:
         comm=comm+f+" "
     comm=comm+" | grep \"#include\""
@@ -136,6 +124,8 @@ def get_include_packages(file_list,package=None):
         return list(incs.keys())
     else:
         return list(incs.keys()),list(pack_incs.keys())
+
+
 
 import sys
 
@@ -156,7 +146,7 @@ if __name__ == "__main__":
     args = parser.parse_args()
     omit_header_only=args.omit_header_only
     show_status_bar=args.status_bar
-
+    print(omit_header_only,show_status_bar)
     if 'CMSSW_RELEASE_BASE' not in os.environ:
         print("Execute within a cmssw environment")
         sys.exit(1)
@@ -171,9 +161,18 @@ if __name__ == "__main__":
     else:
         iter_lib = lib_list
     for lib in iter_lib:
-        header_list = get_headers(lib)
-        source_list = get_sources(lib)
-        source_incs_packages, self_headers = get_include_packages(source_list,lib)
+        header_list = get_files(lib,"interface",[".h",".hpp"])
+        source_list = get_files(lib,"src",[".cc",".cpp",".cxx"])
+        cuda_source_list = get_files(lib,"src",[".cu"])
+        
+        cpp_incs_packages, cpp_self_headers = get_include_packages(source_list,lib)
+        cuda_incs_packages, cuda_self_headers = get_include_packages(cuda_source_list,lib,is_cuda=True)
+
+        source_incs_packages = list(cpp_incs_packages)
+        source_incs_packages.extend(x for x in cuda_incs_packages if x not in source_incs_packages)
+        self_headers = list(cpp_self_headers)
+        self_headers.extend(x for x in cuda_self_headers if x not in self_headers)
+
         if not omit_header_only:
             header_incs_packages = get_include_packages(header_list)
         else:
