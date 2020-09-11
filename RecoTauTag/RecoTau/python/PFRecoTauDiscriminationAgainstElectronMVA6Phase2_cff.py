@@ -25,6 +25,7 @@ pfRecoTauDiscriminationAgainstElectronMVA6Phase2 = pfRecoTauDiscriminationAgains
     srcElectrons = 'mergedGsfElectronsForTauId',
     isPhase2 = True,
     vetoEcalCracks = False,
+    hgcalElectronIDs = [cms.InputTag("hgcElectronIdForTauId", key) for key in hgcElectronIdForTauId.variables],
     mvaName_NoEleMatch_woGwoGSF_BL = "RecoTauTag_antiElectronPhase2MVA6v1_gbr_NoEleMatch_woGwoGSF_BL",
     mvaName_NoEleMatch_wGwoGSF_BL = "RecoTauTag_antiElectronPhase2MVA6v1_gbr_NoEleMatch_wGwoGSF_BL",
     mvaName_woGwGSF_BL = "RecoTauTag_antiElectronPhase2MVA6v1_gbr_woGwGSF_BL",
