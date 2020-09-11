@@ -87,7 +87,7 @@ private:
         dumpName_ = "Effective" + dumpName_;
       }
     }
-    void setConsumes(edm::ESConsumesCollector& cc) { cc.setConsumes(token_, edm::ESInputTag{"", LABEL}); }
+    void setConsumes(edm::ESConsumesCollector& cc) { token_ = cc.consumes(edm::ESInputTag{"", LABEL}); }
     void setupHcalDbService(HostType& host,
                             const RecordType& record,
                             const std::vector<std::string>& dumpRequest,
@@ -148,7 +148,8 @@ private:
     TokenAndTopologyHolder() = default;
 
     void setConsumes(edm::ESConsumesCollector&& cc, const edm::ESInputTag& tag) {
-      cc.setConsumes(token_, tag).setConsumes(topoToken_);
+      token_ = cc.consumes(tag);
+      topoToken_ = cc.consumes();
     }
 
     const auto& token() const { return token_; }

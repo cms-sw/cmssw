@@ -31,14 +31,16 @@ public:
   static void fillDescriptions(edm::ConfigurationDescriptions&);
 
 private:
-  edm::ESGetToken<LHCInfo, LHCInfoRcd> lhcInfoToken_;
+  const edm::ESGetToken<LHCInfo, LHCInfoRcd> lhcInfoToken_;
 
   CTPPSBeamParameters defaultParameters_;
 };
 
 //----------------------------------------------------------------------------------------------------
 
-CTPPSBeamParametersFromLHCInfoESSource::CTPPSBeamParametersFromLHCInfoESSource(const edm::ParameterSet& iConfig) {
+CTPPSBeamParametersFromLHCInfoESSource::CTPPSBeamParametersFromLHCInfoESSource(const edm::ParameterSet& iConfig)
+    : lhcInfoToken_(
+          setWhatProduced(this).consumes(edm::ESInputTag("", iConfig.getParameter<std::string>("lhcInfoLabel")))) {
   defaultParameters_.setBeamDivergenceX45(iConfig.getParameter<double>("beamDivX45"));
   defaultParameters_.setBeamDivergenceY45(iConfig.getParameter<double>("beamDivX56"));
   defaultParameters_.setBeamDivergenceX56(iConfig.getParameter<double>("beamDivY45"));
@@ -54,9 +56,6 @@ CTPPSBeamParametersFromLHCInfoESSource::CTPPSBeamParametersFromLHCInfoESSource(c
   defaultParameters_.setVtxStddevX(iConfig.getParameter<double>("vtxStddevX"));
   defaultParameters_.setVtxStddevY(iConfig.getParameter<double>("vtxStddevY"));
   defaultParameters_.setVtxStddevZ(iConfig.getParameter<double>("vtxStddevZ"));
-
-  setWhatProduced(this).setConsumes(lhcInfoToken_,
-                                    edm::ESInputTag("", iConfig.getParameter<std::string>("lhcInfoLabel")));
 }
 
 //----------------------------------------------------------------------------------------------------
