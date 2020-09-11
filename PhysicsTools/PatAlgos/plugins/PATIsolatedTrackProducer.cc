@@ -93,7 +93,6 @@ namespace pat {
                                  float&) const;
 
     bool insideCone(const PolarLorentzVector&, const DetId&, const double) const;
- 
 
   private:
     const edm::EDGetTokenT<pat::PackedCandidateCollection> pc_;
@@ -874,7 +873,7 @@ void pat::PATIsolatedTrackProducer::getAssociatedCaloEnergy(const PolarLorentzVe
                                                             const EBRecHitCollection& EBRecHits,
                                                             const EERecHitCollection& EERecHits,
                                                             const HBHERecHitCollection& HBHERecHits,
-                                                            float& eEM, 
+                                                            float& eEM,
                                                             float& eHad) const {
   eEM = 0.;
   for (const auto& hit : EBRecHits) {
