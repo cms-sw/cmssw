@@ -170,7 +170,7 @@ FOR THE TPG I TAKE AN OBJECT AS ENVELOP1+ENVELOP2 BUT 500uM THICK. FOR THE TWO F
   <Translation x="0." y="-([TPGL]/2.-[HybridL2]+[HybridL2]/2.+[HybridappL]/2.)" z="0."/>
 </SubtractionSolid>
 
-<Box name="RPixWafer"              dx="[WaferW]/2."   dy="[WaferL]/2."     dz="[WaferT]/2." />
+<Box name="RPixWafer2x2"              dx="[WaferW]/2."   dy="[WaferL]/2."     dz="[WaferT]/2." />
 <Box name="RPixnoWafer"              dx="[WaferW]/2."   dy="[noWaferL]/2."     dz="[WaferT]/2." />
 
 
@@ -220,8 +220,8 @@ FOR THE TPG I TAKE AN OBJECT AS ENVELOP1+ENVELOP2 BUT 500uM THICK. FOR THE TWO F
 
  </LogicalPart>
 
- <LogicalPart name="RPixWafer" category="unspecified">
-  <rSolid name="RPixWafer"/>
+ <LogicalPart name="RPixWafer2x2" category="unspecified">
+  <rSolid name="RPixWafer2x2"/>
   <rMaterial name="materials:Silicon"/>
  </LogicalPart>
 
@@ -359,12 +359,12 @@ FOR THE TPG I TAKE AN OBJECT AS ENVELOP1+ENVELOP2 BUT 500uM THICK. FOR THE TWO F
 
 <PosPart copyNumber="1">
   <rParent name="CTPPS_Pixel_Module_2x2:Envelop"/>
-  <rChild name="CTPPS_Pixel_Module_2x2:RPixWafer"/>
+  <rChild name="CTPPS_Pixel_Module_2x2:RPixWafer2x2"/>
   <Translation x="0"  y="[EnvelopL]/2.-[TPGL]-[TPGappL]-[TPGvsROCoffset]-[ROCvsWaferoffset]+[WaferL]/2."  z="-[EnvelopT]/2.+[HybridT]+[GlueT]+[TPGT]+[GlueT]+[ROChipT]+[BumpBondT]+[WaferT]/2." />
  </PosPart>
 
 <PosPart copyNumber="1">
-  <rParent name="CTPPS_Pixel_Module_2x2:RPixWafer"/>
+  <rParent name="CTPPS_Pixel_Module_2x2:RPixWafer2x2"/>
   <rChild name="CTPPS_Pixel_Module_2x2:RPixnoWafer"/>
   <Translation x="0"  y="[WaferL]/2.-[noWaferL]/2."  z="0" />
  </PosPart>

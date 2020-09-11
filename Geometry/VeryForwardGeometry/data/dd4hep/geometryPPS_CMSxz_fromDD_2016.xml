@@ -120,7 +120,6 @@
         <Include ref="Geometry/VeryForwardData/data/ppstrackerMaterials.xml"/>
         <Include ref="Geometry/VeryForwardData/data/CTPPS_Pixel_Module.xml"/>
         <Include ref="Geometry/VeryForwardData/data/CTPPS_Pixel_Module_2x2.xml"/>
-	<Include ref="Geometry/VeryForwardData/data/dd4hep/SpecPar_for_CTPPS_Pixel_Module_2x2.xml"/>
         <Include ref="Geometry/VeryForwardData/data/CTPPS_Pixel_Sens.xml"/>
 
 	# position of RPs

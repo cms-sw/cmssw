@@ -1,7 +1,5 @@
 #include "Geometry/VeryForwardGeometryBuilder/interface/DetGeomDescBuilder.h"
 
-#include "DetectorDescription/Core/interface/DDFilteredView.h"
-#include "DetectorDescription/DDCMS/interface/DDFilteredView.h"
 #include "DetectorDescription/DDCMS/interface/DDDetector.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
@@ -58,14 +56,13 @@ std::unique_ptr<DetGeomDesc> detgeomdescbuilder::buildDetGeomDescFromCompactView
     edm::LogError("PPSGeometryESProducer") << "Filtered view is empty. Cannot build.";
   }
 
-  const cms::DDSpecParRegistry& allSpecParSections = myCompactView.specpars();
   // Geo info: root node.
-  auto geoInfoRoot = std::make_unique<DetGeomDesc>(fv, allSpecParSections, is2021);
+  auto geoInfoRoot = std::make_unique<DetGeomDesc>(fv, is2021);
 
   // Construct the tree of children geo info (DetGeomDesc).
   do {
     // Create node, and add it to the geoInfoRoot's list.
-    DetGeomDesc* child = new DetGeomDesc(fv, allSpecParSections, is2021);
+    DetGeomDesc* child = new DetGeomDesc(fv, is2021);
     geoInfoRoot->addComponent(child);
   } while (fv.next(0));
 
