@@ -398,8 +398,8 @@ public:
     if (vectorSize > 1) {
       double nominal = genProd.weights()[1];  // Called 'Baseline' in GenLumiInfoHeader
       if (keepAllPSWeights_) {
-        for (std::size_t i = 2; i < vectorSize; i++) {
-          wPS[i] = (genProd.weights()[i]) / nominal;
+        for (std::size_t i = 0; i < vectorSize; i++) {
+          wPS[i] = (genProd.weights()[i + 2]) / nominal;
         }
         psWeightDocStr = "All PS weights (w_var / w_nominal)";
       } else {
@@ -525,8 +525,8 @@ public:
     if (vectorSize > 1) {
       double nominal = genProd.weights()[1];  // Called 'Baseline' in GenLumiInfoHeader
       if (keepAllPSWeights_) {
-        for (std::size_t i = 2; i < vectorSize; i++) {
-          wPS[i] = (genProd.weights()[i]) / nominal;
+        for (std::size_t i = 0; i < vectorSize; i++) {
+          wPS[i] = (genProd.weights()[i + 2]) / nominal;
         }
         psWeightDocStr = "All PS weights (w_var / w_nominal)";
       } else {
@@ -952,7 +952,7 @@ public:
           }
         } else if (line.find("Baseline") != std::string::npos || line.find("isr") != std::string::npos ||
                    line.find("fsr") != std::string::npos) {
-          if (keepAllPSWeights_ || line.find("Def") != std::string::npos) {
+          if (keepAllPSWeights_ || line.find("Baseline") != std::string::npos || line.find("Def") != std::string::npos) {
             weightChoice->psWeightIDs.push_back(weightIter);  // PS variations
           }
         }
