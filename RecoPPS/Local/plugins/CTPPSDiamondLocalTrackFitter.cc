@@ -58,7 +58,7 @@ void CTPPSDiamondLocalTrackFitter::produce(edm::Event& iEvent, const edm::EventS
     const CTPPSDiamondDetId raw_detid(vec.detId()), detid(raw_detid.arm(), raw_detid.station(), raw_detid.rp());
     // if algorithm is not found, build it
     if (trk_algo_.count(detid) == 0)
-      trk_algo_[detid].reset(new CTPPSDiamondTrackRecognition(trk_algo_params_));
+      trk_algo_[detid] = std::make_unique<CTPPSDiamondTrackRecognition>(trk_algo_params_);
     for (const auto& hit : vec)
       // skip hits without a leading edge
       if (hit.ootIndex() != CTPPSDiamondRecHit::TIMESLICE_WITHOUT_LEADING)

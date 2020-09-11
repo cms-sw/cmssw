@@ -114,8 +114,14 @@ private:
   DiamondDimensions computeDiamondDimensions(const bool isABox,
                                              const bool isDD4hep,
                                              const std::vector<double>& params) const;
-  DetId computeDetID(const std::string& name, const std::vector<int>& copyNos, const unsigned int copyNum, const bool is2021) const;
-  DetId computeDetIDFromDD4hep(const std::string& name, const std::vector<int>& copyNos, const unsigned int copyNum, const bool is2021) const;
+  DetId computeDetID(const std::string& name,
+                     const std::vector<int>& copyNos,
+                     const unsigned int copyNum,
+                     const bool is2021) const;
+  DetId computeDetIDFromDD4hep(const std::string& name,
+                               const std::vector<int>& copyNos,
+                               const unsigned int copyNum,
+                               const bool is2021) const;
   std::string computeSensorType(std::string_view name);
 
   std::string m_name;  // with no namespace
