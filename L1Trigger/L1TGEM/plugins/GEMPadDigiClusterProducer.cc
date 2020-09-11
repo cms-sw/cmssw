@@ -202,6 +202,9 @@ void GEMPadDigiClusterProducer::buildClusters(const GEMPadDigiCollection& det_pa
       // check if the input pad is valid
       checkValid(*d, part->id());
 
+      // number of eta partitions
+      unsigned nPart = d->nPartitions();
+
       if (cl.empty()) {
         cl.push_back((*d).pad());
       } else {
@@ -211,7 +214,7 @@ void GEMPadDigiClusterProducer::buildClusters(const GEMPadDigiCollection& det_pa
           cl.push_back((*d).pad());
         } else {
           // put the current cluster in the proto collection
-          GEMPadDigiCluster pad_cluster(cl, startBX, part->subsystem());
+          GEMPadDigiCluster pad_cluster(cl, startBX, part->subsystem(), nPart);
 
           // check if the output cluster is valid
           checkValid(pad_cluster, part->id());
@@ -228,7 +231,10 @@ void GEMPadDigiClusterProducer::buildClusters(const GEMPadDigiCollection& det_pa
 
     // put the last cluster in the proto collection
     if (pads.first != pads.second) {
-      GEMPadDigiCluster pad_cluster(cl, startBX, part->subsystem());
+      // number of eta partitions
+      unsigned nPart = (pads.first)->nPartitions();
+
+      GEMPadDigiCluster pad_cluster(cl, startBX, part->subsystem(), nPart);
 
       // check if the output cluster is valid
       checkValid(pad_cluster, part->id());
