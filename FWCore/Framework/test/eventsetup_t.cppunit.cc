@@ -43,9 +43,9 @@
 #include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/Utilities/interface/ESProductTag.h"
+#include "FWCore/Concurrency/interface/ThreadsController.h"
 
 #include "cppunit/extensions/HelperMacros.h"
-#include "tbb/task_scheduler_init.h"
 
 #include <memory>
 #include <optional>
@@ -105,7 +105,7 @@ class testEventsetup : public CppUnit::TestFixture {
   CPPUNIT_TEST_SUITE_END();
 
 public:
-  void setUp() { m_scheduler = std::make_unique<tbb::task_scheduler_init>(1); }
+  void setUp() { m_scheduler = std::make_unique<edm::ThreadsController>(1); }
   void tearDown() {}
 
   void constructTest();
@@ -137,7 +137,7 @@ public:
   void resetProxiesTest();
 
 private:
-  edm::propagate_const<std::unique_ptr<tbb::task_scheduler_init>> m_scheduler;
+  edm::propagate_const<std::unique_ptr<edm::ThreadsController>> m_scheduler;
 
   DummyData kGood{1};
   DummyData kBad{0};
