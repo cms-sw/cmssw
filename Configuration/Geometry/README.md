@@ -34,10 +34,8 @@ Different versions of various subdetectors can be combined. The available versio
 
 Tracker:
 * T15: Phase2 tilted tracker (v6.1.6) w/ phase 2 pixel (v6.1.3) (Active geometry: same as T14. Material Budget: major update in IT, gathering info from recent Mechanical designs.)
-* T17: Phase2 tilted tracker (v6.1.6) w/ phase 2 pixel (v6.1.5) TFPX: Changed sensors spacing within all double-disks + Increased distance between Disks 6 and 7 + Put TBPX portcards between Disks 6 and 7.
-* T19: Phase2 tilted tracker (v6.1.6) w/ phase 2 pixel (v7.0.0) Inner Tracker description with 3D sensors in TBPX L1 + TBPX L2 + TFPX R1.
-* T20: Phase2 tilted tracker. Outer Tracker (v6.1.6): All sensors 200 um -> 290 um + Update in Module MB + PS modules: s-sensor 164 um longer + Major update in OTST MB. Inner Tracker: (v6.1.5) from T17 is called.
-* T21: Phase2 tilted tracker. Outer Tracker (v8.0.0): TBPS update in Layer 1 (facilitate IT insertion) + In all TEDD, update sensors Z inter-spacing. Inner Tracker: (v6.1.5) from T17.
+* T21: Phase2 tilted tracker. Outer Tracker (v8.0.0): TBPS update in Layer 1 (facilitate IT insertion) + In all TEDD, update sensors Z inter-spacing. Inner Tracker: (v6.1.5) from previous T17
+(TFPX: Changed sensors spacing within all double-disks + Increased distance between Disks 6 and 7 + TBPX portcards between Disks 6 and 7.)
 * T22: Phase2 tilted tracker. Outer Tracker (v8.0.0): same as T21. Inner Tracker: Based on (v6.1.5) (T21), but with 50x50 pixel aspect ratio everywhere.
 * T23: Phase2 tilted tracker. Outer Tracker (v8.0.0): same as T21. Inner Tracker: Based on (v6.1.5) (T21), but with 3D sensors in TBPX L1 + TBPX L2 + TFPX R1.
 
@@ -75,16 +73,8 @@ The script also handles the common and forward elements of the geometry:
 Several detector combinations have been generated:
 * D49 = T15+C9+M4+I10+O4+F2
 * D50 = T15+C9+M4+I11+O4+F2
-* D51 = T17+C9+M4+I10+O4+F2
 * D53 = T15+C9+M4+I12+O4+F2
-* D54 = T19+C9+M4+I10+O4+F2
-* D56 = T20+C9+M4+I10+O4+F2
-* D57 = T17+C11+M6+I11+O5+F4
-* D58 = T17+C12+M6+I11+O5+F5
-* D59 = T17+C13+M7+I11+O6+F6
 * D60 = T15+C10+M4+I10+O4+F3
-* D61 = T17+C9+M5+I10+O4+F2
-* D62 = T17+C14+M7+I11+O7+F6
 * D63 = T21+C11+M4+I11+O5+F4
 * D64 = T22+C11+M4+I11+O5+F4
 * D65 = T23+C11+M4+I11+O5+F4
