@@ -60,14 +60,14 @@
     <Trapezoid name="YB1_w2_b1" dz="1.2679*m" alp1="-7.63074*deg" bl1="0.186343*m" tl1="0.198401*m" h1="0.045*m" alp2="-7.63074*deg" bl2="0.186343*m" tl2="0.198401*m" h2="0.045*m" phi="0*deg" theta="0*deg"/>
     <Box name="YB1_w2_b2" dx="0.79244*m" dy="0.0450*m - 0.00000305385*m" dz="1.2500*m"/>
     <Trapezoid name="YB1_w2_b3" dz="1.2679*m" alp1="7.63074*deg" bl1="0.257742*m" tl1="0.2698*m" h1="0.045*m - 0.00000282824*m" alp2="7.63074*deg" bl2="0.257742*m" tl2="0.2698*m" h2="0.045*m - 0.00000282824*m" phi="0*deg" theta="0*deg"/>
-    <Trapezoid name="YB1_w0_m" dz="0.63395*m - 1.0*mm" alp1="0*deg" bl1="1.2607*m -1.0*mm" tl1="1.3143*m -1.0*mm" h1="0.1000*m - 0.00000305385*m -1.0*mm" alp2="0*deg" bl2="1.2607*m -1.0*mm" tl2="1.3143*m -1.0*mm" h2="0.1000*m - 0.00000305385*m -1.0*mm" phi="0*deg" theta="0*deg"/><!-- Sergio: 08/09 -->
+    <Trapezoid name="YB1_w0_m" dz="0.63395*m - 1.0*mm" alp1="0*deg" bl1="1.2607*m -1.0*mm" tl1="1.3143*m -1.0*mm" h1="0.1000*m - 0.00000305385*m -1.0*mm" alp2="0*deg" bl2="1.2607*m -1.0*mm" tl2="1.3143*m -1.0*mm" h2="0.1000*m - 0.00000305385*m -1.0*mm" phi="0*deg" theta="0*deg"/>
     <Trapezoid name="YB1_w1_m1" dz="0.195*m" alp1="-7.6321701*deg" bl1="0.4154*m" tl1="0.4422*m" h1="0.1000*m" alp2="-7.6321701*deg" bl2="0.4154*m" tl2="0.4422*m" h2="0.1000*m" phi="0*deg" theta="0*deg"/>
-    <Box name="YB1_w1_m2" dx="0.08*m - 0.000026056*m - 1.0*mm" dy="0.1000*m" dz="0.195*m"/><!-- Sergio -1.0*mm YB1Chim_w1N_m2-->
+    <Box name="YB1_w1_m2" dx="0.08*m - 0.000026056*m - 1.0*mm" dy="0.1000*m" dz="0.195*m"/>
     <Box name="YB1_w1_m3" dx="0.2700*m" dy="0.1000*m - 0.00000284419*m" dz="0.195*m"/>
     <Box name="YB1_w1_m4" dx="0.08*m - 0.000284419*m" dy="0.1000*m - 0.00000284419*m" dz="0.195*m"/>
     <Trapezoid name="YB1_w1_m5" dz="0.195*m" alp1="7.6321701*deg" bl1="0.4154*m" tl1="0.4422*m - 0.000000896967*m" h1="0.1000*m" alp2="7.6321701*deg" bl2="0.4154*m" tl2="0.4422*m  - 0.000000896967*m" h2="0.1000*m" phi="0*deg" theta="0*deg"/>
-    <Trapezoid name="YB1_w1_m6" dz="1.0729*m" alp1="0*deg" bl1="1.2607*m -1.0*mm" tl1="1.3143*m -1.0*mm" h1="0.1000*m - 0.00000282824*m" alp2="0*deg" bl2="1.2607*m -1.0*mm" tl2="1.3143*m - 1.0*mm" h2="0.1000*m - 0.00000282824*m" phi="0*deg" theta="0*deg"/><!-- Sergio: it was h1 h2  - 0.00000282824*m 08/09/2020-->
-    <Trapezoid name="YB1_w2_m1" dz="1.2679*m -1.0*mm" alp1="0*deg" bl1="1.2607*m -1.0*mm" tl1="1.3143*m -1.0*mm" h1="0.1000*m -1.0*mm" alp2="0*deg" bl2="1.2607*m -1.0*mm" tl2="1.3143*m -1.0*mm" h2="0.1000*m -1.0*mm" phi="0*deg" theta="0*deg"/><!-- Sergio-->
+    <Trapezoid name="YB1_w1_m6" dz="1.0729*m" alp1="0*deg" bl1="1.2607*m -1.0*mm" tl1="1.3143*m -1.0*mm" h1="0.1000*m - 0.00000282824*m" alp2="0*deg" bl2="1.2607*m -1.0*mm" tl2="1.3143*m - 1.0*mm" h2="0.1000*m - 0.00000282824*m" phi="0*deg" theta="0*deg"/>
+    <Trapezoid name="YB1_w2_m1" dz="1.2679*m -1.0*mm" alp1="0*deg" bl1="1.2607*m -1.0*mm" tl1="1.3143*m -1.0*mm" h1="0.1000*m -1.0*mm" alp2="0*deg" bl2="1.2607*m -1.0*mm" tl2="1.3143*m -1.0*mm" h2="0.1000*m -1.0*mm" phi="0*deg" theta="0*deg"/>
     <Box name="YBSepar2_w0" dx="0.0369*m" dy="0.2225*m - 0.000000120219*m" dz="0.63405*m - 0.001*m"/>
     <Box name="YBSepar2_w1" dx="0.0369*m" dy="0.2225*m - 0.000000820541*m - 0.00000738487*m" dz="1.2679*m"/>
     <Box name="YBSepar2_w2" dx="0.0369*m" dy="0.2225*m - 0.000000120219*m" dz="1.2679*m"/>
@@ -85,14 +85,14 @@
     <Trapezoid name="YB2_w2_b1" dz="1.2679*m" alp1="-7.63074*deg" bl1="0.185862*m" tl1="0.19725*m" h1="0.0425*m" alp2="-7.63074*deg" bl2="0.185862*m" tl2="0.19725*m" h2="0.0425*m" phi="0*deg" theta="0*deg"/>
     <Box name="YB2_w2_b2" dx="1.09675*m - 0.00000362891*m" dy="0.0425*m" dz="1.2500*m"/>
     <Trapezoid name="YB2_w2_b3" dz="1.2679*m" alp1="7.63074*deg" bl1="0.150916*m" tl1="0.162304*m" h1="0.0425*m - 0.00000277556*m" alp2="7.63074*deg" bl2="0.150916*m" tl2="0.162304*m" h2="0.0425*m - 0.00000277556*m" phi="0*deg" theta="0*deg"/>
-    <Trapezoid name="YB2_w0_m" dz="0.63395*m -0.1*mm" alp1="0*deg" bl1="1.4563*m -0.1*mm" tl1="1.5769*m -0.1*mm" h1="0.2250*m -0.1*mm" alp2="0*deg" bl2="1.4563*m -0.1*mm" tl2="1.5769*m -0.1*mm" h2="0.2250*m -0.1*mm" phi="0*deg" theta="0*deg"/><!-- Sergio -0.1*mm -->
-    <Trapezoid name="YB2_w1_m1" dz="0.195*m -0.1*mm" alp1="-7.6321701*deg" bl1="0.5132*m -0.1*mm" tl1="0.5735*m -0.1*mm" h1="0.2250*m -0.1*mm" alp2="-7.6321701*deg" bl2="0.5132*m -0.1*mm" tl2="0.5735*m -0.1*mm" h2="0.2250*m -0.1*mm" phi="0*deg" theta="0*deg"/> <!-- Sergio -0.1*mm -->
+    <Trapezoid name="YB2_w0_m" dz="0.63395*m -0.1*mm" alp1="0*deg" bl1="1.4563*m -0.1*mm" tl1="1.5769*m -0.1*mm" h1="0.2250*m -0.1*mm" alp2="0*deg" bl2="1.4563*m -0.1*mm" tl2="1.5769*m -0.1*mm" h2="0.2250*m -0.1*mm" phi="0*deg" theta="0*deg"/>
+    <Trapezoid name="YB2_w1_m1" dz="0.195*m -0.1*mm" alp1="-7.6321701*deg" bl1="0.5132*m -0.1*mm" tl1="0.5735*m -0.1*mm" h1="0.2250*m -0.1*mm" alp2="-7.6321701*deg" bl2="0.5132*m -0.1*mm" tl2="0.5735*m -0.1*mm" h2="0.2250*m -0.1*mm" phi="0*deg" theta="0*deg"/> 
     <Box name="YB2_w1_m2" dx="0.08*m - 0.00000128175*m" dy="0.2250*m - 0.0000100001*m - 0.000000878882*m" dz="0.195*m"/>
     <Box name="YB2_w1_m3" dx="0.2700*m - 0.0010879*m" dy="0.2250*m - 0.00000500004*m" dz="0.195*m"/>
     <Box name="YB2_w1_m4" dx="0.08*m - 0.00000500004*m" dy="0.2250*m - 0.00000500004*m" dz="0.195*m"/>
-    <Trapezoid name="YB2_w1_m5" dz="0.195*m -0.1*mm" alp1="7.6321701*deg" bl1="0.5132*m -0.1*mm" tl1="0.5735*m -0.1*mm" h1="0.2250*m -0.1*mm" alp2="7.6321701*deg" bl2="0.5132*m" tl2="0.5735*m -0.1*mm" h2="0.2250*m -0.1*mm" phi="0*deg" theta="0*deg"/><!-- Sergio -0.1*mm -->
-    <Trapezoid name="YB2_w1_m6" dz="1.0729*m -0.1*mm" alp1="0*deg" bl1="1.4563*m -0.1*mm" tl1="1.5769*m -0.1*mm" h1="0.2250*m - 0.00000899323*m -0.1*mm" alp2="0*deg" bl2="1.4563*m -0.1*mm" tl2="1.5769*m -0.1*mm" h2="0.2250*m - 0.00000899323*m -0.1*mm" phi="0*deg" theta="0*deg"/><!-- Sergio -0.1*mm 8/9/2020-->
-    <Trapezoid name="YB2_w2_m1" dz="1.2679*m - 1.0*mm" alp1="0*deg" bl1="1.4563*m - 1.0*mm" tl1="1.5769*m - 1.0*mm" h1="0.2250*m - 1.0*mm" alp2="0*deg" bl2="1.4563*m - 1.0*mm" tl2="1.5769*m - 1.0*mm" h2="0.2250*m - 1.0*mm" phi="0*deg" theta="0*deg"/> <!-- Sergio -1.0mm -->
+    <Trapezoid name="YB2_w1_m5" dz="0.195*m -0.1*mm" alp1="7.6321701*deg" bl1="0.5132*m -0.1*mm" tl1="0.5735*m -0.1*mm" h1="0.2250*m -0.1*mm" alp2="7.6321701*deg" bl2="0.5132*m" tl2="0.5735*m -0.1*mm" h2="0.2250*m -0.1*mm" phi="0*deg" theta="0*deg"/>
+    <Trapezoid name="YB2_w1_m6" dz="1.0729*m -0.1*mm" alp1="0*deg" bl1="1.4563*m -0.1*mm" tl1="1.5769*m -0.1*mm" h1="0.2250*m - 0.00000899323*m -0.1*mm" alp2="0*deg" bl2="1.4563*m -0.1*mm" tl2="1.5769*m -0.1*mm" h2="0.2250*m - 0.00000899323*m -0.1*mm" phi="0*deg" theta="0*deg"/>
+    <Trapezoid name="YB2_w2_m1" dz="1.2679*m - 1.0*mm" alp1="0*deg" bl1="1.4563*m - 1.0*mm" tl1="1.5769*m - 1.0*mm" h1="0.2250*m - 1.0*mm" alp2="0*deg" bl2="1.4563*m - 1.0*mm" tl2="1.5769*m - 1.0*mm" h2="0.2250*m - 1.0*mm" phi="0*deg" theta="0*deg"/>
     <Trapezoid name="YB2_w0_t1" dz="0.63395*m" alp1="-7.63074*deg" bl1="0.170592*m" tl1="0.18198*m" h1="0.0425*m" alp2="-7.63074*deg" bl2="0.170592*m" tl2="0.18198*m" h2="0.0425*m" phi="0*deg" theta="0*deg"/>
     <Box name="YB2_w0_t2" dx="1.1837*m" dy="0.0425*m" dz="0.62495*m"/>
     <Trapezoid name="YB2_w0_t3" dz="0.63395*m" alp1="7.63074*deg" bl1="0.222589*m - 0.000230615*m" tl1="0.233977*m - 0.000230615*m" h1="0.0425*m" alp2="7.63074*deg" bl2="0.222589*m - 0.000230615*m" tl2="0.233977*m - 0.000230615*m" h2="0.0425*m" phi="0*deg" theta="0*deg"/>
@@ -125,11 +125,11 @@
     <Box name="YB3_w2_b2" dx="1.34468*m - 0.00000121798*m" dy="0.0425*m - 0.00000121798*m" dz="1.2500*m"/>
     <Trapezoid name="YB3_w2_b3" dz="1.2679*m" alp1="7.63074*deg" bl1="0.169237*m" tl1="0.180625*m" h1="0.0425*m" alp2="7.63074*deg" bl2="0.169237*m" tl2="0.180625*m" h2="0.0425*m" phi="0*deg" theta="0*deg"/>
     <Trapezoid name="YB3_w0_m" dz="0.63395*m" alp1="0*deg" bl1="1.731*m - 0.00239102*m" tl1="1.8515*m - 0.00239102*m" h1="0.2250*m  - 0.00000147966*m" alp2="0*deg" bl2="1.731*m - 0.00239102*m" tl2="1.8515*m - 0.00239102*m" h2="0.2250*m - 0.00000147966*m" phi="0*deg" theta="0*deg"/>
-    <Trapezoid name="YB3_w1_m1" dz="0.195*m -0.1*mm" alp1="-7.6259161*deg" bl1="0.65055*m -0.1*mm" tl1="0.7108*m -0.1*mm" h1="0.2250*m - 0.0000261358*m -0.1*mm" alp2="-7.6259161*deg" bl2="0.65055*m -0.1*mm" tl2="0.7108*m -0.1*mm" h2="0.2250*m - 0.0000261358*m -0.1*mm" phi="0*deg" theta="0*deg"/><!-- Sergio -0.1*mm--> 
-    <Box name="YB3_w1_m2" dx="0.08*m - 0.00000143878*m - 1.0*mm" dy="0.2250*m" dz="0.195*m"/><!-- Sergio -1.0*mm--> 
-    <Box name="YB3_w1_m3" dx="0.2700*m" dy="0.2250*m - 0.000000878882*m - 1.0*mm" dz="0.195*m"/><!-- Sergio -1.0*mm--> 
+    <Trapezoid name="YB3_w1_m1" dz="0.195*m -0.1*mm" alp1="-7.6259161*deg" bl1="0.65055*m -0.1*mm" tl1="0.7108*m -0.1*mm" h1="0.2250*m - 0.0000261358*m -0.1*mm" alp2="-7.6259161*deg" bl2="0.65055*m -0.1*mm" tl2="0.7108*m -0.1*mm" h2="0.2250*m - 0.0000261358*m -0.1*mm" phi="0*deg" theta="0*deg"/>
+    <Box name="YB3_w1_m2" dx="0.08*m - 0.00000143878*m - 1.0*mm" dy="0.2250*m" dz="0.195*m"/>
+    <Box name="YB3_w1_m3" dx="0.2700*m" dy="0.2250*m - 0.000000878882*m - 1.0*mm" dz="0.195*m"/>
     <Box name="YB3_w1_m4" dx="0.08*m - 0.000175776*m" dy="0.2250*m" dz="0.195*m"/>
-    <Trapezoid name="YB3_w1_m5" dz="0.195*m - 0.1*mm" alp1="7.6259161*deg" bl1="0.65055*m -0.1*mm" tl1="0.7108*m -0.1*mm" h1="0.2250*m -0.1*mm" alp2="7.6259161*deg" bl2="0.65055*m -0.1*mm" tl2="0.7108*m -0.1*mm" h2="0.2250*m -0.1*mm" phi="0*deg" theta="0*deg"/><!-- Sergio -0.1*mm--> 
+    <Trapezoid name="YB3_w1_m5" dz="0.195*m - 0.1*mm" alp1="7.6259161*deg" bl1="0.65055*m -0.1*mm" tl1="0.7108*m -0.1*mm" h1="0.2250*m -0.1*mm" alp2="7.6259161*deg" bl2="0.65055*m -0.1*mm" tl2="0.7108*m -0.1*mm" h2="0.2250*m -0.1*mm" phi="0*deg" theta="0*deg"/>
     <Trapezoid name="YB3_w1_m6" dz="1.0729*m - 0.00005*m" alp1="0*deg" bl1="1.731*m - 0.00005*m" tl1="1.8515*m - 0.00005*m" h1="0.2250*m - 0.00005*m" alp2="0*deg" bl2="1.731*m - 0.00005*m" tl2="1.8515*m - 0.00005*m" h2="0.2250*m  - 0.00005*m" phi="0*deg" theta="0*deg"/>
     <Trapezoid name="YB3_w2_m1" dz="1.2679*m - 0.00005*m" alp1="0*deg" bl1="1.731*m - 0.00005*m" tl1="1.8515*m - 0.00005*m" h1="0.2250*m - 0.00005*m" alp2="0*deg" bl2="1.731*m - 0.00005*m" tl2="1.8515*m - 0.00005*m" h2="0.2250*m - 0.00005*m" phi="0*deg" theta="0*deg"/>
     <Trapezoid name="YB3_w0_t1" dz="0.63395*m" alp1="-7.63074*deg" bl1="0.245512*m - 0.000167856*m" tl1="0.2569*m - 0.000167856*m" h1="0.0425*m" alp2="-7.63074*deg" bl2="0.245512*m - 0.000167856*m" tl2="0.2569*m - 0.000167856*m" h2="0.0425*m" phi="0*deg" theta="0*deg"/>
