@@ -84,15 +84,16 @@ namespace pat {
     TrackDetMatchInfo getTrackDetMatchInfo(const edm::Event&, const edm::EventSetup&, const reco::Track&);
 
     void getCaloJetEnergy(const PolarLorentzVector&, const reco::CaloJetCollection*, float&, float&) const;
-    
-    void getAssociatedCaloEnergy(const PolarLorentzVector&, 
-                                 const EBRecHitCollection&, 
-                                 const EERecHitCollection&, 
-                                 const HBHERecHitCollection&, 
-                                 float&, 
+
+    void getAssociatedCaloEnergy(const PolarLorentzVector&,
+                                 const EBRecHitCollection&,
+                                 const EERecHitCollection&,
+                                 const HBHERecHitCollection&,
+                                 float&,
                                  float&) const;
 
-    bool insideCone(const PolarLorentzVector&, const DetId &, const double) const;
+    bool insideCone(const PolarLorentzVector&, const DetId&, const double) const;
+ 
 
   private:
     const edm::EDGetTokenT<pat::PackedCandidateCollection> pc_;
@@ -114,22 +115,22 @@ namespace pat {
 
     const bool usePrecomputedDeDxStrip_;
     const bool usePrecomputedDeDxPixel_;
-    const float pT_cut_;                  // only save cands with pT>pT_cut_
-    const float pT_cut_noIso_;            // above this pT, don't apply any iso cut
-    const float pfIsolation_DR_;          // isolation radius
-    const float pfIsolation_DZ_;          // used in determining if pfcand is from PV or PU
-    const float trackIsolation_DR_;       // isolation radius
-    const float trackIsolation_maxDZSig_; // used in determining if two tracks are from different vertices
-    const float absIso_cut_;              // save if ANY of absIso, relIso, or miniRelIso pass the cuts
+    const float pT_cut_;                   // only save cands with pT>pT_cut_
+    const float pT_cut_noIso_;             // above this pT, don't apply any iso cut
+    const float pfIsolation_DR_;           // isolation radius
+    const float pfIsolation_DZ_;           // used in determining if pfcand is from PV or PU
+    const float trackIsolation_DR_;        // isolation radius
+    const float trackIsolation_maxDZSig_;  // used in determining if two tracks are from different vertices
+    const float absIso_cut_;               // save if ANY of absIso, relIso, or miniRelIso pass the cuts
     const float relIso_cut_;
     const float miniRelIso_cut_;
-    const float caloJet_DR_;              // save energy of nearest calojet within caloJet_DR_
-    const float associatedCaloEnergy_DR_; // sum recHit energy within DR of track
-    const float pflepoverlap_DR_;         // pf lepton overlap radius
-    const float pflepoverlap_pTmin_;      // pf lepton overlap min pT (only look at PF candidates with pT>pflepoverlap_pTmin_)
-    const float pcRefNearest_DR_;         // radius for nearest charged packed candidate
-    const float pcRefNearest_pTmin_;      // min pT for nearest charged packed candidate
-    const float pfneutralsum_DR_;         // pf lepton overlap radius
+    const float caloJet_DR_;               // save energy of nearest calojet within caloJet_DR_
+    const float associatedCaloEnergy_DR_;  // sum recHit energy within DR of track
+    const float pflepoverlap_DR_;          // pf lepton overlap radius
+    const float pflepoverlap_pTmin_;  // pf lepton overlap min pT (only look at PF candidates with pT>pflepoverlap_pTmin_)
+    const float pcRefNearest_DR_;     // radius for nearest charged packed candidate
+    const float pcRefNearest_pTmin_;  // min pT for nearest charged packed candidate
+    const float pfneutralsum_DR_;     // pf lepton overlap radius
     const bool saveDeDxHitInfo_;
     StringCutObjectSelector<pat::IsolatedTrack> saveDeDxHitInfoCut_;
 
@@ -273,7 +274,7 @@ void pat::PATIsolatedTrackProducer::produce(edm::Event& iEvent, const edm::Event
   iEvent.getByToken(EERecHits_, EERecHits);
 
   edm::Handle<HBHERecHitCollection> HBHERecHits;
-  iEvent.getByToken(HBHERecHits_, HBHERecHits);  
+  iEvent.getByToken(HBHERecHits_, HBHERecHits);
 
   // get calorimeter geometry for recHit positions in associated calo energy sum calculation
   iSetup.get<CaloGeometryRecord>().get(caloGeometry_);
@@ -305,9 +306,9 @@ void pat::PATIsolatedTrackProducer::produce(edm::Event& iEvent, const edm::Event
     pat::PackedCandidateRef refToCand;
     int pdgId, charge, fromPV;
     float dz, dxy, dzError, dxyError;
-    int pfCandInd;  //to avoid counting packedPFCands in their own isolation
-    int ltCandInd;  //to avoid pointing lost track to itself when looking for closest
-    math::XYZPoint vtx; // for use in getTrackIsolation
+    int pfCandInd;       //to avoid counting packedPFCands in their own isolation
+    int ltCandInd;       //to avoid pointing lost track to itself when looking for closest
+    math::XYZPoint vtx;  // for use in getTrackIsolation
 
     // get the four-momentum and charge
     if (isInPackedCands) {
@@ -677,8 +678,8 @@ float pat::PATIsolatedTrackProducer::getTrackIsolation(const PolarLorentzVector&
       continue;
 
     float dR = deltaR(t, track_p4);
-    if (dR < trackIsolation_DR_ && dR > 1.e-12) // exclude candidate itself with dR>1.e-12
-      sumPt += t.pt ();
+    if (dR < trackIsolation_DR_ && dR > 1.e-12)  // exclude candidate itself with dR>1.e-12
+      sumPt += t.pt();
   }
 
   return sumPt;
@@ -869,15 +870,15 @@ void pat::PATIsolatedTrackProducer::getCaloJetEnergy(const PolarLorentzVector& p
   }
 }
 
-void pat::PATIsolatedTrackProducer::getAssociatedCaloEnergy(const PolarLorentzVector& p4, 
-                                                            const EBRecHitCollection& EBRecHits, 
-                                                            const EERecHitCollection& EERecHits, 
-                                                            const HBHERecHitCollection& HBHERecHits, 
+void pat::PATIsolatedTrackProducer::getAssociatedCaloEnergy(const PolarLorentzVector& p4,
+                                                            const EBRecHitCollection& EBRecHits,
+                                                            const EERecHitCollection& EERecHits,
+                                                            const HBHERecHitCollection& HBHERecHits,
                                                             float& eEM, 
                                                             float& eHad) const {
   eEM = 0.;
   for (const auto& hit : EBRecHits) {
-    if (insideCone(p4, hit.detid(), associatedCaloEnergy_DR_)) 
+    if (insideCone(p4, hit.detid(), associatedCaloEnergy_DR_))
       eEM += hit.energy();
   }
   for (const auto& hit : EERecHits) {
@@ -892,19 +893,16 @@ void pat::PATIsolatedTrackProducer::getAssociatedCaloEnergy(const PolarLorentzVe
   }
 }
 
-bool pat::PATIsolatedTrackProducer::insideCone(const PolarLorentzVector& p4, 
-                                               const DetId &id, 
-                                               const double dR) const {
-  
-  if (!caloGeometry_.isValid() ||
-      !caloGeometry_->getSubdetectorGeometry(id) ||
+bool pat::PATIsolatedTrackProducer::insideCone(const PolarLorentzVector& p4, const DetId& id, const double dR) const {
+  if (!caloGeometry_.isValid() || !caloGeometry_->getSubdetectorGeometry(id) ||
       !caloGeometry_->getSubdetectorGeometry(id)->getGeometry(id)) {
     throw cms::Exception("FatalError") << "Failed to access geometry for DetId: " << id.rawId();
     return false;
   }
 
-  const GlobalPoint &idPosition = caloGeometry_->getSubdetectorGeometry(id)->getGeometry(id)->getPosition();
-  if (idPosition.mag() < 0.01) return false;
+  const GlobalPoint& idPosition = caloGeometry_->getSubdetectorGeometry(id)->getGeometry(id)->getPosition();
+  if (idPosition.mag() < 0.01)
+    return false;
 
   math::XYZVector idPositionRoot(idPosition.x(), idPosition.y(), idPosition.z());
   return deltaR(p4, idPositionRoot) < dR;
