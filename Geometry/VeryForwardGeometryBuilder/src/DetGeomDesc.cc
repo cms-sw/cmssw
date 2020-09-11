@@ -245,12 +245,10 @@ DetId DetGeomDesc::computeDetID(const std::string& name, const std::vector<int>&
     const unsigned int decRPId = copyNos[1];
     unsigned int arm, station, rp;
     if (!is2021) {
-      std::cout << "is NOT 2021 " << std::endl;
       arm = decRPId - 1;
       station = 1;
       rp = 6;
     } else {
-      std::cout << "is 2021 " << std::endl;
       arm = (decRPId % 1000) / 100;
       station = (decRPId % 100) / 10;
       rp = decRPId % 10;
@@ -258,8 +256,6 @@ DetId DetGeomDesc::computeDetID(const std::string& name, const std::vector<int>&
     const unsigned int id = copyNos[copyNos.size() - 1];
     const unsigned int plane = id / 100;
     const unsigned int channel = id % 100;
-    std::cout << "diamond sensors. arm = " << arm << " station = " << station << " rp = " << rp << " plane = " << plane << std::endl;
-
     geoID = CTPPSDiamondDetId(arm, station, rp, plane, channel);
   }
 
@@ -273,18 +269,14 @@ DetId DetGeomDesc::computeDetID(const std::string& name, const std::vector<int>&
     const unsigned int decRPId = copyNos[1];
     unsigned int arm, station, rp;
     if (!is2021) {
-      std::cout << "is NOT 2021 " << std::endl;
       arm = decRPId - 1;
       station = 1;
       rp = 6;
     } else {
-      std::cout << "is 2021 " << std::endl;
       arm = (decRPId % 1000) / 100;
       station = (decRPId % 100) / 10;
       rp = decRPId % 10;
     }
-    std::cout << "diamond RPs. arm = " << arm << " station = " << station << " rp = " << rp << std::endl;
-
     geoID = CTPPSDiamondDetId(arm, station, rp);
   }
 
