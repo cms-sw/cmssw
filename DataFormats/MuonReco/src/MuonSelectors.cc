@@ -139,38 +139,38 @@ float muon::segmentCompatibility(const reco::Muon& muon, reco::Muon::Arbitration
 
       switch (nr_of_stations_crossed) {  // define different weights depending on how many stations were crossed
         case 1:
-          station_weight[i - 1] = 1.;
+          station_weight[i - 1] = 1.f;
           break;
         case 2:
           if (position_in_stations == 1)
-            station_weight[i - 1] = 0.33;
+            station_weight[i - 1] = 0.33f;
           else
-            station_weight[i - 1] = 0.67;
+            station_weight[i - 1] = 0.67f;
           break;
         case 3:
           if (position_in_stations == 1)
-            station_weight[i - 1] = 0.23;
+            station_weight[i - 1] = 0.23f;
           else if (position_in_stations == 2)
-            station_weight[i - 1] = 0.33;
+            station_weight[i - 1] = 0.33f;
           else
-            station_weight[i - 1] = 0.44;
+            station_weight[i - 1] = 0.44f;
           break;
         case 4:
           if (position_in_stations == 1)
-            station_weight[i - 1] = 0.10;
+            station_weight[i - 1] = 0.10f;
           else if (position_in_stations == 2)
-            station_weight[i - 1] = 0.20;
+            station_weight[i - 1] = 0.20f;
           else if (position_in_stations == 3)
-            station_weight[i - 1] = 0.30;
+            station_weight[i - 1] = 0.30f;
           else
-            station_weight[i - 1] = 0.40;
+            station_weight[i - 1] = 0.40f;
           break;
 
         default:
           // 	LogTrace("MuonIdentification")<<"            // Message: A muon candidate track has more than 4 stations with matching segments.";
           // 	LogTrace("MuonIdentification")<<"            // Did not expect this - please let me know: ibloch@fnal.gov";
           // for all other cases
-          station_weight[i - 1] = 1. / nr_of_stations_crossed;
+          station_weight[i - 1] = 1.f / nr_of_stations_crossed;
       }
 
       if (use_weight_regain_at_chamber_boundary) {  // reconstitute some weight if there is no match but the segment is close to a boundary:
@@ -179,16 +179,16 @@ float muon::segmentCompatibility(const reco::Muon& muon, reco::Muon::Arbitration
           // original "match weight" is currently reduced by at least attenuate_weight_regain, variing with an error function down to 0 if the track is
           // inside the chamber.
           // remark: the additional scale of 0.5 normalizes Err to run from 0 to 1 in y
-          station_weight[i - 1] = station_weight[i - 1] * attenuate_weight_regain * 0.5 *
-                                  (TMath::Erf(stations_w_track_at_boundary[i - 1] / 6.) + 1.);
+          station_weight[i - 1] = station_weight[i - 1] * attenuate_weight_regain * 0.5f *
+	    (std::erf(stations_w_track_at_boundary[i - 1] / 6.f) + 1.f);
         } else if (station_has_segmentmatch[i - 1] <= 0 &&
-                   stations_w_track_at_boundary[i - 1] == 0.) {  // no segment match and track well inside chamber
+                   stations_w_track_at_boundary[i - 1] == 0.f) {  // no segment match and track well inside chamber
           // full penalization
-          station_weight[i - 1] = 0.;
+          station_weight[i - 1] = 0.f;
         }
       } else {  // always fully penalize tracks with no matching segment, whether the segment is close to the boundary or not.
         if (station_has_segmentmatch[i - 1] <= 0)
-          station_weight[i - 1] = 0.;
+          station_weight[i - 1] = 0.f;
       }
 
       // if track has matching segment, but the matching is not high quality, penalize
@@ -198,16 +198,17 @@ float muon::segmentCompatibility(const reco::Muon& muon, reco::Muon::Arbitration
               muon.dX(i, 1, arbitrationType) < 999999.f) {  // have both X and Y match
             const float pullTot2 =
                 std::pow(muon.pullX(i, 1, arbitrationType), 2.) + std::pow(muon.pullY(i, 1, arbitrationType), 2.);
-            if (pullTot2 > 1.) {
+            if (pullTot2 > 1.f) {
               const float dxy2 =
                   std::pow(muon.dX(i, 1, arbitrationType), 2.) + std::pow(muon.dY(i, 1, arbitrationType), 2.);
               // reduce weight
               if (use_match_dist_penalty) {
                 // only use pull if 3 sigma is not smaller than 3 cm
-                if (dxy2 < 9. && pullTot2 > 9.f) {
-                  station_weight[i - 1] *= 1. / TMath::Power(std::max(std::sqrt(dxy2), 1.f), .25f);
+                if (dxy2 < 9.f && pullTot2 > 9.f) {
+		  if (dxy2 > 1.f)
+		    station_weight[i - 1] *= 1.f / std::pow(dxy2, .125);
                 } else {
-                  station_weight[i - 1] *= 1. / TMath::Power(std::sqrt(pullTot2), .25f);
+                  station_weight[i - 1] *= 1.f / std::pow(pullTot2, .125);
                 }
               }
             }
@@ -218,22 +219,24 @@ float muon::segmentCompatibility(const reco::Muon& muon, reco::Muon::Arbitration
               if (use_match_dist_penalty) {
                 // only use pull if 3 sigma is not smaller than 3 cm
                 if (muon.dX(i, 1, arbitrationType) < 3.f && muon.pullX(i, 1, arbitrationType) > 3.f) {
-                  station_weight[i - 1] *= 1. / TMath::Power(TMath::Max(muon.dX(i, 1, arbitrationType), 1.f), .25f);
+		  if (muon.dX(i, 1, arbitrationType) > 1.f)
+		    station_weight[i - 1] *= 1.f / std::pow(muon.dX(i, 1, arbitrationType), .125);
                 } else {
-                  station_weight[i - 1] *= 1. / TMath::Power(muon.pullX(i, 1, arbitrationType), .25f);
+                  station_weight[i - 1] *= 1.f / std::pow(muon.pullX(i, 1, arbitrationType), .125);
                 }
               }
             }
           } else {  // has no match in X
             // has a match in Y. Pull larger that 1 to avoid increasing the weight (just penalize, don't anti-penalize)
-            if (muon.pullY(i, 1, arbitrationType) > 1.) {
+            if (muon.pullY(i, 1, arbitrationType) > 1.f) {
               // reduce weight
               if (use_match_dist_penalty) {
                 // only use pull if 3 sigma is not smaller than 3 cm
                 if (muon.dY(i, 1, arbitrationType) < 3. && muon.pullY(i, 1, arbitrationType) > 3.) {
-                  station_weight[i - 1] *= 1. / TMath::Power(TMath::Max(muon.dY(i, 1, arbitrationType), 1.f), .25f);
+		  if (muon.dY(i, 1, arbitrationType) > 1.f)
+		    station_weight[i - 1] *= 1.f / std::pow(muon.dY(i, 1, arbitrationType), .125);
                 } else {
-                  station_weight[i - 1] *= 1. / TMath::Power(muon.pullY(i, 1, arbitrationType), .25f);
+                  station_weight[i - 1] *= 1.f / std::pow(muon.pullY(i, 1, arbitrationType), .125);
                 }
               }
             }
@@ -248,9 +251,10 @@ float muon::segmentCompatibility(const reco::Muon& muon, reco::Muon::Arbitration
                   std::pow(muon.dX(i, 1, arbitrationType), 2.) + std::pow(muon.dY(i, 1, arbitrationType), 2.);
               // only use pull if 3 sigma is not smaller than 3 cm
               if (dxy2 < 9.f && pullTot2 < 9.f) {
-                station_weight[i - 1] *= 1. / TMath::Power(std::max(std::sqrt(dxy2), 1.f), .25f);
-              } else {
-                station_weight[i - 1] *= 1. / TMath::Power(std::sqrt(pullTot2), .25f);
+		if (dxy2 > 1.f)
+		  station_weight[i - 1] *= 1.f / std::pow(dxy2, .125);
+	      } else {
+		station_weight[i - 1] *= 1.f / std::pow(pullTot2, .125);
               }
             }
           }
@@ -262,7 +266,7 @@ float muon::segmentCompatibility(const reco::Muon& muon, reco::Muon::Arbitration
       // - should also use the segment direction, as it now works!
 
     } else {  // track did not pass a chamber in this station - just reset weight
-      station_weight[i - 1] = 0.;
+      station_weight[i - 1] = 0.f;
     }
 
     //increment final weight for muon:
@@ -274,7 +278,7 @@ float muon::segmentCompatibility(const reco::Muon& muon, reco::Muon::Arbitration
   // background - we should maybe rather set it to -0.5!
   if (nr_of_stations_crossed == 0) {
     //      full_weight = attenuate_weight_regain*0.5;
-    full_weight = 0.5;
+    full_weight = 0.5f;
   }
 
   // ********************************************************;
