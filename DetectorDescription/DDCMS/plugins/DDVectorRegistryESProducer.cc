@@ -47,12 +47,11 @@ public:
   ReturnType produce(const DDVectorRegistryRcd&);
 
 private:
-  edm::ESGetToken<DDDetector, IdealGeometryRecord> m_token;
+  const edm::ESGetToken<DDDetector, IdealGeometryRecord> m_token;
 };
 
-DDVectorRegistryESProducer::DDVectorRegistryESProducer(const edm::ParameterSet& iConfig) {
-  setWhatProduced(this).setConsumes(m_token, edm::ESInputTag("", iConfig.getParameter<string>("appendToDataLabel")));
-}
+DDVectorRegistryESProducer::DDVectorRegistryESProducer(const edm::ParameterSet& iConfig)
+    : m_token(setWhatProduced(this).consumes(edm::ESInputTag("", iConfig.getParameter<string>("appendToDataLabel")))) {}
 
 DDVectorRegistryESProducer::~DDVectorRegistryESProducer() {}
 
