@@ -2,6 +2,7 @@
 <use name="root"/>
 <use name="FWCore/ParameterSetReader"/>
 <use name="PhysicsTools/UtilAlgos"/>
+<use name="PhysicsTools/FWLite"/>
 <environment>
   <bin file="FWLiteWithBasicAnalyzer.cc">
   </bin>
