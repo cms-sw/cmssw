@@ -28,10 +28,12 @@ FileRandomMultiParticlePGunProducer::FileRandomMultiParticlePGunProducer(const P
 
   produces<HepMCProduct>("unsmeared");
   produces<GenEventInfoProduct>();
-  edm::LogVerbatim("ParticleGun") << "FileRandomMultiParticlePGun is initialzed with i/p file " << file << " and use momentum range "  << fMinP_ << ":" << fMaxP_;
+  edm::LogVerbatim("ParticleGun") << "FileRandomMultiParticlePGun is initialzed with i/p file " << file
+                                  << " and use momentum range " << fMinP_ << ":" << fMaxP_;
 
   if (fPartIDs.size() != np)
-    throw cms::Exception("ParticleGun") << "Invalid list of partices: " << fPartIDs.size() << " should be " << np << "\n";
+    throw cms::Exception("ParticleGun") << "Invalid list of partices: " << fPartIDs.size() << " should be " << np
+                                        << "\n";
 
   std::ifstream is(file.c_str(), std::ios::in);
   if (!is) {
@@ -40,25 +42,29 @@ FileRandomMultiParticlePGunProducer::FileRandomMultiParticlePGunProducer(const P
     double xl, xh;
     is >> fPBin_ >> xl >> xh >> fEtaBin_ >> fEtaMin_ >> fEtaBinWidth_;
     fP_.emplace_back(xl);
-    edm::LogVerbatim("ParticleGun") << "FileRandomMultiParticlePGun: p: " << fPBin_ << ":" << xl << ":" << xh << " Eta: " << fEtaBin_ << ":" << fEtaMin_ << ":" << fEtaBinWidth_;
+    edm::LogVerbatim("ParticleGun") << "FileRandomMultiParticlePGun: p: " << fPBin_ << ":" << xl << ":" << xh
+                                    << " Eta: " << fEtaBin_ << ":" << fEtaMin_ << ":" << fEtaBinWidth_;
     for (int ip = 0; ip < fPBin_; ++ip) {
       for (int ie = 0; ie < fEtaBin_; ++ie) {
-	double totprob(0);
-	std::vector<double> prob(np, 0);
-	int je;
-	is >> xl >> xh >> je >> prob[0] >> prob[1] >> prob[2] >> prob[3] >> prob[4] >> prob[5];
-	if (ie == 0)
-	  fP_.emplace_back(xh);
-	for (unsigned int k = 0; k < np; ++k) {
-	  totprob += prob[k];
-	  if (k > 0) prob[k] += prob[k-1];
-	}
-	for (unsigned int k = 0; k < np; ++k)
-	  prob[k] /= totprob;
-	int indx = (ip + 1) * kfactor + ie;
-	fProbParticle_[indx] = prob;
-	if (fVerbosity > 0)
-	  edm::LogVerbatim("ParticleGun") << "FileRandomMultiParticlePGun [" << ip << "," << ie << ", " << indx << "] Probability " << prob[0] << ", " << prob[1]  << ", " << prob[2]  << ", " << prob[3]  << ", " << prob[4]  << ", " << prob[5];
+        double totprob(0);
+        std::vector<double> prob(np, 0);
+        int je;
+        is >> xl >> xh >> je >> prob[0] >> prob[1] >> prob[2] >> prob[3] >> prob[4] >> prob[5];
+        if (ie == 0)
+          fP_.emplace_back(xh);
+        for (unsigned int k = 0; k < np; ++k) {
+          totprob += prob[k];
+          if (k > 0)
+            prob[k] += prob[k - 1];
+        }
+        for (unsigned int k = 0; k < np; ++k)
+          prob[k] /= totprob;
+        int indx = (ip + 1) * kfactor + ie;
+        fProbParticle_[indx] = prob;
+        if (fVerbosity > 0)
+          edm::LogVerbatim("ParticleGun")
+              << "FileRandomMultiParticlePGun [" << ip << "," << ie << ", " << indx << "] Probability " << prob[0]
+              << ", " << prob[1] << ", " << prob[2] << ", " << prob[3] << ", " << prob[4] << ", " << prob[5];
       }
     }
     is.close();
@@ -98,7 +104,8 @@ void FileRandomMultiParticlePGunProducer::produce(edm::Event& e, const edm::Even
   int ip = static_cast<int>(ipp - fP_.begin());
   int indx = ip * kfactor + ieta;
   if (fVerbosity > 0)
-    edm::LogVerbatim("ParticleGun") << "FileRandomMultiParticlePGunProducer: p " << mom << " Eta " << eta << " Phi " << phi << " Index " << indx;
+    edm::LogVerbatim("ParticleGun") << "FileRandomMultiParticlePGunProducer: p " << mom << " Eta " << eta << " Phi "
+                                    << phi << " Index " << indx;
 
   // Now particle id
   //
@@ -138,6 +145,6 @@ void FileRandomMultiParticlePGunProducer::produce(edm::Event& e, const edm::Even
 
   std::unique_ptr<GenEventInfoProduct> genEventInfo(new GenEventInfoProduct(fEvt));
   e.put(std::move(genEventInfo));
-  if (fVerbosity > 0) 
+  if (fVerbosity > 0)
     edm::LogVerbatim("ParticleGun") << "FileRandomMultiParticlePGunProducer : Event Generation Done";
 }
