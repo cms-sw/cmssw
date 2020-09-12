@@ -8,7 +8,7 @@ from Configuration.Eras.Modifier_run2_nanoAOD_94XMiniAODv2_cff import run2_nanoA
 from Configuration.Eras.Modifier_run2_nanoAOD_102Xv1_cff import run2_nanoAOD_102Xv1
 from Configuration.Eras.Modifier_run2_nanoAOD_106Xv1_cff import run2_nanoAOD_106Xv1
 from Configuration.Eras.Modifier_run2_miniAOD_devel_cff import run2_miniAOD_devel
-
+from Configuration.ProcessModifiers.run2_miniAOD_UL_cff import run2_miniAOD_UL
 
 from  PhysicsTools.NanoAOD.common_cff import *
 from RecoJets.JetProducers.ak4PFJetsBetaStar_cfi import *
@@ -235,10 +235,6 @@ jetTable = cms.EDProducer("SimpleCandidateFlatTableProducer",
         puId = Var("userInt('pileupJetId:fullId')",int,doc="Pilup ID flags with 80X (2016) training"),
         jetId = Var("userInt('tightId')*2+4*userInt('tightIdLepVeto')",int,doc="Jet ID flags bit1 is loose (always false in 2017 since it does not exist), bit2 is tight, bit3 is tightLepVeto"),
         qgl = Var("userFloat('qgl')",float,doc="Quark vs Gluon likelihood discriminator",precision=10),
-        hfsigmaEtaEta = Var("userFloat('hfJetShowerShape:sigmaEtaEta')",float,doc="sigmaEtaEta for HF jets (noise discriminating variable)",precision=10),
-        hfsigmaPhiPhi = Var("userFloat('hfJetShowerShape:sigmaPhiPhi')",float,doc="sigmaPhiPhi for HF jets (noise discriminating variable)",precision=10),
-        hfcentralEtaStripSize = Var("userInt('hfJetShowerShape:centralEtaStripSize')", int, doc="eta size of the central tower strip in HF (noise discriminating variable) "),
-        hfadjacentEtaStripsSize = Var("userInt('hfJetShowerShape:adjacentEtaStripsSize')", int, doc="eta size of the strips next to the central tower strip in HF (noise discriminating variable) "),
         nConstituents = Var("numberOfDaughters()",int,doc="Number of particles in the jet"),
         rawFactor = Var("1.-jecFactor('Uncorrected')",float,doc="1 - Factor to get back to raw pT",precision=6),
         chHEF = Var("chargedHadronEnergyFraction()", float, doc="charged Hadron Energy Fraction", precision= 6),
@@ -686,7 +682,7 @@ run2_jme_2016.toReplaceWith(jetSequence, _jetSequence_2016)
 #Only run if needed (i.e. if default MINIAOD info is missing or outdated because of new JECs...) 
 from RecoJets.JetProducers.hfJetShowerShape_cfi import hfJetShowerShape
 hfJetShowerShapeforNanoAOD = hfJetShowerShape.clone(jets="updatedJets",vertices="offlineSlimmedPrimaryVertices")
-for modifier in run2_miniAOD_80XLegacy, run2_nanoAOD_94X2016, run2_nanoAOD_94XMiniAODv1, run2_nanoAOD_94XMiniAODv2, run2_nanoAOD_102Xv1, run2_nanoAOD_106Xv1, run2_miniAOD_devel:
+for modifier in run2_miniAOD_80XLegacy, run2_nanoAOD_94X2016, run2_nanoAOD_94XMiniAODv1, run2_nanoAOD_94XMiniAODv2, run2_nanoAOD_102Xv1, run2_nanoAOD_106Xv1, run2_miniAOD_UL, run2_miniAOD_devel:
   modifier.toModify(updatedJetsWithUserData.userFloats,
                     hfsigmaEtaEta = cms.InputTag('hfJetShowerShapeforNanoAOD:sigmaEtaEta'),
                     hfsigmaPhiPhi = cms.InputTag('hfJetShowerShapeforNanoAOD:sigmaPhiPhi'),
@@ -702,7 +698,6 @@ for modifier in run2_miniAOD_80XLegacy, run2_nanoAOD_94X2016, run2_nanoAOD_94XMi
   _jetSequence_rerunHFshowershape = jetSequence.copy()
   _jetSequence_rerunHFshowershape.insert(_jetSequence_rerunHFshowershape.index(updatedJetsWithUserData), hfJetShowerShapeforNanoAOD)
   modifier.toReplaceWith(jetSequence, _jetSequence_rerunHFshowershape)
-
 
 #after lepton collections have been run
 jetLepSequence = cms.Sequence(lepInJetVars)
