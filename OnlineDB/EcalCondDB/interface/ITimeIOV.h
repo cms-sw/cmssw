@@ -9,13 +9,13 @@
 #include "OnlineDB/EcalCondDB/interface/IIOV.h"
 
 class ITimeIOV {
- public:
+public:
   virtual ~ITimeIOV() {}
 
-  virtual void fetchAt(IIOV* fillIOV, const Tm eventTm, ITag* tag) const noexcept(false) =0;
+  virtual void fetchAt(IIOV* fillIOV, const Tm eventTm, ITag* tag) const noexcept(false) = 0;
 
-  virtual void fetchWithin(std::vector<IIOV*>* fillVec, const Tm beginTm, const Tm endTm, ITag* tag) const noexcept(false) =0;
-  
+  virtual void fetchWithin(std::vector<IIOV*>* fillVec, const Tm beginTm, const Tm endTm, ITag* tag) const
+      noexcept(false) = 0;
 };
 
 #endif
