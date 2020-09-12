@@ -353,7 +353,7 @@ bool muon::isGoodMuon(const reco::Muon& muon,
     // the number of required stations but still greater than zero
     if (syncMinNMatchesNRequiredStationsInBarrelOnly) {
       // Note that we only do this in the barrel region!
-      if (fabs(muon.eta()) < 1.2) {
+      if (std::abs(muon.eta()) < 1.2) {
         if (minNumberOfMatches > numRequiredStations)
           minNumberOfMatches = numRequiredStations;
         if (minNumberOfMatches < 1)  //SK: this only happens for negative values
@@ -403,11 +403,11 @@ bool muon::isGoodMuon(const reco::Muon& muon,
     detector = lastSegBit < 4 ? 1 : 2;
 
     // Check x information
-    if (fabs(muon.pullX(station, detector, arbitrationType, true)) > maxAbsPullX &&
-        fabs(muon.dX(station, detector, arbitrationType)) > maxAbsDx)
+    if (std::abs(muon.pullX(station, detector, arbitrationType, true)) > maxAbsPullX &&
+        std::abs(muon.dX(station, detector, arbitrationType)) > maxAbsDx)
       return false;
 
-    if (applyAlsoAngularCuts && fabs(muon.pullDxDz(station, detector, arbitrationType, true)) > maxAbsPullX)
+    if (applyAlsoAngularCuts && std::abs(muon.pullDxDz(station, detector, arbitrationType, true)) > maxAbsPullX)
       return false;
 
     // Is this a tight algorithm, i.e. do we bother to check y information?
@@ -415,11 +415,11 @@ bool muon::isGoodMuon(const reco::Muon& muon,
 
       // Check y information
       if (detector == 2) {  // CSC
-        if (fabs(muon.pullY(station, 2, arbitrationType, true)) > maxAbsPullY &&
-            fabs(muon.dY(station, 2, arbitrationType)) > maxAbsDy)
+        if (std::abs(muon.pullY(station, 2, arbitrationType, true)) > maxAbsPullY &&
+            std::abs(muon.dY(station, 2, arbitrationType)) > maxAbsDy)
           return false;
 
-        if (applyAlsoAngularCuts && fabs(muon.pullDyDz(station, 2, arbitrationType, true)) > maxAbsPullY)
+        if (applyAlsoAngularCuts && std::abs(muon.pullDyDz(station, 2, arbitrationType, true)) > maxAbsPullY)
           return false;
       } else {
         //
@@ -444,12 +444,12 @@ bool muon::isGoodMuon(const reco::Muon& muon,
           if (muon.dY(stationIdx, 1, arbitrationType) > 999998)  // no y-information
             continue;
 
-          if (fabs(muon.pullY(stationIdx, 1, arbitrationType, true)) > maxAbsPullY &&
-              fabs(muon.dY(stationIdx, 1, arbitrationType)) > maxAbsDy) {
+          if (std::abs(muon.pullY(stationIdx, 1, arbitrationType, true)) > maxAbsPullY &&
+              std::abs(muon.dY(stationIdx, 1, arbitrationType)) > maxAbsDy) {
             return false;
           }
 
-          if (applyAlsoAngularCuts && fabs(muon.pullDyDz(stationIdx, 1, arbitrationType, true)) > maxAbsPullY)
+          if (applyAlsoAngularCuts && std::abs(muon.pullDyDz(stationIdx, 1, arbitrationType, true)) > maxAbsPullY)
             return false;
 
           // If we get this far then great this is a good muon
@@ -493,9 +493,9 @@ bool muon::isGoodMuon(const reco::Muon& muon,
         station = stationIdx < 4 ? stationIdx + 1 : stationIdx - 3;
         detector = stationIdx < 4 ? 1 : 2;
 
-        if ((fabs(muon.pullX(station, detector, arbitrationType, true)) > maxAbsPullX &&
-             fabs(muon.dX(station, detector, arbitrationType)) > maxAbsDx) ||
-            (applyAlsoAngularCuts && fabs(muon.pullDxDz(station, detector, arbitrationType, true)) > maxAbsPullX))
+        if ((std::abs(muon.pullX(station, detector, arbitrationType, true)) > maxAbsPullX &&
+             std::abs(muon.dX(station, detector, arbitrationType)) > maxAbsDx) ||
+            (applyAlsoAngularCuts && std::abs(muon.pullDxDz(station, detector, arbitrationType, true)) > maxAbsPullX))
           continue;
         else if (detector == 1)
           existsGoodDTSegX = true;
@@ -503,9 +503,9 @@ bool muon::isGoodMuon(const reco::Muon& muon,
         // Is this a tight algorithm?  If yes, use y information
         if (maxAbsDy < 999999) {
           if (detector == 2) {  // CSC
-            if ((fabs(muon.pullY(station, 2, arbitrationType, true)) > maxAbsPullY &&
-                 fabs(muon.dY(station, 2, arbitrationType)) > maxAbsDy) ||
-                (applyAlsoAngularCuts && fabs(muon.pullDyDz(station, 2, arbitrationType, true)) > maxAbsPullY))
+            if ((std::abs(muon.pullY(station, 2, arbitrationType, true)) > maxAbsPullY &&
+                 std::abs(muon.dY(station, 2, arbitrationType)) > maxAbsDy) ||
+                (applyAlsoAngularCuts && std::abs(muon.pullDyDz(station, 2, arbitrationType, true)) > maxAbsPullY))
               continue;
           } else {
             if (muon.dY(station, 1, arbitrationType) > 999998)  // no y-information
@@ -513,9 +513,9 @@ bool muon::isGoodMuon(const reco::Muon& muon,
             else
               existsDTSegY = true;
 
-            if ((fabs(muon.pullY(station, 1, arbitrationType, true)) > maxAbsPullY &&
-                 fabs(muon.dY(station, 1, arbitrationType)) > maxAbsDy) ||
-                (applyAlsoAngularCuts && fabs(muon.pullDyDz(station, 1, arbitrationType, true)) > maxAbsPullY)) {
+            if ((std::abs(muon.pullY(station, 1, arbitrationType, true)) > maxAbsPullY &&
+                 std::abs(muon.dY(station, 1, arbitrationType)) > maxAbsDy) ||
+                (applyAlsoAngularCuts && std::abs(muon.pullDyDz(station, 1, arbitrationType, true)) > maxAbsPullY)) {
               continue;
             }
           }
@@ -560,7 +560,7 @@ bool muon::isGoodMuon(const reco::Muon& muon,
            ++rpcMatch) {
         const float rpcX = rpcMatch->x;
 
-        const float dX = fabs(rpcX - trkX);
+        const float dX = std::abs(rpcX - trkX);
         if (dX < maxAbsDx or dX / errX < maxAbsPullX) {
           ++nMatch;
           break;
@@ -594,8 +594,8 @@ bool muon::isGoodMuon(const reco::Muon& muon,
         const float me0Y = segment.y;
         const float me0ErrY = segment.yErr;
 
-        const float dX = fabs(me0X - trkX);
-        const float dY = fabs(me0Y - trkY);
+        const float dX = std::abs(me0X - trkX);
+        const float dY = std::abs(me0Y - trkY);
         const float pullX = dX / std::sqrt(errX * errX + me0ErrX * me0ErrX);
         const float pullY = dY / std::sqrt(errY * errY + me0ErrY * me0ErrY);
 
@@ -629,8 +629,8 @@ bool muon::isGoodMuon(const reco::Muon& muon,
         const float gemY = segment.y;
         const float gemErrY = segment.yErr;
 
-        const float dX = fabs(gemX - trkX);
-        const float dY = fabs(gemY - trkY);
+        const float dX = std::abs(gemX - trkX);
+        const float dY = std::abs(gemY - trkY);
         const float pullX = dX / std::sqrt(errX * errX + gemErrX * gemErrX);
         const float pullY = dY / std::sqrt(errY * errY + gemErrY * gemErrY);
 
@@ -698,7 +698,7 @@ bool muon::isGoodMuon(const reco::Muon& muon, SelectionType type, reco::Muon::Ar
              isGoodMuon(muon, TMOneStation, 1, 3, 3, 3, 3, 1E9, 1E9, arbitrationType, false, false);
       break;
     case muon::TMLastStationOptimizedLowPtLoose:
-      if (muon.pt() < 8. && fabs(muon.eta()) < 1.2)
+      if (muon.pt() < 8. && std::abs(muon.eta()) < 1.2)
         return muon.isTrackerMuon() &&
                isGoodMuon(muon, TMOneStation, 1, 3, 3, 1E9, 1E9, 1E9, 1E9, arbitrationType, false, false);
       else
@@ -706,7 +706,7 @@ bool muon::isGoodMuon(const reco::Muon& muon, SelectionType type, reco::Muon::Ar
                isGoodMuon(muon, TMLastStation, 2, 3, 3, 1E9, 1E9, -3, -3, arbitrationType, false, false);
       break;
     case muon::TMLastStationOptimizedLowPtTight:
-      if (muon.pt() < 8. && fabs(muon.eta()) < 1.2)
+      if (muon.pt() < 8. && std::abs(muon.eta()) < 1.2)
         return muon.isTrackerMuon() &&
                isGoodMuon(muon, TMOneStation, 1, 3, 3, 3, 3, 1E9, 1E9, arbitrationType, false, false);
       else
@@ -723,11 +723,11 @@ bool muon::isGoodMuon(const reco::Muon& muon, SelectionType type, reco::Muon::Ar
       break;
     case muon::GMTkChiCompatibility:
       return muon.isGlobalMuon() && muon.isQualityValid() &&
-             fabs(muon.combinedQuality().trkRelChi2 - muon.innerTrack()->normalizedChi2()) < 2.0;
+             std::abs(muon.combinedQuality().trkRelChi2 - muon.innerTrack()->normalizedChi2()) < 2.0;
       break;
     case muon::GMStaChiCompatibility:
       return muon.isGlobalMuon() && muon.isQualityValid() &&
-             fabs(muon.combinedQuality().staRelChi2 - muon.outerTrack()->normalizedChi2()) < 2.0;
+             std::abs(muon.combinedQuality().staRelChi2 - muon.outerTrack()->normalizedChi2()) < 2.0;
       break;
     case muon::GMTkKinkTight:
       return muon.isGlobalMuon() && muon.isQualityValid() && muon.combinedQuality().trkKink < 100.0;
@@ -749,7 +749,7 @@ bool muon::isGoodMuon(const reco::Muon& muon, SelectionType type, reco::Muon::Ar
              isGoodMuon(muon, TMOneStation, 1, 3, 3, 3, 3, 1E9, 1E9, arbitrationType, false, true);
       break;
     case muon::TMLastStationOptimizedBarrelLowPtLoose:
-      if (muon.pt() < 8. && fabs(muon.eta()) < 1.2)
+      if (muon.pt() < 8. && std::abs(muon.eta()) < 1.2)
         return muon.isTrackerMuon() &&
                isGoodMuon(muon, TMOneStation, 1, 3, 3, 1E9, 1E9, 1E9, 1E9, arbitrationType, false, false);
       else
@@ -757,7 +757,7 @@ bool muon::isGoodMuon(const reco::Muon& muon, SelectionType type, reco::Muon::Ar
                isGoodMuon(muon, TMLastStation, 2, 3, 3, 1E9, 1E9, -3, -3, arbitrationType, true, false);
       break;
     case muon::TMLastStationOptimizedBarrelLowPtTight:
-      if (muon.pt() < 8. && fabs(muon.eta()) < 1.2)
+      if (muon.pt() < 8. && std::abs(muon.eta()) < 1.2)
         return muon.isTrackerMuon() &&
                isGoodMuon(muon, TMOneStation, 1, 3, 3, 3, 3, 1E9, 1E9, arbitrationType, false, false);
       else
@@ -806,7 +806,7 @@ bool muon::overlap(
       // here we know how close they are
       if (chamber1->id == chamber2->id) {
         // found the same chamber
-        if (fabs(chamber1->x - chamber2->x) <
+        if (std::abs(chamber1->x - chamber2->x) <
             pullX * sqrt(chamber1->xErr * chamber1->xErr + chamber2->xErr * chamber2->xErr)) {
           if (betterMuon == 1)
             nMatches2--;
@@ -816,7 +816,7 @@ bool muon::overlap(
             return true;
           continue;
         }
-        if (fabs(chamber1->y - chamber2->y) <
+        if (std::abs(chamber1->y - chamber2->y) <
             pullY * sqrt(chamber1->yErr * chamber1->yErr + chamber2->yErr * chamber2->yErr)) {
           if (betterMuon == 1)
             nMatches2--;
@@ -847,9 +847,9 @@ bool muon::overlap(
 
         // Now we have to make sure that both tracks are close to an edge
         // FIXME: ignored Y coordinate for now
-        if (fabs(chamber1->edgeX) > chamber1->xErr * pullX)
+        if (std::abs(chamber1->edgeX) > chamber1->xErr * pullX)
           continue;
-        if (fabs(chamber2->edgeX) > chamber2->xErr * pullX)
+        if (std::abs(chamber2->edgeX) > chamber2->xErr * pullX)
           continue;
         if (chamber1->x * chamber2->x < 0) {  // check if the same edge
           if (betterMuon == 1)
@@ -887,8 +887,8 @@ bool muon::isTightMuon(const reco::Muon& muon, const reco::Vertex& vtx) {
   bool hits = muon.innerTrack()->hitPattern().trackerLayersWithMeasurement() > 5 &&
               muon.innerTrack()->hitPattern().numberOfValidPixelHits() > 0;
 
-  bool ip =
-      fabs(muon.muonBestTrack()->dxy(vtx.position())) < 0.2 && fabs(muon.muonBestTrack()->dz(vtx.position())) < 0.5;
+  bool ip = std::abs(muon.muonBestTrack()->dxy(vtx.position())) < 0.2 &&
+            std::abs(muon.muonBestTrack()->dz(vtx.position())) < 0.5;
 
   return muID && hits && ip;
 }
@@ -925,7 +925,8 @@ bool muon::isSoftMuon(const reco::Muon& muon, const reco::Vertex& vtx, bool run2
 
   bool ishighq = muon.innerTrack()->quality(reco::Track::highPurity);
 
-  bool ip = fabs(muon.innerTrack()->dxy(vtx.position())) < 0.3 && fabs(muon.innerTrack()->dz(vtx.position())) < 20.;
+  bool ip =
+      std::abs(muon.innerTrack()->dxy(vtx.position())) < 0.3 && std::abs(muon.innerTrack()->dz(vtx.position())) < 20.;
 
   return layers && ip && (ishighq | run2016_hip_mitigation);
 }
@@ -953,7 +954,8 @@ bool muon::isHighPtMuon(const reco::Muon& muon, const reco::Vertex& vtx) {
 
   bool momQuality = muon.tunePMuonBestTrack()->ptError() / muon.tunePMuonBestTrack()->pt() < 0.3;
 
-  bool ip = fabs(muon.innerTrack()->dxy(vtx.position())) < 0.2 && fabs(muon.innerTrack()->dz(vtx.position())) < 0.5;
+  bool ip =
+      std::abs(muon.innerTrack()->dxy(vtx.position())) < 0.2 && std::abs(muon.innerTrack()->dz(vtx.position())) < 0.5;
 
   return muID && hits && momQuality && ip;
 }
@@ -968,7 +970,8 @@ bool muon::isTrackerHighPtMuon(const reco::Muon& muon, const reco::Vertex& vtx) 
 
   bool momQuality = muon.tunePMuonBestTrack()->ptError() / muon.tunePMuonBestTrack()->pt() < 0.3;
 
-  bool ip = fabs(muon.innerTrack()->dxy(vtx.position())) < 0.2 && fabs(muon.innerTrack()->dz(vtx.position())) < 0.5;
+  bool ip =
+      std::abs(muon.innerTrack()->dxy(vtx.position())) < 0.2 && std::abs(muon.innerTrack()->dz(vtx.position())) < 0.5;
 
   return muID && hits && momQuality && ip;
 }
@@ -1016,10 +1019,10 @@ bool outOfTimeMuon(const reco::Muon& muon) {
   const auto& combinedTime = muon.time();
   const auto& rpcTime = muon.rpcTime();
   bool combinedTimeIsOk = (combinedTime.nDof > 7);
-  bool rpcTimeIsOk = (rpcTime.nDof > 1 && fabs(rpcTime.timeAtIpInOutErr) < 0.001);
+  bool rpcTimeIsOk = (rpcTime.nDof > 1 && std::abs(rpcTime.timeAtIpInOutErr) < 0.001);
   bool outOfTime = false;
   if (rpcTimeIsOk) {
-    if ((fabs(rpcTime.timeAtIpInOut) > 10) && !(combinedTimeIsOk && fabs(combinedTime.timeAtIpInOut) < 10))
+    if ((std::abs(rpcTime.timeAtIpInOut) > 10) && !(combinedTimeIsOk && std::abs(combinedTime.timeAtIpInOut) < 10))
       outOfTime = true;
   } else {
     if (combinedTimeIsOk && (combinedTime.timeAtIpInOut > 20 || combinedTime.timeAtIpInOut < -45))
@@ -1057,8 +1060,8 @@ reco::Muon::Selector muon::makeSelectorBitset(reco::Muon const& muon,
   }
   if (muon::isMediumMuon(muon, run2016_hip_mitigation)) {
     selectors |= reco::Muon::CutBasedIdMedium;
-    if (vertex and fabs(muon.muonBestTrack()->dz(vertex->position())) < 0.1 and
-        fabs(muon.muonBestTrack()->dxy(vertex->position())) < 0.02)
+    if (vertex and std::abs(muon.muonBestTrack()->dz(vertex->position())) < 0.1 and
+        std::abs(muon.muonBestTrack()->dxy(vertex->position())) < 0.02)
       selectors |= reco::Muon::CutBasedIdMediumPrompt;
   }
 
