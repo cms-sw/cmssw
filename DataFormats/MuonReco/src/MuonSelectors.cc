@@ -180,7 +180,7 @@ float muon::segmentCompatibility(const reco::Muon& muon, reco::Muon::Arbitration
           // inside the chamber.
           // remark: the additional scale of 0.5 normalizes Err to run from 0 to 1 in y
           station_weight[i - 1] = station_weight[i - 1] * attenuate_weight_regain * 0.5f *
-	    (std::erf(stations_w_track_at_boundary[i - 1] / 6.f) + 1.f);
+                                  (std::erf(stations_w_track_at_boundary[i - 1] / 6.f) + 1.f);
         } else if (station_has_segmentmatch[i - 1] <= 0 &&
                    stations_w_track_at_boundary[i - 1] == 0.f) {  // no segment match and track well inside chamber
           // full penalization
@@ -205,8 +205,8 @@ float muon::segmentCompatibility(const reco::Muon& muon, reco::Muon::Arbitration
               if (use_match_dist_penalty) {
                 // only use pull if 3 sigma is not smaller than 3 cm
                 if (dxy2 < 9.f && pullTot2 > 9.f) {
-		  if (dxy2 > 1.f)
-		    station_weight[i - 1] *= 1.f / std::pow(dxy2, .125);
+                  if (dxy2 > 1.f)
+                    station_weight[i - 1] *= 1.f / std::pow(dxy2, .125);
                 } else {
                   station_weight[i - 1] *= 1.f / std::pow(pullTot2, .125);
                 }
@@ -219,8 +219,8 @@ float muon::segmentCompatibility(const reco::Muon& muon, reco::Muon::Arbitration
               if (use_match_dist_penalty) {
                 // only use pull if 3 sigma is not smaller than 3 cm
                 if (muon.dX(i, 1, arbitrationType) < 3.f && muon.pullX(i, 1, arbitrationType) > 3.f) {
-		  if (muon.dX(i, 1, arbitrationType) > 1.f)
-		    station_weight[i - 1] *= 1.f / std::pow(muon.dX(i, 1, arbitrationType), .125);
+                  if (muon.dX(i, 1, arbitrationType) > 1.f)
+                    station_weight[i - 1] *= 1.f / std::pow(muon.dX(i, 1, arbitrationType), .125);
                 } else {
                   station_weight[i - 1] *= 1.f / std::pow(muon.pullX(i, 1, arbitrationType), .125);
                 }
@@ -233,8 +233,8 @@ float muon::segmentCompatibility(const reco::Muon& muon, reco::Muon::Arbitration
               if (use_match_dist_penalty) {
                 // only use pull if 3 sigma is not smaller than 3 cm
                 if (muon.dY(i, 1, arbitrationType) < 3. && muon.pullY(i, 1, arbitrationType) > 3.) {
-		  if (muon.dY(i, 1, arbitrationType) > 1.f)
-		    station_weight[i - 1] *= 1.f / std::pow(muon.dY(i, 1, arbitrationType), .125);
+                  if (muon.dY(i, 1, arbitrationType) > 1.f)
+                    station_weight[i - 1] *= 1.f / std::pow(muon.dY(i, 1, arbitrationType), .125);
                 } else {
                   station_weight[i - 1] *= 1.f / std::pow(muon.pullY(i, 1, arbitrationType), .125);
                 }
@@ -251,10 +251,10 @@ float muon::segmentCompatibility(const reco::Muon& muon, reco::Muon::Arbitration
                   std::pow(muon.dX(i, 1, arbitrationType), 2.) + std::pow(muon.dY(i, 1, arbitrationType), 2.);
               // only use pull if 3 sigma is not smaller than 3 cm
               if (dxy2 < 9.f && pullTot2 < 9.f) {
-		if (dxy2 > 1.f)
-		  station_weight[i - 1] *= 1.f / std::pow(dxy2, .125);
-	      } else {
-		station_weight[i - 1] *= 1.f / std::pow(pullTot2, .125);
+                if (dxy2 > 1.f)
+                  station_weight[i - 1] *= 1.f / std::pow(dxy2, .125);
+              } else {
+                station_weight[i - 1] *= 1.f / std::pow(pullTot2, .125);
               }
             }
           }
