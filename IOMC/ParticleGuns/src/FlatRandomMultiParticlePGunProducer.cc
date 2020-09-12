@@ -28,7 +28,8 @@ FlatRandomMultiParticlePGunProducer::FlatRandomMultiParticlePGunProducer(const P
   produces<HepMCProduct>("unsmeared");
   produces<GenEventInfoProduct>();
 
-  edm::LogVerbatim("ParticleGun") << "FlatRandomMultiParticlePGun is initialzed for " << fPartIDs.size() << " particles in momentum range " << fMinP_ << ":" << fMaxP_;
+  edm::LogVerbatim("ParticleGun") << "FlatRandomMultiParticlePGun is initialzed for " << fPartIDs.size()
+                                  << " particles in momentum range " << fMinP_ << ":" << fMaxP_;
   for (unsigned int k = 0; k < fPartIDs.size(); ++k)
     edm::LogVerbatim("ParticleGun") << " [" << k << "] " << fPartIDs[k] << ":" << fProbParticle_[k];
 
