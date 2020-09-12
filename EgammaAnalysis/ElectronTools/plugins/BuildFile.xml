@@ -1,9 +1,10 @@
+<use name="CommonTools/UtilAlgos"/>
 <use name="FWCore/Framework"/>
 <use name="FWCore/ParameterSet"/>
+<use name="FWCore/ServiceRegistry"/>
 <use name="DataFormats/PatCandidates"/>
 <use name="DataFormats/Common"/>
 <use name="DataFormats/VertexReco"/>
-<use name="FWCore/ServiceRegistry"/>
 <use name="Geometry/CaloTopology"/>
 <use name="Geometry/Records"/>
 <use name="EgammaAnalysis/ElectronTools"/>

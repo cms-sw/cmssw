@@ -4,7 +4,6 @@
 <use name="CondFormats/GeometryObjects"/>
 <use name="DataFormats/DetId"/>
 <use name="DataFormats/SiPixelDetId"/>
-<use name="DataFormats/TrackerCommon"/>
 <use name="FWCore/MessageLogger"/>
 <use name="FWCore/ParameterSet"/>
 <use name="FWCore/Utilities"/>
