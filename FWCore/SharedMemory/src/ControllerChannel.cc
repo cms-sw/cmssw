@@ -31,8 +31,9 @@ using namespace boost::interprocess;
 // constructors and destructor
 //
 
-ControllerChannel::ControllerChannel(std::string const& iName, int id)
+ControllerChannel::ControllerChannel(std::string const& iName, int id, unsigned int iMaxWaitInSeconds)
     : id_{id},
+      maxWaitInSeconds_{iMaxWaitInSeconds},
       smName_{uniqueName(iName)},
       managed_sm_{open_or_create, smName_.c_str(), 1024},
       toWorkerBufferInfo_{bufferInfo(channel_names::kToWorkerBufferInfo, managed_sm_)},
