@@ -1,5 +1,5 @@
-#ifndef PhysicsTools_UtilAlgos_interface_FWLiteAnalyzerWrapper_h
-#define PhysicsTools_UtilAlgos_interface_FWLiteAnalyzerWrapper_h
+#ifndef PhysicsTools_FWLite_interface_FWLiteAnalyzerWrapper_h
+#define PhysicsTools_FWLite_interface_FWLiteAnalyzerWrapper_h
 
 #include <string>
 #include <vector>
@@ -16,7 +16,7 @@
 #include "PhysicsTools/FWLite/interface/TFileService.h"
 
 /**
-  \class    FWLiteAnalyzerWrapper FWLiteAnalyzerWrapper.h "PhysicsTools/UtilAlgos/interface/FWLiteAnalyzerWrapper.h"
+  \class    FWLiteAnalyzerWrapper FWLiteAnalyzerWrapper.h "PhysicsTools/FWLite/interface/FWLiteAnalyzerWrapper.h"
   \brief    Wrapper class for classes of type BasicAnalyzer to "convert" them into a full a basic FWLiteAnalyzer 
 
    This template class is a wrapper round classes of type BasicAnalyzer as defined in in the 
@@ -34,7 +34,7 @@
    below: 
    
    #include "PhysicsTools/PatExamples/interface/BasicMuonAnalyzer.h"
-   #include "PhysicsTools/UtilAlgos/interface/FWLiteAnalyzerWrapper.h"
+   #include "PhysicsTools/FWLite/interface/FWLiteAnalyzerWrapper.h"
    
    typedef fwlite::AnalyzerWrapper<BasicMuonAnalyzer> WrappedFWLiteAnalyzer;
    
