@@ -220,9 +220,9 @@ float muon::segmentCompatibility(const reco::Muon& muon, reco::Muon::Arbitration
                 // only use pull if 3 sigma is not smaller than 3 cm
                 if (muon.dX(i, 1, arbitrationType) < 3.f && muon.pullX(i, 1, arbitrationType) > 3.f) {
                   if (muon.dX(i, 1, arbitrationType) > 1.f)
-                    station_weight[i - 1] *= 1.f / std::pow(muon.dX(i, 1, arbitrationType), .125);
+                    station_weight[i - 1] *= 1.f / std::pow(muon.dX(i, 1, arbitrationType), .25);
                 } else {
-                  station_weight[i - 1] *= 1.f / std::pow(muon.pullX(i, 1, arbitrationType), .125);
+                  station_weight[i - 1] *= 1.f / std::pow(muon.pullX(i, 1, arbitrationType), .25);
                 }
               }
             }
@@ -234,9 +234,9 @@ float muon::segmentCompatibility(const reco::Muon& muon, reco::Muon::Arbitration
                 // only use pull if 3 sigma is not smaller than 3 cm
                 if (muon.dY(i, 1, arbitrationType) < 3. && muon.pullY(i, 1, arbitrationType) > 3.) {
                   if (muon.dY(i, 1, arbitrationType) > 1.f)
-                    station_weight[i - 1] *= 1.f / std::pow(muon.dY(i, 1, arbitrationType), .125);
+                    station_weight[i - 1] *= 1.f / std::pow(muon.dY(i, 1, arbitrationType), .25);
                 } else {
-                  station_weight[i - 1] *= 1.f / std::pow(muon.pullY(i, 1, arbitrationType), .125);
+                  station_weight[i - 1] *= 1.f / std::pow(muon.pullY(i, 1, arbitrationType), .25);
                 }
               }
             }
@@ -250,7 +250,7 @@ float muon::segmentCompatibility(const reco::Muon& muon, reco::Muon::Arbitration
               const float dxy2 =
                   std::pow(muon.dX(i, 1, arbitrationType), 2.) + std::pow(muon.dY(i, 1, arbitrationType), 2.);
               // only use pull if 3 sigma is not smaller than 3 cm
-              if (dxy2 < 9.f && pullTot2 < 9.f) {
+              if (dxy2 < 9.f && pullTot2 > 9.f) {
                 if (dxy2 > 1.f)
                   station_weight[i - 1] *= 1.f / std::pow(dxy2, .125);
               } else {
