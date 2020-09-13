@@ -23,86 +23,86 @@ def setupHeavyIonJets(process, tag, radius, task):
         task)
 
     modules = {
-        'JetTracksAssociatorAtVertex':
+        'jetTracksAssociatorAtVertex':
         ak5JetTracksAssociatorAtVertex.clone(
             jets = tag + "Jets",
             tracks = "highPurityGeneralTracks",
             ),
 
-        'ImpactParameterTagInfos':
+        'impactParameterTagInfos':
         impactParameterTagInfos.clone(
-            jetTracks = "JetTracksAssociatorAtVertex" + tag,
+            jetTracks = "jetTracksAssociatorAtVertex" + tag,
             ),
 
-        'TrackCountingHighEffBJetTags':
+        'trackCountingHighEffBJetTags':
         trackCountingHighEffBJetTags.clone(
-            tagInfos = ["ImpactParameterTagInfos" + tag],
+            tagInfos = ["impactParameterTagInfos" + tag],
             ),
 
-        'TrackCountingHighPurBJetTags':
+        'trackCountingHighPurBJetTags':
         trackCountingHighPurBJetTags.clone(
-            tagInfos = ["ImpactParameterTagInfos" + tag],
+            tagInfos = ["impactParameterTagInfos" + tag],
             ),
 
-        'JetProbabilityBJetTags':
+        'jetProbabilityBJetTags':
         jetProbabilityBJetTags.clone(
-            tagInfos = ["ImpactParameterTagInfos" + tag],
+            tagInfos = ["impactParameterTagInfos" + tag],
             ),
 
-        'JetBProbabilityBJetTags':
+        'jetBProbabilityBJetTags':
         jetBProbabilityBJetTags.clone(
-            tagInfos = ["ImpactParameterTagInfos" + tag],
+            tagInfos = ["impactParameterTagInfos" + tag],
             ),
 
-        'SecondaryVertexTagInfos':
+        'secondaryVertexTagInfos':
         secondaryVertexTagInfos.clone(
-            trackIPTagInfos = "ImpactParameterTagInfos" + tag,
+            trackIPTagInfos = "impactParameterTagInfos" + tag,
             ),
 
-        'CombinedSecondaryVertexBJetTags':
+        'combinedSecondaryVertexBJetTags':
         combinedSecondaryVertexV2BJetTags.clone(
             tagInfos = [
-                "ImpactParameterTagInfos" + tag,
-                "SecondaryVertexTagInfos" + tag,
+                "impactParameterTagInfos" + tag,
+                "secondaryVertexTagInfos" + tag,
                 ],
             ),
 
-        'CombinedSecondaryVertexV2BJetTags':
+        'combinedSecondaryVertexV2BJetTags':
         combinedSecondaryVertexV2BJetTags.clone(
             tagInfos = [
-                "ImpactParameterTagInfos" + tag,
-                "SecondaryVertexTagInfos" + tag,
+                "impactParameterTagInfos" + tag,
+                "secondaryVertexTagInfos" + tag,
                 ],
             ),
 
-        'SecondaryVertexTagInfos':
+        'secondaryVertexTagInfos':
         secondaryVertexTagInfos.clone(
-            trackIPTagInfos = "ImpactParameterTagInfos" + tag,
+            trackIPTagInfos = "impactParameterTagInfos" + tag,
             ),
 
-        'SimpleSecondaryVertexHighEffBJetTags':
+        'simpleSecondaryVertexHighEffBJetTags':
         simpleSecondaryVertexHighEffBJetTags.clone(
-            tagInfos = ["SecondaryVertexTagInfos" + tag],
+            tagInfos = ["secondaryVertexTagInfos" + tag],
             ),
 
-        'SimpleSecondaryVertexHighPurBJetTags':
+        'simpleSecondaryVertexHighPurBJetTags':
         simpleSecondaryVertexHighPurBJetTags.clone(
-            tagInfos = ["SecondaryVertexTagInfos" + tag],
+            tagInfos = ["secondaryVertexTagInfos" + tag],
             ),
 
-        'CombinedSecondaryVertexBJetTags':
+        'combinedSecondaryVertexBJetTags':
         combinedSecondaryVertexV2BJetTags.clone(
             tagInfos = [
-                "ImpactParameterTagInfos" + tag,
-                "SecondaryVertexTagInfos" + tag,
+                "impactParameterTagInfos" + tag,
+                "secondaryVertexTagInfos" + tag,
                 ],
             ),
 
-        'CombinedSecondaryVertexV2BJetTags':
+        'combinedSecondaryVertexV2BJetTags':
         combinedSecondaryVertexV2BJetTags.clone(
             tagInfos = [
-                "ImpactParameterTagInfos" + tag,
-                "SecondaryVertexTagInfos" + tag,
+                "impactParameterTagInfos" + tag,
+                "secondaryVertexTagInfos" + tag,
                 ],
             ),
 
@@ -191,19 +191,19 @@ def useCsJetsForPat(process, tag):
     process.patJets.JetFlavourInfoSource = "patJetFlavourAssociation" + tag
     process.patJets.JetPartonMapSource = "patJetFlavourAssociationLegacy" + tag
     process.patJets.jetCorrFactorsSource = ["patJetCorrFactors" + tag]
-    process.patJets.trackAssociationSource = "JetTracksAssociatorAtVertex" + tag
+    process.patJets.trackAssociationSource = "jetTracksAssociatorAtVertex" + tag
     process.patJets.useLegacyJetMCFlavour = True
     process.patJets.discriminatorSources = [
-        "SimpleSecondaryVertexHighEffBJetTags" + tag,    
-        "SimpleSecondaryVertexHighPurBJetTags" + tag,
-        "CombinedSecondaryVertexBJetTags" + tag,
-        "CombinedSecondaryVertexV2BJetTags" + tag,
-        "JetBProbabilityBJetTags" + tag,
-        "JetProbabilityBJetTags" + tag,
-        "TrackCountingHighEffBJetTags" + tag,
-        "TrackCountingHighPurBJetTags" + tag,
+        "simpleSecondaryVertexHighEffBJetTags" + tag,    
+        "simpleSecondaryVertexHighPurBJetTags" + tag,
+        "combinedSecondaryVertexBJetTags" + tag,
+        "combinedSecondaryVertexV2BJetTags" + tag,
+        "jetBProbabilityBJetTags" + tag,
+        "jetProbabilityBJetTags" + tag,
+        "trackCountingHighEffBJetTags" + tag,
+        "trackCountingHighPurBJetTags" + tag,
     ]
-    process.patJets.tagInfoSources = cms.VInputTag(["ImpactParameterTagInfos" + tag,"SecondaryVertexTagInfos"+tag])
+    process.patJets.tagInfoSources = cms.VInputTag(["impactParameterTagInfos" + tag,"secondaryVertexTagInfos"+tag])
     process.patJets.addJetCharge = False
     process.patJets.addTagInfos = True
 
