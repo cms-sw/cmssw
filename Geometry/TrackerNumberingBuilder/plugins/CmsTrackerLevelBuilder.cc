@@ -169,10 +169,10 @@ template <class FilteredView>
 void CmsTrackerLevelBuilder<FilteredView>::build(FilteredView& fv,
                                                  GeometricDet* tracker,
                                                  const std::string& attribute) {
-  edm::LogVerbatim("TrackerGeometryBuilder") << "CmsTrackerLevelBuilder::build "
-                                             << " Building: " << fv.geoHistory();
+  std::cout << "CmsTrackerLevelBuilder::build " << typeid(this).name()
+	    << " Building: " << fv.geoHistory();
 
-  edm::LogVerbatim("TrackerGeometryBuilder") << ExtractStringFromDDD<FilteredView>::getString(attribute, &fv) << " "
+  std::cout << ExtractStringFromDDD<FilteredView>::getString(attribute, &fv) << " "
                                              << tracker->type() << " " << tracker->name() << std::endl;
 
   buildLoop(fv,tracker,attribute);

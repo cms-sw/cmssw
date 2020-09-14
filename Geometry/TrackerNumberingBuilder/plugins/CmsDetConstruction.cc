@@ -52,6 +52,8 @@ void CmsDetConstruction<cms::DDFilteredView>::buildLoopGlued(cms::DDFilteredView
 						      const std::string& attribute)
 {
   while(fv.firstChild()){
+    std::cout << "buildLoopGlued: " << fv.geoHistory() << std::endl
+              << "\t HistorySize: " << fv.geoHistory().size() << std::endl;
     buildSmallDetsforGlued(fv,det,attribute);
   }
   fv.parent();
@@ -63,6 +65,8 @@ void CmsDetConstruction<cms::DDFilteredView>::buildLoopStack(cms::DDFilteredView
 						      const std::string& attribute)
 {
   while(fv.firstChild()){
+    std::cout << "buildLoopStack: " << fv.geoHistory() << std::endl
+              << "\t HistorySize: " << fv.geoHistory().size() << std::endl;
     buildSmallDetsforStack(fv,det,attribute);
   }
   fv.parent();
@@ -74,6 +78,8 @@ void CmsDetConstruction<DDFilteredView>::buildLoopGlued(DDFilteredView& fv,
 						 const std::string& attribute){
    bool dodets = fv.firstChild();  // descend to the first Layer
     while (dodets) {
+      std::cout << "buildLoopGlued: " << fv.geoHistory() << std::endl
+                << "\t HistorySize: " << fv.geoHistory().size() << std::endl;
       buildSmallDetsforGlued(fv, det, attribute);
       dodets = fv.nextSibling();
     }
@@ -88,6 +94,8 @@ void CmsDetConstruction<DDFilteredView>::buildLoopStack(DDFilteredView& fv,
 {
   bool dodets = fv.firstChild();  // descend to the first Layer
   while (dodets) {
+    std::cout << "buildLoopStack: " << fv.geoHistory() << std::endl
+              << "\t HistorySize: " << fv.geoHistory().size() << std::endl;
     buildSmallDetsforStack(fv, det, attribute);
     dodets = fv.nextSibling();
   }
@@ -110,7 +118,6 @@ void CmsDetConstruction<FilteredView>::buildComponent(FilteredView& fv,
   //Phase1 mergedDet: searching for sensors
   if (CmsTrackerLevelBuilder<FilteredView>::theCmsTrackerStringToEnum.type(
           ExtractStringFromDDD<FilteredView>::getString(attribute, &fv)) == GeometricDet::mergedDet) {
-    // I have to go one step lower ...
     buildLoopGlued(fv,det,attribute);
   }
 
