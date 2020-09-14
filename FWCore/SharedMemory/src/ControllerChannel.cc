@@ -90,7 +90,7 @@ bool ControllerChannel::wait(scoped_lock<named_mutex>& lock, edm::Transition iTr
 
   //std::cout << id_ << " waiting" << std::endl;
   using namespace boost::posix_time;
-  if (not cndToMain_.timed_wait(lock, microsec_clock::universal_time() + seconds(60))) {
+  if (not cndToMain_.timed_wait(lock, microsec_clock::universal_time() + seconds(maxWaitInSeconds_))) {
     //std::cout << id_ << " waiting FAILED" << std::endl;
     return false;
   }
