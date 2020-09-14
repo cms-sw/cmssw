@@ -31,9 +31,9 @@ double VectorHitBuilderAlgorithmBase::computeParallaxCorrection(const PixelGeomD
   LogTrace("VectorHitsBuilderValidation") << " global vector passing to the origin:" << gV;
 
   LocalVector lV = geomDetUnit_low->surface().toLocal(gV);
-  LogTrace("VectorHitsBuilderValidation") << " local vector passing to the origin (in low sor):" << lV;
+  LogTrace("VectorHitsBuilderValidation") << " local vector passing to the origin (in the lower detector system of reference):" << lV;
   LocalVector lV_norm = lV / lV.z();
-  LogTrace("VectorHitsBuilderValidation") << " normalized local vector passing to the origin (in low sor):" << lV_norm;
+  LogTrace("VectorHitsBuilderValidation") << " normalized local vector passing to the origin (in low the lower detector system of reference):" << lV_norm;
 
   Global3DPoint gPosClu_upp = geomDetUnit_upp->surface().toGlobal(lPosClu_upp);
   Local3DPoint lPosClu_uppInLow = geomDetUnit_low->surface().toLocal(gPosClu_upp);
