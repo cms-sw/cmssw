@@ -1,25 +1,9 @@
 #include "RecoLocalTracker/SiPhase2VectorHitBuilder/interface/VectorHitBuilderAlgorithm.h"
+#include "RecoLocalTracker/ClusterParameterEstimator/interface/ClusterParameterEstimator.h"
 #include "Geometry/CommonDetUnit/interface/GeomDet.h"
 #include "Geometry/CommonTopologies/interface/PixelTopology.h"
 #include "DataFormats/TrackerRecHit2D/interface/VectorHit2D.h"
 
-bool VectorHitBuilderAlgorithm::LocalPositionSort::operator()(Phase2TrackerCluster1DRef clus1,
-                                                              Phase2TrackerCluster1DRef clus2) const {
-  static std::map<std::pair<Phase2TrackerCluster1DRef, Phase2TrackerCluster1DRef>, bool> cache;
-
-  if (cache.find(std::make_pair(clus1, clus2)) != cache.end())
-    return cache[std::pair(clus1, clus2)];
-  else if (cache.find(std::make_pair(clus2, clus1)) != cache.end())
-    return !cache[std::pair(clus1, clus2)];
-
-  const PixelGeomDetUnit* gdu1 = dynamic_cast<const PixelGeomDetUnit*>(geomDet_);
-  auto&& lparams1 = cpe_->localParameters(*clus1, *gdu1);  // x, y, z, e2_xx, e2_xy, e2_yy
-  auto&& lparams2 = cpe_->localParameters(*clus2, *gdu1);  // x, y, z, e2_xx, e2_xy, e2_yy
-
-  cache[std::make_pair(clus1, clus2)] = lparams1.first.x() < lparams2.first.x();
-  return lparams1.first.x() < lparams2.first.x();
-  ;
-}
 
 void VectorHitBuilderAlgorithm::run(edm::Handle<edmNew::DetSetVector<Phase2TrackerCluster1D>> clusters,
                                     VectorHitCollectionNew& vhAcc,
@@ -30,7 +14,6 @@ void VectorHitBuilderAlgorithm::run(edm::Handle<edmNew::DetSetVector<Phase2Track
   const edmNew::DetSetVector<Phase2TrackerCluster1D>* ClustersPhase2Collection = clusters.product();
 
   std::unordered_map<DetId, std::vector<VectorHit>> tempVHAcc, tempVHRej;
-  std::unordered_map<DetId, std::vector<VectorHit>>::iterator it_temporary;
 
   //loop over the DetSetVector
   LogDebug("VectorHitBuilderAlgorithm") << "with #clusters : " << ClustersPhase2Collection->size() << std::endl;
@@ -42,8 +25,7 @@ void VectorHitBuilderAlgorithm::run(edm::Handle<edmNew::DetSetVector<Phase2Track
       lowerDetId = detId1;
       upperDetId = theTkTopo->partnerDetId(detId1);
     } else if (theTkTopo->isUpper(detId1)) {
-      upperDetId = detId1;
-      lowerDetId = theTkTopo->partnerDetId(detId1);
+      continue;		
     }
     DetId detIdStack = theTkTopo->stack(detId1);
 
@@ -52,11 +34,6 @@ void VectorHitBuilderAlgorithm::run(edm::Handle<edmNew::DetSetVector<Phase2Track
     LogDebug("VectorHitBuilderAlgorithm") << "  DetId lower set of clusters  : " << lowerDetId.rawId();
     LogDebug("VectorHitBuilderAlgorithm") << "  DetId upper set of clusters  : " << upperDetId.rawId() << std::endl;
 
-    it_temporary = tempVHAcc.find(detIdStack);
-    if (it_temporary != tempVHAcc.end()) {
-      LogTrace("VectorHitBuilderAlgorithm") << " this stack has already been analyzed -> skip it ";
-      continue;
-    }
 
     const GeomDet* gd;
     const StackGeomDet* stackDet;
@@ -149,62 +126,58 @@ std::vector<std::pair<VectorHit, bool>> VectorHitBuilderAlgorithm::buildVectorHi
   } else {
     LogTrace("VectorHitBuilderAlgorithm") << "  not compatible, going to the next cluster";
   }
+  //only cache local parameters for upper cluster as we loop over lower clusters only once anyway
+  std::vector<std::pair<LocalPoint, LocalError>> localParamsUpper;
+  std::vector<const PixelGeomDetUnit*> localGDUUpper;
 
-  std::vector<Phase2TrackerCluster1DRef> lowerClusters;
-  for (const_iterator cil = theLowerDetSet.begin(); cil != theLowerDetSet.end(); ++cil) {
-    Phase2TrackerCluster1DRef clusterLower = edmNew::makeRefTo(clusters, cil);
-    lowerClusters.push_back(clusterLower);
-  }
   std::vector<Phase2TrackerCluster1DRef> upperClusters;
   for (const_iterator ciu = theUpperDetSet.begin(); ciu != theUpperDetSet.end(); ++ciu) {
     Phase2TrackerCluster1DRef clusterUpper = edmNew::makeRefTo(clusters, ciu);
-    upperClusters.push_back(clusterUpper);
+    const PixelGeomDetUnit* gduUpp = dynamic_cast<const PixelGeomDetUnit*>(stack->upperDet());
+    localGDUUpper.push_back(gduUpp);
+    localParamsUpper.push_back(theCpe->localParameters(*clusterUpper, *gduUpp));
   }
-
-  std::sort_heap(
-      lowerClusters.begin(), lowerClusters.end(), LocalPositionSort(&*theTkGeom, &*theCpe, &*stack->lowerDet()));
-  std::sort_heap(
-      upperClusters.begin(), upperClusters.end(), LocalPositionSort(&*theTkGeom, &*theCpe, &*stack->upperDet()));
-
-  for (const auto& cluL : lowerClusters) {
+  int upperIterator = 0;
+  for (const_iterator cil = theUpperDetSet.begin(); cil != theUpperDetSet.end(); ++cil) {
     LogDebug("VectorHitBuilderAlgorithm") << " lower clusters " << std::endl;
+    Phase2TrackerCluster1DRef cluL = edmNew::makeRefTo(clusters, cil);
     printCluster(stack->lowerDet(), &*cluL);
     const PixelGeomDetUnit* gduLow = dynamic_cast<const PixelGeomDetUnit*>(stack->lowerDet());
     auto&& lparamsLow = theCpe->localParameters(*cluL, *gduLow);
-    for (const auto& cluU : upperClusters) {
+    upperIterator = 0;
+    for (const_iterator ciu = theUpperDetSet.begin(); ciu != theUpperDetSet.end(); ++ciu) {
       LogDebug("VectorHitBuilderAlgorithm") << "\t upper clusters " << std::endl;
+      Phase2TrackerCluster1DRef cluU = edmNew::makeRefTo(clusters, ciu);
       printCluster(stack->upperDet(), &*cluU);
-      const PixelGeomDetUnit* gduUpp = dynamic_cast<const PixelGeomDetUnit*>(stack->upperDet());
-      auto&& lparamsUpp = theCpe->localParameters(*cluU, *gduUpp);
 
       //applying the parallax correction
-      double pC = computeParallaxCorrection(gduLow, lparamsLow.first, gduUpp, lparamsUpp.first);
+      double pC = computeParallaxCorrection(gduLow, lparamsLow.first, localGDUUpper[upperIterator], localParamsUpper[upperIterator].first);
       LogDebug("VectorHitBuilderAlgorithm") << " \t parallax correction:" << pC << std::endl;
       double lpos_upp_corr = 0.0;
       double lpos_low_corr = 0.0;
-      if (lparamsUpp.first.x() > lparamsLow.first.x()) {
-        if (lparamsUpp.first.x() > 0) {
+      if (localParamsUpper[upperIterator].first.x() > lparamsLow.first.x()) {
+        if (localParamsUpper[upperIterator].first.x() > 0) {
           lpos_low_corr = lparamsLow.first.x();
-          lpos_upp_corr = lparamsUpp.first.x() - std::abs(pC);
-        } else if (lparamsUpp.first.x() < 0) {
+          lpos_upp_corr = localParamsUpper[upperIterator].first.x() - std::abs(pC);
+        } else if (localParamsUpper[upperIterator].first.x() < 0) {
           lpos_low_corr = lparamsLow.first.x() + std::abs(pC);
-          lpos_upp_corr = lparamsUpp.first.x();
+          lpos_upp_corr = localParamsUpper[upperIterator].first.x();
         }
-      } else if (lparamsUpp.first.x() < lparamsLow.first.x()) {
-        if (lparamsUpp.first.x() > 0) {
+      } else if (localParamsUpper[upperIterator].first.x() < lparamsLow.first.x()) {
+        if (localParamsUpper[upperIterator].first.x() > 0) {
           lpos_low_corr = lparamsLow.first.x() - std::abs(pC);
-          lpos_upp_corr = lparamsUpp.first.x();
-        } else if (lparamsUpp.first.x() < 0) {
+          lpos_upp_corr = localParamsUpper[upperIterator].first.x();
+        } else if (localParamsUpper[upperIterator].first.x() < 0) {
           lpos_low_corr = lparamsLow.first.x();
-          lpos_upp_corr = lparamsUpp.first.x() + std::abs(pC);
+          lpos_upp_corr = localParamsUpper[upperIterator].first.x() + std::abs(pC);
         }
       } else {
-        if (lparamsUpp.first.x() > 0) {
+        if (localParamsUpper[upperIterator].first.x() > 0) {
           lpos_low_corr = lparamsLow.first.x();
-          lpos_upp_corr = lparamsUpp.first.x() - std::abs(pC);
-        } else if (lparamsUpp.first.x() < 0) {
+          lpos_upp_corr = localParamsUpper[upperIterator].first.x() - std::abs(pC);
+        } else if (localParamsUpper[upperIterator].first.x() < 0) {
           lpos_low_corr = lparamsLow.first.x();
-          lpos_upp_corr = lparamsUpp.first.x() + std::abs(pC);
+          lpos_upp_corr = localParamsUpper[upperIterator].first.x() + std::abs(pC);
         }
       }
 
@@ -212,7 +185,7 @@ std::vector<std::pair<VectorHit, bool>> VectorHitBuilderAlgorithm::buildVectorHi
       LogDebug("VectorHitBuilderAlgorithm") << " \t local pos lower corrected (x):" << lpos_low_corr << std::endl;
 
       //building my tolerance : 10*sigma
-      double delta = 10.0 * sqrt(lparamsLow.second.xx() + lparamsUpp.second.xx());
+      double delta = 10.0 * sqrt(lparamsLow.second.xx() + localParamsUpper[upperIterator].second.xx());
       LogDebug("VectorHitBuilderAlgorithm") << " \t delta: " << delta << std::endl;
 
       double width = lpos_low_corr - lpos_upp_corr;
@@ -250,6 +223,7 @@ std::vector<std::pair<VectorHit, bool>> VectorHitBuilderAlgorithm::buildVectorHi
         VectorHit vh = buildVectorHit(stack, cluL, cluU);
         result.emplace_back(std::make_pair(vh, false));
       }
+      upperIterator=+1;
     }
   }
 

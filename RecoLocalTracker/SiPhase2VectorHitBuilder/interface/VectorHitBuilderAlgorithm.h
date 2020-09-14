@@ -46,20 +46,6 @@ public:
                                          GlobalError gErrorLower,
                                          GlobalError gErrorUpper) const;
 
-  class LocalPositionSort {
-  public:
-    LocalPositionSort(const TrackerGeometry* geometry,
-                      const ClusterParameterEstimator<Phase2TrackerCluster1D>* cpe,
-                      const GeomDet* geomDet)
-        : geom_(geometry), cpe_(cpe), geomDet_(geomDet) {}
-    bool operator()(Phase2TrackerCluster1DRef clus1, Phase2TrackerCluster1DRef clus2) const;
-
-  private:
-    const TrackerGeometry* geom_;
-    const ClusterParameterEstimator<Phase2TrackerCluster1D>* cpe_;
-    const GeomDet* geomDet_;
-  };
-
   std::vector<std::pair<VectorHit, bool>> buildVectorHits(
       const StackGeomDet* stack,
       edm::Handle<edmNew::DetSetVector<Phase2TrackerCluster1D>> clusters,
