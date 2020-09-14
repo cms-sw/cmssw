@@ -243,12 +243,12 @@ float muon::segmentCompatibility(const reco::Muon& muon, reco::Muon::Arbitration
           }
         } else {  // We are in the CSCs
           const float pullTot2 =
-              std::pow(muon.pullX(i, 1, arbitrationType), 2.) + std::pow(muon.pullY(i, 1, arbitrationType), 2.);
+              std::pow(muon.pullX(i - 4, 2, arbitrationType), 2.) + std::pow(muon.pullY(i - 4, 2, arbitrationType), 2.);
           if (pullTot2 > 1.f) {
             // reduce weight
             if (use_match_dist_penalty) {
               const float dxy2 =
-                  std::pow(muon.dX(i, 1, arbitrationType), 2.) + std::pow(muon.dY(i, 1, arbitrationType), 2.);
+                  std::pow(muon.dX(i - 4, 2, arbitrationType), 2.) + std::pow(muon.dY(i - 4, 2, arbitrationType), 2.);
               // only use pull if 3 sigma is not smaller than 3 cm
               if (dxy2 < 9.f && pullTot2 > 9.f) {
                 if (dxy2 > 1.f)
