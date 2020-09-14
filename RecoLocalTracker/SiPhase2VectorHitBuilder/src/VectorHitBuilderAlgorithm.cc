@@ -4,7 +4,6 @@
 #include "Geometry/CommonTopologies/interface/PixelTopology.h"
 #include "DataFormats/TrackerRecHit2D/interface/VectorHit2D.h"
 
-
 void VectorHitBuilderAlgorithm::run(edm::Handle<edmNew::DetSetVector<Phase2TrackerCluster1D>> clusters,
                                     VectorHitCollectionNew& vhAcc,
                                     VectorHitCollectionNew& vhRej,
@@ -25,7 +24,7 @@ void VectorHitBuilderAlgorithm::run(edm::Handle<edmNew::DetSetVector<Phase2Track
       lowerDetId = detId1;
       upperDetId = theTkTopo->partnerDetId(detId1);
     } else if (theTkTopo->isUpper(detId1)) {
-      continue;		
+      continue;
     }
     DetId detIdStack = theTkTopo->stack(detId1);
 
@@ -33,7 +32,6 @@ void VectorHitBuilderAlgorithm::run(edm::Handle<edmNew::DetSetVector<Phase2Track
     LogDebug("VectorHitBuilderAlgorithm") << "  DetId stack : " << detIdStack.rawId() << std::endl;
     LogDebug("VectorHitBuilderAlgorithm") << "  DetId lower set of clusters  : " << lowerDetId.rawId();
     LogDebug("VectorHitBuilderAlgorithm") << "  DetId upper set of clusters  : " << upperDetId.rawId() << std::endl;
-
 
     const GeomDet* gd;
     const StackGeomDet* stackDet;
@@ -151,7 +149,8 @@ std::vector<std::pair<VectorHit, bool>> VectorHitBuilderAlgorithm::buildVectorHi
       printCluster(stack->upperDet(), &*cluU);
 
       //applying the parallax correction
-      double pC = computeParallaxCorrection(gduLow, lparamsLow.first, localGDUUpper[upperIterator], localParamsUpper[upperIterator].first);
+      double pC = computeParallaxCorrection(
+          gduLow, lparamsLow.first, localGDUUpper[upperIterator], localParamsUpper[upperIterator].first);
       LogDebug("VectorHitBuilderAlgorithm") << " \t parallax correction:" << pC << std::endl;
       double lpos_upp_corr = 0.0;
       double lpos_low_corr = 0.0;
@@ -223,7 +222,7 @@ std::vector<std::pair<VectorHit, bool>> VectorHitBuilderAlgorithm::buildVectorHi
         VectorHit vh = buildVectorHit(stack, cluL, cluU);
         result.emplace_back(std::make_pair(vh, false));
       }
-      upperIterator=+1;
+      upperIterator = +1;
     }
   }
 
