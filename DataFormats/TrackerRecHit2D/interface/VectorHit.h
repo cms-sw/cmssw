@@ -153,6 +153,8 @@ private:
   float theCurvature;
   float theCurvatureError;
   float thePhi;
+
+  static constexpr int nComponents = 4;
 };
 
 inline bool operator<(const VectorHit& one, const VectorHit& other) { return (one.chi2() < other.chi2()); }

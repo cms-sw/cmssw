@@ -28,7 +28,7 @@ public:
   }
   const AlgebraicSymMatrix22* covMatrix() const { return &theCovMatrix; }
   float chi2() const { return theChi2; }
-  int dimension() const { return 2; }
+  int dimension() const { return theDimension; }
 
 private:
   LocalPoint thePosition;
