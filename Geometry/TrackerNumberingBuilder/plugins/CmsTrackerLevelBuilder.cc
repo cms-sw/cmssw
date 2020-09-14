@@ -137,6 +137,34 @@ bool CmsTrackerLevelBuilderHelper::isLessRModule(const GeometricDet* a, const Ge
 
 bool CmsTrackerLevelBuilderHelper::isLessR(const GeometricDet* a, const GeometricDet* b) { return a->rho() < b->rho(); }
 
+
+template<>
+void CmsTrackerLevelBuilder<cms::DDFilteredView>::buildLoop(cms::DDFilteredView& fv,
+							    GeometricDet* tracker,
+							    const std::string& attribute){
+
+  while(fv.firstChild()){
+    buildComponent(fv, tracker, attribute);
+  }
+  fv.parent();
+
+}
+
+template<>
+void CmsTrackerLevelBuilder<DDFilteredView>::buildLoop(DDFilteredView& fv,
+						       GeometricDet* tracker,
+						       const std::string& attribute){
+  bool doLayers = fv.firstChild();  // descend to the first Layer
+  while (doLayers) {
+    buildComponent(fv, tracker, attribute);
+    doLayers = fv.nextSibling();
+  }
+
+  fv.parent();
+
+}
+
+
 template <class FilteredView>
 void CmsTrackerLevelBuilder<FilteredView>::build(FilteredView& fv,
                                                  GeometricDet* tracker,
@@ -147,23 +175,9 @@ void CmsTrackerLevelBuilder<FilteredView>::build(FilteredView& fv,
   edm::LogVerbatim("TrackerGeometryBuilder") << ExtractStringFromDDD<FilteredView>::getString(attribute, &fv) << " "
                                              << tracker->type() << " " << tracker->name() << std::endl;
 
-  bool doLayers = fv.firstChild();  // descend to the first Layer
-
-  while (doLayers) {
-    buildComponent(fv, tracker, attribute);
-    if constexpr (std::is_same_v<FilteredView, DDFilteredView>) {
-      edm::LogVerbatim("TrackerGeometryBuilder") << "CmsTrackerLevelbuilder<DDFilteredView>::build" << fv.geoHistory();
-      doLayers = fv.nextSibling();
-    } else if constexpr (std::is_same_v<FilteredView, cms::DDFilteredView>) {
-      edm::LogVerbatim("TrackerGeometryBuilder")
-          << "CmsTrackerLevelbuilder<cms::DDFilteredView>::build" << fv.geoHistory();
-      doLayers = fv.firstChild();
-    }
-  }
-
-  fv.parent();
-
+  buildLoop(fv,tracker,attribute);
   sortNS(fv, tracker);
+
 }
 
 template class CmsTrackerLevelBuilder<DDFilteredView>;

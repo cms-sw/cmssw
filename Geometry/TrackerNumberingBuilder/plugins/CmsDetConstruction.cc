@@ -46,6 +46,55 @@ void CmsDetConstruction<FilteredView>::buildSmallDetsforStack(FilteredView& fv,
   mother->addComponent(det);
 }
 
+template <>
+void CmsDetConstruction<cms::DDFilteredView>::buildLoopGlued(cms::DDFilteredView& fv,
+						      GeometricDet* det,
+						      const std::string& attribute)
+{
+  while(fv.firstChild()){
+    buildSmallDetsforGlued(fv,det,attribute);
+  }
+  fv.parent();
+}
+
+template <>
+void CmsDetConstruction<cms::DDFilteredView>::buildLoopStack(cms::DDFilteredView& fv,
+						      GeometricDet* det,
+						      const std::string& attribute)
+{
+  while(fv.firstChild()){
+    buildSmallDetsforStack(fv,det,attribute);
+  }
+  fv.parent();
+}
+
+template <>
+void CmsDetConstruction<DDFilteredView>::buildLoopGlued(DDFilteredView& fv,
+						 GeometricDet* det,
+						 const std::string& attribute){
+   bool dodets = fv.firstChild();  // descend to the first Layer
+    while (dodets) {
+      buildSmallDetsforGlued(fv, det, attribute);
+      dodets = fv.nextSibling();
+    }
+    fv.parent();
+
+}
+
+template <>
+void CmsDetConstruction<DDFilteredView>::buildLoopStack(DDFilteredView& fv,
+						      GeometricDet* det,
+						      const std::string& attribute)
+{
+  bool dodets = fv.firstChild();  // descend to the first Layer
+  while (dodets) {
+    buildSmallDetsforStack(fv, det, attribute);
+    dodets = fv.nextSibling();
+  }
+  fv.parent();
+}
+
+
 template <class FilteredView>
 void CmsDetConstruction<FilteredView>::buildComponent(FilteredView& fv,
                                                       GeometricDet* mother,
@@ -62,27 +111,13 @@ void CmsDetConstruction<FilteredView>::buildComponent(FilteredView& fv,
   if (CmsTrackerLevelBuilder<FilteredView>::theCmsTrackerStringToEnum.type(
           ExtractStringFromDDD<FilteredView>::getString(attribute, &fv)) == GeometricDet::mergedDet) {
     // I have to go one step lower ...
-    bool dodets = fv.firstChild();  // descend to the first Layer
-    while (dodets) {
-      buildSmallDetsforGlued(fv, det, attribute);
-      dodets = setNext(fv);
-      /*
-	Add algo to sort the merged DET
-	*/
-    }
-    fv.parent();
-
+    buildLoopGlued(fv,det,attribute);
   }
 
   //Phase2 stackDet: same procedure, different nomenclature
   else if (CmsTrackerLevelBuilder<FilteredView>::theCmsTrackerStringToEnum.type(
                ExtractStringFromDDD<FilteredView>::getString(attribute, &fv)) == GeometricDet::OTPhase2Stack) {
-    bool dodets = fv.firstChild();
-    while (dodets) {
-      buildSmallDetsforStack(fv, det, attribute);
-      dodets = setNext(fv);
-    }
-    fv.parent();
+    buildLoopStack(fv,det,attribute);
   }
 
   mother->addComponent(det);

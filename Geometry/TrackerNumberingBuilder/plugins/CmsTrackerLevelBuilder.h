@@ -34,6 +34,8 @@ public:
 
 private:
   virtual void buildComponent(FilteredView&, GeometricDet*, const std::string&) = 0;
+  void buildLoop(DDFilteredView& fv,GeometricDet* tracker, const std::string& attribute);
+  void buildLoop(cms::DDFilteredView& fv,GeometricDet* tracker, const std::string& attribute);
 
 protected:
   CmsTrackerStringToEnum theCmsTrackerStringToEnum;
