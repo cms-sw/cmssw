@@ -6,11 +6,11 @@ import FWCore.ParameterSet.Config as cms
 multi5x5SuperClustersCleaned = cms.EDProducer("Multi5x5SuperClusterProducer",
     barrelSuperclusterCollection = cms.string('multi5x5BarrelSuperClusters'),
     endcapEtaSearchRoad = cms.double(0.14),
-    barrelClusterTag = cms.InputTag('multi5x5BasicClusters',
-									'multi5x5BarrelBasicClustersCleaned'),
+    barrelClusterTag = cms.InputTag('multi5x5BasicClustersCleaned',
+				    'multi5x5BarrelBasicClusters'),
     dynamicPhiRoad = cms.bool(False),
     endcapClusterTag= cms.InputTag('multi5x5BasicClustersCleaned',
-								   'multi5x5EndcapBasicClusters'),
+				   'multi5x5EndcapBasicClusters'),
     barrelPhiSearchRoad = cms.double(0.8),
     endcapPhiSearchRoad = cms.double(0.6),
     seedTransverseEnergyThreshold = cms.double(1.0),
@@ -39,10 +39,10 @@ multi5x5SuperClustersCleaned = cms.EDProducer("Multi5x5SuperClusterProducer",
 )
 
 
-multi5x5SuperClustersUncleaned = multi5x5SuperClustersCleaned.clone()
-multi5x5SuperClustersUncleaned.endcapClusterProducer = cms.string('multi5x5BasicClustersUncleaned')
-multi5x5SuperClustersUncleaned.endcapClusterProducer = cms.string('multi5x5BasicClustersUncleaned')
-
+multi5x5SuperClustersUncleaned = multi5x5SuperClustersCleaned.clone(
+    barrelClusterTag = 'multi5x5BasicClustersUncleaned:multi5x5BarrelBasicClusters',
+    endcapClusterTag = 'multi5x5BasicClustersUncleaned:multi5x5EndcapBasicClusters'
+)
 
 multi5x5SuperClusters=cms.EDProducer("UnifiedSCCollectionProducer",
             # input collections:

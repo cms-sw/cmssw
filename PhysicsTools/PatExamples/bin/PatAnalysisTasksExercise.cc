@@ -1,7 +1,7 @@
 #include "PhysicsTools/PatExamples/interface/AnalysisTasksAnalyzerBTag.h"
 #include "PhysicsTools/PatExamples/interface/AnalysisTasksAnalyzerJEC.h"
 #include "FWCore/ParameterSetReader/interface/ParameterSetReader.h"
-#include "PhysicsTools/UtilAlgos/interface/FWLiteAnalyzerWrapper.h"
+#include "PhysicsTools/FWLite/interface/FWLiteAnalyzerWrapper.h"
 
 typedef fwlite::AnalyzerWrapper<AnalysisTasksAnalyzerBTag> WrappedFWLiteAnalysisTasksAnalyzerBTag;
 typedef fwlite::AnalyzerWrapper<AnalysisTasksAnalyzerJEC> WrappedFWLiteAnalysisTasksAnalyzerJEC;

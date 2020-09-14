@@ -1,5 +1,5 @@
-#ifndef CSCDDUEventData_h
-#define CSCDDUEventData_h
+#ifndef EventFilter_CSCRawToDigi_CSCDDUEventData_h
+#define EventFilter_CSCRawToDigi_CSCDDUEventData_h
 
 /** \class CSCDDUEventData
  *

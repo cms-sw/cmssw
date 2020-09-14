@@ -60,6 +60,17 @@ process.QGTagger.srcVertexCollection=cms.InputTag("offlineSlimmedPrimaryVertices
 patJetsAK4.userData.userFloats.src += ['QGTagger:qgLikelihood']
 process.out.outputCommands += ['keep *_QGTagger_*_*']
 
+
+#HF shower shape variables
+process.load('RecoJets.JetProducers.hfJetShowerShape_cfi')
+patAlgosToolsTask.add(process.hfJetShowerShape)
+process.hfJetShowerShape.jets=cms.InputTag("slimmedJets")
+process.hfJetShowerShape.vertices=cms.InputTag("offlineSlimmedPrimaryVertices")
+patJetsAK4.userData.userFloats.src += ['hfJetShowerShape:sigmaEtaEta','hfJetShowerShape:sigmaPhiPhi']
+patJetsAK4.userData.userInts.src += ['hfJetShowerShape:centralEtaStripSize','hfJetShowerShape:adjacentEtaStripsSize']
+process.out.outputCommands += ['keep *_hfJetShowerShape_*_*']
+
+
 #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 #Njettiness
 

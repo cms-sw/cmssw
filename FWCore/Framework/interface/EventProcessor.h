@@ -156,10 +156,6 @@ namespace edm {
     /// inactive.
     bool endPathsEnabled() const;
 
-    /// Return the trigger report information on paths,
-    /// modules-in-path, modules-in-endpath, and modules.
-    void getTriggerReport(TriggerReport& rep) const;
-
     /// Clears counters used by trigger report.
     void clearCounters();
 

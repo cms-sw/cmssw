@@ -7,7 +7,7 @@
 #include "DataFormats/Provenance/interface/ProcessHistoryRegistry.h"
 #include "DataFormats/Provenance/interface/SubProcessParentageHelper.h"
 
-#include "FWCore/Framework/interface/CommonParams.h"
+#include "FWCore/Framework/src/CommonParams.h"
 #include "FWCore/Framework/interface/EDLooperBase.h"
 #include "FWCore/Framework/interface/EventPrincipal.h"
 #include "FWCore/Framework/interface/EventSetupProvider.h"
@@ -27,7 +27,8 @@
 #include "FWCore/Framework/interface/RunPrincipal.h"
 #include "FWCore/Framework/interface/Schedule.h"
 #include "FWCore/Framework/interface/ScheduleInfo.h"
-#include "FWCore/Framework/interface/SubProcess.h"
+#include "FWCore/Framework/interface/ScheduleItems.h"
+#include "FWCore/Framework/src/SubProcess.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/ESRecordsToProxyIndices.h"
 #include "FWCore/Framework/src/Breakpoints.h"
@@ -632,8 +633,6 @@ namespace edm {
   void EventProcessor::enableEndPaths(bool active) { schedule_->enableEndPaths(active); }
 
   bool EventProcessor::endPathsEnabled() const { return schedule_->endPathsEnabled(); }
-
-  void EventProcessor::getTriggerReport(TriggerReport& rep) const { schedule_->getTriggerReport(rep); }
 
   void EventProcessor::clearCounters() { schedule_->clearCounters(); }
 
@@ -1351,11 +1350,11 @@ namespace edm {
     unsigned int streamIndex = 0;
     for (; streamIndex < preallocations_.numberOfStreams() - 1; ++streamIndex) {
       tbb::task::enqueue(*edm::make_functor_task(tbb::task::allocate_root(), [this, streamIndex, h = iHolder]() {
-        handleNextEventForStreamAsync(std::move(h), streamIndex);
+        handleNextEventForStreamAsync(h, streamIndex);
       }));
     }
     tbb::task::spawn(*edm::make_functor_task(tbb::task::allocate_root(), [this, streamIndex, h = std::move(iHolder)]() {
-      handleNextEventForStreamAsync(std::move(h), streamIndex);
+      handleNextEventForStreamAsync(h, streamIndex);
     }));
   }
 

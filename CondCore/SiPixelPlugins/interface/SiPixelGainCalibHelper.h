@@ -5,6 +5,7 @@
 #include "CondCore/Utilities/interface/PayloadInspector.h"
 #include "CondCore/CondDB/interface/Time.h"
 #include "FWCore/ParameterSet/interface/FileInPath.h"
+#include "FWCore/Utilities/interface/isFinite.h"
 #include "CalibTracker/StandaloneTrackerTopology/interface/StandaloneTrackerTopology.h"
 #include "CondCore/SiPixelPlugins/interface/SiPixelPayloadInspectorHelper.h"
 #include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
@@ -15,6 +16,7 @@
 #include <type_traits>
 #include <memory>
 #include <sstream>
+#include <fmt/printf.h>
 
 // include ROOT
 #include "TH2F.h"
@@ -35,6 +37,90 @@ namespace gainCalibHelper {
   namespace gainCalibPI {
 
     enum type { t_gain = 0, t_pedestal = 1, t_correlation = 2 };
+
+    //===========================================================================
+    // helper method to fill the ratio and diff distributions
+    template <typename PayloadType>
+    static std::array<std::shared_ptr<TH1F>, 2> fillDiffAndRatio(const std::shared_ptr<PayloadType>& payload_A,
+                                                                 const std::shared_ptr<PayloadType>& payload_B,
+                                                                 const gainCalibPI::type& theType) {
+      std::array<std::shared_ptr<TH1F>, 2> arr;
+
+      std::vector<uint32_t> detids_A;
+      payload_A->getDetIds(detids_A);
+      std::vector<uint32_t> detids_B;
+      payload_B->getDetIds(detids_B);
+
+      std::vector<float> v_ratios;
+      std::vector<float> v_diffs;
+
+      if (detids_A != detids_B) {
+        edm::LogError("fillDiffAndRatio") << "the list of DetIds for the two payloads are not equal"
+                                          << " cannot make any comparison!" << std::endl;
+      }
+
+      assert(detids_A == detids_B);
+      for (const auto& d : detids_A) {
+        auto range = payload_A->getRange(d);
+        int numberOfRowsToAverageOver = payload_A->getNumberOfRowsToAverageOver();
+        int ncols = payload_A->getNCols(d);
+        int nRocsInRow = (range.second - range.first) / ncols / numberOfRowsToAverageOver;
+        unsigned int nRowsForHLT = 1;
+        int nrows = std::max((payload_A->getNumberOfRowsToAverageOver() * nRocsInRow),
+                             nRowsForHLT);  // dirty trick to make it work for the HLT payload
+
+        auto rAndCol_A = payload_A->getRangeAndNCols(d);
+        auto rAndCol_B = payload_B->getRangeAndNCols(d);
+        bool isDeadCol, isNoisyCol;
+
+        float ratio(-.1), diff(-1.);
+        for (int col = 0; col < ncols; col++) {
+          for (int row = 0; row < nrows; row++) {
+            switch (theType) {
+              case gainCalibPI::t_gain: {
+                auto gainA = payload_A->getGain(col, row, rAndCol_A.first, rAndCol_A.second, isDeadCol, isNoisyCol);
+                auto gainB = payload_B->getGain(col, row, rAndCol_B.first, rAndCol_B.second, isDeadCol, isNoisyCol);
+                ratio = gainB != 0 ? (gainA / gainB) : -1.;  // if the ratio does not make sense the default is -1
+                diff = gainA - gainB;
+                break;
+              }
+              case gainCalibPI::t_pedestal: {
+                auto pedA = payload_A->getPed(col, row, rAndCol_A.first, rAndCol_A.second, isDeadCol, isNoisyCol);
+                auto pedB = payload_B->getPed(col, row, rAndCol_B.first, rAndCol_B.second, isDeadCol, isNoisyCol);
+                ratio = pedB != 0 ? (pedA / pedB) : -1.;  // if the ratio does not make sense the default is -1
+                diff = pedA - pedB;
+                break;
+              }
+              default:
+                edm::LogError("gainCalibPI::fillTheHisto") << "Unrecognized type " << theType << std::endl;
+                break;
+            }
+            // fill the containers
+            v_diffs.push_back(diff);
+            v_ratios.push_back(ratio);
+          }  // loop on rows
+        }    // loop on cols
+      }      // loop on detids
+
+      std::sort(v_diffs.begin(), v_diffs.end());
+      std::sort(v_ratios.begin(), v_ratios.end());
+
+      double minDiff = v_diffs.front();
+      double maxDiff = v_diffs.back();
+      double minRatio = v_ratios.front();
+      double maxRatio = v_ratios.back();
+
+      arr[0] = std::make_shared<TH1F>("h_Ratio", "", 50, minRatio - 1., maxRatio + 1.);
+      arr[1] = std::make_shared<TH1F>("h_Diff", "", 50, minDiff - 1., maxDiff + 1.);
+
+      for (const auto& r : v_ratios) {
+        arr[0]->Fill(r);
+      }
+      for (const auto& d : v_diffs) {
+        arr[1]->Fill(d);
+      }
+      return arr;
+    }
 
     //============================================================================
     // helper method to fill the gain / pedestals distributions
@@ -1038,16 +1124,16 @@ namespace gainCalibHelper {
       legend.Draw("same");
 
       TPaveStats* st1 = (TPaveStats*)hfirst->FindObject("stats");
-      st1->SetTextSize(0.022);
+      st1->SetTextSize(0.021);
       st1->SetLineColor(kRed);
       st1->SetTextColor(kRed);
-      SiPixelPI::adjustStats(st1, 0.13, 0.84, 0.31, 0.94);
+      SiPixelPI::adjustStats(st1, 0.13, 0.86, 0.31, 0.94);
 
       TPaveStats* st2 = (TPaveStats*)hlast->FindObject("stats");
-      st2->SetTextSize(0.022);
+      st2->SetTextSize(0.021);
       st2->SetLineColor(kBlue);
       st2->SetTextColor(kBlue);
-      SiPixelPI::adjustStats(st2, 0.13, 0.73, 0.31, 0.83);
+      SiPixelPI::adjustStats(st2, 0.13, 0.77, 0.31, 0.85);
 
       auto ltx = TLatex();
       ltx.SetTextFont(62);
@@ -1091,6 +1177,172 @@ namespace gainCalibHelper {
     SiPixelGainCalibrationValueComparisonTwoTags() : SiPixelGainCalibrationValueComparisonBase<myType, PayloadType>() {
       this->setTwoTags(true);
     }
+  };
+
+  /************************************************
+    Diff and Ratio histograms of 2 IOVs
+  *************************************************/
+  template <gainCalibPI::type myType, cond::payloadInspector::IOVMultiplicity nIOVs, int ntags, class PayloadType>
+  class SiPixelGainCalibDiffAndRatioBase : public cond::payloadInspector::PlotImage<PayloadType, nIOVs, ntags> {
+  public:
+    SiPixelGainCalibDiffAndRatioBase()
+        : cond::payloadInspector::PlotImage<PayloadType, nIOVs, ntags>(
+              Form("SiPixelGainCalibration %s Diff and Ratio %i tag(s)", TypeName[myType], ntags)) {
+      if constexpr (std::is_same_v<PayloadType, SiPixelGainCalibrationOffline>) {
+        isForHLT_ = false;
+      } else {
+        isForHLT_ = true;
+      }
+    }
+
+    bool fill() override {
+      gStyle->SetOptStat("emr");
+      TGaxis::SetExponentOffset(-0.1, 0.01, "y");  // Y offset
+      TH1F::SetDefaultSumw2(true);
+
+      COUT << "ntags: " << ntags << " this->m_plotAnnotations.ntags: " << this->m_plotAnnotations.ntags << std::endl;
+
+      // trick to deal with the multi-ioved tag and two tag case at the same time
+      auto theIOVs = cond::payloadInspector::PlotBase::getTag<0>().iovs;
+      auto f_tagname = cond::payloadInspector::PlotBase::getTag<0>().name;
+      std::string l_tagname = "";
+      auto firstiov = theIOVs.front();
+      std::tuple<cond::Time_t, cond::Hash> lastiov;
+
+      // we don't support (yet) comparison with more than 2 tags
+      assert(this->m_plotAnnotations.ntags < 3);
+
+      if (this->m_plotAnnotations.ntags == 2) {
+        auto tag2iovs = cond::payloadInspector::PlotBase::getTag<1>().iovs;
+        l_tagname = cond::payloadInspector::PlotBase::getTag<1>().name;
+        lastiov = tag2iovs.front();
+      } else {
+        lastiov = theIOVs.back();
+      }
+
+      std::shared_ptr<PayloadType> last_payload = this->fetchPayload(std::get<1>(lastiov));
+      std::shared_ptr<PayloadType> first_payload = this->fetchPayload(std::get<1>(firstiov));
+
+      std::string lastIOVsince = std::to_string(std::get<0>(lastiov));
+      std::string firstIOVsince = std::to_string(std::get<0>(firstiov));
+
+      TCanvas canvas("Canv", "Canv", 1300, 800);
+      canvas.Divide(2, 1);
+      canvas.cd();
+
+      SiPixelPI::adjustCanvasMargins(canvas.cd(1), 0.05, 0.12, 0.12, 0.04);
+      SiPixelPI::adjustCanvasMargins(canvas.cd(2), 0.05, 0.12, 0.12, 0.04);
+      canvas.Modified();
+
+      auto array = gainCalibPI::fillDiffAndRatio(first_payload, last_payload, myType);
+
+      array[0]->SetTitle(Form("SiPixel Gain Calibration %s - %s;per %s %s ratio;# %ss",
+                              (isForHLT_ ? "ForHLT" : "Offline"),
+                              TypeName[myType],
+                              (isForHLT_ ? "Column" : "Pixel"),
+                              TypeName[myType],
+                              (isForHLT_ ? "column" : "pixel")));
+
+      array[1]->SetTitle(Form("SiPixel Gain Calibration %s - %s;per %s %s difference;# %ss",
+                              (isForHLT_ ? "ForHLT" : "Offline"),
+                              TypeName[myType],
+                              (isForHLT_ ? "Column" : "Pixel"),
+                              TypeName[myType],
+                              (isForHLT_ ? "column" : "pixel")));
+
+      canvas.cd(1)->SetLogy();
+      array[0]->SetTitle("");
+      array[0]->SetLineColor(kBlack);
+      array[0]->SetFillColor(kRed);
+      array[0]->SetBarWidth(0.90);
+      array[0]->SetMaximum(array[0]->GetMaximum() * 10);
+      array[0]->Draw("bar");
+      SiPixelPI::makeNicePlotStyle(array[0].get());
+      array[0]->SetStats(true);
+
+      canvas.cd(2)->SetLogy();
+      array[1]->SetTitle("");
+      array[1]->SetLineColor(kBlack);
+      array[1]->SetFillColor(kBlue);
+      array[1]->SetBarWidth(0.90);
+      array[1]->SetMaximum(array[1]->GetMaximum() * 10);
+      array[1]->Draw("bar");
+      SiPixelPI::makeNicePlotStyle(array[1].get());
+      array[1]->SetStats(true);
+
+      canvas.Update();
+
+      canvas.cd(1);
+      TLatex latex;
+      latex.SetTextSize(0.024);
+      latex.SetTextAlign(13);  //align at top
+      latex.DrawLatexNDC(
+          .41,
+          .94,
+          fmt::sprintf("#scale[1.2]{SiPixelGainCalibration%s Ratio}", (isForHLT_ ? "ForHLT" : "Offline")).c_str());
+      if (this->m_plotAnnotations.ntags == 2) {
+        latex.DrawLatexNDC(
+            .41, .91, ("#splitline{#font[12]{" + f_tagname + "}}{ / #font[12]{" + l_tagname + "}}").c_str());
+      } else {
+        latex.DrawLatexNDC(.41, .91, (firstIOVsince + " / " + lastIOVsince).c_str());
+      }
+
+      canvas.cd(2);
+      TLatex latex2;
+      latex2.SetTextSize(0.024);
+      latex2.SetTextAlign(13);  //align at top
+      latex2.DrawLatexNDC(
+          .41,
+          .94,
+          fmt::sprintf("#scale[1.2]{SiPixelGainCalibration%s Diff}", (isForHLT_ ? "ForHLT" : "Offline")).c_str());
+      if (this->m_plotAnnotations.ntags == 2) {
+        latex2.DrawLatexNDC(
+            .41, .91, ("#splitline{#font[12]{" + f_tagname + "}}{ - #font[12]{" + l_tagname + "}}").c_str());
+      } else {
+        latex2.DrawLatexNDC(.41, .91, (firstIOVsince + " - " + lastIOVsince).c_str());
+      }
+
+      TPaveStats* st1 = (TPaveStats*)array[0]->FindObject("stats");
+      st1->SetTextSize(0.027);
+      st1->SetLineColor(kRed);
+      st1->SetTextColor(kRed);
+      SiPixelPI::adjustStats(st1, 0.13, 0.84, 0.40, 0.94);
+
+      TPaveStats* st2 = (TPaveStats*)array[1]->FindObject("stats");
+      st2->SetTextSize(0.027);
+      st2->SetLineColor(kBlue);
+      st2->SetTextColor(kBlue);
+      SiPixelPI::adjustStats(st2, 0.13, 0.84, 0.40, 0.94);
+
+      auto ltx = TLatex();
+      ltx.SetTextFont(62);
+      //ltx.SetTextColor(kBlue);
+      ltx.SetTextSize(0.040);
+      ltx.SetTextAlign(11);
+      canvas.cd(1);
+      ltx.DrawLatexNDC(
+          gPad->GetLeftMargin(),
+          1 - gPad->GetTopMargin() + 0.01,
+          fmt::sprintf("SiPixel %s Ratio, IOV %s / %s", TypeName[myType], firstIOVsince, lastIOVsince).c_str());
+
+      canvas.cd(2);
+      ltx.DrawLatexNDC(
+          gPad->GetLeftMargin(),
+          1 - gPad->GetTopMargin() + 0.01,
+          fmt::sprintf("SiPixel %s Diff, IOV %s - %s", TypeName[myType], firstIOVsince, lastIOVsince).c_str());
+
+      std::string fileName(this->m_imageFileName);
+      canvas.SaveAs(fileName.c_str());
+#ifdef MMDEBUG
+      canvas.SaveAs("out.root");
+#endif
+
+      return true;
+    }
+
+  protected:
+    bool isForHLT_;
+    std::string label_;
   };
 
   // 2D MAPS

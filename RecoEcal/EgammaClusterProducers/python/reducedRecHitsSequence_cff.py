@@ -3,72 +3,72 @@ import FWCore.ParameterSet.Config as cms
 import RecoEcal.EgammaClusterProducers.interestingDetIdCollectionProducer_cfi
 
 interestingEcalDetIdEB = RecoEcal.EgammaClusterProducers.interestingDetIdCollectionProducer_cfi.interestingDetIdCollectionProducer.clone(
-    basicClustersLabel = cms.InputTag("hybridSuperClusters","hybridBarrelBasicClusters"),
-    recHitsLabel = cms.InputTag("ecalRecHit","EcalRecHitsEB")
+    basicClustersLabel = "hybridSuperClusters:hybridBarrelBasicClusters",
+    recHitsLabel       = "ecalRecHit:EcalRecHitsEB"
     )
 
 interestingEcalDetIdEBU = RecoEcal.EgammaClusterProducers.interestingDetIdCollectionProducer_cfi.interestingDetIdCollectionProducer.clone(
-    basicClustersLabel = cms.InputTag("hybridSuperClusters","uncleanOnlyHybridBarrelBasicClusters"),
-    recHitsLabel = cms.InputTag("ecalRecHit","EcalRecHitsEB")
+    basicClustersLabel = "hybridSuperClusters:uncleanOnlyHybridBarrelBasicClusters",
+    recHitsLabel       = "ecalRecHit:EcalRecHitsEB"
     )
 
 interestingEcalDetIdEE = RecoEcal.EgammaClusterProducers.interestingDetIdCollectionProducer_cfi.interestingDetIdCollectionProducer.clone(
-    basicClustersLabel = cms.InputTag("multi5x5SuperClusters","multi5x5EndcapBasicClusters"),
-    recHitsLabel = cms.InputTag("ecalRecHit","EcalRecHitsEE")
+    basicClustersLabel = "multi5x5SuperClusters:multi5x5EndcapBasicClusters",
+    recHitsLabel       = "ecalRecHit:EcalRecHitsEE"
     )
 
 interestingEcalDetIdPFEB = RecoEcal.EgammaClusterProducers.interestingDetIdCollectionProducer_cfi.interestingDetIdCollectionProducer.clone(
-    basicClustersLabel = cms.InputTag("particleFlowSuperClusterECAL","particleFlowBasicClusterECALBarrel"),
-    recHitsLabel = cms.InputTag("ecalRecHit","EcalRecHitsEB")
+    basicClustersLabel = "particleFlowSuperClusterECAL:particleFlowBasicClusterECALBarrel",
+    recHitsLabel       = "ecalRecHit:EcalRecHitsEB"
     )
 
 interestingEcalDetIdPFEE = RecoEcal.EgammaClusterProducers.interestingDetIdCollectionProducer_cfi.interestingDetIdCollectionProducer.clone(
-    basicClustersLabel = cms.InputTag("particleFlowSuperClusterECAL","particleFlowBasicClusterECALEndcap"),
-    recHitsLabel = cms.InputTag("ecalRecHit","EcalRecHitsEE")
+    basicClustersLabel = "particleFlowSuperClusterECAL:particleFlowBasicClusterECALEndcap",
+    recHitsLabel       = "ecalRecHit:EcalRecHitsEE"
     )
 
 interestingEcalDetIdPFES = RecoEcal.EgammaClusterProducers.interestingDetIdCollectionProducer_cfi.interestingDetIdCollectionProducer.clone(
-    basicClustersLabel = cms.InputTag("particleFlowSuperClusterECAL","particleFlowBasicClusterECALPreshower"),
-    recHitsLabel = cms.InputTag("ecalPreshowerRecHit","EcalRecHitsES"),
-    severityLevel = cms.int32(-1),
-    keepNextToDead = cms.bool(False),
-    keepNextToBoundary = cms.bool(False)    
+    basicClustersLabel = "particleFlowSuperClusterECAL:particleFlowBasicClusterECALPreshower",
+    recHitsLabel       = "ecalPreshowerRecHit:EcalRecHitsES",
+    severityLevel      = -1,
+    keepNextToDead     = False,
+    keepNextToBoundary = False    
     )
 
 interestingEcalDetIdOOTPFEB = RecoEcal.EgammaClusterProducers.interestingDetIdCollectionProducer_cfi.interestingDetIdCollectionProducer.clone(
-    basicClustersLabel = cms.InputTag("particleFlowSuperClusterOOTECAL","particleFlowBasicClusterOOTECALBarrel"),
-    recHitsLabel = cms.InputTag("ecalRecHit","EcalRecHitsEB")
+    basicClustersLabel = "particleFlowSuperClusterOOTECAL:particleFlowBasicClusterOOTECALBarrel",
+    recHitsLabel       = "ecalRecHit:EcalRecHitsEB"
     )
 
 interestingEcalDetIdOOTPFEE = RecoEcal.EgammaClusterProducers.interestingDetIdCollectionProducer_cfi.interestingDetIdCollectionProducer.clone(
-    basicClustersLabel = cms.InputTag("particleFlowSuperClusterOOTECAL","particleFlowBasicClusterOOTECALEndcap"),
-    recHitsLabel = cms.InputTag("ecalRecHit","EcalRecHitsEE")
+    basicClustersLabel = "particleFlowSuperClusterOOTECAL:particleFlowBasicClusterOOTECALEndcap",
+    recHitsLabel       = "ecalRecHit:EcalRecHitsEE"
     )
 
 interestingEcalDetIdOOTPFES = RecoEcal.EgammaClusterProducers.interestingDetIdCollectionProducer_cfi.interestingDetIdCollectionProducer.clone(
-    basicClustersLabel = cms.InputTag("particleFlowSuperClusterOOTECAL","particleFlowBasicClusterOOTECALPreshower"),
-    recHitsLabel = cms.InputTag("ecalPreshowerRecHit","EcalRecHitsES"),
-    severityLevel = cms.int32(-1),
-    keepNextToDead = cms.bool(False),
-    keepNextToBoundary = cms.bool(False)    
+    basicClustersLabel = "particleFlowSuperClusterOOTECAL:particleFlowBasicClusterOOTECALPreshower",
+    recHitsLabel       = "ecalPreshowerRecHit:EcalRecHitsES",
+    severityLevel      = -1,
+    keepNextToDead     = False,
+    keepNextToBoundary = False    
     )
 
 interestingEcalDetIdRefinedEB = RecoEcal.EgammaClusterProducers.interestingDetIdCollectionProducer_cfi.interestingDetIdCollectionProducer.clone(
-    basicClustersLabel = cms.InputTag("particleFlowEGamma","EBEEClusters"),
-    recHitsLabel = cms.InputTag("ecalRecHit","EcalRecHitsEB")
+    basicClustersLabel = "particleFlowEGamma:EBEEClusters",
+    recHitsLabel       = "ecalRecHit:EcalRecHitsEB"
     )
 
 interestingEcalDetIdRefinedEE = RecoEcal.EgammaClusterProducers.interestingDetIdCollectionProducer_cfi.interestingDetIdCollectionProducer.clone(
-    basicClustersLabel = cms.InputTag("particleFlowEGamma","EBEEClusters"),
-    recHitsLabel = cms.InputTag("ecalRecHit","EcalRecHitsEE")
+    basicClustersLabel = "particleFlowEGamma:EBEEClusters",
+    recHitsLabel       = "ecalRecHit:EcalRecHitsEE"
     )
 
 interestingEcalDetIdRefinedES = RecoEcal.EgammaClusterProducers.interestingDetIdCollectionProducer_cfi.interestingDetIdCollectionProducer.clone(
-    basicClustersLabel = cms.InputTag("particleFlowEGamma","ESClusters"),
-    recHitsLabel = cms.InputTag("ecalPreshowerRecHit","EcalRecHitsES"),
-    severityLevel = cms.int32(-1),
-    keepNextToDead = cms.bool(False),
-    keepNextToBoundary = cms.bool(False)    
+    basicClustersLabel = "particleFlowEGamma:ESClusters",
+    recHitsLabel       = "ecalPreshowerRecHit:EcalRecHitsES",
+    severityLevel      = -1,
+    keepNextToDead     = False,
+    keepNextToBoundary = False    
     )
     
 # rechits associated to high pt tracks for HSCP

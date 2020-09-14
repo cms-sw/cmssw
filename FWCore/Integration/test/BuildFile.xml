@@ -365,11 +365,6 @@
     <use name="FWCore/ParameterSet"/>
   </library>
 
-  <library file="WhatsItExtensionCordAnalyzer.cc,WhatsIt.cc,GadgetRcd.cc" name="WhatsItExtensionCordAnalyzer">
-    <flags EDM_PLUGIN="1"/>
-    <use name="FWCore/Framework"/>
-  </library>
-
   <library file="WhatsItWatcherAnalyzer.cc,WhatsIt.cc,GadgetRcd.cc" name="WhatsItWatcherAnalyzer">
     <flags EDM_PLUGIN="1"/>
     <use name="FWCore/Framework"/>

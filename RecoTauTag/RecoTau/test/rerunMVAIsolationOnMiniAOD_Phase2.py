@@ -2,17 +2,13 @@ import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("rerunMVAIsolationOnMiniAODPhase2")
 
-process.load('Configuration.Geometry.GeometryExtended2026D41Reco_cff')
-process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-from Configuration.AlCa.GlobalTag import GlobalTag
-process.GlobalTag = GlobalTag(process.GlobalTag, '106X_upgrade2023_realistic_v2')
 process.load("Configuration.StandardSequences.MagneticField_cff")
 
 #process.Tracer = cms.Service("Tracer")
 process.load("FWCore.MessageService.MessageLogger_cfi")
-process.MessageLogger.cerr.FwkReport.reportEvery = 1000
+process.MessageLogger.cerr.FwkReport.reportEvery = 10
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(10000)
+    input = cms.untracked.int32(100)
 )
 
 process.source = cms.Source("PoolSource",
@@ -29,6 +25,7 @@ process.TFileService = cms.Service("TFileService",
 
 from RecoTauTag.RecoTau.TauDiscriminatorTools import noPrediscriminants
 ### Load PoolDBESSource with mapping to payloads
+# Note: replace it by an appropriate GlobalTag when MVAIso phase-2 payloads are available via it
 process.load('RecoTauTag.Configuration.loadRecoTauTagMVAsFromPrepDB_cfi')
 
 from RecoTauTag.RecoTau.PATTauDiscriminationByMVAIsolationRun2_cff import *
@@ -103,4 +100,3 @@ process.p = cms.Path(
     * process.newTauIDsEmbedded
     * process.rerunMVAIsolationOnMiniAOD_Phase2
 )
-

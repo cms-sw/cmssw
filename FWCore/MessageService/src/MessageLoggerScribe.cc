@@ -183,15 +183,15 @@
 //
 // ----------------------------------------------------------------------
 
-#include "FWCore/MessageService/interface/MessageLoggerScribe.h"
-#include "FWCore/MessageService/interface/ELadministrator.h"
-#include "FWCore/MessageService/interface/ELoutput.h"
-#include "FWCore/MessageService/interface/ELstatistics.h"
-#include "FWCore/MessageService/interface/ThreadQueue.h"
+#include "FWCore/MessageService/src/MessageLoggerScribe.h"
+#include "FWCore/MessageService/src/ELadministrator.h"
+#include "FWCore/MessageService/src/ELoutput.h"
+#include "FWCore/MessageService/src/ELstatistics.h"
+#include "FWCore/MessageService/src/ThreadQueue.h"
 
 #include "FWCore/MessageLogger/interface/ErrorObj.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "FWCore/MessageLogger/interface/ConfigurationHandshake.h"
+#include "FWCore/MessageService/src/ConfigurationHandshake.h"
 #include "FWCore/MessageLogger/interface/MessageDrop.h"      // change log 37
 #include "FWCore/MessageLogger/interface/ELseverityLevel.h"  // change log 37
 

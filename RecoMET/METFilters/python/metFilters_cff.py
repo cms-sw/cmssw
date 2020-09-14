@@ -91,6 +91,9 @@ from RecoMET.METFilters.BadPFMuonFilter_cfi import *
 ## The muon bad track filter with Dz cut (2020) _____________________________________||
 from RecoMET.METFilters.BadPFMuonDzFilter_cfi import *
 
+#HF noise filter 
+from RecoMET.METFilters.hfNoisyHitsFilter_cfi import *
+
 metFilters = cms.Sequence(
    HBHENoiseFilterResultProducer *
    HBHENoiseFilter *
@@ -116,6 +119,7 @@ metFilters = cms.Sequence(
    BadChargedCandidateFilter*
    BadPFMuonFilter *
    BadPFMuonDzFilter *
+   hfNoisyHitsFilter *
    BadChargedCandidateSummer16Filter*
    BadPFMuonSummer16Filter *
    muonBadTrackFilter
