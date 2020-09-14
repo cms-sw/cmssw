@@ -7,7 +7,7 @@ process.source = cms.Source("EmptySource")
 
 process.load("Configuration.StandardSequences.Services_cff")
 process.load("Configuration.Geometry.GeometryExtended2018Reco_cff")
-#process.load("Configuration.Geometry.GeometryExtended2026D41Reco_cff")
+#process.load("Configuration.Geometry.GeometryExtended2026D49Reco_cff")
 process.load("CalibCalorimetry.HcalPlugins.HBHEDarkening_cff")
 
 import CalibCalorimetry.HcalPlugins.Hcal_Conditions_forGlobalTag_cff

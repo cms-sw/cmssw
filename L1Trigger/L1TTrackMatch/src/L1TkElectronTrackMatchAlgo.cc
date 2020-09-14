@@ -32,6 +32,17 @@ namespace L1TkElectronTrackMatchAlgo {
     deta = L1TkElectronTrackMatchAlgo::deltaEta(egPos, pTrk);
   }
   // ------------ match EGamma and Track
+  void doMatchClusterET(l1t::EGammaBxCollection::const_iterator egIter,
+                        const edm::Ptr<L1TTTrackType>& pTrk,
+                        double& dph,
+                        double& dr,
+                        double& deta) {
+    GlobalPoint egPos = L1TkElectronTrackMatchAlgo::calorimeterPosition(egIter->phi(), egIter->eta(), egIter->energy());
+    dph = L1TkElectronTrackMatchAlgo::deltaPhiClusterET(egIter, pTrk);
+    dr = L1TkElectronTrackMatchAlgo::deltaR(egPos, pTrk);
+    deta = L1TkElectronTrackMatchAlgo::deltaEta(egPos, pTrk);
+  }
+  // ------------ match EGamma and Track
   void doMatch(const GlobalPoint& epos, const edm::Ptr<L1TTTrackType>& pTrk, double& dph, double& dr, double& deta) {
     dph = L1TkElectronTrackMatchAlgo::deltaPhi(epos, pTrk);
     dr = L1TkElectronTrackMatchAlgo::deltaR(epos, pTrk);
@@ -43,6 +54,20 @@ namespace L1TkElectronTrackMatchAlgo {
     double curv = pTrk->rInv();
 
     double dphi_curv = (asin(er * curv / (2.0)));
+    double trk_phi_ecal = reco::deltaPhi(pTrk->momentum().phi(), dphi_curv);
+
+    double dphi = reco::deltaPhi(trk_phi_ecal, epos.phi());
+    return dphi;
+  }
+  // --------------- use cluster et to extrapolate tracks
+  double deltaPhiClusterET(l1t::EGammaBxCollection::const_iterator egIter, const edm::Ptr<L1TTTrackType>& pTrk) {
+    GlobalPoint epos = L1TkElectronTrackMatchAlgo::calorimeterPosition(egIter->phi(), egIter->eta(), egIter->energy());
+    double er = epos.perp();
+    double et = egIter->et();
+    double pt = pTrk->momentum().perp();
+    double curv = pTrk->rInv();
+
+    double dphi_curv = (asin(er * curv * pt / (2.0 * et)));
     double trk_phi_ecal = reco::deltaPhi(pTrk->momentum().phi(), dphi_curv);
 
     double dphi = reco::deltaPhi(trk_phi_ecal, epos.phi());
@@ -62,7 +87,7 @@ namespace L1TkElectronTrackMatchAlgo {
     double ez = epos.z();
     double z0 = pTrk->POCA().z();
     double theta = 0.0;
-    if (ez >= 0)
+    if (ez - z0 >= 0)
       theta = atan(er / fabs(ez - z0));
     else
       theta = M_PI - atan(er / fabs(ez - z0));

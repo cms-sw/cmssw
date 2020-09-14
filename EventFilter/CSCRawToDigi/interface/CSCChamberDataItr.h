@@ -1,5 +1,5 @@
-#ifndef CSCChamberDataItr_h
-#define CSCChamberDataItr_h
+#ifndef EventFilter_CSCRawToDigi_CSCChamberDataItr_h
+#define EventFilter_CSCRawToDigi_CSCChamberDataItr_h
 
 /** a class to help users iterate over CSC chambers,
     without having to know about DCCs and DDUs

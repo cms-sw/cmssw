@@ -65,8 +65,8 @@ void CmsDetConstruction<FilteredView>::buildComponent(FilteredView& fv,
     bool dodets = fv.firstChild();  // descend to the first Layer
     while (dodets) {
       buildSmallDetsforGlued(fv, det, attribute);
-      dodets = fv.nextSibling();  // go to next layer
-                                  /*
+      dodets = setNext(fv);
+      /*
 	Add algo to sort the merged DET
 	*/
     }
@@ -80,7 +80,7 @@ void CmsDetConstruction<FilteredView>::buildComponent(FilteredView& fv,
     bool dodets = fv.firstChild();
     while (dodets) {
       buildSmallDetsforStack(fv, det, attribute);
-      dodets = fv.nextSibling();
+      dodets = setNext(fv);
     }
     fv.parent();
   }
