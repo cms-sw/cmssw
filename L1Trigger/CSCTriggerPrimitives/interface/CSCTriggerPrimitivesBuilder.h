@@ -107,25 +107,25 @@ private:
   /// a flag whether to skip chambers from the bad chambers map
   bool checkBadChambers_;
 
-  /** SLHC: special configuration parameters for ME11 treatment. */
-  bool isSLHC_;
+  /** Phase2: special configuration parameters for ME11 treatment. */
+  bool runPhase2_;
 
-  /** SLHC: special switch for disabling ME42 */
+  /** Phase2: special switch for disabling ME42 */
   bool disableME1a_;
 
-  /** SLHC: special switch for disabling ME42 */
+  /** Phase2: special switch for disabling ME42 */
   bool disableME42_;
 
-  /** SLHC: individual switches */
+  /** Phase2: individual switches */
   bool runME11Up_;
   bool runME21Up_;
   bool runME31Up_;
   bool runME41Up_;
 
-  /** SLHC: special switch for the upgrade ME1/1 TMB */
+  /** Phase2: special switch for the upgrade ME1/1 TMB */
   bool runME11ILT_;
 
-  /** SLHC: special switch for the upgrade ME2/1 TMB */
+  /** Phase2: special switch for the upgrade ME2/1 TMB */
   bool runME21ILT_;
 
   /** Pointers to TMB processors for all possible chambers. */

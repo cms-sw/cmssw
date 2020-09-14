@@ -21,8 +21,8 @@ CSCGEMMotherboardME11::CSCGEMMotherboardME11(unsigned endcap,
       buildLCTfromCLCTandGEM_ME1b_(tmbParams_.getParameter<bool>("buildLCTfromCLCTandGEM_ME1b")),
       promoteCLCTGEMquality_ME1a_(tmbParams_.getParameter<bool>("promoteCLCTGEMquality_ME1a")),
       promoteCLCTGEMquality_ME1b_(tmbParams_.getParameter<bool>("promoteCLCTGEMquality_ME1b")) {
-  if (!isSLHC_) {
-    edm::LogError("CSCGEMMotherboardME11|SetupError") << "+++ TMB constructed while isSLHC is not set! +++\n";
+  if (!runPhase2_) {
+    edm::LogError("CSCGEMMotherboardME11|SetupError") << "+++ TMB constructed while runPhase2 is not set! +++\n";
   }
 
   if (!runME11ILT_) {
@@ -36,8 +36,8 @@ CSCGEMMotherboardME11::CSCGEMMotherboardME11(unsigned endcap,
 
 CSCGEMMotherboardME11::CSCGEMMotherboardME11() : CSCGEMMotherboard() {
   // Constructor used only for testing.
-  if (!isSLHC_) {
-    edm::LogError("CSCGEMMotherboardME11|SetupError") << "+++ TMB constructed while isSLHC is not set! +++\n";
+  if (!runPhase2_) {
+    edm::LogError("CSCGEMMotherboardME11|SetupError") << "+++ TMB constructed while runPhase2 is not set! +++\n";
   }
 
   if (!runME11ILT_) {
@@ -109,8 +109,8 @@ void CSCGEMMotherboardME11::run(const CSCWireDigiCollection* wiredc,
   // ALCT-centric matching
   for (int bx_alct = 0; bx_alct < CSCConstants::MAX_ALCT_TBINS; bx_alct++) {
     if (alctProc->getBestALCT(bx_alct).isValid()) {
-      const int bx_clct_start(bx_alct - match_trig_window_size / 2 - alctClctOffset_);
-      const int bx_clct_stop(bx_alct + match_trig_window_size / 2 - alctClctOffset_);
+      const int bx_clct_start(bx_alct - match_trig_window_size / 2 - CSCConstants::ALCT_CLCT_OFFSET);
+      const int bx_clct_stop(bx_alct + match_trig_window_size / 2 - CSCConstants::ALCT_CLCT_OFFSET);
       const int bx_copad_start(bx_alct - maxDeltaBXCoPad_);
       const int bx_copad_stop(bx_alct + maxDeltaBXCoPad_);
 
@@ -318,8 +318,8 @@ void CSCGEMMotherboardME11::run(const CSCWireDigiCollection* wiredc,
       auto coPads(coPads_[bx_alct]);
       if (!coPads.empty()) {
         // keep it simple for the time being, only consider the first copad
-        const int bx_clct_start(bx_alct - match_trig_window_size / 2 - alctClctOffset_);
-        const int bx_clct_stop(bx_alct + match_trig_window_size / 2 - alctClctOffset_);
+        const int bx_clct_start(bx_alct - match_trig_window_size / 2 - CSCConstants::ALCT_CLCT_OFFSET);
+        const int bx_clct_stop(bx_alct + match_trig_window_size / 2 - CSCConstants::ALCT_CLCT_OFFSET);
 
         // matching in ME1b
         if (buildLCTfromCLCTandGEM_ME1b_) {

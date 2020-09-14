@@ -231,9 +231,6 @@ protected:
   bool promoteALCTGEMquality_;
   bool promoteCLCTGEMquality_;
 
-  // LCT ghostbusting
-  bool doLCTGhostBustingWithGEMs_;
-
 private:
   template <class T>
   const matchesBX<T>& getPads() const;

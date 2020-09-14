@@ -22,7 +22,7 @@ const int CSCTriggerPrimitivesBuilder::max_chamber = CSCTriggerNumbering::maxTri
 CSCTriggerPrimitivesBuilder::CSCTriggerPrimitivesBuilder(const edm::ParameterSet& conf) {
   // special configuration parameters for ME11 treatment
   edm::ParameterSet commonParams = conf.getParameter<edm::ParameterSet>("commonParam");
-  isSLHC_ = commonParams.getParameter<bool>("isSLHC");
+  runPhase2_ = commonParams.getParameter<bool>("runPhase2");
   infoV = commonParams.getParameter<int>("verbosity");
   disableME1a_ = commonParams.getParameter<bool>("disableME1a");
   disableME42_ = commonParams.getParameter<bool>("disableME42");
@@ -58,16 +58,16 @@ CSCTriggerPrimitivesBuilder::CSCTriggerPrimitivesBuilder(const edm::ParameterSet
             // and CLCT processors.
 
             // go through all possible cases
-            if (isSLHC_ and ring == 1 and stat == 1 and runME11Up_ and !runME11ILT_)
+            if (runPhase2_ and ring == 1 and stat == 1 and runME11Up_ and !runME11ILT_)
               tmb_[endc - 1][stat - 1][sect - 1][subs - 1][cham - 1] =
                   std::make_unique<CSCMotherboardME11>(endc, stat, sect, subs, cham, conf);
-            else if (isSLHC_ and ring == 1 and stat == 1 and runME11Up_ and runME11ILT_)
+            else if (runPhase2_ and ring == 1 and stat == 1 and runME11Up_ and runME11ILT_)
               tmb_[endc - 1][stat - 1][sect - 1][subs - 1][cham - 1] =
                   std::make_unique<CSCGEMMotherboardME11>(endc, stat, sect, subs, cham, conf);
-            else if (isSLHC_ and ring == 1 and stat == 2 and runME21Up_ and runME21ILT_)
+            else if (runPhase2_ and ring == 1 and stat == 2 and runME21Up_ and runME21ILT_)
               tmb_[endc - 1][stat - 1][sect - 1][subs - 1][cham - 1] =
                   std::make_unique<CSCGEMMotherboardME21>(endc, stat, sect, subs, cham, conf);
-            else if (isSLHC_ and ring == 1 and
+            else if (runPhase2_ and ring == 1 and
                      ((stat == 2 and runME21Up_ and !runME21ILT_) || (stat == 3 and runME31Up_) ||
                       (stat == 4 and runME41Up_)))
               tmb_[endc - 1][stat - 1][sect - 1][subs - 1][cham - 1] =
@@ -154,7 +154,7 @@ void CSCTriggerPrimitivesBuilder::build(const CSCBadChambers* badChambers,
               continue;
 
             // running upgraded ME1/1 TMBs
-            if (stat == 1 && ring == 1 && isSLHC_ && !runME11ILT_) {
+            if (stat == 1 && ring == 1 && runPhase2_ && !runME11ILT_) {
               // run the TMB
               CSCMotherboardME11* tmb11 = static_cast<CSCMotherboardME11*>(tmb);
               if (infoV > 1)
@@ -217,7 +217,7 @@ void CSCTriggerPrimitivesBuilder::build(const CSCBadChambers* badChambers,
             }  // upgraded TMB
 
             // running upgraded ME1/1 TMBs with GEMs
-            else if (stat == 1 && ring == 1 && isSLHC_ && runME11ILT_) {
+            else if (stat == 1 && ring == 1 && runPhase2_ && runME11ILT_) {
               // run the TMB
               CSCGEMMotherboardME11* tmb11GEM = static_cast<CSCGEMMotherboardME11*>(tmb);
               tmb11GEM->setCSCGeometry(csc_g);
@@ -280,7 +280,7 @@ void CSCTriggerPrimitivesBuilder::build(const CSCBadChambers* badChambers,
             }
 
             // running upgraded ME2/1 TMBs
-            else if (stat == 2 && ring == 1 && isSLHC_ && runME21ILT_) {
+            else if (stat == 2 && ring == 1 && runPhase2_ && runME21ILT_) {
               // run the TMB
               CSCGEMMotherboardME21* tmb21GEM = static_cast<CSCGEMMotherboardME21*>(tmb);
               tmb21GEM->setCSCGeometry(csc_g);
@@ -320,7 +320,7 @@ void CSCTriggerPrimitivesBuilder::build(const CSCBadChambers* badChambers,
               put(alctpretriggerV, oc_alctpretrigger, detid, " ME21 ALCT pre-trigger digi");
             }
             // running upgraded ME2/1-ME3/1-ME4/1 TMBs (without GEMs or RPCs)
-            else if (isSLHC_ and ring == 1 and
+            else if (runPhase2_ and ring == 1 and
                      ((stat == 2 and runME21Up_ and !runME21ILT_) || (stat == 3 and runME31Up_) ||
                       (stat == 4 and runME41Up_))) {
               // run the TMB
