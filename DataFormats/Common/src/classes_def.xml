@@ -98,9 +98,8 @@
    <field name="m_dataSize" transient="true"/>
 </class>
 <class name="edmNew::dstvdetails::DetSetVectorTrans::Item" ClassVersion="11">
- <version ClassVersion="11" checksum="1425550254"/>
- <version ClassVersion="10" checksum="1062438024"/>
- <field name="offset" transient = "true"/>
+   <version ClassVersion="10" checksum="1062438024"/>
+   <version ClassVersion="11" checksum="3545691837"/>
 </class>
 <class name="std::vector<edmNew::dstvdetails::DetSetVectorTrans::Item>"/>
 
