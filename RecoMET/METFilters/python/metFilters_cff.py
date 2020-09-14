@@ -88,6 +88,8 @@ from RecoMET.METFilters.BadChargedCandidateFilter_cfi import *
 ## The muon bad track filter (2016) ________________________________________________||
 from RecoMET.METFilters.BadPFMuonFilter_cfi import *
 
+## The muon bad track filter with Dz cut (2020) _____________________________________||
+from RecoMET.METFilters.BadPFMuonDzFilter_cfi import *
 
 metFilters = cms.Sequence(
    HBHENoiseFilterResultProducer *
@@ -124,3 +126,5 @@ phase2_hgcal.toReplaceWith(metFilters, metFilters.copyAndExclude([
     eeBadScFilter                                   # No EE
 ]))
 
+from Configuration.ProcessModifiers.run2_miniAOD_UL_cff import run2_miniAOD_UL
+run2_miniAOD_UL.toModify(metFilters, func=lambda t:t.insert(len(t._seq._collection), BadPFMuonDzFilter))
