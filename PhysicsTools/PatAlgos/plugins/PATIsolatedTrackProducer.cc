@@ -630,7 +630,7 @@ void pat::PATIsolatedTrackProducer::getIsolation(const PolarLorentzVector& p4,
     if (int(pf_it - pc->begin()) == pc_idx)  //don't count itself
       continue;
     int id = std::abs(pf_it->pdgId());
-    bool fromPV = (pf_it->fromPV() > 1 || fabs(pf_it->dz()) < pfIsolation_DZ_);
+    bool fromPV = (pf_it->fromPV() > 1 || std::fabs(pf_it->dz()) < pfIsolation_DZ_);
     float pt = pf_it->p4().pt();
     float dr = deltaR(p4, *pf_it);
 
@@ -673,11 +673,11 @@ float pat::PATIsolatedTrackProducer::getTrackIsolation(const PolarLorentzVector&
   for (const auto& t : *tracks) {
     // exclude tracks from different vertices by dz signficance
     // similar to primary vertex assignment, but includes dzError from both tracks
-    if (fabs(t.dz(track_vtx)) >= trackIsolation_maxDZSig_ * hypot(t.dzError(), track_dzError))
+    if (std::fabs(t.dz(track_vtx)) >= trackIsolation_maxDZSig_ * hypot(t.dzError(), track_dzError))
       continue;
 
-    float dR = deltaR(t, track_p4);
-    if (dR < trackIsolation_DR_ && dR > 1.e-12)  // exclude candidate itself with dR>1.e-12
+    float dR2 = deltaR2(t, track_p4);
+    if (dR2 < trackIsolation_DR_ * trackIsolation_DR_ && dR2 > 1.e-24)  // exclude candidate itself with dR>1.e-12
       sumPt += t.pt();
   }
 
@@ -730,7 +730,7 @@ void pat::PATIsolatedTrackProducer::getNearestPCRef(const PolarLorentzVector& p4
     if (int(pf_it - pc->begin()) == pc_idx)  //don't count itself
       continue;
     int charge = std::abs(pf_it->charge());
-    bool fromPV = (pf_it->fromPV() > 1 || fabs(pf_it->dz()) < pfIsolation_DZ_);
+    bool fromPV = (pf_it->fromPV() > 1 || std::fabs(pf_it->dz()) < pfIsolation_DZ_);
     float pt = pf_it->p4().pt();
     float dr = deltaR(p4, *pf_it);
     if (charge == 0)  // exclude neutral candidates
@@ -904,7 +904,7 @@ bool pat::PATIsolatedTrackProducer::insideCone(const PolarLorentzVector& p4, con
     return false;
 
   math::XYZVector idPositionRoot(idPosition.x(), idPosition.y(), idPosition.z());
-  return deltaR(p4, idPositionRoot) < dR;
+  return deltaR2(p4, idPositionRoot) < dR * dR;
 }
 
 using pat::PATIsolatedTrackProducer;
