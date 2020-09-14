@@ -4,11 +4,6 @@
   <use name="dd4hep"/>
 </bin>
 
-<bin name="testDD4hepExpandedView" file="DDExpandedView.cppunit.cc,testRunner.cpp">
-  <use name="DetectorDescription/DDCMS"/>
-  <use name="dd4hep"/>
-</bin>
-
 <bin name="testDD4hepCompactView" file="DDCompactView.cppunit.cc,testRunner.cpp">
   <use name="DetectorDescription/DDCMS"/>
   <use name="dd4hep"/>
