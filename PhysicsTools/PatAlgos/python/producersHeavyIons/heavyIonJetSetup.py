@@ -181,32 +181,6 @@ def setupHeavyIonGenJets(process, tag, radius, task):
     for label, module in six.iteritems(modules):
         addToProcessAndTask(label + tag, module, process, task)
 
-def useCsJetsForPat(process, tag):
-    process.patJets.useLegacyJetMCFlavour = True
-    process.patJets.userData.userFloats.src = []
-    process.patJets.userData.userInts.src = []
-    process.patJets.jetSource = tag + "Jets"
-    process.patJets.genJetMatch = "patJetGenJetMatch" + tag
-    process.patJets.genPartonMatch = "patJetPartonMatch" + tag
-    process.patJets.JetFlavourInfoSource = "patJetFlavourAssociation" + tag
-    process.patJets.JetPartonMapSource = "patJetFlavourAssociationLegacy" + tag
-    process.patJets.jetCorrFactorsSource = ["patJetCorrFactors" + tag]
-    process.patJets.trackAssociationSource = "jetTracksAssociatorAtVertex" + tag
-    process.patJets.useLegacyJetMCFlavour = True
-    process.patJets.discriminatorSources = [
-        "simpleSecondaryVertexHighEffBJetTags" + tag,    
-        "simpleSecondaryVertexHighPurBJetTags" + tag,
-        "combinedSecondaryVertexBJetTags" + tag,
-        "combinedSecondaryVertexV2BJetTags" + tag,
-        "jetBProbabilityBJetTags" + tag,
-        "jetProbabilityBJetTags" + tag,
-        "trackCountingHighEffBJetTags" + tag,
-        "trackCountingHighPurBJetTags" + tag,
-    ]
-    process.patJets.tagInfoSources = cms.VInputTag(["impactParameterTagInfos" + tag,"secondaryVertexTagInfos"+tag])
-    process.patJets.addJetCharge = False
-    process.patJets.addTagInfos = True
-
 def removeL1FastJetJECs(process):
     for label in process.producerNames().split():
         module = getattr(process, label)

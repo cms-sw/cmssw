@@ -99,4 +99,28 @@ _patJets = cms.EDProducer("PATJetProducer",
     resolutions     = cms.PSet()
 )
 
+from Configuration.Eras.Modifier_pp_on_AA_2018_cff import pp_on_AA_2018
+from Configuration.Eras.Modifier_pp_on_PbPb_run3_cff import pp_on_PbPb_run3
+(pp_on_AA_2018 | pp_on_PbPb_run3).toModify(_patJets, 
+                                           jetSource = "akCs4PFJets",
+                                           genJetMatch = "patJetGenJetMatchakCs4PF",
+                                           genPartonMatch = "patJetPartonMatchakCs4PF",
+                                           JetFlavourInfoSource = "patJetFlavourAssociationakCs4PF",
+                                           JetPartonMapSource = "patJetFlavourAssociationLegacyakCs4PF",
+                                           jetCorrFactorsSource = ["patJetCorrFactorsakCs4PF"],
+                                           trackAssociationSource = "jetTracksAssociatorAtVertexakCs4PF",
+                                           useLegacyJetMCFlavour = True,
+                                           discriminatorSources = cms.VInputTag(
+                                               cms.InputTag("simpleSecondaryVertexHighEffBJetTagsakCs4PF"),
+                                               cms.InputTag("simpleSecondaryVertexHighPurBJetTagsakCs4PF"),
+                                               cms.InputTag("combinedSecondaryVertexBJetTagsakCs4PF"),
+                                               cms.InputTag("combinedSecondaryVertexV2BJetTagsakCs4PF"),
+                                               cms.InputTag("jetBProbabilityBJetTagsakCs4PF"),
+                                               cms.InputTag("jetProbabilityBJetTagsakCs4PF"),
+                                               cms.InputTag("trackCountingHighEffBJetTagsakCs4PF"),
+                                               cms.InputTag("trackCountingHighPurBJetTagsakCs4PF"),
+                                           ),
+                                           addJetCharge = False,
+)
+
 patJets = _patJets.clone()
