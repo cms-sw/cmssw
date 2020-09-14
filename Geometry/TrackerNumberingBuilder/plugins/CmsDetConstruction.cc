@@ -47,61 +47,30 @@ void CmsDetConstruction<FilteredView>::buildSmallDetsforStack(FilteredView& fv,
 }
 
 template <>
-void CmsDetConstruction<cms::DDFilteredView>::buildLoopGlued(cms::DDFilteredView& fv,
-						      GeometricDet* det,
-						      const std::string& attribute)
-{
+template <auto fxn>
+void CmsDetConstruction<cms::DDFilteredView>::buildLoop(cms::DDFilteredView& fv,
+                                                        GeometricDet* det,
+                                                        const std::string& attribute){
   while(fv.firstChild()){
-    std::cout << "buildLoopGlued: " << fv.geoHistory() << std::endl
+    std::cout << "buildLoop: " << fv.geoHistory() << std::endl
               << "\t HistorySize: " << fv.geoHistory().size() << std::endl;
-    buildSmallDetsforGlued(fv,det,attribute);
+    (this->*fxn)(fv,det,attribute);
   }
-  fv.parent();
 }
 
 template <>
-void CmsDetConstruction<cms::DDFilteredView>::buildLoopStack(cms::DDFilteredView& fv,
-						      GeometricDet* det,
-						      const std::string& attribute)
-{
-  while(fv.firstChild()){
-    std::cout << "buildLoopStack: " << fv.geoHistory() << std::endl
-              << "\t HistorySize: " << fv.geoHistory().size() << std::endl;
-    buildSmallDetsforStack(fv,det,attribute);
-  }
-  fv.parent();
-}
-
-template <>
-void CmsDetConstruction<DDFilteredView>::buildLoopGlued(DDFilteredView& fv,
-						 GeometricDet* det,
-						 const std::string& attribute){
-   bool dodets = fv.firstChild();  // descend to the first Layer
-    while (dodets) {
-      std::cout << "buildLoopGlued: " << fv.geoHistory() << std::endl
-                << "\t HistorySize: " << fv.geoHistory().size() << std::endl;
-      buildSmallDetsforGlued(fv, det, attribute);
-      dodets = fv.nextSibling();
-    }
-    fv.parent();
-
-}
-
-template <>
-void CmsDetConstruction<DDFilteredView>::buildLoopStack(DDFilteredView& fv,
-						      GeometricDet* det,
-						      const std::string& attribute)
-{
+template <auto fxn>
+void CmsDetConstruction<DDFilteredView>::buildLoop(DDFilteredView& fv,
+                                                   GeometricDet* det,
+                                                   const std::string& attribute){
   bool dodets = fv.firstChild();  // descend to the first Layer
   while (dodets) {
-    std::cout << "buildLoopStack: " << fv.geoHistory() << std::endl
+    std::cout << "buildLoop: " << fv.geoHistory() << std::endl
               << "\t HistorySize: " << fv.geoHistory().size() << std::endl;
-    buildSmallDetsforStack(fv, det, attribute);
+    (this->*fxn)(fv, det, attribute);
     dodets = fv.nextSibling();
   }
-  fv.parent();
 }
-
 
 template <class FilteredView>
 void CmsDetConstruction<FilteredView>::buildComponent(FilteredView& fv,
@@ -118,13 +87,15 @@ void CmsDetConstruction<FilteredView>::buildComponent(FilteredView& fv,
   //Phase1 mergedDet: searching for sensors
   if (CmsTrackerLevelBuilder<FilteredView>::theCmsTrackerStringToEnum.type(
           ExtractStringFromDDD<FilteredView>::getString(attribute, &fv)) == GeometricDet::mergedDet) {
-    buildLoopGlued(fv,det,attribute);
+    buildLoop<&CmsDetConstruction<FilteredView>::buildSmallDetsforGlued>(fv,det,attribute);
+    fv.parent();
   }
 
   //Phase2 stackDet: same procedure, different nomenclature
   else if (CmsTrackerLevelBuilder<FilteredView>::theCmsTrackerStringToEnum.type(
                ExtractStringFromDDD<FilteredView>::getString(attribute, &fv)) == GeometricDet::OTPhase2Stack) {
-    buildLoopStack(fv,det,attribute);
+    buildLoop<&CmsDetConstruction<FilteredView>::buildSmallDetsforStack>(fv,det,attribute);
+    fv.parent();
   }
 
   mother->addComponent(det);

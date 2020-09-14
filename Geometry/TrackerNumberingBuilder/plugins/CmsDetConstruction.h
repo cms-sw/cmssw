@@ -17,10 +17,10 @@ private:
   void buildDets(const FilteredView&, GeometricDet*, const std::string&);
   void buildSmallDetsforGlued(FilteredView&, GeometricDet*, const std::string&);
   void buildSmallDetsforStack(FilteredView&, GeometricDet*, const std::string&);
-  void buildLoopGlued(cms::DDFilteredView& fv,GeometricDet* det,const std::string& attribute);
-  void buildLoopStack(cms::DDFilteredView& fv,GeometricDet* det,const std::string& attribute);
-  void buildLoopGlued(DDFilteredView& fv, GeometricDet* det,const std::string& attribute);
-  void buildLoopStack(DDFilteredView& fv, GeometricDet* det,const std::string& attribute);
+  template <auto fxn>
+  void buildLoop(cms::DDFilteredView&fv, GeometricDet* det, const std::string& attribute);
+  template <auto fxn>
+  void buildLoop(DDFilteredView&fv, GeometricDet* det, const std::string& attribute);
 
 };
 
