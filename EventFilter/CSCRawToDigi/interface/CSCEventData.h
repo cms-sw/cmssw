@@ -1,5 +1,5 @@
-#ifndef CSCEventData_h
-#define CSCEventData_h
+#ifndef EventFilter_CSCRawToDigi_CSCEventData_h
+#define EventFilter_CSCRawToDigi_CSCEventData_h
 
 class CSCCFEBData;
 class CSCTMBHeader;

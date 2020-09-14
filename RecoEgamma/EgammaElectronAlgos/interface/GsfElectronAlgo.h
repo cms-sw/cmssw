@@ -137,10 +137,6 @@ public:
     bool isEndcaps;
     bool isFiducial;
 
-    // BDT output (if available)
-    double minMVA;
-    double minMvaByPassForIsolated;
-
     // transverse impact parameter wrt beam spot
     double maxTIP;
 

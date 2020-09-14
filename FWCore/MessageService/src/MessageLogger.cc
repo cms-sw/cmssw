@@ -78,7 +78,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "FWCore/MessageService/interface/MessageLogger.h"
-#include "FWCore/MessageService/interface/MessageServicePSetValidation.h"
+#include "FWCore/MessageService/src/MessageServicePSetValidation.h"
 
 #include "FWCore/MessageLogger/interface/MessageLoggerQ.h"
 #include "FWCore/MessageLogger/interface/MessageDrop.h"

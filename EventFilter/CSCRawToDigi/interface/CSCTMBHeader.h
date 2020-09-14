@@ -1,5 +1,5 @@
-#ifndef CSCTMBHeader_h
-#define CSCTMBHeader_h
+#ifndef EventFilter_CSCRawToDigi_CSCTMBHeader_h
+#define EventFilter_CSCRawToDigi_CSCTMBHeader_h
 
 ///A.Tumanov Sept 18, 07
 

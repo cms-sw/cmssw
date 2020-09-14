@@ -1,5 +1,4 @@
 <library name="FireworksElectronsPlugins" file="*.cc">
-  <use name="DataFormats/EcalDetId"/>
   <use name="DataFormats/EgammaCandidates"/>
   <use name="DataFormats/EgammaReco"/>
   <use name="DataFormats/GsfTrackReco"/>

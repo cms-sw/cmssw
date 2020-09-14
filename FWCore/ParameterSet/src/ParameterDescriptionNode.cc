@@ -1,9 +1,9 @@
 
 #include "FWCore/ParameterSet/interface/ParameterDescriptionNode.h"
 #include "FWCore/ParameterSet/interface/ParameterDescriptionCases.h"
-#include "FWCore/ParameterSet/interface/ANDGroupDescription.h"
-#include "FWCore/ParameterSet/interface/ORGroupDescription.h"
-#include "FWCore/ParameterSet/interface/XORGroupDescription.h"
+#include "FWCore/ParameterSet/src/ANDGroupDescription.h"
+#include "FWCore/ParameterSet/src/ORGroupDescription.h"
+#include "FWCore/ParameterSet/src/XORGroupDescription.h"
 #include "FWCore/ParameterSet/interface/DocFormatHelper.h"
 
 #include <vector>

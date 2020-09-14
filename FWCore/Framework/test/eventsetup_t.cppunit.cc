@@ -43,9 +43,9 @@
 #include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/Utilities/interface/ESProductTag.h"
+#include "FWCore/Concurrency/interface/ThreadsController.h"
 
 #include "cppunit/extensions/HelperMacros.h"
-#include "tbb/task_scheduler_init.h"
 
 #include <memory>
 #include <optional>
@@ -105,7 +105,7 @@ class testEventsetup : public CppUnit::TestFixture {
   CPPUNIT_TEST_SUITE_END();
 
 public:
-  void setUp() { m_scheduler = std::make_unique<tbb::task_scheduler_init>(1); }
+  void setUp() { m_scheduler = std::make_unique<edm::ThreadsController>(1); }
   void tearDown() {}
 
   void constructTest();
@@ -137,7 +137,7 @@ public:
   void resetProxiesTest();
 
 private:
-  edm::propagate_const<std::unique_ptr<tbb::task_scheduler_init>> m_scheduler;
+  edm::propagate_const<std::unique_ptr<edm::ThreadsController>> m_scheduler;
 
   DummyData kGood{1};
   DummyData kBad{0};
@@ -588,6 +588,7 @@ namespace {
     }
 
     ESGetToken<edm::eventsetup::test::DummyData, edm::DefaultRecord> m_token;
+    ESGetToken<edm::eventsetup::test::DummyData, edm::DefaultRecord> m_tokenUninitialized;
   };
 
   //This just tests that the constructs will properly compile
@@ -831,6 +832,14 @@ void testEventsetup::getDataWithESGetTokenTest() {
                             true};
       auto const& data = eventSetup.getData(consumer.m_token);
       CPPUNIT_ASSERT(kGood.value_ == data.value_);
+      bool uninitializedTokenThrewException = false;
+      try {
+        (void)eventSetup.getData(consumer.m_tokenUninitialized);
+      } catch (cms::Exception& ex) {
+        uninitializedTokenThrewException = true;
+        CPPUNIT_ASSERT(ex.category() == "InvalidESGetToken");
+      }
+      CPPUNIT_ASSERT(uninitializedTokenThrewException);
     }
 
     {

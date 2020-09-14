@@ -67,13 +67,13 @@ FWTGeoRecoGeometryESProducer::FWTGeoRecoGeometryESProducer(const edm::ParameterS
 
   auto cc = setWhatProduced(this);
   if (m_tracker || m_muon) {
-    cc.setConsumes(m_trackingGeomToken);
+    m_trackingGeomToken = cc.consumes();
   }
   if (m_tracker) {
-    cc.setConsumes(m_trackerTopologyToken);
+    m_trackerTopologyToken = cc.consumes();
   }
   if (m_calo) {
-    cc.setConsumes(m_caloGeomToken);
+    m_caloGeomToken = cc.consumes();
   }
 }
 

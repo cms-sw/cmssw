@@ -82,8 +82,6 @@ public:
   static std::vector<double> prepare_corr_bounds(std::string fname, std::string hname);
 
   // converters
-  static double deg_to_rad(double x) { return (x * angle_units::degPerRad); }
-
   static double eta_to_theta(double x) {
     //  give theta in rad
     return (2. * atan(exp(-1. * x)));
@@ -95,14 +93,6 @@ public:
       x -= M_PI;
     while (x < -0.5 * M_PI)
       x += M_PI;
-    return x;
-  }
-
-  static double to_mpi_pi(double x) {
-    while (x >= M_PI)
-      x -= 2. * M_PI;
-    while (x < -M_PI)
-      x += 2. * M_PI;
     return x;
   }
 

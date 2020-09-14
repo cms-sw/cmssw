@@ -1,7 +1,6 @@
 <use name="Geometry/EcalCommonData"/>
 <use name="FWCore/Framework"/>
 <use name="FWCore/ParameterSet"/>
-<use name="FWCore/Utilities"/>
 <use name="Geometry/Records"/>
 <use name="CondFormats/GeometryObjects"/>
 <library file="*.cc" name="testEcalCommonDataAnalyzer">

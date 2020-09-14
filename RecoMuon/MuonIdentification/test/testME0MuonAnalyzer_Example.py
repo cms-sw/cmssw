@@ -56,7 +56,7 @@ process.muonAssociatorByHits = SimMuon.MCTruth.muonAssociatorByHitsHelper_cfi.mu
  )
 
 
-from CommonTools.RecoAlgos.me0Associator import *
+from RecoMuon.MuonIdentification.me0Associator import *
 
 #process.me0MuonSel = cms.Sequence(
 #    me0muonColl_seq
