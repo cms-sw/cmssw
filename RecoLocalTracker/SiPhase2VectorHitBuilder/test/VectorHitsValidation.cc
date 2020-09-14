@@ -612,13 +612,13 @@ void VectorHitsBuilderValidation::analyze(const edm::Event& event, const edm::Ev
         //stub width
 
         auto&& lparamsUpp = cpe_->localParameters(*vhIt.upperClusterRef().cluster_phase2OT(), *geomDetUnit_upp);
-        LogTrace("VectorHitsBuilderValidation") << " upper local pos (in its sor):" << lparamsUpp.first;
+        LogTrace("VectorHitsBuilderValidation") << " upper local pos (in its system of reference):" << lparamsUpp.first;
         Global3DPoint gparamsUpp = geomDetUnit_upp->surface().toGlobal(lparamsUpp.first);
         LogTrace("VectorHitsBuilderValidation") << " upper global pos :" << gparamsUpp;
         Local3DPoint lparamsUppInLow = geomDetUnit_low->surface().toLocal(gparamsUpp);
-        LogTrace("VectorHitsBuilderValidation") << " upper local pos (in low sor):" << lparamsUppInLow;
+        LogTrace("VectorHitsBuilderValidation") << " upper local pos (in low system of reference):" << lparamsUppInLow;
         auto&& lparamsLow = cpe_->localParameters(*vhIt.lowerClusterRef().cluster_phase2OT(), *geomDetUnit_low);
-        LogTrace("VectorHitsBuilderValidation") << " lower local pos (in its sor):" << lparamsLow.first;
+        LogTrace("VectorHitsBuilderValidation") << " lower local pos (in its system of reference):" << lparamsLow.first;
         Global3DPoint gparamsLow = geomDetUnit_low->surface().toGlobal(lparamsLow.first);
         LogTrace("VectorHitsBuilderValidation") << " lower global pos :" << gparamsLow;
 
