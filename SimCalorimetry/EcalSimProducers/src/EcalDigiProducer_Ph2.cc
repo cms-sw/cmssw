@@ -34,8 +34,6 @@
 #include "CondFormats/EcalObjects/interface/EcalADCToGeVConstant.h"
 #include "CondFormats/DataRecord/interface/EcalADCToGeVConstantRcd.h"
 
-//#include "CondFormats/EcalObjects/interface/EcalCATIAGainRatios.h"
-//#include "CondFormats/DataRecord/interface/EcalCATIAGainRatiosRcd.h"
 //*****************************************//
 //Ecal Digi Producer for PhaseII data format
 //Removed EE and ES
