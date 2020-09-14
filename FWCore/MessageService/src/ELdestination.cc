@@ -27,7 +27,7 @@
 #include <iostream>
 #include <fstream>
 
-#include "FWCore/MessageService/interface/ELdestination.h"
+#include "FWCore/MessageService/src/ELdestination.h"
 
 // Possible Traces:
 // #define ELdestinationCONSTRUCTOR_TRACE

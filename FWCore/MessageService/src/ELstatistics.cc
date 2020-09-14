@@ -24,7 +24,7 @@
 //
 //  ---------------------------------------------------------------------
 
-#include "FWCore/MessageService/interface/ELstatistics.h"
+#include "FWCore/MessageService/src/ELstatistics.h"
 
 #include "FWCore/MessageLogger/interface/ErrorObj.h"
 

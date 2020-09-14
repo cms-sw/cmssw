@@ -1099,6 +1099,8 @@ void MTVHistoProducerAlgoForTracker::bookRecoHistos(DQMStore::IBooker& ibook,
       ibook.bookProfile("chi2mean_vs_phi", "mean #chi^{2} vs #phi", nintPhi, minPhi, maxPhi, 200, 0, 20, " "));
   histograms.chi2_vs_pt.push_back(
       makeProfileIfLogX(ibook, useLogPt, "chi2mean_vs_pt", "mean #chi^{2} vs p_{T}", nintPt, minPt, maxPt, 0, 20));
+  histograms.chi2_vs_drj.push_back(makeProfileIfLogX(
+      ibook, true, "chi2mean_vs_drj", "mean #chi^{2} vs dR(track,jet)", nintdrj, log10(mindrj), log10(maxdrj), 0, 20));
 
   histograms.assoc_chi2_vs_eta.push_back(
       ibook.bookProfile("assoc_chi2mean", "mean #chi^{2} vs #eta", nintEta, minEta, maxEta, 200, 0., 20., " "));
@@ -1107,7 +1109,25 @@ void MTVHistoProducerAlgoForTracker::bookRecoHistos(DQMStore::IBooker& ibook,
   histograms.assoc_chi2_vs_pt.push_back(makeProfileIfLogX(
       ibook, useLogPt, "assoc_chi2mean_vs_pt", "mean #chi^{2} vs p_{T}", nintPt, minPt, maxPt, 0., 20.));
   histograms.assoc_chi2prob_vs_pt.push_back(makeProfileIfLogX(
-      ibook, useLogPt, "assoc_chi2prob_vs_pt", "mean #chi^{2} probability vs p_{T}", nintPt, minPt, maxPt, 0., 20.));
+      ibook, useLogPt, "assoc_chi2prob_vs_pt", "mean #chi^{2} probability vs p_{T}", nintPt, minPt, maxPt, 0., 1.));
+  histograms.assoc_chi2_vs_drj.push_back(makeProfileIfLogX(ibook,
+                                                           true,
+                                                           "assoc_chi2mean_vs_drj",
+                                                           "mean #chi^{2} vs dR(track,jet)",
+                                                           nintdrj,
+                                                           log10(mindrj),
+                                                           log10(maxdrj),
+                                                           0.,
+                                                           20));
+  histograms.assoc_chi2prob_vs_drj.push_back(makeProfileIfLogX(ibook,
+                                                               true,
+                                                               "assoc_chi2prob_vs_drj",
+                                                               "mean #chi^{2} probability vs dR(track,jet)",
+                                                               nintdrj,
+                                                               log10(mindrj),
+                                                               log10(maxdrj),
+                                                               0.,
+                                                               1.));
 
   histograms.nhits_vs_eta.push_back(
       ibook.bookProfile("hits_eta", "mean hits vs eta", nintEta, minEta, maxEta, nintHit, minHit, maxHit, " "));
@@ -1387,6 +1407,16 @@ void MTVHistoProducerAlgoForTracker::bookRecoHistos(DQMStore::IBooker& ibook,
       histograms.phipull_vs_eta, false, "phipull_vs_eta", "phipull_vs_eta", nintEta, minEta, maxEta, 100, -10, 10);
   bookResolutionPlots2D(
       histograms.thetapull_vs_eta, false, "thetapull_vs_eta", "thetapull_vs_eta", nintEta, minEta, maxEta, 100, -10, 10);
+  bookResolutionPlots2D(
+      histograms.dxypull_vs_pt, useLogPt, "dxypull_vs_pt", "dxypull_vs_pt", nintPt, minPt, maxPt, 100, -10, 10);
+  bookResolutionPlots2D(
+      histograms.ptpull_vs_pt, useLogPt, "ptpull_vs_pt", "ptpull_vs_pt", nintPt, minPt, maxPt, 100, -10, 10);
+  bookResolutionPlots2D(
+      histograms.dzpull_vs_pt, useLogPt, "dzpull_vs_pt", "dzpull_vs_pt", nintPt, minPt, maxPt, 100, -10, 10);
+  bookResolutionPlots2D(
+      histograms.phipull_vs_pt, useLogPt, "phipull_vs_pt", "phipull_vs_pt", nintPt, minPt, maxPt, 100, -10, 10);
+  bookResolutionPlots2D(
+      histograms.thetapull_vs_pt, useLogPt, "thetapull_vs_pt", "thetapull_vs_pt", nintPt, minPt, maxPt, 100, -10, 10);
 
   //      histograms.h_ptshiftetamean.push_back( ibook.book1D("h_ptshifteta_Mean","<#deltapT/pT>[%] vs #eta",nintEta,minEta,maxEta) );
 
@@ -2026,6 +2056,8 @@ void MTVHistoProducerAlgoForTracker::fill_generic_recoTrack_histos(const Histogr
     histograms.h_recozpos[count]->Fill(vertz);
     histograms.h_recodr[count]->Fill(dR);
     histograms.h_recodrj[count]->Fill(dRJet);
+    if (dRJet <= 99999)  //dRJet can be set to numeric_limits max^2, this is a protection
+      histograms.chi2_vs_drj[count]->Fill(dRJet, chi2);
     if (fillSeedingLayerSets)
       histograms.h_reco_seedingLayerSet[count]->Fill(seedingLayerSetBin);
     if (pvPosition) {
@@ -2089,6 +2121,10 @@ void MTVHistoProducerAlgoForTracker::fill_generic_recoTrack_histos(const Histogr
       histograms.assoc_chi2prob_vs_eta[count]->Fill(eta, chi2prob);
       histograms.assoc_chi2_vs_pt[count]->Fill(pt, chi2);
       histograms.assoc_chi2prob_vs_pt[count]->Fill(pt, chi2prob);
+      if (dRJet <= 99999) {  //dRJet can be set to numeric_limits max^2, this is a protection
+        histograms.assoc_chi2_vs_drj[count]->Fill(dRJet, chi2);
+        histograms.assoc_chi2prob_vs_drj[count]->Fill(dRJet, chi2prob);
+      }
       histograms.h_assoc2vertpos[count]->Fill(vertxy);
       histograms.h_assoc2zpos[count]->Fill(vertz);
       histograms.h_assoc2dr[count]->Fill(dR);
@@ -2480,6 +2516,13 @@ void MTVHistoProducerAlgoForTracker::fill_ResoAndPull_recoTrack_histos(const His
   histograms.dzpull_vs_eta[count]->Fill(etaSim, dzPull);
   histograms.phipull_vs_eta[count]->Fill(etaSim, phiPull);
   histograms.thetapull_vs_eta[count]->Fill(etaSim, thetaPull);
+
+  //pulls of track params vs pt: fill 2D histos
+  histograms.dxypull_vs_pt[count]->Fill(ptSim, dxyPull);
+  histograms.ptpull_vs_pt[count]->Fill(ptSim, ptres / ptError);
+  histograms.dzpull_vs_pt[count]->Fill(ptSim, dzPull);
+  histograms.phipull_vs_pt[count]->Fill(ptSim, phiPull);
+  histograms.thetapull_vs_pt[count]->Fill(ptSim, thetaPull);
 
   //plots vs phi
   histograms.nhits_vs_phi[count]->Fill(phiRec, track.numberOfValidHits());

@@ -2,7 +2,7 @@
 //
 
 // user include files
-#include "FWCore/Framework/interface/EventSetupProviderMaker.h"
+#include "FWCore/Framework/src/EventSetupProviderMaker.h"
 
 #include "FWCore/Framework/interface/ComponentDescription.h"
 #include "FWCore/Framework/interface/EventSetupProvider.h"

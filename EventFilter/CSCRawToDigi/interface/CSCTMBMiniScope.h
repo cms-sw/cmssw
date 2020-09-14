@@ -5,8 +5,8 @@
 //_______________________________________
 //
 
-#ifndef CSCTMBMiniScope_h
-#define CSCTMBMiniScope_h
+#ifndef EventFilter_CSCRawToDigi_CSCTMBMiniScope_h
+#define EventFilter_CSCRawToDigi_CSCTMBMiniScope_h
 #include <vector>
 #include <map>
 #include <cstdint>

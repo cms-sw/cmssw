@@ -198,8 +198,10 @@ private:
               const std::vector<double>& posY) const;
   void cellHex(double xloc, double yloc, int cellType, int& cellU, int& cellV, bool debug = false) const;
   std::pair<int, float> getIndex(int lay, bool reco) const;
+  int layerFromIndex(int index, bool reco) const;
   bool isValidCell(int layindex, int wafer, int cell) const;
   bool isValidCell8(int lay, int waferU, int waferV, int cellU, int cellV, int type) const;
+  int32_t waferIndex(int wafer, int index) const;
   bool waferInLayerTest(int wafer, int lay, bool full) const;
   std::pair<double, double> waferPosition(int waferU, int waferV, bool reco) const;
 

@@ -1,5 +1,5 @@
 #include "Geometry/TrackerNumberingBuilder/interface/utils.h"
-#include "DataFormats/TrackerCommon/interface/SiStripEnums.h"
+#include "DataFormats/SiStripDetId/interface/SiStripEnums.h"
 #include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
 
 std::vector<uint32_t> TrackerGeometryUtils::getSiStripDetIds(const GeometricDet& geomDet) {

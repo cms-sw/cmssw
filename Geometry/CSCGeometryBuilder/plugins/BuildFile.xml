@@ -1,5 +1,4 @@
 <use name="CondFormats/Alignment"/>
-<use name="CondFormats/DataRecord"/>
 <use name="CondFormats/GeometryObjects"/>
 <use name="FWCore/Framework"/>
 <use name="FWCore/ParameterSet"/>
@@ -8,7 +7,6 @@
 <library name="CSCGeometryPlugins" file="CSCGeometryESModule.cc">
   <use name="DetectorDescription/Core"/>
   <use name="DetectorDescription/DDCMS"/>
-  <use name="Geometry/RPCGeometry"/>
   <use name="dd4hep"/>
   <lib name="Geom"/>
   <use name="Geometry/CSCGeometryBuilder"/>

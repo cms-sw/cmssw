@@ -1,5 +1,5 @@
-#ifndef CSCVDMBTrailerFormat_h
-#define CSCVDMBTrailerFormat_h
+#ifndef EventFilter_CSCRawToDigi_CSCVDMBTrailerFormat_h
+#define EventFilter_CSCRawToDigi_CSCVDMBTrailerFormat_h
 
 #include <cassert>
 #include <iosfwd>

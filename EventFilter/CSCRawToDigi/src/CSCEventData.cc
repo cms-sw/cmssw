@@ -2,10 +2,10 @@
 #include "EventFilter/CSCRawToDigi/interface/CSCCFEBData.h"
 #include "DataFormats/CSCDigi/interface/CSCStripDigi.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "EventFilter/CSCRawToDigi/src/cscPackerCompare.h"
+#include "EventFilter/CSCRawToDigi/interface/cscPackerCompare.h"
 #include <iostream>
 #include <iterator>
-#include "EventFilter/CSCRawToDigi/src/bitset_append.h"
+#include "EventFilter/CSCRawToDigi/interface/bitset_append.h"
 #include "FWCore/Utilities/interface/Exception.h"
 
 #ifdef LOCAL_UNPACK

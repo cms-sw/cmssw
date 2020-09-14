@@ -10,139 +10,139 @@
 
 namespace {
 
-  using SiPixelGainCalibrationForHLTGainsValues =
-      gainCalibHelper::SiPixelGainCalibrationValues<gainCalibHelper::gainCalibPI::t_gain, SiPixelGainCalibrationForHLT>;
-  using SiPixelGainCalibrationForHLTPedestalsValues =
-      gainCalibHelper::SiPixelGainCalibrationValues<gainCalibHelper::gainCalibPI::t_pedestal,
-                                                    SiPixelGainCalibrationForHLT>;
+  using namespace gainCalibHelper;
 
-  using SiPixelGainCalibrationForHLTGainsValuesBarrel = gainCalibHelper::
-      SiPixelGainCalibrationValuesPerRegion<true, gainCalibHelper::gainCalibPI::t_gain, SiPixelGainCalibrationForHLT>;
-  using SiPixelGainCalibrationForHLTGainsValuesEndcap = gainCalibHelper::
-      SiPixelGainCalibrationValuesPerRegion<false, gainCalibHelper::gainCalibPI::t_gain, SiPixelGainCalibrationForHLT>;
+  using SiPixelGainCalibrationForHLTGainsValues =
+      SiPixelGainCalibrationValues<gainCalibPI::t_gain, SiPixelGainCalibrationForHLT>;
+  using SiPixelGainCalibrationForHLTPedestalsValues =
+      SiPixelGainCalibrationValues<gainCalibPI::t_pedestal, SiPixelGainCalibrationForHLT>;
+
+  using SiPixelGainCalibrationForHLTGainsValuesBarrel =
+      SiPixelGainCalibrationValuesPerRegion<true, gainCalibPI::t_gain, SiPixelGainCalibrationForHLT>;
+  using SiPixelGainCalibrationForHLTGainsValuesEndcap =
+      SiPixelGainCalibrationValuesPerRegion<false, gainCalibPI::t_gain, SiPixelGainCalibrationForHLT>;
 
   using SiPixelGainCalibrationForHLTPedestalsValuesBarrel =
-      gainCalibHelper::SiPixelGainCalibrationValuesPerRegion<true,
-                                                             gainCalibHelper::gainCalibPI::t_pedestal,
-                                                             SiPixelGainCalibrationForHLT>;
+      SiPixelGainCalibrationValuesPerRegion<true, gainCalibPI::t_pedestal, SiPixelGainCalibrationForHLT>;
   using SiPixelGainCalibrationForHLTPedestalsValuesEndcap =
-      gainCalibHelper::SiPixelGainCalibrationValuesPerRegion<false,
-                                                             gainCalibHelper::gainCalibPI::t_pedestal,
-                                                             SiPixelGainCalibrationForHLT>;
+      SiPixelGainCalibrationValuesPerRegion<false, gainCalibPI::t_pedestal, SiPixelGainCalibrationForHLT>;
 
-  using SiPixelGainCalibrationForHLTCorrelations =
-      gainCalibHelper::SiPixelGainCalibrationCorrelations<SiPixelGainCalibrationForHLT>;
+  using SiPixelGainCalibrationForHLTCorrelations = SiPixelGainCalibrationCorrelations<SiPixelGainCalibrationForHLT>;
 
   using SiPixelGainCalibrationForHLTGainsByPart =
-      gainCalibHelper::SiPixelGainCalibrationValuesByPart<gainCalibHelper::gainCalibPI::t_gain,
-                                                          SiPixelGainCalibrationForHLT>;
+      SiPixelGainCalibrationValuesByPart<gainCalibPI::t_gain, SiPixelGainCalibrationForHLT>;
   using SiPixelGainCalibrationForHLTPedestalsByPart =
-      gainCalibHelper::SiPixelGainCalibrationValuesByPart<gainCalibHelper::gainCalibPI::t_pedestal,
-                                                          SiPixelGainCalibrationForHLT>;
+      SiPixelGainCalibrationValuesByPart<gainCalibPI::t_pedestal, SiPixelGainCalibrationForHLT>;
 
   using SiPixelGainCalibForHLTGainComparisonSingleTag =
-      gainCalibHelper::SiPixelGainCalibrationValueComparisonSingleTag<gainCalibHelper::gainCalibPI::t_gain,
-                                                                      SiPixelGainCalibrationForHLT>;
+      SiPixelGainCalibrationValueComparisonSingleTag<gainCalibPI::t_gain, SiPixelGainCalibrationForHLT>;
   using SiPixelGainCalibForHLTPedestalComparisonSingleTag =
-      gainCalibHelper::SiPixelGainCalibrationValueComparisonSingleTag<gainCalibHelper::gainCalibPI::t_pedestal,
-                                                                      SiPixelGainCalibrationForHLT>;
+      SiPixelGainCalibrationValueComparisonSingleTag<gainCalibPI::t_pedestal, SiPixelGainCalibrationForHLT>;
 
   using SiPixelGainCalibForHLTGainComparisonTwoTags =
-      gainCalibHelper::SiPixelGainCalibrationValueComparisonTwoTags<gainCalibHelper::gainCalibPI::t_gain,
-                                                                    SiPixelGainCalibrationForHLT>;
+      SiPixelGainCalibrationValueComparisonTwoTags<gainCalibPI::t_gain, SiPixelGainCalibrationForHLT>;
   using SiPixelGainCalibForHLTPedestalComparisonTwoTags =
-      gainCalibHelper::SiPixelGainCalibrationValueComparisonTwoTags<gainCalibHelper::gainCalibPI::t_pedestal,
-                                                                    SiPixelGainCalibrationForHLT>;
+      SiPixelGainCalibrationValueComparisonTwoTags<gainCalibPI::t_pedestal, SiPixelGainCalibrationForHLT>;
 
   using SiPixelGainCalibForHLTGainComparisonBarrelSingleTag =
-      gainCalibHelper::SiPixelGainCalibrationValuesComparisonPerRegion<true,
-                                                                       gainCalibHelper::gainCalibPI::t_gain,
-                                                                       cond::payloadInspector::MULTI_IOV,
-                                                                       1,
-                                                                       SiPixelGainCalibrationForHLT>;
+      SiPixelGainCalibrationValuesComparisonPerRegion<true,
+                                                      gainCalibPI::t_gain,
+                                                      cond::payloadInspector::MULTI_IOV,
+                                                      1,
+                                                      SiPixelGainCalibrationForHLT>;
 
   using SiPixelGainCalibForHLTPedestalComparisonBarrelSingleTag =
-      gainCalibHelper::SiPixelGainCalibrationValuesComparisonPerRegion<true,
-                                                                       gainCalibHelper::gainCalibPI::t_pedestal,
-                                                                       cond::payloadInspector::MULTI_IOV,
-                                                                       1,
-                                                                       SiPixelGainCalibrationForHLT>;
+      SiPixelGainCalibrationValuesComparisonPerRegion<true,
+                                                      gainCalibPI::t_pedestal,
+                                                      cond::payloadInspector::MULTI_IOV,
+                                                      1,
+                                                      SiPixelGainCalibrationForHLT>;
 
   using SiPixelGainCalibForHLTGainComparisonBarrelTwoTags =
-      gainCalibHelper::SiPixelGainCalibrationValuesComparisonPerRegion<true,
-                                                                       gainCalibHelper::gainCalibPI::t_gain,
-                                                                       cond::payloadInspector::SINGLE_IOV,
-                                                                       2,
-                                                                       SiPixelGainCalibrationForHLT>;
+      SiPixelGainCalibrationValuesComparisonPerRegion<true,
+                                                      gainCalibPI::t_gain,
+                                                      cond::payloadInspector::SINGLE_IOV,
+                                                      2,
+                                                      SiPixelGainCalibrationForHLT>;
 
   using SiPixelGainCalibForHLTPedestalComparisonBarrelTwoTags =
-      gainCalibHelper::SiPixelGainCalibrationValuesComparisonPerRegion<true,
-                                                                       gainCalibHelper::gainCalibPI::t_pedestal,
-                                                                       cond::payloadInspector::SINGLE_IOV,
-                                                                       2,
-                                                                       SiPixelGainCalibrationForHLT>;
+      SiPixelGainCalibrationValuesComparisonPerRegion<true,
+                                                      gainCalibPI::t_pedestal,
+                                                      cond::payloadInspector::SINGLE_IOV,
+                                                      2,
+                                                      SiPixelGainCalibrationForHLT>;
 
   using SiPixelGainCalibForHLTGainComparisonEndcapSingleTag =
-      gainCalibHelper::SiPixelGainCalibrationValuesComparisonPerRegion<false,
-                                                                       gainCalibHelper::gainCalibPI::t_gain,
-                                                                       cond::payloadInspector::MULTI_IOV,
-                                                                       1,
-                                                                       SiPixelGainCalibrationForHLT>;
+      SiPixelGainCalibrationValuesComparisonPerRegion<false,
+                                                      gainCalibPI::t_gain,
+                                                      cond::payloadInspector::MULTI_IOV,
+                                                      1,
+                                                      SiPixelGainCalibrationForHLT>;
 
   using SiPixelGainCalibForHLTPedestalComparisonEndcapSingleTag =
-      gainCalibHelper::SiPixelGainCalibrationValuesComparisonPerRegion<false,
-                                                                       gainCalibHelper::gainCalibPI::t_pedestal,
-                                                                       cond::payloadInspector::MULTI_IOV,
-                                                                       1,
-                                                                       SiPixelGainCalibrationForHLT>;
+      SiPixelGainCalibrationValuesComparisonPerRegion<false,
+                                                      gainCalibPI::t_pedestal,
+                                                      cond::payloadInspector::MULTI_IOV,
+                                                      1,
+                                                      SiPixelGainCalibrationForHLT>;
 
   using SiPixelGainCalibForHLTGainComparisonEndcapTwoTags =
-      gainCalibHelper::SiPixelGainCalibrationValuesComparisonPerRegion<false,
-                                                                       gainCalibHelper::gainCalibPI::t_gain,
-                                                                       cond::payloadInspector::SINGLE_IOV,
-                                                                       2,
-                                                                       SiPixelGainCalibrationForHLT>;
+      SiPixelGainCalibrationValuesComparisonPerRegion<false,
+                                                      gainCalibPI::t_gain,
+                                                      cond::payloadInspector::SINGLE_IOV,
+                                                      2,
+                                                      SiPixelGainCalibrationForHLT>;
 
   using SiPixelGainCalibForHLTPedestalComparisonEndcapTwoTags =
-      gainCalibHelper::SiPixelGainCalibrationValuesComparisonPerRegion<false,
-                                                                       gainCalibHelper::gainCalibPI::t_pedestal,
-                                                                       cond::payloadInspector::SINGLE_IOV,
-                                                                       2,
-                                                                       SiPixelGainCalibrationForHLT>;
+      SiPixelGainCalibrationValuesComparisonPerRegion<false,
+                                                      gainCalibPI::t_pedestal,
+                                                      cond::payloadInspector::SINGLE_IOV,
+                                                      2,
+                                                      SiPixelGainCalibrationForHLT>;
 
   using SiPixelGainCalibForHLTGainsBPIXMap =
-      gainCalibHelper::SiPixelGainCalibrationBPIXMap<gainCalibHelper::gainCalibPI::t_gain, SiPixelGainCalibrationForHLT>;
+      SiPixelGainCalibrationBPIXMap<gainCalibPI::t_gain, SiPixelGainCalibrationForHLT>;
   using SiPixelGainCalibForHLTPedestalsBPIXMap =
-      gainCalibHelper::SiPixelGainCalibrationBPIXMap<gainCalibHelper::gainCalibPI::t_pedestal,
-                                                     SiPixelGainCalibrationForHLT>;
+      SiPixelGainCalibrationBPIXMap<gainCalibPI::t_pedestal, SiPixelGainCalibrationForHLT>;
 
   using SiPixelGainCalibForHLTGainsFPIXMap =
-      gainCalibHelper::SiPixelGainCalibrationFPIXMap<gainCalibHelper::gainCalibPI::t_gain, SiPixelGainCalibrationForHLT>;
+      SiPixelGainCalibrationFPIXMap<gainCalibPI::t_gain, SiPixelGainCalibrationForHLT>;
   using SiPixelGainCalibForHLTPedestalsFPIXMap =
-      gainCalibHelper::SiPixelGainCalibrationFPIXMap<gainCalibHelper::gainCalibPI::t_pedestal,
-                                                     SiPixelGainCalibrationForHLT>;
+      SiPixelGainCalibrationFPIXMap<gainCalibPI::t_pedestal, SiPixelGainCalibrationForHLT>;
 
   using SiPixelGainCalibForHLTGainByRegionComparisonSingleTag =
-      gainCalibHelper::SiPixelGainCalibrationByRegionComparisonBase<gainCalibHelper::gainCalibPI::t_gain,
-                                                                    SiPixelGainCalibrationForHLT,
-                                                                    cond::payloadInspector::MULTI_IOV,
-                                                                    1>;
+      SiPixelGainCalibrationByRegionComparisonBase<gainCalibPI::t_gain,
+                                                   SiPixelGainCalibrationForHLT,
+                                                   cond::payloadInspector::MULTI_IOV,
+                                                   1>;
   using SiPixelGainCalibForHLTPedestalByRegionComparisonSingleTag =
-      gainCalibHelper::SiPixelGainCalibrationByRegionComparisonBase<gainCalibHelper::gainCalibPI::t_pedestal,
-                                                                    SiPixelGainCalibrationForHLT,
-                                                                    cond::payloadInspector::MULTI_IOV,
-                                                                    1>;
+      SiPixelGainCalibrationByRegionComparisonBase<gainCalibPI::t_pedestal,
+                                                   SiPixelGainCalibrationForHLT,
+                                                   cond::payloadInspector::MULTI_IOV,
+                                                   1>;
 
   using SiPixelGainCalibForHLTGainByRegionComparisonTwoTags =
-      gainCalibHelper::SiPixelGainCalibrationByRegionComparisonBase<gainCalibHelper::gainCalibPI::t_gain,
-                                                                    SiPixelGainCalibrationForHLT,
-                                                                    cond::payloadInspector::SINGLE_IOV,
-                                                                    2>;
+      SiPixelGainCalibrationByRegionComparisonBase<gainCalibPI::t_gain,
+                                                   SiPixelGainCalibrationForHLT,
+                                                   cond::payloadInspector::SINGLE_IOV,
+                                                   2>;
   using SiPixelGainCalibForHLTPedestalByRegionComparisonTwoTags =
-      gainCalibHelper::SiPixelGainCalibrationByRegionComparisonBase<gainCalibHelper::gainCalibPI::t_pedestal,
-                                                                    SiPixelGainCalibrationForHLT,
-                                                                    cond::payloadInspector::SINGLE_IOV,
-                                                                    2>;
+      SiPixelGainCalibrationByRegionComparisonBase<gainCalibPI::t_pedestal,
+                                                   SiPixelGainCalibrationForHLT,
+                                                   cond::payloadInspector::SINGLE_IOV,
+                                                   2>;
+
+  using SiPixelGainCalibForHLTGainDiffRatioTwoTags =
+      SiPixelGainCalibDiffAndRatioBase<gainCalibPI::t_gain,
+                                       cond::payloadInspector::SINGLE_IOV,
+                                       2,
+                                       SiPixelGainCalibrationForHLT>;
+
+  using SiPixelGainCalibForHLTPedestalDiffRatioTwoTags =
+      SiPixelGainCalibDiffAndRatioBase<gainCalibPI::t_pedestal,
+                                       cond::payloadInspector::SINGLE_IOV,
+                                       2,
+                                       SiPixelGainCalibrationForHLT>;
 
 }  // namespace
 
@@ -176,4 +176,6 @@ PAYLOAD_INSPECTOR_MODULE(SiPixelGainCalibrationForHLT) {
   PAYLOAD_INSPECTOR_CLASS(SiPixelGainCalibForHLTPedestalByRegionComparisonSingleTag);
   PAYLOAD_INSPECTOR_CLASS(SiPixelGainCalibForHLTGainByRegionComparisonTwoTags);
   PAYLOAD_INSPECTOR_CLASS(SiPixelGainCalibForHLTPedestalByRegionComparisonTwoTags);
+  PAYLOAD_INSPECTOR_CLASS(SiPixelGainCalibForHLTGainDiffRatioTwoTags);
+  PAYLOAD_INSPECTOR_CLASS(SiPixelGainCalibForHLTPedestalDiffRatioTwoTags);
 }
