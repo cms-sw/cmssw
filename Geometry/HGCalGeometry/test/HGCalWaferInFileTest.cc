@@ -50,7 +50,8 @@ public:
   void endJob() override {}
 
 private:
-  std::vector<std::string> getPoints(double xpos, double ypos, double delX, double delY, double rin, double rout);
+  std::vector<std::string> getPoints(
+      double xpos, double ypos, double delX, double delY, double rin, double rout, int lay, int waferU, int waferV);
   const std::string nameSense_, nameDetector_;
   const int verbosity_;
   const edm::ESGetToken<HGCalGeometry, IdealGeometryRecord> geomToken_;
@@ -85,6 +86,9 @@ void HGCalWaferInFileTest::analyze(const edm::Event& iEvent, const edm::EventSet
   if (hgdc.waferHexagon8()) {
     DetId::Detector det = (nameSense_ == "HGCalHESiliconSensitive") ? DetId::HGCalHSi : DetId::HGCalEE;
     static std::vector<std::string> types = {"F", "b", "g", "gm", "a", "d", "dm", "c", "X"};
+    int layers = hgdc.layers(true);
+    int layerf = hgdc.firstLayer();
+    std::vector<int> miss(layers, 0);
     // See if all entries in the file are valid
     int bad1(0);
     for (unsigned int k = 0; k < hgdc.waferFileSize(); ++k) {
@@ -97,9 +101,9 @@ void HGCalWaferInFileTest::analyze(const edm::Event& iEvent, const edm::EventSet
       if (!geom->topology().validModule(id, 3)) {
         int part = std::get<1>(hgdc.waferFileInfoFromIndex(indx));
         std::string typex = (part < static_cast<int>(types.size())) ? types[part] : "X";
-        const auto& xy = hgdc.waferPosition(layer, waferU, waferV, true, false);
+        const auto& xy = hgdc.waferPosition(layer, waferU, waferV, true, true);
         const auto& rr = hgdc.rangeRLayer(layer, true);
-        auto points = getPoints(xy.first, xy.second, delX, delY, rr.first, rr.second);
+        auto points = getPoints(xy.first, xy.second, delX, delY, rr.first, rr.second, layer, waferU, waferV);
         std::cout << "ID[" << k << "]: (" << (hgdc.getLayerOffset() + layer) << ", " << waferU << ", " << waferV << ", "
                   << typex << ") at (" << std::setprecision(4) << xy.first << ", " << xy.second << ", "
                   << hgdc.waferZ(layer, true) << ") not present with " << points.size() << " points:";
@@ -107,11 +111,17 @@ void HGCalWaferInFileTest::analyze(const edm::Event& iEvent, const edm::EventSet
           std::cout << " " << point;
         std::cout << " in the region " << rr.first << ":" << rr.second << std::endl;
         ++bad1;
+        if ((layer - layerf) < layers)
+          ++miss[layer - layerf];
       }
     }
     std::cout << "\n\nFinds " << bad1 << " invalid wafers among " << hgdc.waferFileSize() << " wafers in the list"
-              << std::endl
               << std::endl;
+    for (unsigned int k = 0; k < miss.size(); ++k) {
+      if (miss[k] > 0)
+        std::cout << "Layer[" << k << ":" << (layerf + k) << "] " << miss[k] << std::endl;
+    }
+    std::cout << std::endl;
 
     // Now cross check the content (first type only)
     int allG(0), badT(0), badT1(0), badT2(0);
@@ -140,11 +150,12 @@ void HGCalWaferInFileTest::analyze(const edm::Event& iEvent, const edm::EventSet
       }
     }
     std::cout << "\n\nFinds " << badT << "[" << badT1 << ":" << badT2 << "] mismatch in type among " << allG
-              << " wafers with the same indices" << std::endl
+              << " wafers with the same indices\n"
               << std::endl;
 
     // Now cross check the content (partial and orientation)
     int allX(0), badG(0), badP(0), badR(0);
+    std::vector<int> wrongP(layers, 0), wrongR(layers, 0);
     for (unsigned int k = 0; k < hgdc.waferFileSize(); ++k) {
       int indx = hgdc.waferFileIndex(k);
       int part1 = std::get<1>(hgdc.waferFileInfo(k));
@@ -160,21 +171,28 @@ void HGCalWaferInFileTest::analyze(const edm::Event& iEvent, const edm::EventSet
         int rotn2 = hgdc.waferTypeRotation(id.layer(), id.waferU(), id.waferV(), false, false).second;
         bool partOK = ((part1 == part2) || ((part1 == HGCalTypes::WaferFull) && (part2 == HGCalTypes::WaferOut)));
         bool rotnOK = ((rotn1 == rotn2) || (part1 == HGCalTypes::WaferFull) || (part2 == HGCalTypes::WaferFull));
-        if (!partOK)
+        if (!partOK) {
           ++badP;
-        if (!rotnOK)
+          if ((layer - layerf) < layers)
+            ++wrongP[layer - layerf];
+        }
+        if (!rotnOK) {
           ++badR;
+          if ((layer - layerf) < layers)
+            ++wrongR[layer - layerf];
+        }
         if ((!partOK) || (!rotnOK)) {
           ++badG;
           std::string partx1 = (part1 < static_cast<int>(types.size())) ? types[part1] : "X";
           std::string partx2 = (part2 < static_cast<int>(types.size())) ? types[part2] : "X";
           const auto& xy = hgdc.waferPosition(layer, waferU, waferV, true, false);
           const auto& rr = hgdc.rangeRLayer(layer, true);
-          auto points = getPoints(xy.first, xy.second, delX, delY, rr.first, rr.second);
+          auto points = getPoints(xy.first, xy.second, delX, delY, rr.first, rr.second, layer, waferU, waferV);
           std::cout << "ID[" << k << "]: (" << (hgdc.getLayerOffset() + layer) << ", " << waferU << ", " << waferV
-                    << "," << type2 << ", " << partx1 << ":" << partx2 << ", " << rotn1 << ":" << rotn2 << ") at ("
-                    << std::setprecision(4) << xy.first << ", " << xy.second << ", " << hgdc.waferZ(layer, true)
-                    << ") failure flag " << partOK << ":" << rotnOK << " with " << points.size() << " points:";
+                    << "," << type2 << ", " << partx1 << ":" << partx2 << ":" << part1 << ":" << part2 << ", " << rotn1
+                    << ":" << rotn2 << ") at (" << std::setprecision(4) << xy.first << ", " << xy.second << ", "
+                    << hgdc.waferZ(layer, true) << ") failure flag " << partOK << ":" << rotnOK << " with "
+                    << points.size() << " points:";
           for (auto point : points)
             std::cout << " " << point;
           std::cout << " in the region " << rr.first << ":" << rr.second << std::endl;
@@ -182,13 +200,17 @@ void HGCalWaferInFileTest::analyze(const edm::Event& iEvent, const edm::EventSet
       }
     }
     std::cout << "\n\nFinds " << badG << " (" << badP << ":" << badR << ") mismatch in partial|orientation among "
-              << allX << " wafers with the same indices" << std::endl
-              << std::endl;
+              << allX << " wafers with the same indices" << std::endl;
+    for (int k = 0; k < layers; ++k) {
+      if ((wrongP[k] > 0) || (wrongR[k] > 0))
+        std::cout << "Layer[" << k << ":" << (layerf + k) << "] " << wrongP[k] << ":" << wrongR[k] << std::endl;
+    }
+    std::cout << std::endl;
   }
 }
 
 std::vector<std::string> HGCalWaferInFileTest::getPoints(
-    double xpos, double ypos, double delX, double delY, double rin, double rout) {
+    double xpos, double ypos, double delX, double delY, double rin, double rout, int layer, int waferU, int waferV) {
   std::vector<std::string> points;
   static const int corners = 6;
   static const int base = 10;
@@ -210,14 +232,14 @@ std::vector<std::string> HGCalWaferInFileTest::getPoints(
     }
   }
   if (verbosity_ > 0)
-    std::cout << "I/p " << xpos << ":" << ypos << ":" << delX << ":" << delY << ":" << rin << ":" << rout << " Corners "
-              << ncor << " iok " << iok << std::endl;
+    std::cout << "I/p " << layer << ":" << waferU << ":" << waferV << ":" << xpos << ":" << ypos << ":" << delX << ":"
+              << delY << ":" << rin << ":" << rout << " Corners " << ncor << " iok " << iok << std::endl;
 
   static const int parts = 3;
   static const std::string c1[parts] = {"A3", "A2", "A1"};
   double dx1[parts] = {0.75 * delX, 0.50 * delX, 0.25 * delX};
   double dy1[parts] = {-0.625 * delY, -0.75 * delY, -0.875 * delY};
-  if ((((iok / 100000) % 10) == 1) && (((iok / 10000) % 10) == 0)) {
+  if ((((iok / 10000) % 10) == 1) && (((iok / 100000) % 10) == 0)) {
     for (int k = 0; k < parts; ++k) {
       double xc1 = xpos + dx1[k];
       double yc1 = ypos + dy1[k];
@@ -231,7 +253,7 @@ std::vector<std::string> HGCalWaferInFileTest::getPoints(
   static const std::string c2[parts] = {"B3", "B2", "B1"};
   double dx2[parts] = {delX, delX, delX};
   double dy2[parts] = {0.5 * delY, 0.0, -0.5 * delY};
-  if ((((iok / 10000) % 10) == 1) && (((iok / 1000) % 10) == 0)) {
+  if ((((iok / 1000) % 10) == 1) && (((iok / 10000) % 10) == 0)) {
     for (int k = 0; k < parts; ++k) {
       double xc1 = xpos + dx2[k];
       double yc1 = ypos + dy2[k];
@@ -245,7 +267,7 @@ std::vector<std::string> HGCalWaferInFileTest::getPoints(
   static const std::string c3[parts] = {"C3", "C2", "C1"};
   double dx3[parts] = {0.25 * delX, 0.50 * delX, 0.75 * delX};
   double dy3[parts] = {0.875 * delY, 0.75 * delY, 0.625 * delY};
-  if ((((iok / 1000) % 10) == 1) && (((iok / 100) % 10) == 0)) {
+  if ((((iok / 100) % 10) == 1) && (((iok / 1000) % 10) == 0)) {
     for (int k = 0; k < parts; ++k) {
       double xc1 = xpos + dx3[k];
       double yc1 = ypos + dy3[k];
@@ -259,7 +281,7 @@ std::vector<std::string> HGCalWaferInFileTest::getPoints(
   static const std::string c4[parts] = {"D3", "D2", "D1"};
   double dx4[parts] = {-0.75 * delX, -0.50 * delX, -0.25 * delX};
   double dy4[parts] = {0.625 * delY, 0.75 * delY, 0.875 * delY};
-  if ((((iok / 100) % 10) == 1) && (((iok / 10) % 10) == 0)) {
+  if ((((iok / 10) % 10) == 1) && (((iok / 100) % 10) == 0)) {
     for (int k = 0; k < parts; ++k) {
       double xc1 = xpos + dx4[k];
       double yc1 = ypos + dy4[k];
@@ -273,7 +295,7 @@ std::vector<std::string> HGCalWaferInFileTest::getPoints(
   static const std::string c5[parts] = {"E3", "E2", "E1"};
   double dx5[parts] = {-delX, -delX, -delX};
   double dy5[parts] = {-0.5 * delY, 0.0, 0.5 * delY};
-  if ((((iok / 10) % 10) == 1) && (((iok / 1) % 10) == 0)) {
+  if ((((iok / 1) % 10) == 1) && (((iok / 10) % 10) == 0)) {
     for (int k = 0; k < parts; ++k) {
       double xc1 = xpos + dx5[k];
       double yc1 = ypos + dy5[k];
@@ -287,7 +309,7 @@ std::vector<std::string> HGCalWaferInFileTest::getPoints(
   static const std::string c6[parts] = {"F3", "F2", "F1"};
   double dx6[parts] = {-0.25 * delX, -0.50 * delX, -0.75 * delX};
   double dy6[parts] = {-0.875 * delY, -0.75 * delY, -0.625 * delY};
-  if ((((iok / 1) % 10) == 1) && (((iok / 100000) % 10) == 0)) {
+  if ((((iok / 100000) % 10) == 1) && (((iok / 1) % 10) == 0)) {
     for (int k = 0; k < parts; ++k) {
       double xc1 = xpos + dx6[k];
       double yc1 = ypos + dy6[k];
