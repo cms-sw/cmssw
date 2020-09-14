@@ -17,7 +17,7 @@
 using namespace antiElecIDMVA6_blocks;
 
 template <class TauType, class ElectronType>
-AntiElectronIDMVA6<TauType, ElectronType>::AntiElectronIDMVA6(const edm::ParameterSet& cfg)
+AntiElectronIDMVA6<TauType, ElectronType>::AntiElectronIDMVA6(const edm::ParameterSet& cfg, edm::ConsumesCollector&& cc)
     : isInitialized_(false),
       mva_NoEleMatch_woGwoGSF_BL_(nullptr),
       mva_NoEleMatch_wGwoGSF_BL_(nullptr),
@@ -83,6 +83,16 @@ AntiElectronIDMVA6<TauType, ElectronType>::AntiElectronIDMVA6(const edm::Paramet
     Var_NoEleMatch_wGwoGSF_VFEndcap_ = new float[14];
     Var_woGwGSF_VFEndcap_ = new float[32];
     Var_wGwGSF_VFEndcap_ = new float[40];
+
+    //MB: Tokens for additional inputs (HGCal EleID variables) only for Phase2 and reco::GsfElectrons
+    if (std::is_same<ElectronType, reco::GsfElectron>::value) {
+      for (const auto& inputTag : cfg.getParameter<std::vector<edm::InputTag>>("hgcalElectronIDs")) {
+        std::string elecIdLabel = "hgcElectronID:" + inputTag.instance();
+        electronIds_tokens_[elecIdLabel] = cc.consumes<edm::ValueMap<float>>(
+            inputTag);  //MB: It assumes that instances are not empty and meaningful (as for userData in patElectrons)
+        electronIds_[elecIdLabel] = edm::Handle<edm::ValueMap<float>>();
+      }
+    }
   }
 }
 
@@ -186,6 +196,14 @@ void AntiElectronIDMVA6<TauType, ElectronType>::beginEvent(const edm::Event& evt
     isInitialized_ = true;
   }
   positionAtECalEntrance_.beginEvent(es);
+  //MB: Handle additional inputs (HGCal EleID variables) only for Phase2 and reco::GsfElectrons
+  if (isPhase2_ && std::is_same<ElectronType, reco::GsfElectron>::value) {
+    for (const auto& eId_token : electronIds_tokens_) {
+      edm::Handle<edm::ValueMap<float>> electronId;
+      evt.getByToken(eId_token.second, electronId);
+      electronIds_[eId_token.first] = electronId;
+    }
+  }
 }
 
 template <class TauType, class ElectronType>
@@ -796,7 +814,7 @@ double AntiElectronIDMVA6<TauType, ElectronType>::MVAValuePhase2(const TauVars& 
 }
 ////
 template <class TauType, class ElectronType>
-double AntiElectronIDMVA6<TauType, ElectronType>::MVAValue(const TauType& theTau, const ElectronType& theEle)
+double AntiElectronIDMVA6<TauType, ElectronType>::MVAValue(const TauType& theTau, const ElectronRef& theEleRef)
 
 {
   // === tau variables ===
@@ -804,7 +822,7 @@ double AntiElectronIDMVA6<TauType, ElectronType>::MVAValue(const TauType& theTau
   TauGammaVecs tauGammaVecs = AntiElectronIDMVA6<TauType, ElectronType>::getTauGammaVecs(theTau);
 
   // === electron variables ===
-  ElecVars elecVars = AntiElectronIDMVA6<TauType, ElectronType>::getElecVars(theEle);
+  ElecVars elecVars = AntiElectronIDMVA6<TauType, ElectronType>::getElecVars(theEleRef);
 
   return MVAValue(tauVars, tauGammaVecs, elecVars);
 }
@@ -896,16 +914,16 @@ TauGammaVecs AntiElectronIDMVA6<TauType, ElectronType>::getTauGammaVecs(const Ta
 }
 
 template <class TauType, class ElectronType>
-ElecVars AntiElectronIDMVA6<TauType, ElectronType>::getElecVars(const ElectronType& theEle) {
+ElecVars AntiElectronIDMVA6<TauType, ElectronType>::getElecVars(const ElectronRef& theEleRef) {
   ElecVars elecVars;
 
-  elecVars.eta = theEle.eta();
-  elecVars.phi = theEle.phi();
+  elecVars.eta = theEleRef->eta();
+  elecVars.phi = theEleRef->phi();
 
   // Variables related to the electron Cluster
   float elecEe = 0.;
   float elecEgamma = 0.;
-  reco::SuperClusterRef pfSuperCluster = theEle.superCluster();
+  reco::SuperClusterRef pfSuperCluster = theEleRef->superCluster();
   if (pfSuperCluster.isNonnull() && pfSuperCluster.isAvailable()) {
     for (reco::CaloCluster_iterator pfCluster = pfSuperCluster->clustersBegin();
          pfCluster != pfSuperCluster->clustersEnd();
@@ -919,53 +937,53 @@ ElecVars AntiElectronIDMVA6<TauType, ElectronType>::getElecVars(const ElectronTy
     elecVars.superClusterEtaWidth = pfSuperCluster->etaWidth();
     elecVars.superClusterPhiWidth = pfSuperCluster->phiWidth();
   }
-  elecVars.eSeedClusterOverPout = theEle.eSeedClusterOverPout();
-  elecVars.showerCircularity = 1. - theEle.e1x5() / theEle.e5x5();
-  elecVars.r9 = theEle.r9();
-  elecVars.sigmaIEtaIEta5x5 = theEle.full5x5_sigmaIetaIeta();
-  elecVars.sigmaIPhiIPhi5x5 = theEle.full5x5_sigmaIphiIphi();
+  elecVars.eSeedClusterOverPout = theEleRef->eSeedClusterOverPout();
+  elecVars.showerCircularity = 1. - theEleRef->e1x5() / theEleRef->e5x5();
+  elecVars.r9 = theEleRef->r9();
+  elecVars.sigmaIEtaIEta5x5 = theEleRef->full5x5_sigmaIetaIeta();
+  elecVars.sigmaIPhiIPhi5x5 = theEleRef->full5x5_sigmaIphiIphi();
 
-  elecVars.pIn = std::sqrt(theEle.trackMomentumAtVtx().Mag2());
-  elecVars.pOut = std::sqrt(theEle.trackMomentumOut().Mag2());
+  elecVars.pIn = std::sqrt(theEleRef->trackMomentumAtVtx().Mag2());
+  elecVars.pOut = std::sqrt(theEleRef->trackMomentumOut().Mag2());
   elecVars.eTotOverPin = (elecVars.pIn > 0.0) ? ((elecEe + elecEgamma) / elecVars.pIn) : -0.1;
-  elecVars.eEcal = theEle.ecalEnergy();
+  elecVars.eEcal = theEleRef->ecalEnergy();
   if (!isPhase2_) {
-    elecVars.deltaEta = theEle.deltaEtaSeedClusterTrackAtCalo();
-    elecVars.deltaPhi = theEle.deltaPhiSeedClusterTrackAtCalo();
+    elecVars.deltaEta = theEleRef->deltaEtaSeedClusterTrackAtCalo();
+    elecVars.deltaPhi = theEleRef->deltaPhiSeedClusterTrackAtCalo();
   } else {
-    elecVars.deltaEta = theEle.deltaEtaEleClusterTrackAtCalo();
-    elecVars.deltaPhi = theEle.deltaPhiEleClusterTrackAtCalo();
+    elecVars.deltaEta = theEleRef->deltaEtaEleClusterTrackAtCalo();
+    elecVars.deltaPhi = theEleRef->deltaPhiEleClusterTrackAtCalo();
   }
-  elecVars.mvaInSigmaEtaEta = theEle.mvaInput().sigmaEtaEta;
-  elecVars.mvaInHadEnergy = theEle.mvaInput().hadEnergy;
-  elecVars.mvaInDeltaEta = theEle.mvaInput().deltaEta;
+  elecVars.mvaInSigmaEtaEta = theEleRef->mvaInput().sigmaEtaEta;
+  elecVars.mvaInHadEnergy = theEleRef->mvaInput().hadEnergy;
+  elecVars.mvaInDeltaEta = theEleRef->mvaInput().deltaEta;
 
   // Variables related to the GsfTrack
   elecVars.chi2NormGSF = -99.;
   elecVars.gsfNumHits = -99.;
   elecVars.gsfTrackResol = -99.;
   elecVars.gsfTracklnPt = -99.;
-  if (theEle.gsfTrack().isNonnull()) {
-    elecVars.chi2NormGSF = theEle.gsfTrack()->normalizedChi2();
-    elecVars.gsfNumHits = theEle.gsfTrack()->numberOfValidHits();
-    if (theEle.gsfTrack()->pt() > 0.) {
-      elecVars.gsfTrackResol = theEle.gsfTrack()->ptError() / theEle.gsfTrack()->pt();
-      elecVars.gsfTracklnPt = log(theEle.gsfTrack()->pt()) * M_LN10;
+  if (theEleRef->gsfTrack().isNonnull()) {
+    elecVars.chi2NormGSF = theEleRef->gsfTrack()->normalizedChi2();
+    elecVars.gsfNumHits = theEleRef->gsfTrack()->numberOfValidHits();
+    if (theEleRef->gsfTrack()->pt() > 0.) {
+      elecVars.gsfTrackResol = theEleRef->gsfTrack()->ptError() / theEleRef->gsfTrack()->pt();
+      elecVars.gsfTracklnPt = log(theEleRef->gsfTrack()->pt()) * M_LN10;
     }
   }
 
   // Variables related to the CtfTrack
   elecVars.chi2NormKF = -99.;
   elecVars.kfNumHits = -99.;
-  if (theEle.closestCtfTrackRef().isNonnull()) {
-    elecVars.chi2NormKF = theEle.closestCtfTrackRef()->normalizedChi2();
-    elecVars.kfNumHits = theEle.closestCtfTrackRef()->numberOfValidHits();
+  if (theEleRef->closestCtfTrackRef().isNonnull()) {
+    elecVars.chi2NormKF = theEleRef->closestCtfTrackRef()->normalizedChi2();
+    elecVars.kfNumHits = theEleRef->closestCtfTrackRef()->numberOfValidHits();
   }
 
   // Variables related to HGCal
-  if (isPhase2_ && !theEle.isEB()) {
+  if (isPhase2_ && !theEleRef->isEB()) {
     if (std::is_same<ElectronType, reco::GsfElectron>::value || std::is_same<ElectronType, pat::Electron>::value)
-      getElecVarsHGCalTypeSpecific(theEle, elecVars);
+      getElecVarsHGCalTypeSpecific(theEleRef, elecVars);
     else
       throw cms::Exception("AntiElectronIDMVA6")
           << "Unsupported ElectronType used. You must use either reco::GsfElectron or pat::Electron.";
@@ -1287,34 +1305,54 @@ TauVars AntiElectronIDMVA6<TauType, ElectronType>::getTauVarsTypeSpecific(const 
 // reco::GsfElectron
 template <class TauType, class ElectronType>
 void AntiElectronIDMVA6<TauType, ElectronType>::getElecVarsHGCalTypeSpecific(
-    const reco::GsfElectron& theEle, antiElecIDMVA6_blocks::ElecVars& elecVars) {
-  //FIXME: add logic to it
+    const reco::GsfElectronRef& theEleRef, antiElecIDMVA6_blocks::ElecVars& elecVars) {
+  //MB: Assumed that presence of one of the HGCal EleID variables guarantee presence of all
+  if (!(electronIds_.find("hgcElectronID:sigmaUU") != electronIds_.end() &&
+        electronIds_.at("hgcElectronID:sigmaUU").isValid()))
+    return;
+
+  elecVars.hgcalSigmaUU = (*electronIds_.at("hgcElectronID:sigmaUU"))[theEleRef];
+  elecVars.hgcalSigmaVV = (*electronIds_.at("hgcElectronID:sigmaVV"))[theEleRef];
+  elecVars.hgcalSigmaEE = (*electronIds_.at("hgcElectronID:sigmaEE"))[theEleRef];
+  elecVars.hgcalSigmaPP = (*electronIds_.at("hgcElectronID:sigmaPP"))[theEleRef];
+  elecVars.hgcalNLayers = (*electronIds_.at("hgcElectronID:nLayers"))[theEleRef];
+  elecVars.hgcalFirstLayer = (*electronIds_.at("hgcElectronID:firstLayer"))[theEleRef];
+  elecVars.hgcalLastLayer = (*electronIds_.at("hgcElectronID:lastLayer"))[theEleRef];
+  elecVars.hgcalLayerEfrac10 = (*electronIds_.at("hgcElectronID:layerEfrac10"))[theEleRef];
+  elecVars.hgcalLayerEfrac90 = (*electronIds_.at("hgcElectronID:layerEfrac90"))[theEleRef];
+  elecVars.hgcalEcEnergyEE = (*electronIds_.at("hgcElectronID:ecEnergyEE"))[theEleRef];
+  elecVars.hgcalEcEnergyFH = (*electronIds_.at("hgcElectronID:ecEnergyFH"))[theEleRef];
+  elecVars.hgcalMeasuredDepth = (*electronIds_.at("hgcElectronID:measuredDepth"))[theEleRef];
+  elecVars.hgcalExpectedDepth = (*electronIds_.at("hgcElectronID:expectedDepth"))[theEleRef];
+  elecVars.hgcalExpectedSigma = (*electronIds_.at("hgcElectronID:expectedSigma"))[theEleRef];
+  elecVars.hgcalDepthCompatibility = (*electronIds_.at("hgcElectronID:depthCompatibility"))[theEleRef];
+
   return;
 }
 
 // pat::Electron
 template <class TauType, class ElectronType>
 void AntiElectronIDMVA6<TauType, ElectronType>::getElecVarsHGCalTypeSpecific(
-    const pat::Electron& theEle, antiElecIDMVA6_blocks::ElecVars& elecVars) {
+    const pat::ElectronRef& theEleRef, antiElecIDMVA6_blocks::ElecVars& elecVars) {
   //MB: Assumed that presence of one of the HGCal EleID variables guarantee presence of all
-  if (!theEle.hasUserFloat("hgcElectronID:sigmaUU"))
+  if (!theEleRef->hasUserFloat("hgcElectronID:sigmaUU"))
     return;
 
-  elecVars.hgcalSigmaUU = theEle.userFloat("hgcElectronID:sigmaUU");
-  elecVars.hgcalSigmaVV = theEle.userFloat("hgcElectronID:sigmaVV");
-  elecVars.hgcalSigmaEE = theEle.userFloat("hgcElectronID:sigmaEE");
-  elecVars.hgcalSigmaPP = theEle.userFloat("hgcElectronID:sigmaPP");
-  elecVars.hgcalNLayers = theEle.userFloat("hgcElectronID:nLayers");
-  elecVars.hgcalFirstLayer = theEle.userFloat("hgcElectronID:firstLayer");
-  elecVars.hgcalLastLayer = theEle.userFloat("hgcElectronID:lastLayer");
-  elecVars.hgcalLayerEfrac10 = theEle.userFloat("hgcElectronID:layerEfrac10");
-  elecVars.hgcalLayerEfrac90 = theEle.userFloat("hgcElectronID:layerEfrac90");
-  elecVars.hgcalEcEnergyEE = theEle.userFloat("hgcElectronID:ecEnergyEE");
-  elecVars.hgcalEcEnergyFH = theEle.userFloat("hgcElectronID:ecEnergyFH");
-  elecVars.hgcalMeasuredDepth = theEle.userFloat("hgcElectronID:measuredDepth");
-  elecVars.hgcalExpectedDepth = theEle.userFloat("hgcElectronID:expectedDepth");
-  elecVars.hgcalExpectedSigma = theEle.userFloat("hgcElectronID:expectedSigma");
-  elecVars.hgcalDepthCompatibility = theEle.userFloat("hgcElectronID:depthCompatibility");
+  elecVars.hgcalSigmaUU = theEleRef->userFloat("hgcElectronID:sigmaUU");
+  elecVars.hgcalSigmaVV = theEleRef->userFloat("hgcElectronID:sigmaVV");
+  elecVars.hgcalSigmaEE = theEleRef->userFloat("hgcElectronID:sigmaEE");
+  elecVars.hgcalSigmaPP = theEleRef->userFloat("hgcElectronID:sigmaPP");
+  elecVars.hgcalNLayers = theEleRef->userFloat("hgcElectronID:nLayers");
+  elecVars.hgcalFirstLayer = theEleRef->userFloat("hgcElectronID:firstLayer");
+  elecVars.hgcalLastLayer = theEleRef->userFloat("hgcElectronID:lastLayer");
+  elecVars.hgcalLayerEfrac10 = theEleRef->userFloat("hgcElectronID:layerEfrac10");
+  elecVars.hgcalLayerEfrac90 = theEleRef->userFloat("hgcElectronID:layerEfrac90");
+  elecVars.hgcalEcEnergyEE = theEleRef->userFloat("hgcElectronID:ecEnergyEE");
+  elecVars.hgcalEcEnergyFH = theEleRef->userFloat("hgcElectronID:ecEnergyFH");
+  elecVars.hgcalMeasuredDepth = theEleRef->userFloat("hgcElectronID:measuredDepth");
+  elecVars.hgcalExpectedDepth = theEleRef->userFloat("hgcElectronID:expectedDepth");
+  elecVars.hgcalExpectedSigma = theEleRef->userFloat("hgcElectronID:expectedSigma");
+  elecVars.hgcalDepthCompatibility = theEleRef->userFloat("hgcElectronID:depthCompatibility");
 
   return;
 }

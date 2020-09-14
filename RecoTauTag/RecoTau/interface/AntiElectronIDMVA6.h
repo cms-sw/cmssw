@@ -13,6 +13,7 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/ParameterSet/interface/FileInPath.h"
 
 #include "DataFormats/TauReco/interface/PFTau.h"
@@ -112,7 +113,10 @@ namespace antiElecIDMVA6_blocks {
 template <class TauType, class ElectronType>
 class AntiElectronIDMVA6 {
 public:
-  AntiElectronIDMVA6(const edm::ParameterSet&);
+  typedef std::vector<ElectronType> ElectronCollection;
+  typedef edm::Ref<ElectronCollection> ElectronRef;
+
+  AntiElectronIDMVA6(const edm::ParameterSet&, edm::ConsumesCollector&&);
   ~AntiElectronIDMVA6();
 
   void beginEvent(const edm::Event&, const edm::EventSetup&);
@@ -130,7 +134,7 @@ public:
                         const antiElecIDMVA6_blocks::ElecVars& elecVars);
 
   // this function can be called for all categories
-  double MVAValue(const TauType& theTau, const ElectronType& theEle);
+  double MVAValue(const TauType& theTau, const ElectronRef& theEleRef);
   // this function can be called for category 1 only !!
   double MVAValue(const TauType& theTau);
 
@@ -139,10 +143,10 @@ public:
   antiElecIDMVA6_blocks::TauVars getTauVarsTypeSpecific(const pat::Tau& theTau);
   antiElecIDMVA6_blocks::TauVars getTauVars(const TauType& theTau);
   antiElecIDMVA6_blocks::TauGammaVecs getTauGammaVecs(const TauType& theTau);
-  antiElecIDMVA6_blocks::ElecVars getElecVars(const ElectronType& theEle);
+  antiElecIDMVA6_blocks::ElecVars getElecVars(const ElectronRef& theEleRef);
   // overloaded method with explicit electron type to avoid partial imlementation of full class
-  void getElecVarsHGCalTypeSpecific(const reco::GsfElectron& theEle, antiElecIDMVA6_blocks::ElecVars& elecVars);
-  void getElecVarsHGCalTypeSpecific(const pat::Electron& theEle, antiElecIDMVA6_blocks::ElecVars& elecVars);
+  void getElecVarsHGCalTypeSpecific(const reco::GsfElectronRef& theEleRef, antiElecIDMVA6_blocks::ElecVars& elecVars);
+  void getElecVarsHGCalTypeSpecific(const pat::ElectronRef& theEleRef, antiElecIDMVA6_blocks::ElecVars& elecVars);
 
 private:
   double dCrackEta(double eta);
@@ -200,6 +204,9 @@ private:
   std::vector<TFile*> inputFilesToDelete_;
 
   PositionAtECalEntranceComputer positionAtECalEntrance_;
+
+  std::map<std::string, edm::EDGetTokenT<edm::ValueMap<float>>> electronIds_tokens_;
+  std::map<std::string, edm::Handle<edm::ValueMap<float>>> electronIds_;
 
   const bool isPhase2_;
 

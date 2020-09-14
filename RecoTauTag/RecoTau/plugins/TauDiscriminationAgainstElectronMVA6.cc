@@ -27,7 +27,8 @@ public:
                                       reco::SingleTauDiscriminatorContainer,
                                       TauDiscriminator>::TauDiscriminationProducerBase(cfg),
         moduleLabel_(cfg.getParameter<std::string>("@module_label")),
-        mva_(std::make_unique<AntiElectronIDMVA6<TauType, ElectronType>>(cfg)),
+        mva_(
+            std::make_unique<AntiElectronIDMVA6<TauType, ElectronType>>(cfg, edm::EDConsumerBase::consumesCollector())),
         Electron_token(edm::EDConsumerBase::consumes<ElectronCollection>(
             cfg.getParameter<edm::InputTag>("srcElectrons"))),  // MB: full specification with prefix mandatory
         vetoEcalCracks_(cfg.getParameter<bool>("vetoEcalCracks")),
@@ -124,12 +125,15 @@ TauDiscriminationAgainstElectronMVA6<TauType, TauDiscriminator, ElectronType>::d
     }
 
     // loop over the electrons
+    size_t iElec = 0;
     for (const auto& theElectron : *electrons_) {
+      edm::Ref<ElectronCollection> theElecRef(electrons_, iElec);
+      iElec++;
       if (theElectron.pt() > 10.) {  // CV: only take electrons above some minimal energy/Pt into account...
         double deltaREleTau = deltaR(theElectron.p4(), theTauRef->p4());
         deltaRDummy = std::min(deltaREleTau, deltaRDummy);
         if (deltaREleTau < deltaREleTauMax_) {
-          double mva_match = mva_->MVAValue(*theTauRef, theElectron);
+          double mva_match = mva_->MVAValue(*theTauRef, theElecRef);
           if (!hasGsfTrack)
             hasGsfTrack = theElectron.gsfTrack().isNonnull();
 
