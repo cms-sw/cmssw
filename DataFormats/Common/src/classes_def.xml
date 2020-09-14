@@ -101,7 +101,8 @@
    <version ClassVersion="10" checksum="1062438024"/>
    <version ClassVersion="11" checksum="3545691837"/>
 </class>
-<ioread sourceClass="edmNew::dstvdetails::DetSetVectorTrans::Item" version="[1-10]" targetClass="edmNew::dstvdetails::DetSetVectorTrans::Item" source="mutable int offset" target="offset">
+<ioread sourceClass="edmNew::dstvdetails::DetSetVectorTrans::Item" version="[1-10]" targetClass="edmNew::dstvdetails::DetSetVectorTrans::Item" source="int offset" target="offset">
+<![CDATA[offset=onfile.offset;]]>
 </ioread>
 <class name="std::vector<edmNew::dstvdetails::DetSetVectorTrans::Item>"/>
 
