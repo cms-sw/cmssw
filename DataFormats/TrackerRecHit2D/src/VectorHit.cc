@@ -45,7 +45,7 @@ VectorHit::VectorHit(const GeomDet& idet,
                      const float curvatureError,
                      const float phi)
     : BaseTrackerRecHit(idet, trackerHitRTTI::vector),
-      theDimension(4),
+      theDimension(vh2Dzx.dimension() + vh2Dzy.dimension()),
       theLowerCluster(lower),
       theUpperCluster(upper),
       theCurvature(curvature),
@@ -59,7 +59,7 @@ VectorHit::VectorHit(const GeomDet& idet,
   const AlgebraicSymMatrix22 covMatZX = *vh2Dzx.covMatrix();
   const AlgebraicSymMatrix22 covMatZY = *vh2Dzy.covMatrix();
 
-  theCovMatrix = AlgebraicSymMatrix(4);
+  theCovMatrix = AlgebraicSymMatrix(nComponents);
   theCovMatrix[0][0] = covMatZX[0][0];  // var(dx/dz)
   theCovMatrix[1][1] = covMatZY[0][0];  // var(dy/dz)
   theCovMatrix[2][2] = covMatZX[1][1];  // var(x)
@@ -98,35 +98,35 @@ bool VectorHit::sharesClusters(VectorHit const& h1, VectorHit const& h2, SharedI
 }
 
 void VectorHit::getKfComponents4D(KfComponentsHolder& holder) const {
-  constexpr int four = 4;
-  AlgebraicVector4& pars = holder.params<four>();
+
+  AlgebraicVector4& pars = holder.params<nComponents>();
   pars[0] = theDirection.x();
   pars[1] = theDirection.y();
   pars[2] = thePosition.x();
   pars[3] = thePosition.y();
 
-  AlgebraicSymMatrix44& errs = holder.errors<four>();
-  for (int i = 0; i < four; i++) {
-    for (int j = 0; j < four; j++) {
+  AlgebraicSymMatrix44& errs = holder.errors<nComponents>();
+  for (int i = 0; i < nComponents; i++) {
+    for (int j = 0; j < nComponents; j++) {
       errs(i, j) = theCovMatrix[i][j];
     }
   }
 
-  ProjectMatrix<double, 5, four>& pf = holder.projFunc<four>();
+  ProjectMatrix<double, 5, nComponents>& pf = holder.projFunc<nComponents>();
   pf.index[0] = 1;
   pf.index[1] = 2;
   pf.index[2] = 3;
   pf.index[3] = 4;
 
-  holder.measuredParams<four>() = AlgebraicVector4(&holder.tsosLocalParameters().At(1), four);
-  holder.measuredErrors<four>() = holder.tsosLocalErrors().Sub<AlgebraicSymMatrix44>(1, 1);
+  holder.measuredParams<nComponents>() = AlgebraicVector4(&holder.tsosLocalParameters().At(1), nComponents);
+  holder.measuredErrors<nComponents>() = holder.tsosLocalErrors().Sub<AlgebraicSymMatrix44>(1, 1);
 }
 
 VectorHit::~VectorHit() {}
 
 AlgebraicVector VectorHit::parameters() const {
   // (dx/dz,dy/dz,x,y)
-  AlgebraicVector result(4);
+  AlgebraicVector result(nComponents);
 
   result[0] = theDirection.x();
   result[1] = theDirection.y();
@@ -196,7 +196,7 @@ float VectorHit::momentum(float magField) const { return transverseMomentum(magF
 
 AlgebraicMatrix VectorHit::projectionMatrix() const {
   // obsolete (for what tracker is concerned...) interface
-  static const AlgebraicMatrix the4DProjectionMatrix(4, 5, 0);
+  static const AlgebraicMatrix the4DProjectionMatrix(nComponents, 5, 0);
   return the4DProjectionMatrix;
 }
 
@@ -210,9 +210,9 @@ LocalError VectorHit::localDirectionError() const {
 
 AlgebraicSymMatrix VectorHit::parametersError() const {
   //think about a more efficient method
-  AlgebraicSymMatrix result(4);
-  for (int i = 0; i < theDimension; i++) {
-    for (int j = 0; j < theDimension; j++) {
+  AlgebraicSymMatrix result(nComponents);
+  for (int i = 0; i < nComponents; i++) {
+    for (int j = 0; j < nComponents; j++) {
       result[i][j] = theCovMatrix[i][j];
     }
   }
