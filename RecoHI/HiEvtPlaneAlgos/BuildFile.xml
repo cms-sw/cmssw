@@ -11,4 +11,5 @@
 <use name="DataFormats/CaloTowers"/>
 <use name="CondCore/DBOutputService"/>
 <use name="CondFormats/DataRecord"/>
+<use name="CondFormats/HIObjects"/>
 <flags EDM_PLUGIN="1"/>
