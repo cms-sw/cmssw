@@ -1,6 +1,6 @@
 #include <cppunit/extensions/HelperMacros.h>
 
-#include "DetectorDescription/DDCMS/interface/Filter.h"
+#include <DD4hep/Filter.h>
 #include <memory>
 #include <string_view>
 #include <vector>
@@ -8,8 +8,8 @@
 #include "cppunit/TestAssert.h"
 #include "cppunit/TestFixture.h"
 
-using namespace cms;
-using namespace cms::dd;
+using namespace dd4hep;
+using namespace dd4hep::dd;
 using namespace std;
 using namespace std::literals;
 

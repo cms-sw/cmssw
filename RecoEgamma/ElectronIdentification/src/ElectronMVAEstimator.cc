@@ -40,7 +40,7 @@ double ElectronMVAEstimator::mva(const reco::GsfElectron& myElectron, int nverti
 
   vars[9] = (validKF) ? myTrackRef->normalizedChi2() : 0;
   vars[10] = (validKF) ? myTrackRef->hitPattern().trackerLayersWithMeasurement() : -1.;
-  vars[11] = myElectron.gsfTrack()->hitPattern().numberOfLostHits(reco::HitPattern::MISSING_INNER_HITS);
+  vars[11] = myElectron.gsfTrack()->missingInnerHits();
   vars[12] = std::abs(myElectron.convDist());
   vars[13] = std::abs(myElectron.convDcot());
   vars[14] = nvertices;

@@ -12,22 +12,22 @@ ckfTracksFromConversionsTask = cms.Task(conversionTrackCandidates,
                                         ckfInOutTracksFromConversions)
 ckfTracksFromConversions = cms.Sequence(ckfTracksFromConversionsTask)
 
-mustacheConversionTrackCandidates = conversionTrackCandidates.clone()
-mustacheConversionTrackCandidates.scHybridBarrelProducer = cms.InputTag('particleFlowSuperClusterECAL:particleFlowSuperClusterECALBarrel')
-mustacheConversionTrackCandidates.bcBarrelCollection = cms.InputTag('particleFlowSuperClusterECAL:particleFlowBasicClusterECALBarrel')
-mustacheConversionTrackCandidates.scIslandEndcapProducer = cms.InputTag('particleFlowSuperClusterECAL:particleFlowSuperClusterECALEndcapWithPreshower')
-mustacheConversionTrackCandidates.bcEndcapCollection = cms.InputTag('particleFlowSuperClusterECAL:particleFlowBasicClusterECALEndcap')
-
-ckfOutInTracksFromMustacheConversions = ckfOutInTracksFromConversions.clone()
-ckfOutInTracksFromMustacheConversions.src = cms.InputTag('mustacheConversionTrackCandidates','outInTracksFromConversions')
-ckfOutInTracksFromMustacheConversions.producer = cms.string('mustacheConversionTrackCandidates')
-ckfOutInTracksFromMustacheConversions.ComponentName = cms.string('ckfOutInTracksFromMustacheConversions')
-
-ckfInOutTracksFromMustacheConversions = ckfInOutTracksFromConversions.clone()
-ckfInOutTracksFromMustacheConversions.src = cms.InputTag('mustacheConversionTrackCandidates','inOutTracksFromConversions')
-ckfInOutTracksFromMustacheConversions.producer = cms.string('mustacheConversionTrackCandidates')
-ckfInOutTracksFromMustacheConversions.ComponentName = cms.string('ckfInOutTracksFromMustacheConversions')
-
+mustacheConversionTrackCandidates = conversionTrackCandidates.clone(
+    scHybridBarrelProducer = 'particleFlowSuperClusterECAL:particleFlowSuperClusterECALBarrel',
+    bcBarrelCollection     = 'particleFlowSuperClusterECAL:particleFlowBasicClusterECALBarrel',
+    scIslandEndcapProducer = 'particleFlowSuperClusterECAL:particleFlowSuperClusterECALEndcapWithPreshower',
+    bcEndcapCollection     = 'particleFlowSuperClusterECAL:particleFlowBasicClusterECALEndcap'
+)
+ckfOutInTracksFromMustacheConversions = ckfOutInTracksFromConversions.clone(
+    src           = 'mustacheConversionTrackCandidates:outInTracksFromConversions',
+    producer      = 'mustacheConversionTrackCandidates',
+    ComponentName = 'ckfOutInTracksFromMustacheConversions',
+)
+ckfInOutTracksFromMustacheConversions = ckfInOutTracksFromConversions.clone(
+    src           = 'mustacheConversionTrackCandidates:inOutTracksFromConversions',
+    producer      = 'mustacheConversionTrackCandidates',
+    ComponentName = 'ckfInOutTracksFromMustacheConversions',
+)
 ckfTracksFromMustacheConversionsTask = cms.Task(mustacheConversionTrackCandidates,
                                                 ckfOutInTracksFromMustacheConversions,
                                                 ckfInOutTracksFromMustacheConversions)

@@ -13,6 +13,7 @@
  *
  */
 
+#include "Geometry/HGCalCommonData/interface/HGCalParameters.h"
 #include <cmath>
 #include <vector>
 
@@ -28,6 +29,7 @@ public:
   ~HGCalWaferType();
   int getType(double xpos, double ypos, double zpos);
   static int getType(int index, const std::vector<int>& indices, const std::vector<int>& types);
+  static int getType(int index, const HGCalParameters::waferInfo_map& wafers);
   std::pair<double, double> rLimits(double zpos);
 
 private:

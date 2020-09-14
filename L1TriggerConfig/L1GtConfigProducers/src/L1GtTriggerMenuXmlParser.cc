@@ -203,10 +203,10 @@ void L1GtTriggerMenuXmlParser::parseXmlFile(const std::string& defXmlFile, const
   // will be overwritten by the value read from the xml file, with a warning if
   // they are not the same
   m_triggerMenuName = defXmlFile;
-  size_t xmlPos = m_triggerMenuName.find_last_of("/");
+  size_t xmlPos = m_triggerMenuName.find_last_of('/');
   m_triggerMenuName.erase(m_triggerMenuName.begin(), m_triggerMenuName.begin() + xmlPos + 1);
 
-  xmlPos = m_triggerMenuName.find_last_of(".");
+  xmlPos = m_triggerMenuName.find_last_of('.');
   m_triggerMenuName.erase(m_triggerMenuName.begin() + xmlPos, m_triggerMenuName.end());
 
   // error handler for xml-parser

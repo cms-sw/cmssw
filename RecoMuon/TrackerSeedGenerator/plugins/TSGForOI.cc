@@ -6,6 +6,7 @@
 
 #include "RecoMuon/TrackerSeedGenerator/plugins/TSGForOI.h"
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
+#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 
 #include <memory>
 

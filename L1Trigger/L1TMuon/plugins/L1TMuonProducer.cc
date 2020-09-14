@@ -535,10 +535,10 @@ void L1TMuonProducer::beginRun(edm::Run const& run, edm::EventSetup const& iSetu
       new L1TMuonGlobalParams_PUBLIC(cast_to_L1TMuonGlobalParams_PUBLIC(*microGMTParamsHandle.product())));
   if (microGMTParams->pnodes_.empty()) {
     edm::ESHandle<L1TMuonGlobalParams> o2oProtoHandle = iSetup.getHandle(m_o2oProtoToken);
-    microGMTParamsHelper =
-        std::unique_ptr<L1TMuonGlobalParamsHelper>(new L1TMuonGlobalParamsHelper(*o2oProtoHandle.product()));
+    microGMTParamsHelper = std::make_unique<L1TMuonGlobalParamsHelper>(*o2oProtoHandle.product());
   } else
-    microGMTParamsHelper.reset(new L1TMuonGlobalParamsHelper(cast_to_L1TMuonGlobalParams(*microGMTParams.get())));
+    microGMTParamsHelper =
+        std::make_unique<L1TMuonGlobalParamsHelper>(cast_to_L1TMuonGlobalParams(*microGMTParams.get()));
 
   //microGMTParamsHelper->print(std::cout);
   m_inputsToDisable = microGMTParamsHelper->inputsToDisable();

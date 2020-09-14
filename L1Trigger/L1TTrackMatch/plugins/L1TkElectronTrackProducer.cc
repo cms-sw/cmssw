@@ -22,7 +22,7 @@
 
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Utilities/interface/InputTag.h"
-
+#include "FWCore/Utilities/interface/ESGetToken.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "DataFormats/L1TCorrelator/interface/TkElectron.h"
@@ -89,23 +89,26 @@ private:
 
   float trkQualityChi2_;
   bool useTwoStubsPT_;
+  bool useClusterET_;  // use cluster et to extrapolate tracks
   float trkQualityPtMin_;
   std::vector<double> dPhiCutoff_;
   std::vector<double> dRCutoff_;
   std::vector<double> dEtaCutoff_;
   std::string matchType_;
 
-  const edm::EDGetTokenT<EGammaBxCollection> egToken;
-  const edm::EDGetTokenT<std::vector<TTTrack<Ref_Phase2TrackerDigi_> > > trackToken;
+  const edm::EDGetTokenT<EGammaBxCollection> egToken_;
+  const edm::EDGetTokenT<std::vector<TTTrack<Ref_Phase2TrackerDigi_> > > trackToken_;
+  const edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> geomToken_;
 };
 
 //
 // constructors and destructor
 //
 L1TkElectronTrackProducer::L1TkElectronTrackProducer(const edm::ParameterSet& iConfig)
-    : egToken(consumes<EGammaBxCollection>(iConfig.getParameter<edm::InputTag>("L1EGammaInputTag"))),
-      trackToken(consumes<std::vector<TTTrack<Ref_Phase2TrackerDigi_> > >(
-          iConfig.getParameter<edm::InputTag>("L1TrackInputTag"))) {
+    : egToken_(consumes<EGammaBxCollection>(iConfig.getParameter<edm::InputTag>("L1EGammaInputTag"))),
+      trackToken_(consumes<std::vector<TTTrack<Ref_Phase2TrackerDigi_> > >(
+          iConfig.getParameter<edm::InputTag>("L1TrackInputTag"))),
+      geomToken_(esConsumes<TrackerGeometry, TrackerDigiGeometryRecord>()) {
   // label of the collection produced
   // e.g. EG or IsoEG if all objects are kept
   // EGIsoTrk or IsoEGIsoTrk if only the EG or IsoEG
@@ -130,6 +133,7 @@ L1TkElectronTrackProducer::L1TkElectronTrackProducer(const edm::ParameterSet& iC
   trkQualityChi2_ = (float)iConfig.getParameter<double>("TrackChi2");
   trkQualityPtMin_ = (float)iConfig.getParameter<double>("TrackMinPt");
   useTwoStubsPT_ = iConfig.getParameter<bool>("useTwoStubsPT");
+  useClusterET_ = iConfig.getParameter<bool>("useClusterET");
   dPhiCutoff_ = iConfig.getParameter<std::vector<double> >("TrackEGammaDeltaPhi");
   dRCutoff_ = iConfig.getParameter<std::vector<double> >("TrackEGammaDeltaR");
   dEtaCutoff_ = iConfig.getParameter<std::vector<double> >("TrackEGammaDeltaEta");
@@ -145,19 +149,18 @@ void L1TkElectronTrackProducer::produce(edm::Event& iEvent, const edm::EventSetu
   std::unique_ptr<TkElectronCollection> result(new TkElectronCollection);
 
   // geometry needed to call pTFrom2Stubs
-  edm::ESHandle<TrackerGeometry> geomHandle;
-  iSetup.get<TrackerDigiGeometryRecord>().get("idealForDigi", geomHandle);
+  edm::ESHandle<TrackerGeometry> geomHandle = iSetup.getHandle(geomToken_);
   const TrackerGeometry* tGeom = geomHandle.product();
 
   // the L1EGamma objects
   edm::Handle<EGammaBxCollection> eGammaHandle;
-  iEvent.getByToken(egToken, eGammaHandle);
+  iEvent.getByToken(egToken_, eGammaHandle);
   EGammaBxCollection eGammaCollection = (*eGammaHandle.product());
   EGammaBxCollection::const_iterator egIter;
 
   // the L1Tracks
   edm::Handle<L1TTTrackCollectionType> L1TTTrackHandle;
-  iEvent.getByToken(trackToken, L1TTTrackHandle);
+  iEvent.getByToken(trackToken_, L1TTTrackHandle);
   L1TTTrackCollectionType::const_iterator trackIter;
 
   if (!eGammaHandle.isValid()) {
@@ -202,7 +205,10 @@ void L1TkElectronTrackProducer::produce(edm::Event& iEvent, const edm::EventSetu
         double dPhi = 99.;
         double dR = 99.;
         double dEta = 99.;
-        L1TkElectronTrackMatchAlgo::doMatch(egIter, L1TrackPtr, dPhi, dR, dEta);
+        if (useClusterET_)
+          L1TkElectronTrackMatchAlgo::doMatchClusterET(egIter, L1TrackPtr, dPhi, dR, dEta);
+        else
+          L1TkElectronTrackMatchAlgo::doMatch(egIter, L1TrackPtr, dPhi, dR, dEta);
         if (dR < drmin && selectMatchedTrack(dR, dPhi, dEta, trkPt, eta_ele)) {
           drmin = dR;
           itrack = itr;

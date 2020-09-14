@@ -4,7 +4,8 @@
 #include "DataFormats/RecoCandidate/interface/RecoChargedCandidate.h"
 #include <vector>
 
-OniaAddV0TracksProducer::OniaAddV0TracksProducer(const edm::ParameterSet& ps) {
+OniaAddV0TracksProducer::OniaAddV0TracksProducer(const edm::ParameterSet& ps)
+    : events_v0{0}, total_v0{0}, total_lambda{0}, total_kshort{0} {
   LambdaCollectionToken_ =
       consumes<reco::VertexCompositeCandidateCollection>(ps.getParameter<edm::InputTag>("LambdaTag"));
   KShortCollectionToken_ =
@@ -12,15 +13,9 @@ OniaAddV0TracksProducer::OniaAddV0TracksProducer(const edm::ParameterSet& ps) {
 
   produces<pat::CompositeCandidateCollection>("Kshort");
   produces<pat::CompositeCandidateCollection>("Lambda");
-
-  events_v0 = 0;
-  total_v0 = 0;
-  total_lambda = 0;
-  total_kshort = 0;
-  std::cout << "running OniaAddV0TracksProducer..." << std::endl;
 }
 
-void OniaAddV0TracksProducer::produce(edm::Event& event, const edm::EventSetup& esetup) {
+void OniaAddV0TracksProducer::produce(edm::StreamID, edm::Event& event, const edm::EventSetup& esetup) const {
   // Create unique_ptr for each collection to be stored in the Event
   std::unique_ptr<pat::CompositeCandidateCollection> Enhanced_kShortCandidates(new pat::CompositeCandidateCollection);
   std::unique_ptr<pat::CompositeCandidateCollection> Enhanced_lambdaCandidates(new pat::CompositeCandidateCollection);
@@ -35,23 +30,23 @@ void OniaAddV0TracksProducer::produce(edm::Event& event, const edm::EventSetup& 
   int exits_k = 0;
   for (reco::VertexCompositeCandidateCollection::const_iterator ik = kcandidates->begin(); ik != kcandidates->end();
        ++ik) {
-    pat::CompositeCandidate* kc = new pat::CompositeCandidate();
+    pat::CompositeCandidate kc{};
     edm::RefToBase<reco::Track> ktrk0((*(dynamic_cast<const reco::RecoChargedCandidate*>(ik->daughter(0)))).track());
     edm::RefToBase<reco::Track> ktrk1((*(dynamic_cast<const reco::RecoChargedCandidate*>(ik->daughter(1)))).track());
-    kc->addUserData<reco::Track>("track0", *ktrk0);
-    kc->addUserData<reco::Track>("track1", *ktrk1);
-    Enhanced_kShortCandidates->push_back(*kc);
+    kc.addUserData<reco::Track>("track0", *ktrk0);
+    kc.addUserData<reco::Track>("track1", *ktrk1);
+    Enhanced_kShortCandidates->emplace_back(std::move(kc));
     exits_k++;
   }
 
   for (reco::VertexCompositeCandidateCollection::const_iterator il = lcandidates->begin(); il != lcandidates->end();
        ++il) {
-    pat::CompositeCandidate* lc = new pat::CompositeCandidate();
+    pat::CompositeCandidate lc{};
     edm::RefToBase<reco::Track> ltrk0((*(dynamic_cast<const reco::RecoChargedCandidate*>(il->daughter(0)))).track());
     edm::RefToBase<reco::Track> ltrk1((*(dynamic_cast<const reco::RecoChargedCandidate*>(il->daughter(1)))).track());
-    lc->addUserData<reco::Track>("track0", *ltrk0);
-    lc->addUserData<reco::Track>("track1", *ltrk1);
-    Enhanced_lambdaCandidates->push_back(*lc);
+    lc.addUserData<reco::Track>("track0", *ltrk0);
+    lc.addUserData<reco::Track>("track1", *ltrk1);
+    Enhanced_lambdaCandidates->emplace_back(std::move(lc));
     exits_l++;
   }
 
@@ -69,14 +64,22 @@ void OniaAddV0TracksProducer::produce(edm::Event& event, const edm::EventSetup& 
 }
 
 void OniaAddV0TracksProducer::endJob() {
-  std::cout << "############################" << std::endl;
-  std::cout << "OniaAddV0Tracks producer report " << std::endl;
-  std::cout << "############################" << std::endl;
-  std::cout << "Total events with v0 :      " << events_v0 << std::endl;
-  std::cout << "Total v0 :                  " << total_v0 << std::endl;
-  std::cout << "Total number of lambda :    " << total_lambda << std::endl;
-  std::cout << "Total number of kshort :    " << total_kshort << std::endl;
-  std::cout << "############################" << std::endl;
+  edm::LogVerbatim("OniaAddV0TracksSummary") << "############################\n"
+                                                "OniaAddV0Tracks producer report \n"
+                                                "############################\n"
+                                                "Total events with v0 :      "
+                                             << events_v0
+                                             << "\n"
+                                                "Total v0 :                  "
+                                             << total_v0
+                                             << "\n"
+                                                "Total number of lambda :    "
+                                             << total_lambda
+                                             << "\n"
+                                                "Total number of kshort :    "
+                                             << total_kshort
+                                             << "\n"
+                                                "############################";
 }
 //define this as a plug-in
 DEFINE_FWK_MODULE(OniaAddV0TracksProducer);

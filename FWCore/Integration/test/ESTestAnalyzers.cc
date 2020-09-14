@@ -34,7 +34,7 @@ namespace edmtest {
   ESTestAnalyzerA::ESTestAnalyzerA(edm::ParameterSet const& pset)
       : runsToGetDataFor_(pset.getParameter<std::vector<int>>("runsToGetDataFor")),
         expectedValues_(pset.getUntrackedParameter<std::vector<int>>("expectedValues")),
-        token_(esConsumes<ESTestDataA, ESTestRecordA>()) {
+        token_(esConsumes()) {
     assert(expectedValues_.empty() or expectedValues_.size() == runsToGetDataFor_.size());
   }
 

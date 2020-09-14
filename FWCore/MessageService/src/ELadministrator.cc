@@ -72,9 +72,9 @@
 //
 // ----------------------------------------------------------------------
 
-#include "FWCore/MessageService/interface/ELadministrator.h"
-#include "FWCore/MessageService/interface/ELdestination.h"
-#include "FWCore/MessageService/interface/ELoutput.h"
+#include "FWCore/MessageService/src/ELadministrator.h"
+#include "FWCore/MessageService/src/ELdestination.h"
+#include "FWCore/MessageService/src/ELoutput.h"
 
 #include "FWCore/Utilities/interface/EDMException.h"
 

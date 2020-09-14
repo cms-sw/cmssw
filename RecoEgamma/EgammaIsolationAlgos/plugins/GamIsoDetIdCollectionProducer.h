@@ -31,6 +31,10 @@ Implementation:
 #include "RecoLocalCalo/EcalRecAlgos/interface/EcalSeverityLevelAlgo.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 #include "DataFormats/EgammaCandidates/interface/PhotonFwd.h"
+#include "RecoLocalCalo/EcalRecAlgos/interface/EcalSeverityLevelAlgo.h"
+#include "RecoLocalCalo/EcalRecAlgos/interface/EcalSeverityLevelAlgoRcd.h"
+#include "Geometry/Records/interface/CaloGeometryRecord.h"
+#include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 
 class CaloTopology;
 
@@ -47,6 +51,8 @@ private:
   // ----------member data ---------------------------
   edm::EDGetTokenT<EcalRecHitCollection> recHitsToken_;
   edm::EDGetTokenT<reco::PhotonCollection> emObjectToken_;
+  edm::ESGetToken<CaloGeometry, CaloGeometryRecord> caloGeometryToken_;
+  edm::ESGetToken<EcalSeverityLevelAlgo, EcalSeverityLevelAlgoRcd> sevLvToken_;
   edm::InputTag recHitsLabel_;
   edm::InputTag emObjectLabel_;
   double energyCut_;

@@ -2,7 +2,6 @@
 <use name="FWCore/Framework"/>
 <use name="FWCore/ParameterSet"/>
 <use name="SimDataFormats/GeneratorProducts"/>
-<use name="GeneratorInterface/Core"/>
 <use name="clhep"/>
 <use name="root"/>
 <use name="f77compiler"/>

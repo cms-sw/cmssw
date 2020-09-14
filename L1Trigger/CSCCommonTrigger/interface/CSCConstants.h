@@ -1,5 +1,5 @@
-#ifndef CSCCommonTrigger_CSCConstants_h
-#define CSCCommonTrigger_CSCConstants_h
+#ifndef L1Trigger_CSCCommonTrigger_CSCConstants_h
+#define L1Trigger_CSCCommonTrigger_CSCConstants_h
 
 /**
  * \class CSCConstants
@@ -53,6 +53,7 @@ public:
     CLCT_PATTERN_WIDTH = 11,
     // Max number of wires participating in a pattern
     MAX_WIRES_IN_PATTERN = 14,
+    NUM_COMPARATOR_CODES = 4096
   };
 
   enum Digis_Info { MAX_DIGIS_PER_ALCT = 10, MAX_DIGIS_PER_CLCT = 8 };
@@ -65,10 +66,10 @@ public:
     // Maximum allowed matching window size
     MAX_MATCH_WINDOW_SIZE = 15,
     // Each CLCT processor can send up to 2 CLCTs to TMB per BX
-    MAX_CLCTS_PER_PROCESSOR = 50,
+    MAX_CLCTS_PER_PROCESSOR = 2,
     MAX_CLCTS_READOUT = 2,
     // Each ALCT processor can send up to 2 ALCTs to TMB per BX
-    MAX_ALCTS_PER_PROCESSOR = 50,
+    MAX_ALCTS_PER_PROCESSOR = 2,
     MAX_ALCTS_READOUT = 2,
     // Each CSC can send up to 2 LCTs to the MPC per BX
     MAX_LCTS_PER_CSC = 2,

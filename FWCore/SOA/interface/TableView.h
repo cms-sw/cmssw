@@ -93,6 +93,16 @@ namespace edm {
       }
     };
 
+    template <typename T>
+    struct ViewFromTable;
+
+    template <typename... T>
+    struct ViewFromTable<Table<T...>> {
+      using type = TableView<T...>;
+    };
+    template <typename T>
+    using ViewFromTable_t = typename ViewFromTable<T>::type;
+
   }  // namespace soa
 }  // namespace edm
 

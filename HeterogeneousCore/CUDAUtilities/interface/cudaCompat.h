@@ -28,6 +28,13 @@ namespace cms {
     extern thread_local dim3 gridDim;
 
     template <typename T1, typename T2>
+    T1 atomicCAS(T1* address, T1 compare, T2 val) {
+      T1 old = *address;
+      *address = old == compare ? val : old;
+      return old;
+    }
+
+    template <typename T1, typename T2>
     T1 atomicInc(T1* a, T2 b) {
       auto ret = *a;
       if ((*a) < T1(b))

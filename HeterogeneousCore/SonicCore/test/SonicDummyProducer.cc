@@ -7,17 +7,13 @@
 #include <memory>
 
 namespace sonictest {
-  template <typename Client>
-  class SonicDummyProducer : public SonicEDProducer<Client> {
+  class SonicDummyProducer : public SonicEDProducer<DummyClient> {
   public:
-    //needed because base class has dependent scope
-    using typename SonicEDProducer<Client>::Input;
-    using typename SonicEDProducer<Client>::Output;
     explicit SonicDummyProducer(edm::ParameterSet const& cfg)
-        : SonicEDProducer<Client>(cfg), input_(cfg.getParameter<int>("input")) {
+        : SonicEDProducer<DummyClient>(cfg), input_(cfg.getParameter<int>("input")) {
       //for debugging
-      this->setDebugName("SonicDummyProducer");
-      putToken_ = this->template produces<edmtest::IntProduct>();
+      setDebugName("SonicDummyProducer");
+      putToken_ = produces<edmtest::IntProduct>();
     }
 
     void acquire(edm::Event const& iEvent, edm::EventSetup const& iSetup, Input& iInput) override { iInput = input_; }
@@ -28,7 +24,7 @@ namespace sonictest {
 
     static void fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
       edm::ParameterSetDescription desc;
-      Client::fillPSetDescription(desc);
+      DummyClient::fillPSetDescription(desc);
       desc.add<int>("input");
       //to ensure distinct cfi names
       descriptions.addWithDefaultLabel(desc);
@@ -39,15 +35,7 @@ namespace sonictest {
     int input_;
     edm::EDPutTokenT<edmtest::IntProduct> putToken_;
   };
-
-  typedef SonicDummyProducer<DummyClientSync> SonicDummyProducerSync;
-  typedef SonicDummyProducer<DummyClientPseudoAsync> SonicDummyProducerPseudoAsync;
-  typedef SonicDummyProducer<DummyClientAsync> SonicDummyProducerAsync;
 }  // namespace sonictest
 
-using sonictest::SonicDummyProducerSync;
-DEFINE_FWK_MODULE(SonicDummyProducerSync);
-using sonictest::SonicDummyProducerPseudoAsync;
-DEFINE_FWK_MODULE(SonicDummyProducerPseudoAsync);
-using sonictest::SonicDummyProducerAsync;
-DEFINE_FWK_MODULE(SonicDummyProducerAsync);
+using sonictest::SonicDummyProducer;
+DEFINE_FWK_MODULE(SonicDummyProducer);

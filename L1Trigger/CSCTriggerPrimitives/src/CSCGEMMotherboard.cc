@@ -1,3 +1,5 @@
+#include <memory>
+
 #include "L1Trigger/CSCTriggerPrimitives/interface/CSCGEMMotherboard.h"
 
 CSCGEMMotherboard::CSCGEMMotherboard(unsigned endcap,
@@ -9,7 +11,6 @@ CSCGEMMotherboard::CSCGEMMotherboard(unsigned endcap,
     : CSCUpgradeMotherboard(endcap, station, sector, subsector, chamber, conf),
       maxDeltaBXPad_(tmbParams_.getParameter<int>("maxDeltaBXPad")),
       maxDeltaBXCoPad_(tmbParams_.getParameter<int>("maxDeltaBXCoPad")),
-      useOldLCTDataFormat_(tmbParams_.getParameter<bool>("useOldLCTDataFormat")),
       promoteALCTGEMpattern_(tmbParams_.getParameter<bool>("promoteALCTGEMpattern")),
       promoteALCTGEMquality_(tmbParams_.getParameter<bool>("promoteALCTGEMquality")),
       doLCTGhostBustingWithGEMs_(tmbParams_.getParameter<bool>("doLCTGhostBustingWithGEMs")) {
@@ -18,7 +19,7 @@ CSCGEMMotherboard::CSCGEMMotherboard(unsigned endcap,
 
   const edm::ParameterSet coPadParams(station == 1 ? conf.getParameter<edm::ParameterSet>("copadParamGE11")
                                                    : conf.getParameter<edm::ParameterSet>("copadParamGE21"));
-  coPadProcessor.reset(new GEMCoPadProcessor(theRegion, theStation, theChamber, coPadParams));
+  coPadProcessor = std::make_unique<GEMCoPadProcessor>(theRegion, theStation, theChamber, coPadParams);
 
   maxDeltaPadL1_ = (theParity ? tmbParams_.getParameter<int>("maxDeltaPadL1Even")
                               : tmbParams_.getParameter<int>("maxDeltaPadL1Odd"));
@@ -44,6 +45,14 @@ void CSCGEMMotherboard::retrieveGEMPads(const GEMPadDigiCollection* gemPads, uns
       GEMDetId roll_id(roll->id());
       auto pads_in_det = gemPads->get(roll_id);
       for (auto pad = pads_in_det.first; pad != pads_in_det.second; ++pad) {
+        // ignore 16-partition GE2/1 pads
+        if (roll->isGE21() and pad->nPartitions() == GEMPadDigi::GE21SplitStrip)
+          continue;
+
+        // ignore invalid pads
+        if (!pad->isValid())
+          continue;
+
         const int bx_shifted(CSCConstants::LCT_CENTRAL_BX + pad->bx());
         // consider matches with BX difference +1/0/-1
         for (int bx = bx_shifted - maxDeltaBXPad_; bx <= bx_shifted + maxDeltaBXPad_; ++bx) {
@@ -58,6 +67,11 @@ void CSCGEMMotherboard::retrieveGEMCoPads() {
   coPads_.clear();
   for (const auto& copad : gemCoPadV) {
     GEMDetId detId(theRegion, 1, theStation, 0, theChamber, 0);
+
+    // ignore 16-partition GE2/1 pads
+    if (detId.isGE21() and copad.first().nPartitions() == GEMPadDigi::GE21SplitStrip)
+      continue;
+
     // only consider matches with same BX
     coPads_[CSCConstants::LCT_CENTRAL_BX + copad.bx(1)].emplace_back(detId.rawId(), copad);
   }
@@ -98,15 +112,19 @@ CSCCorrelatedLCTDigi CSCGEMMotherboard::constructLCTsGEM(const CSCALCTDigi& alct
 
   // make a new LCT
   CSCCorrelatedLCTDigi thisLCT;
-  if (not alct.isValid() and not clct.isValid()) {
-    LogTrace("CSCGEMCMotherboard") << "Warning!!! either ALCT or CLCT not valid, return invalid LCT \n";
+  if (!alct.isValid() and !clct.isValid()) {
+    edm::LogError("CSCGEMCMotherboard") << "Warning!!! neither ALCT nor CLCT valid, return invalid LCT";
     return thisLCT;
   }
 
   // Determine the case and assign properties depending on the LCT dataformat (old/new)
   if (alct.isValid() and clct.isValid() and gem1.isValid() and not gem2.isValid()) {
     pattern = encodePattern(clct.getPattern());
-    quality = findQualityGEM(alct, clct, 1);
+    if (use_run3_patterns_) {
+      quality = static_cast<unsigned int>(findQualityGEMv2(alct, clct, 1));
+    } else {
+      quality = static_cast<unsigned int>(findQualityGEMv1(alct, clct, 1));
+    }
     bx = alct.getBX();
     keyStrip = clct.getKeyStrip();
     keyWG = alct.getKeyWG();
@@ -118,7 +136,11 @@ CSCCorrelatedLCTDigi CSCGEMMotherboard::constructLCTsGEM(const CSCALCTDigi& alct
     valid = doesWiregroupCrossStrip(keyWG, keyStrip) ? 1 : 0;
   } else if (alct.isValid() and clct.isValid() and not gem1.isValid() and gem2.isValid()) {
     pattern = encodePattern(clct.getPattern());
-    quality = findQualityGEM(alct, clct, 2);
+    if (use_run3_patterns_) {
+      quality = static_cast<unsigned int>(findQualityGEMv2(alct, clct, 2));
+    } else {
+      quality = static_cast<unsigned int>(findQualityGEMv1(alct, clct, 2));
+    }
     bx = alct.getBX();
     keyStrip = clct.getKeyStrip();
     keyWG = alct.getKeyWG();
@@ -325,7 +347,9 @@ void CSCGEMMotherboard::printGEMTriggerCoPads(int bx_start, int bx_stop, enum CS
   }
 }
 
-unsigned int CSCGEMMotherboard::findQualityGEM(const CSCALCTDigi& aLCT, const CSCCLCTDigi& cLCT, int gemlayers) const {
+CSCMotherboard::LCT_Quality CSCGEMMotherboard::findQualityGEMv1(const CSCALCTDigi& aLCT,
+                                                                const CSCCLCTDigi& cLCT,
+                                                                int gemlayers) const {
   // Either ALCT or CLCT is invalid
   if (!(aLCT.isValid()) || !(cLCT.isValid())) {
     // No CLCT
@@ -404,9 +428,8 @@ unsigned int CSCGEMMotherboard::findQualityGEM(const CSCALCTDigi& aLCT, const CS
             return LCT_Quality::HQ_PATTERN_10;
 
           else {
-            if (infoV >= 0)
-              edm::LogWarning("L1CSCTPEmulatorWrongValues")
-                  << "+++ findQuality: Unexpected CLCT pattern id = " << pattern << "+++\n";
+            edm::LogWarning("CSCGEMMotherboard")
+                << "findQualityGEMv1: Unexpected CLCT pattern id = " << pattern << " in " << theCSCName_;
             return LCT_Quality::INVALID;
           }
         }
@@ -414,6 +437,27 @@ unsigned int CSCGEMMotherboard::findQualityGEM(const CSCALCTDigi& aLCT, const CS
     }
   }
   return LCT_Quality::INVALID;
+}
+
+CSCGEMMotherboard::LCT_QualityRun3 CSCGEMMotherboard::findQualityGEMv2(const CSCALCTDigi& aLCT,
+                                                                       const CSCCLCTDigi& cLCT,
+                                                                       int gemlayers) const {
+  // ALCT and CLCT invalid
+  if (!(aLCT.isValid()) and !(cLCT.isValid())) {
+    return LCT_QualityRun3::INVALID;
+  } else if (!aLCT.isValid() && cLCT.isValid() and gemlayers == 2) {
+    return LCT_QualityRun3::CLCT_2GEM;
+  } else if (aLCT.isValid() && !cLCT.isValid() and gemlayers == 2) {
+    return LCT_QualityRun3::ALCT_2GEM;
+  } else if (aLCT.isValid() && cLCT.isValid()) {
+    if (gemlayers == 0)
+      return LCT_QualityRun3::ALCTCLCT;
+    else if (gemlayers == 1)
+      return LCT_QualityRun3::ALCTCLCT_1GEM;
+    else if (gemlayers == 2)
+      return LCT_QualityRun3::ALCTCLCT_2GEM;
+  }
+  return LCT_QualityRun3::INVALID;
 }
 
 template <>

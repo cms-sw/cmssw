@@ -75,7 +75,7 @@ void HGCalWaferInFileCheck::analyze(const edm::Event& iEvent, const edm::EventSe
   const auto& hgdc = geom->topology().dddConstants();
 
   std::cout << nameDetector_ << "\nCheck Wafers in file are all valid for " << nameDetector_ << std::endl << std::endl;
-  if ((hgdc.geomMode() == HGCalGeometryMode::Hexagon8) || (hgdc.geomMode() == HGCalGeometryMode::Hexagon8Full)) {
+  if (hgdc.waferHexagon8()) {
     DetId::Detector det = (nameSense_ == "HGCalHESiliconSensitive") ? DetId::HGCalHSi : DetId::HGCalEE;
     static std::vector<std::string> types = {"F", "b", "g", "gm", "a", "d", "dm", "c", "X"};
     // See if all entries in the file are valid

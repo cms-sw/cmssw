@@ -3,11 +3,8 @@
 
 #include "L1Trigger/TrackFindingTMTT/interface/HTrphi.h"
 
-#include "boost/numeric/ublas/matrix.hpp"
 #include <vector>
 #include <memory>
-
-using boost::numeric::ublas::matrix;
 
 //==================================================================================================
 /**

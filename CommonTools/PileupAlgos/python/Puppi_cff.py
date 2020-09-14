@@ -31,6 +31,8 @@ puppi = cms.EDProducer("PuppiProducer",#cms.PSet(#"PuppiProducer",
                        UseDeltaZCut   = cms.bool(True),
                        EtaMinUseDeltaZ = cms.double(2.4),
                        DeltaZCut      = cms.double(0.3),
+                       NumOfPUVtxsForCharged = cms.uint32(2),
+                       DeltaZCutForChargedFromPUVtxs = cms.double(0.2),
 		       PtMaxCharged   = cms.double(20.),
 		       EtaMaxCharged   = cms.double(99999.),
 		       PtMaxPhotons = cms.double(-1.),
@@ -95,6 +97,7 @@ phase2_common.toModify(
     PtMaxCharged = -1.,
     PtMaxNeutralsStartSlope = 0.,
     DeltaZCut = cms.double(0.1),
+    NumOfPUVtxsForCharged = 0,
     algos = cms.VPSet( 
         cms.PSet( 
              etaMin = cms.vdouble(0.,  2.5),

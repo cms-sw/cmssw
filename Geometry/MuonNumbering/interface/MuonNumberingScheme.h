@@ -19,7 +19,7 @@ public:
   MuonNumberingScheme(){};
   virtual ~MuonNumberingScheme(){};
 
-  virtual int baseNumberToUnitNumber(const MuonBaseNumber&);
+  virtual int baseNumberToUnitNumber(const MuonBaseNumber&) const;
 
 private:
 };

@@ -19,7 +19,7 @@ RandomNumberGeneratorService = cms.Service("RandomNumberGeneratorService",
     ),
     LHCTransport = cms.PSet(
         initialSeed = cms.untracked.uint32(87654321),
-        engineName = FastSimEngine
+        engineName = cms.untracked.string('TRandom3')
     ),
     hiSignalLHCTransport = cms.PSet(
         initialSeed = cms.untracked.uint32(88776655),
@@ -147,6 +147,16 @@ RandomNumberGeneratorService = cms.Service("RandomNumberGeneratorService",
     # filter for simulated beam spot
     simBeamSpotFilter = cms.PSet(
         initialSeed = cms.untracked.uint32(87654321),
+        engineName = FullSimEngine
+    ),
+
+    RPixDetDigitizer = cms.PSet(
+        initialSeed = cms.untracked.uint32(137137),
+        engineName = FullSimEngine
+    ),
+
+    RPSiDetDigitizer = cms.PSet(
+        initialSeed = cms.untracked.uint32(137137),
         engineName = FullSimEngine
     )
     # to save the status of the last event (useful for crashes)

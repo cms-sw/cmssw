@@ -1,9 +1,9 @@
-#include "DD4hep/Path.h"
-#include "DD4hep/Printout.h"
-#include "DD4hep/Detector.h"
-#include "DD4hep/Grammar.h"
 #include "DetectorDescription/DDCMS/interface/DDAlgoArguments.h"
-#include "DetectorDescription/DDCMS/interface/Filter.h"
+#include <DD4hep/Path.h>
+#include <DD4hep/Printout.h>
+#include <DD4hep/Detector.h>
+#include <DD4hep/Filter.h>
+#include <DD4hep/Grammar.h>
 
 #include <TClass.h>
 

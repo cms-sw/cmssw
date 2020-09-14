@@ -11,3 +11,11 @@ from IOMC.RandomEngine.IOMC_cff import *
 #an "intermediate layer" remains, just in case somebody is using it...
 # from Configuration.StandardSequences.SimulationRandomNumberGeneratorSeeds_cff import *
 from DQMServices.Core.DQMStore_cfg import *
+
+# Add CUDAServices when using gpu Modifier is enabled
+from Configuration.ProcessModifiers.gpu_cff import gpu
+def _addCUDAServices(theProcess):
+     theProcess.load("HeterogeneousCore.CUDAServices.CUDAService_cfi")
+
+modifyConfigurationStandardSequencesServicesAddCUDAServices_ = gpu.makeProcessModifier( _addCUDAServices )
+

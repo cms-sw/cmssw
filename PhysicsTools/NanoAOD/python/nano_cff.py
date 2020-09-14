@@ -11,6 +11,7 @@ from PhysicsTools.NanoAOD.extraflags_cff import *
 from PhysicsTools.NanoAOD.ttbarCategorization_cff import *
 from PhysicsTools.NanoAOD.genparticles_cff import *
 from PhysicsTools.NanoAOD.particlelevel_cff import *
+from PhysicsTools.NanoAOD.genWeightsTable_cfi import *
 from PhysicsTools.NanoAOD.vertices_cff import *
 from PhysicsTools.NanoAOD.met_cff import *
 from PhysicsTools.NanoAOD.triggerObjects_cff import *
@@ -93,25 +94,6 @@ for modifier in run2_miniAOD_80XLegacy, run2_nanoAOD_94X2016: # to be updated wh
     )
 
 
-genWeightsTable = cms.EDProducer("GenWeightsTableProducer",
-    genEvent = cms.InputTag("generator"),
-    genLumiInfoHeader = cms.InputTag("generator"),
-    lheInfo = cms.VInputTag(cms.InputTag("externalLHEProducer"), cms.InputTag("source")),
-    preferredPDFs = cms.VPSet( # see https://lhapdf.hepforge.org/pdfsets.html
-        cms.PSet( name = cms.string("PDF4LHC15_nnlo_30_pdfas"), lhaid = cms.uint32(91400) ),
-        cms.PSet( name = cms.string("NNPDF31_nnlo_hessian_pdfas"), lhaid = cms.uint32(306000) ),
-        cms.PSet( name = cms.string("NNPDF30_nlo_as_0118"), lhaid = cms.uint32(260000) ), # for some 92X samples. Note that the nominal weight, 260000, is not included in the LHE ...
-        cms.PSet( name = cms.string("NNPDF30_lo_as_0130"), lhaid = cms.uint32(262000) ), # some MLM 80X samples have only this (e.g. /store/mc/RunIISummer16MiniAODv2/DYJetsToLL_M-50_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/MINIAODSIM/PUMoriond17_80X_mcRun2_asymptotic_2016_TrancheIV_v6_ext1-v2/120000/02A210D6-F5C3-E611-B570-008CFA197BD4.root )
-        cms.PSet( name = cms.string("NNPDF30_nlo_nf_4_pdfas"), lhaid = cms.uint32(292000) ), # some FXFX 80X samples have only this (e.g. WWTo1L1Nu2Q, WWTo4Q)
-        cms.PSet( name = cms.string("NNPDF30_nlo_nf_5_pdfas"), lhaid = cms.uint32(292200) ), # some FXFX 80X samples have only this (e.g. DYJetsToLL_Pt, WJetsToLNu_Pt, DYJetsToNuNu_Pt)
-        cms.PSet( name = cms.string("NNPDF31_lo_as_0130"), lhaid = cms.uint32(315200) ), # SUSY signal samples use this
-    ),
-    namedWeightIDs = cms.vstring(),
-    namedWeightLabels = cms.vstring(),
-    lheWeightPrecision = cms.int32(14),
-    maxPdfWeights = cms.uint32(150), 
-    debug = cms.untracked.bool(False),
-)
 lheInfoTable = cms.EDProducer("LHETablesProducer",
     lheInfo = cms.VInputTag(cms.InputTag("externalLHEProducer"), cms.InputTag("source")),
     precision = cms.int32(14),
@@ -176,10 +158,41 @@ def nanoAOD_addDeepInfo(process,addDeepBTag,addDeepFlavour):
     process.updatedJets.jetSource="selectedUpdatedPatJetsWithDeepInfo"
     return process
 
+def nanoAOD_addDeepMET(process, addDeepMETProducer, ResponseTune_Graph):
+    if addDeepMETProducer:
+        # produce DeepMET on the fly if it is not in MiniAOD
+        print("add DeepMET Producers")
+        process.load('RecoMET.METPUSubtraction.deepMETProducer_cfi')
+        process.deepMETsResolutionTune = process.deepMETProducer.clone()
+        process.deepMETsResponseTune = process.deepMETProducer.clone()
+        #process.deepMETsResponseTune.graph_path = 'RecoMET/METPUSubtraction/data/deepmet/deepmet_resp_v1_2018.pb'
+        process.deepMETsResponseTune.graph_path = ResponseTune_Graph.value()
+    process.metTables += process.deepMetTables
+    return process
+
 from PhysicsTools.PatUtils.tools.runMETCorrectionsAndUncertainties import runMetCorAndUncFromMiniAOD
 #from PhysicsTools.PatAlgos.slimming.puppiForMET_cff import makePuppiesFromMiniAOD
 def nanoAOD_recalibrateMETs(process,isData):
-    runMetCorAndUncFromMiniAOD(process,isData=isData)
+    # add DeepMETs
+    nanoAOD_DeepMET_switch = cms.PSet(
+        nanoAOD_addDeepMET_switch = cms.untracked.bool(True), # decide if DeeMET should be included in Nano
+        nanoAOD_produceDeepMET_switch = cms.untracked.bool(False), # decide if DeepMET should be computed on the fly
+        ResponseTune_Graph = cms.untracked.string('RecoMET/METPUSubtraction/data/deepmet/deepmet_resp_v1_2018.pb')
+    )
+    for modifier in run2_miniAOD_80XLegacy, run2_nanoAOD_94X2016, run2_nanoAOD_94XMiniAODv1, run2_nanoAOD_94XMiniAODv2, run2_nanoAOD_102Xv1, run2_nanoAOD_106Xv1:
+        # compute DeepMETs in these eras (before 111X)
+        modifier.toModify(nanoAOD_DeepMET_switch, nanoAOD_produceDeepMET_switch =  cms.untracked.bool(True))
+    for modifier in run2_miniAOD_80XLegacy, run2_nanoAOD_94X2016:
+        modifier.toModify(nanoAOD_DeepMET_switch, ResponseTune_Graph=cms.untracked.string("RecoMET/METPUSubtraction/data/deepmet/deepmet_resp_v1_2016.pb"))
+    if nanoAOD_DeepMET_switch.nanoAOD_addDeepMET_switch:
+        process = nanoAOD_addDeepMET(process,
+                                     addDeepMETProducer=nanoAOD_DeepMET_switch.nanoAOD_produceDeepMET_switch,
+                                     ResponseTune_Graph=nanoAOD_DeepMET_switch.ResponseTune_Graph)
+
+    # if included in Nano, and not computed in the fly, then it should be extracted from minAOD
+    extractDeepMETs = nanoAOD_DeepMET_switch.nanoAOD_addDeepMET_switch and not nanoAOD_DeepMET_switch.nanoAOD_produceDeepMET_switch
+
+    runMetCorAndUncFromMiniAOD(process,isData=isData, extractDeepMETs=extractDeepMETs)
     process.nanoSequenceCommon.insert(process.nanoSequenceCommon.index(process.jetSequence),cms.Sequence(process.fullPatMetSequence))
     process.basicJetsForMetForT1METNano = process.basicJetsForMet.clone(
         src = process.updatedJetsWithUserData.src,
@@ -225,7 +238,7 @@ def nanoAOD_activateVID(process):
         modifier.toModify(process.egmPhotonIDs, physicsObjectSrc = "slimmedPhotonsTo106X")
     return process
 
-def nanoAOD_addDeepInfoAK8(process,addDeepBTag,addDeepBoostedJet, addDeepDoubleX, jecPayload):
+def nanoAOD_addDeepInfoAK8(process, addDeepBTag, addDeepBoostedJet, addDeepDoubleX, addParticleNet, jecPayload):
     _btagDiscriminators=[]
     if addDeepBTag:
         print("Updating process to run DeepCSV btag to AK8 jets")
@@ -234,6 +247,10 @@ def nanoAOD_addDeepInfoAK8(process,addDeepBTag,addDeepBoostedJet, addDeepDoubleX
         print("Updating process to run DeepBoostedJet on datasets before 103X")
         from RecoBTag.ONNXRuntime.pfDeepBoostedJet_cff import _pfDeepBoostedJetTagsAll as pfDeepBoostedJetTagsAll
         _btagDiscriminators += pfDeepBoostedJetTagsAll
+    if addParticleNet:
+        print("Updating process to run ParticleNet before it's included in MiniAOD")
+        from RecoBTag.ONNXRuntime.pfParticleNet_cff import _pfParticleNetJetTagsAll as pfParticleNetJetTagsAll
+        _btagDiscriminators += pfParticleNetJetTagsAll
     if addDeepDoubleX: 
         print("Updating process to run DeepDoubleX on datasets before 104X")
         _btagDiscriminators += ['pfDeepDoubleBvLJetTags:probHbb', \
@@ -280,20 +297,32 @@ def nanoAOD_customizeCommon(process):
                                   addDeepFlavour=nanoAOD_addDeepInfo_switch.nanoAOD_addDeepFlavourTag_switch)
     nanoAOD_addDeepInfoAK8_switch = cms.PSet(
         nanoAOD_addDeepBTag_switch = cms.untracked.bool(False),
-        nanoAOD_addDeepBoostedJet_switch = cms.untracked.bool(True), # will deactivate this in future miniAOD releases
-        nanoAOD_addDeepDoubleX_switch = cms.untracked.bool(True), 
+        nanoAOD_addDeepBoostedJet_switch = cms.untracked.bool(False),
+        nanoAOD_addDeepDoubleX_switch = cms.untracked.bool(False),
+        nanoAOD_addParticleNet_switch = cms.untracked.bool(False),
         jecPayload = cms.untracked.string('AK8PFPuppi')
         )
     # deepAK8 should not run on 80X, that contains ak8PFJetsCHS jets
     run2_miniAOD_80XLegacy.toModify(nanoAOD_addDeepInfoAK8_switch,
-                                    nanoAOD_addDeepBTag_switch = cms.untracked.bool(True),
-                                    nanoAOD_addDeepBoostedJet_switch = cms.untracked.bool(False),
-                                    nanoAOD_addDeepDoubleX_switch = cms.untracked.bool(False),
-                                    jecPayload = cms.untracked.string('AK8PFchs'))
+                                    nanoAOD_addDeepBTag_switch = True,
+                                    jecPayload = 'AK8PFchs')
+    # for 94X and 102X samples: needs to run DeepAK8, DeepDoubleX and ParticleNet
+    (run2_nanoAOD_94X2016 | run2_nanoAOD_94XMiniAODv1 | run2_nanoAOD_94XMiniAODv2 | run2_nanoAOD_102Xv1).toModify(
+        nanoAOD_addDeepInfoAK8_switch,
+        nanoAOD_addDeepBoostedJet_switch = True,
+        nanoAOD_addDeepDoubleX_switch = True,
+        nanoAOD_addParticleNet_switch = True,
+        )
+    # for 106Xv1: only needs to run ParticleNet; DeepAK8, DeepDoubleX are already in MiniAOD
+    run2_nanoAOD_106Xv1.toModify(
+        nanoAOD_addDeepInfoAK8_switch,
+        nanoAOD_addParticleNet_switch = True,
+        )
     process = nanoAOD_addDeepInfoAK8(process,
                                      addDeepBTag=nanoAOD_addDeepInfoAK8_switch.nanoAOD_addDeepBTag_switch,
                                      addDeepBoostedJet=nanoAOD_addDeepInfoAK8_switch.nanoAOD_addDeepBoostedJet_switch,
                                      addDeepDoubleX=nanoAOD_addDeepInfoAK8_switch.nanoAOD_addDeepDoubleX_switch,
+                                     addParticleNet=nanoAOD_addDeepInfoAK8_switch.nanoAOD_addParticleNet_switch,
                                      jecPayload=nanoAOD_addDeepInfoAK8_switch.jecPayload)
     (run2_nanoAOD_94XMiniAODv1 | run2_nanoAOD_94X2016 | run2_nanoAOD_94XMiniAODv2 | run2_nanoAOD_102Xv1 | run2_nanoAOD_106Xv1).toModify(process, lambda p : nanoAOD_addTauIds(p))
     return process

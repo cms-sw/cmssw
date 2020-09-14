@@ -20,7 +20,7 @@
 //
 // ----------------------------------------------------------------------
 
-#include "FWCore/MessageService/interface/MessageLoggerDefaults.h"
+#include "FWCore/MessageService/src/MessageLoggerDefaults.h"
 
 #include <iostream>
 

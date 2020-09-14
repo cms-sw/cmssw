@@ -138,9 +138,9 @@ namespace emtf {
   // | ME2/2, ME3/2, ME4/2        | 160        | 64         |
   // +----------------------------+------------+------------+
 
-  void get_csc_max_strip_and_wire(int station, int ring, int& max_strip, int& max_wire) {
-    max_strip = 0;                    // halfstrip
-    max_wire = 0;                     // wiregroup
+  std::pair<int, int> get_csc_max_strip_and_wire(int station, int ring) {
+    int max_strip = 0;                // halfstrip
+    int max_wire = 0;                 // wiregroup
     if (station == 1 && ring == 4) {  // ME1/1a
       max_strip = 96;
       max_wire = 48;
@@ -163,7 +163,13 @@ namespace emtf {
       max_strip = 160;
       max_wire = 64;
     }
-    return;
+    return std::make_pair(max_strip, max_wire);
+  }
+
+  std::pair<int, int> get_csc_max_pattern_and_quality(int station, int ring) {
+    int max_pattern = 11;
+    int max_quality = 16;
+    return std::make_pair(max_pattern, max_quality);
   }
 
 }  // namespace emtf

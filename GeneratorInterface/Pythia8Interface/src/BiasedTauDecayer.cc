@@ -8,12 +8,13 @@ using namespace Pythia8;
 // leptonic decays
 //
 
-BiasedTauDecayer::BiasedTauDecayer(
-    const Info* infoPtr, Settings* settingsPtr, ParticleData* particleDataPtr, Rndm* rndmPtr) {
+BiasedTauDecayer::BiasedTauDecayer(Info* infoPtr, Settings* settingsPtr) {
   decayer = TauDecays();
+  decayer.initInfoPtr(*infoPtr);
   decayer.init();
   filter_ = settingsPtr->flag("BiasedTauDecayer:filter");
-  eMuDecays_ = settingsPtr->flag("BiasedTauDecayer:eMuDecays");
+  eDecays_ = settingsPtr->flag("BiasedTauDecayer:eDecays");
+  muDecays_ = settingsPtr->flag("BiasedTauDecayer:muDecays");
 }
 
 bool BiasedTauDecayer::decay(
@@ -37,7 +38,7 @@ bool BiasedTauDecayer::decay(
   bool notDecayed = event[iDecSis].status() > 0 ? true : false;
   if (notDecayed) {
     // bias for leptonic decays
-    bool hasLepton = (eMuDecays_) ? false : true;
+    bool hasLepton = (eDecays_ || muDecays_) ? false : true;
     Event decay;
     int i1 = -1;
     int i2 = -1;
@@ -49,8 +50,10 @@ bool BiasedTauDecayer::decay(
       i2 = decay[iDec].daughter2();
       for (int i = i1; i < i2 + 1; ++i) {
         if (decay[i].isLepton() && decay[i].isCharged()) {
-          hasLepton = true;
-          break;
+          if ((eDecays_ && abs(decay[i].id()) == 11) || (muDecays_ && abs(decay[i].id()) == 13)) {
+            hasLepton = true;
+            break;
+          }
         }
       }
       if (hasLepton)
@@ -60,8 +63,10 @@ bool BiasedTauDecayer::decay(
       i2 = decay[iDecSis].daughter2();
       for (int i = i1; i < i2 + 1; ++i) {
         if (decay[i].isLepton() && decay[i].isCharged()) {
-          hasLepton = true;
-          break;
+          if ((eDecays_ && abs(decay[i].id()) == 11) || (muDecays_ && abs(decay[i].id()) == 13)) {
+            hasLepton = true;
+            break;
+          }
         }
       }
     }

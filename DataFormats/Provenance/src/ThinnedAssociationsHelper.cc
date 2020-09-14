@@ -3,14 +3,17 @@
 #include "FWCore/Utilities/interface/EDMException.h"
 #include <algorithm>
 
+#include <fmt/format.h>
+
 namespace edm {
 
   ThinnedAssociationBranches::ThinnedAssociationBranches() {}
 
   ThinnedAssociationBranches::ThinnedAssociationBranches(BranchID const& parent,
                                                          BranchID const& association,
-                                                         BranchID const& thinned)
-      : parent_(parent), association_(association), thinned_(thinned) {}
+                                                         BranchID const& thinned,
+                                                         bool slimmed)
+      : parent_(parent), association_(association), thinned_(thinned), slimmed_(slimmed) {}
 
   ThinnedAssociationsHelper::ThinnedAssociationsHelper() {}
 
@@ -24,7 +27,7 @@ namespace edm {
 
   std::vector<ThinnedAssociationBranches>::const_iterator ThinnedAssociationsHelper::parentBegin(
       BranchID const& parent) const {
-    ThinnedAssociationBranches target(parent, BranchID(), BranchID());
+    ThinnedAssociationBranches target(parent, BranchID(), BranchID(), false);
     return std::lower_bound(vThinnedAssociationBranches_.begin(),
                             vThinnedAssociationBranches_.end(),
                             target,
@@ -35,7 +38,7 @@ namespace edm {
 
   std::vector<ThinnedAssociationBranches>::const_iterator ThinnedAssociationsHelper::parentEnd(
       BranchID const& parent) const {
-    ThinnedAssociationBranches target(parent, BranchID(), BranchID());
+    ThinnedAssociationBranches target(parent, BranchID(), BranchID(), false);
     return std::upper_bound(vThinnedAssociationBranches_.begin(),
                             vThinnedAssociationBranches_.end(),
                             target,
@@ -44,28 +47,135 @@ namespace edm {
                             });
   }
 
-  void ThinnedAssociationsHelper::sort() {
-    std::sort(vThinnedAssociationBranches_.begin(),
-              vThinnedAssociationBranches_.end(),
-              [](ThinnedAssociationBranches const& x, ThinnedAssociationBranches const& y) {
-                return x.parent() < y.parent() ? true
-                                               : y.parent() < x.parent() ? false : x.association() < y.association();
-              });
+  std::vector<ThinnedAssociationBranches>::const_iterator ThinnedAssociationsHelper::lower_bound(
+      ThinnedAssociationBranches const& branches) const {
+    return std::lower_bound(
+        vThinnedAssociationBranches_.begin(),
+        vThinnedAssociationBranches_.end(),
+        branches,
+        [](ThinnedAssociationBranches const& x, ThinnedAssociationBranches const& y) {
+          return x.parent() < y.parent() ? true : y.parent() < x.parent() ? false : x.association() < y.association();
+        });
   }
 
   void ThinnedAssociationsHelper::addAssociation(BranchID const& parent,
                                                  BranchID const& association,
-                                                 BranchID const& thinned) {
-    vThinnedAssociationBranches_.push_back(ThinnedAssociationBranches(parent, association, thinned));
+                                                 BranchID const& thinned,
+                                                 bool slimmed) {
+    addAssociation(ThinnedAssociationBranches(parent, association, thinned, slimmed));
   }
 
   void ThinnedAssociationsHelper::addAssociation(ThinnedAssociationBranches const& branches) {
-    vThinnedAssociationBranches_.push_back(branches);
+    vThinnedAssociationBranches_.insert(lower_bound(branches), branches);
+    if (branches.isSlimmed()) {
+      try {
+        ensureSlimmingConstraints();
+      } catch (edm::Exception& ex) {
+        ex.addContext("Calling ThinnedAssociationsHelper::addAssociation()");
+        ex.addAdditionalInfo(fmt::format("When adding a slimmed collection with BranchID {}", branches.thinned().id()));
+        throw ex;
+      }
+    }
+  }
+}  // namespace edm
+
+namespace {
+  struct SlimmedCount {
+    edm::BranchID parent;
+    int slimmedChildrenCount;
+  };
+
+  int countSlimmingChildren(edm::ThinnedAssociationsHelper const& helper,
+                            edm::BranchID const& parent,
+                            std::vector<SlimmedCount> const& counts);
+  void addSlimmingChildrenCount(edm::ThinnedAssociationsHelper const& helper,
+                                edm::ThinnedAssociationBranches const& branches,
+                                std::vector<SlimmedCount> const& counts,
+                                int& slimmedCount) {
+    int slimmingChildren = countSlimmingChildren(helper, branches.thinned(), counts);
+    if (slimmingChildren > 1) {
+      throw edm::Exception(edm::errors::LogicError)
+          << "Encountered a parent collection with BranchID " << branches.thinned().id()
+          << " that has more than one thinned children that are either themselves slimmed, or have further thinned "
+             "children that are slimmed. This is not allowed, but this particular check should not fire (it should "
+             "have been caught earlier). Please contact framework developers.";
+    }
+
+    if (slimmingChildren == 0 and branches.isSlimmed()) {
+      ++slimmingChildren;
+    }
+
+    slimmedCount += slimmingChildren;
+    if (slimmedCount > 1) {
+      throw edm::Exception(edm::errors::LogicError)
+          << "Encountered a parent collection with BranchID " << branches.parent().id()
+          << " that has more than one thinned children that are either themselves slimmed, or have further thinned "
+             "children that are slimmed. This is not allowed. In the thinning parentage tree, any parent may have "
+             "slimmed collections in at most one path to any leaf thinned collections of that parent.";
+    }
   }
 
-  std::vector<std::pair<BranchID, ThinnedAssociationBranches const*> >
-  ThinnedAssociationsHelper::associationToBranches() const {
-    std::vector<std::pair<BranchID, ThinnedAssociationBranches const*> > temp;
+  int countSlimmingChildren(edm::ThinnedAssociationsHelper const& helper,
+                            edm::BranchID const& parent,
+                            std::vector<SlimmedCount> const& counts) {
+    auto begin = helper.parentBegin(parent);
+    auto end = helper.parentEnd(parent);
+    if (begin == end)
+      return 0;
+
+    // if already visited, can just return the count
+    auto pos =
+        std::lower_bound(counts.begin(), counts.end(), parent, [](SlimmedCount const& c, edm::BranchID const& b) {
+          return c.parent < b;
+        });
+    if (pos != counts.end() && pos->parent == parent) {
+      return pos->slimmedChildrenCount;
+    }
+
+    int slimmedCount = 0;
+    for (auto iItem = begin; iItem != end; ++iItem) {
+      addSlimmingChildrenCount(helper, *iItem, counts, slimmedCount);
+    }
+    return slimmedCount;
+  }
+}  // namespace
+
+namespace edm {
+  void ThinnedAssociationsHelper::ensureSlimmingConstraints() const {
+    // ThinnedAssociationBranches defines an edge between a parent and
+    // a thinned collection in the parentage tree of the thinned
+    // collections. It is required that for a given parentage tree
+    // there is at most one path from the root node to any leaf nodes
+    // that has slimming edges.
+
+    std::vector<::SlimmedCount> counts;
+    BranchID prevParent;
+    std::vector<SlimmedCount>::iterator currentCount;
+    for (auto iItem = begin(), iEnd = end(); iItem != iEnd; ++iItem) {
+      if (iItem->parent() == BranchID()) {
+        continue;
+      }
+      if (iItem->parent() == prevParent) {
+        addSlimmingChildrenCount(*this, *iItem, counts, currentCount->slimmedChildrenCount);
+      } else {
+        currentCount = std::lower_bound(
+            counts.begin(), counts.end(), iItem->parent(), [](SlimmedCount const& c, BranchID const& b) {
+              return c.parent < b;
+            });
+        // has the tree with iItem->parent() as root node already been counted?
+        if (currentCount != counts.end() && currentCount->parent == iItem->parent()) {
+          continue;
+        }
+        currentCount = counts.insert(currentCount, ::SlimmedCount{iItem->parent(), 0});
+        addSlimmingChildrenCount(*this, *iItem, counts, currentCount->slimmedChildrenCount);
+        prevParent = iItem->parent();
+      }
+    }
+  }
+
+  std::vector<std::pair<BranchID, ThinnedAssociationBranches const*>> ThinnedAssociationsHelper::associationToBranches()
+      const {
+    std::vector<std::pair<BranchID, ThinnedAssociationBranches const*>> temp;
     for (auto const& item : vThinnedAssociationBranches_) {
       temp.push_back(std::make_pair(item.association(), &item));
     }
@@ -83,7 +193,7 @@ namespace edm {
     keepAssociation.clear();
     // Copy the elements in vThinnedAssociationBranches_ into a vector sorted on
     // the association BranchID so we can do searches on that BranchID faster.
-    std::vector<std::pair<BranchID, ThinnedAssociationBranches const*> > assocToBranches = associationToBranches();
+    std::vector<std::pair<BranchID, ThinnedAssociationBranches const*>> assocToBranches = associationToBranches();
 
     for (auto association : associationDescriptions) {
       if (association
@@ -99,7 +209,7 @@ namespace edm {
 
   bool ThinnedAssociationsHelper::shouldKeepAssociation(
       BranchID const& association,
-      std::vector<std::pair<BranchID, ThinnedAssociationBranches const*> > const& associationToBranches,
+      std::vector<std::pair<BranchID, ThinnedAssociationBranches const*>> const& associationToBranches,
       std::set<BranchID>& branchesInRecursion,
       std::set<BranchID> const& keptProductsInEvent,
       std::map<BranchID, bool>& keepAssociation) const {
@@ -181,7 +291,7 @@ namespace edm {
     if (associationsFromSecondary.empty())
       return;
 
-    std::vector<std::pair<BranchID, ThinnedAssociationBranches const*> > assocToBranches =
+    std::vector<std::pair<BranchID, ThinnedAssociationBranches const*>> assocToBranches =
         helper.associationToBranches();
 
     for (BranchID const& association : associationsFromSecondary) {
@@ -219,10 +329,9 @@ namespace edm {
         if (iter != droppedBranchIDToKeptBranchID.end()) {
           thinned = BranchID(iter->second);
         }
-        addAssociation(parent, associationBranches.association(), thinned);
+        addAssociation(parent, associationBranches.association(), thinned, associationBranches.isSlimmed());
       }
     }
-    sort();
   }
 
   void ThinnedAssociationsHelper::initAssociationsFromSecondary(
@@ -230,7 +339,7 @@ namespace edm {
     if (associationsFromSecondary.empty())
       return;
 
-    std::vector<std::pair<BranchID, ThinnedAssociationBranches const*> > assocToBranches =
+    std::vector<std::pair<BranchID, ThinnedAssociationBranches const*>> assocToBranches =
         fileAssociationsHelper.associationToBranches();
 
     for (BranchID const& association : associationsFromSecondary) {
@@ -248,6 +357,5 @@ namespace edm {
       }
       addAssociation(*(branches->second));
     }
-    sort();
   }
 }  // namespace edm

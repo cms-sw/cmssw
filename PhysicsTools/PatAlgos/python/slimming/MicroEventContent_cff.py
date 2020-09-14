@@ -6,6 +6,10 @@ MicroEventContent = cms.PSet(
         'keep *_slimmedOOTPhotons_*_*',
         'keep *_slimmedElectrons_*_*',
         'keep *_slimmedMuons_*_*',
+        'keep recoTrackExtras_slimmedMuonTrackExtras_*_*',
+        'keep TrackingRecHitsOwned_slimmedMuonTrackExtras_*_*',
+        'keep SiPixelClusteredmNewDetSetVector_slimmedMuonTrackExtras_*_*',
+        'keep SiStripClusteredmNewDetSetVector_slimmedMuonTrackExtras_*_*',
         'keep *_slimmedTaus_*_*',
         'keep *_slimmedTausBoosted_*_*',
         'keep *_slimmedCaloJets_*_*',
@@ -32,6 +36,7 @@ MicroEventContent = cms.PSet(
         'keep EcalRecHitsSorted_reducedEgamma_*_*',
         'keep recoGsfTracks_reducedEgamma_*_*',
         'keep HBHERecHitsSorted_reducedEgamma_*_*',
+        'keep *_slimmedHcalRecHits_*_*',
         'drop *_*_caloTowers_*',
         'drop *_*_pfCandidates_*',
         'drop *_*_genJets_*',
@@ -135,7 +140,11 @@ run3_common.toModify(MicroEventContent, outputCommands = MicroEventContent.outpu
 
 _pp_on_AA_extraCommands = [
     'keep patPackedCandidates_hiPixelTracks_*_*',
-    'keep *_packedCandidateMuonID_*_*' 
+    'keep *_packedCandidateMuonID_*_*',
+    'keep floatedmValueMap_packedPFCandidateTrackChi2_*_*',
+    'keep floatedmValueMap_lostTrackChi2_*_*',
+    'keep recoCentrality_hiCentrality_*_*',
+    'keep int_centralityBin_*_*',
 ]
 from Configuration.Eras.Modifier_pp_on_AA_2018_cff import pp_on_AA_2018
 from Configuration.Eras.Modifier_pp_on_PbPb_run3_cff import pp_on_PbPb_run3

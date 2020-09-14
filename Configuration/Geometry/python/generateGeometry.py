@@ -14,7 +14,7 @@ class ArgumentDefaultsRawHelpFormatter(
 pass
 
 class GeometryGenerator(object):
-    def __init__(self, scriptName, detectorVersionDefault, detectorPrefix, detectorYear, maxSections, allDicts, detectorVersionDict, deprecatedDets = None, deprecatedSubdets = None):
+    def __init__(self, scriptName, detectorVersionDefault, detectorPrefix, detectorYear, maxSections, allDicts, detectorVersionDict, deprecatedDets = None, deprecatedSubdets = None, detectorVersionType = int):
         self.scriptName = scriptName
         self.detectorVersionDefault = detectorVersionDefault
         self.detectorPrefix = detectorPrefix
@@ -24,6 +24,7 @@ class GeometryGenerator(object):
         self.detectorVersionDict = detectorVersionDict
         self.deprecatedDets = deprecatedDets
         self.deprecatedSubdets = deprecatedSubdets
+        self.detectorVersionType = detectorVersionType
 
     def generateGeom(self, detectorTuple, args):
         detectorVersion = self.detectorPrefix+str(args.detectorVersionManual)
@@ -207,7 +208,7 @@ class GeometryGenerator(object):
         for aDict in self.allDicts:
             parser.add_argument("-"+aDict["abbrev"], "--"+aDict["name"], dest="v_"+aDict["name"], default=aDict["default"], type=int, help="version for "+aDict["name"])
         parser.add_argument("-V", "--version", dest="detectorVersionManual", default=self.detectorVersionDefault, type=int, help="manual detector version number")
-        parser.add_argument("-D", "--detector", dest="v_detector", default=0, type=int, help="version for whole detector, ignored if 0, overrides subdet versions otherwise")
+        parser.add_argument("-D", "--detector", dest="v_detector", default=0, type=self.detectorVersionType, help="version for whole detector, ignored if 0, overrides subdet versions otherwise")
         parser.add_argument("-l", "--list", dest="doList", default=False, action="store_true", help="list known detector versions and exit")
         parser.add_argument("-t", "--test", dest="doTest", default=False, action="store_true", help="enable unit test mode")
         args = parser.parse_args()

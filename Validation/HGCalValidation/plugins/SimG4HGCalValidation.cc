@@ -172,13 +172,12 @@ void SimG4HGCalValidation::update(const BeginOfJob* job) {
       edm::ESHandle<HGCalDDDConstants> hdc;
       es->get<IdealGeometryRecord>().get(nameX, hdc);
       if (hdc.isValid()) {
-        HGCalGeometryMode::GeometryMode m_mode = hdc->geomMode();
         levelT1_ = hdc->levelTop(0);
         levelT2_ = hdc->levelTop(1);
-        if (m_mode == HGCalGeometryMode::Trapezoid) {
+        if (hdc->tileTrapezoid()) {
           types_[type] = -1;
           hgcalNumbering_.emplace_back(new HGCalNumberingScheme(*hdc, (DetId::Detector)(dets_[type]), nameX));
-        } else if ((m_mode == HGCalGeometryMode::Hexagon) || (m_mode == HGCalGeometryMode::HexagonFull)) {
+        } else if (hdc->waferHexagon6()) {
           types_[type] = 1;
           hgcNumbering_.push_back(new HGCNumberingScheme(*hdc, nameX));
         } else {

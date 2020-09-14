@@ -6,21 +6,20 @@
 #include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
 #include "DataFormats/EcalRecHit/interface/EcalUncalibratedRecHit.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
-#include "CondFormats/DataRecord/interface/ESGainRcd.h"
-#include "CondFormats/DataRecord/interface/ESChannelStatusRcd.h"
-#include "CondFormats/DataRecord/interface/ESMIPToGeVConstantRcd.h"
-#include "CondFormats/DataRecord/interface/ESTimeSampleWeightsRcd.h"
-#include "CondFormats/DataRecord/interface/ESPedestalsRcd.h"
-#include "CondFormats/DataRecord/interface/ESIntercalibConstantsRcd.h"
-#include "CondFormats/DataRecord/interface/ESRecHitRatioCutsRcd.h"
-#include "CondFormats/DataRecord/interface/ESAngleCorrectionFactorsRcd.h"
-
 #include <cmath>
 #include <iomanip>
 #include <iostream>
 
-ESRecHitWorker::ESRecHitWorker(const edm::ParameterSet &ps) : ESRecHitWorkerBaseClass(ps) {
+ESRecHitWorker::ESRecHitWorker(const edm::ParameterSet &ps, edm::ConsumesCollector cc) : ESRecHitWorkerBaseClass(ps) {
   recoAlgo_ = ps.getParameter<int>("ESRecoAlgo");
+  esgainToken_ = cc.esConsumes<ESGain, ESGainRcd>();
+  esMIPToGeVToken_ = cc.esConsumes<ESMIPToGeVConstant, ESMIPToGeVConstantRcd>();
+  esWeightsToken_ = cc.esConsumes<ESTimeSampleWeights, ESTimeSampleWeightsRcd>();
+  esPedestalsToken_ = cc.esConsumes<ESPedestals, ESPedestalsRcd>();
+  esMIPsToken_ = cc.esConsumes<ESIntercalibConstants, ESIntercalibConstantsRcd>();
+  esChannelStatusToken_ = cc.esConsumes<ESChannelStatus, ESChannelStatusRcd>();
+  esRatioCutsToken_ = cc.esConsumes<ESRecHitRatioCuts, ESRecHitRatioCutsRcd>();
+  esAngleCorrFactorsToken_ = cc.esConsumes<ESAngleCorrectionFactors, ESAngleCorrectionFactorsRcd>();
 
   if (recoAlgo_ == 0)
     algoW_ = new ESRecHitSimAlgo();
@@ -40,35 +39,35 @@ ESRecHitWorker::~ESRecHitWorker() {
 }
 
 void ESRecHitWorker::set(const edm::EventSetup &es) {
-  es.get<ESGainRcd>().get(esgain_);
+  esgain_ = es.getHandle(esgainToken_);
   const ESGain *gain = esgain_.product();
 
-  es.get<ESMIPToGeVConstantRcd>().get(esMIPToGeV_);
+  esMIPToGeV_ = es.getHandle(esMIPToGeVToken_);
   const ESMIPToGeVConstant *mipToGeV = esMIPToGeV_.product();
 
   double ESGain = gain->getESGain();
   double ESMIPToGeV = (ESGain == 1) ? mipToGeV->getESValueLow() : mipToGeV->getESValueHigh();
 
-  es.get<ESTimeSampleWeightsRcd>().get(esWeights_);
+  esWeights_ = es.getHandle(esWeightsToken_);
   const ESTimeSampleWeights *wgts = esWeights_.product();
 
   float w0 = wgts->getWeightForTS0();
   float w1 = wgts->getWeightForTS1();
   float w2 = wgts->getWeightForTS2();
 
-  es.get<ESPedestalsRcd>().get(esPedestals_);
+  esPedestals_ = es.getHandle(esPedestalsToken_);
   const ESPedestals *peds = esPedestals_.product();
 
-  es.get<ESIntercalibConstantsRcd>().get(esMIPs_);
+  esMIPs_ = es.getHandle(esMIPsToken_);
   const ESIntercalibConstants *mips = esMIPs_.product();
 
-  es.get<ESAngleCorrectionFactorsRcd>().get(esAngleCorrFactors_);
+  esAngleCorrFactors_ = es.getHandle(esAngleCorrFactorsToken_);
   const ESAngleCorrectionFactors *ang = esAngleCorrFactors_.product();
 
-  es.get<ESChannelStatusRcd>().get(esChannelStatus_);
+  esChannelStatus_ = es.getHandle(esChannelStatusToken_);
   const ESChannelStatus *channelStatus = esChannelStatus_.product();
 
-  es.get<ESRecHitRatioCutsRcd>().get(esRatioCuts_);
+  esRatioCuts_ = es.getHandle(esRatioCutsToken_);
   const ESRecHitRatioCuts *ratioCuts = esRatioCuts_.product();
 
   if (recoAlgo_ == 0) {

@@ -293,7 +293,7 @@ void DTTrigPhase2Prod::produce(Event& iEvent, const EventSetup& iEventSetup) {
       std::queue<std::pair<DTLayerId, DTDigi>> timequeue;
 
       for (const auto& elem : tmpvec)
-        timequeue.emplace(std::move(elem));
+        timequeue.emplace(elem);
       tmpvec.clear();
 
       // Distribute the digis from the queue into supercells

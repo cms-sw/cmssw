@@ -11,8 +11,7 @@
 //
 
 // system include files
-#include <boost/filesystem/operations.hpp>
-
+#include <filesystem>
 #include <fstream>
 #include <functional>
 #include <set>
@@ -39,8 +38,8 @@ namespace edmplugin {
   // static data member definitions
   //
 
-  static bool readCacheFile(const boost::filesystem::path& cacheFile,
-                            const boost::filesystem::path& dir,
+  static bool readCacheFile(const std::filesystem::path& cacheFile,
+                            const std::filesystem::path& dir,
                             PluginManager::CategoryToInfos& categoryToInfos) {
     if (exists(cacheFile)) {
       std::ifstream file(cacheFile.string().c_str());
@@ -58,11 +57,11 @@ namespace edmplugin {
   //
   PluginManager::PluginManager(const PluginManager::Config& iConfig) : searchPath_(iConfig.searchPath()) {
     using std::placeholders::_1;
-    const boost::filesystem::path& kCacheFile(standard::cachefileName());
+    const std::filesystem::path& kCacheFile(standard::cachefileName());
     // This is the filename of a file which contains plugins which exist in the
     // base release and which should exists in the local area, otherwise they
     // were removed and we want to catch their usage.
-    const boost::filesystem::path& kPoisonedCacheFile(standard::poisonedCachefileName());
+    const std::filesystem::path& kPoisonedCacheFile(standard::poisonedCachefileName());
     //NOTE: This may not be needed :/
     PluginFactoryManager* pfm = PluginFactoryManager::get();
     pfm->newFactory_.connect(std::bind(std::mem_fn(&PluginManager::newFactory), this, _1));
@@ -86,13 +85,13 @@ namespace edmplugin {
         continue;
       }
       alreadySeen.insert(*itPath);
-      boost::filesystem::path dir(*itPath);
+      std::filesystem::path dir(*itPath);
       if (exists(dir)) {
         if (not is_directory(dir)) {
           throw cms::Exception("PluginManagerBadPath")
               << "The path '" << dir.string() << "' for the PluginManager is not a directory";
         }
-        boost::filesystem::path cacheFile = dir / kCacheFile;
+        std::filesystem::path cacheFile = dir / kCacheFile;
 
         if (readCacheFile(cacheFile, dir, categoryToInfos_)) {
           foundAtLeastOneCacheFile = true;
@@ -100,7 +99,7 @@ namespace edmplugin {
 
         // We do not check for return code since we do not want to consider a
         // poison cache file as a valid cache file having been found.
-        boost::filesystem::path poisonedCacheFile = dir / kPoisonedCacheFile;
+        std::filesystem::path poisonedCacheFile = dir / kPoisonedCacheFile;
         readCacheFile(poisonedCacheFile, dir / "poisoned", categoryToInfos_);
       }
     }
@@ -148,14 +147,14 @@ namespace edmplugin {
     };
   }  // namespace
 
-  const boost::filesystem::path& PluginManager::loadableFor(const std::string& iCategory, const std::string& iPlugin) {
+  const std::filesystem::path& PluginManager::loadableFor(const std::string& iCategory, const std::string& iPlugin) {
     bool throwIfFail = true;
     return loadableFor_(iCategory, iPlugin, throwIfFail);
   }
 
-  const boost::filesystem::path& PluginManager::loadableFor_(const std::string& iCategory,
-                                                             const std::string& iPlugin,
-                                                             bool& ioThrowIfFailElseSucceedStatus) {
+  const std::filesystem::path& PluginManager::loadableFor_(const std::string& iCategory,
+                                                           const std::string& iPlugin,
+                                                           bool& ioThrowIfFailElseSucceedStatus) {
     const bool throwIfFail = ioThrowIfFailElseSucceedStatus;
     ioThrowIfFailElseSucceedStatus = true;
     CategoryToInfos::iterator itFound = categoryToInfos_.find(iCategory);
@@ -165,7 +164,7 @@ namespace edmplugin {
                                                << iCategory << "' has no known plugins";
       } else {
         ioThrowIfFailElseSucceedStatus = false;
-        static const boost::filesystem::path s_path;
+        static const std::filesystem::path s_path;
         return s_path;
       }
     }
@@ -181,23 +180,23 @@ namespace edmplugin {
                                                << "'. Please check spelling of name.";
       } else {
         ioThrowIfFailElseSucceedStatus = false;
-        static const boost::filesystem::path s_path;
+        static const std::filesystem::path s_path;
         return s_path;
       }
     }
 
     if (range.second - range.first > 1) {
       //see if the come from the same directory
-      if (range.first->loadable_.branch_path() == (range.first + 1)->loadable_.branch_path()) {
+      if (range.first->loadable_.parent_path() == (range.first + 1)->loadable_.parent_path()) {
         //std::cout<<range.first->name_ <<" " <<(range.first+1)->name_<<std::endl;
         throw cms::Exception("MultiplePlugins")
             << "The plugin '" << iPlugin
             << "' is found in multiple files \n"
                " '"
-            << range.first->loadable_.leaf() << "'\n '" << (range.first + 1)->loadable_.leaf()
+            << range.first->loadable_.filename() << "'\n '" << (range.first + 1)->loadable_.filename()
             << "'\n"
                "in directory '"
-            << range.first->loadable_.branch_path().string()
+            << range.first->loadable_.parent_path().string()
             << "'.\n"
                "The code must be changed so the plugin only appears in one plugin file. "
                "You will need to remove the macro which registers the plugin so it only appears in"
@@ -226,7 +225,7 @@ namespace edmplugin {
 
   const SharedLibrary& PluginManager::load(const std::string& iCategory, const std::string& iPlugin) {
     askedToLoadCategoryWithPlugin_(iCategory, iPlugin);
-    const boost::filesystem::path& p = loadableFor(iCategory, iPlugin);
+    const std::filesystem::path& p = loadableFor(iCategory, iPlugin);
 
     //have we already loaded this?
     auto itLoaded = loadables_.find(p);
@@ -239,7 +238,7 @@ namespace edmplugin {
         //try to make one
         goingToLoad_(p);
         Sentry s(loadingLibraryNamed_(), p.string());
-        //boost::filesystem::path native(p.string());
+        //std::filesystem::path native(p.string());
         std::shared_ptr<SharedLibrary> ptr;
         {
           //TEMPORARY: to avoid possible deadlocks from ROOT, we must
@@ -263,7 +262,7 @@ namespace edmplugin {
   const SharedLibrary* PluginManager::tryToLoad(const std::string& iCategory, const std::string& iPlugin) {
     askedToLoadCategoryWithPlugin_(iCategory, iPlugin);
     bool ioThrowIfFailElseSucceedStatus = false;
-    const boost::filesystem::path& p = loadableFor_(iCategory, iPlugin, ioThrowIfFailElseSucceedStatus);
+    const std::filesystem::path& p = loadableFor_(iCategory, iPlugin, ioThrowIfFailElseSucceedStatus);
 
     if (not ioThrowIfFailElseSucceedStatus) {
       return nullptr;
@@ -280,7 +279,7 @@ namespace edmplugin {
         //try to make one
         goingToLoad_(p);
         Sentry s(loadingLibraryNamed_(), p.string());
-        //boost::filesystem::path native(p.string());
+        //std::filesystem::path native(p.string());
         std::shared_ptr<SharedLibrary> ptr;
         {
           //TEMPORARY: to avoid possible deadlocks from ROOT, we must

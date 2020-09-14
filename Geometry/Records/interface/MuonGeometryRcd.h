@@ -9,15 +9,15 @@
 #include "CondFormats/AlignmentRecord/interface/DTAlignmentRcd.h"
 #include "CondFormats/AlignmentRecord/interface/DTAlignmentErrorRcd.h"
 #include "CondFormats/AlignmentRecord/interface/DTAlignmentErrorExtendedRcd.h"
-#include "boost/mpl/vector.hpp"
+#include "FWCore/Utilities/interface/mplVector.h"
 
 class MuonGeometryRcd
     : public edm::eventsetup::DependentRecordImplementation<MuonGeometryRcd,
-                                                            boost::mpl::vector<MuonNumberingRcd,
-                                                                               DDSpecParRegistryRcd,
-                                                                               GlobalPositionRcd,
-                                                                               DTAlignmentRcd,
-                                                                               DTAlignmentErrorRcd,
-                                                                               DTAlignmentErrorExtendedRcd,
-                                                                               DTRecoGeometryRcd>> {};
+                                                            edm::mpl::Vector<MuonNumberingRcd,
+                                                                             DDSpecParRegistryRcd,
+                                                                             GlobalPositionRcd,
+                                                                             DTAlignmentRcd,
+                                                                             DTAlignmentErrorRcd,
+                                                                             DTAlignmentErrorExtendedRcd,
+                                                                             DTRecoGeometryRcd>> {};
 #endif

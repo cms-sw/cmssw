@@ -2,8 +2,22 @@
 #define CONDCORE_SIPIXELPLUGINS_PHASE1PIXELMAPS_H
 
 #include "TH2Poly.h"
+#include "TGraph.h"
+#include "TH1.h"
+#include "TH2.h"
+#include "TStyle.h"
+#include "TCanvas.h"
+
+#include <fstream>
+#include <boost/tokenizer.hpp>
+#include <boost/range/adaptor/indexed.hpp>
+
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "CalibTracker/StandaloneTrackerTopology/interface/StandaloneTrackerTopology.h"
-#include "CondCore/SiPixelPlugins/interface/SiPixelPayloadInspectorHelper.h"
+
+#define MYOUT LogDebug("Phase1PixelMaps")
+
+using indexedCorners = std::map<unsigned int, std::pair<std::vector<float>, std::vector<float>>>;
 
 /*--------------------------------------------------------------------
 / Ancillary class to build pixel phase-1 tracker maps
@@ -14,6 +28,9 @@ public:
       : m_option{option},
         m_trackerTopo{StandaloneTrackerTopology::fromTrackerParametersXMLFile(
             edm::FileInPath("Geometry/TrackerCommonData/data/PhaseI/trackerParameters.xml").fullPath())} {
+    // set the rescale to true by default
+    m_autorescale = true;
+
     // store the file in path for the corners (BPIX)
     for (unsigned int i = 1; i <= 4; i++) {
       m_cornersBPIX.push_back(edm::FileInPath(Form("DQM/SiStripMonitorClient/data/Geometry/vertices_barrel_%i", i)));
@@ -26,6 +43,111 @@ public:
   }
 
   ~Phase1PixelMaps() {}
+
+  // set of no rescale
+  void setNoRescale() { m_autorescale = false; }
+
+  /*--------------------------------------------------------------------*/
+  const indexedCorners retrieveCorners(const std::vector<edm::FileInPath>& cornerFiles, const unsigned int reads)
+  /*--------------------------------------------------------------------*/
+  {
+    indexedCorners theOutMap;
+
+    for (const auto& file : cornerFiles) {
+      auto cornerFileName = file.fullPath();
+      std::ifstream cornerFile(cornerFileName.c_str());
+      if (!cornerFile.good()) {
+        throw cms::Exception("FileError") << "Problem opening corner file: " << cornerFileName;
+      }
+      std::string line;
+      while (std::getline(cornerFile, line)) {
+        if (!line.empty()) {
+          std::istringstream iss(line);
+          unsigned int id;
+          std::string name;
+          std::vector<std::string> corners(reads, "");
+          std::vector<float> xP, yP;
+
+          iss >> id >> name;
+          for (unsigned int i = 0; i < reads; ++i) {
+            iss >> corners.at(i);
+          }
+
+          MYOUT << id << " : ";
+          for (unsigned int i = 0; i < reads; i++) {
+            // remove the leading and trailing " signs in the corners list
+            (corners[i]).erase(std::remove(corners[i].begin(), corners[i].end(), '"'), corners[i].end());
+            MYOUT << corners.at(i) << " ";
+            typedef boost::tokenizer<boost::char_separator<char>> tokenizer;
+            boost::char_separator<char> sep{","};
+            tokenizer tok{corners.at(i), sep};
+            for (const auto& t : tok | boost::adaptors::indexed(0)) {
+              if (t.index() == 0) {
+                xP.push_back(atof((t.value()).c_str()));
+              } else if (t.index() == 1) {
+                yP.push_back(atof((t.value()).c_str()));
+              } else {
+                edm::LogError("LogicError") << "There should not be any token with index " << t.index() << std::endl;
+              }
+            }
+          }
+          MYOUT << std::endl;
+
+          xP.push_back(xP.front());
+          yP.push_back(yP.front());
+
+          for (unsigned int i = 0; i < xP.size(); i++) {
+            MYOUT << "x[" << i << "]=" << xP[i] << " y[" << i << "]" << yP[i] << std::endl;
+          }
+
+          theOutMap[id] = std::make_pair(xP, yP);
+
+        }  // if line is empty
+      }    // loop on lines
+    }      // loop on files
+    return theOutMap;
+  }
+
+  /*--------------------------------------------------------------------*/
+  void makeNicePlotStyle(TH1* hist)
+  /*--------------------------------------------------------------------*/
+  {
+    hist->SetStats(kFALSE);
+    hist->SetLineWidth(2);
+    hist->GetXaxis()->CenterTitle(true);
+    hist->GetYaxis()->CenterTitle(true);
+    hist->GetXaxis()->SetTitleFont(42);
+    hist->GetYaxis()->SetTitleFont(42);
+    hist->GetXaxis()->SetTitleSize(0.05);
+    hist->GetYaxis()->SetTitleSize(0.05);
+    hist->GetXaxis()->SetTitleOffset(1.1);
+    hist->GetYaxis()->SetTitleOffset(1.3);
+    hist->GetXaxis()->SetLabelFont(42);
+    hist->GetYaxis()->SetLabelFont(42);
+    hist->GetYaxis()->SetLabelSize(.05);
+    hist->GetXaxis()->SetLabelSize(.05);
+
+    if (hist->InheritsFrom(TH2::Class())) {
+      hist->GetZaxis()->SetLabelFont(42);
+      hist->GetZaxis()->SetLabelFont(42);
+      hist->GetZaxis()->SetLabelSize(.05);
+      hist->GetZaxis()->SetLabelSize(.05);
+    }
+  }
+
+  /*--------------------------------------------------------------------*/
+  void adjustCanvasMargins(TVirtualPad* pad, float top, float bottom, float left, float right)
+  /*--------------------------------------------------------------------*/
+  {
+    if (top > 0)
+      pad->SetTopMargin(top);
+    if (bottom > 0)
+      pad->SetBottomMargin(bottom);
+    if (left > 0)
+      pad->SetLeftMargin(left);
+    if (right > 0)
+      pad->SetRightMargin(right);
+  }
 
   //============================================================================
   void bookBarrelHistograms(const std::string& currentHistoName, const char* what, const char* zaxis) {
@@ -101,7 +223,7 @@ public:
 
   //============================================================================
   void bookBarrelBins(const std::string& currentHistoName) {
-    auto theIndexedCorners = SiPixelPI::retrieveCorners(m_cornersBPIX, 4);
+    auto theIndexedCorners = this->retrieveCorners(m_cornersBPIX, 4);
 
     for (const auto& entry : theIndexedCorners) {
       auto id = entry.first;
@@ -130,14 +252,23 @@ public:
       binsSummary[id] = std::make_shared<TGraph>(5, vertX, vertY);
       binsSummary[id]->SetName(TString::Format("%u", id));
 
-      pxbTh2PolyBarrel[currentHistoName][layer - 1]->AddBin(bins[id]->Clone());
-      pxbTh2PolyBarrelSummary[currentHistoName]->AddBin(binsSummary[id]->Clone());
+      if (pxbTh2PolyBarrel.find(currentHistoName) != pxbTh2PolyBarrel.end()) {
+        pxbTh2PolyBarrel[currentHistoName][layer - 1]->AddBin(bins[id]->Clone());
+      } else {
+        throw cms::Exception("LogicError") << currentHistoName << " is not found in the Barrel map! Aborting.";
+      }
+
+      if (pxbTh2PolyBarrelSummary.find(currentHistoName) != pxbTh2PolyBarrelSummary.end()) {
+        pxbTh2PolyBarrelSummary[currentHistoName]->AddBin(binsSummary[id]->Clone());
+      } else {
+        throw cms::Exception("LocalError") << currentHistoName << " is not found in the Barrel Summary map! Aborting.";
+      }
     }
   }
 
   //============================================================================
   void bookForwardBins(const std::string& currentHistoName) {
-    auto theIndexedCorners = SiPixelPI::retrieveCorners(m_cornersFPIX, 3);
+    auto theIndexedCorners = this->retrieveCorners(m_cornersFPIX, 3);
 
     for (const auto& entry : theIndexedCorners) {
       auto id = entry.first;
@@ -168,8 +299,17 @@ public:
       binsSummary[id] = std::make_shared<TGraph>(4, vertX, vertY);
       binsSummary[id]->SetName(TString::Format("%u", id));
 
-      pxfTh2PolyForward[currentHistoName][mapIdx]->AddBin(bins[id]->Clone());
-      pxfTh2PolyForwardSummary[currentHistoName]->AddBin(binsSummary[id]->Clone());
+      if (pxfTh2PolyForward.find(currentHistoName) != pxfTh2PolyForward.end()) {
+        pxfTh2PolyForward[currentHistoName][mapIdx]->AddBin(bins[id]->Clone());
+      } else {
+        throw cms::Exception("LogicError") << currentHistoName << " is not found in the Forward map! Aborting.";
+      }
+
+      if (pxfTh2PolyForwardSummary.find(currentHistoName) != pxfTh2PolyForwardSummary.end()) {
+        pxfTh2PolyForwardSummary[currentHistoName]->AddBin(binsSummary[id]->Clone());
+      } else {
+        throw cms::Exception("LogicError") << currentHistoName << " is not found in the Forward Summary map! Aborting.";
+      }
     }
   }
 
@@ -205,7 +345,7 @@ public:
   void beautifyAllHistograms() {
     for (const auto& vec : pxbTh2PolyBarrel) {
       for (const auto& plot : vec.second) {
-        SiPixelPI::makeNicePlotStyle(plot.get());
+        this->makeNicePlotStyle(plot.get());
         plot->GetXaxis()->SetTitleOffset(0.9);
         plot->GetYaxis()->SetTitleOffset(0.9);
         plot->GetZaxis()->SetTitleOffset(1.2);
@@ -215,7 +355,7 @@ public:
 
     for (const auto& vec : pxfTh2PolyForward) {
       for (const auto& plot : vec.second) {
-        SiPixelPI::makeNicePlotStyle(plot.get());
+        this->makeNicePlotStyle(plot.get());
         plot->GetXaxis()->SetTitleOffset(0.9);
         plot->GetYaxis()->SetTitleOffset(0.9);
         plot->GetZaxis()->SetTitleOffset(1.2);
@@ -267,6 +407,20 @@ public:
   }
 
   //============================================================================
+  void setBarrelScale(const std::string& currentHistoName, std::pair<float, float> extrema) {
+    for (auto& histo : pxbTh2PolyBarrel[currentHistoName]) {
+      histo->GetZaxis()->SetRangeUser(extrema.first, extrema.second);
+    }
+  }
+
+  //============================================================================
+  void setForwardScale(const std::string& currentHistoName, std::pair<float, float> extrema) {
+    for (auto& histo : pxfTh2PolyForward[currentHistoName]) {
+      histo->GetZaxis()->SetRangeUser(extrema.first, extrema.second);
+    }
+  }
+
+  //============================================================================
   void DrawBarrelMaps(const std::string& currentHistoName, TCanvas& canvas) {
     canvas.Divide(2, 2);
     for (int i = 1; i <= 4; i++) {
@@ -275,8 +429,9 @@ public:
         canvas.cd(i)->SetRightMargin(0.02);
         pxbTh2PolyBarrel[currentHistoName].at(i - 1)->SetMarkerColor(kRed);
       } else {
-        rescaleAllBarrel(currentHistoName);
-        SiPixelPI::adjustCanvasMargins(canvas.cd(i), 0.07, 0.12, 0.10, 0.18);
+        if (m_autorescale)
+          rescaleAllBarrel(currentHistoName);
+        adjustCanvasMargins(canvas.cd(i), 0.07, 0.12, 0.10, 0.18);
       }
       pxbTh2PolyBarrel[currentHistoName].at(i - 1)->Draw();
     }
@@ -291,8 +446,9 @@ public:
         canvas.cd(i)->SetRightMargin(0.02);
         pxfTh2PolyForward[currentHistoName].at(i - 1)->SetMarkerColor(kRed);
       } else {
-        rescaleAllForward(currentHistoName);
-        SiPixelPI::adjustCanvasMargins(canvas.cd(i), 0.07, 0.12, 0.10, 0.18);
+        if (m_autorescale)
+          rescaleAllForward(currentHistoName);
+        adjustCanvasMargins(canvas.cd(i), 0.07, 0.12, 0.10, 0.18);
       }
       pxfTh2PolyForward[currentHistoName].at(i - 1)->Draw();
     }
@@ -300,6 +456,7 @@ public:
 
 private:
   Option_t* m_option;
+  bool m_autorescale;
   TrackerTopology m_trackerTopo;
 
   std::map<uint32_t, std::shared_ptr<TGraph>> bins, binsSummary;

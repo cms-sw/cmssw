@@ -16,7 +16,6 @@
 #include <boost/algorithm/string.hpp>
 #include <boost/filesystem/fstream.hpp>
 
-#include "DataFormats/FEDRawData/interface/FEDNumbering.h"
 #include "DataFormats/FEDRawData/interface/FEDHeader.h"
 #include "DataFormats/FEDRawData/interface/FEDTrailer.h"
 #include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
@@ -61,6 +60,8 @@ FedRawDataInputSource::FedRawDataInputSource(edm::ParameterSet const& pset, edm:
       alwaysStartFromFirstLS_(pset.getUntrackedParameter<bool>("alwaysStartFromFirstLS", false)),
       verifyChecksum_(pset.getUntrackedParameter<bool>("verifyChecksum", true)),
       useL1EventID_(pset.getUntrackedParameter<bool>("useL1EventID", false)),
+      testTCDSFEDRange_(
+          pset.getUntrackedParameter<std::vector<unsigned int>>("testTCDSFEDRange", std::vector<unsigned int>())),
       fileNames_(pset.getUntrackedParameter<std::vector<std::string>>("fileNames", std::vector<std::string>())),
       fileListMode_(pset.getUntrackedParameter<bool>("fileListMode", false)),
       fileListLoopMode_(pset.getUntrackedParameter<bool>("fileListLoopMode", false)),
@@ -75,6 +76,15 @@ FedRawDataInputSource::FedRawDataInputSource(edm::ParameterSet const& pset, edm:
   gethostname(thishost, 255);
   edm::LogInfo("FedRawDataInputSource") << "Construction. read-ahead chunk size -: " << std::endl
                                         << (eventChunkSize_ / 1048576) << " MB on host " << thishost;
+
+  if (!testTCDSFEDRange_.empty()) {
+    if (testTCDSFEDRange_.size() != 2) {
+      throw cms::Exception("FedRawDataInputSource::fillFEDRawDataCollection")
+          << "Invalid TCDS Test FED range parameter";
+    }
+    MINTCDSuTCAFEDID_ = testTCDSFEDRange_[0];
+    MAXTCDSuTCAFEDID_ = testTCDSFEDRange_[1];
+  }
 
   long autoRunNumber = -1;
   if (fileListMode_) {
@@ -207,6 +217,8 @@ void FedRawDataInputSource::fillDescriptions(edm::ConfigurationDescriptions& des
       ->setComment("Verify event CRC-32C checksum of FRDv5 and higher or Adler32 with v3 and v4");
   desc.addUntracked<bool>("useL1EventID", false)
       ->setComment("Use L1 event ID from FED header if true or from TCDS FED if false");
+  desc.addUntracked<std::vector<unsigned int>>("testTCDSFEDRange", std::vector<unsigned int>())
+      ->setComment("[min, max] range to search for TCDS FED ID in test setup");
   desc.addUntracked<bool>("fileListMode", false)
       ->setComment("Use fileNames parameter to directly specify raw files to open");
   desc.addUntracked<std::vector<std::string>>("fileNames", std::vector<std::string>())
@@ -614,7 +626,10 @@ void FedRawDataInputSource::read(edm::EventPrincipal& eventPrincipal) {
     aux.setProcessHistoryID(processHistoryID_);
     makeEvent(eventPrincipal, aux);
   } else if (tcds_pointer_ == nullptr) {
-    assert(GTPEventID_);
+    if (!GTPEventID_) {
+      throw cms::Exception("FedRawDataInputSource::read")
+          << "No TCDS or GTP FED in event with FEDHeader EID -: " << L1EventID_;
+    }
     eventID_ = edm::EventID(eventRunNumber_, currentLumiSection_, GTPEventID_);
     edm::EventAuxiliary aux(eventID_, processGUID(), tstamp, true, edm::EventAuxiliary::PhysicsTrigger);
     aux.setProcessHistoryID(processHistoryID_);
@@ -687,6 +702,7 @@ edm::Timestamp FedRawDataInputSource::fillFEDRawDataCollection(FEDRawDataCollect
   unsigned char* event = (unsigned char*)event_->payload();
   GTPEventID_ = 0;
   tcds_pointer_ = nullptr;
+  uint16_t selectedTCDSFed = 0;
   while (eventSize > 0) {
     assert(eventSize >= FEDTrailer::length);
     eventSize -= FEDTrailer::length;
@@ -698,9 +714,13 @@ edm::Timestamp FedRawDataInputSource::fillFEDRawDataCollection(FEDRawDataCollect
     const uint16_t fedId = fedHeader.sourceID();
     if (fedId > FEDNumbering::MAXFEDID) {
       throw cms::Exception("FedRawDataInputSource::fillFEDRawDataCollection") << "Out of range FED ID : " << fedId;
-    }
-    if (fedId == FEDNumbering::MINTCDSuTCAFEDID) {
-      tcds_pointer_ = event + eventSize;
+    } else if (fedId >= MINTCDSuTCAFEDID_ && fedId <= MAXTCDSuTCAFEDID_) {
+      if (!selectedTCDSFed) {
+        selectedTCDSFed = fedId;
+        tcds_pointer_ = event + eventSize;
+      } else
+        throw cms::Exception("FedRawDataInputSource::fillFEDRawDataCollection")
+            << "Second TCDS FED ID " << fedId << " found. First ID: " << selectedTCDSFed;
     }
     if (fedId == FEDNumbering::MINTriggerGTPFEDID) {
       if (evf::evtn::evm_board_sense(event + eventSize, fedSize))
@@ -1509,7 +1529,12 @@ long FedRawDataInputSource::initFileList() {
     //get run number from first file in the vector
     std::filesystem::path fileName = fileNames_[0];
     std::string fileStem = fileName.stem().string();
+    if (fileStem.find("file://") == 0)
+      fileStem = fileStem.substr(7);
+    else if (fileStem.find("file:") == 0)
+      fileStem = fileStem.substr(5);
     auto end = fileStem.find('_');
+
     if (fileStem.find("run") == 0) {
       std::string runStr = fileStem.substr(3, end - 3);
       try {

@@ -25,7 +25,7 @@ int main() {
     abort();
   }
 
-  edm::EDGetTokenT<int> token2 = edm::TestEDGetToken::makeTokenT<int>(11);
+  edm::EDGetTokenT<int> token2 = edm::TestEDGetToken::makeTokenT<int>(11U);
   if (token2.isUninitialized() || !(token2.index() == 11)) {
     std::cout << "EDGetTokenT 1 argument constructor failed 2" << std::endl;
     abort();

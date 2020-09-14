@@ -5,8 +5,6 @@
   <use name="DataFormats/Candidate"/>
   <use name="DataFormats/MuonReco"/>
   <use name="DataFormats/TrackReco"/>
-  <use name="PhysicsTools/IsolationUtils"/>
-  <use name="PhysicsTools/IsolationAlgos"/>
-  <use name="RecoMuon/MuonIsolation"/>
   <use name="CommonTools/UtilAlgos"/>
+  <use name="FWCore/Framework"/>
 </library>

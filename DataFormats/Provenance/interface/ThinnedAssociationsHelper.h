@@ -18,11 +18,12 @@ namespace edm {
   class ThinnedAssociationBranches {
   public:
     ThinnedAssociationBranches();
-    ThinnedAssociationBranches(BranchID const&, BranchID const&, BranchID const&);
+    ThinnedAssociationBranches(BranchID const&, BranchID const&, BranchID const&, bool slimmed);
 
     BranchID const& parent() const { return parent_; }
     BranchID const& association() const { return association_; }
     BranchID const& thinned() const { return thinned_; }
+    bool isSlimmed() const { return slimmed_; }
 
     bool operator<(ThinnedAssociationBranches const& rhs) const { return parent_ < rhs.parent_; }
 
@@ -30,6 +31,7 @@ namespace edm {
     BranchID parent_;
     BranchID association_;
     BranchID thinned_;
+    bool slimmed_ = false;
   };
 
   class ThinnedAssociationsHelper {
@@ -42,12 +44,11 @@ namespace edm {
     std::vector<ThinnedAssociationBranches>::const_iterator parentBegin(BranchID const&) const;
     std::vector<ThinnedAssociationBranches>::const_iterator parentEnd(BranchID const&) const;
 
-    void addAssociation(BranchID const&, BranchID const&, BranchID const&);
+    void addAssociation(BranchID const&, BranchID const&, BranchID const&, bool slimmed);
     void addAssociation(ThinnedAssociationBranches const&);
 
     std::vector<std::pair<BranchID, ThinnedAssociationBranches const*> > associationToBranches() const;
 
-    void sort();
     void clear() { vThinnedAssociationBranches_.clear(); }
 
     void selectAssociationProducts(std::vector<BranchDescription const*> const& associationDescriptions,
@@ -77,6 +78,10 @@ namespace edm {
         std::set<BranchID>& branchesInRecursion,
         std::set<BranchID> const& keptProductsInEvent,
         std::map<BranchID, bool>& keepAssociation) const;
+    std::vector<ThinnedAssociationBranches>::const_iterator lower_bound(
+        ThinnedAssociationBranches const& branches) const;
+
+    void ensureSlimmingConstraints() const;
 
     std::vector<ThinnedAssociationBranches> vThinnedAssociationBranches_;
   };

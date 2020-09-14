@@ -74,7 +74,7 @@ GeometricTimingDet::GeometricTimingDet(DDFilteredView* fv, GeometricTimingEnumTy
       phi_(trans_.Phi()),
       rho_(trans_.Rho()),
       rot_(fv->rotation()),
-      shape_(fv->shape()),
+      shape_(cms::dd::name_from_value(cms::LegacySolidShapeMap, fv->shape())),
       ddname_(fv->name()),
       type_(type),
       params_(fv->parameters()),
@@ -95,7 +95,7 @@ using namespace geant_units::operators;
 GeometricTimingDet::GeometricTimingDet(cms::DDFilteredView* fv, GeometricTimingEnumType type)
     : trans_(fv->translation()),
       rot_(fv->rotation()),
-      shape_(DDSolidShape(static_cast<int>(fv->shape()))),
+      shape_(fv->shape()),
       ddname_(fv->name()),
       type_(type),
       params_(fv->parameters()),
@@ -137,7 +137,7 @@ GeometricTimingDet::GeometricTimingDet(const PGeometricTimingDet::Item& onePGD, 
            onePGD.a31_,
            onePGD.a32_,
            onePGD.a33_),
-      shape_(static_cast<DDSolidShape>(onePGD.shape_)),
+      shape_(cms::dd::name_from_value(cms::LegacySolidShapeMap, static_cast<LegacySolidShape>(onePGD.shape_))),
       ddd_(),
       ddname_(onePGD.name_),  //, "fromdb");
       type_(type),
@@ -257,6 +257,5 @@ GeometricTimingDet::Rotation GeometricTimingDet::rotationBounds() const {
 std::unique_ptr<Bounds> GeometricTimingDet::bounds() const {
   const std::vector<double>& par = params_;
   TrackerShapeToBounds shapeToBounds;
-  return std::unique_ptr<Bounds>(
-      shapeToBounds.buildBounds(cms::dd::name_from_value(cms::LegacySolidShapeMap, shape_), par));
+  return std::unique_ptr<Bounds>(shapeToBounds.buildBounds(shape_, par));
 }

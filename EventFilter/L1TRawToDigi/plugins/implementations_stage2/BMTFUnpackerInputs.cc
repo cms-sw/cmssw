@@ -67,7 +67,7 @@ namespace l1t {
         bxBlocks =
             block.getBxBlocks((unsigned int)6, false);  //it returnes 6-32bit bxBlocks originated from the amc13 Block
 
-      for (auto ibx : bxBlocks)  //Bx iteration
+      for (const auto& ibx : bxBlocks)  //Bx iteration
       {
         int bxNum = ibx.header().getBx();
         uint32_t inputWords[ibx.getSize()];  //array of 6 uint32_t payload-words (size of the payload in the BxBlock)

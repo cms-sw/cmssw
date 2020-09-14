@@ -21,11 +21,13 @@ class TProfile;
 class TFile;
 
 class DD4hep_MaterialAccountingGroup {
-private:
+public:
   DD4hep_MaterialAccountingGroup(const DD4hep_MaterialAccountingGroup& layer) = delete;
   DD4hep_MaterialAccountingGroup& operator=(const DD4hep_MaterialAccountingGroup& layer) = delete;
-  void savePlot(std::shared_ptr<TH1F> plot, const std::string& name);
-  void savePlot(std::shared_ptr<TProfile> plot, float average, const std::string& name);
+
+private:
+  void savePlot(std::shared_ptr<TH1F>& plot, const std::string& name);
+  void savePlot(std::shared_ptr<TProfile>& plot, float average, const std::string& name);
 
   std::string m_name;
   std::vector<GlobalPoint> m_elements;
@@ -45,7 +47,7 @@ private:
   std::shared_ptr<TProfile> m_radlen_vs_z;
   std::shared_ptr<TProfile> m_radlen_vs_r;
 
-  mutable TFile* m_file;
+  std::unique_ptr<TFile> m_file;
 
   static constexpr double s_tolerance = 0.01;
 

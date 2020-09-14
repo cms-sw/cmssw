@@ -7,6 +7,11 @@ process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(1)
     )
 
+process.load('Configuration.StandardSequences.DD4hep_GeometrySim_cff')
+process.load("FWCore.MessageLogger.MessageLogger_cfi")
+process.load("Geometry.MuonNumbering.muonNumberingInitialization_cfi")
+process.load("Geometry.MuonNumbering.muonGeometryConstants_cff")
+
 process.MessageLogger = cms.Service(
     "MessageLogger",
     statistics = cms.untracked.vstring('cout', 'dtGeometry'),
@@ -41,13 +46,8 @@ process.MessageLogger = cms.Service(
                                          'dtGeometry')
     )
 
-process.DDDetectorESProducer = cms.ESSource("DDDetectorESProducer",
-                                            confGeomXMLFiles = cms.FileInPath('Geometry/CMSCommonData/data/dd4hep/cmsExtendedGeometry2021.xml'),
-                                            appendToDataLabel = cms.string('MUON')
-                                            )
-
 process.DTGeometryESProducer = cms.ESProducer("DTGeometryESProducer",
-                                              DDDetector = cms.ESInputTag('','MUON'),
+                                              DDDetector = cms.ESInputTag('',''),
                                               appendToDataLabel = cms.string(''),
                                               applyAlignment = cms.bool(False),
                                               alignmentsLabel = cms.string(''),
@@ -56,17 +56,19 @@ process.DTGeometryESProducer = cms.ESProducer("DTGeometryESProducer",
                                               fromDDD = cms.bool(True)
                                               )
 
+process.DDCompactViewESProducer = cms.ESProducer("DDCompactViewESProducer",
+                                                 appendToDataLabel = cms.string('')
+)
+
 process.DDSpecParRegistryESProducer = cms.ESProducer("DDSpecParRegistryESProducer",
-                                                     appendToDataLabel = cms.string('MUON')
+                                                     appendToDataLabel = cms.string('')
                                                      )
 
-process.MuonNumberingESProducer = cms.ESProducer("MuonNumberingESProducer",
-                                                 label = cms.string('MUON'),
-                                                 key = cms.string('MuonCommonNumbering')
-                                                 )
+process.muonGeometryConstants.fromDD4Hep = True
+
 
 process.test = cms.EDAnalyzer("DTGeometryTest",
-                              DDDetector = cms.ESInputTag('','MUON')
+                              DDDetector = cms.ESInputTag('','')
                               )
 
 process.p = cms.Path(process.test)

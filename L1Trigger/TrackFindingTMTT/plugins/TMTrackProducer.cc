@@ -15,8 +15,6 @@
 #include "FWCore/MessageService/interface/MessageLogger.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 
-#include <boost/numeric/ublas/matrix.hpp>
-
 #include <iostream>
 #include <vector>
 #include <list>
@@ -25,7 +23,6 @@
 #include <mutex>
 
 using namespace std;
-using boost::numeric::ublas::matrix;
 
 namespace tmtt {
 

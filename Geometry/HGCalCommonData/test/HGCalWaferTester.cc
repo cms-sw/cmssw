@@ -68,7 +68,7 @@ HGCalWaferTester::~HGCalWaferTester() {}
 void HGCalWaferTester::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
   const HGCalDDDConstants& hgdc = iSetup.getData(dddToken_);
   std::cout << nameDetector_ << " Layers = " << hgdc.layers(reco_) << " Sectors = " << hgdc.sectors() << std::endl;
-  if ((hgdc.geomMode() == HGCalGeometryMode::Hexagon8) || (hgdc.geomMode() == HGCalGeometryMode::Hexagon8Full)) {
+  if (hgdc.waferHexagon8()) {
     int layer = hgdc.firstLayer();
     for (int u = -12; u <= 12; ++u) {
       std::pair<double, double> xy = hgdc.waferPosition(layer, u, 0, reco_);

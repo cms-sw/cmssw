@@ -5,6 +5,8 @@
   <use name="DataFormats/Common"/>
   <use name="DataFormats/EgammaCandidates"/>
   <use name="DataFormats/JetReco"/>
+  <use name="DataFormats/CaloTowers"/>
+  <use name="DataFormats/PatCandidates"/>
   <use name="DataFormats/Math"/>
   <use name="DataFormats/MuonReco"/>
   <use name="DataFormats/TrackReco"/>

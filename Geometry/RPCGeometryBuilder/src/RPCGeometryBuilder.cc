@@ -49,11 +49,8 @@ std::unique_ptr<RPCGeometry> RPCGeometryBuilder::build(const cms::DDCompactView*
                                                        const MuonGeometryConstants& muonConstants) {
   const std::string attribute = "ReadOutName";
   const std::string value = "MuonRPCHits";
-  cms::DDFilteredView fview(cview->detector(), cview->detector()->worldVolume());
-  cms::DDSpecParRefs refs;
-  const cms::DDSpecParRegistry& mypar = cview->specpars();
-  mypar.filter(refs, attribute, value);
-  fview.mergedSpecifics(refs);
+  const cms::DDFilter filter(attribute, value);
+  cms::DDFilteredView fview(*cview, filter);
   return this->buildGeometry(fview, muonConstants);
 }
 // for DDD

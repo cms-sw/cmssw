@@ -7,7 +7,8 @@
 
 #include <vector>
 class DTT0RefRcd
-    : public edm::eventsetup::
-          DependentRecordImplementation<DTT0RefRcd, boost::mpl::vector<IdealGeometryRecord, MuonNumberingRecord> > {};
+    : public edm::eventsetup::DependentRecordImplementation<DTT0RefRcd,
+                                                            edm::mpl::Vector<IdealGeometryRecord, MuonNumberingRecord> > {
+};
 
 #endif

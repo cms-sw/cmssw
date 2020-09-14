@@ -9,7 +9,6 @@
 #include "RecoLocalTracker/ClusterParameterEstimator/interface/StripClusterParameterEstimator.h"
 #include "RecoLocalTracker/ClusterParameterEstimator/interface/PixelClusterParameterEstimator.h"
 #include "RecoLocalTracker/Phase2TrackerRecHits/interface/Phase2StripCPE.h"
-#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "CalibFormats/SiStripObjects/interface/SiStripDetCabling.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -34,6 +33,7 @@ class SiStripRecHitMatcher;
 class GluedGeomDet;
 class StackGeomDet;
 class SiPixelFedCabling;
+class TrackerGeometry;
 
 class dso_hidden MeasurementTrackerImpl final : public MeasurementTracker {
 public:
@@ -70,7 +70,7 @@ public:
 
   ~MeasurementTrackerImpl() override;
 
-  const TrackingGeometry* geomTracker() const { return theTrackerGeom; }
+  const TrackerGeometry* geomTracker() const { return theTrackerGeom; }
 
   const GeometricSearchTracker* geometricSearchTracker() const { return theGeometricSearchTracker; }
 

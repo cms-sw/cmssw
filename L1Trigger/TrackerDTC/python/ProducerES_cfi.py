@@ -7,7 +7,7 @@ TrackTrigger_params = cms.PSet (
     XMLLabel    = cms.string ("geomXMLFiles"                                    ), # label of ESProducer/ESSource
     XMLPath     = cms.string ("Geometry/TrackerCommonData/data/PhaseII/"        ), # compared path
     XMLFile     = cms.string ("tracker.xml"                                     ), # compared filen ame
-    XMLVersions = cms.vstring("TiltedTracker613", "TiltedTracker613_MB_2019_04" )  # list of supported versions
+    XMLVersions = cms.vstring("TiltedTracker613", "TiltedTracker613_MB_2019_04", "OuterTracker616_2020_04", "OuterTracker800_2020_07" )  # list of supported versions
   ),
 
   # Parameter to check if Process History is consistent with process configuration

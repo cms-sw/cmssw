@@ -43,7 +43,6 @@ CSCCorrelatedLCTDigi::CSCCorrelatedLCTDigi(const uint16_t itrknmb,
 /// Default
 CSCCorrelatedLCTDigi::CSCCorrelatedLCTDigi() {
   clear();  // set contents to zero
-  version_ = Version::Legacy;
 }
 
 /// Clears this LCT.
@@ -61,6 +60,13 @@ void CSCCorrelatedLCTDigi::clear() {
   syncErr = 0;
   cscID = 0;
   hmt = 0;
+  version_ = Version::Legacy;
+  // clear the components
+  type_ = 0;
+  alct_.clear();
+  clct_.clear();
+  gem1_ = GEMPadDigi();
+  gem2_ = GEMPadDigi();
 }
 
 uint16_t CSCCorrelatedLCTDigi::getStrip(const uint16_t n) const {
@@ -79,38 +85,74 @@ uint16_t CSCCorrelatedLCTDigi::getStrip(const uint16_t n) const {
 }
 
 void CSCCorrelatedLCTDigi::setQuartStrip(const bool quartStrip) {
-  // clear the old value
-  strip &= ~(kQuartStripMask << kQuartStripShift);
-
-  // set the new value
-  strip |= quartStrip << kQuartStripShift;
+  if (!isRun3())
+    return;
+  setDataWord(quartStrip, strip, kQuartStripShift, kQuartStripMask);
 }
 
 void CSCCorrelatedLCTDigi::setEightStrip(const bool eightStrip) {
-  // clear the old value
-  strip &= ~(kEightStripMask << kEightStripShift);
-
-  // set the new value
-  strip |= eightStrip << kEightStripShift;
+  if (!isRun3())
+    return;
+  setDataWord(eightStrip, strip, kEightStripShift, kEightStripMask);
 }
 
-bool CSCCorrelatedLCTDigi::getQuartStrip() const { return (strip >> kQuartStripShift) & kQuartStripMask; }
+bool CSCCorrelatedLCTDigi::getQuartStrip() const {
+  if (!isRun3())
+    return false;
+  return getDataWord(strip, kQuartStripShift, kQuartStripMask);
+}
 
-bool CSCCorrelatedLCTDigi::getEightStrip() const { return (strip >> kEightStripShift) & kEightStripMask; }
+bool CSCCorrelatedLCTDigi::getEightStrip() const {
+  if (!isRun3())
+    return false;
+  return getDataWord(strip, kEightStripShift, kEightStripMask);
+}
+
+uint16_t CSCCorrelatedLCTDigi::getSlope() const {
+  if (!isRun3())
+    return 0;
+  return getDataWord(pattern, kRun3SlopeShift, kRun3SlopeMask);
+}
+
+void CSCCorrelatedLCTDigi::setSlope(const uint16_t slope) {
+  if (!isRun3())
+    return;
+  setDataWord(slope, pattern, kRun3SlopeShift, kRun3SlopeMask);
+}
 
 /// return the fractional strip
 float CSCCorrelatedLCTDigi::getFractionalStrip(const uint16_t n) const {
   if (n == 8) {
-    return 0.125f * (getStrip(n) + 1) - 0.0625f;
+    return 0.125f * (getStrip(n) + 0.5);
   } else if (n == 4) {
-    return 0.25f * (getStrip(n) + 1) - 0.125f;
+    return 0.25f * (getStrip(n) + 0.5);
   } else {
-    return 0.5f * (getStrip(n) + 1) - 0.25f;
+    return 0.5f * (getStrip(n) + 0.5);
   }
 }
 
 uint16_t CSCCorrelatedLCTDigi::getCLCTPattern() const {
   return (isRun3() ? std::numeric_limits<uint16_t>::max() : (pattern & 0xF));
+}
+
+uint16_t CSCCorrelatedLCTDigi::getPattern() const {
+  return getDataWord(pattern, kLegacyPatternShift, kLegacyPatternMask);
+}
+
+void CSCCorrelatedLCTDigi::setPattern(const uint16_t pat) {
+  setDataWord(pat, pattern, kLegacyPatternShift, kLegacyPatternMask);
+}
+
+uint16_t CSCCorrelatedLCTDigi::getRun3Pattern() const {
+  if (!isRun3())
+    return 0;
+  return getDataWord(pattern, kRun3PatternShift, kRun3PatternMask);
+}
+
+void CSCCorrelatedLCTDigi::setRun3Pattern(const uint16_t pat) {
+  if (!isRun3())
+    return;
+  setDataWord(pat, pattern, kRun3PatternShift, kRun3PatternMask);
 }
 
 uint16_t CSCCorrelatedLCTDigi::getHMT() const { return (isRun3() ? hmt : std::numeric_limits<uint16_t>::max()); }
@@ -133,17 +175,35 @@ void CSCCorrelatedLCTDigi::print() const {
                                 << " Quality = " << getQuality() << " Key Wire = " << getKeyWG()
                                 << " Strip = " << getStrip() << " Pattern = " << getPattern()
                                 << " Bend = " << ((getBend() == 0) ? 'L' : 'R') << " BX = " << getBX()
-                                << " MPC Link = " << getMPCLink() << " HMT Bit = " << getHMT();
+                                << " MPC Link = " << getMPCLink() << " Type (SIM) = " << getType()
+                                << " HMT Bit = " << getHMT();
   } else {
     edm::LogVerbatim("CSCDigi") << "Not a valid correlated LCT.";
   }
 }
 
+void CSCCorrelatedLCTDigi::setDataWord(const uint16_t newWord,
+                                       uint16_t& word,
+                                       const unsigned shift,
+                                       const unsigned mask) {
+  // clear the old value
+  word &= ~(mask << shift);
+
+  // set the new value
+  word |= newWord << shift;
+}
+
+uint16_t CSCCorrelatedLCTDigi::getDataWord(const uint16_t word, const unsigned shift, const unsigned mask) const {
+  return (word >> shift) & mask;
+}
+
 std::ostream& operator<<(std::ostream& o, const CSCCorrelatedLCTDigi& digi) {
   return o << "CSC LCT #" << digi.getTrknmb() << ": Valid = " << digi.isValid() << " Quality = " << digi.getQuality()
-           << " MPC Link = " << digi.getMPCLink() << " cscID = " << digi.getCSCID() << "\n"
+           << " MPC Link = " << digi.getMPCLink() << " cscID = " << digi.getCSCID()
+           << " syncErr = " << digi.getSyncErr() << " Type (SIM) = " << digi.getType() << " HMT Bit = " << digi.getHMT()
+           << "\n"
            << "  cathode info: Strip = " << digi.getStrip() << " Pattern = " << digi.getPattern()
            << " Bend = " << ((digi.getBend() == 0) ? 'L' : 'R') << "\n"
-           << "    anode info: Key wire = " << digi.getKeyWG() << " BX = " << digi.getBX() << " bx0 = " << digi.getBX0()
-           << " syncErr = " << digi.getSyncErr() << " HMT Bit = " << digi.getHMT() << "\n";
+           << "    anode info: Key wire = " << digi.getKeyWG() << " BX = " << digi.getBX()
+           << " bx0 = " << digi.getBX0();
 }

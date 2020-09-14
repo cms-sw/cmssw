@@ -13,7 +13,7 @@
     <usage>
 */
 
-#include "boost/mpl/vector.hpp"
+#include "FWCore/Utilities/interface/mplVector.h"
 #include "FWCore/Framework/interface/DependentRecordImplementation.h"
 // #include "FWCore/Framework/interface/EventSetupRecordImplementation.h"
 
@@ -28,12 +28,12 @@
 
 class CastorDbRecord
     : public edm::eventsetup::DependentRecordImplementation<CastorDbRecord,
-                                                            boost::mpl::vector<CastorPedestalsRcd,
-                                                                               CastorPedestalWidthsRcd,
-                                                                               CastorGainsRcd,
-                                                                               CastorGainWidthsRcd,
-                                                                               CastorQIEDataRcd,
-                                                                               CastorChannelQualityRcd,
-                                                                               CastorElectronicsMapRcd> > {};
+                                                            edm::mpl::Vector<CastorPedestalsRcd,
+                                                                             CastorPedestalWidthsRcd,
+                                                                             CastorGainsRcd,
+                                                                             CastorGainWidthsRcd,
+                                                                             CastorQIEDataRcd,
+                                                                             CastorChannelQualityRcd,
+                                                                             CastorElectronicsMapRcd> > {};
 
 #endif /* CASTORDBPRODUCER_CASTORDBRECORD_H */

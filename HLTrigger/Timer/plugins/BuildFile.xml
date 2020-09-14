@@ -2,16 +2,12 @@
   <use name="fmt"/>
   <use name="json"/>
   <use name="DQMServices/Core"/>
-  <use name="DataFormats/Luminosity"/>
   <use name="DataFormats/Provenance"/>
   <use name="DataFormats/Scalers"/>
-  <use name="DataFormats/VertexReco"/>
   <use name="FWCore/Framework"/>
   <use name="FWCore/ParameterSet"/>
   <use name="FWCore/ServiceRegistry"/>
   <use name="FWCore/Utilities"/>
   <use name="HLTrigger/Timer"/>
-  <use name="RecoLuminosity/LumiProducer"/>
-  <use name="SimDataFormats/PileupSummaryInfo"/>
   <flags EDM_PLUGIN="1"/>
 </library>

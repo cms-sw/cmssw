@@ -239,7 +239,14 @@ def miniAOD_customizeCommon(process):
     process.load('RecoJets.JetProducers.QGTagger_cfi')
     task.add(process.QGTaggerTask)
 
-    process.patJets.userData.userFloats.src += [ cms.InputTag('QGTagger:qgLikelihood'), ]
+    process.patJets.userData.userFloats.src += [ 'QGTagger:qgLikelihood', ]
+
+    #HF jet shower shape
+    process.load('RecoJets.JetProducers.hfJetShowerShape_cfi')
+    task.add(process.hfJetShowerShape)
+
+    process.patJets.userData.userFloats.src += [ 'hfJetShowerShape:sigmaEtaEta', 'hfJetShowerShape:sigmaPhiPhi']
+    process.patJets.userData.userInts.src += [ 'hfJetShowerShape:centralEtaStripSize', 'hfJetShowerShape:adjacentEtaStripsSize']
 
     ## DeepCSV meta discriminators (simple arithmethic on output probabilities)
     process.load('RecoBTag.Combined.deepFlavour_cff')
@@ -259,7 +266,7 @@ def miniAOD_customizeCommon(process):
 	 valueLabels = cms.vstring('pt','emEnergyFraction'),
 	 lazyParser = cms.bool(True) )
     task.add(process.caloJetMap)
-    process.patJets.userData.userFloats.src += [ cms.InputTag("caloJetMap:pt"), cms.InputTag("caloJetMap:emEnergyFraction") ]
+    process.patJets.userData.userFloats.src += [ 'caloJetMap:pt', 'caloJetMap:emEnergyFraction' ]
 
     #Muon object modifications 
     from PhysicsTools.PatAlgos.slimming.muonIsolationsPUPPI_cfi import makeInputForPUPPIIsolationMuon
@@ -359,6 +366,8 @@ def miniAOD_customizeCommon(process):
         updatedTauName = _updatedTauName,
         toKeep = ['deepTau2017v2p1']
     )
+    from Configuration.Eras.Modifier_phase2_common_cff import phase2_common #Phase2 Tau MVA
+    phase2_common.toModify(tauIdEmbedder.toKeep, func=lambda t:t.append('newDMPhase2v1')) #Phase2 Tau MVA
     tauIdEmbedder.runTauID()
     addToProcessAndTask(_noUpdatedTauName, process.slimmedTaus.clone(),process,task)
     delattr(process, 'slimmedTaus')
@@ -368,6 +377,21 @@ def miniAOD_customizeCommon(process):
     )
     process.deepTauIDTask = cms.Task(process.deepTau2017v2p1, process.slimmedTaus)
     task.add(process.deepTauIDTask)
+    if 'newDMPhase2v1' in tauIdEmbedder.toKeep:
+        process.rerunDiscriminationByIsolationMVADBnewDMwLTPhase2raw.PATTauProducer=_noUpdatedTauName
+        process.rerunDiscriminationByIsolationMVADBnewDMwLTPhase2.PATTauProducer=_noUpdatedTauName
+        task.add(process.rerunIsolationMVADBnewDMwLTPhase2Task)
+
+    #-- Rerun tauID against dead ECal towers to taus for the various re-MiniAOD eras
+    # to enable default behoviour with leading track extrapolation to ECAL
+    _makePatTausTaskWithDeadECalVeto = process.makePatTausTask.copy()
+    _makePatTausTaskWithDeadECalVeto.add(
+        process.hpsPFTauDiscriminationByDeadECALElectronRejection
+    )
+    _run2_miniAOD_ANY = (run2_miniAOD_80XLegacy | run2_miniAOD_94XFall17 | run2_miniAOD_UL)
+    _run2_miniAOD_ANY.toReplaceWith(
+        process.makePatTausTask, _makePatTausTaskWithDeadECalVeto
+    )
 
     #-- Adding customization for 80X 2016 legacy reMiniAOD and 2018 heavy ions
     _makePatTausTaskWithTauReReco = process.makePatTausTask.copy()
@@ -382,7 +406,6 @@ def miniAOD_customizeCommon(process):
     from Configuration.Eras.Modifier_pA_2016_cff import pA_2016
     _rerun_puppijets_task = task.copy()
     _rerun_puppijets_task.add(process.puppi, process.ak4PFJetsPuppi)
-    _run2_miniAOD_ANY = (run2_miniAOD_80XLegacy | run2_miniAOD_94XFall17 | run2_miniAOD_UL)
     (_run2_miniAOD_ANY | pA_2016 | pp_on_AA_2018).toReplaceWith(task, _rerun_puppijets_task)
 
     from RecoJets.JetAssociationProducers.j2tParametersVX_cfi import j2tParametersVX

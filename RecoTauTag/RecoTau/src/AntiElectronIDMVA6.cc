@@ -784,7 +784,7 @@ TauVars AntiElectronIDMVA6<TauType, ElectronType>::getTauVarsTypeSpecific(const 
       if (patLeadCandiate != nullptr) {
         tauVars.leadPFChargedHadrHoP = patLeadCandiate->caloFraction() * patLeadCandiate->energy() *
                                        patLeadCandiate->hcalFraction() / patLeadCandiate->p();
-        tauVars.leadPFChargedHadrHoP = patLeadCandiate->caloFraction() * patLeadCandiate->energy() *
+        tauVars.leadPFChargedHadrEoP = patLeadCandiate->caloFraction() * patLeadCandiate->energy() *
                                        (1. - patLeadCandiate->hcalFraction()) / patLeadCandiate->p();
       }
     }

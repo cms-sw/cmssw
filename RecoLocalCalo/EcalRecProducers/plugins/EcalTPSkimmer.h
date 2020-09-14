@@ -13,11 +13,15 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Utilities/interface/ESGetToken.h"
 
 #include "DataFormats/EcalDetId/interface/EcalTrigTowerDetId.h"
 #include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
 
 #include "Geometry/CaloTopology/interface/EcalTrigTowerConstituentsMap.h"
+#include "CondFormats/DataRecord/interface/EcalChannelStatusRcd.h"
+#include "CondFormats/EcalObjects/interface/EcalChannelStatus.h"
+#include "Geometry/Records/interface/IdealGeometryRecord.h"
 
 class EcalTPSkimmer : public edm::stream::EDProducer<> {
 public:
@@ -37,6 +41,8 @@ private:
 
   std::vector<uint32_t> chStatusToSelectTP_;
   edm::ESHandle<EcalTrigTowerConstituentsMap> ttMap_;
+  edm::ESGetToken<EcalTrigTowerConstituentsMap, IdealGeometryRecord> ttMapToken_;
+  edm::ESGetToken<EcalChannelStatus, EcalChannelStatusRcd> chStatusToken_;
 
   std::set<EcalTrigTowerDetId> insertedTP_;
 

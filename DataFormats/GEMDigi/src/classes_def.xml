@@ -6,25 +6,30 @@
 </class>
 <class name="std::vector<GEMDigi>"/>
 <class name="std::map<GEMDetId,std::vector<GEMDigi> >"/>
+<class name="std::pair<GEMDetId,std::vector<GEMDigi> >"/>
 <class name="MuonDigiCollection<GEMDetId,GEMDigi>"/>
 <class name="edm::Wrapper<MuonDigiCollection<GEMDetId,GEMDigi> >" splitLevel="0"/>
 
-<class name="GEMPadDigi" ClassVersion="13">
+<class name="GEMPadDigi" ClassVersion="14">
  <version ClassVersion="11" checksum="426510066"/>
  <version ClassVersion="12" checksum="3838591655"/>
  <version ClassVersion="13" checksum="2944221332"/>
+ <version ClassVersion="14" checksum="1418399352"/>
 </class>
 <class name="std::vector<GEMPadDigi>"/>
 <class name="std::map<GEMDetId,std::vector<GEMPadDigi> >"/>
+<class name="std::pair<GEMDetId,std::vector<GEMPadDigi> >"/>
 <class name="MuonDigiCollection<GEMDetId,GEMPadDigi>"/>
 <class name="edm::Wrapper<MuonDigiCollection<GEMDetId,GEMPadDigi> >" splitLevel="0"/>
 
-<class name="GEMPadDigiCluster" ClassVersion="11">
+<class name="GEMPadDigiCluster" ClassVersion="12">
  <version ClassVersion="10" checksum="2569340006"/>
  <version ClassVersion="11" checksum="3372991553"/>
+ <version ClassVersion="12" checksum="533478463"/>
 </class>
 <class name="std::vector<GEMPadDigiCluster>"/>
 <class name="std::map<GEMDetId,std::vector<GEMPadDigiCluster> >"/>
+<class name="std::pair<GEMDetId,std::vector<GEMPadDigiCluster> >"/>
 <class name="MuonDigiCollection<GEMDetId,GEMPadDigiCluster>"/>
 <class name="edm::Wrapper<MuonDigiCollection<GEMDetId,GEMPadDigiCluster> >" splitLevel="0"/>
 
@@ -33,6 +38,7 @@
 </class>
 <class name="std::vector<GEMCoPadDigi>"/>
 <class name="std::map<GEMDetId,std::vector<GEMCoPadDigi> >"/>
+<class name="std::pair<GEMDetId,std::vector<GEMCoPadDigi> >"/>
 <class name="MuonDigiCollection<GEMDetId,GEMCoPadDigi>"/>
 <class name="edm::Wrapper<MuonDigiCollection<GEMDetId,GEMCoPadDigi> >" splitLevel="0"/>
 
@@ -42,14 +48,16 @@
 </class>
 <class name="std::vector<GEMVfatStatusDigi>"/>
 <class name="std::map<GEMDetId,std::vector<GEMVfatStatusDigi> >"/>
-<class name="MuonDigiCollection<GEMDetId,GEMVfatStatusDigi>"/> 
-<class name="edm::Wrapper<MuonDigiCollection<GEMDetId,GEMVfatStatusDigi> >" splitLevel="0"/> 
+<class name="std::pair<GEMDetId,std::vector<GEMVfatStatusDigi> >"/>
+<class name="MuonDigiCollection<GEMDetId,GEMVfatStatusDigi>"/>
+<class name="edm::Wrapper<MuonDigiCollection<GEMDetId,GEMVfatStatusDigi> >" splitLevel="0"/>
 
 <class name="gem::GEBdata" ClassVersion="3">
   <version ClassVersion="3" checksum="3127786112"/>
 </class>
 <class name="std::vector<gem::GEBdata>"/>
 <class name="std::map<GEMDetId,std::vector<gem::GEBdata> >"/>
+<class name="std::pair<GEMDetId,std::vector<gem::GEBdata> >"/>
 <class name="MuonDigiCollection<GEMDetId, gem::GEBdata>"/>
 <class name="edm::Wrapper<MuonDigiCollection<GEMDetId, gem::GEBdata> >" splitLevel="0"/>
 
@@ -58,6 +66,7 @@
 </class>
 <class name="std::vector<gem::AMCdata>"/>
 <class name="std::map<uint16_t,std::vector<gem::AMCdata> >"/>
+<class name="std::pair<uint16_t,std::vector<gem::AMCdata> >"/>
 <class name="MuonDigiCollection<uint16_t,gem::AMCdata>"/>
 <class name="edm::Wrapper<MuonDigiCollection<uint16_t,gem::AMCdata> >" splitLevel="0"/>
 
@@ -66,6 +75,7 @@
 </class>
 <class name="std::vector<gem::AMC13Event>"/>
 <class name="std::map<uint16_t,std::vector<gem::AMC13Event> >"/>
+<class name="std::pair<uint16_t,std::vector<gem::AMC13Event> >"/>
 <class name="MuonDigiCollection<uint16_t,gem::AMC13Event>"/>
 <class name="edm::Wrapper<MuonDigiCollection<uint16_t,gem::AMC13Event> >" splitLevel="0"/>
 
@@ -77,9 +87,11 @@
 </class>
 <class name="std::vector<ME0DigiPreReco>"/>
 <class name="std::map<ME0DetId,std::vector<ME0DigiPreReco> >"/>
+<class name="std::pair<ME0DetId,std::vector<ME0DigiPreReco> >"/>
 <class name="MuonDigiCollection<ME0DetId,ME0DigiPreReco>"/>
 <class name="edm::Wrapper<MuonDigiCollection<ME0DetId,ME0DigiPreReco> >" splitLevel="0"/>
 <class name="std::map<ME0DetId,std::vector<int> >"/>
+<class name="std::pair<ME0DetId,std::vector<int> >"/>
 <class name="MuonDigiCollection<ME0DetId,int>"/>
 <class name="edm::Wrapper<MuonDigiCollection<ME0DetId,int> >" splitLevel="0"/>
 
@@ -88,6 +100,7 @@
 </class>
 <class name="std::vector<ME0Digi>"/>
 <class name="std::map<ME0DetId,std::vector<ME0Digi> >"/>
+<class name="std::pair<ME0DetId,std::vector<ME0Digi> >"/>
 <class name="MuonDigiCollection<ME0DetId,ME0Digi>"/>
 <class name="edm::Wrapper<MuonDigiCollection<ME0DetId,ME0Digi> >" splitLevel="0"/>
 
@@ -96,6 +109,7 @@
 </class>
 <class name="std::vector<ME0PadDigi>"/>
 <class name="std::map<ME0DetId,std::vector<ME0PadDigi> >"/>
+<class name="std::pair<ME0DetId,std::vector<ME0PadDigi> >"/>
 <class name="MuonDigiCollection<ME0DetId,ME0PadDigi>"/>
 <class name="edm::Wrapper<MuonDigiCollection<ME0DetId,ME0PadDigi> >" splitLevel="0"/>
 
@@ -104,6 +118,7 @@
 </class>
 <class name="std::vector<ME0PadDigiCluster>"/>
 <class name="std::map<ME0DetId,std::vector<ME0PadDigiCluster> >"/>
+<class name="std::pair<ME0DetId,std::vector<ME0PadDigiCluster> >"/>
 <class name="MuonDigiCollection<ME0DetId,ME0PadDigiCluster>"/>
 <class name="edm::Wrapper<MuonDigiCollection<ME0DetId,ME0PadDigiCluster> >" splitLevel="0"/>
 
@@ -114,6 +129,7 @@
 </class>
 <class name="std::vector<ME0TriggerDigi>"/>
 <class name="std::map<ME0DetId,std::vector<ME0TriggerDigi> >"/>
+<class name="std::pair<ME0DetId,std::vector<ME0TriggerDigi> >"/>
 <class name="MuonDigiCollection<ME0DetId,ME0TriggerDigi>"/>
 <class name="edm::Wrapper<MuonDigiCollection<ME0DetId,ME0TriggerDigi> >" splitLevel="0"/>
 

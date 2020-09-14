@@ -7,8 +7,8 @@ import FWCore.ParameterSet.Config as cms
 # GF would like to have a shorter name (e.g. CSCGeometry), but since originally
 # there was no name, replace statements in other configs would not work anymore...
 CSCGeometryESModule = cms.ESProducer("CSCGeometryESModule",
-  useDDD = cms.bool(False),
-  useDD4hep = cms.bool(False),
+  fromDDD = cms.bool(False),
+  fromDD4hep = cms.bool(False),
   alignmentsLabel = cms.string(''),
   appendToDataLabel = cms.string(''),
   useRealWireGeometry = cms.bool(True),

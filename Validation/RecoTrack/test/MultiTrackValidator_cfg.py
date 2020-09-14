@@ -79,8 +79,8 @@ process.source = source
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(400) )
 
 ### conditions
-process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_condDBv2_cff')
-from Configuration.AlCa.GlobalTag_condDBv2 import GlobalTag
+process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
+from Configuration.AlCa.GlobalTag import GlobalTag
 process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_mc', '')
 
 ### standard includes
@@ -96,6 +96,7 @@ process.load('Configuration.StandardSequences.EndOfProcess_cff')
 ### validation-specific includes
 #process.load("SimTracker.TrackAssociatorProducers.trackAssociatorByHits_cfi")
 process.load("SimTracker.TrackAssociatorProducers.quickTrackAssociatorByHits_cfi")
+process.load("SimTracker.TrackAssociatorProducers.trackAssociatorByChi2_cfi")
 process.load("SimTracker.TrackAssociation.trackingParticleRecoTrackAsssociation_cfi")
 process.load("Validation.RecoTrack.cuts_cff")
 process.load("Validation.RecoTrack.MultiTrackValidator_cff")

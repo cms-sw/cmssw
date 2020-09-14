@@ -16,10 +16,8 @@ AlCaElectronTracksReducer::AlCaElectronTracksReducer(const edm::ParameterSet& iC
   produces<reco::TrackExtraCollection>(alcaTrackExtraCollection_);
 }
 
-AlCaElectronTracksReducer::~AlCaElectronTracksReducer() {}
-
 // ------------ method called to produce the data  ------------
-void AlCaElectronTracksReducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
+void AlCaElectronTracksReducer::produce(edm::StreamID, edm::Event& iEvent, const edm::EventSetup& iSetup) const {
   using namespace edm;
   using namespace std;
   using namespace reco;

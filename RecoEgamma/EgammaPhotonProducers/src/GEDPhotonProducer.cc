@@ -341,9 +341,11 @@ void GEDPhotonProducer::produce(edm::Event& theEvent, const edm::EventSetup& the
   //
 
   // get Hcal towers collection
-  Handle<CaloTowerCollection> hcalTowersHandle;
+  CaloTowerCollection const* hcalTowers = nullptr;
   if (not hcalTowers_.isUninitialized()) {
+    Handle<CaloTowerCollection> hcalTowersHandle;
     theEvent.getByToken(hcalTowers_, hcalTowersHandle);
+    hcalTowers = &(*hcalTowersHandle);
   }
 
   // get the geometry from the event setup:
@@ -390,7 +392,7 @@ void GEDPhotonProducer::produce(edm::Event& theEvent, const edm::EventSetup& the
                          &barrelRecHits,
                          &endcapRecHits,
                          &preshowerRecHits,
-                         *hcalTowersHandle,
+                         hcalTowers,
                          //vtx,
                          vertexCollection,
                          outputPhotonCollection,
@@ -455,7 +457,7 @@ void GEDPhotonProducer::fillPhotonCollection(edm::Event& evt,
                                              const EcalRecHitCollection* ecalBarrelHits,
                                              const EcalRecHitCollection* ecalEndcapHits,
                                              const EcalRecHitCollection* preshowerHits,
-                                             CaloTowerCollection const& hcalTowers,
+                                             CaloTowerCollection const* hcalTowers,
                                              const reco::VertexCollection& vertexCollection,
                                              reco::PhotonCollection& outputPhotonCollection,
                                              int& iSC) {
@@ -509,15 +511,15 @@ void GEDPhotonProducer::fillPhotonCollection(edm::Event& evt,
     bool invalidHcal = false;
 
     if (not hcalTowers_.isUninitialized()) {
-      EgammaTowerIsolation towerIso1(hOverEConeSize_, 0., 0., 1, &hcalTowers);
-      EgammaTowerIsolation towerIso2(hOverEConeSize_, 0., 0., 2, &hcalTowers);
+      EgammaTowerIsolation towerIso1(hOverEConeSize_, 0., 0., 1, hcalTowers);
+      EgammaTowerIsolation towerIso2(hOverEConeSize_, 0., 0., 2, hcalTowers);
       HoE1 = towerIso1.getTowerESum(&(*scRef)) / scRef->energy();
       HoE2 = towerIso2.getTowerESum(&(*scRef)) / scRef->energy();
 
       EgammaHadTower towerIsoBehindClus(es);
       TowersBehindClus = towerIsoBehindClus.towersOf(*scRef);
-      hcalDepth1OverEcalBc = towerIsoBehindClus.getDepth1HcalESum(TowersBehindClus, hcalTowers) / scRef->energy();
-      hcalDepth2OverEcalBc = towerIsoBehindClus.getDepth2HcalESum(TowersBehindClus, hcalTowers) / scRef->energy();
+      hcalDepth1OverEcalBc = towerIsoBehindClus.getDepth1HcalESum(TowersBehindClus, *hcalTowers) / scRef->energy();
+      hcalDepth2OverEcalBc = towerIsoBehindClus.getDepth2HcalESum(TowersBehindClus, *hcalTowers) / scRef->energy();
 
       if (checkHcalStatus_ && hcalDepth1OverEcalBc == 0 && hcalDepth2OverEcalBc == 0) {
         invalidHcal = !towerIsoBehindClus.hasActiveHcal(TowersBehindClus);

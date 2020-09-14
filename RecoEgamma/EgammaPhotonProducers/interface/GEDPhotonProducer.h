@@ -65,7 +65,7 @@ private:
                             const EcalRecHitCollection* ecalBarrelHits,
                             const EcalRecHitCollection* ecalEndcapHits,
                             const EcalRecHitCollection* preshowerHits,
-                            CaloTowerCollection const& hcalTowers,
+                            CaloTowerCollection const* hcalTowers,
                             const reco::VertexCollection& pvVertices,
                             reco::PhotonCollection& outputCollection,
                             int& iSC);

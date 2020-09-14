@@ -16,8 +16,8 @@ process.source = cms.Source('EmptySource',
     firstRun = cms.untracked.uint32(248518)
 )
 
-process.load('Configuration/StandardSequences/FrontierConditions_GlobalTag_condDBv2_cff')
-from Configuration.AlCa.GlobalTag_condDBv2 import GlobalTag
+process.load('Configuration/StandardSequences/FrontierConditions_GlobalTag_cff')
+from Configuration.AlCa.GlobalTag import GlobalTag
 process.GlobalTag = GlobalTag(process.GlobalTag, 'GR_P_V56')
 
 process.GlobalTag.DumpStat = cms.untracked.bool(True)

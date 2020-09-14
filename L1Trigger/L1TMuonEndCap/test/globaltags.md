@@ -1,4 +1,13 @@
-For the **L1TMuonEndCapParams** tags, here are the appropriate params tags for each year:
+# Info about Global Tags
+
+Original author: Andrew Brinkerhoff &lt;andrew.wilson.brinkerhoff@cern.ch&gt;
+
+Last edit: February 4, 2020
+
+
+## L1TMuonEndCapParams
+
+For the L1TMuonEndCapParams tags, here are the appropriate params tags for each year:
 - 2016
   - **L1TMuonEndCapParams_static_2016_mc**
     - PtAssignVersion = 5, firmwareVersion = 49999, PhiMatchWindowSt1 = 0
@@ -12,7 +21,9 @@ For the **L1TMuonEndCapParams** tags, here are the appropriate params tags for e
     - PtAssignVersion = 7, firmwareVersion = 1539271335 (October 11, 2018), PhiMatchWindowSt1 = 1
     - Note that this should be used for *all* 2018 MC, not just Heavy Ion - tag L1TMuonEndCapParams_Stage2v1_2018_mc is WRONG!
 
-For the **L1TMuonEndCapForest** tags, here are the appropriate forest tags for each year:
+## L1TMuonEndCapForest
+
+For the L1TMuonEndCapForest tags, here are the appropriate forest tags for each year:
 - 2016
   - **L1TMuonEndCapForest_static_2016_mc**
     - Payload 1d58582f55ae84cf5ec5ea91ebcb8b4a23b1af23, 5.2 MB, loaded 2017-05-24 15:45:10 (UTC)
@@ -25,14 +36,16 @@ For the **L1TMuonEndCapForest** tags, here are the appropriate forest tags for e
     - Corresponds to /afs/cern.ch/work/a/abrinke1/public/EMTF/PtAssign2017/XMLs/2017_v7/, which is the latest 2017/2018 XMLs
 
 
-How to extract tag and payload information
+## How to extract tag and payload information
 
-1. Enter a CMSSW environment and run: cmsenv
-2. To see the lists of existing EMTF O2O tags, type:
-  - conddb listTags | grep L1TMuonEndCapParams
-  - conddb listTags | grep L1TMuonEndCapForest
+1. Enter a CMSSW environment and run:
+    - `cmsenv`
+2. To see the lists of existing EMTF O2O tags, run:
+    - `conddb listTags | grep L1TMuonEndCapParams`
+    - `conddb listTags | grep L1TMuonEndCapForest`
 3. To see the payloads for each tag, do either of the following:
-  - Go to: <https://cms-conddb.cern.ch/cmsDbBrowser/list/Prod/tags/YourTagName>
-  - In CMSSW, type: conddb list YourTagName
-4. Using "Payload" from #3 above, run: conddb dump PayloadHash
+    - Go to: <https://cms-conddb.cern.ch/cmsDbBrowser/list/Prod/tags/YourTagName>
+    - Run: `conddb list YourTagName`
+4. Using "Payload" from #3 above, run:
+    - `conddb dump PayloadHash`
 

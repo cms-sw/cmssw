@@ -16,8 +16,11 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Utilities/interface/ESGetToken.h"
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 #include "RecoLocalCalo/EcalRecAlgos/interface/EcalRecHitAbsAlgo.h"
+#include "Geometry/CaloGeometry/interface/CaloGeometry.h"
+#include "Geometry/Records/interface/CaloGeometryRecord.h"
 
 // forward declaration
 
@@ -50,6 +53,8 @@ private:
       ebTimeDigiCollection_;  // secondary name given to collection of EB uncalib rechits
   edm::EDGetTokenT<EcalTimeDigiCollection>
       eeTimeDigiCollection_;  // secondary name given to collection of EE uncalib rechits
+
+  edm::ESGetToken<CaloGeometry, CaloGeometryRecord> caloGeometry_;
 
   std::string EBDetailedTimeRecHitCollection_;  // secondary name to be given to EB collection of hits
   std::string EEDetailedTimeRecHitCollection_;  // secondary name to be given to EE collection of hits

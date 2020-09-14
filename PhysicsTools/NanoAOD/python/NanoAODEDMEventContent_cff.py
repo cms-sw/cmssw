@@ -19,3 +19,7 @@ NANOAODSIMEventContent = NanoAODEDMEventContent.clone(
     compressionLevel = cms.untracked.int32(9),
     compressionAlgorithm = cms.untracked.string("LZMA"),
 )
+NANOAODGENEventContent = NanoAODEDMEventContent.clone(
+    compressionLevel = cms.untracked.int32(9),
+    compressionAlgorithm = cms.untracked.string("LZMA"),
+)

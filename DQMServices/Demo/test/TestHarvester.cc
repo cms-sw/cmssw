@@ -73,13 +73,6 @@ public:
     out->Fill(whathappened);
   }
 
-  void endJob() override {
-    edm::Service<DQMStore> store;
-    whathappened += "endJob() ";
-    store->setCurrentFolder(folder_);
-    MonitorElement *out = store->bookString("harvestingsummary", "missing");
-    out->Fill(whathappened);
-  }
   void endLuminosityBlock(edm::LuminosityBlock const &lumi, edm::EventSetup const &) override {
     whathappened += "endLumi(" + std::to_string(lumi.run()) + "," + std::to_string(lumi.luminosityBlock()) + ") ";
   }

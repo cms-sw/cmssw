@@ -9,8 +9,8 @@ dd4hep.toModify(hgcalEEParametersInitialize,
 )
 
 hgcalHESiParametersInitialize = hgcalEEParametersInitialize.clone(
-    name  = cms.untracked.string("HGCalHESiliconSensitive"),
-    nameW = cms.untracked.string("HGCalHEWafer"),
-    nameC = cms.untracked.string("HGCalHECell"),
-    name2 = cms.untracked.string("HGCalHEsil"),
+    name  = cms.string("HGCalHESiliconSensitive"),
+    nameW = cms.string("HGCalHEWafer"),
+    nameC = cms.string("HGCalHECell"),
+    name2 = cms.string("HGCalHEsil"),
 )

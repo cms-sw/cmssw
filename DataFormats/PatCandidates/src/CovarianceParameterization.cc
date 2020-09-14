@@ -1,12 +1,15 @@
-#include "DataFormats/PatCandidates/interface/CovarianceParameterization.h"
-#include "DataFormats/Math/interface/liblogintpack.h"
-#include "DataFormats/Math/interface/libminifloat.h"
-#include "FWCore/ParameterSet/interface/FileInPath.h"
-#include <boost/format.hpp>
-#include <iostream>
+//#include <iostream>
+
+#include <fmt/printf.h>
+
 #include <TParameter.h>
 #include <TVector.h>
 #include <TFolder.h>
+
+#include "DataFormats/Math/interface/liblogintpack.h"
+#include "DataFormats/Math/interface/libminifloat.h"
+#include "DataFormats/PatCandidates/interface/CovarianceParameterization.h"
+#include "FWCore/ParameterSet/interface/FileInPath.h"
 
 uint16_t CompressionElement::pack(float value, float ref) const {
   float toCompress = 0;
@@ -77,7 +80,7 @@ float CompressionElement::unpack(uint16_t packed, float ref) const {
 
 void CovarianceParameterization::load(int version) {
   edm::FileInPath fip(
-      (boost::format("DataFormats/PatCandidates/data/CovarianceParameterization_version%d.root") % version).str());
+      fmt::sprintf("DataFormats/PatCandidates/data/CovarianceParameterization_version%d.root", version));
   fileToRead_ = TFile::Open(fip.fullPath().c_str());
   TFile &fileToRead = *fileToRead_;
   //Read files from here fip.fullPath().c_str();

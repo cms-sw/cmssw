@@ -25,22 +25,22 @@
 #include "Geometry/Records/interface/CastorGeometryRecord.h"
 #include "Geometry/Records/interface/HGCalGeometryRecord.h"
 #include "Geometry/Records/interface/FastTimeGeometryRecord.h"
-#include "boost/mpl/vector.hpp"
+#include "FWCore/Utilities/interface/mplVector.h"
 
 class CaloGeometryRecord
     : public edm::eventsetup::DependentRecordImplementation<CaloGeometryRecord,
-                                                            boost::mpl::vector<IdealGeometryRecord,
-                                                                               EcalBarrelGeometryRecord,
-                                                                               EcalEndcapGeometryRecord,
-                                                                               EcalPreshowerGeometryRecord,
-                                                                               HcalParametersRcd,
-                                                                               HcalSimNumberingRecord,
-                                                                               HcalRecNumberingRecord,
-                                                                               HcalGeometryRecord,
-                                                                               HGCalGeometryRecord,
-                                                                               FastTimeGeometryRecord,
-                                                                               CaloTowerGeometryRecord,
-                                                                               CastorGeometryRecord,
-                                                                               ZDCGeometryRecord> > {};
+                                                            edm::mpl::Vector<IdealGeometryRecord,
+                                                                             EcalBarrelGeometryRecord,
+                                                                             EcalEndcapGeometryRecord,
+                                                                             EcalPreshowerGeometryRecord,
+                                                                             HcalParametersRcd,
+                                                                             HcalSimNumberingRecord,
+                                                                             HcalRecNumberingRecord,
+                                                                             HcalGeometryRecord,
+                                                                             HGCalGeometryRecord,
+                                                                             FastTimeGeometryRecord,
+                                                                             CaloTowerGeometryRecord,
+                                                                             CastorGeometryRecord,
+                                                                             ZDCGeometryRecord> > {};
 
 #endif /* RECORDS_CALOGEOMETRYRECORD_H */

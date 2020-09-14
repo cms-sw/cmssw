@@ -90,19 +90,14 @@ bool HLTPixlMBForAlignmentFilter::hltFilter(edm::Event& iEvent,
   auto apixl(tracks->begin());
   auto epixl(tracks->end());
   int itrk = 0;
-  double zvtxfit = 0.0;
-  double zvtxfit2 = 0.0;
   if (tracks->size() >= min_trks_) {
     etastore.clear();
     phistore.clear();
     itstore.clear();
     for (auto ipixl = apixl; ipixl != epixl; ipixl++) {
-      const double& ztrk1 = ipixl->vz();
       const double& etatrk1 = ipixl->momentum().eta();
       const double& phitrk1 = ipixl->momentum().phi();
       const double& pttrk1 = ipixl->pt();
-      zvtxfit = zvtxfit + ztrk1;
-      zvtxfit2 = zvtxfit2 + ztrk1 * ztrk1;
       if (pttrk1 > min_Pt_) {
         //       the *store-vectors store the tracks above pt-cut
         //       itstore is the position in the original collection
@@ -112,12 +107,6 @@ bool HLTPixlMBForAlignmentFilter::hltFilter(edm::Event& iEvent,
         itstore.push_back(itrk);
       }
       itrk++;
-    }
-    if (itrk > 0) {
-      //     implement proper vertex fit here ?
-      zvtxfit = zvtxfit / itrk;
-      zvtxfit2 = zvtxfit2 / itrk;
-      zvtxfit2 = sqrt(zvtxfit2 - zvtxfit * zvtxfit);
     }
     //   locisol is the position in the *store vectors
     vector<int> locisol;

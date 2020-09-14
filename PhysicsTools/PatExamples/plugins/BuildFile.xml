@@ -5,7 +5,6 @@
   <use name="FWCore/Framework"/>
   <use name="FWCore/ParameterSet"/>
   <use name="FWCore/MessageLogger"/>
-  <use name="FWCore/MessageService"/>
   <use name="FWCore/ServiceRegistry"/>
   <use name="FWCore/Utilities"/>
   <use name="DataFormats/Common"/>
@@ -14,11 +13,9 @@
   <use name="DataFormats/VertexReco"/>
   <use name="DataFormats/BTauReco"/>
   <use name="DataFormats/PatCandidates"/>
-  <use name="HLTrigger/HLTcore"/>
   <use name="PhysicsTools/PatExamples"/>
   <use name="PhysicsTools/PatAlgos"/>
   <use name="PhysicsTools/PatUtils"/>
-  <use name="PhysicsTools/CandUtils"/>
   <use name="PhysicsTools/UtilAlgos"/>
   <use name="root"/>
 </library>

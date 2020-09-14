@@ -42,10 +42,14 @@ The python configuration for the producer should include a dedicated `PSet` for 
 process.MyProducer = cms.EDProducer("MyProducer",
     Client = cms.PSet(
         # necessary client options go here
+        mode = cms.string("Sync"),
+        allowedTries = cms.untracked.uint32(0),
     )
 )
 ```
-These parameters can be prepopulated and validated by the client using `fillDescriptions` (see below).
+These parameters can be prepopulated and validated by the client using `fillDescriptions()`.
+The `mode` and `allowedTries` parameters are always necessary (example values are shown here, but other values are also allowed).
+These parameters are described in the next section.
 
 An example producer can be found in the [test](./test) folder.
 
@@ -62,9 +66,9 @@ To implement a concrete client, the following skeleton can be used for the `.h` 
 #define HeterogeneousCore_MyPackage_MyClient
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "HeterogeneousCore/SonicCore/interface/SonicClient*.h"
+#include "HeterogeneousCore/SonicCore/interface/SonicClient.h"
 
-class MyClient : public SonicClient*<Input,Output> {
+class MyClient : public SonicClient<Input,Output> {
 public:
   MyClient(const edm::ParameterSet& params);
 
@@ -77,12 +81,12 @@ protected:
 #endif
 ```
 
-The generic `SonicClient*` should be replaced with one of the available modes:
-* `SonicClientSync`: synchronous call, blocks until the result is returned.
-* `SonicClientAsync`: asynchronous, non-blocking call.
-* `SonicClientPseudoAsync`: turns a synchronous, blocking call into an asynchronous, non-blocking call, by waiting for the result in a separate `std::thread`.
+The `SonicClient` has three available modes:
+* `Sync`: synchronous call, blocks until the result is returned.
+* `Async`: asynchronous, non-blocking call.
+* `PseudoAsync`: turns a synchronous, blocking call into an asynchronous, non-blocking call, by waiting for the result in a separate `std::thread`.
 
-`SonicClientAsync` is the most efficient, but can only be used if asynchronous, non-blocking calls are supported by the communication protocol in use.
+`Async` is the most efficient, but can only be used if asynchronous, non-blocking calls are supported by the communication protocol in use.
 
 In addition, as indicated, the input and output data types must be specified.
 (If both types are the same, only the input type needs to be specified.)
@@ -96,19 +100,20 @@ For the `Async` mode, `finish()` should be called inside the communication proto
 When `finish()` is called, the success or failure of the call should be conveyed.
 If a call fails, it can optionally be retried. This is only allowed if the call failure does not cause an exception.
 Therefore, if retrying is desired, any exception should be converted to a `LogWarning` or `LogError` message by the client.
-To enable retries with a specified maximum number of allowed tries (possibly obtained from a Python configuration parameter), the client should implement the following:
-```cpp
-protected:
-  unsigned allowedTries() const override;
-```
+A Python configuration parameter can be provided to enable retries with a specified maximum number of allowed tries.
 
-The client must also provide a static method `fillPSetDescription` to populate its parameters in the `fillDescriptions` for the producers that use the client:
+The client must also provide a static method `fillPSetDescription()` to populate its parameters in the `fillDescriptions()` for the producers that use the client:
 ```cpp
 void MyClient::fillPSetDescription(edm::ParameterSetDescription& iDesc) {
   edm::ParameterSetDescription descClient;
+  fillBasePSetDescription(descClient);
   //add parameters
   iDesc.add<edm::ParameterSetDescription>("Client",descClient);
 }
 ```
+
+As indicated, the `fillBasePSetDescription()` function should always be applied to the `descClient` object,
+to ensure that it includes the necessary parameters.
+(Calling `fillBasePSetDescription(descClient, false)` will omit the `allowedTries` parameter, disabling retries.)
 
 Example client code can be found in the `interface` and `src` directories of the other Sonic packages in this repository.

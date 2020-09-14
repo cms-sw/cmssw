@@ -77,7 +77,8 @@ HCalSD::HCalSD(const std::string& name,
 
   edm::ParameterSet m_HC = p.getParameter<edm::ParameterSet>("HCalSD");
   useBirk = m_HC.getParameter<bool>("UseBirkLaw");
-  birk1 = m_HC.getParameter<double>("BirkC1") * (g / (MeV * cm2));
+  double bunit = (CLHEP::g / (CLHEP::MeV * CLHEP::cm2));
+  birk1 = m_HC.getParameter<double>("BirkC1") * bunit;
   birk2 = m_HC.getParameter<double>("BirkC2");
   birk3 = m_HC.getParameter<double>("BirkC3");
   useShowerLibrary = m_HC.getParameter<bool>("UseShowerLibrary");
@@ -112,11 +113,13 @@ HCalSD::HCalSD(const std::string& name,
                               << "***************************************************";
 #endif
   edm::LogVerbatim("HcalSim") << "HCalSD:: Use of HF code is set to " << useHF
-                              << "\nUse of shower parametrization set to " << useParam
-                              << "\nUse of shower library is set to " << useShowerLibrary << "\nUse PMT Hit is set to "
-                              << usePMTHit << " with beta Threshold " << betaThr << "\nUSe of FibreBundle Hit set to "
-                              << useFibreBundle << "\n         Use of Birks law is set to      " << useBirk
-                              << "  with three constants kB = " << birk1 << ", C1 = " << birk2 << ", C2 = " << birk3;
+                              << "\n         Use of shower parametrization set to " << useParam
+                              << "\n         Use of shower library is set to " << useShowerLibrary
+                              << "\n         Use PMT Hit is set to " << usePMTHit << " with beta Threshold " << betaThr
+                              << "\n         USe of FibreBundle Hit set to " << useFibreBundle
+                              << "\n         Use of Birks law is set to " << useBirk
+                              << " with three constants kB = " << birk1 / bunit << ", C1 = " << birk2
+                              << ", C2 = " << birk3;
   edm::LogVerbatim("HcalSim") << "HCalSD:: Suppression Flag " << suppressHeavy << " protons below " << kmaxProton
                               << " MeV,"
                               << " neutrons below " << kmaxNeutron << " MeV and"

@@ -27,8 +27,6 @@
 #include "DataFormats/HcalDigi/interface/HBHEDataFrame.h"
 #include "DataFormats/HcalDigi/interface/HcalDigiCollections.h"
 
-#include "DetectorDescription/Core/interface/DDCompactView.h"
-
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/ESTransientHandle.h"
@@ -262,10 +260,9 @@ void HGCalDigiStudy::beginRun(const edm::Run&, const edm::EventSetup& iSetup) {
     hgcGeom_ = geom.product();
     layerFront_ = 0;
     layers_ = hgcGeom_->topology().dddConstants().layers(true);
-    HGCalGeometryMode::GeometryMode mode = hgcGeom_->topology().geomMode();
-    if ((mode == HGCalGeometryMode::Hexagon8) || (mode == HGCalGeometryMode::Hexagon8Full))
+    if (hgcGeom_->topology().waferHexagon8())
       geomType_ = 1;
-    else if (mode == HGCalGeometryMode::Trapezoid)
+    else if (hgcGeom_->topology().tileTrapezoid())
       geomType_ = 2;
     else
       geomType_ = 0;

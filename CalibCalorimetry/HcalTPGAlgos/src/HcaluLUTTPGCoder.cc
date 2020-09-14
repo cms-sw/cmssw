@@ -20,7 +20,6 @@
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "CalibCalorimetry/CaloTPG/src/CaloTPGTranscoderULUT.h"
 #include "CondFormats/HcalObjects/interface/HcalL1TriggerObjects.h"
 #include "CondFormats/HcalObjects/interface/HcalL1TriggerObject.h"
 #include "CalibCalorimetry/HcalAlgos/interface/HcalDbASCIIIO.h"
@@ -155,7 +154,7 @@ void HcaluLUTTPGCoder::update(const char* filename, bool appendMSB) {
   std::getline(file, buffer);
   std::getline(file, buffer);
 
-  unsigned int index = buffer.find("H", 0);
+  unsigned int index = buffer.find('H', 0);
   while (index < buffer.length()) {
     std::string subdetStr = buffer.substr(index, 2);
     if (subdetStr == "HB")
@@ -167,7 +166,7 @@ void HcaluLUTTPGCoder::update(const char* filename, bool appendMSB) {
     //TODO Check subdet
     //else exception
     index += 2;
-    index = buffer.find("H", index);
+    index = buffer.find('H', index);
   }
 
   // Get upper/lower ranges for ieta/iphi/depth

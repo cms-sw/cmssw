@@ -2,7 +2,7 @@
 #define Geometry_MTDNumberingBuilder_GeometricTimingDet_H
 
 #include "CondFormats/GeometryObjects/interface/PGeometricTimingDet.h"
-#include "DetectorDescription/Core/interface/DDSolidShapes.h"
+#include "DetectorDescription/DDCMS/interface/DDSolidShapes.h"
 #include "DataFormats/GeometrySurface/interface/Surface.h"
 #include "DataFormats/GeometrySurface/interface/Bounds.h"
 #include "DataFormats/DetId/interface/DetId.h"
@@ -99,7 +99,8 @@ public:
   double phi() const { return phi_; }
   double rho() const { return rho_; }
 
-  DDSolidShape const& shape() const { return shape_; }
+  LegacySolidShape shape() const { return cms::dd::value(cms::LegacySolidShapeMap, shape_); }
+  cms::DDSolidShape shape_dd4hep() const { return shape_; }
   GeometricTimingEnumType type() const { return type_; }
   std::string const& name() const { return ddname_; }
   // internal representaion
@@ -169,7 +170,7 @@ private:
   double phi_;
   double rho_;
   RotationMatrix rot_;
-  DDSolidShape shape_;
+  cms::DDSolidShape shape_;
   nav_type ddd_;
   std::string ddname_;
   GeometricTimingEnumType type_;

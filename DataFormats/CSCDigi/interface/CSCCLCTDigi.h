@@ -20,6 +20,9 @@ public:
 
   enum CLCTKeyStripMasks { kEightStripMask = 0x1, kQuartStripMask = 0x1, kHalfStripMask = 0x1f };
   enum CLCTKeyStripShifts { kEightStripShift = 6, kQuartStripShift = 5, kHalfStripShift = 0 };
+  // temporary to facilitate CCLUT-EMTF/OMTF integration studies
+  enum CLCTPatternMasks { kRun3SlopeMask = 0xf, kRun3PatternMask = 0x7, kLegacyPatternMask = 0xf };
+  enum CLCTPatternShifts { kRun3SlopeShift = 7, kRun3PatternShift = 4, kLegacyPatternShift = 0 };
   enum class Version { Legacy = 0, Run3 };
 
   /// Constructors
@@ -54,10 +57,22 @@ public:
   void setQuality(const uint16_t quality) { quality_ = quality; }
 
   /// return pattern
-  uint16_t getPattern() const { return pattern_; }
+  uint16_t getPattern() const;
 
   /// set pattern
-  void setPattern(const uint16_t pattern) { pattern_ = pattern; }
+  void setPattern(const uint16_t pattern);
+
+  /// return pattern
+  uint16_t getRun3Pattern() const;
+
+  /// set pattern
+  void setRun3Pattern(const uint16_t pattern);
+
+  /// return the slope
+  uint16_t getSlope() const;
+
+  /// set the slope
+  void setSlope(const uint16_t slope);
 
   /// return striptype
   uint16_t getStripType() const { return striptype_; }
@@ -65,7 +80,7 @@ public:
   /// set stripType
   void setStripType(const uint16_t stripType) { striptype_ = stripType; }
 
-  /// return bend
+  /// return bend (left or right)
   uint16_t getBend() const { return bend_; }
 
   /// set bend
@@ -112,7 +127,23 @@ public:
   /// when the comparator code has been set
   uint16_t getKeyStrip(const uint16_t n = 2) const;
 
-  /// return the fractional strip
+  /*
+    Strips are numbered starting from 1 in CMSSW
+    Half-strips, quarter-strips and eighth-strips are numbered starting from 0
+    The table below shows the correct numbering
+    ---------------------------------------------------------------------------------
+    strip     |               1               |                 2                   |
+    ---------------------------------------------------------------------------------
+    1/2-strip |       0       |       1       |       2         |         3         |
+    ---------------------------------------------------------------------------------
+    1/4-strip |   0   |   1   |   2   |   3   |   4   |    5    |    6    |    7    |
+    ---------------------------------------------------------------------------------
+    1/8-strip | 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12 | 13 | 14 | 15 |
+    ---------------------------------------------------------------------------------
+
+    Note: the CSC geometry also has a strip offset of +/- 0.25 strips. When comparing the
+    CLCT/LCT position with the true muon position, take the offset into account!
+   */
   float getFractionalStrip(const uint16_t n = 2) const;
 
   /// Set track number (1,2) after sorting CLCTs.
@@ -154,6 +185,9 @@ public:
   void setRun3(bool isRun3);
 
 private:
+  void setDataWord(const uint16_t newWord, uint16_t& word, const unsigned shift, const unsigned mask);
+  uint16_t getDataWord(const uint16_t word, const unsigned shift, const unsigned mask) const;
+
   uint16_t valid_;
   uint16_t quality_;
   // In Run-3, the 4-bit pattern number is reinterpreted as the

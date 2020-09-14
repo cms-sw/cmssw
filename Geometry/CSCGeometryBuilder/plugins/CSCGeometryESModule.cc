@@ -83,8 +83,8 @@ private:
   bool useCentreTIOffsets_;
   bool debugV_;
   bool applyAlignment_;  // Switch to apply alignment corrections
-  bool useDDD_;          // whether to build from DDD or DB
-  bool useDD4hep_;
+  bool fromDDD_;         // whether to build from DDD or DB
+  bool fromDD4hep_;
   const std::string alignmentsLabel_;
   const std::string myLabel_;
 };
@@ -92,8 +92,8 @@ private:
 using namespace edm;
 
 CSCGeometryESModule::CSCGeometryESModule(const edm::ParameterSet& p)
-    : useDDD_(p.getParameter<bool>("useDDD")),
-      useDD4hep_(p.getParameter<bool>("useDD4hep")),
+    : fromDDD_(p.getParameter<bool>("fromDDD")),
+      fromDD4hep_(p.getParameter<bool>("fromDD4hep")),
       alignmentsLabel_(p.getParameter<std::string>("alignmentsLabel")),
       myLabel_(p.getParameter<std::string>("appendToDataLabel")) {
   auto cc = setWhatProduced(this);
@@ -127,10 +127,12 @@ CSCGeometryESModule::CSCGeometryESModule(const edm::ParameterSet& p)
 
   debugV_ = p.getUntrackedParameter<bool>("debugV", false);
 
-  if (useDDD_) {
-    cc.setConsumes(cpvToken_).setConsumes(mdcToken_);
-  } else if (useDD4hep_) {
-    cc.setConsumes(cpvTokendd4hep_).setConsumes(mdcToken_);
+  if (fromDDD_) {
+    cpvToken_ = cc.consumes();
+    mdcToken_ = cc.consumes();
+  } else if (fromDD4hep_) {
+    cpvTokendd4hep_ = cc.consumes();
+    mdcToken_ = cc.consumes();
   } else {
     rigToken_ = cc.consumesFrom<RecoIdealGeometry, CSCRecoGeometryRcd>(edm::ESInputTag{});
     rdpToken_ = cc.consumesFrom<CSCRecoDigiParameters, CSCRecoDigiParametersRcd>(edm::ESInputTag{});
@@ -158,8 +160,8 @@ void CSCGeometryESModule::fillDescriptions(edm::ConfigurationDescriptions& descr
   // GF would like to have a shorter name (e.g. CSCGeometry), but since originally
   // there was no name, replace statements in other configs would not work anymore...
   edm::ParameterSetDescription desc;
-  desc.add<bool>("useDDD", true);
-  desc.add<bool>("useDD4hep", false);
+  desc.add<bool>("fromDDD", true);
+  desc.add<bool>("fromDD4hep", false);
   desc.add<std::string>("alignmentsLabel", "");
   desc.add<std::string>("appendToDataLabel", "");
   desc.add<bool>("useRealWireGeometry", true);
@@ -202,7 +204,7 @@ std::shared_ptr<CSCGeometry> CSCGeometryESModule::produce(const MuonGeometryReco
 }
 
 void CSCGeometryESModule::initCSCGeometry_(const MuonGeometryRecord& record, std::shared_ptr<HostType>& host) {
-  if (useDDD_) {
+  if (fromDDD_) {
     host->ifRecordChanges<IdealGeometryRecord>(record, [&host, &record, this](auto const& rec) {
       host->clear();
       edm::ESTransientHandle<DDCompactView> cpv = record.getTransientHandle(cpvToken_);
@@ -210,7 +212,7 @@ void CSCGeometryESModule::initCSCGeometry_(const MuonGeometryRecord& record, std
       CSCGeometryBuilderFromDDD builder;
       builder.build(*host, cpv.product(), mdc);
     });
-  } else if (useDD4hep_) {
+  } else if (fromDD4hep_) {
     host->ifRecordChanges<IdealGeometryRecord>(record, [&host, &record, this](auto const& rec) {
       host->clear();
       edm::ESTransientHandle<cms::DDCompactView> cpv = record.getTransientHandle(cpvTokendd4hep_);

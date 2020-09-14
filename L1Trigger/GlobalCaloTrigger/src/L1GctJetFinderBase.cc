@@ -298,6 +298,7 @@ std::vector<L1GctInternEtSum> L1GctJetFinderBase::getInternalEtSums() const {
 
 std::vector<L1GctInternHtMiss> L1GctJetFinderBase::getInternalHtMiss() const {
   std::vector<L1GctInternHtMiss> result;
+  result.reserve(numOfBx());
   for (int bx = 0; bx < numOfBx(); bx++) {
     result.push_back(L1GctInternHtMiss::emulatorJetMissHt(m_outputHxSumPipe.contents.at(bx).value(),
                                                           m_outputHySumPipe.contents.at(bx).value(),

@@ -96,6 +96,9 @@
 #include "DataFormats/JetReco/interface/CaloJetCollection.h"
 #include "DataFormats/JetReco/interface/JetExtendedAssociation.h"
 
+#include "DataFormats/Math/interface/deltaPhi.h"
+#include "DataFormats/Math/interface/deltaR.h"
+
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -152,9 +155,6 @@ private:
   void printTrack(const reco::Track *pTrack);
 
   void bookHistograms();
-
-  double deltaPhi(double v1, double v2);
-  double deltaR(double eta1, double phi1, double eta2, double phi2);
 
   void clearTreeVectors();
 
@@ -1852,7 +1852,7 @@ void IsolatedTracksNxN::analyze(const edm::Event &iEvent, const edm::EventSetup 
         for (unsigned int ind = 0; ind < recVtxs->size(); ind++) {
           if (!((*recVtxs)[ind].isFake())) {
             reco::Vertex::trackRef_iterator vtxTrack = (*recVtxs)[ind].tracks_begin();
-            if (deltaR(eta1, phi1, (*vtxTrack)->eta(), (*vtxTrack)->phi()) < 0.01)
+            if (reco::deltaR(eta1, phi1, (*vtxTrack)->eta(), (*vtxTrack)->phi()) < 0.01)
               t_trackPVIdx->push_back(ind);
             else
               t_trackPVIdx->push_back(-1);
@@ -2744,20 +2744,6 @@ void IsolatedTracksNxN::bookHistograms() {
     tree_->Branch("t_hsim7x7CharHad", "std::vector<double>", &t_hsim7x7CharHad);
   }
   tree_->Branch("t_nTracks", &t_nTracks, "t_nTracks/I");
-}
-
-double IsolatedTracksNxN::deltaPhi(double v1, double v2) {
-  // Computes the correctly normalized phi difference
-  // v1, v2 = phi of object 1 and 2
-  double diff = std::abs(v2 - v1);
-  double corr = 2 * M_PI - diff;
-  return ((diff < M_PI) ? diff : corr);
-}
-
-double IsolatedTracksNxN::deltaR(double eta1, double phi1, double eta2, double phi2) {
-  double deta = eta1 - eta2;
-  double dphi = deltaPhi(phi1, phi2);
-  return std::sqrt(deta * deta + dphi * dphi);
 }
 
 void IsolatedTracksNxN::printTrack(const reco::Track *pTrack) {

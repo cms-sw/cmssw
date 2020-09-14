@@ -99,7 +99,7 @@ void TrackAssociatorByChi2Producer::produce(edm::StreamID, edm::Event& iEvent, c
 
   {
     std::unique_ptr<reco::TrackToTrackingParticleAssociatorBaseImpl> impl(
-        new TrackAssociatorByChi2Impl(*magField, *beamSpot, chi2cut_, onlyDiagonal_));
+        new TrackAssociatorByChi2Impl(iEvent.productGetter(), *magField, *beamSpot, chi2cut_, onlyDiagonal_));
 
     std::unique_ptr<reco::TrackToTrackingParticleAssociator> assoc(
         new reco::TrackToTrackingParticleAssociator(std::move(impl)));

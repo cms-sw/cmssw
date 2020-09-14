@@ -29,7 +29,6 @@ protected:
 
   // Save the histos
   void endRun(const edm::Run &, const edm::EventSetup &) override;
-  void endJob() override;
 
 private:
   void fillHistograms();

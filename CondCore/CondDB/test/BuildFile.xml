@@ -32,6 +32,9 @@
 <bin file="testRunInfo.cpp" name="testRunInfo">
 </bin>
 
+<bin file="testRunInfo2.cpp" name="testRunInfo2">
+</bin>
+
 <bin file="testGroupSelection.cpp" name="testGroupSelection">
 </bin>
 

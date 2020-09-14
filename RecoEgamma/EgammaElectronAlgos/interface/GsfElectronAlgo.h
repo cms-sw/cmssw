@@ -45,6 +45,7 @@
 #include "TrackingTools/GsfTracking/interface/GsfConstraintAtVertex.h"
 #include "TrackingTools/MaterialEffects/interface/PropagatorWithMaterial.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
+#include "RecoEgamma/EgammaElectronAlgos/interface/ConversionFinder.h"
 
 class GsfElectronAlgo {
 public:
@@ -136,10 +137,6 @@ public:
     bool isEndcaps;
     bool isFiducial;
 
-    // BDT output (if available)
-    double minMVA;
-    double minMvaByPassForIsolated;
-
     // transverse impact parameter wrt beam spot
     double maxTIP;
 
@@ -218,7 +215,9 @@ private:
                       CaloGeometry const& geometry,
                       MultiTrajectoryStateTransform const& mtsTransform,
                       double magneticFieldInTesla,
-                      const HeavyObjectCache*);
+                      const HeavyObjectCache*,
+                      egamma::conv::TrackTableView ctfTable,
+                      egamma::conv::TrackTableView gsfTable);
 
   void setCutBasedPreselectionFlag(reco::GsfElectron& ele, const reco::BeamSpot&) const;
 

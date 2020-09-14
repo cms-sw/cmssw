@@ -14,6 +14,8 @@ public:
 private:
   // NOTE Parameters
   edm::EDGetTokenT<GEMPadDigiCollection> pad_token_;
+  edm::ESGetToken<GEMGeometry, MuonGeometryRecord> geomToken_;
+  edm::ESGetToken<GEMGeometry, MuonGeometryRecord> geomTokenBeginRun_;
 
   // NOTE MonitorElemnts
   MEMap2Ids me_occ_det_;
