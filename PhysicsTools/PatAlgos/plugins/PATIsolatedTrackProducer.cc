@@ -630,7 +630,7 @@ void pat::PATIsolatedTrackProducer::getIsolation(const PolarLorentzVector& p4,
     if (int(pf_it - pc->begin()) == pc_idx)  //don't count itself
       continue;
     int id = std::abs(pf_it->pdgId());
-    bool fromPV = (pf_it->fromPV() > 1 || std::fabs(pf_it->dz()) < pfIsolation_DZ_);
+    bool fromPV = (pf_it->fromPV() > 1 || std::abs(pf_it->dz()) < pfIsolation_DZ_);
     float pt = pf_it->p4().pt();
     float dr = deltaR(p4, *pf_it);
 
@@ -673,7 +673,7 @@ float pat::PATIsolatedTrackProducer::getTrackIsolation(const PolarLorentzVector&
   for (const auto& t : *tracks) {
     // exclude tracks from different vertices by dz signficance
     // similar to primary vertex assignment, but includes dzError from both tracks
-    if (std::fabs(t.dz(track_vtx)) >= trackIsolation_maxDZSig_ * hypot(t.dzError(), track_dzError))
+    if (std::abs(t.dz(track_vtx)) >= trackIsolation_maxDZSig_ * hypot(t.dzError(), track_dzError))
       continue;
 
     float dR2 = deltaR2(t, track_p4);
@@ -730,7 +730,7 @@ void pat::PATIsolatedTrackProducer::getNearestPCRef(const PolarLorentzVector& p4
     if (int(pf_it - pc->begin()) == pc_idx)  //don't count itself
       continue;
     int charge = std::abs(pf_it->charge());
-    bool fromPV = (pf_it->fromPV() > 1 || std::fabs(pf_it->dz()) < pfIsolation_DZ_);
+    bool fromPV = (pf_it->fromPV() > 1 || std::abs(pf_it->dz()) < pfIsolation_DZ_);
     float pt = pf_it->p4().pt();
     float dr = deltaR(p4, *pf_it);
     if (charge == 0)  // exclude neutral candidates
