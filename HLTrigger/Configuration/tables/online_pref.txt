@@ -10,8 +10,8 @@ HLT_HcalCalibration_v*	#	CMSHLT-1231
 HLT_Random_v*	#	CMSHLT-1231
 AlCa_EcalPhiSym_v*	#	CMSHLT-1245
 HLT_ZeroBias_FirstCollisionAfterAbortGap_v*	#	CMSHLT-1264
-AlCa_LumiPixels_Random_v*	#	CMSHLT-1393
-AlCa_LumiPixels_ZeroBias_v*	#	CMSHLT-1393
+AlCa_LumiPixelsCounts_Random_v*			#	CMSHLT-2114
+AlCa_LumiPixelsCounts_ZeroBias_v*		#	CMSHLT-2114
 HLT_ZeroBias_Beamspot_v*	#	CMSHLT-1572
 HLT_HIL1DoubleMuOpen_v*	#	CMSHLT-1669
 HLT_HIL1DoubleMuOpen_OS_v*	#	CMSHLT-1669
@@ -200,7 +200,8 @@ EcalCalibrationOutput
 RPCMONOutput
 ALCAP0Output
 ALCAPHISYMOutput
-ALCALUMIPIXELSOutput
+ALCALumiPixelCountsExpressOutput	#	CMSHLT-2114
+ALCALumiPixelCountsPromptOutput		#	CMSHLT-2114
 ExpressOutput
 ExpressAlignmentOutput
 NanoDSTOutput

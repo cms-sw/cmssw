@@ -15,6 +15,7 @@ from PhysicsTools.PatAlgos.slimming.slimmedGenJets_cfi   import *
 from PhysicsTools.PatAlgos.slimming.slimmedElectrons_cfi import *
 from PhysicsTools.PatAlgos.slimming.slimmedLowPtElectrons_cfi import *
 from PhysicsTools.PatAlgos.slimming.lowPtGsfLinks_cfi import *
+from PhysicsTools.PatAlgos.slimming.slimmedTrackExtras_cff import *
 from PhysicsTools.PatAlgos.slimming.slimmedMuons_cfi     import *
 from PhysicsTools.PatAlgos.slimming.slimmedPhotons_cfi   import *
 from PhysicsTools.PatAlgos.slimming.slimmedOOTPhotons_cff import *
@@ -27,6 +28,7 @@ from PhysicsTools.PatAlgos.slimming.MicroEventContent_cff import *
 from RecoEgamma.EgammaPhotonProducers.reducedEgamma_cfi  import *
 from RecoLuminosity.LumiProducer.bunchSpacingProducer_cfi import bunchSpacingProducer
 from HeavyFlavorAnalysis.Onia2MuMu.OniaPhotonConversionProducer_cfi import PhotonCandidates as oniaPhotonCandidates
+from RecoLocalCalo.HcalRecProducers.HcalHitSelection_cfi import *
 
 slimmingTask = cms.Task(
     packedPFCandidatesTask,
@@ -45,6 +47,7 @@ slimmingTask = cms.Task(
     slimmedElectrons,
     slimmedLowPtElectrons,
     lowPtGsfLinks,
+    slimmedMuonTrackExtras,
     slimmedMuons,
     slimmedPhotons,
     slimmedOOTPhotons,
@@ -55,6 +58,7 @@ slimmingTask = cms.Task(
     slimmedMETs,
     metFilterPathsTask,
     reducedEgamma,
+    slimmedHcalRecHits,
     bunchSpacingProducer,
     oniaPhotonCandidates
 )
@@ -67,7 +71,12 @@ from PhysicsTools.PatAlgos.slimming.hiPixelTracks_cfi import hiPixelTracks
 
 from Configuration.Eras.Modifier_pp_on_PbPb_run3_cff import pp_on_PbPb_run3
 from PhysicsTools.PatAlgos.packedCandidateMuonID_cfi import packedCandidateMuonID
-(pp_on_AA_2018 | pp_on_PbPb_run3).toReplaceWith(slimmingTask, cms.Task(slimmingTask.copy(), packedCandidateMuonID))
+from PhysicsTools.PatAlgos.packedPFCandidateTrackChi2_cfi import packedPFCandidateTrackChi2
+from RecoHI.HiCentralityAlgos.CentralityBin_cfi import centralityBin
+lostTrackChi2 = packedPFCandidateTrackChi2.clone(candidates = "lostTracks", doLostTracks = True)
+(pp_on_AA_2018 | pp_on_PbPb_run3).toReplaceWith(
+    slimmingTask, 
+    cms.Task(slimmingTask.copy(), packedCandidateMuonID, packedPFCandidateTrackChi2, lostTrackChi2, centralityBin))
 
 from Configuration.Eras.Modifier_phase2_timing_cff import phase2_timing
 _phase2_timing_slimmingTask = cms.Task(slimmingTask.copy(),

@@ -219,7 +219,7 @@ namespace cond {
       virtual bool exists() = 0;
       virtual void create() = 0;
       virtual bool select(cond::Time_t runNumber, boost::posix_time::ptime& start, boost::posix_time::ptime& end) = 0;
-      virtual cond::Time_t getLastInserted() = 0;
+      virtual cond::Time_t getLastInserted(boost::posix_time::ptime& start, boost::posix_time::ptime& end) = 0;
       virtual bool getInclusiveRunRange(
           cond::Time_t lower,
           cond::Time_t upper,

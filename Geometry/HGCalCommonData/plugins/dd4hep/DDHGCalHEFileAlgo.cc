@@ -22,9 +22,9 @@
 //#define EDM_ML_DEBUG
 using namespace cms_units::operators;
 
-struct HGCalHEAlgo {
-  HGCalHEAlgo() { throw cms::Exception("HGCalGeom") << "Wrong initialization to HGCalHEAlgo"; }
-  HGCalHEAlgo(cms::DDParsingContext& ctxt, xml_h e) {
+struct HGCalHEFileAlgo {
+  HGCalHEFileAlgo() { throw cms::Exception("HGCalGeom") << "Wrong initialization to HGCalHEFileAlgo"; }
+  HGCalHEFileAlgo(cms::DDParsingContext& ctxt, xml_h e) {
     cms::DDNamespace ns(ctxt, e, true);
     cms::DDAlgoArguments args(ctxt, e);
 
@@ -592,7 +592,7 @@ static long algorithm(dd4hep::Detector& /* description */,
                       cms::DDParsingContext& ctxt,
                       xml_h e,
                       dd4hep::SensitiveDetector& /* sens */) {
-  HGCalHEAlgo healgo(ctxt, e);
+  HGCalHEFileAlgo healgo(ctxt, e);
   return cms::s_executed;
 }
 

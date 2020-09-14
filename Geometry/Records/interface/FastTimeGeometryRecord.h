@@ -6,10 +6,10 @@
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 #include "Geometry/Records/interface/PFastTimeRcd.h"
 #include "CondFormats/AlignmentRecord/interface/GlobalPositionRcd.h"
-#include "boost/mpl/vector.hpp"
+#include "FWCore/Utilities/interface/mplVector.h"
 
 class FastTimeGeometryRecord : public edm::eventsetup::DependentRecordImplementation<
                                    FastTimeGeometryRecord,
-                                   boost::mpl::vector<IdealGeometryRecord, GlobalPositionRcd, PFastTimeRcd> > {};
+                                   edm::mpl::Vector<IdealGeometryRecord, GlobalPositionRcd, PFastTimeRcd> > {};
 
 #endif /* Records_FastTimeGeometryRecord_h */

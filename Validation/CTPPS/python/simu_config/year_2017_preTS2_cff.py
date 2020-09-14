@@ -10,15 +10,11 @@ ctppsRPAlignmentCorrectionsDataESSourceXML.RealFiles = [alignmentFile]
 
 # aperture cuts
 ctppsDirectProtonSimulation.useEmpiricalApertures = True
-ctppsDirectProtonSimulation.empiricalAperture45_xi0_int = 0.066
-ctppsDirectProtonSimulation.empiricalAperture45_xi0_slp = 3.536E-04
-ctppsDirectProtonSimulation.empiricalAperture45_a_int = 47.7
-ctppsDirectProtonSimulation.empiricalAperture45_a_slp = 0.447
-ctppsDirectProtonSimulation.empiricalAperture56_xi0_int = 0.062
-ctppsDirectProtonSimulation.empiricalAperture56_xi0_slp = 5.956E-04
-ctppsDirectProtonSimulation.empiricalAperture56_a_int = -31.9
-ctppsDirectProtonSimulation.empiricalAperture56_a_slp = 1.323
+
+ctppsDirectProtonSimulation.empiricalAperture45="-(8.71198E-07*[xangle]-0.000134726)+(([xi]<(0.000264704*[xangle]+0.081951))*-(4.32065E-05*[xangle]-0.0130746)+([xi]>=(0.000264704*[xangle]+0.081951))*-(0.000183472*[xangle]-0.0395241))*([xi]-(0.000264704*[xangle]+0.081951))"
+ctppsDirectProtonSimulation.empiricalAperture56="3.43116E-05+(([xi]<(0.000626936*[xangle]+0.061324))*0.00654394+([xi]>=(0.000626936*[xangle]+0.061324))*-(0.000145164*[xangle]-0.0272919))*([xi]-(0.000626936*[xangle]+0.061324))"
 
 # timing resolution
 ctppsDirectProtonSimulation.timeResolutionDiamonds45 = "2 * (0.0025*(x-3) + 0.080)"
 ctppsDirectProtonSimulation.timeResolutionDiamonds56 = "2 * (0.0050*(x-3) + 0.060)"
+

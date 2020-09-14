@@ -9,6 +9,9 @@ SiPixelPhase1SummaryOnline = DQMEDHarvester("SiPixelPhase1Summary",
     TopFolderName = cms.string('PixelPhase1/Phase1_MechanicalView/'),
     RunOnEndLumi = cms.bool(True),
     RunOnEndJob = cms.bool(True),
+    # schedule this module to run *after* the QTests.
+    inputGeneration = cms.untracked.string('DQMGenerationQTest'),
+    outputGeneration = cms.untracked.string('DQMGenerationSummary'),
     SummaryMaps = cms.VPSet(
         cms.PSet(
             MapName = cms.string("Digi"),
@@ -39,6 +42,9 @@ SiPixelPhase1SummaryOffline = DQMEDHarvester("SiPixelPhase1Summary",
     TopFolderName = cms.string('PixelPhase1/Phase1_MechanicalView/'),
     RunOnEndLumi = cms.bool(False),
     RunOnEndJob = cms.bool(True),
+    # schedule this module to run *after* the QTests.
+    inputGeneration = cms.untracked.string('DQMGenerationQTest'),
+    outputGeneration = cms.untracked.string('DQMGenerationSummary'),
     SummaryMaps = cms.VPSet(
         cms.PSet(
             MapName = cms.string("Digi"),
@@ -69,6 +75,9 @@ SiPixelPhase1SummaryCosmics = DQMEDHarvester("SiPixelPhase1Summary",
     TopFolderName = cms.string('PixelPhase1/Phase1_MechanicalView/'),
     RunOnEndLumi = cms.bool(False),
     RunOnEndJob = cms.bool(True),
+    # schedule this module to run *after* the QTests.
+    inputGeneration = cms.untracked.string('DQMGenerationQTest'),
+    outputGeneration = cms.untracked.string('DQMGenerationSummary'),
     SummaryMaps = cms.VPSet(
         cms.PSet(
             MapName = cms.string("Digi"),

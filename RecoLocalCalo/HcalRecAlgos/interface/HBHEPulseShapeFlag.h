@@ -14,6 +14,7 @@
 #include <string>
 #include <vector>
 #include <map>
+#include <cmath>
 //---------------------------------------------------------------------------
 #include "DataFormats/HcalDigi/interface/HBHEDataFrame.h"
 #include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"

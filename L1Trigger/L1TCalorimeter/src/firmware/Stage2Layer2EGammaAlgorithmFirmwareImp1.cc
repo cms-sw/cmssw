@@ -294,11 +294,11 @@ void l1t::Stage2Layer2EGammaAlgorithmFirmwareImp1::processEvent(const std::vecto
 
   // put all 12 candidates in the original tau vector, removing zero energy ones
   egammas.clear();
-  for (l1t::EGamma acceg : accumEtaPos) {
+  for (const l1t::EGamma& acceg : accumEtaPos) {
     if (acceg.hwPt() > 0)
       egammas.push_back(acceg);
   }
-  for (l1t::EGamma acceg : accumEtaNeg) {
+  for (const l1t::EGamma& acceg : accumEtaNeg) {
     if (acceg.hwPt() > 0)
       egammas.push_back(acceg);
   }

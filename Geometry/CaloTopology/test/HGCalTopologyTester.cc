@@ -74,9 +74,7 @@ void HGCalTopologyTester::analyze(edm::Event const&, edm::EventSetup const& iSet
 }
 
 void HGCalTopologyTester::doTest(const HGCalTopology& topology) {
-  if ((topology.geomMode() == HGCalGeometryMode::Hexagon8) ||
-      (topology.geomMode() == HGCalGeometryMode::Hexagon8Full) ||
-      (topology.geomMode() == HGCalGeometryMode::Trapezoid)) {
+  if (topology.waferHexagon8() || topology.tileTrapezoid()) {
     for (unsigned int i = 0; i < type_.size(); ++i) {
       DetId id;
       if (detectorName_ == "HGCalEESensitive") {

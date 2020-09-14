@@ -40,10 +40,11 @@
 #include "DataFormats/GEMDigi/interface/GEMPadDigiCollection.h"
 #include "DataFormats/GEMDigi/interface/GEMPadDigiClusterCollection.h"
 #include "L1Trigger/CSCTriggerPrimitives/interface/CSCTriggerPrimitivesBuilder.h"
-#include "Geometry/Records/interface/MuonGeometryRecord.h"
 #include "CondFormats/DataRecord/interface/CSCBadChambersRcd.h"
-#include "Geometry/GEMGeometry/interface/GEMGeometry.h"
 #include "CondFormats/DataRecord/interface/CSCDBL1TPParametersRcd.h"
+#include "Geometry/Records/interface/MuonGeometryRecord.h"
+#include "Geometry/GEMGeometry/interface/GEMGeometry.h"
+#include "Geometry/CSCGeometry/interface/CSCGeometry.h"
 
 // temporarily switch to a "one" module with a CSCTriggerPrimitivesBuilder data member
 class CSCTriggerPrimitivesProducer : public edm::one::EDProducer<> {

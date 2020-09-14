@@ -18,6 +18,9 @@
   <class name="edm::Wrapper<std::vector<TrackingParticle> >" />
   <class name="edm::RefProd<std::vector<TrackingParticle> >" />
   <class name="TrackingParticleRef" />
+  <class name="edm::Ptr<TrackingParticle>" />
+  <class name="std::vector<edm::Ptr<TrackingParticle>>" />
+
   <class name="TrackingParticleRefVector" />
   <class name="edm::Wrapper<TrackingParticleRefVector>"/>
  

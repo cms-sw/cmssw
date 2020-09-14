@@ -41,6 +41,9 @@
 #include "G4TransportationManager.hh"
 #include "G4ParticleTable.hh"
 #include "G4CascadeInterface.hh"
+#include "G4EmParameters.hh"
+#include "G4HadronicParameters.hh"
+#include "G4NuclearLevelData.hh"
 
 #include "G4GDMLParser.hh"
 #include "G4SystemOfUnits.hh"
@@ -52,6 +55,8 @@
 #include "G4RegionStore.hh"
 
 #include <iostream>
+#include <memory>
+
 #include <sstream>
 #include <fstream>
 #include <memory>
@@ -87,7 +92,7 @@ RunManagerMT::RunManagerMT(edm::ParameterSet const& p)
   m_check = p.getUntrackedParameter<bool>("CheckGeometry", false);
 }
 
-RunManagerMT::~RunManagerMT() { stopG4(); }
+RunManagerMT::~RunManagerMT() {}
 
 void RunManagerMT::initG4(const DDCompactView* pDD,
                           const cms::DDCompactView* pDD4hep,
@@ -106,7 +111,7 @@ void RunManagerMT::initG4(const DDCompactView* pDD,
       << "              cutsPerRegion: " << cuts << " cutForProton: " << protonCut << "\n"
       << "              G4 verbosity: " << verb;
 
-  m_world.reset(new DDDWorld(pDD, pDD4hep, m_catalog, verb, cuts, protonCut));
+  m_world = std::make_unique<DDDWorld>(pDD, pDD4hep, m_catalog, verb, cuts, protonCut);
   G4VPhysicalVolume* world = m_world.get()->GetWorldVolume();
 
   m_kernel->SetVerboseLevel(verb);
@@ -142,6 +147,8 @@ void RunManagerMT::initG4(const DDCompactView* pDD,
   if (phys == nullptr) {
     throw edm::Exception(edm::errors::Configuration, "Physics list construction failed!");
   }
+  G4EmParameters::Instance()->SetVerbose(verb);
+  G4EmParameters::Instance()->SetWorkerVerbose(verb - 1);
 
   // exotic particle physics
   double monopoleMass = m_pPhysics.getUntrackedParameter<double>("MonopoleMass", 0);
@@ -183,14 +190,6 @@ void RunManagerMT::initG4(const DDCompactView* pDD,
   m_kernel->InitializePhysics();
   m_kernel->SetUpDecayChannels();
 
-  // The following line was with the following comment in
-  // G4MTRunManager::InitializePhysics() in 10.00.p01; in practice
-  // needed to initialize certain singletons during the master thread
-  // initialization in order to avoid races later...
-  //
-  //BERTINI, this is needed to create pseudo-particles, to be removed
-  G4CascadeInterface::Initialize();
-
   if (m_kernel->RunInitialization()) {
     m_managerInitialized = true;
   } else {
@@ -205,6 +204,7 @@ void RunManagerMT::initG4(const DDCompactView* pDD,
       G4UImanager::GetUIpointer()->ApplyCommand(cmd);
     m_physicsList->StorePhysicsTable(m_PhysicsTablesDir);
   }
+  G4NuclearLevelData::GetInstance()->UploadNuclearLevelData(84);
 
   if (verb > 1) {
     m_physicsList->DumpCutValuesTable();
@@ -237,10 +237,11 @@ void RunManagerMT::initG4(const DDCompactView* pDD,
   m_stateManager->SetNewState(G4State_GeomClosed);
   m_currentRun = new G4Run();
   m_userRunAction->BeginOfRunAction(m_currentRun);
+  edm::LogVerbatim("SimG4CoreApplication") << "RunManagerMT:: initG4 done";
 }
 
 void RunManagerMT::initializeUserActions() {
-  m_runInterface.reset(new SimRunInterface(this, true));
+  m_runInterface = std::make_unique<SimRunInterface>(this, true);
   m_userRunAction = new RunAction(m_pRunAction, m_runInterface.get(), true);
   Connect(m_userRunAction);
 }
@@ -268,4 +269,5 @@ void RunManagerMT::terminateRun() {
     m_kernel->RunTermination();
   }
   m_runTerminated = true;
+  edm::LogVerbatim("SimG4CoreApplication") << "RunManagerMT:: terminateRun done";
 }

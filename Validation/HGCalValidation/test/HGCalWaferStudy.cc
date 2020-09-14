@@ -158,8 +158,7 @@ void HGCalWaferStudy::analyze(const edm::Event& iEvent, const edm::EventSetup& i
           zside = detId.zside();
           wvtype = hgcons_[k]->waferVirtual(layer, detId.waferU(), detId.waferV());
           xy = hgcons_[k]->locateCell(layer, detId.waferU(), detId.waferV(), detId.cellU(), detId.cellV(), false, true);
-        } else if ((hgcons_[k]->geomMode() == HGCalGeometryMode::Hexagon8) ||
-                   (hgcons_[k]->geomMode() == HGCalGeometryMode::Hexagon8Full)) {
+        } else if (hgcons_[k]->waferHexagon8()) {
           HGCSiliconDetId detId = HGCSiliconDetId(id);
           layer = detId.layer();
           zside = detId.zside();
@@ -210,8 +209,7 @@ void HGCalWaferStudy::analyze(const edm::Event& iEvent, const edm::EventSetup& i
           HFNoseDetId detId = HFNoseDetId(id);
           layer = detId.layer();
           wvtype = hgcons_[k]->waferVirtual(layer, detId.waferU(), detId.waferV());
-        } else if ((hgcons_[k]->geomMode() == HGCalGeometryMode::Hexagon8) ||
-                   (hgcons_[k]->geomMode() == HGCalGeometryMode::Hexagon8Full)) {
+        } else if (hgcons_[k]->waferHexagon8()) {
           HGCSiliconDetId detId = HGCSiliconDetId(id);
           layer = detId.layer();
           wvtype = hgcons_[k]->waferVirtual(layer, detId.waferU(), detId.waferV());
@@ -292,6 +290,7 @@ void HGCalWaferStudy::beginRun(const edm::Run&, const edm::EventSetup& iSetup) {
       h_XYsi2_[ih].emplace_back(fs->make<TH2D>(
           name.str().c_str(), title.str().c_str(), nBinHit_, xyMinHit_, xyMaxHit_, nBinHit_, xyMinHit_, xyMaxHit_));
     }
+    edm::LogVerbatim("HGCalValidation") << "Complete booking of Sim Plots for " << nameDetectors_[ih];
 
     for (int i = layerMnDig_[ih]; i <= layerMxDig_[ih]; ++i) {
       name.str("");
@@ -311,6 +310,7 @@ void HGCalWaferStudy::beginRun(const edm::Run&, const edm::EventSetup& iSetup) {
       h_XYdi2_[ih].emplace_back(fs->make<TH2D>(
           name.str().c_str(), title.str().c_str(), nBinDig_, xyMinDig_, xyMaxDig_, nBinDig_, xyMinDig_, xyMaxDig_));
     }
+    edm::LogVerbatim("HGCalValidation") << "Complete booking of Digi Plots for " << nameDetectors_[ih];
   }
 }
 

@@ -90,8 +90,10 @@ HGCalRecHitWorkerSimple::HGCalRecHitWorkerSimple(const edm::ParameterSet& ps) : 
 }
 
 void HGCalRecHitWorkerSimple::set(const edm::EventSetup& es) {
-  tools_->getEventSetup(es);
-  rechitMaker_->set(es);
+  edm::ESHandle<CaloGeometry> geom;
+  es.get<CaloGeometryRecord>().get(geom);
+  tools_->setGeometry(*geom);
+  rechitMaker_->set(*geom);
   if (hgcEE_isSiFE_) {
     edm::ESHandle<HGCalGeometry> hgceeGeoHandle;
     es.get<IdealGeometryRecord>().get("HGCalEESensitive", hgceeGeoHandle);

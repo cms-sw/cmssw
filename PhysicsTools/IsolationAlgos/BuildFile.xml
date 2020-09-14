@@ -5,6 +5,7 @@
 <use name="TrackingTools/TrajectoryState"/>
 <use name="TrackingTools/TrajectoryParametrization"/>
 <use name="FWCore/Framework"/>
+<use name="FWCore/PluginManager"/>
 <use name="FWCore/ParameterSet"/>
 <use name="DataFormats/RecoCandidate"/>
 <export>

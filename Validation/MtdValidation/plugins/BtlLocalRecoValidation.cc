@@ -92,6 +92,8 @@ private:
   MonitorElement* meHitTvsPhi_;
   MonitorElement* meHitTvsEta_;
   MonitorElement* meHitTvsZ_;
+  MonitorElement* meHitLongPos_;
+  MonitorElement* meHitLongPosErr_;
 
   MonitorElement* meTimeRes_;
   MonitorElement* meEnergyRes_;
@@ -120,6 +122,7 @@ BtlLocalRecoValidation::~BtlLocalRecoValidation() {}
 // ------------ method called for each event  ------------
 void BtlLocalRecoValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
   using namespace edm;
+  using namespace std;
   using namespace geant_units::operators;
 
   edm::ESHandle<MTDGeometry> geometryHandle;
@@ -135,7 +138,7 @@ void BtlLocalRecoValidation::analyze(const edm::Event& iEvent, const edm::EventS
   auto btlRecCluHandle = makeValid(iEvent.getHandle(btlRecCluToken_));
   MixCollection<PSimHit> btlSimHits(btlSimHitsHandle.product());
 
-  // --- Loop over the BLT SIM hits
+  // --- Loop over the BTL SIM hits
   std::unordered_map<uint32_t, MTDHit> m_btlSimHits;
   for (auto const& simHit : btlSimHits) {
     // --- Use only hits compatible with the in-time bunch-crossing
@@ -161,7 +164,7 @@ void BtlLocalRecoValidation::analyze(const edm::Event& iEvent, const edm::EventS
 
   }  // simHit loop
 
-  // --- Loop over the BLT RECO hits
+  // --- Loop over the BTL RECO hits
   unsigned int n_reco_btl = 0;
 
   for (const auto& recHit : *btlRecHitsHandle) {
@@ -180,6 +183,8 @@ void BtlLocalRecoValidation::analyze(const edm::Event& iEvent, const edm::EventS
 
     meHitEnergy_->Fill(recHit.energy());
     meHitTime_->Fill(recHit.time());
+    meHitLongPos_->Fill(recHit.position());
+    meHitLongPosErr_->Fill(recHit.positionError());
 
     meOccupancy_->Fill(global_point.z(), global_point.phi());
 
@@ -282,6 +287,9 @@ void BtlLocalRecoValidation::bookHistograms(DQMStore::IBooker& ibook,
       ibook.bookProfile("BtlHitTvsEta", "BTL RECO ToA vs #eta;#eta_{RECO};ToA_{RECO} [ns]", 50, -1.6, 1.6, 0., 100.);
   meHitTvsZ_ =
       ibook.bookProfile("BtlHitTvsZ", "BTL RECO ToA vs Z;Z_{RECO} [cm];ToA_{RECO} [ns]", 50, -260., 260., 0., 100.);
+  meHitLongPos_ = ibook.book1D("BtlLongPos", "BTL RECO hits longitudinal position;long. pos._{RECO}", 100, -10, 10);
+  meHitLongPosErr_ =
+      ibook.book1D("BtlLongPosErr", "BTL RECO hits longitudinal position error; long. pos. error_{RECO}", 100, -1, 1);
 
   meTimeRes_ = ibook.book1D("BtlTimeRes", "BTL time resolution;T_{RECO} - T_{SIM} [ns]", 100, -0.5, 0.5);
   meEnergyRes_ = ibook.book1D("BtlEnergyRes", "BTL energy resolution;E_{RECO} - E_{SIM} [MeV]", 100, -0.5, 0.5);

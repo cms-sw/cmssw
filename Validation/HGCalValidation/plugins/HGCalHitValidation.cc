@@ -150,17 +150,17 @@ void HGCalHitValidation::bookHistograms(DQMStore::IBooker& iB, edm::Run const&, 
   iB.setCurrentFolder("HGCAL/HGCalSimHitsV/HitValidation");
 
   //initiating histograms
-  heedzVsZ = iB.book2D("heedzVsZ", "", 7200, -360, 360, 100, -0.1, 0.1);
+  heedzVsZ = iB.book2D("heedzVsZ", "", 720, -360, 360, 100, -0.1, 0.1);
   heedyVsY = iB.book2D("heedyVsY", "", 400, -200, 200, 100, -0.02, 0.02);
   heedxVsX = iB.book2D("heedxVsX", "", 400, -200, 200, 100, -0.02, 0.02);
-  heeRecVsSimZ = iB.book2D("heeRecVsSimZ", "", 7200, -360, 360, 7200, -360, 360);
+  heeRecVsSimZ = iB.book2D("heeRecVsSimZ", "", 720, -360, 360, 720, -360, 360);
   heeRecVsSimY = iB.book2D("heeRecVsSimY", "", 400, -200, 200, 400, -200, 200);
   heeRecVsSimX = iB.book2D("heeRecVsSimX", "", 400, -200, 200, 400, -200, 200);
 
-  hefdzVsZ = iB.book2D("hefdzVsZ", "", 8200, -410, 410, 100, -0.1, 0.1);
+  hefdzVsZ = iB.book2D("hefdzVsZ", "", 820, -410, 410, 100, -0.1, 0.1);
   hefdyVsY = iB.book2D("hefdyVsY", "", 400, -200, 200, 100, -0.02, 0.02);
   hefdxVsX = iB.book2D("hefdxVsX", "", 400, -200, 200, 100, -0.02, 0.02);
-  hefRecVsSimZ = iB.book2D("hefRecVsSimZ", "", 8200, -410, 410, 8200, -410, 410);
+  hefRecVsSimZ = iB.book2D("hefRecVsSimZ", "", 820, -410, 410, 820, -410, 410);
   hefRecVsSimY = iB.book2D("hefRecVsSimY", "", 400, -200, 200, 400, -200, 200);
   hefRecVsSimX = iB.book2D("hefRecVsSimX", "", 400, -200, 200, 400, -200, 200);
 

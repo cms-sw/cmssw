@@ -6,5 +6,5 @@
 
 class HcalFrontEndMapRcd : public edm::eventsetup::DependentRecordImplementation<
                                HcalFrontEndMapRcd,
-                               boost::mpl::vector<HcalRecNumberingRecord, IdealGeometryRecord> > {};
+                               edm::mpl::Vector<HcalRecNumberingRecord, IdealGeometryRecord> > {};
 #endif

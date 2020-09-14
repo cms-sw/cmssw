@@ -1,5 +1,5 @@
-#ifndef CSCTMBHeader2006_h
-#define CSCTMBHeader2006_h
+#ifndef EventFilter_CSCRawToDigi_CSCTMBHeader2006_h
+#define EventFilter_CSCRawToDigi_CSCTMBHeader2006_h
 #include "EventFilter/CSCRawToDigi/interface/CSCVTMBHeaderFormat.h"
 #include "DataFormats/MuonDetId/interface/CSCDetId.h"
 

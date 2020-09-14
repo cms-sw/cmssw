@@ -156,12 +156,14 @@ def as_dict(config):
     return dictionary
 
 #######################################################
-def batchScriptCERN(runindex, eosdir,lumiToRun,key,config):
+def batchScriptCERN(theCMSSW_BASE,runindex, eosdir,lumiToRun,key,config):
 #######################################################
     '''prepare the batch script, to run on HTCondor'''
-    script = """
-#!/bin/bash 
-CMSSW_DIR=$CMSSW_BASE/src/Alignment/OfflineValidation/test
+    script = """#!/bin/bash
+source /afs/cern.ch/cms/caf/setup.sh
+CMSSW_DIR={CMSSW_BASE_DIR}/src/Alignment/OfflineValidation/test
+echo "the mother directory is $CMSSW_DIR"
+export X509_USER_PROXY=$CMSSW_DIR/.user_proxy
 #OUT_DIR=$CMSSW_DIR/harvest ## for local storage
 OUT_DIR={MYDIR}
 LOG_DIR=$CMSSW_DIR/out
@@ -176,7 +178,8 @@ ls -lh .
 for payloadOutput in $(ls *root ); do xrdcp -f $payloadOutput root://eoscms/$OUT_DIR/pvresolution_{KEY}_{runindex}.root ; done
 tar czf log_{KEY}_run{runindex}.tgz log_{KEY}_run{runindex}.out  
 for logOutput in $(ls *tgz ); do cp $logOutput $LOG_DIR/ ; done 
-""".format(runindex=runindex,
+""".format(CMSSW_BASE_DIR=theCMSSW_BASE,
+           runindex=runindex,
            MYDIR=eosdir,
            KEY=key,
            LUMITORUN=lumiToRun,
@@ -225,6 +228,8 @@ def main():
     parser.add_option('-v','--verbose', help='verbose output',      dest='verbose',     action='store_true', default=False)
     
     (opts, args) = parser.parse_args()
+
+    input_CMSSW_BASE = os.environ.get('CMSSW_BASE')
 
     ## prepare the eos output directory
 
@@ -344,9 +349,9 @@ def main():
             os.system("sed -i 's|XXX_RUN_XXX|"+run+"|g' "+cwd+"/cfg/PrimaryVertexResolution_"+key+"_"+run+"_cfg.py")
             os.system("sed -i 's|YYY_KEY_YYY|"+key+"|g' "+cwd+"/cfg/PrimaryVertexResolution_"+key+"_"+run+"_cfg.py")
 
-            scriptFileName = os.path.join(bashdir,"batchHarvester_"+key+"_"+str(count)+".sh")
+            scriptFileName = os.path.join(bashdir,"batchHarvester_"+key+"_"+str(count-1)+".sh")
             scriptFile = open(scriptFileName,'w')
-            scriptFile.write(batchScriptCERN(run,eosdir,theLumi,key,value))
+            scriptFile.write(batchScriptCERN(input_CMSSW_BASE,run,eosdir,theLumi,key,value))
             scriptFile.close()
             #os.system('chmod +x %s' % scriptFileName)
 
@@ -362,8 +367,8 @@ def main():
         if opts.submit:
             os.system("chmod u+x "+bashdir+"/*.sh")
             submissionCommand = "condor_submit "+job_submit_file
-            submissionOutput = getCommandOutput(submissionCommand)
-            print(submissionOutput)
+            print(submissionCommand)
+            os.system(submissionCommand)
 
 if __name__ == "__main__":        
     main()

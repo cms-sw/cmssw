@@ -128,19 +128,19 @@ L1TPFProducer::L1TPFProducer(const edm::ParameterSet& iConfig)
 
   const std::string& algo = iConfig.getParameter<std::string>("pfAlgo");
   if (algo == "PFAlgo3") {
-    l1pfalgo_.reset(new l1tpf_impl::PFAlgo3(iConfig));
+    l1pfalgo_ = std::make_unique<l1tpf_impl::PFAlgo3>(iConfig);
   } else if (algo == "PFAlgo2HGC") {
-    l1pfalgo_.reset(new l1tpf_impl::PFAlgo2HGC(iConfig));
+    l1pfalgo_ = std::make_unique<l1tpf_impl::PFAlgo2HGC>(iConfig);
   } else if (algo == "BitwisePFAlgo") {
-    l1pfalgo_.reset(new l1tpf_impl::BitwisePFAlgo(iConfig));
+    l1pfalgo_ = std::make_unique<l1tpf_impl::BitwisePFAlgo>(iConfig);
   } else
     throw cms::Exception("Configuration", "Unsupported PFAlgo");
 
   const std::string& pualgo = iConfig.getParameter<std::string>("puAlgo");
   if (pualgo == "Puppi") {
-    l1pualgo_.reset(new l1tpf_impl::PuppiAlgo(iConfig));
+    l1pualgo_ = std::make_unique<l1tpf_impl::PuppiAlgo>(iConfig);
   } else if (pualgo == "LinearizedPuppi") {
-    l1pualgo_.reset(new l1tpf_impl::LinearizedPuppiAlgo(iConfig));
+    l1pualgo_ = std::make_unique<l1tpf_impl::LinearizedPuppiAlgo>(iConfig);
   } else
     throw cms::Exception("Configuration", "Unsupported PUAlgo");
 
@@ -204,7 +204,7 @@ void L1TPFProducer::beginStream(edm::StreamID id) {
   }
   if (!regionCOEName_.empty()) {
     if (id == 0) {
-      fRegionCOE_.reset(new l1tpf_impl::COEFile(config_));
+      fRegionCOE_ = std::make_unique<l1tpf_impl::COEFile>(config_);
     } else {
       edm::LogWarning("L1TPFProducer")
           << "Job running with multiple streams, but COE file will dump only events on stream zero.";

@@ -357,11 +357,9 @@ bool CSCGeometryParsFromDD::build(const cms::DDCompactView* cview,
                                   CSCRecoDigiParameters& rdp) {
   const std::string attribute = "MuStructure";
   const std::string value = "MuonEndcapCSC";
-  cms::DDFilteredView fv(cview->detector(), cview->detector()->worldVolume());
-  cms::DDSpecParRefs refs;
   const cms::DDSpecParRegistry& mypar = cview->specpars();
-  mypar.filter(refs, attribute, value);
-  fv.mergedSpecifics(refs);
+  const cms::DDFilter filter(attribute, value);
+  cms::DDFilteredView fv(*cview, filter);
 
   int noOfAnonParams = 0;
 

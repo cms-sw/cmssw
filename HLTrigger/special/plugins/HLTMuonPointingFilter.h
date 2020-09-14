@@ -11,7 +11,7 @@
  */
 
 /* Base Class Headers */
-#include "FWCore/Framework/interface/EDFilter.h"
+#include "FWCore/Framework/interface/global/EDFilter.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
@@ -22,14 +22,21 @@ class Propagator;
 #include "DataFormats/GeometrySurface/interface/Plane.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 
+#include "Geometry/Records/interface/GlobalTrackingGeometryRecord.h"
+#include "Geometry/CommonDetUnit/interface/GlobalTrackingGeometry.h"
+#include "MagneticField/Engine/interface/MagneticField.h"
+#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
+#include "TrackingTools/Records/interface/TrackingComponentsRecord.h"
+
 /* C++ Headers */
 #include <string>
+#include <memory>
 
 /* ====================================================================== */
 
 /* Class HLTMuonPointingFilter Interface */
 
-class HLTMuonPointingFilter : public edm::EDFilter {
+class HLTMuonPointingFilter : public edm::global::EDFilter<> {
 public:
   /// Constructor
   HLTMuonPointingFilter(const edm::ParameterSet &);
@@ -38,23 +45,27 @@ public:
   ~HLTMuonPointingFilter() override;
 
   /* Operations */
-  bool filter(edm::Event &, edm::EventSetup const &) override;
+  bool filter(edm::StreamID, edm::Event &, edm::EventSetup const &) const override;
 
   static void fillDescriptions(edm::ConfigurationDescriptions &descriptions);
 
 private:
   const edm::EDGetTokenT<reco::TrackCollection> theSTAMuonToken;
-  const std::string thePropagatorName;  // name of propagator to be used
-  const double theRadius;               // radius of cylinder
-  const double theMaxZ;                 // half length of cylinder
-  const unsigned int thePixHits;        // number of pixel hits
-  const unsigned int theTkLayers;       // number of tracker layers with measurements
-  const unsigned int theMuonHits;       // number of valid muon hits
 
-  Cylinder::CylinderPointer theCyl;
-  Plane::PlanePointer thePosPlane, theNegPlane;
+  const std::string
+      thePropagatorName;  // name of propagator to be used  const edm::ESGetToken<Propagator, TrackingComponentsRecord> thePropagatorToken;
+  const edm::ESGetToken<Propagator, TrackingComponentsRecord> thePropagatorToken;
+  const edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> theMGFieldToken;
+  const edm::ESGetToken<GlobalTrackingGeometry, GlobalTrackingGeometryRecord> theTrackingGeometryToken;
 
-  mutable Propagator *thePropagator;
-  unsigned long long m_cacheRecordId;
+  const double theRadius;          // radius of cylinder
+  const double theMaxZ;            // half length of cylinder
+  const unsigned int thePixHits;   // number of pixel hits
+  const unsigned int theTkLayers;  // number of tracker layers with measurements
+  const unsigned int theMuonHits;  // number of valid muon hits
+
+  const Cylinder::CylinderPointer theCyl;
+  const Plane::PlanePointer thePosPlane;
+  const Plane::PlanePointer theNegPlane;
 };
 #endif  // Muon_HLTMuonPointingFilter_h

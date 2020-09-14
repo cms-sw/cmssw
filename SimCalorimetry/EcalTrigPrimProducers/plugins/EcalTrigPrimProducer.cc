@@ -59,6 +59,9 @@
 #include "CondFormats/EcalObjects/interface/EcalTPGWeightIdMap.h"
 
 #include "EcalTrigPrimProducer.h"
+
+#include <memory>
+
 #include "SimCalorimetry/EcalTrigPrimAlgos/interface/EcalTrigPrimFunctionalAlgo.h"
 
 EcalTrigPrimProducer::EcalTrigPrimProducer(const edm::ParameterSet &iConfig)
@@ -123,7 +126,7 @@ void EcalTrigPrimProducer::beginRun(edm::Run const &run, edm::EventSetup const &
   // ProcessHistory is guaranteed to be constant for an entire Run
   binOfMaximum_ = findBinOfMaximum(fillBinOfMaximumFromHistory_, binOfMaximum_, run.processHistory());
 
-  algo_.reset(new EcalTrigPrimFunctionalAlgo(setup, binOfMaximum_, tcpFormat_, barrelOnly_, debug_, famos_));
+  algo_ = std::make_unique<EcalTrigPrimFunctionalAlgo>(setup, binOfMaximum_, tcpFormat_, barrelOnly_, debug_, famos_);
 
   // get a first version of the records
   cacheID_ = this->getRecords(setup);

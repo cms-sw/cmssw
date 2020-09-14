@@ -8,11 +8,11 @@
 #include "Geometry/Records/interface/GlobalTrackingGeometryRecord.h"
 #include "CondFormats/DataRecord/interface/CSCBadChambersRcd.h"
 
-#include "boost/mpl/vector.hpp"
+#include "FWCore/Utilities/interface/mplVector.h"
 
 class DetIdAssociatorRecord
     : public edm::eventsetup::DependentRecordImplementation<
           DetIdAssociatorRecord,
-          boost::mpl::vector<CaloGeometryRecord, GlobalTrackingGeometryRecord, CSCBadChambersRcd> > {};
+          edm::mpl::Vector<CaloGeometryRecord, GlobalTrackingGeometryRecord, CSCBadChambersRcd> > {};
 
 #endif

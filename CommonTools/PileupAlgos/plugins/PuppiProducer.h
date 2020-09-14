@@ -62,12 +62,14 @@ private:
   bool fPuppiNoLep;
   bool fUseFromPVLooseTight;
   bool fUseDZ;
-  float fDZCut;
+  double fDZCut;
   double fEtaMinUseDZ;
   double fPtMaxCharged;
   double fEtaMaxCharged;
   double fPtMaxPhotons;
   double fEtaMaxPhotons;
+  uint fNumOfPUVtxsForCharged;
+  double fDZCutForChargedFromPUVtxs;
   bool fUseExistingWeights;
   bool fClonePackedCands;
   int fVtxNdofCut;

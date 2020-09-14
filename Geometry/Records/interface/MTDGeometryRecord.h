@@ -8,11 +8,11 @@
 #include "Geometry/Records/interface/BTLGeometryRcd.h"
 #include "Geometry/Records/interface/ETLGeometryRcd.h"
 #include "CondFormats/AlignmentRecord/interface/GlobalPositionRcd.h"
-#include "boost/mpl/vector.hpp"
+#include "FWCore/Utilities/interface/mplVector.h"
 
 class MTDGeometryRecord
     : public edm::eventsetup::DependentRecordImplementation<
           MTDGeometryRecord,
-          boost::mpl::vector<IdealGeometryRecord, BTLGeometryRcd, ETLGeometryRcd, GlobalPositionRcd, PFastTimeRcd> > {};
+          edm::mpl::Vector<IdealGeometryRecord, BTLGeometryRcd, ETLGeometryRcd, GlobalPositionRcd, PFastTimeRcd> > {};
 
 #endif /* RECORDS_MTDGEOMETRYRECORD_H */

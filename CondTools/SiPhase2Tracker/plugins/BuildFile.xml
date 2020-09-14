@@ -6,4 +6,6 @@
 <use name="CondFormats/Common"/>
 <use name="CondFormats/DataRecord"/>
 <use name="CondFormats/SiPhase2TrackerObjects"/>
+<use name="DataFormats/TrackerCommon"/>
+<use name="Geometry/TrackerGeometryBuilder"/>
 <flags EDM_PLUGIN="1"/>

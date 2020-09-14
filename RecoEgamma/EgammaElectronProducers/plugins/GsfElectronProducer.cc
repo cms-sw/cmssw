@@ -205,8 +205,6 @@ void GsfElectronProducer::fillDescriptions(edm::ConfigurationDescriptions& descr
     psd0.add<bool>("isFiducial", false);
     psd0.add<bool>("seedFromTEC", true);
     psd0.add<double>("maxTIP", 999999999.0);
-    psd0.add<double>("minMVA", -0.4);
-    psd0.add<double>("minMvaByPassForIsolated", -0.4);
     // preselection parameters
     desc.add<edm::ParameterSetDescription>("preselection", psd0);
   }
@@ -271,8 +269,6 @@ namespace {
         .isBarrel = pset.getParameter<bool>("isBarrel"),
         .isEndcaps = pset.getParameter<bool>("isEndcaps"),
         .isFiducial = pset.getParameter<bool>("isFiducial"),
-        .minMVA = pset.getParameter<double>("minMVA"),
-        .minMvaByPassForIsolated = pset.getParameter<double>("minMvaByPassForIsolated"),
         .maxTIP = pset.getParameter<double>("maxTIP"),
         .seedFromTEC = pset.getParameter<bool>("seedFromTEC"),
     };

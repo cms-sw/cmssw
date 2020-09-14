@@ -129,9 +129,9 @@ void ProcessBase::initLayerDisksandISeed(unsigned int& layerdisk1, unsigned int&
 }
 
 unsigned int ProcessBase::getISeed(std::string name) {
-  std::size_t pos = name.find("_");
+  std::size_t pos = name.find('_');
   std::string name1 = name.substr(pos + 1);
-  pos = name1.find("_");
+  pos = name1.find('_');
   std::string name2 = name1.substr(0, pos);
 
   unordered_map<string, unsigned int> seedmap = {

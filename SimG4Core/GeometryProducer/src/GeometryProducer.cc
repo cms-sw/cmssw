@@ -102,7 +102,7 @@ void GeometryProducer::beginLuminosityBlock(edm::LuminosityBlock &, edm::EventSe
   //     updateMagneticField( es );
 }
 
-void GeometryProducer::beginRun(const edm::Run &, const edm::EventSetup &) {}
+void GeometryProducer::beginRun(const edm::Run &run, const edm::EventSetup &es) { updateMagneticField(es); }
 
 void GeometryProducer::endRun(const edm::Run &, const edm::EventSetup &) {}
 

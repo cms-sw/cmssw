@@ -47,12 +47,11 @@ public:
   ReturnType produce(const DDVectorRegistryRcd&);
 
 private:
-  edm::ESGetToken<DDDetector, IdealGeometryRecord> m_token;
+  const edm::ESGetToken<DDDetector, IdealGeometryRecord> m_token;
 };
 
-DDVectorRegistryESProducer::DDVectorRegistryESProducer(const edm::ParameterSet& iConfig) {
-  setWhatProduced(this).setConsumes(m_token, edm::ESInputTag("", iConfig.getParameter<string>("appendToDataLabel")));
-}
+DDVectorRegistryESProducer::DDVectorRegistryESProducer(const edm::ParameterSet& iConfig)
+    : m_token(setWhatProduced(this).consumes(edm::ESInputTag("", iConfig.getParameter<string>("appendToDataLabel")))) {}
 
 DDVectorRegistryESProducer::~DDVectorRegistryESProducer() {}
 
@@ -63,7 +62,7 @@ void DDVectorRegistryESProducer::fillDescriptions(edm::ConfigurationDescriptions
 
 DDVectorRegistryESProducer::ReturnType DDVectorRegistryESProducer::produce(const DDVectorRegistryRcd& iRecord) {
   LogDebug("Geometry") << "DDVectorRegistryESProducer::produce\n";
-  const DDVectorsMap& registry = iRecord.get(m_token).vectors();
+  const dd4hep::VectorsMap& registry = iRecord.get(m_token).vectors();
 
   auto product = std::make_unique<DDVectorRegistry>();
   product->vectors.insert(registry.begin(), registry.end());

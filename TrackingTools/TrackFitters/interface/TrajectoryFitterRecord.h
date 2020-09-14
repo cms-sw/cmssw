@@ -7,10 +7,10 @@
 #include "TrackingTools/RecoGeometry/interface/RecoGeometryRecord.h"
 #include "TrackingTools/Records/interface/TrackingComponentsRecord.h"
 
-#include "boost/mpl/vector.hpp"
+#include "FWCore/Utilities/interface/mplVector.h"
 
 class TrajectoryFitterRecord : public edm::eventsetup::DependentRecordImplementation<
                                    TrajectoryFitterRecord,
-                                   boost::mpl::vector<TrackingComponentsRecord, RecoGeometryRecord> > {};
+                                   edm::mpl::Vector<TrackingComponentsRecord, RecoGeometryRecord> > {};
 
 #endif

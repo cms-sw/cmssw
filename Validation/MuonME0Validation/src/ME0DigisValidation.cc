@@ -158,9 +158,7 @@ void ME0DigisValidation::bookHistograms(DQMStore::IBooker &ibooker,
 ME0DigisValidation::~ME0DigisValidation() {}
 
 void ME0DigisValidation::analyze(const edm::Event &e, const edm::EventSetup &iSetup) {
-  edm::ESHandle<ME0Geometry> hGeom;
-  iSetup.get<MuonGeometryRecord>().get(hGeom);
-  const ME0Geometry *ME0Geometry_ = (&*hGeom);
+  const ME0Geometry *ME0Geometry_ = &iSetup.getData(geomToken_);
 
   edm::Handle<edm::PSimHitContainer> ME0Hits;
   e.getByToken(InputTagToken_, ME0Hits);

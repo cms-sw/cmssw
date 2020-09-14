@@ -18,8 +18,8 @@ from Configuration.Eras.Modifier_run2_miniAOD_94XFall17_cff import run2_miniAOD_
 run2_miniAOD_94XFall17.toModify(calibratedEgammaSettings,correctionFile = _correctionFile2017Nov17)
 
 calibratedEgammaPatSettings = calibratedEgammaSettings.clone(
-    recHitCollectionEB = cms.InputTag('reducedEgamma','reducedEBRecHits'),
-    recHitCollectionEE = cms.InputTag('reducedEgamma','reducedEERecHits')
+    recHitCollectionEB = 'reducedEgamma:reducedEBRecHits',
+    recHitCollectionEE = 'reducedEgamma:reducedEERecHits'
     )
 
 ecalTrkCombinationRegression = cms.PSet(

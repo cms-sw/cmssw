@@ -15,12 +15,10 @@ finalTaus = cms.EDFilter("PATTauRefSelector",
     cut = cms.string("pt > 18 && tauID('decayModeFindingNewDMs') && (tauID('byLooseCombinedIsolationDeltaBetaCorr3Hits') || tauID('byVLooseIsolationMVArun2v1DBoldDMwLT2015') || tauID('byVLooseIsolationMVArun2v1DBnewDMwLT') || tauID('byVLooseIsolationMVArun2v1DBdR03oldDMwLT') || tauID('byVVLooseIsolationMVArun2v1DBoldDMwLT') || tauID('byVVLooseIsolationMVArun2v1DBoldDMwLT2017v2') || tauID('byVVLooseIsolationMVArun2v1DBnewDMwLT2017v2') || tauID('byVVLooseIsolationMVArun2v1DBdR03oldDMwLT2017v2') || tauID('byVVVLooseDeepTau2017v2p1VSjet'))")
 )
 
-from Configuration.Eras.Modifier_run2_nanoAOD_94XMiniAODv1_cff import run2_nanoAOD_94XMiniAODv1
 for era in [run2_nanoAOD_94XMiniAODv1,]:
     era.toModify(finalTaus,
                  cut = cms.string("pt > 18 && tauID('decayModeFindingNewDMs') && (tauID('byLooseCombinedIsolationDeltaBetaCorr3Hits') || tauID('byVLooseIsolationMVArun2v1DBoldDMwLT') || tauID('byVLooseIsolationMVArun2v1DBnewDMwLT') || tauID('byVLooseIsolationMVArun2v1DBdR03oldDMwLT') || tauID('byVVLooseIsolationMVArun2v1DBoldDMwLT2017v1') || tauID('byVVLooseIsolationMVArun2v1DBoldDMwLT2017v2') || tauID('byVVLooseIsolationMVArun2v1DBnewDMwLT2017v2') || tauID('byVVLooseIsolationMVArun2v1DBdR03oldDMwLT2017v2') || tauID('byVVVLooseDeepTau2017v2p1VSjet'))")
     )
-from Configuration.Eras.Modifier_run2_miniAOD_80XLegacy_cff import run2_miniAOD_80XLegacy
 run2_miniAOD_80XLegacy.toModify(finalTaus,
                                 src = cms.InputTag("slimmedTaus"),
                                 cut =  cms.string("pt > 18 && tauID('decayModeFindingNewDMs') && (tauID('byLooseCombinedIsolationDeltaBetaCorr3Hits') || tauID('byVLooseIsolationMVArun2v1DBoldDMwLT') || tauID('byVLooseIsolationMVArun2v1DBnewDMwLT') || tauID('byVLooseIsolationMVArun2v1DBdR03oldDMwLT'))")
@@ -55,7 +53,7 @@ tauTable = cms.EDProducer("SimpleCandidateFlatTableProducer",
     variables = cms.PSet() # PSet defined below in era dependent way
 )
 _tauVarsBase = cms.PSet(P4Vars,
-       charge = Var("charge", int, doc="electric charge"),                  
+       charge = Var("charge", int, doc="electric charge"),
        jetIdx = Var("?hasUserCand('jet')?userCand('jet').key():-1", int, doc="index of the associated jet (-1 if none)"),
        decayMode = Var("decayMode()",int),
        idDecayMode = Var("tauID('decayModeFinding')", bool),
@@ -77,6 +75,7 @@ _tauVarsBase = cms.PSet(P4Vars,
        photonsOutsideSignalCone = Var( "tauID('photonPtSumOutsideSignalCone')", float, doc = "sum of photons outside signal cone", precision=10),
 
        idAntiMu = _tauId2WPMask("againstMuon%s3", doc= "Anti-muon discriminator V3: "),
+       idAntiEleDeadECal = Var("tauID('againstElectronDeadECAL')", bool, doc = "Anti-electron dead-ECal discriminator"),
 
 #   isoCI3hit = Var(  "tauID("byCombinedIsolationDeltaBetaCorrRaw3Hits")" doc="byCombinedIsolationDeltaBetaCorrRaw3Hits raw output discriminator"),
 #   photonOutsideSigCone = Var( "tauID("photonPtSumOutsideSignalCone")" doc="photonPtSumOutsideSignalCone raw output discriminator"),
@@ -157,13 +156,23 @@ for era in [run2_nanoAOD_94XMiniAODv1,]:
 run2_miniAOD_80XLegacy.toModify(tauTable,
                                 variables = _variables80X
 )
-(~run2_miniAOD_80XLegacy).toModify(tauTable.variables,
+for era in [run2_nanoAOD_92X, run2_nanoAOD_94XMiniAODv1, run2_nanoAOD_94XMiniAODv2, \
+            run2_nanoAOD_94X2016, run2_nanoAOD_102Xv1, run2_nanoAOD_106Xv1]:
+    era.toModify(tauTable.variables,
                  rawAntiEle2018 = Var("tauID('againstElectronMVA6Raw2018')", float, doc= "Anti-electron MVA discriminator V6 raw output discriminator (2018)", precision=10),
                  rawAntiEleCat2018 = Var("tauID('againstElectronMVA6category2018')", int, doc="Anti-electron MVA discriminator V6 category (2018)"),
                  idAntiEle2018 = _tauId5WPMask("againstElectron%sMVA62018", doc= "Anti-electron MVA discriminator V6 (2018)"),
                  rawAntiEle = Var("tauID('againstElectronMVA6Raw')", float, doc= "Anti-electron MVA discriminator V6 raw output discriminator (2015)", precision=10),
                  rawAntiEleCat = Var("tauID('againstElectronMVA6category')", int, doc="Anti-electron MVA discriminator V6 category (2015"),
                  idAntiEle = _tauId5WPMask("againstElectron%sMVA6", doc= "Anti-electron MVA discriminator V6 (2015)")
+    )
+
+run2_miniAOD_80XLegacy.toModify(tauTable.variables,
+                                idAntiEleDeadECal = None)
+for era in [run2_nanoAOD_92X, run2_nanoAOD_94XMiniAODv1, run2_nanoAOD_94XMiniAODv2, \
+            run2_nanoAOD_94X2016, run2_nanoAOD_102Xv1, run2_nanoAOD_106Xv1]:
+    era.toModify(tauTable.variables,
+                 idAntiEleDeadECal = Var("tauID('againstElectronDeadECALForNano')", bool, doc = "Anti-electron dead-ECal discriminator"),
     )
 
 tauGenJets.GenParticles = cms.InputTag("prunedGenParticles")

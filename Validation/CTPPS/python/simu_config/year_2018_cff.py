@@ -42,14 +42,11 @@ ctppsRPAlignmentCorrectionsDataESSourceXML.RealFiles = [alignmentFile]
 
 # aperture cuts
 ctppsDirectProtonSimulation.useEmpiricalApertures = True
-ctppsDirectProtonSimulation.empiricalAperture45_xi0_int = 0.079
-ctppsDirectProtonSimulation.empiricalAperture45_xi0_slp = 4.211E-04
-ctppsDirectProtonSimulation.empiricalAperture45_a_int = 42.8
-ctppsDirectProtonSimulation.empiricalAperture45_a_slp = 0.669
-ctppsDirectProtonSimulation.empiricalAperture56_xi0_int = 0.074
-ctppsDirectProtonSimulation.empiricalAperture56_xi0_slp = 6.604E-04
-ctppsDirectProtonSimulation.empiricalAperture56_a_int = -22.7
-ctppsDirectProtonSimulation.empiricalAperture56_a_slp = 1.600
+
+ctppsDirectProtonSimulation.empiricalAperture45="-(8.44219E-07*[xangle]-0.000100957)+(([xi]<(0.000247185*[xangle]+0.101599))*-(1.40289E-05*[xangle]-0.00727237)+([xi]>=(0.000247185*[xangle]+0.101599))*-(0.000107811*[xangle]-0.0261867))*([xi]-(0.000247185*[xangle]+0.101599))"
+
+ctppsDirectProtonSimulation.empiricalAperture56="-(-4.74758E-07*[xangle]+3.0881E-05)+(([xi]<(0.000727859*[xangle]+0.0722653))*-(2.43968E-05*[xangle]-0.0085461)+([xi]>=(0.000727859*[xangle]+0.0722653))*-(7.19216E-05*[xangle]-0.0148267))*([xi]-(0.000727859*[xangle]+0.0722653))"
+
 
 # local reconstruction
 ctppsLocalTrackLiteProducer.includeStrips = False

@@ -1,4 +1,4 @@
-/**\class CSCDigiValidator CSCDigiValidator.cc UserCode/CSCDigiValidator/src/CSCDigiValidator.cc
+/**\class CSCDigiValidator
 */
 
 // Original Author:  Lindsey Gray
@@ -33,6 +33,8 @@
 #include "DataFormats/L1CSCTrackFinder/interface/TrackStub.h"
 #include "CondFormats/CSCObjects/interface/CSCChamberMap.h"
 #include "CondFormats/DataRecord/interface/CSCChamberMapRcd.h"
+
+#include "DataFormats/L1CSCTrackFinder/interface/L1Track.h"
 
 class CSCWireDigi;
 class CSCStripDigi;
@@ -74,8 +76,6 @@ private:
   edm::InputTag wire1, strip1, comp1, clct1, alct1, lct1, csctf1, csctfstubs1;
   edm::InputTag wire2, strip2, comp2, clct2, alct2, lct2, csctf2, csctfstubs2;
 
-  bool reorderStrips;
-
   edm::EDGetTokenT<CSCWireDigiCollection> wd1_token;
   edm::EDGetTokenT<CSCStripDigiCollection> sd1_token;
   edm::EDGetTokenT<CSCComparatorDigiCollection> cd1_token;
@@ -114,8 +114,6 @@ CSCDigiValidator::CSCDigiValidator(const edm::ParameterSet& iConfig) {
   ts1_token = consumes<CSCTriggerContainer<csctf::TrackStub> >(iConfig.getParameter<edm::InputTag>("inputCSCTFStubs"));
   ts2_token = consumes<CSCTriggerContainer<csctf::TrackStub> >(iConfig.getParameter<edm::InputTag>("repackCSCTFStubs"));
   cham_token = esConsumes<CSCChamberMap, CSCChamberMapRcd>();
-
-  //  reorderStrips(iConfig.getUntrackedParameter<bool>("applyStripReordering",true))
 }
 
 CSCDigiValidator::~CSCDigiValidator() {}

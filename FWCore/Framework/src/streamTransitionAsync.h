@@ -21,7 +21,7 @@
 // system include files
 #include "FWCore/Framework/interface/IOVSyncValue.h"
 #include "FWCore/Framework/interface/Schedule.h"
-#include "FWCore/Framework/interface/SubProcess.h"
+#include "FWCore/Framework/src/SubProcess.h"
 #include "FWCore/Concurrency/interface/WaitingTask.h"
 #include "FWCore/Concurrency/interface/WaitingTaskHolder.h"
 

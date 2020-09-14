@@ -31,6 +31,10 @@
 //      Plot depth slices from kslice to nslice with other parameters having
 //      the same meanings as those of *etaPhiPlot*
 //
+// etaSlicePlot(fileName, plot, ifirst, ilast, ietaRange, drawLeg, tag, debug);
+//      Plot phi distributions of integrated interaction/radiation/step
+//      length for a given ietaRange (0 -> 28; 1 --> 29; 2 --> 9)
+//
 // printTable(fileName, outputFileName, inputFileName)
 //      Print a table of integrated lengths (or difference wrt an earlier one
 //      if inputFileName is other than None) for each depth in outputFileName
@@ -106,6 +110,14 @@ void etaPhi2DPlot(TString fileName = "matbdg_HCAL.root",
                   int ilast = 19,
                   int drawLeg = 1,
                   std::string tag = "Run");
+void etaSlicePlot(TString fileName = "matbdg_HCAL.root",
+                  TString plot = "IntLen",
+                  int ifirst = 0,
+                  int ilast = 19,
+                  int ietaRange = 0,
+                  int drawLeg = 1,
+                  std::string tag = "Run",
+                  bool debug = false);
 void etaPhi2DPlot(int nslice,
                   int kslice,
                   TString fileName = "matbdg_HCAL.root",
@@ -771,6 +783,104 @@ void etaPhi2DPlot(
     if (drawLeg > 0)
       leg[is]->Draw("sames");
   }
+}
+
+void etaSlicePlot(
+    TString fileName, TString plot, int ifirst, int ilast, int ietaRange, int drawLeg, std::string tag, bool debug) {
+  TFile *hcalFile = new TFile(fileName);
+  hcalFile->cd("g4SimHits");
+  setStyle();
+
+  TString xtit = TString("#phi (i#eta = 28)");
+  TString ztit = TString("phi");
+  TString ytit = "none";
+  int ymin = 0, ymax = 20, istart = 1500;
+  double xh = 0.90;
+  if (plot.CompareTo("RadLen") == 0) {
+    ytit = TString("HCal Material Budget (X_{0})");
+    ymin = 0;
+    ymax = 200;
+    istart = 1600;
+  } else if (plot.CompareTo("StepLen") == 0) {
+    ytit = TString("HCal Material Budget (Step Length)");
+    ymin = 0;
+    ymax = 15000;
+    istart = 1800;
+    xh = 0.70;
+  } else {
+    ytit = TString("HCal Material Budget (#lambda)");
+    ymin = 0;
+    ymax = 18;
+    istart = 1700;
+  }
+  if (ietaRange == 1) {
+    istart += 300;
+    xtit = TString("#phi (i#eta = 29)");
+  } else if (ietaRange == 2) {
+    istart += 600;
+    xtit = TString("#phi (i#eta = 9)");
+  }
+
+  TLegend *leg = new TLegend(xh - 0.13, 0.60, xh, 0.90);
+  leg->SetBorderSize(1);
+  leg->SetFillColor(10);
+  leg->SetMargin(0.25);
+  leg->SetTextSize(0.018);
+
+  int nplots = 0;
+  TProfile *prof[nlaymax];
+  for (int ii = ilast; ii >= ifirst; ii--) {
+    char hname[10], title[50];
+    sprintf(hname, "%i", istart + ii);
+    gDirectory->GetObject(hname, prof[nplots]);
+    prof[nplots]->GetXaxis()->SetTitle(xtit);
+    prof[nplots]->GetYaxis()->SetTitle(ytit);
+    prof[nplots]->GetYaxis()->SetRangeUser(ymin, ymax);
+    prof[nplots]->SetLineColor(colorLayer[ii]);
+    prof[nplots]->SetFillColor(colorLayer[ii]);
+    if (xh < 0.8)
+      prof[nplots]->GetYaxis()->SetTitleOffset(1.7);
+    else
+      prof[nplots]->GetYaxis()->SetTitleOffset(1.0);
+    int lay = ii - 1;
+    if (lay > 0 && lay < 20) {
+      sprintf(title, "Layer %d", lay);
+    } else if (lay == 0) {
+      sprintf(title, "After Crystal");
+    } else if (lay >= 20) {
+      sprintf(title, "After HF");
+    } else {
+      sprintf(title, "Before Crystal");
+    }
+    leg->AddEntry(prof[nplots], title, "lf");
+    nplots++;
+    if (ii == ilast && debug) {
+      int nbinX = prof[0]->GetNbinsX();
+      double xmin = prof[0]->GetXaxis()->GetXmin();
+      double xmax = prof[0]->GetXaxis()->GetXmax();
+      double dx = (xmax - xmin) / nbinX;
+      cout << "Hist " << ii;
+      for (int ibx = 0; ibx < nbinX; ibx++) {
+        double xx1 = xmin + ibx * dx;
+        double cont = prof[0]->GetBinContent(ibx + 1);
+        cout << " | " << ibx << "(" << xx1 << ":" << (xx1 + dx) << ") " << cont;
+      }
+      cout << "\n";
+    }
+  }
+
+  TString cname = "c_" + plot + ztit + tag;
+  TCanvas *cc1 = new TCanvas(cname, cname, 700, 600);
+  if (xh < 0.8) {
+    cc1->SetLeftMargin(0.15);
+    cc1->SetRightMargin(0.05);
+  }
+
+  prof[0]->Draw("h");
+  for (int i = 1; i < nplots; i++)
+    prof[i]->Draw("h sames");
+  if (drawLeg > 0)
+    leg->Draw("sames");
 }
 
 void printTable(TString fileName, TString outputFileName, TString inputFileName) {

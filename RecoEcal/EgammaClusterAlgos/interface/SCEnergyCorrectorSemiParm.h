@@ -26,6 +26,8 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Utilities/interface/ESGetToken.h"
+#include "CondFormats/DataRecord/interface/GBRDWrapperRcd.h"
 
 class SCEnergyCorrectorSemiParm {
 public:
@@ -48,6 +50,13 @@ protected:
 
   edm::ESHandle<CaloTopology> calotopo_;
   edm::ESHandle<CaloGeometry> calogeom_;
+
+  edm::ESGetToken<CaloTopology, CaloTopologyRecord> tokenCaloTopo_;
+  edm::ESGetToken<CaloGeometry, CaloGeometryRecord> tokenCaloGeom_;
+  edm::ESGetToken<GBRForestD, GBRDWrapperRcd> tokenRegressionKeyEB_;
+  edm::ESGetToken<GBRForestD, GBRDWrapperRcd> tokenUncertaintyKeyEB_;
+  edm::ESGetToken<GBRForestD, GBRDWrapperRcd> tokenRegressionKeyEE_;
+  edm::ESGetToken<GBRForestD, GBRDWrapperRcd> tokenUncertaintyKeyEE_;
 
   edm::EDGetTokenT<EcalRecHitCollection> tokenEBRecHits_;
   edm::EDGetTokenT<EcalRecHitCollection> tokenEERecHits_;

@@ -1213,15 +1213,15 @@ void FastTimerService::printPathSummaryHeader(T& out, std::string const& label) 
   out << "FastReport     CPU time sched. / depend.    Real time sched. / depend.       Alloc. sched. / depend.     Dealloc. sched. / depend.  ";
   //      FastReport  ########.# ms  ########.# ms  ########.# ms  ########.# ms  +######### kB  +######### kB  -######### kB  -######### kB  ...
   out << label << '\n';
-  // clang-format om
+  // clang-format on
 }
 
 template <typename T>
 void FastTimerService::printSummaryLine(T& out, Resources const& data, uint64_t events, std::string const& label) const {
   out << fmt::sprintf(
-  // clang-format off
+      // clang-format off
       "FastReport  %10.1f ms                 %10.1f ms                 %+10d kB                 %+10d kB                 %s\n",
-  // clang-format om
+      // clang-format on
       (events ? ms(data.time_thread) / events : 0),
       (events ? ms(data.time_real) / events : 0),
       (events ? +static_cast<int64_t>(kB(data.allocated) / events) : 0),
@@ -1233,9 +1233,9 @@ template <typename T>
 void FastTimerService::printSummaryLine(
     T& out, AtomicResources const& data, uint64_t events, uint64_t active, std::string const& label) const {
   out << fmt::sprintf(
-  // clang-format off
+      // clang-format off
       "FastReport  %10.1f ms  %10.1f ms  %10.1f ms  %10.1f ms  %+10d kB  %+10d kB  %+10d kB  %+10d kB  %s\n",
-  // clang-format om
+      // clang-format on
       (events ? ms(data.time_thread) / events : 0),
       (active ? ms(data.time_thread) / active : 0),
       (events ? ms(data.time_real) / events : 0),
@@ -1253,9 +1253,9 @@ void FastTimerService::printSummaryLine(T& out,
                                         uint64_t events,
                                         std::string const& label) const {
   out << fmt::sprintf(
-  // clang-format off
+      // clang-format off
       "FastReport  %10.1f ms                 %10.1f ms                 %+10d kB                 %+10d kB                 %s\n",
-  // clang-format om
+      // clang-format on
       (events ? ms(data.time_thread) / events : 0),
       (events ? ms(data.time_real) / events : 0),
       (events ? +static_cast<int64_t>(kB(data.allocated) / events) : 0),

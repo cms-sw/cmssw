@@ -43,7 +43,7 @@ namespace cond {
         bool exists() override;
         void create() override;
         bool select(cond::Time_t runNumber, boost::posix_time::ptime& start, boost::posix_time::ptime& end) override;
-        cond::Time_t getLastInserted() override;
+        cond::Time_t getLastInserted(boost::posix_time::ptime& start, boost::posix_time::ptime& end) override;
         bool getInclusiveRunRange(
             cond::Time_t lower,
             cond::Time_t upper,

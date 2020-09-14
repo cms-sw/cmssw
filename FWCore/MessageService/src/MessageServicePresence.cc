@@ -17,10 +17,10 @@
 //
 //
 
-#include "FWCore/MessageService/interface/MainThreadMLscribe.h"
+#include "FWCore/MessageService/src/MainThreadMLscribe.h"
 #include "FWCore/MessageService/interface/MessageServicePresence.h"
-#include "FWCore/MessageService/interface/MessageLoggerScribe.h"
-#include "FWCore/MessageService/interface/ThreadQueue.h"
+#include "FWCore/MessageService/src/MessageLoggerScribe.h"
+#include "FWCore/MessageService/src/ThreadQueue.h"
 
 #include "FWCore/MessageLogger/interface/MessageLoggerQ.h"
 #include "FWCore/Utilities/interface/UnixSignalHandlers.h"

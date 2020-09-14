@@ -1,7 +1,5 @@
 <library name="GeometryHGCalCommonDataPlugin" file="DD*.cc">
-  <use name="CondFormats/GeometryObjects"/>
   <use name="DetectorDescription/Core"/>
-  <use name="DetectorDescription/Parser"/>
   <use name="FWCore/Framework"/>
   <use name="FWCore/MessageLogger"/>
   <use name="FWCore/ParameterSet"/>

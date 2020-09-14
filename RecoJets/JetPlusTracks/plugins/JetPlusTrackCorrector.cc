@@ -9,6 +9,8 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
+#include "DataFormats/Math/interface/deltaPhi.h"
+#include "DataFormats/Math/interface/deltaR.h"
 #include <fstream>
 #include <vector>
 #include <iomanip>
@@ -21,6 +23,7 @@ using namespace jpt;
 //
 JetPlusTrackCorrector::JetPlusTrackCorrector(const edm::ParameterSet& pset, edm::ConsumesCollector&& iC)
     : verbose_(pset.getParameter<bool>("Verbose")),
+      usePAT_(pset.getParameter<bool>("UsePAT")),
       vectorial_(pset.getParameter<bool>("VectorialCorrection")),
       vecResponse_(pset.getParameter<bool>("UseResponseInVecCorr")),
       useInConeTracks_(pset.getParameter<bool>("UseInConeTracks")),
@@ -40,10 +43,16 @@ JetPlusTrackCorrector::JetPlusTrackCorrector(const edm::ParameterSet& pset, edm:
       muons_(pset.getParameter<edm::InputTag>("Muons")),
       electrons_(pset.getParameter<edm::InputTag>("Electrons")),
       electronIds_(pset.getParameter<edm::InputTag>("ElectronIds")),
+      patmuons_(pset.getParameter<edm::InputTag>("PatMuons")),
+      patelectrons_(pset.getParameter<edm::InputTag>("PatElectrons")),
       trackQuality_(reco::TrackBase::qualityByName(pset.getParameter<std::string>("TrackQuality"))),
       response_(Map(pset.getParameter<std::string>("ResponseMap"), verbose_)),
       efficiency_(Map(pset.getParameter<std::string>("EfficiencyMap"), verbose_)),
       leakage_(Map(pset.getParameter<std::string>("LeakageMap"), verbose_)),
+      muonPtmatch_(pset.getParameter<double>("muonPtmatch")),
+      muonEtamatch_(pset.getParameter<double>("muonEtamatch")),
+      muonPhimatch_(pset.getParameter<double>("muonPhimatch")),
+      electronDRmatch_(pset.getParameter<double>("electronDRmatch")),
       pionMass_(0.140),
       muonMass_(0.105),
       elecMass_(0.000511),
@@ -90,15 +99,52 @@ JetPlusTrackCorrector::JetPlusTrackCorrector(const edm::ParameterSet& pset, edm:
 
   input_jetTracksAtVertex_token_ = iC.consumes<reco::JetTracksAssociation::Container>(jetTracksAtVertex_);
   input_jetTracksAtCalo_token_ = iC.consumes<reco::JetTracksAssociation::Container>(jetTracksAtCalo_);
-  inut_reco_muons_token_ = iC.consumes<RecoMuons>(muons_);
   input_pvCollection_token_ = iC.consumes<reco::VertexCollection>(srcPVs_);
+
+  input_reco_muons_token_ = iC.consumes<RecoMuons>(muons_);
   input_reco_elecs_token_ = iC.consumes<RecoElectrons>(electrons_);
   input_reco_elec_ids_token_ = iC.consumes<RecoElectronIds>(electronIds_);
+  if (usePAT_) {
+    input_pat_muons_token_ = iC.consumes<pat::MuonCollection>(patmuons_);
+    input_pat_elecs_token_ = iC.consumes<pat::ElectronCollection>(patelectrons_);
+  }
 }
 
 // -----------------------------------------------------------------------------
 //
 JetPlusTrackCorrector::~JetPlusTrackCorrector() { ; }
+// -----------------------------------------------------------------------------
+//
+
+double JetPlusTrackCorrector::correction(const reco::Jet& fJet,
+                                         const reco::Jet& fJetcalo,
+                                         const edm::Event& event,
+                                         const edm::EventSetup& setup,
+                                         const reco::TrackRefVector& tracksinvert,
+                                         const reco::TrackRefVector& tracksincalo,
+                                         P4& corrected,
+                                         MatchedTracks& pions,
+                                         MatchedTracks& muons,
+                                         MatchedTracks& elecs) {
+  double scale = 1.;
+  corrected = fJet.p4();
+  matchTracks(fJetcalo, event, setup, tracksinvert, tracksincalo, pions, muons, elecs);
+  if (!usePAT_) {
+    if (usePions_) {
+      corrected += pionCorrection(fJet.p4(), pions);
+    }
+    if (useMuons_) {
+      corrected += muonCorrection(fJet.p4(), muons);
+    }
+    if (useElecs_) {
+      corrected += elecCorrection(fJet.p4(), elecs);
+    }
+  } else {
+    corrected += fJetcalo.p4();
+  }
+  scale = checkScale(fJet.p4(), corrected);
+  return scale;
+}
 
 // -----------------------------------------------------------------------------
 //
@@ -111,8 +157,6 @@ double JetPlusTrackCorrector::correction(const reco::Jet& fJet,
                                          MatchedTracks& muons,
                                          MatchedTracks& elecs,
                                          bool& validMatches) {
-  //  std::cout<<" JetPlusTrackCorrector::correction "<<std::endl;
-
   theResponseOfChargedWithEff = 0.;
   theResponseOfChargedWithoutEff = 0.;
   theSumPtWithEff = 0.;
@@ -134,10 +178,6 @@ double JetPlusTrackCorrector::correction(const reco::Jet& fJet,
   if (!canCorrect(fJet)) {
     return 1.;
   }
-
-  //  std::cout<<" Jet can be corrected "<<std::endl;
-
-  // std::cout<<" Tracks are matched "<<std::endl;
 
   // Debug
   if (verbose_) {
@@ -189,20 +229,6 @@ double JetPlusTrackCorrector::correction(const reco::Jet& fJet,
     edm::LogVerbatim("JetPlusTrackCorrector") << ss.str();
   }
 
-  //   std::cout << " mScale= " << scale
-  //  	    << " NewResponse " << corrected.energy()
-  //  	    << " Jet energy " << fJet.energy()
-  //  	    << " event " << event.id().event() << std::endl;
-
-  /*
-  std::cout<<" Correction::Corrections for jet "<<  theResponseOfChargedWithEff <<" "<<
-  theResponseOfChargedWithoutEff <<" "<<
-  theSumPtWithEff <<" "<<
-  theSumPtWithoutEff <<" "<<
-  theSumEnergyWithEff <<" "<<
-  theSumEnergyWithoutEff <<std::endl;
-*/
-
   // Return energy correction
   return scale;
 }
@@ -223,17 +249,31 @@ double JetPlusTrackCorrector::correction(const reco::Particle::LorentzVector& je
 
 // -----------------------------------------------------------------------------
 //
+void JetPlusTrackCorrector::matchTracks(const reco::Jet& fJet,
+                                        const edm::Event& event,
+                                        const edm::EventSetup& setup,
+                                        const reco::TrackRefVector& tracksinvert,
+                                        const reco::TrackRefVector& tracksincalo,
+                                        jpt::MatchedTracks& pions,
+                                        jpt::MatchedTracks& muons,
+                                        jpt::MatchedTracks& elecs) {
+  JetTracks jet_tracks;
+  jet_tracks.vertex_ = tracksinvert;
+  jet_tracks.caloFace_ = tracksincalo;
+  matchTracks(jet_tracks, event, pions, muons, elecs);
+
+  return;
+}
+
 bool JetPlusTrackCorrector::matchTracks(const reco::Jet& fJet,
                                         const edm::Event& event,
-                                        const edm::EventSetup& setup,  //@@ required by method in derived class
+                                        const edm::EventSetup& setup,
                                         jpt::MatchedTracks& pions,
                                         jpt::MatchedTracks& muons,
                                         jpt::MatchedTracks& elecs) {
   // Associate tracks to jet at both the Vertex and CaloFace
   JetTracks jet_tracks;
   bool ok = jetTrackAssociation(fJet, event, setup, jet_tracks);
-
-  // std::cout<<"JetPlusTrackCorrector::matchTracks, JetTrackAssociation ok="<<ok<<std::endl;
 
   if (!ok) {
     return false;
@@ -265,8 +305,6 @@ bool JetPlusTrackCorrector::jetTrackAssociation(const reco::Jet& fJet,
 
   // Check if labels are given
   if (!jetTracksAtVertex_.label().empty() && !jetTracksAtCalo_.label().empty()) {
-    //std::cout<<" Try to associate with splitting "<< std::endl;
-
     return jtaUsingEventData(fJet, event, trks);
   } else {
     edm::LogWarning("PatJPTCorrector") << "[JetPlusTrackCorrector::" << __func__ << "]"
@@ -299,15 +337,16 @@ bool JetPlusTrackCorrector::jtaUsingEventData(const reco::Jet& fJet, const edm::
     return false;
   }
 
-  // std::cout<<" JetPlusTrackCorrector::jtaUsingEventData::here "<<jetSplitMerge_<<std::endl;
-
   // Retrieve jet-tracks association for given jet
   const reco::JetTracksAssociation::Container jtV = *(jetTracksAtVertex.product());
   TrackRefs excluded;
+  TrackRefs relocate;
   if (jetSplitMerge_ < 0) {
     trks.vertex_ = reco::JetTracksAssociation::getValue(jtV, fJet);
   } else {
     rebuildJta(fJet, jtV, trks.vertex_, excluded);
+    rebuildJta(fJet, jtV, relocate, excluded);
+    trks.vertex_ = relocate;
   }
 
   // Check if any tracks are associated to jet at vertex
@@ -338,23 +377,18 @@ bool JetPlusTrackCorrector::jtaUsingEventData(const reco::Jet& fJet, const edm::
     excludeJta(fJet, jtC, trks.caloFace_, excluded);
   }
 
-  //   std::cout<<" JTA:Tracks in vertex "<<trks.vertex_.size()<<" in calo "<<trks.caloFace_.size()<<std::endl;
-
-  // Successful
   return true;
 }
 
 // -----------------------------------------------------------------------------
 //
 bool JetPlusTrackCorrector::getMuons(const edm::Event& event, edm::Handle<RecoMuons>& reco_muons) const {
-  event.getByToken(inut_reco_muons_token_, reco_muons);
-  if (!reco_muons.isValid() || reco_muons.failedToGet()) {
-    edm::LogError("JetPlusTrackCorrector") << "[JetPlusTrackCorrector::" << __func__ << "]"
-                                           << " Invalid handle to reco::Muon collection"
-                                           << " with InputTag (label:instance:process) \"" << muons_.label() << ":"
-                                           << muons_.instance() << ":" << muons_.process() << "\"";
-    return false;
-  }
+  event.getByToken(input_reco_muons_token_, reco_muons);
+  return true;
+}
+
+bool JetPlusTrackCorrector::getMuons(const edm::Event& event, edm::Handle<pat::MuonCollection>& pat_muons) const {
+  event.getByToken(input_pat_muons_token_, pat_muons);
   return true;
 }
 
@@ -380,32 +414,46 @@ void JetPlusTrackCorrector::matchTracks(const JetTracks& jet_tracks,
 
   // Get RECO muons
   edm::Handle<RecoMuons> reco_muons;
+  edm::Handle<pat::MuonCollection> pat_muons;
   bool found_reco_muons = true;
+  bool found_pat_muons = true;
   if (useMuons_) {
-    getMuons(event, reco_muons);
+    if (!usePAT_) {
+      getMuons(event, reco_muons);
+    } else {
+      getMuons(event, pat_muons);
+      found_reco_muons = false;
+    }
   }
 
   // Get RECO electrons and their ids
   edm::Handle<RecoElectrons> reco_elecs;
+  edm::Handle<pat::ElectronCollection> pat_elecs;
   edm::Handle<RecoElectronIds> reco_elec_ids;
   bool found_reco_elecs = true;
+  bool found_pat_elecs = true;
   if (useElecs_) {
-    getElectrons(event, reco_elecs, reco_elec_ids);
+    if (!usePAT_) {
+      getElectrons(event, reco_elecs, reco_elec_ids);
+    } else {
+      getElectrons(event, pat_elecs);
+      found_reco_elecs = false;
+    }
   }
 
   // Check RECO products found
   if (!found_reco_muons || !found_reco_elecs) {
-    edm::LogError("JetPlusTrackCorrector") << "[JetPlusTrackCorrector::" << __func__ << "]"
-                                           << " Unable to access RECO collections for muons and electrons";
-    return;
+    if (!found_pat_muons || !found_pat_elecs) {
+      edm::LogError("JetPlusTrackCorrector") << "[JetPlusTrackCorrector::" << __func__ << "]"
+                                             << " Unable to access RECO collections for muons and electrons";
+      return;
+    }
   }
 
   // Identify pions/muons/electrons that are "in/in" and "in/out"
   {
     TrackRefs::const_iterator itrk = jet_tracks.vertex_.begin();
     TrackRefs::const_iterator jtrk = jet_tracks.vertex_.end();
-
-    //    std::cout<<" Print theSumPtForBeta "<<theSumPtForBeta<<std::endl;
 
     double theSumPtForBetaOld = theSumPtForBeta;
 
@@ -417,8 +465,6 @@ void JetPlusTrackCorrector::matchTracks(const JetTracks& jet_tracks,
 
       const reco::TrackBaseRef ttr1(*itrk);
 
-      //      std::cout<<" Size of PV "<<pvCollection->size()<<std::endl;
-
       int numpv = 0;
 
       int itrack_belong = -1;
@@ -428,35 +474,36 @@ void JetPlusTrackCorrector::matchTracks(const JetTracks& jet_tracks,
         std::vector<reco::TrackBaseRef>::const_iterator rr = find((*iv).tracks_begin(), (*iv).tracks_end(), ttr1);
         if (rr != (*iv).tracks_end()) {
           itrack_belong++;
-          //          std::cout<<" Numpv "<<numpv<<std::endl;
           break;
         }
 
       }  // all vertices
 
-      //      std::cout<<" Track in PV "<<itrack_belong<<" "<<numpv<<std::endl;
-
       if (numpv > 1 && itrack_belong == 0) {
-        //       std::cout<<" Drop track "<<std::endl;
         continue;
       }
-
-      // std::cout<<" we take it "<<numpv<<" "<<itrack_belong<<std::endl;
 
       if (failTrackQuality(itrk)) {
         continue;
       }
 
-      //     std::cout<<" Track accepted "<<std::endl;
-
       TrackRefs::iterator it = jet_tracks.caloFace_.end();
       bool found = findTrack(jet_tracks, itrk, it);
+      bool muaccept = false;
+      bool eleaccept = false;
+      if (found_reco_muons)
+        muaccept = matchMuons(itrk, reco_muons);
+      else if (found_pat_muons) {
+        muaccept = matchMuons(itrk, pat_muons);
+      }
+      if (found_reco_elecs)
+        eleaccept = matchElectrons(itrk, reco_elecs, reco_elec_ids);
+      else if (found_pat_elecs) {
+        eleaccept = matchElectrons(itrk, pat_elecs);
+      }
 
-      //       std::cout<<"JetPlusTrackCorrector::matchTracks:  jet_tracks.caloFace_.size()="<<jet_tracks.caloFace_.size()
-      //                <<" found = "<<found<<std::endl;
-
-      bool is_muon = useMuons_ && matchMuons(itrk, reco_muons);
-      bool is_ele = useElecs_ && matchElectrons(itrk, reco_elecs, reco_elec_ids);
+      bool is_muon = useMuons_ && muaccept;
+      bool is_ele = useElecs_ && eleaccept;
 
       if (found) {
         if (is_muon) {
@@ -473,8 +520,6 @@ void JetPlusTrackCorrector::matchTracks(const JetTracks& jet_tracks,
           elecs.inVertexOutOfCalo_.push_back(*itrk);
         } else {
           pions.inVertexOutOfCalo_.push_back(*itrk);
-          //         std::cout<<"JetPlusTrackCorrector::matchTracks: pions.inVertexOutOfCalo_.push_back(*itrk), size="
-          //                  <<pions.inVertexOutOfCalo_.size() <<std::endl;
         }
       }
     }
@@ -496,8 +541,21 @@ void JetPlusTrackCorrector::matchTracks(const JetTracks& jet_tracks,
       bool found = findTrack(pions, muons, elecs, itrk);
 
       if (!found) {
-        bool is_muon = useMuons_ && matchMuons(itrk, reco_muons);
-        bool is_ele = useElecs_ && matchElectrons(itrk, reco_elecs, reco_elec_ids);
+        bool muaccept = false;
+        bool eleaccept = false;
+        if (found_reco_muons)
+          muaccept = matchMuons(itrk, reco_muons);
+        else if (found_pat_muons) {
+          muaccept = matchMuons(itrk, pat_muons);
+        }
+        if (found_reco_elecs)
+          eleaccept = matchElectrons(itrk, reco_elecs, reco_elec_ids);
+        else if (found_pat_elecs) {
+          eleaccept = matchElectrons(itrk, pat_elecs);
+        }
+
+        bool is_muon = useMuons_ && muaccept;
+        bool is_ele = useElecs_ && eleaccept;
 
         if (is_muon) {
           muons.outOfVertexInCalo_.push_back(*itrk);
@@ -535,30 +593,19 @@ bool JetPlusTrackCorrector::getElectrons(const edm::Event& event,
                                          edm::Handle<RecoElectrons>& reco_elecs,
                                          edm::Handle<RecoElectronIds>& reco_elec_ids) const {
   event.getByToken(input_reco_elecs_token_, reco_elecs);
-  if (!reco_elecs.isValid() || reco_elecs.failedToGet()) {
-    edm::LogError("JetPlusTrackCorrector") << "[JetPlusTrackCorrector::" << __func__ << "]"
-                                           << " Invalid handle to reco::GsfElectron collection"
-                                           << " with InputTag (label:instance:process) \"" << electrons_.label() << ":"
-                                           << electrons_.instance() << ":" << electrons_.process() << "\"";
-    return false;
-  }
   event.getByToken(input_reco_elec_ids_token_, reco_elec_ids);
-  if (!reco_elec_ids.isValid() || reco_elec_ids.failedToGet()) {
-    edm::LogError("JetPlusTrackCorrector") << "[JetPlusTrackCorrector::" << __func__ << "]"
-                                           << " Invalid handle to reco::GsfElectron collection"
-                                           << " with InputTag (label:instance:process) \"" << electronIds_.label()
-                                           << ":" << electronIds_.instance() << ":" << electronIds_.process() << "\"";
-    return false;
-  }
+  return true;
+}
+
+bool JetPlusTrackCorrector::getElectrons(const edm::Event& event,
+                                         edm::Handle<pat::ElectronCollection>& pat_elecs) const {
+  event.getByToken(input_pat_elecs_token_, pat_elecs);
   return true;
 }
 
 // -----------------------------------------------------------------------------
 //
 bool JetPlusTrackCorrector::failTrackQuality(TrackRefs::const_iterator& itrk) const {
-  //  if ( useTrackQuality_ && !(*itrk)->quality(trackQuality_) ) { return true; }
-  //  else { return false; }
-
   bool retcode = false;
 
   if (useTrackQuality_ && !(*itrk)->quality(trackQuality_)) {
@@ -622,14 +669,6 @@ bool JetPlusTrackCorrector::tracksInCalo(const MatchedTracks& pions,
 //
 JetPlusTrackCorrector::P4 JetPlusTrackCorrector::pionCorrection(const P4& jet, const MatchedTracks& pions) {
   P4 corr_pions;
-  /*
-  std::cout<<" pionCorrection::Corrections for jet "<<  theResponseOfChargedWithEff <<" "<<
-  theResponseOfChargedWithoutEff <<" "<<
-  theSumPtWithEff <<" "<<
-  theSumPtWithoutEff <<" "<<
-  theSumEnergyWithEff <<" "<<
-  theSumEnergyWithoutEff <<std::endl;
-*/
 
   // In-cone
 
@@ -771,7 +810,6 @@ JetPlusTrackCorrector::P4 JetPlusTrackCorrector::jetDirFromTracks(const P4& corr
     TrackRefs::iterator jtrk = pions.inVertexInCalo_.end();
     for (; itrk != jtrk; ++itrk) {
       corr += PtEtaPhiM((*itrk)->pt(), (*itrk)->eta(), (*itrk)->phi(), 0.);
-      //      tracks_present = true;
       tracks_present_inin = true;
     }
   }
@@ -781,7 +819,6 @@ JetPlusTrackCorrector::P4 JetPlusTrackCorrector::jetDirFromTracks(const P4& corr
     TrackRefs::iterator jtrk = pions.inVertexOutOfCalo_.end();
     for (; itrk != jtrk; ++itrk) {
       corr += PtEtaPhiM((*itrk)->pt(), (*itrk)->eta(), (*itrk)->phi(), 0.);
-      //      tracks_present = true;
     }
   }
 
@@ -849,18 +886,6 @@ JetPlusTrackCorrector::P4 JetPlusTrackCorrector::calculateCorr(const P4& jet,
                                                                double mip) {
   // Correction to be applied to jet 4-momentum
   P4 correction;
-
-  /*
-  std::cout<<" >>>>> Jet "<<jet.pt()<<" "<<jet.eta()<<" "<<jet.phi()<<" Number of tracks "<<tracks.size()<<" Pions? "<<is_pion<<" InVert "<<in_cone_at_vertex<<
-  " InCalo "<<in_cone_at_calo_face<<std::endl;
-  
-  std::cout<<" calculateCorr Start::Corrections for jet "<<  theResponseOfChargedWithEff <<" "<<
-  theResponseOfChargedWithoutEff <<" "<<
-  theSumPtWithEff <<" "<<
-  theSumPtWithoutEff <<" "<<
-  theSumEnergyWithEff <<" "<<
-  theSumEnergyWithoutEff <<std::endl;
-*/
 
   // Reset efficiency container
   eff.reset();
@@ -979,14 +1004,6 @@ JetPlusTrackCorrector::P4 JetPlusTrackCorrector::calculateCorr(const P4& jet,
     theSumEnergyWithEff += theSumEnergy;
     theSumEnergyWithoutEff += theSumEnergy;
   }
-  /*
-  std::cout<<" calculateCorr End::Corrections for jet "<<  theResponseOfChargedWithEff <<" "<<
-  theResponseOfChargedWithoutEff <<" "<<
-  theSumPtWithEff <<" "<<
-  theSumPtWithoutEff <<" "<<
-  theSumEnergyWithEff <<" "<<
-  theSumEnergyWithoutEff <<std::endl;
-*/
   return correction;
 }
 
@@ -1051,14 +1068,6 @@ JetPlusTrackCorrector::P4 JetPlusTrackCorrector::pionEfficiency(const P4& jet,
   theResponseOfChargedWithEff += theSumResp;
   theSumPtWithEff += theSumPt;
   theSumEnergyWithEff += theSumEnergy;
-  /*      
-      std::cout<<" Efficiency correction End::Corrections for jet "<<  theResponseOfChargedWithEff <<" "<<
-      theResponseOfChargedWithoutEff <<" "<<
-      theSumPtWithEff <<" "<<
-      theSumPtWithoutEff <<" "<<
-      theSumEnergyWithEff <<" "<<
-      theSumEnergyWithoutEff <<std::endl;
-*/
   return correction;
 }
 
@@ -1086,7 +1095,25 @@ bool JetPlusTrackCorrector::matchMuons(TrackRefs::const_iterator& itrk, const ed
       return false;
     }
 
-    if (*itrk == imuon->innerTrack()) {
+    if (*itrk == imuon->innerTrack())
+      return true;
+  }
+
+  return false;
+}
+
+bool JetPlusTrackCorrector::matchMuons(TrackRefs::const_iterator& itrk,
+                                       const edm::Handle<pat::MuonCollection>& muons) const {
+  if (muons->empty()) {
+    return false;
+  }
+
+  for (auto const& muon : *muons) {
+    if (muon.innerTrack().isNull() == 1)
+      continue;
+    if (std::abs((**itrk).pt() - muon.innerTrack()->pt()) < muonPtmatch_ &&
+        std::abs((**itrk).eta() - muon.innerTrack()->eta()) < muonEtamatch_ &&
+        std::abs(reco::deltaPhi((**itrk).phi(), muon.innerTrack()->phi())) < muonPhimatch_) {
       return true;
     }
   }
@@ -1103,13 +1130,10 @@ bool JetPlusTrackCorrector::matchElectrons(TrackRefs::const_iterator& itrk,
     return false;
   }
 
-  double deltaR = 999.;
   double deltaRMIN = 999.;
 
   uint32_t electron_index = 0;
-  RecoElectrons::const_iterator ielec = elecs->begin();
-  RecoElectrons::const_iterator jelec = elecs->end();
-  for (; ielec != jelec; ++ielec) {
+  for (auto const& ielec : *elecs) {
     edm::Ref<RecoElectrons> electron_ref(elecs, electron_index);
     electron_index++;
 
@@ -1118,21 +1142,28 @@ bool JetPlusTrackCorrector::matchElectrons(TrackRefs::const_iterator& itrk,
     }  //@@ Check for null value
 
     // DR matching b/w electron and track
-    double deltaphi = fabs(ielec->phi() - (*itrk)->momentum().phi());
-    if (deltaphi > 6.283185308)
-      deltaphi -= 6.283185308;
-    if (deltaphi > 3.141592654)
-      deltaphi = 6.283185308 - deltaphi;
-    deltaR = abs(sqrt(pow((ielec->eta() - (*itrk)->momentum().eta()), 2) + pow(deltaphi, 2)));
-    if (deltaR < deltaRMIN) {
-      deltaRMIN = deltaR;
+    auto dR2 = deltaR2(ielec, **itrk);
+    if (dR2 < deltaRMIN) {
+      deltaRMIN = dR2;
     }
   }
+  return deltaRMIN < electronDRmatch_ * electronDRmatch_;
+}
 
-  if (deltaR < 0.02)
-    return true;
-  else
+bool JetPlusTrackCorrector::matchElectrons(TrackRefs::const_iterator& itrk,
+                                           const edm::Handle<pat::ElectronCollection>& elecs) const {
+  if (elecs->empty()) {
     return false;
+  }
+
+  double deltaRMIN = 999.;
+  for (auto const& ielec : *elecs) {
+    auto dR2 = deltaR2(ielec, **itrk);
+    if (dR2 < deltaRMIN) {
+      deltaRMIN = dR2;
+    }
+  }
+  return deltaRMIN < electronDRmatch_ * electronDRmatch_;
 }
 
 // -----------------------------------------------------------------------------
@@ -1141,8 +1172,6 @@ void JetPlusTrackCorrector::rebuildJta(const reco::Jet& fJet,
                                        const JetTracksAssociations& jtV0,
                                        TrackRefs& tracksthis,
                                        TrackRefs& Excl) const {
-  // std::cout<<" NEW1 Merge/Split schema "<<jetSplitMerge_<<std::endl;
-
   tracksthis = reco::JetTracksAssociation::getValue(jtV0, fJet);
 
   if (jetSplitMerge_ < 0)
@@ -1153,8 +1182,6 @@ void JetPlusTrackCorrector::rebuildJta(const reco::Jet& fJet,
 
   TrackRefs tracks = tracksthis;
   tracksthis.clear();
-
-  //  std::cout<<" Size of initial vector "<<tracks.size()<<" "<<fJet.et()<<" "<<fJet.eta()<<" "<<fJet.phi()<<std::endl;
 
   int tr = 0;
 
@@ -1192,13 +1219,10 @@ void JetPlusTrackCorrector::rebuildJta(const reco::Jet& fJet,
         flag = 0;
 
       if (flag == 0) {
-        //std::cout<<" Track belong to another jet also "<<dR2<<" "<<
-        //(*ii)->et()<<" "<<(*ii)->eta()<<" "<< (*ii)->phi()<<" Track "<<(**it).eta()<<" "<<(**it).phi()<<" "<<scalethis<<" "<<scale<<" "<<flag<<std::endl;
         break;
       }
     }
 
-    //std::cout<<" Track "<<tr<<" "<<flag<<" "<<dR2this<<" "<<dR2check<<" Jet "<<fJet.eta()<<" "<< fJet.phi()<<" Track "<<(**it).eta()<<" "<<(**it).phi()<<std::endl;
     if (flag == 1) {
       tracksthis.push_back(*it);
     } else {
@@ -1206,7 +1230,6 @@ void JetPlusTrackCorrector::rebuildJta(const reco::Jet& fJet,
     }
   }
 
-  //std::cout<<" The new size of tracks "<<tracksthis.size()<<" Excludede "<<Excl.size()<<std::endl;
   return;
 }
 
@@ -1216,8 +1239,6 @@ void JetPlusTrackCorrector::excludeJta(const reco::Jet& fJet,
                                        const JetTracksAssociations& jtV0,
                                        TrackRefs& tracksthis,
                                        const TrackRefs& Excl) const {
-  //std::cout<<" NEW2" << std::endl;
-
   tracksthis = reco::JetTracksAssociation::getValue(jtV0, fJet);
   if (Excl.empty())
     return;
@@ -1227,19 +1248,12 @@ void JetPlusTrackCorrector::excludeJta(const reco::Jet& fJet,
   TrackRefs tracks = tracksthis;
   tracksthis.clear();
 
-  //std::cout<<" Size of initial vector "<<tracks.size()<<" "<<fJet.et()<<" "<<fJet.eta()<<" "<<fJet.phi()<<std::endl;
-
   for (TrackRefs::iterator it = tracks.begin(); it != tracks.end(); it++) {
-    //std::cout<<" Track at calo surface "
-    //<<" Track "<<(**it).eta()<<" "<<(**it).phi()<<std::endl;
     TrackRefs::iterator itold = find(Excl.begin(), Excl.end(), (*it));
     if (itold == Excl.end()) {
       tracksthis.push_back(*it);
     }
-    //else { std::cout<<"Exclude "<<(**it).eta()<<" "<<(**it).phi()<<std::endl; }
   }
-
-  //std::cout<<" Size of calo tracks "<<tracksthis.size()<<std::endl;
 
   return;
 }
@@ -1256,10 +1270,6 @@ double JetPlusTrackCorrector::correctAA(const reco::Jet& fJet,
   double mScale = 1.;
   double NewResponse = fJet.energy();
 
-  //std::cout<<"---JetPlusTrackCorrector::correctAA, Jet initial: NewResponse="<<NewResponse <<" et = "<<fJet.et()
-  //         <<" pt= "<<fJet.pt()<<" eta="<<fJet.eta()<<" phi="<<fJet.phi() <<" ja="<<ja
-  //        <<" trBgOutOfVertex="<<trBgOutOfVertex.size()<< " trBgOutOfCalo="<<trBgOutOfCalo.size()<<std::endl;
-
   if (trBgOutOfVertex.empty())
     return mScale;
   double EnergyOfBackgroundCharged = 0.;
@@ -1268,14 +1278,9 @@ double JetPlusTrackCorrector::correctAA(const reco::Jet& fJet,
   //
   // calculate the mean response
   //
-  //     double MeanResponseOfBackgroundCharged = 0.;
-  //     double MeanEnergyOfBackgroundCharged   = 0.;
 
   //================= EnergyOfBackgroundCharged ==================>
   for (reco::TrackRefVector::iterator iBgtV = trBgOutOfVertex.begin(); iBgtV != trBgOutOfVertex.end(); iBgtV++) {
-    // Temporary solution>>>>>> Remove tracks with pt>50 GeV
-    //   if( (**iBgtV).pt() >= 50. ) continue;
-    //response_.value(ieta,ipt);
     double eta = fabs((**iBgtV).eta());
     double pt = fabs((**iBgtV).pt());
     uint32_t ieta = response_.etaBin(eta);
@@ -1284,16 +1289,8 @@ double JetPlusTrackCorrector::correctAA(const reco::Jet& fJet,
     if (fabs(fJet.eta() - (**iBgtV).eta()) > mConeSize)
       continue;
 
-    //      // Check bins (not for mips)
-    //         if ( ieta >= response_.nEtaBins() ) { continue; }
-    //	 if ( ipt >= response_.nPtBins() ) { ipt = response_.nPtBins() - 1; }
-
     double echarBg = sqrt((**iBgtV).px() * (**iBgtV).px() + (**iBgtV).py() * (**iBgtV).py() +
                           (**iBgtV).pz() * (**iBgtV).pz() + 0.14 * 0.14);
-
-    //	 ResponseOfBackgroundCharged += echarBg*response_.value(ieta,ipt)/efficiency_.value(ieta,ipt);
-
-    //	 std::cout<<" Efficiency of bg tracks "<<efficiency_.value(ieta,ipt)<<std::endl;
 
     EnergyOfBackgroundCharged += echarBg / efficiency_.value(ieta, ipt);
 
@@ -1302,9 +1299,6 @@ double JetPlusTrackCorrector::correctAA(const reco::Jet& fJet,
   //============= ResponseOfBackgroundCharged =======================>
 
   for (reco::TrackRefVector::iterator iBgtC = trBgOutOfCalo.begin(); iBgtC != trBgOutOfCalo.end(); iBgtC++) {
-    // Temporary solution>>>>>> Remove tracks with pt>50 GeV
-    //   if( (**iBgtC).pt() >= 50. ) continue;
-    //response_.value(ieta,ipt);
     double eta = fabs((**iBgtC).eta());
     double pt = fabs((**iBgtC).pt());
     uint32_t ieta = response_.etaBin(eta);
@@ -1326,8 +1320,6 @@ double JetPlusTrackCorrector::correctAA(const reco::Jet& fJet,
 
     ResponseOfBackgroundCharged += echarBg * response_.value(ieta, ipt) / efficiency_.value(ieta, ipt);
 
-    //       std::cout<<" Efficiency of bg tracks "<<efficiency_.value(ieta,ipt)<<std::endl;
-
   }  // Response of BG tracks
 
   //=================================================================>
@@ -1341,9 +1333,6 @@ double JetPlusTrackCorrector::correctAA(const reco::Jet& fJet,
   double pz = 0.;
 
   for (reco::TrackRefVector::const_iterator it = pioninout.begin(); it != pioninout.end(); it++) {
-    //          std::cout<<" Track in out, size= "<<pioninout.size()<<" p= "<<(*it)->p()<<" pt= "<<(*it)->pt()
-    //                   <<" eta=  "<<(*it)->eta()<<" phi= "<<(*it)->phi()<<std::endl;
-
     px += (*it)->px();
     py += (*it)->py();
     pz += (*it)->pz();
@@ -1358,9 +1347,6 @@ double JetPlusTrackCorrector::correctAA(const reco::Jet& fJet,
   double pz_in = 0.;
 
   for (reco::TrackRefVector::const_iterator it = pioninin.begin(); it != pioninin.end(); it++) {
-    //          std::cout<<" Track in in, size= "<<pioninin.size()<<" p= "<<(*it)->p()<<" pt= "<<(*it)->pt()
-    //                   <<" eta= "<<(*it)->eta()<<" phi= "<<(*it)->phi()<<std::endl;
-
     px_in += (*it)->px();
     py_in += (*it)->py();
     pz_in += (*it)->pz();
@@ -1370,24 +1356,15 @@ double JetPlusTrackCorrector::correctAA(const reco::Jet& fJet,
   //===================================================================>
 
   //=>
-  //    double SquareEtaRingWithoutJets = 4*(M_PI*mConeSize - mConeSize*mConeSize);
   double SquareEtaRingWithoutJets = ja;
-
-  //   std::cout<<"---SquareEtaRingWithoutJets="<<SquareEtaRingWithoutJets<<std::endl;
 
   EnergyOfBackgroundCharged = EnergyOfBackgroundCharged / SquareEtaRingWithoutJets;
   ResponseOfBackgroundCharged = ResponseOfBackgroundCharged / SquareEtaRingWithoutJets;
-  //    NumberOfBackgroundCharged   = NumberOfBackgroundCharged/SquareEtaRingWithoutJets;
 
   EnergyOfBackgroundCharged = M_PI * mConeSize * mConeSize * EnergyOfBackgroundCharged;
   ResponseOfBackgroundCharged = M_PI * mConeSize * mConeSize * ResponseOfBackgroundCharged;
-  //    NumberOfBackgroundCharged   = M_PI*mConeSize*mConeSize*NumberOfBackgroundCharged;
 
   NewResponse = NewResponse - EnergyOfBackgroundCharged + ResponseOfBackgroundCharged;
-
-  //      std::cout<<"====JetPlusTrackCorrector, Old response=fJet.energy()"<<fJet.energy()
-  //               <<" EnergyOfBackgroundCharged="<<EnergyOfBackgroundCharged
-  //               <<" ResponseOfBackgroundCharged="<<ResponseOfBackgroundCharged
 
   mScale = NewResponse / fJet.energy();
   if (mScale < 0.)

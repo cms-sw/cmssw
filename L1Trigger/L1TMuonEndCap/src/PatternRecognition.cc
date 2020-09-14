@@ -443,7 +443,7 @@ void PatternRecognition::process_single_zone(int zone,
         // Find max quality code in a given key_zhit
         if (max_quality_code < quality_code) {
           max_quality_code = quality_code;
-          tmp_road = std::move(road);
+          tmp_road = road;
         }
       }  // end if is_lifetime_up
 

@@ -18,7 +18,6 @@
 <use name="SimTracker/TrackTriggerAssociation"/>
 <use name="DataFormats/JetReco"/>
 <use name="L1Trigger/TrackTrigger"/>
-<use name="boost"/>
 <use name="roothistmatrix"/>
 <export>
     <lib name="1"/>

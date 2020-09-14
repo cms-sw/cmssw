@@ -1,20 +1,36 @@
+
 #ifndef L1Trigger_TrackFindingTMTT_HTbase_h
 #define L1Trigger_TrackFindingTMTT_HTbase_h
 
 #include "L1Trigger/TrackFindingTMTT/interface/HTcell.h"
 #include "L1Trigger/TrackFindingTMTT/interface/L1track2D.h"
 
-#include <boost/numeric/ublas/matrix.hpp>
-
 #include <vector>
 #include <list>
 #include <utility>
 #include <memory>
 
-using boost::numeric::ublas::matrix;
+namespace tmtt {
+  template <typename T>
+  class matrix {
+  public:
+    //for a mxn matrix - row major
+    matrix(unsigned int m, unsigned int n) : _n{n}, _m{m} { _matrix.resize(m * n); }
+    const T& operator()(unsigned int i, unsigned int j) const { return _matrix.at(i * _n + j); }
+    T& operator()(unsigned int i, unsigned int j) {
+      if (i >= _m || j >= _n)
+        throw std::out_of_range("matrix access out of bounds");
+
+      return _matrix[i * _n + j];
+    }
+
+  private:
+    std::vector<T> _matrix;
+    unsigned int _n, _m;
+  };
+}  // namespace tmtt
 
 //=== Base class for Hough Transform array for a single (eta,phi) sector.
-
 namespace tmtt {
 
   class Settings;

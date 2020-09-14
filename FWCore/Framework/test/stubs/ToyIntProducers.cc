@@ -308,7 +308,7 @@ namespace edmtest {
   class IntProducerFromTransient : public edm::global::EDProducer<> {
   public:
     explicit IntProducerFromTransient(edm::ParameterSet const&)
-        : putToken_{produces<IntProduct>()}, getToken_{consumes<TransientIntProduct>(edm::InputTag{"TransientThing"})} {}
+        : putToken_{produces<IntProduct>()}, getToken_{consumes(edm::InputTag{"TransientThing"})} {}
     void produce(edm::StreamID, edm::Event& e, edm::EventSetup const& c) const override;
 
   private:
@@ -353,9 +353,9 @@ namespace edmtest {
         : putToken_{produces<IntProduct>()},
           otherPutToken_{produces<IntProduct>("other")},
           onlyGetOnEvent_(p.getUntrackedParameter<unsigned int>("onlyGetOnEvent", 0u)) {
-      auto const& labels = p.getParameter<std::vector<std::string>>("labels");
+      auto const& labels = p.getParameter<std::vector<edm::InputTag>>("labels");
       for (auto const& label : labels) {
-        tokens_.emplace_back(consumes<IntProduct>(edm::InputTag{label}));
+        tokens_.emplace_back(consumes(label));
       }
     }
     void produce(edm::StreamID, edm::Event& e, edm::EventSetup const& c) const override;
@@ -516,37 +516,37 @@ namespace edmtest {
       {
         auto tag = p.getParameter<edm::InputTag>("consumesBeginProcessBlock");
         if (not tag.label().empty()) {
-          bpbGet_ = consumes<IntProduct, edm::InProcess>(tag);
+          bpbGet_ = consumes<edm::InProcess>(tag);
         }
       }
       {
         auto tag = p.getParameter<edm::InputTag>("consumesBeginRun");
         if (not tag.label().empty()) {
-          brGet_ = consumes<IntProduct, edm::InRun>(tag);
+          brGet_ = consumes<edm::InRun>(tag);
         }
       }
       {
         auto tag = p.getParameter<edm::InputTag>("consumesBeginLuminosityBlock");
         if (not tag.label().empty()) {
-          blGet_ = consumes<IntProduct, edm::InLumi>(tag);
+          blGet_ = consumes<edm::InLumi>(tag);
         }
       }
       {
         auto tag = p.getParameter<edm::InputTag>("consumesEndLuminosityBlock");
         if (not tag.label().empty()) {
-          elGet_ = consumes<IntProduct, edm::InLumi>(tag);
+          elGet_ = consumes<edm::InLumi>(tag);
         }
       }
       {
         auto tag = p.getParameter<edm::InputTag>("consumesEndRun");
         if (not tag.label().empty()) {
-          erGet_ = consumes<IntProduct, edm::InRun>(tag);
+          erGet_ = consumes<edm::InRun>(tag);
         }
       }
       {
         auto tag = p.getParameter<edm::InputTag>("consumesEndProcessBlock");
         if (not tag.label().empty()) {
-          epbGet_ = consumes<IntProduct, edm::InProcess>(tag);
+          epbGet_ = consumes<edm::InProcess>(tag);
         }
       }
     }

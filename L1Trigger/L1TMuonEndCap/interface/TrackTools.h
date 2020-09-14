@@ -21,7 +21,11 @@ namespace emtf {
 
   // CSC max strip & max wire
 
-  void get_csc_max_strip_and_wire(int station, int ring, int& max_strip, int& max_wire);
+  std::pair<int, int> get_csc_max_strip_and_wire(int station, int ring);
+
+  // CSC max pattern & max quality
+
+  std::pair<int, int> get_csc_max_pattern_and_quality(int station, int ring);
 
   // ___________________________________________________________________________
   // coordinate ranges: phi[-180, 180] or [-pi, pi], theta[0, 90] or [0, pi/2]

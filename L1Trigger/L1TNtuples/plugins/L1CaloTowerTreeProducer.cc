@@ -150,7 +150,7 @@ void L1CaloTowerTreeProducer::analyze(const edm::Event& iEvent, const edm::Event
   iEvent.getByToken(hcalToken_, hcalTPs);
 
   if (ecalTPs.isValid()) {
-    for (auto itr : *(ecalTPs.product())) {
+    for (const auto& itr : *(ecalTPs.product())) {
       short ieta = (short)itr.id().ieta();
       //      unsigned short absIeta = (unsigned short) abs(ieta);
       //      short sign = ieta/absIeta;

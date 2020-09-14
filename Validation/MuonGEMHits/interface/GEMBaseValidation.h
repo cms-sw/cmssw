@@ -7,7 +7,6 @@
 #include "Geometry/GEMGeometry/interface/GEMGeometry.h"
 #include "Geometry/Records/interface/MuonGeometryRecord.h"
 #include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Utilities/interface/EDGetToken.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -23,7 +22,6 @@ public:
   void analyze(const edm::Event& e, const edm::EventSetup&) override = 0;
 
 protected:
-  const GEMGeometry* initGeometry(const edm::EventSetup&);
   Int_t getDetOccBinX(Int_t chamber_id, Int_t layer_id);
   Bool_t isMuonSimHit(const PSimHit&);
 
@@ -92,6 +90,8 @@ protected:
   // NOTE Constants
   const Int_t kMuonPDGId_ = 13;
   const std::string kLogCategory_;  // see member initializer list
+  edm::ESGetToken<GEMGeometry, MuonGeometryRecord> geomToken_;
+  edm::ESGetToken<GEMGeometry, MuonGeometryRecord> geomTokenBeginRun_;
 };
 
 template <typename T>

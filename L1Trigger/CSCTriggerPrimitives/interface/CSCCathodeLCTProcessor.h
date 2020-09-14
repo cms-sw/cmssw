@@ -35,6 +35,7 @@
 #include "DataFormats/CSCDigi/interface/CSCCLCTPreTriggerDigi.h"
 #include "L1Trigger/CSCTriggerPrimitives/interface/CSCBaseboard.h"
 #include "L1Trigger/CSCTriggerPrimitives/interface/CSCComparatorCodeLUT.h"
+#include "L1Trigger/CSCTriggerPrimitives/interface/LCTQualityControl.h"
 
 #include <vector>
 #include <array>
@@ -52,6 +53,9 @@ public:
 
   /** Default constructor. Used for testing. */
   CSCCathodeLCTProcessor();
+
+  /** Default destructor. */
+  ~CSCCathodeLCTProcessor() override = default;
 
   /** Sets configuration parameters obtained via EventSetup mechanism. */
   void setConfigParameters(const CSCDBL1TPParameters* conf);
@@ -73,7 +77,7 @@ public:
   std::vector<CSCCLCTDigi> readoutCLCTsME1b(int nMaxCLCTs = CSCConstants::MAX_CLCTS_READOUT) const;
 
   /** Returns vector of all found CLCTs, if any. */
-  std::vector<CSCCLCTDigi> getCLCTs() const;
+  std::vector<CSCCLCTDigi> getCLCTs(unsigned nMaxCLCTs = CSCConstants::MAX_CLCTS_PER_PROCESSOR) const;
 
   /** get best/second best CLCT
    * Note: CLCT has BX shifted */
@@ -88,12 +92,16 @@ public:
   std::vector<CSCCLCTPreTriggerDigi> preTriggerDigisME1b() const;
 
 protected:
-  /** LCTs in this chamber, as found by the processor. */
-  CSCCLCTDigi CLCTContainer_[CSCConstants::MAX_CLCT_TBINS][CSCConstants::MAX_CLCTS_PER_PROCESSOR];
+  /** Best LCT in this chamber, as found by the processor. */
+  CSCCLCTDigi bestCLCT[CSCConstants::MAX_CLCT_TBINS];
+
+  /** Second best LCT in this chamber, as found by the processor. */
+  CSCCLCTDigi secondCLCT[CSCConstants::MAX_CLCT_TBINS];
 
   // unique pointers to the luts
   std::array<std::unique_ptr<CSCComparatorCodeLUT>, 5> lutpos_;
   std::array<std::unique_ptr<CSCComparatorCodeLUT>, 5> lutslope_;
+  std::array<std::unique_ptr<CSCComparatorCodeLUT>, 5> lutpatconv_;
 
   /** Access routines to comparator digis. */
   bool getDigis(const CSCComparatorDigiCollection* compdc);
@@ -150,14 +158,12 @@ protected:
   int calculateComparatorCode(const std::array<std::array<int, 3>, 6>& halfStripPattern) const;
 
   // sets the 1/4 and 1/8 strip bits given a floating point position offset
-  void calculatePositionCC(float offset, uint16_t& halfstrip, bool& quartstrip, bool& eightstrip) const;
-
-  // converts the floating point slope into integer slope
-  int calculateSlopeCC(float slope, int nBits) const;
+  void assignPositionCC(const unsigned offset, uint16_t& halfstrip, bool& quartstrip, bool& eightstrip) const;
 
   // runs the CCLUT procedure
   void runCCLUT(CSCCLCTDigi& digi) const;
 
+  unsigned convertSlopeToRun2Pattern(const unsigned slope) const;
   //--------------------------- Member variables -----------------------------
 
   /* best pattern Id for a given half-strip */
@@ -213,12 +219,6 @@ protected:
   /** VK: whether to readout only the earliest two LCTs in readout window */
   bool readout_earliest_2;
 
-  // Use the new patterns according to the comparator code format
-  bool use_run3_patterns_;
-  bool use_comparator_codes_;
-  unsigned int nbits_position_cc_;
-  unsigned int nbits_slope_cc_;
-
   /** Default values of configuration parameters. */
   static const unsigned int def_fifo_tbins, def_fifo_pretrig;
   static const unsigned int def_hit_persist, def_drift_delay;
@@ -229,6 +229,10 @@ protected:
 
   std::vector<std::string> positionLUTFiles_;
   std::vector<std::string> slopeLUTFiles_;
+  std::vector<std::string> patternConversionLUTFiles_;
+
+  /* quality control */
+  std::unique_ptr<LCTQualityControl> qualityControl_;
 };
 
 #endif

@@ -54,8 +54,6 @@ public:
   explicit HLTInclusiveVBFClient(const edm::ParameterSet&);
   ~HLTInclusiveVBFClient() override;
 
-  void beginJob() override;
-  void endJob() override;
   void beginRun(const edm::Run& run, const edm::EventSetup& c) override;
   void endRun(const edm::Run& run, const edm::EventSetup& c) override;
   void analyze(const edm::Event&, const edm::EventSetup&) override;

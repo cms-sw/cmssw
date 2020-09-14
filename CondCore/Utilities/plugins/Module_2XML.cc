@@ -237,6 +237,7 @@ PAYLOAD_2XML_MODULE(pluginUtilities_payload2xml) {
   PAYLOAD_2XML_CLASS(RPFlatParams);
   PAYLOAD_2XML_CLASS(RecoIdealGeometry);
   PAYLOAD_2XML_CLASS(RunInfo);
+  PAYLOAD_2XML_CLASS(SiPhase2OuterTrackerLorentzAngle);
   PAYLOAD_2XML_CLASS(SiPixel2DTemplateDBObject);
   PAYLOAD_2XML_CLASS(SiPixelCPEGenericErrorParm);
   PAYLOAD_2XML_CLASS(SiPixelCalibConfiguration);
@@ -249,6 +250,7 @@ PAYLOAD_2XML_MODULE(pluginUtilities_payload2xml) {
   PAYLOAD_2XML_CLASS(SiPixelQuality);
   PAYLOAD_2XML_CLASS(SiPixelFEDChannelContainer);
   PAYLOAD_2XML_CLASS(SiPixelQualityProbabilities);
+  PAYLOAD_2XML_CLASS(SiPixelVCal);
   PAYLOAD_2XML_CLASS(SiPixelTemplateDBObject);
   PAYLOAD_2XML_CLASS(SiStripApvGain);
   PAYLOAD_2XML_CLASS(SiStripApvSimulationParameters);

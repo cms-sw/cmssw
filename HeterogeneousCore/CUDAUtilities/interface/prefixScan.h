@@ -41,9 +41,9 @@ namespace cms {
   namespace cuda {
 
     // limited to 32*32 elements....
-    template <typename T>
-    __host__ __device__ __forceinline__ void blockPrefixScan(T const* __restrict__ ci,
-                                                             T* __restrict__ co,
+    template <typename VT, typename T>
+    __host__ __device__ __forceinline__ void blockPrefixScan(VT const* ci,
+                                                             VT* co,
                                                              uint32_t size,
                                                              T* ws
 #ifndef __CUDA_ARCH__
@@ -138,7 +138,9 @@ namespace cms {
 
     // in principle not limited....
     template <typename T>
-    __global__ void multiBlockPrefixScan(T const* ci, T* co, int32_t size, int32_t* pc) {
+    __global__ void multiBlockPrefixScan(T const* ici, T* ico, int32_t size, int32_t* pc) {
+      volatile T const* ci = ici;
+      volatile T* co = ico;
       __shared__ T ws[32];
 #ifdef __CUDA_ARCH__
       assert(sizeof(T) * gridDim.x <= dynamic_smem_size());  // size of psum below
@@ -152,6 +154,7 @@ namespace cms {
       // count blocks that finished
       __shared__ bool isLastBlockDone;
       if (0 == threadIdx.x) {
+        __threadfence();
         auto value = atomicAdd(pc, 1);  // block counter
         isLastBlockDone = (value == (int(gridDim.x) - 1));
       }

@@ -108,7 +108,7 @@ void DeepMETProducer::produce(edm::Event& event, const edm::EventSetup& setup) {
     input_cat2_.tensor<float, 3>()(0, i_pf, 0) = pf.fromPV();
 
     ++i_pf;
-    if (i_pf > max_n_pf_) {
+    if (i_pf == max_n_pf_) {
       break;  // output a warning?
     }
   }

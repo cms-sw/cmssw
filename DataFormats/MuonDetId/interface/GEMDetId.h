@@ -63,6 +63,8 @@ private:
   static constexpr uint32_t FormatMask = 0x1;
   static constexpr uint32_t kGEMIdFormat = 0x1000000;
   static constexpr uint32_t kMuonIdMask = 0xF0000000;
+
+public:
   static constexpr uint32_t chamberIdMask = ~(RollMask << RollStartBit);
   static constexpr uint32_t superChamberIdMask = chamberIdMask + ~(LayerMask << LayerStartBit);
 
@@ -226,6 +228,12 @@ public:
     }
     return rawid;
   }
+
+  // subsystem
+  GEMSubDetId::Station subsystem() const;
+  bool isGE11() const;
+  bool isGE21() const;
+  bool isME0() const;
 
 private:
   constexpr void v12FromV11(const uint32_t& rawid) { id_ = v12Form(rawid); }

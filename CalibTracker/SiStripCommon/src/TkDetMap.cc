@@ -1,5 +1,5 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "DataFormats/SiStripDetId/interface/SiStripSubStructure.h"
+#include "DataFormats/TrackerCommon/interface/SiStripSubStructure.h"
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 
 #include "CalibTracker/SiStripCommon/interface/TkDetMap.h"

@@ -4,7 +4,6 @@
 #include "L1Trigger/TrackFindingTMTT/interface/HTrphi.h"
 #include "L1Trigger/TrackFindingTMTT/interface/MuxHToutputs.h"
 
-using boost::numeric::ublas::matrix;
 #include <memory>
 
 namespace tmtt {

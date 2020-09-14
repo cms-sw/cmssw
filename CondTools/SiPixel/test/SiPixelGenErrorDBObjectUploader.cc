@@ -59,7 +59,7 @@ void SiPixelGenErrorDBObjectUploader::analyze(const edm::Event& iEvent, const ed
       char title_char[80], c;
       SiPixelGenErrorDBObject::char2float temp;
       float tempstore;
-      int iter, j;
+      int iter, j, k;
 
       // GenErrors contain a header char - we must be clever about storing this
       for (iter = 0; (c = in_file.get()) != '\n'; ++iter) {
@@ -81,6 +81,18 @@ void SiPixelGenErrorDBObjectUploader::analyze(const edm::Event& iEvent, const ed
         obj->setMaxIndex(obj->maxIndex() + 1);
       }
 
+      // Check if the magnetic field is the same as in the header of the input files
+      for (k = 0; k < 80; k++) {
+        if ((title_char[k] == '@') && (title_char[k - 1] == 'T')) {
+          double localMagField = (((int)title_char[k - 4]) - 48) * 10 + ((int)title_char[k - 2]) - 48;
+          if (theMagField != localMagField) {
+            std::cout << "\n -------- WARNING -------- \n Magnetic field in the cfg is " << theMagField
+                      << "T while it is " << title_char[k - 4] << title_char[k - 2] << title_char[k - 1]
+                      << " in the header \n ------------------------- \n " << std::endl;
+          }
+        }
+      }
+
       // Fill the dbobject
       in_file >> tempstore;
       while (!in_file.eof()) {
@@ -99,14 +111,21 @@ void SiPixelGenErrorDBObjectUploader::analyze(const edm::Event& iEvent, const ed
   //Get the event setup
   edm::ESHandle<TrackerGeometry> pDD;
   es.get<TrackerDigiGeometryRecord>().get(pDD);
+  const TrackerGeometry* tGeo = pDD.product();
 
   // Use the TrackerTopology class for layer/disk etc. number
   edm::ESHandle<TrackerTopology> tTopoHandle;
   es.get<TrackerTopologyRcd>().get(tTopoHandle);
   const TrackerTopology* tTopo = tTopoHandle.product();
 
-  // This tells if we are using Phase I geometry (may be needed for commented out Phase 1 variables)
-  //bool phase = pDD->isThere(GeomDetEnumerators::P1PXB) && pDD->isThere(GeomDetEnumerators::P1PXEC);
+  // Check if we are using Phase-1 or Phase-2 geometry
+  int phase = 0;
+  if (pDD->isThere(GeomDetEnumerators::P1PXB) && pDD->isThere(GeomDetEnumerators::P1PXEC) == true) {
+    phase = 1;
+  } else if (pDD->isThere(GeomDetEnumerators::P2PXB) && pDD->isThere(GeomDetEnumerators::P2PXEC) == true) {
+    phase = 2;
+  }
+  std::cout << "Phase-" << phase << " geometry is used" << std::endl;
 
   //Loop over the detector elements and put the GenError IDs in place
   for (const auto& it : pDD->detUnits()) {
@@ -121,7 +140,8 @@ void SiPixelGenErrorDBObjectUploader::analyze(const edm::Event& iEvent, const ed
 
       // Now we sort them into the Barrel and Endcap:
       //Barrel Pixels first
-      if (detid.subdetId() == static_cast<int>(PixelSubdetector::PixelBarrel)) {
+      if ((phase == 1 && detid.subdetId() == static_cast<int>(PixelSubdetector::PixelBarrel)) ||
+          (phase == 2 && tGeo->geomDetSubDetector(detid.subdetId()) == GeomDetEnumerators::P2PXB)) {
         std::cout << "--- IN THE BARREL ---\n";
 
         //Get the layer, ladder, and module corresponding to this DetID
@@ -170,7 +190,8 @@ void SiPixelGenErrorDBObjectUploader::analyze(const edm::Event& iEvent, const ed
                                        // -----
       }
       //Now endcaps
-      else if (detid.subdetId() == static_cast<int>(PixelSubdetector::PixelEndcap)) {
+      else if ((phase == 1 && detid.subdetId() == static_cast<int>(PixelSubdetector::PixelEndcap)) ||
+               (phase == 2 && tGeo->geomDetSubDetector(detid.subdetId()) == GeomDetEnumerators::P2PXEC)) {
         std::cout << "--- IN AN ENDCAP ---\n";
 
         //Get the DetID's disk, blade, side, panel, and module
@@ -220,6 +241,8 @@ void SiPixelGenErrorDBObjectUploader::analyze(const edm::Event& iEvent, const ed
         std::cout << "This is an endcap element with: side " << side << ", disk " << disk << ", blade " << blade
                   << ", panel " << panel << ".\n";  //Uncomment to read out exact position of each element.
                                                     // -----
+      } else {
+        continue;
       }
 
       //Print out the assignment of this DetID

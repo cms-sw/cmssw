@@ -1,3 +1,5 @@
+#include <memory>
+
 #include "GeneratorInterface/RivetInterface/interface/ParticleLevelProducer.h"
 
 #include "FWCore/Framework/interface/Event.h"
@@ -17,10 +19,8 @@ using namespace reco;
 using namespace Rivet;
 
 ParticleLevelProducer::ParticleLevelProducer(const edm::ParameterSet& pset)
-    : srcToken_(consumes<edm::HepMCProduct>(pset.getParameter<edm::InputTag>("src"))),
-      rivetAnalysis_(new Rivet::RivetAnalysis(pset)) {
+    : srcToken_(consumes<edm::HepMCProduct>(pset.getParameter<edm::InputTag>("src"))), pset_(pset) {
   usesResource("Rivet");
-
   genVertex_ = reco::Particle::Point(0, 0, 0);
 
   produces<reco::GenParticleCollection>("neutrinos");
@@ -31,9 +31,6 @@ ParticleLevelProducer::ParticleLevelProducer(const edm::ParameterSet& pset)
   produces<reco::GenParticleCollection>("consts");
   produces<reco::GenParticleCollection>("tags");
   produces<reco::METCollection>("mets");
-
-  analysisHandler_.setIgnoreBeams(true);
-  analysisHandler_.addAnalysis(rivetAnalysis_);
 }
 
 void ParticleLevelProducer::addGenJet(Rivet::Jet jet,
@@ -116,7 +113,16 @@ void ParticleLevelProducer::produce(edm::Event& event, const edm::EventSetup& ev
   event.getByToken(srcToken_, srcHandle);
 
   const HepMC::GenEvent* genEvent = srcHandle->GetEvent();
-  analysisHandler_.analyze(*genEvent);
+
+  if (!rivetAnalysis_ || !rivetAnalysis_->hasProjection("FS")) {
+    rivetAnalysis_ = new Rivet::RivetAnalysis(pset_);
+    analysisHandler_ = std::make_unique<Rivet::AnalysisHandler>();
+
+    analysisHandler_->setIgnoreBeams(true);
+    analysisHandler_->addAnalysis(rivetAnalysis_);
+  }
+
+  analysisHandler_->analyze(*genEvent);
 
   // Convert into edm objects
   // Prompt neutrinos

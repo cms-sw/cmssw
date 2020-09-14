@@ -1,5 +1,6 @@
 <lcgdict>
-   <class name="HBHERecHit" ClassVersion="18">
+   <class name="HBHERecHit" ClassVersion="19">
+    <version ClassVersion="19" checksum="3024868190"/>
     <version ClassVersion="18" checksum="642851014"/>
     <version ClassVersion="17" checksum="4076697378"/>
     <version ClassVersion="16" checksum="2359330573"/>
@@ -20,7 +21,8 @@
    <class name="HFPreRecHit" ClassVersion="3">
     <version ClassVersion="3" checksum="224636588"/>
    </class>
-   <class name="HBHEChannelInfo" ClassVersion="7">
+   <class name="HBHEChannelInfo" ClassVersion="8">
+    <version ClassVersion="8" checksum="158975327"/>
     <version ClassVersion="7" checksum="530224705"/>
     <version ClassVersion="3" checksum="184305963"/>
     <version ClassVersion="4" checksum="1052948187"/>

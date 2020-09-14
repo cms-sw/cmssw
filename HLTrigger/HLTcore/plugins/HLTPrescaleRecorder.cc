@@ -18,10 +18,11 @@
 
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/PrescaleService/interface/PrescaleService.h"
 
-#include <sys/time.h>
 #include "DataFormats/Provenance/interface/Timestamp.h"
 
+#include <sys/time.h>
 #include <string>
 #include <ostream>
 

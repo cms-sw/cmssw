@@ -12,6 +12,8 @@
 // Created:     Sat Apr 24 15:18 CEST 2007
 //
 
+#include <cassert>
+
 #include "FWCore/Utilities/interface/Exception.h"
 
 #include "FWCore/PluginManager/interface/PluginManager.h"

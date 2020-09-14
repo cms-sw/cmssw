@@ -1,23 +1,26 @@
-#include "SiStripRawToDigiUnpacker.h"
+#include <iostream>
+#include <sstream>
+#include <iomanip>
+#include <ext/algorithm>
+
+#include <fmt/format.h>
+
 #include "CondFormats/SiStripObjects/interface/SiStripFedCabling.h"
 #include "DataFormats/Common/interface/DetSet.h"
-#include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
-#include "DataFormats/FEDRawData/interface/FEDNumbering.h"
 #include "DataFormats/FEDRawData/interface/FEDHeader.h"
+#include "DataFormats/FEDRawData/interface/FEDNumbering.h"
+#include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
 #include "DataFormats/FEDRawData/interface/FEDTrailer.h"
 #include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
 #include "DataFormats/SiStripCommon/interface/SiStripEventSummary.h"
 #include "DataFormats/SiStripDigi/interface/SiStripDigi.h"
 #include "DataFormats/SiStripDigi/interface/SiStripRawDigi.h"
 #include "EventFilter/SiStripRawToDigi/interface/TFHeaderDescription.h"
-#include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include <iostream>
-#include <sstream>
-#include <iomanip>
-#include <boost/format.hpp>
-#include <ext/algorithm>
+#include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/Utilities/interface/RunningAverage.h"
+
+#include "SiStripRawToDigiUnpacker.h"
 
 namespace sistrip {
 
@@ -152,12 +155,12 @@ namespace sistrip {
       // construct FEDBuffer
       if (FEDBufferStatusCode::SUCCESS != st_buffer) {
         if (FEDBufferStatusCode::BUFFER_NULL == st_buffer) {
-          warnings_.add("NULL pointer to FEDRawData for FED", (boost::format("id %1%") % *ifed).str());
+          warnings_.add("NULL pointer to FEDRawData for FED", fmt::format("id {0}", *ifed));
         } else if (!input.size()) {
-          warnings_.add("FEDRawData has zero size for FED", (boost::format("id %1%") % *ifed).str());
+          warnings_.add("FEDRawData has zero size for FED", fmt::format("id {0}", *ifed));
         } else {
           warnings_.add("Exception caught when creating FEDBuffer object for FED",
-                        (boost::format("id %1%: %2%") % *ifed % st_buffer).str());
+                        fmt::format("id {0}: {1}", *ifed, st_buffer));
         }
         // FED buffer is bad and should not be unpacked. Skip this FED and mark all modules as bad.
         maskFED(detids, conns);
@@ -167,20 +170,20 @@ namespace sistrip {
       const auto st_chan = buffer.findChannels();
       if (FEDBufferStatusCode::SUCCESS != st_chan) {
         warnings_.add("Exception caught when creating FEDBuffer object for FED",
-                      (boost::format("id %1%: %2%") % *ifed % st_chan).str());
+                      fmt::format("id {0}: {1}", *ifed, st_chan));
         maskFED(detids, conns);
         continue;
       }
       buffer.setLegacyMode(legacy_);
       if ((!buffer.doChecks(true)) && (!unpackBadChannels_ || !buffer.checkNoFEOverflows())) {
         warnings_.add("Exception caught when creating FEDBuffer object for FED",
-                      (boost::format("id %1%: FED Buffer check fails for FED ID %1%.") % *ifed).str());
+                      fmt::format("id {0}: FED Buffer check fails for FED ID {0}.", *ifed));
         maskFED(detids, conns);
         continue;
       }
       if (doFullCorruptBufferChecks_ && !buffer.doCorruptBufferChecks()) {
         warnings_.add("Exception caught when creating FEDBuffer object for FED",
-                      (boost::format("id %1%: FED corrupt buffer check fails for FED ID %1%.") % *ifed).str());
+                      fmt::format("id {0}: FED corrupt buffer check fails for FED ID {0}.", *ifed));
         maskFED(detids, conns);
         continue;
       }
@@ -292,11 +295,11 @@ namespace sistrip {
               fedChannel, std::back_inserter(zs_work_digis_), ipair * 256, isNonLite, mode, legacy_, lmode, pCode);
           if (fedchannelunpacker::StatusCode::ZERO_PACKET_CODE == st_ch ||
               fedchannelunpacker::StatusCode::BAD_PACKET_CODE == st_ch) {
-            warnings_.add((boost::format("Invalid packet code %1$#x for zero-suppressed data") % uint16_t(pCode)).str(),
-                          (boost::format("FED %1% channel %2%") % *ifed % iconn->fedCh()).str());
+            warnings_.add(fmt::format("Invalid packet code {0:#x} for zero-suppressed data", uint16_t(pCode)),
+                          fmt::format("FED {0} channel {1}", *ifed, iconn->fedCh()));
           } else if (fedchannelunpacker::StatusCode::SUCCESS != st_ch) {
             warnings_.add("Clusters are not ordered",
-                          (boost::format("FED %1% channel %2%: %3%") % *ifed % iconn->fedCh() % toString(st_ch)).str());
+                          fmt::format("FED {0} channel {1}: {2}", *ifed, iconn->fedCh(), toString(st_ch)));
             detids.push_back(iconn->detId());  //@@ Possible multiple entries (ok for Giovanni)
             continue;
           }
@@ -316,10 +319,11 @@ namespace sistrip {
             } else {
               detids.push_back(iconn->detId());  //@@ Possible multiple entries (ok for Giovanni)
               warnings_.add("Problem extracting common modes",
-                            (boost::format("FED %1% channel %2%:\n Request for CM median from channel with non-ZS "
-                                           "packet code. Packet code is %3%.") %
-                             *ifed % iconn->fedCh() % pCode)
-                                .str());
+                            fmt::format("FED {0} channel {1}:\n Request for CM median from channel with non-ZS "
+                                        "packet code. Packet code is {2}.",
+                                        *ifed,
+                                        iconn->fedCh(),
+                                        pCode));
             }
           }
         } else {
@@ -350,7 +354,7 @@ namespace sistrip {
               scope_work_registry_.push_back(regItem);
             }
           } else {  // Unknown readout mode! => assume scope mode
-            warnings_.add((boost::format("Unknown FED readout mode (%1%)! Assuming SCOPE MODE...") % mode).str());
+            warnings_.add(fmt::format("Unknown FED readout mode ({0})! Assuming SCOPE MODE...", mode));
             Registry regItem(key, 0, scope_work_digis_.size(), 0);
             st_ch = fedchannelunpacker::unpackScope(fedChannel, std::back_inserter(scope_work_digis_));
             if (regItem.index != scope_work_digis_.size()) {
@@ -368,7 +372,7 @@ namespace sistrip {
             }
           }
           if (fedchannelunpacker::StatusCode::SUCCESS != st_ch) {
-            warnings_.add(toString(st_ch), (boost::format("FED %1% channel %2%:") % *ifed % iconn->fedCh()).str());
+            warnings_.add(toString(st_ch), fmt::format("FED {0} channel {1}:", *ifed, iconn->fedCh()));
           }
         }
       }  // channel loop

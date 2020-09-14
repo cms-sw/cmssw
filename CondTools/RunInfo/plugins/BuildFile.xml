@@ -42,3 +42,7 @@
 <library file="RunInfoTestESProducer.cc" name="CondToolsRunInfoTestESProducer">
   <flags EDM_PLUGIN="1"/>
 </library>
+
+<library file="XangleBetaStarFilter.cc">
+  <flags EDM_PLUGIN="1"/>
+</library>

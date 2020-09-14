@@ -1,8 +1,8 @@
 <use name="boost"/>
 <use name="tbb"/>
 <use name="rootcore"/>
-<use name="boost_filesystem"/>
 <use name="FWCore/Utilities"/>
+<use name="stdcxx-fs"/>
 <export>
   <lib name="1"/>
 </export>

@@ -465,7 +465,7 @@ float PFEGammaAlgo::evaluateSingleLegMVA(const reco::PFBlockRef& blockRef,
   const PFBlock::LinkData& linkData = block.linkData();
   //calculate MVA Variables
   const float chi2 = elements[trackIndex].trackRef()->chi2() / elements[trackIndex].trackRef()->ndof();
-  const float nlost = elements[trackIndex].trackRef()->hitPattern().numberOfLostHits(HitPattern::MISSING_INNER_HITS);
+  const float nlost = elements[trackIndex].trackRef()->missingInnerHits();
   const float nLayers = elements[trackIndex].trackRef()->hitPattern().trackerLayersWithMeasurement();
   const float trackPt = elements[trackIndex].trackRef()->pt();
   const float stip = elements[trackIndex].trackRefPF()->STIP();
@@ -1058,7 +1058,7 @@ void PFEGammaAlgo::removeOrLinkECALClustersToKFTracks() {
           const reco::PFBlockElementTrack* kfEle = docast(const reco::PFBlockElementTrack*, kftrack.get());
           const reco::TrackRef& trackref = kfEle->trackRef();
 
-          const int nexhits = trackref->hitPattern().numberOfLostHits(HitPattern::MISSING_INNER_HITS);
+          const int nexhits = trackref->missingInnerHits();
           bool fromprimaryvertex = false;
           for (auto vtxtks = primaryVertex_.tracks_begin(); vtxtks != primaryVertex_.tracks_end(); ++vtxtks) {
             if (trackref == vtxtks->castTo<reco::TrackRef>()) {

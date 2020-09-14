@@ -39,7 +39,7 @@ void TTDTC::setStream(int dtcRegion, int dtcBoard, int dtcChannel, const Stream&
                 << "(" << dtcChannel << ") is out of range 0 to " << numOverlappingRegions_ - 1 << ".";
     throw exception;
   }
-  streams_[index(dtcRegion, dtcBoard, dtcChannel)] = move(stream);
+  streams_[index(dtcRegion, dtcBoard, dtcChannel)] = stream;
 }
 
 // read one specific stream of TTStubRefs using TFP identifier (region[0-8], channel[0-47])

@@ -19,6 +19,10 @@ process.load('Configuration.StandardSequences.EndOfProcess_cff')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 process.load('Configuration.Geometry.GeometryDD4hepExtended2021_cff') # there w
 
+process.MessageLogger.categories.append("TrackerGeometryBuilder");
+process.MessageLogger.categories.append("TrackerSimInfoNumbering");
+
+
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(10),
     output = cms.optional.untracked.allowed(cms.int32,cms.PSet)
@@ -72,7 +76,7 @@ process.FEVTDEBUGoutput = cms.OutputModule("PoolOutputModule",
         dataTier = cms.untracked.string('GEN-SIM'),
         filterName = cms.untracked.string('')
     ),
-    fileName = cms.untracked.string('file:step1_ZMM.root'),
+    fileName = cms.untracked.string('file:step1_ZMM_dd4hep.root'),
     outputCommands = process.FEVTDEBUGEventContent.outputCommands,
     splitLevel = cms.untracked.int32(0)
 )
@@ -82,7 +86,7 @@ process.FEVTDEBUGoutput = cms.OutputModule("PoolOutputModule",
 # Other statements
 process.genstepfilter.triggerConditions=cms.vstring("generation_step")
 from Configuration.AlCa.GlobalTag import GlobalTag 
-process.GlobalTag = GlobalTag(process.GlobalTag, '110X_mcRun3_2021_realistic_v6', '')
+process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase1_2021_realistic', '')
 
 process.generator = cms.EDFilter("Pythia8GeneratorFilter",
     PythiaParameters = cms.PSet(

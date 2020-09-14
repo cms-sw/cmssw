@@ -14,13 +14,11 @@ from TrackingTools.KalmanUpdators.Chi2MeasurementEstimator_cfi import *
 # stripCPE
 from RecoLocalTracker.SiStripRecHitConverter.StripCPEfromTrackAngle_cfi import *
 from RecoLocalTracker.SiStripRecHitConverter.SiStripRecHitMatcher_cfi import *
-# pixelCPE
-from RecoLocalTracker.SiPixelRecHits.PixelCPEParmError_cfi import *
 #TransientTrackingBuilder
 from RecoTracker.TransientTrackingRecHit.TransientTrackingRecHitBuilder_cfi import *
 
 import RecoTracker.TrackProducer.TrackProducer_cfi
 # TrackProducer
-ctfNoOverlaps = RecoTracker.TrackProducer.TrackProducer_cfi.TrackProducer.clone()
-ctfNoOverlaps.src = 'ckfTrackCandidatesNoOverlaps'
-
+ctfNoOverlaps = RecoTracker.TrackProducer.TrackProducer_cfi.TrackProducer.clone(
+    src = 'ckfTrackCandidatesNoOverlaps'
+)

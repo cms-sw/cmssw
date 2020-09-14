@@ -39,6 +39,8 @@ namespace edm {
   class OutputModuleCommunicator {
   public:
     OutputModuleCommunicator() = default;
+    OutputModuleCommunicator(const OutputModuleCommunicator&) = delete;
+    OutputModuleCommunicator& operator=(const OutputModuleCommunicator&) = delete;
     virtual ~OutputModuleCommunicator();
 
     virtual void closeFile() = 0;
@@ -83,10 +85,6 @@ namespace edm {
     virtual ModuleDescription const& description() const = 0;
 
   private:
-    OutputModuleCommunicator(const OutputModuleCommunicator&) = delete;  // stop default
-
-    const OutputModuleCommunicator& operator=(const OutputModuleCommunicator&) = delete;  // stop default
-
     // ---------- member data --------------------------------
   };
 }  // namespace edm

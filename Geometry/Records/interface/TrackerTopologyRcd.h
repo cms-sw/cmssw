@@ -5,10 +5,10 @@
 #include "FWCore/Framework/interface/DependentRecordImplementation.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 #include "Geometry/Records/interface/PTrackerParametersRcd.h"
-#include "boost/mpl/vector.hpp"
+#include "FWCore/Utilities/interface/mplVector.h"
 
 class TrackerTopologyRcd : public edm::eventsetup::DependentRecordImplementation<
                                TrackerTopologyRcd,
-                               boost::mpl::vector<IdealGeometryRecord, PTrackerParametersRcd> > {};
+                               edm::mpl::Vector<IdealGeometryRecord, PTrackerParametersRcd> > {};
 
 #endif

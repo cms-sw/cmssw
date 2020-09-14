@@ -12,7 +12,8 @@ class TauIDEmbedder(object):
         "2017v1", "2017v2", "newDM2017v2", "dR0p32017v2", "2016v1", "newDM2016v1",
         "deepTau2017v1", "deepTau2017v2", "deepTau2017v2p1",
         "DPFTau_2016_v0", "DPFTau_2016_v1",
-        "againstEle2018"
+        "againstEle2018",
+        "newDMPhase2v1"
     ]
 
     def __init__(self, process, debug = False,
@@ -865,6 +866,57 @@ class TauIDEmbedder(object):
             )
             tauIDSources =_tauIDSourcesWithAgainistEle.clone()
 
+        if "newDMPhase2v1" in self.toKeep:
+            if self.debug: print ("Adding newDMPhase2v1 ID")
+            def tauIDMVAinputs(module, wp):
+                return cms.PSet(inputTag = cms.InputTag(module), workingPointIndex = cms.int32(-1 if wp=="raw" else -2 if wp=="category" else getattr(self.process, module).workingPoints.index(wp)))
+            self.process.rerunDiscriminationByIsolationMVADBnewDMwLTPhase2raw = patDiscriminationByIsolationMVArun2v1raw.clone(
+                PATTauProducer = 'slimmedTaus',
+                Prediscriminants = noPrediscriminants,
+                loadMVAfromDB = True,
+                mvaName = 'RecoTauTag_tauIdMVAIsoPhase2',
+                mvaOpt = 'DBnewDMwLTwGJPhase2',
+                verbosity = 0
+            )
+
+            self.process.rerunDiscriminationByIsolationMVADBnewDMwLTPhase2 = patDiscriminationByIsolationMVArun2v1.clone(
+                PATTauProducer = 'slimmedTaus',
+                Prediscriminants = noPrediscriminants,
+                toMultiplex = 'rerunDiscriminationByIsolationMVADBnewDMwLTPhase2raw',
+                loadMVAfromDB = True,
+                mvaOutput_normalization = 'RecoTauTag_tauIdMVAIsoPhase2_mvaOutput_normalization',
+                mapping = cms.VPSet(
+                    cms.PSet(
+                        category = cms.uint32(0),
+                        cut = cms.string("RecoTauTag_tauIdMVAIsoPhase2"),
+                        variable = cms.string("pt"),
+                    )
+                ),
+                workingPoints = cms.vstring(
+                    "_WPEff95",
+                    "_WPEff90",
+                    "_WPEff80",
+                    "_WPEff70",
+                    "_WPEff60",
+                    "_WPEff50",
+                    "_WPEff40"
+                )
+            )
+            self.process.rerunIsolationMVADBnewDMwLTPhase2Task = cms.Task(
+                self.process.rerunDiscriminationByIsolationMVADBnewDMwLTPhase2raw,
+                self.process.rerunDiscriminationByIsolationMVADBnewDMwLTPhase2
+            )
+            self.process.rerunMvaIsolationTask.add(self.process.rerunIsolationMVADBnewDMwLTPhase2Task)
+            self.process.rerunMvaIsolationSequence += cms.Sequence(self.process.rerunIsolationMVADBnewDMwLTPhase2Task)
+
+            tauIDSources.byIsolationMVADBnewDMwLTPhase2raw = tauIDMVAinputs("rerunDiscriminationByIsolationMVADBnewDMwLTPhase2", "raw")
+            tauIDSources.byVVLooseIsolationMVADBnewDMwLTPhase2 = tauIDMVAinputs("rerunDiscriminationByIsolationMVADBnewDMwLTPhase2", "_WPEff95")
+            tauIDSources.byVLooseIsolationMVADBnewDMwLTPhase2 = tauIDMVAinputs("rerunDiscriminationByIsolationMVADBnewDMwLTPhase2", "_WPEff90")
+            tauIDSources.byLooseIsolationMVADBnewDMwLTPhase2 = tauIDMVAinputs("rerunDiscriminationByIsolationMVADBnewDMwLTPhase2", "_WPEff80")
+            tauIDSources.byMediumIsolationMVADBnewDMwLTPhase2 = tauIDMVAinputs("rerunDiscriminationByIsolationMVADBnewDMwLTPhase2", "_WPEff70")
+            tauIDSources.byTightIsolationMVADBnewDMwLTPhase2 = tauIDMVAinputs("rerunDiscriminationByIsolationMVADBnewDMwLTPhase2", "_WPEff60")
+            tauIDSources.byVTightIsolationMVADBnewDMwLTPhase2 = tauIDMVAinputs("rerunDiscriminationByIsolationMVADBnewDMwLTPhase2", "_WPEff50")
+            tauIDSources.byVVTightIsolationMVADBnewDMwLTPhase2 = tauIDMVAinputs("rerunDiscriminationByIsolationMVADBnewDMwLTPhase2", "_WPEff40")
         ##
         if self.debug: print('Embedding new TauIDs into \"'+self.updatedTauName+'\"')
         if not hasattr(self.process, self.updatedTauName):

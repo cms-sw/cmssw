@@ -17,12 +17,15 @@ process = cms.Process("RPCDQM")
 
 if unitTest:
     process.load("DQM.Integration.config.unittestinputsource_cfi")
+    from DQM.Integration.config.unittestinputsource_cfi import options
 else:
     # for live online DQM in P5
     process.load("DQM.Integration.config.inputsource_cfi")
+    from DQM.Integration.config.inputsource_cfi import options
 
 # for testing in lxplus
 #process.load("DQM.Integration.config.fileinputsource_cfi")
+#from DQM.Integration.config.fileinputsource_cfi import options
 
 ############### HLT Filter#######################
 # 0=random, 1=physics, 2=calibration, 3=technical
@@ -52,6 +55,9 @@ process.GlobalTag.RefreshEachRun = cms.untracked.bool(True)
 process.load("DQM.Integration.config.environment_cfi")
 process.dqmEnv.subSystemFolder = 'RPC'
 process.dqmSaver.tag = 'RPC'
+process.dqmSaver.runNumber = options.runNumber
+process.dqmSaverPB.tag = 'RPC'
+process.dqmSaverPB.runNumber = options.runNumber
 
 
 ############### Scaler Producer #################
@@ -100,9 +106,6 @@ process.rpcMergerdigidqm.NoiseFolder = cms.untracked.string("AllHitsMerger")
 process.rpcMergerdigidqm.RecHitLabel = cms.InputTag("rpcMergerRecHits")
 
 #######################################################
-
-################# DCS Info ######################
-process.load("DQM.RPCMonitorDigi.RPCDcsInfo_cfi")
 
 ################# DQM Client Modules ############
 process.load("DQM.RPCMonitorClient.RPCDqmClient_cfi")
@@ -156,9 +159,9 @@ process.rpcSource = cms.Sequence( process.rpcunpacker
                       * (process.rpcRecHits + process.rpcMergerRecHits)
                       * process.scalersRawToDigi
                       * (process.rpcdigidqm + process.rpcMergerdigidqm)
-                      * process.rpcMonitorRaw*process.rpcDcsInfo*process.qTesterRPC
+                      * process.rpcMonitorRaw*process.qTesterRPC
                     )
-process.rpcClient = cms.Sequence(process.rpcdqmclient*process.rpcMergerdqmclient*process.rpcChamberQuality*process.rpcChamberQualityMerger*process.rpcEventSummary*process.rpcEventSummaryMerger*process.dqmEnv*process.dqmSaver)
+process.rpcClient = cms.Sequence(process.rpcdqmclient*process.rpcMergerdqmclient*process.rpcChamberQuality*process.rpcChamberQualityMerger*process.rpcEventSummary*process.rpcEventSummaryMerger*process.dqmEnv*process.dqmSaver*process.dqmSaverPB)
 process.p = cms.Path(process.hltTriggerTypeFilter*process.rpcSource*process.rpcClient)
 
 process.rpcunpacker.InputLabel = cms.InputTag("rawDataCollector")

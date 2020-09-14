@@ -2,7 +2,6 @@
 <use name="clhep"/>
 <use name="MagneticField/Engine"/>
 <use name="MagneticField/Records"/>
-<use name="MagneticField/Layers"/>
 <use name="DataFormats/GeometryVector"/>
 <library file="testMagneticField.cc" name="testMagneticField">
   <flags EDM_PLUGIN="1"/>

@@ -25,7 +25,13 @@ Implementation:
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Utilities/interface/InputTag.h"
+#include "FWCore/Utilities/interface/ESGetToken.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+
+#include "Geometry/CaloGeometry/interface/CaloGeometry.h"
+#include "Geometry/Records/interface/CaloGeometryRecord.h"
+#include "RecoLocalCalo/EcalRecAlgos/interface/EcalSeverityLevelAlgo.h"
+#include "RecoLocalCalo/EcalRecAlgos/interface/EcalSeverityLevelAlgoRcd.h"
 
 class CaloTopology;
 
@@ -42,6 +48,8 @@ private:
   // ----------member data ---------------------------
   edm::EDGetToken recHitsToken_;
   edm::EDGetToken emObjectToken_;
+  edm::ESGetToken<CaloGeometry, CaloGeometryRecord> caloGeometryToken_;
+  edm::ESGetToken<EcalSeverityLevelAlgo, EcalSeverityLevelAlgoRcd> sevLvToken_;
   edm::InputTag recHitsLabel_;
   edm::InputTag emObjectLabel_;
   double energyCut_;

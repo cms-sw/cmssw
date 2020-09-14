@@ -4,6 +4,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 // Fast Simulation headers
+#include "FastSimulation/ParticlePropagator/interface/ParticlePropagator.h"
 #include "FastSimulation/Calorimetry/interface/CalorimetryManager.h"
 #include "FastSimulation/Event/interface/FSimEvent.h"
 #include "FastSimulation/Event/interface/FSimTrack.h"
@@ -44,8 +45,10 @@
 #include "FastSimulation/ShowerDevelopment/interface/FastHFShowerLibrary.h"
 
 // STL headers
-#include <vector>
+#include <memory>
+
 #include <iostream>
+#include <vector>
 
 //CMSSW headers
 #include "DataFormats/DetId/interface/DetId.h"
@@ -111,8 +114,8 @@ CalorimetryManager::CalorimetryManager(FSimEvent* aSimEvent,
     theMuonHcalEffects = new MaterialEffects(fastMuHCAL);
 
   if (fastCalo.exists("ECALResponseScaling")) {
-    ecalCorrection = std::unique_ptr<KKCorrectionFactors>(
-        new KKCorrectionFactors(fastCalo.getParameter<edm::ParameterSet>("ECALResponseScaling")));
+    ecalCorrection =
+        std::make_unique<KKCorrectionFactors>(fastCalo.getParameter<edm::ParameterSet>("ECALResponseScaling"));
   }
 }
 

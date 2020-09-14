@@ -1,6 +1,6 @@
 #include "Geometry/CommonTopologies/interface/GeomDet.h"
 #include "Geometry/CommonTopologies/interface/ModifiedSurfaceGenerator.h"
-#include "DataFormats/TrackingRecHit/interface/AlignmentPositionError.h"
+#include "DataFormats/GeometryCommonDetAlgo/interface/AlignmentPositionError.h"
 
 GeomDet::~GeomDet() { delete theAlignmentPositionError; }
 

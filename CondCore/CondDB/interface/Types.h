@@ -137,8 +137,15 @@ namespace cond {
   };
 
   struct RunInfo_t {
+    RunInfo_t() : run(0), start(), end() {}
     RunInfo_t(const std::tuple<long long unsigned int, boost::posix_time::ptime, boost::posix_time::ptime>& data)
         : run(std::get<0>(data)), start(std::get<1>(data)), end(std::get<2>(data)) {}
+    bool isOnGoing() {
+      if (run == 0)
+        return false;
+      auto now = boost::posix_time::second_clock::universal_time();
+      return (start < now) && (end == start);
+    }
     Time_t run;
     boost::posix_time::ptime start;
     boost::posix_time::ptime end;

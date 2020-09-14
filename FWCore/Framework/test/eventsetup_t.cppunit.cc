@@ -19,6 +19,7 @@
 #include "FWCore/Framework/interface/ComponentDescription.h"
 #include "FWCore/Framework/interface/DataProxyProvider.h"
 #include "FWCore/Framework/interface/EDConsumerBase.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/ESTransientHandle.h"
 #include "FWCore/Framework/interface/ESRecordsToProxyIndices.h"
@@ -42,9 +43,9 @@
 #include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/Utilities/interface/ESProductTag.h"
+#include "FWCore/Concurrency/interface/ThreadsController.h"
 
 #include "cppunit/extensions/HelperMacros.h"
-#include "tbb/task_scheduler_init.h"
 
 #include <memory>
 #include <optional>
@@ -104,7 +105,7 @@ class testEventsetup : public CppUnit::TestFixture {
   CPPUNIT_TEST_SUITE_END();
 
 public:
-  void setUp() { m_scheduler = std::make_unique<tbb::task_scheduler_init>(1); }
+  void setUp() { m_scheduler = std::make_unique<edm::ThreadsController>(1); }
   void tearDown() {}
 
   void constructTest();
@@ -136,7 +137,7 @@ public:
   void resetProxiesTest();
 
 private:
-  edm::propagate_const<std::unique_ptr<tbb::task_scheduler_init>> m_scheduler;
+  edm::propagate_const<std::unique_ptr<edm::ThreadsController>> m_scheduler;
 
   DummyData kGood{1};
   DummyData kBad{0};
@@ -566,8 +567,7 @@ void testEventsetup::getDataWithESInputTagTest() {
 
 namespace {
   struct DummyDataConsumer : public EDConsumerBase {
-    explicit DummyDataConsumer(ESInputTag const& iTag)
-        : m_token{esConsumes<edm::eventsetup::test::DummyData, edm::DefaultRecord>(iTag)} {}
+    explicit DummyDataConsumer(ESInputTag const& iTag) : m_token{esConsumes(iTag)} {}
 
     void prefetch(edm::EventSetupImpl const& iImpl) const {
       auto const& recs = this->esGetTokenRecordIndicesVector(edm::Transition::Event);
@@ -588,79 +588,148 @@ namespace {
     }
 
     ESGetToken<edm::eventsetup::test::DummyData, edm::DefaultRecord> m_token;
+    ESGetToken<edm::eventsetup::test::DummyData, edm::DefaultRecord> m_tokenUninitialized;
   };
 
-  class ConsumesProducer : public ESProducer {
-  public:
-    ConsumesProducer() : token_{setWhatProduced(this, "consumes").consumes<edm::eventsetup::test::DummyData>()} {}
-    std::unique_ptr<edm::eventsetup::test::DummyData> produce(const DummyRecord& iRecord) {
-      auto const& data = iRecord.get(token_);
-      return std::make_unique<edm::eventsetup::test::DummyData>(data);
-    }
+  //This just tests that the constructs will properly compile
+  class [[maybe_unused]] EDConsumesCollectorConsumer
+      : public edm::EDConsumerBase{EDConsumesCollectorConsumer(){using edm::eventsetup::test::DummyData;
+  {
+    [[maybe_unused]] edm::ESGetToken<DummyData, edm::DefaultRecord> token1(
+        consumesCollector().esConsumes<DummyData, edm::DefaultRecord>());
+    [[maybe_unused]] edm::ESGetToken<DummyData, edm::DefaultRecord> token2(
+        consumesCollector().esConsumes<DummyData, edm::DefaultRecord>(edm::ESInputTag("Blah")));
+    [[maybe_unused]] edm::ESGetToken<DummyData, edm::DefaultRecord> token3(
+        consumesCollector().esConsumes<DummyData, edm::DefaultRecord, edm::Transition::BeginRun>());
+    [[maybe_unused]] edm::ESGetToken<DummyData, edm::DefaultRecord> token4(
+        consumesCollector().esConsumes<DummyData, edm::DefaultRecord, edm::Transition::BeginRun>(
+            edm::ESInputTag("Blah")));
+  }
+  {
+    [[maybe_unused]] edm::ESGetToken<DummyData, edm::DefaultRecord> token1(consumesCollector().esConsumes());
+    [[maybe_unused]] edm::ESGetToken<DummyData, edm::DefaultRecord> token2(
+        consumesCollector().esConsumes(edm::ESInputTag("Blah")));
+    [[maybe_unused]] edm::ESGetToken<DummyData, edm::DefaultRecord> token3(
+        consumesCollector().esConsumes<edm::Transition::BeginRun>());
+    [[maybe_unused]] edm::ESGetToken<DummyData, edm::DefaultRecord> token4(
+        consumesCollector().esConsumes<edm::Transition::BeginRun>(edm::ESInputTag("Blah")));
+  }
+  {
+    [[maybe_unused]] edm::ESGetToken<DummyData, edm::DefaultRecord> token1;
+    token1 = consumesCollector().esConsumes();
+    [[maybe_unused]] edm::ESGetToken<DummyData, edm::DefaultRecord> token2;
+    token2 = consumesCollector().esConsumes(edm::ESInputTag("Blah"));
+    [[maybe_unused]] edm::ESGetToken<DummyData, edm::DefaultRecord> token3;
+    token3 = consumesCollector().esConsumes<edm::Transition::BeginRun>();
+    [[maybe_unused]] edm::ESGetToken<DummyData, edm::DefaultRecord> token4;
+    token4 = consumesCollector().esConsumes<edm::Transition::BeginRun>(edm::ESInputTag("Blah"));
+  }
 
-  private:
-    edm::ESGetToken<edm::eventsetup::test::DummyData, DummyRecord> token_;
-  };
+}  // namespace
+}
+;
 
-  class ConsumesFromProducer : public ESProducer {
-  public:
-    ConsumesFromProducer()
-        : token_{setWhatProduced(this, "consumesFrom").consumesFrom<edm::eventsetup::test::DummyData, DummyRecord>()} {}
-    std::unique_ptr<edm::eventsetup::test::DummyData> produce(const DummyRecord& iRecord) {
-      auto const& data = iRecord.get(token_);
-      return std::make_unique<edm::eventsetup::test::DummyData>(data);
-    }
+class ConsumesProducer : public ESProducer {
+public:
+  ConsumesProducer() : token_{setWhatProduced(this, "consumes").consumes<edm::eventsetup::test::DummyData>()} {}
+  std::unique_ptr<edm::eventsetup::test::DummyData> produce(const DummyRecord& iRecord) {
+    auto const& data = iRecord.get(token_);
+    return std::make_unique<edm::eventsetup::test::DummyData>(data);
+  }
 
-  private:
-    edm::ESGetToken<edm::eventsetup::test::DummyData, DummyRecord> token_;
-  };
+private:
+  edm::ESGetToken<edm::eventsetup::test::DummyData, DummyRecord> token_;
+};
 
-  class SetConsumesProducer : public ESProducer {
-  public:
-    SetConsumesProducer() { setWhatProduced(this, "setConsumes").setConsumes(token_); }
-    std::unique_ptr<edm::eventsetup::test::DummyData> produce(const DummyRecord& iRecord) {
-      auto const& data = iRecord.get(token_);
-      return std::make_unique<edm::eventsetup::test::DummyData>(data);
-    }
+class ConsumesFromProducer : public ESProducer {
+public:
+  ConsumesFromProducer()
+      : token_{setWhatProduced(this, "consumesFrom").consumesFrom<edm::eventsetup::test::DummyData, DummyRecord>()} {}
+  std::unique_ptr<edm::eventsetup::test::DummyData> produce(const DummyRecord& iRecord) {
+    auto const& data = iRecord.get(token_);
+    return std::make_unique<edm::eventsetup::test::DummyData>(data);
+  }
 
-  private:
-    edm::ESGetToken<edm::eventsetup::test::DummyData, DummyRecord> token_;
-  };
+private:
+  edm::ESGetToken<edm::eventsetup::test::DummyData, DummyRecord> token_;
+};
 
-  class SetMayConsumeProducer : public ESProducer {
-  public:
-    SetMayConsumeProducer(bool iSucceed) : succeed_(iSucceed) {
-      setWhatProduced(this, label(iSucceed))
-          .setMayConsume(
-              token_,
-              [iSucceed](auto& get, edm::ESTransientHandle<edm::eventsetup::test::DummyData> const& handle) {
-                if (iSucceed) {
-                  return get("", "");
-                }
-                return get.nothing();
-              },
-              edm::ESProductTag<edm::eventsetup::test::DummyData, DummyRecord>("", ""));
-    }
-    std::unique_ptr<edm::eventsetup::test::DummyData> produce(const DummyRecord& iRecord) {
-      auto const& data = iRecord.getHandle(token_);
-      CPPUNIT_ASSERT(data.isValid() == succeed_);
-      if (data.isValid()) {
-        return std::make_unique<edm::eventsetup::test::DummyData>(*data);
+class SetConsumesProducer : public ESProducer {
+public:
+  SetConsumesProducer() { setWhatProduced(this, "setConsumes").setConsumes(token_); }
+  std::unique_ptr<edm::eventsetup::test::DummyData> produce(const DummyRecord& iRecord) {
+    auto const& data = iRecord.get(token_);
+    return std::make_unique<edm::eventsetup::test::DummyData>(data);
+  }
+
+private:
+  edm::ESGetToken<edm::eventsetup::test::DummyData, DummyRecord> token_;
+};
+
+//This is used only to test compilation
+class [[maybe_unused]] ESConsumesCollectorProducer : public ESProducer {
+public:
+  struct Helper {
+    Helper(ESConsumesCollector iCollector) {
+      using edm::eventsetup::test::DummyData;
+      {
+        [[maybe_unused]] edm::ESGetToken<DummyData, edm::DefaultRecord> token1(
+            iCollector.consumesFrom<DummyData, edm::DefaultRecord>());
+        [[maybe_unused]] edm::ESGetToken<DummyData, edm::DefaultRecord> token2(
+            iCollector.consumesFrom<DummyData, edm::DefaultRecord>(edm::ESInputTag("Blah")));
       }
-      return std::unique_ptr<edm::eventsetup::test::DummyData>();
-    }
-
-  private:
-    static const char* label(bool iSucceed) noexcept {
-      if (iSucceed) {
-        return "setMayConsumeSucceed";
+      {
+        [[maybe_unused]] edm::ESGetToken<DummyData, edm::DefaultRecord> token1(iCollector.consumes());
+        [[maybe_unused]] edm::ESGetToken<DummyData, edm::DefaultRecord> token2(
+            iCollector.consumes(edm::ESInputTag("Blah")));
       }
-      return "setMayConsumeFail";
     }
-
-    edm::ESGetToken<edm::eventsetup::test::DummyData, DummyRecord> token_;
-    bool succeed_;
   };
+
+  ESConsumesCollectorProducer() : helper_(setWhatProduced(this, "consumesCollector")) {}
+
+  std::unique_ptr<edm::eventsetup::test::DummyData> produce(const DummyRecord& iRecord) {
+    return std::unique_ptr<edm::eventsetup::test::DummyData>();
+  }
+
+private:
+  Helper helper_;
+};
+
+class SetMayConsumeProducer : public ESProducer {
+public:
+  SetMayConsumeProducer(bool iSucceed) : succeed_(iSucceed) {
+    setWhatProduced(this, label(iSucceed))
+        .setMayConsume(
+            token_,
+            [iSucceed](auto& get, edm::ESTransientHandle<edm::eventsetup::test::DummyData> const& handle) {
+              if (iSucceed) {
+                return get("", "");
+              }
+              return get.nothing();
+            },
+            edm::ESProductTag<edm::eventsetup::test::DummyData, DummyRecord>("", ""));
+  }
+  std::unique_ptr<edm::eventsetup::test::DummyData> produce(const DummyRecord& iRecord) {
+    auto const& data = iRecord.getHandle(token_);
+    CPPUNIT_ASSERT(data.isValid() == succeed_);
+    if (data.isValid()) {
+      return std::make_unique<edm::eventsetup::test::DummyData>(*data);
+    }
+    return std::unique_ptr<edm::eventsetup::test::DummyData>();
+  }
+
+private:
+  static const char* label(bool iSucceed) noexcept {
+    if (iSucceed) {
+      return "setMayConsumeSucceed";
+    }
+    return "setMayConsumeFail";
+  }
+
+  edm::ESGetToken<edm::eventsetup::test::DummyData, DummyRecord> token_;
+  bool succeed_;
+};
 
 }  // namespace
 
@@ -763,6 +832,14 @@ void testEventsetup::getDataWithESGetTokenTest() {
                             true};
       auto const& data = eventSetup.getData(consumer.m_token);
       CPPUNIT_ASSERT(kGood.value_ == data.value_);
+      bool uninitializedTokenThrewException = false;
+      try {
+        (void)eventSetup.getData(consumer.m_tokenUninitialized);
+      } catch (cms::Exception& ex) {
+        uninitializedTokenThrewException = true;
+        CPPUNIT_ASSERT(ex.category() == "InvalidESGetToken");
+      }
+      CPPUNIT_ASSERT(uninitializedTokenThrewException);
     }
 
     {

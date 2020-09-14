@@ -8,7 +8,6 @@
 #include "DataFormats/EgammaCandidates/interface/Photon.h"
 
 namespace {
-  const edm::EDGetTokenT<edm::ValueMap<float>> empty_token;
   const edm::InputTag empty_tag("");
   template <typename T, typename U, typename V>
   inline void make_consumes(const T& tag, edm::EDGetTokenT<U>& tok, V& sume) {

@@ -4,7 +4,7 @@
 #include "DataFormats/MuonDetId/interface/GEMDetId.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-//#define LOCAL_DEBUG
+//#define EDM_ML_DEBUG
 
 GEMNumberingScheme::GEMNumberingScheme(const MuonGeometryConstants& muonConstants) { initMe(muonConstants); }
 
@@ -15,7 +15,7 @@ void GEMNumberingScheme::initMe(const MuonGeometryConstants& muonConstants) {
   theRingLevel = muonConstants.getValue("mg_ring") / theLevelPart;
   theSectorLevel = muonConstants.getValue("mg_sector") / theLevelPart;
   theRollLevel = muonConstants.getValue("mg_roll") / theLevelPart;
-#ifdef LOCAL_DEBUG
+#ifdef EDM_ML_DEBUG
   edm::LogVerbatim("GEMNumberingScheme") << "Initialize GEMNumberingScheme"
                                          << "\ntheRegionLevel " << theRegionLevel << "\ntheStationLevel "
                                          << theStationLevel << "\ntheRingLevel " << theRingLevel << "\ntheSectorLevel "
@@ -23,29 +23,33 @@ void GEMNumberingScheme::initMe(const MuonGeometryConstants& muonConstants) {
 #endif
 }
 
-int GEMNumberingScheme::baseNumberToUnitNumber(const MuonBaseNumber& num) {
-#ifdef LOCAL_DEBUG
+int GEMNumberingScheme::baseNumberToUnitNumber(const MuonBaseNumber& num) const {
+#ifdef EDM_ML_DEBUG
   edm::LogVerbatim("GEMNumberingScheme") << "GEMNumbering " << num.getLevels();
   for (int level = 1; level <= num.getLevels(); level++) {
     edm::LogVerbatim("GEMNumberingScheme") << level << " " << num.getSuperNo(level) << " " << num.getBaseNo(level);
   }
 #endif
 
-  int maxLevel = theRollLevel;
-  if (num.getLevels() != maxLevel) {
-    edm::LogWarning("GEMNumberingScheme")
-        << "MuonGEMNumberingScheme::BNToUN: BaseNumber has " << num.getLevels() << " levels, need " << maxLevel;
-    return 0;
-  }
+  int levels = num.getLevels();
+#ifdef EDM_ML_DEBUG
+  if (levels != theRollLevel)
+    edm::LogVerbatim("GEMNumberingScheme") << "MuonGEMNumberingScheme::BNToUN: BaseNumber has " << num.getLevels()
+                                           << " levels, need " << maxLevel << ":" << theRingLevel;
+#endif
 
-  int region(0), ring(0), station(0), layer(0), chamber(0), roll(0);
+  int region(GEMDetId::minRegionId), ring(GEMDetId::minRingId);
+  int station(GEMDetId::minStationId0), layer(GEMDetId::minLayerId);
+  int chamber(1 + GEMDetId::minChamberId), roll(GEMDetId::minRollId);
 
   //decode significant GEM levels
 
-  if (num.getBaseNo(theRegionLevel) == 0)
-    region = 1;
-  else
-    region = -1;
+  if (levels >= theRegionLevel) {
+    if (num.getBaseNo(theRegionLevel) == 0)
+      region = 1;
+    else
+      region = -1;
+  }
 
   // All GEM super chambers in stations 1 and 2 are on ring 1.
   // The long super chambers in station 2 are assigned *station 3* due
@@ -56,47 +60,56 @@ int GEMNumberingScheme::baseNumberToUnitNumber(const MuonBaseNumber& num) {
   ring = 1;
 
   // GE0 has the layer encoded in the ring level
-  if (num.getBaseNo(theRingLevel) == 0) {  // 0 => GE1/1, GE2/1
-    station = num.getSuperNo(theStationLevel);
-#ifdef LOCAL_DEBUG
-    edm::LogVerbatim("GEMNumberingScheme")
-        << "GEMNumbering: Ring " << ring << " Station " << num.getSuperNo(theStationLevel) << ":" << station;
+  if (levels > theRingLevel) {
+    if (num.getBaseNo(theRingLevel) == 0) {  // 0 => GE1/1, GE2/1
+      station = num.getSuperNo(theStationLevel);
+#ifdef EDM_ML_DEBUG
+      edm::LogVerbatim("GEMNumberingScheme")
+          << "GEMNumbering: Ring " << ring << " Station " << num.getSuperNo(theStationLevel) << ":" << station;
 #endif
-
-    roll = num.getBaseNo(theRollLevel) + 1;
-    const int copyno = num.getBaseNo(theSectorLevel) + 1;
-    // Half the chambers are flipped back to front, this is encoded in
-    // the chamber number, which affects the layer numbering. Layer 1
-    // is always the closest layer to the interaction point.
-    const int layerDemarcation = 50;
-    if (copyno < layerDemarcation) {
-      if (copyno % 2 == 0) {
-        layer = 2;
-        chamber = copyno - 1;
-      } else {
-        layer = 1;
-        chamber = copyno;
+      if (levels >= theRollLevel)
+        roll = num.getBaseNo(theRollLevel) + 1;
+      if (levels >= theSectorLevel) {
+        const int copyno = num.getBaseNo(theSectorLevel) + 1;
+        // Half the chambers are flipped back to front, this is encoded in
+        // the chamber number, which affects the layer numbering. Layer 1
+        // is always the closest layer to the interaction point.
+        const int layerDemarcation = 50;
+        if (copyno < layerDemarcation) {
+          if (copyno % 2 == 0) {
+            layer = 2;
+            chamber = copyno - 1;
+          } else {
+            layer = 1;
+            chamber = copyno;
+          }
+        } else {
+          int copynp = copyno - layerDemarcation;
+          if (copynp % 2 != 0) {
+            layer = 2;
+            chamber = copynp - 1;
+          } else {
+            layer = 1;
+            chamber = copynp;
+          }
+        }
       }
-    } else {
-      int copynp = copyno - layerDemarcation;
-      if (copynp % 2 != 0) {
-        layer = 2;
-        chamber = copynp - 1;
-      } else {
-        layer = 1;
-        chamber = copynp;
-      }
+    } else {  // GE0 encodes the layer
+      station = GEMDetId::minStationId0;
+      layer = num.getBaseNo(theRingLevel);
+      if (levels >= theSectorLevel)
+        chamber = num.getBaseNo(theSectorLevel) + 1;
+      if (levels >= theRollLevel)
+        roll = num.getBaseNo(theRollLevel) + 1;
     }
-  } else {  // GE0 encodes the layer
+  } else if (levels == theRingLevel) {
     station = GEMDetId::minStationId0;
-    layer = num.getBaseNo(theRingLevel);
-    chamber = num.getBaseNo(theSectorLevel) + 1;
-    roll = num.getBaseNo(theRollLevel) + 1;
+    layer = 1;
   }
 
   // collect all info
 
-#ifdef LOCAL_DEBUG
+#ifdef EDM_ML_DEBUG
   edm::LogVerbatim("GEMNumberingScheme") << "GEMNumberingScheme: Region " << region << " Ring " << ring << " Station "
                                          << station << " Layer " << layer << " Chamber " << chamber << " Roll " << roll;
 #endif
@@ -104,7 +117,7 @@ int GEMNumberingScheme::baseNumberToUnitNumber(const MuonBaseNumber& num) {
   // Build the actual numbering
   GEMDetId id(region, ring, station, layer, chamber, roll);
 
-#ifdef LOCAL_DEBUG
+#ifdef EDM_ML_DEBUG
   edm::LogVerbatim("GEMNumberingScheme") << id.rawId() << " DetId " << id;
 #endif
 

@@ -76,7 +76,7 @@ coarseTCCompression_proc = cms.PSet(exponentBits = cms.uint32(4),
 from L1Trigger.L1THGCal.hgcalVFEProducer_cfi import vfe_proc
 best_conc_proc = cms.PSet(ProcessorName  = cms.string('HGCalConcentratorProcessorSelection'),
                           Method = cms.vstring(['bestChoiceSelect']*3),
-                          NData = cms.vuint32(bestchoice_ndata_centralized),
+                          NData = cms.vuint32(bestchoice_ndata_decentralized),
                           coarsenTriggerCells = cms.vuint32(0,0,0),
                           fixedDataSizePerHGCROC = cms.bool(False),
                           coarseTCCompression = coarseTCCompression_proc.clone(),
@@ -98,7 +98,7 @@ supertc_conc_proc = cms.PSet(ProcessorName  = cms.string('HGCalConcentratorProce
 
 custom_conc_proc = cms.PSet(ProcessorName  = cms.string('HGCalConcentratorProcessorSelection'),
                           Method = cms.vstring('bestChoiceSelect','superTriggerCellSelect','superTriggerCellSelect'),
-                          NData = cms.vuint32(bestchoice_ndata_centralized),
+                          NData = cms.vuint32(bestchoice_ndata_decentralized),
                           threshold_silicon = cms.double(2.), # MipT
                           threshold_scintillator = cms.double(2.), # MipT
                           coarsenTriggerCells = cms.vuint32(0,0,0),

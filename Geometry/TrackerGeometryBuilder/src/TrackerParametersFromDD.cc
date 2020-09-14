@@ -2,8 +2,8 @@
 #include "CondFormats/GeometryObjects/interface/PTrackerParameters.h"
 #include "DetectorDescription/Core/interface/DDCompactView.h"
 #include "DetectorDescription/DDCMS/interface/DDCompactView.h"
-#include "DetectorDescription/DDCMS/interface/Filter.h"
 #include "DetectorDescription/Core/interface/DDutils.h"
+#include <DD4hep/Filter.h>
 
 bool TrackerParametersFromDD::build(const DDCompactView* cvp, PTrackerParameters& ptp) {
   for (int subdet = 1; subdet <= 6; ++subdet) {
@@ -24,13 +24,13 @@ bool TrackerParametersFromDD::build(const DDCompactView* cvp, PTrackerParameters
 }
 
 bool TrackerParametersFromDD::build(const cms::DDCompactView* cvp, PTrackerParameters& ptp) {
-  cms::DDVectorsMap vmap = cvp->detector()->vectors();
+  dd4hep::VectorsMap vmap = cvp->detector()->vectors();
   for (int subdet = 1; subdet <= 6; ++subdet) {
     std::stringstream sstm;
     sstm << "Subdetector" << subdet;
     std::string name = sstm.str();
     for (auto const& it : vmap) {
-      if (cms::dd::compareEqual(cms::dd::noNamespace(it.first), name)) {
+      if (dd4hep::dd::compareEqual(dd4hep::dd::noNamespace(it.first), name)) {
         std::vector<int> subdetPars;
         for (const auto& i : it.second)
           subdetPars.emplace_back(std::round(i));

@@ -22,7 +22,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/Run.h"
@@ -43,7 +43,7 @@
 // class declaration
 //
 
-class CentralityBinProducer : public edm::EDProducer {
+class CentralityBinProducer : public edm::stream::EDProducer<> {
   enum VariableType {
     HFtowers = 0,
     HFtowersPlus = 1,

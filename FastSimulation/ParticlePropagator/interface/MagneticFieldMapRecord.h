@@ -22,10 +22,10 @@
 #include "FWCore/Framework/interface/DependentRecordImplementation.h"
 #include "FastSimulation/TrackerSetup/interface/TrackerInteractionGeometryRecord.h"
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
-#include "boost/mpl/vector.hpp"
+#include "FWCore/Utilities/interface/mplVector.h"
 
 class MagneticFieldMapRecord : public edm::eventsetup::DependentRecordImplementation<
                                    MagneticFieldMapRecord,
-                                   boost::mpl::vector<IdealMagneticFieldRecord, TrackerInteractionGeometryRecord> > {};
+                                   edm::mpl::Vector<IdealMagneticFieldRecord, TrackerInteractionGeometryRecord> > {};
 
 #endif

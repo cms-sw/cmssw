@@ -12,6 +12,7 @@
 
 // system include files
 #include <mutex>
+#include "tbb/task_arena.h"
 
 // user include files
 #include "FWCore/PythonFramework/interface/PythonEventProcessor.h"
@@ -19,6 +20,7 @@
 
 #include "FWCore/Framework/interface/defaultCmsRunServices.h"
 #include "FWCore/ParameterSet/interface/ProcessDesc.h"
+#include "FWCore/ParameterSet/interface/ThreadsInfo.h"
 
 #include "FWCore/ServiceRegistry/interface/ServiceRegistry.h"
 #include "FWCore/ServiceRegistry/interface/ServiceToken.h"
@@ -27,6 +29,7 @@
 
 #include "FWCore/PluginManager/interface/PluginManager.h"
 #include "FWCore/PluginManager/interface/standard.h"
+#include "FWCore/Concurrency/interface/setNThreads.h"
 #include "FWCore/Utilities/interface/thread_safety_macros.h"
 
 namespace {
@@ -38,6 +41,24 @@ namespace {
 
   std::shared_ptr<edm::ProcessDesc> addDefaultServicesToProcessDesc(std::shared_ptr<edm::ProcessDesc> iDesc) {
     iDesc->addServices(edm::defaultCmsRunServices());
+    return iDesc;
+  }
+
+  //Only one ThreadsController can be active at a time
+  CMS_THREAD_SAFE std::unique_ptr<edm::ThreadsController> tsiPtr;
+  CMS_THREAD_SAFE int nThreads;
+
+  std::shared_ptr<edm::ProcessDesc> setupThreading(std::shared_ptr<edm::ProcessDesc> iDesc) {
+    // check the "options" ParameterSet
+    std::shared_ptr<edm::ParameterSet> pset = iDesc->getProcessPSet();
+    auto threadsInfo = threadOptions(*pset);
+
+    threadsInfo.nThreads_ = edm::setNThreads(threadsInfo.nThreads_, threadsInfo.stackSize_, tsiPtr);
+    nThreads = threadsInfo.nThreads_;
+
+    // update the numberOfThreads and sizeOfStackForThreadsInKB in the "options" ParameterSet
+    setThreadOptions(threadsInfo, *pset);
+
     return iDesc;
   }
 
@@ -61,7 +82,7 @@ namespace {
 //
 PythonEventProcessor::PythonEventProcessor(PyBind11ProcessDesc const& iDesc)
     : forcePluginSetupFirst_(setupPluginSystem()),
-      processor_(addDefaultServicesToProcessDesc(iDesc.processDesc()),
+      processor_(addDefaultServicesToProcessDesc(setupThreading(iDesc.processDesc())),
                  createJobReport(),
                  edm::serviceregistry::kOverlapIsError) {}
 
@@ -76,7 +97,7 @@ PythonEventProcessor::~PythonEventProcessor() {
 void PythonEventProcessor::run() {
   auto gil = PyEval_SaveThread();
   try {
-    (void)processor_.runToCompletion();
+    tbb::task_arena{nThreads}.execute([this]() { (void)processor_.runToCompletion(); });
   } catch (...) {
   }
   PyEval_RestoreThread(gil);

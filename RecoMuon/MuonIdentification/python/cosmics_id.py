@@ -9,14 +9,15 @@ cosmicsVetoSeeds = cms.EDProducer("TrajectorySeedFromMuonProducer"
                                 )
 
 from RecoTracker.CkfPattern.CkfTrackCandidatesP5_cff import *
-cosmicsVetoTrackCandidates = copy.deepcopy(ckfTrackCandidatesP5)
-cosmicsVetoTrackCandidates.src = "cosmicsVetoSeeds"
-cosmicsVetoTrackCandidates.doSeedingRegionRebuilding = False
-cosmicsVetoTrackCandidates.RedundantSeedCleaner = "none"
-
+cosmicsVetoTrackCandidates = ckfTrackCandidatesP5.clone(
+    src                       = "cosmicsVetoSeeds",
+    doSeedingRegionRebuilding = False,
+    RedundantSeedCleaner      = "none"
+)
 from RecoTracker.TrackProducer.CTFFinalFitWithMaterialP5_cff import *
-cosmicsVetoTracksRaw = copy.deepcopy(ctfWithMaterialTracksCosmics)
-cosmicsVetoTracksRaw.src = "cosmicsVetoTrackCandidates"
+cosmicsVetoTracksRaw = ctfWithMaterialTracksCosmics.clone(
+    src = "cosmicsVetoTrackCandidates"
+)
 # need to clone FittingSmootherRKP5 if I want to change its parameters
 # process.FittingSmootherRKP5.EstimateCut = cms.double(-1.0) # turn off the OutlierRejection
 

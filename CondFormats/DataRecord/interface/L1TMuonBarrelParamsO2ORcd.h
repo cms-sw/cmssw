@@ -15,6 +15,6 @@
 class L1TMuonBarrelParamsO2ORcd
     : public edm::eventsetup::DependentRecordImplementation<
           L1TMuonBarrelParamsO2ORcd,
-          boost::mpl::vector<L1TriggerKeyListExtRcd, L1TriggerKeyExtRcd, L1TMuonBarrelParamsRcd> > {};
+          edm::mpl::Vector<L1TriggerKeyListExtRcd, L1TriggerKeyExtRcd, L1TMuonBarrelParamsRcd> > {};
 
 #endif

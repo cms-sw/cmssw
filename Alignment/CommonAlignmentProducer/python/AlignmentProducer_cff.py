@@ -93,5 +93,6 @@ CSCGeometryAlignmentProducer = cms.ESProducer("CSCGeometryESModule",
     useRealWireGeometry = cms.bool(True),
     useCentreTIOffsets = cms.bool(False),
     applyAlignment = cms.bool(False), ## GF: to be abandoned
-    useDDD = cms.bool(True)
+    fromDDD = cms.bool(True),
+    fromDD4hep = cms.bool(False)
 ) 

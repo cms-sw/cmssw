@@ -27,7 +27,7 @@ process.maxEvents = cms.untracked.PSet(
 # Input source
 process.source = cms.Source("PoolSource",
     dropDescendantsOfDroppedBranches = cms.untracked.bool(False),
-    fileNames = cms.untracked.vstring('file:step1_ZMM.root'),
+    fileNames = cms.untracked.vstring('file:step1_ZMM_dd4hep.root'),
     inputCommands = cms.untracked.vstring(
         'keep *', 
         'drop *_genParticles_*_*', 
@@ -91,7 +91,7 @@ process.FEVTDEBUGHLToutput = cms.OutputModule("PoolOutputModule",
         dataTier = cms.untracked.string('GEN-SIM-DIGI-RAW'),
         filterName = cms.untracked.string('')
     ),
-    fileName = cms.untracked.string('file:step2_ZMM.root'),
+    fileName = cms.untracked.string('file:step2_ZMM_dd4hep.root'),
     outputCommands = process.FEVTDEBUGHLTEventContent.outputCommands,
     splitLevel = cms.untracked.int32(0)
 )
@@ -101,7 +101,7 @@ process.FEVTDEBUGHLToutput = cms.OutputModule("PoolOutputModule",
 # Other statements
 process.mix.digitizers = cms.PSet(process.theDigitizersValid)
 from Configuration.AlCa.GlobalTag import GlobalTag
-process.GlobalTag = GlobalTag(process.GlobalTag, '110X_mcRun3_2021_realistic_v6', '')
+process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase1_2021_realistic', '')
 
 # Path and EndPath definitions
 process.digitisation_step = cms.Path(process.pdigi_valid)

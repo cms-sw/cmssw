@@ -76,3 +76,11 @@ dqmSaver.path = "./upload"
 dqmSaver.tag = "PID%06d" % os.getpid()
 dqmSaver.producer = 'DQM'
 dqmSaver.backupLumiCount = 15
+
+# Add Protobuf DQM saver
+from DQMServices.FileIO.DQMFileSaverPB_cfi import dqmSaver as dqmSaverPB
+
+dqmSaverPB.path = './upload/pb'
+dqmSaverPB.tag = 'PID%06d' % os.getpid()
+dqmSaverPB.producer = 'DQM'
+dqmSaverPB.fakeFilterUnitMode = True

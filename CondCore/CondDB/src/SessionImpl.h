@@ -33,7 +33,7 @@ namespace cond {
       bool gtDbExists = false;
       bool gtDbOpen = false;
       bool runInfoDbExists = false;
-      bool runInfoDbOpen = true;
+      bool runInfoDbOpen = false;
       size_t clients = 0;
     };
 

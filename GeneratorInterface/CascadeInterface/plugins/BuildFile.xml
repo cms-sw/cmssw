@@ -1,4 +1,3 @@
-<use name="GeneratorInterface/CascadeInterface"/>
 <architecture name="slc5_amd64_gcc47">
   <use name="pydata"/>
 </architecture>
@@ -8,6 +7,8 @@
 <library file="Cascade2GeneratorFilter.cc,Cascade2Hadronizer.cc" name="GeneratorInterfaceCascadeInterfacePlugin">
   <use name="GeneratorInterface/PartonShowerVeto"/>
   <use name="GeneratorInterface/ExternalDecays"/>
+  <use name="GeneratorInterface/CascadeInterface"/>
+  <use name="GeneratorInterface/Pythia6Interface"/>
   <use name="heppdt"/>
   <flags EDM_PLUGIN="1"/>
 </library>

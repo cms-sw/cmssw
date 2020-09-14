@@ -13,6 +13,7 @@ CSCBaseboard::CSCBaseboard(unsigned endcap,
 
   theChamber = CSCTriggerNumbering::chamberFromTriggerLabels(theSector, theSubsector, theStation, theTrigChamber);
   isME11_ = (theStation == 1 && theRing == 1);
+  isME21_ = (theStation == 2 && theRing == 1);
 
   cscId_ = CSCDetId(theEndcap, theStation, theRing, theChamber, 0);
 
@@ -70,6 +71,9 @@ CSCBaseboard::CSCBaseboard(unsigned endcap,
     alctParams_ = conf.getParameter<edm::ParameterSet>("alctParam07");
     clctParams_ = conf.getParameter<edm::ParameterSet>("clctParam07");
   }
+
+  use_run3_patterns_ = clctParams_.getParameter<bool>("useRun3Patterns");
+  use_comparator_codes_ = clctParams_.getParameter<bool>("useComparatorCodes");
 }
 
 CSCBaseboard::CSCBaseboard() : theEndcap(1), theStation(1), theSector(1), theSubsector(1), theTrigChamber(1) {
@@ -91,11 +95,10 @@ void CSCBaseboard::checkConfigParameters(unsigned int& var,
                                          const std::string& var_str) {
   // Make sure that the parameter values are within the allowed range.
   if (var >= var_max) {
-    if (infoV >= 0)
-      edm::LogError("CSCConfigError") << "+++ Value of " + var_str + ", " << var << ", exceeds max allowed, " << var - 1
-                                      << " +++\n"
-                                      << "+++ Try to proceed with the default value, " + var_str + "=" << var_def
-                                      << " +++\n";
+    edm::LogError("CSCConfigError") << "+++ Value of " + var_str + ", " << var << ", exceeds max allowed, " << var - 1
+                                    << " +++\n"
+                                    << "+++ Try to proceed with the default value, " + var_str + "=" << var_def
+                                    << " +++\n";
     var = var_def;
   }
 }

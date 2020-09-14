@@ -1,5 +1,5 @@
-#ifndef CSCALCTTrailer_h
-#define CSCALCTTrailer_h
+#ifndef EventFilter_CSCRawToDigi_CSCALCTTrailer_h
+#define EventFilter_CSCRawToDigi_CSCALCTTrailer_h
 
 /** documented in  flags
   http://www.phys.ufl.edu/~madorsky/alctv/alct2000_spec.PDF

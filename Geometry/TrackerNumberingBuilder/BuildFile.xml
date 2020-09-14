@@ -1,6 +1,12 @@
 <use name="DataFormats/GeometrySurface"/>
 <use name="DetectorDescription/Core"/>
 <use name="DetectorDescription/DDCMS"/>
+<use name="CondFormats/GeometryObjects"/>
+<use name="DataFormats/DetId"/>
+<use name="DataFormats/SiPixelDetId"/>
+<use name="FWCore/MessageLogger"/>
+<use name="FWCore/ParameterSet"/>
+<use name="FWCore/Utilities"/>
 <export>
   <lib name="1"/>
 </export>

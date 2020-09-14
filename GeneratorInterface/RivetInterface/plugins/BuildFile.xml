@@ -1,7 +1,6 @@
 <use name="FWCore/Framework"/>
 <use name="FWCore/ServiceRegistry"/>
 <use name="SimDataFormats/GeneratorProducts"/>
-<use name="GeneratorInterface/Core"/>
 <use name="DataFormats/Common"/>
 <use name="rivet"/>
 <use name="yoda"/>
@@ -10,7 +9,6 @@
 <use name="DQMServices/Core"/>
 <use name="SimGeneral/HepPDTRecord"/>
 <use name="DataFormats/HepMCCandidate"/>
-<use name="DataFormats/JetReco"/>
 <use name="DataFormats/METReco"/>
 <use name="DataFormats/PatCandidates"/>
 <library file="*.cc" name="GeneratorInterfaceRivetInterface_plugins">

@@ -84,16 +84,7 @@ const std::vector<l1t::HGCalTowerCoord>& HGCalTriggerTowerGeometryHelper::getTow
   return tower_coords_;
 }
 
-unsigned short HGCalTriggerTowerGeometryHelper::getTriggerTowerFromTriggerCell(const unsigned trigger_cell_id,
-                                                                               const float& eta,
-                                                                               const float& phi) const {
-  // NOTE: if the TC is not found in the map than it is mapped via eta-phi coords.
-  // this can be considered dangerous (silent failure of the map) but it actually allows to save
-  // memory mapping explicitly only what is actually needed
-  auto tower_id_itr = cells_to_trigger_towers_.find(trigger_cell_id);
-  if (tower_id_itr != cells_to_trigger_towers_.end())
-    return tower_id_itr->second;
-
+unsigned short HGCalTriggerTowerGeometryHelper::getTriggerTowerFromEtaPhi(const float& eta, const float& phi) const {
   auto bin_eta_l = std::lower_bound(binsEta_.begin(), binsEta_.end(), fabs(eta));
   unsigned int bin_eta = 0;
   // we add a protection for TCs in Hadron part which are outside the boundaries and possible rounding effects
@@ -104,7 +95,7 @@ unsigned short HGCalTriggerTowerGeometryHelper::getTriggerTowerFromTriggerCell(c
       bin_eta = nBinsEta_;
     } else {
       edm::LogError("HGCalTriggerTowerGeometryHelper")
-          << " did not manage to map TC " << trigger_cell_id << " (eta: " << eta << ") to any Trigger Tower\n";
+          << " did not manage to map eta " << eta << " to any Trigger Tower\n";
     }
   } else {
     bin_eta = bin_eta_l - binsEta_.begin() - 1;
@@ -119,11 +110,27 @@ unsigned short HGCalTriggerTowerGeometryHelper::getTriggerTowerFromTriggerCell(c
       bin_phi = 0;
     } else {
       edm::LogError("HGCalTriggerTowerGeometryHelper")
-          << " did not manage to map TC " << trigger_cell_id << " (phi: " << phi << ") to any Trigger Tower\n";
+          << " did not manage to map phi " << phi << " to any Trigger Tower\n";
     }
   } else {
     bin_phi = bin_phi_l - binsPhi_.begin() - 1;
   }
   int zside = eta < 0 ? -1 : 1;
   return l1t::HGCalTowerID(zside, bin_eta, bin_phi).rawId();
+}
+
+unsigned short HGCalTriggerTowerGeometryHelper::getTriggerTower(const l1t::HGCalTriggerCell& thecell) const {
+  unsigned int trigger_cell_id = thecell.detId();
+  // NOTE: if the TC is not found in the map than it is mapped via eta-phi coords.
+  // this can be considered dangerous (silent failure of the map) but it actually allows to save
+  // memory mapping explicitly only what is actually needed
+  auto tower_id_itr = cells_to_trigger_towers_.find(trigger_cell_id);
+  if (tower_id_itr != cells_to_trigger_towers_.end())
+    return tower_id_itr->second;
+
+  return getTriggerTowerFromEtaPhi(thecell.position().eta(), thecell.position().phi());
+}
+
+unsigned short HGCalTriggerTowerGeometryHelper::getTriggerTower(const l1t::HGCalTriggerSums& thesum) const {
+  return getTriggerTowerFromEtaPhi(thesum.position().eta(), thesum.position().phi());
 }

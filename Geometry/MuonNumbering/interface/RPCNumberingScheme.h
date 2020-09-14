@@ -21,7 +21,7 @@ public:
 
   ~RPCNumberingScheme() override{};
 
-  int baseNumberToUnitNumber(const MuonBaseNumber&) override;
+  int baseNumberToUnitNumber(const MuonBaseNumber&) const override;
 
 private:
   void initMe(const MuonGeometryConstants& muonConstants);

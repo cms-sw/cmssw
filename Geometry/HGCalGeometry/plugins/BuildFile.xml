@@ -4,6 +4,5 @@
   <use name="Geometry/HGCalGeometry"/>
   <use name="Geometry/CaloTopology"/>
   <use name="Geometry/Records"/>
-  <use name="CondFormats/GeometryObjects"/>
   <flags EDM_PLUGIN="1"/>
 </library>
