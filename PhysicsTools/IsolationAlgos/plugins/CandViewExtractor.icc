@@ -19,7 +19,8 @@ IsoDeposit CandViewExtractor::depositFromObject(const Event& event, const EventS
   LogDebug(metname) << "cand eta=" << eta << " phi=" << phi << " vtx=" << vtx;
   for (View<Candidate>::const_iterator it = candViewH->begin(), ed = candViewH->end(); it != ed; ++it) {
     double dR = deltaR(it->eta(), it->phi(), eta, phi);
-    LogDebug(metname) << "pdgid=" << it->pdgId() << " vtx=" << it->vertex() << " dR=" << dR << " dvz=" << it->vz() - cand.vz() << " drho=" << (it->vertex() - vtx).Rho();
+    LogDebug(metname) << "pdgid=" << it->pdgId() << " vtx=" << it->vertex() << " dR=" << dR
+                      << " dvz=" << it->vz() - cand.vz() << " drho=" << (it->vertex() - vtx).Rho();
     if ((dR < theDR_Max) && (dR > theDR_Veto) && (std::abs(it->vz() - cand.vz()) < theDiff_z) &&
         ((it->vertex() - vtx).Rho() < theDiff_r)) {
       // ok
