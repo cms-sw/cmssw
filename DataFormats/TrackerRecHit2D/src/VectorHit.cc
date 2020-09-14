@@ -98,7 +98,6 @@ bool VectorHit::sharesClusters(VectorHit const& h1, VectorHit const& h2, SharedI
 }
 
 void VectorHit::getKfComponents4D(KfComponentsHolder& holder) const {
-
   AlgebraicVector4& pars = holder.params<nComponents>();
   pars[0] = theDirection.x();
   pars[1] = theDirection.y();
