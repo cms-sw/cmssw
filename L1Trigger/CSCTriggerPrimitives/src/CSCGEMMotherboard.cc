@@ -38,7 +38,6 @@ void CSCGEMMotherboard::clear() {
 }
 
 void CSCGEMMotherboard::processGEMClusters(const GEMPadDigiClusterCollection* gemClusters) {
-
   std::unique_ptr<GEMPadDigiCollection> gemPads(new GEMPadDigiCollection());
   coPadProcessor->declusterize(gemClusters, *gemPads);
 
@@ -49,7 +48,6 @@ void CSCGEMMotherboard::processGEMClusters(const GEMPadDigiClusterCollection* ge
 }
 
 void CSCGEMMotherboard::processGEMPads(const GEMPadDigiCollection* gemPads) {
-
   pads_.clear();
   const auto& superChamber(gem_g->superChamber(gemId));
   for (const auto& ch : superChamber->chambers()) {
