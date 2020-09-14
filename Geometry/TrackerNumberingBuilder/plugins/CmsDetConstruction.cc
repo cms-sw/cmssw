@@ -76,10 +76,8 @@ template <class FilteredView>
 void CmsDetConstruction<FilteredView>::buildComponent(FilteredView& fv,
                                                       GeometricDet* mother,
                                                       const std::string& attribute) {
-  //
-  // at this level I check whether it is a merged detector or not
-  //
 
+  std::cout << "CmsDetConstruction::buildComponent " << fv.geoHistory();
   GeometricDet* det = new GeometricDet(&fv,
                                        CmsTrackerLevelBuilder<FilteredView>::theCmsTrackerStringToEnum.type(
                                            ExtractStringFromDDD<FilteredView>::getString(attribute, &fv)));
@@ -99,6 +97,10 @@ void CmsDetConstruction<FilteredView>::buildComponent(FilteredView& fv,
   }
 
   mother->addComponent(det);
+  std::cout << "\tMotherSize: " << mother->components().size() << std::endl;
+  for(const auto& cp: mother->components()){
+    std::cout << "\t" << cp->geographicalID().rawId() << std::endl;
+  }
 }
 
 template class CmsDetConstruction<DDFilteredView>;
