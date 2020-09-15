@@ -20,6 +20,7 @@ RootFile.h // used by ROOT input sources
 #include "DataFormats/Provenance/interface/FileID.h"
 #include "DataFormats/Provenance/interface/History.h"
 #include "DataFormats/Provenance/interface/IndexIntoFile.h"
+#include "FWCore/Common/interface/FWCoreCommonFwd.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/InputSource.h"
 #include "FWCore/Utilities/interface/InputType.h"
@@ -63,6 +64,7 @@ namespace edm {
   class RootFile {
   public:
     typedef std::array<RootTree*, NumBranchTypes> RootTreePtrArray;
+    // Constructor used by RootPrimaryFileSequence
     RootFile(std::string const& fileName,
              ProcessConfiguration const& processConfiguration,
              std::string const& logicalFileName,
@@ -80,6 +82,7 @@ namespace edm {
              ProductSelectorRules const& productSelectorRules,
              InputType inputType,
              std::shared_ptr<BranchIDListHelper> branchIDListHelper,
+             ProcessBlockHelper*,
              std::shared_ptr<ThinnedAssociationsHelper> thinnedAssociationsHelper,
              std::vector<BranchID> const* associationsFromSecondary,
              std::shared_ptr<DuplicateChecker> duplicateChecker,
@@ -94,6 +97,7 @@ namespace edm {
              bool enablePrefetching,
              bool enforceGUIDInFileName);
 
+    // Constructor used by RootSecondaryFileSequence
     RootFile(std::string const& fileName,
              ProcessConfiguration const& processConfiguration,
              std::string const& logicalFileName,
@@ -133,6 +137,7 @@ namespace edm {
                    productSelectorRules,
                    inputType,
                    branchIDListHelper,
+                   nullptr,
                    thinnedAssociationsHelper,
                    associationsFromSecondary,
                    nullptr,
@@ -147,6 +152,7 @@ namespace edm {
                    enablePrefetching,
                    enforceGUIDInFileName) {}
 
+    // Constructor used by RootEmbeddedFileSequence
     RootFile(std::string const& fileName,
              ProcessConfiguration const& processConfiguration,
              std::string const& logicalFileName,
@@ -180,6 +186,7 @@ namespace edm {
                    false,
                    productSelectorRules,
                    inputType,
+                   nullptr,
                    nullptr,
                    nullptr,
                    nullptr,

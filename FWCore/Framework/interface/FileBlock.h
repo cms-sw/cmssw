@@ -105,6 +105,11 @@ namespace edm {
     TTree* lumiMetaTree() const { return lumiMetaTree_; }
     TTree* runTree() const { return runTree_; }
     TTree* runMetaTree() const { return runMetaTree_; }
+    // TODO THIS IS JUST A DUMMY IMPLEMENTATION TO KEEP THINGS COMPILING.
+    // I NEED TO IMPLEMENT THIS SO THE POOLOUTPUTMODULE CAN GET A POINTER
+    // TO THE INPUT TTREE. Returning a nullptr is only appropriate if there
+    // isn't an input TTree.
+    TTree* processBlockTree(std::string const& processName) const { return nullptr; }
 
     int whyNotFastClonable() const { return whyNotFastClonable_; }
     std::array<bool, NumBranchTypes> const& hasNewlyDroppedBranch() const { return hasNewlyDroppedBranch_; }

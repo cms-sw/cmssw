@@ -21,9 +21,11 @@
 #include "IOPool/Common/interface/RootServiceChecker.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/one/OutputModule.h"
+#include "FWCore/Utilities/interface/BranchType.h"
 #include "FWCore/Utilities/interface/propagate_const.h"
 #include "DataFormats/Provenance/interface/BranchChildren.h"
 #include "DataFormats/Provenance/interface/BranchID.h"
+#include "DataFormats/Provenance/interface/BranchType.h"
 #include "DataFormats/Provenance/interface/ParentageID.h"
 
 class TTree;
@@ -72,7 +74,7 @@ namespace edm {
       ~AuxItem() {}
       int basketSize_;
     };
-    typedef std::array<AuxItem, NumBranchTypes> AuxItemArray;
+    using AuxItemArray = std::array<AuxItem, numberOfRunLumiEventProductTrees>;
     AuxItemArray const& auxItems() const { return auxItems_; }
 
     struct OutputItem {
@@ -85,11 +87,7 @@ namespace edm {
         std::shared_ptr<std::map<std::string, int>> treeMap_;
       };
 
-      OutputItem();
-
       explicit OutputItem(BranchDescription const* bd, EDGetToken const& token, int splitLevel, int basketSize);
-
-      ~OutputItem() {}
 
       BranchID branchID() const { return branchDescription_->branchID(); }
       std::string const& branchName() const { return branchDescription_->branchName(); }
@@ -112,9 +110,7 @@ namespace edm {
       int basketSize_;
     };
 
-    typedef std::vector<OutputItem> OutputItemList;
-
-    typedef std::array<OutputItemList, NumBranchTypes> OutputItemListArray;
+    using OutputItemList = std::vector<OutputItem>;
 
     struct SpecialSplitLevelForBranch {
       SpecialSplitLevelForBranch(std::string const& iBranchName, int iSplitLevel)
@@ -128,9 +124,9 @@ namespace edm {
       int splitLevel_;
     };
 
-    OutputItemListArray const& selectedOutputItemList() const { return selectedOutputItemList_; }
+    std::vector<OutputItemList> const& selectedOutputItemList() const { return selectedOutputItemList_; }
 
-    OutputItemListArray& selectedOutputItemList() { return selectedOutputItemList_; }
+    std::vector<OutputItemList>& selectedOutputItemList() { return selectedOutputItemList_; }
 
     BranchChildren const& branchChildren() const { return branchChildren_; }
 
@@ -150,8 +146,9 @@ namespace edm {
     void openFile(FileBlock const& fb) override;
     void respondToOpenInputFile(FileBlock const& fb) override;
     void respondToCloseInputFile(FileBlock const& fb) override;
-    void writeLuminosityBlock(LuminosityBlockForOutput const& lb) override;
-    void writeRun(RunForOutput const& r) override;
+    void writeLuminosityBlock(LuminosityBlockForOutput const&) override;
+    void writeRun(RunForOutput const&) override;
+    void writeProcessBlock(ProcessBlockForOutput const&) override;
     bool isFileOpen() const override;
     void reallyOpenFile();
     void reallyCloseFile() override;
@@ -159,7 +156,7 @@ namespace edm {
 
     void setProcessesWithSelectedMergeableRunProducts(std::set<std::string> const&) override;
 
-    typedef std::map<BranchID, std::set<ParentageID>> BranchParents;
+    using BranchParents = std::map<BranchID, std::set<ParentageID>>;
     void updateBranchParentsForOneBranch(ProductProvenanceRetriever const* provRetriever, BranchID const& branchID);
     void updateBranchParents(EventForOutput const& e);
     void fillDependencyGraph();
@@ -176,14 +173,18 @@ namespace edm {
     void writeBranchIDListRegistry();
     void writeThinnedAssociationsHelper();
     void writeProductDependencies();
+    void writeProcessBlockHelper();
     void finishEndFile();
 
-    void fillSelectedItemList(BranchType branchtype, TTree* theInputTree);
+    void fillSelectedItemList(BranchType branchtype,
+                              std::string const& processName,
+                              TTree* theInputTree,
+                              OutputItemList&);
     void beginInputFile(FileBlock const& fb);
 
     RootServiceChecker rootServiceChecker_;
     AuxItemArray auxItems_;
-    OutputItemListArray selectedOutputItemList_;
+    std::vector<OutputItemList> selectedOutputItemList_;
     std::vector<SpecialSplitLevelForBranch> specialSplitLevelForBranches_;
     std::string const fileName_;
     std::string const logicalFileName_;

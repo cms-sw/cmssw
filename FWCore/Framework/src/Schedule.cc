@@ -7,6 +7,7 @@
 #include "DataFormats/Provenance/interface/ThinnedAssociationsHelper.h"
 #include "DataFormats/Provenance/interface/BranchIDListHelper.h"
 #include "DataFormats/Provenance/interface/ProductResolverIndexHelper.h"
+#include "FWCore/Common/interface/ProcessBlockHelper.h"
 #include "FWCore/Framework/interface/EDConsumerBase.h"
 #include "FWCore/Framework/src/OutputModuleDescription.h"
 #include "FWCore/Framework/src/SubProcess.h"
@@ -658,6 +659,7 @@ namespace edm {
                      service::TriggerNamesService const& tns,
                      ProductRegistry& preg,
                      BranchIDListHelper& branchIDListHelper,
+                     ProcessBlockHelper& processBlockHelper,
                      ThinnedAssociationsHelper& thinnedAssociationsHelper,
                      SubProcessParentageHelper const* subProcessParentageHelper,
                      ExceptionToActionTable const& actions,
@@ -796,10 +798,12 @@ namespace edm {
       worker->registerThinnedAssociations(preg, thinnedAssociationsHelper);
     }
 
+    processBlockHelper.updateForNewProcess(preg, processConfiguration->processName());
+
     // The output modules consume products in kept branches.
     // So we must set this up before freezing.
     for (auto& c : all_output_communicators_) {
-      c->selectProducts(preg, thinnedAssociationsHelper);
+      c->selectProducts(preg, thinnedAssociationsHelper, processBlockHelper);
     }
 
     for (auto& product : preg.productListUpdator()) {

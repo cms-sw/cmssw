@@ -117,13 +117,6 @@ namespace edm {
 
   PoolOutputModule::AuxItem::AuxItem() : basketSize_(BranchDescription::invalidBasketSize) {}
 
-  PoolOutputModule::OutputItem::OutputItem()
-      : branchDescription_(nullptr),
-        token_(),
-        product_(nullptr),
-        splitLevel_(BranchDescription::invalidSplitLevel),
-        basketSize_(BranchDescription::invalidBasketSize) {}
-
   PoolOutputModule::OutputItem::OutputItem(BranchDescription const* bd,
                                            EDGetToken const& token,
                                            int splitLevel,
@@ -173,21 +166,26 @@ namespace edm {
     return std::regex(tmp);
   }
 
-  void PoolOutputModule::fillSelectedItemList(BranchType branchType, TTree* theInputTree) {
+  void PoolOutputModule::fillSelectedItemList(BranchType branchType,
+                                              std::string const& processName,
+                                              TTree* theInputTree,
+                                              OutputItemList& outputItemList) {
     SelectedProducts const& keptVector = keptProducts()[branchType];
-    OutputItemList& outputItemList = selectedOutputItemList_[branchType];
-    AuxItem& auxItem = auxItems_[branchType];
 
-    // Fill AuxItem
-    if (theInputTree != nullptr && !overrideInputFileSplitLevels_) {
-      TBranch* auxBranch = theInputTree->GetBranch(BranchTypeToAuxiliaryBranchName(branchType).c_str());
-      if (auxBranch) {
-        auxItem.basketSize_ = auxBranch->GetBasketSize();
+    if (branchType != InProcess) {
+      AuxItem& auxItem = auxItems_[branchType];
+
+      // Fill AuxItem
+      if (theInputTree != nullptr && !overrideInputFileSplitLevels_) {
+        TBranch* auxBranch = theInputTree->GetBranch(BranchTypeToAuxiliaryBranchName(branchType).c_str());
+        if (auxBranch) {
+          auxItem.basketSize_ = auxBranch->GetBasketSize();
+        } else {
+          auxItem.basketSize_ = basketSize_;
+        }
       } else {
         auxItem.basketSize_ = basketSize_;
       }
-    } else {
-      auxItem.basketSize_ = basketSize_;
     }
 
     // Fill outputItemList with an entry for each branch.
@@ -196,6 +194,9 @@ namespace edm {
       int basketSize = BranchDescription::invalidBasketSize;
 
       BranchDescription const& prod = *kept.first;
+      if (branchType == InProcess && processName != prod.processName()) {
+        continue;
+      }
       TBranch* theBranch = ((!prod.produced() && theInputTree != nullptr && !overrideInputFileSplitLevels_)
                                 ? theInputTree->GetBranch(prod.branchName().c_str())
                                 : nullptr);
@@ -243,15 +244,30 @@ namespace edm {
 
   void PoolOutputModule::respondToOpenInputFile(FileBlock const& fb) {
     if (!initializedFromInput_) {
-      for (int i = InEvent; i < NumBranchTypes; ++i) {
-        if (i == InProcess) {
-          // ProcessBlock output not implemented yet
-          continue;
-        }
+      std::vector<std::string> const& processesWithProcessBlockProducts =
+          processBlockHelper().processesWithProcessBlockProducts();
+      unsigned int numberOfProcessesWithProcessBlockProducts = processesWithProcessBlockProducts.size();
+      unsigned int numberOfTTrees = numberOfRunLumiEventProductTrees + numberOfProcessesWithProcessBlockProducts;
+
+      selectedOutputItemList_.resize(numberOfTTrees);
+
+      for (unsigned int i = InEvent; i < NumBranchTypes; ++i) {
         BranchType branchType = static_cast<BranchType>(i);
-        TTree* theInputTree =
-            (branchType == InEvent ? fb.tree() : (branchType == InLumi ? fb.lumiTree() : fb.runTree()));
-        fillSelectedItemList(branchType, theInputTree);
+        if (branchType != InProcess) {
+          std::string processName;
+          TTree* theInputTree =
+              (branchType == InEvent ? fb.tree() : (branchType == InLumi ? fb.lumiTree() : fb.runTree()));
+          OutputItemList& outputItemList = selectedOutputItemList_[branchType];
+          fillSelectedItemList(branchType, processName, theInputTree, outputItemList);
+        } else {
+          // Handle output items in ProcessBlocks
+          for (unsigned int k = InProcess; k < numberOfTTrees; ++k) {
+            OutputItemList& outputItemList = selectedOutputItemList_[k];
+            std::string const& processName = processesWithProcessBlockProducts[k - InProcess];
+            TTree* theInputTree = fb.processBlockTree(processName);
+            fillSelectedItemList(branchType, processName, theInputTree, outputItemList);
+          }
+        }
       }
       initializedFromInput_ = true;
     }
@@ -286,6 +302,8 @@ namespace edm {
 
   void PoolOutputModule::writeRun(RunForOutput const& r) { rootOutputFile_->writeRun(r); }
 
+  void PoolOutputModule::writeProcessBlock(ProcessBlockForOutput const& pb) { rootOutputFile_->writeProcessBlock(pb); }
+
   void PoolOutputModule::reallyCloseFile() {
     fillDependencyGraph();
     branchParents_.clear();
@@ -301,6 +319,7 @@ namespace edm {
     writeBranchIDListRegistry();
     writeThinnedAssociationsHelper();
     writeProductDependencies();  //branchChildren used here
+    writeProcessBlockHelper();
     branchChildren_.clear();
     finishEndFile();
 
@@ -323,6 +342,7 @@ namespace edm {
   void PoolOutputModule::writeBranchIDListRegistry() { rootOutputFile_->writeBranchIDListRegistry(); }
   void PoolOutputModule::writeThinnedAssociationsHelper() { rootOutputFile_->writeThinnedAssociationsHelper(); }
   void PoolOutputModule::writeProductDependencies() { rootOutputFile_->writeProductDependencies(); }
+  void PoolOutputModule::writeProcessBlockHelper() { rootOutputFile_->writeProcessBlockHelper(); }
   void PoolOutputModule::finishEndFile() {
     rootOutputFile_->finishEndFile();
     rootOutputFile_ = nullptr;

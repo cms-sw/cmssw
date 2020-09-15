@@ -58,6 +58,7 @@
 */
 
 #include "DataFormats/Provenance/interface/ModuleDescription.h"
+#include "FWCore/Common/interface/FWCoreCommonFwd.h"
 #include "FWCore/Framework/interface/ExceptionActions.h"
 #include "FWCore/Framework/interface/ExceptionHelpers.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -130,6 +131,7 @@ namespace edm {
              service::TriggerNamesService const& tns,
              ProductRegistry& pregistry,
              BranchIDListHelper& branchIDListHelper,
+             ProcessBlockHelper&,
              ThinnedAssociationsHelper& thinnedAssociationsHelper,
              SubProcessParentageHelper const* subProcessParentageHelper,
              ExceptionToActionTable const& actions,

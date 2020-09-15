@@ -6,6 +6,7 @@
 #include "DataFormats/Provenance/interface/ThinnedAssociationsHelper.h"
 #include "DataFormats/Provenance/interface/SubProcessParentageHelper.h"
 #include "DataFormats/Provenance/interface/SelectedProducts.h"
+#include "FWCore/Common/interface/ProcessBlockHelper.h"
 #include "FWCore/Framework/interface/ExceptionActions.h"
 #include "FWCore/Framework/src/CommonParams.h"
 #include "FWCore/Framework/interface/ConstProductRegistry.h"
@@ -29,15 +30,19 @@ namespace edm {
       : actReg_(std::make_shared<ActivityRegistry>()),
         preg_(std::make_shared<SignallingProductRegistry>()),
         branchIDListHelper_(std::make_shared<BranchIDListHelper>()),
+        processBlockHelper_(std::make_shared<ProcessBlockHelper>()),
         thinnedAssociationsHelper_(std::make_shared<ThinnedAssociationsHelper>()),
         subProcessParentageHelper_(),
         act_table_(),
         processConfiguration_() {}
 
-  ScheduleItems::ScheduleItems(ProductRegistry const& preg, SubProcess const& om)
+  ScheduleItems::ScheduleItems(ProductRegistry const& preg,
+                               SubProcess const& om,
+                               ProcessBlockHelper const& parentProcessBlockHelper)
       : actReg_(std::make_shared<ActivityRegistry>()),
         preg_(std::make_shared<SignallingProductRegistry>(preg)),
         branchIDListHelper_(std::make_shared<BranchIDListHelper>()),
+        processBlockHelper_(std::make_shared<ProcessBlockHelper>()),
         thinnedAssociationsHelper_(std::make_shared<ThinnedAssociationsHelper>()),
         subProcessParentageHelper_(std::make_shared<SubProcessParentageHelper>()),
         act_table_(),
@@ -76,6 +81,7 @@ namespace edm {
         prod.setDropped(true);
       }
     }
+    processBlockHelper_->updateFromParentProcess(parentProcessBlockHelper, *preg_);
   }
 
   ServiceToken ScheduleItems::initServices(std::vector<ParameterSet>& pServiceSets,
@@ -135,6 +141,7 @@ namespace edm {
                                       ServiceRegistry::instance().get<service::TriggerNamesService>(),
                                       *preg_,
                                       *branchIDListHelper_,
+                                      *processBlockHelper_,
                                       *thinnedAssociationsHelper_,
                                       subProcessParentageHelper_ ? subProcessParentageHelper_.get() : nullptr,
                                       *act_table_,
@@ -143,14 +150,5 @@ namespace edm {
                                       hasSubprocesses,
                                       config,
                                       processContext);
-  }
-
-  void ScheduleItems::clear() {
-    // propagate_const<T> has no reset() function
-    actReg_ = nullptr;
-    preg_ = nullptr;
-    branchIDListHelper_ = nullptr;
-    thinnedAssociationsHelper_ = nullptr;
-    processConfiguration_ = nullptr;
   }
 }  // namespace edm

@@ -65,11 +65,6 @@ namespace edm {
     };
 
     class BranchMap {
-      enum {
-        kKeys,
-        kInfos,
-      };
-
     public:
       void reserve(size_t iSize) { map_.reserve(iSize); }
       void insert(edm::BranchID const& iKey, BranchInfo const& iInfo) { map_.emplace(iKey.id(), iInfo); }

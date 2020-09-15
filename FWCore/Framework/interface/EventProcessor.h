@@ -12,6 +12,7 @@ configured in the user's main() function, and is set running.
 #include "DataFormats/Provenance/interface/RunID.h"
 #include "DataFormats/Provenance/interface/LuminosityBlockID.h"
 
+#include "FWCore/Common/interface/FWCoreCommonFwd.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/InputSource.h"
 #include "FWCore/Framework/interface/MergeableRunProductProcesses.h"
@@ -32,6 +33,7 @@ configured in the user's main() function, and is set running.
 #include "FWCore/Concurrency/interface/LimitedTaskQueue.h"
 
 #include "FWCore/Utilities/interface/get_underlying_safe.h"
+#include "FWCore/Utilities/interface/propagate_const.h"
 
 #include <map>
 #include <memory>
@@ -310,6 +312,7 @@ namespace edm {
     std::shared_ptr<ActivityRegistry> actReg_;  // We do not use propagate_const because the registry itself is mutable.
     edm::propagate_const<std::shared_ptr<ProductRegistry>> preg_;
     edm::propagate_const<std::shared_ptr<BranchIDListHelper>> branchIDListHelper_;
+    edm::propagate_const<std::shared_ptr<ProcessBlockHelper>> processBlockHelper_;
     edm::propagate_const<std::shared_ptr<ThinnedAssociationsHelper>> thinnedAssociationsHelper_;
     ServiceToken serviceToken_;
     edm::propagate_const<std::unique_ptr<InputSource>> input_;

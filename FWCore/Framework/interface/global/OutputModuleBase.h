@@ -32,6 +32,7 @@
 #include "DataFormats/Provenance/interface/ModuleDescription.h"
 #include "DataFormats/Provenance/interface/SelectedProducts.h"
 
+#include "FWCore/Common/interface/ProcessBlockHelper.h"
 #include "FWCore/Framework/interface/TriggerResultsBasedEventSelector.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/ProductSelectorRules.h"
@@ -87,7 +88,7 @@ namespace edm {
 
       bool selected(BranchDescription const& desc) const;
 
-      void selectProducts(ProductRegistry const& preg, ThinnedAssociationsHelper const&);
+      void selectProducts(ProductRegistry const& preg, ThinnedAssociationsHelper const&, ProcessBlockHelper const&);
       std::string const& processName() const { return process_name_; }
       SelectedProductsForBranchType const& keptProducts() const { return keptProducts_; }
       std::array<bool, NumBranchTypes> const& hasNewlyDroppedBranch() const { return hasNewlyDroppedBranch_; }
@@ -100,6 +101,8 @@ namespace edm {
       bool wantAllEvents() const { return wantAllEvents_; }
 
       BranchIDLists const* branchIDLists() const;
+
+      ProcessBlockHelper const& processBlockHelper() const { return processBlockHelper_; }
 
       ThinnedAssociationsHelper const* thinnedAssociationsHelper() const;
 
@@ -194,13 +197,15 @@ namespace edm {
       edm::propagate_const<std::unique_ptr<ThinnedAssociationsHelper>> thinnedAssociationsHelper_;
       std::map<BranchID, bool> keepAssociation_;
 
+      ProcessBlockHelper processBlockHelper_;
+
       //------------------------------------------------------------------
       // private member functions
       //------------------------------------------------------------------
 
       void updateBranchIDListsWithKeptAliases();
 
-      void doWriteProcessBlock(ProcessBlockPrincipal const&, ModuleCallingContext const*) {}
+      void doWriteProcessBlock(ProcessBlockPrincipal const&, ModuleCallingContext const*);
       void doWriteRun(RunPrincipal const& rp, ModuleCallingContext const*, MergeableRunProductMetadata const*);
       void doWriteLuminosityBlock(LuminosityBlockPrincipal const& lbp, ModuleCallingContext const*);
       void doOpenFile(FileBlock const& fb);
@@ -231,6 +236,7 @@ namespace edm {
       virtual void endJob() {}
       virtual void writeLuminosityBlock(LuminosityBlockForOutput const&) = 0;
       virtual void writeRun(RunForOutput const&) = 0;
+      virtual void writeProcessBlock(ProcessBlockForOutput const&) {}
       virtual void openFile(FileBlock const&) {}
       virtual bool isFileOpen() const { return true; }
 

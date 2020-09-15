@@ -1,9 +1,11 @@
 #ifndef FWCore_Framework_ScheduleItems_h
 #define FWCore_Framework_ScheduleItems_h
 
+#include "FWCore/Common/interface/FWCoreCommonFwd.h"
 #include "FWCore/ServiceRegistry/interface/ServiceLegacy.h"
 #include "FWCore/ServiceRegistry/interface/ServiceToken.h"
 #include "FWCore/Utilities/interface/get_underlying_safe.h"
+#include "FWCore/Utilities/interface/propagate_const.h"
 
 #include <memory>
 #include <vector>
@@ -28,7 +30,9 @@ namespace edm {
   struct ScheduleItems {
     ScheduleItems();
 
-    ScheduleItems(ProductRegistry const& preg, SubProcess const& om);
+    ScheduleItems(ProductRegistry const& preg,
+                  SubProcess const& om,
+                  ProcessBlockHelper const& parentProcessBlockHelper);
 
     ScheduleItems(ScheduleItems const&) = delete;             // Disallow copying and moving
     ScheduleItems& operator=(ScheduleItems const&) = delete;  // Disallow copying and moving
@@ -48,8 +52,6 @@ namespace edm {
                                            PreallocationConfiguration const& iAllocConfig,
                                            ProcessContext const*);
 
-    void clear();
-
     std::shared_ptr<SignallingProductRegistry const> preg() const { return get_underlying_safe(preg_); }
     std::shared_ptr<SignallingProductRegistry>& preg() { return get_underlying_safe(preg_); }
     std::shared_ptr<BranchIDListHelper const> branchIDListHelper() const {
@@ -59,6 +61,7 @@ namespace edm {
     std::shared_ptr<ThinnedAssociationsHelper const> thinnedAssociationsHelper() const {
       return get_underlying_safe(thinnedAssociationsHelper_);
     }
+    std::shared_ptr<ProcessBlockHelper>& processBlockHelper() { return get_underlying_safe(processBlockHelper_); }
     std::shared_ptr<ThinnedAssociationsHelper>& thinnedAssociationsHelper() {
       return get_underlying_safe(thinnedAssociationsHelper_);
     }
@@ -73,6 +76,7 @@ namespace edm {
     std::shared_ptr<ActivityRegistry> actReg_;  // We do not use propagate_const because the registry itself is mutable.
     edm::propagate_const<std::shared_ptr<SignallingProductRegistry>> preg_;
     edm::propagate_const<std::shared_ptr<BranchIDListHelper>> branchIDListHelper_;
+    edm::propagate_const<std::shared_ptr<ProcessBlockHelper>> processBlockHelper_;
     edm::propagate_const<std::shared_ptr<ThinnedAssociationsHelper>> thinnedAssociationsHelper_;
     edm::propagate_const<std::shared_ptr<SubProcessParentageHelper>> subProcessParentageHelper_;
     std::unique_ptr<ExceptionToActionTable const> act_table_;

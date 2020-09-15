@@ -4,16 +4,19 @@
 #include "FWCore/Utilities/interface/GlobalIdentifier.h"
 
 #include "DataFormats/Provenance/interface/EventAuxiliary.h"
+#include "DataFormats/Provenance/interface/BranchDescription.h"
 #include "FWCore/Version/interface/GetFileFormatVersion.h"
 #include "DataFormats/Provenance/interface/FileFormatVersion.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "FWCore/Utilities/interface/Algorithms.h"
 #include "FWCore/Utilities/interface/Digest.h"
+#include "FWCore/Common/interface/ProcessBlockHelper.h"
 #include "FWCore/Framework/interface/FileBlock.h"
 #include "FWCore/Framework/interface/EventForOutput.h"
 #include "FWCore/Framework/interface/LuminosityBlockForOutput.h"
 #include "FWCore/Framework/interface/MergeableRunProductMetadata.h"
 #include "FWCore/Framework/interface/OccurrenceForOutput.h"
+#include "FWCore/Framework/interface/ProcessBlockForOutput.h"
 #include "FWCore/Framework/interface/RunForOutput.h"
 #include "FWCore/MessageLogger/interface/JobReport.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -27,6 +30,7 @@
 #include "DataFormats/Provenance/interface/ParameterSetID.h"
 #include "DataFormats/Provenance/interface/ProcessHistoryID.h"
 #include "DataFormats/Provenance/interface/ProductRegistry.h"
+#include "DataFormats/Provenance/interface/StoredProcessBlockHelper.h"
 #include "DataFormats/Provenance/interface/ThinnedAssociationsHelper.h"
 #include "FWCore/Framework/interface/ConstProductRegistry.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -111,12 +115,18 @@ namespace edm {
         eventTree_(filePtr(), InEvent, om_->splitLevel(), om_->treeMaxVirtualSize()),
         lumiTree_(filePtr(), InLumi, om_->splitLevel(), om_->treeMaxVirtualSize()),
         runTree_(filePtr(), InRun, om_->splitLevel(), om_->treeMaxVirtualSize()),
-        treePointers_(),
         dataTypeReported_(false),
         processHistoryRegistry_(),
         parentageIDs_(),
         branchesWithStoredHistory_(),
         wrapperBaseTClass_(TClass::GetClass("edm::WrapperBase")) {
+    std::vector<std::string> const& processesWithProcessBlockProducts =
+        om_->processBlockHelper().processesWithProcessBlockProducts();
+    for (auto const& processName : processesWithProcessBlockProducts) {
+      processBlockTrees_.emplace_back(std::make_unique<RootOutputTree>(
+          filePtr(), InProcess, om_->splitLevel(), om_->treeMaxVirtualSize(), processName));
+    }
+
     if (om_->compressionAlgorithm() == std::string("ZLIB")) {
       filePtr_->SetCompressionAlgorithm(ROOT::kZLIB);
     } else if (om_->compressionAlgorithm() == std::string("LZMA")) {
@@ -145,19 +155,16 @@ namespace edm {
     runTree_.addAuxiliary<RunAuxiliary>(
         BranchTypeToAuxiliaryBranchName(InRun), pRunAux_, om_->auxItems()[InRun].basketSize_);
 
-    treePointers_[InEvent] = &eventTree_;
-    treePointers_[InLumi] = &lumiTree_;
-    treePointers_[InRun] = &runTree_;
-    treePointers_[InProcess] = nullptr;
+    treePointers_.emplace_back(&eventTree_);
+    treePointers_.emplace_back(&lumiTree_);
+    treePointers_.emplace_back(&runTree_);
+    for (auto& processBlockTree : processBlockTrees_) {
+      treePointers_.emplace_back(processBlockTree.get());
+    }
 
-    for (int i = InEvent; i < NumBranchTypes; ++i) {
-      if (i == InProcess) {
-        // Output for ProcessBlocks is not implemented yet.
-        continue;
-      }
-      BranchType branchType = static_cast<BranchType>(i);
-      RootOutputTree* theTree = treePointers_[branchType];
-      for (auto& item : om_->selectedOutputItemList()[branchType]) {
+    for (unsigned int i = 0; i < treePointers_.size(); ++i) {
+      RootOutputTree* theTree = treePointers_[i];
+      for (auto& item : om_->selectedOutputItemList()[i]) {
         item.setProduct(nullptr);
         BranchDescription const& desc = *item.branchDescription();
         theTree->addBranch(desc.branchName(),
@@ -420,7 +427,8 @@ namespace edm {
     pEventSelectionIDs_ = &esids;
     ProductProvenanceRetriever const* provRetriever = e.productProvenanceRetrieverPtr();
     assert(provRetriever);
-    fillBranches(InEvent, e, pEventEntryInfoVector_, provRetriever);
+    unsigned int ttreeIndex = InEvent;
+    fillBranches(InEvent, e, ttreeIndex, pEventEntryInfoVector_, provRetriever);
 
     // Add the dataType to the job report if it hasn't already been done
     if (!dataTypeReported_) {
@@ -460,7 +468,8 @@ namespace edm {
     // Add lumi to index.
     indexIntoFile_.addEntry(reducedPHID, lumiAux_.run(), lumiAux_.luminosityBlock(), 0U, lumiEntryNumber_);
     ++lumiEntryNumber_;
-    fillBranches(InLumi, lb);
+    unsigned int ttreeIndex = InLumi;
+    fillBranches(InLumi, lb, ttreeIndex);
     lumiTree_.optimizeBaskets(10ULL * 1024 * 1024);
 
     Service<JobReport> reportSvc;
@@ -482,11 +491,26 @@ namespace edm {
     indexIntoFile_.addEntry(reducedPHID, runAux_.run(), 0U, 0U, runEntryNumber_);
     r.mergeableRunProductMetadata()->addEntryToStoredMetadata(storedMergeableRunProductMetadata_);
     ++runEntryNumber_;
-    fillBranches(InRun, r);
+    unsigned int ttreeIndex = InRun;
+    fillBranches(InRun, r, ttreeIndex);
     runTree_.optimizeBaskets(10ULL * 1024 * 1024);
 
     Service<JobReport> reportSvc;
     reportSvc->reportRunNumber(reportToken_, r.run());
+  }
+
+  void RootOutputFile::writeProcessBlock(ProcessBlockForOutput const& pb) {
+    std::string const& processName = pb.processName();
+    std::vector<std::string> const& processesWithProcessBlockProducts =
+        om_->processBlockHelper().processesWithProcessBlockProducts();
+    std::vector<std::string>::const_iterator it =
+        std::find(processesWithProcessBlockProducts.cbegin(), processesWithProcessBlockProducts.cend(), processName);
+    if (it == processesWithProcessBlockProducts.cend()) {
+      return;
+    }
+    unsigned int ttreeIndex = InProcess + std::distance(processesWithProcessBlockProducts.cbegin(), it);
+    fillBranches(InProcess, pb, ttreeIndex);
+    treePointers_[ttreeIndex]->optimizeBaskets(10ULL * 1024 * 1024);
   }
 
   void RootOutputFile::writeParentageRegistry() {
@@ -578,7 +602,7 @@ namespace edm {
 
   void RootOutputFile::writeProductDescriptionRegistry() {
     // Make a local copy of the ProductRegistry, removing any transient or pruned products.
-    typedef ProductRegistry::ProductList ProductList;
+    using ProductList = ProductRegistry::ProductList;
     Service<ConstProductRegistry> reg;
     ProductRegistry pReg(reg->productList());
     ProductList& pList = const_cast<ProductList&>(pReg.productList());
@@ -616,6 +640,17 @@ namespace edm {
     b->Fill();
   }
 
+  void RootOutputFile::writeProcessBlockHelper() {
+    if (!om_->processBlockHelper().processesWithProcessBlockProducts().empty()) {
+      StoredProcessBlockHelper storedProcessBlockHelper(om_->processBlockHelper().processesWithProcessBlockProducts());
+      StoredProcessBlockHelper* pStoredProcessBlockHelper = &storedProcessBlockHelper;
+      TBranch* b = metaDataTree_->Branch(
+          poolNames::processBlockHelperBranchName().c_str(), &pStoredProcessBlockHelper, om_->basketSize(), 0);
+      assert(b);
+      b->Fill();
+    }
+  }
+
   void RootOutputFile::finishEndFile() {
     metaDataTree_->SetEntries(-1);
     RootOutputTree::writeTTree(metaDataTree_);
@@ -624,16 +659,18 @@ namespace edm {
     RootOutputTree::writeTTree(parentageTree_);
 
     // Create branch aliases for all the branches in the
-    // events/lumis/runs trees. The loop is over all types of data
-    // products.
-    for (int i = InEvent; i < NumBranchTypes; ++i) {
-      if (i == InProcess) {
-        // Output for ProcessBlocks is not implemented yet.
-        continue;
+    // events/lumis/runs/processblock trees. The loop is over
+    // all types of data products.
+    for (unsigned int i = 0; i < treePointers_.size(); ++i) {
+      std::string processName;
+      BranchType branchType = InProcess;
+      if (i < InProcess) {
+        branchType = static_cast<BranchType>(i);
+      } else {
+        processName = om_->processBlockHelper().processesWithProcessBlockProducts()[i - InProcess];
       }
-      BranchType branchType = static_cast<BranchType>(i);
-      setBranchAliases(treePointers_[branchType]->tree(), om_->keptProducts()[branchType]);
-      treePointers_[branchType]->writeTree();
+      setBranchAliases(treePointers_[i]->tree(), om_->keptProducts()[branchType], processName);
+      treePointers_[i]->writeTree();
     }
 
     // close the file -- mfp
@@ -655,10 +692,15 @@ namespace edm {
     reportSvc->outputFileClosed(reportToken_);
   }
 
-  void RootOutputFile::setBranchAliases(TTree* tree, SelectedProducts const& branches) const {
+  void RootOutputFile::setBranchAliases(TTree* tree,
+                                        SelectedProducts const& branches,
+                                        std::string const& processName) const {
     if (tree && tree->GetNbranches() != 0) {
       for (auto const& selection : branches) {
         BranchDescription const& pd = *selection.first;
+        if (pd.branchType() == InProcess && processName != pd.processName()) {
+          continue;
+        }
         std::string const& full = pd.branchName() + "obj";
         if (pd.branchAliases().empty()) {
           std::string const& alias = (pd.productInstanceName().empty() ? pd.moduleLabel() : pd.productInstanceName());
@@ -699,11 +741,12 @@ namespace edm {
 
   void RootOutputFile::fillBranches(BranchType const& branchType,
                                     OccurrenceForOutput const& occurrence,
+                                    unsigned int ttreeIndex,
                                     StoredProductProvenanceVector* productProvenanceVecPtr,
                                     ProductProvenanceRetriever const* provRetriever) {
     std::vector<std::unique_ptr<WrapperBase> > dummies;
 
-    OutputItemList& items = om_->selectedOutputItemList()[branchType];
+    OutputItemList& items = om_->selectedOutputItemList()[ttreeIndex];
 
     bool const doProvenance =
         (productProvenanceVecPtr != nullptr) && (om_->dropMetaData() != PoolOutputModule::DropAll);
@@ -733,7 +776,7 @@ namespace edm {
 
       bool produced = item.branchDescription()->produced();
       bool getProd =
-          (produced || !fastCloning || treePointers_[branchType]->uncloned(item.branchDescription()->branchName()));
+          (produced || !fastCloning || treePointers_[ttreeIndex]->uncloned(item.branchDescription()->branchName()));
       bool keepProvenance = doProvenance && (produced || keepProvenanceForPrior);
 
       WrapperBase const* product = nullptr;
@@ -768,7 +811,7 @@ namespace edm {
 
     if (doProvenance)
       productProvenanceVecPtr->assign(provenanceToKeep.begin(), provenanceToKeep.end());
-    treePointers_[branchType]->fillTree();
+    treePointers_[ttreeIndex]->fillTree();
     if (doProvenance)
       productProvenanceVecPtr->clear();
   }

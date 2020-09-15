@@ -147,6 +147,9 @@
  <class name="edm::StoredMergeableRunProductMetadata" ClassVersion="3">
   <version ClassVersion="3" checksum="2293482595"/>
  </class>
+ <class name="edm::StoredProcessBlockHelper" ClassVersion="3">
+  <version ClassVersion="3" checksum="618533679"/>
+ </class>
  <class name="edm::ProcessHistoryID"/>
  <class name="std::set<edm::ProcessHistoryID >"/>
  <class name="std::vector<edm::ProcessHistory>"/>

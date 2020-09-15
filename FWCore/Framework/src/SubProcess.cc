@@ -10,6 +10,7 @@
 #include "DataFormats/Provenance/interface/RunAuxiliary.h"
 #include "DataFormats/Provenance/interface/ThinnedAssociationsHelper.h"
 #include "DataFormats/Provenance/interface/SubProcessParentageHelper.h"
+#include "FWCore/Common/interface/ProcessBlockHelper.h"
 #include "FWCore/Framework/interface/EventForOutput.h"
 #include "FWCore/Framework/interface/EventPrincipal.h"
 #include "FWCore/Framework/interface/FileBlock.h"
@@ -49,6 +50,7 @@ namespace edm {
                          ParameterSet const& topLevelParameterSet,
                          std::shared_ptr<ProductRegistry const> parentProductRegistry,
                          std::shared_ptr<BranchIDListHelper const> parentBranchIDListHelper,
+                         ProcessBlockHelper const& parentProcessBlockHelper,
                          ThinnedAssociationsHelper const& parentThinnedAssociationsHelper,
                          SubProcessParentageHelper const& parentSubProcessParentageHelper,
                          eventsetup::EventSetupsController& esController,
@@ -126,7 +128,7 @@ namespace edm {
     // parameters were not explicitly set.
     validateTopLevelParameterSets(processParameterSet_.get());
 
-    ScheduleItems items(*parentProductRegistry, *this);
+    ScheduleItems items(*parentProductRegistry, *this, parentProcessBlockHelper);
     actReg_ = items.actReg_;
 
     //initialize the services
@@ -150,6 +152,8 @@ namespace edm {
 
     branchIDListHelper_ = items.branchIDListHelper();
     updateBranchIDListHelper(parentBranchIDListHelper->branchIDLists());
+
+    processBlockHelper_ = items.processBlockHelper();
 
     thinnedAssociationsHelper_ = items.thinnedAssociationsHelper();
     thinnedAssociationsHelper_->updateFromParentProcess(
@@ -207,6 +211,7 @@ namespace edm {
                                  topLevelParameterSet,
                                  preg_,
                                  branchIDListHelper(),
+                                 *processBlockHelper_,
                                  *thinnedAssociationsHelper_,
                                  *subProcessParentageHelper_,
                                  esController,

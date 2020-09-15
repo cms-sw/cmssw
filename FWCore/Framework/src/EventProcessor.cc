@@ -121,6 +121,7 @@ namespace edm {
                                          CommonParams const& common,
                                          std::shared_ptr<ProductRegistry> preg,
                                          std::shared_ptr<BranchIDListHelper> branchIDListHelper,
+                                         std::shared_ptr<ProcessBlockHelper> const& processBlockHelper,
                                          std::shared_ptr<ThinnedAssociationsHelper> thinnedAssociationsHelper,
                                          std::shared_ptr<ActivityRegistry> areg,
                                          std::shared_ptr<ProcessConfiguration const> processConfiguration,
@@ -165,6 +166,7 @@ namespace edm {
     InputSourceDescription isdesc(md,
                                   preg,
                                   branchIDListHelper,
+                                  processBlockHelper,
                                   thinnedAssociationsHelper,
                                   areg,
                                   common.maxEventsInput_,
@@ -447,12 +449,13 @@ namespace edm {
                        *common,
                        items.preg(),
                        items.branchIDListHelper(),
+                       items.processBlockHelper(),
                        items.thinnedAssociationsHelper(),
                        items.actReg_,
                        items.processConfiguration(),
                        preallocations_);
 
-    // intialize the Schedule
+    // initialize the Schedule
     schedule_ = items.initSchedule(*parameterSet, hasSubProcesses, preallocations_, &processContext_);
 
     // set the data members
@@ -461,6 +464,7 @@ namespace edm {
     preg_ = items.preg();
     mergeableRunProductProcesses_.setProcessesWithMergeableRunProducts(*preg_);
     branchIDListHelper_ = items.branchIDListHelper();
+    processBlockHelper_ = items.processBlockHelper();
     thinnedAssociationsHelper_ = items.thinnedAssociationsHelper();
     processConfiguration_ = items.processConfiguration();
     processContext_.setProcessConfiguration(processConfiguration_.get());
@@ -501,6 +505,7 @@ namespace edm {
                                  *parameterSet,
                                  preg(),
                                  branchIDListHelper(),
+                                 *processBlockHelper_,
                                  *thinnedAssociationsHelper_,
                                  SubProcessParentageHelper(),
                                  *espController_,

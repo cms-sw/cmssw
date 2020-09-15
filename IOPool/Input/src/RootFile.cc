@@ -19,9 +19,11 @@
 #include "DataFormats/Provenance/interface/ProcessHistoryRegistry.h"
 #include "DataFormats/Provenance/interface/ProductRegistry.h"
 #include "DataFormats/Provenance/interface/StoredMergeableRunProductMetadata.h"
+#include "DataFormats/Provenance/interface/StoredProcessBlockHelper.h"
 #include "DataFormats/Provenance/interface/StoredProductProvenance.h"
 #include "DataFormats/Provenance/interface/ThinnedAssociationsHelper.h"
 #include "DataFormats/Provenance/interface/RunID.h"
+#include "FWCore/Common/interface/ProcessBlockHelper.h"
 #include "FWCore/Framework/interface/FileBlock.h"
 #include "FWCore/Framework/interface/EventPrincipal.h"
 #include "FWCore/Framework/interface/ProductSelector.h"
@@ -155,6 +157,7 @@ namespace edm {
                      ProductSelectorRules const& productSelectorRules,
                      InputType inputType,
                      std::shared_ptr<BranchIDListHelper> branchIDListHelper,
+                     ProcessBlockHelper* processBlockHelper,
                      std::shared_ptr<ThinnedAssociationsHelper> thinnedAssociationsHelper,
                      std::vector<BranchID> const* associationsFromSecondary,
                      std::shared_ptr<DuplicateChecker> duplicateChecker,
@@ -276,6 +279,14 @@ namespace edm {
     IndexIntoFile* iifPtr = &indexIntoFile_;
     if (metaDataTree->FindBranch(poolNames::indexIntoFileBranchName().c_str()) != nullptr) {
       metaDataTree->SetBranchAddress(poolNames::indexIntoFileBranchName().c_str(), &iifPtr);
+    }
+
+    StoredProcessBlockHelper storedProcessBlockHelper;
+    StoredProcessBlockHelper* pStoredProcessBlockHelper = &storedProcessBlockHelper;
+    if (inputType == InputType::Primary) {
+      if (metaDataTree->FindBranch(poolNames::processBlockHelperBranchName().c_str()) != nullptr) {
+        metaDataTree->SetBranchAddress(poolNames::processBlockHelperBranchName().c_str(), &pStoredProcessBlockHelper);
+      }
     }
 
     StoredMergeableRunProductMetadata* smrc = nullptr;
@@ -538,6 +549,7 @@ namespace edm {
         thinnedAssociationsHelper->updateFromSecondaryInput(*fileThinnedAssociationsHelper_,
                                                             *associationsFromSecondary);
       } else if (inputType == InputType::Primary) {
+        processBlockHelper->initializeFromPrimaryInput(*newReg, storedProcessBlockHelper);
         thinnedAssociationsHelper->updateFromPrimaryInput(*fileThinnedAssociationsHelper_);
       }
 

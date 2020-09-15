@@ -128,6 +128,7 @@ namespace edm {
                                       input_.productSelectorRules(),
                                       InputType::Primary,
                                       input_.branchIDListHelper(),
+                                      input_.processBlockHelper().get(),
                                       input_.thinnedAssociationsHelper(),
                                       nullptr,  // associationsFromSecondary
                                       duplicateChecker(),

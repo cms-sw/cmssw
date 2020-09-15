@@ -56,6 +56,7 @@ namespace edm {
         productRegistry_(desc.productRegistry_),
         processHistoryRegistry_(new ProcessHistoryRegistry),
         branchIDListHelper_(desc.branchIDListHelper_),
+        processBlockHelper_(desc.processBlockHelper_),
         thinnedAssociationsHelper_(desc.thinnedAssociationsHelper_),
         processGUID_(createGlobalIdentifier(true)),
         time_(),

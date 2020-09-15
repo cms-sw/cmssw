@@ -78,6 +78,7 @@ namespace edm {
     std::string const fileIndex = "FileIndex";
     std::string const indexIntoFile = "IndexIntoFile";
     std::string const mergeableRunProductMetadata = "MergeableRunProductMetadata";
+    std::string const processBlockHelper = "ProcessBlockHelper";
     std::string const eventHistory = "EventHistory";
     std::string const eventBranchMapper = "EventBranchMapper";
 
@@ -90,9 +91,14 @@ namespace edm {
 
   std::string const& BranchTypeToString(BranchType const& branchType) { return branchTypeNames[branchType]; }
 
-  std::string const& BranchTypeToProductTreeName(BranchType const& branchType) {
+  std::string BranchTypeToProductTreeName(BranchType const& branchType) {
     assert(branchType < eventLumiRunSize);
     return treeNames[branchType];
+  }
+
+  std::string BranchTypeToProductTreeName(BranchType const& branchType, std::string const& processName) {
+    assert(branchType == InProcess);
+    return branchTypeNames[InProcess] + processName;
   }
 
   std::string const& BranchTypeToMetaDataTreeName(BranchType const& branchType) {
@@ -192,6 +198,9 @@ namespace edm {
 
     // Branch on MetaData Tree
     std::string const& mergeableRunProductMetadataBranchName() { return mergeableRunProductMetadata; }
+
+    // Branch on MetaData Tree
+    std::string const& processBlockHelperBranchName() { return processBlockHelper; }
 
     // Branch on Event History Tree
     std::string const& eventHistoryBranchName() { return eventHistory; }
