@@ -41,8 +41,8 @@ TrackerRecoGeometryESProducer::TrackerRecoGeometryESProducer(const edm::Paramete
   // aligned and a misaligned geometry in the same job.
   // The default parameter ("") makes this change transparent to the user
   // See FastSimulation/Configuration/data/ for examples of cfi's.
-  c.setConsumes(geomToken_, edm::ESInputTag("", p.getUntrackedParameter<std::string>("trackerGeometryLabel")));
-  c.setConsumes(tTopToken_);
+  tTopToken_ = c.consumes();
+  geomToken_ = c.consumes(edm::ESInputTag("", p.getUntrackedParameter<std::string>("trackerGeometryLabel")));
 }
 
 std::unique_ptr<GeometricSearchTracker> TrackerRecoGeometryESProducer::produce(

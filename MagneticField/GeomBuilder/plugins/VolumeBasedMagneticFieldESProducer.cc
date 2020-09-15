@@ -52,9 +52,9 @@ VolumeBasedMagneticFieldESProducer::VolumeBasedMagneticFieldESProducer(const edm
       conf_{iConfig, debug_},
       version_{iConfig.getParameter<std::string>("version")} {
   auto cc = setWhatProduced(this, iConfig.getUntrackedParameter<std::string>("label", ""));
-  cc.setConsumes(cpvToken_, edm::ESInputTag{"", "magfield"});
+  cpvToken_ = cc.consumes(edm::ESInputTag{"", "magfield"});
   if (useParametrizedTrackerField_) {
-    cc.setConsumes(paramFieldToken_, edm::ESInputTag{"", iConfig.getParameter<string>("paramLabel")});
+    paramFieldToken_ = cc.consumes(edm::ESInputTag{"", iConfig.getParameter<string>("paramLabel")});
   }
 }
 

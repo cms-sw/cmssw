@@ -35,9 +35,9 @@ SteppingHelixPropagatorESProducer::SteppingHelixPropagatorESProducer(const edm::
     : pset_{p}, setVBFPointer_{pset_.getParameter<bool>("SetVBFPointer")} {
   std::string myname = p.getParameter<std::string>("ComponentName");
   auto c = setWhatProduced(this, myname);
-  c.setConsumes(magToken_);
+  magToken_ = c.consumes();
   if (setVBFPointer_) {
-    c.setConsumes(vbMagToken_, edm::ESInputTag("", pset_.getParameter<std::string>("VBFName")));
+    vbMagToken_ = c.consumes(edm::ESInputTag("", pset_.getParameter<std::string>("VBFName")));
   }
 }
 
