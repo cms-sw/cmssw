@@ -30,14 +30,14 @@ SiPhase2OuterTrackerFakeLorentzAngleESSource::SiPhase2OuterTrackerFakeLorentzAng
   // the following line is needed to tell the framework what
   // data is being produced
   if (recordName_ == "LorentzAngle") {
-    setWhatProduced(this, &SiPhase2OuterTrackerFakeLorentzAngleESSource::produceOTLA)
-        .setConsumes(m_tTopoToken)
-        .setConsumes(m_geomDetToken);
+    auto cc = setWhatProduced(this, &SiPhase2OuterTrackerFakeLorentzAngleESSource::produceOTLA);
+    m_tTopoToken = cc.consumes();
+    m_geomDetToken = cc.consumes();
     findingRecord<SiPhase2OuterTrackerLorentzAngleRcd>();
   } else if (recordName_ == "SimLorentzAngle") {
-    setWhatProduced(this, &SiPhase2OuterTrackerFakeLorentzAngleESSource::produceOTSimLA)
-        .setConsumes(m_tTopoToken)
-        .setConsumes(m_geomDetToken);
+    auto cc = setWhatProduced(this, &SiPhase2OuterTrackerFakeLorentzAngleESSource::produceOTSimLA);
+    m_tTopoToken = cc.consumes();
+    m_geomDetToken = cc.consumes();
     findingRecord<SiPhase2OuterTrackerLorentzAngleSimRcd>();
   }
 }

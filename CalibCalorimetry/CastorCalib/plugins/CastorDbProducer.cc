@@ -79,14 +79,14 @@ CastorDbProducer::CastorDbProducer(const edm::ParameterSet& fConfig)
     : ESProducer(), mDumpRequest(), mDumpStream(nullptr) {
   //the following line is needed to tell the framework what
   // data is being produced
-  setWhatProduced(this)
-      .setConsumes(pedestalsToken_)
-      .setConsumes(pedestalWidthsToken_)
-      .setConsumes(gainsToken_)
-      .setConsumes(gainWidthsToken_)
-      .setConsumes(qieDataToken_)
-      .setConsumes(channelQualityToken_)
-      .setConsumes(electronicsMapToken_);
+  auto cc = setWhatProduced(this);
+  pedestalsToken_ = cc.consumes();
+  pedestalWidthsToken_ = cc.consumes();
+  gainsToken_ = cc.consumes();
+  gainWidthsToken_ = cc.consumes();
+  qieDataToken_ = cc.consumes();
+  channelQualityToken_ = cc.consumes();
+  electronicsMapToken_ = cc.consumes();
 
   //now do what ever other initialization is needed
 
