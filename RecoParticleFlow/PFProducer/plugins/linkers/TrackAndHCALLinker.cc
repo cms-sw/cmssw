@@ -47,13 +47,15 @@ DEFINE_EDM_PLUGIN(BlockElementLinkerFactory, TrackAndHCALLinker, "TrackAndHCALLi
 
 bool TrackAndHCALLinker::linkPrefilter(const reco::PFBlockElement* elem1, const reco::PFBlockElement* elem2) const {
   bool result = false;
-  // Track-HCAL KDTree multilinks are stored to HCAL's elem
+  // Track-HCAL KDTree multilinks are stored to track's elem
   switch (elem1->type()) {
     case reco::PFBlockElement::TRACK:
-      result = (elem2->isMultilinksValide() && !elem2->getMultilinks().empty());
+      result = (elem1->isMultilinksValide(elem2->type()) && !elem1->getMultilinks(elem2->type()).empty() &&
+                elem2->isMultilinksValide(elem1->type()));
       break;
     case reco::PFBlockElement::HCAL:
-      result = (elem1->isMultilinksValide() && !elem1->getMultilinks().empty());
+      result = (elem2->isMultilinksValide(elem1->type()) && !elem2->getMultilinks(elem1->type()).empty() &&
+                elem1->isMultilinksValide(elem2->type()));
     default:
       break;
   }
@@ -75,6 +77,7 @@ double TrackAndHCALLinker::testLink(const reco::PFBlockElement* elem1, const rec
   const reco::PFClusterRef& clusterref = hcalelem->clusterRef();
   const reco::PFCluster::REPPoint& hcalreppos = clusterref->positionREP();
   const reco::PFTrajectoryPoint& tkAtHCALEnt = trackref->extrapolatedPoint(trajectoryLayerEntrance_);
+  const reco::PFCluster::REPPoint& tkreppos = tkAtHCALEnt.positionREP();
   // Check exit point
   double dHEta = 0.;
   double dHPhi = 0.;
@@ -85,15 +88,18 @@ double TrackAndHCALLinker::testLink(const reco::PFBlockElement* elem1, const rec
     dHPhi = reco::deltaPhi(tkAtHCALEx.positionREP().Phi(), tkAtHCALEnt.positionREP().Phi());
     dRHCALEx = tkAtHCALEx.position().R();
   }
-  if (useKDTree_ && hcalelem->isMultilinksValide()) {  //KDTree Algo
-    const reco::PFMultilinksType& multilinks = hcalelem->getMultilinks();
-    const double tracketa = tkAtHCALEnt.positionREP().Eta();
-    const double trackphi = tkAtHCALEnt.positionREP().Phi();
+
+  // Check if the linking has been done using the KDTree algo
+  // Glowinski & Gouzevitch
+  if (useKDTree_ && tkelem->isMultilinksValide(hcalelem->type())) {  //KDTree Algo
+    const reco::PFMultilinksType& multilinks = tkelem->getMultilinks(hcalelem->type());
+    const double hcalphi = hcalreppos.Phi();
+    const double hcaleta = hcalreppos.Eta();
 
     // Check if the link Track/Hcal exist
     reco::PFMultilinksType::const_iterator mlit = multilinks.begin();
     for (; mlit != multilinks.end(); ++mlit)
-      if ((mlit->first == trackphi) && (mlit->second == tracketa))
+      if ((mlit->first == hcalphi) && (mlit->second == hcaleta))
         break;
 
     // If the link exist, we fill dist and linktest.
@@ -101,7 +107,7 @@ double TrackAndHCALLinker::testLink(const reco::PFBlockElement* elem1, const rec
     if (mlit != multilinks.end()) {
       // when checkExit_ is false
       if (!checkExit_) {
-        dist = LinkByRecHit::computeDist(hcalreppos.Eta(), hcalreppos.Phi(), tracketa, trackphi);
+        dist = LinkByRecHit::computeDist(hcaleta, hcalphi, tkreppos.Eta(), tkreppos.Phi());
       }
       // when checkExit_ is true
       else {
@@ -109,12 +115,12 @@ double TrackAndHCALLinker::testLink(const reco::PFBlockElement* elem1, const rec
         //In this case calculate the distance based on the first crossing since
         //the looper will probably never make it to the endcap
         if (dRHCALEx < tkAtHCALEnt.position().R()) {
-          dist = LinkByRecHit::computeDist(hcalreppos.Eta(), hcalreppos.Phi(), tracketa, trackphi);
+          dist = LinkByRecHit::computeDist(hcaleta, hcalphi, tkreppos.Eta(), tkreppos.Phi());
           edm::LogWarning("TrackHCALLinker ")
               << "Special case of linking with track hitting HCAL and looping back in the tracker ";
         } else {
-          dist = LinkByRecHit::computeDist(
-              hcalreppos.Eta(), hcalreppos.Phi(), tracketa + 0.1 * dHEta, trackphi + 0.1 * dHPhi);
+          dist =
+              LinkByRecHit::computeDist(hcaleta, hcalphi, tkreppos.Eta() + 0.1 * dHEta, tkreppos.Phi() + 0.1 * dHPhi);
         }
       }  // checkExit_
     }    // multilinks
