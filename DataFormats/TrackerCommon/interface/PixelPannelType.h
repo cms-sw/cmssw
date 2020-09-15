@@ -1,7 +1,7 @@
-#ifndef DataFormats_SiPixelDetId_PixelPannelType_H
-#define DataFormats_SiPixelDetId_PixelPannelType_H
+#ifndef DataFormats_TrackerCommon_PixelPannelType_H
+#define DataFormats_TrackerCommon_PixelPannelType_H
 
-#include "DataFormats/SiPixelDetId/interface/PixelEndcapName.h"
+#include "DataFormats/TrackerCommon/interface/PixelEndcapName.h"
 
 class PixelPannelType {
 public:

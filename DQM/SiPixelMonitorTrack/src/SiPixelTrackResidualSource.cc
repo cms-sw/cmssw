@@ -27,7 +27,7 @@
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 #include "Geometry/Records/interface/TrackerTopologyRcd.h"
 //#include "DataFormats/SiPixelDetId/interface/PixelBarrelNameWrapper.h"
-#include "DataFormats/SiPixelDetId/interface/PixelBarrelName.h"
+#include "DataFormats/TrackerCommon/interface/PixelBarrelName.h"
 #include "DataFormats/SiPixelDetId/interface/PixelBarrelNameUpgrade.h"
 #include "DataFormats/TrackingRecHit/interface/TrackingRecHitFwd.h"
 

@@ -1,4 +1,4 @@
-#include "DataFormats/SiPixelDetId/interface/PixelBarrelName.h"
+#include "DataFormats/TrackerCommon/interface/PixelBarrelName.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
