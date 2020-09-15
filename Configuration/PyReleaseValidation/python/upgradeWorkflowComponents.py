@@ -151,8 +151,10 @@ upgradeWFs['baseline'] = UpgradeWorkflow_baseline(
         'DigiTrigger',
         'RecoLocal',
         'Reco',
+        'RecoFakeHLT',
         'RecoGlobal',
         'HARVEST',
+        'HARVESTFakeHLT',
         'FastSim',
         'HARVESTFast',
         'HARVESTGlobal',
@@ -858,7 +860,7 @@ upgradeProperties[2017] = {
         'GT' : 'auto:phase1_2017_realistic',
         'HLTmenu': '@relval2017',
         'Era' : 'Run2_2017',
-        'ScenToRun' : ['GenSim','Digi','Reco','HARVEST','ALCA','Nano'],
+        'ScenToRun' : ['GenSim','Digi','RecoFakeHLT','HARVESTFakeHLT','ALCA','Nano'],
     },
     '2017Design' : {
         'Geom' : 'DB:Extended',
@@ -866,7 +868,7 @@ upgradeProperties[2017] = {
         'HLTmenu': '@relval2017',
         'Era' : 'Run2_2017',
         'BeamSpot': 'GaussSigmaZ4cm',
-        'ScenToRun' : ['GenSim','Digi','Reco','HARVEST'],
+        'ScenToRun' : ['GenSim','Digi','RecoFakeHLT','HARVESTFakeHLT'],
     },
     '2018' : {
         'Geom' : 'DB:Extended',
@@ -874,7 +876,7 @@ upgradeProperties[2017] = {
         'HLTmenu': '@relval2018',
         'Era' : 'Run2_2018',
         'BeamSpot': 'Realistic25ns13TeVEarly2018Collision',
-        'ScenToRun' : ['GenSim','Digi','Reco','HARVEST','ALCA','Nano'],
+        'ScenToRun' : ['GenSim','Digi','RecoFakeHLT','HARVESTFakeHLT','ALCA','Nano'],
     },
     '2018Design' : {
         'Geom' : 'DB:Extended',
@@ -882,7 +884,7 @@ upgradeProperties[2017] = {
         'HLTmenu': '@relval2018',
         'Era' : 'Run2_2018',
         'BeamSpot': 'GaussSigmaZ4cm',
-        'ScenToRun' : ['GenSim','Digi','Reco','HARVEST'],
+        'ScenToRun' : ['GenSim','Digi','RecoFakeHLT','HARVESTFakeHLT'],
     },
     '2021' : {
         'Geom' : 'DB:Extended',
