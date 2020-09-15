@@ -925,14 +925,16 @@ ElecVars AntiElectronIDMVA6<TauType, ElectronType>::getElecVars(const ElectronRe
   float elecEgamma = 0.;
   reco::SuperClusterRef pfSuperCluster = theEleRef->superCluster();
   if (pfSuperCluster.isNonnull() && pfSuperCluster.isAvailable()) {
-    for (reco::CaloCluster_iterator pfCluster = pfSuperCluster->clustersBegin();
-         pfCluster != pfSuperCluster->clustersEnd();
-         ++pfCluster) {
-      double pfClusterEn = (*pfCluster)->energy();
-      if (pfCluster == pfSuperCluster->clustersBegin())
-        elecEe += pfClusterEn;
-      else
-        elecEgamma += pfClusterEn;
+    if (!isPhase2_) {
+      for (reco::CaloCluster_iterator pfCluster = pfSuperCluster->clustersBegin();
+           pfCluster != pfSuperCluster->clustersEnd();
+           ++pfCluster) {
+        double pfClusterEn = (*pfCluster)->energy();
+        if (pfCluster == pfSuperCluster->clustersBegin())
+          elecEe += pfClusterEn;
+        else
+          elecEgamma += pfClusterEn;
+      }
     }
     elecVars.superClusterEtaWidth = pfSuperCluster->etaWidth();
     elecVars.superClusterPhiWidth = pfSuperCluster->phiWidth();
