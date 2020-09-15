@@ -8,7 +8,7 @@ def _label(tag):
         t = cms.InputTag(tag)
     return t.getModuleLabel()+t.getProductInstanceLabel()
 
-def customiseTrackingNtupleTool(process, isRECO = True):
+def customiseTrackingNtupleTool(process, isRECO = True, mergeIters = False):
     process.load("Validation.RecoTrack.trackingNtuple_cff")
     process.TFileService = cms.Service("TFileService",
         fileName = cms.string('trackingNtuple.root')
@@ -43,6 +43,14 @@ def customiseTrackingNtupleTool(process, isRECO = True):
         process.trackingNtupleSequence.insert(0,process.trackingParticlesIntime+process.simHitTPAssocProducer)
         process.trackingNtupleSequence.remove(process.hltTrackValidator)
         process.trackingNtupleSequence += process.hltSiStripRecHits + process.trackingNtuple
+
+    #combine all *StepTracks (TODO: write one for HLT)
+    if mergeIters and isRECO:
+        process.mergedStepTracks = cms.EDProducer("TrackSimpleMerger",
+            src = cms.VInputTag(m.replace("Seeds", "Tracks").replace("seedTracks", "") for m in process.trackingNtuple.seedTracks)
+        )
+        process.trackingNtupleSequence.insert(0,process.mergedStepTracks)
+        process.trackingNtuple.tracks = "mergedStepTracks"
 
     ntuplePath = cms.Path(process.trackingNtupleSequence)
 
@@ -83,6 +91,10 @@ def customiseTrackingNtupleTool(process, isRECO = True):
 
 def customiseTrackingNtuple(process):
     customiseTrackingNtupleTool(process, isRECO = True)
+    return process
+
+def customiseTrackingNtupleMergeIters(process):
+    customiseTrackingNtupleTool(process, isRECO = True, mergeIters = True)
     return process
 
 def customiseTrackingNtupleHLT(process):
