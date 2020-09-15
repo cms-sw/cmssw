@@ -60,11 +60,11 @@ EcalLaserCorrectionService::EcalLaserCorrectionService(const edm::ParameterSet& 
   // data is being produced
   //  setWhatProduced (this, (dependsOn (&EcalLaserCorrectionService::apdpnCallback)));
 
-  setWhatProduced(this)
-      .setConsumes(alphaToken_)
-      .setConsumes(apdpnRefToken_)
-      .setConsumes(apdpnToken_)
-      .setConsumes(linearToken_);
+  auto cc = setWhatProduced(this);
+  alphaToken_ = cc.consumes();
+  apdpnRefToken_ = cc.consumes();
+  apdpnToken_ = cc.consumes();
+  linearToken_ = cc.consumes();
 
   maxExtrapolationTimeInSec_ = fConfig.getParameter<unsigned int>("maxExtrapolationTimeInSec");
 
