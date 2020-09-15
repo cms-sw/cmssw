@@ -18,15 +18,22 @@ commonParam = cms.PSet(
     disableME1a = cms.bool(False),
     disableME42 = cms.bool(False),
 
+    # switch on HL-LHC algorithms
     runME11Up = cms.bool(False),
     runME21Up = cms.bool(False),
     runME31Up = cms.bool(False),
     runME41Up = cms.bool(False),
 
+    # GEM-CSC integrated triggers
     runME11ILT = cms.bool(False),
     runME21ILT = cms.bool(False),
 
+    # comparator-code algorithm to improve
+    # CLCT position and bending resolution
     runCCLUT = cms.bool(False),
+
+    ## Phase-2 version is not needed for Run-3
+    enableAlctPhase2 = cms.bool(False)
 )
 
 # MPC sorter config for Run1

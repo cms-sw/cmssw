@@ -59,9 +59,7 @@ run2_common.toModify( cscTriggerPrimitiveDigis,
 from Configuration.Eras.Modifier_run3_common_cff import run3_common
 run3_common.toModify( cscTriggerPrimitiveDigis,
                       commonParam = dict(runPhase2 = True,
-                                         runME11Up = True,
-                                         ## Phase-2 version is not needed for Run-3
-                                         enableAlctPhase2 = cms.bool(False))
+                                         runME11Up = True)
 )
 
 ## GEM-CSC ILT in ME1/1
