@@ -309,13 +309,9 @@ VectorHit VectorHitBuilderAlgorithm::buildVectorHit(const StackGeomDet* stack,
       gErrorLower = VectorHit::phase2clusterGlobalPosErr(geomDetUpper);
       gErrorUpper = VectorHit::phase2clusterGlobalPosErr(geomDetLower);
     }
-    const float curvature =
-        curvatureORphi(curvatureMode, gPositionLower, gPositionUpper, gErrorLower, gErrorUpper).first;
-    const float curvatureError =
-        curvatureORphi(curvatureMode, gPositionLower, gPositionUpper, gErrorLower, gErrorUpper).second;
-    const float phi = curvatureORphi(phiMode, gPositionLower, gPositionUpper, gErrorLower, gErrorUpper).first;
 
-    VectorHit vh = VectorHit(*stack, vh2Dzx, vh2Dzy, lowerOmni, upperOmni, curvature, curvatureError, phi);
+    const auto& curvatureAndPhi = curvatureANDphi(gPositionLower, gPositionUpper, gErrorLower, gErrorUpper);
+    VectorHit vh = VectorHit(*stack, vh2Dzx, vh2Dzy, lowerOmni, upperOmni, curvatureAndPhi.first.first, curvatureAndPhi.first.second, curvatureAndPhi.second);
     return vh;
   }
 
@@ -392,8 +388,7 @@ void VectorHitBuilderAlgorithm::fit(float x[2],
   dir = LocalVector(slope, 0., slopeZ);
 }
 
-std::pair<float, float> VectorHitBuilderAlgorithm::curvatureORphi(curvatureOrPhi curvORphi,
-                                                                  Global3DPoint gPositionLower,
+std::pair<std::pair<float, float>,float> VectorHitBuilderAlgorithm::curvatureANDphi(Global3DPoint gPositionLower,
                                                                   Global3DPoint gPositionUpper,
                                                                   GlobalError gErrorLower,
                                                                   GlobalError gErrorUpper) const {
@@ -535,13 +530,13 @@ std::pair<float, float> VectorHitBuilderAlgorithm::curvatureORphi(curvatureOrPhi
                      temp[3] * curvatureJacobian[3];
 
   } else {
-    return std::make_pair(0.0, 0.0);
+    return std::make_pair(std::make_pair(0.,0.), 0.0);
   }
-  switch (curvORphi) {
+/*  switch (curvORphi) {
     case curvatureMode:
       return std::make_pair(curvature, errorCurvature);
     case phiMode:
       return std::make_pair(phi, 0.0);
-  }
-  return std::make_pair(0.0, 0.0);
+  }*/
+  return std::make_pair(std::make_pair(curvature, errorCurvature), phi);
 }
