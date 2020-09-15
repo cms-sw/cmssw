@@ -34,17 +34,15 @@ private:
 };
 
 SiStripRegionConnectivity::SiStripRegionConnectivity(const edm::ParameterSet& pset)
-    :
-
-      etadivisions_(pset.getUntrackedParameter<unsigned int>("EtaDivisions", 10)),
+    : etadivisions_(pset.getUntrackedParameter<unsigned int>("EtaDivisions", 10)),
       phidivisions_(pset.getUntrackedParameter<unsigned int>("PhiDivisions", 10)),
       etamax_(pset.getUntrackedParameter<double>("EtaMax", 2.4))
 
 {
-  setWhatProduced(this, &SiStripRegionConnectivity::produceRegionCabling)
-      .setConsumes(detcablingToken_)
-      .setConsumes(tkgeomToken_)
-      .setConsumes(tTopoToken_);
+  auto cc = setWhatProduced(this, &SiStripRegionConnectivity::produceRegionCabling);
+  detcablingToken_ = cc.consumes();
+  tkgeomToken_ = cc.consumes();
+  tTopoToken_ = cc.consumes();
 }
 
 SiStripRegionConnectivity::~SiStripRegionConnectivity() {}
