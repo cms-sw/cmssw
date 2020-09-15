@@ -5,6 +5,7 @@
 */
 
 #include "DataFormats/Provenance/interface/ModuleDescription.h"
+#include "FWCore/Common/interface/FWCoreCommonFwd.h"
 #include "FWCore/Framework/interface/EventPrincipal.h"
 #include "FWCore/Framework/interface/ExceptionActions.h"
 #include "FWCore/Framework/interface/ExceptionHelpers.h"
@@ -104,7 +105,7 @@ namespace edm {
                                ServiceToken const& token,
                                bool cleaningUpAfterException = false);
 
-    void beginJob(ProductRegistry const&, eventsetup::ESRecordsToProxyIndices const&);
+    void beginJob(ProductRegistry const&, eventsetup::ESRecordsToProxyIndices const&, ProcessBlockHelperBase const&);
     void endJob(ExceptionCollector& collector);
 
     /// Return a vector allowing const access to all the

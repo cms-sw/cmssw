@@ -6,6 +6,7 @@
 #include "DataFormats/Provenance/interface/ProcessHistoryRegistry.h"
 #include "DataFormats/Provenance/interface/SubProcessParentageHelper.h"
 
+#include "FWCore/Common/interface/ProcessBlockHelper.h"
 #include "FWCore/Framework/src/CommonParams.h"
 #include "FWCore/Framework/interface/EDLooperBase.h"
 #include "FWCore/Framework/interface/EventPrincipal.h"
@@ -130,6 +131,7 @@ namespace edm {
                                          CommonParams const& common,
                                          std::shared_ptr<ProductRegistry> preg,
                                          std::shared_ptr<BranchIDListHelper> branchIDListHelper,
+                                         std::shared_ptr<ProcessBlockHelper> const& processBlockHelper,
                                          std::shared_ptr<ThinnedAssociationsHelper> thinnedAssociationsHelper,
                                          std::shared_ptr<ActivityRegistry> areg,
                                          std::shared_ptr<ProcessConfiguration const> processConfiguration,
@@ -174,6 +176,7 @@ namespace edm {
     InputSourceDescription isdesc(md,
                                   preg,
                                   branchIDListHelper,
+                                  processBlockHelper,
                                   thinnedAssociationsHelper,
                                   areg,
                                   common.maxEventsInput_,
@@ -485,18 +488,22 @@ namespace edm {
     streamQueues_.resize(nStreams);
     streamLumiStatus_.resize(nStreams);
 
+    processBlockHelper_ = std::make_shared<ProcessBlockHelper>();
+
     // initialize the input source
     input_ = makeInput(*parameterSet,
                        *common,
                        items.preg(),
                        items.branchIDListHelper(),
+                       get_underlying_safe(processBlockHelper_),
                        items.thinnedAssociationsHelper(),
                        items.actReg_,
                        items.processConfiguration(),
                        preallocations_);
 
-    // intialize the Schedule
-    schedule_ = items.initSchedule(*parameterSet, hasSubProcesses, preallocations_, &processContext_);
+    // initialize the Schedule
+    schedule_ =
+        items.initSchedule(*parameterSet, hasSubProcesses, preallocations_, &processContext_, *processBlockHelper_);
 
     // set the data members
     act_table_ = std::move(items.act_table_);
@@ -519,7 +526,9 @@ namespace edm {
                                                  thinnedAssociationsHelper(),
                                                  *processConfiguration_,
                                                  historyAppender_.get(),
-                                                 index);
+                                                 index,
+                                                 true /*primary process*/,
+                                                 &*processBlockHelper_);
       principalCache_.insert(std::move(ep));
     }
 
@@ -544,6 +553,7 @@ namespace edm {
                                  *parameterSet,
                                  preg(),
                                  branchIDListHelper(),
+                                 *processBlockHelper_,
                                  *thinnedAssociationsHelper_,
                                  SubProcessParentageHelper(),
                                  *espController_,
@@ -663,7 +673,7 @@ namespace edm {
       throw;
     }
     espController_->finishConfiguration();
-    schedule_->beginJob(*preg_, esp_->recordsToProxyIndices());
+    schedule_->beginJob(*preg_, esp_->recordsToProxyIndices(), *processBlockHelper_);
     if (looper_) {
       constexpr bool mustPrefetchMayGet = true;
       auto const processBlockLookup = preg_->productLookup(InProcess);
@@ -889,7 +899,7 @@ namespace edm {
   void EventProcessor::closeOutputFiles() {
     schedule_->closeOutputFiles();
     for_all(subProcesses_, [](auto& subProcess) { subProcess.closeOutputFiles(); });
-
+    processBlockHelper_->clearAfterOutputFilesClose();
     FDEBUG(1) << "\tcloseOutputFiles\n";
   }
 
@@ -991,15 +1001,10 @@ namespace edm {
   }
 
   void EventProcessor::inputProcessBlocks() {
+    input_->fillProcessBlockHelper();
     ProcessBlockPrincipal& processBlockPrincipal = principalCache_.inputProcessBlockPrincipal();
-    // For now the input source always returns false from readProcessBlock,
-    // so this does nothing at all.
-    // Eventually the ProcessBlockPrincipal needs to be properly filled
-    // and cleared. The delayed reader needs to be set. The correct process name
-    // needs to be supplied.
-    while (input_->readProcessBlock()) {
-      DelayedReader* reader = nullptr;
-      processBlockPrincipal.fillProcessBlockPrincipal(processConfiguration_->processName(), reader);
+    while (input_->nextProcessBlock(processBlockPrincipal)) {
+      readProcessBlock(processBlockPrincipal);
 
       using Traits = OccurrenceTraits<ProcessBlockPrincipal, BranchActionProcessBlockInput>;
       FinalWaitingTask globalWaitTask;
@@ -1687,6 +1692,12 @@ namespace edm {
         std::rethrow_exception(*(globalWaitTask.exceptionPtr()));
       }
     }
+  }
+
+  void EventProcessor::readProcessBlock(ProcessBlockPrincipal& processBlockPrincipal) {
+    SendSourceTerminationSignalIfException sentry(actReg_.get());
+    input_->readProcessBlock(processBlockPrincipal);
+    sentry.completedSuccessfully();
   }
 
   std::pair<ProcessHistoryID, RunNumber_t> EventProcessor::readRun() {

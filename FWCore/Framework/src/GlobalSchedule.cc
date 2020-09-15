@@ -91,8 +91,9 @@ namespace edm {
   void GlobalSchedule::endJob(ExceptionCollector& collector) { workerManagers_[0].endJob(collector); }
 
   void GlobalSchedule::beginJob(ProductRegistry const& iRegistry,
-                                eventsetup::ESRecordsToProxyIndices const& iESIndices) {
-    workerManagers_[0].beginJob(iRegistry, iESIndices);
+                                eventsetup::ESRecordsToProxyIndices const& iESIndices,
+                                ProcessBlockHelperBase const& processBlockHelperBase) {
+    workerManagers_[0].beginJob(iRegistry, iESIndices, processBlockHelperBase);
   }
 
   void GlobalSchedule::replaceModule(maker::ModuleHolder* iMod, std::string const& iLabel) {
