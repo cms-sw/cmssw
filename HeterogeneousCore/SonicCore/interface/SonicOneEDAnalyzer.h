@@ -30,8 +30,6 @@ public:
   ~SonicOneEDAnalyzer() override = default;
 
   //derived classes still use a dedicated acquire() interface that incorporates client_.input() for consistency
-  void acquire(edm::Event const& iEvent, edm::EventSetup const& iSetup, edm::WaitingTaskWithArenaHolder holder) final {
-  }
   virtual void acquire(edm::Event const& iEvent, edm::EventSetup const& iSetup, Input& iInput) = 0;
   //derived classes use a dedicated analyze() interface that incorporates client_.output()
   void analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup) final {

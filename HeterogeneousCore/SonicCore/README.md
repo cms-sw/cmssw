@@ -5,6 +5,7 @@ SONIC: Services for Optimized Network Inference on Coprocessors
 ## For analyzers
 
 The `SonicEDProducer` class template extends the basic Stream producer module in CMSSW.
+Similarly, `SonicEDFilter` extends the basic Stream filter module (replace `void produce` with `bool filter` below).
 
 To implement a concrete derived producer class, the following skeleton can be used:
 ```cpp
@@ -52,6 +53,10 @@ The `mode` and `allowedTries` parameters are always necessary (example values ar
 These parameters are described in the next section.
 
 An example producer can be found in the [test](./test) folder.
+
+In addition, there is a `SonicOneEDAnalyzer` class template for user analysis, e.g. to produce simple ROOT files.
+Only `Sync` mode is supported for clients used with One modules,
+but otherwise, the above template be followed (replace `void produce(edm::Event&` with `void analyze(edm::Event const&` above).
 
 ## For developers
 
