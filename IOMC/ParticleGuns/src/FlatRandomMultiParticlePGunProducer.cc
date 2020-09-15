@@ -6,13 +6,13 @@
 #include "SimDataFormats/GeneratorProducts/interface/GenEventInfoProduct.h"
 
 #include "FWCore/Framework/interface/Event.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Utilities/interface/RandomNumberGenerator.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "CLHEP/Random/RandFlat.h"
 
-//#define DebugLog
 using namespace edm;
 
 FlatRandomMultiParticlePGunProducer::FlatRandomMultiParticlePGunProducer(const ParameterSet& pset)
@@ -27,23 +27,18 @@ FlatRandomMultiParticlePGunProducer::FlatRandomMultiParticlePGunProducer(const P
 
   produces<HepMCProduct>("unsmeared");
   produces<GenEventInfoProduct>();
-#ifdef DebugLog
-  std::cout << "Internal FlatRandomPGun is initialzed for " << fPartIDs.size() << " particles in momentum range "
-            << fMinP_ << ":" << fMaxP_ << std::endl;
+
+  edm::LogVerbatim("ParticleGun") << "FlatRandomMultiParticlePGun is initialzed for " << fPartIDs.size()
+                                  << " particles in momentum range " << fMinP_ << ":" << fMaxP_;
   for (unsigned int k = 0; k < fPartIDs.size(); ++k)
-    std::cout << " [" << k << "] " << fPartIDs[k] << ":" << fProbParticle_[k];
-  std::cout << std::endl;
-#endif
+    edm::LogVerbatim("ParticleGun") << " [" << k << "] " << fPartIDs[k] << ":" << fProbParticle_[k];
+
   for (unsigned int k = 1; k < fProbParticle_.size(); ++k)
     fProbParticle_[k] += fProbParticle_[k - 1];
-  for (unsigned int k = 0; k < fProbParticle_.size(); ++k)
+  for (unsigned int k = 0; k < fProbParticle_.size(); ++k) {
     fProbParticle_[k] /= fProbParticle_[fProbParticle_.size() - 1];
-#ifdef DebugLog
-  std::cout << "Corrected probabilities:";
-  for (unsigned int k = 0; k < fProbParticle_.size(); ++k)
-    std::cout << "  " << fProbParticle_[k];
-  std::cout << std::endl;
-#endif
+    edm::LogVerbatim("ParticleGun") << "Corrected probaility for " << fPartIDs[k] << ":" << fProbParticle_[k];
+  }
 }
 
 FlatRandomMultiParticlePGunProducer::~FlatRandomMultiParticlePGunProducer() {}
@@ -52,10 +47,8 @@ void FlatRandomMultiParticlePGunProducer::produce(edm::Event& e, const edm::Even
   edm::Service<edm::RandomNumberGenerator> rng;
   CLHEP::HepRandomEngine* engine = &rng->getEngine(e.streamID());
 
-#ifdef DebugLog
   if (fVerbosity > 0)
-    std::cout << "FlatRandomMultiParticlePGunProducer: Begin New Event Generation" << std::endl;
-#endif
+    edm::LogVerbatim("ParticleGun") << "FlatRandomMultiParticlePGunProducer: Begin New Event Generation";
 
   // event loop (well, another step in it...)
   // no need to clean up GenEvent memory - done in HepMCProduct
@@ -75,15 +68,13 @@ void FlatRandomMultiParticlePGunProducer::produce(edm::Event& e, const edm::Even
   int barcode(0), PartID(fPartIDs[0]);
   double r1 = CLHEP::RandFlat::shoot(engine, 0., 1.);
   for (unsigned int ip = 0; ip < fPartIDs.size(); ip++) {
-    if (r1 <= fProbParticle_[ip]) {
-      PartID = fPartIDs[ip];
+    if (r1 <= fProbParticle_[ip])
       break;
-    }
+    PartID = fPartIDs[ip];
   }
-#ifdef DebugLog
   if (fVerbosity > 0)
-    std::cout << "Random " << r1 << " PartID " << PartID << std::endl;
-#endif
+    edm::LogVerbatim("ParticleGun") << "Random " << r1 << " PartID " << PartID;
+
   double mom = CLHEP::RandFlat::shoot(engine, fMinP_, fMaxP_);
   double eta = CLHEP::RandFlat::shoot(engine, fMinEta, fMaxEta);
   double phi = CLHEP::RandFlat::shoot(engine, fMinPhi, fMaxPhi);
@@ -114,10 +105,8 @@ void FlatRandomMultiParticlePGunProducer::produce(edm::Event& e, const edm::Even
   fEvt->set_event_number(e.id().event());
   fEvt->set_signal_process_id(20);
 
-#ifdef DebugLog
-  if (fVerbosity > 0)
+  if (fVerbosity > 1)
     fEvt->print();
-#endif
 
   std::unique_ptr<HepMCProduct> BProduct(new HepMCProduct());
   BProduct->addHepMCData(fEvt);
@@ -125,8 +114,7 @@ void FlatRandomMultiParticlePGunProducer::produce(edm::Event& e, const edm::Even
 
   std::unique_ptr<GenEventInfoProduct> genEventInfo(new GenEventInfoProduct(fEvt));
   e.put(std::move(genEventInfo));
-#ifdef DebugLog
+
   if (fVerbosity > 0)
-    std::cout << " FlatRandomMultiParticlePGunProducer : Event Generation Done " << std::endl;
-#endif
+    edm::LogVerbatim("ParticleGun") << " FlatRandomMultiParticlePGunProducer : Event Generation Done";
 }
