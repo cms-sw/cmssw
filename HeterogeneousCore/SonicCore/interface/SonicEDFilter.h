@@ -41,7 +41,7 @@ public:
     sonic_utils::printDebugTime(client_.debugName(), "dispatch() time: ", t_dispatch_);
 
     auto t0 = std::chrono::high_resolution_clock::now();
-    bool result = produce(iEvent, iSetup, client_.output());
+    bool result = filter(iEvent, iSetup, client_.output());
     sonic_utils::printDebugTime(client_.debugName(), "produce() time: ", t0);
 
     //reset client data
