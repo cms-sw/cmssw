@@ -1,10 +1,11 @@
-<use name="DataFormats/DetId"/>
-<use name="DataFormats/CTPPSDetId"/>
-<use name="DetectorDescription/Core"/>
 <use name="CondFormats/PPSObjects"/>
-<use name="hepmc"/>
-<use name="xerces-c"/>
-<use name="rootmath"/>
+<use name="DataFormats/CTPPSDetId"/>
+<use name="DataFormats/DetId"/>
+<use name="DataFormats/Math"/>
+<use name="DetectorDescription/Core"/>
+<use name="DetectorDescription/DDCMS"/>
+<use name="FWCore/MessageLogger"/>
+<use name="root"/>
 <export>
   <lib name="1"/>
 </export>
