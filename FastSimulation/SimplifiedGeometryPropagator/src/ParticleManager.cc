@@ -211,9 +211,11 @@ std::unique_ptr<fastsim::Particle> fastsim::ParticleManager::nextGenParticle() {
     if (!productionVertex) {
       continue;
     }
+    if (std::abs(particle.pdg_id())<10 || std::abs(particle.pdg_id())==21) {
+      continue;
+    }
 
-    // previously: particle must be produced within the beampipe
-    // now: particles which do not descend from exotics must be produced within the beampipe
+    // particles which do not descend from exotics must be produced within the beampipe
     int exoticRelativeId = 0;
     if (productionVertex->position().perp2() * lengthUnitConversionFactor2_ > beamPipeRadius2_)  //
     {
