@@ -52,7 +52,6 @@ Flag_METFilters = cms.Path(metFilters)
 allMetFilterPaths=['HBHENoiseFilter','HBHENoiseIsoFilter','CSCTightHaloFilter','CSCTightHaloTrkMuUnvetoFilter','CSCTightHalo2015Filter','globalTightHalo2016Filter','globalSuperTightHalo2016Filter','HcalStripHaloFilter','hcalLaserEventFilter','EcalDeadCellTriggerPrimitiveFilter','EcalDeadCellBoundaryEnergyFilter','ecalBadCalibFilter','goodVertices','eeBadScFilter',
                    'ecalLaserCorrFilter','trkPOGFilters','chargedHadronTrackResolutionFilter','muonBadTrackFilter',
                    'BadChargedCandidateFilter','BadPFMuonFilter', 'BadPFMuonDzFilter','hfNoisyHitsFilter','BadChargedCandidateSummer16Filter','BadPFMuonSummer16Filter',
-                   'BadChargedCandidateFilter','BadPFMuonFilter','hfNoisyHitsFilter','BadChargedCandidateSummer16Filter','BadPFMuonSummer16Filter',
                    'trkPOG_manystripclus53X','trkPOG_toomanystripclus53X','trkPOG_logErrorTooManyClusters','METFilters']
 
        
