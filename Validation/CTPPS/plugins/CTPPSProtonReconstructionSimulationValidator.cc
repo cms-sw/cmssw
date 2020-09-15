@@ -78,20 +78,20 @@ private:
 
     PlotGroup()
         : h_de_xi(new TH1D("", ";#xi_{reco} - #xi_{simu}", 100, 0., 0.)),
-          p_de_xi_vs_xi_simu(new TProfile("", ";#xi_{simu};#xi_{reco} - #xi_{simu}", 19, 0.015, 0.205)),
+          p_de_xi_vs_xi_simu(new TProfile("", ";#xi_{simu};#xi_{reco} - #xi_{simu}", 50, 0., 0.25)),
           h_xi_reco_vs_xi_simu(new TH2D("", ";#xi_{simu};#xi_{reco}", 100, 0., 0.30, 100, 0., 0.30)),
 
           h_de_th_x(new TH1D("", ";#theta_{x,reco} - #theta_{x,simu}", 100, 0., 0.)),
-          p_de_th_x_vs_xi_simu(new TProfile("", ";#xi_{simu};#theta_{x,reco} - #theta_{x,simu}", 19, 0.015, 0.205)),
+          p_de_th_x_vs_xi_simu(new TProfile("", ";#xi_{simu};#theta_{x,reco} - #theta_{x,simu}", 50, 0., 0.25)),
 
           h_de_th_y(new TH1D("", ";#theta_{y,reco} - #theta_{y,simu}", 100, 0., 0.)),
-          p_de_th_y_vs_xi_simu(new TProfile("", ";#xi_{simu};#theta_{y,reco} - #theta_{y,simu}", 19, 0.015, 0.205)),
+          p_de_th_y_vs_xi_simu(new TProfile("", ";#xi_{simu};#theta_{y,reco} - #theta_{y,simu}", 50, 0., 0.25)),
 
           h_de_vtx_y(new TH1D("", ";vtx_{y,reco} - vtx_{y,simu}   (mm)", 100, 0., 0.)),
-          p_de_vtx_y_vs_xi_simu(new TProfile("", ";#xi_{simu};vtx_{y,reco} - vtx_{y,simu} (mm)", 19, 0.015, 0.205)),
+          p_de_vtx_y_vs_xi_simu(new TProfile("", ";#xi_{simu};vtx_{y,reco} - vtx_{y,simu} (mm)", 50, 0., 0.25)),
 
           h_de_t(new TH1D("", ";t_{reco} - t_{simu}", 100, -1., +1.)),
-          p_de_t_vs_xi_simu(new TProfile("", ";xi_{simu};t_{reco} - t_{simu}", 19, 0.015, 0.205)),
+          p_de_t_vs_xi_simu(new TProfile("", ";xi_{simu};t_{reco} - t_{simu}", 50, 0., 0.25)),
           p_de_t_vs_t_simu(new TProfile("", ";t_{simu};t_{reco} - t_{simu}", 20, 0., 5.)) {}
 
     static TGraphErrors profileToRMSGraph(TProfile *p, const char *name = "") {

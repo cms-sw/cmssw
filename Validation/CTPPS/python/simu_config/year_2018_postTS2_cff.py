@@ -11,3 +11,7 @@ ctppsRPAlignmentCorrectionsDataESSourceXML.RealFiles = [alignmentFile]
 # timing resolution
 ctppsDirectProtonSimulation.timeResolutionDiamonds45 = "2 * (-0.0031 * (x - 3) + 0.16)"
 ctppsDirectProtonSimulation.timeResolutionDiamonds56 = "2 * ( (x<10)*(-0.0057*(x-10) + 0.110) + (x>=10)*(-0.0022*(x-10) + 0.110) )"
+
+# xangle distribution
+def UseCrossingAngleDistribution(process, f):
+  UseCrossingAngleHistgoram(process, f, "h_xangle_2018_postTS2")
