@@ -74,9 +74,11 @@ private:
   std::unique_ptr<DetGeomDesc> produceMisalignedGD(const VeryForwardMisalignedGeometryRecord&);
   std::unique_ptr<CTPPSGeometry> produceMisalignedTG(const VeryForwardMisalignedGeometryRecord&);
 
-    template<typename REC>
-    std::unique_ptr<DetGeomDesc> produceGD( IdealGeometryRecord const&, const std::optional<REC>&, GDTokens<REC> const&, const char* name);
-
+  template <typename REC>
+  std::unique_ptr<DetGeomDesc> produceGD(IdealGeometryRecord const&,
+                                         const std::optional<REC>&,
+                                         GDTokens<REC> const&,
+                                         const char* name);
 
   static void applyAlignments(const DetGeomDesc&, const CTPPSRPAlignmentCorrectionsData*, DetGeomDesc*&);
   void buildDetGeomDesc(DDFilteredView* fv, DetGeomDesc* gd) const;
@@ -109,8 +111,7 @@ CTPPSGeometryESModule::CTPPSGeometryESModule(const edm::ParameterSet& iConfig)
           setWhatProduced(this, &CTPPSGeometryESModule::produceMisalignedTG).consumes<DetGeomDesc>(edm::ESInputTag())} {
 }
 
-void
-CTPPSGeometryESModule::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+void CTPPSGeometryESModule::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
   desc.addUntracked<unsigned int>("verbosity", 1);
   desc.addUntracked<bool>("legacyDiamondHierarchy", false);
@@ -341,12 +342,11 @@ std::unique_ptr<DetGeomDesc> CTPPSGeometryESModule::produceIdealGD(const IdealGe
 
 //----------------------------------------------------------------------------------------------------
 
-template<typename REC>
-std::unique_ptr<DetGeomDesc>
-CTPPSGeometryESModule::produceGD(IdealGeometryRecord const& iIdealRec,
-                                 std::optional<REC> const& iAlignRec,
-                                 GDTokens<REC> const& iTokens,
-                                 const char* name) {
+template <typename REC>
+std::unique_ptr<DetGeomDesc> CTPPSGeometryESModule::produceGD(IdealGeometryRecord const& iIdealRec,
+                                                              std::optional<REC> const& iAlignRec,
+                                                              GDTokens<REC> const& iTokens,
+                                                              const char* name) {
   // get the input GeometricalDet
   auto const& idealGD = iIdealRec.get(iTokens.idealGDToken_);
 
