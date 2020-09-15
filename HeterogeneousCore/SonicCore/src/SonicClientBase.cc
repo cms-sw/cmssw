@@ -3,7 +3,7 @@
 #include "FWCore/ParameterSet/interface/allowedValues.h"
 
 SonicClientBase::SonicClientBase(const edm::ParameterSet& params)
-    : allowedTries_(params.getUntrackedParameter<unsigned>("allowedTries", 0)) {
+    : allowedTries_(params.getUntrackedParameter<unsigned>("allowedTries", 0)), hasHolder_(false) {
   std::string modeName(params.getParameter<std::string>("mode"));
   if (modeName == "Sync")
     mode_ = SonicMode::Sync;
@@ -29,7 +29,13 @@ void SonicClientBase::setDebugName(const std::string& debugName) {
 }
 
 void SonicClientBase::start(edm::WaitingTaskWithArenaHolder holder) {
+  start();
   holder_ = std::move(holder);
+  hasHolder_ = true;
+}
+
+void SonicClientBase::start() {
+  hasHolder_ = false;
   tries_ = 0;
   if (!debugName_.empty())
     t0_ = std::chrono::high_resolution_clock::now();
@@ -57,7 +63,10 @@ void SonicClientBase::finish(bool success, std::exception_ptr eptr) {
     edm::LogInfo(fullDebugName_) << "Client time: "
                                  << std::chrono::duration_cast<std::chrono::microseconds>(t1 - t0_).count();
   }
-  holder_.doneWaiting(eptr);
+  if(hasHolder_)
+    holder_.doneWaiting(eptr);
+  else if(eptr)
+    std::rethrow_exception(eptr);
 }
 
 void SonicClientBase::fillBasePSetDescription(edm::ParameterSetDescription& desc, bool allowRetry) {

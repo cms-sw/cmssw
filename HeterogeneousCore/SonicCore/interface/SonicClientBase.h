@@ -31,6 +31,9 @@ public:
   //main operation
   virtual void dispatch(edm::WaitingTaskWithArenaHolder holder) { dispatcher_->dispatch(std::move(holder)); }
 
+  //alternate operation when ExternalWork is not used
+  virtual void dispatch() { dispatcher_->dispatch(); }
+
   //helper: does nothing by default
   virtual void reset() {}
 
@@ -42,6 +45,8 @@ protected:
 
   void start(edm::WaitingTaskWithArenaHolder holder);
 
+  void start();
+
   void finish(bool success, std::exception_ptr eptr = std::exception_ptr{});
 
   //members
@@ -49,6 +54,7 @@ protected:
   std::unique_ptr<SonicDispatcher> dispatcher_;
   unsigned allowedTries_, tries_;
   edm::WaitingTaskWithArenaHolder holder_;
+  bool hasHolder_;
 
   //for logging/debugging
   std::string clientName_, debugName_, fullDebugName_;
