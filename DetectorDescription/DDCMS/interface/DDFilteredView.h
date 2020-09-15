@@ -153,41 +153,20 @@ namespace cms {
       return dd4hep::isA<Shape>(solid());
     }
 
-    template <typename... Ts>
-    auto isABox(Ts&&... ts) const -> decltype(isA<dd4hep::Box>(std::forward<Ts>(ts)...)) {
-      return isA<dd4hep::Box>(std::forward<Ts>(ts)...);
-    }
+    bool isABox() const { return isA<dd4hep::Box>(); }
 
-    template <typename... Ts>
-    auto isAConeSeg(Ts&&... ts) const -> decltype(isA<dd4hep::ConeSegment>(std::forward<Ts>(ts)...)) {
-      return isA<dd4hep::ConeSegment>(std::forward<Ts>(ts)...);
-    }
+    bool isAConeSeg() const { return isA<dd4hep::ConeSegment>(); }
 
-    template <typename... Ts>
-    auto isAPseudoTrap(Ts&&... ts) const -> decltype(isA<dd4hep::PseudoTrap>(std::forward<Ts>(ts)...)) {
-      return isA<dd4hep::PseudoTrap>(std::forward<Ts>(ts)...);
-    }
+    bool isAPseudoTrap() const { return isA<dd4hep::PseudoTrap>(); }
 
-    template <typename... Ts>
-    auto isATrapezoid(Ts&&... ts) const -> decltype(isA<dd4hep::Trap>(std::forward<Ts>(ts)...)) {
-      return isA<dd4hep::Trap>(std::forward<Ts>(ts)...);
-    }
+    bool isATrapezoid() const { return isA<dd4hep::Trap>(); }
 
-    template <typename... Ts>
-    auto isATruncTube(Ts&&... ts) const -> decltype(isA<dd4hep::TruncatedTube>(std::forward<Ts>(ts)...)) {
-      return isA<dd4hep::TruncatedTube>(std::forward<Ts>(ts)...);
-    }
+    bool isATruncTube() const { return isA<dd4hep::TruncatedTube>(); }
 
-    template <typename... Ts>
-    auto isATubeSeg(Ts&&... ts) const -> decltype(isA<dd4hep::Tube>(std::forward<Ts>(ts)...)) {
-      return isA<dd4hep::Tube>(std::forward<Ts>(ts)...);
-    }
+    bool isATubeSeg() const { return isA<dd4hep::Tube>(); }
 
-    template <typename... Ts>
-    auto isASubtraction(Ts&&... ts) const -> decltype(isA<dd4hep::SubtractionSolid>(std::forward<Ts>(ts)...)) {
-      return (isA<dd4hep::SubtractionSolid>(std::forward<Ts>(ts)...) and
-              not isA<dd4hep::TruncatedTube>(std::forward<Ts>(ts)...) and
-              not isA<dd4hep::PseudoTrap>(std::forward<Ts>(ts)...));
+    bool isASubtraction() const {
+      return (isA<dd4hep::SubtractionSolid>() and not isA<dd4hep::TruncatedTube>() and not isA<dd4hep::PseudoTrap>());
     }
 
     dd4hep::Solid solid() const;
