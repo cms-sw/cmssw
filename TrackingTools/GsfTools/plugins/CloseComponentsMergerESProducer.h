@@ -22,7 +22,7 @@ public:
 
 private:
   const int maxComp_;
-  edm::ESGetToken<DistanceBetweenComponents<N>, TrackingComponentsRecord> distToken_;
+  const edm::ESGetToken<DistanceBetweenComponents<N>, TrackingComponentsRecord> distToken_;
 };
 
 #include "TrackingTools/GsfTools/plugins/CloseComponentsMergerESProducer.icc"

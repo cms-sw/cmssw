@@ -66,9 +66,9 @@ private:
 };
 
 TkMSParameterizationBuilder::TkMSParameterizationBuilder(edm::ParameterSet const& pset) {
-  setWhatProduced(this, "")
-      .setConsumes(theNavSchoolToken_, edm::ESInputTag("", pset.getParameter<std::string>("navigationSchool")))
-      .setConsumes(thePropagatorToken_, edm::ESInputTag("", "PropagatorWithMaterial"));
+  auto cc = setWhatProduced(this, "");
+  theNavSchoolToken_ = cc.consumes(edm::ESInputTag("", pset.getParameter<std::string>("navigationSchool")));
+  thePropagatorToken_ = cc.consumes(edm::ESInputTag("", "PropagatorWithMaterial"));
 }
 
 TkMSParameterizationBuilder::ReturnType TkMSParameterizationBuilder::produce(TkMSParameterizationRecord const& iRecord) {

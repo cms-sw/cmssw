@@ -14,9 +14,9 @@ namespace {
   public:
     KFFittingSmootherESProducer(const edm::ParameterSet& p) : pset_{p} {
       std::string myname = p.getParameter<std::string>("ComponentName");
-      setWhatProduced(this, myname)
-          .setConsumes(fitToken_, edm::ESInputTag("", pset_.getParameter<std::string>("Fitter")))
-          .setConsumes(smoothToken_, edm::ESInputTag("", pset_.getParameter<std::string>("Smoother")));
+      auto cc = setWhatProduced(this, myname);
+      fitToken_ = cc.consumes(edm::ESInputTag("", pset_.getParameter<std::string>("Fitter")));
+      smoothToken_ = cc.consumes(edm::ESInputTag("", pset_.getParameter<std::string>("Smoother")));
     }
 
     static void fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
