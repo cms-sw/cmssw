@@ -39,8 +39,7 @@ public:
 
     //pattern similar to ExternalWork, but blocking
     auto t1 = std::chrono::high_resolution_clock::now();
-    edm::WaitingTaskWithArenaHolder holder;
-    client_.dispatch(holder);
+    client_.dispatch();
 
     //measure time between acquire and produce
     sonic_utils::printDebugTime(client_.debugName(), "dispatch() time: ", t1);
