@@ -42,7 +42,7 @@ public:
 
     auto t0 = std::chrono::high_resolution_clock::now();
     bool result = filter(iEvent, iSetup, client_.output());
-    sonic_utils::printDebugTime(client_.debugName(), "produce() time: ", t0);
+    sonic_utils::printDebugTime(client_.debugName(), "filter() time: ", t0);
 
     //reset client data
     client_.reset();

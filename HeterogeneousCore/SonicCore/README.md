@@ -52,11 +52,11 @@ These parameters can be prepopulated and validated by the client using `fillDesc
 The `mode` and `allowedTries` parameters are always necessary (example values are shown here, but other values are also allowed).
 These parameters are described in the next section.
 
-An example producer can be found in the [test](./test) folder.
-
 In addition, there is a `SonicOneEDAnalyzer` class template for user analysis, e.g. to produce simple ROOT files.
 Only `Sync` mode is supported for clients used with One modules,
-but otherwise, the above template be followed (replace `void produce(edm::Event&` with `void analyze(edm::Event const&` above).
+but otherwise, the above template can be followed (replace `void produce(edm::Event&` with `void analyze(edm::Event const&` above).
+
+Examples of the producer, filter, and analyzer can be found in the [test](./test) folder.
 
 ## For developers
 
