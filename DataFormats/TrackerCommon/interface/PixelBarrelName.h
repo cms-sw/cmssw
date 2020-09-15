@@ -1,5 +1,5 @@
-#ifndef SiPixelDetId_PixelBarrelName_H
-#define SiPixelDetId_PixelBarrelName_H
+#ifndef DataFormats_TrackerCommon_PixelBarrelName_H
+#define DataFormats_TrackerCommon_PixelBarrelName_H
 
 /** \class PixelBarrelName
  * Module name (as in PixelDatabase) in barrel

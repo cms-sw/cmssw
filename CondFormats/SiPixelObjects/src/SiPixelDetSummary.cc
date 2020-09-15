@@ -1,7 +1,7 @@
 #include "CondFormats/SiPixelObjects/interface/SiPixelDetSummary.h"
 
-#include "DataFormats/SiPixelDetId/interface/PixelBarrelName.h"
-#include "DataFormats/SiPixelDetId/interface/PixelEndcapName.h"
+#include "DataFormats/TrackerCommon/interface/PixelBarrelName.h"
+#include "DataFormats/TrackerCommon/interface/PixelEndcapName.h"
 
 using namespace std;
 

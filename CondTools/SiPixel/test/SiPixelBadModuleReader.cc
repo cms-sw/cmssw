@@ -13,8 +13,8 @@
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
-#include "DataFormats/SiPixelDetId/interface/PixelBarrelName.h"
-#include "DataFormats/SiPixelDetId/interface/PixelEndcapName.h"
+#include "DataFormats/TrackerCommon/interface/PixelBarrelName.h"
+#include "DataFormats/TrackerCommon/interface/PixelEndcapName.h"
 #include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 
