@@ -254,11 +254,6 @@ namespace edm {
     }
 
     template <typename T>
-    void ProducingModuleAdaptorBase<T>::doRespondToOpenInputFile(FileBlock const&) {}
-    template <typename T>
-    void ProducingModuleAdaptorBase<T>::doRespondToCloseInputFile(FileBlock const&) {}
-
-    template <typename T>
     void ProducingModuleAdaptorBase<T>::doRegisterThinnedAssociations(ProductRegistry const& registry,
                                                                       ThinnedAssociationsHelper& helper) {
       assert(not m_streamModules.empty());

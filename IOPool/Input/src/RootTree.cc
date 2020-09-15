@@ -2,15 +2,13 @@
 #include "RootDelayedReader.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "FWCore/Utilities/interface/Exception.h"
-#include "DataFormats/Provenance/interface/BranchDescription.h"
+#include "DataFormats/Provenance/interface/BranchType.h"
 #include "InputFile.h"
 #include "TTree.h"
-#include "TTreeIndex.h"
 #include "TTreeCache.h"
 #include "TLeaf.h"
 
 #include <cassert>
-#include <iostream>
 
 namespace edm {
   namespace {
@@ -26,6 +24,24 @@ namespace edm {
       return branch;
     }
   }  // namespace
+
+  // Used for all RootTrees
+  // All the other constructors delegate to this one
+  RootTree::RootTree(std::shared_ptr<InputFile> filePtr,
+                     BranchType const& branchType,
+                     unsigned int nIndexes,
+                     unsigned int learningEntries,
+                     bool enablePrefetching,
+                     InputType inputType)
+      : filePtr_(filePtr),
+        branchType_(branchType),
+        entryNumberForIndex_(std::make_unique<std::vector<EntryNumber>>(nIndexes, IndexIntoFile::invalidEntry)),
+        learningEntries_(learningEntries),
+        enablePrefetching_(enablePrefetching),
+        enableTriggerCache_(branchType_ == InEvent),
+        rootDelayedReader_(std::make_unique<RootDelayedReader>(*this, filePtr, inputType)) {}
+
+  // Used for Event/Lumi/Run RootTrees
   RootTree::RootTree(std::shared_ptr<InputFile> filePtr,
                      BranchType const& branchType,
                      unsigned int nIndexes,
@@ -34,52 +50,49 @@ namespace edm {
                      unsigned int learningEntries,
                      bool enablePrefetching,
                      InputType inputType)
-      : filePtr_(filePtr),
-        tree_(dynamic_cast<TTree*>(
-            filePtr_.get() != nullptr ? filePtr_->Get(BranchTypeToProductTreeName(branchType).c_str()) : nullptr)),
-        metaTree_(dynamic_cast<TTree*>(
-            filePtr_.get() != nullptr ? filePtr_->Get(BranchTypeToMetaDataTreeName(branchType).c_str()) : nullptr)),
-        branchType_(branchType),
-        auxBranch_(tree_ ? getAuxiliaryBranch(tree_, branchType_) : nullptr),
-        treeCache_(),
-        rawTreeCache_(),
-        triggerTreeCache_(),
-        rawTriggerTreeCache_(),
-        trainedSet_(),
-        triggerSet_(),
-        entries_(tree_ ? tree_->GetEntries() : 0),
-        entryNumber_(-1),
-        entryNumberForIndex_(new std::vector<EntryNumber>(nIndexes, IndexIntoFile::invalidEntry)),
-        branchNames_(),
-        branches_{},
-        trainNow_(false),
-        switchOverEntry_(-1),
-        rawTriggerSwitchOverEntry_(-1),
-        performedSwitchOver_{false},
-        learningEntries_(learningEntries),
-        cacheSize_(cacheSize),
-        treeAutoFlush_(0),
-        enablePrefetching_(enablePrefetching),
-        enableTriggerCache_(branchType_ == InEvent),
-        rootDelayedReader_(new RootDelayedReader(*this, filePtr, inputType)),
-        branchEntryInfoBranch_(metaTree_ ? getProductProvenanceBranch(metaTree_, branchType_)
-                                         : (tree_ ? getProductProvenanceBranch(tree_, branchType_) : nullptr)),
-        infoTree_(dynamic_cast<TTree*>(filePtr_.get() != nullptr
-                                           ? filePtr->Get(BranchTypeToInfoTreeName(branchType).c_str())
-                                           : nullptr))  // backward compatibility
-  {
+      : RootTree(filePtr, branchType, nIndexes, learningEntries, enablePrefetching, inputType) {
+    init(BranchTypeToProductTreeName(branchType), maxVirtualSize, cacheSize);
+    metaTree_ = dynamic_cast<TTree*>(filePtr_->Get(BranchTypeToMetaDataTreeName(branchType).c_str()));
+    auxBranch_ = getAuxiliaryBranch(tree_, branchType_);
+    branchEntryInfoBranch_ =
+        metaTree_ ? getProductProvenanceBranch(metaTree_, branchType_) : getProductProvenanceBranch(tree_, branchType_);
+    infoTree_ =
+        dynamic_cast<TTree*>(filePtr->Get(BranchTypeToInfoTreeName(branchType).c_str()));  // backward compatibility
+  }
+
+  // Used for ProcessBlock RootTrees
+  RootTree::RootTree(std::shared_ptr<InputFile> filePtr,
+                     BranchType const& branchType,
+                     std::string const& processName,
+                     unsigned int nIndexes,
+                     unsigned int maxVirtualSize,
+                     unsigned int cacheSize,
+                     unsigned int learningEntries,
+                     bool enablePrefetching,
+                     InputType inputType)
+      : RootTree(filePtr, branchType, nIndexes, learningEntries, enablePrefetching, inputType) {
+    processName_ = processName;
+    init(BranchTypeToProductTreeName(branchType, processName), maxVirtualSize, cacheSize);
+  }
+
+  void RootTree::init(std::string const& productTreeName, unsigned int maxVirtualSize, unsigned int cacheSize) {
+    if (filePtr_.get() != nullptr) {
+      tree_ = dynamic_cast<TTree*>(filePtr_->Get(productTreeName.c_str()));
+    }
     if (not tree_) {
       throw cms::Exception("WrongFileFormat")
-          << "The ROOT file does not contain a TTree named " << BranchTypeToProductTreeName(branchType)
+          << "The ROOT file does not contain a TTree named " << productTreeName
           << "\n This is either not an edm ROOT file or is one that has been corrupted.";
     }
+    entries_ = tree_->GetEntries();
+
     // On merged files in older releases of ROOT, the autoFlush setting is always negative; we must guess.
     // TODO: On newer merged files, we should be able to get this from the cluster iterator.
-    long treeAutoFlush = (tree_ ? tree_->GetAutoFlush() : 0);
+    long treeAutoFlush = tree_->GetAutoFlush();
     if (treeAutoFlush < 0) {
       // The "+1" is here to avoid divide-by-zero in degenerate cases.
       Long64_t averageEventSizeBytes = tree_->GetZipBytes() / (tree_->GetEntries() + 1) + 1;
-      treeAutoFlush_ = cacheSize_ / averageEventSizeBytes + 1;
+      treeAutoFlush_ = cacheSize / averageEventSizeBytes + 1;
     } else {
       treeAutoFlush_ = treeAutoFlush;
     }
@@ -88,7 +101,7 @@ namespace edm {
     }
     setTreeMaxVirtualSize(maxVirtualSize);
     setCacheSize(cacheSize);
-    if (tree_) {
+    if (branchType_ == InEvent) {
       Int_t branchCount = tree_->GetListOfBranches()->GetEntriesFast();
       trainedSet_.reserve(branchCount);
       triggerSet_.reserve(branchCount);
@@ -108,9 +121,15 @@ namespace edm {
   }
 
   bool RootTree::isValid() const {
+    // ProcessBlock
+    if (branchType_ == InProcess) {
+      return tree_ != nullptr;
+    }
+    // Run/Lumi/Event
     if (metaTree_ == nullptr || metaTree_->GetNbranches() == 0) {
       return tree_ != nullptr && auxBranch_ != nullptr;
     }
+    // Backward compatibility for Run/Lumi/Event
     if (tree_ != nullptr && auxBranch_ != nullptr && metaTree_ != nullptr) {  // backward compatibility
       if (branchEntryInfoBranch_ != nullptr || infoTree_ != nullptr)
         return true;  // backward compatibility
@@ -473,13 +492,15 @@ namespace edm {
     // so that ROOT does not also delete it.
     filePtr_->SetCacheRead(nullptr);
 
-    // Must also manually add things to the trained set.
-    TObjArray* branches = tree_->GetListOfBranches();
-    int branchCount = branches->GetEntriesFast();
-    for (int i = 0; i < branchCount; i++) {
-      TBranch* branch = (TBranch*)branches->UncheckedAt(i);
-      if ((branchNames[0] == '*') || (strcmp(branchNames, branch->GetName()) == 0)) {
-        trainedSet_.insert(branch);
+    if (branchType_ == InEvent) {
+      // Must also manually add things to the trained set.
+      TObjArray* branches = tree_->GetListOfBranches();
+      int branchCount = branches->GetEntriesFast();
+      for (int i = 0; i < branchCount; i++) {
+        TBranch* branch = (TBranch*)branches->UncheckedAt(i);
+        if ((branchNames[0] == '*') || (strcmp(branchNames, branch->GetName()) == 0)) {
+          trainedSet_.insert(branch);
+        }
       }
     }
   }

@@ -485,6 +485,11 @@ namespace edm {
   }
 
   template <typename T>
+  void WorkerT<T>::implRespondToCloseOutputFile() {
+    module_->doRespondToCloseOutputFile();
+  }
+
+  template <typename T>
   inline void WorkerT<T>::implRegisterThinnedAssociations(ProductRegistry const& registry,
                                                           ThinnedAssociationsHelper& helper) {
     module_->doRegisterThinnedAssociations(registry, helper);
@@ -630,6 +635,12 @@ namespace edm {
   template <typename T>
   void WorkerT<T>::updateLookup(eventsetup::ESRecordsToProxyIndices const& iPI) {
     module_->updateLookup(iPI);
+  }
+
+  template <typename T>
+  void WorkerT<T>::selectInputProcessBlocks(ProductRegistry const& productRegistry,
+                                            ProcessBlockHelperBase const& processBlockHelperBase) {
+    module_->selectInputProcessBlocks(productRegistry, processBlockHelperBase);
   }
 
   namespace {

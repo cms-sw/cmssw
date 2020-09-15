@@ -564,6 +564,10 @@ namespace edm {
     return phb;
   }
 
+  unsigned int Principal::processBlockIndex(std::string const&) const {
+    throw Exception(errors::LogicError) << "Principal::processBlockIndex not implemented for this type of Principal";
+  }
+
   BasicHandle Principal::getByLabel(KindOfType kindOfType,
                                     TypeID const& typeID,
                                     InputTag const& inputTag,

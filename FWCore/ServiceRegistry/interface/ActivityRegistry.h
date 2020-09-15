@@ -214,6 +214,22 @@ namespace edm {
     void watchPostSourceRun(PostSourceRun::slot_type const& iSlot) { postSourceRunSignal_.connect_front(iSlot); }
     AR_WATCH_USING_METHOD_1(watchPostSourceRun)
 
+    /// signal is emitted before the source starts creating a ProcessBlock
+    typedef signalslot::Signal<void()> PreSourceProcessBlock;
+    PreSourceProcessBlock preSourceProcessBlockSignal_;
+    void watchPreSourceProcessBlock(PreSourceProcessBlock::slot_type const& iSlot) {
+      preSourceProcessBlockSignal_.connect(iSlot);
+    }
+    AR_WATCH_USING_METHOD_0(watchPreSourceProcessBlock)
+
+    /// signal is emitted after the source starts creating a ProcessBlock
+    typedef signalslot::Signal<void(std::string const&)> PostSourceProcessBlock;
+    PostSourceProcessBlock postSourceProcessBlockSignal_;
+    void watchPostSourceProcessBlock(PostSourceProcessBlock::slot_type const& iSlot) {
+      postSourceProcessBlockSignal_.connect_front(iSlot);
+    }
+    AR_WATCH_USING_METHOD_1(watchPostSourceProcessBlock)
+
     /// signal is emitted before the source opens a file
     typedef signalslot::Signal<void(std::string const&, bool)> PreOpenFile;
     PreOpenFile preOpenFileSignal_;
