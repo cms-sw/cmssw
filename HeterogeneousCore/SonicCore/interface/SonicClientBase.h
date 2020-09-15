@@ -26,6 +26,7 @@ public:
   void setDebugName(const std::string& debugName);
   const std::string& debugName() const { return debugName_; }
   const std::string& clientName() const { return clientName_; }
+  SonicMode mode() const { return mode_; }
 
   //main operation
   virtual void dispatch(edm::WaitingTaskWithArenaHolder holder) { dispatcher_->dispatch(std::move(holder)); }
