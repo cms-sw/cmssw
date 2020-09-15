@@ -81,13 +81,16 @@ void GEMeMap::convertDummy(GEMROMapping& romap) {
   for (int re = -1; re <= 1; re = re + 2) {
     for (int st = GEMDetId::minStationId0; st <= GEMDetId::maxStationId; ++st) {
       int maxVFat = maxVFatGE11_;
-      if (st == 2)
+      int maxLayerId = GEMDetId::maxLayerId;
+      if (GEMSubDetId::station(st) == GEMSubDetId::Station::GE21)
         maxVFat = maxVFatGE21_;
-      if (st == 0)
+      if (GEMSubDetId::station(st) == GEMSubDetId::Station::GE0) {
         maxVFat = maxVFatGE0_;
+        maxLayerId = GEMDetId::maxLayerId0;
+      }
 
       for (int ch = 1; ch <= GEMDetId::maxChamberId; ++ch) {
-        for (int ly = 1; ly <= GEMDetId::maxLayerId; ++ly) {
+        for (int ly = 1; ly <= maxLayerId; ++ly) {
           GEMDetId gemId(re, 1, st, ly, ch, 0);
 
           GEMROMapping::chamEC ec;
