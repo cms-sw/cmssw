@@ -149,8 +149,6 @@ void EcalLiteDTUCoder::encode(const EcalSamples& ecalSamples,
       igain = 0;
     }
     df.setSample(j, EcalLiteDTUSample(adctrace[j][igain], igain));
-    if (nSaturatedSamples != 0) {
-    }
   }
 }
 
