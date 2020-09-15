@@ -192,7 +192,7 @@ float muon::segmentCompatibility(const reco::Muon& muon, reco::Muon::Arbitration
       }
 
       // if track has matching segment, but the matching is not high quality, penalize
-      if (station_has_segmentmatch[i - 1] > 0 && 42 == 42) {
+      if (station_has_segmentmatch[i - 1] > 0) {
         if (i <= 4) {  // we are in the DTs
           if (muon.dY(i, 1, arbitrationType) < 999999.f &&
               muon.dX(i, 1, arbitrationType) < 999999.f) {  // have both X and Y match
@@ -546,20 +546,15 @@ bool muon::isGoodMuon(const reco::Muon& muon,
       return true;
 
     int nMatch = 0;
-    for (std::vector<reco::MuonChamberMatch>::const_iterator chamberMatch = muon.matches().begin();
-         chamberMatch != muon.matches().end();
-         ++chamberMatch) {
-      if (chamberMatch->detector() != 3)
+    for (const auto& chamberMatch : muon.matches()) {
+      if (chamberMatch.detector() != MuonSubdetId::RPC)
         continue;
 
-      const float trkX = chamberMatch->x;
-      const float errX = chamberMatch->xErr;
+      const float trkX = chamberMatch.x;
+      const float errX = chamberMatch.xErr;
 
-      for (std::vector<reco::MuonRPCHitMatch>::const_iterator rpcMatch = chamberMatch->rpcMatches.begin();
-           rpcMatch != chamberMatch->rpcMatches.end();
-           ++rpcMatch) {
-        const float rpcX = rpcMatch->x;
-
+      for (const auto& rpcMatch : chamberMatch.rpcMatches) {
+        const float rpcX = rpcMatch.x;
         const float dX = std::abs(rpcX - trkX);
         if (dX < maxAbsDx or dX / errX < maxAbsPullX) {
           ++nMatch;
@@ -584,20 +579,20 @@ bool muon::isGoodMuon(const reco::Muon& muon,
         continue;
 
       const float trkX = chamberMatch.x;
-      const float errX = chamberMatch.xErr;
+      const float errX2 = chamberMatch.xErr * chamberMatch.xErr;
       const float trkY = chamberMatch.y;
-      const float errY = chamberMatch.yErr;
+      const float errY2 = chamberMatch.yErr * chamberMatch.yErr;
 
       for (const auto& segment : chamberMatch.me0Matches) {
         const float me0X = segment.x;
-        const float me0ErrX = segment.xErr;
+        const float me0ErrX2 = segment.xErr * segment.xErr;
         const float me0Y = segment.y;
-        const float me0ErrY = segment.yErr;
+        const float me0ErrY2 = segment.yErr * segment.yErr;
 
         const float dX = std::abs(me0X - trkX);
         const float dY = std::abs(me0Y - trkY);
-        const float pullX = dX / std::sqrt(errX * errX + me0ErrX * me0ErrX);
-        const float pullY = dY / std::sqrt(errY * errY + me0ErrY * me0ErrY);
+        const float pullX = dX / std::sqrt(errX2 + me0ErrX2);
+        const float pullY = dY / std::sqrt(errY2 + me0ErrY2);
 
         if ((dX < maxAbsDx or pullX < maxAbsPullX) and (dY < maxAbsDy or pullY < maxAbsPullY)) {
           ++nMatch;
@@ -619,20 +614,20 @@ bool muon::isGoodMuon(const reco::Muon& muon,
         continue;
 
       const float trkX = chamberMatch.x;
-      const float errX = chamberMatch.xErr;
+      const float errX2 = chamberMatch.xErr * chamberMatch.xErr;
       const float trkY = chamberMatch.y;
-      const float errY = chamberMatch.yErr;
+      const float errY2 = chamberMatch.yErr * chamberMatch.yErr;
 
       for (const auto& segment : chamberMatch.gemMatches) {
         const float gemX = segment.x;
-        const float gemErrX = segment.xErr;
+        const float gemErrX2 = segment.xErr * segment.xErr;
         const float gemY = segment.y;
-        const float gemErrY = segment.yErr;
+        const float gemErrY2 = segment.yErr * segment.yErr;
 
         const float dX = std::abs(gemX - trkX);
         const float dY = std::abs(gemY - trkY);
-        const float pullX = dX / std::sqrt(errX * errX + gemErrX * gemErrX);
-        const float pullY = dY / std::sqrt(errY * errY + gemErrY * gemErrY);
+        const float pullX = dX / std::sqrt(errX2 + gemErrX2);
+        const float pullY = dY / std::sqrt(errY2 + gemErrY2);
 
         if ((dX < maxAbsDx or pullX < maxAbsPullX) and (dY < maxAbsDy or pullY < maxAbsPullY)) {
           ++nMatch;
