@@ -12,7 +12,7 @@
 // The compiler knows our default-constructed objects' members
 // may not be initialized when we serialize them.
 
-#if !defined( __clang__ )
+#if !defined(__clang__)
 #pragma GCC diagnostic ignored "-Wmaybe-uninitialized"
 #endif
 
