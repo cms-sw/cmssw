@@ -109,7 +109,7 @@ void CmsDetConstruction<cms::DDFilteredView>::buildComponent(cms::DDFilteredView
     while (fv.firstChild() && doContinue) {
       buildSmallDetsforGlued(fv, det, attribute);
       if (fv.level() > startLevel) {
-	doContinue = false;
+        doContinue = false;
       }
     }
   }
@@ -123,7 +123,7 @@ void CmsDetConstruction<cms::DDFilteredView>::buildComponent(cms::DDFilteredView
     while (fv.firstChild() && doContinue) {
       buildSmallDetsforStack(fv, det, attribute);
       if (fv.level() > startLevel) {
-	doContinue = false;
+        doContinue = false;
       }
     }
   }
