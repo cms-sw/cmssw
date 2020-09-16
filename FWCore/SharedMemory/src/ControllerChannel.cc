@@ -31,8 +31,9 @@ using namespace boost::interprocess;
 // constructors and destructor
 //
 
-ControllerChannel::ControllerChannel(std::string const& iName, int id)
+ControllerChannel::ControllerChannel(std::string const& iName, int id, unsigned int iMaxWaitInSeconds)
     : id_{id},
+      maxWaitInSeconds_{iMaxWaitInSeconds},
       smName_{uniqueName(iName)},
       managed_sm_{open_or_create, smName_.c_str(), 1024},
       toWorkerBufferInfo_{bufferInfo(channel_names::kToWorkerBufferInfo, managed_sm_)},
@@ -89,7 +90,7 @@ bool ControllerChannel::wait(scoped_lock<named_mutex>& lock, edm::Transition iTr
 
   //std::cout << id_ << " waiting" << std::endl;
   using namespace boost::posix_time;
-  if (not cndToMain_.timed_wait(lock, microsec_clock::universal_time() + seconds(60))) {
+  if (not cndToMain_.timed_wait(lock, microsec_clock::universal_time() + seconds(maxWaitInSeconds_))) {
     //std::cout << id_ << " waiting FAILED" << std::endl;
     return false;
   }
