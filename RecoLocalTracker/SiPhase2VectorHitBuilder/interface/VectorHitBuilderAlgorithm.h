@@ -38,10 +38,10 @@ public:
                                   LocalError& errinner,
                                   LocalError& errouter) const;
 
-  std::pair<std::pair<float, float>,float> curvatureANDphi(Global3DPoint gPositionLower,
-                                         Global3DPoint gPositionUpper,
-                                         GlobalError gErrorLower,
-                                         GlobalError gErrorUpper) const;
+  std::pair<std::pair<float, float>, float> curvatureANDphi(Global3DPoint gPositionLower,
+                                                            Global3DPoint gPositionUpper,
+                                                            GlobalError gErrorLower,
+                                                            GlobalError gErrorUpper) const;
 
   std::vector<std::pair<VectorHit, bool>> buildVectorHits(
       const StackGeomDet* stack,

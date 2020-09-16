@@ -49,7 +49,7 @@ void VectorHitBuilderAlgorithm::run(edm::Handle<edmNew::DetSetVector<Phase2Track
       for (const auto& vh : vhsInStack_AccRej) {
         if (vh.second == true) {
           vhsInStack_Acc.push_back(vh.first);
-          std::push_heap(vhsInStack_Acc.begin(),vhsInStack_Acc.end());
+          std::push_heap(vhsInStack_Acc.begin(), vhsInStack_Acc.end());
         } else if (vh.second == false) {
           vhsInStack_Rej.push_back(vh.first);
         }
@@ -238,7 +238,7 @@ VectorHit VectorHitBuilderAlgorithm::buildVectorHit(const StackGeomDet* stack,
                                                     Phase2TrackerCluster1DRef upper) const {
   LogTrace("VectorHitBuilderAlgorithm") << "Build VH with: ";
 #ifdef EDM_ML_DEBUG
-  printCluster(stack->upperDet(),&*upper);
+  printCluster(stack->upperDet(), &*upper);
 #endif
   const PixelGeomDetUnit* geomDetLower = static_cast<const PixelGeomDetUnit*>(stack->lowerDet());
   const PixelGeomDetUnit* geomDetUpper = static_cast<const PixelGeomDetUnit*>(stack->upperDet());
@@ -316,7 +316,14 @@ VectorHit VectorHitBuilderAlgorithm::buildVectorHit(const StackGeomDet* stack,
     }
 
     const auto& curvatureAndPhi = curvatureANDphi(gPositionLower, gPositionUpper, gErrorLower, gErrorUpper);
-    VectorHit vh = VectorHit(*stack, vh2Dzx, vh2Dzy, lowerOmni, upperOmni, curvatureAndPhi.first.first, curvatureAndPhi.first.second, curvatureAndPhi.second);
+    VectorHit vh = VectorHit(*stack,
+                             vh2Dzx,
+                             vh2Dzy,
+                             lowerOmni,
+                             upperOmni,
+                             curvatureAndPhi.first.first,
+                             curvatureAndPhi.first.second,
+                             curvatureAndPhi.second);
     return vh;
   }
 
@@ -393,10 +400,10 @@ void VectorHitBuilderAlgorithm::fit(float x[2],
   dir = LocalVector(slope, 0., slopeZ);
 }
 
-std::pair<std::pair<float, float>,float> VectorHitBuilderAlgorithm::curvatureANDphi(Global3DPoint gPositionLower,
-                                                                  Global3DPoint gPositionUpper,
-                                                                  GlobalError gErrorLower,
-                                                                  GlobalError gErrorUpper) const {
+std::pair<std::pair<float, float>, float> VectorHitBuilderAlgorithm::curvatureANDphi(Global3DPoint gPositionLower,
+                                                                                     Global3DPoint gPositionUpper,
+                                                                                     GlobalError gErrorLower,
+                                                                                     GlobalError gErrorUpper) const {
   float curvature = -999.;
   float errorCurvature = -999.;
   float phi = -999.;
@@ -535,9 +542,9 @@ std::pair<std::pair<float, float>,float> VectorHitBuilderAlgorithm::curvatureAND
                      temp[3] * curvatureJacobian[3];
 
   } else {
-    return std::make_pair(std::make_pair(0.,0.), 0.0);
+    return std::make_pair(std::make_pair(0., 0.), 0.0);
   }
-/*  switch (curvORphi) {
+  /*  switch (curvORphi) {
     case curvatureMode:
       return std::make_pair(curvature, errorCurvature);
     case phiMode:
