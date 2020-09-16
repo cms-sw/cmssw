@@ -98,16 +98,16 @@ protected:
   unsigned int alct_trig_enable, clct_trig_enable, match_trig_enable;
   unsigned int match_trig_window_size, tmb_l1a_window_size;
 
-  /** SLHC: whether to not reuse ALCTs that were used by previous matching CLCTs */
+  /** Phase2: whether to not reuse ALCTs that were used by previous matching CLCTs */
   bool drop_used_alcts;
 
-  /** SLHC: whether to not reuse CLCTs that were used by previous matching ALCTs */
+  /** Phase2: whether to not reuse CLCTs that were used by previous matching ALCTs */
   bool drop_used_clcts;
 
-  /** SLHC: separate handle for early time bins */
+  /** Phase2: separate handle for early time bins */
   int early_tbins;
 
-  /** SLHC: whether to readout only the earliest two LCTs in readout window */
+  /** Phase2: whether to readout only the earliest two LCTs in readout window */
   bool readout_earliest_2;
 
   /** if true: use regular CLCT-to-ALCT matching in TMB
