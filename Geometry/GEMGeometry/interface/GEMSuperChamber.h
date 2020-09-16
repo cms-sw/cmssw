@@ -57,7 +57,7 @@ public:
   int nChambers() const;
 
   float computeDeltaPhi(const LocalPoint& position, const LocalVector& direction) const;
-  
+
 private:
   GEMDetId detId_;
 

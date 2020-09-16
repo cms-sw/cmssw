@@ -72,8 +72,8 @@ GE0SegAlgoRU::GE0SegAlgoRU(const edm::ParameterSet& ps) : GEMSegmentAlgorithmBas
 
 std::vector<GEMSegment> GE0SegAlgoRU::run(const GEMEnsemble& ensemble, const std::vector<const GEMRecHit*>& rechits) {
   HitAndPositionContainer hitAndPositions;
-  auto & superchamber = ensemble.first;
-  for (const auto & rechit : rechits) {
+  auto& superchamber = ensemble.first;
+  for (const auto& rechit : rechits) {
     const GEMEtaPartition* part = ensemble.second.at(rechit->gemId().rawId());
     GlobalPoint glb = part->toGlobal(rechit->localPosition());
     LocalPoint nLoc = superchamber->toLocal(glb);
@@ -85,18 +85,15 @@ std::vector<GEMSegment> GE0SegAlgoRU::run(const GEMEnsemble& ensemble, const std
   float z1 = superchamber->chamber(1)->position().z();
   float z6 = superchamber->chamber(6)->position().z();
   if (z1 < z6)
-    std::sort(hitAndPositions.begin(),
-              hitAndPositions.end(),
-              [](const HitAndPosition& h1,
-                 const HitAndPosition& h2) { return h1.layer < h2.layer; });
+    std::sort(hitAndPositions.begin(), hitAndPositions.end(), [](const HitAndPosition& h1, const HitAndPosition& h2) {
+      return h1.layer < h2.layer;
+    });
   else
-    std::sort(hitAndPositions.begin(),
-              hitAndPositions.end(),
-              [](const HitAndPosition& h1,
-                 const HitAndPosition& h2) { return h1.layer > h2.layer; });
+    std::sort(hitAndPositions.begin(), hitAndPositions.end(), [](const HitAndPosition& h1, const HitAndPosition& h2) {
+      return h1.layer > h2.layer;
+    });
   return run(ensemble.first, hitAndPositions);
 }
-
 
 std::vector<GEMSegment> GE0SegAlgoRU::run(const GEMSuperChamber* chamber, const HitAndPositionContainer& rechits) {
 #ifdef EDM_ML_DEBUG  // have lines below only compiled when in debug mode
@@ -108,8 +105,8 @@ std::vector<GEMSegment> GE0SegAlgoRU::run(const GEMSuperChamber* chamber, const 
     auto rhLP = rechits[iH].lp;
     edm::LogVerbatim("GE0SegAlgoRU") << "[RecHit :: Loc x = " << std::showpos << std::setw(9) << rhLP.x()
                                      << " Glb y = " << std::showpos << std::setw(9) << rhLP.y()
-                                     << " Time = " << std::showpos << rechits[iH].rh->BunchX() << " -- " << ge0id.rawId()
-                                     << " = " << ge0id << " ]" << std::endl;
+                                     << " Time = " << std::showpos << rechits[iH].rh->BunchX() << " -- "
+                                     << ge0id.rawId() << " = " << ge0id << " ]" << std::endl;
   }
 #endif
 
@@ -168,8 +165,8 @@ std::vector<GEMSegment> GE0SegAlgoRU::run(const GEMSuperChamber* chamber, const 
         auto ge0id = rh->gemId();
         edm::LogVerbatim("GE0SegAlgoRU") << "[RecHit :: Loc x = " << std::showpos << std::setw(9)
                                          << rh->localPosition().x() << " Loc y = " << std::showpos << std::setw(9)
-                                         << rh->localPosition().y() << " Time = " << std::showpos << rh->BunchX() << " -- "
-                                         << ge0id.rawId() << " = " << ge0id << " ]";
+                                         << rh->localPosition().y() << " Time = " << std::showpos << rh->BunchX()
+                                         << " -- " << ge0id.rawId() << " = " << ge0id << " ]";
       }
     }
 #endif
@@ -357,7 +354,7 @@ void GE0SegAlgoRU::addUniqueSegments(SegmentByMetricContainer& proto_segments,
                     averageTime,
                     timeUncrt
                     // dPhi // TODO FIXME (maybe)!
-                    );
+    );
     segments.push_back(temp);
   }
 }
