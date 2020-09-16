@@ -7,16 +7,16 @@
  * Generic function to build geo (tree of DetGeomDesc) from old DD compact view.
  */
 std::unique_ptr<DetGeomDesc> detgeomdescbuilder::buildDetGeomDescFromCompactView(const DDCompactView& myCompactView,
-                                                                                 const bool legacyRun2) {
+                                                                                 const bool isRun2) {
   // Create DDFilteredView (no filter!!)
   DDPassAllFilter filter;
   DDFilteredView fv(myCompactView, filter);
 
   // Geo info: root node.
-  auto geoInfoRoot = std::make_unique<DetGeomDesc>(fv, legacyRun2);
+  auto geoInfoRoot = std::make_unique<DetGeomDesc>(fv, isRun2);
 
   // Construct the tree of children geo info (DetGeomDesc).
-  detgeomdescbuilder::buildDetGeomDescDescendants(fv, geoInfoRoot.get(), legacyRun2);
+  detgeomdescbuilder::buildDetGeomDescDescendants(fv, geoInfoRoot.get(), isRun2);
 
   edm::LogInfo("PPSGeometryESProducer") << "Successfully built geometry.";
 
@@ -27,18 +27,18 @@ std::unique_ptr<DetGeomDesc> detgeomdescbuilder::buildDetGeomDescFromCompactView
  * Depth-first search recursion.
  * Construct the tree of children geo info (DetGeomDesc) (old DD).
  */
-void detgeomdescbuilder::buildDetGeomDescDescendants(DDFilteredView& fv, DetGeomDesc* geoInfo, const bool legacyRun2) {
+void detgeomdescbuilder::buildDetGeomDescDescendants(DDFilteredView& fv, DetGeomDesc* geoInfo, const bool isRun2) {
   // Leaf
   if (!fv.firstChild())
     return;
 
   do {
     // Create node, and add it to the geoInfoParent's list.
-    DetGeomDesc* child = new DetGeomDesc(fv, legacyRun2);
+    DetGeomDesc* child = new DetGeomDesc(fv, isRun2);
     geoInfo->addComponent(child);
 
     // Recursion
-    buildDetGeomDescDescendants(fv, child, legacyRun2);
+    buildDetGeomDescDescendants(fv, child, isRun2);
   } while (fv.nextSibling());
 
   fv.parent();

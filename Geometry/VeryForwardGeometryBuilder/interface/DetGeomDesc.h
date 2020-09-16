@@ -119,19 +119,11 @@ private:
   DetId computeDetID(const std::string& name,
                      const std::vector<int>& copyNos,
                      const unsigned int copyNum,
-<<<<<<< HEAD
-                     const bool legacyRun2) const;
-  DetId computeDetIDFromDD4hep(const std::string& name,
-                               const std::vector<int>& copyNos,
-                               const unsigned int copyNum,
-                               const bool legacyRun2) const;
-=======
                      const bool isRun2) const;
   DetId computeDetIDFromDD4hep(const std::string& name,
                                const std::vector<int>& copyNos,
                                const unsigned int copyNum,
                                const bool isRun2) const;
->>>>>>> 2784baa47e5... Replace use of !is2021 by isRun2. isRun2 is set to true by default (to avoid modifying existing workflows).
   std::string computeSensorType(std::string_view name);
 
   std::string m_name;  // with no namespace
