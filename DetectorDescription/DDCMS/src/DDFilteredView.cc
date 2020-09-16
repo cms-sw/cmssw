@@ -599,12 +599,6 @@ const ExpandedNodes& DDFilteredView::history() {
   return nodes_;
 }
 
-const TClass* DDFilteredView::getShape() const {
-  assert(node_);
-  Volume currVol = node_->GetVolume();
-  return (currVol->GetShape()->IsA());
-}
-
 std::string_view DDFilteredView::name() const { return (volume().volume().name()); }
 
 dd4hep::Solid DDFilteredView::solid() const { return (volume().volume().solid()); }

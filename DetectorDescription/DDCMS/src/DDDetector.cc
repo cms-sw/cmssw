@@ -42,16 +42,9 @@ namespace cms {
     return m_description->worldVolume();
   }
 
-  dd4hep::PlacedVolume DDDetector::worldPlacement() const { return world().placement(); }
-
   dd4hep::DetElement DDDetector::world() const {
     assert(m_description);
     return m_description->world();
-  }
-
-  const dd4hep::Detector::HandleMap& DDDetector::detectors() const {
-    assert(m_description);
-    return m_description->detectors();
   }
 
   TGeoManager& DDDetector::manager() const {
