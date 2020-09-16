@@ -9,10 +9,10 @@
  * Generic function to build geo (tree of DetGeomDesc) from compact view.
  */
 namespace detgeomdescbuilder {
-  std::unique_ptr<DetGeomDesc> buildDetGeomDescFromCompactView(const DDCompactView& myCompactView, const bool is2021);
-  void buildDetGeomDescDescendants(DDFilteredView& fv, DetGeomDesc* geoInfoParent, const bool is2021);
+  std::unique_ptr<DetGeomDesc> buildDetGeomDescFromCompactView(const DDCompactView& myCompactView, const bool legacyRun2);
+  void buildDetGeomDescDescendants(DDFilteredView& fv, DetGeomDesc* geoInfoParent, const bool legacyRun2);
   std::unique_ptr<DetGeomDesc> buildDetGeomDescFromCompactView(const cms::DDCompactView& myCompactView,
-                                                               const bool is2021);
+                                                               const bool legacyRun2);
 }  // namespace detgeomdescbuilder
 
 #endif
