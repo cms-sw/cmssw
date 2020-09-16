@@ -428,30 +428,26 @@ namespace {
 }  // namespace
 
 namespace {
-  void insertFoundModuleLabel(const char* consumedModuleLabel,
+  void insertFoundModuleLabel(edm::TypeID consumedType,
+                              const char* consumedModuleLabel,
+                              const char* consumedProductInstance,
                               std::vector<ModuleDescription const*>& modules,
                               std::set<std::string>& alreadyFound,
                               std::map<std::string, ModuleDescription const*> const& labelsToDesc,
                               ProductRegistry const& preg) {
     // Convert from label string to module description, eliminate duplicates,
     // then insert into the vector of modules
-    auto it = labelsToDesc.find(consumedModuleLabel);
-    if (it != labelsToDesc.end()) {
+    if (auto it = labelsToDesc.find(consumedModuleLabel); it != labelsToDesc.end()) {
       if (alreadyFound.insert(consumedModuleLabel).second) {
         modules.push_back(it->second);
       }
       return;
     }
     // Deal with EDAlias's by converting to the original module label first
-    std::vector<std::pair<std::string, std::string> > const& aliasToOriginal = preg.aliasToOriginal();
-    std::pair<std::string, std::string> target(consumedModuleLabel, std::string());
-    auto iter = std::lower_bound(aliasToOriginal.begin(), aliasToOriginal.end(), target);
-    if (iter != aliasToOriginal.end() && iter->first == consumedModuleLabel) {
-      std::string const& originalModuleLabel = iter->second;
-      auto iter2 = labelsToDesc.find(originalModuleLabel);
-      if (iter2 != labelsToDesc.end()) {
-        if (alreadyFound.insert(originalModuleLabel).second) {
-          modules.push_back(iter2->second);
+    if (auto aliasToModuleLabel = preg.aliasToModule(consumedType, consumedModuleLabel, consumedProductInstance)) {
+      if (auto it = labelsToDesc.find(*aliasToModuleLabel); it != labelsToDesc.end()) {
+        if (alreadyFound.insert(consumedModuleLabel).second) {
+          modules.push_back(it->second);
         }
         return;
       }
@@ -481,25 +477,30 @@ void EDConsumerBase::modulesWhoseProductsAreConsumed(std::vector<ModuleDescripti
        ++itInfo, ++itKind, ++itLabels) {
     if (itInfo->m_branchType == InEvent and (not itInfo->m_index.skipCurrentProcess())) {
       const unsigned int labelStart = itLabels->m_startOfModuleLabel;
-      const char* consumedModuleLabel = &(m_tokenLabels[labelStart]);
-      const char* consumedProcessName = consumedModuleLabel + itLabels->m_deltaToProcessName;
+      const char* const consumedModuleLabel = &(m_tokenLabels[labelStart]);
+      const char* const consumedProductInstance = consumedModuleLabel + itLabels->m_deltaToProductInstance;
+      const char* const consumedProcessName = consumedModuleLabel + itLabels->m_deltaToProcessName;
 
       if (*consumedModuleLabel != '\0') {    // not a consumesMany
         if (*consumedProcessName != '\0') {  // process name is specified in consumes call
           if (processName == consumedProcessName &&
-              iHelper.index(*itKind,
-                            itInfo->m_type,
-                            consumedModuleLabel,
-                            consumedModuleLabel + itLabels->m_deltaToProductInstance,
-                            consumedModuleLabel + itLabels->m_deltaToProcessName) != ProductResolverIndexInvalid) {
-            insertFoundModuleLabel(consumedModuleLabel, modules, alreadyFound, labelsToDesc, preg);
+              iHelper.index(
+                  *itKind, itInfo->m_type, consumedModuleLabel, consumedProductInstance, consumedProcessName) !=
+                  ProductResolverIndexInvalid) {
+            insertFoundModuleLabel(
+                itInfo->m_type, consumedModuleLabel, consumedProductInstance, modules, alreadyFound, labelsToDesc, preg);
           }
         } else {  // process name was empty
-          auto matches = iHelper.relatedIndexes(
-              *itKind, itInfo->m_type, consumedModuleLabel, consumedModuleLabel + itLabels->m_deltaToProductInstance);
+          auto matches = iHelper.relatedIndexes(*itKind, itInfo->m_type, consumedModuleLabel, consumedProductInstance);
           for (unsigned int j = 0; j < matches.numberOfMatches(); ++j) {
             if (processName == matches.processName(j)) {
-              insertFoundModuleLabel(consumedModuleLabel, modules, alreadyFound, labelsToDesc, preg);
+              insertFoundModuleLabel(itInfo->m_type,
+                                     consumedModuleLabel,
+                                     consumedProductInstance,
+                                     modules,
+                                     alreadyFound,
+                                     labelsToDesc,
+                                     preg);
             }
           }
         }
@@ -508,7 +509,13 @@ void EDConsumerBase::modulesWhoseProductsAreConsumed(std::vector<ModuleDescripti
         auto matches = iHelper.relatedIndexes(*itKind, itInfo->m_type);
         for (unsigned int j = 0; j < matches.numberOfMatches(); ++j) {
           if (processName == matches.processName(j)) {
-            insertFoundModuleLabel(matches.moduleLabel(j), modules, alreadyFound, labelsToDesc, preg);
+            insertFoundModuleLabel(itInfo->m_type,
+                                   matches.moduleLabel(j),
+                                   matches.productInstanceName(j),
+                                   modules,
+                                   alreadyFound,
+                                   labelsToDesc,
+                                   preg);
           }
         }
       }

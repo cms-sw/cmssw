@@ -216,7 +216,18 @@ void testProductRegistry::testAddAlias() {
   reg.addLabelAlias(*floatBranch_, "aliasf", "instanceAlias");
 
   reg.setFrozen(false);
-  std::vector<std::pair<std::string, std::string> > const& v = reg.aliasToOriginal();
-  CPPUNIT_ASSERT(v.at(0).first == "aliasf" && v.at(0).second == "labelf" && v.at(1).first == "aliasi" &&
-                 v.at(1).second == "labeli");
+  {
+    auto notFound = reg.aliasToModule(intBranch_->unwrappedTypeID(), "alias", "instance");
+    CPPUNIT_ASSERT(notFound.has_value() == false);
+  }
+  {
+    auto found = reg.aliasToModule(intBranch_->unwrappedTypeID(), "aliasi", "instanceAlias");
+    CPPUNIT_ASSERT(found.has_value());
+    CPPUNIT_ASSERT(*found == "labeli");
+  }
+  {
+    auto found = reg.aliasToModule(floatBranch_->unwrappedTypeID(), "aliasf", "instanceAlias");
+    CPPUNIT_ASSERT(found.has_value());
+    CPPUNIT_ASSERT(*found == "labelf");
+  }
 }
