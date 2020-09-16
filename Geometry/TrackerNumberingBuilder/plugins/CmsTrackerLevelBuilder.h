@@ -33,6 +33,7 @@ public:
   virtual ~CmsTrackerLevelBuilder() = default;
 
 private:
+  static bool skipFirstChild;
   virtual void buildComponent(FilteredView&, GeometricDet*, const std::string&) = 0;
   void buildLoop(DDFilteredView& fv,GeometricDet* tracker, const std::string& attribute);
   void buildLoop(cms::DDFilteredView& fv,GeometricDet* tracker, const std::string& attribute);
@@ -44,5 +45,8 @@ private:
   virtual void sortNS(FilteredView&, GeometricDet*) {}
   CmsTrackerStringToEnum _CmsTrackerStringToEnum;
 };
+
+template<class FilteredView>
+bool CmsTrackerLevelBuilder<FilteredView>::skipFirstChild{};
 
 #endif

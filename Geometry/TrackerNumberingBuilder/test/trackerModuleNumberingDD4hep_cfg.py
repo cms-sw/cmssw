@@ -15,6 +15,8 @@ process.load("Geometry.TrackerNumberingBuilder.trackerTopology_cfi")
 process.load("Geometry.TrackerGeometryBuilder.idealForDigiTrackerGeometry_cff")
 process.load("Alignment.CommonAlignmentProducer.FakeAlignmentSource_cfi")
 
+process.preferDD4hep = cms.ESPrefer("TrackerGeometricDetESModule","DD4hep_trackerNumberingGeometry");
+
 process.source = cms.Source("EmptySource")
 
 process.maxEvents = cms.untracked.PSet(

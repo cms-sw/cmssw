@@ -142,9 +142,19 @@ template<>
 void CmsTrackerLevelBuilder<cms::DDFilteredView>::buildLoop(cms::DDFilteredView& fv,
 							    GeometricDet* tracker,
 							    const std::string& attribute){
-
-  while(fv.firstChild()){
+  uint psize = fv.geoHistory().size();
+  while (skipFirstChild || fv.firstChild()) {
+    if(psize > fv.geoHistory().size() || fv.geoHistory().size() == 4){
+      skipFirstChild = true;
+      std::cout << "set skipFirstChild to true\n";
+      break;
+    }
+    if(skipFirstChild){
+      skipFirstChild = false;
+    }
     buildComponent(fv, tracker, attribute);
+    psize = fv.geoHistory().size();
+
   }
 }
 
@@ -157,6 +167,9 @@ void CmsTrackerLevelBuilder<DDFilteredView>::buildLoop(DDFilteredView& fv,
     buildComponent(fv, tracker, attribute);
     doLayers = fv.nextSibling();
   }
+  fv.parent();
+  std::cout << "CmsTrackerLevelBuilder::buildLoop Exited Loop\n"
+            << "\tPointer at: " << fv.geoHistory() <<std::endl;
 }
 
 
@@ -170,8 +183,8 @@ void CmsTrackerLevelBuilder<FilteredView>::build(FilteredView& fv,
   std::cout << ExtractStringFromDDD<FilteredView>::getString(attribute, &fv) << " "
                                              << tracker->type() << " " << tracker->name() << std::endl;
 
+
   buildLoop(fv,tracker,attribute);
-  fv.parent();
   sortNS(fv, tracker);
 
 }
