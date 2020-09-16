@@ -12,7 +12,13 @@ public:
         useConvertedBrems_(conf.getParameter<bool>("useConvertedBrems")),
         debug_(conf.getUntrackedParameter<bool>("debug", false)) {}
 
-  double testLink(const reco::PFBlockElement*, const reco::PFBlockElement*) const override;
+  double testLink(size_t ielem1,
+                  size_t ielem2,
+                  reco::PFBlockElement::Type type1,
+                  reco::PFBlockElement::Type type2,
+                  const ElementListConst& elements,
+                  const PFTables& tables,
+                  const reco::PFMultiLinksIndex& multilinks) const override;
 
 private:
   bool useKDTree_, useConvertedBrems_, debug_;
@@ -20,12 +26,20 @@ private:
 
 DEFINE_EDM_PLUGIN(BlockElementLinkerFactory, TrackAndGSFLinker, "TrackAndGSFLinker");
 
-double TrackAndGSFLinker::testLink(const reco::PFBlockElement* elem1, const reco::PFBlockElement* elem2) const {
+double TrackAndGSFLinker::testLink(size_t ielem1,
+                                   size_t ielem2,
+                                   reco::PFBlockElement::Type type1,
+                                   reco::PFBlockElement::Type type2,
+                                   const ElementListConst& elements,
+                                   const PFTables& tables,
+                                   const reco::PFMultiLinksIndex& multilinks) const {
+  const auto* elem1 = elements[ielem1];
+  const auto* elem2 = elements[ielem2];
   constexpr reco::PFBlockElement::TrackType T_FROM_GAMMACONV = reco::PFBlockElement::T_FROM_GAMMACONV;
   double dist = -1.0;
   const reco::PFBlockElementGsfTrack* gsfelem(nullptr);
   const reco::PFBlockElementTrack* tkelem(nullptr);
-  if (elem1->type() < elem2->type()) {
+  if (type1 < type2) {
     tkelem = static_cast<const reco::PFBlockElementTrack*>(elem1);
     gsfelem = static_cast<const reco::PFBlockElementGsfTrack*>(elem2);
   } else {

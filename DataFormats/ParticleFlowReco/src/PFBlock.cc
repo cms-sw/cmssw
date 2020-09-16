@@ -8,10 +8,11 @@
 using namespace std;
 using namespace reco;
 
-void PFBlock::addElement(PFBlockElement* element) {
-  element->setIndex(elements_.size());
-  element->lock();
-  elements_.push_back(element->clone());
+void PFBlock::addElement(const PFBlockElement* element) {
+  PFBlockElement* new_element = element->clone();
+  new_element->setIndex(elements_.size());
+  new_element->lock();
+  elements_.push_back(new_element);
 }
 
 void PFBlock::bookLinkData() {}

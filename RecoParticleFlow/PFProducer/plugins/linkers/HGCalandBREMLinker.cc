@@ -11,7 +11,13 @@ public:
         useKDTree_(conf.getParameter<bool>("useKDTree")),
         debug_(conf.getUntrackedParameter<bool>("debug", false)) {}
 
-  double testLink(const reco::PFBlockElement*, const reco::PFBlockElement*) const override;
+  double testLink(size_t ielem1,
+                  size_t ielem2,
+                  reco::PFBlockElement::Type type1,
+                  reco::PFBlockElement::Type type2,
+                  const ElementListConst& elements,
+                  const PFTables& tables,
+                  const reco::PFMultiLinksIndex& multilinks) const override;
 
 private:
   bool useKDTree_, debug_;
@@ -19,12 +25,20 @@ private:
 
 DEFINE_EDM_PLUGIN(BlockElementLinkerFactory, HGCalAndBREMLinker, "HGCalAndBREMLinker");
 
-double HGCalAndBREMLinker::testLink(const reco::PFBlockElement* elem1, const reco::PFBlockElement* elem2) const {
+double HGCalAndBREMLinker::testLink(size_t ielem1,
+                                    size_t ielem2,
+                                    reco::PFBlockElement::Type type1,
+                                    reco::PFBlockElement::Type type2,
+                                    const ElementListConst& elements,
+                                    const PFTables& tables,
+                                    const reco::PFMultiLinksIndex& multilinks) const {
+  const auto* elem1 = elements[ielem1];
+  const auto* elem2 = elements[ielem2];
   constexpr reco::PFTrajectoryPoint::LayerType ECALShowerMax = reco::PFTrajectoryPoint::ECALShowerMax;
   const reco::PFBlockElementCluster* ecalelem(nullptr);
   const reco::PFBlockElementBrem* bremelem(nullptr);
   double dist(-1.0);
-  if (elem1->type() > elem2->type()) {
+  if (type1 > type2) {
     ecalelem = static_cast<const reco::PFBlockElementCluster*>(elem1);
     bremelem = static_cast<const reco::PFBlockElementBrem*>(elem2);
   } else {

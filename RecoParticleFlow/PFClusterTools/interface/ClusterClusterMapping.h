@@ -9,6 +9,11 @@
 #include "DataFormats/ParticleFlowReco/interface/PFClusterFwd.h"
 #include "DataFormats/Common/interface/ValueMap.h"
 
+#include "FWCore/SOA/interface/Table.h"
+#include "FWCore/SOA/interface/TableView.h"
+#include "FWCore/SOA/interface/Column.h"
+#include "RecoParticleFlow/PFProducer/interface/TableDefinitions.h"
+
 class ClusterClusterMapping {
 public:
   ClusterClusterMapping() { ; }
@@ -23,6 +28,14 @@ public:
   static bool overlap(const reco::PFClusterRef &pfclustest,
                       const reco::SuperCluster &sc,
                       const edm::ValueMap<reco::CaloClusterPtr> &pfclusassoc);
+
+  static bool overlap(
+      const std::set<size_t> &idx_rechits1,
+      const std::set<size_t> &idx_rechits2,
+      edm::soa::TableView<edm::soa::col::pf::rechit::DetIdValue, edm::soa::col::pf::rechit::Fraction> rechits1,
+      edm::soa::TableView<edm::soa::col::pf::rechit::DetIdValue, edm::soa::col::pf::rechit::Fraction> rechits2,
+      float minfrac = 0.01,
+      bool debug = false);
 
   static int checkOverlap(const reco::PFCluster &pfc,
                           const std::vector<const reco::SuperCluster *> &sc,

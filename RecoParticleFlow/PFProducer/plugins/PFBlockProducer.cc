@@ -62,6 +62,13 @@ void PFBlockProducer::produce(Event& iEvent, const EventSetup& iSetup) {
 
   auto blocks = pfBlockAlgo_.findBlocks();
 
+#ifdef EDM_ML_DEBUG
+  LogDebug("PFBlockProducer") << "produced " << blocks.size() << " PFBlocks";
+  for (const auto& block : blocks) {
+    LogDebug("PFBlockProducer") << "block size=" << block.elements().size();
+  }
+#endif
+
   if (verbose_) {
     ostringstream str;
     str << pfBlockAlgo_ << endl;

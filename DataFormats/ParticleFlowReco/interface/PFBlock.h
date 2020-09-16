@@ -45,7 +45,7 @@ namespace reco {
 
     /// add an element to the current PFBlock
     /// the block will keep a copy.
-    void addElement(reco::PFBlockElement* element);
+    void addElement(const reco::PFBlockElement* element);
 
     void bookLinkData();
 

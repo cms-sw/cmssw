@@ -11,9 +11,21 @@ public:
         useKDTree_(conf.getParameter<bool>("useKDTree")),
         debug_(conf.getUntrackedParameter<bool>("debug", false)) {}
 
-  bool linkPrefilter(const reco::PFBlockElement*, const reco::PFBlockElement*) const override;
+  bool linkPrefilter(size_t ielem1,
+                     size_t ielem2,
+                     reco::PFBlockElement::Type type1,
+                     reco::PFBlockElement::Type type2,
+                     const reco::PFMultiLinksIndex& multilinks,
+                     const reco::PFBlockElement*,
+                     const reco::PFBlockElement*) const override;
 
-  double testLink(const reco::PFBlockElement*, const reco::PFBlockElement*) const override;
+  double testLink(size_t ielem1,
+                  size_t ielem2,
+                  reco::PFBlockElement::Type type1,
+                  reco::PFBlockElement::Type type2,
+                  const ElementListConst& elements,
+                  const PFTables& tables,
+                  const reco::PFMultiLinksIndex& multilinks) const override;
 
 private:
   bool useKDTree_, debug_;
@@ -21,11 +33,25 @@ private:
 
 DEFINE_EDM_PLUGIN(BlockElementLinkerFactory, TrackAndTrackLinker, "TrackAndTrackLinker");
 
-bool TrackAndTrackLinker::linkPrefilter(const reco::PFBlockElement* e1, const reco::PFBlockElement* e2) const {
+bool TrackAndTrackLinker::linkPrefilter(size_t ielem1,
+                                        size_t ielem2,
+                                        reco::PFBlockElement::Type type1,
+                                        reco::PFBlockElement::Type type2,
+                                        const reco::PFMultiLinksIndex& multilinks,
+                                        const reco::PFBlockElement* e1,
+                                        const reco::PFBlockElement* e2) const {
   return (e1->isLinkedToDisplacedVertex() || e2->isLinkedToDisplacedVertex());
 }
 
-double TrackAndTrackLinker::testLink(const reco::PFBlockElement* elem1, const reco::PFBlockElement* elem2) const {
+double TrackAndTrackLinker::testLink(size_t ielem1,
+                                     size_t ielem2,
+                                     reco::PFBlockElement::Type type1,
+                                     reco::PFBlockElement::Type type2,
+                                     const ElementListConst& elements,
+                                     const PFTables& tables,
+                                     const reco::PFMultiLinksIndex& multilinks) const {
+  const reco::PFBlockElement* elem1 = elements[ielem1];
+  const reco::PFBlockElement* elem2 = elements[ielem2];
   constexpr reco::PFBlockElement::TrackType T_TO_DISP = reco::PFBlockElement::T_TO_DISP;
   constexpr reco::PFBlockElement::TrackType T_FROM_DISP = reco::PFBlockElement::T_FROM_DISP;
   double dist = -1.0;

@@ -11,7 +11,13 @@ public:
         useKDTree_(conf.getParameter<bool>("useKDTree")),
         debug_(conf.getUntrackedParameter<bool>("debug", false)) {}
 
-  double testLink(const reco::PFBlockElement*, const reco::PFBlockElement*) const override;
+  double testLink(size_t ielem1,
+                  size_t ielem2,
+                  reco::PFBlockElement::Type type1,
+                  reco::PFBlockElement::Type type2,
+                  const ElementListConst& elements,
+                  const PFTables& tables,
+                  const reco::PFMultiLinksIndex& multilinks) const override;
 
 private:
   bool useKDTree_, debug_;
@@ -19,17 +25,26 @@ private:
 
 DEFINE_EDM_PLUGIN(BlockElementLinkerFactory, GSFAndGSFLinker, "GSFAndGSFLinker");
 
-double GSFAndGSFLinker::testLink(const reco::PFBlockElement* elem1, const reco::PFBlockElement* elem2) const {
-  constexpr reco::PFBlockElement::TrackType T_FROM_GAMMACONV = reco::PFBlockElement::T_FROM_GAMMACONV;
+double GSFAndGSFLinker::testLink(size_t ielem1,
+                                 size_t ielem2,
+                                 reco::PFBlockElement::Type type1,
+                                 reco::PFBlockElement::Type type2,
+                                 const ElementListConst& elements,
+                                 const PFTables& tables,
+                                 const reco::PFMultiLinksIndex& multilinks) const {
+  using namespace edm::soa::col;
+
   double dist = -1.0;
-  const reco::PFBlockElementGsfTrack* gsfelem1 = static_cast<const reco::PFBlockElementGsfTrack*>(elem1);
-  const reco::PFBlockElementGsfTrack* gsfelem2 = static_cast<const reco::PFBlockElementGsfTrack*>(elem2);
-  const reco::GsfPFRecTrackRef& gsfref1 = gsfelem1->GsftrackRefPF();
-  const reco::GsfPFRecTrackRef& gsfref2 = gsfelem2->GsftrackRefPF();
-  if (gsfref1.isNonnull() && gsfref2.isNonnull()) {
-    if (gsfelem1->trackType(T_FROM_GAMMACONV) !=  // we want **one** primary GSF
-            gsfelem2->trackType(T_FROM_GAMMACONV) &&
-        gsfref1->trackId() == gsfref2->trackId()) {
+
+  size_t igsf1 = tables.element_to_gsf_[ielem1];
+  size_t igsf2 = tables.element_to_gsf_[ielem2];
+
+  if (tables.gsf_table_.get<pf::track::GsfTrackRefPFIsNonNull>(igsf1) &&
+      tables.gsf_table_.get<pf::track::GsfTrackRefPFIsNonNull>(igsf2)) {
+    if (tables.gsf_table_.get<pf::track::TrackType_FROM_GAMMACONV>(igsf1) !=  // we want **one** primary GSF
+            tables.gsf_table_.get<pf::track::TrackType_FROM_GAMMACONV>(igsf2) &&
+        tables.gsf_table_.get<pf::track::GsfTrackRefPFTrackId>(igsf1) ==
+            tables.gsf_table_.get<pf::track::GsfTrackRefPFTrackId>(igsf2)) {
       dist = 0.001;
     }
   }

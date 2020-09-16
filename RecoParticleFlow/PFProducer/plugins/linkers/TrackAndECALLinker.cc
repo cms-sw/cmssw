@@ -3,6 +3,9 @@
 #include "DataFormats/ParticleFlowReco/interface/PFBlockElementCluster.h"
 #include "DataFormats/ParticleFlowReco/interface/PFBlockElementTrack.h"
 #include "RecoParticleFlow/PFClusterTools/interface/LinkByRecHit.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+
+using namespace edm::soa::col;
 
 class TrackAndECALLinker : public BlockElementLinkerBase {
 public:
@@ -11,9 +14,23 @@ public:
         useKDTree_(conf.getParameter<bool>("useKDTree")),
         debug_(conf.getUntrackedParameter<bool>("debug", false)) {}
 
-  bool linkPrefilter(const reco::PFBlockElement*, const reco::PFBlockElement*) const override;
+  bool linkPrefilter(size_t ielem1,
+                     size_t ielem2,
+                     reco::PFBlockElement::Type type1,
+                     reco::PFBlockElement::Type type2,
+                     const reco::PFMultiLinksIndex& multilinks,
+                     const reco::PFBlockElement*,
+                     const reco::PFBlockElement*) const override;
 
-  double testLink(const reco::PFBlockElement*, const reco::PFBlockElement*) const override;
+  double testLink(size_t ielem1,
+                  size_t ielem2,
+                  reco::PFBlockElement::Type type1,
+                  reco::PFBlockElement::Type type2,
+                  const ElementListConst& elements,
+                  const PFTables& tables,
+                  const reco::PFMultiLinksIndex& multilinks) const override;
+
+  double testLink(const reco::PFBlockElement* elem1, const reco::PFBlockElement* elem2) const;
 
 private:
   const bool useKDTree_, debug_;
@@ -21,28 +38,84 @@ private:
 
 DEFINE_EDM_PLUGIN(BlockElementLinkerFactory, TrackAndECALLinker, "TrackAndECALLinker");
 
-bool TrackAndECALLinker::linkPrefilter(const reco::PFBlockElement* elem1, const reco::PFBlockElement* elem2) const {
+bool TrackAndECALLinker::linkPrefilter(size_t ielem1,
+                                       size_t ielem2,
+                                       reco::PFBlockElement::Type type1,
+                                       reco::PFBlockElement::Type type2,
+                                       const reco::PFMultiLinksIndex& multilinks,
+                                       const reco::PFBlockElement* elem1,
+                                       const reco::PFBlockElement* elem2) const {
   bool result = false;
-  // Track-ECAL KDTree multilinks are stored to ecal's elem
-  switch (elem1->type()) {
+  switch (type1) {
     case reco::PFBlockElement::TRACK:
-      result = (elem2->isMultilinksValide(elem1->type()) && !elem2->getMultilinks(elem1->type()).empty() &&
-                elem1->isMultilinksValide(elem2->type()));
+      result = multilinks.isValid(ielem2, type2, type1);
       break;
     case reco::PFBlockElement::ECAL:
-      result = (elem1->isMultilinksValide(elem2->type()) && !elem1->getMultilinks(elem2->type()).empty() &&
-                elem2->isMultilinksValide(elem1->type()));
+      result = multilinks.isValid(ielem1, type1, type2);
     default:
       break;
   }
   return (useKDTree_ ? result : true);
 }
 
+double TrackAndECALLinker::testLink(size_t ielem1,
+                                    size_t ielem2,
+                                    reco::PFBlockElement::Type type1,
+                                    reco::PFBlockElement::Type type2,
+                                    const ElementListConst& elements,
+                                    const PFTables& tables,
+                                    const reco::PFMultiLinksIndex& multilinks) const {
+  LogDebug("TrackAndECALLinker") << "testLink " << ielem1 << " " << ielem2;
+
+  const auto* elem1 = elements[ielem1];
+  const auto* elem2 = elements[ielem2];
+
+  size_t itrack_elem = 0;
+  size_t iecal_elem = 0;
+
+  double dist(-1.0);
+  if (type1 < type2) {
+    itrack_elem = ielem1;
+    iecal_elem = ielem2;
+  } else {
+    itrack_elem = ielem2;
+    iecal_elem = ielem1;
+  }
+  const size_t iecal = tables.clusters_ecal_.element_to_cluster_[iecal_elem];
+  const size_t itrack = tables.element_to_track_[itrack_elem];
+
+  // Check if the linking has been done using the KDTree algo
+  // Glowinski & Gouzevitch
+  if (useKDTree_) {  //KDTree Algo
+    const double ecalphi = tables.clusters_ecal_.cluster_table_.get<pf::cluster::Phi>(iecal);
+    const double ecaleta = tables.clusters_ecal_.cluster_table_.get<pf::cluster::Eta>(iecal);
+
+    const bool linked =
+        multilinks.isLinked(iecal_elem, itrack_elem, elements[iecal_elem]->type(), elements[itrack_elem]->type());
+    // If the link exist, we fill dist and linktest.
+    if (linked) {
+      dist = LinkByRecHit::computeDist(ecaleta,
+                                       ecalphi,
+                                       tables.track_table_ecalshowermax_.get<pf::track::Eta>(itrack),
+                                       tables.track_table_ecalshowermax_.get<pf::track::Phi>(itrack));
+    }
+
+  } else {  // Old algorithm
+    dist = testLink(elem1, elem2);
+  }
+
+  LogDebug("TrackAndECALLinker") << "Linked Track-ECAL: itrack_elem=" << itrack_elem << " iecal_elem=" << iecal_elem
+                                 << " dist=" << dist;
+
+  return dist;
+}
+
 double TrackAndECALLinker::testLink(const reco::PFBlockElement* elem1, const reco::PFBlockElement* elem2) const {
+  double dist(-1.0);
   constexpr reco::PFTrajectoryPoint::LayerType ECALShowerMax = reco::PFTrajectoryPoint::ECALShowerMax;
+
   const reco::PFBlockElementCluster* ecalelem(nullptr);
   const reco::PFBlockElementTrack* tkelem(nullptr);
-  double dist(-1.0);
   if (elem1->type() < elem2->type()) {
     tkelem = static_cast<const reco::PFBlockElementTrack*>(elem1);
     ecalelem = static_cast<const reco::PFBlockElementCluster*>(elem2);
@@ -50,40 +123,13 @@ double TrackAndECALLinker::testLink(const reco::PFBlockElement* elem1, const rec
     tkelem = static_cast<const reco::PFBlockElementTrack*>(elem2);
     ecalelem = static_cast<const reco::PFBlockElementCluster*>(elem1);
   }
+
   const reco::PFRecTrackRef& trackref = tkelem->trackRefPF();
   const reco::PFClusterRef& clusterref = ecalelem->clusterRef();
-  const reco::PFCluster::REPPoint& ecalreppos = clusterref->positionREP();
   const reco::PFTrajectoryPoint& tkAtECAL = trackref->extrapolatedPoint(ECALShowerMax);
 
-  // Check if the linking has been done using the KDTree algo
-  // Glowinski & Gouzevitch
-  if (useKDTree_ && ecalelem->isMultilinksValide(tkelem->type())) {  //KDTree Algo
-    const reco::PFMultilinksType& multilinks = ecalelem->getMultilinks(tkelem->type());
-    const double tracketa = tkAtECAL.positionREP().Eta();
-    const double trackphi = tkAtECAL.positionREP().Phi();
+  if (tkAtECAL.isValid())
+    dist = LinkByRecHit::testTrackAndClusterByRecHit(*trackref, *clusterref, false, debug_);
 
-    // Check if the link Track/Ecal exist
-    reco::PFMultilinksType::const_iterator mlit = multilinks.begin();
-    for (; mlit != multilinks.end(); ++mlit)
-      if ((mlit->first == trackphi) && (mlit->second == tracketa))
-        break;
-
-    // If the link exist, we fill dist and linktest.
-    if (mlit != multilinks.end()) {
-      dist = LinkByRecHit::computeDist(ecalreppos.Eta(), ecalreppos.Phi(), tracketa, trackphi);
-    }
-
-  } else {  // Old algorithm
-    if (tkAtECAL.isValid())
-      dist = LinkByRecHit::testTrackAndClusterByRecHit(*trackref, *clusterref, false, debug_);
-  }
-
-  if (debug_) {
-    if (dist > 0.) {
-      std::cout << " Here a link has been established"
-                << " between a track an Ecal with dist  " << dist << std::endl;
-    } else
-      std::cout << " No link found " << std::endl;
-  }
   return dist;
 }

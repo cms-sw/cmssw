@@ -10,7 +10,13 @@ public:
         useKDTree_(conf.getParameter<bool>("useKDTree")),
         debug_(conf.getUntrackedParameter<bool>("debug", false)) {}
 
-  double testLink(const reco::PFBlockElement*, const reco::PFBlockElement*) const override;
+  double testLink(size_t ielem1,
+                  size_t ielem2,
+                  reco::PFBlockElement::Type type1,
+                  reco::PFBlockElement::Type type2,
+                  const ElementListConst& elements,
+                  const PFTables& tables,
+                  const reco::PFMultiLinksIndex& multilinks) const override;
 
 private:
   bool useKDTree_, debug_;
@@ -18,25 +24,34 @@ private:
 
 DEFINE_EDM_PLUGIN(BlockElementLinkerFactory, HCALAndHOLinker, "HCALAndHOLinker");
 
-double HCALAndHOLinker::testLink(const reco::PFBlockElement* elem1, const reco::PFBlockElement* elem2) const {
-  const reco::PFBlockElementCluster *hcalelem(nullptr), *hoelem(nullptr);
+double HCALAndHOLinker::testLink(size_t ielem1,
+                                 size_t ielem2,
+                                 reco::PFBlockElement::Type type1,
+                                 reco::PFBlockElement::Type type2,
+                                 const ElementListConst& elements,
+                                 const PFTables& tables,
+                                 const reco::PFMultiLinksIndex& multilinks) const {
+  using namespace edm::soa::col;
   double dist(-1.0);
-  if (elem1->type() < elem2->type()) {
-    hcalelem = static_cast<const reco::PFBlockElementCluster*>(elem1);
-    hoelem = static_cast<const reco::PFBlockElementCluster*>(elem2);
+
+  size_t ihcal_elem = 0;
+  size_t iho_elem = 0;
+
+  if (type1 < type2) {
+    ihcal_elem = ielem1;
+    iho_elem = ielem2;
   } else {
-    hcalelem = static_cast<const reco::PFBlockElementCluster*>(elem2);
-    hoelem = static_cast<const reco::PFBlockElementCluster*>(elem1);
+    ihcal_elem = ielem2;
+    iho_elem = ielem1;
   }
-  const reco::PFClusterRef& hcalref = hcalelem->clusterRef();
-  const reco::PFClusterRef& horef = hoelem->clusterRef();
-  const reco::PFCluster::REPPoint& hcalreppos = hcalref->positionREP();
-  if (hcalref.isNull() || horef.isNull()) {
-    throw cms::Exception("BadClusterRefs") << "PFBlockElementCluster's refs are null!";
-  }
-  dist = (std::abs(hcalreppos.Eta()) < 1.5
-              ? LinkByRecHit::computeDist(
-                    hcalreppos.Eta(), hcalreppos.Phi(), horef->positionREP().Eta(), horef->positionREP().Phi())
-              : -1.0);
+  size_t ihcal = tables.clusters_hcal_.element_to_cluster_[ihcal_elem];
+  size_t iho = tables.clusters_ho_.element_to_cluster_[iho_elem];
+
+  const auto hcal_eta = tables.clusters_hcal_.cluster_table_.get<pf::cluster::Eta>(ihcal);
+  const auto hcal_phi = tables.clusters_hcal_.cluster_table_.get<pf::cluster::Phi>(ihcal);
+  const auto ho_eta = tables.clusters_ho_.cluster_table_.get<pf::cluster::Eta>(iho);
+  const auto ho_phi = tables.clusters_ho_.cluster_table_.get<pf::cluster::Phi>(iho);
+
+  dist = (std::abs(hcal_eta) < 1.5 ? LinkByRecHit::computeDist(hcal_eta, hcal_phi, ho_eta, ho_phi) : -1.0);
   return (dist < 0.2 ? dist : -1.0);
 }

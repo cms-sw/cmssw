@@ -3,6 +3,8 @@
 #include "DataFormats/ParticleFlowReco/interface/PFRecHit.h"
 #include "TMath.h"
 
+using namespace edm::soa::col;
+
 using BVector2D = Basic2DVector<double>;
 using Vector2D = Basic2DVector<double>::MathVector;
 namespace {
@@ -14,6 +16,56 @@ namespace {
 
 // to enable debugs
 //#define PFLOW_DEBUG
+
+double LinkByRecHit::computeTrackHCALDist(
+    bool checkExit,
+    size_t itrack,
+    size_t ihcal,
+    edm::soa::TableView<edm::soa::col::pf::cluster::Eta, edm::soa::col::pf::cluster::Phi> clusterTable,
+    edm::soa::TableView<edm::soa::col::pf::track::ExtrapolationValid,
+                        edm::soa::col::pf::track::Eta,
+                        edm::soa::col::pf::track::Phi,
+                        edm::soa::col::pf::track::Posx,
+                        edm::soa::col::pf::track::Posy,
+                        edm::soa::col::pf::track::Posz,
+                        edm::soa::col::pf::track::PosR> trackTableEntrance,
+    edm::soa::TableView<edm::soa::col::pf::track::ExtrapolationValid,
+                        edm::soa::col::pf::track::Eta,
+                        edm::soa::col::pf::track::Phi,
+                        edm::soa::col::pf::track::Posx,
+                        edm::soa::col::pf::track::Posy,
+                        edm::soa::col::pf::track::Posz,
+                        edm::soa::col::pf::track::PosR> trackTableExit
+
+) {
+  double dist = -1.0;
+  const double tracketa = trackTableEntrance.get<pf::track::Eta>(itrack);
+  const double trackphi = trackTableEntrance.get<pf::track::Phi>(itrack);
+  const double clustereta = clusterTable.get<pf::cluster::Eta>(ihcal);
+  const double clusterphi = clusterTable.get<pf::cluster::Phi>(ihcal);
+
+  // when checkExit_ is false
+  if (!checkExit) {
+    dist = LinkByRecHit::computeDist(clustereta, clusterphi, tracketa, trackphi);
+  } else {
+    const double dHEta = trackTableExit.get<pf::track::Eta>(itrack) - trackTableEntrance.get<pf::track::Eta>(itrack);
+    const double dHPhi =
+        reco::deltaPhi(trackTableExit.get<pf::track::Phi>(itrack), trackTableEntrance.get<pf::track::Phi>(itrack));
+    const double dRHCALEx = trackTableExit.get<pf::track::PosR>(itrack);
+
+    //special case ! A looper  can exit the barrel inwards and hit the endcap
+    //In this case calculate the distance based on the first crossing since
+    //the looper will probably never make it to the endcap
+    if (dRHCALEx < trackTableEntrance.get<pf::track::PosR>(itrack)) {
+      dist = LinkByRecHit::computeDist(clustereta, clusterphi, tracketa, trackphi);
+      edm::LogWarning("TrackHCALLinker ")
+          << "Special case of linking with track hitting HCAL and looping back in the tracker ";
+    } else {
+      dist = LinkByRecHit::computeDist(clustereta, clusterphi, tracketa + 0.1 * dHEta, trackphi + 0.1 * dHPhi);
+    }
+  }
+  return dist;
+}
 
 double LinkByRecHit::testTrackAndClusterByRecHit(const reco::PFRecTrack& track,
                                                  const reco::PFCluster& cluster,
@@ -354,6 +406,294 @@ double LinkByRecHit::testTrackAndClusterByRecHit(const reco::PFRecTrack& track,
 		<< " Track   " << trackr << " " << track_Z << " " << trackphi << " " << tracketa << " " << trackEta << " " << trackPt << std::endl;
     } 
     */
+    return dist;
+  } else {
+    return -1.;
+  }
+}
+
+//copy of the above pointer-based function. Need to make sure they shar the implementation in the future!
+double LinkByRecHit::testTrackAndClusterByRecHit(
+    size_t icluster,
+    std::set<size_t> cluster_rechits,
+    edm::soa::TableView<edm::soa::col::pf::cluster::Eta,
+                        edm::soa::col::pf::cluster::Phi,
+                        edm::soa::col::pf::cluster::Posz,
+                        edm::soa::col::pf::cluster::Layer,
+                        edm::soa::col::pf::cluster::FracsNbr> cluster_table,
+
+    edm::soa::TableView<edm::soa::col::pf::rechit::DetIdValue,
+                        edm::soa::col::pf::rechit::Fraction,
+                        edm::soa::col::pf::rechit::Eta,
+                        edm::soa::col::pf::rechit::Phi,
+                        edm::soa::col::pf::rechit::Posx,
+                        edm::soa::col::pf::rechit::Posy,
+                        edm::soa::col::pf::rechit::Posz,
+                        edm::soa::col::pf::rechit::Corner0x,
+                        edm::soa::col::pf::rechit::Corner0y,
+                        edm::soa::col::pf::rechit::Corner0z,
+                        edm::soa::col::pf::rechit::Corner1x,
+                        edm::soa::col::pf::rechit::Corner1y,
+                        edm::soa::col::pf::rechit::Corner1z,
+                        edm::soa::col::pf::rechit::Corner2x,
+                        edm::soa::col::pf::rechit::Corner2y,
+                        edm::soa::col::pf::rechit::Corner2z,
+                        edm::soa::col::pf::rechit::Corner3x,
+                        edm::soa::col::pf::rechit::Corner3y,
+                        edm::soa::col::pf::rechit::Corner3z,
+                        edm::soa::col::pf::rechit::Corner0eta,
+                        edm::soa::col::pf::rechit::Corner0phi,
+                        edm::soa::col::pf::rechit::Corner1eta,
+                        edm::soa::col::pf::rechit::Corner1phi,
+                        edm::soa::col::pf::rechit::Corner2eta,
+                        edm::soa::col::pf::rechit::Corner2phi,
+                        edm::soa::col::pf::rechit::Corner3eta,
+                        edm::soa::col::pf::rechit::Corner3phi> rechit_table,
+
+    size_t itrack,
+    edm::soa::TableView<edm::soa::col::pf::track::Pt> tracks_vtx_table,
+    edm::soa::TableView<edm::soa::col::pf::track::ExtrapolationValid,
+                        edm::soa::col::pf::track::Eta,
+                        edm::soa::col::pf::track::Phi,
+                        edm::soa::col::pf::track::Posx,
+                        edm::soa::col::pf::track::Posy,
+                        edm::soa::col::pf::track::Posz,
+                        edm::soa::col::pf::track::PosR> tracks_ecal_table,
+    edm::soa::TableView<edm::soa::col::pf::track::ExtrapolationValid,
+                        edm::soa::col::pf::track::Eta,
+                        edm::soa::col::pf::track::Phi,
+                        edm::soa::col::pf::track::Posx,
+                        edm::soa::col::pf::track::Posy,
+                        edm::soa::col::pf::track::Posz,
+                        edm::soa::col::pf::track::PosR> tracks_hcalent_table,
+    edm::soa::TableView<edm::soa::col::pf::track::ExtrapolationValid,
+                        edm::soa::col::pf::track::Eta,
+                        edm::soa::col::pf::track::Phi,
+                        edm::soa::col::pf::track::Posx,
+                        edm::soa::col::pf::track::Posy,
+                        edm::soa::col::pf::track::Posz,
+                        edm::soa::col::pf::track::PosR> tracks_hcalexit_table,
+    edm::soa::TableView<edm::soa::col::pf::track::ExtrapolationValid,
+                        edm::soa::col::pf::track::Eta,
+                        edm::soa::col::pf::track::Phi,
+                        edm::soa::col::pf::track::Posx,
+                        edm::soa::col::pf::track::Posy,
+                        edm::soa::col::pf::track::Posz,
+                        edm::soa::col::pf::track::PosR> tracks_ho_table,
+    bool isBrem) {
+  //cluster position
+  const auto clustereta = cluster_table.get<pf::cluster::Eta>(icluster);
+  const auto clusterphi = cluster_table.get<pf::cluster::Phi>(icluster);
+  const auto clusterZ = cluster_table.get<pf::cluster::Posz>(icluster);
+  const auto clusterLayer = cluster_table.get<pf::cluster::Layer>(icluster);
+
+  bool barrel = false;
+  bool hcal = false;
+  // double distance = 999999.9;
+  double horesolscale = 1.0;
+
+  //track at calo's
+  double tracketa = 999999.9;
+  double trackphi = 999999.9;
+  double track_X = 999999.9;
+  double track_Y = 999999.9;
+  double track_Z = 999999.9;
+  double dHEta = 0.;
+  double dHPhi = 0.;
+
+  // Quantities at vertex
+  double trackPt = isBrem ? 999. : tracks_vtx_table.get<pf::track::Pt>(itrack);
+  // double trackEta = isBrem ? 999. : atVertex.momentum().Vect().Eta();
+
+  switch (clusterLayer) {
+    case PFLayer::ECAL_BARREL:
+      barrel = true;
+      [[fallthrough]];
+    case PFLayer::ECAL_ENDCAP:
+      // did not reach ecal, cannot be associated with a cluster.
+      if (!tracks_ecal_table.get<pf::track::ExtrapolationValid>(itrack))
+        return -1.;
+
+      tracketa = tracks_ecal_table.get<pf::track::Eta>(itrack);
+      trackphi = tracks_ecal_table.get<pf::track::Phi>(itrack);
+      track_X = tracks_ecal_table.get<pf::track::Posx>(itrack);
+      track_Y = tracks_ecal_table.get<pf::track::Posy>(itrack);
+      track_Z = tracks_ecal_table.get<pf::track::Posz>(itrack);
+
+      break;
+
+    case PFLayer::HCAL_BARREL1:
+      barrel = true;
+      [[fallthrough]];
+    case PFLayer::HCAL_ENDCAP:
+      if (isBrem) {
+        return -1.;
+      } else {
+        hcal = true;
+        // did not reach hcal, cannot be associated with a cluster.
+        if (!tracks_hcalent_table.get<pf::track::ExtrapolationValid>(itrack))
+          return -1.;
+
+        // The link is computed between 0 and ~1 interaction length in HCAL
+        dHEta = tracks_hcalexit_table.get<pf::track::Eta>(itrack) - tracks_hcalent_table.get<pf::track::Eta>(itrack);
+        dHPhi = tracks_hcalexit_table.get<pf::track::Phi>(itrack) - tracks_hcalent_table.get<pf::track::Phi>(itrack);
+        if (dHPhi > M_PI)
+          dHPhi = dHPhi - 2. * M_PI;
+        else if (dHPhi < -M_PI)
+          dHPhi = dHPhi + 2. * M_PI;
+        tracketa = tracks_hcalent_table.get<pf::track::Eta>(itrack) + 0.1 * dHEta;
+        trackphi = tracks_hcalent_table.get<pf::track::Phi>(itrack) + 0.1 * dHPhi;
+        track_X = tracks_hcalent_table.get<pf::track::Posx>(itrack);
+        track_Y = tracks_hcalent_table.get<pf::track::Posy>(itrack);
+        track_Z = tracks_hcalent_table.get<pf::track::Posz>(itrack);
+      }
+      break;
+
+    case PFLayer::HCAL_BARREL2:
+      barrel = true;
+      if (isBrem) {
+        return -1.;
+      } else {
+        hcal = true;
+        horesolscale = 1.15;
+        // did not reach ho, cannot be associated with a cluster.
+        if (!tracks_ho_table.get<pf::track::ExtrapolationValid>(itrack))
+          return -1.;
+
+        //
+        tracketa = tracks_ho_table.get<pf::track::Eta>(itrack);
+        trackphi = tracks_ho_table.get<pf::track::Phi>(itrack);
+        track_X = tracks_ho_table.get<pf::track::Posx>(itrack);
+        track_Y = tracks_ho_table.get<pf::track::Posy>(itrack);
+        track_Z = tracks_ho_table.get<pf::track::Posz>(itrack);
+
+        // Is this check really useful ?
+        if (std::abs(track_Z) > 700.25)
+          return -1.;
+      }
+      break;
+
+    case PFLayer::PS1:
+      [[fallthrough]];
+    case PFLayer::PS2:
+      //Note Alex: Nothing implemented for the
+      //PreShower (No resolution maps yet)
+      return -1.;
+    default:
+      return -1.;
+  }
+
+  // Check that, if the cluster is in the endcap,
+  // 0) the track indeed points to the endcap at vertex (DISABLED)
+  // 1) the track extrapolation is in the endcap too !
+  // 2) the track is in the same end-cap !
+  // PJ - 10-May-09
+  if (!barrel) {
+    // if ( fabs(trackEta) < 1.0 ) return -1;
+    if (!hcal && std::abs(track_Z) < 300.)
+      return -1.;
+    if (track_Z * clusterZ < 0.)
+      return -1.;
+  }
+  // Check that, if the cluster is in the barrel,
+  // 1) the track is in the barrel too !
+  if (barrel) {
+    if (!hcal && std::abs(track_Z) > 300.)
+      return -1.;
+  }
+
+  double dist = LinkByRecHit::computeDist(clustereta, clusterphi, tracketa, trackphi);
+
+  //Testing if Track can be linked by rechit to a cluster.
+  //A cluster can be linked to a track if the extrapolated position
+  //of the track to the ECAL ShowerMax/HCAL entrance falls within
+  //the boundaries of any cell that belongs to this cluster.
+
+  const auto fracsNbr = cluster_table.get<pf::cluster::FracsNbr>(icluster);
+
+  bool linkedbyrechit = false;
+  //loop rechits
+  for (size_t irechit : cluster_rechits) {
+    double fraction = rechit_table.get<pf::rechit::Fraction>(irechit);
+    if (fraction < 1E-4)
+      continue;
+
+    if (barrel || hcal) {  // barrel case matching in eta/phi
+                           // (and HCAL endcap too!)
+
+      //rechit size determination
+      // blown up by 50% (HCAL) to 100% (ECAL) to include cracks & gaps
+      // also blown up to account for multiple scattering at low pt.
+      double rhsizeEta = std::abs(rechit_table.get<pf::rechit::Corner3eta>(irechit) -
+                                  rechit_table.get<pf::rechit::Corner1eta>(irechit));
+      double rhsizePhi = std::abs(rechit_table.get<pf::rechit::Corner3phi>(irechit) -
+                                  rechit_table.get<pf::rechit::Corner1phi>(irechit));
+      if (rhsizePhi > M_PI)
+        rhsizePhi = 2. * M_PI - rhsizePhi;
+      if (hcal) {
+        const double mult = horesolscale * (1.50 + 0.5 / fracsNbr);
+        rhsizeEta = rhsizeEta * mult + 0.2 * std::abs(dHEta);
+        rhsizePhi = rhsizePhi * mult + 0.2 * fabs(dHPhi);
+
+      } else {
+        const double mult = 2.00 + 1.0 / (fracsNbr * std::min(1., 0.5 * trackPt));
+        rhsizeEta *= mult;
+        rhsizePhi *= mult;
+      }
+
+      //distance track-rechit center
+      // const math::XYZPoint& posxyz
+      // = rechit_cluster.position();
+      double deta = fabs(rechit_table.get<pf::rechit::Eta>(irechit) - tracketa);
+      double dphi = fabs(rechit_table.get<pf::rechit::Phi>(irechit) - trackphi);
+      if (dphi > M_PI)
+        dphi = 2. * M_PI - dphi;
+
+      if (deta < (0.5 * rhsizeEta) && dphi < (0.5 * rhsizePhi)) {
+        linkedbyrechit = true;
+        break;
+      }
+    } else {  //ECAL & PS endcap case, matching in X,Y
+
+      double x[5];
+      double y[5];
+
+      const double rechit_corner_posx[4] = {rechit_table.get<pf::rechit::Corner0x>(irechit),
+                                            rechit_table.get<pf::rechit::Corner1x>(irechit),
+                                            rechit_table.get<pf::rechit::Corner2x>(irechit),
+                                            rechit_table.get<pf::rechit::Corner3x>(irechit)};
+      const double rechit_corner_posy[4] = {rechit_table.get<pf::rechit::Corner0y>(irechit),
+                                            rechit_table.get<pf::rechit::Corner1y>(irechit),
+                                            rechit_table.get<pf::rechit::Corner2y>(irechit),
+                                            rechit_table.get<pf::rechit::Corner3y>(irechit)};
+
+      for (unsigned jc = 0; jc < 4; ++jc) {
+        const double mult = (1.00 + 0.50 / (fracsNbr * std::min(1., 0.5 * trackPt)));
+        x[3 - jc] =
+            rechit_corner_posx[jc] + (rechit_corner_posx[jc] - rechit_table.get<pf::rechit::Posx>(irechit)) * mult;
+        y[3 - jc] =
+            rechit_corner_posy[jc] + (rechit_corner_posy[jc] - rechit_table.get<pf::rechit::Posy>(irechit)) * mult;
+
+      }  //loop corners
+
+      //need to close the polygon in order to
+      //use the TMath::IsInside fonction from root lib
+      x[4] = x[0];
+      y[4] = y[0];
+
+      //Check if the extrapolation point of the track falls
+      //within the rechit boundaries
+      bool isinside = TMath::IsInside(track_X, track_Y, 5, x, y);
+
+      if (isinside) {
+        linkedbyrechit = true;
+        break;
+      }
+    }  //
+
+  }  //loop rechits
+
+  if (linkedbyrechit) {
     return dist;
   } else {
     return -1.;

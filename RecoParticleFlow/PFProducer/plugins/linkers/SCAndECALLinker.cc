@@ -5,6 +5,10 @@
 #include "RecoParticleFlow/PFClusterTools/interface/LinkByRecHit.h"
 #include "RecoParticleFlow/PFClusterTools/interface/ClusterClusterMapping.h"
 
+#include <iostream>
+
+using namespace edm::soa::col;
+
 class SCAndECALLinker : public BlockElementLinkerBase {
 public:
   SCAndECALLinker(const edm::ParameterSet& conf)
@@ -13,7 +17,13 @@ public:
         debug_(conf.getUntrackedParameter<bool>("debug", false)),
         superClusterMatchByRef_(conf.getParameter<bool>("SuperClusterMatchByRef")) {}
 
-  double testLink(const reco::PFBlockElement*, const reco::PFBlockElement*) const override;
+  double testLink(size_t ielem1,
+                  size_t ielem2,
+                  reco::PFBlockElement::Type type1,
+                  reco::PFBlockElement::Type type2,
+                  const ElementListConst& elements,
+                  const PFTables& tables,
+                  const reco::PFMultiLinksIndex& multilinks) const override;
 
 private:
   bool useKDTree_, debug_, superClusterMatchByRef_;
@@ -21,30 +31,44 @@ private:
 
 DEFINE_EDM_PLUGIN(BlockElementLinkerFactory, SCAndECALLinker, "SCAndECALLinker");
 
-double SCAndECALLinker::testLink(const reco::PFBlockElement* elem1, const reco::PFBlockElement* elem2) const {
+double SCAndECALLinker::testLink(size_t ielem1,
+                                 size_t ielem2,
+                                 reco::PFBlockElement::Type type1,
+                                 reco::PFBlockElement::Type type2,
+                                 const ElementListConst& elements,
+                                 const PFTables& tables,
+                                 const reco::PFMultiLinksIndex& multilinks) const {
   double dist = -1.0;
-  const reco::PFBlockElementCluster* ecalelem(nullptr);
-  const reco::PFBlockElementSuperCluster* scelem(nullptr);
-  if (elem1->type() < elem2->type()) {
-    ecalelem = static_cast<const reco::PFBlockElementCluster*>(elem1);
-    scelem = static_cast<const reco::PFBlockElementSuperCluster*>(elem2);
+
+  size_t iecal_elem = 0;
+  size_t isc_elem = 0;
+
+  if (type1 < type2) {
+    iecal_elem = ielem1;
+    isc_elem = ielem2;
   } else {
-    ecalelem = static_cast<const reco::PFBlockElementCluster*>(elem2);
-    scelem = static_cast<const reco::PFBlockElementSuperCluster*>(elem1);
-  }
-  const reco::PFClusterRef& clus = ecalelem->clusterRef();
-  const reco::SuperClusterRef& sclus = scelem->superClusterRef();
-  if (sclus.isNull()) {
-    throw cms::Exception("BadRef") << "SuperClusterRef is invalid!";
+    iecal_elem = ielem2;
+    isc_elem = ielem1;
   }
 
+  size_t iecal = tables.clusters_ecal_.element_to_cluster_[iecal_elem];
+  size_t isc = tables.clusters_sc_.element_to_cluster_[isc_elem];
+
   if (superClusterMatchByRef_) {
-    if (sclus == ecalelem->superClusterRef())
+    if (tables.clusters_sc_.cluster_table_.get<pf::cluster::SCRefKey>(isc) ==
+        tables.clusters_ecal_.cluster_table_.get<pf::cluster::SCRefKey>(iecal))
       dist = 0.001;
   } else {
-    if (ClusterClusterMapping::overlap(*sclus, *clus)) {
-      dist = LinkByRecHit::computeDist(
-          sclus->position().eta(), sclus->position().phi(), clus->positionREP().Eta(), clus->positionREP().Phi());
+    //this is probably not needed any more and should be removed
+    const auto& rechits_ecal = tables.clusters_ecal_.cluster_to_rechit_.at(iecal);
+    const auto& rechits_sc = tables.clusters_sc_.cluster_to_rechit_.at(isc);
+
+    if (ClusterClusterMapping::overlap(
+            rechits_ecal, rechits_sc, tables.clusters_ecal_.rechit_table_, tables.clusters_sc_.rechit_table_)) {
+      dist = LinkByRecHit::computeDist(tables.clusters_sc_.cluster_table_.get<pf::cluster::Eta>(isc),
+                                       tables.clusters_sc_.cluster_table_.get<pf::cluster::Phi>(isc),
+                                       tables.clusters_ecal_.cluster_table_.get<pf::cluster::Eta>(iecal),
+                                       tables.clusters_ecal_.cluster_table_.get<pf::cluster::Phi>(iecal));
     }
   }
   return dist;

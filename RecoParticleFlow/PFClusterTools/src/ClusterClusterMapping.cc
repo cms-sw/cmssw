@@ -37,6 +37,32 @@ bool ClusterClusterMapping::overlap(const reco::CaloCluster &sc1,
   return false;
 }
 
+bool ClusterClusterMapping::overlap(
+    const std::set<size_t> &idx_rechits1,
+    const std::set<size_t> &idx_rechits2,
+    edm::soa::TableView<edm::soa::col::pf::rechit::DetIdValue, edm::soa::col::pf::rechit::Fraction> rechits1,
+    edm::soa::TableView<edm::soa::col::pf::rechit::DetIdValue, edm::soa::col::pf::rechit::Fraction> rechits2,
+    float minfrac,
+    bool debug) {
+  using namespace edm::soa::col;
+  for (size_t i1 : idx_rechits1) {
+    // consider only with a minimum fraction of minfrac (default 1%) of the RecHit
+    if (rechits1.get<pf::rechit::Fraction>(i1) < minfrac) {
+      continue;
+    }
+    for (size_t i2 : idx_rechits2) {
+      // consider only with a minimum fraction of minfract (default 1%) of the RecHit
+      if (rechits2.get<pf::rechit::Fraction>(i2) < minfrac) {
+        continue;
+      }
+      if (rechits1.get<pf::rechit::DetIdValue>(i1) == rechits2.get<pf::rechit::DetIdValue>(i2)) {
+        return true;
+      }
+    }
+  }
+  return false;
+}
+
 bool ClusterClusterMapping::overlap(const reco::PFClusterRef &pfclustest,
                                     const reco::SuperCluster &sc,
                                     const edm::ValueMap<reco::CaloClusterPtr> &pfclusassoc) {

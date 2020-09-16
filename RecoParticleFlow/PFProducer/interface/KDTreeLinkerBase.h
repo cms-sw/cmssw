@@ -5,6 +5,9 @@
 #include "DataFormats/ParticleFlowReco/interface/PFRecHitFraction.h"
 #include "DataFormats/ParticleFlowReco/interface/PFBlockElement.h"
 #include "DataFormats/ParticleFlowReco/interface/PFRecHit.h"
+#include "RecoParticleFlow/PFProducer/interface/PFTables.h"
+#include "RecoParticleFlow/PFProducer/interface/PFMultiLinksIndex.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include <vector>
 #include <map>
@@ -15,6 +18,7 @@ using RecHitSet = std::set<const reco::PFRecHit *>;
 
 using RecHit2BlockEltMap = std::map<const reco::PFRecHit *, BlockEltSet>;
 using BlockElt2BlockEltMap = std::map<reco::PFBlockElement *, BlockEltSet>;
+using ElementList = std::vector<std::unique_ptr<reco::PFBlockElement>>;
 
 class KDTreeLinkerBase {
 public:
@@ -38,35 +42,22 @@ public:
   // Debug flag.
   void setDebug(bool isDebug);
 
-  // With this method, we create the list of elements that we want to link.
-  virtual void insertTargetElt(reco::PFBlockElement *target) = 0;
-
-  // Here, we create the list of cluster that we want to link. From cluster
-  // and fraction, we will create a second list of rechits that will be used to
-  // build the KDTree.
-  virtual void insertFieldClusterElt(reco::PFBlockElement *cluster) = 0;
-
   // The KDTree building from rechits list.
-  virtual void buildTree() = 0;
+  virtual void buildTree(const PFTables &pftables) = 0;
 
   // Here we will iterate over all target elements. For each one, we will search the closest
   // rechits in the KDTree, from rechits we will find the associated clusters and after that
   // we will check the links between the target and all closest clusters.
-  virtual void searchLinks() = 0;
-
-  // Here, we will store all target/cluster founded links in the PFBlockElement class
-  // of each target in the PFmultilinks field.
-  virtual void updatePFBlockEltWithLinks() = 0;
+  virtual void searchLinks(const PFTables &pftables, reco::PFMultiLinksIndex &multilinks) = 0;
 
   // Here we free all allocated structures.
   virtual void clear() = 0;
 
   // This method calls is the good order buildTree(), searchLinks(),
   // updatePFBlockEltWithLinks() and clear()
-  inline void process() {
-    buildTree();
-    searchLinks();
-    updatePFBlockEltWithLinks();
+  inline void process(const PFTables &pftables, const ElementList &elem_pointers, reco::PFMultiLinksIndex &multilinks) {
+    buildTree(pftables);
+    searchLinks(pftables, multilinks);
     clear();
   }
 
@@ -82,9 +73,6 @@ protected:
   // the kdtree building step, we duplicate some elements close enough to +Pi (resp -Pi) by
   // substracting (adding) 2Pi. This field define the threshold of this operation.
   float phiOffset_ = 0.25;
-
-  // rechit with fraction this value will be ignored in KDTreeLinker
-  const float cutOffFrac = 1E-4;
 
   // Debug boolean. Not used until now.
   bool debug_ = false;

@@ -7,6 +7,10 @@
 #include "DataFormats/Math/interface/deltaPhi.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
+#include <iostream>
+
+using namespace edm::soa::col;
+
 class TrackAndHCALLinker : public BlockElementLinkerBase {
 public:
   TrackAndHCALLinker(const edm::ParameterSet& conf)
@@ -29,9 +33,23 @@ public:
     checkExit_ = trajectoryLayerExit_ != reco::PFTrajectoryPoint::Unknown;
   }
 
-  bool linkPrefilter(const reco::PFBlockElement*, const reco::PFBlockElement*) const override;
+  bool linkPrefilter(size_t ielem1,
+                     size_t ielem2,
+                     reco::PFBlockElement::Type type1,
+                     reco::PFBlockElement::Type type2,
+                     const reco::PFMultiLinksIndex& multilinks,
+                     const reco::PFBlockElement*,
+                     const reco::PFBlockElement*) const override;
 
-  double testLink(const reco::PFBlockElement*, const reco::PFBlockElement*) const override;
+  double testLink(size_t ielem1,
+                  size_t ielem2,
+                  reco::PFBlockElement::Type type1,
+                  reco::PFBlockElement::Type type2,
+                  const ElementListConst& elements,
+                  const PFTables& tables,
+                  const reco::PFMultiLinksIndex& multilinks) const override;
+
+  double testLink(const reco::PFBlockElement* elem1, const reco::PFBlockElement* elem2) const;
 
 private:
   bool useKDTree_;
@@ -45,27 +63,76 @@ private:
 
 DEFINE_EDM_PLUGIN(BlockElementLinkerFactory, TrackAndHCALLinker, "TrackAndHCALLinker");
 
-bool TrackAndHCALLinker::linkPrefilter(const reco::PFBlockElement* elem1, const reco::PFBlockElement* elem2) const {
+bool TrackAndHCALLinker::linkPrefilter(size_t ielem1,
+                                       size_t ielem2,
+                                       reco::PFBlockElement::Type type1,
+                                       reco::PFBlockElement::Type type2,
+                                       const reco::PFMultiLinksIndex& multilinks,
+                                       const reco::PFBlockElement* elem1,
+                                       const reco::PFBlockElement* elem2) const {
   bool result = false;
-  // Track-HCAL KDTree multilinks are stored to track's elem
-  switch (elem1->type()) {
+  switch (type1) {
     case reco::PFBlockElement::TRACK:
-      result = (elem1->isMultilinksValide(elem2->type()) && !elem1->getMultilinks(elem2->type()).empty() &&
-                elem2->isMultilinksValide(elem1->type()));
+      result = multilinks.isValid(ielem1, type1, type2);
       break;
     case reco::PFBlockElement::HCAL:
-      result = (elem2->isMultilinksValide(elem1->type()) && !elem2->getMultilinks(elem1->type()).empty() &&
-                elem1->isMultilinksValide(elem2->type()));
+      result = multilinks.isValid(ielem2, type2, type1);
     default:
       break;
   }
   return (useKDTree_ ? result : true);
 }
 
+double TrackAndHCALLinker::testLink(size_t ielem1,
+                                    size_t ielem2,
+                                    reco::PFBlockElement::Type type1,
+                                    reco::PFBlockElement::Type type2,
+                                    const ElementListConst& elements,
+                                    const PFTables& tables,
+                                    const reco::PFMultiLinksIndex& multilinks) const {
+  const auto* elem1 = elements[ielem1];
+  const auto* elem2 = elements[ielem2];
+  size_t itrack_elem = 0;
+  size_t ihcal_elem = 0;
+
+  double dist(-1.0);
+  if (type1 < type2) {
+    itrack_elem = ielem1;
+    ihcal_elem = ielem2;
+  } else {
+    itrack_elem = ielem2;
+    ihcal_elem = ielem1;
+  }
+  const auto& clusterTable = tables.getClusterTable(elements[ihcal_elem]->type());
+  const auto& trackTableEntrance = tables.getTrackTable(trajectoryLayerEntrance_);
+  const auto& trackTableExit = checkExit_ ? tables.getTrackTable(trajectoryLayerEntrance_) : trackTableEntrance;
+
+  size_t ihcal = clusterTable.element_to_cluster_[ihcal_elem];
+  size_t itrack = tables.element_to_track_[itrack_elem];
+
+  if (useKDTree_) {  //KDTree Algo
+    const bool linked =
+        multilinks.isLinked(itrack_elem, ihcal_elem, elements[itrack_elem]->type(), elements[ihcal_elem]->type());
+    // If the link exist, we fill dist and linktest.
+    if (linked) {
+      dist = LinkByRecHit::computeTrackHCALDist(
+          checkExit_, itrack, ihcal, clusterTable.cluster_table_, trackTableEntrance, trackTableExit);
+    }  // multilinks verification
+
+  } else {  // Old algorithm
+    dist = testLink(elem1, elem2);
+  }
+
+  LogDebug("TrackAndHCALLinker") << "Linked Track-HCAL: itrack_elem=" << itrack_elem << " ihcal_elem=" << ihcal_elem
+                                 << " dist=" << dist;
+  return dist;
+}
+
 double TrackAndHCALLinker::testLink(const reco::PFBlockElement* elem1, const reco::PFBlockElement* elem2) const {
+  double dist(-1.0);
+
   const reco::PFBlockElementCluster* hcalelem(nullptr);
   const reco::PFBlockElementTrack* tkelem(nullptr);
-  double dist(-1.0);
   if (elem1->type() < elem2->type()) {
     tkelem = static_cast<const reco::PFBlockElementTrack*>(elem1);
     hcalelem = static_cast<const reco::PFBlockElementCluster*>(elem2);
@@ -73,61 +140,13 @@ double TrackAndHCALLinker::testLink(const reco::PFBlockElement* elem1, const rec
     tkelem = static_cast<const reco::PFBlockElementTrack*>(elem2);
     hcalelem = static_cast<const reco::PFBlockElementCluster*>(elem1);
   }
+
   const reco::PFRecTrackRef& trackref = tkelem->trackRefPF();
   const reco::PFClusterRef& clusterref = hcalelem->clusterRef();
-  const reco::PFCluster::REPPoint& hcalreppos = clusterref->positionREP();
   const reco::PFTrajectoryPoint& tkAtHCALEnt = trackref->extrapolatedPoint(trajectoryLayerEntrance_);
-  const reco::PFCluster::REPPoint& tkreppos = tkAtHCALEnt.positionREP();
-  // Check exit point
-  double dHEta = 0.;
-  double dHPhi = 0.;
-  double dRHCALEx = 0.;
-  if (checkExit_) {
-    const reco::PFTrajectoryPoint& tkAtHCALEx = trackref->extrapolatedPoint(trajectoryLayerExit_);
-    dHEta = (tkAtHCALEx.positionREP().Eta() - tkAtHCALEnt.positionREP().Eta());
-    dHPhi = reco::deltaPhi(tkAtHCALEx.positionREP().Phi(), tkAtHCALEnt.positionREP().Phi());
-    dRHCALEx = tkAtHCALEx.position().R();
-  }
 
-  // Check if the linking has been done using the KDTree algo
-  // Glowinski & Gouzevitch
-  if (useKDTree_ && tkelem->isMultilinksValide(hcalelem->type())) {  //KDTree Algo
-    const reco::PFMultilinksType& multilinks = tkelem->getMultilinks(hcalelem->type());
-    const double hcalphi = hcalreppos.Phi();
-    const double hcaleta = hcalreppos.Eta();
+  if (tkAtHCALEnt.isValid())
+    dist = LinkByRecHit::testTrackAndClusterByRecHit(*trackref, *clusterref, false, debug_);
 
-    // Check if the link Track/Hcal exist
-    reco::PFMultilinksType::const_iterator mlit = multilinks.begin();
-    for (; mlit != multilinks.end(); ++mlit)
-      if ((mlit->first == hcalphi) && (mlit->second == hcaleta))
-        break;
-
-    // If the link exist, we fill dist and linktest.
-
-    if (mlit != multilinks.end()) {
-      // when checkExit_ is false
-      if (!checkExit_) {
-        dist = LinkByRecHit::computeDist(hcaleta, hcalphi, tkreppos.Eta(), tkreppos.Phi());
-      }
-      // when checkExit_ is true
-      else {
-        //special case ! A looper  can exit the barrel inwards and hit the endcap
-        //In this case calculate the distance based on the first crossing since
-        //the looper will probably never make it to the endcap
-        if (dRHCALEx < tkAtHCALEnt.position().R()) {
-          dist = LinkByRecHit::computeDist(hcaleta, hcalphi, tkreppos.Eta(), tkreppos.Phi());
-          edm::LogWarning("TrackHCALLinker ")
-              << "Special case of linking with track hitting HCAL and looping back in the tracker ";
-        } else {
-          dist =
-              LinkByRecHit::computeDist(hcaleta, hcalphi, tkreppos.Eta() + 0.1 * dHEta, tkreppos.Phi() + 0.1 * dHPhi);
-        }
-      }  // checkExit_
-    }    // multilinks
-
-  } else {  // Old algorithm
-    if (tkAtHCALEnt.isValid())
-      dist = LinkByRecHit::testTrackAndClusterByRecHit(*trackref, *clusterref, false, debug_);
-  }
   return dist;
 }

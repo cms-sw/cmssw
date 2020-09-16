@@ -4,8 +4,12 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/ParticleFlowReco/interface/PFBlockElement.h"
+#include "RecoParticleFlow/PFProducer/interface/PFTables.h"
+#include "RecoParticleFlow/PFProducer/interface/PFMultiLinksIndex.h"
 
 #include <string>
+
+using ElementListConst = std::vector<const reco::PFBlockElement*>;
 
 class BlockElementLinkerBase {
 public:
@@ -14,9 +18,23 @@ public:
   virtual ~BlockElementLinkerBase() = default;
   BlockElementLinkerBase& operator=(const BlockElementLinkerBase&) = delete;
 
-  virtual bool linkPrefilter(const reco::PFBlockElement*, const reco::PFBlockElement*) const { return true; }
+  virtual bool linkPrefilter(size_t ielem1,
+                             size_t ielem2,
+                             reco::PFBlockElement::Type type1,
+                             reco::PFBlockElement::Type type2,
+                             const reco::PFMultiLinksIndex& multilinks,
+                             const reco::PFBlockElement*,
+                             const reco::PFBlockElement*) const {
+    return true;
+  }
 
-  virtual double testLink(const reco::PFBlockElement*, const reco::PFBlockElement*) const = 0;
+  virtual double testLink(size_t ielem1,
+                          size_t ielem2,
+                          reco::PFBlockElement::Type type1,
+                          reco::PFBlockElement::Type type2,
+                          const ElementListConst& elements,
+                          const PFTables& tables,
+                          const reco::PFMultiLinksIndex& multilinks) const = 0;
 
   const std::string& name() const { return _linkerName; }
 
