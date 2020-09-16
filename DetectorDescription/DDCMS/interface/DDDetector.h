@@ -1,5 +1,5 @@
-#ifndef DETECTOR_DESCRIPTION_DD_DETECTOR_H
-#define DETECTOR_DESCRIPTION_DD_DETECTOR_H
+#ifndef DetectorDescription_DDCMS_DDDetector_h
+#define DetectorDescription_DDCMS_DDDetector_h
 
 #include <DD4hep/Detector.h>
 #include <DD4hep/SpecParRegistry.h>
@@ -22,14 +22,8 @@ namespace cms {
     //! Handle to the world volume containing everything
     dd4hep::Volume worldVolume() const;
 
-    //! Access to the physical volume of the world detector element
-    dd4hep::PlacedVolume worldPlacement() const;
-
     //! Reference to the top-most (world) detector element
     dd4hep::DetElement world() const;
-
-    //! The map of sub-detectors
-    const dd4hep::Detector::HandleMap& detectors() const;
 
     //! The geometry manager of this instance
     TGeoManager& manager() const;

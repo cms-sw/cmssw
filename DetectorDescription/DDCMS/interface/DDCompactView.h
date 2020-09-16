@@ -1,5 +1,5 @@
-#ifndef DETECTOR_DESCRIPTION_DD_COMPACT_VIEW_H
-#define DETECTOR_DESCRIPTION_DD_COMPACT_VIEW_H
+#ifndef DetectorDescription_DDCMS_DDCompactView_h
+#define DetectorDescription_DDCMS_DDCompactView_h
 
 // -*- C++ -*-
 //
