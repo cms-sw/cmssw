@@ -31,6 +31,7 @@ AntiElectronIDMVA6<TauType, ElectronType>::AntiElectronIDMVA6(const edm::Paramet
       mva_NoEleMatch_wGwoGSF_VFEC_(nullptr),
       mva_woGwGSF_VFEC_(nullptr),
       mva_wGwGSF_VFEC_(nullptr),
+      positionAtECalEntrance_(PositionAtECalEntranceComputer(cfg.getParameter<bool>("isPhase2"))),
       isPhase2_(cfg.getParameter<bool>("isPhase2")),
       verbosity_(cfg.getParameter<int>("verbosity")) {
   loadMVAfromDB_ = cfg.exists("loadMVAfromDB") ? cfg.getParameter<bool>("loadMVAfromDB") : false;
@@ -1107,7 +1108,7 @@ TauVars AntiElectronIDMVA6<TauType, ElectronType>::getTauVarsTypeSpecific(const 
       for (const auto& candidate : theTau.signalCands()) {
         float phiAtECalEntrance = candidate->phi();
         bool success = false;
-        reco::Candidate::Point posAtECal = positionAtECalEntrance_(candidate.get(), success, isPhase2_);
+        reco::Candidate::Point posAtECal = positionAtECalEntrance_(candidate.get(), success);
         if (success) {
           phiAtECalEntrance = posAtECal.phi();
         }
@@ -1124,8 +1125,7 @@ TauVars AntiElectronIDMVA6<TauType, ElectronType>::getTauVarsTypeSpecific(const 
       tauVars.etaAtEcalEntrance = -99.;
       tauVars.leadChargedPFCandEtaAtEcalEntrance = -99.;
       bool success = false;
-      reco::Candidate::Point posAtECal =
-          positionAtECalEntrance_(theTau.leadChargedHadrCand().get(), success, isPhase2_);
+      reco::Candidate::Point posAtECal = positionAtECalEntrance_(theTau.leadChargedHadrCand().get(), success);
       if (success) {
         tauVars.leadChargedPFCandEtaAtEcalEntrance = posAtECal.eta();
       }
@@ -1134,7 +1134,7 @@ TauVars AntiElectronIDMVA6<TauType, ElectronType>::getTauVarsTypeSpecific(const 
       for (const auto& candidate : theTau.signalCands()) {
         float etaAtECalEntrance = candidate->eta();
         success = false;
-        posAtECal = positionAtECalEntrance_(candidate.get(), success, isPhase2_);
+        posAtECal = positionAtECalEntrance_(candidate.get(), success);
         if (success) {
           etaAtECalEntrance = posAtECal.eta();
         }
@@ -1185,7 +1185,7 @@ TauVars AntiElectronIDMVA6<TauType, ElectronType>::getTauVarsTypeSpecific(const 
           phiAtECalEntrance = pfCandidate->positionAtECALEntrance().phi();
         } else {
           bool success = false;
-          reco::Candidate::Point posAtECal = positionAtECalEntrance_(candidate.get(), success, isPhase2_);
+          reco::Candidate::Point posAtECal = positionAtECalEntrance_(candidate.get(), success);
           if (success) {
             phiAtECalEntrance = posAtECal.phi();
           }
@@ -1202,7 +1202,7 @@ TauVars AntiElectronIDMVA6<TauType, ElectronType>::getTauVarsTypeSpecific(const 
           track = pfCandidate->gsfTrackRef().get();
       } else {
         bool success = false;
-        reco::Candidate::Point posAtECal = positionAtECalEntrance_(candidate.get(), success, isPhase2_);
+        reco::Candidate::Point posAtECal = positionAtECalEntrance_(candidate.get(), success);
         if (success) {
           etaAtECalEntrance = posAtECal.eta();
           phiAtECalEntrance = posAtECal.phi();
@@ -1233,7 +1233,7 @@ TauVars AntiElectronIDMVA6<TauType, ElectronType>::getTauVarsTypeSpecific(const 
         etaAtECalEntrance = pfCandidate->positionAtECALEntrance().eta();
         if (std::abs(theTau.eta()) >= ecalBarrelEndcapEtaBorder_) {  //HGCal
           bool success = false;
-          reco::Candidate::Point posAtECal = positionAtECalEntrance_(candidate.get(), success, isPhase2_);
+          reco::Candidate::Point posAtECal = positionAtECalEntrance_(candidate.get(), success);
           if (success) {
             etaAtECalEntrance = posAtECal.eta();
           }
@@ -1250,7 +1250,7 @@ TauVars AntiElectronIDMVA6<TauType, ElectronType>::getTauVarsTypeSpecific(const 
           track = pfCandidate->gsfTrackRef().get();
       } else {
         bool success = false;
-        reco::Candidate::Point posAtECal = positionAtECalEntrance_(candidate.get(), success, isPhase2_);
+        reco::Candidate::Point posAtECal = positionAtECalEntrance_(candidate.get(), success);
         if (success) {
           etaAtECalEntrance = posAtECal.eta();
         }

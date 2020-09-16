@@ -76,7 +76,7 @@ namespace HGCal_helpers {
   }
 }  // namespace HGCal_helpers
 
-PositionAtECalEntranceComputer::PositionAtECalEntranceComputer() : bField_z_(-1.) {}
+PositionAtECalEntranceComputer::PositionAtECalEntranceComputer(bool isPhase2) : bField_z_(-1.), isPhase2_(isPhase2) {}
 
 PositionAtECalEntranceComputer::~PositionAtECalEntranceComputer() {}
 
@@ -85,18 +85,19 @@ void PositionAtECalEntranceComputer::beginEvent(const edm::EventSetup& es) {
   es.get<IdealMagneticFieldRecord>().get(bFieldH);
   bField_z_ = bFieldH->inTesla(GlobalPoint(0., 0., 0.)).z();
   bField_ = &(*bFieldH);
-  edm::ESHandle<CaloGeometry> caloGeoH;
-  es.get<CaloGeometryRecord>().get(caloGeoH);
-  recHitTools_.setGeometry(*caloGeoH);
-  hgcalFace_z_ = recHitTools_.getPositionLayer(1).z();  // HGCal 1st layer
+  if (isPhase2_) {
+    edm::ESHandle<CaloGeometry> caloGeoH;
+    es.get<CaloGeometryRecord>().get(caloGeoH);
+    recHitTools_.setGeometry(*caloGeoH);
+    hgcalFace_z_ = recHitTools_.getPositionLayer(1).z();  // HGCal 1st layer
+  }
 }
 
 reco::Candidate::Point PositionAtECalEntranceComputer::operator()(const reco::Candidate* particle,
-                                                                  bool& success,
-                                                                  bool isPhase2) const {
+                                                                  bool& success) const {
   assert(bField_z_ != -1.);
   reco::Candidate::Point position;
-  if (!isPhase2 || std::abs(particle->eta()) < ecalBarrelEndcapEtaBorder_) {  // ECal
+  if (!isPhase2_ || std::abs(particle->eta()) < ecalBarrelEndcapEtaBorder_) {  // ECal
     BaseParticlePropagator propagator = BaseParticlePropagator(
         RawParticle(particle->p4(),
                     math::XYZTLorentzVector(particle->vertex().x(), particle->vertex().y(), particle->vertex().z(), 0.),
