@@ -219,9 +219,7 @@ std::unique_ptr<fastsim::Particle> fastsim::ParticleManager::nextGenParticle() {
     if (productionVertex->position().perp2() * lengthUnitConversionFactor2_ > beamPipeRadius2_)  //
     {
       exoticRelativesChecker(productionVertex, exoticRelativeId, 0);
-      int relpid = std::abs(exoticRelativeId);
-      bool hasExoticAssociation =
-          (relpid >= 1000000 && relpid < 4000000 && relpid != 3000022) || relpid == 17 || relpid == 34 || relpid == 37;
+      bool hasExoticAssociation = isExotic(exoticRelativeId);
       if (!hasExoticAssociation) {
         continue;
       }
@@ -244,7 +242,7 @@ std::unique_ptr<fastsim::Particle> fastsim::ParticleManager::nextGenParticle() {
                                              particle.momentum().z() * momentumUnitConversionFactor_,
                                              particle.momentum().e() * momentumUnitConversionFactor_)));
     newParticle->setGenParticleIndex(genParticleIndex_);
-    if (std::abs(exoticRelativeId) > 1000000) {
+    if (isExotic(exoticRelativeId)) {
       newParticle->setMotherPdgId(exoticRelativeId);
     }
 
@@ -285,8 +283,8 @@ void fastsim::ParticleManager::exoticRelativesChecker(const HepMC::GenVertex* or
                                                       int& exoticRelativeId_,
                                                       int ngendepth = 0) {
   int relpid = std::abs(exoticRelativeId_);
-  bool relIsExotic =
-      (relpid >= 1000000 && relpid < 4000000 && relpid != 3000022) || relpid == 17 || relpid == 34 || relpid == 37;
+  bool relIsExotic = isExotic(relpid);
+
   if (ngendepth > 99 || exoticRelativeId_ == -1 || relIsExotic)
     return;
   ngendepth += 1;
@@ -295,8 +293,7 @@ void fastsim::ParticleManager::exoticRelativesChecker(const HepMC::GenVertex* or
   for (; relativesIterator_ != relativesIteratorEnd_; ++relativesIterator_) {
     const HepMC::GenParticle& genRelative = **relativesIterator_;
     relpid = std::abs(genRelative.pdg_id());
-    relIsExotic =
-        (relpid >= 1000000 && relpid < 4000000 && relpid != 3000022) || relpid == 17 || relpid == 34 || relpid == 37;
+    relIsExotic = isExotic(relpid);
     if (relIsExotic) {
       exoticRelativeId_ = genRelative.pdg_id();
       if (ngendepth == 100)

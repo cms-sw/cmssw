@@ -1,5 +1,6 @@
 #include "FastSimulation/SimplifiedGeometryPropagator/interface/Decayer.h"
 #include "FastSimulation/SimplifiedGeometryPropagator/interface/Particle.h"
+#include "FastSimulation/SimplifiedGeometryPropagator/interface/ParticleManager.h"
 #include "FWCore/ServiceRegistry/interface/RandomEngineSentry.h"
 #include "GeneratorInterface/Pythia8Interface/interface/P8RndmEngine.h"
 
@@ -35,14 +36,11 @@ void fastsim::Decayer::decay(const Particle& particle,
   int pid = particle.pdgId();
   // snip decay products of exotic particles or their children. These decay products are preserved from the event record.
   // limitation: if exotic incurs heavy energy loss during propagation, the saved decay products could be too hard.
-  int abspid = std::abs(pid);
-  if ((abspid >= 1000000 && abspid < 4000000 && abspid != 3000022) || abspid == 17 || abspid == 34 || abspid == 37) {
-    std::cout << "not decaying due to pdgid=" << pid << std::endl;
+
+  if (isExotic(pid)) {
     return;
   }
-  abspid = std::abs(particle.getMotherPdgId());
-  if ((abspid >= 1000000 && abspid < 4000000 && abspid != 3000022) || abspid == 17 || abspid == 34 || abspid == 37) {
-    std::cout << "not decaying " << pid << " due to mother=" << particle.getMotherPdgId() << std::endl;
+  if (isExotic(particle.getMotherPdgId())) {
     return;
   }
 
