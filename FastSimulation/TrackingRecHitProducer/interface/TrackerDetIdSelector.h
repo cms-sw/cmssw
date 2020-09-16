@@ -104,7 +104,7 @@ public:
   TrackerDetIdSelector(const DetId& detId, const TrackerTopology& trackerTopology)
       : _detId(detId), _trackerTopology(trackerTopology) {}
 
-  bool passSelection(std::string selectionStr) const;
+  bool passSelection(const std::string& selectionStr) const;
 };
 
 class Accessor : public boost::static_visitor<int> {

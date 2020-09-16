@@ -163,7 +163,7 @@ struct TrackerDetIdSelectorGrammar : boost::spirit::qi::grammar<ITERATOR,
   }
 };
 
-bool TrackerDetIdSelector::passSelection(std::string selectionStr) const {
+bool TrackerDetIdSelector::passSelection(const std::string& selectionStr) const {
   std::string::const_iterator begin = selectionStr.cbegin();
   std::string::const_iterator end = selectionStr.cend();
 
