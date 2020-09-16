@@ -46,21 +46,21 @@ void CmsDetConstruction<FilteredView>::buildSmallDetsforStack(FilteredView& fv,
   mother->addComponent(det);
 }
 
-template <class FilteredView>
-void CmsDetConstruction<FilteredView>::buildComponent(FilteredView& fv,
-                                                      GeometricDet* mother,
-                                                      const std::string& attribute) {
+template <>
+void CmsDetConstruction<DDFilteredView>::buildComponent(DDFilteredView& fv,
+                                                        GeometricDet* mother,
+                                                        const std::string& attribute) {
   //
   // at this level I check whether it is a merged detector or not
   //
 
   GeometricDet* det = new GeometricDet(&fv,
-                                       CmsTrackerLevelBuilder<FilteredView>::theCmsTrackerStringToEnum.type(
-                                           ExtractStringFromDDD<FilteredView>::getString(attribute, &fv)));
+                                       CmsTrackerLevelBuilder<DDFilteredView>::theCmsTrackerStringToEnum.type(
+                                           ExtractStringFromDDD<DDFilteredView>::getString(attribute, &fv)));
 
   //Phase1 mergedDet: searching for sensors
-  if (CmsTrackerLevelBuilder<FilteredView>::theCmsTrackerStringToEnum.type(
-          ExtractStringFromDDD<FilteredView>::getString(attribute, &fv)) == GeometricDet::mergedDet) {
+  if (CmsTrackerLevelBuilder<DDFilteredView>::theCmsTrackerStringToEnum.type(
+          ExtractStringFromDDD<DDFilteredView>::getString(attribute, &fv)) == GeometricDet::mergedDet) {
     // I have to go one step lower ...
     bool dodets = fv.firstChild();  // descend to the first Layer
     while (dodets) {
@@ -75,8 +75,8 @@ void CmsDetConstruction<FilteredView>::buildComponent(FilteredView& fv,
   }
 
   //Phase2 stackDet: same procedure, different nomenclature
-  else if (CmsTrackerLevelBuilder<FilteredView>::theCmsTrackerStringToEnum.type(
-               ExtractStringFromDDD<FilteredView>::getString(attribute, &fv)) == GeometricDet::OTPhase2Stack) {
+  else if (CmsTrackerLevelBuilder<DDFilteredView>::theCmsTrackerStringToEnum.type(
+               ExtractStringFromDDD<DDFilteredView>::getString(attribute, &fv)) == GeometricDet::OTPhase2Stack) {
     bool dodets = fv.firstChild();
     while (dodets) {
       buildSmallDetsforStack(fv, det, attribute);
@@ -88,5 +88,45 @@ void CmsDetConstruction<FilteredView>::buildComponent(FilteredView& fv,
   mother->addComponent(det);
 }
 
-template class CmsDetConstruction<DDFilteredView>;
-template class CmsDetConstruction<cms::DDFilteredView>;
+template <>
+void CmsDetConstruction<cms::DDFilteredView>::buildComponent(cms::DDFilteredView& fv,
+                                                             GeometricDet* mother,
+                                                             const std::string& attribute) {
+  //
+  // at this level I check whether it is a merged detector or not
+  //
+
+  GeometricDet* det = new GeometricDet(&fv,
+                                       CmsTrackerLevelBuilder<cms::DDFilteredView>::theCmsTrackerStringToEnum.type(
+                                           ExtractStringFromDDD<cms::DDFilteredView>::getString(attribute, &fv)));
+
+  //Phase1 mergedDet: searching for sensors
+  if (CmsTrackerLevelBuilder<cms::DDFilteredView>::theCmsTrackerStringToEnum.type(
+          ExtractStringFromDDD<cms::DDFilteredView>::getString(attribute, &fv)) == GeometricDet::mergedDet) {
+    auto startLevel = fv.level();
+    bool doContinue(true);
+
+    while (fv.firstChild() && doContinue) {
+      buildSmallDetsforGlued(fv, det, attribute);
+      if (fv.level() > startLevel) {
+	doContinue = false;
+      }
+    }
+  }
+
+  //Phase2 stackDet: same procedure, different nomenclature
+  else if (CmsTrackerLevelBuilder<cms::DDFilteredView>::theCmsTrackerStringToEnum.type(
+               ExtractStringFromDDD<cms::DDFilteredView>::getString(attribute, &fv)) == GeometricDet::OTPhase2Stack) {
+    auto startLevel = fv.level();
+    bool doContinue(true);
+
+    while (fv.firstChild() && doContinue) {
+      buildSmallDetsforStack(fv, det, attribute);
+      if (fv.level() > startLevel) {
+	doContinue = false;
+      }
+    }
+  }
+
+  mother->addComponent(det);
+}

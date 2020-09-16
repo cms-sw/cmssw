@@ -137,28 +137,22 @@ bool CmsTrackerLevelBuilderHelper::isLessRModule(const GeometricDet* a, const Ge
 
 bool CmsTrackerLevelBuilderHelper::isLessR(const GeometricDet* a, const GeometricDet* b) { return a->rho() < b->rho(); }
 
-template <class FilteredView>
-void CmsTrackerLevelBuilder<FilteredView>::build(FilteredView& fv,
-                                                 GeometricDet* tracker,
-                                                 const std::string& attribute) {
+template <>
+void CmsTrackerLevelBuilder<DDFilteredView>::build(DDFilteredView& fv,
+                                                   GeometricDet* tracker,
+                                                   const std::string& attribute) {
   edm::LogVerbatim("TrackerGeometryBuilder") << "CmsTrackerLevelBuilder::build "
                                              << " Building: " << fv.geoHistory();
 
-  edm::LogVerbatim("TrackerGeometryBuilder") << ExtractStringFromDDD<FilteredView>::getString(attribute, &fv) << " "
+  edm::LogVerbatim("TrackerGeometryBuilder") << ExtractStringFromDDD<DDFilteredView>::getString(attribute, &fv) << " "
                                              << tracker->type() << " " << tracker->name() << std::endl;
 
   bool doLayers = fv.firstChild();  // descend to the first Layer
 
   while (doLayers) {
     buildComponent(fv, tracker, attribute);
-    if constexpr (std::is_same_v<FilteredView, DDFilteredView>) {
-      edm::LogVerbatim("TrackerGeometryBuilder") << "CmsTrackerLevelbuilder<DDFilteredView>::build" << fv.geoHistory();
-      doLayers = fv.nextSibling();
-    } else if constexpr (std::is_same_v<FilteredView, cms::DDFilteredView>) {
-      edm::LogVerbatim("TrackerGeometryBuilder")
-          << "CmsTrackerLevelbuilder<cms::DDFilteredView>::build" << fv.geoHistory();
-      doLayers = fv.firstChild();
-    }
+    edm::LogVerbatim("TrackerGeometryBuilder") << "CmsTrackerLevelbuilder<DDFilteredView>::build" << fv.geoHistory();
+    doLayers = fv.nextSibling();
   }
 
   fv.parent();
@@ -166,5 +160,21 @@ void CmsTrackerLevelBuilder<FilteredView>::build(FilteredView& fv,
   sortNS(fv, tracker);
 }
 
-template class CmsTrackerLevelBuilder<DDFilteredView>;
-template class CmsTrackerLevelBuilder<cms::DDFilteredView>;
+template <>
+void CmsTrackerLevelBuilder<cms::DDFilteredView>::build(cms::DDFilteredView& fv,
+                                                        GeometricDet* tracker,
+                                                        const std::string& attribute) {
+  edm::LogVerbatim("TrackerGeometryBuilder") << "CmsTrackerLevelBuilder::build "
+                                             << " Building: " << fv.geoHistory();
+
+  edm::LogVerbatim("TrackerGeometryBuilder") << ExtractStringFromDDD<cms::DDFilteredView>::getString(attribute, &fv)
+                                             << " " << tracker->type() << " " << tracker->name() << std::endl;
+
+  while (fv.firstChild()) {
+    buildComponent(fv, tracker, attribute);
+    edm::LogVerbatim("TrackerGeometryBuilder")
+        << "CmsTrackerLevelbuilder<cms::DDFilteredView>::build" << fv.geoHistory();
+  }
+
+  sortNS(fv, tracker);
+}

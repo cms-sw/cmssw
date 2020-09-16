@@ -15,6 +15,8 @@ process.load("Geometry.TrackerNumberingBuilder.trackerTopology_cfi")
 process.load("Geometry.TrackerGeometryBuilder.idealForDigiTrackerGeometry_cff")
 process.load("Alignment.CommonAlignmentProducer.FakeAlignmentSource_cfi")
 
+process.es_prefer_GeometricDet = cms.ESPrefer("TrackerGeometricDetESModule","DD4hep_trackerNumberingGeometry")
+
 process.source = cms.Source("EmptySource")
 
 process.maxEvents = cms.untracked.PSet(
@@ -24,7 +26,7 @@ process.maxEvents = cms.untracked.PSet(
 process.MessageLogger = cms.Service(
     "MessageLogger",
     statistics = cms.untracked.vstring('cout', 'tkmodulenumbering'),
-    categories = cms.untracked.vstring('Geometry', 'ModuleNumbering'),
+    categories = cms.untracked.vstring('Geometry', 'ModuleNumbering', 'TrackerGeometryBuilder'),
     cout = cms.untracked.PSet(
         threshold = cms.untracked.string('WARNING'),
         noLineBreaks = cms.untracked.bool(True)
@@ -49,6 +51,9 @@ process.MessageLogger = cms.Service(
             ),
         ModuleNumbering = cms.untracked.PSet(
             limit = cms.untracked.int32(-1)
+            ),
+        TrackerGeometryBuilder = cms.untracked.PSet(
+            limit = cms.untracked.int32(-1)
             )
         ),
     destinations = cms.untracked.vstring('cout',
@@ -56,9 +61,7 @@ process.MessageLogger = cms.Service(
     )
 
 process.prod = cms.EDAnalyzer("ModuleNumbering")
-process.test = cms.EDAnalyzer("DDTestVectors",
-                              DDDetector = cms.ESInputTag('','')
-)
+
 process.p1 = cms.Path(process.prod)
 
 
