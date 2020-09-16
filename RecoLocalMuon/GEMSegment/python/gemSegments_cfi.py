@@ -16,8 +16,8 @@ RU_GE0 = cms.PSet(
 
 gemSegments = cms.EDProducer("GEMSegmentProducer",
     gemRecHitLabel = cms.InputTag("gemRecHits"),
-    ge0_algo_name = cms.string("GE0SegAlgoRU"),
-    ge0_algo_pset = RU_GE0,
+    # algo_name = cms.string("GE0SegAlgoRU"),
+    # algo_pset = RU_GE0,
     algo_name = cms.string("GEMSegmentAlgorithm"),
     algo_pset = cms.PSet(
         minHitsPerSegment = cms.uint32(2),

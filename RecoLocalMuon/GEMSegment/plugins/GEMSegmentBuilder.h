@@ -43,11 +43,6 @@ private:
   std::string algoName;
   edm::ParameterSet segAlgoPSet;
   std::unique_ptr<GEMSegmentAlgorithmBase> algo;
-
-  std::string ge0_algoName;
-  edm::ParameterSet ge0_segAlgoPSet;
-  std::unique_ptr<GEMSegmentAlgorithmBase> ge0_algo;
-
   const GEMGeometry* geom_;
 };
 
