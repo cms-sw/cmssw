@@ -168,7 +168,9 @@ upgradeWFs['baseline'] = UpgradeWorkflow_baseline(
         'RecoGlobal',
         'Digi',
         'Reco',
+        'RecoFakeHLT',
         'HARVEST',
+        'HARVESTFakeHLT',
         'HARVESTGlobal',
         'MiniAOD',
         'Nano',
@@ -923,7 +925,7 @@ upgradeProperties[2017] = {
 # standard PU sequences
 for key in list(upgradeProperties[2017].keys()):
     upgradeProperties[2017][key+'PU'] = deepcopy(upgradeProperties[2017][key])
-    upgradeProperties[2017][key+'PU']['ScenToRun'] = ['GenSim','DigiPU','RecoPU','HARVESTPU'] + \
+    upgradeProperties[2017][key+'PU']['ScenToRun'] = ['GenSim','DigiPU','RecoFakeHLTPU','HARVESTFakeHLTPU'] + \
                                                      (['Nano'] if 'Design' not in key else [])
 
 upgradeProperties[2026] = {
