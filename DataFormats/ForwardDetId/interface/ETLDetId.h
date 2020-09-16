@@ -32,7 +32,7 @@ public:
 
   static constexpr int kETLv4maxRing = 16;
   static constexpr int kETLv4maxSector = 4;
-  static constexpr int kETLv4maxModule = 517;  //248
+  static constexpr int kETLv4maxModule = 248;
   static constexpr int kETLv4nDisc = 2;
 
   static constexpr int kETLv5maxRing = 14;
