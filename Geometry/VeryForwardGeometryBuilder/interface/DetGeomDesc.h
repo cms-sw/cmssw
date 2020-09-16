@@ -54,11 +54,11 @@ public:
   using Translation = ROOT::Math::DisplacementVector3D<ROOT::Math::Cartesian3D<double>>;
 
   // Constructor from old DD DDFilteredView
-  /// \param[in] legacyRun2 Switch between legacy run 2-like geometry and 2021 scenario
-  DetGeomDesc(const DDFilteredView& fv, const bool legacyRun2);
+  /// \param[in] isRun2 Switch between legacy run 2-like geometry and 2021+ scenarii
+  DetGeomDesc(const DDFilteredView& fv, const bool isRun2);
   // Constructor from DD4Hep DDFilteredView
-  /// \param[in] legacyRun2 Switch between legacy run 2-like geometry and 2021 scenario
-  DetGeomDesc(const cms::DDFilteredView& fv, const bool legacyRun2);
+  /// \param[in] isRun2 Switch between legacy run 2-like geometry and 2021+ scenarii
+  DetGeomDesc(const cms::DDFilteredView& fv, const bool isRun2);
 
   DetGeomDesc(const DetGeomDesc&);
   DetGeomDesc& operator=(const DetGeomDesc&);
@@ -119,11 +119,19 @@ private:
   DetId computeDetID(const std::string& name,
                      const std::vector<int>& copyNos,
                      const unsigned int copyNum,
+<<<<<<< HEAD
                      const bool legacyRun2) const;
   DetId computeDetIDFromDD4hep(const std::string& name,
                                const std::vector<int>& copyNos,
                                const unsigned int copyNum,
                                const bool legacyRun2) const;
+=======
+                     const bool isRun2) const;
+  DetId computeDetIDFromDD4hep(const std::string& name,
+                               const std::vector<int>& copyNos,
+                               const unsigned int copyNum,
+                               const bool isRun2) const;
+>>>>>>> 2784baa47e5... Replace use of !is2021 by isRun2. isRun2 is set to true by default (to avoid modifying existing workflows).
   std::string computeSensorType(std::string_view name);
 
   std::string m_name;  // with no namespace
