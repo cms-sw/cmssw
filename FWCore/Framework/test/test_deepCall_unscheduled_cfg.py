@@ -59,7 +59,7 @@ process.result4 = cms.EDProducer("AddIntsProducer",
 
 process.get = cms.EDAnalyzer("IntTestAnalyzer",
     valueMustMatch = cms.untracked.int32(4),
-    moduleLabel = cms.untracked.string('result4')
+    moduleLabel = cms.untracked.InputTag('result4')
 )
 
 process.t = cms.Task(process.one, process.result1, process.result2, process.result4)
