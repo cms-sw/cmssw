@@ -101,3 +101,29 @@ trackingPhase2PU140.toReplaceWith(earlyGeneralTracks, _trackListMerger.clone(
     makeReKeyedSeeds = cms.untracked.bool(False)
     )
 )
+from Configuration.ProcessModifiers.vectorHits_cff import vectorHits
+vectorHits.toReplaceWith(earlyGeneralTracks, _trackListMerger.clone(
+    TrackProducers =['initialStepTracks',
+                     'highPtTripletStepTracks',
+                     'lowPtQuadStepTracks',
+                     'lowPtTripletStepTracks',
+                     'detachedQuadStepTracks',
+                     'pixelPairStepTracks',
+		     'pixelLessStepTracks',
+                    ],
+    hasSelector = [1,1,1,1,1,1,1],
+    indivShareFrac = [1.0,0.16,0.095,0.09,0.09,0.09,0.095],
+    selectedTrackQuals = ['initialStepSelector:initialStep',
+                          'highPtTripletStepSelector:highPtTripletStep',
+                          'lowPtQuadStepSelector:lowPtQuadStep',
+                          'lowPtTripletStepSelector:lowPtTripletStep',
+                          'detachedQuadStep',
+                          'pixelPairStepSelector:pixelPairStep',
+                          'pixelLessStepSelector:pixelLessStep',
+                          ],
+    setsToMerge = cms.VPSet( cms.PSet( tLists=cms.vint32(0,1,2,3,4,5,6), pQual=cms.bool(True) ) 
+	),
+    copyExtras = True,
+    makeReKeyedSeeds = cms.untracked.bool(False)
+    )
+)
