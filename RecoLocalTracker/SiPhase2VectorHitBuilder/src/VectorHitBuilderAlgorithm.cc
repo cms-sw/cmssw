@@ -49,6 +49,7 @@ void VectorHitBuilderAlgorithm::run(edm::Handle<edmNew::DetSetVector<Phase2Track
       for (const auto& vh : vhsInStack_AccRej) {
         if (vh.second == true) {
           vhsInStack_Acc.push_back(vh.first);
+          std::push_heap(vhsInStack_Acc.begin(),vhsInStack_Acc.end());
         } else if (vh.second == false) {
           vhsInStack_Rej.push_back(vh.first);
         }
