@@ -10,7 +10,6 @@
 <use name="DataFormats/ForwardDetId"/>
 <use name="CommonTools/UtilAlgos"/>
 <use name="RecoLocalCalo/HGCalRecAlgos"/>
-<use name="RecoLocalCalo/HGCalESProducers"/>
 <use name="Geometry/HGCalGeometry"/>
 <use name="Geometry/HGCalCommonData"/>
 <use name="CondFormats/DataRecord"/>
