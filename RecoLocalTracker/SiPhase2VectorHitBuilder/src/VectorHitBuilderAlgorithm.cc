@@ -139,15 +139,18 @@ std::vector<std::pair<VectorHit, bool>> VectorHitBuilderAlgorithm::buildVectorHi
   for (const_iterator cil = theUpperDetSet.begin(); cil != theUpperDetSet.end(); ++cil) {
     LogDebug("VectorHitBuilderAlgorithm") << " lower clusters " << std::endl;
     Phase2TrackerCluster1DRef cluL = edmNew::makeRefTo(clusters, cil);
+#ifdef EDM_ML_DEBUG
     printCluster(stack->lowerDet(), &*cluL);
+#endif
     const PixelGeomDetUnit* gduLow = dynamic_cast<const PixelGeomDetUnit*>(stack->lowerDet());
     auto&& lparamsLow = theCpe->localParameters(*cluL, *gduLow);
     upperIterator = 0;
     for (const_iterator ciu = theUpperDetSet.begin(); ciu != theUpperDetSet.end(); ++ciu) {
       LogDebug("VectorHitBuilderAlgorithm") << "\t upper clusters " << std::endl;
       Phase2TrackerCluster1DRef cluU = edmNew::makeRefTo(clusters, ciu);
+#ifdef EDM_ML_DEBUG
       printCluster(stack->upperDet(), &*cluU);
-
+#endif
       //applying the parallax correction
       double pC = computeParallaxCorrection(
           gduLow, lparamsLow.first, localGDUUpper[upperIterator], localParamsUpper[upperIterator].first);
@@ -233,8 +236,9 @@ VectorHit VectorHitBuilderAlgorithm::buildVectorHit(const StackGeomDet* stack,
                                                     Phase2TrackerCluster1DRef lower,
                                                     Phase2TrackerCluster1DRef upper) const {
   LogTrace("VectorHitBuilderAlgorithm") << "Build VH with: ";
-  //printCluster(stack->upperDet(),&*upper);
-
+#ifdef EDM_ML_DEBUG
+  printCluster(stack->upperDet(),&*upper);
+#endif
   const PixelGeomDetUnit* geomDetLower = static_cast<const PixelGeomDetUnit*>(stack->lowerDet());
   const PixelGeomDetUnit* geomDetUpper = static_cast<const PixelGeomDetUnit*>(stack->upperDet());
 
