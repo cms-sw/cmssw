@@ -362,6 +362,53 @@ trackingPhase2PU140.toModify(lowPtTripletStepSelector,
         ), #end of vpset
 ) #end of clone
 
+from Configuration.ProcessModifiers.vectorHits_cff import vectorHits
+vectorHits.toModify(lowPtTripletStepSelector,
+    trackSelectors= cms.VPSet(
+        RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.looseMTS.clone(
+            name = 'lowPtTripletStepLoose',
+            chi2n_par = 1.2,
+            res_par = ( 0.003, 0.002 ),
+            minNumberLayers = 3,
+            maxNumberLostLayers = 2,
+            minNumber3DLayers = 3,
+            d0_par1 = ( 0.7, 4.0 ),
+            dz_par1 = ( 0.7, 4.0 ),
+            d0_par2 = ( 0.6, 4.0 ),
+            dz_par2 = ( 0.6, 4.0 )
+            ), #end of pset
+        RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.tightMTS.clone(
+            name = 'lowPtTripletStepTight',
+            preFilterName = 'lowPtTripletStepLoose',
+            chi2n_par = 0.7,
+            res_par = ( 0.003, 0.002 ),
+            minNumberLayers = 3,
+            maxNumberLostLayers = 2,
+            minNumber3DLayers = 3,
+            d0_par1 = ( 0.6, 4.0 ),
+            dz_par1 = ( 0.6, 4.0 ),
+            d0_par2 = ( 0.5, 4.0 ),
+            dz_par2 = ( 0.5, 4.0 )
+            ),
+        RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.highpurityMTS.clone(
+            name = 'lowPtTripletStep',
+            preFilterName = 'lowPtTripletStepTight',
+            min_eta = -4.0,
+            max_eta = 4.0,
+            chi2n_par = 0.4,
+            res_par = ( 0.003, 0.001 ),
+            min_nhits = 3,
+            minNumberLayers = 3,
+            maxNumberLostLayers = 2,
+            minNumber3DLayers = 3,
+            d0_par1 = ( 0.5, 4.0 ),
+            dz_par1 = ( 0.5, 4.0 ),
+            d0_par2 = ( 0.45, 4.0 ),
+            dz_par2 = ( 0.45, 4.0 )
+            ),
+        ), #end of vpset
+) #end of clone
+
 
 
 # Final sequence
