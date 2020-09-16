@@ -129,6 +129,17 @@ namespace edm {
     return &productResolverIndexHelper_->processNames_[startInProcessNames];
   }
 
+  char const* ProductResolverIndexHelper::Matches::productInstanceName(unsigned int i) const {
+    if (i >= numberOfMatches_) {
+      throw Exception(errors::LogicError)
+          << "ProductResolverIndexHelper::Matches::productInstanceName - Argument is out of range.\n";
+    }
+    unsigned int start =
+        productResolverIndexHelper_->indexAndNames_[startInIndexAndNames_ + i].startInBigNamesContainer();
+    auto moduleLabelSize = strlen(&productResolverIndexHelper_->bigNamesContainer_[start]);
+    return &productResolverIndexHelper_->bigNamesContainer_[start + moduleLabelSize + 1];
+  }
+
   char const* ProductResolverIndexHelper::Matches::moduleLabel(unsigned int i) const {
     if (i >= numberOfMatches_) {
       throw Exception(errors::LogicError)
