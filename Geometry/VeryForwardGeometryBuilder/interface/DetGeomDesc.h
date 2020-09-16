@@ -1,7 +1,7 @@
 /****************************************************************************
 *
 * Authors:
-*	Jan Kašpar (jan.kaspar@gmail.com) 
+*	Jan Kašpar (jan.kaspar@gmail.com)
 *	CMSSW developpers (based on class GeometricDet)
 *
 *  Rewritten + Moved out common functionalities to DetGeomDesc(Builder) by Gabrielle Hugo.
@@ -28,7 +28,7 @@ class CTPPSRPAlignmentCorrectionData;
  *
  * Class resembling GeometricDet class. Slight changes were made to suit needs of the TOTEM RP description.
  * Each instance is a tree node, with geometrical information from DDD (shift, rotation, material, ...), ID and list of children nodes.
- * 
+ *
  * The <b>translation</b> and <b>rotation</b> parameters are defined by <b>local-to-global</b>
  * coordinate transform. That is, if r_l is a point in local coordinate system and x_g in global,
  * then the transform reads:
@@ -37,7 +37,7 @@ class CTPPSRPAlignmentCorrectionData;
  \endverbatim
  *
  * July 2020: Migrated to DD4hep
- * To avoid any regression with values from XMLs / Geant4, all lengths are converted from cm (DD4hep) to mm. 
+ * To avoid any regression with values from XMLs / Geant4, all lengths are converted from cm (DD4hep) to mm.
  *
  **/
 
@@ -54,9 +54,11 @@ public:
   using Translation = ROOT::Math::DisplacementVector3D<ROOT::Math::Cartesian3D<double>>;
 
   // Constructor from old DD DDFilteredView
-  DetGeomDesc(const DDFilteredView& fv, const bool is2021);
+  /// \param[in] legacyRun2 Switch between legacy run 2-like geometry and 2021 scenario
+  DetGeomDesc(const DDFilteredView& fv, const bool legacyRun2);
   // Constructor from DD4Hep DDFilteredView
-  DetGeomDesc(const cms::DDFilteredView& fv, const bool is2021);
+  /// \param[in] legacyRun2 Switch between legacy run 2-like geometry and 2021 scenario
+  DetGeomDesc(const cms::DDFilteredView& fv, const bool legacyRun2);
 
   DetGeomDesc(const DetGeomDesc&);
   DetGeomDesc& operator=(const DetGeomDesc&);
@@ -117,11 +119,11 @@ private:
   DetId computeDetID(const std::string& name,
                      const std::vector<int>& copyNos,
                      const unsigned int copyNum,
-                     const bool is2021) const;
+                     const bool legacyRun2) const;
   DetId computeDetIDFromDD4hep(const std::string& name,
                                const std::vector<int>& copyNos,
                                const unsigned int copyNum,
-                               const bool is2021) const;
+                               const bool legacyRun2) const;
   std::string computeSensorType(std::string_view name);
 
   std::string m_name;  // with no namespace
