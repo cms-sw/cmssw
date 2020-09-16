@@ -31,6 +31,7 @@ public:
             std::make_unique<AntiElectronIDMVA6<TauType, ElectronType>>(cfg, edm::EDConsumerBase::consumesCollector())),
         Electron_token(edm::EDConsumerBase::consumes<ElectronCollection>(
             cfg.getParameter<edm::InputTag>("srcElectrons"))),  // MB: full specification with prefix mandatory
+        positionAtECalEntrance_(PositionAtECalEntranceComputer(cfg.getParameter<bool>("isPhase2"))),
         vetoEcalCracks_(cfg.getParameter<bool>("vetoEcalCracks")),
         isPhase2_(cfg.getParameter<bool>("isPhase2")),
         verbosity_(cfg.getParameter<int>("verbosity")) {
@@ -256,7 +257,7 @@ TauDiscriminationAgainstElectronMVA6<TauType, TauDiscriminator, ElectronType>::g
         etaAtECalEntrance = pfCandidate->positionAtECALEntrance().eta();
       } else {  // HGCal
         bool success = false;
-        reco::Candidate::Point posAtECal = positionAtECalEntrance_(candidate.get(), success, isPhase2_);
+        reco::Candidate::Point posAtECal = positionAtECalEntrance_(candidate.get(), success);
         if (success) {
           etaAtECalEntrance = posAtECal.eta();
         }
@@ -273,7 +274,7 @@ TauDiscriminationAgainstElectronMVA6<TauType, TauDiscriminator, ElectronType>::g
         track = pfCandidate->gsfTrackRef().get();
     } else {
       bool success = false;
-      reco::Candidate::Point posAtECal = positionAtECalEntrance_(candidate.get(), success, isPhase2_);
+      reco::Candidate::Point posAtECal = positionAtECalEntrance_(candidate.get(), success);
       if (success) {
         etaAtECalEntrance = posAtECal.eta();
       }
@@ -307,8 +308,7 @@ TauDiscriminationAgainstElectronMVA6<TauType, TauDiscriminator, ElectronType>::g
     float sumEnergy = 0.;
 
     bool success = false;
-    reco::Candidate::Point posAtECal =
-        positionAtECalEntrance_(theTauRef->leadChargedHadrCand().get(), success, isPhase2_);
+    reco::Candidate::Point posAtECal = positionAtECalEntrance_(theTauRef->leadChargedHadrCand().get(), success);
     if (success) {
       leadChargedCandEtaAtECalEntrance = posAtECal.eta();
     } else {
@@ -317,7 +317,7 @@ TauDiscriminationAgainstElectronMVA6<TauType, TauDiscriminator, ElectronType>::g
     for (const auto& candidate : theTauRef->signalCands()) {
       float etaAtECalEntrance = candidate->eta();
       success = false;
-      posAtECal = positionAtECalEntrance_(candidate.get(), success, isPhase2_);
+      posAtECal = positionAtECalEntrance_(candidate.get(), success);
       if (success) {
         etaAtECalEntrance = posAtECal.eta();
       }
