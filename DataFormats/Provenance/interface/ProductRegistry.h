@@ -20,8 +20,11 @@
 
 #include <iosfwd>
 #include <map>
+#include <optional>
 #include <set>
 #include <string>
+#include <string_view>
+#include <tuple>
 #include <utility>
 #include <vector>
 
@@ -118,9 +121,10 @@ namespace edm {
     bool productProduced(BranchType branchType) const { return transient_.productProduced_[branchType]; }
     bool anyProductProduced() const { return transient_.anyProductProduced_; }
 
-    std::vector<std::pair<std::string, std::string>> const& aliasToOriginal() const {
-      return transient_.aliasToOriginal_;
-    }
+    // Looks if a (type, moduleLabel, productInstanceName) is an alias to some other branch
+    std::optional<std::string> aliasToModule(TypeID const& type,
+                                             std::string_view moduleLabel,
+                                             std::string_view productInstanceName) const;
 
     ProductResolverIndex const& getNextIndexValue(BranchType branchType) const;
 
@@ -143,7 +147,8 @@ namespace edm {
 
       std::map<BranchID, ProductResolverIndex> branchIDToIndex_;
 
-      std::vector<std::pair<std::string, std::string>> aliasToOriginal_;
+      enum { kType, kModuleLabel, kProductInstanceName, kAliasForModuleLabel };
+      std::vector<std::tuple<TypeID, std::string, std::string, std::string>> aliasToOriginal_;
     };
 
   private:

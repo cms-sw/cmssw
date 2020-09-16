@@ -114,7 +114,8 @@ namespace edm {
     BranchDescription bd(productDesc, labelAlias, instanceAlias);
     std::pair<ProductList::iterator, bool> ret = productList_.insert(std::make_pair(BranchKey(bd), bd));
     assert(ret.second);
-    transient_.aliasToOriginal_.emplace_back(labelAlias, productDesc.moduleLabel());
+    transient_.aliasToOriginal_.emplace_back(
+        productDesc.unwrappedTypeID(), labelAlias, instanceAlias, productDesc.moduleLabel());
     addCalled(bd, false);
   }
 
@@ -556,6 +557,25 @@ namespace edm {
       return ProductResolverIndexInvalid;
     }
     return itFind->second;
+  }
+
+  std::optional<std::string> ProductRegistry::aliasToModule(TypeID const& type,
+                                                            std::string_view moduleLabel,
+                                                            std::string_view productInstanceName) const {
+    auto found = std::lower_bound(transient_.aliasToOriginal_.begin(),
+                                  transient_.aliasToOriginal_.end(),
+                                  std::tuple(type, moduleLabel, productInstanceName),
+                                  [](auto const& item, auto const& target) {
+                                    return std::tie(std::get<Transients::kType>(item),
+                                                    std::get<Transients::kModuleLabel>(item),
+                                                    std::get<Transients::kProductInstanceName>(item)) < target;
+                                  });
+    if (found == transient_.aliasToOriginal_.end() or std::get<Transients::kType>(*found) != type or
+        std::get<Transients::kModuleLabel>(*found) != moduleLabel or
+        std::get<Transients::kProductInstanceName>(*found) != productInstanceName) {
+      return std::nullopt;
+    }
+    return std::get<Transients::kAliasForModuleLabel>(*found);
   }
 
   void ProductRegistry::print(std::ostream& os) const {

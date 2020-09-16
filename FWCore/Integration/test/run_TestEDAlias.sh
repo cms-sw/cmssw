@@ -22,6 +22,10 @@ pushd ${LOCAL_TMP_DIR}
   echo "Test output"
   cmsRun ${LOCAL_TEST_DIR}/${test}Analyze_cfg.py testEDAliasTask.root || die "cmsRun ${test}Analyze_cfg.py testEDAliasPath.root" $?
 
+  echo "*************************************************"
+  echo "Test EDAlias aliasing for many modules"
+  cmsRun ${LOCAL_TEST_DIR}/${test}ManyModules_cfg.py || die "cmsRun ${test}ManyModules_cfg.py 1" $?
+
 popd
 
 exit 0
