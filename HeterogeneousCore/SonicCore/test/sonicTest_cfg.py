@@ -73,29 +73,29 @@ process.task = cms.Task(
 
 process.testerSync = cms.EDAnalyzer("IntTestAnalyzer",
     valueMustMatch = cms.untracked.int32(-1),
-    moduleLabel = cms.untracked.string("dummySync"),
+    moduleLabel = cms.untracked.InputTag("dummySync"),
 )
 
 process.testerPseudoAsync = cms.EDAnalyzer("IntTestAnalyzer",
     valueMustMatch = cms.untracked.int32(4),
-    moduleLabel = cms.untracked.string("dummyPseudoAsync"),
+    moduleLabel = cms.untracked.InputTag("dummyPseudoAsync"),
 )
 
 process.testerAsync = cms.EDAnalyzer("IntTestAnalyzer",
     valueMustMatch = cms.untracked.int32(15),
-    moduleLabel = cms.untracked.string("dummyAsync"),
+    moduleLabel = cms.untracked.InputTag("dummyAsync"),
 )
 
 process.testerSyncRetry = process.testerSync.clone(
-    moduleLabel = cms.untracked.string("dummySyncRetry")
+    moduleLabel = "dummySyncRetry"
 )
 
 process.testerPseudoAsyncRetry = process.testerPseudoAsync.clone(
-    moduleLabel = cms.untracked.string("dummyPseudoAsyncRetry")
+    moduleLabel = "dummyPseudoAsyncRetry"
 )
 
 process.testerAsyncRetry = process.testerAsync.clone(
-    moduleLabel = cms.untracked.string("dummyAsyncRetry")
+    moduleLabel = "dummyAsyncRetry"
 )
 
 process.p1 = cms.Path(process.testerSync, process.task)
