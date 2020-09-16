@@ -25,7 +25,9 @@
   <ioread sourceClass = "reco::PFCandidate" version="[1-]" targetClass="reco::PFCandidate" source="std::vector<unsigned long long> refsInfo_" target="refsCollectionCache_">
     <![CDATA[refsCollectionCache_.clear();refsCollectionCache_.resize(onfile.refsInfo_.size(),0); ]]>
   </ioread>
-
+  <ioread sourceClass = "reco::PFCandidate" version="[-19]" targetClass="reco::PFCandidate" source="reco::PFCandidate::PFVertexType vertexType_" target="">
+    <![CDATA[newObj->setVertex(newObj->vertexLegacy(onfile.vertexType_));]]>
+  </ioread>
 
   <class name="std::vector<reco::PFCandidate>"/>
   <class name="edm::Wrapper<reco::PFCandidate>"/>

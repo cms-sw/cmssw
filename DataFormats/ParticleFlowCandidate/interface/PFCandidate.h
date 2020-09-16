@@ -393,6 +393,41 @@ namespace reco {
     /// set the fraction of hcal energy as function of depth (index 0..6 for depth 1..7)
     void setHcalDepthEnergyFractions(const std::array<float, 7>& fracs) { hcalDepthEnergyFractions_ = fracs; }
 
+    const math::XYZPoint& vertexLegacy(PFVertexType vertexType) const {
+      std::cout << "vertexLegacy called with " << vertexType << std::endl;
+      switch (vertexType) {
+        case kCandVertex:
+          return LeafCandidate::vertex();
+          break;
+        case kTrkVertex:
+          return trackRef()->vertex();
+          break;
+        case kComMuonVertex:
+          return muonRef()->combinedMuon()->vertex();
+          break;
+        case kSAMuonVertex:
+          return muonRef()->standAloneMuon()->vertex();
+          break;
+        case kTrkMuonVertex:
+          return muonRef()->track()->vertex();
+          break;
+        case kTPFMSMuonVertex:
+          return muonRef()->tpfmsTrack()->vertex();
+          break;
+        case kPickyMuonVertex:
+          return muonRef()->pickyTrack()->vertex();
+          break;
+        case kDYTMuonVertex:
+          return muonRef()->dytTrack()->vertex();
+          break;
+
+        case kGSFVertex:
+          return gsfTrackRef()->vertex();
+          break;
+      }
+      return LeafCandidate::vertex();
+    }
+
   private:
     /// Polymorphic overlap
     bool overlap(const Candidate&) const override;
