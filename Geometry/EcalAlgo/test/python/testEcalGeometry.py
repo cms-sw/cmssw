@@ -56,8 +56,3 @@ process.testDump = cms.EDAnalyzer("DDTestDumpFile",
                                   )
 
 process.p = cms.Path(process.testDump)
-###process.test = cms.EDAnalyzer("DDCMSDetector",
-###                              DDDetector = cms.ESInputTag('', 'Ecal')
-###                              )
-###
-###process.p = cms.Path(process.test)

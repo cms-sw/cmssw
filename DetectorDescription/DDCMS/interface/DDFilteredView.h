@@ -1,5 +1,5 @@
-#ifndef DETECTOR_DESCRIPTION_DD_FILTERED_VIEW_H
-#define DETECTOR_DESCRIPTION_DD_FILTERED_VIEW_H
+#ifndef DetectorDescription_DDCMS_DDFilteredView_h
+#define DetectorDescription_DDCMS_DDFilteredView_h
 
 // -*- C++ -*-
 //
@@ -215,7 +215,6 @@ namespace cms {
     int nodeCopyNo(const std::string_view) const;
     std::vector<std::pair<std::string_view, int>> toNodeNames(const std::string&);
     bool match(const std::string&, const std::vector<std::pair<std::string_view, int>>&) const;
-    const TClass* getShape() const;
 
     //! set the current node to the first sibling
     bool firstSibling();
