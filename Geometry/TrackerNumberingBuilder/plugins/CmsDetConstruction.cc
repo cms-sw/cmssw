@@ -51,11 +51,14 @@ template <auto fxn>
 void CmsDetConstruction<cms::DDFilteredView>::buildLoop(cms::DDFilteredView& fv,
                                                         GeometricDet* det,
                                                         const std::string& attribute){
+  edm::LogVerbatim("TrackerNumberingBuilder") << "CmsDetConstruction::buildLoop start " << fv.geoHistory() <<std::endl;
   while(fv.firstChild()){
-    std::cout << "buildLoop: " << fv.geoHistory() << std::endl
+    edm::LogVerbatim("TrackerNumberingBuilder") << "buildLoop: " << fv.geoHistory() << std::endl
               << "\t HistorySize: " << fv.geoHistory().size() << std::endl;
     (this->*fxn)(fv,det,attribute);
   }
+  edm::LogVerbatim("TrackerNumberingBuilder") << "CmsDetConstruction::buildLoop Exited Loop\n"
+            << "\tPointer at: " << fv.geoHistory() <<std::endl;
 }
 
 template <>
@@ -63,13 +66,16 @@ template <auto fxn>
 void CmsDetConstruction<DDFilteredView>::buildLoop(DDFilteredView& fv,
                                                    GeometricDet* det,
                                                    const std::string& attribute){
+  edm::LogVerbatim("TrackerNumberingBuilder") << "CmsDetConstruction::buildLoop start " << fv.geoHistory() <<std::endl;
   bool dodets = fv.firstChild();  // descend to the first Layer
   while (dodets) {
-    std::cout << "buildLoop: " << fv.geoHistory() << std::endl
-              << "\t HistorySize: " << fv.geoHistory().size() << std::endl;
+    edm::LogVerbatim("TrackerNumberingBuilder") << "buildLoop: " << fv.geoHistory() << std::endl
+                                                << "\t HistorySize: " << fv.geoHistory().size() << std::endl;
     (this->*fxn)(fv, det, attribute);
     dodets = fv.nextSibling();
   }
+  edm::LogVerbatim("TrackerNumberingBuilder") << "CmsDetConstruction::buildLoop Exited Loop\n"
+            << "\tPointer at: " << fv.geoHistory() <<std::endl;
 }
 
 template <class FilteredView>
@@ -77,7 +83,7 @@ void CmsDetConstruction<FilteredView>::buildComponent(FilteredView& fv,
                                                       GeometricDet* mother,
                                                       const std::string& attribute) {
 
-  std::cout << "CmsDetConstruction::buildComponent " << fv.geoHistory();
+  edm::LogVerbatim("TrackerNumberingBuilder") << "CmsDetConstruction::buildComponent " << fv.geoHistory() << std::endl;
   GeometricDet* det = new GeometricDet(&fv,
                                        CmsTrackerLevelBuilder<FilteredView>::theCmsTrackerStringToEnum.type(
                                            ExtractStringFromDDD<FilteredView>::getString(attribute, &fv)));
@@ -86,20 +92,20 @@ void CmsDetConstruction<FilteredView>::buildComponent(FilteredView& fv,
   if (CmsTrackerLevelBuilder<FilteredView>::theCmsTrackerStringToEnum.type(
           ExtractStringFromDDD<FilteredView>::getString(attribute, &fv)) == GeometricDet::mergedDet) {
     buildLoop<&CmsDetConstruction<FilteredView>::buildSmallDetsforGlued>(fv,det,attribute);
-    fv.parent();
+
   }
 
   //Phase2 stackDet: same procedure, different nomenclature
   else if (CmsTrackerLevelBuilder<FilteredView>::theCmsTrackerStringToEnum.type(
                ExtractStringFromDDD<FilteredView>::getString(attribute, &fv)) == GeometricDet::OTPhase2Stack) {
     buildLoop<&CmsDetConstruction<FilteredView>::buildSmallDetsforStack>(fv,det,attribute);
-    fv.parent();
+
   }
 
   mother->addComponent(det);
-  std::cout << "\tMotherSize: " << mother->components().size() << std::endl;
+  edm::LogVerbatim("TrackerNumberingBuilder") << "\tMotherSize: " << mother->components().size() << std::endl;
   for(const auto& cp: mother->components()){
-    std::cout << "\t" << cp->geographicalID().rawId() << std::endl;
+    edm::LogVerbatim("TrackerNumberingBuilder") << "\t" << cp->geographicalID().rawId() << std::endl;
   }
 }
 

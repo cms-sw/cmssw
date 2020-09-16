@@ -10,6 +10,7 @@
 
 template <class FilteredView>
 void CmsTrackerLadderBuilder<FilteredView>::buildComponent(FilteredView& fv, GeometricDet* g, const std::string& s) {
+  edm::LogVerbatim("TrackerNumberingBuilder") << "CmsTrackerLadderBuilder::buildComponent " << s << "\t" << fv.geoHistory() << std::endl;
   CmsDetConstruction<FilteredView> theCmsDetConstruction;
   theCmsDetConstruction.buildComponent(fv, g, s);
 }

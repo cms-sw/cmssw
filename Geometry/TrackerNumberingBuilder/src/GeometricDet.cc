@@ -107,7 +107,9 @@ GeometricDet::GeometricDet(cms::DDFilteredView* fv, GeometricEnumType type)
       _pixROCx(fv->get<double>("PixelROC_X")),
       _pixROCy(fv->get<double>("PixelROC_Y")),
       _stereo(fv->get<std::string_view>("TrackerStereoDetectors") == strue),
-      _siliconAPVNum(fv->get<double>("SiliconAPVNumber")) {}
+      _siliconAPVNum(fv->get<double>("SiliconAPVNumber")) {
+  edm::LogVerbatim("TrackerNumberingBuilder") << "GeometricDet::GeometricDet\t" << fv->geoHistory() << std::endl;
+}
 
 // PGeometricDet is persistent version... make it... then come back here and make the
 // constructor.
