@@ -9,6 +9,7 @@
 <use name="GeneratorInterface/EvtGenInterface"/>
 <use name="GeneratorInterface/PhotosInterface"/>
 <use name="GeneratorInterface/TauolaInterface"/>
+<use name="SimDataFormats/GeneratorProducts"/>
 <export>
   <lib name="1"/>
 </export>
