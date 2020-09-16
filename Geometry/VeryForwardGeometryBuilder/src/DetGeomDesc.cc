@@ -27,7 +27,7 @@
 /*
  *  Constructor from old DD DDFilteredView, also using the SpecPars to access 2x2 wafers info.
  */
-DetGeomDesc::DetGeomDesc(const DDFilteredView& fv, const bool legacyRun2)
+DetGeomDesc::DetGeomDesc(const DDFilteredView& fv, const bool isRun2)
     : m_name(computeNameWithNoNamespace(fv.name())),
       m_copy(fv.copyno()),
       m_isDD4hep(false),
@@ -37,14 +37,14 @@ DetGeomDesc::DetGeomDesc(const DDFilteredView& fv, const bool legacyRun2)
       m_isABox(fv.shape() == DDSolidShape::ddbox),
       m_diamondBoxParams(computeDiamondDimensions(m_isABox, m_isDD4hep, m_params)),  // mm (legacy)
       m_sensorType(computeSensorType(fv.logicalPart().name().fullname())),
-      m_geographicalID(computeDetID(m_name, fv.copyNumbers(), fv.copyno(), legacyRun2)),
+      m_geographicalID(computeDetID(m_name, fv.copyNumbers(), fv.copyno(), isRun2)),
       m_z(fv.translation().z())  // mm (legacy)
 {}
 
 /*
  *  Constructor from DD4Hep DDFilteredView, also using the SpecPars to access 2x2 wafers info.
  */
-DetGeomDesc::DetGeomDesc(const cms::DDFilteredView& fv, const bool legacyRun2)
+DetGeomDesc::DetGeomDesc(const cms::DDFilteredView& fv, const bool isRun2)
     : m_name(computeNameWithNoNamespace(fv.name())),
       m_copy(fv.copyNum()),
       m_isDD4hep(true),
@@ -54,7 +54,7 @@ DetGeomDesc::DetGeomDesc(const cms::DDFilteredView& fv, const bool legacyRun2)
       m_isABox(dd4hep::isA<dd4hep::Box>(fv.solid())),
       m_diamondBoxParams(computeDiamondDimensions(m_isABox, m_isDD4hep, m_params)),  // converted from cm (DD4hep) to mm
       m_sensorType(computeSensorType(fv.name())),
-      m_geographicalID(computeDetIDFromDD4hep(m_name, fv.copyNos(), fv.copyNum(), legacyRun2)),
+      m_geographicalID(computeDetIDFromDD4hep(m_name, fv.copyNos(), fv.copyNum(), isRun2)),
       m_z(geant_units::operators::convertCmToMm(fv.translation().z()))  // converted from cm (DD4hep) to mm
 {}
 
@@ -168,7 +168,7 @@ DiamondDimensions DetGeomDesc::computeDiamondDimensions(const bool isABox,
 DetId DetGeomDesc::computeDetID(const std::string& name,
                                 const std::vector<int>& copyNos,
                                 const unsigned int copyNum,
-                                const bool legacyRun2) const {
+                                const bool isRun2) const {
   DetId geoID;
 
   // strip sensors
@@ -247,7 +247,7 @@ DetId DetGeomDesc::computeDetID(const std::string& name,
           << "size of copyNumbers for diamond segments is " << copyNos.size() << ". It must be >= 2.";
     const unsigned int decRPId = copyNos[1];
     unsigned int arm, station, rp;
-    if (legacyRun2) {
+    if (isRun2) {
       arm = decRPId - 1;
       station = 1;
       rp = 6;
@@ -271,7 +271,7 @@ DetId DetGeomDesc::computeDetID(const std::string& name,
 
     const unsigned int decRPId = copyNos[1];
     unsigned int arm, station, rp;
-    if (legacyRun2) {
+    if (isRun2) {
       arm = decRPId - 1;
       station = 1;
       rp = 6;
@@ -292,10 +292,10 @@ DetId DetGeomDesc::computeDetID(const std::string& name,
 DetId DetGeomDesc::computeDetIDFromDD4hep(const std::string& name,
                                           const std::vector<int>& copyNos,
                                           const unsigned int copyNum,
-                                          const bool legacyRun2) const {
+                                          const bool isRun2) const {
   std::vector<int> copyNosOldDD = {copyNos.rbegin() + 1, copyNos.rend()};
 
-  return computeDetID(name, copyNosOldDD, copyNum, legacyRun2);
+  return computeDetID(name, copyNosOldDD, copyNum, isRun2);
 }
 
 /*
