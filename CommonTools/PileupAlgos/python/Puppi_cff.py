@@ -97,7 +97,6 @@ phase2_common.toModify(
     PtMaxCharged = -1.,
     PtMaxNeutralsStartSlope = 0.,
     DeltaZCut = cms.double(0.1),
-    NumOfPUVtxsForCharged = 0,
     algos = cms.VPSet( 
         cms.PSet( 
              etaMin = cms.vdouble(0.,  2.5),
