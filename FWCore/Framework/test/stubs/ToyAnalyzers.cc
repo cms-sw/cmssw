@@ -64,7 +64,7 @@ namespace edmtest {
       if (prod.value != value_) {
         edm::ProductLabels labels;
         labelsForToken(token_, labels);
-        throw cms::Exception("ValueMissMatch")
+        throw cms::Exception("ValueMismatch")
             << "The value for \"" << labels.module << ":" << labels.productInstance << ":" << labels.process << "\" is "
             << prod.value << " but it was supposed to be " << value_;
       }
