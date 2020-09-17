@@ -103,13 +103,12 @@ void CmsDetConstruction<cms::DDFilteredView>::buildComponent(cms::DDFilteredView
   //Phase1 mergedDet: searching for sensors
   if (CmsTrackerLevelBuilder<cms::DDFilteredView>::theCmsTrackerStringToEnum.type(
           ExtractStringFromDDD<cms::DDFilteredView>::getString(attribute, &fv)) == GeometricDet::mergedDet) {
-
     bool doContinue = fv.firstChild();
     auto startLevel = fv.level();
 
     while (doContinue) {
       buildSmallDetsforGlued(fv, det, attribute);
-      doContinue = fv.firstChild();      
+      doContinue = fv.firstChild();
       if (fv.level() == startLevel) {
         doContinue = false;
       }

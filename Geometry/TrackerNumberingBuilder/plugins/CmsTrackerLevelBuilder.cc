@@ -171,7 +171,7 @@ void CmsTrackerLevelBuilder<cms::DDFilteredView>::build(cms::DDFilteredView& fv,
                                              << " " << tracker->type() << " " << tracker->name() << std::endl;
   bool doLayers = fv.firstChild();
   auto startLevel = fv.level();
-  
+
   while (doLayers) {
     buildComponent(fv, tracker, attribute);
     edm::LogVerbatim("TrackerGeometryBuilder")
