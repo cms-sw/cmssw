@@ -52,6 +52,13 @@ namespace edmtest {
         : value_(iPSet.getUntrackedParameter<int>("valueMustMatch")),
           token_(consumes(iPSet.getUntrackedParameter<edm::InputTag>("moduleLabel"))) {}
 
+    static void fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+      edm::ParameterSetDescription desc;
+      desc.addUntracked<int>("valueMustMatch");
+      desc.addUntracked<edm::InputTag>("moduleLabel");
+      descriptions.addDefault(desc);
+    }
+
     void analyze(edm::StreamID, edm::Event const& iEvent, edm::EventSetup const&) const {
       auto const& prod = iEvent.get(token_);
       if (prod.value != value_) {
