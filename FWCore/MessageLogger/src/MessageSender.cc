@@ -82,7 +82,7 @@ CMS_THREAD_SAFE static std::vector<
     tbb::concurrent_unordered_map<ErrorSummaryMapKey, AtomicUnsignedInt, ErrorSummaryMapKey::key_hash>>
     errorSummaryMaps;
 
-MessageSender::MessageSender(ELseverityLevel const& sev, ELstring const& id, bool verbatim, bool suppressed)
+MessageSender::MessageSender(ELseverityLevel const& sev, std::string_view id, bool verbatim, bool suppressed)
     : errorobj_p(suppressed ? nullptr : new ErrorObj(sev, id, verbatim), ErrorObjDeleter()) {
   //std::cout << "MessageSender ctor; new ErrorObj at: " << errorobj_p << '\n';
 }

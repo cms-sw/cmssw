@@ -71,7 +71,7 @@ namespace edm {
   // Birth/death:
   // ----------------------------------------------------------------------
 
-  ErrorObj::ErrorObj(const ELseverityLevel& sev, const ELstring& id, bool verbat) : verbatim(verbat) {
+  ErrorObj::ErrorObj(const ELseverityLevel& sev, std::string_view id, bool verbat) : verbatim(verbat) {
 #ifdef ErrorObjCONSTRUCTOR_TRACE
     std::cerr << "Constructor for ErrorObj\n";
 #endif
@@ -156,7 +156,7 @@ namespace edm {
                                              : (sev >= ELhighestSeverity) ? (ELseverityLevel)ELsevere : sev;
   }
 
-  void ErrorObj::setID(const ELstring& id) {
+  void ErrorObj::setID(std::string_view id) {
     myXid.id = ELstring(id, 0, maxIDlength);
     if (id.length() > maxIDlength)
       myIdOverflow = ELstring(id, maxIDlength, id.length() - maxIDlength);
@@ -204,7 +204,7 @@ namespace edm {
 
   }  // emitToken()
 
-  void ErrorObj::set(const ELseverityLevel& sev, const ELstring& id) {
+  void ErrorObj::set(const ELseverityLevel& sev, std::string_view id) {
     clear();
 
     myTimestamp = time(nullptr);
