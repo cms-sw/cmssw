@@ -22,6 +22,7 @@
   <use name="DataFormats/JetReco"/>
   <use name="DataFormats/EgammaReco"/>
   <use name="DataFormats/Math"/>
+  <use name="SimDataFormats/HTXS"/>
   <use name="fastjet"/>
   <use name="boost"/>
   <use name="heppdt"/>
