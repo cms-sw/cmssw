@@ -13,6 +13,12 @@
 */
 
 class ETLDetId : public MTDDetId {
+private:
+  // for conversion from old to new module bit field
+  static const uint32_t kETLoldToNewShift = 2;
+  static const uint32_t kETLoldFieldMask = 0x7FFF;
+  static const uint32_t kETLformatV2 = 1;
+
 public:
   static const uint32_t kETLmoduleOffset = 5;    //7
   static const uint32_t kETLmoduleMask = 0x7FF;  //0x1FF
@@ -47,13 +53,30 @@ public:
   /** Construct a null id */
   ETLDetId() : MTDDetId(DetId::Forward, ForwardSubdetector::FastTime) {
     id_ |= (MTDType::ETL & kMTDsubdMask) << kMTDsubdOffset;
+    id_ |= kETLformatV2;
   }
 
   /** Construct from a raw value */
-  ETLDetId(const uint32_t& raw_id) : MTDDetId(raw_id) { ; }
+  ETLDetId(const uint32_t& raw_id) {
+    uint32_t tmpId = raw_id;
+    if ((tmpId & kETLformatV2) == 0) {
+      uint32_t fixedP = tmpId & (0xFFFFFFFF - kETLoldFieldMask);          // unchanged part of id
+      uint32_t shiftP = (tmpId & kETLoldFieldMask) >> kETLoldToNewShift;  // shifted part
+      tmpId = (fixedP | shiftP) + kETLformatV2;
+    }
+    id_ = MTDDetId(tmpId).rawId();
+  }
 
   /** Construct from generic DetId */
-  ETLDetId(const DetId& det_id) : MTDDetId(det_id.rawId()) { ; }
+  ETLDetId(const DetId& det_id) {
+    uint32_t tmpId = det_id.rawId();
+    if ((tmpId & kETLformatV2) == 0) {
+      uint32_t fixedP = tmpId & (0xFFFFFFFF - kETLoldFieldMask);          // unchanged part of id
+      uint32_t shiftP = (tmpId & kETLoldFieldMask) >> kETLoldToNewShift;  // shifted part
+      tmpId = (fixedP | shiftP) + kETLformatV2;
+    }
+    id_ = MTDDetId(tmpId).rawId();
+  }
 
   /** Construct and fill only the det and sub-det fields. */
   ETLDetId(uint32_t zside, uint32_t ring, uint32_t module, uint32_t modtyp)
@@ -61,6 +84,7 @@ public:
     id_ |= (MTDType::ETL & kMTDsubdMask) << kMTDsubdOffset | (zside & kZsideMask) << kZsideOffset |
            (ring & kRodRingMask) << kRodRingOffset | (module & kETLmoduleMask) << kETLmoduleOffset |
            (modtyp & kETLmodTypeMask) << kETLmodTypeOffset;
+    id_ |= kETLformatV2;
   }
 
   /** ETL TDR Construct and fill only the det and sub-det fields. */
@@ -74,6 +98,7 @@ public:
     id_ |= (MTDType::ETL & kMTDsubdMask) << kMTDsubdOffset | (zside & kZsideMask) << kZsideOffset |
            (encodeSector(disc, discside, sector) & kRodRingMask) << kRodRingOffset |
            (module & kETLmoduleMask) << kETLmoduleOffset | (modtyp & kETLmodTypeMask) << kETLmodTypeOffset;
+    id_ |= kETLformatV2;
   }
 
   // ---------- Common methods ----------
@@ -102,7 +127,11 @@ public:
     return (((((id_ >> kRodRingOffset) & kRodRingMask) - 1) >> kETLnDiscOffset) & kETLnDiscMask) + 1;
   }
 
-  uint32_t newForm(const uint32_t& rawid);
+  uint32_t newForm(const uint32_t& rawid) {
+    uint32_t fixedP = rawid & (0xFFFFFFFF - kETLoldFieldMask);          // unchanged part of id
+    uint32_t shiftP = (rawid & kETLoldFieldMask) >> kETLoldToNewShift;  // shifted part
+    return (fixedP | shiftP);
+  }
 };
 
 std::ostream& operator<<(std::ostream&, const ETLDetId&);
