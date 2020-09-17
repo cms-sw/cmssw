@@ -288,9 +288,7 @@ void fastsim::ParticleManager::exoticRelativesChecker(const HepMC::GenVertex* or
   std::vector<HepMC::GenParticle*>::const_iterator relativesIteratorEnd_ = originVertex->particles_in_const_end();
   for (; relativesIterator_ != relativesIteratorEnd_; ++relativesIterator_) {
     const HepMC::GenParticle& genRelative = **relativesIterator_;
-    relpid = std::abs(genRelative.pdg_id());
-    relIsExotic = isExotic(relpid);
-    if (relIsExotic) {
+    if (isExotic(std::abs(genRelative.pdg_id()))) {
       exoticRelativeId_ = genRelative.pdg_id();
       if (ngendepth == 100)
         exoticRelativeId_ = -1;
