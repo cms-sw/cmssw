@@ -625,11 +625,11 @@ namespace edm {
         //Signal sentry is handled by the module
         return iWorker->implDo(info.principal(), info.eventSetupImpl(), mcc);
       }
-      static void esPrefetch(Worker* worker,
-                             WaitingTask* waitingTask,
-                             ServiceToken const& token,
-                             EventTransitionInfo const& info,
-                             Transition transition) {
+      static void esPrefetchAsync(Worker* worker,
+                                  WaitingTask* waitingTask,
+                                  ServiceToken const& token,
+                                  EventTransitionInfo const& info,
+                                  Transition transition) {
         worker->esPrefetchAsync(waitingTask, info.eventSetupImpl(), transition, token);
       }
       static bool wantsTransition(Worker const* iWorker) { return true; }
@@ -652,11 +652,11 @@ namespace edm {
         ModuleSignalSentry<Arg> cpp(actReg, context, mcc);
         return iWorker->implDoBegin(info.principal(), info.eventSetupImpl(), mcc);
       }
-      static void esPrefetch(Worker* worker,
-                             WaitingTask* waitingTask,
-                             ServiceToken const& token,
-                             RunTransitionInfo const& info,
-                             Transition transition) {
+      static void esPrefetchAsync(Worker* worker,
+                                  WaitingTask* waitingTask,
+                                  ServiceToken const& token,
+                                  RunTransitionInfo const& info,
+                                  Transition transition) {
         worker->esPrefetchAsync(waitingTask, info.eventSetupImpl(), transition, token);
       }
       static bool wantsTransition(Worker const* iWorker) { return iWorker->wantsGlobalRuns(); }
@@ -677,11 +677,11 @@ namespace edm {
         ModuleSignalSentry<Arg> cpp(actReg, context, mcc);
         return iWorker->implDoStreamBegin(id, info.principal(), info.eventSetupImpl(), mcc);
       }
-      static void esPrefetch(Worker* worker,
-                             WaitingTask* waitingTask,
-                             ServiceToken const& token,
-                             RunTransitionInfo const& info,
-                             Transition transition) {
+      static void esPrefetchAsync(Worker* worker,
+                                  WaitingTask* waitingTask,
+                                  ServiceToken const& token,
+                                  RunTransitionInfo const& info,
+                                  Transition transition) {
         worker->esPrefetchAsync(waitingTask, info.eventSetupImpl(), transition, token);
       }
       static bool wantsTransition(Worker const* iWorker) { return iWorker->wantsStreamRuns(); }
@@ -702,11 +702,11 @@ namespace edm {
         ModuleSignalSentry<Arg> cpp(actReg, context, mcc);
         return iWorker->implDoEnd(info.principal(), info.eventSetupImpl(), mcc);
       }
-      static void esPrefetch(Worker* worker,
-                             WaitingTask* waitingTask,
-                             ServiceToken const& token,
-                             RunTransitionInfo const& info,
-                             Transition transition) {
+      static void esPrefetchAsync(Worker* worker,
+                                  WaitingTask* waitingTask,
+                                  ServiceToken const& token,
+                                  RunTransitionInfo const& info,
+                                  Transition transition) {
         worker->esPrefetchAsync(waitingTask, info.eventSetupImpl(), transition, token);
       }
       static bool wantsTransition(Worker const* iWorker) { return iWorker->wantsGlobalRuns(); }
@@ -727,11 +727,11 @@ namespace edm {
         ModuleSignalSentry<Arg> cpp(actReg, context, mcc);
         return iWorker->implDoStreamEnd(id, info.principal(), info.eventSetupImpl(), mcc);
       }
-      static void esPrefetch(Worker* worker,
-                             WaitingTask* waitingTask,
-                             ServiceToken const& token,
-                             RunTransitionInfo const& info,
-                             Transition transition) {
+      static void esPrefetchAsync(Worker* worker,
+                                  WaitingTask* waitingTask,
+                                  ServiceToken const& token,
+                                  RunTransitionInfo const& info,
+                                  Transition transition) {
         worker->esPrefetchAsync(waitingTask, info.eventSetupImpl(), transition, token);
       }
       static bool wantsTransition(Worker const* iWorker) { return iWorker->wantsStreamRuns(); }
@@ -753,11 +753,11 @@ namespace edm {
         ModuleSignalSentry<Arg> cpp(actReg, context, mcc);
         return iWorker->implDoBegin(info.principal(), info.eventSetupImpl(), mcc);
       }
-      static void esPrefetch(Worker* worker,
-                             WaitingTask* waitingTask,
-                             ServiceToken const& token,
-                             LumiTransitionInfo const& info,
-                             Transition transition) {
+      static void esPrefetchAsync(Worker* worker,
+                                  WaitingTask* waitingTask,
+                                  ServiceToken const& token,
+                                  LumiTransitionInfo const& info,
+                                  Transition transition) {
         worker->esPrefetchAsync(waitingTask, info.eventSetupImpl(), transition, token);
       }
       static bool wantsTransition(Worker const* iWorker) { return iWorker->wantsGlobalLuminosityBlocks(); }
@@ -778,11 +778,11 @@ namespace edm {
         ModuleSignalSentry<Arg> cpp(actReg, context, mcc);
         return iWorker->implDoStreamBegin(id, info.principal(), info.eventSetupImpl(), mcc);
       }
-      static void esPrefetch(Worker* worker,
-                             WaitingTask* waitingTask,
-                             ServiceToken const& token,
-                             LumiTransitionInfo const& info,
-                             Transition transition) {
+      static void esPrefetchAsync(Worker* worker,
+                                  WaitingTask* waitingTask,
+                                  ServiceToken const& token,
+                                  LumiTransitionInfo const& info,
+                                  Transition transition) {
         worker->esPrefetchAsync(waitingTask, info.eventSetupImpl(), transition, token);
       }
       static bool wantsTransition(Worker const* iWorker) { return iWorker->wantsStreamLuminosityBlocks(); }
@@ -804,11 +804,11 @@ namespace edm {
         ModuleSignalSentry<Arg> cpp(actReg, context, mcc);
         return iWorker->implDoEnd(info.principal(), info.eventSetupImpl(), mcc);
       }
-      static void esPrefetch(Worker* worker,
-                             WaitingTask* waitingTask,
-                             ServiceToken const& token,
-                             LumiTransitionInfo const& info,
-                             Transition transition) {
+      static void esPrefetchAsync(Worker* worker,
+                                  WaitingTask* waitingTask,
+                                  ServiceToken const& token,
+                                  LumiTransitionInfo const& info,
+                                  Transition transition) {
         worker->esPrefetchAsync(waitingTask, info.eventSetupImpl(), transition, token);
       }
       static bool wantsTransition(Worker const* iWorker) { return iWorker->wantsGlobalLuminosityBlocks(); }
@@ -829,11 +829,11 @@ namespace edm {
         ModuleSignalSentry<Arg> cpp(actReg, context, mcc);
         return iWorker->implDoStreamEnd(id, info.principal(), info.eventSetupImpl(), mcc);
       }
-      static void esPrefetch(Worker* worker,
-                             WaitingTask* waitingTask,
-                             ServiceToken const& token,
-                             LumiTransitionInfo const& info,
-                             Transition transition) {
+      static void esPrefetchAsync(Worker* worker,
+                                  WaitingTask* waitingTask,
+                                  ServiceToken const& token,
+                                  LumiTransitionInfo const& info,
+                                  Transition transition) {
         worker->esPrefetchAsync(waitingTask, info.eventSetupImpl(), transition, token);
       }
       static bool wantsTransition(Worker const* iWorker) { return iWorker->wantsStreamLuminosityBlocks(); }
@@ -854,7 +854,7 @@ namespace edm {
         ModuleSignalSentry<Arg> cpp(actReg, context, mcc);
         return iWorker->implDoBeginProcessBlock(info.principal(), mcc);
       }
-      static constexpr void esPrefetch(
+      static constexpr void esPrefetchAsync(
           Worker*, WaitingTask*, ServiceToken const&, ProcessBlockTransitionInfo const&, Transition) {}
       static bool wantsTransition(Worker const* iWorker) { return iWorker->wantsProcessBlocks(); }
       static bool needToRunSelection(Worker const* iWorker) { return false; }
@@ -874,7 +874,7 @@ namespace edm {
         ModuleSignalSentry<Arg> cpp(actReg, context, mcc);
         return iWorker->implDoAccessInputProcessBlock(info.principal(), mcc);
       }
-      static constexpr void esPrefetch(
+      static constexpr void esPrefetchAsync(
           Worker*, WaitingTask*, ServiceToken const&, ProcessBlockTransitionInfo const&, Transition) {}
       static bool wantsTransition(Worker const* iWorker) { return iWorker->wantsInputProcessBlocks(); }
       static bool needToRunSelection(Worker const* iWorker) { return false; }
@@ -894,7 +894,7 @@ namespace edm {
         ModuleSignalSentry<Arg> cpp(actReg, context, mcc);
         return iWorker->implDoEndProcessBlock(info.principal(), mcc);
       }
-      static constexpr void esPrefetch(
+      static constexpr void esPrefetchAsync(
           Worker*, WaitingTask*, ServiceToken const&, ProcessBlockTransitionInfo const&, Transition) {}
       static bool wantsTransition(Worker const* iWorker) { return iWorker->wantsProcessBlocks(); }
       static bool needToRunSelection(Worker const* iWorker) { return false; }
@@ -920,7 +920,7 @@ namespace edm {
     //Need to be sure the ref count isn't set to 0 immediately
     iTask->increment_ref_count();
 
-    workerhelper::CallImpl<T>::esPrefetch(this, iTask, token, transitionInfo, iTransition);
+    workerhelper::CallImpl<T>::esPrefetchAsync(this, iTask, token, transitionInfo, iTransition);
     edPrefetchAsync(iTask, token, principal);
 
     if (principal.branchType() == InEvent) {
