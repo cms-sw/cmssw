@@ -39,7 +39,9 @@
 //
 // ----------------------------------------------------------------------
 
+#include <algorithm>
 #include <atomic>
+#include <cctype>
 
 #include "FWCore/MessageLogger/interface/ErrorObj.h"
 #include "FWCore/Utilities/interface/thread_safety_macros.h"
@@ -55,6 +57,13 @@
 // #define ErrorObj_SUB_TRACE
 
 // ----------------------------------------------------------------------
+
+namespace {
+  bool eq_nocase(std::string_view a, std::string_view b) {
+    return std::equal(
+        a.begin(), a.end(), b.begin(), b.end(), [](char x, char y) { return std::toupper(x) == std::toupper(y); });
+  }
+}  // namespace
 
 namespace edm {
 
@@ -191,7 +200,7 @@ namespace edm {
     }
 #endif
 
-    if (eq_nocase(s.substr(0, 5), "@SUB=")) {
+    if (eq_nocase(std::string_view(s).substr(0, 5), "@SUB=")) {
 #ifdef ErrorObj_SUB_TRACE
       std::cerr << "=:=:=: ErrorObj::@SUB s.substr(5) is: " << s.substr(5) << '\n';
 #endif
