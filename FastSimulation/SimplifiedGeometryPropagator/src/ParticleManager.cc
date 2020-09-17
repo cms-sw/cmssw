@@ -219,7 +219,7 @@ std::unique_ptr<fastsim::Particle> fastsim::ParticleManager::nextGenParticle() {
     if (productionVertex->position().perp2() * lengthUnitConversionFactor2_ > beamPipeRadius2_)  //
     {
       exoticRelativesChecker(productionVertex, exoticRelativeId, 0);
-    if (!isExotic(exoticRelativeId)){
+      if (!isExotic(exoticRelativeId)) {
         continue;
       }
     }
@@ -281,7 +281,7 @@ std::unique_ptr<fastsim::Particle> fastsim::ParticleManager::nextGenParticle() {
 void fastsim::ParticleManager::exoticRelativesChecker(const HepMC::GenVertex* originVertex,
                                                       int& exoticRelativeId_,
                                                       int ngendepth = 0) {
-   if (ngendepth > 99 || exoticRelativeId_ == -1 || isExotic(std::abs(exoticRelativeId_))) 
+  if (ngendepth > 99 || exoticRelativeId_ == -1 || isExotic(std::abs(exoticRelativeId_))) 
     return;
   ngendepth += 1;
   std::vector<HepMC::GenParticle*>::const_iterator relativesIterator_ = originVertex->particles_in_const_begin();
