@@ -5,6 +5,8 @@
 #include "FWCore/Utilities/interface/ESInputTag.h"
 #include "DataFormats/Provenance/interface/ParameterSetID.h"
 #include "L1Trigger/TrackerDTC/interface/Setup.h"
+#include "MagneticField/Engine/interface/MagneticField.h"
+#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 
 #include <memory>
 

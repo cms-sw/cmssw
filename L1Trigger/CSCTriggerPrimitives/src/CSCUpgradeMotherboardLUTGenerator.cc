@@ -1,4 +1,5 @@
 #include "L1Trigger/CSCTriggerPrimitives/interface/CSCUpgradeMotherboardLUTGenerator.h"
+#include "Geometry/CSCGeometry/interface/CSCChamber.h"
 #include "Geometry/GEMGeometry/interface/GEMEtaPartitionSpecs.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
