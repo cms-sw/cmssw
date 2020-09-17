@@ -12,6 +12,7 @@
 #include <chrono>
 #include <exception>
 #include <memory>
+#include <optional>
 
 enum class SonicMode { Sync = 1, Async = 2, PseudoAsync = 3 };
 
@@ -53,8 +54,7 @@ protected:
   SonicMode mode_;
   std::unique_ptr<SonicDispatcher> dispatcher_;
   unsigned allowedTries_, tries_;
-  edm::WaitingTaskWithArenaHolder holder_;
-  bool hasHolder_;
+  std::optional<edm::WaitingTaskWithArenaHolder> holder_;
 
   //for logging/debugging
   std::string clientName_, debugName_, fullDebugName_;
