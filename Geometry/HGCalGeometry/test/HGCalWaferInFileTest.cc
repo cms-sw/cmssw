@@ -115,8 +115,7 @@ void HGCalWaferInFileTest::analyze(const edm::Event& iEvent, const edm::EventSet
           ++miss[layer - layerf];
       }
     }
-    std::cout << "\n\nFinds " << bad1 << " invalid wafers among " << hgdc.waferFileSize() << " wafers in the list"
-              << std::endl;
+    std::cout << "\n\nFinds " << bad1 << " invalid wafers among " << hgdc.waferFileSize() << " wafers in the list\n";
     for (unsigned int k = 0; k < miss.size(); ++k) {
       if (miss[k] > 0)
         std::cout << "Layer[" << k << ":" << (layerf + k) << "] " << miss[k] << std::endl;
@@ -150,8 +149,7 @@ void HGCalWaferInFileTest::analyze(const edm::Event& iEvent, const edm::EventSet
       }
     }
     std::cout << "\n\nFinds " << badT << "[" << badT1 << ":" << badT2 << "] mismatch in type among " << allG
-              << " wafers with the same indices\n"
-              << std::endl;
+              << " wafers with the same indices\n\n";
 
     // Now cross check the content (partial and orientation)
     int allX(0), badG(0), badP(0), badR(0);
@@ -236,9 +234,9 @@ std::vector<std::string> HGCalWaferInFileTest::getPoints(
               << delY << ":" << rin << ":" << rout << " Corners " << ncor << " iok " << iok << std::endl;
 
   static const int parts = 3;
-  static const std::string c1[parts] = {"A3", "A2", "A1"};
-  double dx1[parts] = {0.75 * delX, 0.50 * delX, 0.25 * delX};
-  double dy1[parts] = {-0.625 * delY, -0.75 * delY, -0.875 * delY};
+  static const std::string c1[parts] = {"A1", "A2", "A3"};
+  double dx1[parts] = {0.25 * delX, 0.50 * delX, 0.75 * delX};
+  double dy1[parts] = {-0.875 * delY, -0.75 * delY, -0.625 * delY};
   if ((((iok / 10000) % 10) == 1) && (((iok / 100000) % 10) == 0)) {
     for (int k = 0; k < parts; ++k) {
       double xc1 = xpos + dx1[k];
@@ -250,9 +248,22 @@ std::vector<std::string> HGCalWaferInFileTest::getPoints(
       }
     }
   }
-  static const std::string c2[parts] = {"B3", "B2", "B1"};
+  if ((((iok / 10000) % 10) == 0) && (((iok / 100000) % 10) == 1)) {
+    for (int k1 = 0; k1 < parts; ++k1) {
+      int k = parts - k1 - 1;
+      double xc1 = xpos + dx1[k];
+      double yc1 = ypos + dy1[k];
+      double rpos = sqrt(xc1 * xc1 + yc1 * yc1);
+      if (rpos <= rout && rpos >= rin) {
+        points.emplace_back(c1[k]);
+        break;
+      }
+    }
+  }
+
+  static const std::string c2[parts] = {"B1", "B2", "B3"};
   double dx2[parts] = {delX, delX, delX};
-  double dy2[parts] = {0.5 * delY, 0.0, -0.5 * delY};
+  double dy2[parts] = {-0.5 * delY, 0.0, 0.5 * delY};
   if ((((iok / 1000) % 10) == 1) && (((iok / 10000) % 10) == 0)) {
     for (int k = 0; k < parts; ++k) {
       double xc1 = xpos + dx2[k];
@@ -264,9 +275,22 @@ std::vector<std::string> HGCalWaferInFileTest::getPoints(
       }
     }
   }
-  static const std::string c3[parts] = {"C3", "C2", "C1"};
-  double dx3[parts] = {0.25 * delX, 0.50 * delX, 0.75 * delX};
-  double dy3[parts] = {0.875 * delY, 0.75 * delY, 0.625 * delY};
+  if ((((iok / 1000) % 10) == 0) && (((iok / 10000) % 10) == 1)) {
+    for (int k1 = 0; k1 < parts; ++k1) {
+      int k = parts - k1 - 1;
+      double xc1 = xpos + dx2[k];
+      double yc1 = ypos + dy2[k];
+      double rpos = sqrt(xc1 * xc1 + yc1 * yc1);
+      if (rpos <= rout && rpos >= rin) {
+        points.emplace_back(c2[k]);
+        break;
+      }
+    }
+  }
+
+  static const std::string c3[parts] = {"C1", "C2", "C3"};
+  double dx3[parts] = {0.75 * delX, 0.50 * delX, 0.25 * delX};
+  double dy3[parts] = {0.625 * delY, 0.75 * delY, 0.875 * delY};
   if ((((iok / 100) % 10) == 1) && (((iok / 1000) % 10) == 0)) {
     for (int k = 0; k < parts; ++k) {
       double xc1 = xpos + dx3[k];
@@ -278,9 +302,22 @@ std::vector<std::string> HGCalWaferInFileTest::getPoints(
       }
     }
   }
-  static const std::string c4[parts] = {"D3", "D2", "D1"};
-  double dx4[parts] = {-0.75 * delX, -0.50 * delX, -0.25 * delX};
-  double dy4[parts] = {0.625 * delY, 0.75 * delY, 0.875 * delY};
+  if ((((iok / 100) % 10) == 0) && (((iok / 1000) % 10) == 1)) {
+    for (int k1 = 0; k1 < parts; ++k1) {
+      int k = parts - k1 - 1;
+      double xc1 = xpos + dx3[k];
+      double yc1 = ypos + dy3[k];
+      double rpos = sqrt(xc1 * xc1 + yc1 * yc1);
+      if (rpos <= rout && rpos >= rin) {
+        points.emplace_back(c3[k]);
+        break;
+      }
+    }
+  }
+
+  static const std::string c4[parts] = {"D1", "D2", "D3"};
+  double dx4[parts] = {-0.25 * delX, -0.50 * delX, -0.75 * delX};
+  double dy4[parts] = {0.875 * delY, 0.75 * delY, 0.625 * delY};
   if ((((iok / 10) % 10) == 1) && (((iok / 100) % 10) == 0)) {
     for (int k = 0; k < parts; ++k) {
       double xc1 = xpos + dx4[k];
@@ -292,9 +329,22 @@ std::vector<std::string> HGCalWaferInFileTest::getPoints(
       }
     }
   }
-  static const std::string c5[parts] = {"E3", "E2", "E1"};
+  if ((((iok / 10) % 10) == 0) && (((iok / 100) % 10) == 1)) {
+    for (int k1 = 0; k1 < parts; ++k1) {
+      int k = parts - k1 - 1;
+      double xc1 = xpos + dx4[k];
+      double yc1 = ypos + dy4[k];
+      double rpos = sqrt(xc1 * xc1 + yc1 * yc1);
+      if (rpos <= rout && rpos >= rin) {
+        points.emplace_back(c4[k]);
+        break;
+      }
+    }
+  }
+
+  static const std::string c5[parts] = {"E1", "E2", "E3"};
   double dx5[parts] = {-delX, -delX, -delX};
-  double dy5[parts] = {-0.5 * delY, 0.0, 0.5 * delY};
+  double dy5[parts] = {0.5 * delY, 0.0, -0.5 * delY};
   if ((((iok / 1) % 10) == 1) && (((iok / 10) % 10) == 0)) {
     for (int k = 0; k < parts; ++k) {
       double xc1 = xpos + dx5[k];
@@ -306,9 +356,22 @@ std::vector<std::string> HGCalWaferInFileTest::getPoints(
       }
     }
   }
-  static const std::string c6[parts] = {"F3", "F2", "F1"};
-  double dx6[parts] = {-0.25 * delX, -0.50 * delX, -0.75 * delX};
-  double dy6[parts] = {-0.875 * delY, -0.75 * delY, -0.625 * delY};
+  if ((((iok / 1) % 10) == 0) && (((iok / 10) % 10) == 1)) {
+    for (int k1 = 0; k1 < parts; ++k1) {
+      int k = parts - k1 - 1;
+      double xc1 = xpos + dx5[k];
+      double yc1 = ypos + dy5[k];
+      double rpos = sqrt(xc1 * xc1 + yc1 * yc1);
+      if (rpos <= rout && rpos >= rin) {
+        points.emplace_back(c5[k]);
+        break;
+      }
+    }
+  }
+
+  static const std::string c6[parts] = {"F1", "F2", "F3"};
+  double dx6[parts] = {-0.75 * delX, -0.50 * delX, -0.25 * delX};
+  double dy6[parts] = {-0.625 * delY, -0.75 * delY, -0.875 * delY};
   if ((((iok / 100000) % 10) == 1) && (((iok / 1) % 10) == 0)) {
     for (int k = 0; k < parts; ++k) {
       double xc1 = xpos + dx6[k];
@@ -320,6 +383,19 @@ std::vector<std::string> HGCalWaferInFileTest::getPoints(
       }
     }
   }
+  if ((((iok / 100000) % 10) == 0) && (((iok / 1) % 10) == 1)) {
+    for (int k1 = 0; k1 < parts; ++k1) {
+      int k = parts - k1 - 1;
+      double xc1 = xpos + dx6[k];
+      double yc1 = ypos + dy6[k];
+      double rpos = sqrt(xc1 * xc1 + yc1 * yc1);
+      if (rpos <= rout && rpos >= rin) {
+        points.emplace_back(c6[k]);
+        break;
+      }
+    }
+  }
+
   return points;
 }
 
