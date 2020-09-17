@@ -105,7 +105,7 @@ double TrackAndHCALLinker::testLink(size_t ielem1,
   }
   const auto& clusterTable = tables.getClusterTable(elements[ihcal_elem]->type());
   const auto& trackTableEntrance = tables.getTrackTable(trajectoryLayerEntrance_);
-  const auto& trackTableExit = checkExit_ ? tables.getTrackTable(trajectoryLayerEntrance_) : trackTableEntrance;
+  const auto& trackTableExit = checkExit_ ? tables.getTrackTable(trajectoryLayerExit_) : trackTableEntrance;
 
   size_t ihcal = clusterTable.element_to_cluster_[ihcal_elem];
   size_t itrack = tables.element_to_track_[itrack_elem];

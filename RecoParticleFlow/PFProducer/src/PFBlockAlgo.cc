@@ -322,19 +322,29 @@ reco::PFBlockCollection PFBlockAlgo::findBlocks() {
   }
 
 #ifdef EDM_ML_DEBUG
-  size_t num_ml_hcal_track = 0;
-  size_t num_ml_hfem_track = 0;
-  size_t num_ml_hfhad_track = 0;
+  size_t num_ml_track_hcal = 0;
+  size_t num_ml_track_hfem = 0;
+  size_t num_ml_track_hfhad = 0;
+  size_t num_ml_ecal_track = 0;
+  size_t num_ml_ps1_ecal = 0;
+  size_t num_ml_ps2_ecal = 0;
   for (size_t i = 0; i < elements_.size(); i++) {
-    num_ml_hcal_track += multilinks.getNumLinks(i, reco::PFBlockElement::TRACK, reco::PFBlockElement::HCAL);
-    num_ml_hfem_track += multilinks.getNumLinks(i, reco::PFBlockElement::TRACK, reco::PFBlockElement::HFEM);
-    num_ml_hfhad_track += multilinks.getNumLinks(i, reco::PFBlockElement::TRACK, reco::PFBlockElement::HFHAD);
+    num_ml_track_hcal += multilinks.getNumLinks(i, reco::PFBlockElement::TRACK, reco::PFBlockElement::HCAL);
+    num_ml_track_hfem += multilinks.getNumLinks(i, reco::PFBlockElement::TRACK, reco::PFBlockElement::HFEM);
+    num_ml_track_hfhad += multilinks.getNumLinks(i, reco::PFBlockElement::TRACK, reco::PFBlockElement::HFHAD);
+    num_ml_ecal_track += multilinks.getNumLinks(i, reco::PFBlockElement::ECAL, reco::PFBlockElement::TRACK);
+    num_ml_ps1_ecal += multilinks.getNumLinks(i, reco::PFBlockElement::PS1, reco::PFBlockElement::ECAL);
+    num_ml_ps2_ecal += multilinks.getNumLinks(i, reco::PFBlockElement::PS2, reco::PFBlockElement::ECAL);
   }
 
-  LogDebug("PFBlockAlgo") << "number of multilinks HCAL->TRACK: " << num_ml_hcal_track;
-  LogDebug("PFBlockAlgo") << "number of multilinks HFEM->TRACK: " << num_ml_hfem_track;
-  LogDebug("PFBlockAlgo") << "number of multilinks HFHAD->TRACK: " << num_ml_hfhad_track;
+  LogDebug("PFBlockAlgo") << "number of multilinks HCAL->TRACK: " << num_ml_track_hcal;
+  LogDebug("PFBlockAlgo") << "number of multilinks HFEM->TRACK: " << num_ml_track_hfem;
+  LogDebug("PFBlockAlgo") << "number of multilinks HFHAD->TRACK: " << num_ml_track_hfhad;
+  LogDebug("PFBlockAlgo") << "number of multilinks ECAL->TRACK: " << num_ml_ecal_track;
+  LogDebug("PFBlockAlgo") << "number of multilinks PS1->ECAL: " << num_ml_ps1_ecal;
+  LogDebug("PFBlockAlgo") << "number of multilinks PS2->ECAL: " << num_ml_ps2_ecal;
 #endif
+
   // !Glowinski & Gouzevitch
   reco::PFBlockCollection blocks;
   // the blocks have not been passed to the event, and need to be cleared
@@ -413,6 +423,8 @@ reco::PFBlockCollection PFBlockAlgo::findBlocks() {
     blocks.push_back(packLinks(block_element_indices, links, elements_const, multilinks));
   }
   LogDebug("PFBlockAlgo") << "findBlocks done";
+
+  elements_.clear();
 
   return blocks;
 }
