@@ -142,8 +142,11 @@ namespace fastsim {
 }  // namespace fastsim
 
 inline bool isExotic(int pdgid_) {
-  unsigned int pdgid = std::abs(pdgid_);
-  return (pdgid >= 1000000 && pdgid < 4000000 && pdgid != 3000022) || pdgid == 17 || pdgid == 34 || pdgid == 37;
+unsigned int pdgid = std::abs(pdgid_);
+return ((pdgid >= 1000000 && pdgid < 4000000 && pdgid != 3000022) || // SUSY, R-hadron, and technicolor particles
+pdgid == 17 || // 4th generation lepton
+pdgid == 34 || // W-prime
+pdgid == 37); // charged Higgs
 }
 
 #endif
