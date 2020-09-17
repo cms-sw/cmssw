@@ -7,6 +7,7 @@
 #include "DataFormats/ParticleFlowReco/interface/PFBlockElementCluster.h"
 #include "DataFormats/ParticleFlowReco/interface/PFBlockElementSuperCluster.h"
 #include "DataFormats/ParticleFlowReco/interface/PFBlockElementGsfTrack.h"
+#include "DataFormats/ParticleFlowReco/interface/PFBlockElementTrack.h"
 #include "RecoParticleFlow/PFProducer/interface/TableDefinitions.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
@@ -17,6 +18,7 @@ namespace edm::soa {
                                          reco::PFTrajectoryPoint::LayerType layerType);
   TrackTableExtrapolation makeTrackTable(std::vector<const reco::PFBlockElementGsfTrack*> const& targetSet,
                                          reco::PFTrajectoryPoint::LayerType layerType);
+  ConvRefTable makeConvRefTable(const std::vector<reco::ConversionRef>& convrefs);
 
   RecHitTable makeRecHitTable(std::vector<const reco::PFRecHitFraction*> const& objects);
   SuperClusterRecHitTable makeSuperClusterRecHitTable(std::vector<const std::pair<DetId, float>*> const& objects);
@@ -66,7 +68,9 @@ class PFTables {
 public:
   std::vector<size_t> track_to_element_;
   std::vector<size_t> element_to_track_;
+  std::vector<std::vector<size_t>> track_to_convrefs_;
 
+  edm::soa::ConvRefTable convref_table_;
   edm::soa::TrackTableVertex track_table_vertex_;
   edm::soa::TrackTableExtrapolation track_table_ecalshowermax_;
   edm::soa::TrackTableExtrapolation track_table_hcalent_;
@@ -98,7 +102,9 @@ public:
   void clear() {
     track_to_element_.clear();
     element_to_track_.clear();
+    track_to_convrefs_.clear();
 
+    convref_table_.resize(0);
     track_table_vertex_.resize(0);
     track_table_ecalshowermax_.resize(0);
     track_table_hcalent_.resize(0);

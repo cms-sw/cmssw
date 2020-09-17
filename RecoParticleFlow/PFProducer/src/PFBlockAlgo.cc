@@ -73,6 +73,8 @@ void makeTrackTables(size_t track_first, size_t track_last, const ElementList& e
   std::set<std::pair<reco::PFBlockElement*, size_t>> tracks;
   for (size_t ielem = track_first; ielem <= track_last; ielem++) {
     reco::PFBlockElement* track = elements[ielem].get();
+    // if (track->convRefs().size()>0)
+    //   std::cout << "convrefs=" << track->convRefs().size() << std::endl;
     tracks.insert(std::make_pair(track, ielem));
   }
   std::vector<reco::PFBlockElement*> tracks_vec;
@@ -87,9 +89,24 @@ void makeTrackTables(size_t track_first, size_t track_last, const ElementList& e
   }
   tracks.clear();
 
+  std::vector<ConversionRef> convrefs;
+  std::vector<std::vector<size_t>> track_to_convrefs(tracks_vec.size(), std::vector<size_t>());
+  size_t itrack = 0;
+  size_t iconvref = 0;
+  for (const auto* track : tracks_vec) {
+    for (const auto& convref : track->convRefs()) {
+      convrefs.push_back(convref);
+      track_to_convrefs[itrack].push_back(iconvref);
+      iconvref++;
+    }
+    itrack++;
+  }
+
   tables.track_to_element_ = track_to_element;
   tables.element_to_track_ = element_to_track;
   tables.track_table_vertex_ = edm::soa::makeTrackTableVertex(tracks_vec);
+  tables.track_to_convrefs_ = track_to_convrefs;
+  tables.convref_table_ = edm::soa::makeConvRefTable(convrefs);
   tables.track_table_ecalshowermax_ = edm::soa::makeTrackTable(tracks_vec, reco::PFTrajectoryPoint::ECALShowerMax);
   tables.track_table_hcalent_ = edm::soa::makeTrackTable(tracks_vec, reco::PFTrajectoryPoint::HCALEntrance);
   tables.track_table_hcalex_ = edm::soa::makeTrackTable(tracks_vec, reco::PFTrajectoryPoint::HCALExit);
@@ -365,7 +382,7 @@ reco::PFBlockCollection PFBlockAlgo::findBlocks() {
       const PFBlockElement::Type type1 = p1->type();
       const PFBlockElement::Type type2 = p2->type();
       const unsigned index = linkTestSquare_[type1][type2];
-      const auto pref = linkTests_[index]->linkPrefilter(i, j, type1, type2, multilinks, p1, p2);
+      const auto pref = linkTests_[index]->linkPrefilter(i, j, type1, type2, tables_, multilinks, p1, p2);
       LogTrace("PFBlockAlgo") << "i=" << i << " j=" << j << " prefilter=" << pref << " " << type1 << " " << type2;
       if (pref) {
         const double dist = linkTests_[index]->testLink(i, j, type1, type2, elements_const, tables_, multilinks);
@@ -479,7 +496,7 @@ const reco::PFBlock PFBlockAlgo::packLinks(
         bool bTestLink = (nullptr == linkTests_[index]
                               ? false
                               : linkTests_[index]->linkPrefilter(
-                                    global_i1, global_i2, type1, type2, multilinks, &(els[i1]), &(els[i2])));
+                                    global_i1, global_i2, type1, type2, tables_, multilinks, &(els[i1]), &(els[i2])));
         if (bTestLink)
           link(global_i1, global_i2, dist, elements_full, tables_, multilinks);
       }

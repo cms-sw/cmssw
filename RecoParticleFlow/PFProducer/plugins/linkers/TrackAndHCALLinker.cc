@@ -37,6 +37,7 @@ public:
                      size_t ielem2,
                      reco::PFBlockElement::Type type1,
                      reco::PFBlockElement::Type type2,
+                     const PFTables& tables,
                      const reco::PFMultiLinksIndex& multilinks,
                      const reco::PFBlockElement*,
                      const reco::PFBlockElement*) const override;
@@ -67,6 +68,7 @@ bool TrackAndHCALLinker::linkPrefilter(size_t ielem1,
                                        size_t ielem2,
                                        reco::PFBlockElement::Type type1,
                                        reco::PFBlockElement::Type type2,
+                                       const PFTables& tables,
                                        const reco::PFMultiLinksIndex& multilinks,
                                        const reco::PFBlockElement* elem1,
                                        const reco::PFBlockElement* elem2) const {

@@ -3,20 +3,46 @@
 using namespace edm::soa::col;
 namespace edm::soa {
 
-  TrackTableVertex makeTrackTableVertex(std::vector<reco::PFBlockElement*> const& targetSet) {
-    std::vector<bool> valid;
-    std::vector<double> pt;
-    std::vector<bool> isLinkedToDisplacedVertex;
+  TrackTableVertex makeTrackTableVertex(std::vector<reco::PFBlockElement*> const& objects) {
+    return {objects,
+            edm::soa::column_fillers(
+                pf::track::ExtrapolationValid::filler([](reco::PFBlockElement* x) {
+                  return x->trackRefPF()->extrapolatedPoint(reco::PFTrajectoryPoint::ClosestApproach).isValid();
+                }),
+                pf::track::Pt::filler([](reco::PFBlockElement* x) {
+                  return sqrt(x->trackRefPF()
+                                  ->extrapolatedPoint(reco::PFTrajectoryPoint::ClosestApproach)
+                                  .momentum()
+                                  .Vect()
+                                  .Perp2());
+                }),
+                pf::track::IsLinkedToDisplacedVertex::filler(
+                    [](reco::PFBlockElement* x) { return x->isLinkedToDisplacedVertex(); }),
+                pf::track::TrackType_FROM_GAMMACONV::filler(
+                    [](reco::PFBlockElement* x) { return x->trackType(reco::PFBlockElement::T_FROM_GAMMACONV); }),
+                pf::track::TrackType_FROM_V0::filler(
+                    [](reco::PFBlockElement* x) { return x->trackType(reco::PFBlockElement::T_FROM_V0); }),
+                pf::track::V0RefIsNonNull::filler([](reco::PFBlockElement* x) { return x->V0Ref().isNonnull(); }),
+                pf::track::V0RefKey::filler([](reco::PFBlockElement* x) { return refToElementID(x->V0Ref()); }),
+                pf::track::DisplacedVertexRef_TO_DISP_IsNonNull::filler([](reco::PFBlockElement* x) {
+                  return x->displacedVertexRef(reco::PFBlockElement::T_TO_DISP).isNonnull();
+                }),
+                pf::track::DisplacedVertexRef_TO_DISP_Key::filler([](reco::PFBlockElement* x) {
+                  return refToElementID(x->displacedVertexRef(reco::PFBlockElement::T_TO_DISP));
+                }),
+                pf::track::DisplacedVertexRef_FROM_DISP_IsNonNull::filler([](reco::PFBlockElement* x) {
+                  return x->displacedVertexRef(reco::PFBlockElement::T_FROM_DISP).isNonnull();
+                }),
+                pf::track::DisplacedVertexRef_FROM_DISP_Key::filler([](reco::PFBlockElement* x) {
+                  return refToElementID(x->displacedVertexRef(reco::PFBlockElement::T_FROM_DISP));
+                }))};
+  }
 
-    for (reco::PFBlockElement* pfelement_track : targetSet) {
-      const reco::PFRecTrackRef& trackref = pfelement_track->trackRefPF();
-      const reco::PFTrajectoryPoint& atVertex = trackref->extrapolatedPoint(reco::PFTrajectoryPoint::ClosestApproach);
-      valid.push_back(atVertex.isValid());
-      pt.push_back(sqrt(atVertex.momentum().Vect().Perp2()));
-      isLinkedToDisplacedVertex.push_back(pfelement_track->isLinkedToDisplacedVertex());
-    }
-
-    return TrackTableVertex(valid, pt, isLinkedToDisplacedVertex);
+  ConvRefTable makeConvRefTable(const std::vector<reco::ConversionRef>& convrefs) {
+    return {convrefs,
+            edm::soa::column_fillers(
+                pf::track::ConvRefIsNonNull::filler([](const reco::ConversionRef& x) { return x.isNonnull(); }),
+                pf::track::ConvRefKey::filler([](const reco::ConversionRef& x) { return refToElementID(x); }))};
   }
 
   TrackTableExtrapolation makeTrackTable(std::vector<reco::PFBlockElement*> const& targetSet,

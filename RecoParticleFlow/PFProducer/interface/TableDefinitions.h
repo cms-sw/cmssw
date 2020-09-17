@@ -30,8 +30,17 @@ namespace edm::soa {
       SOA_DECLARE_COLUMN(IsLinkedToDisplacedVertex, bool, "IsLinkedToDisplacedVertex");
       SOA_DECLARE_COLUMN(GsfTrackRefPFKey, edm::ElementID, "GsfTrackRefPFKey");
       SOA_DECLARE_COLUMN(GsfTrackRefPFIsNonNull, bool, "GsfTrackRefPFIsNonNull");
+      SOA_DECLARE_COLUMN(ConvRefKey, edm::ElementID, "ConvRefKey");
+      SOA_DECLARE_COLUMN(ConvRefIsNonNull, bool, "ConvRefIsNonNull");
+      SOA_DECLARE_COLUMN(V0RefKey, edm::ElementID, "V0RefKey");
+      SOA_DECLARE_COLUMN(V0RefIsNonNull, bool, "V0RefIsNonNull");
       SOA_DECLARE_COLUMN(TrackType_FROM_GAMMACONV, bool, "TrackType_FROM_GAMMACONV");
+      SOA_DECLARE_COLUMN(TrackType_FROM_V0, bool, "TrackType_FROM_V0");
       SOA_DECLARE_COLUMN(GsfTrackRefPFTrackId, int, "GsfTrackRefPFTrackId");
+      SOA_DECLARE_COLUMN(DisplacedVertexRef_TO_DISP_IsNonNull, bool, "DisplacedVertexRef_TO_DISP_IsNonNull");
+      SOA_DECLARE_COLUMN(DisplacedVertexRef_TO_DISP_Key, edm::ElementID, "DisplacedVertexRef_TO_DISP_Key");
+      SOA_DECLARE_COLUMN(DisplacedVertexRef_FROM_DISP_IsNonNull, bool, "DisplacedVertexRef_FROM_DISP_IsNonNull");
+      SOA_DECLARE_COLUMN(DisplacedVertexRef_FROM_DISP_Key, edm::ElementID, "DisplacedVertexRef_FROM_DISP_Key");
     };  // namespace track
     namespace rechit {
       SOA_DECLARE_COLUMN(DetIdValue, unsigned int, "DetIdValue");
@@ -84,8 +93,18 @@ namespace edm::soa {
       SOA_DECLARE_COLUMN(SCRefKey, edm::ElementID, "SCRefKey");
     }  // namespace cluster
   }    // namespace col::pf
-  using TrackTableVertex =
-      Table<col::pf::track::ExtrapolationValid, col::pf::track::Pt, col::pf::track::IsLinkedToDisplacedVertex>;
+  using TrackTableVertex = Table<col::pf::track::ExtrapolationValid,
+                                 col::pf::track::Pt,
+                                 col::pf::track::IsLinkedToDisplacedVertex,
+                                 col::pf::track::TrackType_FROM_GAMMACONV,
+                                 col::pf::track::TrackType_FROM_V0,
+                                 col::pf::track::V0RefIsNonNull,
+                                 col::pf::track::V0RefKey,
+                                 col::pf::track::DisplacedVertexRef_TO_DISP_IsNonNull,
+                                 col::pf::track::DisplacedVertexRef_TO_DISP_Key,
+                                 col::pf::track::DisplacedVertexRef_FROM_DISP_IsNonNull,
+                                 col::pf::track::DisplacedVertexRef_FROM_DISP_Key>;
+  using ConvRefTable = Table<col::pf::track::ConvRefIsNonNull, col::pf::track::ConvRefKey>;
 
   using GSFTable = Table<col::pf::track::Pt,
                          col::pf::track::GsfTrackRefPFIsNonNull,
