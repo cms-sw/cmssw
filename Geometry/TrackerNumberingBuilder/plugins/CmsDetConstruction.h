@@ -18,10 +18,9 @@ private:
   void buildSmallDetsforGlued(FilteredView&, GeometricDet*, const std::string&);
   void buildSmallDetsforStack(FilteredView&, GeometricDet*, const std::string&);
   template <auto fxn>
-  void buildLoop(cms::DDFilteredView&fv, GeometricDet* det, const std::string& attribute);
+  void buildLoop(cms::DDFilteredView& fv, GeometricDet* det, const std::string& attribute);
   template <auto fxn>
-  void buildLoop(DDFilteredView&fv, GeometricDet* det, const std::string& attribute);
-
+  void buildLoop(DDFilteredView& fv, GeometricDet* det, const std::string& attribute);
 };
 
 #endif  // Geometry_TrackerNumberingBuilder_CmsDetConstruction_H

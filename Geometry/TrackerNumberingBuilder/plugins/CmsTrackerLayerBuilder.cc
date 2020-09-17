@@ -15,8 +15,8 @@
 
 template <class FilteredView>
 void CmsTrackerLayerBuilder<FilteredView>::buildComponent(FilteredView& fv, GeometricDet* g, const std::string& s) {
-  edm::LogVerbatim("TrackerNumberingBuilder") << "CmsTrackerLayerBuilder::buildComponent " << s
-	    << "\n\t" << fv.geoHistory() << std::endl;
+  edm::LogVerbatim("TrackerNumberingBuilder")
+      << "CmsTrackerLayerBuilder::buildComponent " << s << "\n\t" << fv.geoHistory() << std::endl;
 
   CmsTrackerStringBuilder<FilteredView> theCmsTrackerStringBuilder;
   CmsTrackerRodBuilder<FilteredView> theCmsTrackerRodBuilder;
@@ -43,8 +43,9 @@ void CmsTrackerLayerBuilder<FilteredView>::buildComponent(FilteredView& fv, Geom
     default:
       edm::LogError("CmsTrackerLayerBuilder") << " ERROR - I was expecting a String, Rod or Ladder, I got a "
                                               << ExtractStringFromDDD<FilteredView>::getString(s, &fv);
-      edm::LogVerbatim("TrackerNumberingBuilder") << "CmsTrackerLayerBuilder ERROR - I was expecting a String, Rod or Ladder, I got a "
-		<< ExtractStringFromDDD<FilteredView>::getString(s, &fv);
+      edm::LogVerbatim("TrackerNumberingBuilder")
+          << "CmsTrackerLayerBuilder ERROR - I was expecting a String, Rod or Ladder, I got a "
+          << ExtractStringFromDDD<FilteredView>::getString(s, &fv);
   }
   g->addComponent(subdet);
 }

@@ -46,9 +46,9 @@ void CmsTrackerSubStrctBuilder<FilteredView>::buildComponent(FilteredView& fv, G
       break;
 
     default:
-      edm::LogVerbatim("TrackerNumberingBuilder") << "CmsTrackerSubStrctBuilder ERROR - I was expecting a Layer ,Wheel or Disk... I got a "
-                                                  << ExtractStringFromDDD<FilteredView>::getString(s, &fv)
-                                                  << "\n\t" << fv.geoHistory() << std::endl;
+      edm::LogVerbatim("TrackerNumberingBuilder")
+          << "CmsTrackerSubStrctBuilder ERROR - I was expecting a Layer ,Wheel or Disk... I got a "
+          << ExtractStringFromDDD<FilteredView>::getString(s, &fv) << "\n\t" << fv.geoHistory() << std::endl;
   }
 
   g->addComponent(subdet);

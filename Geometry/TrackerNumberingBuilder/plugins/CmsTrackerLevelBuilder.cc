@@ -137,51 +137,50 @@ bool CmsTrackerLevelBuilderHelper::isLessRModule(const GeometricDet* a, const Ge
 
 bool CmsTrackerLevelBuilderHelper::isLessR(const GeometricDet* a, const GeometricDet* b) { return a->rho() < b->rho(); }
 
-
-template<>
+template <>
 void CmsTrackerLevelBuilder<cms::DDFilteredView>::buildLoop(cms::DDFilteredView& fv,
-							    GeometricDet* tracker,
-							    const std::string& attribute){
+                                                            GeometricDet* tracker,
+                                                            const std::string& attribute) {
   edm::LogVerbatim("TrackerNumberingBuilder") << "LevelBuilder::buildLoop " << fv.geoHistory() << std::endl;
-  edm::LogVerbatim("TrackerNumberingBuilder") << "\tskipFirstChild? " << skipFirstChild <<std::endl;
+  edm::LogVerbatim("TrackerNumberingBuilder") << "\tskipFirstChild? " << skipFirstChild << std::endl;
   uint psize = fv.geoHistory().size();
   while (skipFirstChild || fv.firstChild()) {
-    edm::LogVerbatim("TrackerNumberingBuilder") << "\tInLoopHistorySize " << fv.geoHistory().size() << " " << fv.geoHistory() << std::endl;
-    edm::LogVerbatim("TrackerNumberingBuilder") << "\tskipFirstChild? " <<  skipFirstChild << std::endl;
-    if(psize > fv.geoHistory().size()){
+    edm::LogVerbatim("TrackerNumberingBuilder")
+        << "\tInLoopHistorySize " << fv.geoHistory().size() << " " << fv.geoHistory() << std::endl;
+    edm::LogVerbatim("TrackerNumberingBuilder") << "\tskipFirstChild? " << skipFirstChild << std::endl;
+    if (psize > fv.geoHistory().size()) {
       skipFirstChild = true;
       edm::LogVerbatim("TrackerNumberingBuilder") << "set skipFirstChild to true\n";
       break;
     }
-    if(skipFirstChild){
+    if (skipFirstChild) {
       skipFirstChild = false;
       edm::LogVerbatim("TrackerNumberingBuilder") << "set skipFirstChild to false\n";
     }
     buildComponent(fv, tracker, attribute);
     psize = fv.geoHistory().size();
-
   }
   //  fv.parent();
   edm::LogVerbatim("TrackerNumberingBuilder") << "CmsTrackerLevelBuilder::buildLoop Exited Loop\n"
-            << "\tPointer at: " << fv.geoHistory() <<std::endl;
+                                              << "\tPointer at: " << fv.geoHistory() << std::endl;
 }
 
-template<>
+template <>
 void CmsTrackerLevelBuilder<DDFilteredView>::buildLoop(DDFilteredView& fv,
                                                        GeometricDet* tracker,
-                                                       const std::string& attribute){
+                                                       const std::string& attribute) {
   edm::LogVerbatim("TrackerNumberingBuilder") << "LevelBuilder::buildLoop " << fv.geoHistory() << std::endl;
   bool doLayers = fv.firstChild();  // descend to the first Layer
   while (doLayers) {
-    edm::LogVerbatim("TrackerNumberingBuilder") <<  "\tInLoopHistorySize " << fv.geoHistory().size() <<  " " << fv.geoHistory() << std::endl;
+    edm::LogVerbatim("TrackerNumberingBuilder")
+        << "\tInLoopHistorySize " << fv.geoHistory().size() << " " << fv.geoHistory() << std::endl;
     buildComponent(fv, tracker, attribute);
     doLayers = fv.nextSibling();
   }
   fv.parent();
   edm::LogVerbatim("TrackerNumberingBuilder") << "CmsTrackerLevelBuilder::buildLoop Exited Loop\n"
-            << "\tPointer at: " << fv.geoHistory() <<std::endl;
+                                              << "\tPointer at: " << fv.geoHistory() << std::endl;
 }
-
 
 template <class FilteredView>
 void CmsTrackerLevelBuilder<FilteredView>::build(FilteredView& fv,
@@ -193,10 +192,8 @@ void CmsTrackerLevelBuilder<FilteredView>::build(FilteredView& fv,
   edm::LogVerbatim("TrackerNumberingBuilder") << ExtractStringFromDDD<FilteredView>::getString(attribute, &fv) << " "
                                               << tracker->type() << " " << tracker->name() << std::endl;
 
-
-  buildLoop(fv,tracker,attribute);
+  buildLoop(fv, tracker, attribute);
   sortNS(fv, tracker);
-
 }
 
 template class CmsTrackerLevelBuilder<DDFilteredView>;

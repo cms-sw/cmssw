@@ -29,14 +29,14 @@ public:
 template <class FilteredView>
 class CmsTrackerLevelBuilder {
 public:
-  virtual void build(FilteredView &, GeometricDet *, const std::string &);
+  virtual void build(FilteredView&, GeometricDet*, const std::string&);
   virtual ~CmsTrackerLevelBuilder() = default;
 
 private:
   static bool skipFirstChild;
   virtual void buildComponent(FilteredView&, GeometricDet*, const std::string&) = 0;
-  void buildLoop(DDFilteredView& fv,GeometricDet* tracker, const std::string& attribute);
-  void buildLoop(cms::DDFilteredView& fv,GeometricDet* tracker, const std::string& attribute);
+  void buildLoop(DDFilteredView& fv, GeometricDet* tracker, const std::string& attribute);
+  void buildLoop(cms::DDFilteredView& fv, GeometricDet* tracker, const std::string& attribute);
 
 protected:
   CmsTrackerStringToEnum theCmsTrackerStringToEnum;
@@ -46,7 +46,7 @@ private:
   CmsTrackerStringToEnum _CmsTrackerStringToEnum;
 };
 
-template<class FilteredView>
+template <class FilteredView>
 bool CmsTrackerLevelBuilder<FilteredView>::skipFirstChild{};
 
 #endif

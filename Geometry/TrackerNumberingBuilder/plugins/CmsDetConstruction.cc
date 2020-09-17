@@ -50,23 +50,23 @@ template <>
 template <auto fxn>
 void CmsDetConstruction<cms::DDFilteredView>::buildLoop(cms::DDFilteredView& fv,
                                                         GeometricDet* det,
-                                                        const std::string& attribute){
-  edm::LogVerbatim("TrackerNumberingBuilder") << "CmsDetConstruction::buildLoop start " << fv.geoHistory() <<std::endl;
-  while(fv.firstChild()){
+                                                        const std::string& attribute) {
+  edm::LogVerbatim("TrackerNumberingBuilder") << "CmsDetConstruction::buildLoop start " << fv.geoHistory() << std::endl;
+  while (fv.firstChild()) {
     edm::LogVerbatim("TrackerNumberingBuilder") << "buildLoop: " << fv.geoHistory() << std::endl
-              << "\t HistorySize: " << fv.geoHistory().size() << std::endl;
-    (this->*fxn)(fv,det,attribute);
+                                                << "\t HistorySize: " << fv.geoHistory().size() << std::endl;
+    (this->*fxn)(fv, det, attribute);
   }
   edm::LogVerbatim("TrackerNumberingBuilder") << "CmsDetConstruction::buildLoop Exited Loop\n"
-            << "\tPointer at: " << fv.geoHistory() <<std::endl;
+                                              << "\tPointer at: " << fv.geoHistory() << std::endl;
 }
 
 template <>
 template <auto fxn>
 void CmsDetConstruction<DDFilteredView>::buildLoop(DDFilteredView& fv,
                                                    GeometricDet* det,
-                                                   const std::string& attribute){
-  edm::LogVerbatim("TrackerNumberingBuilder") << "CmsDetConstruction::buildLoop start " << fv.geoHistory() <<std::endl;
+                                                   const std::string& attribute) {
+  edm::LogVerbatim("TrackerNumberingBuilder") << "CmsDetConstruction::buildLoop start " << fv.geoHistory() << std::endl;
   bool dodets = fv.firstChild();  // descend to the first Layer
   while (dodets) {
     edm::LogVerbatim("TrackerNumberingBuilder") << "buildLoop: " << fv.geoHistory() << std::endl
@@ -76,14 +76,13 @@ void CmsDetConstruction<DDFilteredView>::buildLoop(DDFilteredView& fv,
   }
   fv.parent();
   edm::LogVerbatim("TrackerNumberingBuilder") << "CmsDetConstruction::buildLoop Exited Loop\n"
-            << "\tPointer at: " << fv.geoHistory() <<std::endl;
+                                              << "\tPointer at: " << fv.geoHistory() << std::endl;
 }
 
 template <class FilteredView>
 void CmsDetConstruction<FilteredView>::buildComponent(FilteredView& fv,
                                                       GeometricDet* mother,
                                                       const std::string& attribute) {
-
   edm::LogVerbatim("TrackerNumberingBuilder") << "CmsDetConstruction::buildComponent " << fv.geoHistory() << std::endl;
   GeometricDet* det = new GeometricDet(&fv,
                                        CmsTrackerLevelBuilder<FilteredView>::theCmsTrackerStringToEnum.type(
@@ -92,20 +91,19 @@ void CmsDetConstruction<FilteredView>::buildComponent(FilteredView& fv,
   //Phase1 mergedDet: searching for sensors
   if (CmsTrackerLevelBuilder<FilteredView>::theCmsTrackerStringToEnum.type(
           ExtractStringFromDDD<FilteredView>::getString(attribute, &fv)) == GeometricDet::mergedDet) {
-    buildLoop<&CmsDetConstruction<FilteredView>::buildSmallDetsforGlued>(fv,det,attribute);
+    buildLoop<&CmsDetConstruction<FilteredView>::buildSmallDetsforGlued>(fv, det, attribute);
 
   }
 
   //Phase2 stackDet: same procedure, different nomenclature
   else if (CmsTrackerLevelBuilder<FilteredView>::theCmsTrackerStringToEnum.type(
                ExtractStringFromDDD<FilteredView>::getString(attribute, &fv)) == GeometricDet::OTPhase2Stack) {
-    buildLoop<&CmsDetConstruction<FilteredView>::buildSmallDetsforStack>(fv,det,attribute);
-
+    buildLoop<&CmsDetConstruction<FilteredView>::buildSmallDetsforStack>(fv, det, attribute);
   }
 
   mother->addComponent(det);
   edm::LogVerbatim("TrackerNumberingBuilder") << "\tMotherSize: " << mother->components().size() << std::endl;
-  for(const auto& cp: mother->components()){
+  for (const auto& cp : mother->components()) {
     edm::LogVerbatim("TrackerNumberingBuilder") << "\t" << cp->geographicalID().rawId() << std::endl;
   }
 }

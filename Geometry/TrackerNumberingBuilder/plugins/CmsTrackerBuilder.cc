@@ -20,7 +20,8 @@ void CmsTrackerBuilder<FilteredView>::buildComponent(FilteredView& fv, Geometric
                                           CmsTrackerLevelBuilder<FilteredView>::theCmsTrackerStringToEnum.type(
                                               ExtractStringFromDDD<FilteredView>::getString(s, &fv)));
 
-  edm::LogVerbatim("TrackerNumberingBuilder") << "TrackerBuilder::buildComponent " << s << "\t" << fv.geoHistory() << std::endl;
+  edm::LogVerbatim("TrackerNumberingBuilder")
+      << "TrackerBuilder::buildComponent " << s << "\t" << fv.geoHistory() << std::endl;
   switch (CmsTrackerLevelBuilder<FilteredView>::theCmsTrackerStringToEnum.type(
       ExtractStringFromDDD<FilteredView>::getString(s, &fv))) {
     case GeometricDet::PixelBarrel:
