@@ -1827,7 +1827,7 @@ steps['DIGIPRMXUP17_PROD_PU25']=merge([premixProd25ns2017,digiPremixUp2017Defaul
 steps['DIGIPRMXUP18_PROD_PU25']=merge([premixProd25ns2018,digiPremixUp2018Defaults25ns])
 
 dataReco={'--conditions':'auto:run1_data',
-          '-s':'RAW2DIGI,L1Reco,RECO,EI,PAT,ALCA:SiStripCalZeroBias+SiStripCalMinBias+TkAlMinBias+EcalESAlign,DQM:@standardDQM+@ExtraHLT+@miniAODDQM',
+          '-s':'RAW2DIGI,L1Reco,RECO,EI,PAT,ALCA:SiStripCalZeroBias+SiStripCalMinBias+TkAlMinBias+EcalESAlign,DQM:@standardDQMFakeHLT+@miniAODDQM',
           '--datatier':'RECO,MINIAOD,DQMIO',
           '--eventcontent':'RECO,MINIAOD,DQM',
           '--data':'',
@@ -2687,7 +2687,7 @@ steps['HARVEST2017ZB'] = merge([ {'--conditions':'auto:run2_data_relval','--era'
 steps['HARVEST2017_L1TEgDQM'] = merge([ {'-s':'HARVESTING:@standardDQMFakeHLT+@miniAODDQM+@L1TEgamma'}, steps['HARVEST2017'] ])
 steps['HARVEST2017_L1TMuDQM'] = merge([ {'-s':'HARVESTING:@standardDQMFakeHLT+@miniAODDQM+@L1TMuon'}, steps['HARVEST2017'] ])
 steps['HARVEST2018'] = merge([ {'--conditions':'auto:run2_data_relval','--era':'Run2_2018','--conditions':'auto:run2_data',}, steps['HARVESTD'] ])
-steps['HARVEST2018ZB'] = merge([ {'--conditions':'auto:run2_data_relval','--era':'Run2_2018','--conditions':'auto:run2_data','-s':'HARVESTING:@rerecoZeroBias+@ExtraHLT+@miniAODDQM'}, steps['HARVESTD'] ])
+steps['HARVEST2018ZB'] = merge([ {'--conditions':'auto:run2_data_relval','--era':'Run2_2018','--conditions':'auto:run2_data','-s':'HARVESTING:@rerecoZeroBiasFakeHLT+@miniAODDQM'}, steps['HARVESTD'] ])
 
 steps['HARVEST2018_Prompt'] = merge([ {'--conditions':'auto:run2_data_relval','--era':'Run2_2018','--conditions':'auto:run2_data',}, steps['HARVESTD'] ])
 steps['HARVEST2018_PromptZB'] = merge([ {'--conditions':'auto:run2_data_relval','--era':'Run2_2018','--conditions':'auto:run2_data','-s':'HARVESTING:@rerecoZeroBiasFakeHLT+@miniAODDQM'}, steps['HARVESTD'] ])
@@ -3173,11 +3173,11 @@ steps['HEfail'] = {'--conditions':'auto:phase1_2018_realistic_HEfail',
                    '--geometry' : 'DB:Extended'
                   }
 steps['DigiFullHEfail']=merge([{'-s':'DIGI:pdigi_valid,L1,DIGI2RAW,HLT:@relval2018','--datatier':'GEN-SIM-DIGI-RAW','--eventcontent':'FEVTDEBUGHLT'}, steps['HEfail']])
-steps['RecoFullHEfail']=merge([{'-s':'RAW2DIGI,L1Reco,RECO,RECOSIM,EI,PAT,VALIDATION:@standardValidationNoHLT+@miniAODValidation,DQM:@standardDQM+@ExtraHLT+@miniAODDQM',
+steps['RecoFullHEfail']=merge([{'-s':'RAW2DIGI,L1Reco,RECO,RECOSIM,EI,PAT,VALIDATION:@standardValidationNoHLT+@miniAODValidation,DQM:@standardDQMFakeHLT+@miniAODDQM',
                                 '--datatier':'GEN-SIM-RECO,MINIAODSIM,DQMIO',
                                 '--eventcontent':'RECOSIM,MINIAODSIM,DQM',
                                }, steps['HEfail']])
-steps['HARVESTFullHEfail']=merge([{'-s':'HARVESTING:@standardValidationNoHLT+@standardDQM+@ExtraHLT+@miniAODValidation+@miniAODDQM','--mc':'','--scenario' : 'pp','--filetype':'DQM'}, steps['HEfail']])
+steps['HARVESTFullHEfail']=merge([{'-s':'HARVESTING:@standardValidationNoHLT+@standardDQMFakeHLT+@miniAODValidation+@miniAODDQM','--mc':'','--scenario' : 'pp','--filetype':'DQM'}, steps['HEfail']])
 steps['NanoFullHEfail']={'-s':'NANO',
                          '--conditions':'auto:phase1_2018_realistic_HEfail',
                          '-n':'10',
@@ -3321,6 +3321,14 @@ for year,k in [(year,k) for year in upgradeKeys for k in upgradeKeys[year]]:
                                       '--geometry' : geom
                                       }
 
+    upgradeStepDict['RecoFakeHLT'][k] = {'-s':'RAW2DIGI,L1Reco,RECO,RECOSIM,EI,PAT,VALIDATION:@standardValidationNoHLT+@miniAODValidation,DQM:@standardDQMFakeHLT+@miniAODDQM',
+                                      '--conditions':gt,
+                                      '--datatier':'GEN-SIM-RECO,MINIAODSIM,DQMIO',
+                                      '-n':'10',
+                                      '--eventcontent':'RECOSIM,MINIAODSIM,DQM',
+                                      '--geometry' : geom
+                                      }
+
     upgradeStepDict['RecoGlobal'][k] = {'-s':'RAW2DIGI,L1Reco,RECO,RECOSIM,PAT,VALIDATION:@phase2Validation+@miniAODValidation,DQM:@phase2+@miniAODDQM',
                                       '--conditions':gt,
                                       '--datatier':'GEN-SIM-RECO,MINIAODSIM,DQMIO',
@@ -3346,6 +3354,14 @@ for year,k in [(year,k) for year in upgradeKeys for k in upgradeKeys[year]]:
                                       }
 
     upgradeStepDict['HARVEST'][k]={'-s':'HARVESTING:@standardValidation+@standardDQM+@ExtraHLT+@miniAODValidation+@miniAODDQM',
+                                    '--conditions':gt,
+                                    '--mc':'',
+                                    '--geometry' : geom,
+                                    '--scenario' : 'pp',
+                                    '--filetype':'DQM',
+                                    }
+
+    upgradeStepDict['HARVESTFakeHLT'][k]={'-s':'HARVESTING:@standardValidationNoHLT+@standardDQMFakeHLT+@miniAODValidation+@miniAODDQM',
                                     '--conditions':gt,
                                     '--mc':'',
                                     '--geometry' : geom,
