@@ -12,7 +12,6 @@
 <use name="L1Trigger/DTSectorCollector"/>
 <use name="DataFormats/L1DTTrackFinder"/>
 <use name="L1TriggerConfig/DTTPGConfig"/>
-<use name="Utilities/General"/>
 <use name="CLHEP"/>
 <use name="root"/>
 <flags EDM_PLUGIN="1"/>
