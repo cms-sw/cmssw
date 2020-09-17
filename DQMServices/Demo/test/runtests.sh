@@ -82,7 +82,7 @@ cmp <($LOCAL_TEST_DIR/dqmiodumpentries.py multirun.root -r 1 -l 1 | grep -v fill
 cmp <($LOCAL_TEST_DIR/dqmiodumpentries.py multirun.root -r 1 -l 2) <($LOCAL_TEST_DIR/dqmiodumpentries.py merged.root -r 1 -l 2)
 
 # 6. A load test. 
-( ulimit -v 4000000 # limit available virtual memory
+( if [[ `uname -m` != aarch64 ]] ; then ulimit -v 4000000 ; fi # limit available virtual memory
   cmsRun $LOCAL_TEST_DIR/run_analyzers_cfg.py outfile=huge.root numberEventsInRun=300 numberEventsInLuminosityBlock=100 nEvents=600 nThreads=10 nConcurrent=2 howmany=1000 nolegacy=True
 )
 
