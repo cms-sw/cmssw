@@ -366,11 +366,6 @@ highPtTripletStepSelector_vectorHits = RecoTracker.FinalTrackSelectors.multiTrac
 ) #en
 
 
-#vectorHits.toModify(highPtTripletStepSelector, minNumberLayers = 3)
-#vectorHits.toModify(highPtTripletStepSelector, minNumber3DLayers = 3)
-#vectorHits.toModify(highPtTripletStepSelector, d0_par1 = ( 0.5, 4.0 ))
-#vectorHits.toModify(highPtTripletStepSelector, dz_par1 = ( 0.6, 4.0 ))
-
 # Final sequence
 HighPtTripletStepTask = cms.Task(highPtTripletStepClusters,
                                  highPtTripletStepSeedLayers,
@@ -380,7 +375,6 @@ HighPtTripletStepTask = cms.Task(highPtTripletStepClusters,
                                  highPtTripletStepSeeds,
                                  highPtTripletStepTrackCandidates,
                                  highPtTripletStepTracks,
-#                                 highPtTripletStepClassifier1,highPtTripletStepClassifier2,highPtTripletStepClassifier3*
                                  highPtTripletStep)
 HighPtTripletStep = cms.Sequence(HighPtTripletStepTask)
 _HighPtTripletStepTask_Phase2PU140 = HighPtTripletStepTask.copy()

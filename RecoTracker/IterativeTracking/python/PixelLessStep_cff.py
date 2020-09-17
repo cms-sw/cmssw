@@ -231,15 +231,6 @@ vectorHits.toModify(pixelLessStepSeeds,
         FilterAtHelixStage = cms.bool(False),
         FilterPixelHits = cms.bool(False),
         FilterStripHits = cms.bool(False),
-#        comparitors = cms.VPSet(cms.PSet(
-#            ClusterShapeCacheSrc = cms.InputTag("siPixelClusterShapeCache"),
-#            ClusterShapeHitFilterName = cms.string('pixelLessStepClusterShapeHitFilter'),
-#            ComponentName = cms.string('PixelClusterShapeSeedComparitor'),
-#            FilterAtHelixStage = cms.bool(False),
-#            FilterPixelHits = cms.bool(False),
-#            FilterStripHits = cms.bool(False)
-#        ),
-#      )
     )
 )
 
