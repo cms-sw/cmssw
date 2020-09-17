@@ -36,6 +36,7 @@ def UpdatePuppiTuneV15(process, runOnMC=True):
   process.puppiNoLep.EtaMinUseDeltaZ = 2.4
   process.puppiNoLep.PtMaxNeutralsStartSlope = 20.
   process.puppiNoLep.NumOfPUVtxsForCharged = 2
+  process.puppiNoLep.algos[0].etaMin = [-0.01]
 
 def UpdatePuppiTuneV15_MC(process):
   UpdatePuppiTuneV15(process,runOnMC=True)
