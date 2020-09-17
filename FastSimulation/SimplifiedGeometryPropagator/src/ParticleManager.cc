@@ -219,8 +219,7 @@ std::unique_ptr<fastsim::Particle> fastsim::ParticleManager::nextGenParticle() {
     if (productionVertex->position().perp2() * lengthUnitConversionFactor2_ > beamPipeRadius2_)  //
     {
       exoticRelativesChecker(productionVertex, exoticRelativeId, 0);
-      bool hasExoticAssociation = isExotic(exoticRelativeId);
-      if (!hasExoticAssociation) {
+if (!isExotic(exoticRelativeId))
         continue;
       }
     }
