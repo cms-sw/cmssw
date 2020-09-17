@@ -148,7 +148,7 @@ void CmsTrackerLevelBuilder<cms::DDFilteredView>::buildLoop(cms::DDFilteredView&
   while (skipFirstChild || fv.firstChild()) {
     edm::LogVerbatim("TrackerNumberingBuilder") << "\tInLoopHistorySize " << fv.geoHistory().size() << " " << fv.geoHistory() << std::endl;
     edm::LogVerbatim("TrackerNumberingBuilder") << "\tskipFirstChild? " <<  skipFirstChild << std::endl;
-    if(psize > fv.geoHistory().size() || fv.geoHistory().size() == 4){
+    if(psize > fv.geoHistory().size()){
       skipFirstChild = true;
       edm::LogVerbatim("TrackerNumberingBuilder") << "set skipFirstChild to true\n";
       break;

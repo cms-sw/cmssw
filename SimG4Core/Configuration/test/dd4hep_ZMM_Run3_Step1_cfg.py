@@ -21,6 +21,8 @@ process.load('Configuration.Geometry.GeometryDD4hepExtended2021_cff') # there w
 
 process.MessageLogger.categories.append("TrackerGeometryBuilder");
 process.MessageLogger.categories.append("TrackerSimInfoNumbering");
+process.MessageLogger.categories.append("TrackerNumberingBuilder");
+
 
 
 process.maxEvents = cms.untracked.PSet(
