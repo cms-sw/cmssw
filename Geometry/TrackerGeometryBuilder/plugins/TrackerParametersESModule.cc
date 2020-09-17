@@ -75,6 +75,20 @@ TrackerParametersESModule::ReturnType TrackerParametersESModule::produce(const P
     builder.build(&(*cpv), *ptp);
   }
 
+  if (fromDD4Hep_) {
+#ifdef EDM_ML_DEBUG
+    edm::LogVerbatim("TrackerGeom") << "TrackerParametersESModule::produce try to access cms::DDCompactView";
+#endif
+    edm::ESTransientHandle<cms::DDCompactView> cpv = iRecord.getTransientHandle(cpvTokenDD4Hep_);
+    builder.build(&(*cpv), *ptp);
+  } else {
+#ifdef EDM_ML_DEBUG
+    edm::LogVerbatim("TrackerGeom") << "TrackerParametersESModule::produce try to access DDCompactView";
+#endif
+    edm::ESTransientHandle<DDCompactView> cpv = iRecord.getTransientHandle(cpvTokenDDD_);
+    builder.build(&(*cpv), *ptp);
+  }
+  
   return ptp;
 }
 

@@ -169,11 +169,17 @@ void CmsTrackerLevelBuilder<cms::DDFilteredView>::build(cms::DDFilteredView& fv,
 
   edm::LogVerbatim("TrackerGeometryBuilder") << ExtractStringFromDDD<cms::DDFilteredView>::getString(attribute, &fv)
                                              << " " << tracker->type() << " " << tracker->name() << std::endl;
-
-  while (fv.firstChild()) {
+  bool doLayers = fv.firstChild();
+  auto startLevel = fv.level();
+  
+  while (doLayers) {
     buildComponent(fv, tracker, attribute);
     edm::LogVerbatim("TrackerGeometryBuilder")
         << "CmsTrackerLevelbuilder<cms::DDFilteredView>::build" << fv.geoHistory();
+    doLayers = fv.firstChild();
+    if (fv.level() == startLevel) {
+      doLayers = false;
+    }
   }
 
   sortNS(fv, tracker);

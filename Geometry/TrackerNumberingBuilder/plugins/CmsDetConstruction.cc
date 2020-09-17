@@ -103,12 +103,14 @@ void CmsDetConstruction<cms::DDFilteredView>::buildComponent(cms::DDFilteredView
   //Phase1 mergedDet: searching for sensors
   if (CmsTrackerLevelBuilder<cms::DDFilteredView>::theCmsTrackerStringToEnum.type(
           ExtractStringFromDDD<cms::DDFilteredView>::getString(attribute, &fv)) == GeometricDet::mergedDet) {
-    auto startLevel = fv.level();
-    bool doContinue(true);
 
-    while (fv.firstChild() && doContinue) {
+    bool doContinue = fv.firstChild();
+    auto startLevel = fv.level();
+
+    while (doContinue) {
       buildSmallDetsforGlued(fv, det, attribute);
-      if (fv.level() > startLevel) {
+      doContinue = fv.firstChild();      
+      if (fv.level() == startLevel) {
         doContinue = false;
       }
     }
@@ -117,12 +119,13 @@ void CmsDetConstruction<cms::DDFilteredView>::buildComponent(cms::DDFilteredView
   //Phase2 stackDet: same procedure, different nomenclature
   else if (CmsTrackerLevelBuilder<cms::DDFilteredView>::theCmsTrackerStringToEnum.type(
                ExtractStringFromDDD<cms::DDFilteredView>::getString(attribute, &fv)) == GeometricDet::OTPhase2Stack) {
+    bool doContinue = fv.firstChild();
     auto startLevel = fv.level();
-    bool doContinue(true);
 
-    while (fv.firstChild() && doContinue) {
+    while (doContinue) {
       buildSmallDetsforStack(fv, det, attribute);
-      if (fv.level() > startLevel) {
+      doContinue = fv.firstChild();
+      if (fv.level() == startLevel) {
         doContinue = false;
       }
     }

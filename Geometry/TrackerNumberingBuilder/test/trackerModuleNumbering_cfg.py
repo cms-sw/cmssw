@@ -4,7 +4,7 @@ process = cms.Process("NumberingTest")
 
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
 
-process.load("Configuration.Geometry.GeometryReco_cff")
+process.load("Configuration.Geometry.GeometryExtended2021Reco_cff")
 process.load("Geometry.CMSCommonData.cmsExtendedGeometryXML_cfi")
 process.load("Alignment.CommonAlignmentProducer.FakeAlignmentSource_cfi")
 
