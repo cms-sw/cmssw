@@ -95,11 +95,11 @@ void HGCalWaferCell::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
       HGCSiliconDetId id(det, 1, type, layer, waferU, waferV, 0, 0);
       int kndx = ((rotn * 10 + part) * 10 + type);
       if (debug_)
-	std::cout << std::hex << id.rawId() << std::dec << " " << id << " Index:" << kndx << std::endl;
+        std::cout << std::hex << id.rawId() << std::dec << " " << id << " Index:" << kndx << std::endl;
       if (waferMap.find(kndx) == waferMap.end()) {
-	waferMap[kndx] = 1;
+        waferMap[kndx] = 1;
       } else {
-	++waferMap[kndx];
+        ++waferMap[kndx];
       }
     }
 
@@ -110,13 +110,14 @@ void HGCalWaferCell::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
     static const std::vector<std::string> typep = {"F", "b", "g", "gm", "a", "d", "dm", "c"};
     for (const auto& type : itype) {
       for (unsigned int k = 0; k < itypp.size(); ++k) {
-	int part = itypp[k];
-	for (const auto& rotn : itypc) {
-	  int kndx = ((rotn * 10 + part) * 10 + type);
-	  auto itr = waferMap.find(kndx);
-	  if (itr != waferMap.end()) 
-	    std::cout << "Type:" << type << " Partial:" << typep[k] << " Orientation:" << rotn << " with " << (itr->second) << " wafers\n";
-	}
+        int part = itypp[k];
+        for (const auto& rotn : itypc) {
+          int kndx = ((rotn * 10 + part) * 10 + type);
+          auto itr = waferMap.find(kndx);
+          if (itr != waferMap.end())
+            std::cout << "Type:" << type << " Partial:" << typep[k] << " Orientation:" << rotn << " with "
+                      << (itr->second) << " wafers\n";
+        }
       }
     }
 
@@ -124,19 +125,20 @@ void HGCalWaferCell::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
     for (const auto& type : itype) {
       int N = (type == 0) ? hgdc.getParameter()->nCellsFine_ : hgdc.getParameter()->nCellsCoarse_;
       for (unsigned int k = 0; k < itypp.size(); ++k) {
-	int part = itypp[k];
-	for (const auto& rotn : itypc) {
-	  int num(0);
-	  for (int cellU = 0; cellU < 2 * N; ++cellU) {
-	    for (int cellV = 0; cellV < 2 * N; ++cellV) {
-	      if (((cellV - cellU) < N) && (cellU - cellV) <= N) {
-		if (HGCalWaferMask::goodCell(cellU, cellV, N, part, rotn))
-		  ++num;	    
-	      }
-	    }
-	  }
-	  std::cout << "Type:" << type << " Partial:" << typep[k] << " Orientation:" << rotn << " with " << num << " cells\n";
-	}
+        int part = itypp[k];
+        for (const auto& rotn : itypc) {
+          int num(0);
+          for (int cellU = 0; cellU < 2 * N; ++cellU) {
+            for (int cellV = 0; cellV < 2 * N; ++cellV) {
+              if (((cellV - cellU) < N) && (cellU - cellV) <= N) {
+                if (HGCalWaferMask::goodCell(cellU, cellV, N, part, rotn))
+                  ++num;
+              }
+            }
+          }
+          std::cout << "Type:" << type << " Partial:" << typep[k] << " Orientation:" << rotn << " with " << num
+                    << " cells\n";
+        }
       }
     }
     std::cout << "\n\n\n";
