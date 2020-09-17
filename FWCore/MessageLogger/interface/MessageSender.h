@@ -1,7 +1,6 @@
 #ifndef FWCore_MessageLogger_MessageSender_h
 #define FWCore_MessageLogger_MessageSender_h
 
-#include "FWCore/MessageLogger/interface/ELstring.h"
 #include "FWCore/MessageLogger/interface/ELseverityLevel.h"
 #include "FWCore/MessageLogger/interface/ErrorObj.h"
 
