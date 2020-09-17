@@ -53,14 +53,16 @@ public:
   using RotationMatrix = ROOT::Math::Rotation3D;
   using Translation = ROOT::Math::DisplacementVector3D<ROOT::Math::Cartesian3D<double>>;
 
+  DetGeomDesc() = default;
+
   // Constructor from old DD DDFilteredView
   DetGeomDesc(const DDFilteredView& fv);
   // Constructor from DD4Hep DDFilteredView
   DetGeomDesc(const cms::DDFilteredView& fv);
 
-  DetGeomDesc(const DetGeomDesc&);
-  DetGeomDesc& operator=(const DetGeomDesc&);
   virtual ~DetGeomDesc();
+
+  DetGeomDesc* makeCopyWithoutChildren() const;
 
   // general info
   const std::string& name() const { return m_name; }

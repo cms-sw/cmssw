@@ -58,21 +58,24 @@ DetGeomDesc::DetGeomDesc(const cms::DDFilteredView& fv)
       m_z(geant_units::operators::convertCmToMm(fv.translation().z()))  // converted from cm (DD4hep) to mm
 {}
 
-DetGeomDesc::DetGeomDesc(const DetGeomDesc& ref) { (*this) = ref; }
+DetGeomDesc* DetGeomDesc::makeCopyWithoutChildren() const {
+  DetGeomDesc* output = new DetGeomDesc;
 
-DetGeomDesc& DetGeomDesc::operator=(const DetGeomDesc& ref) {
-  m_name = ref.m_name;
-  m_copy = ref.m_copy;
-  m_isDD4hep = ref.m_isDD4hep;
-  m_trans = ref.m_trans;
-  m_rot = ref.m_rot;
-  m_params = ref.m_params;
-  m_isABox = ref.m_isABox;
-  m_diamondBoxParams = ref.m_diamondBoxParams;
-  m_sensorType = ref.m_sensorType;
-  m_geographicalID = ref.m_geographicalID;
-  m_z = ref.m_z;
-  return (*this);
+  // copy all data members except children (m_container)
+  output->m_name = m_name;
+  output->m_copy = m_copy;
+  output->m_isDD4hep = m_isDD4hep;
+  output->m_trans = m_trans;
+  output->m_rot = m_rot;
+  output->m_params = m_params;
+  output->m_isABox = m_isABox;
+  output->m_diamondBoxParams = m_diamondBoxParams;
+  output->m_sensorType = m_sensorType;
+  output->m_geographicalID = m_geographicalID;
+
+  output->m_z = m_z;
+
+  return output;
 }
 
 DetGeomDesc::~DetGeomDesc() { deepDeleteComponents(); }
@@ -116,8 +119,7 @@ void DetGeomDesc::deleteComponents() { m_container.erase(m_container.begin(), m_
 
 void DetGeomDesc::deepDeleteComponents() {
   for (auto& it : m_container) {
-    it->deepDeleteComponents();
-    delete it;
+    delete it;  // the destructor calls deepDeleteComponents
   }
   clearComponents();
 }
