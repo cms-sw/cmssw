@@ -95,7 +95,7 @@ namespace edm {
     // Useful function:
     // ----------------------------------------------------------------------
 
-    static ELstring formatTime(const time_t t) {  // Change log 7
+    static std::string formatTime(const time_t t) {  // Change log 7
 
       static char const dummy[] = "dd-Mon-yyyy hh:mm:ss TZN     ";  // Change log 7 for length only
       char ts[sizeof(dummy)];                                       // Change log 7
@@ -114,9 +114,8 @@ namespace edm {
       }
 #endif
 
-      ELstring result(ts);  // Change log 7
-      return result;        // Change log 7
-    }                       // formatTime()
+      return std::string(ts);  // Change log 7
+    }                          // formatTime()
 
     // ----------------------------------------------------------------------
     // Constructors:
@@ -178,7 +177,7 @@ namespace edm {
 
     }  // ELoutput()
 
-    ELoutput::ELoutput(const ELstring& fileName, bool emitAtStart)
+    ELoutput::ELoutput(const std::string& fileName, bool emitAtStart)
         : ELdestination(),
           os(new std::ofstream(fileName.c_str(), std::ios /*_base*/ ::app), close_and_delete()),
           charsOnLine(0),
@@ -230,7 +229,7 @@ namespace edm {
         }
       }
       if (emitAtStart) {
-        ELstring const& ftime = formatTime(time(nullptr));  // Change log 7
+        std::string const& ftime = formatTime(time(nullptr));  // Change log 7
         emitToken(ftime, true);
         emitToken("\n=======================================================\n", true);
       }
@@ -343,7 +342,7 @@ namespace edm {
         if (wantSerial) {
           std::ostringstream s;
           s << msg.serial();
-          emitToken("[serial #" + s.str() + ELstring("] "));
+          emitToken("[serial #" + s.str() + "] ");
         }
       }
 
@@ -376,17 +375,17 @@ namespace edm {
         }
         if (wantModule && (xid.module.length() > 0)) {
           if (needAspace) {
-            emitToken(ELstring(" "));
+            emitToken(" ");
             needAspace = false;
           }
-          emitToken(xid.module + ELstring(" "));
+          emitToken(xid.module + " ");
         }
         if (wantSubroutine && (xid.subroutine.length() > 0)) {
           if (needAspace) {
-            emitToken(ELstring(" "));
+            emitToken(" ");
             needAspace = false;
           }
-          emitToken(xid.subroutine + "()" + ELstring(" "));
+          emitToken(xid.subroutine + "() ");
         }
       }
 
@@ -399,15 +398,15 @@ namespace edm {
       if (!msg.is_verbatim()) {
         if (wantTimestamp) {
           if (wantTimeSeparate) {
-            emitToken(ELstring("\n"));
+            emitToken("\n");
             needAspace = false;
           }
           if (needAspace) {
-            emitToken(ELstring(" "));
+            emitToken(" ");
             needAspace = false;
           }
-          ELstring const& ftime = formatTime(msg.timestamp());  // Change log 7
-          emitToken(ftime + ELstring(" "));
+          std::string const& ftime = formatTime(msg.timestamp());  // Change log 7
+          emitToken(ftime + " ");
         }
       }
 
@@ -420,7 +419,7 @@ namespace edm {
       if (!msg.is_verbatim()) {
         if (wantSomeContext) {
           if (needAspace) {
-            emitToken(ELstring(" "));
+            emitToken(" ");
             needAspace = false;
           }
           assert(!needAspace);
@@ -446,7 +445,7 @@ namespace edm {
 
       if (!msg.is_verbatim()) {
         if (msg.xid().severity >= traceThreshold) {
-          emitToken(ELstring("\n"), insertNewlineAfterHeader);
+          emitToken("\n", insertNewlineAfterHeader);
         } else {  //else statement added JV:1
           emitToken("", insertNewlineAfterHeader);
         }
@@ -508,7 +507,7 @@ namespace edm {
     // Output methods:
     // ----------------------------------------------------------------------
 
-    void ELoutput::emitToken(const ELstring& s, bool nl) {
+    void ELoutput::emitToken(std::string_view s, bool nl) {
 #ifdef ELoutput_EMIT_TRACE
       std::cerr << "[][][] in emit:  charsOnLine is " << charsOnLine << '\n';
       std::cerr << "[][][] in emit:  s.length() " << s.length() << '\n';
@@ -625,16 +624,16 @@ namespace edm {
       os.reset(&os_, do_nothing_deleter());
       emitToken("\n=======================================================", true);
       emitToken("\nError Log changed to this stream\n");
-      ELstring const& ftime = formatTime(time(nullptr));  // Change log 7
+      std::string const& ftime = formatTime(time(nullptr));  // Change log 7
       emitToken(ftime, true);
       emitToken("\n=======================================================\n", true);
     }
 
-    void ELoutput::changeFile(const ELstring& filename) {
+    void ELoutput::changeFile(const std::string& filename) {
       os.reset(new std::ofstream(filename.c_str(), std::ios /*_base*/ ::app), close_and_delete());
       emitToken("\n=======================================================", true);
       emitToken("\nError Log changed to this file\n");
-      ELstring const& ftime = formatTime(time(nullptr));  // Change log 7
+      std::string const& ftime = formatTime(time(nullptr));  // Change log 7
       emitToken(ftime, true);
       emitToken("\n=======================================================\n", true);
     }

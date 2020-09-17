@@ -38,6 +38,7 @@
 //                      by CMS for LogDebug) from -! to -d.
 // ----------------------------------------------------------------------
 
+#include <cassert>
 #include <ostream>
 
 #include "FWCore/MessageLogger/interface/ELseverityLevel.h"
@@ -52,7 +53,7 @@ namespace edm {
   // Helper to construct the string->ELsev_ map on demand:
   // ----------------------------------------------------------------------
 
-  typedef std::map<ELstring const, ELseverityLevel::ELsev_> ELmap;
+  typedef std::map<std::string const, ELseverityLevel::ELsev_, std::less<>> ELmap;
 
   static ELmap const& loadMap() {
     static const ELmap m = {{ELzeroSeverity.getSymbol(), ELseverityLevel::ELsev_zeroSeverity},
@@ -101,7 +102,7 @@ namespace edm {
 #endif
   }
 
-  ELseverityLevel::ELseverityLevel(ELstring const& s) {
+  ELseverityLevel::ELseverityLevel(std::string_view s) {
     static ELmap const& m = loadMap();
 
     ELmap::const_iterator i = m.find(s);
@@ -122,148 +123,80 @@ namespace edm {
 
   int ELseverityLevel::getLevel() const { return myLevel; }
 
-  const ELstring ELseverityLevel::getSymbol() const {
-    ELstring result;
+  const std::string& ELseverityLevel::getSymbol() const {
+    static const auto symbols = []() {
+      std::array<std::string, nLevels> ret;
+      ret[ELsev_noValueAssigned] = "0";
+      ret[ELsev_zeroSeverity] = "--";
+      ret[ELsev_success] = "-d";  // 4/21/09 mf
+      ret[ELsev_info] = "-i";
+      ret[ELsev_warning] = "-w";
+      ret[ELsev_error] = "-e";
+      ret[ELsev_unspecified] = "??";
+      ret[ELsev_severe] = "-s";
+      ret[ELsev_highestSeverity] = "!!";
+      return ret;
+    }();
 
-    switch (myLevel) {
-      default:
-        result = "0";
-        break;
-      case ELsev_zeroSeverity:
-        result = "--";
-        break;
-      case ELsev_success:
-        result = "-d";
-        break;  // 4/21/09 mf
-      case ELsev_info:
-        result = "-i";
-        break;
-      case ELsev_warning:
-        result = "-w";
-        break;
-      case ELsev_error:
-        result = "-e";
-        break;
-      case ELsev_unspecified:
-        result = "??";
-        break;
-      case ELsev_severe:
-        result = "-s";
-        break;
-      case ELsev_highestSeverity:
-        result = "!!";
-        break;
-    };  // switch
-
-    return result;
+    assert(myLevel < nLevels);
+    return symbols[myLevel];
   }
 
-  const ELstring ELseverityLevel::getName() const {
-    ELstring result;
+  const std::string& ELseverityLevel::getName() const {
+    static const auto names = []() {
+      std::array<std::string, nLevels> ret;
+      ret[ELsev_noValueAssigned] = "?no value?";
+      ret[ELsev_zeroSeverity] = "--";
+      ret[ELsev_success] = "Debug";  // 4/21/09 mf
+      ret[ELsev_info] = "Info";
+      ret[ELsev_warning] = "Warning";
+      ret[ELsev_error] = "Error";
+      ret[ELsev_unspecified] = "??";
+      ret[ELsev_severe] = "System";  // 6/13/07 mf
+      ret[ELsev_highestSeverity] = "!!";
+      return ret;
+    }();
 
-    switch (myLevel) {
-      default:
-        result = "?no value?";
-        break;
-      case ELsev_zeroSeverity:
-        result = "--";
-        break;
-      case ELsev_success:
-        result = "Debug";
-        break;  // 4/21/09 mf
-      case ELsev_info:
-        result = "Info";
-        break;
-      case ELsev_warning:
-        result = "Warning";
-        break;
-      case ELsev_error:
-        result = "Error";
-        break;
-      case ELsev_unspecified:
-        result = "??";
-        break;
-      case ELsev_severe:
-        result = "System";
-        break;  // 6/13/07 mf
-      case ELsev_highestSeverity:
-        result = "!!";
-        break;
-    };  // switch
-
-    return result;
+    assert(myLevel < nLevels);
+    return names[myLevel];
   }
 
-  const ELstring ELseverityLevel::getInputStr() const {
-    ELstring result;
+  const std::string& ELseverityLevel::getInputStr() const {
+    static const auto inputs = []() {
+      std::array<std::string, nLevels> ret;
+      ret[ELsev_noValueAssigned] = "?no value?";
+      ret[ELsev_zeroSeverity] = "ZERO";
+      ret[ELsev_success] = "DEBUG";
+      ret[ELsev_info] = "INFO";
+      ret[ELsev_warning] = "WARNING";
+      ret[ELsev_error] = "ERROR";
+      ret[ELsev_unspecified] = "UNSPECIFIED";
+      ret[ELsev_severe] = "SYSTEM";  // 6/13/07 mf
+      ret[ELsev_highestSeverity] = "HIGHEST";
+      return ret;
+    }();
 
-    switch (myLevel) {
-      default:
-        result = "?no value?";
-        break;
-      case ELsev_zeroSeverity:
-        result = "ZERO";
-        break;
-      case ELsev_success:
-        result = "DEBUG";
-        break;
-      case ELsev_info:
-        result = "INFO";
-        break;
-      case ELsev_warning:
-        result = "WARNING";
-        break;
-      case ELsev_error:
-        result = "ERROR";
-        break;
-      case ELsev_unspecified:
-        result = "UNSPECIFIED";
-        break;
-      case ELsev_severe:
-        result = "SYSTEM";
-        break;  // 6/13/07 mf
-      case ELsev_highestSeverity:
-        result = "HIGHEST";
-        break;
-    };  // switch
-
-    return result;
+    assert(myLevel < nLevels);
+    return inputs[myLevel];
   }
 
-  const ELstring ELseverityLevel::getVarName() const {
-    ELstring result;
+  const std::string& ELseverityLevel::getVarName() const {
+    static const auto varNames = []() {
+      std::array<std::string, nLevels> ret;
+      ret[ELsev_noValueAssigned] = "?no value?";
+      ret[ELsev_zeroSeverity] = "ELzeroSeverity   ";
+      ret[ELsev_success] = "ELdebug          ";  // 4/21/09
+      ret[ELsev_info] = "ELinfo           ";
+      ret[ELsev_warning] = "ELwarning        ";
+      ret[ELsev_error] = "ELerror          ";
+      ret[ELsev_unspecified] = "ELunspecified    ";
+      ret[ELsev_severe] = "ELsystem         ";  // 6/13/07
+      ret[ELsev_highestSeverity] = "ELhighestSeverity";
+      return ret;
+    }();
 
-    switch (myLevel) {
-      default:
-        result = "?no value?       ";
-        break;
-      case ELsev_zeroSeverity:
-        result = "ELzeroSeverity   ";
-        break;
-      case ELsev_success:
-        result = "ELdebug          ";
-        break;  // 4/21/09
-      case ELsev_info:
-        result = "ELinfo           ";
-        break;
-      case ELsev_warning:
-        result = "ELwarning        ";
-        break;
-      case ELsev_error:
-        result = "ELerror          ";
-        break;
-      case ELsev_unspecified:
-        result = "ELunspecified    ";
-        break;
-      case ELsev_severe:
-        result = "ELsystem         ";
-        break;  // 6/13/07
-      case ELsev_highestSeverity:
-        result = "ELhighestSeverity";
-        break;
-    };  // switch
-
-    return result;
+    assert(myLevel < nLevels);
+    return varNames[myLevel];
   }
 
   // ----------------------------------------------------------------------

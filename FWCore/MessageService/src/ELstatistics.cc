@@ -210,7 +210,7 @@ namespace edm {
 
     void ELstatistics::zero() { limits.zero(); }  // zero()
 
-    ELstring ELstatistics::formSummary(ELmap_stats& stats) {
+    std::string ELstatistics::formSummary(ELmap_stats& stats) {
       // Major changes 8/16/07 mf, including making this
       // a static member function instead of a free function
 
@@ -338,7 +338,7 @@ namespace edm {
 
     }  // formSummary()
 
-    void ELstatistics::summary(std::ostream& os, const ELstring& title) {
+    void ELstatistics::summary(std::ostream& os, std::string_view title) {
       os << title << std::endl << formSummary(stats) << std::flush;
       updatedStats = false;
 
