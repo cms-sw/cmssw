@@ -39,7 +39,7 @@ void fastsim::Decayer::decay(const Particle& particle,
 
   if (isExotic(pid) || isExotic(particle.getMotherPdgId())) {
     return;
-}
+  }
 
   pythia_->event.reset();
 
