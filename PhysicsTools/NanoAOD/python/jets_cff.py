@@ -678,11 +678,20 @@ _jetSequence_2016.insert(_jetSequence_2016.index(tightJetId), looseJetId)
 _jetSequence_2016.insert(_jetSequence_2016.index(tightJetIdAK8), looseJetIdAK8)
 run2_jme_2016.toReplaceWith(jetSequence, _jetSequence_2016)
 
-#HF shower shape recomputation 
-#Only run if needed (i.e. if default MINIAOD info is missing or outdated because of new JECs...) 
+
+#HF shower shape variables:
+#In 106X the variables are not computed/stored by default, but can be accessed/recomputed via modifiers
+#For the two following modifiers, the producer is run on MINIAOD and one can directly access the variables
+for modifier in run2_miniAOD_UL, run2_miniAOD_devel:
+  modifier.toModify( jetTable.variables, hfsigmaEtaEta = Var("userFloat('hfJetShowerShape:sigmaEtaEta')",float,doc="sigmaEtaEta for HF jets (noise discriminating variable)",precision=10))
+  modifier.toModify( jetTable.variables, hfsigmaPhiPhi = Var("userFloat('hfJetShowerShape:sigmaPhiPhi')",float,doc="sigmaPhiPhi for HF jets (noise discriminating variable)",precision=10))
+  modifier.toModify( jetTable.variables, hfcentralEtaStripSize = Var("userInt('hfJetShowerShape:centralEtaStripSize')", int, doc="eta size of the central tower strip in HF (noise discriminating variable) "))
+  modifier.toModify( jetTable.variables, hfadjacentEtaStripsSize = Var("userInt('hfJetShowerShape:adjacentEtaStripsSize')", int, doc="eta size of the strips next to the central tower strip in HF (noise discriminating variable) "))
+
+#For the following modifiers, the producer is not run on MINIAOD and one needs to run the producer in the NANOAOD step
 from RecoJets.JetProducers.hfJetShowerShape_cfi import hfJetShowerShape
 hfJetShowerShapeforNanoAOD = hfJetShowerShape.clone(jets="updatedJets",vertices="offlineSlimmedPrimaryVertices")
-for modifier in run2_miniAOD_80XLegacy, run2_nanoAOD_94X2016, run2_nanoAOD_94XMiniAODv1, run2_nanoAOD_94XMiniAODv2, run2_nanoAOD_102Xv1, run2_nanoAOD_106Xv1, run2_miniAOD_UL, run2_miniAOD_devel:
+for modifier in run2_miniAOD_80XLegacy, run2_nanoAOD_94X2016, run2_nanoAOD_94XMiniAODv1, run2_nanoAOD_94XMiniAODv2, run2_nanoAOD_102Xv1, run2_nanoAOD_106Xv1:
   modifier.toModify(updatedJetsWithUserData.userFloats,
                     hfsigmaEtaEta = cms.InputTag('hfJetShowerShapeforNanoAOD:sigmaEtaEta'),
                     hfsigmaPhiPhi = cms.InputTag('hfJetShowerShapeforNanoAOD:sigmaPhiPhi'),
