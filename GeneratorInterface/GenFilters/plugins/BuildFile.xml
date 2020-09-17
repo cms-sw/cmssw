@@ -1,5 +1,4 @@
 <library name="GeneratorInterfaceGenFiltersPlugins" file="*.cc">
-  <use name="FWCore/PluginManager"/>
   <use name="FWCore/ParameterSet"/>
   <use name="FWCore/Framework"/>
   <use name="FWCore/Utilities"/>
@@ -16,11 +15,9 @@
   <use name="TrackingTools/Records"/>
   <use name="CommonTools/UtilAlgos"/>
   <use name="FWCore/ServiceRegistry"/>
-  <use name="CommonTools/BaseParticlePropagator"/>
   <use name="TrackingTools/GeomPropagators"/>
   <use name="DataFormats/HepMCCandidate"/>
   <use name="DataFormats/JetReco"/>
-  <use name="DataFormats/EgammaReco"/>
   <use name="DataFormats/Math"/>
   <use name="SimDataFormats/HTXS"/>
   <use name="fastjet"/>
