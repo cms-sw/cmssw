@@ -74,6 +74,7 @@ void CmsDetConstruction<DDFilteredView>::buildLoop(DDFilteredView& fv,
     (this->*fxn)(fv, det, attribute);
     dodets = fv.nextSibling();
   }
+  fv.parent();
   edm::LogVerbatim("TrackerNumberingBuilder") << "CmsDetConstruction::buildLoop Exited Loop\n"
             << "\tPointer at: " << fv.geoHistory() <<std::endl;
 }
