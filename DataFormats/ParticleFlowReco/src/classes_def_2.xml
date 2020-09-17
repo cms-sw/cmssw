@@ -132,12 +132,13 @@
   <class name="std::vector<reco::PFSimParticle>"/>
   <class name="edm::Wrapper<std::vector<reco::PFSimParticle> >"/>
 
-  <class name="reco::PFBlockElement" ClassVersion="14">
+  <class name="reco::PFBlockElement" ClassVersion="15">
+   <version ClassVersion="15" checksum="684943224"/>
    <version ClassVersion="14" checksum="3982859549"/>
    <version ClassVersion="13" checksum="4257111441"/>
    <version ClassVersion="12" checksum="3101496393"/>
    <version ClassVersion="11" checksum="3944635097"/>
-    <!-- <field name="multilinkslinks_" transient="true"/> -->
+   <field name="multilinks_" transient="true"/>
    <field name="nullTrack_" transient="true"/>
    <field name="nullPFRecTrack_" transient="true"/>
    <field name="nullPFCluster_" transient="true"/>
@@ -151,7 +152,8 @@
   <class name="edm::OwnVector<reco::PFBlockElement, edm::ClonePolicy<reco::PFBlockElement> >"/>
   <class name="edm::Wrapper<edm::OwnVector<reco::PFBlockElement, edm::ClonePolicy<reco::PFBlockElement> > >" />
 
-  <class name="reco::PFBlockElementTrack" ClassVersion="15">
+  <class name="reco::PFBlockElementTrack" ClassVersion="16">
+   <version ClassVersion="16" checksum="700008520"/>
    <version ClassVersion="15" checksum="1577934967"/>
    <version ClassVersion="14" checksum="3952424659"/>
    <version ClassVersion="13" checksum="1449646331"/>
@@ -163,7 +165,8 @@
 -->
   </class>
 
-  <class name="reco::PFBlockElementGsfTrack" ClassVersion="14">
+  <class name="reco::PFBlockElementGsfTrack" ClassVersion="15">
+   <version ClassVersion="15" checksum="233050648"/>
    <version ClassVersion="14" checksum="3921871079"/>
    <version ClassVersion="13" checksum="2453155267"/>
    <version ClassVersion="12" checksum="1521047275"/>
@@ -175,7 +178,8 @@
 -->
   </class>
 
-  <class name="reco::PFBlockElementBrem" ClassVersion="14">
+  <class name="reco::PFBlockElementBrem" ClassVersion="15">
+   <version ClassVersion="15" checksum="2963077707"/>
    <version ClassVersion="14" checksum="3702597792"/>
    <version ClassVersion="13" checksum="157699540"/>
    <version ClassVersion="12" checksum="112730380"/>
@@ -188,7 +192,8 @@
   </class>
 
 
-  <class name="reco::PFBlockElementCluster" ClassVersion="15">
+  <class name="reco::PFBlockElementCluster" ClassVersion="16">
+   <version ClassVersion="16" checksum="4263698413"/>
    <version ClassVersion="15" checksum="3252388"/>
    <version ClassVersion="14" checksum="407383072"/>
    <version ClassVersion="13" checksum="775826696"/>
@@ -267,7 +272,8 @@
   <class name="edm::Wrapper<edm::ValueMap<reco::PreIdRef> >"/>
   <class name="edm::Ref<std::vector<reco::PreId>,reco::PreId,edm::refhelper::FindUsingAdvance<std::vector<reco::PreId>,reco::PreId> >" />
 
-  <class name="reco::PFBlockElementSuperCluster" ClassVersion="15">
+  <class name="reco::PFBlockElementSuperCluster" ClassVersion="16">
+   <version ClassVersion="16" checksum="4220702137"/>
    <version ClassVersion="15" checksum="1074027768"/>
    <version ClassVersion="14" checksum="285242772"/>
    <version ClassVersion="13" checksum="3749373244"/>
