@@ -218,7 +218,7 @@ const float MahiFit::minimize() const {
   if (nnlsWork_.noisecorr != 0) {
     for (unsigned int i = 1; i < nnlsWork_.tsSize; ++i) {
       auto const noiseCorrTerm =
-        nnlsWork_.noisecorr * sqrt(nnlsWork_.pedVals.coeff(i - 1) * nnlsWork_.pedVals.coeff(i));
+          nnlsWork_.noisecorr * sqrt(nnlsWork_.pedVals.coeff(i - 1) * nnlsWork_.pedVals.coeff(i));
       invCovMat(i - 1, i) += noiseCorrTerm;
       invCovMat(i, i - 1) += noiseCorrTerm;
     }
@@ -358,7 +358,7 @@ void MahiFit::nnls() const {
   nnlsWork_.invcovp = nnlsWork_.covDecomp.matrixL().solve(nnlsWork_.pulseMat);
   nnlsWork_.aTaMat.noalias() = nnlsWork_.invcovp.transpose().lazyProduct(nnlsWork_.invcovp);
   nnlsWork_.aTbVec.noalias() =
-    nnlsWork_.invcovp.transpose().lazyProduct(nnlsWork_.covDecomp.matrixL().solve(nnlsWork_.amplitudes));
+      nnlsWork_.invcovp.transpose().lazyProduct(nnlsWork_.covDecomp.matrixL().solve(nnlsWork_.amplitudes));
 
   int iter = 0;
   Index idxwmax = 0;
