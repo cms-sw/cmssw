@@ -4,7 +4,6 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include <algorithm>
-
 //#define EDM_ML_DEBUG
 
 bool HGCalWaferMask::maskCell(int u, int v, int n, int ncor, int fcor, int corners) {
@@ -107,7 +106,6 @@ The argument 'corners' controls the types of wafers the user wants: for instance
 bool HGCalWaferMask::goodCell(int u, int v, int n, int type, int rotn) {
   bool good(false);
   int n2 = n / 2;
-  int n3 = (n + 1) / 3;
   int n4 = n / 4;
   switch (type) {
     case (HGCalTypes::WaferFull): {  //WaferFull
