@@ -76,8 +76,6 @@ ModuleCallingContext state = Running
 ++++ starting: source run
 ++++ finished: source run
 ++++ starting: global begin run 1 : time = 1000000
-++++++ starting: global begin run for module: label = 'get' id = 3
-++++++ finished: global begin run for module: label = 'get' id = 3
 ++++ finished: global begin run 1 : time = 1000000
 ++++ starting: begin run: stream = 0 run = 1 time = 1000000
 ++++++ starting: begin run for module: stream = 0 label = 'one' id = 4
@@ -108,8 +106,6 @@ ModuleCallingContext state = Running
 ++++ starting: source lumi
 ++++ finished: source lumi
 ++++ starting: global begin lumi: run = 1 lumi = 1 time = 1000000
-++++++ starting: global begin lumi for module: label = 'get' id = 3
-++++++ finished: global begin lumi for module: label = 'get' id = 3
 ++++ finished: global begin lumi: run = 1 lumi = 1 time = 1000000
 ++++ starting: begin lumi: stream = 0 run = 1 lumi = 1 time = 1000000
 ++++++ starting: begin lumi for module: stream = 0 label = 'one' id = 4
@@ -512,8 +508,6 @@ ModuleCallingContext state = Running
 
 ++++ finished: end lumi: stream = 0 run = 1 lumi = 1 time = 1000030
 ++++ starting: global end lumi: run = 1 lumi = 1 time = 1000000
-++++++ starting: global end lumi for module: label = 'get' id = 3
-++++++ finished: global end lumi for module: label = 'get' id = 3
 ++++ finished: global end lumi: run = 1 lumi = 1 time = 1000000
 ++++ starting: global write lumi: run = 1 lumi = 1 time = 1000000
 ++++ finished: global write lumi: run = 1 lumi = 1 time = 1000000
@@ -544,8 +538,6 @@ ModuleCallingContext state = Running
 
 ++++ finished: end run: stream = 0 run = 1 time = 1000030
 ++++ starting: global end run 1 : time = 1000030
-++++++ starting: global end run for module: label = 'get' id = 3
-++++++ finished: global end run for module: label = 'get' id = 3
 ++++ finished: global end run 1 : time = 1000030
 ++++ starting: global write run 1 : time = 1000030
 ++++ finished: global write run 1 : time = 1000030
