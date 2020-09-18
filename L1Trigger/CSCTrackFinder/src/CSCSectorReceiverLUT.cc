@@ -4,7 +4,7 @@
 #include <L1Trigger/CSCCommonTrigger/interface/CSCFrontRearLUT.h>
 #include <DataFormats/L1CSCTrackFinder/interface/CSCBitWidths.h>
 #include <DataFormats/L1CSCTrackFinder/interface/CSCTFConstants.h>
-#include <L1Trigger/CSCCommonTrigger/interface/CSCConstants.h>
+#include <DataFormats/L1TMuon/interface/CSCConstants.h>
 
 #include "Geometry/CSCGeometry/interface/CSCGeometry.h"
 #include <Geometry/CSCGeometry/interface/CSCLayerGeometry.h>

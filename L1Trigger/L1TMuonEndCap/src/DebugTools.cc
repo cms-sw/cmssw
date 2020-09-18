@@ -1,10 +1,10 @@
 #include "L1Trigger/L1TMuonEndCap/interface/DebugTools.h"
+#include "DataFormats/L1TMuon/interface/L1TMuonSubsystems.h"
 
 namespace emtf {
 
   void dump_fw_raw_input(const l1t::EMTFHitCollection& out_hits, const l1t::EMTFTrackCollection& out_tracks) {
     // from interface/Common.h
-    typedef L1TMuon::TriggerPrimitive TriggerPrimitive;
     constexpr int MIN_ENDCAP = 1;
     constexpr int MAX_ENDCAP = 2;
     constexpr int MIN_TRIGSECTOR = 1;
@@ -30,7 +30,7 @@ namespace emtf {
 
         for (int ibx = -3 - 5; (ibx < +3 + 5 + 5) && !empty_sector; ++ibx) {
           for (const auto& h : out_hits) {
-            if (h.Subsystem() == TriggerPrimitive::kCSC) {
+            if (h.Subsystem() == L1TMuon::kCSC) {
               if (h.Sector_idx() != es)
                 continue;
               if (h.BX() != ibx)
@@ -48,7 +48,7 @@ namespace emtf {
                         << valid << " " << h.Quality() << " " << h.Pattern() << " " << wire << " " << chamber << " "
                         << h.Bend() << " " << strip << std::endl;
 
-            } else if (h.Subsystem() == TriggerPrimitive::kRPC) {
+            } else if (h.Subsystem() == L1TMuon::kRPC) {
               if (h.Sector_idx() != es)
                 continue;
               if (h.BX() + 6 != ibx)
