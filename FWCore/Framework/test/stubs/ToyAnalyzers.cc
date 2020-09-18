@@ -46,26 +46,33 @@ namespace edmtest {
 
   //--------------------------------------------------------------------
   //
-  class IntTestAnalyzer : public edm::EDAnalyzer {
+  class IntTestAnalyzer : public edm::global::EDAnalyzer<> {
   public:
     IntTestAnalyzer(edm::ParameterSet const& iPSet)
         : value_(iPSet.getUntrackedParameter<int>("valueMustMatch")),
-          moduleLabel_(iPSet.getUntrackedParameter<std::string>("moduleLabel"), "") {
-      consumes<IntProduct>(moduleLabel_);
+          token_(consumes(iPSet.getUntrackedParameter<edm::InputTag>("moduleLabel"))) {}
+
+    static void fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+      edm::ParameterSetDescription desc;
+      desc.addUntracked<int>("valueMustMatch");
+      desc.addUntracked<edm::InputTag>("moduleLabel");
+      descriptions.addDefault(desc);
     }
 
-    void analyze(edm::Event const& iEvent, edm::EventSetup const&) {
-      edm::Handle<IntProduct> handle;
-      iEvent.getByLabel(moduleLabel_, handle);
-      if (handle->value != value_) {
-        throw cms::Exception("ValueMissMatch") << "The value for \"" << moduleLabel_ << "\" is " << handle->value
-                                               << " but it was supposed to be " << value_;
+    void analyze(edm::StreamID, edm::Event const& iEvent, edm::EventSetup const&) const {
+      auto const& prod = iEvent.get(token_);
+      if (prod.value != value_) {
+        edm::ProductLabels labels;
+        labelsForToken(token_, labels);
+        throw cms::Exception("ValueMismatch")
+            << "The value for \"" << labels.module << ":" << labels.productInstance << ":" << labels.process << "\" is "
+            << prod.value << " but it was supposed to be " << value_;
       }
     }
 
   private:
-    int value_;
-    edm::InputTag moduleLabel_;
+    int const value_;
+    edm::EDGetTokenT<IntProduct> const token_;
   };
 
   //--------------------------------------------------------------------
