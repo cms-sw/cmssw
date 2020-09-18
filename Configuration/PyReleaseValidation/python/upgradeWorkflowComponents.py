@@ -925,12 +925,9 @@ upgradeProperties[2017] = {
 # standard PU sequences
 for key in list(upgradeProperties[2017].keys()):
     upgradeProperties[2017][key+'PU'] = deepcopy(upgradeProperties[2017][key])
-    upgradeProperties[2017][key+'PU']['ScenToRun'] = ['GenSim','DigiPU','RecoFakeHLTPU','HARVESTFakeHLTPU'] + \
+    upgradeProperties[2017][key+'PU']['ScenToRun'] = ['GenSim','DigiPU'] + \
+                                                     (['RecoPU','HARVESTPU'] if '202' in key else ['RecoFakeHLTPU','HARVESTFakeHLTPU']) + \ #2021, 2023 and 2023 still run not FakeHLT Menus
                                                      (['Nano'] if 'Design' not in key else [])
-    if '202' in key:   #2021, 2023 and 2023 still run not FakeHLT Menus
-               upgradeProperties[2017][key+'PU']['ScenToRun'] = ['GenSim','DigiPU','RecoPU','HARVESTPU'] + \
-                                                     (['Nano'] if 'Design' not in key else [])
-
 
 upgradeProperties[2026] = {
     '2026D49' : {
@@ -1179,4 +1176,3 @@ upgradeFragments = OrderedDict([
     ('TenTau_E_15_500_Eta3p1_pythia8_cfi', UpgradeFragment(Kby(9,100),'TenTau_15_500_Eta3p1')),
     ('QCD_Pt_1800_2400_14TeV_TuneCP5_cfi', UpgradeFragment(Kby(9,50), 'QCD_Pt_1800_2400_14')),
 ])
-
