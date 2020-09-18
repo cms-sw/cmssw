@@ -56,6 +56,8 @@ upgradeKeys[2026] = [
     '2026D64PU',
     '2026D65',
     '2026D65PU',
+    '2026D66',
+    '2026D66PU',
 ]
 
 # pre-generation of WF numbers
@@ -1026,6 +1028,13 @@ upgradeProperties[2026] = {
         'HLTmenu': '@fake2',
         'GT' : 'auto:phase2_realistic_T23',           # This symbolic GT has no pixel template / GenError informations.
         'ProcessModifier': 'phase2_PixelCPEGeneric',  # This modifier removes all need for IT template information. DO NOT USE for standard planar sensors.
+        'Era' : 'Phase2C11',
+        'ScenToRun' : ['GenSimHLBeamSpot','DigiTrigger','RecoGlobal', 'HARVESTGlobal'],
+    },
+    '2026D66' : {
+        'Geom' : 'Extended2026D66',
+        'HLTmenu': '@fake2',
+        'GT' : 'auto:phase2_realistic_T21',
         'Era' : 'Phase2C11',
         'ScenToRun' : ['GenSimHLBeamSpot','DigiTrigger','RecoGlobal', 'HARVESTGlobal'],
     },
