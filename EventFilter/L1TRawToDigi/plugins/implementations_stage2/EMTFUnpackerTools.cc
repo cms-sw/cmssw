@@ -1,5 +1,5 @@
-
 #include "EMTFUnpackerTools.h"
+#include "DataFormats/L1TMuon/interface/L1TMuonSubsystems.h"
 
 namespace l1t {
   namespace stage2 {
@@ -18,7 +18,7 @@ namespace l1t {
         _hit.set_sync_err(_ME.SE());
         _hit.set_bx(_ME.TBIN() - 3);
         _hit.set_bc0(_ME.BC0());
-        _hit.set_subsystem(l1tmu::TriggerPrimitive::kCSC);
+        _hit.set_subsystem(l1tmu::kCSC);
         // _hit.set_layer();
 
         _hit.set_ring(L1TMuonEndCap::calc_ring(_hit.Station(), _hit.CSC_ID(), _hit.Strip()));
@@ -43,7 +43,7 @@ namespace l1t {
         _hit.set_bx(_RPC.TBIN() - 3);
         _hit.set_valid(_RPC.VP());
         _hit.set_bc0(_RPC.BC0());
-        _hit.set_subsystem(l1tmu::TriggerPrimitive::kRPC);
+        _hit.set_subsystem(l1tmu::kRPC);
 
         _hit.SetRPCDetId(_hit.CreateRPCDetId());
         // // Not yet implemented - AWB 15.03.17
@@ -77,7 +77,7 @@ namespace l1t {
         _hit.set_bx(_GEM.TBIN() - 3);
         _hit.set_valid(_GEM.VP());
         _hit.set_bc0(_GEM.BC0());
-        _hit.set_subsystem(l1tmu::TriggerPrimitive::kGEM);
+        _hit.set_subsystem(l1tmu::kGEM);
 
         _hit.set_ring(1);  // GEM only on ring 1
         // TODO: FIXME correct for GEM, should match CSC chamber, but GEM have 2 chambers (layers in a superchamber) per CSC chamber - JS 13.07.20

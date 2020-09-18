@@ -5,7 +5,7 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Utilities/interface/Transition.h"
 
-#include "L1Trigger/CSCCommonTrigger/interface/CSCConstants.h"
+#include "DataFormats/L1TMuon/interface/CSCConstants.h"
 #include "L1Trigger/CSCCommonTrigger/interface/CSCPatternLUT.h"
 
 #include "L1Trigger/DTUtilities/interface/DTTrigGeom.h"

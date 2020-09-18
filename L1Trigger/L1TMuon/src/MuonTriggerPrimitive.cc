@@ -30,7 +30,7 @@ namespace {
 TriggerPrimitive::TriggerPrimitive(const DTChamberId& detid,
                                    const L1MuDTChambPhDigi& digi_phi,
                                    const int segment_number)
-    : _id(detid), _subsystem(TriggerPrimitive::kDT) {
+    : _id(detid), _subsystem(L1TMuon::kDT) {
   calculateGlobalSector(detid, _globalsector, _subsector);
   _eta = 0.;
   _phi = 0.;
@@ -57,7 +57,7 @@ TriggerPrimitive::TriggerPrimitive(const DTChamberId& detid,
 TriggerPrimitive::TriggerPrimitive(const DTChamberId& detid,
                                    const L1MuDTChambThDigi& digi_th,
                                    const int theta_bti_group)
-    : _id(detid), _subsystem(TriggerPrimitive::kDT) {
+    : _id(detid), _subsystem(L1TMuon::kDT) {
   calculateGlobalSector(detid, _globalsector, _subsector);
   _eta = 0.;
   _phi = 0.;
@@ -85,7 +85,7 @@ TriggerPrimitive::TriggerPrimitive(const DTChamberId& detid,
                                    const L1MuDTChambPhDigi& digi_phi,
                                    const L1MuDTChambThDigi& digi_th,
                                    const int theta_bti_group)
-    : _id(detid), _subsystem(TriggerPrimitive::kDT) {
+    : _id(detid), _subsystem(L1TMuon::kDT) {
   calculateGlobalSector(detid, _globalsector, _subsector);
   _eta = 0.;
   _phi = 0.;
@@ -112,7 +112,7 @@ TriggerPrimitive::TriggerPrimitive(const DTChamberId& detid,
 // _____________________________________________________________________________
 // Constructor from CSC data
 TriggerPrimitive::TriggerPrimitive(const CSCDetId& detid, const CSCCorrelatedLCTDigi& digi)
-    : _id(detid), _subsystem(TriggerPrimitive::kCSC) {
+    : _id(detid), _subsystem(L1TMuon::kCSC) {
   calculateGlobalSector(detid, _globalsector, _subsector);
   _eta = 0.;
   _phi = 0.;
@@ -143,8 +143,7 @@ TriggerPrimitive::TriggerPrimitive(const CSCDetId& detid, const CSCCorrelatedLCT
 
 // _____________________________________________________________________________
 // Constructors from RPC data
-TriggerPrimitive::TriggerPrimitive(const RPCDetId& detid, const RPCDigi& digi)
-    : _id(detid), _subsystem(TriggerPrimitive::kRPC) {
+TriggerPrimitive::TriggerPrimitive(const RPCDetId& detid, const RPCDigi& digi) : _id(detid), _subsystem(L1TMuon::kRPC) {
   calculateGlobalSector(detid, _globalsector, _subsector);
   _eta = 0.;
   _phi = 0.;
@@ -166,7 +165,7 @@ TriggerPrimitive::TriggerPrimitive(const RPCDetId& detid, const RPCDigi& digi)
 }
 
 TriggerPrimitive::TriggerPrimitive(const RPCDetId& detid, const RPCRecHit& rechit)
-    : _id(detid), _subsystem(TriggerPrimitive::kRPC) {
+    : _id(detid), _subsystem(L1TMuon::kRPC) {
   calculateGlobalSector(detid, _globalsector, _subsector);
   _eta = 0.;
   _phi = 0.;
@@ -190,7 +189,7 @@ TriggerPrimitive::TriggerPrimitive(const RPCDetId& detid, const RPCRecHit& rechi
 // _____________________________________________________________________________
 // Constructor from CPPF data
 TriggerPrimitive::TriggerPrimitive(const RPCDetId& detid, const l1t::CPPFDigi& digi)
-    : _id(detid), _subsystem(TriggerPrimitive::kRPC) {
+    : _id(detid), _subsystem(L1TMuon::kRPC) {
   calculateGlobalSector(detid, _globalsector, _subsector);
   _eta = 0.;
   _phi = 0.;
@@ -215,7 +214,7 @@ TriggerPrimitive::TriggerPrimitive(const RPCDetId& detid, const l1t::CPPFDigi& d
 // _____________________________________________________________________________
 // Constructor from GEM data
 TriggerPrimitive::TriggerPrimitive(const GEMDetId& detid, const GEMPadDigiCluster& digi)
-    : _id(detid), _subsystem(TriggerPrimitive::kGEM) {
+    : _id(detid), _subsystem(L1TMuon::kGEM) {
   calculateGlobalSector(detid, _globalsector, _subsector);
   _eta = 0.;
   _phi = 0.;
@@ -230,7 +229,7 @@ TriggerPrimitive::TriggerPrimitive(const GEMDetId& detid, const GEMPadDigiCluste
 // _____________________________________________________________________________
 // Constructor from ME0 data
 TriggerPrimitive::TriggerPrimitive(const ME0DetId& detid, const ME0TriggerDigi& digi)
-    : _id(detid), _subsystem(TriggerPrimitive::kME0) {
+    : _id(detid), _subsystem(L1TMuon::kME0) {
   calculateGlobalSector(detid, _globalsector, _subsector);
   _eta = 0.;
   _phi = 0.;

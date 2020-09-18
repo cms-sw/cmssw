@@ -1,5 +1,5 @@
 #include "DataFormats/L1TMuon/interface/EMTFHit.h"
-#include "L1Trigger/CSCCommonTrigger/interface/CSCConstants.h"
+#include "DataFormats/L1TMuon/interface/CSCConstants.h"
 
 namespace l1t {
 

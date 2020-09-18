@@ -1,5 +1,5 @@
 #include "L1Trigger/L1TMuonEndCap/interface/EMTFSubsystemCollector.h"
-
+#include "DataFormats/L1TMuon/interface/L1TMuonSubsystems.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "DataFormats/Common/interface/Handle.h"
 
@@ -365,7 +365,7 @@ void EMTFSubsystemCollector::cluster_rpc(const TriggerPrimitiveCollection& muon_
   // Define operator to select RPC digis
   struct {
     typedef TriggerPrimitive value_type;
-    bool operator()(const value_type& x) const { return (x.subsystem() == TriggerPrimitive::kRPC); }
+    bool operator()(const value_type& x) const { return (x.subsystem() == L1TMuon::kRPC); }
   } rpc_digi_select;
 
   // Define operator to sort the RPC digis prior to clustering.

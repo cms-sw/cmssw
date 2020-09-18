@@ -1,5 +1,5 @@
 #include "L1Trigger/L1TMuonEndCap/interface/PrimitiveConversion.h"
-
+#include "DataFormats/L1TMuon/interface/L1TMuonSubsystems.h"
 #include "L1Trigger/L1TMuonEndCap/interface/SectorProcessorLUT.h"
 
 #include "Geometry/RPCGeometry/interface/RPCGeometry.h"  // for special treatments for iRPC
@@ -65,15 +65,15 @@ void PrimitiveConversion::process(const std::map<int, TriggerPrimitiveCollection
 
     for (; tp_it != tp_end; ++tp_it) {
       EMTFHit conv_hit;
-      if (tp_it->subsystem() == TriggerPrimitive::kCSC) {
+      if (tp_it->subsystem() == L1TMuon::kCSC) {
         convert_csc(pc_sector, pc_station, pc_chamber, pc_segment, *tp_it, conv_hit);
-      } else if (tp_it->subsystem() == TriggerPrimitive::kRPC) {
+      } else if (tp_it->subsystem() == L1TMuon::kRPC) {
         convert_rpc(pc_sector, pc_station, pc_chamber, pc_segment, *tp_it, conv_hit);
-      } else if (tp_it->subsystem() == TriggerPrimitive::kGEM) {
+      } else if (tp_it->subsystem() == L1TMuon::kGEM) {
         convert_gem(pc_sector, 0, selected, pc_segment, *tp_it, conv_hit);  // pc_station and pc_chamber are meaningless
-      } else if (tp_it->subsystem() == TriggerPrimitive::kME0) {
+      } else if (tp_it->subsystem() == L1TMuon::kME0) {
         convert_me0(pc_sector, 0, selected, pc_segment, *tp_it, conv_hit);  // pc_station and pc_chamber are meaningless
-      } else if (tp_it->subsystem() == TriggerPrimitive::kDT) {
+      } else if (tp_it->subsystem() == L1TMuon::kDT) {
         convert_dt(pc_sector, 0, selected, pc_segment, *tp_it, conv_hit);  // pc_station and pc_chamber are meaningless
       } else {
         emtf_assert(false && "Incorrect subsystem type");
@@ -127,7 +127,7 @@ void PrimitiveConversion::convert_csc(int pc_sector,
   conv_hit.SetCSCDetId(tp_detId);
 
   conv_hit.set_bx(tp_bx + bxShiftCSC_);
-  conv_hit.set_subsystem(TriggerPrimitive::kCSC);
+  conv_hit.set_subsystem(L1TMuon::kCSC);
   conv_hit.set_endcap((tp_endcap == 2) ? -1 : tp_endcap);
   conv_hit.set_station(tp_station);
   conv_hit.set_ring(tp_ring);
@@ -503,7 +503,7 @@ void PrimitiveConversion::convert_rpc(int pc_sector,
   conv_hit.SetRPCDetId(tp_detId);
 
   conv_hit.set_bx(tp_bx + bxShiftRPC_);
-  conv_hit.set_subsystem(TriggerPrimitive::kRPC);
+  conv_hit.set_subsystem(L1TMuon::kRPC);
   conv_hit.set_endcap((tp_endcap == 2) ? -1 : tp_endcap);
   conv_hit.set_station(tp_station);
   conv_hit.set_ring(tp_ring);
@@ -746,7 +746,7 @@ void PrimitiveConversion::convert_gem(int pc_sector,
   conv_hit.SetGEMDetId(tp_detId);
 
   conv_hit.set_bx(tp_bx + bxShiftGEM_);
-  conv_hit.set_subsystem(TriggerPrimitive::kGEM);
+  conv_hit.set_subsystem(L1TMuon::kGEM);
   conv_hit.set_endcap((tp_endcap == 2) ? -1 : tp_endcap);
   conv_hit.set_station(tp_station);
   conv_hit.set_ring(tp_ring);
@@ -916,7 +916,7 @@ void PrimitiveConversion::convert_me0(int pc_sector,
   conv_hit.SetME0DetId(tp_detId);
 
   conv_hit.set_bx(tp_bx + bxShiftME0_);
-  conv_hit.set_subsystem(TriggerPrimitive::kME0);
+  conv_hit.set_subsystem(L1TMuon::kME0);
   conv_hit.set_endcap((tp_endcap == 2) ? -1 : tp_endcap);
   conv_hit.set_station(tp_station);
   conv_hit.set_ring(tp_ring);
@@ -1045,7 +1045,7 @@ void PrimitiveConversion::convert_dt(int pc_sector,
   conv_hit.SetDTDetId(tp_detId);
 
   conv_hit.set_bx(tp_bx);
-  conv_hit.set_subsystem(TriggerPrimitive::kDT);
+  conv_hit.set_subsystem(L1TMuon::kDT);
   conv_hit.set_endcap((tp_endcap == 2) ? -1 : tp_endcap);
   conv_hit.set_station(tp_station);
   conv_hit.set_ring(1);         // set to ring 1?
@@ -1134,7 +1134,7 @@ int PrimitiveConversion::get_zone_code(const EMTFHit& conv_hit, int th) const {
   // bnd1 is the lower boundary, bnd2 the upper boundary
   int zone_code = 0;
 
-  bool is_csc = (conv_hit.Subsystem() == TriggerPrimitive::kCSC);
+  bool is_csc = (conv_hit.Subsystem() == L1TMuon::kCSC);
   bool is_me13 = (is_csc && conv_hit.Station() == 1 && conv_hit.Ring() == 3);
 
   if (th >= 127)

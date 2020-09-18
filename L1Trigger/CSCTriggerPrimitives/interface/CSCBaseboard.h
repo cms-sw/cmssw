@@ -6,7 +6,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "Geometry/CSCGeometry/interface/CSCGeometry.h"
-#include "L1Trigger/CSCCommonTrigger/interface/CSCConstants.h"
+#include "DataFormats/L1TMuon/interface/CSCConstants.h"
 #include "L1Trigger/CSCTriggerPrimitives/interface/CSCPatternBank.h"
 #include "L1Trigger/CSCTriggerPrimitives/interface/CSCUpgradeMotherboardLUT.h"
 #include "L1Trigger/CSCTriggerPrimitives/interface/CSCUpgradeMotherboardLUTGenerator.h"
