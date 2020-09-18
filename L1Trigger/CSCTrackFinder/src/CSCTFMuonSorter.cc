@@ -1,5 +1,5 @@
 #include <L1Trigger/CSCTrackFinder/interface/CSCTFMuonSorter.h>
-#include "L1Trigger/CSCCommonTrigger/interface/CSCConstants.h"
+#include "DataFormats/L1TMuon/interface/CSCConstants.h"
 #include <FWCore/MessageLogger/interface/MessageLogger.h>
 
 CSCTFMuonSorter::CSCTFMuonSorter(const edm::ParameterSet& pset) {

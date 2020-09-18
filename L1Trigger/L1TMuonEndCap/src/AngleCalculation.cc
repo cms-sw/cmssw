@@ -1,5 +1,5 @@
 #include "L1Trigger/L1TMuonEndCap/interface/AngleCalculation.h"
-
+#include "DataFormats/L1TMuon/interface/L1TMuonSubsystems.h"
 #include "helper.h"  // to_hex, to_binary
 
 namespace {
@@ -386,7 +386,7 @@ void AngleCalculation::calculate_angles(EMTFTrack& track, const int izone) const
     // CSC chamber, so the FR bit assignment is the same as for CSCs - AWB 06.06.17
 
     // GEMs are in front of the CSCs
-    if (subsystem == TriggerPrimitive::kGEM)
+    if (subsystem == L1TMuon::kGEM)
       return true;
 
     bool result = false;
