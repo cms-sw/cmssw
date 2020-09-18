@@ -1,6 +1,5 @@
 import FWCore.ParameterSet.Config as cms
 
-# -*-SH-*-
 from RecoMuon.MuonIdentification.isolation_cff import *
 from RecoMuon.MuonIdentification.caloCompatibility_cff import *
 from RecoMuon.MuonIdentification.MuonTimingFiller_cfi import *
