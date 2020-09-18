@@ -32,9 +32,20 @@ public:
     vorder_ = 2;  //sets default order of event plane
   }
 
-  void init(int order, int nbins, std::string tag, int vord) {
+  void init(int order,
+            int nbins,
+            int nvtxbins = 10,
+            double minvtx = -25,
+            double delvtx = 5,
+            std::string tag = "",
+            int vord = 2) {
     hOrder_ = order;  //order of flattening
     vorder_ = vord;   //1(v1), 2(v2), 3(v3), 4(v4)
+    nvtxbins_ = nvtxbins;
+    nbins_ = nbins;
+    minvtx_ = minvtx;
+    delvtx_ = delvtx;
+
     caloCentRefMinBin_ = -1;
     caloCentRefMaxBin_ = -1;
     hbins_ = nbins * nvtxbins_ * hOrder_;
@@ -152,8 +163,9 @@ public:
       double scale = getEtScale(vtx, centbin);
       double ptval = getPtDB(indx) * scale;
       double pt2val = getPt2DB(indx) * pow(scale, 2);
+      double rv = pt * scale - pt2val / ptval;
       if (ptval > 0)
-        return pt * scale - pt2val / ptval;
+        return rv;
     }
     return 0.;
   }
@@ -174,10 +186,11 @@ public:
 
   double getSoffset(double s, double vtx, int centbin) const {
     int indx = getOffsetIndx(centbin, vtx);
-    if (indx >= 0)
+    if (indx >= 0) {
       return s - yoffDB_[indx];
-    else
+    } else {
       return s;
+    }
   }
 
   double getCoffset(double c, double vtx, int centbin) const {
@@ -195,6 +208,37 @@ public:
     psi = bounds(psi);
     psi = bounds2(psi);
     return psi;
+  }
+
+  float getMinCent(int indx) {
+    int ibin = (int)(indx / nvtxbins_);
+    return ibin * 100. / nbins_;
+  }
+
+  float getMaxCent(int indx) {
+    int ibin = (int)(indx / nvtxbins_);
+    return (ibin + 1) * 100. / nbins_;
+  }
+
+  double getMinVtx(int indx) {
+    int ivtx = indx - nvtxbins_ * (int)(indx / nvtxbins_);
+    return minvtx_ + ivtx * delvtx_;
+  }
+
+  double getMaxVtx(int indx) {
+    int ivtx = indx - nvtxbins_ * (int)(indx / nvtxbins_);
+    return minvtx_ + (ivtx + 1) * delvtx_;
+  }
+
+  std::string getRangeString(int indx) {
+    char buf[120];
+    sprintf(buf,
+            "%5.1f < cent < %5.1f; %4.1f < vtx < %4.1f",
+            getMinCent(indx),
+            getMaxCent(indx),
+            getMinVtx(indx),
+            getMaxVtx(indx));
+    return std::string(buf);
   }
 
   ~HiEvtPlaneFlatten() {}
@@ -421,9 +465,6 @@ public:
   }
 
 private:
-  static constexpr int nvtxbins_ = 10;
-  static constexpr double minvtx_ = -25.;
-  static constexpr double delvtx_ = 5.;
   static const int MAXCUT = 10000;
   static const int MAXCUTOFF = 1000;
 
@@ -470,6 +511,10 @@ private:
   double centRes40_[2];
   double centResErr40_[2];
 
+  int nvtxbins_;
+  int nbins_;
+  double minvtx_;
+  double delvtx_;
   int hOrder_;             //flattening order
   int hbins_;              //number of bins needed for flattening
   int obins_;              //number of (x,y) offset bins
