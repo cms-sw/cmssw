@@ -1,5 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
+from RecoLocalCalo.HcalRecAlgos.hcalRecAlgoESProd_cfi import *
 reducedHcalRecHits = cms.EDProducer("HcalHitSelection",
                                     hbheTag = cms.InputTag('hbhereco'),
                                     hfTag = cms.InputTag('hfreco'),
