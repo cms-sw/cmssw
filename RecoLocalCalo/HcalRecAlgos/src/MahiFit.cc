@@ -74,6 +74,8 @@ void MahiFit::phase1Apply(const HBHEChannelInfo& channelData,
     //Total uncertainty from all sources
     nnlsWork_.noiseTerms.coeffRef(iTS) = noiseADC * noiseADC + noisePhotoSq + pedWidth * pedWidth;
 
+    nnlsWork_.pedVals.coeffRef(iTS) = pedWidth * pedWidth;
+
     tsTOT += amplitude;
     if (iTS == nnlsWork_.tsOffset)
       tstrig += amplitude;
@@ -215,7 +217,7 @@ const float MahiFit::minimize() const {
   //Add off-Diagonal components up to first order
   if (nnlsWork_.noisecorr != 0) {
     for (unsigned int i = 1; i < nnlsWork_.tsSize; ++i) {
-      auto const noiseCorrTerm = nnlsWork_.noisecorr * sqrt(nnlsWork_.noiseTerms.coeff(i - 1) * nnlsWork_.noiseTerms.coeff(i));
+      auto const noiseCorrTerm = nnlsWork_.noisecorr * sqrt(nnlsWork_.pedVals.coeff(i - 1) * nnlsWork_.pedVals.coeff(i));
       invCovMat(i - 1, i) += noiseCorrTerm;
       invCovMat(i, i - 1) += noiseCorrTerm;
     }
@@ -475,6 +477,7 @@ void MahiFit::setPulseShapeTemplate(const int pulseShapeId,
     nnlsWork_.tsSize = nSamples;
     nnlsWork_.amplitudes.resize(nSamples);
     nnlsWork_.noiseTerms.resize(nSamples);
+    nnlsWork_.pedVals.resize(nSamples);
   }
 }
 
@@ -652,4 +655,6 @@ void MahiFit::resetWorkspace() const {
   // NOT SURE THIS IS NEEDED
   nnlsWork_.amplitudes.setZero();
   nnlsWork_.noiseTerms.setZero();
+  nnlsWork_.pedVals.setZero();
+
 }
