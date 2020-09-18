@@ -31,7 +31,7 @@ namespace edm {
   public:
     // ---  birth/death:
     MessageSender() : errorobj_p() {}
-    MessageSender(ELseverityLevel const& sev, ELstring const& id, bool verbatim = false, bool suppressed = false);
+    MessageSender(ELseverityLevel const& sev, std::string_view id, bool verbatim = false, bool suppressed = false);
     ~MessageSender();
 
     // ---  stream out the next part of a message:
