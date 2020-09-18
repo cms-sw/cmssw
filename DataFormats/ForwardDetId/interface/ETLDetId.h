@@ -60,9 +60,7 @@ public:
   ETLDetId(const uint32_t& raw_id) {
     uint32_t tmpId = raw_id;
     if ((tmpId & kETLformatV2) == 0) {
-      uint32_t fixedP = tmpId & (0xFFFFFFFF - kETLoldFieldMask);          // unchanged part of id
-      uint32_t shiftP = (tmpId & kETLoldFieldMask) >> kETLoldToNewShift;  // shifted part
-      tmpId = (fixedP | shiftP) + kETLformatV2;
+      tmpId = newForm(tmpId);
     }
     id_ = MTDDetId(tmpId).rawId();
   }
@@ -71,9 +69,7 @@ public:
   ETLDetId(const DetId& det_id) {
     uint32_t tmpId = det_id.rawId();
     if ((tmpId & kETLformatV2) == 0) {
-      uint32_t fixedP = tmpId & (0xFFFFFFFF - kETLoldFieldMask);          // unchanged part of id
-      uint32_t shiftP = (tmpId & kETLoldFieldMask) >> kETLoldToNewShift;  // shifted part
-      tmpId = (fixedP | shiftP) + kETLformatV2;
+      tmpId = newForm(tmpId);
     }
     id_ = MTDDetId(tmpId).rawId();
   }
@@ -130,7 +126,7 @@ public:
   uint32_t newForm(const uint32_t& rawid) {
     uint32_t fixedP = rawid & (0xFFFFFFFF - kETLoldFieldMask);          // unchanged part of id
     uint32_t shiftP = (rawid & kETLoldFieldMask) >> kETLoldToNewShift;  // shifted part
-    return (fixedP | shiftP);
+    return ((fixedP | shiftP) | kETLformatV2);
   }
 };
 
