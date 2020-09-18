@@ -1,6 +1,5 @@
 import FWCore.ParameterSet.Config as cms
 
-# -*-SH-*-
 # MuonCaloCompatibility
 from RecoMuon.MuonIdentification.caloCompatibility_cff import *
 from TrackingTools.TrackAssociator.default_cfi import *
