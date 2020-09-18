@@ -45,7 +45,7 @@ namespace edm {
   public:
     // --- birth/death:
     //
-    ErrorObj(const ELseverityLevel& sev, const ELstring& id, bool verbatim = false);
+    ErrorObj(const ELseverityLevel& sev, std::string_view id, bool verbatim = false);
     ErrorObj(const ErrorObj& orig);  // Same serial number and everything!
     virtual ~ErrorObj();
 
@@ -66,7 +66,7 @@ namespace edm {
     // mutators:
     //
     virtual void setSeverity(const ELseverityLevel& sev);
-    virtual void setID(const ELstring& ID);
+    virtual void setID(std::string_view ID);
     virtual void setModule(const ELstring& module);
     virtual void setSubroutine(const ELstring& subroutine);
     virtual void setContext(const std::string_view& context);
@@ -85,7 +85,7 @@ namespace edm {
 
     // ---  mutators for use by ELadministrator and ELtsErrorLog
     //
-    virtual void set(const ELseverityLevel& sev, const ELstring& id);
+    virtual void set(const ELseverityLevel& sev, std::string_view id);
     virtual void clear();
     virtual void setReactedTo(bool r);
 
