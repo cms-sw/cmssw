@@ -37,10 +37,7 @@ DTTTrigSyncFromDB::DTTTrigSyncFromDB(const ParameterSet& config)
       // spacing of BX in ns
       theBXspace(config.getUntrackedParameter<double>("bxSpace", 25.)),
       thetTrigLabel(config.getParameter<string>("tTrigLabel")),
-      thet0Label("") {
-  if (config.exists("t0Label"))
-    thet0Label = config.getParameter<string>("t0Label");
-}
+      thet0Label(config.getParameter<string>("t0Label")) {}
 
 DTTTrigSyncFromDB::~DTTTrigSyncFromDB() {}
 
