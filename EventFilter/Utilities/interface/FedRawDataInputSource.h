@@ -32,6 +32,9 @@ struct InputChunk;
 
 namespace evf {
   class FastMonitoringService;
+  namespace FastMonState {
+    enum InputState : short;
+  }
 }
 
 class FedRawDataInputSource : public edm::RawInputSource {
@@ -48,6 +51,8 @@ public:
 protected:
   Next checkNext() override;
   void read(edm::EventPrincipal& eventPrincipal) override;
+  void setMonState(evf::FastMonState::InputState state);
+  void setMonStateSup(evf::FastMonState::InputState state);
 
 private:
   void rewind_() override;
