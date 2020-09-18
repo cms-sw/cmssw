@@ -592,10 +592,25 @@ void PFBlockAlgo::buildElements(const edm::Event& evt) {
     }
     tracks.clear();
 
+    std::vector<std::vector<size_t>> gsf_to_convbrem(tracks_vec.size(), std::vector<size_t>());
+    std::vector<reco::PFRecTrackRef> convbrems;
+    size_t itrack = 0;
+    size_t iconvbrem = 0;
+    for (const auto* track : tracks_vec) {
+      for (const auto& convbrem : track->GsftrackRefPF()->convBremPFRecTrackRef()) {
+        convbrems.push_back(convbrem);
+        gsf_to_convbrem[itrack].push_back(iconvbrem);
+        iconvbrem++;
+      }
+      itrack++;
+    }
+
+    tables_.gsf_to_convbrem_ = gsf_to_convbrem;
     tables_.gsf_table_ = edm::soa::makeGSFTable(tracks_vec);
     tables_.gsf_table_ecalshowermax_ = edm::soa::makeTrackTable(tracks_vec, reco::PFTrajectoryPoint::ECALShowerMax);
     tables_.gsf_table_hcalent_ = edm::soa::makeTrackTable(tracks_vec, reco::PFTrajectoryPoint::HCALEntrance);
     tables_.gsf_table_hcalex_ = edm::soa::makeTrackTable(tracks_vec, reco::PFTrajectoryPoint::HCALExit);
+    tables_.gsf_convbrem_table_ = edm::soa::makeConvBremTable(convbrems);
     tables_.gsf_to_element_ = track_to_element;
     tables_.element_to_gsf_ = element_to_track;
   }

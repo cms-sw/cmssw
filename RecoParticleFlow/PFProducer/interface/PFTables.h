@@ -19,6 +19,7 @@ namespace edm::soa {
   TrackTableExtrapolation makeTrackTable(std::vector<const reco::PFBlockElementGsfTrack*> const& targetSet,
                                          reco::PFTrajectoryPoint::LayerType layerType);
   ConvRefTable makeConvRefTable(const std::vector<reco::ConversionRef>& convrefs);
+  ConvBremTable makeConvBremTable(const std::vector<reco::PFRecTrackRef>& convbrems);
 
   RecHitTable makeRecHitTable(std::vector<const reco::PFRecHitFraction*> const& objects);
   SuperClusterRecHitTable makeSuperClusterRecHitTable(std::vector<const std::pair<DetId, float>*> const& objects);
@@ -79,6 +80,7 @@ public:
   edm::soa::TrackTableExtrapolation track_table_ho_;
 
   edm::soa::GSFTable gsf_table_;
+  edm::soa::ConvBremTable gsf_convbrem_table_;
   edm::soa::TrackTableExtrapolation gsf_table_ecalshowermax_;
   edm::soa::TrackTableExtrapolation gsf_table_hcalent_;
   edm::soa::TrackTableExtrapolation gsf_table_hcalex_;
@@ -86,6 +88,7 @@ public:
   edm::soa::TrackTableExtrapolation gsf_table_ho_;
   std::vector<size_t> gsf_to_element_;
   std::vector<size_t> element_to_gsf_;
+  std::vector<std::vector<size_t>> gsf_to_convbrem_;
 
   PFClusterTables<edm::soa::ClusterTable, edm::soa::RecHitTable> clusters_ps1_;
   PFClusterTables<edm::soa::ClusterTable, edm::soa::RecHitTable> clusters_ps2_;
@@ -113,12 +116,14 @@ public:
     track_table_ho_.resize(0);
 
     gsf_table_.resize(0);
+    gsf_convbrem_table_.resize(0);
     gsf_table_ecalshowermax_.resize(0);
     gsf_table_hcalent_.resize(0);
     gsf_table_hcalex_.resize(0);
     gsf_table_ho_.resize(0);
     gsf_to_element_.clear();
     element_to_gsf_.clear();
+    gsf_to_convbrem_.resize(0);
 
     clusters_ps1_.clear();
     clusters_ps2_.clear();

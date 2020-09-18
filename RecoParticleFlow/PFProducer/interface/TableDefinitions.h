@@ -9,11 +9,17 @@
 
 #include "DataFormats/Provenance/interface/ElementID.h"
 #include "DataFormats/Common/interface/Ref.h"
+#include "DataFormats/Common/interface/RefToBase.h"
 #include "DataFormats/ParticleFlowReco/interface/PFLayer.h"
 
 template <class C>
 edm::ElementID refToElementID(const edm::Ref<C>& ref) {
   return edm::ElementID(ref.id(), ref.index());
+}
+
+template <class C>
+edm::ElementID refToElementID(const edm::RefToBase<C>& ref) {
+  return edm::ElementID(ref.id(), ref.key());
 }
 
 namespace edm::soa {
@@ -27,9 +33,16 @@ namespace edm::soa {
       SOA_DECLARE_COLUMN(Posy, double, "Posy");
       SOA_DECLARE_COLUMN(Posz, double, "Posz");
       SOA_DECLARE_COLUMN(PosR, double, "PosR");
+      SOA_DECLARE_COLUMN(ConvBremRefKey, edm::ElementID, "ConvBremRefKey");
+      SOA_DECLARE_COLUMN(ConvBremRefBaseKey, edm::ElementID, "ConvBremRefBaseKey");
       SOA_DECLARE_COLUMN(IsLinkedToDisplacedVertex, bool, "IsLinkedToDisplacedVertex");
       SOA_DECLARE_COLUMN(GsfTrackRefPFKey, edm::ElementID, "GsfTrackRefPFKey");
       SOA_DECLARE_COLUMN(GsfTrackRefPFIsNonNull, bool, "GsfTrackRefPFIsNonNull");
+      SOA_DECLARE_COLUMN(KfPFRecTrackRefKey, edm::ElementID, "KfPFRecTrackRefKey");
+      SOA_DECLARE_COLUMN(KfPFRecTrackRefIsNonNull, bool, "KfPFRecTrackRefIsNonNull");
+      SOA_DECLARE_COLUMN(KfTrackRefKey, edm::ElementID, "KfTrackRefKey");
+      SOA_DECLARE_COLUMN(KfTrackRefBaseKey, edm::ElementID, "KfTrackRefBaseKey");
+      SOA_DECLARE_COLUMN(KfTrackRefIsNonNull, bool, "KfTrackRefIsNonNull");
       SOA_DECLARE_COLUMN(ConvRefKey, edm::ElementID, "ConvRefKey");
       SOA_DECLARE_COLUMN(ConvRefIsNonNull, bool, "ConvRefIsNonNull");
       SOA_DECLARE_COLUMN(V0RefKey, edm::ElementID, "V0RefKey");
@@ -100,15 +113,23 @@ namespace edm::soa {
                                  col::pf::track::TrackType_FROM_V0,
                                  col::pf::track::V0RefIsNonNull,
                                  col::pf::track::V0RefKey,
+                                 col::pf::track::KfTrackRefIsNonNull,
+                                 col::pf::track::KfTrackRefKey,
+                                 col::pf::track::KfTrackRefBaseKey,
                                  col::pf::track::DisplacedVertexRef_TO_DISP_IsNonNull,
                                  col::pf::track::DisplacedVertexRef_TO_DISP_Key,
                                  col::pf::track::DisplacedVertexRef_FROM_DISP_IsNonNull,
                                  col::pf::track::DisplacedVertexRef_FROM_DISP_Key>;
   using ConvRefTable = Table<col::pf::track::ConvRefIsNonNull, col::pf::track::ConvRefKey>;
+  using ConvBremTable = Table<col::pf::track::ConvBremRefKey, col::pf::track::ConvBremRefBaseKey>;
 
   using GSFTable = Table<col::pf::track::Pt,
                          col::pf::track::GsfTrackRefPFIsNonNull,
                          col::pf::track::GsfTrackRefPFKey,
+                         col::pf::track::KfPFRecTrackRefIsNonNull,
+                         col::pf::track::KfPFRecTrackRefKey,
+                         col::pf::track::KfTrackRefIsNonNull,
+                         col::pf::track::KfTrackRefKey,
                          col::pf::track::TrackType_FROM_GAMMACONV,
                          col::pf::track::GsfTrackRefPFTrackId>;
   using TrackTableExtrapolation = Table<col::pf::track::ExtrapolationValid,
