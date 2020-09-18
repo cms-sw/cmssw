@@ -108,26 +108,26 @@ namespace edm {
     return (MessageDrop::instance()->messageLoggerScribeIsRunning == MLSCRIBE_RUNNING_INDICATOR);
   }
 
-  void GroupLogStatistics(std::string const& category) {
+  void GroupLogStatistics(std::string_view category) {
     std::string* cat_p = new std::string(category);
     edm::MessageLoggerQ::MLqGRP(cat_p);  // Indicate a group summary category
     // Note that the scribe will be responsible for deleting cat_p
   }
 
-  edm::LogDebug_::LogDebug_(std::string const& id, std::string const& file, int line) : ap(ELdebug, id) {
+  edm::LogDebug_::LogDebug_(std::string_view id, std::string_view file, int line) : ap(ELdebug, id) {
     *this << " " << stripLeadingDirectoryTree(file) << ":" << line << "\n";
   }
 
-  std::string edm::LogDebug_::stripLeadingDirectoryTree(const std::string& file) const {
-    std::string::size_type lastSlash = file.find_last_of('/');
-    if (lastSlash == std::string::npos)
+  std::string_view edm::LogDebug_::stripLeadingDirectoryTree(const std::string_view file) const {
+    std::string_view::size_type lastSlash = file.find_last_of('/');
+    if (lastSlash == std::string_view::npos)
       return file;
     if (lastSlash == file.size() - 1)
       return file;
     return file.substr(lastSlash + 1, file.size() - lastSlash - 1);
   }
 
-  edm::LogTrace_::LogTrace_(std::string const& id) : ap(ELdebug, id, true) {}
+  edm::LogTrace_::LogTrace_(std::string_view id) : ap(ELdebug, id, true) {}
 
   void setStandAloneMessageThreshold(edm::ELseverityLevel const& severity) {
     edm::MessageLoggerQ::standAloneThreshold(severity);
