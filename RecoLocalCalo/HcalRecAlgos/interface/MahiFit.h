@@ -33,6 +33,9 @@ struct MahiNnlsWorkspace {
   //holds diagonal noise terms
   SampleVector noiseTerms;
 
+  //holds diagonal pedestal noise terms
+  SampleVector pedVals;
+
   //holds flat pedestal uncertainty
   float pedVal;
 
