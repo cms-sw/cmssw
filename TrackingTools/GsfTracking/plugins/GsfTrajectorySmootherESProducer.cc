@@ -42,11 +42,11 @@ private:
 GsfTrajectorySmootherESProducer::GsfTrajectorySmootherESProducer(const edm::ParameterSet& p)
     : scale_(p.getParameter<double>("ErrorRescaling")) {
   std::string myname = p.getParameter<std::string>("ComponentName");
-  setWhatProduced(this, myname)
-      .setConsumes(matToken_, edm::ESInputTag("", p.getParameter<std::string>("MaterialEffectsUpdator")))
-      .setConsumes(propagatorToken_, edm::ESInputTag("", p.getParameter<std::string>("GeometricalPropagator")))
-      .setConsumes(mergerToken_, edm::ESInputTag("", p.getParameter<std::string>("Merger")))
-      .setConsumes(geoToken_, edm::ESInputTag("", p.getParameter<std::string>("RecoGeometry")));
+  auto cc = setWhatProduced(this, myname);
+  matToken_ = cc.consumes(edm::ESInputTag("", p.getParameter<std::string>("MaterialEffectsUpdator")));
+  propagatorToken_ = cc.consumes(edm::ESInputTag("", p.getParameter<std::string>("GeometricalPropagator")));
+  mergerToken_ = cc.consumes(edm::ESInputTag("", p.getParameter<std::string>("Merger")));
+  geoToken_ = cc.consumes(edm::ESInputTag("", p.getParameter<std::string>("RecoGeometry")));
 }
 
 std::unique_ptr<TrajectorySmoother> GsfTrajectorySmootherESProducer::produce(const TrajectoryFitterRecord& iRecord) {

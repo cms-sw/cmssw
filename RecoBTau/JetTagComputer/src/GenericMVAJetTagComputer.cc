@@ -31,9 +31,8 @@ static std::vector<std::string> getCalibrationLabels(const edm::ParameterSet &pa
   }
 }
 
-GenericMVAJetTagComputer::Tokens::Tokens(const edm::ParameterSet &params, edm::ESConsumesCollector &&cc) {
-  cc.setConsumes(calib_, edm::ESInputTag{"", params.getParameter<std::string>("recordLabel")});
-}
+GenericMVAJetTagComputer::Tokens::Tokens(const edm::ParameterSet &params, edm::ESConsumesCollector &&cc)
+    : calib_(cc.consumes(edm::ESInputTag{"", params.getParameter<std::string>("recordLabel")})) {}
 
 GenericMVAJetTagComputer::GenericMVAJetTagComputer(const edm::ParameterSet &params, Tokens tokens)
     : computerCache_(getCalibrationLabels(params, categorySelector_)), tokens_{tokens} {}
