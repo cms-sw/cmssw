@@ -7,7 +7,6 @@
 // Original Author:  Jake Ribnik, Dmytro Kovalskyi
 
 #include "DataFormats/MuonReco/interface/Muon.h"
-#include "TMath.h"
 #include <string>
 
 namespace reco {
