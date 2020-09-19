@@ -186,7 +186,7 @@ def customiseFor31295(process):
 
     return process
 
-def customiseForDtT0Label(process):
+def customiseFor31263(process):
     """Add the t0Label parameter (with default value) to DTTTrigSyncFromDB in HLT"""
 
     if hasattr(process,'hltDt1DRecHits'):
@@ -209,6 +209,6 @@ def customizeHLTforCMSSW(process, menuType="GRun"):
     # add call to action function in proper order: newest last!
     # process = customiseFor12718(process)
     process = customiseFor31295(process)
-    process = customiseForDtT0Label(process)
+    process = customiseFor31263(process)
 
     return process
