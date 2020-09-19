@@ -7,7 +7,6 @@
 <use name="DataFormats/GsfTrackReco"/>
 <use name="DataFormats/HcalRecHit"/>
 <use name="clhep"/>
-<use name="SimDataFormats/GeneratorProducts"/>
 <use name="SimDataFormats/TrackingAnalysis"/>
 <export>
   <lib name="1"/>

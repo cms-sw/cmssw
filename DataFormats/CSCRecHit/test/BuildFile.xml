@@ -1,5 +1,4 @@
 <use name="FWCore/Framework"/>
-<use name="FWCore/PluginManager"/>
 <use name="FWCore/ParameterSet"/>
 <use name="DataFormats/MuonReco"/>
 <use name="DataFormats/CSCRecHit"/>
@@ -8,7 +7,6 @@
 <use name="CommonTools/UtilAlgos"/>
 <use name="FWCore/ServiceRegistry"/>
 <use name="root"/>
-<use name="DataFormats/GeometryVector"/>
 <library file="CSCSharesInputTest.cc" name="CSCSharesInputTest">
   <flags EDM_PLUGIN="1"/>
 </library>
