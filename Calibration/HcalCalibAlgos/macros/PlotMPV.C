@@ -864,7 +864,6 @@ TCanvas* plotLightLoss(std::string infile = "mu_HE_insitu_2018.txt",
                   << (itr->second) << std::endl;
     }
   }
-
   TCanvas* pad;
   if (losses.size() > 0) {
     gStyle->SetCanvasBorderMode(0);
@@ -882,17 +881,36 @@ TCanvas* plotLightLoss(std::string infile = "mu_HE_insitu_2018.txt",
     pad->SetLeftMargin(0.10);
     pad->SetRightMargin(0.14);
     pad->SetTopMargin(0.10);
-    TH2D* h = new TH2D("cname", "cname", 8, 0, 8, 15, 15, 30);
+    const int neta = 15;
+    TH2D* h = new TH2D("cname", "cname", 8, 0, 8, neta, 0, neta);
+    TGraph2D* dt = new TGraph2D();
+    dt->SetNpx(8);
+    dt->SetNpy(15);
     h->GetXaxis()->SetTitle("Detector depth number");
     h->GetYaxis()->SetTitle("Tower");
     h->GetZaxis()->SetRangeUser(0.75, 1.25);
     std::map<std::pair<int, int>, double>::const_iterator itr;
+
+    unsigned int nmax = losses.size();
+    int np(0);
+    int ieta, depth;
     for (itr = losses.begin(); itr != losses.end(); ++itr) {
-      int ieta = (itr->first).first;
-      int depth = (itr->first).second;
-      h->Fill(depth + 0.5, ieta + 0.5, (itr->second));
+      ieta = (itr->first).first;
+      depth = (itr->first).second;
+      h->Fill((depth + 0.5), (30.5 - ieta), (itr->second));
     }
-    h->Draw("COLZ text");
+    h->Draw("colz");
+
+    gPad->Update();
+    TAxis* a = h->GetYaxis();
+    a->SetNdivisions(20);
+    std::string val[neta] = {"30", "29", "28", "27", "26", "25", "24", "23", "22", "21", "20", "19", "18", "17", "16"};
+    for (int i = 0; i < neta; i++)
+      a->ChangeLabel((i + 1), -1, -1, -1, -1, -1, val[i]);
+    a->CenterLabels(kTRUE);
+    gPad->Modified();
+    gPad->Update();
+
     TPaveText* txt1 = new TPaveText(0.60, 0.91, 0.90, 0.97, "blNDC");
     txt1->SetFillColor(0);
     sprintf(text, "%d, %d TeV %5.1f fb^{-1}", iyear, ener, lumis);
