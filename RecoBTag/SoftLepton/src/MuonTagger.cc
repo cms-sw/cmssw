@@ -15,10 +15,8 @@
 
 MuonTagger::Tokens::Tokens(const edm::ParameterSet& cfg, edm::ESConsumesCollector&& cc) {
   if (cfg.getParameter<bool>("useCondDB")) {
-    cc.setConsumes(
-        gbrForest_,
-        edm::ESInputTag{
-            "", cfg.existsAs<std::string>("gbrForestLabel") ? cfg.getParameter<std::string>("gbrForestLabel") : ""});
+    gbrForest_ = cc.consumes(edm::ESInputTag{
+        "", cfg.existsAs<std::string>("gbrForestLabel") ? cfg.getParameter<std::string>("gbrForestLabel") : ""});
   }
 }
 

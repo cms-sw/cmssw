@@ -43,11 +43,11 @@ private:
 
 GsfTrajectoryFitterESProducer::GsfTrajectoryFitterESProducer(const edm::ParameterSet& p) {
   std::string myname = p.getParameter<std::string>("ComponentName");
-  setWhatProduced(this, myname)
-      .setConsumes(matUpdatorToken_, edm::ESInputTag("", p.getParameter<std::string>("MaterialEffectsUpdator")))
-      .setConsumes(propagatorToken_, edm::ESInputTag("", p.getParameter<std::string>("GeometricalPropagator")))
-      .setConsumes(mergerToken_, edm::ESInputTag("", p.getParameter<std::string>("Merger")))
-      .setConsumes(geoToken_, edm::ESInputTag("", p.getParameter<std::string>("RecoGeometry")));
+  auto cc = setWhatProduced(this, myname);
+  matUpdatorToken_ = cc.consumes(edm::ESInputTag("", p.getParameter<std::string>("MaterialEffectsUpdator")));
+  propagatorToken_ = cc.consumes(edm::ESInputTag("", p.getParameter<std::string>("GeometricalPropagator")));
+  mergerToken_ = cc.consumes(edm::ESInputTag("", p.getParameter<std::string>("Merger")));
+  geoToken_ = cc.consumes(edm::ESInputTag("", p.getParameter<std::string>("RecoGeometry")));
 }
 
 GsfTrajectoryFitterESProducer::~GsfTrajectoryFitterESProducer() {}
