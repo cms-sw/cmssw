@@ -24,7 +24,7 @@
 #include "CondCore/DBOutputService/interface/PoolDBOutputService.h"
 
 #include "DataFormats/CTPPSDetId/interface/CTPPSDiamondDetId.h"
-#include "CondFormats/CTPPSReadoutObjects/interface/PPSTimingCalibration.h"
+#include "CondFormats/PPSObjects/interface/PPSTimingCalibration.h"
 
 #include "TProfile.h"
 #include "TF1.h"

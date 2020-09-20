@@ -3,6 +3,6 @@
   <use name="DQMServices/Core"/>
   <use name="FWCore/ServiceRegistry"/>
   <use name="CondCore/DBOutputService"/>
-  <use name="CondFormats/CTPPSReadoutObjects"/>
+  <use name="CondFormats/PPSObjects"/>
   <use name="Geometry/VeryForwardGeometryBuilder"/>
 </library>
