@@ -45,7 +45,7 @@ void testDDFilteredViewGoTo::checkFilteredView() {
   while (fview.next(0)) {
     std::cout << "#" << count << ": ";
     printMe(fview);
-    
+
     if (count == 45) {
       testPos = fview.navPos();
     }
@@ -58,7 +58,7 @@ void testDDFilteredViewGoTo::checkFilteredView() {
   std::cout << "\n==== Let's go to #45\n";
   fview.goTo(testPos);
   printMe(fview);
-  
+
   int i = 0;
   for (auto it : fview.navPos()) {
     CPPUNIT_ASSERT(it == testPos[i++]);
@@ -89,7 +89,7 @@ void testDDFilteredViewGoTo::checkFilteredView() {
     printMe(fview);
 
   } while (fview.next(0) && fview.level() < startLevel);
-  
+
   std::cout << "\n==== Continue iteration\n";
 
   count = 1;
@@ -135,13 +135,10 @@ void testDDFilteredViewGoTo::printMe(const cms::DDFilteredView& fview) {
 
   auto copies = fview.copyNos();
   std::cout << "    copy Nos: ";
-  std::for_each(copies.rbegin(), copies.rend(), [](const auto &it){
-    std::cout << it << ", ";
-    });
+  std::for_each(copies.rbegin(), copies.rend(), [](const auto& it) { std::cout << it << ", "; });
   std::cout << "\n    levels  : ";
   for (auto it : fview.navPos()) {
     std::cout << it << ", ";
   }
   std::cout << "\n";
 }
-
