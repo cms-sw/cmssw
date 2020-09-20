@@ -576,7 +576,6 @@ bool DDFilteredView::goTo(const nav_type& newpos) {
   Node* node = nullptr;
 
   // try to navigate down to the newpos
-  int level = 1;
   for (auto const& i : newpos) {
     it_.back().SetType(0);
     node = it_.back().Next();
@@ -584,7 +583,6 @@ bool DDFilteredView::goTo(const nav_type& newpos) {
       it_.back().SetType(1);
       node = it_.back().Next();
     }
-    level++;
   }
   if (node != nullptr) {
     node_ = node;
