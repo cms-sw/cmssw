@@ -97,6 +97,7 @@ protected:
   virtual uint16_t getDepth(const G4Step*);
   double getResponseWt(const G4Track*);
   int getNumberOfHits();
+  void ignoreRejection() { ignoreReject = true; }
 
   inline void setParameterized(bool val) { isParameterized = val; }
   inline void setUseMap(bool val) { useMap = val; }
@@ -150,6 +151,7 @@ private:
 
   bool ignoreTrackID;
   bool isParameterized;
+  bool ignoreReject;
   bool useMap;  // use map for comparison of ID
   bool corrTOFBeam;
 

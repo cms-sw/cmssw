@@ -309,7 +309,7 @@ struct HGCalEEFileAlgo {
                                         << " with " << corner.first << " corners";
         }
 #endif
-        int type = HGCalWaferType::getType(HGCalWaferIndex::waferIndex(layer, u, v, false), waferIndex_, waferTypes_);
+        int type = HGCalWaferType::getType(HGCalWaferIndex::waferIndex((layer + 1), u, v, false), waferIndex_, waferTypes_);
         if (corner.first > 0 && type >= 0) {
           int copy = HGCalTypes::packTypeUV(type, u, v);
 #ifdef EDM_ML_DEBUG

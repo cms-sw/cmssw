@@ -1,10 +1,11 @@
 import FWCore.ParameterSet.Config as cms
+from Configuration.Eras.Era_Phase2C11_cff import Phase2C11
 
-process = cms.Process("PROD")
+process = cms.Process("PROD",Phase2C11)
 process.load("SimGeneral.HepPDTESSource.pythiapdt_cfi")
 process.load("IOMC.EventVertexGenerators.VtxSmearedGauss_cfi")
-process.load("Configuration.Geometry.GeometryExtended2026D41_cff")
-#process.load("Geometry.HGCalCommonData.testHGCV10XML_cfi")
+process.load("Configuration.Geometry.GeometryExtended2026D62_cff")
+#process.load("Geometry.HGCalCommonData.testHGCalV14XML_cfi")
 #process.load("Geometry.HGCalCommonData.hgcalParametersInitialization_cfi")
 #process.load("Geometry.HGCalCommonData.hgcalNumberingInitialization_cfi")
 process.load("Configuration.StandardSequences.MagneticField_cff")
