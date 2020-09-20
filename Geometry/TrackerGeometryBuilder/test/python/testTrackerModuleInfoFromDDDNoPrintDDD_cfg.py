@@ -1,17 +1,9 @@
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("GeometryTest")
-# empty input service, fire 10 events
+
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
-
-# Choose Tracker Geometry
-process.load('Configuration/StandardSequences/FrontierConditions_GlobalTag_cff')
-
-process.load("Geometry.CMSCommonData.cmsIdealGeometryXML_cfi")
-
-process.load("Geometry.TrackerNumberingBuilder.trackerNumberingGeometry_cfi")
-
-process.load("Geometry.TrackerGeometryBuilder.trackerGeometry_cfi")
+process.load("Configuration.Geometry.GeometryExtended2021Reco_cff")
 
 process.source = cms.Source("EmptySource")
 
