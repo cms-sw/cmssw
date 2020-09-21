@@ -228,7 +228,6 @@ ValidIsoTrkCalib::ValidIsoTrkCalib(const edm::ParameterSet& iConfig) {
 
 // ------------ method called to for each event  ------------
 void ValidIsoTrkCalib::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
-
   try {
     edm::ESHandle<HcalRespCorrs> recalibCorrs;
     iSetup.get<HcalRespCorrsRcd>().get("recalibrate", recalibCorrs);
@@ -531,7 +530,7 @@ void ValidIsoTrkCalib::analyze(const edm::Event& iEvent, const edm::EventSetup& 
             iTime = hhit->time();
 
           if (AxB_ != "3x3" && AxB_ != "5x5" && AxB_ != "Cone")
-	    edm::LogWarning(" AxB ") << "   Not supported: " << AxB_;
+            edm::LogWarning(" AxB ") << "   Not supported: " << AxB_;
 
           if (abs(DIETA) <= 2 && (abs(DIPHI) <= 2 || ((abs(MaxHit.ietahitm) > 20 && abs(DIPHI) <= 4) &&
                                                       !((abs(MaxHit.ietahitm) == 21 || abs(MaxHit.ietahitm) == 22) &&
