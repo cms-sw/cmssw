@@ -765,9 +765,9 @@ void HGCalGeomParameters::loadGeometryHexagon8(const cms::DDCompactView* cpv,
     ++ntot;
 #endif
     // Layers first
-    std::vector<int> copy = fv.copyNos();
-    int nsiz = static_cast<int>(copy.size());
+    int nsiz = static_cast<int>(fv.level());
     if (nsiz < levelTop) {
+      std::vector<int> copy = fv.copyNos();
       int lay = copy[0];
       int zside = (nsiz > php.levelZSide_) ? copy[nsiz - php.levelZSide_ - 1] : -1;
       if (zside != 1)
