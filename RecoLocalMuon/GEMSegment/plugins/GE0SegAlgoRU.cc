@@ -33,9 +33,10 @@ GE0SegAlgoRU::GE0SegAlgoRU(const edm::ParameterSet& ps) : GEMSegmentAlgorithmBas
   stdParameters.maxPhiSeeds = ps.getParameter<double>("maxPhiSeeds");
   stdParameters.maxPhiAdditional = ps.getParameter<double>("maxPhiAdditional");
   stdParameters.maxETASeeds = ps.getParameter<double>("maxETASeeds");
-  stdParameters.maxTOFDiff = ps.getParameter<double>("maxTOFDiff");
   stdParameters.requireCentralBX = ps.getParameter<bool>("requireCentralBX");
   stdParameters.minNumberOfHits = ps.getParameter<unsigned int>("minNumberOfHits");
+  stdParameters.maxNumberOfHits = ps.getParameter<unsigned int>("maxNumberOfHits");
+  stdParameters.maxNumberOfHitsPerLayer = ps.getParameter<unsigned int>("maxNumberOfHitsPerLayer");
   stdParameters.requireBeamConstr = true;
 
   wideParameters = stdParameters;
@@ -64,7 +65,6 @@ GE0SegAlgoRU::GE0SegAlgoRU(const edm::ParameterSet& ps) : GEMSegmentAlgorithmBas
                            << "maxPhiSeeds         = " << stdParameters.maxPhiSeeds << "\n"
                            << "maxPhiAdditional    = " << stdParameters.maxPhiAdditional << "\n"
                            << "maxETASeeds         = " << stdParameters.maxETASeeds << "\n"
-                           << "maxTOFDiff          = " << stdParameters.maxTOFDiff << "\n"
                            << std::endl;
 
   theChamber = nullptr;
@@ -83,8 +83,8 @@ std::vector<GEMSegment> GE0SegAlgoRU::run(const GEMEnsemble& ensemble, const std
   LogDebug("GE0Segment|GE0") << "found " << hitAndPositions.size() << " rechits in superchamber " << superchamber->id();
   //sort by layer
   float z1 = superchamber->chamber(1)->position().z();
-  float z6 = superchamber->chamber(6)->position().z();
-  if (z1 < z6)
+  float zlast = superchamber->chamber(superchamber->nChambers())->position().z();
+  if (z1 < zlast)
     std::sort(hitAndPositions.begin(), hitAndPositions.end(), [](const HitAndPosition& h1, const HitAndPosition& h2) {
       return h1.layer < h2.layer;
     });
@@ -100,25 +100,25 @@ std::vector<GEMSegment> GE0SegAlgoRU::run(const GEMSuperChamber* chamber, const 
   GEMDetId chId(chamber->id());
   edm::LogVerbatim("GE0SegAlgoRU") << "[GEMSegmentAlgorithm::run] build segments in chamber " << chId
                                    << " which contains " << rechits.size() << " rechits";
-  for (unsigned int iH = 0; iH < rechits.size(); ++iH) {
-    auto ge0id = rechits[iH].rh->gemId();
-    auto rhLP = rechits[iH].lp;
+  for (const auto & h : rechits) {
+    auto ge0id = h.rh->gemId();
+    auto rhLP = h.lp;
     edm::LogVerbatim("GE0SegAlgoRU") << "[RecHit :: Loc x = " << std::showpos << std::setw(9) << rhLP.x()
                                      << " Glb y = " << std::showpos << std::setw(9) << rhLP.y()
-                                     << " Time = " << std::showpos << rechits[iH].rh->BunchX() << " -- "
+                                     << " Time = " << std::showpos << h.rh->BunchX() << " -- "
                                      << ge0id.rawId() << " = " << ge0id << " ]" << std::endl;
   }
 #endif
 
-  if (rechits.size() < 3 || rechits.size() > 300) {
+  if (rechits.size() < stdParameters.minNumberOfHits || rechits.size() > stdParameters.maxNumberOfHits) {
     return std::vector<GEMSegment>();
   }
 
   theChamber = chamber;
 
-  std::vector<unsigned int> recHits_per_layer(6, 0);
-  for (unsigned int iH = 0; iH < rechits.size(); ++iH) {
-    recHits_per_layer[rechits[iH].layer - 1]++;
+  std::vector<unsigned int> recHits_per_layer(theChamber->nChambers(), 0);
+  for (const auto & rechit : rechits) {
+    recHits_per_layer[rechit.layer - 1]++;
   }
 
   BoolContainer used(rechits.size(), false);
@@ -214,30 +214,26 @@ void GE0SegAlgoRU::lookForSegments(const SegmentParameters& params,
     //skip if rh is used and the layer tat has big rh multiplicity(>25RHs)
     if (used[h1.idx])
       continue;
-    if (recHits_per_layer[h1.layer - 1] > 100)
+    if (recHits_per_layer[h1.layer - 1] > params.maxNumberOfHitsPerLayer)
       continue;
 
-    //    	bool segok = false;
     // the second hit from the front
     for (auto i2 = ie - 1; i2 != i1; --i2) {
-      //    		if(segok) break; //Currently turned off
       const auto& h2 = *i2;
 
       //skip if rh is used and the layer tat has big rh multiplicity(>25RHs)
       if (used[h2.idx])
         continue;
-      if (recHits_per_layer[h2.layer - 1] > 100)
+      if (recHits_per_layer[h2.layer - 1] > params.maxNumberOfHitsPerLayer)
         continue;
 
       //Stop if the distance between layers is not large enough
       if ((std::abs(int(h2.layer) - int(h1.layer)) + 1) < int(n_seg_min))
         break;
 
-      if (std::fabs(h1.rh->BunchX() - h2.rh->BunchX()) > params.maxTOFDiff + 1.0)
-        continue;
       if (!areHitsCloseInEta(params.maxETASeeds, params.requireBeamConstr, h1.gp, h2.gp))
         continue;
-      if (!areHitsCloseInGlobalPhi(params.maxPhiSeeds, abs(int(h2.layer) - int(h1.layer)), h1.gp, h2.gp))
+      if (!areHitsCloseInGlobalPhi(params.maxPhiSeeds, std::abs(int(h2.layer) - int(h1.layer)), h1.gp, h2.gp))
         continue;
 
       HitAndPositionPtrContainer current_proto_segment;
@@ -245,8 +241,7 @@ void GE0SegAlgoRU::lookForSegments(const SegmentParameters& params,
       current_fit = addHit(current_proto_segment, h1);
       current_fit = addHit(current_proto_segment, h2);
 
-      tryAddingHitsToSegment(params.maxTOFDiff,
-                             params.maxETASeeds,
+      tryAddingHitsToSegment(params.maxETASeeds,
                              params.maxPhiAdditional,
                              params.maxChi2Additional,
                              current_fit,
@@ -275,7 +270,7 @@ void GE0SegAlgoRU::lookForSegments(const SegmentParameters& params,
         int nCentral = 0;
         int nNonCentral = 0;
         for (const auto* rh : current_proto_segment) {
-          if (std::fabs(rh->rh->BunchX()) < 2)
+          if (std::abs(rh->rh->BunchX()) < 2)
             nCentral++;
           else
             nNonCentral++;
@@ -283,7 +278,6 @@ void GE0SegAlgoRU::lookForSegments(const SegmentParameters& params,
         if (nNonCentral >= nCentral)
           continue;
       }
-      //        	segok = true;
 
       proto_segments.emplace_back(current_metric, current_proto_segment);
     }
@@ -301,14 +295,14 @@ void GE0SegAlgoRU::addUniqueSegments(SegmentByMetricContainer& proto_segments,
 
   //Now add to the collect based on minChi2 marking the hits as used after
   std::vector<unsigned int> usedHits;
-  for (unsigned int iS = 0; iS < proto_segments.size(); ++iS) {
-    HitAndPositionPtrContainer currentProtoSegment = proto_segments[iS].second;
+  for (auto& container : proto_segments) {
+    HitAndPositionPtrContainer currentProtoSegment = container.second;
 
     //check to see if we already used thes hits this round
     bool alreadyFilled = false;
-    for (unsigned int iH = 0; iH < currentProtoSegment.size(); ++iH) {
+    for (const auto& h : currentProtoSegment) {
       for (unsigned int iOH = 0; iOH < usedHits.size(); ++iOH) {
-        if (usedHits[iOH] != currentProtoSegment[iH]->idx)
+        if (usedHits[iOH] != h->idx)
           continue;
         alreadyFilled = true;
         break;
@@ -326,16 +320,11 @@ void GE0SegAlgoRU::addUniqueSegments(SegmentByMetricContainer& proto_segments,
     // Create an actual GEMSegment - retrieve all info from the fit
     // calculate the timing fron rec hits associated to the TrackingRecHits used
     // to fit the segment
-    float averageTime = 0.;
+    float averageBX = 0.;
     for (const auto* h : currentProtoSegment) {
-      averageTime += h->rh->BunchX();
+      averageBX += h->rh->BunchX();
     }
-    averageTime /= int(currentProtoSegment.size());
-    float timeUncrt = 0.;
-    for (const auto* h : currentProtoSegment) {
-      timeUncrt += (h->rh->BunchX() - averageTime) * (h->rh->BunchX() - averageTime);
-    }
-    timeUncrt = std::sqrt(timeUncrt / float(currentProtoSegment.size() - 1));
+    averageBX /= int(currentProtoSegment.size());
 
     std::sort(currentProtoSegment.begin(),
               currentProtoSegment.end(),
@@ -345,22 +334,20 @@ void GE0SegAlgoRU::addUniqueSegments(SegmentByMetricContainer& proto_segments,
     bareRHs.reserve(currentProtoSegment.size());
     for (const auto* rh : currentProtoSegment)
       bareRHs.push_back(rh->rh);
-    // const float dPhi = theChamber->computeDeltaPhi(current_fit->intercept(), current_fit->localdir());
+    const float dPhi = theChamber->computeDeltaPhi(current_fit->intercept(), current_fit->localdir());
     GEMSegment temp(bareRHs,
                     current_fit->intercept(),
                     current_fit->localdir(),
                     current_fit->covarianceMatrix(),
                     current_fit->chi2(),
-                    averageTime,
-                    timeUncrt
-                    // dPhi // TODO FIXME (maybe)!
+                    averageBX,
+                    dPhi
     );
     segments.push_back(temp);
   }
 }
 
-void GE0SegAlgoRU::tryAddingHitsToSegment(const float maxTOF,
-                                          const float maxETA,
+void GE0SegAlgoRU::tryAddingHitsToSegment(const float maxETA,
                                           const float maxPhi,
                                           const float maxChi2,
                                           std::unique_ptr<MuonSegFit>& current_fit,
@@ -387,8 +374,6 @@ void GE0SegAlgoRU::tryAddingHitsToSegment(const float maxTOF,
       break;
     if (used[iH->idx])
       continue;
-    if (!areHitsConsistentInTime(maxTOF, proto_segment, *iH))
-      continue;
     if (!isHitNearSegment(maxETA, maxPhi, current_fit, proto_segment, *iH))
       continue;
     if (hasHitOnLayer(proto_segment, iH->layer))
@@ -402,7 +387,7 @@ bool GE0SegAlgoRU::areHitsCloseInEta(const float maxETA,
                                      const bool beamConst,
                                      const GlobalPoint& h1,
                                      const GlobalPoint& h2) const {
-  float diff = std::fabs(h1.eta() - h2.eta());
+  float diff = std::abs(h1.eta() - h2.eta());
   edm::LogVerbatim("GE0SegAlgoRU") << "[GE0SegAlgoRU::areHitsCloseInEta] gp1 = " << h1 << " in eta part = " << h1.eta()
                                    << " and gp2 = " << h2 << " in eta part = " << h2.eta() << " ==> dEta = " << diff
                                    << " ==> return " << (diff < 0.1) << std::endl;
@@ -417,8 +402,8 @@ bool GE0SegAlgoRU::areHitsCloseInGlobalPhi(const float maxPHI,
   float dphi12 = deltaPhi(h1.barePhi(), h2.barePhi());
   edm::LogVerbatim("GE0SegAlgoRU") << "[GE0SegAlgoRU::areHitsCloseInGlobalPhi] gp1 = " << h1 << " and gp2 = " << h2
                                    << " ==> dPhi = " << dphi12 << " ==> return "
-                                   << (fabs(dphi12) < std::max(maxPHI, 0.02f)) << std::endl;
-  return fabs(dphi12) < std::max(maxPHI, float(float(nLayDisp) * 0.004));
+                                   << (std::abs(dphi12) < std::max(maxPHI, 0.02f)) << std::endl;
+  return std::abs(dphi12) < std::max(maxPHI, float(float(nLayDisp) * 0.004));
 }
 
 bool GE0SegAlgoRU::isHitNearSegment(const float maxETA,
@@ -428,30 +413,14 @@ bool GE0SegAlgoRU::isHitNearSegment(const float maxETA,
                                     const HitAndPosition& h) const {
   //Get average eta, based on the two seeds...asssumes that we have not started pruning yet!
   const float avgETA = (proto_segment[1]->gp.eta() + proto_segment[0]->gp.eta()) / 2.;
-  //	edm::LogVerbatim("GE0SegAlgoRU") << "[GE0SegAlgoRU::isHitNearSegment] average eta = "<<avgETA<<" additionalHit eta = "<<h.gp.eta() <<" ==> dEta = "<<std::fabs(h.gp.eta() - avgETA) <<" ==> return "<<(std::fabs(h.gp.eta() - avgETA) < std::max(maxETA,0.01f ))<<std::endl;
-  if (std::fabs(h.gp.eta() - avgETA) > std::max(maxETA, 0.01f))
+  if (std::abs(h.gp.eta() - avgETA) > std::max(maxETA, 0.01f))
     return false;
 
   //Now check the dPhi based on the segment fit
   GlobalPoint globIntercept = globalAtZ(fit, h.lp.z());
   float dPhi = deltaPhi(h.gp.barePhi(), globIntercept.phi());
   //check to see if it is inbetween the two rolls of the outer and inner hits
-  //	edm::LogVerbatim("GE0SegAlgoRU") << "[GE0SegAlgoRU::isHitNearSegment] projected phi = "<<globIntercept.phi()<<" additionalHit phi = "<<h.gp.barePhi() <<" ==> dPhi = "<<dPhi <<" ==> return "<<(std::fabs(dPhi) <  std::max(maxPHI,0.001f))<<std::endl;
-  return (std::fabs(dPhi) < std::max(maxPHI, 0.001f));
-}
-
-bool GE0SegAlgoRU::areHitsConsistentInTime(const float maxTOF,
-                                           const HitAndPositionPtrContainer& proto_segment,
-                                           const HitAndPosition& h) const {
-  std::vector<float> tofs;
-  tofs.reserve(proto_segment.size() + 1);
-  tofs.push_back(h.rh->BunchX());
-  for (const auto* ih : proto_segment)
-    tofs.push_back(ih->rh->BunchX());
-  std::sort(tofs.begin(), tofs.end());
-  if (std::fabs(tofs.front() - tofs.back()) < maxTOF + 1.0)
-    return true;
-  return false;
+  return (std::abs(dPhi) < std::max(maxPHI, 0.001f));
 }
 
 GlobalPoint GE0SegAlgoRU::globalAtZ(const std::unique_ptr<MuonSegFit>& fit, float z) const {
@@ -471,13 +440,13 @@ std::unique_ptr<MuonSegFit> GE0SegAlgoRU::makeFit(const HitAndPositionPtrContain
   // for GE0 we take the gemrechit from the proto_segment we transform into Tracking Rechits
   // the local rest frame is the GEMSuperChamber
   MuonSegFit::MuonRecHitContainer muonRecHits;
-  for (auto rh = proto_segment.begin(); rh < proto_segment.end(); rh++) {
-    GEMRecHit* newRH = (*rh)->rh->clone();
-    newRH->setPosition((*rh)->lp);
+  for (const auto& rh : proto_segment) {
+    GEMRecHit* newRH = rh->rh->clone();
+    newRH->setPosition(rh->lp);
     MuonSegFit::MuonRecHitPtr trkRecHit(newRH);
     muonRecHits.push_back(trkRecHit);
   }
-  std::unique_ptr<MuonSegFit> currentFit(new MuonSegFit(muonRecHits));
+  auto currentFit = std::make_unique<MuonSegFit>(muonRecHits);
   currentFit->fit();
   return currentFit;
 }
@@ -548,12 +517,12 @@ void GE0SegAlgoRU::compareProtoSegment(std::unique_ptr<MuonSegFit>& current_fit,
   //If on the same strip but different BX choose the closest
   bool useNew = false;
   if (old_hit->lp == new_hit.lp) {
-    float avgtof = 0;
+    float avgbx = 0;
     for (const auto* h : current_proto_segment)
       if (old_hit != h)
-        avgtof += h->rh->BunchX();
-    avgtof /= float(current_proto_segment.size() - 1);
-    if (std::abs(avgtof - new_hit.rh->BunchX()) < std::abs(avgtof - old_hit->rh->BunchX()))
+        avgbx += h->rh->BunchX();
+    avgbx /= float(current_proto_segment.size() - 1);
+    if (std::abs(avgbx - new_hit.rh->BunchX()) < std::abs(avgbx - old_hit->rh->BunchX()))
       useNew = true;
   }  //otherwise base it on chi2
   else if (new_fit->chi2() < current_fit->chi2())
@@ -571,7 +540,6 @@ void GE0SegAlgoRU::increaseProtoSegment(const float maxChi2,
                                         const HitAndPosition& new_hit) const {
   HitAndPositionPtrContainer new_proto_segment = current_proto_segment;
   auto new_fit = addHit(new_proto_segment, new_hit);
-  //	edm::LogVerbatim("GE0SegAlgoRU") << "[GE0SegAlgoRU::increaseProtoSegment] new chi2 = "<<new_fit->chi2()<<" new chi2/dof = "<<new_fit->chi2()/new_fit->ndof() <<" ==> add: " << (new_fit->chi2()/new_fit->ndof() < maxChi2 ) <<std::endl;
   if (new_fit->chi2() / new_fit->ndof() < maxChi2) {
     current_proto_segment = new_proto_segment;
     current_fit = std::move(new_fit);

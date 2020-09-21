@@ -38,9 +38,10 @@ public:
     float maxChi2Additional;
     float maxChi2Prune;
     float maxChi2GoodSeg;
-    float maxTOFDiff;
     bool requireCentralBX;
     unsigned int minNumberOfHits;
+    unsigned int maxNumberOfHits;
+    unsigned int maxNumberOfHitsPerLayer;
     bool requireBeamConstr;
   };
 
@@ -84,8 +85,7 @@ private:
                        BoolContainer& used,
                        std::vector<GEMSegment>& segments) const;
   //Look for any hits between the two seed hits consistent with a segment
-  void tryAddingHitsToSegment(const float maxTOF,
-                              const float maxETA,
+  void tryAddingHitsToSegment(const float maxETA,
                               const float maxPhi,
                               const float maxChi2,
                               std::unique_ptr<MuonSegFit>& current_fit,
@@ -117,10 +117,6 @@ private:
   //Produce a new fit
   std::unique_ptr<MuonSegFit> makeFit(const HitAndPositionPtrContainer& proto_segment) const;
 
-  //Is this hit consistent in time with the other hits?
-  bool areHitsConsistentInTime(const float maxTOF,
-                               const HitAndPositionPtrContainer& proto_segment,
-                               const HitAndPosition& h) const;
   //Is this new hit btw the seeds near the segment fit?
   bool isHitNearSegment(const float maxETA,
                         const float maxPHI,

@@ -1,5 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
+# defaults for GE0SegAlgoRU
 RU_GE0 = cms.PSet(
     allowWideSegments = cms.bool(True),
     doCollisions = cms.bool(True),
@@ -12,12 +13,12 @@ RU_GE0 = cms.PSet(
     maxTOFDiff = cms.double(25),
     requireCentralBX = cms.bool(True), #require that a majority of hits come from central BX
     minNumberOfHits = cms.uint32(4),
+    maxNumberOfHits = cms.uint32(300),
+    maxNumberOfHitsPerLayer = cms.uint32(100),
 )
 
 gemSegments = cms.EDProducer("GEMSegmentProducer",
     gemRecHitLabel = cms.InputTag("gemRecHits"),
-    # algo_name = cms.string("GE0SegAlgoRU"),
-    # algo_pset = RU_GE0,
     algo_name = cms.string("GEMSegmentAlgorithm"),
     algo_pset = cms.PSet(
         minHitsPerSegment = cms.uint32(2),
