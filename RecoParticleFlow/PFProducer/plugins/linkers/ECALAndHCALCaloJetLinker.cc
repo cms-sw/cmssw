@@ -33,9 +33,6 @@ double ECALAndHCALCaloJetLinker::testLink(size_t ielem1,
                                           const ElementListConst& elements,
                                           const PFTables& tables,
                                           const reco::PFMultiLinksIndex& multilinks) const {
-  const auto* elem1 = elements[ielem1];
-  const auto* elem2 = elements[ielem2];
-
   size_t ihcal_elem;
   size_t iecal_elem;
 
