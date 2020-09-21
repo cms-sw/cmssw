@@ -309,7 +309,7 @@ GsfElectronProducer::GsfElectronProducer(const edm::ParameterSet& cfg, const Gsf
     inputCfg_.conversions = consumes<reco::ConversionCollection>(cfg.getParameter<edm::InputTag>("conversionsTag"));
 
   strategyCfg_.useDefaultEnergyCorrection = cfg.getParameter<bool>("useDefaultEnergyCorrection");
-  
+
   strategyCfg_.applyPreselection = cfg.getParameter<bool>("applyPreselection");
   strategyCfg_.ecalDrivenEcalEnergyFromClassBasedParameterization =
       cfg.getParameter<bool>("ecalDrivenEcalEnergyFromClassBasedParameterization");
