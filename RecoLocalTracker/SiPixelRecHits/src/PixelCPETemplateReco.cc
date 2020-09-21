@@ -283,8 +283,9 @@ LocalPoint PixelCPETemplateReco::localPosition(DetParam const& theDetParam, Clus
       theClusterParam.templYrec_ = theDetParam.theTopol->localY(theClusterParam.theCluster->y());
     }
   } else if UNLIKELY (UseClusterSplitter_ && theClusterParam.templQbin_ == 0) {
-    cout << " PixelCPETemplateReco : We should never be here !!!!!!!!!!!!!!!!!!!!!!" << endl;
-    cout << "                 (int)UseClusterSplitter_ = " << (int)UseClusterSplitter_ << endl;
+    edm::LogError("PixelCPETemplateReco") << " PixelCPETemplateReco: Qbin = 0 but using cluster splitter, we should "
+                                             "never be here !!!!!!!!!!!!!!!!!!!!!! \n"
+                                          << "(int)UseClusterSplitter_ = " << (int)UseClusterSplitter_ << endl;
 
     //ierr =
     //PixelTempSplit( ID, fpix, cotalpha_, cotbeta_,
@@ -438,9 +439,9 @@ LocalError PixelCPETemplateReco::localError(DetParam const& theDetParam, Cluster
 
   // Check if the errors were already set at the clusters splitting level
   if (theClusterParam.theCluster->getSplitClusterErrorX() > 0.0f &&
-      theClusterParam.theCluster->getSplitClusterErrorX() < 7777.7f &&
+      theClusterParam.theCluster->getSplitClusterErrorX() < clusterSplitMaxError_ &&
       theClusterParam.theCluster->getSplitClusterErrorY() > 0.0f &&
-      theClusterParam.theCluster->getSplitClusterErrorY() < 7777.7f) {
+      theClusterParam.theCluster->getSplitClusterErrorY() < clusterSplitMaxError_) {
     xerr = theClusterParam.theCluster->getSplitClusterErrorX() * micronsToCm;
     yerr = theClusterParam.theCluster->getSplitClusterErrorY() * micronsToCm;
 
