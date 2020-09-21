@@ -560,6 +560,40 @@ DDFilteredView::nav_type DDFilteredView::navPos() const {
   return pos;
 }
 
+const int DDFilteredView::level() const {
+  int level(0);
+  if (not it_.empty()) {
+    level = it_.back().GetLevel();
+  }
+  return level;
+}
+
+bool DDFilteredView::goTo(const nav_type& newpos) {
+  bool result(false);
+
+  // save the current position
+  it_.emplace_back(Iterator(it_.back().GetTopVolume()));
+  Node* node = nullptr;
+
+  // try to navigate down to the newpos
+  for (auto const& i : newpos) {
+    it_.back().SetType(0);
+    node = it_.back().Next();
+    for (int j = 1; j <= i; j++) {
+      it_.back().SetType(1);
+      node = it_.back().Next();
+    }
+  }
+  if (node != nullptr) {
+    node_ = node;
+    result = true;
+  } else {
+    it_.pop_back();
+  }
+
+  return result;
+}
+
 const std::vector<const Node*> DDFilteredView::geoHistory() const {
   std::vector<const Node*> result;
   if (not it_.empty()) {
