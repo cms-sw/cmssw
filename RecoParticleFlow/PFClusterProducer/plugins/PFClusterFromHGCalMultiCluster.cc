@@ -38,20 +38,12 @@ void PFClusterFromHGCalMultiCluster::buildClusters(const edm::Handle<reco::PFRec
         double prob = tracksters_->at(iMultiClus).id_probabilities(cat);
 
         probTotal += prob;
-
-        //printf("Trackster %d: cat %d, prob %0.4f \n", iMultiClus+1, cat, probTotal);
       }
-
-      //printf("Trackster %d: total prob %0.4f \n", iMultiClus+1, probTotal);
 
       if (probTotal < pid_threshold_) {
         continue;
       }
-
-      //printf("Trackster %d: total prob %0.4f \n", iMultiClus+1, probTotal);
     }
-
-    //printf("HGCalMultiCluster %d: E %0.2f, pt %0.2f, eta %+0.2f, phi %+0.2f \n", iMultiClus+1, mcl.energy(), mcl.pt(), mcl.eta(), mcl.phi());
 
     DetId seed;
     double energy = 0.0, highest_energy = 0.0;
@@ -104,6 +96,4 @@ void PFClusterFromHGCalMultiCluster::buildClusters(const edm::Handle<reco::PFRec
       back.setEnergy(0.f);
     }
   }  // end of loop over hgcalMulticlusters (3D)
-
-  printf("In PFClusterFromHGCalMultiCluster: output size %d \n", (int)output.size());
 }
