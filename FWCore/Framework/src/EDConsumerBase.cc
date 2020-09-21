@@ -455,10 +455,11 @@ namespace {
     // Ignore the source products, we are only interested in module products.
     // As far as I know, it should never be anything else so throw if something
     // unknown gets passed in.
-    if (std::string(consumedModuleLabel) != "source") {
+    if (std::string_view(consumedModuleLabel) != "source") {
       throw cms::Exception("EDConsumerBase", "insertFoundModuleLabel")
-          << "Couldn't find ModuleDescription for the consumed module label: " << std::string(consumedModuleLabel)
-          << "\n";
+          << "Couldn't find ModuleDescription for the consumed product type: '" << consumedType.className()
+          << "' module label: '" << consumedModuleLabel << "' product instance name: '" << consumedProductInstance
+          << "'";
     }
   }
 }  // namespace
