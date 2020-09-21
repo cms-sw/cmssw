@@ -28,6 +28,14 @@ from Configuration.Eras.Modifier_pp_on_AA_2018_cff import pp_on_AA_2018
 pp_on_AA_2018.toModify(ecalDrivenGsfElectrons.preselection, minSCEtBarrel = 15.0)
 pp_on_AA_2018.toModify(ecalDrivenGsfElectrons.preselection, minSCEtEndcaps = 15.0)
 
+import FWCore.ParameterSet.Config as cms
+
 ecalDrivenGsfElectronsFromMultiCl = ecalDrivenGsfElectrons.clone(
-  gsfElectronCoresTag = "ecalDrivenGsfElectronCoresFromMultiCl",
+    gsfElectronCoresTag = "ecalDrivenGsfElectronCoresFromMultiCl",
+    
+    useGsfPfRecTracks = cms.bool(False),
+    useDefaultEnergyCorrection = cms.bool(False),
+    ambClustersOverlapStrategy = cms.uint32(0),
+    applyAmbResolution = cms.bool(True),
+    ignoreNotPreselected = cms.bool(False),
 )
