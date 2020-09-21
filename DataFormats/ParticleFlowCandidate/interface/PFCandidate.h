@@ -37,6 +37,7 @@ namespace reco {
      \author Colin Bernet
      \date   February 2007
   */
+
   class PFCandidate : public CompositeCandidate {
   public:
     /// particle types
@@ -405,40 +406,9 @@ namespace reco {
     /// set the fraction of hcal energy as function of depth (index 0..6 for depth 1..7)
     void setHcalDepthEnergyFractions(const std::array<float, 7>& fracs) { hcalDepthEnergyFractions_ = fracs; }
 
-    const math::XYZPoint& vertexLegacy(PFVertexType vertexType) const {
-      std::cout << "vertexLegacy called with " << vertexType << std::endl;
-      switch (vertexType) {
-        case kCandVertex:
-          return LeafCandidate::vertex();
-          break;
-        case kTrkVertex:
-          return trackRef()->vertex();
-          break;
-        case kComMuonVertex:
-          return muonRef()->combinedMuon()->vertex();
-          break;
-        case kSAMuonVertex:
-          return muonRef()->standAloneMuon()->vertex();
-          break;
-        case kTrkMuonVertex:
-          return muonRef()->track()->vertex();
-          break;
-        case kTPFMSMuonVertex:
-          return muonRef()->tpfmsTrack()->vertex();
-          break;
-        case kPickyMuonVertex:
-          return muonRef()->pickyTrack()->vertex();
-          break;
-        case kDYTMuonVertex:
-          return muonRef()->dytTrack()->vertex();
-          break;
+    const math::XYZPoint& vertex() const override;
 
-        case kGSFVertex:
-          return gsfTrackRef()->vertex();
-          break;
-      }
-      return LeafCandidate::vertex();
-    }
+    const math::XYZPoint& vertexLegacy(PFCandidate::PFVertexType vertexType) const;
 
   private:
     /// Polymorphic overlap
@@ -493,6 +463,9 @@ namespace reco {
 
     /// uncertainty on 3-momentum
     float deltaP_;
+
+    //legacy vertex type to read AOD created before PR #31456
+    PFVertexType vertexType_;
 
     // mva for isolated electrons
     float mva_Isolated_;

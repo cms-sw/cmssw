@@ -1,7 +1,7 @@
 <lcgdict>
 
    <class name="reco::PFCandidate" ClassVersion="20">
-    <version ClassVersion="20" checksum="1260609994"/>
+    <version ClassVersion="20" checksum="2990582232"/>
     <version ClassVersion="19" checksum="2990582232"/>
     <version ClassVersion="18" checksum="910857761"/>
     <version ClassVersion="17" checksum="3126170233"/>
@@ -24,9 +24,6 @@
   </ioread>
   <ioread sourceClass = "reco::PFCandidate" version="[1-]" targetClass="reco::PFCandidate" source="std::vector<unsigned long long> refsInfo_" target="refsCollectionCache_">
     <![CDATA[refsCollectionCache_.clear();refsCollectionCache_.resize(onfile.refsInfo_.size(),0); ]]>
-  </ioread>
-  <ioread sourceClass = "reco::PFCandidate" version="[-19]" targetClass="reco::PFCandidate" source="reco::PFCandidate::PFVertexType vertexType_" target="">
-    <![CDATA[newObj->setVertex(newObj->vertexLegacy(onfile.vertexType_));]]>
   </ioread>
 
   <class name="std::vector<reco::PFCandidate>"/>
@@ -56,7 +53,7 @@
   <class name="edm::Wrapper<edm::PtrVector<reco::PFCandidate> >"/>
 
   <class name="reco::IsolatedPFCandidate"  ClassVersion="16">
-   <version ClassVersion="16" checksum="1266825707"/>
+   <version ClassVersion="16" checksum="3042264953"/>
    <version ClassVersion="15" checksum="3042264953"/>
    <version ClassVersion="14" checksum="207328514"/>
    <version ClassVersion="13" checksum="1855164250"/>
@@ -72,7 +69,7 @@
   <class name="reco::IsolatedPFCandidatePtr"/>
 
   <class name="reco::PileUpPFCandidate"  ClassVersion="16">
-   <version ClassVersion="16" checksum="278254000"/>
+   <version ClassVersion="16" checksum="953549166"/>
    <version ClassVersion="15" checksum="953549166"/>
    <version ClassVersion="14" checksum="4065938015"/>
    <version ClassVersion="13" checksum="1734488695"/>
