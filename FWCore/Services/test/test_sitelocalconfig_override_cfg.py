@@ -10,7 +10,11 @@ process.tester = cms.EDAnalyzer("SiteLocalConfigServiceTester",
                             sourceReadHint=cms.untracked.string("direct-unbuffered"),
                             sourceTTreeCacheSize=cms.untracked.uint32(0),
                             sourceNativeProtocols=cms.untracked.vstring("rfio"),
-                            sourceValuesSet=cms.untracked.bool(True)
+                            sourceValuesSet=cms.untracked.bool(True),
+                            expectedUseLocalConnectString = cms.untracked.bool(True),
+                            expectedLocalConnectPrefix = cms.untracked.string("TestOverride:Prefix"),
+                            expectedLocalConnectSuffix = cms.untracked.string("TestOverride.Suffix")
+
 )
 
 process.o = cms.EndPath(process.tester)
@@ -20,4 +24,8 @@ process.add_(cms.Service("SiteLocalConfigService",
                          overrideSourceCacheHintDir=cms.untracked.string("storage-only"),
                          overrideSourceReadHint=cms.untracked.string("direct-unbuffered"),
                          overrideSourceNativeProtocols=cms.untracked.vstring("rfio"),
-                         overrideSourceTTreeCacheSize=cms.untracked.uint32(0)))
+                         overrideSourceTTreeCacheSize=cms.untracked.uint32(0),
+                         overrideUseLocalConnectString = cms.untracked.bool(True),
+                         overrideLocalConnectPrefix = cms.untracked.string("TestOverride:Prefix"),
+                         overrideLocalConnectSuffix = cms.untracked.string("TestOverride.Suffix")
+))
