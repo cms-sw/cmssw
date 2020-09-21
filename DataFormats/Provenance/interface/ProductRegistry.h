@@ -12,6 +12,7 @@
 #include "DataFormats/Provenance/interface/BranchKey.h"
 #include "DataFormats/Provenance/interface/BranchListIndex.h"
 #include "DataFormats/Provenance/interface/BranchType.h"
+#include "FWCore/Utilities/interface/ProductKindOfType.h"
 #include "FWCore/Utilities/interface/ProductResolverIndex.h"
 #include "FWCore/Utilities/interface/get_underlying_safe.h"
 
@@ -122,7 +123,8 @@ namespace edm {
     bool anyProductProduced() const { return transient_.anyProductProduced_; }
 
     // Looks if a (type, moduleLabel, productInstanceName) is an alias to some other branch
-    std::optional<std::string> aliasToModule(TypeID const& type,
+    std::optional<std::string> aliasToModule(KindOfType kindOfType,
+                                             TypeID const& type,
                                              std::string_view moduleLabel,
                                              std::string_view productInstanceName) const;
 
@@ -147,8 +149,8 @@ namespace edm {
 
       std::map<BranchID, ProductResolverIndex> branchIDToIndex_;
 
-      enum { kType, kModuleLabel, kProductInstanceName, kAliasForModuleLabel };
-      std::vector<std::tuple<TypeID, std::string, std::string, std::string>> aliasToOriginal_;
+      enum { kKind, kType, kModuleLabel, kProductInstanceName, kAliasForModuleLabel };
+      std::vector<std::tuple<KindOfType, TypeID, std::string, std::string, std::string>> aliasToOriginal_;
     };
 
   private:
