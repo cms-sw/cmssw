@@ -207,6 +207,13 @@ namespace cms {
     //  the current position in the DDFilteredView
     nav_type navPos() const;
 
+    //! get Iterator level
+    const int level() const;
+
+    //! transversed the DDFilteredView according
+    //  to the given stack of sibling numbers
+    bool goTo(const nav_type&);
+
     //! print Filter paths and selections
     void printFilter() const;
 
