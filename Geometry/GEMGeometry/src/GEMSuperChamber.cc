@@ -40,12 +40,14 @@ const GEMChamber* GEMSuperChamber::chamber(int isl) const {
 
 float GEMSuperChamber::computeDeltaPhi(const LocalPoint& position, const LocalVector& direction) const {
   auto extrap = [](const LocalPoint& point, const LocalVector& dir, double extZ) -> LocalPoint {
+    if (dir.z() == 0)
+      return LocalPoint(0.f, 0.f, extZ);
     double extX = point.x() + extZ * dir.x() / dir.z();
     double extY = point.y() + extZ * dir.y() / dir.z();
     return LocalPoint(extX, extY, extZ);
   };
   if (nChambers() < 2) {
-    return 0;
+    return 0.f;
   }
 
   const float beginOfChamber = chamber(1)->position().z();
