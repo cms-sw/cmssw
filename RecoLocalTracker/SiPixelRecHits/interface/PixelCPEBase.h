@@ -262,6 +262,8 @@ protected:
   static constexpr float bothEdgeXError_ = 31.0f;
   static constexpr float bothEdgeYError_ = 90.0f;
 
+  static constexpr float clusterSplitMaxError_ = 7777.7f;
+
   //---------------------------------------------------------------------------
   //  Geometrical services to subclasses.
   //---------------------------------------------------------------------------

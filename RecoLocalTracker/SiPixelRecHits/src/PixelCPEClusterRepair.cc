@@ -629,9 +629,9 @@ LocalError PixelCPEClusterRepair::localError(DetParam const& theDetParam, Cluste
 
   // Check if the errors were already set at the clusters splitting level
   if (theClusterParam.theCluster->getSplitClusterErrorX() > 0.0f &&
-      theClusterParam.theCluster->getSplitClusterErrorX() < 7777.7f &&
+      theClusterParam.theCluster->getSplitClusterErrorX() < clusterSplitMaxError_ &&
       theClusterParam.theCluster->getSplitClusterErrorY() > 0.0f &&
-      theClusterParam.theCluster->getSplitClusterErrorY() < 7777.7f) {
+      theClusterParam.theCluster->getSplitClusterErrorY() < clusterSplitMaxError_) {
     xerr = theClusterParam.theCluster->getSplitClusterErrorX() * micronsToCm;
     yerr = theClusterParam.theCluster->getSplitClusterErrorY() * micronsToCm;
 
