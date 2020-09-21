@@ -46,6 +46,9 @@ TEST_CASE("Test SiteLocalConfigService", "[sitelocalconfig]") {
     CHECK(slc.statisticsInfo()->size() == 1);
     CHECK(slc.statisticsInfo()->find("dn") != slc.statisticsInfo()->end());
     CHECK(slc.siteName() == "DUMMY");
+    REQUIRE(slc.useLocalConnectString() == true);
+    REQUIRE(slc.localConnectPrefix() == "Test:Prefix");
+    REQUIRE(slc.localConnectSuffix() == "Test.Suffix");
   }
 
   SECTION("overrides") {
@@ -63,6 +66,9 @@ TEST_CASE("Test SiteLocalConfigService", "[sitelocalconfig]") {
     pset.addUntrackedParameter<bool>("overridePrefetching", false);
     pset.addUntrackedParameter<std::string>("overrideStatisticsDestination", "");
     pset.addUntrackedParameter<std::vector<std::string> >("overrideStatisticsInfo", {{"nodn"}});
+    pset.addUntrackedParameter<bool>("overrideUseLocalConnectString", false);
+    pset.addUntrackedParameter<std::string>("overrideLocalConnectPrefix", "OverridePrefix");
+    pset.addUntrackedParameter<std::string>("overrideLocalConnectSuffix", "OverrideSuffix");
 
     edm::service::SiteLocalConfigService slc(pset);
 
@@ -90,5 +96,8 @@ TEST_CASE("Test SiteLocalConfigService", "[sitelocalconfig]") {
     CHECK(slc.statisticsInfo()->size() == 1);
     CHECK(slc.statisticsInfo()->find("nodn") != slc.statisticsInfo()->end());
     CHECK(slc.siteName() == "DUMMY");
+    REQUIRE(slc.useLocalConnectString() == false);
+    REQUIRE(slc.localConnectPrefix() == "OverridePrefix");
+    REQUIRE(slc.localConnectSuffix() == "OverrideSuffix");
   }
 }
