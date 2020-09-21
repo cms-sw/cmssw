@@ -196,7 +196,7 @@ unsigned int CaloGeometryLoader<T>::getDetIdForDD4HepNode(const cms::DDFilteredV
   // get the parents and grandparents of this node
 
   const std::string path(fv.path());
-  auto psize = fv.copyNos().size();
+  auto psize = fv.level();
 
   EcalBaseNumber baseNumber;
   baseNumber.setSize(psize);
