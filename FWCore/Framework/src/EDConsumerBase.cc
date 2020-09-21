@@ -428,7 +428,8 @@ namespace {
 }  // namespace
 
 namespace {
-  void insertFoundModuleLabel(edm::TypeID consumedType,
+  void insertFoundModuleLabel(edm::KindOfType consumedTypeKind,
+                              edm::TypeID consumedType,
                               const char* consumedModuleLabel,
                               const char* consumedProductInstance,
                               std::vector<ModuleDescription const*>& modules,
@@ -444,7 +445,8 @@ namespace {
       return;
     }
     // Deal with EDAlias's by converting to the original module label first
-    if (auto aliasToModuleLabel = preg.aliasToModule(consumedType, consumedModuleLabel, consumedProductInstance)) {
+    if (auto aliasToModuleLabel =
+            preg.aliasToModule(consumedTypeKind, consumedType, consumedModuleLabel, consumedProductInstance)) {
       if (auto it = labelsToDesc.find(*aliasToModuleLabel); it != labelsToDesc.end()) {
         if (alreadyFound.insert(consumedModuleLabel).second) {
           modules.push_back(it->second);
@@ -488,14 +490,21 @@ void EDConsumerBase::modulesWhoseProductsAreConsumed(std::vector<ModuleDescripti
               iHelper.index(
                   *itKind, itInfo->m_type, consumedModuleLabel, consumedProductInstance, consumedProcessName) !=
                   ProductResolverIndexInvalid) {
-            insertFoundModuleLabel(
-                itInfo->m_type, consumedModuleLabel, consumedProductInstance, modules, alreadyFound, labelsToDesc, preg);
+            insertFoundModuleLabel(*itKind,
+                                   itInfo->m_type,
+                                   consumedModuleLabel,
+                                   consumedProductInstance,
+                                   modules,
+                                   alreadyFound,
+                                   labelsToDesc,
+                                   preg);
           }
         } else {  // process name was empty
           auto matches = iHelper.relatedIndexes(*itKind, itInfo->m_type, consumedModuleLabel, consumedProductInstance);
           for (unsigned int j = 0; j < matches.numberOfMatches(); ++j) {
             if (processName == matches.processName(j)) {
-              insertFoundModuleLabel(itInfo->m_type,
+              insertFoundModuleLabel(*itKind,
+                                     itInfo->m_type,
                                      consumedModuleLabel,
                                      consumedProductInstance,
                                      modules,
@@ -510,7 +519,8 @@ void EDConsumerBase::modulesWhoseProductsAreConsumed(std::vector<ModuleDescripti
         auto matches = iHelper.relatedIndexes(*itKind, itInfo->m_type);
         for (unsigned int j = 0; j < matches.numberOfMatches(); ++j) {
           if (processName == matches.processName(j)) {
-            insertFoundModuleLabel(itInfo->m_type,
+            insertFoundModuleLabel(*itKind,
+                                   itInfo->m_type,
                                    matches.moduleLabel(j),
                                    matches.productInstanceName(j),
                                    modules,

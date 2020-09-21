@@ -115,7 +115,7 @@ namespace edm {
     std::pair<ProductList::iterator, bool> ret = productList_.insert(std::make_pair(BranchKey(bd), bd));
     assert(ret.second);
     transient_.aliasToOriginal_.emplace_back(
-        productDesc.unwrappedTypeID(), labelAlias, instanceAlias, productDesc.moduleLabel());
+        PRODUCT_TYPE, productDesc.unwrappedTypeID(), labelAlias, instanceAlias, productDesc.moduleLabel());
     addCalled(bd, false);
   }
 
@@ -458,6 +458,51 @@ namespace edm {
     }
     checkDictionariesOfConsumedTypes(
         productTypesConsumed, elementTypesConsumed, containedTypeMap, containedTypeToBaseTypesMap);
+
+    // Add contained types for all EDAliases
+    std::vector<decltype(transient_.aliasToOriginal_)::value_type> elementAliases;
+    for (auto& item : transient_.aliasToOriginal_) {
+      auto iterContainedType = containedTypeMap.find(std::get<Transients::kType>(item));
+      if (iterContainedType == containedTypeMap.end()) {
+        edm::Exception ex(errors::LogicError);
+        ex << "containedTypeMap did not contain " << std::get<Transients::kType>(item).className()
+           << " that is used in EDAlias " << std::get<Transients::kModuleLabel>(item)
+           << ".\nThis should not happen, contact framework developers";
+        ex.addContext("Calling ProductRegistry::initializeLookupTables()");
+        throw ex;
+      }
+      auto const& containedTypeID = iterContainedType->second;
+      bool const hasContainedType = (containedTypeID != TypeID(typeid(void)) && containedTypeID != TypeID());
+      if (not hasContainedType) {
+        continue;
+      }
+
+      if (elementTypesConsumed->find(containedTypeID) != elementTypesConsumed->end()) {
+        elementAliases.emplace_back(ELEMENT_TYPE,
+                                    containedTypeID,
+                                    std::get<Transients::kModuleLabel>(item),
+                                    std::get<Transients::kProductInstanceName>(item),
+                                    std::get<Transients::kAliasForModuleLabel>(item));
+      }
+
+      auto iterBaseTypes = containedTypeToBaseTypesMap.find(containedTypeID);
+      if (iterBaseTypes == containedTypeToBaseTypesMap.end()) {
+        continue;
+      }
+      for (TypeWithDict const& baseType : iterBaseTypes->second) {
+        TypeID baseTypeID(baseType.typeInfo());
+        if (elementTypesConsumed->find(baseTypeID) != elementTypesConsumed->end()) {
+          elementAliases.emplace_back(ELEMENT_TYPE,
+                                      baseTypeID,
+                                      std::get<Transients::kModuleLabel>(item),
+                                      std::get<Transients::kProductInstanceName>(item),
+                                      std::get<Transients::kAliasForModuleLabel>(item));
+        }
+      }
+    }
+    transient_.aliasToOriginal_.insert(transient_.aliasToOriginal_.end(),
+                                       std::make_move_iterator(elementAliases.begin()),
+                                       std::make_move_iterator(elementAliases.end()));
   }
 
   void ProductRegistry::checkDictionariesOfConsumedTypes(
@@ -559,20 +604,23 @@ namespace edm {
     return itFind->second;
   }
 
-  std::optional<std::string> ProductRegistry::aliasToModule(TypeID const& type,
+  std::optional<std::string> ProductRegistry::aliasToModule(KindOfType kindOfType,
+                                                            TypeID const& type,
                                                             std::string_view moduleLabel,
                                                             std::string_view productInstanceName) const {
-    auto found = std::lower_bound(transient_.aliasToOriginal_.begin(),
-                                  transient_.aliasToOriginal_.end(),
-                                  std::tuple(type, moduleLabel, productInstanceName),
-                                  [](auto const& item, auto const& target) {
-                                    return std::tie(std::get<Transients::kType>(item),
-                                                    std::get<Transients::kModuleLabel>(item),
-                                                    std::get<Transients::kProductInstanceName>(item)) < target;
-                                  });
-    if (found == transient_.aliasToOriginal_.end() or std::get<Transients::kType>(*found) != type or
-        std::get<Transients::kModuleLabel>(*found) != moduleLabel or
-        std::get<Transients::kProductInstanceName>(*found) != productInstanceName) {
+    auto aliasFields = [](auto const& item) {
+      return std::tie(std::get<Transients::kKind>(item),
+                      std::get<Transients::kType>(item),
+                      std::get<Transients::kModuleLabel>(item),
+                      std::get<Transients::kProductInstanceName>(item));
+    };
+    auto const target = std::tuple(kindOfType, type, moduleLabel, productInstanceName);
+    auto found =
+        std::lower_bound(transient_.aliasToOriginal_.begin(),
+                         transient_.aliasToOriginal_.end(),
+                         target,
+                         [aliasFields](auto const& item, auto const& target) { return aliasFields(item) < target; });
+    if (found == transient_.aliasToOriginal_.end() or aliasFields(*found) != target) {
       return std::nullopt;
     }
     return std::get<Transients::kAliasForModuleLabel>(*found);
