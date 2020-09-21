@@ -319,7 +319,7 @@ trackerDict = {
         "reco" : [
             'from Geometry.CommonTopologies.globalTrackingGeometry_cfi import *',
             'from RecoTracker.GeometryESProducer.TrackerRecoGeometryESProducer_cfi import *',
-            'from Geometry.TrackerGeometryBuilder.trackerParameters_cfi import *',
+            'from Geometry.TrackerGeometryBuilder.trackerParameters_cff import *',
             'from Geometry.TrackerNumberingBuilder.trackerTopology_cfi import *',
             'from Geometry.TrackerGeometryBuilder.idealForDigiTrackerGeometry_cff import *',
             'trackerGeometry.applyAlignment = cms.bool(False)',
@@ -521,7 +521,7 @@ trackerDict = {
         "reco" : [
             'from Geometry.CommonTopologies.globalTrackingGeometry_cfi import *',
             'from RecoTracker.GeometryESProducer.TrackerRecoGeometryESProducer_cfi import *',
-            'from Geometry.TrackerGeometryBuilder.trackerParameters_cfi import *',
+            'from Geometry.TrackerGeometryBuilder.trackerParameters_cff import *',
             'from Geometry.TrackerNumberingBuilder.trackerTopology_cfi import *',
             'from Geometry.TrackerGeometryBuilder.idealForDigiTrackerGeometry_cff import *',
             'trackerGeometry.applyAlignment = cms.bool(False)',
@@ -724,7 +724,7 @@ trackerDict = {
         "reco" : [
             'from Geometry.CommonTopologies.globalTrackingGeometry_cfi import *',
             'from RecoTracker.GeometryESProducer.TrackerRecoGeometryESProducer_cfi import *',
-            'from Geometry.TrackerGeometryBuilder.trackerParameters_cfi import *',
+            'from Geometry.TrackerGeometryBuilder.trackerParameters_cff import *',
             'from Geometry.TrackerNumberingBuilder.trackerTopology_cfi import *',
             'from Geometry.TrackerGeometryBuilder.idealForDigiTrackerGeometry_cff import *',
             'trackerGeometry.applyAlignment = cms.bool(False)',
@@ -926,7 +926,7 @@ trackerDict = {
         "reco" : [
             'from Geometry.CommonTopologies.globalTrackingGeometry_cfi import *',
             'from RecoTracker.GeometryESProducer.TrackerRecoGeometryESProducer_cfi import *',
-            'from Geometry.TrackerGeometryBuilder.trackerParameters_cfi import *',
+            'from Geometry.TrackerGeometryBuilder.trackerParameters_cff import *',
             'from Geometry.TrackerNumberingBuilder.trackerTopology_cfi import *',
             'from Geometry.TrackerGeometryBuilder.idealForDigiTrackerGeometry_cff import *',
             'trackerGeometry.applyAlignment = cms.bool(False)',
