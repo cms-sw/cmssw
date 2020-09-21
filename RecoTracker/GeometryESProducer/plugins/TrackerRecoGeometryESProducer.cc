@@ -46,6 +46,7 @@ TrackerRecoGeometryESProducer::TrackerRecoGeometryESProducer(const edm::Paramete
   tTopToken_ = c.consumes();
   geomToken_ = c.consumes(edm::ESInputTag("", p.getUntrackedParameter<std::string>("trackerGeometryLabel")));
 }
+
 std::unique_ptr<GeometricSearchTracker> TrackerRecoGeometryESProducer::produce(
     const TrackerRecoGeometryRecord &iRecord) {
   TrackerGeometry const &tG = iRecord.get(geomToken_);
