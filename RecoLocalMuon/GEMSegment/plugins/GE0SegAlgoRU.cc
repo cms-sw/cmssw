@@ -100,13 +100,13 @@ std::vector<GEMSegment> GE0SegAlgoRU::run(const GEMSuperChamber* chamber, const 
   GEMDetId chId(chamber->id());
   edm::LogVerbatim("GE0SegAlgoRU") << "[GEMSegmentAlgorithm::run] build segments in chamber " << chId
                                    << " which contains " << rechits.size() << " rechits";
-  for (const auto & h : rechits) {
+  for (const auto& h : rechits) {
     auto ge0id = h.rh->gemId();
     auto rhLP = h.lp;
     edm::LogVerbatim("GE0SegAlgoRU") << "[RecHit :: Loc x = " << std::showpos << std::setw(9) << rhLP.x()
                                      << " Glb y = " << std::showpos << std::setw(9) << rhLP.y()
-                                     << " Time = " << std::showpos << h.rh->BunchX() << " -- "
-                                     << ge0id.rawId() << " = " << ge0id << " ]" << std::endl;
+                                     << " Time = " << std::showpos << h.rh->BunchX() << " -- " << ge0id.rawId() << " = "
+                                     << ge0id << " ]" << std::endl;
   }
 #endif
 
@@ -117,7 +117,7 @@ std::vector<GEMSegment> GE0SegAlgoRU::run(const GEMSuperChamber* chamber, const 
   theChamber = chamber;
 
   std::vector<unsigned int> recHits_per_layer(theChamber->nChambers(), 0);
-  for (const auto & rechit : rechits) {
+  for (const auto& rechit : rechits) {
     recHits_per_layer[rechit.layer - 1]++;
   }
 
@@ -341,8 +341,7 @@ void GE0SegAlgoRU::addUniqueSegments(SegmentByMetricContainer& proto_segments,
                     current_fit->covarianceMatrix(),
                     current_fit->chi2(),
                     averageBX,
-                    dPhi
-    );
+                    dPhi);
     segments.push_back(temp);
   }
 }
