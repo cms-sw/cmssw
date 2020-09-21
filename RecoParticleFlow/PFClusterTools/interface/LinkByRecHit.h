@@ -117,6 +117,15 @@ public:
   static double testHFEMAndHFHADByRecHit(const reco::PFCluster& clusterHFEM,
                                          const reco::PFCluster& clusterHFHAD,
                                          bool debug = false);
+
+  static double testHFEMAndHFHADByRecHit(size_t icluster_em,
+                                         size_t icluster_had,
+                                         edm::soa::TableView<edm::soa::col::pf::cluster::Posx,
+                                                             edm::soa::col::pf::cluster::Posy,
+                                                             edm::soa::col::pf::cluster::Posz> cluster_em_table,
+                                         edm::soa::TableView<edm::soa::col::pf::cluster::Posx,
+                                                             edm::soa::col::pf::cluster::Posy,
+                                                             edm::soa::col::pf::cluster::Posz> cluster_had_table);
 };
 
 #endif

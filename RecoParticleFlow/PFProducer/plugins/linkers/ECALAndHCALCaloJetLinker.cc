@@ -3,6 +3,8 @@
 #include "DataFormats/ParticleFlowReco/interface/PFBlockElementCluster.h"
 #include "RecoParticleFlow/PFClusterTools/interface/LinkByRecHit.h"
 
+using namespace edm::soa::col;
+
 class ECALAndHCALCaloJetLinker : public BlockElementLinkerBase {
 public:
   ECALAndHCALCaloJetLinker(const edm::ParameterSet& conf)
@@ -33,30 +35,29 @@ double ECALAndHCALCaloJetLinker::testLink(size_t ielem1,
                                           const reco::PFMultiLinksIndex& multilinks) const {
   const auto* elem1 = elements[ielem1];
   const auto* elem2 = elements[ielem2];
-  const reco::PFBlockElementCluster *hcalelem(nullptr), *ecalelem(nullptr);
+
+  size_t ihcal_elem;
+  size_t iecal_elem;
+
   double dist(-1.0);
   if (type1 < type2) {
-    ecalelem = static_cast<const reco::PFBlockElementCluster*>(elem1);
-    hcalelem = static_cast<const reco::PFBlockElementCluster*>(elem2);
+    ihcal_elem = ielem1;
+    iecal_elem = ielem2;
   } else {
-    ecalelem = static_cast<const reco::PFBlockElementCluster*>(elem2);
-    hcalelem = static_cast<const reco::PFBlockElementCluster*>(elem1);
+    ihcal_elem = ielem2;
+    iecal_elem = ielem1;
   }
-  const reco::PFClusterRef& ecalref = ecalelem->clusterRef();
-  const reco::PFClusterRef& hcalref = hcalelem->clusterRef();
-  const reco::PFCluster::REPPoint& ecalreppos = ecalref->positionREP();
-  if (hcalref.isNull() || ecalref.isNull()) {
-    throw cms::Exception("BadClusterRefs") << "PFBlockElementCluster's refs are null!";
-  }
-  //dist = ( std::abs(ecalreppos.Eta()) > 2.5 ?
-  //	   LinkByRecHit::computeDist( ecalreppos.Eta(),
-  //				      ecalreppos.Phi(),
-  // 				      hcalref->positionREP().Eta(),
-  //				      hcalref->positionREP().Phi() )
-  //	   : -1.0 );
-  // return (dist < 0.2 ? dist : -1.0);
-  dist = LinkByRecHit::computeDist(
-      ecalreppos.Eta(), ecalreppos.Phi(), hcalref->positionREP().Eta(), hcalref->positionREP().Phi());
+
+  size_t ihcal = tables.clusters_hcal_.element_to_cluster_[ihcal_elem];
+  size_t iecal = tables.clusters_ecal_.element_to_cluster_[iecal_elem];
+
+  const auto ecal_eta = tables.clusters_ecal_.cluster_table_.get<pf::cluster::Eta>(iecal);
+  const auto ecal_phi = tables.clusters_ecal_.cluster_table_.get<pf::cluster::Phi>(iecal);
+
+  const auto hcal_eta = tables.clusters_hcal_.cluster_table_.get<pf::cluster::Eta>(ihcal);
+  const auto hcal_phi = tables.clusters_hcal_.cluster_table_.get<pf::cluster::Phi>(ihcal);
+
+  dist = LinkByRecHit::computeDist(ecal_eta, ecal_phi, hcal_eta, hcal_phi);
 
   return (dist < 0.2 ? dist : -1.0);
 }

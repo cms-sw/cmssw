@@ -31,20 +31,19 @@ double HFEMAndHFHADLinker::testLink(size_t ielem1,
                                     const ElementListConst& elements,
                                     const PFTables& tables,
                                     const reco::PFMultiLinksIndex& multilinks) const {
-  const auto* elem1 = elements[ielem1];
-  const auto* elem2 = elements[ielem2];
-  const reco::PFBlockElementCluster *hfemelem(nullptr), *hfhadelem(nullptr);
+  size_t ihfem_elem = 0;
+  size_t ihfhad_elem = 0;
+
   if (type1 < type2) {
-    hfemelem = static_cast<const reco::PFBlockElementCluster*>(elem1);
-    hfhadelem = static_cast<const reco::PFBlockElementCluster*>(elem2);
+    ihfem_elem = ielem1;
+    ihfhad_elem = ielem2;
   } else {
-    hfemelem = static_cast<const reco::PFBlockElementCluster*>(elem2);
-    hfhadelem = static_cast<const reco::PFBlockElementCluster*>(elem1);
+    ihfem_elem = ielem2;
+    ihfhad_elem = ielem1;
   }
-  const reco::PFClusterRef& hfemref = hfemelem->clusterRef();
-  const reco::PFClusterRef& hfhadref = hfhadelem->clusterRef();
-  if (hfemref.isNull() || hfhadref.isNull()) {
-    throw cms::Exception("BadClusterRefs") << "PFBlockElementCluster's refs are null!";
-  }
-  return LinkByRecHit::testHFEMAndHFHADByRecHit(*hfemref, *hfhadref, debug_);
+  size_t ihfem = tables.clusters_hfem_.element_to_cluster_[ihfem_elem];
+  size_t ihfhad = tables.clusters_hfhad_.element_to_cluster_[ihfhad_elem];
+
+  return LinkByRecHit::testHFEMAndHFHADByRecHit(
+      ihfem, ihfhad, tables.clusters_hfem_.cluster_table_, tables.clusters_hfhad_.cluster_table_);
 }

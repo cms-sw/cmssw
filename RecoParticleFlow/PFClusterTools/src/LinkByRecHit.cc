@@ -856,6 +856,34 @@ double LinkByRecHit::testHFEMAndHFHADByRecHit(const reco::PFCluster& clusterHFEM
     return -1.;
 }
 
+double LinkByRecHit::testHFEMAndHFHADByRecHit(size_t icluster_em,
+                                              size_t icluster_had,
+                                              edm::soa::TableView<edm::soa::col::pf::cluster::Posx,
+                                                                  edm::soa::col::pf::cluster::Posy,
+                                                                  edm::soa::col::pf::cluster::Posz> cluster_em_table,
+                                              edm::soa::TableView<edm::soa::col::pf::cluster::Posx,
+                                                                  edm::soa::col::pf::cluster::Posy,
+                                                                  edm::soa::col::pf::cluster::Posz> cluster_had_table) {
+  double sameZ =
+      cluster_em_table.get<pf::cluster::Posz>(icluster_em) * cluster_had_table.get<pf::cluster::Posz>(icluster_had);
+  if (sameZ < 0)
+    return -1.;
+
+  double dX =
+      cluster_em_table.get<pf::cluster::Posx>(icluster_em) - cluster_had_table.get<pf::cluster::Posx>(icluster_had);
+  double dY =
+      cluster_em_table.get<pf::cluster::Posy>(icluster_em) - cluster_had_table.get<pf::cluster::Posy>(icluster_had);
+
+  double dist2 = dX * dX + dY * dY;
+
+  if (dist2 < 0.1) {
+    // less than one mm
+    double dist = sqrt(dist2);
+    return dist;
+  } else
+    return -1.;
+}
+
 double LinkByRecHit::computeDist(double eta1, double phi1, double eta2, double phi2, bool etaPhi) {
   auto phicor = etaPhi ? normalizedPhi(phi1 - phi2) : phi1 - phi2;
   auto etadiff = eta1 - eta2;
