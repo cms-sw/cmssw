@@ -49,6 +49,9 @@ _hgcalMultiClusterMapper_HGCal = cms.PSet(
     thresholdsByDetector = cms.VPSet(
     ),
     
+    #clusterSrc = cms.InputTag("hgcalMultiClusters"),
+    #clusterSrc = cms.InputTag("multiClustersFromTrackstersEM"),
+    #clusterSrc = cms.InputTag("ticlMultiClustersFromTrackstersEM"),
     clusterSrc = cms.InputTag("ticlMultiClustersFromTrackstersMerge"),
     
     tracksterSrc = cms.InputTag("ticlTrackstersMerge"),
