@@ -37,7 +37,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/StreamID.h"
 
-#include "RecoEgamma/EgammaTools/interface/EffectiveAreas.h"
+#include "CommonTools/Egamma/interface/EffectiveAreas.h"
 
 #include "DataFormats/NanoAOD/interface/FlatTable.h"
 #include "DataFormats/Common/interface/ValueMap.h"
@@ -81,9 +81,9 @@ public:
     float energy = info->energy();
 
     auto out = std::make_unique<nanoaod::FlatTable>(1,"LHCInfo",true);
-    out->addColumnValue<float>("crossingAngle", crossingAngle, "LHC crossing angle", nanoaod::FlatTable::FloatColumn,precision_);
-    out->addColumnValue<float>("betaStar",betaStar,"LHC beta star", nanoaod::FlatTable::FloatColumn,precision_);
-    out->addColumnValue<float>("energy",energy,"LHC beam energy", nanoaod::FlatTable::FloatColumn,precision_);
+    out->addColumnValue<float>("crossingAngle", crossingAngle, "LHC crossing angle",precision_);
+    out->addColumnValue<float>("betaStar",betaStar,"LHC beta star",precision_);
+    out->addColumnValue<float>("energy",energy,"LHC beam energy",precision_);
     return out;
   }
 
