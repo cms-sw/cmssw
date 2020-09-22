@@ -35,13 +35,13 @@ namespace trackerDTC {
   };
 
   ProducerES::ProducerES(const ParameterSet& iConfig) : iConfig_(iConfig) {
-    setWhatProduced(this)
-        .setConsumes(getTokenTTStubAlgorithm_)
-        .setConsumes(getTokenMagneticField_)
-        .setConsumes(getTokenTrackerGeometry_)
-        .setConsumes(getTokenTrackerTopology_)
-        .setConsumes(getTokenCablingMap_)
-        .setConsumes(getTokenGeometryConfiguration_);
+    auto cc = setWhatProduced(this);
+    getTokenTTStubAlgorithm_ = cc.consumes();
+    getTokenMagneticField_ = cc.consumes();
+    getTokenTrackerGeometry_ = cc.consumes();
+    getTokenTrackerTopology_ = cc.consumes();
+    getTokenCablingMap_ = cc.consumes();
+    getTokenGeometryConfiguration_ = cc.consumes();
   }
 
   unique_ptr<Setup> ProducerES::produce(const SetupRcd& setupRcd) {
