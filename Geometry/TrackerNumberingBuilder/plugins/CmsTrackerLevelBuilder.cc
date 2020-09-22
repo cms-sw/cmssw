@@ -137,31 +137,65 @@ bool CmsTrackerLevelBuilderHelper::isLessRModule(const GeometricDet* a, const Ge
 
 bool CmsTrackerLevelBuilderHelper::isLessR(const GeometricDet* a, const GeometricDet* b) { return a->rho() < b->rho(); }
 
-template <class FilteredView>
-void CmsTrackerLevelBuilder<FilteredView>::build(FilteredView& fv,
-                                                 GeometricDet* tracker,
-                                                 const std::string& attribute) {
-  edm::LogVerbatim("TrackerGeometryBuilder") << "CmsTrackerLevelBuilder::build "
-                                             << " Building: " << fv.geoHistory();
 
-  edm::LogVerbatim("TrackerGeometryBuilder") << ExtractStringFromDDD<FilteredView>::getString(attribute, &fv) << " "
-                                             << tracker->type() << " " << tracker->name() << std::endl;
+template <>
+void CmsTrackerLevelBuilder<DDFilteredView>::build(DDFilteredView& fv,
+						   GeometricDet* tracker,
+						   const std::string& attribute) {
 
+  std::cout << "CmsTrackerLevelBuilder<FilteredView>::build " << "tracker->name() = " << tracker->name() 
+	    << " tracker->path() = "  << fv.geoHistory()
+	    << " tracker->type() = " << tracker->type() << std::endl;
   bool doLayers = fv.firstChild();  // descend to the first Layer
+  std::cout << "called first child "  << std::endl;
 
+  std::cout << "OUTSIDE while" << std::endl;
   while (doLayers) {
+    std::cout << "CmsTrackerLevelBuilder::build INSIDE while "  << std::endl;
     buildComponent(fv, tracker, attribute);
-    if constexpr (std::is_same_v<FilteredView, DDFilteredView>) {
-      edm::LogVerbatim("TrackerGeometryBuilder") << "CmsTrackerLevelbuilder<DDFilteredView>::build" << fv.geoHistory();
-      doLayers = fv.nextSibling();
-    } else if constexpr (std::is_same_v<FilteredView, cms::DDFilteredView>) {
-      edm::LogVerbatim("TrackerGeometryBuilder")
-          << "CmsTrackerLevelbuilder<cms::DDFilteredView>::build" << fv.geoHistory();
-      doLayers = fv.firstChild();
-    }
+   
+    doLayers = fv.nextSibling();
+    std::cout << "called next sibling"  << std::endl;
   }
 
   fv.parent();
+  std::cout << "called parent"  << std::endl;
+
+  sortNS(fv, tracker);
+
+  std::cout << "CmsTrackerLevelBuilder::build   QUITTED loop."  << std::endl;
+  std::cout << "CmsTrackerLevelBuilder::build  END finished calls on all buildComponents" << std::endl;
+}
+
+
+template <>
+void CmsTrackerLevelBuilder<cms::DDFilteredView>::build(cms::DDFilteredView& fv,
+							GeometricDet* tracker,
+							const std::string& attribute) {
+
+  std::cout << "CmsTrackerLevelBuilder::build START " << "tracker->name() = " << tracker->name() 
+	    << " tracker->path() = "  << fv.geoHistory()
+	    << " tracker->type() = " << tracker->type() << std::endl;
+
+  fv.firstChild();
+  std::cout << "CmsTrackerLevelBuilder::build  called first child "  << std::endl;
+
+  const int level = fv.level(); 
+  const std::string type = ExtractStringFromDDD<cms::DDFilteredView>::getString(attribute, &fv);
+  std::cout << "OUTSIDE while, level = " << level << " type = " << type << std::endl;
+
+  while (fv.level() == level) {
+    
+    std::cout << "INSIDE while, before builCompo,  level = " << level << " fv.level() = " << fv.level()<< " type = " << type << " fv.type() = " << ExtractStringFromDDD<cms::DDFilteredView>::getString(attribute, &fv) << std::endl;
+
+    buildComponent(fv, tracker, attribute);
+
+    std::cout << "INSIDE while, after builCompo, level = " << level << " fv.level() = " << fv.level()<< " type = " << type << " fv.type() = " << ExtractStringFromDDD<cms::DDFilteredView>::getString(attribute, &fv) << std::endl;
+
+  }
+
+  std::cout << "CmsTrackerLevelBuilder::build   QUITTED loop.   level = " << level << " fv.level() = " << fv.level()<< " type = " << type << " fv.type() = " << ExtractStringFromDDD<cms::DDFilteredView>::getString(attribute, &fv)  << std::endl;
+  std::cout << "CmsTrackerLevelBuilder::build  END finished calls on all buildComponents" << std::endl;
 
   sortNS(fv, tracker);
 }
