@@ -5,6 +5,7 @@ from Configuration.Eras.Modifier_fastSim_cff import fastSim
 
 #for dnn classifier
 from Configuration.ProcessModifiers.trackdnn_cff import trackdnn
+from dnnQualityCuts import qualityCutDictionary
 
 # NEW CLUSTERS (remove previously used clusters)
 lowPtTripletStepClusters = _cfg.clusterRemoverForIter('LowPtTripletStep')
@@ -280,11 +281,11 @@ trackingPhase1.toReplaceWith(lowPtTripletStep, lowPtTripletStep.clone(
      qualityCuts = [-0.4,0.0,0.3],
 ))
 
-from RecoTracker.FinalTrackSelectors.TrackLwtnnClassifier_cfi import *
-from RecoTracker.FinalTrackSelectors.trackSelectionLwtnn_cfi import *
-trackdnn.toReplaceWith(lowPtTripletStep, TrackLwtnnClassifier.clone(
-    src         = 'lowPtTripletStepTracks',
-    qualityCuts = [0.2, 0.5, 0.8]
+from RecoTracker.FinalTrackSelectors.TrackTfClassifier_cfi import *
+from RecoTracker.FinalTrackSelectors.trackSelectionTf_cfi import *
+trackdnn.toReplaceWith(lowPtTripletStep, TrackTfClassifier.clone(
+    src = 'lowPtTripletStepTracks',
+    qualityCuts = qualityCutDictionary['LowPtTripletStep']
 ))
 
 highBetaStar_2018.toModify(lowPtTripletStep,qualityCuts = [-0.7,-0.3,-0.1])

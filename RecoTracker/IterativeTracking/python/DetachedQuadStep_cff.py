@@ -4,6 +4,7 @@ from Configuration.Eras.Modifier_fastSim_cff import fastSim
 
 #for dnn classifier
 from Configuration.ProcessModifiers.trackdnn_cff import trackdnn
+from dnnQualityCuts import qualityCutDictionary
 
 ###############################################
 # Low pT and detached tracks from pixel quadruplets
@@ -212,11 +213,11 @@ detachedQuadStep = TrackMVAClassifierDetached.clone(
     qualityCuts = [-0.5,0.0,0.5]
 )
 
-from RecoTracker.FinalTrackSelectors.TrackLwtnnClassifier_cfi import *
-from RecoTracker.FinalTrackSelectors.trackSelectionLwtnn_cfi import *
-trackdnn.toReplaceWith(detachedQuadStep, TrackLwtnnClassifier.clone(
-    src         = 'detachedQuadStepTracks',
-    qualityCuts = [-0.6, 0.05, 0.7]
+from RecoTracker.FinalTrackSelectors.TrackTfClassifier_cfi import *
+from RecoTracker.FinalTrackSelectors.trackSelectionTf_cfi import *
+trackdnn.toReplaceWith(detachedQuadStep, TrackTfClassifier.clone(
+    src = 'detachedQuadStepTracks',
+    qualityCuts = qualityCutDictionary['DetachedQuadStep']
 ))
 
 highBetaStar_2018.toModify(detachedQuadStep,qualityCuts = [-0.7,0.0,0.5])

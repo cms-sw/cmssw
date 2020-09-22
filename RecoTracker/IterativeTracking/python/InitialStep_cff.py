@@ -4,6 +4,7 @@ from Configuration.Eras.Modifier_fastSim_cff import fastSim
 
 #for dnn classifier
 from Configuration.ProcessModifiers.trackdnn_cff import trackdnn
+from dnnQualityCuts import qualityCutDictionary
 
 ### STEP 0 ###
 
@@ -318,13 +319,14 @@ trackingPhase1.toReplaceWith(initialStep, initialStepClassifier1.clone(
      qualityCuts = [-0.95,-0.85,-0.75]
 ))
 
-from RecoTracker.FinalTrackSelectors.TrackLwtnnClassifier_cfi import *
-from RecoTracker.FinalTrackSelectors.trackSelectionLwtnn_cfi import *
-trackdnn.toReplaceWith(initialStep, TrackLwtnnClassifier.clone(
-        src         = 'initialStepTracks',
-        qualityCuts = [0.0, 0.3, 0.6]
+from RecoTracker.FinalTrackSelectors.TrackTfClassifier_cfi import *
+from RecoTracker.FinalTrackSelectors.trackSelectionTf_cfi import *
+trackdnn.toReplaceWith(initialStep, TrackTfClassifier.clone(
+        src = 'initialStepTracks',
+        qualityCuts = qualityCutDictionary["InitialStep"]
 ))
-(trackdnn & fastSim).toModify(initialStep,vertices = 'firstStepPrimaryVerticesBeforeMixing')
+
+(trackdnn & fastSim).toModify(initialStep,vertices = "firstStepPrimaryVerticesBeforeMixing")
 
 pp_on_AA_2018.toModify(initialStep, 
         mva         = dict(GBRForestLabel = 'HIMVASelectorInitialStep_Phase1'),

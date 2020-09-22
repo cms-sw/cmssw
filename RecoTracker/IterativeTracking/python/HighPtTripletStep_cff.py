@@ -4,6 +4,7 @@ from Configuration.Eras.Modifier_fastSim_cff import fastSim
 
 #for dnn classifier
 from Configuration.ProcessModifiers.trackdnn_cff import trackdnn
+from dnnQualityCuts import qualityCutDictionary
 
 ### high-pT triplets ###
 
@@ -254,11 +255,11 @@ highPtTripletStep = TrackMVAClassifierPrompt.clone(
      qualityCuts = [0.2,0.3,0.4]
 )
 
-from RecoTracker.FinalTrackSelectors.TrackLwtnnClassifier_cfi import *
-from RecoTracker.FinalTrackSelectors.trackSelectionLwtnn_cfi import *
-trackdnn.toReplaceWith(highPtTripletStep, TrackLwtnnClassifier.clone(
-    src         = 'highPtTripletStepTracks',
-    qualityCuts = [0.75, 0.775, 0.8],
+from RecoTracker.FinalTrackSelectors.TrackTfClassifier_cfi import *
+from RecoTracker.FinalTrackSelectors.trackSelectionTf_cfi import *
+trackdnn.toReplaceWith(highPtTripletStep, TrackTfClassifier.clone(
+    src = 'highPtTripletStepTracks',
+    qualityCuts = qualityCutDictionary['HighPtTripletStep'],
 ))
 
 highBetaStar_2018.toModify(highPtTripletStep,qualityCuts = [-0.2,0.3,0.4])

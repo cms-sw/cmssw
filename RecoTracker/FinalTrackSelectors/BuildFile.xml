@@ -7,6 +7,8 @@
 <use name="CondFormats/EgammaObjects"/>
 <use name="roottmva"/>
 <use name="lwtnn"/>
+<use name="TrackingTools/Records"/>
+<use name="PhysicsTools/TensorFlow"/>
 <export>
   <lib name="1"/>
 </export>

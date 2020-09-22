@@ -8,6 +8,7 @@ from FastSimulation.Tracking.SeedingMigration import _hitSetProducerToFactoryPSe
 
 #for dnn classifier
 from Configuration.ProcessModifiers.trackdnn_cff import trackdnn
+from dnnQualityCuts import qualityCutDictionary
 
 ###############################################
 # Low pT and detached tracks from pixel triplets
@@ -260,11 +261,11 @@ trackingPhase1.toReplaceWith(detachedTripletStep, detachedTripletStepClassifier1
     qualityCuts = [-0.2,0.3,0.8]
 ))
 
-from RecoTracker.FinalTrackSelectors.TrackLwtnnClassifier_cfi import *
-from RecoTracker.FinalTrackSelectors.trackSelectionLwtnn_cfi import *
-trackdnn.toReplaceWith(detachedTripletStep, TrackLwtnnClassifier.clone(
+from RecoTracker.FinalTrackSelectors.TrackTfClassifier_cfi import *
+from RecoTracker.FinalTrackSelectors.trackSelectionTf_cfi import *
+trackdnn.toReplaceWith(detachedTripletStep, TrackTfClassifier.clone(
      src = 'detachedTripletStepTracks',
-     qualityCuts = [0.0, 0.4, 0.8],
+     qualityCuts = qualityCutDictionary['DetachedTripletStep'],
 ))
 (trackdnn & fastSim).toModify(detachedTripletStep,vertices = 'firstStepPrimaryVerticesBeforeMixing')
 

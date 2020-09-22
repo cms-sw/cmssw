@@ -4,6 +4,7 @@ from Configuration.Eras.Modifier_fastSim_cff import fastSim
 
 #for dnn classifier
 from Configuration.ProcessModifiers.trackdnn_cff import trackdnn
+from dnnQualityCuts import qualityCutDictionary
 
 #######################################################################
 # Very large impact parameter tracking using TOB + TEC ring 5 seeding #
@@ -372,13 +373,14 @@ trackingPhase1.toReplaceWith(tobTecStep, tobTecStepClassifier1.clone(
      qualityCuts = [-0.6,-0.45,-0.3]
 ))
 
-from RecoTracker.FinalTrackSelectors.TrackLwtnnClassifier_cfi import *
-from RecoTracker.FinalTrackSelectors.trackSelectionLwtnn_cfi import *
-trackdnn.toReplaceWith(tobTecStep, TrackLwtnnClassifier.clone(
-     src         = 'tobTecStepTracks',
-     qualityCuts = [-0.4, -0.25, -0.1]
+from RecoTracker.FinalTrackSelectors.TrackTfClassifier_cfi import *
+from RecoTracker.FinalTrackSelectors.trackSelectionTf_cfi import *
+trackdnn.toReplaceWith(tobTecStep, TrackTfClassifier.clone(
+     src = 'tobTecStepTracks',
+     qualityCuts = qualityCutDictionary["TobTecStep"]
 ))
-(trackdnn & fastSim).toModify(tobTecStep,vertices = 'firstStepPrimaryVerticesBeforeMixing')
+
+(trackdnn & fastSim).toModify(tobTecStep,vertices = "firstStepPrimaryVerticesBeforeMixing")
 
 pp_on_AA_2018.toModify(tobTecStep, qualityCuts = [-0.6,-0.3,0.7])
 
