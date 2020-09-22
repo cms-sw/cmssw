@@ -260,7 +260,6 @@ TrajectorySeedCollection SeedingOTEDProducer::run(edm::Handle<VectorHitCollectio
     }
   }
   result.shrink_to_fit();
-  std::cout << "n seeds: " << result.size() << std::endl;
   return result;
 }
 
