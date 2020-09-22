@@ -526,6 +526,28 @@ mkdir -p /data/dqmgui/scripts
 mkdir -p /data/dqmgui/state
 ```
 
+# Integration into the Online system
+
+The DQM GUI works on all 4 P5 GUI machines:
+
+* srv-c2f11-29-01.cms Production GUI used by shifters at P5
+* srv-c2f11-29-02.cms Production GUI used by all other users accessing it via CMSWEB
+* srv-c2f11-29-03.cms Playback GUI used by the DQM playback system
+* srv-c2f11-29-04.cms Production test GUI running on production data
+
+All 3 Production machines are being populated by the production system simultaneously.
+
+Production and playback systems are pretty much the same in terms of DQM GUI integration, so everything bellow applies to bith systems unless specified otherwise.
+
+## DQM Online processing
+
+This section is not about the GUI integration but it's a summary of the gerenal DQM processing pipeline.
+
+HLT/DAQ copies reconstructed data files (DQM streams) to this directory in our BU: `/fff/BU0/ramdisk/`. This directory is also mounted and accessible from DQM FUs. HLTD running on all 4 of our FUs detects the presence of new stream files and starts our Online clients. Each client writes the output files containing histograms to its own machine. The problem that we have to solve is collecting all files belonging to the same run from all 4 FUs, merging them and uploading the, to the appropriate DQM GUI.
+
+## 
+
+
 # TODO
 
 Backend related task list.

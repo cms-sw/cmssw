@@ -1,0 +1,18 @@
+from ..layouts.layout_manager import register_layout
+
+register_layout(source='BeamMonitor/EventInfo/reportSummaryMap', destination='Summary/reportSummaryMap', name='Summaries')
+register_layout(source='BeamPixel/EventInfo/reportSummaryMap', destination='Summary/reportSummaryMap', name='Summaries')
+register_layout(source='CSC/EventInfo/reportSummaryMap', destination='Summary/reportSummaryMap', name='Summaries')
+register_layout(source='DT/EventInfo/reportSummaryMap', destination='Summary/reportSummaryMap', name='Summaries')
+register_layout(source='Ecal/EventInfo/reportSummaryMap', destination='Summary/reportSummaryMap', name='Summaries')
+register_layout(source='EcalPreshower/EventInfo/reportSummaryMap', destination='Summary/reportSummaryMap', name='Summaries')
+register_layout(source='FED/EventInfo/reportSummaryMap', destination='Summary/reportSummaryMap', name='Summaries')
+register_layout(source='Hcal/EventInfo/reportSummaryMap', destination='Summary/reportSummaryMap', name='Summaries')
+register_layout(source='HcalReco/EventInfo/reportSummaryMap', destination='Summary/reportSummaryMap', name='Summaries')
+register_layout(source='Info/EventInfo/reportSummaryMap', destination='Summary/reportSummaryMap', name='Summaries')
+register_layout(source='L1T/EventInfo/reportSummaryMap', destination='Summary/reportSummaryMap', name='Summaries')
+register_layout(source='L1TEMU/EventInfo/reportSummaryMap', destination='Summary/reportSummaryMap', name='Summaries')
+register_layout(source='PixelPhase1/EventInfo/reportSummaryMap', destination='Summary/reportSummaryMap', name='Summaries')
+register_layout(source='RPC/EventInfo/reportSummaryMap', destination='Summary/reportSummaryMap', name='Summaries')
+register_layout(source='SiStrip/EventInfo/reportSummaryMap', destination='Summary/reportSummaryMap', name='Summaries')
+register_layout(source='Tracking/EventInfo/reportSummaryMap', destination='Summary/reportSummaryMap', name='Summaries')

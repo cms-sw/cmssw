@@ -52,7 +52,8 @@ def start(directory, cmsswSymlink):
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description=
         '''This utility removes old PB files from the Online DQM GUI machine.
-        Only the latest file of the latest run is kept.''')
+        Only the latest file of the latest run is kept. It also periodically checks if CMSSW release is updated and if it is,
+        it restarts the DQM GUI from the updated CMSSW release.''')
     parser.add_argument('-d', '--directory', default='/data/dqmgui/files/pb/', help='Directory from which PB files will be deleted.')
     parser.add_argument('-c', '--cmsswSymlink', default='/dqmdata/dqm_cmssw/current_production/src/', help='Symbolic link to the current CMSSW release.')
     args = parser.parse_args()
