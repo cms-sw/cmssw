@@ -1,5 +1,5 @@
-#ifndef GEMSegment_GE0SegAlgoRU_h
-#define GEMSegment_GE0SegAlgoRU_h
+#ifndef RecoLocalMuon_GEMSegment_GE0SegAlgoRU_h
+#define RecoLocalMuon_GEMSegment_GE0SegAlgoRU_h
 
 /**
  * \class GE0SegAlgoRU
