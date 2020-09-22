@@ -16,12 +16,13 @@
 //this is a stream filter because client operations are not multithread-safe in general
 //it is designed such that the user never has to interact with the client or the acquire() callback directly
 template <typename Client, typename... Capabilities>
-class SonicEDFilter : public SonicAcquirer<Client,edm::stream::EDFilter<edm::ExternalWork, Capabilities...>> {
+class SonicEDFilter : public SonicAcquirer<Client, edm::stream::EDFilter<edm::ExternalWork, Capabilities...>> {
 public:
   //typedef to simplify usage
   typedef typename Client::Output Output;
   //constructor
-  SonicEDFilter(edm::ParameterSet const& cfg) : SonicAcquirer<Client,edm::stream::EDFilter<edm::ExternalWork, Capabilities...>>(cfg) {}
+  SonicEDFilter(edm::ParameterSet const& cfg)
+      : SonicAcquirer<Client, edm::stream::EDFilter<edm::ExternalWork, Capabilities...>>(cfg) {}
   //destructor
   ~SonicEDFilter() override = default;
 

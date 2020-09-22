@@ -5,9 +5,9 @@
 #include <chrono>
 
 namespace sonic_utils {
-	using TimePoint = std::chrono::time_point<std::chrono::high_resolution_clock>;
+  using TimePoint = std::chrono::time_point<std::chrono::high_resolution_clock>;
 
-	void printDebugTime(std::string_view debugName, std::string_view msg, const TimePoint& t0);
-}
+  void printDebugTime(std::string_view debugName, std::string_view msg, const TimePoint& t0);
+}  // namespace sonic_utils
 
 #endif

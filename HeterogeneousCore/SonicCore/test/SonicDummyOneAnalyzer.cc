@@ -12,7 +12,9 @@ namespace sonictest {
   class SonicDummyOneAnalyzer : public SonicOneEDAnalyzer<DummyClient> {
   public:
     explicit SonicDummyOneAnalyzer(edm::ParameterSet const& cfg)
-        : SonicOneEDAnalyzer<DummyClient>(cfg), input_(cfg.getParameter<int>("input")), expected_(cfg.getParameter<int>("expected")) {
+        : SonicOneEDAnalyzer<DummyClient>(cfg),
+          input_(cfg.getParameter<int>("input")),
+          expected_(cfg.getParameter<int>("expected")) {
       //for debugging
       setDebugName("SonicDummyOneAnalyzer");
     }
@@ -21,7 +23,8 @@ namespace sonictest {
 
     void analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup, Output const& iOutput) override {
       if (iOutput != expected_)
-        throw cms::Exception("ValueMismatch") << "The value is " << iOutput << " but it was supposed to be " << expected_;
+        throw cms::Exception("ValueMismatch")
+            << "The value is " << iOutput << " but it was supposed to be " << expected_;
     }
 
     static void fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
