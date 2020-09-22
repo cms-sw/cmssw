@@ -1,4 +1,11 @@
 #include <memory>
+#include <string>
+#include <sstream>
+#include <vector>
+
+#include "TFile.h"
+#include "TTree.h"
+#include "TString.h"
 
 #include "GeneratorInterface/Pythia8Interface/interface/Py8InterfaceBase.h"
 
@@ -13,6 +20,18 @@
 //#include "Pythia8Plugins/EvtGen.h"
 
 using namespace Pythia8;
+
+namespace {
+	std::vector<std::string> splitline(const std::string& line, char delim){
+		std::stringstream ss(line);
+		std::string field;
+		std::vector<std::string> fields;
+		while(getline(ss,field,delim)){
+			fields.push_back(field);
+		}
+		return fields;
+	}
+}
 
 namespace gen {
 
@@ -166,6 +185,36 @@ namespace gen {
     } else if (currentParameters.exists("SLHATableForPythia8")) {
       std::string slhatable = currentParameters.getParameter<std::string>("SLHATableForPythia8");
 
+      makeTmpSLHA(slhatable);
+    } else if (currentParameters.exists("SLHATreeForPythia8")) {
+        auto f1 = currentParameters.getParameter<edm::FileInPath>("SLHATreeForPythia8");
+        TFile* file = TFile::Open(f1.fullPath().c_str());
+		if(!file) throw cms::Exception("MissingFile") << "Could not open file: " << f1.fullPath();
+        TTree* tree = (TTree*)file->Get("mcmc");
+		if(!tree) throw cms::Exception("MissingTree") << "Could not get tree from file: " << f1.fullPath();
+
+        //parse config description pMSSM_MCMC_#_# to get index: chain, iteration
+        const auto& config_fields = splitline(currentParameters.getParameter<std::string>("ConfigDescription"),'_');
+		int chain = std::stoi(config_fields.at(2));
+		int iteration = std::stoi(config_fields.at(3));
+
+        //get slha string branch
+        auto slhabranch = std::make_unique<TString>();
+		auto slhabranch_ptr = slhabranch.get();
+        tree->SetBranchAddress("slhacontent",&slhabranch_ptr);
+		tree->GetEntryWithIndex(chain,iteration);
+
+		//make tmp file
+		makeTmpSLHA(std::string(*slhabranch));
+
+        //finish
+        file->Close();
+    }
+
+    return true;
+  }
+
+  void Py8InterfaceBase::makeTmpSLHA(const std::string& slhatable) {
       char tempslhaname[] = "pythia8SLHAtableXXXXXX";
       int fd = mkstemp(tempslhaname);
       write(fd, slhatable.c_str(), slhatable.size());
@@ -175,9 +224,6 @@ namespace gen {
 
       fMasterGen->settings.mode("SLHA:readFrom", 2);
       fMasterGen->settings.word("SLHA:file", slhafile_);
-    }
-
-    return true;
   }
 
   bool Py8InterfaceBase::declareStableParticles(const std::vector<int>& pdgIds) {
