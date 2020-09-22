@@ -7,6 +7,8 @@ import FWCore.ParameterSet.Config as cms
 from FWCore.ParameterSet.VarParsing import VarParsing
 import sys, re
 
+from FWCore.PythonFramework.CmsRun import CmsRun
+
 process = cms.Process("PROD")
 
 process.load("SimGeneral.HepPDTESSource.pythiapdt_cfi")
@@ -78,7 +80,17 @@ process.source = cms.Source("PoolSource",
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(-1)
 )
+'''
+process.Timing = cms.Service("Timing")
 
+process.SimpleMemoryCheck = cms.Service("SimpleMemoryCheck",
+  ignoreTotal          = cms.untracked.int32(1),
+  oncePerEventMode     = cms.untracked.bool(True),
+  moduleMemorySummary  = cms.untracked.bool(True),
+  showMallocInfo       = cms.untracked.bool(True),
+  monitorPssAndPrivate = cms.untracked.bool(True),
+)
+'''
 process.p1 = cms.Path(process.g4SimHits)
 process.g4SimHits.StackingAction.TrackNeutrino = cms.bool(True)
 process.g4SimHits.UseMagneticField = False
@@ -121,3 +133,9 @@ process.g4SimHits.Watchers = cms.VPSet(cms.PSet(
 
      )
 ))
+
+
+cmsRun = CmsRun(process)
+cmsRun.run()
+
+
