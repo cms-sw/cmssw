@@ -62,9 +62,8 @@ namespace deep_tau {
 
   class DeepTauBase : public edm::stream::EDProducer<edm::GlobalCache<DeepTauCache>> {
   public:
-    using TauType = edm::View<reco::BaseTau>;
     using TauDiscriminator = reco::TauDiscriminatorContainer;
-    using TauCollection = TauType;
+    using TauCollection = edm::View<reco::BaseTau>;
     using CandidateType = edm::View<reco::Candidate>;
     using TauRef = edm::Ref<TauCollection>;
     using TauRefProd = edm::RefProd<TauCollection>;
