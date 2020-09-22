@@ -81,7 +81,7 @@ void HGCalWaferCell::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
   if (hgdc.waferHexagon8()) {
     // Find all valid wafers
     std::vector<DetId> ids = geom->getValidGeomDetIds();
-    std::cout << "\n\nCheck Wafers for " << nameDetector_ << " with " << ids.size()  << " wafers\n\n";
+    std::cout << "\n\nCheck Wafers for " << nameDetector_ << " with " << ids.size() << " wafers\n\n";
     DetId::Detector det = (nameSense_ == "HGCalHESiliconSensitive") ? DetId::HGCalHSi : DetId::HGCalEE;
     int bad(0);
     std::map<int, int> waferMap;
@@ -103,7 +103,7 @@ void HGCalWaferCell::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
         ++waferMap[kndx];
       }
       if ((type < 0) || (type > 2) || (part < 0) || (part > 7) || (rotn < 0) || (rotn > 5))
-	++bad;
+        ++bad;
     }
     std::cout << bad << " wafers of unknown types among " << hgdc.waferFileSize() << " wafers\n\n";
 

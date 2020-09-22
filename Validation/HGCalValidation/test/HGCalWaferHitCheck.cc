@@ -41,7 +41,7 @@ namespace HGCalValidSimhitCheck {
     mutable std::map<int, int> badTypes_, occupancy_;
     mutable std::vector<int> goodChannels_;
   };
-} // namespace HGCalValidSimhitCheck
+}  // namespace HGCalValidSimhitCheck
 
 class HGCalWaferHitCheck : public edm::stream::EDAnalyzer<edm::GlobalCache<HGCalValidSimhitCheck::Counters> > {
 public:
@@ -55,7 +55,7 @@ public:
   void endStream() override;
   static void globalEndJob(const HGCalValidSimhitCheck::Counters* counters);
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
-  
+
 protected:
   void beginRun(edm::Run const&, edm::EventSetup const&) override;
   void endRun(edm::Run const&, edm::EventSetup const&) override {}
@@ -86,7 +86,7 @@ HGCalWaferHitCheck::HGCalWaferHitCheck(const edm::ParameterSet& iConfig, const H
       inpType_(iConfig.getParameter<int>("inputType")),
       verbosity_(iConfig.getUntrackedParameter<int>("verbosity", 0)),
       ifNose_(iConfig.getUntrackedParameter<bool>("ifNose", false)),
-      tok_hit_(consumes<edm::PCaloHitContainer>(edm::InputTag("g4SimHits", caloHitSource_)))  {
+      tok_hit_(consumes<edm::PCaloHitContainer>(edm::InputTag("g4SimHits", caloHitSource_))) {
   if (inpType_ == 2) {
     digiHitSource_ = consumes<HGCalDigiCollection>(source_);
   } else if (inpType_ > 2) {
@@ -113,7 +113,7 @@ void HGCalWaferHitCheck::analyze(const edm::Event& iEvent, const edm::EventSetup
     iEvent.getByToken(tok_hit_, theCaloHitContainer);
     if (theCaloHitContainer.isValid()) {
       if (verbosity_ > 0)
-	edm::LogVerbatim("HGCalValidation") << nameDetector_ << " with " << theCaloHitContainer->size() << " SimHits";
+        edm::LogVerbatim("HGCalValidation") << nameDetector_ << " with " << theCaloHitContainer->size() << " SimHits";
       analyzeHits(nameDetector_, *(theCaloHitContainer.product()));
     } else if (verbosity_ > 0) {
       edm::LogVerbatim("HGCalValidation") << "PCaloHitContainer does not exist for " << nameDetector_;
@@ -123,7 +123,7 @@ void HGCalWaferHitCheck::analyze(const edm::Event& iEvent, const edm::EventSetup
     iEvent.getByToken(digiHitSource_, theDigiContainer);
     if (theDigiContainer.isValid()) {
       if (verbosity_ > 0)
-	edm::LogVerbatim("HGCalValidation") << nameDetector_ << " with " << theDigiContainer->size() << " Digis";
+        edm::LogVerbatim("HGCalValidation") << nameDetector_ << " with " << theDigiContainer->size() << " Digis";
       analyzeHits(nameDetector_, *(theDigiContainer.product()));
     } else if (verbosity_ > 0) {
       edm::LogVerbatim("HGCalValidation") << "DigiContainer does not exist for " << nameDetector_;
@@ -133,7 +133,7 @@ void HGCalWaferHitCheck::analyze(const edm::Event& iEvent, const edm::EventSetup
     iEvent.getByToken(digiHitSource_, theRecHitContainer);
     if (theRecHitContainer.isValid()) {
       if (verbosity_ > 0)
-	edm::LogVerbatim("HGCalValidation") << nameDetector_ << " with " << theRecHitContainer->size() << " hits";
+        edm::LogVerbatim("HGCalValidation") << nameDetector_ << " with " << theRecHitContainer->size() << " hits";
       analyzeHits(nameDetector_, *(theRecHitContainer.product()));
     } else if (verbosity_ > 0) {
       edm::LogVerbatim("HGCalValidation") << "RecHitContainer does not exist for " << nameDetector_;
@@ -143,7 +143,6 @@ void HGCalWaferHitCheck::analyze(const edm::Event& iEvent, const edm::EventSetup
 
 template <class T>
 void HGCalWaferHitCheck::analyzeHits(std::string const& name, T const& hits) {
-
   for (auto const& hit : hits) {
     uint32_t id = hit.id();
     int zside, type, layer, waferU, waferV;
@@ -164,24 +163,28 @@ void HGCalWaferHitCheck::analyzeHits(std::string const& name, T const& hits) {
     }
     int index = HGCalWaferIndex::waferIndex(layer, waferU, waferV, false);
     int typef = hgcons_->waferType(layer, waferU, waferV, true);
-    if (zside < 0) 
+    if (zside < 0)
       index *= -1;
     auto itr = occupancy_.find(index);
-    if (itr == occupancy_.end()) 
+    if (itr == occupancy_.end())
       occupancy_[index] = 1;
     else
       ++occupancy_[index];
     if (type != typef) {
       auto ktr = badTypes_.find(index);
-      if (ktr == badTypes_.end()) 
-	badTypes_[index] = 1;
+      if (ktr == badTypes_.end())
+        badTypes_[index] = 1;
       else
-	++badTypes_[index];
+        ++badTypes_[index];
       if (verbosity_ == 1)
-	edm::LogVerbatim("HGCalValidation") << "Detector " << name << " zside = " << zside << " layer = " << layer << " type = " << type << ":" << typef << " wafer = " << waferU << ":" << waferV << " index " << index;
+        edm::LogVerbatim("HGCalValidation")
+            << "Detector " << name << " zside = " << zside << " layer = " << layer << " type = " << type << ":" << typef
+            << " wafer = " << waferU << ":" << waferV << " index " << index;
     }
     if (verbosity_ > 1)
-      edm::LogVerbatim("HGCalValidation") << "Detector " << name << " zside = " << zside << " layer = " << layer << " type = " << type << ":" << typef << " wafer = " << waferU << ":" << waferV;
+      edm::LogVerbatim("HGCalValidation")
+          << "Detector " << name << " zside = " << zside << " layer = " << layer << " type = " << type << ":" << typef
+          << " wafer = " << waferU << ":" << waferV;
   }
 }
 
@@ -191,19 +194,19 @@ void HGCalWaferHitCheck::beginRun(const edm::Run&, const edm::EventSetup& iSetup
   iSetup.get<IdealGeometryRecord>().get(nameDetector_, pHGDC);
   hgcons_ = &(*pHGDC);
   if (verbosity_ > 0)
-    edm::LogVerbatim("HGCalValidation") << nameDetector_ << " defined with " << hgcons_->layers(false) << " Layers with "
-					<< (hgcons_->firstLayer() - 1) << " in front";
+    edm::LogVerbatim("HGCalValidation") << nameDetector_ << " defined with " << hgcons_->layers(false)
+                                        << " Layers with " << (hgcons_->firstLayer() - 1) << " in front";
 
   goodChannels_.clear();
   for (int iz = 0; iz < 2; ++iz) {
     int zside = iz * 2 - 1;
     for (int layer = 1; layer <= layerMax; ++layer) {
       for (int waferU = -waferMax; waferU <= waferMax; ++waferU) {
-	for (int waferV = -waferMax; waferV <= waferMax; ++waferV) {
-	  int index = zside * HGCalWaferIndex::waferIndex(layer, waferU, waferV, false);
-	  if (hgcons_->isValidHex8(layer, waferU, waferV, true)) 
-	    goodChannels_.emplace_back(index);
-	}
+        for (int waferV = -waferMax; waferV <= waferMax; ++waferV) {
+          int index = zside * HGCalWaferIndex::waferIndex(layer, waferU, waferV, false);
+          if (hgcons_->isValidHex8(layer, waferU, waferV, true))
+            goodChannels_.emplace_back(index);
+        }
       }
     }
   }
@@ -211,13 +214,13 @@ void HGCalWaferHitCheck::beginRun(const edm::Run&, const edm::EventSetup& iSetup
 
 void HGCalWaferHitCheck::endStream() {
   for (auto itr = occupancy_.begin(); itr != occupancy_.end(); ++itr) {
-    if (globalCache()->occupancy_.find(itr->first) == globalCache()->occupancy_.end()) 
+    if (globalCache()->occupancy_.find(itr->first) == globalCache()->occupancy_.end())
       globalCache()->occupancy_[itr->first] = itr->second;
     else
       globalCache()->occupancy_[itr->first] += itr->second;
   }
   for (auto itr = badTypes_.begin(); itr != badTypes_.end(); ++itr) {
-    if (globalCache()->badTypes_.find(itr->first) == globalCache()->badTypes_.end()) 
+    if (globalCache()->badTypes_.find(itr->first) == globalCache()->badTypes_.end())
       globalCache()->badTypes_[itr->first] = itr->second;
     else
       globalCache()->badTypes_[itr->first] += itr->second;
@@ -232,24 +235,28 @@ void HGCalWaferHitCheck::globalEndJob(const HGCalValidSimhitCheck::Counters* cou
     int zside = iz * 2 - 1;
     for (int layer = 1; layer <= layerMax; ++layer) {
       for (int waferU = -waferMax; waferU <= waferMax; ++waferU) {
-	for (int waferV = -waferMax; waferV <= waferMax; ++waferV) {
-	  int index = zside * HGCalWaferIndex::waferIndex(layer, waferU, waferV, false);
-	  if (std::find(count->goodChannels_.begin(), count->goodChannels_.end(), index) != count->goodChannels_.end()) {
-	    int occ = (count->occupancy_.find(index) == count->occupancy_.end()) ? 0 : count->occupancy_[index];
-	    int bad =  (count->badTypes_.find(index) == count->badTypes_.end()) ? 0 : count->badTypes_[index];
-	    if (occ == 0) 
-	      ++nocc;
-	    if (bad > 0)
-	      ++allbad;
-	    if (occ == 0 || bad > 0) {
-	      edm::LogVerbatim("HGCalValidation") << "ZS:Layer:u:v:index " << zside << ":" << layer << ":" << waferU << ":" << waferV << ":" << index << " Occ " << occ << " bad " << bad;
-	    }
-	  }
-	}
+        for (int waferV = -waferMax; waferV <= waferMax; ++waferV) {
+          int index = zside * HGCalWaferIndex::waferIndex(layer, waferU, waferV, false);
+          if (std::find(count->goodChannels_.begin(), count->goodChannels_.end(), index) !=
+              count->goodChannels_.end()) {
+            int occ = (count->occupancy_.find(index) == count->occupancy_.end()) ? 0 : count->occupancy_[index];
+            int bad = (count->badTypes_.find(index) == count->badTypes_.end()) ? 0 : count->badTypes_[index];
+            if (occ == 0)
+              ++nocc;
+            if (bad > 0)
+              ++allbad;
+            if (occ == 0 || bad > 0) {
+              edm::LogVerbatim("HGCalValidation") << "ZS:Layer:u:v:index " << zside << ":" << layer << ":" << waferU
+                                                  << ":" << waferV << ":" << index << " Occ " << occ << " bad " << bad;
+            }
+          }
+        }
       }
     }
   }
-  edm::LogVerbatim("HGCalValidation") << "\n\n" << allbad << " channels with bad types among " << count->goodChannels_.size() << " channels and " << nocc << " channels with zero occupancy\n\n";
+  edm::LogVerbatim("HGCalValidation") << "\n\n"
+                                      << allbad << " channels with bad types among " << count->goodChannels_.size()
+                                      << " channels and " << nocc << " channels with zero occupancy\n\n";
 }
 
 #include "FWCore/Framework/interface/MakerMacros.h"
