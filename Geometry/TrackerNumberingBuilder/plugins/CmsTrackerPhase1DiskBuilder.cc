@@ -58,9 +58,17 @@ void CmsTrackerPhase1DiskBuilder<FilteredView>::PhiPosNegSplit_innerOuter(
   //  std::cout << "num of inner = " << num_inner << " with radius less than " << radius_split << std::endl;
   // now shift outer by one
 
-  std::rotate(theCompsInnerOuter.begin() + num_inner, theCompsInnerOuter.end() - 1, theCompsInnerOuter.end());
-  std::rotate(
-      theCompsInnerOuter.begin(), theCompsInnerOuter.begin() + num_inner - 1, theCompsInnerOuter.begin() + num_inner);
+  if (num_inner < theCompsInnerOuter.size()) {
+    std::rotate(theCompsInnerOuter.begin() + num_inner, theCompsInnerOuter.end() - 1, theCompsInnerOuter.end());
+  }
+  if (num_inner > 0) {
+    std::rotate(
+		theCompsInnerOuter.begin(), theCompsInnerOuter.begin() + num_inner - 1, theCompsInnerOuter.begin() + num_inner);
+  }
+
+  if (num_inner == 0) { std::cout << "num_inner == 0. CmsTrackerPhase1DiskBuilder is probably not doing what you expect." << std::endl; }
+  if (num_inner == theCompsInnerOuter.size()) { std::cout << "num_inner == theCompsInnerOuter.size(). CmsTrackerPhase1DiskBuilder is probably not doing what you expect." << std::endl; }
+
   std::copy(theCompsInnerOuter.begin(), theCompsInnerOuter.end(), begin);
 }
 
