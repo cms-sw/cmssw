@@ -604,10 +604,10 @@ namespace edm {
     return itFind->second;
   }
 
-  std::optional<std::string> ProductRegistry::aliasToModule(KindOfType kindOfType,
-                                                            TypeID const& type,
-                                                            std::string_view moduleLabel,
-                                                            std::string_view productInstanceName) const {
+  std::vector<std::string> ProductRegistry::aliasToModules(KindOfType kindOfType,
+                                                           TypeID const& type,
+                                                           std::string_view moduleLabel,
+                                                           std::string_view productInstanceName) const {
     auto aliasFields = [](auto const& item) {
       return std::tie(std::get<Transients::kKind>(item),
                       std::get<Transients::kType>(item),
@@ -620,10 +620,11 @@ namespace edm {
                          transient_.aliasToOriginal_.end(),
                          target,
                          [aliasFields](auto const& item, auto const& target) { return aliasFields(item) < target; });
-    if (found == transient_.aliasToOriginal_.end() or aliasFields(*found) != target) {
-      return std::nullopt;
+    std::vector<std::string> ret;
+    for (; found != transient_.aliasToOriginal_.end() and aliasFields(*found) == target; ++found) {
+      ret.emplace_back(std::get<Transients::kAliasForModuleLabel>(*found));
     }
-    return std::get<Transients::kAliasForModuleLabel>(*found);
+    return ret;
   }
 
   void ProductRegistry::print(std::ostream& os) const {
