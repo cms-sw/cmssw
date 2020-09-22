@@ -492,14 +492,8 @@ from RecoLocalTracker.SiPhase2VectorHitBuilder.siPhase2VectorHits_cfi import *
 from RecoTracker.TkSeedGenerator.SeedingOTEDProducer_cfi import SeedingOTEDProducer as _SeedingOTEDProducer
 pixelLessStepSeeds_vectorHits = _SeedingOTEDProducer.clone()
 
-#siPhase2VectorHits.Clusters = cms.string("pixelLessStepClusters")
-
 _PixelLessStepTask_vectorHits = cms.Task(siPhase2VectorHits,
 			     pixelLessStepClusters,
-                             #pixelLessStepSeedLayers,
-                             #pixelLessStepTrackingRegions,
-                             #pixelLessStepHitDoublets,
-                             #pixelLessStepHitTriplets,
                              pixelLessStepSeeds,
                              pixelLessStepTrackCandidates,
                              pixelLessStepTracks,
