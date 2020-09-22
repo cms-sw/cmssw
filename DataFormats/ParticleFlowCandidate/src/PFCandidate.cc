@@ -594,7 +594,6 @@ void PFCandidate::setPFPhotonExtraRef(const reco::PFCandidatePhotonExtraRef& iRe
 }
 
 void PFCandidate::setPFEGammaExtraRef(const reco::PFCandidateEGammaExtraRef& iRef) {
-  //std::cout << " before storeRefInfo " << kRefPFEGammaExtraMask << " " <<  kRefPFEGammaExtraBit << " " <<  iRef.isNonnull() << " " <<  iRef.key() <<  " " << std::endl;
   storeRefInfo(
       kRefPFEGammaExtraMask, kRefPFEGammaExtraBit, iRef.isNonnull(), iRef.refCore(), iRef.key(), iRef.productGetter());
 }
@@ -604,6 +603,7 @@ const math::XYZPoint& PFCandidate::vertexLegacy(PFCandidate::PFVertexType vertex
     case kCandVertex:
       return LeafCandidate::vertex();
       break;
+    //the following cases will only be called for legacy AOD which does not have an embedded vertex
     case kTrkVertex:
       return trackRef()->vertex();
       break;
