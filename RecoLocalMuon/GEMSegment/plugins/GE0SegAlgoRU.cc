@@ -164,7 +164,7 @@ std::vector<GEMSegment> GE0SegAlgoRU::run(const GEMSuperChamber* chamber, const 
         auto ge0id = rh.gemId();
         edm::LogVerbatim("GE0SegAlgoRU") << "[RecHit :: Loc x = " << std::showpos << std::setw(9)
                                          << rh.localPosition().x() << " Loc y = " << std::showpos << std::setw(9)
-                                         << rh.localPosition().y() << " Time = " << std::showpos << rh->BunchX()
+                                         << rh.localPosition().y() << " Time = " << std::showpos << rh.BunchX()
                                          << " -- " << ge0id.rawId() << " = " << ge0id << " ]";
       }
     }
