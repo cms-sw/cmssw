@@ -53,15 +53,16 @@ uint32_t HGCalNumberingScheme::getUnitID(int layer, int module, int cell, int iz
     if (waferType >= 0) {
       if (mode_ == HGCalGeometryMode::Hexagon8File) {
         int type = hgcons_.waferType(layer, waferU, waferV, true);
-        if (type != waferType)
+        if (type != waferType) {
 #ifdef EDM_ML_DEBUG
           edm::LogVerbatim("HGCSim") << "HGCalNumberingScheme:: " << name_ << " Layer|u|v|Index|module|cell " << layer
                                      << ":" << waferU << ":" << waferV << ":"
                                      << HGCalWaferIndex::waferIndex(layer, waferU, waferV, false) << ":" << module
                                      << ":" << cell << " has a type mismatch " << waferType << ":" << type;
 #endif
-        if (type != HGCSiliconDetId::HGCalCoarseThick)
-          waferType = type;
+	  if (type != HGCSiliconDetId::HGCalCoarseThick)
+	    waferType = type;
+	}
       }
       index = HGCSiliconDetId(det_, iz, waferType, layer, waferU, waferV, cellU, cellV).rawId();
 #ifdef EDM_ML_DEBUG
