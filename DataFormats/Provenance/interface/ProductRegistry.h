@@ -21,7 +21,6 @@
 
 #include <iosfwd>
 #include <map>
-#include <optional>
 #include <set>
 #include <string>
 #include <string_view>
@@ -123,10 +122,16 @@ namespace edm {
     bool anyProductProduced() const { return transient_.anyProductProduced_; }
 
     // Looks if a (type, moduleLabel, productInstanceName) is an alias to some other branch
-    std::optional<std::string> aliasToModule(KindOfType kindOfType,
-                                             TypeID const& type,
-                                             std::string_view moduleLabel,
-                                             std::string_view productInstanceName) const;
+    //
+    // Can return multiple modules if kindOfType is ELEMENT_TYPE (i.e.
+    // the product is consumed via edm::View) and there is ambiguity
+    // (in which case actual Event::get() would eventually lead to an
+    // exception). In that case all possible modules whose product
+    // could be consumed are returned.
+    std::vector<std::string> aliasToModules(KindOfType kindOfType,
+                                            TypeID const& type,
+                                            std::string_view moduleLabel,
+                                            std::string_view productInstanceName) const;
 
     ProductResolverIndex const& getNextIndexValue(BranchType branchType) const;
 

@@ -445,12 +445,19 @@ namespace {
       return;
     }
     // Deal with EDAlias's by converting to the original module label first
-    if (auto aliasToModuleLabel =
-            preg.aliasToModule(consumedTypeKind, consumedType, consumedModuleLabel, consumedProductInstance)) {
-      if (auto it = labelsToDesc.find(*aliasToModuleLabel); it != labelsToDesc.end()) {
-        if (alreadyFound.insert(consumedModuleLabel).second) {
-          modules.push_back(it->second);
+    if (auto aliasToModuleLabels =
+            preg.aliasToModules(consumedTypeKind, consumedType, consumedModuleLabel, consumedProductInstance);
+        not aliasToModuleLabels.empty()) {
+      bool foundInLabelsToDesc = false;
+      for (auto const& label : aliasToModuleLabels) {
+        if (auto it = labelsToDesc.find(label); it != labelsToDesc.end()) {
+          if (alreadyFound.insert(label).second) {
+            modules.push_back(it->second);
+          }
+          foundInLabelsToDesc = true;
         }
+      }
+      if (foundInLabelsToDesc) {
         return;
       }
     }
