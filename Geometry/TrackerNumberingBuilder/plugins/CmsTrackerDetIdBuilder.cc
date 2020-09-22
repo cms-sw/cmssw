@@ -9,6 +9,7 @@
 #include <sstream>
 #include <string>
 #include <bitset>
+#include <deque>
 
 CmsTrackerDetIdBuilder::CmsTrackerDetIdBuilder(const std::vector<int>& detidShifts) : m_detidshifts() {
   if (detidShifts.size() != nSubDet * maxLevels)
@@ -27,6 +28,44 @@ void CmsTrackerDetIdBuilder::buildId(GeometricDet& tracker) {
   DetId t(DetId::Tracker, 0);
   tracker.setGeographicalID(t);
   iterate(tracker, 0, tracker.geographicalID().rawId());
+
+
+  //std::ofstream outfile("DetIdOLD.log", std::ios::out);
+  std::ofstream outfile("DetIdDD4hep.log", std::ios::out);
+
+  std::deque<const GeometricDet*> queue;
+  queue.emplace_back(&tracker);
+
+  while (!queue.empty()) {
+    const GeometricDet* myDet = queue.front();
+    queue.pop_front();
+    for (auto& child : myDet->components()) {
+      queue.emplace_back(child);
+    }
+
+    outfile << "myDet->geographicalID() = " << myDet->geographicalID() << std::endl;
+    const auto& found = myDet->name().find(":");
+    outfile << "myDet->name() = " << (found != std::string::npos ? myDet->name().substr(found + 1) : myDet->name()) << std::endl;
+
+    /*
+    // old DD
+    outfile << "myDet->module->translation() = " << std::fixed << std::setprecision(7) << myDet->translation() << std::endl;
+    outfile << "myDet->module->rho() = " << std::fixed << std::setprecision(7) << myDet->rho() << std::endl;*/
+
+ 
+    // DD4hep
+    outfile << "myDet->module->translation() = " << std::fixed << std::setprecision(7) << myDet->translation() * 10. << std::endl;
+    outfile << "myDet->module->rho() = " << std::fixed << std::setprecision(7) << myDet->rho() * 10 << std::endl;
+
+
+    if (fabs(myDet->rho()) > 0.00001) {
+      outfile << "myDet->module->phi() = " << std::fixed << std::setprecision(7) << myDet->phi() << std::endl;
+    }
+
+
+  }
+
+
 }
 
 void CmsTrackerDetIdBuilder::iterate(GeometricDet& in, int level, unsigned int ID) {
