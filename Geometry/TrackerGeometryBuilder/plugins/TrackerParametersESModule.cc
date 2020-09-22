@@ -88,7 +88,7 @@ TrackerParametersESModule::ReturnType TrackerParametersESModule::produce(const P
     edm::ESTransientHandle<DDCompactView> cpv = iRecord.getTransientHandle(cpvTokenDDD_);
     builder.build(&(*cpv), *ptp);
   }
-  
+
   return ptp;
 }
 
