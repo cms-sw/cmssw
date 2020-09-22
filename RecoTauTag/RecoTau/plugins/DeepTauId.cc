@@ -632,12 +632,12 @@ namespace {
   };
 
   struct lightLepFunc {
-    const std::vector<pat::Electron>& electron_collection;
-    const std::vector<pat::Muon>& muon_collection;
+    edm::Handle<std::vector<pat::Electron>> electron_collection;
+    edm::Handle<std::vector<pat::Muon>> muon_collection;
 
     const std::vector<pat::Electron> getElectrons(bool online) {
       if (!online)
-        return electron_collection;
+        return *electron_collection;
       else {
         const std::vector<pat::Electron> out_electrons;
         return out_electrons;
@@ -645,7 +645,7 @@ namespace {
     }
     const std::vector<pat::Muon> getMuons(bool online) {
       if (!online)
-        return muon_collection;
+        return *muon_collection;
       else {
         const std::vector<pat::Muon> out_muons;
         return out_muons;
@@ -1334,7 +1334,7 @@ private:
                       photonPtSumOutsideSignalCone_index,
                       puCorrPtSum_index};
 
-    lightLepFunc lightlep = {*tmp_electrons, *tmp_muons};
+    lightLepFunc lightlep = {tmp_electrons, tmp_muons};
 
     std::vector<pat::Electron> electrons = lightlep.getElectrons(is_online);
     std::vector<pat::Muon> muons = lightlep.getMuons(is_online);

@@ -1,6 +1,5 @@
 import FWCore.ParameterSet.Config as cms
 
-# from RecoTauTag.RecoTau.pfRecoTauDiscriminationByIsolation_cfi import *
 from RecoTauTag.RecoTau.PFRecoTauDiscriminationByIsolation_cfi import *
 from RecoTauTag.RecoTau.PFRecoTauQualityCuts_cfi import PFTauQualityCuts
 
