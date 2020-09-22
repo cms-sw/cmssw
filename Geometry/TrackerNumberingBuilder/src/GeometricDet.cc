@@ -7,7 +7,6 @@
 #include "CLHEP/Units/GlobalSystemOfUnits.h"
 
 #include <cfloat>
-#include <vector>
 #include <string>
 
 namespace {
@@ -65,11 +64,11 @@ namespace {
  */
 GeometricDet::~GeometricDet() { deleteComponents(); }
 
+/*
+  Constructor from old DD Filtered view.
+ */
 GeometricDet::GeometricDet(DDFilteredView* fv, GeometricEnumType type)
-    :  //
-      // Set by hand the _ddd
-      //
-      _trans(fv->translation()),
+    : _trans(fv->translation()),
       _phi(_trans.Phi()),
       _rho(_trans.Rho()),
       _rot(fv->rotation()),
@@ -84,30 +83,39 @@ GeometricDet::GeometricDet(DDFilteredView* fv, GeometricEnumType type)
       _pixROCx(getDouble("PixelROC_X", *fv)),
       _pixROCy(getDouble("PixelROC_Y", *fv)),
       _stereo(getString("TrackerStereoDetectors", *fv) == strue),
+      _isLowerSensor(getString("TrackerLowerDetectors", *fv) == strue),
+      _isUpperSensor(getString("TrackerUpperDetectors", *fv) == strue),
       _siliconAPVNum(getDouble("SiliconAPVNumber", *fv)) {
   //  workaround instead of this at initialization _ddd(fv->navPos().begin(),fv->navPos().end()),
   const DDFilteredView::nav_type& nt = fv->navPos();
   _ddd = nav_type(nt.begin(), nt.end());
 }
 
+/*
+  Constructor from DD4HEP Filtered view.
+ */
 GeometricDet::GeometricDet(cms::DDFilteredView* fv, GeometricEnumType type)
-    : _trans(fv->translation()),
-      _phi(_trans.Phi()),
-      _rho(_trans.Rho()),
-      _rot(fv->rotation()),
-      _shape(fv->shape()),
-      _ddd(fv->navPos()),
-      _ddname(fv->name()),
-      _type(type),
-      _params(fv->parameters()),
-      _radLength(fv->get<double>("TrackerRadLength")),
-      _xi(fv->get<double>("TrackerXi")),
-      _pixROCRows(fv->get<double>("PixelROCRows")),
-      _pixROCCols(fv->get<double>("PixelROCCols")),
-      _pixROCx(fv->get<double>("PixelROC_X")),
-      _pixROCy(fv->get<double>("PixelROC_Y")),
-      _stereo(fv->get<std::string_view>("TrackerStereoDetectors") == strue),
-      _siliconAPVNum(fv->get<double>("SiliconAPVNumber")) {}
+  : //_trans(geant_units::operators::convertCmToMm(fv->translation())),
+  _trans(fv->translation()),
+  _phi(_trans.Phi()),
+  _rho(_trans.Rho()),
+  _rot(fv->rotation()),
+  _shape(fv->shape()),
+  _ddd(fv->navPos()),
+  _ddname(fv->name()),
+  _type(type),
+  _params(fv->parameters()),
+  _radLength(fv->get<double>("TrackerRadLength")),
+  _xi(fv->get<double>("TrackerXi")),
+  _pixROCRows(fv->get<double>("PixelROCRows")),
+  _pixROCCols(fv->get<double>("PixelROCCols")),
+  _pixROCx(fv->get<double>("PixelROC_X")),
+  _pixROCy(fv->get<double>("PixelROC_Y")),
+  _stereo(fv->get<std::string_view>("TrackerStereoDetectors") == strue),
+  _isLowerSensor(fv->get<std::string_view>("TrackerLowerDetectors") == strue),
+  _isUpperSensor(fv->get<std::string_view>("TrackerUpperDetectors") == strue),
+  _siliconAPVNum(fv->get<double>("SiliconAPVNumber")) 
+{}
 
 // PGeometricDet is persistent version... make it... then come back here and make the
 // constructor.

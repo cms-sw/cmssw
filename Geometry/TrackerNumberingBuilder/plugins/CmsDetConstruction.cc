@@ -11,9 +11,7 @@ void CmsDetConstruction<FilteredView>::buildSmallDetsforGlued(FilteredView& fv,
   GeometricDet* det = new GeometricDet(&fv,
                                        CmsTrackerLevelBuilder<FilteredView>::theCmsTrackerStringToEnum.type(
                                            ExtractStringFromDDD<FilteredView>::getString(attribute, &fv)));
-  static const std::string stereo = "TrackerStereoDetectors";
-
-  if (ExtractStringFromDDD<FilteredView>::getString(stereo, &fv) == "true") {
+  if (det->stereo()) {
     uint32_t temp = 1;
     det->setGeographicalID(DetId(temp));
   } else {
@@ -31,13 +29,11 @@ void CmsDetConstruction<FilteredView>::buildSmallDetsforStack(FilteredView& fv,
   GeometricDet* det = new GeometricDet(&fv,
                                        CmsTrackerLevelBuilder<FilteredView>::theCmsTrackerStringToEnum.type(
                                            ExtractStringFromDDD<FilteredView>::getString(attribute, &fv)));
-  static const std::string isLower = "TrackerLowerDetectors";
-  static const std::string isUpper = "TrackerUpperDetectors";
 
-  if (ExtractStringFromDDD<FilteredView>::getString(isLower, &fv) == "true") {
+  if (det->isLowerSensor()) {
     uint32_t temp = 1;
     det->setGeographicalID(DetId(temp));
-  } else if (ExtractStringFromDDD<FilteredView>::getString(isUpper, &fv) == "true") {
+  } else if (det->isUpperSensor()) {
     uint32_t temp = 2;
     det->setGeographicalID(DetId(temp));
   } else {
