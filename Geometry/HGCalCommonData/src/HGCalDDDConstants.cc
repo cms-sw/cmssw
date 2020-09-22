@@ -1579,6 +1579,14 @@ bool HGCalDDDConstants::isValidCell8(int lay, int waferU, int waferV, int cellU,
                                 << cellV << " Position " << x << ":" << y << ":" << rr << " Compare Limits "
                                 << hgpar_->rMinLayHex_[ll] << ":" << hgpar_->rMaxLayHex_[ll] << " Flag " << result;
 #endif
+  if (result && (mode_ == HGCalGeometryMode::Hexagon8File)) {
+    int N = (type == 0) ? hgpar_->nCellsFine_ : hgpar_->nCellsCoarse_;
+    auto partn = waferTypeRotation(lay, waferU, waferV, false, false);
+    result = HGCalWaferMask::goodCell(cellU, cellV, N, partn.first, partn.second);
+    edm::LogVerbatim("HGCalGeom") << "Input " << lay << ":" << waferU << ":" << waferV << ":" << cellU << ":" << cellV
+                                  << " N " << N << " part " << partn.first << ":" << partn.second << " Result "
+                                  << result;
+  }
   return result;
 }
 
