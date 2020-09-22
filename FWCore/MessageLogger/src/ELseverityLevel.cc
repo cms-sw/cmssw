@@ -46,52 +46,53 @@
 
 // Possible Traces
 // #define ELsevConTRACE
-
-namespace edm {
+namespace {
 
   // ----------------------------------------------------------------------
   // Helper to construct the string->ELsev_ map on demand:
   // ----------------------------------------------------------------------
 
-  typedef std::map<std::string const, ELseverityLevel::ELsev_, std::less<>> ELmap;
+  typedef std::map<std::string const, edm::ELseverityLevel::ELsev_, std::less<>> ELmap;
 
-  static ELmap const& loadMap() {
-    static const ELmap m = {{ELzeroSeverity.getSymbol(), ELseverityLevel::ELsev_zeroSeverity},
-                            {ELzeroSeverity.getName(), ELseverityLevel::ELsev_zeroSeverity},
-                            {ELzeroSeverity.getInputStr(), ELseverityLevel::ELsev_zeroSeverity},
-                            {ELzeroSeverity.getVarName(), ELseverityLevel::ELsev_zeroSeverity},
-                            {ELdebug.getSymbol(), ELseverityLevel::ELsev_success},
-                            {ELdebug.getName(), ELseverityLevel::ELsev_success},
-                            {ELdebug.getInputStr(), ELseverityLevel::ELsev_success},
-                            {ELdebug.getVarName(), ELseverityLevel::ELsev_success},
-                            {ELinfo.getSymbol(), ELseverityLevel::ELsev_info},
-                            {ELinfo.getName(), ELseverityLevel::ELsev_info},
-                            {ELinfo.getInputStr(), ELseverityLevel::ELsev_info},
-                            {ELinfo.getVarName(), ELseverityLevel::ELsev_info},
-                            {ELwarning.getSymbol(), ELseverityLevel::ELsev_warning},
-                            {ELwarning.getName(), ELseverityLevel::ELsev_warning},
-                            {ELwarning.getInputStr(), ELseverityLevel::ELsev_warning},
-                            {ELwarning.getVarName(), ELseverityLevel::ELsev_warning},
-                            {ELerror.getSymbol(), ELseverityLevel::ELsev_error},
-                            {ELerror.getName(), ELseverityLevel::ELsev_error},
-                            {ELerror.getInputStr(), ELseverityLevel::ELsev_error},
-                            {ELerror.getVarName(), ELseverityLevel::ELsev_error},
-                            {ELunspecified.getSymbol(), ELseverityLevel::ELsev_unspecified},
-                            {ELunspecified.getName(), ELseverityLevel::ELsev_unspecified},
-                            {ELunspecified.getInputStr(), ELseverityLevel::ELsev_unspecified},
-                            {ELunspecified.getVarName(), ELseverityLevel::ELsev_unspecified},
-                            {ELsevere.getSymbol(), ELseverityLevel::ELsev_severe},
-                            {ELsevere.getName(), ELseverityLevel::ELsev_severe},
-                            {ELsevere.getInputStr(), ELseverityLevel::ELsev_severe},
-                            {ELsevere.getVarName(), ELseverityLevel::ELsev_severe},
-                            {ELhighestSeverity.getSymbol(), ELseverityLevel::ELsev_highestSeverity},
-                            {ELhighestSeverity.getName(), ELseverityLevel::ELsev_highestSeverity},
-                            {ELhighestSeverity.getInputStr(), ELseverityLevel::ELsev_highestSeverity},
-                            {ELhighestSeverity.getVarName(), ELseverityLevel::ELsev_highestSeverity}};
+  ELmap const& loadMap() {
+    static const ELmap m = {{edm::ELzeroSeverity.getSymbol(), edm::ELseverityLevel::ELsev_zeroSeverity},
+                            {edm::ELzeroSeverity.getName(), edm::ELseverityLevel::ELsev_zeroSeverity},
+                            {edm::ELzeroSeverity.getInputStr(), edm::ELseverityLevel::ELsev_zeroSeverity},
+                            {edm::ELzeroSeverity.getVarName(), edm::ELseverityLevel::ELsev_zeroSeverity},
+                            {edm::ELdebug.getSymbol(), edm::ELseverityLevel::ELsev_success},
+                            {edm::ELdebug.getName(), edm::ELseverityLevel::ELsev_success},
+                            {edm::ELdebug.getInputStr(), edm::ELseverityLevel::ELsev_success},
+                            {edm::ELdebug.getVarName(), edm::ELseverityLevel::ELsev_success},
+                            {edm::ELinfo.getSymbol(), edm::ELseverityLevel::ELsev_info},
+                            {edm::ELinfo.getName(), edm::ELseverityLevel::ELsev_info},
+                            {edm::ELinfo.getInputStr(), edm::ELseverityLevel::ELsev_info},
+                            {edm::ELinfo.getVarName(), edm::ELseverityLevel::ELsev_info},
+                            {edm::ELwarning.getSymbol(), edm::ELseverityLevel::ELsev_warning},
+                            {edm::ELwarning.getName(), edm::ELseverityLevel::ELsev_warning},
+                            {edm::ELwarning.getInputStr(), edm::ELseverityLevel::ELsev_warning},
+                            {edm::ELwarning.getVarName(), edm::ELseverityLevel::ELsev_warning},
+                            {edm::ELerror.getSymbol(), edm::ELseverityLevel::ELsev_error},
+                            {edm::ELerror.getName(), edm::ELseverityLevel::ELsev_error},
+                            {edm::ELerror.getInputStr(), edm::ELseverityLevel::ELsev_error},
+                            {edm::ELerror.getVarName(), edm::ELseverityLevel::ELsev_error},
+                            {edm::ELunspecified.getSymbol(), edm::ELseverityLevel::ELsev_unspecified},
+                            {edm::ELunspecified.getName(), edm::ELseverityLevel::ELsev_unspecified},
+                            {edm::ELunspecified.getInputStr(), edm::ELseverityLevel::ELsev_unspecified},
+                            {edm::ELunspecified.getVarName(), edm::ELseverityLevel::ELsev_unspecified},
+                            {edm::ELsevere.getSymbol(), edm::ELseverityLevel::ELsev_severe},
+                            {edm::ELsevere.getName(), edm::ELseverityLevel::ELsev_severe},
+                            {edm::ELsevere.getInputStr(), edm::ELseverityLevel::ELsev_severe},
+                            {edm::ELsevere.getVarName(), edm::ELseverityLevel::ELsev_severe},
+                            {edm::ELhighestSeverity.getSymbol(), edm::ELseverityLevel::ELsev_highestSeverity},
+                            {edm::ELhighestSeverity.getName(), edm::ELseverityLevel::ELsev_highestSeverity},
+                            {edm::ELhighestSeverity.getInputStr(), edm::ELseverityLevel::ELsev_highestSeverity},
+                            {edm::ELhighestSeverity.getVarName(), edm::ELseverityLevel::ELsev_highestSeverity}};
 
     return m;
   }
+}  // namespace
 
+namespace edm {
   // ----------------------------------------------------------------------
   // Birth/death:
   // ----------------------------------------------------------------------
