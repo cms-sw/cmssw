@@ -388,6 +388,9 @@ namespace reco {
     friend std::ostream& operator<<(std::ostream& out, const PFCandidate& c);
 
     const Point& vertex() const override;
+    double vx() const override { return vertex().x(); }
+    double vy() const override { return vertex().y(); }
+    double vz() const override { return vertex().z(); }
 
     /// do we have a valid time information
     bool isTimeValid() const { return timeError_ >= 0.f; }
