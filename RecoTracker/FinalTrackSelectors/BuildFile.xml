@@ -1,5 +1,4 @@
 <use name="ofast-flag"/>
-<use name="DataFormats/GeometryCommonDetAlgo"/>
 <use name="DataFormats/TrackReco"/>
 <use name="DataFormats/VertexReco"/>
 <use name="FWCore/Framework"/>
