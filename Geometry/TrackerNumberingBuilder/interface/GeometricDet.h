@@ -118,14 +118,19 @@ public:
   double phi() const { return _phi; }
   double rho() const { return _rho; }
 
+  // old DD
   LegacySolidShape shape() const { return cms::dd::value(cms::LegacySolidShapeMap, _shape); }
+  // DD4hep
   cms::DDSolidShape shape_dd4hep() const { return _shape; }
+
   GeometricEnumType type() const { return _type; }
   std::string const& name() const { return _ddname; }
 
   // internal representaion
+  // old DD
   nav_type const& navType() const { return _ddd; }
   NavRange navpos() const { return NavRange(&_ddd.front(), _ddd.size()); }
+
   std::vector<double> const& params() const { return _params; }
 
   ~GeometricDet();
@@ -180,6 +185,8 @@ public:
    * The following two are only meaningful for the silicon tracker.
    */
   bool stereo() const { return _stereo; }
+  bool isLowerSensor() const { return _isLowerSensor; }
+  bool isUpperSensor() const { return _isUpperSensor; }
   double siliconAPVNum() const { return _siliconAPVNum; }
 
 private:
@@ -202,6 +209,8 @@ private:
   double _pixROCx;
   double _pixROCy;
   bool _stereo;
+  bool _isLowerSensor;
+  bool _isUpperSensor;
   double _siliconAPVNum;
 };
 
