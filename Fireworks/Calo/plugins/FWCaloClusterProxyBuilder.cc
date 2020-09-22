@@ -107,7 +107,7 @@ void FWCaloClusterProxyBuilder::build(const reco::CaloCluster &iData,
 
     // HGCal
     if (iData.algo() == 8 || (type >= 8 && type <= 10)) {
-      if (heatmap && hitmap->find(it->first) == hitmap->end())
+       if (heatmap && !hitmap)
         continue;
 
       const bool z = (it->first >> 25) & 0x1;
@@ -174,7 +174,7 @@ void FWCaloClusterProxyBuilder::build(const reco::CaloCluster &iData,
       }
 
       const float energy =
-          fmin((item()->getConfig()->value<bool>("Cluster(0)/RecHit(1)") ? hitmap->at(it->first)->energy()
+          fmin((item()->getConfig()->value<bool>("Cluster(0)/RecHit(1)") && hitmap ? hitmap->at(it->first)->energy()
                                                                          : iData.energy()) /
                    saturation_energy,
                1.0f);

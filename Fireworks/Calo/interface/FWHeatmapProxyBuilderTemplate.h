@@ -20,6 +20,7 @@
 
 // system include files
 #include <cmath>
+#include <iostream>
 
 // user include files
 #include "Fireworks/Core/interface/FWSimpleProxyBuilder.h"
@@ -27,6 +28,8 @@
 #include "Fireworks/Core/interface/FWEventItem.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "DataFormats/HGCRecHit/interface/HGCRecHitCollections.h"
+#include "FWCore/Utilities/interface/Exception.h"
+
 
 // forward declarations
 
@@ -44,7 +47,7 @@ public:
   // ---------- member functions ---------------------------
 
 protected:
-  const std::unordered_map<DetId, const HGCRecHit*>* hitmap;
+  const std::unordered_map<DetId, const HGCRecHit*>* hitmap = {nullptr};
 
   static constexpr uint8_t gradient_steps = 9;
   static constexpr uint8_t gradient[3][gradient_steps] = {{static_cast<uint8_t>(0.2082 * 255),
@@ -92,15 +95,19 @@ protected:
   }
 
   void build(const FWEventItem* iItem, TEveElementList* product, const FWViewContext* vc) override {
-    if (item()->getConfig()->template value<bool>("Heatmap")) {
-      const edm::EventBase* event = iItem->getEvent();
+     if (item()->getConfig()->template value<bool>("Heatmap")) {
+        const edm::EventBase* event = iItem->getEvent();
+        try {
+           edm::Handle<std::unordered_map<DetId, const HGCRecHit*>> hitMapHandle;
+           event->getByLabel(edm::InputTag("hgcalRecHitMapProducer"), hitMapHandle);
+           hitmap = &*hitMapHandle;
+        }
+        catch (cms::Exception& iE) {
+           std::cout << "FWHeatmapProxyBuilderTemplate::build" << iE ;
+        }
+     }
 
-      edm::Handle<std::unordered_map<DetId, const HGCRecHit*>> hitMapHandle;
-      event->getByLabel(edm::InputTag("hgcalRecHitMapProducer"), hitMapHandle);
-      hitmap = &*hitMapHandle;
-    }
-
-    FWSimpleProxyBuilder::build(iItem, product, vc);
+     FWSimpleProxyBuilder::build(iItem, product, vc);
   }
 
   using FWSimpleProxyBuilder::build;
