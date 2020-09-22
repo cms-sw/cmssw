@@ -33,9 +33,9 @@ import FWCore.ParameterSet.Config as cms
 ecalDrivenGsfElectronsFromMultiCl = ecalDrivenGsfElectrons.clone(
     gsfElectronCoresTag = "ecalDrivenGsfElectronCoresFromMultiCl",
     
-    useGsfPfRecTracks = cms.bool(False),
-    useDefaultEnergyCorrection = cms.bool(False),
-    ambClustersOverlapStrategy = cms.uint32(0),
-    applyAmbResolution = cms.bool(True),
-    ignoreNotPreselected = cms.bool(False),
+    useGsfPfRecTracks = False,
+    useDefaultEnergyCorrection = False,
+    ambClustersOverlapStrategy = 0,
+    applyAmbResolution = True,
+    ignoreNotPreselected = False,
 )

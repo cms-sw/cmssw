@@ -39,7 +39,7 @@ private:
   edm::Handle<std::vector<reco::HGCalMultiCluster> > clusterH_;
 
   edm::EDGetTokenT<std::vector<ticl::Trackster> > tracksterToken_;
-  edm::Handle<std::vector<ticl::Trackster> > tracksters_;
+  edm::Handle<std::vector<ticl::Trackster> > trackstersH_;
 };
 
 DEFINE_EDM_PLUGIN(InitialClusteringStepFactory, PFClusterFromHGCalMultiCluster, "PFClusterFromHGCalMultiCluster");
