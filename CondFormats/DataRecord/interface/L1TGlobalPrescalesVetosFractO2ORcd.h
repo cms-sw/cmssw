@@ -13,6 +13,6 @@
 class L1TGlobalPrescalesVetosFractO2ORcd
     : public edm::eventsetup::DependentRecordImplementation<
           L1TGlobalPrescalesVetosFractO2ORcd,
-          edm::mpl::Vector<L1TriggerKeyListExtRcd, L1TriggerKeyExtRcd, L1TGlobalPrescalesVetosFractRcd> > {};
+          boost::mpl::vector<L1TriggerKeyListExtRcd, L1TriggerKeyExtRcd, L1TGlobalPrescalesVetosFractRcd> > {};
 
 #endif
