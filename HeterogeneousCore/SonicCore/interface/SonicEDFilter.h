@@ -1,12 +1,7 @@
 #ifndef HeterogeneousCore_SonicCore_SonicEDFilter
 #define HeterogeneousCore_SonicCore_SonicEDFilter
 
-#include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/stream/EDFilter.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Concurrency/interface/WaitingTaskWithArenaHolder.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "HeterogeneousCore/SonicCore/interface/sonic_utils.h"
 #include "HeterogeneousCore/SonicCore/interface/SonicAcquirer.h"
 

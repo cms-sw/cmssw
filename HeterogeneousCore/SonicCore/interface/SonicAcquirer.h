@@ -1,8 +1,13 @@
 #ifndef HeterogeneousCore_SonicCore_SonicAcquirer
 #define HeterogeneousCore_SonicCore_SonicAcquirer
 
+#include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Concurrency/interface/WaitingTaskWithArenaHolder.h"
+#include "HeterogeneousCore/SonicCore/interface/sonic_utils.h"
+
+#include <chrono>
 
 template <typename Client, typename Module>
 class SonicAcquirer : public Module {
