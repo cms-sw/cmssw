@@ -30,7 +30,7 @@ GEMSegment::GEMSegment(const std::vector<const GEMRecHit*>& proto_segment,
                        const LocalPoint& origin,
                        const LocalVector& direction,
                        const AlgebraicSymMatrix& errors,
-                       float chi2)
+                       double chi2)
     : RecSegment(buildDetId(proto_segment.front()->gemId())),
       theOrigin(origin),
       theLocalDirection(direction),
@@ -46,7 +46,7 @@ GEMSegment::GEMSegment(const std::vector<const GEMRecHit*>& proto_segment,
                        const LocalPoint& origin,
                        const LocalVector& direction,
                        const AlgebraicSymMatrix& errors,
-                       float chi2,
+                       double chi2,
                        float bx)
     : RecSegment(buildDetId(proto_segment.front()->gemId())),
       theOrigin(origin),
@@ -63,7 +63,7 @@ GEMSegment::GEMSegment(const std::vector<const GEMRecHit*>& proto_segment,
                        const LocalPoint& origin,
                        const LocalVector& direction,
                        const AlgebraicSymMatrix& errors,
-                       float chi2,
+                       double chi2,
                        float bx,
                        float deltaPhi)
     : RecSegment(buildDetId(proto_segment.front()->gemId())),
@@ -132,7 +132,7 @@ std::ostream& operator<<(std::ostream& os, const GEMSegment& seg) {
      << sqrt(seg.localPositionError().yy()) << "0,)\n"
      << "            dir = " << seg.localDirection() << " dirErr = (" << sqrt(seg.localDirectionError().xx()) << ","
      << sqrt(seg.localDirectionError().yy()) << "0,)\n"
-     << "            chi2/ndf = " << ((seg.degreesOfFreedom() != 0.) ? seg.chi2() / float(seg.degreesOfFreedom()) : 0)
+     << "            chi2/ndf = " << ((seg.degreesOfFreedom() != 0.) ? seg.chi2() / double(seg.degreesOfFreedom()) : 0)
      << " #rechits = " << seg.specificRecHits().size() << " bx = " << seg.bunchX() << " deltaPhi = " << seg.deltaPhi();
 
   return os;
