@@ -131,7 +131,8 @@ process.out = cms.OutputModule("RawStreamFileWriterForBU",
     ProductLabel = cms.untracked.string("s"),
     numEventsPerFile= cms.untracked.uint32(options.eventsPerFile),
     frdFileVersion=cms.untracked.uint32(options.frdFileVersion),
-    frdVersion=cms.untracked.uint32(5)
+    frdVersion=cms.untracked.uint32(5),
+    fillFRDEventFlags=cms.untracked.bool(False)
     )
 
 process.p = cms.Path(process.s+process.a)

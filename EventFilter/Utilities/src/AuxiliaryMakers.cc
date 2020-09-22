@@ -9,6 +9,7 @@ namespace evf {
     edm::EventAuxiliary makeEventAuxiliary(const tcds::Raw_v1* tcds,
                                            unsigned int runNumber,
                                            unsigned int lumiSection,
+                                           bool isRealData,
                                            const edm::EventAuxiliary::ExperimentType& eventType,
                                            const std::string& processGUID,
                                            bool verifyLumiSection) {
@@ -38,7 +39,7 @@ namespace evf {
       return edm::EventAuxiliary(eventId,
                                  processGUID,
                                  edm::Timestamp(time),
-                                 true,
+                                 isRealData,
                                  eventType,
                                  (int)tcds->header.bxid,
                                  ((uint32_t)(tcds->bst.lhcFillHigh) << 16) | tcds->bst.lhcFillLow,
