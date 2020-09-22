@@ -183,6 +183,14 @@ void PFTauPrimaryVertexProducerBase::produce(edm::Event& iEvent,const edm::Event
 	  } else {
 	    transVtx = avf.vertex(transTracks, *beamSpot);
 	  }
+	  if (!transVtx.isValid()) {
+	    fitOK = false;
+	  } else {
+	    //MB: protect against rare cases when transVtx is valid but its position is ill-defined
+	    reco::Vertex::Point pvPos(transVtx.position());
+	    if (!std::isfinite(pvPos.z())) //MB: it is enough to check one coordinate (?)
+	      fitOK = false;
+	  }
 	} else fitOK = false;
 	if ( fitOK ) thePV = transVtx;
       }
