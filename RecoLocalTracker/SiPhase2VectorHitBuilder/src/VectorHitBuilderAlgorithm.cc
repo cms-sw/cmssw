@@ -137,7 +137,7 @@ std::vector<std::pair<VectorHit, bool>> VectorHitBuilderAlgorithm::buildVectorHi
     localParamsUpper.push_back(theCpe->localParameters(*clusterUpper, *gduUpp));
   }
   int upperIterator = 0;
-  for (const_iterator cil = theUpperDetSet.begin(); cil != theUpperDetSet.end(); ++cil) {
+  for (const_iterator cil = theLowerDetSet.begin(); cil != theLowerDetSet.end(); ++cil) {
     LogDebug("VectorHitBuilderAlgorithm") << " lower clusters " << std::endl;
     Phase2TrackerCluster1DRef cluL = edmNew::makeRefTo(clusters, cil);
 #ifdef EDM_ML_DEBUG
@@ -342,9 +342,9 @@ void VectorHitBuilderAlgorithm::fit2Dzx(const Local3DPoint lpCI,
   float y[2] = {lpCI.x(), lpCO.x()};
   float sqCI = sqrt(leCI.xx());
   float sqCO = sqrt(leCO.xx());
-  float sigy[2] = {sqCI, sqCO};
+  float sigy2[2] = {sqCI*sqCI, sqCO*sqCO};
 
-  fit(x, y, sigy, pos, dir, covMatrix, chi2);
+  fit(x, y, sigy2, pos, dir, covMatrix, chi2);
 
   return;
 }
@@ -361,16 +361,16 @@ void VectorHitBuilderAlgorithm::fit2Dzy(const Local3DPoint lpCI,
   float y[2] = {lpCI.y(), lpCO.y()};
   float sqCI = sqrt(leCI.yy());
   float sqCO = sqrt(leCO.yy());
-  float sigy[2] = {sqCI, sqCO};
+  float sigy2[2] = {sqCI*sqCI, sqCO*sqCO};
 
-  fit(x, y, sigy, pos, dir, covMatrix, chi2);
+  fit(x, y, sigy2, pos, dir, covMatrix, chi2);
 
   return;
 }
 
 void VectorHitBuilderAlgorithm::fit(float x[2],
                                     float y[2],
-                                    float sigy[2],
+                                    float sigy2[2],
                                     Local3DPoint& pos,
                                     Local3DVector& dir,
                                     AlgebraicSymMatrix22& covMatrix,
@@ -382,7 +382,7 @@ void VectorHitBuilderAlgorithm::fit(float x[2],
   float covsi = 0.;
 
   //theFitter->linearFit(x, y, 2, sigy, slope, intercept, covss, covii, covsi);
-  linearFit(x, y, 2, sigy, slope, intercept, covss, covii, covsi);
+  linearFit(x, y, 2, sigy2, slope, intercept, covss, covii, covsi);
 
   covMatrix[0][0] = covss;  // this is var(dy/dz)
   covMatrix[1][1] = covii;  // this is var(y)
@@ -390,7 +390,7 @@ void VectorHitBuilderAlgorithm::fit(float x[2],
 
   for (unsigned int j = 0; j < 2; j++) {
     const double ypred = intercept + slope * x[j];
-    const double dy = (y[j] - ypred) / sigy[j];
+    const double dy = (y[j] - ypred) / sqrt(sigy2[j]);
     chi2 += dy * dy;
   }
 
