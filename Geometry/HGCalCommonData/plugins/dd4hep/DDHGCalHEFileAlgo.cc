@@ -495,12 +495,14 @@ struct HGCalHEFileAlgo {
 #ifdef EDM_ML_DEBUG
         ++ntot;
 #endif
-	int indx = HGCalWaferIndex::waferIndex((layer + firstLayer_), u, v, false);
-	int type = HGCalWaferType::getType(indx, waferIndex_, waferTypes_);
-	if (corner.first > 0 && type >= 0) {
-	  int copy = HGCalTypes::packTypeUV(type, u, v);
+        int indx = HGCalWaferIndex::waferIndex((layer + firstLayer_), u, v, false);
+        int type = HGCalWaferType::getType(indx, waferIndex_, waferTypes_);
+        if (corner.first > 0 && type >= 0) {
+          int copy = HGCalTypes::packTypeUV(type, u, v);
 #ifdef EDM_ML_DEBUG
-	  edm::LogVerbatim("HGCalGeom") << " DDHGCalHEFileAlgo: " << wafers_[type] << " number " << copy << " type " << type << " layer:u:v:indx " << (layer + firstLayer_) << ":" << u << ":" << v << ":" << indx;
+          edm::LogVerbatim("HGCalGeom") << " DDHGCalHEFileAlgo: " << wafers_[type] << " number " << copy << " type "
+                                        << type << " layer:u:v:indx " << (layer + firstLayer_) << ":" << u << ":" << v
+                                        << ":" << indx;
           if (iu > ium)
             ium = iu;
           if (iv > ivm)
