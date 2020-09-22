@@ -16,7 +16,7 @@ class GeometryComparison(GenericValidation):
         "3DSubdetector2":"2",
         "3DTranslationalScaleFactor":"50",
         "modulesToPlot":"all",
-        "moduleList": "/store/caf/user/cschomak/emptyModuleList.txt",
+        "moduleList": "./CREATE_NEW/emptyModuleList.txt",
         "useDefaultRange":"false",
         "plotOnlyGlobal":"true",
         "plotPng":"true",
@@ -304,6 +304,9 @@ class GeometryComparison(GenericValidation):
         elif repMap["moduleList"].startswith("root://"):
             repMap["CommandLine"]+= \
                  "xrdcp .oO[moduleList]Oo. .\n"
+        elif repMap["moduleList"].startswith("./CREATE_NEW/"):
+            repMap["CommandLine"]+= \
+                 "touch .oO[moduleListBase]Oo.\n"
         else:
             repMap["CommandLine"]+= \
                      "cp .oO[moduleList]Oo. .\n"
