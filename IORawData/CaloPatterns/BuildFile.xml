@@ -1,4 +1,5 @@
 <use name="xerces-c"/>
+<use name="CalibFormats/HcalObjects"/>
 <use name="FWCore/Framework"/>
 <use name="FWCore/Utilities"/>
 <use name="DataFormats/HcalDetId"/>
@@ -7,5 +8,4 @@
 <use name="CondFormats/HcalObjects"/>
 <use name="root"/>
 <use name="stdcxx-fs"/>
-<use name="CalibCalorimetry/HcalAlgos"/>
 <flags EDM_PLUGIN="1"/>

@@ -12,4 +12,3 @@
 <use name="CondFormats/BeamSpotObjects"/>
 <use name="CondFormats/PPSObjects"/>
 <use name="CondCore/DBOutputService"/>
-<use name="DataFormats/Candidate"/>
