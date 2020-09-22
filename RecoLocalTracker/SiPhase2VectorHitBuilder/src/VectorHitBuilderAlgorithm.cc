@@ -342,7 +342,7 @@ void VectorHitBuilderAlgorithm::fit2Dzx(const Local3DPoint lpCI,
   float y[2] = {lpCI.x(), lpCO.x()};
   float sqCI = sqrt(leCI.xx());
   float sqCO = sqrt(leCO.xx());
-  float sigy2[2] = {sqCI*sqCI, sqCO*sqCO};
+  float sigy2[2] = {sqCI * sqCI, sqCO * sqCO};
 
   fit(x, y, sigy2, pos, dir, covMatrix, chi2);
 
@@ -361,7 +361,7 @@ void VectorHitBuilderAlgorithm::fit2Dzy(const Local3DPoint lpCI,
   float y[2] = {lpCI.y(), lpCO.y()};
   float sqCI = sqrt(leCI.yy());
   float sqCO = sqrt(leCO.yy());
-  float sigy2[2] = {sqCI*sqCI, sqCO*sqCO};
+  float sigy2[2] = {sqCI * sqCI, sqCO * sqCO};
 
   fit(x, y, sigy2, pos, dir, covMatrix, chi2);
 
