@@ -1,5 +1,9 @@
 import FWCore.ParameterSet.Config as cms
 from PhysicsTools.NanoAOD.common_cff import *
+from Configuration.Eras.Modifier_run2_miniAOD_80XLegacy_cff import run2_miniAOD_80XLegacy
+from Configuration.Eras.Modifier_run2_nanoAOD_94XMiniAODv1_cff import run2_nanoAOD_94XMiniAODv1
+from Configuration.Eras.Modifier_run2_nanoAOD_94XMiniAODv2_cff import run2_nanoAOD_94XMiniAODv2
+from Configuration.Eras.Modifier_run2_nanoAOD_94X2016_cff import run2_nanoAOD_94X2016
 
 protonTable = cms.EDProducer("ProtonProducer",
                              tagRecoProtonsSingle = cms.InputTag("ctppsProtons", "singleRP"),
@@ -14,6 +18,7 @@ singleRPTable = cms.EDProducer("SimpleProtonTrackFlatTableProducer",
     doc  = cms.string("bon"),
     singleton = cms.bool(False),
     extension = cms.bool(False),
+    skipNonExistingSrc = cms.bool(True),
     variables = cms.PSet(
         xi = Var("xi",float,doc="xi or dp/p",precision=12),
         xiUnc = Var("xiError",float,doc="uncertainty on xi or dp/p",precision=8),
@@ -34,6 +39,7 @@ multiRPTable = cms.EDProducer("SimpleProtonTrackFlatTableProducer",
     doc  = cms.string("bon"),
     singleton = cms.bool(False),
     extension = cms.bool(False),
+    skipNonExistingSrc = cms.bool(True),
     variables = cms.PSet(
         xi = Var("xi",float,doc="xi or dp/p",precision=12),
         xiUnc = Var("xiError",float,doc="uncertainty on xi or dp/p",precision=8),
@@ -62,3 +68,6 @@ protonTables = cms.Sequence(
     +singleRPTable
     +multiRPTable
 )
+
+for modifier in run2_miniAOD_80XLegacy, run2_nanoAOD_94XMiniAODv1, run2_nanoAOD_94XMiniAODv2, run2_nanoAOD_94X2016:
+    modifier.toReplaceWith(protonTables, cms.Sequence())
