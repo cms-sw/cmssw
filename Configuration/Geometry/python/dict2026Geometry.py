@@ -1110,7 +1110,7 @@ muonDict = {
             'from Geometry.CSCGeometryBuilder.idealForDigiCscGeometry_cff import *',
             'from Geometry.DTGeometryBuilder.idealForDigiDtGeometry_cff import *',
         ],
-        "era" : "phase2_muon, phase2_GEM",
+        "era" : "phase2_muon, phase2_GEM, phase2_GE0",
     },
 }
 
