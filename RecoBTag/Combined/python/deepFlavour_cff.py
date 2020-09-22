@@ -11,7 +11,7 @@ from RecoBTag.Combined.pfDeepCMVADiscriminatorsJetTags_cfi import pfDeepCMVADisc
 ##
 
 pfDeepCSVNegativeTagInfos = pfDeepCSVTagInfos.clone(
-    svTagInfos=cms.InputTag('pfInclusiveSecondaryVertexFinderNegativeTagInfos'),
+    svTagInfos='pfInclusiveSecondaryVertexFinderNegativeTagInfos',
     computer = dict(
         vertexFlip = True,
         trackFlip = True,
@@ -27,7 +27,7 @@ pfDeepCSVNegativeTagInfos = pfDeepCSVTagInfos.clone(
     )
 
 pfNegativeDeepCSVJetTags = pfDeepCSVJetTags.clone(
-	src=cms.InputTag('pfDeepCSVNegativeTagInfos')
+	src='pfDeepCSVNegativeTagInfos'
 	)
 
 pfDeepCSVPositiveTagInfos = pfDeepCSVTagInfos.clone(
@@ -43,23 +43,23 @@ pfDeepCSVPositiveTagInfos = pfDeepCSVTagInfos.clone(
     )
 
 pfPositiveDeepCSVJetTags = pfDeepCSVJetTags.clone(
-	src=cms.InputTag('pfDeepCSVPositiveTagInfos')
+	src='pfDeepCSVPositiveTagInfos'
 	)
 
 # Deep CMVA
 pfDeepCMVANegativeTagInfos = pfDeepCMVATagInfos.clone(
-	deepNNTagInfos = cms.InputTag('pfDeepCSVNegativeTagInfos')
+	deepNNTagInfos = 'pfDeepCSVNegativeTagInfos'
 	)
 	
 pfNegativeDeepCMVAJetTags = pfDeepCMVAJetTags.clone(
-	src=cms.InputTag('pfDeepCMVANegativeTagInfos')
+	src='pfDeepCMVANegativeTagInfos'
 	)
 
 pfDeepCMVAPositiveTagInfos = pfDeepCMVATagInfos.clone(
-	deepNNTagInfos = cms.InputTag('pfDeepCSVPositiveTagInfos')
+	deepNNTagInfos = 'pfDeepCSVPositiveTagInfos'
 	)
 pfPositiveDeepCMVAJetTags = pfDeepCMVAJetTags.clone(
-	src=cms.InputTag('pfDeepCMVAPositiveTagInfos')
+	src='pfDeepCMVAPositiveTagInfos'
 	)
 
 
