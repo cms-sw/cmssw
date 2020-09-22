@@ -87,8 +87,6 @@ namespace deep_tau {
         is_online(cfg.getParameter<bool>("is_online")),
         outputs_(outputCollection),
         cache_(cache) {
-
-
     for (const auto& output_desc : outputs_) {
       produces<TauDiscriminator>(output_desc.first);
       const auto& cut_list = cfg.getParameter<std::vector<std::string>>(output_desc.first + "WP");

@@ -1,13 +1,12 @@
 import FWCore.ParameterSet.Config as cms
 
-from RecoTauTag.RecoTau.pfRecoTauDiscriminationByIsolation_cfi import *
+# from RecoTauTag.RecoTau.pfRecoTauDiscriminationByIsolation_cfi import *
+from RecoTauTag.RecoTau.PFRecoTauDiscriminationByIsolation_cfi import *
 from RecoTauTag.RecoTau.PFRecoTauQualityCuts_cfi import PFTauQualityCuts
-
 
 from RecoTauTag.RecoTau.PFTauPrimaryVertexProducer_cfi      import *
 from RecoTauTag.RecoTau.PFTauSecondaryVertexProducer_cfi    import *
 from RecoTauTag.RecoTau.PFTauTransverseImpactParameters_cfi import *
-
 
 def update(process):
     process.options.wantSummary = cms.untracked.bool(True)
@@ -20,209 +19,58 @@ def update(process):
 
     PFTauQualityCuts.primaryVertexSrc = cms.InputTag("hltPixelVertices")
 
-    process.chargedIsoPtSum = pfRecoTauDiscriminationByIsolation.clone(
+    ## Cut based isolations dR=0.5
+    process.hpsPFTauBasicDiscriminators = pfRecoTauDiscriminationByIsolation.clone(
         PFTauProducer = cms.InputTag('hltHpsPFTauProducerReg'),
         particleFlowSrc = cms.InputTag("hltParticleFlowReg"),
         vertexSrc = PFTauQualityCuts.primaryVertexSrc,
         Prediscriminants = cms.PSet(  BooleanOperator = cms.string( "and" ) ),
-        ApplyDiscriminationByECALIsolation = cms.bool(False),
-        ApplyDiscriminationByTrackerIsolation = cms.bool(True),
-        applyDeltaBetaCorrection = cms.bool(False),
-        storeRawSumPt = cms.bool(True),
-        applyOccupancyCut = cms.bool(False),
-        applySumPtCut = cms.bool(False),
-        storeRawPUsumPt = cms.bool(False),
-        customOuterCone = cms.double(0.5),
-        isoConeSizeForDeltaBeta = cms.double(0.8),
-        verbosity = cms.int32(0),
-        qualityCuts = PFTauQualityCuts
+        customOuterCone = 0.5,
+        isoConeSizeForDeltaBeta = 0.8,
+        IDdefinitions = cms.VPSet(
+            cms.PSet(
+                IDname = cms.string("ChargedIsoPtSum"),
+                ApplyDiscriminationByTrackerIsolation = cms.bool(True),
+                storeRawSumPt = cms.bool(True)
+            ),
+            cms.PSet(
+                IDname = cms.string("NeutralIsoPtSum"),
+                ApplyDiscriminationByECALIsolation = cms.bool(True),
+                storeRawSumPt = cms.bool(True)
+            ),
+            cms.PSet(
+                IDname = cms.string("NeutralIsoPtSumWeight"),
+                ApplyDiscriminationByWeightedECALIsolation = cms.bool(True),
+                storeRawSumPt = cms.bool(True),
+                UseAllPFCandsForWeights = cms.bool(True)
+            ),
+            cms.PSet(
+                IDname = cms.string("TauFootprintCorrection"),
+                applyDeltaBetaCorrection = cms.bool(True),
+                storeRawFootprintCorrection = cms.bool(True)
+            ),
+            cms.PSet(
+                IDname = cms.string("PhotonPtSumOutsideSignalCone"),
+                storeRawPhotonSumPt_outsideSignalCone = cms.bool(True)
+            ),
+            cms.PSet(
+                IDname = cms.string("PUcorrPtSum"),
+                applyDeltaBetaCorrection = cms.bool(True),
+                storeRawPUsumPt = cms.bool(True)
+            ),
+            cms.PSet(
+                IDname = cms.string("ByRawCombinedIsolationDBSumPtCorr3Hits"),
+                ApplyDiscriminationByTrackerIsolation = cms.bool(True),
+                ApplyDiscriminationByECALIsolation = cms.bool(True),
+                applyDeltaBetaCorrection = cms.bool(True),
+                storeRawSumPt = cms.bool(True)
+            )
+        ),
     )
 
-    process.chargedIsoPtSumdR03 = pfRecoTauDiscriminationByIsolation.clone(
-        PFTauProducer = cms.InputTag('hltHpsPFTauProducerReg'),
-        particleFlowSrc = cms.InputTag("hltParticleFlowReg"),
-        vertexSrc = PFTauQualityCuts.primaryVertexSrc,
-        ApplyDiscriminationByECALIsolation = cms.bool(False),
-        ApplyDiscriminationByTrackerIsolation = cms.bool(True),
-        Prediscriminants = cms.PSet(  BooleanOperator = cms.string( "and" ) ),
-        applyOccupancyCut = cms.bool(False),
-        applySumPtCut = cms.bool(False),
-        applyDeltaBetaCorrection = cms.bool(False),
-        storeRawSumPt = cms.bool(True),
-        storeRawPUsumPt = cms.bool(False),
-        customOuterCone = cms.double(0.3),
-        isoConeSizeForDeltaBeta = cms.double(0.8),
-        verbosity = cms.int32(0),
-        qualityCuts = PFTauQualityCuts
-    )
-    process.neutralIsoPtSum = pfRecoTauDiscriminationByIsolation.clone(
-        PFTauProducer = cms.InputTag('hltHpsPFTauProducerReg'),
-        particleFlowSrc = cms.InputTag("hltParticleFlowReg"),
-        vertexSrc = cms.InputTag("hltPixelVertices"),
-        ApplyDiscriminationByECALIsolation = cms.bool(True),
-        ApplyDiscriminationByTrackerIsolation = cms.bool(False),
-        Prediscriminants = cms.PSet(  BooleanOperator = cms.string( "and" ) ),
-        applyOccupancyCut = cms.bool(False),
-        applySumPtCut = cms.bool(False),
-        applyDeltaBetaCorrection = cms.bool(False),
-        storeRawSumPt = cms.bool(True),
-        storeRawPUsumPt = cms.bool(False),
-        customOuterCone = cms.double(0.5),
-        isoConeSizeForDeltaBeta = cms.double(0.8),
-        verbosity = cms.int32(0),
-        qualityCuts = PFTauQualityCuts
-    )
-    process.neutralIsoPtSumdR03 = pfRecoTauDiscriminationByIsolation.clone(
-        PFTauProducer = cms.InputTag('hltHpsPFTauProducerReg'),
-        particleFlowSrc = cms.InputTag("hltParticleFlowReg"),
-        vertexSrc = cms.InputTag("hltPixelVertices"),
-        ApplyDiscriminationByECALIsolation = cms.bool(True),
-        ApplyDiscriminationByTrackerIsolation = cms.bool(False),
-        Prediscriminants = cms.PSet(  BooleanOperator = cms.string( "and" ) ),
-        applyOccupancyCut = cms.bool(False),
-        applySumPtCut = cms.bool(False),
-        applyDeltaBetaCorrection = cms.bool(False),
-        storeRawSumPt = cms.bool(True),
-        storeRawPUsumPt = cms.bool(False),
-        customOuterCone = cms.double(0.3),
-        isoConeSizeForDeltaBeta = cms.double(0.8),
-        verbosity = cms.int32(0),
-        qualityCuts = PFTauQualityCuts
-    )
-    process.puCorrPtSum = pfRecoTauDiscriminationByIsolation.clone(
-        PFTauProducer = cms.InputTag('hltHpsPFTauProducerReg'),
-        particleFlowSrc = cms.InputTag("hltParticleFlowReg"),
-        vertexSrc = cms.InputTag("hltPixelVertices"),
-        ApplyDiscriminationByECALIsolation = cms.bool(False),
-        ApplyDiscriminationByTrackerIsolation = cms.bool(False),
-        Prediscriminants = cms.PSet(  BooleanOperator = cms.string( "and" ) ),
-        applyOccupancyCut = cms.bool(False),
-        applySumPtCut = cms.bool(False),
-        applyDeltaBetaCorrection = cms.bool(True),
-        storeRawSumPt = cms.bool(False),
-        storeRawPUsumPt = cms.bool(True),
-        customOuterCone = cms.double(0.5),
-        isoConeSizeForDeltaBeta = cms.double(0.8),
-        verbosity = cms.int32(0),
-        qualityCuts = PFTauQualityCuts
-    )
-    requireDecayMode = cms.PSet(
-        BooleanOperator = cms.string("and"),
-        decayMode = cms.PSet(
-            Producer = cms.InputTag('hltHpsPFTauDiscriminationByDecayModeFindingNewDMsReg'),
-            cut = cms.double(0.5)
-        )
-    )
-    process.footprintCorrection = pfRecoTauDiscriminationByIsolation.clone(
-        PFTauProducer = cms.InputTag('hltHpsPFTauProducerReg'),
-        particleFlowSrc = cms.InputTag("hltParticleFlowReg"),
-        vertexSrc = cms.InputTag("hltPixelVertices"),
-        Prediscriminants = requireDecayMode.clone(),
-        ApplyDiscriminationByECALIsolation = cms.bool(False),
-        ApplyDiscriminationByTrackerIsolation = cms.bool(False),
-        applyOccupancyCut = cms.bool(False),
-        applySumPtCut = cms.bool(False),
-        applyDeltaBetaCorrection = cms.bool(True),
-        storeRawSumPt = cms.bool(False),
-        storeRawPUsumPt = cms.bool(False),
-        storeRawFootprintCorrection = cms.bool(True),
-        customOuterCone = cms.double(0.5),
-        isoConeSizeForDeltaBeta = cms.double(0.8),
-        verbosity = cms.int32(0),
-        qualityCuts = PFTauQualityCuts
-    )
-    process.footprintCorrectiondR03 = pfRecoTauDiscriminationByIsolation.clone(
-        PFTauProducer = cms.InputTag('hltHpsPFTauProducerReg'),
-        particleFlowSrc = cms.InputTag("hltParticleFlowReg"),
-        vertexSrc = cms.InputTag("hltPixelVertices"),
-        Prediscriminants = requireDecayMode.clone(),
-        ApplyDiscriminationByECALIsolation = cms.bool(False),
-        ApplyDiscriminationByTrackerIsolation = cms.bool(False),
-        applyOccupancyCut = cms.bool(False),
-        applySumPtCut = cms.bool(False),
-        applyDeltaBetaCorrection = cms.bool(True),
-        storeRawSumPt = cms.bool(False),
-        storeRawPUsumPt = cms.bool(False),
-        storeRawFootprintCorrection = cms.bool(True),
-        customOuterCone = cms.double(0.3),
-        isoConeSizeForDeltaBeta = cms.double(0.8),
-        verbosity = cms.int32(0),
-        qualityCuts = PFTauQualityCuts
-    )
-
-    process.neutralIsoPtSumWeight = pfRecoTauDiscriminationByIsolation.clone(
-        PFTauProducer = cms.InputTag('hltHpsPFTauProducerReg'),
-        particleFlowSrc = cms.InputTag("hltParticleFlowReg"),
-        vertexSrc = cms.InputTag("hltPixelVertices"),
-        Prediscriminants = requireDecayMode.clone(),
-        ApplyDiscriminationByECALIsolation = cms.bool(True),
-        ApplyDiscriminationByTrackerIsolation = cms.bool(False),
-        UseAllPFCandsForWeights = cms.bool(True),
-        applyOccupancyCut = cms.bool(False),
-        applySumPtCut = cms.bool(False),
-        applyDeltaBetaCorrection = cms.bool(False),
-        storeRawSumPt = cms.bool(True),
-        storeRawPUsumPt = cms.bool(False),
-        customOuterCone = cms.double(0.5),
-        isoConeSizeForDeltaBeta = cms.double(0.8),
-        verbosity = cms.int32(0),
-        qualityCuts = PFTauQualityCuts
-    )
-
-    process.neutralIsoPtSumWeightdR03 = pfRecoTauDiscriminationByIsolation.clone(
-        PFTauProducer = cms.InputTag('hltHpsPFTauProducerReg'),
-        particleFlowSrc = cms.InputTag("hltParticleFlowReg"),
-        vertexSrc = cms.InputTag("hltPixelVertices"),
-        Prediscriminants = requireDecayMode.clone(),
-        ApplyDiscriminationByECALIsolation = cms.bool(True),
-        ApplyDiscriminationByTrackerIsolation = cms.bool(False),
-        UseAllPFCandsForWeights = cms.bool(True),
-        applyOccupancyCut = cms.bool(False),
-        applySumPtCut = cms.bool(False),
-        applyDeltaBetaCorrection = cms.bool(False),
-        storeRawSumPt = cms.bool(True),
-        storeRawPUsumPt = cms.bool(False),
-        customOuterCone = cms.double(0.5),
-        isoConeSizeForDeltaBeta = cms.double(0.8),
-        verbosity = cms.int32(0),
-        qualityCuts = PFTauQualityCuts
-    )
-
-    process.photonPtSumOutsideSignalCone = pfRecoTauDiscriminationByIsolation.clone(
-        PFTauProducer = cms.InputTag('hltHpsPFTauProducerReg'),
-        particleFlowSrc = cms.InputTag("hltParticleFlowReg"),
-        vertexSrc = cms.InputTag("hltPixelVertices"),
-        Prediscriminants = requireDecayMode.clone(),
-        ApplyDiscriminationByECALIsolation = cms.bool(False),
-        ApplyDiscriminationByTrackerIsolation = cms.bool(False),
-        applyOccupancyCut = cms.bool(False),
-        applySumPtCut = cms.bool(False),
-        applyDeltaBetaCorrection = cms.bool(False),
-        storeRawSumPt = cms.bool(False),
-        storeRawPUsumPt = cms.bool(False),
-        storeRawPhotonSumPt_outsideSignalCone = cms.bool(True),
-        customOuterCone = cms.double(0.5),
-        isoConeSizeForDeltaBeta = cms.double(0.8),
-        verbosity = cms.int32(0),
-        qualityCuts = PFTauQualityCuts
-    )
-    process.photonPtSumOutsideSignalConedR03 = pfRecoTauDiscriminationByIsolation.clone(
-        PFTauProducer = cms.InputTag('hltHpsPFTauProducerReg'),
-        particleFlowSrc = cms.InputTag("hltParticleFlowReg"),
-        vertexSrc = cms.InputTag("hltPixelVertices"),
-        Prediscriminants = requireDecayMode.clone(),
-        ApplyDiscriminationByECALIsolation = cms.bool(False),
-        ApplyDiscriminationByTrackerIsolation = cms.bool(False),
-        applyOccupancyCut = cms.bool(False),
-        applySumPtCut = cms.bool(False),
-        applyDeltaBetaCorrection = cms.bool(False),
-        storeRawSumPt = cms.bool(False),
-        storeRawPUsumPt = cms.bool(False),
-        storeRawPhotonSumPt_outsideSignalCone = cms.bool(True),
-        customOuterCone = cms.double(0.3),
-        isoConeSizeForDeltaBeta = cms.double(0.8),
-        verbosity = cms.int32(0),
-        qualityCuts = PFTauQualityCuts
+    ## Cut based isolations dR=0.3
+    process.hpsPFTauBasicDiscriminatorsdR03 = process.hpsPFTauBasicDiscriminators.clone(
+        customOuterCone = cms.double(0.3)
     )
 
     process.hpsPFTauPrimaryVertexProducer = PFTauPrimaryVertexProducer.clone(
@@ -232,10 +80,10 @@ def update(process):
         PVTag = cms.InputTag("hltPixelVertices"),
         beamSpot = cms.InputTag("hltOnlineBeamSpot"),
         Algorithm = cms.int32(0),
-        useBeamSpot = cms.bool(True),
-        RemoveMuonTracks = cms.bool(False),
-        RemoveElectronTracks = cms.bool(False),
-        useSelectedTaus = cms.bool(False),
+        useBeamSpot = True,
+        RemoveMuonTracks = False,
+        RemoveElectronTracks = False,
+        useSelectedTaus = False,
         discriminators = cms.VPSet(
             cms.PSet(
                 discriminator = cms.InputTag('hltHpsPFTauDiscriminationByDecayModeFindingNewDMsReg'),
@@ -289,7 +137,7 @@ def update(process):
         PFTauTag = cms.InputTag("hltHpsPFTauProducerReg"),
         PFTauPVATag = cms.InputTag("hpsPFTauPrimaryVertexProducer"),
         PFTauSVATag = cms.InputTag("hpsPFTauSecondaryVertexProducer"),
-        useFullCalculation = cms.bool(True)
+        useFullCalculation = True
     )
 
 
@@ -297,19 +145,9 @@ def update(process):
     process.HLTHPSMediumChargedIsoPFTauSequenceReg.insert(-1, process.hpsPFTauPrimaryVertexProducer)
     process.HLTHPSMediumChargedIsoPFTauSequenceReg.insert(-1, process.hpsPFTauSecondaryVertexProducer)
     process.HLTHPSMediumChargedIsoPFTauSequenceReg.insert(-1, process.hpsPFTauTransverseImpactParameters)
-    process.HLTHPSMediumChargedIsoPFTauSequenceReg.insert(-1, process.chargedIsoPtSum)
-    process.HLTHPSMediumChargedIsoPFTauSequenceReg.insert(-1, process.chargedIsoPtSumdR03)
-    process.HLTHPSMediumChargedIsoPFTauSequenceReg.insert(-1, process.neutralIsoPtSum)
-    process.HLTHPSMediumChargedIsoPFTauSequenceReg.insert(-1, process.neutralIsoPtSumdR03)
-    process.HLTHPSMediumChargedIsoPFTauSequenceReg.insert(-1, process.puCorrPtSum)
-    process.HLTHPSMediumChargedIsoPFTauSequenceReg.insert(-1, process.footprintCorrection)
-    process.HLTHPSMediumChargedIsoPFTauSequenceReg.insert(-1, process.footprintCorrectiondR03)
-    process.HLTHPSMediumChargedIsoPFTauSequenceReg.insert(-1, process.neutralIsoPtSumWeight)
-    process.HLTHPSMediumChargedIsoPFTauSequenceReg.insert(-1, process.neutralIsoPtSumWeightdR03)
-    process.HLTHPSMediumChargedIsoPFTauSequenceReg.insert(-1, process.photonPtSumOutsideSignalCone)
-    process.HLTHPSMediumChargedIsoPFTauSequenceReg.insert(-1, process.photonPtSumOutsideSignalConedR03)
     process.HLTHPSMediumChargedIsoPFTauSequenceReg.insert(-1, process.hltFixedGridRhoFastjetAll)
-
+    process.HLTHPSMediumChargedIsoPFTauSequenceReg.insert(-1, process.hpsPFTauBasicDiscriminators)
+    process.HLTHPSMediumChargedIsoPFTauSequenceReg.insert(-1, process.hpsPFTauBasicDiscriminatorsdR03)
 
     file_names = [
     				'core:RecoTauTag/TrainingFiles/data/DeepTauId/deepTau_2017v2p6_e6_core.pb',
@@ -320,27 +158,25 @@ def update(process):
     wp_names = ["0.", "0."]
 
     process.deepTauProducer = cms.EDProducer("DeepTauId",
-    taus                            = cms.InputTag("hltHpsPFTauProducerReg"),
-    pfcands                         = cms.InputTag('hltParticleFlowReg'),
-    vertices                        = cms.InputTag('hltPixelVertices'),
-    rho                             = cms.InputTag('hltFixedGridRhoFastjetAll'),
-    graph_file                      = cms.vstring(file_names),
-    mem_mapped                      = cms.bool(False),
-    version                         = cms.uint32(2),
-    debug_level                     = cms.int32(0),
-    disable_dxy_pca                 = cms.bool(True),
-    is_online                 		  = cms.bool(True),
-    pfTauTransverseImpactParameters = cms.InputTag('hpsPFTauTransverseImpactParameters'),
-    chargedIsoPtSum                 = cms.InputTag('chargedIsoPtSum'),
-    chargedIsoPtSumdR03             = cms.InputTag('chargedIsoPtSumdR03'),
-    neutralIsoPtSum                 = cms.InputTag('neutralIsoPtSum'),
-    neutralIsoPtSumdR03             = cms.InputTag('neutralIsoPtSumdR03'),
-    puCorrPtSum                     = cms.InputTag('puCorrPtSum'),
-    footprintCorrection             = cms.InputTag('footprintCorrection'),
-    neutralIsoPtSumWeight           = cms.InputTag('neutralIsoPtSumWeight'),
-    neutralIsoPtSumWeightdR03       = cms.InputTag('neutralIsoPtSumWeightdR03'),
-    photonPtSumOutsideSignalCone    = cms.InputTag('photonPtSumOutsideSignalCone'),
-    photonPtSumOutsideSignalConedR03 = cms.InputTag('photonPtSumOutsideSignalConedR03'),
+    taus                                = cms.InputTag("hltHpsPFTauProducerReg"),
+    pfcands                             = cms.InputTag('hltParticleFlowReg'),
+    vertices                            = cms.InputTag('hltPixelVertices'),
+    rho                                 = cms.InputTag('hltFixedGridRhoFastjetAll'),
+    graph_file                          = cms.vstring(file_names),
+    mem_mapped                          = cms.bool(False),
+    version                             = cms.uint32(2),
+    debug_level                         = cms.int32(0),
+    disable_dxy_pca                     = cms.bool(True),
+    is_online                 		    = cms.bool(True),
+    pfTauTransverseImpactParameters     = cms.InputTag('hpsPFTauTransverseImpactParameters'),
+    chargedIsoPtSum_index               = cms.uint32(0),
+    neutralIsoPtSum_index               = cms.uint32(1),
+    puCorrPtSum_index                   = cms.uint32(5),
+    tauFootPrintCorrection_index        = cms.uint32(3),
+    neutralIsoPtSumWeight_index         = cms.uint32(2),
+    photonPtSumOutsideSignalCone_index  = cms.uint32(4),
+    basicTauDiscriminators              = cms.InputTag('hpsPFTauBasicDiscriminators'),
+    basicTauDiscriminatorsdR03          = cms.InputTag('hpsPFTauBasicDiscriminatorsdR03'),
 
     VSeWP = cms.vstring(wp_names),
     VSmuWP = cms.vstring(wp_names),
@@ -349,9 +185,5 @@ def update(process):
 
     #Add DeepTauProducer
     process.HLTHPSMediumChargedIsoPFTauSequenceReg.insert(-1, process.deepTauProducer)
- 
-    process.maxEvents = cms.untracked.PSet(
-        input = cms.untracked.int32(200)
-    )
 
     return process
