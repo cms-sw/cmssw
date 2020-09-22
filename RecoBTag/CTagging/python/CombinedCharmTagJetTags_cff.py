@@ -4,11 +4,11 @@ from RecoBTag.CTagging.pfNegativeCombinedCvsLJetTags_cfi import *
 from RecoBTag.CTagging.pfPositiveCombinedCvsLJetTags_cfi import *
 
 pfNegativeCombinedCvsBJetTags = pfNegativeCombinedCvsLJetTags.clone(
-   jetTagComputer = cms.string('charmTagsNegativeComputerCvsB')
+   jetTagComputer = 'charmTagsNegativeComputerCvsB'
    )
 
 pfPositiveCombinedCvsBJetTags = pfPositiveCombinedCvsLJetTags.clone(
-   jetTagComputer = cms.string('charmTagsPositiveComputerCvsB')
+   jetTagComputer = 'charmTagsPositiveComputerCvsB'
    )
 
 CombinedCharmTagJetTagsTask = cms.Task(
