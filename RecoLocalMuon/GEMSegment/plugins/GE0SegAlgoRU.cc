@@ -154,18 +154,17 @@ std::vector<GEMSegment> GE0SegAlgoRU::run(const GEMSuperChamber* chamber, const 
   // };
   auto printSegments = [&] {
 #ifdef EDM_ML_DEBUG  // have lines below only compiled when in debug mode
-    for (unsigned int iS = 0; iS < segments.size(); ++iS) {
-      const auto& seg = segments[iS];
+    for (const auto& seg : segments) {
       GEMDetId chId(seg.gemDetId());
       const auto& rechits = seg.specificRecHits();
       edm::LogVerbatim("GE0SegAlgoRU") << "[GE0SegAlgoRU] segment in chamber " << chId << " which contains "
                                        << rechits.size() << " rechits and with specs: \n"
                                        << seg;
-      for (auto rh = rechits.begin(); rh != rechits.end(); ++rh) {
-        auto ge0id = rh->gemId();
+      for (const auto& rh : rechits) {
+        auto ge0id = rh.gemId();
         edm::LogVerbatim("GE0SegAlgoRU") << "[RecHit :: Loc x = " << std::showpos << std::setw(9)
-                                         << rh->localPosition().x() << " Loc y = " << std::showpos << std::setw(9)
-                                         << rh->localPosition().y() << " Time = " << std::showpos << rh->BunchX()
+                                         << rh.localPosition().x() << " Loc y = " << std::showpos << std::setw(9)
+                                         << rh.localPosition().y() << " Time = " << std::showpos << rh->BunchX()
                                          << " -- " << ge0id.rawId() << " = " << ge0id << " ]";
       }
     }
