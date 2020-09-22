@@ -49,16 +49,13 @@ _hgcalMultiClusterMapper_HGCal = cms.PSet(
     thresholdsByDetector = cms.VPSet(
     ),
     
-    #clusterSrc = cms.InputTag("hgcalMultiClusters"),
-    #clusterSrc = cms.InputTag("multiClustersFromTrackstersEM"),
-    #clusterSrc = cms.InputTag("ticlMultiClustersFromTrackstersEM"),
-    clusterSrc = cms.InputTag("ticlMultiClustersFromTrackstersMerge"),
+    clusterSrc = "ticlMultiClustersFromTrackstersMerge",
     
-    tracksterSrc = cms.InputTag("ticlTrackstersMerge"),
+    tracksterSrc = "ticlTrackstersMerge",
     
-    filterByTracksterPID = cms.bool(False),
-    pid_threshold = cms.double(0.8),
-    filter_on_categories = cms.vint32([0, 1]),
+    filterByTracksterPID = False,
+    pid_threshold = 0.8,
+    filter_on_categories = [0, 1],
     
 )
 

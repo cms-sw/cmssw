@@ -7,7 +7,7 @@
 
 void PFClusterFromHGCalMultiCluster::updateEvent(const edm::Event& ev) {
   ev.getByToken(clusterToken_, clusterH_);
-  ev.getByToken(tracksterToken_, tracksters_);
+  ev.getByToken(tracksterToken_, trackstersH_);
 }
 
 void PFClusterFromHGCalMultiCluster::buildClusters(const edm::Handle<reco::PFRecHitCollection>& input,
@@ -16,6 +16,8 @@ void PFClusterFromHGCalMultiCluster::buildClusters(const edm::Handle<reco::PFRec
                                                    reco::PFClusterCollection& output) {
   const auto& hgcalMultiClusters = *clusterH_;
   auto const& hits = *input;
+
+  const auto& tracksters = *trackstersH_;
 
   // for quick indexing back to hit energy
   std::unordered_map<uint32_t, size_t> detIdToIndex(hits.size());
@@ -33,9 +35,9 @@ void PFClusterFromHGCalMultiCluster::buildClusters(const edm::Handle<reco::PFRec
       double probTotal = 0;
 
       for (int iCat = 0; iCat < (int)filter_on_categories_.size(); iCat++) {
-        int cat = filter_on_categories_.at(iCat);
+        int cat = filter_on_categories_[iCat];
 
-        double prob = tracksters_->at(iMultiClus).id_probabilities(cat);
+        double prob = tracksters[iMultiClus].id_probabilities(cat);
 
         probTotal += prob;
       }
@@ -81,12 +83,7 @@ void PFClusterFromHGCalMultiCluster::buildClusters(const edm::Handle<reco::PFRec
         seed = ref->detId();
       }
     }  // end of hitsAndFractions
-    //}    // end of loop over clusters (2D/layer)
 
-    //if (energy <= 1) {
-    //  output.pop_back();
-    //  continue;
-    //}
     if (!back.hitsAndFractions().empty()) {
       back.setSeed(seed);
       back.setEnergy(energy);
