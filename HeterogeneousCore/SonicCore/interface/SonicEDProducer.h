@@ -16,12 +16,13 @@
 //this is a stream producer because client operations are not multithread-safe in general
 //it is designed such that the user never has to interact with the client or the acquire() callback directly
 template <typename Client, typename... Capabilities>
-class SonicEDProducer : public SonicAcquirer<Client,edm::stream::EDProducer<edm::ExternalWork, Capabilities...>> {
+class SonicEDProducer : public SonicAcquirer<Client, edm::stream::EDProducer<edm::ExternalWork, Capabilities...>> {
 public:
   //typedef to simplify usage
   typedef typename Client::Output Output;
   //constructor
-  SonicEDProducer(edm::ParameterSet const& cfg) : SonicAcquirer<Client,edm::stream::EDProducer<edm::ExternalWork, Capabilities...>>(cfg) {}
+  SonicEDProducer(edm::ParameterSet const& cfg)
+      : SonicAcquirer<Client, edm::stream::EDProducer<edm::ExternalWork, Capabilities...>>(cfg) {}
   //destructor
   ~SonicEDProducer() override = default;
 

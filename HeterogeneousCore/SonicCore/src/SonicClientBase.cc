@@ -62,9 +62,9 @@ void SonicClientBase::finish(bool success, std::exception_ptr eptr) {
     edm::LogInfo(fullDebugName_) << "Client time: "
                                  << std::chrono::duration_cast<std::chrono::microseconds>(t1 - t0_).count();
   }
-  if(holder_)
+  if (holder_)
     holder_->doneWaiting(eptr);
-  else if(eptr)
+  else if (eptr)
     std::rethrow_exception(eptr);
 }
 
