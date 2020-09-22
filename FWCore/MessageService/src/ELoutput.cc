@@ -95,8 +95,8 @@ namespace {
 
   std::string formatTime(const time_t t) {  // Change log 7
 
-    static char const dummy[] = "dd-Mon-yyyy hh:mm:ss TZN     ";  // Change log 7 for length only
-    char ts[sizeof(dummy)];                                       // Change log 7
+    constexpr char dummy[] = "dd-Mon-yyyy hh:mm:ss TZN     ";  // Change log 7 for length only
+    char ts[sizeof(dummy)];                                    // Change log 7
 
     struct tm timebuf;  // Change log 7
 
