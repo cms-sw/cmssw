@@ -26,20 +26,20 @@ public:
              const LocalPoint& origin,
              const LocalVector& direction,
              const AlgebraicSymMatrix& errors,
-             double chi2);
+             float chi2);
 
   GEMSegment(const std::vector<const GEMRecHit*>& proto_segment,
              const LocalPoint& origin,
              const LocalVector& direction,
              const AlgebraicSymMatrix& errors,
-             double chi2,
+             float chi2,
              float bx);
 
   GEMSegment(const std::vector<const GEMRecHit*>& proto_segment,
              const LocalPoint& origin,
              const LocalVector& direction,
              const AlgebraicSymMatrix& errors,
-             double chi2,
+             float chi2,
              float bx,
              float deltaPhi);
 
@@ -68,7 +68,7 @@ public:
 
   std::vector<TrackingRecHit*> recHits() override;
 
-  double chi2() const override { return theChi2; };
+  float chi2() const override { return theChi2; };
 
   int dimension() const override { return 4; }
 
@@ -93,7 +93,7 @@ private:
   LocalPoint theOrigin;             // in chamber frame - the GeomDet local coordinate system
   LocalVector theLocalDirection;    // in chamber frame - the GeomDet local coordinate system
   AlgebraicSymMatrix theCovMatrix;  // the covariance matrix
-  double theChi2;                   // the Chi squared of the segment fit
+  float theChi2;                   // the Chi squared of the segment fit
   float theBX;                      // the bunch crossing
   float theDeltaPhi;                // Difference in segment phi position: outer layer - inner lay
 };
