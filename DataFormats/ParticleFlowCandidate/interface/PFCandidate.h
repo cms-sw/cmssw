@@ -387,6 +387,8 @@ namespace reco {
 
     friend std::ostream& operator<<(std::ostream& out, const PFCandidate& c);
 
+    const Point& vertex() const override;
+
     /// do we have a valid time information
     bool isTimeValid() const { return timeError_ >= 0.f; }
     /// \return the timing
@@ -406,8 +408,7 @@ namespace reco {
     /// set the fraction of hcal energy as function of depth (index 0..6 for depth 1..7)
     void setHcalDepthEnergyFractions(const std::array<float, 7>& fracs) { hcalDepthEnergyFractions_ = fracs; }
 
-    const math::XYZPoint& vertex() const override;
-
+    //function used before PR #31456, retained for backwards compatibility with old AOD where the vertex was not embedded
     const math::XYZPoint& vertexLegacy(PFCandidate::PFVertexType vertexType) const;
 
   private:
