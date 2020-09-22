@@ -38,6 +38,31 @@
 // #define ELstatisticsCONSTRUCTOR_TRACE
 // #define ELstatsLOG_TRACE
 
+namespace {
+  std::string summarizeContext(const std::string& c) {
+    if (c.substr(0, 4) != "Run:")
+      return c;
+    std::istringstream is(c);
+    std::string runWord;
+    int run;
+    is >> runWord >> run;
+    if (!is)
+      return c;
+    if (runWord != "Run:")
+      return c;
+    std::string eventWord;
+    int event;
+    is >> eventWord >> event;
+    if (!is)
+      return c;
+    if (eventWord != "Event:")
+      return c;
+    std::ostringstream os;
+    os << run << "/" << event;
+    return os.str();
+  }
+}  // namespace
+
 namespace edm {
   namespace service {
 
@@ -123,29 +148,6 @@ namespace edm {
     // ----------------------------------------------------------------------
     // Methods invoked by the ELadministrator
     // ----------------------------------------------------------------------
-
-    static std::string summarizeContext(const std::string& c) {
-      if (c.substr(0, 4) != "Run:")
-        return c;
-      std::istringstream is(c);
-      std::string runWord;
-      int run;
-      is >> runWord >> run;
-      if (!is)
-        return c;
-      if (runWord != "Run:")
-        return c;
-      std::string eventWord;
-      int event;
-      is >> eventWord >> event;
-      if (!is)
-        return c;
-      if (eventWord != "Event:")
-        return c;
-      std::ostringstream os;
-      os << run << "/" << event;
-      return os.str();
-    }
 
     bool ELstatistics::log(const edm::ErrorObj& msg) {
 #ifdef ELstatsLOG_TRACE

@@ -88,35 +88,36 @@
 #include <cstring>
 #include <cassert>
 
-namespace edm {
-  namespace service {
+namespace {
+  // ----------------------------------------------------------------------
+  // Useful function:
+  // ----------------------------------------------------------------------
 
-    // ----------------------------------------------------------------------
-    // Useful function:
-    // ----------------------------------------------------------------------
+  std::string formatTime(const time_t t) {  // Change log 7
 
-    static std::string formatTime(const time_t t) {  // Change log 7
+    static char const dummy[] = "dd-Mon-yyyy hh:mm:ss TZN     ";  // Change log 7 for length only
+    char ts[sizeof(dummy)];                                       // Change log 7
 
-      static char const dummy[] = "dd-Mon-yyyy hh:mm:ss TZN     ";  // Change log 7 for length only
-      char ts[sizeof(dummy)];                                       // Change log 7
+    struct tm timebuf;  // Change log 7
 
-      struct tm timebuf;  // Change log 7
-
-      strftime(ts, sizeof(dummy), "%d-%b-%Y %H:%M:%S %Z", localtime_r(&t, &timebuf));  // Change log 7
-                                                                                       // mf 4-9-04
+    strftime(ts, sizeof(dummy), "%d-%b-%Y %H:%M:%S %Z", localtime_r(&t, &timebuf));  // Change log 7
+                                                                                     // mf 4-9-04
 
 #ifdef STRIP_TRAILING_BLANKS_IN_TIMEZONE
-      // strip trailing blanks that would come when the time zone is not as
-      // long as the maximum allowed - probably not worth the time
-      unsigned int b = strlen(ts);
-      while (ts[--b] == ' ') {
-        ts[b] = 0;
-      }
+    // strip trailing blanks that would come when the time zone is not as
+    // long as the maximum allowed - probably not worth the time
+    unsigned int b = strlen(ts);
+    while (ts[--b] == ' ') {
+      ts[b] = 0;
+    }
 #endif
 
-      return std::string(ts);  // Change log 7
-    }                          // formatTime()
+    return std::string(ts);  // Change log 7
+  }                          // formatTime()
+}  // namespace
 
+namespace edm {
+  namespace service {
     // ----------------------------------------------------------------------
     // Constructors:
     // ----------------------------------------------------------------------
