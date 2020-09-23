@@ -28,6 +28,13 @@ const CSCPatternBank::LCTPatterns CSCPatternBank::alct_pattern_r1_ = {
     // Collision pattern B
     {{0, 1, 1, 0, 0}, {0, 1, 1, 0, 0}, {0, 0, 1, 0, 0}, {0, 0, 1, 0, 0}, {0, 0, 1, 1, 0}, {0, 0, 1, 1, 0}}};
 
+double CSCPatternBank::getLegacyPosition(int pattern) {
+  double PositionList[CSCConstants::NUM_CLCT_PATTERNS] = {
+      0.0, 0.0, -0.60, 0.60, -0.64, 0.64, -0.23, 0.23, -0.21, 0.21, 0.0};  // offset in the strip number for each pattern
+
+  return PositionList[pattern];
+}
+
 const int CSCPatternBank::clct_pattern_offset_[CSCConstants::CLCT_PATTERN_WIDTH] = {
     -5, -4, -3, -2, -1, 0, 1, 2, 3, 4, 5};
 

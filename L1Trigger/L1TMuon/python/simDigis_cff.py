@@ -13,7 +13,6 @@ simDtTriggerPrimitiveDigis = L1Trigger.DTTrigger.dtTriggerPrimitiveDigis_cfi.dtT
 #simDtTriggerPrimitiveDigis.debug = cms.untracked.bool(True)
 
 # - CSC TP emulator
-from L1Trigger.CSCCommonTrigger.CSCCommonTrigger_cfi import *
 import L1Trigger.CSCTriggerPrimitives.cscTriggerPrimitiveDigis_cfi
 simCscTriggerPrimitiveDigis = L1Trigger.CSCTriggerPrimitives.cscTriggerPrimitiveDigis_cfi.cscTriggerPrimitiveDigis.clone(
     CSCComparatorDigiProducer = 'simMuonCSCDigis:MuonCSCComparatorDigi',
