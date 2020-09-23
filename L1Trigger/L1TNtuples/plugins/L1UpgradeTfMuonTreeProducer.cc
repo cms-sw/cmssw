@@ -52,11 +52,13 @@ private:
   void endJob() override;
 
 public:
+  L1Analysis::L1AnalysisL1UpgradeTfMuon l1UpgradeKBmtf;
   L1Analysis::L1AnalysisL1UpgradeTfMuon l1UpgradeBmtf;
   L1Analysis::L1AnalysisL1UpgradeTfMuon l1UpgradeOmtf;
   L1Analysis::L1AnalysisL1UpgradeTfMuon l1UpgradeEmtf;
   L1Analysis::L1AnalysisBMTFInputs l1UpgradeBmtfInputs;
   L1Analysis::L1AnalysisL1UpgradeTfMuonDataFormat* l1UpgradeBmtfData;
+  L1Analysis::L1AnalysisL1UpgradeTfMuonDataFormat* l1UpgradeKBmtfData;
   L1Analysis::L1AnalysisL1UpgradeTfMuonDataFormat* l1UpgradeOmtfData;
   L1Analysis::L1AnalysisL1UpgradeTfMuonDataFormat* l1UpgradeEmtfData;
   L1Analysis::L1AnalysisBMTFInputsDataFormat* l1UpgradeBmtfInputsData;
@@ -72,6 +74,7 @@ private:
 
   // EDM input tags
   edm::EDGetTokenT<l1t::RegionalMuonCandBxCollection> bmtfMuonToken_;
+  edm::EDGetTokenT<l1t::RegionalMuonCandBxCollection> kbmtfMuonToken_;
   edm::EDGetTokenT<l1t::RegionalMuonCandBxCollection> omtfMuonToken_;
   edm::EDGetTokenT<l1t::RegionalMuonCandBxCollection> emtfMuonToken_;
 
@@ -82,6 +85,8 @@ private:
 L1UpgradeTfMuonTreeProducer::L1UpgradeTfMuonTreeProducer(const edm::ParameterSet& iConfig) {
   bmtfMuonToken_ =
       consumes<l1t::RegionalMuonCandBxCollection>(iConfig.getUntrackedParameter<edm::InputTag>("bmtfMuonToken"));
+  kbmtfMuonToken_ =
+      consumes<l1t::RegionalMuonCandBxCollection>(iConfig.getUntrackedParameter<edm::InputTag>("kbmtfMuonToken"));
   omtfMuonToken_ =
       consumes<l1t::RegionalMuonCandBxCollection>(iConfig.getUntrackedParameter<edm::InputTag>("omtfMuonToken"));
   emtfMuonToken_ =
@@ -95,6 +100,7 @@ L1UpgradeTfMuonTreeProducer::L1UpgradeTfMuonTreeProducer(const edm::ParameterSet
   maxL1UpgradeTfMuon_ = iConfig.getParameter<unsigned int>("maxL1UpgradeTfMuon");
 
   l1UpgradeBmtfData = l1UpgradeBmtf.getData();
+  l1UpgradeKBmtfData = l1UpgradeKBmtf.getData();
   l1UpgradeOmtfData = l1UpgradeOmtf.getData();
   l1UpgradeEmtfData = l1UpgradeEmtf.getData();
   l1UpgradeBmtfInputsData = l1UpgradeBmtfInputs.getData();
@@ -102,6 +108,7 @@ L1UpgradeTfMuonTreeProducer::L1UpgradeTfMuonTreeProducer(const edm::ParameterSet
   // set up output
   tree_ = fs_->make<TTree>("L1UpgradeTfMuonTree", "L1UpgradeTfMuonTree");
   tree_->Branch("L1UpgradeBmtfMuon", "L1Analysis::L1AnalysisL1UpgradeTfMuonDataFormat", &l1UpgradeBmtfData, 32000, 3);
+  tree_->Branch("L1UpgradeKBmtfMuon", "L1Analysis::L1AnalysisL1UpgradeTfMuonDataFormat", &l1UpgradeKBmtfData, 32000, 3);
   tree_->Branch("L1UpgradeOmtfMuon", "L1Analysis::L1AnalysisL1UpgradeTfMuonDataFormat", &l1UpgradeOmtfData, 32000, 3);
   tree_->Branch("L1UpgradeEmtfMuon", "L1Analysis::L1AnalysisL1UpgradeTfMuonDataFormat", &l1UpgradeEmtfData, 32000, 3);
 
@@ -118,17 +125,20 @@ L1UpgradeTfMuonTreeProducer::~L1UpgradeTfMuonTreeProducer() {}
 // ------------ method called to for each event  ------------
 void L1UpgradeTfMuonTreeProducer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
   l1UpgradeBmtf.Reset();
+  l1UpgradeKBmtf.Reset();
   l1UpgradeOmtf.Reset();
   l1UpgradeEmtf.Reset();
   l1UpgradeBmtfInputs.Reset();
 
   edm::Handle<l1t::RegionalMuonCandBxCollection> bmtfMuon;
+  edm::Handle<l1t::RegionalMuonCandBxCollection> kbmtfMuon;
   edm::Handle<l1t::RegionalMuonCandBxCollection> omtfMuon;
   edm::Handle<l1t::RegionalMuonCandBxCollection> emtfMuon;
   edm::Handle<L1MuDTChambPhContainer> bmtfPhInputs;
   edm::Handle<L1MuDTChambThContainer> bmtfThInputs;
 
   iEvent.getByToken(bmtfMuonToken_, bmtfMuon);
+  iEvent.getByToken(kbmtfMuonToken_, kbmtfMuon);
   iEvent.getByToken(omtfMuonToken_, omtfMuon);
   iEvent.getByToken(emtfMuonToken_, emtfMuon);
   iEvent.getByToken(bmtfPhInputToken_, bmtfPhInputs);
@@ -138,6 +148,12 @@ void L1UpgradeTfMuonTreeProducer::analyze(const edm::Event& iEvent, const edm::E
     l1UpgradeBmtf.SetTfMuon(*bmtfMuon, maxL1UpgradeTfMuon_);
   } else {
     edm::LogWarning("MissingProduct") << "L1Upgrade BMTF muons not found. Branch will not be filled" << std::endl;
+  }
+
+  if (kbmtfMuon.isValid()) {
+    l1UpgradeKBmtf.SetTfMuon(*kbmtfMuon, maxL1UpgradeTfMuon_);
+  } else {
+    edm::LogWarning("MissingProduct") << "L1Upgrade kBMTF muons not found. Branch will not be filled" << std::endl;
   }
 
   if (omtfMuon.isValid()) {
