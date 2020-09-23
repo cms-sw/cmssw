@@ -121,8 +121,7 @@ struct FRDEventHeader_V1 {
   uint32 event_;
 };
 
-const uint16 FRDEVENT_MASK_FROMOUTPUTMODULE = 1;
-const uint16 FRDEVENT_MASK_ISREALDATA = 1 << 1;
+const uint16 FRDEVENT_MASK_ISGENDATA = 1;
 
 const uint32 FRDHeaderVersionSize[6] = {
     0, 2 * sizeof(uint32), (4 + 1024) * sizeof(uint32), 7 * sizeof(uint32), 8 * sizeof(uint32), 6 * sizeof(uint32)};
@@ -145,9 +144,8 @@ public:
   uint32 adler32() const { return adler32_; }
   uint32 crc32c() const { return crc32c_; }
 
-  //can only be MC with output module flag
   bool isRealData() const {
-    return !(flags_ & FRDEVENT_MASK_FROMOUTPUTMODULE) || (flags_ & FRDEVENT_MASK_ISREALDATA);
+    return !(flags_ & FRDEVENT_MASK_ISGENDATA);
   }
 
 private:

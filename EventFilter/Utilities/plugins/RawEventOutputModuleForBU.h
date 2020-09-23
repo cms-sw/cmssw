@@ -50,7 +50,6 @@ private:
   edm::EDGetTokenT<FEDRawDataCollection> token_;
   unsigned int numEventsPerFile_;
   unsigned int frdVersion_;
-  bool fillFRDEventFlags_;
   unsigned long long totsize;
   unsigned long long writtensize;
   unsigned long long writtenSizeLast;
@@ -69,8 +68,7 @@ RawEventOutputModuleForBU<Consumer>::RawEventOutputModuleForBU(edm::ParameterSet
       instance_(ps.getUntrackedParameter<std::string>("ProductInstance", "")),
       token_(consumes<FEDRawDataCollection>(edm::InputTag(label_, instance_))),
       numEventsPerFile_(ps.getUntrackedParameter<unsigned int>("numEventsPerFile", 100)),
-      frdVersion_(ps.getUntrackedParameter<unsigned int>("frdVersion", 5)),
-      fillFRDEventFlags_(ps.getUntrackedParameter<bool>("fillFRDEventFlags", true)),
+      frdVersion_(ps.getUntrackedParameter<unsigned int>("frdVersion", 6)),
       totsize(0LL),
       writtensize(0LL),
       writtenSizeLast(0LL),
@@ -113,10 +111,9 @@ void RawEventOutputModuleForBU<Consumer>::write(edm::EventForOutput const& e) {
   if (frdVersion_ <= 5) {
     *bufPtr++ = (uint32)frdVersion_;  // version number only
   } else {
-    uint32 flags = FRDEVENT_MASK_FROMOUTPUTMODULE;
-    if (e.eventAuxiliary().isRealData())
-      flags |= FRDEVENT_MASK_ISREALDATA;
-    if (!fillFRDEventFlags_) flags = 0;
+    uint32 flags = 0;
+    if (!e.eventAuxiliary().isRealData())
+      flags |= FRDEVENT_MASK_ISGENDATA;
     *bufPtr++ = (uint32) ((frdVersion_ & 0xffff) | flags  << 16);
   }
   *bufPtr++ = (uint32)e.id().run();

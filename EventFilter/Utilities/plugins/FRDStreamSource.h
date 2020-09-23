@@ -41,7 +41,7 @@ private:
   const bool verifyAdler32_;
   const bool verifyChecksum_;
   const bool useL1EventID_;
-  uint16 detectedFRDversion_ = 0;
+  uint16_t detectedFRDversion_ = 0;
 };
 
 #endif  // EventFilter_Utilities_FRDStreamSource_h
