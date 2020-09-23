@@ -32,7 +32,7 @@ public:
 
 private:
   bool filterByTracksterPID_;
-  double pid_threshold_;
+  float pid_threshold_;
   std::vector<int> filter_on_categories_;
 
   edm::EDGetTokenT<std::vector<reco::HGCalMultiCluster> > clusterToken_;
