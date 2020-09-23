@@ -4,8 +4,8 @@ from Validation.HGCalValidation.hgcalDigiValidationEE_cfi import *
 
 hgcalDigiValidationHEF = hgcalDigiValidationEE.clone(
     DetectorName = cms.string("HGCalHESiliconSensitive"),
-    DigiSource   = cms.InputTag("hgcalDigis","HEfront"))
+    DigiSource   = cms.InputTag("simHGCalUnsuppressedDigis","HEfront"))
 
 hgcalDigiValidationHEB = hgcalDigiValidationEE.clone(
     DetectorName = cms.string("HGCalHEScintillatorSensitive"),
-    DigiSource   = cms.InputTag("hgcalDigis","HEback"))
+    DigiSource   = cms.InputTag("simHGCalUnsuppressedDigis","HEback"))
