@@ -21,7 +21,8 @@ dtTriggerSynchMonitor = DQMEDAnalyzer('DTLocalTriggerSynchTask',
             doWirePropCorrection = cms.bool(False),
             doT0Correction = cms.bool(False),
             debug = cms.untracked.bool(False),
-            tTrigLabel = cms.string('')
+            tTrigLabel = cms.string(''),
+            t0Label = cms.string('')
     ),
     tTrigMode = cms.string('DTTTrigSyncFromDB')
 )
