@@ -68,6 +68,7 @@ NANOAODGENoutput = cms.OutputModule("NanoAODOutputModule",
 def nanoGenCommonCustomize(process):
     process.lheInfoTable.storeLHEParticles = True
     process.lheInfoTable.precision = 14
+    process.genWeightsTable.keepAllPSWeights = True
     process.genJetFlavourAssociation.jets = process.genJetTable.src
     process.genJetFlavourTable.src = process.genJetTable.src
     process.genJetAK8FlavourAssociation.jets = process.genJetAK8Table.src
