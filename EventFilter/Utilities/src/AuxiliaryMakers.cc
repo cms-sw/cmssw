@@ -29,12 +29,15 @@ namespace evf {
       const uint64_t orbitnr = ((uint64_t)tcds->header.orbitHigh << 16) | tcds->header.orbitLow;
       const uint32_t recordLumiSection = tcds->header.lumiSection;
 
-      if (verifyLumiSection && recordLumiSection != lumiSection)
-        edm::LogWarning("AuxiliaryMakers")
-            << "Lumisection mismatch, external : " << lumiSection << ", record : " << recordLumiSection;
-      if ((orbitnr >> 18) + 1 != recordLumiSection)
-        edm::LogWarning("AuxiliaryMakers") << "Lumisection and orbit number mismatch, LS : " << lumiSection
-                                           << ", LS from orbit: " << ((orbitnr >> 18) + 1) << ", orbit:" << orbitnr;
+      if (isRealData) {
+        //warnings are disabled for generated data
+        if (verifyLumiSection && recordLumiSection != lumiSection)
+          edm::LogWarning("AuxiliaryMakers")
+              << "Lumisection mismatch, external : " << lumiSection << ", record : " << recordLumiSection;
+        if ((orbitnr >> 18) + 1 != recordLumiSection)
+          edm::LogWarning("AuxiliaryMakers") << "Lumisection and orbit number mismatch, LS : " << lumiSection
+                                             << ", LS from orbit: " << ((orbitnr >> 18) + 1) << ", orbit:" << orbitnr;
+      }
 
       return edm::EventAuxiliary(eventId,
                                  processGUID,
