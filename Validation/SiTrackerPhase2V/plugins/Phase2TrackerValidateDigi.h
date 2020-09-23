@@ -31,7 +31,8 @@ public:
   ~Phase2TrackerValidateDigi() override;
   void bookHistograms(DQMStore::IBooker& ibooker, edm::Run const& iRun, edm::EventSetup const& iSetup) override;
   void analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) override;
-
+  std::string getHistoId(uint32_t det_id, const TrackerTopology* tTopo, bool flag);
+ 
   struct DigiMEs {
     MonitorElement* SimTrackPt;
     MonitorElement* SimTrackEta;
@@ -112,7 +113,8 @@ private:
   void fillHitsPerTrack();
 
   edm::ParameterSet config_;
-  std::map<unsigned int, DigiMEs> layerMEs;
+  //  std::map<unsigned int, DigiMEs> layerMEs;
+  std::map<std::string, DigiMEs> layerMEs;
 
   bool pixelFlag_;
   std::string geomType_;

@@ -9,7 +9,7 @@
 
 */
 //
-// Author: Suchandra Dutta, Suvankar Roy Chowdhury, Subir Sarkar
+// Author: Suchandra Dutta, Gourab Saha, Suvankar Roy Chowdhury, Subir Sarkar
 // Date: January 29, 2016
 //
 // system include files
@@ -166,7 +166,7 @@ void Phase2TrackerValidateDigi::analyze(const edm::Event& iEvent, const edm::Eve
     }
 
     fillSimHitInfo(iEvent, (*simTrkItr), geomHandle);
-    fillHitsPerTrack();
+    //fillHitsPerTrack();
 
     int nHitCutoff = 2;
     if (pixelFlag_)
@@ -222,8 +222,8 @@ int Phase2TrackerValidateDigi::fillSimHitInfo(const edm::Event& iEvent,
         layer = tTopo->getOTLayerNumber(rawid);
       if (layer < 0)
         continue;
-
-      auto pos = layerMEs.find(layer);
+      std::string key = getHistoId(rawid, tTopo, pixelFlag_);
+      auto pos = layerMEs.find(key);
       if (pos == layerMEs.end())
         continue;
       DigiMEs& local_mes = pos->second;
@@ -595,9 +595,9 @@ void Phase2TrackerValidateDigi::bookHistograms(DQMStore::IBooker& ibooker,
   else
     SimulatedTOFZMap = nullptr;
 
-  HistoName.str("");
-  HistoName << "NumberOfSimHitsPerTrackVsLayer";
-  nSimHitsPerTrack = ibooker.book2D(HistoName.str(), HistoName.str(), 45, -22.5, 22.5, 101, -0.5, 100.5);
+  //HistoName.str("");
+  //HistoName << "NumberOfSimHitsPerTrackVsLayer";
+  //nSimHitsPerTrack = ibooker.book2D(HistoName.str(), HistoName.str(), 45, -22.5, 22.5, 101, -0.5, 100.5);
 
   edm::ESWatcher<TrackerDigiGeometryRecord> theTkDigiGeomWatcher;
 
@@ -657,7 +657,8 @@ void Phase2TrackerValidateDigi::bookLayerHistos(DQMStore::IBooker& ibooker,
                                                 unsigned int det_id,
                                                 const TrackerTopology* tTopo,
                                                 bool flag) {
-  int layer;
+  int layer, side;
+  int idisc {0};
   if (flag)
     layer = tTopo->getITPixelLayerNumber(det_id);
   else
@@ -665,37 +666,40 @@ void Phase2TrackerValidateDigi::bookLayerHistos(DQMStore::IBooker& ibooker,
 
   if (layer < 0)
     return;
-  std::map<uint32_t, DigiMEs>::iterator pos = layerMEs.find(layer);
+
+  std::string key = getHistoId(det_id, tTopo, flag);
+  std::map<std::string, DigiMEs>::iterator pos = layerMEs.find(key);
   if (pos == layerMEs.end()) {
     std::string top_folder = config_.getParameter<std::string>("TopFolderName");
     std::stringstream folder_name;
 
-    std::ostringstream fname1, fname2, tag;
-    if (layer < 100) {
-      fname1 << "Barrel";
-      fname2 << "Layer_" << layer;
-    } else {
-      int side = layer / 100;
-      int idisc = layer - side * 100;
-      fname1 << "EndCap_Side_" << side;
-      fname2 << "Disc_" << idisc;
+    std::ostringstream fname1;
+    //    std::string key = getHistoId(det_id, tTopo, flag);
+
+
+    if (layer > 100) {
+      side = layer / 100;
+      idisc = layer - side * 100;
+      idisc = (idisc < 3) ? 12 : 345;
     }
+    
+    bool forDisc12UptoRing10 = (idisc == 12 && tTopo->tidRing(det_id) <= 10) ? true : false;
+    bool forDisc345UptoRing7 = (idisc == 345 && tTopo->tidRing(det_id) <= 7) ? true : false;
+    bool forS = (flag) ? false : true;
+    bool forP = (flag || (layer < 4 || (layer > 6 && (forDisc12UptoRing10 || forDisc345UptoRing7)))) ? true : false;
 
     ibooker.cd();
-    folder_name << top_folder << "/"
-                << "DigiMonitor"
-                << "/" << fname1.str() << "/" << fname2.str();
-    edm::LogInfo("Phase2TrackerValidateDigi") << " Booking Histograms in : " << folder_name.str();
+    ibooker.setCurrentFolder(top_folder+"/DigiMonitor/"+key);
+    edm::LogInfo("Phase2TrackerValidateDigi") << " Booking Histograms in : " << key;
 
-    ibooker.setCurrentFolder(folder_name.str());
+    //    ibooker.setCurrentFolder(folder_name.str());
 
     std::ostringstream HistoName;
-
     DigiMEs local_mes;
 
     edm::ParameterSet Parameters = config_.getParameter<edm::ParameterSet>("TrackPtH");
     HistoName.str("");
-    HistoName << "SimTrackPt_" << fname2.str();
+    HistoName << "SimTrackPt";
     if (Parameters.getParameter<bool>("switch"))
       local_mes.SimTrackPt = ibooker.book1D(HistoName.str(),
                                             HistoName.str(),
@@ -705,7 +709,7 @@ void Phase2TrackerValidateDigi::bookLayerHistos(DQMStore::IBooker& ibooker,
     else
       local_mes.SimTrackPt = nullptr;
     HistoName.str("");
-    HistoName << "MatchedTrackPt_" << fname2.str();
+    HistoName << "MatchedTrackPt";
     if (Parameters.getParameter<bool>("switch"))
       local_mes.MatchedTrackPt = ibooker.book1D(HistoName.str(),
                                                 HistoName.str(),
@@ -715,7 +719,7 @@ void Phase2TrackerValidateDigi::bookLayerHistos(DQMStore::IBooker& ibooker,
     else
       local_mes.MatchedTrackPt = nullptr;
     HistoName.str("");
-    HistoName << "MissedHitTrackPt_" << fname2.str();
+    HistoName << "MissedHitTrackPt";
     if (Parameters.getParameter<bool>("switch"))
       local_mes.MissedHitTrackPt = ibooker.book1D(HistoName.str(),
                                                   HistoName.str(),
@@ -725,7 +729,7 @@ void Phase2TrackerValidateDigi::bookLayerHistos(DQMStore::IBooker& ibooker,
     else
       local_mes.MissedHitTrackPt = nullptr;
     HistoName.str("");
-    HistoName << "MissedDigiTrackPt_" << fname2.str();
+    HistoName << "MissedDigiTrackPt";
     if (Parameters.getParameter<bool>("switch"))
       local_mes.MissedDigiTrackPt = ibooker.book1D(HistoName.str(),
                                                    HistoName.str(),
@@ -737,7 +741,7 @@ void Phase2TrackerValidateDigi::bookLayerHistos(DQMStore::IBooker& ibooker,
 
     Parameters = config_.getParameter<edm::ParameterSet>("TrackEtaH");
     HistoName.str("");
-    HistoName << "SimTrackEta_" << fname2.str();
+    HistoName << "SimTrackEta";
     if (Parameters.getParameter<bool>("switch"))
       local_mes.SimTrackEta = ibooker.book1D(HistoName.str(),
                                              HistoName.str(),
@@ -747,7 +751,7 @@ void Phase2TrackerValidateDigi::bookLayerHistos(DQMStore::IBooker& ibooker,
     else
       local_mes.SimTrackEta = nullptr;
     HistoName.str("");
-    HistoName << "MatchedTrackEta_" << fname2.str();
+    HistoName << "MatchedTrackEta";
     if (Parameters.getParameter<bool>("switch"))
       local_mes.MatchedTrackEta = ibooker.book1D(HistoName.str(),
                                                  HistoName.str(),
@@ -757,7 +761,7 @@ void Phase2TrackerValidateDigi::bookLayerHistos(DQMStore::IBooker& ibooker,
     else
       local_mes.MatchedTrackEta = nullptr;
     HistoName.str("");
-    HistoName << "MissedHitTrackEta_" << fname2.str();
+    HistoName << "MissedHitTrackEta";
     if (Parameters.getParameter<bool>("switch"))
       local_mes.MissedHitTrackEta = ibooker.book1D(HistoName.str(),
                                                    HistoName.str(),
@@ -767,7 +771,7 @@ void Phase2TrackerValidateDigi::bookLayerHistos(DQMStore::IBooker& ibooker,
     else
       local_mes.MissedHitTrackEta = nullptr;
     HistoName.str("");
-    HistoName << "MissedDigiTrackEta_" << fname2.str();
+    HistoName << "MissedDigiTrackEta";
     if (Parameters.getParameter<bool>("switch"))
       local_mes.MissedDigiTrackEta = ibooker.book1D(HistoName.str(),
                                                     HistoName.str(),
@@ -779,7 +783,7 @@ void Phase2TrackerValidateDigi::bookLayerHistos(DQMStore::IBooker& ibooker,
 
     Parameters = config_.getParameter<edm::ParameterSet>("TrackPhiH");
     HistoName.str("");
-    HistoName << "SimTrackPhi_" << fname2.str();
+    HistoName << "SimTrackPhi";
     if (Parameters.getParameter<bool>("switch"))
       local_mes.SimTrackPhi = ibooker.book1D(HistoName.str(),
                                              HistoName.str(),
@@ -789,7 +793,7 @@ void Phase2TrackerValidateDigi::bookLayerHistos(DQMStore::IBooker& ibooker,
     else
       local_mes.SimTrackPhi = nullptr;
     HistoName.str("");
-    HistoName << "MatchedTrackPhi_" << fname2.str();
+    HistoName << "MatchedTrackPhi";
     if (Parameters.getParameter<bool>("switch"))
       local_mes.MatchedTrackPhi = ibooker.book1D(HistoName.str(),
                                                  HistoName.str(),
@@ -799,7 +803,7 @@ void Phase2TrackerValidateDigi::bookLayerHistos(DQMStore::IBooker& ibooker,
     else
       local_mes.MatchedTrackPhi = nullptr;
     HistoName.str("");
-    HistoName << "MissedHitTrackPhi_" << fname2.str();
+    HistoName << "MissedHitTrackPhi";
     if (Parameters.getParameter<bool>("switch"))
       local_mes.MissedHitTrackPhi = ibooker.book1D(HistoName.str(),
                                                    HistoName.str(),
@@ -809,7 +813,7 @@ void Phase2TrackerValidateDigi::bookLayerHistos(DQMStore::IBooker& ibooker,
     else
       local_mes.MissedHitTrackPhi = nullptr;
     HistoName.str("");
-    HistoName << "MissedDigiTrackPhi_" << fname2.str();
+    HistoName << "MissedDigiTrackPhi";
     if (Parameters.getParameter<bool>("switch"))
       local_mes.MissedDigiTrackPhi = ibooker.book1D(HistoName.str(),
                                                     HistoName.str(),
@@ -820,50 +824,54 @@ void Phase2TrackerValidateDigi::bookLayerHistos(DQMStore::IBooker& ibooker,
       local_mes.MissedDigiTrackPhi = nullptr;
 
     Parameters = config_.getParameter<edm::ParameterSet>("SimHitElossH");
-    HistoName.str("");
-    HistoName << "MatchedSimHitElossS_" << fname2.str();
-    if (Parameters.getParameter<bool>("switch"))
-      local_mes.MatchedSimHitElossS = ibooker.book1D(HistoName.str(),
-                                                     HistoName.str(),
-                                                     Parameters.getParameter<int32_t>("Nbins"),
-                                                     Parameters.getParameter<double>("xmin"),
-                                                     Parameters.getParameter<double>("xmax"));
-    else
-      local_mes.MatchedSimHitElossS = nullptr;
-    HistoName.str("");
-    HistoName << "MatchedSimHitElossP_" << fname2.str();
-    if (Parameters.getParameter<bool>("switch"))
-      local_mes.MatchedSimHitElossP = ibooker.book1D(HistoName.str(),
-                                                     HistoName.str(),
-                                                     Parameters.getParameter<int32_t>("Nbins"),
-                                                     Parameters.getParameter<double>("xmin"),
-                                                     Parameters.getParameter<double>("xmax"));
-    else
-      local_mes.MatchedSimHitElossP = nullptr;
-    HistoName.str("");
-    HistoName << "MissedDigiSimHitElossS_" << fname2.str();
-    if (Parameters.getParameter<bool>("switch"))
-      local_mes.MissedDigiSimHitElossS = ibooker.book1D(HistoName.str(),
-                                                        HistoName.str(),
-                                                        Parameters.getParameter<int32_t>("Nbins"),
-                                                        Parameters.getParameter<double>("xmin"),
-                                                        Parameters.getParameter<double>("xmax"));
-    else
-      local_mes.MissedDigiSimHitElossS = nullptr;
-    HistoName.str("");
-    HistoName << "MissedDigiSimHitElossP_" << fname2.str();
-    if (Parameters.getParameter<bool>("switch"))
-      local_mes.MissedDigiSimHitElossP = ibooker.book1D(HistoName.str(),
-                                                        HistoName.str(),
-                                                        Parameters.getParameter<int32_t>("Nbins"),
-                                                        Parameters.getParameter<double>("xmin"),
-                                                        Parameters.getParameter<double>("xmax"));
-    else
-      local_mes.MissedDigiSimHitElossP = nullptr;
+    if (forS) {
+      HistoName.str("");
+      HistoName << "MatchedSimHitElossS";
+      if (Parameters.getParameter<bool>("switch"))
+	local_mes.MatchedSimHitElossS = ibooker.book1D(HistoName.str(),
+						       HistoName.str(),
+						       Parameters.getParameter<int32_t>("Nbins"),
+						       Parameters.getParameter<double>("xmin"),
+						       Parameters.getParameter<double>("xmax"));
+      else
+	local_mes.MatchedSimHitElossS = nullptr;
+      HistoName.str("");
+      HistoName << "MissedDigiSimHitElossS";
+      if (Parameters.getParameter<bool>("switch"))
+	local_mes.MissedDigiSimHitElossS = ibooker.book1D(HistoName.str(),
+							  HistoName.str(),
+							  Parameters.getParameter<int32_t>("Nbins"),
+							  Parameters.getParameter<double>("xmin"),
+							  Parameters.getParameter<double>("xmax"));
+      else
+	local_mes.MissedDigiSimHitElossS = nullptr;
+    }
+    if (forP) {
+      HistoName.str("");
+      HistoName << "MatchedSimHitElossP";
+      if (Parameters.getParameter<bool>("switch"))
+	local_mes.MatchedSimHitElossP = ibooker.book1D(HistoName.str(),
+						       HistoName.str(),
+						       Parameters.getParameter<int32_t>("Nbins"),
+						       Parameters.getParameter<double>("xmin"),
+						       Parameters.getParameter<double>("xmax"));
+      else
+	local_mes.MatchedSimHitElossP = nullptr;
+      HistoName.str("");
+      HistoName << "MissedDigiSimHitElossP";
+      if (Parameters.getParameter<bool>("switch"))
+	local_mes.MissedDigiSimHitElossP = ibooker.book1D(HistoName.str(),
+							  HistoName.str(),
+							  Parameters.getParameter<int32_t>("Nbins"),
+							  Parameters.getParameter<double>("xmin"),
+							  Parameters.getParameter<double>("xmax"));
+      else
+	local_mes.MissedDigiSimHitElossP = nullptr;
 
+    }
     Parameters = config_.getParameter<edm::ParameterSet>("SimHitDxH");
     HistoName.str("");
-    HistoName << "SimHitDx_" << fname2.str();
+    HistoName << "SimHitDx";
     if (Parameters.getParameter<bool>("switch"))
       local_mes.SimHitDx = ibooker.book1D(HistoName.str(),
                                           HistoName.str(),
@@ -875,7 +883,7 @@ void Phase2TrackerValidateDigi::bookLayerHistos(DQMStore::IBooker& ibooker,
 
     Parameters = config_.getParameter<edm::ParameterSet>("SimHitDyH");
     HistoName.str("");
-    HistoName << "SimHitDy_" << fname2.str();
+    HistoName << "SimHitDy";
     if (Parameters.getParameter<bool>("switch"))
       local_mes.SimHitDy = ibooker.book1D(HistoName.str(),
                                           HistoName.str(),
@@ -887,7 +895,7 @@ void Phase2TrackerValidateDigi::bookLayerHistos(DQMStore::IBooker& ibooker,
 
     Parameters = config_.getParameter<edm::ParameterSet>("SimHitDzH");
     HistoName.str("");
-    HistoName << "SimHitDz_" << fname2.str();
+    HistoName << "SimHitDz";
     if (Parameters.getParameter<bool>("switch"))
       local_mes.SimHitDz = ibooker.book1D(HistoName.str(),
                                           HistoName.str(),
@@ -898,27 +906,27 @@ void Phase2TrackerValidateDigi::bookLayerHistos(DQMStore::IBooker& ibooker,
       local_mes.SimHitDz = nullptr;
 
     HistoName.str("");
-    HistoName << "BunchXingWindow_" << fname2.str();
+    HistoName << "BunchXingWindow";
     local_mes.BunchXTimeBin = ibooker.book1D(HistoName.str(), HistoName.str(), 8, -5.5, 2.5);
 
     HistoName.str("");
-    HistoName << "FractionOfOOTPUDigi_" << fname2.str();
+    HistoName << "FractionOfOOTPUDigi";
     local_mes.FractionOfOOTDigis = ibooker.bookProfile(HistoName.str(), HistoName.str(), 8, -5.5, 2.5, 0., 1.0, "s");
 
     HistoName.str("");
-    HistoName << "MissedDigiLocalXPosvsYPos_" << fname2.str();
+    HistoName << "MissedDigiLocalXPosvsYPos";
     local_mes.MissedDigiLocalXposVsYPos =
         ibooker.book2D(HistoName.str(), HistoName.str(), 130, -6.5, 6.5, 130, -6.5, 6.5);
 
     Parameters = config_.getParameter<edm::ParameterSet>("TOFEtaMapH");
     HistoName.str("");
-    HistoName << "MissedDigiTimeWindow_" << fname2.str();
+    HistoName << "MissedDigiTimeWindow";
     if (Parameters.getParameter<bool>("switch"))
       local_mes.MissedDigiTimeWindow = ibooker.book1D(HistoName.str(), HistoName.str(), 100, -0.5, 49.5);
     else
       local_mes.MissedDigiTimeWindow = nullptr;
     local_mes.nDigis = 0;
-    layerMEs.insert(std::make_pair(layer, local_mes));
+    layerMEs.insert(std::make_pair(key, local_mes));
   }
 }
 //
@@ -947,7 +955,7 @@ unsigned int Phase2TrackerValidateDigi::getSimTrackId(const edm::DetSetVector<Pi
 }
 void Phase2TrackerValidateDigi::fillOTBXInfo() {
   const edm::DetSetVector<PixelDigiSimLink>* links = otSimLinkHandle_.product();
-
+  const TrackerTopology* tTopo = tTopoHandle_.product();
   for (typename edm::DetSetVector<PixelDigiSimLink>::const_iterator DSViter = links->begin(); DSViter != links->end();
        DSViter++) {
     unsigned int rawid = DSViter->id;
@@ -957,7 +965,9 @@ void Phase2TrackerValidateDigi::fillOTBXInfo() {
     int layer = tTopoHandle_->getOTLayerNumber(rawid);
     if (layer < 0)
       continue;
-    std::map<uint32_t, DigiMEs>::iterator pos = layerMEs.find(layer);
+    bool flag_ = false;
+    std::string key = getHistoId(rawid, tTopo, flag_);
+    std::map<std::string, DigiMEs>::iterator pos = layerMEs.find(key);
     if (pos == layerMEs.end())
       continue;
     DigiMEs& local_mes = pos->second;
@@ -982,7 +992,7 @@ void Phase2TrackerValidateDigi::fillOTBXInfo() {
 }
 void Phase2TrackerValidateDigi::fillITPixelBXInfo() {
   const edm::DetSetVector<PixelDigiSimLink>* links = itPixelSimLinkHandle_.product();
-
+  const TrackerTopology* tTopo = tTopoHandle_.product();
   for (typename edm::DetSetVector<PixelDigiSimLink>::const_iterator DSViter = links->begin(); DSViter != links->end();
        DSViter++) {
     unsigned int rawid = DSViter->id;
@@ -992,7 +1002,9 @@ void Phase2TrackerValidateDigi::fillITPixelBXInfo() {
     int layer = tTopoHandle_->getITPixelLayerNumber(rawid);
     if (layer < 0)
       continue;
-    std::map<uint32_t, DigiMEs>::iterator pos = layerMEs.find(layer);
+    bool flag_ = true;
+    std::string key = getHistoId(rawid, tTopo, flag_);
+    std::map<std::string, DigiMEs>::iterator pos = layerMEs.find(key);
     if (pos == layerMEs.end())
       continue;
     DigiMEs& local_mes = pos->second;
@@ -1054,8 +1066,9 @@ void Phase2TrackerValidateDigi::fillHistogram(
     th3->Fill(val);
 }
 //
-// -- Fill NHit per Layer Histogram
+// -- Fill NHit per Layer Histogram [Need to work on!!!]
 //
+/*
 void Phase2TrackerValidateDigi::fillHitsPerTrack() {
   for (const auto& it : layerMEs) {
     const DigiMEs& local_mes = it.second;
@@ -1071,6 +1084,36 @@ void Phase2TrackerValidateDigi::fillHitsPerTrack() {
       lval = 0;
     nSimHitsPerTrack->Fill(lval, local_mes.nHits);
   }
+}
+*/
+std::string Phase2TrackerValidateDigi::getHistoId(uint32_t det_id, const TrackerTopology* tTopo, bool flag) {
+  int layer;
+  std::string Disc;
+  std::ostringstream fname1;
+  if(flag){
+    layer = tTopo->getITPixelLayerNumber(det_id);
+  }
+  else {
+    layer = tTopo->getOTLayerNumber(det_id);
+  }
+  if(layer < 0)
+    return "";
+
+  if (layer < 100) {
+    fname1 << "Barrel/";
+    fname1 << "Layer" << layer;
+    fname1 << "";
+  } else {
+    int side = layer / 100;
+    fname1 << "EndCap_Side" << side << "/";
+    int disc = layer - side * 100;
+    if (flag) Disc = (disc < 9) ? "FPIX_1" : "FPIX_2";
+    else Disc = (disc < 3) ? "TEDD_1" : "TEDD_2";
+    fname1 << Disc << "/";
+    int ring = tTopo->tidRing(det_id);
+    fname1 << "Ring" << ring;
+  }
+  return fname1.str();
 }
 //define this as a plug-in
 DEFINE_FWK_MODULE(Phase2TrackerValidateDigi);
