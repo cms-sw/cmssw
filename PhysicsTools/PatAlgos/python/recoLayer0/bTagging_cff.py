@@ -49,6 +49,7 @@ supportedBtagInfos = [
   , 'pfParticleNetTagInfos'
     # ParticleNet (AK4) tag infos
   , 'pfParticleNetAK4TagInfos'
+  , 'pfNegativeParticleNetAK4TagInfos'
     # Pixel Cluster tag infos
   , 'pixelClusterTagInfos'
     # HiggsInteractionNet tag infos
@@ -267,6 +268,11 @@ for disc in _pfParticleNetAK4JetTagsProbs + _pfParticleNetAK4JetTagsMetaDiscrs:
 # update supportedMetaDiscr
 for disc in _pfParticleNetAK4JetTagsMetaDiscrs:
     supportedMetaDiscr[disc] = _pfParticleNetAK4JetTagsProbs
+# -----------------------------------
+# setup Negative ParticleNet AK4
+from RecoBTag.ONNXRuntime.pfParticleNetAK4_cff import _pfNegativeParticleNetAK4JetTagsProbs
+for disc in _pfNegativeParticleNetAK4JetTagsProbs:
+    supportedBtagDiscr[disc] = [["pfNegativeParticleNetAK4TagInfos"]]
 # -----------------------------------
 
 # -----------------------------------
