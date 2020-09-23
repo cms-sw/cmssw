@@ -35,7 +35,7 @@ charmTagsComputerCvsL.slComputerCfg.correctVertexMass = False
 
 from Configuration.Eras.Modifier_phase1Pixel_cff import phase1Pixel
 phase1Pixel.toModify(charmTagsComputerCvsL, 
-                     weightFile = cms.FileInPath('RecoBTag/CTagging/data/c_vs_udsg_PhaseI.xml'),
+                     weightFile = 'RecoBTag/CTagging/data/c_vs_udsg_PhaseI.xml',
                      slComputerCfg = dict(correctVertexMass = True),
                      defaultValueNoTracks = True
 )
