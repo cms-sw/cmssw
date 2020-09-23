@@ -35,7 +35,7 @@ FRDEventMsgView::FRDEventMsgView(void* buf)
   // This format is no longer supported
   version_ = *(uint16*)bufPtr;
 
-  if (version_ < 2 || version_> 6) {
+  if (version_ < 2 || version_ > 6) {
     throw cms::Exception("FRDEventMsgView") << "FRD version " << version_ << " is not supported";
   }
 
