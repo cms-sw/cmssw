@@ -5,6 +5,7 @@
 #include "CondFormats/GeometryObjects/interface/PGeometricDet.h"
 
 #include "CLHEP/Units/GlobalSystemOfUnits.h"
+#include "DataFormats/Math/interface/GeantUnits.h"
 
 #include <cfloat>
 #include <string>
@@ -85,7 +86,9 @@ GeometricDet::GeometricDet(DDFilteredView* fv, GeometricEnumType type)
       _stereo(getString("TrackerStereoDetectors", *fv) == strue),
       _isLowerSensor(getString("TrackerLowerDetectors", *fv) == strue),
       _isUpperSensor(getString("TrackerUpperDetectors", *fv) == strue),
-      _siliconAPVNum(getDouble("SiliconAPVNumber", *fv)) {
+      _siliconAPVNum(getDouble("SiliconAPVNumber", *fv)),
+      _isFromDD4hep(false)
+{
   //  workaround instead of this at initialization _ddd(fv->navPos().begin(),fv->navPos().end()),
   const DDFilteredView::nav_type& nt = fv->navPos();
   _ddd = nav_type(nt.begin(), nt.end());
@@ -95,16 +98,16 @@ GeometricDet::GeometricDet(DDFilteredView* fv, GeometricEnumType type)
   Constructor from DD4HEP Filtered view.
  */
 GeometricDet::GeometricDet(cms::DDFilteredView* fv, GeometricEnumType type)
-  : //_trans(geant_units::operators::convertCmToMm(fv->translation())),
-  _trans(fv->translation()),
+  :
+  _trans(geant_units::operators::convertCmToMm(fv->translation())),
   _phi(_trans.Phi()),
   _rho(_trans.Rho()),
   _rot(fv->rotation()),
-  _shape(fv->shape()),
-  _ddd(fv->navPos()),
-  _ddname(fv->name()),
+  _shape(fv->shape()), /// ???
+  _ddd(fv->navPos()), /// ???
+  _ddname(fv->name()), /// ???
   _type(type),
-  _params(fv->parameters()),
+  _params(computeLegacyShapeParameters(_shape, fv->solid())), /// ???
   _radLength(fv->get<double>("TrackerRadLength")),
   _xi(fv->get<double>("TrackerXi")),
   _pixROCRows(fv->get<double>("PixelROCRows")),
@@ -114,7 +117,8 @@ GeometricDet::GeometricDet(cms::DDFilteredView* fv, GeometricEnumType type)
   _stereo(fv->get<std::string_view>("TrackerStereoDetectors") == strue),
   _isLowerSensor(fv->get<std::string_view>("TrackerLowerDetectors") == strue),
   _isUpperSensor(fv->get<std::string_view>("TrackerUpperDetectors") == strue),
-  _siliconAPVNum(fv->get<double>("SiliconAPVNumber")) 
+  _siliconAPVNum(fv->get<double>("SiliconAPVNumber")),
+  _isFromDD4hep(true)
 {}
 
 // PGeometricDet is persistent version... make it... then come back here and make the
@@ -252,4 +256,92 @@ std::unique_ptr<Bounds> GeometricDet::bounds() const {
   const std::vector<double>& par = _params;
   TrackerShapeToBounds shapeToBounds;
   return std::unique_ptr<Bounds>(shapeToBounds.buildBounds(_shape, par));
+}
+
+
+
+
+std::vector<double> GeometricDet::computeLegacyShapeParameters(const cms::DDSolidShape& mySolidShape,
+							       const dd4hep::Solid& mySolid) const {
+  std::vector<double> myOldDDShapeParameters;
+  //const cms::DDSolidShape& mySolidShape = cms::dd::getCurrentShape(fv);
+  if (mySolidShape == cms::DDSolidShape::ddbox) {
+    const dd4hep::Box& myBox = dd4hep::Box(mySolid);
+    myOldDDShapeParameters = { geant_units::operators::convertCmToMm(myBox.x() ),
+			       geant_units::operators::convertCmToMm(myBox.y() ),
+			       geant_units::operators::convertCmToMm(myBox.z() )
+    };
+  }
+  /*
+  else if (mySolidShape == cms::DDSolidShape::ddcons) {
+    const dd4hep::Cone myCone = dd4hep::Cone(mySolid);
+    myOldDDShapeParameters = { geant_units::operators::convertCmToMm(myCone.dZ() ),
+			       geant_units::operators::convertCmToMm(myCone.rMin1() ),
+			       geant_units::operators::convertCmToMm(myCone.rMax1() ),
+			       geant_units::operators::convertCmToMm(myCone.rMin2() ),
+			       geant_units::operators::convertCmToMm(myCone.rMax2() ),
+			       myCone.phiFrom(),
+			       myCone.deltaPhi()
+			       }; 
+			       }*/
+  else if (mySolidShape == cms::DDSolidShape::ddtrap) {
+    const dd4hep::Trap& myTrap = dd4hep::Trap(mySolid);
+    myOldDDShapeParameters = { //geant_units::operators::convertCmToMm(myTrap.halfZ() ),
+      geant_units::operators::convertCmToMm(myTrap->GetDZ() ),
+      myTrap->GetTheta(), // ????? deg or rad?
+      myTrap->GetPhi(),  // ????? deg or rad?
+      geant_units::operators::convertCmToMm(myTrap->GetH1() ),
+      geant_units::operators::convertCmToMm(myTrap->GetBl1() ),
+      geant_units::operators::convertCmToMm(myTrap->GetTl1() ),
+      myTrap->GetAlpha1(),  // ????? deg or rad?
+      geant_units::operators::convertCmToMm(myTrap->GetH2() ),
+      geant_units::operators::convertCmToMm(myTrap->GetBl2() ),
+      geant_units::operators::convertCmToMm(myTrap->GetTl2() ),		 
+      myTrap->GetAlpha2() // ????? deg or rad?
+    }; 
+  }
+  else if (mySolidShape == cms::DDSolidShape::ddtubs) {
+    const dd4hep::Tube& myTube = dd4hep::Tube(mySolid);
+    myOldDDShapeParameters = { geant_units::operators::convertCmToMm(myTube->GetDz() ),
+			       geant_units::operators::convertCmToMm(myTube->GetRmin() ),
+			       geant_units::operators::convertCmToMm(myTube->GetRmax() ),
+			       myTube->GetPhi1(),  // ????? deg or rad? is that ok?
+			       myTube->GetPhi2() - myTube->GetPhi1()  // ??????? deg or rad?? is that ok?
+    };
+  }
+  /*
+    else if (mySolidShape == cms::DDSolidShape::ddtrunctubs) {
+    const cms::dd::DDTruncTubs& myShape = cms::dd::DDTruncTubs(fv);
+    myOldDDShapeParameters = { geant_units::operators::convertCmToMm(myShape.zHalf() ),
+			       geant_units::operators::convertCmToMm(myShape.rIn() ),
+			       geant_units::operators::convertCmToMm(myShape.rOut() ),
+			       myShape.startPhi(),
+			       myShape.deltaPhi(),
+			       geant_units::operators::convertCmToMm(myShape.cutAtStart() ),
+			       geant_units::operators::convertCmToMm(myShape.cutAtDelta() ),
+			       static_cast<double>(myShape.cutInside())
+    }; 
+    }*/
+
+  /*
+  else if (mySolidShape == cms::DDSolidShape::dd_not_init) {
+    auto myShape = fv.solid();
+    const std::vector<double>& params = myShape.dimensions();
+    if (fv.isA<dd4hep::Trd1>()) {
+      myOldDDShapeParameters = { geant_units::operators::convertCmToMm(params[3] ), // z
+				 0.,
+				 0.,
+				 geant_units::operators::convertCmToMm(params[2] ), // y
+				 geant_units::operators::convertCmToMm(params[0] ), // x1
+				 geant_units::operators::convertCmToMm(params[0] ), // x1
+				 0.,
+				 geant_units::operators::convertCmToMm(params[2] ), // y
+				 geant_units::operators::convertCmToMm(params[1] ), // x2
+				 geant_units::operators::convertCmToMm(params[1] ), // x2
+				 0.  
+      };
+      }
+      }*/
+
+  return myOldDDShapeParameters;
 }
