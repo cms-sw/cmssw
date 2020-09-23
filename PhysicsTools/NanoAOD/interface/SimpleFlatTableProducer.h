@@ -19,9 +19,9 @@ public:
         doc_(params.existsAs<std::string>("doc") ? params.getParameter<std::string>("doc") : ""),
         extension_(params.existsAs<bool>("extension") ? params.getParameter<bool>("extension") : false),
         skipNonExistingSrc_(
-	    params.existsAs<bool>("skipNonExistingSrc") ? params.getParameter<bool>("skipNonExistingSrc") : false),
+            params.existsAs<bool>("skipNonExistingSrc") ? params.getParameter<bool>("skipNonExistingSrc") : false),
         src_(skipNonExistingSrc_ ? mayConsume<TProd>(params.getParameter<edm::InputTag>("src"))
-	                         : consumes<TProd>(params.getParameter<edm::InputTag>("src"))) {
+                                 : consumes<TProd>(params.getParameter<edm::InputTag>("src"))) {
     edm::ParameterSet const &varsPSet = params.getParameter<edm::ParameterSet>("variables");
     for (const std::string &vname : varsPSet.getParameterNamesForType<edm::ParameterSet>()) {
       const auto &varPSet = varsPSet.getParameter<edm::ParameterSet>(vname);
@@ -139,15 +139,20 @@ public:
         const auto &varPSet = extvarsPSet.getParameter<edm::ParameterSet>(vname);
         const std::string &type = varPSet.getParameter<std::string>("type");
         if (type == "int")
-          extvars_.push_back(std::make_unique<IntExtVar>(vname, varPSet, this->consumesCollector(), this->skipNonExistingSrc_));
+          extvars_.push_back(
+              std::make_unique<IntExtVar>(vname, varPSet, this->consumesCollector(), this->skipNonExistingSrc_));
         else if (type == "float")
-          extvars_.push_back(std::make_unique<FloatExtVar>(vname, varPSet, this->consumesCollector(), this->skipNonExistingSrc_));
+          extvars_.push_back(
+              std::make_unique<FloatExtVar>(vname, varPSet, this->consumesCollector(), this->skipNonExistingSrc_));
         else if (type == "double")
-          extvars_.push_back(std::make_unique<DoubleExtVar>(vname, varPSet, this->consumesCollector(), this->skipNonExistingSrc_));
+          extvars_.push_back(
+              std::make_unique<DoubleExtVar>(vname, varPSet, this->consumesCollector(), this->skipNonExistingSrc_));
         else if (type == "uint8")
-          extvars_.push_back(std::make_unique<UInt8ExtVar>(vname, varPSet, this->consumesCollector(), this->skipNonExistingSrc_));
+          extvars_.push_back(
+              std::make_unique<UInt8ExtVar>(vname, varPSet, this->consumesCollector(), this->skipNonExistingSrc_));
         else if (type == "bool")
-          extvars_.push_back(std::make_unique<BoolExtVar>(vname, varPSet, this->consumesCollector(), this->skipNonExistingSrc_));
+          extvars_.push_back(
+              std::make_unique<BoolExtVar>(vname, varPSet, this->consumesCollector(), this->skipNonExistingSrc_));
         else
           throw cms::Exception("Configuration", "unsupported type " + type + " for variable " + vname);
       }
@@ -162,20 +167,20 @@ public:
     std::vector<edm::Ptr<T>> selptrs;  // for external variables
     if (prod.isValid() || !(this->skipNonExistingSrc_)) {
       if (singleton_) {
-	assert(prod->size() == 1);
-	selobjs.push_back(&(*prod)[0]);
-	if (!extvars_.empty())
-	  selptrs.emplace_back(prod->ptrAt(0));
+        assert(prod->size() == 1);
+        selobjs.push_back(&(*prod)[0]);
+        if (!extvars_.empty())
+          selptrs.emplace_back(prod->ptrAt(0));
       } else {
         for (unsigned int i = 0, n = prod->size(); i < n; ++i) {
-	  const auto &obj = (*prod)[i];
-	  if (cut_(obj)) {
-	    selobjs.push_back(&obj);
-	    if (!extvars_.empty())
-	      selptrs.emplace_back(prod->ptrAt(i));
-	  }
-	  if (selobjs.size() >= maxLen_)
-	    break;
+          const auto &obj = (*prod)[i];
+          if (cut_(obj)) {
+            selobjs.push_back(&obj);
+            if (!extvars_.empty())
+              selptrs.emplace_back(prod->ptrAt(i));
+          }
+          if (selobjs.size() >= maxLen_)
+            break;
         }
       }
     }
@@ -200,11 +205,14 @@ protected:
   template <typename TIn, typename ValType = TIn>
   class ValueMapVariable : public ExtVariable {
   public:
-    ValueMapVariable(const std::string &aname, const edm::ParameterSet &cfg, edm::ConsumesCollector &&cc, bool skipNonExistingSrc = false)
+    ValueMapVariable(const std::string &aname,
+                     const edm::ParameterSet &cfg,
+                     edm::ConsumesCollector &&cc,
+                     bool skipNonExistingSrc = false)
         : ExtVariable(aname, cfg),
           skipNonExistingSrc_(skipNonExistingSrc),
           token_(skipNonExistingSrc_ ? cc.mayConsume<edm::ValueMap<TIn>>(cfg.getParameter<edm::InputTag>("src"))
-		                     : cc.consumes<edm::ValueMap<TIn>>(cfg.getParameter<edm::InputTag>("src"))) {}
+                                     : cc.consumes<edm::ValueMap<TIn>>(cfg.getParameter<edm::InputTag>("src"))) {}
     void fill(const edm::Event &iEvent, std::vector<edm::Ptr<T>> selptrs, nanoaod::FlatTable &out) const override {
       edm::Handle<edm::ValueMap<TIn>> vmap;
       iEvent.getByToken(token_, vmap);
