@@ -243,7 +243,8 @@ void HGCalWaferHitCheck::globalEndJob(const HGCalValidSimhitCheck::Counters* cou
     if (bad > 0)
       ++allbad;
     if (occ == 0 || bad > 0) {
-      edm::LogVerbatim("HGCalValidation") << "ZS:Layer:u:v:index " << zside << ":" << layer << ":" << waferU << ":" << waferV << ":" << index << " Occ " << occ << " bad " << bad;
+      edm::LogVerbatim("HGCalValidation") << "ZS:Layer:u:v:index " << zside << ":" << layer << ":" << waferU << ":"
+                                          << waferV << ":" << index << " Occ " << occ << " bad " << bad;
     }
   }
   edm::LogVerbatim("HGCalValidation") << "\n\n"
