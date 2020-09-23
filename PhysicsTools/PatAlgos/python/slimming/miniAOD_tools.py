@@ -438,20 +438,20 @@ def miniAOD_customizeCommon(process):
                     pfCandidates = cms.InputTag("particleFlow"),
                     algo= 'AK', rParam = 0.4, btagDiscriminators = noDeepFlavourDiscriminators
                     )
-
+    
     process.patJetGenJetMatchPuppi.matched = 'slimmedGenJets'
     
     process.patJetsPuppi.jetChargeSource = cms.InputTag("patJetPuppiCharge")
-    
+
     process.selectedPatJetsPuppi.cut = cms.string("pt > 15")
-    
+
     from PhysicsTools.PatAlgos.slimming.applyDeepBtagging_cff import applyDeepBtagging
     applyDeepBtagging( process )
 
     addToProcessAndTask('slimmedJetsPuppi', process.slimmedJetsNoDeepFlavour.clone(
                           src = "selectedPatJetsPuppi", packedPFCandidates = "packedPFCandidates"),
                         process, task)
-    
+
     task.add(process.slimmedJetsPuppi)
 
     # Embed pixelClusterTagInfos in slimmedJets
