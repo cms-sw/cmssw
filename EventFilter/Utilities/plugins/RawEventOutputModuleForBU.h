@@ -111,10 +111,12 @@ void RawEventOutputModuleForBU<Consumer>::write(edm::EventForOutput const& e) {
   if (frdVersion_ <= 5) {
     *bufPtr++ = (uint32)frdVersion_;  // version number only
   } else {
-    uint32 flags = 0;
+    uint16 flags = 0;
     if (!e.eventAuxiliary().isRealData())
       flags |= FRDEVENT_MASK_ISGENDATA;
-    *bufPtr++ = (uint32)((frdVersion_ & 0xffff) | flags << 16);
+    *(uint16*)bufPtr = (uint16)(frdVersion_ & 0xffff);
+    *((uint16*)bufPtr + 1) = flags;
+    bufPtr++;
   }
   *bufPtr++ = (uint32)e.id().run();
   *bufPtr++ = (uint32)e.luminosityBlock();

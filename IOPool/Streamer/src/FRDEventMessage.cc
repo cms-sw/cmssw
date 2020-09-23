@@ -33,16 +33,18 @@ FRDEventMsgView::FRDEventMsgView(void* buf)
   // In version one of the format, there was no version number in the data,
   // and the run number (32-bit) appeared first.
   // This format is no longer supported
-  version_ = *bufPtr | 0xffff;
+  version_ = *(uint16*)bufPtr;
 
-  if (version_ < 2) {
-    throw cms::Exception("FRDEventMsgView") << "FRD version " << version_ << " is no longer supported";
+  if (version_ < 2 || version_> 6) {
+    throw cms::Exception("FRDEventMsgView") << "FRD version " << version_ << " is not supported";
   }
 
   // Version 6 repurposes unused high 16-bits of 32-bit version
-  // assuming we no longer need version 1 detection
-  if (version_ >= 6) {
-    flags_ = *bufPtr >> 16;
+  // assuming we no longer need version 1 support
+  flags_ = *((uint16*)bufPtr + 1);
+
+  if (version_ < 6 && flags_) {
+    throw cms::Exception("FRDEventMsgView") << "FRD flags can not be used in version " << version_;
   }
 
   size_ = sizeof(uint32);
