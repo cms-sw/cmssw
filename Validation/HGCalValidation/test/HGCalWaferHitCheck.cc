@@ -99,7 +99,7 @@ void HGCalWaferHitCheck::fillDescriptions(edm::ConfigurationDescriptions& descri
   edm::ParameterSetDescription desc;
   desc.add<std::string>("detectorName", "HGCalEESensitive");
   desc.add<std::string>("caloHitSource", "HGCHitsEE");
-  desc.add<edm::InputTag>("source", edm::InputTag("hgcalDigis", "EE"));
+  desc.add<edm::InputTag>("source", edm::InputTag("simHGCalUnsuppressedDigis", "EE"));
   desc.add<int>("inputType", 1);
   desc.addUntracked<int>("verbosity", 0);
   desc.addUntracked<bool>("ifNose", false);
@@ -231,27 +231,19 @@ void HGCalWaferHitCheck::endStream() {
 
 void HGCalWaferHitCheck::globalEndJob(const HGCalValidSimhitCheck::Counters* count) {
   int allbad(0), nocc(0);
-  for (int iz = 0; iz < 2; ++iz) {
-    int zside = iz * 2 - 1;
-    for (int layer = 1; layer <= layerMax; ++layer) {
-      for (int waferU = -waferMax; waferU <= waferMax; ++waferU) {
-        for (int waferV = -waferMax; waferV <= waferMax; ++waferV) {
-          int index = zside * HGCalWaferIndex::waferIndex(layer, waferU, waferV, false);
-          if (std::find(count->goodChannels_.begin(), count->goodChannels_.end(), index) !=
-              count->goodChannels_.end()) {
-            int occ = (count->occupancy_.find(index) == count->occupancy_.end()) ? 0 : count->occupancy_[index];
-            int bad = (count->badTypes_.find(index) == count->badTypes_.end()) ? 0 : count->badTypes_[index];
-            if (occ == 0)
-              ++nocc;
-            if (bad > 0)
-              ++allbad;
-            if (occ == 0 || bad > 0) {
-              edm::LogVerbatim("HGCalValidation") << "ZS:Layer:u:v:index " << zside << ":" << layer << ":" << waferU
-                                                  << ":" << waferV << ":" << index << " Occ " << occ << " bad " << bad;
-            }
-          }
-        }
-      }
+  for (auto const& index : count->goodChannels_) {
+    int zside = (index < 0) ? -1 : 1;
+    int layer = HGCalWaferIndex::waferLayer(std::abs(index));
+    int waferU = HGCalWaferIndex::waferU(std::abs(index));
+    int waferV = HGCalWaferIndex::waferV(std::abs(index));
+    int occ = (count->occupancy_.find(index) == count->occupancy_.end()) ? 0 : count->occupancy_[index];
+    int bad = (count->badTypes_.find(index) == count->badTypes_.end()) ? 0 : count->badTypes_[index];
+    if (occ == 0)
+      ++nocc;
+    if (bad > 0)
+      ++allbad;
+    if (occ == 0 || bad > 0) {
+      edm::LogVerbatim("HGCalValidation") << "ZS:Layer:u:v:index " << zside << ":" << layer << ":" << waferU << ":" << waferV << ":" << index << " Occ " << occ << " bad " << bad;
     }
   }
   edm::LogVerbatim("HGCalValidation") << "\n\n"
