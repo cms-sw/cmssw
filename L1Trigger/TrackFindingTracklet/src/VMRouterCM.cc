@@ -1,4 +1,4 @@
-#include "L1Trigger/TrackFindingTracklet/interface/VMRouter.h"
+#include "L1Trigger/TrackFindingTracklet/interface/VMRouterCM.h"
 #include "L1Trigger/TrackFindingTracklet/interface/Settings.h"
 #include "L1Trigger/TrackFindingTracklet/interface/Globals.h"
 #include "L1Trigger/TrackFindingTracklet/interface/VMStubTE.h"
@@ -13,11 +13,11 @@
 using namespace std;
 using namespace trklet;
 
-VMRouter::VMRouter(string name, Settings const& settings, Globals* global, unsigned int iSector)
+VMRouterCM::VMRouterCM(string name, Settings const& settings, Globals* global, unsigned int iSector)
     : ProcessBase(name, settings, global, iSector), vmrtable_(settings) {
   layerdisk_ = initLayerDisk(4);
 
-  vmstubsMEPHI_.resize(settings_.nvmme(layerdisk_), nullptr);
+  vmstubsMEPHI_.resize(1, nullptr);
 
   overlapbits_ = 7;
   nextrabits_ = overlapbits_ - (settings_.nbitsallstubs(layerdisk_) + settings_.nbitsvmme(layerdisk_));
@@ -26,9 +26,12 @@ VMRouter::VMRouter(string name, Settings const& settings, Globals* global, unsig
 
   nbitszfinebintable_ = settings_.vmrlutzbits(layerdisk_);
   nbitsrfinebintable_ = settings_.vmrlutrbits(layerdisk_);
+
+  nvmmebins_=settings_.NLONGVMBINS()*((layerdisk_>=6)?2:1); //number of long z/r bins in VM
+  
 }
 
-void VMRouter::addOutput(MemoryBase* memory, string output) {
+void VMRouterCM::addOutput(MemoryBase* memory, string output) {
   if (settings_.writetrace()) {
     edm::LogVerbatim("Tracklet") << "In " << name_ << " adding output to " << memory->getName() << " to output "
                                  << output;
@@ -37,97 +40,62 @@ void VMRouter::addOutput(MemoryBase* memory, string output) {
   if (output.substr(0, 10) == "allstubout") {
     AllStubsMemory* tmp = dynamic_cast<AllStubsMemory*>(memory);
     assert(tmp != nullptr);
-    allstubs_.push_back(tmp);
+    char memtype=0;
+    if (output.size()>10) {
+      memtype=output[11];
+    }
+    allstubs_.push_back(pair<char, AllStubsMemory*>(memtype,tmp));
     return;
   }
 
-  if (output.substr(0, 12) == "vmstuboutPHI") {
-    char seedtype = memory->getName().substr(11, 1)[0];
+  if (output.substr(0, 9) == "vmstubout") {
     unsigned int pos = 12;
     int vmbin = memory->getName().substr(pos, 1)[0] - '0';
     pos++;
     if (pos < memory->getName().size()) {
       if (memory->getName().substr(pos, 1)[0] != 'n') {
-        vmbin = vmbin * 10 + memory->getName().substr(pos, 1)[0] - '0';
-        pos++;
+	vmbin = vmbin * 10 + memory->getName().substr(pos, 1)[0] - '0';
+	pos++;
       }
     }
-
-    int iseed = -1;
-    unsigned int inner = 1;
     if (memory->getName().substr(3, 2) == "TE") {
       VMStubsTEMemory* tmp = dynamic_cast<VMStubsTEMemory*>(memory);
-      assert(tmp != nullptr);
-      if (seedtype < 'I') {
-        if (layerdisk_ == 0 || layerdisk_ == 1)
-          iseed = 0;
-        if (layerdisk_ == 2 || layerdisk_ == 3)
-          iseed = 2;
-        if (layerdisk_ == 4 || layerdisk_ == 5)
-          iseed = 3;
-        if (layerdisk_ == 6 || layerdisk_ == 7)
-          iseed = 4;
-        if (layerdisk_ == 8 || layerdisk_ == 9)
-          iseed = 5;
-        if (layerdisk_ == 0 || layerdisk_ == 2 || layerdisk_ == 4 || layerdisk_ == 6 || layerdisk_ == 8)
-          inner = 0;
-      } else if (seedtype < 'M') {
-        if (layerdisk_ == 1 || layerdisk_ == 2)
-          iseed = 1;
-        if (layerdisk_ == 1)
-          inner = 0;
-      } else if (seedtype <= 'Z') {
-        if (layerdisk_ == 0 || layerdisk_ == 6)
-          iseed = 6;
-        if (layerdisk_ == 1 || layerdisk_ == 6)
-          iseed = 7;
-        if (layerdisk_ == 0 || layerdisk_ == 1)
-          inner = 0;
-      } else if (seedtype < 'o' && seedtype >= 'a') {
-        if (layerdisk_ == 1 || layerdisk_ == 2)
-          iseed = 10;
-        if (layerdisk_ == 1)
-          inner = 0;
-      } else if (seedtype > 'o' && seedtype <= 'z') {
-        if (layerdisk_ == 1)
-          iseed = 11;
-        if (layerdisk_ == 6)
-          iseed = 10;
-        inner = 2;
-      } else {
-        throw cms::Exception("LogicError") << __FILE__ << " " << __LINE__ << " Invalid seeding!";
-      }
-      assert(iseed != -1);
+      int iseed = output[output.size()-1]-'0';
+      assert(iseed>=0);
+      assert(iseed<8);
+      
       int seedindex = -1;
       for (unsigned int k = 0; k < vmstubsTEPHI_.size(); k++) {
-        if (vmstubsTEPHI_[k].seednumber == (unsigned int)iseed) {
-          seedindex = k;
-        }
+	if (vmstubsTEPHI_[k].seednumber == (unsigned int)iseed) {
+	  seedindex = k;
+	}
       }
       if (seedindex == -1) {
-        seedindex = vmstubsTEPHI_.size();
-        vector<VMStubsTEMemory*> avectmp;
-        vector<vector<VMStubsTEMemory*> > vectmp(settings_.nvmte(inner, iseed), avectmp);
-        VMStubsTEPHI atmp(iseed, inner, vectmp);
-        vmstubsTEPHI_.push_back(atmp);
+	seedindex = vmstubsTEPHI_.size();
+	vector<VMStubsTEMemory*> vectmp;
+	VMStubsTEPHICM atmp(iseed, vectmp);
+	vmstubsTEPHI_.push_back(atmp);
       }
-      vmstubsTEPHI_[seedindex].vmstubmem[(vmbin - 1) & (settings_.nvmte(inner, iseed) - 1)].push_back(tmp);
-
+      tmp->resize(settings_.NLONGVMBINS()*settings_.nvmte(1,iseed));
+      vmstubsTEPHI_[seedindex].vmstubmem.push_back(tmp);
+      
     } else if (memory->getName().substr(3, 2) == "ME") {
       VMStubsMEMemory* tmp = dynamic_cast<VMStubsMEMemory*>(memory);
       assert(tmp != nullptr);
-      vmstubsMEPHI_[(vmbin - 1) & (settings_.nvmme(layerdisk_) - 1)] = tmp;
+      tmp->resize(nvmmebins_*settings_.nvmme(layerdisk_));
+      assert(vmstubsMEPHI_[0] == nullptr);
+	vmstubsMEPHI_[0] = tmp;
     } else {
       throw cms::Exception("LogicError") << __FILE__ << " " << __LINE__ << " should never get here!";
     }
-
+    
     return;
   }
 
   throw cms::Exception("BadConfig") << __FILE__ << " " << __LINE__ << " Could not find output : " << output;
 }
 
-void VMRouter::addInput(MemoryBase* memory, string input) {
+void VMRouterCM::addInput(MemoryBase* memory, string input) {
   if (settings_.writetrace()) {
     edm::LogVerbatim("Tracklet") << "In " << name_ << " adding input from " << memory->getName() << " to input "
                                  << input;
@@ -143,7 +111,8 @@ void VMRouter::addInput(MemoryBase* memory, string input) {
   throw cms::Exception("BadConfig") << __FILE__ << " " << __LINE__ << " Could not find input : " << input;
 }
 
-void VMRouter::execute() {
+void VMRouterCM::execute() {
+
   unsigned int allStubCounter = 0;
 
   //Loop over the input stubs
@@ -153,9 +122,11 @@ void VMRouter::execute() {
         continue;
       if (allStubCounter > 127)
         continue;
+
       Stub* stub = stubinput->getStub(i);
 
-      //Note - below information is not part of the stub, but rather from which input memory we are reading
+      //Note - below information is not part of the stub, but rather from which input memory
+      //we are reading
       bool negdisk = (stub->disk().value() < 0);
 
       //use &127 to make sure we fit into the number of bits -
@@ -169,17 +140,28 @@ void VMRouter::execute() {
 
       allStubCounter++;
 
+      FPGAWord iphi = stub->phicorr();
+      unsigned int iphipos = iphi.bits(iphi.nbits() - (settings_.nbitsallstubs(layerdisk_) + 3),3);
+      
       //Fill allstubs memories - in HLS this is the same write to multiple memories
       for (auto& allstub : allstubs_) {
-        allstub->addStub(stub);
+	char memtype=allstub.first;
+	if (memtype=='R' && iphipos<5) continue;
+	if (memtype=='L' && iphipos>=3) continue;
+	if (memtype=='A' && iphipos<4) continue;
+	if (memtype=='B' && iphipos>=4) continue;
+	if (memtype=='E' && iphipos>=4) continue;
+	if (memtype=='F' && iphipos<4) continue;
+	if (memtype=='C' && iphipos>=4) continue;
+	if (memtype=='D' && iphipos<4) continue;
+	//cout << allstub.second->getName()<<endl;
+        allstub.second->addStub(stub);
       }
 
       //Fill all the ME VM memories
-
-      FPGAWord iphi = stub->phicorr();
       unsigned int ivm =
-          iphi.bits(iphi.nbits() - (settings_.nbitsallstubs(layerdisk_) + settings_.nbitsvmme(layerdisk_)),
-                    settings_.nbitsvmme(layerdisk_));
+	iphi.bits(iphi.nbits() - (settings_.nbitsallstubs(layerdisk_) + settings_.nbitsvmme(layerdisk_)),
+		  settings_.nbitsvmme(layerdisk_));
       unsigned int extrabits = iphi.bits(iphi.nbits() - overlapbits_, nextrabits_);
 
       unsigned int ivmPlus = ivm;
@@ -224,7 +206,7 @@ void VMRouter::execute() {
 
       // pad disk PS bend word with a '0' in MSB so that all disk bends have 4 bits (for HLS compatibility)
       int nbendbits = stub->bend().nbits();
-      if (layerdisk_ >= N_LAYER)
+      if (layerdisk_ >= N_LAYER) 
         nbendbits = settings_.nbendbitsmedisk();
 
       VMStubME vmstub(
@@ -233,66 +215,34 @@ void VMRouter::execute() {
           FPGAWord(rzfine, 3, true, __LINE__, __FILE__),
           FPGAWord(stub->bend().value(), nbendbits, true, __LINE__, __FILE__),
           allStubIndex);
-
-      assert(vmstubsMEPHI_[ivmPlus] != nullptr);
-      vmstubsMEPHI_[ivmPlus]->addStub(vmstub, vmbin);
+      
+      assert(vmstubsMEPHI_[0] != nullptr);
+      vmstubsMEPHI_[0]->addStub(vmstub, ivmPlus*nvmmebins_+vmbin);
 
       if (ivmMinus != ivmPlus) {
-        assert(vmstubsMEPHI_[ivmMinus] != nullptr);
-        vmstubsMEPHI_[ivmMinus]->addStub(vmstub, vmbin);
+        vmstubsMEPHI_[0]->addStub(vmstub, ivmMinus*nvmmebins_+vmbin);
       }
 
       //Fill the TE VM memories
-
+      if (layerdisk_>=6&&(!stub->isPSmodule()))
+	continue;
+      
       for (auto& ivmstubTEPHI : vmstubsTEPHI_) {
-        unsigned int iseed = ivmstubTEPHI.seednumber;
-        unsigned int inner = ivmstubTEPHI.stubposition;
-        if ((iseed == 4 || iseed == 5 || iseed == 6 || iseed == 7) && (!stub->isPSmodule()))
-          continue;
 
-        unsigned int lutwidth = settings_.lutwidthtab(inner, iseed);
-        if (settings_.extended()) {
-          lutwidth = settings_.lutwidthtabextended(inner, iseed);
-        }
+        unsigned int iseed = ivmstubTEPHI.seednumber;
+        unsigned int lutwidth = settings_.lutwidthtab(1, iseed);
 
         int lutval = -999;
 
-        if (inner > 0) {
-          if (layerdisk_ < N_LAYER) {
-            lutval = melut;
-          } else {
-            if (inner == 2 && iseed == 10) {
-              lutval = 0;
-              if (stub->r().value() < 10) {
-                lutval = 8 * (1 + (stub->r().value() >> 2));
-              } else {
-                if (stub->r().value() < settings_.rmindiskl3overlapvm() / settings_.kr()) {
-                  lutval = -1;
-                }
-              }
-            } else {
-              lutval = vmrtable_.lookupdisk(indexz, indexr);
-            }
-          }
-          if (lutval == -1)
-            continue;
-        } else {
-          if (iseed < 6 || iseed > 7) {
-            lutval = vmrtable_.lookupinner(indexz, indexr);
-          } else {
-            lutval = vmrtable_.lookupinneroverlap(indexz, indexr);
-          }
-          if (lutval == -1)
-            continue;
-          if (settings_.extended() && (iseed == 2 || iseed == 3 || iseed == 10 || iseed == 4)) {
-            int lutval2 = vmrtable_.lookupinnerThird(indexz, indexr);
-            if (lutval2 == -1)
-              continue;
-            lutval += (lutval2 << 10);
-          }
-        }
+	if (layerdisk_ < N_LAYER) {
+	  lutval = melut;
+	} else {
+	  lutval = vmrtable_.lookupdisk(indexz, indexr);
+	}
+	if (lutval == -1)
+	  continue;
 
-        assert(lutval >= 0);
+	assert(lutval >= 0);
 
         FPGAWord binlookup(lutval, lutwidth, true, __LINE__, __FILE__);
 
@@ -300,35 +250,28 @@ void VMRouter::execute() {
           continue;
 
         unsigned int ivmte =
-            iphi.bits(iphi.nbits() - (settings_.nbitsallstubs(layerdisk_) + settings_.nbitsvmte(inner, iseed)),
-                      settings_.nbitsvmte(inner, iseed));
+            iphi.bits(iphi.nbits() - (settings_.nbitsallstubs(layerdisk_) + settings_.nbitsvmte(1, iseed)),
+                      settings_.nbitsvmte(1, iseed));
 
-        int bin = -1;
-        if (inner != 0) {
-          bin = binlookup.value() / 8;
-          unsigned int tmp = binlookup.value() & 7;  //three bits in outer layers - this could be coded cleaner...
-          binlookup.set(tmp, 3, true, __LINE__, __FILE__);
-        }
+	int bin = binlookup.value() / 8;
+	unsigned int tmp = binlookup.value() & 7;  //three bits in outer layers - this could be coded cleaner...
+	binlookup.set(tmp, 3, true, __LINE__, __FILE__);
 
-        FPGAWord finephi = stub->iphivmFineBins(settings_.nphireg(inner, iseed), settings_.nfinephi(inner, iseed));
+        FPGAWord finephi = stub->iphivmFineBins(settings_.nphireg(1, iseed), settings_.nfinephi(1, iseed));
 
         VMStubTE tmpstub(stub, finephi, stub->bend(), binlookup, allStubIndex);
 
-        unsigned int nmem = ivmstubTEPHI.vmstubmem[ivmte].size();
-
+        unsigned int nmem = ivmstubTEPHI.vmstubmem.size();
         assert(nmem > 0);
 
         for (unsigned int l = 0; l < nmem; l++) {
           if (settings_.debugTracklet()) {
             edm::LogVerbatim("Tracklet") << getName() << " try adding stub to "
-                                         << ivmstubTEPHI.vmstubmem[ivmte][l]->getName() << " inner=" << inner
-                                         << " bin=" << bin;
-          }
-          if (inner == 0) {
-            ivmstubTEPHI.vmstubmem[ivmte][l]->addVMStub(tmpstub);
-          } else {
-            ivmstubTEPHI.vmstubmem[ivmte][l]->addVMStub(tmpstub, bin);
-          }
+                                         << ivmstubTEPHI.vmstubmem[l]->getName()
+					 << " bin=" << bin << " ivmte " << ivmte << " finephi " << finephi.value()
+					 << " regions bits " << settings_.nphireg(1, iseed)<<" finephibits "<<settings_.nfinephi(1, iseed);
+	  }
+	  ivmstubTEPHI.vmstubmem[l]->addVMStub(tmpstub, ivmte*settings_.NLONGVMBINS()+bin);
         }
       }
     }

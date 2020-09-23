@@ -56,11 +56,27 @@ VMStubsTEMemory::VMStubsTEMemory(string name, Settings const& settings, unsigned
     isinner_ = false;
 
   stubsbinnedvm_.resize(settings_.NLONGVMBINS());
+
 }
 
 bool VMStubsTEMemory::addVMStub(VMStubTE vmstub, int bin) {
   //If the pt of the stub is consistent with the allowed pt of tracklets
   //in that can be formed in this VM and the other VM used in the TE.
+
+
+  if (settings_.combined()){
+    if (disk_>0) {
+      assert(vmstub.stub()->isPSmodule());
+    }
+    bool negdisk = vmstub.stub()->disk().value() < 0.0;
+    if (negdisk)
+      bin+=4;
+    assert(bin<(int)stubsbinnedvm_.size());
+    stubsbinnedvm_[bin].push_back(vmstub);
+    stubsvm_.push_back(vmstub);
+    return true;
+  }
+  
   bool pass = passbend(vmstub.bend().value());
 
   if (!pass) {
@@ -194,8 +210,8 @@ bool VMStubsTEMemory::addVMStub(VMStubTE vmstub) {
 
 void VMStubsTEMemory::clean() {
   stubsvm_.clear();
-  for (unsigned int i = 0; i < settings_.NLONGVMBINS(); i++) {
-    stubsbinnedvm_[i].clear();
+  for (auto& stubsbinnedvm : stubsbinnedvm_) {
+    stubsbinnedvm.clear();
   }
 }
 
@@ -263,7 +279,7 @@ void VMStubsTEMemory::setbendtable(std::vector<bool> vmbendtable) {
 
 void VMStubsTEMemory::writeVMBendTable() {
   ofstream outvmbendcut;
-  outvmbendcut.open(getName() + "_vmbendcut.tab");
+  outvmbendcut.open(settings_.tablePath()+getName() + "_vmbendcut.tab");
   outvmbendcut << "{" << endl;
   unsigned int vmbendtableSize = vmbendtable_.size();
   assert(vmbendtableSize == 16 || vmbendtableSize == 8);

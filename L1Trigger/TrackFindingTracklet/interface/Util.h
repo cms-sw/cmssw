@@ -4,6 +4,7 @@
 #include <sstream>
 #include <cassert>
 #include <cmath>
+#include <algorithm>
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/Exception.h"
@@ -12,21 +13,27 @@ namespace trklet {
 
   //Converts string in binary to hex (used in writing out memory content)
   inline std::string hexFormat(const std::string& binary) {
-    std::string tmp = "";
-
-    unsigned int value = 0;
-
-    for (unsigned int i = 0; i < binary.size(); i++) {
-      unsigned int slot = binary.size() - i - 1;
-      if (!(binary[slot] == '0' || binary[slot] == '1'))
-        continue;
-      value = value + (binary[slot] - '0');
-    }
-
     std::stringstream ss;
-    ss << "0x" << std::hex << value;
 
-    return ss.str();
+    unsigned int radix = 1, value = 0;
+    for (int i = binary.length() - 1; i >= 0; i--) {
+      if (binary.at(i) != '0' && binary.at(i) != '1')
+          continue;
+      value += (binary.at(i) - '0') * radix;
+      if (radix == 8) {
+        ss << std::hex << value;
+        radix = 1;
+        value = 0;
+      }
+      else
+        radix <<= 1;
+    }
+    if (radix != 1)
+      ss << std::hex << value;
+
+    std::string str = ss.str() + "x0";
+    std::reverse(str.begin(), str.end());
+    return str;
   }
 
   //Should be optimized by layer - now first implementation to make sure it works OK

@@ -211,6 +211,12 @@ double Stub::rapprox() const {
     int lr = 1 << (8 - settings_.nrbitsstub(layer_.value()));
     return r_.value() * settings_.kr() * lr + settings_.rmean(layer_.value());
   }
+  if( !l1tstub_->isPSmodule()){
+  if(abs(disk_.value())<=2)
+      return settings_.rDSSinner(r_.value());
+  else
+      return settings_.rDSSouter(r_.value());
+  }
   return r_.value() * settings_.kr();
 }
 

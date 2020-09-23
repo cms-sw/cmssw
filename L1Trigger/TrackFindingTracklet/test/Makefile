@@ -242,4 +242,7 @@ clean:
 	@rm -rf lib/
 	@rm -rf dummyIncl/
 	@rm -rf .deps/
+	@rm -f *.pdf *.png
+	@rm -f allprojections.txt matchcalculator.txt matcheff.txt matchengine.txt matchprocessor.txt trackletcalculator.txt trackletengine.txt trackletprocessor.txt
+
 
