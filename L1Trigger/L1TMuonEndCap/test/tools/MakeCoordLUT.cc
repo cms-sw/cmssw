@@ -27,10 +27,6 @@
 #include "Geometry/CSCGeometry/interface/CSCLayerGeometry.h"
 #include "Geometry/Records/interface/MuonGeometryRecord.h"
 
-//#include "DataFormats/L1TMuon/interface/CSCConstants.h"
-//#include "L1Trigger/CSCCommonTrigger/interface/CSCPatternLUT.h"
-//#include "L1Trigger/CSCTrackFinder/interface/CSCSectorReceiverLUT.h"
-
 #include "helper.h"
 
 class MakeCoordLUT : public edm::EDAnalyzer {
