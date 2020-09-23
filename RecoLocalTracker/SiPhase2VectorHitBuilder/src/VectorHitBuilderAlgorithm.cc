@@ -226,7 +226,7 @@ std::vector<std::pair<VectorHit, bool>> VectorHitBuilderAlgorithm::buildVectorHi
         VectorHit vh = buildVectorHit(stack, cluL, cluU);
         result.emplace_back(std::make_pair(vh, false));
       }
-      upperIterator = +1;
+      upperIterator += 1;
     }
   }
 
