@@ -29,12 +29,8 @@ namespace edm {
     WorkerInPath(Worker*, FilterAction theAction, unsigned int placeInPath, bool runConcurrently);
 
     template <typename T>
-    void runWorkerAsync(WaitingTask* iTask,
-                        typename T::MyPrincipal const&,
-                        EventSetupImpl const&,
-                        ServiceToken const&,
-                        StreamID streamID,
-                        typename T::Context const* context);
+    void runWorkerAsync(
+        WaitingTask*, typename T::TransitionInfoType const&, ServiceToken const&, StreamID, typename T::Context const*);
 
     bool checkResultsOfRunWorker(bool wasEvent);
 
@@ -106,8 +102,7 @@ namespace edm {
 
   template <typename T>
   void WorkerInPath::runWorkerAsync(WaitingTask* iTask,
-                                    typename T::MyPrincipal const& ep,
-                                    EventSetupImpl const& es,
+                                    typename T::TransitionInfoType const& info,
                                     ServiceToken const& token,
                                     StreamID streamID,
                                     typename T::Context const* context) {
@@ -117,7 +112,7 @@ namespace edm {
 
     if constexpr (T::isEvent_) {
       ParentContext parentContext(&placeInPathContext_);
-      worker_->doWorkAsync<T>(iTask, ep, es, token, streamID, parentContext, context);
+      worker_->doWorkAsync<T>(iTask, info, token, streamID, parentContext, context);
     } else {
       ParentContext parentContext(context);
 
@@ -126,7 +121,7 @@ namespace edm {
       // into the runs or lumis in stream transitions, so there can be
       // no data dependencies which require prefetching. Prefetching is
       // needed for global transitions, but they are run elsewhere.
-      worker_->doWorkNoPrefetchingAsync<T>(iTask, ep, es, token, streamID, parentContext, context);
+      worker_->doWorkNoPrefetchingAsync<T>(iTask, info, token, streamID, parentContext, context);
     }
   }
 }  // namespace edm
