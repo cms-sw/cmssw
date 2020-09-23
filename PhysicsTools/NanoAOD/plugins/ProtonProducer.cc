@@ -210,8 +210,9 @@ public:
   // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
   static void fillDescriptions(edm::ConfigurationDescriptions &descriptions) {
     edm::ParameterSetDescription desc;
-    desc.add<edm::InputTag>("tagRecoProtonsSingleRP")->setComment("singleRP proton collection");
-    desc.add<edm::InputTag>("tagRecoProtonsMultiRP")->setComment("multiRP proton collection");
+    desc.add<edm::InputTag>("tagRecoProtonsSingle")->setComment("singleRP proton collection");
+    desc.add<edm::InputTag>("tagRecoProtonsMulti")->setComment("multiRP proton collection");
+    desc.add<edm::InputTag>("tagTrackLite")->setComment("pps local tracks lite collection");
     descriptions.add("ProtonProducer", desc);
   }
 
