@@ -3,13 +3,17 @@
 #include "RecoLocalFastTime/Records/interface/MTDTimeCalibRecord.h"
 #include "RecoLocalFastTime/FTLCommonAlgos/interface/MTDTimeCalib.h"
 
+#include "Geometry/MTDNumberingBuilder/interface/MTDTopology.h"
+#include "Geometry/MTDCommonData/interface/MTDTopologyMode.h"
+#include<iostream>
+
 class MTDRecHitAlgo : public MTDRecHitAlgoBase {
 public:
   /// Constructor
   MTDRecHitAlgo(const edm::ParameterSet& conf, edm::ConsumesCollector& sumes)
       : MTDRecHitAlgoBase(conf, sumes),
-        thresholdToKeep_(conf.getParameter<double>("thresholdToKeep")),
-        calibration_(conf.getParameter<double>("calibrationConstant")) {}
+        thresholdToKeep_(conf.getParameter<std::vector<double>>("thresholdToKeep")),
+        calibration_(conf.getParameter<std::vector<double>>("calibrationConstant")) {}
 
   /// Destructor
   ~MTDRecHitAlgo() override {}
@@ -22,14 +26,18 @@ public:
   FTLRecHit makeRecHit(const FTLUncalibratedRecHit& uRecHit, uint32_t& flags) const final;
 
 private:
-  double thresholdToKeep_, calibration_;
+  std::vector<double> thresholdToKeep_, calibration_;
   const MTDTimeCalib* time_calib_;
+  const MTDTopology* topology;
 };
 
 void MTDRecHitAlgo::getEventSetup(const edm::EventSetup& es) {
   edm::ESHandle<MTDTimeCalib> pTC;
   es.get<MTDTimeCalibRecord>().get("MTDTimeCalib", pTC);
   time_calib_ = pTC.product();
+  edm::ESHandle<MTDTopology> topologyHandle;
+  es.get<MTDTopologyRcd>().get(topologyHandle);
+  topology = topologyHandle.product();
 }
 
 FTLRecHit MTDRecHitAlgo::makeRecHit(const FTLUncalibratedRecHit& uRecHit, uint32_t& flags) const {
@@ -38,6 +46,12 @@ FTLRecHit MTDRecHitAlgo::makeRecHit(const FTLUncalibratedRecHit& uRecHit, uint32
 
   float energy = 0.;
   float time = 0.;
+
+  // MTD topology
+  bool topo1Dis = false;
+  bool topo2Dis = false;
+  if (topology->getMTDTopologyMode() <= 4) topo1Dis = true;
+  if (topology->getMTDTopologyMode() > 4) topo2Dis = true;
 
   /// position and positionError in unit cm
   float position = -1.f;
@@ -71,7 +85,12 @@ FTLRecHit MTDRecHitAlgo::makeRecHit(const FTLUncalibratedRecHit& uRecHit, uint32
   }
 
   // --- Energy calibration: for the time being this is just a conversion pC --> MeV
-  energy *= calibration_;
+  if (topo1Dis) {
+     energy *= calibration_[0];
+  }
+  if (topo2Dis) {
+     energy *= calibration_[1];
+  }
 
   // --- Time calibration: for the time being just removes a time offset in BTL
   time += time_calib_->getTimeCalib(uRecHit.id());
@@ -80,12 +99,25 @@ FTLRecHit MTDRecHitAlgo::makeRecHit(const FTLUncalibratedRecHit& uRecHit, uint32
 
   // Now fill flags
   // all rechits from the digitizer are "good" at present
-  if (energy > thresholdToKeep_) {
-    flags = FTLRecHit::kGood;
-    rh.setFlag(flags);
-  } else {
-    flags = FTLRecHit::kKilled;
-    rh.setFlag(flags);
+  if (topo1Dis) {
+     std::cout << "threshold topo1Dis: "<< thresholdToKeep_[0] << std::endl;
+     if (energy > thresholdToKeep_[0]) {
+       flags = FTLRecHit::kGood;
+       rh.setFlag(flags);
+     } else {
+       flags = FTLRecHit::kKilled;
+       rh.setFlag(flags);
+     }
+  }
+  if (topo2Dis) {
+     std::cout << "threshold topo2Dis: "<< thresholdToKeep_[1] << std::endl;
+     if (energy > thresholdToKeep_[1]) {
+       flags = FTLRecHit::kGood;
+       rh.setFlag(flags);
+     } else {
+       flags = FTLRecHit::kKilled;
+       rh.setFlag(flags);
+     }
   }
 
   return rh;

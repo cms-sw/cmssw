@@ -2,15 +2,15 @@ import FWCore.ParameterSet.Config as cms
 
 _barrelAlgo = cms.PSet(
     algoName = cms.string("MTDRecHitAlgo"),
-    thresholdToKeep = cms.double(1.),          # MeV
-    calibrationConstant = cms.double(0.03125), # MeV/pC
+    thresholdToKeep = cms.vdouble(1., 1.),          # MeV
+    calibrationConstant = cms.vdouble(0.03125, 0.03125), # MeV/pC
 )
 
 
 _endcapAlgo = cms.PSet(
     algoName = cms.string("MTDRecHitAlgo"),
-    thresholdToKeep = cms.double(0.0425),    # MeV
-    calibrationConstant = cms.double(0.085), # MeV/MIP
+    thresholdToKeep = cms.vdouble(0.0425, 0.005),    # MeV
+    calibrationConstant = cms.vdouble(0.085, 0.01), # MeV/MIP
 )
 
 
