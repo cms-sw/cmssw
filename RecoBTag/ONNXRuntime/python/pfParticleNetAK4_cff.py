@@ -34,3 +34,19 @@ _pfParticleNetAK4JetTagsMetaDiscrs = ['pfParticleNetAK4DiscriminatorsJetTags:' +
                                       for disc in pfParticleNetAK4DiscriminatorsJetTags.discriminators]
 
 _pfParticleNetAK4JetTagsAll = _pfParticleNetAK4JetTagsProbs + _pfParticleNetAK4JetTagsMetaDiscrs
+
+
+# === Negative tags ===
+pfNegativeParticleNetAK4TagInfos = pfParticleNetAK4TagInfos.clone(
+    flip_ip_sign = True,
+    sip3dSigMax = 10,
+    secondary_vertices = 'inclusiveCandidateNegativeSecondaryVertices',
+)
+
+pfNegativeParticleNetAK4JetTags = pfParticleNetAK4JetTags.clone(
+    src = 'pfNegativeParticleNetAK4TagInfos',
+)
+
+# probs
+_pfNegativeParticleNetAK4JetTagsProbs = ['pfNegativeParticleNetAK4JetTags:' + flav_name 
+                                         for flav_name in pfNegativeParticleNetAK4JetTags.flav_names]

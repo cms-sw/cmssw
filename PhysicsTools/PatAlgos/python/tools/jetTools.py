@@ -329,7 +329,11 @@ def setupBTagging(process, jetSource, pfCandidates, explicitJTA, pvSource, svSou
     runNegativeVertexing = False
     runNegativeCvsLVertexing = False
     for btagInfo in requiredTagInfos:
-        if btagInfo == 'pfInclusiveSecondaryVertexFinderNegativeTagInfos' or btagInfo == 'pfNegativeDeepFlavourTagInfos':
+        if btagInfo in (
+            'pfInclusiveSecondaryVertexFinderNegativeTagInfos',
+            'pfNegativeDeepFlavourTagInfos',
+            'pfNegativeParticleNetAK4TagInfos',
+            ):
             runNegativeVertexing = True
         if btagInfo == 'pfInclusiveSecondaryVertexFinderNegativeCvsLTagInfos':
             runNegativeCvsLVertexing = True
@@ -711,7 +715,15 @@ def setupBTagging(process, jetSource, pfCandidates, explicitJTA, pvSource, svSou
                                     process, task)
 
             if 'ParticleNetAK4TagInfos' in btagInfo:
-                # TODO: add negative tag
+                if btagInfo == 'pfNegativeParticleNetAK4TagInfos':
+                    secondary_vertices = btagPrefix + \
+                        'inclusiveCandidateNegativeSecondaryVertices' + labelName + postfix
+                    flip_ip_sign = True
+                    sip3dSigMax = 10
+                else:
+                    secondary_vertices = svSource
+                    flip_ip_sign = False
+                    sip3dSigMax = -1
                 if pfCandidates.value() == 'packedPFCandidates':
                     # case 1: running over jets whose daughters are PackedCandidates (only via updateJetCollection for now)
                     puppi_value_map = ""
@@ -727,10 +739,12 @@ def setupBTagging(process, jetSource, pfCandidates, explicitJTA, pvSource, svSou
                                     btag.pfParticleNetAK4TagInfos.clone(
                                       jets = jetSource,
                                       vertices = pvSource,
-                                      secondary_vertices = svSource,
+                                      secondary_vertices = secondary_vertices,
                                       pf_candidates = pfCandidates,
                                       puppi_value_map = puppi_value_map,
                                       vertex_associator = vertex_associator,
+                                      flip_ip_sign = flip_ip_sign,
+                                      sip3dSigMax = sip3dSigMax,
                                       ),
                                     process, task)
 
