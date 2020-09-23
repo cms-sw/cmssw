@@ -110,16 +110,16 @@ from Configuration.Eras.Modifier_pp_on_PbPb_run3_cff import pp_on_PbPb_run3
                                            jetCorrFactorsSource = ["patJetCorrFactorsakCs4PF"],
                                            trackAssociationSource = "jetTracksAssociatorAtVertexakCs4PF",
                                            useLegacyJetMCFlavour = True,
-                                           discriminatorSources = cms.VInputTag(
-                                               cms.InputTag("simpleSecondaryVertexHighEffBJetTagsakCs4PF"),
-                                               cms.InputTag("simpleSecondaryVertexHighPurBJetTagsakCs4PF"),
-                                               cms.InputTag("combinedSecondaryVertexBJetTagsakCs4PF"),
-                                               cms.InputTag("combinedSecondaryVertexV2BJetTagsakCs4PF"),
-                                               cms.InputTag("jetBProbabilityBJetTagsakCs4PF"),
-                                               cms.InputTag("jetProbabilityBJetTagsakCs4PF"),
-                                               cms.InputTag("trackCountingHighEffBJetTagsakCs4PF"),
-                                               cms.InputTag("trackCountingHighPurBJetTagsakCs4PF"),
-                                           ),
+                                           discriminatorSources = [
+                                               "simpleSecondaryVertexHighEffBJetTagsakCs4PF",
+                                               "simpleSecondaryVertexHighPurBJetTagsakCs4PF",
+                                               "combinedSecondaryVertexBJetTagsakCs4PF",
+                                               "combinedSecondaryVertexV2BJetTagsakCs4PF",
+                                               "jetBProbabilityBJetTagsakCs4PF",
+                                               "jetProbabilityBJetTagsakCs4PF",
+                                               "trackCountingHighEffBJetTagsakCs4PF",
+                                               "trackCountingHighPurBJetTagsakCs4PF",
+                                           ],
                                            addJetCharge = False,
 )
 
