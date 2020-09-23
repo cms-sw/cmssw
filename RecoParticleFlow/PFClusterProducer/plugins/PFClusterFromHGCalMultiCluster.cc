@@ -32,15 +32,15 @@ void PFClusterFromHGCalMultiCluster::buildClusters(const edm::Handle<reco::PFRec
 
     // Filter using trackster PID
     if (filterByTracksterPID_) {
-        float probTotal = 0.0f;
-        
-        for (int& cat : filter_on_categories_) {
-            probTotal += tracksters[iMultiClus].id_probabilities(cat);
-        }
-        
-        if (probTotal < pid_threshold_) {
-            continue;
-        }
+      float probTotal = 0.0f;
+
+      for (int& cat : filter_on_categories_) {
+        probTotal += tracksters[iMultiClus].id_probabilities(cat);
+      }
+
+      if (probTotal < pid_threshold_) {
+        continue;
+      }
     }
 
     DetId seed;
