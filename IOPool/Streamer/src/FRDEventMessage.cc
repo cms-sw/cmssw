@@ -36,7 +36,7 @@ FRDEventMsgView::FRDEventMsgView(void* buf)
   version_ = *bufPtr | 0xffff;
 
   if (version_<2) {
-    throw cms::Exception("FRDEventMsgView") << "FRD version is " << version_ << " is no longer supported";
+    throw cms::Exception("FRDEventMsgView") << "FRD version " << version_ << " is no longer supported";
   }
 
   // Version 6 repurposes unused high 16-bits of 32-bit version

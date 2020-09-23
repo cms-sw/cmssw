@@ -132,7 +132,7 @@ private:
 
   typedef std::pair<InputFile*, InputChunk*> ReaderInfo;
 
-  uint16 detectedFRDversion_ = 0;
+  uint16_t detectedFRDversion_ = 0;
   std::unique_ptr<InputFile> currentFile_;
   bool chunkIsFree_ = false;
 
