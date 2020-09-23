@@ -144,9 +144,7 @@ public:
   uint32 adler32() const { return adler32_; }
   uint32 crc32c() const { return crc32c_; }
 
-  bool isRealData() const {
-    return !(flags_ & FRDEVENT_MASK_ISGENDATA);
-  }
+  bool isRealData() const { return !(flags_ & FRDEVENT_MASK_ISGENDATA); }
 
 private:
   uint8* buf_;
