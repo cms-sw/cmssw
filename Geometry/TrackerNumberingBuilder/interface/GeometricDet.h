@@ -15,6 +15,10 @@
 
 #include <ext/pool_allocator.h>
 
+//#include <DD4hep/Volumes.h>
+#include <DD4hep/Shapes.h>
+//#include <DD4hep/DD4hepUnits.h>
+
 class DDFilteredView;
 
 namespace cms {
@@ -131,7 +135,14 @@ public:
   nav_type const& navType() const { return _ddd; }
   NavRange navpos() const { return NavRange(&_ddd.front(), _ddd.size()); }
 
-  std::vector<double> const& params() const { return _params; }
+  std::vector<double> const& params() const {
+    if (_shape != cms::DDSolidShape::ddbox
+	&& _shape != cms::DDSolidShape::ddtrap
+	&& _shape != cms::DDSolidShape::ddtubs) {
+      std::cout << "error!!! GeometricDet::params() is called on ashape which is neither a box, a trap, nor a tub. This is not supported!" << std::endl;
+    }
+    return _params; 
+  }
 
   ~GeometricDet();
 
@@ -190,6 +201,9 @@ public:
   double siliconAPVNum() const { return _siliconAPVNum; }
 
 private:
+  std::vector<double> computeLegacyShapeParameters(const cms::DDSolidShape& mySolidShape,
+						   const dd4hep::Solid& mySolid) const;
+
   ConstGeometricDetContainer _container;
   Translation _trans;
   double _phi;
@@ -212,6 +226,8 @@ private:
   bool _isLowerSensor;
   bool _isUpperSensor;
   double _siliconAPVNum;
+
+  bool _isFromDD4hep;
 };
 
 #undef PoolAlloc
