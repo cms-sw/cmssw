@@ -59,17 +59,6 @@ void TrackletEventProcessor::init(Settings const& theSettings) {
                                  << "=========================================================";
   }
 
-  //option to write out tables for HLS code, not used in production
-  /*
-  const Settings& settings = *settings_;
-  Globals* globals = globals_;
-
-  if (settings_->writeVerilog() || settings_->writeHLS()) {
-#include "../test/WriteInvTables.icc"
-#include "../test/WriteDesign.icc"
-  }
-  */
-
   if (settings_->bookHistos()) {
     histbase_ = new HistBase;
     histbase_->open();

@@ -32,7 +32,7 @@ namespace trklet {
     //This function processes the name of a TE module to determine the layerdisks and iseed
     void initLayerDisksandISeed(unsigned int& layerdisk1, unsigned int& layerdisk2, unsigned int& iSeed);
 
-    unsigned int getISeed(std::string name);
+    unsigned int getISeed(const std::string& name);
 
   protected:
     std::string name_;
