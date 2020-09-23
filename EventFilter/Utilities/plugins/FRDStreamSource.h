@@ -42,6 +42,7 @@ private:
   const bool verifyChecksum_;
   const bool useL1EventID_;
   uint16_t detectedFRDversion_ = 0;
+  uint16_t flags_ = 0;
 };
 
 #endif  // EventFilter_Utilities_FRDStreamSource_h

@@ -20,7 +20,7 @@
  *
  * Version 6 Format:
  *   uint16 - format version number
- *   uint16 - eventf flags
+ *   uint16 - event flags
  *   uint32 - run number
  *   uint32 - lumi number
  *   uint32 - event number
