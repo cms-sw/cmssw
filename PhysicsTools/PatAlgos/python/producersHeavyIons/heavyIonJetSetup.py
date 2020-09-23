@@ -118,6 +118,8 @@ def setupHeavyIonJets(process, tag, radius, task):
 
         }
 
+    process.load("RecoBTag.ImpactParameter.impactParameter_EventSetup_cff")
+    process.load("RecoBTag.SecondaryVertex.secondaryVertex_EventSetup_cff")
     for label, module in six.iteritems(modules):
         addToProcessAndTask(label + tag, module, process, task)
 
@@ -194,7 +196,6 @@ def removeJECsForMC(process):
             module.jetCorrLabel = 'Uncorrected'
 
     process.basicJetsForMet.jetCorrLabel = 'Uncorrected'
-    process.basicJetsForMetPuppi.jetCorrLabelRes = 'Uncorrected'
 
 def addJECsForData(process):
     for label in process.producerNames().split():
