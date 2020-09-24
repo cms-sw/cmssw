@@ -60,79 +60,62 @@ namespace edm::soa {
                     [](reco::PFRecTrackRef x) { return refToElementID(reco::TrackBaseRef(x->trackRef())); }))};
   }
 
-  TrackTableExtrapolation makeTrackTable(std::vector<reco::PFBlockElement*> const& targetSet,
+  TrackTableExtrapolation makeTrackTable(std::vector<reco::PFBlockElement*> const& objects,
                                          reco::PFTrajectoryPoint::LayerType layerType) {
-    std::vector<bool> valid;
-    std::vector<double> eta;
-    std::vector<double> phi;
-    std::vector<double> x;
-    std::vector<double> y;
-    std::vector<double> z;
-    std::vector<double> r;
-
-    for (auto pfelement_track : targetSet) {
-      const reco::PFRecTrackRef& trackref = pfelement_track->trackRefPF();
-
-      const reco::PFTrajectoryPoint& point = trackref->extrapolatedPoint(layerType);
-
-      valid.push_back(point.isValid());
-
-      if (point.isValid()) {
-        eta.push_back(point.positionREP().eta());
-        phi.push_back(point.positionREP().phi());
-        x.push_back(point.position().X());
-        y.push_back(point.position().Y());
-        z.push_back(point.position().Z());
-        r.push_back(point.position().R());
-      } else {
-        eta.push_back(0);
-        phi.push_back(0);
-        x.push_back(0);
-        y.push_back(0);
-        z.push_back(0);
-        r.push_back(0);
-      }
+    std::vector<reco::PFRecTrackRef> rectracks;
+    rectracks.reserve(objects.size());
+    for (const auto& obj : objects) {
+      rectracks.push_back(obj->trackRefPF());
     }
-
-    return TrackTableExtrapolation(valid, eta, phi, x, y, z, r);
+    return makeTrackTable(rectracks, layerType);
   }
 
   //this should be unified with the function above
-  TrackTableExtrapolation makeTrackTable(std::vector<const reco::PFBlockElementGsfTrack*> const& targetSet,
+  TrackTableExtrapolation makeTrackTable(std::vector<const reco::PFBlockElementGsfTrack*> const& objects,
                                          reco::PFTrajectoryPoint::LayerType layerType) {
-    std::vector<bool> valid;
-    std::vector<double> eta;
-    std::vector<double> phi;
-    std::vector<double> x;
-    std::vector<double> y;
-    std::vector<double> z;
-    std::vector<double> r;
-
-    for (auto pfelement_track : targetSet) {
-      const auto& trackref = pfelement_track->GsftrackPF();
-
-      const reco::PFTrajectoryPoint& point = trackref.extrapolatedPoint(layerType);
-
-      valid.push_back(point.isValid());
-
-      if (point.isValid()) {
-        eta.push_back(point.positionREP().eta());
-        phi.push_back(point.positionREP().phi());
-        x.push_back(point.position().X());
-        y.push_back(point.position().Y());
-        z.push_back(point.position().Z());
-        r.push_back(point.position().R());
-      } else {
-        eta.push_back(0);
-        phi.push_back(0);
-        x.push_back(0);
-        y.push_back(0);
-        z.push_back(0);
-        r.push_back(0);
-      }
+    std::vector<const reco::GsfPFRecTrack*> rectracks;
+    rectracks.reserve(objects.size());
+    for (const auto* obj : objects) {
+      rectracks.push_back(&(obj->GsftrackPF()));
     }
+    return makeTrackTable(rectracks, layerType);
+  }
 
-    return TrackTableExtrapolation(valid, eta, phi, x, y, z, r);
+  TrackTableExtrapolation makeTrackTable(std::vector<const reco::PFBlockElementBrem*> const& objects,
+                                         reco::PFTrajectoryPoint::LayerType layerType) {
+    std::vector<const reco::PFRecTrack*> rectracks;
+    rectracks.reserve(objects.size());
+    for (const auto* obj : objects) {
+      rectracks.push_back(&(obj->trackPF()));
+    }
+    return makeTrackTable(rectracks, layerType);
+  }
+
+  template <class RecTrackType>
+  TrackTableExtrapolation makeTrackTable(std::vector<RecTrackType> const& objects,
+                                         reco::PFTrajectoryPoint::LayerType layerType) {
+    return {objects,
+            edm::soa::column_fillers(pf::track::ExtrapolationValid::filler([layerType](RecTrackType x) {
+                                       return x->extrapolatedPoint(layerType).isValid();
+                                     }),
+                                     pf::track::Eta::filler([layerType](RecTrackType x) {
+                                       return x->extrapolatedPoint(layerType).positionREP().eta();
+                                     }),
+                                     pf::track::Phi::filler([layerType](RecTrackType x) {
+                                       return x->extrapolatedPoint(layerType).positionREP().phi();
+                                     }),
+                                     pf::track::Posx::filler([layerType](RecTrackType x) {
+                                       return x->extrapolatedPoint(layerType).positionREP().X();
+                                     }),
+                                     pf::track::Posy::filler([layerType](RecTrackType x) {
+                                       return x->extrapolatedPoint(layerType).positionREP().Y();
+                                     }),
+                                     pf::track::Posz::filler([layerType](RecTrackType x) {
+                                       return x->extrapolatedPoint(layerType).positionREP().Z();
+                                     }),
+                                     pf::track::PosR::filler([layerType](RecTrackType x) {
+                                       return x->extrapolatedPoint(layerType).positionREP().R();
+                                     }))};
   }
 
   RecHitTable makeRecHitTable(std::vector<const reco::PFRecHitFraction*> const& objects) {

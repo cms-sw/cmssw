@@ -7,6 +7,7 @@
 #include "DataFormats/ParticleFlowReco/interface/PFBlockElementCluster.h"
 #include "DataFormats/ParticleFlowReco/interface/PFBlockElementSuperCluster.h"
 #include "DataFormats/ParticleFlowReco/interface/PFBlockElementGsfTrack.h"
+#include "DataFormats/ParticleFlowReco/interface/PFBlockElementBrem.h"
 #include "DataFormats/ParticleFlowReco/interface/PFBlockElementTrack.h"
 #include "RecoParticleFlow/PFProducer/interface/TableDefinitions.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -14,10 +15,16 @@
 namespace edm::soa {
   TrackTableVertex makeTrackTableVertex(std::vector<reco::PFBlockElement*> const& targetSet);
 
-  TrackTableExtrapolation makeTrackTable(std::vector<reco::PFBlockElement*> const& targetSet,
+  TrackTableExtrapolation makeTrackTable(std::vector<reco::PFBlockElement*> const& objects,
                                          reco::PFTrajectoryPoint::LayerType layerType);
-  TrackTableExtrapolation makeTrackTable(std::vector<const reco::PFBlockElementGsfTrack*> const& targetSet,
+  TrackTableExtrapolation makeTrackTable(std::vector<const reco::PFBlockElementGsfTrack*> const& objects,
                                          reco::PFTrajectoryPoint::LayerType layerType);
+  TrackTableExtrapolation makeTrackTable(std::vector<const reco::PFBlockElementBrem*> const& objects,
+                                         reco::PFTrajectoryPoint::LayerType layerType);
+  template <class RecTrackType>
+  TrackTableExtrapolation makeTrackTable(std::vector<RecTrackType> const& objects,
+                                         reco::PFTrajectoryPoint::LayerType layerType);
+
   ConvRefTable makeConvRefTable(const std::vector<reco::ConversionRef>& convrefs);
   ConvBremTable makeConvBremTable(const std::vector<reco::PFRecTrackRef>& convbrems);
 
@@ -90,6 +97,10 @@ public:
   std::vector<size_t> element_to_gsf_;
   std::vector<std::vector<size_t>> gsf_to_convbrem_;
 
+  std::vector<size_t> element_to_brem_;
+  edm::soa::TrackTableVertex brem_table_vertex_;
+  edm::soa::TrackTableExtrapolation brem_table_ecalshowermax_;
+
   PFClusterTables<edm::soa::ClusterTable, edm::soa::RecHitTable> clusters_ps1_;
   PFClusterTables<edm::soa::ClusterTable, edm::soa::RecHitTable> clusters_ps2_;
   PFClusterTables<edm::soa::ClusterTable, edm::soa::RecHitTable> clusters_hcal_;
@@ -124,6 +135,10 @@ public:
     gsf_to_element_.clear();
     element_to_gsf_.clear();
     gsf_to_convbrem_.resize(0);
+
+    element_to_brem_.clear();
+    brem_table_vertex_.resize(0);
+    brem_table_ecalshowermax_.resize(0);
 
     clusters_ps1_.clear();
     clusters_ps2_.clear();

@@ -572,6 +572,7 @@ void PFBlockAlgo::buildElements(const edm::Event& evt) {
     makeTrackTables(range_track.first, range_track.second, elements_, tables_);
   }
 
+  //prepare GSF tables (to be refactored)
   const auto& range_gsf = ranges_[reco::PFBlockElement::GSF];
   if (not(range_gsf.first == 0 && range_gsf.second == 0)) {
     LogDebug("PFBlockAlgo") << "GSF tables" << range_gsf.first << " " << range_gsf.second;
@@ -613,6 +614,31 @@ void PFBlockAlgo::buildElements(const edm::Event& evt) {
     tables_.gsf_convbrem_table_ = edm::soa::makeConvBremTable(convbrems);
     tables_.gsf_to_element_ = track_to_element;
     tables_.element_to_gsf_ = element_to_track;
+  }
+
+  //prepare BREM tables (to be refactored)
+  const auto& range_brem = ranges_[reco::PFBlockElement::BREM];
+  if (not(range_brem.first == 0 && range_brem.second == 0)) {
+    LogDebug("PFBlockAlgo") << "BREM tables" << range_brem.first << " " << range_brem.second;
+    std::set<std::pair<const reco::PFBlockElementBrem*, size_t>> tracks;
+    for (size_t ielem = range_brem.first; ielem <= range_brem.second; ielem++) {
+      const reco::PFBlockElementBrem* track = static_cast<const PFBlockElementBrem*>(elements_[ielem].get());
+      tracks.insert(std::make_pair(track, ielem));
+    }
+    std::vector<const reco::PFBlockElementBrem*> tracks_vec;
+    std::vector<size_t> track_to_element;
+    std::vector<size_t> element_to_track(elements_.size(), std::numeric_limits<size_t>::max());
+
+    for (const auto& elem : tracks) {
+      size_t vec_elem = tracks_vec.size();
+      track_to_element.push_back(elem.second);
+      element_to_track[elem.second] = vec_elem;
+      tracks_vec.push_back(elem.first);
+    }
+    tracks.clear();
+
+    tables_.brem_table_ecalshowermax_ = edm::soa::makeTrackTable(tracks_vec, reco::PFTrajectoryPoint::ECALShowerMax);
+    tables_.element_to_brem_ = element_to_track;
   }
 
   //prepare calo cluster tables

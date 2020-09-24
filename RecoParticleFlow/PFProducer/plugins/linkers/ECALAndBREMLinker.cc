@@ -4,6 +4,8 @@
 #include "DataFormats/ParticleFlowReco/interface/PFBlockElementBrem.h"
 #include "RecoParticleFlow/PFClusterTools/interface/LinkByRecHit.h"
 
+using namespace edm::soa::col;
+
 class ECALAndBREMLinker : public BlockElementLinkerBase {
 public:
   ECALAndBREMLinker(const edm::ParameterSet& conf)
@@ -32,25 +34,37 @@ double ECALAndBREMLinker::testLink(size_t ielem1,
                                    const ElementListConst& elements,
                                    const PFTables& tables,
                                    const reco::PFMultiLinksIndex& multilinks) const {
-  const auto* elem1 = elements[ielem1];
-  const auto* elem2 = elements[ielem2];
+  size_t iecal_elem;
+  size_t ibrem_elem;
 
-  constexpr reco::PFTrajectoryPoint::LayerType ECALShowerMax = reco::PFTrajectoryPoint::ECALShowerMax;
-  const reco::PFBlockElementCluster* ecalelem(nullptr);
-  const reco::PFBlockElementBrem* bremelem(nullptr);
   double dist(-1.0);
+  
   if (type1 < type2) {
-    ecalelem = static_cast<const reco::PFBlockElementCluster*>(elem1);
-    bremelem = static_cast<const reco::PFBlockElementBrem*>(elem2);
+    iecal_elem = ielem1;
+    ibrem_elem = ielem2;
   } else {
-    ecalelem = static_cast<const reco::PFBlockElementCluster*>(elem2);
-    bremelem = static_cast<const reco::PFBlockElementBrem*>(elem1);
+    iecal_elem = ielem2;
+    ibrem_elem = ielem1;
   }
-  const reco::PFClusterRef& clusterref = ecalelem->clusterRef();
-  const reco::PFRecTrack& track = bremelem->trackPF();
-  const reco::PFTrajectoryPoint& tkAtECAL = track.extrapolatedPoint(ECALShowerMax);
-  if (tkAtECAL.isValid()) {
-    dist = LinkByRecHit::testTrackAndClusterByRecHit(track, *clusterref, true, debug_);
+  size_t iecal = tables.clusters_ecal_.element_to_cluster_[iecal_elem];
+  size_t ibrem = tables.element_to_brem_[ibrem_elem];
+
+  if (tables.brem_table_ecalshowermax_.get<pf::track::ExtrapolationValid>(ibrem)) {
+    const auto& rechits = tables.clusters_ecal_.cluster_to_rechit_.at(iecal);
+
+    //note that the function testTrackAndClusterByRecHit has not been refactored and currently needs inputs
+    //also for the track extrapolations that are not used, we pass placeholders for those.
+    dist = LinkByRecHit::testTrackAndClusterByRecHit(iecal,
+                                                     rechits,
+                                                     tables.clusters_ecal_.cluster_table_,
+                                                     tables.clusters_ecal_.rechit_table_,
+                                                     ibrem,
+                                                     tables.track_table_vertex_,  //NOT USED
+                                                     tables.brem_table_ecalshowermax_,
+                                                     tables.track_table_hcalent_,  //NOT USED
+                                                     tables.track_table_hcalex_,   //NOT USED
+                                                     tables.track_table_ho_,       //NOT USED
+                                                     true);
   }
   return dist;
 }
