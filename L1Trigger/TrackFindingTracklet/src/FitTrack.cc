@@ -953,7 +953,7 @@ void FitTrack::execute() {
       nMatchesUniq++;
     match = false;
 
-    while (indexArray[2] < matches2.size() && matches2[indexArray[2]] == bestTracklet) {
+    while (indexArray[2] < matches3.size() && matches3[indexArray[2]] == bestTracklet) {
       indexArray[2]++;
       nMatches++;
       match = true;
@@ -963,7 +963,7 @@ void FitTrack::execute() {
       nMatchesUniq++;
     match = false;
 
-    while (indexArray[3] < matches2.size() && matches2[indexArray[3]] == bestTracklet) {
+    while (indexArray[3] < matches4.size() && matches4[indexArray[3]] == bestTracklet) {
       indexArray[3]++;
       nMatches++;
       match = true;
