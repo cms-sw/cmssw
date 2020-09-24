@@ -23,7 +23,7 @@ https://twiki.cern.ch/twiki/bin/view/CMS/ValidIsoTrkCalib
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 
 //#include "FWCore/Framework/interface/Event.h"
@@ -59,21 +59,15 @@ https://twiki.cern.ch/twiki/bin/view/CMS/ValidIsoTrkCalib
 #include <fstream>
 #include <map>
 
-using namespace edm;
-using namespace std;
-using namespace reco;
-
-class ValidIsoTrkCalib : public edm::EDAnalyzer {
+class ValidIsoTrkCalib : public edm::one::EDAnalyzer<edm::one::SharedResources> {
 public:
   explicit ValidIsoTrkCalib(const edm::ParameterSet&);
-  ~ValidIsoTrkCalib() override;
 
   //  double getDistInPlaneSimple(const GlobalPoint caloPoint, const GlobalPoint rechitPoint);
 
 private:
   void beginJob() override;
   void analyze(const edm::Event&, const edm::EventSetup&) override;
-  void endJob() override;
 
   // ----------member data ---------------------------
 
@@ -86,8 +80,8 @@ private:
 
   const CaloGeometry* geo;
   // nothing is done with these tags, so I leave it - cowden
-  InputTag genhbheLabel_;
-  InputTag genhoLabel_;
+  edm::InputTag genhbheLabel_;
+  edm::InputTag genhoLabel_;
   std::vector<edm::InputTag> genecalLabel_;
 
   edm::EDGetTokenT<reco::TrackCollection> tok_genTrack_;
@@ -188,9 +182,9 @@ private:
   // int Lumi_n;
 };
 
-ValidIsoTrkCalib::ValidIsoTrkCalib(const edm::ParameterSet& iConfig)
+ValidIsoTrkCalib::ValidIsoTrkCalib(const edm::ParameterSet& iConfig) {
+  usesResource(TFileService::kSharedResource);
 
-{
   //takeAllRecHits_=iConfig.getUntrackedParameter<bool>("takeAllRecHits");
   takeGenTracks_ = iConfig.getUntrackedParameter<bool>("takeGenTracks");
 
@@ -232,24 +226,17 @@ ValidIsoTrkCalib::ValidIsoTrkCalib(const edm::ParameterSet& iConfig)
   //taHCALCone_=iConfig.getUntrackedParameter<double>("TrackAssociatorHCALCone",0.6);
 }
 
-ValidIsoTrkCalib::~ValidIsoTrkCalib() {
-  // do anything here that needs to be done at desctruction time
-  // (e.g. close files, deallocate resources etc.)
-}
-
 // ------------ method called to for each event  ------------
 void ValidIsoTrkCalib::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
-  using namespace edm;
-
   try {
     edm::ESHandle<HcalRespCorrs> recalibCorrs;
     iSetup.get<HcalRespCorrsRcd>().get("recalibrate", recalibCorrs);
     respRecalib = recalibCorrs.product();
 
-    LogInfo("CalibConstants") << "  Loaded:  OK ";
+    edm::LogInfo("CalibConstants") << "  Loaded:  OK ";
 
   } catch (const cms::Exception& e) {
-    LogWarning("CalibConstants") << "   Not Found!! ";
+    edm::LogWarning("CalibConstants") << "   Not Found!! ";
   }
 
   edm::Handle<reco::TrackCollection> generalTracks;
@@ -543,7 +530,7 @@ void ValidIsoTrkCalib::analyze(const edm::Event& iEvent, const edm::EventSetup& 
             iTime = hhit->time();
 
           if (AxB_ != "3x3" && AxB_ != "5x5" && AxB_ != "Cone")
-            LogWarning(" AxB ") << "   Not supported: " << AxB_;
+            edm::LogWarning(" AxB ") << "   Not supported: " << AxB_;
 
           if (abs(DIETA) <= 2 && (abs(DIPHI) <= 2 || ((abs(MaxHit.ietahitm) > 20 && abs(DIPHI) <= 4) &&
                                                       !((abs(MaxHit.ietahitm) == 21 || abs(MaxHit.ietahitm) == 22) &&
@@ -726,10 +713,10 @@ void ValidIsoTrkCalib::beginJob() {
   //   iSetup.get<HcalRespCorrsRcd>().get("recalibrate",recalibCorrs);
   //   respRecalib = recalibCorrs.product();
   //
-  //   LogInfo("CalibConstants")<<"  Loaded:  OK ";
+  //   edm::LogInfo("CalibConstants")<<"  Loaded:  OK ";
   //
   // }catch(const cms::Exception & e) {
-  //   LogWarning("CalibConstants")<<"   Not Found!! ";
+  //   edm::LogWarning("CalibConstants")<<"   Not Found!! ";
   // }
 
   //  rootFile = new TFile(outputFileName_.c_str(),"RECREATE");
@@ -806,12 +793,6 @@ void ValidIsoTrkCalib::beginJob() {
     tTree->Branch("pixPhi", pixPhi, "pixPhi[pix]/F");
     tTree->Branch("pixEta", pixEta, "pixEta[pix]/F");
   }
-}
-
-// ------------ method called once each job just after ending the event loop  ------------
-void ValidIsoTrkCalib::endJob() {
-  //  rootFile->Write();
-  //rootFile->Close();
 }
 
 //define this as a plug-in
