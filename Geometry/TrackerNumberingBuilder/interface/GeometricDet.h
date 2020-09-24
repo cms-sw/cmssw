@@ -6,18 +6,16 @@
 #include "DataFormats/GeometrySurface/interface/Surface.h"
 #include "DataFormats/GeometrySurface/interface/Bounds.h"
 #include "DataFormats/DetId/interface/DetId.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <Math/Rotation3D.h>
 #include <Math/Vector3D.h>
+#include <DD4hep/Shapes.h>
 
 #include <vector>
 #include <memory>
 #include "FWCore/ParameterSet/interface/types.h"
-
 #include <ext/pool_allocator.h>
 
-//#include <DD4hep/Volumes.h>
-#include <DD4hep/Shapes.h>
-//#include <DD4hep/DD4hepUnits.h>
 
 class DDFilteredView;
 
@@ -136,12 +134,12 @@ public:
   NavRange navpos() const { return NavRange(&_ddd.front(), _ddd.size()); }
 
   std::vector<double> const& params() const {
-    if (_shape != cms::DDSolidShape::ddbox
-	&& _shape != cms::DDSolidShape::ddtrap
-	&& _shape != cms::DDSolidShape::ddtubs) {
-      std::cout << "error!!! GeometricDet::params() is called on ashape which is neither a box, a trap, nor a tub. This is not supported!" << std::endl;
-    }
-    return _params; 
+if (_shape != cms::DDSolidShape::ddbox
+      && _shape != cms::DDSolidShape::ddtrap
+      && _shape != cms::DDSolidShape::ddtubs) {
+edm::LogError("GeometricDet::params()") << "Called on a shape which is neither a box, a trap, nor a tub. This is not supported!";
+}
+return _params; 
   }
 
   ~GeometricDet();

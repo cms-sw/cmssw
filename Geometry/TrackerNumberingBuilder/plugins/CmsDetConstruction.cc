@@ -102,7 +102,7 @@ void CmsDetConstruction<cms::DDFilteredView>::buildComponent(cms::DDFilteredView
 
     // Go down in hierarchy: from module to sensor
     if (!fv.firstChild()) {
-      std::cout << "CmsDetConstruction::buildComponent  !fv.firstChild()" << std::endl;
+      edm::LogError("CmsDetConstruction::buildComponent. Cannot go down to sensor volume.");
       return;
     }
 
@@ -114,8 +114,7 @@ void CmsDetConstruction<cms::DDFilteredView>::buildComponent(cms::DDFilteredView
       buildSmallDetsforGlued(fv, det, attribute);
 
       // Go to the next volume in FilteredView.
-      // NB: If this volume is another sensor of the same module, let's stay in the loop.
-      // Otherwise, loop is exited.
+      // NB: If this volume is another sensor of the same module, will stay in the loop.
       fv.firstChild();
     }
   }
@@ -126,7 +125,7 @@ void CmsDetConstruction<cms::DDFilteredView>::buildComponent(cms::DDFilteredView
    
     // Go down in hierarchy: from module to sensor
     if (!fv.firstChild()) {
-      std::cout << "CmsDetConstruction::buildComponent  !fv.firstChild()" << std::endl;
+      edm::LogError("CmsDetConstruction::buildComponent. Cannot go down to sensor volume.");
       return;
     }
 
@@ -138,8 +137,7 @@ void CmsDetConstruction<cms::DDFilteredView>::buildComponent(cms::DDFilteredView
       buildSmallDetsforStack(fv, det, attribute);
 
       // Go to the next volume in FilteredView.
-      // NB: If this volume is another sensor of the same module, let's stay in the loop.
-      // Otherwise, loop is exited.
+      // NB: If this volume is another sensor of the same module, will stay in the loop.
       fv.firstChild();
     }
   }

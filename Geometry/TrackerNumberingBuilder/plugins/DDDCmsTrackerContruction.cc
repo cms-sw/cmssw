@@ -30,12 +30,15 @@ std::unique_ptr<GeometricDet> DDDCmsTrackerContruction::construct(const DDCompac
   }
 
   auto tracker = std::make_unique<GeometricDet>(&fv, GeometricDet::Tracker);
+
+  edm::LogVerbatim("DDDCmsTrackerContruction::construct: Call Tracker builder.");
   CmsTrackerBuilder<DDFilteredView> theCmsTrackerBuilder;
   theCmsTrackerBuilder.build(fv, tracker.get(), attribute);
 
+  edm::LogVerbatim("Assign DetIds");
   CmsTrackerDetIdBuilder theCmsTrackerDetIdBuilder(detidShifts);
-
   theCmsTrackerDetIdBuilder.buildId(*tracker);
+
   fv.parent();
   //
   // set the Tracker
@@ -65,12 +68,13 @@ std::unique_ptr<GeometricDet> DDDCmsTrackerContruction::construct(const cms::DDC
     }
   }
 
-  std::cout << "DDDCmsTrackerContruction starts" << std::endl;
-
   auto tracker = std::make_unique<GeometricDet>(&fv, GeometricDet::Tracker);
+
+  edm::LogVerbatim("DDDCmsTrackerContruction::construct: Call Tracker builder.");
   CmsTrackerBuilder<cms::DDFilteredView> theCmsTrackerBuilder;
   theCmsTrackerBuilder.build(fv, tracker.get(), attribute);
 
+  edm::LogVerbatim("Assign DetIds");
   CmsTrackerDetIdBuilder theCmsTrackerDetIdBuilder(detidShifts);
   theCmsTrackerDetIdBuilder.buildId(*tracker);
 
