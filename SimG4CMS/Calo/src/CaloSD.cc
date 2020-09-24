@@ -107,6 +107,7 @@ CaloSD::~CaloSD() {}
 
 G4bool CaloSD::ProcessHits(G4Step* aStep, G4TouchableHistory*) {
   NaNTrap(aStep);
+  ignoreReject = false;
 
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("CaloSim") << "CaloSD::" << GetName() << " ID= " << aStep->GetTrack()->GetTrackID()
@@ -141,7 +142,7 @@ G4bool CaloSD::ProcessHits(G4Step* aStep, G4TouchableHistory*) {
   if (unitID > 0) {
     currentID.setID(unitID, time, primaryID, depth);
   } else {
-    if (aStep->GetTotalEnergyDeposit() > 0.0) {
+    if (aStep->GetTotalEnergyDeposit() > 0.0 && (!ignoreReject)) {
       const G4TouchableHistory* touch = static_cast<const G4TouchableHistory*>(theTrack->GetTouchable());
       edm::LogVerbatim("CaloSim") << "CaloSD::ProcessHits: unitID= " << unitID << " currUnit=   " << currentID.unitID()
                                   << " Detector: " << GetName() << " trackID= " << theTrack->GetTrackID() << " "
