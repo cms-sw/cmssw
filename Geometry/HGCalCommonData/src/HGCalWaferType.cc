@@ -104,8 +104,8 @@ int HGCalWaferType::getType(double xpos, double ypos, double zpos) {
 }
 
 int HGCalWaferType::getType(int index, const std::vector<int>& indices, const std::vector<int>& types) {
-  auto itr = static_cast<unsigned int>(std::find(std::begin(indices), std::end(indices), index) - std::begin(indices));
-  int type = (itr < indices.size()) ? types[itr] : -1;
+  auto itr = std::find(std::begin(indices), std::end(indices), index);
+  int type = (itr == std::end(indices)) ? -1 : types[static_cast<unsigned int>(itr - std::begin(indices))];
   return type;
 }
 
