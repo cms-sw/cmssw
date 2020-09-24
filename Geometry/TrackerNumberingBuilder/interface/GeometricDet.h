@@ -16,7 +16,6 @@
 #include "FWCore/ParameterSet/interface/types.h"
 #include <ext/pool_allocator.h>
 
-
 class DDFilteredView;
 
 namespace cms {
@@ -134,12 +133,12 @@ public:
   NavRange navpos() const { return NavRange(&_ddd.front(), _ddd.size()); }
 
   std::vector<double> const& params() const {
-if (_shape != cms::DDSolidShape::ddbox
-      && _shape != cms::DDSolidShape::ddtrap
-      && _shape != cms::DDSolidShape::ddtubs) {
-edm::LogError("GeometricDet::params()") << "Called on a shape which is neither a box, a trap, nor a tub. This is not supported!";
-}
-return _params; 
+    if (_shape != cms::DDSolidShape::ddbox && _shape != cms::DDSolidShape::ddtrap &&
+        _shape != cms::DDSolidShape::ddtubs) {
+      edm::LogError("GeometricDet::params()")
+          << "Called on a shape which is neither a box, a trap, nor a tub. This is not supported!";
+    }
+    return _params;
   }
 
   ~GeometricDet();
@@ -200,7 +199,7 @@ return _params;
 
 private:
   std::vector<double> computeLegacyShapeParameters(const cms::DDSolidShape& mySolidShape,
-						   const dd4hep::Solid& mySolid) const;
+                                                   const dd4hep::Solid& mySolid) const;
 
   ConstGeometricDetContainer _container;
   Translation _trans;

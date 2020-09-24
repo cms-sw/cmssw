@@ -87,8 +87,7 @@ GeometricDet::GeometricDet(DDFilteredView* fv, GeometricEnumType type)
       _isLowerSensor(getString("TrackerLowerDetectors", *fv) == strue),
       _isUpperSensor(getString("TrackerUpperDetectors", *fv) == strue),
       _siliconAPVNum(getDouble("SiliconAPVNumber", *fv)),
-      _isFromDD4hep(false)
-{
+      _isFromDD4hep(false) {
   //  workaround instead of this at initialization _ddd(fv->navPos().begin(),fv->navPos().end()),
   const DDFilteredView::nav_type& nt = fv->navPos();
   _ddd = nav_type(nt.begin(), nt.end());
@@ -98,28 +97,26 @@ GeometricDet::GeometricDet(DDFilteredView* fv, GeometricEnumType type)
   Constructor from DD4HEP Filtered view.
  */
 GeometricDet::GeometricDet(cms::DDFilteredView* fv, GeometricEnumType type)
-  :
-  _trans(geant_units::operators::convertCmToMm(fv->translation())),
-  _phi(_trans.Phi()),
-  _rho(_trans.Rho()),
-  _rot(fv->rotation()),
-  _shape(fv->shape()),
-  _ddd(fv->navPos()), // To be studied
-  _ddname(dd4hep::dd::noNamespace(fv->name())),
-  _type(type),
-  _params(computeLegacyShapeParameters(_shape, fv->solid())),
-  _radLength(fv->get<double>("TrackerRadLength")), // To be studied
-  _xi(fv->get<double>("TrackerXi")), // To be studied
-  _pixROCRows(fv->get<double>("PixelROCRows")),
-  _pixROCCols(fv->get<double>("PixelROCCols")),
-  _pixROCx(fv->get<double>("PixelROC_X")),
-  _pixROCy(fv->get<double>("PixelROC_Y")),
-  _stereo(fv->get<std::string_view>("TrackerStereoDetectors") == strue),
-  _isLowerSensor(fv->get<std::string_view>("TrackerLowerDetectors") == strue),
-  _isUpperSensor(fv->get<std::string_view>("TrackerUpperDetectors") == strue),
-  _siliconAPVNum(fv->get<double>("SiliconAPVNumber")),
-  _isFromDD4hep(true)
-{}
+    : _trans(geant_units::operators::convertCmToMm(fv->translation())),
+      _phi(_trans.Phi()),
+      _rho(_trans.Rho()),
+      _rot(fv->rotation()),
+      _shape(fv->shape()),
+      _ddd(fv->navPos()),  // To be studied
+      _ddname(dd4hep::dd::noNamespace(fv->name())),
+      _type(type),
+      _params(computeLegacyShapeParameters(_shape, fv->solid())),
+      _radLength(fv->get<double>("TrackerRadLength")),  // To be studied
+      _xi(fv->get<double>("TrackerXi")),                // To be studied
+      _pixROCRows(fv->get<double>("PixelROCRows")),
+      _pixROCCols(fv->get<double>("PixelROCCols")),
+      _pixROCx(fv->get<double>("PixelROC_X")),
+      _pixROCy(fv->get<double>("PixelROC_Y")),
+      _stereo(fv->get<std::string_view>("TrackerStereoDetectors") == strue),
+      _isLowerSensor(fv->get<std::string_view>("TrackerLowerDetectors") == strue),
+      _isUpperSensor(fv->get<std::string_view>("TrackerUpperDetectors") == strue),
+      _siliconAPVNum(fv->get<double>("SiliconAPVNumber")),
+      _isFromDD4hep(true) {}
 
 // PGeometricDet is persistent version... make it... then come back here and make the
 // constructor.
@@ -266,7 +263,6 @@ std::string GeometricDet::computeNameWithNoNamespace(std::string_view nameFromVi
   return name;
   }*/
 
-
 /*
  * DD4hep.
  * Keep order and units of parameters as old DD to avoid numerous rgeressions.
@@ -274,45 +270,42 @@ std::string GeometricDet::computeNameWithNoNamespace(std::string_view nameFromVi
  * params() will complain if parameters of any other shape are accessed.
  */
 std::vector<double> GeometricDet::computeLegacyShapeParameters(const cms::DDSolidShape& mySolidShape,
-							       const dd4hep::Solid& mySolid) const {
+                                                               const dd4hep::Solid& mySolid) const {
   std::vector<double> myOldDDShapeParameters;
-  
+
   // Box
   if (mySolidShape == cms::DDSolidShape::ddbox) {
     const dd4hep::Box& myBox = dd4hep::Box(mySolid);
-    myOldDDShapeParameters = { geant_units::operators::convertCmToMm(myBox.x() ),
-			       geant_units::operators::convertCmToMm(myBox.y() ),
-			       geant_units::operators::convertCmToMm(myBox.z() )
-    };
+    myOldDDShapeParameters = {geant_units::operators::convertCmToMm(myBox.x()),
+                              geant_units::operators::convertCmToMm(myBox.y()),
+                              geant_units::operators::convertCmToMm(myBox.z())};
   }
-  
+
   // Trapezoid
   else if (mySolidShape == cms::DDSolidShape::ddtrap) {
     const dd4hep::Trap& myTrap = dd4hep::Trap(mySolid);
-    myOldDDShapeParameters = {
-      geant_units::operators::convertCmToMm(myTrap->GetDZ() ),
-      static_cast<double>(angle_units::operators::convertDegToRad(myTrap->GetTheta())),
-      static_cast<double>(angle_units::operators::convertDegToRad(myTrap->GetPhi())),
-      geant_units::operators::convertCmToMm(myTrap->GetH1() ),
-      geant_units::operators::convertCmToMm(myTrap->GetBl1() ),
-      geant_units::operators::convertCmToMm(myTrap->GetTl1() ),
-      static_cast<double>(angle_units::operators::convertDegToRad(myTrap->GetAlpha1())),
-      geant_units::operators::convertCmToMm(myTrap->GetH2() ),
-      geant_units::operators::convertCmToMm(myTrap->GetBl2() ),
-      geant_units::operators::convertCmToMm(myTrap->GetTl2() ),		 
-      static_cast<double>(angle_units::operators::convertDegToRad(myTrap->GetAlpha2()))
-    }; 
+    myOldDDShapeParameters = {geant_units::operators::convertCmToMm(myTrap->GetDZ()),
+                              static_cast<double>(angle_units::operators::convertDegToRad(myTrap->GetTheta())),
+                              static_cast<double>(angle_units::operators::convertDegToRad(myTrap->GetPhi())),
+                              geant_units::operators::convertCmToMm(myTrap->GetH1()),
+                              geant_units::operators::convertCmToMm(myTrap->GetBl1()),
+                              geant_units::operators::convertCmToMm(myTrap->GetTl1()),
+                              static_cast<double>(angle_units::operators::convertDegToRad(myTrap->GetAlpha1())),
+                              geant_units::operators::convertCmToMm(myTrap->GetH2()),
+                              geant_units::operators::convertCmToMm(myTrap->GetBl2()),
+                              geant_units::operators::convertCmToMm(myTrap->GetTl2()),
+                              static_cast<double>(angle_units::operators::convertDegToRad(myTrap->GetAlpha2()))};
   }
 
   // Tub
   else if (mySolidShape == cms::DDSolidShape::ddtubs) {
     const dd4hep::Tube& myTube = dd4hep::Tube(mySolid);
-    myOldDDShapeParameters = { geant_units::operators::convertCmToMm(myTube->GetDz() ),
-			       geant_units::operators::convertCmToMm(myTube->GetRmin() ),
-			       geant_units::operators::convertCmToMm(myTube->GetRmax() ),
-			       static_cast<double>(angle_units::operators::convertDegToRad(myTube->GetPhi1())),
-			       static_cast<double>(angle_units::operators::convertDegToRad(myTube->GetPhi2() - myTube->GetPhi1()))
-    };
+    myOldDDShapeParameters = {
+        geant_units::operators::convertCmToMm(myTube->GetDz()),
+        geant_units::operators::convertCmToMm(myTube->GetRmin()),
+        geant_units::operators::convertCmToMm(myTube->GetRmax()),
+        static_cast<double>(angle_units::operators::convertDegToRad(myTube->GetPhi1())),
+        static_cast<double>(angle_units::operators::convertDegToRad(myTube->GetPhi2() - myTube->GetPhi1()))};
   }
 
   return myOldDDShapeParameters;

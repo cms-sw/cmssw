@@ -99,7 +99,6 @@ void CmsDetConstruction<cms::DDFilteredView>::buildComponent(cms::DDFilteredView
   // PHASE 1 (MERGEDDET)
   if (CmsTrackerLevelBuilder<cms::DDFilteredView>::theCmsTrackerStringToEnum.type(
           ExtractStringFromDDD<cms::DDFilteredView>::getString(attribute, &fv)) == GeometricDet::mergedDet) {
-
     // Go down in hierarchy: from module to sensor
     if (!fv.firstChild()) {
       edm::LogError("CmsDetConstruction::buildComponent. Cannot go down to sensor volume.");
@@ -107,7 +106,7 @@ void CmsDetConstruction<cms::DDFilteredView>::buildComponent(cms::DDFilteredView
     }
 
     // This is the sensor hierarchy level
-    const int sensorHierarchyLevel = fv.level(); 
+    const int sensorHierarchyLevel = fv.level();
 
     // Loop on all siblings (ie, on all sensors)
     while (fv.level() == sensorHierarchyLevel) {
@@ -122,7 +121,6 @@ void CmsDetConstruction<cms::DDFilteredView>::buildComponent(cms::DDFilteredView
   // PHASE 2 (STACKDET)
   else if (CmsTrackerLevelBuilder<cms::DDFilteredView>::theCmsTrackerStringToEnum.type(
                ExtractStringFromDDD<cms::DDFilteredView>::getString(attribute, &fv)) == GeometricDet::OTPhase2Stack) {
-   
     // Go down in hierarchy: from module to sensor
     if (!fv.firstChild()) {
       edm::LogError("CmsDetConstruction::buildComponent. Cannot go down to sensor volume.");
@@ -130,7 +128,7 @@ void CmsDetConstruction<cms::DDFilteredView>::buildComponent(cms::DDFilteredView
     }
 
     // This is the sensor hierarchy level
-    const int sensorHierarchyLevel = fv.level(); 
+    const int sensorHierarchyLevel = fv.level();
 
     // Loop on all siblings (ie, on all sensors)
     while (fv.level() == sensorHierarchyLevel) {
