@@ -47,7 +47,7 @@
 Phase2TrackerMonitorDigi::Phase2TrackerMonitorDigi(const edm::ParameterSet& iConfig)
     : config_(iConfig),
       pixelFlag_(config_.getParameter<bool>("PixelPlotFillingFlag")),
-      clsFlag_(config_.getParameter<bool>("OfflineClusteriserFlag")),
+      clsFlag_(config_.getParameter<bool>("StandAloneClusteriserFlag")),
       geomType_(config_.getParameter<std::string>("GeometryType")),
       otDigiSrc_(config_.getParameter<edm::InputTag>("OuterTrackerDigiSource")),
       itPixelDigiSrc_(config_.getParameter<edm::InputTag>("InnerPixelDigiSource")),
@@ -98,7 +98,6 @@ void Phase2TrackerMonitorDigi::fillITPixelDigiHistos(const edm::Handle<edm::DetS
   const TrackerTopology* tTopo = tTopoHandle_.product();
   const TrackerGeometry* tGeom = gHandle.product();
 
-  //  std::cout << " Here " << std::endl;
   for (typename edm::DetSetVector<PixelDigi>::const_iterator DSViter = digis->begin(); DSViter != digis->end();
        DSViter++) {
     unsigned int rawid = DSViter->id;
@@ -106,7 +105,6 @@ void Phase2TrackerMonitorDigi::fillITPixelDigiHistos(const edm::Handle<edm::DetS
 
     int layer = tTopo->getITPixelLayerNumber(rawid);
 
-    //std::cout << " Phase2TrackerMonitorDigi: RawId " << rawid << " Layer " << layer << std::endl;
     if (layer < 0)
       continue;
     const DetId detId(rawid);
@@ -436,27 +434,22 @@ void Phase2TrackerMonitorDigi::bookLayerHistos(DQMStore::IBooker& ibooker,
 
   if (layer < 0)
     return;
-
   std::string key = getHistoId(det_id, tTopo, pixelFlag_);
   std::map<std::string, DigiMEs>::iterator pos = layerMEs.find(key);
+
   if (pos == layerMEs.end()) {
     std::string top_folder = config_.getParameter<std::string>("TopFolderName");
     std::stringstream folder_name;
 
-    // initialise Histograms
-    std::ostringstream fname1;
-    int side = 0;
-    int idisc = 0;
+    bool forDisc12UptoRing10 =
+        (!pixelFlag_ && layer > 100 && tTopo->tidWheel(det_id) < 3 && tTopo->tidRing(det_id) <= 10) ? true : false;
+    bool forDisc345UptoRing7 =
+        (!pixelFlag_ && layer > 100 && tTopo->tidWheel(det_id) >= 3 && tTopo->tidRing(det_id) <= 7) ? true : false;
 
-    //    std::string key = getHistoId(det_id, tTopo, pixelFlag_);
-    if (layer > 100) {
-      side = layer / 100;
-      idisc = layer - side * 100;
-      idisc = (idisc < 3) ? 12 : 345;
-    }
+    //For endCap: P-type sensors are present only upto ring 10 for discs 1&2 and upto ring 7 for discs 3,4&5
+    bool isPtypeSensor =
+        (pixelFlag_ || (layer < 4 || (layer > 6 && (forDisc12UptoRing10 || forDisc345UptoRing7)))) ? true : false;
 
-    bool forDisc12UptoRing10 = (idisc == 12 && tTopo->tidRing(det_id) <= 10) ? true : false;
-    bool forDisc345UptoRing7 = (idisc == 345 && tTopo->tidRing(det_id) <= 7) ? true : false;
     ibooker.cd();
     ibooker.setCurrentFolder(top_folder + "/DigiMonitor/" + key);
     edm::LogInfo("Phase2TrackerMonitorDigi") << " Booking Histograms in : " << key;
@@ -480,8 +473,7 @@ void Phase2TrackerMonitorDigi::bookLayerHistos(DQMStore::IBooker& ibooker,
     else
       local_mes.NumberOfDigisPerDet = nullptr;
 
-    //For endCap: P-type sensors are present only upto ring 10 for discs 1&2 and upto ring 7 for discs 3,4&5
-    if (pixelFlag_ || (layer < 4 || (layer > 6 && (forDisc12UptoRing10 || forDisc345UptoRing7)))) {
+    if (isPtypeSensor) {
       Parameters = config_.getParameter<edm::ParameterSet>("DigiOccupancyPH");
       HistoName.str("");
       HistoName << "DigiOccupancyP";
@@ -712,20 +704,21 @@ void Phase2TrackerMonitorDigi::bookLayerHistos(DQMStore::IBooker& ibooker,
           local_mes.ChargeOfDigisVsWidth = nullptr;
       }
     }
-
     layerMEs.insert(std::make_pair(key, local_mes));
   }
 }
+
 std::string Phase2TrackerMonitorDigi::getHistoId(uint32_t det_id, const TrackerTopology* tTopo, bool flag) {
   int layer;
   std::string Disc;
   std::ostringstream fname1;
+
   if (flag) {
     layer = tTopo->getITPixelLayerNumber(det_id);
-    //std::cout<<"PxLayer: "<<layer<<"\n";
   } else {
     layer = tTopo->getOTLayerNumber(det_id);
   }
+
   if (layer < 0)
     return "";
 
@@ -734,15 +727,16 @@ std::string Phase2TrackerMonitorDigi::getHistoId(uint32_t det_id, const TrackerT
     fname1 << "Layer" << layer;
     fname1 << "";
   } else {
-    int side = layer / 100;
+    int side = (flag) ? tTopo->pxfSide(det_id) : tTopo->tidSide(det_id);
     fname1 << "EndCap_Side" << side << "/";
-    int disc = layer - side * 100;
+    int disc = (flag) ? tTopo->pxfDisk(det_id) : tTopo->tidWheel(det_id);
     if (flag)
-      Disc = (disc < 9) ? "FPIX_1" : "FPIX_2";
+      Disc = (disc < 9) ? "EPix" : "FPix";
     else
       Disc = (disc < 3) ? "TEDD_1" : "TEDD_2";
     fname1 << Disc << "/";
-    int ring = tTopo->tidRing(det_id);
+
+    int ring = (flag) ? tTopo->pxfBlade(det_id) : tTopo->tidRing(det_id);
     fname1 << "Ring" << ring;
   }
   return fname1.str();

@@ -164,9 +164,7 @@ void Phase2TrackerValidateDigi::analyze(const edm::Event& iEvent, const edm::Eve
       it.second.nDigis = 0;
       it.second.nHits = 0;
     }
-
     fillSimHitInfo(iEvent, (*simTrkItr), geomHandle);
-    //fillHitsPerTrack();
 
     int nHitCutoff = 2;
     if (pixelFlag_)
@@ -595,10 +593,6 @@ void Phase2TrackerValidateDigi::bookHistograms(DQMStore::IBooker& ibooker,
   else
     SimulatedTOFZMap = nullptr;
 
-  //HistoName.str("");
-  //HistoName << "NumberOfSimHitsPerTrackVsLayer";
-  //nSimHitsPerTrack = ibooker.book2D(HistoName.str(), HistoName.str(), 45, -22.5, 22.5, 101, -0.5, 100.5);
-
   edm::ESWatcher<TrackerDigiGeometryRecord> theTkDigiGeomWatcher;
 
   iSetup.get<TrackerTopologyRcd>().get(tTopoHandle_);
@@ -657,8 +651,7 @@ void Phase2TrackerValidateDigi::bookLayerHistos(DQMStore::IBooker& ibooker,
                                                 unsigned int det_id,
                                                 const TrackerTopology* tTopo,
                                                 bool flag) {
-  int layer, side;
-  int idisc{0};
+  int layer;
   if (flag)
     layer = tTopo->getITPixelLayerNumber(det_id);
   else
@@ -673,25 +666,18 @@ void Phase2TrackerValidateDigi::bookLayerHistos(DQMStore::IBooker& ibooker,
     std::string top_folder = config_.getParameter<std::string>("TopFolderName");
     std::stringstream folder_name;
 
-    std::ostringstream fname1;
-    //    std::string key = getHistoId(det_id, tTopo, flag);
+    bool forDisc12UptoRing10 =
+        (!pixelFlag_ && layer > 100 && tTopo->tidWheel(det_id) < 3 && tTopo->tidRing(det_id) <= 10) ? true : false;
+    bool forDisc345UptoRing7 =
+        (!pixelFlag_ && layer > 100 && tTopo->tidWheel(det_id) >= 3 && tTopo->tidRing(det_id) <= 7) ? true : false;
 
-    if (layer > 100) {
-      side = layer / 100;
-      idisc = layer - side * 100;
-      idisc = (idisc < 3) ? 12 : 345;
-    }
-
-    bool forDisc12UptoRing10 = (idisc == 12 && tTopo->tidRing(det_id) <= 10) ? true : false;
-    bool forDisc345UptoRing7 = (idisc == 345 && tTopo->tidRing(det_id) <= 7) ? true : false;
-    bool forS = (flag) ? false : true;
-    bool forP = (flag || (layer < 4 || (layer > 6 && (forDisc12UptoRing10 || forDisc345UptoRing7)))) ? true : false;
+    //For endCap: P-type sensors are present only upto ring 10 for discs 1&2 and upto ring 7 for discs 3,4&5
+    bool isPtypeSensor =
+        (flag || (layer < 4 || (layer > 6 && (forDisc12UptoRing10 || forDisc345UptoRing7)))) ? true : false;
 
     ibooker.cd();
     ibooker.setCurrentFolder(top_folder + "/DigiMonitor/" + key);
     edm::LogInfo("Phase2TrackerValidateDigi") << " Booking Histograms in : " << key;
-
-    //    ibooker.setCurrentFolder(folder_name.str());
 
     std::ostringstream HistoName;
     DigiMEs local_mes;
@@ -823,7 +809,7 @@ void Phase2TrackerValidateDigi::bookLayerHistos(DQMStore::IBooker& ibooker,
       local_mes.MissedDigiTrackPhi = nullptr;
 
     Parameters = config_.getParameter<edm::ParameterSet>("SimHitElossH");
-    if (forS) {
+    if (!flag) {
       HistoName.str("");
       HistoName << "MatchedSimHitElossS";
       if (Parameters.getParameter<bool>("switch"))
@@ -845,7 +831,7 @@ void Phase2TrackerValidateDigi::bookLayerHistos(DQMStore::IBooker& ibooker,
       else
         local_mes.MissedDigiSimHitElossS = nullptr;
     }
-    if (forP) {
+    if (isPtypeSensor) {
       HistoName.str("");
       HistoName << "MatchedSimHitElossP";
       if (Parameters.getParameter<bool>("switch"))
@@ -1088,11 +1074,13 @@ std::string Phase2TrackerValidateDigi::getHistoId(uint32_t det_id, const Tracker
   int layer;
   std::string Disc;
   std::ostringstream fname1;
+
   if (flag) {
     layer = tTopo->getITPixelLayerNumber(det_id);
   } else {
     layer = tTopo->getOTLayerNumber(det_id);
   }
+
   if (layer < 0)
     return "";
 
@@ -1101,18 +1089,20 @@ std::string Phase2TrackerValidateDigi::getHistoId(uint32_t det_id, const Tracker
     fname1 << "Layer" << layer;
     fname1 << "";
   } else {
-    int side = layer / 100;
+    int side = (flag) ? tTopo->pxfSide(det_id) : tTopo->tidSide(det_id);
     fname1 << "EndCap_Side" << side << "/";
-    int disc = layer - side * 100;
+    int disc = (flag) ? tTopo->pxfDisk(det_id) : tTopo->tidWheel(det_id);
     if (flag)
-      Disc = (disc < 9) ? "FPIX_1" : "FPIX_2";
+      Disc = (disc < 9) ? "EPix" : "FPix";
     else
       Disc = (disc < 3) ? "TEDD_1" : "TEDD_2";
     fname1 << Disc << "/";
-    int ring = tTopo->tidRing(det_id);
+
+    int ring = (flag) ? tTopo->pxfBlade(det_id) : tTopo->tidRing(det_id);
     fname1 << "Ring" << ring;
   }
   return fname1.str();
 }
+
 //define this as a plug-in
 DEFINE_FWK_MODULE(Phase2TrackerValidateDigi);
