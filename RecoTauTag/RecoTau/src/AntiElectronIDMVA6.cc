@@ -16,6 +16,23 @@
 
 using namespace antiElecIDMVA6_blocks;
 
+namespace {
+  const reco::Track* getTrackFromPFCand(const reco::PFCandidate* pfCandidate) {
+    const reco::Track* track = nullptr;
+    if (pfCandidate->trackRef().isNonnull())
+      track = pfCandidate->trackRef().get();
+    else if (pfCandidate->muonRef().isNonnull() && pfCandidate->muonRef()->innerTrack().isNonnull())
+      track = pfCandidate->muonRef()->innerTrack().get();
+    else if (pfCandidate->muonRef().isNonnull() && pfCandidate->muonRef()->globalTrack().isNonnull())
+      track = pfCandidate->muonRef()->globalTrack().get();
+    else if (pfCandidate->muonRef().isNonnull() && pfCandidate->muonRef()->outerTrack().isNonnull())
+      track = pfCandidate->muonRef()->outerTrack().get();
+    else if (pfCandidate->gsfTrackRef().isNonnull())
+      track = pfCandidate->gsfTrackRef().get();
+    return track;
+  }
+}  // namespace
+
 template <class TauType, class ElectronType>
 AntiElectronIDMVA6<TauType, ElectronType>::AntiElectronIDMVA6(const edm::ParameterSet& cfg, edm::ConsumesCollector&& cc)
     : isInitialized_(false),
@@ -1171,16 +1188,7 @@ TauVars AntiElectronIDMVA6<TauType, ElectronType>::getTauVarsTypeSpecific(const 
             phiAtECalEntrance = posAtECal.phi();
           }
         }
-        if (pfCandidate->trackRef().isNonnull())
-          track = pfCandidate->trackRef().get();
-        else if (pfCandidate->muonRef().isNonnull() && pfCandidate->muonRef()->innerTrack().isNonnull())
-          track = pfCandidate->muonRef()->innerTrack().get();
-        else if (pfCandidate->muonRef().isNonnull() && pfCandidate->muonRef()->globalTrack().isNonnull())
-          track = pfCandidate->muonRef()->globalTrack().get();
-        else if (pfCandidate->muonRef().isNonnull() && pfCandidate->muonRef()->outerTrack().isNonnull())
-          track = pfCandidate->muonRef()->outerTrack().get();
-        else if (pfCandidate->gsfTrackRef().isNonnull())
-          track = pfCandidate->gsfTrackRef().get();
+        track = getTrackFromPFCand(pfCandidate);
       } else {
         bool success = false;
         reco::Candidate::Point posAtECal = positionAtECalEntrance_(candidate.get(), success);
@@ -1219,16 +1227,7 @@ TauVars AntiElectronIDMVA6<TauType, ElectronType>::getTauVarsTypeSpecific(const 
             etaAtECalEntrance = posAtECal.eta();
           }
         }
-        if (pfCandidate->trackRef().isNonnull())
-          track = pfCandidate->trackRef().get();
-        else if (pfCandidate->muonRef().isNonnull() && pfCandidate->muonRef()->innerTrack().isNonnull())
-          track = pfCandidate->muonRef()->innerTrack().get();
-        else if (pfCandidate->muonRef().isNonnull() && pfCandidate->muonRef()->globalTrack().isNonnull())
-          track = pfCandidate->muonRef()->globalTrack().get();
-        else if (pfCandidate->muonRef().isNonnull() && pfCandidate->muonRef()->outerTrack().isNonnull())
-          track = pfCandidate->muonRef()->outerTrack().get();
-        else if (pfCandidate->gsfTrackRef().isNonnull())
-          track = pfCandidate->gsfTrackRef().get();
+        track = getTrackFromPFCand(pfCandidate);
       } else {
         bool success = false;
         reco::Candidate::Point posAtECal = positionAtECalEntrance_(candidate.get(), success);
