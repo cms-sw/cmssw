@@ -37,9 +37,8 @@
 //
 // ----------------------------------------------------------------------
 
-#ifndef ELSTRING_H
-#include "FWCore/MessageLogger/interface/ELstring.h"
-#endif
+#include <string>
+#include <string_view>
 
 namespace edm {
 
@@ -78,10 +77,10 @@ namespace edm {
     // --- forwarding:
     //
     int getLevel() const;
-    const ELstring getSymbol() const;
-    const ELstring getName() const;
-    const ELstring getInputStr() const;
-    const ELstring getVarName() const;
+    const std::string& getSymbol() const;
+    const std::string& getName() const;
+    const std::string& getInputStr() const;
+    const std::string& getVarName() const;
 
   };  // ELslProxy<ELslGen>
 
@@ -122,7 +121,7 @@ namespace edm {
     // -----  Birth/death:
     //
     ELseverityLevel(ELsev_ lev = ELsev_unspecified);
-    ELseverityLevel(ELstring const& str);
+    ELseverityLevel(std::string_view str);
     // str may match getSymbol, getName, getInputStr,
     // or getVarName -- see accessors
     ~ELseverityLevel();
@@ -134,10 +133,10 @@ namespace edm {
     // -----  Accessors:
     //
     int getLevel() const;
-    const ELstring getSymbol() const;    // example: "-e"
-    const ELstring getName() const;      // example: "Error"
-    const ELstring getInputStr() const;  // example: "ERROR"
-    const ELstring getVarName() const;   // example: "ELerror"
+    const std::string& getSymbol() const;    // example: "-e"
+    const std::string& getName() const;      // example: "Error"
+    const std::string& getInputStr() const;  // example: "ERROR"
+    const std::string& getVarName() const;   // example: "ELerror"
 
     // -----  Emitter:
     //
