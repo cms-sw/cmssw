@@ -97,7 +97,9 @@ public:
 };
 
 inline int GEMOfflineDQMBase::getMaxVFAT(const int station) {
-  if (station == 1)
+  if (station == 0)
+    return GEMeMap::maxVFatGE0_;
+  else if (station == 1)
     return GEMeMap::maxVFatGE11_;
   else if (station == 2)
     return GEMeMap::maxVFatGE21_;
