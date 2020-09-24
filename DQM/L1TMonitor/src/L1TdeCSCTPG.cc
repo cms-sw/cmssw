@@ -7,7 +7,7 @@ L1TdeCSCTPG::L1TdeCSCTPG(const edm::ParameterSet& ps)
       emulALCT_token_(consumes<CSCALCTDigiCollection>(ps.getParameter<edm::InputTag>("emulALCT"))),
       dataCLCT_token_(consumes<CSCCLCTDigiCollection>(ps.getParameter<edm::InputTag>("dataCLCT"))),
       emulCLCT_token_(consumes<CSCCLCTDigiCollection>(ps.getParameter<edm::InputTag>("emulCLCT"))),
-      dataLCT_token_(consumes<CSCCorrelatedLCTDigx3iCollection>(ps.getParameter<edm::InputTag>("dataLCT"))),
+      dataLCT_token_(consumes<CSCCorrelatedLCTDigiCollection>(ps.getParameter<edm::InputTag>("dataLCT"))),
       emulLCT_token_(consumes<CSCCorrelatedLCTDigiCollection>(ps.getParameter<edm::InputTag>("emulLCT"))),
       monitorDir_(ps.getParameter<std::string>("monitorDir")),
       verbose_(ps.getParameter<bool>("verbose")),
@@ -33,8 +33,8 @@ L1TdeCSCTPG::L1TdeCSCTPG(const edm::ParameterSet& ps)
 
 L1TdeCSCTPG::~L1TdeCSCTPG() {}
 
-void L1TdeCSCTPG::bookHistograms(DQMStore::IBooker& ibooker, const edm::Run&, const edm::EventSetup&) {
-  ibooker.setCurrentFolder(monitorDir_);
+void L1TdeCSCTPG::bookHistograms(DQMStore::IBooker& iBooker, const edm::Run&, const edm::EventSetup&) {
+  iBooker.setCurrentFolder(monitorDir_);
 
   // chamber type
   for (unsigned iType = 0; iType < chambers_.size(); iType++) {
@@ -42,31 +42,31 @@ void L1TdeCSCTPG::bookHistograms(DQMStore::IBooker& ibooker, const edm::Run&, co
     for (unsigned iData = 0; iData < dataEmul_.size(); iData++) {
       // alct variable
       for (unsigned iVar = 0; iVar < alctVars_.size(); iVar++) {
-        const std::string key("alct_" + std::to_string(alctVars_[iVar]) + "_" + dataEmul_[iData]);
+        const std::string key("alct_" + alctVars_[iVar] + "_" + dataEmul_[iData]);
         const std::string histName(key + "_" + chambers_[iType]);
-        const std::string histTitle(chambers_[iType] + " ALCT " + std::to_string(alctVars_[iVar]) + " (" +
+        const std::string histTitle(chambers_[iType] + " ALCT " + alctVars_[iVar] + " (" +
                                     dataEmul_[iData] + ") ");
-        chamberHistos[iType][lctvar] =
+        chamberHistos[iType][key] =
             iBooker.book1D(histName, histTitle, alctNBin_[iType], alctMinBin_[iType], alctMaxBin_[iType]);
       }
 
       // clct variable
       for (unsigned iVar = 0; iVar < clctVars_.size(); iVar++) {
-        const std::string key("clct_" + std::to_string(clctVars_[iVar]) + "_" + dataEmul_[iData]);
+        const std::string key("clct_" + clctVars_[iVar] + "_" + dataEmul_[iData]);
         const std::string histName(key + "_" + chambers_[iType]);
-        const std::string histTitle(chambers_[iType] + " CLCT " + std::to_string(clctVars_[iVar]) + " (" +
+        const std::string histTitle(chambers_[iType] + " CLCT " + clctVars_[iVar] + " (" +
                                     dataEmul_[iData] + ") ");
-        chamberHistos[iType][lctvar] =
+        chamberHistos[iType][key] =
             iBooker.book1D(histName, histTitle, clctNBin_[iType], clctMinBin_[iType], clctMaxBin_[iType]);
       }
 
       // lct variable
       for (unsigned iVar = 0; iVar < lctVars_.size(); iVar++) {
-        const std::string key("lct_" + std::to_string(lctVars_[iVar]) + "_" + dataEmul_[iData]);
+        const std::string key("lct_" + lctVars_[iVar] + "_" + dataEmul_[iData]);
         const std::string histName(key + "_" + chambers_[iType]);
-        const std::string histTitle(chambers_[iType] + " LCT " + std::to_string(lctVars_[iVar]) + " (" +
+        const std::string histTitle(chambers_[iType] + " LCT " + lctVars_[iVar] + " (" +
                                     dataEmul_[iData] + ") ");
-        chamberHistos[iType][lctvar] =
+        chamberHistos[iType][key] =
             iBooker.book1D(histName, histTitle, lctNBin_[iType], lctMinBin_[iType], lctMaxBin_[iType]);
       }
     }
