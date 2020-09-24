@@ -40,6 +40,7 @@ protected:
   edm::EDGetTokenT<edmNew::DetSetVector<SiPixelCluster>> thePixelClusterLabel;
   edm::EDGetTokenT<edmNew::DetSetVector<SiStripCluster>> theStripClusterLabel;
   edm::EDGetTokenT<edmNew::DetSetVector<Phase2TrackerCluster1D>> thePh2OTClusterLabel;
+  edm::EDGetTokenT<VectorHitCollectionNew> thePh2OTVectorHitsLabel;
   edm::EDGetTokenT<edm::ContainerMask<edmNew::DetSetVector<SiPixelCluster>>> thePixelClusterMask;
   edm::EDGetTokenT<edm::ContainerMask<edmNew::DetSetVector<SiStripCluster>>> theStripClusterMask;
 
@@ -51,6 +52,7 @@ protected:
   bool selfUpdateSkipClusters_;
   bool switchOffPixelsIfEmpty_;
   bool isPhase2;
+  bool useVectorHits;
 };
 
 #endif

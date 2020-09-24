@@ -23,7 +23,10 @@ fastSim.toModify(MeasurementTrackerEvent,
     inactiveStripDetectorLabels = cms.VInputTag(),
     switchOffPixelsIfEmpty = False
 )
-
+from Configuration.ProcessModifiers.vectorHits_cff import vectorHits
+vectorHits.toModify(MeasurementTrackerEvent,
+    vectorHits = cms.InputTag("siPhase2VectorHits", "vectorHitsAccepted"),
+)
 
 MeasurementTrackerEventPreSplitting = MeasurementTrackerEvent.clone(
     pixelClusterProducer = 'siPixelClustersPreSplitting'

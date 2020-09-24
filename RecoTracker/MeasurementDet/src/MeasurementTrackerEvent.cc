@@ -10,6 +10,8 @@ MeasurementTrackerEvent::~MeasurementTrackerEvent() {
     thePixelData = nullptr;  // to double-delete the same object (!!!)
     delete thePhase2OTData;
     thePhase2OTData = nullptr;  // to double-delete the same object (!!!)
+//    delete thePhase2OTVectorHits;
+//    thePhase2OTVectorHits = nullptr;  // to double-delete the same object (!!!)
   }
 }
 
@@ -18,6 +20,7 @@ MeasurementTrackerEvent::MeasurementTrackerEvent(MeasurementTrackerEvent &&other
   theStripData = other.theStripData;
   thePixelData = other.thePixelData;
   thePhase2OTData = other.thePhase2OTData;
+  thePhase2OTVectorHits = other.thePhase2OTVectorHits;
   theOwner = other.theOwner;
   other.theOwner = false;  // make sure to fully transfer the ownership
   theStripClustersToSkip = std::move(other.theStripClustersToSkip);
@@ -28,6 +31,7 @@ MeasurementTrackerEvent &MeasurementTrackerEvent::operator=(MeasurementTrackerEv
   theStripData = other.theStripData;
   thePixelData = other.thePixelData;
   thePhase2OTData = other.thePhase2OTData;
+  thePhase2OTVectorHits = other.thePhase2OTVectorHits;
   theOwner = other.theOwner;
   other.theOwner = false;  // make sure to fully transfer the ownership
   theStripClustersToSkip = std::move(other.theStripClustersToSkip);
@@ -43,6 +47,7 @@ MeasurementTrackerEvent::MeasurementTrackerEvent(
       theStripData(trackerEvent.theStripData),
       thePixelData(trackerEvent.thePixelData),
       thePhase2OTData(nullptr),
+      thePhase2OTVectorHits(nullptr),
       theOwner(false) {
   //std::cout << "Creatign non-owned MT @ " << this << " from @ " << & trackerEvent << " (strip data @ " << trackerEvent.theStripData << ")" << std::endl;
   if (stripClustersToSkip.refProd().id() != theStripData->handle().id()) {
@@ -77,6 +82,7 @@ MeasurementTrackerEvent::MeasurementTrackerEvent(
       theStripData(nullptr),
       thePixelData(trackerEvent.thePixelData),
       thePhase2OTData(trackerEvent.thePhase2OTData),
+      thePhase2OTVectorHits(trackerEvent.thePhase2OTVectorHits),
       theOwner(false) {
   if (pixelClustersToSkip.refProd().id() != thePixelData->handle().id()) {
     edm::LogError("ProductIdMismatch") << "The pixel masking does not point to the proper collection of clusters: "

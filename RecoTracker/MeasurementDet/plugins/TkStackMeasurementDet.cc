@@ -7,8 +7,9 @@ using namespace std;
 
 TkStackMeasurementDet::TkStackMeasurementDet(const StackGeomDet* gdet,
                                              const VectorHitBuilderAlgorithm* matcher,
-                                             const PixelClusterParameterEstimator* cpe)
-    : MeasurementDet(gdet), theMatcher(matcher), thePixelCPE(cpe), theLowerDet(nullptr), theUpperDet(nullptr) {}
+                                             const PixelClusterParameterEstimator* cpe,
+				  	     const TrackerTopology* tkTopo)
+    : MeasurementDet(gdet), theMatcher(matcher), thePixelCPE(cpe), theTkTopo(tkTopo), theLowerDet(nullptr), theUpperDet(nullptr) {}
 
 void TkStackMeasurementDet::init(const MeasurementDet* lowerDet, const MeasurementDet* upperDet) {
   theLowerDet = dynamic_cast<const TkPhase2OTMeasurementDet*>(lowerDet);
@@ -27,13 +28,13 @@ TkStackMeasurementDet::RecHitContainer TkStackMeasurementDet::recHits(const Traj
   HitCollectorForRecHits collector( &fastGeomDet(), theMatcher, theCPE, result );
   collectRecHits(ts, collector);
 */
-  if (isEmpty(data.phase2OTData()))
+  if (data.phase2OTVectorHits().size() == 0)
     return result;
   LogTrace("MeasurementTracker") << " is not empty";
   if (!isActive(data))
     return result;
   LogTrace("MeasurementTracker") << " and is active";
-
+/*
   const Phase2TrackerCluster1D* begin = nullptr;
   if (!data.phase2OTData().handle()->data().empty()) {
     begin = &(data.phase2OTData().handle()->data().front());
@@ -77,7 +78,22 @@ TkStackMeasurementDet::RecHitContainer TkStackMeasurementDet::recHits(const Traj
       }
     }
   }
+  
 
+*/
+
+    //unsigned int rawDetId1(lowerDet()->index());
+    //DetId detId1(rawDetId1);
+    //DetId detIdStack = theTkTopo->stack(detId1);
+    //DetId detIdStack = theTkTopo->stack(specificGeomDet().geographicalId());
+    DetId detIdStack = specificGeomDet().geographicalId();
+
+  //std::cout << "ID of current stack " << detIdStack << std::endl;
+  auto iterator = data.phase2OTVectorHits().find(detIdStack); 
+  if (iterator == data.phase2OTVectorHits().end()) return result;
+  for (auto& vecHit : data.phase2OTVectorHits()[detIdStack])
+  	result.push_back(std::make_shared<VectorHit>(vecHit));
+  //std::cout << result.size() << std::endl;
   return result;
 }
 
