@@ -217,7 +217,10 @@ void MeasurementTrackerImpl::initPhase2OTMeasurementConditionSet(std::vector<TkP
   }
 }
 
-void MeasurementTrackerImpl::addDets(const TrackingGeometry::DetContainer& dets, bool subIsPixel, bool subIsOT, const TrackerTopology* trackerTopology) {
+void MeasurementTrackerImpl::addDets(const TrackingGeometry::DetContainer& dets,
+                                     bool subIsPixel,
+                                     bool subIsOT,
+                                     const TrackerTopology* trackerTopology) {
   //in phase2, we can have composed subDetector made by Pixel or Strip
   for (TrackerGeometry::DetContainer::const_iterator gd = dets.begin(); gd != dets.end(); gd++) {
     const GeomDetUnit* gdu = dynamic_cast<const GeomDetUnit*>(*gd);
@@ -244,7 +247,7 @@ void MeasurementTrackerImpl::addDets(const TrackingGeometry::DetContainer& dets,
       if (gluedDet != nullptr)
         addGluedDet(gluedDet);
       else
-        addStackDet(stackDet,trackerTopology);
+        addStackDet(stackDet, trackerTopology);
     }
   }
 }
@@ -286,7 +289,8 @@ void MeasurementTrackerImpl::addGluedDet(const GluedGeomDet* gd) {
 void MeasurementTrackerImpl::addStackDet(const StackGeomDet* gd, const TrackerTopology* trackerTopology) {
   //since the Stack will be composed by PS or 2S,
   //both cluster parameter estimators are needed? - right now just the thePixelCPE is used.
-  theStackDets.push_back(TkStackMeasurementDet(gd, thePhase2DetConditions.matcher(), thePxDetConditions.pixelCPE(),trackerTopology));
+  theStackDets.push_back(
+      TkStackMeasurementDet(gd, thePhase2DetConditions.matcher(), thePxDetConditions.pixelCPE(), trackerTopology));
 }
 
 void MeasurementTrackerImpl::initGluedDet(TkGluedMeasurementDet& det, const TrackerTopology* trackerTopology) {
