@@ -2,9 +2,10 @@
 #include <cmath>
 #include <iostream>
 #include <fstream>
-#include <vector>
 #include <map>
+#include <mutex>
 #include <string>
+#include <vector>
 
 #include "DataFormats/ForwardDetId/interface/ForwardSubdetector.h"
 #include "DataFormats/ForwardDetId/interface/HFNoseDetId.h"
@@ -65,6 +66,7 @@ private:
   void analyzeHits(const std::string&, const T&);
 
   // ----------member data ---------------------------
+  enum inputType { Sim = 1, Digi = 2, Reco = 3 };
   const std::string nameDetector_, caloHitSource_;
   const edm::InputTag source_;
   const int inpType_;
@@ -75,6 +77,7 @@ private:
   edm::EDGetTokenT<edm::PCaloHitContainer> tok_hit_;
   std::map<int, int> badTypes_, occupancy_;
   std::vector<int> goodChannels_;
+  std::mutex mtx_;
   static const int waferMax = 12;
   static const int layerMax = 28;
 };
@@ -87,9 +90,9 @@ HGCalWaferHitCheck::HGCalWaferHitCheck(const edm::ParameterSet& iConfig, const H
       verbosity_(iConfig.getUntrackedParameter<int>("verbosity", 0)),
       ifNose_(iConfig.getUntrackedParameter<bool>("ifNose", false)),
       tok_hit_(consumes<edm::PCaloHitContainer>(edm::InputTag("g4SimHits", caloHitSource_))) {
-  if (inpType_ == 2) {
+  if (inpType_ == Digi) {
     digiHitSource_ = consumes<HGCalDigiCollection>(source_);
-  } else if (inpType_ > 2) {
+  } else if (inpType_ >= Reco) {
     digiHitSource_ = consumes<HGCRecHitCollection>(source_);
   }
   edm::LogVerbatim("HGCalValidation") << "Validation for input type " << inpType_ << " for " << nameDetector_;
@@ -108,7 +111,7 @@ void HGCalWaferHitCheck::fillDescriptions(edm::ConfigurationDescriptions& descri
 
 void HGCalWaferHitCheck::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
   //Get collection depending on inputType
-  if (inpType_ <= 1) {
+  if (inpType_ <= Sim) {
     edm::Handle<edm::PCaloHitContainer> theCaloHitContainer;
     iEvent.getByToken(tok_hit_, theCaloHitContainer);
     if (theCaloHitContainer.isValid()) {
@@ -118,7 +121,7 @@ void HGCalWaferHitCheck::analyze(const edm::Event& iEvent, const edm::EventSetup
     } else if (verbosity_ > 0) {
       edm::LogVerbatim("HGCalValidation") << "PCaloHitContainer does not exist for " << nameDetector_;
     }
-  } else if (inpType_ == 2) {
+  } else if (inpType_ == Digi) {
     edm::Handle<HGCalDigiCollection> theDigiContainer;
     iEvent.getByToken(digiHitSource_, theDigiContainer);
     if (theDigiContainer.isValid()) {
@@ -213,20 +216,22 @@ void HGCalWaferHitCheck::beginRun(const edm::Run&, const edm::EventSetup& iSetup
 }
 
 void HGCalWaferHitCheck::endStream() {
-  for (auto itr = occupancy_.begin(); itr != occupancy_.end(); ++itr) {
-    if (globalCache()->occupancy_.find(itr->first) == globalCache()->occupancy_.end())
-      globalCache()->occupancy_[itr->first] = itr->second;
+  mtx_.lock();
+  for (auto [id, count] : occupancy_) {
+    if (globalCache()->occupancy_.find(id) == globalCache()->occupancy_.end())
+      globalCache()->occupancy_[id] = count;
     else
-      globalCache()->occupancy_[itr->first] += itr->second;
+      globalCache()->occupancy_[id] += count;
   }
-  for (auto itr = badTypes_.begin(); itr != badTypes_.end(); ++itr) {
-    if (globalCache()->badTypes_.find(itr->first) == globalCache()->badTypes_.end())
-      globalCache()->badTypes_[itr->first] = itr->second;
+  for (auto [id, count] : badTypes_) {
+    if (globalCache()->badTypes_.find(id) == globalCache()->badTypes_.end())
+      globalCache()->badTypes_[id] = count;
     else
-      globalCache()->badTypes_[itr->first] += itr->second;
+      globalCache()->badTypes_[id] += count;
   }
 
   globalCache()->goodChannels_ = goodChannels_;
+  mtx_.unlock();
 }
 
 void HGCalWaferHitCheck::globalEndJob(const HGCalValidSimhitCheck::Counters* count) {
