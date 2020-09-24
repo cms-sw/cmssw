@@ -157,30 +157,32 @@ void Phase2TrackerMonitorDigi::fillITPixelDigiHistos(const edm::Handle<edm::DetS
         local_mes.PositionOfDigisP->Fill(row + 1, col + 1);
       if (local_mes.ChargeOfDigis)
         local_mes.ChargeOfDigis->Fill(adc);
-      if (clsFlag_){
-	if (row_last == -1 || abs(row - row_last) != 1 || col != col_last) {
-	  Ph2DigiCluster dClus;
-	  dClus.position = row + 1;
-	  dClus.column = col;
-	  dClus.width = 1;
-	  dClus.charge = 255;
-	  digiClusters.push_back(dClus);    
-	} else {
-	  int pos = digiClusters.back().position + row + 1;
-	  int width = digiClusters.back().width + 1;
-	  pos /= width;
-	  
-	  digiClusters.back().position = pos;
-	  digiClusters.back().width +=1;
-	} 
-	edm::LogInfo("Phase2TrackerMonitorDigi") << " row " << row << " col " << col << " row_last " << row_last
-						 << " col_last " << col_last << " width " << digiClusters.back().width;
-	row_last = row;
-	col_last = col;
+      if (clsFlag_) {
+        if (row_last == -1 || abs(row - row_last) != 1 || col != col_last) {
+          Ph2DigiCluster dClus;
+          dClus.position = row + 1;
+          dClus.column = col;
+          dClus.width = 1;
+          dClus.charge = 255;
+          digiClusters.push_back(dClus);
+        } else {
+          int pos = digiClusters.back().position + row + 1;
+          int width = digiClusters.back().width + 1;
+          pos /= width;
+
+          digiClusters.back().position = pos;
+          digiClusters.back().width += 1;
+        }
+        edm::LogInfo("Phase2TrackerMonitorDigi") << " row " << row << " col " << col << " row_last " << row_last
+                                                 << " col_last " << col_last << " width " << digiClusters.back().width;
+        row_last = row;
+        col_last = col;
       }
     }
-    if (local_mes.NumberOfDigisPerDet) local_mes.NumberOfDigisPerDet->Fill(nDigi);
-    if (clsFlag_) fillDigiClusters(local_mes, digiClusters);
+    if (local_mes.NumberOfDigisPerDet)
+      local_mes.NumberOfDigisPerDet->Fill(nDigi);
+    if (clsFlag_)
+      fillDigiClusters(local_mes, digiClusters);
     local_mes.nDigiPerLayer += nDigi;
     float occupancy = 1.0;
     if (nRows * nColumns > 0)
@@ -271,31 +273,32 @@ void Phase2TrackerMonitorDigi::fillOTDigiHistos(const edm::Handle<edm::DetSetVec
       if (nColumns <= 2 && local_mes.PositionOfDigisS)
         local_mes.PositionOfDigisS->Fill(row + 1, col + 1);
 
-      if (clsFlag_){
-	if (row_last == -1 || abs(row - row_last) != 1 || col != col_last) {
-	  Ph2DigiCluster dClus;
-	  dClus.position = row + 1;
-	  dClus.column = col;
-	  dClus.width = 1;
-	  dClus.charge = 255;
-	  digiClusters.push_back(dClus);    
-	} else {
-	  int pos = digiClusters.back().position + row + 1;
-	  int width = digiClusters.back().width + 1;
-	  pos /= width;
-	  
-	  digiClusters.back().position = pos;
-	  digiClusters.back().width +=1;
-	} 
-	row_last = row;
-	col_last = col;
-	edm::LogInfo("Phase2TrackerMonitorDigi") << " row " << row << " col " << col << " row_last " << row_last
-						 << " col_last " << col_last << " width " << digiClusters.back().width;
+      if (clsFlag_) {
+        if (row_last == -1 || abs(row - row_last) != 1 || col != col_last) {
+          Ph2DigiCluster dClus;
+          dClus.position = row + 1;
+          dClus.column = col;
+          dClus.width = 1;
+          dClus.charge = 255;
+          digiClusters.push_back(dClus);
+        } else {
+          int pos = digiClusters.back().position + row + 1;
+          int width = digiClusters.back().width + 1;
+          pos /= width;
+
+          digiClusters.back().position = pos;
+          digiClusters.back().width += 1;
+        }
+        row_last = row;
+        col_last = col;
+        edm::LogInfo("Phase2TrackerMonitorDigi") << " row " << row << " col " << col << " row_last " << row_last
+                                                 << " col_last " << col_last << " width " << digiClusters.back().width;
       }
     }
     if (local_mes.NumberOfDigisPerDet)
       local_mes.NumberOfDigisPerDet->Fill(nDigi);
-    if (clsFlag_) fillDigiClusters(local_mes, digiClusters);
+    if (clsFlag_)
+      fillDigiClusters(local_mes, digiClusters);
     local_mes.nDigiPerLayer += nDigi;
     if (nDigi)
       frac_ot /= nDigi;
@@ -451,11 +454,11 @@ void Phase2TrackerMonitorDigi::bookLayerHistos(DQMStore::IBooker& ibooker,
       idisc = layer - side * 100;
       idisc = (idisc < 3) ? 12 : 345;
     }
-    
+
     bool forDisc12UptoRing10 = (idisc == 12 && tTopo->tidRing(det_id) <= 10) ? true : false;
     bool forDisc345UptoRing7 = (idisc == 345 && tTopo->tidRing(det_id) <= 7) ? true : false;
     ibooker.cd();
-    ibooker.setCurrentFolder(top_folder+"/DigiMonitor/"+key);
+    ibooker.setCurrentFolder(top_folder + "/DigiMonitor/" + key);
     edm::LogInfo("Phase2TrackerMonitorDigi") << " Booking Histograms in : " << key;
 
     std::ostringstream HistoName;
@@ -521,20 +524,20 @@ void Phase2TrackerMonitorDigi::bookLayerHistos(DQMStore::IBooker& ibooker,
         local_mes.PositionOfDigisP = nullptr;
 
       if (clsFlag_) {
-	Parameters = config_.getParameter<edm::ParameterSet>("ClusterPositionPH");
-	HistoName.str("");
-	HistoName << "ClusterPositionP";
-	if (Parameters.getParameter<bool>("switch"))
-	  local_mes.ClusterPositionP = ibooker.book2D(HistoName.str(),
-						      HistoName.str(),
-						      Parameters.getParameter<int32_t>("Nxbins"),
-						      Parameters.getParameter<double>("xmin"),
-						      Parameters.getParameter<double>("xmax"),
-						      Parameters.getParameter<int32_t>("Nybins"),
-						      Parameters.getParameter<double>("ymin"),
-						      Parameters.getParameter<double>("ymax"));
-	else
-	  local_mes.ClusterPositionP = nullptr;
+        Parameters = config_.getParameter<edm::ParameterSet>("ClusterPositionPH");
+        HistoName.str("");
+        HistoName << "ClusterPositionP";
+        if (Parameters.getParameter<bool>("switch"))
+          local_mes.ClusterPositionP = ibooker.book2D(HistoName.str(),
+                                                      HistoName.str(),
+                                                      Parameters.getParameter<int32_t>("Nxbins"),
+                                                      Parameters.getParameter<double>("xmin"),
+                                                      Parameters.getParameter<double>("xmax"),
+                                                      Parameters.getParameter<int32_t>("Nybins"),
+                                                      Parameters.getParameter<double>("ymin"),
+                                                      Parameters.getParameter<double>("ymax"));
+        else
+          local_mes.ClusterPositionP = nullptr;
       }
     }
 
@@ -543,16 +546,16 @@ void Phase2TrackerMonitorDigi::bookLayerHistos(DQMStore::IBooker& ibooker,
       HistoName.str("");
       HistoName << "ChargeXYMap";
       if (Parameters.getParameter<bool>("switch"))
-	local_mes.ChargeXYMap = ibooker.book2D(HistoName.str(),
-					       HistoName.str(),
-					       Parameters.getParameter<int32_t>("Nxbins"),
-					       Parameters.getParameter<double>("xmin"),
-					       Parameters.getParameter<double>("xmax"),
-					       Parameters.getParameter<int32_t>("Nybins"),
-					       Parameters.getParameter<double>("ymin"),
-					       Parameters.getParameter<double>("ymax"));
+        local_mes.ChargeXYMap = ibooker.book2D(HistoName.str(),
+                                               HistoName.str(),
+                                               Parameters.getParameter<int32_t>("Nxbins"),
+                                               Parameters.getParameter<double>("xmin"),
+                                               Parameters.getParameter<double>("xmax"),
+                                               Parameters.getParameter<int32_t>("Nybins"),
+                                               Parameters.getParameter<double>("ymin"),
+                                               Parameters.getParameter<double>("ymax"));
       else
-	local_mes.ChargeXYMap = nullptr;
+        local_mes.ChargeXYMap = nullptr;
     }
     Parameters = config_.getParameter<edm::ParameterSet>("TotalNumberOfDigisPerLayerH");
     HistoName.str("");
@@ -583,25 +586,25 @@ void Phase2TrackerMonitorDigi::bookLayerHistos(DQMStore::IBooker& ibooker,
       HistoName.str("");
       HistoName << "NumberOfClustersPerDet";
       if (Parameters.getParameter<bool>("switch"))
-	local_mes.NumberOfClustersPerDet = ibooker.book1D(HistoName.str(),
-							  HistoName.str(),
-							  Parameters.getParameter<int32_t>("Nbins"),
-							  Parameters.getParameter<double>("xmin"),
-							  Parameters.getParameter<double>("xmax"));
+        local_mes.NumberOfClustersPerDet = ibooker.book1D(HistoName.str(),
+                                                          HistoName.str(),
+                                                          Parameters.getParameter<int32_t>("Nbins"),
+                                                          Parameters.getParameter<double>("xmin"),
+                                                          Parameters.getParameter<double>("xmax"));
       else
-	local_mes.NumberOfClustersPerDet = nullptr;
-      
+        local_mes.NumberOfClustersPerDet = nullptr;
+
       Parameters = config_.getParameter<edm::ParameterSet>("ClusterWidthH");
       HistoName.str("");
       HistoName << "ClusterWidth";
       if (Parameters.getParameter<bool>("switch"))
-	local_mes.ClusterWidth = ibooker.book1D(HistoName.str(),
-						HistoName.str(),
-						Parameters.getParameter<int32_t>("Nbins"),
-						Parameters.getParameter<double>("xmin"),
-						Parameters.getParameter<double>("xmax"));
+        local_mes.ClusterWidth = ibooker.book1D(HistoName.str(),
+                                                HistoName.str(),
+                                                Parameters.getParameter<int32_t>("Nbins"),
+                                                Parameters.getParameter<double>("xmin"),
+                                                Parameters.getParameter<double>("xmax"));
       else
-	local_mes.ClusterWidth = nullptr;
+        local_mes.ClusterWidth = nullptr;
     }
     if (!pixelFlag_) {
       Parameters = config_.getParameter<edm::ParameterSet>("DigiOccupancySH");
@@ -649,21 +652,21 @@ void Phase2TrackerMonitorDigi::bookLayerHistos(DQMStore::IBooker& ibooker,
       else
         local_mes.FractionOfOvTBitsVsEta = nullptr;
 
-      if (clsFlag_){
-	Parameters = config_.getParameter<edm::ParameterSet>("ClusterPositionSH");
-	HistoName.str("");
-	HistoName << "ClusterPositionS";
-	if (Parameters.getParameter<bool>("switch"))
-	  local_mes.ClusterPositionS = ibooker.book2D(HistoName.str(),
-						      HistoName.str(),
-						      Parameters.getParameter<int32_t>("Nxbins"),
-						      Parameters.getParameter<double>("xmin"),
-						      Parameters.getParameter<double>("xmax"),
-						      Parameters.getParameter<int32_t>("Nybins"),
-						      Parameters.getParameter<double>("ymin"),
-						      Parameters.getParameter<double>("ymax"));
-	else
-	  local_mes.ClusterPositionS = nullptr;
+      if (clsFlag_) {
+        Parameters = config_.getParameter<edm::ParameterSet>("ClusterPositionSH");
+        HistoName.str("");
+        HistoName << "ClusterPositionS";
+        if (Parameters.getParameter<bool>("switch"))
+          local_mes.ClusterPositionS = ibooker.book2D(HistoName.str(),
+                                                      HistoName.str(),
+                                                      Parameters.getParameter<int32_t>("Nxbins"),
+                                                      Parameters.getParameter<double>("xmin"),
+                                                      Parameters.getParameter<double>("xmax"),
+                                                      Parameters.getParameter<int32_t>("Nybins"),
+                                                      Parameters.getParameter<double>("ymin"),
+                                                      Parameters.getParameter<double>("ymax"));
+        else
+          local_mes.ClusterPositionS = nullptr;
       }
       Parameters = config_.getParameter<edm::ParameterSet>("PositionOfDigisSH");
       HistoName.str("");
@@ -691,25 +694,25 @@ void Phase2TrackerMonitorDigi::bookLayerHistos(DQMStore::IBooker& ibooker,
                                                  Parameters.getParameter<double>("xmax"));
       else
         local_mes.ChargeOfDigis = nullptr;
-      
-      if (clsFlag_){
-	edm::ParameterSet WidthParameters = config_.getParameter<edm::ParameterSet>("ClusterWidthH");
-	HistoName.str("");
-	HistoName << "ChargeOfDigisVsWidth";
-	if (Parameters.getParameter<bool>("switch") && WidthParameters.getParameter<bool>("switch"))
-	  local_mes.ChargeOfDigisVsWidth = ibooker.book2D(HistoName.str(),
-							  HistoName.str(),
-							  Parameters.getParameter<int32_t>("Nbins"),
-							  Parameters.getParameter<double>("xmin"),
-							  Parameters.getParameter<double>("xmax"),
-							  WidthParameters.getParameter<int32_t>("Nbins"),
-							  WidthParameters.getParameter<double>("xmin"),
-							  WidthParameters.getParameter<double>("xmax"));
-	else
-	  local_mes.ChargeOfDigisVsWidth = nullptr;
+
+      if (clsFlag_) {
+        edm::ParameterSet WidthParameters = config_.getParameter<edm::ParameterSet>("ClusterWidthH");
+        HistoName.str("");
+        HistoName << "ChargeOfDigisVsWidth";
+        if (Parameters.getParameter<bool>("switch") && WidthParameters.getParameter<bool>("switch"))
+          local_mes.ChargeOfDigisVsWidth = ibooker.book2D(HistoName.str(),
+                                                          HistoName.str(),
+                                                          Parameters.getParameter<int32_t>("Nbins"),
+                                                          Parameters.getParameter<double>("xmin"),
+                                                          Parameters.getParameter<double>("xmax"),
+                                                          WidthParameters.getParameter<int32_t>("Nbins"),
+                                                          WidthParameters.getParameter<double>("xmin"),
+                                                          WidthParameters.getParameter<double>("xmax"));
+        else
+          local_mes.ChargeOfDigisVsWidth = nullptr;
       }
     }
-    
+
     layerMEs.insert(std::make_pair(key, local_mes));
   }
 }
@@ -717,14 +720,13 @@ std::string Phase2TrackerMonitorDigi::getHistoId(uint32_t det_id, const TrackerT
   int layer;
   std::string Disc;
   std::ostringstream fname1;
-  if(flag){
+  if (flag) {
     layer = tTopo->getITPixelLayerNumber(det_id);
     //std::cout<<"PxLayer: "<<layer<<"\n";
-  }
-  else {
+  } else {
     layer = tTopo->getOTLayerNumber(det_id);
   }
-  if(layer < 0)
+  if (layer < 0)
     return "";
 
   if (layer < 100) {
@@ -735,8 +737,10 @@ std::string Phase2TrackerMonitorDigi::getHistoId(uint32_t det_id, const TrackerT
     int side = layer / 100;
     fname1 << "EndCap_Side" << side << "/";
     int disc = layer - side * 100;
-    if (flag) Disc = (disc < 9) ? "FPIX_1" : "FPIX_2";
-    else Disc = (disc < 3) ? "TEDD_1" : "TEDD_2";
+    if (flag)
+      Disc = (disc < 9) ? "FPIX_1" : "FPIX_2";
+    else
+      Disc = (disc < 3) ? "TEDD_1" : "TEDD_2";
     fname1 << Disc << "/";
     int ring = tTopo->tidRing(det_id);
     fname1 << "Ring" << ring;
@@ -761,6 +765,3 @@ void Phase2TrackerMonitorDigi::fillDigiClusters(DigiMEs& mes, std::vector<Ph2Dig
 }
 //define this as a plug-in
 DEFINE_FWK_MODULE(Phase2TrackerMonitorDigi);
-
-
-

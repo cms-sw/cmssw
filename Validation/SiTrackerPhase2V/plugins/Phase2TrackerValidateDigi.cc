@@ -658,7 +658,7 @@ void Phase2TrackerValidateDigi::bookLayerHistos(DQMStore::IBooker& ibooker,
                                                 const TrackerTopology* tTopo,
                                                 bool flag) {
   int layer, side;
-  int idisc {0};
+  int idisc{0};
   if (flag)
     layer = tTopo->getITPixelLayerNumber(det_id);
   else
@@ -676,20 +676,19 @@ void Phase2TrackerValidateDigi::bookLayerHistos(DQMStore::IBooker& ibooker,
     std::ostringstream fname1;
     //    std::string key = getHistoId(det_id, tTopo, flag);
 
-
     if (layer > 100) {
       side = layer / 100;
       idisc = layer - side * 100;
       idisc = (idisc < 3) ? 12 : 345;
     }
-    
+
     bool forDisc12UptoRing10 = (idisc == 12 && tTopo->tidRing(det_id) <= 10) ? true : false;
     bool forDisc345UptoRing7 = (idisc == 345 && tTopo->tidRing(det_id) <= 7) ? true : false;
     bool forS = (flag) ? false : true;
     bool forP = (flag || (layer < 4 || (layer > 6 && (forDisc12UptoRing10 || forDisc345UptoRing7)))) ? true : false;
 
     ibooker.cd();
-    ibooker.setCurrentFolder(top_folder+"/DigiMonitor/"+key);
+    ibooker.setCurrentFolder(top_folder + "/DigiMonitor/" + key);
     edm::LogInfo("Phase2TrackerValidateDigi") << " Booking Histograms in : " << key;
 
     //    ibooker.setCurrentFolder(folder_name.str());
@@ -828,46 +827,45 @@ void Phase2TrackerValidateDigi::bookLayerHistos(DQMStore::IBooker& ibooker,
       HistoName.str("");
       HistoName << "MatchedSimHitElossS";
       if (Parameters.getParameter<bool>("switch"))
-	local_mes.MatchedSimHitElossS = ibooker.book1D(HistoName.str(),
-						       HistoName.str(),
-						       Parameters.getParameter<int32_t>("Nbins"),
-						       Parameters.getParameter<double>("xmin"),
-						       Parameters.getParameter<double>("xmax"));
+        local_mes.MatchedSimHitElossS = ibooker.book1D(HistoName.str(),
+                                                       HistoName.str(),
+                                                       Parameters.getParameter<int32_t>("Nbins"),
+                                                       Parameters.getParameter<double>("xmin"),
+                                                       Parameters.getParameter<double>("xmax"));
       else
-	local_mes.MatchedSimHitElossS = nullptr;
+        local_mes.MatchedSimHitElossS = nullptr;
       HistoName.str("");
       HistoName << "MissedDigiSimHitElossS";
       if (Parameters.getParameter<bool>("switch"))
-	local_mes.MissedDigiSimHitElossS = ibooker.book1D(HistoName.str(),
-							  HistoName.str(),
-							  Parameters.getParameter<int32_t>("Nbins"),
-							  Parameters.getParameter<double>("xmin"),
-							  Parameters.getParameter<double>("xmax"));
+        local_mes.MissedDigiSimHitElossS = ibooker.book1D(HistoName.str(),
+                                                          HistoName.str(),
+                                                          Parameters.getParameter<int32_t>("Nbins"),
+                                                          Parameters.getParameter<double>("xmin"),
+                                                          Parameters.getParameter<double>("xmax"));
       else
-	local_mes.MissedDigiSimHitElossS = nullptr;
+        local_mes.MissedDigiSimHitElossS = nullptr;
     }
     if (forP) {
       HistoName.str("");
       HistoName << "MatchedSimHitElossP";
       if (Parameters.getParameter<bool>("switch"))
-	local_mes.MatchedSimHitElossP = ibooker.book1D(HistoName.str(),
-						       HistoName.str(),
-						       Parameters.getParameter<int32_t>("Nbins"),
-						       Parameters.getParameter<double>("xmin"),
-						       Parameters.getParameter<double>("xmax"));
+        local_mes.MatchedSimHitElossP = ibooker.book1D(HistoName.str(),
+                                                       HistoName.str(),
+                                                       Parameters.getParameter<int32_t>("Nbins"),
+                                                       Parameters.getParameter<double>("xmin"),
+                                                       Parameters.getParameter<double>("xmax"));
       else
-	local_mes.MatchedSimHitElossP = nullptr;
+        local_mes.MatchedSimHitElossP = nullptr;
       HistoName.str("");
       HistoName << "MissedDigiSimHitElossP";
       if (Parameters.getParameter<bool>("switch"))
-	local_mes.MissedDigiSimHitElossP = ibooker.book1D(HistoName.str(),
-							  HistoName.str(),
-							  Parameters.getParameter<int32_t>("Nbins"),
-							  Parameters.getParameter<double>("xmin"),
-							  Parameters.getParameter<double>("xmax"));
+        local_mes.MissedDigiSimHitElossP = ibooker.book1D(HistoName.str(),
+                                                          HistoName.str(),
+                                                          Parameters.getParameter<int32_t>("Nbins"),
+                                                          Parameters.getParameter<double>("xmin"),
+                                                          Parameters.getParameter<double>("xmax"));
       else
-	local_mes.MissedDigiSimHitElossP = nullptr;
-
+        local_mes.MissedDigiSimHitElossP = nullptr;
     }
     Parameters = config_.getParameter<edm::ParameterSet>("SimHitDxH");
     HistoName.str("");
@@ -1090,13 +1088,12 @@ std::string Phase2TrackerValidateDigi::getHistoId(uint32_t det_id, const Tracker
   int layer;
   std::string Disc;
   std::ostringstream fname1;
-  if(flag){
+  if (flag) {
     layer = tTopo->getITPixelLayerNumber(det_id);
-  }
-  else {
+  } else {
     layer = tTopo->getOTLayerNumber(det_id);
   }
-  if(layer < 0)
+  if (layer < 0)
     return "";
 
   if (layer < 100) {
@@ -1107,8 +1104,10 @@ std::string Phase2TrackerValidateDigi::getHistoId(uint32_t det_id, const Tracker
     int side = layer / 100;
     fname1 << "EndCap_Side" << side << "/";
     int disc = layer - side * 100;
-    if (flag) Disc = (disc < 9) ? "FPIX_1" : "FPIX_2";
-    else Disc = (disc < 3) ? "TEDD_1" : "TEDD_2";
+    if (flag)
+      Disc = (disc < 9) ? "FPIX_1" : "FPIX_2";
+    else
+      Disc = (disc < 3) ? "TEDD_1" : "TEDD_2";
     fname1 << Disc << "/";
     int ring = tTopo->tidRing(det_id);
     fname1 << "Ring" << ring;

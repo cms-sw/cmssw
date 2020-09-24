@@ -32,7 +32,7 @@ public:
   void bookHistograms(DQMStore::IBooker& ibooker, edm::Run const& iRun, edm::EventSetup const& iSetup) override;
   void analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) override;
   std::string getHistoId(uint32_t det_id, const TrackerTopology* tTopo, bool flag);
- 
+
   struct DigiMEs {
     MonitorElement* SimTrackPt;
     MonitorElement* SimTrackEta;
