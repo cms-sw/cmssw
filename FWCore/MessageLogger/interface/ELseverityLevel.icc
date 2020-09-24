@@ -45,22 +45,22 @@ namespace edm {
   }
 
   template <ELslGen ELgen>
-  inline const ELstring ELslProxy<ELgen>::getSymbol() const {
+  inline const std::string& ELslProxy<ELgen>::getSymbol() const {
     return ELgen().getSymbol();
   }
 
   template <ELslGen ELgen>
-  inline const ELstring ELslProxy<ELgen>::getName() const {
+  inline const std::string& ELslProxy<ELgen>::getName() const {
     return ELgen().getName();
   }
 
   template <ELslGen ELgen>
-  inline const ELstring ELslProxy<ELgen>::getInputStr() const {
+  inline const std::string& ELslProxy<ELgen>::getInputStr() const {
     return ELgen().getInputStr();
   }
 
   template <ELslGen ELgen>
-  inline const ELstring ELslProxy<ELgen>::getVarName() const {
+  inline const std::string& ELslProxy<ELgen>::getVarName() const {
     return ELgen().getVarName();
   }
 

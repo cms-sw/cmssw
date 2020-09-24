@@ -116,11 +116,11 @@ namespace edm {
 
   StatsCount::StatsCount() : n(0), aggregateN(0), ignoredFlag(false), context1(""), context2(""), contextLast("") {}
 
-  void StatsCount::add(const ELstring& context, bool reactedTo) {
+  void StatsCount::add(std::string_view context, bool reactedTo) {
     ++n;
     ++aggregateN;
 
-    ((1 == n) ? context1 : (2 == n) ? context2 : contextLast) = ELstring(context, 0, 16);
+    ((1 == n) ? context1 : (2 == n) ? context2 : contextLast) = std::string(context, 0, 16);
 
     if (!reactedTo)
       ignoredFlag = true;
