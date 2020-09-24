@@ -54,7 +54,7 @@ def applySubstructure( process, postfix="" ) :
                                                dropSpecific = cms.bool(True),  # Save space
                                                ), process, task )
 
-    (pp_on_AA_2018 | pp_on_PbPb_run3).toModify( getattr(process,'slimmedGenJetsAK8SoftDropSubJets'), cut = 'pt>9999', nLoose = 0)
+    (pp_on_AA_2018 | pp_on_PbPb_run3).toModify( getattr(process,'slimmedGenJetsAK8SoftDropSubJets'), cut = 'pt<0', nLoose = 0)
 
     ## PATify puppi soft drop fat jets
     addJetCollection(

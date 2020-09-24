@@ -478,7 +478,7 @@ def miniAOD_customizeCommon(process):
     _run2_miniAOD_ANY.toModify(process.patJets, addTagInfos = False )
     
     _hiGeneral.toModify(process.patJets, addTagInfos = True )
-    _hiGeneral.toModify(process.patJets, tagInfoSources = cms.VInputTag(["impactParameterTagInfosakCs4PF","secondaryVertexTagInfosakCs4PF"]) )
+    _hiGeneral.toModify(process.patJets, tagInfoSources = cms.VInputTag(["impactParameterTagInfos","secondaryVertexTagInfos"]) )
 
     ## puppi met
     def _add_metPuppi(process):
