@@ -300,7 +300,7 @@ void HGCalGeomParameters::loadGeometryHexagon(const cms::DDCompactView* cpv,
           rin = 0.5 * HGCalParameters::k_ScaleFromDD4Hep * (pars[5] + pars[8]);
           rout = 0.5 * HGCalParameters::k_ScaleFromDD4Hep * (pars[6] + pars[9]);
         } else if (dd4hep::isA<dd4hep::Tube>(fv.solid())) {
-	  dd4hep::Tube tubeSeg(fv.solid());
+          dd4hep::Tube tubeSeg(fv.solid());
           rin = HGCalParameters::k_ScaleFromDD4Hep * tubeSeg.rMin();
           rout = HGCalParameters::k_ScaleFromDD4Hep * tubeSeg.rMax();
         }
