@@ -92,8 +92,7 @@ public:
   edm::soa::TrackTableExtrapolation gsf_table_ecalshowermax_;
   edm::soa::TrackTableExtrapolation gsf_table_hcalent_;
   edm::soa::TrackTableExtrapolation gsf_table_hcalex_;
-  //gsf_table_ho won't be used, but is needed to pass the correct number of arguments to LinkByRecHit::testTrackAndClusterByRecHit
-  edm::soa::TrackTableExtrapolation gsf_table_ho_;
+
   std::vector<size_t> gsf_to_element_;
   std::vector<size_t> element_to_gsf_;
   std::vector<std::vector<size_t>> gsf_to_convbrem_;
@@ -135,7 +134,6 @@ public:
     gsf_table_ecalshowermax_.resize(0);
     gsf_table_hcalent_.resize(0);
     gsf_table_hcalex_.resize(0);
-    gsf_table_ho_.resize(0);
     gsf_to_element_.clear();
     element_to_gsf_.clear();
     gsf_to_convbrem_.resize(0);

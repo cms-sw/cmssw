@@ -60,7 +60,7 @@ double GSFAndHCALLinker::testLink(size_t ielem1,
                                                      tables.gsf_table_ecalshowermax_,
                                                      tables.gsf_table_hcalent_,
                                                      tables.gsf_table_hcalex_,
-                                                     tables.gsf_table_ho_,
+                                                     tables.track_table_ho_,  // NOT USED
                                                      false);
   }
 
