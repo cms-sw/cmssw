@@ -42,6 +42,8 @@ namespace HGCalValidSimhitCheck {
     mutable std::map<int, int> badTypes_, occupancy_;
     mutable std::vector<int> goodChannels_;
   };
+
+  static std::mutex mtx_;
 }  // namespace HGCalValidSimhitCheck
 
 class HGCalWaferHitCheck : public edm::stream::EDAnalyzer<edm::GlobalCache<HGCalValidSimhitCheck::Counters> > {
@@ -77,7 +79,6 @@ private:
   edm::EDGetTokenT<edm::PCaloHitContainer> tok_hit_;
   std::map<int, int> badTypes_, occupancy_;
   std::vector<int> goodChannels_;
-  std::mutex mtx_;
   static const int waferMax = 12;
   static const int layerMax = 28;
 };
@@ -216,7 +217,7 @@ void HGCalWaferHitCheck::beginRun(const edm::Run&, const edm::EventSetup& iSetup
 }
 
 void HGCalWaferHitCheck::endStream() {
-  mtx_.lock();
+  HGCalValidSimhitCheck::mtx_.lock();
   for (auto [id, count] : occupancy_) {
     if (globalCache()->occupancy_.find(id) == globalCache()->occupancy_.end())
       globalCache()->occupancy_[id] = count;
@@ -231,7 +232,7 @@ void HGCalWaferHitCheck::endStream() {
   }
 
   globalCache()->goodChannels_ = goodChannels_;
-  mtx_.unlock();
+  HGCalValidSimhitCheck::mtx_.unlock();
 }
 
 void HGCalWaferHitCheck::globalEndJob(const HGCalValidSimhitCheck::Counters* count) {
