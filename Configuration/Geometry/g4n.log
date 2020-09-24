@@ -1,7 +1,0 @@
------ Begin Fatal Exception 24-Sep-2020 19:32:24 CEST-----------------------
-An exception of category 'StdException' occurred while
-   [0] Processing the python configuration file named ../src/SimG4Core/PrintGeomInfo/test/python/g4OverlapCheck_cfg.py
-Exception Message:
-A std::exception was thrown.
-File "../src/SimG4Core/PrintGeomInfo/test/python/g4OverlapCheck_cfg.py" could not be opened!
------ End Fatal Exception -------------------------------------------------
