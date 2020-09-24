@@ -654,18 +654,6 @@ private:
   edm::ESGetToken<edm::eventsetup::test::DummyData, DummyRecord> token_;
 };
 
-class SetConsumesProducer : public ESProducer {
-public:
-  SetConsumesProducer() { setWhatProduced(this, "setConsumes").setConsumes(token_); }
-  std::unique_ptr<edm::eventsetup::test::DummyData> produce(const DummyRecord& iRecord) {
-    auto const& data = iRecord.get(token_);
-    return std::make_unique<edm::eventsetup::test::DummyData>(data);
-  }
-
-private:
-  edm::ESGetToken<edm::eventsetup::test::DummyData, DummyRecord> token_;
-};
-
 //This is used only to test compilation
 class [[maybe_unused]] ESConsumesCollectorProducer : public ESProducer {
 public:
@@ -788,17 +776,6 @@ void testEventsetup::getDataWithESGetTokenTest() {
       provider.add(dummyProv);
     }
     {
-      edm::eventsetup::ComponentDescription description("SetConsumesProducer", "setConsumes", false);
-      edm::ParameterSet ps;
-      ps.addParameter<std::string>("name", "setConsumes");
-      ps.registerIt();
-      description.pid_ = ps.id();
-      auto dummyProv = std::make_shared<SetConsumesProducer>();
-      dummyProv->setDescription(description);
-      dummyProv->setAppendToDataLabel(ps);
-      provider.add(dummyProv);
-    }
-    {
       edm::eventsetup::ComponentDescription description("SetMayConsumeProducer", "setMayConsumeSuceed", false);
       edm::ParameterSet ps;
       ps.addParameter<std::string>("name", "setMayConsumeSuceed");
@@ -890,17 +867,6 @@ void testEventsetup::getDataWithESGetTokenTest() {
     }
     {
       DummyDataConsumer consumer{edm::ESInputTag("", "consumesFrom")};
-      consumer.updateLookup(provider.recordsToProxyIndices());
-      consumer.prefetch(provider.eventSetupImpl());
-      EventSetup eventSetup{provider.eventSetupImpl(),
-                            static_cast<unsigned int>(edm::Transition::Event),
-                            consumer.esGetTokenIndices(edm::Transition::Event),
-                            true};
-      const DummyData& data = eventSetup.getData(consumer.m_token);
-      CPPUNIT_ASSERT(kBad.value_ == data.value_);
-    }
-    {
-      DummyDataConsumer consumer{edm::ESInputTag("", "setConsumes")};
       consumer.updateLookup(provider.recordsToProxyIndices());
       consumer.prefetch(provider.eventSetupImpl());
       EventSetup eventSetup{provider.eventSetupImpl(),
