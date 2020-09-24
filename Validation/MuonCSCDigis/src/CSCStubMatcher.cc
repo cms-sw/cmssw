@@ -22,7 +22,7 @@ CSCStubMatcher::CSCStubMatcher(const edm::ParameterSet& pSet, edm::ConsumesColle
   maxBXLCT_ = cscLCT.getParameter<int>("maxBX");
   verboseLCT_ = cscLCT.getParameter<int>("verbose");
   minNHitsChamberLCT_ = cscLCT.getParameter<int>("minNHitsChamber");
-  addGhostLCTs_ = cscLCT.getParameter<bool>("addGhostLCTs");
+  addGhostLCTs_ = cscLCT.getParameter<bool>("addGhosts");
 
   const auto& cscMPLCT = pSet.getParameter<edm::ParameterSet>("cscMPLCT");
   minBXMPLCT_ = cscMPLCT.getParameter<int>("minBX");
