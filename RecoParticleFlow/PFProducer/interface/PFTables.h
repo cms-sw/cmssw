@@ -101,8 +101,6 @@ public:
   edm::soa::BremTable brem_table_;
   edm::soa::TrackTableExtrapolation brem_table_ecalshowermax_;
   edm::soa::TrackTableExtrapolation brem_table_hcalent_;
-  edm::soa::TrackTableExtrapolation brem_table_hcalex_;
-  edm::soa::TrackTableExtrapolation brem_table_ho_;
 
   PFClusterTables<edm::soa::ClusterTable, edm::soa::RecHitTable> clusters_ps1_;
   PFClusterTables<edm::soa::ClusterTable, edm::soa::RecHitTable> clusters_ps2_;
@@ -141,9 +139,6 @@ public:
     element_to_brem_.clear();
     brem_table_.resize(0);
     brem_table_ecalshowermax_.resize(0);
-    brem_table_hcalent_.resize(0);
-    brem_table_hcalex_.resize(0);
-    brem_table_ho_.resize(0);
 
     clusters_ps1_.clear();
     clusters_ps2_.clear();

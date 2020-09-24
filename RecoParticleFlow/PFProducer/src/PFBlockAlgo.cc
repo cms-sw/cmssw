@@ -321,6 +321,88 @@ const ElementListConst makeConstElements(const ElementList& elements) {
   return elements_const;
 }
 
+//In the future, the tables can be read from the event when they are prepared by earlier reconstruction modules
+void makeAllTables(const PFBlockAlgo::ElementRanges ranges,
+                   const ElementList& elements,
+                   PFTables& tables,
+                   double cutOffFrac) {
+  //prepare track tables
+  const auto& range_track = ranges.at(reco::PFBlockElement::TRACK);
+  if (not(range_track.first == 0 && range_track.second == 0)) {
+    LogDebug("PFBlockAlgo") << "TRACK tables" << range_track.first << " " << range_track.second;
+    makeTrackTables(range_track.first, range_track.second, elements, tables);
+  }
+
+  //prepare GSF tables
+  const auto& range_gsf = ranges.at(reco::PFBlockElement::GSF);
+  if (not(range_gsf.first == 0 && range_gsf.second == 0)) {
+    LogDebug("PFBlockAlgo") << "GSF tables" << range_gsf.first << " " << range_gsf.second;
+    makeGSFTables(range_gsf.first, range_gsf.second, elements, tables);
+  }
+
+  //prepare BREM tables
+  const auto& range_brem = ranges.at(reco::PFBlockElement::BREM);
+  if (not(range_brem.first == 0 && range_brem.second == 0)) {
+    LogDebug("PFBlockAlgo") << "BREM tables" << range_brem.first << " " << range_brem.second;
+    makeBREMTables(range_brem.first, range_brem.second, elements, tables);
+  }
+
+  //prepare calo cluster tables
+  const auto& range_ecal = ranges.at(reco::PFBlockElement::ECAL);
+  if (not(range_ecal.first == 0 && range_ecal.second == 0)) {
+    LogDebug("PFBlockAlgo") << "ECAL tables" << range_ecal.first << " " << range_ecal.second;
+    tables.clusters_ecal_ =
+        makeClusterTables<reco::PFBlockElementCluster>(range_ecal.first, range_ecal.second, elements, cutOffFrac);
+  }
+
+  const auto& range_hcal = ranges.at(reco::PFBlockElement::HCAL);
+  if (not(range_hcal.first == 0 && range_hcal.second == 0)) {
+    LogDebug("PFBlockAlgo") << "HCAL tables" << range_hcal.first << " " << range_hcal.second;
+    tables.clusters_hcal_ =
+        makeClusterTables<reco::PFBlockElementCluster>(range_hcal.first, range_hcal.second, elements, cutOffFrac);
+  }
+
+  const auto& range_hfem = ranges.at(reco::PFBlockElement::HFEM);
+  if (not(range_hfem.first == 0 && range_hfem.second == 0)) {
+    LogDebug("PFBlockAlgo") << "HFEM tables" << range_hfem.first << " " << range_hfem.second;
+    tables.clusters_hfem_ =
+        makeClusterTables<reco::PFBlockElementCluster>(range_hfem.first, range_hfem.second, elements, cutOffFrac);
+  }
+
+  const auto& range_hfhad = ranges.at(reco::PFBlockElement::HFHAD);
+  if (not(range_hfhad.first == 0 && range_hfhad.second == 0)) {
+    LogDebug("PFBlockAlgo") << "HFHAD tables" << range_hfhad.first << " " << range_hfhad.second;
+    tables.clusters_hfhad_ =
+        makeClusterTables<reco::PFBlockElementCluster>(range_hfhad.first, range_hfhad.second, elements, cutOffFrac);
+  }
+
+  const auto& range_ps1 = ranges.at(reco::PFBlockElement::PS1);
+  if (not(range_ps1.first == 0 && range_ps1.second == 0)) {
+    LogDebug("PFBlockAlgo") << "PS1 tables" << range_ps1.first << " " << range_ps1.second;
+    tables.clusters_ps1_ =
+        makeClusterTables<reco::PFBlockElementCluster>(range_ps1.first, range_ps1.second, elements, cutOffFrac);
+  }
+
+  const auto& range_ps2 = ranges.at(reco::PFBlockElement::PS2);
+  if (not(range_ps2.first == 0 && range_ps2.second == 0)) {
+    LogDebug("PFBlockAlgo") << "PS2 tables" << range_ps2.first << " " << range_ps2.second;
+    tables.clusters_ps2_ =
+        makeClusterTables<reco::PFBlockElementCluster>(range_ps2.first, range_ps2.second, elements, cutOffFrac);
+  }
+
+  const auto& range_ho = ranges.at(reco::PFBlockElement::HO);
+  if (not(range_ho.first == 0 && range_ho.second == 0)) {
+    LogDebug("PFBlockAlgo") << "HO tables" << range_ho.first << " " << range_ho.second;
+    tables.clusters_ho_ =
+        makeClusterTables<reco::PFBlockElementCluster>(range_ho.first, range_ho.second, elements, cutOffFrac);
+  }
+
+  const auto& range_sc = ranges.at(reco::PFBlockElement::SC);
+  if (not(range_sc.first == 0 && range_sc.second == 0)) {
+    LogDebug("PFBlockAlgo") << "SC tables" << range_sc.first << " " << range_sc.second;
+    tables.clusters_sc_ = makeSuperClusterTables(range_sc.first, range_sc.second, elements, cutOffFrac);
+  }
+}
 PFBlockAlgo::PFBlockAlgo()
     : debug_(false),
       elementTypes_({INIT_ENTRY(PFBlockElement::TRACK),
@@ -630,82 +712,7 @@ void PFBlockAlgo::buildElements(const edm::Event& evt) {
     LogDebug("PFBlockAlgo") << "elem i=" << i << " type=" << the_type;
   }
 
-  //prepare track tables
-  const auto& range_track = ranges_[reco::PFBlockElement::TRACK];
-  if (not(range_track.first == 0 && range_track.second == 0)) {
-    LogDebug("PFBlockAlgo") << "TRACK tables" << range_track.first << " " << range_track.second;
-    makeTrackTables(range_track.first, range_track.second, elements_, tables_);
-  }
-
-  //prepare GSF tables (to be refactored)
-  const auto& range_gsf = ranges_[reco::PFBlockElement::GSF];
-  if (not(range_gsf.first == 0 && range_gsf.second == 0)) {
-    LogDebug("PFBlockAlgo") << "GSF tables" << range_gsf.first << " " << range_gsf.second;
-    makeGSFTables(range_gsf.first, range_gsf.second, elements_, tables_);
-  }
-
-  //prepare BREM tables (to be refactored)
-  const auto& range_brem = ranges_[reco::PFBlockElement::BREM];
-  if (not(range_brem.first == 0 && range_brem.second == 0)) {
-    LogDebug("PFBlockAlgo") << "BREM tables" << range_brem.first << " " << range_brem.second;
-    makeBREMTables(range_brem.first, range_brem.second, elements_, tables_);
-  }
-
-  //prepare calo cluster tables
-  const auto& range_ecal = ranges_[reco::PFBlockElement::ECAL];
-  if (not(range_ecal.first == 0 && range_ecal.second == 0)) {
-    LogDebug("PFBlockAlgo") << "ECAL tables" << range_ecal.first << " " << range_ecal.second;
-    tables_.clusters_ecal_ =
-        makeClusterTables<reco::PFBlockElementCluster>(range_ecal.first, range_ecal.second, elements_, cutOffFrac_);
-  }
-
-  const auto& range_hcal = ranges_[reco::PFBlockElement::HCAL];
-  if (not(range_hcal.first == 0 && range_hcal.second == 0)) {
-    LogDebug("PFBlockAlgo") << "HCAL tables" << range_hcal.first << " " << range_hcal.second;
-    tables_.clusters_hcal_ =
-        makeClusterTables<reco::PFBlockElementCluster>(range_hcal.first, range_hcal.second, elements_, cutOffFrac_);
-  }
-
-  const auto& range_hfem = ranges_[reco::PFBlockElement::HFEM];
-  if (not(range_hfem.first == 0 && range_hfem.second == 0)) {
-    LogDebug("PFBlockAlgo") << "HFEM tables" << range_hfem.first << " " << range_hfem.second;
-    tables_.clusters_hfem_ =
-        makeClusterTables<reco::PFBlockElementCluster>(range_hfem.first, range_hfem.second, elements_, cutOffFrac_);
-  }
-
-  const auto& range_hfhad = ranges_[reco::PFBlockElement::HFHAD];
-  if (not(range_hfhad.first == 0 && range_hfhad.second == 0)) {
-    LogDebug("PFBlockAlgo") << "HFHAD tables" << range_hfhad.first << " " << range_hfhad.second;
-    tables_.clusters_hfhad_ =
-        makeClusterTables<reco::PFBlockElementCluster>(range_hfhad.first, range_hfhad.second, elements_, cutOffFrac_);
-  }
-
-  const auto& range_ps1 = ranges_[reco::PFBlockElement::PS1];
-  if (not(range_ps1.first == 0 && range_ps1.second == 0)) {
-    LogDebug("PFBlockAlgo") << "PS1 tables" << range_ps1.first << " " << range_ps1.second;
-    tables_.clusters_ps1_ =
-        makeClusterTables<reco::PFBlockElementCluster>(range_ps1.first, range_ps1.second, elements_, cutOffFrac_);
-  }
-
-  const auto& range_ps2 = ranges_[reco::PFBlockElement::PS2];
-  if (not(range_ps2.first == 0 && range_ps2.second == 0)) {
-    LogDebug("PFBlockAlgo") << "PS2 tables" << range_ps2.first << " " << range_ps2.second;
-    tables_.clusters_ps2_ =
-        makeClusterTables<reco::PFBlockElementCluster>(range_ps2.first, range_ps2.second, elements_, cutOffFrac_);
-  }
-
-  const auto& range_ho = ranges_[reco::PFBlockElement::HO];
-  if (not(range_ho.first == 0 && range_ho.second == 0)) {
-    LogDebug("PFBlockAlgo") << "HO tables" << range_ho.first << " " << range_ho.second;
-    tables_.clusters_ho_ =
-        makeClusterTables<reco::PFBlockElementCluster>(range_ho.first, range_ho.second, elements_, cutOffFrac_);
-  }
-
-  const auto& range_sc = ranges_[reco::PFBlockElement::SC];
-  if (not(range_sc.first == 0 && range_sc.second == 0)) {
-    LogDebug("PFBlockAlgo") << "SC tables" << range_sc.first << " " << range_sc.second;
-    tables_.clusters_sc_ = makeSuperClusterTables(range_sc.first, range_sc.second, elements_, cutOffFrac_);
-  }
+  makeAllTables(ranges_, elements_, tables_, cutOffFrac_);
 }
 
 std::ostream& operator<<(std::ostream& out, const PFBlockAlgo& a) {
