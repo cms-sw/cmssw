@@ -162,10 +162,10 @@ def setupHeavyIonGenJets(process, tag, radius, task):
         patJetFlavourAssociation.clone(
             jets = tag + "Jets",
             rParam = radius / 10,
-            bHadrons = "patJetPartons" + tag + ":bHadrons",
-            cHadrons = "patJetPartons" + tag + ":cHadrons",
-            leptons = "patJetPartons" + tag + ":leptons",
-            partons = "patJetPartons" + tag + ":physicsPartons",
+            bHadrons = "patJetPartons:bHadrons",
+            cHadrons = "patJetPartons:cHadrons",
+            leptons = "patJetPartons:leptons",
+            partons = "patJetPartons:physicsPartons",
             ),
 
         'patJetPartonAssociationLegacy':
@@ -176,12 +176,12 @@ def setupHeavyIonGenJets(process, tag, radius, task):
 
         'patJetFlavourAssociationLegacy':
         patJetFlavourAssociationLegacy.clone(
-            srcByReference = "patJetPartonAssociationLegacy" + tag,
+            srcByReference = "patJetPartonAssociationLegacy",
             ),
         }
 
     for label, module in six.iteritems(modules):
-        addToProcessAndTask(label + tag, module, process, task)
+        addToProcessAndTask(label, module, process, task)
 
 def removeL1FastJetJECs(process):
     for label in process.producerNames().split():
