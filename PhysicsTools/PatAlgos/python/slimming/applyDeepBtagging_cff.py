@@ -88,4 +88,7 @@ def applyDeepBtagging( process, postfix="" ) :
     # delete module not used anymore (slimmedJetsAK8 substitutes)
     delattr(process, 'selectedUpdatedPatJetsSlimmedAK8DeepTags'+postfix)
 
-
+    #undo updating of selected pat jets for heavy ions
+    from Configuration.Eras.Modifier_pp_on_AA_2018_cff import pp_on_AA_2018                                                                  
+    from Configuration.Eras.Modifier_pp_on_PbPb_run3_cff import pp_on_PbPb_run3 
+    if hasattr(process,'slimmedJets'): (pp_on_AA_2018 | pp_on_PbPb_run3).toModify(process.slimmedJets, src = 'selectedPatJets')

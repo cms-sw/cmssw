@@ -31,78 +31,78 @@ def setupHeavyIonJets(process, tag, radius, task):
 
         'impactParameterTagInfos':
         impactParameterTagInfos.clone(
-            jetTracks = "jetTracksAssociatorAtVertex" + tag,
+            jetTracks = "jetTracksAssociatorAtVertex",
             ),
 
         'trackCountingHighEffBJetTags':
         trackCountingHighEffBJetTags.clone(
-            tagInfos = ["impactParameterTagInfos" + tag],
+            tagInfos = ["impactParameterTagInfos"],
             ),
 
         'trackCountingHighPurBJetTags':
         trackCountingHighPurBJetTags.clone(
-            tagInfos = ["impactParameterTagInfos" + tag],
+            tagInfos = ["impactParameterTagInfos"],
             ),
 
         'jetProbabilityBJetTags':
         jetProbabilityBJetTags.clone(
-            tagInfos = ["impactParameterTagInfos" + tag],
+            tagInfos = ["impactParameterTagInfos"],
             ),
 
         'jetBProbabilityBJetTags':
         jetBProbabilityBJetTags.clone(
-            tagInfos = ["impactParameterTagInfos" + tag],
+            tagInfos = ["impactParameterTagInfos" ],
             ),
 
         'secondaryVertexTagInfos':
         secondaryVertexTagInfos.clone(
-            trackIPTagInfos = "impactParameterTagInfos" + tag,
+            trackIPTagInfos = "impactParameterTagInfos",
             ),
 
         'combinedSecondaryVertexBJetTags':
         combinedSecondaryVertexV2BJetTags.clone(
             tagInfos = [
-                "impactParameterTagInfos" + tag,
-                "secondaryVertexTagInfos" + tag,
+                "impactParameterTagInfos",
+                "secondaryVertexTagInfos",
                 ],
             ),
 
         'combinedSecondaryVertexV2BJetTags':
         combinedSecondaryVertexV2BJetTags.clone(
             tagInfos = [
-                "impactParameterTagInfos" + tag,
-                "secondaryVertexTagInfos" + tag,
+                "impactParameterTagInfos",
+                "secondaryVertexTagInfos",
                 ],
             ),
 
         'secondaryVertexTagInfos':
         secondaryVertexTagInfos.clone(
-            trackIPTagInfos = "impactParameterTagInfos" + tag,
+            trackIPTagInfos = "impactParameterTagInfos",
             ),
 
         'simpleSecondaryVertexHighEffBJetTags':
         simpleSecondaryVertexHighEffBJetTags.clone(
-            tagInfos = ["secondaryVertexTagInfos" + tag],
+            tagInfos = ["secondaryVertexTagInfos"],
             ),
 
         'simpleSecondaryVertexHighPurBJetTags':
         simpleSecondaryVertexHighPurBJetTags.clone(
-            tagInfos = ["secondaryVertexTagInfos" + tag],
+            tagInfos = ["secondaryVertexTagInfos"],
             ),
 
         'combinedSecondaryVertexBJetTags':
         combinedSecondaryVertexV2BJetTags.clone(
             tagInfos = [
-                "impactParameterTagInfos" + tag,
-                "secondaryVertexTagInfos" + tag,
+                "impactParameterTagInfos",
+                "secondaryVertexTagInfos",
                 ],
             ),
 
         'combinedSecondaryVertexV2BJetTags':
         combinedSecondaryVertexV2BJetTags.clone(
             tagInfos = [
-                "impactParameterTagInfos" + tag,
-                "secondaryVertexTagInfos" + tag,
+                "impactParameterTagInfos",
+                "secondaryVertexTagInfos",
                 ],
             ),
 
@@ -121,8 +121,8 @@ def setupHeavyIonJets(process, tag, radius, task):
     process.load("RecoBTag.ImpactParameter.impactParameter_EventSetup_cff")
     process.load("RecoBTag.SecondaryVertex.secondaryVertex_EventSetup_cff")
     for label, module in six.iteritems(modules):
-        addToProcessAndTask(label + tag, module, process, task)
-
+        addToProcessAndTask(label, module, process, task)
+        
 def setupHeavyIonGenJets(process, tag, radius, task):
     genjetcollection = 'ak' + str(radius) + 'HiGenJets'
 

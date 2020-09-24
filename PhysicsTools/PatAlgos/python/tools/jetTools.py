@@ -1807,11 +1807,6 @@ class UpdateJetCollection(ConfigToolBase):
             ## switch jetCorrFactors off
             _newPatJets.addJetCorrFactors=False
 
-        #undo updating of selected pat jets for heavy ionss
-        from Configuration.Eras.Modifier_pp_on_AA_2018_cff import pp_on_AA_2018                                                                  
-        from Configuration.Eras.Modifier_pp_on_PbPb_run3_cff import pp_on_PbPb_run3 
-        if hasattr(process,'slimmedJets'): (pp_on_AA_2018 | pp_on_PbPb_run3).toModify(process.slimmedJets, src = 'selectedPatJets')
-
 updateJetCollection=UpdateJetCollection()
 
 
