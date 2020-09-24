@@ -4,5 +4,5 @@ from Validation.HGCalValidation.hgcalDigiValidationEE_cfi import *
 
 hfnoseDigiValidation = hgcalDigiValidationEE.clone(
     DetectorName = cms.string("HGCalHFNoseSensitive"),
-    DigiSource   = cms.InputTag("simHGCalUnsuppressedDigis","HFNoseDigis"))
+    DigiSource   = cms.InputTag("hgcalDigis","HFNoseDigis"))
 
