@@ -79,7 +79,7 @@ void HGCalSiliconValidation::fillDescriptions(edm::ConfigurationDescriptions& de
   desc.addUntracked<std::string>("ModuleLabel", "g4SimHits");
   desc.addUntracked<std::string>("detectorName", "HGCalEESensitive");
   desc.addUntracked<std::string>("HitCollection", "HGCHitsEE");
-  desc.addUntracked<edm::InputTag>("DigiCollection", edm::InputTag("hgcalDigis", "EE"));
+  desc.addUntracked<edm::InputTag>("DigiCollection", edm::InputTag("simHGCalUnsuppressedDigis", "EE"));
   desc.addUntracked<int>("Sample", 5);
   descriptions.add("hgcalSiliconAnalysisEE", desc);
 }

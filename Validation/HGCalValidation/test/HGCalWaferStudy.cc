@@ -115,7 +115,8 @@ void HGCalWaferStudy::fillDescriptions(edm::ConfigurationDescriptions& descripti
   edm::ParameterSetDescription desc;
   std::vector<std::string> names = {"HGCalEESensitive", "HGCalHESiliconSensitive"};
   std::vector<std::string> simSources = {"HGCHitsEE", "HGCHitsHEfront"};
-  std::vector<edm::InputTag> digSources = {edm::InputTag("hgcalDigis", "EE"), edm::InputTag("hgcalDigis", "HEfront")};
+  std::vector<edm::InputTag> digSources = {edm::InputTag("simHGCalUnsuppressedDigis", "EE"),
+                                           edm::InputTag("simHGCalUnsuppressedDigis", "HEfront")};
   std::vector<int> layers = {28, 24};
   std::vector<int> layerMin = {1, 1};
   desc.add<std::vector<std::string> >("detectorNames", names);
