@@ -84,6 +84,8 @@ struct HGCalEEFileAlgo {
           break;
         }
       }
+    } else {
+      firstLayer_ = 1;
     }
 #ifdef EDM_ML_DEBUG
     edm::LogVerbatim("HGCalGeom") << "There are " << layerType_.size() << " layers";
@@ -227,9 +229,9 @@ struct HGCalEEFileAlgo {
           edm::LogVerbatim("HGCalGeom") << "DDHGCalEEFileAlgo: " << solid.name() << " Tubs made of " << matter.name()
                                         << " of dimensions " << rinB << ", " << routF << ", " << hthick
                                         << ", 0.0, 360.0 and position " << glog.name() << " number " << copy << ":"
-                                        << layerCenter_[copy - 1];
+                                        << layerCenter_[copy - firstLayer_];
 #endif
-          positionSensitive(ctxt, e, glog, rinB, routF, zz, layerSense_[ly], (copy - 1));
+          positionSensitive(ctxt, e, glog, rinB, routF, zz, layerSense_[ly], (copy - firstLayer_));
         }
 
         dd4hep::Position r1(0, 0, zz);
@@ -309,10 +311,14 @@ struct HGCalEEFileAlgo {
                                         << " with " << corner.first << " corners";
         }
 #endif
-        int type = HGCalWaferType::getType(HGCalWaferIndex::waferIndex(layer, u, v, false), waferIndex_, waferTypes_);
+        int indx = HGCalWaferIndex::waferIndex((layer + firstLayer_), u, v, false);
+        int type = HGCalWaferType::getType(indx, waferIndex_, waferTypes_);
         if (corner.first > 0 && type >= 0) {
           int copy = HGCalTypes::packTypeUV(type, u, v);
 #ifdef EDM_ML_DEBUG
+          edm::LogVerbatim("HGCalGeom") << " DDHGCalHEFileAlgo: " << wafers_[type] << " number " << copy << " type "
+                                        << type << " layer:u:v:indx " << (layer + firstLayer_) << ":" << u << ":" << v
+                                        << ":" << indx;
           if (iu > ium)
             ium = iu;
           if (iv > ivm)
