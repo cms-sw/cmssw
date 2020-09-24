@@ -414,11 +414,7 @@ public:
       psWeightDocStr = "dummy PS weight (1.0) ";
     }
     outPS.reset(new nanoaod::FlatTable(wPS.size(), "PSWeight", false));
-    outPS->addColumn<float>("",
-                            wPS,
-                            psWeightDocStr,
-                            nanoaod::FlatTable::FloatColumn,
-                            lheWeightPrecision_);
+    outPS->addColumn<float>("", wPS, psWeightDocStr, nanoaod::FlatTable::FloatColumn, lheWeightPrecision_);
 
     outScale.reset(new nanoaod::FlatTable(wScale.size(), "LHEScaleWeight", false));
     outScale->addColumn<float>(
@@ -541,11 +537,7 @@ public:
       psWeightDocStr = "dummy PS weight (1.0) ";
     }
     outPS.reset(new nanoaod::FlatTable(wPS.size(), "PSWeight", false));
-    outPS->addColumn<float>("",
-                            wPS,
-                            psWeightDocStr,
-                            nanoaod::FlatTable::FloatColumn,
-                            lheWeightPrecision_);
+    outPS->addColumn<float>("", wPS, psWeightDocStr, nanoaod::FlatTable::FloatColumn, lheWeightPrecision_);
 
     counter->incGenOnly(genWeight);
     counter->incPSOnly(genWeight, wPS);
