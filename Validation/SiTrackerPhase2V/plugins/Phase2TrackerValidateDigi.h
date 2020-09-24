@@ -113,7 +113,6 @@ private:
   void fillHitsPerTrack();
 
   edm::ParameterSet config_;
-  //  std::map<unsigned int, DigiMEs> layerMEs;
   std::map<std::string, DigiMEs> layerMEs;
 
   bool pixelFlag_;
@@ -131,7 +130,6 @@ private:
   const edm::EDGetTokenT<edm::DetSetVector<PixelDigiSimLink> > otDigiSimLinkToken_;
   const edm::EDGetTokenT<edm::DetSetVector<PixelDigi> > itPixelDigiToken_;
   const edm::EDGetTokenT<edm::DetSetVector<PixelDigiSimLink> > itPixelDigiSimLinkToken_;
-  //  const edm::EDGetTokenT< edm::PSimHitContainer > psimHitToken_;
   const edm::EDGetTokenT<edm::SimTrackContainer> simTrackToken_;
   const edm::EDGetTokenT<edm::SimVertexContainer> simVertexToken_;
   std::vector<edm::EDGetTokenT<edm::PSimHitContainer> > simHitTokens_;
