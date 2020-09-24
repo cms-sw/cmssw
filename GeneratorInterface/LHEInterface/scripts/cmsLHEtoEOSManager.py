@@ -11,10 +11,10 @@ import time
 import re
 
 defaultEOSRootPath = '/eos/cms/store/lhe'
-defaultEOSLoadPath = 'root://eoscms/'
-defaultEOSlistCommand = 'xrd eoscms dirlist '
-defaultEOSmkdirCommand = 'xrd eoscms mkdir '
-defaultEOSfeCommand = 'xrd eoscms existfile '
+defaultEOSLoadPath = 'root://eoscms.cern.ch/'
+defaultEOSlistCommand = 'xrdfs '+defaultEOSLoadPath+' ls '
+defaultEOSmkdirCommand = 'xrdfs '+defaultEOSLoadPath+' mkdir '
+defaultEOSfeCommand = 'xrdfs '+defaultEOSLoadPath+' stat -q IsReadable '
 defaultEOScpCommand = 'xrdcp -np '
 
 def findXrdDir(theDirRecord):
