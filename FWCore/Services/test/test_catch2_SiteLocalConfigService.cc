@@ -1,5 +1,6 @@
 #include "FWCore/Services/src/SiteLocalConfigService.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Utilities/interface/Exception.h"
 
 #define CATCH_CONFIG_MAIN
 #include "catch.hpp"
@@ -99,5 +100,13 @@ TEST_CASE("Test SiteLocalConfigService", "[sitelocalconfig]") {
     REQUIRE(slc.useLocalConnectString() == false);
     REQUIRE(slc.localConnectPrefix() == "OverridePrefix");
     REQUIRE(slc.localConnectSuffix() == "OverrideSuffix");
+  }
+
+  SECTION("throwtest-site-local-config.testfile") {
+    edm::ParameterSet pset;
+    pset.addUntrackedParameter<std::string>("siteLocalConfigFileUrl",
+                                            dirString + "/throwtest-site-local-config.testfile");
+
+    REQUIRE_THROWS_AS(edm::service::SiteLocalConfigService(pset), cms::Exception);
   }
 }
