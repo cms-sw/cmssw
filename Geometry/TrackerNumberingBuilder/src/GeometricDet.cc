@@ -256,14 +256,6 @@ std::unique_ptr<Bounds> GeometricDet::bounds() const {
 }
 
 /*
-
-std::string GeometricDet::computeNameWithNoNamespace(std::string_view nameFromView) const {
-  const auto& semiColonPos = nameFromView.find(":");
-  const std::string name{(semiColonPos != std::string::npos ? nameFromView.substr(semiColonPos + 1) : nameFromView)};
-  return name;
-  }*/
-
-/*
  * DD4hep.
  * Keep order and units of parameters as old DD to avoid numerous rgeressions.
  * Shape parameters to be stored in DB and of interest are only for boxes, trapezoids, and tubs.
