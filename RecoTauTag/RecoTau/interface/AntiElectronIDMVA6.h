@@ -121,22 +121,22 @@ public:
 
   void beginEvent(const edm::Event&, const edm::EventSetup&);
 
-  double MVAValue(const antiElecIDMVA6_blocks::TauVars& tauVars,
+  double mvaValue(const antiElecIDMVA6_blocks::TauVars& tauVars,
                   const antiElecIDMVA6_blocks::TauGammaVecs& tauGammaVecs,
                   const antiElecIDMVA6_blocks::ElecVars& elecVars);
 
-  double MVAValue(const antiElecIDMVA6_blocks::TauVars& tauVars,
+  double mvaValue(const antiElecIDMVA6_blocks::TauVars& tauVars,
                   const antiElecIDMVA6_blocks::TauGammaMoms& tauGammaMoms,
                   const antiElecIDMVA6_blocks::ElecVars& elecVars);
 
-  double MVAValuePhase2(const antiElecIDMVA6_blocks::TauVars& tauVars,
+  double mvaValuePhase2(const antiElecIDMVA6_blocks::TauVars& tauVars,
                         const antiElecIDMVA6_blocks::TauGammaMoms& tauGammaMoms,
                         const antiElecIDMVA6_blocks::ElecVars& elecVars);
 
   // this function can be called for all categories
-  double MVAValue(const TauType& theTau, const ElectronRef& theEleRef);
+  double mvaValue(const TauType& theTau, const ElectronRef& theEleRef);
   // this function can be called for category 1 only !!
-  double MVAValue(const TauType& theTau);
+  double mvaValue(const TauType& theTau);
 
   // overloaded method with explicit tau type to avoid partial imlementation of full class
   antiElecIDMVA6_blocks::TauVars getTauVarsTypeSpecific(const reco::PFTau& theTau);
@@ -175,18 +175,18 @@ private:
 
   bool usePhiAtEcalEntranceExtrapolation_;
 
-  float* Var_NoEleMatch_woGwoGSF_Barrel_;
-  float* Var_NoEleMatch_wGwoGSF_Barrel_;
-  float* Var_woGwGSF_Barrel_;
-  float* Var_wGwGSF_Barrel_;
-  float* Var_NoEleMatch_woGwoGSF_Endcap_;
-  float* Var_NoEleMatch_wGwoGSF_Endcap_;
-  float* Var_woGwGSF_Endcap_;
-  float* Var_wGwGSF_Endcap_;
-  float* Var_NoEleMatch_woGwoGSF_VFEndcap_;
-  float* Var_NoEleMatch_wGwoGSF_VFEndcap_;
-  float* Var_woGwGSF_VFEndcap_;
-  float* Var_wGwGSF_VFEndcap_;
+  std::vector<float> var_NoEleMatch_woGwoGSF_Barrel_;
+  std::vector<float> var_NoEleMatch_wGwoGSF_Barrel_;
+  std::vector<float> var_woGwGSF_Barrel_;
+  std::vector<float> var_wGwGSF_Barrel_;
+  std::vector<float> var_NoEleMatch_woGwoGSF_Endcap_;
+  std::vector<float> var_NoEleMatch_wGwoGSF_Endcap_;
+  std::vector<float> var_woGwGSF_Endcap_;
+  std::vector<float> var_wGwGSF_Endcap_;
+  std::vector<float> var_NoEleMatch_woGwoGSF_VFEndcap_;
+  std::vector<float> var_NoEleMatch_wGwoGSF_VFEndcap_;
+  std::vector<float> var_woGwGSF_VFEndcap_;
+  std::vector<float> var_wGwGSF_VFEndcap_;
 
   const GBRForest* mva_NoEleMatch_woGwoGSF_BL_;
   const GBRForest* mva_NoEleMatch_wGwoGSF_BL_;

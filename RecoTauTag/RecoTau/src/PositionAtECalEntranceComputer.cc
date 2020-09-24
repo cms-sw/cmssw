@@ -12,7 +12,7 @@
 
 //HGCal helper classes
 //MB: looks be copy of HGCal utils: L1Trigger/L1THGCalUtilities/plugins/ntuples/HGCalTriggerNtupleGen.cc
-namespace HGCal_helpers {
+namespace hgcal_helpers {
   class SimpleTrackPropagator {
   public:
     SimpleTrackPropagator(MagneticField const* f) : field_(f), prod_(field_, alongMomentum, 5.e-5), absz_target_(0) {
@@ -74,7 +74,7 @@ namespace HGCal_helpers {
     output.SetXYZ(0, 0, 0);
     return false;
   }
-}  // namespace HGCal_helpers
+}  // namespace hgcal_helpers
 
 PositionAtECalEntranceComputer::PositionAtECalEntranceComputer(bool isPhase2) : bField_z_(-1.), isPhase2_(isPhase2) {}
 
@@ -117,7 +117,7 @@ reco::Candidate::Point PositionAtECalEntranceComputer::operator()(const reco::Ca
     if (std::abs(particle->vertex().z()) >= hgcalFace_z_)
       return position;
 
-    HGCal_helpers::SimpleTrackPropagator propagator(bField_);
+    hgcal_helpers::SimpleTrackPropagator propagator(bField_);
     propagator.setPropagationTargetZ(hgcalFace_z_);
     success = propagator.propagate(particle->px(),
                                    particle->py(),

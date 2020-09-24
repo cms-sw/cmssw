@@ -134,7 +134,7 @@ TauDiscriminationAgainstElectronMVA6<TauType, TauDiscriminator, ElectronType>::d
         double deltaREleTau = deltaR(theElectron.p4(), theTauRef->p4());
         deltaRDummy = std::min(deltaREleTau, deltaRDummy);
         if (deltaREleTau < deltaREleTauMax_) {
-          double mva_match = mva_->MVAValue(*theTauRef, theElecRef);
+          double mva_match = mva_->mvaValue(*theTauRef, theElecRef);
           if (!hasGsfTrack)
             hasGsfTrack = theElectron.gsfTrack().isNonnull();
 
@@ -155,7 +155,7 @@ TauDiscriminationAgainstElectronMVA6<TauType, TauDiscriminator, ElectronType>::d
             } else if (numSignalGammaCandsInSigCone >= 1 && hasGsfTrack) {
               category = 7.;
             }
-          } else if (!isPhase2_ || (std::abs(tauEtaAtECalEntrance.first) < ecalEndcapVFEndcapEtaBorder_)) {  // Endcap
+          } else if (!isPhase2_ || std::abs(tauEtaAtECalEntrance.first) < ecalEndcapVFEndcapEtaBorder_) {  // Endcap
             if (numSignalGammaCandsInSigCone == 0 && hasGsfTrack) {
               category = 13.;
             } else if (numSignalGammaCandsInSigCone >= 1 && hasGsfTrack) {
@@ -176,7 +176,7 @@ TauDiscriminationAgainstElectronMVA6<TauType, TauDiscriminator, ElectronType>::d
     }      // end of loop over electrons
 
     if (!isGsfElectronMatched) {
-      double mva_nomatch = mva_->MVAValue(*theTauRef);
+      double mva_nomatch = mva_->mvaValue(*theTauRef);
 
       // veto taus that go to ECal crack
       if (vetoEcalCracks_ &&
@@ -195,7 +195,7 @@ TauDiscriminationAgainstElectronMVA6<TauType, TauDiscriminator, ElectronType>::d
         } else if (numSignalGammaCandsInSigCone >= 1 && !hasGsfTrack) {
           category = 2.;
         }
-      } else if (!isPhase2_ || (std::abs(tauEtaAtECalEntrance.first) < ecalEndcapVFEndcapEtaBorder_)) {  // Endcap
+      } else if (!isPhase2_ || std::abs(tauEtaAtECalEntrance.first) < ecalEndcapVFEndcapEtaBorder_) {  // Endcap
         if (numSignalGammaCandsInSigCone == 0 && !hasGsfTrack) {
           category = 8.;
         } else if (numSignalGammaCandsInSigCone >= 1 && !hasGsfTrack) {
