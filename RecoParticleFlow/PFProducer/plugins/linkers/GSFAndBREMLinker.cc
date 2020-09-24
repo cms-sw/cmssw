@@ -32,22 +32,30 @@ double GSFAndBREMLinker::testLink(size_t ielem1,
                                   const ElementListConst& elements,
                                   const PFTables& tables,
                                   const reco::PFMultiLinksIndex& multilinks) const {
-  const auto* elem1 = elements[ielem1];
-  const auto* elem2 = elements[ielem2];
-
+  using namespace edm::soa::col;
   double dist = -1.0;
-  const reco::PFBlockElementGsfTrack* gsfelem(nullptr);
-  const reco::PFBlockElementBrem* bremelem(nullptr);
+
+  size_t igsf_elem;
+  size_t ibrem_elem;
+
   if (type1 < type2) {
-    gsfelem = static_cast<const reco::PFBlockElementGsfTrack*>(elem1);
-    bremelem = static_cast<const reco::PFBlockElementBrem*>(elem2);
+    igsf_elem = ielem1;
+    ibrem_elem = ielem2;
+
   } else {
-    gsfelem = static_cast<const reco::PFBlockElementGsfTrack*>(elem2);
-    bremelem = static_cast<const reco::PFBlockElementBrem*>(elem1);
+    igsf_elem = ielem2;
+    ibrem_elem = ielem1;
   }
-  const reco::GsfPFRecTrackRef& gsfref = gsfelem->GsftrackRefPF();
-  const reco::GsfPFRecTrackRef& bremref = bremelem->GsftrackRefPF();
-  if (gsfref.isNonnull() && bremref.isNonnull() && gsfref == bremref) {
+
+  size_t igsf = tables.element_to_gsf_[igsf_elem];
+  size_t ibrem = tables.element_to_brem_[ibrem_elem];
+
+  const auto gr_nn = tables.gsf_table_.get<pf::track::GsfTrackRefPFIsNonNull>(igsf);
+  const auto br_nn = tables.brem_table_.get<pf::track::GsfTrackRefPFIsNonNull>(ibrem);
+  const auto gr_k = tables.gsf_table_.get<pf::track::GsfTrackRefPFKey>(igsf);
+  const auto br_k = tables.brem_table_.get<pf::track::GsfTrackRefPFKey>(ibrem);
+
+  if (gr_nn && br_nn && gr_k == br_k) {
     dist = 0.001;
   }
   return dist;

@@ -27,6 +27,7 @@ namespace edm::soa {
 
   ConvRefTable makeConvRefTable(const std::vector<reco::ConversionRef>& convrefs);
   ConvBremTable makeConvBremTable(const std::vector<reco::PFRecTrackRef>& convbrems);
+  BremTable makeBremTable(const std::vector<const reco::PFBlockElementBrem*>& brems);
 
   RecHitTable makeRecHitTable(std::vector<const reco::PFRecHitFraction*> const& objects);
   SuperClusterRecHitTable makeSuperClusterRecHitTable(std::vector<const std::pair<DetId, float>*> const& objects);
@@ -98,8 +99,11 @@ public:
   std::vector<std::vector<size_t>> gsf_to_convbrem_;
 
   std::vector<size_t> element_to_brem_;
-  edm::soa::TrackTableVertex brem_table_vertex_;
+  edm::soa::BremTable brem_table_;
   edm::soa::TrackTableExtrapolation brem_table_ecalshowermax_;
+  edm::soa::TrackTableExtrapolation brem_table_hcalent_;
+  edm::soa::TrackTableExtrapolation brem_table_hcalex_;
+  edm::soa::TrackTableExtrapolation brem_table_ho_;
 
   PFClusterTables<edm::soa::ClusterTable, edm::soa::RecHitTable> clusters_ps1_;
   PFClusterTables<edm::soa::ClusterTable, edm::soa::RecHitTable> clusters_ps2_;
@@ -137,8 +141,11 @@ public:
     gsf_to_convbrem_.resize(0);
 
     element_to_brem_.clear();
-    brem_table_vertex_.resize(0);
+    brem_table_.resize(0);
     brem_table_ecalshowermax_.resize(0);
+    brem_table_hcalent_.resize(0);
+    brem_table_hcalex_.resize(0);
+    brem_table_ho_.resize(0);
 
     clusters_ps1_.clear();
     clusters_ps2_.clear();

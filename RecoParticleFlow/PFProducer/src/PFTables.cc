@@ -60,6 +60,20 @@ namespace edm::soa {
                     [](reco::PFRecTrackRef x) { return refToElementID(reco::TrackBaseRef(x->trackRef())); }))};
   }
 
+  BremTable makeBremTable(const std::vector<const reco::PFBlockElementBrem*>& brems) {
+    return {
+        brems,
+        edm::soa::column_fillers(
+            pf::track::Pt::filler([](const reco::PFBlockElementBrem* x) {
+              return sqrt(
+                  x->trackPF().extrapolatedPoint(reco::PFTrajectoryPoint::ClosestApproach).momentum().Vect().Perp2());
+            }),
+            pf::track::GsfTrackRefPFIsNonNull::filler(
+                [](const reco::PFBlockElementBrem* x) { return x->GsftrackRefPF().isNonnull(); }),
+            pf::track::GsfTrackRefPFKey::filler(
+                [](const reco::PFBlockElementBrem* x) { return refToElementID(x->GsftrackRefPF()); }))};
+  }
+
   TrackTableExtrapolation makeTrackTable(std::vector<reco::PFBlockElement*> const& objects,
                                          reco::PFTrajectoryPoint::LayerType layerType) {
     std::vector<reco::PFRecTrackRef> rectracks;

@@ -637,7 +637,9 @@ void PFBlockAlgo::buildElements(const edm::Event& evt) {
     }
     tracks.clear();
 
+    tables_.brem_table_ = edm::soa::makeBremTable(tracks_vec);
     tables_.brem_table_ecalshowermax_ = edm::soa::makeTrackTable(tracks_vec, reco::PFTrajectoryPoint::ECALShowerMax);
+    tables_.brem_table_hcalent_ = edm::soa::makeTrackTable(tracks_vec, reco::PFTrajectoryPoint::HCALEntrance);
     tables_.element_to_brem_ = element_to_track;
   }
 

@@ -120,6 +120,8 @@ namespace edm::soa {
                                  col::pf::track::DisplacedVertexRef_TO_DISP_Key,
                                  col::pf::track::DisplacedVertexRef_FROM_DISP_IsNonNull,
                                  col::pf::track::DisplacedVertexRef_FROM_DISP_Key>;
+  using BremTable = Table<col::pf::track::Pt, col::pf::track::GsfTrackRefPFIsNonNull, col::pf::track::GsfTrackRefPFKey>;
+
   using ConvRefTable = Table<col::pf::track::ConvRefIsNonNull, col::pf::track::ConvRefKey>;
   using ConvBremTable = Table<col::pf::track::ConvBremRefKey, col::pf::track::ConvBremRefBaseKey>;
 

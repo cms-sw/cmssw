@@ -14,20 +14,11 @@ namespace reco {
     std::size_t operator()(const std::pair<T1, T2>& p) const {
       auto h1 = std::hash<T1>{}(p.first);
       auto h2 = std::hash<T2>{}(p.second);
-
-      // Mainly for demonstration purposes, i.e. works but is overly simple
-      // In the real world, use sth. like boost.hash_combine
       return h1 ^ h2;
     }
   };
 
-  //stores the links between PFElements that are found by KDTree. This vector has size()==elements.size()
-  //For the set at location N in the vector, we have the indices of the elements linked to element N.
-
-  //we store the following links:
-  //ECAL -> set of tracks (KDTreeLinkerTrackEcal)
-  //HCAL, HFHAD, HFEM -> set of tracks (KDTreeLinkerTrackHcal)
-  //ECAL -> set of PS1, PS2 (KDTreeLinkerPSEcal)
+  //stores the links between PFElements that are found by KDTrees.
   class PFMultiLinksIndex {
   public:
     PFMultiLinksIndex(size_t nelements) {

@@ -34,11 +34,11 @@ double ECALAndBREMLinker::testLink(size_t ielem1,
                                    const ElementListConst& elements,
                                    const PFTables& tables,
                                    const reco::PFMultiLinksIndex& multilinks) const {
+  double dist(-1.0);
+
   size_t iecal_elem;
   size_t ibrem_elem;
 
-  double dist(-1.0);
-  
   if (type1 < type2) {
     iecal_elem = ielem1;
     ibrem_elem = ielem2;
@@ -59,11 +59,11 @@ double ECALAndBREMLinker::testLink(size_t ielem1,
                                                      tables.clusters_ecal_.cluster_table_,
                                                      tables.clusters_ecal_.rechit_table_,
                                                      ibrem,
-                                                     tables.track_table_vertex_,  //NOT USED
+                                                     tables.brem_table_,  //NOT USED
                                                      tables.brem_table_ecalshowermax_,
-                                                     tables.track_table_hcalent_,  //NOT USED
-                                                     tables.track_table_hcalex_,   //NOT USED
-                                                     tables.track_table_ho_,       //NOT USED
+                                                     tables.brem_table_hcalent_,  //NOT USED
+                                                     tables.track_table_hcalex_,  //NOT USED
+                                                     tables.track_table_ho_,      //NOT USED
                                                      true);
   }
   return dist;

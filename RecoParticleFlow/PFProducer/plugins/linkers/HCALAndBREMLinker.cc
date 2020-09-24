@@ -4,6 +4,8 @@
 #include "DataFormats/ParticleFlowReco/interface/PFBlockElementBrem.h"
 #include "RecoParticleFlow/PFClusterTools/interface/LinkByRecHit.h"
 
+using namespace edm::soa::col;
+
 class HCALAndBREMLinker : public BlockElementLinkerBase {
 public:
   HCALAndBREMLinker(const edm::ParameterSet& conf)
@@ -32,24 +34,36 @@ double HCALAndBREMLinker::testLink(size_t ielem1,
                                    const ElementListConst& elements,
                                    const PFTables& tables,
                                    const reco::PFMultiLinksIndex& multilinks) const {
-  const auto* elem1 = elements[ielem1];
-  const auto* elem2 = elements[ielem2];
-  constexpr reco::PFTrajectoryPoint::LayerType HCALEnt = reco::PFTrajectoryPoint::HCALEntrance;
-  const reco::PFBlockElementCluster* hcalelem(nullptr);
-  const reco::PFBlockElementBrem* bremelem(nullptr);
   double dist(-1.0);
+  size_t ihcal_elem;
+  size_t ibrem_elem;
   if (type1 < type2) {
-    hcalelem = static_cast<const reco::PFBlockElementCluster*>(elem1);
-    bremelem = static_cast<const reco::PFBlockElementBrem*>(elem2);
+    ihcal_elem = ielem1;
+    ibrem_elem = ielem2;
   } else {
-    hcalelem = static_cast<const reco::PFBlockElementCluster*>(elem2);
-    bremelem = static_cast<const reco::PFBlockElementBrem*>(elem1);
+    ihcal_elem = ielem2;
+    ibrem_elem = ielem1;
   }
-  const reco::PFClusterRef& clusterref = hcalelem->clusterRef();
-  const reco::PFRecTrack& track = bremelem->trackPF();
-  const reco::PFTrajectoryPoint& tkAtHCAL = track.extrapolatedPoint(HCALEnt);
-  if (tkAtHCAL.isValid()) {
-    dist = LinkByRecHit::testTrackAndClusterByRecHit(track, *clusterref, true, debug_);
+  size_t ihcal = tables.clusters_hcal_.element_to_cluster_[ihcal_elem];
+  size_t ibrem = tables.element_to_brem_[ibrem_elem];
+
+  if (tables.brem_table_hcalent_.get<pf::track::ExtrapolationValid>(ibrem)) {
+    const auto& rechits = tables.clusters_hcal_.cluster_to_rechit_.at(ihcal);
+    dist = LinkByRecHit::testTrackAndClusterByRecHit(ihcal,
+                                                     rechits,
+                                                     tables.clusters_hcal_.cluster_table_,
+                                                     tables.clusters_hcal_.rechit_table_,
+                                                     ibrem,
+                                                     tables.brem_table_,                //NOT USED
+                                                     tables.brem_table_ecalshowermax_,  //NOT USED
+                                                     tables.brem_table_hcalent_,
+                                                     tables.track_table_hcalex_,  //NOT USED
+                                                     tables.track_table_ho_,      //NOT USED
+                                                     true);
+
+    //According to testTrackAndClusterByRecHit, HCAL and BREM linker ALWAYS gives dist=-1
+    //Therefore, likely we can completely throw out all this code
+    assert(dist == -1.0);
   }
   return dist;
 }
