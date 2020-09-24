@@ -182,7 +182,7 @@ namespace edm {
 
     }  // setThresholds()
 
-    void ELadministrator::setLimits(const ELstring& id, int limit) {
+    void ELadministrator::setLimits(const std::string& id, int limit) {
       for (auto& sink : sinks_)
         sink->limits.setLimit(id, limit);
 
@@ -194,7 +194,7 @@ namespace edm {
 
     }  // setIntervals()
 
-    void ELadministrator::setIntervals(const ELstring& id, int interval) {
+    void ELadministrator::setIntervals(const std::string& id, int interval) {
       for (auto& sink : sinks_)
         sink->limits.setInterval(id, interval);
 
@@ -206,7 +206,7 @@ namespace edm {
 
     }  // setLimits()
 
-    void ELadministrator::setTimespans(const ELstring& id, int seconds) {
+    void ELadministrator::setTimespans(const std::string& id, int seconds) {
       for (auto& sink : sinks_)
         sink->limits.setTimespan(id, seconds);
 
