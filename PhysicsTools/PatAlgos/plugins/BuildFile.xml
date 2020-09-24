@@ -20,7 +20,6 @@
   <use name="CondFormats/JetMETObjects"/>
   <use name="CondFormats/HcalObjects"/>
   <use name="CondFormats/DataRecord"/>
-  <use name="CommonTools/CandAlgos"/>
   <use name="CommonTools/Egamma"/>
   <use name="CommonTools/MVAUtils"/>
   <use name="JetMETCorrections/Objects"/>
