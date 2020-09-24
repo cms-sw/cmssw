@@ -60,6 +60,11 @@ MeasurementTrackerEventProducer::MeasurementTrackerEventProducer(const edm::Para
         edm::InputTag(iConfig.getParameter<std::string>("Phase2TrackerCluster1DProducer")));
     isPhase2 = true;
   }
+  if (!(iConfig.getParameter<edm::InputTag>("vectorHits") == edm::InputTag(""))) {
+    thePh2OTVectorHitsLabel = consumes<VectorHitCollectionNew>(iConfig.getParameter<edm::InputTag>("vectorHits"));
+    isPhase2 = true;
+    useVectorHits = true;
+  }
 
   produces<MeasurementTrackerEvent>();
 }
@@ -72,6 +77,7 @@ void MeasurementTrackerEventProducer::fillDescriptions(edm::ConfigurationDescrip
   desc.add<std::string>("pixelClusterProducer", "siPixelClusters");
   desc.add<std::string>("stripClusterProducer", "siStripClusters");
   desc.add<std::string>("Phase2TrackerCluster1DProducer", "");
+  desc.add<edm::InputTag>("vectorHits",edm::InputTag(""));
 
   desc.add<std::vector<edm::InputTag>>("inactivePixelDetectorLabels",
                                        std::vector<edm::InputTag>{{edm::InputTag("siPixelDigis")}})
@@ -97,6 +103,7 @@ void MeasurementTrackerEventProducer::produce(edm::Event& iEvent, const edm::Eve
   auto stripData = std::make_unique<StMeasurementDetSet>(measurementTracker->stripDetConditions());
   auto pixelData = std::make_unique<PxMeasurementDetSet>(measurementTracker->pixelDetConditions());
   auto phase2OTData = std::make_unique<Phase2OTMeasurementDetSet>(measurementTracker->phase2DetConditions());
+
   std::vector<bool> stripClustersToSkip;
   std::vector<bool> pixelClustersToSkip;
   std::vector<bool> phase2ClustersToSkip;
@@ -112,13 +119,31 @@ void MeasurementTrackerEventProducer::produce(edm::Event& iEvent, const edm::Eve
 
   // put into MTE
   // put into event
-  iEvent.put(std::make_unique<MeasurementTrackerEvent>(*measurementTracker,
+
+  edm::Handle<VectorHitCollectionNew> vectorHitsHandle;
+  if (useVectorHits) {
+       const VectorHitCollectionNew* phase2OTVectorHits = vectorHitsHandle.product();
+
+      iEvent.put(std::make_unique<MeasurementTrackerEvent>(*measurementTracker,
                                                        stripData.release(),
                                                        pixelData.release(),
                                                        phase2OTData.release(),
+                                                       phase2OTVectorHits,
                                                        stripClustersToSkip,
                                                        pixelClustersToSkip,
                                                        phase2ClustersToSkip));
+  }
+  else{
+ 
+    iEvent.put(std::make_unique<MeasurementTrackerEvent>(*measurementTracker,
+                                                       stripData.release(),
+                                                       pixelData.release(),
+                                                       phase2OTData.release(),
+                                                       nullptr,
+                                                       stripClustersToSkip,
+                                                       pixelClustersToSkip,
+                                                       phase2ClustersToSkip));
+  }
 }
 
 void MeasurementTrackerEventProducer::updatePixels(const edm::Event& event,
