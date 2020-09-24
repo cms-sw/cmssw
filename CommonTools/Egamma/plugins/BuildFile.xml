@@ -1,9 +1,0 @@
-<export>
-</export>
-<library name="CommonToolsEgammaPlugins" file="*.cc">
-  <use name="FWCore/Framework"/>
-  <use name="FWCore/ParameterSet"/>
-  <use name="DataFormats/EgammaCandidates"/>
-  <use name="DataFormats/PatCandidates"/>
-  <use name="CommonTools/UtilAlgos"/>
-</library>
