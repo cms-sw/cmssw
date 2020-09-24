@@ -77,7 +77,7 @@ void MeasurementTrackerEventProducer::fillDescriptions(edm::ConfigurationDescrip
   desc.add<std::string>("pixelClusterProducer", "siPixelClusters");
   desc.add<std::string>("stripClusterProducer", "siStripClusters");
   desc.add<std::string>("Phase2TrackerCluster1DProducer", "");
-  desc.add<edm::InputTag>("vectorHits",edm::InputTag(""));
+  desc.add<edm::InputTag>("vectorHits", edm::InputTag(""));
 
   desc.add<std::vector<edm::InputTag>>("inactivePixelDetectorLabels",
                                        std::vector<edm::InputTag>{{edm::InputTag("siPixelDigis")}})
@@ -122,27 +122,25 @@ void MeasurementTrackerEventProducer::produce(edm::Event& iEvent, const edm::Eve
 
   edm::Handle<VectorHitCollectionNew> vectorHitsHandle;
   if (useVectorHits) {
-       const VectorHitCollectionNew* phase2OTVectorHits = vectorHitsHandle.product();
-
-      iEvent.put(std::make_unique<MeasurementTrackerEvent>(*measurementTracker,
-                                                       stripData.release(),
-                                                       pixelData.release(),
-                                                       phase2OTData.release(),
-                                                       phase2OTVectorHits,
-                                                       stripClustersToSkip,
-                                                       pixelClustersToSkip,
-                                                       phase2ClustersToSkip));
-  }
-  else{
- 
+    iEvent.getByToken(thePh2OTVectorHitsLabel, vectorHitsHandle);
+    const VectorHitCollectionNew* phase2OTVectorHits = vectorHitsHandle.product();
     iEvent.put(std::make_unique<MeasurementTrackerEvent>(*measurementTracker,
-                                                       stripData.release(),
-                                                       pixelData.release(),
-                                                       phase2OTData.release(),
-                                                       nullptr,
-                                                       stripClustersToSkip,
-                                                       pixelClustersToSkip,
-                                                       phase2ClustersToSkip));
+                                                         stripData.release(),
+                                                         pixelData.release(),
+                                                         phase2OTData.release(),
+                                                         phase2OTVectorHits,
+                                                         stripClustersToSkip,
+                                                         pixelClustersToSkip,
+                                                         phase2ClustersToSkip));
+  } else {
+    iEvent.put(std::make_unique<MeasurementTrackerEvent>(*measurementTracker,
+                                                         stripData.release(),
+                                                         pixelData.release(),
+                                                         phase2OTData.release(),
+                                                         nullptr,
+                                                         stripClustersToSkip,
+                                                         pixelClustersToSkip,
+                                                         phase2ClustersToSkip));
   }
 }
 

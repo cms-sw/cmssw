@@ -137,7 +137,10 @@ protected:
   void initGluedDet(TkGluedMeasurementDet& det, const TrackerTopology* trackerTopology);
   void initStackDet(TkStackMeasurementDet& det);
 
-  void addDets(const TrackingGeometry::DetContainer& dets, bool subIsPixel, bool subIsOT, const TrackerTopology* trackerTopology);
+  void addDets(const TrackingGeometry::DetContainer& dets,
+               bool subIsPixel,
+               bool subIsOT,
+               const TrackerTopology* trackerTopology);
 
   bool checkDets();
 

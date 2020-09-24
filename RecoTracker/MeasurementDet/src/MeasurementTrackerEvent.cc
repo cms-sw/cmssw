@@ -10,8 +10,8 @@ MeasurementTrackerEvent::~MeasurementTrackerEvent() {
     thePixelData = nullptr;  // to double-delete the same object (!!!)
     delete thePhase2OTData;
     thePhase2OTData = nullptr;  // to double-delete the same object (!!!)
-//    delete thePhase2OTVectorHits;
-//    thePhase2OTVectorHits = nullptr;  // to double-delete the same object (!!!)
+                                //    delete thePhase2OTVectorHits;
+                                //    thePhase2OTVectorHits = nullptr;  // to double-delete the same object (!!!)
   }
 }
 
