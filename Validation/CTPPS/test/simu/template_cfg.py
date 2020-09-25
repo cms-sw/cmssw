@@ -6,7 +6,7 @@ process = cms.Process('CTPPSTest', $ERA)
 # load config
 import Validation.CTPPS.simu_config.year_$CONFIG_cff as config
 process.load("Validation.CTPPS.simu_config.year_$CONFIG_cff")
-config.SetDefaults(process)
+config.UseXangleBetaStarDistribution(process,"../../../../CalibPPS/ESProducers/data/xangle_beta_distributions/version1.root")
 
 # minimal logger settings
 process.MessageLogger = cms.Service("MessageLogger",
