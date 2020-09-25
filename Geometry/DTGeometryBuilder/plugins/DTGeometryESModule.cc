@@ -87,13 +87,13 @@ private:
 };
 
 DTGeometryESModule::DTGeometryESModule(const edm::ParameterSet& p)
-  : m_tag(p.getParameter<edm::ESInputTag>("DDDetector")),
-    alignmentsLabel_(p.getParameter<std::string>("alignmentsLabel")),
-    myLabel_(p.getParameter<std::string>("appendToDataLabel")),
-    m_attribute(p.getParameter<std::string>("attribute")),
-    m_value(p.getParameter<std::string>("value")),
-    fromDDD_(p.getParameter<bool>("fromDDD")),
-    fromDD4hep_(p.getParameter<bool>("fromDD4hep")) {
+    : m_tag(p.getParameter<edm::ESInputTag>("DDDetector")),
+      alignmentsLabel_(p.getParameter<std::string>("alignmentsLabel")),
+      myLabel_(p.getParameter<std::string>("appendToDataLabel")),
+      m_attribute(p.getParameter<std::string>("attribute")),
+      m_value(p.getParameter<std::string>("value")),
+      fromDDD_(p.getParameter<bool>("fromDDD")),
+      fromDD4hep_(p.getParameter<bool>("fromDD4hep")) {
   applyAlignment_ = p.getParameter<bool>("applyAlignment");
 
   auto cc = setWhatProduced(this);
@@ -114,7 +114,9 @@ DTGeometryESModule::DTGeometryESModule(const edm::ParameterSet& p)
     rigToken_ = cc.consumesFrom<RecoIdealGeometry, DTRecoGeometryRcd>(edm::ESInputTag{});
   }
 
-  edm::LogVerbatim("Geometry") << "@SUB=DTGeometryESModule Label '" << myLabel_ << "' " << (applyAlignment_ ? "looking for" : "IGNORING") << " alignment labels '" << alignmentsLabel_ << "'.";
+  edm::LogVerbatim("Geometry") << "@SUB=DTGeometryESModule Label '" << myLabel_ << "' "
+                               << (applyAlignment_ ? "looking for" : "IGNORING") << " alignment labels '"
+                               << alignmentsLabel_ << "'.";
 }
 
 void DTGeometryESModule::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
@@ -124,7 +126,7 @@ void DTGeometryESModule::fillDescriptions(edm::ConfigurationDescriptions& descri
   edm::ParameterSetDescription desc;
   desc.add<bool>("fromDDD", true);
   desc.add<bool>("fromDD4hep", false);
-  desc.add<edm::ESInputTag>("DDDetector", edm::ESInputTag("","MUON"));
+  desc.add<edm::ESInputTag>("DDDetector", edm::ESInputTag("", "MUON"));
   desc.add<std::string>("alignmentsLabel", "");
   desc.add<std::string>("appendToDataLabel", "");
   desc.add<std::string>("attribute", "MuStructure");
@@ -139,7 +141,8 @@ std::shared_ptr<DTGeometry> DTGeometryESModule::produce(const MuonGeometryRecord
   if (fromDDD_) {
     host->ifRecordChanges<MuonNumberingRecord>(record, [this, &host](auto const& rec) { setupDDDGeometry(rec, host); });
   } else if (fromDD4hep_) {
-    host->ifRecordChanges<MuonNumberingRecord>(record, [this, &host](auto const& rec) { setupDD4hepGeometry(rec, host); });
+    host->ifRecordChanges<MuonNumberingRecord>(record,
+                                               [this, &host](auto const& rec) { setupDD4hepGeometry(rec, host); });
   } else {
     host->ifRecordChanges<DTRecoGeometryRcd>(record, [this, &host](auto const& rec) { setupDBGeometry(rec, host); });
   }
@@ -154,7 +157,9 @@ std::shared_ptr<DTGeometry> DTGeometryESModule::produce(const MuonGeometryRecord
     const auto& alignmentErrors = record.get(alignmentErrorsToken_);
     // Only apply alignment if values exist
     if (alignments.empty() && alignmentErrors.empty() && globalPosition.empty()) {
-      edm::LogVerbatim("Geometry") << "@SUB=DTGeometryRecord::produce Alignment(Error)s and global position (label '" << alignmentsLabel_ << "') empty: Geometry producer (label '" << myLabel_ << "') assumes fake and does not apply.";
+      edm::LogVerbatim("Geometry") << "@SUB=DTGeometryRecord::produce Alignment(Error)s and global position (label '"
+                                   << alignmentsLabel_ << "') empty: Geometry producer (label '" << myLabel_
+                                   << "') assumes fake and does not apply.";
     } else {
       GeometryAligner aligner;
       aligner.applyAlignments<DTGeometry>(

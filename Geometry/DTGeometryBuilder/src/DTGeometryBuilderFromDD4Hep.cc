@@ -46,7 +46,9 @@
 using namespace edm;
 using namespace std;
 
-void DTGeometryBuilderFromDD4Hep::buildGeometry(cms::DDFilteredView& fview, DTGeometry& geom, const MuonGeometryConstants& num) const {
+void DTGeometryBuilderFromDD4Hep::buildGeometry(cms::DDFilteredView& fview,
+                                                DTGeometry& geom,
+                                                const MuonGeometryConstants& num) const {
   bool doChamber = fview.firstChild();
 
   while (doChamber) {
@@ -75,7 +77,8 @@ void DTGeometryBuilderFromDD4Hep::buildGeometry(cms::DDFilteredView& fview, DTGe
   }
 }
 
-DTGeometryBuilderFromDD4Hep::RCPPlane DTGeometryBuilderFromDD4Hep::plane(const cms::DDFilteredView& fview, Bounds* bounds) const {
+DTGeometryBuilderFromDD4Hep::RCPPlane DTGeometryBuilderFromDD4Hep::plane(const cms::DDFilteredView& fview,
+                                                                         Bounds* bounds) const {
   const Double_t* tr = fview.trans();
   const Double_t* rot = fview.rot();
 
@@ -85,7 +88,8 @@ DTGeometryBuilderFromDD4Hep::RCPPlane DTGeometryBuilderFromDD4Hep::plane(const c
                 bounds));
 }
 
-DTChamber* DTGeometryBuilderFromDD4Hep::buildChamber(cms::DDFilteredView& fview, const MuonGeometryConstants& muonConstants) const {
+DTChamber* DTGeometryBuilderFromDD4Hep::buildChamber(cms::DDFilteredView& fview,
+                                                     const MuonGeometryConstants& muonConstants) const {
   MuonGeometryNumbering mdddnum(muonConstants);
   DTNumberingScheme dtnum(muonConstants);
   int rawid = dtnum.baseNumberToUnitNumber(mdddnum.geoHistoryToBaseNumber(fview.history()));
@@ -101,8 +105,8 @@ DTChamber* DTGeometryBuilderFromDD4Hep::buildChamber(cms::DDFilteredView& fview,
 }
 
 DTSuperLayer* DTGeometryBuilderFromDD4Hep::buildSuperLayer(cms::DDFilteredView& fview,
-							   DTChamber* chamber,
-							   const MuonGeometryConstants& muonConstants) const {
+                                                           DTChamber* chamber,
+                                                           const MuonGeometryConstants& muonConstants) const {
   MuonGeometryNumbering mdddnum(muonConstants);
   DTNumberingScheme dtnum(muonConstants);
   int rawid = dtnum.baseNumberToUnitNumber(mdddnum.geoHistoryToBaseNumber(fview.history()));
@@ -121,8 +125,8 @@ DTSuperLayer* DTGeometryBuilderFromDD4Hep::buildSuperLayer(cms::DDFilteredView& 
 }
 
 DTLayer* DTGeometryBuilderFromDD4Hep::buildLayer(cms::DDFilteredView& fview,
-						 DTSuperLayer* sl,
-						 const MuonGeometryConstants& muonConstants) const {
+                                                 DTSuperLayer* sl,
+                                                 const MuonGeometryConstants& muonConstants) const {
   MuonGeometryNumbering mdddnum(muonConstants);
   DTNumberingScheme dtnum(muonConstants);
   int rawid = dtnum.baseNumberToUnitNumber(mdddnum.geoHistoryToBaseNumber(fview.history()));
@@ -157,9 +161,9 @@ DTLayer* DTGeometryBuilderFromDD4Hep::buildLayer(cms::DDFilteredView& fview,
 }
 
 void DTGeometryBuilderFromDD4Hep::build(DTGeometry& geom,
-					const cms::DDDetector* det,
-					const MuonGeometryConstants& num,
-					const dd4hep::SpecParRefs& refs) {
+                                        const cms::DDDetector* det,
+                                        const MuonGeometryConstants& num,
+                                        const dd4hep::SpecParRefs& refs) {
   cms::Volume top = det->worldVolume();
   cms::DDFilteredView fview(det, top);
   fview.mergedSpecifics(refs);
