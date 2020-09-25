@@ -38,7 +38,7 @@ class DTSuperLayer;
 class DTLayer;
 class MuonGeometryConstants;
 class MuonGeometryNumbering;
-  
+
 class DTGeometryBuilderFromDD4Hep {
 public:
   DTGeometryBuilderFromDD4Hep() {}
