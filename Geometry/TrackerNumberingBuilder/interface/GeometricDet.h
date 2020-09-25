@@ -9,7 +9,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/types.h"
 
-#include <DD4hep/Volumes.h>
+#include <DD4hep/Shapes.h>
 #include <Math/Rotation3D.h>
 #include <Math/Vector3D.h>
 
