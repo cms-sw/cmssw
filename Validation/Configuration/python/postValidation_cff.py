@@ -141,3 +141,4 @@ from Configuration.Eras.Modifier_phase2_hgcal_cff import phase2_hgcal
 phase2_hgcal.toReplaceWith( postValidation, _phase2_postValidation )
 from Configuration.Eras.Modifier_phase2_GE0_cff import phase2_GE0
 (phase2_GE0 & phase2_hgcal).toReplaceWith( postValidation, _phase2_ge0_postValidation )
+phase2_GE0.toReplaceWith( postValidation_muons, postValidation_muons.copyAndExclude([MuonME0DigisPostProcessors, MuonME0SegPostProcessors]) )
