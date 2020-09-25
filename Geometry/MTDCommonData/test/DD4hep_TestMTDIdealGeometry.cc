@@ -18,6 +18,7 @@
 #include "Geometry/Records/interface/DDSpecParRegistryRcd.h"
 
 #include "DetectorDescription/DDCMS/interface/DDDetector.h"
+#include "DetectorDescription/DDCMS/interface/DDSolidShapes.h"
 #include "DetectorDescription/DDCMS/interface/DDFilteredView.h"
 #include "DetectorDescription/DDCMS/interface/DDSpecParRegistry.h"
 
