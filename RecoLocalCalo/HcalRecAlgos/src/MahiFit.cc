@@ -218,7 +218,7 @@ const float MahiFit::minimize() const {
   if (nnlsWork_.noisecorr != 0) {
     for (unsigned int i = 1; i < nnlsWork_.tsSize; ++i) {
       auto const noiseCorrTerm =
-          nnlsWork_.noisecorr * sqrt(nnlsWork_.pedVals.coeff(i - 1) * nnlsWork_.pedVals.coeff(i));
+          nnlsWork_.noisecorr * nnlsWork_.pedVals.coeff(i - 1) * nnlsWork_.pedVals.coeff(i);
       invCovMat(i - 1, i) += noiseCorrTerm;
       invCovMat(i, i - 1) += noiseCorrTerm;
     }
