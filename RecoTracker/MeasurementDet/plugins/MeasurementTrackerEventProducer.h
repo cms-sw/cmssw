@@ -41,6 +41,7 @@ protected:
   edm::EDGetTokenT<edmNew::DetSetVector<SiStripCluster>> theStripClusterLabel;
   edm::EDGetTokenT<edmNew::DetSetVector<Phase2TrackerCluster1D>> thePh2OTClusterLabel;
   edm::EDGetTokenT<VectorHitCollectionNew> thePh2OTVectorHitsLabel;
+  edm::EDGetTokenT<VectorHitCollectionNew> thePh2OTVectorHitsRejLabel;
   edm::EDGetTokenT<edm::ContainerMask<edmNew::DetSetVector<SiPixelCluster>>> thePixelClusterMask;
   edm::EDGetTokenT<edm::ContainerMask<edmNew::DetSetVector<SiStripCluster>>> theStripClusterMask;
 

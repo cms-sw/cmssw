@@ -27,6 +27,7 @@ public:
                           const PxMeasurementDetSet *pixels,
                           const Phase2OTMeasurementDetSet *phase2OT,
                           const VectorHitCollectionNew *phase2OTVectorHits,
+                          const VectorHitCollectionNew *phase2OTVectorHitsRej,
                           const std::vector<bool> &stripClustersToSkip,
                           const std::vector<bool> &pixelClustersToSkip,
                           const std::vector<bool> &phase2OTClustersToSkip)
@@ -35,6 +36,7 @@ public:
         thePixelData(pixels),
         thePhase2OTData(phase2OT),
         thePhase2OTVectorHits(phase2OTVectorHits),
+        thePhase2OTVectorHitsRej(phase2OTVectorHitsRej),
         theOwner(true),
         theStripClustersToSkip(stripClustersToSkip),
         thePixelClustersToSkip(pixelClustersToSkip),
@@ -61,6 +63,7 @@ public:
   const PxMeasurementDetSet &pixelData() const { return *thePixelData; }
   const Phase2OTMeasurementDetSet &phase2OTData() const { return *thePhase2OTData; }
   const VectorHitCollectionNew &phase2OTVectorHits() const { return *thePhase2OTVectorHits; }
+  const VectorHitCollectionNew &phase2OTVectorHitsRej() const { return *thePhase2OTVectorHitsRej; }
   const std::vector<bool> &stripClustersToSkip() const { return theStripClustersToSkip; }
   const std::vector<bool> &pixelClustersToSkip() const { return thePixelClustersToSkip; }
   const std::vector<bool> &phase2OTClustersToSkip() const { return thePhase2OTClustersToSkip; }
@@ -78,6 +81,7 @@ private:
   const PxMeasurementDetSet *thePixelData = nullptr;
   const Phase2OTMeasurementDetSet *thePhase2OTData = nullptr;
   const VectorHitCollectionNew *thePhase2OTVectorHits = nullptr;
+  const VectorHitCollectionNew *thePhase2OTVectorHitsRej = nullptr;
   bool theOwner = false;  // do I own the tree above?
   // these  could be const pointers as well, but ContainerMask doesn't expose the vector
   std::vector<bool> theStripClustersToSkip;
