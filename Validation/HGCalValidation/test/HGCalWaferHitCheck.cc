@@ -41,9 +41,8 @@ namespace HGCalValidSimhitCheck {
     }
     mutable std::map<int, int> badTypes_, occupancy_;
     mutable std::vector<int> goodChannels_;
+    mutable std::mutex mtx_;
   };
-
-  static std::mutex mtx_;
 }  // namespace HGCalValidSimhitCheck
 
 class HGCalWaferHitCheck : public edm::stream::EDAnalyzer<edm::GlobalCache<HGCalValidSimhitCheck::Counters> > {
@@ -217,7 +216,7 @@ void HGCalWaferHitCheck::beginRun(const edm::Run&, const edm::EventSetup& iSetup
 }
 
 void HGCalWaferHitCheck::endStream() {
-  HGCalValidSimhitCheck::mtx_.lock();
+  globalCache()->mtx_.lock();
   for (auto [id, count] : occupancy_) {
     if (globalCache()->occupancy_.find(id) == globalCache()->occupancy_.end())
       globalCache()->occupancy_[id] = count;
@@ -232,7 +231,7 @@ void HGCalWaferHitCheck::endStream() {
   }
 
   globalCache()->goodChannels_ = goodChannels_;
-  HGCalValidSimhitCheck::mtx_.unlock();
+  globalCache()->mtx_.unlock();
 }
 
 void HGCalWaferHitCheck::globalEndJob(const HGCalValidSimhitCheck::Counters* count) {
