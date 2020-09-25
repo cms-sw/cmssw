@@ -18,7 +18,6 @@
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/CommonDetUnit/interface/GeomDetType.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
-#include "Geometry/TrackerNumberingBuilder/interface/GeometricDet.h"
 
 #include "DataFormats/Common/interface/DetSetVector.h"
 //#include "SimGeneral/HepPDTRecord/interface/ParticleDataTable.h"
