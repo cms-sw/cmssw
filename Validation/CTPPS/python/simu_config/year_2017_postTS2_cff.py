@@ -18,6 +18,6 @@ ctppsDirectProtonSimulation.empiricalAperture56="4.56961E-05+(([xi]<(0.00075625*
 ctppsDirectProtonSimulation.timeResolutionDiamonds45 = "2 * 0.130"
 ctppsDirectProtonSimulation.timeResolutionDiamonds56 = "2 * 0.130"
 
-# xangle distribution
-def UseCrossingAngleDistribution(process, f):
-  UseCrossingAngleHistgoram(process, f, "h_xangle_2017_postTS2")
+# xangle/beta* distribution
+def UseXangleBetaStarDistribution(process, f):
+  UseXangleBetaStarHistogram(process, f, "/2017_postTS2/h2_betaStar_vs_xangle")

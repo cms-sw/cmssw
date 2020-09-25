@@ -43,6 +43,6 @@ ctppsDirectProtonSimulation.empiricalAperture56="1.85954E-05+(([xi]<0.14324)*0.0
 def SetDefaults(process):
   UseCrossingAngle(185, process)
 
-# xangle distribution
-def UseCrossingAngleDistribution(process, f):
-  UseCrossingAngleHistgoram(process, f, "h_xangle_2016_preTS2")
+# xangle/beta* distribution
+def UseXangleBetaStarDistribution(process, f):
+  UseXangleBetaStarHistogram(process, f, "/2016_preTS2/h2_betaStar_vs_xangle")

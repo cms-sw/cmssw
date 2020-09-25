@@ -13,6 +13,6 @@ ctppsLocalTrackLiteProducer.includeDiamonds = False
 ctppsDirectProtonSimulation.timeResolutionDiamonds45 = "999"
 ctppsDirectProtonSimulation.timeResolutionDiamonds56 = "999"
 
-# xangle distribution
-def UseCrossingAngleDistribution(process, f):
-  UseCrossingAngleHistgoram(process, f, "h_xangle_2018_preTS1")
+# xangle/beta* distribution
+def UseXangleBetaStarDistribution(process, f):
+  UseXangleBetaStarHistogram(process, f, "/2018_preTS1/h2_betaStar_vs_xangle")
