@@ -3,17 +3,18 @@
 
 #include "CondFormats/GeometryObjects/interface/PGeometricDet.h"
 #include "DetectorDescription/DDCMS/interface/DDSolidShapes.h"
-#include "DetectorDescription/DDCMS/interface/DDShapes.h"
 #include "DataFormats/GeometrySurface/interface/Surface.h"
 #include "DataFormats/GeometrySurface/interface/Bounds.h"
 #include "DataFormats/DetId/interface/DetId.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ParameterSet/interface/types.h"
+
+#include <DD4hep/Volumes.h>
 #include <Math/Rotation3D.h>
 #include <Math/Vector3D.h>
 
 #include <vector>
 #include <memory>
-#include "FWCore/ParameterSet/interface/types.h"
 #include <ext/pool_allocator.h>
 
 class DDFilteredView;
