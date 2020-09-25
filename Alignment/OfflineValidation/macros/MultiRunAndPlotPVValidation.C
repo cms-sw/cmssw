@@ -981,17 +981,7 @@ void MultiRunPVValidation(
     if (!useLumiByFile) {
       x_ticks = lumiByRun;
     } else {
-      //x_ticks = lumiByRun;
-      /*
-      double myLumi(0.);
-      for(const auto [iRun, iLumi] : lumiMapByRun){
-	myLumi+=iLumi;
-	if(std::find(runs.begin(), runs.end(), iRun) != runs.end()){
-	  x_ticks.push_back(myLumi);
-	  logInfo << " recompute run" << iRun << "lumi" << myLumi << std::endl;
-	}
-      }
-      */
+      // x_ticks = lumiByRun; (generally it's wrong)
       // in case we are passing the luminosity per run by file, need to re-check the map
       // in order to fill the x ticks of the graph only for the run which actually pass the selection
       double lastLumi(0.);
@@ -1088,7 +1078,7 @@ void MultiRunPVValidation(
             << "]].size()=" << dxyPhiMeans_[LegLabels[j]].size() << std::endl;
 
     // otherwise something very bad has happened
-    //assert(x_ticks.size() == dxyPhiMeans_[LegLabels[j]].size());
+    assert(x_ticks.size() == dxyPhiMeans_[LegLabels[j]].size());
 
     // *************************************
     // dxy vs phi
