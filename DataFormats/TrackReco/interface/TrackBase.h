@@ -308,6 +308,9 @@ namespace reco {
     /// error on signed transverse curvature
     double qoverpError() const;
 
+    /// error on Pt (set to 1000**2 TeV**2 if charge==0 for safety)
+    double ptError2() const;
+
     /// error on Pt (set to 1000 TeV if charge==0 for safety)
     double ptError() const;
 
@@ -609,9 +612,10 @@ namespace reco {
 
   // dsz parameter (THIS IS NOT the SZ impact parameter to (0,0,0) if refPoint is far from (0,0,0): see parametrization definition above for details)
   inline double TrackBase::dsz() const {
+    const auto thept = pt();
     const auto thepinv = 1 / p();
-    const auto theptoverp = pt() * thepinv;
-    return vz() * theptoverp - (vx() * px() + vy() * py()) / pt() * pz() * thepinv;
+    const auto theptoverp = thept * thepinv;
+    return vz() * theptoverp - (vx() * px() + vy() * py()) / thept * pz() * thepinv;
   }
 
   // dz parameter (= dsz/cos(lambda)). This is the track z0 w.r.t (0,0,0) only if the refPoint is close to (0,0,0). See also function dz(myBeamSpot) below.
@@ -687,10 +691,11 @@ namespace reco {
   // (WARNING: this quantity can only be interpreted as the distance in the S-Z plane to the beamSpot, if the beam spot is reasonably close to the refPoint, since linear approximations are involved).
   // This is a good approximation for Tracker tracks.
   inline double TrackBase::dsz(const Point &myBeamSpot) const {
-    const auto theptoverp = sqrt(pt2() / p2());
+    const auto thept = pt();
     const auto thepinv = 1 / p();
+    const auto theptoverp = thept * thepinv;
     return (vz() - myBeamSpot.z()) * theptoverp -
-           ((vx() - myBeamSpot.x()) * px() + (vy() - myBeamSpot.y()) * py()) / pt() * pz() * thepinv;
+           ((vx() - myBeamSpot.x()) * px() + (vy() - myBeamSpot.y()) * py()) / thept * pz() * thepinv;
   }
 
   // dz parameter with respect to a user-given beamSpot
@@ -726,8 +731,8 @@ namespace reco {
   // error on signed transverse curvature
   inline double TrackBase::qoverpError() const { return error(i_qoverp); }
 
-  // error on Pt (set to 1000 TeV if charge==0 for safety)
-  inline double TrackBase::ptError() const {
+  // error on Pt (set to 1000**2 TeV**2 if charge==0 for safety)
+  inline double TrackBase::ptError2() const {
     const auto thecharge = charge();
 
     if (thecharge != 0) {
@@ -737,13 +742,16 @@ namespace reco {
       const auto ptimespt = sqrt(thep2 * thept2);
       const auto oneovercharge = 1 / thecharge;
 
-      return sqrt(thept2 * thep2 * oneovercharge * oneovercharge * covariance(i_qoverp, i_qoverp) +
-                  2 * ptimespt * oneovercharge * thepz * covariance(i_qoverp, i_lambda) +
-                  thepz * thepz * covariance(i_lambda, i_lambda));
+      return thept2 * thep2 * oneovercharge * oneovercharge * covariance(i_qoverp, i_qoverp) +
+             2 * ptimespt * oneovercharge * thepz * covariance(i_qoverp, i_lambda) +
+             thepz * thepz * covariance(i_lambda, i_lambda);
     }
 
-    return 1.e6;
+    return 1.e12;
   }
+
+  // error on Pt (set to 1000 TeV if charge==0 for safety)
+  inline double TrackBase::ptError() const { return sqrt(ptError2()); }
 
   // error on theta
   inline double TrackBase::thetaError() const { return error(i_lambda); }
