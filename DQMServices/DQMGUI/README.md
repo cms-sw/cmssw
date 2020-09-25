@@ -596,6 +596,8 @@ The run is over when all FUs finished processing it. This situation is identifie
 
 ### GUI machine configuration
 
+DQM GUI is managed by systemd. DQM GUI log is located here: `/data/dqmgui/state/logs/dqmgui.log`
+
 #### systemd related configuration
 
 There are two systemd services running: `dqmgui.service` and `dqmgui-cleanup.service`. `dqmgui.service` launches `scripts/dqmbuibackend.sh` while the cleanup service laucnhes `scripts/dqmgui-cleanup.py`. The later process is responsible for two things:
