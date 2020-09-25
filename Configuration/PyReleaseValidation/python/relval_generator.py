@@ -40,3 +40,4 @@ workflows[541]=['',['BuToKstarJPsiToMuMu_forSTEAM_13TeV','HARVESTGEN']]
 workflows[545]=['',['BsToMuMu_forSTEAM_13TeV','HARVESTGEN']]
 
 # Miscellaneous
+workflows[595]=['',['DYToLL_M-50_13TeV_pythia8','NANOGENFromGen']]
