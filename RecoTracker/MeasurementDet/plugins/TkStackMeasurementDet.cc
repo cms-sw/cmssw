@@ -80,13 +80,56 @@ TkStackMeasurementDet::RecHitContainer TkStackMeasurementDet::recHits(const Traj
 
 */
 
+
+  //find clusters to skip
+  std::vector<Phase2TrackerCluster1DRef> skipClustersLower;
+  std::vector<Phase2TrackerCluster1DRef> skipClustersUpper;
+  const Phase2TrackerCluster1D* begin = nullptr;
+  if (!data.phase2OTData().handle()->data().empty()) {
+    begin = &(data.phase2OTData().handle()->data().front());
+  }
+  if (!data.phase2OTClustersToSkip().empty()){
+	  const detset& lowerDetSet = data.phase2OTData().detSet(lowerDet()->index());
+	  const detset& upperDetSet = data.phase2OTData().detSet(upperDet()->index());
+
+          if (lowerDetSet.size() > 0){
+		  for (const_iterator cil = lowerDetSet.begin(); cil != lowerDetSet.end(); ++cil) {
+		    if (cil < begin) {
+		      edm::LogError("IndexMisMatch") << "TkStackMeasurementDet cannot create hit because of index mismatch.";
+		      return result;
+		    }
+		    unsigned int indexl = cil - begin;
+		    if (data.phase2OTClustersToSkip()[indexl]){
+			 Phase2TrackerCluster1DRef clusterRef = edmNew::makeRefTo(data.phase2OTData().handle(), cil);
+			 skipClustersLower.push_back(clusterRef);
+		    }
+		     
+		  }
+	  }
+          if (upperDetSet.size() > 0){
+		  for (const_iterator ciu = upperDetSet.begin(); ciu != upperDetSet.end(); ++ciu) {
+		      if (ciu < begin) {
+			edm::LogError("IndexMisMatch") << "TkStackMeasurementDet cannot create hit because of index mismatch.";
+			return result;
+		      }
+		      unsigned int indexu = ciu - begin;
+		      if (data.phase2OTClustersToSkip()[indexu]){
+			 Phase2TrackerCluster1DRef clusterRef = edmNew::makeRefTo(data.phase2OTData().handle(), ciu);
+			 skipClustersUpper.push_back(clusterRef);
+		     }	
+		  }
+	  }
+  }
   DetId detIdStack = specificGeomDet().geographicalId();
 
   auto iterator = data.phase2OTVectorHits().find(detIdStack);
   if (iterator == data.phase2OTVectorHits().end())
     return result;
-  for (auto& vecHit : data.phase2OTVectorHits()[detIdStack])
+  for (const auto& vecHit : data.phase2OTVectorHits()[detIdStack]){
+    if (std::find(skipClustersLower.begin(), skipClustersLower.end(), vecHit.lowerCluster()) != skipClustersLower.end()) continue;
+    if (std::find(skipClustersUpper.begin(), skipClustersUpper.end(), vecHit.upperCluster()) != skipClustersUpper.end()) continue;
     result.push_back(std::make_shared<VectorHit>(vecHit));
+  }
   return result;
 }
 
@@ -108,9 +151,10 @@ bool TkStackMeasurementDet::measurements(const TrajectoryStateOnSurface& stateOn
 
   for (auto&& hit : allHits) {
     std::pair<bool, double> diffEst = est.estimate(stateOnThisDet, *hit);
-    LogDebug("MeasurementTracker") << "New vh added with chi2: " << diffEst.second;
-    if (diffEst.first)
+    if (diffEst.first){
+      LogDebug("MeasurementTracker") << "New vh added with chi2: " << diffEst.second;
       result.add(std::move(hit), diffEst.second);
+    }
   }
 
   if (result.size() > oldSize)
