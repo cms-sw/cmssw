@@ -43,7 +43,7 @@
 /*!
  * \def number of workers
  */
-const size_t nWorkers = 10;
+const size_t nWorkers = 20;
 
 /*!
  * \def basically the y-values of a TGraph
@@ -669,6 +669,8 @@ void MultiRunPVValidation(
         lumiByRun.push_back(lumiSoFar + lumi);
         lumiMapByRun[run] = (lumiSoFar + lumi);
         lumiSoFar += lumi;
+      } else {
+        std::cout << "run: " << run << " is not found in the intersection" << std::endl;
       }
       std::cout << run << " ====> lumi so far: " << lumiSoFar << std::endl;
     }
@@ -745,7 +747,9 @@ void MultiRunPVValidation(
 
   // re-assemble everything together
   for (auto extractedTrend : extracts) {
-    std::cout << "lumiSoFar: " << lumiSoFar << "/fb" << std::endl;
+    if (!useLumiByFile) {
+      std::cout << "lumiSoFar: " << lumiSoFar << "/fb" << std::endl;
+    }
 
     runs.insert(std::end(runs), std::begin(extractedTrend.m_runs), std::end(extractedTrend.m_runs));
 
@@ -859,8 +863,8 @@ void MultiRunPVValidation(
       dxyEtaHiErr_[label].push_back(std::abs(dxyEtaHi_[label][it] - dxyEtaMeans_[label][it]));
       dxyEtaLoErr_[label].push_back(std::abs(dxyEtaLo_[label][it] - dxyEtaMeans_[label][it]));
 
-      std::cout << "label: " << label << " means:" << dxyEtaMeans_[label][it] << " low: " << dxyEtaLo_[label][it]
-                << " loErr: " << dxyEtaLoErr_[label][it] << std::endl;
+      //std::cout << "label: " << label << " means:" << dxyEtaMeans_[label][it] << " low: " << dxyEtaLo_[label][it]
+      //<< " loErr: " << dxyEtaLoErr_[label][it] << std::endl;
 
       dzPhiHiErr_[label].push_back(std::abs(dzPhiHi_[label][it] - dzPhiMeans_[label][it]));
       dzPhiLoErr_[label].push_back(std::abs(dzPhiLo_[label][it] - dzPhiMeans_[label][it]));
@@ -966,7 +970,31 @@ void MultiRunPVValidation(
   if (lumi_axis_format) {
     theType = "luminosity";
     theTypeLabel = "Processed luminosity [1/fb]";
-    x_ticks = lumiByRun;
+    if (!useLumiByFile) {
+      x_ticks = lumiByRun;
+    } else {
+      // in case we are passing the luminosity per run by file, need to re-check the map
+      // in order to fill the x ticks of the graph only for the run which actually pass the selection
+      /*
+      double myLumi(0.);
+      for(const auto [iRun, iLumi] : lumiMapByRun){
+	myLumi+=iLumi;
+	if(std::find(runs.begin(), runs.end(), iRun) != runs.end()){
+	  x_ticks.push_back(myLumi);
+	  std::cout << " recompute run" << iRun << "lumi" << myLumi << std::endl;
+	}
+      }
+      */
+      double lastLumi(0.);
+      for (const auto &iRun : runs) {
+        if (lumiMapByRun.find(iRun) != lumiMapByRun.end()) {
+          x_ticks.push_back(lumiMapByRun[iRun]);
+          lastLumi = x_ticks.back();
+        } else {
+          x_ticks.push_back(lastLumi);
+        }
+      }
+    }
   } else {
     if (!time_axis_format) {
       theType = "run number";
@@ -1047,6 +1075,8 @@ void MultiRunPVValidation(
     // check on the sanity
     std::cout << "x_ticks.size()= " << x_ticks.size() << " dxyPhiMeans_[LegLabels[" << j
               << "]].size()=" << dxyPhiMeans_[LegLabels[j]].size() << std::endl;
+
+    assert(x_ticks.size() == dxyPhiMeans_[LegLabels[j]].size());
 
     // *************************************
     // dxy vs phi
@@ -2984,7 +3014,7 @@ outTrends processData(size_t iter,
     //if(intersection.at(n)!=283946)
     //  continue;
 
-    std::cout << "iter: " << iter << " " << n << " " << intersection.at(n) << std::endl;
+    //  std::cout << "iter: " << iter << " " << n << " " << intersection.at(n) << std::endl;
 
     TFile *fins[nDirs_];
 
@@ -3040,8 +3070,8 @@ outTrends processData(size_t iter,
         break;
       }
 
-      std::cout << Form("%s/PVValidation_%s_%i.root", dirs[j], stem.c_str(), intersection[n])
-                << " has size: " << fins[j]->GetSize() << " b ";
+      //std::cout << Form("%s/PVValidation_%s_%i.root", dirs[j], stem.c_str(), intersection[n])
+      //<< " has size: " << fins[j]->GetSize() << " b ";
 
       // sanity check
       TH1F *h_tracks = (TH1F *)fins[j]->Get("PVValidation/EventFeatures/h_nTracks");
@@ -3057,6 +3087,7 @@ outTrends processData(size_t iter,
       }
 
       Double_t numEvents = h_tracks->GetEntries();
+
       if (numEvents < 2500) {
         std::cout << "excluding " << intersection[n] << " because it has less than 2.5k events" << std::endl;
         areAllFilesOK = false;
@@ -3205,7 +3236,7 @@ outTrends processData(size_t iter,
       ret.m_lumiMapByRun[intersection.at(n)] = ret.m_lumiSoFar / 1000.;
     }
 
-    std::cout << "I am still here - runs.size(): " << ret.m_runs.size() << std::endl;
+    //std::cout << "I am still here - runs.size(): " << ret.m_runs.size() << std::endl;
 
     // Bias plots
 
@@ -3331,7 +3362,7 @@ outTrends processData(size_t iter,
     delete PullsCanvas;
     delete ResolutionsVsPt;
 
-    std::cout << std::endl;
+    //std::cout << std::endl;
   }
 
   return ret;
