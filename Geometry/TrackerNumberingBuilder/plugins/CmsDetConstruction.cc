@@ -52,12 +52,12 @@ template <>
 void CmsDetConstruction<DDFilteredView>::buildComponent(DDFilteredView& fv,
                                                         GeometricDet* mother,
                                                         const std::string& attribute) {
-
   // Mother volume
   // Module with 2 sensors: the mother volume is the module volume.
   // Module with 1 sensor: the mother volume is the ladder volume.
   const std::string& myTopologicalNameInXMLs = ExtractStringFromDDD<DDFilteredView>::getString(attribute, &fv);
-  const GeometricDet::GDEnumType& myTopologicalType = CmsTrackerLevelBuilder<DDFilteredView>::theCmsTrackerStringToEnum.type(myTopologicalNameInXMLs);
+  const GeometricDet::GDEnumType& myTopologicalType =
+      CmsTrackerLevelBuilder<DDFilteredView>::theCmsTrackerStringToEnum.type(myTopologicalNameInXMLs);
 
   GeometricDet* det = new GeometricDet(&fv, myTopologicalType);
 
@@ -66,18 +66,16 @@ void CmsDetConstruction<DDFilteredView>::buildComponent(DDFilteredView& fv,
 
   // CASE A: MODULE HAS 2 SENSORS
   if (isPhase1ModuleWith2Sensors || isPhase2ModuleWith2Sensors) {
-  
     // Go down in hierarchy: from module to sensor
-    bool dodets = fv.firstChild(); // very important
+    bool dodets = fv.firstChild();  // very important
     while (dodets) {
-
       // PHASE 1 (MERGEDDET)
       if (isPhase1ModuleWith2Sensors) {
-	buildSmallDetsforGlued(fv, det, attribute);
+        buildSmallDetsforGlued(fv, det, attribute);
       }
       // PHASE 2 (STACKDET)
       else if (isPhase2ModuleWith2Sensors) {
-	buildSmallDetsforStack(fv, det, attribute);
+        buildSmallDetsforStack(fv, det, attribute);
       }
 
       dodets = fv.nextSibling();
@@ -93,7 +91,6 @@ void CmsDetConstruction<DDFilteredView>::buildComponent(DDFilteredView& fv,
   mother->addComponent(det);
 }
 
-
 /*
  * DD4hep.
  * Module with 2 sensors: calculate the sensor local ID, and add the sensor to its mother volume (module).
@@ -103,12 +100,12 @@ template <>
 void CmsDetConstruction<cms::DDFilteredView>::buildComponent(cms::DDFilteredView& fv,
                                                              GeometricDet* mother,
                                                              const std::string& attribute) {
-
   // Mother volume
   // Module with 2 sensors: the mother volume is the module volume.
   // Module with 1 sensor: the mother volume is the ladder volume.
   const std::string& myTopologicalNameInXMLs = ExtractStringFromDDD<cms::DDFilteredView>::getString(attribute, &fv);
-  const GeometricDet::GDEnumType& myTopologicalType = CmsTrackerLevelBuilder<cms::DDFilteredView>::theCmsTrackerStringToEnum.type(myTopologicalNameInXMLs);
+  const GeometricDet::GDEnumType& myTopologicalType =
+      CmsTrackerLevelBuilder<cms::DDFilteredView>::theCmsTrackerStringToEnum.type(myTopologicalNameInXMLs);
   GeometricDet* det = new GeometricDet(&fv, myTopologicalType);
 
   const bool isPhase1ModuleWith2Sensors = (myTopologicalType == GeometricDet::mergedDet);
@@ -116,9 +113,8 @@ void CmsDetConstruction<cms::DDFilteredView>::buildComponent(cms::DDFilteredView
 
   // CASE A: MODULE HAS 2 SENSORS
   if (isPhase1ModuleWith2Sensors || isPhase2ModuleWith2Sensors) {
-
     // Go down in hierarchy: from module to sensor
-    if (!fv.firstChild()) { // very important
+    if (!fv.firstChild()) {  // very important
       edm::LogError("CmsDetConstruction::buildComponent. Cannot go down to sensor volume.");
       return;
     }
@@ -128,14 +124,13 @@ void CmsDetConstruction<cms::DDFilteredView>::buildComponent(cms::DDFilteredView
 
     // Loop on all siblings (ie, on all sensors)
     while (fv.level() == sensorHierarchyLevel) {
-
       // PHASE 1 (MERGEDDET)
       if (isPhase1ModuleWith2Sensors) {
-	buildSmallDetsforGlued(fv, det, attribute);
+        buildSmallDetsforGlued(fv, det, attribute);
       }
       // PHASE 2 (STACKDET)
       else if (isPhase2ModuleWith2Sensors) {
-	buildSmallDetsforStack(fv, det, attribute);
+        buildSmallDetsforStack(fv, det, attribute);
       }
 
       // Go to the next volume in FilteredView.

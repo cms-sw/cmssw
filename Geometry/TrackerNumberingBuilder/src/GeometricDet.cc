@@ -116,7 +116,7 @@ GeometricDet::GeometricDet(cms::DDFilteredView* fv, GeometricEnumType type)
       isLowerSensor_(fv->get<std::string_view>("TrackerLowerDetectors") == strue),
       isUpperSensor_(fv->get<std::string_view>("TrackerUpperDetectors") == strue),
       siliconAPVNum_(fv->get<double>("SiliconAPVNumber")),
-  isFromDD4hep_(true) {}
+      isFromDD4hep_(true) {}
 
 // PGeometricDet is persistent version... make it... then come back here and make the
 // constructor.
