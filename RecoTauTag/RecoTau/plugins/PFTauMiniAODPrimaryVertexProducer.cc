@@ -72,6 +72,9 @@ void PFTauMiniAODPrimaryVertexProducer::nonTauTracksInPVFromPackedCands(
     const reco::Track *track = cand.bestTrack();
     if (track == nullptr)
       continue;
+    //MB: Skip tracks with ill-defined momentum (why it happens?)
+    if (!std::isfinite(track->pt()) || !std::isfinite(track->eta()) || !std::isfinite(track->phi()))
+      continue;
     //Remove signal (tau) tracks
     //MB: Only deltaR deltaPt overlap removal possible (?)
     //MB: It should be fine as pat objects stores same track info with same presision
