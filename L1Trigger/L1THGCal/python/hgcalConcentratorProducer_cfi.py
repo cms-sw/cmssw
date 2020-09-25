@@ -65,12 +65,14 @@ bestchoice_ndata_decentralized = [
 
 superTCCompression_proc = cms.PSet(exponentBits = cms.uint32(4),
                                    mantissaBits = cms.uint32(5),
+                                   truncationBits = cms.uint32(0),
                                    rounding = cms.bool(True),
 )
 
 coarseTCCompression_proc = cms.PSet(exponentBits = cms.uint32(4),
                                     mantissaBits = cms.uint32(3),
-                                   rounding = cms.bool(True),
+                                    truncationBits = cms.uint32(0),
+                                    rounding = cms.bool(True),
 )
 
 from L1Trigger.L1THGCal.hgcalVFEProducer_cfi import vfe_proc
@@ -80,7 +82,10 @@ best_conc_proc = cms.PSet(ProcessorName  = cms.string('HGCalConcentratorProcesso
                           coarsenTriggerCells = cms.vuint32(0,0,0),
                           fixedDataSizePerHGCROC = cms.bool(False),
                           coarseTCCompression = coarseTCCompression_proc.clone(),
-                          superTCCalibration = vfe_proc.clone(),
+                          superTCCalibration_ee = vfe_proc.calibrationCfg_ee.clone(),
+                          superTCCalibration_hesi = vfe_proc.calibrationCfg_hesi.clone(),
+                          superTCCalibration_hesc = vfe_proc.calibrationCfg_hesc.clone(),
+                          superTCCalibration_nose = vfe_proc.calibrationCfg_nose.clone(),
                           ctcSize = cms.vuint32(CTC_SIZE),
                           )
 
@@ -93,7 +98,10 @@ supertc_conc_proc = cms.PSet(ProcessorName  = cms.string('HGCalConcentratorProce
                              coarsenTriggerCells = cms.vuint32(0,0,0),
                              superTCCompression = superTCCompression_proc.clone(),
                              coarseTCCompression = coarseTCCompression_proc.clone(),
-                             superTCCalibration = vfe_proc.clone(),
+                             superTCCalibration_ee = vfe_proc.calibrationCfg_ee.clone(),
+                             superTCCalibration_hesi = vfe_proc.calibrationCfg_hesi.clone(),
+                             superTCCalibration_hesc = vfe_proc.calibrationCfg_hesc.clone(),
+                             superTCCalibration_nose = vfe_proc.calibrationCfg_nose.clone(),
                              )
 
 custom_conc_proc = cms.PSet(ProcessorName  = cms.string('HGCalConcentratorProcessorSelection'),
@@ -108,7 +116,10 @@ custom_conc_proc = cms.PSet(ProcessorName  = cms.string('HGCalConcentratorProces
                           ctcSize = cms.vuint32(CTC_SIZE),
                           superTCCompression = superTCCompression_proc.clone(),
                           coarseTCCompression = coarseTCCompression_proc.clone(),
-                          superTCCalibration = vfe_proc.clone(),
+                          superTCCalibration_ee = vfe_proc.calibrationCfg_ee.clone(),
+                          superTCCalibration_hesi = vfe_proc.calibrationCfg_hesi.clone(),
+                          superTCCalibration_hesc = vfe_proc.calibrationCfg_hesc.clone(),
+                          superTCCalibration_nose = vfe_proc.calibrationCfg_nose.clone(),
                           )
 
 
@@ -124,7 +135,10 @@ coarsetc_onebitfraction_proc = cms.PSet(ProcessorName  = cms.string('HGCalConcen
                              oneBitFractionHighValue = cms.double(0.25),
                              superTCCompression = superTCCompression_proc.clone(),
                              coarseTCCompression = coarseTCCompression_proc.clone(),
-                             superTCCalibration = vfe_proc.clone(),
+                             superTCCalibration_ee = vfe_proc.calibrationCfg_ee.clone(),
+                             superTCCalibration_hesi = vfe_proc.calibrationCfg_hesi.clone(),
+                             superTCCalibration_hesc = vfe_proc.calibrationCfg_hesc.clone(),
+                             superTCCalibration_nose = vfe_proc.calibrationCfg_nose.clone(),
                              )
 
 
@@ -137,7 +151,10 @@ coarsetc_equalshare_proc = cms.PSet(ProcessorName  = cms.string('HGCalConcentrat
                              coarsenTriggerCells = cms.vuint32(0,0,0),
                              superTCCompression = superTCCompression_proc.clone(),
                              coarseTCCompression = coarseTCCompression_proc.clone(),
-                             superTCCalibration = vfe_proc.clone(),
+                             superTCCalibration_ee = vfe_proc.calibrationCfg_ee.clone(),
+                             superTCCalibration_hesi = vfe_proc.calibrationCfg_hesi.clone(),
+                             superTCCalibration_hesc = vfe_proc.calibrationCfg_hesc.clone(),
+                             superTCCalibration_nose = vfe_proc.calibrationCfg_nose.clone(),
 )
 
 
