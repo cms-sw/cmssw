@@ -257,9 +257,10 @@ std::unique_ptr<Bounds> GeometricDet::bounds() const {
 
 /*
  * DD4hep.
- * Keep order and units of parameters as old DD to avoid numerous rgeressions.
- * Shape parameters to be stored in DB and of interest are only for boxes, trapezoids, and tubs.
- * params() will complain if parameters of any other shape are accessed.
+ * Keep order and units of parameters same as old DD, to avoid numerous regressions.
+ * Shape parameters of interest, and those to be stored in DB, are only from boxes, trapezoids, and tubs.
+ * Hence, they are the only shapes treated here. 
+ * params() will complain, if the parameters of any other shape are accessed.
  */
 std::vector<double> GeometricDet::computeLegacyShapeParameters(const cms::DDSolidShape& mySolidShape,
                                                                const dd4hep::Solid& mySolid) const {

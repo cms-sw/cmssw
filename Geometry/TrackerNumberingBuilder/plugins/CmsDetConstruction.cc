@@ -47,9 +47,6 @@ template <>
 void CmsDetConstruction<DDFilteredView>::buildComponent(DDFilteredView& fv,
                                                         GeometricDet* mother,
                                                         const std::string& attribute) {
-  //
-  // at this level I check whether it is a merged detector or not
-  //
 
   GeometricDet* det = new GeometricDet(&fv,
                                        CmsTrackerLevelBuilder<DDFilteredView>::theCmsTrackerStringToEnum.type(
@@ -63,9 +60,6 @@ void CmsDetConstruction<DDFilteredView>::buildComponent(DDFilteredView& fv,
     while (dodets) {
       buildSmallDetsforGlued(fv, det, attribute);
       dodets = setNext(fv);
-      /*
-	Add algo to sort the merged DET
-	*/
     }
     fv.parent();
 
@@ -89,10 +83,6 @@ template <>
 void CmsDetConstruction<cms::DDFilteredView>::buildComponent(cms::DDFilteredView& fv,
                                                              GeometricDet* mother,
                                                              const std::string& attribute) {
-  //
-  // at this level I check whether it is a merged detector or not
-  //
-
   GeometricDet* det = new GeometricDet(&fv,
                                        CmsTrackerLevelBuilder<cms::DDFilteredView>::theCmsTrackerStringToEnum.type(
                                            ExtractStringFromDDD<cms::DDFilteredView>::getString(attribute, &fv)));
