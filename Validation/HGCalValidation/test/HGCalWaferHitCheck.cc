@@ -24,6 +24,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/Utilities/interface/InputTag.h"
+#include "FWCore/Utilities/interface/ESGetToken.h"
 
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 #include "Geometry/HGCalCommonData/interface/HGCalDDDConstants.h"
@@ -39,8 +40,8 @@ namespace HGCalValidSimhitCheck {
       occupancy_.clear();
       goodChannels_.clear();
     }
-    mutable std::map<int, int> badTypes_, occupancy_;
-    mutable std::vector<int> goodChannels_;
+    CMS_THREAD_GUARD(mtx_) mutable std::map<int, int> badTypes_, occupancy_;
+    CMS_THREAD_GUARD(mtx_) mutable std::vector<int> goodChannels_;
     mutable std::mutex mtx_;
   };
 }  // namespace HGCalValidSimhitCheck
@@ -75,6 +76,7 @@ private:
   const bool ifNose_;
   edm::EDGetToken digiHitSource_;
   const HGCalDDDConstants* hgcons_;
+  edm::ESGetToken<HGCalDDDConstants, IdealGeometryRecord> geomToken_;
   edm::EDGetTokenT<edm::PCaloHitContainer> tok_hit_;
   std::map<int, int> badTypes_, occupancy_;
   std::vector<int> goodChannels_;
@@ -89,6 +91,7 @@ HGCalWaferHitCheck::HGCalWaferHitCheck(const edm::ParameterSet& iConfig, const H
       inpType_(iConfig.getParameter<int>("inputType")),
       verbosity_(iConfig.getUntrackedParameter<int>("verbosity", 0)),
       ifNose_(iConfig.getUntrackedParameter<bool>("ifNose", false)),
+      geomToken_(esConsumes<HGCalDDDConstants, IdealGeometryRecord>(edm::ESInputTag("", nameDetector_))),
       tok_hit_(consumes<edm::PCaloHitContainer>(edm::InputTag("g4SimHits", caloHitSource_))) {
   if (inpType_ == Digi) {
     digiHitSource_ = consumes<HGCalDigiCollection>(source_);
@@ -193,8 +196,7 @@ void HGCalWaferHitCheck::analyzeHits(std::string const& name, T const& hits) {
 
 // ------------ method called when starting to processes a run  ------------
 void HGCalWaferHitCheck::beginRun(const edm::Run&, const edm::EventSetup& iSetup) {
-  edm::ESHandle<HGCalDDDConstants> pHGDC;
-  iSetup.get<IdealGeometryRecord>().get(nameDetector_, pHGDC);
+  edm::ESHandle<HGCalDDDConstants> pHGDC = iSetup.getHandle(geomToken_);
   hgcons_ = &(*pHGDC);
   if (verbosity_ > 0)
     edm::LogVerbatim("HGCalValidation") << nameDetector_ << " defined with " << hgcons_->layers(false)
@@ -216,7 +218,7 @@ void HGCalWaferHitCheck::beginRun(const edm::Run&, const edm::EventSetup& iSetup
 }
 
 void HGCalWaferHitCheck::endStream() {
-  globalCache()->mtx_.lock();
+  std::scoped_lock lock(globalCache()->mtx_);
   for (auto [id, count] : occupancy_) {
     if (globalCache()->occupancy_.find(id) == globalCache()->occupancy_.end())
       globalCache()->occupancy_[id] = count;
