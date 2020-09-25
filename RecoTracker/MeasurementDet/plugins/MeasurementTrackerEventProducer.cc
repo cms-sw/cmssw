@@ -60,8 +60,10 @@ MeasurementTrackerEventProducer::MeasurementTrackerEventProducer(const edm::Para
         edm::InputTag(iConfig.getParameter<std::string>("Phase2TrackerCluster1DProducer")));
     isPhase2_ = true;
   }
-  if (!(iConfig.getParameter<edm::InputTag>("vectorHits") == edm::InputTag(""))) {
+  if (!(iConfig.getParameter<edm::InputTag>("vectorHits") == edm::InputTag("") ||
+        iConfig.getParameter<edm::InputTag>("vectorHitsRej") == edm::InputTag(""))) {
     thePh2OTVectorHitsLabel = consumes<VectorHitCollectionNew>(iConfig.getParameter<edm::InputTag>("vectorHits"));
+    thePh2OTVectorHitsRejLabel = consumes<VectorHitCollectionNew>(iConfig.getParameter<edm::InputTag>("vectorHitsRej"));
     isPhase2_ = true;
     useVectorHits_ = true;
   }
@@ -78,6 +80,7 @@ void MeasurementTrackerEventProducer::fillDescriptions(edm::ConfigurationDescrip
   desc.add<std::string>("stripClusterProducer", "siStripClusters");
   desc.add<std::string>("Phase2TrackerCluster1DProducer", "");
   desc.add<edm::InputTag>("vectorHits", edm::InputTag(""));
+  desc.add<edm::InputTag>("vectorHitsRej", edm::InputTag(""));
 
   desc.add<std::vector<edm::InputTag>>("inactivePixelDetectorLabels",
                                        std::vector<edm::InputTag>{{edm::InputTag("siPixelDigis")}})
@@ -122,14 +125,17 @@ void MeasurementTrackerEventProducer::produce(edm::Event& iEvent, const edm::Eve
   //
 
   const VectorHitCollectionNew* phase2OTVectorHits = useVectorHits_ ? &iEvent.get(thePh2OTVectorHitsLabel) : nullptr;
+  const VectorHitCollectionNew* phase2OTVectorHitsRej =
+      useVectorHits_ ? &iEvent.get(thePh2OTVectorHitsRejLabel) : nullptr;
   iEvent.put(std::make_unique<MeasurementTrackerEvent>(*measurementTracker,
-                                                         stripData.release(),
-                                                         pixelData.release(),
-                                                         phase2OTData.release(),
-                                                         phase2OTVectorHits,
-                                                         stripClustersToSkip,
-                                                         pixelClustersToSkip,
-                                                         phase2ClustersToSkip));
+                                                       stripData.release(),
+                                                       pixelData.release(),
+                                                       phase2OTData.release(),
+                                                       phase2OTVectorHits,
+                                                       phase2OTVectorHitsRej,
+                                                       stripClustersToSkip,
+                                                       pixelClustersToSkip,
+                                                       phase2ClustersToSkip));
 }
 
 void MeasurementTrackerEventProducer::updatePixels(const edm::Event& event,
