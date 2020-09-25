@@ -674,10 +674,13 @@ void MultiRunPVValidation(
       if (std::find(intersection.begin(), intersection.end(), run) != intersection.end()) {
         lumiByRun.push_back(lumiSoFar + lumi);
         lumiMapByRun[run] = (lumiSoFar + lumi);
-        lumiSoFar += lumi;
       } else {
         logWarning << " Run: " << run << " is not found in the intersection" << std::endl;
       }
+      // fill the lumi so far irrespective if the run is in the intersection or not
+      // this corrects the global scale
+      lumiSoFar += lumi;
+
       logInfo << run << " ====> lumi so far: " << lumiSoFar << std::endl;
     }
   }
