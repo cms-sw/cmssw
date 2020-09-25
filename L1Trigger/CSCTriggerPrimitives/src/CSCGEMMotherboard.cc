@@ -32,6 +32,8 @@ CSCGEMMotherboard::~CSCGEMMotherboard() {}
 
 void CSCGEMMotherboard::clear() {
   CSCUpgradeMotherboard::clear();
+  gemCoPadV.clear();
+  coPadProcessor->clear();
   pads_.clear();
   coPads_.clear();
 }
