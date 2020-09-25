@@ -144,20 +144,21 @@ template <>
 void CmsTrackerLevelBuilder<DDFilteredView>::build(DDFilteredView& fv,
                                                    GeometricDet* tracker,
                                                    const std::string& attribute) {
-  edm::LogVerbatim("CmsTrackerLevelBuilder::build called on volume")
-      << " tracker->name() = " << tracker->name() << " tracker->path() = " << fv.geoHistory()
-      << " tracker->type() = " << tracker->type();
+  edm::LogVerbatim("CmsTrackerLevelBuilder")
+    << "CmsTrackerLevelBuilder::build called on volume"
+    << " tracker->name() = " << tracker->name() << " tracker->path() = " << fv.geoHistory()
+    << " tracker->type() = " << tracker->type();
 
   // Go down one level in hierarchy
   bool doLayers = fv.firstChild();
 
   while (doLayers) {
-    edm::LogVerbatim("Calling buildComponent, before");
+    edm::LogVerbatim("CmsTrackerLevelBuilder") << "Calling buildComponent, before";
 
     // Call build on sibling
     buildComponent(fv, tracker, attribute);
 
-    edm::LogVerbatim("Calling buildComponent, after");
+    edm::LogVerbatim("CmsTrackerLevelBuilder") << "Calling buildComponent, after";
 
     // Go to next sibling
     doLayers = fv.nextSibling();
@@ -169,7 +170,7 @@ void CmsTrackerLevelBuilder<DDFilteredView>::build(DDFilteredView& fv,
   // Now that all GeometricDets of a given hierarchy level are built, sort them!
   sortNS(fv, tracker);
 
-  edm::LogVerbatim("CmsTrackerLevelBuilder::build: Exit, finished all buildComponents calls.");
+  edm::LogVerbatim("CmsTrackerLevelBuilder") << "CmsTrackerLevelBuilder::build: Exit, finished all buildComponents calls.";
 }
 
 /*
@@ -179,9 +180,10 @@ template <>
 void CmsTrackerLevelBuilder<cms::DDFilteredView>::build(cms::DDFilteredView& fv,
                                                         GeometricDet* tracker,
                                                         const std::string& attribute) {
-  edm::LogVerbatim("CmsTrackerLevelBuilder::build called on volume")
-      << " tracker->name() = " << tracker->name() << " tracker->path() = " << fv.geoHistory()
-      << " tracker->type() = " << tracker->type();
+  edm::LogVerbatim("CmsTrackerLevelBuilder")
+    << "CmsTrackerLevelBuilder::build called on volume"
+    << " tracker->name() = " << tracker->name() << " tracker->path() = " << fv.geoHistory()
+    << " tracker->type() = " << tracker->type();
 
   // Go down one level in hierarchy
   fv.firstChild();
@@ -192,22 +194,24 @@ void CmsTrackerLevelBuilder<cms::DDFilteredView>::build(cms::DDFilteredView& fv,
 
   // Treat all siblings of a given hierarchy level
   while (fv.level() == level) {
-    edm::LogVerbatim("Calling buildComponent, before.")
-        << " level = " << level << " type = " << type << " fv.level() = " << fv.level()
-        << " fv.type() = " << ExtractStringFromDDD<cms::DDFilteredView>::getString(attribute, &fv);
+    edm::LogVerbatim("CmsTrackerLevelBuilder")
+      << "Calling buildComponent, before."
+      << " level = " << level << " type = " << type << " fv.level() = " << fv.level()
+      << " fv.type() = " << ExtractStringFromDDD<cms::DDFilteredView>::getString(attribute, &fv);
 
     // Call build on sibling
     buildComponent(fv, tracker, attribute);
 
-    edm::LogVerbatim("Calling buildComponent, after.")
-        << " level = " << level << " type = " << type << " fv.level() = " << fv.level()
-        << " fv.type() = " << ExtractStringFromDDD<cms::DDFilteredView>::getString(attribute, &fv);
+    edm::LogVerbatim("CmsTrackerLevelBuilder")
+      << "Calling buildComponent, after."
+      << " level = " << level << " type = " << type << " fv.level() = " << fv.level()
+      << " fv.type() = " << ExtractStringFromDDD<cms::DDFilteredView>::getString(attribute, &fv);
   }
 
   // Now that all GeometricDets of a given hierarchy level are built, sort them!
   sortNS(fv, tracker);
 
-  edm::LogVerbatim("CmsTrackerLevelBuilder::build: Exit, finished all buildComponents calls.");
+  edm::LogVerbatim("CmsTrackerLevelBuilder") << "CmsTrackerLevelBuilder::build: Exit, finished all buildComponents calls.";
 }
 
 template class CmsTrackerLevelBuilder<DDFilteredView>;
