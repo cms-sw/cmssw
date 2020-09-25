@@ -16,8 +16,7 @@ class TkStackMeasurementDet final : public MeasurementDet {
 public:
   TkStackMeasurementDet(const StackGeomDet* gdet,
                         const VectorHitBuilderAlgorithm* matcher,
-                        const PixelClusterParameterEstimator* cpe,
-                        const TrackerTopology* tkTopo);
+                        const PixelClusterParameterEstimator* cpe);
   void init(const MeasurementDet* lowerDet, const MeasurementDet* upperDet);
 
   RecHitContainer recHits(const TrajectoryStateOnSurface&, const MeasurementTrackerEvent& data) const override;
@@ -52,7 +51,6 @@ public:
 private:
   const VectorHitBuilderAlgorithm* theMatcher;
   const PixelClusterParameterEstimator* thePixelCPE;
-  const TrackerTopology* theTkTopo;
   const TkPhase2OTMeasurementDet* theLowerDet;
   const TkPhase2OTMeasurementDet* theUpperDet;
 };
