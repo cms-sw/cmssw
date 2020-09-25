@@ -3,15 +3,9 @@
 <use name="DataFormats/CSCDigi"/>
 <use name="FWCore/Framework"/>
 <use name="FWCore/ParameterSet"/>
-<use name="FWCore/Utilities"/>
 <use name="Geometry/CSCGeometry"/>
 <use name="Geometry/Records"/>
-<use name="L1Trigger/CSCCommonTrigger"/>
 <use name="L1Trigger/CSCTrackFinder"/>
-<use name="L1Trigger/CSCTriggerPrimitives"/>
-<use name="PhysicsTools/UtilAlgos"/>
-<use name="SimDataFormats/EncodedEventId"/>
-<use name="SimDataFormats/GeneratorProducts"/>
 <use name="SimDataFormats/Track"/>
 
 <!--
