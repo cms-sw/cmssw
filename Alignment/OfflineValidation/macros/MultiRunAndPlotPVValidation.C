@@ -38,7 +38,7 @@
 /*!
  * \def boolean to decide if it is in debug mode
  */
-#define DEBUG true
+#define VERBOSE false
 
 /*!
  * \def number of workers
@@ -531,7 +531,6 @@ void MultiRunPVValidation(
               << std::endl;
     std::cout << "msg-i: MultiRunPVValidation(): you're requesting both summary vs lumi and vs time, " << std::endl;
     std::cout << "       this combination is inconsistent --> exiting!" << std::endl;
-    //return;
     exit(EXIT_FAILURE);
   }
 
@@ -543,7 +542,7 @@ void MultiRunPVValidation(
     if (!infile) {
       std::cout << "Required time axis options, but missing input times file :(" << std::endl;
       std::cout << " -- exiting" << std::endl;
-      return;
+      exit(EXIT_FAILURE);
     }
 
     std::string line;
@@ -650,7 +649,7 @@ void MultiRunPVValidation(
     if (!lumifile) {
       std::cout << "Required luminosity from file, but missing input file :(" << std::endl;
       std::cout << " -- exiting" << std::endl;
-      return;
+      exit(EXIT_FAILURE);
     }
 
     std::string line;
@@ -670,7 +669,7 @@ void MultiRunPVValidation(
         lumiMapByRun[run] = (lumiSoFar + lumi);
         lumiSoFar += lumi;
       } else {
-        std::cout << "run: " << run << " is not found in the intersection" << std::endl;
+        std::cout << "WARNING! Run: " << run << " is not found in the intersection" << std::endl;
       }
       std::cout << run << " ====> lumi so far: " << lumiSoFar << std::endl;
     }
@@ -863,8 +862,10 @@ void MultiRunPVValidation(
       dxyEtaHiErr_[label].push_back(std::abs(dxyEtaHi_[label][it] - dxyEtaMeans_[label][it]));
       dxyEtaLoErr_[label].push_back(std::abs(dxyEtaLo_[label][it] - dxyEtaMeans_[label][it]));
 
-      //std::cout << "label: " << label << " means:" << dxyEtaMeans_[label][it] << " low: " << dxyEtaLo_[label][it]
-      //<< " loErr: " << dxyEtaLoErr_[label][it] << std::endl;
+      if (VERBOSE) {
+        std::cout << "label: " << label << " means:" << dxyEtaMeans_[label][it] << " low: " << dxyEtaLo_[label][it]
+                  << " loErr: " << dxyEtaLoErr_[label][it] << std::endl;
+      }
 
       dzPhiHiErr_[label].push_back(std::abs(dzPhiHi_[label][it] - dzPhiMeans_[label][it]));
       dzPhiLoErr_[label].push_back(std::abs(dzPhiLo_[label][it] - dzPhiMeans_[label][it]));
@@ -973,8 +974,6 @@ void MultiRunPVValidation(
     if (!useLumiByFile) {
       x_ticks = lumiByRun;
     } else {
-      // in case we are passing the luminosity per run by file, need to re-check the map
-      // in order to fill the x ticks of the graph only for the run which actually pass the selection
       /*
       double myLumi(0.);
       for(const auto [iRun, iLumi] : lumiMapByRun){
@@ -985,12 +984,16 @@ void MultiRunPVValidation(
 	}
       }
       */
+      // in case we are passing the luminosity per run by file, need to re-check the map
+      // in order to fill the x ticks of the graph only for the run which actually pass the selection
       double lastLumi(0.);
       for (const auto &iRun : runs) {
         if (lumiMapByRun.find(iRun) != lumiMapByRun.end()) {
           x_ticks.push_back(lumiMapByRun[iRun]);
           lastLumi = x_ticks.back();
         } else {
+          // if the run is not find in the lumiMapByRun we just use the lumi of
+          // the last run analyzed (so we assume that run has lumi=0)
           x_ticks.push_back(lastLumi);
         }
       }
@@ -1076,6 +1079,7 @@ void MultiRunPVValidation(
     std::cout << "x_ticks.size()= " << x_ticks.size() << " dxyPhiMeans_[LegLabels[" << j
               << "]].size()=" << dxyPhiMeans_[LegLabels[j]].size() << std::endl;
 
+    // otherwise something very bad has happened
     assert(x_ticks.size() == dxyPhiMeans_[LegLabels[j]].size());
 
     // *************************************
@@ -1764,7 +1768,7 @@ void outputGraphs(const pv::wrappedTrends &allInputs,
   g_mean->SetMarkerStyle(pv::markers[index]);
   g_mean->SetMarkerColor(pv::colors[index]);
   g_mean->SetLineColor(pv::colors[index]);
-  g_mean->SetMarkerSize(1.5);
+  g_mean->SetMarkerSize(1.);
   g_high->SetLineColor(pv::colors[index]);
   g_low->SetLineColor(pv::colors[index]);
   beautify(g_mean);
@@ -1915,7 +1919,7 @@ void outputGraphs(const pv::wrappedTrends &allInputs,
 
   h_RMS[index]->SetLineColor(pv::colors[index]);
   h_RMS[index]->SetLineWidth(2);
-  h_RMS[index]->SetMarkerSize(1.5);
+  h_RMS[index]->SetMarkerSize(1.);
   h_RMS[index]->SetMarkerStyle(pv::markers[index]);
   h_RMS[index]->SetMarkerColor(pv::colors[index]);
   adjustmargins(rms_canv);
@@ -3014,7 +3018,9 @@ outTrends processData(size_t iter,
     //if(intersection.at(n)!=283946)
     //  continue;
 
-    //  std::cout << "iter: " << iter << " " << n << " " << intersection.at(n) << std::endl;
+    if (VERBOSE) {
+      std::cout << "iter: " << iter << " " << n << " " << intersection.at(n) << std::endl;
+    }
 
     TFile *fins[nDirs_];
 
@@ -3070,8 +3076,10 @@ outTrends processData(size_t iter,
         break;
       }
 
-      //std::cout << Form("%s/PVValidation_%s_%i.root", dirs[j], stem.c_str(), intersection[n])
-      //<< " has size: " << fins[j]->GetSize() << " b ";
+      if (VERBOSE) {
+        std::cout << Form("%s/PVValidation_%s_%i.root", dirs[j], stem.c_str(), intersection[n])
+                  << " has size: " << fins[j]->GetSize() << " b ";
+      }
 
       // sanity check
       TH1F *h_tracks = (TH1F *)fins[j]->Get("PVValidation/EventFeatures/h_nTracks");
@@ -3236,7 +3244,9 @@ outTrends processData(size_t iter,
       ret.m_lumiMapByRun[intersection.at(n)] = ret.m_lumiSoFar / 1000.;
     }
 
-    //std::cout << "I am still here - runs.size(): " << ret.m_runs.size() << std::endl;
+    if (VERBOSE) {
+      std::cout << "I am still here - runs.size(): " << ret.m_runs.size() << std::endl;
+    }
 
     // Bias plots
 
@@ -3362,7 +3372,9 @@ outTrends processData(size_t iter,
     delete PullsCanvas;
     delete ResolutionsVsPt;
 
-    //std::cout << std::endl;
+    if (VERBOSE) {
+      std::cout << std::endl;
+    }
   }
 
   return ret;
