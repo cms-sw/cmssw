@@ -389,7 +389,8 @@ reco::ForwardProton ProtonReconstructionAlgorithm::reconstructFromMultiRP(const 
   // save reco candidate
   const double sign_z = (armId == 0) ? +1. : -1.;  // CMS convention
   const FP::Point vertex(0., vtx_y, 0.);
-  const double cos_th = sqrt(1. - th_x * th_x - th_y * th_y);
+  const double cos_th_sq = sqrt(1. - th_x * th_x - th_y * th_y);
+  const double cos_th = (cos_th_sq > 0.) ? sqrt(cos_th_sq) : 1.;
   const double p = lhcInfo.energy() * (1. - xi);
   const FP::Vector momentum(-p * th_x,  // the signs reflect change LHC --> CMS convention
                             +p * th_y,
@@ -437,7 +438,8 @@ reco::ForwardProton ProtonReconstructionAlgorithm::reconstructFromSingleRP(const
   // save proton candidate
   const double sign_z = (CTPPSDetId(track->rpId()).arm() == 0) ? +1. : -1.;  // CMS convention
   const FP::Point vertex(0., 0., 0.);
-  const double cos_th = sqrt(1. - th_y * th_y);
+  const double cos_th_sq = 1. - th_y * th_y;
+  const double cos_th = (cos_th_sq > 0.) ? sqrt(cos_th_sq) : 1.;
   const double p = lhcInfo.energy() * (1. - xi);
   const FP::Vector momentum(0., p * th_y, sign_z * p * cos_th);
 
