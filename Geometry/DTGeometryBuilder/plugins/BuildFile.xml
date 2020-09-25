@@ -5,9 +5,12 @@
 <use name="FWCore/ParameterSet"/>
 <use name="Geometry/MuonNumbering"/>
 <use name="Geometry/Records"/>
+
 <library name="DTGeometryPlugins" file="DTGeometryESModule.cc">
   <use name="DetectorDescription/Core"/>
+  <use name="DetectorDescription/DDCMS"/>
   <use name="Geometry/DTGeometryBuilder"/>
+  <use name="dd4hep"/>
   <flags EDM_PLUGIN="1"/>
 </library>
 
