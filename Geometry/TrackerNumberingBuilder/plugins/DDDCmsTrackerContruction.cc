@@ -31,11 +31,11 @@ std::unique_ptr<GeometricDet> DDDCmsTrackerContruction::construct(const DDCompac
 
   auto tracker = std::make_unique<GeometricDet>(&fv, GeometricDet::Tracker);
 
-  edm::LogVerbatim("DDDCmsTrackerContruction::construct: Call Tracker builder.");
+  edm::LogVerbatim("DDDCmsTrackerContruction") << "DDDCmsTrackerContruction::construct: Call Tracker builder.";
   CmsTrackerBuilder<DDFilteredView> theCmsTrackerBuilder;
   theCmsTrackerBuilder.build(fv, tracker.get(), attribute);
 
-  edm::LogVerbatim("Assign DetIds");
+  edm::LogVerbatim("DDDCmsTrackerContruction") << "Assign DetIds";
   CmsTrackerDetIdBuilder theCmsTrackerDetIdBuilder(detidShifts);
   theCmsTrackerDetIdBuilder.buildId(*tracker);
 
@@ -70,11 +70,11 @@ std::unique_ptr<GeometricDet> DDDCmsTrackerContruction::construct(const cms::DDC
 
   auto tracker = std::make_unique<GeometricDet>(&fv, GeometricDet::Tracker);
 
-  edm::LogVerbatim("DDDCmsTrackerContruction::construct: Call Tracker builder.");
+  edm::LogVerbatim("DDDCmsTrackerContruction") << "DDDCmsTrackerContruction::construct: Call Tracker builder.";
   CmsTrackerBuilder<cms::DDFilteredView> theCmsTrackerBuilder;
   theCmsTrackerBuilder.build(fv, tracker.get(), attribute);
 
-  edm::LogVerbatim("Assign DetIds");
+  edm::LogVerbatim("DDDCmsTrackerContruction") << "Assign DetIds";
   CmsTrackerDetIdBuilder theCmsTrackerDetIdBuilder(detidShifts);
   theCmsTrackerDetIdBuilder.buildId(*tracker);
 
