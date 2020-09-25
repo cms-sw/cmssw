@@ -2,6 +2,7 @@
 <use name="root"/>
 <flags EDM_PLUGIN="1"/>
 <library name="L1GctTest" file="*.cc">
+  <use name="CondFormats/DataRecord"/>
 </library>
 
 <bin name="checkLut" file="checkLut.cpp,produceTrivialCalibrationLut.cc,L1GctLutFromFile.cc">

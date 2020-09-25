@@ -1,14 +1,9 @@
-<use name="CondCore/DBOutputService"/>
-<use name="CondCore/PopCon"/>
 <use name="CondFormats/DTObjects"/>
 <use name="CondFormats/DataRecord"/>
 <use name="CondTools/DT"/>
 <use name="CoralBase"/>
-<use name="DataFormats/Provenance"/>
-<use name="FWCore/Catalog"/>
 <use name="FWCore/Framework"/>
 <use name="FWCore/ParameterSet"/>
-<use name="FWCore/ServiceRegistry"/>
 <use name="FWCore/PluginManager"/>
 <use name="RelationalAccess"/>
 <use name="L1TriggerConfig/DTTPGConfig"/>
