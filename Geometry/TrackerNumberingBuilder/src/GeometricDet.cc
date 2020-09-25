@@ -81,8 +81,8 @@ GeometricDet::GeometricDet(DDFilteredView* fv, GeometricEnumType type)
       xi_(getDouble("TrackerXi", *fv)),
       pixROCRows_(getDouble("PixelROCRows", *fv)),
       pixROCCols_(getDouble("PixelROCCols", *fv)),
-      pixROCx_(getDouble("PixelROCX_", *fv)),
-      pixROCy_(getDouble("PixelROCY_", *fv)),
+      pixROCx_(getDouble("PixelROC_X", *fv)),
+      pixROCy_(getDouble("PixelROC_Y", *fv)),
       stereo_(getString("TrackerStereoDetectors", *fv) == strue),
       isLowerSensor_(getString("TrackerLowerDetectors", *fv) == strue),
       isUpperSensor_(getString("TrackerUpperDetectors", *fv) == strue),
@@ -110,13 +110,13 @@ GeometricDet::GeometricDet(cms::DDFilteredView* fv, GeometricEnumType type)
       xi_(fv->get<double>("TrackerXi")),                // To be studied
       pixROCRows_(fv->get<double>("PixelROCRows")),
       pixROCCols_(fv->get<double>("PixelROCCols")),
-      pixROCx_(fv->get<double>("PixelROCX_")),
-      pixROCy_(fv->get<double>("PixelROCY_")),
+      pixROCx_(fv->get<double>("PixelROC_X")),
+      pixROCy_(fv->get<double>("PixelROC_Y")),
       stereo_(fv->get<std::string_view>("TrackerStereoDetectors") == strue),
       isLowerSensor_(fv->get<std::string_view>("TrackerLowerDetectors") == strue),
       isUpperSensor_(fv->get<std::string_view>("TrackerUpperDetectors") == strue),
       siliconAPVNum_(fv->get<double>("SiliconAPVNumber")),
-      isFromDD4hep_(true) {}
+  isFromDD4hep_(true) {}
 
 // PGeometricDet is persistent version... make it... then come back here and make the
 // constructor.
