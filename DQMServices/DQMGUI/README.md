@@ -11,6 +11,30 @@ There are multiple relevant parts:
 - A web server.
 - A HTML frontend.
 
+## Architecture of the backend
+
+The backend is built using service architecture. This means that there are different services chained relying on each other to provide a result of an API call.
+
+Request starts in one of the endpoint methods declared in `app.py`. Then it goes to `GUIService` which delegates the task to multiple other required services and formulates the response.
+
+For example, a request to render a plot comes in. The GUI would handle it like this:
+
+1. `app.py` delegates the request to `GUIService`
+2. `GUIService` tries to retrieve data about the sample from `GUIDataStore` service
+3. If data is not found, an import procedure is delegated to the `GUIImportManager` service
+4. `GUIImportManager` retrieves missing information about the sample from `GUIDataStore`
+5. Then `GUIImportManager` selects the appropriate importer based on the file type and delegates the import procedure to it
+6. Specific importer then uses `IOService` to access the file and a specific reader to read its contents (based on the file type)
+7. `GUIImportManager` then stores the information about the sample back in the database using `GUIDataStore` service so we don't have to import it again
+8. Then `GUIService` delegates the rendering to `GUIRenderer` service which uses a specific reader service to read the ROOT histogram and render it
+9. Finally, `GUIRenderer` returns a rendered histogram PNG
+
+If the sample is already imported, steps 3 to 7 would be omitted.
+
+Bellow is a sequence diagram for explaining this procedure
+
+![Render request sequence diagram](data/etc/GUISequence.jpg)
+
 ## The render service
 
 The histogram rendering using ROOT and the render plugins is done in a separate process in the classic DQMGUI. This package contians a simplified version of this process. `render.cc` compiles into a standalone program, `dqmRender`, that listens on a UNIX socket. A client (e.g. the GUI webserver) can request rendering a histogram there, by sending a request consisting of some metadata (some of which is a relict of the past and not actually used) and an arbitrary number of ROOT objects serialized into a `TBufferFile` buffer: The fisrt is the main object, the remaining ones are reference histograms that will be overlayed in different colors. (Some code for rendering _built-in references_ stored with the main object might remain, but this mode is no longer supported -- in line with CMSSW no longer supporting refrence hisotgrams in the `MonitorElement`.) The response is a PNG-compressed bitmap. All messages use a simple framing format of first sending the length, then the actual data, sometimes nested.
@@ -372,7 +396,6 @@ cp ../../Core/src/ROOTFilePB.proto protobuf/
 protoc -I=protobuf --python_out=protobuf protobuf/ROOTFilePB.proto
 ```
 
-
 # HLTD online instalation
 
 First, generate two RPM packages. One will have python dependencies and the other will be the HLTD code:
@@ -484,7 +507,96 @@ unzip python_packages.zip
 rm python_packages.zip
 ```
 
-## systemd related configuration
+## Create required directories
+
+``` bash
+sudo -u dqmpro -H bash
+mkdir -p /data/dqmgui/files/root/
+mkdir -p /data/dqmgui/files/pb/
+mkdir -p /data/dqmgui/scripts
+mkdir -p /data/dqmgui/state
+```
+
+# Integration into the Online system
+
+The DQM GUI works on all 4 P5 GUI machines:
+
+* srv-c2f11-29-01.cms Production GUI used by shifters at P5
+* srv-c2f11-29-02.cms Production GUI used by all other users accessing it via CMSWEB
+* srv-c2f11-29-03.cms Playback GUI used by the DQM playback system
+* srv-c2f11-29-04.cms Production test GUI running on production data
+
+All 3 Production machines are being populated by the production system simultaneously.
+
+Production and playback systems are pretty much the same in terms of DQM GUI integration, so everything bellow applies to both systems unless specified otherwise.
+
+## DQM Online processing
+
+This section is not about the GUI integration but it's a summary of the gerenal DQM processing pipeline.
+
+Some trminology:
+* BU - builder unit. A machine that's responsible for providing input files and hosting output files.
+* FU - filter unit. A machine that's responsible for running DQM online clients.
+
+HLT/DAQ copies reconstructed data files (DQM streams) to this directory in our BU: `/fff/BU0/ramdisk/`. This directory is also mounted and accessible from DQM FUs. HLTD, running on all 4 of our FUs detects the presence of new stream files and starts our online clients. Each client writes the output files containing histograms to its own machine. The problem that we have to solve is collecting all files belonging to the same run from all 4 FUs, merging them and uploading them to the appropriate DQM GUI.
+
+Software that is responsible for managing and merging the files from multiple FU machines is HLTD. It works on all 4 FUs and a BU. In a FU mode it trasfers all ROOT and PB files to a respective BU and on a BU it merges the files and uploads them to the respective GUI machine(s).
+
+Every CMSSW process (i.e an online client) produces a PB (protobuf) snapshot file every lumisection containing a snapshot of all histograms from all previous lumisections. In the end of the run, every client produces a per run ROOT file containing all histograms of that run. 
+
+## HLTD
+
+HLTD is the software that is responsible for DQM output file transfer, concatenation and merger in all FUs, a respective BU and GUI machines. 
+
+The repository is available here (needs permission from DAQ to access): https://gitlab.cern.ch/cms-daq/fff/hltd
+
+The process that is started by the main HLTD program for every run is called `anelastiocDQM.py`. `anelasticDQM.py` is responsible for all new DQM GUI related tasks. Bellow we will discuss the two modes of this process (FU and BU). There might be multiple `anelasticDQM` processes running simultaniously. This happens when, for example, clients of run N-1 are still saving the output files but processing for run N has already been started.
+
+Some troubleshooting/maintainance commands related to HLTD:
+
+Restart:
+
+`sudo systemctl restart hltd`
+
+Log:
+
+`tail -f /var/log/hltd/hltd.log`
+
+Anelastic DQM log:
+
+`tail -f /var/log/hltd/anelastic.log`
+
+Configuration (it gets updates in postinstall of the RPM package):
+
+`vim /etc/hltd.conf`
+
+Editable code:
+
+`/opt/hltd/python/`
+
+Each time HLTD is restared, code from the directory above is coppied here: 
+
+`/opt/hltd/scratch/python/`
+
+This allows to update the RPM or edit code manually while running.
+
+### HLTD (`anelastiocDQM.py`) in DQM FU mode
+
+In DQM FU mode, HLTD is responsible for transferring PB and ROOT files to the respective BU machine. New files are detected using inotofy. When a new file comes in, it's renamed to contain the name of the machine where it was produced and it's copied over to the BU.
+
+Exit procedure of the `anelasticDQM` process is initiated by the main HLTD program when the first client exits with the error code 0. If there are no clients running or all of them crash, `anelasticDQM` will never be killed and we have to handle this situation ourselves. This is done in the `check_if_run_is_over` function by checking if there are any CMSSW clients processing the ongoig run. If not, we exit from the program.
+
+### HLTD (`anelastiocDQM.py`) in DQM BU mode
+
+In DQM BU mode, HLTD is responsible for concatenating the snapshot PB files, merging the per run ROOT files and uploading both of them to the respective DQM GUI machine(s). 
+
+Files to process are found by observing this directory `/fff/output/DQMOutput/runXXXXXX` every 10 seconds. All found PB files are concatenated, the result is copied over to the GUI machine(s) and registered using the registration endpoint.
+
+The run is over when all FUs finished processing it. This situation is identified by looking at the `activeRuns` field of the heartbeat files of every FU. Heartbeat files are located here (in the BU): `/fff/ramdisk/appliance/boxes/`. Whena run ois over, all ROOT files from the same directory (`/fff/output/DQMOutput/runXXXXXX`) are merged by using `hadd` tool that is brought in by the `fasthadd` package and the result is again copied over and registered in the GUI machine(s).
+
+### GUI machine configuration
+
+#### systemd related configuration
 
 There are two systemd services running: `dqmgui.service` and `dqmgui-cleanup.service`. `dqmgui.service` launches `scripts/dqmbuibackend.sh` while the cleanup service laucnhes `scripts/dqmgui-cleanup.py`. The later process is responsible for two things:
 
@@ -512,40 +624,9 @@ sudo journalctl -u dqmgui
 sudo journalctl -u dqmgui-cleanup
 ```
 
-### How is GUI restarted when CMSSW is updated?
+#### How is GUI restarted when CMSSW is updated?
 
 `dqmgui.service` uses `Requires` systemd option: `Requires=dqmgui-cleanup.service`. This means that whenever `dqmgui-cleanup.service` is exited, `dqmgui.service` is also exited and starting `dqmgui.service` also starts `dqmgui-cleanup.service`. Both services are configured to restart automatically. `dqmgui-cleanup.service` periodically checks if it's working directory is the same as `current_playback`/`currnet_production`. When it changes, `dqmgui-cleanup.service` just terminates causing `dqmgui.service` to terminate as well. And both services will be restarted by the systemd from an updated CMSSW release. The relationship is not bidirectional! Killing `dqmgui.service` doesn't kill `dqmgui-cleanup.service`!
-
-## Create required directories
-
-``` bash
-sudo -u dqmpro -H bash
-mkdir -p /data/dqmgui/files/root/
-mkdir -p /data/dqmgui/files/pb/
-mkdir -p /data/dqmgui/scripts
-mkdir -p /data/dqmgui/state
-```
-
-# Integration into the Online system
-
-The DQM GUI works on all 4 P5 GUI machines:
-
-* srv-c2f11-29-01.cms Production GUI used by shifters at P5
-* srv-c2f11-29-02.cms Production GUI used by all other users accessing it via CMSWEB
-* srv-c2f11-29-03.cms Playback GUI used by the DQM playback system
-* srv-c2f11-29-04.cms Production test GUI running on production data
-
-All 3 Production machines are being populated by the production system simultaneously.
-
-Production and playback systems are pretty much the same in terms of DQM GUI integration, so everything bellow applies to bith systems unless specified otherwise.
-
-## DQM Online processing
-
-This section is not about the GUI integration but it's a summary of the gerenal DQM processing pipeline.
-
-HLT/DAQ copies reconstructed data files (DQM streams) to this directory in our BU: `/fff/BU0/ramdisk/`. This directory is also mounted and accessible from DQM FUs. HLTD running on all 4 of our FUs detects the presence of new stream files and starts our Online clients. Each client writes the output files containing histograms to its own machine. The problem that we have to solve is collecting all files belonging to the same run from all 4 FUs, merging them and uploading the, to the appropriate DQM GUI.
-
-## 
 
 
 # TODO
@@ -582,4 +663,4 @@ Backend related task list.
 * Hanging/aborted requests don't get logged?
 * Add the alternative of /data/browse to view raw ROOT files if Rucio is not there
 * Fix CMSSW warnings/errors
-* Make sure to zlib uncompress only strings when importing PB files
+* ~~Make sure to zlib uncompress only strings when importing PB files~~
