@@ -105,6 +105,11 @@ def customizeNanoGEN(process):
     process.genJetAK8Table.src = "ak8GenJets"
     process.tauGenJets.GenParticles = "genParticles"
     process.genVisTaus.srcGenParticles = "genParticles"
+
+    # In case customizeNanoGENFromMini has already been called
+    process.nanoAOD_step.remove(process.genParticles2HepMCHiggsVtx)
+    process.nanoAOD_step.remove(process.genParticles2HepMC)
+    process.nanoAOD_step.remove(process.mergedGenParticles)
     nanoGenCommonCustomize(process)
     return process
 
