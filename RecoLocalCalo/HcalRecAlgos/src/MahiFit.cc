@@ -74,7 +74,7 @@ void MahiFit::phase1Apply(const HBHEChannelInfo& channelData,
     //Total uncertainty from all sources
     nnlsWork_.noiseTerms.coeffRef(iTS) = noiseADC * noiseADC + noisePhotoSq + pedWidth * pedWidth;
 
-    nnlsWork_.pedVals.coeffRef(iTS) = pedWidth * pedWidth;
+    nnlsWork_.pedVals.coeffRef(iTS) = pedWidth;
 
     tsTOT += amplitude;
     if (iTS == nnlsWork_.tsOffset)
