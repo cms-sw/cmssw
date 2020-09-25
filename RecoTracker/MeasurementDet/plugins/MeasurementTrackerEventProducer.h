@@ -51,8 +51,8 @@ protected:
 
   bool selfUpdateSkipClusters_;
   bool switchOffPixelsIfEmpty_;
-  bool isPhase2;
-  bool useVectorHits;
+  bool isPhase2_;
+  bool useVectorHits_;
 };
 
 #endif
