@@ -1,4 +1,5 @@
 from __future__ import print_function
+import os
 class Matrix(dict):
     def __setitem__(self,key,value):
         if key in self:
@@ -177,11 +178,17 @@ class InputInfo(object):
             #print the_queries
             return the_queries
 
+        site = " site=T2_CH_CERN"
+        if "CMSSW_DAS_QUERY_SITES" in os.environ:
+            if os.environ["CMSSW_DAS_QUERY_SITES"]:
+                site = " site=%s" % os.environ["CMSSW_DAS_QUERY_SITES"]
+            else:
+                site = ""
         if len(self.run) is not 0:
-            return ["file {0}={1} run={2} site=T2_CH_CERN".format(query_by, query_source, query_run) for query_run in self.run]
+            return ["file {0}={1} run={2}{3}".format(query_by, query_source, query_run, site) for query_run in self.run]
             #return ["file {0}={1} run={2} ".format(query_by, query_source, query_run) for query_run in self.run]
         else:
-            return ["file {0}={1} site=T2_CH_CERN".format(query_by, query_source)]
+            return ["file {0}={1}{2}".format(query_by, query_source, site)]
             #return ["file {0}={1} ".format(query_by, query_source)]
 
     def __str__(self):
