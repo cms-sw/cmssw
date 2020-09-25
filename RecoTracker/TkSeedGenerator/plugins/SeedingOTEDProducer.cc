@@ -147,14 +147,6 @@ void SeedingOTEDProducer::produce(edm::Event& event, const edm::EventSetup& es) 
   edm::Handle<VectorHitCollectionNew> vhs;
   event.getByToken(vhProducerToken_, vhs);
 
-  /*  TrajectorySeedCollection const& tempSeeds = run(vhs);
-  for (auto& qIt : tempSeeds) {
-    seedsWithVHs->push_back(qIt);
-  }
-
-  seedsWithVHs->shrink_to_fit();
-  event.put(std::move(seedsWithVHs));*/
-  //auto seedsWithVHs = std::make_unique<>
   event.emplace(putToken_, run(vhs));
 }
 

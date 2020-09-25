@@ -132,15 +132,12 @@ protected:
   void addPhase2Det(const GeomDet* gd);
 
   void addGluedDet(const GluedGeomDet* gd);
-  void addStackDet(const StackGeomDet* gd, const TrackerTopology* trackerTopology);
+  void addStackDet(const StackGeomDet* gd);
 
   void initGluedDet(TkGluedMeasurementDet& det, const TrackerTopology* trackerTopology);
   void initStackDet(TkStackMeasurementDet& det);
 
-  void addDets(const TrackingGeometry::DetContainer& dets,
-               bool subIsPixel,
-               bool subIsOT,
-               const TrackerTopology* trackerTopology);
+  void addDets(const TrackingGeometry::DetContainer& dets, bool subIsPixel, bool subIsOT);
 
   bool checkDets();
 
