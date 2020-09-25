@@ -34,7 +34,7 @@ digiMon = DQMEDAnalyzer('Phase2TrackerMonitorDigi',
                             Nybins = cms.int32(1350),
                             ymin   = cms.double(0.5),
                             ymax   = cms.double(1350.5),
-                            switch = cms.bool(False)
+                            switch = cms.bool(True)
                         ),
                         PositionOfDigisSH = cms.PSet(
                             Nxbins = cms.int32(1016),
@@ -67,9 +67,9 @@ digiMon = DQMEDAnalyzer('Phase2TrackerMonitorDigi',
                             switch = cms.bool(True)
                         ), 
                         TotalNumberOfDigisPerLayerH = cms.PSet(
-                            Nbins = cms.int32(10000),
+                            Nbins = cms.int32(5000),
                             xmin   = cms.double(0.0),
-                            xmax   = cms.double(50000.0),
+                            xmax   = cms.double(25000.0),
                             switch = cms.bool(True)
                         ),
                         NumberOfHitDetsPerLayerH = cms.PSet(
