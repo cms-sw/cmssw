@@ -7,7 +7,7 @@
     <Include ref='Geometry/CMSCommonData/data/materials/2021/v2/materials.xml'/>
     <Include ref='Geometry/TrackerCommonData/data/trackermaterial/2021/v1/trackermaterial.xml'/>
     <Include ref='Geometry/CMSCommonData/data/rotations.xml'/>
-    <Include ref='Geometry/CMSCommonData/data/extend/v2/cmsextent.xml'/>
+    <Include ref='Geometry/CMSCommonData/data/extend/v3/cmsextent.xml'/>
     <Include ref='Geometry/CMSCommonData/data/cavernData/2021/v1/cavernData.xml'/>
     <Include ref='Geometry/CMSCommonData/data/cms/2021/v3/cms.xml'/>
     <Include ref='Geometry/CMSCommonData/data/cmsMother.xml'/>
@@ -346,8 +346,8 @@
     <Include ref='Geometry/VeryForwardData/data/CTPPS_Diamond_2018/CTPPS_Diamond_Detector_Assembly.xml'/>
     <Include ref='Geometry/VeryForwardData/data/CTPPS_Diamond_Sensitive_Dets_TimingHits.xml'/>
     <Include ref='Geometry/VeryForwardData/data/ppstrackerMaterials/v1/ppstrackerMaterials.xml'/>
-    <Include ref='Geometry/VeryForwardData/data/CTPPS_Pixel_Module/v1/CTPPS_Pixel_Module.xml'/>
-    <Include ref='Geometry/VeryForwardData/data/CTPPS_Pixel_Module_2x2/v1/CTPPS_Pixel_Module_2x2.xml'/>
+    <Include ref='Geometry/VeryForwardData/data/CTPPS_Pixel_Module/v2/CTPPS_Pixel_Module.xml'/>
+    <Include ref='Geometry/VeryForwardData/data/CTPPS_Pixel_Module_2x2/v2/CTPPS_Pixel_Module_2x2.xml'/>
     <Include ref='Geometry/VeryForwardData/data/CTPPS_Pixel_2018/CTPPS_Pixel_Assembly_Box_Real_003.xml'/>
     <Include ref='Geometry/VeryForwardData/data/CTPPS_Pixel_2018/CTPPS_Pixel_Assembly_Box_Real_023.xml'/>
     <Include ref='Geometry/VeryForwardData/data/CTPPS_Pixel_2018/CTPPS_Pixel_Assembly_Box_Real_103.xml'/>
