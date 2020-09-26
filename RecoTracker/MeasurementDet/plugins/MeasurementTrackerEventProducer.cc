@@ -40,6 +40,7 @@ MeasurementTrackerEventProducer::MeasurementTrackerEventProducer(const edm::Para
   selfUpdateSkipClusters_ = !(skip == edm::InputTag(""));
   LogDebug("MeasurementTracker") << "skipping clusters: " << selfUpdateSkipClusters_;
   isPhase2_ = false;
+  useVectorHits_ = false;
 
   if (!iConfig.getParameter<std::string>("stripClusterProducer").empty()) {
     theStripClusterLabel = consumes<edmNew::DetSetVector<SiStripCluster>>(
