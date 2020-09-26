@@ -1,6 +1,6 @@
 from PhysicsTools.NanoAOD.taus_cff import *
 from PhysicsTools.NanoAOD.jets_cff import *
-from PhysicsTools.NanoAOD.globals_cff import *
+from PhysicsTools.NanoAOD.globals_cff import genTable
 from PhysicsTools.NanoAOD.met_cff import metMCTable
 from PhysicsTools.NanoAOD.genparticles_cff import *
 from PhysicsTools.NanoAOD.particlelevel_cff import *
@@ -35,23 +35,6 @@ nanogenSequence = cms.Sequence(
     metMCTable+
     genWeightsTable+
     lheInfoTable
-)
-
-NANOAODGENoutput = cms.OutputModule("NanoAODOutputModule",
-    compressionAlgorithm = cms.untracked.string('LZMA'),
-    compressionLevel = cms.untracked.int32(9),
-    dataset = cms.untracked.PSet(
-        dataTier = cms.untracked.string('NANOAODSIM'),
-        filterName = cms.untracked.string('')
-    ),
-    fileName = cms.untracked.string('nanogen.root'),
-    outputCommands = cms.untracked.vstring(
-        'drop *',
-        "keep nanoaodFlatTable_*Table_*_*",     # event data
-        "keep String_*_genModel_*",  # generator model data
-        "keep nanoaodMergeableCounterTable_*Table_*_*", # accumulated per/run or per/lumi data
-        "keep nanoaodUniqueString_nanoMetadata_*_*",   # basic metadata
-    )
 )
 
 def nanoGenCommonCustomize(process):
