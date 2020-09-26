@@ -33,8 +33,13 @@ struct MahiNnlsWorkspace {
   //holds diagonal noise terms
   SampleVector noiseTerms;
 
+  //holds diagonal pedestal noise terms
+  SampleVector pedVals;
+
   //holds flat pedestal uncertainty
   float pedVal;
+
+  float noisecorr;
 
   //holds full covariance matrix for a pulse shape
   //varied in time
@@ -116,7 +121,7 @@ public:
 
   void phase1Debug(const HBHEChannelInfo& channelData, MahiDebugInfo& mdi) const;
 
-  void doFit(std::array<float, 3>& correctedOutput, const int nbx, const double noisecorr) const;
+  void doFit(std::array<float, 3>& correctedOutput, const int nbx) const;
 
   void setPulseShapeTemplate(int pulseShapeId,
                              const HcalPulseShapes& ps,
@@ -130,7 +135,7 @@ public:
 private:
   typedef std::pair<int, std::shared_ptr<FitterFuncs::PulseShapeFunctor> > ShapeWithId;
 
-  const float minimize(const double noisecorr) const;
+  const float minimize() const;
   void onePulseMinimize() const;
   void updateCov(const SampleMatrix& invCovMat) const;
   void resetPulseShapeTemplate(int pulseShapeId, const HcalPulseShapes& ps, unsigned int nSamples);
@@ -139,7 +144,7 @@ private:
                         FullSampleVector& pulseDeriv,
                         FullSampleMatrix& pulseCov) const;
 
-  float calculateArrivalTime(unsigned int iBX) const;
+  float calculateArrivalTime(const unsigned int iBX) const;
   float calculateChiSq() const;
   void nnls() const;
   void resetWorkspace() const;
