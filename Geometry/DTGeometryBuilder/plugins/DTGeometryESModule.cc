@@ -126,7 +126,7 @@ void DTGeometryESModule::fillDescriptions(edm::ConfigurationDescriptions& descri
   edm::ParameterSetDescription desc;
   desc.add<bool>("fromDDD", true);
   desc.add<bool>("fromDD4hep", false);
-  desc.add<edm::ESInputTag>("DDDetector", edm::ESInputTag("", "MUON"));
+  desc.add<edm::ESInputTag>("DDDetector", edm::ESInputTag("", ""));
   desc.add<std::string>("alignmentsLabel", "");
   desc.add<std::string>("appendToDataLabel", "");
   desc.add<std::string>("attribute", "MuStructure");
