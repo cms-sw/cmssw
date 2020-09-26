@@ -1,6 +1,12 @@
 #ifndef _SimTracker_SiPhase2Digitizer_PixelDigitizerAlgorithm_h
 #define _SimTracker_SiPhase2Digitizer_PixelDigitizerAlgorithm_h
 
+#include "CondFormats/SiPixelObjects/interface/GlobalPixel.h"
+#include "CondFormats/DataRecord/interface/SiPixelQualityRcd.h"
+#include "CondFormats/DataRecord/interface/SiPixelFedCablingMapRcd.h"
+#include "CondFormats/DataRecord/interface/SiPixelLorentzAngleSimRcd.h"
+#include "FWCore/Utilities/interface/ESGetToken.h"
+#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "SimTracker/SiPhase2Digitizer/plugins/Phase2TrackerDigitizerAlgorithm.h"
 
 class PixelDigitizerAlgorithm : public Phase2TrackerDigitizerAlgorithm {
@@ -35,7 +41,7 @@ private:
   };
 
 public:
-  PixelDigitizerAlgorithm(const edm::ParameterSet& conf);
+  PixelDigitizerAlgorithm(const edm::ParameterSet& conf, edm::ConsumesCollector iC);
   ~PixelDigitizerAlgorithm() override;
 
   // initialization that cannot be done in the constructor
@@ -54,5 +60,10 @@ public:
   // Timewalk parameters
   bool apply_timewalk_;
   const TimewalkModel timewalk_model_;
+
+  edm::ESGetToken<SiPixelQuality, SiPixelQualityRcd> siPixelBadModuleToken_;
+  edm::ESGetToken<SiPixelLorentzAngle, SiPixelLorentzAngleSimRcd> siPixelLorentzAngleToken_;
+  const edm::ESGetToken<SiPixelFedCablingMap, SiPixelFedCablingMapRcd> fedCablingMapToken_;
+  const edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> geomToken_;
 };
 #endif

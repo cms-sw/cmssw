@@ -3,7 +3,6 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/Common/interface/Handle.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/Framework/interface/ProducesCollector.h"
 #include "FWCore/Utilities/interface/RandomNumberGenerator.h"
@@ -55,8 +54,8 @@ private:
 
   edm::EDGetTokenT<edm::DetSetVector<PixelDigi>> PixelDigiToken_;   // Token to retrieve information
   edm::EDGetTokenT<edm::DetSetVector<PixelDigi>> PixelDigiPToken_;  // Token to retrieve information
-
-  edm::ESHandle<TrackerGeometry> pDD;
+  const edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> tTopoToken_;
+  const edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> pDDToken_;
 
   SiPixelDigitizerAlgorithm digitizer_;
 
@@ -73,8 +72,6 @@ private:
 
   SiGlobalIndex SiHitStorage_;
 
-  const std::string geometryType_;
-
   bool firstInitializeEvent_ = true;
   bool firstFinalizeEvent_ = true;
 };
@@ -83,7 +80,9 @@ private:
 PreMixingSiPixelWorker::PreMixingSiPixelWorker(const edm::ParameterSet& ps,
                                                edm::ProducesCollector producesCollector,
                                                edm::ConsumesCollector&& iC)
-    : digitizer_(ps), geometryType_(ps.getParameter<std::string>("PixGeometryType")) {
+    : tTopoToken_(iC.esConsumes()),
+      pDDToken_(iC.esConsumes(edm::ESInputTag("", ps.getParameter<std::string>("PixGeometryType")))),
+      digitizer_(ps, iC) {
   // declare the products to produce
 
   pixeldigi_collectionSig_ = ps.getParameter<edm::InputTag>("pixeldigiCollectionSig");
@@ -103,7 +102,6 @@ PreMixingSiPixelWorker::PreMixingSiPixelWorker(const edm::ParameterSet& ps,
 // Need an event initialization
 
 void PreMixingSiPixelWorker::initializeEvent(edm::Event const& e, edm::EventSetup const& iSetup) {
-  iSetup.get<TrackerDigiGeometryRecord>().get(geometryType_, pDD);
   if (firstInitializeEvent_) {
     digitizer_.init(iSetup);
     firstInitializeEvent_ = false;
@@ -277,9 +275,8 @@ void PreMixingSiPixelWorker::put(edm::Event& e,
   edm::Service<edm::RandomNumberGenerator> rng;
   CLHEP::HepRandomEngine* engine = &rng->getEngine(e.streamID());
 
-  edm::ESHandle<TrackerTopology> tTopoHand;
-  iSetup.get<TrackerTopologyRcd>().get(tTopoHand);
-  const TrackerTopology* tTopo = tTopoHand.product();
+  auto const& pDD = iSetup.getData(pDDToken_);
+  const TrackerTopology* tTopo = &iSetup.getData(tTopoToken_);
 
   if (digitizer_.killBadFEDChannels()) {
     std::unique_ptr<PixelFEDChannelCollection> PixelFEDChannelCollection_ = digitizer_.chooseScenario(ps, engine);
@@ -289,7 +286,7 @@ void PreMixingSiPixelWorker::put(edm::Event& e,
     e.put(std::move(PixelFEDChannelCollection_), PixelDigiCollectionDM_);
   }
 
-  for (const auto& iu : pDD->detUnits()) {
+  for (const auto& iu : pDD.detUnits()) {
     if (iu->type().isTrackerPixel()) {
       edm::DetSet<PixelDigi> collector(iu->geographicalId().rawId());
       edm::DetSet<PixelDigiSimLink> linkcollector(

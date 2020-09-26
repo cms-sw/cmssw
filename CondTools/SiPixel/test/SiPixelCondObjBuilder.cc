@@ -5,9 +5,7 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/CommonDetUnit/interface/PixelGeomDetUnit.h"
-#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "Geometry/CommonTopologies/interface/PixelTopology.h"
 
 #include "CondCore/DBOutputService/interface/PoolDBOutputService.h"
@@ -17,8 +15,9 @@ namespace cms {
   SiPixelCondObjBuilder::SiPixelCondObjBuilder(const edm::ParameterSet& iConfig)
       : conf_(iConfig),
         appendMode_(conf_.getUntrackedParameter<bool>("appendMode", true)),
+        pddToken_(esConsumes()),
         SiPixelGainCalibration_(nullptr),
-        SiPixelGainCalibrationService_(iConfig),
+        SiPixelGainCalibrationService_(iConfig, consumesCollector()),
         recordName_(iConfig.getParameter<std::string>("record")),
         meanPed_(conf_.getParameter<double>("meanPed")),
         rmsPed_(conf_.getParameter<double>("rmsPed")),
@@ -52,8 +51,7 @@ namespace cms {
     float maxped = 255;
     SiPixelGainCalibration_ = new SiPixelGainCalibration(minped, maxped, mingain, maxgain);
 
-    edm::ESHandle<TrackerGeometry> pDD;
-    iSetup.get<TrackerDigiGeometryRecord>().get(pDD);
+    const TrackerGeometry* pDD = &iSetup.getData(pddToken_);
     edm::LogInfo("SiPixelCondObjBuilder") << " There are " << pDD->dets().size() << " detectors" << std::endl;
 
     for (TrackerGeometry::DetContainer::const_iterator it = pDD->dets().begin(); it != pDD->dets().end(); it++) {

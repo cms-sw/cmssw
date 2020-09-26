@@ -288,6 +288,7 @@ namespace edm {
   }
 
   void MixingModule::reload(const edm::EventSetup& setup) {
+    // TODO for esConsumes migration: assume for now this function is mostly unused
     //change the basic parameters.
     edm::ESHandle<MixingModuleConfig> config;
     setup.get<MixingRcd>().get(config);

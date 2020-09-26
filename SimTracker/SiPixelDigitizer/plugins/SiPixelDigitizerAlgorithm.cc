@@ -74,14 +74,6 @@
 
 #include "CondFormats/SiPixelObjects/interface/GlobalPixel.h"
 
-#include "CondFormats/DataRecord/interface/SiPixelQualityRcd.h"
-#include "CondFormats/DataRecord/interface/SiPixelFedCablingMapRcd.h"
-#include "CondFormats/DataRecord/interface/SiPixelLorentzAngleSimRcd.h"
-#include "CondFormats/DataRecord/interface/SiPixelDynamicInefficiencyRcd.h"
-#include "CondFormats/DataRecord/interface/SiPixelStatusScenarioProbabilityRcd.h"
-#include "CondFormats/DataRecord/interface/SiPixelStatusScenariosRcd.h"
-#include "CondFormats/DataRecord/interface/SiPixel2DTemplateDBObjectRcd.h"
-
 #include "CondFormats/SiPixelObjects/interface/SiPixelFedCablingMap.h"
 #include "CondFormats/SiPixelObjects/interface/SiPixelFedCablingTree.h"
 #include "CondFormats/SiPixelObjects/interface/SiPixelFedCabling.h"
@@ -105,7 +97,6 @@
 
 // Geometry
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
-#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "Geometry/CommonDetUnit/interface/PixelGeomDetUnit.h"
 
 #include "CondFormats/SiPixelObjects/interface/PixelROC.h"
@@ -118,22 +109,21 @@ void SiPixelDigitizerAlgorithm::init(const edm::EventSetup& es) {
     theSiPixelGainCalibrationService_->setESObjects(es);
   }
   if (use_deadmodule_DB_) {
-    es.get<SiPixelQualityRcd>().get(siPixelQualityLabel, SiPixelBadModule_);
+    SiPixelBadModule_ = &es.getData(SiPixelBadModuleToken_);
   }
   if (use_LorentzAngle_DB_) {
     // Get Lorentz angle from DB record
-    es.get<SiPixelLorentzAngleSimRcd>().get(SiPixelLorentzAngle_);
+    SiPixelLorentzAngle_ = &es.getData(SiPixelLorentzAngleToken_);
   }
   //gets the map and geometry from the DB (to kill ROCs)
-  es.get<SiPixelFedCablingMapRcd>().get(map_);
-  es.get<TrackerDigiGeometryRecord>().get(geom_);
+  map_ = &es.getData(mapToken_);
+  geom_ = &es.getData(geomToken_);
 
   if (KillBadFEDChannels) {
-    es.get<SiPixelStatusScenarioProbabilityRcd>().get(scenarioProbabilityHandle);
-    es.get<SiPixelFEDChannelContainerESProducerRcd>().get(PixelFEDChannelCollectionMapHandle);
-    quality_map = PixelFEDChannelCollectionMapHandle.product();
+    scenarioProbability_ = &es.getData(scenarioProbabilityToken_);
+    quality_map = &es.getData(PixelFEDChannelCollectionMapToken_);
 
-    SiPixelQualityProbabilities::probabilityMap m_probabilities = scenarioProbabilityHandle->getProbability_Map();
+    SiPixelQualityProbabilities::probabilityMap m_probabilities = scenarioProbability_->getProbability_Map();
     std::vector<std::string> allScenarios;
 
     std::transform(quality_map->begin(),
@@ -180,11 +170,10 @@ void SiPixelDigitizerAlgorithm::init(const edm::EventSetup& es) {
 
 //=========================================================================
 
-SiPixelDigitizerAlgorithm::SiPixelDigitizerAlgorithm(const edm::ParameterSet& conf)
-    :
+SiPixelDigitizerAlgorithm::SiPixelDigitizerAlgorithm(const edm::ParameterSet& conf, edm::ConsumesCollector iC)
+    : mapToken_(iC.esConsumes()),
+      geomToken_(iC.esConsumes()),
 
-      siPixelQualityLabel(
-          conf.getParameter<std::string>("SiPixelQualityLabel")),  //string to specify SiPixelQuality label
       _signal(),
       makeDigiSimLinks_(conf.getUntrackedParameter<bool>("makeDigiSimLinks", true)),
       use_ineff_from_db_(conf.getParameter<bool>("useDB")),
@@ -320,10 +309,33 @@ SiPixelDigitizerAlgorithm::SiPixelDigitizerAlgorithm(const edm::ParameterSet& co
       fluctuate(fluctuateCharge ? new SiG4UniversalFluctuation() : nullptr),
       theNoiser(addNoise ? new GaussianTailNoiseGenerator() : nullptr),
       calmap(doMissCalibrate ? initCal() : std::map<int, CalParameters, std::less<int> >()),
-      theSiPixelGainCalibrationService_(use_ineff_from_db_ ? new SiPixelGainCalibrationOfflineSimService(conf)
+      theSiPixelGainCalibrationService_(use_ineff_from_db_ ? new SiPixelGainCalibrationOfflineSimService(conf, iC)
                                                            : nullptr),
       pixelEfficiencies_(conf, AddPixelInefficiency, NumberOfBarrelLayers, NumberOfEndcapDisks),
       pixelAging_(conf, AddPixelAging, NumberOfBarrelLayers, NumberOfEndcapDisks) {
+  if (use_deadmodule_DB_) {
+    //string to specify SiPixelQuality label
+    SiPixelBadModuleToken_ = iC.esConsumes(edm::ESInputTag("", conf.getParameter<std::string>("SiPixelQualityLabel")));
+  }
+  if (use_LorentzAngle_DB_) {
+    SiPixelLorentzAngleToken_ = iC.esConsumes();
+  }
+  if (AddPixelInefficiency && !pixelEfficiencies_.FromConfig) {
+    // TODO: in practice the bunchspacing is known at MixingModule
+    // construction time, and thus we could declare the consumption of
+    // the actual product. In principle, however, MixingModule is
+    // capable of updating (parts of) its configuration from the
+    // EventSetup, so if that capability is really needed we'd need to
+    // invent something new (similar to mayConsume in the ESProducer
+    // side). So for now, let's consume both payloads.
+    SiPixelDynamicInefficiencyToken_ = iC.esConsumes();
+    SiPixelDynamicInefficiencyToken50ns_ = iC.esConsumes(edm::ESInputTag("", "50ns"));
+  }
+  if (KillBadFEDChannels) {
+    scenarioProbabilityToken_ = iC.esConsumes();
+    PixelFEDChannelCollectionMapToken_ = iC.esConsumes();
+  }
+
   LogInfo("PixelDigitizer ") << "SiPixelDigitizerAlgorithm constructed"
                              << "Configuration parameters:"
                              << "Threshold/Gain = "
@@ -334,7 +346,7 @@ SiPixelDigitizerAlgorithm::SiPixelDigitizerAlgorithm(const edm::ParameterSet& co
                              << theElectronPerADC << " " << theAdcFullScale << " The delta cut-off is set to " << tMax
                              << " pix-inefficiency " << AddPixelInefficiency;
 
-  TheNewSiPixelChargeReweightingAlgorithmClass = std::make_unique<SiPixelChargeReweightingAlgorithm>(conf);
+  TheNewSiPixelChargeReweightingAlgorithmClass = std::make_unique<SiPixelChargeReweightingAlgorithm>(conf, iC);
 }
 
 std::map<int, SiPixelDigitizerAlgorithm::CalParameters, std::less<int> > SiPixelDigitizerAlgorithm::initCal() const {
@@ -587,16 +599,15 @@ SiPixelDigitizerAlgorithm::PixelEfficiencies::PixelEfficiencies(const edm::Param
 void SiPixelDigitizerAlgorithm::init_DynIneffDB(const edm::EventSetup& es, const unsigned int& bunchspace) {
   if (AddPixelInefficiency && !pixelEfficiencies_.FromConfig) {
     if (bunchspace == 50)
-      es.get<SiPixelDynamicInefficiencyRcd>().get("50ns", SiPixelDynamicInefficiency_);
+      SiPixelDynamicInefficiency_ = &es.getData(SiPixelDynamicInefficiencyToken50ns_);
     else
-      es.get<SiPixelDynamicInefficiencyRcd>().get(SiPixelDynamicInefficiency_);
+      SiPixelDynamicInefficiency_ = &es.getData(SiPixelDynamicInefficiencyToken_);
     pixelEfficiencies_.init_from_db(geom_, SiPixelDynamicInefficiency_);
   }
 }
 
 void SiPixelDigitizerAlgorithm::PixelEfficiencies::init_from_db(
-    const edm::ESHandle<TrackerGeometry>& geom,
-    const edm::ESHandle<SiPixelDynamicInefficiency>& SiPixelDynamicInefficiency) {
+    const TrackerGeometry* geom, const SiPixelDynamicInefficiency* SiPixelDynamicInefficiency) {
   theInstLumiScaleFactor = SiPixelDynamicInefficiency->gettheInstLumiScaleFactor();
   const std::map<uint32_t, double>& PixelGeomFactorsDBIn = SiPixelDynamicInefficiency->getPixelGeomFactors();
   const std::map<uint32_t, double>& ColGeomFactorsDB = SiPixelDynamicInefficiency->getColGeomFactors();
@@ -903,7 +914,7 @@ std::unique_ptr<PixelFEDChannelCollection> SiPixelDigitizerAlgorithm::chooseScen
 
   if (pu0 != bunchCrossing.end()) {
     unsigned int PUBin = TrueInteractionList.at(p);  // case delta PU=1, fix me
-    const auto& theProbabilitiesPerScenario = scenarioProbabilityHandle->getProbabilities(PUBin);
+    const auto& theProbabilitiesPerScenario = scenarioProbability_->getProbabilities(PUBin);
     std::vector<double> probabilities;
     probabilities.reserve(theProbabilitiesPerScenario.size());
     for (auto it = theProbabilitiesPerScenario.begin(); it != theProbabilitiesPerScenario.end(); it++) {
@@ -947,7 +958,7 @@ std::unique_ptr<PixelFEDChannelCollection> SiPixelDigitizerAlgorithm::chooseScen
 
     if (pu0 != bunchCrossing.end()) {
       unsigned int PUBin = TrueInteractionList.at(p);  // case delta PU=1, fix me
-      const auto& theProbabilitiesPerScenario = scenarioProbabilityHandle->getProbabilities(PUBin);
+      const auto& theProbabilitiesPerScenario = scenarioProbability_->getProbabilities(PUBin);
       std::vector<double> probabilities;
       probabilities.reserve(theProbabilitiesPerScenario.size());
       for (auto it = theProbabilitiesPerScenario.begin(); it != theProbabilitiesPerScenario.end(); it++) {
@@ -1767,7 +1778,7 @@ void SiPixelDigitizerAlgorithm::pixel_inefficiency(const PixelEfficiencies& eff,
       for (const auto& ch : *it) {
         for (unsigned int i_roc = ch.roc_first; i_roc <= ch.roc_last; ++i_roc) {
           for (const auto p : path) {
-            const PixelROC* myroc = map_.product()->findItem(p);
+            const PixelROC* myroc = map_->findItem(p);
             if (myroc->idInDetUnit() == static_cast<unsigned int>(i_roc)) {
               LocalPixel::RocRowCol local = {39, 25};  //corresponding to center of ROC row,col
               GlobalPixel global = myroc->toGlobal(LocalPixel(local));
@@ -2272,10 +2283,10 @@ void SiPixelDigitizerAlgorithm::module_killing_DB(uint32_t detID) {
     std::vector<GlobalPixel> badrocpositions(0);
     for (unsigned int j = 0; j < 16; j++) {
       if (SiPixelBadModule_->IsRocBad(detID, j) == true) {
-        std::vector<CablingPathToDetUnit> path = map_.product()->pathToDetUnit(detID);
+        std::vector<CablingPathToDetUnit> path = map_->pathToDetUnit(detID);
         typedef std::vector<CablingPathToDetUnit>::const_iterator IT;
         for (IT it = path.begin(); it != path.end(); ++it) {
-          const PixelROC* myroc = map_.product()->findItem(*it);
+          const PixelROC* myroc = map_->findItem(*it);
           if (myroc->idInDetUnit() == j) {
             LocalPixel::RocRowCol local = {39, 25};  //corresponding to center of ROC row, col
             GlobalPixel global = myroc->toGlobal(LocalPixel(local));
