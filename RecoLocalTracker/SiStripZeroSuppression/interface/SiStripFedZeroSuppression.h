@@ -28,8 +28,8 @@ public:
   void suppress(const std::vector<SiStripDigi>& in,
                 std::vector<SiStripDigi>& selectedSignal,
                 uint32_t detId,
-                edm::ESHandle<SiStripNoises>&,
-                edm::ESHandle<SiStripThreshold>&);
+                const SiStripNoises&,
+                const SiStripThreshold&);
   void suppress(const std::vector<SiStripDigi>& in, std::vector<SiStripDigi>& selectedSignal, uint32_t detId);
   void suppress(const edm::DetSet<SiStripRawDigi>& in, edm::DetSet<SiStripDigi>& out);
   void suppress(const std::vector<int16_t>& in, uint16_t firstAPV, edm::DetSet<SiStripDigi>& out);

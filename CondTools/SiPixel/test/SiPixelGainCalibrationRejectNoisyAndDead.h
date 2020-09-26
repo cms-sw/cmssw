@@ -23,6 +23,8 @@
 #include "CalibTracker/SiPixelESProducers/interface/SiPixelGainCalibrationOfflineService.h"
 #include "CalibTracker/SiPixelESProducers/interface/SiPixelGainCalibrationForHLTService.h"
 #include "CalibTracker/SiPixelESProducers/interface/SiPixelGainCalibrationServiceBase.h"
+#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
+#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 
 #include "TH2F.h"
 #include "TFile.h"
@@ -38,6 +40,7 @@ public:
 
 private:
   edm::ParameterSet conf_;
+  edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> pddToken_;
   SiPixelGainCalibrationOfflineService SiPixelGainCalibrationOfflineService_;
   //SiPixelGainCalibrationForHLTService SiPixelGainCalibrationService_;
   SiPixelGainCalibrationOffline *theGainCalibrationDbInputOffline_;
@@ -45,9 +48,7 @@ private:
   SiPixelGainCalibrationForHLTService SiPixelGainCalibrationForHLTService_;
   SiPixelGainCalibrationForHLT *theGainCalibrationDbInputForHLT_;
 
-  virtual void beginJob();
   virtual void analyze(const edm::Event &, const edm::EventSetup &);
-  virtual void endJob();
 
   std::map<int, std::vector<std::pair<int, int> > > noisypixelkeeper;
   std::map<int, std::vector<std::pair<int, int> > > insertednoisypixel;

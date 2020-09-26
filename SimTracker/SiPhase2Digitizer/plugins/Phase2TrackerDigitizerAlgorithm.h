@@ -6,7 +6,7 @@
 #include <vector>
 
 #include "DataFormats/GeometrySurface/interface/GloballyPositioned.h"
-#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/FrameworkfwdMostUsed.h"
 #include "SimDataFormats/TrackingHit/interface/PSimHit.h"
 #include "DataFormats/Math/interface/approx_exp.h"
 #include "SimDataFormats/TrackerDigiSimLink/interface/PixelDigiSimLink.h"
@@ -28,11 +28,6 @@ namespace CLHEP {
   class RandGaussQ;
   class RandFlat;
 }  // namespace CLHEP
-
-namespace edm {
-  class EventSetup;
-  class ParameterSet;
-}  // namespace edm
 
 class DetId;
 class GaussianTailNoiseGenerator;
@@ -58,7 +53,9 @@ constexpr double c_inv = 1.0 / c_cm_ns;
 
 class Phase2TrackerDigitizerAlgorithm {
 public:
-  Phase2TrackerDigitizerAlgorithm(const edm::ParameterSet& conf_common, const edm::ParameterSet& conf_specific);
+  Phase2TrackerDigitizerAlgorithm(const edm::ParameterSet& conf_common,
+                                  const edm::ParameterSet& conf_specific,
+                                  edm::ConsumesCollector iC);
   virtual ~Phase2TrackerDigitizerAlgorithm();
 
   // initialization that cannot be done in the constructor
@@ -85,17 +82,17 @@ public:
 
 protected:
   // Accessing Inner Tracker Lorentz angle from DB:
-  edm::ESHandle<SiPixelLorentzAngle> siPixelLorentzAngle_;
+  const SiPixelLorentzAngle* siPixelLorentzAngle_;
 
   // Accessing Outer Tracker Lorentz angle from DB:
-  edm::ESHandle<SiPhase2OuterTrackerLorentzAngle> siPhase2OTLorentzAngle_;
+  const SiPhase2OuterTrackerLorentzAngle* siPhase2OTLorentzAngle_;
 
   // Accessing Dead pixel modules from DB:
-  edm::ESHandle<SiPixelQuality> siPixelBadModule_;
+  const SiPixelQuality* siPixelBadModule_;
 
   // Accessing Map and Geom:
-  edm::ESHandle<SiPixelFedCablingMap> fedCablingMap_;
-  edm::ESHandle<TrackerGeometry> geom_;
+  const SiPixelFedCablingMap* fedCablingMap_;
+  const TrackerGeometry* geom_;
   struct SubdetEfficiencies {
     SubdetEfficiencies(const edm::ParameterSet& conf);
     std::vector<double> barrel_efficiencies;
