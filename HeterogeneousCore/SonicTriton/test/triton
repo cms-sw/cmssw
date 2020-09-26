@@ -1,0 +1,105 @@
+#!/bin/bash
+
+usage() {
+	ECHO="echo -e"
+	$ECHO "triton [options] [start|stop]"
+	$ECHO
+	$ECHO "Options:"
+	$ECHO "-d        \t use Docker instead of Singularity"
+	$ECHO "-g        \t use GPU instead of CPU"
+	$ECHO "-v        \t (verbose) start: activate server debugging info; stop: keep server logs"
+	$ECHO "-h        \t print this message and exit"
+	$ECHO
+	$ECHO "Operations:"
+	$ECHO "start    \t start server"
+	$ECHO "stop    \t stop server"
+	exit $1
+}
+
+# defaults
+USEDOCKER=""
+GPU=""
+VERBOSE=""
+
+# check shm locations
+SHM=/dev/shm
+if [ -e /run/shm ]; then
+	SHM=/run/shm
+fi
+
+while getopts "dgvh" opt; do
+	case "$opt" in
+		d) USEDOCKER=true
+		;;
+		g) GPU=true
+		;;
+		v) VERBOSE="--log-verbose=1 --log-error=1 --log-info=1"
+		;;
+		h) usage 0
+		;;
+	esac
+done
+
+shift $(($OPTIND - 1))
+OP=$1
+
+if [ "$OP" != start ] && [ "$OP" != stop ]; then
+	usage 1
+fi
+
+DOCKER="sudo docker"
+IMAGE=fastml/triton-torchgeo:20.06-v1-py3-geometric
+MODELS=${CMSSW_BASE}/src/HeterogeneousCore/SonicTriton/data/models
+SERVER=triton_server_instance
+LOG=log_triton_server.log
+LIB=lib
+
+if [ -n "$USEDOCKER" ]; then
+	EXTRA=""
+	if [ -n "$GPU" ]; then
+		EXTRA="--gpus all"
+	fi
+
+	if [ "$OP" == start ]; then
+		$DOCKER run -d --name ${SERVER} \
+			--shm-size=1g --ulimit memlock=-1 --ulimit stack=67108864 \
+			-p8000:8000 -p8001:8001 -p8002:8002 $EXTRA \
+			-v${MODELS}:/models \
+			${IMAGE} tritonserver --model-repository=/models $VERBOSE
+	else
+		# keep log
+		if [ -n "$VERBOSE" ]; then docker logs ${SERVER} >& ${LOG}; fi
+
+		$DOCKER stop ${SERVER}
+		$DOCKER rm ${SERVER}
+	fi
+else
+	EXTRA=""
+	if [ -n "$GPU" ]; then
+		EXTRA="--nv"
+	fi
+
+	if [ "$OP" == start ]; then
+		# triton server image may need to modify contents of opt/tritonserver/lib/
+		# but cvmfs is read-only
+		# -> make a writable local directory with the same contents
+		mkdir ${LIB}
+		ln -s /cvmfs/unpacked.cern.ch/registry.hub.docker.com/${IMAGE}/opt/tritonserver/lib/* ${LIB}/
+
+		# start instance
+		# need to bind /cvmfs for above symlinks to work inside container
+		singularity instance start \
+			-B ${SHM}:/run/shm -B ${MODELS}:/models -B ${LIB}:/opt/tritonserver/lib -B /cvmfs $EXTRA \
+			/cvmfs/unpacked.cern.ch/registry.hub.docker.com/${IMAGE} ${SERVER}
+
+		# run the actual server
+		singularity run instance://${SERVER} \
+			tritonserver --model-repository=/models $VERBOSE >& ${LOG} &
+	else
+		singularity instance stop ${SERVER}
+
+		# cleanup
+		rm -rf ${LIB}
+		if [ -z "$VERBOSE" ]; then rm ${LOG}; fi
+	fi
+fi
