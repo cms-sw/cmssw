@@ -34,7 +34,7 @@ void PFClusterFromHGCalMultiCluster::buildClusters(const edm::Handle<reco::PFRec
     if (filterByTracksterPID_) {
       float probTotal = 0.0f;
 
-      for (int& cat : filter_on_categories_) {
+      for (int cat : filter_on_categories_) {
         probTotal += tracksters[iMultiClus].id_probabilities(cat);
       }
 
