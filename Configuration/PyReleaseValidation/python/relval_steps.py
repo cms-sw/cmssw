@@ -3065,7 +3065,7 @@ stepNanoAODMC   = merge([{ '--mc':''  , '--eventcontent' : 'NANOAODSIM,DQM','--d
 stepNanoEDMData = merge([{ '--data':'', '--eventcontent' : 'NANOEDMAOD,DQM' ,'--datatier': 'NANOAOD,DQMIO'     }, stepNanoAODDefaults ])
 stepNanoEDMMC   = merge([{ '--mc':''  , '--eventcontent' : 'NANOEDMAODSIM,DQM','--datatier': 'NANOAODSIM,DQMIO'    }, stepNanoAODDefaults ])
 stepNanoEDMMCProd   = merge([{ '--mc':'', '-s': 'NANO', '--eventcontent' : 'NANOEDMAODSIM','--datatier': 'NANOAODSIM'    }, stepNanoAODDefaults ])
-stepNanoGen     = merge([{ '--mc':''  , '--eventcontent' : 'NANOAODSIM,DQM','--datatier': 'NANOAODSIM,DQMIO' }, stepNanoGenDefaults ])
+stepNanoGen     = merge([{ '--mc':''  , '--eventcontent' : 'NANOAODGEN,DQM','--datatier': 'NANOAODSIM,DQMIO' }, stepNanoGenDefaults ])
 
 steps['NANOGENFromGen']   = merge([{'--conditions': 'auto:run2_mc', '--customise' : 'PhysicsTools/NanoAOD/nanogen_cff.customizeNanoGEN'}, stepNanoGen ])
 steps['NANOGENFromMini']  = merge([{'--conditions': 'auto:run2_mc'}, stepNanoGen ])
