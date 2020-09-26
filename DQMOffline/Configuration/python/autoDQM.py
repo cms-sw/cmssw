@@ -181,6 +181,10 @@ autoDQM = { 'DQMMessageLogger': ['DQMMessageLoggerSeq',
                            'PostDQMOffline',
                            'DQMHarvestNanoAOD'],
 
+            'nanogenDQM': ['DQMOfflineNanoGen',
+                           'PostDQMOffline',
+                           'DQMHarvestNanoAOD'],
+
             'pfDQM': ['DQMOfflinePF+DQMOfflinePFExtended',
                       'PostDQMOffline',
                       'DQMHarvestPF'],
