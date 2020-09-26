@@ -194,6 +194,8 @@ def _appendPhase2Digis(obj):
         'keep *_ak4PFL1CaloCorrected_*_*',
         'keep *_ak4PFL1PFCorrected_*_*',
         'keep *_ak4PFL1PuppiCorrected_*_*',
+        'keep *_Phase1L1TJetProducer_*_*', 
+        'keep *_Phase1L1TJetCalibrator_*_*',
         'keep *_l1PFMetCalo_*_*',
         'keep *_l1PFMetPF_*_*',
         'keep *_l1PFMetPuppi_*_*',
