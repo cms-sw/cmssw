@@ -12,15 +12,15 @@ import re
 
 defaultEOSRootPath = '/eos/cms/store/lhe'
 defaultEOSLoadPath = 'root://eoscms/'
-defaultEOSlistCommand = 'xrd eoscms dirlist '
-defaultEOSmkdirCommand = 'xrd eoscms mkdir '
-defaultEOSfeCommand = 'xrd eoscms existfile '
+defaultEOSlistCommand = 'xrdfs root://eoscms.cern.ch ls '
+defaultEOSmkdirCommand = 'xrdfs root://eoscms.cern.ch mkdir '
+defaultEOSfeCommand = 'xrdfs root://eoscms.cern.ch stat -q IsReadable '
 defaultEOScpCommand = 'xrdcp -np '
 
 def findXrdDir(theDirRecord):
 
     elements = theDirRecord.split(' ')
-    if len(elements) > 1:
+    if len(elements):
         return elements[-1].rstrip('\n').split('/')[-1]
     else:
         return None
@@ -65,7 +65,7 @@ def fileUpload(uploadPath,lheList, checkSumList, reallyDoIt):
         theCommand = defaultEOSfeCommand+' '+newFileName
         exeFullList = subprocess.Popen(["/bin/sh","-c",theCommand], stdout=subprocess.PIPE)
         result = exeFullList.stdout.readlines()
-        if result[0].rstrip('\n') == 'The file exists.':
+        if result[-1].rstrip('\n') == 'Query:  IsReadable':
             addFile = False
             print('File '+newFileName+' already exists: do you want to overwrite? [y/n]')
             reply = raw_input()
