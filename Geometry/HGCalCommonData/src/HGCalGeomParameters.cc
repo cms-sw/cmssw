@@ -11,7 +11,6 @@
 #include "DetectorDescription/Core/interface/DDSolid.h"
 #include "DetectorDescription/Core/interface/DDValue.h"
 #include "DetectorDescription/Core/interface/DDutils.h"
-#include "DetectorDescription/DDCMS/interface/DDShapes.h"
 #include "DetectorDescription/RegressionTest/interface/DDErrorDetection.h"
 #include "Geometry/HGCalCommonData/interface/HGCalTypes.h"
 #include "Geometry/HGCalCommonData/interface/HGCalWaferIndex.h"
@@ -297,13 +296,13 @@ void HGCalGeomParameters::loadGeometryHexagon(const cms::DDCompactView* cpv,
       double zz = HGCalParameters::k_ScaleFromDD4Hep * fv.translation().Z();
       if (itr == layers.end()) {
         double rin(0), rout(0);
-        if (fv.isA<dd4hep::Polyhedra>()) {
+        if (dd4hep::isA<dd4hep::Polyhedra>(fv.solid())) {
           rin = 0.5 * HGCalParameters::k_ScaleFromDD4Hep * (pars[5] + pars[8]);
           rout = 0.5 * HGCalParameters::k_ScaleFromDD4Hep * (pars[6] + pars[9]);
-        } else if (fv.isATubeSeg()) {
-          cms::dd::DDTubs tubeSeg(fv);
-          rin = HGCalParameters::k_ScaleFromDD4Hep * tubeSeg.rIn();
-          rout = HGCalParameters::k_ScaleFromDD4Hep * tubeSeg.rOut();
+        } else if (dd4hep::isA<dd4hep::Tube>(fv.solid())) {
+          dd4hep::Tube tubeSeg(fv.solid());
+          rin = HGCalParameters::k_ScaleFromDD4Hep * tubeSeg.rMin();
+          rout = HGCalParameters::k_ScaleFromDD4Hep * tubeSeg.rMax();
         }
         HGCalGeomParameters::layerParameters laypar(rin, rout, zz);
         layers[lay] = laypar;
