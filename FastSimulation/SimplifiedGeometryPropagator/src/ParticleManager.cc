@@ -250,21 +250,13 @@ std::unique_ptr<fastsim::Particle> fastsim::ParticleManager::nextGenParticle()
         }
         // particles which do not descend from exotics must be produced within the beampipe
         int exoticRelativeId = 0;
-        if (productionVertex->position().perp2() * lengthUnitConversionFactor2_ > beamPipeRadius2_)  //
-        	{
-        		exoticRelativesChecker(productionVertex, exoticRelativeId, 0);
-        		if (!isExotic(exoticRelativeId)) {
-        			continue;
-        		}
-        	}
-
-
-        // particle must be produced within the beampipe
-        if(productionVertex->position().perp2()*lengthUnitConversionFactor2_ > beamPipeRadius2_)
-        {
-            continue;
+        if (productionVertex->position().perp2() * lengthUnitConversionFactor2_ > beamPipeRadius2_) { //
+            exoticRelativesChecker(productionVertex, exoticRelativeId, 0);
+            if (!isExotic(exoticRelativeId)) {
+                continue;
+            }
         }
-        
+
         // particle must not decay before it reaches the beam pipe
         if(endVertex && endVertex->position().perp2()*lengthUnitConversionFactor2_ < beamPipeRadius2_)
         {
