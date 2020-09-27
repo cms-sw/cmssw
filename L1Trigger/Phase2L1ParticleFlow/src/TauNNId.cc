@@ -12,10 +12,11 @@ void TauNNId::initialize(const std::string &iInput, const std::string &iWeightFi
   graphDef_ = tensorflow::loadGraphDef(fp.fullPath());
   session_ = tensorflow::createSession(graphDef_);
   fNParticles_ = iNParticles;
-  fPt_ = std::make_unique<float>(fNParticles_);
-  fEta_ = std::make_unique<float>(fNParticles_);
-  fPhi_ = std::make_unique<float>(fNParticles_);
-  fId_ = std::make_unique<float>(fNParticles_);
+
+  fPt_ = std::make_unique<float[]>(fNParticles_);
+  fEta_ = std::make_unique<float[]>(fNParticles_);
+  fPhi_ = std::make_unique<float[]>(fNParticles_);
+  fId_ = std::make_unique<float[]>(fNParticles_);
   fInput_ = iInput;
 }
 void TauNNId::SetNNVectorVar() {
