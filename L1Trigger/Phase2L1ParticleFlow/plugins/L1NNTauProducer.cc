@@ -75,7 +75,7 @@ void L1NNTauProducer::addTau(const l1t::PFCandidate& iCand,
   TLorentzVector lCand;
   lCand.SetPtEtaPhiM(0, 0, 0, 0);
   int lId = 0;
-  for (auto l1PFCand : iParts) {
+  for (const auto& l1PFCand : iParts) {
     if (deltaR(iCand, l1PFCand) > fConeSize_)
       continue;
     TLorentzVector pVec;
