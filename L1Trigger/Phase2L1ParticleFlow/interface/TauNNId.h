@@ -17,10 +17,10 @@ public:
 
   std::string fInput_;
   int fNParticles_;
-  unique_ptr<float> fPt_;
-  unique_ptr<float> fEta_;
-  unique_ptr<float> fPhi_;
-  unique_ptr<float> fId_;
+  unique_ptr<float[]> fPt_;
+  unique_ptr<float[]> fEta_;
+  unique_ptr<float[]> fPhi_;
+  unique_ptr<float[]> fId_;
 
 private:
   tensorflow::Session *session_;
