@@ -481,7 +481,7 @@ __global__ void kernel_doStatsForHitInTracks(CAHitNtupletGeneratorKernelsGPU::Hi
   }
 }
 
-__global__ void kernel_tripletCleaner(TrackingRecHit2DSOAView const *__restrict__ hhp,
+__global__ void kernel_sharedHitCleaner(TrackingRecHit2DSOAView const *__restrict__ hhp,
                                       HitContainer const *__restrict__ ptuples,
                                       TkSoA const *__restrict__ ptracks,
                                       Quality *__restrict__ quality,

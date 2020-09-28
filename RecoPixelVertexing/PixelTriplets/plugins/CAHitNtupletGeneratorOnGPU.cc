@@ -150,7 +150,7 @@ void CAHitNtupletGeneratorOnGPU::fillDescriptions(edm::ParameterSetDescription& 
   desc.add<bool>("doZ0Cut", true);
   desc.add<bool>("doPtCut", true);
   desc.add<bool>("useRiemannFit", false)->setComment("true for Riemann, false for BrokenLine");
-  desc.add<bool>("doSharedHitCut", false)->setComment("Sharing hit nTuples cleaning");
+  desc.add<bool>("doSharedHitCut", true)->setComment("Sharing hit nTuples cleaning");
 
   edm::ParameterSetDescription trackQualityCuts;
   trackQualityCuts.add<double>("chi2MaxPt", 10.)->setComment("max pT used to determine the pT-dependent chi2 cut");
