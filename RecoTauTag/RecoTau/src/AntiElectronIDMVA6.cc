@@ -68,11 +68,12 @@ AntiElectronIDMVA6<TauType, ElectronType>::AntiElectronIDMVA6(const edm::Paramet
   mvaName_NoEleMatch_wGwoGSF_EC_ = cfg.getParameter<std::string>("mvaName_NoEleMatch_wGwoGSF_EC");
   mvaName_woGwGSF_EC_ = cfg.getParameter<std::string>("mvaName_woGwGSF_EC");
   mvaName_wGwGSF_EC_ = cfg.getParameter<std::string>("mvaName_wGwGSF_EC");
-  mvaName_NoEleMatch_woGwoGSF_VFEC_ = cfg.getParameter<std::string>("mvaName_NoEleMatch_woGwoGSF_VFEC");
-  mvaName_NoEleMatch_wGwoGSF_VFEC_ = cfg.getParameter<std::string>("mvaName_NoEleMatch_wGwoGSF_VFEC");
-  mvaName_woGwGSF_VFEC_ = cfg.getParameter<std::string>("mvaName_woGwGSF_VFEC");
-  mvaName_wGwGSF_VFEC_ = cfg.getParameter<std::string>("mvaName_wGwGSF_VFEC");
-
+  if (isPhase2_) {
+    mvaName_NoEleMatch_woGwoGSF_VFEC_ = cfg.getParameter<std::string>("mvaName_NoEleMatch_woGwoGSF_VFEC");
+    mvaName_NoEleMatch_wGwoGSF_VFEC_ = cfg.getParameter<std::string>("mvaName_NoEleMatch_wGwoGSF_VFEC");
+    mvaName_woGwGSF_VFEC_ = cfg.getParameter<std::string>("mvaName_woGwGSF_VFEC");
+    mvaName_wGwGSF_VFEC_ = cfg.getParameter<std::string>("mvaName_wGwGSF_VFEC");
+  }
   usePhiAtEcalEntranceExtrapolation_ = cfg.getParameter<bool>("usePhiAtEcalEntranceExtrapolation");
 
   if (!isPhase2_) {
