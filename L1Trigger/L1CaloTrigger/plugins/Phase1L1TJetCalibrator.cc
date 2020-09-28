@@ -76,19 +76,19 @@ private:
 //
 Phase1L1TJetCalibrator::Phase1L1TJetCalibrator(const edm::ParameterSet& iConfig)
     : inputCollectionTag_(edm::EDGetTokenT<std::vector<reco::CaloJet>>(
-          consumes<std::vector<reco::CaloJet>>(iConfig.getParameter<edm::InputTag>("inputCollectionTag")))) {
-  this->absEtaBinning_ = iConfig.getParameter<std::vector<double>>("absEtaBinning");
-  this->nBinsEta_ = this->absEtaBinning_.size() - 1;
-  this->calibration_ = iConfig.getParameter<std::vector<edm::ParameterSet>>("calibration");
-  this->outputCollectionName_ = iConfig.getParameter<std::string>("outputCollectionName");
+          consumes<std::vector<reco::CaloJet>>(iConfig.getParameter<edm::InputTag>("inputCollectionTag")))),
+      absEtaBinning_(iConfig.getParameter<std::vector<double>>("absEtaBinning")),
+      nBinsEta_(absEtaBinning_.size() - 1),
+      calibration_(iConfig.getParameter<std::vector<edm::ParameterSet>>("calibration")),
+      outputCollectionName_(iConfig.getParameter<std::string>("outputCollectionName"))
 
-  for (const auto& pset : this->calibration_) {
-    this->_jetCalibrationFactorsPtBins.emplace_back(pset.getParameter<std::vector<double>>("l1tPtBins"));
-    this->_jetCalibrationFactorsBinnedInEta.emplace_back(
-        pset.getParameter<std::vector<double>>("l1tCalibrationFactors"));
+{
+  for (const auto& pset : calibration_) {
+    _jetCalibrationFactorsPtBins.emplace_back(pset.getParameter<std::vector<double>>("l1tPtBins"));
+    _jetCalibrationFactorsBinnedInEta.emplace_back(pset.getParameter<std::vector<double>>("l1tCalibrationFactors"));
   }
 
-  produces<std::vector<reco::CaloJet>>(this->outputCollectionName_).setBranchAlias(this->outputCollectionName_);
+  produces<std::vector<reco::CaloJet>>(outputCollectionName_).setBranchAlias(outputCollectionName_);
 }
 
 Phase1L1TJetCalibrator::~Phase1L1TJetCalibrator() {}
@@ -100,7 +100,7 @@ Phase1L1TJetCalibrator::~Phase1L1TJetCalibrator() {}
 // ------------ method called to produce the data  ------------
 void Phase1L1TJetCalibrator::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   edm::Handle<std::vector<reco::CaloJet>> inputCollectionHandle;
-  iEvent.getByToken(this->inputCollectionTag_, inputCollectionHandle);
+  iEvent.getByToken(inputCollectionTag_, inputCollectionHandle);
 
   std::unique_ptr<std::vector<reco::CaloJet>> calibratedCollectionPtr(new std::vector<reco::CaloJet>());
 
@@ -118,12 +118,12 @@ void Phase1L1TJetCalibrator::produce(edm::Event& iEvent, const edm::EventSetup& 
     float eta = candidate.eta();
 
     //2
-    auto etaBin = upper_bound(this->absEtaBinning_.begin(), this->absEtaBinning_.end(), fabs(eta));
-    int etaIndex = etaBin - this->absEtaBinning_.begin() - 1;
+    auto etaBin = upper_bound(absEtaBinning_.begin(), absEtaBinning_.end(), fabs(eta));
+    int etaIndex = etaBin - absEtaBinning_.begin() - 1;
 
     //3
-    const std::vector<double>& l1tPtBins = this->_jetCalibrationFactorsPtBins[etaIndex];
-    const std::vector<double>& l1tCalibrationFactors = this->_jetCalibrationFactorsBinnedInEta[etaIndex];
+    const std::vector<double>& l1tPtBins = _jetCalibrationFactorsPtBins[etaIndex];
+    const std::vector<double>& l1tCalibrationFactors = _jetCalibrationFactorsBinnedInEta[etaIndex];
 
     //4
     auto ptBin = upper_bound(l1tPtBins.begin(), l1tPtBins.end(), pt);
@@ -165,7 +165,7 @@ void Phase1L1TJetCalibrator::produce(edm::Event& iEvent, const edm::EventSetup& 
             calibratedCollectionPtr->end(),
             [](const reco::CaloJet& jet1, const reco::CaloJet& jet2) { return jet1.pt() > jet2.pt(); });
 
-  iEvent.put(std::move(calibratedCollectionPtr), this->outputCollectionName_);
+  iEvent.put(std::move(calibratedCollectionPtr), outputCollectionName_);
 }
 
 // ------------ method called once each stream before processing any runs, lumis or events  ------------
