@@ -26,7 +26,7 @@ CONDITIONS=auto:phase1_2021_realistic ERA=Run3 GEOM=DB.Extended
 #CONDITIONS=auto:phase1_2018_realistic ERA=Run2_2018 GEOM=DB.Extended
 #
 #conditions - phase2
-#CONDITIONS=auto:phase2_realistic ERA=Phase2C9 GEOM=Extended2026D49
+#CONDITIONS=auto:phase2_realistic_T15 ERA=Phase2C9 GEOM=Extended2026D49
 
 #Running with 2 threads allows to use more memory on grid
 NTHREADS=2
