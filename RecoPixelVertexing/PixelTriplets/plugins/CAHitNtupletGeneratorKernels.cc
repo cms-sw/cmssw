@@ -168,8 +168,10 @@ void CAHitNtupletGeneratorKernelsCPU::classifyTuples(HitsOnCPU const &hh, TkSoA 
   kernel_fillHitInTracks(tuples_d, quality_d, device_hitToTuple_.get());
 
   // remove duplicates (tracks that share a hit)
-  kernel_tripletCleaner(hh.view(), tuples_d, tracks_d, quality_d, device_hitToTuple_.get());
-
+  if (m_params.doSharedHitCut_)
+  {
+    kernel_tripletCleaner(hh.view(), tuples_d, tracks_d, quality_d, m_params.minHitsForSharingCut_, device_hitToTuple_.get());
+  }
   if (m_params.doStats_) {
     // counters (add flag???)
     kernel_doStatsForHitInTracks(device_hitToTuple_.get(), counters_);
