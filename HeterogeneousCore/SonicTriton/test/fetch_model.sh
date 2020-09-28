@@ -20,12 +20,35 @@ mkdir -p 1
 curl -o 1/model.netdef http://download.caffe2.ai.s3.amazonaws.com/models/resnet50/predict_net.pb
 curl -o 1/init_model.netdef http://download.caffe2.ai.s3.amazonaws.com/models/resnet50/init_net.pb
 
-GAT_REPO="https://github.com/lgray/triton-torchgeo-gat-example/raw/cmssw_20.06-v1-py3"
 GAT_DIR=${TEST_DIR}/../data/models/gat_test
 cd $TEST_DIR
 mkdir -p $GAT_DIR
 cd $GAT_DIR
 
-curl -O -L ${GAT_REPO}/artifacts/models/gat_test/config.pbtxt
+cat << EOF > config.pbtxt
+name: "gat_test"
+platform: "pytorch_libtorch"
+max_batch_size: 0
+input [
+  {
+    name: "x__0"
+    data_type: TYPE_FP32
+    dims: [ -1, 1433 ]
+  },
+  {
+    name: "edgeindex__1"
+    data_type: TYPE_INT64
+    dims: [ 2, -1 ]
+  }
+]
+output [
+  {
+    name: "logits__0"
+    data_type: TYPE_FP32
+    dims: [ -1, 7 ]
+  }
+]
+EOF
+
 mkdir -p 1
-curl -o 1/model.pt -L ${GAT_REPO}/artifacts/models/gat_test/1/model.pt
+cp /cvmfs/unpacked.cern.ch/registry.hub.docker.com/fastml/triton-torchgeo:20.06-v1-py3-geometric/torch_geometric/examples/model.pt 1/model.pt
