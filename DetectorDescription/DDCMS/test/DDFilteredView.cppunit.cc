@@ -70,7 +70,7 @@ void testDDFilteredView::checkFilteredView() {
   std::cout << fview.name() << " is a " << cms::dd::name(cms::DDSolidShapeMap, fview.shape()) << "\n";
   std::cout << "Full path to it is " << fview.path() << "\n";
   auto copyNos = fview.copyNos();
-  if (fview.isA<dd4hep::Box>())
+  if (dd4hep::isA<dd4hep::Box>(fview.solid()))
     cout << "It's a Box\n";
   fview.parent();
   std::cout << fview.name() << " is a " << cms::dd::name(cms::DDSolidShapeMap, fview.shape()) << "\n";
