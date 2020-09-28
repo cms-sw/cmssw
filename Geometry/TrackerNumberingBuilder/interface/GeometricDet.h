@@ -45,9 +45,6 @@ public:
   using Position = Surface::PositionType;
   using Rotation = Surface::RotationType;
 
-  //
-  // more can be added; please add at the end!
-  //
   typedef enum GDEnumType {
     unknown = 100,
     Tracker = 0,
@@ -83,137 +80,104 @@ public:
     PixelPhase2TDRDisk = 237
   } GeometricEnumType;
 
-  /**
-   * Constructors to be used when looping over DDD
-   */
+  // Constructors from Filtered View (called while looping over DD).
   GeometricDet(DDFilteredView* fv, GeometricEnumType dd);
   GeometricDet(cms::DDFilteredView* fv, GeometricEnumType dd);
+  // Constructors from persistent data (from DB)
   GeometricDet(const PGeometricDet::Item& onePGD, GeometricEnumType dd);
 
-  /**
-   * set or add or clear components
-   */
+  // ACCESS GENERAL INFO
+  const std::string& name() const { return ddname_; }
+  const GeometricEnumType& type() const { return type_; } 
+  
+  // NAVIGATION related info
+  const nav_type& navType() const { return ddd_; }
+  NavRange navpos() const { return NavRange(&ddd_.front(), ddd_.size()); }
+  const DetId& geographicalId() const { return geographicalID_; }
   void setGeographicalID(DetId id) { geographicalID_ = id; }
-  void addComponents(GeometricDetContainer const& cont);
-  void addComponents(ConstGeometricDetContainer const& cont);
-  void addComponent(GeometricDet*);
-  /**
-   * clearComponents() only empties the container, the components are not deleted!
-   */
-  void clearComponents() { container_.clear(); }
-
-  /**
-   * deleteComponents() explicitly deletes the daughters
-   * 
-   */
-  void deleteComponents();
-
-  bool isLeaf() const { return container_.empty(); }
-
-  GeometricDet* component(size_t index) { return const_cast<GeometricDet*>(container_[index]); }
-
-  /**
-   * Access methods
-   */
-  RotationMatrix const& rotation() const { return rot_; }
-  Translation const& translation() const { return trans_; }
-  double phi() const { return phi_; }
+ 
+  // VOLUME POSITION in CMS frame of reference
+  const Translation& translation() const { return trans_; }
   double rho() const { return rho_; }
+  double phi() const { return phi_; }
+  const RotationMatrix& rotation() const { return rot_; }
+ 
+  // BOUNDS
+  std::unique_ptr<Bounds> bounds() const;
+  Position positionBounds() const; // in cm
+  Rotation rotationBounds() const;
 
+  // SOLID SHAPE 
   // old DD
   LegacySolidShape shape() const { return cms::dd::value(cms::LegacySolidShapeMap, shape_); }
   // DD4hep
-  cms::DDSolidShape shape_dd4hep() const { return shape_; }
-
-  GeometricEnumType type() const { return type_; }
-  std::string const& name() const { return ddname_; }
-
-  // internal representaion
-  // old DD
-  nav_type const& navType() const { return ddd_; }
-  NavRange navpos() const { return NavRange(&ddd_.front(), ddd_.size()); }
-
-  std::vector<double> const& params() const {
+  const cms::DDSolidShape& shape_dd4hep() const { return shape_; }
+  // solid shape parameters
+  const std::vector<double>& params() const {
     if (shape_ != cms::DDSolidShape::ddbox && shape_ != cms::DDSolidShape::ddtrap &&
         shape_ != cms::DDSolidShape::ddtubs) {
       edm::LogError("GeometricDet::params()")
-          << "Called on a shape which is neither a box, a trap, nor a tub. This is not supported!";
+	<< "Called on a shape which is neither a box, a trap, nor a tub. This is not supported!";
     }
     return params_;
   }
 
-  ~GeometricDet();
-
-  /**
-   * components() returns explicit components; please note that in case of a leaf 
-   * GeometricDet it returns nothing (an empty vector)
-   */
-  ConstGeometricDetContainer& components() { return container_; }
-  ConstGeometricDetContainer const& components() const { return container_; }
-
-  /**
-   * deepComponents() returns all the components below; please note that 
-   * if the current GeometricDet is a leaf, it returns it!
-   */
-
-  ConstGeometricDetContainer deepComponents() const;
-  void deepComponents(ConstGeometricDetContainer& cont) const;
-
-  /**
-   *geometricalID() returns the ID associated to the GeometricDet.
-   */
-  DetId geographicalID() const { return geographicalID_; }
-  DetId geographicalId() const { return geographicalID_; }
-
-  /**
-   *positionBounds() returns the position in cm. 
-   */
-  Position positionBounds() const;
-
-  /**
-   *rotationBounds() returns the rotation matrix. 
-   */
-  Rotation rotationBounds() const;
-
-  /**
-   *bounds() returns the Bounds.
-   */
-  std::unique_ptr<Bounds> bounds() const;
-
+  // RADIATION LENGTH AND ENERGY LOSS
   double radLength() const { return radLength_; }
   double xi() const { return xi_; }
-  /**
-   * The following four pix* methods only return meaningful results for pixels.
-   */
+ 
+  // SENSOR INFO
+  // Only return meaningful results for pixels.
   double pixROCRows() const { return pixROCRows_; }
   double pixROCCols() const { return pixROCCols_; }
   double pixROCx() const { return pixROCx_; }
   double pixROCy() const { return pixROCy_; }
-
-  /**
-   * The following two are only meaningful for the silicon tracker.
-   */
+  // Only return meaningful results for Outer Trackers.
   bool stereo() const { return stereo_; }
   bool isLowerSensor() const { return isLowerSensor_; }
   bool isUpperSensor() const { return isUpperSensor_; }
   double siliconAPVNum() const { return siliconAPVNum_; }
+  
+  // CHILDREN INFO
+  GeometricDet* component(size_t index) { return const_cast<GeometricDet*>(container_[index]); }
+  bool isLeaf() const { return container_.empty(); }
+  // direct children only
+  // if the current GeometricDet is a leaf, it returns nothing.
+  ConstGeometricDetContainer& components() { return container_; }
+  const ConstGeometricDetContainer& components() const { return container_; }
+  // all descendants 
+  // if the current GeometricDet is a leaf, it returns itself!
+  ConstGeometricDetContainer deepComponents() const;
+  void deepComponents(ConstGeometricDetContainer& cont) const;
+
+  // PUBLIC SETTERS (they should obviously be as few as possible!!)
+  void addComponents(GeometricDetContainer const& cont);
+  void addComponents(ConstGeometricDetContainer const& cont);
+  void addComponent(GeometricDet*);
+  void clearComponents() { container_.clear(); } // only empties the container, THE CHILDREN ARE NOT DELETED!
+  void deleteComponents(); // EXPLICITLY DELETES THE CHILDREN
+
+  // CUSTOM DESTRUCTOR
+  ~GeometricDet();
 
 private:
   std::vector<double> computeLegacyShapeParameters(const cms::DDSolidShape& mySolidShape,
                                                    const dd4hep::Solid& mySolid) const;
-
-  ConstGeometricDetContainer container_;
-  Translation trans_;
-  double phi_;
-  double rho_;
-  RotationMatrix rot_;
-  cms::DDSolidShape shape_;
-  nav_type ddd_;
+  
   std::string ddname_;
   GeometricEnumType type_;
-  std::vector<double> params_;
 
+  nav_type ddd_;
   DetId geographicalID_;
+  
+  Translation trans_;
+  double rho_;
+  double phi_;
+  RotationMatrix rot_;
+
+  cms::DDSolidShape shape_;
+  std::vector<double> params_;
+  
   double radLength_;
   double xi_;
   double pixROCRows_;
@@ -226,6 +190,8 @@ private:
   double siliconAPVNum_;
 
   bool isFromDD4hep_;
+
+  ConstGeometricDetContainer container_;
 };
 
 #undef PoolAlloc

@@ -67,78 +67,80 @@ GeometricDet::~GeometricDet() { deleteComponents(); }
 
 /*
   Constructor from old DD Filtered view.
- */
+*/
 GeometricDet::GeometricDet(DDFilteredView* fv, GeometricEnumType type)
-    : trans_(fv->translation()),
-      phi_(trans_.Phi()),
-      rho_(trans_.Rho()),
-      rot_(fv->rotation()),
-      shape_(cms::dd::name_from_value(cms::LegacySolidShapeMap, fv->shape())),
-      ddname_(fv->name()),
-      type_(type),
-      params_(fv->parameters()),
-      radLength_(getDouble("TrackerRadLength", *fv)),
-      xi_(getDouble("TrackerXi", *fv)),
-      pixROCRows_(getDouble("PixelROCRows", *fv)),
-      pixROCCols_(getDouble("PixelROCCols", *fv)),
-      pixROCx_(getDouble("PixelROC_X", *fv)),
-      pixROCy_(getDouble("PixelROC_Y", *fv)),
-      stereo_(getString("TrackerStereoDetectors", *fv) == strue),
-      isLowerSensor_(getString("TrackerLowerDetectors", *fv) == strue),
-      isUpperSensor_(getString("TrackerUpperDetectors", *fv) == strue),
-      siliconAPVNum_(getDouble("SiliconAPVNumber", *fv)),
-      isFromDD4hep_(false) {
-  //  workaround instead of this at initialization ddd_(fv->navPos().begin(),fv->navPos().end()),
+  : ddname_(fv->name()),
+    type_(type),
+    ddd_(),
+    trans_(fv->translation()),
+    rho_(trans_.Rho()),
+    phi_(trans_.Phi()),
+    rot_(fv->rotation()),
+    shape_(cms::dd::name_from_value(cms::LegacySolidShapeMap, fv->shape())), 
+    params_(fv->parameters()),
+    radLength_(getDouble("TrackerRadLength", *fv)),
+    xi_(getDouble("TrackerXi", *fv)),
+    pixROCRows_(getDouble("PixelROCRows", *fv)),
+    pixROCCols_(getDouble("PixelROCCols", *fv)),
+    pixROCx_(getDouble("PixelROC_X", *fv)),
+						 pixROCy_(getDouble("PixelROC_Y", *fv)),
+						 stereo_(getString("TrackerStereoDetectors", *fv) == strue),
+						 isLowerSensor_(getString("TrackerLowerDetectors", *fv) == strue),
+						 isUpperSensor_(getString("TrackerUpperDetectors", *fv) == strue),
+						 siliconAPVNum_(getDouble("SiliconAPVNumber", *fv)),
+						 isFromDD4hep_(false) {
+  //  workaround instead of this at initialization 
   const DDFilteredView::nav_type& nt = fv->navPos();
   ddd_ = nav_type(nt.begin(), nt.end());
 }
 
 /*
   Constructor from DD4HEP Filtered view.
- */
+*/
 GeometricDet::GeometricDet(cms::DDFilteredView* fv, GeometricEnumType type)
-    : trans_(geant_units::operators::convertCmToMm(fv->translation())),
-      phi_(trans_.Phi()),
-      rho_(trans_.Rho()),
-      rot_(fv->rotation()),
-      shape_(fv->shape()),
-      ddd_(fv->navPos()),  // To be studied
-      ddname_(dd4hep::dd::noNamespace(fv->name())),
-      type_(type),
-      params_(computeLegacyShapeParameters(shape_, fv->solid())),
-      radLength_(fv->get<double>("TrackerRadLength")),  // To be studied
-      xi_(fv->get<double>("TrackerXi")),                // To be studied
-      pixROCRows_(fv->get<double>("PixelROCRows")),
-      pixROCCols_(fv->get<double>("PixelROCCols")),
-      pixROCx_(fv->get<double>("PixelROC_X")),
-      pixROCy_(fv->get<double>("PixelROC_Y")),
-      stereo_(fv->get<std::string_view>("TrackerStereoDetectors") == strue),
-      isLowerSensor_(fv->get<std::string_view>("TrackerLowerDetectors") == strue),
-      isUpperSensor_(fv->get<std::string_view>("TrackerUpperDetectors") == strue),
-      siliconAPVNum_(fv->get<double>("SiliconAPVNumber")),
-      isFromDD4hep_(true) {}
+  : ddname_(dd4hep::dd::noNamespace(fv->name())),
+    type_(type),
+    ddd_(fv->navPos()),  // To be studied
+    trans_(geant_units::operators::convertCmToMm(fv->translation())),
+    rho_(trans_.Rho()),
+    phi_(trans_.Phi()),
+    rot_(fv->rotation()),
+    shape_(fv->shape()),
+    params_(computeLegacyShapeParameters(shape_, fv->solid())),
+    radLength_(fv->get<double>("TrackerRadLength")),  // To be studied
+    xi_(fv->get<double>("TrackerXi")),                // To be studied
+    pixROCRows_(fv->get<double>("PixelROCRows")),
+    pixROCCols_(fv->get<double>("PixelROCCols")),
+  pixROCx_(fv->get<double>("PixelROC_X")),
+  pixROCy_(fv->get<double>("PixelROC_Y")),
+  stereo_(fv->get<std::string_view>("TrackerStereoDetectors") == strue),
+  isLowerSensor_(fv->get<std::string_view>("TrackerLowerDetectors") == strue),
+  isUpperSensor_(fv->get<std::string_view>("TrackerUpperDetectors") == strue),
+  siliconAPVNum_(fv->get<double>("SiliconAPVNumber")),
+  isFromDD4hep_(true) {}
 
-// PGeometricDet is persistent version... make it... then come back here and make the
-// constructor.
+/*
+  Constructor from persistent version (DB).
+*/
 GeometricDet::GeometricDet(const PGeometricDet::Item& onePGD, GeometricEnumType type)
-    : trans_(onePGD._x, onePGD._y, onePGD._z),
-      phi_(onePGD._phi),  //trans_.Phi()),
-      rho_(onePGD._rho),  //trans_.Rho()),
-      rot_(onePGD._a11,
-           onePGD._a12,
-           onePGD._a13,
-           onePGD._a21,
-           onePGD._a22,
-           onePGD._a23,
-           onePGD._a31,
-           onePGD._a32,
-           onePGD._a33),
-      shape_(cms::dd::name_from_value(cms::LegacySolidShapeMap, static_cast<LegacySolidShape>(onePGD._shape))),
-      ddd_(),
-      ddname_(onePGD._name),
-      type_(type),
-      params_(),
-      geographicalID_(onePGD._geographicalID),
+  : ddname_(onePGD._name),
+    type_(type),
+    ddd_(),
+    geographicalID_(onePGD._geographicalID),
+    trans_(onePGD._x, onePGD._y, onePGD._z),
+    rho_(onePGD._rho),
+    phi_(onePGD._phi),
+    rot_(onePGD._a11,
+	 onePGD._a12,
+	 onePGD._a13,
+	 onePGD._a21,
+	 onePGD._a22,
+	 onePGD._a23,
+	 onePGD._a31,
+	 onePGD._a32,
+	 onePGD._a33),
+      shape_(cms::dd::name_from_value(cms::LegacySolidShapeMap, static_cast<LegacySolidShape>(onePGD._shape))), 
+      params_(),    
       radLength_(onePGD._radLength),
       xi_(onePGD._xi),
       pixROCRows_(onePGD._pixROCRows),
@@ -146,8 +148,12 @@ GeometricDet::GeometricDet(const PGeometricDet::Item& onePGD, GeometricEnumType 
       pixROCx_(onePGD._pixROCx),
       pixROCy_(onePGD._pixROCy),
       stereo_(onePGD._stereo),
-      siliconAPVNum_(onePGD._siliconAPVNum) {
-  if (onePGD._shape == 1 || onePGD._shape == 3) {  //The parms vector is neede only in the case of box or trap shape
+      siliconAPVNum_(onePGD._siliconAPVNum)
+  // NB: what about new data members isLowerSensor_, isUpperSensor_, isFromDD4hep_? 
+  // They are presently not added to PGeometricDet (no change in info stored into DB).
+{
+  // Solid shape parameters: only for box (1) and trapezoid (3)
+  if (onePGD._shape == 1 || onePGD._shape == 3) {
     params_.reserve(11);
     params_.emplace_back(onePGD._params0);
     params_.emplace_back(onePGD._params1);
@@ -190,10 +196,33 @@ GeometricDet::GeometricDet(const PGeometricDet::Item& onePGD, GeometricEnumType 
   }
 }
 
+std::unique_ptr<Bounds> GeometricDet::bounds() const {
+  TrackerShapeToBounds shapeToBounds;
+  return std::unique_ptr<Bounds>(shapeToBounds.buildBounds(shape_, params_));
+}
+
+GeometricDet::Position GeometricDet::positionBounds() const {
+  Position pos_(float(trans_.x() / cm), float(trans_.y() / cm), float(trans_.z() / cm));
+  return pos_;
+}
+
+GeometricDet::Rotation GeometricDet::rotationBounds() const {
+  Translation x, y, z;
+  rot_.GetComponents(x, y, z);
+  Rotation rotation_(float(x.X()),
+                     float(x.Y()),
+                     float(x.Z()),
+                     float(y.X()),
+                     float(y.Y()),
+                     float(y.Z()),
+                     float(z.X()),
+                     float(z.Y()),
+                     float(z.Z()));
+  return rotation_;
+}
+
 GeometricDet::ConstGeometricDetContainer GeometricDet::deepComponents() const {
-  //
-  // iterate on all the components ;)
-  //
+  // iterate on all the DESCENDANTS!!
   ConstGeometricDetContainer temp_;
   deepComponents(temp_);
   return temp_;
@@ -222,38 +251,17 @@ namespace {
   struct Deleter {
     void operator()(GeometricDet const* det) const { delete const_cast<GeometricDet*>(det); }
   };
-}  // namespace
+}
 
 void GeometricDet::deleteComponents() {
   std::for_each(container_.begin(), container_.end(), Deleter());
   container_.clear();
 }
 
-GeometricDet::Position GeometricDet::positionBounds() const {
-  Position pos_(float(trans_.x() / cm), float(trans_.y() / cm), float(trans_.z() / cm));
-  return pos_;
-}
 
-GeometricDet::Rotation GeometricDet::rotationBounds() const {
-  Translation x, y, z;
-  rot_.GetComponents(x, y, z);
-  Rotation rotation_(float(x.X()),
-                     float(x.Y()),
-                     float(x.Z()),
-                     float(y.X()),
-                     float(y.Y()),
-                     float(y.Z()),
-                     float(z.X()),
-                     float(z.Y()),
-                     float(z.Z()));
-  return rotation_;
-}
-
-std::unique_ptr<Bounds> GeometricDet::bounds() const {
-  const std::vector<double>& par = params_;
-  TrackerShapeToBounds shapeToBounds;
-  return std::unique_ptr<Bounds>(shapeToBounds.buildBounds(shape_, par));
-}
+/*
+ * PRIVATE
+ */
 
 /*
  * DD4hep.
