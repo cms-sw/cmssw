@@ -91,13 +91,16 @@ private:
 //
 // constructors and destructor
 //
-L1TS2PFJetInputPatternWriter::L1TS2PFJetInputPatternWriter(const edm::ParameterSet& iConfig) {
+L1TS2PFJetInputPatternWriter::L1TS2PFJetInputPatternWriter(const edm::ParameterSet& iConfig)
+    : pfToken_(consumes<std::vector<l1t::PFCandidate>>(iConfig.getParameter<edm::InputTag>("pfTag"))),
+      filename_(iConfig.getUntrackedParameter<std::string>("filename")),
+      outDir_(iConfig.getUntrackedParameter<std::string>("outDir")),
+      nHeaderFrames_(iConfig.getUntrackedParameter<unsigned>("nHeaderFrames")),
+      nPayloadFrames_(iConfig.getUntrackedParameter<unsigned>("nPayloadFrames")),
+      nClearFrames_(iConfig.getUntrackedParameter<unsigned>("nClearFrames")) {
   //now do what ever initialization is needed
 
   // register what you consume and keep token for later access:
-  pfToken_ = consumes<std::vector<l1t::PFCandidate>>(iConfig.getParameter<edm::InputTag>("pfTag"));
-  filename_ = iConfig.getUntrackedParameter<std::string>("filename");
-  outDir_ = iConfig.getUntrackedParameter<std::string>("outDir");
 
   nChan_ = 4;
   nQuad_ = 18;
@@ -105,9 +108,6 @@ L1TS2PFJetInputPatternWriter::L1TS2PFJetInputPatternWriter(const edm::ParameterS
   etaLSB_ = 0.0043633231;
   phiLSB_ = 0.0043633231;
 
-  nHeaderFrames_ = iConfig.getUntrackedParameter<unsigned>("nHeaderFrames");
-  nPayloadFrames_ = iConfig.getUntrackedParameter<unsigned>("nPayloadFrames");
-  nClearFrames_ = iConfig.getUntrackedParameter<unsigned>("nClearFrames");
   nFrame_ = 0;
   nFrameFile_ = 0;
   nEvents_ = 0;
