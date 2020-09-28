@@ -259,8 +259,8 @@ void DD4hep_TestMTDIdealGeometry::analyze(const edm::Event& iEvent, const edm::E
         }
         dd4hep::Box mySens(fv.solid());
         spos << "Solid shape name: " << DDSolidShapesName::name(fv.legacyShape(fv.shape())) << "\n";
-        spos << "Box dimensions: " << fround(convertCmToMm(mySens.x())) << " "
-             << fround(convertCmToMm(mySens.y())) << " " << fround(convertCmToMm(mySens.z())) << "\n";
+        spos << "Box dimensions: " << fround(convertCmToMm(mySens.x())) << " " << fround(convertCmToMm(mySens.y()))
+             << " " << fround(convertCmToMm(mySens.z())) << "\n";
 
         DD3Vector x, y, z;
         fv.rotation().GetComponents(x, y, z);
