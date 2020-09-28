@@ -91,7 +91,8 @@ HGCalWaferHitCheck::HGCalWaferHitCheck(const edm::ParameterSet& iConfig, const H
       inpType_(iConfig.getParameter<int>("inputType")),
       verbosity_(iConfig.getUntrackedParameter<int>("verbosity", 0)),
       ifNose_(iConfig.getUntrackedParameter<bool>("ifNose", false)),
-      geomToken_(esConsumes<HGCalDDDConstants, IdealGeometryRecord, edm::Transition::BeginRun>(edm::ESInputTag{"",nameDetector_})),
+      geomToken_(esConsumes<HGCalDDDConstants, IdealGeometryRecord, edm::Transition::BeginRun>(
+          edm::ESInputTag{"", nameDetector_})),
       tok_hit_(consumes<edm::PCaloHitContainer>(edm::InputTag("g4SimHits", caloHitSource_))) {
   if (inpType_ == Digi) {
     digiHitSource_ = consumes<HGCalDigiCollection>(source_);
