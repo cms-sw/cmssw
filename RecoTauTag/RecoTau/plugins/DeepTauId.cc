@@ -428,102 +428,102 @@ namespace {
 
     const float getChargedIsoPtSum(const reco::PFTau& tau,
                                    const size_t tau_index,
-                                   const deep_tau::DeepTauBase::TauRef tau_ref) {
+                                   const edm::RefToBase<reco::BaseTau> tau_ref) {
       return (*basicTauDiscriminatorCollection)[tau_ref].rawValues.at(chargedIsoPtSum_index);
     }
     const float getChargedIsoPtSum(const pat::Tau& tau,
                                    const size_t tau_index,
-                                   const deep_tau::DeepTauBase::TauRef tau_ref) {
+                                   const edm::RefToBase<reco::BaseTau> tau_ref) {
       return tau.tauID("chargedIsoPtSum");
     }
     const float getChargedIsoPtSumdR03(const reco::PFTau& tau,
                                        const size_t tau_index,
-                                       const deep_tau::DeepTauBase::TauRef tau_ref) {
+                                       const edm::RefToBase<reco::BaseTau> tau_ref) {
       return (*basicTauDiscriminatordR03Collection)[tau_ref].rawValues.at(chargedIsoPtSum_index);
     }
     const float getChargedIsoPtSumdR03(const pat::Tau& tau,
                                        const size_t tau_index,
-                                       const deep_tau::DeepTauBase::TauRef tau_ref) {
+                                       const edm::RefToBase<reco::BaseTau> tau_ref) {
       return tau.tauID("chargedIsoPtSumdR03");
     }
     const float getFootprintCorrectiondR03(const reco::PFTau& tau,
                                            const size_t tau_index,
-                                           const deep_tau::DeepTauBase::TauRef tau_ref) {
+                                           const edm::RefToBase<reco::BaseTau> tau_ref) {
       return (*basicTauDiscriminatordR03Collection)[tau_ref].rawValues.at(tauFootPrintCorrection_index);
     }
     const float getFootprintCorrectiondR03(const pat::Tau& tau,
                                            const size_t tau_index,
-                                           const deep_tau::DeepTauBase::TauRef tau_ref) {
+                                           const edm::RefToBase<reco::BaseTau> tau_ref) {
       return tau.tauID("footprintCorrectiondR03");
     }
     const float getNeutralIsoPtSum(const reco::PFTau& tau,
                                    const size_t tau_index,
-                                   const deep_tau::DeepTauBase::TauRef tau_ref) {
+                                   const edm::RefToBase<reco::BaseTau> tau_ref) {
       return (*basicTauDiscriminatorCollection)[tau_ref].rawValues.at(neutralIsoPtSum_index);
     }
     const float getNeutralIsoPtSum(const pat::Tau& tau,
                                    const size_t tau_index,
-                                   const deep_tau::DeepTauBase::TauRef tau_ref) {
+                                   const edm::RefToBase<reco::BaseTau> tau_ref) {
       return tau.tauID("neutralIsoPtSum");
     }
     const float getNeutralIsoPtSumdR03(const reco::PFTau& tau,
                                        const size_t tau_index,
-                                       const deep_tau::DeepTauBase::TauRef tau_ref) {
+                                       const edm::RefToBase<reco::BaseTau> tau_ref) {
       return (*basicTauDiscriminatordR03Collection)[tau_ref].rawValues.at(neutralIsoPtSum_index);
     }
     const float getNeutralIsoPtSumdR03(const pat::Tau& tau,
                                        const size_t tau_index,
-                                       const deep_tau::DeepTauBase::TauRef tau_ref) {
+                                       const edm::RefToBase<reco::BaseTau> tau_ref) {
       return tau.tauID("neutralIsoPtSumdR03");
     }
     const float getNeutralIsoPtSumWeight(const reco::PFTau& tau,
                                          const size_t tau_index,
-                                         const deep_tau::DeepTauBase::TauRef tau_ref) {
+                                         const edm::RefToBase<reco::BaseTau> tau_ref) {
       return (*basicTauDiscriminatorCollection)[tau_ref].rawValues.at(neutralIsoPtSumWeight_index);
     }
     const float getNeutralIsoPtSumWeight(const pat::Tau& tau,
                                          const size_t tau_index,
-                                         const deep_tau::DeepTauBase::TauRef tau_ref) {
+                                         const edm::RefToBase<reco::BaseTau> tau_ref) {
       return tau.tauID("neutralIsoPtSumWeight");
     }
     const float getNeutralIsoPtSumdR03Weight(const reco::PFTau& tau,
                                              const size_t tau_index,
-                                             const deep_tau::DeepTauBase::TauRef tau_ref) {
+                                             const edm::RefToBase<reco::BaseTau> tau_ref) {
       return (*basicTauDiscriminatordR03Collection)[tau_ref].rawValues.at(neutralIsoPtSumWeight_index);
     }
     const float getNeutralIsoPtSumdR03Weight(const pat::Tau& tau,
                                              const size_t tau_index,
-                                             const deep_tau::DeepTauBase::TauRef tau_ref) {
+                                             const edm::RefToBase<reco::BaseTau> tau_ref) {
       return tau.tauID("neutralIsoPtSumWeightdR03");
     }
     const float getPhotonPtSumOutsideSignalCone(const reco::PFTau& tau,
                                                 const size_t tau_index,
-                                                const deep_tau::DeepTauBase::TauRef tau_ref) {
+                                                const edm::RefToBase<reco::BaseTau> tau_ref) {
       return (*basicTauDiscriminatorCollection)[tau_ref].rawValues.at(photonPtSumOutsideSignalCone_index);
     }
     const float getPhotonPtSumOutsideSignalCone(const pat::Tau& tau,
                                                 const size_t tau_index,
-                                                const deep_tau::DeepTauBase::TauRef tau_ref) {
+                                                const edm::RefToBase<reco::BaseTau> tau_ref) {
       return tau.tauID("photonPtSumOutsideSignalCone");
     }
     const float getPhotonPtSumOutsideSignalConedR03(const reco::PFTau& tau,
                                                     const size_t tau_index,
-                                                    const deep_tau::DeepTauBase::TauRef tau_ref) {
+                                                    const edm::RefToBase<reco::BaseTau> tau_ref) {
       return (*basicTauDiscriminatordR03Collection)[tau_ref].rawValues.at(photonPtSumOutsideSignalCone_index);
     }
     const float getPhotonPtSumOutsideSignalConedR03(const pat::Tau& tau,
                                                     const size_t tau_index,
-                                                    const deep_tau::DeepTauBase::TauRef tau_ref) {
+                                                    const edm::RefToBase<reco::BaseTau> tau_ref) {
       return tau.tauID("photonPtSumOutsideSignalConedR03");
     }
     const float getPuCorrPtSum(const reco::PFTau& tau,
                                const size_t tau_index,
-                               const deep_tau::DeepTauBase::TauRef tau_ref) {
+                               const edm::RefToBase<reco::BaseTau> tau_ref) {
       return (*basicTauDiscriminatorCollection)[tau_ref].rawValues.at(puCorrPtSum_index);
     }
     const float getPuCorrPtSum(const pat::Tau& tau,
                                const size_t tau_index,
-                               const deep_tau::DeepTauBase::TauRef tau_ref) {
+                               const edm::RefToBase<reco::BaseTau> tau_ref) {
       return tau.tauID("puCorrPtSum");
     }
 
@@ -629,6 +629,42 @@ namespace {
       return leadChargedHadrCand->hcalEnergy();
     }
     auto getHcalEnergyLeadingChargedHadr(const pat::Tau& tau) { return tau.hcalEnergyLeadChargedHadrCand(); }
+
+    template <typename PreDiscrType>
+    bool passPrediscriminants(const PreDiscrType prediscriminants,
+                              const size_t andPrediscriminants,
+                              const edm::RefToBase<reco::BaseTau> tau_ref) {
+      bool passesPrediscriminants = (andPrediscriminants ? 1 : 0);
+      // check tau passes prediscriminants
+      size_t nPrediscriminants = prediscriminants.size();
+      for (size_t iDisc = 0; iDisc < nPrediscriminants; ++iDisc) {
+        // current discriminant result for this tau
+        double discResult = (*prediscriminants[iDisc].handle)[tau_ref];
+        uint8_t thisPasses = (discResult > prediscriminants[iDisc].cut) ? 1 : 0;
+
+        // if we are using the AND option, as soon as one fails,
+        // the result is FAIL and we can quit looping.
+        // if we are using the OR option as soon as one passes,
+        // the result is pass and we can quit looping
+
+        // truth table
+        //        |   result (thisPasses)
+        //        |     F     |     T
+        //-----------------------------------
+        // AND(T) | res=fails |  continue
+        //        |  break    |
+        //-----------------------------------
+        // OR (F) |  continue | res=passes
+        //        |           |  break
+
+        if (thisPasses ^ andPrediscriminants)  //XOR
+        {
+          passesPrediscriminants = (andPrediscriminants ? 0 : 1);  //NOR
+          break;
+        }
+      }
+      return passesPrediscriminants;
+    }
   };
 
   struct lightLepFunc {
@@ -1166,6 +1202,18 @@ public:
     desc.add<edm::InputTag>("basicTauDiscriminatorsdR03", edm::InputTag("basicTauDiscriminatorsdR03"));
     desc.add<edm::InputTag>("pfTauTransverseImpactParameters", edm::InputTag("hpsPFTauTransverseImpactParameters"));
 
+    {
+      edm::ParameterSetDescription pset_Prediscriminants;
+      pset_Prediscriminants.add<std::string>("BooleanOperator", "and");
+      {
+        edm::ParameterSetDescription psd1;
+        psd1.add<double>("cut");
+        psd1.add<edm::InputTag>("Producer");
+        pset_Prediscriminants.addOptional<edm::ParameterSetDescription>("decayMode", psd1);
+      }
+      desc.add<edm::ParameterSetDescription>("Prediscriminants", pset_Prediscriminants);
+    }
+
     descriptions.add("DeepTau", desc);
   }
 
@@ -1324,15 +1372,17 @@ private:
       event.getByToken(basicTauDiscriminatorsdR03_inputToken, basicTauDiscriminatorsdR03);
     }
 
-    tauFunc tauIDs = {basicTauDiscriminators,
-                      basicTauDiscriminatorsdR03,
-                      PFTauTransverseImpactParameters,
-                      chargedIsoPtSum_index,
-                      neutralIsoPtSum_index,
-                      neutralIsoPtSumWeight_index,
-                      tauFootPrintCorrection_index,
-                      photonPtSumOutsideSignalCone_index,
-                      puCorrPtSum_index};
+    tauFunc tauIDs = {
+        basicTauDiscriminators,
+        basicTauDiscriminatorsdR03,
+        PFTauTransverseImpactParameters,
+        chargedIsoPtSum_index,
+        neutralIsoPtSum_index,
+        neutralIsoPtSumWeight_index,
+        tauFootPrintCorrection_index,
+        photonPtSumOutsideSignalCone_index,
+        puCorrPtSum_index,
+    };
 
     lightLepFunc lightlep = {tmp_electrons, tmp_muons};
 
@@ -1349,49 +1399,63 @@ private:
     event.getByToken(rho_token_, rho);
 
     tensorflow::Tensor predictions(tensorflow::DT_FLOAT, {static_cast<int>(taus->size()), deep_tau::NumberOfOutputs});
+
     for (size_t tau_index = 0; tau_index < taus->size(); ++tau_index) {
+      const edm::RefToBase<reco::BaseTau> tauRef = taus->refAt(tau_index);
+
       std::vector<tensorflow::Tensor> pred_vector;
-      const deep_tau::DeepTauBase::TauRef tauRef(taus, tau_index);
-      if (version == 1) {
-        if (is_online)
-          getPredictionsV1<reco::PFCandidate, reco::PFTau>(
-              taus->at(tau_index), tau_index, tauRef, electrons, muons, pred_vector, tauIDs);
-        else
-          getPredictionsV1<pat::PackedCandidate, pat::Tau>(
-              taus->at(tau_index), tau_index, tauRef, electrons, muons, pred_vector, tauIDs);
-      } else if (version == 2) {
-        if (is_online) {
-          getPredictionsV2<reco::PFCandidate, reco::PFTau>(taus->at(tau_index),
-                                                           tau_index,
-                                                           tauRef,
-                                                           electrons,
-                                                           muons,
-                                                           *pfCands,
-                                                           vertices->at(0),
-                                                           *rho,
-                                                           pred_vector,
-                                                           tauIDs);
-        } else
-          getPredictionsV2<pat::PackedCandidate, pat::Tau>(taus->at(tau_index),
-                                                           tau_index,
-                                                           tauRef,
-                                                           electrons,
-                                                           muons,
-                                                           *pfCands,
-                                                           vertices->at(0),
-                                                           *rho,
-                                                           pred_vector,
-                                                           tauIDs);
+
+      bool passesPrediscriminants;
+      if (is_online) {
+        passesPrediscriminants = tauIDs.passPrediscriminants<std::vector<TauDiscInfo<reco::PFTauDiscriminator>>>(
+            recoPrediscriminants_, andPrediscriminants_, tauRef);
       } else {
-        throw cms::Exception("DeepTauId") << "version " << version << " is not supported.";
+        passesPrediscriminants = tauIDs.passPrediscriminants<std::vector<TauDiscInfo<pat::PATTauDiscriminator>>>(
+            patPrediscriminants_, andPrediscriminants_, tauRef);
       }
 
-      for (int k = 0; k < deep_tau::NumberOfOutputs; ++k) {
-        const float pred = pred_vector[0].flat<float>()(k);
-        if (!(pred >= 0 && pred <= 1))
-          throw cms::Exception("DeepTauId")
-              << "invalid prediction = " << pred << " for tau_index = " << tau_index << ", pred_index = " << k;
-        predictions.matrix<float>()(tau_index, k) = pred;
+      if (passesPrediscriminants) {
+        if (version == 1) {
+          if (is_online)
+            getPredictionsV1<reco::PFCandidate, reco::PFTau>(
+                taus->at(tau_index), tau_index, tauRef, electrons, muons, pred_vector, tauIDs);
+          else
+            getPredictionsV1<pat::PackedCandidate, pat::Tau>(
+                taus->at(tau_index), tau_index, tauRef, electrons, muons, pred_vector, tauIDs);
+        } else if (version == 2) {
+          if (is_online) {
+            getPredictionsV2<reco::PFCandidate, reco::PFTau>(taus->at(tau_index),
+                                                             tau_index,
+                                                             tauRef,
+                                                             electrons,
+                                                             muons,
+                                                             *pfCands,
+                                                             vertices->at(0),
+                                                             *rho,
+                                                             pred_vector,
+                                                             tauIDs);
+          } else
+            getPredictionsV2<pat::PackedCandidate, pat::Tau>(taus->at(tau_index),
+                                                             tau_index,
+                                                             tauRef,
+                                                             electrons,
+                                                             muons,
+                                                             *pfCands,
+                                                             vertices->at(0),
+                                                             *rho,
+                                                             pred_vector,
+                                                             tauIDs);
+        } else {
+          throw cms::Exception("DeepTauId") << "version " << version << " is not supported.";
+        }
+
+        for (int k = 0; k < deep_tau::NumberOfOutputs; ++k) {
+          const float pred = pred_vector[0].flat<float>()(k);
+          if (!(pred >= 0 && pred <= 1))
+            throw cms::Exception("DeepTauId")
+                << "invalid prediction = " << pred << " for tau_index = " << tau_index << ", pred_index = " << k;
+          predictions.matrix<float>()(tau_index, k) = pred;
+        }
       }
     }
     return predictions;
@@ -1400,7 +1464,7 @@ private:
   template <typename CandidateCastType, typename TauCastType>
   void getPredictionsV1(const TauCollection::const_reference& tau,
                         const size_t tau_index,
-                        const deep_tau::DeepTauBase::TauRef tau_ref,
+                        const edm::RefToBase<reco::BaseTau> tau_ref,
                         const std::vector<pat::Electron>& electrons,
                         const std::vector<pat::Muon>& muons,
                         std::vector<tensorflow::Tensor>& pred_vector,
@@ -1413,7 +1477,7 @@ private:
   template <typename CandidateCastType, typename TauCastType>
   void getPredictionsV2(const TauCollection::const_reference& tau,
                         const size_t tau_index,
-                        const deep_tau::DeepTauBase::TauRef tau_ref,
+                        const edm::RefToBase<reco::BaseTau> tau_ref,
                         const std::vector<pat::Electron>& electrons,
                         const std::vector<pat::Muon>& muons,
                         const edm::View<reco::Candidate>& pfCands,
@@ -1524,7 +1588,7 @@ private:
   template <typename CandidateCastType, typename TauCastType>
   void createConvFeatures(const TauCastType& tau,
                           const size_t tau_index,
-                          const deep_tau::DeepTauBase::TauRef tau_ref,
+                          const edm::RefToBase<reco::BaseTau> tau_ref,
                           const reco::Vertex& pv,
                           double rho,
                           const std::vector<pat::Electron>& electrons,
@@ -1600,7 +1664,7 @@ private:
   template <typename CandidateCastType, typename TauCastType>
   void createTauBlockInputs(const TauCastType& tau,
                             const size_t& tau_index,
-                            const deep_tau::DeepTauBase::TauRef tau_ref,
+                            const edm::RefToBase<reco::BaseTau> tau_ref,
                             const reco::Vertex& pv,
                             double rho,
                             tauFunc tau_funcs) {
@@ -1711,7 +1775,7 @@ private:
   void createEgammaBlockInputs(unsigned idx,
                                const TauCastType& tau,
                                const size_t tau_index,
-                               const deep_tau::DeepTauBase::TauRef tau_ref,
+                               const edm::RefToBase<reco::BaseTau> tau_ref,
                                const reco::Vertex& pv,
                                double rho,
                                const std::vector<pat::Electron>& electrons,
@@ -1952,7 +2016,7 @@ private:
   void createMuonBlockInputs(unsigned idx,
                              const TauCastType& tau,
                              const size_t tau_index,
-                             const deep_tau::DeepTauBase::TauRef tau_ref,
+                             const edm::RefToBase<reco::BaseTau> tau_ref,
                              const reco::Vertex& pv,
                              double rho,
                              const std::vector<pat::Muon>& muons,
@@ -2103,7 +2167,7 @@ private:
   void createHadronsBlockInputs(unsigned idx,
                                 const TauCastType& tau,
                                 const size_t tau_index,
-                                const deep_tau::DeepTauBase::TauRef tau_ref,
+                                const edm::RefToBase<reco::BaseTau> tau_ref,
                                 const reco::Vertex& pv,
                                 double rho,
                                 const edm::View<reco::Candidate>& pfCands,
@@ -2222,7 +2286,7 @@ private:
   template <typename dnn, typename CandidateCastType, typename TauCastType>
   tensorflow::Tensor createInputsV1(const TauCastType& tau,
                                     const size_t tau_index,
-                                    const deep_tau::DeepTauBase::TauRef tau_ref,
+                                    const edm::RefToBase<reco::BaseTau> tau_ref,
                                     const std::vector<pat::Electron>& electrons,
                                     const std::vector<pat::Muon>& muons,
                                     tauFunc tau_funcs) const {

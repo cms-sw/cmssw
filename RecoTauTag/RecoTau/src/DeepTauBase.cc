@@ -94,11 +94,78 @@ namespace deep_tau {
         workingPoints_[output_desc.first].push_back(std::make_unique<Cutter>(cut_str));
       }
     }
+
+    // prediscriminant operator
+    // require the tau to pass the following prediscriminants
+    const edm::ParameterSet& prediscriminantConfig = cfg.getParameter<edm::ParameterSet>("Prediscriminants");
+
+    // determine boolean operator used on the prediscriminants
+    std::string pdBoolOperator = prediscriminantConfig.getParameter<std::string>("BooleanOperator");
+    // convert string to lowercase
+    transform(pdBoolOperator.begin(), pdBoolOperator.end(), pdBoolOperator.begin(), ::tolower);
+
+    if (pdBoolOperator == "and") {
+      andPrediscriminants_ = 0x1;  //use chars instead of bools so we can do a bitwise trick later
+    } else if (pdBoolOperator == "or") {
+      andPrediscriminants_ = 0x0;
+    } else {
+      throw cms::Exception("TauDiscriminationProducerBase")
+          << "PrediscriminantBooleanOperator defined incorrectly, options are: AND,OR";
+    }
+
+    // get the list of prediscriminants
+    std::vector<std::string> prediscriminantsNames =
+        prediscriminantConfig.getParameterNamesForType<edm::ParameterSet>();
+
+    for (std::vector<std::string>::const_iterator iDisc = prediscriminantsNames.begin();
+         iDisc != prediscriminantsNames.end();
+         ++iDisc) {
+      const edm::ParameterSet& iPredisc = prediscriminantConfig.getParameter<edm::ParameterSet>(*iDisc);
+      const edm::InputTag& label = iPredisc.getParameter<edm::InputTag>("Producer");
+      double cut = iPredisc.getParameter<double>("cut");
+
+      if (is_online) {
+        TauDiscInfo<reco::PFTauDiscriminator> thisDiscriminator;
+        thisDiscriminator.label = label;
+        thisDiscriminator.cut = cut;
+        thisDiscriminator.disc_token = consumes<reco::PFTauDiscriminator>(label);
+        recoPrediscriminants_.push_back(thisDiscriminator);
+      } else {
+        TauDiscInfo<pat::PATTauDiscriminator> thisDiscriminator;
+        thisDiscriminator.label = label;
+        thisDiscriminator.cut = cut;
+        thisDiscriminator.disc_token = consumes<pat::PATTauDiscriminator>(label);
+        patPrediscriminants_.push_back(thisDiscriminator);
+      }
+    }
   }
 
   void DeepTauBase::produce(edm::Event& event, const edm::EventSetup& es) {
     edm::Handle<TauCollection> taus;
     event.getByToken(tausToken_, taus);
+    edm::ProductID tauProductID = taus.id();
+
+    // load prediscriminators
+    size_t nPrediscriminants =
+        patPrediscriminants_.empty() ? recoPrediscriminants_.size() : patPrediscriminants_.size();
+    for (size_t iDisc = 0; iDisc < nPrediscriminants; ++iDisc) {
+      edm::ProductID discKeyId;
+      if (is_online) {
+        recoPrediscriminants_[iDisc].fill(event);
+        discKeyId = recoPrediscriminants_[iDisc].handle->keyProduct().id();
+      } else {
+        patPrediscriminants_[iDisc].fill(event);
+        discKeyId = patPrediscriminants_[iDisc].handle->keyProduct().id();
+      }
+
+      // Check to make sure the product is correct for the discriminator.
+      // If not, throw a more informative exception.
+      if (tauProductID != discKeyId) {
+        throw cms::Exception("MisconfiguredPrediscriminant")
+            << "The tau collection has product ID: " << tauProductID
+            << " but the pre-discriminator is keyed with product ID: " << discKeyId << std::endl;
+      }
+    }
 
     const tensorflow::Tensor& pred = getPredictions(event, taus);
     createOutputs(event, pred, taus);
