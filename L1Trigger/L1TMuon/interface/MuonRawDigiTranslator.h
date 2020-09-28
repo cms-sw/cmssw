@@ -6,8 +6,8 @@
 namespace l1t {
   class MuonRawDigiTranslator {
   public:
-    static void fillMuon(Muon&, uint32_t, uint32_t, int, unsigned int);
-    static void fillMuon(Muon&, uint64_t, int, unsigned int);
+    static void fillMuon(Muon&, uint32_t, uint32_t, uint32_t, int, unsigned int, int);
+    static void fillMuon(Muon&, uint32_t, uint64_t, int, unsigned int, int);
     static void generatePackedDataWords(const Muon& mu,
                                         uint32_t& raw_data_spare,
                                         uint32_t& raw_data_00_31,
