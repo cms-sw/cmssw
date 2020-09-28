@@ -359,20 +359,23 @@ void TauDiscriminationAgainstElectronMVA6<TauType, TauDiscriminator, ElectronTyp
   desc.add<double>("minMVAWOgWgsfEC", 0.0);
   desc.add<double>("minMVAWgWgsfEC", 0.0);
 
-  desc.add<bool>("isPhase2", false);
-  // The following used only for Phase2
-  desc.add<std::string>("mvaName_wGwGSF_VFEC", "gbr_wGwGSF_VFEC")->setComment("Relevant only for Phase-2");
-  desc.add<std::string>("mvaName_woGwGSF_VFEC", "gbr_woGwGSF_VFEC")->setComment("Relevant only for Phase-2");
-  desc.add<std::string>("mvaName_NoEleMatch_wGwoGSF_VFEC", "gbr_NoEleMatch_wGwoGSF_VFEC")
-      ->setComment("Relevant only for Phase-2");
-  desc.add<std::string>("mvaName_NoEleMatch_woGwoGSF_VFEC", "gbr_NoEleMatch_woGwoGSF_VFEC")
-      ->setComment("Relevant only for Phase-2");
-  desc.add<double>("minMVAWOgWgsfVFEC", 0.0)->setComment("Relevant only for Phase-2");
-  desc.add<double>("minMVAWgWgsfVFEC", 0.0)->setComment("Relevant only for Phase-2");
-  desc.add<double>("minMVANoEleMatchWgWOgsfVFEC", 0.0)->setComment("Relevant only for Phase-2");
-  desc.add<double>("minMVANoEleMatchWOgWOgsfVFEC", 0.0)->setComment("Relevant only for Phase-2");
+  desc.ifValue(
+      edm::ParameterDescription<bool>("isPhase2", false, true),
+      // MB: "srcElectrons" present for both phase-2 and non-phase2 to have a non-empy case for default, i.e. isPhase2=false
+      false >> (edm::ParameterDescription<edm::InputTag>("srcElectrons", edm::InputTag("fixme"), true)) or
+          // The following used only for Phase2
+          true >> (edm::ParameterDescription<edm::InputTag>("srcElectrons", edm::InputTag("fixme"), true) and
+                   edm::ParameterDescription<std::string>("mvaName_wGwGSF_VFEC", "gbr_wGwGSF_VFEC", true) and
+                   edm::ParameterDescription<std::string>("mvaName_woGwGSF_VFEC", "gbr_woGwGSF_VFEC", true) and
+                   edm::ParameterDescription<std::string>(
+                       "mvaName_NoEleMatch_wGwoGSF_VFEC", "gbr_NoEleMatch_wGwoGSF_VFEC", true) and
+                   edm::ParameterDescription<std::string>(
+                       "mvaName_NoEleMatch_woGwoGSF_VFEC", "gbr_NoEleMatch_woGwoGSF_VFEC", true) and
+                   edm::ParameterDescription<double>("minMVAWOgWgsfVFEC", 0.0, true) and
+                   edm::ParameterDescription<double>("minMVAWgWgsfVFEC", 0.0, true) and
+                   edm::ParameterDescription<double>("minMVANoEleMatchWgWOgsfVFEC", 0.0, true) and
+                   edm::ParameterDescription<double>("minMVANoEleMatchWOgWOgsfVFEC", 0.0, true)));
 
-  desc.add<edm::InputTag>("srcElectrons", edm::InputTag("fixme"));
   // Relevant only for gsfElectrons for Phase2
   if (std::is_same<ElectronType, reco::GsfElectron>::value) {
     desc.add<std::vector<edm::InputTag>>("hgcalElectronIDs", std::vector<edm::InputTag>())
