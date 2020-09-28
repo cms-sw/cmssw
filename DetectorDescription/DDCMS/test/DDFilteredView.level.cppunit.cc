@@ -26,7 +26,7 @@ public:
 
 private:
   std::string fileName_;
-  std::vector<int> refPos_{0, 0, 4, 2, 2, 1};
+  std::vector<int> refPos_{0, 0, 6, 2, 2};
 };
 
 CPPUNIT_TEST_SUITE_REGISTRATION(testDDFilteredViewLevel);
