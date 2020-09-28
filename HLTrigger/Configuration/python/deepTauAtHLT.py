@@ -2,6 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 from RecoTauTag.RecoTau.PFRecoTauDiscriminationByIsolation_cfi import *
 from RecoTauTag.RecoTau.PFRecoTauQualityCuts_cfi import PFTauQualityCuts
+from RecoTauTag.RecoTau.PFRecoTauDiscriminationByHPSSelection_cfi import hpsSelectionDiscriminator, decayMode_1Prong0Pi0, decayMode_1Prong1Pi0, decayMode_1Prong2Pi0, decayMode_2Prong0Pi0, decayMode_2Prong1Pi0, decayMode_3Prong0Pi0, decayMode_3Prong1Pi0
 
 from RecoTauTag.RecoTau.PFTauPrimaryVertexProducer_cfi      import *
 from RecoTauTag.RecoTau.PFTauSecondaryVertexProducer_cfi    import *
@@ -18,12 +19,22 @@ def update(process):
 
     PFTauQualityCuts.primaryVertexSrc = cms.InputTag("hltPixelVertices")
 
+    ## Decay mode prediscriminant
+    requireDecayMode = cms.PSet(
+        BooleanOperator = cms.string("and"),
+        decayMode = cms.PSet(
+            Producer = cms.InputTag('hltHpsPFTauDiscriminationByDecayModeFindingNewDMsReg'),
+            cut = cms.double(0.5)
+        )
+    )
+
     ## Cut based isolations dR=0.5
     process.hpsPFTauBasicDiscriminators = pfRecoTauDiscriminationByIsolation.clone(
         PFTauProducer = cms.InputTag('hltHpsPFTauProducerReg'),
+        Prediscriminants = requireDecayMode.clone(),
+        # Prediscriminants = cms.PSet(  BooleanOperator = cms.string( "and" ) ),
         particleFlowSrc = cms.InputTag("hltParticleFlowReg"),
         vertexSrc = PFTauQualityCuts.primaryVertexSrc,
-        Prediscriminants = cms.PSet(  BooleanOperator = cms.string( "and" ) ),
         customOuterCone = 0.5,
         isoConeSizeForDeltaBeta = 0.8,
         IDdefinitions = cms.VPSet(
@@ -176,6 +187,7 @@ def update(process):
     photonPtSumOutsideSignalCone_index  = cms.uint32(4),
     basicTauDiscriminators              = cms.InputTag('hpsPFTauBasicDiscriminators'),
     basicTauDiscriminatorsdR03          = cms.InputTag('hpsPFTauBasicDiscriminatorsdR03'),
+    Prediscriminants = requireDecayMode.clone(),
 
     VSeWP = cms.vstring(wp_names),
     VSmuWP = cms.vstring(wp_names),

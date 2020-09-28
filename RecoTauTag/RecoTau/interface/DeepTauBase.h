@@ -20,6 +20,7 @@
 #include "DataFormats/PatCandidates/interface/Tau.h"
 #include "DataFormats/TauReco/interface/TauDiscriminatorContainer.h"
 #include "DataFormats/TauReco/interface/PFTauDiscriminator.h"
+#include "DataFormats/PatCandidates/interface/PATTauDiscriminator.h"
 #include "DataFormats/TauReco/interface/PFTauTransverseImpactParameterAssociation.h"
 #include "DataFormats/TauReco/interface/PFTauTransverseImpactParameterFwd.h"
 #include "DataFormats/TauReco/interface/PFTauTransverseImpactParameter.h"
@@ -28,6 +29,7 @@
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "DataFormats/Common/interface/View.h"
+#include "DataFormats/Common/interface/RefToBase.h"
 #include <TF1.h>
 
 namespace deep_tau {
@@ -94,6 +96,20 @@ namespace deep_tau {
 
     static std::unique_ptr<DeepTauCache> initializeGlobalCache(const edm::ParameterSet& cfg);
     static void globalEndJob(const DeepTauCache* cache) {}
+
+    template <typename ConsumeType>
+    struct TauDiscInfo {
+      edm::InputTag label;
+      edm::Handle<ConsumeType> handle;
+      edm::EDGetTokenT<ConsumeType> disc_token;
+      double cut;
+      void fill(const edm::Event& evt) { evt.getByToken(disc_token, handle); };
+    };
+
+    // select boolean operation on prediscriminants (and = 0x01, or = 0x00)
+    uint8_t andPrediscriminants_;
+    std::vector<TauDiscInfo<pat::PATTauDiscriminator>> patPrediscriminants_;
+    std::vector<TauDiscInfo<reco::PFTauDiscriminator>> recoPrediscriminants_;
 
   private:
     virtual tensorflow::Tensor getPredictions(edm::Event& event, edm::Handle<TauCollection> taus) = 0;
