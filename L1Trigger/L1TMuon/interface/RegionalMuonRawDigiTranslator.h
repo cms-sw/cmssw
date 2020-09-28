@@ -6,8 +6,8 @@
 namespace l1t {
   class RegionalMuonRawDigiTranslator {
   public:
-    static void fillRegionalMuonCand(RegionalMuonCand&, uint32_t, uint32_t, int, tftype);
-    static void fillRegionalMuonCand(RegionalMuonCand&, uint64_t, int, tftype);
+    static void fillRegionalMuonCand(RegionalMuonCand&, uint32_t, uint32_t, int, tftype, bool);
+    static void fillRegionalMuonCand(RegionalMuonCand&, uint64_t, int, tftype, bool);
     static void generatePackedDataWords(const RegionalMuonCand& mu,
                                         uint32_t& raw_data_00_31,
                                         uint32_t& raw_data_32_63,
