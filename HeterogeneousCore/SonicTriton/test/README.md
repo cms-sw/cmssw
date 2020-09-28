@@ -24,6 +24,7 @@ The script has the following options:
 * `-d`: use Docker instead of Singularity
 * `-g`: use GPU instead of CPU
 * `-v`: (verbose) start: activate server debugging info; stop: keep server logs
+* `-w`: maximum time to wait for server to start (default: 30 seconds)
 * `-h`: print help message and exit
 
 ## Test commands
