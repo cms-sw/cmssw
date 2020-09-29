@@ -30,7 +30,11 @@
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "DataFormats/Common/interface/View.h"
 #include "DataFormats/Common/interface/RefToBase.h"
+#include "DataFormats/Provenance/interface/ProductProvenance.h"
+#include "DataFormats/Provenance/interface/ProcessHistoryID.h"
+#include "FWCore/Common/interface/Provenance.h"
 #include <TF1.h>
+#include <map>
 
 namespace deep_tau {
 
