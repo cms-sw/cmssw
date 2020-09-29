@@ -46,8 +46,7 @@ bool TrackAndTrackLinker::linkPrefilter(size_t ielem1,
   const size_t ielem2_track = tables.element_to_track[ielem2];
   const auto& ttv = tables.track_table_vertex;
 
-  return (ttv.get<IsLinkedToDisplacedVertex>(ielem1_track) ||
-          ttv.get<IsLinkedToDisplacedVertex>(ielem2_track));
+  return (ttv.get<IsLinkedToDisplacedVertex>(ielem1_track) || ttv.get<IsLinkedToDisplacedVertex>(ielem2_track));
 }
 
 double TrackAndTrackLinker::testLink(size_t ielem1,

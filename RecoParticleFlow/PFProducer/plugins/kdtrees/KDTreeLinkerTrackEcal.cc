@@ -114,17 +114,13 @@ void KDTreeLinkerTrackEcal::searchLinks(const PFTables& pftables, reco::PFMultiL
 
     // Here we check all rechit candidates using the non-approximated method.
     for (size_t irecHit : recHits) {
-      double rhsizeeta =
-          std::abs(rechitTable.get<rechit::CornerEta>(irecHit)[3] - rechitTable.get<rechit::CornerEta>(irecHit)[1]);
-      double rhsizephi =
-          std::abs(rechitTable.get<rechit::CornerPhi>(irecHit)[3] - rechitTable.get<rechit::CornerPhi>(irecHit)[1]);
-      if (rhsizephi > M_PI)
-        rhsizephi = 2. * M_PI - rhsizephi;
+      const auto& corner_eta = rechitTable.get<rechit::CornerEta>(irecHit);
+      const auto& corner_phi = rechitTable.get<rechit::CornerPhi>(irecHit);
+      double rhsizeeta = std::abs(corner_eta[3] - corner_eta[1]);
+      double rhsizephi = std::abs(reco::deltaPhi(corner_phi[3], corner_phi[1]));
 
       double deta = std::abs(rechitTable.get<rechit::Eta>(irecHit) - tracketa);
-      double dphi = std::abs(rechitTable.get<rechit::Phi>(irecHit) - trackphi);
-      if (dphi > M_PI)
-        dphi = 2. * M_PI - dphi;
+      double dphi = std::abs(reco::deltaPhi(rechitTable.get<rechit::Phi>(irecHit), trackphi));
 
       LogTrace("KDTreeLinkerTrackEcal") << "getting rechit " << irecHit;
 

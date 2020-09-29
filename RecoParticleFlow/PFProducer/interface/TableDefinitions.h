@@ -77,7 +77,7 @@ namespace edm::soa {
       SOA_DECLARE_COLUMN(SCRefKey, edm::ElementID, "SCRefKey");
     }  // namespace cluster
   }    // namespace col::pf
-  
+
   using namespace col::pf;
   using TrackTableVertex = Table<track::ExtrapolationValid,
                                  track::Pt,
@@ -107,13 +107,8 @@ namespace edm::soa {
                          track::KfTrackRefKey,
                          track::TrackType_FROM_GAMMACONV,
                          track::GsfTrackRefPFTrackId>;
-  using TrackTableExtrapolation = Table<track::ExtrapolationValid,
-                                        track::Eta,
-                                        track::Phi,
-                                        track::Posx,
-                                        track::Posy,
-                                        track::Posz,
-                                        track::PosR>;
+  using TrackTableExtrapolation =
+      Table<track::ExtrapolationValid, track::Eta, track::Phi, track::Posx, track::Posy, track::Posz, track::PosR>;
   using RecHitTable = Table<rechit::DetIdValue,
                             rechit::Fraction,
                             rechit::Eta,

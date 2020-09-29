@@ -467,11 +467,8 @@ double LinkByRecHit::testTrackAndClusterByRecHit(
 
         // The link is computed between 0 and ~1 interaction length in HCAL
         dHEta = tracks_hcalexit_table.get<track::Eta>(itrack) - tracks_hcalent_table.get<track::Eta>(itrack);
-        dHPhi = tracks_hcalexit_table.get<track::Phi>(itrack) - tracks_hcalent_table.get<track::Phi>(itrack);
-        if (dHPhi > M_PI)
-          dHPhi = dHPhi - 2. * M_PI;
-        else if (dHPhi < -M_PI)
-          dHPhi = dHPhi + 2. * M_PI;
+        dHPhi =
+            reco::deltaPhi(tracks_hcalexit_table.get<track::Phi>(itrack), tracks_hcalent_table.get<track::Phi>(itrack));
         tracketa = tracks_hcalent_table.get<track::Eta>(itrack) + 0.1 * dHEta;
         trackphi = tracks_hcalent_table.get<track::Phi>(itrack) + 0.1 * dHPhi;
         track_X = tracks_hcalent_table.get<track::Posx>(itrack);
@@ -491,7 +488,6 @@ double LinkByRecHit::testTrackAndClusterByRecHit(
         if (!tracks_ho_table.get<track::ExtrapolationValid>(itrack))
           return -1.;
 
-        //
         tracketa = tracks_ho_table.get<track::Eta>(itrack);
         trackphi = tracks_ho_table.get<track::Phi>(itrack);
         track_X = tracks_ho_table.get<track::Posx>(itrack);
@@ -557,10 +553,9 @@ double LinkByRecHit::testTrackAndClusterByRecHit(
       // also blown up to account for multiple scattering at low pt.
       double rhsizeEta =
           std::abs(rechit_table.get<rechit::CornerEta>(irechit)[3] - rechit_table.get<rechit::CornerEta>(irechit)[1]);
-      double rhsizePhi =
-          std::abs(rechit_table.get<rechit::CornerPhi>(irechit)[3] - rechit_table.get<rechit::CornerPhi>(irechit)[1]);
-      if (rhsizePhi > M_PI)
-        rhsizePhi = 2. * M_PI - rhsizePhi;
+      double rhsizePhi = std::abs(reco::deltaPhi(rechit_table.get<rechit::CornerPhi>(irechit)[3],
+                                                 rechit_table.get<rechit::CornerPhi>(irechit)[1]));
+
       if (hcal) {
         const double mult = horesolscale * (1.50 + 0.5 / fracsNbr);
         rhsizeEta = rhsizeEta * mult + 0.2 * std::abs(dHEta);
@@ -576,9 +571,7 @@ double LinkByRecHit::testTrackAndClusterByRecHit(
       // const math::XYZPoint& posxyz
       // = rechit_cluster.position();
       double deta = std::abs(rechit_table.get<rechit::Eta>(irechit) - tracketa);
-      double dphi = std::abs(rechit_table.get<rechit::Phi>(irechit) - trackphi);
-      if (dphi > M_PI)
-        dphi = 2. * M_PI - dphi;
+      double dphi = std::abs(reco::deltaPhi(rechit_table.get<rechit::Phi>(irechit), trackphi));
 
       if (deta < (0.5 * rhsizeEta) && dphi < (0.5 * rhsizePhi)) {
         linkedbyrechit = true;

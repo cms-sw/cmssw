@@ -641,10 +641,9 @@ const reco::PFBlock PFBlockAlgo::packLinks(
         const unsigned index = rowsize * minmax.second + minmax.first;
         LogTrace("PFBlockAlgo") << "packLinks testLink i1=" << global_i1 << " i2=" << global_i2 << " type1=" << type1
                                 << " type2=" << type2;
-        bool bTestLink = (nullptr == linkTests_[index]
-                              ? false
-                              : linkTests_[index]->linkPrefilter(
-                                    global_i1, global_i2, type1, type2, tables, multilinks));
+        bool bTestLink = (nullptr == linkTests_[index] ? false
+                                                       : linkTests_[index]->linkPrefilter(
+                                                             global_i1, global_i2, type1, type2, tables, multilinks));
         if (bTestLink)
           link(global_i1, global_i2, dist, elements_full, tables, multilinks);
       }
