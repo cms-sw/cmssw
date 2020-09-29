@@ -587,7 +587,6 @@ void VectorHitsBuilderValidation::analyze(const edm::Event& event, const edm::Ev
         }  // loop simhits
 
         nVHsTot++;
-        //tree_->Fill();
 
         //******************************
         //combinatorial studies : not filling if more than 1 VH has been produced
@@ -1071,7 +1070,6 @@ std::vector<std::pair<uint32_t, EncodedEventId> > VectorHitsBuilderValidation::g
   if (isearch != simLinks->end()) {
     // Loop over DigiSimLink in this det unit
     edm::DetSet<PixelDigiSimLink> link_detset = (*isearch);
-    //for (typename edm::DetSet<PixelDigiSimLink>::const_iterator it = link_detset.data.begin(); it != link_detset.data.end(); ++it) {
     for (const auto& it : link_detset.data) {
       if (channel == it.channel())
         simTrkId.push_back(std::make_pair(it.SimTrackId(), it.eventId()));
@@ -1087,7 +1085,6 @@ unsigned int VectorHitsBuilderValidation::getSimTrackId(
   edm::DetSetVector<PixelDigiSimLink>::const_iterator DSViter(pixelSimLinks->find(detId));
   if (DSViter == pixelSimLinks->end())
     return 0;
-  //for (edm::DetSet<PixelDigiSimLink>::const_iterator it = DSViter->data.begin(); it != DSViter->data.end(); ++it) {
   for (const auto& it : DSViter->data) {
     if (channel == it.channel())
       return it.SimTrackId();

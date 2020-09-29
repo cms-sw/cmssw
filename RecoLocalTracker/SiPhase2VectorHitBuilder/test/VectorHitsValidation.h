@@ -120,7 +120,6 @@ private:
   edm::EDGetTokenT<edm::SimTrackContainer> simTracksToken_;
   edm::EDGetTokenT<edm::SimVertexContainer> simVerticesToken_;
   edm::EDGetTokenT<TrackingParticleCollection> trackingParticleToken_;
-  //SiPixelVectorHitBuilderAlgorithmBase *algo;
 
   const TrackerGeometry* tkGeom_;
   const TrackerTopology* tkTopo_;

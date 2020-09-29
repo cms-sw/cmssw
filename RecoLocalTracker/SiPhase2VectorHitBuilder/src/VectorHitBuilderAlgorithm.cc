@@ -381,7 +381,6 @@ void VectorHitBuilderAlgorithm::fit(float x[2],
   float covii = 0.;
   float covsi = 0.;
 
-  //theFitter->linearFit(x, y, 2, sigy, slope, intercept, covss, covii, covsi);
   linearFit(x, y, 2, sigy2, slope, intercept, covss, covii, covsi);
 
   covMatrix[0][0] = covss;  // this is var(dy/dz)
@@ -544,11 +543,5 @@ std::pair<std::pair<float, float>, float> VectorHitBuilderAlgorithm::curvatureAN
   } else {
     return std::make_pair(std::make_pair(0., 0.), 0.0);
   }
-  /*  switch (curvORphi) {
-    case curvatureMode:
-      return std::make_pair(curvature, errorCurvature);
-    case phiMode:
-      return std::make_pair(phi, 0.0);
-  }*/
-  return std::make_pair(std::make_pair(curvature, errorCurvature), phi);
+   return std::make_pair(std::make_pair(curvature, errorCurvature), phi);
 }

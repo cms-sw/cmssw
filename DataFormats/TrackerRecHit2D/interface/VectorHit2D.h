@@ -23,7 +23,6 @@ public:
   const LocalPoint* localPosition() const { return &thePosition; }
   const LocalVector* localDirection() const { return &theDirection; }
   const LocalError* localDirectionError() const {
-    //return &LocalError(theCovMatrix[0][0], theCovMatrix[0][1], theCovMatrix[1][1]);
     return &theLocalError;
   }
   const AlgebraicSymMatrix22* covMatrix() const { return &theCovMatrix; }
