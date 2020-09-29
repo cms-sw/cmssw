@@ -18,10 +18,12 @@ from Configuration.ProcessModifiers.premix_stage1_cff import premix_stage1
 premix_stage1.toReplaceWith(ecalDigiTask, ecalDigiTask.copyAndExclude([simEcalPreshowerDigis]))
 
 from SimCalorimetry.EcalEBTrigPrimProducers.ecalEBTriggerPrimitiveDigis_cff import *
+_phase2_ecalDigiTask = ecalDigiTask.copy()
+_phase2_ecalDigiTask.add(simEcalEBTriggerPrimitiveDigis)
 
-#_phase2_ecalDigiTask = ecalDigiTask.copy()
-#_phase2_ecalDigiTask.add(simEcalEBTriggerPrimitiveDigis)
-_phase2_ecalDigiTask = cms.Task()
 from Configuration.Eras.Modifier_phase2_common_cff import phase2_common
 phase2_common.toReplaceWith(ecalDigiTask,_phase2_ecalDigiTask)
 
+from Configuration.Eras.Modifier_phase2_ecal_devel_cff import phase2_ecal_devel
+_phase2_ecalDigiTask_devel = cms.Task()
+phase2_common.toReplaceWith(ecalDigiTask,_phase2_ecalDigiTask_devel)

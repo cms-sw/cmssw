@@ -18,7 +18,8 @@ ecalDigitizer_Ph2 = cms.PSet(
     hitsProducer = cms.string('g4SimHits'),
     accumulatorType = cms.string("EcalDigiProducer_Ph2"),
     makeDigiSimLinks = cms.untracked.bool(False),
-    doEB = cms.bool(True)
+    doEB = cms.bool(True),
+    doES = cms.bool(False)
 )
 
 from Configuration.Eras.Modifier_fastSim_cff import fastSim
