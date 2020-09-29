@@ -27,7 +27,7 @@ public:
 private:
   void printMe(const cms::DDFilteredView&);
   std::string fileName_;
-  std::vector<int> refPos_{0, 0, 4, 2, 2, 1};
+  std::vector<int> refPos_{0, 0, 6, 2, 2};
 };
 
 CPPUNIT_TEST_SUITE_REGISTRATION(testDDFilteredViewGoTo);
@@ -70,7 +70,7 @@ void testDDFilteredViewGoTo::checkFilteredView() {
 
   // Start with Tracker
   std::cout << "\n==== Let's go to Tracker\n";
-  fview.goTo({0, 0, 4});
+  fview.goTo({0, 0, 6});
   CPPUNIT_ASSERT(fview.name() == "Tracker");
   printMe(fview);
 
@@ -107,7 +107,7 @@ void testDDFilteredViewGoTo::checkFilteredView() {
   printMe(fview);
 
   std::cout << "\n==== Let's do it again, go to Tracker\n";
-  fview.goTo({0, 0, 4});
+  fview.goTo({0, 0, 6});
   CPPUNIT_ASSERT(fview.name() == "Tracker");
   printMe(fview);
 
