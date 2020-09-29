@@ -31,6 +31,7 @@ public:
   ~Phase2TrackerValidateDigi() override;
   void bookHistograms(DQMStore::IBooker& ibooker, edm::Run const& iRun, edm::EventSetup const& iSetup) override;
   void analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) override;
+  std::string getHistoId(uint32_t det_id, const TrackerTopology* tTopo, bool flag);
 
   struct DigiMEs {
     MonitorElement* SimTrackPt;
@@ -112,7 +113,7 @@ private:
   void fillHitsPerTrack();
 
   edm::ParameterSet config_;
-  std::map<unsigned int, DigiMEs> layerMEs;
+  std::map<std::string, DigiMEs> layerMEs;
 
   bool pixelFlag_;
   std::string geomType_;
@@ -129,7 +130,6 @@ private:
   const edm::EDGetTokenT<edm::DetSetVector<PixelDigiSimLink> > otDigiSimLinkToken_;
   const edm::EDGetTokenT<edm::DetSetVector<PixelDigi> > itPixelDigiToken_;
   const edm::EDGetTokenT<edm::DetSetVector<PixelDigiSimLink> > itPixelDigiSimLinkToken_;
-  //  const edm::EDGetTokenT< edm::PSimHitContainer > psimHitToken_;
   const edm::EDGetTokenT<edm::SimTrackContainer> simTrackToken_;
   const edm::EDGetTokenT<edm::SimVertexContainer> simVertexToken_;
   std::vector<edm::EDGetTokenT<edm::PSimHitContainer> > simHitTokens_;
