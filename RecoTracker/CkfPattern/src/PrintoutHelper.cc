@@ -56,8 +56,7 @@ std::string PrintoutHelper::dumpMeasurement(const TrajectoryMeasurement& tm) {
            << "p: " << tm.predictedState().globalMomentum() << "\n";
   else
     buffer << "no valid state\n";
-  buffer
-      << "detId: " << tm.recHit()->geographicalId().rawId();
+  buffer << "detId: " << tm.recHit()->geographicalId().rawId();
   if (tm.recHit()->isValid()) {
     buffer << "\n hit global x: " << tm.recHit()->globalPosition()
            << "\n hit global error: " << tm.recHit()->globalPositionError().matrix()

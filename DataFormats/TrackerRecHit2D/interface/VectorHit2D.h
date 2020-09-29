@@ -22,9 +22,7 @@ public:
 
   const LocalPoint* localPosition() const { return &thePosition; }
   const LocalVector* localDirection() const { return &theDirection; }
-  const LocalError* localDirectionError() const {
-    return &theLocalError;
-  }
+  const LocalError* localDirectionError() const { return &theLocalError; }
   const AlgebraicSymMatrix22* covMatrix() const { return &theCovMatrix; }
   float chi2() const { return theChi2; }
   int dimension() const { return theDimension; }

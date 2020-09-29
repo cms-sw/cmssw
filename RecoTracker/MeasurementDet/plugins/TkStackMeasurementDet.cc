@@ -5,8 +5,8 @@
 
 using namespace std;
 
-TkStackMeasurementDet::TkStackMeasurementDet(const StackGeomDet* gdet)
-    : MeasurementDet(gdet), theLowerDet(nullptr), theUpperDet(nullptr) {}
+TkStackMeasurementDet::TkStackMeasurementDet(const StackGeomDet* gdet, const PixelClusterParameterEstimator* cpe)
+    : MeasurementDet(gdet), thePixelCPE(cpe), theLowerDet(nullptr), theUpperDet(nullptr) {}
 
 void TkStackMeasurementDet::init(const MeasurementDet* lowerDet, const MeasurementDet* upperDet) {
   theLowerDet = dynamic_cast<const TkPhase2OTMeasurementDet*>(lowerDet);
@@ -28,7 +28,6 @@ TkStackMeasurementDet::RecHitContainer TkStackMeasurementDet::recHits(const Traj
   if (!isActive(data))
     return result;
   LogTrace("MeasurementTracker") << " and is active";
-
 
   //find clusters to skip
   std::vector<Phase2TrackerCluster1DRef> skipClustersLower;
@@ -53,7 +52,7 @@ TkStackMeasurementDet::RecHitContainer TkStackMeasurementDet::recHits(const Traj
           skipClustersLower.push_back(clusterRef);
         }
       }
-	    }
+    }
     if (!upperDetSet.empty()) {
       for (const_iterator ciu = upperDetSet.begin(); ciu != upperDetSet.end(); ++ciu) {
         if (ciu < begin) {

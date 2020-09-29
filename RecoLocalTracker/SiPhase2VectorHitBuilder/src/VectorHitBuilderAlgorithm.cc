@@ -543,5 +543,5 @@ std::pair<std::pair<float, float>, float> VectorHitBuilderAlgorithm::curvatureAN
   } else {
     return std::make_pair(std::make_pair(0., 0.), 0.0);
   }
-   return std::make_pair(std::make_pair(curvature, errorCurvature), phi);
+  return std::make_pair(std::make_pair(curvature, errorCurvature), phi);
 }

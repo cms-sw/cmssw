@@ -25,7 +25,6 @@
 #include "RecoLocalTracker/Records/interface/TrackerCPERecord.h"
 #include "RecoLocalTracker/SiStripRecHitConverter/interface/SiStripRecHitMatcher.h"
 #include "RecoLocalTracker/SiStripRecHitConverter/interface/StripCPE.h"
-#include "RecoLocalTracker/SiPhase2VectorHitBuilder/interface/VectorHitBuilderAlgorithm.h"
 
 #include "RecoTracker/TkDetLayers/interface/GeometricSearchTracker.h"
 #include "RecoTracker/Record/interface/TrackerRecoGeometryRecord.h"
@@ -283,7 +282,9 @@ void MeasurementTrackerImpl::addGluedDet(const GluedGeomDet* gd) {
 }
 
 void MeasurementTrackerImpl::addStackDet(const StackGeomDet* gd) {
-  theStackDets.push_back(TkStackMeasurementDet(gd));
+  //since the Stack will be composed by PS or 2S,
+  //  //both cluster parameter estimators are needed? - right now just the thePixelCPE is used.
+  theStackDets.push_back(TkStackMeasurementDet(gd, thePxDetConditions.pixelCPE()));
 }
 
 void MeasurementTrackerImpl::initGluedDet(TkGluedMeasurementDet& det, const TrackerTopology* trackerTopology) {
