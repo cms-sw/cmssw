@@ -236,7 +236,8 @@ namespace edmtest {
       if (checkSize_) {
         auto const& prod = e.get(token_);
         if (prod.size() != size_) {
-          throw cms::Exception("Assert") << "Product size " << prod.size() << " differs from expectation " << size_;
+          throw cms::Exception("SizeMismatch")
+              << "Product size " << prod.size() << " differs from expectation " << size_;
         }
       }
     }

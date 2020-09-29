@@ -37,7 +37,7 @@ namespace edmtest {
               return desc->moduleLabel() == moduleToCheck.first;
             });
         if (found == allModules.end()) {
-          cms::Exception ex("Assert");
+          cms::Exception ex("TestFailure");
           ex << "Module " << moduleToCheck.first
              << " not found in PathsAndConsumesOfModulesBase, that has the following modules:\n";
           for (edm::ModuleDescription const* desc : allModules) {
@@ -54,7 +54,7 @@ namespace edmtest {
         for (edm::ModuleDescription const* desc : pathsAndConsumes.modulesWhoseProductsAreConsumedBy((*found)->id())) {
           auto found = tocheck.find(desc->moduleLabel());
           if (found == tocheck.end()) {
-            cms::Exception ex("Assert");
+            cms::Exception ex("TestFailure");
             ex << "Module " << moduleToCheck.first << " consumes " << desc->moduleLabel()
                << " that was not one of the expected modules:\n";
             for (auto const& m : moduleToCheck.second) {
@@ -65,7 +65,7 @@ namespace edmtest {
           tocheck.erase(found);
         }
         if (not tocheck.empty()) {
-          cms::Exception ex("Assert");
+          cms::Exception ex("TestFailure");
           ex << "Module " << moduleToCheck.first << " was expected to consume the following modules, but it did not\n";
           for (auto const& m : tocheck) {
             ex << " " << m << "\n";
