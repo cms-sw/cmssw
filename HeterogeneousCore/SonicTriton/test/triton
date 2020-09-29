@@ -1,6 +1,12 @@
 #!/bin/bash
 
-WTIME=30
+# defaults
+USEDOCKER=""
+GPU=""
+VERBOSE=""
+WTIME=60
+SERVER=triton_server_instance
+
 usage() {
 	ECHO="echo -e"
 	$ECHO "triton [options] [start|stop]"
@@ -8,6 +14,7 @@ usage() {
 	$ECHO "Options:"
 	$ECHO "-d        \t use Docker instead of Singularity"
 	$ECHO "-g        \t use GPU instead of CPU"
+	$ECHO "-n        \t name of container instance (default: ${SERVER})"
 	$ECHO "-v        \t (verbose) start: activate server debugging info; stop: keep server logs"
 	$ECHO "-w        \t maximum time to wait for server to start (default: ${WTIME} seconds)"
 	$ECHO "-h        \t print this message and exit"
@@ -18,18 +25,13 @@ usage() {
 	exit $1
 }
 
-# defaults
-USEDOCKER=""
-GPU=""
-VERBOSE=""
-
 # check shm locations
 SHM=/dev/shm
 if [ -e /run/shm ]; then
 	SHM=/run/shm
 fi
 
-while getopts "dgvhw:" opt; do
+while getopts "dgvhw:n:" opt; do
 	case "$opt" in
 		d) USEDOCKER=true
 		;;
@@ -40,6 +42,8 @@ while getopts "dgvhw:" opt; do
 		h) usage 0
 		;;
 		w) WTIME="$OPTARG"
+		;;
+		n) SERVER="$OPTARG"
 		;;
 	esac
 done
@@ -54,7 +58,6 @@ fi
 DOCKER="sudo docker"
 IMAGE=fastml/triton-torchgeo:20.06-v1-py3-geometric
 MODELS=${CMSSW_BASE}/src/HeterogeneousCore/SonicTriton/data/models
-SERVER=triton_server_instance
 LOG=log_triton_server.log
 LIB=lib
 STARTED_INDICATOR="Started GRPCService"
@@ -83,6 +86,7 @@ start_singularity(){
 
 	START_EXIT=$?
 	if [ "$START_EXIT" -ne 0 ]; then
+		rm -rf ${LIB}
 		return "$START_EXIT"
 	fi
 
@@ -121,7 +125,7 @@ wait_server(){
 	while ! $WAIT_COND >& /dev/null; do
 		if [ "$COUNT" -gt "$WTIME" ]; then
 			echo "timed out waiting for server to start"
-			$STOP_FN
+			VERBOSE=true $STOP_FN
 			exit 1
 		else
 			COUNT=$(($COUNT + 1))
