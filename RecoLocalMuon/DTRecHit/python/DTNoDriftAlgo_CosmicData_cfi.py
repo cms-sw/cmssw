@@ -27,7 +27,8 @@ DTNoDriftAlgo_CosmicData = cms.PSet(
             doWirePropCorrection = cms.bool(False),
             doT0Correction = cms.bool(False),
             debug = cms.untracked.bool(False),
-            tTrigLabel = cms.string('cosmics')
+            tTrigLabel = cms.string('cosmics'),
+            t0Label = cms.string('')
         ),
         maxTime = cms.double(3500.0)
     ),

@@ -26,6 +26,8 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 // l1 dataformats, d|e record includes
+#include "DataFormats/HcalDigi/interface/HcalTriggerPrimitiveDigi.h"
+#include "DataFormats/L1CSCTrackFinder/interface/L1Track.h"
 #include "L1Trigger/HardwareValidation/interface/DEtrait.h"
 
 // random generation

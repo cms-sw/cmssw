@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms 
 
-from Configuration.Eras.Era_Phase2C4_cff import Phase2C4
-process = cms.Process('DIGI',Phase2C4)
+from Configuration.Eras.Era_Phase2C9_cff import Phase2C9
+process = cms.Process('DIGI',Phase2C9)
 
 # import of standard configurations
 process.load('Configuration.StandardSequences.Services_cff')
@@ -9,8 +9,8 @@ process.load('SimGeneral.HepPDTESSource.pythiapdt_cfi')
 process.load('FWCore.MessageService.MessageLogger_cfi')
 process.load('Configuration.EventContent.EventContent_cff')
 process.load('SimGeneral.MixingModule.mixNoPU_cfi')
-process.load('Configuration.Geometry.GeometryExtended2026D35Reco_cff')
-process.load('Configuration.Geometry.GeometryExtended2026D35_cff')
+process.load('Configuration.Geometry.GeometryExtended2026D49Reco_cff')
+process.load('Configuration.Geometry.GeometryExtended2026D49_cff')
 process.load('Configuration.StandardSequences.MagneticField_cff')
 process.load('Configuration.StandardSequences.Generator_cff')
 process.load('IOMC.EventVertexGenerators.VtxSmearedHLLHC14TeV_cfi')
@@ -24,12 +24,12 @@ process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 
 
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(50)
+    input = cms.untracked.int32(5)
 )
 
 # Input source
 process.source = cms.Source("PoolSource",
-       fileNames = cms.untracked.vstring('/store/mc/PhaseIIMTDTDRAutumn18DR/SinglePion_FlatPt-2to100/FEVT/PU200_103X_upgrade2023_realistic_v2-v1/70000/FFA969EE-22E0-E447-86AA-46A6CBF6407D.root'),
+       fileNames = cms.untracked.vstring('/store/mc/Phase2HLTTDRWinter20DIGI/TT_TuneCP5_14TeV-powheg-pythia8/GEN-SIM-DIGI-RAW/PU200_110X_mcRun4_realistic_v3-v2/240000/2D0339A5-751F-3543-BA5B-456EA6E5E294.root'),
        inputCommands=cms.untracked.vstring(
            'keep *',
            'drop l1tEMTFHit2016Extras_simEmtfDigis_CSC_HLT',
@@ -77,7 +77,7 @@ import L1Trigger.L1THGCalUtilities.customNtuples as ntuple
 chains = HGCalTriggerChains()
 # Register algorithms
 ## VFE
-chains.register_vfe("Floatingpoint8", lambda p : vfe.create_compression(p, 4, 4, True))
+chains.register_vfe("Floatingpoint", vfe.create_vfe)
 ## ECON
 chains.register_concentrator("Supertriggercell", concentrator.create_supertriggercell)
 chains.register_concentrator("Threshold", concentrator.create_threshold)
@@ -86,9 +86,6 @@ chains.register_concentrator("Bestchoice", concentrator.create_bestchoice)
 chains.register_backend1("Dummy", clustering2d.create_dummy)
 ## BE2
 chains.register_backend2("Histomax", clustering3d.create_histoMax)
-chains.register_backend2("Histomaxvardrth0", lambda p,i : clustering3d.create_histoMax_variableDr(p,i,seed_threshold=0.))
-chains.register_backend2("Histomaxvardrth10", lambda p,i : clustering3d.create_histoMax_variableDr(p,i,seed_threshold=10.))
-chains.register_backend2("Histomaxvardrth20", lambda p,i : clustering3d.create_histoMax_variableDr(p,i,seed_threshold=20.))
 # Register selector
 chains.register_selector("Genmatch", selectors.create_genmatch)
 # Register ntuples
@@ -97,11 +94,11 @@ chains.register_ntuple("Genclustersntuple", lambda p,i : ntuple.create_ntuple(p,
 
 # Register trigger chains
 concentrator_algos = ['Supertriggercell', 'Threshold', 'Bestchoice']
-backend_algos = ['Histomax', 'Histomaxvardrth0', 'Histomaxvardrth10', 'Histomaxvardrth20']
+backend_algos = ['Histomax']
 ## Make cross product fo ECON and BE algos
 import itertools
 for cc,be in itertools.product(concentrator_algos,backend_algos):
-    chains.register_chain('Floatingpoint8', cc, 'Dummy', be, 'Genmatch', 'Genclustersntuple')
+    chains.register_chain('Floatingpoint', cc, 'Dummy', be, 'Genmatch', 'Genclustersntuple')
 
 process = chains.create_sequences(process)
 

@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 from __future__ import print_function
-import sys
+import sys, os
 
 from Configuration.PyReleaseValidation.MatrixReader import MatrixReader
 from Configuration.PyReleaseValidation.MatrixRunner import MatrixRunner
@@ -281,9 +281,15 @@ if __name__ == '__main__':
                       default=False,
                       action='store_true')
 
+    parser.add_option('--sites',
+                      help='Run DAS query to get data from a specific site (default is T2_CH_CERN). Set it to empty string to search all sites.',
+                      dest='dasSites',
+                      default='T2_CH_CERN',
+                      action='store')
+
     opt,args = parser.parse_args()
+    os.environ["CMSSW_DAS_QUERY_SITES"]=opt.dasSites
     if opt.IBEos:
-      import os
       try:from commands import getstatusoutput as run_cmd
       except:from subprocess import getstatusoutput as run_cmd
 

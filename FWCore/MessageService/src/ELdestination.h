@@ -30,7 +30,6 @@
 
 #include "FWCore/MessageService/src/ELlimitsTable.h"
 
-#include "FWCore/MessageLogger/interface/ELstring.h"
 #include "FWCore/MessageLogger/interface/ErrorObj.h"
 #include "FWCore/MessageLogger/interface/ELextendedID.h"
 
@@ -62,7 +61,7 @@ namespace edm {
     public:
       virtual bool log(const edm::ErrorObj& msg);
 
-      virtual ELstring getNewline() const;
+      virtual std::string getNewline() const;
 
       virtual void finish();
 
@@ -70,11 +69,11 @@ namespace edm {
       //
       void setThreshold(const ELseverityLevel& sv);
       void setTraceThreshold(const ELseverityLevel& sv);
-      void setLimit(const ELstring& s, int n);
+      void setLimit(const std::string& s, int n);
       void setLimit(const ELseverityLevel& sv, int n);
-      void setInterval(const ELstring& s, int interval);
+      void setInterval(const std::string& s, int interval);
       void setInterval(const ELseverityLevel& sv, int interval);
-      void setTimespan(const ELstring& s, int n);
+      void setTimespan(const std::string& s, int n);
       void setTimespan(const ELseverityLevel& sv, int n);
 
       // -----  Select output format options:
@@ -102,29 +101,29 @@ namespace edm {
 
       virtual void wipe();
       virtual void zero();
-      virtual void filterModule(ELstring const& moduleName);
-      virtual void excludeModule(ELstring const& moduleName);
-      virtual void ignoreModule(ELstring const& moduleName);
-      virtual void respondToModule(ELstring const& moduleName);
-      virtual bool thisShouldBeIgnored(const ELstring& s) const;
+      virtual void filterModule(std::string const& moduleName);
+      virtual void excludeModule(std::string const& moduleName);
+      virtual void ignoreModule(std::string const& moduleName);
+      virtual void respondToModule(std::string const& moduleName);
+      virtual bool thisShouldBeIgnored(std::string const& s) const;
 
       virtual void setTableLimit(int n);
 
       virtual void changeFile(std::ostream& os);
-      virtual void changeFile(const ELstring& filename);
+      virtual void changeFile(const std::string& filename);
       virtual void flush();
 
     protected:
       ELseverityLevel threshold;
       ELseverityLevel traceThreshold;
       ELlimitsTable limits;
-      ELstring preamble;
-      ELstring newline;
-      ELstring indent;
+      std::string preamble;
+      std::string newline;
+      std::string indent;
       int lineLength;
+      bool respondToMostModules;
       bool ignoreMostModules;
       std::unordered_set<std::string> respondToThese;
-      bool respondToMostModules;
       std::unordered_set<std::string> ignoreThese;
       // Fix $001 2/13/01 mf
 #ifndef DEFECT_NO_STATIC_CONST_INIT

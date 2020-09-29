@@ -16,6 +16,9 @@ public:
   //main operation
   virtual void dispatch(edm::WaitingTaskWithArenaHolder holder);
 
+  //alternate operation when ExternalWork is not used
+  virtual void dispatch();
+
 protected:
   SonicClientBase* client_;
 };

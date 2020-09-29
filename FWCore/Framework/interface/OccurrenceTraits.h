@@ -38,6 +38,7 @@ namespace edm {
   class OccurrenceTraits<EventPrincipal, BranchActionStreamBegin> {
   public:
     using MyPrincipal = EventPrincipal;
+    using TransitionInfoType = EventTransitionInfo;
     using Context = StreamContext;
     static BranchType constexpr branchType_ = InEvent;
     static bool constexpr begin_ = true;
@@ -111,6 +112,7 @@ namespace edm {
   class OccurrenceTraits<RunPrincipal, BranchActionStreamBegin> {
   public:
     using MyPrincipal = RunPrincipal;
+    using TransitionInfoType = RunTransitionInfo;
     using Context = StreamContext;
     static BranchType constexpr branchType_ = InRun;
     static bool constexpr begin_ = true;
@@ -150,6 +152,7 @@ namespace edm {
   class OccurrenceTraits<RunPrincipal, BranchActionStreamEnd> {
   public:
     using MyPrincipal = RunPrincipal;
+    using TransitionInfoType = RunTransitionInfo;
     using Context = StreamContext;
     static BranchType constexpr branchType_ = InRun;
     static bool constexpr begin_ = false;
@@ -271,6 +274,7 @@ namespace edm {
   class OccurrenceTraits<LuminosityBlockPrincipal, BranchActionStreamBegin> {
   public:
     using MyPrincipal = LuminosityBlockPrincipal;
+    using TransitionInfoType = LumiTransitionInfo;
     using Context = StreamContext;
     static BranchType constexpr branchType_ = InLumi;
     static bool constexpr begin_ = true;
@@ -310,6 +314,7 @@ namespace edm {
   class OccurrenceTraits<LuminosityBlockPrincipal, BranchActionStreamEnd> {
   public:
     using MyPrincipal = LuminosityBlockPrincipal;
+    using TransitionInfoType = LumiTransitionInfo;
     using Context = StreamContext;
     static BranchType constexpr branchType_ = InLumi;
     static bool constexpr begin_ = false;
