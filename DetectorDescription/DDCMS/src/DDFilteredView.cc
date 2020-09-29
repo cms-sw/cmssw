@@ -478,7 +478,7 @@ std::string_view DDFilteredView::get<string_view>(const string& key) const {
   int level = it_.back().GetLevel();
   for_each(begin(refs), end(refs), [&](auto const& i) {
     auto k = find_if(begin(i->paths), end(i->paths), [&](auto const& j) {
-      auto const& names = split(realTopName(j), "/");
+      auto const& names = split(j, "/");
       int count = names.size();
       bool flag = false;
       for (int nit = level; count > 0 and nit > 0; --nit) {
@@ -617,8 +617,7 @@ const ExpandedNodes& DDFilteredView::history() {
   for (int nit = level; nit > 0; --nit) {
     for_each(begin(registry_->specpars), end(registry_->specpars), [&](auto const& i) {
       auto k = find_if(begin(i.second.paths), end(i.second.paths), [&](auto const& j) {
-        return (isMatch(noNamespace(it_.back().GetNode(nit)->GetVolume()->GetName()),
-                        *begin(split(realTopName(j), "/"))) and
+        return (isMatch(noNamespace(it_.back().GetNode(nit)->GetVolume()->GetName()), *begin(split(j, "/"))) and
                 (i.second.hasValue("CopyNoTag") or i.second.hasValue("CopyNoOffset")));
       });
       if (k != end(i.second.paths)) {
