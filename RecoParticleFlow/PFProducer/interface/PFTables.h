@@ -111,9 +111,6 @@ public:
   PFClusterTables<edm::soa::ClusterTable, edm::soa::RecHitTable> clusters_hfhad_;
   PFClusterTables<edm::soa::SuperClusterTable, edm::soa::SuperClusterRecHitTable> clusters_sc_;
 
-  // edm::soa::SuperClusterTable superclusters_table_;
-  // std::vector<size_t> element_to_supercluster_;
-
   void clear() {
     track_to_element_.clear();
     element_to_track_.clear();
@@ -148,9 +145,6 @@ public:
     clusters_hfem_.clear();
     clusters_hfhad_.clear();
     clusters_sc_.clear();
-
-    // superclusters_table_.resize(0);
-    // element_to_supercluster_.clear();
   }
 
   //this is needed since the KDTreeLinkers of different type need to have the same interface, but underneath may need to access different data
@@ -172,9 +166,9 @@ public:
       return clusters_ps1_;
     } else if (type == reco::PFBlockElement::PS2) {
       return clusters_ps2_;
-    } else {
-      throw cms::Exception("unhandled type in getClusterTable");
     }
+
+    throw cms::Exception("LogicError") << "unhandled type in getClusterTable";
   }
 
   const edm::soa::TrackTableExtrapolation& getTrackTable(reco::PFTrajectoryPoint::LayerType layer) const {
@@ -185,9 +179,8 @@ public:
       return track_table_hcalex_;
     } else if (layer == reco::PFTrajectoryPoint::VFcalEntrance) {
       return track_table_vfcalent_;
-    } else {
-      throw cms::Exception("unhandler layer type in getTrackTable");
     }
+    throw cms::Exception("LogicError") << "unhandled type in getTrackTable";
   }
 };
 
