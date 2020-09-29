@@ -68,7 +68,7 @@ CAHitNtupletGeneratorOnGPU::CAHitNtupletGeneratorOnGPU(const edm::ParameterSet& 
                cfg.getParameter<bool>("doClusterCut"),
                cfg.getParameter<bool>("doZ0Cut"),
                cfg.getParameter<bool>("doPtCut"),
-               cfg.getParameter<bool>("allowFirstLayerHit"),
+               cfg.getParameter<bool>("doSharedHitCut"),
                cfg.getParameter<double>("ptmin"),
                cfg.getParameter<double>("CAThetaCutBarrel"),
                cfg.getParameter<double>("CAThetaCutForward"),
