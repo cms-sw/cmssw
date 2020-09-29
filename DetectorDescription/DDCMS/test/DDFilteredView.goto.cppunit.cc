@@ -62,9 +62,8 @@ void testDDFilteredViewGoTo::checkFilteredView() {
   printMe(fview);
   double radLength = fview.get<double>("TrackerRadLength");
   double xi = fview.get<double>("TrackerXi");
-  std::cout << "TrackerRadLength = " << radLength
-	    << "\nTrackerXi = " << xi << "\n";
-  
+  std::cout << "TrackerRadLength = " << radLength << "\nTrackerXi = " << xi << "\n";
+
   std::cout << "\n==== Let's go to #45\n";
   fview.goTo(testPos);
   printMe(fview);
