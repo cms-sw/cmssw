@@ -617,8 +617,7 @@ const ExpandedNodes& DDFilteredView::history() {
   for (int nit = level; nit > 0; --nit) {
     for_each(begin(registry_->specpars), end(registry_->specpars), [&](auto const& i) {
       auto k = find_if(begin(i.second.paths), end(i.second.paths), [&](auto const& j) {
-        return (isMatch(noNamespace(it_.back().GetNode(nit)->GetVolume()->GetName()),
-                        *begin(split(j, "/"))) and
+        return (isMatch(noNamespace(it_.back().GetNode(nit)->GetVolume()->GetName()), *begin(split(j, "/"))) and
                 (i.second.hasValue("CopyNoTag") or i.second.hasValue("CopyNoOffset")));
       });
       if (k != end(i.second.paths)) {
