@@ -117,14 +117,6 @@ test_singularity(){
 }
 
 wait_server(){
-	if [ -n "$USEDOCKER" ]; then
-		WAIT_COND=test_docker
-		STOP_FN=stop_docker
-	else
-		WAIT_COND=test_singularity
-		STOP_FN=stop_singularity
-	fi
-
 	COUNT=0
 	while ! $WAIT_COND >& /dev/null; do
 		if [ "$COUNT" -gt "$WTIME" ]; then
@@ -146,6 +138,7 @@ if [ -n "$USEDOCKER" ]; then
 		EXTRA="--gpus all"
 	fi
 	START_FN=start_docker
+	WAIT_COND=test_docker
 	STOP_FN=stop_docker
 	PROG_NAME=Docker
 else
@@ -153,6 +146,7 @@ else
 		EXTRA="--nv"
 	fi
 	START_FN=start_singularity
+	WAIT_COND=test_singularity
 	STOP_FN=stop_singularity
 	PROG_NAME=Singularity
 fi
