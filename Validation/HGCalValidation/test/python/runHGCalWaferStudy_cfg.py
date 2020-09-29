@@ -59,9 +59,9 @@ process.TFileService = cms.Service("TFileService",
 
 process.raw2digi_step = cms.Path(process.RawToDigi)
 process.analysis_step = cms.Path(process.hgcalWaferStudy)
-process.hgcalWaferStudy.verbosity = 0
-process.hgcalWaferStudy.nBinHit   = 100
-process.hgcalWaferStudy.nBinDig   = 100
+process.hgcalWaferStudy.verbosity = 1
+process.hgcalWaferStudy.nBinHit   = 60
+process.hgcalWaferStudy.nBinDig   = 60
 process.hgcalWaferStudy.layerMinSim = cms.untracked.vint32(1,1)
 process.hgcalWaferStudy.layerMaxSim = cms.untracked.vint32(10,10)
 process.hgcalWaferStudy.layerMinDig = cms.untracked.vint32(1,1)

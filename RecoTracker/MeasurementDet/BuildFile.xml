@@ -7,7 +7,6 @@
 <use name="DataFormats/SiPixelCluster"/>
 <use name="FWCore/Framework"/>
 <use name="FWCore/ParameterSet"/>
-<use name="Geometry/TrackerGeometryBuilder"/>
 <use name="TrackingTools/TrajectoryState"/>
 <use name="RecoTracker/TkDetLayers"/>
 <use name="CondFormats/SiStripObjects"/>

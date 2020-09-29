@@ -136,7 +136,7 @@ HGCalDigiStudy::HGCalDigiStudy(const edm::ParameterSet& iConfig)
 void HGCalDigiStudy::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
   desc.add<std::string>("detectorName", "HGCalEESensitive");
-  desc.add<edm::InputTag>("digiSource", edm::InputTag("hgcalDigis", "EE"));
+  desc.add<edm::InputTag>("digiSource", edm::InputTag("simHGCalUnsuppressedDigis", "EE"));
   desc.addUntracked<bool>("ifNose", false);
   desc.addUntracked<bool>("ifHCAL", false);
   desc.addUntracked<bool>("ifLayer", false);

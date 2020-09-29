@@ -1,4 +1,3 @@
-<use name="DataFormats/Math"/>
 <use name="FWCore/ParameterSet"/>
 <use   name="clhep"/>
 

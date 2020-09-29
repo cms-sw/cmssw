@@ -18,25 +18,25 @@ puJetIdForPFNoPUMEt = pileupJetId.clone(
         PhilV1
         ),
 #    label = cms.string("fullId"), #MM does not work for weird reasons, cannot be cloned properly
-    produceJetIds = cms.bool(True),
-    runMvas = cms.bool(True),
-    jets = cms.InputTag("calibratedAK4PFJetsForPFNoPUMEt"),
-    applyJec = cms.bool(False),
-    inputIsCorrected = cms.bool(True),
+    produceJetIds    = True,
+    runMvas          = True,
+    jets             = "calibratedAK4PFJetsForPFNoPUMEt",
+    applyJec         = False,
+    inputIsCorrected = True,
     )
 pfNoPUMEtSequence += puJetIdForPFNoPUMEt
 
 from JetMETCorrections.Type1MET.pfMETCorrectionType0_cfi import *
 pfNoPUMEtSequence += type0PFMEtCorrection
 pfCandidateToVertexAssociationForPFNoPUMEt = pfCandidateToVertexAssociation.clone(
-    MaxNumberOfAssociations = cms.int32(1),	
-    doReassociation = cms.bool(False),
-    FinalAssociation = cms.untracked.int32(1),			    
-    nTrackWeight = cms.double(0.)
+    MaxNumberOfAssociations = 1,	
+    doReassociation         = False,
+    FinalAssociation        = 1,			    
+    nTrackWeight            = 0.
 )
 pfNoPUMEtSequence += pfCandidateToVertexAssociationForPFNoPUMEt
 pfMETcorrType0ForPFNoPUMEt = pfMETcorrType0.clone(
-    srcPFCandidateToVertexAssociations = cms.InputTag('pfCandidateToVertexAssociationForPFNoPUMEt')
+    srcPFCandidateToVertexAssociations = 'pfCandidateToVertexAssociationForPFNoPUMEt'
 )
 pfNoPUMEtSequence += pfMETcorrType0ForPFNoPUMEt
 

@@ -18,7 +18,6 @@
 #include "Geometry/Records/interface/DDSpecParRegistryRcd.h"
 
 #include "DetectorDescription/DDCMS/interface/DDDetector.h"
-#include "DetectorDescription/DDCMS/interface/DDShapes.h"
 #include "DetectorDescription/DDCMS/interface/DDSolidShapes.h"
 #include "DetectorDescription/DDCMS/interface/DDFilteredView.h"
 #include "DetectorDescription/DDCMS/interface/DDSpecParRegistry.h"
@@ -254,14 +253,14 @@ void DD4hep_TestMTDIdealGeometry::analyze(const edm::Event& iEvent, const edm::E
           return ss.str();
         };
 
-        if (!fv.isABox()) {
+        if (!dd4hep::isA<dd4hep::Box>(fv.solid())) {
           throw cms::Exception("TestMTDIdealGeometry") << "MTD sensitive element not a DDBox";
           break;
         }
-        dd::DDBox mySens(fv);
-        spos << "Solid shape name: " << DDSolidShapesName::name(fv.legacyShape(dd::getCurrentShape(fv))) << "\n";
-        spos << "Box dimensions: " << fround(convertCmToMm(mySens.halfX())) << " "
-             << fround(convertCmToMm(mySens.halfY())) << " " << fround(convertCmToMm(mySens.halfZ())) << "\n";
+        dd4hep::Box mySens(fv.solid());
+        spos << "Solid shape name: " << DDSolidShapesName::name(fv.legacyShape(fv.shape())) << "\n";
+        spos << "Box dimensions: " << fround(convertCmToMm(mySens.x())) << " " << fround(convertCmToMm(mySens.y()))
+             << " " << fround(convertCmToMm(mySens.z())) << "\n";
 
         DD3Vector x, y, z;
         fv.rotation().GetComponents(x, y, z);
@@ -273,7 +272,7 @@ void DD4hep_TestMTDIdealGeometry::analyze(const edm::Event& iEvent, const edm::E
              << fround(z.Y()) << " " << fround(z.Z()) << "\n";
 
         DD3Vector zeroLocal(0., 0., 0.);
-        DD3Vector cn1Local(mySens.halfX(), mySens.halfY(), mySens.halfZ());
+        DD3Vector cn1Local(mySens.x(), mySens.y(), mySens.z());
         double distLocal = cn1Local.R();
         DD3Vector zeroGlobal = (fv.rotation())(zeroLocal) + fv.translation();
         DD3Vector cn1Global = (fv.rotation())(cn1Local) + fv.translation();

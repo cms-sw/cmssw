@@ -14,8 +14,8 @@
 
 class L1TMuonEndCapParamsOnlineProd : public L1ConfigOnlineProdBaseExt<L1TMuonEndCapParamsO2ORcd, L1TMuonEndCapParams> {
 private:
-  bool transactionSafe;
-  edm::ESGetToken<L1TMuonEndCapParams, L1TMuonEndCapParamsRcd> baseSettings_token;
+  const bool transactionSafe;
+  const edm::ESGetToken<L1TMuonEndCapParams, L1TMuonEndCapParamsRcd> baseSettings_token;
 
 public:
   std::unique_ptr<const L1TMuonEndCapParams> newObject(const std::string& objectKey,
@@ -26,10 +26,9 @@ public:
 };
 
 L1TMuonEndCapParamsOnlineProd::L1TMuonEndCapParamsOnlineProd(const edm::ParameterSet& iConfig)
-    : L1ConfigOnlineProdBaseExt<L1TMuonEndCapParamsO2ORcd, L1TMuonEndCapParams>(iConfig) {
-  wrappedSetWhatProduced(iConfig).setConsumes(baseSettings_token);
-  transactionSafe = iConfig.getParameter<bool>("transactionSafe");
-}
+    : L1ConfigOnlineProdBaseExt<L1TMuonEndCapParamsO2ORcd, L1TMuonEndCapParams>(iConfig),
+      transactionSafe(iConfig.getParameter<bool>("transactionSafe")),
+      baseSettings_token(wrappedSetWhatProduced(iConfig).consumes()) {}
 
 std::unique_ptr<const L1TMuonEndCapParams> L1TMuonEndCapParamsOnlineProd::newObject(
     const std::string& objectKey, const L1TMuonEndCapParamsO2ORcd& record) {

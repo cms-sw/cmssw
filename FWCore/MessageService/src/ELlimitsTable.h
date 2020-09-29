@@ -34,10 +34,11 @@
 //
 // ----------------------------------------------------------------------
 
-#include "FWCore/MessageLogger/interface/ELstring.h"
 #include "FWCore/MessageLogger/interface/ELseverityLevel.h"
 #include "FWCore/MessageLogger/interface/ELextendedID.h"
 #include "FWCore/MessageLogger/interface/ELmap.h"
+
+#include <string>
 
 namespace edm {
   namespace service {
@@ -73,11 +74,11 @@ namespace edm {
       void wipe();  // Clears everything -- counts and limits established.
       void zero();  // Clears only counts.
 
-      void setLimit(const ELstring& id, int n);
+      void setLimit(const std::string& id, int n);
       void setLimit(const ELseverityLevel& sev, int n);
-      void setInterval(const ELstring& id, int interval);
+      void setInterval(const std::string& id, int interval);
       void setInterval(const ELseverityLevel& sev, int interval);
-      void setTimespan(const ELstring& id, int n);
+      void setTimespan(const std::string& id, int n);
       void setTimespan(const ELseverityLevel& sev, int n);
 
       ELlimitsTable& operator=(const ELlimitsTable& t);

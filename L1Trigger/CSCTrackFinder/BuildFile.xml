@@ -2,10 +2,8 @@
   <lib name="1"/>
 </export>
 <use name="L1Trigger/CSCCommonTrigger"/>
-<use name="L1Trigger/DTUtilities"/>
 <use name="L1Trigger/DTTrackFinder"/>
 <use name="Geometry/CSCGeometry"/>
-<use name="Geometry/Records"/>
 <use name="DataFormats/MuonDetId"/>
 <use name="DataFormats/CSCDigi"/>
 <use name="DataFormats/L1CSCTrackFinder"/>

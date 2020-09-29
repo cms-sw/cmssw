@@ -29,7 +29,11 @@ void SonicClientBase::setDebugName(const std::string& debugName) {
 }
 
 void SonicClientBase::start(edm::WaitingTaskWithArenaHolder holder) {
+  start();
   holder_ = std::move(holder);
+}
+
+void SonicClientBase::start() {
   tries_ = 0;
   if (!debugName_.empty())
     t0_ = std::chrono::high_resolution_clock::now();
@@ -57,7 +61,11 @@ void SonicClientBase::finish(bool success, std::exception_ptr eptr) {
     edm::LogInfo(fullDebugName_) << "Client time: "
                                  << std::chrono::duration_cast<std::chrono::microseconds>(t1 - t0_).count();
   }
-  holder_.doneWaiting(eptr);
+  if (holder_) {
+    holder_->doneWaiting(eptr);
+    holder_.reset();
+  } else if (eptr)
+    std::rethrow_exception(eptr);
 }
 
 void SonicClientBase::fillBasePSetDescription(edm::ParameterSetDescription& desc, bool allowRetry) {
