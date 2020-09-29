@@ -182,7 +182,7 @@ void ModuleInfo::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
   // MEC: 2010-04-13: need to find corresponding GeometricDetExtra.
   std::vector<GeometricDetExtra>::const_iterator gdei(rDDE->begin()), gdeEnd(rDDE->end());
   for (auto& module : modules) {
-    unsigned int rawid = module->geographicalID().rawId();
+    unsigned int rawid = module->geographicalId().rawId();
     DetId id(rawid);
     gdei = rDDE->begin();
     for (; gdei != gdeEnd; ++gdei) {
@@ -201,7 +201,7 @@ void ModuleInfo::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
       Output << "\t nav type = " << detPos;
     }
     Output << std::endl;
-    int subdetid = module->geographicalID().subdetId();
+    int subdetid = module->geographicalId().subdetId();
     double volume = gdei->volume() / 1000;  // mm3->cm3
     double density = gdei->density() / density_units;
     double weight = gdei->weight() / density_units / 1000.;    // [kg], hence the factor 1000;
@@ -493,7 +493,7 @@ void ModuleInfo::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
     }
 
     // Local axes from Reco
-    const GeomDet* geomdet = pDD->idToDet(module->geographicalID());
+    const GeomDet* geomdet = pDD->idToDet(module->geographicalId());
     // Global Coordinates (i,j,k)
     LocalVector xLocal(1, 0, 0);
     LocalVector yLocal(0, 1, 0);
