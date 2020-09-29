@@ -170,6 +170,9 @@ namespace edm {
     void initializeLookupTables(std::set<TypeID> const* productTypesConsumed,
                                 std::set<TypeID> const* elementTypesConsumed,
                                 std::string const* processName);
+    void addElementTypesForAliases(std::set<TypeID> const* elementTypesConsumed,
+                                   std::map<TypeID, TypeID> const& containedTypeMap,
+                                   std::map<TypeID, std::vector<TypeWithDict>> const& containedTypeToBaseTypesMap);
 
     void checkDictionariesOfConsumedTypes(std::set<TypeID> const* productTypesConsumed,
                                           std::set<TypeID> const* elementTypesConsumed,

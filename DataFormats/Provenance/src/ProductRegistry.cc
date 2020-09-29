@@ -296,7 +296,7 @@ namespace edm {
                                                std::set<TypeID> const* elementTypesConsumed,
                                                std::string const* processName) {
     std::map<TypeID, TypeID> containedTypeMap;
-    std::map<TypeID, std::vector<TypeWithDict> > containedTypeToBaseTypesMap;
+    std::map<TypeID, std::vector<TypeWithDict>> containedTypeToBaseTypesMap;
 
     std::vector<std::string> missingDictionaries;
     std::vector<std::string> branchNamesForMissing;
@@ -459,7 +459,13 @@ namespace edm {
     checkDictionariesOfConsumedTypes(
         productTypesConsumed, elementTypesConsumed, containedTypeMap, containedTypeToBaseTypesMap);
 
-    // Add contained types for all EDAliases
+    addElementTypesForAliases(elementTypesConsumed, containedTypeMap, containedTypeToBaseTypesMap);
+  }
+
+  void ProductRegistry::addElementTypesForAliases(
+      std::set<TypeID> const* elementTypesConsumed,
+      std::map<TypeID, TypeID> const& containedTypeMap,
+      std::map<TypeID, std::vector<TypeWithDict>> const& containedTypeToBaseTypesMap) {
     Transients::AliasToOriginalVector elementAliases;
     for (auto& item : transient_.aliasToOriginal_) {
       auto iterContainedType = containedTypeMap.find(std::get<Transients::kType>(item));
@@ -509,7 +515,7 @@ namespace edm {
       std::set<TypeID> const* productTypesConsumed,
       std::set<TypeID> const* elementTypesConsumed,
       std::map<TypeID, TypeID> const& containedTypeMap,
-      std::map<TypeID, std::vector<TypeWithDict> >& containedTypeToBaseTypesMap) {
+      std::map<TypeID, std::vector<TypeWithDict>>& containedTypeToBaseTypesMap) {
     std::vector<std::string> missingDictionaries;
     std::set<std::string> consumedTypesWithMissingDictionaries;
 
