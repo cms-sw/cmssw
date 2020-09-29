@@ -283,7 +283,7 @@ void MeasurementTrackerImpl::addGluedDet(const GluedGeomDet* gd) {
 
 void MeasurementTrackerImpl::addStackDet(const StackGeomDet* gd) {
   //since the Stack will be composed by PS or 2S,
-  //  //both cluster parameter estimators are needed? - right now just the thePixelCPE is used.
+  //both cluster parameter estimators are needed? - right now just the thePixelCPE is used.
   theStackDets.push_back(TkStackMeasurementDet(gd, thePxDetConditions.pixelCPE()));
 }
 
