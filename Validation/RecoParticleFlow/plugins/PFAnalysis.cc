@@ -264,7 +264,7 @@ private:
 
   vector<pair<int, int>> trackingparticle_to_element;
   vector<pair<int, int>> simcluster_to_element;
-  vector<float> simcluster_to_element_cmp;
+  vector<float> simcluster_to_elementcmp;
   vector<pair<int, int>> element_to_candidate;
 
   // and also the magnetic field
@@ -405,7 +405,7 @@ PFAnalysis::PFAnalysis(const edm::ParameterSet& iConfig) {
   //Links between reco, gen and PFCandidate objects
   t_->Branch("trackingparticle_to_element", &trackingparticle_to_element);
   t_->Branch("simcluster_to_element", &simcluster_to_element);
-  t_->Branch("simcluster_to_element_cmp", &simcluster_to_element_cmp);
+  t_->Branch("simcluster_to_elementcmp", &simcluster_to_elementcmp);
   t_->Branch("element_to_candidate", &element_to_candidate);
 }  // constructor
 
@@ -418,7 +418,7 @@ void PFAnalysis::clearVariables() {
 
   trackingparticle_to_element.clear();
   simcluster_to_element.clear();
-  simcluster_to_element_cmp.clear();
+  simcluster_to_elementcmp.clear();
   element_to_candidate.clear();
 
   trackingparticle_eta_.clear();
@@ -1088,7 +1088,7 @@ void PFAnalysis::associateClusterToSimCluster(const vector<ElementWithIndex>& al
         double cmp = detid_compare(detids, simcluster_detids, rechits_energy_all, false);
         if (cmp > 0) {
           simcluster_to_element.push_back(make_pair(isimcluster, ielement));
-          simcluster_to_element_cmp.push_back((float)cmp);
+          simcluster_to_elementcmp.push_back((float)cmp);
         }
         isimcluster += 1;
       }

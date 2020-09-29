@@ -33,8 +33,8 @@ double ECALAndHCALLinker::testLink(size_t ielem1,
                                    const ElementListConst& elements,
                                    const PFTables& tables,
                                    const reco::PFMultiLinksIndex& multilinks) const {
-  using namespace edm::soa::col;
-
+  using Eta = edm::soa::col::pf::cluster::Eta;
+  using Phi = edm::soa::col::pf::cluster::Phi;
   double dist(-1.0);
 
   size_t iecal_elem = 0;
@@ -47,15 +47,16 @@ double ECALAndHCALLinker::testLink(size_t ielem1,
     iecal_elem = ielem2;
     ihcal_elem = ielem1;
   }
+  const auto& ch = tables.clusters_hcal;
+  const auto& ce = tables.clusters_ecal;
+  const size_t iecal = ce.element_to_cluster[iecal_elem];
+  const size_t ihcal = ch.element_to_cluster[ihcal_elem];
 
-  const size_t iecal = tables.clusters_ecal_.element_to_cluster_[iecal_elem];
-  const size_t ihcal = tables.clusters_hcal_.element_to_cluster_[ihcal_elem];
-
-  dist = (std::abs(tables.clusters_ecal_.cluster_table_.get<pf::cluster::Eta>(iecal)) > minAbsEtaEcal_
-              ? LinkByRecHit::computeDist(tables.clusters_ecal_.cluster_table_.get<pf::cluster::Eta>(iecal),
-                                          tables.clusters_ecal_.cluster_table_.get<pf::cluster::Phi>(iecal),
-                                          tables.clusters_hcal_.cluster_table_.get<pf::cluster::Eta>(ihcal),
-                                          tables.clusters_hcal_.cluster_table_.get<pf::cluster::Phi>(ihcal))
+  dist = (std::abs(ce.cluster_table.get<Eta>(iecal)) > minAbsEtaEcal_
+              ? LinkByRecHit::computeDist(ce.cluster_table.get<Eta>(iecal),
+                                          ce.cluster_table.get<Phi>(iecal),
+                                          ch.cluster_table.get<Eta>(ihcal),
+                                          ch.cluster_table.get<Phi>(ihcal))
               : -1.0);
   return (dist < 0.2 ? dist : -1.0);
 }

@@ -50,10 +50,10 @@ public:
   void updateEventSetup(const edm::EventSetup&);
 
   // run all of the importers and build KDtrees
-  void buildElements(const edm::Event&);
+  const PFTables buildElements(const edm::Event&);
 
   /// build blocks
-  reco::PFBlockCollection findBlocks();
+  reco::PFBlockCollection findBlocks(const PFTables& tables);
 
   /// sets debug printout flag
   void setDebug(bool debug) { debug_ = debug; }
@@ -63,7 +63,8 @@ private:
   /// (the recursive procedure does not build all links)
   //block_element_indices - element indices (in the full element list) assigned to this block
   //links - link data that is already computed in this block
-  const reco::PFBlock packLinks(const std::vector<size_t>& block_element_indices,
+  const reco::PFBlock packLinks(const PFTables& tables,
+                                const std::vector<size_t>& block_element_indices,
                                 const std::unordered_map<std::pair<unsigned int, unsigned int>, double>& links,
                                 const ElementListConst& elements_,
                                 const reco::PFMultiLinksIndex& multilinks) const;
@@ -99,7 +100,6 @@ private:
   unsigned int linkTestSquare_[reco::PFBlockElement::kNBETypes][reco::PFBlockElement::kNBETypes];
 
   std::vector<std::unique_ptr<KDTreeLinkerBase>> kdtrees_;
-  PFTables tables_;
 
   // rechit with fraction below this value will be ignored in KDTreeLinker
   static constexpr float cutOffFrac_ = 1E-4;

@@ -46,24 +46,24 @@ double ECALAndBREMLinker::testLink(size_t ielem1,
     iecal_elem = ielem2;
     ibrem_elem = ielem1;
   }
-  size_t iecal = tables.clusters_ecal_.element_to_cluster_[iecal_elem];
-  size_t ibrem = tables.element_to_brem_[ibrem_elem];
+  const size_t iecal = tables.clusters_ecal.element_to_cluster[iecal_elem];
+  const size_t ibrem = tables.element_to_brem[ibrem_elem];
 
-  if (tables.brem_table_ecalshowermax_.get<pf::track::ExtrapolationValid>(ibrem)) {
-    const auto& rechits = tables.clusters_ecal_.cluster_to_rechit_.at(iecal);
+  if (tables.brem_table_ecalshowermax.get<pf::track::ExtrapolationValid>(ibrem)) {
+    const auto& rechits = tables.clusters_ecal.cluster_to_rechit.at(iecal);
 
     //note that the function testTrackAndClusterByRecHit has not been refactored and currently needs inputs
     //also for the track extrapolations that are not used, we pass placeholders for those.
     dist = LinkByRecHit::testTrackAndClusterByRecHit(iecal,
                                                      rechits,
-                                                     tables.clusters_ecal_.cluster_table_,
-                                                     tables.clusters_ecal_.rechit_table_,
+                                                     tables.clusters_ecal.cluster_table,
+                                                     tables.clusters_ecal.rechit_table,
                                                      ibrem,
-                                                     tables.brem_table_,  //NOT USED
-                                                     tables.brem_table_ecalshowermax_,
-                                                     tables.brem_table_hcalent_,  //NOT USED
-                                                     tables.track_table_hcalex_,  //NOT USED
-                                                     tables.track_table_ho_,      //NOT USED
+                                                     tables.brem_table,  //NOT USED
+                                                     tables.brem_table_ecalshowermax,
+                                                     tables.brem_table_hcalent,  //NOT USED
+                                                     tables.track_table_hcalex,  //NOT USED
+                                                     tables.track_table_ho,      //NOT USED
                                                      true);
   }
   return dist;

@@ -19,9 +19,7 @@ public:
                      reco::PFBlockElement::Type type1,
                      reco::PFBlockElement::Type type2,
                      const PFTables& tables,
-                     const reco::PFMultiLinksIndex& multilinks,
-                     const reco::PFBlockElement*,
-                     const reco::PFBlockElement*) const override;
+                     const reco::PFMultiLinksIndex& multilinks) const override;
 
   double testLink(size_t ielem1,
                   size_t ielem2,
@@ -44,9 +42,7 @@ bool TrackAndECALLinker::linkPrefilter(size_t ielem1,
                                        reco::PFBlockElement::Type type1,
                                        reco::PFBlockElement::Type type2,
                                        const PFTables& tables,
-                                       const reco::PFMultiLinksIndex& multilinks,
-                                       const reco::PFBlockElement* elem1,
-                                       const reco::PFBlockElement* elem2) const {
+                                       const reco::PFMultiLinksIndex& multilinks) const {
   bool result = false;
   switch (type1) {
     case reco::PFBlockElement::TRACK:
@@ -83,14 +79,15 @@ double TrackAndECALLinker::testLink(size_t ielem1,
     itrack_elem = ielem2;
     iecal_elem = ielem1;
   }
-  const size_t iecal = tables.clusters_ecal_.element_to_cluster_[iecal_elem];
-  const size_t itrack = tables.element_to_track_[itrack_elem];
+  const auto& ct_ecal = tables.clusters_ecal;
+  const size_t iecal = ct_ecal.element_to_cluster[iecal_elem];
+  const size_t itrack = tables.element_to_track[itrack_elem];
 
   // Check if the linking has been done using the KDTree algo
   // Glowinski & Gouzevitch
   if (useKDTree_) {  //KDTree Algo
-    const double ecalphi = tables.clusters_ecal_.cluster_table_.get<pf::cluster::Phi>(iecal);
-    const double ecaleta = tables.clusters_ecal_.cluster_table_.get<pf::cluster::Eta>(iecal);
+    const double ecalphi = ct_ecal.cluster_table.get<pf::cluster::Phi>(iecal);
+    const double ecaleta = ct_ecal.cluster_table.get<pf::cluster::Eta>(iecal);
 
     const bool linked =
         multilinks.isLinked(iecal_elem, itrack_elem, elements[iecal_elem]->type(), elements[itrack_elem]->type());
@@ -98,8 +95,8 @@ double TrackAndECALLinker::testLink(size_t ielem1,
     if (linked) {
       dist = LinkByRecHit::computeDist(ecaleta,
                                        ecalphi,
-                                       tables.track_table_ecalshowermax_.get<pf::track::Eta>(itrack),
-                                       tables.track_table_ecalshowermax_.get<pf::track::Phi>(itrack));
+                                       tables.track_table_ecalshowermax.get<pf::track::Eta>(itrack),
+                                       tables.track_table_ecalshowermax.get<pf::track::Phi>(itrack));
     }
 
   } else {  // Old algorithm

@@ -4,7 +4,8 @@
 
 #include "TMath.h"
 
-using namespace edm::soa::col;
+namespace rechit = edm::soa::col::pf::rechit;
+namespace cluster = edm::soa::col::pf::cluster;
 
 // This class is used to find all links between PreShower clusters and ECAL clusters
 // using a KDTree algorithm.
@@ -54,11 +55,11 @@ void KDTreeLinkerPSEcal::buildTree(const PFTables &pftables) {
   std::vector<size_t> rechits_neg;
   std::vector<size_t> rechits_pos;
   const auto &clusters = pftables.getClusterTable(_fieldType);
-  for (size_t icluster = 0; icluster < clusters.cluster_table_.size(); icluster++) {
-    const auto layer = clusters.cluster_table_.get<pf::cluster::Layer>(icluster);
+  for (size_t icluster = 0; icluster < clusters.cluster_table.size(); icluster++) {
+    const auto layer = clusters.cluster_table.get<cluster::Layer>(icluster);
     if (layer == PFLayer::ECAL_ENDCAP) {
-      const auto posz = clusters.cluster_table_.get<pf::cluster::Posz>(icluster);
-      for (size_t irechit : clusters.cluster_to_rechit_.at(icluster)) {
+      const auto posz = clusters.cluster_table.get<cluster::Posz>(icluster);
+      for (size_t irechit : clusters.cluster_to_rechit.at(icluster)) {
         if (posz < 0) {
           rechits_neg.push_back(irechit);
         } else {
@@ -82,8 +83,8 @@ void KDTreeLinkerPSEcal::buildTree(const PFTables &pftables,
 
   // Filling of this eltList
   for (size_t irechit : rechitsSet) {
-    const float x = clusters.rechit_table_.get<pf::rechit::Posx>(irechit);
-    const float y = clusters.rechit_table_.get<pf::rechit::Posy>(irechit);
+    const float x = clusters.rechit_table.get<rechit::Posx>(irechit);
+    const float y = clusters.rechit_table.get<rechit::Posy>(irechit);
 
     KDTreeNodeInfo<size_t, 2> rhinfo{irechit, x, y};
     eltList.push_back(rhinfo);
@@ -102,21 +103,22 @@ void KDTreeLinkerPSEcal::searchLinks(const PFTables &pftables, reco::PFMultiLink
 
   const auto &clustersPS = pftables.getClusterTable(_targetType);
   const auto &clustersECAL = pftables.getClusterTable(_fieldType);
+  const auto &ecal_rh = clustersECAL.rechit_table;
 
   // We iterate over the PS clusters.
-  for (size_t ips = 0; ips < clustersPS.cluster_table_.size(); ips++) {
+  for (size_t ips = 0; ips < clustersPS.cluster_table.size(); ips++) {
     // PS cluster position, extrapolated to ECAL
-    double zPS = clustersPS.cluster_table_.get<pf::cluster::Posz>(ips);
-    double xPS = clustersPS.cluster_table_.get<pf::cluster::Posx>(ips);
-    double yPS = clustersPS.cluster_table_.get<pf::cluster::Posy>(ips);
+    double zPS = clustersPS.cluster_table.get<cluster::Posz>(ips);
+    double xPS = clustersPS.cluster_table.get<cluster::Posx>(ips);
+    double yPS = clustersPS.cluster_table.get<cluster::Posy>(ips);
 
-    double etaPS = std::abs(clustersPS.cluster_table_.get<pf::cluster::Eta>(ips));
+    double etaPS = std::abs(clustersPS.cluster_table.get<cluster::Eta>(ips));
     double deltaX = 0.;
     double deltaY = 0.;
     float xPSonEcal = xPS;
     float yPSonEcal = yPS;
 
-    if (clustersPS.cluster_table_.get<pf::cluster::Layer>(ips) == PFLayer::PS1) {  // PS1
+    if (clustersPS.cluster_table.get<cluster::Layer>(ips) == PFLayer::PS1) {  // PS1
 
       // vertical strips, measure x with pitch precision
       deltaX = resPSpitch_;
@@ -154,32 +156,30 @@ void KDTreeLinkerPSEcal::searchLinks(const PFTables &pftables, reco::PFMultiLink
 
     for (size_t irecHit : recHits) {
       // Find all clusters associated to given rechit
-      const auto &rechit_clusters = clustersECAL.rechit_to_cluster_.at(irecHit);
+      const auto &rechit_clusters = clustersECAL.rechit_to_cluster.at(irecHit);
 
       for (size_t icluster : rechit_clusters) {
-        double clusterz = clustersECAL.cluster_table_.get<pf::cluster::Posz>(icluster);
+        double clusterz = clustersECAL.cluster_table.get<cluster::Posz>(icluster);
         const auto zPS_over_cluster = zPS / clusterz;
 
-        const auto &rechit_corner_posx = clustersECAL.rechit_table_.get<pf::rechit::CornerXBV>(irecHit);
-        const auto &rechit_corner_posy = clustersECAL.rechit_table_.get<pf::rechit::CornerYBV>(irecHit);
+        const auto &rechit_corner_posx = ecal_rh.get<rechit::CornerXBV>(irecHit);
+        const auto &rechit_corner_posy = ecal_rh.get<rechit::CornerYBV>(irecHit);
 
-        const double rechit_posx = clustersECAL.rechit_table_.get<pf::rechit::Posx>(irecHit) * zPS_over_cluster;
-        const double rechit_posy = clustersECAL.rechit_table_.get<pf::rechit::Posy>(irecHit) * zPS_over_cluster;
+        const double rechit_posx = ecal_rh.get<rechit::Posx>(irecHit);
+        const double rechit_posy = ecal_rh.get<rechit::Posy>(irecHit);
 
         double x[5];
         double y[5];
         for (unsigned jc = 0; jc < 4; ++jc) {
-          x[3 - jc] =
-              rechit_corner_posx[jc] * zPS_over_cluster +
-              (rechit_corner_posx[jc] * zPS_over_cluster - rechit_posx) *
-                  (0.05 + 1.0 / std::abs((rechit_corner_posx[jc] * zPS_over_cluster - rechit_posx)) * deltaX / 2.);
-          y[3 - jc] =
-              rechit_corner_posy[jc] * zPS_over_cluster +
-              (rechit_corner_posy[jc] * zPS_over_cluster - rechit_posy) *
-                  (0.05 + 1.0 / std::abs((rechit_corner_posy[jc] * zPS_over_cluster - rechit_posy)) * deltaY / 2.);
+          x[3 - jc] = rechit_corner_posx[jc] +
+                      (rechit_corner_posx[jc] - rechit_posx) *
+                          (0.05 + 1.0 / std::abs((rechit_corner_posx[jc] - rechit_posx)) * deltaX / 2.);
+          y[3 - jc] = rechit_corner_posy[jc] +
+                      (rechit_corner_posy[jc] - rechit_posy) *
+                          (0.05 + 1.0 / std::abs((rechit_corner_posy[jc] - rechit_posy)) * deltaY / 2.);
 
-          x[3 - jc] = x[3 - jc];
-          y[3 - jc] = y[3 - jc];
+          x[3 - jc] = x[3 - jc] * zPS_over_cluster;
+          y[3 - jc] = y[3 - jc] * zPS_over_cluster;
         }
 
         x[4] = x[0];
@@ -190,9 +190,9 @@ void KDTreeLinkerPSEcal::searchLinks(const PFTables &pftables, reco::PFMultiLink
         // Check if the track and the cluster are linked
         if (isinside) {
           multilinks.addLink(
-              clustersPS.cluster_to_element_[ips], clustersECAL.cluster_to_element_[icluster], _targetType, _fieldType);
-          LogTrace("KDTreeLinkerPSEcal") << " ips_elem=" << clustersPS.cluster_to_element_[ips]
-                                         << " icluster_elem=" << clustersECAL.cluster_to_element_[icluster];
+              clustersPS.cluster_to_element[ips], clustersECAL.cluster_to_element[icluster], _targetType, _fieldType);
+          LogTrace("KDTreeLinkerPSEcal") << " ips_elem=" << clustersPS.cluster_to_element[ips]
+                                         << " icluster_elem=" << clustersECAL.cluster_to_element[icluster];
         }
       }
     }

@@ -102,16 +102,16 @@ void makeTrackTables(size_t track_first, size_t track_last, const ElementList& e
     itrack++;
   }
 
-  tables.track_to_element_ = track_to_element;
-  tables.element_to_track_ = element_to_track;
-  tables.track_table_vertex_ = edm::soa::makeTrackTableVertex(tracks_vec);
-  tables.track_to_convrefs_ = track_to_convrefs;
-  tables.convref_table_ = edm::soa::makeConvRefTable(convrefs);
-  tables.track_table_ecalshowermax_ = edm::soa::makeTrackTable(tracks_vec, reco::PFTrajectoryPoint::ECALShowerMax);
-  tables.track_table_hcalent_ = edm::soa::makeTrackTable(tracks_vec, reco::PFTrajectoryPoint::HCALEntrance);
-  tables.track_table_hcalex_ = edm::soa::makeTrackTable(tracks_vec, reco::PFTrajectoryPoint::HCALExit);
-  tables.track_table_vfcalent_ = edm::soa::makeTrackTable(tracks_vec, reco::PFTrajectoryPoint::VFcalEntrance);
-  tables.track_table_ho_ = edm::soa::makeTrackTable(tracks_vec, reco::PFTrajectoryPoint::HOLayer);
+  tables.track_to_element = track_to_element;
+  tables.element_to_track = element_to_track;
+  tables.track_table_vertex = edm::soa::makeTrackTableVertex(tracks_vec);
+  tables.track_to_convrefs = track_to_convrefs;
+  tables.convref_table = edm::soa::makeConvRefTable(convrefs);
+  tables.track_table_ecalshowermax = edm::soa::makeTrackTable(tracks_vec, reco::PFTrajectoryPoint::ECALShowerMax);
+  tables.track_table_hcalent = edm::soa::makeTrackTable(tracks_vec, reco::PFTrajectoryPoint::HCALEntrance);
+  tables.track_table_hcalex = edm::soa::makeTrackTable(tracks_vec, reco::PFTrajectoryPoint::HCALExit);
+  tables.track_table_vfcalent = edm::soa::makeTrackTable(tracks_vec, reco::PFTrajectoryPoint::VFcalEntrance);
+  tables.track_table_ho = edm::soa::makeTrackTable(tracks_vec, reco::PFTrajectoryPoint::HOLayer);
 }
 
 //this should be moved to importers
@@ -278,14 +278,14 @@ void makeGSFTables(size_t idx_first, size_t idx_last, const ElementList& element
     itrack++;
   }
 
-  tables.gsf_to_convbrem_ = gsf_to_convbrem;
-  tables.gsf_table_ = edm::soa::makeGSFTable(tracks_vec);
-  tables.gsf_table_ecalshowermax_ = edm::soa::makeTrackTable(tracks_vec, reco::PFTrajectoryPoint::ECALShowerMax);
-  tables.gsf_table_hcalent_ = edm::soa::makeTrackTable(tracks_vec, reco::PFTrajectoryPoint::HCALEntrance);
-  tables.gsf_table_hcalex_ = edm::soa::makeTrackTable(tracks_vec, reco::PFTrajectoryPoint::HCALExit);
-  tables.gsf_convbrem_table_ = edm::soa::makeConvBremTable(convbrems);
-  tables.gsf_to_element_ = track_to_element;
-  tables.element_to_gsf_ = element_to_track;
+  tables.gsf_to_convbrem = gsf_to_convbrem;
+  tables.gsf_table = edm::soa::makeGSFTable(tracks_vec);
+  tables.gsf_table_ecalshowermax = edm::soa::makeTrackTable(tracks_vec, reco::PFTrajectoryPoint::ECALShowerMax);
+  tables.gsf_table_hcalent = edm::soa::makeTrackTable(tracks_vec, reco::PFTrajectoryPoint::HCALEntrance);
+  tables.gsf_table_hcalex = edm::soa::makeTrackTable(tracks_vec, reco::PFTrajectoryPoint::HCALExit);
+  tables.gsf_convbrem_table = edm::soa::makeConvBremTable(convbrems);
+  tables.gsf_to_element = track_to_element;
+  tables.element_to_gsf = element_to_track;
 }
 
 void makeBREMTables(size_t idx_first, size_t idx_last, const ElementList& elements, PFTables& tables) {
@@ -306,10 +306,10 @@ void makeBREMTables(size_t idx_first, size_t idx_last, const ElementList& elemen
   }
   tracks.clear();
 
-  tables.brem_table_ = edm::soa::makeBremTable(tracks_vec);
-  tables.brem_table_ecalshowermax_ = edm::soa::makeTrackTable(tracks_vec, reco::PFTrajectoryPoint::ECALShowerMax);
-  tables.brem_table_hcalent_ = edm::soa::makeTrackTable(tracks_vec, reco::PFTrajectoryPoint::HCALEntrance);
-  tables.element_to_brem_ = element_to_track;
+  tables.brem_table = edm::soa::makeBremTable(tracks_vec);
+  tables.brem_table_ecalshowermax = edm::soa::makeTrackTable(tracks_vec, reco::PFTrajectoryPoint::ECALShowerMax);
+  tables.brem_table_hcalent = edm::soa::makeTrackTable(tracks_vec, reco::PFTrajectoryPoint::HCALEntrance);
+  tables.element_to_brem = element_to_track;
 }
 
 //Create a vector with constant pointers
@@ -351,56 +351,56 @@ void makeAllTables(const PFBlockAlgo::ElementRanges ranges,
   const auto& range_ecal = ranges.at(reco::PFBlockElement::ECAL);
   if (not(range_ecal.first == 0 && range_ecal.second == 0)) {
     LogDebug("PFBlockAlgo") << "ECAL tables" << range_ecal.first << " " << range_ecal.second;
-    tables.clusters_ecal_ =
+    tables.clusters_ecal =
         makeClusterTables<reco::PFBlockElementCluster>(range_ecal.first, range_ecal.second, elements, cutOffFrac);
   }
 
   const auto& range_hcal = ranges.at(reco::PFBlockElement::HCAL);
   if (not(range_hcal.first == 0 && range_hcal.second == 0)) {
     LogDebug("PFBlockAlgo") << "HCAL tables" << range_hcal.first << " " << range_hcal.second;
-    tables.clusters_hcal_ =
+    tables.clusters_hcal =
         makeClusterTables<reco::PFBlockElementCluster>(range_hcal.first, range_hcal.second, elements, cutOffFrac);
   }
 
   const auto& range_hfem = ranges.at(reco::PFBlockElement::HFEM);
   if (not(range_hfem.first == 0 && range_hfem.second == 0)) {
     LogDebug("PFBlockAlgo") << "HFEM tables" << range_hfem.first << " " << range_hfem.second;
-    tables.clusters_hfem_ =
+    tables.clusters_hfem =
         makeClusterTables<reco::PFBlockElementCluster>(range_hfem.first, range_hfem.second, elements, cutOffFrac);
   }
 
   const auto& range_hfhad = ranges.at(reco::PFBlockElement::HFHAD);
   if (not(range_hfhad.first == 0 && range_hfhad.second == 0)) {
     LogDebug("PFBlockAlgo") << "HFHAD tables" << range_hfhad.first << " " << range_hfhad.second;
-    tables.clusters_hfhad_ =
+    tables.clusters_hfhad =
         makeClusterTables<reco::PFBlockElementCluster>(range_hfhad.first, range_hfhad.second, elements, cutOffFrac);
   }
 
   const auto& range_ps1 = ranges.at(reco::PFBlockElement::PS1);
   if (not(range_ps1.first == 0 && range_ps1.second == 0)) {
     LogDebug("PFBlockAlgo") << "PS1 tables" << range_ps1.first << " " << range_ps1.second;
-    tables.clusters_ps1_ =
+    tables.clusters_ps1 =
         makeClusterTables<reco::PFBlockElementCluster>(range_ps1.first, range_ps1.second, elements, cutOffFrac);
   }
 
   const auto& range_ps2 = ranges.at(reco::PFBlockElement::PS2);
   if (not(range_ps2.first == 0 && range_ps2.second == 0)) {
     LogDebug("PFBlockAlgo") << "PS2 tables" << range_ps2.first << " " << range_ps2.second;
-    tables.clusters_ps2_ =
+    tables.clusters_ps2 =
         makeClusterTables<reco::PFBlockElementCluster>(range_ps2.first, range_ps2.second, elements, cutOffFrac);
   }
 
   const auto& range_ho = ranges.at(reco::PFBlockElement::HO);
   if (not(range_ho.first == 0 && range_ho.second == 0)) {
     LogDebug("PFBlockAlgo") << "HO tables" << range_ho.first << " " << range_ho.second;
-    tables.clusters_ho_ =
+    tables.clusters_ho =
         makeClusterTables<reco::PFBlockElementCluster>(range_ho.first, range_ho.second, elements, cutOffFrac);
   }
 
   const auto& range_sc = ranges.at(reco::PFBlockElement::SC);
   if (not(range_sc.first == 0 && range_sc.second == 0)) {
     LogDebug("PFBlockAlgo") << "SC tables" << range_sc.first << " " << range_sc.second;
-    tables.clusters_sc_ = makeSuperClusterTables(range_sc.first, range_sc.second, elements, cutOffFrac);
+    tables.clusters_sc = makeSuperClusterTables(range_sc.first, range_sc.second, elements, cutOffFrac);
   }
 }
 PFBlockAlgo::PFBlockAlgo()
@@ -474,7 +474,7 @@ PFBlockAlgo::~PFBlockAlgo() {
 #endif
 }
 
-reco::PFBlockCollection PFBlockAlgo::findBlocks() {
+reco::PFBlockCollection PFBlockAlgo::findBlocks(const PFTables& tables) {
   const auto& elements_const = makeConstElements(elements_);
 
   reco::PFMultiLinksIndex multilinks(elements_.size());
@@ -482,7 +482,7 @@ reco::PFBlockCollection PFBlockAlgo::findBlocks() {
   // Glowinski & Gouzevitch
   LogDebug("PFBlockAlgo") << "precomputing link data using KD-trees";
   for (const auto& kdtree : kdtrees_) {
-    kdtree->process(tables_, elements_, multilinks);
+    kdtree->process(tables, elements_, multilinks);
   }
 
 #ifdef EDM_ML_DEBUG
@@ -529,10 +529,10 @@ reco::PFBlockCollection PFBlockAlgo::findBlocks() {
       const PFBlockElement::Type type1 = p1->type();
       const PFBlockElement::Type type2 = p2->type();
       const unsigned index = linkTestSquare_[type1][type2];
-      const auto pref = linkTests_[index]->linkPrefilter(i, j, type1, type2, tables_, multilinks, p1, p2);
+      const auto pref = linkTests_[index]->linkPrefilter(i, j, type1, type2, tables, multilinks);
       LogTrace("PFBlockAlgo") << "i=" << i << " j=" << j << " prefilter=" << pref << " " << type1 << " " << type2;
       if (pref) {
-        const double dist = linkTests_[index]->testLink(i, j, type1, type2, elements_const, tables_, multilinks);
+        const double dist = linkTests_[index]->testLink(i, j, type1, type2, elements_const, tables, multilinks);
         LogTrace("PFBlockAlgo") << "dist=" << dist << std::endl;
         // compute linking info if it is possible
         if (dist > -0.5) {
@@ -580,13 +580,13 @@ reco::PFBlockCollection PFBlockAlgo::findBlocks() {
       const unsigned index = linkTestSquare_[type1][type2];
       if (nullptr != linkTests_[index]) {
         const double dist =
-            linkTests_[index]->testLink(ielem1, ielem2, type1, type2, elements_const, tables_, multilinks);
+            linkTests_[index]->testLink(ielem1, ielem2, type1, type2, elements_const, tables, multilinks);
         links.emplace(std::make_pair(p1->index(), p2->index()), dist);
       }
     }
-    blocks.push_back(packLinks(block_element_indices, links, elements_const, multilinks));
+    blocks.push_back(packLinks(tables, block_element_indices, links, elements_const, multilinks));
   }
-  LogDebug("PFBlockAlgo") << "findBlocks done";
+  LogDebug("PFBlockAlgo") << "findBlocks done, produced " << blocks.size() << " blocks";
 
   elements_.clear();
 
@@ -594,6 +594,7 @@ reco::PFBlockCollection PFBlockAlgo::findBlocks() {
 }
 
 const reco::PFBlock PFBlockAlgo::packLinks(
+    const PFTables& tables,
     const std::vector<size_t>& block_element_indices,
     const std::unordered_map<std::pair<unsigned int, unsigned int>, double>& links,
     const ElementListConst& elements_full,
@@ -643,9 +644,9 @@ const reco::PFBlock PFBlockAlgo::packLinks(
         bool bTestLink = (nullptr == linkTests_[index]
                               ? false
                               : linkTests_[index]->linkPrefilter(
-                                    global_i1, global_i2, type1, type2, tables_, multilinks, &(els[i1]), &(els[i2])));
+                                    global_i1, global_i2, type1, type2, tables, multilinks));
         if (bTestLink)
-          link(global_i1, global_i2, dist, elements_full, tables_, multilinks);
+          link(global_i1, global_i2, dist, elements_full, tables, multilinks);
       }
 
       //loading link data according to link test used: RECHIT
@@ -684,13 +685,14 @@ void PFBlockAlgo::updateEventSetup(const edm::EventSetup& es) {
 // see plugins/importers and plugins/kdtrees
 // for the definitions of available block element importers
 // and kdtree preprocessors
-void PFBlockAlgo::buildElements(const edm::Event& evt) {
+const PFTables PFBlockAlgo::buildElements(const edm::Event& evt) {
   // import block elements as defined in python configuration
   //the ranges are inclusive, meaning [start, end]
   //note that the pair (0,0) must be treated as a special default case, rather than a single element at location 0
   ranges_.fill(std::make_pair(0, 0));
   elements_.clear();
-  tables_.clear();
+  PFTables tables;
+
   for (const auto& importer : importers_) {
     importer->importToBlock(evt, elements_);
   }
@@ -712,7 +714,8 @@ void PFBlockAlgo::buildElements(const edm::Event& evt) {
     LogDebug("PFBlockAlgo") << "elem i=" << i << " type=" << the_type;
   }
 
-  makeAllTables(ranges_, elements_, tables_, cutOffFrac_);
+  makeAllTables(ranges_, elements_, tables, cutOffFrac_);
+  return tables;
 }
 
 std::ostream& operator<<(std::ostream& out, const PFBlockAlgo& a) {

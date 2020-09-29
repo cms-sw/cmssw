@@ -15,9 +15,7 @@ public:
                      reco::PFBlockElement::Type type1,
                      reco::PFBlockElement::Type type2,
                      const PFTables& tables,
-                     const reco::PFMultiLinksIndex& multilinks,
-                     const reco::PFBlockElement*,
-                     const reco::PFBlockElement*) const override;
+                     const reco::PFMultiLinksIndex& multilinks) const override;
 
   double testLink(size_t ielem1,
                   size_t ielem2,
@@ -38,12 +36,15 @@ bool ECALAndECALLinker::linkPrefilter(size_t ielem1,
                                       reco::PFBlockElement::Type type1,
                                       reco::PFBlockElement::Type type2,
                                       const PFTables& tables,
-                                      const reco::PFMultiLinksIndex& multilinks,
-                                      const reco::PFBlockElement* elem1,
-                                      const reco::PFBlockElement* elem2) const {
-  const reco::PFBlockElementCluster* ecal1 = static_cast<const reco::PFBlockElementCluster*>(elem1);
-  const reco::PFBlockElementCluster* ecal2 = static_cast<const reco::PFBlockElementCluster*>(elem2);
-  return (ecal1->superClusterRef().isNonnull() && ecal2->superClusterRef().isNonnull());
+                                      const reco::PFMultiLinksIndex& multilinks) const {
+  using SCRefIsNonNull = edm::soa::col::pf::cluster::SCRefIsNonNull;
+
+  const auto& cl_ecal = tables.clusters_ecal;
+  const auto& ecal_table = cl_ecal.cluster_table;
+  const size_t ielem1_ecal = cl_ecal.element_to_cluster[ielem1];
+  const size_t ielem2_ecal = cl_ecal.element_to_cluster[ielem2];
+
+  return (ecal_table.get<SCRefIsNonNull>(ielem1_ecal) && ecal_table.get<SCRefIsNonNull>(ielem2_ecal));
 }
 
 double ECALAndECALLinker::testLink(size_t ielem1,
@@ -53,20 +54,23 @@ double ECALAndECALLinker::testLink(size_t ielem1,
                                    const ElementListConst& elements,
                                    const PFTables& tables,
                                    const reco::PFMultiLinksIndex& multilinks) const {
-  using namespace edm::soa::col;
+  using Eta = edm::soa::col::pf::cluster::Eta;
+  using Phi = edm::soa::col::pf::cluster::Phi;
+  using SCRefKey = edm::soa::col::pf::cluster::SCRefKey;
 
-  const size_t ielem1_ecal = tables.clusters_ecal_.element_to_cluster_[ielem1];
-  const size_t ielem2_ecal = tables.clusters_ecal_.element_to_cluster_[ielem2];
+  const auto& cl_ecal = tables.clusters_ecal;
+  const auto& ecal_table = cl_ecal.cluster_table;
 
-  const auto& ecal_table = tables.clusters_ecal_.cluster_table_;
+  const size_t ielem1_ecal = cl_ecal.element_to_cluster[ielem1];
+  const size_t ielem2_ecal = cl_ecal.element_to_cluster[ielem2];
 
   double dist = -1.0;
 
-  if (ecal_table.get<pf::cluster::SCRefKey>(ielem1_ecal) == ecal_table.get<pf::cluster::SCRefKey>(ielem2_ecal)) {
-    dist = LinkByRecHit::computeDist(ecal_table.get<pf::cluster::Eta>(ielem1_ecal),
-                                     ecal_table.get<pf::cluster::Phi>(ielem1_ecal),
-                                     ecal_table.get<pf::cluster::Eta>(ielem2_ecal),
-                                     ecal_table.get<pf::cluster::Phi>(ielem2_ecal));
+  if (ecal_table.get<SCRefKey>(ielem1_ecal) == ecal_table.get<SCRefKey>(ielem2_ecal)) {
+    dist = LinkByRecHit::computeDist(ecal_table.get<Eta>(ielem1_ecal),
+                                     ecal_table.get<Phi>(ielem1_ecal),
+                                     ecal_table.get<Eta>(ielem2_ecal),
+                                     ecal_table.get<Phi>(ielem2_ecal));
   }
 
   return dist;

@@ -7,8 +7,9 @@
 
 #include "TMath.h"
 
-using namespace edm::soa;
-using namespace edm::soa::col;
+namespace track = edm::soa::col::pf::track;
+namespace rechit = edm::soa::col::pf::rechit;
+namespace cluster = edm::soa::col::pf::cluster;
 
 // This class is used to find all links between Tracks and ECAL clusters
 // using a KDTree algorithm.
@@ -44,7 +45,7 @@ KDTreeLinkerTrackEcal::KDTreeLinkerTrackEcal(const edm::ParameterSet& conf) : KD
 KDTreeLinkerTrackEcal::~KDTreeLinkerTrackEcal() { clear(); }
 
 void KDTreeLinkerTrackEcal::buildTree(const PFTables& pftables) {
-  const auto& rechitTable = pftables.clusters_ecal_.rechit_table_;
+  const auto& rechitTable = pftables.clusters_ecal.rechit_table;
 
   // List of pseudo-rechits that will be used to create the KDTree
   std::vector<KDTreeNodeInfo<size_t, 2>> eltList;
@@ -52,20 +53,20 @@ void KDTreeLinkerTrackEcal::buildTree(const PFTables& pftables) {
   // Filling of this list
   for (size_t irechit = 0; irechit < rechitTable.size(); irechit++) {
     KDTreeNodeInfo<size_t, 2> rh1(
-        irechit, float(rechitTable.get<pf::rechit::Eta>(irechit)), float(rechitTable.get<pf::rechit::Phi>(irechit)));
+        irechit, float(rechitTable.get<rechit::Eta>(irechit)), float(rechitTable.get<rechit::Phi>(irechit)));
     eltList.push_back(rh1);
 
     // Here we solve the problem of phi circular set by duplicating some rechits
     // too close to -Pi (or to Pi) and adding (substracting) to them 2 * Pi.
     if (rh1.dims[1] > (M_PI - phiOffset_)) {
       float phi = rh1.dims[1] - 2 * M_PI;
-      KDTreeNodeInfo<size_t, 2> rh2(irechit, float(rechitTable.get<pf::rechit::Eta>(irechit)), phi);
+      KDTreeNodeInfo<size_t, 2> rh2(irechit, float(rechitTable.get<rechit::Eta>(irechit)), phi);
       eltList.push_back(rh2);
     }
 
     if (rh1.dims[1] < (M_PI * -1.0 + phiOffset_)) {
       float phi = rh1.dims[1] + 2 * M_PI;
-      KDTreeNodeInfo<size_t, 2> rh3(irechit, float(rechitTable.get<pf::rechit::Eta>(irechit)), phi);
+      KDTreeNodeInfo<size_t, 2> rh3(irechit, float(rechitTable.get<rechit::Eta>(irechit)), phi);
       eltList.push_back(rh3);
     }
   }
@@ -84,24 +85,23 @@ void KDTreeLinkerTrackEcal::buildTree(const PFTables& pftables) {
 void KDTreeLinkerTrackEcal::searchLinks(const PFTables& pftables, reco::PFMultiLinksIndex& multilinks) {
   // Most of the code has been taken from LinkByRecHit.cc
   LogDebug("KDTreeLinkerTrackEcal") << "searchLinks fieldType=" << _fieldType << " _targetType=" << _targetType;
-
-  const auto& trackTableVtx_ = pftables.track_table_vertex_;
-  const auto& trackTable_ = pftables.track_table_ecalshowermax_;
-  const auto& clusterTable_ = pftables.clusters_ecal_.cluster_table_;
-  const auto& rechitTable = pftables.clusters_ecal_.rechit_table_;
+  const auto& trackTableVtx = pftables.track_table_vertex;
+  const auto& trackTable = pftables.track_table_ecalshowermax;
+  const auto& clusterTable = pftables.clusters_ecal.cluster_table;
+  const auto& rechitTable = pftables.clusters_ecal.rechit_table;
 
   // We iterate over the tracks.
-  for (size_t itrack = 0; itrack < trackTableVtx_.size(); itrack++) {
-    if (not trackTable_.get<pf::track::ExtrapolationValid>(itrack)) {
+  for (size_t itrack = 0; itrack < trackTableVtx.size(); itrack++) {
+    if (not trackTable.get<track::ExtrapolationValid>(itrack)) {
       continue;
     }
 
-    const auto trackPt = trackTableVtx_.get<col::pf::track::Pt>(itrack);
-    const float tracketa = trackTable_.get<col::pf::track::Eta>(itrack);
-    const float trackphi = trackTable_.get<col::pf::track::Phi>(itrack);
-    const auto trackx = trackTable_.get<col::pf::track::Posx>(itrack);
-    const auto tracky = trackTable_.get<col::pf::track::Posy>(itrack);
-    const auto trackz = trackTable_.get<col::pf::track::Posz>(itrack);
+    const auto trackPt = trackTableVtx.get<track::Pt>(itrack);
+    const float tracketa = trackTable.get<track::Eta>(itrack);
+    const float trackphi = trackTable.get<track::Phi>(itrack);
+    const auto trackx = trackTable.get<track::Posx>(itrack);
+    const auto tracky = trackTable.get<track::Posy>(itrack);
+    const auto trackz = trackTable.get<track::Posz>(itrack);
 
     // Estimate the maximal envelope in phi/eta that will be used to find rechit candidates.
     // Same envelope for cap et barrel rechits.
@@ -114,28 +114,28 @@ void KDTreeLinkerTrackEcal::searchLinks(const PFTables& pftables, reco::PFMultiL
 
     // Here we check all rechit candidates using the non-approximated method.
     for (size_t irecHit : recHits) {
-      double rhsizeeta = std::abs(rechitTable.get<pf::rechit::CornerEta>(irecHit)[3] -
-                                  rechitTable.get<pf::rechit::CornerEta>(irecHit)[1]);
-      double rhsizephi = std::abs(rechitTable.get<pf::rechit::CornerPhi>(irecHit)[3] -
-                                  rechitTable.get<pf::rechit::CornerPhi>(irecHit)[1]);
+      double rhsizeeta =
+          std::abs(rechitTable.get<rechit::CornerEta>(irecHit)[3] - rechitTable.get<rechit::CornerEta>(irecHit)[1]);
+      double rhsizephi =
+          std::abs(rechitTable.get<rechit::CornerPhi>(irecHit)[3] - rechitTable.get<rechit::CornerPhi>(irecHit)[1]);
       if (rhsizephi > M_PI)
         rhsizephi = 2. * M_PI - rhsizephi;
 
-      double deta = std::abs(rechitTable.get<pf::rechit::Eta>(irecHit) - tracketa);
-      double dphi = std::abs(rechitTable.get<pf::rechit::Phi>(irecHit) - trackphi);
+      double deta = std::abs(rechitTable.get<rechit::Eta>(irecHit) - tracketa);
+      double dphi = std::abs(rechitTable.get<rechit::Phi>(irecHit) - trackphi);
       if (dphi > M_PI)
         dphi = 2. * M_PI - dphi;
 
       LogTrace("KDTreeLinkerTrackEcal") << "getting rechit " << irecHit;
 
       // Find all clusters associated to given rechit
-      const auto& rechit_clusters = pftables.clusters_ecal_.rechit_to_cluster_.at(irecHit);
+      const auto& rechit_clusters = pftables.clusters_ecal.rechit_to_cluster.at(irecHit);
 
       for (const size_t clusteridx : rechit_clusters) {
-        double clusterz = clusterTable_.get<pf::cluster::Posz>(clusteridx);
-        int fracsNbr = clusterTable_.get<pf::cluster::FracsNbr>(clusteridx);
+        double clusterz = clusterTable.get<cluster::Posz>(clusteridx);
+        int fracsNbr = clusterTable.get<cluster::FracsNbr>(clusteridx);
 
-        if (clusterTable_.get<pf::cluster::Layer>(clusteridx) == PFLayer::ECAL_BARREL) {  // BARREL
+        if (clusterTable.get<cluster::Layer>(clusteridx) == PFLayer::ECAL_BARREL) {  // BARREL
           // Check if the track is in the barrel
           if (std::abs(trackz) > 300.)
             continue;
@@ -145,16 +145,16 @@ void KDTreeLinkerTrackEcal::searchLinks(const PFTables& pftables, reco::PFMultiL
 
           // Check if the track and the cluster are linked
           if (deta < (_rhsizeeta / 2.) && dphi < (_rhsizephi / 2.)) {
-            multilinks.addLink(pftables.clusters_ecal_.cluster_to_element_[clusteridx],
-                               pftables.track_to_element_[itrack],
+            multilinks.addLink(pftables.clusters_ecal.cluster_to_element[clusteridx],
+                               pftables.track_to_element[itrack],
                                _fieldType,
                                _targetType);
             LogTrace("KDTreeLinkerTrackEcal")
                 << "itrack=" << itrack << " tracketa=" << tracketa << " trackphi=" << trackphi
-                << " icluster=" << clusteridx << " rheta=" << rechitTable.get<pf::rechit::Eta>(irecHit)
-                << " rhphi=" << rechitTable.get<pf::rechit::Phi>(irecHit)
-                << " icluster_elem=" << pftables.clusters_ecal_.cluster_to_element_[clusteridx]
-                << " itrack_elem=" << pftables.track_to_element_[itrack];
+                << " icluster=" << clusteridx << " rheta=" << rechitTable.get<rechit::Eta>(irecHit)
+                << " rhphi=" << rechitTable.get<rechit::Phi>(irecHit)
+                << " icluster_elem=" << pftables.clusters_ecal.cluster_to_element[clusteridx]
+                << " itrack_elem=" << pftables.track_to_element[itrack];
           }
 
         } else {  // ENDCAP
@@ -167,13 +167,13 @@ void KDTreeLinkerTrackEcal::searchLinks(const PFTables& pftables, reco::PFMultiL
 
           double x[5];
           double y[5];
-          const auto& rechit_corner_posx = rechitTable.get<pf::rechit::CornerX>(irecHit);
-          const auto& rechit_corner_posy = rechitTable.get<pf::rechit::CornerY>(irecHit);
+          const auto& rechit_corner_posx = rechitTable.get<rechit::CornerX>(irecHit);
+          const auto& rechit_corner_posy = rechitTable.get<rechit::CornerY>(irecHit);
 
           for (unsigned jc = 0; jc < 4; ++jc) {
-            x[3 - jc] = rechit_corner_posx[jc] + (rechit_corner_posx[jc] - rechitTable.get<pf::rechit::Posx>(irecHit)) *
+            x[3 - jc] = rechit_corner_posx[jc] + (rechit_corner_posx[jc] - rechitTable.get<rechit::Posx>(irecHit)) *
                                                      (1.00 + 0.50 / fracsNbr / std::min(1., trackPt / 2.));
-            y[3 - jc] = rechit_corner_posy[jc] + (rechit_corner_posy[jc] - rechitTable.get<pf::rechit::Posy>(irecHit)) *
+            y[3 - jc] = rechit_corner_posy[jc] + (rechit_corner_posy[jc] - rechitTable.get<rechit::Posy>(irecHit)) *
                                                      (1.00 + 0.50 / fracsNbr / std::min(1., trackPt / 2.));
           }
 
@@ -184,16 +184,16 @@ void KDTreeLinkerTrackEcal::searchLinks(const PFTables& pftables, reco::PFMultiL
 
           // Check if the track and the cluster are linked
           if (isinside) {
-            multilinks.addLink(pftables.clusters_ecal_.cluster_to_element_[clusteridx],
-                               pftables.track_to_element_[itrack],
+            multilinks.addLink(pftables.clusters_ecal.cluster_to_element[clusteridx],
+                               pftables.track_to_element[itrack],
                                _fieldType,
                                _targetType);
             LogTrace("KDTreeLinkerTrackEcal")
                 << "itrack=" << itrack << " tracketa=" << tracketa << " trackphi=" << trackphi
-                << " icluster=" << clusteridx << " rheta=" << rechitTable.get<pf::rechit::Eta>(irecHit)
-                << " rhphi=" << rechitTable.get<pf::rechit::Phi>(irecHit)
-                << " icluster_elem=" << pftables.clusters_ecal_.cluster_to_element_[clusteridx]
-                << " itrack_elem=" << pftables.track_to_element_[itrack];
+                << " icluster=" << clusteridx << " rheta=" << rechitTable.get<rechit::Eta>(irecHit)
+                << " rhphi=" << rechitTable.get<rechit::Phi>(irecHit)
+                << " icluster_elem=" << pftables.clusters_ecal.cluster_to_element[clusteridx]
+                << " itrack_elem=" << pftables.track_to_element[itrack];
           }
         }  //cluster layer
       }    //loop over clusters of rechit

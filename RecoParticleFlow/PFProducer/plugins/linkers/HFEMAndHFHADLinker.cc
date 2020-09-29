@@ -41,9 +41,9 @@ double HFEMAndHFHADLinker::testLink(size_t ielem1,
     ihfem_elem = ielem2;
     ihfhad_elem = ielem1;
   }
-  size_t ihfem = tables.clusters_hfem_.element_to_cluster_[ihfem_elem];
-  size_t ihfhad = tables.clusters_hfhad_.element_to_cluster_[ihfhad_elem];
+  const size_t ihfem = tables.clusters_hfem.element_to_cluster[ihfem_elem];
+  const size_t ihfhad = tables.clusters_hfhad.element_to_cluster[ihfhad_elem];
 
   return LinkByRecHit::testHFEMAndHFHADByRecHit(
-      ihfem, ihfhad, tables.clusters_hfem_.cluster_table_, tables.clusters_hfhad_.cluster_table_);
+      ihfem, ihfhad, tables.clusters_hfem.cluster_table, tables.clusters_hfhad.cluster_table);
 }

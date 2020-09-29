@@ -38,9 +38,7 @@ public:
                      reco::PFBlockElement::Type type1,
                      reco::PFBlockElement::Type type2,
                      const PFTables& tables,
-                     const reco::PFMultiLinksIndex& multilinks,
-                     const reco::PFBlockElement*,
-                     const reco::PFBlockElement*) const override;
+                     const reco::PFMultiLinksIndex& multilinks) const override;
 
   double testLink(size_t ielem1,
                   size_t ielem2,
@@ -49,7 +47,7 @@ public:
                   const ElementListConst& elements,
                   const PFTables& tables,
                   const reco::PFMultiLinksIndex& multilinks) const override;
-
+  //legacy
   double testLink(const reco::PFBlockElement* elem1, const reco::PFBlockElement* elem2) const;
 
 private:
@@ -69,9 +67,7 @@ bool TrackAndHCALLinker::linkPrefilter(size_t ielem1,
                                        reco::PFBlockElement::Type type1,
                                        reco::PFBlockElement::Type type2,
                                        const PFTables& tables,
-                                       const reco::PFMultiLinksIndex& multilinks,
-                                       const reco::PFBlockElement* elem1,
-                                       const reco::PFBlockElement* elem2) const {
+                                       const reco::PFMultiLinksIndex& multilinks) const {
   bool result = false;
   switch (type1) {
     case reco::PFBlockElement::TRACK:
@@ -98,29 +94,31 @@ double TrackAndHCALLinker::testLink(size_t ielem1,
   size_t ihcal_elem = 0;
 
   double dist(-1.0);
+
+  reco::PFBlockElement::Type type_hcal;
+  constexpr auto type_track = reco::PFBlockElement::TRACK;
   if (type1 < type2) {
     itrack_elem = ielem1;
     ihcal_elem = ielem2;
+    type_hcal = type2;
   } else {
     itrack_elem = ielem2;
     ihcal_elem = ielem1;
+    type_hcal = type1;
   }
-  const auto& clusterTable = tables.getClusterTable(elements[ihcal_elem]->type());
+  const auto& clusterTable = tables.getClusterTable(type_hcal);
   const auto& trackTableEntrance = tables.getTrackTable(trajectoryLayerEntrance_);
   const auto& trackTableExit = checkExit_ ? tables.getTrackTable(trajectoryLayerExit_) : trackTableEntrance;
 
-  size_t ihcal = clusterTable.element_to_cluster_[ihcal_elem];
-  size_t itrack = tables.element_to_track_[itrack_elem];
+  const size_t ihcal = clusterTable.element_to_cluster[ihcal_elem];
+  const size_t itrack = tables.element_to_track[itrack_elem];
 
   if (useKDTree_) {  //KDTree Algo
-    const bool linked =
-        multilinks.isLinked(itrack_elem, ihcal_elem, elements[itrack_elem]->type(), elements[ihcal_elem]->type());
     // If the link exist, we fill dist and linktest.
-    if (linked) {
+    if (multilinks.isLinked(itrack_elem, ihcal_elem, type_track, type_hcal)) {
       dist = LinkByRecHit::computeTrackHCALDist(
-          checkExit_, itrack, ihcal, clusterTable.cluster_table_, trackTableEntrance, trackTableExit);
-    }  // multilinks verification
-
+          checkExit_, itrack, ihcal, clusterTable.cluster_table, trackTableEntrance, trackTableExit);
+    }
   } else {  // Old algorithm
     dist = testLink(elem1, elem2);
   }

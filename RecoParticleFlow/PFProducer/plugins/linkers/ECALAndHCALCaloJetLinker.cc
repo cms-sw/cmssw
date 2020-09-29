@@ -33,10 +33,13 @@ double ECALAndHCALCaloJetLinker::testLink(size_t ielem1,
                                           const ElementListConst& elements,
                                           const PFTables& tables,
                                           const reco::PFMultiLinksIndex& multilinks) const {
+  using Eta = edm::soa::col::pf::cluster::Eta;
+  using Phi = edm::soa::col::pf::cluster::Phi;
+  double dist(-1.0);
+
   size_t ihcal_elem;
   size_t iecal_elem;
 
-  double dist(-1.0);
   if (type1 < type2) {
     ihcal_elem = ielem1;
     iecal_elem = ielem2;
@@ -45,14 +48,17 @@ double ECALAndHCALCaloJetLinker::testLink(size_t ielem1,
     iecal_elem = ielem1;
   }
 
-  size_t ihcal = tables.clusters_hcal_.element_to_cluster_[ihcal_elem];
-  size_t iecal = tables.clusters_ecal_.element_to_cluster_[iecal_elem];
+  const auto& ch = tables.clusters_hcal;
+  const auto& ce = tables.clusters_ecal;
 
-  const auto ecal_eta = tables.clusters_ecal_.cluster_table_.get<pf::cluster::Eta>(iecal);
-  const auto ecal_phi = tables.clusters_ecal_.cluster_table_.get<pf::cluster::Phi>(iecal);
+  const size_t ihcal = ch.element_to_cluster[ihcal_elem];
+  const size_t iecal = ce.element_to_cluster[iecal_elem];
 
-  const auto hcal_eta = tables.clusters_hcal_.cluster_table_.get<pf::cluster::Eta>(ihcal);
-  const auto hcal_phi = tables.clusters_hcal_.cluster_table_.get<pf::cluster::Phi>(ihcal);
+  const auto ecal_eta = ce.cluster_table.get<Eta>(iecal);
+  const auto ecal_phi = ce.cluster_table.get<Phi>(iecal);
+
+  const auto hcal_eta = ch.cluster_table.get<Eta>(ihcal);
+  const auto hcal_phi = ch.cluster_table.get<Phi>(ihcal);
 
   dist = LinkByRecHit::computeDist(ecal_eta, ecal_phi, hcal_eta, hcal_phi);
 

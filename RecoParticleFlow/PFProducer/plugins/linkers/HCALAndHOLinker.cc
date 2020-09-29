@@ -44,13 +44,13 @@ double HCALAndHOLinker::testLink(size_t ielem1,
     ihcal_elem = ielem2;
     iho_elem = ielem1;
   }
-  size_t ihcal = tables.clusters_hcal_.element_to_cluster_[ihcal_elem];
-  size_t iho = tables.clusters_ho_.element_to_cluster_[iho_elem];
+  const size_t ihcal = tables.clusters_hcal.element_to_cluster[ihcal_elem];
+  const size_t iho = tables.clusters_ho.element_to_cluster[iho_elem];
 
-  const auto hcal_eta = tables.clusters_hcal_.cluster_table_.get<pf::cluster::Eta>(ihcal);
-  const auto hcal_phi = tables.clusters_hcal_.cluster_table_.get<pf::cluster::Phi>(ihcal);
-  const auto ho_eta = tables.clusters_ho_.cluster_table_.get<pf::cluster::Eta>(iho);
-  const auto ho_phi = tables.clusters_ho_.cluster_table_.get<pf::cluster::Phi>(iho);
+  const auto hcal_eta = tables.clusters_hcal.cluster_table.get<pf::cluster::Eta>(ihcal);
+  const auto hcal_phi = tables.clusters_hcal.cluster_table.get<pf::cluster::Phi>(ihcal);
+  const auto ho_eta = tables.clusters_ho.cluster_table.get<pf::cluster::Eta>(iho);
+  const auto ho_phi = tables.clusters_ho.cluster_table.get<pf::cluster::Phi>(iho);
 
   dist = (std::abs(hcal_eta) < 1.5 ? LinkByRecHit::computeDist(hcal_eta, hcal_phi, ho_eta, ho_phi) : -1.0);
   return (dist < 0.2 ? dist : -1.0);

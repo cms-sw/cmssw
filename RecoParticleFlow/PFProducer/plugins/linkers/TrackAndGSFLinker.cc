@@ -36,6 +36,7 @@ double TrackAndGSFLinker::testLink(size_t ielem1,
                                    const PFTables& tables,
                                    const reco::PFMultiLinksIndex& multilinks) const {
   double dist = -1.0;
+  const auto& ttv = tables.track_table_vertex;
 
   size_t itrack_elem = 0;
   size_t igsf_elem = 0;
@@ -46,17 +47,16 @@ double TrackAndGSFLinker::testLink(size_t ielem1,
     itrack_elem = ielem2;
     igsf_elem = ielem1;
   }
-  size_t itrack = tables.element_to_track_[itrack_elem];
-  size_t igsf = tables.element_to_gsf_[igsf_elem];
+  const size_t itrack = tables.element_to_track[itrack_elem];
+  const size_t igsf = tables.element_to_gsf[igsf_elem];
 
-  const auto kf_nn = tables.track_table_vertex_.get<pf::track::KfTrackRefIsNonNull>(itrack);
-  const auto kf_key = tables.track_table_vertex_.get<pf::track::KfTrackRefKey>(itrack);
-  const auto kf_base_key = tables.track_table_vertex_.get<pf::track::KfTrackRefBaseKey>(itrack);
+  const auto kf_nn = ttv.get<pf::track::KfTrackRefIsNonNull>(itrack);
+  const auto kf_key = ttv.get<pf::track::KfTrackRefKey>(itrack);
+  const auto kf_base_key = ttv.get<pf::track::KfTrackRefBaseKey>(itrack);
 
-  if (tables.gsf_table_.get<pf::track::KfPFRecTrackRefIsNonNull>(igsf)) {
-    //const reco::TrackRef& gsftrackref = refkf->trackRef();
-    const auto gsf_nn = tables.gsf_table_.get<pf::track::KfTrackRefIsNonNull>(igsf);
-    const auto gsf_key = tables.gsf_table_.get<pf::track::KfTrackRefKey>(igsf);
+  if (tables.gsf_table.get<pf::track::KfPFRecTrackRefIsNonNull>(igsf)) {
+    const auto gsf_nn = tables.gsf_table.get<pf::track::KfTrackRefIsNonNull>(igsf);
+    const auto gsf_key = tables.gsf_table.get<pf::track::KfTrackRefKey>(igsf);
 
     if (gsf_nn && kf_nn && kf_key == gsf_key) {
       dist = 0.001;
@@ -65,13 +65,13 @@ double TrackAndGSFLinker::testLink(size_t ielem1,
 
   //override for converted brems
   if (useConvertedBrems_) {
-    if (tables.track_table_vertex_.get<pf::track::IsLinkedToDisplacedVertex>(itrack)) {
-      for (size_t iconvbrem : tables.gsf_to_convbrem_[igsf]) {
-        if (tables.track_table_vertex_.get<pf::track::TrackType_FROM_GAMMACONV>(itrack) &&
-            kf_key == tables.gsf_convbrem_table_.get<pf::track::ConvBremRefKey>(iconvbrem)) {
+    if (ttv.get<pf::track::IsLinkedToDisplacedVertex>(itrack)) {
+      for (size_t iconvbrem : tables.gsf_to_convbrem[igsf]) {
+        if (ttv.get<pf::track::TrackType_FROM_GAMMACONV>(itrack) &&
+            kf_key == tables.gsf_convbrem_table.get<pf::track::ConvBremRefKey>(iconvbrem)) {
           dist = 0.001;
         } else {  // check the base ref as well (for dedicated conversions?)
-          if (tables.gsf_convbrem_table_.get<pf::track::ConvBremRefBaseKey>(iconvbrem) == kf_base_key) {
+          if (tables.gsf_convbrem_table.get<pf::track::ConvBremRefBaseKey>(iconvbrem) == kf_base_key) {
             dist = 0.001;
           }
         }

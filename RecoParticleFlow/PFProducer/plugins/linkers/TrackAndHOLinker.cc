@@ -46,21 +46,21 @@ double TrackAndHOLinker::testLink(size_t ielem1,
     iho_elem = ielem1;
   }
 
-  size_t itrack = tables.element_to_track_[itrack_elem];
-  size_t iho = tables.clusters_ho_.element_to_cluster_[iho_elem];
+  const size_t itrack = tables.element_to_track[itrack_elem];
+  const size_t iho = tables.clusters_ho.element_to_cluster[iho_elem];
 
-  if (tables.track_table_vertex_.get<pf::track::Pt>(itrack) > 3.00001 &&
-      tables.track_table_ho_.get<pf::track::ExtrapolationValid>(itrack)) {
+  if (tables.track_table_vertex.get<pf::track::Pt>(itrack) > 3.00001 &&
+      tables.track_table_ho.get<pf::track::ExtrapolationValid>(itrack)) {
     dist = LinkByRecHit::testTrackAndClusterByRecHit(iho,
-                                                     tables.clusters_ho_.cluster_to_rechit_.at(iho),
-                                                     tables.clusters_ho_.cluster_table_,
-                                                     tables.clusters_ho_.rechit_table_,
+                                                     tables.clusters_ho.cluster_to_rechit.at(iho),
+                                                     tables.clusters_ho.cluster_table,
+                                                     tables.clusters_ho.rechit_table,
                                                      itrack,
-                                                     tables.track_table_vertex_,
-                                                     tables.track_table_ecalshowermax_,
-                                                     tables.track_table_hcalent_,
-                                                     tables.track_table_hcalex_,
-                                                     tables.track_table_ho_,
+                                                     tables.track_table_vertex,
+                                                     tables.track_table_ecalshowermax,
+                                                     tables.track_table_hcalent,
+                                                     tables.track_table_hcalex,
+                                                     tables.track_table_ho,
                                                      false);
 
   } else {

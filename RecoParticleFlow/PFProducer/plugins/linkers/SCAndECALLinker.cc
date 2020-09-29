@@ -38,6 +38,8 @@ double SCAndECALLinker::testLink(size_t ielem1,
                                  const ElementListConst& elements,
                                  const PFTables& tables,
                                  const reco::PFMultiLinksIndex& multilinks) const {
+  using Eta = pf::cluster::Eta;
+  using Phi = pf::cluster::Phi;
   double dist = -1.0;
 
   size_t iecal_elem = 0;
@@ -51,24 +53,24 @@ double SCAndECALLinker::testLink(size_t ielem1,
     isc_elem = ielem1;
   }
 
-  size_t iecal = tables.clusters_ecal_.element_to_cluster_[iecal_elem];
-  size_t isc = tables.clusters_sc_.element_to_cluster_[isc_elem];
+  const size_t iecal = tables.clusters_ecal.element_to_cluster[iecal_elem];
+  const size_t isc = tables.clusters_sc.element_to_cluster[isc_elem];
 
   if (superClusterMatchByRef_) {
-    if (tables.clusters_sc_.cluster_table_.get<pf::cluster::SCRefKey>(isc) ==
-        tables.clusters_ecal_.cluster_table_.get<pf::cluster::SCRefKey>(iecal))
+    if (tables.clusters_sc.cluster_table.get<pf::cluster::SCRefKey>(isc) ==
+        tables.clusters_ecal.cluster_table.get<pf::cluster::SCRefKey>(iecal))
       dist = 0.001;
   } else {
     //this is probably not needed any more and should be removed
-    const auto& rechits_ecal = tables.clusters_ecal_.cluster_to_rechit_.at(iecal);
-    const auto& rechits_sc = tables.clusters_sc_.cluster_to_rechit_.at(isc);
+    const auto& rechits_ecal = tables.clusters_ecal.cluster_to_rechit.at(iecal);
+    const auto& rechits_sc = tables.clusters_sc.cluster_to_rechit.at(isc);
 
     if (ClusterClusterMapping::overlap(
-            rechits_ecal, rechits_sc, tables.clusters_ecal_.rechit_table_, tables.clusters_sc_.rechit_table_)) {
-      dist = LinkByRecHit::computeDist(tables.clusters_sc_.cluster_table_.get<pf::cluster::Eta>(isc),
-                                       tables.clusters_sc_.cluster_table_.get<pf::cluster::Phi>(isc),
-                                       tables.clusters_ecal_.cluster_table_.get<pf::cluster::Eta>(iecal),
-                                       tables.clusters_ecal_.cluster_table_.get<pf::cluster::Phi>(iecal));
+            rechits_ecal, rechits_sc, tables.clusters_ecal.rechit_table, tables.clusters_sc.rechit_table)) {
+      const auto& ct_sc = tables.clusters_sc.cluster_table;
+      const auto& ct_ecal = tables.clusters_ecal.cluster_table;
+      dist = LinkByRecHit::computeDist(
+          ct_sc.get<Eta>(isc), ct_sc.get<Phi>(isc), ct_ecal.get<Eta>(iecal), ct_ecal.get<Phi>(iecal));
     }
   }
   return dist;

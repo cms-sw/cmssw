@@ -47,20 +47,20 @@ double GSFAndHCALLinker::testLink(size_t ielem1,
     igsf_elem = ielem1;
   }
 
-  size_t ihcal = tables.clusters_hcal_.element_to_cluster_[ihcal_elem];
-  size_t igsf = tables.element_to_gsf_[igsf_elem];
+  const size_t ihcal = tables.clusters_hcal.element_to_cluster[ihcal_elem];
+  const size_t igsf = tables.element_to_gsf[igsf_elem];
 
-  if (tables.gsf_table_hcalent_.get<pf::track::ExtrapolationValid>(igsf)) {
+  if (tables.gsf_table_hcalent.get<pf::track::ExtrapolationValid>(igsf)) {
     dist = LinkByRecHit::testTrackAndClusterByRecHit(ihcal,
-                                                     tables.clusters_hcal_.cluster_to_rechit_.at(ihcal),
-                                                     tables.clusters_hcal_.cluster_table_,
-                                                     tables.clusters_hcal_.rechit_table_,
+                                                     tables.clusters_hcal.cluster_to_rechit.at(ihcal),
+                                                     tables.clusters_hcal.cluster_table,
+                                                     tables.clusters_hcal.rechit_table,
                                                      igsf,
-                                                     tables.gsf_table_,
-                                                     tables.gsf_table_ecalshowermax_,
-                                                     tables.gsf_table_hcalent_,
-                                                     tables.gsf_table_hcalex_,
-                                                     tables.track_table_ho_,  // NOT USED
+                                                     tables.gsf_table,
+                                                     tables.gsf_table_ecalshowermax,
+                                                     tables.gsf_table_hcalent,
+                                                     tables.gsf_table_hcalex,
+                                                     tables.track_table_ho,  // NOT USED
                                                      false);
   }
 

@@ -44,21 +44,21 @@ double HCALAndBREMLinker::testLink(size_t ielem1,
     ihcal_elem = ielem2;
     ibrem_elem = ielem1;
   }
-  size_t ihcal = tables.clusters_hcal_.element_to_cluster_[ihcal_elem];
-  size_t ibrem = tables.element_to_brem_[ibrem_elem];
+  const size_t ihcal = tables.clusters_hcal.element_to_cluster[ihcal_elem];
+  const size_t ibrem = tables.element_to_brem[ibrem_elem];
 
-  if (tables.brem_table_hcalent_.get<pf::track::ExtrapolationValid>(ibrem)) {
-    const auto& rechits = tables.clusters_hcal_.cluster_to_rechit_.at(ihcal);
+  if (tables.brem_table_hcalent.get<pf::track::ExtrapolationValid>(ibrem)) {
+    const auto& rechits = tables.clusters_hcal.cluster_to_rechit.at(ihcal);
     dist = LinkByRecHit::testTrackAndClusterByRecHit(ihcal,
                                                      rechits,
-                                                     tables.clusters_hcal_.cluster_table_,
-                                                     tables.clusters_hcal_.rechit_table_,
+                                                     tables.clusters_hcal.cluster_table,
+                                                     tables.clusters_hcal.rechit_table,
                                                      ibrem,
-                                                     tables.brem_table_,                //NOT USED
-                                                     tables.brem_table_ecalshowermax_,  //NOT USED
-                                                     tables.brem_table_hcalent_,
-                                                     tables.track_table_hcalex_,  //NOT USED
-                                                     tables.track_table_ho_,      //NOT USED
+                                                     tables.brem_table,                //NOT USED
+                                                     tables.brem_table_ecalshowermax,  //NOT USED
+                                                     tables.brem_table_hcalent,
+                                                     tables.track_table_hcalex,  //NOT USED
+                                                     tables.track_table_ho,      //NOT USED
                                                      true);
 
     //According to testTrackAndClusterByRecHit, HCAL and BREM linker ALWAYS gives dist=-1

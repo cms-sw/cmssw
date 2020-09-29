@@ -32,19 +32,21 @@ double GSFAndGSFLinker::testLink(size_t ielem1,
                                  const ElementListConst& elements,
                                  const PFTables& tables,
                                  const reco::PFMultiLinksIndex& multilinks) const {
-  using namespace edm::soa::col;
+  using is_nn = edm::soa::col::pf::track::GsfTrackRefPFIsNonNull;
+  using from_gconv = edm::soa::col::pf::track::GsfTrackRefPFIsNonNull;
+  using tid = edm::soa::col::pf::track::GsfTrackRefPFTrackId;
 
   double dist = -1.0;
 
-  size_t igsf1 = tables.element_to_gsf_[ielem1];
-  size_t igsf2 = tables.element_to_gsf_[ielem2];
+  const size_t igsf1 = tables.element_to_gsf[ielem1];
+  const size_t igsf2 = tables.element_to_gsf[ielem2];
 
-  if (tables.gsf_table_.get<pf::track::GsfTrackRefPFIsNonNull>(igsf1) &&
-      tables.gsf_table_.get<pf::track::GsfTrackRefPFIsNonNull>(igsf2)) {
-    if (tables.gsf_table_.get<pf::track::TrackType_FROM_GAMMACONV>(igsf1) !=  // we want **one** primary GSF
-            tables.gsf_table_.get<pf::track::TrackType_FROM_GAMMACONV>(igsf2) &&
-        tables.gsf_table_.get<pf::track::GsfTrackRefPFTrackId>(igsf1) ==
-            tables.gsf_table_.get<pf::track::GsfTrackRefPFTrackId>(igsf2)) {
+  const auto& gsft = tables.gsf_table;
+
+  if (gsft.get<is_nn>(igsf1) && gsft.get<is_nn>(igsf2)) {
+    if (gsft.get<from_gconv>(igsf1) !=  // we want **one** primary GSF
+            gsft.get<from_gconv>(igsf2) &&
+        gsft.get<tid>(igsf1) == tables.gsf_table.get<tid>(igsf2)) {
       dist = 0.001;
     }
   }

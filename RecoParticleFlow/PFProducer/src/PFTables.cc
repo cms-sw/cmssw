@@ -4,43 +4,44 @@ using namespace edm::soa::col;
 namespace edm::soa {
 
   TrackTableVertex makeTrackTableVertex(std::vector<reco::PFBlockElement*> const& objects) {
+      using namespace edm::soa::col::pf::track;
     return {objects,
             edm::soa::column_fillers(
-                pf::track::ExtrapolationValid::filler([](reco::PFBlockElement* x) {
+                ExtrapolationValid::filler([](reco::PFBlockElement* x) {
                   return x->trackRefPF()->extrapolatedPoint(reco::PFTrajectoryPoint::ClosestApproach).isValid();
                 }),
-                pf::track::Pt::filler([](reco::PFBlockElement* x) {
+                Pt::filler([](reco::PFBlockElement* x) {
                   return sqrt(x->trackRefPF()
                                   ->extrapolatedPoint(reco::PFTrajectoryPoint::ClosestApproach)
                                   .momentum()
                                   .Vect()
                                   .Perp2());
                 }),
-                pf::track::IsLinkedToDisplacedVertex::filler(
+                IsLinkedToDisplacedVertex::filler(
                     [](reco::PFBlockElement* x) { return x->isLinkedToDisplacedVertex(); }),
-                pf::track::TrackType_FROM_GAMMACONV::filler(
+                TrackType_FROM_GAMMACONV::filler(
                     [](reco::PFBlockElement* x) { return x->trackType(reco::PFBlockElement::T_FROM_GAMMACONV); }),
-                pf::track::TrackType_FROM_V0::filler(
+                TrackType_FROM_V0::filler(
                     [](reco::PFBlockElement* x) { return x->trackType(reco::PFBlockElement::T_FROM_V0); }),
-                pf::track::V0RefIsNonNull::filler([](reco::PFBlockElement* x) { return x->V0Ref().isNonnull(); }),
-                pf::track::V0RefKey::filler([](reco::PFBlockElement* x) { return edm::refToElementID(x->V0Ref()); }),
-                pf::track::KfTrackRefIsNonNull::filler(
+                V0RefIsNonNull::filler([](reco::PFBlockElement* x) { return x->V0Ref().isNonnull(); }),
+                V0RefKey::filler([](reco::PFBlockElement* x) { return edm::refToElementID(x->V0Ref()); }),
+                KfTrackRefIsNonNull::filler(
                     [](reco::PFBlockElement* x) { return x->trackRefPF()->trackRef().isNonnull(); }),
-                pf::track::KfTrackRefKey::filler(
+                KfTrackRefKey::filler(
                     [](reco::PFBlockElement* x) { return edm::refToElementID(x->trackRefPF()->trackRef()); }),
-                pf::track::KfTrackRefBaseKey::filler([](reco::PFBlockElement* x) {
+                KfTrackRefBaseKey::filler([](reco::PFBlockElement* x) {
                   return edm::refToElementID(reco::TrackBaseRef(x->trackRefPF()->trackRef()));
                 }),
-                pf::track::DisplacedVertexRef_TO_DISP_IsNonNull::filler([](reco::PFBlockElement* x) {
+                DisplacedVertexRef_TO_DISP_IsNonNull::filler([](reco::PFBlockElement* x) {
                   return x->displacedVertexRef(reco::PFBlockElement::T_TO_DISP).isNonnull();
                 }),
-                pf::track::DisplacedVertexRef_TO_DISP_Key::filler([](reco::PFBlockElement* x) {
+                DisplacedVertexRef_TO_DISP_Key::filler([](reco::PFBlockElement* x) {
                   return edm::refToElementID(x->displacedVertexRef(reco::PFBlockElement::T_TO_DISP));
                 }),
-                pf::track::DisplacedVertexRef_FROM_DISP_IsNonNull::filler([](reco::PFBlockElement* x) {
+                DisplacedVertexRef_FROM_DISP_IsNonNull::filler([](reco::PFBlockElement* x) {
                   return x->displacedVertexRef(reco::PFBlockElement::T_FROM_DISP).isNonnull();
                 }),
-                pf::track::DisplacedVertexRef_FROM_DISP_Key::filler([](reco::PFBlockElement* x) {
+                DisplacedVertexRef_FROM_DISP_Key::filler([](reco::PFBlockElement* x) {
                   return edm::refToElementID(x->displacedVertexRef(reco::PFBlockElement::T_FROM_DISP));
                 }))};
   }
@@ -109,81 +110,80 @@ namespace edm::soa {
   template <class RecTrackType>
   TrackTableExtrapolation makeTrackTable(std::vector<RecTrackType> const& objects,
                                          reco::PFTrajectoryPoint::LayerType layerType) {
+    using namespace edm::soa::col::pf::track;
     return {objects,
-            edm::soa::column_fillers(pf::track::ExtrapolationValid::filler([layerType](RecTrackType x) {
+            edm::soa::column_fillers(ExtrapolationValid::filler([layerType](RecTrackType x) {
                                        return x->extrapolatedPoint(layerType).isValid();
                                      }),
-                                     pf::track::Eta::filler([layerType](RecTrackType x) {
+                                     Eta::filler([layerType](RecTrackType x) {
                                        return x->extrapolatedPoint(layerType).positionREP().eta();
                                      }),
-                                     pf::track::Phi::filler([layerType](RecTrackType x) {
+                                     Phi::filler([layerType](RecTrackType x) {
                                        return x->extrapolatedPoint(layerType).positionREP().phi();
                                      }),
-                                     pf::track::Posx::filler([layerType](RecTrackType x) {
+                                     Posx::filler([layerType](RecTrackType x) {
                                        return x->extrapolatedPoint(layerType).positionREP().X();
                                      }),
-                                     pf::track::Posy::filler([layerType](RecTrackType x) {
+                                     Posy::filler([layerType](RecTrackType x) {
                                        return x->extrapolatedPoint(layerType).positionREP().Y();
                                      }),
-                                     pf::track::Posz::filler([layerType](RecTrackType x) {
+                                     Posz::filler([layerType](RecTrackType x) {
                                        return x->extrapolatedPoint(layerType).positionREP().Z();
                                      }),
-                                     pf::track::PosR::filler([layerType](RecTrackType x) {
+                                     PosR::filler([layerType](RecTrackType x) {
                                        return x->extrapolatedPoint(layerType).positionREP().R();
                                      }))};
   }
 
   RecHitTable makeRecHitTable(std::vector<const reco::PFRecHitFraction*> const& objects) {
+    using namespace edm::soa::col::pf::rechit;
     return {
         objects,
         edm::soa::column_fillers(
-            pf::rechit::DetIdValue::filler([](reco::PFRecHitFraction const* x) { return x->recHitRef()->detId(); }),
-            pf::rechit::Fraction::filler([](reco::PFRecHitFraction const* x) { return x->fraction(); }),
-            pf::rechit::Eta::filler([](reco::PFRecHitFraction const* x) { return x->recHitRef()->positionREP().eta(); }),
-            pf::rechit::Phi::filler([](reco::PFRecHitFraction const* x) { return x->recHitRef()->positionREP().phi(); }),
-            pf::rechit::Posx::filler([](reco::PFRecHitFraction const* x) { return x->recHitRef()->position().x(); }),
-            pf::rechit::Posy::filler([](reco::PFRecHitFraction const* x) { return x->recHitRef()->position().y(); }),
-            pf::rechit::Posz::filler([](reco::PFRecHitFraction const* x) { return x->recHitRef()->position().z(); }),
-
-            pf::rechit::CornerX::filler([](reco::PFRecHitFraction const* x) -> col::pf::CornerCoordsF {
+            DetIdValue::filler([](reco::PFRecHitFraction const* x) { return x->recHitRef()->detId(); }),
+            Fraction::filler([](reco::PFRecHitFraction const* x) { return x->fraction(); }),
+            Eta::filler([](reco::PFRecHitFraction const* x) { return x->recHitRef()->positionREP().eta(); }),
+            Phi::filler([](reco::PFRecHitFraction const* x) { return x->recHitRef()->positionREP().phi(); }),
+            Posx::filler([](reco::PFRecHitFraction const* x) { return x->recHitRef()->position().x(); }),
+            Posy::filler([](reco::PFRecHitFraction const* x) { return x->recHitRef()->position().y(); }),
+            Posz::filler([](reco::PFRecHitFraction const* x) { return x->recHitRef()->position().z(); }),
+            CornerX::filler([](reco::PFRecHitFraction const* x) -> col::pf::CornerCoordsF {
               return {{x->recHitRef()->getCornersXYZ()[0].x(),
                        x->recHitRef()->getCornersXYZ()[1].x(),
                        x->recHitRef()->getCornersXYZ()[2].x(),
                        x->recHitRef()->getCornersXYZ()[3].x()}};
             }),
-            pf::rechit::CornerY::filler([](reco::PFRecHitFraction const* x) -> col::pf::CornerCoordsF {
+            CornerY::filler([](reco::PFRecHitFraction const* x) -> col::pf::CornerCoordsF {
               return {{x->recHitRef()->getCornersXYZ()[0].y(),
                        x->recHitRef()->getCornersXYZ()[1].y(),
                        x->recHitRef()->getCornersXYZ()[2].y(),
                        x->recHitRef()->getCornersXYZ()[3].y()}};
             }),
-            pf::rechit::CornerZ::filler([](reco::PFRecHitFraction const* x) -> col::pf::CornerCoordsF {
+            CornerZ::filler([](reco::PFRecHitFraction const* x) -> col::pf::CornerCoordsF {
               return {{x->recHitRef()->getCornersXYZ()[0].z(),
                        x->recHitRef()->getCornersXYZ()[1].z(),
                        x->recHitRef()->getCornersXYZ()[2].z(),
                        x->recHitRef()->getCornersXYZ()[3].z()}};
             }),
-
-            pf::rechit::CornerEta::filler([](reco::PFRecHitFraction const* x) -> col::pf::CornerCoordsF {
+            CornerEta::filler([](reco::PFRecHitFraction const* x) -> col::pf::CornerCoordsF {
               return {{x->recHitRef()->getCornersREP()[0].eta(),
                        x->recHitRef()->getCornersREP()[1].eta(),
                        x->recHitRef()->getCornersREP()[2].eta(),
                        x->recHitRef()->getCornersREP()[3].eta()}};
             }),
-
-            pf::rechit::CornerPhi::filler([](reco::PFRecHitFraction const* x) -> col::pf::CornerCoordsF {
+            CornerPhi::filler([](reco::PFRecHitFraction const* x) -> col::pf::CornerCoordsF {
               return {{x->recHitRef()->getCornersREP()[0].phi(),
                        x->recHitRef()->getCornersREP()[1].phi(),
                        x->recHitRef()->getCornersREP()[2].phi(),
                        x->recHitRef()->getCornersREP()[3].phi()}};
             }),
-            pf::rechit::CornerXBV::filler([](reco::PFRecHitFraction const* x) -> col::pf::CornerCoordsD {
+            CornerXBV::filler([](reco::PFRecHitFraction const* x) -> col::pf::CornerCoordsD {
               return {{x->recHitRef()->getCornersXYZ()[0].basicVector().x(),
                        x->recHitRef()->getCornersXYZ()[1].basicVector().x(),
                        x->recHitRef()->getCornersXYZ()[2].basicVector().x(),
                        x->recHitRef()->getCornersXYZ()[3].basicVector().x()}};
             }),
-            pf::rechit::CornerYBV::filler([](reco::PFRecHitFraction const* x) -> col::pf::CornerCoordsD {
+            CornerYBV::filler([](reco::PFRecHitFraction const* x) -> col::pf::CornerCoordsD {
               return {{x->recHitRef()->getCornersXYZ()[0].basicVector().y(),
                        x->recHitRef()->getCornersXYZ()[1].basicVector().y(),
                        x->recHitRef()->getCornersXYZ()[2].basicVector().y(),
@@ -194,35 +194,40 @@ namespace edm::soa {
   }
 
   SuperClusterRecHitTable makeSuperClusterRecHitTable(std::vector<const std::pair<DetId, float>*> const& objects) {
+    using namespace edm::soa::col::pf::rechit;
     return {objects,
             edm::soa::column_fillers(
-                pf::rechit::DetIdValue::filler([](const std::pair<DetId, float>* x) { return x->first; }),
-                pf::rechit::Fraction::filler([](const std::pair<DetId, float>* x) { return x->second; }))};
+                DetIdValue::filler([](const std::pair<DetId, float>* x) { return x->first; }),
+                Fraction::filler([](const std::pair<DetId, float>* x) { return x->second; }))};
   }
 
   ClusterTable makeClusterTable(std::vector<const reco::PFBlockElementCluster*> const& objects) {
+    using namespace edm::soa::col::pf::cluster;
     return {objects,
-            edm::soa::column_fillers(pf::cluster::Eta::filler([](const reco::PFBlockElementCluster* x) {
+            edm::soa::column_fillers(Eta::filler([](const reco::PFBlockElementCluster* x) {
                                        return x->clusterRef()->positionREP().eta();
                                      }),
-                                     pf::cluster::Phi::filler([](const reco::PFBlockElementCluster* x) {
+                                     Phi::filler([](const reco::PFBlockElementCluster* x) {
                                        return x->clusterRef()->positionREP().phi();
                                      }),
-                                     pf::cluster::Posx::filler([](const reco::PFBlockElementCluster* x) {
+                                     Posx::filler([](const reco::PFBlockElementCluster* x) {
                                        return x->clusterRef()->position().x();
                                      }),
-                                     pf::cluster::Posy::filler([](const reco::PFBlockElementCluster* x) {
+                                     Posy::filler([](const reco::PFBlockElementCluster* x) {
                                        return x->clusterRef()->position().y();
                                      }),
-                                     pf::cluster::Posz::filler([](const reco::PFBlockElementCluster* x) {
+                                     Posz::filler([](const reco::PFBlockElementCluster* x) {
                                        return x->clusterRef()->position().z();
                                      }),
-                                     pf::cluster::FracsNbr::filler([](const reco::PFBlockElementCluster* x) {
+                                     FracsNbr::filler([](const reco::PFBlockElementCluster* x) {
                                        return x->clusterRef()->recHitFractions().size();
                                      }),
-                                     pf::cluster::Layer::filler(
+                                     Layer::filler(
                                          [](const reco::PFBlockElementCluster* x) { return x->clusterRef()->layer(); }),
-                                     pf::cluster::SCRefKey::filler([](const reco::PFBlockElementCluster* x) {
+                                     SCRefIsNonNull::filler([](const reco::PFBlockElementCluster* x) {
+                                       return x->superClusterRef().isNonnull();
+                                     }),
+                                     SCRefKey::filler([](const reco::PFBlockElementCluster* x) {
                                        return edm::refToElementID(x->superClusterRef());
                                      }))};
   }
@@ -241,25 +246,26 @@ namespace edm::soa {
   }
 
   GSFTable makeGSFTable(std::vector<const reco::PFBlockElementGsfTrack*> const& objects) {
+      using namespace edm::soa::col::pf::track;
+
     return {
         objects,
         edm::soa::column_fillers(
-            pf::track::Pt::filler([](const reco::PFBlockElementGsfTrack* x) {
+            Pt::filler([](const reco::PFBlockElementGsfTrack* x) {
               return sqrt(
                   x->GsftrackPF().extrapolatedPoint(reco::PFTrajectoryPoint::ClosestApproach).momentum().Vect().Perp2());
             }),
-            pf::track::GsfTrackRefPFIsNonNull::filler(
+            GsfTrackRefPFIsNonNull::filler(
                 [](const reco::PFBlockElementGsfTrack* x) { return x->GsftrackRefPF().isNonnull(); }),
-            pf::track::GsfTrackRefPFKey::filler(
+            GsfTrackRefPFKey::filler(
                 [](const reco::PFBlockElementGsfTrack* x) { return edm::refToElementID(x->GsftrackRefPF()); }),
-            pf::track::KfPFRecTrackRefIsNonNull::filler([](const reco::PFBlockElementGsfTrack* x) {
+            KfPFRecTrackRefIsNonNull::filler([](const reco::PFBlockElementGsfTrack* x) {
               return x->GsftrackRefPF()->kfPFRecTrackRef().isNonnull();
             }),
-            pf::track::KfPFRecTrackRefKey::filler([](const reco::PFBlockElementGsfTrack* x) {
+            KfPFRecTrackRefKey::filler([](const reco::PFBlockElementGsfTrack* x) {
               return edm::refToElementID(x->GsftrackRefPF()->kfPFRecTrackRef());
             }),
-
-            pf::track::KfTrackRefIsNonNull::filler([](const reco::PFBlockElementGsfTrack* x) {
+            KfTrackRefIsNonNull::filler([](const reco::PFBlockElementGsfTrack* x) {
               const auto& r1 = x->GsftrackRefPF();
               bool ret = false;
               if (r1.isNonnull()) {
@@ -271,7 +277,7 @@ namespace edm::soa {
               }
               return ret;
             }),
-            pf::track::KfTrackRefKey::filler([](const reco::PFBlockElementGsfTrack* x) {
+            KfTrackRefKey::filler([](const reco::PFBlockElementGsfTrack* x) {
               const auto& r1 = x->GsftrackRefPF();
               edm::ElementID ret;
               if (r1.isNonnull()) {
@@ -283,11 +289,10 @@ namespace edm::soa {
               }
               return ret;
             }),
-
-            pf::track::TrackType_FROM_GAMMACONV::filler([](const reco::PFBlockElementGsfTrack* x) {
+            TrackType_FROM_GAMMACONV::filler([](const reco::PFBlockElementGsfTrack* x) {
               return x->trackType(reco::PFBlockElement::T_FROM_GAMMACONV);
             }),
-            pf::track::GsfTrackRefPFTrackId::filler(
+            GsfTrackRefPFTrackId::filler(
                 [](const reco::PFBlockElementGsfTrack* x) { return x->GsftrackRefPF()->trackId(); }))};
   }
 }  // namespace edm::soa

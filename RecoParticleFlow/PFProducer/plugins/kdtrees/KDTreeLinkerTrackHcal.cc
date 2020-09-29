@@ -5,7 +5,9 @@
 #include "CommonTools/RecoAlgos/interface/KDTreeLinkerAlgo.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-using namespace edm::soa::col;
+namespace track = edm::soa::col::pf::track;
+namespace rechit = edm::soa::col::pf::rechit;
+namespace cluster = edm::soa::col::pf::cluster;
 
 // This class is used to find all links between Tracks and HCAL clusters
 // using a KDTree algorithm.
@@ -74,25 +76,25 @@ void KDTreeLinkerTrackHcal::buildTree(const PFTables& pftables) {
   // List of pseudo-rechits that will be used to create the KDTree
   std::vector<KDTreeNodeInfo<size_t, 2>> eltList;
   const auto& clusters = pftables.getClusterTable(_fieldType);
-  const auto& rechitTable = clusters.rechit_table_;
+  const auto& rechitTable = clusters.rechit_table;
 
   // Filling of this list
   for (size_t irechit = 0; irechit < rechitTable.size(); irechit++) {
     KDTreeNodeInfo<size_t, 2> rh1(
-        irechit, float(rechitTable.get<pf::rechit::Eta>(irechit)), float(rechitTable.get<pf::rechit::Phi>(irechit)));
+        irechit, float(rechitTable.get<rechit::Eta>(irechit)), float(rechitTable.get<rechit::Phi>(irechit)));
     eltList.push_back(rh1);
 
     // Here we solve the problem of phi circular set by duplicating some rechits
     // too close to -Pi (or to Pi) and adding (substracting) to them 2 * Pi.
     if (rh1.dims[1] > (M_PI - phiOffset_)) {
       float phi = rh1.dims[1] - 2 * M_PI;
-      KDTreeNodeInfo<size_t, 2> rh2(irechit, float(rechitTable.get<pf::rechit::Eta>(irechit)), phi);
+      KDTreeNodeInfo<size_t, 2> rh2(irechit, float(rechitTable.get<rechit::Eta>(irechit)), phi);
       eltList.push_back(rh2);
     }
 
     if (rh1.dims[1] < (M_PI * -1.0 + phiOffset_)) {
       float phi = rh1.dims[1] + 2 * M_PI;
-      KDTreeNodeInfo<size_t, 2> rh3(irechit, float(rechitTable.get<pf::rechit::Eta>(irechit)), phi);
+      KDTreeNodeInfo<size_t, 2> rh3(irechit, float(rechitTable.get<rechit::Eta>(irechit)), phi);
       eltList.push_back(rh3);
     }
   }
@@ -115,27 +117,27 @@ void KDTreeLinkerTrackHcal::searchLinks(const PFTables& pftables, reco::PFMultiL
   const auto& trackTableEntrance = pftables.getTrackTable(trajectoryLayerEntrance_);
   const auto& trackTableExit = checkExit_ ? pftables.getTrackTable(trajectoryLayerExit_) : trackTableEntrance;
   const auto& clusters = pftables.getClusterTable(_fieldType);
-  const auto& clusterTable = clusters.cluster_table_;
-  const auto& rechitTable = clusters.rechit_table_;
+  const auto& clusterTable = clusters.cluster_table;
+  const auto& rechitTable = clusters.rechit_table;
 
   std::unordered_map<size_t, std::vector<size_t>> track_to_cluster_all;
 
   // We iterate over the tracks.
   LogDebug("KDTreeLinkerTrackHcal") << "looping over " << trackTableEntrance.size() << " tracks";
   for (size_t itrack = 0; itrack < trackTableEntrance.size(); itrack++) {
-    if (not trackTableEntrance.get<pf::track::ExtrapolationValid>(itrack)) {
+    if (not trackTableEntrance.get<track::ExtrapolationValid>(itrack)) {
       continue;
     }
 
-    const double atEntranceEta = trackTableEntrance.get<pf::track::Eta>(itrack);
-    const float atEntrancePhi = trackTableEntrance.get<pf::track::Phi>(itrack);
+    const double atEntranceEta = trackTableEntrance.get<track::Eta>(itrack);
+    const float atEntrancePhi = trackTableEntrance.get<track::Phi>(itrack);
 
     // In case the exit point check is requested, check eta and phi differences between entrance and exit
     double dHeta = 0.0;
     float dHphi = 0.0;
     if (checkExit_) {
-      const double atExitEta = trackTableExit.get<pf::track::Eta>(itrack);
-      const float atExitPhi = trackTableExit.get<pf::track::Phi>(itrack);
+      const double atExitEta = trackTableExit.get<track::Eta>(itrack);
+      const float atExitPhi = trackTableExit.get<track::Phi>(itrack);
       dHeta = atExitEta - atEntranceEta;
       dHphi = atExitPhi - atEntrancePhi;
       if (dHphi > M_PI)
@@ -166,33 +168,32 @@ void KDTreeLinkerTrackHcal::searchLinks(const PFTables& pftables, reco::PFMultiL
 
     // Here we check all rechit candidates using the non-approximated method.
     for (const size_t irechit : recHits) {
-      double rhsizeeta = std::abs(rechitTable.get<pf::rechit::CornerEta>(irechit)[3] -
-                                  rechitTable.get<pf::rechit::CornerEta>(irechit)[1]);
-      double rhsizephi = std::abs(rechitTable.get<pf::rechit::CornerPhi>(irechit)[3] -
-                                  rechitTable.get<pf::rechit::CornerPhi>(irechit)[1]);
+      double rhsizeeta =
+          std::abs(rechitTable.get<rechit::CornerEta>(irechit)[3] - rechitTable.get<rechit::CornerEta>(irechit)[1]);
+      double rhsizephi =
+          std::abs(rechitTable.get<rechit::CornerPhi>(irechit)[3] - rechitTable.get<rechit::CornerPhi>(irechit)[1]);
       if (rhsizephi > M_PI)
         rhsizephi = 2. * M_PI - rhsizephi;
 
-      double deta = std::abs(rechitTable.get<pf::rechit::Eta>(irechit) - tracketa);
-      double dphi = std::abs(rechitTable.get<pf::rechit::Phi>(irechit) - trackphi);
+      double deta = std::abs(rechitTable.get<rechit::Eta>(irechit) - tracketa);
+      double dphi = std::abs(rechitTable.get<rechit::Phi>(irechit) - trackphi);
       if (dphi > M_PI)
         dphi = 2. * M_PI - dphi;
 
       // Find all clusters associated to given rechit
-      const auto& rechit_clusters = clusters.rechit_to_cluster_.at(irechit);
+      const auto& rechit_clusters = clusters.rechit_to_cluster.at(irechit);
       LogDebug("KDTreeLinkerTrackHcal") << "rechit " << irechit << " has " << rechit_clusters.size() << " clusters";
 
       for (const size_t clusteridx : rechit_clusters) {
-        int fracsNbr = clusterTable.get<pf::cluster::FracsNbr>(clusteridx);
+        int fracsNbr = clusterTable.get<cluster::FracsNbr>(clusteridx);
         double _rhsizeeta = rhsizeeta * (1.5 + 0.5 / fracsNbr) + 0.2 * std::abs(dHeta);
         double _rhsizephi = rhsizephi * (1.5 + 0.5 / fracsNbr) + 0.2 * std::abs(dHphi);
 
         // Check if the track and the cluster are linked
         if (deta < (_rhsizeeta / 2.) && dphi < (_rhsizephi / 2.)) {
-          if (nMaxHcalLinksPerTrack_ < 0 ||
-              pftables.track_table_vertex_.get<pf::track::IsLinkedToDisplacedVertex>(itrack)) {
+          if (nMaxHcalLinksPerTrack_ < 0 || pftables.track_table_vertex.get<track::IsLinkedToDisplacedVertex>(itrack)) {
             multilinks.addLink(
-                pftables.track_to_element_[itrack], clusters.cluster_to_element_[clusteridx], _targetType, _fieldType);
+                pftables.track_to_element[itrack], clusters.cluster_to_element[clusteridx], _targetType, _fieldType);
           } else {
             LogDebug("KDTreeLinkerTrackHcal")
                 << "tentatively storing link clusteridx=" << clusteridx << " trackidx=" << itrack;
@@ -221,9 +222,9 @@ void KDTreeLinkerTrackHcal::searchLinks(const PFTables& pftables, reco::PFMultiL
       size_t clusteridx = clusterindexes[i];
 
       multilinks.addLink(
-          pftables.track_to_element_[trackidx], clusters.cluster_to_element_[clusteridx], _targetType, _fieldType);
+          pftables.track_to_element[trackidx], clusters.cluster_to_element[clusteridx], _targetType, _fieldType);
 
-      if (multilinks.getNumLinks(pftables.track_to_element_[trackidx], _targetType, _fieldType) >=
+      if (multilinks.getNumLinks(pftables.track_to_element[trackidx], _targetType, _fieldType) >=
           (unsigned)nMaxHcalLinksPerTrack_) {
         LogDebug("KDTreeLinkerTrackHcal") << "reached max links for trackidx=" << trackidx;
         break;
