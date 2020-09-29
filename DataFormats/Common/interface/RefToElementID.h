@@ -7,15 +7,15 @@
 
 namespace edm {
 
-template <class C>
-edm::ElementID refToElementID(const edm::Ref<C>& ref) {
-  return edm::ElementID(ref.id(), ref.index());
-}
+  template <class C>
+  edm::ElementID refToElementID(const edm::Ref<C>& ref) {
+    return edm::ElementID(ref.id(), ref.index());
+  }
 
-template <class C>
-edm::ElementID refToElementID(const edm::RefToBase<C>& ref) {
-  return edm::ElementID(ref.id(), ref.key());
-}
-}
+  template <class C>
+  edm::ElementID refToElementID(const edm::RefToBase<C>& ref) {
+    return edm::ElementID(ref.id(), ref.key());
+  }
+}  // namespace edm
 
 #endif

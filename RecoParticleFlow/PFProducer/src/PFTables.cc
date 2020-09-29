@@ -54,10 +54,11 @@ namespace edm::soa {
 
   ConvBremTable makeConvBremTable(const std::vector<reco::PFRecTrackRef>& convbrems) {
     return {convbrems,
-            edm::soa::column_fillers(
-                pf::track::ConvBremRefKey::filler([](reco::PFRecTrackRef x) { return edm::refToElementID(x->trackRef()); }),
-                pf::track::ConvBremRefBaseKey::filler(
-                    [](reco::PFRecTrackRef x) { return edm::refToElementID(reco::TrackBaseRef(x->trackRef())); }))};
+            edm::soa::column_fillers(pf::track::ConvBremRefKey::filler(
+                                         [](reco::PFRecTrackRef x) { return edm::refToElementID(x->trackRef()); }),
+                                     pf::track::ConvBremRefBaseKey::filler([](reco::PFRecTrackRef x) {
+                                       return edm::refToElementID(reco::TrackBaseRef(x->trackRef()));
+                                     }))};
   }
 
   BremTable makeBremTable(const std::vector<const reco::PFBlockElementBrem*>& brems) {

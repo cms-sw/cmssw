@@ -15,16 +15,15 @@ namespace reco {
   //stores the links between PFElements that are found by KDTrees.
   class PFMultiLinksIndex {
   public:
-    PFMultiLinksIndex(size_t nelements) : _linkdata({{
-        ElementLinks(nelements, std::set<size_t>()),
-        ElementLinks(nelements, std::set<size_t>()),
-        ElementLinks(nelements, std::set<size_t>()),
-        ElementLinks(nelements, std::set<size_t>()),
-        ElementLinks(nelements, std::set<size_t>()),
-        ElementLinks(nelements, std::set<size_t>())}})
-    {
-      
-    };
+    PFMultiLinksIndex(size_t nelements)
+        : _linkdata({{ElementLinks(nelements, std::set<size_t>()),
+                      ElementLinks(nelements, std::set<size_t>()),
+                      ElementLinks(nelements, std::set<size_t>()),
+                      ElementLinks(nelements, std::set<size_t>()),
+                      ElementLinks(nelements, std::set<size_t>()),
+                      ElementLinks(nelements, std::set<size_t>())}}){
+
+          };
 
     void addLink(size_t ielem1,
                  size_t ielem2,
@@ -55,12 +54,10 @@ namespace reco {
     //For each link type, store the per-element links (indices of linked elements)
     std::array<ElementLinks, 6> _linkdata;
 
-    size_t getLinkIndex(reco::PFBlockElement::Type src_type,
-                 reco::PFBlockElement::Type dst_type) const {
+    size_t getLinkIndex(reco::PFBlockElement::Type src_type, reco::PFBlockElement::Type dst_type) const {
       if (src_type == reco::PFBlockElement::ECAL && dst_type == reco::PFBlockElement::TRACK) {
         return 0;
-      }
-      else if (src_type == reco::PFBlockElement::PS2 && dst_type == reco::PFBlockElement::ECAL) {
+      } else if (src_type == reco::PFBlockElement::PS2 && dst_type == reco::PFBlockElement::ECAL) {
         return 1;
       } else if (src_type == reco::PFBlockElement::PS1 && dst_type == reco::PFBlockElement::ECAL) {
         return 2;

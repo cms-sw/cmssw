@@ -7,7 +7,6 @@
 #include "FWCore/SOA/interface/TableView.h"
 #include "FWCore/SOA/interface/Column.h"
 
-
 #include "DataFormats/ParticleFlowReco/interface/PFLayer.h"
 #include "DataFormats/Common/interface/RefToElementID.h"
 
