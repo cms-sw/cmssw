@@ -10,8 +10,6 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/StreamID.h"
 
-#include "RecoLocalCalo/CaloTowersCreator/src/CaloTowerCandidateCreator.h"
-#include "DataFormats/CaloTowers/interface/CaloTowerDetId.h"
 #include "DataFormats/CaloTowers/interface/CaloTower.h"
 #include "DataFormats/CaloTowers/interface/CaloTowerCollection.h"
 #include "DataFormats/HeavyIonEvent/interface/HFFilterStruct.h"
@@ -44,7 +42,7 @@ void HiHFFilterProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSet
   using namespace std;
   using namespace edm;
 
-  auto const& towers = iEvent.getHandle(srcTowers_);
+  auto const& towers = iEvent.get(srcTowers_);
 
   int nTowersTh2HFplus = 0;
   int nTowersTh2HFminus = 0;
@@ -56,8 +54,7 @@ void HiHFFilterProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSet
   int nTowersTh5HFminus = 0;
 
   auto HFFilterResults = std::make_unique<pat::HFFilterStruct>();
-  for (unsigned int towerIndx = 0; towerIndx < towers->size(); ++towerIndx) {
-    const CaloTower& tower = (*towers)[towerIndx];
+  for (const auto& tower : towers) {
     const auto et = tower.et();
     const auto energy = tower.energy();
     const auto eta = tower.eta();

@@ -1,5 +1,5 @@
-#ifndef HEAVYIONEVENT_HFFILTERSTRUCT_H
-#define HEAVYIONEVENT_HFFILTERSTRUCT_H
+#ifndef DataFormats_HeavyIonEvent_HFFilterStruct_H
+#define DataFormats_HeavyIonEvent_HFFilterStruct_H
 
 namespace pat {
   struct HFFilterStruct {
@@ -8,6 +8,6 @@ namespace pat {
     int numMinHFTowers4;
     int numMinHFTowers5;
   };
-}  // namespace pat
+}
 
 #endif
