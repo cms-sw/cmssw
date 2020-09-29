@@ -23,25 +23,25 @@ namespace edm::soa {
                 pf::track::TrackType_FROM_V0::filler(
                     [](reco::PFBlockElement* x) { return x->trackType(reco::PFBlockElement::T_FROM_V0); }),
                 pf::track::V0RefIsNonNull::filler([](reco::PFBlockElement* x) { return x->V0Ref().isNonnull(); }),
-                pf::track::V0RefKey::filler([](reco::PFBlockElement* x) { return refToElementID(x->V0Ref()); }),
+                pf::track::V0RefKey::filler([](reco::PFBlockElement* x) { return edm::refToElementID(x->V0Ref()); }),
                 pf::track::KfTrackRefIsNonNull::filler(
                     [](reco::PFBlockElement* x) { return x->trackRefPF()->trackRef().isNonnull(); }),
                 pf::track::KfTrackRefKey::filler(
-                    [](reco::PFBlockElement* x) { return refToElementID(x->trackRefPF()->trackRef()); }),
+                    [](reco::PFBlockElement* x) { return edm::refToElementID(x->trackRefPF()->trackRef()); }),
                 pf::track::KfTrackRefBaseKey::filler([](reco::PFBlockElement* x) {
-                  return refToElementID(reco::TrackBaseRef(x->trackRefPF()->trackRef()));
+                  return edm::refToElementID(reco::TrackBaseRef(x->trackRefPF()->trackRef()));
                 }),
                 pf::track::DisplacedVertexRef_TO_DISP_IsNonNull::filler([](reco::PFBlockElement* x) {
                   return x->displacedVertexRef(reco::PFBlockElement::T_TO_DISP).isNonnull();
                 }),
                 pf::track::DisplacedVertexRef_TO_DISP_Key::filler([](reco::PFBlockElement* x) {
-                  return refToElementID(x->displacedVertexRef(reco::PFBlockElement::T_TO_DISP));
+                  return edm::refToElementID(x->displacedVertexRef(reco::PFBlockElement::T_TO_DISP));
                 }),
                 pf::track::DisplacedVertexRef_FROM_DISP_IsNonNull::filler([](reco::PFBlockElement* x) {
                   return x->displacedVertexRef(reco::PFBlockElement::T_FROM_DISP).isNonnull();
                 }),
                 pf::track::DisplacedVertexRef_FROM_DISP_Key::filler([](reco::PFBlockElement* x) {
-                  return refToElementID(x->displacedVertexRef(reco::PFBlockElement::T_FROM_DISP));
+                  return edm::refToElementID(x->displacedVertexRef(reco::PFBlockElement::T_FROM_DISP));
                 }))};
   }
 
@@ -49,15 +49,15 @@ namespace edm::soa {
     return {convrefs,
             edm::soa::column_fillers(
                 pf::track::ConvRefIsNonNull::filler([](const reco::ConversionRef& x) { return x.isNonnull(); }),
-                pf::track::ConvRefKey::filler([](const reco::ConversionRef& x) { return refToElementID(x); }))};
+                pf::track::ConvRefKey::filler([](const reco::ConversionRef& x) { return edm::refToElementID(x); }))};
   }
 
   ConvBremTable makeConvBremTable(const std::vector<reco::PFRecTrackRef>& convbrems) {
     return {convbrems,
             edm::soa::column_fillers(
-                pf::track::ConvBremRefKey::filler([](reco::PFRecTrackRef x) { return refToElementID(x->trackRef()); }),
+                pf::track::ConvBremRefKey::filler([](reco::PFRecTrackRef x) { return edm::refToElementID(x->trackRef()); }),
                 pf::track::ConvBremRefBaseKey::filler(
-                    [](reco::PFRecTrackRef x) { return refToElementID(reco::TrackBaseRef(x->trackRef())); }))};
+                    [](reco::PFRecTrackRef x) { return edm::refToElementID(reco::TrackBaseRef(x->trackRef())); }))};
   }
 
   BremTable makeBremTable(const std::vector<const reco::PFBlockElementBrem*>& brems) {
@@ -71,7 +71,7 @@ namespace edm::soa {
             pf::track::GsfTrackRefPFIsNonNull::filler(
                 [](const reco::PFBlockElementBrem* x) { return x->GsftrackRefPF().isNonnull(); }),
             pf::track::GsfTrackRefPFKey::filler(
-                [](const reco::PFBlockElementBrem* x) { return refToElementID(x->GsftrackRefPF()); }))};
+                [](const reco::PFBlockElementBrem* x) { return edm::refToElementID(x->GsftrackRefPF()); }))};
   }
 
   TrackTableExtrapolation makeTrackTable(std::vector<reco::PFBlockElement*> const& objects,
@@ -222,7 +222,7 @@ namespace edm::soa {
                                      pf::cluster::Layer::filler(
                                          [](const reco::PFBlockElementCluster* x) { return x->clusterRef()->layer(); }),
                                      pf::cluster::SCRefKey::filler([](const reco::PFBlockElementCluster* x) {
-                                       return refToElementID(x->superClusterRef());
+                                       return edm::refToElementID(x->superClusterRef());
                                      }))};
   }
 
@@ -235,7 +235,7 @@ namespace edm::soa {
                                        return x->superClusterRef()->position().phi();
                                      }),
                                      pf::cluster::SCRefKey::filler([](const reco::PFBlockElementSuperCluster* x) {
-                                       return refToElementID(x->superClusterRef());
+                                       return edm::refToElementID(x->superClusterRef());
                                      }))};
   }
 
@@ -250,12 +250,12 @@ namespace edm::soa {
             pf::track::GsfTrackRefPFIsNonNull::filler(
                 [](const reco::PFBlockElementGsfTrack* x) { return x->GsftrackRefPF().isNonnull(); }),
             pf::track::GsfTrackRefPFKey::filler(
-                [](const reco::PFBlockElementGsfTrack* x) { return refToElementID(x->GsftrackRefPF()); }),
+                [](const reco::PFBlockElementGsfTrack* x) { return edm::refToElementID(x->GsftrackRefPF()); }),
             pf::track::KfPFRecTrackRefIsNonNull::filler([](const reco::PFBlockElementGsfTrack* x) {
               return x->GsftrackRefPF()->kfPFRecTrackRef().isNonnull();
             }),
             pf::track::KfPFRecTrackRefKey::filler([](const reco::PFBlockElementGsfTrack* x) {
-              return refToElementID(x->GsftrackRefPF()->kfPFRecTrackRef());
+              return edm::refToElementID(x->GsftrackRefPF()->kfPFRecTrackRef());
             }),
 
             pf::track::KfTrackRefIsNonNull::filler([](const reco::PFBlockElementGsfTrack* x) {
@@ -277,7 +277,7 @@ namespace edm::soa {
                 const auto r2 = r1->kfPFRecTrackRef();
                 if (r2.isNonnull()) {
                   const auto r3 = r2->trackRef();
-                  ret = refToElementID(r3);
+                  ret = edm::refToElementID(r3);
                 }
               }
               return ret;
