@@ -8,6 +8,6 @@ namespace pat {
     int numMinHFTowers4;
     int numMinHFTowers5;
   };
-}
+}  // namespace pat
 
 #endif
