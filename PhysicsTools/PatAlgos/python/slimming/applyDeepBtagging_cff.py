@@ -9,11 +9,23 @@ def applyDeepBtagging( process, postfix="" ) :
     from PhysicsTools.PatAlgos.tools.jetTools import updateJetCollection
 
     process.load('PhysicsTools.PatAlgos.slimming.slimmedJets_cfi')
+    from Configuration.ProcessModifiers.run2_miniAOD_UL_cff import run2_miniAOD_UL
     from RecoBTag.ONNXRuntime.pfParticleNetAK4_cff import _pfParticleNetAK4JetTagsAll as pfParticleNetAK4JetTagsAll
 
     # update slimmed jets to include DeepFlavour (keep same name)
     # make clone for DeepFlavour-less slimmed jets, so output name is preserved
     addToProcessAndTask('slimmedJetsNoDeepFlavour', process.slimmedJets.clone(), process, task)
+    _btagDiscriminatorsAK4 = cms.PSet( names = cms.vstring(
+         'pfDeepFlavourJetTags:probb',
+         'pfDeepFlavourJetTags:probbb',
+         'pfDeepFlavourJetTags:problepb',
+         'pfDeepFlavourJetTags:probc',
+         'pfDeepFlavourJetTags:probuds',
+         'pfDeepFlavourJetTags:probg',
+      )
+    )
+    run2_miniAOD_UL.toModify(_btagDiscriminatorsAK4,
+                             names = _btagDiscriminatorsAK4.names + pfParticleNetAK4JetTagsAll)
     updateJetCollection(
        process,
        jetSource = cms.InputTag('slimmedJetsNoDeepFlavour'),
@@ -25,14 +37,7 @@ def applyDeepBtagging( process, postfix="" ) :
        muSource = cms.InputTag('slimmedMuons'),
        elSource = cms.InputTag('slimmedElectrons'),
        jetCorrections = ('AK4PFchs', cms.vstring(['L1FastJet', 'L2Relative', 'L3Absolute']), 'None'),
-       btagDiscriminators = [
-          'pfDeepFlavourJetTags:probb',
-          'pfDeepFlavourJetTags:probbb',
-          'pfDeepFlavourJetTags:problepb',
-          'pfDeepFlavourJetTags:probc',
-          'pfDeepFlavourJetTags:probuds',
-          'pfDeepFlavourJetTags:probg',
-       ] + pfParticleNetAK4JetTagsAll,
+       btagDiscriminators = _btagDiscriminatorsAK4.names.value(),
        postfix = 'SlimmedDeepFlavour'+postfix,
        printWarning = False
     )
@@ -65,7 +70,6 @@ def applyDeepBtagging( process, postfix="" ) :
         'pfMassIndependentDeepDoubleCvBJetTags:probHcc',
         ) + pfDeepBoostedJetTagsAll
     )
-    from Configuration.ProcessModifiers.run2_miniAOD_UL_cff import run2_miniAOD_UL
     run2_miniAOD_UL.toModify(_btagDiscriminators,
                              names = _btagDiscriminators.names + pfParticleNetJetTagsAll + pfHiggsInteractionNetTagsProbs)
     updateJetCollection(
