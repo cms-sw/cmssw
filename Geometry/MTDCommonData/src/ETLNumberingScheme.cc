@@ -82,7 +82,8 @@ uint32_t ETLNumberingScheme::getUnitID(const MTDBaseNumber& baseNumber) const {
   }
 
   if ((preTDR && (1 > modCopy || ETLDetId::kETLv1maxModule < modCopy)) ||
-      (!preTDR && (1 > modCopy || std::max(ETLDetId::kETLv4maxModule, ETLDetId::kETLv5maxModule) < modCopy))) {
+      (!preTDR && (1 > modCopy ||
+                   static_cast<unsigned>(std::max(ETLDetId::kETLv4maxModule, ETLDetId::kETLv5maxModule)) < modCopy))) {
     edm::LogWarning("MTDGeom") << "ETLNumberingScheme::getUnitID(): "
                                << "****************** Bad module copy = " << modCopy
                                << ", Volume Number = " << baseNumber.getCopyNumber(4);
