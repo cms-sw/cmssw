@@ -286,7 +286,7 @@ void CTPPSProtonReconstructionSimulationValidator::analyze(const edm::Event &iEv
       if (!rec_pr.validFit())
         continue;
 
-      unsigned int idx;
+      unsigned int idx = 12345;
 
       bool mom_set = false;
       FourVector mom;
@@ -295,7 +295,8 @@ void CTPPSProtonReconstructionSimulationValidator::analyze(const edm::Event &iEv
         idx = 0;
         mom_set = proton_45_set;
         mom = mom_45;
-      } else {
+      }
+      if (rec_pr.lhcSector() == reco::ForwardProton::LHCSector::sector56) {
         idx = 1;
         mom_set = proton_56_set;
         mom = mom_56;
@@ -334,7 +335,8 @@ void CTPPSProtonReconstructionSimulationValidator::analyze(const edm::Event &iEv
     if (rec_pr.lhcSector() == reco::ForwardProton::LHCSector::sector45) {
       time_set_45 = true;
       time_45 = rec_pr.time();
-    } else {
+    }
+    if (rec_pr.lhcSector() == reco::ForwardProton::LHCSector::sector56) {
       time_set_56 = true;
       time_56 = rec_pr.time();
     }
