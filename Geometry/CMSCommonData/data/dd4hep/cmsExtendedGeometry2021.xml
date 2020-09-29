@@ -206,7 +206,7 @@
     <Include ref='Geometry/TrackerCommonData/data/trackertec.xml'/>
     <Include ref='Geometry/TrackerCommonData/data/v2/trackerbulkhead.xml'/>
     <Include ref='Geometry/TrackerCommonData/data/trackerother.xml'/>
-    <Include ref='Geometry/TrackerCommonData/data/PhaseI/trackerStructureTopology.xml'/>
+    <Include ref='Geometry/TrackerCommonData/data/PhaseI/dd4hep/trackerStructureTopology.xml'/>
     <Include ref='Geometry/TrackerSimData/data/PhaseI/trackersens.xml'/>
     <Include ref='Geometry/TrackerRecoData/data/PhaseI/trackerRecoMaterial.xml'/>
     <Include ref='SimTracker/TrackerMaterialAnalysis/data/trackingMaterialGroups_ForPhaseI.xml'/>

@@ -13,6 +13,8 @@ class CmsTrackerRingBuilder : public CmsTrackerLevelBuilder<FilteredView> {
 private:
   void sortNS(FilteredView&, GeometricDet*) override;
   void buildComponent(FilteredView&, GeometricDet*, const std::string&) override;
+
+  std::string moduleName_;
 };
 
 #endif
