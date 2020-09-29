@@ -126,8 +126,9 @@ void ParticleTowerProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
 int ParticleTowerProducer::eta2ieta(double eta) const {
   // binary search in the array of towers eta edges
 
-  int ieta = 0;
-  while (fabs(eta) > hi::etaedge[ieta] && ieta < ietaMax - 1) {
+  int ieta = 1;
+  double xeta = fabs(eta);
+  while (xeta > hi::etaedge[ieta] && ieta < ietaMax - 1) {
     ++ieta;
   }
 
