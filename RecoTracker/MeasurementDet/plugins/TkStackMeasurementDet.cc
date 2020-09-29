@@ -5,10 +5,8 @@
 
 using namespace std;
 
-TkStackMeasurementDet::TkStackMeasurementDet(const StackGeomDet* gdet,
-                                             const VectorHitBuilderAlgorithm* matcher,
-                                             const PixelClusterParameterEstimator* cpe)
-    : MeasurementDet(gdet), theMatcher(matcher), thePixelCPE(cpe), theLowerDet(nullptr), theUpperDet(nullptr) {}
+TkStackMeasurementDet::TkStackMeasurementDet(const StackGeomDet* gdet)
+    : MeasurementDet(gdet), theLowerDet(nullptr), theUpperDet(nullptr) {}
 
 void TkStackMeasurementDet::init(const MeasurementDet* lowerDet, const MeasurementDet* upperDet) {
   theLowerDet = dynamic_cast<const TkPhase2OTMeasurementDet*>(lowerDet);
@@ -31,54 +29,6 @@ TkStackMeasurementDet::RecHitContainer TkStackMeasurementDet::recHits(const Traj
     return result;
   LogTrace("MeasurementTracker") << " and is active";
 
-  // Old solution creating the VHs on the fly. Keep for now
-  /*
-  const Phase2TrackerCluster1D* begin = nullptr;
-  if (!data.phase2OTData().handle()->data().empty()) {
-    begin = &(data.phase2OTData().handle()->data().front());
-  }
-
-  LogTrace("MeasurementTracker") << "TkStackMeasurementDet::recHits algo has been set" << std::endl;
-
-  const detset& lowerDetSet = data.phase2OTData().detSet(lowerDet()->index());
-  const detset& upperDetSet = data.phase2OTData().detSet(upperDet()->index());
-
-  LogTrace("MeasurementTracker") << " DetSets set with sizes:" << lowerDetSet.size() << " and " << upperDetSet.size()
-                                 << "!";
-  result.reserve(lowerDetSet.size() > upperDetSet.size() ? lowerDetSet.size() : upperDetSet.size());
-
-  for (const_iterator cil = lowerDetSet.begin(); cil != lowerDetSet.end(); ++cil) {
-    if (cil < begin) {
-      edm::LogError("IndexMisMatch") << "TkStackMeasurementDet cannot create hit because of index mismatch.";
-      return result;
-    }
-    unsigned int indexl = cil - begin;
-    LogTrace("MeasurementTracker") << " index cluster lower" << indexl << " on detId "
-                                   << fastGeomDet().geographicalId().rawId();
-
-    for (const_iterator ciu = upperDetSet.begin(); ciu != upperDetSet.end(); ++ciu) {
-      unsigned int indexu = ciu - begin;
-      if (ciu < begin) {
-        edm::LogError("IndexMisMatch") << "TkStackMeasurementDet cannot create hit because of index mismatch.";
-        return result;
-      }
-      LogTrace("VectorHitBuilderAlgorithm") << " index cluster upper " << indexu;
-
-      if (data.phase2OTClustersToSkip().empty() or
-          ((not data.phase2OTClustersToSkip()[indexl]) and (not data.phase2OTClustersToSkip()[indexu]))) {
-        Phase2TrackerCluster1DRef clusterLower = edmNew::makeRefTo(data.phase2OTData().handle(), cil);
-        Phase2TrackerCluster1DRef clusterUpper = edmNew::makeRefTo(data.phase2OTData().handle(), ciu);
-        //ERICA:I would have prefer to keep buildVectorHits ...
-        VectorHit vh = theMatcher->buildVectorHit(&specificGeomDet(), clusterLower, clusterUpper);
-        LogTrace("MeasurementTracker") << "TkStackMeasurementDet::rechits adding VectorHits!" << std::endl;
-        LogTrace("MeasurementTracker") << vh << std::endl;
-        result.push_back(std::make_shared<VectorHit>(vh));
-      }
-    }
-  }
-  
-
-*/
 
   //find clusters to skip
   std::vector<Phase2TrackerCluster1DRef> skipClustersLower;
@@ -103,7 +53,7 @@ TkStackMeasurementDet::RecHitContainer TkStackMeasurementDet::recHits(const Traj
           skipClustersLower.push_back(clusterRef);
         }
       }
-    }
+	    }
     if (!upperDetSet.empty()) {
       for (const_iterator ciu = upperDetSet.begin(); ciu != upperDetSet.end(); ++ciu) {
         if (ciu < begin) {
