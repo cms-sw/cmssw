@@ -428,10 +428,10 @@ reco::ForwardProton ProtonReconstructionAlgorithm::reconstructFromSingleRP(const
 
   const double ep_xi = 1E-4;
   const double dL_y_dxi = (oit->second.s_L_y_vs_xi->Eval(xi + ep_xi) - L_y) / ep_xi;
-  const double th_y_unc = th_y * sqrt(pow(track->yUnc() / track->y(), 2.) + pow(dL_y_dxi * xi_unc / L_y, 2.));
+  const double th_y_unc_sq = th_y*th_y * (pow(track->yUnc() / track->y(), 2.) + pow(dL_y_dxi * xi_unc / L_y, 2.));
 
   if (verbosity_)
-    os << "    xi = " << xi << " +- " << xi_unc << ", th_y = " << th_y << " +- " << th_y_unc << "." << std::endl;
+    os << "    xi = " << xi << " +- " << xi_unc << ", th_y = " << th_y << " +- " << sqrt(th_y_unc_sq) << "." << std::endl;
 
   using FP = reco::ForwardProton;
 
@@ -445,7 +445,7 @@ reco::ForwardProton ProtonReconstructionAlgorithm::reconstructFromSingleRP(const
 
   FP::CovarianceMatrix cm;
   cm((int)FP::Index::xi, (int)FP::Index::xi) = xi_unc * xi_unc;
-  cm((int)FP::Index::th_y, (int)FP::Index::th_y) = th_y_unc * th_y_unc;
+  cm((int)FP::Index::th_y, (int)FP::Index::th_y) = th_y_unc_sq;
 
   CTPPSLocalTrackLiteRefVector trk;
   trk.push_back(track);
