@@ -23,8 +23,9 @@ The server can be managed with the `triton` script (using Singularity with CPU b
 The script has the following options:
 * `-d`: use Docker instead of Singularity
 * `-g`: use GPU instead of CPU
+* `-n`: name of container instance (default: triton_server_instance)
 * `-v`: (verbose) start: activate server debugging info; stop: keep server logs
-* `-w`: maximum time to wait for server to start (default: 30 seconds)
+* `-w`: maximum time to wait for server to start (default: 60 seconds)
 * `-h`: print help message and exit
 
 ## Test commands
@@ -38,3 +39,8 @@ Run the graph test:
 ```
 cmsRun tritonTest_cfg.py maxEvents=1 producer=TritonGraphProducer
 ```
+
+## Caveats
+
+* Local CPU server requires support for AVX instructions.
+* Multiple users cannot run servers on the same GPU (e.g. on a shared node).
