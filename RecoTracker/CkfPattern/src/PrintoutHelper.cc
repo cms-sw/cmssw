@@ -57,7 +57,6 @@ std::string PrintoutHelper::dumpMeasurement(const TrajectoryMeasurement& tm) {
   else
     buffer << "no valid state\n";
   buffer
-      //        <<"geomdet pointer from rechit: "<<tm.recHit()->det()<<"\n"
       << "detId: " << tm.recHit()->geographicalId().rawId();
   if (tm.recHit()->isValid()) {
     buffer << "\n hit global x: " << tm.recHit()->globalPosition()
@@ -75,19 +74,6 @@ std::string PrintoutHelper::dumpMeasurement(const TrajectoryMeasurement& tm) {
 std::string PrintoutHelper::regressionTest(const TrackerGeometry& tracker, std::vector<Trajectory>& unsmoothedResult) {
   std::stringstream buffer;
 
-  /*
-    for(iseed=theSeedColl.begin();iseed!=theSeedColl.end();iseed++){
-    DetId tmpId = DetId( iseed->startingState().detId());
-    const GeomDet* tmpDet  = tracker->idToDet( tmpId );
-    GlobalVector gv = tmpDet->surface().toGlobal( iseed->startingState().parameters().momentum() );
-    
-    LogTrace("TrackingRegressionTest") << "seed perp,phi,eta : " 
-    << gv.perp() << " , " 
-    << gv.phi() << " , " 
-    << gv.eta() ;
-    }
-  */
-
   buffer << "number of finalTrajectories: " << unsmoothedResult.size() << std::endl;
   for (std::vector<Trajectory>::const_iterator it = unsmoothedResult.begin(); it != unsmoothedResult.end(); it++) {
     if (it->lastMeasurement().updatedState().isValid()) {
@@ -103,7 +89,6 @@ std::string PrintoutHelper::regressionTest(const TrackerGeometry& tracker, std::
   }
   buffer << "=================================================";
   buffer << "=========== Traj in details =====================\n";
-  //for (std::vector<Trajectory>::const_iterator it = unsmoothedResult.begin(); it != unsmoothedResult.end(); it++) {
   for (const auto& it : unsmoothedResult) {
     for (const auto& hit : it.measurements()) {
       buffer << "measurement : " << hit.recHit()->geographicalId().rawId() << std::endl;

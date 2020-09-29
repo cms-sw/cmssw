@@ -93,7 +93,6 @@ private:
 };
 
 SeedingOTEDProducer::SeedingOTEDProducer(edm::ParameterSet const& conf)
-    //: updator_(nullptr),
     : tkMeasEventToken_(consumes<MeasurementTrackerEvent>(conf.getParameter<edm::InputTag>("trackerEvent"))),
       topoToken_(esConsumes()),
       propagatorToken_(esConsumes(edm::ESInputTag("", "PropagatorWithMaterial"))),

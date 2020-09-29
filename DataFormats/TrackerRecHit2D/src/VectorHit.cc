@@ -1,5 +1,6 @@
 #include "DataFormats/TrackerRecHit2D/interface/VectorHit.h"
 #include "Geometry/CommonDetUnit/interface/StackGeomDet.h"
+#include "CLHEP/Units/PhysicalConstants.h"
 
 VectorHit::VectorHit(const VectorHit& vh)
     : BaseTrackerRecHit(*vh.det(), trackerHitRTTI::vector),
@@ -189,8 +190,8 @@ Global3DVector VectorHit::globalDirection() const { return (det()->surface().toG
 float VectorHit::theta() const { return globalDirection().theta(); }
 
 float VectorHit::transverseMomentum(float magField) const {
-  return magField * 2.99792458e-3F / theCurvature;
-}  // pT [GeV] ~ 0.3 * B[T] * R [m], curvature is in cms, thus using 2.99792458e-3F (precise value from speed of light)
+  return magField * (CLHEP::c_light * 1e-11) / theCurvature;
+}  // pT [GeV] ~ 0.3 * B[T] * R [m], curvature is in cms, using precise value from speed of light
 float VectorHit::momentum(float magField) const { return transverseMomentum(magField) / (1. * sin(theta())); }
 
 AlgebraicMatrix VectorHit::projectionMatrix() const {
@@ -208,14 +209,7 @@ LocalError VectorHit::localDirectionError() const {
 }
 
 AlgebraicSymMatrix VectorHit::parametersError() const {
-  //think about a more efficient method
-  AlgebraicSymMatrix result(nComponents);
-  for (int i = 0; i < nComponents; i++) {
-    for (int j = 0; j < nComponents; j++) {
-      result[i][j] = theCovMatrix[i][j];
-    }
-  }
-  return result;
+  return theCovMatrix;
 }
 
 std::ostream& operator<<(std::ostream& os, const VectorHit& vh) {
@@ -223,12 +217,7 @@ std::ostream& operator<<(std::ostream& os, const VectorHit& vh) {
      << " Vectorhit local position      : " << vh.localPosition() << "\n"
      << " Vectorhit local direction     : " << vh.localDirection() << "\n"
      << " Vectorhit global direction    : " << vh.globalDirection() << "\n"
-     <<
-      //" Vectorhit theta               : " << vh.theta() << "\n" <<
-      //" Cov: " << vh.parametersError() << "\n" <<
-      //" Dim: " << vh.dimension() << "\n" <<
-      //" chi2: " << vh.chi2()  << "\n" <<
-      " Lower cluster global position : " << vh.lowerGlobalPos() << "\n"
+     << " Lower cluster global position : " << vh.lowerGlobalPos() << "\n"
      << " Upper cluster global position : " << vh.upperGlobalPos();
 
   return os;
