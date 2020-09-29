@@ -126,10 +126,6 @@ namespace edm {
 
       void doBeginStream(StreamID id);
       void doEndStream(StreamID id);
-      void doStreamBeginRun(StreamID, RunTransitionInfo&, ModuleCallingContext const*);
-      void doStreamEndRun(StreamID, RunTransitionInfo&, ModuleCallingContext const*);
-      void doStreamBeginLuminosityBlock(StreamID, LumiTransitionInfo&, ModuleCallingContext const*);
-      void doStreamEndLuminosityBlock(StreamID, LumiTransitionInfo&, ModuleCallingContext const*);
 
       bool doEvent(EventTransitionInfo const&, ActivityRegistry*, ModuleCallingContext const*);
       //For now this is a placeholder
