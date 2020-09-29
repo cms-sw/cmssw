@@ -22,6 +22,8 @@ public:
   void bookHistograms(DQMStore::IBooker& ibooker, edm::Run const& iRun, edm::EventSetup const& iSetup) override;
   void analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) override;
 
+  std::string getHistoId(uint32_t det_id, const TrackerTopology* tTopo, bool flag);
+
   struct DigiMEs {
     MonitorElement* NumberOfDigisPerDet;
     MonitorElement* DigiOccupancyP;
@@ -45,6 +47,13 @@ public:
     unsigned int nHitDetsPerLayer;
   };
 
+  struct Ph2DigiCluster {
+    int charge;
+    int position;
+    int width;
+    int column;
+  };
+
   MonitorElement* XYPositionMap;
   MonitorElement* RZPositionMap;
   MonitorElement* XYOccupancyMap;
@@ -56,11 +65,12 @@ private:
                              const edm::ESHandle<TrackerGeometry> gHandle);
   void fillOTDigiHistos(const edm::Handle<edm::DetSetVector<Phase2TrackerDigi>> handle,
                         const edm::ESHandle<TrackerGeometry> gHandle);
+  void fillDigiClusters(DigiMEs& mes, std::vector<Ph2DigiCluster>& digi_clusters);
 
   edm::ParameterSet config_;
-  std::map<unsigned int, DigiMEs> layerMEs;
-  //  std::map<unsigned int, std::map<unsigned int ,DigiMEs>> ringMEs;
+  std::map<std::string, DigiMEs> layerMEs;
   bool pixelFlag_;
+  bool clsFlag_;
   std::string geomType_;
   edm::InputTag otDigiSrc_;
   edm::InputTag itPixelDigiSrc_;
