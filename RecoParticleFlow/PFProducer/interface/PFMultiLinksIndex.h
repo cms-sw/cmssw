@@ -1,5 +1,5 @@
-#ifndef MultiLinks_h
-#define MultiLinks_h
+#ifndef RecoParticleFlow_PFProducer_PFMultiLinksIndex_h
+#define RecoParticleFlow_PFProducer_PFMultiLinksIndex_h
 
 #include "DataFormats/ParticleFlowReco/interface/PFBlockElement.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"

@@ -114,10 +114,10 @@ void KDTreeLinkerTrackEcal::searchLinks(const PFTables& pftables, reco::PFMultiL
 
     // Here we check all rechit candidates using the non-approximated method.
     for (size_t irecHit : recHits) {
-      double rhsizeeta =
-          std::abs(rechitTable.get<pf::rechit::Corner3eta>(irecHit) - rechitTable.get<pf::rechit::Corner1eta>(irecHit));
-      double rhsizephi =
-          std::abs(rechitTable.get<pf::rechit::Corner3phi>(irecHit) - rechitTable.get<pf::rechit::Corner1phi>(irecHit));
+      double rhsizeeta = std::abs(rechitTable.get<pf::rechit::CornerEta>(irecHit)[3] -
+                                  rechitTable.get<pf::rechit::CornerEta>(irecHit)[1]);
+      double rhsizephi = std::abs(rechitTable.get<pf::rechit::CornerPhi>(irecHit)[3] -
+                                  rechitTable.get<pf::rechit::CornerPhi>(irecHit)[1]);
       if (rhsizephi > M_PI)
         rhsizephi = 2. * M_PI - rhsizephi;
 
@@ -167,14 +167,8 @@ void KDTreeLinkerTrackEcal::searchLinks(const PFTables& pftables, reco::PFMultiL
 
           double x[5];
           double y[5];
-          const double rechit_corner_posx[4] = {rechitTable.get<pf::rechit::Corner0x>(irecHit),
-                                                rechitTable.get<pf::rechit::Corner1x>(irecHit),
-                                                rechitTable.get<pf::rechit::Corner2x>(irecHit),
-                                                rechitTable.get<pf::rechit::Corner3x>(irecHit)};
-          const double rechit_corner_posy[4] = {rechitTable.get<pf::rechit::Corner0y>(irecHit),
-                                                rechitTable.get<pf::rechit::Corner1y>(irecHit),
-                                                rechitTable.get<pf::rechit::Corner2y>(irecHit),
-                                                rechitTable.get<pf::rechit::Corner3y>(irecHit)};
+          const auto& rechit_corner_posx = rechitTable.get<pf::rechit::CornerX>(irecHit);
+          const auto& rechit_corner_posy = rechitTable.get<pf::rechit::CornerY>(irecHit);
 
           for (unsigned jc = 0; jc < 4; ++jc) {
             x[3 - jc] = rechit_corner_posx[jc] + (rechit_corner_posx[jc] - rechitTable.get<pf::rechit::Posx>(irecHit)) *

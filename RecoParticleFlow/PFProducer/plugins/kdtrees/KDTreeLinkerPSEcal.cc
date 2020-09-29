@@ -110,7 +110,7 @@ void KDTreeLinkerPSEcal::searchLinks(const PFTables &pftables, reco::PFMultiLink
     double xPS = clustersPS.cluster_table_.get<pf::cluster::Posx>(ips);
     double yPS = clustersPS.cluster_table_.get<pf::cluster::Posy>(ips);
 
-    double etaPS = fabs(clustersPS.cluster_table_.get<pf::cluster::Eta>(ips));
+    double etaPS = std::abs(clustersPS.cluster_table_.get<pf::cluster::Eta>(ips));
     double deltaX = 0.;
     double deltaY = 0.;
     float xPSonEcal = xPS;
@@ -158,29 +158,25 @@ void KDTreeLinkerPSEcal::searchLinks(const PFTables &pftables, reco::PFMultiLink
 
       for (size_t icluster : rechit_clusters) {
         double clusterz = clustersECAL.cluster_table_.get<pf::cluster::Posz>(icluster);
-        const double rechit_corner_posx[4] = {
-            clustersECAL.rechit_table_.get<pf::rechit::Corner0xBV>(irecHit) * zPS / clusterz,
-            clustersECAL.rechit_table_.get<pf::rechit::Corner1xBV>(irecHit) * zPS / clusterz,
-            clustersECAL.rechit_table_.get<pf::rechit::Corner2xBV>(irecHit) * zPS / clusterz,
-            clustersECAL.rechit_table_.get<pf::rechit::Corner3xBV>(irecHit) * zPS / clusterz};
-        const double rechit_corner_posy[4] = {
-            clustersECAL.rechit_table_.get<pf::rechit::Corner0yBV>(irecHit) * zPS / clusterz,
-            clustersECAL.rechit_table_.get<pf::rechit::Corner1yBV>(irecHit) * zPS / clusterz,
-            clustersECAL.rechit_table_.get<pf::rechit::Corner2yBV>(irecHit) * zPS / clusterz,
-            clustersECAL.rechit_table_.get<pf::rechit::Corner3yBV>(irecHit) * zPS / clusterz};
+        const auto zPS_over_cluster = zPS / clusterz;
 
-        const double rechit_posx = clustersECAL.rechit_table_.get<pf::rechit::Posx>(irecHit) * zPS / clusterz;
-        const double rechit_posy = clustersECAL.rechit_table_.get<pf::rechit::Posy>(irecHit) * zPS / clusterz;
+        const auto &rechit_corner_posx = clustersECAL.rechit_table_.get<pf::rechit::CornerXBV>(irecHit);
+        const auto &rechit_corner_posy = clustersECAL.rechit_table_.get<pf::rechit::CornerYBV>(irecHit);
+
+        const double rechit_posx = clustersECAL.rechit_table_.get<pf::rechit::Posx>(irecHit) * zPS_over_cluster;
+        const double rechit_posy = clustersECAL.rechit_table_.get<pf::rechit::Posy>(irecHit) * zPS_over_cluster;
 
         double x[5];
         double y[5];
         for (unsigned jc = 0; jc < 4; ++jc) {
           x[3 - jc] =
-              rechit_corner_posx[jc] + (rechit_corner_posx[jc] - rechit_posx) *
-                                           (0.05 + 1.0 / fabs((rechit_corner_posx[jc] - rechit_posx)) * deltaX / 2.);
+              rechit_corner_posx[jc] * zPS_over_cluster +
+              (rechit_corner_posx[jc] * zPS_over_cluster - rechit_posx) *
+                  (0.05 + 1.0 / std::abs((rechit_corner_posx[jc] * zPS_over_cluster - rechit_posx)) * deltaX / 2.);
           y[3 - jc] =
-              rechit_corner_posy[jc] + (rechit_corner_posy[jc] - rechit_posy) *
-                                           (0.05 + 1.0 / fabs((rechit_corner_posy[jc] - rechit_posy)) * deltaY / 2.);
+              rechit_corner_posy[jc] * zPS_over_cluster +
+              (rechit_corner_posy[jc] * zPS_over_cluster - rechit_posy) *
+                  (0.05 + 1.0 / std::abs((rechit_corner_posy[jc] * zPS_over_cluster - rechit_posy)) * deltaY / 2.);
 
           x[3 - jc] = x[3 - jc];
           y[3 - jc] = y[3 - jc];

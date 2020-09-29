@@ -21,9 +21,11 @@ template <class C>
 edm::ElementID refToElementID(const edm::RefToBase<C>& ref) {
   return edm::ElementID(ref.id(), ref.key());
 }
-
 namespace edm::soa {
   namespace col::pf {
+    using CornerCoordsD = std::array<double, 4>;
+    using CornerCoordsF = std::array<float, 4>;
+
     namespace track {
       SOA_DECLARE_COLUMN(Pt, double, "Pt");
       SOA_DECLARE_COLUMN(ExtrapolationValid, bool, "ExtrapolationValid");
@@ -64,36 +66,15 @@ namespace edm::soa {
       SOA_DECLARE_COLUMN(Posy, double, "Posy");
       SOA_DECLARE_COLUMN(Posz, double, "Posz");
 
-      SOA_DECLARE_COLUMN(Corner0x, float, "Corner0x");
-      SOA_DECLARE_COLUMN(Corner0y, float, "Corner0y");
-      SOA_DECLARE_COLUMN(Corner0z, float, "Corner0z");
-      SOA_DECLARE_COLUMN(Corner1x, float, "Corner1x");
-      SOA_DECLARE_COLUMN(Corner1y, float, "Corner1y");
-      SOA_DECLARE_COLUMN(Corner1z, float, "Corner1z");
-      SOA_DECLARE_COLUMN(Corner2x, float, "Corner2x");
-      SOA_DECLARE_COLUMN(Corner2y, float, "Corner2y");
-      SOA_DECLARE_COLUMN(Corner2z, float, "Corner2z");
-      SOA_DECLARE_COLUMN(Corner3x, float, "Corner3x");
-      SOA_DECLARE_COLUMN(Corner3y, float, "Corner3y");
-      SOA_DECLARE_COLUMN(Corner3z, float, "Corner3z");
+      SOA_DECLARE_COLUMN(CornerX, CornerCoordsF, "CornerX");
+      SOA_DECLARE_COLUMN(CornerY, CornerCoordsF, "CornerY");
+      SOA_DECLARE_COLUMN(CornerZ, CornerCoordsF, "CornerZ");
 
-      SOA_DECLARE_COLUMN(Corner0xBV, double, "Corner0xBV");
-      SOA_DECLARE_COLUMN(Corner0yBV, double, "Corner0yBV");
-      SOA_DECLARE_COLUMN(Corner1xBV, double, "Corner1xBV");
-      SOA_DECLARE_COLUMN(Corner1yBV, double, "Corner1yBV");
-      SOA_DECLARE_COLUMN(Corner2xBV, double, "Corner2xBV");
-      SOA_DECLARE_COLUMN(Corner2yBV, double, "Corner2yBV");
-      SOA_DECLARE_COLUMN(Corner3xBV, double, "Corner3xBV");
-      SOA_DECLARE_COLUMN(Corner3yBV, double, "Corner3yBV");
+      SOA_DECLARE_COLUMN(CornerXBV, CornerCoordsD, "CornerXBV");
+      SOA_DECLARE_COLUMN(CornerYBV, CornerCoordsD, "CornerYBV");
 
-      SOA_DECLARE_COLUMN(Corner0eta, float, "Corner0eta");
-      SOA_DECLARE_COLUMN(Corner0phi, float, "Corner0phi");
-      SOA_DECLARE_COLUMN(Corner1eta, float, "Corner1eta");
-      SOA_DECLARE_COLUMN(Corner1phi, float, "Corner1phi");
-      SOA_DECLARE_COLUMN(Corner2eta, float, "Corner2eta");
-      SOA_DECLARE_COLUMN(Corner2phi, float, "Corner2phi");
-      SOA_DECLARE_COLUMN(Corner3eta, float, "Corner3eta");
-      SOA_DECLARE_COLUMN(Corner3phi, float, "Corner3phi");
+      SOA_DECLARE_COLUMN(CornerEta, CornerCoordsF, "CornerEta");
+      SOA_DECLARE_COLUMN(CornerPhi, CornerCoordsF, "CornerPhi");
     }  // namespace rechit
     namespace cluster {
       SOA_DECLARE_COLUMN(Eta, double, "Eta");
@@ -148,34 +129,13 @@ namespace edm::soa {
                             col::pf::rechit::Posx,
                             col::pf::rechit::Posy,
                             col::pf::rechit::Posz,
-                            col::pf::rechit::Corner0x,
-                            col::pf::rechit::Corner0y,
-                            col::pf::rechit::Corner0z,
-                            col::pf::rechit::Corner1x,
-                            col::pf::rechit::Corner1y,
-                            col::pf::rechit::Corner1z,
-                            col::pf::rechit::Corner2x,
-                            col::pf::rechit::Corner2y,
-                            col::pf::rechit::Corner2z,
-                            col::pf::rechit::Corner3x,
-                            col::pf::rechit::Corner3y,
-                            col::pf::rechit::Corner3z,
-                            col::pf::rechit::Corner0eta,
-                            col::pf::rechit::Corner0phi,
-                            col::pf::rechit::Corner1eta,
-                            col::pf::rechit::Corner1phi,
-                            col::pf::rechit::Corner2eta,
-                            col::pf::rechit::Corner2phi,
-                            col::pf::rechit::Corner3eta,
-                            col::pf::rechit::Corner3phi,
-                            col::pf::rechit::Corner0xBV,
-                            col::pf::rechit::Corner0yBV,
-                            col::pf::rechit::Corner1xBV,
-                            col::pf::rechit::Corner1yBV,
-                            col::pf::rechit::Corner2xBV,
-                            col::pf::rechit::Corner2yBV,
-                            col::pf::rechit::Corner3xBV,
-                            col::pf::rechit::Corner3yBV>;
+                            col::pf::rechit::CornerX,
+                            col::pf::rechit::CornerY,
+                            col::pf::rechit::CornerZ,
+                            col::pf::rechit::CornerEta,
+                            col::pf::rechit::CornerPhi,
+                            col::pf::rechit::CornerXBV,
+                            col::pf::rechit::CornerYBV>;
   using ClusterTable = Table<col::pf::cluster::Eta,
                              col::pf::cluster::Phi,
                              col::pf::cluster::Posx,

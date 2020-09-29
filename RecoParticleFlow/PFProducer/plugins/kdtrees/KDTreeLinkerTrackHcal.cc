@@ -155,8 +155,8 @@ void KDTreeLinkerTrackHcal::searchLinks(const PFTables& pftables, reco::PFMultiL
     // Estimate the maximal envelope in phi/eta that will be used to find rechit candidates.
     // Same envelope for cap et barrel rechits.
     double inflation = 1.;
-    float rangeeta = (cristalPhiEtaMaxSize_ * (1.5 + 0.5) + 0.2 * fabs(dHeta)) * inflation;
-    float rangephi = (cristalPhiEtaMaxSize_ * (1.5 + 0.5) + 0.2 * fabs(dHphi)) * inflation;
+    float rangeeta = (cristalPhiEtaMaxSize_ * (1.5 + 0.5) + 0.2 * std::abs(dHeta)) * inflation;
+    float rangephi = (cristalPhiEtaMaxSize_ * (1.5 + 0.5) + 0.2 * std::abs(dHphi)) * inflation;
 
     // We search for all candidate recHits, ie all recHits contained in the maximal size envelope.
     std::vector<size_t> recHits;
@@ -166,15 +166,15 @@ void KDTreeLinkerTrackHcal::searchLinks(const PFTables& pftables, reco::PFMultiL
 
     // Here we check all rechit candidates using the non-approximated method.
     for (const size_t irechit : recHits) {
-      double rhsizeeta =
-          fabs(rechitTable.get<pf::rechit::Corner3eta>(irechit) - rechitTable.get<pf::rechit::Corner1eta>(irechit));
-      double rhsizephi =
-          fabs(rechitTable.get<pf::rechit::Corner3phi>(irechit) - rechitTable.get<pf::rechit::Corner1phi>(irechit));
+      double rhsizeeta = std::abs(rechitTable.get<pf::rechit::CornerEta>(irechit)[3] -
+                                  rechitTable.get<pf::rechit::CornerEta>(irechit)[1]);
+      double rhsizephi = std::abs(rechitTable.get<pf::rechit::CornerPhi>(irechit)[3] -
+                                  rechitTable.get<pf::rechit::CornerPhi>(irechit)[1]);
       if (rhsizephi > M_PI)
         rhsizephi = 2. * M_PI - rhsizephi;
 
-      double deta = fabs(rechitTable.get<pf::rechit::Eta>(irechit) - tracketa);
-      double dphi = fabs(rechitTable.get<pf::rechit::Phi>(irechit) - trackphi);
+      double deta = std::abs(rechitTable.get<pf::rechit::Eta>(irechit) - tracketa);
+      double dphi = std::abs(rechitTable.get<pf::rechit::Phi>(irechit) - trackphi);
       if (dphi > M_PI)
         dphi = 2. * M_PI - dphi;
 
@@ -184,8 +184,8 @@ void KDTreeLinkerTrackHcal::searchLinks(const PFTables& pftables, reco::PFMultiL
 
       for (const size_t clusteridx : rechit_clusters) {
         int fracsNbr = clusterTable.get<pf::cluster::FracsNbr>(clusteridx);
-        double _rhsizeeta = rhsizeeta * (1.5 + 0.5 / fracsNbr) + 0.2 * fabs(dHeta);
-        double _rhsizephi = rhsizephi * (1.5 + 0.5 / fracsNbr) + 0.2 * fabs(dHphi);
+        double _rhsizeeta = rhsizeeta * (1.5 + 0.5 / fracsNbr) + 0.2 * std::abs(dHeta);
+        double _rhsizephi = rhsizephi * (1.5 + 0.5 / fracsNbr) + 0.2 * std::abs(dHphi);
 
         // Check if the track and the cluster are linked
         if (deta < (_rhsizeeta / 2.) && dphi < (_rhsizephi / 2.)) {

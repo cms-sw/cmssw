@@ -101,9 +101,8 @@ private:
   std::vector<std::unique_ptr<KDTreeLinkerBase>> kdtrees_;
   PFTables tables_;
 
-protected:
-  // rechit with fraction this value will be ignored in KDTreeLinker
-  const float cutOffFrac_ = 1E-4;
+  // rechit with fraction below this value will be ignored in KDTreeLinker
+  static constexpr float cutOffFrac_ = 1E-4;
 };
 
 #endif

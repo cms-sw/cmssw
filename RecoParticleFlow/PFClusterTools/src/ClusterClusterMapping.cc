@@ -37,25 +37,23 @@ bool ClusterClusterMapping::overlap(const reco::CaloCluster &sc1,
   return false;
 }
 
-bool ClusterClusterMapping::overlap(
-    const std::set<size_t> &idx_rechits1,
-    const std::set<size_t> &idx_rechits2,
-    edm::soa::TableView<edm::soa::col::pf::rechit::DetIdValue, edm::soa::col::pf::rechit::Fraction> rechits1,
-    edm::soa::TableView<edm::soa::col::pf::rechit::DetIdValue, edm::soa::col::pf::rechit::Fraction> rechits2,
-    float minfrac,
-    bool debug) {
-  using namespace edm::soa::col;
+bool ClusterClusterMapping::overlap(const RecHitIndex &idx_rechits1,
+                                    const RecHitIndex &idx_rechits2,
+                                    RecHitTableView rechits1,
+                                    RecHitTableView rechits2,
+                                    float minfrac,
+                                    bool debug) {
   for (size_t i1 : idx_rechits1) {
     // consider only with a minimum fraction of minfrac (default 1%) of the RecHit
-    if (rechits1.get<pf::rechit::Fraction>(i1) < minfrac) {
+    if (rechits1.get<rechit::Fraction>(i1) < minfrac) {
       continue;
     }
     for (size_t i2 : idx_rechits2) {
       // consider only with a minimum fraction of minfract (default 1%) of the RecHit
-      if (rechits2.get<pf::rechit::Fraction>(i2) < minfrac) {
+      if (rechits2.get<rechit::Fraction>(i2) < minfrac) {
         continue;
       }
-      if (rechits1.get<pf::rechit::DetIdValue>(i1) == rechits2.get<pf::rechit::DetIdValue>(i2)) {
+      if (rechits1.get<rechit::DetIdValue>(i1) == rechits2.get<rechit::DetIdValue>(i2)) {
         return true;
       }
     }

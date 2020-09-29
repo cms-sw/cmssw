@@ -144,64 +144,50 @@ namespace edm::soa {
             pf::rechit::Posy::filler([](reco::PFRecHitFraction const* x) { return x->recHitRef()->position().y(); }),
             pf::rechit::Posz::filler([](reco::PFRecHitFraction const* x) { return x->recHitRef()->position().z(); }),
 
-            pf::rechit::Corner0x::filler(
-                [](reco::PFRecHitFraction const* x) { return x->recHitRef()->getCornersXYZ()[0].x(); }),
-            pf::rechit::Corner0y::filler(
-                [](reco::PFRecHitFraction const* x) { return x->recHitRef()->getCornersXYZ()[0].y(); }),
-            pf::rechit::Corner0z::filler(
-                [](reco::PFRecHitFraction const* x) { return x->recHitRef()->getCornersXYZ()[0].z(); }),
-            pf::rechit::Corner1x::filler(
-                [](reco::PFRecHitFraction const* x) { return x->recHitRef()->getCornersXYZ()[1].x(); }),
-            pf::rechit::Corner1y::filler(
-                [](reco::PFRecHitFraction const* x) { return x->recHitRef()->getCornersXYZ()[1].y(); }),
-            pf::rechit::Corner1z::filler(
-                [](reco::PFRecHitFraction const* x) { return x->recHitRef()->getCornersXYZ()[1].z(); }),
-            pf::rechit::Corner2x::filler(
-                [](reco::PFRecHitFraction const* x) { return x->recHitRef()->getCornersXYZ()[2].x(); }),
-            pf::rechit::Corner2y::filler(
-                [](reco::PFRecHitFraction const* x) { return x->recHitRef()->getCornersXYZ()[2].y(); }),
-            pf::rechit::Corner2z::filler(
-                [](reco::PFRecHitFraction const* x) { return x->recHitRef()->getCornersXYZ()[2].z(); }),
-            pf::rechit::Corner3x::filler(
-                [](reco::PFRecHitFraction const* x) { return x->recHitRef()->getCornersXYZ()[3].x(); }),
-            pf::rechit::Corner3y::filler(
-                [](reco::PFRecHitFraction const* x) { return x->recHitRef()->getCornersXYZ()[3].y(); }),
-            pf::rechit::Corner3z::filler(
-                [](reco::PFRecHitFraction const* x) { return x->recHitRef()->getCornersXYZ()[3].z(); }),
+            pf::rechit::CornerX::filler([](reco::PFRecHitFraction const* x) -> col::pf::CornerCoordsF {
+              return {{x->recHitRef()->getCornersXYZ()[0].x(),
+                       x->recHitRef()->getCornersXYZ()[1].x(),
+                       x->recHitRef()->getCornersXYZ()[2].x(),
+                       x->recHitRef()->getCornersXYZ()[3].x()}};
+            }),
+            pf::rechit::CornerY::filler([](reco::PFRecHitFraction const* x) -> col::pf::CornerCoordsF {
+              return {{x->recHitRef()->getCornersXYZ()[0].y(),
+                       x->recHitRef()->getCornersXYZ()[1].y(),
+                       x->recHitRef()->getCornersXYZ()[2].y(),
+                       x->recHitRef()->getCornersXYZ()[3].y()}};
+            }),
+            pf::rechit::CornerZ::filler([](reco::PFRecHitFraction const* x) -> col::pf::CornerCoordsF {
+              return {{x->recHitRef()->getCornersXYZ()[0].z(),
+                       x->recHitRef()->getCornersXYZ()[1].z(),
+                       x->recHitRef()->getCornersXYZ()[2].z(),
+                       x->recHitRef()->getCornersXYZ()[3].z()}};
+            }),
 
-            pf::rechit::Corner0eta::filler(
-                [](reco::PFRecHitFraction const* x) { return x->recHitRef()->getCornersREP()[0].eta(); }),
-            pf::rechit::Corner0phi::filler(
-                [](reco::PFRecHitFraction const* x) { return x->recHitRef()->getCornersREP()[0].phi(); }),
-            pf::rechit::Corner1eta::filler(
-                [](reco::PFRecHitFraction const* x) { return x->recHitRef()->getCornersREP()[1].eta(); }),
-            pf::rechit::Corner1phi::filler(
-                [](reco::PFRecHitFraction const* x) { return x->recHitRef()->getCornersREP()[1].phi(); }),
-            pf::rechit::Corner2eta::filler(
-                [](reco::PFRecHitFraction const* x) { return x->recHitRef()->getCornersREP()[2].eta(); }),
-            pf::rechit::Corner2phi::filler(
-                [](reco::PFRecHitFraction const* x) { return x->recHitRef()->getCornersREP()[2].phi(); }),
-            pf::rechit::Corner3eta::filler(
-                [](reco::PFRecHitFraction const* x) { return x->recHitRef()->getCornersREP()[3].eta(); }),
-            pf::rechit::Corner3phi::filler(
-                [](reco::PFRecHitFraction const* x) { return x->recHitRef()->getCornersREP()[3].phi(); }),
+            pf::rechit::CornerEta::filler([](reco::PFRecHitFraction const* x) -> col::pf::CornerCoordsF {
+              return {{x->recHitRef()->getCornersREP()[0].eta(),
+                       x->recHitRef()->getCornersREP()[1].eta(),
+                       x->recHitRef()->getCornersREP()[2].eta(),
+                       x->recHitRef()->getCornersREP()[3].eta()}};
+            }),
 
-            pf::rechit::Corner0xBV::filler(
-                [](reco::PFRecHitFraction const* x) { return x->recHitRef()->getCornersXYZ()[0].basicVector().x(); }),
-            pf::rechit::Corner0yBV::filler(
-                [](reco::PFRecHitFraction const* x) { return x->recHitRef()->getCornersXYZ()[0].basicVector().y(); }),
-            pf::rechit::Corner1xBV::filler(
-                [](reco::PFRecHitFraction const* x) { return x->recHitRef()->getCornersXYZ()[1].basicVector().x(); }),
-            pf::rechit::Corner1yBV::filler(
-                [](reco::PFRecHitFraction const* x) { return x->recHitRef()->getCornersXYZ()[1].basicVector().y(); }),
-            pf::rechit::Corner2xBV::filler(
-                [](reco::PFRecHitFraction const* x) { return x->recHitRef()->getCornersXYZ()[2].basicVector().x(); }),
-            pf::rechit::Corner2yBV::filler(
-                [](reco::PFRecHitFraction const* x) { return x->recHitRef()->getCornersXYZ()[2].basicVector().y(); }),
-            pf::rechit::Corner3xBV::filler(
-                [](reco::PFRecHitFraction const* x) { return x->recHitRef()->getCornersXYZ()[3].basicVector().x(); }),
-            pf::rechit::Corner3yBV::filler(
-                [](reco::PFRecHitFraction const* x) { return x->recHitRef()->getCornersXYZ()[3].basicVector().y(); })
+            pf::rechit::CornerPhi::filler([](reco::PFRecHitFraction const* x) -> col::pf::CornerCoordsF {
+              return {{x->recHitRef()->getCornersREP()[0].phi(),
+                       x->recHitRef()->getCornersREP()[1].phi(),
+                       x->recHitRef()->getCornersREP()[2].phi(),
+                       x->recHitRef()->getCornersREP()[3].phi()}};
+            }),
+            pf::rechit::CornerXBV::filler([](reco::PFRecHitFraction const* x) -> col::pf::CornerCoordsD {
+              return {{x->recHitRef()->getCornersXYZ()[0].basicVector().x(),
+                       x->recHitRef()->getCornersXYZ()[1].basicVector().x(),
+                       x->recHitRef()->getCornersXYZ()[2].basicVector().x(),
+                       x->recHitRef()->getCornersXYZ()[3].basicVector().x()}};
+            }),
+            pf::rechit::CornerYBV::filler([](reco::PFRecHitFraction const* x) -> col::pf::CornerCoordsD {
+              return {{x->recHitRef()->getCornersXYZ()[0].basicVector().y(),
+                       x->recHitRef()->getCornersXYZ()[1].basicVector().y(),
+                       x->recHitRef()->getCornersXYZ()[2].basicVector().y(),
+                       x->recHitRef()->getCornersXYZ()[3].basicVector().y()}};
+            })
 
                 )};
   }
