@@ -68,13 +68,6 @@ def update(process):
                 applyDeltaBetaCorrection = cms.bool(True),
                 storeRawPUsumPt = cms.bool(True)
             ),
-            cms.PSet(
-                IDname = cms.string("ByRawCombinedIsolationDBSumPtCorr3Hits"),
-                ApplyDiscriminationByTrackerIsolation = cms.bool(True),
-                ApplyDiscriminationByECALIsolation = cms.bool(True),
-                applyDeltaBetaCorrection = cms.bool(True),
-                storeRawSumPt = cms.bool(True)
-            )
         ),
     )
 
@@ -179,15 +172,9 @@ def update(process):
     disable_dxy_pca                     = cms.bool(True),
     is_online                 		    = cms.bool(True),
     pfTauTransverseImpactParameters     = cms.InputTag('hpsPFTauTransverseImpactParameters'),
-    chargedIsoPtSum_index               = cms.uint32(0),
-    neutralIsoPtSum_index               = cms.uint32(1),
-    puCorrPtSum_index                   = cms.uint32(5),
-    tauFootPrintCorrection_index        = cms.uint32(3),
-    neutralIsoPtSumWeight_index         = cms.uint32(2),
-    photonPtSumOutsideSignalCone_index  = cms.uint32(4),
-    basicTauDiscriminators              = cms.InputTag('hpsPFTauBasicDiscriminators'),
-    basicTauDiscriminatorsdR03          = cms.InputTag('hpsPFTauBasicDiscriminatorsdR03'),
-    Prediscriminants = requireDecayMode.clone(),
+    basicTauDiscriminators              = cms.untracked.InputTag('hpsPFTauBasicDiscriminators'),
+    basicTauDiscriminatorsdR03          = cms.untracked.InputTag('hpsPFTauBasicDiscriminatorsdR03'),
+    Prediscriminants                    = requireDecayMode.clone(),
 
     VSeWP = cms.vstring(wp_names),
     VSmuWP = cms.vstring(wp_names),
