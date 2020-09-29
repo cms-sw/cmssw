@@ -7,20 +7,10 @@
 #include "FWCore/SOA/interface/TableView.h"
 #include "FWCore/SOA/interface/Column.h"
 
-#include "DataFormats/Provenance/interface/ElementID.h"
-#include "DataFormats/Common/interface/Ref.h"
-#include "DataFormats/Common/interface/RefToBase.h"
+
 #include "DataFormats/ParticleFlowReco/interface/PFLayer.h"
+#include "DataFormats/Common/interface/RefToElementID.h"
 
-template <class C>
-edm::ElementID refToElementID(const edm::Ref<C>& ref) {
-  return edm::ElementID(ref.id(), ref.index());
-}
-
-template <class C>
-edm::ElementID refToElementID(const edm::RefToBase<C>& ref) {
-  return edm::ElementID(ref.id(), ref.key());
-}
 namespace edm::soa {
   namespace col::pf {
     using CornerCoordsD = std::array<double, 4>;
