@@ -204,7 +204,9 @@ void TiclDebugger::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
   }
 }
 
-void TiclDebugger::beginRun(edm::Run const&, edm::EventSetup const& es) { rhtools_.getEventSetup(es); }
+void TiclDebugger::beginRun(edm::Run const&, edm::EventSetup const& es) {
+    edm::ESHandle<CaloGeometry> geom; es.get<CaloGeometryRecord>().get(geom); rhtools_.setGeometry(*geom);
+}
 
 void TiclDebugger::beginJob() {}
 
