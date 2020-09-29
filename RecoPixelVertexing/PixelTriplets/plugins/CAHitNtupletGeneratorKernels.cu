@@ -270,7 +270,7 @@ void CAHitNtupletGeneratorKernelsGPU::classifyTuples(HitsOnCPU const &hh, TkSoA 
     kernel_fillHitInTracks<<<numberOfBlocks, blockSize, 0, cudaStream>>>(tuples_d, quality_d, device_hitToTuple_.get());
     cudaCheck(cudaGetLastError());
   }
-  // if (m_params.minHitsPerNtuplet_ < 4) {
+
   if (m_params.doSharedHitCut_)
   {
     // remove duplicates (tracks that share a hit)
