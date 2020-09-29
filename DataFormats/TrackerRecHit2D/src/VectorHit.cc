@@ -208,9 +208,7 @@ LocalError VectorHit::localDirectionError() const {
   return LocalError(theCovMatrix[0][0], theCovMatrix[0][1], theCovMatrix[1][1]);
 }
 
-AlgebraicSymMatrix VectorHit::parametersError() const {
-  return theCovMatrix;
-}
+AlgebraicSymMatrix VectorHit::parametersError() const { return theCovMatrix; }
 
 std::ostream& operator<<(std::ostream& os, const VectorHit& vh) {
   os << " VectorHit create in the DetId#: " << vh.geographicalId() << "\n"
