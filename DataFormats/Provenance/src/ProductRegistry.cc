@@ -460,7 +460,7 @@ namespace edm {
         productTypesConsumed, elementTypesConsumed, containedTypeMap, containedTypeToBaseTypesMap);
 
     // Add contained types for all EDAliases
-    std::vector<decltype(transient_.aliasToOriginal_)::value_type> elementAliases;
+    Transients::AliasToOriginalVector elementAliases;
     for (auto& item : transient_.aliasToOriginal_) {
       auto iterContainedType = containedTypeMap.find(std::get<Transients::kType>(item));
       if (iterContainedType == containedTypeMap.end()) {
