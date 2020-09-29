@@ -155,7 +155,8 @@ namespace edm {
       std::map<BranchID, ProductResolverIndex> branchIDToIndex_;
 
       enum { kKind, kType, kModuleLabel, kProductInstanceName, kAliasForModuleLabel };
-      std::vector<std::tuple<KindOfType, TypeID, std::string, std::string, std::string>> aliasToOriginal_;
+      using AliasToOriginalVector = std::vector<std::tuple<KindOfType, TypeID, std::string, std::string, std::string>>;
+      AliasToOriginalVector aliasToOriginal_;
     };
 
   private:
