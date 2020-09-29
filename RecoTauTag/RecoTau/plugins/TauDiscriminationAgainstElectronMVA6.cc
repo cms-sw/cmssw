@@ -31,7 +31,8 @@ public:
             std::make_unique<AntiElectronIDMVA6<TauType, ElectronType>>(cfg, edm::EDConsumerBase::consumesCollector())),
         Electron_token(edm::EDConsumerBase::consumes<ElectronCollection>(
             cfg.getParameter<edm::InputTag>("srcElectrons"))),  // MB: full specification with prefix mandatory
-        positionAtECalEntrance_(PositionAtECalEntranceComputer(cfg.getParameter<bool>("isPhase2"))),
+        positionAtECalEntrance_(PositionAtECalEntranceComputer(edm::EDConsumerBase::consumesCollector(),
+                                                               cfg.getParameter<bool>("isPhase2"))),
         vetoEcalCracks_(cfg.getParameter<bool>("vetoEcalCracks")),
         isPhase2_(cfg.getParameter<bool>("isPhase2")),
         verbosity_(cfg.getParameter<int>("verbosity")) {

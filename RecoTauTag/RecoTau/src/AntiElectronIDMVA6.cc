@@ -48,7 +48,7 @@ AntiElectronIDMVA6<TauType, ElectronType>::AntiElectronIDMVA6(const edm::Paramet
       mva_NoEleMatch_wGwoGSF_VFEC_(nullptr),
       mva_woGwGSF_VFEC_(nullptr),
       mva_wGwGSF_VFEC_(nullptr),
-      positionAtECalEntrance_(PositionAtECalEntranceComputer(cfg.getParameter<bool>("isPhase2"))),
+      positionAtECalEntrance_(PositionAtECalEntranceComputer(cc, cfg.getParameter<bool>("isPhase2"))),
       isPhase2_(cfg.getParameter<bool>("isPhase2")),
       verbosity_(cfg.getParameter<int>("verbosity")) {
   loadMVAfromDB_ = cfg.exists("loadMVAfromDB") ? cfg.getParameter<bool>("loadMVAfromDB") : false;

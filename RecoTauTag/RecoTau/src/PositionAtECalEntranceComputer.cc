@@ -76,19 +76,25 @@ namespace hgcal_helpers {
   }
 }  // namespace hgcal_helpers
 
-PositionAtECalEntranceComputer::PositionAtECalEntranceComputer(bool isPhase2) : bField_z_(-1.), isPhase2_(isPhase2) {}
+PositionAtECalEntranceComputer::PositionAtECalEntranceComputer(edm::ConsumesCollector&& cc, bool isPhase2)
+    : bField_esToken_(cc.esConsumes<MagneticField, IdealMagneticFieldRecord>()),
+      caloGeo_esToken_(cc.esConsumes<CaloGeometry, CaloGeometryRecord>()),
+      bField_z_(-1.),
+      isPhase2_(isPhase2) {}
+
+PositionAtECalEntranceComputer::PositionAtECalEntranceComputer(edm::ConsumesCollector& cc, bool isPhase2)
+    : bField_esToken_(cc.esConsumes<MagneticField, IdealMagneticFieldRecord>()),
+      caloGeo_esToken_(cc.esConsumes<CaloGeometry, CaloGeometryRecord>()),
+      bField_z_(-1.),
+      isPhase2_(isPhase2) {}
 
 PositionAtECalEntranceComputer::~PositionAtECalEntranceComputer() {}
 
 void PositionAtECalEntranceComputer::beginEvent(const edm::EventSetup& es) {
-  edm::ESHandle<MagneticField> bFieldH;
-  es.get<IdealMagneticFieldRecord>().get(bFieldH);
-  bField_z_ = bFieldH->inTesla(GlobalPoint(0., 0., 0.)).z();
-  bField_ = &(*bFieldH);
+  bField_ = &es.getData(bField_esToken_);
+  bField_z_ = bField_->inTesla(GlobalPoint(0., 0., 0.)).z();
   if (isPhase2_) {
-    edm::ESHandle<CaloGeometry> caloGeoH;
-    es.get<CaloGeometryRecord>().get(caloGeoH);
-    recHitTools_.setGeometry(*caloGeoH);
+    recHitTools_.setGeometry(es.getData(caloGeo_esToken_));
     hgcalFace_z_ = recHitTools_.getPositionLayer(1).z();  // HGCal 1st layer
   }
 }
