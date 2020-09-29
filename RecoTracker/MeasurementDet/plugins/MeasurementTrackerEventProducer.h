@@ -12,6 +12,7 @@
 #include "DataFormats/DetId/interface/DetIdCollection.h"
 #include "DataFormats/SiPixelDetId/interface/PixelFEDChannel.h"
 #include "CondFormats/SiPixelObjects/interface/SiPixelFedCablingMap.h"
+#include "DataFormats/TrackerRecHit2D/interface/VectorHit.h"
 
 class dso_hidden MeasurementTrackerEventProducer final : public edm::stream::EDProducer<> {
 public:
