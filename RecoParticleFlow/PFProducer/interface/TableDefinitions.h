@@ -8,7 +8,7 @@
 #include "FWCore/SOA/interface/Column.h"
 
 #include "DataFormats/ParticleFlowReco/interface/PFLayer.h"
-#include "DataFormats/Common/interface/RefToElementID.h"
+#include "DataFormats/Common/interface/refToElementID.h"
 
 namespace edm::soa {
   namespace col::pf {
