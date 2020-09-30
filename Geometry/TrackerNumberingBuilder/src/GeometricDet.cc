@@ -305,7 +305,7 @@ std::vector<double> GeometricDet::computeLegacyShapeParameters(const cms::DDSoli
         geant_units::operators::convertCmToMm(myTube->GetDz()),
         geant_units::operators::convertCmToMm(myTube->GetRmin()),
         geant_units::operators::convertCmToMm(myTube->GetRmax()),
-        static_cast<double>(angle_units::operators::convertDegToRad(myTube->GetPhi1())),
+        static_cast<double>(fmod(angle_units::operators::convertDegToRad(myTube->GetPhi1()), 2.*M_PI) - 2.*M_PI),
         static_cast<double>(angle_units::operators::convertDegToRad(myTube->GetPhi2() - myTube->GetPhi1()))};
   }
 

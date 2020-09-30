@@ -29,8 +29,8 @@ void CmsTrackerDetIdBuilder::buildId(GeometricDet& tracker) {
   tracker.setGeographicalID(t);
   iterate(tracker, 0, tracker.geographicalId().rawId());
 
-//std::ofstream outfile("DetIdOLD.log", std::ios::out);
-  std::ofstream outfile("DetIdDD4hep.log", std::ios::out);
+  std::ofstream outfile("DetIdOLD.log", std::ios::out);
+//std::ofstream outfile("DetIdDD4hep.log", std::ios::out);
 
   std::deque<const GeometricDet*> queue;
   queue.emplace_back(&tracker);
@@ -72,8 +72,8 @@ void CmsTrackerDetIdBuilder::buildId(GeometricDet& tracker) {
       outfile << " " << std::endl;
     }
 
-    //outfile << "myDet->radLength() = " << myDet->radLength() << std::endl;
-    //outfile << "myDet->xi() = " << myDet->xi() << std::endl;
+    outfile << "myDet->radLength() = " << myDet->radLength() << std::endl;
+    outfile << "myDet->xi() = " << myDet->xi() << std::endl;
     outfile << "myDet->pixROCRows() = " << myDet->pixROCRows() << std::endl;
     outfile << "myDet->pixROCCols() = " << myDet->pixROCCols() << std::endl;
     outfile << "myDet->pixROCx() = " << myDet->pixROCx() << std::endl;
