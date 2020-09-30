@@ -1,7 +1,7 @@
 //class SiPixelChargeReweightingAlgorithm SimTracker/SiPixelDigitizer/src/SiPixelChargeReweightingAlgorithm.cc
 
 // Original Author Caroline Collard
-// September 2020 : Extraction of the code for cluster charge reweighting from SiPixelDigitizerAlgoithm to a new class
+// September 2020 : Extraction of the code for cluster charge reweighting from SiPixelDigitizerAlgorithm to a new class
 //
 #include <iostream>
 #include <iomanip>

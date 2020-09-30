@@ -3,8 +3,6 @@
 
 #include "SimTracker/SiPixelDigitizer/plugins/SiPixelDigitizerAlgorithm.h"
 
-typedef boost::multi_array<float, 2> array_2d;
-
 // forward declarations
 
 // For the random numbers
