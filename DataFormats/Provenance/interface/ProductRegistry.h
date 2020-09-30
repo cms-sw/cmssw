@@ -12,6 +12,7 @@
 #include "DataFormats/Provenance/interface/BranchKey.h"
 #include "DataFormats/Provenance/interface/BranchListIndex.h"
 #include "DataFormats/Provenance/interface/BranchType.h"
+#include "FWCore/Utilities/interface/ProductKindOfType.h"
 #include "FWCore/Utilities/interface/ProductResolverIndex.h"
 #include "FWCore/Utilities/interface/get_underlying_safe.h"
 
@@ -22,6 +23,8 @@
 #include <map>
 #include <set>
 #include <string>
+#include <string_view>
+#include <tuple>
 #include <utility>
 #include <vector>
 
@@ -118,9 +121,17 @@ namespace edm {
     bool productProduced(BranchType branchType) const { return transient_.productProduced_[branchType]; }
     bool anyProductProduced() const { return transient_.anyProductProduced_; }
 
-    std::vector<std::pair<std::string, std::string>> const& aliasToOriginal() const {
-      return transient_.aliasToOriginal_;
-    }
+    // Looks if a (type, moduleLabel, productInstanceName) is an alias to some other branch
+    //
+    // Can return multiple modules if kindOfType is ELEMENT_TYPE (i.e.
+    // the product is consumed via edm::View) and there is ambiguity
+    // (in which case actual Event::get() would eventually lead to an
+    // exception). In that case all possible modules whose product
+    // could be consumed are returned.
+    std::vector<std::string> aliasToModules(KindOfType kindOfType,
+                                            TypeID const& type,
+                                            std::string_view moduleLabel,
+                                            std::string_view productInstanceName) const;
 
     ProductResolverIndex const& getNextIndexValue(BranchType branchType) const;
 
@@ -143,7 +154,9 @@ namespace edm {
 
       std::map<BranchID, ProductResolverIndex> branchIDToIndex_;
 
-      std::vector<std::pair<std::string, std::string>> aliasToOriginal_;
+      enum { kKind, kType, kModuleLabel, kProductInstanceName, kAliasForModuleLabel };
+      using AliasToOriginalVector = std::vector<std::tuple<KindOfType, TypeID, std::string, std::string, std::string>>;
+      AliasToOriginalVector aliasToOriginal_;
     };
 
   private:
@@ -157,6 +170,9 @@ namespace edm {
     void initializeLookupTables(std::set<TypeID> const* productTypesConsumed,
                                 std::set<TypeID> const* elementTypesConsumed,
                                 std::string const* processName);
+    void addElementTypesForAliases(std::set<TypeID> const* elementTypesConsumed,
+                                   std::map<TypeID, TypeID> const& containedTypeMap,
+                                   std::map<TypeID, std::vector<TypeWithDict>> const& containedTypeToBaseTypesMap);
 
     void checkDictionariesOfConsumedTypes(std::set<TypeID> const* productTypesConsumed,
                                           std::set<TypeID> const* elementTypesConsumed,
