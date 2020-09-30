@@ -16,10 +16,10 @@
  <version ClassVersion="10" checksum="934677092"/>
 </class>
 <class name="edm::Wrapper<pat::HeavyIon >" />
-<class name="pat::HFFilterStruct" ClassVersion="3">
- <version ClassVersion="3" checksum="2657003700"/>
+<class name="reco::HFFilterInfo" ClassVersion="3">
+ <version ClassVersion="3" checksum="3699024521"/>
 </class>
-<class name="edm::Wrapper<pat::HFFilterStruct>"/>
+<class name="edm::Wrapper<reco::HFFilterInfo>"/>
 <class name="reco::VoronoiBackground" />
 <class name="edm::Wrapper<reco::VoronoiBackground>"/>
 <class name="edm::ValueMap<reco::VoronoiBackground>" />
