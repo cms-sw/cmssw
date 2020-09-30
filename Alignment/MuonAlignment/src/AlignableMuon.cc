@@ -288,9 +288,9 @@ void AlignableMuon::buildGEMEndcap(const GEMGeometry* pGEM, bool update) {
 
     for (int ist = 0; ist < 3; ist++) {
       if (ist == 0)
-        continue; //Run3 GEM dosen't have ME0
+        continue;  //Run3 GEM dosen't have ME0
       if (ist == 2)
-        continue; //Run3 GEM dosen't have GE2/1
+        continue;  //Run3 GEM dosen't have GE2/1
       std::vector<AlignableGEMSuperChamber*> tmpGEMSuperChambersInRing;
       int iri = 1;
       int iChamber{0};
