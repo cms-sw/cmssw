@@ -12,7 +12,7 @@
 
 #include "DataFormats/CaloTowers/interface/CaloTower.h"
 #include "DataFormats/CaloTowers/interface/CaloTowerCollection.h"
-#include "DataFormats/HeavyIonEvent/interface/HFFilterStruct.h"
+#include "DataFormats/HeavyIonEvent/interface/HFFilterInfo.h"
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -35,7 +35,7 @@ private:
 
 HiHFFilterProducer::HiHFFilterProducer(const edm::ParameterSet& iConfig)
     : srcTowers_(consumes<CaloTowerCollection>(iConfig.getParameter<edm::InputTag>("srcTowers"))) {
-  produces<pat::HFFilterStruct>("hiHFfilters");
+  produces<reco::HFFilterInfo>("hiHFfilters");
 }
 
 void HiHFFilterProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
@@ -44,16 +44,16 @@ void HiHFFilterProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSet
 
   auto const& towers = iEvent.get(srcTowers_);
 
-  int nTowersTh2HFplus = 0;
-  int nTowersTh2HFminus = 0;
-  int nTowersTh3HFplus = 0;
-  int nTowersTh3HFminus = 0;
-  int nTowersTh4HFplus = 0;
-  int nTowersTh4HFminus = 0;
-  int nTowersTh5HFplus = 0;
-  int nTowersTh5HFminus = 0;
+  unsigned short int nTowersTh2HFplus = 0;
+  unsigned short int nTowersTh2HFminus = 0;
+  unsigned short int nTowersTh3HFplus = 0;
+  unsigned short int nTowersTh3HFminus = 0;
+  unsigned short int nTowersTh4HFplus = 0;
+  unsigned short int nTowersTh4HFminus = 0;
+  unsigned short int nTowersTh5HFplus = 0;
+  unsigned short int nTowersTh5HFminus = 0;
 
-  auto HFFilterResults = std::make_unique<pat::HFFilterStruct>();
+  auto HFFilterResults = std::make_unique<reco::HFFilterInfo>();
   for (const auto& tower : towers) {
     const auto et = tower.et();
     const auto energy = tower.energy();
