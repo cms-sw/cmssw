@@ -463,6 +463,7 @@ const std::vector<double> DDFilteredView::parameters() const {
 }
 
 const cms::DDSolidShape DDFilteredView::shape() const {
+  assert(node_);
   return cms::dd::value(cms::DDSolidShapeMap, std::string(node_->GetVolume()->GetShape()->GetTitle()));
 }
 
@@ -478,12 +479,12 @@ std::string_view DDFilteredView::get<string_view>(const string& key) const {
   int level = it_.back().GetLevel();
   for (auto const& i : refs) {
     auto k = find_if(begin(i->paths), end(i->paths), [&](auto const& j) {
-      auto const& names = split(j, "/");
-      int count = names.size();
+      auto frompos = j.find_last_of('/');
+      auto topos = j.size();
       bool flag = false;
-      for (int nit = level; count > 0 and nit > 0; --nit) {
+      for (int nit = level; frompos > topos and nit > 0; --nit) {
         std::string_view name = it_.back().GetNode(nit)->GetVolume()->GetName();
-        auto refname = names[--count];
+	std::string_view refname(j.substr(frompos + 1, topos));
         auto rpos = refname.find(":");
         if (rpos == refname.npos) {
           name = noNamespace(name);
@@ -492,9 +493,9 @@ std::string_view DDFilteredView::get<string_view>(const string& key) const {
             refname.remove_prefix(rpos + 1);
           }
         }
-        auto cpos = refname.find("[");
+        auto cpos = refname.rfind("[");
         if (cpos != refname.npos) {
-          if (std::stoi(std::string(refname.substr(cpos + 1, refname.find("]")))) == copyNum()) {
+          if (std::stoi(std::string(refname.substr(cpos + 1, refname.rfind("]")))) == copyNum()) {
             refname.remove_suffix(refname.size() - cpos);
             flag = true;
             continue;
@@ -520,6 +521,8 @@ std::string_view DDFilteredView::get<string_view>(const string& key) const {
             continue;
           }
         }
+	topos = frompos - 1;
+	frompos = j.substr(0, frompos).find_last_of('/');
       }
       return flag;
     });
