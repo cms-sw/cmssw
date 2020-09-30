@@ -61,3 +61,6 @@
 
 <bin name="testMultiAssociation" file="testRunner.cpp,testMultiAssociation.cc">
 </bin>
+
+<bin name="testRefToElementID" file="testRunner.cpp,testRefToElementID.cc">
+</bin>
