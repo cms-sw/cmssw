@@ -6,7 +6,7 @@
 #include "FWCore/Utilities/interface/Transition.h"
 
 #include "DataFormats/L1TMuon/interface/CSCConstants.h"
-#include "L1Trigger/CSCCommonTrigger/interface/CSCPatternLUT.h"
+#include "L1Trigger/CSCTriggerPrimitives/interface/CSCPatternBank.h"
 
 #include "L1Trigger/DTUtilities/interface/DTTrigGeom.h"
 
@@ -453,7 +453,7 @@ int AngleConverter::getGlobalEta(unsigned int rawid, const CSCCorrelatedLCTDigi 
   double offset = 0.0;
   switch (1) {
     case 1:
-      offset = CSCPatternLUT::get2007Position(pattern);
+      offset = CSCPatternBank::getLegacyPosition(pattern);
   }
   const unsigned halfstrip_offs = unsigned(0.5 + halfstrip + offset);
   const unsigned strip = halfstrip_offs / 2 + 1;  // geom starts from 1
