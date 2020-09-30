@@ -33,7 +33,6 @@ namespace edm {
   class PreallocationConfiguration;
   class StreamID;
   class ActivityRegistry;
-  class ProductRegistry;
   class ThinnedAssociationsHelper;
   class WaitingTask;
 
@@ -74,11 +73,10 @@ namespace edm {
       }
 
     private:
-      bool doEvent(EventPrincipal const& ep, EventSetupImpl const& c, ActivityRegistry*, ModuleCallingContext const*);
+      bool doEvent(EventTransitionInfo const&, ActivityRegistry*, ModuleCallingContext const*);
       //For now this is a placeholder
-      /*virtual*/ void preActionBeforeRunEventAsync(WaitingTask* iTask,
-                                                    ModuleCallingContext const& iModuleCallingContext,
-                                                    Principal const& iPrincipal) const {}
+      /*virtual*/ void preActionBeforeRunEventAsync(WaitingTask*, ModuleCallingContext const&, Principal const&) const {
+      }
 
       void doPreallocate(PreallocationConfiguration const&);
       void doBeginJob();
@@ -86,28 +84,18 @@ namespace edm {
 
       void doBeginStream(StreamID id);
       void doEndStream(StreamID id);
-      void doStreamBeginRun(StreamID id, RunPrincipal const& ep, EventSetupImpl const& c, ModuleCallingContext const*);
-      void doStreamEndRun(StreamID id, RunPrincipal const& ep, EventSetupImpl const& c, ModuleCallingContext const*);
-      void doStreamBeginLuminosityBlock(StreamID id,
-                                        LuminosityBlockPrincipal const& ep,
-                                        EventSetupImpl const& c,
-                                        ModuleCallingContext const*);
-      void doStreamEndLuminosityBlock(StreamID id,
-                                      LuminosityBlockPrincipal const& ep,
-                                      EventSetupImpl const& c,
-                                      ModuleCallingContext const*);
+      void doStreamBeginRun(StreamID, RunTransitionInfo const&, ModuleCallingContext const*);
+      void doStreamEndRun(StreamID, RunTransitionInfo const&, ModuleCallingContext const*);
+      void doStreamBeginLuminosityBlock(StreamID, LumiTransitionInfo const&, ModuleCallingContext const*);
+      void doStreamEndLuminosityBlock(StreamID, LumiTransitionInfo const&, ModuleCallingContext const*);
 
       void doBeginProcessBlock(ProcessBlockPrincipal const&, ModuleCallingContext const*);
       void doAccessInputProcessBlock(ProcessBlockPrincipal const&, ModuleCallingContext const*);
       void doEndProcessBlock(ProcessBlockPrincipal const&, ModuleCallingContext const*);
-      void doBeginRun(RunPrincipal const& rp, EventSetupImpl const& c, ModuleCallingContext const*);
-      void doEndRun(RunPrincipal const& rp, EventSetupImpl const& c, ModuleCallingContext const*);
-      void doBeginLuminosityBlock(LuminosityBlockPrincipal const& lbp,
-                                  EventSetupImpl const& c,
-                                  ModuleCallingContext const*);
-      void doEndLuminosityBlock(LuminosityBlockPrincipal const& lbp,
-                                EventSetupImpl const& c,
-                                ModuleCallingContext const*);
+      void doBeginRun(RunTransitionInfo const&, ModuleCallingContext const*);
+      void doEndRun(RunTransitionInfo const&, ModuleCallingContext const*);
+      void doBeginLuminosityBlock(LumiTransitionInfo const&, ModuleCallingContext const*);
+      void doEndLuminosityBlock(LumiTransitionInfo const&, ModuleCallingContext const*);
 
       //For now, the following are just dummy implemenations with no ability for users to override
       void doRespondToOpenInputFile(FileBlock const& fb);
