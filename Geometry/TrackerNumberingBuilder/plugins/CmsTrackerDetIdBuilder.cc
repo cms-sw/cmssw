@@ -45,7 +45,7 @@ void CmsTrackerDetIdBuilder::buildId(GeometricDet& tracker) {
     outfile << " " << std::endl;
     outfile << " " << std::endl;
     outfile << "............................." << std::endl;
-    outfile << "myDet->geographicalId() = " << myDet->geographicalId() << std::endl;
+    outfile << "myDet->geographicalID() = " << myDet->geographicalId() << std::endl;
 
     //const auto& found = myDet->name().find(":");
     //outfile << "myDet->name() = " << (found != std::string::npos ? myDet->name().substr(found + 1) : myDet->name()) << std::endl;
