@@ -484,7 +484,7 @@ std::string_view DDFilteredView::get<string_view>(const string& key) const {
       bool flag = false;
       for (int nit = level; frompos > topos and nit > 0; --nit) {
         std::string_view name = it_.back().GetNode(nit)->GetVolume()->GetName();
-	std::string_view refname(j.substr(frompos + 1, topos));
+        std::string_view refname(j.substr(frompos + 1, topos));
         auto rpos = refname.find(":");
         if (rpos == refname.npos) {
           name = noNamespace(name);
@@ -521,8 +521,8 @@ std::string_view DDFilteredView::get<string_view>(const string& key) const {
             continue;
           }
         }
-	topos = frompos - 1;
-	frompos = j.substr(0, frompos).find_last_of('/');
+        topos = frompos - 1;
+        frompos = j.substr(0, frompos).find_last_of('/');
       }
       return flag;
     });
