@@ -220,8 +220,14 @@ namespace reco {
     /// dz parameter (= dsz/cos(lambda)). This is the track z0 w.r.t (0,0,0) only if the refPoint is close to (0,0,0). See also function dz(myBeamSpot)
     double dz() const;
 
+    /// momentum vector magnitude square
+    double p2() const;
+
     /// momentum vector magnitude
     double p() const;
+
+    /// track transverse momentum square
+    double pt2() const;
 
     /// track transverse momentum
     double pt() const;
@@ -301,6 +307,9 @@ namespace reco {
 
     /// error on signed transverse curvature
     double qoverpError() const;
+
+    /// error on Pt (set to 1000**2 TeV**2 if charge==0 for safety)
+    double ptError2() const;
 
     /// error on Pt (set to 1000 TeV if charge==0 for safety)
     double ptError() const;
@@ -602,16 +611,30 @@ namespace reco {
   inline double TrackBase::d0() const { return -dxy(); }
 
   // dsz parameter (THIS IS NOT the SZ impact parameter to (0,0,0) if refPoint is far from (0,0,0): see parametrization definition above for details)
-  inline double TrackBase::dsz() const { return vz() * pt() / p() - (vx() * px() + vy() * py()) / pt() * pz() / p(); }
+  inline double TrackBase::dsz() const {
+    const auto thept = pt();
+    const auto thepinv = 1 / p();
+    const auto theptoverp = thept * thepinv;
+    return vz() * theptoverp - (vx() * px() + vy() * py()) / thept * pz() * thepinv;
+  }
 
   // dz parameter (= dsz/cos(lambda)). This is the track z0 w.r.t (0,0,0) only if the refPoint is close to (0,0,0). See also function dz(myBeamSpot) below.
-  inline double TrackBase::dz() const { return vz() - (vx() * px() + vy() * py()) / pt() * (pz() / pt()); }
+  inline double TrackBase::dz() const {
+    const auto thept2inv = 1 / pt2();
+    return vz() - (vx() * px() + vy() * py()) * pz() * thept2inv;
+  }
+
+  // momentum vector magnitude square
+  inline double TrackBase::p2() const { return momentum_.Mag2(); }
 
   // momentum vector magnitude
-  inline double TrackBase::p() const { return momentum_.R(); }
+  inline double TrackBase::p() const { return sqrt(p2()); }
+
+  // track transverse momentum square
+  inline double TrackBase::pt2() const { return momentum_.Perp2(); }
 
   // track transverse momentum
-  inline double TrackBase::pt() const { return sqrt(momentum_.Perp2()); }
+  inline double TrackBase::pt() const { return sqrt(pt2()); }
 
   // x coordinate of momentum vector
   inline double TrackBase::px() const { return momentum_.x(); }
@@ -668,16 +691,20 @@ namespace reco {
   // (WARNING: this quantity can only be interpreted as the distance in the S-Z plane to the beamSpot, if the beam spot is reasonably close to the refPoint, since linear approximations are involved).
   // This is a good approximation for Tracker tracks.
   inline double TrackBase::dsz(const Point &myBeamSpot) const {
-    return (vz() - myBeamSpot.z()) * pt() / p() -
-           ((vx() - myBeamSpot.x()) * px() + (vy() - myBeamSpot.y()) * py()) / pt() * pz() / p();
+    const auto thept = pt();
+    const auto thepinv = 1 / p();
+    const auto theptoverp = thept * thepinv;
+    return (vz() - myBeamSpot.z()) * theptoverp -
+           ((vx() - myBeamSpot.x()) * px() + (vy() - myBeamSpot.y()) * py()) / thept * pz() * thepinv;
   }
 
   // dz parameter with respect to a user-given beamSpot
   // (WARNING: this quantity can only be interpreted as the track z0, if the beamSpot is reasonably close to the refPoint, since linear approximations are involved).
   // This is a good approximation for Tracker tracks.
   inline double TrackBase::dz(const Point &myBeamSpot) const {
+    const auto theptinv2 = 1 / pt2();
     return (vz() - myBeamSpot.z()) -
-           ((vx() - myBeamSpot.x()) * px() + (vy() - myBeamSpot.y()) * py()) / pt() * pz() / pt();
+           ((vx() - myBeamSpot.x()) * px() + (vy() - myBeamSpot.y()) * py()) * pz() * theptinv2;
   }
 
   // Track parameters with one-to-one correspondence to the covariance matrix
@@ -704,13 +731,27 @@ namespace reco {
   // error on signed transverse curvature
   inline double TrackBase::qoverpError() const { return error(i_qoverp); }
 
-  // error on Pt (set to 1000 TeV if charge==0 for safety)
-  inline double TrackBase::ptError() const {
-    return (charge() != 0) ? sqrt(pt() * pt() * p() * p() / charge() / charge() * covariance(i_qoverp, i_qoverp) +
-                                  2 * pt() * p() / charge() * pz() * covariance(i_qoverp, i_lambda) +
-                                  pz() * pz() * covariance(i_lambda, i_lambda))
-                           : 1.e6;
+  // error on Pt (set to 1000**2 TeV**2 if charge==0 for safety)
+  inline double TrackBase::ptError2() const {
+    const auto thecharge = charge();
+
+    if (thecharge != 0) {
+      const auto thept2 = pt2();
+      const auto thep2 = p2();
+      const auto thepz = pz();
+      const auto ptimespt = sqrt(thep2 * thept2);
+      const auto oneovercharge = 1 / thecharge;
+
+      return thept2 * thep2 * oneovercharge * oneovercharge * covariance(i_qoverp, i_qoverp) +
+             2 * ptimespt * oneovercharge * thepz * covariance(i_qoverp, i_lambda) +
+             thepz * thepz * covariance(i_lambda, i_lambda);
+    }
+
+    return 1.e12;
   }
+
+  // error on Pt (set to 1000 TeV if charge==0 for safety)
+  inline double TrackBase::ptError() const { return sqrt(ptError2()); }
 
   // error on theta
   inline double TrackBase::thetaError() const { return error(i_lambda); }
@@ -719,7 +760,7 @@ namespace reco {
   inline double TrackBase::lambdaError() const { return error(i_lambda); }
 
   // error on eta
-  inline double TrackBase::etaError() const { return error(i_lambda) * p() / pt(); }
+  inline double TrackBase::etaError() const { return error(i_lambda) * sqrt(p2() / pt2()); }
 
   // error on phi
   inline double TrackBase::phiError() const { return error(i_phi); }
@@ -734,7 +775,7 @@ namespace reco {
   inline double TrackBase::dszError() const { return error(i_dsz); }
 
   // error on dz
-  inline double TrackBase::dzError() const { return error(i_dsz) * p() / pt(); }
+  inline double TrackBase::dzError() const { return error(i_dsz) * sqrt(p2() / pt2()); }
 
   // covariance of t0
   inline double TrackBase::covt0t0() const { return covt0t0_; }
@@ -778,11 +819,13 @@ namespace reco {
     int lostIn = hitPattern_.numberOfLostTrackerHits(HitPattern::MISSING_INNER_HITS);
     int lostOut = hitPattern_.numberOfLostTrackerHits(HitPattern::MISSING_OUTER_HITS);
 
-    if ((valid + lost + lostIn + lostOut) == 0) {
+    const auto tot = valid + lost + lostIn + lostOut;
+
+    if (tot == 0) {
       return -1;
     }
 
-    return valid / (double)(valid + lost + lostIn + lostOut);
+    return valid / (double)(tot);
   }
 
   //Track algorithm
