@@ -70,18 +70,16 @@ namespace edm {
 
       const EDFilterAdaptorBase& operator=(const EDFilterAdaptorBase&) = delete;  // stop default
 
-      bool doEvent(EventPrincipal const&, EventSetupImpl const&, ActivityRegistry*, ModuleCallingContext const*);
+      bool doEvent(EventTransitionInfo const&, ActivityRegistry*, ModuleCallingContext const*);
 
-      void doAcquire(EventPrincipal const&,
-                     EventSetupImpl const&,
+      void doAcquire(EventTransitionInfo const&,
                      ActivityRegistry*,
                      ModuleCallingContext const*,
                      WaitingTaskWithArenaHolder&);
 
       //For now this is a placeholder
-      /*virtual*/ void preActionBeforeRunEventAsync(WaitingTask* iTask,
-                                                    ModuleCallingContext const& iModuleCallingContext,
-                                                    Principal const& iPrincipal) const {}
+      /*virtual*/ void preActionBeforeRunEventAsync(WaitingTask*, ModuleCallingContext const&, Principal const&) const {
+      }
     };
   }  // namespace stream
 }  // namespace edm
