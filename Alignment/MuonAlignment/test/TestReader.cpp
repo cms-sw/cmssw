@@ -107,10 +107,12 @@ void TestMuonReader::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
   // first, get chamber alignables from ideal geometry:
   edm::ESHandle<DTGeometry> dtGeometry;
   edm::ESHandle<CSCGeometry> cscGeometry;
+  edm::ESHandle<GEMGeometry> gemGeometry;
   iSetup.get<MuonGeometryRecord>().get(idealGeometryLabel, dtGeometry);
   iSetup.get<MuonGeometryRecord>().get(idealGeometryLabel, cscGeometry);
+  iSetup.get<MuonGeometryRecord>().get(idealGeometryLabel, gemGeometry);
 
-  AlignableMuon ideal_alignableMuon(&(*dtGeometry), &(*cscGeometry));
+  AlignableMuon ideal_alignableMuon(&(*dtGeometry), &(*cscGeometry), &(*gemGeometry));
 
   const auto& ideal_barrels = ideal_alignableMuon.DTBarrel();
   const auto& ideal_endcaps = ideal_alignableMuon.CSCEndcaps();

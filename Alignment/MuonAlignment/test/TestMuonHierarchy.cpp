@@ -52,10 +52,12 @@ void TestMuonHierarchy::analyze(const edm::Event&, const edm::EventSetup& setup)
   edm::LogInfo("MuonHierarchy") << "Starting!";
   edm::ESHandle<DTGeometry> dtGeometry;
   edm::ESHandle<CSCGeometry> cscGeometry;
+  edm::ESHandle<GEMGeometry> gemGeometry;
   setup.get<MuonGeometryRecord>().get(dtGeometry);
   setup.get<MuonGeometryRecord>().get(cscGeometry);
+  setup.get<MuonGeometryRecord>().get(gemGeometry);
 
-  alignableMuon_ = std::make_unique<AlignableMuon>(&(*dtGeometry), &(*cscGeometry));
+  alignableMuon_ = std::make_unique<AlignableMuon>(&(*dtGeometry), &(*cscGeometry), &(*gemGeometry));
 
   leaders_ = "";
   blank_ = "   ";   // These two...

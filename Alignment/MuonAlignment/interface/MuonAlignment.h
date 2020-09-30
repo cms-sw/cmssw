@@ -52,6 +52,7 @@ public:
 
   void saveDTtoDB();
   void saveCSCtoDB();
+  void saveGEMtoDB();
   void saveToDB();
 
 private:
@@ -60,6 +61,7 @@ private:
 
   std::string theDTAlignRecordName, theDTErrorRecordName;
   std::string theCSCAlignRecordName, theCSCErrorRecordName;
+  std::string theGEMAlignRecordName, theGEMErrorRecordName;
   std::string theDTSurveyRecordName, theDTSurveyErrorRecordName;
   std::string theCSCSurveyRecordName, theCSCSurveyErrorRecordName;
 

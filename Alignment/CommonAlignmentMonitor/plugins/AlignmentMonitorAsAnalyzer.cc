@@ -39,6 +39,7 @@
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeomBuilderFromGeometricDet.h"
 #include "Geometry/DTGeometry/interface/DTGeometry.h"
 #include "Geometry/CSCGeometry/interface/CSCGeometry.h"
+#include "Geometry/GEMGeometry/interface/GEMGeometry.h"
 #include "Geometry/Records/interface/TrackerTopologyRcd.h"
 #include "Geometry/CommonTopologies/interface/GeometryAligner.h"
 #include "CondFormats/GeometryObjects/interface/PTrackerParameters.h"
@@ -50,6 +51,8 @@
 #include "CondFormats/AlignmentRecord/interface/DTAlignmentErrorExtendedRcd.h"
 #include "CondFormats/AlignmentRecord/interface/CSCAlignmentRcd.h"
 #include "CondFormats/AlignmentRecord/interface/CSCAlignmentErrorExtendedRcd.h"
+#include "CondFormats/AlignmentRecord/interface/GEMAlignmentRcd.h"
+#include "CondFormats/AlignmentRecord/interface/GEMAlignmentErrorExtendedRcd.h"
 #include "CondFormats/AlignmentRecord/interface/GlobalPositionRcd.h"
 #include "CondFormats/Alignment/interface/DetectorGlobalPosition.h"
 
@@ -131,8 +134,10 @@ void AlignmentMonitorAsAnalyzer::analyze(const edm::Event& iEvent, const edm::Ev
 
     edm::ESHandle<DTGeometry> theMuonDT;
     edm::ESHandle<CSCGeometry> theMuonCSC;
+    edm::ESHandle<GEMGeometry> theMuonGEM;
     iSetup.get<MuonGeometryRecord>().get(idealGeometryLabel, theMuonDT);
     iSetup.get<MuonGeometryRecord>().get(idealGeometryLabel, theMuonCSC);
+    iSetup.get<MuonGeometryRecord>().get(idealGeometryLabel, theMuonGEM);
 
     edm::ESHandle<Alignments> globalPositionRcd;
     iSetup.get<GlobalPositionRcd>().get(globalPositionRcd);
@@ -164,11 +169,20 @@ void AlignmentMonitorAsAnalyzer::analyze(const edm::Event& iEvent, const edm::Ev
                                          &(*cscAlignmentErrorsExtended),
                                          align::DetectorGlobalPosition(*globalPositionRcd, DetId(DetId::Muon)));
 
+    edm::ESHandle<Alignments> gemAlignments;
+    iSetup.get<GEMAlignmentRcd>().get(gemAlignments);
+    edm::ESHandle<AlignmentErrorsExtended> gemAlignmentErrorsExtended;
+    iSetup.get<GEMAlignmentErrorExtendedRcd>().get(gemAlignmentErrorsExtended);
+    aligner.applyAlignments<GEMGeometry>(&(*theMuonGEM),
+                                         &(*gemAlignments),
+                                         &(*gemAlignmentErrorsExtended),
+                                         align::DetectorGlobalPosition(*globalPositionRcd, DetId(DetId::Muon)));
+
     // within an analyzer, modules can't expect to see any selected alignables!
     align::Alignables empty_alignables;
 
     m_alignableTracker = std::make_unique<AlignableTracker>(&(*theTracker), tTopo);
-    m_alignableMuon = std::make_unique<AlignableMuon>(&(*theMuonDT), &(*theMuonCSC));
+    m_alignableMuon = std::make_unique<AlignableMuon>(&(*theMuonDT), &(*theMuonCSC), &(*theMuonGEM));
     m_alignmentParameterStore = std::make_unique<AlignmentParameterStore>(empty_alignables, m_aliParamStoreCfg);
 
     for (auto const& monitor : m_monitors) {

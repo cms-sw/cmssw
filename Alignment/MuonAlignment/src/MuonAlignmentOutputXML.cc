@@ -121,10 +121,12 @@ void MuonAlignmentOutputXML::write(AlignableMuon *alignableMuon, const edm::Even
   if (m_relativeto == 1) {
     edm::ESHandle<DTGeometry> dtGeometry;
     edm::ESHandle<CSCGeometry> cscGeometry;
+    edm::ESHandle<GEMGeometry> gemGeometry;
     iSetup.get<MuonGeometryRecord>().get(idealGeometryLabel, dtGeometry);
     iSetup.get<MuonGeometryRecord>().get(idealGeometryLabel, cscGeometry);
+    iSetup.get<MuonGeometryRecord>().get(idealGeometryLabel, gemGeometry);
 
-    AlignableMuon ideal_alignableMuon(&(*dtGeometry), &(*cscGeometry));
+    AlignableMuon ideal_alignableMuon(&(*dtGeometry), &(*cscGeometry), &(*gemGeometry));
 
     align::Alignables ideal_barrels = ideal_alignableMuon.DTBarrel();
     align::Alignables ideal_endcaps = ideal_alignableMuon.CSCEndcaps();
