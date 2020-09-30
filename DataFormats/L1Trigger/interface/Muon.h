@@ -68,7 +68,7 @@ namespace l1t {
          double ptUnconstrained = 0.,
          int dXY = 0);
 
-    ~Muon();
+    ~Muon() override;
 
     // set values
     inline void setHwCharge(int charge) { hwCharge_ = charge; };
