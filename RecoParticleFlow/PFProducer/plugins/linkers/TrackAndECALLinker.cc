@@ -46,10 +46,10 @@ bool TrackAndECALLinker::linkPrefilter(size_t ielem1,
   bool result = false;
   switch (type1) {
     case reco::PFBlockElement::TRACK:
-      result = multilinks.isValid(ielem2, type2, type1);
+      result = multilinks.isLinked(ielem2, ielem1, type2, type1);
       break;
     case reco::PFBlockElement::ECAL:
-      result = multilinks.isValid(ielem1, type1, type2);
+      result = multilinks.isValid(ielem1, ielem2, type1, type2);
     default:
       break;
   }

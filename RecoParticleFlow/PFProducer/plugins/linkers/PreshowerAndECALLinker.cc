@@ -46,10 +46,10 @@ bool PreshowerAndECALLinker::linkPrefilter(size_t ielem1,
   switch (type1) {
     case reco::PFBlockElement::PS1:
     case reco::PFBlockElement::PS2:
-      result = multilinks.isValid(ielem1, type1, type2);
+      result = multilinks.isLinked(ielem1, ielem2, type1, type2);
       break;
     case reco::PFBlockElement::ECAL:
-      result = multilinks.isValid(ielem2, type2, type1);
+      result = multilinks.isLinked(ielem2, ielem1, type2, type1);
       break;
     default:
       break;

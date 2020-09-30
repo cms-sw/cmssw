@@ -34,7 +34,10 @@ namespace reco {
       _linkdata[getLinkIndex(src_type, dst_type)][ielem1].insert(ielem2);
     }
 
-    bool isValid(size_t ielem1, reco::PFBlockElement::Type src_type, reco::PFBlockElement::Type dst_type) const {
+    bool isValid(size_t ielem1,
+                 size_t ielem2,
+                 reco::PFBlockElement::Type src_type,
+                 reco::PFBlockElement::Type dst_type) const {
       return getNumLinks(ielem1, src_type, dst_type) != 0;
     }
 

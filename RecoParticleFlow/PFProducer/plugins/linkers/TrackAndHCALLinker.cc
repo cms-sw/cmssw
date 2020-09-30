@@ -71,10 +71,10 @@ bool TrackAndHCALLinker::linkPrefilter(size_t ielem1,
   bool result = false;
   switch (type1) {
     case reco::PFBlockElement::TRACK:
-      result = multilinks.isValid(ielem1, type1, type2);
+      result = multilinks.isLinked(ielem1, ielem2, type1, type2);
       break;
     case reco::PFBlockElement::HCAL:
-      result = multilinks.isValid(ielem2, type2, type1);
+      result = multilinks.isLinked(ielem2, ielem1, type2, type1);
     default:
       break;
   }
