@@ -468,8 +468,12 @@ double LinkByRecHit::testTrackAndClusterByRecHit(
 
         // The link is computed between 0 and ~1 interaction length in HCAL
         dHEta = tracks_hcalexit_table.get<track::Eta>(itrack) - tracks_hcalent_table.get<track::Eta>(itrack);
-        dHPhi =
-            reco::deltaPhi(tracks_hcalexit_table.get<track::Phi>(itrack), tracks_hcalent_table.get<track::Phi>(itrack));
+        dHPhi = tracks_hcalexit_table.get<track::Phi>(itrack) - tracks_hcalent_table.get<track::Phi>(itrack);
+        if (dHPhi > M_PI)
+          dHPhi = dHPhi - 2. * M_PI;
+        else if (dHPhi < -M_PI)
+          dHPhi = dHPhi + 2. * M_PI;
+
         tracketa = tracks_hcalent_table.get<track::Eta>(itrack) + 0.1 * dHEta;
         trackphi = tracks_hcalent_table.get<track::Phi>(itrack) + 0.1 * dHPhi;
         track_X = tracks_hcalent_table.get<track::Posx>(itrack);
@@ -554,8 +558,10 @@ double LinkByRecHit::testTrackAndClusterByRecHit(
       // also blown up to account for multiple scattering at low pt.
       double rhsizeEta =
           std::abs(rechit_table.get<rechit::CornerEta>(irechit)[3] - rechit_table.get<rechit::CornerEta>(irechit)[1]);
-      double rhsizePhi = std::abs(reco::deltaPhi(rechit_table.get<rechit::CornerPhi>(irechit)[3],
-                                                 rechit_table.get<rechit::CornerPhi>(irechit)[1]));
+      double rhsizePhi = std::abs(rrechit_table.get<rechit::CornerPhi>(irechit)[3] - 
+                                                 rechit_table.get<rechit::CornerPhi>(irechit)[1]);
+      if (rhsizePhi > M_PI)
+        rhsizePhi = 2. * M_PI - rhsizePhi;
 
       if (hcal) {
         const double mult = horesolscale * (1.50 + 0.5 / fracsNbr);
@@ -572,7 +578,9 @@ double LinkByRecHit::testTrackAndClusterByRecHit(
       // const math::XYZPoint& posxyz
       // = rechit_cluster.position();
       double deta = std::abs(rechit_table.get<rechit::Eta>(irechit) - tracketa);
-      double dphi = std::abs(reco::deltaPhi(rechit_table.get<rechit::Phi>(irechit), trackphi));
+      double dphi = std::abs(rechit_table.get<rechit::Phi>(irechit) - trackphi);
+      if (dphi > M_PI)
+        dphi = 2. * M_PI - dphi;
 
       if (deta < (0.5 * rhsizeEta) && dphi < (0.5 * rhsizePhi)) {
         linkedbyrechit = true;

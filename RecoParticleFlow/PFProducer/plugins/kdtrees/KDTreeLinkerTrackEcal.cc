@@ -117,10 +117,14 @@ void KDTreeLinkerTrackEcal::searchLinks(const PFTables& pftables, reco::PFMultiL
       const auto& corner_eta = rechitTable.get<rechit::CornerEta>(irecHit);
       const auto& corner_phi = rechitTable.get<rechit::CornerPhi>(irecHit);
       double rhsizeeta = std::abs(corner_eta[3] - corner_eta[1]);
-      double rhsizephi = std::abs(reco::deltaPhi(corner_phi[3], corner_phi[1]));
+      double rhsizephi = std::abs(corner_phi[3] - corner_phi[1]);
+      if (rhsizephi > M_PI)
+        rhsizephi = 2. * M_PI - rhsizephi;
 
       double deta = std::abs(rechitTable.get<rechit::Eta>(irecHit) - tracketa);
-      double dphi = std::abs(reco::deltaPhi(rechitTable.get<rechit::Phi>(irecHit), trackphi));
+      double dphi = std::abs(rechitTable.get<rechit::Phi>(irecHit) - trackphi);
+      if (rhsizephi > M_PI)
+        rhsizephi = 2. * M_PI - rhsizephi;
 
       LogTrace("KDTreeLinkerTrackEcal") << "getting rechit " << irecHit;
 
