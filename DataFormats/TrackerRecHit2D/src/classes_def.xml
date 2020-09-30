@@ -189,8 +189,8 @@
   <class name="edm::Wrapper< MTDTrackingDetSetVector >"/>
   <class name="MTDTrackingOwnVector"/>
   <class name="edm::Wrapper< MTDTrackingOwnVector >"/>
-  <class name="VectorHit" ClassVersion="5">
-   <version ClassVersion="5" checksum="3586519169"/>
+  <class name="VectorHit" ClassVersion="8">
+   <version ClassVersion="8" checksum="4172043098"/>
   </class>
   <class name="VectorHit2D" ClassVersion="5">
    <version ClassVersion="5" checksum="1341481267"/>

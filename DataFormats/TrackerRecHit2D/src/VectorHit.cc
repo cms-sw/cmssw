@@ -6,7 +6,7 @@ VectorHit::VectorHit(const VectorHit& vh)
     : BaseTrackerRecHit(*vh.det(), trackerHitRTTI::vector),
       thePosition(vh.localPosition()),
       theDirection(vh.localDirection()),
-      theCovMatrix(vh.parametersError()),
+      theCovMatrix(vh.parametersErrorPlain()),
       theChi2(vh.chi2()),
       theDimension(vh.dimension()),
       theLowerCluster(vh.lowerClusterRef()),
@@ -18,7 +18,7 @@ VectorHit::VectorHit(const VectorHit& vh)
 VectorHit::VectorHit(const GeomDet& idet,
                      const LocalPoint& posLower,
                      const LocalVector& dir,
-                     const AlgebraicSymMatrix& covMatrix,
+                     const std::array<std::array<float, 4>, 4> covMatrix,
                      const float chi2,
                      OmniClusterRef const& lower,
                      OmniClusterRef const& upper,
@@ -60,7 +60,13 @@ VectorHit::VectorHit(const GeomDet& idet,
   const AlgebraicSymMatrix22 covMatZX = *vh2Dzx.covMatrix();
   const AlgebraicSymMatrix22 covMatZY = *vh2Dzy.covMatrix();
 
-  theCovMatrix = AlgebraicSymMatrix(nComponents);
+  for (int i = 0; i < nComponents; i++) {
+    for (int j = 0; j < nComponents; j++) {
+      theCovMatrix[i][j] = 0.;
+    }
+  }
+
+  //theCovMatrix = AlgebraicSymMatrix(nComponents);
   theCovMatrix[0][0] = covMatZX[0][0];  // var(dx/dz)
   theCovMatrix[1][1] = covMatZY[0][0];  // var(dy/dz)
   theCovMatrix[2][2] = covMatZX[1][1];  // var(x)
@@ -190,7 +196,7 @@ Global3DVector VectorHit::globalDirection() const { return (det()->surface().toG
 float VectorHit::theta() const { return globalDirection().theta(); }
 
 float VectorHit::transverseMomentum(float magField) const {
-  return magField * (CLHEP::c_light * 1e-11) / theCurvature;
+  return magField * (CLHEP::c_light * 1e-5F) / theCurvature;
 }  // pT [GeV] ~ 0.3 * B[T] * R [m], curvature is in cms, using precise value from speed of light
 float VectorHit::momentum(float magField) const { return transverseMomentum(magField) / (1. * sin(theta())); }
 
@@ -208,7 +214,17 @@ LocalError VectorHit::localDirectionError() const {
   return LocalError(theCovMatrix[0][0], theCovMatrix[0][1], theCovMatrix[1][1]);
 }
 
-AlgebraicSymMatrix VectorHit::parametersError() const { return theCovMatrix; }
+const std::array<std::array<float, 4>, 4> VectorHit::parametersErrorPlain() const { return theCovMatrix; }
+
+AlgebraicSymMatrix VectorHit::parametersError() const {
+  AlgebraicSymMatrix result(nComponents);
+  for (int i = 0; i < nComponents; i++) {
+    for (int j = 0; j < nComponents; j++) {
+      result[i][j] = theCovMatrix[i][j];
+    }
+  }
+  return result;
+}
 
 std::ostream& operator<<(std::ostream& os, const VectorHit& vh) {
   os << " VectorHit create in the DetId#: " << vh.geographicalId() << "\n"
