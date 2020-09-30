@@ -36,7 +36,7 @@ public:
   VectorHit(const GeomDet& idet,
             const LocalPoint& posInner,
             const LocalVector& dir,
-            const AlgebraicSymMatrix& covMatrix,
+            const std::array<std::array<float, 4>, 4> covMatrix,
             const float chi2,
             OmniClusterRef const& lower,
             OmniClusterRef const& upper,
@@ -76,6 +76,7 @@ public:
   // returning methods
   LocalPoint localPosition() const override { return thePosition; }
   virtual LocalVector localDirection() const { return theDirection; }
+  const std::array<std::array<float, 4>, 4> parametersErrorPlain() const;
   AlgebraicSymMatrix parametersError() const override;
   LocalError localPositionError() const override;
   virtual LocalError localDirectionError() const;
@@ -124,7 +125,7 @@ public:
   // setting methods
   void setPosition(LocalPoint pos) { thePosition = pos; }
   void setDirection(LocalVector dir) { theDirection = dir; }
-  void setCovMatrix(AlgebraicSymMatrix mat) { theCovMatrix = mat; }
+  void setCovMatrix(std::array<std::array<float, 4>, 4> mat) { theCovMatrix = mat; }
 
 private:
   // double dispatch
@@ -145,7 +146,7 @@ private:
   // mat[3][3]=var(y)
   // mat[0][2]=cov(dx/dz,x)
   // mat[1][3]=cov(dy/dz,y)
-  AlgebraicSymMatrix theCovMatrix;
+  std::array<std::array<float, 4>, 4> theCovMatrix;
   float theChi2;
   int theDimension;
   OmniClusterRef theLowerCluster;
