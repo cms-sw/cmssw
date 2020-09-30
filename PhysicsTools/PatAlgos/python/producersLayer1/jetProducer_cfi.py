@@ -108,12 +108,11 @@ from Configuration.Eras.Modifier_pp_on_PbPb_run3_cff import pp_on_PbPb_run3
                                            JetFlavourInfoSource = "patJetFlavourAssociation",
                                            JetPartonMapSource = "patJetFlavourAssociationLegacy",
                                            jetCorrFactorsSource = ["patJetCorrFactors"],
-                                           trackAssociationSource = "jetTracksAssociatorAtVertex",
+                                           trackAssociationSource = "ak5JetTracksAssociatorAtVertex",
                                            useLegacyJetMCFlavour = True,
                                            discriminatorSources = [
                                                "simpleSecondaryVertexHighEffBJetTags",
                                                "simpleSecondaryVertexHighPurBJetTags",
-                                               "combinedSecondaryVertexBJetTags",
                                                "combinedSecondaryVertexV2BJetTags",
                                                "jetBProbabilityBJetTags",
                                                "jetProbabilityBJetTags",

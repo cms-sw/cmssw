@@ -164,9 +164,6 @@ def miniAOD_customizeCommon(process):
 
     #noHF pfMET =========
 
-    from PhysicsTools.PatAlgos.producersHeavyIons.heavyIonJetSetup import setupHeavyIonJets
-    _hiGeneral.toModify(process, func = lambda p: setupHeavyIonJets(p, 'akCs4PF', 4, task))
-
     process.noHFCands = cms.EDFilter("GenericPFCandidateSelector",
                                      src=cms.InputTag("particleFlow"),
                                      cut=cms.string("abs(pdgId)!=1 && abs(pdgId)!=2 && abs(eta)<3.0")
@@ -604,9 +601,8 @@ def miniAOD_customizeMC(process):
     #also jet flavour must be switched
     process.patJetFlavourAssociation.rParam = 0.4
     
-    from PhysicsTools.PatAlgos.producersHeavyIons.heavyIonJetSetup import removeJECsForMC, setupHeavyIonGenJets
+    from PhysicsTools.PatAlgos.producersHeavyIons.heavyIonJetSetup import removeJECsForMC
     _hiGeneral.toModify(process, removeJECsForMC)
-    _hiGeneral.toModify(process, func = lambda proc: setupHeavyIonGenJets(proc, 'akCs4PF', 4, task))
 
 
 def miniAOD_customizeOutput(out):
@@ -628,9 +624,6 @@ def miniAOD_customizeData(process):
     from Configuration.Eras.Modifier_ctpps_2016_cff import ctpps_2016
     ctpps_2016.toModify(task, func=lambda t: t.add(process.ctppsLocalTrackLiteProducer))
     ctpps_2016.toModify(task, func=lambda t: t.add(process.ctppsProtons))
-
-    from PhysicsTools.PatAlgos.producersHeavyIons.heavyIonJetSetup import  addJECsForData
-    _hiGeneral.toModify(process, addJECsForData)
 
 def miniAOD_customizeAllData(process):
     miniAOD_customizeCommon(process)
