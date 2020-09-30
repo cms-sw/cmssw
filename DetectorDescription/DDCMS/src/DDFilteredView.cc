@@ -476,26 +476,58 @@ std::string_view DDFilteredView::get<string_view>(const string& key) const {
   DDSpecParRefs refs;
   registry_->filter(refs, key, "");
   int level = it_.back().GetLevel();
-  for_each(begin(refs), end(refs), [&](auto const& i) {
+  for (auto const& i : refs) {
     auto k = find_if(begin(i->paths), end(i->paths), [&](auto const& j) {
       auto const& names = split(j, "/");
       int count = names.size();
       bool flag = false;
       for (int nit = level; count > 0 and nit > 0; --nit) {
-        std::string_view name = noNamespace(it_.back().GetNode(nit)->GetVolume()->GetName());
-        if (!regex_match(std::string(name.data(), name.size()), regex(std::string(names[--count])))) {
-          flag = false;
-          break;
+        std::string_view name = it_.back().GetNode(nit)->GetVolume()->GetName();
+        auto refname = names[--count];
+        auto rpos = refname.find(":");
+        if (rpos == refname.npos) {
+          name = noNamespace(name);
         } else {
-          flag = true;
+          if (name.find(":") == name.npos) {
+            refname.remove_prefix(rpos + 1);
+          }
+        }
+        auto cpos = refname.find("[");
+        if (cpos != refname.npos) {
+          if (std::stoi(std::string(refname.substr(cpos + 1, refname.find("]")))) == copyNum()) {
+            refname.remove_suffix(refname.size() - cpos);
+            flag = true;
+            continue;
+          } else {
+            flag = false;
+            break;
+          }
+        }
+        if (!dd4hep::dd::isRegex(refname)) {
+          if (!dd4hep::dd::compareEqual(name, refname)) {
+            flag = false;
+            break;
+          } else {
+            flag = true;
+            continue;
+          }
+        } else {
+          if (!regex_match(std::string(name.data(), name.size()), regex(std::string(refname)))) {
+            flag = false;
+            break;
+          } else {
+            flag = true;
+            continue;
+          }
         }
       }
       return flag;
     });
     if (k != end(i->paths)) {
       result = i->strValue(key);
+      return result;
     }
-  });
+  }
 
   return result;
 }

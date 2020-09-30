@@ -49,11 +49,20 @@ void testDDFilteredViewGoTo::checkFilteredView() {
     if (count == 45) {
       testPos = fview.navPos();
     }
-    if (count == 100) {
+    if (count == 1000) {
       break;
     }
     count++;
   }
+
+  // world_volume/OCMS_1/CMSE_1/Tracker_1/PixelBarrel_1/pixbarlayer0:PixelBarrelLayer0_1/PixelBarrelLadderFull0_6/PixelBarrelModuleBoxFull_1/PixelBarrelModuleFullPlus_4/PixelBarrelSensorFull_1/PixelBarrelActiveFull0_1
+  //
+  std::vector<int> activeVol{0, 0, 6, 2, 93, 12, 1, 7, 1, 0};
+  fview.goTo(activeVol);
+  printMe(fview);
+  double radLength = fview.get<double>("TrackerRadLength");
+  double xi = fview.get<double>("TrackerXi");
+  std::cout << "TrackerRadLength = " << radLength << "\nTrackerXi = " << xi << "\n";
 
   std::cout << "\n==== Let's go to #45\n";
   fview.goTo(testPos);
