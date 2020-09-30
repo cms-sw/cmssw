@@ -326,80 +326,82 @@ void makeAllTables(const PFBlockAlgo::ElementRanges ranges,
                    const ElementList& elements,
                    PFTables& tables,
                    double cutOffFrac) {
+  constexpr auto maxidx = std::numeric_limits<unsigned int>::max();
+
   //prepare track tables
   const auto& range_track = ranges.at(reco::PFBlockElement::TRACK);
-  if (not(range_track.first == 0 && range_track.second == 0)) {
-    LogDebug("PFBlockAlgo") << "TRACK tables" << range_track.first << " " << range_track.second;
+  if (not(range_track.first == maxidx && range_track.second == 0)) {
+    LogDebug("PFBlockAlgo") << "TRACK tables " << range_track.first << " " << range_track.second;
     makeTrackTables(range_track.first, range_track.second, elements, tables);
   }
 
   //prepare GSF tables
   const auto& range_gsf = ranges.at(reco::PFBlockElement::GSF);
-  if (not(range_gsf.first == 0 && range_gsf.second == 0)) {
+  if (not(range_gsf.first == maxidx && range_gsf.second == 0)) {
     LogDebug("PFBlockAlgo") << "GSF tables" << range_gsf.first << " " << range_gsf.second;
     makeGSFTables(range_gsf.first, range_gsf.second, elements, tables);
   }
 
   //prepare BREM tables
   const auto& range_brem = ranges.at(reco::PFBlockElement::BREM);
-  if (not(range_brem.first == 0 && range_brem.second == 0)) {
-    LogDebug("PFBlockAlgo") << "BREM tables" << range_brem.first << " " << range_brem.second;
+  if (not(range_brem.first == maxidx && range_brem.second == 0)) {
+    LogDebug("PFBlockAlgo") << "BREM tables " << range_brem.first << " " << range_brem.second;
     makeBREMTables(range_brem.first, range_brem.second, elements, tables);
   }
 
   //prepare calo cluster tables
   const auto& range_ecal = ranges.at(reco::PFBlockElement::ECAL);
-  if (not(range_ecal.first == 0 && range_ecal.second == 0)) {
-    LogDebug("PFBlockAlgo") << "ECAL tables" << range_ecal.first << " " << range_ecal.second;
+  if (not(range_ecal.first == maxidx && range_ecal.second == 0)) {
+    LogDebug("PFBlockAlgo") << "ECAL tables " << range_ecal.first << " " << range_ecal.second;
     tables.clusters_ecal =
         makeClusterTables<reco::PFBlockElementCluster>(range_ecal.first, range_ecal.second, elements, cutOffFrac);
   }
 
   const auto& range_hcal = ranges.at(reco::PFBlockElement::HCAL);
-  if (not(range_hcal.first == 0 && range_hcal.second == 0)) {
-    LogDebug("PFBlockAlgo") << "HCAL tables" << range_hcal.first << " " << range_hcal.second;
+  if (not(range_hcal.first == maxidx && range_hcal.second == 0)) {
+    LogDebug("PFBlockAlgo") << "HCAL tables " << range_hcal.first << " " << range_hcal.second;
     tables.clusters_hcal =
         makeClusterTables<reco::PFBlockElementCluster>(range_hcal.first, range_hcal.second, elements, cutOffFrac);
   }
 
   const auto& range_hfem = ranges.at(reco::PFBlockElement::HFEM);
-  if (not(range_hfem.first == 0 && range_hfem.second == 0)) {
-    LogDebug("PFBlockAlgo") << "HFEM tables" << range_hfem.first << " " << range_hfem.second;
+  if (not(range_hfem.first == maxidx && range_hfem.second == 0)) {
+    LogDebug("PFBlockAlgo") << "HFEM tables " << range_hfem.first << " " << range_hfem.second;
     tables.clusters_hfem =
         makeClusterTables<reco::PFBlockElementCluster>(range_hfem.first, range_hfem.second, elements, cutOffFrac);
   }
 
   const auto& range_hfhad = ranges.at(reco::PFBlockElement::HFHAD);
-  if (not(range_hfhad.first == 0 && range_hfhad.second == 0)) {
-    LogDebug("PFBlockAlgo") << "HFHAD tables" << range_hfhad.first << " " << range_hfhad.second;
+  if (not(range_hfhad.first == maxidx && range_hfhad.second == 0)) {
+    LogDebug("PFBlockAlgo") << "HFHAD tables " << range_hfhad.first << " " << range_hfhad.second;
     tables.clusters_hfhad =
         makeClusterTables<reco::PFBlockElementCluster>(range_hfhad.first, range_hfhad.second, elements, cutOffFrac);
   }
 
   const auto& range_ps1 = ranges.at(reco::PFBlockElement::PS1);
-  if (not(range_ps1.first == 0 && range_ps1.second == 0)) {
-    LogDebug("PFBlockAlgo") << "PS1 tables" << range_ps1.first << " " << range_ps1.second;
+  if (not(range_ps1.first == maxidx && range_ps1.second == 0)) {
+    LogDebug("PFBlockAlgo") << "PS1 tables " << range_ps1.first << " " << range_ps1.second;
     tables.clusters_ps1 =
         makeClusterTables<reco::PFBlockElementCluster>(range_ps1.first, range_ps1.second, elements, cutOffFrac);
   }
 
   const auto& range_ps2 = ranges.at(reco::PFBlockElement::PS2);
-  if (not(range_ps2.first == 0 && range_ps2.second == 0)) {
-    LogDebug("PFBlockAlgo") << "PS2 tables" << range_ps2.first << " " << range_ps2.second;
+  if (not(range_ps2.first == maxidx && range_ps2.second == 0)) {
+    LogDebug("PFBlockAlgo") << "PS2 tables " << range_ps2.first << " " << range_ps2.second;
     tables.clusters_ps2 =
         makeClusterTables<reco::PFBlockElementCluster>(range_ps2.first, range_ps2.second, elements, cutOffFrac);
   }
 
   const auto& range_ho = ranges.at(reco::PFBlockElement::HO);
-  if (not(range_ho.first == 0 && range_ho.second == 0)) {
-    LogDebug("PFBlockAlgo") << "HO tables" << range_ho.first << " " << range_ho.second;
+  if (not(range_ho.first == maxidx && range_ho.second == 0)) {
+    LogDebug("PFBlockAlgo") << "HO tables " << range_ho.first << " " << range_ho.second;
     tables.clusters_ho =
         makeClusterTables<reco::PFBlockElementCluster>(range_ho.first, range_ho.second, elements, cutOffFrac);
   }
 
   const auto& range_sc = ranges.at(reco::PFBlockElement::SC);
-  if (not(range_sc.first == 0 && range_sc.second == 0)) {
-    LogDebug("PFBlockAlgo") << "SC tables" << range_sc.first << " " << range_sc.second;
+  if (not(range_sc.first == maxidx && range_sc.second == 0)) {
+    LogDebug("PFBlockAlgo") << "SC tables " << range_sc.first << " " << range_sc.second;
     tables.clusters_sc = makeSuperClusterTables(range_sc.first, range_sc.second, elements, cutOffFrac);
   }
 }
@@ -687,8 +689,8 @@ void PFBlockAlgo::updateEventSetup(const edm::EventSetup& es) {
 const PFTables PFBlockAlgo::buildElements(const edm::Event& evt) {
   // import block elements as defined in python configuration
   //the ranges are inclusive, meaning [start, end]
-  //note that the pair (0,0) must be treated as a special default case, rather than a single element at location 0
-  ranges_.fill(std::make_pair(0, 0));
+  //note that the pair (max, 0) is treated as a special default case of no elements
+  ranges_.fill(std::make_pair(std::numeric_limits<unsigned int>::max(), 0));
   elements_.clear();
   PFTables tables;
 
