@@ -162,11 +162,14 @@ void KDTreeLinkerPSEcal::searchLinks(const PFTables &pftables, reco::PFMultiLink
         double clusterz = clustersECAL.cluster_table.get<cluster::Posz>(icluster);
         const auto zPS_over_cluster = zPS / clusterz;
 
-        const auto &rechit_corner_posx = ecal_rh.get<rechit::CornerXBV>(irecHit);
-        const auto &rechit_corner_posy = ecal_rh.get<rechit::CornerYBV>(irecHit);
-
-        const double rechit_posx = ecal_rh.get<rechit::Posx>(irecHit);
-        const double rechit_posy = ecal_rh.get<rechit::Posy>(irecHit);
+        auto rechit_corner_posx = ecal_rh.get<rechit::CornerXBV>(irecHit);
+        auto rechit_corner_posy = ecal_rh.get<rechit::CornerYBV>(irecHit);
+        for (size_t icorner = 0; icorner<4; icorner++) {
+          rechit_corner_posx[icorner] *= zPS_over_cluster;
+          rechit_corner_posy[icorner] *= zPS_over_cluster;
+        }
+        const double rechit_posx = ecal_rh.get<rechit::Posx>(irecHit) * zPS_over_cluster;
+        const double rechit_posy = ecal_rh.get<rechit::Posy>(irecHit) * zPS_over_cluster;
 
         double x[5];
         double y[5];
@@ -177,9 +180,6 @@ void KDTreeLinkerPSEcal::searchLinks(const PFTables &pftables, reco::PFMultiLink
           y[3 - jc] = rechit_corner_posy[jc] +
                       (rechit_corner_posy[jc] - rechit_posy) *
                           (0.05 + 1.0 / std::abs((rechit_corner_posy[jc] - rechit_posy)) * deltaY / 2.);
-
-          x[3 - jc] = x[3 - jc] * zPS_over_cluster;
-          y[3 - jc] = y[3 - jc] * zPS_over_cluster;
         }
 
         x[4] = x[0];
