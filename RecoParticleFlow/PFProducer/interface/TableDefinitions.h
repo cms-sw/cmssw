@@ -77,8 +77,16 @@ namespace edm::soa {
       SOA_DECLARE_COLUMN(SCRefKey, edm::ElementID, "SCRefKey");
     }  // namespace cluster
   }    // namespace col::pf
+}  // namespace edm::soa
 
-  using namespace col::pf;
+//define namespace aliases, but avoid leaking them to other files
+namespace {
+  namespace cluster = edm::soa::col::pf::cluster;
+  namespace track = edm::soa::col::pf::track;
+  namespace rechit = edm::soa::col::pf::rechit;
+};
+
+namespace edm::soa {
   using TrackTableVertex = Table<track::ExtrapolationValid,
                                  track::Pt,
                                  track::IsLinkedToDisplacedVertex,
@@ -134,6 +142,6 @@ namespace edm::soa {
                              cluster::SCRefKey>;
   using SuperClusterTable = Table<cluster::Eta, cluster::Phi, cluster::SCRefKey>;
   using SuperClusterRecHitTable = Table<rechit::DetIdValue, rechit::Fraction>;
-}  // namespace edm::soa
+}
 
 #endif

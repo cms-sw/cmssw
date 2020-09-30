@@ -14,12 +14,10 @@
 #include "FWCore/SOA/interface/Column.h"
 #include "RecoParticleFlow/PFProducer/interface/TableDefinitions.h"
 
-using namespace edm::soa;
-namespace rechit = edm::soa::col::pf::rechit;
-
 class ClusterClusterMapping {
 public:
-  using RecHitTableView = TableView<rechit::DetIdValue, rechit::Fraction>;
+  using RecHitTableView =
+      edm::soa::TableView<edm::soa::col::pf::rechit::DetIdValue, edm::soa::col::pf::rechit::Fraction>;
   using RecHitIndex = std::set<size_t>;
 
   ClusterClusterMapping() { ; }

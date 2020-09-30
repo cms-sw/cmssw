@@ -5,6 +5,7 @@
 
 using BVector2D = Basic2DVector<double>;
 using Vector2D = Basic2DVector<double>::MathVector;
+
 namespace {
   const Vector2D one2D = BVector2D(1.0, 1.0).v;
   const Vector2D fivepercent2D = BVector2D(0.05, 0.05).v;
@@ -774,8 +775,8 @@ double LinkByRecHit::testHFEMAndHFHADByRecHit(const reco::PFCluster& clusterHFEM
 
 double LinkByRecHit::testHFEMAndHFHADByRecHit(size_t icluster_em,
                                               size_t icluster_had,
-                                              TableView<cluster::Posx, cluster::Posy, cluster::Posz> cluster_em_table,
-                                              TableView<cluster::Posx, cluster::Posy, cluster::Posz> cluster_had_table) {
+                                              ClusterXYZTableView cluster_em_table,
+                                              ClusterXYZTableView cluster_had_table) {
   double sameZ = cluster_em_table.get<cluster::Posz>(icluster_em) * cluster_had_table.get<cluster::Posz>(icluster_had);
   if (sameZ < 0)
     return -1.;

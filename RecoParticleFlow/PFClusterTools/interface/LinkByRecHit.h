@@ -6,28 +6,30 @@
 #include "RecoParticleFlow/PFProducer/interface/TableDefinitions.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-namespace cluster = edm::soa::col::pf::cluster;
-namespace track = edm::soa::col::pf::track;
-namespace rechit = edm::soa::col::pf::rechit;
-
-using namespace edm::soa;
+//define namespace aliases, but avoid them leaking to other files
+namespace {
+  namespace cluster = edm::soa::col::pf::cluster;
+  namespace track = edm::soa::col::pf::track;
+  namespace rechit = edm::soa::col::pf::rechit;
+};
 
 class LinkByRecHit {
 public:
-  using TrackTableView =
+  using TrackTableView = edm::soa::
       TableView<track::ExtrapolationValid, track::Eta, track::Phi, track::Posx, track::Posy, track::Posz, track::PosR>;
-  using RecHitTableView = TableView<rechit::DetIdValue,
-                                    rechit::Fraction,
-                                    rechit::Eta,
-                                    rechit::Phi,
-                                    rechit::Posx,
-                                    rechit::Posy,
-                                    rechit::Posz,
-                                    rechit::CornerX,
-                                    rechit::CornerY,
-                                    rechit::CornerZ,
-                                    rechit::CornerEta,
-                                    rechit::CornerPhi>;
+  using ClusterXYZTableView = edm::soa::TableView<cluster::Posx, cluster::Posy, cluster::Posz>;
+  using RecHitTableView = edm::soa::TableView<rechit::DetIdValue,
+                                              rechit::Fraction,
+                                              rechit::Eta,
+                                              rechit::Phi,
+                                              rechit::Posx,
+                                              rechit::Posy,
+                                              rechit::Posz,
+                                              rechit::CornerX,
+                                              rechit::CornerY,
+                                              rechit::CornerZ,
+                                              rechit::CornerEta,
+                                              rechit::CornerPhi>;
   LinkByRecHit(){};
   ~LinkByRecHit(){};
 
@@ -37,7 +39,7 @@ public:
   static double computeTrackHCALDist(bool checkExit,
                                      size_t itrack,
                                      size_t ihcal,
-                                     TableView<cluster::Eta, cluster::Phi> clusterTable,
+                                     edm::soa::TableView<cluster::Eta, cluster::Phi> clusterTable,
                                      TrackTableView trackTableEntrance,
                                      TrackTableView trackTableExit);
 
@@ -50,12 +52,12 @@ public:
   static double testTrackAndClusterByRecHit(
       size_t icluster,
       std::set<size_t> cluster_rechits,
-      TableView<cluster::Eta, cluster::Phi, cluster::Posz, cluster::Layer, cluster::FracsNbr> cluster_table,
+      edm::soa::TableView<cluster::Eta, cluster::Phi, cluster::Posz, cluster::Layer, cluster::FracsNbr> cluster_table,
 
       RecHitTableView rechit_table,
 
       size_t itrack,
-      TableView<track::Pt> tracks_vtx_table,
+      edm::soa::TableView<track::Pt> tracks_vtx_table,
       TrackTableView tracks_ecal_table,
       TrackTableView tracks_hcalent_table,
       TrackTableView tracks_hcalexit_table,
@@ -74,8 +76,8 @@ public:
 
   static double testHFEMAndHFHADByRecHit(size_t icluster_em,
                                          size_t icluster_had,
-                                         TableView<cluster::Posx, cluster::Posy, cluster::Posz> cluster_em_table,
-                                         TableView<cluster::Posx, cluster::Posy, cluster::Posz> cluster_had_table);
+                                         ClusterXYZTableView cluster_em_table,
+                                         ClusterXYZTableView cluster_had_table);
 };
 
 #endif

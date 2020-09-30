@@ -1,5 +1,8 @@
 #include "RecoParticleFlow/PFClusterTools/interface/ClusterClusterMapping.h"
 
+using namespace edm::soa;
+namespace rechit = edm::soa::col::pf::rechit;
+
 // returns true as soon as the two clusters have one hit in common
 bool ClusterClusterMapping::overlap(const reco::CaloCluster &sc1,
                                     const reco::CaloCluster &sc2,
