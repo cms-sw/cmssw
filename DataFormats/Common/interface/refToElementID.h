@@ -1,5 +1,5 @@
-#ifndef DataFormats_Common_RefToElementID_h
-#define DataFormats_Common_RefToElementID_h
+#ifndef DataFormats_Common_refToElementID_h
+#define DataFormats_Common_refToElementID_h
 
 #include "DataFormats/Provenance/interface/ElementID.h"
 #include "DataFormats/Common/interface/Ref.h"
