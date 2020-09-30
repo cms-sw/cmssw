@@ -39,7 +39,7 @@ TrackletProcessor::TrackletProcessor(string name, Settings const& settings, Glob
   nbitszfinebintable_ = settings_.vmrlutzbits(layerdisk1_);
   nbitsrfinebintable_ = settings_.vmrlutrbits(layerdisk1_);
 
-  vmrtable_.init(layerdisk1_);
+  vmrtable_.init(layerdisk1_, getName());
 
   nbitsrzbin_ = 3;
   if (iSeed_ == 4 || iSeed_ == 5)

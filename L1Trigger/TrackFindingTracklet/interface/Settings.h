@@ -509,7 +509,7 @@ namespace trklet {
 	 {{5, 5, 5, 5, 5, 5, 5, 5, 4, 4, 4, 4}},    //outer
          {{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4, 4}}}};  //outermost (triplets only)
 
-    std::array<std::array<unsigned int, N_SEED>, 3> lutwidthtab_{{{{10, 10, 10, 10, 9, 9, 10, 10, 0, 0, 11, 0}},
+    std::array<std::array<unsigned int, N_SEED>, 3> lutwidthtab_{{{{10, 10, 10, 10, 10, 10, 10, 10, 0, 0, 11, 0}},
                                                                   {{6, 6, 6, 6, 10, 10, 10, 10, 0, 0, 6, 0}},
                                                                   {{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4, 6}}}};
 

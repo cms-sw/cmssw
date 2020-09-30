@@ -296,13 +296,6 @@ void TrackletEventProcessor::event(SLHCEvent& ev) {
     }
   }
 
-  if (settings_->writeMem()) {
-    for (unsigned int k = 0; k < N_SECTOR; k++) {
-      if (k == settings_->writememsect())
-        sectors_[k]->writeInputStubs(first);
-    }
-  }
-
   addStubTimer_.stop();
 
   // ----------------------------------------------------------------------------------------
