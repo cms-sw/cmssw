@@ -315,7 +315,6 @@ private:
 
   std::unique_ptr<SiPixelChargeReweightingAlgorithm> TheNewSiPixelChargeReweightingAlgorithmClass;
 
-
 private:
   // Variables
   //external parameters
