@@ -947,6 +947,13 @@ void Converter<PartSelector>::operator()(xml_h element) const {
            "+++ PartSelector for %s path: %s",
            specParName.c_str(),
            path.c_str());
+  auto npos = path.find(':');
+  if (npos != path.npos) {
+    std::string anyns{"//.*"};
+    if (path.substr(0, npos) == anyns) {
+      path = string("//").append(path.substr(npos + 1));
+    }
+  }
   registry.specpars[specParName].paths.emplace_back(path);
 }
 
