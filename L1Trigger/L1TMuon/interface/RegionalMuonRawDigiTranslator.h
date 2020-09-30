@@ -6,8 +6,9 @@
 namespace l1t {
   class RegionalMuonRawDigiTranslator {
   public:
-    static void fillRegionalMuonCand(RegionalMuonCand&, uint32_t, uint32_t, int, tftype, bool);
-    static void fillRegionalMuonCand(RegionalMuonCand&, uint64_t, int, tftype, bool);
+    static void fillRegionalMuonCand(
+        RegionalMuonCand& mu, uint32_t raw_data_00_31, uint32_t raw_data_32_63, int proc, tftype tf, bool isKalman);
+    static void fillRegionalMuonCand(RegionalMuonCand& mu, uint64_t dataword, int proc, tftype tf, bool isKalman);
     static void generatePackedDataWords(const RegionalMuonCand& mu,
                                         uint32_t& raw_data_00_31,
                                         uint32_t& raw_data_32_63,
@@ -36,6 +37,8 @@ namespace l1t {
     static constexpr unsigned trackAddressMask_ = 0x1FFFFFFF;
     static constexpr unsigned trackAddressShift_ = 2;
     // relative shifts within track address
+    static constexpr unsigned bmtfTrAddrSegSelMask_ = 0xF;
+    static constexpr unsigned bmtfTrAddrSegSelShift_ = 21;
     static constexpr unsigned bmtfTrAddrDetSideShift_ = 20;
     static constexpr unsigned bmtfTrAddrWheelMask_ = 0x3;
     static constexpr unsigned bmtfTrAddrWheelShift_ = 18;
