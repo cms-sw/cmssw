@@ -84,7 +84,7 @@ namespace {
   namespace cluster = edm::soa::col::pf::cluster;
   namespace track = edm::soa::col::pf::track;
   namespace rechit = edm::soa::col::pf::rechit;
-};
+};  // namespace
 
 namespace edm::soa {
   using TrackTableVertex = Table<track::ExtrapolationValid,
@@ -142,6 +142,6 @@ namespace edm::soa {
                              cluster::SCRefKey>;
   using SuperClusterTable = Table<cluster::Eta, cluster::Phi, cluster::SCRefKey>;
   using SuperClusterRecHitTable = Table<rechit::DetIdValue, rechit::Fraction>;
-}
+}  // namespace edm::soa
 
 #endif

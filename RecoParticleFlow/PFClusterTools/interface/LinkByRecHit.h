@@ -11,7 +11,7 @@ namespace {
   namespace cluster = edm::soa::col::pf::cluster;
   namespace track = edm::soa::col::pf::track;
   namespace rechit = edm::soa::col::pf::rechit;
-};
+};  // namespace
 
 class LinkByRecHit {
 public:
