@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-from L1Trigger.CSCCommonTrigger.CSCCommonTrigger_cfi import *
+from L1Trigger.CSCTriggerPrimitives.CSCCommonTrigger_cfi import *
 csctfunpacker = cms.EDProducer("CSCTFUnpacker",
     CSCCommonTrigger,
     # Set all values to 0 if you trust hardware settings
@@ -14,9 +14,6 @@ csctfunpacker = cms.EDProducer("CSCTFUnpacker",
     mappingFile = cms.string(''),
     # Agreement in CSC community to shift and reverse ME-1 strips as opposed to hardware
     swapME1strips = cms.bool(False),
-    # the above "using" statement is equivalent to setting of LCT time window below:
-    #   int32 MinBX = 3
-    #   int32 MaxBX = 9
     # Specify label of the module which produces raw CSCTF data
     producer = cms.InputTag("rawDataCollector")
 )

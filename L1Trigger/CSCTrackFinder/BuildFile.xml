@@ -1,7 +1,7 @@
 <export>
   <lib name="1"/>
 </export>
-<use name="L1Trigger/CSCCommonTrigger"/>
+<use name="L1Trigger/CSCTriggerPrimitives"/>
 <use name="L1Trigger/DTTrackFinder"/>
 <use name="Geometry/CSCGeometry"/>
 <use name="DataFormats/MuonDetId"/>

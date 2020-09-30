@@ -9,5 +9,5 @@
 <use name="Geometry/DTGeometry"/>
 <use name="Geometry/CSCGeometry"/>
 <use name="Geometry/RPCGeometry"/>
-<use name="L1Trigger/CSCCommonTrigger"/>
+<use name="L1Trigger/CSCTriggerPrimitives"/>
 <use name="L1Trigger/DTUtilities"/>

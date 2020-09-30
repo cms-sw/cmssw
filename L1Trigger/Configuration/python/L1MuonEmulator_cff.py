@@ -4,7 +4,6 @@ import FWCore.ParameterSet.Config as cms
 from L1Trigger.DTTrigger.dtTriggerPrimitiveDigis_cfi import *
 from L1Trigger.DTTrackFinder.dttfDigis_cfi import *
 # CSC Trigger
-from L1Trigger.CSCCommonTrigger.CSCCommonTrigger_cfi import *
 from L1Trigger.CSCTriggerPrimitives.cscTriggerPrimitiveDigis_cfi import *
 from L1Trigger.CSCTrackFinder.csctfTrackDigis_cfi import *
 from L1Trigger.CSCTrackFinder.csctfDigis_cfi import *
