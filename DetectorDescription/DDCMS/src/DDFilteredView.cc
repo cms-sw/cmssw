@@ -463,6 +463,7 @@ const std::vector<double> DDFilteredView::parameters() const {
 }
 
 const cms::DDSolidShape DDFilteredView::shape() const {
+  assert(node_);
   return cms::dd::value(cms::DDSolidShapeMap, std::string(node_->GetVolume()->GetShape()->GetTitle()));
 }
 
