@@ -453,8 +453,7 @@ namespace edm {
                           WaitingTaskWithArenaHolder& holder) {
     ModuleContextSentry moduleContextSentry(&moduleCallingContext_, parentContext);
     try {
-      convertException::wrap(
-          [&]() { this->implDoAcquire(info.principal(), info.eventSetupImpl(), &moduleCallingContext_, holder); });
+      convertException::wrap([&]() { this->implDoAcquire(info, &moduleCallingContext_, holder); });
     } catch (cms::Exception& ex) {
       exceptionContext(ex, &moduleCallingContext_);
       if (shouldRethrowException(std::current_exception(), parentContext, true)) {

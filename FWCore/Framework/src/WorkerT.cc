@@ -91,19 +91,17 @@ namespace edm {
       inline void operator()(WorkerT<T>* iWorker, StreamID id) { iWorker->callWorkerEndStream(0, id); }
     };
 
-    template <typename T, typename P>
+    template <typename T, typename INFOTYPE>
     struct DoStreamBeginTrans {
-      inline void operator()(
-          WorkerT<T>* iWorker, StreamID id, P const& rp, EventSetupImpl const& c, ModuleCallingContext const* mcc) {
-        iWorker->callWorkerStreamBegin(0, id, rp, c, mcc);
+      inline void operator()(WorkerT<T>* iWorker, StreamID id, INFOTYPE const& info, ModuleCallingContext const* mcc) {
+        iWorker->callWorkerStreamBegin(0, id, info, mcc);
       }
     };
 
-    template <typename T, typename P>
+    template <typename T, typename INFOTYPE>
     struct DoStreamEndTrans {
-      inline void operator()(
-          WorkerT<T>* iWorker, StreamID id, P const& rp, EventSetupImpl const& c, ModuleCallingContext const* mcc) {
-        iWorker->callWorkerStreamEnd(0, id, rp, c, mcc);
+      inline void operator()(WorkerT<T>* iWorker, StreamID id, INFOTYPE const& info, ModuleCallingContext const* mcc) {
+        iWorker->callWorkerStreamEnd(0, id, info, mcc);
       }
     };
   }  // namespace workerimpl
@@ -214,47 +212,43 @@ namespace edm {
   }
 
   template <typename T>
-  inline bool WorkerT<T>::implDo(EventPrincipal const& ep, EventSetupImpl const& c, ModuleCallingContext const* mcc) {
+  inline bool WorkerT<T>::implDo(EventTransitionInfo const& info, ModuleCallingContext const* mcc) {
+    EventPrincipal const& ep = info.principal();
     std::shared_ptr<Worker> sentry(this, [&ep](Worker* obj) { obj->postDoEvent(ep); });
-    return module_->doEvent(ep, c, activityRegistry(), mcc);
+    return module_->doEvent(info, activityRegistry(), mcc);
   }
 
   template <typename T>
-  inline void WorkerT<T>::implDoAcquire(EventPrincipal const&,
-                                        EventSetupImpl const&,
+  inline void WorkerT<T>::implDoAcquire(EventTransitionInfo const&,
                                         ModuleCallingContext const*,
                                         WaitingTaskWithArenaHolder&) {}
 
   template <>
-  inline void WorkerT<global::EDProducerBase>::implDoAcquire(EventPrincipal const& ep,
-                                                             EventSetupImpl const& c,
+  inline void WorkerT<global::EDProducerBase>::implDoAcquire(EventTransitionInfo const& info,
                                                              ModuleCallingContext const* mcc,
                                                              WaitingTaskWithArenaHolder& holder) {
-    module_->doAcquire(ep, c, activityRegistry(), mcc, holder);
+    module_->doAcquire(info, activityRegistry(), mcc, holder);
   }
 
   template <>
-  inline void WorkerT<global::EDFilterBase>::implDoAcquire(EventPrincipal const& ep,
-                                                           EventSetupImpl const& c,
+  inline void WorkerT<global::EDFilterBase>::implDoAcquire(EventTransitionInfo const& info,
                                                            ModuleCallingContext const* mcc,
                                                            WaitingTaskWithArenaHolder& holder) {
-    module_->doAcquire(ep, c, activityRegistry(), mcc, holder);
+    module_->doAcquire(info, activityRegistry(), mcc, holder);
   }
 
   template <>
-  inline void WorkerT<stream::EDProducerAdaptorBase>::implDoAcquire(EventPrincipal const& ep,
-                                                                    EventSetupImpl const& c,
+  inline void WorkerT<stream::EDProducerAdaptorBase>::implDoAcquire(EventTransitionInfo const& info,
                                                                     ModuleCallingContext const* mcc,
                                                                     WaitingTaskWithArenaHolder& holder) {
-    module_->doAcquire(ep, c, activityRegistry(), mcc, holder);
+    module_->doAcquire(info, activityRegistry(), mcc, holder);
   }
 
   template <>
-  inline void WorkerT<stream::EDFilterAdaptorBase>::implDoAcquire(EventPrincipal const& ep,
-                                                                  EventSetupImpl const& c,
+  inline void WorkerT<stream::EDFilterAdaptorBase>::implDoAcquire(EventTransitionInfo const& info,
                                                                   ModuleCallingContext const* mcc,
                                                                   WaitingTaskWithArenaHolder& holder) {
-    module_->doAcquire(ep, c, activityRegistry(), mcc, holder);
+    module_->doAcquire(info, activityRegistry(), mcc, holder);
   }
 
   template <typename T>
@@ -339,113 +333,103 @@ namespace edm {
   }
 
   template <typename T>
-  inline bool WorkerT<T>::implDoBegin(RunPrincipal const& rp,
-                                      EventSetupImpl const& c,
-                                      ModuleCallingContext const* mcc) {
-    module_->doBeginRun(rp, c, mcc);
+  inline bool WorkerT<T>::implDoBegin(RunTransitionInfo const& info, ModuleCallingContext const* mcc) {
+    module_->doBeginRun(info, mcc);
     return true;
   }
 
   template <typename T>
   template <typename D>
-  void WorkerT<T>::callWorkerStreamBegin(
-      D, StreamID id, RunPrincipal const& rp, EventSetupImpl const& c, ModuleCallingContext const* mcc) {
-    module_->doStreamBeginRun(id, rp, c, mcc);
+  void WorkerT<T>::callWorkerStreamBegin(D,
+                                         StreamID id,
+                                         RunTransitionInfo const& info,
+                                         ModuleCallingContext const* mcc) {
+    module_->doStreamBeginRun(id, info, mcc);
   }
 
   template <typename T>
   template <typename D>
-  void WorkerT<T>::callWorkerStreamEnd(
-      D, StreamID id, RunPrincipal const& rp, EventSetupImpl const& c, ModuleCallingContext const* mcc) {
-    module_->doStreamEndRun(id, rp, c, mcc);
+  void WorkerT<T>::callWorkerStreamEnd(D, StreamID id, RunTransitionInfo const& info, ModuleCallingContext const* mcc) {
+    module_->doStreamEndRun(id, info, mcc);
   }
 
   template <typename T>
   inline bool WorkerT<T>::implDoStreamBegin(StreamID id,
-                                            RunPrincipal const& rp,
-                                            EventSetupImpl const& c,
+                                            RunTransitionInfo const& info,
                                             ModuleCallingContext const* mcc) {
     std::conditional_t<workerimpl::has_stream_functions<T>::value,
-                       workerimpl::DoStreamBeginTrans<T, RunPrincipal const>,
+                       workerimpl::DoStreamBeginTrans<T, RunTransitionInfo const>,
                        workerimpl::DoNothing>
         might_call;
-    might_call(this, id, rp, c, mcc);
+    might_call(this, id, info, mcc);
+    return true;
+  }
+
+  template <typename T>
+  inline bool WorkerT<T>::implDoStreamEnd(StreamID id, RunTransitionInfo const& info, ModuleCallingContext const* mcc) {
+    std::conditional_t<workerimpl::has_stream_functions<T>::value,
+                       workerimpl::DoStreamEndTrans<T, RunTransitionInfo const>,
+                       workerimpl::DoNothing>
+        might_call;
+    might_call(this, id, info, mcc);
+    return true;
+  }
+
+  template <typename T>
+  inline bool WorkerT<T>::implDoEnd(RunTransitionInfo const& info, ModuleCallingContext const* mcc) {
+    module_->doEndRun(info, mcc);
+    return true;
+  }
+
+  template <typename T>
+  inline bool WorkerT<T>::implDoBegin(LumiTransitionInfo const& info, ModuleCallingContext const* mcc) {
+    module_->doBeginLuminosityBlock(info, mcc);
+    return true;
+  }
+
+  template <typename T>
+  template <typename D>
+  void WorkerT<T>::callWorkerStreamBegin(D,
+                                         StreamID id,
+                                         LumiTransitionInfo const& info,
+                                         ModuleCallingContext const* mcc) {
+    module_->doStreamBeginLuminosityBlock(id, info, mcc);
+  }
+
+  template <typename T>
+  template <typename D>
+  void WorkerT<T>::callWorkerStreamEnd(D, StreamID id, LumiTransitionInfo const& info, ModuleCallingContext const* mcc) {
+    module_->doStreamEndLuminosityBlock(id, info, mcc);
+  }
+
+  template <typename T>
+  inline bool WorkerT<T>::implDoStreamBegin(StreamID id,
+                                            LumiTransitionInfo const& info,
+                                            ModuleCallingContext const* mcc) {
+    std::conditional_t<workerimpl::has_stream_functions<T>::value,
+                       workerimpl::DoStreamBeginTrans<T, LumiTransitionInfo>,
+                       workerimpl::DoNothing>
+        might_call;
+    might_call(this, id, info, mcc);
     return true;
   }
 
   template <typename T>
   inline bool WorkerT<T>::implDoStreamEnd(StreamID id,
-                                          RunPrincipal const& rp,
-                                          EventSetupImpl const& c,
+                                          LumiTransitionInfo const& info,
                                           ModuleCallingContext const* mcc) {
     std::conditional_t<workerimpl::has_stream_functions<T>::value,
-                       workerimpl::DoStreamEndTrans<T, RunPrincipal const>,
+                       workerimpl::DoStreamEndTrans<T, LumiTransitionInfo>,
                        workerimpl::DoNothing>
         might_call;
-    might_call(this, id, rp, c, mcc);
-    return true;
-  }
-
-  template <typename T>
-  inline bool WorkerT<T>::implDoEnd(RunPrincipal const& rp, EventSetupImpl const& c, ModuleCallingContext const* mcc) {
-    module_->doEndRun(rp, c, mcc);
-    return true;
-  }
-
-  template <typename T>
-  inline bool WorkerT<T>::implDoBegin(LuminosityBlockPrincipal const& lbp,
-                                      EventSetupImpl const& c,
-                                      ModuleCallingContext const* mcc) {
-    module_->doBeginLuminosityBlock(lbp, c, mcc);
-    return true;
-  }
-
-  template <typename T>
-  template <typename D>
-  void WorkerT<T>::callWorkerStreamBegin(
-      D, StreamID id, LuminosityBlockPrincipal const& rp, EventSetupImpl const& c, ModuleCallingContext const* mcc) {
-    module_->doStreamBeginLuminosityBlock(id, rp, c, mcc);
-  }
-
-  template <typename T>
-  template <typename D>
-  void WorkerT<T>::callWorkerStreamEnd(
-      D, StreamID id, LuminosityBlockPrincipal const& rp, EventSetupImpl const& c, ModuleCallingContext const* mcc) {
-    module_->doStreamEndLuminosityBlock(id, rp, c, mcc);
-  }
-
-  template <typename T>
-  inline bool WorkerT<T>::implDoStreamBegin(StreamID id,
-                                            LuminosityBlockPrincipal const& lbp,
-                                            EventSetupImpl const& c,
-                                            ModuleCallingContext const* mcc) {
-    std::conditional_t<workerimpl::has_stream_functions<T>::value,
-                       workerimpl::DoStreamBeginTrans<T, LuminosityBlockPrincipal>,
-                       workerimpl::DoNothing>
-        might_call;
-    might_call(this, id, lbp, c, mcc);
-    return true;
-  }
-
-  template <typename T>
-  inline bool WorkerT<T>::implDoStreamEnd(StreamID id,
-                                          LuminosityBlockPrincipal const& lbp,
-                                          EventSetupImpl const& c,
-                                          ModuleCallingContext const* mcc) {
-    std::conditional_t<workerimpl::has_stream_functions<T>::value,
-                       workerimpl::DoStreamEndTrans<T, LuminosityBlockPrincipal>,
-                       workerimpl::DoNothing>
-        might_call;
-    might_call(this, id, lbp, c, mcc);
+    might_call(this, id, info, mcc);
 
     return true;
   }
 
   template <typename T>
-  inline bool WorkerT<T>::implDoEnd(LuminosityBlockPrincipal const& lbp,
-                                    EventSetupImpl const& c,
-                                    ModuleCallingContext const* mcc) {
-    module_->doEndLuminosityBlock(lbp, c, mcc);
+  inline bool WorkerT<T>::implDoEnd(LumiTransitionInfo const& info, ModuleCallingContext const* mcc) {
+    module_->doEndLuminosityBlock(info, mcc);
     return true;
   }
 

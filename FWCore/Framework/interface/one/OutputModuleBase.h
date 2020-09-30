@@ -50,7 +50,6 @@ namespace edm {
   class ModuleCallingContext;
   class PreallocationConfiguration;
   class ActivityRegistry;
-  class ProductRegistry;
   class ThinnedAssociationsHelper;
   class SubProcessParentageHelper;
   class WaitingTask;
@@ -135,18 +134,14 @@ namespace edm {
 
       void doBeginJob();
       void doEndJob();
-      bool doEvent(EventPrincipal const& ep, EventSetupImpl const& c, ActivityRegistry*, ModuleCallingContext const*);
+      bool doEvent(EventTransitionInfo const&, ActivityRegistry*, ModuleCallingContext const*);
       void doBeginProcessBlock(ProcessBlockPrincipal const&, ModuleCallingContext const*) {}
       void doAccessInputProcessBlock(ProcessBlockPrincipal const&, ModuleCallingContext const*) {}
       void doEndProcessBlock(ProcessBlockPrincipal const&, ModuleCallingContext const*) {}
-      bool doBeginRun(RunPrincipal const& rp, EventSetupImpl const& c, ModuleCallingContext const*);
-      bool doEndRun(RunPrincipal const& rp, EventSetupImpl const& c, ModuleCallingContext const*);
-      bool doBeginLuminosityBlock(LuminosityBlockPrincipal const& lbp,
-                                  EventSetupImpl const& c,
-                                  ModuleCallingContext const*);
-      bool doEndLuminosityBlock(LuminosityBlockPrincipal const& lbp,
-                                EventSetupImpl const& c,
-                                ModuleCallingContext const*);
+      bool doBeginRun(RunTransitionInfo const&, ModuleCallingContext const*);
+      bool doEndRun(RunTransitionInfo const&, ModuleCallingContext const*);
+      bool doBeginLuminosityBlock(LumiTransitionInfo const&, ModuleCallingContext const*);
+      bool doEndLuminosityBlock(LumiTransitionInfo const&, ModuleCallingContext const*);
 
       void setEventSelectionInfo(
           std::map<std::string, std::vector<std::pair<std::string, int>>> const& outputModulePathPositions,

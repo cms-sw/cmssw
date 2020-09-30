@@ -2,10 +2,17 @@
 
 #include "FWCore/Framework/interface/LuminosityBlockPrincipal.h"
 #include "FWCore/Framework/interface/RunForOutput.h"
+#include "FWCore/Framework/src/TransitionInfoTypes.h"
 #include "FWCore/Utilities/interface/Algorithms.h"
 #include "FWCore/Utilities/interface/get_underlying_safe.h"
 
 namespace edm {
+
+  LuminosityBlockForOutput::LuminosityBlockForOutput(LumiTransitionInfo const& info,
+                                                     ModuleDescription const& md,
+                                                     ModuleCallingContext const* mcc,
+                                                     bool isAtEnd)
+      : LuminosityBlockForOutput(info.principal(), md, mcc, isAtEnd) {}
 
   LuminosityBlockForOutput::LuminosityBlockForOutput(LuminosityBlockPrincipal const& lbp,
                                                      ModuleDescription const& md,
