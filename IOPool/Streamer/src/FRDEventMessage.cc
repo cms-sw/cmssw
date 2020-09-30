@@ -10,6 +10,7 @@
  */
 
 #include "IOPool/Streamer/interface/FRDEventMessage.h"
+#include "FWCore/Utilities/interface/Exception.h"
 
 /**
  * Constructor for the FRD event message viewer.
@@ -19,6 +20,7 @@ FRDEventMsgView::FRDEventMsgView(void* buf)
       payload_(nullptr),
       size_(0),
       version_(0),
+      flags_(0),
       run_(0),
       lumi_(0),
       event_(0),
@@ -27,21 +29,26 @@ FRDEventMsgView::FRDEventMsgView(void* buf)
       adler32_(0),
       crc32c_(0) {
   uint32* bufPtr = static_cast<uint32*>(buf);
-  version_ = *bufPtr;
-  // if the version number is rather large, then we assume that the true
-  // version number is one.  (In version one of the format, there was
-  // no version number in the data, and the run number appeared first.)
-  if (version_ >= 32) {
-    version_ = 1;
+
+  // In version one of the format, there was no version number in the data,
+  // and the run number (32-bit) appeared first.
+  // This format is no longer supported
+  version_ = *(uint16*)bufPtr;
+
+  if (version_ < 2 || version_ > 6) {
+    throw cms::Exception("FRDEventMsgView") << "FRD version " << version_ << " is not supported";
   }
 
-  size_ = 0;
+  // Version 6 repurposes unused high 16-bits of 32-bit version
+  // assuming we no longer need version 1 support
+  flags_ = *((uint16*)bufPtr + 1);
 
-  // version number
-  if (version_ >= 2) {
-    size_ += sizeof(uint32);
-    ++bufPtr;
+  if (version_ < 6 && flags_) {
+    throw cms::Exception("FRDEventMsgView") << "FRD flags can not be used in version " << version_;
   }
+
+  size_ = sizeof(uint32);
+  ++bufPtr;
 
   // run number
   run_ = *bufPtr;
