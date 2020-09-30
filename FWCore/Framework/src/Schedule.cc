@@ -1492,7 +1492,13 @@ namespace edm {
     i = 0;
     for (auto const& worker : allWorkers()) {
       std::vector<ModuleDescription const*>& modules = modulesWhoseProductsAreConsumedBy.at(i);
-      worker->modulesWhoseProductsAreConsumed(modules, preg, labelToDesc);
+      try {
+        worker->modulesWhoseProductsAreConsumed(modules, preg, labelToDesc);
+      } catch (cms::Exception& ex) {
+        ex.addContext("Calling Worker::modulesWhoseProductsAreConsumed() for module " +
+                      worker->description().moduleLabel());
+        throw;
+      }
       ++i;
     }
   }
