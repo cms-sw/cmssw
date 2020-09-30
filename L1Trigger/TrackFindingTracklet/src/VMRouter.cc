@@ -22,7 +22,7 @@ VMRouter::VMRouter(string name, Settings const& settings, Globals* global, unsig
   overlapbits_ = 7;
   nextrabits_ = overlapbits_ - (settings_.nbitsallstubs(layerdisk_) + settings_.nbitsvmme(layerdisk_));
 
-  vmrtable_.init(layerdisk_);
+  vmrtable_.init(layerdisk_, getName());
 
   nbitszfinebintable_ = settings_.vmrlutzbits(layerdisk_);
   nbitsrfinebintable_ = settings_.vmrlutrbits(layerdisk_);
