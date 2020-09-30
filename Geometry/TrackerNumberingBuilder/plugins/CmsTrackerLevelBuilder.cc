@@ -137,33 +137,83 @@ bool CmsTrackerLevelBuilderHelper::isLessRModule(const GeometricDet* a, const Ge
 
 bool CmsTrackerLevelBuilderHelper::isLessR(const GeometricDet* a, const GeometricDet* b) { return a->rho() < b->rho(); }
 
-template <class FilteredView>
-void CmsTrackerLevelBuilder<FilteredView>::build(FilteredView& fv,
-                                                 GeometricDet* tracker,
-                                                 const std::string& attribute) {
-  edm::LogVerbatim("TrackerGeometryBuilder") << "CmsTrackerLevelBuilder::build "
-                                             << " Building: " << fv.geoHistory();
+/*
+ * Old DD navigation.
+ */
+template <>
+void CmsTrackerLevelBuilder<DDFilteredView>::build(DDFilteredView& fv,
+                                                   GeometricDet* tracker,
+                                                   const std::string& attribute) {
+  edm::LogVerbatim("CmsTrackerLevelBuilder")
+      << "CmsTrackerLevelBuilder::build called on volume"
+      << " tracker->name() = " << tracker->name() << " tracker->path() = " << fv.geoHistory()
+      << " tracker->type() = " << tracker->type();
 
-  edm::LogVerbatim("TrackerGeometryBuilder") << ExtractStringFromDDD<FilteredView>::getString(attribute, &fv) << " "
-                                             << tracker->type() << " " << tracker->name() << std::endl;
-
-  bool doLayers = fv.firstChild();  // descend to the first Layer
+  // Go down one level in hierarchy
+  bool doLayers = fv.firstChild();
 
   while (doLayers) {
+    edm::LogVerbatim("CmsTrackerLevelBuilder") << "Calling buildComponent, before";
+
+    // Call build on sibling
     buildComponent(fv, tracker, attribute);
-    if constexpr (std::is_same_v<FilteredView, DDFilteredView>) {
-      edm::LogVerbatim("TrackerGeometryBuilder") << "CmsTrackerLevelbuilder<DDFilteredView>::build" << fv.geoHistory();
-      doLayers = fv.nextSibling();
-    } else if constexpr (std::is_same_v<FilteredView, cms::DDFilteredView>) {
-      edm::LogVerbatim("TrackerGeometryBuilder")
-          << "CmsTrackerLevelbuilder<cms::DDFilteredView>::build" << fv.geoHistory();
-      doLayers = fv.firstChild();
-    }
+
+    edm::LogVerbatim("CmsTrackerLevelBuilder") << "Calling buildComponent, after";
+
+    // Go to next sibling
+    doLayers = fv.nextSibling();
   }
 
+  // Come back up
   fv.parent();
 
+  // Now that all GeometricDets of a given hierarchy level are built, sort them!
   sortNS(fv, tracker);
+
+  edm::LogVerbatim("CmsTrackerLevelBuilder")
+      << "CmsTrackerLevelBuilder::build: Exit, finished all buildComponents calls.";
+}
+
+/*
+ * DD4hep navigation.
+ */
+template <>
+void CmsTrackerLevelBuilder<cms::DDFilteredView>::build(cms::DDFilteredView& fv,
+                                                        GeometricDet* tracker,
+                                                        const std::string& attribute) {
+  edm::LogVerbatim("CmsTrackerLevelBuilder")
+      << "CmsTrackerLevelBuilder::build called on volume"
+      << " tracker->name() = " << tracker->name() << " tracker->path() = " << fv.geoHistory()
+      << " tracker->type() = " << tracker->type();
+
+  // Go down one level in hierarchy
+  fv.firstChild();
+
+  // This is the siblings hierarchy level
+  const int level = fv.level();
+  const std::string& type = ExtractStringFromDDD<cms::DDFilteredView>::getString(attribute, &fv);
+
+  // Treat all siblings of a given hierarchy level
+  while (fv.level() == level) {
+    edm::LogVerbatim("CmsTrackerLevelBuilder")
+        << "Calling buildComponent, before."
+        << " level = " << level << " type = " << type << " fv.level() = " << fv.level()
+        << " fv.type() = " << ExtractStringFromDDD<cms::DDFilteredView>::getString(attribute, &fv);
+
+    // Call build on sibling
+    buildComponent(fv, tracker, attribute);
+
+    edm::LogVerbatim("CmsTrackerLevelBuilder")
+        << "Calling buildComponent, after."
+        << " level = " << level << " type = " << type << " fv.level() = " << fv.level()
+        << " fv.type() = " << ExtractStringFromDDD<cms::DDFilteredView>::getString(attribute, &fv);
+  }
+
+  // Now that all GeometricDets of a given hierarchy level are built, sort them!
+  sortNS(fv, tracker);
+
+  edm::LogVerbatim("CmsTrackerLevelBuilder")
+      << "CmsTrackerLevelBuilder::build: Exit, finished all buildComponents calls.";
 }
 
 template class CmsTrackerLevelBuilder<DDFilteredView>;
