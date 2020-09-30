@@ -164,7 +164,7 @@ void KDTreeLinkerPSEcal::searchLinks(const PFTables &pftables, reco::PFMultiLink
 
         auto rechit_corner_posx = ecal_rh.get<rechit::CornerXBV>(irecHit);
         auto rechit_corner_posy = ecal_rh.get<rechit::CornerYBV>(irecHit);
-        for (size_t icorner = 0; icorner<4; icorner++) {
+        for (size_t icorner = 0; icorner < 4; icorner++) {
           rechit_corner_posx[icorner] *= zPS_over_cluster;
           rechit_corner_posy[icorner] *= zPS_over_cluster;
         }

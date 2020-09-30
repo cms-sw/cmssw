@@ -558,8 +558,8 @@ double LinkByRecHit::testTrackAndClusterByRecHit(
       // also blown up to account for multiple scattering at low pt.
       double rhsizeEta =
           std::abs(rechit_table.get<rechit::CornerEta>(irechit)[3] - rechit_table.get<rechit::CornerEta>(irechit)[1]);
-      double rhsizePhi = std::abs(rechit_table.get<rechit::CornerPhi>(irechit)[3] - 
-                                                 rechit_table.get<rechit::CornerPhi>(irechit)[1]);
+      double rhsizePhi =
+          std::abs(rechit_table.get<rechit::CornerPhi>(irechit)[3] - rechit_table.get<rechit::CornerPhi>(irechit)[1]);
       if (rhsizePhi > M_PI)
         rhsizePhi = 2. * M_PI - rhsizePhi;
 
