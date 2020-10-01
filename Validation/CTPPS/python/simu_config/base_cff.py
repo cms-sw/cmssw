@@ -173,9 +173,11 @@ def UseCrossingAngle(xangle, process):
   process.ctppsBeamParametersESSource.halfXangleX45 = xangle * 1E-6
   process.ctppsBeamParametersESSource.halfXangleX56 = xangle * 1E-6
 
+default_xangle_beta_star_file = "CalibPPS/ESProducers/data/xangle_beta_distributions/version1.root"
+
 def UseXangleBetaStarHistogram(process, f, obj):
   process.load("CalibPPS.ESProducers.ctppsLHCInfoRandomXangleESSource_cfi")
-  process.ctppsLHCInfoRandomXangleESSource.generateEveryNEvents = 1
+  process.ctppsLHCInfoRandomXangleESSource.generateEveryNEvents = 10 # this is to be synchronised with source.numberEventsInLuminosityBlock
   process.ctppsLHCInfoRandomXangleESSource.xangleBetaStarHistogramFile = f
   process.ctppsLHCInfoRandomXangleESSource.xangleBetaStarHistogramObject = obj
   process.ctppsLHCInfoRandomXangleESSource.beamEnergy = ctppsLHCInfoESSource.beamEnergy
