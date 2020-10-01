@@ -192,7 +192,7 @@ namespace cms {
     //! extract attribute value
     template <typename T>
     T get(const std::string&);
-    
+
     //! extract another value from the same SpecPar
     //  call get<double> first to find a relevant one
     double getNextValue(const std::string&) const;
@@ -207,7 +207,7 @@ namespace cms {
     std::vector<double> get(const std::string&, const std::string&) const;
 
     std::string_view getString(const std::string&) const;
-    
+
     //! return the stack of sibling numbers which indicates
     //  the current position in the DDFilteredView
     nav_type navPos() const;
