@@ -158,14 +158,22 @@ coarsetc_equalshare_proc = cms.PSet(ProcessorName  = cms.string('HGCalConcentrat
 )
 
 
-autoencoder_triggerCellRemap = [47, 44, 41, 38, -1, -1, -1, -1,
-                                1, 35, 32, 29, 26, -1, -1, -1,
-                                13,  4, 23, 20, 17, 14, -1, -1,
-                                25, 16,  7, 11,  8,  5,  2, -1,
-                                37, 28, 19, 10,  9, 21, 33, 45,
-                                -1, 40, 31, 22,  6, 18, 30, 42,
-                                -1, -1, 43, 34,  3, 15, 27, 39,
-                                -1, -1, -1, 46,  0, 12, 24, 36]
+autoencoder_triggerCellRemap = [0,16, 32,
+                                1,17, 33,
+                                2,18, 34,
+                                3,19, 35,
+                                4,20, 36,
+                                5,21, 37,
+                                6,22, 38,
+                                7,23, 39,
+                                8,24, 40,
+                                9,25, 41,
+                                10,26, 42,
+                                11,27, 43,
+                                12,28, 44,
+                                13,29, 45,
+                                14,30, 46,
+                                15,31, 47]
 
 autoEncoder_bitsPerOutputLink = cms.vint32([0, 1, 3, 5, 7, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9])
 
@@ -186,6 +194,9 @@ linkToGraphMapping = [0,0,0,1,2,3,3,3,3,3,3,3,3,3,3]
 autoEncoder_conc_proc = cms.PSet(ProcessorName  = cms.string('HGCalConcentratorProcessorSelection'),
                                  Method = cms.vstring(['autoEncoder','autoEncoder','thresholdSelect']),
                                  cellRemap = cms.vint32(autoencoder_triggerCellRemap),
+                                 cellRemapNoDuplicates = cms.vint32(autoencoder_triggerCellRemap),
+                                 encoderShape = cms.vuint32(1,4,4,3),
+                                 decoderShape = cms.vuint32(1,16),
                                  nBitsPerInput = cms.int32(8),
                                  maxBitsPerOutput = cms.int32(9),
                                  bitsPerLink = autoEncoder_bitsPerOutputLink,
