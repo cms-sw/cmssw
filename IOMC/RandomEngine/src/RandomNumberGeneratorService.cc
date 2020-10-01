@@ -87,7 +87,7 @@ namespace edm {
 
       // The saveFileName must correspond to a file name without any path specification.
       // Throw if that is not true.
-      if (!saveFileName_.empty() && (saveFileName_.find("/") != std::string::npos)) {
+      if (!saveFileName_.empty() && (saveFileName_.find('/') != std::string::npos)) {
         throw Exception(errors::Configuration)
             << "The saveFileName parameter must be a simple file name with no path\n"
             << "specification. In the configuration, it was given the value \"" << saveFileName_ << "\"\n";
