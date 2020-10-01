@@ -39,9 +39,9 @@ std::unique_ptr<GeometricDet> DDDCmsTrackerContruction::construct(const DDCompac
   CmsTrackerBuilder<DDFilteredView> theCmsTrackerBuilder;
   theCmsTrackerBuilder.build(fv, tracker.get(), attribute);
 
-if (DEBUG) {
-printAllTrackerGeometricDetsBeforeDetIDBuilding(tracker.get());
-}
+  if (DEBUG) {
+    printAllTrackerGeometricDetsBeforeDetIDBuilding(tracker.get());
+  }
 
   edm::LogVerbatim("DDDCmsTrackerContruction") << "Assign DetIds";
   CmsTrackerDetIdBuilder theCmsTrackerDetIdBuilder(detidShifts);
@@ -93,7 +93,6 @@ std::unique_ptr<GeometricDet> DDDCmsTrackerContruction::construct(const cms::DDC
   return tracker;
 }
 
-
 /*
  * Print all Tracker GeoemtricDets before DetIds building.
  * The tree is lareday fully constructed from XMLs, 
@@ -101,7 +100,6 @@ std::unique_ptr<GeometricDet> DDDCmsTrackerContruction::construct(const cms::DDC
  * This allows a convenient debugging, as the DetIds are assigned according to this information.
  */
 void DDDCmsTrackerContruction::printAllTrackerGeometricDetsBeforeDetIDBuilding(const GeometricDet* tracker) {
-
   std::ofstream outputFile("All_Tracker_GeometricDets_before_DetId_building.log", std::ios::out);
 
   // Tree navigation: queue for BFS (we want to see same hierarchy level together).
@@ -123,12 +121,14 @@ void DDDCmsTrackerContruction::printAllTrackerGeometricDetsBeforeDetIDBuilding(c
     outputFile << "myDet->geographicalID() = " << myDet->geographicalId() << std::endl;
     outputFile << "myDet->name() = " << myDet->name() << std::endl;
     outputFile << "myDet->module->type() = " << std::fixed << std::setprecision(7) << myDet->type() << std::endl;
-    outputFile << "myDet->module->translation() = " << std::fixed << std::setprecision(7) << myDet->translation() << std::endl;
+    outputFile << "myDet->module->translation() = " << std::fixed << std::setprecision(7) << myDet->translation()
+               << std::endl;
     outputFile << "myDet->module->rho() = " << std::fixed << std::setprecision(7) << myDet->rho() << std::endl;
     if (fabs(myDet->rho()) > 0.00001) {
       outputFile << "myDet->module->phi() = " << std::fixed << std::setprecision(7) << myDet->phi() << std::endl;
     }
-    outputFile << "myDet->module->rotation() = " << std::fixed << std::setprecision(7) << myDet->rotation() << std::endl;
+    outputFile << "myDet->module->rotation() = " << std::fixed << std::setprecision(7) << myDet->rotation()
+               << std::endl;
     outputFile << "myDet->module->shape() = " << std::fixed << std::setprecision(7) << myDet->shape() << std::endl;
     if (myDet->shape_dd4hep() == cms::DDSolidShape::ddbox || myDet->shape_dd4hep() == cms::DDSolidShape::ddtrap ||
         myDet->shape_dd4hep() == cms::DDSolidShape::ddtubs) {
