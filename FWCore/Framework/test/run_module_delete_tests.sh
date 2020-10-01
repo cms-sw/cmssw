@@ -15,3 +15,5 @@ cmsRun $TEST_DIR/test_module_delete_looper_cfg.py || die "module deletetion test
 echo "module deletion test with looper succeeded"
 cmsRun $TEST_DIR/test_module_delete_dependencygraph_cfg.py || die "module deletetion test with DependencyGraph failed" $?
 echo "module deletion test with DependencyGraph succeeded"
+cmsRun $TEST_DIR/test_module_delete_disable_cfg.py || die "module deletetion test with disabling the deletion failed" $?
+echo "module deletion test with disabling the deletion succeeded"
