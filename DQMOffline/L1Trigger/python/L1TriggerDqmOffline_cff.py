@@ -309,6 +309,9 @@ from DQMOffline.L1Trigger.L1TriggerDqmOffline_SecondStep_cff import *
 
 from DQM.L1TMonitor.L1TStage2Emulator_cff import *
 
+#CaloL1: Separate configuration and module used for offline
+from DQMOffline.L1Trigger.L1TStage2CaloLayer1_Offline_cfi import *
+
 #
 # define sequences
 #
@@ -417,6 +420,10 @@ Stage2l1tMuonDqmOfflineClient = cms.Sequence(
 
 
 #replacements for stage2
+
+#CaloL1: replacement of CaloL1 online module with offline
+stage2L1Trigger.toReplaceWith(l1tStage2CaloLayer1, l1tStage2CaloLayer1Offline)
+
 stage2L1Trigger.toReplaceWith(l1TriggerOnline, Stage2l1TriggerOnline)
 stage2L1Trigger.toReplaceWith(l1TriggerOffline, Stage2l1TriggerOffline)
 stage2L1Trigger.toReplaceWith(l1TriggerEmulatorOnline, Stage2l1TriggerEmulatorOnline)
