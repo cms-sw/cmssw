@@ -1,11 +1,9 @@
+#include "DataFormats/Math/interface/GeantUnits.h"
 #include "Geometry/TrackerNumberingBuilder/interface/GeometricDet.h"
 #include "Geometry/TrackerNumberingBuilder/interface/TrackerShapeToBounds.h"
 #include "DetectorDescription/Core/interface/DDFilteredView.h"
 #include "DetectorDescription/DDCMS/interface/DDFilteredView.h"
 #include "CondFormats/GeometryObjects/interface/PGeometricDet.h"
-
-#include "CLHEP/Units/GlobalSystemOfUnits.h"
-#include "DataFormats/Math/interface/GeantUnits.h"
 
 #include <cfloat>
 #include <string>
@@ -202,7 +200,10 @@ std::unique_ptr<Bounds> GeometricDet::bounds() const {
 }
 
 GeometricDet::Position GeometricDet::positionBounds() const {
-  Position pos_(float(trans_.x() / cm), float(trans_.y() / cm), float(trans_.z() / cm));
+  Position pos_(static_cast<float>(geant_units::operators::convertMmToCm(trans_.x())), 
+		static_cast<float>(geant_units::operators::convertMmToCm(trans_.y())), 
+		static_cast<float>(geant_units::operators::convertMmToCm(trans_.z()))
+		);
   return pos_;
 }
 
