@@ -65,8 +65,8 @@ double TrackAndTrackLinker::testLink(size_t ielem1,
 
   using TO_DISP_IsNonNull = pf::track::DisplacedVertexRef_TO_DISP_IsNonNull;
   using FROM_DISP_IsNonNull = pf::track::DisplacedVertexRef_FROM_DISP_IsNonNull;
-  using TO_DISP_Key = pf::track::DisplacedVertexRef_TO_DISP_IsNonNull;
-  using FROM_DISP_Key = pf::track::DisplacedVertexRef_FROM_DISP_IsNonNull;
+  using TO_DISP_Key = pf::track::DisplacedVertexRef_TO_DISP_Key;
+  using FROM_DISP_Key = pf::track::DisplacedVertexRef_FROM_DISP_Key;
 
   const bool dv1_to_nn = ttv.get<TO_DISP_IsNonNull>(ielem1_track);
   const bool dv2_to_nn = ttv.get<TO_DISP_IsNonNull>(ielem2_track);
