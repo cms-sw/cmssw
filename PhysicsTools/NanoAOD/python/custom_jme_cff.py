@@ -887,3 +887,29 @@ def PrepJMECustomNanoAOD_MC(process):
 def PrepJMECustomNanoAOD_Data(process):
   PrepJMECustomNanoAOD(process,runOnMC=False)
   return process
+
+#### Add AK8 PFCands and BTV info                                                                                                                                                                           
+def PrepJMECustomAK8PFNanoAOD_MC(process):
+  PrepJMECustomNanoAOD(process, runOnMC=True)
+  addPFCands(process, runOnMC = True, onlyAK8 = True)
+  add_BTV(process, runOnMC = True, onlyAK8 = True)
+  return process
+
+def PrepJMECustomAK8PFNanoAOD_Data(process):
+  PrepJMECustomNanoAOD(process, runOnMC=False)
+  addPFCands(process, runOnMC = False, onlyAK8 = True)
+  add_BTV(process, runOnMC = False, onlyAK8 = True)
+  return process
+
+#### All PFCands and BTV info                                                                                                                                                                               
+def PrepJMECustomPFNanoAOD_MC(process):
+  PrepJMECustomNanoAOD(process, runOnMC=True)
+  addPFCands(process, runOnMC = True, allPF = True)
+  add_BTV(process, runOnMC = True)
+  return process
+
+def PrepJMECustomPFNanoAOD_Data(process):
+  PrepJMECustomNanoAOD(process, runOnMC=False)
+  addPFCands(process, runOnMC = False, allPF = True)
+  add_BTV(process, runOnMC = False)
+  return process

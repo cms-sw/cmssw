@@ -646,6 +646,36 @@ upgradeWFs['JMENano'] = UpgradeWorkflow_JMENano(
     offset = 0.15,
 )
 
+class UpgradeWorkflow_JMEAK8PFNano(UpgradeWorkflow):
+    def setup_(self, step, stepName, stepDict, k, properties):
+        if 'Nano' in step:
+            stepDict[stepName][k] = merge([{'--customise': 'PhysicsTools/NanoAOD/custom_jme_cff.PrepJMECustomAK8PFNanoAOD_MC'}, stepDict[step][k]])
+    def condition(self, fragment, stepList, key, hasHarvest):
+        return fragment=="TTbar_13" and ('2017' in key or '2018' in key)
+upgradeWFs['JMEAK8PFNano'] = UpgradeWorkflow_JMEAK8PFNano(
+    steps = [
+        'Nano',
+    ],
+    PU = [],
+    suffix = '_JMEAK8PFNano',
+    offset = 0.16,
+)
+
+class UpgradeWorkflow_JMEPFNano(UpgradeWorkflow):
+    def setup_(self, step, stepName, stepDict, k, properties):
+        if 'Nano' in step:
+            stepDict[stepName][k] = merge([{'--customise': 'PhysicsTools/NanoAOD/custom_jme_cff.PrepJMECustomPFNanoAOD_MC'}, stepDict[step][k]])
+    def condition(self, fragment, stepList, key, hasHarvest):
+        return fragment=="TTbar_13" and ('2017' in key or '2018' in key)
+upgradeWFs['JMEPFNano'] = UpgradeWorkflow_JMEPFNano(
+    steps = [
+        'Nano',
+    ],
+    PU = [],
+    suffix = '_JMEPFNano',
+    offset = 0.17,
+)
+
 
 # common operations for aging workflows
 class UpgradeWorkflowAging(UpgradeWorkflow):
