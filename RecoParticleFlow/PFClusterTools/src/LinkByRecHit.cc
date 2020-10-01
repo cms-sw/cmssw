@@ -558,10 +558,8 @@ double LinkByRecHit::testTrackAndClusterByRecHit(
       // also blown up to account for multiple scattering at low pt.
       const auto& cornerEta = rechit_table.get<rechit::CornerEta>(irechit);
       const auto& cornerPhi = rechit_table.get<rechit::CornerPhi>(irechit);
-      double rhsizeEta =
-          std::abs(cornerEta[3] - cornerEta[1]);
-      double rhsizePhi =
-          std::abs(reco::deltaPhi(cornerPhi[3], cornerPhi[1]));
+      double rhsizeEta = std::abs(cornerEta[3] - cornerEta[1]);
+      double rhsizePhi = std::abs(reco::deltaPhi(cornerPhi[3], cornerPhi[1]));
 
       if (hcal) {
         const double mult = horesolscale * (1.50 + 0.5 / fracsNbr);
