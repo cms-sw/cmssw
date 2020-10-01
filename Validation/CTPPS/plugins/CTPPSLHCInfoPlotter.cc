@@ -57,7 +57,14 @@ CTPPSLHCInfoPlotter::CTPPSLHCInfoPlotter(const edm::ParameterSet &iConfig)
       h_beamEnergy_(new TH1D("h_beamEnergy", ";beam energy   (GeV)", 81, -50., 8050.)),
       h_xangle_(new TH1D("h_xangle", ";(half) crossing angle   (#murad)", 201, -0.5, 200.5)),
       h_betaStar_(new TH1D("h_betaStar", ";#beta^{*}   (m)", 101, -0.005, 1.005)),
-      h2_betaStar_vs_xangle_(new TH2D("h2_betaStar_vs_xangle", ";(half) crossing angle   (#murad);#beta^{*}   (m)", 201, -0.5, 200.5, 101, -0.005, 1.005)),
+      h2_betaStar_vs_xangle_(new TH2D("h2_betaStar_vs_xangle",
+                                      ";(half) crossing angle   (#murad);#beta^{*}   (m)",
+                                      201,
+                                      -0.5,
+                                      200.5,
+                                      101,
+                                      -0.005,
+                                      1.005)),
 
       h_fill_(new TH1D("h_fill", ";fill", 4001, 3999.5, 8000.5)),
       h_run_(new TH1D("h_run", ";run", 6000, 270E3, 330E3)) {}
