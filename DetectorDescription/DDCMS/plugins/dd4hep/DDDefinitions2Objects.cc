@@ -947,7 +947,7 @@ void Converter<PartSelector>::operator()(xml_h element) const {
            "+++ PartSelector for %s path: %s",
            specParName.c_str(),
            path.c_str());
-  
+
   size_t pos = std::string::npos;
   if ((pos = path.find("//.*:")) != std::string::npos) {
     path.erase(pos + 2, 3);
