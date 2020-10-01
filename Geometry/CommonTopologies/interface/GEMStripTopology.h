@@ -1,5 +1,5 @@
-#ifndef _GEM_STRIP_TOPOLOGY_H_
-#define _GEM_STRIP_TOPOLOGY_H_
+#ifndef Geometry_CommonTopologies_GEMStripTopology_H
+#define Geometry_CommonTopologies_GEMStripTopology_H
 
 /** \class GEMStripTopology
  *  based on CSCRadialStripTopology and TrapezoidalStripTopology
@@ -41,33 +41,33 @@ public:
 
   float stripAngle(float strip) const override;
 
-  int nstrips() const override { return theNumberOfStrips; }
+  int nstrips() const override { return numberOfStrips_; }
 
-  float stripLength() const override { return theDetHeight; }
+  float stripLength() const override { return detHeight_; }
 
   float localStripLength(const LocalPoint&) const override;
 
-  float angularWidth() const { return theAngularWidth; }
-  float detHeight() const { return theDetHeight; }
-  float yExtentOfStripPlane() const { return theDetHeight; }
-  float centreToIntersection() const { return theCentreToIntersection; }
-  float radius() const { return theCentreToIntersection; }
-  float originToIntersection() const { return (theCentreToIntersection - yCentre); }
+  float angularWidth() const { return angularWidth_; }
+  float detHeight() const { return detHeight_; }
+  float yExtentOfStripPlane() const { return detHeight_; }
+  float centreToIntersection() const { return centreToIntersection_; }
+  float radius() const { return centreToIntersection_; }
+  float originToIntersection() const { return (centreToIntersection_ - yCentre_); }
 
   float yDistanceToIntersection(float y) const;
   float xOfStrip(int strip, float y) const;
-  float yAxisOrientation() const { return theYAxisOrientation; }
-  float phiOfOneEdge() const { return thePhiOfOneEdge; }
-  float yCentreOfStripPlane() const { return yCentre; }
+  float yAxisOrientation() const { return yAxisOrientation_; }
+  float phiOfOneEdge() const { return phiOfOneEdge_; }
+  float yCentreOfStripPlane() const { return yCentre_; }
 
 private:
-  int theNumberOfStrips;          // total no. of strips in plane of strips
-  float theAngularWidth;          // angle subtended by each strip = phi pitch
-  float theDetHeight;             // length of long symmetry axis = twice the apothem of the enclosing trapezoid
-  float theCentreToIntersection;  // distance centre of detector face to intersection of edge strips (projected)
-  float thePhiOfOneEdge;          // local 'phi' of one edge of plane of strips (I choose it negative!)
-  float theYAxisOrientation;      // 1 means y axis going from smaller to larger side, -1 means opposite direction
-  float yCentre;  // Non-zero if offset in local y between midpoint of detector (strip plane) extent and local origin.
+  int numberOfStrips_;          // total no. of strips in plane of strips
+  float angularWidth_;          // angle subtended by each strip = phi pitch
+  float detHeight_;             // length of long symmetry axis = twice the apothem of the enclosing trapezoid
+  float centreToIntersection_;  // distance centre of detector face to intersection of edge strips (projected)
+  float phiOfOneEdge_;          // local 'phi' of one edge of plane of strips (I choose it negative!)
+  float yAxisOrientation_;      // 1 means y axis going from smaller to larger side, -1 means opposite direction
+  float yCentre_;  // Non-zero if offset in local y between midpoint of detector (strip plane) extent and local origin.
 };
 
 #endif

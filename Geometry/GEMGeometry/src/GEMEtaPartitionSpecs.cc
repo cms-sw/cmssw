@@ -1,8 +1,9 @@
 #include "Geometry/GEMGeometry/interface/GEMEtaPartitionSpecs.h"
 #include "Geometry/CommonTopologies/interface/GEMStripTopology.h"
-#include "TMath.h"
+#include "DataFormats/Math/interface/angle_units.h"
 
 using namespace GeomDetEnumerators;
+using namespace angle_units::operators;
 
 GEMEtaPartitionSpecs::GEMEtaPartitionSpecs(SubDetector rss, const std::string& name, const GEMSpecs& pars)
     : GeomDetType(name, rss), _p(pars), _n(name) {
@@ -13,7 +14,7 @@ GEMEtaPartitionSpecs::GEMEtaPartitionSpecs(SubDetector rss, const std::string& n
     float r0 = h * (B + b) / (B - b);
     float striplength = h * 2;
     float strips = _p[3];
-    float dphi = _p[5] * TMath::Pi() / 180.;
+    float dphi = convertDegToRad(_p[5]);
     float phiPitch = dphi / strips;
 
     int nstrip = static_cast<int>(strips);

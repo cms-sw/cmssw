@@ -3,35 +3,28 @@
  * \author Hyunyong Kim - TAMU
  */
 #include "Geometry/CommonTopologies/interface/GEMStripTopology.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <iostream>
 #include <cmath>
 #include <algorithm>
 
 GEMStripTopology::GEMStripTopology(int ns, float aw, float dh, float r0)
-    : theNumberOfStrips(ns), theAngularWidth(aw), theDetHeight(dh), theCentreToIntersection(r0) {
-  theYAxisOrientation = 1;
-  thePhiOfOneEdge = -(0.5 * theNumberOfStrips) * theAngularWidth * theYAxisOrientation;
-  yCentre = 0;
-#ifdef VERBOSE
-  cout << "Constructing GEMStripTopology with"
-       << " nstrips = " << ns << " angular width = " << aw << " det. height = " << dh << " r0 = " << r0 < < < <
-      " yAxOrientation = " << yAx << endl;
-#endif
+    : numberOfStrips_(ns), angularWidth_(aw), detHeight_(dh), centreToIntersection_(r0) {
+  yAxisOrientation_ = 1;
+  phiOfOneEdge_ = -(0.5 * numberOfStrips_) * angularWidth_ * yAxisOrientation_;
+  yCentre_ = 0;
+  LogTrace("GEMStripTopology") << "Constructing GEMStripTopology with"
+                               << " nstrips = " << ns << " angular width = " << aw << " det. height = " << dh
+                               << " r0 = " << r0 << "\n";
 }
 
 GEMStripTopology::GEMStripTopology(int ns, float aw, float dh, float r0, float yAx)
-    : theNumberOfStrips(ns),
-      theAngularWidth(aw),
-      theDetHeight(dh),
-      theCentreToIntersection(r0),
-      theYAxisOrientation(yAx) {
-  thePhiOfOneEdge = -(0.5 * theNumberOfStrips) * theAngularWidth * theYAxisOrientation;
-  yCentre = 0;
-#ifdef VERBOSE
-  cout << "Constructing GEMStripTopology with"
-       << " nstrips = " << ns << " angular width = " << aw << " det. height = " << dh << " r0 = " << r0 < < < <
-      " yAxOrientation = " << yAx << endl;
-#endif
+    : numberOfStrips_(ns), angularWidth_(aw), detHeight_(dh), centreToIntersection_(r0), yAxisOrientation_(yAx) {
+  phiOfOneEdge_ = -(0.5 * numberOfStrips_) * angularWidth_ * yAxisOrientation_;
+  yCentre_ = 0;
+  LogTrace("GEMStripTopology") << "Constructing GEMStripTopology with"
+                               << " nstrips = " << ns << " angular width = " << aw << " det. height = " << dh
+                               << " r0 = " << r0 << " yAxOrientation = " << yAx << "\n";
 }
 
 LocalPoint GEMStripTopology::localPosition(float strip) const {
@@ -104,7 +97,7 @@ MeasurementError GEMStripTopology::measurementError(const LocalPoint& p, const L
   return MeasurementError(uu, uv, vv);
 }
 
-int GEMStripTopology::channel(const LocalPoint& lp) const { return std::min(int(strip(lp)), theNumberOfStrips - 1); }
+int GEMStripTopology::channel(const LocalPoint& lp) const { return std::min(int(strip(lp)), numberOfStrips_ - 1); }
 
 float GEMStripTopology::pitch() const { return localPitch(LocalPoint(0, 0)); }
 
