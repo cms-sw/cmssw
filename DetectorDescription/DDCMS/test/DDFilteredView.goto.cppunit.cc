@@ -67,7 +67,7 @@ void testDDFilteredViewGoTo::checkFilteredView() {
   double xi = fview.getNextValue("TrackerXi");
   CPPUNIT_ASSERT(radLength == refRadLength_);
   CPPUNIT_ASSERT(xi == refXi_);
-	       
+
   std::cout << "TrackerRadLength = " << radLength << "\nTrackerXi = " << xi << "\n";
 
   std::cout << "\n==== Let's go to #45\n";

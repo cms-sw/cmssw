@@ -672,7 +672,7 @@ const DDSpecPar* DDFilteredView::find(const std::string& key) const {
       return i;
     }
   }
-  
+
   return nullptr;
 }
 
@@ -689,7 +689,6 @@ double DDFilteredView::getNextValue(const std::string& key) const {
 
   return result;
 }
-
 
 std::string_view DDFilteredView::name() const { return (volume().volume().name()); }
 
