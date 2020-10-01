@@ -62,21 +62,6 @@ puppiMetTable = cms.EDProducer("SimpleCandidateFlatTableProducer",
     variables = cms.PSet(PTVars,
        sumEt = Var("sumEt()", float, doc="scalar sum of Et",precision=10),
        ptJERUp = Var("shiftedPt('JetResUp')", float, doc="JER up pt",precision=10),
-       phiJERUp = Var("shiftedPhi('JetResUp')", float, doc="JER up phi",precision=10),
-       ptJESUp = Var("shiftedPt('JetEnUp')", float, doc="JES up pt",precision=10),
-       phiJESUp = Var("shiftedPhi('JetEnUp')", float, doc="JES up phi",precision=10),
-    ),
-)
-
-puppiMetTableMod = cms.EDProducer("SimpleCandidateFlatTableProducer",
-    src = cms.InputTag("slimmedMETsPuppi"),
-    name = cms.string("PuppiMET"),
-    doc = cms.string("PUPPI  MET"),
-    singleton = cms.bool(True),  # there's always exactly one MET per event
-    extension = cms.bool(False), # this is the main table for the MET
-    variables = cms.PSet(PTVars,
-       sumEt = Var("sumEt()", float, doc="scalar sum of Et",precision=10),
-       ptJERUp = Var("shiftedPt('JetResUp')", float, doc="JER up pt",precision=10),
        ptJERDown = Var("shiftedPt('JetResDown')", float, doc="JER down pt",precision=10),
        phiJERUp = Var("shiftedPhi('JetResUp')", float, doc="JER up phi",precision=10),
        phiJERDown = Var("shiftedPhi('JetResDown')", float, doc="JER down phi",precision=10),
@@ -177,8 +162,6 @@ metMCTable = cms.EDProducer("SimpleCandidateFlatTableProducer",
 
 
 metTables = cms.Sequence( metTable + rawMetTable + caloMetTable + puppiMetTable + rawPuppiMetTable+ tkMetTable + chsMetTable)
-for modifier in run2_miniAOD_devel, :
-    metTables = cms.Sequence( metTable + rawMetTable + caloMetTable + puppiMetTableMod + rawPuppiMetTable+ tkMetTable + chsMetTable)
 deepMetTables = cms.Sequence( deepMetResolutionTuneTable + deepMetResponseTuneTable )
 _withFixEE2017_sequence = cms.Sequence(metTables.copy() + metFixEE2017Table)
 for modifier in run2_nanoAOD_94XMiniAODv1, run2_nanoAOD_94XMiniAODv2:
