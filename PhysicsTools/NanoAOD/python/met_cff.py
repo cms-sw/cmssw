@@ -3,6 +3,7 @@ from  PhysicsTools.NanoAOD.common_cff import *
 
 from Configuration.Eras.Modifier_run2_nanoAOD_94XMiniAODv1_cff import run2_nanoAOD_94XMiniAODv1
 from Configuration.Eras.Modifier_run2_nanoAOD_94XMiniAODv2_cff import run2_nanoAOD_94XMiniAODv2
+from Configuration.Eras.Modifier_run2_miniAOD_devel_cff import run2_miniAOD_devel
 
 ##################### Tables for final output and docs ##########################
 metTable = cms.EDProducer("SimpleCandidateFlatTableProducer",
@@ -64,6 +65,29 @@ puppiMetTable = cms.EDProducer("SimpleCandidateFlatTableProducer",
        phiJERUp = Var("shiftedPhi('JetResUp')", float, doc="JER up phi",precision=10),
        ptJESUp = Var("shiftedPt('JetEnUp')", float, doc="JES up pt",precision=10),
        phiJESUp = Var("shiftedPhi('JetEnUp')", float, doc="JES up phi",precision=10),
+    ),
+)
+
+puppiMetTableMod = cms.EDProducer("SimpleCandidateFlatTableProducer",
+    src = cms.InputTag("slimmedMETsPuppi"),
+    name = cms.string("PuppiMET"),
+    doc = cms.string("PUPPI  MET"),
+    singleton = cms.bool(True),  # there's always exactly one MET per event
+    extension = cms.bool(False), # this is the main table for the MET
+    variables = cms.PSet(PTVars,
+       sumEt = Var("sumEt()", float, doc="scalar sum of Et",precision=10),
+       ptJERUp = Var("shiftedPt('JetResUp')", float, doc="JER up pt",precision=10),
+       ptJERDown = Var("shiftedPt('JetResDown')", float, doc="JER down pt",precision=10),
+       phiJERUp = Var("shiftedPhi('JetResUp')", float, doc="JER up phi",precision=10),
+       phiJERDown = Var("shiftedPhi('JetResDown')", float, doc="JER down phi",precision=10),
+       ptJESUp = Var("shiftedPt('JetEnUp')", float, doc="JES up pt",precision=10),
+       ptJESDown = Var("shiftedPt('JetEnDown')", float, doc="JES down pt",precision=10),
+       phiJESUp = Var("shiftedPhi('JetEnUp')", float, doc="JES up phi",precision=10),
+       phiJESDown = Var("shiftedPhi('JetEnDown')", float, doc="JES down phi",precision=10),
+       ptUnclusteredUp = Var("shiftedPt('UnclusteredEnUp')", float, doc="Unclustered up pt",precision=10),
+       ptUnclusteredDown = Var("shiftedPt('UnclusteredEnDown')", float, doc="Unclustered down pt",precision=10),
+       phiUnclusteredUp = Var("shiftedPhi('UnclusteredEnUp')", float, doc="Unclustered up phi",precision=10),
+       phiUnclusteredDown = Var("shiftedPhi('UnclusteredEnDown')", float, doc="Unclustered down phi",precision=10),
     ),
 )
 
@@ -153,6 +177,8 @@ metMCTable = cms.EDProducer("SimpleCandidateFlatTableProducer",
 
 
 metTables = cms.Sequence( metTable + rawMetTable + caloMetTable + puppiMetTable + rawPuppiMetTable+ tkMetTable + chsMetTable)
+for modifier in run2_miniAOD_devel, :
+    metTables = cms.Sequence( metTable + rawMetTable + caloMetTable + puppiMetTableMod + rawPuppiMetTable+ tkMetTable + chsMetTable)
 deepMetTables = cms.Sequence( deepMetResolutionTuneTable + deepMetResponseTuneTable )
 _withFixEE2017_sequence = cms.Sequence(metTables.copy() + metFixEE2017Table)
 for modifier in run2_nanoAOD_94XMiniAODv1, run2_nanoAOD_94XMiniAODv2:
