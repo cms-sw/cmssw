@@ -38,11 +38,6 @@ from RecoBTag.ImpactParameter.trackCounting3D2ndComputer_cfi import *
 from RecoBTag.ImpactParameter.trackCounting3D3rdComputer_cfi import *
 from PhysicsTools.PatAlgos.recoLayer0.jetCorrFactors_cfi import *
 
-ak5JetTracksAssociatorAtVertex.jets = "akCs4PFJets"
-ak5JetTracksAssociatorAtVertex.tracks = "highPurityGeneralTracks"
-
-impactParameterTagInfos.jetTracks = "ak5JetTracksAssociatorAtVertex"
-
 recoPFJetsHIpostAODTask = cms.Task(
     PFTowers,
     pfEmptyCollection,
