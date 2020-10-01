@@ -9,7 +9,6 @@
 #include <sstream>
 #include <string>
 #include <bitset>
-#include <deque>
 
 CmsTrackerDetIdBuilder::CmsTrackerDetIdBuilder(const std::vector<int>& detidShifts) : m_detidshifts() {
   if (detidShifts.size() != nSubDet * maxLevels)
@@ -28,61 +27,6 @@ void CmsTrackerDetIdBuilder::buildId(GeometricDet& tracker) {
   DetId t(DetId::Tracker, 0);
   tracker.setGeographicalID(t);
   iterate(tracker, 0, tracker.geographicalId().rawId());
-
-  std::ofstream outfile("DetIdOLD.log", std::ios::out);
-  //std::ofstream outfile("DetIdDD4hep.log", std::ios::out);
-
-  std::deque<const GeometricDet*> queue;
-  queue.emplace_back(&tracker);
-
-  while (!queue.empty()) {
-    const GeometricDet* myDet = queue.front();
-    queue.pop_front();
-    for (auto& child : myDet->components()) {
-      queue.emplace_back(child);
-    }
-
-    outfile << " " << std::endl;
-    outfile << " " << std::endl;
-    outfile << "............................." << std::endl;
-    outfile << "myDet->geographicalID() = " << myDet->geographicalId() << std::endl;
-
-    //const auto& found = myDet->name().find(":");
-    //outfile << "myDet->name() = " << (found != std::string::npos ? myDet->name().substr(found + 1) : myDet->name()) << std::endl;
-    outfile << "myDet->name() = " << myDet->name() << std::endl;
-    outfile << "myDet->module->type() = " << std::fixed << std::setprecision(7) << myDet->type() << std::endl;
-
-    outfile << "myDet->module->translation() = " << std::fixed << std::setprecision(7) << myDet->translation()
-            << std::endl;
-    outfile << "myDet->module->rho() = " << std::fixed << std::setprecision(7) << myDet->rho() << std::endl;
-
-    if (fabs(myDet->rho()) > 0.00001) {
-      outfile << "myDet->module->phi() = " << std::fixed << std::setprecision(7) << myDet->phi() << std::endl;
-    }
-
-    outfile << "myDet->module->rotation() = " << std::fixed << std::setprecision(7) << myDet->rotation() << std::endl;
-    outfile << "myDet->module->shape() = " << std::fixed << std::setprecision(7) << myDet->shape() << std::endl;
-
-    if (myDet->shape_dd4hep() == cms::DDSolidShape::ddbox || myDet->shape_dd4hep() == cms::DDSolidShape::ddtrap ||
-        myDet->shape_dd4hep() == cms::DDSolidShape::ddtubs) {
-      outfile << "myDet->params() = " << std::fixed << std::setprecision(7);
-      for (const auto& para : myDet->params()) {
-        outfile << para << "  ";
-      }
-      outfile << " " << std::endl;
-    }
-
-    outfile << "myDet->radLength() = " << myDet->radLength() << std::endl;
-    outfile << "myDet->xi() = " << myDet->xi() << std::endl;
-    outfile << "myDet->pixROCRows() = " << myDet->pixROCRows() << std::endl;
-    outfile << "myDet->pixROCCols() = " << myDet->pixROCCols() << std::endl;
-    outfile << "myDet->pixROCx() = " << myDet->pixROCx() << std::endl;
-    outfile << "myDet->pixROCy() = " << myDet->pixROCy() << std::endl;
-    outfile << "myDet->stereo() = " << myDet->stereo() << std::endl;
-    outfile << "myDet->isLowerSensor() = " << myDet->isLowerSensor() << std::endl;
-    outfile << "myDet->isUpperSensor() = " << myDet->isUpperSensor() << std::endl;
-    outfile << "myDet->siliconAPVNum() = " << myDet->siliconAPVNum() << std::endl;
-  }
 }
 
 void CmsTrackerDetIdBuilder::iterate(GeometricDet& in, int level, unsigned int ID) {
