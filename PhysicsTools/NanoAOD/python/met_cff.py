@@ -3,7 +3,6 @@ from  PhysicsTools.NanoAOD.common_cff import *
 
 from Configuration.Eras.Modifier_run2_nanoAOD_94XMiniAODv1_cff import run2_nanoAOD_94XMiniAODv1
 from Configuration.Eras.Modifier_run2_nanoAOD_94XMiniAODv2_cff import run2_nanoAOD_94XMiniAODv2
-from Configuration.Eras.Modifier_run2_miniAOD_devel_cff import run2_miniAOD_devel
 
 ##################### Tables for final output and docs ##########################
 metTable = cms.EDProducer("SimpleCandidateFlatTableProducer",
