@@ -48,11 +48,7 @@ public:
 
   using CSCUpgradeMotherboard::readoutLCTs;
 
-  // run TMB with GEM pads as input
   using CSCUpgradeMotherboard::run;
-  virtual void run(const CSCWireDigiCollection* wiredc,
-                   const CSCComparatorDigiCollection* compdc,
-                   const GEMPadDigiCollection* gemPads) = 0;
 
   // run TMB with GEM pad clusters as input
   virtual void run(const CSCWireDigiCollection* wiredc,
@@ -184,8 +180,9 @@ protected:
       const CSCALCTDigi& alct, const CSCCLCTDigi& clct, const GEMPadDigi& gem1, const GEMCoPadDigi& gem2, int i) const;
 
   // get the pads/copads from the digi collection and store in handy containers
-  void retrieveGEMPads(const GEMPadDigiCollection* pads, unsigned id);
-  void retrieveGEMCoPads();
+  void processGEMClusters(const GEMPadDigiClusterCollection* pads);
+  void processGEMPads(const GEMPadDigiCollection* pads);
+  void processGEMCoPads();
 
   enum LCT_QualityRun3 {
     INVALID = 0,
@@ -233,9 +230,6 @@ protected:
 
   bool promoteALCTGEMquality_;
   bool promoteCLCTGEMquality_;
-
-  // LCT ghostbusting
-  bool doLCTGhostBustingWithGEMs_;
 
 private:
   template <class T>

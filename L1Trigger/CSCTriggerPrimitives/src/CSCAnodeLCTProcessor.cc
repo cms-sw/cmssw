@@ -62,7 +62,7 @@ CSCAnodeLCTProcessor::CSCAnodeLCTProcessor(unsigned endcap,
 
   // Check and print configuration parameters.
   checkConfigParameters();
-  if ((infoV > 0 || (isSLHC_)) && !config_dumped) {
+  if ((infoV > 0 || (runPhase2_)) && !config_dumped) {
     dumpConfigParams();
     config_dumped = true;
   }
@@ -72,7 +72,7 @@ CSCAnodeLCTProcessor::CSCAnodeLCTProcessor(unsigned endcap,
 
   // whether to calculate bx as corrected_bx instead of pretrigger one
   use_corrected_bx = false;
-  if (isSLHC_) {
+  if (runPhase2_) {
     use_corrected_bx = alctParams_.getParameter<bool>("alctUseCorrectedBx");
   }
 
@@ -209,7 +209,7 @@ void CSCAnodeLCTProcessor::clear(const int wire, const int pattern) {
 
 std::vector<CSCALCTDigi> CSCAnodeLCTProcessor::run(const CSCWireDigiCollection* wiredc) {
   static std::atomic<bool> config_dumped{false};
-  if ((infoV > 0 || (isSLHC_)) && !config_dumped) {
+  if ((infoV > 0 || (runPhase2_)) && !config_dumped) {
     dumpConfigParams();
     config_dumped = true;
   }
