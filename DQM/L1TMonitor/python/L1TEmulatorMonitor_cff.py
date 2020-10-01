@@ -80,12 +80,12 @@ l1TdeRCTSeq = cms.Sequence(
                     )
 
 l1ExpertDataVsEmulator = cms.Sequence(
-                                l1TdeGCT +
+    l1TdeGCT +
     l1tdeCSCTPG +
-                                l1TdeCSCTF +
-                                l1GtHwValidation +
-                                l1TdeRCTRun1
-                                )
+    l1TdeCSCTF +
+    l1GtHwValidation +
+    l1TdeRCTRun1
+)
 
 
 l1EmulatorMonitorTask = cms.Task(
