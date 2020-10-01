@@ -1,3 +1,4 @@
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "TMath.h"
 #include "L1Trigger/L1TMuon/interface/MuonRawDigiTranslator.h"
 
@@ -124,7 +125,7 @@ void l1t::MuonRawDigiTranslator::fillMuonQuantitiesRun3(
   } else if (muInBx == 2) {
     mu.setHwEta(calcHwEta(raw_data_spare, absEtaMu2Shift_, etaMu2SignShift_));
   } else {
-    // TODO: Log an error?
+    edm::LogWarning("L1T") << "Received invalid muon id " << muInBx << ". Cannot fill eta value in the muon system.";
   }
   mu.setHwPhi((raw_data_32_63 >> phiShift_) & phiMask_);
 
