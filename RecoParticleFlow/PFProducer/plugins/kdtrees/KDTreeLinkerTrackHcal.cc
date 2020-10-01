@@ -172,14 +172,10 @@ void KDTreeLinkerTrackHcal::searchLinks(const PFTables& pftables, reco::PFMultiL
       const auto& corner_phi = rechitTable.get<rechit::CornerPhi>(irechit);
 
       double rhsizeeta = std::abs(corner_eta[3] - corner_eta[1]);
-      double rhsizephi = std::abs(corner_phi[3] - corner_phi[1]);
-      if (rhsizephi > M_PI)
-        rhsizephi = 2. * M_PI - rhsizephi;
+      double rhsizephi = std::abs(reco::deltaPhi(corner_phi[3], corner_phi[1]));
 
       double deta = std::abs(rechitTable.get<rechit::Eta>(irechit) - tracketa);
-      double dphi = std::abs(rechitTable.get<rechit::Phi>(irechit) - trackphi);
-      if (dphi > M_PI)
-        dphi = 2. * M_PI - dphi;
+      double dphi = std::abs(reco::deltaPhi(rechitTable.get<rechit::Phi>(irechit), trackphi));
 
       // Find all clusters associated to given rechit
       const auto& rechit_clusters = clusters.rechit_to_cluster.at(irechit);
