@@ -30,7 +30,7 @@ void CmsTrackerDetIdBuilder::buildId(GeometricDet& tracker) {
   iterate(tracker, 0, tracker.geographicalId().rawId());
 
   std::ofstream outfile("DetIdOLD.log", std::ios::out);
-//std::ofstream outfile("DetIdDD4hep.log", std::ios::out);
+  //std::ofstream outfile("DetIdDD4hep.log", std::ios::out);
 
   std::deque<const GeometricDet*> queue;
   queue.emplace_back(&tracker);

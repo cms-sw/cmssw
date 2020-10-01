@@ -148,9 +148,9 @@ void CmsTrackerLevelBuilder<DDFilteredView>::build(DDFilteredView& fv,
                                                    const std::string& attribute) {
   if (DEBUG) {
     edm::LogVerbatim("CmsTrackerLevelBuilder")
-      << "CmsTrackerLevelBuilder::build called on volume"
-      << " tracker->name() = " << tracker->name() << " tracker->path() = " << fv.geoHistory()
-      << " tracker->type() = " << tracker->type();
+        << "CmsTrackerLevelBuilder::build called on volume"
+        << " tracker->name() = " << tracker->name() << " tracker->path() = " << fv.geoHistory()
+        << " tracker->type() = " << tracker->type();
   }
 
   // Go down one level in hierarchy
@@ -180,7 +180,7 @@ void CmsTrackerLevelBuilder<DDFilteredView>::build(DDFilteredView& fv,
 
   if (DEBUG) {
     edm::LogVerbatim("CmsTrackerLevelBuilder")
-      << "CmsTrackerLevelBuilder::build: Exit, finished all buildComponents calls.";
+        << "CmsTrackerLevelBuilder::build: Exit, finished all buildComponents calls.";
   }
 }
 
@@ -193,9 +193,9 @@ void CmsTrackerLevelBuilder<cms::DDFilteredView>::build(cms::DDFilteredView& fv,
                                                         const std::string& attribute) {
   if (DEBUG) {
     edm::LogVerbatim("CmsTrackerLevelBuilder")
-      << "CmsTrackerLevelBuilder::build called on volume"
-      << " tracker->name() = " << tracker->name() << " tracker->path() = " << fv.geoHistory()
-      << " tracker->type() = " << tracker->type();
+        << "CmsTrackerLevelBuilder::build called on volume"
+        << " tracker->name() = " << tracker->name() << " tracker->path() = " << fv.geoHistory()
+        << " tracker->type() = " << tracker->type();
   }
 
   // Go down one level in hierarchy
@@ -209,9 +209,9 @@ void CmsTrackerLevelBuilder<cms::DDFilteredView>::build(cms::DDFilteredView& fv,
   while (fv.level() == level) {
     if (DEBUG) {
       edm::LogVerbatim("CmsTrackerLevelBuilder")
-        << "Calling buildComponent, before."
-        << " level = " << level << " type = " << type << " fv.level() = " << fv.level()
-        << " fv.type() = " << ExtractStringFromDDD<cms::DDFilteredView>::getString(attribute, &fv);
+          << "Calling buildComponent, before."
+          << " level = " << level << " type = " << type << " fv.level() = " << fv.level()
+          << " fv.type() = " << ExtractStringFromDDD<cms::DDFilteredView>::getString(attribute, &fv);
     }
 
     // Call build on sibling
@@ -219,9 +219,9 @@ void CmsTrackerLevelBuilder<cms::DDFilteredView>::build(cms::DDFilteredView& fv,
 
     if (DEBUG) {
       edm::LogVerbatim("CmsTrackerLevelBuilder")
-        << "Calling buildComponent, after."
-        << " level = " << level << " type = " << type << " fv.level() = " << fv.level()
-        << " fv.type() = " << ExtractStringFromDDD<cms::DDFilteredView>::getString(attribute, &fv);
+          << "Calling buildComponent, after."
+          << " level = " << level << " type = " << type << " fv.level() = " << fv.level()
+          << " fv.type() = " << ExtractStringFromDDD<cms::DDFilteredView>::getString(attribute, &fv);
     }
   }
 
@@ -230,7 +230,7 @@ void CmsTrackerLevelBuilder<cms::DDFilteredView>::build(cms::DDFilteredView& fv,
 
   if (DEBUG) {
     edm::LogVerbatim("CmsTrackerLevelBuilder")
-      << "CmsTrackerLevelBuilder::build: Exit, finished all buildComponents calls.";
+        << "CmsTrackerLevelBuilder::build: Exit, finished all buildComponents calls.";
   }
 }
 

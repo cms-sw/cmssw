@@ -88,26 +88,26 @@ public:
 
   // ACCESS GENERAL INFO
   const std::string& name() const { return ddname_; }
-  const GeometricEnumType& type() const { return type_; } 
-  
+  const GeometricEnumType& type() const { return type_; }
+
   // NAVIGATION related info
   const nav_type& navType() const { return ddd_; }
   NavRange navpos() const { return NavRange(&ddd_.front(), ddd_.size()); }
   const DetId& geographicalId() const { return geographicalID_; }
   void setGeographicalID(DetId id) { geographicalID_ = id; }
- 
+
   // VOLUME POSITION in CMS frame of reference
   const Translation& translation() const { return trans_; }
   double rho() const { return rho_; }
   double phi() const { return phi_; }
   const RotationMatrix& rotation() const { return rot_; }
- 
+
   // BOUNDS
   std::unique_ptr<Bounds> bounds() const;
-  Position positionBounds() const; // in cm
+  Position positionBounds() const;  // in cm
   Rotation rotationBounds() const;
 
-  // SOLID SHAPE 
+  // SOLID SHAPE
   // old DD
   LegacySolidShape shape() const { return cms::dd::value(cms::LegacySolidShapeMap, shape_); }
   // DD4hep
@@ -117,7 +117,7 @@ public:
     if (shape_ != cms::DDSolidShape::ddbox && shape_ != cms::DDSolidShape::ddtrap &&
         shape_ != cms::DDSolidShape::ddtubs) {
       edm::LogError("GeometricDet::params()")
-	<< "Called on a shape which is neither a box, a trap, nor a tub. This is not supported!";
+          << "Called on a shape which is neither a box, a trap, nor a tub. This is not supported!";
     }
     return params_;
   }
@@ -125,7 +125,7 @@ public:
   // RADIATION LENGTH AND ENERGY LOSS
   double radLength() const { return radLength_; }
   double xi() const { return xi_; }
- 
+
   // SENSOR INFO
   // Only return meaningful results for pixels.
   double pixROCRows() const { return pixROCRows_; }
@@ -137,7 +137,7 @@ public:
   bool isLowerSensor() const { return isLowerSensor_; }
   bool isUpperSensor() const { return isUpperSensor_; }
   double siliconAPVNum() const { return siliconAPVNum_; }
-  
+
   // CHILDREN INFO
   GeometricDet* component(size_t index) { return const_cast<GeometricDet*>(container_[index]); }
   bool isLeaf() const { return container_.empty(); }
@@ -145,7 +145,7 @@ public:
   // if the current GeometricDet is a leaf, it returns nothing.
   ConstGeometricDetContainer& components() { return container_; }
   const ConstGeometricDetContainer& components() const { return container_; }
-  // all descendants 
+  // all descendants
   // if the current GeometricDet is a leaf, it returns itself!
   ConstGeometricDetContainer deepComponents() const;
   void deepComponents(ConstGeometricDetContainer& cont) const;
@@ -154,8 +154,8 @@ public:
   void addComponents(GeometricDetContainer const& cont);
   void addComponents(ConstGeometricDetContainer const& cont);
   void addComponent(GeometricDet*);
-  void clearComponents() { container_.clear(); } // only empties the container, THE CHILDREN ARE NOT DELETED!
-  void deleteComponents(); // EXPLICITLY DELETES THE CHILDREN
+  void clearComponents() { container_.clear(); }  // only empties the container, THE CHILDREN ARE NOT DELETED!
+  void deleteComponents();                        // EXPLICITLY DELETES THE CHILDREN
 
   // CUSTOM DESTRUCTOR
   ~GeometricDet();
@@ -163,13 +163,13 @@ public:
 private:
   std::vector<double> computeLegacyShapeParameters(const cms::DDSolidShape& mySolidShape,
                                                    const dd4hep::Solid& mySolid) const;
-  
+
   std::string ddname_;
   GeometricEnumType type_;
 
   nav_type ddd_;
   DetId geographicalID_;
-  
+
   Translation trans_;
   double rho_;
   double phi_;
@@ -177,7 +177,7 @@ private:
 
   cms::DDSolidShape shape_;
   std::vector<double> params_;
-  
+
   double radLength_;
   double xi_;
   double pixROCRows_;
