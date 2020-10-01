@@ -2,7 +2,6 @@
  * Authors: William Nash (original), Sven Dildick (adapted)
  */
 
-#include "L1Trigger/CSCCommonTrigger/interface/CSCConstants.h"
 #include "L1Trigger/CSCTriggerPrimitives/interface/CSCPatternBank.h"
 
 #include <TCanvas.h>

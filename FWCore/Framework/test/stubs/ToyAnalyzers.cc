@@ -215,6 +215,41 @@ namespace edmtest {
 
   //--------------------------------------------------------------------
   //
+  // Consumes View<Simple>
+  //
+  class SimpleViewAnalyzer : public edm::global::EDAnalyzer<> {
+  public:
+    explicit SimpleViewAnalyzer(edm::ParameterSet const& p)
+        : token_(consumes(p.getUntrackedParameter<edm::InputTag>("label"))),
+          size_(p.getUntrackedParameter<unsigned int>("sizeMustMatch")),
+          checkSize_(p.getUntrackedParameter<bool>("checkSize")) {}
+
+    static void fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+      edm::ParameterSetDescription desc;
+      desc.addUntracked<bool>("checkSize", true);
+      desc.addUntracked<unsigned int>("sizeMustMatch");
+      desc.addUntracked<edm::InputTag>("label");
+      descriptions.addDefault(desc);
+    }
+
+    void analyze(edm::StreamID, edm::Event const& e, edm::EventSetup const&) const {
+      if (checkSize_) {
+        auto const& prod = e.get(token_);
+        if (prod.size() != size_) {
+          throw cms::Exception("SizeMismatch")
+              << "Product size " << prod.size() << " differs from expectation " << size_;
+        }
+      }
+    }
+
+  private:
+    edm::EDGetTokenT<edm::View<Simple>> const token_;
+    unsigned int const size_;
+    bool const checkSize_;
+  };
+
+  //--------------------------------------------------------------------
+  //
   class DSVAnalyzer : public edm::EDAnalyzer {
   public:
     DSVAnalyzer(edm::ParameterSet const&) {}
@@ -288,6 +323,7 @@ using edmtest::IntTestAnalyzer;
 using edmtest::MultipleIntsAnalyzer;
 using edmtest::NonAnalyzer;
 using edmtest::SCSimpleAnalyzer;
+using edmtest::SimpleViewAnalyzer;
 DEFINE_FWK_MODULE(NonAnalyzer);
 DEFINE_FWK_MODULE(IntTestAnalyzer);
 DEFINE_FWK_MODULE(MultipleIntsAnalyzer);
@@ -296,4 +332,5 @@ DEFINE_FWK_MODULE(edmtest::IntFromRunConsumingAnalyzer);
 DEFINE_FWK_MODULE(ConsumingStreamAnalyzer);
 DEFINE_FWK_MODULE(ConsumingOneSharedResourceAnalyzer);
 DEFINE_FWK_MODULE(SCSimpleAnalyzer);
+DEFINE_FWK_MODULE(SimpleViewAnalyzer);
 DEFINE_FWK_MODULE(DSVAnalyzer);

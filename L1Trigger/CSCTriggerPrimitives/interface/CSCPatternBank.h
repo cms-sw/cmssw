@@ -37,6 +37,19 @@ public:
   // Use during Run-1 and Run-2
   static const LCTPatterns clct_pattern_legacy_;
 
+  /**
+   * Fill the pattern lookup table. This table holds the average position
+   * and bend for each pattern. The position is used to further improve
+   * the phi resolution, and the bend is passed on to the track finding code
+   * to allow it to better determine the tracks.
+   * These were determined from Monte Carlo by running 100,000 events through
+   * the code and finding the offset for each pattern type.
+   * Note that the positions are unitless-- they are in "pattern widths"
+   * meaning that they are in 1/2 strips for high pt patterns and distrips
+   * for low pt patterns. BHT 26 June 2001
+   */
+  static double getLegacyPosition(int pattern);
+
   // New patterns for Run-3
   static const LCTPatterns clct_pattern_run3_;
 

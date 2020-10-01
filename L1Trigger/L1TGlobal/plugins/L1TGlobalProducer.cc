@@ -48,12 +48,18 @@ void L1TGlobalProducer::fillDescriptions(edm::ConfigurationDescriptions& descrip
       ->setComment("InputTag for Calo Trigger EtSum (required parameter:  default value is invalid)");
   desc.add<edm::InputTag>("ExtInputTag", edm::InputTag(""))
       ->setComment("InputTag for external conditions (not required, but recommend to specify explicitly in config)");
-  desc.add<edm::InputTag>("AlgoBlkInputTag", edm::InputTag("gtDigis"))
-      ->setComment("InputTag for unpacked Algblk (required only if GetPrescaleColumnFromData set to true)");
+  desc.add<edm::InputTag>("AlgoBlkInputTag", edm::InputTag("hltGtStage2Digis"))
+      ->setComment(
+          "InputTag for unpacked Algblk (required only if GetPrescaleColumnFromData orRequireMenuToMatchAlgoBlkInput "
+          "set to true)");
   desc.add<bool>("GetPrescaleColumnFromData", false)
       ->setComment("Get prescale column from unpacked GlobalAlgBck. Otherwise use value specified in PrescaleSet");
   desc.add<bool>("AlgorithmTriggersUnprescaled", false)
       ->setComment("not required, but recommend to specify explicitly in config");
+  desc.add<bool>("RequireMenuToMatchAlgoBlkInput", true)
+      ->setComment(
+          "This requires that the L1 menu record to match the menu used to produce the inputed L1 results, should be "
+          "true when used by the HLT to produce the object map");
   desc.add<bool>("AlgorithmTriggersUnmasked", false)
       ->setComment("not required, but recommend to specify explicitly in config");
   // These parameters have well defined  default values and are not currently
@@ -100,6 +106,7 @@ L1TGlobalProducer::L1TGlobalProducer(const edm::ParameterSet& parSet)
       m_printL1Menu(parSet.getUntrackedParameter<bool>("PrintL1Menu")),
       m_isDebugEnabled(edm::isDebugEnabled()),
       m_getPrescaleColumnFromData(parSet.getParameter<bool>("GetPrescaleColumnFromData")),
+      m_requireMenuToMatchAlgoBlkInput(parSet.getParameter<bool>("RequireMenuToMatchAlgoBlkInput")),
       m_algoblkInputTag(parSet.getParameter<edm::InputTag>("AlgoBlkInputTag")) {
   m_egInputToken = consumes<BXVector<EGamma>>(m_egInputTag);
   m_tauInputToken = consumes<BXVector<Tau>>(m_tauInputTag);
@@ -112,8 +119,9 @@ L1TGlobalProducer::L1TGlobalProducer(const edm::ParameterSet& parSet)
   if (!(m_algorithmTriggersUnprescaled && m_algorithmTriggersUnmasked)) {
     m_l1GtPrescaleVetosToken = esConsumes<L1TGlobalPrescalesVetos, L1TGlobalPrescalesVetosRcd>();
   }
-  if (m_getPrescaleColumnFromData)
+  if (m_getPrescaleColumnFromData || m_requireMenuToMatchAlgoBlkInput) {
     m_algoblkInputToken = consumes<BXVector<GlobalAlgBlk>>(m_algoblkInputTag);
+  }
 
   if (m_verbosity) {
     LogTrace("L1TGlobalProducer") << "\nInput tag for muon collection from uGMT:         " << m_muInputTag
@@ -290,6 +298,21 @@ void L1TGlobalProducer::produce(edm::Event& iEvent, const edm::EventSetup& evSet
 
     edm::ESHandle<L1TUtmTriggerMenu> l1GtMenu = evSetup.getHandle(m_l1GtMenuToken);
     const L1TUtmTriggerMenu* utml1GtMenu = l1GtMenu.product();
+
+    if (m_requireMenuToMatchAlgoBlkInput) {
+      edm::Handle<BXVector<GlobalAlgBlk>> m_uGtAlgBlk;
+      iEvent.getByToken(m_algoblkInputToken, m_uGtAlgBlk);
+      if (m_uGtAlgBlk->size() >= 1) {
+        if ((*m_uGtAlgBlk)[0].getL1FirmwareUUID() != static_cast<int>(utml1GtMenu->getFirmwareUuidHashed())) {
+          throw cms::Exception("ConditionsError")
+              << " Error L1 menu loaded in via conditions does not match the L1 actually run "
+              << (*m_uGtAlgBlk)[0].getL1FirmwareUUID() << " vs " << utml1GtMenu->getFirmwareUuidHashed()
+              << ". This means that the mapping of the names to the bits may be incorrect. Please check the "
+                 "L1TUtmTriggerMenuRcd record supplied. Unless you know what you are doing, do not simply disable this "
+                 "check via the config as this a major error and the indication of something very wrong";
+        }
+      }
+    }
 
     // Instantiate Parser
     TriggerMenuParser gtParser = TriggerMenuParser();
