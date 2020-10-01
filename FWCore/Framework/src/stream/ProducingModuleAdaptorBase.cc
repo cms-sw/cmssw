@@ -21,6 +21,7 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/RunPrincipal.h"
 #include "FWCore/Framework/src/PreallocationConfiguration.h"
+#include "FWCore/Framework/src/TransitionInfoTypes.h"
 
 //
 // constants, enums and typedefs
@@ -72,7 +73,7 @@ namespace edm {
         //Since only the first module will actually do the registration
         // we will change its callback to call all the callbacks
         firstMod->callWhenNewProductsRegistered([callbacks](BranchDescription const& iBD) {
-          for (auto c : callbacks) {
+          for (const auto& c : callbacks) {
             c(iBD);
           }
         });
@@ -179,43 +180,43 @@ namespace edm {
 
     template <typename T>
     void ProducingModuleAdaptorBase<T>::doStreamBeginRun(StreamID id,
-                                                         RunPrincipal const& rp,
-                                                         EventSetupImpl const& ci,
+                                                         RunTransitionInfo const& info,
                                                          ModuleCallingContext const* mcc) {
+      RunPrincipal const& rp = info.principal();
       auto mod = m_streamModules[id];
       setupRun(mod, rp.index());
 
       Run r(rp, moduleDescription_, mcc, false);
       r.setConsumer(mod);
       const EventSetup c{
-          ci, static_cast<unsigned int>(Transition::BeginRun), mod->esGetTokenIndices(Transition::BeginRun), false};
+          info, static_cast<unsigned int>(Transition::BeginRun), mod->esGetTokenIndices(Transition::BeginRun), false};
       mod->beginRun(r, c);
     }
+
     template <typename T>
     void ProducingModuleAdaptorBase<T>::doStreamEndRun(StreamID id,
-                                                       RunPrincipal const& rp,
-                                                       EventSetupImpl const& ci,
+                                                       RunTransitionInfo const& info,
                                                        ModuleCallingContext const* mcc) {
       auto mod = m_streamModules[id];
-      Run r(rp, moduleDescription_, mcc, true);
+      Run r(info, moduleDescription_, mcc, true);
       r.setConsumer(mod);
       const EventSetup c{
-          ci, static_cast<unsigned int>(Transition::EndRun), mod->esGetTokenIndices(Transition::EndRun), false};
+          info, static_cast<unsigned int>(Transition::EndRun), mod->esGetTokenIndices(Transition::EndRun), false};
       mod->endRun(r, c);
       streamEndRunSummary(mod, r, c);
     }
 
     template <typename T>
     void ProducingModuleAdaptorBase<T>::doStreamBeginLuminosityBlock(StreamID id,
-                                                                     LuminosityBlockPrincipal const& lbp,
-                                                                     EventSetupImpl const& ci,
+                                                                     LumiTransitionInfo const& info,
                                                                      ModuleCallingContext const* mcc) {
+      LuminosityBlockPrincipal const& lbp = info.principal();
       auto mod = m_streamModules[id];
       setupLuminosityBlock(mod, lbp.index());
 
       LuminosityBlock lb(lbp, moduleDescription_, mcc, false);
       lb.setConsumer(mod);
-      const EventSetup c{ci,
+      const EventSetup c{info,
                          static_cast<unsigned int>(Transition::BeginLuminosityBlock),
                          mod->esGetTokenIndices(Transition::BeginLuminosityBlock),
                          false};
@@ -224,13 +225,12 @@ namespace edm {
 
     template <typename T>
     void ProducingModuleAdaptorBase<T>::doStreamEndLuminosityBlock(StreamID id,
-                                                                   LuminosityBlockPrincipal const& lbp,
-                                                                   EventSetupImpl const& ci,
+                                                                   LumiTransitionInfo const& info,
                                                                    ModuleCallingContext const* mcc) {
       auto mod = m_streamModules[id];
-      LuminosityBlock lb(lbp, moduleDescription_, mcc, true);
+      LuminosityBlock lb(info, moduleDescription_, mcc, true);
       lb.setConsumer(mod);
-      const EventSetup c{ci,
+      const EventSetup c{info,
                          static_cast<unsigned int>(Transition::EndLuminosityBlock),
                          mod->esGetTokenIndices(Transition::EndLuminosityBlock),
                          false};

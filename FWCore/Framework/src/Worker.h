@@ -237,44 +237,27 @@ namespace edm {
     template <typename O>
     friend class workerhelper::CallImpl;
     virtual std::string workerType() const = 0;
-    virtual bool implDo(EventPrincipal const&, EventSetupImpl const& c, ModuleCallingContext const* mcc) = 0;
+    virtual bool implDo(EventTransitionInfo const&, ModuleCallingContext const*) = 0;
 
     virtual void itemsToGetForSelection(std::vector<ProductResolverIndexAndSkipBit>&) const = 0;
     virtual bool implNeedToRunSelection() const = 0;
 
-    virtual void implDoAcquire(EventPrincipal const&,
-                               EventSetupImpl const& c,
-                               ModuleCallingContext const* mcc,
-                               WaitingTaskWithArenaHolder& holder) = 0;
+    virtual void implDoAcquire(EventTransitionInfo const&,
+                               ModuleCallingContext const*,
+                               WaitingTaskWithArenaHolder&) = 0;
 
-    virtual bool implDoPrePrefetchSelection(StreamID id, EventPrincipal const& ep, ModuleCallingContext const* mcc) = 0;
-    virtual bool implDoBeginProcessBlock(ProcessBlockPrincipal const&, ModuleCallingContext const* mcc) = 0;
-    virtual bool implDoAccessInputProcessBlock(ProcessBlockPrincipal const&, ModuleCallingContext const* mcc) = 0;
-    virtual bool implDoEndProcessBlock(ProcessBlockPrincipal const&, ModuleCallingContext const* mcc) = 0;
-    virtual bool implDoBegin(RunPrincipal const& rp, EventSetupImpl const& c, ModuleCallingContext const* mcc) = 0;
-    virtual bool implDoStreamBegin(StreamID id,
-                                   RunPrincipal const& rp,
-                                   EventSetupImpl const& c,
-                                   ModuleCallingContext const* mcc) = 0;
-    virtual bool implDoStreamEnd(StreamID id,
-                                 RunPrincipal const& rp,
-                                 EventSetupImpl const& c,
-                                 ModuleCallingContext const* mcc) = 0;
-    virtual bool implDoEnd(RunPrincipal const& rp, EventSetupImpl const& c, ModuleCallingContext const* mcc) = 0;
-    virtual bool implDoBegin(LuminosityBlockPrincipal const& lbp,
-                             EventSetupImpl const& c,
-                             ModuleCallingContext const* mcc) = 0;
-    virtual bool implDoStreamBegin(StreamID id,
-                                   LuminosityBlockPrincipal const& lbp,
-                                   EventSetupImpl const& c,
-                                   ModuleCallingContext const* mcc) = 0;
-    virtual bool implDoStreamEnd(StreamID id,
-                                 LuminosityBlockPrincipal const& lbp,
-                                 EventSetupImpl const& c,
-                                 ModuleCallingContext const* mcc) = 0;
-    virtual bool implDoEnd(LuminosityBlockPrincipal const& lbp,
-                           EventSetupImpl const& c,
-                           ModuleCallingContext const* mcc) = 0;
+    virtual bool implDoPrePrefetchSelection(StreamID, EventPrincipal const&, ModuleCallingContext const*) = 0;
+    virtual bool implDoBeginProcessBlock(ProcessBlockPrincipal const&, ModuleCallingContext const*) = 0;
+    virtual bool implDoAccessInputProcessBlock(ProcessBlockPrincipal const&, ModuleCallingContext const*) = 0;
+    virtual bool implDoEndProcessBlock(ProcessBlockPrincipal const&, ModuleCallingContext const*) = 0;
+    virtual bool implDoBegin(RunTransitionInfo const&, ModuleCallingContext const*) = 0;
+    virtual bool implDoStreamBegin(StreamID, RunTransitionInfo const&, ModuleCallingContext const*) = 0;
+    virtual bool implDoStreamEnd(StreamID, RunTransitionInfo const&, ModuleCallingContext const*) = 0;
+    virtual bool implDoEnd(RunTransitionInfo const&, ModuleCallingContext const*) = 0;
+    virtual bool implDoBegin(LumiTransitionInfo const&, ModuleCallingContext const*) = 0;
+    virtual bool implDoStreamBegin(StreamID, LumiTransitionInfo const&, ModuleCallingContext const*) = 0;
+    virtual bool implDoStreamEnd(StreamID, LumiTransitionInfo const&, ModuleCallingContext const*) = 0;
+    virtual bool implDoEnd(LumiTransitionInfo const&, ModuleCallingContext const*) = 0;
     virtual void implBeginJob() = 0;
     virtual void implEndJob() = 0;
     virtual void implBeginStream(StreamID) = 0;
@@ -623,7 +606,7 @@ namespace edm {
                        ModuleCallingContext const* mcc,
                        Arg::Context const* /* context*/) {
         //Signal sentry is handled by the module
-        return iWorker->implDo(info.principal(), info.eventSetupImpl(), mcc);
+        return iWorker->implDo(info, mcc);
       }
       static void esPrefetchAsync(Worker* worker,
                                   WaitingTask* waitingTask,
@@ -650,7 +633,7 @@ namespace edm {
                        ModuleCallingContext const* mcc,
                        Arg::Context const* context) {
         ModuleSignalSentry<Arg> cpp(actReg, context, mcc);
-        return iWorker->implDoBegin(info.principal(), info.eventSetupImpl(), mcc);
+        return iWorker->implDoBegin(info, mcc);
       }
       static void esPrefetchAsync(Worker* worker,
                                   WaitingTask* waitingTask,
@@ -675,7 +658,7 @@ namespace edm {
                        ModuleCallingContext const* mcc,
                        Arg::Context const* context) {
         ModuleSignalSentry<Arg> cpp(actReg, context, mcc);
-        return iWorker->implDoStreamBegin(id, info.principal(), info.eventSetupImpl(), mcc);
+        return iWorker->implDoStreamBegin(id, info, mcc);
       }
       static void esPrefetchAsync(Worker* worker,
                                   WaitingTask* waitingTask,
@@ -700,7 +683,7 @@ namespace edm {
                        ModuleCallingContext const* mcc,
                        Arg::Context const* context) {
         ModuleSignalSentry<Arg> cpp(actReg, context, mcc);
-        return iWorker->implDoEnd(info.principal(), info.eventSetupImpl(), mcc);
+        return iWorker->implDoEnd(info, mcc);
       }
       static void esPrefetchAsync(Worker* worker,
                                   WaitingTask* waitingTask,
@@ -725,7 +708,7 @@ namespace edm {
                        ModuleCallingContext const* mcc,
                        Arg::Context const* context) {
         ModuleSignalSentry<Arg> cpp(actReg, context, mcc);
-        return iWorker->implDoStreamEnd(id, info.principal(), info.eventSetupImpl(), mcc);
+        return iWorker->implDoStreamEnd(id, info, mcc);
       }
       static void esPrefetchAsync(Worker* worker,
                                   WaitingTask* waitingTask,
@@ -751,7 +734,7 @@ namespace edm {
                        ModuleCallingContext const* mcc,
                        Arg::Context const* context) {
         ModuleSignalSentry<Arg> cpp(actReg, context, mcc);
-        return iWorker->implDoBegin(info.principal(), info.eventSetupImpl(), mcc);
+        return iWorker->implDoBegin(info, mcc);
       }
       static void esPrefetchAsync(Worker* worker,
                                   WaitingTask* waitingTask,
@@ -776,7 +759,7 @@ namespace edm {
                        ModuleCallingContext const* mcc,
                        Arg::Context const* context) {
         ModuleSignalSentry<Arg> cpp(actReg, context, mcc);
-        return iWorker->implDoStreamBegin(id, info.principal(), info.eventSetupImpl(), mcc);
+        return iWorker->implDoStreamBegin(id, info, mcc);
       }
       static void esPrefetchAsync(Worker* worker,
                                   WaitingTask* waitingTask,
@@ -802,7 +785,7 @@ namespace edm {
                        ModuleCallingContext const* mcc,
                        Arg::Context const* context) {
         ModuleSignalSentry<Arg> cpp(actReg, context, mcc);
-        return iWorker->implDoEnd(info.principal(), info.eventSetupImpl(), mcc);
+        return iWorker->implDoEnd(info, mcc);
       }
       static void esPrefetchAsync(Worker* worker,
                                   WaitingTask* waitingTask,
@@ -827,7 +810,7 @@ namespace edm {
                        ModuleCallingContext const* mcc,
                        Arg::Context const* context) {
         ModuleSignalSentry<Arg> cpp(actReg, context, mcc);
-        return iWorker->implDoStreamEnd(id, info.principal(), info.eventSetupImpl(), mcc);
+        return iWorker->implDoStreamEnd(id, info, mcc);
       }
       static void esPrefetchAsync(Worker* worker,
                                   WaitingTask* waitingTask,
