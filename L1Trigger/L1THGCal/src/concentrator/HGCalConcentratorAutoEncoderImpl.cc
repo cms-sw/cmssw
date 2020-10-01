@@ -8,6 +8,9 @@
 
 HGCalConcentratorAutoEncoderImpl::HGCalConcentratorAutoEncoderImpl(const edm::ParameterSet& conf)
     : cellRemap_(conf.getParameter<std::vector<int>>("cellRemap")),
+      cellRemapNoDuplicates_(conf.getParameter<std::vector<int>>("cellRemapNoDuplicates")),
+      encoderShape_(conf.getParameter<std::vector<uint>>("encoderShape")),
+      decoderShape_(conf.getParameter<std::vector<uint>>("decoderShape")),
       bitsPerInput_(conf.getParameter<int>("nBitsPerInput")),
       maxBitsPerOutput_(conf.getParameter<int>("maxBitsPerOutput")),
       outputBitsPerLink_(conf.getParameter<std::vector<int>>("bitsPerLink")),
@@ -16,15 +19,45 @@ HGCalConcentratorAutoEncoderImpl::HGCalConcentratorAutoEncoderImpl(const edm::Pa
       zeroSuppresionThreshold_(conf.getParameter<double>("zeroSuppresionThreshold")),
       saveEncodedValues_(conf.getParameter<bool>("saveEncodedValues")),
       preserveModuleSum_(conf.getParameter<bool>("preserveModuleSum")) {
-  //construct inverse array, to get U/V for a particular ae output position
+  // find total size of the expected input shape
+  // used for checking the maximum size used in cell Remap
+  nInputs_ = 1;
+  for (const auto& i : encoderShape_) {
+    nInputs_ *= i;
+  }
+
+  // check the size of the inputs shapes
+  if (encoderShape_.size() != encoderTensorDims_) {
+    throw cms::Exception("BadInitialization")
+        << "Encoder input shapes are currently expected to be " << encoderTensorDims_ << " values";
+  }
+
+  if (decoderShape_.size() != decoderTensorDims_) {
+    throw cms::Exception("BadInitialization")
+        << "Encoder input shapes are currently expected to be " << decoderTensorDims_ << " values long";
+  }
+
+  if (cellRemap_.size() != nInputs_) {
+    throw cms::Exception("BadInitialization")
+        << "Size of cellRemap (" << cellRemap_.size()
+        << ") does not agree with the total size specified for the encoder inputs based on the encoderShape variable ("
+        << nInputs_ << ")";
+  }
+
+  if (cellRemap_.size() != cellRemapNoDuplicates_.size()) {
+    throw cms::Exception("BadInitialization")
+        << "Size of cellRemap (" << cellRemap_.size() << ") does not agree with size of cellRemapNoDuplicates ("
+        << cellRemapNoDuplicates_.size() << ")";
+  }
+
   for (unsigned i = 0; i < cellRemap_.size(); i++) {
-    if (cellRemap_[i] > -1) {
-      if (cellRemap_[i] > nTriggerCells_ - 1) {
-        throw cms::Exception("BadInitialization")
-            << "cellRemap value " << cellRemap_[i] << " is larger than the number of trigger cells " << nTriggerCells_;
-      }
-      ae_outputCellU_[cellRemap_[i]] = int(i / cellRemapRowOffset_);
-      ae_outputCellV_[cellRemap_[i]] = i % cellRemapRowOffset_;
+    if (cellRemap_[i] > nTriggerCells_ - 1) {
+      throw cms::Exception("BadInitialization")
+          << "cellRemap value " << cellRemap_[i] << " is larger than the number of trigger cells " << nTriggerCells_;
+    }
+    if (cellRemapNoDuplicates_[i] > nTriggerCells_ - 1) {
+      throw cms::Exception("BadInitialization") << "cellRemapNoDuplicates value " << cellRemapNoDuplicates_[i]
+                                                << " is larger than the number of trigger cells " << nTriggerCells_;
     }
   }
 
@@ -92,13 +125,15 @@ void HGCalConcentratorAutoEncoderImpl::select(unsigned nLinks,
   std::array<double, nTriggerCells_> mipPt;
   std::array<double, nTriggerCells_> uncompressedCharge;
   std::array<double, nTriggerCells_> compressedCharge;
-  std::array<double, nTriggerCells_> ae_inputArray;
+  std::array<double, maxAEInputSize_> ae_inputArray;
   std::array<double, nTriggerCells_> ae_outputArray;
 
   //reset inputs to 0 to account for zero suppressed trigger cells
   mipPt.fill(0);
   uncompressedCharge.fill(0);
   compressedCharge.fill(0);
+  ae_inputArray.fill(0);
+  ae_outputArray.fill(0);
 
   double modSum = 0;
 
@@ -123,11 +158,11 @@ void HGCalConcentratorAutoEncoderImpl::select(unsigned nLinks,
     HGCalTriggerDetId id(trigCell.detId());
     uint cellu = id.triggerCellU();
     uint cellv = id.triggerCellV();
-    int inputIndex = cellRemap_.at(cellu * cellRemapRowOffset_ + cellv);
+    int inputIndex = cellUVremap_[cellu][cellv];
     if (inputIndex < 0) {
       throw cms::Exception("BadInitialization")
-          << "Invalid index provided for trigger cell u=" << cellu << " v=" << cellv << " in cellRemap["
-          << (cellu * cellRemapRowOffset_ + cellv) << "]";
+          << "Invalid index provided for trigger cell u=" << cellu << " v=" << cellv << " in cellUVRemap[" << cellu
+          << "][" << cellv << "]";
     }
 
     mipPt[inputIndex] = trigCell.mipPt();
@@ -139,8 +174,11 @@ void HGCalConcentratorAutoEncoderImpl::select(unsigned nLinks,
 
   if (modSum > 0) {
     //normalize inputs to module sum
-    for (int i = 0; i < nTriggerCells_; i++) {
-      ae_inputArray[i] = mipPt[i] / modSum;
+    for (uint i = 0; i < nInputs_; i++) {
+      int remapIndex = cellRemap_[i];
+      if (remapIndex < 0)
+        continue;
+      ae_inputArray[i] = mipPt[remapIndex] / modSum;
       //round to precision of input, if bitsPerInput_ is -1 keep full precision
       if (bitsPerInput_ > 0) {
         ae_inputArray[i] = std::round(ae_inputArray[i] * inputMaxIntSize) / inputMaxIntSize;
@@ -149,9 +187,10 @@ void HGCalConcentratorAutoEncoderImpl::select(unsigned nLinks,
   }
 
   tensorflow::Tensor encoder_input(tensorflow::DT_FLOAT,
-                                   {encoderShape_0_, encoderShape_1_, encoderShape_2_, encoderShape_3_});
+                                   {encoderShape_[0], encoderShape_[1], encoderShape_[2], encoderShape_[3]});
+
   float* d = encoder_input.flat<float>().data();
-  for (int i = 0; i < nTriggerCells_; i++, d++) {
+  for (uint i = 0; i < nInputs_; i++, d++) {
     *d = ae_inputArray[i];
   }
 
@@ -171,12 +210,12 @@ void HGCalConcentratorAutoEncoderImpl::select(unsigned nLinks,
   for (int i = 0; i < encoder_outputs[0].NumElements(); i++, d++) {
     ae_encodedLayer_[i] = *d;
     //truncate the encoded layer bits
-    if (bitsPerOutput > 0) {
+    if (bitsPerOutput > 0 && maxBitsPerOutput_ > 0) {
       ae_encodedLayer_[i] = std::round(ae_encodedLayer_[i] * outputMaxIntSize) / outputMaxIntSize;
     }
   }
 
-  tensorflow::Tensor decoder_input(tensorflow::DT_FLOAT, {decoderShape_0_, decoderShape_1_});
+  tensorflow::Tensor decoder_input(tensorflow::DT_FLOAT, {decoderShape_[0], decoderShape_[1]});
   d = decoder_input.flat<float>().data();
   for (int i = 0; i < nEncodedLayerNodes_; i++, d++) {
     *d = ae_encodedLayer_[i];
@@ -188,18 +227,21 @@ void HGCalConcentratorAutoEncoderImpl::select(unsigned nLinks,
                   {outputTensorName_decoder_},
                   &decoder_outputs);
 
-  double outputSum = 1.;
-  d = decoder_outputs[0].flat<float>().data();
-  if (preserveModuleSum_) {
-    outputSum = 0.;
-    for (int i = 0; i < decoder_outputs[0].NumElements(); i++, d++) {
-      outputSum += *d;
-    }
-  }
+  double outputSum = 0.;
 
   d = decoder_outputs[0].flat<float>().data();
-  for (int i = 0; i < decoder_outputs[0].NumElements(); i++, d++) {
-    ae_outputArray[i] = *d / outputSum;
+  for (uint i = 0; i < nInputs_; i++, d++) {
+    int remapIndex = cellRemapNoDuplicates_[i];
+    if (remapIndex < 0)
+      continue;
+    outputSum += *d;
+    ae_outputArray[remapIndex] = *d;
+  }
+
+  if (preserveModuleSum_) {
+    for (uint i = 0; i < nTriggerCells_; i++) {
+      ae_outputArray[i] /= outputSum;
+    }
   }
 
   // Add data back into trigger cells
