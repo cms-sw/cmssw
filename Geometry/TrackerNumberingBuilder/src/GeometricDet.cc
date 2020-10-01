@@ -105,8 +105,8 @@ GeometricDet::GeometricDet(cms::DDFilteredView* fv, GeometricEnumType type)
     rot_(fv->rotation()),
     shape_(fv->shape()),
     params_(computeLegacyShapeParameters(shape_, fv->solid())),
-    radLength_(fv->get<double>("TrackerRadLength")),  // To be studied
-    xi_(fv->get<double>("TrackerXi")),                // To be studied
+    radLength_(fv->get<double>("TrackerRadLength")),  // NOT OK: XMLs SpecPar handling by DD4hep FilteredView needs modification
+    xi_(fv->get<double>("TrackerXi")),                // NOT OK: XMLs SpecPar handling by DD4hep FilteredView needs modification
     pixROCRows_(fv->get<double>("PixelROCRows")),
     pixROCCols_(fv->get<double>("PixelROCCols")),
   pixROCx_(fv->get<double>("PixelROC_X")),
