@@ -414,38 +414,20 @@ namespace {
     }
   }  // namespace dnn_inputs_2017_v2
 
-  const std::map<std::string, size_t> matchDiscriminatorIndices(
-      edm::Event& event, edm::EDGetTokenT<reco::TauDiscriminatorContainer> discriminatorContainerToken) {
-    std::map<std::string, size_t> discrIndexMap;
-    auto const aHandle = event.getHandle(discriminatorContainerToken);
-    auto const aProv = aHandle.provenance();
-    if (aProv == nullptr)
-      aHandle.whyFailed()->raise();
-    const auto& psetsFromProvenance = edm::parameterSet(*aProv, event.processHistory());
-    auto const idlist = psetsFromProvenance.getParameter<std::vector<edm::ParameterSet>>("IDdefinitions");
-    for (size_t j = 0; j < idlist.size(); ++j) {
-      std::string idname = idlist[j].getParameter<std::string>("IDname");
-      if (discrIndexMap.count(idname)) {
-        throw cms::Exception("DeepTauId")
-            << "basic discriminator " << idname << " appears more than once in the input.";
-      }
-      discrIndexMap[idname] = j;
-    }
-    return discrIndexMap;
-  }
-
   struct tauFunc {
     edm::Handle<reco::TauDiscriminatorContainer> basicTauDiscriminatorCollection;
     edm::Handle<reco::TauDiscriminatorContainer> basicTauDiscriminatordR03Collection;
     edm::Handle<edm::AssociationVector<reco::PFTauRefProd, std::vector<reco::PFTauTransverseImpactParameterRef>>>
         PFTauTransverseImpactParameters;
-    std::map<std::string, size_t> indexMap;
-    std::map<std::string, size_t> indexMapdR03;
+
+    using basicDiscr = deep_tau::DeepTauBase::BasicDiscriminator;
+    std::map<basicDiscr, size_t> indexMap;
+    std::map<basicDiscr, size_t> indexMapdR03;
 
     const float getChargedIsoPtSum(const reco::PFTau& tau,
                                    const size_t tau_index,
                                    const edm::RefToBase<reco::BaseTau> tau_ref) {
-      return (*basicTauDiscriminatorCollection)[tau_ref].rawValues.at(indexMap["ChargedIsoPtSum"]);
+      return (*basicTauDiscriminatorCollection)[tau_ref].rawValues.at(indexMap[basicDiscr::ChargedIsoPtSum]);
     }
     const float getChargedIsoPtSum(const pat::Tau& tau,
                                    const size_t tau_index,
@@ -455,7 +437,7 @@ namespace {
     const float getChargedIsoPtSumdR03(const reco::PFTau& tau,
                                        const size_t tau_index,
                                        const edm::RefToBase<reco::BaseTau> tau_ref) {
-      return (*basicTauDiscriminatordR03Collection)[tau_ref].rawValues.at(indexMapdR03["ChargedIsoPtSum"]);
+      return (*basicTauDiscriminatordR03Collection)[tau_ref].rawValues.at(indexMapdR03[basicDiscr::ChargedIsoPtSum]);
     }
     const float getChargedIsoPtSumdR03(const pat::Tau& tau,
                                        const size_t tau_index,
@@ -465,7 +447,8 @@ namespace {
     const float getFootprintCorrectiondR03(const reco::PFTau& tau,
                                            const size_t tau_index,
                                            const edm::RefToBase<reco::BaseTau> tau_ref) {
-      return (*basicTauDiscriminatordR03Collection)[tau_ref].rawValues.at(indexMapdR03["TauFootprintCorrection"]);
+      return (*basicTauDiscriminatordR03Collection)[tau_ref].rawValues.at(
+          indexMapdR03[basicDiscr::FootprintCorrection]);
     }
     const float getFootprintCorrectiondR03(const pat::Tau& tau,
                                            const size_t tau_index,
@@ -475,7 +458,7 @@ namespace {
     const float getNeutralIsoPtSum(const reco::PFTau& tau,
                                    const size_t tau_index,
                                    const edm::RefToBase<reco::BaseTau> tau_ref) {
-      return (*basicTauDiscriminatorCollection)[tau_ref].rawValues.at(indexMap["NeutralIsoPtSum"]);
+      return (*basicTauDiscriminatorCollection)[tau_ref].rawValues.at(indexMap[basicDiscr::NeutralIsoPtSum]);
     }
     const float getNeutralIsoPtSum(const pat::Tau& tau,
                                    const size_t tau_index,
@@ -485,7 +468,7 @@ namespace {
     const float getNeutralIsoPtSumdR03(const reco::PFTau& tau,
                                        const size_t tau_index,
                                        const edm::RefToBase<reco::BaseTau> tau_ref) {
-      return (*basicTauDiscriminatordR03Collection)[tau_ref].rawValues.at(indexMapdR03["NeutralIsoPtSum"]);
+      return (*basicTauDiscriminatordR03Collection)[tau_ref].rawValues.at(indexMapdR03[basicDiscr::NeutralIsoPtSum]);
     }
     const float getNeutralIsoPtSumdR03(const pat::Tau& tau,
                                        const size_t tau_index,
@@ -495,7 +478,7 @@ namespace {
     const float getNeutralIsoPtSumWeight(const reco::PFTau& tau,
                                          const size_t tau_index,
                                          const edm::RefToBase<reco::BaseTau> tau_ref) {
-      return (*basicTauDiscriminatorCollection)[tau_ref].rawValues.at(indexMap["NeutralIsoPtSumWeight"]);
+      return (*basicTauDiscriminatorCollection)[tau_ref].rawValues.at(indexMap[basicDiscr::NeutralIsoPtSumWeight]);
     }
     const float getNeutralIsoPtSumWeight(const pat::Tau& tau,
                                          const size_t tau_index,
@@ -505,7 +488,8 @@ namespace {
     const float getNeutralIsoPtSumdR03Weight(const reco::PFTau& tau,
                                              const size_t tau_index,
                                              const edm::RefToBase<reco::BaseTau> tau_ref) {
-      return (*basicTauDiscriminatordR03Collection)[tau_ref].rawValues.at(indexMapdR03["NeutralIsoPtSumWeight"]);
+      return (*basicTauDiscriminatordR03Collection)[tau_ref].rawValues.at(
+          indexMapdR03[basicDiscr::NeutralIsoPtSumWeight]);
     }
     const float getNeutralIsoPtSumdR03Weight(const pat::Tau& tau,
                                              const size_t tau_index,
@@ -515,7 +499,8 @@ namespace {
     const float getPhotonPtSumOutsideSignalCone(const reco::PFTau& tau,
                                                 const size_t tau_index,
                                                 const edm::RefToBase<reco::BaseTau> tau_ref) {
-      return (*basicTauDiscriminatorCollection)[tau_ref].rawValues.at(indexMap["PhotonPtSumOutsideSignalCone"]);
+      return (*basicTauDiscriminatorCollection)[tau_ref].rawValues.at(
+          indexMap[basicDiscr::PhotonPtSumOutsideSignalCone]);
     }
     const float getPhotonPtSumOutsideSignalCone(const pat::Tau& tau,
                                                 const size_t tau_index,
@@ -525,7 +510,8 @@ namespace {
     const float getPhotonPtSumOutsideSignalConedR03(const reco::PFTau& tau,
                                                     const size_t tau_index,
                                                     const edm::RefToBase<reco::BaseTau> tau_ref) {
-      return (*basicTauDiscriminatordR03Collection)[tau_ref].rawValues.at(indexMapdR03["PhotonPtSumOutsideSignalCone"]);
+      return (*basicTauDiscriminatordR03Collection)[tau_ref].rawValues.at(
+          indexMapdR03[basicDiscr::PhotonPtSumOutsideSignalCone]);
     }
     const float getPhotonPtSumOutsideSignalConedR03(const pat::Tau& tau,
                                                     const size_t tau_index,
@@ -535,7 +521,7 @@ namespace {
     const float getPuCorrPtSum(const reco::PFTau& tau,
                                const size_t tau_index,
                                const edm::RefToBase<reco::BaseTau> tau_ref) {
-      return (*basicTauDiscriminatorCollection)[tau_ref].rawValues.at(indexMap["PUcorrPtSum"]);
+      return (*basicTauDiscriminatorCollection)[tau_ref].rawValues.at(indexMap[basicDiscr::PUcorrPtSum]);
     }
     const float getPuCorrPtSum(const pat::Tau& tau,
                                const size_t tau_index,
@@ -1188,6 +1174,38 @@ public:
     return outputs_;
   }
 
+  const std::map<BasicDiscriminator, size_t> matchDiscriminatorIndices(
+      edm::Event& event,
+      edm::EDGetTokenT<reco::TauDiscriminatorContainer> discriminatorContainerToken,
+      std::vector<BasicDiscriminator> requiredDiscr) {
+    std::map<std::string, size_t> discrIndexMapStr;
+    auto const aHandle = event.getHandle(discriminatorContainerToken);
+    auto const aProv = aHandle.provenance();
+    if (aProv == nullptr)
+      aHandle.whyFailed()->raise();
+    const auto& psetsFromProvenance = edm::parameterSet(*aProv, event.processHistory());
+    auto const idlist = psetsFromProvenance.getParameter<std::vector<edm::ParameterSet>>("IDdefinitions");
+    for (size_t j = 0; j < idlist.size(); ++j) {
+      std::string idname = idlist[j].getParameter<std::string>("IDname");
+      if (discrIndexMapStr.count(idname)) {
+        throw cms::Exception("DeepTauId")
+            << "basic discriminator " << idname << " appears more than once in the input.";
+      }
+      discrIndexMapStr[idname] = j;
+    }
+
+    //translate to a map of <BasicDiscriminator, index> and check if all discriminators are present
+    std::map<BasicDiscriminator, size_t> discrIndexMap;
+    for (size_t i = 0; i < requiredDiscr.size(); i++) {
+      if (discrIndexMapStr.find(stringFromDiscriminator_[requiredDiscr[i]]) == discrIndexMapStr.end())
+        throw cms::Exception("DeepTauId") << "Basic Discriminator " << stringFromDiscriminator_[requiredDiscr[i]]
+                                          << " was not provided in the config file.";
+      else
+        discrIndexMap[requiredDiscr[i]] = discrIndexMapStr[stringFromDiscriminator_[requiredDiscr[i]]];
+    }
+    return discrIndexMap;
+  }
+
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
     edm::ParameterSetDescription desc;
     desc.add<edm::InputTag>("electrons", edm::InputTag("slimmedElectrons"));
@@ -1366,8 +1384,6 @@ private:
     edm::Handle<reco::TauDiscriminatorContainer> basicTauDiscriminatorsdR03;
     edm::Handle<edm::AssociationVector<reco::PFTauRefProd, std::vector<reco::PFTauTransverseImpactParameterRef>>>
         PFTauTransverseImpactParameters;
-    std::map<std::string, size_t> basicDiscrIndexMap;
-    std::map<std::string, size_t> basicDiscrdR03IndexMap;
 
     if (!is_online) {
       event.getByToken(electrons_token_, tmp_electrons);
@@ -1378,15 +1394,20 @@ private:
       event.getByToken(basicTauDiscriminatorsdR03_inputToken, basicTauDiscriminatorsdR03);
 
       // Get indices for discriminators
-      basicDiscrIndexMap = matchDiscriminatorIndices(event, basicTauDiscriminators_inputToken);
-      basicDiscrdR03IndexMap = matchDiscriminatorIndices(event, basicTauDiscriminatorsdR03_inputToken);
+      if (!discrIndicesMapped_) {
+        basicDiscrIndexMap_ =
+            matchDiscriminatorIndices(event, basicTauDiscriminators_inputToken, requiredBasicDiscriminators);
+        basicDiscrdR03IndexMap_ =
+            matchDiscriminatorIndices(event, basicTauDiscriminatorsdR03_inputToken, requiredBasicDiscriminatorsdR03);
+        discrIndicesMapped_ = true;
+      }
     }
 
     tauFunc tauIDs = {basicTauDiscriminators,
                       basicTauDiscriminatorsdR03,
                       PFTauTransverseImpactParameters,
-                      basicDiscrIndexMap,
-                      basicDiscrdR03IndexMap};
+                      basicDiscrIndexMap_,
+                      basicDiscrdR03IndexMap_};
 
     lightLepFunc lightlep = {tmp_electrons, tmp_muons};
 
@@ -2653,6 +2674,11 @@ private:
   std::unique_ptr<tensorflow::Tensor> tauBlockTensor_;
   std::array<std::unique_ptr<tensorflow::Tensor>, 2> eGammaTensor_, muonTensor_, hadronsTensor_, convTensor_,
       zeroOutputTensor_;
+
+  //boolean to check if discriminator indices are already mapped
+  bool discrIndicesMapped_ = false;
+  std::map<BasicDiscriminator, size_t> basicDiscrIndexMap_;
+  std::map<BasicDiscriminator, size_t> basicDiscrdR03IndexMap_;
 };
 
 #include "FWCore/Framework/interface/MakerMacros.h"
