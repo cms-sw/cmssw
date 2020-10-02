@@ -39,20 +39,19 @@ private:
 
 using namespace edm;
 
-PixelCPEFastESProducer::PixelCPEFastESProducer(const edm::ParameterSet& p) {
-  std::string myname = p.getParameter<std::string>("ComponentName");
-  auto magname = p.getParameter<edm::ESInputTag>("MagneticFieldRecord");
+PixelCPEFastESProducer::PixelCPEFastESProducer(const edm::ParameterSet& p) : pset_(p) {
+  auto const& myname = p.getParameter<std::string>("ComponentName");
+  auto const& magname = p.getParameter<edm::ESInputTag>("MagneticFieldRecord");
   UseErrorsFromTemplates_ = p.getParameter<bool>("UseErrorsFromTemplates");
 
-  pset_ = p;
-  auto c = setWhatProduced(this, myname);
-  c.setConsumes(magfieldToken_, magname)
-      .setConsumes(pDDToken_)
-      .setConsumes(hTTToken_)
-      .setConsumes(lorentzAngleToken_, edm::ESInputTag(""));
-  c.setConsumes(lorentzAngleWidthToken_, edm::ESInputTag("", "forWidth"));
+  auto cc = setWhatProduced(this, myname);
+  magfieldToken_ = cc.consumes(magname);
+  pDDToken_ = cc.consumes();
+  hTTToken_ = cc.consumes();
+  lorentzAngleToken_ = cc.consumes(edm::ESInputTag(""));
+  lorentzAngleWidthToken_ = cc.consumes(edm::ESInputTag("", "forWidth"));
   if (UseErrorsFromTemplates_) {
-    c.setConsumes(genErrorDBObjectToken_);
+    genErrorDBObjectToken_ = cc.consumes();
   }
 }
 

@@ -29,13 +29,13 @@ private:
 
 SiPixelFedCablingMapGPUWrapperESProducer::SiPixelFedCablingMapGPUWrapperESProducer(const edm::ParameterSet& iConfig)
     : useQuality_(iConfig.getParameter<bool>("UseQualityInfo")) {
-  std::string component = iConfig.getParameter<std::string>("ComponentName");
+  auto const& component = iConfig.getParameter<std::string>("ComponentName");
   auto cc = setWhatProduced(this, component);
-  cc.setConsumes(cablingMapToken_, edm::ESInputTag{"", iConfig.getParameter<std::string>("CablingMapLabel")});
+  cablingMapToken_ = cc.consumes(edm::ESInputTag{"", iConfig.getParameter<std::string>("CablingMapLabel")});
   if (useQuality_) {
-    cc.setConsumes(qualityToken_);
+    qualityToken_ = cc.consumes();
   }
-  cc.setConsumes(geometryToken_);
+  geometryToken_ = cc.consumes();
 }
 
 void SiPixelFedCablingMapGPUWrapperESProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {

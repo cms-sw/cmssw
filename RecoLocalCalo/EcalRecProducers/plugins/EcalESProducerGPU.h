@@ -15,10 +15,10 @@ template <typename Target, typename Source, typename Record>
 class EcalESProducerGPU : public edm::ESProducer {
 public:
   explicit EcalESProducerGPU(edm::ParameterSet const& ps) {
-    auto const label = ps.getParameter<std::string>("label");
-    std::string name = ps.getParameter<std::string>("ComponentName");
+    auto const& label = ps.getParameter<std::string>("label");
+    auto const& name = ps.getParameter<std::string>("ComponentName");
     auto cc = setWhatProduced(this, name);
-    cc.setConsumes(token_, edm::ESInputTag{"", label});
+    token_ = cc.consumes(edm::ESInputTag{"", label});
   }
 
   std::unique_ptr<Target> produce(Record const& record) {

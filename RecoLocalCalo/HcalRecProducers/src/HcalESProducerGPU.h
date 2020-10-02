@@ -20,11 +20,10 @@ template <typename Record, typename Target, typename Source>
 class HcalESProducerGPU : public edm::ESProducer {
 public:
   explicit HcalESProducerGPU(edm::ParameterSet const& ps) {
-    auto const label = ps.getParameter<std::string>("label");
-    std::string name = ps.getParameter<std::string>("ComponentName");
+    auto const& label = ps.getParameter<std::string>("label");
+    auto const& name = ps.getParameter<std::string>("ComponentName");
     auto cc = setWhatProduced(this, name);
-
-    cc.setConsumes(token_, edm::ESInputTag{"", label});
+    token_ = cc.consumes(edm::ESInputTag{"", label});
   }
 
   std::unique_ptr<Target> produce(Record const& record) {
@@ -117,7 +116,7 @@ private:
   template <std::size_t N, typename CC>
   struct WalkConsumes {
     static void iterate(CC& cc, TokenType& tokens, std::vector<std::string> const& labels) {
-      cc.setConsumes(std::get<N>(tokens), edm::ESInputTag{"", labels[N]});
+      std::get<N>(tokens) = cc.consumes(edm::ESInputTag{"", labels[N]});
       WalkConsumes<N - 1, CC>::iterate(cc, tokens, labels);
     }
   };
@@ -125,7 +124,7 @@ private:
   template <typename CC>
   struct WalkConsumes<0, CC> {
     static void iterate(CC& cc, TokenType& tokens, std::vector<std::string> const& labels) {
-      cc.setConsumes(std::get<0>(tokens), edm::ESInputTag{"", labels[0]});
+      std::get<0>(tokens) = cc.consumes(edm::ESInputTag{"", labels[0]});
     }
   };
 
