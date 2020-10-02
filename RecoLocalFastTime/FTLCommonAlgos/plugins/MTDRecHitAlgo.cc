@@ -94,7 +94,6 @@ FTLRecHit MTDRecHitAlgo::makeRecHit(const FTLUncalibratedRecHit& uRecHit, uint32
 
   // Now fill flags
   // all rechits from the digitizer are "good" at present
-     std::cout << "threshold 1D: 0.0425    threshold2D: 0.005  ----> "<< thresholdToKeep_[index_topology] << std::endl;
      if (energy > thresholdToKeep_[index_topology]) {
        flags = FTLRecHit::kGood;
        rh.setFlag(flags);
