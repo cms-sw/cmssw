@@ -13,7 +13,7 @@ public:
   MTDRecHitAlgo(const edm::ParameterSet& conf, edm::ConsumesCollector& sumes)
       : MTDRecHitAlgoBase(conf, sumes),
         thresholdToKeep_(conf.getParameter<std::vector<double>>("thresholdToKeep")),
-        calibration_(conf.getParameter<std::vector<double>>("calibrationConstant")) {}
+        calibration_(conf.getParameter<double>("calibrationConstant")) {}
 
   /// Destructor
   ~MTDRecHitAlgo() override {}
@@ -24,9 +24,11 @@ public:
 
   /// make the rec hit
   FTLRecHit makeRecHit(const FTLUncalibratedRecHit& uRecHit, uint32_t& flags) const final;
+  static constexpr int topologycode1Disk = 4;
 
 private:
-  std::vector<double> thresholdToKeep_, calibration_;
+  std::vector<double> thresholdToKeep_;
+  double calibration_;
   const MTDTimeCalib* time_calib_;
   const MTDTopology* topology;
 };
@@ -48,10 +50,8 @@ FTLRecHit MTDRecHitAlgo::makeRecHit(const FTLUncalibratedRecHit& uRecHit, uint32
   float time = 0.;
 
   // MTD topology
-  bool topo1Dis = false;
-  bool topo2Dis = false;
-  if (topology->getMTDTopologyMode() <= 4) topo1Dis = true;
-  if (topology->getMTDTopologyMode() > 4) topo2Dis = true;
+  unsigned int index_topology = 0; //1Disks geometry
+  if ( topology->getMTDTopologyMode() > topologycode1Disk ) index_topology = 1; //2Disk geometry
 
   /// position and positionError in unit cm
   float position = -1.f;
@@ -85,12 +85,7 @@ FTLRecHit MTDRecHitAlgo::makeRecHit(const FTLUncalibratedRecHit& uRecHit, uint32
   }
 
   // --- Energy calibration: for the time being this is just a conversion pC --> MeV
-  if (topo1Dis) {
-     energy *= calibration_[0];
-  }
-  if (topo2Dis) {
-     energy *= calibration_[1];
-  }
+     energy *= calibration_;
 
   // --- Time calibration: for the time being just removes a time offset in BTL
   time += time_calib_->getTimeCalib(uRecHit.id());
@@ -99,26 +94,14 @@ FTLRecHit MTDRecHitAlgo::makeRecHit(const FTLUncalibratedRecHit& uRecHit, uint32
 
   // Now fill flags
   // all rechits from the digitizer are "good" at present
-  if (topo1Dis) {
-     std::cout << "threshold topo1Dis: "<< thresholdToKeep_[0] << std::endl;
-     if (energy > thresholdToKeep_[0]) {
+     std::cout << "threshold 1D: 0.0425    threshold2D: 0.005  ----> "<< thresholdToKeep_[index_topology] << std::endl;
+     if (energy > thresholdToKeep_[index_topology]) {
        flags = FTLRecHit::kGood;
        rh.setFlag(flags);
      } else {
        flags = FTLRecHit::kKilled;
        rh.setFlag(flags);
      }
-  }
-  if (topo2Dis) {
-     std::cout << "threshold topo2Dis: "<< thresholdToKeep_[1] << std::endl;
-     if (energy > thresholdToKeep_[1]) {
-       flags = FTLRecHit::kGood;
-       rh.setFlag(flags);
-     } else {
-       flags = FTLRecHit::kKilled;
-       rh.setFlag(flags);
-     }
-  }
 
   return rh;
 }
